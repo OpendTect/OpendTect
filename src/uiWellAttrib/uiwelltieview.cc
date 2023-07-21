@@ -35,6 +35,8 @@ ________________________________________________________________________
 #include "welltiepickset.h"
 #include "welltrack.h"
 
+#include "hiddenparam.h"
+static HiddenParam<WellTie::uiTieView,RefMan<FlatDataPack>> hp_fdp_(nullptr);
 
 #define mGetWD(act) const Well::Data* wd = data_.wd_; if ( !wd ) act;
 
@@ -51,6 +53,7 @@ WellTie::uiTieView::uiTieView( uiParent* p, uiFlatViewer* vwr, const Data& data)
     , zrange_(data.getTraceRange())
     , infoMsgChanged(this)
 {
+    hp_fdp_.setParam( this, nullptr );
     initFlatViewer();
     initLogViewers();
     initWellControl();
@@ -69,6 +72,8 @@ WellTie::uiTieView::~uiTieView()
 {
     delete wellcontrol_;
     delete &trcbuf_;
+    hp_fdp_.setParam( this, nullptr );
+    hp_fdp_.removeParam( this );
 }
 
 
@@ -262,15 +267,15 @@ void WellTie::uiTieView::setDataPack()
 {
     const bool canupdate = vwr_->enableChange( false );
     vwr_->clearAllPacks();
-    auto* dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol,
+    RefMan<SeisTrcBufDataPack> dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol,
 				       SeisTrcInfo::TrcNr, "Seismic" );
     dp->trcBufArr2D().setBufMine( false );
     StepInterval<double> xrange( 1, trcbuf_.size(), 1 );
     dp->posData().setRange( true, xrange );
     dp->setName( data_.sKeySeismic() );
-    DPM(DataPackMgr::FlatID()).add( dp );
+    hp_fdp_.setParam( this, dp );
     vwr_->enableChange( canupdate );
-    vwr_->setPack( FlatView::Viewer::Both, dp->id(), false );
+    vwr_->setPack( FlatView::Viewer::Both, dp, false );
 }
 
 

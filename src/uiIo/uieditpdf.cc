@@ -33,6 +33,9 @@ ________________________________________________________________________
 #include "propertyref.h"
 #include "unitofmeasure.h"
 
+#include "hiddenparam.h"
+static HiddenParam<uiEditSampledProbDenFunc,RefMan<FlatDataPack>>
+							    hp_vddp_(nullptr);
 
 uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     : uiGroup(p,"ProbDenFunc editor")
@@ -240,6 +243,7 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 				ProbDenFunc& pdf, bool ed )
     : uiEditProbDenFunc(p,pdf,ed)
 {
+    hp_vddp_.setParam( this, nullptr );
     tabstack_ = new uiTabStack( this, "Tabs" );
     mDeclArrNDPDF;
     auto* dimnmgrp = new uiGroup( tabstack_->tabGroup(), "Names group" );
@@ -284,6 +288,8 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 uiEditSampledProbDenFunc::~uiEditSampledProbDenFunc()
 {
     detachAllNotifiers();
+    hp_vddp_.setParam( this, nullptr );
+    hp_vddp_.removeParam( this );
 }
 
 
@@ -558,10 +564,10 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 				   sd.start + (andpdf->size(1)-1) * sd.step,
 				   sd.step );
 	dp->posData().setRange( false, rg );
-	DPM( DataPackMgr::FlatID() ).add( dp );
+	hp_vddp_.setParam( this, dp );
 
 	vwwinnd_->viewer().clearAllPacks();
-	vwwinnd_->viewer().setPack( FlatView::Viewer::VD, dp->id() );
+	vwwinnd_->viewer().setPack( FlatView::Viewer::VD, dp );
 	vwwinnd_->viewer().setViewToBoundingBox();
 	vwwinnd_->start();
     }

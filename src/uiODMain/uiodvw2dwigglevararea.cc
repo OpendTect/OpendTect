@@ -204,7 +204,7 @@ void uiODView2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
 bool uiODView2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 {
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
+    RefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
     if ( !dp ) return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();

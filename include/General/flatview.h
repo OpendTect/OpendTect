@@ -364,7 +364,8 @@ public:
 
     bool		hasPack( bool wva ) const
 			{ return getPack( wva ).get(); }
-    void		setPack(VwrDest,RefMan<FlatDataPack>,
+    void		removePack(VwrDest);
+    void		setPack(VwrDest,FlatDataPack*,
 				bool usedefs=true);
 			//!< Sets datapack to use on either wva or vd or both
     bool		enableChange(bool yn);
@@ -469,31 +470,23 @@ private:
     bool			canhandlechange_ = true;
 
 public:
-    mDeprecated("No longer required")
     DataPackID		packID(bool wva) const;
-    mDeprecated("No longer required")
     const TypeSet< ::DataPackID>&	availablePacks() const	{ return ids_; }
-    mDeprecated("No longer required")
     bool		isAvailable( ::DataPackID id ) const
 			{ return ids_.isPresent(id); }
-    mDeprecated("No longer required")
     void		clearAllPacks();
-    mDeprecated("No longer required")
+
     virtual void	removePack(::DataPackID);
 			//!< Releases DataPack after removing from the list.
-    mDeprecated("No longer required")
     void		removeUnusedPacks();
-    mDeprecated("No longer required")
     void		addPack(::DataPackID);
 			/*!< Adds to list and obtains the DataPack, but does not
 			 use for WVA or VD. DataPack gets released in the
 			 destructor of this class. */
-    mDeprecated("No longer required")
     void		usePack(VwrDest,::DataPackID,bool usedefs=true);
     mDeprecated("Use VwrDest enum")
     void		usePack( bool wva, ::DataPackID id, bool usedefs=true)
 			{ usePack( wva ? WVA : VD, id, usedefs ); }
-    mDeprecated("Use version with ConstRefMan argument")
     void		setPack(VwrDest,::DataPackID,bool usedefs=true);
     mDeprecated("Use VwrDest enum")
     void		setPack( bool wva, ::DataPackID id, bool usedefs=true)

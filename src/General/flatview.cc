@@ -512,7 +512,7 @@ FlatView::Viewer::Viewer()
     , zdinfo_(new ZDomain::Info(ZDomain::SI()))
 {
     dpm_.packToBeRemoved.notifyIfNotNotified(
-			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
+					mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
 }
 
 
@@ -717,15 +717,21 @@ DataPackID FlatView::Viewer::packID( bool wva ) const
 
 void FlatView::Viewer::clearAllPacks()
 {
-    while ( !ids_.isEmpty() )
-	removePack( ids_[0] );
+    removePack( Both );
+    ids_.setEmpty();
+}
+
+
+void FlatView::Viewer::removePack( VwrDest dest )
+{
+    setPack( dest, nullptr, false );
 }
 
 
 void FlatView::Viewer::removePack( DataPackID id )
 {
-    const int idx = ids_.indexOf( id );
-    if ( idx < 0 )
+     const int idx = ids_.indexOf( id );
+     if ( idx < 0 )
 	return;
 
     const bool wva = hasPack(true) && packID(true)==id;
@@ -762,7 +768,7 @@ bool FlatView::Viewer::enableChange( bool yn )
 }
 
 
-void FlatView::Viewer::setPack( VwrDest dest, RefMan<FlatDataPack> fdp,
+void FlatView::Viewer::setPack( VwrDest dest, FlatDataPack* fdp,
 				bool usedefs )
 {
     if ( dest == None )
@@ -788,6 +794,9 @@ void FlatView::Viewer::setPack( VwrDest dest, RefMan<FlatDataPack> fdp,
 	    wvapack_ = nullptr;
 	if ( vd )
 	    vdpack_ = nullptr;
+
+	handleChange( BitmapData );
+	return;
     }
     else
     {
@@ -795,8 +804,11 @@ void FlatView::Viewer::setPack( VwrDest dest, RefMan<FlatDataPack> fdp,
 	    wvapack_ = WeakPtr<FlatDataPack>( fdp );
 	if ( vd )
 	    vdpack_ = WeakPtr<FlatDataPack>( fdp );
+
+	addPack( fdp->id() );
     }
 
+    removeUnusedPacks();
     if ( usedefs )
 	useStoredDefaults( fdp->category() );
 

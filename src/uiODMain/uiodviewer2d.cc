@@ -267,9 +267,10 @@ void uiODViewer2D::setUpView( DataPackID packid, bool wva )
 }
 
 
-void uiODViewer2D::makeUpView( RefMan<FlatDataPack> fdp,
+void uiODViewer2D::makeUpView( FlatDataPack* indp,
 			       FlatView::Viewer::VwrDest dst )
 {
+    RefMan<FlatDataPack> fdp = indp;
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
     mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
     mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
@@ -311,11 +312,12 @@ void uiODViewer2D::makeUpView( RefMan<FlatDataPack> fdp,
 
     if ( !isVertical() && !mapdp && regfdp )
     {
-	fdp = createMapDataPackRM( *regfdp );
 	viewwin()->viewer().appearance().annot_.x2_.reversed_ = false;
+	setDataPack( createMapDataPackRM( *regfdp ), dst, isnew );
     }
+    else
+	setDataPack( fdp, dst, isnew );
 
-    setDataPack( fdp, dst, isnew );
     adjustOthrDisp( dst, isnew );
 
     //updating stuff
@@ -339,68 +341,8 @@ void uiODViewer2D::makeUpView( DataPackID packid,
 			       FlatView::Viewer::VwrDest dst )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    ConstRefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
-    mDynamicCastGet(const SeisFlatDataPack*,seisfdp,fdp.ptr());
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
-    mDynamicCastGet(const MapDataPack*,mapdp,fdp.ptr());
-
-    const bool isnew = !viewwin();
-    if ( isnew )
-    {
-	if ( regfdp && regfdp->is2D() )
-	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet2D();
-	else if ( !mapdp )
-	    tifs_ = ODMainWin()->viewer2DMgr().treeItemFactorySet3D();
-
-	isvertical_ = seisfdp && seisfdp->isVertical();
-	if ( regfdp )
-	    setTrcKeyZSampling( regfdp->sampling() );
-	createViewWin( isvertical_, regfdp && !regfdp->is2D() );
-    }
-
-    if ( regfdp )
-    {
-	const TrcKeyZSampling& cs = regfdp->sampling();
-	if ( tkzs_.isFlat() || !cs.includes(tkzs_) )
-	{
-	    int nrtrcs;
-	    if ( tkzs_.defaultDir()==TrcKeyZSampling::Inl )
-		nrtrcs = cs.hsamp_.nrTrcs();
-	    else
-		nrtrcs = cs.hsamp_.nrLines();
-	    //nrTrcs() or nrLines() return value 1 means start=stop
-	    if ( nrtrcs < 2 )
-	    {
-		uiMSG().error( tr("No data available for current %1 position")
-		    .arg(TrcKeyZSampling::toUiString(tkzs_.defaultDir())) );
-		return;
-	    }
-	}
-	if ( tkzs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
-    }
-
-    if ( !isVertical() && !mapdp && regfdp )
-    {
-	packid = createMapDataPack( *regfdp );
-	viewwin()->viewer().appearance().annot_.x2_.reversed_ = false;
-    }
-
-    setDataPack( packid, dst, isnew );
-    adjustOthrDisp( dst, isnew );
-
-    //updating stuff
-    if ( treetp_ )
-    {
-	treetp_->updSelSpec( &wvaselspec_, true );
-	treetp_->updSelSpec( &vdselspec_, false );
-	treetp_->updSampling( tkzs_, true );
-    }
-
-    if ( isnew )
-	viewwin()->start();
-
-    if ( viewwin()->dockParent() )
-	viewwin()->dockParent()->raise();
+    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
+    makeUpView( fdp, dst );
 }
 
 
@@ -428,11 +370,12 @@ void uiODViewer2D::adjustOthrDisp( FlatView::Viewer::VwrDest dest, bool isnew )
 }
 
 
-void uiODViewer2D::setDataPack( RefMan<FlatDataPack> fdp,
+void uiODViewer2D::setDataPack( FlatDataPack* indp,
 				FlatView::Viewer::VwrDest dest, bool isnew )
 {
-    if ( !fdp ) return;
+    if ( !indp ) return;
 
+    RefMan<FlatDataPack> fdp = indp;
     if ( dest == FlatView::Viewer::WVA || dest == FlatView::Viewer::Both )
 	hp_wvadp_.setParam( this, fdp );
 
@@ -449,21 +392,21 @@ void uiODViewer2D::setDataPack( RefMan<FlatDataPack> fdp,
 }
 
 
-void uiODViewer2D::setDataPack( RefMan<FlatDataPack> fdp, bool wva,
+void uiODViewer2D::setDataPack( FlatDataPack* indp, bool wva,
 				bool isnew )
 {
     const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
 				  !wva || (isnew && wvaselspec_==vdselspec_) );
-    setDataPack( fdp, dest, isnew );
+    setDataPack( indp, dest, isnew );
 }
 
 
 void uiODViewer2D::setDataPack( DataPackID packid, bool wva, bool isnew )
 {
-    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
-				  !wva || (isnew && wvaselspec_==vdselspec_) );
+	const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+				   !wva || (isnew && wvaselspec_==vdselspec_) );
 
-    setDataPack( packid, dest, isnew );
+	setDataPack( packid, dest, isnew );
 }
 
 
@@ -472,19 +415,9 @@ void uiODViewer2D::setDataPack( DataPackID packid,
 				bool isnew )
 {
     if ( packid == DataPack::cNoID() ) return;
-
-    for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	if ( vwr.isAvailable(packid) )
-	    vwr.usePack( dest, packid, isnew );
-	else
-	    vwr.setPack( dest, packid, isnew );
-
-	vwr.removeUnusedPacks();
-    }
-
-    dataChanged.trigger( this );
+    auto& dpm = DPM(DataPackMgr::FlatID());
+    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
+    setDataPack( fdp, dest, isnew );
 }
 
 
@@ -786,13 +719,17 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
     uiTaskRunner taskr( viewerParent() );
     setTrcKeyZSampling( tkzs, &taskr );
     const uiFlatViewer& vwr = viewwin()->viewer(0);
+    RefMan<FlatDataPack> fdp = createDataPackRM( false );
+    FlatView::Viewer::VwrDest dest = FlatView::Viewer::VD;
     if ( vdselspec_==wvaselspec_ )
-	makeUpView( createDataPackRM(false), FlatView::Viewer::Both );
-    else if ( vwr.isVisible(false) && vdselspec_.id().isValid() )
-	makeUpView( createDataPackRM(false), FlatView::Viewer::VD );
+	dest = FlatView::Viewer::Both;
     else if ( vwr.isVisible(true) && wvaselspec_.id().isValid() )
-	makeUpView( createDataPackRM(true), FlatView::Viewer::WVA );
+    {
+	fdp = createDataPackRM( true );
+	dest = FlatView::Viewer::WVA;
+    }
 
+    makeUpView( fdp, dest );
     posChanged.trigger();
 }
 
@@ -1063,7 +1000,7 @@ DataPackID uiODViewer2D::createDataPackForTransformedZSlice(
 	return DataPack::cNoID();
 
     const DataPackID dpid = RegularSeisDataPack::createDataPackForZSlice(
-	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
+	  &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
     return createFlatDataPack( dpid, 0 );
 }
 

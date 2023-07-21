@@ -767,7 +767,15 @@ static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
 }
 
 
-RefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
+ConstRefMan<RegularSeisDataPack> uiAttribPartServer::createOutput(
+					    const TrcKeyZSampling& tkzs,
+					    const RegularSeisDataPack* cache )
+{
+    return createOutputRM( tkzs, cache );
+}
+
+
+RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 					    const TrcKeyZSampling& tkzs,
 					    const RegularSeisDataPack* cache )
 {
@@ -1412,18 +1420,23 @@ public:
 RegularSeisDataPackCreatorFor2D( const Data2DHolder& input,
 				 Pos::GeomID geomid,
 				 const ZDomain::Def& zdef,
-				 const BufferStringSet* compnames,
-				 DataPackID& outputid )
+				 const BufferStringSet* compnames )
     : input_(input)
     , sampling_(input.getTrcKeyZSampling())
     , zdef_(zdef)
-    , outputid_(outputid)
     , refnrs_(sampling_.hsamp_.nrTrcs(),mUdf(float))
 {
     sampling_.hsamp_.setGeomID( geomid );
     if ( compnames )
 	compnames_ = *compnames;
 }
+
+
+RefMan<RegularSeisDataPack> getOutputDataPack() const
+{
+    return outputdp_;
+}
+
 
 od_int64 nrIterations() const override	{ return input_.trcinfoset_.size(); }
 
@@ -1495,8 +1508,6 @@ bool doFinish( bool success ) override
     outputdp_->setZDomain( ZDomain::Info(zdef_) );
     if ( !compnames_.isEmpty() )
 	outputdp_->setName( compnames_[0]->buf() );
-    DPM(DataPackMgr::SeisID()).add( outputdp_ );
-    outputid_ = outputdp_->id();
     return true;
 }
 
@@ -1506,8 +1517,7 @@ protected:
     TrcKeyZSampling			sampling_;
     const ZDomain::Def&			zdef_;
     BufferStringSet			compnames_;
-    RegularSeisDataPack*		outputdp_	= nullptr;
-    DataPackID&			outputid_;
+    RefMan<RegularSeisDataPack>		outputdp_;
     TypeSet<float>			refnrs_;
 };
 
@@ -1547,8 +1557,28 @@ DataPackID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
     for ( int idx=0; idx<targetspecs_.size(); idx++ )
 	userrefs.add( targetspecs_[idx].userRef() );
 
-    return createDataPackFor2D( *data2d, tkzs,
+    auto dp = createDataPackFor2DRM( *data2d, tkzs,
 	    ZDomain::Def::get(targetspecs_[0].zDomainKey()), &userrefs );
+    if ( !dp )
+	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add( dp );
+    dp->ref();
+    return dp->id();
+}
+
+
+RefMan<RegularSeisDataPack> uiAttribPartServer::createDataPackFor2DRM(
+					const Attrib::Data2DHolder& input,
+					const TrcKeyZSampling& outputsampling,
+					const ZDomain::Def& zdef,
+					const BufferStringSet* compnames )
+{
+    RegularSeisDataPackCreatorFor2D datapackcreator(
+		input, outputsampling.hsamp_.getGeomID(), zdef,
+		compnames );
+    datapackcreator.execute();
+    return datapackcreator.getOutputDataPack();
 }
 
 
@@ -1558,13 +1588,13 @@ DataPackID uiAttribPartServer::createDataPackFor2D(
 					const ZDomain::Def& zdef,
 					const BufferStringSet* compnames )
 {
-    DataPackID outputid = DataPack::cNoID();
-    RegularSeisDataPackCreatorFor2D datapackcreator(
-		input, outputsampling.hsamp_.getGeomID(), zdef,
-		compnames, outputid );
-    datapackcreator.execute();
-    DPM(DataPackMgr::SeisID()).ref( outputid );
-    return outputid;
+    auto dp = createDataPackFor2DRM( input, outputsampling, zdef, compnames );
+    if ( !dp )
+	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add( dp );
+    dp->ref();
+    return dp->id();
 }
 
 

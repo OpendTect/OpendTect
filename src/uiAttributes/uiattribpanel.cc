@@ -27,6 +27,10 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "uimsg.h"
 
+#include "hiddenparam.h"
+static HiddenParam<uiAttribPanel,RefMan<FlatDataPack>> hp_vddp_(nullptr);
+
+
 
 uiAttribPanel::uiAttribPanel( uiParent* p )
     : flatvwin_(nullptr)
@@ -35,6 +39,7 @@ uiAttribPanel::uiAttribPanel( uiParent* p )
     , dset_(nullptr)
     , parent_(p)
 {
+    hp_vddp_.setParam( this, nullptr );
 }
 
 
@@ -42,13 +47,15 @@ uiAttribPanel::~uiAttribPanel()
 {
     delete dset_;
     delete flatvwin_;
+    hp_vddp_.setParam( this, nullptr );
+    hp_vddp_.removeParam( this );
 }
 
 
 FlatDataPack* uiAttribPanel::computeAttrib()
 {
     RefMan<FlatDataPack> dp = computeAttribute();
-    dp.setNoDelete( true );
+    hp_vddp_.setParam( this, dp );
     return dp;
 }
 
@@ -89,7 +96,6 @@ RefMan<FlatDataPack> uiAttribPanel::computeAttribute()
 	return nullptr;
 
     fdpack->setName( getPackName() );
-    DPM(DataPackMgr::FlatID()).add( fdpack );
     return fdpack;
 }
 
@@ -118,10 +124,9 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
     sampling.hsamp_.setGeomID( geomid_ );
 
-    const DataPackID outputid = uiAttribPartServer::createDataPackFor2D(
-						d2dh, sampling, SI().zDomain());
-    auto regsdp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>(outputid);
-    return regsdp ? new RegularFlatDataPack(*regsdp,-1) : nullptr;
+    auto rsdp = uiAttribPartServer::createDataPackFor2DRM( d2dh, sampling,
+							   SI().zDomain() );
+    return rsdp ? new RegularFlatDataPack(*rsdp,-1) : nullptr;
 }
 
 
@@ -138,8 +143,9 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
     if ( !fdpack )
 	return;
 
+    RefMan<FlatDataPack> fdp = hp_vddp_.getParam(this);
     if ( flatvwin_ )
-	flatvwin_->viewer().setPack( FlatView::Viewer::VD, fdpack->id() );
+	flatvwin_->viewer().setPack( FlatView::Viewer::VD, fdp );
     else
     {
 	flatvwin_ = new uiFlatViewMainWin( parent_,
@@ -153,7 +159,7 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	app.setDarkBG( false );
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
-	vwr.setPack( FlatView::Viewer::VD, fdpack->id() );
+	vwr.setPack( FlatView::Viewer::VD, fdp );
 	flatvwin_->addControl( new uiFlatViewStdControl(vwr,
 		uiFlatViewStdControl::Setup(nullptr).isvertical(true)) );
 	flatvwin_->setDeleteOnClose( false );
@@ -176,6 +182,7 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
     dset_ = dset;
 
     RefMan<FlatDataPack> fdpack = computeAttribute();
+    hp_vddp_.setParam( this, fdpack );
     if ( fdpack )
 	createAndDisplay2DViewer( fdpack );
     else

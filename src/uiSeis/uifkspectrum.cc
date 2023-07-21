@@ -29,6 +29,9 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "seisdatapack.h"
 
+#include "hiddenparam.h"
+static HiddenParam<uiFKSpectrum,RefMan<FlatDataPack>> hp_vddp_(nullptr);
+
 
 uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     : uiFlatViewMainWin(p,Setup(tr("FK Spectrum")))
@@ -39,6 +42,7 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     , minfld_(0), minvelitm_(0)
     , maxfld_(0), maxvelitm_(0)
 {
+    hp_vddp_.setParam( this, nullptr );
     uiFlatViewer& vwr = viewer();
     vwr.setInitialSize( uiSize(600,400) );
     FlatView::Appearance& app = vwr.appearance();
@@ -102,6 +106,8 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 
 uiFKSpectrum::~uiFKSpectrum()
 {
+    hp_vddp_.setParam( this, nullptr );
+    hp_vddp_.removeParam( this );
     delete input_;
     delete output_;
     delete fft_;
@@ -287,7 +293,8 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 
 bool uiFKSpectrum::view( Array2D<float>& array )
 {
-    auto* datapack = new FlatDataPack( sKey::Attribute(), &array );
+    RefMan<FlatDataPack> datapack = new FlatDataPack( sKey::Attribute(),
+						      &array );
     datapack->setName( "Power" );
     const int nrk = array.info().getSize( 0 );
     const int nrtrcs = input_->info().getSize( 0 );
@@ -301,9 +308,8 @@ bool uiFKSpectrum::view( Array2D<float>& array )
 
     datapack->posData().setRange( true, krg );
     datapack->posData().setRange( false, frg );
-    DataPackMgr& dpman = DPM(DataPackMgr::FlatID());
-    dpman.add( datapack );
-    viewer().setPack( FlatView::Viewer::VD, datapack->id(), false );
+    hp_vddp_.setParam( this, datapack );
+    viewer().setPack( FlatView::Viewer::VD, datapack, false );
 
     return true;
 }
