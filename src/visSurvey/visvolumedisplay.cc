@@ -66,6 +66,7 @@ const char* VolumeDisplay::sKeySeedsAboveIsov()	{ return "Above IsoVal"; }
 static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 {
     TrcKeyZSampling cs(false);
+    cs.hsamp_.survid_ = csin.hsamp_.survid_;
     cs.hsamp_.start_.inl() =
 	(5*csin.hsamp_.start_.inl()+3*csin.hsamp_.stop_.inl())/8;
     cs.hsamp_.start_.crl() =
@@ -110,6 +111,7 @@ VolumeDisplay::VolumeDisplay()
     , ismanip_(false)
     , onoffstatus_(true)
 {
+    texturecs_.hsamp_.setGeomID( Survey::default3DGeomID() );
     addChild( boxdragger_->osgNode() );
 
     boxdragger_->ref();
