@@ -66,39 +66,16 @@ bool uiODView2DPickSetParentTreeItem::handleSubMenu( int menuid )
 {
     handleStdSubMenu( menuid );
 
-    TypeSet<MultiID> pickmidstoadd;
-    const Pick::Set* newps = 0;
-    if ( menuid == 1  )
+    if ( menuid == 0 )
     {
-	newps = applMgr()->pickServer()->createEmptySet( false );
-	if ( !newps )
-	    return false;
+	TypeSet<MultiID> pickmidstoadd;
+	const bool res = applMgr()->pickServer()->loadSets(pickmidstoadd,false);
+	if ( res )
+	    addPickSets( pickmidstoadd );
 
-	pickmidstoadd += picksetmgr_.get( *newps );
     }
-    else if ( menuid == 0 &&
-	      !applMgr()->pickServer()->loadSets(pickmidstoadd,false) )
-	return false;
-
-    if ( !pickmidstoadd.isEmpty() )
-	addPickSets( pickmidstoadd );
-
-    if ( newps )
-    {
-	const MultiID& newpickmid = picksetmgr_.get( *newps );
-	for ( int idx=0; idx<nrChildren(); idx++ )
-	{
-	    mDynamicCastGet(uiODView2DPickSetTreeItem*,picktreeitem,
-			    getChild(idx))
-	    if ( picktreeitem && picktreeitem->pickMultiID() == newpickmid )
-	    {
-		viewer2D()->viewControl()->setEditMode( true );
-		picktreeitem->select();
-		break;
-	    }
-
-	}
-    }
+    else if ( menuid == 1  )
+	applMgr()->pickServer()->createEmptySet( false );
 
     return true;
 }
@@ -210,7 +187,6 @@ uiODView2DPickSetTreeItem::uiODView2DPickSetTreeItem( int picksetid )
 uiODView2DPickSetTreeItem::uiODView2DPickSetTreeItem( Vis2DID id, bool )
     : uiODView2DTreeItem(uiString::emptyString())
     , picksetmgr_(Pick::Mgr())
-    , pickset_(applMgr()->pickServer()->createEmptySet(false))
 {
     displayid_ = id;
     mAttachCB( picksetmgr_.setToBeRemoved,

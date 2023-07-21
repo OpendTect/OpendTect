@@ -17,14 +17,19 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "multiid.h"
 
-class BinIDValueSet;
-class DataPointSet;
-class RandLocGenPars;
-class SurfaceInfo;
+class uiCreatePicks;
+class uiGenPosPicks;
+class uiGenRandPicks2D;
 class uiImpExpPickSet;
 class uiPickSetMan;
 class uiPickSetMgr;
 class uiPickSetMgrInfoDlg;
+
+class BinIDValueSet;
+class DataPointSet;
+class RandLocGenPars;
+class SurfaceInfo;
+
 namespace Pick { class Set; class SetMgr; }
 namespace PosInfo { class Line2DData; }
 
@@ -59,9 +64,9 @@ public:
     bool			reLoadSet(const MultiID&);
     bool			loadSets(TypeSet<MultiID>&,bool ispolygon);
     				//!< Load set(s) by user sel
-    RefMan<Pick::Set>		createEmptySet(bool aspolygon);
-    bool			create3DGenSet();
-    bool			createRandom2DSet();
+    void			createEmptySet(bool aspolygon);
+    void			create3DGenSet();
+    void			createRandom2DSet();
     void			setMisclassSet(const DataPointSet&);
     void			setPickSet(const Pick::Set&);
     void			fillZValsFromHor(Pick::Set&,int);
@@ -74,13 +79,12 @@ public:
     static int			evDisplayPickSet();
 
 				// Interaction stuff
-    BinIDValueSet&			genDef()	{ return gendef_; }
+    BinIDValueSet&		genDef()		{ return gendef_; }
     MultiID			pickSetID() const	{ return picksetid_; }
 
     ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
-    TrcKeySampling		selTrcKeySampling() const
-				{ return selhs_; }
+    TrcKeySampling		selTrcKeySampling() const { return selhs_; }
     MultiID			horID()			{ return horid_; }
 
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
@@ -108,13 +112,20 @@ protected:
     TypeSet<BinID>		trcpos2d_;
     TypeSet< Interval<float> >	hor2dzrgs_;
 
-    uiImpExpPickSet*		imppsdlg_;
-    uiImpExpPickSet*		exppsdlg_;
-    uiPickSetMan*		manpicksetsdlg_;
+    uiImpExpPickSet*		imppsdlg_		= nullptr;
+    uiImpExpPickSet*		exppsdlg_		= nullptr;
+    uiPickSetMan*		manpicksetsdlg_		= nullptr;
     uiPickSetMgrInfoDlg*	setmgrinfodlg_		= nullptr;
 
+    uiGenPosPicks*		genpsdlg_		= nullptr;
+    uiCreatePicks*		emptypsdlg_		= nullptr;
+    uiGenRandPicks2D*		genps2ddlg_		= nullptr;
+
+    void			cleanup();
     void			survChangedCB(CallBacker*);
     void			importReadyCB(CallBacker*);
+
+    void			create2DCB(CallBacker*);
     bool			mkRandLocs2D(Pick::Set&,const RandLocGenPars&);
     bool			mkRandLocs2DBetweenHors(Pick::Set&,
 							const RandLocGenPars&);

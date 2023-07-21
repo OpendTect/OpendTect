@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uipointsetsel.h"
 #include "uiposfilterset.h"
 #include "uiposprovider.h"
 #include "uitaskrunner.h"
@@ -21,11 +22,15 @@ ________________________________________________________________________
 #include "color.h"
 #include "datapointset.h"
 #include "datainpspec.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "mousecursor.h"
 #include "pickset.h"
+#include "picksettr.h"
 #include "posprovider.h"
 #include "randcolor.h"
 #include "survinfo.h"
+
 
 static int defnrpicks = 500;
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
@@ -51,14 +56,14 @@ RandLocGenPars::~RandLocGenPars()
 uiCreatePicks::uiCreatePicks( uiParent* p, bool aspoly, bool addstdflds,
 			      bool zvalreq )
     : uiDialog(p,uiDialog::Setup(
-		aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon())
-		       : uiStrings::phrCreateNew(uiStrings::sPointSet()),
+	aspoly ? uiStrings::phrCreateNew(uiStrings::sPolygon()).toTitleCase()
+	       : uiStrings::phrCreateNew(uiStrings::sPointSet()).toTitleCase(),
 			       mNoDlgTitle,mODHelpKey(mFetchPicksHelpID)))
+    , picksetReady(this)
     , aspolygon_(aspoly)
     , iszvalreq_(zvalreq)
-    , zvalfld_(nullptr)
-    , zvaltypfld_(nullptr)
 {
+    setOkCancelText( uiStrings::sCreate(), uiStrings::sClose() );
     if ( addstdflds )
 	addStdFields( nullptr );
 }
@@ -70,17 +75,14 @@ uiCreatePicks::~uiCreatePicks()
 
 void uiCreatePicks::addStdFields( uiObject* lastobject )
 {
-    nmfld_ = new uiGenInput( this,
-		tr("Name for new %1").arg(aspolygon_ ? uiStrings::sPolygon() :
-					      uiStrings::sPointSet()) );
-    nmfld_->setDefaultTextValidator();
+    outfld_ = uiPointSetPolygonSel::create( this, false, aspolygon_ );
 
     colsel_ = new uiColorInput( this,
 			      uiColorInput::Setup(OD::getRandStdDrawColor()).
 			      lbltxt(uiStrings::sColor()) );
-    colsel_->attach( alignedBelow, nmfld_ );
+    colsel_->attach( alignedBelow, outfld_ );
     if ( lastobject )
-	nmfld_->attach( alignedBelow, lastobject );
+	outfld_->attach( alignedBelow, lastobject );
 
     if ( iszvalreq_ )
     {
@@ -102,20 +104,73 @@ RefMan<Pick::Set> uiCreatePicks::getPickSet() const
 }
 
 
+MultiID uiCreatePicks::getStoredID() const
+{
+    return outfld_ ? outfld_->key(true) : MultiID::udf();
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiCreatePicks::acceptOK( CallBacker* )
 {
-    name_.set( nmfld_->text() ).trimBlanks();
-    if ( name_.isEmpty() )
-    {
-	uiMSG().error( tr("Please provide a name.") );
+    if ( !doAccept() || !handlePickSet() )
 	return false;
-    }
 
+    return isModal();
+}
+
+
+bool uiCreatePicks::doAccept()
+{
+    const IOObj* ioobj = outfld_->ioobj();
+    if ( !ioobj )
+	return false;
+
+    name_ = ioobj->name();
     if ( iszvalreq_ && !calcZValAccToSurvDepth() )
 	return false;
 
+    return true;
+}
+
+
+bool uiCreatePicks::handlePickSet()
+{
+    RefMan<Pick::Set> ps = getPickSet();
+    if ( !ps )
+	return false;
+
+    const IOObj* ioobj = outfld_->ioobj( true );
+    IOM().commitChanges( *ioobj );
+    BufferString errmsg;
+    if ( !PickSetTranslator::store(*ps,ioobj,errmsg) )
+    {
+	uiMSG().error( ::toUiString(errmsg) );
+	return false;
+    }
+
+    const MultiID key = ioobj->key();
+    Pick::SetMgr& psmgr = Pick::Mgr();
+    int setidx = psmgr.indexOf( key );
+    if ( setidx<0 )
+    {
+	Pick::Set* newps = new Pick::Set( *ps );
+	psmgr.set( key, newps );
+	setidx = psmgr.indexOf( key );
+    }
+    else
+    {
+	RefMan<Pick::Set> oldps = psmgr.get( setidx );
+	oldps->setEmpty();
+	oldps->append( *ps );
+	oldps->disp_.color_ = ps->disp_.color_;
+	psmgr.reportChange( nullptr, *oldps );
+	psmgr.reportDispChange( nullptr, *oldps );
+    }
+
+    psmgr.setUnChanged( setidx, true );
+    picksetReady.trigger();
     return true;
 }
 
@@ -132,7 +187,7 @@ bool uiCreatePicks::calcZValAccToSurvDepth()
 	return true;
 
     uiMSG().error( tr("Input Z Value lies outside the survey range.\n"
-		      "Survey Range is: %1-%2%3")
+		      "Survey range is: %1-%2 %3")
 	.arg(zrg.start).arg(zrg.stop).arg(SI().zDomain().uiUnitStr()));
 
     return false;
@@ -168,11 +223,12 @@ uiGenPosPicks::~uiGenPosPicks()
 #define mSetCursor() MouseCursorManager::setOverride( MouseCursor::Wait )
 #define mRestorCursor() MouseCursorManager::restoreOverride()
 
-bool uiGenPosPicks::acceptOK( CallBacker* cb )
+bool uiGenPosPicks::acceptOK( CallBacker* )
 {
-    if ( !posprovfld_ ) return true;
+    if ( !posprovfld_ )
+	return true;
 
-    if ( !uiCreatePicks::acceptOK(cb) )
+    if ( !doAccept() )
 	return false;
 
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
@@ -222,13 +278,15 @@ bool uiGenPosPicks::acceptOK( CallBacker* cb )
 	mErrRet(tr("No matching locations found"))
     }
 
-    return true;
+    const bool res = handlePickSet();
+    dps_ = nullptr;
+    return res ? isModal() : false;
 }
 
 
 RefMan<Pick::Set> uiGenPosPicks::getPickSet() const
 {
-    if ( dps_->isEmpty() )
+    if ( !dps_ || dps_->isEmpty() )
 	return nullptr;
 
     RefMan<Pick::Set> ps = uiCreatePicks::getPickSet();
@@ -249,11 +307,12 @@ RefMan<Pick::Set> uiGenPosPicks::getPickSet() const
 uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
 				    const BufferStringSet& lnms )
     : uiCreatePicks(p,false,false)
+    , createClicked(this)
     , hornms_(hornms)
     , geomfld_(nullptr)
     , linenms_(lnms)
 {
-    nrfld_ = new uiGenInput( this, tr("Number of Points to generate"),
+    nrfld_ = new uiGenInput( this, tr("Number of points to generate"),
 			     IntInpSpec(defnrpicks,1) );
 
     if ( hornms_.size() )
@@ -366,7 +425,7 @@ void uiGenRandPicks2D::mkRandPars()
 
 bool uiGenRandPicks2D::acceptOK( CallBacker* c )
 {
-    if ( !uiCreatePicks::acceptOK(c) )
+    if ( !doAccept() )
 	return false;
 
     const int choice = geomfld_ ? geomfld_->getIntValue() : 0;
@@ -390,5 +449,6 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
 
     mkRandPars();
     defnrpicks = randpars_.nr_;
-    return true;
+
+    return isModal();
 }

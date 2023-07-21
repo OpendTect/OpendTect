@@ -1273,7 +1273,11 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	emserv_->fillPickSet( *pickserv_->pickSet(), pickserv_->horID() );
     else if ( evid == uiPickPartServer::evDisplayPickSet() )
     {
-	sceneMgr().addPickSetItem( pickserv_->pickSetID() );
+	const MultiID key = pickserv_->pickSetID();
+	TypeSet<MultiID> allkeys;
+	sceneMgr().getLoadedPickSetIDs( allkeys, false );
+	if ( !allkeys.isPresent(key) )
+	    sceneMgr().addPickSetItem( pickserv_->pickSetID() );
     }
     else
     {

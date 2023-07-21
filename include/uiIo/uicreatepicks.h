@@ -17,15 +17,18 @@ ________________________________________________________________________
 #include "trckeysampling.h"
 #include "uigeninput.h"
 
-class EnumDef;
 class uiColorInput;
 class uiComboBox;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiListBox;
+class uiPointSetPolygonSel;
 class uiPosFilterSetSel;
 class uiPosProvider;
 class uiPosSubSel;
+
+class DataPointSet;
+class EnumDef;
 namespace Pick { class Set; }
 
 /*! \brief Dialog for creating (a) pick set(s) */
@@ -59,6 +62,7 @@ public:
     enum TimeType	{ Seconds=0, MilliSeconds, MicroSeconds };
 			mDeclareEnumUtils(TimeType);
 
+    MultiID		getStoredID() const;
     virtual RefMan<Pick::Set>	getPickSet() const;
     const char*		pickSetName() const {return name_; }
     float		getZVal() { return zvalfld_->getFValue(); }
@@ -66,18 +70,22 @@ public:
     DepthType		getDepthZValType() { return zdepthvaltyp_; }
     TimeType		getTimeZValType()  { return ztimevaltyp_; }
 
+    Notifier<uiCreatePicks>	picksetReady;
+
 protected:
 
-    uiGenInput*		nmfld_;
-    uiColorInput*	colsel_;
-    uiGenInput*		zvalfld_;
-    uiComboBox*		zvaltypfld_;
+    uiPointSetPolygonSel* outfld_	= nullptr;
+    uiColorInput*	colsel_		= nullptr;
+    uiGenInput*		zvalfld_	= nullptr;
+    uiComboBox*		zvaltypfld_	= nullptr;
     BufferString	name_;
 
     bool		calcZValAccToSurvDepth();
 
     bool		aspolygon_;
 
+    bool		doAccept();
+    bool		handlePickSet();
     bool		acceptOK(CallBacker*) override;
     virtual void	addStdFields(uiObject* lastobj=0);
     bool		iszvalreq_;
@@ -116,6 +124,8 @@ public:
 			~uiGenRandPicks2D();
 
     const RandLocGenPars& randPars() const	{ return randpars_; }
+
+    Notifier<uiGenRandPicks2D>	createClicked;
 
 protected:
 

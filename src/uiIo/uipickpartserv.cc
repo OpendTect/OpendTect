@@ -43,9 +43,6 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
     , uipsmgr_(*new uiPickSetMgr(parent(),psmgr_))
     , gendef_(*new BinIDValueSet(2,true))
     , selhs_(true)
-    , imppsdlg_(0)
-    , exppsdlg_(0)
-    , manpicksetsdlg_(0)
 {
     mAttachCB( IOM().surveyChanged, uiPickPartServer::survChangedCB );
 }
@@ -57,16 +54,25 @@ uiPickPartServer::~uiPickPartServer()
     delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );
-    delete manpicksetsdlg_;
+    cleanup();
 }
 
 
 void uiPickPartServer::survChangedCB( CallBacker* )
 {
+    cleanup();
+}
+
+
+void uiPickPartServer::cleanup()
+{
     closeAndNullPtr( imppsdlg_ );
     closeAndNullPtr( exppsdlg_ );
     closeAndNullPtr( manpicksetsdlg_ );
     closeAndNullPtr( setmgrinfodlg_ );
+    closeAndNullPtr( emptypsdlg_ );
+    closeAndNullPtr( genpsdlg_ );
+    closeAndNullPtr( genps2ddlg_ );
 }
 
 
@@ -100,11 +106,20 @@ void uiPickPartServer::importSet()
 
 void uiPickPartServer::importReadyCB( CallBacker* cb )
 {
-    if ( imppsdlg_ && cb==imppsdlg_ )
-    {
+    bool sendevent = true;
+    if ( cb==imppsdlg_ )
 	picksetid_ = imppsdlg_->getStoredID();
+    else if ( cb==genpsdlg_ )
+	picksetid_ = genpsdlg_->getStoredID();
+    else if ( cb==genps2ddlg_ )
+	picksetid_ = genps2ddlg_->getStoredID();
+    else if ( cb==emptypsdlg_ )
+	picksetid_ = emptypsdlg_->getStoredID();
+    else
+	sendevent = false;
+
+    if ( sendevent )
 	sendEvent( evDisplayPickSet() );
-    }
 }
 
 
@@ -243,32 +258,26 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 }
 
 
-RefMan<Pick::Set> uiPickPartServer::createEmptySet( bool aspolygon )
+void uiPickPartServer::createEmptySet( bool aspolygon )
 {
-    uiCreatePicks dlg( parent(), aspolygon );
-    if ( !dlg.go() )
-	return nullptr;
-
-    RefMan<Pick::Set> newps = dlg.getPickSet();
-    if ( newps )
-	uipsmgr_.storeNewSet( *newps );
-
-    return newps;
+    delete emptypsdlg_;
+    emptypsdlg_ = new uiCreatePicks( parent(), aspolygon );
+    mAttachCB( emptypsdlg_->picksetReady, uiPickPartServer::importReadyCB );
+    emptypsdlg_->show();
 }
 
 
-bool uiPickPartServer::create3DGenSet()
+void uiPickPartServer::create3DGenSet()
 {
-    uiGenPosPicks dlg( parent() );
-    if ( !dlg.go() )
-	return false;
-
-    RefMan<Pick::Set> newps = dlg.getPickSet();
-    return newps ? uipsmgr_.storeNewSet( *newps ) : false;
+    delete genpsdlg_;
+    genpsdlg_ = new uiGenPosPicks( parent() );
+    genpsdlg_->setModal( false );
+    mAttachCB( genpsdlg_->picksetReady, uiPickPartServer::importReadyCB );
+    genpsdlg_->show();
 }
 
 
-bool uiPickPartServer::createRandom2DSet()
+void uiPickPartServer::createRandom2DSet()
 {
     fetchHors( true );
     BufferStringSet hornms;
@@ -278,21 +287,26 @@ bool uiPickPartServer::createRandom2DSet()
     BufferStringSet linenames;
     TypeSet<Pos::GeomID> geomids;
     Survey::GM().getList( linenames, geomids, true );
-    uiGenRandPicks2D dlg( parent(), hornms, linenames );
     if ( linenames.isEmpty() )
     {
 	uiMSG().warning( tr("No 2D lines are available in this survey") );
-	return false;
+	return;
     }
 
-    if ( !dlg.go() )
-	return false;
+    delete genps2ddlg_;
+    genps2ddlg_ = new uiGenRandPicks2D( parent(), hornms, linenames );
+    mAttachCB( genps2ddlg_->createClicked, uiPickPartServer::create2DCB );
+    genps2ddlg_->show();
+}
 
-    RefMan<Pick::Set> newps = dlg.getPickSet();
-    if ( !mkRandLocs2D(*newps,dlg.randPars()) )
-	return false;
 
-    return newps ? uipsmgr_.storeNewSet( *newps ) : false;
+void uiPickPartServer::create2DCB( CallBacker* cb )
+{
+    if ( cb != genps2ddlg_ )
+	return;
+
+    RefMan<Pick::Set> newps = genps2ddlg_->getPickSet();
+    mkRandLocs2D( *newps, genps2ddlg_->randPars() );
 }
 
 

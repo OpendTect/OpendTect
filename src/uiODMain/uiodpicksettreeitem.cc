@@ -175,28 +175,15 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     }
     else if ( mnuid==mGen3DIdx )
     {
-	if ( !applMgr()->pickServer()->create3DGenSet() )
-	    return false;
-
-	RefMan<Pick::Set> ps = psm.get( psm.size()-1 );
-	addPickSet( ps );
+	applMgr()->pickServer()->create3DGenSet();
     }
     else if ( mnuid==mRandom2DIdx )
     {
-	if ( !applMgr()->pickServer()->createRandom2DSet() )
-	    return false;
-
-	RefMan<Pick::Set> ps = psm.get( psm.size()-1 );
-	addPickSet( ps );
+	applMgr()->pickServer()->createRandom2DSet();
     }
     else if ( mnuid==mEmptyIdx )
     {
-	if ( !applMgr()->pickServer()->createEmptySet(false) ||
-							    psm.size() == 0 )
-	    return false;
-
-	RefMan<Pick::Set> ps = psm.get( psm.size()-1 );
-	addPickSet( ps );
+	applMgr()->pickServer()->createEmptySet( false );
     }
     else if ( mnuid==mSaveIdx )
     {
@@ -669,11 +656,7 @@ bool uiODPolygonParentTreeItem::showSubMenu()
     }
     else if ( mnuid==mNewPolyIdx )
     {
-	if ( !applMgr()->pickServer()->createEmptySet(true) )
-	    return false;
-
-	RefMan<Pick::Set> ps = Pick::Mgr().get( Pick::Mgr().size()-1 );
-	addPolygon( ps );
+	applMgr()->pickServer()->createEmptySet( true );
     }
     else if ( mnuid==mSavePolyIdx )
     {

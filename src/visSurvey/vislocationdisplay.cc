@@ -198,6 +198,12 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	return;
     }
 
+    if ( set_->isSizeLargerThanThreshold() )
+    {
+	set_->disp_.markertype_ = MarkerStyle3D::Point;
+	set_->disp_.pixsize_ = 2;
+    }
+
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	Pick::Location loc = set_->get( idx );
@@ -681,6 +687,7 @@ void LocationDisplay::setChg( CallBacker* cb )
 	return;
 
     manip_.trigger();
+    removeAll();
     fullRedraw();
 }
 
