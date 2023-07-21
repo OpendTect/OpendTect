@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "genc.h"
 #include "keystrs.h"
+#include "legal.h"
 #include "math2.h"
 #include "moddepmgr.h"
 #include "msgh.h"
@@ -623,8 +624,7 @@ void CrashDumper::init()
     const BufferString dmppathbuf = FilePath::getTempDir();
     const google_breakpad::MinidumpDescriptor minidumpdesc( dmppathbuf.buf() );
     handler_ = new google_breakpad::ExceptionHandler(
-	minidumpdesc, NULL, MinidumpCB, NULL,
-	true, -1 );
+			minidumpdesc, NULL, MinidumpCB, NULL, true, -1 );
     legalInformation().addCreator( legalText, breakpadname );
 # endif
 #endif
