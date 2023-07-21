@@ -77,9 +77,9 @@ protected:
 			{return typeid(uiODBodyDisplayParentTreeItem).name();}
 
     EM::ObjectID			emid_;
-    visSurvey::MarchingCubesDisplay*	mcd_;
-    visSurvey::PolygonBodyDisplay*	plg_;
-    visSurvey::RandomPosBodyDisplay*	rpb_;
+    visSurvey::MarchingCubesDisplay*	mcd_			= nullptr;
+    visSurvey::PolygonBodyDisplay*	plg_			= nullptr;
+    visSurvey::RandomPosBodyDisplay*	rpb_			= nullptr;
 
     MenuItem				savemnuitem_;
     MenuItem				saveasmnuitem_;

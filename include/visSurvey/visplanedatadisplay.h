@@ -83,7 +83,7 @@ public:
     TrcKeyZSampling		getTrcKeyZSampling(
 					int attrib=-1) const override;
     void			getTraceKeyPath(TrcKeyPath&,
-                                                TypeSet<Coord>*) const override;
+						TypeSet<Coord>*) const override;
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						bool displayspace,
 						int attrib=-1) const;
@@ -98,8 +98,8 @@ public:
 
     bool			setDataPackID(int attrib,DataPackID,
 					      TaskRunner*) override;
-    DataPackID		getDataPackID(int attrib) const override;
-    DataPackID		getDisplayedDataPackID(
+    DataPackID			getDataPackID(int attrib) const override;
+    DataPackID			getDisplayedDataPackID(
 					      int attrib) const override;
     virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }

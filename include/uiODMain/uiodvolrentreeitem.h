@@ -74,8 +74,6 @@ protected:
     void		handleMenuCB(CallBacker*);
     bool		hasTransparencyMenu() const;
 
-    MenuItem		statisticsmnuitem_;
-    MenuItem		amplspectrummnuitem_;
     MenuItem		addmnuitem_;
     MenuItem		addisosurfacemnuitem_;
 };

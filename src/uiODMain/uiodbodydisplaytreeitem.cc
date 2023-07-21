@@ -9,9 +9,8 @@ ________________________________________________________________________
 
 #include "uiodbodydisplaytreeitem.h"
 
-#include "arrayndimpl.h"
 #include "ascstream.h"
-#include "datapointset.h"
+#include "conn.h"
 #include "embody.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
@@ -19,9 +18,9 @@ ________________________________________________________________________
 #include "emrandomposbody.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "marchingcubes.h"
 #include "mousecursor.h"
 #include "randcolor.h"
+#include "streamconn.h"
 #include "threadwork.h"
 
 #include "uimain.h"
@@ -29,42 +28,19 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 #include "uiimpbodycaldlg.h"
 #include "uimenu.h"
-#include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uinotsaveddlg.h"
 #include "uiodapplmgr.h"
 #include "uistrings.h"
 #include "uiodscenemgr.h"
 #include "uitaskrunner.h"
-#include "uitreeview.h"
 #include "uivispartserv.h"
-#include "vismarchingcubessurface.h"
+
 #include "vismarchingcubessurfacedisplay.h"
 #include "vispolygonbodydisplay.h"
 #include "visrandomposbodydisplay.h"
 
 
-/*test*/
-#include "trckeyzsampling.h"
-#include "ranges.h"
-#include "seisbuf.h"
-#include "seisbufadapters.h"
-#include "seisread.h"
-#include "seiswrite.h"
-#include "seisselectionimpl.h"
-#include "seistrc.h"
-#include "houghtransform.h"
-#include "iodir.h"
-#include "embodytr.h"
-#include "emfault3d.h"
-#include "emhorizon3d.h"
-#include "emmanager.h"
-#include "emmarchingcubessurface.h"
-#include "emsurfacetr.h"
-#include "explfaultsticksurface.h"
-#include "explplaneintersection.h"
-#include "executor.h"
-#include "survinfo.h"
 
 
 CNotifier<uiODBodyDisplayParentTreeItem,uiMenu*>&
@@ -225,14 +201,11 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( VisID visid,
 #define mCommonInit \
     , savemnuitem_(uiStrings::sSave()) \
     , saveasmnuitem_(uiStrings::sSaveAs()) \
-    , volcalmnuitem_(m3Dots(uiODBodyDisplayTreeItem::sCalcVolume())) \
     , displaybodymnuitem_(uiStrings::sGeobody()) \
     , displaypolygonmnuitem_(uiODBodyDisplayTreeItem::sPickedPolygons()) \
     , displayintersectionmnuitem_(uiStrings::sOnlyAtSections()) \
     , singlecolormnuitem_(uiStrings::sUseSingleColor()) \
-    , mcd_(0) \
-    , plg_(0) \
-    , rpb_(0)
+    , volcalmnuitem_(m3Dots(uiODBodyDisplayTreeItem::sCalcVolume()))
 
 #define mCommonInit2 \
     displaybodymnuitem_.checkable = true; \
@@ -446,7 +419,7 @@ void uiODBodyDisplayTreeItem::askSaveCB( CallBacker* )
 }
 
 
-void uiODBodyDisplayTreeItem::saveCB( CallBacker* cb )
+void uiODBodyDisplayTreeItem::saveCB( CallBacker* )
 {
     const bool issaved =
 	applMgr()->EMServer()->storeObject( emid_, true );
@@ -671,7 +644,7 @@ void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==isochronmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	mcd->setIsoPatch( attribNr() );
+	mcd->setIsopach( attribNr() );
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );

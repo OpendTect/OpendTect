@@ -80,7 +80,7 @@ public:
 					   int version=0) const override;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
     void			setDepthAsAttrib(int);
-    void			setIsoPatch(int);
+    void			setIsopach(int);
     void			enableAttrib(int attrib,bool yn) override;
     bool			isAttribEnabled(int attrib) const override;
     bool			hasSingleColorFallback() const override
@@ -91,6 +91,14 @@ public:
     void			setRandomPosData(int attrib,
 						    const DataPointSet*,
 						    TaskRunner*) override;
+    DataPackID			getDataPackID(int attrib) const override;
+    DataPackID			getDisplayedDataPackID(
+						int attrib )const override;
+    DataPackMgr::MgrID		getDataPackMgrID() const override
+				{ return DataPackMgr::PointID(); }
+
+    bool			isVerticalPlane() const override
+				{ return false; }
 
     void			setOnlyAtSectionsDisplay(bool yn) override;
     bool			displayedOnlyAtSections() const override;
