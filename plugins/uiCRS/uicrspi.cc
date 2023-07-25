@@ -21,10 +21,14 @@ mGlobal(Basic) void setGlobal_uiCRS_Fns(createuiCRSFromUiParentFn);
 
 mDefODPluginInfo(uiCRS)
 {
-    static PluginInfo retpi(
-	"Coordinate Reference System (GUI)",
+    static BufferString infostr;
+    infostr.set(
 	"User interface for providing a library of Coordinate Reference Systems"
-	    " that can be set at Survey level" );
+	" that can be set at Survey level")
+	   .addNewLine(2)
+	   .add("Using PROJ version: ").add( Coords::getProjVersion() );
+
+    static PluginInfo retpi( "Coordinate Reference System (GUI)", infostr );
     return &retpi;
 }
 

@@ -647,6 +647,16 @@ Coords::CRSInfoList* Coords::getCRSInfoList( bool orthogonal )
     return new ProjCRSInfoList( orthogonal );
 }
 
+
+BufferString Coords::getProjVersion()
+{
+    BufferString version;
+    version.add( PROJ_VERSION_MAJOR ).add(".")
+	.add(PROJ_VERSION_MINOR).add(".")
+	.add(PROJ_VERSION_PATCH);
+    return version;
+}
+
 #else
 
 Coord Coords::Projection::convert( const Coord& /* pos */,

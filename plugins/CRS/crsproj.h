@@ -133,6 +133,7 @@ protected:
 
 mGlobal(CRS) void		initCRSDatabase();
 mGlobal(CRS) CRSInfoList*	getCRSInfoList(bool orthogonal = true);
+mGlobal(CRS) BufferString	getProjVersion();
 
 } // namespace Coords
 
