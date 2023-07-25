@@ -8,8 +8,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
 #include "uiseismod.h"
+#include "uidialog.h"
 
 namespace Batch		{ class JobSpec; }
 

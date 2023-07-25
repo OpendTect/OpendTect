@@ -9,8 +9,6 @@ ________________________________________________________________________
 
 #include "uiseiswvltimpexp.h"
 
-#include "arrayndimpl.h"
-#include "ctxtioobj.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "oddirs.h"

@@ -10,10 +10,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "samplingdata.h"
 #include "seisiosimple.h"
-#include "multiid.h"
-#include "uicoordsystem.h"
 
 class IOObjContext;
 class uiLabel;
@@ -25,6 +22,8 @@ class uiFileInput;
 class uiSeparator;
 class uiSeisSubSel;
 class uiSeis2DLineNameSel;
+
+namespace Coords { class uiCoordSystemSel; }
 
 
 mExpClass(uiSeis) uiSeisIOSimple : public uiDialog

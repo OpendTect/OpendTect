@@ -9,11 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "uiseissel.h"
-#include "veldesc.h"
+#include "uigroup.h"
 
 class uiGenInput;
+class uiIOObjSel;
 class uiLabeledComboBox;
+class IOObj;
+class StaticsDesc;
 
 /*!Group that allows the user to edit StaticsDesc information. */
 

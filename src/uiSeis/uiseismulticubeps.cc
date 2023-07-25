@@ -9,26 +9,27 @@ ________________________________________________________________________
 
 #include "uiseismulticubeps.h"
 
-#include "uilistbox.h"
-#include "uigeninput.h"
-#include "uilabel.h"
-#include "uicombobox.h"
-#include "uitoolbutton.h"
-#include "uibuttongroup.h"
-#include "uiioobjsel.h"
-#include "uiseparator.h"
-#include "uimsg.h"
-#include "uistrings.h"
-#include "seismulticubeps.h"
-#include "seisioobjinfo.h"
-#include "seistrctr.h"
-#include "survinfo.h"
 #include "ctxtioobj.h"
-#include "ioman.h"
 #include "iodir.h"
 #include "iodirentry.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "od_helpids.h"
+#include "seisioobjinfo.h"
+#include "seismulticubeps.h"
+#include "survinfo.h"
+
+#include "uibuttongroup.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uiseparator.h"
+#include "uistrings.h"
+#include "uitoolbutton.h"
+
 
 class uiSeisMultiCubePSEntry
 { mODTextTranslationClass(uiSeisMultiCubePSEntry);

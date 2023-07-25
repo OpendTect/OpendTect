@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "uigeninput.h"
-#include "uimsg.h"
 #include "uiseissel.h"
 #include "uiveldesc.h"
 

@@ -8,9 +8,10 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
+
 #include "uiseismmjobdispatch.h"
-#include "uiseiswriteopts.h"
 #include "uiseisposprovgroup.h"
+#include "uiseiswriteopts.h"
 #include "uisynthgrp.h"
 #include "uiveldesc.h"
 

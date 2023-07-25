@@ -9,20 +9,16 @@ ________________________________________________________________________
 
 #include "uiseispsman.h"
 
-#include "keystrs.h"
-#include "posinfo.h"
-#include "zdomain.h"
-#include "seispsioprov.h"
-#include "seisioobjinfo.h"
-
-#include "uibutton.h"
-#include "uipixmap.h"
-#include "uiprestkmergedlg.h"
-#include "uiprestkcopy.h"
-#include "uiseismulticubeps.h"
-#include "uitextedit.h"
-#include "uitoolbutton.h"
 #include "od_helpids.h"
+#include "posinfo.h"
+#include "seisioobjinfo.h"
+#include "seispsioprov.h"
+
+#include "uiprestkcopy.h"
+#include "uiprestkmergedlg.h"
+#include "uiseismulticubeps.h"
+#include "uitoolbutton.h"
+#include "zdomain.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 

@@ -9,11 +9,8 @@ ________________________________________________________________________
 
 #include "uimergeseis.h"
 
-#include "bufstringset.h"
-#include "seiscbvs.h"
 #include "seisioobjinfo.h"
 #include "seismerge.h"
-#include "seistrctr.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"

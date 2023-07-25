@@ -11,23 +11,19 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "ioobjtags.h"
-#include "seisselection.h"
-#include "separstr.h"
+#include "od_helpids.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "timedepthmodel.h"
-#include "unitofmeasure.h"
-#include "zdomain.h"
 
 #include "uibutton.h"
-#include "uizrangeinput.h"
-#include "uicombobox.h"
 #include "uigeninput.h"
-#include "uistrings.h"
 #include "uimsg.h"
 #include "uistaticsdesc.h"
+#include "uistrings.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
+#include "uizrangeinput.h"
+#include "zdomain.h"
 
 
 static const char* sKeyDefVelCube = "Default.Cube.Velocity";

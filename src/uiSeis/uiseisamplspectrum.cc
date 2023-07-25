@@ -10,7 +10,7 @@ ________________________________________________________________________
 #include "uiseisamplspectrum.h"
 
 #include "arrayndimpl.h"
-#include "seisdatapack.h"
+#include "datapackbase.h"
 
 
 uiSeisAmplSpectrum::uiSeisAmplSpectrum( uiParent* p,

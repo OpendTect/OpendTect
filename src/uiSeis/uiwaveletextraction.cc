@@ -9,49 +9,45 @@ ________________________________________________________________________
 
 #include "uiwaveletextraction.h"
 
-#include "uigeninput.h"
-#include "uimsg.h"
-#include "uiposprovgroupstd.h"
-#include "uiseislinesel.h"
-#include "uiseissel.h"
-#include "uiseiswvltsel.h"
-#include "uiselsurvranges.h"
-#include "uiseissubsel.h"
-#include "uitaskrunner.h"
-
-#include "arrayndimpl.h"
 #include "binidvalset.h"
 #include "bufstring.h"
 #include "ctxtioobj.h"
-#include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceposprov.h"
-#include "ioman.h"
 #include "iopar.h"
+#include "od_helpids.h"
 #include "posprovider.h"
 #include "ptrman.h"
 #include "seisioobjinfo.h"
 #include "seisselectionimpl.h"
-#include "seistrctr.h"
 #include "survinfo.h"
-#include "waveletio.h"
+#include "trckeyzsampling.h"
+
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uiposprovgroup.h"
+#include "uiseislinesel.h"
+#include "uiseissel.h"
+#include "uiseissubsel.h"
+#include "uiseiswvltsel.h"
+#include "uiselsurvranges.h"
+#include "uitaskrunner.h"
 #include "wavelet.h"
 #include "waveletextractor.h"
-#include "od_helpids.h"
 
 
 uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     : uiDialog(p,Setup(tr("Extract Wavelet"),mNoDlgTitle,
 			mODHelpKey(mWaveletExtractionHelpID) ).modal(false) )
-    , wvltsize_(0)
-    , zrangefld_(0)
     , extractionDone(this)
-    , seldata_(0)
     , seisselfld_(0)
     , linesel2dfld_(0)
     , subselfld3d_(0)
+    , zrangefld_(0)
+    , seldata_(0)
     , datastep_(SI().zStep())
+    , wvltsize_(0)
 {
     setCtrlStyle( RunAndClose );
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );

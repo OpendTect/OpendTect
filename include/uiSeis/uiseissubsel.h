@@ -12,10 +12,8 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "multiid.h"
 #include "seisselection.h"
-#include "uidialog.h"
 #include "uigroup.h"
 #include "ranges.h"
-#include "sets.h"
 #include "uistring.h"
 
 class IOObj;

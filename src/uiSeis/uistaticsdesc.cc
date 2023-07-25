@@ -12,16 +12,14 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "emioobjinfo.h"
 #include "emsurfacetr.h"
-#include "emsurfaceiodata.h"
 #include "ioman.h"
-#include "seistrctr.h"
-#include "seisselection.h"
-#include "survinfo.h"
-#include "uibutton.h"
-#include "uigeninput.h"
-#include "uicombobox.h"
-#include "uimsg.h"
+#include "staticsdesc.h"
 #include "unitofmeasure.h"
+
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uimsg.h"
 
 
 

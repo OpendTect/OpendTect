@@ -13,9 +13,7 @@ ________________________________________________________________________
 #include "genericnumer.h"
 #include "linsolv.h"
 #include "wavelet.h"
-#include "waveletattrib.h"
 
-#include "uiaxishandler.h"
 #include "uifuncdispbase.h"
 #include "uifunctiondisplayserver.h"
 #include "uigeninput.h"

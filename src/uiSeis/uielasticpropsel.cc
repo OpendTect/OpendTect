@@ -9,12 +9,10 @@ ________________________________________________________________________
 
 #include "uielasticpropsel.h"
 
-#include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiioobjseldlg.h"
-#include "uiioobjmanip.h"
 #include "uiseparator.h"
 #include "uistrings.h"
 #include "uitabstack.h"
@@ -22,7 +20,6 @@ ________________________________________________________________________
 
 #include "elasticpropseltransl.h"
 #include "ioman.h"
-#include "mathexpression.h"
 #include "propertyref.h"
 #include "strmprov.h"
 #include "od_helpids.h"

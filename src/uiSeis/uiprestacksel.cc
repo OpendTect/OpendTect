@@ -10,9 +10,10 @@ ________________________________________________________________________
 #include "uiprestacksel.h"
 
 #include "ctxtioobj.h"
+
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseissel.h"
-#include "uilistbox.h"
 
 
 uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,

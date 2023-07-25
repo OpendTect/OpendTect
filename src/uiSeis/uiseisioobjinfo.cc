@@ -11,14 +11,14 @@ ________________________________________________________________________
 
 #include "cbvsreadmgr.h"
 #include "ioobj.h"
+#include "od_ostream.h"
+#include "od_strstream.h"
 #include "ptrman.h"
 #include "seiscbvs.h"
-#include "separstr.h"
-#include "systeminfo.h"
-#include "od_ostream.h"
-#include "uimsg.h"
-#include "od_strstream.h"
 #include "survinfo.h"
+#include "systeminfo.h"
+
+#include "uimsg.h"
 
 
 uiSeisIOObjInfo::uiSeisIOObjInfo( const IOObj& ioobj, bool errs )

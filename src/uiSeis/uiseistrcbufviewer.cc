@@ -7,12 +7,14 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiseistrcbufviewer.h"
+
 #include "seisbufadapters.h"
 #include "seisinfo.h"
 #include "seistrc.h"
+
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
-#include "uiseistrcbufviewer.h"
 
 
 uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,

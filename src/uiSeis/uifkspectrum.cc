@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "mouseevent.h"
 #include "seisdatapack.h"
+#include "survinfo.h"
 
 
 uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
@@ -36,8 +37,8 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     , input_(0)
     , output_(0)
     , spectrum_(0)
-    , minfld_(0), minvelitm_(0)
-    , maxfld_(0), maxvelitm_(0)
+    , minvelitm_(0), maxvelitm_(0)
+    , minfld_(0), maxfld_(0)
 {
     uiFlatViewer& vwr = viewer();
     vwr.setInitialSize( uiSize(600,400) );

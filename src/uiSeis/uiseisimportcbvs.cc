@@ -10,23 +10,17 @@ ________________________________________________________________________
 #include "uiseisimportcbvs.h"
 
 #include "ctxtioobj.h"
+#include "executor.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "keystrs.h"
+#include "od_helpids.h"
 #include "oddirs.h"
 #include "ptrman.h"
-#include "seisread.h"
 #include "seiscbvs.h"
 #include "seisselection.h"
-#include "seissingtrcproc.h"
-#include "seistrc.h"
-#include "survinfo.h"
-#include "veldesc.h"
-#include "velocitycalc.h"
-#include "zdomain.h"
-#include "filepath.h"
 
-#include "uicombobox.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -35,7 +29,6 @@ ________________________________________________________________________
 #include "uiseistransf.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
-#include "od_helpids.h"
 
 
 uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )

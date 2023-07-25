@@ -32,10 +32,10 @@ ________________________________________________________________________
 
 
 FreqTaperSetup::FreqTaperSetup()
-    : hasmin_(false)
-    , hasmax_(true)
-    , seisnm_(0)
+    : seisnm_(0)
     , attrnm_(0)
+    , hasmin_(false)
+    , hasmax_(true)
     , allfreqssetable_(false)
     , multiid_(MultiID::udf())
 {

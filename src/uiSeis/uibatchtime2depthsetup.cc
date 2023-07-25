@@ -12,18 +12,19 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "keystrs.h"
+#include "od_helpids.h"
 #include "process_time2depth.h"
-#include "seistrctr.h"
 #include "survinfo.h"
-#include "zdomain.h"
 
 #include "uibatchjobdispatchersel.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
+#include "uiseissel.h"
 #include "uiseissubsel.h"
-#include "uiveldesc.h"
-#include "od_helpids.h"
+#include "uizaxistransform.h"
+#include "zaxistransform.h"
+#include "zdomain.h"
 
 
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )

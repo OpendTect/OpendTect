@@ -11,18 +11,19 @@ ________________________________________________________________________
 
 #include "ioman.h"
 #include "ioobj.h"
+#include "od_helpids.h"
 #include "survinfo.h"
 #include "wavelet.h"
-#include "waveletio.h"
 #include "waveletattrib.h"
+#include "waveletio.h"
 
-#include "uiaxishandler.h"
-#include "uitoolbutton.h"
+#include "uiaxishandlerbase.h"
 #include "uifuncdispbase.h"
 #include "uifunctiondisplayserver.h"
-#include "uilabel.h"
-#include "uiioobjselgrp.h"
 #include "uiioobjmanip.h"
+#include "uiioobjselgrp.h"
+#include "uilabel.h"
+#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseiswvltattr.h"
@@ -30,11 +31,9 @@ ________________________________________________________________________
 #include "uiseiswvltimpexp.h"
 #include "uiselobjothersurv.h"
 #include "uistrings.h"
-#include "uitextedit.h"
+#include "uitoolbutton.h"
 #include "uiwaveletextraction.h"
 #include "uiwaveletmatchdlg.h"
-#include "od_helpids.h"
-#include "uilabel.h"
 
 
 #define mErrRet(s) { uiMSG().error(s); return; }

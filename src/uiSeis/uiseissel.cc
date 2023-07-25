@@ -8,37 +8,26 @@ ________________________________________________________________________
 -*/
 
 #include "uiseissel.h"
-#include "uiseisposprovgroup.h"
 
-#include "uicombobox.h"
-#include "uigeninput.h"
-#include "uiioobjselwritetransl.h"
-#include "uilabel.h"
-#include "uilistbox.h"
-#include "uibutton.h"
-#include "uiselsurvranges.h"
-#include "uimsg.h"
-#include "uistrings.h"
-
-#include "zdomain.h"
 #include "ctxtioobj.h"
-#include "trckeyzsampling.h"
-#include "iodirentry.h"
-#include "iostrm.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
-#include "seis2dlineio.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
-#include "seisselection.h"
 #include "seistrctr.h"
 #include "seistype.h"
-#include "separstr.h"
 #include "survinfo.h"
-#include "seiscbvs.h"
-#include "seispsioprov.h"
+
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uiioobjselwritetransl.h"
+#include "uilistbox.h"
+#include "uiseisposprovgroup.h"
+#include "uiselsurvranges.h"
+#include "uistrings.h"
+#include "zdomain.h"
 
 
 uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )

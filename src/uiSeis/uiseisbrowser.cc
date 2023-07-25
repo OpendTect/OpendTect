@@ -12,10 +12,7 @@ ________________________________________________________________________
 #include "uiamplspectrum.h"
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uiflatviewer.h"
-#include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
-#include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -29,7 +26,6 @@ ________________________________________________________________________
 
 #include "cbvsreadmgr.h"
 #include "trckeyzsampling.h"
-#include "datapack.h"
 #include "executor.h"
 #include "arrayndimpl.h"
 #include "filepath.h"

@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "datachar.h"
 #include "iopar.h"
 #include "seiscbvs.h"
-#include "seiscbvsps.h"
 #include "seispsioprov.h"
 
 #include "uibutton.h"

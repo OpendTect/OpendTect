@@ -9,24 +9,19 @@ ________________________________________________________________________
 
 #include "uiseistransf.h"
 #include "uiseissubsel.h"
-#include "uiseisioobjinfo.h"
 #include "uigeninput.h"
 #include "uiscaler.h"
-#include "uimainwin.h"
 #include "uimsg.h"
 
-#include "conn.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
-#include "seiscbvs.h"
 #include "seisresampler.h"
 #include "seisselection.h"
 #include "seissingtrcproc.h"
 #include "seisstor.h"
 #include "seistrc.h"
-#include "seiswrite.h"
-#include "survinfo.h"
+#include "seistrctr.h"
 #include "trckeyzsampling.h"
 
 

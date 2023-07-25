@@ -11,10 +11,10 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 
+#include "binid.h"
 #include "bufstringset.h"
 #include "linekey.h"
 #include "multiid.h"
-#include "position.h"
 #include "seistype.h"
 #include "samplingdata.h"
 

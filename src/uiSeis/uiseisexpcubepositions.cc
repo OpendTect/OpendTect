@@ -9,11 +9,6 @@ ________________________________________________________________________
 
 #include "uiseisexpcubepositions.h"
 
-#include "uigeninput.h"
-#include "uifileinput.h"
-#include "uimsg.h"
-#include "uiseisposprovgroup.h"
-
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -22,6 +17,11 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "seisposprovider.h"
 #include "seisread.h"
+
+#include "uifileinput.h"
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uiseisposprovgroup.h"
 
 
 uiSeisExpCubePositionsDlg::uiSeisExpCubePositionsDlg( uiParent* p )

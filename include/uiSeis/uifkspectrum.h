@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uiflatviewmainwin.h"
 #include "datapack.h"
-#include "survinfo.h"
 #include "odcomplex.h"
 
 namespace Fourier { class CC; }

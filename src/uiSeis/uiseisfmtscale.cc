@@ -8,17 +8,19 @@ ________________________________________________________________________
 -*/
 
 #include "uiseisfmtscale.h"
-#include "uicompoundparsel.h"
-#include "uidialog.h"
-#include "uiscaler.h"
+
 #include "datachar.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "od_helpids.h"
 #include "scaler.h"
 #include "seistrc.h"
+
+#include "uicompoundparsel.h"
+#include "uidialog.h"
 #include "uigeninput.h"
-#include "od_helpids.h"
+#include "uiscaler.h"
 
 
 class uiSeisFmtScaleData

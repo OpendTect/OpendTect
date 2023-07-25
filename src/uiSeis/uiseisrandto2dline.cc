@@ -10,22 +10,19 @@ ________________________________________________________________________
 #include "uiseisrandto2dline.h"
 
 #include "ctxtioobj.h"
-#include "linekey.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
 #include "seisrandlineto2d.h"
 #include "seistrctr.h"
-#include "seisioobjinfo.h"
 #include "survinfo.h"
-#include "survgeom2d.h"
-#include "posinfo2d.h"
-#include "uigeninput.h"
-#include "ui2dgeomman.h"
-#include "uimsg.h"
-#include "uiseissel.h"
-#include "uiseislinesel.h"
-#include "uitaskrunner.h"
+
 #include "od_helpids.h"
+#include "ui2dgeomman.h"
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uiseislinesel.h"
+#include "uiseissel.h"
+#include "uitaskrunner.h"
 
 
 uiSeisRandTo2DBase::uiSeisRandTo2DBase( uiParent* p, bool rdlsel )

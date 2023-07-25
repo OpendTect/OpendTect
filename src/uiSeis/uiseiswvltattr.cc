@@ -9,33 +9,31 @@ ________________________________________________________________________
 
 #include "uiseiswvltattr.h"
 
-#include "uiaxishandler.h"
-#include "uibutton.h"
-#include "uicombobox.h"
-#include "uigeninput.h"
-#include "uifreqtaper.h"
-#include "uimsg.h"
-#include "uislider.h"
-
 #include "arrayndalgo.h"
 #include "fftfilter.h"
-#include "uifunctiondisplayserver.h"
+#include "od_helpids.h"
 #include "survinfo.h"
+
+#include "uiaxishandlerbase.h"
+#include "uibutton.h"
+#include "uifreqtaper.h"
+#include "uifunctiondisplayserver.h"
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uislider.h"
 #include "wavelet.h"
 #include "waveletattrib.h"
-#include "windowfunction.h"
-#include "od_helpids.h"
 
 
 uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
     : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
 				 uiString::emptyString(),
 				 mODHelpKey(mSeisWvltSliderDlgHelpID) ))
+    , acting(this)
+    , wvltattr_(new WaveletAttrib(wvlt))
+    , sliderfld_(0)
     , wvlt_(&wvlt)
     , orgwvlt_(new Wavelet(wvlt))
-    , sliderfld_(0)
-    , wvltattr_(new WaveletAttrib(wvlt))
-    , acting(this)
 {
 }
 
@@ -108,11 +106,11 @@ static float getFreqXAxisScaler()
 #define mPadSz mPaddFac*wvltsz_/2
 uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     : uiSeisWvltSliderDlg(p,wvlt)
-    , timedrawer_(0)
-    , freqdrawer_(0)
     , isfreqtaper_(false)
     , wvltsz_(wvlt.size())
     , freqvals_(new Array1DImpl<float>(mPadSz))
+    , timedrawer_(0)
+    , freqdrawer_(0)
 {
     setCaption( tr("Taper Wavelet") );
     setHelpKey( mODHelpKey(mSeisWvltTaperDlgHelpID) );
@@ -280,9 +278,9 @@ uiWaveletDispPropDlg::~uiWaveletDispPropDlg()
 
 //Wavelet display properties
 uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
-	    : uiGroup(p,"Properties")
-	    ,wvltattr_(new WaveletAttrib(wvlt))
-	    ,wvltsz_(wvlt.size())
+    : uiGroup(p,"Properties")
+    , wvltsz_(wvlt.size())
+    , wvltattr_(new WaveletAttrib(wvlt))
 {
     timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop);
     timerange_.scale( SI().showZ2UserFactor() );

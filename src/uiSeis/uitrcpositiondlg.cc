@@ -10,30 +10,28 @@ ________________________________________________________________________
 #include "uitrcpositiondlg.h"
 
 #include "bufstringset.h"
-#include "ioobj.h"
 #include "flatposdata.h"
+#include "ioobj.h"
+#include "od_helpids.h"
 #include "pickretriever.h"
 #include "posinfo2d.h"
-#include "position.h"
 #include "seisdatapack.h"
-#include "seistrctr.h"
-#include "survinfo.h"
 #include "survgeom2d.h"
-#include "posinfo2dsurv.h"
+#include "survinfo.h"
 
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
-#include "uispinbox.h"
 #include "uislider.h"
+#include "uispinbox.h"
 #include "uitoolbutton.h"
-#include "od_helpids.h"
+
 
 uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     : uiGroup(p)
-    , altdimnmflds_( 0 )
     , possldr_( 0 )
+    , altdimnmflds_( 0 )
     , posvalfld_( 0 )
 {
     auto fdp = DPM( dpfid.mgrID() ).get<FlatDataPack>( dpfid.packID() );

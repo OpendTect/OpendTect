@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "keystrs.h"
 #include "od_helpids.h"
-#include "scaler.h"
 #include "seiscopy.h"
 #include "seissingtrcproc.h"
 #include "zdomain.h"
@@ -21,7 +20,6 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uimsg.h"
 #include "uiscaler.h"
-#include "uiseisioobjinfo.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
 #include "uiseistransf.h"
@@ -80,7 +78,7 @@ uiSeisCopyCube::~uiSeisCopyCube()
 }
 
 
-void uiSeisCopyCube::inpSel( CallBacker* cb )
+void uiSeisCopyCube::inpSel( CallBacker* )
 {
     const IOObj* inioobj = inpfld_->ioobj( true );
     ismc_ = false;

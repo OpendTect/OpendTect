@@ -12,19 +12,15 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
-#include "seisselection.h"
-#include "seistrctr.h"
-#include "strmprov.h"
-#include "survinfo.h"
-#include "posinfo2dsurv.h"
+#include "od_helpids.h"
 #include "od_iostream.h"
+#include "posinfo2dsurv.h"
 
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
-#include "od_helpids.h"
 
 static const BufferStringSet emptylnms;
 

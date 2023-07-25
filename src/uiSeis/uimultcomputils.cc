@@ -9,11 +9,9 @@ ________________________________________________________________________
 
 #include "uimultcomputils.h"
 #include "bufstringset.h"
-#include "linekey.h"
 #include "seisioobjinfo.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
-#include "survgeom.h"
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )

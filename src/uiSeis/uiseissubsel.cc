@@ -8,24 +8,22 @@ ________________________________________________________________________
 -*/
 
 #include "uiseissubsel.h"
-#include "uiseissel.h"
-#include "uiseislinesel.h"
-#include "uicompoundparsel.h"
-#include "uipossubsel.h"
-#include "uiposprovider.h"
-#include "uibutton.h"
-#include "uilistbox.h"
-#include "uiseisioobjinfo.h"
-#include "uimsg.h"
-#include "seistrctr.h"
-#include "survinfo.h"
-#include "iopar.h"
-#include "ioobj.h"
+
 #include "ioman.h"
-#include "trckeyzsampling.h"
+#include "ioobj.h"
+#include "iopar.h"
 #include "keystrs.h"
 #include "posprovider.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "zdomain.h"
+
+#include "uicompoundparsel.h"
+#include "uimsg.h"
+#include "uiposprovider.h"
+#include "uipossubsel.h"
+#include "uiseisioobjinfo.h"
+#include "uiseislinesel.h"
 
 
 uiSeisSubSel* uiSeisSubSel::get( uiParent* p, const Seis::SelSetup& s )

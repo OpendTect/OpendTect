@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "uiseismod.h"
 #include "uidialog.h"
 #include "uifuncdispbase.h"
 #include "uiwindowfunctionsel.h"

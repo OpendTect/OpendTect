@@ -14,11 +14,10 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uimsg.h"
-#include "uiseparator.h"
 #include "uistrings.h"
 
-#include "survinfo.h"
 #include "synthseis.h"
+#include "zdomain.h"
 
 mImplFactory2Param( uiSynthSeis, uiParent*, const uiSynthSeis::Setup&,
 		    uiSynthSeis::factory );
@@ -415,8 +414,8 @@ uiSynthSeis::Setup::~Setup()
 
 uiSynthSeis::uiSynthSeis( uiParent* p, const Setup& su )
     : uiGroup( p )
-    , withnmo_(su.withnmo_)
     , parsChanged( this )
+    , withnmo_(su.withnmo_)
 {
     wvltfld_ = new uiSeisWaveletSel( this, su.wvltsu_ );
     mAttachCB( wvltfld_->newSelection, uiSynthSeis::parsChangedCB );
