@@ -16,9 +16,14 @@ ________________________________________________________________________
 mDefODPluginEarlyLoad(CRS)
 mDefODPluginInfo(CRS)
 {
+    static BufferString infostr;
+    infostr.set("Plugin to add Coordinate Reference System support")
+	   .addNewLine(2)
+	   .add("Using PROJ version: ").add( Coords::getProjVersion() );
+
     static PluginInfo retpi(
 	"Coordinate Reference System (base)",
-	"Coordinate Reference System - base" );
+	infostr.buf() );
     return &retpi;
 }
 
