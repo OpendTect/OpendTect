@@ -65,18 +65,18 @@ protected:
 
     const T*		sort(idx_type* index_of_median =nullptr) override;
 
-    uiString		        errmsg_;
+    uiString		errmsg_;
 
-    mutable Threads::Barrier    barrier_;
+    mutable Threads::Barrier barrier_;
 
-    const T*			data_ = nullptr;
-    const T*                    weights_ = nullptr;
-    bool*			udfarr_ = nullptr;
+    const T*		data_ = nullptr;
+    const T*		weights_ = nullptr;
+    bool*		udfarr_ = nullptr;
 
-    T                           meanval_;
-    T                           meanval_w_;
-    T                           variance_;
-    T                           variance_w_;
+    T			meanval_;
+    T			meanval_w_;
+    T			variance_;
+    T			variance_w_;
 
     using BaseCalc<T>::setup_;
     using BaseCalc<T>::nradded_;
@@ -326,14 +326,26 @@ inline bool ParallelCalc<T>::doFinish( bool success )
 		continue;
 
 	    const T val = data_[idx];
-	    const T wt = weights_[idx];
-	    idx_type ival; Conv::set( ival, val );
+	    idx_type ival;
+	    Conv::set( ival, val );
 	    idx_type setidx = clss_.indexOf( ival );
 
-	    if ( setidx < 0 )
-		{ clss_[idx] = ival; clsswt_[idx] = wt; }
+	    if ( setup_.weighted_ && weights_ )
+	    {
+		const T wt = weights_[idx];
+		if ( setidx < 0 )
+		{
+		    clss_[idx] = ival;
+		    clsswt_[idx] = wt;
+		}
+		else
+		    clsswt_[setidx] = wt;
+	    }
 	    else
-		clsswt_[setidx] = wt;
+	    {
+		if ( setidx < 0 )
+		    clss_[idx] = ival;
+	    }
 	}
     }
 
