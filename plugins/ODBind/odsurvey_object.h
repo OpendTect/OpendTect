@@ -188,22 +188,22 @@ void odSurveyObject::removeObjects( const odSurvey& survey,
 #define mDefineBaseBindings(classnm, bindnm) \
     h##classnm bindnm##_newin( hSurvey survey, const char* name ) \
     { \
-	const auto* surv = reinterpret_cast<odSurvey*>(survey); \
+	const auto* surv = static_cast<odSurvey*>(survey); \
 	return surv && name ? new od##classnm( *surv, name ) : nullptr; \
     } \
     void bindnm##_del( h##classnm self ) \
     { \
-	auto* p = reinterpret_cast<od##classnm*>(self); \
+	auto* p = static_cast<od##classnm*>(self); \
 	if ( p ) delete p; \
     } \
     const char* bindnm##_errmsg( h##classnm self ) \
     { \
-	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	const auto* p = static_cast<od##classnm*>(self); \
 	return p ? strdup( p->errMsg().buf() ) : nullptr; \
     } \
     const char* bindnm##_feature( h##classnm self ) \
     { \
-	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	const auto* p = static_cast<od##classnm*>(self); \
 	OD::JSON::Object jsobj; \
 	if ( !p || !p->canRead() ) return nullptr; \
 	p->getFeature( jsobj ); \
@@ -211,8 +211,8 @@ void odSurveyObject::removeObjects( const odSurvey& survey,
     } \
     const char* bindnm##_features( hSurvey survey, const hStringSet fornms ) \
     { \
-	const auto* surv = reinterpret_cast<odSurvey*>(survey); \
-	const auto* nms = reinterpret_cast<BufferStringSet*>(fornms); \
+	const auto* surv = static_cast<odSurvey*>(survey); \
+	const auto* nms = static_cast<BufferStringSet*>(fornms); \
 	if ( !surv || !nms ) return nullptr; \
 	OD::JSON::Object jsobj; \
 	od##classnm::getFeatures<od##classnm>( jsobj, *surv, *nms ); \
@@ -220,7 +220,7 @@ void odSurveyObject::removeObjects( const odSurvey& survey,
     } \
     const char* bindnm##_info( h##classnm self ) \
     { \
-	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	const auto* p = static_cast<od##classnm*>(self); \
 	if ( !p ) return nullptr; \
 	OD::JSON::Object jsobj; \
 	p->getInfo( jsobj ); \
@@ -228,8 +228,8 @@ void odSurveyObject::removeObjects( const odSurvey& survey,
     } \
     const char* bindnm##_infos( hSurvey survey, const hStringSet fornms ) \
     { \
-	const auto* surv = reinterpret_cast<odSurvey*>(survey); \
-	const auto* nms = reinterpret_cast<BufferStringSet*>(fornms); \
+	const auto* surv = static_cast<odSurvey*>(survey); \
+	const auto* nms = static_cast<BufferStringSet*>(fornms); \
 	if ( !surv || !nms ) return nullptr; \
 	OD::JSON::Array jsarr( true ); \
 	od##classnm::getInfos<od##classnm>( jsarr, *surv, *nms ); \
@@ -237,24 +237,24 @@ void odSurveyObject::removeObjects( const odSurvey& survey,
     } \
     bool bindnm##_isok( h##classnm self ) \
     { \
-	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	const auto* p = static_cast<od##classnm*>(self); \
 	return p ? p->isOK() : false; \
     } \
     bool bindnm##_zistime( h##classnm self ) \
     { \
-	const auto* p = reinterpret_cast<od##classnm*>(self); \
+	const auto* p = static_cast<od##classnm*>(self); \
 	return p ? p->zIsTime() : false; \
     } \
     hStringSet bindnm##_names( hSurvey survey ) \
     { \
-	const auto* p = reinterpret_cast<odSurvey*>(survey); \
+	const auto* p = static_cast<odSurvey*>(survey); \
 	if ( !p ) return nullptr; \
 	return od##classnm::getNames<od##classnm>( *p ); \
     } \
     void bindnm##_removeobjs( hSurvey survey, const hStringSet objnms ) \
     { \
-	const auto* p = reinterpret_cast<odSurvey*>(survey); \
-	const auto* nms = reinterpret_cast<BufferStringSet*>(objnms); \
+	const auto* p = static_cast<odSurvey*>(survey); \
+	const auto* nms = static_cast<BufferStringSet*>(objnms); \
 	if ( !p || !nms ) return; \
 	od##classnm::removeObjects<od##classnm>( *p, *nms ); \
     }

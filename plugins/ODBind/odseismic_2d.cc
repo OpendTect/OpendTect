@@ -160,7 +160,7 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     const float valnan = std::nanf("");
     for ( int cidx=0; cidx<nrcomp; cidx++ )
     {
-	float* outdata = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
+	float* outdata = static_cast<float*>( allocator(ndim, dims, 'f') );
 	for ( int tidx=0; tidx<ntrc; tidx++ )
 	{
 	    const SeisTrc* trc = tbuf.get( tidx );
@@ -178,10 +178,10 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     const int ndim_xy = 1;
     PtrMan<int> dims_xy = new int[ndim_xy];
     dims_xy[0] = tbuf.size();
-    int* trcdata = reinterpret_cast<int*>(allocator(ndim_xy, dims_xy, 'i'));
-    float* refdata = reinterpret_cast<float*>(allocator(ndim_xy, dims_xy, 'f'));
-    double* xdata = reinterpret_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
-    double* ydata = reinterpret_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    int* trcdata = static_cast<int*>(allocator(ndim_xy, dims_xy, 'i'));
+    float* refdata = static_cast<float*>(allocator(ndim_xy, dims_xy, 'f'));
+    double* xdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    double* ydata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
     for ( int tidx=0; tidx<ntrc; tidx++ )
     {
 	const SeisTrcInfo& trc = tbuf.get( tidx )->info();
@@ -245,7 +245,7 @@ mDefineBaseBindings(Seismic2D, seismic2d)
 
 void seismic2d_close( hSeismic2D self )
 {
-    auto* p = reinterpret_cast<odSeismic2D*>(self);
+    auto* p = static_cast<odSeismic2D*>(self);
     if  ( !p )
 	return;
 
@@ -255,7 +255,7 @@ void seismic2d_close( hSeismic2D self )
 
 hStringSet seismic2d_compnames( hSeismic2D self )
 {
-    const auto* p = reinterpret_cast<odSeismic2D*>(self);
+    const auto* p = static_cast<odSeismic2D*>(self);
     if  ( !p )
 	return nullptr;
 
@@ -265,7 +265,7 @@ hStringSet seismic2d_compnames( hSeismic2D self )
 
 hStringSet seismic2d_linenames( hSeismic2D self )
 {
-    const auto* p = reinterpret_cast<odSeismic2D*>(self);
+    const auto* p = static_cast<odSeismic2D*>(self);
     if  ( !p )
 	return nullptr;
 
@@ -275,8 +275,8 @@ hStringSet seismic2d_linenames( hSeismic2D self )
 
 const char* seismic2d_lineinfo( hSeismic2D self, const hStringSet fornms )
 {
-    auto* p = reinterpret_cast<odSeismic2D*>(self);
-    const auto* nms = reinterpret_cast<BufferStringSet*>(fornms);
+    auto* p = static_cast<odSeismic2D*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(fornms);
     if ( !p || !nms ) return nullptr;
     OD::JSON::Array jsarr( true );
     p->getLineInfo( jsarr, *nms );
@@ -287,7 +287,7 @@ const char* seismic2d_lineinfo( hSeismic2D self, const hStringSet fornms )
 void seismic2d_getdata( hSeismic2D self, hAllocator allocator,
 			const char* linenm, float zrg[3] )
 {
-    const auto* p = reinterpret_cast<odSeismic2D*>(self);
+    const auto* p = static_cast<odSeismic2D*>(self);
     if  ( !p || !p->canRead() )
 	return;
 
