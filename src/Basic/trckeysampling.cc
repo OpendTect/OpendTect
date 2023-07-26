@@ -925,22 +925,23 @@ void TrcKeySampling::toString( BufferString& str ) const
 
 void TrcKeySampling::fillInfoSet( StringPairSet& infoset ) const
 {
+    if ( !is2D() )
     {
-    uiString str = toUiString("%1 - %2 - %3; Total: %4")
+	uiString str = toUiString("%1 - %2 - %3; Total: %4")
 			.arg(start_.inl())
 			.arg(stop_.inl())
 			.arg(step_.inl())
 			.arg(nrInl());
-    infoset.add( sKey::InlRange(), str.getFullString() );
+	infoset.add( sKey::InlRange(), str.getFullString() );
     }
-    {
+
     uiString str = toUiString("%1 - %2 - %3; Total: %4")
 			.arg(start_.crl())
 			.arg(stop_.crl())
 			.arg(step_.crl())
 			.arg(nrCrl());
-    infoset.add( sKey::CrlRange(), str.getFullString() );
-    }
+    infoset.add( is2D() ? sKey::TrcRange() : sKey::CrlRange(),
+		 str.getFullString() );
 }
 
 
