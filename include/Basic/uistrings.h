@@ -591,7 +591,7 @@ public:
     static uiString sSouth(bool abb)	{ return abb ? tr("S"):tr("South"); }
     static uiString sSpecify()		{ return tr("Specify"); }
     static uiString sSpecifyOut()	{ return tr("Specify output"); }
-    static uiString sSPNumber()		{ return tr("Shotpoint n"); }
+    static uiString sSPNumber()		{ return tr("Shotpoint number"); }
     static uiString sStart()		{ return tr("Start"); }
     static uiString sStatistics()	{ return tr("Statistics"); }
     static uiString sStatus()		{ return tr("Status"); }
@@ -624,7 +624,7 @@ public:
     static uiString sTop()		{ return tr("Top"); }
     static uiString sTopHor()		{ return tr("Top Horizon"); }
     static uiString sTrace(int n=1)	{ return tr("Trace",0,n); }
-    static uiString sTraceNumber()	{ return tr("Trace n"); }
+    static uiString sTraceNumber()	{ return tr("Trace number"); }
     static uiString sTraceRange()	{ return tr("Trace range"); }
     static uiString sTrack()		{ return tr("Track" ); }
     static uiString sTracking()		{ return tr("Tracking"); }
