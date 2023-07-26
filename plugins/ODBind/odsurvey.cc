@@ -468,12 +468,12 @@ hSurvey survey_new( const char* surveynm, const char* basedir )
 
 void survey_del( hSurvey self )
 {
-    delete reinterpret_cast<odSurvey*>(self);
+    delete static_cast<odSurvey*>(self);
 }
 
 void survey_bin( hSurvey self, double x, double y, int* iline, int* xline )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     if ( p && iline && xline )
     {
 	auto b2c = p->si().binID2Coord();
@@ -486,7 +486,7 @@ void survey_bin( hSurvey self, double x, double y, int* iline, int* xline )
 void survey_bincoords( hSurvey self, double x, double y,
 		       double* iline, double* xline )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     if ( p && iline && xline )
     {
 	auto b2c = p->si().binID2Coord();
@@ -498,7 +498,7 @@ void survey_bincoords( hSurvey self, double x, double y,
 
 void survey_coords( hSurvey self, int iline, int xline, double* x, double* y )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     if ( p && x && y )
     {
 	const Coord coord = p->si().transform( BinID(iline, xline) );
@@ -509,13 +509,13 @@ void survey_coords( hSurvey self, int iline, int xline, double* x, double* y )
 
 const char* survey_crs( hSurvey self )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     return strdup( p->get_crsCode().buf() );
 }
 
 const char* survey_feature( hSurvey self )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     OD::JSON::Object jsobj;
     p->getFeature( jsobj );
     return strdup( jsobj.dumpJSon().buf() );
@@ -523,7 +523,7 @@ const char* survey_feature( hSurvey self )
 
 const char* survey_features( const hStringSet forsurveys, const char* basedir )
 {
-    const auto* p = reinterpret_cast<BufferStringSet*>(forsurveys);
+    const auto* p = static_cast<BufferStringSet*>(forsurveys);
     OD::JSON::Object jsobj;
     odSurvey::getFeatures( jsobj, *p, basedir );
     return strdup( jsobj.dumpJSon().buf() );
@@ -531,25 +531,25 @@ const char* survey_features( const hStringSet forsurveys, const char* basedir )
 
 bool survey_has2d( hSurvey self )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     return p->has2D();
 }
 
 bool survey_has3d( hSurvey self )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     return p->has3D();
 }
 
 bool survey_hasobject( hSurvey self, const char* objname, const char* trgrpnm )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     return p->isObjPresent( objname, trgrpnm );
 }
 
 const char* survey_info( hSurvey self )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     OD::JSON::Object jsobj;
     p->getInfo( jsobj );
     return strdup( jsobj.dumpJSon().buf() );
@@ -557,7 +557,7 @@ const char* survey_info( hSurvey self )
 
 const char* survey_infos( const hStringSet forsurveys, const char* basedir )
 {
-    const auto* p = reinterpret_cast<BufferStringSet*>(forsurveys);
+    const auto* p = static_cast<BufferStringSet*>(forsurveys);
     OD::JSON::Array jsarr( true );
     odSurvey::getInfos( jsarr, *p, basedir );
     return strdup( jsarr.dumpJSon().buf() );
@@ -570,33 +570,33 @@ hStringSet survey_names( const char* basedir )
 
 const char* survey_path( hSurvey self )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     return strdup( p->surveyPath().buf() );
 }
 
 const char* survey_survtype( hSurvey self )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     return strdup( p->type().buf() );
 }
 
 
 const char* survey_errmsg( hSurvey self )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     return p ? strdup( p->errMsg().buf() ) : nullptr;
 }
 
 
 bool survey_isok( hSurvey self )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     return p ? p->isOK() : false;
 }
 
 void survey_zrange( hSurvey self, float* zrg )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(self);
+    const auto* p = static_cast<odSurvey*>(self);
     if ( !p ) return;
 
     p->activate();
