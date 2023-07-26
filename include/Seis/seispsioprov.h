@@ -104,8 +104,7 @@ public:
 					   TypeSet<Pos::GeomID>&) const
 				{ return false; }
     virtual bool		getLineNames(const char*,
-					     BufferStringSet&) const
-				{ return false; }
+					     BufferStringSet&) const;
 
     static const char*		sKeyCubeID;
 

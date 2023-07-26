@@ -61,8 +61,6 @@ public:
 
     bool		getGeomIDs(const char*,
 				   TypeSet<Pos::GeomID>&) const override;
-    bool		getLineNames(const char*,
-				     BufferStringSet&) const override;
 
     static int		factid;
 };
@@ -93,21 +91,6 @@ bool SEGYDirectPSIOProvider::getGeomIDs( const char* dirnm,
     return geomids.size();
 }
 
-
-
-bool SEGYDirectPSIOProvider::getLineNames( const char* dirnm,
-					BufferStringSet& linenms) const
-{
-    linenms.setEmpty();
-    TypeSet<Pos::GeomID> geomids;
-    if ( !getGeomIDs(dirnm,geomids) )
-	return false;
-
-    for ( int idx=0; idx<geomids.size(); idx++ )
-	linenms.add( Survey::GM().getName(geomids[idx]) );
-
-    return linenms.size();
-}
 
 
 // This adds the SEG-Y direct prestack seismics data storage to the factory

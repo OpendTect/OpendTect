@@ -99,6 +99,21 @@ bool SeisPSIOProvider::fetchLineNames( const IOObj& ioobj,
 }
 
 
+bool SeisPSIOProvider::getLineNames( const char* dirnm,
+					BufferStringSet& linenms ) const
+{
+    linenms.setEmpty();
+    TypeSet<Pos::GeomID> geomids;
+    if ( !getGeomIDs(dirnm,geomids) )
+	return false;
+
+    for ( int idx=0; idx<geomids.size(); idx++ )
+	linenms.add( Survey::GM().getName(geomids[idx]) );
+
+    return linenms.size();
+}
+
+
 SeisPSIOProviderFactory& SPSIOPF()
 {
     mDefineStaticLocalObject( SeisPSIOProviderFactory, theinst, );
