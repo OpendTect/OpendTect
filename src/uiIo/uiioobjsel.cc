@@ -158,18 +158,23 @@ void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
 }
 
 
-#define mSelTxt(txt,ct) \
-    !txt.isEmpty() ? txt \
-	: toUiString(ct.name().isEmpty() \
-	    ? ct.trgroup_->groupName().buf() \
-	    : ct.name().buf())
+// uiIOObjSel
+static uiString getString( const uiString& txt, const IOObjContext& ct )
+{
+    if ( !txt.isEmpty() )
+	return txt;
+
+    return toUiString( ct.name().isEmpty() ? ct.trgroup_->groupName().buf()
+					   : ct.name().buf() );
+}
+
 
 uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const uiString& txt)
-    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c)),
+    : uiIOSelect(p,uiIOSelect::Setup(getString(txt,c)),
 		 mCB(this,uiIOObjSel,doObjSel))
     , inctio_(*new CtxtIOObj(c))
     , workctio_(*new CtxtIOObj(c))
-    , setup_(mSelTxt(txt,c))
+    , setup_(getString(txt,c))
     , inctiomine_(true)
 {
     init();
@@ -189,11 +194,11 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiString& txt )
-    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c.ctxt_)),
+    : uiIOSelect(p,uiIOSelect::Setup(getString(txt,c.ctxt_)),
 		 mCB(this,uiIOObjSel,doObjSel))
     , inctio_(c)
     , workctio_(*new CtxtIOObj(c))
-    , setup_(mSelTxt(txt,c.ctxt_))
+    , setup_(getString(txt,c.ctxt_))
     , inctiomine_(false)
 {
     init();
