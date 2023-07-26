@@ -60,10 +60,11 @@ public:
     uiStringSet&	operator +=( const uiString& s ) { return add(s); }
     void		removeSingle(idx_type,bool keep_order=true);
     void		removeRange(idx_type,idx_type);
-    void                swap( idx_type i1, idx_type i2 )
-                                                { strs_.swap( i1, i2 ); }
+    void		swap( idx_type i1, idx_type i2 )
+			{ strs_.swap( i1, i2 ); }
 
-    uiString		cat(muiStringAppendDefArgs) const;
+    uiString		cat(SeparType septyp=uiString::CloseLine,
+			    AppendType apptyp=uiString::OnNewLine) const;
     uiStringSet		getNonEmpty() const;
     uiString		createOptionString(bool use_and=true,int maxnritems=-1,
 				   bool separate_lines=false) const;

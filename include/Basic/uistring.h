@@ -163,10 +163,6 @@ public:
     uiString&		arg(const uiString&);
 
 
-#   define		muiStringAppendDefArgs \
-			    SeparType septyp=uiString::CloseLine, \
-			    AppendType apptyp=uiString::OnNewLine
-
 			/*! appendXX() functions should be used to concatenate
 			    entire sentences. You cannot just mix&match words
 			    or groups of words at the risk of hilarious
@@ -176,9 +172,12 @@ public:
 			  SemiColon };
     enum AppendType	{ OnSameLine, OnNewLine, AfterEmptyLine };
 
-    uiString&		appendPhrase(const uiString&,muiStringAppendDefArgs);
+    uiString&		appendPhrase(const uiString&,
+				SeparType septyp=uiString::CloseLine,
+				AppendType apptyp=uiString::OnNewLine);
     uiString&		appendPhrases(const uiStringSet&,
-				      muiStringAppendDefArgs);
+				SeparType septyp=uiString::CloseLine,
+				AppendType apptyp=uiString::OnNewLine);
     uiString&		appendPlainText(const char*,bool addspace=false,
 					bool addquotes=false);
     uiString&		appendPlainText(const OD::String&,bool addspace=false,
