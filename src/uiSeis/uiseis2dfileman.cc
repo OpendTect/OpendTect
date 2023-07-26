@@ -70,8 +70,8 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );
     infofld_ = new uiTextEdit( botgrp, "File Info", true );
-    infofld_->setPrefHeightInChar( 8 );
-    infofld_->setPrefWidthInChar( 50 );
+    infofld_->setPrefHeightInChar( 10 );
+    infofld_->setPrefWidthInChar( 75 );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
     splitter->addGroup( topgrp );
@@ -132,9 +132,9 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	    l2dd = geom2d->data();
 	if ( !geom2d || l2dd.isEmpty() )
 	{
-	    txt.addNewLine();
 	    txt.append( tr("Cannot find geometry for line: %1").
 						    arg(linenms.get(idx)) );
+	    txt.addNewLine();
 	    continue;
 	}
 
@@ -143,13 +143,13 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	l2dd.getPos( trcrg.start, firstpos );
 	l2dd.getPos( trcrg.stop, lastpos );
 
-	txt.addNewLine();
 	if ( hasrg )
 	{
 	    if ( idx > 0 )
 		txt.addNewLine();
 
-	    txt.append( tr("Details for line: %1").arg(linenms.get(idx)) );
+	    txt.appendPhrase( tr("Details for line: %1").arg(linenms.get(idx)),
+			     uiString::NoSep, uiString::OnSameLine );
 	    txt.addNewLine();
 	    txt.append( tr("Number of traces: %1").arg(sz) );
 	    txt.addNewLine();
@@ -199,13 +199,14 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	txt.addNewLine();
 	txt.append( tr("File size: %1").arg(
 				    File::getFileSizeString(fname.buf())) );
-	txt.addNewLine();
 	StringView timestr( File::timeLastModified(fname) );
 	if ( !timestr.isEmpty() )
 	{
 	    txt.addNewLine();
 	    txt.append( tr("Last modified: %1").arg(timestr) );
 	}
+
+	txt.addNewLine();
     }
 
     infofld_->setText( txt );
