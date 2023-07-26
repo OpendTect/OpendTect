@@ -58,26 +58,23 @@ const Attrib::DescSet& emptyads3d()
 
 using namespace Attrib;
 
-#define mImplConstr \
-    , attribid_(-1,true) \
-    , nlamodel_(0) \
-    , outputnr_(-1) \
-    , compnr_(-1) \
-    , zdomaininfo_(0) \
-{ \
-    if ( fillwithdef ) \
-	attribid_ = attrset_->ensureDefStoredPresent(); \
-}
 
 uiAttrSelData::uiAttrSelData( bool is2d, bool fillwithdef )
-    : attrset_(is2d ? &emptyads2d() : &emptyads3d() )
-    mImplConstr
+    : attribid_(-1,true) \
+    , attrset_(is2d ? &emptyads2d() : &emptyads3d() )
+{
+    if ( fillwithdef )
+	attribid_ = attrset_->ensureDefStoredPresent();
+}
 
 
 uiAttrSelData::uiAttrSelData( const Attrib::DescSet& aset, bool fillwithdef )
-    : attrset_(&aset)
-    mImplConstr
-
+    : attribid_(-1,true) \
+    , attrset_(&aset)
+{
+    if ( fillwithdef )
+	attribid_ = attrset_->ensureDefStoredPresent();
+}
 
 uiAttrSelData::~uiAttrSelData()
 {}
@@ -116,21 +113,10 @@ void uiAttrSelData::fillSelSpec( SelSpec& as ) const
 	: uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle, \
 					mODHelpKey(mAttrSelDlgNo_NNHelpID))) \
 	, attrdata_(atd) \
-	, selgrp_(0) \
-	, storoutfld_(0) \
-	, steerfld_(0) \
-	, steeroutfld_(0) \
-	, attroutfld_(0) \
-	, attr2dfld_(0) \
-	, nlafld_(0) \
-	, nlaoutfld_(0) \
-	, zdomainfld_(0) \
-	, zdomoutfld_(0) \
-	, in_action_(false) \
-	, showsteerdata_(stp.showsteeringdata_) \
 	, usedasinput_(stp.isinp4otherattrib_) \
-	, insertedobjmid_(MultiID::udf()) \
-	, geomid_(stp.geomid_)
+	, showsteerdata_(stp.showsteeringdata_) \
+	, geomid_(stp.geomid_) \
+	, insertedobjmid_(MultiID::udf())
 
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
@@ -139,6 +125,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 {
     initAndBuild( mToUiStringTodo(stp.seltxt_), stp.ignoreid_, usedasinput_ );
 }
+
 
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 			    const TypeSet<DataPack::FullID>& dpfids,

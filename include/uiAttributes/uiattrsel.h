@@ -43,10 +43,10 @@ public:
 				~uiAttrSelData();
 
     Attrib::DescID		attribid_;
-    const NLAModel*		nlamodel_;
-    int				outputnr_;
-    int				compnr_;
-    const ZDomain::Info*	zdomaininfo_;
+    const NLAModel*		nlamodel_		= nullptr;
+    int				outputnr_		= -1;
+    int				compnr_			= -1;
+    const ZDomain::Info*	zdomaininfo_		= nullptr;
 
     bool			is2D() const;
     const Attrib::DescSet&	attrSet() const		{ return *attrset_; }
@@ -121,7 +121,7 @@ protected:
     uiAttrSelData	attrdata_;
     Attrib::SelInfo*	attrinf_;
     bool		usedasinput_;	//input for another attribute
-    bool		in_action_;
+    bool		in_action_			= false;
     bool		showsteerdata_;
     BufferString	zdomainkey_;
     Pos::GeomID		geomid_;
@@ -129,22 +129,22 @@ protected:
     TypeSet<DataPack::FullID> dpfids_;
     MultiID		insertedobjmid_;
 
-    uiButtonGroup*	selgrp_;
-    uiRadioButton*	storfld_;
-    uiRadioButton*	steerfld_;
-    uiRadioButton*	attrfld_;
-    uiRadioButton*	nlafld_;
-    uiRadioButton*	zdomainfld_;
+    uiButtonGroup*	selgrp_				= nullptr;
+    uiRadioButton*	storfld_			= nullptr;
+    uiRadioButton*	steerfld_			= nullptr;
+    uiRadioButton*	attrfld_			= nullptr;
+    uiRadioButton*	nlafld_				= nullptr;
+    uiRadioButton*	zdomainfld_			= nullptr;
 
-    uiListBox*		storoutfld_;
-    uiListBox*		steeroutfld_;
-    uiListBox*		attroutfld_;
-    uiListBoxFilter*	attribfilterfld_	= nullptr;
-    uiListBox*		nlaoutfld_;
-    uiListBox*		zdomoutfld_;
-    uiGenInput*		filtfld_;
-    uiGenInput*		attr2dfld_;
-    uiLabeledComboBox*	compfld_;
+    uiListBox*		storoutfld_			= nullptr;
+    uiListBox*		steeroutfld_			= nullptr;
+    uiListBox*		attroutfld_			= nullptr;
+    uiListBoxFilter*	attribfilterfld_		= nullptr;
+    uiListBox*		nlaoutfld_			= nullptr;
+    uiListBox*		zdomoutfld_			= nullptr;
+    uiGenInput*		filtfld_			= nullptr;
+    uiGenInput*		attr2dfld_			= nullptr;
+    uiLabeledComboBox*	compfld_			= nullptr;
 
     ObjectSet<uiIOObjInserter> inserters_;
     ObjectSet<uiButton>	extselbuts_;
