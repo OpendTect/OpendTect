@@ -541,42 +541,13 @@ void uiIOObjSelGrp::mkManipulators()
 	 !uiIOObjInserter::isPresent(*ctio_.ctxt_.trgroup_) )
 	return;
 
-    auto* insbutgrp = new uiGroup( listfld_, "IOObj insert buttons" );
-    const ObjectSet<const Translator>& tpls = ctio_.ctxt_.trgroup_->templates();
-    for ( int idx=0; idx<tpls.size(); idx++ )
-    {
-	const BufferString trnm = tpls[idx]->typeName();
-
-	if ( !IOObjSelConstraints::isAllowedTranslator(tpls[idx]->userName(),
-					ctio_.ctxt_.toselect_.allowtransls_) ||
-	     setup_.trsnotallwed_.indexOf(trnm)>=0 )
-	    continue;
-
-	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
-	if ( !inserter || inserter->isDisabled() )
-	{
-	    delete inserter;
-	    continue;
-	}
-
-	inserter->setIOObjCtxt( ctio_.ctxt_ );
-	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
-	if ( !tbsu )
-	    { delete inserter; continue; }
-
-	uiButton* but = tbsu->getButton( insbutgrp, true );
-	delete tbsu;
-	const int prevnrbuts = insertbuts_.size();
-	insertbuts_ += but;
-	if ( prevnrbuts > 0 )
-	    but->attach( rightAlignedBelow, insertbuts_[prevnrbuts-1] );
-
+    const BufferStringSet nms;
+    uiButton* but = uiIOObjInserter::createInsertButton( topgrp_, ctio_,
+							inserters_, nms );
+    for ( auto* inserter : inserters_ )
 	mAttachCB( inserter->objInserterd, uiIOObjSelGrp::objInserted );
 
-	inserters_ += inserter;
-    }
-
-    insbutgrp->attach( centeredLeftOf, listfld_->box() );
+    but->attach( centeredLeftOf, listfld_ );
 }
 
 
