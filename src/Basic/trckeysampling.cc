@@ -927,7 +927,7 @@ void TrcKeySampling::fillInfoSet( StringPairSet& infoset ) const
 {
     if ( !is2D() )
     {
-	uiString str = toUiString("%1 - %2 - %3; Total: %4")
+	uiString str = toUiString("%1 - %2 [%3]; Total: %4")
 			.arg(start_.inl())
 			.arg(stop_.inl())
 			.arg(step_.inl())
@@ -935,7 +935,7 @@ void TrcKeySampling::fillInfoSet( StringPairSet& infoset ) const
 	infoset.add( sKey::InlRange(), str.getFullString() );
     }
 
-    uiString str = toUiString("%1 - %2 - %3; Total: %4")
+    uiString str = toUiString("%1 - %2 [%3]; Total: %4")
 			.arg(start_.crl())
 			.arg(stop_.crl())
 			.arg(step_.crl())

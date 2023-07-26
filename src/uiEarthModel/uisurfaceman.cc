@@ -625,12 +625,10 @@ static void addInlCrlRangeTxt( BufferString& txt,
 			       const StepInterval<int>& range )
 {
     if ( range.isUdf() )
-	txt += "-\n";
+	txt.add( "-" ).addNewLine();
     else
-    {
-	txt += range.start; txt += " - "; txt += range.stop;
-	txt += " - "; txt += range.step; txt += "\n";
-    }
+	txt.add( range.start ).add( " - " ).add( range.stop )
+	   .add( " [" ).add( range.step ).add( "]" ).addNewLine();
 }
 
 

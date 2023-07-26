@@ -1232,11 +1232,11 @@ void uiSurvey::putToScreen()
     {
 	inlinfo.add( si.sampling(false).hsamp_.start_.inl() );
 	inlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.inl() );
-	inlinfo.add( " - " ).add( si.inlStep() );
+	inlinfo.add( " [" ).add( si.inlStep() ).add( "]" );
 	inlinfo.add( "; Total: ").add( si.sampling(false).nrInl() );
 	crlinfo.add( si.sampling(false).hsamp_.start_.crl() );
 	crlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.crl() );
-	crlinfo.add( " - " ).add( si.crlStep() );
+	crlinfo.add( " [" ).add( si.crlStep() ).add( "]" );
 	crlinfo.add( "; Total: ").add( si.sampling(false).nrCrl() );
 
 	const float inldist = si.inlDistance(), crldist = si.crlDistance();
@@ -1249,8 +1249,8 @@ void uiSurvey::putToScreen()
     sizrg.scale( si.zDomain().userFactor() );
     const int nrdec = si.nrZDecimals();
     zinfo.add( sizrg.start, nrdec ).add( " - " )
-	 .add( sizrg.stop, nrdec ).add( " - " )
-	 .add( sizrg.step, nrdec );
+	 .add( sizrg.stop, nrdec ).add( " [" )
+	 .add( sizrg.step, nrdec ).add( "]" );
     zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
 
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );

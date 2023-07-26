@@ -1282,7 +1282,7 @@ BufferString toUserString( const Interval<int>& intv )
     {
 	mDynamicCastGet(const StepInterval<int>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " - " ).add( sintv->step );
+	    ret.add( " [" ).add( sintv->step ).add("]");
     }
 
     return ret;
@@ -1298,7 +1298,7 @@ BufferString toUserString( const Interval<float>& intv, int precision )
     {
 	mDynamicCastGet(const StepInterval<float>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " - " ).add( toString(sintv->step,'g',precision) );
+	    ret.add( " [" ).add( toString(sintv->step,'g',precision) ).add("]");
     }
 
     return ret;
@@ -1314,7 +1314,7 @@ BufferString toUserString( const Interval<double>& intv, int precision )
     {
 	mDynamicCastGet(const StepInterval<double>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " - " ).add( toString(sintv->step,'g',precision) );
+	    ret.add( " [" ).add( toString(sintv->step,'g',precision) ).add("]");
     }
 
     return ret;
@@ -1325,9 +1325,9 @@ const char* getDimensionString( int sz1, int sz2, int sz3 )
 {
     mDeclStaticString( ret );
     ret = sz1; 
-    ret.add( " X " ).add( sz2 );
+    ret.add( " x " ).add( sz2 );
     if ( sz3 > 0 )
-	ret.add( " X " ).add( sz3 );
+	ret.add( " x " ).add( sz3 );
 
     return ret;
 }
