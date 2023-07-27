@@ -91,7 +91,10 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     }
 
     if ( formfld_ && rightmostfld_ )
+    {
 	formfld_->attach( rightOf, rightmostfld_ );
+	rightmostfld_ = formfld_;
+    }
 
     const int formnr = tinf_.selection_.form_;
     if ( formnr>=0 && formnr<tinf_.nrForms() && formfld_ )
@@ -101,7 +104,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( proptyp != Mnemonic::Other )
     {
 	uiUnitSel::Setup uusu( proptyp, uiStrings::sUnit() );
-	uusu.allowneg( true );
+	uusu.allowneg( true ).variableszpol(true);
 	unitfld_ = new uiUnitSel( this, uusu );
 	unitfld_->setUnit( tinf_.selection_.unit_ );
 	unitfld_->attach( rightTo, rightmostfld_ );
@@ -187,11 +190,17 @@ void addBoxes( int iform, int ifld )
     colboxes += colspinbox;
 
     if ( !rowspinbox )
-	colspinbox->attach( rightOf, rightmostfld_ );
+    {
+	if ( rightmostfld_ )
+	    colspinbox->attach( rightOf, rightmostfld_ );
+    }
     else
     {
-	rowspinbox->attach( rightOf, rightmostfld_ );
-	kwinp->attach( rightOf, rightmostfld_ );
+	if ( rightmostfld_ )
+	{
+	    rowspinbox->attach( rightOf, rightmostfld_ );
+	    kwinp->attach( rightOf, rightmostfld_ );
+	}
 	colspinbox->attach( rightOf, rowspinbox );
 	colspinbox->attach( ensureRightOf, kwinp );
     }
@@ -397,8 +406,8 @@ bool commit()
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;
     ObjectSet< ObjectSet<uiLineEdit> >	kwinps_;
-    uiObject*				rightmostfld_;
-    uiObject*				rightmostleftfld_;
+    uiObject*				rightmostfld_		= nullptr;
+    uiObject*				rightmostleftfld_	= nullptr;
 
     static uiGroup*			choicegrp_;
     static int				defrow_;
