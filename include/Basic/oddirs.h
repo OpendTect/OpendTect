@@ -190,6 +190,8 @@ mGlobal(Basic) const char* GetSettingsFileName(const char*);
 
 mGlobal(Basic) const char* GetScriptsDir();
 mGlobal(Basic) const char* GetScriptsLogDir();
+mGlobal(Basic) const char* GetScriptsPicturesDir();
+
 mGlobal(Basic) const char* GetSurveyExportDir();
 mGlobal(Basic) const char* GetSurveyPicturesDir();
 mGlobal(Basic) const char* GetSurveyScriptsDir();

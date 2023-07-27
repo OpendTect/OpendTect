@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uitextedit.h"
+#include "uitoolbutton.h"
 #include "uitreeview.h"
 
 #include "cmddriver.h"
@@ -97,13 +98,14 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
         : uiDialog( p, Setup( mToUiStringTodo(controllerTitle()),
 			      tr("Specify your command script"),
 			      mODHelpKey(mmcmddriverimpsHelpID) ).modal(false))
-	, drv_(d), rec_(r)
-	, inpfldsurveycheck_(false)
-	, outfldsurveycheck_(false)
-	, logfldsurveycheck_(false)
-	, interactdlg_(0)
-	, defaultscriptsdir_(defscriptsdir)
-	, defaultlogdir_(deflogdir)
+    , inpfldsurveycheck_(false)
+    , outfldsurveycheck_(false)
+    , logfldsurveycheck_(false)
+    , drv_(d)
+    , rec_(r)
+    , defaultscriptsdir_(defscriptsdir)
+    , defaultlogdir_(deflogdir)
+    , interactdlg_(0)
 {
     setCtrlStyle( CloseOnly );
     setCancelText( uiStrings::sHide() );
@@ -553,7 +555,85 @@ void uiCmdDriverDlg::autoStartGo( const char* fnm )
 
 
 
-// uiRunScriptDlg
+// uiScriptRunnerDlg
+class uiScriptRunnerSettings : public uiDialog
+{
+mODTextTranslationClass(uiScriptRunnerSettings)
+public:
+
+uiScriptRunnerSettings( uiParent* p )
+    : uiDialog(p,Setup(tr("Command Driver Settings"),mNoDlgTitle,mNoHelpKey))
+{
+    scriptsdirfld_ = new uiFileInput( this,
+			tr("Scripts folder"),
+			uiFileInput::Setup()
+			    .directories(true)
+			    .forread(false)
+			    .defseldir(GetScriptsDir()) );
+    scriptsdirfld_->setText( GetScriptsDir() );
+
+    logdirfld_ = new uiFileInput( this,
+			tr("Logs folder"),
+			uiFileInput::Setup()
+			    .directories(true)
+			    .forread(false)
+			    .defseldir(GetScriptsLogDir()) );
+    logdirfld_->setText( GetScriptsLogDir() );
+    logdirfld_->attach( alignedBelow, scriptsdirfld_ );
+
+    picturesdirfld_ = new uiFileInput( this,
+			tr("Pictures folder"),
+			uiFileInput::Setup()
+			    .directories(true)
+			    .forread(false)
+			    .defseldir(GetScriptsPicturesDir()) );
+    picturesdirfld_->setText( GetScriptsPicturesDir() );
+    picturesdirfld_->attach( alignedBelow, logdirfld_ );
+}
+
+~uiScriptRunnerSettings()
+{}
+
+
+bool acceptOK( CallBacker* )
+{
+    FilePath fp = scriptsdirfld_->fileName();
+    if ( !fp.exists() )
+    {
+	uiMSG().error( tr("Scritps folder does not exist.") );
+	return false;
+    }
+
+    fp = logdirfld_->fileName();
+    if ( !fp.exists() )
+    {
+	uiMSG().error( tr("Scritps folder does not exist.") );
+	return false;
+    }
+
+    fp = picturesdirfld_->fileName();
+    if ( !fp.exists() )
+    {
+	uiMSG().error( tr("Scritps folder does not exist.") );
+	return false;
+    }
+
+    SetEnvVar( "DTECT_SCRIPTS_DIR", scriptsdirfld_->fileName() );
+    SetEnvVar( "DTECT_SCRIPTS_LOG_DIR", logdirfld_->fileName() );
+    SetEnvVar( "DTECT_SCRIPTS_PICTURES_DIR", picturesdirfld_->fileName() );
+
+    return true;
+}
+
+
+    uiFileInput*	scriptsdirfld_;
+    uiFileInput*	logdirfld_;
+    uiFileInput*	picturesdirfld_;
+
+}; // class uiScriptRunnerSettings
+
+
+
 class ScriptItem : public uiTreeViewItem
 {
 public:
@@ -617,7 +697,9 @@ FilePath getLogFilename() const
     enum Status			{ Pending, Started, FinishedOK, FinishedError };
     Status			status_;
     CmdDriver&			driver_;
-};
+
+}; // class ScriptItem
+
 
 
 uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
@@ -634,23 +716,18 @@ uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
 			uiFileInput::Setup(uiFileDialog::Gen)
 			    .filter("Script files (*.odcmd)")
 			    .forread(true)
-			    .withexamine(true)
-			    .exameditable(true)
+			    .withexamine(false)
 			    .defseldir(GetScriptsDir())
 			    .displaylocalpath(true) );
     mAttachCB( scriptfld_->valuechanged, uiScriptRunnerDlg::inpSelCB );
 
-    logfld_ = new uiFileInput( this,
-			uiStrings::phrOutput(uiStrings::sLogFile()),
-			uiFileInput::Setup()
-			    .directories(true)
-			    .forread(false)
-			    .defseldir(GetScriptsLogDir()) );
-    logfld_->setText( GetScriptsLogDir() );
-    logfld_->attach( alignedBelow, scriptfld_ );
+    auto* settingsbut = new uiToolButton( this, "settings",
+					uiStrings::sSettings(),
+					mCB(this,uiScriptRunnerDlg,settingsCB));
+    settingsbut->attach( rightOf, scriptfld_ );
 
     scriptlistfld_ = new uiTreeView( this, "Script Tree" );
-    scriptlistfld_->attach( ensureBelow, logfld_ );
+    scriptlistfld_->attach( ensureBelow, scriptfld_ );
     uiStringSet lbls;
     lbls.add( tr("Script") ).add( uiStrings::sStatus() );
     scriptlistfld_->setSelectionMode( uiTreeView::Single );
@@ -661,7 +738,7 @@ uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
     scriptlistfld_->setPrefWidth( 400 );
     scriptlistfld_->setPrefHeight( 400 );
     scriptlistfld_->setStretch( 2, 2 );
-    mAttachCB( scriptlistfld_->doubleClicked, uiScriptRunnerDlg::doubleClickCB );
+    mAttachCB( scriptlistfld_->doubleClicked, uiScriptRunnerDlg::doubleClickCB);
     mAttachCB( scriptlistfld_->rightButtonPressed,
 	       uiScriptRunnerDlg::rightClickCB );
 
@@ -695,6 +772,23 @@ void uiScriptRunnerDlg::inpSelCB( CallBacker* )
 }
 
 
+void uiScriptRunnerDlg::settingsCB( CallBacker* )
+{
+    const BufferString scriptsdir = GetScriptsDir();
+    uiScriptRunnerSettings dlg( this );
+    if ( !dlg.go() )
+	return;
+
+    const BufferString newscriptsdir = GetScriptsDir();
+    if ( scriptsdir != newscriptsdir )
+    {
+	scriptfld_->setEmpty();
+	scriptfld_->setDefaultSelectionDir( GetScriptsDir() );
+	scriptlistfld_->clear();
+    }
+}
+
+
 void uiScriptRunnerDlg::addChildren( ScriptItem& parent )
 {
     BufferStringSet includes;
@@ -712,10 +806,16 @@ void uiScriptRunnerDlg::goCB( CallBacker* )
     abort_ = false;
     gobut_->setSensitive( false );
     stopbut_->setSensitive( true );
-    delete iter_;
-    iter_ = new uiTreeViewItemIterator( *scriptlistfld_ );
 
-    drv_.setOutputDir( logfld_->fileName() );
+    deleteAndNullPtr( iter_ );
+
+    auto* curitm = scriptlistfld_->currentItem();
+    if ( curitm )
+	iter_ = new uiTreeViewItemIterator( *curitm );
+    else
+	iter_ = new uiTreeViewItemIterator( *scriptlistfld_ );
+
+    drv_.setOutputDir( GetScriptsLogDir() );
     executeNext();
 }
 
@@ -729,7 +829,7 @@ void uiScriptRunnerDlg::stopCB( CallBacker* )
 
 bool uiScriptRunnerDlg::executeNext()
 {
-    uiTreeViewItem* item = iter_->next();
+    uiTreeViewItem* item = iter_ ? iter_->next() : nullptr;
     if ( !item || abort_ )
     {
 	gobut_->setSensitive( true );

@@ -1332,6 +1332,13 @@ uiTreeViewItemIterator::uiTreeViewItemIterator( uiTreeView& view )
 }
 
 
+uiTreeViewItemIterator::uiTreeViewItemIterator( uiTreeViewItem& itm )
+    : view_(*itm.treeView())
+{
+    iter_ = new QTreeWidgetItemIterator( itm.qItem() );
+}
+
+
 uiTreeViewItemIterator::~uiTreeViewItemIterator()
 {
     delete iter_;

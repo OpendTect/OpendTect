@@ -194,6 +194,21 @@ mExternC(Basic) const char* GetScriptsLogDir()
 }
 
 
+mExternC(Basic) const char* GetScriptsPicturesDir()
+{
+    mDeclStaticString( ret );
+    ret = GetEnvVar( "DTECT_SCRIPTS_PICTURES_DIR" );
+    if ( ret.isEmpty() )
+    {
+	ret = FilePath( GetScriptsLogDir(), "Pictures" ).fullPath();
+	if ( !File::exists(ret) )
+	    File::createDir( ret );
+    }
+
+    return ret.buf();
+}
+
+
 mExternC(Basic) const char* GetShellScript( const char* nm )
 {
     mDeclStaticString( res );
