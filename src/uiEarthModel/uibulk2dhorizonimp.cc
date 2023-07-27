@@ -190,7 +190,8 @@ static Table::FormatDesc* getDesc()
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
     Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( "", Table::Optional );
+    Table::TargetInfo* trcspti =
+		new Table::TargetInfo( "Position", Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
     Table::TargetInfo::Form* spform =
 		new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );

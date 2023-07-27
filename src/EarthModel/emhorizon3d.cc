@@ -1693,7 +1693,7 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 
     for ( int idx=0; idx<attrnms.size(); idx++ )
     {
-	const BufferString fldname = attrnms.get( idx );
+	const BufferString& fldname = attrnms.get( idx );
 	Table::TargetInfo* ti;
 	if ( fldname == sKey::ZValue() )
 	    ti = Table::TargetInfo::mkZPosition( true );
