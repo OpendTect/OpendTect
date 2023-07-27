@@ -41,12 +41,12 @@ static const char* autoexecfnm = "autoexec.odcmd";
 
 uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
     : applwin_(*uiMain::instance().topLevel())
-    , settingsautoexec_(fullodmode)
-    , surveyautoexec_(fullodmode)
-    , scriptidx_(-3)
     , cmdlineparsing_(fullodmode)
     , defaultscriptsdir_(fullodmode ? "" : GetPersonalDir())
     , defaultlogdir_(fullodmode ? "" : GetPersonalDir())
+    , settingsautoexec_(fullodmode)
+    , surveyautoexec_(fullodmode)
+    , scriptidx_(-3)
 {
     scriptrunnerdlgmgr_.setParam( this, nullptr );
     tim_ = new Timer();
@@ -323,7 +323,7 @@ void uiCmdDriverMgr::handleSettingsAutoExec()
 }
 
 
-void uiCmdDriverMgr::beforeSurveyChg( CallBacker* cb )
+void uiCmdDriverMgr::beforeSurveyChg( CallBacker* )
 {
     if ( !applwin_.finalized() )
 	return;

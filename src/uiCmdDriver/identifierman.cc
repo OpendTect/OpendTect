@@ -36,20 +36,6 @@ static const char* getSpecDir( const char* envvar, const char* defdir )
 #define getImportDir() getSpecDir( "DTECT_IMPORT_DIR", "Import" )
 
 
-static BufferString getSnapshotsDir()
-{
-    static BufferString retdir = GetEnvVar( "DTECT_SNAPSHOTS_DIR" );
-    if ( retdir.isEmpty() || !File::isDirectory(retdir) )
-    {
-	retdir = FilePath( GetScriptsLogDir(), "Pictures" ).fullPath();
-	if ( !File::exists(retdir) )
-	    File::createDir( retdir );
-    }
-
-    return retdir;
-}
-
-
 IdentifierManager::IdentifierManager()
     : lastlinkedidentstr_("", ' ')
 {
@@ -226,7 +212,7 @@ bool IdentifierManager::doesExist( const char* name ) const
     mRefreshPlaceholder( idm, name, "@APPLDIR", GetSoftwareDir(0) );
     mRefreshPlaceholder( idm, name, "@USERDIR", GetPersonalDir() );
     mRefreshPlaceholder( idm, name, "@SCRIPTSDIR", GetScriptsDir() );
-    mRefreshPlaceholder( idm, name, "@SNAPSHOTSDIR", getSnapshotsDir() );
+    mRefreshPlaceholder( idm, name, "@SNAPSHOTSDIR", GetScriptsPicturesDir() );
     mRefreshPlaceholder( idm, name, "@IMPORTDIR", getImportDir() );
     mRefreshPlaceholder( idm, name, "@EXPORTDIR", getExportDir() );
 
