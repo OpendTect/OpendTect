@@ -932,7 +932,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedDataPack( attrib );
+    ConstRefMan<RegularSeisDataPack> regsdp = getDataPack( attrib );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
