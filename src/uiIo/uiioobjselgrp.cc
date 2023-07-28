@@ -547,7 +547,8 @@ void uiIOObjSelGrp::mkManipulators()
     for ( auto* inserter : inserters_ )
 	mAttachCB( inserter->objInserterd, uiIOObjSelGrp::objInserted );
 
-    but->attach( centeredLeftOf, listfld_ );
+    if ( but )
+	but->attach( centeredLeftOf, listfld_ );
 }
 
 
