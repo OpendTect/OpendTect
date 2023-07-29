@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "applicationdata.h"
 
+#include "uiactiverunningproc.h"
 #include "uiattribpartserv.h"
 #include "uimain.h"
 #include "uicolortable.h"
@@ -732,7 +733,10 @@ void uiODMain::setProgInfo( const char* info )
 
 bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 {
-    if ( !applmgr_->attrServer() ) return false;
+    if ( !applmgr_->attrServer() )
+	return false;
+
+
 
     if ( !NotSavedPrompter::NSP().doTrigger( uiMainWin::activeWindow(), true,
 					     actiontype ) )
@@ -868,7 +872,7 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 	 if ( !uiMSG().askGoOn( tr("Do you want to %1 %2?")
 				.arg(restarting_?"restart":"close")
 				.arg(programname_),
-				actstr, uiStrings::sCancel() ) )
+				actstr, uiStrings::sCancel()) )
 	     return false;
      }
 
@@ -876,8 +880,13 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
      bool dummy = false;
      if ( withinteraction )
      {
-	 if ( !askStore(dummy,
-	      uiStrings::phrJoinStrings(actstr,toUiString(programname_))) )
+	 bool closeactivebatch = true;
+	 if ( !restarting_ )
+	    closeactivebatch = ActiveProcPrompter::APP().doTrigger(
+						uiMainWin::activeWindow() );
+
+	 if ( !closeactivebatch || !askStore(dummy,
+		uiStrings::phrJoinStrings(actstr,toUiString(programname_))) )
 	 {
 	     uiMSG().message( restarting_ ? tr("Restart cancelled")
 					  : tr("Closing cancelled") );
@@ -886,10 +895,6 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
     }
 
     beforeExit.trigger();
-
-    if ( failed_ )
-	return true;
-
     return true;
 }
 

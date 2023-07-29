@@ -70,7 +70,7 @@ void BatchProgramTracker::unregisterProcess( CallBacker* cb )
     if ( idx < 0 )
 	return;
 
-    File::remove(mgr.getLockFileFP(servid));
+    File::remove( mgr.getLockFileFP(servid) );
     serviceids_.removeSingle(idx);
 }
 
