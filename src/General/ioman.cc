@@ -148,6 +148,7 @@ IOMan::IOMan( const FilePath& rootdir )
     , entryAdded(this)
     , entryChanged(this)
     , newIODir(this)
+    , prepareSurveyChange(this)
     , surveyToBeChanged(this)
     , surveyChanged(this)
     , afterSurveyChange(this)
@@ -282,13 +283,16 @@ bool IOMan::isOK()
 bool IOMan::close( bool dotrigger )
 {
     if ( dotrigger && !isBad() )
-	surveyToBeChanged.trigger();
+	prepareSurveyChange.trigger();
 
     if ( changeSurveyBlocked() )
     {
 	setChangeSurveyBlocked( false );
 	return false;
     }
+
+    if ( dotrigger && !isBad() )
+	surveyToBeChanged.trigger();
 
     TranslatorGroup::clearSelHists();
 
@@ -307,6 +311,7 @@ uiRetVal IOMan::reInit( SurveyInfo* nwsi )
     if ( !close(dotrigger) ) //Still notifying using previous survey
 	return uiRetVal::OK();
 
+    rootdir_.set( newsi->getDirName() );
     const uiRetVal uirv = init( newsi.release() );
     if ( uirv.isOK() )
     {
@@ -363,7 +368,6 @@ uiRetVal IOMan::newSurvey( SurveyInfo* nwsi )
     if ( IOMan::isOK() && newsi->getDataDirName() != rootdir.basePath())
 	pFreeFnErrMsg("Incorrect switching to another data root");
 
-    mNonConst( rootdir ).setDirName( newsi->getDirName() );
     return IOM().reInit( newsi.release() );
 }
 
@@ -392,10 +396,14 @@ uiRetVal IOMan::setSurvey( const char* survname )
 
 void IOMan::surveyParsChanged()
 {
-    IOM().surveyToBeChanged.trigger();
+    IOM().prepareSurveyChange.trigger();
     if ( IOM().changeSurveyBlocked() )
-	{ IOM().setChangeSurveyBlocked(false); return; }
+    {
+	IOM().setChangeSurveyBlocked( false );
+	return;
+    }
 
+    IOM().surveyToBeChanged.trigger();
     IOM().surveyChanged.trigger();
     IOM().afterSurveyChange.trigger();
 }

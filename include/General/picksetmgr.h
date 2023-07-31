@@ -103,11 +103,8 @@ public:
 
     void		removeCBs(CallBacker*);
 
-    bool		isChanged( int idx ) const
-			{ return idx < changed_.size()
-				? (bool) changed_[idx] : false;}
-    void		setUnChanged( int idx, bool yn=true )
-			{ if ( changed_.validIdx(idx) ) changed_[idx] = !yn; }
+    bool		isChanged(int idx) const;
+    void		setUnChanged(int idx,bool yn=true);
 
     Undo&		undo();
     const Undo&		undo() const;

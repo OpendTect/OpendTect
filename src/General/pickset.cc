@@ -218,6 +218,19 @@ ConstRefMan<Set> SetMgr::find( const char* nm ) const
 }
 
 
+bool SetMgr::isChanged( int idx ) const
+{
+    return changed_.validIdx(idx) ? (bool) changed_[idx] : false;
+}
+
+
+void SetMgr::setUnChanged( int idx, bool yn )
+{
+    if ( changed_.validIdx(idx) )
+	changed_[idx] = !yn;
+}
+
+
 void SetMgr::reportChange( CallBacker* sender, const ChangeData& cd )
 {
     const int setidx = pss_.indexOf( cd.set_ );

@@ -137,7 +137,8 @@ public:
     CNotifier<IOMan,const MultiID&>	entryChanged;
 
     Notifier<IOMan>	newIODir;
-    Notifier<IOMan>	surveyToBeChanged;  //!< Before the change
+    Notifier<IOMan>	prepareSurveyChange;  //!< Prepare, don't tear down
+    Notifier<IOMan>	surveyToBeChanged;  //!< Before the change, tear down
     Notifier<IOMan>	surveyChanged;	    //!< To restore OD to normal state
     Notifier<IOMan>	afterSurveyChange;  //!< When operating in normal state
     Notifier<IOMan>	applicationClosing; //!< 'Final' call ...
