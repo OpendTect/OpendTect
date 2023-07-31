@@ -282,7 +282,7 @@ Table::TargetInfo*
 				   ConstRefMan<Coords::CoordSystem> crs )
 {
     const ReqSpec reqspec( isreq ? Table::Required : Table::Optional );
-    TargetInfo* ti = new TargetInfo( "", DoubleInpSpec(), reqspec );
+    TargetInfo* ti = new TargetInfo( "Position", DoubleInpSpec(), reqspec );
     ti->form(0).setName( sKeyXY() );
     ti->form(0).add( DoubleInpSpec() );
     if ( wcrs )
@@ -369,23 +369,16 @@ Table::TargetInfo* TargetInfo::mkZPos( bool isreq, bool wu, int zopt )
     else
     {
 	if ( zopt == 0 )
-	{
-	    ti = new TargetInfo( "Z", FloatInpSpec(), reqspec,
-				 Mnemonic::surveyZType() );
-	    ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
-	}
-	else if ( zopt < 0 )
-	{
+	    zopt = SI().zIsTime() ? -1 : 1;
+
+	if ( zopt < 0 )
 	    ti = new TargetInfo( sKey::Time(), FloatInpSpec(), reqspec,
 				 Mnemonic::Time );
-	    ti->selection_.unit_ = UoMR().get( "Milliseconds" );
-	}
 	else
-	{
 	    ti = new TargetInfo( sKey::Depth(), FloatInpSpec(), reqspec,
 				 Mnemonic::Dist );
-	    ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
-	}
+
+	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
     }
 
     return ti;

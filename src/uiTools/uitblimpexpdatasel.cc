@@ -72,12 +72,8 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	uiString  lbltxt = tinf_.isOptional() ? tr("[%1]").arg(tinf_.name()) :
 			   tr("%1").arg(tinf_.name());
 	uiLabel* lbl = new uiLabel( this, lbltxt );
-	if ( formfld_ )
-	    lbl->attach( rightOf, formfld_ );
 	rightmostleftfld_ = lbl;
     }
-    else
-	rightmostleftfld_ = formfld_;
 
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
@@ -94,6 +90,12 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	mkColFlds( iform );
     }
 
+    if ( formfld_ && rightmostfld_ )
+    {
+	formfld_->attach( rightOf, rightmostfld_ );
+	rightmostfld_ = formfld_;
+    }
+
     const int formnr = tinf_.selection_.form_;
     if ( formnr>=0 && formnr<tinf_.nrForms() && formfld_ )
 	formfld_->setCurrentItem( formnr );
@@ -102,7 +104,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( proptyp != Mnemonic::Other )
     {
 	uiUnitSel::Setup uusu( proptyp, uiStrings::sUnit() );
-	uusu.allowneg( true );
+	uusu.allowneg( true ).variableszpol(true);
 	unitfld_ = new uiUnitSel( this, uusu );
 	unitfld_->setUnit( tinf_.selection_.unit_ );
 	unitfld_->attach( rightTo, rightmostfld_ );
@@ -188,11 +190,17 @@ void addBoxes( int iform, int ifld )
     colboxes += colspinbox;
 
     if ( !rowspinbox )
-	colspinbox->attach( rightOf, rightmostfld_ );
+    {
+	if ( rightmostfld_ )
+	    colspinbox->attach( rightOf, rightmostfld_ );
+    }
     else
     {
-	rowspinbox->attach( rightOf, rightmostfld_ );
-	kwinp->attach( rightOf, rightmostfld_ );
+	if ( rightmostfld_ )
+	{
+	    rowspinbox->attach( rightOf, rightmostfld_ );
+	    kwinp->attach( rightOf, rightmostfld_ );
+	}
 	colspinbox->attach( rightOf, rowspinbox );
 	colspinbox->attach( ensureRightOf, kwinp );
     }
@@ -398,8 +406,8 @@ bool commit()
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;
     ObjectSet< ObjectSet<uiLineEdit> >	kwinps_;
-    uiObject*				rightmostfld_;
-    uiObject*				rightmostleftfld_;
+    uiObject*				rightmostfld_		= nullptr;
+    uiObject*				rightmostleftfld_	= nullptr;
 
     static uiGroup*			choicegrp_;
     static int				defrow_;
@@ -670,7 +678,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     hdrtypefld_->valueChanged.notify( typchgcb );
 
     uiToolButton* button = new uiToolButton( this, "open",
-				tr("Selecting existing format"),
+				tr("Select existing format"),
 				mCB(this,uiTableImpDataSel,openFmt) );
     button->setPrefWidthInChar( 6 );
     button->attach( rightOf, hdrtypefld_ );
