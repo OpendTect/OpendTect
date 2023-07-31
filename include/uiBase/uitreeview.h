@@ -362,6 +362,7 @@ mExpClass(uiBase) uiTreeViewItemIterator : public CallBacker
 {
 public:
 				uiTreeViewItemIterator(uiTreeView&);
+				uiTreeViewItemIterator(uiTreeViewItem&);
 				~uiTreeViewItemIterator();
 
     uiTreeViewItem*		next();
