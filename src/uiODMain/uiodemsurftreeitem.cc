@@ -194,6 +194,8 @@ void uiODEarthModelSurfaceTreeItem::keyPressCB( CallBacker* cb )
 	if ( cbcaps )
 	    cbcaps->data.setKey( 0 );
     }
+
+    uiODDisplayTreeItem::keyPressCB( cb );
 }
 
 
