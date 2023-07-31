@@ -315,7 +315,7 @@ void uiCmdDriverMgr::handleSettingsAutoExec()
 }
 
 
-void uiCmdDriverMgr::beforeSurveyChg( CallBacker* cb )
+void uiCmdDriverMgr::beforeSurveyChg( CallBacker* )
 {
     if ( !applwin_.finalized() )
 	return;

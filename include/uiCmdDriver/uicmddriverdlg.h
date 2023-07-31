@@ -118,12 +118,12 @@ public:
 
 protected:
     uiFileInput*		scriptfld_;
-    uiFileInput*		logfld_;
     uiTreeView*			scriptlistfld_;
     uiPushButton*		gobut_;
     uiPushButton*		stopbut_;
 
     void			inpSelCB(CallBacker*);
+    void			settingsCB(CallBacker*);
     void			addChildren(ScriptItem&);
     bool			acceptOK(CallBacker*);
     void			goCB(CallBacker*);
