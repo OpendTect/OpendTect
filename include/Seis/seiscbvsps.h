@@ -37,6 +37,8 @@ public:
 			SeisCBVSPSIO(const char* dirnm);
 			// Check errMsg() to see failure
     virtual		~SeisCBVSPSIO();
+			mOD_DisableCopy(SeisCBVSPSIO)
+
     uiString		errMsg() const		{ return errmsg_; }
 
     BufferString	get2DFileName(Pos::GeomID) const;
@@ -59,9 +61,9 @@ protected:
     mutable uiString			errmsg_;
     const BufferString			dirnm_;
     const BufferString			selmask_;
-    int					nringather_;
+    int					nringather_		= 1;
     DataCharacteristics::UserType	reqdtype_;
-    CBVSSeisTrcTranslator*		tr_;
+    CBVSSeisTrcTranslator*		tr_			= nullptr;
 
     void		close();
     bool		dirNmOK(bool forread) const;

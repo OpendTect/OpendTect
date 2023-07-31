@@ -14,24 +14,24 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "keystrs.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seistrc.h"
-#include "strmoper.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "uistrings.h"
-#include "od_iostream.h"
+
 #include <string.h>
 
 static const char* cSampNmsFnm = "samplenames.txt";
 static const char* cPosDataFnm = "posdata.txt";
 
 
+// SeisPS2DReader
 SeisPS2DReader::SeisPS2DReader( const char* lnm )
     : lnm_(lnm)
     , geomid_(Survey::GM().getGeomID(lnm))
@@ -39,8 +39,8 @@ SeisPS2DReader::SeisPS2DReader( const char* lnm )
 
 
 SeisPS2DReader::SeisPS2DReader( Pos::GeomID geomid )
-    : geomid_(geomid)
-    , lnm_(Survey::GM().getName(geomid))
+    : lnm_(Survey::GM().getName(geomid))
+    , geomid_(geomid)
 {}
 
 
@@ -150,10 +150,8 @@ bool CBVSSeisPSIOProvider::getGeomIDs( const char* dirnm,
 
 // SeisCBVSPSIO
 SeisCBVSPSIO::SeisCBVSPSIO( const char* dirnm )
-	: dirnm_(dirnm)
-	, reqdtype_(DataCharacteristics::Auto)
-	, tr_(0)
-	, nringather_(1)
+    : dirnm_(dirnm)
+    , reqdtype_(DataCharacteristics::Auto)
 {
     BufferString& sm = const_cast<BufferString&>( selmask_ );
     sm = "*."; sm += CBVSSeisTrcTranslator::sKeyDefExtension();
@@ -168,7 +166,7 @@ SeisCBVSPSIO::~SeisCBVSPSIO()
 
 void SeisCBVSPSIO::close()
 {
-    delete tr_; tr_ = 0;
+    deleteAndNullPtr( tr_ );
     nringather_ = 1;
 }
 
@@ -213,7 +211,7 @@ bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
     if ( !dirNmOK(true) )
 	return false;
 
-    DirList dl( dirnm_, File::FilesInDir, selmask_.buf() );
+    const DirList dl( dirnm_, File::FilesInDir, selmask_.buf() );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	if ( inlrg )
@@ -238,6 +236,7 @@ bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
 	errmsg_ = tr("No matching files found in data store");
 	return false;
     }
+
     return true;
 }
 
@@ -312,9 +311,16 @@ SeisTrc* SeisCBVSPSIO::readNewTrace( int crlnr ) const
 {
     auto* trc = new SeisTrc;
     if ( !tr_->read(*trc) )
-	{ delete trc; return nullptr; }
+    {
+	delete trc;
+	return nullptr;
+    }
+
     if ( trc->info().inl() != crlnr )
-	{ delete trc; return nullptr; }
+    {
+	delete trc;
+	return nullptr;
+    }
 
     return trc;
 }
@@ -372,6 +378,8 @@ bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
 }
 
 
+
+// SeisCBVSPS3DReader
 static const char* posdataFileName( const char* dirnm )
 {
     mDeclStaticString( ret );
@@ -379,15 +387,14 @@ static const char* posdataFileName( const char* dirnm )
     return ret.buf();
 }
 
-#define mRemoveCache(fnm) File::remove( fnm )
-
 
 SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
-	: SeisCBVSPSIO(dirnm)
-	, posdata_(*new PosInfo::SortedCubeData)
-	, curinl_(mUdf(int))
+    : SeisCBVSPSIO(dirnm)
+    , posdata_(*new PosInfo::SortedCubeData)
+    , curinl_(mUdf(int))
 {
-    if ( !dirNmOK(true) ) return;
+    if ( !dirNmOK(true) )
+	return;
 
     const BufferString cachefnm( posdataFileName(dirnm_) );
     if ( mIsUdf(inl) )
@@ -397,13 +404,15 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
 	{
 	    if ( posdata_.read(istrm,true) && !posdata_.isEmpty() )
 		return;
-	    mRemoveCache(cachefnm);
+
+	    File::remove(cachefnm);
 	}
     }
     else
     {
 	if ( inl >= 0 )
 	    addInl( inl );
+
 	return;
     }
 
@@ -425,7 +434,7 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
 
     od_ostream ostrm( cachefnm );
     if ( ostrm.isOK() && !posdata_.write(ostrm,true) )
-	mRemoveCache(cachefnm);
+	File::remove(cachefnm);
 }
 
 
@@ -437,20 +446,26 @@ SeisCBVSPS3DReader::~SeisCBVSPS3DReader()
 
 void SeisCBVSPS3DReader::addInl( int inl )
 {
-    if ( !mkTr(inl) ) return;
+    if ( !mkTr(inl) )
+	return;
 
     PosInfo::LineData* newid = new PosInfo::LineData( inl );
     const CBVSInfo::SurvGeom& sg = tr_->readMgr()->info().geom_;
 
     if ( sg.fullyrectandreg )
-
+    {
 	newid->segments_ += PosInfo::LineData::Segment( sg.start.inl(),
 					sg.stop.inl(), sg.step.inl() );
+    }
     else
     {
 	const PosInfo::CubeData& cd = sg.cubedata;
 	if ( cd.size() < 1 )
-	    { pErrMsg("Huh? should get error earlier"); delete newid; return; }
+	{
+	    pErrMsg("Huh? should get error earlier");
+	    delete newid;
+	    return;
+	}
 
 	PosInfo::LineData::Segment seg( cd[0]->linenr_, cd[0]->linenr_, 1 );
 	if ( cd.size() > 1 )
@@ -482,7 +497,8 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
 {
     if ( tr_ && curinl_ == inl )
 	return true;
-    else if ( mIsUdf(inl) )
+
+    if ( mIsUdf(inl) )
 	return false;
 
     CBVSSeisTrcTranslator*& trans = const_cast<CBVSSeisTrcTranslator*&>(tr_);
@@ -507,7 +523,9 @@ SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
 					   const Coord& coord ) const
 {
     SeisTrc* trc = readNewTrace( bid.crl() );
-    if ( !trc ) return nullptr;
+    if ( !trc )
+	return nullptr;
+
     trc->info().setPos( bid );
     trc->info().coord = coord;
     return trc;
@@ -560,20 +578,26 @@ StepInterval<float> SeisCBVSPS3DReader::getZRange() const
 	ret = trc->zRange();
 	delete trc;
     }
+
     return ret;
 }
 
 
+
+//SeisCBVSPS3DWriter
+
 #define mRemCacheIfExists() \
     const BufferString cachefnm( posdataFileName(dirnm_) ); \
     if ( File::exists(cachefnm) ) \
-	mRemoveCache(cachefnm)
+	File::remove(cachefnm)
 
 SeisCBVSPS3DWriter::SeisCBVSPS3DWriter( const char* dirnm )
-	: SeisCBVSPSIO(dirnm)
-	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
+    : SeisCBVSPSIO(dirnm)
+    , prevbid_(*new BinID(mUdf(int),mUdf(int)))
 {
-    if ( !dirNmOK(false) ) return;
+    if ( !dirNmOK(false) )
+	return;
+
     mRemCacheIfExists();
 }
 
@@ -597,7 +621,9 @@ bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
     FilePath fp( dirnm_, fnm );
     fnm = fp.fullPath();
 
-    if ( tr_ ) delete tr_;
+    if ( tr_ )
+	delete tr_;
+
     tr_ = CBVSSeisTrcTranslator::getInstance();
     return startWrite( fnm, trc );
 }
@@ -611,12 +637,14 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
     {
 	if ( !newInl(trc) )
 	    return false;
+
 	nringather_ = 1;
 	if ( mIsUdf(prevbid_.inl()) )
-	    mRemoveCache( posdataFileName(dirnm_) );
+	    File::remove( posdataFileName(dirnm_) );
     }
     else if ( trcbid.crl() != prevbid_.crl() )
 	nringather_ = 1;
+
     prevbid_ = trcbid;
 
     ti.setPos( BinID( trcbid.crl(), nringather_ ) );
@@ -631,19 +659,21 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 }
 
 
+
+// SeisCBVSPS2DReader
 SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, Pos::GeomID geomid )
-	: SeisCBVSPSIO(dirnm)
-	, SeisPS2DReader(geomid)
-	, posdata_(*new PosInfo::Line2DData)
+    : SeisPS2DReader(geomid)
+    , SeisCBVSPSIO(dirnm)
+    , posdata_(*new PosInfo::Line2DData)
 {
     init( geomid );
 }
 
 
 SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
-	: SeisCBVSPSIO(dirnm)
-	, SeisPS2DReader(lnm)
-	, posdata_(*new PosInfo::Line2DData)
+    : SeisPS2DReader(lnm)
+    , SeisCBVSPSIO(dirnm)
+    , posdata_(*new PosInfo::Line2DData)
 {
     Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
     if ( geomid != Survey::GM().cUndefGeomID() )
@@ -653,7 +683,8 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
 
 void SeisCBVSPS2DReader::init( Pos::GeomID geomid )
 {
-    if ( !dirNmOK(true) ) return;
+    if ( !dirNmOK(true) )
+	return;
 
     BufferString fnm( get2DFileName(geomid) );
     if ( !File::exists(fnm) )
@@ -665,10 +696,13 @@ void SeisCBVSPS2DReader::init( Pos::GeomID geomid )
 
     errmsg_ = uiString::emptyString();
     tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg_ );
-    if ( !tr_ ) return;
+    if ( !tr_ )
+	return;
+
     tr_->commitSelections();
 
-    TypeSet<Coord> coords; TypeSet<BinID> binids;
+    TypeSet<Coord> coords;
+    TypeSet<BinID> binids;
     tr_->readMgr()->getPositions( coords );
     tr_->readMgr()->getPositions( binids );
 
@@ -702,7 +736,8 @@ SeisTrc* SeisCBVSPS2DReader::getTrace( const BinID& bid, int nr ) const
 	return nullptr;
 
     SeisTrc* trc = readNewTrace( bid.trcNr() );
-    if ( !trc ) return nullptr;
+    if ( !trc )
+	return nullptr;
 
     trc->info().setGeomID( geomid_ ).setTrcNr( trc->info().inl() );
     return trc;
@@ -731,13 +766,17 @@ bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
 }
 
 
+
+// SeisCBVSPS2DWriter
 SeisCBVSPS2DWriter::SeisCBVSPS2DWriter( const char* dirnm, Pos::GeomID geomid )
 	: SeisCBVSPSIO(dirnm)
 	, prevnr_(mUdf(int))
 	, lnm_(Survey::GM().getName(geomid))
 	, geomid_(geomid)
 {
-    if ( !dirNmOK(false) ) return;
+    if ( !dirNmOK(false) )
+	return;
+
     mRemCacheIfExists();
 }
 
@@ -748,7 +787,9 @@ SeisCBVSPS2DWriter::SeisCBVSPS2DWriter( const char* dirnm, const char* lnm )
 	, lnm_(lnm)
 	, geomid_(Survey::GM().getGeomID(lnm))
 {
-    if ( !dirNmOK(false) ) return;
+    if ( !dirNmOK(false) )
+	return;
+
     mRemCacheIfExists();
 }
 
@@ -759,7 +800,8 @@ SeisCBVSPS2DWriter::~SeisCBVSPS2DWriter()
 
 bool SeisCBVSPS2DWriter::ensureTr( const SeisTrc& trc )
 {
-    if ( tr_ ) return true;
+    if ( tr_ )
+	return true;
 
     tr_ = CBVSSeisTrcTranslator::getInstance();
     tr_->setCoordPol( true, true );
@@ -776,11 +818,13 @@ void SeisCBVSPS2DWriter::close()
 
 bool SeisCBVSPS2DWriter::put( const SeisTrc& trc )
 {
-    if ( !ensureTr(trc) ) return false;
+    if ( !ensureTr(trc) )
+	return false;
 
     SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
     if ( ti.trcNr() != prevnr_ )
 	nringather_ = 1;
+
     prevnr_ = ti.trcNr();
 
     const TrcKey tk = ti.trcKey();

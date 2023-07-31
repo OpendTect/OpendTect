@@ -32,6 +32,7 @@ mExpClass(Seis) SeisPSReader
 {
 public:
     virtual		~SeisPSReader();
+			mOD_DisableCopy(SeisPSReader)
 
     virtual bool	is3D() const					= 0;
     virtual bool	is2D() const					= 0;
