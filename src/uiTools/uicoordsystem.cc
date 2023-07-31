@@ -336,6 +336,7 @@ uiCoordSystemSel::uiCoordSystemSel( uiParent* p,
 uiCoordSystemSel::~uiCoordSystemSel()
 {
     detachAllNotifiers();
+    deleteAndNullPtr( dlg_ );
 }
 
 
