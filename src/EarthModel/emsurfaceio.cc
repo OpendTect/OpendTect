@@ -1800,16 +1800,6 @@ int dgbSurfaceWriter::nextStep()
 
 	    BufferString fnm = hor->auxdata.getFileName( fulluserexpr_,
 							auxDataName(dataidx) );
-	    if ( fnm.isEmpty() )
-	    {
-		for ( int count=0; true; count++ )
-		{
-		    fnm = dgbSurfDataWriter::createHovName( conn_->fileName(),
-							    count );
-		    if ( !File::exists(fnm.buf()) )
-			break;
-		}
-	    }
 	    add(new dgbSurfDataWriter(*hor,dataidx,0,binary_,fnm.buf()));
 	    // TODO:: Change binid sampler so not all values are written when
 	    // there is a subselection
