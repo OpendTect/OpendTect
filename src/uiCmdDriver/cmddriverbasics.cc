@@ -20,15 +20,6 @@ namespace CmdDrive
 {
 
 
-#define mReturnRetIfReadOnly( retval ) \
-    if ( !bufstr_ ) \
-    { \
-	pErrMsg( "StringProcessor: Attempt to write read-only string" ); \
-	return retval; \
-    }
-
-#define mReturnIfReadOnly()	mReturnRetIfReadOnly(;)
-
 const char* StringProcessor::parseDQuoted( BufferString& unquotedstr ) const
 {
     return parseBracketed( unquotedstr, '"', '"' );
@@ -100,7 +91,11 @@ int StringProcessor::nrDQuotes() const
 
 int StringProcessor::removeNumAppendix()
 {
-    mReturnRetIfReadOnly( 0 );
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return 0;
+    }
 
     char* wicketptr = bufstr_->getCStr() + bufstr_->size();
 
@@ -127,7 +122,11 @@ int StringProcessor::removeNumAppendix()
 
 bool StringProcessor::removeTokenAppendix( char token )
 {
-    mReturnRetIfReadOnly( 0 );
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return false;
+    }
 
     char* tokenptr = bufstr_->getCStr() + bufstr_->size() - 1;
 
@@ -352,7 +351,11 @@ char StringProcessor::preParseProcedure( FileMultiString& keyfms,
 
 void StringProcessor::makeDirSepIndep( int startpos )
 {
-    mReturnIfReadOnly();
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return;
+    }
 
     const char* winsep = FilePath::dirSep( FilePath::Windows );
     const char* unixsep = FilePath::dirSep( FilePath::Unix );
@@ -374,7 +377,11 @@ void StringProcessor::makeDirSepIndep( int startpos )
 
 void StringProcessor::addCmdFileEscapes( const char* extraescapesymbols )
 {
-    mReturnIfReadOnly();
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return;
+    }
 
     bufstr_->setBufSize( 2*bufstr_->size()+1 );
 
@@ -418,7 +425,11 @@ bool StringProcessor::isEscapedSymbol( const char* charptr ) const
 
 void StringProcessor::removeCmdFileEscapes()
 {
-    mReturnIfReadOnly();
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return;
+    }
 
     char* writeptr = bufstr_->getCStr();
     const char* readptr = writeptr;
@@ -479,7 +490,11 @@ int StringProcessor::nrCharElements() const
 
 void StringProcessor::appendCharElements( const char* tail )
 {
-    mReturnIfReadOnly();
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return;
+    }
 
     const char* last = bufstr_->buf() + bufstr_->size() - 1;
     if ( *bufstr_->buf() && *last=='@' && !isEscapedSymbol(last) )
@@ -491,7 +506,11 @@ void StringProcessor::appendCharElements( const char* tail )
 
 void StringProcessor::filterAmpersands()
 {
-    mReturnIfReadOnly();
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return;
+    }
 
     bufstr_->replace( "&&", "\f" );
     bufstr_->remove( '&' );
@@ -501,7 +520,11 @@ void StringProcessor::filterAmpersands()
 
 void StringProcessor::addFileMultiStrEscapes()
 {
-    mReturnIfReadOnly();
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return;
+    }
 
     bufstr_->setBufSize( 2*bufstr_->size()+1 );
     bufstr_->replace( "\\", "\\\\" );
@@ -513,7 +536,11 @@ void StringProcessor::addFileMultiStrEscapes()
 
 void StringProcessor::removeExtraSpace()
 {
-    mReturnIfReadOnly();
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return;
+    }
 
     char* writeptr = bufstr_->getCStr();
     const char* readptr = writeptr;
@@ -535,7 +562,11 @@ void StringProcessor::removeExtraSpace()
 
 void StringProcessor::capitalize( bool yn )
 {
-    mReturnIfReadOnly();
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return;
+    }
 
     char* ptr = bufstr_->getCStr();
 
@@ -549,7 +580,11 @@ void StringProcessor::capitalize( bool yn )
 
 void StringProcessor::removeTrailingDots()
 {
-    mReturnIfReadOnly();
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return;
+    }
 
     char* ptr = bufstr_->getCStr() + bufstr_->size();
     while ( ptr != bufstr_->buf() )
@@ -573,7 +608,11 @@ void StringProcessor::cleanUp()
 char StringProcessor::stripOuterBrackets( const char* beginsymbols,
 					  const char* endsymbols )
 {
-    mReturnRetIfReadOnly( '\0' );
+    if ( !bufstr_ )
+    {
+	pErrMsg( "StringProcessor: Attempt to write read-only string" );
+	return '\0';
+    }
 
     BufferString bufcopy = *bufstr_;
     char* firstptr = bufcopy.getCStr();
