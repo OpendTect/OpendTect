@@ -67,26 +67,6 @@ dgbSurfDataWriter::~dgbSurfDataWriter()
 }
 
 
-static BufferString getFreeFileName( const IOObj& ioobj )
-{
-    PtrMan<StreamConn> conn =
-	dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read));
-    if ( !conn )
-	return "";
-
-    const int maxnrfiles = 1024; // just a big number to make this loop end
-    for ( int idx=0; idx<maxnrfiles; idx++ )
-    {
-	BufferString fnm =
-	    dgbSurfDataWriter::createHovName( conn->fileName(), idx );
-	if ( !File::exists(fnm.buf()) )
-	    return fnm;
-    }
-
-    return "";
-}
-
-
 bool dgbSurfDataWriter::writeHeader()
 {
     if ( filename_.isEmpty() )
@@ -95,7 +75,7 @@ bool dgbSurfDataWriter::writeHeader()
 	if ( !ioobj )
 	    return false;
 
-	filename_ = getFreeFileName( *ioobj );
+	filename_ = SurfaceAuxData::getFreeFileName( *ioobj );
 	if ( filename_.isEmpty() )
 	    return false;
     }
