@@ -95,7 +95,8 @@ bool uiODView2DVariableDensityTreeItem::init()
 
 void uiODView2DVariableDensityTreeItem::initColTab()
 {
-    if ( coltabinitialized_ ) return;
+    if ( coltabinitialized_ )
+	return;
 
     mAttachCB( viewer2D()->viewControl()->colTabEd()->colTabChgd,
 	       uiODView2DVariableDensityTreeItem::colTabChgCB );
@@ -143,7 +144,8 @@ void uiODView2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet(uiFlatViewColTabEd*,coltabed,cb);
-    if ( !coltabed ) return;
+    if ( !coltabed )
+	return;
 
     const FlatView::DataDispPars::VD& vdpars = coltabed->getDisplayPars();
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
@@ -178,7 +180,8 @@ void uiODView2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 void uiODView2DVariableDensityTreeItem::dataTransformCB( CallBacker* )
 {
     Attrib::SelSpec& selspec = viewer2D()->selSpec( false );
-    if ( selspec.isZTransformed() ) return;
+    if ( selspec.isZTransformed() )
+	return;
 
     auto dp = createDataPackRM( selspec );
     if ( dp )
@@ -241,7 +244,8 @@ void uiODView2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true ).get();
-    if ( !dp ) return;
+    if ( !dp )
+	return;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
@@ -270,7 +274,8 @@ bool uiODView2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 {
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true ).get();
-    if ( !dp ) return false;
+    if ( !dp )
+	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     bool dousemulticomp, stored, steering;
@@ -286,7 +291,8 @@ bool uiODView2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	return false;
 
     auto fdp = createDataPackRM( selas, attrbnm.buf(), steering, stored );
-    if ( !fdp ) return false;
+    if ( !fdp )
+	return false;
 
     viewer2D()->setSelSpec( &selas, FlatView::Viewer::VD );
     if ( !viewer2D()->useStoredDispPars(FlatView::Viewer::VD) )
@@ -318,7 +324,8 @@ RefMan<SeisFlatDataPack> uiODView2DVariableDensityTreeItem::createDataPackRM(
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true ).get();
-    if ( !dp ) return nullptr;
+    if ( !dp )
+	return nullptr;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->setTargetSelSpec( selas );
@@ -340,7 +347,8 @@ RefMan<SeisFlatDataPack> uiODView2DVariableDensityTreeItem::createDataPackRM(
 
 	    const Attrib::DescSet* ds =
 			Attrib::DSHolder().getDescSet( true, true );
-	    if ( !ds ) return nullptr;
+	    if ( !ds )
+		return nullptr;
 
 	    selas.setRefFromID( *ds );
 	    selas.setUserRef( attrbnm );
@@ -373,7 +381,8 @@ DataPackID uiODView2DVariableDensityTreeItem::createDataPack(
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true ).get();
-    if ( !dp ) return DataPack::cNoID();
+    if ( !dp )
+	return DataPack::cNoID();
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->setTargetSelSpec( selas );
@@ -395,7 +404,8 @@ DataPackID uiODView2DVariableDensityTreeItem::createDataPack(
 
 	    const Attrib::DescSet* ds =
 			Attrib::DSHolder().getDescSet( true, true );
-	    if ( !ds ) return DataPack::cNoID();
+	    if ( !ds )
+		return DataPack::cNoID();
 
 	    selas.setRefFromID( *ds );
 	    selas.setUserRef( attrbnm );

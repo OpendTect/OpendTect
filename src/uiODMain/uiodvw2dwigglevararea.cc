@@ -124,7 +124,8 @@ void uiODView2DWiggleVarAreaTreeItem::dataChangedCB( CallBacker* )
 void uiODView2DWiggleVarAreaTreeItem::dataTransformCB( CallBacker* )
 {
     Attrib::SelSpec& selspec = viewer2D()->selSpec( true );
-    if ( selspec.isZTransformed() ) return;
+    if ( selspec.isZTransformed() )
+	return;
 
     auto dp = createDataPackRM( selspec );
     if ( dp )
@@ -174,7 +175,8 @@ void uiODView2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
-    if ( !dp ) return;
+    if ( !dp )
+	return;
 
     const Attrib::SelSpec& as = viewer2D()->selSpec( true );
     MenuItem* subitem = 0;
@@ -205,7 +207,8 @@ bool uiODView2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 {
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     RefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
-    if ( !dp ) return false;
+    if ( !dp )
+	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     bool dousemulticomp, stored, steering;
@@ -221,7 +224,8 @@ bool uiODView2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	return false;
 
     auto fdp = createDataPackRM( selas, attrbnm.buf(), steering, stored );
-    if ( !fdp ) return false;
+    if ( !fdp )
+	return false;
 
     viewer2D()->setSelSpec( &selas, FlatView::Viewer::WVA );
     if ( !viewer2D()->useStoredDispPars(FlatView::Viewer::WVA) )
@@ -251,7 +255,8 @@ RefMan<SeisFlatDataPack> uiODView2DWiggleVarAreaTreeItem::createDataPackRM(
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
-    if ( !dp ) return nullptr;
+    if ( !dp )
+	return nullptr;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->setTargetSelSpec( selas );
@@ -273,12 +278,15 @@ RefMan<SeisFlatDataPack> uiODView2DWiggleVarAreaTreeItem::createDataPackRM(
 
 	    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true,
 								       true );
-	    if ( !ds ) return nullptr;
+	    if ( !ds )
+		return nullptr;
+
 	    selas.setRefFromID( *ds );
 	    selas.setUserRef( attrbnm );
 
 	    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
-	    if ( !targetdesc ) return nullptr;
+	    if ( !targetdesc )
+		return nullptr;
 
 	    BufferString defstring;
 	    targetdesc->getDefStr( defstring );
@@ -303,7 +311,8 @@ DataPackID uiODView2DWiggleVarAreaTreeItem::createDataPack(
 {
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
-    if ( !dp ) return DataPackID::udf();
+    if ( !dp )
+	return DataPackID::udf();
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     attrserv->setTargetSelSpec( selas );
@@ -325,12 +334,15 @@ DataPackID uiODView2DWiggleVarAreaTreeItem::createDataPack(
 
 	    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true,
 								       true );
-	    if ( !ds ) return DataPack::cNoID();
+	    if ( !ds )
+		return DataPack::cNoID();
+
 	    selas.setRefFromID( *ds );
 	    selas.setUserRef( attrbnm );
 
 	    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
-	    if ( !targetdesc ) return DataPack::cNoID();
+	    if ( !targetdesc )
+		return DataPack::cNoID();
 
 	    BufferString defstring;
 	    targetdesc->getDefStr( defstring );
@@ -357,5 +369,5 @@ DataPackID uiODView2DWiggleVarAreaTreeItem::createDataPack(
 uiTreeItem* uiODView2DWiggleVarAreaTreeItemFactory::createForVis(
 					const uiODViewer2D&, Vis2DID id ) const
 {
-    return 0;
+    return nullptr;
 }
