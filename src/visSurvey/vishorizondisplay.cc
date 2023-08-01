@@ -1710,8 +1710,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 		 section->getTransparency(idy)==255 )
 		continue;
 
-		islowest = false;
-		break;
+	    islowest = false;
+	    break;
 	}
 
 	if ( !islowest )

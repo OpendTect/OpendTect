@@ -114,8 +114,8 @@ public:
     void			setDepthAsAttrib(int);
     void			setDisplayDataPackIDs(int attrib,
 					const TypeSet<DataPackID>&);
-    DataPackID		getDataPackID(int attrib) const override;
-    DataPackID		getDisplayedDataPackID(
+    DataPackID			getDataPackID(int attrib) const override;
+    DataPackID			getDisplayedDataPackID(
 						int attrib )const override;
     virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::FlatID(); }

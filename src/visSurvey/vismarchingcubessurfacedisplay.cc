@@ -270,14 +270,14 @@ const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
     const bool attribselchange = \
 		StringView(selspecs_.first().userRef())!=nm; \
     selspecs_.first().set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
-    DataPointSet* data = new DataPointSet(false,true); \
+    RefMan<DataPointSet> data = new DataPointSet(false,true); \
     DPM( DataPackMgr::PointID() ).add( data ); \
     getRandomPos( *data, 0 ); \
     DataColDef* isovdef = new DataColDef(nm); \
     data->dataSet().add( isovdef ); \
     BinIDValueSet& bivs = data->bivSet();  \
     if ( !data->size() || bivs.nrVals()!=3 ) \
-    { DPM( DataPackMgr::PointID() ).unRef( data->id() ); return;} \
+	return; \
     int valcol = data->dataSet().findColDef( *isovdef, \
 	    PosVecDataSet::NameExact ); \
     if ( valcol==-1 ) valcol = 1
@@ -349,8 +349,6 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	setColTabSequence( attrib, seq, 0 );
 	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
     }
-
-    DPM( DataPackMgr::PointID() ).unRef( data->id() );
 }
 
 
@@ -374,8 +372,6 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 	setColTabSequence( attrib, seq, 0 );
 	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
     }
-
-    DPM( DataPackMgr::PointID() ).unRef( data->id() );
 }
 
 
@@ -408,7 +404,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     if ( attrib<0 )
 	return;
 
-    DataPointSet* ndps = dps ? new DataPointSet( *dps ) : 0;
+    RefMan<DataPointSet> ndps = cCast(DataPointSet*,dps);
     if ( !attrib && dps && displaysurface_ )
     {
 	displaysurface_->getShape()->setAttribData( *ndps, runner );
@@ -416,16 +412,12 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     }
 
     if ( cache_.validIdx(attrib) )
-    {
-	if ( cache_[attrib] )
-	    DPM( DataPackMgr::PointID() ).unRef( cache_[attrib]->id() );
-
-	cache_.replace(attrib,ndps);
-    }
+	cache_.replace( attrib, ndps );
     else
     {
 	while ( attrib>cache_.size() )
 	    cache_ += nullptr;
+
 	cache_ += ndps;
     }
 
@@ -434,6 +426,20 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 
     validtexture_ = true;
     updateSingleColor();
+}
+
+
+
+DataPackID MarchingCubesDisplay::getDataPackID( int attrib ) const
+{
+    return cache_.validIdx(attrib) && cache_[attrib] ? cache_[attrib]->id()
+						     : DataPackID::udf();
+}
+
+
+DataPackID MarchingCubesDisplay::getDisplayedDataPackID( int attrib ) const
+{
+    return getDataPackID( attrib );
 }
 
 
@@ -453,7 +459,9 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
     int valididx = -1;
     for ( int idx=0; idx<cache_.size(); idx++ )
     {
-	if ( !cache_[idx] ) continue;
+	if ( !cache_[idx] )
+	    continue;
+
 	valididx = idx;
 	break;
     }

@@ -83,7 +83,7 @@ public:
     TrcKeyZSampling		getTrcKeyZSampling(
 					int attrib=-1) const override;
     void			getTraceKeyPath(TrcKeyPath&,
-                                                TypeSet<Coord>*) const override;
+						TypeSet<Coord>*) const override;
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						bool displayspace,
 						int attrib=-1) const;

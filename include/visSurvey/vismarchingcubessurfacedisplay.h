@@ -89,6 +89,14 @@ public:
     void			setRandomPosData(int attrib,
 						    const DataPointSet*,
 						    TaskRunner*) override;
+    DataPackID			getDataPackID(int attrib) const override;
+    DataPackID			getDisplayedDataPackID(
+						int attrib )const override;
+    DataPackMgr::MgrID		getDataPackMgrID() const override
+				{ return DataPackMgr::PointID(); }
+
+    bool			isVerticalPlane() const override
+				{ return false; }
 
     void			setOnlyAtSectionsDisplay(bool yn) override;
     bool			displayedOnlyAtSections() const override;

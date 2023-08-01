@@ -322,10 +322,6 @@ void uiODVolrenAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODAttribTreeItem::createMenu( menu, istb );
 
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &statisticsmnuitem_,
-		      true, false );
-    mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &amplspectrummnuitem_,
-		      true, false );
     mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &addisosurfacemnuitem_,
 		      true, false );
 
@@ -356,38 +352,7 @@ void uiODVolrenAttribTreeItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
 		     visserv->getObject( displayID() ) )
 
-    if ( mnuid==statisticsmnuitem_.id )
-    {
-	const DataPackID dpid = visserv->getDataPackID( displayID(),
-							  attribNr() );
-	const DataPackMgr::MgrID dmid = visserv->getDataPackMgrID(displayID());
-	const int version = visserv->selectedTexture( displayID(), attribNr() );
-	uiStatsDisplay::Setup su; su.countinplot( false );
-	uiStatsDisplayWin* dwin =
-	    new uiStatsDisplayWin( applMgr()->applService().parent(),
-				   su, 1, false );
-	dwin->statsDisplay()->setDataPackID( dpid, dmid, version );
-	dwin->setDataName( DPM(dmid).nameOf(dpid)  );
-	dwin->windowClosed.notify( mCB(OBJDISP(),ObjDisposer,go) );
-	dwin->show();
-        menu->setIsHandled( true );
-    }
-    else if ( mnuid==amplspectrummnuitem_.id )
-    {
-	const DataPackID dpid = visserv->getDataPackID(
-					displayID(), attribNr() );
-	const DataPackMgr::MgrID dmid =
-		visserv->getDataPackMgrID( displayID() );
-	const int version = visserv->selectedTexture(
-					displayID(), attribNr() );
-	uiSeisAmplSpectrum* asd = new uiSeisAmplSpectrum(
-				  applMgr()->applService().parent() );
-	asd->setDataPackID( dpid, dmid, version );
-	asd->windowClosed.notify( mCB(OBJDISP(),ObjDisposer,go) );
-	asd->show();
-	menu->setIsHandled( true );
-    }
-    else if ( mnuid==addisosurfacemnuitem_.id )
+    if ( mnuid==addisosurfacemnuitem_.id )
     {
 	menu->setIsHandled( true );
 	const VisID surfobjid = vd->addIsoSurface( 0, false );

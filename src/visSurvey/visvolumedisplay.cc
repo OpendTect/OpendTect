@@ -1189,6 +1189,12 @@ DataPackID VolumeDisplay::getDataPackID( int attrib ) const
 }
 
 
+DataPackID VolumeDisplay::getDisplayedDataPackID( int attrib ) const
+{
+    return getDataPackID( attrib );
+}
+
+
 void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
 				     Coord3& pos, BufferString& val,
 				     BufferString& info ) const
