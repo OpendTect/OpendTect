@@ -223,7 +223,7 @@ uiFlatViewer* uiStratLayerModelDisp::getViewerClone( uiParent* p ) const
     vwr->appearance() = vwr_.appearance();
     auto wvadp = vwr_.getPack( true ).get();
     auto vddp = vwr_.getPack( false ).get();
-    if ( wvadp == vddp )
+    if ( wvadp.ptr() == vddp.ptr() )
 	vwr->setPack( FlatView::Viewer::Both, wvadp, false );
     else
     {

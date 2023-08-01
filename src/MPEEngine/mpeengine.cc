@@ -934,15 +934,18 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPackRM( const TrcKey& tk, float z,
 					const StepInterval<float>& zintv ) const
 {
     TypeSet<Attrib::SelSpec> specs; getNeededAttribs( specs );
-    if ( specs.isEmpty() ) return nullptr;
+    if ( specs.isEmpty() )
+	return nullptr;
 
     DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     const DataPackID pldpid = getAttribCacheID( specs[0] );
     auto sdp = dpm.get<SeisDataPack>( pldpid );
-    if ( !sdp ) return nullptr;
+    if ( !sdp )
+	return nullptr;
 
     const int globidx = sdp->getNearestGlobalIdx( tk );
-    if ( globidx < 0 ) return nullptr;
+    if ( globidx < 0 )
+	return nullptr;
 
     StepInterval<float> zintv2 = zintv; zintv2.step = sdp->zRange().step;
     const int nrz = zintv2.nrSteps() + 1;
@@ -1002,14 +1005,16 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
 	}
     }
 
-    if ( !create ) return 0;
+    if ( !create )
+	return nullptr;
 
     EM::EMObject* emobj = EM::EMM().getObject(id);
-    if ( !emobj ) return 0;
+    if ( !emobj )
+	return nullptr;
 
     ObjectEditor* editor = EditorFactory().create( emobj->getTypeStr(), *emobj);
     if ( !editor )
-	return 0;
+	return nullptr;
 
     editors_ += editor;
     editor->ref();
@@ -1091,9 +1096,12 @@ bool Engine::usePar( const IOPar& iopar )
     for ( int idx=0; idx<nrtrackers; idx++ )
     {
 	PtrMan<IOPar> localpar = iopar.subselect( toString(idx) );
-	if ( !localpar ) continue;
+	if ( !localpar )
+	    continue;
 
-	if ( !localpar->get(sKeyObjectID(),midtoload) ) continue;
+	if ( !localpar->get(sKeyObjectID(),midtoload) )
+	    continue;
+
 	EM::ObjectID oid = EM::EMM().getObjectID( midtoload );
 	EM::EMObject* emobj = EM::EMM().getObject( oid );
 	if ( !emobj )
@@ -1120,7 +1128,9 @@ bool Engine::usePar( const IOPar& iopar )
 
 	const int trackeridx = addTracker( emobj );
 	emobj->unRefNoDelete();
-	if ( trackeridx < 0 ) continue;
+	if ( trackeridx < 0 )
+	    continue;
+
 	EMTracker* tracker = trackers_[trackeridx];
 
 	bool doenable = true;

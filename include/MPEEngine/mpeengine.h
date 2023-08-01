@@ -13,13 +13,13 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "callback.h"
 #include "datapack.h"
+#include "datapackbase.h"
 #include "emposid.h"
 #include "integerid.h"
 #include "survgeom.h"
 
 class BufferStringSet;
 class Executor;
-class FlatDataPack;
 
 namespace EM { class EMObject; }
 namespace Geometry { class Element; }
