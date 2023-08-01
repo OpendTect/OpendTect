@@ -170,8 +170,10 @@ public:
     const RegularSeisDataPack*	getCacheVolume(int attrib) const override;
     bool			setDataPackID(int attrib,DataPackID,
 					      TaskRunner*) override;
-    DataPackID		getDataPackID(int attrib) const override;
-    virtual DataPackMgr::MgrID	   getDataPackMgrID() const override
+    DataPackID			getDataPackID(int attrib) const override;
+    DataPackID			getDisplayedDataPackID(
+					      int attrib) const override;
+    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
 
     void			getMousePosInfo( const visBase::EventInfo& ei,
@@ -317,7 +319,7 @@ protected:
 
     bool			isinited_;
     bool			ismanip_;
-    bool                        onoffstatus_;
+    bool			onoffstatus_;
 
     ConstRefMan<mVisTrans>	displaytrans_;
 

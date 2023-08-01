@@ -156,10 +156,11 @@ public:
     bool			isVerticalPlane() const override {return false;}
     bool			canBDispOn2DViewer() const override
 				{ return false; }
-    DataPackID		addDataPack(const DataPointSet&) const ;
+    DataPackID			addDataPack(const DataPointSet&) const;
     bool			setDataPackID(int attrib,DataPackID,
 					      TaskRunner*) override;
-    DataPackID		getDataPackID(int attrib) const override;
+    DataPackID			getDataPackID(int attrib) const override;
+    DataPackID			getDisplayedDataPackID(int attr) const override;
     DataPackMgr::MgrID		getDataPackMgrID() const override
 				{ return DataPackMgr::SurfID(); }
 
