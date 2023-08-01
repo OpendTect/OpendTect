@@ -41,7 +41,9 @@ ________________________________________________________________________
 extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
 static HiddenParam<IOMan,SurveyDiskLocation*> prevrootdiriommgr_(nullptr);
-static HiddenParam<IOMan,CNotifier<IOMan,const MultiID&>*> impUpdatedNotf(nullptr);
+static HiddenParam<IOMan,CNotifier<IOMan,const MultiID&>*>
+							impUpdatedNotf(nullptr);
+static HiddenParam<IOMan,Notifier<IOMan>*> prepSurvChgNotif(nullptr);
 
 class IOMManager : public CallBacker
 {
@@ -154,6 +156,7 @@ IOMan::IOMan( const FilePath& rootdir )
     , curlvl_(-1)
 {
     impUpdatedNotf.setParam( this, new CNotifier<IOMan,const MultiID&>(this) );
+    prepSurvChgNotif.setParam( this, new Notifier<IOMan>(this) );
     prevrootdiriommgr_.setParam( this, nullptr );
     SetCurBaseDataDir( rootdir.pathOnly().buf() );
     SurveyInfo::deleteInstance();
@@ -175,6 +178,7 @@ IOMan::IOMan( const char* rd )
     , curlvl_(-1)
 {
     impUpdatedNotf.setParam( this, new CNotifier<IOMan,const MultiID&>(this) );
+    prepSurvChgNotif.setParam( this, new Notifier<IOMan>(this) );
     prevrootdiriommgr_.setParam( this, nullptr );
     rootdir_ = rd && *rd ? rd : GetDataDir();
     if ( !File::isDirectory(rootdir_) )
@@ -185,6 +189,12 @@ IOMan::IOMan( const char* rd )
 CNotifier<IOMan,const MultiID&>& IOMan::implUpdated()
 {
     return *impUpdatedNotf.getParam( this );
+}
+
+
+Notifier<IOMan>& IOMan::prepareSurveyChange()
+{
+    return *prepSurvChgNotif.getParam( this );
 }
 
 
@@ -324,13 +334,16 @@ bool IOMan::isOK()
 bool IOMan::close( bool dotrigger )
 {
     if ( dotrigger && !isBad() )
-	surveyToBeChanged.trigger();
+	prepareSurveyChange().trigger();
 
     if ( changeSurveyBlocked() )
     {
 	setChangeSurveyBlocked( false );
 	return false;
     }
+
+    if ( dotrigger && !isBad() )
+	surveyToBeChanged.trigger();
 
     TranslatorGroup::clearSelHists();
 
@@ -349,6 +362,9 @@ void IOMan::reInit( SurveyInfo* nwsi )
     if ( !close(dotrigger) ) //Still notifying using previous survey
 	return;
 
+    SurveyDiskLocation rootloc( rootdir_ );
+    rootloc.setDirName( newsi->getDirName() );
+    rootdir_ = rootloc.fullPath();
     init( newsi.release() );
     if ( !isBad() )
     {
@@ -372,6 +388,9 @@ IOMan::~IOMan()
 
     if (impUpdatedNotf.hasParam(this) )
 	impUpdatedNotf.removeAndDeleteParam( this );
+
+    if (prepSurvChgNotif.hasParam(this) )
+	prepSurvChgNotif.removeAndDeleteParam( this );
 }
 
 
@@ -408,8 +427,6 @@ bool IOMan::newSurvey( SurveyInfo* nwsi )
     if ( IOMan::isOK() && newsi->getDataDirName() != rootdirsdl.basePath() )
 	pFreeFnErrMsg("Incorrect switching to another data root");
 
-    rootdirsdl.setDirName( newsi->getDirName() );
-    IOM().rootdir_.set( rootdirsdl.fullPath() );
     IOM().reInit( newsi.release() );
     return !IOM().isBad();
 }
@@ -438,10 +455,14 @@ bool IOMan::setSurvey( const char* survname )
 
 void IOMan::surveyParsChanged()
 {
-    IOM().surveyToBeChanged.trigger();
+    IOM().prepareSurveyChange().trigger();
     if ( IOM().changeSurveyBlocked() )
-	{ IOM().setChangeSurveyBlocked(false); return; }
+    {
+	IOM().setChangeSurveyBlocked(false);
+	return;
+    }
 
+    IOM().surveyToBeChanged.trigger();
     IOM().surveyChanged.trigger();
     IOM().afterSurveyChange.trigger();
 }

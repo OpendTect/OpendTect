@@ -104,7 +104,7 @@ public:
     void		removeCBs(CallBacker*);
 
     bool		isChanged( int idx ) const
-			{ return idx < changed_.size()
+			{ return changed_.validIdx(idx)
 				? (bool) changed_[idx] : false;}
     void		setUnChanged( int idx, bool yn=true )
 			{ if ( changed_.validIdx(idx) ) changed_[idx] = !yn; }
