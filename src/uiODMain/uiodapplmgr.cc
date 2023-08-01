@@ -118,6 +118,8 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	tmpprevsurvinfo_.refresh();
     }
 
+    IOM().prepareSurveyChange().notify(
+			mCB(this,uiODApplMgr,prepareSurveyChange),true );
     IOM().surveyToBeChanged.notify(
 			mCB(this,uiODApplMgr,surveyToBeChanged),true );
     IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
@@ -128,7 +130,10 @@ uiODApplMgr::~uiODApplMgr()
 {
     visdpsdispmgr_->clearDisplays();
     dispatcher_.survChg(true); attrvishandler_.survChg(true);
+    IOM().prepareSurveyChange().remove(
+	    mCB(this,uiODApplMgr,surveyToBeChanged) );
     IOM().surveyToBeChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
+    IOM().surveyChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
     delete mpeserv_;
     delete pickserv_;
     delete nlaserv_;
@@ -246,16 +251,23 @@ void uiODApplMgr::addVisDPSChild( CallBacker* cb )
 }
 
 
+void uiODApplMgr::prepareSurveyChange( CallBacker* )
+{
+    bool anythingasked = false;
+    if ( !appl_.askStore(anythingasked,tr("Survey change")) )
+	IOM().setChangeSurveyBlocked( true );
+}
+
+
 void uiODApplMgr::surveyToBeChanged( CallBacker* )
 {
     visdpsdispmgr_->clearDisplays();
-    dispatcher_.survChg(true); attrvishandler_.survChg(true);
+    dispatcher_.survChg(true);
+    attrvishandler_.survChg(true);
 
-    bool anythingasked = false;
-    if ( !appl_.askStore(anythingasked,tr("Survey change")) )
-	{ IOM().setChangeSurveyBlocked( true ); return; }
+    if ( nlaserv_ )
+	nlaserv_->reset();
 
-    if ( nlaserv_ ) nlaserv_->reset();
     deleteAndNullPtr( attrserv_ );
     deleteAndNullPtr( emattrserv_ );
     deleteAndNullPtr( volprocserv_ );

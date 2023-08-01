@@ -284,6 +284,7 @@ protected:
     bool			handleAttribServEv(int);
     bool			handleVolProcServEv(int);
 
+    void			prepareSurveyChange(CallBacker*);
     void			surveyToBeChanged(CallBacker*);
     void			surveyChanged(CallBacker*);
     void			colSeqChg(CallBacker*);
