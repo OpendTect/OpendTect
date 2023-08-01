@@ -224,18 +224,13 @@ void uiSafetyCheckDlg::scan( const char* command )
     MouseCursorChanger mcc( MouseCursor::Wait );
     BufferString stdoutstr, stderrstr;
     uiRetVal ret;
-    const bool res = OD::PythA().execute( mc, stdoutstr, ret, &stderrstr );
-    if ( !res )
-    {
-	uiRetVal uirv = tr("Cannot execute the safety command");
-	uirv.add( ret );
-	uiMSG().error( ret );
-    }
-
+    OD::PythA().execute( mc, stdoutstr, ret, &stderrstr );
     outputfld_->setText( stdoutstr.isEmpty()
 			   ? (stderrstr.isEmpty() ? "" : stderrstr.buf())
 			   : stdoutstr.buf() );
-    savebut_->setSensitive( true );
+
+    const bool nooutput = stdoutstr.isEmpty() && stderrstr.isEmpty();
+    savebut_->setSensitive( !nooutput );
 }
 
 
