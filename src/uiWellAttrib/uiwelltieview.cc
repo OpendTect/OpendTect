@@ -258,15 +258,15 @@ void WellTie::uiTieView::setDataPack()
 {
     const bool canupdate = vwr_->enableChange( false );
     vwr_->clearAllPacks();
-    auto* dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol,
+    RefMan<SeisTrcBufDataPack> dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol,
 				       SeisTrcInfo::TrcNr, "Seismic" );
     dp->trcBufArr2D().setBufMine( false );
     StepInterval<double> xrange( 1, trcbuf_.size(), 1 );
     dp->posData().setRange( true, xrange );
     dp->setName( data_.sKeySeismic() );
-    DPM(DataPackMgr::FlatID()).add( dp );
+    fdp_ = dp;
     vwr_->enableChange( canupdate );
-    vwr_->setPack( FlatView::Viewer::Both, dp->id(), false );
+    vwr_->setPack( FlatView::Viewer::Both, dp, false );
 }
 
 

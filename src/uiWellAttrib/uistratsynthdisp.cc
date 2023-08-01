@@ -1077,18 +1077,18 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     if ( dest == FlatView::Viewer::Both )
 	vdselfld_->datapackid_ = newpackid;
 
+    RefMan<FlatDataPack> fdp = pack2use.getNonConstPtr();
     if ( newpackid != DataPack::cNoID() )
     {
 	if ( !dpm.isPresent(newpackid) )
-	    dpm.add<FlatDataPack>( pack2use );
-	if ( !vwr_->isAvailable(newpackid) )
-	    vwr_->addPack( newpackid );
+	    dpm.add<FlatDataPack>( fdp );
 
+	vwr_->setPack( dest, fdp );
 	entries_.addIfNew( curid, newpackid, lmsidx, flatlvlid, curoffsidx );
     }
 
     const bool updateview = vwr_->enableChange( false );
-    vwr_->usePack( dest, newpackid, !hadpack );
+    vwr_->setPack( dest, fdp, !hadpack );
     ctyp = Math::SetBits( ctyp, FlatView::Viewer::BitmapData, true );
 
     if ( control_ && sd )
@@ -1954,16 +1954,16 @@ uiFlatViewer* uiStratSynthDisp::getViewerClone( uiParent* p ) const
     vwr->setInitialSize( initialsz_ );
     vwr->setStretch( 2, 2 );
     vwr->appearance() = vwr_->appearance();
-    const DataPackID wvaid = vwr_->packID(true);
-    const DataPackID vdid = vwr_->packID(false);
-    if ( wvaid == vdid )
-	vwr->setPack( FlatView::Viewer::Both, vwr_->packID(true), false );
+    auto wvadp = vwr_->getPack(true).get();
+    auto vddp = vwr_->getPack(false).get();
+    if ( wvadp.ptr() == vddp.ptr() )
+	vwr->setPack( FlatView::Viewer::Both, wvadp, false );
     else
     {
 	const bool canupdate = vwr_->enableChange( false );
-	vwr->setPack( FlatView::Viewer::WVA, wvaid, false );
+	vwr->setPack( FlatView::Viewer::WVA, wvadp, false );
 	vwr_->enableChange( canupdate );
-	vwr->setPack( FlatView::Viewer::VD, vdid, false );
+	vwr->setPack( FlatView::Viewer::VD, vddp, false );
     }
 
     return vwr;

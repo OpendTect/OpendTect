@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "trckeyvalue.h"
 
+class FlatDataPack;
 class uiCheckList;
 class uiFlatViewer;
 
@@ -55,6 +56,7 @@ protected:
 
     uiCheckList*		wvafld_;
     uiFlatViewer*		vwr_;
+    RefMan<FlatDataPack>	fdp_;
 
     FlatView::AuxData*		seeditm_;
     FlatView::AuxData*		seedline_;

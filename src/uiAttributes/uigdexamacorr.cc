@@ -130,14 +130,15 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 
     BufferStringSet cnames;
     cnames.add( "autocorrelation" );
-    const DataPackID outputid = uiAttribPartServer::createDataPackFor2D(
+    auto regsdp = uiAttribPartServer::createDataPackFor2DRM(
 					d2dh, sampling, SI().zDomain(),&cnames);
-    auto regsdp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>(outputid);
     if ( !regsdp ) return;
 
-    FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
-    fdp = new RegularFlatDataPack( *regsdp, 0 );
-    DPM(DataPackMgr::FlatID()).add( fdp );
+    RefMan<FlatDataPack> fdp = new RegularFlatDataPack( *regsdp, 0 );
+    if ( isqc )
+	fddatapackqc_ = fdp;
+    else
+	fddatapackexam_ = fdp;
 }
 
 
@@ -153,15 +154,17 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
     //we now have to go back to the user specified sampling
     if ( !csmatchessurv ) output->setSampling( tkzs_ );
 
-    FlatDataPack*& fdp = isqc ? fddatapackqc_ : fddatapackexam_;
-    fdp = new RegularFlatDataPack( *output, 0 );
-    DPM(DataPackMgr::FlatID()).add( fdp );
+    RefMan<FlatDataPack> fdp = new RegularFlatDataPack( *output, 0 );
+    if ( isqc )
+	fddatapackqc_ = fdp;
+    else
+	fddatapackexam_ = fdp;
 }
 
 
 bool GapDeconACorrView::setUpViewWin( bool isqc )
 {
-    FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
+    RefMan<FlatDataPack> dp = isqc ? fddatapackqc_ : fddatapackexam_;
     if ( !dp ) return false;
     const StepInterval<double> newrg(
 	    0, tkzs_.zsamp_.stop-tkzs_.zsamp_.start, tkzs_.zsamp_.step );
@@ -170,13 +173,13 @@ bool GapDeconACorrView::setUpViewWin( bool isqc )
 
     uiFlatViewMainWin*& fvwin = isqc ? qcwin_ : examwin_;
     if ( fvwin )
-	fvwin->viewer().setPack( FlatView::Viewer::VD, dp->id(), false );
+	fvwin->viewer().setPack( FlatView::Viewer::VD, dp, false );
     else
     {
 	fvwin = new uiFlatViewMainWin( 0,
 		uiFlatViewMainWin::Setup(isqc?qctitle_:examtitle_,false) );
 	uiFlatViewer& vwr = fvwin->viewer();
-	vwr.setPack( FlatView::Viewer::VD, dp->id(), true );
+	vwr.setPack( FlatView::Viewer::VD, dp, true );
 	FlatView::Appearance& app = vwr.appearance();
 	app.annot_.setAxesAnnot( true );
 	app.setDarkBG( false );

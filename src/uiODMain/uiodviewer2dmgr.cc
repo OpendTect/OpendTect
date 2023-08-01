@@ -236,10 +236,24 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 					const FlatView::DataDispPars::VD& pars,
 					FlatView::Viewer::VwrDest dest )
 {
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
+    if ( !seisdp )
+	return Viewer2DID::udf();
+
+    return displayIn2DViewer( *seisdp, as, pars, dest );
+}
+
+
+Viewer2DID uiODViewer2DMgr::displayIn2DViewer( const SeisDataPack& sdp,
+					const Attrib::SelSpec& as,
+					const FlatView::DataDispPars::VD& pars,
+					FlatView::Viewer::VwrDest dest )
+{
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     vwr2d->setSelSpec( &as, FlatView::Viewer::Both );
-    vwr2d->setUpView( vwr2d->createFlatDataPack(dpid,0),
-		      FlatView::Viewer::Both );
+    vwr2d->makeUpView( vwr2d->createFlatDataPackRM( sdp, 0 ),
+		       FlatView::Viewer::Both );
     vwr2d->setWinTitle( false );
 
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
@@ -274,7 +288,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 					float initialx1pospercm,
 					float initialx2pospercm )
 {
-    DataPackID dpid = DataPack::cNoID();
+    ConstRefMan<SeisDataPack> dp;
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
     const bool isrl =
@@ -291,13 +305,13 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	    return Viewer2DID::udf();
 
 	posdatasel.tkzs_.zsamp_ = rdmline->zRange();
-	dpid = attrserv->createRdmTrcsOutput(
-		posdatasel.tkzs_.zsamp_, rdmline->ID() );
+	dp = attrserv->createRdmTrcsOutputRM( posdatasel.tkzs_.zsamp_,
+					      rdmline->ID() );
     }
     else
-	dpid = attrserv->createOutput( posdatasel.tkzs_, DataPack::cNoID() );
+	dp = attrserv->createOutput( posdatasel.tkzs_ );
 
-    if ( dpid==DataPack::cNoID() )
+    if ( !dp )
 	return Viewer2DID::udf();
 
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
@@ -309,9 +323,8 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	vwr2d->setRandomLineID( rdmline->ID() );
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
     vwr2d->setInitialX2PosPerCM( initialx2pospercm );
-    vwr2d->setUpView( vwr2d->createFlatDataPack(dpid,0),
-		      FlatView::Viewer::Both );
-    DPM(DataPackMgr::SeisID()).unRef( dpid );
+    vwr2d->makeUpView( vwr2d->createFlatDataPackRM( *dp, 0),
+		       FlatView::Viewer::Both );
     vwr2d->setWinTitle( false );
     vwr2d->useStoredDispPars( dest );
 
@@ -371,14 +384,13 @@ void uiODViewer2DMgr::displayIn2DViewer( VisID visid, int attribid,
 	vwr2d->setSelSpec( as, dest );
 
     const int version = visServ().currentVersion( visid, attribid );
-    const DataPackID dpid = vwr2d->createFlatDataPack( id, version );
     if ( isnewvwr )
-	vwr2d->setUpView( dpid, FlatView::Viewer::Both );
+	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id, version),
+			   FlatView::Viewer::Both );
     else
-	vwr2d->setUpView( dpid, dest );
+	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id, version), dest );
 
     vwr2d->setWinTitle( true );
-
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
     if ( isnewvwr )
     {
@@ -751,9 +763,11 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 
     const uiFlatViewer& curvwr = curvwr2d.viewwin()->viewer( 0 );
     if ( curvwr.isVisible(true) )
-	vwr2d->setUpView( vwr2d->createDataPack(true), FlatView::Viewer::WVA );
+	vwr2d->makeUpView( vwr2d->createDataPackRM(true),
+			   FlatView::Viewer::WVA );
     else if ( curvwr.isVisible(false) )
-	vwr2d->setUpView( vwr2d->createDataPack(false), FlatView::Viewer::VD );
+	vwr2d->makeUpView( vwr2d->createDataPackRM(false),
+			   FlatView::Viewer::VD );
 
     if ( vwr2d->viewControl() && control )
 	vwr2d->viewControl()->setEditMode( control->isEditModeOn() );

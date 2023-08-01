@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uiflatviewer.h"
 #include "datapack.h"
+class FlatDataPack;
 class Wavelet;
 class SeisTrc;
 
@@ -30,8 +31,8 @@ public:
 			//!< Wavelet automatically get 0 as ref,
 			//!< traces zref or pick if n0t 0 and not undef
 
-    int			compnr_;
-    DataPackID		curid_;
+    int				compnr_;
+    RefMan<FlatDataPack>	fdp_;
 
 protected:
 

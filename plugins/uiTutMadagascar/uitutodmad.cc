@@ -82,7 +82,6 @@ bool uiTutODMad::acceptOK( CallBacker* )
 					 "Madagascar data" );
     bufdtpack_->trcBufArr2D().setBufMine( true );
     madstream_.setStorBufMine( false );
-    DPM(DataPackMgr::FlatID()).add( bufdtpack_ );
     createAndDisplay2DViewer();
     return true;
 
@@ -97,7 +96,7 @@ void uiTutODMad::createAndDisplay2DViewer()
     const bool dowiggles = dowigglesfld_->getBoolValue();
     const FlatView::Viewer::VwrDest dest =
 	  FlatView::Viewer::getDest( dowiggles, !dowiggles );
-    vwr.setPack( dest, bufdtpack_->id(), true );
+    vwr.setPack( dest, bufdtpack_, true );
     FlatView::Appearance& app = vwr.appearance();
     app.annot_.setAxesAnnot( true );
     app.setDarkBG( false );

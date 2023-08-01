@@ -57,6 +57,6 @@ protected:
     uiString			examtitle_;
     uiString			qctitle_;
 
-    FlatDataPack*		fddatapackqc_;
-    FlatDataPack*		fddatapackexam_;
+    RefMan<FlatDataPack>	fddatapackqc_;
+    RefMan<FlatDataPack>	fddatapackexam_;
 };

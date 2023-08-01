@@ -221,16 +221,16 @@ uiFlatViewer* uiStratLayerModelDisp::getViewerClone( uiParent* p ) const
     vwr->setInitialSize( initialSize() );
     vwr->setStretch( 2, 2 );
     vwr->appearance() = vwr_.appearance();
-    const DataPackID wvaid = vwr_.packID( true );
-    const DataPackID vdid = vwr_.packID( false );
-    if ( wvaid == vdid )
-	vwr->setPack( FlatView::Viewer::Both, wvaid, false );
+    auto wvadp = vwr_.getPack( true ).get();
+    auto vddp = vwr_.getPack( false ).get();
+    if ( wvadp.ptr() == vddp.ptr() )
+	vwr->setPack( FlatView::Viewer::Both, wvadp, false );
     else
     {
 	const bool canupdate = vwr->enableChange( false );
-	vwr->setPack( FlatView::Viewer::WVA, wvaid, false );
+	vwr->setPack( FlatView::Viewer::WVA, wvadp, false );
 	vwr->enableChange( canupdate );
-	vwr->setPack( FlatView::Viewer::VD, vdid, false );
+	vwr->setPack( FlatView::Viewer::VD, vddp, false );
     }
 
     return vwr;
@@ -811,8 +811,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     vwr_.setVisible( dest, false );
     fvdp_ = new uiSSLMFlatViewDataPack();
     fvdp_->setName( "Simple Layer Model Display BackDrop" );
-    DPM( DataPackMgr::FlatID() ).add( fvdp_ );
-    vwr_.setPack( dest, fvdp_->id() );
+    vwr_.setPack( dest, fvdp_ );
 
     const int sz = 25; // looks best
     auto* savebut = new uiToolButton( this, "save",

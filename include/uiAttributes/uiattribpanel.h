@@ -37,7 +37,7 @@ protected:
 
     RefMan<FlatDataPack>	computeAttrib();
     Attrib::EngineMan*		createEngineMan();
-    virtual void		createAndDisplay2DViewer(FlatDataPack*);
+    virtual void		createAndDisplay2DViewer();
     RefMan<FlatDataPack>	createFDPack(const Attrib::Data2DHolder&) const;
     RefMan<FlatDataPack>	createFDPack(Attrib::EngineMan*,
 					     Attrib::Processor*) const;
@@ -52,4 +52,5 @@ protected:
     Attrib::DescID		attribid_;
     Attrib::DescSet*		dset_;
     uiParent*			parent_;
+    RefMan<FlatDataPack>	vddp_;
 };

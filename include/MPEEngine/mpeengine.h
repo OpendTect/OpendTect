@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "callback.h"
 #include "datapack.h"
+#include "datapackbase.h"
 #include "emposid.h"
 #include "integerid.h"
 #include "survgeom.h"
@@ -133,6 +134,9 @@ public:
 							 int idx,bool);
 				/*!< add = true, remove = false. */
     ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;
+    RefMan<FlatDataPack>	getSeedPosDataPackRM(const TrcKey&,float z,
+					int nrtrcs,
+					const StepInterval<float>& zrg) const;
     DataPackID		getSeedPosDataPack(const TrcKey&,float z,
 					int nrtrcs,
 					const StepInterval<float>& zrg) const;

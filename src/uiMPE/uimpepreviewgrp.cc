@@ -145,11 +145,11 @@ void uiPreviewGroup::updateViewer()
     zintv.scale( 1.f/SI().zDomain().userFactor() );
     zintv.step = SI().zStep();
 
-    const DataPackID dpid =
-	MPE::engine().getSeedPosDataPack( tk, z, nrtrcs_, zintv );
+    auto dp = MPE::engine().getSeedPosDataPackRM( tk, z, nrtrcs_, zintv );
+    fdp_ = dp;
 
     const bool canupdate = vwr_->enableChange( false );
-    vwr_->setPack( FlatView::Viewer::Both, dpid );
+    vwr_->setPack( FlatView::Viewer::Both, dp );
     vwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
 				     wvafld_->isChecked(1) );
     vwr_->setViewToBoundingBox();

@@ -23,6 +23,7 @@ class uiTabStack;
 class uiToolButton;
 class uiUnitSel;
 
+class FlatDataPack;
 class Gaussian1DProbDenFunc;
 class Gaussian2DProbDenFunc;
 class GaussianNDProbDenFunc;
@@ -107,6 +108,7 @@ protected:
     uiTable*		tbl_ = nullptr;
     uiFlatViewMainWin*	vwwinnd_ = nullptr;
     uiPDF1DViewWin*	vwwin1d_ = nullptr;
+    RefMan<FlatDataPack>	vddp_;
 
     void		mkTable(uiGroup*);
 

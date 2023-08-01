@@ -211,12 +211,12 @@ void WellTie::uiWavelet::drawWavelet()
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
     OD::memCopy( fva2d->getData(), wvlt_->samples(), wvltsz * sizeof(float) );
     RefMan<FlatDataPack> dp = new FlatDataPack( "Wavelet", fva2d );
-    DPM( DataPackMgr::FlatID() ).add( dp );
     dp->setName( wvlt_->name() );
+    fdp_ =  dp;
 
     const bool canupdate = viewer_->enableChange( false );
     viewer_->clearAllPacks();
-    viewer_->setPack( FlatView::Viewer::WVA, dp->id(), false );
+    viewer_->setPack( FlatView::Viewer::WVA, dp, false );
     StepInterval<double> posns; posns.setFrom( wvlt_->samplePositions() );
     if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
     dp->posData().setRange( false, posns );

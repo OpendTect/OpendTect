@@ -359,20 +359,9 @@ public:
     bool		hasZAxisTransform() const
 			{ return datatransform_; }
 
-    void		addPack(::DataPackID);
-			/*!< Adds to list and obtains the DataPack, but does not
-			 use for WVA or VD. DataPack gets released in the
-			 destructor of this class. */
     enum		VwrDest { WVA, VD, Both, None };
     static VwrDest	getDest(bool dowva,bool dovd);
 
-    void		usePack(VwrDest,::DataPackID,bool usedefs=true);
-			//!< Does not add new packs, just selects from added
-    virtual void	removePack(::DataPackID);
-			//!< Releases DataPack after removing from the list.
-    void		removeUnusedPacks();
-    void		setPack(VwrDest,::DataPackID,bool usedefs=true);
-			//!< add + use the datapack on either wva or vd or both
     void		clearAllPacks();
     bool		enableChange(bool yn);
 			//!< Returns previous state
@@ -384,12 +373,11 @@ public:
 			 display (i.e. variable density or wiggles) is returned
 			 if the specified display has no datapack. */
     bool		hasPack( bool wva ) const
-			{ return packID(wva)!=DataPack::cNoID(); }
-    DataPackID		packID(bool wva) const;
+			{ return getPack( wva ).get(); }
+    void		removePack(VwrDest);
+    void		setPack(VwrDest, FlatDataPack*, bool usedefs=true);
+			//!< add + use the datapack on either wva or vd or both
 
-    const TypeSet< ::DataPackID>&	availablePacks() const	{ return ids_; }
-    bool		isAvailable( ::DataPackID id ) const
-			{ return ids_.isPresent(id); }
 
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
@@ -483,16 +471,33 @@ private:
     bool			canhandlechange_ = true;
 
 public:
+    mDeprecated("No longer required")
+    DataPackID		packID(bool wva) const;
+    mDeprecated("No longer required")
+    const TypeSet< ::DataPackID>&	availablePacks() const;
+    mDeprecated("No longer required")
+    bool		isAvailable( ::DataPackID id ) const;
+    mDeprecated("No longer required")
+    virtual void	removePack(::DataPackID);
+			//!< Releases DataPack after removing from the list.
+    mDeprecated("No longer required")
+    void		removeUnusedPacks();
+    mDeprecated("No longer required")
+    void		addPack(::DataPackID);
+			/*!< Adds to list and obtains the DataPack, but does not
+			 use for WVA or VD. DataPack gets released in the
+			 destructor of this class. */
+    mDeprecated("No longer required")
+    void		usePack(VwrDest,::DataPackID,bool usedefs=true);
+			//!< Does not add new packs, just selects from added
     mDeprecated("Use VwrDest enum")
-    void		usePack( bool wva, ::DataPackID id, bool usedefs=true)
-			{ usePack( wva ? WVA : VD, id, usedefs ); }
+    void		usePack(bool wva, ::DataPackID id, bool usedefs=true);
+    mDeprecated("Use setPack(VwrDest, FlatDataPack*, bool)")
+    void		setPack(VwrDest,::DataPackID,bool usedefs=true);
     mDeprecated("Use VwrDest enum")
-    void		setPack( bool wva, ::DataPackID id, bool usedefs=true)
-			{ setPack( wva ? WVA : VD, id, usedefs ); }
+    void		setPack(bool wva, ::DataPackID id, bool usedefs=true);
     mDeprecated("Use VwrDest enum")
-    void		setVisible( bool wva, bool visibility )
-			{ setVisible( wva ? WVA : VD, visibility ); }
-
+    void		setVisible(bool wva, bool visibility);
     mDeprecated("Use getPack")
     const FlatDataPack*	obtainPack(bool wva,bool checkother=false) const;
 

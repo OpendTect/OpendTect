@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "welltiedata.h"
 #include "uistring.h"
 
+class FlatDataPack;
 class SeisTrc;
 class SeisTrcBuf;
 class SeisTrcBufDataPack;
@@ -78,6 +79,7 @@ protected:
     SeisTrcBufDataPack*		seisdp_ = nullptr;
     int				nrtrcs_ = 5;
     bool			segpospolarity_ = true;
+    RefMan<FlatDataPack>	fdp_;
 
     ObjectSet<FlatView::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::AuxData> wellmarkerauxdatas_;

@@ -29,8 +29,8 @@ protected:
     void		createAndDisplay2DViewer();
     bool		acceptOK(CallBacker*);
 
-    uiFileInput*	maddatafld_;
-    uiGenInput*		dowigglesfld_;
-    IOPar		iop_;
-    SeisTrcBufDataPack* bufdtpack_;
+    uiFileInput*		maddatafld_;
+    uiGenInput*			dowigglesfld_;
+    IOPar			iop_;
+    RefMan<SeisTrcBufDataPack>	bufdtpack_;
 };

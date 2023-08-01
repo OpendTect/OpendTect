@@ -65,6 +65,10 @@ public:
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      FlatView::Viewer::VwrDest);
+    Viewer2DID			displayIn2DViewer(const SeisDataPack&,
+					      const Attrib::SelSpec&,
+					      const FlatView::DataDispPars::VD&,
+					      FlatView::Viewer::VwrDest);
     mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     Viewer2DID			displayIn2DViewer(
 					Viewer2DPosDataSel&,bool wva,

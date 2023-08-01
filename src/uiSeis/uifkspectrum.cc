@@ -288,7 +288,8 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 
 bool uiFKSpectrum::view( Array2D<float>& array )
 {
-    auto* datapack = new FlatDataPack( sKey::Attribute(), &array );
+    RefMan<FlatDataPack> datapack = new FlatDataPack( sKey::Attribute(),
+						      &array );
     datapack->setName( "Power" );
     const int nrk = array.info().getSize( 0 );
     const int nrtrcs = input_->info().getSize( 0 );
@@ -302,9 +303,8 @@ bool uiFKSpectrum::view( Array2D<float>& array )
 
     datapack->posData().setRange( true, krg );
     datapack->posData().setRange( false, frg );
-    DataPackMgr& dpman = DPM(DataPackMgr::FlatID());
-    dpman.add( datapack );
-    viewer().setPack( FlatView::Viewer::VD, datapack->id(), false );
+    vddp_ = datapack;
+    viewer().setPack( FlatView::Viewer::VD, datapack, false );
 
     return true;
 }

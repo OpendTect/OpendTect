@@ -312,6 +312,40 @@ void RegularSeisDataPack::dumpInfo( StringPairSet& infoset ) const
 }
 
 
+RefMan<RegularSeisDataPack> RegularSeisDataPack::createDataPackForZSliceRM(
+						const BinIDValueSet* bivset,
+						const TrcKeyZSampling& tkzs,
+						const ZDomain::Info& zinfo,
+						const BufferStringSet* names )
+{
+    if ( !bivset || !tkzs.isDefined() || tkzs.nrZ()!=1 )
+	return nullptr;
+
+    RefMan<RegularSeisDataPack> regsdp = new RegularSeisDataPack(
+					SeisDataPack::categoryStr(false,true) );
+    regsdp->setSampling( tkzs );
+    for ( int idx=1; idx<bivset->nrVals(); idx++ )
+    {
+	const char* name = names && names->validIdx(idx-1)
+			 ? names->get(idx-1).buf()
+			 : sKey::EmptyString().buf();
+	regsdp->addComponent( name );
+	BinIDValueSet::SPos pos;
+	BinID bid;
+	while ( bivset->next(pos,true) )
+	{
+	    bivset->get( pos, bid );
+	    regsdp->data(idx-1).set( tkzs.hsamp_.inlIdx(bid.inl()),
+				     tkzs.hsamp_.crlIdx(bid.crl()), 0,
+				     bivset->getVals(pos)[idx] );
+	}
+    }
+
+    regsdp->setZDomain( zinfo );
+    return regsdp;
+}
+
+
 DataPackID RegularSeisDataPack::createDataPackForZSlice(
 						const BinIDValueSet* bivset,
 						const TrcKeyZSampling& tkzs,
@@ -442,6 +476,74 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
 					RandomLineID rdmlineid,
 					const Interval<float>& zrange )
 { return createDataPackFrom( regsdp, rdmlineid, zrange, 0 ); }
+
+
+RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
+					const RegularSeisDataPack& regsdp,
+					RandomLineID rdmlineid,
+					const Interval<float>& zrange,
+					const BufferStringSet* compnames )
+{
+    ConstRefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get(rdmlineid);
+    if ( !rdmline || regsdp.isEmpty() )
+	return nullptr;
+
+    RefMan<RandomSeisDataPack> randsdp = new RandomSeisDataPack(
+		SeisDataPack::categoryStr(true,false), &regsdp.getDataDesc() );
+    randsdp->setRandomLineID( rdmlineid );
+    if ( regsdp.getScaler() )
+	randsdp->setScaler( *regsdp.getScaler() );
+
+    TrcKeyPath knots, tkpath;
+    rdmline->allNodePositions( knots );
+    Geometry::RandomLine::getPathBids( knots, tkpath );
+    randsdp->setPath( tkpath );
+
+    TrcKeyPath& path = randsdp->getPath();
+    if ( path.isEmpty() )
+	return nullptr;
+
+    TrcKeySampling unitsteptks = regsdp.sampling().hsamp_;
+    unitsteptks.step_ = BinID( 1, 1 );
+
+    // Remove outer undefined traces at both sides
+    int pathidx = path.size()-1;
+    while ( pathidx>0 && !unitsteptks.includes(path[pathidx]) )
+	path.removeSingle( pathidx-- );
+
+    while ( path.size()>1 && !unitsteptks.includes(path[0]) )
+	path.removeSingle( 0 );
+
+    // Auxiliary TrcKeyZSampling to limit z-range and if no overlap at all,
+    // preserve one dummy voxel for displaying the proper undefined color.
+    TrcKeyZSampling auxtkzs;
+    auxtkzs.hsamp_.start_ = path.first().binID();
+    auxtkzs.hsamp_.stop_ = path.last().binID();
+    auxtkzs.zsamp_ = zrange;
+    if ( !auxtkzs.adjustTo(regsdp.sampling(),true) && path.size()>1 )
+	path.removeRange( 1, path.size()-1 );
+
+    randsdp->setZRange( auxtkzs.zsamp_ );
+
+    const int nrcomps = compnames ? compnames->size() : regsdp.nrComponents();
+    for ( int idx=0; idx<nrcomps; idx++ )
+    {
+	const char* compnm = compnames ? compnames->get(idx).buf()
+				       : regsdp.getComponentName(idx);
+
+	if ( regsdp.getComponentIdx(compnm,idx) >= 0 )
+	{
+	    randsdp->addComponent( compnm );
+	    Regular2RandomDataCopier copier( *randsdp, regsdp,
+					     randsdp->nrComponents()-1 );
+	    copier.execute();
+	}
+    }
+
+    randsdp->setZDomain( regsdp.zDomain() );
+    randsdp->setName( regsdp.name() );
+    return randsdp;
+}
 
 
 DataPackID RandomSeisDataPack::createDataPackFrom(

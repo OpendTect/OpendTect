@@ -83,7 +83,6 @@ RefMan<FlatDataPack> uiAttribPanel::computeAttrib()
 	return nullptr;
 
     fdpack->setName( getPackName() );
-    DPM(DataPackMgr::FlatID()).add( fdpack );
     return fdpack;
 }
 
@@ -112,10 +111,9 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack(const Data2DHolder& d2dh) const
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
     sampling.hsamp_.setGeomID( geomid_ );
 
-    const DataPackID outputid = uiAttribPartServer::createDataPackFor2D(
-						d2dh, sampling, SI().zDomain());
-    auto regsdp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>(outputid);
-    return regsdp ? new RegularFlatDataPack(*regsdp,-1) : nullptr;
+    auto rsdp = uiAttribPartServer::createDataPackFor2DRM( d2dh, sampling,
+							   SI().zDomain() );
+    return rsdp ? new RegularFlatDataPack(*rsdp,-1) : nullptr;
 }
 
 
@@ -127,13 +125,10 @@ RefMan<FlatDataPack> uiAttribPanel::createFDPack( EngineMan* aem,
 }
 
 
-void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
+void uiAttribPanel::createAndDisplay2DViewer()
 {
-    if ( !fdpack )
-	return;
-
     if ( flatvwin_ )
-	flatvwin_->viewer().setPack( FlatView::Viewer::VD, fdpack->id() );
+	flatvwin_->viewer().setPack( FlatView::Viewer::VD, vddp_ );
     else
     {
 	flatvwin_ = new uiFlatViewMainWin( parent_,
@@ -142,12 +137,12 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 	vwr.setInitialSize( uiSize(400,600) );
 	FlatView::Appearance& app = vwr.appearance();
 	app.annot_.setAxesAnnot( true );
-	app.annot_.x1_.sampling_ = fdpack->posData().range(true);
-	app.annot_.x2_.sampling_ = fdpack->posData().range(false);
+	app.annot_.x1_.sampling_ = vddp_->posData().range(true);
+	app.annot_.x2_.sampling_ = vddp_->posData().range(false);
 	app.setDarkBG( false );
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
-	vwr.setPack( FlatView::Viewer::VD, fdpack->id() );
+	vwr.setPack( FlatView::Viewer::VD, vddp_ );
 	flatvwin_->addControl( new uiFlatViewStdControl(vwr,
 		uiFlatViewStdControl::Setup(nullptr).isvertical(true)) );
 	flatvwin_->setDeleteOnClose( false );
@@ -169,9 +164,9 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
     delete dset_;
     dset_ = dset;
 
-    RefMan<FlatDataPack> fdpack = computeAttrib();
-    if ( fdpack )
-	createAndDisplay2DViewer( fdpack );
+    vddp_ = computeAttrib();
+    if ( vddp_ )
+	createAndDisplay2DViewer();
     else
 	{ pErrMsg("Error during attribute computation"); }
 }

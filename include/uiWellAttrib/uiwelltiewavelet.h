@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uistring.h"
 
+class FlatDataPack;
 class Wavelet;
 class uiFlatViewer;
 class uiFunctionDisplay;
@@ -69,6 +70,7 @@ protected:
     ObjectSet<uiToolButton>     wvltbuts_;
     uiFlatViewer*               viewer_;
     uiWaveletDispPropDlg*	wvltpropdlg_ = nullptr;
+    RefMan<FlatDataPack>	fdp_;
 
     void			initWaveletViewer();
 

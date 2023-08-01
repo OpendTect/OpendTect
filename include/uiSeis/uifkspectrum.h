@@ -16,6 +16,7 @@ ________________________________________________________________________
 namespace Fourier { class CC; }
 template <class T> class Array2D;
 namespace FlatView { class AuxData; }
+class FlatDataPack;
 class uiGenInput;
 class uiToolButton;
 
@@ -50,6 +51,7 @@ protected:
     FlatView::AuxData*		lineitm_;
     FlatView::AuxData*		minvelitm_;
     FlatView::AuxData*		maxvelitm_;
+    RefMan<FlatDataPack>	vddp_;
 
     uiGenInput*			ffld_;
     uiGenInput*			kfld_;
