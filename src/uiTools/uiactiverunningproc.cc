@@ -20,13 +20,11 @@ class uiActiveRunningProcDlg : public uiDialog
 { mODTextTranslationClass(uiActiveRunningProcDlg);
 public:
     uiActiveRunningProcDlg( uiParent* p, const uiStringSet& descs )
-	: uiDialog(p, uiDialog::Setup(tr("Active running processes"),
-	    tr("The following processes are now currently running and "
-		"will be closed when you close OpendTect"), mNoHelpKey))
+	: uiDialog(p,uiDialog::Setup(tr("Active running processes"),
+	 tr("The following processes will keep running in the background "
+	     "even after you close OpendTect"),mNoHelpKey))
     {
-	const uiString txt( tr("Close all these processes along"
-							" with OpendTect") );
-	setOkText( txt );
+	setCtrlStyle( CtrlStyle::CloseOnly );
 
 	for ( int idx=0; idx<descs.size(); idx++)
 	{
@@ -79,10 +77,10 @@ bool ActiveProcPrompter::doTrigger( uiParent* parent )
 
     procdetails.add( dispstr );
 
-    auto*  dlg_ = new uiActiveRunningProcDlg( parent, procdetails);
+    auto*  dlg_ = new uiActiveRunningProcDlg( parent, procdetails );
     dlg_->setModal( true );
-    bool retval = dlg_->go();
+    dlg_->go();
     deleteAndNullPtr( dlg_ );
 
-    return retval;
+    return true;
 }
