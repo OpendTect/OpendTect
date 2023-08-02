@@ -144,7 +144,7 @@ void odHorizon3D::save()
 		return;
 	    }
 
-	    hor3d = reinterpret_cast<EM::Horizon3D*>( obj.ptr() );
+	    hor3d = static_cast<EM::Horizon3D*>( obj.ptr() );
 	}
 	else
 	    hor3d = EM::Horizon3D::create( name_ );
@@ -241,7 +241,7 @@ void odHorizon3D::getZ( hAllocator allocator )
     for ( int i=0; i<ndim; i++ )
 	dims[i] = array_->info().getSize(i);
 
-    float* data = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
+    float* data = static_cast<float*>( allocator(ndim, dims, 'f') );
     const float zfac = SI().showZ2UserFactor();
     const float znan = std::nanf("");
     for (int i=0; i<dims[0]; i++)
@@ -274,8 +274,8 @@ void odHorizon3D::getXY( hAllocator allocator )
     int dims[ndim];
     dims[0] = tk_.nrLines();
     dims[1] = tk_.nrTrcs();
-    double* xdata = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
-    double* ydata = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
+    double* xdata = static_cast<double*>( allocator(ndim, dims, 'd') );
+    double* ydata = static_cast<double*>( allocator(ndim, dims, 'd') );
     for (int xdx=0; xdx<dims[0]; xdx++)
     {
 	const int line = tk_.lineID( xdx );
@@ -523,7 +523,7 @@ void odHorizon2D::getZ( hAllocator allocator, int lineid )
     for ( int i=0; i<ndim; i++ )
 	dims[i] = array->info().getSize(i);
 
-    float* data = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
+    float* data = static_cast<float*>( allocator(ndim, dims, 'f') );
     const float zfac = SI().showZ2UserFactor();
     const float znan = std::nanf("");
     for (int i=0; i<dims[0]; i++)
@@ -560,9 +560,9 @@ void odHorizon2D::getXY( hAllocator allocator, int lineid )
     const int ndim = 1;
     int dims[ndim];
     dims[0] = ntrc;
-    double* xdata = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
-    double* ydata = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
-    int32_t* trc = reinterpret_cast<int32_t*>( allocator(ndim, dims, 'i') );
+    double* xdata = static_cast<double*>( allocator(ndim, dims, 'd') );
+    double* ydata = static_cast<double*>( allocator(ndim, dims, 'd') );
+    int32_t* trc = static_cast<int32_t*>( allocator(ndim, dims, 'i') );
     TrcKey tk( geomid, -1 );
     for (int idx=0; idx<dims[0]; idx++)
     {
@@ -618,7 +618,7 @@ hHorizon3D horizon3d_newout( hSurvey survey, const char* name,
 			     const int* inl_rg, const int* crl_rg,
 			     bool overwrite )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(survey);
+    const auto* p = static_cast<odSurvey*>(survey);
     if ( !p ) return nullptr;
     return new odHorizon3D( *p, name,
 			    StepInterval<int>(inl_rg[0], inl_rg[1], inl_rg[2]),
@@ -629,7 +629,7 @@ hHorizon3D horizon3d_newout( hSurvey survey, const char* name,
 
 hStringSet horizon3d_attribnames( hHorizon3D self )
 {
-    const auto* p = reinterpret_cast<odHorizon3D*>(self);
+    const auto* p = static_cast<odHorizon3D*>(self);
     if ( !p ) return nullptr; \
     return p->getAttribNames();
 }
@@ -637,7 +637,7 @@ hStringSet horizon3d_attribnames( hHorizon3D self )
 
 void horizon3d_getz( hHorizon3D self, hAllocator allocator )
 {
-    auto* p = reinterpret_cast<odHorizon3D*>(self);
+    auto* p = static_cast<odHorizon3D*>(self);
     if ( p )
 	p->getZ( allocator );
 }
@@ -645,7 +645,7 @@ void horizon3d_getz( hHorizon3D self, hAllocator allocator )
 
 void horizon3d_getxy( hHorizon3D self , hAllocator allocator )
 {
-    auto* p = reinterpret_cast<odHorizon3D*>(self);
+    auto* p = static_cast<odHorizon3D*>(self);
     if ( p )
 	p->getXY( allocator );
 }
@@ -655,7 +655,7 @@ void horizon3d_putz( hHorizon3D self, const uint32_t shape[2],
 		     const float* data, const int32_t* inlines,
 		     const int32_t* crlines )
 {
-    auto* p = reinterpret_cast<odHorizon3D*>(self);
+    auto* p = static_cast<odHorizon3D*>(self);
     if ( p )
 	p->putZ( shape, data, inlines, crlines );
 }
@@ -665,7 +665,7 @@ void horizon3d_putz_byxy( hHorizon3D self, const uint32_t shape[2],
 			  const float* data,
 			  const double* xpos, const double* ypos )
 {
-    auto* p = reinterpret_cast<odHorizon3D*>(self);
+    auto* p = static_cast<odHorizon3D*>(self);
     if ( p )
 	p->putZ( shape, data, xpos, ypos );
 }
@@ -677,7 +677,7 @@ mDefineBaseBindings(Horizon2D, horizon2d)
 hHorizon2D horizon2d_newout( hSurvey survey, const char* name,
 			     bool creategeom, bool overwrite )
 {
-    const auto* p = reinterpret_cast<odSurvey*>(survey);
+    const auto* p = static_cast<odSurvey*>(survey);
     if ( !p ) return nullptr;
     return new odHorizon2D( *p, name, creategeom, overwrite  );
 }
@@ -685,7 +685,7 @@ hHorizon2D horizon2d_newout( hSurvey survey, const char* name,
 
 hStringSet horizon2d_attribnames( hHorizon2D self )
 {
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
+    const auto* p = static_cast<odHorizon2D*>(self);
     if ( !p ) return nullptr;
     return p->getAttribNames();
 }
@@ -693,34 +693,34 @@ hStringSet horizon2d_attribnames( hHorizon2D self )
 
 int horizon2d_linecount( hHorizon2D self )
 {
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
+    const auto* p = static_cast<odHorizon2D*>(self);
     return p ? p->getNrLines() : 0;
 }
 
 
 void horizon2d_lineids( hHorizon2D self, int num, int* ids )
 {
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
+    const auto* p = static_cast<odHorizon2D*>(self);
     if ( p )
 	p->getLineIDs( num, ids );
 }
 
 const char* horizon2d_linename( hHorizon2D self, int  lineid )
 {
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
+    const auto* p = static_cast<odHorizon2D*>(self);
     return p ? strdup( p->getLineName(lineid).buf() ) : nullptr;
 }
 
 hStringSet horizon2d_linenames( hHorizon2D self )
 {
-    const auto* p = reinterpret_cast<odHorizon2D*>(self);
+    const auto* p = static_cast<odHorizon2D*>(self);
     return p ? p->getLineNames() : nullptr;
 }
 
 
 void horizon2d_getz( hHorizon2D self, hAllocator allocator, int lineid )
 {
-    auto* p = reinterpret_cast<odHorizon2D*>(self);
+    auto* p = static_cast<odHorizon2D*>(self);
     if ( p )
 	p->getZ( allocator, lineid );
 }
@@ -728,7 +728,7 @@ void horizon2d_getz( hHorizon2D self, hAllocator allocator, int lineid )
 
 void horizon2d_getxy( hHorizon2D self , hAllocator allocator, int lineid )
 {
-    auto* p = reinterpret_cast<odHorizon2D*>(self);
+    auto* p = static_cast<odHorizon2D*>(self);
     if ( p )
 	p->getXY( allocator, lineid );
 }

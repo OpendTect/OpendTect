@@ -231,7 +231,7 @@ void odSeismic3D::getData( hAllocator allocator,
     for ( int cidx=0; cidx<nrcomp; cidx++ )
     {
 	const auto array = dp->data( cidx );
-	float* outdata = reinterpret_cast<float*>( allocator(ndim, dims.arr(),
+	float* outdata = static_cast<float*>( allocator(ndim, dims.arr(),
 							     'f') );
 	const float* indata = array.getData();
 	MemCopier<float> copier( outdata, indata, array.totalSize() );
@@ -249,8 +249,8 @@ void odSeismic3D::getData( hAllocator allocator,
 	dims_xy[0] = tkz.nrLines();
 	dims_xy[1] = tkz.nrTrcs();
     }
-    double* xdata = reinterpret_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
-    double* ydata = reinterpret_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    double* xdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
+    double* ydata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
     for ( int idx=0; idx<dp->nrTrcs(); idx++ )
     {
 	const TrcKey trckey = dp->getTrcKey( idx );
@@ -375,8 +375,8 @@ hSeismic3D seismic3d_newout( hSurvey survey, const char* name,
 			     const int32_t inlrg[3], const int32_t crlrg[3],
 			     const float zrg[3], bool zistime, bool overwrite )
 {
-    auto* p = reinterpret_cast<odSurvey*>(survey);
-    const auto* nms = reinterpret_cast<BufferStringSet*>(compnames);
+    auto* p = static_cast<odSurvey*>(survey);
+    const auto* nms = static_cast<BufferStringSet*>(compnames);
     if ( !p || !nms ) return nullptr;
 
     TrcKeyZSampling tkz = odSurvey::tkzFromRanges( inlrg, crlrg, zrg, zistime );
@@ -393,7 +393,7 @@ hSeismic3D seismic3d_newout( hSurvey survey, const char* name,
 
 void seismic3d_close( hSeismic3D self )
 {
-    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p )
 	return;
 
@@ -403,7 +403,7 @@ void seismic3d_close( hSeismic3D self )
 
 hStringSet seismic3d_compnames( hSeismic3D self )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p )
 	return nullptr;
 
@@ -414,7 +414,7 @@ hStringSet seismic3d_compnames( hSeismic3D self )
 void seismic3d_getinlcrl( hSeismic3D self, size_t traceidx, int32_t* inl,
 			  int32_t* crl )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p )
 	return;
 
@@ -426,7 +426,7 @@ void seismic3d_getinlcrl( hSeismic3D self, size_t traceidx, int32_t* inl,
 
 int seismic3d_getzidx( hSeismic3D self, float zval )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p )
 	return -1;
 
@@ -443,7 +443,7 @@ int seismic3d_getzidx( hSeismic3D self, float zval )
 
 float seismic3d_getzval( hSeismic3D self, int32_t zidx )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p )
 	return std::nanf("");
 
@@ -461,7 +461,7 @@ float seismic3d_getzval( hSeismic3D self, int32_t zidx )
 
 od_int64 seismic3d_gettrcidx( hSeismic3D self, int32_t iln, int32_t crl )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p )
 	return -1;
 
@@ -472,7 +472,7 @@ od_int64 seismic3d_gettrcidx( hSeismic3D self, int32_t iln, int32_t crl )
 
 od_int64 seismic3d_nrbins( hSeismic3D self )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p )
 	return -1;
 
@@ -486,7 +486,7 @@ od_int64 seismic3d_nrbins( hSeismic3D self )
 
 od_int64 seismic3d_nrtrcs( hSeismic3D self )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p )
 	return -1;
 
@@ -496,7 +496,7 @@ od_int64 seismic3d_nrtrcs( hSeismic3D self )
 
 void seismic3d_zrange( hSeismic3D self, float zrg[3] )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if ( !p ) return;
 
     const auto& z_rg = p->getZrange();
@@ -509,7 +509,7 @@ void seismic3d_zrange( hSeismic3D self, float zrg[3] )
 bool seismic3d_validrange( hSeismic3D self, const int32_t inlrg[3],
 			   const int32_t crlrg[3], const float zrg[3] )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if ( !p ) return false;
 
     TrcKeyZSampling tkztochk = odSurvey::tkzFromRanges( inlrg, crlrg, zrg,
@@ -522,7 +522,7 @@ void seismic3d_getdata( hSeismic3D self, hAllocator allocator,
 			const int32_t inlrg[3], const int32_t crlrg[3],
 			const float zrg[3] )
 {
-    const auto* p = reinterpret_cast<odSeismic3D*>(self);
+    const auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p || !p->canRead() )
 	return;
 
@@ -538,7 +538,7 @@ void seismic3d_putdata( hSeismic3D self,
 		        const int32_t inlrg[3], const int32_t crlrg[3],
 			const float zrg[3] )
 {
-    auto* p = reinterpret_cast<odSeismic3D*>(self);
+    auto* p = static_cast<odSeismic3D*>(self);
     if  ( !p || !p->canWrite() )
 	return;
 

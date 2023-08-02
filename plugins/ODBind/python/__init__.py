@@ -67,17 +67,13 @@ def wrap_function(lib, funcname, restype, argtypes):
     return func
 
 class NumpyAllocator:
-    CFUNCTYPE = ct.CFUNCTYPE(ct.c_long, ct.c_int, ct.POINTER(ct.c_int), ct.c_char)
-    _dtype = {  'i': np.dtype('i4'),
-                'f': np.dtype('f4'),
-                'd': np.dtype('f8')
-             }
+    CFUNCTYPE = ct.CFUNCTYPE(ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int), ct.c_char)
 
     def __init__(self):
         self.allocated_arrays = []
 
     def __call__(self, dims, shape, dtype):
-        x = np.empty(shape[:dims], self._dtype[dtype.decode()])
+        x = np.ascontiguousarray(np.empty(shape[:dims], np.dtype(dtype)), dtype=np.dtype(dtype))
         self.allocated_arrays.append(x)
         return x.ctypes.data_as(ct.c_void_p).value
 

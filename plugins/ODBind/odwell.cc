@@ -165,10 +165,10 @@ void odWell::getTrack( hAllocator allocator )
     const int ndim = 1;
     int dims[ndim];
     dims[0] = wt.size();
-    float* dah_data = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
-    float* tvdss_data = reinterpret_cast<float*>( allocator(ndim, dims, 'f') );
-    double* x_data = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
-    double* y_data = reinterpret_cast<double*>( allocator(ndim, dims, 'd') );
+    float* dah_data = static_cast<float*>( allocator(ndim, dims, 'f') );
+    float* tvdss_data = static_cast<float*>( allocator(ndim, dims, 'f') );
+    double* x_data = static_cast<double*>( allocator(ndim, dims, 'd') );
+    double* y_data = static_cast<double*>( allocator(ndim, dims, 'd') );
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
 
@@ -231,7 +231,7 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 	    dims[0] = outlog->size();
 	    if ( first )
 	    {
-		float* dah_data = reinterpret_cast<float*>(
+		float* dah_data = static_cast<float*>(
 						allocator(ndim, dims, 'f') );
 		for ( int idx=0; idx<outlog->size(); idx++ )
 		    *dah_data++ = getConvertedValue( outlog->dah(idx), zsuom,
@@ -244,7 +244,7 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 		jsarr.add( loginfo.clone() );
 	    }
 
-	    float* log_data = reinterpret_cast<float*>(
+	    float* log_data = static_cast<float*>(
 						allocator(ndim, dims, 'f') );
 	    for ( int idx=0; idx<outlog->size();idx++ )
 		*log_data++ = mIsUdf(outlog->value(idx)) ? nanf("") :
@@ -432,7 +432,7 @@ mDefineBaseBindings(Well, well)
 
 hStringSet well_lognames( hWell self )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
+    auto* p = static_cast<odWell*>(self);
     if ( !p ) return nullptr;
     return p->getLogNames();
 }
@@ -440,8 +440,8 @@ hStringSet well_lognames( hWell self )
 
 const char* well_loginfo( hWell self, const hStringSet fornms )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
-    const auto* nms = reinterpret_cast<BufferStringSet*>(fornms);
+    auto* p = static_cast<odWell*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(fornms);
     if ( !p || !nms ) return nullptr;
     OD::JSON::Array jsarr( true );
     p->getLogInfo( jsarr, *nms );
@@ -451,7 +451,7 @@ const char* well_loginfo( hWell self, const hStringSet fornms )
 
 hStringSet well_markernames( hWell self )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
+    auto* p = static_cast<odWell*>(self);
     if ( !p ) return nullptr;
     return p->getMarkerNames();
 }
@@ -459,8 +459,8 @@ hStringSet well_markernames( hWell self )
 
 const char* well_markerinfo( hWell self, const hStringSet fornms )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
-    const auto* nms = reinterpret_cast<BufferStringSet*>(fornms);
+    auto* p = static_cast<odWell*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(fornms);
     if ( !p || !nms ) return nullptr;
     OD::JSON::Array jsarr( true );
     p->getMarkerInfo( jsarr, *nms );
@@ -470,7 +470,7 @@ const char* well_markerinfo( hWell self, const hStringSet fornms )
 
 void well_gettrack( hWell self, hAllocator allocator )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
+    auto* p = static_cast<odWell*>(self);
     if ( p )
 	p->getTrack( allocator );
 }
@@ -480,8 +480,8 @@ const char* well_getlogs( hWell self, hAllocator allocator,
 			  const hStringSet lognms,
 			  float zstep, bool upscale )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
-    const auto* nms = reinterpret_cast<BufferStringSet*>(lognms);
+    auto* p = static_cast<odWell*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(lognms);
     if ( !p || !nms )
 	return nullptr;
 
@@ -496,7 +496,7 @@ void well_putlog( hWell self, const char* lognm, const float* dah,
 		  const float* logdata, uint32_t sz,
 		  const char* uom, const char* mnem, bool overwrite )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
+    auto* p = static_cast<odWell*>(self);
     if  ( !p )
 	return;
 
@@ -506,8 +506,8 @@ void well_putlog( hWell self, const char* lognm, const float* dah,
 
 bool well_deletelogs( hWell self, const hStringSet lognms )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
-    const auto* nms = reinterpret_cast<BufferStringSet*>(lognms);
+    auto* p = static_cast<odWell*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(lognms);
     if ( !p || !nms || !p->wd() ) return false;
 
     if ( nms->isEmpty() )
@@ -519,7 +519,7 @@ bool well_deletelogs( hWell self, const hStringSet lognms )
 
 void well_tvdss( hWell self, const float dah, float* tvdss )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
+    auto* p = static_cast<odWell*>(self);
     if ( !p || !p->wd() ) return;
 
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
@@ -532,7 +532,7 @@ void well_tvdss( hWell self, const float dah, float* tvdss )
 
 void well_tvd( hWell self, const float dah, float* tvd )
 {
-    auto* p = reinterpret_cast<odWell*>(self);
+    auto* p = static_cast<odWell*>(self);
     if ( !p || !p->wd() ) return;
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
@@ -545,8 +545,8 @@ void well_tvd( hWell self, const float dah, float* tvd )
 
 hStringSet well_commonlognames( hSurvey surv, const hStringSet nms )
 {
-    auto* p = reinterpret_cast<odSurvey*>(surv);
-    auto* fornms = reinterpret_cast<BufferStringSet*>(nms);
+    auto* p = static_cast<odSurvey*>(surv);
+    auto* fornms = static_cast<BufferStringSet*>(nms);
     if ( !p || !fornms ) return nullptr;
     return odWell::getCommonLogNames( *p, *fornms);
 }
@@ -554,8 +554,8 @@ hStringSet well_commonlognames( hSurvey surv, const hStringSet nms )
 
 hStringSet well_commonmarkernames( hSurvey surv, const hStringSet nms )
 {
-    auto* p = reinterpret_cast<odSurvey*>(surv);
-    auto* fornms = reinterpret_cast<BufferStringSet*>(nms);
+    auto* p = static_cast<odSurvey*>(surv);
+    auto* fornms = static_cast<BufferStringSet*>(nms);
     if ( !p || !fornms ) return nullptr;
     return odWell::getCommonMarkerNames( *p, *fornms);
 }
