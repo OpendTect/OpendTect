@@ -132,7 +132,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.exameditable(true)
 			.displaylocalpath(true) );
     inpfld_->attach( alignedBelow, cmdoptionfld_ );
-    mAttachCB( inpfld_->valuechanged, uiCmdDriverDlg::inpSelCB );
+    mAttachCB( inpfld_->valueChanged, uiCmdDriverDlg::inpSelCB );
 
     logfld_ = new uiFileInput( this,
 			uiStrings::phrOutput(uiStrings::sLogFile()),
@@ -719,7 +719,7 @@ uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
 			    .withexamine(false)
 			    .defseldir(GetScriptsDir())
 			    .displaylocalpath(true) );
-    mAttachCB( scriptfld_->valuechanged, uiScriptRunnerDlg::inpSelCB );
+    mAttachCB( scriptfld_->valueChanged, uiScriptRunnerDlg::inpSelCB );
 
     auto* settingsbut = new uiToolButton( this, "settings",
 					uiStrings::sSettings(),
