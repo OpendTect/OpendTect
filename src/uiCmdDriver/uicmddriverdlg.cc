@@ -735,7 +735,7 @@ uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
     scriptlistfld_->setColumnWidthMode( 0, uiTreeView::Stretch );
     scriptlistfld_->setColumnWidth( 0, 350 );
     scriptlistfld_->setFixedColumnWidth( 1, 50 );
-    scriptlistfld_->setPrefWidth( 400 );
+    scriptlistfld_->setPrefWidth( 600 );
     scriptlistfld_->setPrefHeight( 400 );
     scriptlistfld_->setStretch( 2, 2 );
     mAttachCB( scriptlistfld_->doubleClicked, uiScriptRunnerDlg::doubleClickCB);
@@ -807,6 +807,8 @@ void uiScriptRunnerDlg::goCB( CallBacker* )
     gobut_->setSensitive( false );
     stopbut_->setSensitive( true );
 
+    drv_.setOutputDir( GetScriptsLogDir() );
+
     deleteAndNullPtr( iter_ );
 
     auto* curitm = scriptlistfld_->currentItem();
@@ -815,7 +817,6 @@ void uiScriptRunnerDlg::goCB( CallBacker* )
     else
 	iter_ = new uiTreeViewItemIterator( *scriptlistfld_ );
 
-    drv_.setOutputDir( GetScriptsLogDir() );
     executeNext();
 }
 
@@ -883,11 +884,15 @@ void uiScriptRunnerDlg::rightClickCB( CallBacker* )
 
     uiMenu menu( uiStrings::sAction() );
     menu.insertAction( new uiAction(uiStrings::sEdit()), 0 );
+    menu.insertAction( new uiAction(tr("Run this script only")), 1 );
     const int res = menu.exec();
-    if ( res != 0 )
+    if ( res < 0 )
 	return;
 
-    uiDesktopServices::openUrl( scriptitem->fnm_ );
+    if ( res==0 )
+	uiDesktopServices::openUrl( scriptitem->fnm_ );
+    else if ( res==1 )
+	scriptitem->execute();
 }
 
 
