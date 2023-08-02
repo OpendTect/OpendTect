@@ -69,7 +69,6 @@ ActiveProcPrompter::~ActiveProcPrompter()
 bool ActiveProcPrompter::doTrigger( uiParent* parent )
 {
     uiStringSet procdetails;
-    BatchServiceClientMgr& mgr = BatchServiceClientMgr::getMgr();
     const TypeSet<Network::Service::ID>& servids = BPT().getServiceIDs();
     if ( servids.isEmpty() )
 	return true;
