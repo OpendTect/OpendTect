@@ -52,8 +52,11 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     , lbl_(0)
     , optbox_(0)
 {
-    inp_ = new uiComboBox( this,
-			BufferString("Select ",su.seltxt_.getFullString()) );
+    const uiString seltxt = su.seltxt_;
+    BufferString inpnm = "Select";
+    if ( !seltxt.isEmpty() )
+	inpnm.addSpace().add( seltxt.getFullString() );
+    inp_ = new uiComboBox( this, inpnm );
     inp_->setReadOnly( false );
     inp_->setHSzPol( uiObject::Wide );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
@@ -456,9 +459,16 @@ const uiString& uiIOSelect::labelText() const
 
 void uiIOSelect::setLabelText( const uiString& s )
 {
+    inp_->setName( s.getFullString() );
+
     if ( lbl_ )
+    {
 	lbl_->setText( s );
-    else if ( optbox_ )
+	lbl_->setPrefWidthInChar( s.size() + 3 );
+	return ;
+    }
+
+    if ( optbox_ )
 	optbox_->setText( s );
 }
 
