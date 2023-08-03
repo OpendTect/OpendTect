@@ -62,6 +62,7 @@ mExpClass(Seis) SeisPSIOProvider
 public:
 
     virtual			~SeisPSIOProvider();
+				mOD_DisableCopy(SeisPSIOProvider)
 
     virtual bool		canHandle( bool forread, bool for2d ) const
 				{ return false; }
@@ -118,9 +119,10 @@ protected:
 };
 
 
-mExpClass(Seis) SeisPSIOProviderFactory
+mExpClass(Seis) SeisPSIOProviderFactory final
 { mODTextTranslationClass(SeisPSIOProviderFactory);
 public:
+    virtual			~SeisPSIOProviderFactory();
 
     int				add( SeisPSIOProvider* prov )
 				{ return (provs_ += prov).size(); }
@@ -152,7 +154,7 @@ public:
 
 protected:
 
-    ManagedObjectSet<SeisPSIOProvider>	provs_;
+    ObjectSet<SeisPSIOProvider>	provs_;
 
 };
 

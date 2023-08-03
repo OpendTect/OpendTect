@@ -121,6 +121,12 @@ SeisPSIOProviderFactory& SPSIOPF()
 }
 
 
+SeisPSIOProviderFactory::~SeisPSIOProviderFactory()
+{
+    deepErase( provs_ );
+}
+
+
 const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 {
     if ( provs_.isEmpty() )
