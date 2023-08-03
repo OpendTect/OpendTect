@@ -492,20 +492,16 @@ bool SEGY::DirectDef::writeFootersToFile()
 
 void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
 {
-    if ( !indexer_ || Seis::is2D(indexer_->geomType()) ) return;
-
-    Interval<int> crlrg( indexer_->crlRange() ); crlrg.sort();
-    const BinID step( SI().inlStep(), SI().crlStep() );
+    if ( !indexer_ || Seis::is2D(indexer_->geomType()) )
+	return;
 
     PosInfo::CubeDataFiller cdf( cd );
     const TypeSet<int>& inlines = indexer_->getInls();
-    TypeSet<int> crls;
 
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
 	const int inl = inlines[idx];
-	crls.erase();
-
+	TypeSet<int> crls;
 	indexer_->getCrls( inl, crls );
 	for ( int idy=0; idy<crls.size(); idy++ )
 	{
