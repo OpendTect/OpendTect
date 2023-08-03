@@ -199,6 +199,17 @@ TrcKeySampling& TrcKeySampling::set( const Pos::GeomID& geomid,
 }
 
 
+TrcKeySampling& TrcKeySampling::set( const TrcKey& tk )
+{
+    setGeomID( tk.geomID() );
+    if ( tk.is3D() )
+	setInlRange( Interval<int>(tk.inl(),tk.inl()) );
+
+    setCrlRange( Interval<int>(tk.crl(),tk.crl()) );
+    return *this;
+}
+
+
 void TrcKeySampling::setLineRange( const Interval<int>& inlrg )
 {
     start_.lineNr() = inlrg.start; stop_.lineNr() = inlrg.stop;

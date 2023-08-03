@@ -48,6 +48,7 @@ public:
 			    const Interval<int>& trcnrrg);
 			    //!< steps copied if available
     TrcKeySampling&	set(const Pos::GeomID&,const Interval<int>& trcnrrg);
+    TrcKeySampling&	set(const TrcKey&);
     void		get(Interval<int>& linerg,Interval<int>& trcnrrg) const;
 			    //!< steps filled if available
     TrcKeySampling	getLineChunk(int totalchunks,int chunknr) const;
