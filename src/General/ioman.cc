@@ -362,7 +362,8 @@ void IOMan::reInit( SurveyInfo* nwsi )
     if ( !close(dotrigger) ) //Still notifying using previous survey
 	return;
 
-    SurveyDiskLocation rootloc( rootdir_ );
+    const FilePath rootfp( rootdir_ );
+    SurveyDiskLocation rootloc( rootfp );
     rootloc.setDirName( newsi->getDirName() );
     rootdir_ = rootloc.fullPath();
     init( newsi.release() );
@@ -1925,14 +1926,23 @@ uiRetVal IOMan::setTempSurvey_( const SurveyDiskLocation& sdl )
     if ( !isValidDataRoot(dataroot) )
 	return uirv;
 
-    const BufferString iomrootdir( sdl.fullPath() );
-    if ( !isValidSurveyDir(iomrootdir.buf()) )
+    const BufferString temprootdir( sdl.fullPath() );
+    if ( !isValidSurveyDir(temprootdir.buf()) )
 	return uirv;
 
     prevrootdiriommgr_.deleteAndNullPtrParam( this );
-    prevrootdiriommgr_.setParam( this, new SurveyDiskLocation( rootdir_ ) );
-    const FilePath fp( iomrootdir.buf() );
-    return setRootDir( fp, true );
+    const FilePath origrootdirfp( rootdir_ );
+    rootdir_ = temprootdir;
+    if ( setDir(temprootdir.buf()) )
+	prevrootdiriommgr_.setParam( this,
+				     new SurveyDiskLocation(origrootdirfp) );
+    else
+    {
+	rootdir_ = origrootdirfp.fullPath();
+	uirv = msg_;
+    }
+
+    return uirv;
 }
 
 
@@ -1951,8 +1961,16 @@ uiRetVal IOMan::cancelTempSurvey_()
 	return uirv;
     }
 
-    const FilePath fp( prevrootdiriommgr_.getParam(this)->fullPath() );
-    uirv = setRootDir( fp );
+    const BufferString prevdir = prevrootdiriommgr_.getParam(this)->fullPath();
+    rootdir_ = prevdir;
+    if ( !setDir(prevdir) )
+    {
+	uirv = msg_;
+	uirv.add( tr("\nFailed to switch back to the current survey\n%1\n\n."
+		     "Please restart the application to continue")
+		  .arg(prevdir) );
+    }
+
     prevrootdiriommgr_.deleteAndNullPtrParam( this );
     return uirv;
 }
