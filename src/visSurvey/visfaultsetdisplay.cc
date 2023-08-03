@@ -373,7 +373,6 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
 			      false, "" );
     setSelSpec( attrib, as );
 
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     DataPointSet* data = new DataPointSet( false, true );
     DPM( DataPackMgr::PointID() ).add( data );
     getRandomPos( *data, 0 );
