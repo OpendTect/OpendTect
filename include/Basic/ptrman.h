@@ -63,6 +63,10 @@ public:
     inline T*		createIfNull(PointerCreator=createSingleObject<T>);
 			/*!<If null, PointerCrator will be called to
 			    create new object.  */
+
+    template <class TT>
+    bool			operator==(const PtrManBase<TT>&) const =delete;
+
 protected:
 
     typedef void		(*PtrFunc)(T*);
