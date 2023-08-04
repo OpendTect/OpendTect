@@ -644,6 +644,8 @@ ScriptItem( uiTreeViewItem* parent, const char* fnm, CmdDriver& drv )
 {
     const FilePath fp( fnm );
     setText( toUiString(fp.fileName()), 0 );
+
+    logfnm_ = getLogFilename().fullPath();
 }
 
 
@@ -655,6 +657,8 @@ ScriptItem( uiTreeView* parent, const char* fnm, CmdDriver& drv )
     const FilePath fp( fnm );
     setText( toUiString(fp.fileName()), 0 );
     setIcon( 1, "empty" );
+
+    logfnm_ = getLogFilename().fullPath();
 }
 
 
@@ -666,8 +670,10 @@ bool execute()
 
     const FilePath logfp = getLogFilename();
     logfnm_ = logfp.fullPath();
-    driver_.setLogFileName( logfp.fileName() );
+    if ( File::exists(logfnm_) && File::isFile(logfnm_) )
+	File::remove( logfnm_ );
 
+    driver_.setLogFileName( logfp.fileName() );
     driver_.getActionsFromFile( fnm_ );
     return driver_.execute();
 }
@@ -708,6 +714,7 @@ uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
     , drv_(driver)
 {
     setCtrlStyle( CloseOnly );
+    drv_.setOutputDir( GetScriptsLogDir() );
 
     mAttachCB( drv_.executeFinished, uiScriptRunnerDlg::executeFinishedCB );
 
@@ -741,6 +748,16 @@ uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
     mAttachCB( scriptlistfld_->doubleClicked, uiScriptRunnerDlg::doubleClickCB);
     mAttachCB( scriptlistfld_->rightButtonPressed,
 	       uiScriptRunnerDlg::rightClickCB );
+    mAttachCB( scriptlistfld_->selectionChanged, uiScriptRunnerDlg::selChgCB );
+
+    auto* itemgrp = new uiButtonGroup( this, "Item group", OD::Vertical );
+    editbut_ = new uiToolButton( itemgrp, "edit", tr("Edit script"),
+				mCB(this,uiScriptRunnerDlg,editCB) );
+    editbut_->setSensitive( false );
+    logbut_ = new uiToolButton( itemgrp, "logfile", tr("View log"),
+				mCB(this,uiScriptRunnerDlg,logCB) );
+    logbut_->setSensitive( false );
+    itemgrp->attach( centeredRightOf, scriptlistfld_ );
 
     auto* grp = new uiButtonGroup( this, "", OD::Horizontal );
     grp->attach( centeredBelow, scriptlistfld_ );
@@ -775,6 +792,7 @@ void uiScriptRunnerDlg::inpSelCB( CallBacker* )
 void uiScriptRunnerDlg::settingsCB( CallBacker* )
 {
     const BufferString scriptsdir = GetScriptsDir();
+    const BufferString scriptslogdir = GetScriptsLogDir();
     uiScriptRunnerSettings dlg( this );
     if ( !dlg.go() )
 	return;
@@ -783,8 +801,14 @@ void uiScriptRunnerDlg::settingsCB( CallBacker* )
     if ( scriptsdir != newscriptsdir )
     {
 	scriptfld_->setEmpty();
-	scriptfld_->setDefaultSelectionDir( GetScriptsDir() );
+	scriptfld_->setDefaultSelectionDir( newscriptsdir );
 	scriptlistfld_->clear();
+    }
+
+    const BufferString newscriptslogdir = GetScriptsLogDir();
+    if ( scriptslogdir != newscriptslogdir )
+    {
+	drv_.setOutputDir( newscriptslogdir );
     }
 }
 
@@ -893,6 +917,42 @@ void uiScriptRunnerDlg::rightClickCB( CallBacker* )
 	uiDesktopServices::openUrl( scriptitem->fnm_ );
     else if ( res==1 )
 	scriptitem->execute();
+}
+
+
+void uiScriptRunnerDlg::selChgCB( CallBacker* )
+{
+    uiTreeViewItem* item = scriptlistfld_->selectedItem();
+    auto* scriptitem = sCast(ScriptItem*,item);
+
+    const bool enabedit = scriptitem && File::exists(scriptitem->fnm_);
+    const bool enablog = scriptitem && File::exists(scriptitem->logfnm_);
+
+    editbut_->setSensitive( enabedit );
+    logbut_->setSensitive( enablog );
+}
+
+
+void uiScriptRunnerDlg::editCB( CallBacker* )
+{
+    uiTreeViewItem* item = scriptlistfld_->selectedItem();
+    auto* scriptitem = sCast(ScriptItem*,item);
+    if ( !scriptitem )
+	return;
+
+    uiDesktopServices::openUrl( scriptitem->fnm_ );
+}
+
+
+void uiScriptRunnerDlg::logCB( CallBacker* )
+{
+
+    uiTreeViewItem* item = scriptlistfld_->selectedItem();
+    auto* scriptitem = sCast(ScriptItem*,item);
+    if ( !scriptitem )
+	return;
+
+    File::launchViewer( scriptitem->logfnm_ );
 }
 
 
