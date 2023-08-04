@@ -17,6 +17,7 @@ class uiLabel;
 class uiLabeledComboBox;
 class uiPushButton;
 class uiTextEdit;
+class uiToolButton;
 class uiTreeView;
 class uiTreeViewItemIterator;
 
@@ -119,6 +120,8 @@ public:
 protected:
     uiFileInput*		scriptfld_;
     uiTreeView*			scriptlistfld_;
+    uiToolButton*		editbut_;
+    uiToolButton*		logbut_;
     uiPushButton*		gobut_;
     uiPushButton*		stopbut_;
 
@@ -126,6 +129,9 @@ protected:
     void			settingsCB(CallBacker*);
     void			addChildren(ScriptItem&);
     bool			acceptOK(CallBacker*);
+    void			selChgCB(CallBacker*);
+    void			editCB(CallBacker*);
+    void			logCB(CallBacker*);
     void			goCB(CallBacker*);
     void			stopCB(CallBacker*);
     void			executeFinishedCB(CallBacker*);
