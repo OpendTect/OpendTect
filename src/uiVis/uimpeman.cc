@@ -654,6 +654,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	h2dsp->setLine( geomid );
 	if ( !h2dsp->startSeedPick() )
 	    mSeedClickReturn();
+
+	engine.setOneActiveTracker( tracker );
     }
     else
     {
