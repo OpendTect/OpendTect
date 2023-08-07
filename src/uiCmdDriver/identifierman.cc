@@ -184,17 +184,23 @@ void IdentifierManager::unset( const char* name, bool followlinks )
 }
 
 
-#define mRefreshPlaceholder( idm, name, scopedkey, functioncall ) \
-\
-    str1 = scopedkey; \
-    str2 = scopedkey; \
-    if ( mMatchCI(name,str1) || mMatchCI(name,++str2) ) \
-    { \
-	BufferString filepath( functioncall ); \
-	mDressUserInputString( filepath, sInputStr ); \
-	idm->setFilePathPlaceholder( scopedkey, filepath ); \
-	return true; \
+bool IdentifierManager::updatePlaceholder( const char* name,
+				const char* key, const char* value ) const
+{
+    IdentifierManager* idm = const_cast<IdentifierManager*>( this );
+    const char* str1 = key;
+    const char* str2 = key;
+    if ( mMatchCI(name,str1) || mMatchCI(name,++str2) )
+    {
+	BufferString filepath( value );
+	mDressUserInputString( filepath, sInputStr );
+	idm->setFilePathPlaceholder( key, filepath );
+	return true;
     }
+
+    return false;
+}
+
 
 bool IdentifierManager::doesExist( const char* name ) const
 {
@@ -204,19 +210,26 @@ bool IdentifierManager::doesExist( const char* name ) const
     if ( isdef && !curident_->refresh_ )
 	return true;
 
-    const char* str1 = nullptr;
-    const char* str2 = nullptr;
-    mRefreshPlaceholder( idm, name, "@BASEDIR", GetBaseDataDir() );
-    mRefreshPlaceholder( idm, name, "@DATADIR", GetDataDir() );
-    mRefreshPlaceholder( idm, name, "@PROCDIR", GetProcFileName(0) );
-    mRefreshPlaceholder( idm, name, "@APPLDIR", GetSoftwareDir(0) );
-    mRefreshPlaceholder( idm, name, "@USERDIR", GetPersonalDir() );
-    mRefreshPlaceholder( idm, name, "@SCRIPTSDIR", GetScriptsDir() );
-    mRefreshPlaceholder( idm, name, "@SNAPSHOTSDIR", GetScriptsPicturesDir() );
-    mRefreshPlaceholder( idm, name, "@IMPORTDIR", getImportDir() );
-    mRefreshPlaceholder( idm, name, "@EXPORTDIR", getExportDir() );
+    bool res = updatePlaceholder( name, "@BASEDIR", GetBaseDataDir() );
+    if ( !res )
+	res =  updatePlaceholder( name, "@DATADIR", GetDataDir() );
+    if ( !res )
+	res =  updatePlaceholder( name, "@PROCDIR", GetProcFileName(0) );
+    if ( !res )
+	res = updatePlaceholder( name, "@APPLDIR", GetSoftwareDir(0) );
+    if ( !res )
+	res =  updatePlaceholder( name, "@USERDIR", GetPersonalDir() );
+    if ( !res )
+	res =  updatePlaceholder( name, "@SCRIPTSDIR", GetScriptsDir() );
+    if ( !res )
+	res =  updatePlaceholder( name, "@SNAPSHOTSDIR",
+				  GetScriptsPicturesDir() );
+    if ( !res )
+	res =  updatePlaceholder( name, "@IMPORTDIR", getImportDir() );
+    if ( !res )
+	res =  updatePlaceholder( name, "@EXPORTDIR", getExportDir() );
 
-    return isdef;
+    return res ? res : isdef;
 }
 
 
