@@ -210,7 +210,7 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "xplot", crossPlot, tr("Cross-Plot attributes") );
     const int dotidx = mAddButton( "dot", exportToDotCB, tr("View as graph") );
     uiMenu* mnu = new uiMenu( nullptr, uiString::emptyString() );
-    mnu->insertAction( new uiAction(tr("Graphviz Installation"),
+    mnu->insertAction( new uiAction(m3Dots(tr("Graphviz Installation")),
 	mCB(this,uiAttribDescSetEd,dotPathCB)) );
     toolbar_->setButtonMenu( dotidx, mnu );
 }
@@ -354,7 +354,8 @@ void uiAttribDescSetEd::init()
 		    IOObj* ioobj = dlg.getObj();
 		    if ( dlg.isAuto() )
 		    {
-			MultiID id = ioobj ? ioobj->key() : "";
+			const MultiID id =
+				ioobj ? ioobj->key() : MultiID::udf();
 			SI().getPars().set( autoidkey, id );
 			SI().savePars();
 		    }
@@ -650,6 +651,9 @@ void uiAttribDescSetEd::handleSensitivity()
 
 bool uiAttribDescSetEd::acceptOK( CallBacker* )
 {
+    if ( inoutadsman_ )
+	inoutadsman_->setSaved( adsman_->isSaved() );
+
     if ( !curDesc() )
 	return true;
 
@@ -659,9 +663,6 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
     removeNotUsedAttr();
     if ( saveButtonChecked() && !doSave(true) )
 	return false;
-
-    if ( inoutadsman_ )
-	inoutadsman_->setSaved( adsman_->isSaved() );
 
     prevsavestate = saveButtonChecked();
     nmprefgrp_ = attrtypefld_->group();
@@ -1407,6 +1408,9 @@ bool uiAttribDescSetEd::is2D() const
 
 
 static const char* sKeyDotPath()	{ return "Dot path"; }
+static const char* sUnixDot()		{ return "/usr/bin/dot"; }
+static const char* sWinDot()
+{ return "C:\\Program Files\\Graphviz\\bin\\dot.exe"; }
 
 class uiWhereIsDotDlg : public uiDialog
 { mODTextTranslationClass(uiWhereIsDotDlg)
@@ -1415,9 +1419,13 @@ uiWhereIsDotDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Graphviz/Dot "),mNoDlgTitle,
 			mODHelpKey(mWhereIsDotDlgHelpID)))
 {
-    uiString txt = tr("To display the attribute graph an installation of \n"
-	"Graphviz is required. Graphviz can be downloaded from:\n%1")
-	.arg("http://www.graphviz.org");
+    uiString txt = tr("To display the attribute graph an installation of "
+	"Graphviz is required.\nGraphviz can be downloaded from: "
+	"http://www.graphviz.org\n\n"
+	"Once installed, please select here '%1' from your Graphviz "
+	"installation.\ne.g.: %2\n")
+	.arg(__iswin__?"dot.exe":"dot")
+	.arg(__iswin__?sWinDot():sUnixDot());
     uiLabel* lbl = new uiLabel( this, txt );
 
     BufferString pathfromsetts;
@@ -1443,7 +1451,8 @@ bool acceptOK( CallBacker* ) override
 	{
 	    const bool res = uiMSG().askGoOn( tr("It looks like you did not "
 		" select the dot executable.\n\nDo you want to continue?") );
-	    if ( !res ) return false;
+	    if ( !res )
+		return false;
 	}
 
 	Settings::common().set( sKeyDotPath(), fnm.buf() );
@@ -1461,14 +1470,11 @@ bool acceptOK( CallBacker* ) override
 
 static bool initDotPath( BufferString& dotpath )
 {
-    if ( !__islinux__ )
-	return false;
-
     Settings::common().get( sKeyDotPath(), dotpath );
-    if ( !dotpath.isEmpty() )
+    if ( File::exists(dotpath) )
 	return true;
 
-    dotpath = "/usr/bin/dot";
+    dotpath = __iswin__ ? sWinDot() : sUnixDot();
     if ( !File::exists(dotpath) )
 	return false;
 
@@ -1495,7 +1501,8 @@ void uiAttribDescSetEd::exportToDotCB( CallBacker* )
     if ( !initDotPath(dotpath) )
     {
 	uiWhereIsDotDlg dlg( this );
-	if ( !dlg.go() ) return;
+	if ( !dlg.go() )
+	    return;
 
 	dotpath = dlg.fileName();
     }
