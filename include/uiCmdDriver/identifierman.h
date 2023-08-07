@@ -19,16 +19,17 @@ namespace CmdDrive
 mExpClass(uiCmdDriver) IdentifierManager
 {
 public:
-    			IdentifierManager();
-			~IdentifierManager();
+			IdentifierManager();
+    virtual		~IdentifierManager();
+			mOD_DisableCopy(IdentifierManager)
 
     void		reInit();
     void		raiseScopeLevel(bool up=true);
 
-    void    		set(const char* name,const char* val="",
+    void		set(const char* name,const char* val="",
 			    bool islink=false);
     void		set(const char* name,int);
-    void    		set(const char* name,double);
+    void		set(const char* name,double);
     void		unset(const char* name,bool followlinks=true);
 
     bool		isPredefined(const char* name) const;
@@ -67,12 +68,14 @@ protected:
     };
 
     bool		findCurIdent(const char* name,bool followlinks=true,
-	    			     bool singlescope=false);
-    void    		setFilePathPlaceholder(const char* nm,const char* val);
+				     bool singlescope=false);
+    void		setFilePathPlaceholder(const char* nm,const char* val);
 
     void		tryFilePathPlaceholder(const char* prefixsrc,
 					       const char* filepathsrc,
 					       BufferString& filepathdest);
+    bool		updatePlaceholder(const char* name,
+				const char* key, const char* value) const;
 
     Identifier*		curident_; // Always points to last identifier set/read
     int			curlevel_; // Always points to last level searched
