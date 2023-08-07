@@ -505,7 +505,7 @@ bool Well::markerNameShown() const
 
 void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 		    const TypeSet<Coord3Value>& crdvalsF,
-		    const LogParams& lp, bool isFilled )
+		    const LogParams& lp, bool isfilled )
 {
     float rgStartF(.0);
     float rgStopF(.0);
@@ -519,7 +519,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
     Interval<float> selrg = lp.range_;
     getLinScaleRange( scaler,selrg,rgStart,rgStop,lp.islogarithmic_ );
 
-    if(isFilled)
+    if ( isfilled )
     {
 	getLinScale(lp,scalerF);
 	Interval<float> selrgF = lp.fillrange_;
@@ -556,7 +556,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	osg::Vec3Array* logPath = logdisplay->getPath();
 	osg::FloatArray* shapeLog = logdisplay->getShapeLog();
 
-	if(!logPath || !shapeLog)
+	if ( !logPath || !shapeLog )
 	    continue;
 
 	logPath->push_back(
@@ -565,15 +565,16 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	if ( val > maxval )
 	    maxval = val;
 
-	if ( isFilled )
+	if ( isfilled )
 	{
-	    val = getValue( crdvalsF, idx, lp.islogarithmic_, scalerF );
-	    if ( mIsUdf(val) )
+	    osg::FloatArray* fillLog = logdisplay->getFillLogValues();
+	    if ( !fillLog )
 		continue;
 
-	    osg::FloatArray* fillLog = logdisplay->getFillLogValues();
-	    if( !fillLog )
-		continue;
+	    val = getValue( crdvalsF, idx, lp.islogarithmic_, scalerF );
+// ToDo: check if we need to support an udfval
+// At the moment 1e30 is capped to the maxval in osgGeo/PlaneWellLog.cpp
+
 	    fillLog->push_back( val );
 	    osg::FloatArray* fillLogDepths = logdisplay->getFillLogDepths();
 	    fillLogDepths->push_back(pos.z);
@@ -599,12 +600,12 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 
 
 void Well::getLinScaleRange( const LinScaler& scaler,Interval<float>& selrg,
-    float& rgstart, float& rgstop, bool islogarithmic_ )
+    float& rgstart, float& rgstop, bool islogarithmic )
 {
     selrg.sort();
     rgstop = scaler.scale( selrg.stop );
     rgstart = scaler.scale( selrg.start );
-    if ( islogarithmic_ )
+    if ( islogarithmic )
     {
 	mSclogval( rgstop );
 	mSclogval( rgstart );
@@ -612,13 +613,14 @@ void Well::getLinScaleRange( const LinScaler& scaler,Interval<float>& selrg,
 }
 
 
-void Well::getLinScale( const LogParams& lp,LinScaler& scaler, bool isFill )
+void Well::getLinScale( const LogParams& lp,LinScaler& scaler, bool isfill )
 {
     Interval<float> rg;
-    if( isFill )
+    if ( isfill )
 	rg = lp.valfillrange_;
     else
 	rg = lp.valrange_;
+
     rg.sort();
     float minval = rg.start;
     float maxval = rg.stop;
@@ -844,10 +846,10 @@ int Well::getLogLineWidth() const
 
 void Well::showLogs( bool yn )
 {
-    if( yn == logsShown() )
+    if ( yn == logsShown() )
 	return;
 
-    if( yn )
+    if ( yn )
     {
 	addChild( leftlogdisplay_ );
 	addChild( rightlogdisplay_ );
