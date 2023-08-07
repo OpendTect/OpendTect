@@ -1092,3 +1092,15 @@ const QString& uiString::getQString() const
 
     return getQStringInternal();
 }
+
+
+bool hasUnicodeCharacters( const QString& qstr )
+{
+    for ( auto qchar : qstr )
+    {
+	if ( qchar.unicode() > 127 )
+	    return true;
+    }
+
+    return false;
+}
