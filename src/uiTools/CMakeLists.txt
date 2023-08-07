@@ -11,6 +11,7 @@ set( OD_FOLDER "Base (GUI)" )
 set( OD_MODULE_SOURCES
 	inituitools.cc
 	annotbuffill.cc
+	uiactiverunningproc.cc
 	uiamplspectrum.cc
 	uiapplserv.cc
 	uiarray1dinterpol.cc

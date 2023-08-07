@@ -18,7 +18,8 @@ public:
 				    BatchProgramTracker();
 				    ~BatchProgramTracker();
 
-    const TypeSet<Network::Service::ID>& getServiceIDs() const;
+    bool			    getLiveServiceIDs(
+					TypeSet<Network::Service::ID>&) const;
     void			    cleanAll();
     void			    cleanProcess(const Network::Service::ID&);
 

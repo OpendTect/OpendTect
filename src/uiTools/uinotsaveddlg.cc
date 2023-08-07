@@ -19,7 +19,7 @@ ________________________________________________________________________
 class NotSavedPrompterData
 {
 public:
-    NotSavedPrompterData(const uiString& str,const CallBack& cb,bool issaveas,
+    NotSavedPrompterData( const uiString& str,const CallBack& cb,bool issaveas,
 			 const void* dataptr )
 	: string_(str), cb_(cb), issaveas_(issaveas)
 	, dataptr_( dataptr )
@@ -48,15 +48,17 @@ public:
 
 	for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
 	{
-	    uiLabel* label = new uiLabel( this,
-			    mToUiStringTodo(prompter_.objects_[idx]->string_) );
+	    auto* label = new uiLabel( this,
+					    prompter_.objects_[idx]->string_ );
 
-	    uiButton* curbutton = uiButton::getStd( this, OD::Save,
+	    auto* curbutton = uiButton::getStd( this, OD::Save,
 					mCB(this,uiNotSavedDlg,buttonCB),
 					prompter_.objects_[idx]->issaveas_ );
 	    curbutton->attach( rightOf, label );
 
-	    if ( idx ) curbutton->attach( alignedBelow, buttons_[idx-1] );
+	    if ( idx )
+		curbutton->attach( alignedBelow, buttons_[idx-1] );
+
 	    buttons_ += curbutton;
 	}
     }
@@ -66,7 +68,8 @@ public:
 	buttons_[activebutton_]->setText( tr("Saved") );
 	buttons_[activebutton_]->setSensitive( false );
     }
-    void	buttonCB(CallBacker* cb)
+
+    void	buttonCB( CallBacker* cb )
     {
 	activebutton_ = buttons_.indexOf( (uiButton*)cb );
 	prompter_.objects_[activebutton_]->cb_.doCall( &prompter_ );
@@ -76,7 +79,7 @@ public:
     {
 	return prompter_.objects_.validIdx(activebutton_)
 	    ? prompter_.objects_[activebutton_]->dataptr_
-	    : 0;
+	    : nullptr;
     }
     bool				isSaveAs() const
     {
@@ -102,11 +105,11 @@ NotSavedPrompter& NotSavedPrompter::NSP()
 
 
 NotSavedPrompter::NotSavedPrompter()
-    : promptSaving( this )
-    , dlg_( 0 )
+    : promptSaving(this)
+    , dlg_(nullptr)
     , queueid_(
-	Threads::WorkManager::twm().addQueue( Threads::WorkManager::Manual,
-						"NotSavedPrompter" ) )
+	Threads::WorkManager::twm().addQueue(Threads::WorkManager::Manual,
+						"NotSavedPrompter"))
 {
     mAttachCB( Threads::WorkManager::twm().isShuttingDown,
 	       NotSavedPrompter::closeQueueCB );
@@ -130,16 +133,13 @@ bool NotSavedPrompter::doTrigger( uiParent* parent, bool withcancel,
     dlg_ = new uiNotSavedDlg( parent, *this, withcancel, actiontype );
     dlg_->setModal( true );
     bool retval = dlg_->go();
-    delete dlg_;
-    dlg_ = 0;
+    deleteAndNullPtr( dlg_ );
 
     deepErase( objects_ );
     if ( retval )
 	Threads::WorkManager::twm().executeQueue( queueID() );
     else
 	Threads::WorkManager::twm().emptyQueue( queueID(), false );
-
-
 
     return retval;
 }
@@ -161,7 +161,8 @@ void NotSavedPrompter::addObject( const uiString& str,const CallBack& cb,
 
 void NotSavedPrompter::reportSuccessfullSave()
 {
-    if ( dlg_ ) dlg_->reportSuccessfullSave();
+    if ( dlg_ )
+	dlg_->reportSuccessfullSave();
 }
 
 
@@ -170,8 +171,12 @@ uiParent* NotSavedPrompter::getParent()
 
 
 const void* NotSavedPrompter::getCurrentObjectData() const
-{ return dlg_ ? dlg_->getCurrentObjectData() : 0; }
+{
+    return dlg_ ? dlg_->getCurrentObjectData() : nullptr;
+}
 
 
 bool NotSavedPrompter::isSaveAs() const
-{ return dlg_ ? dlg_->isSaveAs() : false; }
+{
+    return dlg_ ? dlg_->isSaveAs() : false;
+}

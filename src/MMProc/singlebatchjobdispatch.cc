@@ -168,7 +168,7 @@ bool Batch::SingleJobDispatcher::launch( Batch::ID* batchid )
     parstrm.close();
 
     if ( mc.execute(jobspec_.execpars_) )
-	BPT();
+	BPT(); //Here could be place to forward service name and process name
     else
     {
 	File::remove( lockflfp );

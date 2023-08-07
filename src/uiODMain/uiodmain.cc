@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "applicationdata.h"
 
+#include "uiactiverunningproc.h"
 #include "uiattribpartserv.h"
 #include "uimain.h"
 #include "uicolortable.h"
@@ -850,14 +851,19 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 
     const uiString actstr = restarting_ ? uiStrings::sRestart()
 					: uiStrings::sClose();
-     if ( doconfirm )
-     {
-	 if ( !uiMSG().askGoOn( tr("Do you want to %1 %2?")
-				.arg(restarting_?"restart":"close")
-				.arg(programname_),
-				actstr, uiStrings::sCancel() ) )
-	     return false;
-     }
+    bool closeactivebatch = true;
+    if ( !restarting_ )
+	closeactivebatch = ActiveProcPrompter::APP().doTrigger(
+						uiMainWin::activeWindow() );
+
+    if ( !closeactivebatch || doconfirm )
+    {
+	if ( !uiMSG().askGoOn( tr("Do you want to %1 %2?")
+			    .arg(restarting_?"restart":"close")
+			    .arg(programname_),
+			    actstr, uiStrings::sCancel() ) )
+	    return false;
+    }
 
      //This bool is not required. Keeping to maintain API.
      bool dummy = false;
@@ -870,14 +876,14 @@ bool uiODMain::closeOK( bool withinteraction, bool doconfirm )
 					  : tr("Closing cancelled") );
 	     return false;
 	 }
-    }
+     }
 
-    beforeExit.trigger();
+     beforeExit.trigger();
 
-    if ( failed_ )
+     if ( failed_ )
 	return true;
 
-    return true;
+     return true;
 }
 
 

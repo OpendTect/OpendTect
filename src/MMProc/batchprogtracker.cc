@@ -66,18 +66,26 @@ void BatchProgramTracker::unregisterProcess( CallBacker* cb )
 
     BatchServiceClientMgr& mgr = BatchServiceClientMgr::getMgr();
     mCBCapsuleUnpack(Network::Service::ID, servid, cb);
+    File::remove( mgr.getLockFileFP(servid) );
     const int idx = serviceids_.indexOf( servid );
-    if ( idx < 0 )
+    if ( !serviceids_.validIdx(idx) )
 	return;
 
-    File::remove(mgr.getLockFileFP(servid));
-    serviceids_.removeSingle(idx);
+    serviceids_.removeSingle( idx );
 }
 
 
-const TypeSet<Network::Service::ID>& BatchProgramTracker::getServiceIDs() const
+bool BatchProgramTracker::getLiveServiceIDs(
+				TypeSet<Network::Service::ID>& livemids ) const
 {
-    return serviceids_;
+    BatchServiceClientMgr& mgr = BatchServiceClientMgr::getMgr();
+    for ( auto& servid : serviceids_ )
+    {
+	if ( mgr.isAlive(servid) )
+	    livemids.add( servid );
+    }
+
+    return !livemids.isEmpty();
 }
 
 
@@ -91,5 +99,5 @@ void BatchProgramTracker::cleanAll()
 
 void BatchProgramTracker::cleanProcess( const Network::Service::ID& servid )
 {
-    File::remove( BatchServiceClientMgr::getMgr().getLockFileFP( servid ) );
+    File::remove( BatchServiceClientMgr::getMgr().getLockFileFP(servid) );
 }
