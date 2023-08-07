@@ -22,7 +22,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimainwin.h"
-#include "uistrings.h"
+#include "uimsg.h"
 
 #include <QFileDialog>
 #include <QPushButton>
@@ -215,7 +215,17 @@ int uiFileDialog::go()
 
     QStringList selfiles = fd->selectedFiles();
     if ( !selfiles.isEmpty() )
-	fn = selfiles[0];
+    {
+	const auto file0 = selfiles.first();
+	if ( hasUnicodeCharacters(file0) )
+	{
+	    uiMSG().error( tr("File name has unicode characters.\n"
+			      "OpendTect doesn't support unicode yet.") );
+	    return 0;
+	}
+
+	fn = file0;
+    }
 
     selectedfilter_ = fd->selectedNameFilter();
 
