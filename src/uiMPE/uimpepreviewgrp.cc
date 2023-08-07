@@ -22,6 +22,15 @@ ________________________________________________________________________
 #include "hiddenparam.h"
 static HiddenParam<MPE::uiPreviewGroup,RefMan<FlatDataPack>> hp_fdp_(nullptr);
 
+class HP_uiPreviewGroup
+{
+public:
+    Interval<float>		zintv_;
+    Interval<float>		winintv_;
+    Interval<float>		manipwinintv_;
+};
+
+static HiddenParam<MPE::uiPreviewGroup,HP_uiPreviewGroup*> hp_members(nullptr);
 
 namespace MPE
 {
@@ -34,6 +43,8 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
     , mousedown_(false)
 {
     hp_fdp_.setParam( this, nullptr );
+    hp_members.setParam( this, new HP_uiPreviewGroup );
+
     wvafld_ = new uiCheckList( this, uiCheckList::OneMinimum,
 			       OD::Horizontal );
     wvafld_->addItem( tr("WVA") ).addItem( tr("VD") );
@@ -98,6 +109,7 @@ uiPreviewGroup::~uiPreviewGroup()
 {
     hp_fdp_.setParam( this, nullptr );
     hp_fdp_.removeParam( this );
+    hp_members.removeAndDeleteParam( this );
 }
 
 
@@ -119,6 +131,7 @@ void uiPreviewGroup::setSeedPos( const TrcKeyValue& tkv )
 
 void uiPreviewGroup::setDisplaySize( int nrtrcs, const Interval<int>& zintv )
 {
+    pErrMsg("Should not be used");
     nrtrcs_ = nrtrcs;
     zintv_ = zintv;
     updateViewer();
@@ -128,6 +141,7 @@ void uiPreviewGroup::setDisplaySize( int nrtrcs, const Interval<int>& zintv )
 
 void uiPreviewGroup::setWindow( const Interval<int>& winsz )
 {
+    pErrMsg("Should not be used");
     winintv_ = winsz;
     updateWindowLines();
 }
@@ -135,7 +149,30 @@ void uiPreviewGroup::setWindow( const Interval<int>& winsz )
 
 Interval<int> uiPreviewGroup::getManipWindow() const
 {
+    pErrMsg("Should not be used");
     return manipwinintv_;
+}
+
+
+void uiPreviewGroup::setDisplaySize( int nrtrcs, const Interval<float>& zintv )
+{
+    nrtrcs_ = nrtrcs;
+    hp_members.getParam(this)->zintv_ = zintv;
+    updateViewer();
+    updateWindowLines();
+}
+
+
+void uiPreviewGroup::setWindow( const Interval<float>& winsz )
+{
+    hp_members.getParam(this)->winintv_ = winsz;
+    updateWindowLines();
+}
+
+
+Interval<float> uiPreviewGroup::getManipWindowF() const
+{
+    return hp_members.getParam(this)->manipwinintv_;
 }
 
 
@@ -147,7 +184,7 @@ void uiPreviewGroup::updateViewer()
     const TrcKey& tk = seedpos_.tk_;
     const float z = seedpos_.val_;
 
-    StepInterval<float> zintv; zintv.setFrom( zintv_ );
+    StepInterval<float> zintv = hp_members.getParam(this)->zintv_;
     zintv.scale( 1.f/SI().zDomain().userFactor() );
     zintv.step = SI().zStep();
 
@@ -179,8 +216,8 @@ void uiPreviewGroup::updateWindowLines()
     const TrcKey& tk = seedpos_.tk_;
     const float z = seedpos_.val_;
 
-    StepInterval<float> zintv; zintv.setFrom( winintv_ );
-    zintv.scale( 1.f/SI().zDomain().userFactor() );
+    StepInterval<float> zintv = hp_members.getParam(this)->winintv_;
+    zintv.scale( 1.f/float(SI().zDomain().userFactor()) );
 
     const int so = nrtrcs_/2+1;
     minline_->poly_[0] = FlatView::Point( tk.trcNr()-so, z+zintv.start );
@@ -194,7 +231,8 @@ void uiPreviewGroup::updateWindowLines()
 
 void uiPreviewGroup::mousePressed( CallBacker* )
 {
-    if ( !calcNewWindow() ) return;
+    if ( !calcNewWindow() )
+	return;
 
     mousedown_ = true;
     windowChanged_.trigger();
@@ -203,7 +241,8 @@ void uiPreviewGroup::mousePressed( CallBacker* )
 
 void uiPreviewGroup::mouseMoved( CallBacker* )
 {
-    if ( !mousedown_ || !calcNewWindow() ) return;
+    if ( !mousedown_ || !calcNewWindow() )
+	return;
 
     windowChanged_.trigger();
 }
@@ -221,15 +260,16 @@ bool uiPreviewGroup::calcNewWindow()
     if ( seedpos_.isUdf() )
 	return false;
 
-    manipwinintv_.setUdf();
+    Interval<float>& intv = hp_members.getParam(this)->manipwinintv_;
+    intv.setUdf();
     const MouseEvent& ev = meh.event();
     const Geom::Point2D<int>& pt = ev.pos();
     uiWorldPoint wpt = vwr_->getWorld2Ui().transform( pt );
     const double diff = (wpt.y - seedpos_.val_) * SI().zDomain().userFactor();
     if ( wpt.y < seedpos_.val_ )
-	manipwinintv_.start = mNINT32( diff );
+	intv.start = float( diff );
     else
-	manipwinintv_.stop = mNINT32( diff );
+	intv.stop = float( diff );
 
     return true;
 }

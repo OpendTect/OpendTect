@@ -32,10 +32,19 @@ public:
 				~uiPreviewGroup();
 
     void			setSeedPos(const TrcKeyValue&);
+
+    mDeprecated("Use float version")
     void			setDisplaySize(int nrtrcs,
 					       const Interval<int>& zintv);
+    mDeprecated("Use float version")
     void			setWindow(const Interval<int>&);
+    mDeprecated("Use float version")
     Interval<int>		getManipWindow() const;
+
+    void			setDisplaySize(int nrtrcs,
+					       const Interval<float>& zintv);
+    void			setWindow(const Interval<float>&);
+    Interval<float>		getManipWindowF() const;
 
     Notifier<uiPreviewGroup>	windowChanged_;
 
