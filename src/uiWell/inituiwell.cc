@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiwellt2dconv.h"
 #include "uiwellwriteopts.h"
 #include "uiwellinserter.h"
+#include "uimnemonicsettings.h"
 
 mDefModInitFn(uiWell)
 {
@@ -23,4 +24,6 @@ mDefModInitFn(uiWell)
 
     uiODWellWriteOpts::initClass();
     uiWellInserter::initClass();
+
+    uiMnemonicSettings::initClass();
 }
