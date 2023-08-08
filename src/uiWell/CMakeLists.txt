@@ -14,6 +14,7 @@ set( OD_MODULE_SOURCES
 	uid2tmodelgrp.cc
 	uilassip.cc
 	uilaswriter.cc
+	uimnemonicsettings.cc
 	uimultiwelllogsel.cc
 	uisimplemultiwell.cc
 	uiwelldahdisplay.cc

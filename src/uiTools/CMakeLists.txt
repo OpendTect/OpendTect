@@ -72,6 +72,7 @@ set( OD_MODULE_SOURCES
 	uimathexpressionvariable.cc
 	uimeasuredlg.cc
 	uimenuhandler.cc
+	uimnemonicprops.cc
 	uimnemonicsel.cc
 	uinotsaveddlg.cc
 	uiobjectitemview.cc
