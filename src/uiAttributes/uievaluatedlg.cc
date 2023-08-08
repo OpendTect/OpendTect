@@ -33,19 +33,20 @@ using namespace Attrib;
 #define mGetValParFromGroup( T, str, desc )\
 {\
     mDescGetConstParamGroup(T,str,desc,parstr1_);\
-    if ( str ) \
+    if ( str && !str->isEmpty() ) \
 	valpar1 = &(ValParam&)(*str)[pgidx_];\
 }
+
+
 
 AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 				    const EvalParam& evalparam )
     : uiGroup(p,"")
-    , incrfld(0)
+    , parlbl_(evalparam.label_)
     , parstr1_(evalparam.par1_)
     , parstr2_(evalparam.par2_)
-    , parlbl_(evalparam.label_)
-    , evaloutput_(evalparam.evaloutput_)
     , pgidx_(evalparam.pgidx_)
+    , evaloutput_(evalparam.evaloutput_)
     , desced_(ade)
 {
     if ( evaloutput_ )
@@ -53,8 +54,8 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	const Attrib::Desc* desc = ade.curDesc();
 	const float val = desc ? ade.getOutputValue( desc->selectedOutput() )
 			       : 0;
-	initfld = new uiGenInput( this, sInit(), FloatInpSpec(val) );
-	setHAlignObj( initfld );
+	initfld_ = new uiGenInput( this, sInit(), FloatInpSpec(val) );
+	setHAlignObj( initfld_ );
 	return;
     }
 
@@ -81,18 +82,21 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	createInputSpecs( valpar2, initspec2, incrspec2 );
 
     if ( initspec1 && initspec2 )
-	initfld = new uiGenInput( this, sInit(), *initspec1, *initspec2 );
+	initfld_ = new uiGenInput( this, sInit(), *initspec1, *initspec2 );
     else if ( initspec1 )
-	initfld = new uiGenInput( this, sInit(), *initspec1 );
+	initfld_ = new uiGenInput( this, sInit(), *initspec1 );
 
     if ( incrspec1 && incrspec2 )
-	incrfld = new uiGenInput( this, sIncr(), *incrspec1, *incrspec2 );
+	incrfld_ = new uiGenInput( this, sIncr(), *incrspec1, *incrspec2 );
     else if ( incrspec1 )
-	incrfld = new uiGenInput( this, sIncr(), *incrspec1 );
+	incrfld_ = new uiGenInput( this, sIncr(), *incrspec1 );
 
-    if ( incrfld )
-	incrfld->attach( alignedBelow, initfld );
-    setHAlignObj( initfld );
+    if ( initfld_ )
+    {
+	if ( incrfld_ )
+	    incrfld_->attach( alignedBelow, initfld_ );
+	setHAlignObj( initfld_ );
+    }
 
     delete initspec1; delete incrspec1;
     delete initspec2; delete incrspec2;
@@ -173,6 +177,9 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
 
 void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 {
+    if ( !initfld_ || !incrfld_ )
+	return;
+
     ValParam* valpar1 = desc.getValParam( parstr1_ );
     if ( !valpar1 && !mIsUdf(pgidx_) )
     {
@@ -191,8 +198,8 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 
     if ( gatepar )
     {
-	const Interval<float> oldrg( initfld->getFInterval() );
-	const Interval<float> incr( incrfld->getFInterval() );
+	const Interval<float> oldrg( initfld_->getFInterval() );
+	const Interval<float> incr( incrfld_->getFInterval() );
 	Interval<float> newrg( oldrg );
 	if ( !mIsUdf(oldrg.start) ) newrg.start += idx * incr.start;
 	if ( !mIsUdf(oldrg.stop) ) newrg.stop += idx * incr.stop;
@@ -202,8 +209,8 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
     else if ( bidpar )
     {
 	BinID bid;
-	bid.inl() = initfld->getBinID().inl() + idx * incrfld->getBinID().inl();
-	bid.crl() = initfld->getBinID().crl() + idx * incrfld->getBinID().crl();
+	bid.inl() = initfld_->getBinID().inl() + idx * incrfld_->getBinID().inl();
+	bid.crl() = initfld_->getBinID().crl() + idx * incrfld_->getBinID().crl();
 
 	if ( desc.is2D() )
 	    { mCreateLabel1(bid.crl()) }
@@ -218,10 +225,10 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	if ( bidpar2 )
 	{
 	    BinID bid2;
-	    bid2.inl() = initfld->getBinID(1).inl() +
-					idx * incrfld->getBinID(1).inl();
-	    bid2.crl() = initfld->getBinID(1).crl() +
-					idx * incrfld->getBinID(1).crl();
+	    bid2.inl() = initfld_->getBinID(1).inl() +
+					idx * incrfld_->getBinID(1).inl();
+	    bid2.crl() = initfld_->getBinID(1).crl() +
+					idx * incrfld_->getBinID(1).crl();
 	    bidpar2->setValue( bid2.inl(), 0 );
 	    bidpar2->setValue( bid2.crl(), 1 );
 
@@ -239,19 +246,19 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
     }
     else if ( fpar )
     {
-	const float val = initfld->getFValue() + idx * incrfld->getFValue();
+	const float val = initfld_->getFValue() + idx * incrfld_->getFValue();
 	mCreateLabel1(val)
 	fpar->setValue( val );
     }
     else if ( ipar )
     {
-	const int val = initfld->getIntValue() + idx * incrfld->getIntValue();
+	const int val = initfld_->getIntValue() + idx * incrfld_->getIntValue();
 	mCreateLabel1(val)
 	ipar->setValue( val );
     }
     else if ( dpar )
     {
-	const double val = initfld->getDValue() + idx * incrfld->getDValue();
+	const double val = initfld_->getDValue() + idx * incrfld_->getDValue();
 	mCreateLabel1(val)
 	dpar->setValue( val );
     }
@@ -262,13 +269,14 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 
 void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
 {
-    if ( !evaloutput_ ) return;
+    if ( !evaloutput_ )
+	return;
 
     double step = mCast( double, desced_.getOutputValue(0) );
     if ( mIsZero(step,mDefEps) )
 	step = mCast( double, desced_.getOutputValue(1) );
 
-    const double val = initfld->getDValue() + idx*step;
+    const double val = initfld_->getDValue() + idx*step;
     desc.selectOutput( desced_.getOutputIdx(mCast(float,val)) );
     mCreateLabel1( val );
 }
@@ -285,61 +293,62 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
 		.canceltext(uiString::emptyString()))
     , calccb(this)
     , showslicecb(this)
-    , desced_(ade)
-    , initpar_(*new IOPar)
     , seldesc_(0)
-    , enabstore_(store)
+    , desced_(ade)
     , srcid_(-1,true)
+    , initpar_(*new IOPar)
+    , enabstore_(store)
     , haspars_(false)
 {
     srcid_ = ade.curDesc()->id();
-    DescSet* newattrset = ade.curDesc()->descSet()->optimizeClone( srcid_ );
-    if ( newattrset ) attrset_ = newattrset;
-    attrset_->fillPar( initpar_ );
+    attrset_ = ade.curDesc()->descSet()->optimizeClone( srcid_ );
+    if ( attrset_ )
+	attrset_->fillPar( initpar_ );
 
     TypeSet<EvalParam> params;
     desced_.getEvalParams( params );
-    if ( params.isEmpty() ) return;
+    if ( params.isEmpty() )
+	return;
 
     haspars_ = true;
     BufferStringSet strs;
     for ( int idx=0; idx<params.size(); idx++ )
 	strs.add( params[idx].label_ );
 
-    evalfld = new uiGenInput( this, tr("Evaluate"),
-                              StringListInpSpec(strs) );
-    evalfld->valueChanged.notify( mCB(this,uiEvaluateDlg,variableSel) );
+    evalfld_ = new uiGenInput( this, tr("Evaluate"),
+				StringListInpSpec(strs) );
+    evalfld_->valueChanged.notify( mCB(this,uiEvaluateDlg,variableSel) );
 
     uiGroup* pargrp = new uiGroup( this, "" );
     pargrp->setStretch( 1, 1 );
-    pargrp->attach( alignedBelow, evalfld );
+    pargrp->attach( alignedBelow, evalfld_ );
     for ( int idx=0; idx<params.size(); idx++ )
 	grps_ += new AttribParamGroup( pargrp, ade, params[idx] );
 
     pargrp->setHAlignObj( grps_[0] );
 
-    nrstepsfld = new uiLabeledSpinBox( this, tr("Nr of steps") );
-    nrstepsfld->box()->setInterval( cSliceIntv );
-    nrstepsfld->attach( alignedBelow, pargrp );
+    nrstepsfld_ = new uiLabeledSpinBox( this, tr("Nr of steps") );
+    nrstepsfld_->box()->setInterval( cSliceIntv );
+    nrstepsfld_->attach( alignedBelow, pargrp );
 
-    calcbut = new uiPushButton( this, uiStrings::sCalculate(), true );
-    calcbut->activated.notify( mCB(this,uiEvaluateDlg,calcPush) );
-    calcbut->attach( rightTo, nrstepsfld );
+    calcbut_ = new uiPushButton( this, uiStrings::sCalculate(), true );
+    calcbut_->activated.notify( mCB(this,uiEvaluateDlg,calcPush) );
+    calcbut_->attach( rightTo, nrstepsfld_ );
 
-    sliderfld = new uiSlider( this, tr("Slice"), "Slice slider" );
-    sliderfld->attach( alignedBelow, nrstepsfld );
-    sliderfld->valueChanged.notify( mCB(this,uiEvaluateDlg,sliderMove) );
-    sliderfld->setTickMarks( uiSlider::Below );
-    sliderfld->setSensitive( false );
+    sliderfld_ = new uiSlider( this, tr("Slice"), "Slice slider" );
+    sliderfld_->attach( alignedBelow, nrstepsfld_ );
+    sliderfld_->valueChanged.notify( mCB(this,uiEvaluateDlg,sliderMove) );
+    sliderfld_->setTickMarks( uiSlider::Below );
+    sliderfld_->setSensitive( false );
 
-    storefld = new uiCheckBox( this, tr("Store slices on 'Accept'") );
-    storefld->attach( alignedBelow, sliderfld );
-    storefld->setChecked( false );
-    storefld->setSensitive( false );
+    storefld_ = new uiCheckBox( this, tr("Store slices on 'Accept'") );
+    storefld_->attach( alignedBelow, sliderfld_ );
+    storefld_->setChecked( false );
+    storefld_->setSensitive( false );
 
-    displaylbl = new uiLabel( this, uiString::emptyString() );
-    displaylbl->attach( widthSameAs, sliderfld );
-    displaylbl->attach( alignedBelow, storefld );
+    displaylbl_ = new uiLabel( this, uiString::emptyString() );
+    displaylbl_->attach( widthSameAs, sliderfld_ );
+    displaylbl_->attach( alignedBelow, storefld_ );
 
     postFinalize().notify( mCB(this,uiEvaluateDlg,doFinalize) );
 }
@@ -353,12 +362,16 @@ void uiEvaluateDlg::doFinalize( CallBacker* )
 
 uiEvaluateDlg::~uiEvaluateDlg()
 {
+    delete &initpar_;
 }
 
 
 void uiEvaluateDlg::variableSel( CallBacker* )
 {
-    const int sel = evalfld->getIntValue();
+    if ( !evalfld_ )
+	return;
+
+    const int sel = evalfld_->getIntValue();
     for ( int idx=0; idx<grps_.size(); idx++ )
 	grps_[idx]->display( idx==sel );
 }
@@ -366,12 +379,15 @@ void uiEvaluateDlg::variableSel( CallBacker* )
 
 void uiEvaluateDlg::calcPush( CallBacker* )
 {
+    if ( !attrset_ )
+	return;
+
     attrset_->usePar( initpar_ );
-    sliderfld->setValue(0);
+    sliderfld_->setValue(0);
     lbls_.erase();
     specs_.erase();
 
-    const int sel = evalfld->getIntValue();
+    const int sel = evalfld_->getIntValue();
     if ( sel >= grps_.size() ) return;
     AttribParamGroup* pargrp = grps_[sel];
 
@@ -380,7 +396,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	return;
 
     const BufferString userchosenref = desc->userRef();
-    const int nrsteps = nrstepsfld->box()->getIntValue();
+    const int nrsteps = nrstepsfld_->box()->getIntValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	Desc* newad = idx ? new Desc(*desc) : desc;
@@ -417,28 +433,31 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 
     calccb.trigger();
 
-    if ( enabstore_ ) storefld->setSensitive( true );
-    sliderfld->setSensitive( true );
-    sliderfld->setMaxValue( mCast(float,nrsteps-1) );
-    sliderfld->setTickStep( 1 );
+    if ( enabstore_ ) storefld_->setSensitive( true );
+    sliderfld_->setSensitive( true );
+    sliderfld_->setMaxValue( mCast(float,nrsteps-1) );
+    sliderfld_->setTickStep( 1 );
     sliderMove(0);
 }
 
 
 void uiEvaluateDlg::sliderMove( CallBacker* )
 {
-    const int sliceidx = sliderfld->getIntValue();
+    const int sliceidx = sliderfld_->getIntValue();
     if ( sliceidx >= lbls_.size() )
 	return;
 
-    displaylbl->setText( toUiString(lbls_[sliceidx]->buf()) );
+    displaylbl_->setText( toUiString(lbls_[sliceidx]->buf()) );
     showslicecb.trigger( sliceidx );
 }
 
 
 bool uiEvaluateDlg::acceptOK( CallBacker* )
 {
-    const int sliceidx = sliderfld->getIntValue();
+    if ( !sliderfld_ || !attrset_ )
+	return false;
+
+    const int sliceidx = sliderfld_->getIntValue();
     if ( sliceidx < specs_.size() )
 	seldesc_ = attrset_->getDesc( specs_[sliceidx].id() );
 
@@ -454,5 +473,5 @@ void uiEvaluateDlg::getEvalSpecs( TypeSet<Attrib::SelSpec>& specs ) const
 
 bool uiEvaluateDlg::storeSlices() const
 {
-    return enabstore_ ? storefld->isChecked() : false;
+    return enabstore_ && storefld_ ? storefld_->isChecked() : false;
 }

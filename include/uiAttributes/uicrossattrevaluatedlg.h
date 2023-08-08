@@ -43,14 +43,14 @@ public:
 
 protected:
 
-    uiListBox*			paramsfld_;
-    uiListBox*			attrnmsfld_;
+    uiListBox*			paramsfld_			= nullptr;
+    uiListBox*			attrnmsfld_			= nullptr;
 
-    uiPushButton*		calcbut;
-    uiSlider*			sliderfld;
-    uiLabeledSpinBox*		nrstepsfld;
-    uiLabel*			displaylbl;
-    uiCheckBox*			storefld;
+    uiPushButton*		calcbut_			= nullptr;
+    uiSlider*			sliderfld_			= nullptr;
+    uiLabeledSpinBox*		nrstepsfld_			= nullptr;
+    uiLabel*			displaylbl_			= nullptr;
+    uiCheckBox*			storefld_			= nullptr;
 
     void			parameterSel(CallBacker*);
     void			calcPush(CallBacker*);
@@ -62,7 +62,7 @@ protected:
 
     bool			acceptOK(CallBacker*) override;
 
-    Attrib::Desc*		seldesc_;
+    Attrib::Desc*		seldesc_			= nullptr;
     Attrib::DescID		srcid_;
     Attrib::DescSet&		attrset_;
     TypeSet<BufferStringSet>	userattnms_;//per parameter

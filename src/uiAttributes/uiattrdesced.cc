@@ -58,12 +58,9 @@ const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
 
 uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d, const HelpKey& helpkey )
     : uiGroup(p)
-    , desc_(0)
-    , ads_(0)
-    , is2d_(is2d)
     , helpkey_(helpkey)
+    , is2d_(is2d)
     , needinpupd_(false)
-    , zdomaininfo_(0)
 {
 }
 
@@ -79,7 +76,8 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
     adsman_ = adsm;
     if ( desc_ )
     {
-	chtr_.setVar( adsman_->unSaved() );
+	if ( adsman_ )
+	    chtr_.setVar( adsman_->unSaved() );
 	setParameters( *desc );
 	setInput( *desc );
 	setOutput( *desc );
@@ -88,10 +86,15 @@ void uiAttrDescEd::setDesc( Attrib::Desc* desc, Attrib::DescSetMan* adsm )
 
 
 void uiAttrDescEd::setZDomainInfo( const ZDomain::Info* info )
-{ zdomaininfo_ = info; }
+{
+    zdomaininfo_ = info;
+}
+
 
 const ZDomain::Info* uiAttrDescEd::getZDomainInfo() const
-{ return zdomaininfo_; }
+{
+    return zdomaininfo_;
+}
 
 
 void uiAttrDescEd::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
@@ -230,7 +233,8 @@ void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
     else
     {
 	inpfld->setDesc( inpdesc );
-	inpfld->updateHistory( adsman_->inputHistory() );
+	if ( adsman_ )
+	    inpfld->updateHistory( adsman_->inputHistory() );
     }
 }
 
@@ -244,7 +248,8 @@ void uiAttrDescEd::putInp( uiSteerAttrSel* inpfld, const Attrib::Desc& ad,
     else
     {
 	inpfld->setDesc( inpdesc );
-	inpfld->updateHistory( adsman_->inputHistory() );
+	if ( adsman_ )
+	    inpfld->updateHistory( adsman_->inputHistory() );
     }
 }
 
@@ -328,8 +333,10 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 
 uiString uiAttrDescEd::commit( Attrib::Desc* editdesc )
 {
-    if ( !editdesc ) editdesc = desc_;
-    if ( !editdesc ) return uiStrings::sEmptyString();
+    if ( !editdesc )
+	editdesc = desc_;
+    if ( !editdesc )
+	return uiStrings::sEmptyString();
 
     getParameters( *editdesc );
     errmsg_ = Provider::prepare( *editdesc );

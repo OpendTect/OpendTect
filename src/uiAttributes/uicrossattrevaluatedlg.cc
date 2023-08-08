@@ -31,18 +31,16 @@ static const StepInterval<int> cSliceIntv(2,30,1);
 uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 	uiAttribDescSetEd& uads, bool store )
     : uiDialog(p,uiDialog::Setup(tr("Cross attribute parameter evaluation"),
-		                 mNoDlgTitle, mODHelpKey(mEvaluateDlgHelpID) )
-                                 .modal(false).oktext(tr("Accept"))
-				 .canceltext(uiString::emptyString()))
+				mNoDlgTitle, mODHelpKey(mEvaluateDlgHelpID) )
+				.modal(false).oktext(tr("Accept"))
+				.canceltext(uiString::emptyString()))
     , calccb(this)
     , showslicecb(this)
+    , srcid_(-1,true)
+    , attrset_(*new DescSet(*uads.getSet()))
     , initpar_(*new IOPar)
-    , seldesc_(0)
     , enabstore_(store)
     , haspars_(false)
-    , attrset_(*new DescSet(*uads.getSet()))
-    , paramsfld_(0)
-    , srcid_(-1,true)
 {
     if ( !uads.curDesc() )
 	return;
@@ -55,7 +53,8 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 
     BufferStringSet paramnms;
     uads.getUiAttribParamGrps( pargrp, grps_, paramnms, userattnms_ );
-    if ( grps_.isEmpty() ) return;
+    if ( grps_.isEmpty() )
+	return;
 
     haspars_ = true;
 
@@ -64,11 +63,13 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     paramsfld_ = new uiListBox( grp );
     paramsfld_->attach( ensureBelow, paramlabel );
     paramsfld_->addItems( paramnms );
+    paramsfld_->setStretch( 0, 2 );
     paramsfld_->selectionChanged.notify(
 	    mCB(this,uiCrossAttrEvaluateDlg,parameterSel));
 
     uiLabel* attrlabel = new uiLabel( grp, uiStrings::sAttribute(mPlural) );
     attrnmsfld_ = new uiListBox( grp, "From attributes", OD::ChooseAtLeastOne );
+    attrnmsfld_->checkGroup()->display( false, true );
     attrnmsfld_->attach( rightOf, paramsfld_ );
     attrlabel->attach( alignedAbove, attrnmsfld_ );
     attrlabel->attach( rightTo, paramlabel );
@@ -76,30 +77,30 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     pargrp->attach( alignedBelow, grp );
     pargrp->setHAlignObj( grps_[0] );
 
-    nrstepsfld = new uiLabeledSpinBox( this, tr("Nr of steps") );
-    nrstepsfld->box()->setInterval( cSliceIntv );
-    nrstepsfld->attach( alignedBelow, pargrp );
+    nrstepsfld_ = new uiLabeledSpinBox( this, tr("Nr of steps") );
+    nrstepsfld_->box()->setInterval( cSliceIntv );
+    nrstepsfld_->attach( alignedBelow, pargrp );
 
-    calcbut = new uiPushButton( this, uiStrings::sCalculate(), true );
-    calcbut->activated.notify( mCB(this,uiCrossAttrEvaluateDlg,calcPush) );
-    calcbut->attach( rightTo, nrstepsfld );
+    calcbut_ = new uiPushButton( this, uiStrings::sCalculate(), true );
+    calcbut_->activated.notify( mCB(this,uiCrossAttrEvaluateDlg,calcPush) );
+    calcbut_->attach( rightTo, nrstepsfld_ );
 
-    sliderfld = new uiSlider( this, uiSlider::Setup(tr("Slice")),
+    sliderfld_ = new uiSlider( this, uiSlider::Setup(tr("Slice")),
 			      "Slice slider" );
-    sliderfld->attach( alignedBelow, nrstepsfld );
-    sliderfld->valueChanged.notify(
+    sliderfld_->attach( alignedBelow, nrstepsfld_ );
+    sliderfld_->valueChanged.notify(
 	    mCB(this,uiCrossAttrEvaluateDlg,sliderMove) );
-    sliderfld->setTickMarks( uiSlider::Below );
-    sliderfld->setSensitive( false );
+    sliderfld_->setTickMarks( uiSlider::Below );
+    sliderfld_->setSensitive( false );
 
-    storefld = new uiCheckBox( this, tr("Store slices on 'Accept'") );
-    storefld->attach( alignedBelow, sliderfld );
-    storefld->setChecked( false );
-    storefld->setSensitive( false );
+    storefld_ = new uiCheckBox( this, tr("Store slices on 'Accept'") );
+    storefld_->attach( alignedBelow, sliderfld_ );
+    storefld_->setChecked( false );
+    storefld_->setSensitive( false );
 
-    displaylbl = new uiLabel( this, uiString::emptyString() );
-    displaylbl->attach( widthSameAs, sliderfld );
-    displaylbl->attach( alignedBelow, storefld );
+    displaylbl_ = new uiLabel( this, uiString::emptyString() );
+    displaylbl_->attach( widthSameAs, sliderfld_ );
+    displaylbl_->attach( alignedBelow, storefld_ );
 
     postFinalize().notify( mCB(this,uiCrossAttrEvaluateDlg,doFinalize) );
 }
@@ -107,13 +108,15 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 
 void uiCrossAttrEvaluateDlg::doFinalize( CallBacker* )
 {
-    parameterSel(0);
+    parameterSel( nullptr );
+    attrnmsfld_->resizeWidthToContents();
 }
 
 
 uiCrossAttrEvaluateDlg::~uiCrossAttrEvaluateDlg()
 {
     delete &attrset_;
+    delete &initpar_;
 }
 
 
@@ -157,7 +160,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 	return;
 
     attrset_.usePar( initpar_ );
-    sliderfld->setValue(0);
+    sliderfld_->setValue(0);
     lbls_.erase();
     specs_.erase();
     srcspecids_.erase();
@@ -173,7 +176,7 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 
     Desc& srcad = *attrset_.getDesc( srcid_ );
     const int selsz = seldeschildids_.size();
-    const int nrsteps = nrstepsfld->box()->getIntValue();
+    const int nrsteps = nrstepsfld_->box()->getIntValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	bool lbladded = false;
@@ -228,10 +231,10 @@ void uiCrossAttrEvaluateDlg::calcPush( CallBacker* )
 
     calccb.trigger();
 
-    if ( enabstore_ ) storefld->setSensitive( true );
-    sliderfld->setSensitive( true );
-    sliderfld->setMaxValue( mCast(float,nrsteps-1) );
-    sliderfld->setTickStep( 1 );
+    if ( enabstore_ ) storefld_->setSensitive( true );
+    sliderfld_->setSensitive( true );
+    sliderfld_->setMaxValue( mCast(float,nrsteps-1) );
+    sliderfld_->setTickStep( 1 );
     sliderMove(0);
 }
 
@@ -277,21 +280,21 @@ void uiCrossAttrEvaluateDlg::getSelDescIDs(
 
 void uiCrossAttrEvaluateDlg::sliderMove( CallBacker* )
 {
-    const int sliceidx = sliderfld->getIntValue();
+    const int sliceidx = sliderfld_->getIntValue();
     if ( sliceidx >= lbls_.size() )
 	return;
 
-    displaylbl->setText( toUiString(lbls_[sliceidx]->buf()) );
+    displaylbl_->setText( toUiString(lbls_[sliceidx]->buf()) );
     showslicecb.trigger( sliceidx );
 }
 
 
 bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
 {
-    if ( !paramsfld_ || srcspecids_.isEmpty() )
+    if ( !sliderfld_ || srcspecids_.isEmpty() )
 	return true;
 
-    const int sliceidx = sliderfld->getIntValue();
+    const int sliceidx = sliderfld_->getIntValue();
     seldesc_ = attrset_.getDesc( srcspecids_[sliceidx] );
 
     return true;
@@ -300,17 +303,19 @@ bool uiCrossAttrEvaluateDlg::acceptOK( CallBacker* )
 
 BufferString uiCrossAttrEvaluateDlg::acceptedDefStr() const
 {
-    const int sliceidx = sliderfld->getIntValue();
+    const int sliceidx = sliderfld_->getIntValue();
     return defstr_.get(sliceidx);
 }
 
 
 void uiCrossAttrEvaluateDlg::getEvalSpecs(
 	TypeSet<Attrib::SelSpec>& specs ) const
-{ specs = specs_; }
+{
+    specs = specs_;
+}
 
 
 bool uiCrossAttrEvaluateDlg::storeSlices() const
 {
-    return enabstore_ ? storefld->isChecked() : false;
+    return enabstore_ && storefld_ ? storefld_->isChecked() : false;
 }

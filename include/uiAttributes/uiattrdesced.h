@@ -179,10 +179,10 @@ protected:
     DomainType		domtyp_;
     DimensionType	dimtyp_;
     uiString		errmsg_;
-    DescSet*		ads_;
+    DescSet*		ads_					= nullptr;
     bool		is2d_;
     bool		needinpupd_;
-    const ZDomain::Info* zdomaininfo_;
+    const ZDomain::Info* zdomaininfo_				= nullptr;
 
     TypeSet<DataPack::FullID> dpfids_;
 
@@ -202,8 +202,8 @@ protected:
 private:
 
     BufferString	dispname_;
-    Desc*		desc_;
-    DescSetMan*		adsman_;
+    Desc*		desc_					= nullptr;
+    DescSetMan*		adsman_					= nullptr;
 
 };
 

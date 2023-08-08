@@ -51,8 +51,8 @@ protected:
     void			createInputSpecs(const Attrib::ValParam*,
 						 DataInpSpec*&,DataInpSpec*&);
 
-    uiGenInput*			initfld;
-    uiGenInput*			incrfld;
+    uiGenInput*			initfld_			= nullptr;
+    uiGenInput*			incrfld_			= nullptr;
     BufferString		parlbl_;
     BufferString		evallbl_;
 
@@ -82,12 +82,12 @@ public:
 
 protected:
 
-    uiGenInput*			evalfld;
-    uiPushButton*		calcbut;
-    uiSlider*			sliderfld;
-    uiLabeledSpinBox*		nrstepsfld;
-    uiLabel*			displaylbl;
-    uiCheckBox*			storefld;
+    uiGenInput*			evalfld_			= nullptr;
+    uiPushButton*		calcbut_			= nullptr;
+    uiSlider*			sliderfld_			= nullptr;
+    uiLabeledSpinBox*		nrstepsfld_			= nullptr;
+    uiLabel*			displaylbl_			= nullptr;
+    uiCheckBox*			storefld_			= nullptr;
 
     void			variableSel(CallBacker*);
     void			calcPush(CallBacker*);
@@ -96,8 +96,8 @@ protected:
 
     bool			acceptOK(CallBacker*) override;
 
-    Attrib::Desc*		seldesc_;
-    Attrib::DescSet*		attrset_;
+    Attrib::Desc*		seldesc_			= nullptr;
+    Attrib::DescSet*		attrset_			= nullptr;
     uiAttrDescEd&		desced_;
     Attrib::DescID		srcid_;
 
