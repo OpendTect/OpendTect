@@ -104,14 +104,19 @@ bool uiInstantaneousAttrib::getOutput( Desc& desc )
 
 void uiInstantaneousAttrib::outputSelCB( CallBacker* )
 {
-    const bool isrot = Instantaneous::RotatePhase ==
-	    Instantaneous::OutTypeDef().getEnumForIndex(outpfld->getIntValue());
+    const Instantaneous::OutType ot =
+	Instantaneous::OutTypeDef().getEnumForIndex(outpfld->getIntValue());
+    const bool isrot = ot == Instantaneous::RotatePhase;
     phaserotfld->display( isrot );
 }
 
 
 void uiInstantaneousAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( Instantaneous::rotateAngle(),
-			 Instantaneous::rotateAngle() );
+    const Instantaneous::OutType ot =
+	Instantaneous::OutTypeDef().getEnumForIndex(outpfld->getIntValue());
+    const bool isrot = ot == Instantaneous::RotatePhase;
+    if ( isrot )
+	params += EvalParam( "Rotation angle",
+			     Instantaneous::rotateAngle() );
 }
