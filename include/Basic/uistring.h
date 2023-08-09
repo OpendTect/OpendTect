@@ -415,3 +415,5 @@ inline uiString& uiString::appendIncorrect( const OD::String& str, char sep )
 
 // We need the sets so often that we include it here
 #include "uistringset.h"
+
+mGlobal(Basic) bool hasUnicodeCharacters(const QString&);
