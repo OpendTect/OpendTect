@@ -51,6 +51,7 @@ uiPresMakerPIMgr::uiPresMakerPIMgr()
 
 void uiPresMakerPIMgr::init()
 {
+    uiPluginInitMgr::init();
     appl().menuMgr().toolsMnu()->insertAction(
 	new uiAction( m3Dots( tr("Presentation Maker") ),
 		      mCB(this,uiPresMakerPIMgr,showDlgCB), "ppt" ) );
