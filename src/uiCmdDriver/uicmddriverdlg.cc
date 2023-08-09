@@ -697,8 +697,20 @@ FilePath getLogFilename() const
     return logfp;
 }
 
+
+void cleanLogFiles()
+{
+    if ( File::exists(logfnm_) && File::isFile(logfnm_) )
+	File::remove( logfnm_ );
+
+    if ( File::exists(statusfnm_) && File::isFile(statusfnm_) )
+	File::remove( statusfnm_ );
+}
+
+
     BufferString		fnm_;
     BufferString		logfnm_;
+    BufferString		statusfnm_;
 
     enum Status			{ Pending, Started, FinishedOK, FinishedError };
     Status			status_;
