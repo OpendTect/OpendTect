@@ -906,13 +906,20 @@ void uiWellLogDispProperties::updateRange( CallBacker* )
 
 void uiWellLogDispProperties::updateFillRange( CallBacker* )
 {
-    const char* lognm = filllogsfld_->box()->textOfItem(
-			filllogsfld_->box()->currentItem() );
+    const int curitm = filllogsfld_->box()->currentItem();
+    if ( curitm == 0 )
+    {
+	propChanged.trigger();
+	return;
+    }
+
+    const char* lognm = filllogsfld_->box()->textOfItem( curitm );
     if ( wd_ )
 	wd_->getLog( lognm );
 
     const int logno = wl_->indexOf( lognm );
-    if ( logno<0 ) return;
+    if ( logno<0 )
+	return;
 
     colorrangefld_->setValue( wl_->getLog(logno).valueRange() );
     propChanged.trigger();
