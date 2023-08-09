@@ -122,6 +122,7 @@ protected:
     uiTreeView*			scriptlistfld_;
     uiToolButton*		editbut_;
     uiToolButton*		logbut_;
+    uiToolButton*		cleanbut_;
     uiPushButton*		gobut_;
     uiPushButton*		stopbut_;
 
@@ -130,8 +131,10 @@ protected:
     void			addChildren(ScriptItem&);
     bool			acceptOK(CallBacker*);
     void			selChgCB(CallBacker*);
-    void			editCB(CallBacker*);
-    void			logCB(CallBacker*);
+    void			editScriptCB(CallBacker*);
+    void			showLogCB(CallBacker*);
+    void			cleanCB(CallBacker*);
+    void			cleanLogs();
     void			goCB(CallBacker*);
     void			stopCB(CallBacker*);
     void			executeFinishedCB(CallBacker*);

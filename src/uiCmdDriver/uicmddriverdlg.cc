@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "oddirs.h"
 #include "od_helpids.h"
+#include "od_istream.h"
 #include "timer.h"
 
 
@@ -642,10 +643,7 @@ ScriptItem( uiTreeViewItem* parent, const char* fnm, CmdDriver& drv )
     , fnm_(fnm)
     , driver_(drv)
 {
-    const FilePath fp( fnm );
-    setText( toUiString(fp.fileName()), 0 );
-
-    logfnm_ = getLogFilename().fullPath();
+    init();
 }
 
 
@@ -654,25 +652,46 @@ ScriptItem( uiTreeView* parent, const char* fnm, CmdDriver& drv )
     , fnm_(fnm)
     , driver_(drv)
 {
-    const FilePath fp( fnm );
+    init();
+}
+
+
+void init()
+{
+    const FilePath fp( fnm_ );
     setText( toUiString(fp.fileName()), 0 );
-    setIcon( 1, "empty" );
 
     logfnm_ = getLogFilename().fullPath();
+    statusfnm_ = getStatusFilename().fullPath();
+
+    int res = -1;
+    if ( File::exists(statusfnm_) )
+    {
+	od_istream strm( statusfnm_ );
+	strm >> res;
+    }
+
+    switch ( res )
+    {
+	case 0: setIcon( 1, "abort" ); break;
+	case 1: setIcon( 1, "checkgreen" ); break;
+	case 2: setIcon( 1, "pending" ); break;
+	default: setIcon( 1, "empty" ); break;
+    }
 }
 
 
 bool execute()
 {
+    cleanLogFiles();
+
     setIcon( 1, "inprogress" );
     setSelected( true );
+    writeToStatusFile( 2 );
+
     mAttachCB( driver_.executeFinished, ScriptItem::executeFinishedCB );
 
     const FilePath logfp = getLogFilename();
-    logfnm_ = logfp.fullPath();
-    if ( File::exists(logfnm_) && File::isFile(logfnm_) )
-	File::remove( logfnm_ );
-
     driver_.setLogFileName( logfp.fileName() );
     driver_.getActionsFromFile( fnm_ );
     return driver_.execute();
@@ -685,6 +704,8 @@ void executeFinishedCB( CallBacker* )
     setIcon( 1, haserror ? "abort" : "checkgreen" );
     setSelected( false );
     mDetachCB( driver_.executeFinished, ScriptItem::executeFinishedCB );
+
+    writeToStatusFile( haserror ? 0 : 1 );
 }
 
 
@@ -698,6 +719,23 @@ FilePath getLogFilename() const
 }
 
 
+FilePath getStatusFilename() const
+{
+    const FilePath scriptfp( fnm_ );
+    FilePath fp( driver_.outputDir() );
+    fp.add( scriptfp.fileName() );
+    fp.setExtension( "res" );
+    return fp;
+}
+
+
+void writeToStatusFile( int status )
+{
+    od_ostream strm( statusfnm_ );
+    strm << status;
+}
+
+
 void cleanLogFiles()
 {
     if ( File::exists(logfnm_) && File::isFile(logfnm_) )
@@ -705,6 +743,8 @@ void cleanLogFiles()
 
     if ( File::exists(statusfnm_) && File::isFile(statusfnm_) )
 	File::remove( statusfnm_ );
+
+    setIcon( 1, "empty" );
 }
 
 
@@ -764,11 +804,13 @@ uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
 
     auto* itemgrp = new uiButtonGroup( this, "Item group", OD::Vertical );
     editbut_ = new uiToolButton( itemgrp, "edit", tr("Edit script"),
-				mCB(this,uiScriptRunnerDlg,editCB) );
+				mCB(this,uiScriptRunnerDlg,editScriptCB) );
     editbut_->setSensitive( false );
     logbut_ = new uiToolButton( itemgrp, "logfile", tr("View log"),
-				mCB(this,uiScriptRunnerDlg,logCB) );
+				mCB(this,uiScriptRunnerDlg,showLogCB) );
     logbut_->setSensitive( false );
+    cleanbut_ = new uiToolButton( itemgrp, "clear", tr("Clean logs"),
+				mCB(this,uiScriptRunnerDlg,cleanCB) );
     itemgrp->attach( centeredRightOf, scriptlistfld_ );
 
     auto* grp = new uiButtonGroup( this, "", OD::Horizontal );
@@ -845,8 +887,9 @@ void uiScriptRunnerDlg::goCB( CallBacker* )
 
     drv_.setOutputDir( GetScriptsLogDir() );
 
-    deleteAndNullPtr( iter_ );
+    cleanLogs();
 
+    deleteAndNullPtr( iter_ );
     auto* curitm = scriptlistfld_->currentItem();
     if ( curitm )
 	iter_ = new uiTreeViewItemIterator( *curitm );
@@ -945,7 +988,7 @@ void uiScriptRunnerDlg::selChgCB( CallBacker* )
 }
 
 
-void uiScriptRunnerDlg::editCB( CallBacker* )
+void uiScriptRunnerDlg::editScriptCB( CallBacker* )
 {
     uiTreeViewItem* item = scriptlistfld_->selectedItem();
     auto* scriptitem = sCast(ScriptItem*,item);
@@ -956,15 +999,41 @@ void uiScriptRunnerDlg::editCB( CallBacker* )
 }
 
 
-void uiScriptRunnerDlg::logCB( CallBacker* )
+void uiScriptRunnerDlg::showLogCB( CallBacker* )
 {
-
     uiTreeViewItem* item = scriptlistfld_->selectedItem();
     auto* scriptitem = sCast(ScriptItem*,item);
     if ( !scriptitem )
 	return;
 
     File::launchViewer( scriptitem->logfnm_ );
+}
+
+
+void uiScriptRunnerDlg::cleanCB( CallBacker* )
+{
+    cleanLogs();
+}
+
+
+void uiScriptRunnerDlg::cleanLogs()
+{
+    auto* curitm = scriptlistfld_->currentItem();
+    uiTreeViewItemIterator* iter = nullptr;
+    if ( curitm )
+	iter = new uiTreeViewItemIterator( *curitm );
+    else
+	iter = new uiTreeViewItemIterator( *scriptlistfld_ );
+
+    while( true )
+    {
+	auto* item = iter->next();
+	if ( !item )
+	    break;
+
+	auto* scriptitem = sCast(ScriptItem*,item);
+	scriptitem->cleanLogFiles();
+    }
 }
 
 
