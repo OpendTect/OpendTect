@@ -562,6 +562,7 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
     colitm.borderitm_ = pli;
 
     uiTextItem* ti = scene_.addItem( new uiTextItem(toUiString(colitm.name_)) );
+    ti->setItemIgnoresTransformations( true );
     ti->setTextColor( OD::Color::Black() );
     ti->setPos( float((x1+x2)/2), float(y1-5) );
     const Alignment al( Alignment::HCenter, Alignment::Bottom );
@@ -601,6 +602,7 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 						  : OD::LineStyle::Solid;
 	li->setPenStyle( OD::LineStyle(lst,2,lvl.color_) );
 	uiTextItem* ti = scene_.addItem( new uiTextItem(toUiString(lvl.name_)));
+	ti->setItemIgnoresTransformations( true );
 	ti->setPos( mCast(float,x1+(x2-x1)/2), mCast(float,y) );
 	ti->setZValue( 4 );
 	ti->setTextColor( lvl.color_ );
@@ -623,6 +625,7 @@ void uiStratDrawer::drawEmptyText()
     const int y2 = yax_->getPix( yax_->range().start );
 
     auto* ti = new uiTextItem( tr("Right-click to add unit") );
+    ti->setItemIgnoresTransformations( true );
     scene_.addItem( ti );
     ti->setTextColor( OD::Color::Red() );
     ti->setPos( float(x+10), float(y2 - abs((y2-y1)/2)-10) );
@@ -678,6 +681,7 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 	}
 
 	uiTextItem* ti = scene_.addItem( new uiTextItem( toUiString(unm )) );
+	ti->setItemIgnoresTransformations( true );
 	ti->setTextColor( OD::Color::Black() );
 	ti->setPos( mCast(float,(x1+x2)/2), mCast(float,y2-abs((y2-y1)/2)-10) );
 	ti->setAlignment( Alignment::HCenter );
