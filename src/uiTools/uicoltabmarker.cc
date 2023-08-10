@@ -18,16 +18,12 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uiworld2ui.h"
 
-#include "bufstring.h"
-#include "bufstringset.h"
 #include "color.h"
 #include "coltabsequence.h"
 #include "draw.h"
 #include "mouseevent.h"
 #include "rowcol.h"
 #include "od_helpids.h"
-
-#include <math.h>
 
 
 static const int sPosCol = 0;
@@ -36,7 +32,7 @@ static const int sColorCol = 1;
 #define mEps 0.00001
 
 uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
-    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( uiStrings::sMarker() ),
+    : uiDialog(p,uiDialog::Setup(uiStrings::phrManage(tr("Color Anchors")),
 				tr("Add, Remove, Change Anchors"),
 				 mODHelpKey(mColTabMarkerDlgHelpID) ))
     , markersChanged(this)
@@ -197,10 +193,10 @@ bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 // ***** uiColTabMarkerCanvas ****
 uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
     : uiGraphicsView(p,"Marker Canvas")
-    , parent_(p)
-    , ctab_(ctab)
     , markerChanged(this)
+    , parent_(p)
     , markerlineitmgrp_(0)
+    , ctab_(ctab)
     , meh_(scene().getMouseEventHandler())
 {
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
@@ -268,7 +264,7 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
     {
 	const float val = ctab_.position( idx );
 	const float ref = (float) ( wpt.x );
-	const float diffinpix = fabs(val-ref) / fabs(fac);
+	const float diffinpix = Math::Abs(val-ref) / Math::Abs(fac);
 	if ( diffinpix < mindiff )
 	{
 	    selidx_ = idx;
@@ -287,7 +283,7 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
 	mnu.insertAction( new uiAction(m3Dots(tr("Change color"))), 1 );
     }
 
-    mnu.insertAction( new uiAction(m3Dots(tr("Edit Anchors"))), 2 );
+    mnu.insertAction( new uiAction(m3Dots(tr("Edit color anchors"))), 2 );
 
     const int res = mnu.exec();
     if ( res==0 )
