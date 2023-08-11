@@ -26,6 +26,7 @@ class SeisTrcReader;
 class SeisTrcWriter;
 class SeisResampler;
 namespace Seis { class SelData; }
+namespace Survey { class Geometry2D; }
 
 
 mExpClass(Seis) SeisIOSimple : public Executor
@@ -120,6 +121,8 @@ protected:
     BinID		prevbid_;
     uiString		errmsg_;
     const bool		zistm_;
+
+    const Survey::Geometry2D*	geom2d_ = nullptr;
 
     void		startImpRead();
     int			readImpTrc(SeisTrc&);

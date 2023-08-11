@@ -9,31 +9,31 @@ ________________________________________________________________________
 
 #include "seisiosimple.h"
 
+#include "ascbinstream.h"
 #include "envvars.h"
 #include "genc.h"
-#include "seisread.h"
-#include "seiswrite.h"
-#include "seisimporter.h"
-#include "seistrc.h"
-#include "seisselection.h"
-#include "seisresampler.h"
-#include "trckeyzsampling.h"
-#include "survinfo.h"
-#include "survgeom.h"
-#include "oddirs.h"
-#include "od_iostream.h"
-#include "ascbinstream.h"
-#include "ptrman.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "scaler.h"
 #include "keystrs.h"
 #include "linekey.h"
-#include "posimpexppars.h"
-#include "zdomain.h"
 #include "msgh.h"
+#include "od_iostream.h"
+#include "oddirs.h"
+#include "posimpexppars.h"
+#include "ptrman.h"
+#include "scaler.h"
+#include "seisimporter.h"
+#include "seisread.h"
+#include "seisresampler.h"
+#include "seisselection.h"
+#include "seistrc.h"
+#include "seiswrite.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
 #include "uistrings.h"
+#include "zdomain.h"
 
 #include <math.h>
 
@@ -151,6 +151,15 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     , prevnr_(mUdf(int))
     , zistm_(SI().zIsTime())
 {
+    const bool is2d = Seis::is2D( data_.geom_ );
+    if ( is2d )
+    {
+	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+			Survey::GM().getGeometry(data_.geomid_));
+	if ( geom2d && !geom2d->isEmpty() )
+	    geom2d_ = geom2d;
+    }
+
     PtrMan<IOObj> ioobj = IOM().get( data_.seiskey_ );
     if ( !ioobj )
 	return;
@@ -222,10 +231,14 @@ bool fetch( SeisTrc& trc ) override
 {
     int rv = sios_.readImpTrc( trc );
     if ( rv > 0 )
-	{ sios_.nrdone_++; return true; }
+    {
+	sios_.nrdone_++;
+	return true;
+    }
 
     if ( rv < 0 )
 	errmsg_ = sios_.uiMessage();
+
     return false;
 }
 
@@ -270,7 +283,8 @@ od_int64 SeisIOSimple::nrDone() const
 
 od_int64 SeisIOSimple::totalNr() const
 {
-    return importer_ ? importer_->totalNr() : -1;
+    return importer_ ? importer_->totalNr() :
+			(rdr_ ? rdr_->expectedNrTraces() : 0);
 }
 
 
@@ -324,9 +338,12 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     else
 	nr = data_.nrdef_.start + nrdone_ * data_.nrdef_.step;
 
+    if ( is2d )
+	tk.setTrcNr( nr );
+
     if ( data_.havepos_ )
     {
-	if ( data_.isxy_ )
+	if ( data_.isxy_ || is2d )
 	{
 	    binstrm.get( coord.x ).get( coord.y );
 	    ConstRefMan<Coords::CoordSystem> sicrs = SI().getCoordSystem();
@@ -334,30 +351,14 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    if ( sicrs && datacrs && !(*sicrs == *datacrs) )
 		coord = sicrs->convertFrom( coord, *datacrs );
 
-	    if ( is2d )
-	    {
-		if ( data_.havenr_ )
-		    tk.setTrcNr( nr );
-		else
-		{
-		    const Survey::Geometry* geom =
-				Survey::GM().getGeometry( data_.geomid_ );
-		    if ( geom && geom->as2D() )
-			tk = geom->nearestTrace( coord );
-		    else
-			tk = Survey::GM().nearestTrace( coord, true );
-		}
-	    }
-	    else
+	    if ( !is2d )
 		tk.setPosition( SI().transform(coord) );
 	}
 	else
 	{
 	    int linenr, trcnr;
 	    binstrm.get( linenr ).get( trcnr );
-	    if ( is2d )
-		tk.setTrcNr( trcnr ); //Should not be hit, always with X/Y
-	    else
+	    if ( !is2d )
 		tk.setPosition( BinID(linenr,trcnr) );
 	}
     }
@@ -368,12 +369,6 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	{
 	    coord.x = data_.startpos_.x + nrposdone * data_.steppos_.x;
 	    coord.y = data_.startpos_.y + nrposdone * data_.steppos_.y;
-	    const Survey::Geometry* geom =
-				Survey::GM().getGeometry( data_.geomid_ );
-	    if ( geom && geom->as2D() )
-		tk = geom->nearestTrace( coord );
-	    else
-		tk = Survey::GM().nearestTrace( coord, true );
 	}
 	else
 	{
@@ -410,6 +405,10 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	int trcnr = csttk.trcNr();
 	mPIEPAdj(TrcNr,trcnr,true);
 	tk.setTrcNr( trcnr );
+
+	// if line exists, use coord from existing geometry
+	if ( geom2d_ )
+	    coord = geom2d_->toCoord( nr );
     }
     else
     {
@@ -419,8 +418,10 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     }
 
     trc.info().setTrcKey( csttk );
-    trc.info().calcCoord();
-    if ( trc.info().coord.isUdf() && !coord.isUdf() )
+    if ( !is2d )
+	trc.info().calcCoord();
+
+    if ( is2d || (trc.info().coord.isUdf() && !coord.isUdf()) )
 	trc.info().coord = coord;
 
     mPIEPAdj(Coord,trc.info().coord,true);
