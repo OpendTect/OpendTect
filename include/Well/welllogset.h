@@ -84,6 +84,7 @@ public:
 			//-> Use access functions above instead.
 
     void		getAllAvailMnems(MnemonicSelection&) const;
+    TypeSet<int>	getLogsWithNoMnemonics() const;
     TypeSet<int>	getSuitable(const Mnemonic&) const;
     TypeSet<int>	getSuitable(Mnemonic::StdType,
 				    const PropertyRef* altpr=nullptr,
