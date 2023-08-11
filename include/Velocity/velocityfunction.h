@@ -37,7 +37,6 @@ class FunctionSource;
 mExpClass(Velocity) Function : public ReferencedObject
 {
 public:
-				Function(FunctionSource&);
     const FunctionSource&	getSource() const	{ return source_; }
 
     virtual const VelocityDesc&	getDesc() const;
@@ -53,6 +52,7 @@ public:
     const StepInterval<float>&	getDesiredZ() const;
 
 protected:
+				Function(FunctionSource&);
     virtual			~Function();
 
     virtual bool		computeVelocity(float z0, float dz, int nr,
