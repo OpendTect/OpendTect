@@ -188,6 +188,17 @@ void Well::LogSet::getAllAvailMnems( MnemonicSelection& mns ) const
 }
 
 
+TypeSet<int> Well::LogSet::getLogsWithNoMnemonics() const
+{
+    TypeSet<int> ret;
+    for ( const auto* log : logs_ )
+	if ( !log->mnemonic(false) )
+	    ret += logs_.indexOf(log);
+
+    return ret;
+}
+
+
 TypeSet<int> Well::LogSet::getSuitable( const Mnemonic& mn ) const
 {
     TypeSet<int> ret;
