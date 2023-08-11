@@ -181,7 +181,7 @@ int VelGriddingTask::nextStep()
     if ( !nrdone_ )
     {
 	VelGriddingFromFuncTask task( *this );
-	if ( !task.execute() )
+	if ( !task.executeParallel(false) )
 	    return ErrorOccurred();
 
 	definedbids_.append( task.completedBids() );
