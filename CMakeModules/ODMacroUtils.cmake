@@ -44,6 +44,13 @@
 #					  Will not be installed with the project.
 # OD_MODULE_EXTERNAL_RUNTIME_LIBS	: External libraries needed for the module
 #					  at runtime (the module will not depend on them)
+# OD_FIREWALL_EXCEPTION_EXEC		: List of the process which needs to be added to Firewall
+#					  exception list.
+# OD_FIREWALL_EXECEP_DESC		: Description for each process that is added to FIrewall
+#					  exception list. This description will be displayed to
+#					  user.
+# OD_FIREWALL_TYPE			: This is the context for Firewall rules. For process
+#					  belonging to open/closed source, it is set to OD
 #####################################
 #
 # Output variables:
@@ -571,6 +578,9 @@ if( OD_MODULE_TESTPROGS OR OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED
 	OD_GENERATE_SYMBOLS( ${TARGET_NAME} )
 
     endforeach()
+    if ( WIN32 AND NOT "${OD_FIREWALL_EXCEPTION_EXEC}" STREQUAL "" AND NOT "${OD_FIREWALL_EXECEP_DESC}" STREQUAL "" )
+	OD_INSTALL_FIREWALL_RULES()
+    endif()
 
 endif()
 
@@ -886,3 +896,26 @@ macro( OD_INSTALL_SIP )
     install( FILES "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/SurveyProviders/${OD_MODULE_NAME}.txt"
 	     DESTINATION "${OD_DATA_INSTALL_RELPATH}/SurveyProviders" )
 endmacro(OD_INSTALL_SIP)
+
+macro( OD_INSTALL_FIREWALL_RULES  )
+    if ( NOT IS_DIRECTORY "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/Firewall" )
+	file( MAKE_DIRECTORY "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/Firewall" )
+    endif()
+    foreach( FW_CC_EXEC_NM FW_EXEC_DEF IN ZIP_LISTS OD_FIREWALL_EXCEPTION_EXEC OD_FIREWALL_EXECEP_DESC )
+	if( "${FW_CC_EXEC_NM}" STREQUAL "" )
+		MESSAGE( WARNING "${FW_CC_EXEC_NM} IS EMPTY" )
+	    break()
+	elseif( "${FW_EXEC_DEF}" STREQUAL "" )
+	    message( FATAL_ERROR "Definition for ${FW_CC_EXEC_NM} not found" )
+	    break()
+	endif()
+	string( REPLACE ".cc" "" FW_EXEC_NM ${FW_CC_EXEC_NM} )
+	set( filestr "" )
+	string( APPEND filestr "Name: ${FW_EXEC_NM}\n" )
+	string( APPEND filestr "Def: \"${FW_EXEC_DEF}\"\n" )
+	string( APPEND filestr "Type: ${OD_FIREWALL_TYPE}\n" )
+	file( WRITE "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/Firewall/${FW_EXEC_NM}.txt" "${filestr}" )
+	install( FILES "${OD_BINARY_BASEDIR}/${OD_DATA_INSTALL_RELPATH}/Firewall/${FW_EXEC_NM}.txt"
+		DESTINATION "${OD_DATA_INSTALL_RELPATH}/Firewall" )
+    endforeach()
+endmacro( OD_INSTALL_FIREWALL_RULES )

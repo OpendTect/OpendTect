@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-
 //Parameter dialog box
 typedef ProcDesc::DataEntry PDE;
 mClass(uiODMain) FirewallParameterDlg : public uiDialog
@@ -173,13 +172,14 @@ int mProgMainFnName( int argc, char** argv )
 
     PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiODMain" );
+    gatherFireWallProcInf();
     PtrMan<uiFirewallProcSetter> topdlg = nullptr;
     if ( errocc )
     {
 	topdlg = new uiFirewallProcSetter( nullptr );
 	app.setTopLevel( topdlg );
 	PIM().loadAuto( true );
-
+	const bool pythonpathdef = !pythonpath.isEmpty();
 	PtrMan<FirewallParameterDlg> dlg = new FirewallParameterDlg( topdlg,
 						    path, pythonpath, type );
 	dlg->setActivateOnFirstShow();
@@ -194,6 +194,9 @@ int mProgMainFnName( int argc, char** argv )
 	const ProcDesc::DataEntry::ActionType opertype =
 			ProcDesc::DataEntry::getActionTypeForCMDKey( type );
 	const bool isrem = PDE::Remove == opertype;
+	if ( !pythonpathdef )
+	    OD::PythonAccess::reReadFWRules( pythonpath );
+
 	if ( !ePDD().hasWorkToDo(pythonpath,!isrem) )
 	{
 	    const uiString msg = toUiString("No executables for "

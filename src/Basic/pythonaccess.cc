@@ -46,6 +46,11 @@ namespace OD
 
 BufferStringSet OD::PythonAccess::pystartpath_{0}; //From user environment
 
+uiString OD::PythonAccess::firewallDesc()
+{
+    return od_static_tr( "firewallDesc","Machine Learning Environment : <%1>" );
+}
+
 OD::PythonAccess& OD::PythA()
 {
     mDefineStaticLocalObject( PtrMan<PythonAccess>, theinst,
@@ -244,9 +249,8 @@ void OD::PythonAccess::initClass()
 	if ( !File::exists(fp->fullPath()) )
 	    continue;
 
-	ePDD().add( *envnms[idx],
-	 ::toUiString("Machine Learning Environment : <%1>").arg(*envnms[idx]),
-	    ProcDesc::DataEntry::Python );
+	ePDD().add( *envnms[idx], firewallDesc().arg(*envnms[idx]),
+						ProcDesc::DataEntry::Python );
     }
 
 #endif
@@ -2051,6 +2055,25 @@ uiRetVal pythonRemoveDir( const char* path, bool waitforfin )
 	ret.add( uiStrings::phrCannotRemove(uiStrings::sFolder()) );
 
     return ret;
+}
+
+
+void OD::PythonAccess::reReadFWRules( const BufferString& pypath )
+{
+    ObjectSet<FilePath> fps;
+    BufferStringSet envnms;
+    FilePath fp( pypath );
+    OD::PythonAccess::getSortedVirtualEnvironmentLoc( fps, envnms, nullptr,
+									&fp );
+    for ( const BufferString* envnm : envnms )
+    {
+	if ( envnm->isEmpty() )
+	    continue;
+
+	ePDD().add( envnm->buf(),
+		    OD::PythonAccess::firewallDesc().arg(envnm->buf()),
+						ProcDesc::DataEntry::Python );
+    }
 }
 
 } // namespace OD
