@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "oddirs.h"
 #include "plugins.h"
+#include "procdescdata.h"
 
 mDefModInitFn(uiTools)
 {
@@ -48,4 +49,6 @@ mDefModInitFn(uiTools)
     const FilePath libfp( GetLibPlfDir(), libnm );
     if ( libfp.exists() )
 	PIM().load( libfp.fullPath() );
+
+    gatherFireWallProcInf();
 }

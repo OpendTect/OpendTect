@@ -63,9 +63,13 @@ set( OD_MODULE_SOURCES
 	uiwaveletmatchdlg.cc
 )
 
+set( OD_FIREWALL_EXCEPTION_EXEC od_SeisMMBatch.cc )
+set( OD_FIREWALL_EXECEP_DESC "Distributed Computing Client" )
+set( OD_FIREWALL_TYPE OD )
+
 set( OD_MODULE_PROGS
+	${OD_FIREWALL_EXCEPTION_EXEC}
 	od_ClusterProc.cc
-	od_SeisMMBatch.cc
 )
 
 OD_INIT_MODULE()

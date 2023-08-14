@@ -30,8 +30,4 @@ mDefModInitFn(uiSeis)
     uiCBVSPS3DOpts::initClass();
 
     uiSeisPosProvGroup::initClass();
-#ifdef __win__
-    ePDD().add( "od_SeisMMBatch",
-	Batch::SeisMMProgDef::sSeisMMProcDesc(), ProcDesc::DataEntry::ODv6 );
-#endif // __win__
 }

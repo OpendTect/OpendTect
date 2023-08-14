@@ -68,7 +68,11 @@ set( OD_MODULE_SOURCES
 	uiserviceclientmgr.cc
 )
 
-set( OD_MODULE_GUI_PROGS od_main.cc  )
+set( OD_FIREWALL_EXCEPTION_EXEC od_main.cc )
+set( OD_FIREWALL_EXECEP_DESC "OpendTect Main Window" )
+set( OD_FIREWALL_TYPE OD )
+
+set( OD_MODULE_GUI_PROGS ${OD_FIREWALL_EXCEPTION_EXEC} )
 if ( WIN32 )
     set( RC_od_main_DESC "OpendTect" )
 
