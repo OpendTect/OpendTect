@@ -1571,9 +1571,7 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
     }
 
     for ( int idx=0; idx<eps.size(); idx++ )
-    {
 	res += new AttribParamGroup( uip, *desceds[idx], eps[idx] );
-    }
 
     deepErase( desceds2erase );
     // Assumes AttribParamGroup doesn't need it anymore
