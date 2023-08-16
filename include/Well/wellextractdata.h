@@ -100,7 +100,7 @@ protected:
     float		below_;
     bool		snapzrgtosurvey_;
 
-    void		setMarker(bool top,BufferString nm,float offset);
+    void		setMarker(bool top,const char* nm,float offset);
     void		getMarkerRange(const Data&,
 				       Interval<float>&) const;
     void		getLimitPos(const MarkerSet&,bool,float&,

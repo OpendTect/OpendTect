@@ -15,18 +15,15 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "envvars.h"
-#include "filepath.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "multiid.h"
-#include "oddirs.h"
 #include "posvecdataset.h"
 #include "ptrman.h"
 #include "sorting.h"
-#include "strmprov.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
 #include "welld2tmodel.h"
@@ -71,11 +68,11 @@ static const char* sKeyDAHColName()	{ return "<MD>"; }
 
 Well::InfoCollector::InfoCollector( bool dologs, bool domarkers, bool dotracks )
     : Executor("Well information extraction")
+    , survloc_(*new SurveyDiskLocation)
+    , curidx_(0)
     , domrkrs_(domarkers)
     , dologs_(dologs)
     , dotracks_(dotracks)
-    , curidx_(0)
-    , survloc_(*new SurveyDiskLocation)
 {
     iodir_ = nullptr;
     direntries_ = nullptr;
@@ -286,16 +283,23 @@ void Well::ZRangeSelector::fillPar( IOPar& pars ) const
 
 void Well::ZRangeSelector::setFixedRange( Interval<float> zrg, bool isintime )
 {
-    fixedzrg_ = zrg; zselection_ = isintime ? Times : Depths;
+    fixedzrg_ = zrg;
+    zselection_ = isintime ? Times : Depths;
 }
 
 
-void Well::ZRangeSelector::setMarker( bool top, BufferString nm, float offset )
+void Well::ZRangeSelector::setMarker( bool top, const char* nm, float offset )
 {
     if ( top )
-	{ topmrkr_ = nm; above_ = offset; }
+    {
+	topmrkr_ = nm;
+	above_ = offset;
+    }
     else
-	{ botmrkr_ = nm; below_ = offset; }
+    {
+	botmrkr_ = nm;
+	below_ = offset;
+    }
 }
 
 
@@ -542,13 +546,13 @@ Well::TrackSampler::TrackSampler( const TypeSet<MultiID>& i,
 				  bool ztm )
 	: Executor("Well data extraction")
 	, locradius_(0)
+	, for2d_(false)
+	, minidps_(false)
+	, mkdahcol_(false)
 	, ids_(i)
 	, dpss_(d)
 	, curid_(0)
 	, zistime_(ztm)
-	, for2d_(false)
-	, minidps_(false)
-	, mkdahcol_(false)
 	, dahcolnr_(-1)
 {
 }
@@ -747,12 +751,12 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 Well::LogDataExtracter::LogDataExtracter( const TypeSet<MultiID>& i,
 					  ObjectSet<DataPointSet>& d,
 					  bool ztm )
-	: Executor("Well log data extraction")
-	, ids_(i)
-	, dpss_(d)
-	, samppol_(Stats::UseAvg)
-	, curid_(0)
-	, zistime_(ztm)
+    : Executor("Well log data extraction")
+    , samppol_(Stats::UseAvg)
+    , ids_(i)
+    , dpss_(d)
+    , curid_(0)
+    , zistime_(ztm)
 {
 }
 
@@ -1063,11 +1067,11 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Track& t,
 					    bool doextrapolate,
 					    bool stayinsidesurvey )
     : Executor("Extracting Well track positions")
+    , extrintv_(t.dahRange())
+    , isinsidesurvey_(stayinsidesurvey)
+    , extrapolate_(doextrapolate)
     , track_(t)
     , d2t_(d2t)
-    , isinsidesurvey_(stayinsidesurvey)
-    , extrintv_(t.dahRange())
-    , extrapolate_(doextrapolate)
     , nrdone_(0)
 {
     if ( track_.isEmpty() )
@@ -1197,7 +1201,7 @@ void Well::LogSampler::init( const D2TModel* d2t,
 			Stats::UpscaleType samppol )
 {
     d2t_ = d2t;
-    data_ = 0;
+    data_ = nullptr;
     samppol_ = samppol;
     zrg_ = zrg;
     zrgisintime_ = zrgisintime;
@@ -1318,7 +1322,8 @@ bool Well::LogSampler::doWork( od_int64 start, od_int64 stop, int nrthreads )
 bool Well::LogSampler::doLog( int logidx )
 {
     const Log* log = logset_.validIdx( logidx ) ? logset_[logidx] : nullptr;
-    if ( !log || log->isEmpty() ) return false;
+    if ( !log || log->isEmpty() || !data_ )
+	return false;
 
     const int winszidx = data_->info().getSize(0)-1;
     const bool nearestinterp = samppol_ == Stats::TakeNearest;
@@ -1338,21 +1343,27 @@ bool Well::LogSampler::doLog( int logidx )
 
 float Well::LogSampler::getDah( int idz ) const
 {
-    return data_ && ( idz < data_->info().getSize(1) ) ?
-				  data_->get( 0, idz ) : mUdf( float );
+    return data_ && data_->info().validDimPos(1,idz)
+			? data_->get( 0, idz ) : mUdf(float);
 }
 
 
 float Well::LogSampler::getThickness( int idz ) const
 {
+    if ( !data_ )
+	return mUdf(float);
+
     const int winszidx = data_->info().getSize(0) - 1;
-    return data_ && ( idz < data_->info().getSize(1) ) ?
-				data_->get( winszidx, idz ) : mUdf( float );
+    return data_->info().validDimPos(1,idz)
+			? data_->get( winszidx ,idz ) : mUdf(float);
 }
 
 
 float Well::LogSampler::getLogVal( int logidx, int idz ) const
 {
+    if ( !data_ )
+	return mUdf(float);
+
     const int xsz = data_->info().getSize(0);
     const int zsz = data_->info().getSize(1);
 
