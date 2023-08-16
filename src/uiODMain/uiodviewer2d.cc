@@ -48,7 +48,6 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "posvecdataset.h"
 #include "randomlinegeom.h"
-#include "seisdatapack.h"
 #include "seisdatapackzaxistransformer.h"
 #include "seisioobjinfo.h"
 #include "settings.h"

@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 
-#include "datapack.h"
 #include "emposid.h"
 #include "flatview.h"
 #include "integerid.h"
+#include "seisdatapack.h"
 #include "trckeyzsampling.h"
 
 #include "uigeom.h"
@@ -33,7 +33,6 @@ class uiTreeFactorySet;
 
 class MouseCursorExchange;
 class RegularFlatDataPack;
-class SeisFlatDataPack;
 class TaskRunner;
 class DataManager;
 class ZAxisTransform;
