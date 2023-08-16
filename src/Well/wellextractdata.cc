@@ -1197,7 +1197,7 @@ void Well::LogSampler::init( const D2TModel* d2t,
 			Stats::UpscaleType samppol )
 {
     d2t_ = d2t;
-    data_ = 0;
+    data_ = nullptr;
     samppol_ = samppol;
     zrg_ = zrg;
     zrgisintime_ = zrgisintime;
@@ -1318,7 +1318,8 @@ bool Well::LogSampler::doWork( od_int64 start, od_int64 stop, int nrthreads )
 bool Well::LogSampler::doLog( int logidx )
 {
     const Log* log = logset_.validIdx( logidx ) ? logset_[logidx] : nullptr;
-    if ( !log || log->isEmpty() ) return false;
+    if ( !log || log->isEmpty() || !data_ )
+	return false;
 
     const int winszidx = data_->info().getSize(0)-1;
     const bool nearestinterp = samppol_ == Stats::TakeNearest;
@@ -1338,21 +1339,27 @@ bool Well::LogSampler::doLog( int logidx )
 
 float Well::LogSampler::getDah( int idz ) const
 {
-    return data_ && ( idz < data_->info().getSize(1) ) ?
-				  data_->get( 0, idz ) : mUdf( float );
+    return data_ && data_->info().validDimPos(1,idz)
+			? data_->get( 0, idz ) : mUdf(float);
 }
 
 
 float Well::LogSampler::getThickness( int idz ) const
 {
+    if ( !data_ )
+	return mUdf(float);
+
     const int winszidx = data_->info().getSize(0) - 1;
-    return data_ && ( idz < data_->info().getSize(1) ) ?
-				data_->get( winszidx, idz ) : mUdf( float );
+    return data_->info().validDimPos(1,idz)
+			? data_->get( winszidx ,idz ) : mUdf(float);
 }
 
 
 float Well::LogSampler::getLogVal( int logidx, int idz ) const
 {
+    if ( !data_ )
+	return mUdf(float);
+
     const int xsz = data_->info().getSize(0);
     const int zsz = data_->info().getSize(1);
 
