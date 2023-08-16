@@ -353,6 +353,9 @@ void uiGMTMainWin::editCB( CallBacker* )
 	return;
 
     GMTPar* par = GMTPF().create( iop, nullptr );
+    if ( !par )
+	return;
+
     flowfld_->setItemText( selidx, par->userRef() );
     delete pars_.replace( selidx, par );
     needsave_ = true;
