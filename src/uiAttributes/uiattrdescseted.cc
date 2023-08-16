@@ -1537,47 +1537,51 @@ bool uiAttribDescSetEd::getUiAttribParamGrps( uiParent* uip,
     if ( !curDesc() )
 	return false;
 
+    const bool is2d = inoutadsman_ ? inoutadsman_->is2D() : false;
+
     TypeSet<Attrib::DescID> adids;
     curDesc()->getDependencies( adids );
     adids.insert( 0, curDesc()->id() );
 
-    TypeSet<int> ids;
+    ObjectSet<uiAttrDescEd> desceds2erase;
+    ObjectSet<uiAttrDescEd> desceds;
     TypeSet<EvalParam> eps;
 
     for ( int idx=0; idx<adids.size(); idx++ )
     {
-	const Attrib::Desc* ad = attrset_->getDesc( adids[idx] );
-	const BufferString& attrnm = ad->attribName();
+	Attrib::Desc* ad = attrset_->getDesc( adids[idx] );
+	if ( !ad )
+	    continue;
+
 	const char* usernm = ad->userRef();
-	for ( int idy=0; idy<desceds_.size(); idy++ )
+	const BufferString attrnm = ad->attribName();
+	uiAttrDescEd* de = uiAF().create( nullptr, attrnm.buf(), is2d, false );
+	if ( !de )
+	    continue;
+
+	desceds2erase += de;
+	de->setDesc( ad, nullptr );
+	TypeSet<EvalParam> tmp;
+	de->getEvalParams( tmp );
+	for ( int idz=0; idz<tmp.size(); idz++ )
 	{
-	    if ( !desceds_[idy] || attrnm != desceds_[idy]->attribName() )
-		continue;
-
-	    TypeSet<EvalParam> tmp;
-	    desceds_[idy]->getEvalParams( tmp );
-	    for ( int idz=0; idz<tmp.size(); idz++ )
+	    const int pidx = eps.indexOf(tmp[idz]);
+	    if ( pidx>=0 )
+		usernms[pidx].add( usernm );
+	    else
 	    {
-		const int pidx = eps.indexOf(tmp[idz]);
-		if ( pidx>=0 )
-		    usernms[pidx].add( usernm );
-		else
-		{
-		    eps += tmp[idz];
-		    paramnms.add( tmp[idz].label_ );
-
-		    BufferStringSet unms;
-		    unms.add( usernm );
-		    usernms += unms;
-		    ids += idy;
-		}
+		eps += tmp[idz];
+		paramnms.add( tmp[idz].label_ );
+		usernms += BufferStringSet(usernm);
+		desceds += de;
 	    }
-	    break;
 	}
     }
 
     for ( int idx=0; idx<eps.size(); idx++ )
-	res += new AttribParamGroup( uip, *desceds_[ids[idx]], eps[idx] );
+	res += new AttribParamGroup( uip, *desceds[idx], eps[idx] );
 
+    deepErase( desceds2erase );
+    // Assumes AttribParamGroup doesn't need it anymore
     return eps.size();
 }
