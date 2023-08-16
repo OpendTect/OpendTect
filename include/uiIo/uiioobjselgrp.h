@@ -48,20 +48,20 @@ mExpClass(uiIo) EntryData
 {
 public:
 			EntryData(const MultiID&);
-			EntryData(const MultiID&,const BufferString& objnm,
-				    const BufferString& dispnm,
-				    const BufferString& icnnm,bool isdef);
+			EntryData(const MultiID&,const char* objnm,
+				    const char* dispnm,
+				    const char* icnnm,bool isdef);
 			~EntryData();
 
-    void		setIconName(const BufferString&);
-    void		setDisplayName(const BufferString&);
-    void		setObjName(const BufferString&);
-    void		setIsDef(bool isdef) { isdef_ = isdef; }
+    void		setIconName(const char*);
+    void		setDisplayName(const char*);
+    void		setObjName(const char*);
+    void		setIsDef(bool isdef)	{ isdef_ = isdef; }
 
-    MultiID		getMID() const		{ return mid_; }
-    BufferString	getDispNm() const	{ return dispnm_; }
-    BufferString	getObjNm() const	{ return objnm_; }
-    BufferString	getIcnNm() const	{ return icnnm_; }
+    const MultiID&	getMID() const		{ return mid_; }
+    const char*		getDispNm() const	{ return dispnm_.buf(); }
+    const char*		getObjNm() const	{ return objnm_.buf(); }
+    const char*		getIcnNm() const	{ return icnnm_.buf(); }
     bool		isDef() const		{ return isdef_; }
 
 protected:

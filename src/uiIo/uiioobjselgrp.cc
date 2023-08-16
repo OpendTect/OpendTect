@@ -52,8 +52,8 @@ EntryData::EntryData( const MultiID& mid )
 }
 
 
-EntryData::EntryData( const MultiID& mid, const BufferString& objnm,
-	    const BufferString& dispnm, const BufferString& icnnm, bool isdef )
+EntryData::EntryData( const MultiID& mid, const char* objnm,
+	    const char* dispnm, const char* icnnm, bool isdef )
 {
     mid_ = mid;
     objnm_ = objnm;
@@ -67,19 +67,19 @@ EntryData::~EntryData()
 {}
 
 
-void EntryData::setIconName(const BufferString& iconnm )
+void EntryData::setIconName( const char* iconnm )
 {
     icnnm_ = iconnm;
 }
 
 
-void EntryData::setDisplayName( const BufferString& dispnm )
+void EntryData::setDisplayName( const char* dispnm )
 {
     dispnm_ = dispnm;
 }
 
 
-void EntryData::setObjName( const BufferString& objnm )
+void EntryData::setObjName( const char* objnm )
 {
     objnm_ = objnm;
 }
@@ -896,9 +896,9 @@ void uiIOObjSelGrp::updateEntry( const MultiID& mid, const BufferString& objnm,
 
     BufferStringSet chngs;
     chngs.add( ed->getObjNm() );
-    ed->setDisplayName( dispnm );
-    ed->setIconName( icnnm );
-    ed->setObjName( objnm );
+    ed->setDisplayName( dispnm.buf() );
+    ed->setIconName( icnnm.buf() );
+    ed->setObjName( objnm.buf() );
     dataset_.updateMID( mid, ed );
     setCurrent( 0 );
     chngs.add( objnm );
@@ -1027,7 +1027,7 @@ IOObj* uiIOObjSelGrp::getIOObj( int idx )
     if ( idx < 0 || idx >= dataset_.size() )
 	return nullptr;
 
-    const MultiID mid = dataset_.get( idx )->getMID();
+    const MultiID& mid = dataset_.get( idx )->getMID();
     return mid.isUdf() ? nullptr : IOM().get( mid );
 }
 
