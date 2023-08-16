@@ -56,7 +56,8 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 
     BufferStringSet paramnms;
     uads.getUiAttribParamGrps( pargrp, grps_, paramnms, userattnms_ );
-    if ( grps_.isEmpty() ) return;
+    if ( grps_.isEmpty() )
+	return;
 
     haspars_ = true;
 
@@ -65,12 +66,15 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     paramsfld_ = new uiListBox( grp );
     paramsfld_->attach( ensureBelow, paramlabel );
     paramsfld_->addItems( paramnms );
+    paramsfld_->setStretch( 0, 2 );
     paramsfld_->selectionChanged.notify(
 	    mCB(this,uiCrossAttrEvaluateDlg,parameterSel));
 
     uiLabel* attrlabel = new uiLabel( grp, uiStrings::sAttribute(mPlural) );
     attrnmsfld_ = new uiListBox( grp, "From attributes", OD::ChooseAtLeastOne );
+    attrnmsfld_->checkGroup()->display( false, true );
     attrnmsfld_->attach( rightOf, paramsfld_ );
+    attrnmsfld_->setHSzPol( uiObject::Wide );
     attrlabel->attach( alignedAbove, attrnmsfld_ );
     attrlabel->attach( rightTo, paramlabel );
 
@@ -108,13 +112,15 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 
 void uiCrossAttrEvaluateDlg::doFinalize( CallBacker* )
 {
-    parameterSel(0);
+    parameterSel( nullptr );
+    attrnmsfld_->resizeWidthToContents();
 }
 
 
 uiCrossAttrEvaluateDlg::~uiCrossAttrEvaluateDlg()
 {
     delete &attrset_;
+    delete &initpar_;
 }
 
 
