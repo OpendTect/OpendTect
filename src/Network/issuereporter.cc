@@ -89,7 +89,13 @@ bool System::IssueReporter::readReport( const char* filename )
 }
 
 
-void System::IssueReporter::fillBasicReport( const char* filename )
+void System::IssueReporter::fillBasicReport( const char* /* filename */ )
+{
+    return fillBasicReport();
+}
+
+
+void System::IssueReporter::fillBasicReport()
 {
     report_.setEmpty();
     StringPairSet infoset;
@@ -160,7 +166,7 @@ bool System::IssueReporter::use( const char* filename, bool isbinary )
     if ( !setDumpFileName(filename) )
 	return false;
 
-    fillBasicReport( filename );
+    fillBasicReport();
 
     return isbinary_ ? true : readReport( filename );
 }
@@ -198,6 +204,6 @@ bool System::IssueReporter::parseCommandLine()
     if ( !setDumpFileName(filename) )
 	return false;
 
-    fillBasicReport( filename );
+    fillBasicReport();
     return isbinary_ ? true : readReport( filename );
 }
