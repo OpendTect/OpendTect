@@ -252,7 +252,7 @@ void uiMathExpressionVariable::use( const Math::Expression* expr )
     const int nrvars = expr ? expr->nrUniqueVarNames() : 0;
     if ( varidx_ >= nrvars )
 	{ setActive( false ); updateDisp(); return; }
-    const BufferString varnm = expr->uniqueVarName( varidx_ );
+    const BufferString varnm = expr ? expr->uniqueVarName( varidx_ ) : nullptr;
 
     const int varidx = expr->indexOfUnVarName( expr->uniqueVarName(varidx_) );
     curmn_ = nullptr;
