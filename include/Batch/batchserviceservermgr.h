@@ -40,6 +40,7 @@ protected:
     uiRetVal		doHandleAction(const char* action) override;
     uiRetVal		doHandleRequest(const OD::JSON::Object&) override;
 
+    void		doPyEnvChange(CallBacker*) override final   {}
     void		doAppClosing(CallBacker*) override;
     void		closeApp() override;
 

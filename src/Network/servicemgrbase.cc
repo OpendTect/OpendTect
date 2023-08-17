@@ -503,8 +503,12 @@ uiRetVal ServiceMgrBase::pythEnvChangedReq( const OD::JSON::Object& reqobj )
 	}
 
 	const FilePath envrootfp = reqobj.getFilePath( sKey::FileName() );
-	const OD::PythonSource source =
+	OD::PythonSource source =
 			OD::PythonAccess::getPythonSource( &envrootfp );
+	if ( src == OD::Internal && source == OD::Custom &&
+	     prevenvrootfp == envrootfp )
+	    source = OD::Internal;
+
 	const BufferString virtenvnm( reqobj.getStringValue(sKey::Name() ) );
 	if ( source != src || prevenvrootfp != envrootfp ||
 	     prevvirtenvnm != virtenvnm )
