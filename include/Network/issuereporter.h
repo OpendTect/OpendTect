@@ -40,9 +40,11 @@ public:
 
     bool			use(const char* filename,bool isbinary=true);
     bool			parseCommandLine();
+    void			fillBasicReport();
 
 protected:
 
+    mDeprecated			("Call the one without arguments")
     void			fillBasicReport(const char* filename);
 
     BufferString		host_;
