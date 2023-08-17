@@ -896,7 +896,7 @@ void uiMathFormula::formMnSetCB( CallBacker* cb )
     if ( !mnselfld )
 	return;
 
-    if ( cb && cb == mnselfld )
+    if ( !cb || (cb && cb == mnselfld) )
 	form_.setOutputMnemonic( mnselfld->mnemonic() );
 
     uiUnitSel* unitselfd = getUnitSelFld();
