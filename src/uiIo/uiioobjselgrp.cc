@@ -139,9 +139,9 @@ EntryDataSet& EntryDataSet::add( const MultiID& mid, const BufferString& objnm,
 
     EntryData* data = new EntryData( mid, objnm, dispnm, icnnm, isdef );
     *this += data;
-    livemids_.add(mid);
-    if (isdef)
-	defaultidxs_.add(this->size() - 1);
+    livemids_.add( mid );
+    if ( isdef )
+	defaultidxs_.add( this->size() - 1 );
 
     return *this;
 }
@@ -157,43 +157,44 @@ void EntryDataSet::erase()
 
 EntryDataSet& EntryDataSet::removeMID( const MultiID & mid )
 {
-    if ( mid.isUdf() || !livemids_.isPresent(mid) )
+    if ( mid.isUdf() )
 	return *this;
 
     const int idx = livemids_.indexOf( mid );
+    if ( !livemids_.validIdx(idx) )
+	return *this;
+
     this->removeSingle( idx );
+    livemids_.removeSingle( idx );
     return *this;
 }
 
 
 EntryDataSet& EntryDataSet::updateMID( const MultiID& mid, EntryData* ed )
 {
-    if ( mid.isUdf() || !livemids_.isPresent(mid) )
+    if ( mid.isUdf() )
 	return *this;
 
-    const int idx = livemids_.indexOf(mid);
-    this->replace( idx, ed );
+    const int idx = livemids_.indexOf( mid );
+    if ( !livemids_.validIdx(idx) )
+	return *this;
+
+    if ( ed != getDataFor(mid) )
+	this->replace( idx, ed );
 
     return *this;
 }
 
 
-const TypeSet<MultiID>& EntryDataSet::getIOObjIds( bool reread ) const
+const TypeSet<MultiID>& EntryDataSet::getIOObjIds() const
 {
-    if ( reread || livemids_.size() != this->size() )
-    {
-	livemids_.setEmpty();
-	for ( const auto* ed : *this )
-	    livemids_.add( ed->getMID() );
-    }
-
     return livemids_;
 }
 
 
 const TypeSet<int>& EntryDataSet::getDefaultIdxs( bool reread ) const
 {
-    if ( reread || defaultidxs_.size() != this->size() )
+    if ( reread )
     {
 	defaultidxs_.setEmpty();
 	for ( int idx=0; idx<size(); idx++ )
@@ -597,7 +598,7 @@ MultiID uiIOObjSelGrp::chosenID( int objnr ) const
 	    objnr--;
 
 	if ( objnr < 0 )
-	    return mids[idx];
+	    return mids.validIdx(idx) ? mids[idx] : MultiID::udf();
     }
 
     BufferString msg( "Should not reach. objnr=" );
@@ -890,7 +891,7 @@ void uiIOObjSelGrp::removeEntry( const MultiID& mid )
 void uiIOObjSelGrp::updateEntry( const MultiID& mid, const BufferString& objnm,
 			const BufferString& dispnm, const BufferString& icnnm )
 {
-    PtrMan<EntryData> ed = dataset_.getDataFor( mid );
+    EntryData* ed = dataset_.getDataFor( mid );
     if ( !ed )
 	return;
 
@@ -899,7 +900,6 @@ void uiIOObjSelGrp::updateEntry( const MultiID& mid, const BufferString& objnm,
     ed->setDisplayName( dispnm.buf() );
     ed->setIconName( icnnm.buf() );
     ed->setObjName( objnm.buf() );
-    dataset_.updateMID( mid, ed );
     setCurrent( 0 );
     chngs.add( objnm );
     itemChanged.trigger( chngs );

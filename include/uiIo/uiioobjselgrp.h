@@ -87,7 +87,7 @@ public:
     EntryDataSet&		removeMID(const MultiID&);
     EntryDataSet&		updateMID(const MultiID&, EntryData*);
 
-    const TypeSet<MultiID>&	getIOObjIds(bool reread=false) const;
+    const TypeSet<MultiID>&	getIOObjIds() const;
     const TypeSet<int>&		getDefaultIdxs(bool reread=false) const;
     BufferStringSet		getIOObjNms() const;
     BufferStringSet		getDispNms() const;
@@ -100,7 +100,7 @@ public:
 
 protected:
 
-    mutable TypeSet<MultiID>	livemids_;
+    TypeSet<MultiID>		livemids_;
     mutable TypeSet<int>	defaultidxs_;
 };
 
