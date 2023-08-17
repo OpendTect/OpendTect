@@ -20,6 +20,7 @@ class DescSetsHolder;
 
 mGlobal(AttributeEngine) const DescSetsHolder& DSHolder();
 mGlobal(AttributeEngine) DescSetsHolder& eDSHolder();
+mGlobal(AttributeEngine) bool hasDSHolder();
 
 /*!
 \brief Pack to carry DescSet Managers for live attributes and DescSets for
@@ -58,6 +59,8 @@ private:
 				//editable DescSetsHolder
     friend mExp(AttributeEngine)
 	const DescSetsHolder&	DSHolder();
+    friend mExp(AttributeEngine)
+	bool			hasDSHolder();
 
 public:
 
