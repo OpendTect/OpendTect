@@ -406,7 +406,7 @@ static void displayOptional( uiObject& fld, bool yn )
 #endif
 }
 
-} // namespace Math
+} // namespace OD
 
 
 bool uiMathFormula::putToScreen()
@@ -937,8 +937,19 @@ void uiMathFormula::chooseUnitsCB( CallBacker* )
     if ( formreslbl )
 	OD::displayOptional( *formreslbl, showunitflds );
 
+    const bool hasfixedunits = hasFixedUnits();
+    int iinp = 0;
     for ( auto* fld : inpflds_ )
-	fld->setFormUnit( fld->getUnit(), showunitflds );
+    {
+	const bool dispinp = showunitflds && fld->isActive() && !fld->isConst()
+	    && !fld->isSpec();
+	const UnitOfMeasure* inpuom = fld->getUnit();
+	if ( !inpuom && hasfixedunits && iinp < form_.nrInputs() )
+	    inpuom = form_.inputFormUnit( iinp );
+
+	fld->setFormUnit( inpuom, dispinp );
+	iinp++;
+    }
 
     uiComboBox* typfld = addedflds.typfld_;
     if ( typfld )
