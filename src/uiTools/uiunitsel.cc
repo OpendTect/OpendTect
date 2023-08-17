@@ -15,7 +15,10 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "ioman.h"
 
+#include "hiddenparam.h"
+
 static const char* sDispNone = "-";
+static HiddenParam<uiUnitSel, uiLabel*> uiunitlblmgr_(nullptr);
 
 
 uiUnitSel::Setup::Setup( const uiString& txtlbl, const SurveyInfo* si )
@@ -31,6 +34,7 @@ uiUnitSel::uiUnitSel( uiParent* p, const uiUnitSel::Setup& su )
     , selChange(this)
     , propSelChange(this)
 {
+    uiunitlblmgr_.setParam( this, nullptr );
     init();
 }
 
@@ -41,6 +45,7 @@ uiUnitSel::uiUnitSel( uiParent* p, Mnemonic::StdType st )
     , selChange(this)
     , propSelChange(this)
 {
+    uiunitlblmgr_.setParam( this, nullptr );
     init();
 }
 
@@ -52,6 +57,7 @@ uiUnitSel::uiUnitSel( uiParent* p, const Mnemonic* mn )
     , selChange(this)
     , propSelChange(this)
 {
+    uiunitlblmgr_.setParam( this, nullptr );
     init();
 }
 
@@ -63,6 +69,7 @@ uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
     , selChange(this)
     , propSelChange(this)
 {
+    uiunitlblmgr_.setParam( this, nullptr );
     init();
 }
 
@@ -70,6 +77,7 @@ uiUnitSel::uiUnitSel( uiParent* p, const char* lbltxt )
 uiUnitSel::~uiUnitSel()
 {
     detachAllNotifiers();
+    uiunitlblmgr_.removeParam( this );
 }
 
 
@@ -137,6 +145,7 @@ void uiUnitSel::init()
     {
 	auto* lbl = new uiLabel( this, setup_.lbltxt_ );
 	lbl->attach( leftOf, leftcb );
+	uiunitlblmgr_.setParam( this, lbl );
 	setHAlignObj( leftcb );
     }
 
@@ -335,6 +344,8 @@ const char* uiUnitSel::getUnitName() const
 
 void uiUnitSel::displayGroup( bool yn )
 {
+    if ( uiunitlblmgr_.getParam(this) )
+	uiunitlblmgr_.getParam(this)->display( yn );
     inpfld_->display( yn );
     if ( propfld_ )
 	propfld_->display( yn );
