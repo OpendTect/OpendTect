@@ -135,8 +135,8 @@ void uiUnitSel::init()
 	setHAlignObj( inpfld_ );
     else
     {
-	auto* lbl = new uiLabel( this, setup_.lbltxt_ );
-	lbl->attach( leftOf, leftcb );
+	inplbl_ = new uiLabel( this, setup_.lbltxt_ );
+	inplbl_->attach( leftOf, leftcb );
 	setHAlignObj( leftcb );
     }
 
@@ -335,6 +335,8 @@ const char* uiUnitSel::getUnitName() const
 
 void uiUnitSel::displayGroup( bool yn )
 {
+    if ( inplbl_ )
+	inplbl_->display( yn );
     inpfld_->display( yn );
     if ( propfld_ )
 	propfld_->display( yn );

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "mnemonics.h"
 
 class uiComboBox;
+class uiLabel;
 class UnitOfMeasure;
 
 
@@ -108,6 +109,7 @@ protected:
     mutable const UnitOfMeasure* prevuom_ = nullptr;
     BufferString		tblkey_;
 
+    uiLabel*			inplbl_ = nullptr;
     uiComboBox*			inpfld_;
     uiComboBox*			propfld_ = nullptr;
     uiComboBox*			mnfld_ = nullptr;
