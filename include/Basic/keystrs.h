@@ -67,6 +67,7 @@ namespace sKey
     inline StringView Examples()	{ return "Examples"; }
     inline StringView Factor()		{ return "Factor"; }
     inline StringView Fault()		{ return "Fault"; }
+    inline StringView FaultLikelihood()	{ return "Fault Likelihood"; }
     inline StringView FaultStick()	{ return "FaultStick"; }
     inline StringView FileName()	{ return "File name"; }
     inline StringView Filter()		{ return "Filter"; }
@@ -222,6 +223,7 @@ namespace sKey
     inline StringView ValueRange()	{ return "Value Range"; }
     inline StringView Values()		{ return "Values"; }
     inline StringView Variance()	{ return "Variance"; }
+    inline StringView Velocity()	{ return "Velocity"; }
     inline StringView Version()		{ return "Version"; }
     inline StringView Volume()		{ return "Volume"; }
     inline StringView WaveletID()	{ return "Wavelet ID"; }
