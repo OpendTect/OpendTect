@@ -928,7 +928,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	    ioobjnm = dispnm;
 	else
 	{
-	    objid = del[idx]->ioobj_->key();
+	    objid = ioobj->key();
 	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
 	    if ( setup_.allowsetdefault_ )
 	    {
@@ -940,7 +940,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 		if ( trl )
 		{
 		    const BufferString keynm =
-				       trl->getSurveyDefaultKey(ctio_.ioobj_ );
+				trl->getSurveyDefaultKey( ioobj );
 		    isdef = SI().pars().isPresent(keynm) &&
 			    SI().pars().find(keynm) == objid.toString();
 		}
