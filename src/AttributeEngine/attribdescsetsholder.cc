@@ -15,7 +15,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-DescSetsHolder* DescSetsHolder::dsholder_ = 0;
+DescSetsHolder* DescSetsHolder::dsholder_ = nullptr;
 
 const DescSetsHolder& DSHolder()
 {
@@ -29,6 +29,12 @@ const DescSetsHolder& DSHolder()
 DescSetsHolder& eDSHolder()
 {
     return const_cast<DescSetsHolder&>( DSHolder() );
+}
+
+
+bool hasDSHolder()
+{
+    return DescSetsHolder::dsholder_;
 }
 
 
