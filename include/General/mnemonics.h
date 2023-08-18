@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "repos.h"
 
+namespace OD { class LineStyle; };
+class Settings;
 class UnitOfMeasure;
 
 
@@ -62,6 +64,25 @@ public:
     bool		isTemplate() const	{ return !origin_; }
     const Mnemonic*	getOrigin() const	{ return origin_; }
     const char*		description() const;
+
+    static BufferString		getUserMnemonicsFileName();
+    static IOPar		getUserMnemonics();
+    // Retrieves the users Mnemonic display overrides from the Mnemonics_%user%
+    // file in the current survey folder
+    static void			setUserMnemonics(const IOPar&);
+    const UnitOfMeasure*	getDisplayInfo(Scale&,
+					       Interval<float>&,
+					       BufferString&,
+					       OD::LineStyle&) const;
+   // Will return display settings from the Mnemonics_%user% file in the current
+   // survey folder or the global Mnemonics file if no user override defined.
+   // Use this function for occasional access, the next version better for
+   // repeated access using overrides in IOPar read with getUserMnemonics()
+   // function.
+    const UnitOfMeasure*	getDisplayInfo(const IOPar&, Scale&,
+					       Interval<float>&,
+					       BufferString&,
+					       OD::LineStyle&) const;
 
     inline bool		isUdf() const	{ return *this == undef(); }
 

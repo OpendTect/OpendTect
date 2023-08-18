@@ -10,12 +10,16 @@ ________________________________________________________________________
 #include "mnemonics.h"
 
 #include "ascstream.h"
+#include "draw.h"
+#include "filepath.h"
 #include "genc.h"
 #include "keystrs.h"
 #include "ioman.h"
+#include "oddirs.h"
 #include "odpair.h"
 #include "safefileio.h"
 #include "separstr.h"
+#include "settings.h"
 #include "unitofmeasure.h"
 
 #include <QHash>
@@ -289,6 +293,74 @@ bool Mnemonic::isCompatibleWith( const Mnemonic* oth ) const
 const char* Mnemonic::description() const
 {
     return logtypename_.buf();
+}
+
+
+BufferString Mnemonic::getUserMnemonicsFileName()
+{
+    BufferString mnemfile;
+    FilePath fp( GetDataDir(), BufferString(sKey::Mnemonics(), "_",
+					    GetUserNm()) );
+    mnemfile = fp.fullPath();
+    return mnemfile;
+}
+
+
+IOPar Mnemonic::getUserMnemonics()
+{
+    IOPar iop;
+    iop.read( getUserMnemonicsFileName(), sKey::Mnemonics(), true );
+    return iop;
+}
+
+
+void Mnemonic::setUserMnemonics( const IOPar& mnemsetts )
+{
+    mnemsetts.write( getUserMnemonicsFileName(), sKey::Mnemonics() );
+}
+
+
+const UnitOfMeasure* Mnemonic::getDisplayInfo( Mnemonic::Scale& scale,
+					       Interval<float>& range,
+					       BufferString& unitlbl,
+					       OD::LineStyle& lstyle ) const
+{
+    return getDisplayInfo( getUserMnemonics(), scale, range, unitlbl, lstyle );
+}
+
+
+const UnitOfMeasure* Mnemonic::getDisplayInfo( const IOPar& mnemsetts,
+					       Mnemonic::Scale& scale,
+					       Interval<float>& range,
+					       BufferString& unitlbl,
+					       OD::LineStyle& lstyle ) const
+{
+    const FileMultiString fms( mnemsetts.find(name()) );
+
+    const UnitOfMeasure* uom = nullptr;
+    int idx = 0;
+    if ( fms.size() == 9 )
+    {
+	parseEnum( fms[idx++], scale );
+	range.start = fms.getFValue( idx++ );
+	range.stop = fms.getFValue( idx++ );
+	unitlbl = fms[ idx++];
+	uom = UoMR().get( unitlbl );
+	OD::LineStyle::parseEnum( fms[idx++], lstyle.type_ );
+	lstyle.width_ = fms.getIValue( idx++ );
+	lstyle.color_ = OD::Color( fms.getIValue(idx), fms.getIValue(idx+1),
+				   fms.getIValue(idx+2) );
+    }
+    else
+    {
+	scale = disp_.scale_;
+	lstyle.color_ = disp_.color_;
+	range = disp_.typicalrange_;
+	unitlbl = disp_.getUnitLbl();
+	uom = unit();
+    }
+
+    return uom;
 }
 
 
