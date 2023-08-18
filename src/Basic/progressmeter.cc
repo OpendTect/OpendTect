@@ -16,7 +16,7 @@ static const char progress_symbols[] = ".:=|*#>}].:=|*#>}].:=|*#>}].:=|*#>}]";
 
 
 ProgressRecorder::ProgressRecorder()
-    : forwardto_(0)
+    : forwardto_(nullptr)
     , lock_(*new Threads::Lock)
 {
     reset();
@@ -87,6 +87,9 @@ void ProgressRecorder::setMessage( const uiString& msg, bool doprint )
 
 void ProgressRecorder::setForwardTo( ProgressMeter* pm )
 {
+    if ( pm == this )
+	return;
+
     mSetLock();
     forwardto_ = pm;
 }
