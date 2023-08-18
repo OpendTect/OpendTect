@@ -365,7 +365,7 @@ void gatherFireWallProcInf()
 	IOPar par;
 	par.read( filefp, nullptr );
 	const int typeidx = ProcDesc::DataEntry::TypeDef().indexOf(
-	    par.find(sKey::Type()) );
+	    par.find(sKey::Type().buf()) );
 	ePDD().add( par.find(sKey::Name()), toUiString(par.find("Def")),
 	    ProcDesc::DataEntry::TypeDef().getEnumForIndex(typeidx) );
     }
