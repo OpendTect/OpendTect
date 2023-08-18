@@ -20,9 +20,9 @@ class uiActiveRunningProcDlg : public uiDialog
 { mODTextTranslationClass(uiActiveRunningProcDlg);
 public:
     uiActiveRunningProcDlg( uiParent* p, const uiStringSet& descs )
-	: uiDialog(p,uiDialog::Setup(tr("Active running processes"),
-	 tr("The following processes will keep running in the background "
-	     "even after you close OpendTect"),mNoHelpKey))
+	: uiDialog(p,uiDialog::Setup(tr("Active Batch Processes"),
+	  tr("The Batch processes will keep running in the background,\n"
+	     "even after OpendTect is closed"),mNoHelpKey))
     {
 	setCtrlStyle( CtrlStyle::CloseOnly );
 
@@ -67,13 +67,12 @@ ActiveProcPrompter::~ActiveProcPrompter()
 bool ActiveProcPrompter::doTrigger( uiParent* parent )
 {
     uiStringSet procdetails;
-    const TypeSet<Network::Service::ID>& servids = BPT().getServiceIDs();
-    if ( servids.isEmpty() )
+    TypeSet<Network::Service::ID> servids;
+    if ( !BPT().getLiveServiceIDs(servids) )
 	return true;
 
-    const uiString dispstr = servids.size() > 1 ?
-	tr("Active Batch Processes : %1").arg(servids.size()) :
-	tr("Active Batch Process");
+    const uiString dispstr =
+	    tr("Number of Active Batch Processes : %1").arg( servids.size() );
 
     procdetails.add( dispstr );
 
