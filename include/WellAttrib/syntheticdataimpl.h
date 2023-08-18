@@ -169,6 +169,7 @@ public:
 					{ return SynthGenParams::PreStack; }
     int					nrPositions() const override;
     TrcKey				getTrcKey(int trcnr) const override;
+    mDeprecated("No longer used")
     DataPackID			getGatherIDByIdx(int trcnr,
 						      bool angles=false) const;
     ZSampling				zRange() const override;

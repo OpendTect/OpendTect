@@ -242,15 +242,6 @@ void uiODViewer2D::setUpAux()
 }
 
 
-void uiODViewer2D::setUpView( DataPackID packid, bool wva )
-{
-    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
-								      !wva );
-
-    makeUpView( packid, dest );
-}
-
-
 void uiODViewer2D::makeUpView( FlatDataPack* indp,
 			       FlatView::Viewer::VwrDest dst )
 {
@@ -318,15 +309,6 @@ void uiODViewer2D::makeUpView( FlatDataPack* indp,
     if ( viewwin()->dockParent() )
 	viewwin()->dockParent()->raise();
 
-}
-
-
-void uiODViewer2D::makeUpView( DataPackID packid,
-			       FlatView::Viewer::VwrDest dst )
-{
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
-    makeUpView( fdp, dst );
 }
 
 
@@ -658,14 +640,6 @@ void uiODViewer2D::removeAvailablePacks()
 }
 
 
-void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
-{
-    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
-								      !wva );
-    setSelSpec( as, dest );
-}
-
-
 void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as,
 			       FlatView::Viewer::VwrDest dest )
 {
@@ -863,171 +837,6 @@ RefMan<MapDataPack> uiODViewer2D::createMapDataPackRM(
     mdp->setName( rsdp.name() );
     mdp->setProps( inlrg, crlrg, true, &dimnames );
     return mdp;
-}
-
-
-DataPackID uiODViewer2D::getDataPackID( bool wva ) const
-{
-    const uiFlatViewer& vwr = viewwin()->viewer(0);
-    if ( vwr.hasPack(wva) )
-	return vwr.packID(wva);
-    else if ( wvaselspec_ == vdselspec_ )
-    {
-	const DataPackID dpid = vwr.packID(!wva);
-	if ( dpid != DataPack::cNoID() ) return dpid;
-    }
-    return createDataPack( wva );
-}
-
-
-DataPackID uiODViewer2D::createDataPack( bool wva ) const
-{
-    return createDataPack( selSpec(wva) );
-}
-
-
-DataPackID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
-{
-    TrcKeyZSampling tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
-    if ( !tkzs.isFlat() ) return DataPack::cNoID();
-
-    RefMan<ZAxisTransform> zat = getZAxisTransform();
-    if ( zat && !selspec.isZTransformed() )
-    {
-	if ( tkzs.nrZ() == 1 )
-	    return createDataPackForTransformedZSlice( selspec );
-	tkzs.zsamp_.setFrom( zat->getZInterval(true) );
-	tkzs.zsamp_.step = SI().zStep();
-    }
-
-    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
-    attrserv->setTargetSelSpec( selspec );
-    const DataPackID dpid = attrserv->createOutput( tkzs, DataPack::cNoID() );
-
-    auto dp = DPM(DataPackMgr::SeisID()).get<RegularSeisDataPack>( dpid );
-    if ( !dp )
-	return DataPack::cNoID();
-
-    DataPackID fdpid = createFlatDataPack( *dp, 0 );
-    DPM(DataPackMgr::SeisID()).unRef( dpid );
-    return fdpid;
-}
-
-
-DataPackID uiODViewer2D::createFlatDataPack(
-				DataPackID dpid, int comp ) const
-{
-    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
-    if ( !seisdp )
-	return DataPack::cNoID();
-
-    return createFlatDataPack( *seisdp, comp );
-}
-
-
-DataPackID uiODViewer2D::createFlatDataPack( const SeisDataPack& dp,
-					     int comp ) const
-{
-    ConstRefMan<SeisDataPack> seisdp( &dp );
-    if ( !seisdp->validComp(comp) )
-	return DataPack::cNoID();
-
-    const StringView zdomainkey( seisdp->zDomain().key() );
-    const bool alreadytransformed =
-	!zdomainkey.isEmpty() && zdomainkey!=ZDomain::SI().key();
-    if ( datatransform_ && !alreadytransformed )
-    {
-	SeisDataPackZAxisTransformer transformer( *datatransform_ );
-	transformer.setInput( seisdp.ptr() );
-	transformer.setInterpolate( true );
-	transformer.execute();
-	if ( transformer.getOutput() )
-            seisdp = transformer.getOutput();
-    }
-
-    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
-    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
-    RefMan<SeisFlatDataPack> seisfdp;
-    if ( regsdp )
-	seisfdp = new RegularFlatDataPack( *regsdp, comp );
-    else if ( randsdp )
-	seisfdp = new RandomFlatDataPack( *randsdp, comp );
-
-    if ( !seisfdp || !DPM(DataPackMgr::FlatID()).add(seisfdp) )
-	return DataPack::cNoID();
-
-    seisfdp->ref();
-    return seisfdp->id();
-}
-
-
-DataPackID uiODViewer2D::createDataPackForTransformedZSlice(
-					const Attrib::SelSpec& selspec ) const
-{
-    if ( !hasZAxisTransform() || selspec.isZTransformed() )
-	return DataPack::cNoID();
-
-    const TrcKeyZSampling& tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
-					    : tkzs_;
-    if ( tkzs.nrZ() != 1 ) return DataPack::cNoID();
-
-    uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
-    attrserv->setTargetSelSpec( selspec );
-
-    RefMan<DataPointSet> data = new DataPointSet(false,true);
-    DPM(DataPackMgr::PointID()).add( data );
-
-    ZAxisTransformPointGenerator generator( *datatransform_ );
-    generator.setInput( tkzs );
-    generator.setOutputDPS( *data );
-    generator.execute();
-
-    const int firstcol = data->nrCols();
-    BufferStringSet userrefs; userrefs.add( selspec.userRef() );
-    data->dataSet().add( new DataColDef(userrefs.get(0)) );
-    if ( !attrserv->createOutput(*data,firstcol) )
-	return DataPack::cNoID();
-
-    const DataPackID dpid = RegularSeisDataPack::createDataPackForZSlice(
-	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
-    return createFlatDataPack( dpid, 0 );
-}
-
-
-DataPackID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
-{
-    const TrcKeyZSampling& tkzs = rsdp.sampling();
-    StepInterval<double> inlrg, crlrg;
-    inlrg.setFrom( tkzs.hsamp_.inlRange() );
-    crlrg.setFrom( tkzs.hsamp_.crlRange() );
-
-    BufferStringSet dimnames;
-    dimnames.add("X").add("Y").add(sKey::Inline()).add(sKey::Crossline());
-
-    Array2DSlice<float> slice2d( rsdp.data() );
-    slice2d.setDimMap( 0, 0 );
-    slice2d.setDimMap( 1, 1 );
-    slice2d.setPos( 2, 0 );
-    slice2d.init();
-
-    RefMan<MapDataPack> mdp =
-	new MapDataPack( "ZSlice", new Array2DImpl<float>( slice2d ) );
-    if ( !mdp || !DPM(DataPackMgr::FlatID()).add( mdp ) )
-	return DataPack::cNoID();
-
-    mdp->setName( rsdp.name() );
-    mdp->setProps( inlrg, crlrg, true, &dimnames );
-    mdp->ref();
-    return mdp->id();
-}
-
-
-bool uiODViewer2D::useStoredDispPars( bool wva )
-{
-    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
-								      !wva );
-    return useStoredDispPars( dest );
 }
 
 
@@ -1984,3 +1793,94 @@ void uiODViewer2D::setupNewPickSet( const MultiID& pickid )
 	}
     }
 }
+
+
+void uiODViewer2D::setUpView( DataPackID packid, bool wva )
+{
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+								      !wva );
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
+    makeUpView( fdp, dest );
+}
+
+
+void uiODViewer2D::makeUpView( DataPackID packid,
+			       FlatView::Viewer::VwrDest dst )
+{
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
+    makeUpView( fdp, dst );
+}
+
+
+void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
+{
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+								      !wva );
+    setSelSpec( as, dest );
+}
+
+
+DataPackID uiODViewer2D::getDataPackID( bool wva ) const
+{
+    const uiFlatViewer& vwr = viewwin()->viewer(0);
+    if ( vwr.hasPack(wva) )
+	return vwr.packID(wva);
+    else if ( wvaselspec_ == vdselspec_ )
+    {
+	const DataPackID dpid = vwr.packID(!wva);
+	if ( dpid != DataPack::cNoID() ) return dpid;
+    }
+    return DataPack::cNoID();
+}
+
+
+DataPackID uiODViewer2D::createDataPack( bool wva ) const
+{
+    return DataPack::cNoID();
+}
+
+
+DataPackID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
+{
+    return DataPack::cNoID();
+}
+
+
+DataPackID uiODViewer2D::createFlatDataPack(
+				DataPackID dpid, int comp ) const
+{
+    return DataPack::cNoID();
+}
+
+
+DataPackID uiODViewer2D::createFlatDataPack( const SeisDataPack& dp,
+					     int comp ) const
+{
+    return DataPack::cNoID();
+}
+
+
+DataPackID uiODViewer2D::createDataPackForTransformedZSlice(
+					const Attrib::SelSpec& selspec ) const
+{
+    return DataPack::cNoID();
+}
+
+
+DataPackID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
+{
+    return DataPack::cNoID();
+}
+
+
+bool uiODViewer2D::useStoredDispPars( bool wva )
+{
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+								      !wva );
+    return useStoredDispPars( dest );
+}
+
+
+

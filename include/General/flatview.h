@@ -471,8 +471,8 @@ private:
     bool			canhandlechange_ = true;
 
 public:
-    mDeprecated("No longer required")
-    DataPackID		packID(bool wva) const;
+    DataPackID			packID(bool wva) const;
+
     mDeprecated("No longer required")
     const TypeSet< ::DataPackID>&	availablePacks() const;
     mDeprecated("No longer required")

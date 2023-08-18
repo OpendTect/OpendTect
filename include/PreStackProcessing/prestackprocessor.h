@@ -34,11 +34,14 @@ public:
     virtual const BinID&	getInputStepout() const;
     virtual bool		wantsInput(const BinID& relbid) const;
     void			setInput(const BinID& relbid,DataPackID);
+    void			setInput(const BinID&,Gather*);
+    void			setInput(const BinID&,const Gather*);
 
     const BinID&		getOutputStepout() const;
     virtual bool		setOutputInterest(const BinID& relbid,bool);
     bool			getOutputInterest(const BinID& relbid) const;
-    DataPackID			getOutput(const BinID& relbid) const;
+    DataPackID			getOutputID(const BinID& relbid) const;
+    ConstRefMan<Gather>		getOutput(const BinID& relbid) const;
 
     virtual bool		prepareWork();
     virtual uiString		errMsg() const
@@ -163,10 +166,13 @@ public:
     virtual bool		wantsInput(const BinID& relbid) const;
 				//!<Only after prepareWork
     void			setInput(const BinID& relbid,DataPackID);
+    void			setInput(const BinID&,Gather*);
+    void			setInput(const BinID&,const Gather*);
 
     bool			process();
 
-    DataPackID		getOutput() const;
+    DataPackID			getOutputID() const;
+    ConstRefMan<Gather>		getOutput() const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

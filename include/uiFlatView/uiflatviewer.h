@@ -49,7 +49,8 @@ public:
     StepInterval<double> posRange(bool forx1) const;
     uiWorldRect		boundingBox() const;
 
-    void		removePack(::DataPackID) override;
+    void		removePack(::DataPackID);
+    void		removePack(FlatView::Viewer::VwrDest);
 
     const uiWorld2Ui&	getWorld2Ui() const		{ return w2ui_; }
     uiRect		getViewRect(bool withextraborders=true) const;

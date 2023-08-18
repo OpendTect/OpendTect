@@ -223,7 +223,7 @@ DataPackID PreStackDisplay::preProcess()
     if ( !preprocmgr_.process() )
 	return DataPackID::udf();
 
-    return preprocmgr_.getOutput();
+    return preprocmgr_.getOutputID();
 }
 
 

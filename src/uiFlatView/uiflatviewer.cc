@@ -236,13 +236,22 @@ uiWorldRect uiFlatViewer::boundingBox() const
 
 void uiFlatViewer::removePack( ::DataPackID dpid )
 {
-    if ( dpid == packID(true) )
+    const bool dowva = dpid == packID(true);
+    const bool dovd = dpid == packID(false);
+    removePack( FlatView::Viewer::getDest(dowva, dovd) );
+}
+
+
+void uiFlatViewer::removePack( FlatView::Viewer::VwrDest dest )
+{
+    if ( dest==FlatView::Viewer::WVA || dest==FlatView::Viewer::Both )
 	bitmapdisp_->setDataPack( nullptr, true );
 
-    if ( dpid == packID(false) )
-	bitmapdisp_->setDataPack( nullptr, false );
 
-    FlatView::Viewer::removePack( dpid );
+    if ( dest==FlatView::Viewer::VD || dest==FlatView::Viewer::Both )
+	bitmapdisp_->setDataPack( nullptr, true );
+
+    FlatView::Viewer::removePack( dest );
     if ( !hasPack(true) && !hasPack(false) )
 	wr_ = uiWorldRect( 0., 0., 1., 1. );
 }

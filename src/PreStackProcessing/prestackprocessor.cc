@@ -60,16 +60,28 @@ bool Processor::wantsInput( const BinID& bid ) const
     return outputinterest_[offset];
 }
 
+
 void Processor::setInput( const BinID& relbid, DataPackID id )
 {
     auto input = DPM(DataPackMgr::FlatID()).get<Gather>( id );
+    setInput( relbid, input );
+}
 
+
+void Processor::setInput( const BinID& relbid, Gather* input )
+{
     const BinID inputstepout = getInputStepout();
     const int offset = getRelBidOffset( relbid, inputstepout );
     if ( offset>=inputs_.size() )
 	return;
 
     inputs_.replace( offset, input );
+}
+
+
+void Processor::setInput( const BinID& relbid, const Gather* input )
+{
+    setInput( relbid, const_cast<Gather*>(input) );
 }
 
 
@@ -98,10 +110,16 @@ bool Processor::setOutputInterest( const BinID& relbid, bool yn )
 }
 
 
-DataPackID Processor::getOutput( const BinID& relbid ) const
+DataPackID Processor::getOutputID( const BinID& relbid ) const
 {
-    const Gather* res = outputs_[getRelBidOffset(relbid,outputstepout_)];
+    const Gather* res = getOutput( relbid );
     return res ? res->id() : DataPack::cNoID();
+}
+
+
+ConstRefMan<Gather> Processor::getOutput( const BinID& relbid ) const
+{
+    return outputs_[getRelBidOffset(relbid,outputstepout_)];
 }
 
 
@@ -238,6 +256,20 @@ void ProcessManager::setInput( const BinID& relbid, DataPackID id )
 }
 
 
+void ProcessManager::setInput( const BinID& relbid, Gather* input )
+{
+    if ( !processors_.isEmpty() )
+	processors_[0]->setInput( relbid, input );
+}
+
+
+void ProcessManager::setInput( const BinID& relbid, const Gather* input )
+{
+    if ( !processors_.isEmpty() )
+	processors_[0]->setInput( relbid, input );
+}
+
+
 bool ProcessManager::prepareWork()
 {
     for ( int proc=processors_.size()-1; proc>0; proc-- )
@@ -289,10 +321,21 @@ bool ProcessManager::process()
 }
 
 
-DataPackID ProcessManager::getOutput() const
+DataPackID ProcessManager::getOutputID() const
 {
-    return !processors_.isEmpty()
-	? processors_.last()->getOutput(BinID::noStepout()) : DataPack::cNoID();
+    if ( processors_.isEmpty() )
+	return DataPack::cNoID();
+
+    return processors_.last()->getOutputID( BinID::noStepout() );
+}
+
+
+ConstRefMan<Gather> ProcessManager::getOutput() const
+{
+    if ( processors_.isEmpty() )
+	return nullptr;
+
+    return processors_.last()->getOutput( BinID::noStepout() );
 }
 
 

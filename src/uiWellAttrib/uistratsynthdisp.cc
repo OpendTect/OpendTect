@@ -1301,8 +1301,8 @@ void uiStratSynthDisp::setPSVwrData()
 	newgi.isstored_ = false;
 	newgi.gathernm_ = sd->name();
 	newgi.bid_ = presd->getTrcKey( idx ).binID();
-	newgi.wvadpid_ = presd->getGatherIDByIdx( idx, false );
-	newgi.vddpid_ = presd->getGatherIDByIdx( idx, true );
+	newgi.wvadp_ = presd->getGather( idx, false );
+	newgi.vddp_ = presd->getGather( idx, true );
 
 	newgi.isselected_ = idx%dispeachgather==0 || idx == nrgathers-1;
     }
@@ -1874,9 +1874,9 @@ void uiStratSynthDisp::setPSVwrDataCB( CallBacker* )
 	{
 	    PreStackView::GatherInfo newginfo = ginfo;
 	    newginfo.gathernm_ = sd->name();
-	    newginfo.wvadpid_ = seisgdp.getGatherID( newginfo.bid_ );
-	    newginfo.vddpid_ = anglegdp.getGatherID( newginfo.bid_ );
-	    if ( newginfo.wvadpid_.isValid() && newginfo.vddpid_.isValid() )
+	    newginfo.wvadp_ = seisgdp.getGather( newginfo.bid_ );
+	    newginfo.vddp_ = anglegdp.getGather( newginfo.bid_ );
+	    if ( newginfo.wvadp_ && newginfo.vddp_ )
 		newginfos.addIfNew( newginfo );
 	}
     }

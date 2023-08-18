@@ -552,6 +552,19 @@ ConstRefMan<PreStack::Gather> GatherSetDataPack::getGather( int idx ) const
 }
 
 
+ConstRefMan<PreStack::Gather> GatherSetDataPack::getGather(
+							const BinID& bid ) const
+{
+    for ( const auto* gather : gathers_ )
+    {
+	if ( gather->getBinID() == bid )
+	    return gather;
+    }
+
+    return nullptr;
+}
+
+
 Interval<float> GatherSetDataPack::offsetRange() const
 {
     Interval<float> offrg( 0.f, 0.f );

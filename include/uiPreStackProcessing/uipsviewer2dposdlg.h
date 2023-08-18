@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "bufstringset.h"
 #include "datapack.h"
+#include "prestackgather.h"
 #include "rowcol.h"
 #include "uistring.h"
 #include "uiprestackprocessingmod.h"
@@ -26,16 +27,16 @@ namespace PreStackView
 
 mStruct(uiPreStackProcessing) GatherInfo
 {
-			GatherInfo();
-			~GatherInfo();
+					GatherInfo();
+					~GatherInfo();
 
-    bool		isstored_		= true;
-    bool		isselected_		= false;
-    MultiID		mid_;
-    DataPackID		vddpid_;
-    DataPackID		wvadpid_;
-    BufferString	gathernm_;
-    BinID		bid_			= BinID::udf();
+    bool				isstored_		= true;
+    bool				isselected_		= false;
+    MultiID				mid_;
+    ConstRefMan<PreStack::Gather>	vddp_;
+    ConstRefMan<PreStack::Gather>	wvadp_;
+    BufferString			gathernm_;
+    BinID				bid_			= BinID::udf();
 
 bool operator==( const GatherInfo& info ) const
 {

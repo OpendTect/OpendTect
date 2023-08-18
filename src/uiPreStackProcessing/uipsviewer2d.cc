@@ -69,9 +69,9 @@ void uiGatherDisplay::setWidth( int width )
 }
 
 
-void uiGatherDisplay::setVDGather( DataPackID vdid )
+void uiGatherDisplay::setVDGather( const PreStack::Gather* vddp )
 {
-    gatherpainter_->setVDGather( vdid );
+    gatherpainter_->setVDGather( vddp );
     ConstRefMan<FlatDataPack> dp = viewer_->getPack( false ).get();
     if ( !dp )
 	return;
@@ -84,9 +84,9 @@ void uiGatherDisplay::setVDGather( DataPackID vdid )
 }
 
 
-void uiGatherDisplay::setWVAGather( DataPackID wvaid )
+void uiGatherDisplay::setWVAGather( const PreStack::Gather* wvadp )
 {
-    gatherpainter_->setWVAGather( wvaid );
+    gatherpainter_->setWVAGather( wvadp );
     ConstRefMan<FlatDataPack> dp = viewer_->getPack( true ).get();
     if ( !dp )
 	return;
@@ -236,12 +236,12 @@ void uiViewer2D::enableScrollBars( bool yn )
 }
 
 
-uiGatherDisplay* uiViewer2D::addGatherDisplay( DataPackID vdid,
-					       DataPackID wvaid )
+uiGatherDisplay* uiViewer2D::addGatherDisplay( PreStack::Gather* vd,
+					       PreStack::Gather* wva )
 {
     auto* gatherdisp = new uiGatherDisplay( nullptr );
-    gatherdisp->setVDGather( vdid );
-    gatherdisp->setWVAGather( wvaid );
+    gatherdisp->setVDGather( vd );
+    gatherdisp->setWVAGather( wva );
     addGatherDisplay( gatherdisp );
 
     return gatherdisp;
@@ -313,6 +313,29 @@ void uiViewer2D::doReSize( const uiSize& sz )
     }
 
     resetViewArea( nullptr );
+}
+
+
+void uiGatherDisplay::setVDGather( DataPackID vdid )
+{
+    auto gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( vdid );
+    setVDGather( gather );
+}
+
+
+void uiGatherDisplay::setWVAGather( DataPackID wvaid )
+{
+    auto gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( wvaid );
+    setWVAGather( gather );
+}
+
+
+uiGatherDisplay* uiViewer2D::addGatherDisplay( DataPackID vdid,
+					       DataPackID wvaid )
+{
+    auto vdgather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( vdid );
+    auto wvagather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( wvaid );
+    return addGatherDisplay( vdgather, wvagather );
 }
 
 } // namespace PreStackView

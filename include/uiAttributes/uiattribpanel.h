@@ -9,11 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-
 #include "attribdescid.h"
 #include "datapackbase.h"
 #include "trckeyzsampling.h"
-
 class uiFlatViewMainWin;
 class uiParent;
 

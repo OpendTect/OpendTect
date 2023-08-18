@@ -304,68 +304,16 @@ RefMan<SeisFlatDataPack> uiODView2DWiggleVarAreaTreeItem::createDataPackRM(
 }
 
 
-DataPackID uiODView2DWiggleVarAreaTreeItem::createDataPack(
-			Attrib::SelSpec& selas, const BufferString& attrbnm,
-			const bool steering, const bool stored )
-{
-    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    ConstRefMan<FlatDataPack> dp = vwr.getPack( true, true ).get();
-    if ( !dp )
-	return DataPackID::udf();
-
-    uiAttribPartServer* attrserv = applMgr()->attrServer();
-    attrserv->setTargetSelSpec( selas );
-
-    mDynamicCastGet(const RegularFlatDataPack*,regfdp,dp.ptr());
-    mDynamicCastGet(const RandomFlatDataPack*,randfdp,dp.ptr());
-    if ( regfdp && regfdp->is2D() )
-    {
-	if ( stored )
-	{
-	    const SeisIOObjInfo objinfo( attrbnm, Seis::Line );
-	    if ( !objinfo.ioObj() )
-		return DataPack::cNoID();
-
-	    Attrib::DescID attribid = attrserv->getStoredID(
-			    objinfo.ioObj()->key(), true, steering ? 1 : 0 );
-	    selas.set( attrbnm, attribid, false, 0 );
-	    selas.set2DFlag();
-
-	    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true,
-								       true );
-	    if ( !ds )
-		return DataPack::cNoID();
-
-	    selas.setRefFromID( *ds );
-	    selas.setUserRef( attrbnm );
-
-	    const Attrib::Desc* targetdesc = ds->getDesc( attribid );
-	    if ( !targetdesc ) return DataPack::cNoID();
-
-	    BufferString defstring;
-	    targetdesc->getDefStr( defstring );
-	    selas.setDefString( defstring );
-	    attrserv->setTargetSelSpec( selas );
-	}
-    }
-    else if ( randfdp )
-    {
-	const DataPackID dpid =
-	    attrserv->createRdmTrcsOutput( randfdp->zRange(),
-					   randfdp->getRandomLineID() );
-
-	    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-	ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
-	dpm.unRef( dpid );
-	return viewer2D()->createFlatDataPack( *seisdp, 0 );
-    }
-
-    return viewer2D()->createDataPack( selas );
-}
-
-
 uiTreeItem* uiODView2DWiggleVarAreaTreeItemFactory::createForVis(
 					const uiODViewer2D&, Vis2DID id ) const
 {
     return nullptr;
+}
+
+
+DataPackID uiODView2DWiggleVarAreaTreeItem::createDataPack(
+			Attrib::SelSpec& selas, const BufferString& attrbnm,
+			const bool steering, const bool stored )
+{
+    return DataPack::cNoID();
 }

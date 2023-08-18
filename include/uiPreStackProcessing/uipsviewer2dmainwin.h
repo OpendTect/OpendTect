@@ -114,6 +114,7 @@ protected:
 				       const PreStack::Gather& angledata,
 				       const Interval<int>& anglerange);
     DataPackID	getPreProcessedID(const GatherInfo&);
+    ConstRefMan<PreStack::Gather>	getPreProcessed(const GatherInfo&);
     void		setGatherforPreProc(const BinID& relbid,
 					    const GatherInfo&);
 
@@ -177,7 +178,9 @@ protected:
     void		setUpNewSlicePositions();
     void		setUpNewIDs();
     void		convAngleDataToDegrees(PreStack::Gather&) const;
-    DataPackID	getAngleData(DataPackID gatherid);
+    mDeprecated("No longer used")
+    DataPackID		getAngleData(DataPackID gatherid);
+    ConstRefMan<PreStack::Gather>	getAngleData(const PreStack::Gather*);
     void		posDlgChgCB(CallBacker*) override;
     void		posSlcChgCB(CallBacker*);
 };

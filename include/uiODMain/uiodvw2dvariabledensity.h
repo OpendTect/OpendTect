@@ -48,12 +48,12 @@ protected:
     void			createSelMenu(MenuItem&);
     bool    			handleSelMenu(int mnuid);
 
-    RefMan<SeisFlatDataPack>	createDataPackRM(Attrib::SelSpec&,
+    mDeprecated("use createDataPackRM" );
+    DataPackID			createDataPack(Attrib::SelSpec&,
 					       const BufferString& attribnm="",
 					       const bool steering=false,
 					       const bool stored=false);
-    mDeprecated("use createDataPackRM" );
-    DataPackID			createDataPack(Attrib::SelSpec&,
+    RefMan<SeisFlatDataPack>	createDataPackRM(Attrib::SelSpec&,
 					       const BufferString& attribnm="",
 					       const bool steering=false,
 					       const bool stored=false);

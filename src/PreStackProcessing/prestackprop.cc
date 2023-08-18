@@ -119,16 +119,10 @@ void PropCalc::setGather( const PreStack::Gather& gather )
 
 void PropCalc::setGather( DataPackID id )
 {
-    removeGather();
-
     auto gather = DPM(DataPackMgr::FlatID()).get<Gather>( id );
     if ( gather )
-    {
-	gather_ = gather;
-	handleNewGather();
-    }
+	setGather( *gather );
 }
-
 
 void PropCalc::setAngleData( const PreStack::Gather& gather )
 {
@@ -141,10 +135,7 @@ void PropCalc::setAngleData( DataPackID id )
 {
     auto angledata = DPM(DataPackMgr::FlatID()).get<Gather>( id );
     if ( angledata )
-    {
-	angledata_ = angledata;
-	init();
-    }
+	setAngleData( *angledata );
 }
 
 

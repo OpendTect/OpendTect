@@ -763,10 +763,11 @@ void uiViewer2DMainWin::prepareNewAppearances( BufferStringSet oldgathernms,
 }
 
 
-DataPackID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
+ConstRefMan<PreStack::Gather> uiViewer2DMainWin::getPreProcessed(
+						    const GatherInfo& ginfo )
 {
     if ( !preprocmgr_->prepareWork() )
-	return DataPackID::udf();
+	return nullptr;
 
     const BinID stepout = preprocmgr_->getInputStepout();
     BinID relbid;
@@ -796,7 +797,7 @@ DataPackID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
     if ( !preprocmgr_->process() )
     {
 	uiMSG().error( preprocmgr_->errMsg() );
-	return DataPackID::udf();
+	return nullptr;
     }
 
     return preprocmgr_->getOutput();
@@ -833,9 +834,8 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	if ( gidx < 0 )
 	    return;
 	const GatherInfo& inputginfo = gatherinfos_[gidx];
-	preprocmgr_->setInput( relbid,
-			   inputginfo.vddpid_.isValid() ? inputginfo.wvadpid_
-						     : inputginfo.vddpid_ );
+	preprocmgr_->setInput( relbid, inputginfo.vddp_ ? inputginfo.wvadp_
+							: inputginfo.vddp_ );
     }
 }
 
@@ -1053,15 +1053,13 @@ void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 
 
 
-DataPackID uiStoredViewer2DMainWin::getAngleData( DataPackID gatherid )
+ConstRefMan<PreStack::Gather> uiStoredViewer2DMainWin::getAngleData(
+						const PreStack::Gather* gd )
 {
-    if ( !hasangledata_ || !angleparams_ )
-	return DataPackID::udf();
+    if ( !hasangledata_ || !angleparams_ || !gd )
+	return nullptr;
 
-    auto gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( gatherid );
-    if ( !gather )
-	return DataPackID::udf();
-
+    ConstRefMan<PreStack::Gather> gather = gd;
     RefMan<PreStack::VelocityBasedAngleComputer> velangcomp =
 				new PreStack::VelocityBasedAngleComputer();
     velangcomp->setMultiID( angleparams_->velvolmid_ );
@@ -1073,23 +1071,21 @@ DataPackID uiStoredViewer2DMainWin::getAngleData( DataPackID gatherid )
     velangcomp->setTrcKey( TrcKey(gather->getBinID()) );
     RefMan<PreStack::Gather> angledata = velangcomp->computeAngles();
     if ( !angledata )
-	return DataPackID::udf();
+	return nullptr;
 
     velangcomp = nullptr;
 
     BufferString angledpnm( gather->name(), " Incidence Angle" );
     angledata->setName( angledpnm );
     convAngleDataToDegrees( *angledata );
-    DPM( DataPackMgr::FlatID() ).add( angledata );
     if ( doanglegather_ )
     {
-	PreStack::Gather* anglegather =
+	RefMan<PreStack::Gather> anglegather =
 	     getAngleGather( *gather, *angledata, angleparams_->anglerange_ );
-	DPM( DataPackMgr::FlatID() ).add( anglegather );
-	return anglegather->id();
+	return anglegather;
     }
 
-    return angledata->id();
+    return angledata;
 }
 
 
@@ -1235,22 +1231,20 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
     if ( gather->readFrom(mid,tk) )
     {
-	DataPackID ppgatherid = DataPackID::udf();
+	ConstRefMan<PreStack::Gather> ppgather;
 	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
-	    ppgatherid = getPreProcessedID( gatherinfo );
+	    ppgather = getPreProcessed( gatherinfo );
 
-	const DataPackID gatherid = ppgatherid.isValid() ? ppgatherid
-							    : gather->id();
-	const DataPackID anglegatherid = getAngleData( gatherid );
-	gd->setVDGather( hasangledata_ ? anglegatherid : gatherid );
-	gd->setWVAGather( hasangledata_ ? gatherid :
-						DataPackID::udf() );
+	ppgather = ppgather ? ppgather : ConstRefMan<PreStack::Gather>(gather);
+	ConstRefMan<PreStack::Gather> anglegather = getAngleData( ppgather );
+	gd->setVDGather( hasangledata_ ? anglegather : ppgather );
+	gd->setWVAGather( hasangledata_ ? ppgather : nullptr );
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
 	zrg.include( gd->getZDataRange() );
     }
     else
-	gd->setVDGather( DataPackID::udf() );
+	gd->setVDGather( nullptr );
 
     auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, gatherinfo );
@@ -1386,30 +1380,25 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 	return;
 
     auto* gd = new uiGatherDisplay( nullptr );
-    DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
-    auto vdgather = dpm.get<PreStack::Gather>( ginfo.vddpid_ );
-    auto wvagather = dpm.get<PreStack::Gather>( ginfo.wvadpid_ );
+    auto vdgather = ginfo.vddp_;
+    auto wvagather = ginfo.wvadp_;
 
     if ( !vdgather && !wvagather  )
     {
-	gd->setVDGather( DataPackID::udf() );
-	gd->setWVAGather( DataPackID::udf() );
+	gd->setVDGather( nullptr );
+	gd->setWVAGather( nullptr );
 	return;
     }
 
     if ( !posdlg_ )
 	tkzs_.zsamp_.include( wvagather ? wvagather->zRange()
 				        : vdgather->zRange(), false );
-    DataPackID ppgatherid = DataPackID::udf();
+    ConstRefMan<PreStack::Gather> ppgather;
     if ( preprocmgr_ && preprocmgr_->nrProcessors() )
-	ppgatherid = getPreProcessedID( ginfo );
+	ppgather = getPreProcessed( ginfo );
 
-    gd->setVDGather( !ginfo.vddpid_.isValid() ?
-			    ppgatherid.isValid() ? ppgatherid : ginfo.wvadpid_
-			  : ginfo.vddpid_ );
-    gd->setWVAGather( ginfo.vddpid_.isValid() ?
-			    ppgatherid.isValid() ? ppgatherid : ginfo.wvadpid_
-				       : DataPackID::udf() );
+    gd->setVDGather( !vdgather ? ppgather ? ppgather : wvagather : vdgather );
+    gd->setWVAGather( vdgather ? ppgather ? ppgather : wvagather : nullptr );
     auto* gdi = new uiGatherDisplayInfoHeader( nullptr );
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
@@ -1564,22 +1553,28 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 
 	bool bitmapchanged = false;
 	const bool doupdate = vwr.enableChange( false );
-	const DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
-	for ( int idx=0; idx<vwr.availablePacks().size(); idx++ )
-	{
-	    const DataPackID& id = vwr.availablePacks()[idx];
-	    const StringView datanm( dpm.nameOf(id) );
-	    const bool wva = wvadatapack && wvadatapack->name() == datanm &&
+	RefMan<FlatDataPack> wvadp = vwr.getPack( true ).get();
+	RefMan<FlatDataPack> vddp = vwr.getPack( false ).get();
+	bool wva = wvadatapack && wvadatapack->name() == wvadp->name() &&
 			     app_.ddpars_.wva_.show_ ;
-	    const bool vd = vddatapack && vddatapack->name() == datanm &&
+	bool vd = vddatapack && vddatapack->name() == wvadp->name() &&
 			    app_.ddpars_.vd_.show_;
-	    const FlatView::Viewer::VwrDest dest =
-				FlatView::Viewer::getDest( wva, vd );
-	    if ( dest == FlatView::Viewer::None )
-		continue;
-
+	FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva, vd );
+	if ( dest != FlatView::Viewer::None )
+	{
 	    bitmapchanged = true;
-	    vwr.usePack( dest, id, false );
+	    vwr.setPack( dest, wvadp, false );
+	}
+
+	wva = wvadatapack && wvadatapack->name() == vddp->name() &&
+			     app_.ddpars_.wva_.show_ ;
+	vd = vddatapack && vddatapack->name() == vddp->name() &&
+			    app_.ddpars_.vd_.show_;
+	dest = FlatView::Viewer::getDest( wva, vd );
+	if ( dest != FlatView::Viewer::None )
+	{
+	    bitmapchanged = true;
+	    vwr.setPack( dest, vddp, false );
 	}
 
 	vwr.enableChange( doupdate );
@@ -1639,6 +1634,30 @@ void uiViewer2DControl::setGatherInfos( const TypeSet<GatherInfo>& gis )
     else
 	tooltipstr = uiString::emptyString();
     ctabsel_->setToolTip( tooltipstr );
+}
+
+
+DataPackID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
+{
+     auto gather = getPreProcessed( ginfo );
+     if ( !gather )
+	return DataPack::cNoID();
+
+     return gather->id();
+}
+
+
+DataPackID uiStoredViewer2DMainWin::getAngleData( DataPackID gatherid )
+{
+    if ( !hasangledata_ || !angleparams_ )
+	return DataPack::cNoID();
+
+    auto gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( gatherid );
+    auto angle_gather = getAngleData( gather );
+    if ( !angle_gather )
+	return DataPack::cNoID();
+
+    return angle_gather->id();
 }
 
 } // namespace PreStackView

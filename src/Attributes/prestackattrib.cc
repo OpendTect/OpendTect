@@ -470,7 +470,7 @@ DataPackID PSAttrib::getPreProcessedID( const BinID& relpos )
 	return DataPackID::udf();
     }
 
-    return preprocessor_->getOutput();
+    return preprocessor_->getOutputID();
 }
 
 

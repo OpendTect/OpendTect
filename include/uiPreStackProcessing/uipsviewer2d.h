@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiFlatViewer;
+namespace PreStack { class Gather; }
 
 namespace PreStackView
 {
@@ -34,8 +35,12 @@ public:
 
     virtual void		setPosition(const BinID&,
 					    const Interval<double>* zrg=0);
+    mDeprecated("No longer used")
     void			setVDGather(DataPackID);
+    mDeprecated("No longer used")
     void			setWVAGather(DataPackID);
+    void			setVDGather(const PreStack::Gather*);
+    void			setWVAGather(const PreStack::Gather*);
 
     void			displayAnnotation(bool yn);
     bool			displaysAnnotation() const;
@@ -77,8 +82,11 @@ public:
 				uiViewer2D(uiParent*);
 				~uiViewer2D();
 
+    mDeprecated("No longer used")
     uiGatherDisplay*		addGatherDisplay(DataPackID vdid,
 				 DataPackID wvaid=DataPackID::udf());
+    uiGatherDisplay*		addGatherDisplay(PreStack::Gather* vd,
+						 PreStack::Gather* wva=nullptr);
     void			addGatherDisplay(uiGatherDisplay*);
     void 			removeGatherDisplay(const uiGatherDisplay*);
     uiGatherDisplay& 		getGatherDisplay(int idx);

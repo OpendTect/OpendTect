@@ -174,7 +174,6 @@ public:
     void			fill(Array2D<float>&,int offsetidx) const;
     void			fill(SeisTrcBuf&,int offsetidx) const;
     void			fill(SeisTrcBuf&,Interval<float> stackrg) const;
-    ConstRefMan<PreStack::Gather> getGather(int gatheridx) const;
     SeisTrc*			getTrace(int gatheridx,int offsetidx);
     const SeisTrc*		getTrace(int gatheridx,int offsetidx) const;
 
@@ -184,8 +183,10 @@ public:
     float			offsetRangeStep() const;
 
     TrcKey			getTrcKeyByIdx(int idx) const;
-    DataPackID		getGatherIDByIdx(int idx) const;
-    DataPackID		getGatherID(const BinID&) const;
+    DataPackID			getGatherIDByIdx(int idx) const;
+    DataPackID			getGatherID(const BinID&) const;
+    ConstRefMan<PreStack::Gather> getGather(int gatheridx) const;
+    ConstRefMan<PreStack::Gather> getGather(const BinID&) const;
 
     const Array3D<float>&	data() const		{ return arr3d_; }
 

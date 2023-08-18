@@ -501,7 +501,13 @@ class FlatView_CB_Rcvr : public CallBacker
 {
 public:
 FlatView_CB_Rcvr( FlatView::Viewer& vwr ) : vwr_(vwr)	{}
-void theCB( CallBacker* dp ) { vwr_.removePack( ((DataPack*)dp)->id() ); }
+void theCB( CallBacker* dp )
+{
+    DataPackID dpid = ((DataPack*)dp)->id();
+    bool dowva = dpid == vwr_.packID(true);
+    bool dovd = dpid == vwr_.packID(false);
+    vwr_.removePack( FlatView::Viewer::getDest(dowva, dovd) );
+}
 
 FlatView::Viewer& vwr_;
 };
@@ -524,9 +530,6 @@ FlatView::Viewer::~Viewer()
     delete cbrcvr_;
 
     unRefPtr( datatransform_ );
-    for ( int idx=0; idx<ids_.size(); idx++ )
-	dpm_.unRef( ids_[idx] );
-
     delete zdinfo_;
 }
 
@@ -675,14 +678,6 @@ FlatView::Appearance& FlatView::Viewer::appearance()
 }
 
 
-void FlatView::Viewer::addPack( DataPackID id )
-{
-    if ( ids_.isPresent(id) ) return;
-    ids_ += id;
-    dpm_.ref( id );
-}
-
-
 WeakPtr<FlatDataPack> FlatView::Viewer::getPack( bool wva,
 						 bool checkother ) const
 {
@@ -691,20 +686,6 @@ WeakPtr<FlatDataPack> FlatView::Viewer::getPack( bool wva,
     if ( !res && checkother )
 	res = wva ? vdpack_ : wvapack_;
 
-    return res;
-}
-
-
-const FlatDataPack* FlatView::Viewer::obtainPack(
-				      bool wva, bool checkother ) const
-{
-    Threads::Locker locker( lock_ );
-    ConstRefMan<FlatDataPack> res = wva ? wvapack_.get() : vdpack_.get();
-    if ( !res && checkother )
-	res = wva ? vdpack_.get() : wvapack_.get();
-
-    refPtr( res );
-    dpm_.add<FlatDataPack>( res );
     return res;
 }
 
@@ -719,45 +700,12 @@ DataPackID FlatView::Viewer::packID( bool wva ) const
 void FlatView::Viewer::clearAllPacks()
 {
     removePack( Both );
-    ids_.setEmpty();
 }
 
 
 void FlatView::Viewer::removePack( VwrDest dest )
 {
     setPack( dest, nullptr, false );
-}
-
-
-void FlatView::Viewer::removePack( DataPackID id )
-{
-    const int idx = ids_.indexOf( id );
-    if ( idx < 0 )
-	return;
-
-    const bool wva = hasPack(true) && packID(true)==id;
-    const bool vd = hasPack(false) && packID(false)==id;
-    const VwrDest dest = getDest( wva, vd );
-    usePack( dest, DataPack::cNoID(), false );
-
-    ids_.removeSingle( idx );
-    dpm_.unRef( id );
-}
-
-
-void FlatView::Viewer::removeUnusedPacks()
-{
-    DataPackID curwvaid = packID( true );
-    DataPackID curvdid = packID( false );
-
-    for ( int idx=ids_.size()-1; idx>=0; idx-- )
-    {
-	const auto id = ids_[idx];
-	if ( id == DataPack::cNoID() || id == curvdid || id == curwvaid )
-	    continue;
-
-	removePack( id );
-    }
 }
 
 
@@ -828,99 +776,6 @@ void FlatView::Viewer::setPack( VwrDest dest, FlatDataPack* fdp,
 }
 
 
-void FlatView::Viewer::setPack( bool wva, ::DataPackID id, bool usedefs )
-{
-    setPack( wva ? WVA : VD, id, usedefs );
-}
-
-
-void FlatView::Viewer::setPack( VwrDest dest, ::DataPackID id, bool usedefs )
-{
-    if ( dest == None )
-	return;
-
-    addPack( id );
-    usePack( dest, id, usedefs );
-}
-
-
-void FlatView::Viewer::usePack( bool wva, ::DataPackID id, bool usedefs )
-{
-    usePack( wva ? WVA : VD, id, usedefs );
-}
-
-
-void FlatView::Viewer::usePack( VwrDest dest, DataPackID id, bool usedefs )
-{
-    if ( dest == None )
-	return;
-
-    const bool wva = dest == WVA || dest == Both;
-    const bool vd = dest == VD || dest == Both;
-    DataPackID curwvaid = DataPackID::udf();
-    DataPackID curvdid = DataPackID::udf();
-    if ( wva )
-	curwvaid = packID( true );
-    if ( vd )
-	curvdid = packID( false );
-
-    if ( (dest == WVA && id == curwvaid) ||
-	 (dest == VD && id == curvdid) ||
-	 (dest == Both && id == curwvaid && id == curvdid) )
-	return;
-
-    BufferString category;
-    if ( id == DataPack::cNoID() )
-    {
-	if ( wva )
-	    wvapack_ = nullptr;
-	if ( vd )
-	    vdpack_ = nullptr;
-    }
-    else if ( !ids_.isPresent(id) )
-    {
-	pErrMsg("Requested usePack, but ID not added");
-	return;
-    }
-    else
-    {
-	if ( wva )
-	    wvapack_ = dpm_.observe<FlatDataPack>( id );
-	if ( vd )
-	    vdpack_ = dpm_.observe<FlatDataPack>( id );
-    }
-
-    const WeakPtr<FlatDataPack> datapack = getPack( wva );
-    if ( !datapack )
-    {
-	if ( ids_.size() == 1 && ids_[0] == id && id == DataPack::cNoID() &&
-	     dest == Both && !category.isEmpty() )
-	    useStoredDefaults( category );
-	return;
-    }
-
-    ConstRefMan<FlatDataPack> fdp = datapack.get();
-    if ( usedefs )
-	useStoredDefaults( fdp->category() );
-
-    FlatView::Annotation& annot = appearance().annot_;
-    if ( annot.x1_.name_.isEmpty() || annot.x1_.name_ == "X1" )
-    {
-	annot.x1_.name_ = fdp->dimName( true );
-	BufferStringSet altdimnms; fdp->getAltDim0Keys( altdimnms );
-	setAnnotChoice( altdimnms.indexOf(annot.x1_.name_) );
-    }
-
-    if ( annot.x2_.name_.isEmpty() || annot.x2_.name_ == "X2" )
-    {
-	annot.x2_.name_ = fdp->dimName( false );
-	annot.x2_.annotinint_ = fdp->dimValuesInInt( annot.x2_.name_ );
-    }
-
-    handleChange( BitmapData );
-}
-
-
 bool FlatView::Viewer::isVisible( bool wva ) const
 {
     const FlatView::DataDispPars& ddp = appearance().ddpars_;
@@ -939,12 +794,6 @@ bool FlatView::Viewer::isVisible( VwrDest dest ) const
 	return ddp.wva_.show_ && ddp.vd_.show_;
 
     return false;
-}
-
-
-void FlatView::Viewer::setVisible( bool wva, bool visibility )
-{
-    setVisible( wva ? WVA : VD, visibility );
 }
 
 
@@ -1048,6 +897,75 @@ FlatView::Viewer::VwrDest FlatView::Viewer::getDest( bool dowva, bool dovd )
 }
 
 
+void FlatView::Viewer::addPack( DataPackID id )
+{
+}
+
+
+const FlatDataPack* FlatView::Viewer::obtainPack(
+				      bool wva, bool checkother ) const
+{
+    Threads::Locker locker( lock_ );
+    ConstRefMan<FlatDataPack> res = wva ? wvapack_.get() : vdpack_.get();
+    if ( !res && checkother )
+	res = wva ? vdpack_.get() : wvapack_.get();
+
+    refPtr( res );
+    dpm_.add<FlatDataPack>( res );
+    return res;
+}
+
+
+void FlatView::Viewer::removePack( DataPackID id )
+{
+    const bool wva = hasPack(true) && packID(true)==id;
+    const bool vd = hasPack(false) && packID(false)==id;
+    const VwrDest dest = getDest( wva, vd );
+    removePack( dest );
+}
+
+
+void FlatView::Viewer::removeUnusedPacks()
+{
+}
+
+
+void FlatView::Viewer::setPack( bool wva, ::DataPackID id, bool usedefs )
+{
+    setPack( wva ? WVA : VD, dpm_.get<FlatDataPack>(id) , usedefs );
+}
+
+
+void FlatView::Viewer::setPack( VwrDest dest, ::DataPackID id, bool usedefs )
+{
+    if ( dest == None )
+	return;
+
+    setPack( dest, dpm_.get<FlatDataPack>(id) , usedefs );
+}
+
+
+void FlatView::Viewer::usePack( bool wva, ::DataPackID id, bool usedefs )
+{
+    setPack( wva ? WVA : VD, dpm_.get<FlatDataPack>(id) , usedefs );
+}
+
+
+void FlatView::Viewer::usePack( VwrDest dest, DataPackID id, bool usedefs )
+{
+    if ( dest == None )
+	return;
+
+    setPack( dest, dpm_.get<FlatDataPack>(id) , usedefs );
+}
+
+
+void FlatView::Viewer::setVisible( bool wva, bool visibility )
+{
+    setVisible( wva ? WVA : VD, visibility );
+}
+
+
 const TypeSet< ::DataPackID>& FlatView::Viewer::availablePacks() const
 {
     return ids_;
@@ -1056,6 +974,6 @@ const TypeSet< ::DataPackID>& FlatView::Viewer::availablePacks() const
 
 bool FlatView::Viewer::isAvailable( ::DataPackID id ) const
 {
-    return ids_.isPresent(id);
+    return packID(true)==id || packID(false)==id;
 }
 

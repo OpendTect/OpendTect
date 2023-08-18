@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "datapack.h"
 
 namespace FlatView { class Viewer; };
+namespace PreStack { class Gather; }
 template <class T> class SamplingData;
 
 
@@ -28,8 +29,12 @@ public:
     				Viewer2DGatherPainter(FlatView::Viewer&);
     				~Viewer2DGatherPainter();
 
+    mDeprecated("No longer used")
     void			setVDGather(DataPackID);
+    mDeprecated("No longer used")
     void			setWVAGather(DataPackID);
+    void			setVDGather(const PreStack::Gather*);
+    void			setWVAGather(const PreStack::Gather*);
     void			setColorTableClipRate(float);
     float			colorTableClipRate() const;
 
@@ -42,7 +47,7 @@ protected:
 					       SamplingData<float>&,
 					       int& nrsamp) const;
 
-    FlatView::Viewer&		viewer_;
+    FlatView::Viewer&			viewer_;
     ConstRefMan<PreStack::Gather>	inputwvagather_;
     ConstRefMan<PreStack::Gather>	inputvdgather_;
 };
