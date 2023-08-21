@@ -38,6 +38,8 @@ public:
 			~uiWellSinglePropSel();
 
     bool		isOK() const;
+    bool		isLogSelOK() const;
+    bool		isUnitSelOK() const;
 
     bool		setAvailableLogs(const Well::LogSet&);
     bool		setDefaultLog(const Well::LogSet&,const Mnemonic&);
