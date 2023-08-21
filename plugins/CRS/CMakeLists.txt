@@ -5,7 +5,9 @@
 #________________________________________________________________________
 #
 
-if ( NOT OD_NO_PROJ )
+if ( OD_NO_PROJ )
+    list( APPEND OD_MODULE_COMPILE_DEFINITIONS "OD_NO_PROJ" )
+else()
     set( OD_LINKPROJ Yes )
     set( OD_USESQLITE Yes )
 endif()
