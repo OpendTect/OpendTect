@@ -255,7 +255,19 @@ void uiWellSinglePropSel::set( const char* txt, bool alt,
 
 bool uiWellSinglePropSel::isOK() const
 {
-    return curLogNmFld()->currentItem() > 0 && curUnitFld()->getUnit();
+    return isLogSelOK() && isUnitSelOK();
+}
+
+
+bool uiWellSinglePropSel::isLogSelOK() const
+{
+    return curLogNmFld()->currentItem() > 0;
+}
+
+
+bool uiWellSinglePropSel::isUnitSelOK() const
+{
+    return curUnitFld()->getUnit();
 }
 
 
@@ -436,15 +448,28 @@ bool uiWellPropSel::setAvailableLogs( const Well::LogSet& logs,
 
 bool uiWellPropSel::isOK() const
 {
+    uiRetVal uirv;
     for ( const auto* propfld : propflds_ )
     {
-	if ( !propfld->isOK() )
+	if ( !propfld->isLogSelOK() )
 	{
-	    uiMSG().error( tr("Please create/select a log for %1")
-			   .arg(propfld->logtypeName()) );
-	    return false;
+	    uirv.add( tr("Please create/select a log for %1")
+		.arg( propfld->logtypeName() ) );
+	}
+
+	if ( !propfld->isUnitSelOK() )
+	{
+	    uirv.add( tr("Please select a unit of measure for log %1")
+		.arg( propfld->logtypeName() ) );
 	}
     }
+
+    if ( !uirv.isOK() )
+    {
+	uiMSG().error( uirv );
+	return false;
+    }
+
     return true;
 }
 
