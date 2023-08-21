@@ -164,7 +164,6 @@ macro( OD_SETUP_HDF5 )
 	endif()
     else()
 	set( HDF5_ROOT "" CACHE PATH "HDF5 Location" )
-	message( SEND_ERROR "Cannot find/use the HDF5 installation" )
     endif()
 
 endmacro(OD_SETUP_HDF5)
