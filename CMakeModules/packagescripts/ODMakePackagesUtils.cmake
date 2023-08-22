@@ -1,7 +1,7 @@
 #________________________________________________________________________
 #
-# Copyright:    dGB Beheer B.V.
-# License:      https://dgbes.com/index.php/licensing
+# Copyright:	dGB Beheer B.V.
+# License:	https://dgbes.com/index.php/licensing
 #________________________________________________________________________
 #
 # CMake script to build a release
@@ -19,6 +19,13 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 		file(COPY "${COPYFROMLIBDIR}/../lib"
 		     DESTINATION "${COPYTOLIBDIR}/../" )
 	    endif()
+	endif()
+	if ( WIN32 )
+	    file( GLOB ML_FW_RULENM "${COPYFROMDATADIR}/data/Firewall/od_main.txt"
+				"${COPYFROMDATADIR}/data/Firewall/od_remoteservice.txt"
+				"${COPYFROMDATADIR}/data/Firewall/od_SeisMMBatch.txt" )
+	    file( COPY ${ML_FW_RULENM}
+			DESTINATION "${COPYTODATADIR}/data/Firewall" )
 	endif()
 
 	file( GLOB SURV_PROVS "${COPYFROMDATADIR}/data/SurveyProviders/uiSEGYTools.txt"
@@ -53,6 +60,10 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    list( APPEND OD_THIRD_PARTY_FILES ${OD_PYBIND_LIBS} )
 	endif()
 	COPY_THIRDPARTYLIBS()
+    elseif( WIN32 AND ${PACKAGE_NAME} STREQUAL "dgbml" )
+	file( GLOB ML_FW_RULENM "${COPYFROMDATADIR}/data/Firewall/od_DeepLearning*.txt" )
+	file( COPY ${ML_FW_RULENM}
+			DESTINATION "${COPYTODATADIR}/data/Firewall" )
     endif()
 
     #TODO Need to check whether we need to use this macro on MAC.
