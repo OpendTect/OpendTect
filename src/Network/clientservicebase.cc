@@ -363,7 +363,7 @@ void ServiceClientMgr::doAppClosing( CallBacker* cb )
         Network::Service* service = services_.get( idx );
         sendAction( *service, sKeyClientAppCloseEv() );
         const Network::Service::ID servid = service->getID();
-	//stopService( servid );
+	stopService( servid );
 	//TODO : Require better implementation with knowledge of license
         removeService( servid );
     }
