@@ -991,7 +991,7 @@ od_int64 MultiWellReader::nrDone() const
 { return nrdone_; }
 
 uiString MultiWellReader::uiMessage() const
-{ return uiStrings::sEmptyString(); }
+{ return errmsg_; }
 
 uiString MultiWellReader::uiNrDoneText() const
 { return tr("Wells read"); }
@@ -999,6 +999,12 @@ uiString MultiWellReader::uiNrDoneText() const
 
 int MultiWellReader::nextStep()
 {
+    if ( keys_.isEmpty() )
+    {
+	errmsg_ = tr("No wells available for reading");
+	return Finished();
+    }
+
     if ( nrdone_ >= totalNr() )
     {
 	if ( wds_.size() != keys_.size() )
@@ -1010,7 +1016,7 @@ int MultiWellReader::nextStep()
 
 	if  ( wds_.size() == 0 )
 	{
-	   errmsg_ = tr("No wells to be read");
+	    errmsg_ = tr("Failed to read well data.");
 	   return  ErrorOccurred();
 	}
 	else
