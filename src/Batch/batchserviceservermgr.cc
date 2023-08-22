@@ -148,6 +148,8 @@ uiRetVal BatchServiceServerMgr::doHandleAction( const char* action )
         setUnregistered();
         return uiRetVal::OK();
     }
+    else if ( StringView(action) == sKeyCloseEv() )
+	return uiRetVal::OK();
 
     return ServiceServerMgr::doHandleAction( action );
 }
