@@ -37,7 +37,7 @@ public:
 			uiWellSinglePropSel(uiParent*,const PropertyRef&);
 			~uiWellSinglePropSel();
 
-    bool		isOK() const;
+    uiRetVal		isOK() const;
 
     bool		setAvailableLogs(const Well::LogSet&);
     bool		setDefaultLog(const Well::LogSet&,const Mnemonic&);
@@ -111,7 +111,7 @@ public:
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);
 			~uiWellPropSel();
 
-    bool		isOK() const;
+    uiRetVal		isOK() const;
     int			size() const	{ return propflds_.size(); }
 
     void		setWellID( const MultiID& wid ) { wellid_ = wid; }

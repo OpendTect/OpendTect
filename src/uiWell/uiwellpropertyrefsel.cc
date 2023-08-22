@@ -253,9 +253,18 @@ void uiWellSinglePropSel::set( const char* txt, bool alt,
 }
 
 
-bool uiWellSinglePropSel::isOK() const
+uiRetVal uiWellSinglePropSel::isOK() const
 {
-    return curLogNmFld()->currentItem() > 0 && curUnitFld()->getUnit();
+    uiRetVal ret;
+    if ( curLogNmFld()->currentItem() <= 0 )
+	ret.add( tr("Please create/select a log for %1")
+			.arg( logtypeName()) );
+
+    if ( !curUnitFld()->getUnit() )
+	ret.add( tr("Please select a unit of measure for log %1")
+			.arg( logtypeName()) );
+
+    return ret;
 }
 
 
@@ -434,18 +443,17 @@ bool uiWellPropSel::setAvailableLogs( const Well::LogSet& logs,
 }
 
 
-bool uiWellPropSel::isOK() const
+uiRetVal uiWellPropSel::isOK() const
 {
+    uiRetVal ret;
     for ( const auto* propfld : propflds_ )
     {
-	if ( !propfld->isOK() )
-	{
-	    uiMSG().error( tr("Please create/select a log for %1")
-			   .arg(propfld->logtypeName()) );
-	    return false;
-	}
+	const uiRetVal uirv = propfld->isOK();
+	if ( !uirv.isOK() )
+	    ret.add( uirv );
     }
-    return true;
+
+    return ret;
 }
 
 
@@ -506,7 +514,8 @@ bool uiWellPropSel::getLog( const Mnemonic& mn,	BufferString& retlognm,
 	return false;
     }
 
-    if ( !fld.isOK() )
+    const uiRetVal logseluirv = fld.isOK();
+    if ( !logseluirv.isOK() )
 	return false;
 
     retlognm = fld.logName();

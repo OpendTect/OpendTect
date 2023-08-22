@@ -502,8 +502,9 @@ bool WellTie::uiTieWinMGRDlg::initSetup()
 	    wtsetup_.linenm_.setEmpty();
     }
 
-    if ( !logsfld_->isOK() )
-	mErrRet( tr("Cannot select appropriate logs") )
+    const uiRetVal logseluirv = logsfld_->isOK();
+    if ( !logseluirv.isOK() )
+	mErrRet( logseluirv )
 
     BufferString lognm;
     bool isrev;
