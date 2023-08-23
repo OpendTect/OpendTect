@@ -206,6 +206,15 @@ TrcKeySampling& TrcKeySampling::set( const Pos::GeomID& geomid,
 }
 
 
+TrcKeySampling& TrcKeySampling::set( const TrcKey& tk )
+{
+    // keep this order
+    start_ = stop_ = tk.position();
+    setGeomID( tk.geomID() );
+    return *this;
+}
+
+
 void TrcKeySampling::setLineRange( const Interval<int>& inlrg )
 {
     start_.lineNr() = inlrg.start; stop_.lineNr() = inlrg.stop;
