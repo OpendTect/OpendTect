@@ -11,10 +11,11 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 
 #include "uidialog.h"
-#include "stratlevel.h"
 #include "uistring.h"
 
-class DataPointSet;
+#include "datapointset.h"
+#include "stratlevel.h"
+
 class SeisTrcBuf;
 class SeisTrcBufDataPack;
 class SeisTrcInfo;
@@ -49,7 +50,7 @@ protected:
     uiStratLaySeqAttribSetBuild* layseqattrfld_ = nullptr;
     uiStratSeisEvent*		evfld_		= nullptr;
 
-    DataPointSet*		getData(const Attrib::DescSet&,
+    RefMan<DataPointSet>	getData(const Attrib::DescSet&,
 					const Strat::LaySeqAttribSet&,
 					const Strat::Level&,
 					const ZGate&,float zstep,

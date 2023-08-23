@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "commondefs.h"
 #include "datacoldef.h"
-#include "datapointset.h"
 #include "od_helpids.h"
 #include "posvecdataset.h"
 #include "prestackattrib.h"
@@ -172,7 +171,8 @@ uiStratSynthCrossplot::~uiStratSynthCrossplot()
 #define mErrRet(s) { uiMSG().error(s); dps = nullptr; return dps; }
 #define mpErrRet(s) { pErrMsg(s); dps = nullptr; return dps; }
 
-DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
+RefMan<DataPointSet> uiStratSynthCrossplot::getData(
+					const Attrib::DescSet& seisattrs,
 					const Strat::LaySeqAttribSet& seqattrs,
 					const Strat::Level& lvl,
 					const ZGate& extrwin, float zstep,
