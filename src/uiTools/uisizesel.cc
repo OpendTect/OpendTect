@@ -35,7 +35,7 @@ uiSizeSel::uiSizeSel( uiParent* p, const uiString& lbl, int maxnrdim,
 	sizeflds_ += fld;
     }
 
-    if ( withsym )
+    if ( withsym && maxnrdim>1 )
     {
 	symmfld_ = new uiCheckBox( this, tr("Symmetric") );
 	symmfld_->setChecked( false );
@@ -82,6 +82,9 @@ void uiSizeSel::setNrDim( int nrdim )
 {
     for ( int idx=0; idx<sizeflds_.size(); idx++ )
 	sizeflds_[idx]->display( idx<nrdim );
+
+    if ( symmfld_ )
+	symmfld_->display( nrdim > 1 );
 }
 
 
