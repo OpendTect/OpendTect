@@ -356,7 +356,7 @@ ProcDesc::DataEntry::ActionType ProcDesc::Data::getActionType()
 
 void gatherFireWallProcInf()
 {
-    const FilePath fp( GetSoftwareDir(false), "data", "FireWall" );
+    const FilePath fp( GetSoftwareDir(false), "data", "Firewall" );
     const DirList filelist( fp.fullPath().buf(), File::FilesInDir );
     for ( int idx=0; idx<filelist.size(); idx++ )
     {
