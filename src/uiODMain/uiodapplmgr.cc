@@ -1759,15 +1759,16 @@ void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
 
     TypeSet<VisID> plids;
     TypeSet<SceneID> sceneids;
-    visSurvey::PolyLineDisplay* pl = new visSurvey::PolyLineDisplay;
-    pl->fillPolyLine( coords );
-    mDynamicCastGet(visBase::DataObject*,doobj,pl);
     visserv_->getSceneIds( sceneids );
 
-    for ( int idx=0; idx<sceneids.size(); idx++ )
+    for ( const auto& sceneid : sceneids )
     {
-	visserv_->addObject( doobj, sceneids[idx], true );
-	plids.addIfNew( doobj->id() );
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) )
+	auto* pl = new visSurvey::PolyLineDisplay;
+	pl->fillPolyLine( coords );
+	pl->setColor( scene->getAnnotColor() );
+	visserv_->addObject( pl, sceneid, true );
+	plids.addIfNew( pl->id() );
     }
 
     wellserv_->setPreviewIds( plids );
@@ -1776,12 +1777,15 @@ void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
 
 void uiODApplMgr::cleanPreview()
 {
+    TypeSet<VisID>& previds = wellserv_->getPreviewIds();
+    if ( previds.isEmpty() )
+	return;
+
     TypeSet<SceneID> sceneids;
     visserv_->getSceneIds( sceneids );
-    TypeSet<VisID>& previds = wellserv_->getPreviewIds();
-    if ( previds.size() == 0 ) return;
-    for ( int idx=0; idx<sceneids.size(); idx++ )
-	visserv_->removeObject( previds[0],sceneids[idx] );
+    for ( const auto& sceneid : sceneids )
+	for ( const auto& plid : previds )
+	    visserv_->removeObject( plid, sceneid );
 
     previds.erase();
 }
