@@ -539,6 +539,9 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    const float dah = outplog->dah( idz );
 		    outp[idz] = filtvals.getValue( dah );
 		}
+		if ( freqfld_->filterType() != FFTFilter::LowPass )
+		    outplog->setMnemonicLabel( nullptr );
+
 	    }
 	    else if ( act == 2 )
 	    {
@@ -549,6 +552,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		if ( !sm.execute() )
 		    mAddErrMsg( "Could not apply the smoothing window", wllnm )
+
 	    }
 	    else if ( act == 3 )
 	    {
