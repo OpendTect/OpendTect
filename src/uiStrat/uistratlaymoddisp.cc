@@ -843,6 +843,7 @@ uiStratSimpleLayerModelDisp::~uiStratSimpleLayerModelDisp()
 
 void uiStratSimpleLayerModelDisp::selPropChg()
 {
+    curproprg_ = getModelRange( curPropIdx() );
     reDrawSeqs();
 }
 
