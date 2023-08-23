@@ -34,9 +34,9 @@ public:
 
     void			setSeedPos(const TrcKeyValue&);
     void			setDisplaySize(int nrtrcs,
-					       const Interval<int>& zintv);
-    void			setWindow(const Interval<int>&);
-    Interval<int>		getManipWindow() const;
+					       const Interval<float>& zintv);
+    void			setWindow(const Interval<float>&);
+    Interval<float>		getManipWindow() const;
 
     Notifier<uiPreviewGroup>	windowChanged_;
 
@@ -65,9 +65,9 @@ protected:
 
     TrcKeyValue			seedpos_;
     int				nrtrcs_;
-    Interval<int>		zintv_;
-    Interval<int>		winintv_;
-    Interval<int>		manipwinintv_;
+    Interval<float>		zintv_;
+    Interval<float>		winintv_;
+    Interval<float>		manipwinintv_;
 
 };
 

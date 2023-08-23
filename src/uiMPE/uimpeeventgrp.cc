@@ -39,23 +39,29 @@ namespace MPE
 
 static VSEvent::Type getEventType( int sel )
 {
-    if ( sel==0 )	return VSEvent::Max;
-    if ( sel==1 )	return VSEvent::Min;
-    if ( sel==2 )	return VSEvent::ZCPosNeg;
-    if ( sel==3 )	return VSEvent::ZCNegPos;
-    if ( sel==4 )	return VSEvent::Max;
-    if ( sel==5 )	return VSEvent::Min;
-			return VSEvent::None;
+    switch( sel )
+    {
+    case 0:	return VSEvent::Max; break;
+    case 1:	return VSEvent::Min; break;
+    case 2:	return VSEvent::ZCPosNeg; break;
+    case 3:	return VSEvent::ZCNegPos; break;
+    case 4:	return VSEvent::Max; break;
+    case 5:	return VSEvent::Min; break;
+    default:	return VSEvent::None;
+    }
 }
 
 
 static int getEventIdx( VSEvent::Type tp )
 {
-    if ( tp == VSEvent::Max )		return 0;
-    if ( tp == VSEvent::Min )		return 1;
-    if ( tp == VSEvent::ZCPosNeg )	return 2;
-    if ( tp == VSEvent::ZCNegPos )	return 3;
-					return -1;
+    switch( tp )
+    {
+    case VSEvent::Max:		return 0; break;
+    case VSEvent::Min:		return 1; break;
+    case VSEvent::ZCPosNeg:	return 2; break;
+    case VSEvent::ZCNegPos:	return 3; break;
+    default:			return -1;
+    }
 }
 
 
@@ -64,16 +70,16 @@ static const char* sEventNames[] =
   "Local Maximum", "Local Minimum", 0 };
 
 static bool sAllowSteps = false;
+static int sNrZDecimals = 0;
 
 uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     : uiDlgGroup(p,tr("Event"))
-    , addstepbut_(0)
-    , sectiontracker_(0)
-    , adjuster_(0)
-    , changed_(this)
     , is2d_(is2d)
     , seedpos_(TrcKeyValue::udf())
+    , changed_(this)
 {
+    sNrZDecimals = SI().nrZDecimals();
+
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     evfld_ = new uiGenInput( leftgrp, tr("Event type"),
 			     StringListInpSpec(sEventNames) );
@@ -103,29 +109,51 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     }
 
     uiString srchwindtxt = tr("Search window %1").arg(SI().getUiZUnitString());
-    StepInterval<int> swin0( -10000, -1, -1 );
-    StepInterval<int> swin1( 1, 10000, 1 );
-    IntInpIntervalSpec iis; iis.setSymmetric( true );
-    iis.setLimits( swin0, 0 ); iis.setLimits( swin1, 1 );
-    srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis );
+    if ( sNrZDecimals==0 )
+    {
+	IntInpIntervalSpec iis;
+	iis.setSymmetric( true );
+	iis.setLimits( StepInterval<int>(-10000,-1,-1), 0 );
+	iis.setLimits( StepInterval<int>(1,10000,1), 1 );
+	srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis );
+	srchgatefld_->valueChanging.notify( mCB(this,uiEventGroup,changeCB) );
+    }
+    else
+    {
+	FloatInpIntervalSpec iis;
+	srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis );
+	srchgatefld_->valueChanged.notify( mCB(this,uiEventGroup,changeCB) );
+    }
+
     srchgatefld_->attach( alignedBelow, ampthresholdfld_ );
-    srchgatefld_->valueChanging.notify( mCB(this,uiEventGroup,changeCB) );
 
     uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
     sep->attach( stretchedBelow, srchgatefld_ );
 
-    const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
-    StepInterval<int> intv( -10000, 10000, step );
-    IntInpIntervalSpec diis; diis.setSymmetric( true );
-    diis.setLimits( intv, 0 ); diis.setLimits( intv, 1 );
-
     uiString disptxt = tr("Data Display window %1")
 					.arg(SI().getUiZUnitString());
-    nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
+    if ( sNrZDecimals==0 )
+    {
+	const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
+	StepInterval<int> intv( -10000, 10000, step );
+	IntInpIntervalSpec iis;
+	iis.setSymmetric( true );
+	iis.setLimits( intv, 0 );
+	iis.setLimits( intv, 1 );
+	nrzfld_ = new uiGenInput( leftgrp, disptxt, iis );
+	nrzfld_->valueChanging.notify(
+		mCB(this,uiEventGroup,visibleDataChangeCB) );
+    }
+    else
+    {
+	FloatInpIntervalSpec iis;
+	nrzfld_ = new uiGenInput( leftgrp, disptxt, iis );
+	nrzfld_->valueChanged.notify(
+		mCB(this,uiEventGroup,visibleDataChangeCB) );
+    }
+
     nrzfld_->attach( alignedBelow, srchgatefld_ );
     nrzfld_->attach( ensureBelow, sep );
-    nrzfld_->valueChanging.notify(
-		mCB(this,uiEventGroup,visibleDataChangeCB) );
 
     IntInpSpec tiis; tiis.setLimits( StepInterval<int>(3,99,2) );
     nrtrcsfld_ = new uiGenInput( leftgrp, tr("Nr Traces"), tiis );
@@ -159,26 +187,34 @@ void uiEventGroup::updateSensitivity( bool )
 
 void uiEventGroup::changeCB( CallBacker* )
 {
-    previewgrp_->setWindow( srchgatefld_->getIInterval() );
+    previewgrp_->setWindow( srchgatefld_->getFInterval() );
     changed_.trigger();
 }
 
 
 void uiEventGroup::visibleDataChangeCB( CallBacker* )
 {
-    previewgrp_->setWindow( srchgatefld_->getIInterval() );
+    previewgrp_->setWindow( srchgatefld_->getFInterval() );
     previewgrp_->setDisplaySize( nrtrcsfld_->getIntValue(),
-				 nrzfld_->getIInterval() );
+				 nrzfld_->getFInterval() );
 }
 
 
 void uiEventGroup::previewChgCB(CallBacker *)
 {
-    const Interval<int> intv = previewgrp_->getManipWindow();
+    const Interval<float> intv = previewgrp_->getManipWindow();
     if ( mIsUdf(intv.start) )
+    {
 	srchgatefld_->setValue( intv.stop, 1 );
+	srchgatefld_->setNrDecimals( sNrZDecimals+1, 1 );
+    }
     if ( mIsUdf(intv.stop) )
+    {
 	srchgatefld_->setValue( intv.start, 0 );
+	srchgatefld_->setNrDecimals( sNrZDecimals+1, 0 );
+    }
+
+    visibleDataChangeCB( nullptr );
 }
 
 
@@ -315,21 +351,23 @@ void uiEventGroup::init()
 	fldidx += 4;
     evfld_->setValue( fldidx );
 
+    const float zfac = float( SI().zDomain().userFactor() );
     NotifyStopper ns1( srchgatefld_->valueChanging );
-    Interval<float> intvf( adjuster_->searchWindow() );
-    intvf.scale( mCast(float,SI().zDomain().userFactor()) );
-    Interval<int> srchintv; srchintv.setFrom( intvf );
-    srchgatefld_->setValue( srchintv );
+    Interval<float> searchintv( adjuster_->searchWindow() );
+    searchintv.scale( zfac );
+    srchgatefld_->setValue( searchintv );
 
     thresholdtypefld_->setValue( adjuster_->useAbsThreshold() ? 0 : 1 );
 
-    const int sample = 2*mCast(int,SI().zStep()*SI().zDomain().userFactor());
-    const Interval<int> dataintv = srchintv + Interval<int>(-sample,sample);
+    const float sample = 2 * SI().zStep() * zfac;
+    const Interval<float> dataintv =
+		searchintv + Interval<float>(-sample,sample);
     nrzfld_->setValue( dataintv );
 
     nrtrcsfld_->setValue( 5 );
 
-    selAmpThresholdType( 0 );
+    selAmpThresholdType( nullptr );
+    visibleDataChangeCB( nullptr );
 }
 
 
@@ -348,7 +386,8 @@ void uiEventGroup::setSeedPos( const TrcKeyValue& tkv )
 
 bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 {
-    if ( !adjuster_ ) return false;
+    if ( !adjuster_ )
+	return false;
 
     fieldchange = false;
 
@@ -366,11 +405,11 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 	adjuster_->allowAmplitudeSignChange( allowsignchg );
     }
 
+    const float zfac = float( SI().zDomain().userFactor() );
     Interval<float> intv = srchgatefld_->getFInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
 	mErrRet( tr("Search window should be minus to positive, ex. -20, 20"));
-    Interval<float> relintv( (float)intv.start/SI().zDomain().userFactor(),
-			     (float)intv.stop/SI().zDomain().userFactor() );
+    Interval<float> relintv( intv.start/zfac, intv.stop/zfac );
     if ( adjuster_->searchWindow() != relintv )
     {
 	fieldchange = true;
@@ -399,7 +438,7 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
     }
     else
     {
-	const float var = ss.getFValue(0) / 100;
+	const float var = ss.getFValue(0) / 100.f;
 	if ( var<=0.0 || var>=1.0 )
 	    mErrRet( tr("Allowed difference must be between 0-100") );
 

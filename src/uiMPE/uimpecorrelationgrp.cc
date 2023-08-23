@@ -27,6 +27,8 @@ ________________________________________________________________________
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
+static int sNrZDecimals = 0;
+
 namespace MPE
 {
 
@@ -37,6 +39,8 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     , changed_(this)
     , seedpos_(TrcKeyValue::udf())
 {
+    sNrZDecimals = SI().nrZDecimals();
+
     uiGroup* leftgrp = new uiGroup( this, "Left Group" );
     usecorrfld_ = new uiGenInput( leftgrp, tr("Use Correlation"),
 				  BoolInpSpec(true));
@@ -46,14 +50,27 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 	    mCB(this,uiCorrelationGroup,correlationChangeCB) );
     leftgrp->setHAlignObj( usecorrfld_ );
 
-    IntInpIntervalSpec iis; iis.setSymmetric( true );
-    StepInterval<int> swin( -10000, 10000, 1 );
-    iis.setLimits( swin, 0 ); iis.setLimits( swin, 1 );
     uiString compwindtxt = tr("Compare window %1").arg(SI().getUiZUnitString());
-    compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis );
-    compwinfld_->attach( alignedBelow, usecorrfld_ );
-    compwinfld_->valueChanging.notify(
+    if ( sNrZDecimals==0 )
+    {
+	IntInpIntervalSpec iis;
+	iis.setSymmetric( true );
+	StepInterval<int> swin( -10000, 10000, 1 );
+	iis.setLimits( swin, 0 );
+	iis.setLimits( swin, 1 );
+	compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis );
+	compwinfld_->valueChanging.notify(
 		mCB(this,uiCorrelationGroup,correlationChangeCB) );
+    }
+    else
+    {
+	FloatInpIntervalSpec iis;
+	compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis );
+	compwinfld_->valueChanged.notify(
+		mCB(this,uiCorrelationGroup,correlationChangeCB) );
+    }
+
+    compwinfld_->attach( alignedBelow, usecorrfld_ );
 
     corrthresholdfld_ =
 	new uiLabeledSpinBox( leftgrp, tr("Correlation threshold (%)"), 1 );
@@ -72,17 +89,29 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
     sep->attach( stretchedBelow, corrthresholdfld_ );
 
-    const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
-    StepInterval<int> intv( -10000, 10000, step );
-    IntInpIntervalSpec diis; diis.setSymmetric( true );
-    diis.setLimits( intv, 0 ); diis.setLimits( intv, 1 );
-
     uiString disptxt=tr("Data Display window %1").arg(SI().getUiZUnitString());
-    nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
+    if ( sNrZDecimals==0 )
+    {
+	const int step = mCast(int,SI().zStep()*SI().zDomain().userFactor());
+	StepInterval<int> intv( -10000, 10000, step );
+	IntInpIntervalSpec diis;
+	diis.setSymmetric( true );
+	diis.setLimits( intv, 0 );
+	diis.setLimits( intv, 1 );
+	nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
+	nrzfld_->valueChanging.notify(
+		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
+    }
+    else
+    {
+	FloatInpIntervalSpec iis;
+	nrzfld_ = new uiGenInput( leftgrp, disptxt, iis );
+	nrzfld_->valueChanged.notify(
+		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
+    }
+
     nrzfld_->attach( alignedBelow, corrthresholdfld_ );
     nrzfld_->attach( ensureBelow, sep );
-    nrzfld_->valueChanging.notify(
-		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
 
     IntInpSpec tiis;
     tiis.setLimits( StepInterval<int>(3,99,2) );
@@ -119,26 +148,34 @@ void uiCorrelationGroup::selUseCorrelation( CallBacker* )
 
 void uiCorrelationGroup::visibleDataChangeCB( CallBacker* )
 {
-    previewgrp_->setWindow( compwinfld_->getIInterval() );
+    previewgrp_->setWindow( compwinfld_->getFInterval() );
     previewgrp_->setDisplaySize( nrtrcsfld_->getIntValue(),
-				 nrzfld_->getIInterval() );
+				 nrzfld_->getFInterval() );
 }
 
 
 void uiCorrelationGroup::correlationChangeCB( CallBacker* )
 {
-    previewgrp_->setWindow( compwinfld_->getIInterval() );
+    previewgrp_->setWindow( compwinfld_->getFInterval() );
     changed_.trigger();
 }
 
 
-void uiCorrelationGroup::previewChgCB(CallBacker *)
+void uiCorrelationGroup::previewChgCB( CallBacker* )
 {
-    const Interval<int> intv = previewgrp_->getManipWindow();
+    const Interval<float> intv = previewgrp_->getManipWindow();
     if ( mIsUdf(intv.start) )
+    {
 	compwinfld_->setValue( intv.stop, 1 );
+	compwinfld_->setNrDecimals( sNrZDecimals+1, 1 );
+    }
     if ( mIsUdf(intv.stop) )
+    {
 	compwinfld_->setValue( intv.start, 0 );
+	compwinfld_->setNrDecimals( sNrZDecimals+1, 0 );
+    }
+
+    visibleDataChangeCB( nullptr );
 }
 
 
@@ -158,11 +195,10 @@ void uiCorrelationGroup::init()
     NotifyStopper ns1( usecorrfld_->valueChanged );
     usecorrfld_->setValue( !adjuster_->trackByValue() );
 
-    const Interval<int> corrintv(
-		mCast(int,adjuster_->similarityWindow().start *
-			  SI().zDomain().userFactor()),
-		mCast(int,adjuster_->similarityWindow().stop *
-			  SI().zDomain().userFactor()) );
+    const float zfac = SI().zDomain().userFactor();
+    const Interval<float> corrintv(
+		adjuster_->similarityWindow().start * zfac,
+		adjuster_->similarityWindow().stop * zfac );
 
     NotifyStopper ns2( compwinfld_->valueChanging );
     compwinfld_->setValue( corrintv );
@@ -173,12 +209,14 @@ void uiCorrelationGroup::init()
 
     snapfld_->setValue( adjuster_->snapToEvent() );
 
-    const int sample = mCast(int,SI().zStep()*SI().zDomain().userFactor());
-    const Interval<int> dataintv = corrintv + Interval<int>(-2*sample,2*sample);
+    const float sample = SI().zStep()*zfac;
+    const Interval<float> dataintv =
+			corrintv + Interval<float>(-2*sample,2*sample);
     nrzfld_->setValue( dataintv );
     nrtrcsfld_->setValue( 5 );
 
-    selUseCorrelation(0);
+    selUseCorrelation( nullptr );
+    visibleDataChangeCB( nullptr );
 }
 
 
@@ -203,7 +241,7 @@ bool uiCorrelationGroup::commitToTracker( bool& fieldchange ) const
     if ( !usecorr )
 	return true;
 
-    const Interval<int> intval = compwinfld_->getIInterval();
+    const Interval<float> intval = compwinfld_->getFInterval();
     if ( intval.width()==0 || intval.isRev() )
 	mErrRet( tr("Correlation window's start value must be less than"
 		    " the stop value") );

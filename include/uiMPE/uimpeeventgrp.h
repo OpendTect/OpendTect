@@ -59,7 +59,7 @@ protected:
     uiGenInput*			srchgatefld_;
     uiGenInput*			thresholdtypefld_;
     uiGenInput*			ampthresholdfld_;
-    uiPushButton*		addstepbut_;
+    uiPushButton*		addstepbut_			= nullptr;
     uiGenInput*			extriffailfld_;
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
@@ -70,8 +70,8 @@ protected:
 
     bool			is2d_;
     TrcKeyValue			seedpos_;
-    SectionTracker*		sectiontracker_;
-    HorizonAdjuster*		adjuster_;
+    SectionTracker*		sectiontracker_			= nullptr;
+    HorizonAdjuster*		adjuster_			= nullptr;
 
     Notifier<uiEventGroup>	changed_;
 };

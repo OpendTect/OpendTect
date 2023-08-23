@@ -9,10 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
-#include "flatview.h"
 
 #include "uidlggroup.h"
-#include "uimpe.h"
+#include "trckeyvalue.h"
 
 class uiGenInput;
 class uiLabeledSpinBox;

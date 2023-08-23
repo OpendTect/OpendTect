@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uichecklist.h"
 #include "uiflatviewer.h"
 #include "uigraphicsview.h"
-#include "uimsg.h"
 
 
 namespace MPE
@@ -26,9 +25,9 @@ namespace MPE
 uiPreviewGroup::uiPreviewGroup( uiParent* p )
     : uiGroup(p,"Preview")
     , windowChanged_(this)
+    , mousedown_(false)
     , seedpos_(TrcKeyValue::udf())
     , nrtrcs_(mUdf(int))
-    , mousedown_(false)
 {
     wvafld_ = new uiCheckList( this, uiCheckList::OneMinimum,
 			       OD::Horizontal );
@@ -111,7 +110,7 @@ void uiPreviewGroup::setSeedPos( const TrcKeyValue& tkv )
 }
 
 
-void uiPreviewGroup::setDisplaySize( int nrtrcs, const Interval<int>& zintv )
+void uiPreviewGroup::setDisplaySize( int nrtrcs, const Interval<float>& zintv )
 {
     nrtrcs_ = nrtrcs;
     zintv_ = zintv;
@@ -120,14 +119,14 @@ void uiPreviewGroup::setDisplaySize( int nrtrcs, const Interval<int>& zintv )
 }
 
 
-void uiPreviewGroup::setWindow( const Interval<int>& winsz )
+void uiPreviewGroup::setWindow( const Interval<float>& winsz )
 {
     winintv_ = winsz;
     updateWindowLines();
 }
 
 
-Interval<int> uiPreviewGroup::getManipWindow() const
+Interval<float> uiPreviewGroup::getManipWindow() const
 {
     return manipwinintv_;
 }
@@ -142,7 +141,7 @@ void uiPreviewGroup::updateViewer()
     const float z = seedpos_.val_;
 
     StepInterval<float> zintv; zintv.setFrom( zintv_ );
-    zintv.scale( 1.f/SI().zDomain().userFactor() );
+    zintv.scale( 1.f/float(SI().zDomain().userFactor()) );
     zintv.step = SI().zStep();
 
     auto dp = MPE::engine().getSeedPosDataPackRM( tk, z, nrtrcs_, zintv );
@@ -174,7 +173,7 @@ void uiPreviewGroup::updateWindowLines()
     const float z = seedpos_.val_;
 
     StepInterval<float> zintv; zintv.setFrom( winintv_ );
-    zintv.scale( 1.f/SI().zDomain().userFactor() );
+    zintv.scale( 1.f/float(SI().zDomain().userFactor()) );
 
     const int so = nrtrcs_/2+1;
     minline_->poly_[0] = FlatView::Point( tk.trcNr()-so, z+zintv.start );
@@ -188,7 +187,8 @@ void uiPreviewGroup::updateWindowLines()
 
 void uiPreviewGroup::mousePressed( CallBacker* )
 {
-    if ( !calcNewWindow() ) return;
+    if ( !calcNewWindow() )
+	return;
 
     mousedown_ = true;
     windowChanged_.trigger();
@@ -197,7 +197,8 @@ void uiPreviewGroup::mousePressed( CallBacker* )
 
 void uiPreviewGroup::mouseMoved( CallBacker* )
 {
-    if ( !mousedown_ || !calcNewWindow() ) return;
+    if ( !mousedown_ || !calcNewWindow() )
+	return;
 
     windowChanged_.trigger();
 }
@@ -221,9 +222,9 @@ bool uiPreviewGroup::calcNewWindow()
     uiWorldPoint wpt = vwr_->getWorld2Ui().transform( pt );
     const double diff = (wpt.y - seedpos_.val_) * SI().zDomain().userFactor();
     if ( wpt.y < seedpos_.val_ )
-	manipwinintv_.start = mNINT32( diff );
+	manipwinintv_.start = float( diff );
     else
-	manipwinintv_.stop = mNINT32( diff );
+	manipwinintv_.stop = float( diff );
 
     return true;
 }
