@@ -41,6 +41,9 @@ public:
 				{ return errmsg_.str(); }
     void			setPixelDensity(float) override;
 
+    void			setColor(OD::Color) override;
+    OD::Color			getColor() const override;
+
 protected:
 
 protected:
