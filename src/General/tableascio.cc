@@ -372,13 +372,17 @@ Table::TargetInfo* TargetInfo::mkZPos( bool isreq, bool wu, int zopt )
 	    zopt = SI().zIsTime() ? -1 : 1;
 
 	if ( zopt < 0 )
+	{
 	    ti = new TargetInfo( sKey::Time(), FloatInpSpec(), reqspec,
 				 Mnemonic::Time );
+	    ti->selection_.unit_ = UnitOfMeasure::surveyDefTimeUnit();
+	}
 	else
+	{
 	    ti = new TargetInfo( sKey::Depth(), FloatInpSpec(), reqspec,
 				 Mnemonic::Dist );
-
-	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
+	    ti->selection_.unit_ = UnitOfMeasure::surveyDefDepthUnit();
+	}
     }
 
     return ti;
