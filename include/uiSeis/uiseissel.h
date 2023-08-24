@@ -101,6 +101,7 @@ protected:
     virtual const char* compNameFromKey(const char*) const;
     uiIOObjRetDlg*	mkDlg() override;
     void		mkOthDomBox();
+    void		dlgPopupCB(CallBacker*);
 
     virtual const char* getDefaultKey(Seis::GeomType) const;
 

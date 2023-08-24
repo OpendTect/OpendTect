@@ -151,7 +151,8 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !compfld_ )
 	return;
 
-    if ( selgrp_->getListField()->currentItem() < 0 )
+    const int curitm = selgrp_->getListField()->currentItem();
+    if ( curitm < 0 )
     {
 	compfld_->display( false );
 	return;
@@ -213,21 +214,21 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 {
     uiIOObjSelDlg::usePar( iopar );
 
-    if ( compfld_ )
+    if ( !compfld_ )
+	return;
+
+    if ( selgrp_->getCtxtIOObj().ioobj_ )
+	entrySel( nullptr );
+
+    int selcompnr = mUdf(int);
+    if ( iopar.get(sKey::Component(),selcompnr) && !mIsUdf(selcompnr) )
     {
-	if ( selgrp_->getCtxtIOObj().ioobj_ )
-	    entrySel( nullptr );
+	BufferStringSet compnms;
+	getComponentNames( compnms );
+	if ( selcompnr >= compnms.size() )
+	    return;
 
-	int selcompnr = mUdf(int);
-	if ( iopar.get(sKey::Component(),selcompnr) && !mIsUdf(selcompnr) )
-	{
-	    BufferStringSet compnms;
-	    getComponentNames( compnms );
-	    if ( selcompnr >= compnms.size() )
-		return;
-
-	    compfld_->box()->setText( compnms.get(selcompnr).buf() );
-	}
+	compfld_->box()->setText( compnms.get(selcompnr).buf() );
     }
 }
 
@@ -351,7 +352,7 @@ IOObjContext uiSeisSel::ioContext( Seis::GeomType gt, bool forread )
 void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
     ((uiSeisSelDlg*)dlg)->fillPar( dlgiopar_ );
-    if ( seissetup_.selectcomp_ && !dlgiopar_.get(sKey::Component(), compnr_) )
+    if ( seissetup_.selectcomp_ && dlgiopar_.get(sKey::Component(),compnr_) )
 	setCompNr( compnr_ );
 }
 
@@ -413,7 +414,7 @@ void uiSeisSel::usePar( const IOPar& iop )
     uiIOObjSel::usePar( iop );
     dlgiopar_.merge( iop );
 
-    if ( seissetup_.selectcomp_ && !iop.get(sKey::Component(), compnr_) )
+    if ( seissetup_.selectcomp_ && !iop.get(sKey::Component(),compnr_) )
 	compnr_ = 0;
 
     updateInput();
@@ -501,7 +502,7 @@ void uiSeisSel::processInput()
 uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
     uiSeisSelDlg* dlg = new uiSeisSelDlg( this, workctio_, seissetup_ );
-    dlg->usePar( dlgiopar_ );
+    mAttachCB( dlg->afterPopup, uiSeisSel::dlgPopupCB );
     uiIOObjSelGrp* selgrp = dlg->selGrp();
     if ( selgrp )
     {
@@ -512,6 +513,16 @@ uiIOObjRetDlg* uiSeisSel::mkDlg()
 
     return dlg;
 }
+
+
+void uiSeisSel::dlgPopupCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiSeisSelDlg*,dlg,cb)
+    if ( dlg )
+	dlg->usePar( dlgiopar_ );
+}
+
+
 
 // uiSteerCubeSel
 
