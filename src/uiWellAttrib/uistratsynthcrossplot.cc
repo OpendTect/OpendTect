@@ -186,6 +186,16 @@ RefMan<DataPointSet> uiStratSynthCrossplot::getData(
 	    const_cast<Attrib::DescSet*>(&seisattrs)->removeDesc(tmpdesc->id());
     }
 
+    bool hasintegrated = false;
+    for ( const auto* seqattr : seqattrs )
+    {
+	if ( !seqattr->islocal_ )
+	{
+	    hasintegrated = true;
+	    break;
+	}
+    }
+
     RefMan<DataPointSet> dps =
 		seisattrs.createDataPointSet(Attrib::DescSetup(),false);
     if ( !dps )
@@ -254,7 +264,7 @@ RefMan<DataPointSet> uiStratSynthCrossplot::getData(
 	    ZGate depthrg( dpth, mUdf(float) );
 	    depthrg.stop = extrwin.isUdf() ? maxdepth
 			 : tdmodel->getDepth( timerg.stop );
-	    fillPosFromLayerSampling( *dps, *tdmodel,
+	    fillPosFromLayerSampling( *dps, hasintegrated, *tdmodel,
 				      trc.info(), depthrg, imod );
 	}
 	else
@@ -333,14 +343,26 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 
 
 void uiStratSynthCrossplot::fillPosFromLayerSampling( DataPointSet& dps,
+						bool hasintegrated,
 						const TimeDepthModel& d2tmodel,
 						const SeisTrcInfo& trcinfo,
 						const ZGate& extrwin, int iseq )
 {
     Strat::LayerSequence subseq;
-    lm_.sequence( iseq ).getSequencePart( extrwin, true, subseq );
+    const Strat::LayerSequence& seqin = lm_.sequence( iseq );
+    seqin.getSequencePart( extrwin, true, subseq );
     if ( subseq.isEmpty() )
-	return;
+    {
+	if ( hasintegrated && !seqin.isEmpty() )
+	{
+	    auto* newlay = new Strat::Layer( *seqin.layers().first() );
+	    newlay->setThickness( 0.f );
+	    subseq.layers().add( newlay );
+	    subseq.setStartDepth( seqin.startDepth() );
+	}
+	else
+	    return;
+    }
 
     const int depthidx = dps.indexOf( sKey::Depth() );
     const int nrcols = dps.nrCols();

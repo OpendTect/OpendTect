@@ -67,6 +67,7 @@ protected:
 						     float zstep,float maxtwt,
 						     const ZGate&);
     void			fillPosFromLayerSampling(DataPointSet&,
+						     bool hasintegrated,
 						     const TimeDepthModel&,
 						     const SeisTrcInfo&,
 						     const ZGate&,int iseq);
