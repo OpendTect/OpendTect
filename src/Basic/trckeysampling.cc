@@ -201,11 +201,8 @@ TrcKeySampling& TrcKeySampling::set( const Pos::GeomID& geomid,
 
 TrcKeySampling& TrcKeySampling::set( const TrcKey& tk )
 {
+    start_ = stop_ = tk.position();
     setGeomID( tk.geomID() );
-    if ( tk.is3D() )
-	setInlRange( Interval<int>(tk.inl(),tk.inl()) );
-
-    setCrlRange( Interval<int>(tk.crl(),tk.crl()) );
     return *this;
 }
 
