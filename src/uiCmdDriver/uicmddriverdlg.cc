@@ -692,6 +692,7 @@ bool execute()
     mAttachCB( driver_.executeFinished, ScriptItem::executeFinishedCB );
 
     const FilePath logfp = getLogFilename();
+    driver_.setOutputDir( GetScriptsLogDir() );
     driver_.setLogFileName( logfp.fileName() );
     driver_.getActionsFromFile( fnm_ );
     return driver_.execute();
@@ -971,7 +972,12 @@ void uiScriptRunnerDlg::rightClickCB( CallBacker* )
     if ( res==0 )
 	uiDesktopServices::openUrl( scriptitem->fnm_ );
     else if ( res==1 )
+    {
+	abort_ = false;
+	gobut_->setSensitive( false );
+	stopbut_->setSensitive( true );
 	scriptitem->execute();
+    }
 }
 
 
