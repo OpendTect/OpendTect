@@ -24,12 +24,11 @@ elseif( NOT IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}" )
     message( FATAL_ERROR "${CMAKE_INSTALL_PREFIX} does not exist. Project may not be installed" )
 endif()
 
-find_program( ZIP_EXEC "7z" NO_CACHE )
+find_program( ZIP_EXEC "7z" NAMES "7za"
+	HINTS "C:/Program Files/7-Zip" "/usr/local/bin" 
+	NO_CACHE )
 if ( NOT ZIP_EXEC OR NOT EXISTS "${ZIP_EXEC}" )
-    find_program( ZIP_EXEC "7za" NO_CACHE )
-    if ( NOT ZIP_EXEC OR NOT EXISTS "${ZIP_EXEC}" )
-	message( FATAL_ERROR "'7z/7za' executable is not installed or not in the path. Unable to create packages." )
-    endif()
+    message( FATAL_ERROR "'7z/7za' executable is not installed or not in the path. Unable to create packages." )
 endif()
 
 if ( NOT DEFINED OD_PLFSUBDIR )
