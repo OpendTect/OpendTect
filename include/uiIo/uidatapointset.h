@@ -219,8 +219,9 @@ protected:
     void			setSortCol(CallBacker*);
     void			showCrossPlot(CallBacker*);
     void			showStatsWin(CallBacker*);
-    void			retrieve(CallBacker*);
-    void			save(CallBacker*);
+    void			retrieveCB(CallBacker*);
+    void			saveCB(CallBacker*);
+    void			exportCB(CallBacker*);
     void			manage(CallBacker*);
     void			delSelRows(CallBacker*);
     void			showStatusMsg(CallBacker*);

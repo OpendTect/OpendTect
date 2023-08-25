@@ -297,9 +297,10 @@ void uiDataPointSet::mkToolBars()
     {
 	if ( !iotb_ )
 	    iotb_ = new uiToolBar( this, toUiString("I/O Tool bar") );
-	mAddButton( "save", save, uiStrings::phrSave(uiStrings::sData()) );
 	if ( setup_.allowretrieve_ )
-	    mAddButton( "open", retrieve, tr("Retrieve stored data") );
+	    mAddButton( "open", retrieveCB, tr("Open saved Cross-plot Data") );
+	mAddButton( "save", saveCB, tr("Save Cross-plot Data") );
+	mAddButton( "export", exportCB, tr("Export spreadsheet") );
     }
 #undef mAddButton
 
@@ -1349,7 +1350,7 @@ bool uiDataPointSet::acceptOK( CallBacker* )
 }
 
 
-void uiDataPointSet::retrieve( CallBacker* )
+void uiDataPointSet::retrieveCB( CallBacker* )
 {
     if ( !saveOK() ) return;
 
@@ -1408,7 +1409,7 @@ void uiDataPointSet::retrieve( CallBacker* )
 }
 
 
-void uiDataPointSet::save( CallBacker* )
+void uiDataPointSet::saveCB( CallBacker* )
 {
     doSave();
 }
@@ -1431,6 +1432,18 @@ bool uiDataPointSet::doSave()
     const MultiID key = dlg.getOutputKey();
     setCaption( toUiString(IOM().nameOf(key)) );
     return true;
+}
+
+
+void uiDataPointSet::exportCB( CallBacker* )
+{
+    RefMan<DataPointSet> savedps = new DataPointSet( dps_ );
+    savedps->dataSet().pars() = storepars_;
+    if ( !grpnames_.isEmpty() )
+	savedps->dataSet().pars().set( sKeyGroups, grpnames_ );
+
+    uiExportDataPointSet dlg( this, savedps );
+    dlg.go();
 }
 
 

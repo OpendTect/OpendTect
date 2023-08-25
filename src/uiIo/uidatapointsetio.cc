@@ -14,7 +14,9 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uimsg.h"
 
+#include "filepath.h"
 #include "ioman.h"
+#include "oddirs.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
 
@@ -63,17 +65,42 @@ uiExportDataPointSet::uiExportDataPointSet( uiParent* p,
 	IOObjContext ctxt = mIOObjContext(PosVecDataSet);
 	ctxt.forread_ = true;
 	infld_ = new uiIOObjSel( this, ctxt, tr("Cross-plot Data") );
+	mAttachCB( infld_->selectionDone, uiExportDataPointSet::inpSelCB );
     }
 
     setOkText( uiStrings::sExport() );
     outfld_ = new uiASCIIFileInput( this, false );
     if ( infld_ )
 	outfld_->attach( alignedBelow, infld_ );
+
+    if ( dps )
+	setOutputName( "crossplot" );
 }
 
 
 uiExportDataPointSet::~uiExportDataPointSet()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void uiExportDataPointSet::inpSelCB( CallBacker* )
+{
+    const IOObj* ioobj = infld_->ioobj( true );
+    if ( !ioobj )
+	return;
+
+    const FilePath fp = ioobj->fullUserExpr();
+    setOutputName( fp.baseName() );
+}
+
+
+void uiExportDataPointSet::setOutputName( const char* basenm )
+{
+    FilePath fnm( GetSurveyExportDir(), basenm );
+    fnm.setExtension( "dat" );
+    outfld_->setFileName( fnm.fullPath() );
+}
 
 
 

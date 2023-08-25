@@ -42,6 +42,8 @@ public:
 				~uiExportDataPointSet();
 
 private:
+    void			inpSelCB(CallBacker*);
+    void			setOutputName(const char*);
     bool			acceptOK(CallBacker*) override;
 
     uiIOObjSel*			infld_				= nullptr;
