@@ -49,6 +49,9 @@ endif()
 if ( POLICY CMP0110 )
     cmake_policy( SET CMP0110 NEW)
 endif()
+if ( POLICY CMP0144 )
+    cmake_policy( SET CMP0144 NEW )
+endif()
 
 include( CTest )
 
