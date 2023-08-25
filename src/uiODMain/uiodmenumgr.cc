@@ -57,16 +57,9 @@ static const char* sKeyIconSetNm = "Icon set name";
 static const char* ascic = "ascii";
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
-    : appl_(*a)
-    , dTectTBChanged(this)
+    : dTectTBChanged(this)
     , dTectMnuChanged(this)
-    , helpmgr_(0)
-    , measuretoolman_(0)
-    , inviewmode_(false)
-    , langmnu_(0)
-    , plugintb_(0)
-    , addtimedepthsceneitm_(0)
-    , faulttoolman_(0)
+    , appl_(*a)
 {
     uiMenuBar* mb = appl_.menuBar();
     surveymnu_ = mb->addMenu( new uiMenu(uiStrings::sSurvey()) );
@@ -428,8 +421,8 @@ void uiODMenuMgr::fillImportMenu()
     mAddImpMnu( Hor, imphor );
     mAddImpMnu( Flt, impfault );
     mAddImpMnu( Fltss, impfaultstick );
-	mAddImpMnu( FltSet, impfltset );
-	mAddImpMnu( Wll, impwell );
+    mAddImpMnu( FltSet, impfltset );
+    mAddImpMnu( Wll, impwell );
     mAddImpMnu( Attr, impattr );
     mAddImpMnu( Pick, imppick );
     mAddImpMnu( Wvlt, impwvlt );
@@ -442,6 +435,7 @@ void uiODMenuMgr::fillImportMenu()
 void uiODMenuMgr::fillExportMenu()
 {
     expmnu_->clear();
+    auto* expcpd = new uiMenu( &appl_, tr("Cross-plot Data") );
     auto* expseis = new uiMenu( &appl_, uiStrings::sSeismicData() );
     auto* exphor = new uiMenu( &appl_, uiStrings::sHorizon(mPlural) );
     auto* expflt = new uiMenu( &appl_, uiStrings::sFault(mPlural) );
@@ -454,6 +448,7 @@ void uiODMenuMgr::fillExportMenu()
     auto* exppdf = new uiMenu( &appl_, tr("Probability Density Functions") );
     auto* expwell = new uiMenu( &appl_, uiStrings::sWell(mPlural) );
 
+    expmnu_->addMenu( expcpd );
     expmnu_->addMenu( expflt );
     expmnu_->addMenu( expfltss );
     expmnu_->addMenu( expfltset );
@@ -467,6 +462,9 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->addMenu( expwvlt );
     expmnu_->addMenu( expwell );
     expmnu_->insertSeparator();
+
+    const uiString sascii = m3Dots(uiStrings::sASCII());
+    insertAction( expcpd, sascii, mExpPVDSAsciiMnuItm, ascic );
 
     const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
     auto* expseissimple = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
@@ -494,8 +492,6 @@ void uiODMenuMgr::fillExportMenu()
 	insertAction( expseis, m3Dots(tr("Cube Positions")),
 		     mExpSeisCubePositionsMnuItm );
     }
-
-    const uiString sascii = m3Dots(uiStrings::sASCII());
 
     if ( have2d )
     {
@@ -1507,6 +1503,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpMuteDefAsciiMnuItm:	mDoOp(Imp,MDef,0); break;
     case mExpMuteDefAsciiMnuItm:	mDoOp(Exp,MDef,0); break;
     case mImpPVDSAsciiMnuItm:		mDoOp(Imp,PVDS,0); break;
+    case mExpPVDSAsciiMnuItm:		mDoOp(Exp,PVDS,0); break;
     case mExpWellACII:			mDoOp(Exp,Wll,0); break;
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;

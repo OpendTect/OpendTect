@@ -23,6 +23,7 @@ set( OD_MODULE_SOURCES
 	uidatapointset.cc
 	uidatapointsetcrossplot.cc
 	uidatapointsetcrossplotwin.cc
+	uidatapointsetio.cc
 	uidatapointsetman.cc
 	uidatapointsetmerger.cc
 	uidpsaddcolumndlg.cc

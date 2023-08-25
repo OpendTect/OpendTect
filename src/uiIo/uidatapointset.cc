@@ -32,9 +32,9 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uidatapointsetman.h"
 #include "uidatapointsetcrossplotwin.h"
+#include "uidatapointsetio.h"
 #include "uidpsaddcolumndlg.h"
 #include "uidpsselectednessdlg.h"
-#include "uifileinput.h"
 #include "uifont.h"
 #include "uigeninput.h"
 #include "uiioobjseldlg.h"
@@ -1408,84 +1408,6 @@ void uiDataPointSet::retrieve( CallBacker* )
 }
 
 
-class uiDataPointSetSave : public uiDialog
-{ mODTextTranslationClass(uiDataPointSetSave);
-public:
-
-uiDataPointSetSave( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup(tr("Save Cross-plot Data"),
-				 mNoDlgTitle,
-				 mODHelpKey(mdataPointSetSaveHelpID) ))
-    , ctio_(PosVecDataSetTranslatorGroup::ioContext())
-    , type_(typ)
-{
-    ctio_.ctxt_.forread_ = false;
-    if ( !type_.isEmpty() )
-	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), typ );
-    const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
-
-    tabfld_ = new uiGenInput( this, tr("Output to"),
-		BoolInpSpec(false,tr("Text file"),
-			    tr("OpendTect Cross-plot Data")) );
-    tabfld_->valueChanged.notify( tccb );
-
-    txtfld_ = new uiASCIIFileInput( this, false );
-    txtfld_->attach( alignedBelow, tabfld_ );
-
-    selgrp_ = new uiIOObjSelGrp( this, ctio_ );
-    selgrp_->attach( alignedBelow, tabfld_ );
-
-    postFinalize().notify( tccb );
-}
-
-~uiDataPointSetSave()
-{
-    delete ctio_.ioobj_;
-}
-
-void outTypChg( CallBacker* )
-{
-    istab_ = tabfld_->getBoolValue();
-    txtfld_->display( istab_ );
-    selgrp_->display( !istab_ );
-}
-
-#define mErrRet(s) { uiMSG().error(s); return false; }
-bool acceptOK( CallBacker* ) override
-{
-    istab_ = tabfld_->getBoolValue();
-    if ( istab_ )
-    {
-	fname_ = txtfld_->fileName();
-	if ( fname_.isEmpty() )
-	    mErrRet(tr("Please select the output file name"))
-    }
-    else
-    {
-	if ( !selgrp_->updateCtxtIOObj() )
-	    mErrRet(tr("Please enter a name for the output"))
-	ctio_.setObj( selgrp_->getCtxtIOObj().ioobj_->clone() );
-	if ( !type_.isEmpty() )
-	{
-	    ctio_.ioobj_->pars().set( sKey::Type(), type_ );
-	    IOM().commitChanges( *ctio_.ioobj_ );
-	}
-	fname_ = ctio_.ioobj_->fullUserExpr(false);
-    }
-
-    return true;
-}
-
-    CtxtIOObj		ctio_;
-    BufferString	fname_;
-    BufferString	type_;
-    uiGenInput*		tabfld_;
-    uiFileInput*	txtfld_;
-    uiIOObjSelGrp*	selgrp_;
-    bool		istab_;
-};
-
-
 void uiDataPointSet::save( CallBacker* )
 {
     doSave();
@@ -1496,35 +1418,19 @@ bool uiDataPointSet::doSave()
 {
     if ( dps_->nrActive() < 1 ) return true;
 
-    uiDataPointSetSave uidpss( this, storepars_.find(sKey::Type()) );
-    if ( !uidpss.go() )
-	return false;
-
-    MouseCursorManager::setOverride( MouseCursor::Wait );
     RefMan<DataPointSet> savedps = new DataPointSet( dps_ );
     savedps->dataSet().pars() = storepars_;
     if ( !grpnames_.isEmpty() )
 	savedps->dataSet().pars().set( sKeyGroups, grpnames_ );
 
-    savedps->purgeInactive();
-    BufferString errmsg;
-    const bool ret =
-	savedps->dataSet().putTo( uidpss.fname_, errmsg, uidpss.istab_ );
-    MouseCursorManager::restoreOverride();
-    uiMainWin* mw = uiMSG().setMainWin( this );
-    if ( !ret )
-	uiMSG().error( mToUiStringTodo(errmsg) );
-    else
-    {
-	unsavedchgs_ = false;
-	if ( uidpss.ctio_.ioobj_ && !uidpss.istab_ )
-	    setCaption( uidpss.ctio_.ioobj_->uiName() );
+    uiSaveCrossplotData dlg( this, *savedps, storepars_.find(sKey::Type()) );
+    if ( !dlg.go() )
+	return false;
 
-	uiMSG().message( tr("Cross-plot Data successfully saved") );
-    }
-    uiMSG().setMainWin( mw );
-
-    return ret;
+    unsavedchgs_ = false;
+    const MultiID key = dlg.getOutputKey();
+    setCaption( toUiString(IOM().nameOf(key)) );
+    return true;
 }
 
 
@@ -1793,7 +1699,11 @@ void uiDataPointSet::removeColumn( CallBacker* )
     const DColID dcolid = dColID();
     const TColID tcolid = tColID( dcolid );
     if ( dcolid < 0 )
-	return uiMSG().error(tr("Cannot remove this column"));
+    {
+	uiMSG().error(tr("Cannot remove this column"));
+	return;
+    }
+
     if ( tcolid == xcol_ || tcolid == ycol_ || tcolid == y2col_ )
     {
 	uiStringSet options;
@@ -1833,7 +1743,10 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
 {
     const DColID dcid = dColID();
     if ( dcid<1 )
-	return uiMSG().error( tr("Please select an attribute column") );
+    {
+	uiMSG().error( tr("Please select an attribute column") );
+	return;
+    }
 
     dps_->dataSet().pars().set( sKeyGroups, grpnames_ );
     int nrgroups = 0;

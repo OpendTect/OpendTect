@@ -9,45 +9,31 @@ ________________________________________________________________________
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
-#include "uiodscenemgr.h"
 
-#include "attribdescset.h"
-#include "bidvsetarrayadapter.h"
 #include "ctxtioobj.h"
 #include "datapointset.h"
-#include "datapackbase.h"
-#include "embodytr.h"
-#include "emsurfacetr.h"
 #include "filepath.h"
 #include "ioobj.h"
-#include "keystrs.h"
 #include "oddirs.h"
 #include "odinst.h"
-#include "odplatform.h"
 #include "odsession.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
-#include "separstr.h"
 #include "string2.h"
 #include "survinfo.h"
-#include "timedepthconv.h"
-#include "veldesc.h"
-#include "vishorizondisplay.h"
-#include "vishorizonsection.h"
-#include "vissurvscene.h"
+#include "mousecursor.h"
 
+#include "uiioobjseldlg.h"
 #include "ui2dgeomman.h"
-#include "uibatchhostsdlg.h"
 #include "uibatchlaunch.h"
 #include "uibatchprestackproc.h"
 #include "uibatchprogs.h"
 #include "uicoltabimport.h"
 #include "uicoltabman.h"
 #include "uiconvpos.h"
-#include "uicreatelogcubedlg.h"
 #include "uidatapointset.h"
+#include "uidatapointsetio.h"
 #include "uidatapointsetman.h"
-#include "uifontsel.h"
 #include "uiimpexppdf.h"
 #include "uiimpexp2dgeom.h"
 #include "uiimppvds.h"
@@ -67,22 +53,17 @@ ________________________________________________________________________
 #include "uishortcuts.h"
 #include "uistrattreewin.h"
 #include "uistrings.h"
-#include "uiveldesc.h"
 #include "uivelocityfunctionimp.h"
 #include "uivisdatapointsetdisplaymgr.h"
 
 #include "uiattribpartserv.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
-#include "uinlapartserv.h"
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
-#include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
 #include "od_helpids.h"
-#include "winutils.h"
-#include "commandlineparser.h"
 
 
 uiODApplService::uiODApplService( uiParent* p, uiODApplMgr& am )
@@ -145,6 +126,7 @@ void uiODApplMgrDispatcher::deleteDlgs()
     closeAndNullPtr( manpdfdlg_ );
     closeAndNullPtr( mansessiondlg_ );
     closeAndNullPtr( impcrossplotdlg_ );
+    closeAndNullPtr( expcrossplotdlg_ );
     closeAndNullPtr( impmutedlg_ );
     closeAndNullPtr( imppdfdlg_ );
     closeAndNullPtr( exppdfdlg_ );
@@ -414,6 +396,13 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		impcrossplotdlg_ = new uiImpPVDS( par_ );
 
 	    impcrossplotdlg_->show();
+	}
+	else if ( at == uiODApplMgr::Exp )
+	{
+	    if ( !expcrossplotdlg_ )
+		expcrossplotdlg_ = new uiExportDataPointSet( par_ );
+
+	    expcrossplotdlg_->show();
 	}
 	else if ( at == uiODApplMgr::Man )
 	{

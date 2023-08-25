@@ -97,7 +97,7 @@ protected:
     void		initSceneMgrDepObjs(uiODApplMgr*,uiODSceneMgr*);
 
     uiODMain&		appl_;
-    uiODHelpMenuMgr*	helpmgr_;
+    uiODHelpMenuMgr*	helpmgr_			= nullptr;
 
     uiMenu*		surveymnu_;
     uiMenu*		analmnu_;
@@ -114,22 +114,22 @@ protected:
     uiMenu*		preloadmnu_;
     uiMenu*		helpmnu_;
     uiMenu*		settmnu_;
-    uiMenu*		langmnu_;
+    uiMenu*		langmnu_			= nullptr;
     uiMenu*		toolsmnu_;
     uiMenu*		installmnu_;
     uiMenu*		csoitm_;
-    uiODLangMenuMgr* langmnumgr_ = nullptr;
+    uiODLangMenuMgr*	langmnumgr_ = nullptr;
     ObjectSet<uiMenu>	impmnus_;
     ObjectSet<uiMenu>	expmnus_;
 
     uiToolBar*		dtecttb_;
     uiToolBar*		viewtb_;
     uiToolBar*		mantb_;
-    uiToolBar*		plugintb_;
+    uiToolBar*		plugintb_			= nullptr;
     ObjectSet<uiToolBar>	customtbs_;
 
-    uiODFaultToolMan*	faulttoolman_;
-    MeasureToolMan*	measuretoolman_;
+    uiODFaultToolMan*	faulttoolman_			= nullptr;
+    MeasureToolMan*	measuretoolman_			= nullptr;
 
     void		fillSurveyMenu();
     void		fillImportMenu();
@@ -176,14 +176,13 @@ protected:
     uiAction*		stereoredcyanitm_;
     uiAction*		stereoquadbufitm_;
     uiAction*		stereooffsetitm_;
-    uiAction*		addtimedepthsceneitm_;
     uiAction*		lastsceneitm_;
-    uiAction*		showtreeitm_			= nullptr;
+    uiAction*		showtreeitm_				= nullptr;
     int			axisid_, actviewid_, cameraid_, soloid_;
     int			coltabid_, polyselectid_,viewselectid_,curviewmode_ ;
     int			viewinlid_, viewcrlid_, viewzid_, viewnid_, viewnzid_;
     int			removeselectionid_;
-    bool		inviewmode_;
+    bool		inviewmode_				= false;
 
     inline uiODApplMgr&	applMgr()	{ return appl_.applMgr(); }
     inline uiODSceneMgr& sceneMgr()	{ return appl_.sceneMgr(); }

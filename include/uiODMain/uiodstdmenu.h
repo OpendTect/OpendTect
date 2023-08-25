@@ -117,6 +117,8 @@ ________________________________________________________________________
 #define mExpWellACII		(mFileExpMnu + 96)
 #define mExpLogLAS		(mFileExpMnu + 97)
 #define mExpSurveySetupItm	(mFileExpMnu + 100)
+#define mExpPVDSMnuItm		(mFileExpMnu + 110)
+#define mExpPVDSAsciiMnuItm	(mFileExpMnu + 111)
 
 #define mManColTabMnuItm	(mFileManMnu + 5)
 #define mManSeis3DMnuItm	(mFileManMnu + 10)

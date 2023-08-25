@@ -15,24 +15,26 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class DataPointSet;
-class IOObj;
 class FilePath;
+class IOObj;
+
+class ui2DGeomManageDlg;
 class uiConvertPos;
 class uiDataPointSet;
 class uiDataPointSetMan;
 class uiDialog;
 class uiExp2DGeom;
+class uiExpRokDocPDF;
+class uiExportDataPointSet;
 class uiImp2DGeom;
 class uiImpPVDS;
 class uiImpRokDocPDF;
-class uiExpRokDocPDF;
 class uiManPROPS;
 class uiODApplMgr;
 class uiProbDenFuncMan;
 class uiRandomLineMan;
 class uiSessionMan;
 class uiVelSel;
-class ui2DGeomManageDlg;
 
 namespace Attrib { class SelSpec; }
 namespace PreStack
@@ -90,27 +92,28 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		posDlgClose(CallBacker*);
     void		showReleaseNotesCB(CallBacker*);
 
-    uiODApplMgr&	am_;
-    uiParent*		par_;
-    ObjectSet<uiDataPointSet> uidpsset_;
+    uiODApplMgr&		am_;
+    uiParent*			par_;
+    ObjectSet<uiDataPointSet>	uidpsset_;
 
-    uiConvertPos*	convposdlg_ = nullptr;
-    uiDataPointSetMan*	mandpsdlg_ = nullptr;
-    uiManPROPS*		manpropsdlg_ = nullptr;
-    ui2DGeomManageDlg*	man2dgeomdlg_ = nullptr;
-    uiProbDenFuncMan*	manpdfdlg_ = nullptr;
-    uiSessionMan*	mansessiondlg_ = nullptr;
-    uiRandomLineMan*	manrldlg_ = nullptr;
-    uiImpPVDS*		impcrossplotdlg_ = nullptr;
-    uiExp2DGeom*	exp2dgeomdlg_ = nullptr;
-    uiImp2DGeom*	imp2dgeomdlg_ = nullptr;
-    uiImpRokDocPDF*	imppdfdlg_ = nullptr;
-    uiExpRokDocPDF*	exppdfdlg_ = nullptr;
-    PreStack::uiImportMute*	impmutedlg_ = nullptr;
-    PreStack::uiExportMute*	expmutedlg_ = nullptr;
-    Vel::uiImportVelFunc*	impvelfunc_ = nullptr;
-    PreStack::uiBatchProcSetup* batchprocps2ddlg_ = nullptr;
-    PreStack::uiBatchProcSetup* batchprocps3ddlg_ = nullptr;
+    uiConvertPos*		convposdlg_			= nullptr;
+    uiDataPointSetMan*		mandpsdlg_			= nullptr;
+    uiManPROPS*			manpropsdlg_			= nullptr;
+    ui2DGeomManageDlg*		man2dgeomdlg_			= nullptr;
+    uiProbDenFuncMan*		manpdfdlg_			= nullptr;
+    uiSessionMan*		mansessiondlg_			= nullptr;
+    uiRandomLineMan*		manrldlg_			= nullptr;
+    uiImpPVDS*			impcrossplotdlg_		= nullptr;
+    uiExportDataPointSet*	expcrossplotdlg_		= nullptr;
+    uiExp2DGeom*		exp2dgeomdlg_			= nullptr;
+    uiImp2DGeom*		imp2dgeomdlg_			= nullptr;
+    uiImpRokDocPDF*		imppdfdlg_			= nullptr;
+    uiExpRokDocPDF*		exppdfdlg_			= nullptr;
+    PreStack::uiImportMute*	impmutedlg_			= nullptr;
+    PreStack::uiExportMute*	expmutedlg_			= nullptr;
+    Vel::uiImportVelFunc*	impvelfunc_			= nullptr;
+    PreStack::uiBatchProcSetup* batchprocps2ddlg_		= nullptr;
+    PreStack::uiBatchProcSetup* batchprocps3ddlg_		= nullptr;
 };
 
 
