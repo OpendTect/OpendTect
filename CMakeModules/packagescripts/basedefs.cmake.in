@@ -57,9 +57,9 @@ list( APPEND OTHERFILES "${LMUTIL}" )
 list( APPEND OTHERFILESDEST "${COPYTOSCRIPTSDIR}/${OD_PLFSUBDIR}/lm.dgb" )
 
 if ( WIN32 )
-    set( ML_FW_RULENMS "${COPYFROMDATADIR}/data/Firewall/od_main.txt"
-		"${COPYFROMDATADIR}/data/Firewall/od_remoteservice.txt"
-		"${COPYFROMDATADIR}/data/Firewall/od_SeisMMBatch.txt" )
+    set( ML_FW_RULENMS "${COPYFROMDATADIR}/Firewall/od_main.txt"
+		"${COPYFROMDATADIR}/Firewall/od_remoteservice.txt"
+		"${COPYFROMDATADIR}/Firewall/od_SeisMMBatch.txt" )
     foreach( ML_FW_RULENM ${ML_FW_RULENMS} )
         list( APPEND OTHERFILES "${ML_FW_RULENM}" )
         list( APPEND OTHERFILESDEST "${COPYTODATADIR}/Firewall" )
