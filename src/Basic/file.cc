@@ -877,7 +877,7 @@ const char* timeLastModified( const char* fnm, const char* fmt )
 
 od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 {
-    if ( !isLocal(fnm) || isEmpty(fnm) )
+    if ( !isLocal(fnm) || (isEmpty(fnm) && !File::isDirectory(fnm)) )
 	return 0;
 
     const QFileInfo qfi( fnm );
