@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "mousecursor.h"
-#include "oddirs.h"
 #include "perthreadrepos.h"
 #include "separstr.h"
 
@@ -19,8 +18,6 @@ ________________________________________________________________________
 #include "uiicon.h"
 #include "uimain.h"
 #include "uimainwin.h"
-#include "uiobj.h"
-#include "uiparentbody.h"
 #include "uipixmap.h"
 #include "uibutton.h"
 #include "uistatusbar.h"
@@ -469,7 +466,7 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
     const uiString dontsavetxt = tr("Don't save");
     return question( text, uiStrings::sSave(), dontsavetxt,
 		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
-		     tr("Data not saved") );
+		     tr("Data Not Saved") );
 }
 
 
@@ -478,7 +475,7 @@ int uiMsg::askDelete( const uiString& text, bool wcancel )
     const uiString notxt = wcancel ? tr("Don't delete") : uiStrings::sCancel();
     return question( text, uiStrings::sDelete(), notxt,
 		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
-		     tr("Delete data") );
+		     tr("Delete Data") );
 }
 
 
@@ -499,7 +496,7 @@ int uiMsg::askRemove( const uiString& text, bool wcancel )
     const uiString notxt = wcancel ? tr("Don't remove") : uiStrings::sCancel();
     return question( text, uiStrings::sRemove(), notxt,
 		     wcancel ? uiStrings::sCancel() : uiString::emptyString(),
-		     tr("Remove data") );
+		     tr("Remove Data") );
 }
 
 
