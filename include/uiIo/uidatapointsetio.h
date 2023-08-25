@@ -26,6 +26,7 @@ public:
 
 protected:
 				uiDataPointSetSave(uiParent*,const uiString&,
+						   HelpKey,
 						   const DataPointSet*);
     bool			save(const char* fnm,bool ascii);
 

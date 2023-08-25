@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 // uiDataPointSetSave
 uiDataPointSetSave::uiDataPointSetSave( uiParent* p, const uiString& caption,
-				       const DataPointSet* dps )
+					HelpKey key,const DataPointSet* dps)
     : uiDialog(p,Setup(caption,mNoDlgTitle,mTODOHelpKey))
 {
     dps_ = dps;
@@ -58,7 +58,8 @@ bool uiDataPointSetSave::save( const char* fnm, bool ascii )
 // uiExportDataPointSet
 uiExportDataPointSet::uiExportDataPointSet( uiParent* p,
 					    const DataPointSet* dps )
-    : uiDataPointSetSave(p,tr("Export Cross-plot Data"),dps)
+    : uiDataPointSetSave(p,tr("Export Cross-plot Data"),
+			 mODHelpKey(mDataPointSetExportHelpID),dps)
 {
     if ( !dps )
     {
@@ -135,7 +136,8 @@ bool uiExportDataPointSet::acceptOK( CallBacker* )
 // uiSaveCrossplotData
 uiSaveCrossplotData::uiSaveCrossplotData( uiParent* p, const DataPointSet& dps,
 					  const char* type )
-    : uiDataPointSetSave(p,tr("Save Cross-plot Data"),&dps)
+    : uiDataPointSetSave(p,tr("Save Cross-plot Data"),
+			 mODHelpKey(mDataPointSetSaveHelpID),&dps)
     , type_(type)
 {
     setOkText( uiStrings::sSave() );

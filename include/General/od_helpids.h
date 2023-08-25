@@ -460,7 +460,7 @@ ________________________________________________________________________
 //Crossplots 111
 // Crossplots General 00
 #define		mDataPointSetHelpID				0x11100000
-#define		mdataPointSetSaveHelpID				0x11100001
+#define		mDataPointSetSaveHelpID				0x11100001
 #define		mDataPointSetCrossPlotterPropDlgHelpID		0x11100002
 #define		mCreateDPSPDFHelpID				0x11100003
 #define		mSelectionSettDlgHelpID				0x11100004
@@ -474,6 +474,7 @@ ________________________________________________________________________
 #define		mVariogramDlgHelpID				0x11100012
 #define		mVariogramDisplayHelpID				0x11100013
 #define		mOpenCossplotHelpID				0x11100014
+#define		mDataPointSetExportHelpID			0x11100015
 // Crossplots Extraction 01
 #define		mAttribCrossPlotHelpID				0x11101000
 #define		mWellAttribCrossPlotHelpID			0x11101001
