@@ -130,11 +130,11 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
     }
     else if ( typ==1 )
     {
-	int surfdataidx = surfdatafld_->getIntValue();
-	if ( surfdatanms_.size() )
+	const int surfdataidx = surfdatafld_->getIntValue();
+	if ( surfdatanms_.validIdx(surfdataidx) )
 	{
-	    const char* surfdatanm = surfdatanms_.get(surfdataidx);
-	    mSetString( Horizon::sKeySurfDataName(), surfdatanm )
+	    const BufferString& surfdatanm = surfdatanms_.get( surfdataidx );
+	    mSetString( Horizon::sKeySurfDataName(), surfdatanm.buf() )
 	}
     }
 
