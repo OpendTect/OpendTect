@@ -67,8 +67,9 @@ macro( QT_SETUP_CORE_INTERNALS )
     if ( APPLE )
 	set( QTCONFTXT "${QTCONFTXT}Translations=Contents/translations\n" )
     endif()
+    string( REPLACE ":\\" ":/" CMAKE_INSTALL_PREFIX_ed "${CMAKE_INSTALL_PREFIX}" )
     install( CODE "
-	     file( WRITE \"${CMAKE_INSTALL_PREFIX}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" ) " )
+	     file( WRITE \"${CMAKE_INSTALL_PREFIX_ed}/${OD_RUNTIME_DIRECTORY}/qt.conf\" \"${QTCONFTXT}\" ) " )
 
     file( GLOB TRANSLATION_FILES ${QTDIR}/translations/qt_*.qm
 				 ${QTDIR}/translations/qtbase_*.qm )
