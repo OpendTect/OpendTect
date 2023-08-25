@@ -72,7 +72,7 @@ void updateGeom()
     QTableView*		frozenview_;	// frozen column(s)
     int			nrcols_;	// nr of frozen columns
 
-private slots:
+private Q_SLOTS:
 void columnResized( int col, int oldwidth, int newwidth )
 {
     if ( col >= nrcols_ )
@@ -97,13 +97,21 @@ Q_OBJECT
 friend class ODTableView;
 
 protected:
-i_tableViewMessenger( QTableView* sndr, uiTableView* rec )
+i_tableViewMessenger( QTableView* sndr, uiTableView* rcvr )
     : sender_(sndr)
-    , receiver_(rec)
+    , receiver_(rcvr )
 {
     connect( sndr, &QAbstractItemView::doubleClicked,
 	     this, &i_tableViewMessenger::doubleClicked,
 	     Qt::QueuedConnection );
+    connect( sndr->verticalHeader(), &QHeaderView::sectionClicked,
+	    this, &i_tableViewMessenger::rowClicked );
+    connect( sndr->horizontalHeader(), &QHeaderView::sectionClicked,
+	    this, &i_tableViewMessenger::columnClicked );
+    connect( sndr->verticalHeader(), &QHeaderView::sectionPressed,
+	    this, &i_tableViewMessenger::rowPressed );
+    connect( sndr->horizontalHeader(), &QHeaderView::sectionPressed,
+	    this, &i_tableViewMessenger::columnPressed );
 }
 
 
@@ -115,31 +123,52 @@ private:
     QTableView*		sender_;
     uiTableView*	receiver_;
 
-private slots:
+private Q_SLOTS:
 
-#define mTriggerBody( notifier, row, col, triggerstatement ) \
-{ \
-    BufferString msg = #notifier; \
-    msg += " "; msg += row;  \
-    msg += " "; msg += col; \
-    const int refnr = receiver_->beginCmdRecEvent( msg ); \
-    triggerstatement; \
-    receiver_->endCmdRecEvent( refnr, msg ); \
+void handleSlot( const char* notifiernm, int row, int col,
+		 Notifier<uiTableView>* notifier = nullptr )
+{
+    BufferString msg( notifiernm );
+    msg.addSpace().add( row ).addSpace().add( col );
+    const int refnr = receiver_->beginCmdRecEvent( msg );
+    if ( notifier )
+	notifier->trigger( *receiver_ );
+
+    receiver_->endCmdRecEvent( refnr, msg );
 }
 
-#define mTrigger( notifier, row, col ) \
-    mTriggerBody( notifier, row, col, receiver_->notifier.trigger(*receiver_) )
 
 void doubleClicked( const QModelIndex& index )
 {
     const int row = index.row();
     const int col = index.column();
     receiver_->setCurrentCell( RowCol(row,col) );
-    mTrigger( doubleClicked, row, col );
+    handleSlot( "doubleClicked", row, col, &receiver_->doubleClicked );
 }
 
-#undef mTrigger
-#undef mTriggerBody
+
+void rowClicked( int row )
+{
+    handleSlot( "rowClicked", row, -1 );
+}
+
+
+void columnClicked( int col )
+{
+    handleSlot( "columnClicked", -1, col );
+}
+
+
+void rowPressed( int row )
+{
+    handleSlot( "rowPressed", row, -1 );
+}
+
+
+void columnPressed( int col )
+{
+    handleSlot( "columnPressed", -1, col );
+}
 
 };
 

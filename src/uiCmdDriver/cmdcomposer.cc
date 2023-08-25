@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "menubutcommands.h"
 #include "qtcommands.h"
 #include "tablecommands.h"
+#include "tableviewcommands.h"
 #include "treecommands.h"
 
 #include "timer.h"
@@ -125,6 +126,7 @@ void CmdComposer::initStandardComposers()
     ListCmdComposer::initClass();
     TabCmdComposer::initClass();
     TableCmdComposer::initClass();
+    TableViewCmdComposer::initClass();
     TreeCmdComposer::initClass();
     CanvasMenuCmdComposer::initClass();
     MdiAreaCmdComposer::initClass();

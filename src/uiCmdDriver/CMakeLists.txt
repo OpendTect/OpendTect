@@ -26,6 +26,7 @@ set( OD_MODULE_SOURCES
 	qtcommands.cc
 	searchkey.cc
 	tablecommands.cc
+	tableviewcommands.cc
 	treecommands.cc
 	uicmddriverdlg.cc
 	uicmddrivermgr.cc

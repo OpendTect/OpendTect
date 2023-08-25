@@ -480,6 +480,8 @@ uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
     , doubleClicked(this)
     , selectionChanged(this)
+    , rowClicked(this)
+    , columnClicked(this)
 {
     columndelegates_.setNullAllowed( true );
     mAttachCB( this->doubleClicked, uiTableView::doubleClickedCB );
@@ -622,6 +624,26 @@ void uiTableView::getVisibleColumns( TypeSet<int>& cols,
 }
 
 
+void uiTableView::setHeaderVisible( OD::Orientation odor, bool yn )
+{
+    if ( odor==OD::Horizontal && odtableview_->horizontalHeader() )
+	odtableview_->horizontalHeader()->setVisible( yn );
+    else if ( odor==OD::Vertical && odtableview_->verticalHeader() )
+	odtableview_->verticalHeader()->setVisible( yn );
+}
+
+
+bool uiTableView::isHeaderVisible( OD::Orientation odor ) const
+{
+    if ( odor == OD::Horizontal )
+	return odtableview_->horizontalHeader() &&
+	       odtableview_->horizontalHeader()->isVisible();
+
+    return odtableview_->verticalHeader() &&
+	       odtableview_->verticalHeader()->isVisible();
+}
+
+
 RowCol uiTableView::mapFromSource( const RowCol& rc ) const
 {
     QModelIndex sourceidx =
@@ -646,6 +668,13 @@ void uiTableView::setSelectionBehavior( SelectionBehavior sb )
 }
 
 
+uiTableView::SelectionBehavior uiTableView::getSelectionBehavior() const
+{
+    QAbstractItemView::SelectionBehavior sb = odtableview_->selectionBehavior();
+    return sCast(uiTableView::SelectionBehavior,sb);
+}
+
+
 void uiTableView::setSelectionMode( SelectionMode sm )
 {
     odtableview_->setSelectionMode(
@@ -653,9 +682,31 @@ void uiTableView::setSelectionMode( SelectionMode sm )
 }
 
 
+uiTableView::SelectionMode uiTableView::getSelectionMode() const
+{
+    QAbstractItemView::SelectionMode sm = odtableview_->selectionMode();
+    return sCast(uiTableView::SelectionMode,sm);
+}
+
+
 void uiTableView::clearSelection()
 {
     odtableview_->clearSelection();
+}
+
+
+int uiTableView::maxNrOfSelections() const
+{
+    if ( getSelectionMode()==NoSelection )
+	return 0;
+    if ( getSelectionMode()==SingleSelection )
+	return 1;
+    if ( getSelectionBehavior()==SelectRows )
+	return tablemodel_->nrRows();
+    if ( getSelectionBehavior()==SelectColumns )
+	return tablemodel_->nrCols();
+
+    return tablemodel_->nrRows() * tablemodel_->nrCols();
 }
 
 
@@ -750,6 +801,35 @@ void uiTableView::setSelectedCells( const TypeSet<RowCol>& rcs,
 	const QModelIndex qmi = qproxymodel_->mapFromSource( sourceidx );
 	selmdl->select( qmi, QItemSelectionModel::Select );
     }
+}
+
+
+void uiTableView::setCellSelected( const RowCol& rc, bool yn,
+				   bool mapfromsource )
+{
+    QItemSelectionModel* selmdl = odtableview_->selectionModel();
+    const QModelIndex sourceidx =
+		tablemodel_->getAbstractModel()->index( rc.row(), rc.col() );
+    if ( !mapfromsource )
+	selmdl->select( sourceidx, QItemSelectionModel::Select );
+    else
+    {
+	const QModelIndex qmi = qproxymodel_->mapFromSource( sourceidx );
+	selmdl->select( qmi, QItemSelectionModel::Select );
+    }
+}
+
+
+bool uiTableView::isCellSelected( const RowCol& rc, bool mapfromsource ) const
+{
+    const QItemSelectionModel* selmdl = odtableview_->selectionModel();
+    const QAbstractItemModel* model = selmdl ? selmdl->model() : nullptr;
+    if ( !model )
+	return false;
+
+    QModelIndex idx = odtableview_->rootIndex();
+    idx = model->index( rc.row(), rc.col(), idx );
+    return selmdl->isSelected( idx );
 }
 
 

@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "qtcommands.h"
 #include "tablecommands.h"
+#include "tableviewcommands.h"
 #include "treecommands.h"
 
 #include "uimenu.h"
@@ -108,11 +109,19 @@ void Command::initStandardCommands()
     SnapshotCmd::initClass();
     SpinCmd::initClass();
     TabCmd::initClass();
+
     TableClickCmd::initClass();
     TableExecCmd::initClass();
     TableFillCmd::initClass();
     TableMenuCmd::initClass();
     TableSelectCmd::initClass();
+
+    TableViewClickCmd::initClass();
+    TableViewExecCmd::initClass();
+    TableViewFillCmd::initClass();
+    TableViewMenuCmd::initClass();
+    TableViewSelectCmd::initClass();
+
     TreeButtonCmd::initClass();
     TreeClickCmd::initClass();
     TreeExpandCmd::initClass();
@@ -169,6 +178,19 @@ void Command::initStandardCommands()
     GetTableMenuItemCmd::initClass();
     IsTableMenuItemOnCmd::initClass();
     NrTableMenuItemsCmd::initClass();
+
+    CurTableViewColCmd::initClass();
+    CurTableViewItemCmd::initClass();
+    CurTableViewRowCmd::initClass();
+    GetTableViewColCmd::initClass();
+    GetTableViewItemCmd::initClass();
+    GetTableViewRowCmd::initClass();
+    IsTableViewItemOnCmd::initClass();
+    NrTableViewColsCmd::initClass();
+    NrTableViewRowsCmd::initClass();
+    GetTableViewMenuItemCmd::initClass();
+    IsTableViewMenuItemOnCmd::initClass();
+    NrTableViewMenuItemsCmd::initClass();
 
     CurTreeColCmd::initClass();
     CurTreeItemCmd::initClass();
