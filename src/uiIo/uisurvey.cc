@@ -495,7 +495,7 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     new uiToolButton( butgrp, "share",
 	tr("Download surveys from TerraNubis"),
 	mSCB(terraNubisCB) );
-    rmbut_ = new uiToolButton( butgrp, "delete", tr("Delete Survey"),
+    rmbut_ = new uiToolButton( butgrp, "delete", tr("Delete selected Survey"),
 			       mCB(this,uiSurvey,rmButPushed) );
 }
 
@@ -836,8 +836,8 @@ void uiSurvey::rmButPushed( CallBacker* )
     const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
     const BufferString truedirnm = getTrueDir( seldirnm );
 
-    uiString msg = tr("This will delete the entire survey folder:\n\t%1"
-		      "\nFull path: %2").arg(selnm).arg(truedirnm);
+    uiString msg = tr("This will delete the entire survey folder:\n\n%1"
+		      "\n\nFull path: %2").arg(selnm).arg(truedirnm);
     if ( !uiMSG().askDelete(msg) ) return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
