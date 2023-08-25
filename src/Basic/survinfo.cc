@@ -1889,10 +1889,14 @@ void SurveyInfo::saveJSON( const char* basedir, OD::JSON::Object* obj  ) const
 	if ( File::exists(defsfnm) )
 	    File::remove(defsfnm);
     }
-    else if ( !pars_.write(defsfnm, sKeySurvDefs) )
-	uiErrMsg(defsfnm)
-
-
+    else
+    {
+	const bool iswritablesurvey = File::exists(surveypath.buf()) &&
+				      File::isWritable(surveypath.buf());
+	const bool res = pars_.write( defsfnm, sKeySurvDefs );
+	if ( iswritablesurvey && !res )
+	    uiErrMsg(defsfnm)
+    }
 }
 
 
