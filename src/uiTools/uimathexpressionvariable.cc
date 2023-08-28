@@ -400,7 +400,8 @@ const char* uiMathExpressionVariable::getInput() const
 
 const UnitOfMeasure* uiMathExpressionVariable::getUnit() const
 {
-    if ( !unfld_ || !unfld_->mainObject()->isDisplayed() )
+    if ( !unfld_ || !isActive() || isConst() ||
+	 (isSpec() && !specvars_.hasUnits(specidx_)) )
 	return nullptr;
 
     return unfld_->getUnit();
