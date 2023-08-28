@@ -105,21 +105,13 @@ uiODWellLogToolWinGrp::~uiODWellLogToolWinGrp()
 void uiODWellLogToolWinGrp::displayLogs()
 {
     int nrdisp = 0;
-    for ( int idx=0; idx<logdatas_.size(); idx++ )
+    for ( const auto* logdata : logdatas_ )
     {
 	const ObjectSet<const Well::Log>& inplogs =
-				    logdatas_.get(idx)->inpLogs();
-	ObjectSet<Well::Log> outplogs;
-	BufferStringSet lognms;
-	for ( const auto* log : logdatas_.get(idx)->inpLogs() )
-	    lognms.add( log->name() );
-
-	for ( const auto* lognm : lognms )
-	{
-	    const Well::Log* log = logdatas_[idx]->logs().getLog(
-								lognm->buf() );
-	    outplogs += cCast(Well::Log*,log);
-	}
+				    logdata->inpLogs();
+	const ObjectSet<Well::Log>& outplogs = logdata->outpLogs();
+	if ( inplogs.size() != outplogs.size() )
+	    continue;
 
 	for ( int idlog=0; idlog<inplogs.size(); idlog++ )
 	{

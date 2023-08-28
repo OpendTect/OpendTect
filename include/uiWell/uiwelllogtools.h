@@ -45,12 +45,15 @@ public:
 			WellLogToolData(const Well::SelInfo&);
 			~WellLogToolData();
 
-    const ObjectSet<const Well::Log> inpLogs() const  { return inplogs_; }
+    const ObjectSet<const Well::Log>& inpLogs() const	{ return inplogs_; }
+    ObjectSet<Well::Log>&	outpLogs()		{ return outplogs_; }
+    const ObjectSet<Well::Log>& outpLogs() const	{ return outplogs_; }
 
 protected:
     void			init();
 
     ObjectSet<const Well::Log>	inplogs_;
+    ObjectSet<Well::Log>	outplogs_;
 };
 
 
