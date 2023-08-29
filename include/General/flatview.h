@@ -372,8 +372,7 @@ public:
 			 \param checkother if true, the datapack of other
 			 display (i.e. variable density or wiggles) is returned
 			 if the specified display has no datapack. */
-    bool		hasPack( bool wva ) const
-			{ return getPack( wva ).get(); }
+    bool		hasPack(bool wva) const;
     void		removePack(VwrDest);
     void		setPack(VwrDest, FlatDataPack*, bool usedefs=true);
 			//!< add + use the datapack on either wva or vd or both

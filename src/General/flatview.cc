@@ -690,6 +690,14 @@ WeakPtr<FlatDataPack> FlatView::Viewer::getPack( bool wva,
 }
 
 
+bool FlatView::Viewer::hasPack( bool wva ) const
+{
+    Threads::Locker locker( lock_ );
+    const WeakPtr<FlatDataPack>& res = wva ? wvapack_ : vdpack_;
+    return bool(res);
+}
+
+
 DataPackID FlatView::Viewer::packID( bool wva ) const
 {
     ConstRefMan<FlatDataPack> dp = getPack( wva ).get();
