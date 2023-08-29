@@ -727,9 +727,9 @@ void FlatView::Viewer::setPack( VwrDest dest, FlatDataPack* fdp,
     const bool vd = dest == VD || dest == Both;
     ConstRefMan<FlatDataPack> curwva, curvd;
     if ( wva )
-	curwva = getPack( wva ).get();
+	curwva = getPack( true ).get();
     if ( vd )
-	curvd = getPack( vd ).get();
+	curvd = getPack( false ).get();
 
     if ( (dest == WVA && fdp == curwva) ||
 	 (dest == VD && fdp == curvd) ||
