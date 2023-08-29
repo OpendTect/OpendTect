@@ -32,11 +32,29 @@ macro( OD_SETUP_SQLITE_TARGET )
     od_map_configurations( SQLite::SQLite3 )
 endmacro(OD_SETUP_SQLITE_TARGET)
 
+macro( OD_GET_SQLITE_VERSION )
+    if ( NOT DEFINED CACHE{SQLite3_VERSION} )
+	find_program( SQLITE3_EXECUTABLE "sqlite3"
+		      PATHS "${SQLITE_DIR}/bin" )
+	if ( SQLITE3_EXECUTABLE AND EXISTS "${SQLITE3_EXECUTABLE}" )
+	    execute_process( COMMAND "${SQLITE3_EXECUTABLE}" "--version"
+			     OUTPUT_VARIABLE SQLITE3_VERSION_OUTPUT )
+	    string( REPLACE " " ";" SQLITE3_VERSION_OUTPUT_FIELDS "${SQLITE3_VERSION_OUTPUT}" )
+	    list( GET SQLITE3_VERSION_OUTPUT_FIELDS 0 SQLite3_VERSION )
+	    set( SQLite3_VERSION ${SQLite3_VERSION} CACHE INTERNAL
+		 "The version of sqlite3 which was detected" )
+	endif()
+    endif()
+endmacro(OD_GET_SQLITE_VERSION )
+
 macro( OD_FIND_SQLITE )
 
     if ( NOT SQLite3_FOUND AND NOT TARGET SQLite::SQLite3 )
 	find_package( SQLite3 QUIET GLOBAL )
-	if ( NOT SQLite3_FOUND )
+	if ( SQLite3_FOUND )
+	    set( SQLite3_VERSION ${SQLite3_VERSION} CACHE INTERNAL
+		 "The version of sqlite3 which was detected" )
+	else()
 	    unset( SQLite3_INCLUDE_DIR CACHE )
 	    unset( SQLite3_LIBRARY CACHE )
 	    #Setting the target from the library only
@@ -59,6 +77,7 @@ macro( OD_FIND_SQLITE )
 
 	    if ( EXISTS "${LIBSQLITE}" )
 		OD_SETUP_SQLITE_TARGET()
+		OD_GET_SQLITE_VERSION()
 	    endif()
 	endif()
     endif()
