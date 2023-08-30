@@ -41,7 +41,7 @@ SVEL: Swave Velocity`Velocity`Lin`250`3800`800`3800`m/s`0`200`0`S wave`Vs`Veloci
 PERM: Permeability`Permeability`Log`0.01`5000`1`2000`mD`200`0`0`Permeab
 PR: Poissons Ratio`Elastic Ratio`Lin`0.1`0.5`0.1`0.5``200`100`200`POI`PoissonRatio
 TEMP: Temperature`Temperature`Lin`5`300`10`150`deg.C`0`0`0`GTEM
-LITHO: Lithology`Classification`Lin`0`7`1`5``0`255`255`LITHOF1_FACIES
+LITHO: Lithology`Classification`Lin`````Unitless`0`255`255`LITHOF1_FACIES
 NET_FLAG: Net Flag`Classification`Lin`0`1`0`1``255`255`0`NETF`RSV`Reservoir
 NET_PAY_FLAG: Net Pay Flag`Classification`Lin`0`1`0`1``255`255`0`NETP`NetPay
 NMR: Nuclear Magnetic Resonance`Time`Lin`0.1`10000`0.3`3000`ms`0`0`0`CMR`MRIL`MREX`NuclearMagRes
