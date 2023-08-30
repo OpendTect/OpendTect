@@ -537,6 +537,9 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    const float dah = outplog.dah( idz );
 		    outp[idz] = filtvals.getValue( dah );
 		}
+		if ( freqfld_->filterType() != FFTFilter::LowPass )
+		    outplog.setMnemonicLabel( nullptr );
+
 	    }
 	    else if ( act == 2 )
 	    {
