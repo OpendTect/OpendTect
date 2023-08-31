@@ -2,8 +2,8 @@
 /*+
 ________________________________________________________________________
 
- Copyright:     (C) 1995-2022 dGB Beheer B.V.
- License:       https://dgbes.com/licensing
+ Copyright:	(C) 1995-@YEAR@ dGB Beheer B.V.
+ License:	https://dgbes.com/licensing
 ________________________________________________________________________
 
 -*/
@@ -28,4 +28,16 @@ ________________________________________________________________________
 
 #ifndef mCOPYRIGHT_STRING
 # define mCOPYRIGHT_STRING "Copyright (C) 1995-@YEAR@ dGB Beheer B.V."
+#endif
+
+#ifndef mOPENSSL_VERSION
+# define mOPENSSL_VERSION "@OPENSSL_VERSION@"
+#endif
+
+#ifndef mZLIB_VERSION
+# define mZLIB_VERSION "@ZLIB_VERSION_STRING@"
+#endif
+
+#ifndef mSQLITE_VERSION
+# define mSQLITE_VERSION "@SQLite3_VERSION@"
 #endif
