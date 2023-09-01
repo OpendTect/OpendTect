@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "elasticpropsel.h"
+#include "hiddenparam.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "objdisposer.h"
@@ -56,6 +57,7 @@ const char* uiStratLayerModel::sKeyModeler2Use()
 }
 
 
+HiddenParam<uiStratLayerModel,HelpKey*> hp_helpkey( nullptr );
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     : uiMainWin(p,uiString::empty(),1,true)
@@ -66,6 +68,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
     , nrmodels_(0)
 {
+    hp_helpkey.setParam( this, new mODHelpKey(mSingleLayerGeneratorEdHelpID) );
     setDeleteOnClose( true );
 
     if ( !edtyp || !*edtyp )
@@ -166,6 +169,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 
 uiStratLayerModel::~uiStratLayerModel()
 {
+    hp_helpkey.removeAndDeleteParam( this );
     detachAllNotifiers();
     delete &desc_;
     delete &lms_;
@@ -233,10 +237,23 @@ void uiStratLayerModel::snapshotCB( CallBacker* )
 }
 
 
+const HelpKey& uiStratLayerModel::helpKey() const
+{
+    const HelpKey* curkey = hp_helpkey.getParam( this );
+    return *curkey;
+}
+
+
+void uiStratLayerModel::setHelpKey( const HelpKey& key )
+{
+    HelpKey* curkey = hp_helpkey.getParam( this );
+    *curkey = key;
+}
+
+
 void uiStratLayerModel::helpCB( CallBacker* )
 {
-   HelpProvider::provideHelp(
-		 HelpKey(mODHelpKey(mSingleLayerGeneratorEdHelpID) ) );
+    HelpProvider::provideHelp( helpKey() );
 }
 
 
