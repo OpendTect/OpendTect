@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 
+#include "commandlineparser.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "transl.h"
@@ -106,11 +107,15 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
 	lbl_ = new uiLabel( this, tr("Write to"), selfld_ );
 
     int cur = 0;
+    CommandLineParser clp;
+    BufferString deftransl;
+    clp.getVal( CommandLineParser::sDefTransl(), deftransl );
     for ( int idx=0; idx<trs_.size(); idx++ )
     {
 	const Translator& trl = *trs_[idx];
 	const BufferString trnm( trl.userName() );
-	if ( ctio.ioobj_ && trnm == ctio.ioobj_->translator() )
+	if ( (ctio.ioobj_ && trnm == ctio.ioobj_->translator()) ||
+		    (!deftransl.isEmpty() && trnm == deftransl) )
 	    cur = idx;
 
 	selfld_->addItem( toUiString(trnm) );
