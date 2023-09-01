@@ -126,6 +126,7 @@ public:
     static const char*		sDataRootArg()	   { return "dataroot"; }
     static const char*		sSurveyArg()	   { return "survey"; }
     static const char*		sNeedTempSurv()    { return "needtempsurvey"; }
+    static const char*		sDefTransl()	   { return "default_transl"; }
     BufferString		envVarBase() const;
     mDeprecatedObs
     BufferString		getFullSurveyPath(bool* iscursurv=0) const;
