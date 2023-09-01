@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class ElasticPropSelection;
+class HelpKey;
 class uiLayerSequenceGenDesc;
 class uiStratGenDescTools;
 class uiStratLayerModelDisp;
@@ -65,6 +66,9 @@ public:
 
     uiStratLayerModelDisp*		layModDisp() const { return moddisp_; }
     uiStratSynthDisp*			synthDisp() const  { return synthdisp_;}
+
+    const HelpKey&			helpKey() const;
+    void				setHelpKey(const HelpKey&);
 
 protected:
 
