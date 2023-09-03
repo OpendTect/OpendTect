@@ -127,6 +127,11 @@ int Stats::RandGen::getInt() const
 
 int Stats::RandGen::getInt( int min, int max ) const
 {
+    if ( min == max )
+	return min;
+    else if ( min > max )
+	std::swap( min, max );
+
     std::uniform_int_distribution<int> dis( min, max );
     return dis( gen_ );
 }
