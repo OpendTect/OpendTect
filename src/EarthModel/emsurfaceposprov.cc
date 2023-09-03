@@ -194,34 +194,41 @@ bool EMSurfaceProvider::toNextPos()
 	    if ( !curpos_.isValid() )
 		return false;
 
-	    curzrg_.start = curzrg_.stop =
-			    (float) surf1_->getPos( curpos_ ).z;
+	    curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z;
 
 	    if ( surf2_ )
 	    {
-		const float stop =
-		(float) surf2_->getPos( curpos_.subID()).z;
+		const float stop = (float) surf2_->getPos( curpos_ ).z;
 		if ( !mIsUdf(stop) )
+		{
 		    curzrg_.stop = stop;
+		    if ( mIsUdf(curzrg_.start) )
+			curzrg_.start = stop;
+		}
 	    }
+
+	    if ( curzrg_.isUdf() )
+		continue;
 
 	    curzrg_.sort();
 	    curzrg_ += extraz_;
 
-	    if ( surf2_ )
+	    if ( mIsEqual(curzrg_.start,curzrg_.stop,mDefEps) )
+		SI().snapZ( curzrg_.start, 0 );
+	    else
 	    {
 		SI().snapZ( curzrg_.start, 1 );
 		SI().snapZ( curzrg_.stop, -1 );
+		curzrg_.sort();
 	    }
 
-	    const TrcKeyZSampling& tkzs = SI().sampling( false );
-	    if ( !mIsUdf(curzrg_.start) && !mIsUdf(curzrg_.stop) )
-	    {
-		const int zsamp = gen_.getInt( tkzs.zIdx( curzrg_.start ),
-					       tkzs.zIdx( curzrg_.stop ) );
-		curz_ = tkzs.zAtIndex( zsamp );
-		pos = postuple( idx, zsamp );
-	    }
+	    const StepInterval<float>& zsamp = SI().zRange();
+	    const int zidx = mIsEqual(curzrg_.start,curzrg_.stop,mDefEps) ?
+				zsamp.nearestIndex( curzrg_.start ) :
+				gen_.getInt( zsamp.nearestIndex(curzrg_.start),
+					     zsamp.nearestIndex(curzrg_.stop) );
+	    curz_ = zsamp.atIndex( zidx );
+	    pos = postuple( idx, zidx );
 	} while ( mIsUdf(curz_) ? false : posindexlst_.isPresent(pos) );
 
 	posindexlst_ += pos;
