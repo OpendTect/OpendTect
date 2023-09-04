@@ -14,83 +14,127 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uistrings.h"
+#include "uiunitsel.h"
+
 #include <math.h>
 
 
+// uiPrDenFunVarSel::DataColInfo
+
 uiPrDenFunVarSel::DataColInfo::DataColInfo(
 				const BufferStringSet& colnames,
-				const TypeSet<int>& colids)
+				const TypeSet<int>& colids,
+				const MnemonicSelection& mns,
+				const ObjectSet<const UnitOfMeasure>& uoms )
     : colnms_(colnames)
     , colids_(colids)
+    , mns_(*new MnemonicSelection(mns))
+    , uoms_(uoms)
 {}
 
 
-uiPrDenFunVarSel::DataColInfo::~DataColInfo()
-{}
-
-
-
-uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p, const DataColInfo& colinfos )
-    : uiGroup( p )
-    , attrSelChanged(this)
-    , colinfos_(colinfos)
+uiPrDenFunVarSel::DataColInfo::DataColInfo( const DataColInfo& oth )
+    : mns_(*new MnemonicSelection)
 {
-    auto* cbx = new uiLabeledComboBox( this, colinfos_.colnms_,
-				       uiStrings::sAttribute() );
-    attrsel_ = cbx->box();
-    attrsel_->selectionChanged.notify(
-	    mCB(this,uiPrDenFunVarSel,attrChanged) );
-
-    createGUI( cbx->attachObj() );
+    *this = oth;
 }
 
 
+uiPrDenFunVarSel::DataColInfo::~DataColInfo()
+{
+    delete &mns_;
+}
+
+
+uiPrDenFunVarSel::DataColInfo&
+uiPrDenFunVarSel::DataColInfo::operator=( const DataColInfo& oth )
+{
+    if ( &oth != this )
+    {
+	colnms_ = oth.colnms_;
+	colids_ = oth.colids_;
+	mns_ = oth.mns_;
+	uoms_ = oth.uoms_;
+    }
+
+    return *this;
+}
+
+
+// uiPrDenFunVarSel
+
 uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p, const DataColInfo& colinfos,
-				    const uiString& lbl )
+				    const uiString& lbl, bool withunits )
     : uiGroup( p )
     , attrSelChanged(this)
     , colinfos_(colinfos)
 {
     auto* cbx = new uiLabeledComboBox( this, colinfos_.colnms_, lbl );
     attrsel_ = cbx->box();
-    attrsel_->selectionChanged.notify(
-	    mCB(this,uiPrDenFunVarSel,attrChanged) );
+    mAttachCB( attrsel_->selectionChanged, uiPrDenFunVarSel::attrChanged );
 
-    createGUI( cbx->attachObj() );
-}
-
-
-uiPrDenFunVarSel::~uiPrDenFunVarSel()
-{}
-
-
-void uiPrDenFunVarSel::createGUI( uiObject* attachobj )
-{
     rangesel_ = new uiGenInput( this, tr("Range"), FloatInpIntervalSpec() );
-    rangesel_->valueChanged.notify( mCB(this,uiPrDenFunVarSel,rangeChanged) );
-    rangesel_->attach( rightTo, attachobj );
+    mAttachCB( rangesel_->valueChanged, uiPrDenFunVarSel::rangeChanged );
+    rangesel_->attach( rightTo, cbx->attachObj() );
 
     nrbinsel_ = new uiGenInput( this, tr("Nr of Bins"), IntInpSpec() );
     nrbinsel_->setElemSzPol( uiObject::Small );
     nrbinsel_->setValue( 25 );
-    nrbinsel_->valueChanged.notify( mCB(this,uiPrDenFunVarSel,nrBinChanged) );
+    mAttachCB( nrbinsel_->valueChanged, uiPrDenFunVarSel::nrBinChanged );
     nrbinsel_->attach( rightTo, rangesel_ );
 
     setHAlignObj( attrsel_ );
 
+    if ( withunits )
+    {
+	uiUnitSel::Setup uiuss( Mnemonic::Other );
+	uiuss.mode( uiUnitSel::Setup::SymbolsOnly ).withnone( true );
+	unitfld_ = new uiUnitSel( this, uiuss );
+	unitfld_->attach( rightTo, nrbinsel_ );
+    }
+
+    mAttachCB( postFinalize(), uiPrDenFunVarSel::initGrp );
+}
+
+
+uiPrDenFunVarSel::~uiPrDenFunVarSel()
+{
+    detachAllNotifiers();
+}
+
+
+void uiPrDenFunVarSel::initGrp( CallBacker* )
+{
     attrChanged( nullptr );
     nrBinChanged( nullptr );
 }
 
 
 int uiPrDenFunVarSel::nrCols() const
-{ return attrsel_->size(); }
+{
+    return attrsel_->size();
+}
+
+
+bool uiPrDenFunVarSel::hasAttrib( const char* nm ) const
+{
+    return attrsel_->isPresent( nm );
+}
+
+
+const UnitOfMeasure* uiPrDenFunVarSel::getUnit() const
+{
+    return unitfld_ ? unitfld_->getUnit() : nullptr;
+}
 
 
 void uiPrDenFunVarSel::setColNr( int nr )
 {
-    attrsel_->setCurrentItem( nr );
-    attrChanged( 0 );
+    if ( nr>=0 && nr<attrsel_->size() )
+    {
+	attrsel_->setCurrentItem( nr );
+	attrChanged( nullptr );
+    }
 }
 
 
@@ -107,7 +151,7 @@ void uiPrDenFunVarSel::setPrefCol( const char* nm )
     if ( attrnms.validIdx(prefidx) )
     {
 	attrsel_->setCurrentItem( prefidx );
-	attrChanged( 0 );
+	attrChanged( nullptr );
     }
 }
 
@@ -152,7 +196,23 @@ BufferString uiPrDenFunVarSel::selColName() const
 
 
 void uiPrDenFunVarSel::attrChanged( CallBacker* )
-{ attrSelChanged.trigger(); }
+{
+    if ( unitfld_ )
+    {
+	const int idx = attrsel_->currentItem();
+	const Mnemonic* mn = colinfos_.mns_.validIdx( idx )
+			   ? colinfos_.mns_.get( idx ) : nullptr;
+	const UnitOfMeasure* uom = colinfos_.uoms_.validIdx( idx )
+				 ? colinfos_.uoms_.get( idx ) : nullptr;
+	if ( !uom )
+	    unitfld_->setPropType( Mnemonic::Other );
+	if ( mn )
+	    unitfld_->setMnemonic( *mn );
+	unitfld_->setUnit( uom );
+    }
+
+    attrSelChanged.trigger();
+}
 
 
 void uiPrDenFunVarSel::nrBinChanged( CallBacker* )

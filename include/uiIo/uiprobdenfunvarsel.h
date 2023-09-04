@@ -9,37 +9,51 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
 #include "uigroup.h"
 
 class BufferStringSet;
+class MnemonicSelection;
+class UnitOfMeasure;
 class uiComboBox;
 class uiGenInput;
+class uiUnitSel;
 
 mExpClass(uiIo) uiPrDenFunVarSel : public uiGroup
 { mODTextTranslationClass(uiPrDenFunVarSel);
 public:
 
-		struct DataColInfo
+		mClass(uiIo) DataColInfo
 		{
-		    DataColInfo(const BufferStringSet& colnames,
-				const TypeSet<int>& colids);
-		    ~DataColInfo();
+		public:
+			    DataColInfo(const BufferStringSet& colnames,
+					const TypeSet<int>& colids,
+					const MnemonicSelection&,
+					const ObjectSet<const UnitOfMeasure>&);
+			    DataColInfo(const DataColInfo&);
+			    ~DataColInfo();
 
-		    BufferStringSet			colnms_;
-		    TypeSet<int>			colids_;
+		    DataColInfo& operator =(const DataColInfo&);
+
+		    BufferStringSet		colnms_;
+		    TypeSet<int>		colids_;
+		    MnemonicSelection&		mns_;
+		    ObjectSet<const UnitOfMeasure> uoms_;
 		};
 
-				uiPrDenFunVarSel(uiParent*, const DataColInfo&);
 				uiPrDenFunVarSel(uiParent*,const DataColInfo&,
-						 const uiString& lbl);
+						 const uiString& lbl,
+						 bool withunitsel);
 				~uiPrDenFunVarSel();
 
-    int 			selNrBins() const;
-    int 			selColID() const;
+    int				selNrBins() const;
+    int				selColID() const;
     StepInterval<float>		selColRange() const;
     BufferString		selColName() const;
     const char*			colName(int idx) const;
     int				nrCols() const;
+    bool			hasAttrib(const char*) const;
+    const UnitOfMeasure*	getUnit() const;
 
     void			setAttrRange(const StepInterval<float>&);
     void			setColNr(int);
@@ -47,16 +61,17 @@ public:
 
     Notifier<uiPrDenFunVarSel>	attrSelChanged;
 
-protected:
+private:
 
     DataColInfo			colinfos_;
     uiComboBox*			attrsel_;
-    uiGenInput* 		rangesel_;
-    uiGenInput* 		nrbinsel_;
+    uiGenInput*			rangesel_;
+    uiGenInput*			nrbinsel_;
+    uiUnitSel*			unitfld_ = nullptr;
 
+    void			initGrp(CallBacker*);
     void			attrChanged(CallBacker*);
     void			nrBinChanged(CallBacker*);
     void			rangeChanged(CallBacker*);
 
-    void			createGUI(uiObject* attachobj);
 };

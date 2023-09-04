@@ -31,13 +31,16 @@ mExpClass(uiIo) uiCreateDPSPDF : public uiDialog
 { mODTextTranslationClass(uiCreateDPSPDF);
 public:
 			uiCreateDPSPDF(uiParent*,
-				       const uiDataPointSetCrossPlotter*);
+				       const uiDataPointSetCrossPlotter*,
+				       bool requireunits);
 			uiCreateDPSPDF(uiParent*,const DataPointSet&,
+				       bool requireunits,
 				       bool restricted=false);
 			~uiCreateDPSPDF();
 
     const ProbDenFunc*	probDensFunc() const			{ return pdf_; }
     void		setPrefDefNames(const BufferStringSet&);
+    void		setPrefNrDimensions(int);
 
 protected:
 
@@ -47,6 +50,8 @@ protected:
     ProbDenFunc*		pdf_ = nullptr;
     int				nrdisp_ = 1;
     bool			restrictedmode_;
+    bool			requireunits_ = false;
+    int				prefnrdims_ = 4;
 
     uiIOObjSel*			outputfld_;
     uiComboBox*			createfrmfld_ = nullptr;
@@ -57,11 +62,13 @@ protected:
 
     void			createDefaultUI();
     bool			createPDF();
-    void			viewPDF();
+    bool			viewPDF();
 
     float			getVal(int rid,int cid) const;
+    Interval<float>		getRange(DataPointSet::ColID) const;
     void			fillPDF(ArrayNDProbDenFunc&);
     void			setColRange(CallBacker*);
+    void			initDlg(CallBacker*);
     void			butPush(CallBacker*);
     void			handleDisp(CallBacker*);
     bool			acceptOK(CallBacker*) override;

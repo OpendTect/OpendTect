@@ -34,10 +34,12 @@ ________________________________________________________________________
 static int cMaxNrPDFs = 6;
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
-				const uiDataPointSetCrossPlotter* plotter )
+				const uiDataPointSetCrossPlotter* plotter,
+				bool requireunits )
     : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , restrictedmode_(false)
+    , requireunits_(requireunits)
     , plotter_(plotter)
     , dps_(plotter_->dps())
 {
@@ -47,10 +49,11 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
-				bool restricted )
+				bool requireunits, bool restricted )
     : uiDialog(p,uiDialog::Setup(uiStrings::sCreateProbDesFunc(),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , restrictedmode_(restricted)
+    , requireunits_(requireunits)
     , dps_(&dps)
 {
     enableSaveButton( tr("View/Edit after creation") );
@@ -70,31 +73,66 @@ void uiCreateDPSPDF::createDefaultUI()
 	createfrmfld_ = selcbx->box();
     }
 
-    TypeSet<int> colids;
     BufferStringSet colnames;
-    uiDataPointSet::DColID dcid=-dps_->nrFixedCols()+1;
+    TypeSet<int> colids;
+    MnemonicSelection mns;
+    mns.setNullAllowed();
+    ObjectSet<const UnitOfMeasure> uoms;
+    uoms.setNullAllowed();
+    uiDataPointSet::DColID dcid = -dps_->nrFixedCols()+1;
     for ( ; dcid<dps_->nrCols(); dcid++ )
     {
 	if ( restrictedmode_ && (dcid<-1 || dcid==0) )
 	    continue;
+
+	BufferString colname;
 	if ( dcid<0 )
-	    colnames.add( dcid==-1 ? "Z" : dcid==-3 ? "X-Coord" : "Y-Coord" );
+	    colname.set( dcid==-1 ? "Z" : dcid==-3 ? "X-Coord" : "Y-Coord" );
 	else
-	    colnames.add( dps_->colName(dcid) );
+	    colname.set( dps_->colName(dcid) );
+
+	colnames.add( colname.buf() );
 	colids += dcid;
+	if ( requireunits_ )
+	{
+	    const UnitOfMeasure* uom = dps_->unit( dcid==-1 ? 0 : dcid );
+	    if ( dcid==-1 )
+	    {
+		mns.add( &Mnemonic::distance() );
+		uoms.add( uom );
+	    }
+	    else
+	    {
+		StepInterval<float> dimrg = getRange( dcid );
+		dimrg.step = fabs( dimrg.width() ) / 25;
+		Array1DImpl<float> pdfarr( dimrg.nrSteps()+1 );
+		pdfarr.setAll( 1.f );
+		Sampled1DProbDenFunc pdf( pdfarr );
+		pdf.setDimName( 0, colname.buf() );
+		pdf.setRange( 0, dimrg );
+		if ( uom )
+		    pdf.setUOMSymbol( 0, uom->getLabel() );
+
+		const Mnemonic* guessedmn =
+				  uiEditProbDenFunc::guessMnemonic( pdf, 0 );
+		const UnitOfMeasure* guesseduom = uom ? uom
+				: uiEditProbDenFunc::guessUnit( pdf, 0 );
+		mns.add( guessedmn );
+		uoms.add( guesseduom );
+	    }
+	}
     }
 
-    rmbuts_.allowNull(); addbuts_.allowNull();
-    uiPrDenFunVarSel::DataColInfo colinfo( colnames, colids );
+    rmbuts_.setNullAllowed(); addbuts_.setNullAllowed();
+    uiPrDenFunVarSel::DataColInfo colinfo( colnames, colids, mns, uoms );
     const CallBack pushcb = mCB(this,uiCreateDPSPDF,butPush);
 
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
 	uiString lbl = tr("%1 %2").arg(uiStrings::sDimension()).arg( idx+1 );
-	auto* fld = new uiPrDenFunVarSel( this, colinfo, lbl );
-	fld->attrSelChanged.notify( mCB(this,uiCreateDPSPDF,setColRange) );
-	fld->setColNr( plotter_ ? plotter_->axisData(idx).colid_ + 3
-				: idx+3 );
+	auto* fld = new uiPrDenFunVarSel( this, colinfo, lbl, requireunits_ );
+	mAttachCB( fld->attrSelChanged, uiCreateDPSPDF::setColRange );
+	fld->setColNr( plotter_ ? plotter_->axisData(idx).colid_ + 3 : idx );
 	setColRange( fld );
 	if ( idx == 0 )
 	{
@@ -129,22 +167,37 @@ void uiCreateDPSPDF::createDefaultUI()
 	uiStrings::phrOutput(uiStrings::sProbDensFunc(true,1)) );
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
-    int nrattribs = dps_->nrCols();
-    if ( StringView(dps_->colName(0)) == sKey::MD() )
-	nrattribs--;
-
-    for ( int idx=1; idx<=2; idx++ )
-    {
-	if ( nrattribs > idx )
-	    butPush( addbuts_[idx] );
-    }
-    handleDisp( nullptr );
+    mAttachCB( postFinalize(), uiCreateDPSPDF::initDlg );
 }
 
 
 uiCreateDPSPDF::~uiCreateDPSPDF()
 {
+    detachAllNotifiers();
     delete pdf_;
+}
+
+
+void uiCreateDPSPDF::initDlg( CallBacker* )
+{
+    int nrattribs = dps_->nrCols();
+    if ( StringView(dps_->colName(0)) == sKey::MD() )
+	nrattribs--;
+
+    for ( int idx=1; idx<prefnrdims_; idx++ )
+    {
+	if ( nrattribs > idx )
+	    butPush( addbuts_[idx] );
+    }
+
+    handleDisp( nullptr );
+}
+
+
+void uiCreateDPSPDF::setPrefNrDimensions( int nrdims )
+{
+    if ( nrdims>=0 && nrdims<7 )
+	prefnrdims_ = nrdims;
 }
 
 
@@ -162,22 +215,18 @@ float uiCreateDPSPDF::getVal( int dcid, int drid ) const
 }
 
 
-void uiCreateDPSPDF::setColRange( CallBacker* cb )
+Interval<float> uiCreateDPSPDF::getRange( DataPointSet::ColID dpcid ) const
 {
-    mDynamicCastGet(uiPrDenFunVarSel*,varselfld,cb)
-    if ( !varselfld ) return;
-
-    Interval<float> datarange( mUdf(float),-mUdf(float) );
-
+    Interval<float> ret( mUdf(float),-mUdf(float) );
     bool isaxisshown = false;
     if ( plotter_ )
     {
 	for ( int idx=0; idx<3; idx++ )
 	{
-	    if ( varselfld->selColID() ==  plotter_->axisData(idx).colid_ )
+	    if ( plotter_->axisData(idx).colid_ == dpcid )
 	    {
 		isaxisshown = true;
-		datarange = plotter_->axisHandler(idx)->range();
+		ret = plotter_->axisHandler(idx)->range();
 	    }
 	}
     }
@@ -186,18 +235,26 @@ void uiCreateDPSPDF::setColRange( CallBacker* cb )
     {
 	for ( int rid=0; rid<dps_->size(); rid++ )
 	{
-	    DataPointSet::ColID dcolid = varselfld->selColID();
-	    const float val = getVal(dcolid,rid);
-	    if ( !mIsUdf(val) && val > datarange.stop )
-		datarange.stop = val;
-	    if ( !mIsUdf(val) && val < datarange.start )
-		datarange.start = val;
+	    const float val = getVal(dpcid,rid);
+	    if ( !mIsUdf(val) && val > ret.stop )
+		ret.stop = val;
+	    if ( !mIsUdf(val) && val < ret.start )
+		ret.start = val;
 	}
     }
 
-    StepInterval<float> attrrange( datarange );
-    attrrange.step =
-	fabs( datarange.stop-datarange.start )/ varselfld->selNrBins();
+    return ret;
+}
+
+
+void uiCreateDPSPDF::setColRange( CallBacker* cb )
+{
+    mDynamicCastGet(uiPrDenFunVarSel*,varselfld,cb)
+    if ( !varselfld )
+	return;
+
+    StepInterval<float> attrrange = getRange( varselfld->selColID() );
+    attrrange.step = fabs( attrrange.width() ) / varselfld->selNrBins();
     varselfld->setAttrRange( attrrange );
 }
 
@@ -205,7 +262,8 @@ void uiCreateDPSPDF::setColRange( CallBacker* cb )
 void uiCreateDPSPDF::butPush( CallBacker* cb )
 {
     mDynamicCastGet(uiButton*,but,cb)
-    if ( !but ) return;
+    if ( !but )
+	return;
 
     bool isadd = false;
     int idx = addbuts_.indexOf( but );
@@ -214,7 +272,7 @@ void uiCreateDPSPDF::butPush( CallBacker* cb )
     if ( idx < 0 ) return;
 
     nrdisp_ += isadd ? 1 : -1;
-    handleDisp( 0 );
+    handleDisp( nullptr );
 }
 
 
@@ -240,11 +298,9 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
     {
 	const BufferString colnm = probflds_[dimnr]->selColName();
 	prdf->setDimName( dimnr, colnm );
-
-	const DataPointSet::ColID colid = dps_->indexOf( colnm.buf() );
-	const DataColDef& coldef = dps_->colDef( colid );
-	if ( coldef.unit_ )
-	    prdf->setUOMSymbol( dimnr, coldef.unit_->getLabel() );
+	const UnitOfMeasure* uom = probflds_[dimnr]->getUnit();
+	if ( uom )
+	    prdf->setUOMSymbol( dimnr, uom->getLabel() );
 
 	const StepInterval<float> dimrg = probflds_[dimnr]->selColRange();
 	pdf.setRange( dimnr, dimrg );
@@ -274,21 +330,50 @@ void uiCreateDPSPDF::fillPDF( ArrayNDProbDenFunc& pdf )
 
 void uiCreateDPSPDF::setPrefDefNames( const BufferStringSet& prefdefnms )
 {
-    for ( int idx=0; idx<probflds_.size(); idx++ )
+    TypeSet<int> handledpropflds;
+    for ( int idx=0; idx<prefdefnms.size(); idx++ )
     {
-	if ( !prefdefnms.validIdx(idx) )
-	    continue;
-	probflds_[idx]->setPrefCol( prefdefnms.get(idx).buf() );
+	const char* prefdefnm = prefdefnms.get( idx ).str();
+	for ( int iprop=0; iprop<probflds_.size(); iprop++ )
+	{
+	    if ( handledpropflds.isPresent(iprop) )
+		continue;
+
+	    if ( !probflds_.get(iprop)->hasAttrib(prefdefnm) )
+		continue;
+
+	    probflds_.get(iprop)->setPrefCol( prefdefnm );
+	    handledpropflds += iprop;
+	    break;
+	}
     }
 }
 
 
 bool uiCreateDPSPDF::acceptOK( CallBacker* )
 {
+    if ( requireunits_ )
+    {
+	for ( int idx=0; idx<nrdisp_; idx++ )
+	{
+	    if ( !probflds_.get(idx)->getUnit() )
+	    {
+		uiMSG().error( tr("No valid units selected for "
+				  "the PDF creation.") );
+		return false;
+	    }
+	}
+    }
+
     if ( !createPDF() )
 	return false;
+
     if ( hasSaveButton() && saveButtonChecked() )
-	viewPDF();
+    {
+	if ( !viewPDF() )
+	    return false;
+    }
+
     if ( !pdf_ )
     {
 	uiMSG().error( tr("No valid PDF created") );
@@ -314,7 +399,7 @@ bool uiCreateDPSPDF::createPDF()
 
     if ( nrdisp_ == 1 )
     {
-	Array1DImpl<float> pdfarr = Array1DImpl<float>( 0 );
+	Array1DImpl<float> pdfarr( 0 );
 	Sampled1DProbDenFunc pdf( pdfarr );
 	fillPDF( pdf );
 
@@ -323,7 +408,7 @@ bool uiCreateDPSPDF::createPDF()
     }
     else if ( nrdisp_ == 2 )
     {
-	Array2DImpl<float> pdfarr = Array2DImpl<float>( Array2DInfoImpl() );
+	Array2DImpl<float> pdfarr( 0, 0 );
 	Sampled2DProbDenFunc pdf( pdfarr );
 	fillPDF( pdf );
 
@@ -341,14 +426,16 @@ bool uiCreateDPSPDF::createPDF()
 	mSavePDF( return false );
     }
 
-
     return true;
 }
 
 
-void uiCreateDPSPDF::viewPDF()
+bool uiCreateDPSPDF::viewPDF()
 {
     uiEditProbDenFuncDlg editdlg( this, *pdf_, true );
-    editdlg.go();
-    mSavePDF( return );
+    if ( editdlg.go() != uiDialog::Accepted )
+	return false;
+
+    mSavePDF( return false );
+    return true;
 }

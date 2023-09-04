@@ -556,7 +556,7 @@ void uiDataPointSetCrossPlotWin::exportPDF( CallBacker* )
     for ( ; dcid<dps->nrCols(); dcid++ )
 	colnames.add( uidps_.userName(dcid) );
 
-    uiCreateDPSPDF dlg( this, &plotter_ );
+    uiCreateDPSPDF dlg( this, &plotter_, false );
     dlg.go();
 }
 
