@@ -46,9 +46,9 @@ protected:
     bool			coltabinitialized_;
 
     void			createSelMenu(MenuItem&);
-    bool    			handleSelMenu(int mnuid);
+    bool			handleSelMenu(int mnuid);
 
-    mDeprecated("use createDataPackRM" );
+    mDeprecated("use createDataPackRM")
     DataPackID			createDataPack(Attrib::SelSpec&,
 					       const BufferString& attribnm="",
 					       const bool steering=false,
