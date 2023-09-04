@@ -56,8 +56,8 @@ const uiString uiFreqFilterSelFreq::sMinMax()
     const FFTFilter::Type ftype = filterType();
     const bool zistime = SI().zDomain().isTime();
     const bool zismeter = SI().zDomain().isDepth() && !SI().depthsInFeet();
-    const BufferString prestr = ftype==FFTFilter::LowPass ?	"Max	" :
-				ftype==FFTFilter::HighPass ?	"Min	" :
+    const BufferString prestr = ftype==FFTFilter::LowPass ?	"Max" :
+				ftype==FFTFilter::HighPass ?	"Min" :
 								"Min/max";
     return zistime ?
 		tr("%1 %2(Hz)").arg(prestr).arg(uiStrings::sFrequency(true)) :
