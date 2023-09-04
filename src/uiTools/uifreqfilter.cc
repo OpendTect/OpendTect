@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     : uiGroup( p, "Frequency Filter Selection")
-    , parchanged(this)  
+    , parchanged(this)
 {
     const bool zistime = SI().zDomain().isTime();
     const char** typestrs = FFTFilter::TypeNames();
@@ -24,7 +24,7 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     typefld_->valueChanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
     typefld_->valueChanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );
 
-    freqfld_ = new uiGenInput( this, sMinMax(), 
+    freqfld_ = new uiGenInput( this, sMinMax(),
 	    FloatInpSpec().setName(zistime?"Min frequency":"Min wavenumber"),
 	    FloatInpSpec().setName(zistime?"Max frequency":"Max wavenumber") );
     freqfld_->setElemSzPol( uiObject::Small );
@@ -52,14 +52,18 @@ void uiFreqFilterSelFreq::parChgCB( CallBacker* )
 
 
 const uiString uiFreqFilterSelFreq::sMinMax()
-{ 
+{
+    const FFTFilter::Type ftype = filterType();
     const bool zistime = SI().zDomain().isTime();
     const bool zismeter = SI().zDomain().isDepth() && !SI().depthsInFeet();
+    const BufferString prestr = ftype==FFTFilter::LowPass ?	"Max" :
+				ftype==FFTFilter::HighPass ?	"Min" :
+								"Min/max";
     return zistime ?
-		tr("Min/max %1(Hz)").arg(uiStrings::sFrequency(true)) :
+		tr("%1 %2(Hz)").arg(prestr).arg(uiStrings::sFrequency(true)) :
 	   zismeter ?
-		tr("Min/max %1(/km)").arg(uiStrings::sWaveNumber(true)) :
-		tr("Min/max %1(/kft)").arg(uiStrings::sWaveNumber(true));
+		tr("%1 %2(/km)").arg(prestr).arg(uiStrings::sWaveNumber(true)) :
+		tr("%1 %2(/kft)").arg(prestr).arg(uiStrings::sWaveNumber(true));
 }
 
 
@@ -68,8 +72,9 @@ void uiFreqFilterSelFreq::typeSel( CallBacker* )
     const int type = typefld_->getIntValue();
     const bool hasmin = type==1 || type==2;
     const bool hasmax = !type || type==2;
-    freqfld_->setSensitive( hasmin, 0, 0 );
-    freqfld_->setSensitive( hasmax, 0, 1 );
+    freqfld_->displayField( hasmin, 0, 0 );
+    freqfld_->displayField( hasmax, 0, 1 );
+    freqfld_->setTitleText( sMinMax() );
 }
 
 
