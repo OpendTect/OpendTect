@@ -3,6 +3,7 @@
   "project_id" :  	"od",
   "lint.engine" : 	"dGBLintEngine",
   "arc.land.onto":	["@MAIN_GIT_BRANCH@"],
+  "arc.land.onto.default":	"@MAIN_GIT_BRANCH@",
   "phabricator.uri" : 	"https://phabricator.dgbes.com",
   "base" :	  	"git:merge-base(origin/@MAIN_GIT_BRANCH@), arc:prompt"
 }
