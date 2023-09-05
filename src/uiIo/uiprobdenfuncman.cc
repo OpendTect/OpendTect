@@ -75,7 +75,7 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
 	return;
 
     uiEditProbDenFuncDlg dlg( this, *pdf, true );
-    if ( dlg.go() && dlg.isChanged() )
+    if ( (dlg.go() == uiDialog::Accepted && dlg.isChanged()) || dlg.mustSave() )
     {
 	const int choice = uiMSG().question( tr("PDF changed. Save?"),
 		uiStrings::sYes(), m3Dots(tr("As new")), uiStrings::sNo() );

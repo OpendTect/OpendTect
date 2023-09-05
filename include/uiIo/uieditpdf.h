@@ -39,10 +39,12 @@ mExpClass(uiIo) uiEditProbDenFunc : public uiGroup
 { mODTextTranslationClass(uiEditProbDenFunc);
 public:
 
-    virtual		~uiEditProbDenFunc();
+			~uiEditProbDenFunc();
 
     virtual bool	commitChanges()			= 0;
+    bool		revertChanges();
     inline bool		isChanged() const		{ return chgd_; }
+    inline bool		mustSave() const		{ return mustsave_; }
 
     static void		getPars(const MnemonicSelection*,
 				const BufferStringSet* varnms,int idx,
@@ -61,7 +63,12 @@ protected:
     const ProbDenFunc&	inpdf_;
     const int		nrdims_;
     const bool		editable_;
-    bool		chgd_;
+    bool		chgd_ = false;
+    bool		mustsave_ = false;
+
+private:
+
+    bool		getMustSave() const;
 
 };
 
@@ -77,13 +84,15 @@ public:
 					 const BufferStringSet* varnms=nullptr);
 			~uiEditProbDenFuncDlg();
 
-    bool		isChanged() const	{ return edfld_->isChanged(); }
+    bool		isChanged() const;
+    bool		mustSave() const;
 
 protected:
 
-    uiEditProbDenFunc*	edfld_;
+    uiEditProbDenFunc*	edfld_ = nullptr;
 
     bool		acceptOK(CallBacker*) override;
+    bool		rejectOK(CallBacker*) override;
 
 };
 
@@ -96,9 +105,7 @@ public:
 			uiEditSampledProbDenFunc(uiParent*,ProbDenFunc&,bool);
 			~uiEditSampledProbDenFunc();
 
-    bool		commitChanges() override;
-
-protected:
+private:
 
     int			curdim2_ = 0;
 
@@ -126,6 +133,8 @@ protected:
     void		dimNext(CallBacker*);
     void		dimPrev(CallBacker*);
 
+    bool		commitChanges() override;
+
 };
 
 
@@ -142,9 +151,7 @@ public:
 				    const BufferStringSet* varnms = nullptr);
 			~uiEditGaussianProbDenFunc();
 
-    bool		commitChanges() override;
-
-protected:
+private:
 
     Gaussian1DProbDenFunc* pdf1d_ = nullptr;
     Gaussian2DProbDenFunc* pdf2d_ = nullptr;
@@ -174,4 +181,7 @@ protected:
     void		varSel(CallBacker*);
     void		addSetPush(CallBacker*);
     void		rmPush(CallBacker*);
+
+    bool		commitChanges() override;
+
 };

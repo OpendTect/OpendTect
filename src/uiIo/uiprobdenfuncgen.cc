@@ -660,7 +660,7 @@ uiProbDenFuncGenGaussian::~uiProbDenFuncGenGaussian()
 bool uiProbDenFuncGenGaussian::acceptOK( CallBacker* )
 {
     const IOObj* pdfioobj = outfld_->ioobj();
-    if ( !pdfioobj || !pdffld_->commitChanges() )
+    if ( !pdfioobj || !((uiEditProbDenFunc*)pdffld_)->commitChanges() )
 	return false;
 
     ioobjky_ = pdfioobj->key();
