@@ -41,7 +41,9 @@ public:
     virtual		~uiEditProbDenFunc();
 
     virtual bool	commitChanges()			= 0;
+    bool		revertChanges();
     inline bool		isChanged() const		{ return chgd_; }
+    bool		mustSave() const;
 
     static void		getPars(const MnemonicSelection*,
 				const BufferStringSet* varnms,int idx,
@@ -62,6 +64,10 @@ protected:
     const bool		editable_;
     bool		chgd_;
 
+private:
+
+    bool		getMustSave() const;
+
 };
 
 
@@ -77,6 +83,8 @@ public:
 			~uiEditProbDenFuncDlg();
 
     bool		isChanged() const	{ return edfld_->isChanged(); }
+    bool		mustSave() const;
+    bool		doRejectOK_();
 
 protected:
 

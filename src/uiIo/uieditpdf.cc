@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uiunitsel.h"
 
 #include "arrayndsmoother.h"
+#include "arrayndalgo.h"
 #include "flatposdata.h"
 #include "globexpr.h"
 #include "sampledprobdenfunc.h"
@@ -34,6 +35,8 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 #include "hiddenparam.h"
+
+static HiddenParam<uiEditProbDenFunc,int> uieditpdfmustsavemgr_(0);
 static HiddenParam<uiEditSampledProbDenFunc,RefMan<FlatDataPack>>
 							    hp_vddp_(nullptr);
 
@@ -45,12 +48,21 @@ uiEditProbDenFunc::uiEditProbDenFunc( uiParent* p, ProbDenFunc& pdf, bool ed )
     , nrdims_(pdf.nrDims())
     , chgd_(false)
 {
+    const bool mustsave = getMustSave();
+    uieditpdfmustsavemgr_.setParam( this, mustsave ? 1 : 0 );
 }
 
 
 uiEditProbDenFunc::~uiEditProbDenFunc()
 {
     delete &pdf_;
+    uieditpdfmustsavemgr_.removeParam( this );
+}
+
+
+bool uiEditProbDenFunc::mustSave() const
+{
+    return uieditpdfmustsavemgr_.getParam( this ) == 1;
 }
 
 
@@ -58,6 +70,12 @@ const UnitOfMeasure* uiEditProbDenFunc::getUnit( int idim )
 {
     const UnitOfMeasure* ret = UoMR().get( pdf_.getUOMSymbol(idim) );
     return ret ? ret : guessUnit( pdf_, idim );
+}
+
+
+bool uiEditProbDenFunc::revertChanges()
+{
+    return mustSave() ? commitChanges() : true;
 }
 
 
@@ -187,6 +205,37 @@ void uiEditProbDenFunc::getPars( const MnemonicSelection* mns,
 }
 
 
+bool uiEditProbDenFunc::getMustSave() const
+{
+    bool usingprops = false;
+    for ( int idim=0; idim<inpdf_.nrDims(); idim++ )
+    {
+	const BufferString dimnm = inpdf_.dimName( idim );
+	if ( MNC().getByName(dimnm.buf(),false) )
+	    { usingprops = true; break; }
+	if ( PROPS().getByName(dimnm.buf(),false) )
+	    { usingprops = true; break; }
+	if ( MNC().getByName(dimnm.buf(),true) )
+	    { usingprops = true; break; }
+	if ( PROPS().getByName(dimnm.buf(),true) )
+	    { usingprops = true; break; }
+    }
+
+    if ( !usingprops )
+	return false; //Not all PDFs require units
+
+    for ( int idim=0; idim<inpdf_.nrDims(); idim++ )
+    {
+	const StringView uomstr = inpdf_.getUOMSymbol(idim);
+	if ( uomstr.isEmpty() )
+	    return true;
+    }
+
+    return false;
+}
+
+
+// uiEditProbDenFuncDlg
 
 uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 					    bool ed, bool isnew,
@@ -197,19 +246,28 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
 	     toUiString("%1 '%2'").arg(ed ? "Edit" : "Browse").arg(pdf.name()
 	     .isEmpty() ? tr("PDF") : mToUiStringTodo(pdf.name())),
 	     mODHelpKey(mEditProbDenFuncHelpID) ))
+    , edfld_(nullptr)
 {
-    if ( !ed )
+    if ( ed )
+	setOkCancelText( uiStrings::sSave(), uiStrings::sClose() );
+    else
 	setCtrlStyle( uiDialog::CloseOnly );
 
     const StringView typ( pdf.getTypeStr() );
-    if ( typ.startsWith("Sampled") )
-	edfld_ = new uiEditSampledProbDenFunc( this, pdf, ed );
-    else if ( typ.startsWith("Gaussian") )
-	edfld_ = new uiEditGaussianProbDenFunc( this, pdf, ed,
-						isnew, mns, varnms );
-    else
+    const bool issampled = typ.startsWith("Sampled");
+    const bool isgaussian = typ.startsWith("Gaussian");
+    if ( !issampled && !isgaussian )
+    {
 	new uiLabel( this, tr("Unsupported PDF type: %1")
 						   .arg(mToUiStringTodo(typ)) );
+	return;
+    }
+
+    if ( issampled )
+	edfld_ = new uiEditSampledProbDenFunc( this, pdf, ed );
+    else if ( isgaussian )
+	edfld_ = new uiEditGaussianProbDenFunc( this, pdf, ed,
+						isnew, mns, varnms );
 }
 
 
@@ -217,14 +275,25 @@ uiEditProbDenFuncDlg::~uiEditProbDenFuncDlg()
 {}
 
 
-bool uiEditProbDenFuncDlg::acceptOK( CallBacker* )
+bool uiEditProbDenFuncDlg::mustSave() const
 {
-    if ( !edfld_ )
-	return true;
-
-    return edfld_->commitChanges();
+    return edfld_ ? edfld_->mustSave() : false;
 }
 
+
+bool uiEditProbDenFuncDlg::acceptOK( CallBacker* )
+{
+    return edfld_ ? edfld_->commitChanges() : true;
+}
+
+
+bool uiEditProbDenFuncDlg::doRejectOK_()
+{
+    return edfld_ ? edfld_->revertChanges() : true;
+}
+
+
+// uiEditSampledProbDenFunc
 
 #define mDeclArrNDPDF	mDynamicCastGet(ArrayNDProbDenFunc*,andpdf,&pdf_)
 #define mDeclSzVars mDeclArrNDPDF; \
@@ -258,6 +327,12 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 	auto* unitfld = new uiUnitSel( dimnmgrp, uusu );
 	unitfld->setUnit( uom );
 	unitfld->attach( rightOf, nmfld );
+	if ( mustSave() && StringView(pdf_.getUOMSymbol(idim)).isEmpty() )
+	{
+	    auto* guesslbl = new uiLabel( dimnmgrp, tr("Guessed unit") );
+	    guesslbl->attach( rightOf, unitfld );
+	}
+
 	if ( idim )
 	    nmfld->attach( alignedBelow, nmflds_[idim-1] );
 
@@ -272,6 +347,13 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 
     tabstack_->addTab( dimnmgrp, nrdims_ < 2 ? uiStrings::sName() :
 					       uiStrings::sName(mPlural) );
+
+    if ( mustSave() )
+    {
+	auto* nounitlbl = new uiLabel( this, tr("Some of the PDF units have "
+					    "been guessed. Review and save.") );
+	nounitlbl->attach( alignedBelow, tabstack_ );
+    }
 
     if ( !andpdf || nrdims_ > 3 )
 	return;
@@ -305,7 +387,7 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
     tbl_ = new uiTable( grp, su, "Values table" );
 
     if ( nrdims_ == 1 )
-	tbl_->setColumnLabel( 0, uiStrings::sValue() );
+	tbl_->setColumnLabel( 0, uiStrings::sCount() );
     else
     {
 	for ( int icol=0; icol<nrcols; icol++ )
@@ -332,6 +414,7 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
     if ( nrdims_ > 2 )
     {
 	const char* dim2nm = pdf_.dimName( 2 );
+	curdim2_ = andpdf->size(2) / 2;
 	new uiToolButton( bgrp, uiToolButton::RightArrow,
 				toUiString("%1 %2").arg(uiStrings::sNext())
 				.arg(dim2nm),
@@ -341,6 +424,7 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
 			    .arg(dim2nm),
 			    mCB(this,uiEditSampledProbDenFunc,dimPrev) );
     }
+
     bgrp->attach( rightOf, tbl_ );
 }
 
@@ -418,7 +502,8 @@ bool uiEditSampledProbDenFunc::getValsFromScreen( bool* chgd )
 	    BufferString tbltxt = tbl_->text( RowCol(irow,icol) );
 	    tbltxt.trimBlanks();
 	    if ( tbltxt.isEmpty() )
-		mErrRet(tr("Please fill all cells - or use 'Cancel'"))
+		mErrRet(tr("Please fill all cells - or use '%1'")
+			.arg(uiStrings::sClose()))
 
 	    idxs[0] = nrdims_ == 1 ? rowidx : icol;
 	    const float tblval = tbltxt.toFloat();
@@ -489,10 +574,10 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
     const ArrayND<float>& data = andpdf->getData();
     if ( nrdims_ == 1 )
     {
-	TypeSet<float> xvals;
 	const int sz = data.info().getSize(0);
+	TypeSet<float> xvals( sz, mUdf(float) );
 	for ( int idx=0; idx<sz; idx++ )
-	    xvals += andpdf->sampling(0).atIndex(idx);
+	    xvals[idx] = andpdf->sampling(0).atIndex(idx);
 
 	if ( vwwin1d_ )
 	    vwwin1d_->disp_->setVals( xvals.arr(), data.getData(), sz );
@@ -500,8 +585,13 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	{
 	    vwwin1d_ =
 		new uiPDF1DViewWin( this, xvals.arr(), data.getData(), sz );
-	    vwwin1d_->disp_->xAxis()->setCaption( toUiString(pdf_.dimName(0)) );
-	    vwwin1d_->disp_->yAxis(false)->setCaption( uiStrings::sValue() );
+	    const UnitOfMeasure* pdfuom = UoMR().get( pdf_.getUOMSymbol(0) );
+	    const uiString xlbl = pdfuom
+			? tr("%1 (%2)").arg( pdf_.dimName(0) )
+				       .arg( pdfuom->getLabel() )
+			: tr("%1").arg( pdf_.dimName(0) );
+	    vwwin1d_->disp_->xAxis()->setCaption( xlbl );
+	    vwwin1d_->disp_->yAxis(false)->setCaption( uiStrings::sCount() );
 	    vwwin1d_->setDeleteOnClose( true );
 	    mAttachCB( vwwin1d_->windowClosed,
 		       uiEditSampledProbDenFunc::vwWinClose );
@@ -512,22 +602,28 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
     {
 	if ( !vwwinnd_ )
 	{
-	    uiFlatViewMainWin::Setup su( tr("Probability Density Function: %1")
-	    .arg(pdf_.name()));
-	    su.nrstatusfields(0);
+	    const uiFlatViewMainWin::Setup su(
+		    tr("Probability Density Function: %1").arg(pdf_.name()) );
 	    vwwinnd_ = new uiFlatViewMainWin( this, su );
 	    vwwinnd_->setDarkBG( false );
-	    vwwinnd_->setInitialSize( 300, 300 );
+	    vwwinnd_->setInitialSize( 480, 480 );
+	    const float maxval = getMax( data );
 	    uiFlatViewer& vwr = vwwinnd_->viewer();
 	    FlatView::Appearance& app = vwr.appearance();
 	    app.ddpars_.show( false, true );
-	    app.ddpars_.vd_.ctab_ = "Rainbow";
-	    app.ddpars_.vd_.blocky_ = true;
-	    app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0,0);
+	    app.ddpars_.vd_.ctab_ = "Porosity";
+	    app.ddpars_.vd_.blocky_ = false;
+	    app.ddpars_.vd_.mappersetup_.range_ = Interval<float>(0.f,maxval);
 	    FlatView::Annotation& ann = app.annot_;
 	    ann.setAxesAnnot( true );
+	    const UnitOfMeasure* xpdfuom = UoMR().get( pdf_.getUOMSymbol(0) );
+	    const UnitOfMeasure* ypdfuom = UoMR().get( pdf_.getUOMSymbol(1) );
 	    ann.x1_.name_ = pdf_.dimName(0);
+	    if ( xpdfuom )
+		ann.x1_.name_.add( " (" ).add( xpdfuom->getLabel() ).add( ")" );
 	    ann.x2_.name_ = pdf_.dimName(1);
+	    if ( ypdfuom )
+		ann.x2_.name_.add( " (" ).add( ypdfuom->getLabel() ).add( ")" );
 	    mAttachCB( vwwinnd_->windowClosed,
 		       uiEditSampledProbDenFunc::vwWinClose );
 	}
@@ -578,6 +674,7 @@ void uiEditSampledProbDenFunc::vwWinClose( CallBacker* )
 {
     vwwin1d_ = nullptr;
     vwwinnd_ = nullptr;
+    hp_vddp_.setParam( this, nullptr );
 }
 
 
@@ -589,7 +686,12 @@ void uiEditSampledProbDenFunc::tabChg( CallBacker* )
     getNamesFromScreen();
     getUnitsFromScreen();
     if ( tbl_ )
+    {
 	setToolTips();
+	const int middlerow = tbl_->nrRows()/2;
+	const int middlecol = tbl_->nrCols()/2;
+	tbl_->ensureCellVisible( RowCol(middlerow,middlecol) );
+    }
 }
 
 
@@ -681,6 +783,7 @@ bool uiEditSampledProbDenFunc::commitChanges()
 
     if ( !getNamesFromScreen() )
 	return false;
+
     getUnitsFromScreen();
     if ( tbl_ && !getValsFromScreen(&chgd_) )
 	return false;
@@ -691,6 +794,8 @@ bool uiEditSampledProbDenFunc::commitChanges()
     return true;
 }
 
+
+// uiEditGaussianProbDenFunc
 
 uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 					ProbDenFunc& pdf,
@@ -736,6 +841,7 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    .mode( uiUnitSel::Setup::SymbolsOnly ).withnone( !uom );
 	auto* unitfld = new uiUnitSel( varsgrp, uusu );
 	mAttachCB( unitfld->selChange, uiEditGaussianProbDenFunc::unitChgCB );
+	uiLabel* guesslbl = nullptr;
 
 	if ( isnew )
 	{
@@ -763,6 +869,8 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	    }
 	    expfld->setValue( exp );
 	    stdfld->setValue( stdev );
+	    if ( StringView(inpdf_.getUOMSymbol(idim)).isEmpty() )
+		guesslbl = new uiLabel( varsgrp, tr("Guessed unit") );
 	}
 
 	unitfld->setUnit( uom );
@@ -782,6 +890,8 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 	expfld->attach( rightOf, nmfld );
 	stdfld->attach( rightOf, expfld );
 	unitfld->attach( rightOf, stdfld );
+	if ( guesslbl )
+	    guesslbl->attach( rightOf, unitfld );
 	nmflds_ += nmfld; expflds_ += expfld;
 	stdflds_ += stdfld; unflds_ += unitfld;
 	if ( !editable_ )
@@ -816,6 +926,14 @@ uiEditGaussianProbDenFunc::uiEditGaussianProbDenFunc( uiParent* p,
 		       uiEditGaussianProbDenFunc::tabChg );
 	    mAttachCB( postFinalize(), uiEditGaussianProbDenFunc::initGrp );
 	}
+    }
+
+    if ( !isnew && mustSave() )
+    {
+	auto* nounitlbl = new uiLabel( this, tr("Some of the PDF units have "
+					    "been guessed. Review and save.") );
+	nounitlbl->attach( alignedBelow, pdf2d_ ? ccfld_
+				    : (tabstack_ ? tabstack_ : varsgrp) );
     }
 }
 
