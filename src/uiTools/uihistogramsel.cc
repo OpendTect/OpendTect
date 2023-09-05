@@ -270,11 +270,7 @@ bool uiHistogramSel::changeLinePos( bool firstclick )
     const float mouseposval = xax_->getVal( ev.pos().x );
 
     const Interval<float> histxrg = histogramdisp_->xAxis()->range();
-    const bool insiderg = datarg_.includes(mouseposval,true) &&
-			  histxrg.includes(mouseposval,true);
-    if ( !firstclick && !insiderg )
-	return false;
-
+    const bool insiderg = histxrg.includes(mouseposval,true);
 #define clickrg 5
     if ( mouseposval < (cliprg_.start+cliprg_.stop)/2 )
     {
@@ -283,7 +279,7 @@ bool uiHistogramSel::changeLinePos( bool firstclick )
 	if ( firstclick && faraway )
 	    return false;
 
-	cliprg_.start = mouseposval;
+	cliprg_.start = insiderg ? mouseposval : histxrg.start;
 	makeSymmetricalIfNeeded( true );
     }
     else
@@ -293,7 +289,7 @@ bool uiHistogramSel::changeLinePos( bool firstclick )
 	if ( firstclick && faraway )
 	    return false;
 
-	cliprg_.stop = mouseposval;
+	cliprg_.stop = insiderg ? mouseposval : histxrg.stop;
 	makeSymmetricalIfNeeded( false );
     }
 
