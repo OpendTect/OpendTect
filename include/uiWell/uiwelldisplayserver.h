@@ -76,8 +76,7 @@ public:
 					const BufferStringSet& markernms,
 					const DBKeySet& sel_ids,
 					const BufferStringSet& sel_lognms,
-					const BufferStringSet& sel_markernms,
-					const CallBack& filtercb)
+					const BufferStringSet& sel_markernms)
 				{ return nullptr; }
     virtual uiMainWin*		createLogViewWinCB(uiParent*,
 					const ObjectSet<Well::Data>&,
@@ -85,8 +84,7 @@ public:
 					const BufferStringSet& markernms,
 					const DBKeySet& sel_ids,
 					const MnemonicSelection& sel_mns,
-					const BufferStringSet& sel_markernms,
-					const CallBack& filtercb)
+					const BufferStringSet& sel_markernms)
 				{ return nullptr; }
 
     virtual uiLogDisplayGrp*	createLogDisplayGrp(uiParent*)
