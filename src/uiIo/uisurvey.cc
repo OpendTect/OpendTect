@@ -67,6 +67,7 @@ static int sMapHeight = 300;
 
 //--- General tools
 
+extern "C" { mGlobal(Basic) void SetCurBaseDataDir(const char*); }
 
 static ObjectSet<uiSurvey::Util>& getUtils()
 {
@@ -770,6 +771,9 @@ bool uiSurvey::acceptOK( CallBacker* )
 
 bool uiSurvey::rejectOK( CallBacker* )
 {
+    if ( orgdataroot_ != dataroot_ )
+	SetCurBaseDataDir( orgdataroot_ );
+
     if ( cursurvremoved_ )
     {
 	uiString msg( tr("You have removed the current survey.\n" ) );
