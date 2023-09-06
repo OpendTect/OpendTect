@@ -502,10 +502,9 @@ void Strat::LayerModelSuite::setBaseModel( LayerModel* newmod,
 
     clearEditedData();
     if ( setascurrent )
-    {
 	setCurIdx( 0 );
-	baseChanged.trigger( hasbasedata );
-    }
+
+    baseChanged.trigger( hasbasedata );
 }
 
 
