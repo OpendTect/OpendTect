@@ -67,6 +67,8 @@ public:
 					const MnemonicSelection& sel_mns,
 					const BufferStringSet& sel_markernms)
 				{ return nullptr; }
+
+    mDeprecated("Use functions without CB")
     virtual uiMainWin*		createLogViewWinCB(uiParent*,
 					const ObjectSet<Well::Data>&,
 					const BufferStringSet& lognms,
@@ -76,6 +78,8 @@ public:
 					const BufferStringSet& sel_markernms,
 					const CallBack& filtercb)
 				{ return nullptr; }
+
+    mDeprecated("Use functions without CB")
     virtual uiMainWin*		createLogViewWinCB(uiParent*,
 					const ObjectSet<Well::Data>&,
 					const MnemonicSelection&,
