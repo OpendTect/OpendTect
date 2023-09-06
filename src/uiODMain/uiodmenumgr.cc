@@ -295,35 +295,42 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertSeparator();
 
     const uiString ascii = m3Dots( uiStrings::sASCII() );
+    const uiString ascii2d = uiStrings::phrASCII( uiStrings::s2D() );
+    const uiString ascii3d = uiStrings::phrASCII( uiStrings::s3D() );
 
     insertAction( impattr, ascii, mImpAttrMnuItm, ascic );
     insertAction( imppick, ascii, mImpPickAsciiMnuItm, ascic );
     insertAction( impwvlt, ascii, mImpWvltAsciiMnuItm, ascic );
     insertAction( impmute, ascii, mImpMuteDefAsciiMnuItm, ascic );
     insertAction( impcpd, ascii, mImpPVDSAsciiMnuItm, ascic );
-    insertAction( impvelfn, ascii, mImpVelocityAsciiMnuItm, ascic );
     insertAction( imppdf, m3Dots(tr("ASCII (RokDoc)")),
 		       mImpPDFAsciiMnuItm, ascic );
 
-    const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
+    const bool has2d = SI().has2D();
+    const bool has3d = SI().has3D();
+    if ( has2d )
+	insertAction( impvelfn, ascii2d, mImpVelocityAscii2DMnuItm, ascic );
+    if ( has3d )
+	insertAction( impvelfn, ascii3d, mImpVelocityAscii3DMnuItm, ascic );
+
     auto* impseissimple = new uiMenu( &appl_, tr("Simple File") );
-    if ( have2d )
+    if ( has2d )
     {
 	insertAction( impseissimple,
-		only2d ? m3Dots(tr("Line")) : m3Dots(uiStrings::s2D()),
+		!has3d ? m3Dots(tr("Line")) : m3Dots(uiStrings::s2D()),
 		mImpSeisSimple2DMnuItm, "seismicline2d" );
-	insertAction( impseissimple, only2d
+	insertAction( impseissimple, !has3d
 		? m3Dots(tr("Prestack Data")) : m3Dots(tr("Prestack 2D")),
 		mImpSeisSimplePS2DMnuItm, "prestackdataset2d" );
     }
-    if ( !only2d )
+    if ( has3d )
     {
 	insertAction( impseissimple,
-			   have2d ? m3Dots(uiStrings::s3D())
+			   has2d ? m3Dots(uiStrings::s3D())
 				  : m3Dots(uiStrings::sVolume()),
 			   mImpSeisSimple3DMnuItm, "seismiccube" );
 	insertAction( impseissimple,
-			   have2d ? m3Dots(tr("Prestack 3D"))
+			   has2d ? m3Dots(tr("Prestack 3D"))
 				  : m3Dots(tr("Prestack Volume")),
 			   mImpSeisSimplePS3DMnuItm, "prestackdataset" );
     }
@@ -336,9 +343,9 @@ void uiODMenuMgr::fillImportMenu()
 		 mImpSeisCBVSOtherSurvMnuItm );
     impseis->addMenu( impcbvsseis, impseissimple );
 
-    if ( have2d )
+    if ( has2d )
     {
-	auto* imphor2Dasc = new uiMenu( &appl_, tr("ASCII 2D"), ascic );
+	auto* imphor2Dasc = new uiMenu( &appl_, ascii2d, ascic );
 	insertAction( imphor2Dasc, m3Dots(tr("Single 2D Horizon")),
 	    mImpHor2DAsciiMnuItm );
 	insertAction( imphor2Dasc, m3Dots(tr("Bulk 2D Horizon")),
@@ -346,14 +353,14 @@ void uiODMenuMgr::fillImportMenu()
 	imphor->addMenu( imphor2Dasc );
     }
 
-    auto* imphor3Dasc = new uiMenu( &appl_, tr("ASCII 3D"), ascic );
+    auto* imphor3Dasc = new uiMenu( &appl_, ascii3d, ascic );
     insertAction( imphor3Dasc, m3Dots(tr("Single 3D Horizon")),
 	mImpHorAsciiMnuItm );
     insertAction( imphor3Dasc, m3Dots(tr("Bulk 3D Horizon")),
 	mImpBulkHorAsciiMnuIm );
     imphor->addMenu( imphor3Dasc );
     insertAction( imphor, m3Dots(tr("From ZMap")), mImpHorZMapMnuItm );
-    insertAction( imphor, have2d ? m3Dots(tr("Horizon Data 3D")) :
+    insertAction( imphor, has2d ? m3Dots(tr("Horizon Data 3D")) :
 		  m3Dots(tr("Horizon Data")), mImpHorAsciiAttribMnuItm, ascic );
 
     auto* impfltasc = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
@@ -361,9 +368,9 @@ void uiODMenuMgr::fillImportMenu()
     insertAction( impfltasc, m3Dots(tr("Bulk Faults")), mImpFaultBulkMnuItm );
     impfault->addMenu( impfltasc );
 
-    if ( have2d )
+    if ( has2d )
     {
-	auto* impfltss2Dasc = new uiMenu( &appl_, tr("ASCII 2D"), ascic );
+	auto* impfltss2Dasc = new uiMenu( &appl_, ascii2d, ascic );
 	insertAction( impfltss2Dasc, m3Dots(tr("Single 2D FaultStickSet")),
 	    mImpFaultSSAscii2DMnuItm );
 	insertAction( impfltss2Dasc, m3Dots(tr("Bulk 2D FaultStickSets")),
@@ -371,7 +378,7 @@ void uiODMenuMgr::fillImportMenu()
 	impfaultstick->addMenu( impfltss2Dasc );
     }
 
-    auto* impfltss3Dasc = new uiMenu( &appl_, tr("ASCII 3D"), ascic );
+    auto* impfltss3Dasc = new uiMenu( &appl_, ascii3d, ascic );
     insertAction( impfltss3Dasc, m3Dots(tr("Single 3D FaultStickSet")),
 	mImpFaultSSAscii3DMnuItm );
     insertAction( impfltss3Dasc, m3Dots(tr("Bulk 3D FaultStickSets")),
@@ -466,9 +473,9 @@ void uiODMenuMgr::fillExportMenu()
     const uiString sascii = m3Dots(uiStrings::sASCII());
     insertAction( expcpd, sascii, mExpPVDSAsciiMnuItm, ascic );
 
-    const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
+    const bool has2d = SI().has2D(); const bool only2d = !SI().has3D();
     auto* expseissimple = new uiMenu( &appl_, uiStrings::sASCII(), ascic );
-    if ( have2d )
+    if ( has2d )
     {
 	insertAction( expseissimple, only2d ? m3Dots(tr("Line"))
 			: m3Dots(uiStrings::s2D()), mExpSeisSimple2DMnuItm,
@@ -479,10 +486,10 @@ void uiODMenuMgr::fillExportMenu()
     }
     if ( !only2d )
     {
-	insertAction( expseissimple, have2d ? m3Dots(uiStrings::s3D())
+	insertAction( expseissimple, has2d ? m3Dots(uiStrings::s3D())
 		   : m3Dots(uiStrings::sVolume()), mExpSeisSimple3DMnuItm,
 		   "seismiccube" );
-	insertAction( expseissimple, have2d ? m3Dots(tr("Prestack 3D"))
+	insertAction( expseissimple, has2d ? m3Dots(tr("Prestack 3D"))
 		   : m3Dots(tr("Prestack Volume")), mExpSeisSimplePS3DMnuItm
 		   , "prestackdataset" );
     }
@@ -493,7 +500,7 @@ void uiODMenuMgr::fillExportMenu()
 		     mExpSeisCubePositionsMnuItm );
     }
 
-    if ( have2d )
+    if ( has2d )
     {
 	auto* exphor2Dasc = new uiMenu( &appl_, tr("ASCII 2D"), ascic );
 	insertAction( exphor2Dasc, m3Dots(tr("Single 2D Horizon")),
@@ -1505,7 +1512,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpPVDSAsciiMnuItm:		mDoOp(Imp,PVDS,0); break;
     case mExpPVDSAsciiMnuItm:		mDoOp(Exp,PVDS,0); break;
     case mExpWellACII:			mDoOp(Exp,Wll,0); break;
-    case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
+    case mImpVelocityAscii3DMnuItm:	mDoOp(Imp,Vel,0); break;
+    case mImpVelocityAscii2DMnuItm:	mDoOp(Imp,Vel,1); break;
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
     case mExpLogLAS:			mDoOp(Exp,Wll,1); break;

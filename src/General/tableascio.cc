@@ -317,7 +317,7 @@ Table::TargetInfo* TargetInfo::mk2DHorPosition( bool isreq,
 					ConstRefMan<Coords::CoordSystem> crs )
 {
     const ReqSpec reqspec( isreq ? Required : Optional );
-    TargetInfo* ti = new TargetInfo( "", DoubleInpSpec(), reqspec );
+    TargetInfo* ti = new TargetInfo( "Position", DoubleInpSpec(), reqspec );
     ti->form(0).setName( sKeyXY() );
     ti->form(0).add( DoubleInpSpec() );
     ti->selection_.coordsys_ = crs ? crs : SI().getCoordSystem();

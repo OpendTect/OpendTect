@@ -21,13 +21,12 @@ namespace Vel
 
 FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
 			      od_istream& stm,
+			      bool is2d,
 			      od_int64 nrkbytes )
     : Table::AscIO(fd)
     , strm_(stm)
-    , nrdone_( 0 )
+    , is2d_(is2d)
     , nrkbytes_( nrkbytes )
-    , output_( 0 )
-    , first_( true )
 {}
 
 
@@ -35,27 +34,38 @@ FunctionAscIO::~FunctionAscIO()
 {}
 
 
-Table::FormatDesc* FunctionAscIO::getDesc()
+Table::FormatDesc* FunctionAscIO::getDesc( bool is2d )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Velocity Function" );
-    createDescBody( *fd );
+    createDescBody( *fd, is2d );
     return fd;
 }
 
 
-void FunctionAscIO::updateDesc( Table::FormatDesc& fd )
+void FunctionAscIO::updateDesc( Table::FormatDesc& fd, bool is2d )
 {
     fd.bodyinfos_.erase();
-    createDescBody( fd );
+    createDescBody( fd, is2d );
 }
 
 
-void FunctionAscIO::createDescBody( Table::FormatDesc& fd )
+void FunctionAscIO::createDescBody( Table::FormatDesc& fd, bool is2d )
 {
-    fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    if ( is2d )
+	fd.bodyinfos_ += Table::TargetInfo::mk2DHorPosition( true );
+    else
+	fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+
     fd.bodyinfos_ += Table::TargetInfo::mkZPosition( true );
     fd.bodyinfos_ += new Table::TargetInfo( "Velocity", FloatInpSpec(),
 					    Table::Required );
+}
+
+
+void FunctionAscIO::setOutput( BinIDValueSet& bvs )
+{
+    output_ = &bvs;
+    first_ = true;
 }
 
 
@@ -95,20 +105,33 @@ int FunctionAscIO::nextStep()
     }
 
     BinID binid;
+    int col = 0;
     if ( isXY() )
     {
 	const Coord pos = getPos( 0, 1 );
 	binid = SI().transform( pos );
+	col += 2;
     }
     else
-	binid = getBinID(0, 1);
+    {
+	if ( is2d_ )
+	{
+	    binid.trcNr() = getIntValue( 0 );
+	    col += 1;
+	}
+	else
+	{
+	    binid = getBinID( 0, 1 );
+	    col += 2;
+	}
+    }
 
     if ( binid == BinID::udf() )
 	return MoreToDo();
 
-    farr[0] = getFValue(2);
-    farr[1] = getFValue(3);
-    farr[2] = output_->nrVals()==3 ? getFValue( 4 ) : mUdf(float);
+    farr[0] = getFValue( col );
+    farr[1] = getFValue( ++col );
+    farr[2] = output_->nrVals()==3 ? getFValue( ++col ) : mUdf(float);
     output_->add( binid, farr );
 
     return MoreToDo();

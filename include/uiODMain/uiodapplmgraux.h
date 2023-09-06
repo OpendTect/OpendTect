@@ -111,7 +111,8 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     uiExpRokDocPDF*		exppdfdlg_			= nullptr;
     PreStack::uiImportMute*	impmutedlg_			= nullptr;
     PreStack::uiExportMute*	expmutedlg_			= nullptr;
-    Vel::uiImportVelFunc*	impvelfunc_			= nullptr;
+    Vel::uiImportVelFunc*	impvelfunc2d_			= nullptr;
+    Vel::uiImportVelFunc*	impvelfunc3d_			= nullptr;
     PreStack::uiBatchProcSetup* batchprocps2ddlg_		= nullptr;
     PreStack::uiBatchProcSetup* batchprocps3ddlg_		= nullptr;
 };

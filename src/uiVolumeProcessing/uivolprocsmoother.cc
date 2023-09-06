@@ -58,7 +58,8 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf, bool is2d )
 		is2d ? uiStrings::sTraceNumber() : uiStrings::sCrossline();
     crllenfld_ = new uiLabeledSpinBox( stepoutgroup, trcsolabel, 0,
 				       "Crline_spinbox" );
-    crllenfld_->box()->setInterval( 0, mMaxNrSteps*step.crl(), step.crl() );
+    const int nrsteps = is2d ? 50 : mMaxNrSteps;
+    crllenfld_->box()->setInterval( 0, nrsteps*step.crl(), step.crl() );
     crllenfld_->box()->setValue( step.crl()*(smoother_->crlSz()/2) );
     if ( inllenfld_ )
 	crllenfld_->attach( alignedBelow, inllenfld_ );

@@ -21,18 +21,18 @@ namespace Vel
 mExpClass(Velocity) FunctionAscIO : public Table::AscIO, public SequentialTask
 { mODTextTranslationClass(FunctionAscIO);
 public:
-				FunctionAscIO( const Table::FormatDesc& fd,
-					       od_istream&,
-					       od_int64 filesizeinkb=-1);
+				FunctionAscIO(const Table::FormatDesc& fd,
+					      od_istream&,
+					      bool is2d,
+					      od_int64 filesizeinkb=-1);
 				~FunctionAscIO();
 
-   static Table::FormatDesc*	getDesc();
-   static void			updateDesc(Table::FormatDesc&);
+   static Table::FormatDesc*	getDesc(bool is2d);
+   static void			updateDesc(Table::FormatDesc&,bool is2d);
 
    float			getUdfVal() const;
    bool				isXY() const;
-   void				setOutput(BinIDValueSet& bvs)
-				{ output_ = &bvs; first_ = true; }
+   void				setOutput(BinIDValueSet&);
 
 protected:
 
@@ -42,12 +42,13 @@ protected:
 				{ return tr("KBytes read"); }
 
    od_int64			totalNr() const override { return nrkbytes_; }
-   static void			createDescBody(Table::FormatDesc&);
+   static void			createDescBody(Table::FormatDesc&,bool is2d);
 
    od_istream&			strm_;
-   BinIDValueSet*		output_;
-   bool				first_;
-   od_int64			nrdone_;
+   BinIDValueSet*		output_				= nullptr;
+   bool				first_				= true;
+   od_int64			nrdone_				= 0;
+   bool				is2d_;
    od_int64			nrkbytes_;
 };
 

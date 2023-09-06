@@ -54,7 +54,8 @@ public:
     bool		canInputAndOutputBeSame() const override
 			{ return true; }
 
-    bool		needsFullVolume() const override	{ return true;}
+    bool		needsFullVolume() const override	{ return true; }
+    bool		canHandle2D() const override		{ return true; }
 
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;

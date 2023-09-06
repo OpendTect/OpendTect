@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uitblimpexpdatasel.h"
 
-#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uicompoundparsel.h"
 #include "uicoordsystem.h"
@@ -18,12 +17,10 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
-#include "uiseparator.h"
 #include "uispinbox.h"
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
 
-#include "ioman.h"
 #include "iopar.h"
 #include "tabledef.h"
 #include "tableascio.h"
@@ -81,14 +78,15 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 	const Table::TargetInfo::Form& form = tinf_.form( iform );
 	if ( formfld_ )
 	{
-	    BufferString formnm = form.name();
-	    if ( tinf_.isOptional() )
-		formnm.embed( '[', ']' );
-	    formfld_->addItem( mToUiStringTodo(formnm) );
+	    const BufferString formnm = form.name();
+	    formfld_->addItem( toUiString(formnm) );
 	}
 
 	mkColFlds( iform );
     }
+
+    if ( maxformfldidx_>=0 && maxnrflds_>0 )
+	rightmostfld_ = colboxes_[maxformfldidx_]->last();
 
     if ( formfld_ && rightmostfld_ )
     {
@@ -156,6 +154,12 @@ void mkColFlds( int iform )
     }
 
     const int nrflds = tinf_.form(iform).specs_.size();
+    if ( nrflds > maxnrflds_ )
+    {
+	maxnrflds_ = nrflds;
+	maxformfldidx_ = iform;
+    }
+
     for ( int ifld=0; ifld<nrflds; ifld++ )
     {
 	addBoxes( iform, ifld );
@@ -408,6 +412,8 @@ bool commit()
     ObjectSet< ObjectSet<uiLineEdit> >	kwinps_;
     uiObject*				rightmostfld_		= nullptr;
     uiObject*				rightmostleftfld_	= nullptr;
+    int					maxnrflds_		= 0;
+    int					maxformfldidx_		= -1;
 
     static uiGroup*			choicegrp_;
     static int				defrow_;

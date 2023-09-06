@@ -76,7 +76,8 @@ public:
 				    const TrcKeySampling&,
 				    const StepInterval<int>&) const override;
 
-    bool		areSamplesIndependent() const override	{ return true; }
+    bool			areSamplesIndependent() const override
+				{ return true; }
 
 protected:
     bool			prefersBinIDWise() const override

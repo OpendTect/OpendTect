@@ -130,7 +130,8 @@ void uiODApplMgrDispatcher::deleteDlgs()
     closeAndNullPtr( impmutedlg_ );
     closeAndNullPtr( imppdfdlg_ );
     closeAndNullPtr( exppdfdlg_ );
-    closeAndNullPtr( impvelfunc_ );
+    closeAndNullPtr( impvelfunc2d_ );
+    closeAndNullPtr( impvelfunc3d_ );
     closeAndNullPtr( exp2dgeomdlg_ );
     closeAndNullPtr( imp2dgeomdlg_ );
     closeAndNullPtr( batchprocps2ddlg_ );
@@ -333,10 +334,20 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     case uiODApplMgr::Vel:
 	if ( at == uiODApplMgr::Imp)
 	{
-	    if ( !impvelfunc_ )
-		impvelfunc_ = new Vel::uiImportVelFunc( par_ );
+	    if ( opt==0 )
+	    {
+		if ( !impvelfunc3d_ )
+		    impvelfunc3d_ = new Vel::uiImportVelFunc( par_, false );
 
-	    impvelfunc_->show();
+		impvelfunc3d_->show();
+	    }
+	    if ( opt==1 )
+	    {
+		if ( !impvelfunc2d_ )
+		    impvelfunc2d_ = new Vel::uiImportVelFunc( par_, true );
+
+		impvelfunc2d_->show();
+	    }
 	}
     break;
     case uiODApplMgr::Strat:
