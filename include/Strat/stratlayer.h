@@ -70,7 +70,7 @@ public:
 				 const PropertyRefSelection&,float xpos=0.5f);
     void		setValue(int,const IOPar&,const PropertyRefSelection&);
     void		setValue(int,LayerValue*); //!< becomes mine
-    void		setContent( const Content& c )	{ content_ = &c; }
+    void		setContent(const Content&);
     void		setXPos(float); // only affects Math lay vals
 
     ID			id() const;	//!< unitRef().fullCode()

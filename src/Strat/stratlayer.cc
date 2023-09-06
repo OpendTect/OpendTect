@@ -346,6 +346,12 @@ void Strat::Layer::setValue( int ival, float val )
 }
 
 
+void Strat::Layer::setContent( const Content& c )
+{
+    content_ = &c;
+}
+
+
 void Strat::Layer::setValue( int ival, const Math::Formula& form,
 			     const PropertyRefSelection& prs, float xpos )
 {
