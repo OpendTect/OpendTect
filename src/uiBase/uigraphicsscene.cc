@@ -579,15 +579,17 @@ uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<float>& pos )
 #else
     QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x, pos.y );
 #endif
-    if ( !qitm ) return 0;
+    if ( !qitm )
+	return nullptr;
 
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	uiGraphicsItem* oditm = items_[idx]->findItem( qitm );
-	if ( oditm ) return oditm;
+	if ( oditm )
+	    return oditm;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
