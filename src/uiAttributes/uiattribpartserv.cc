@@ -726,7 +726,9 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
     aem->setAttribSpecs( targetspecs_ );
     if ( tkzs )
 	aem->setTrcKeyZSampling( *tkzs );
-    aem->setGeomID( geomid.isValid() ? geomid : tkzs->hsamp_.getGeomID() );
+
+    if ( geomid.isValid() )
+	aem->setGeomID( geomid );
 
     return aem;
 }
@@ -789,6 +791,10 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
     const bool isnla = targetspecs_[0].isNLA();
     bool atsamplepos = true;
 
+    bool showzprogress = true;
+    Settings::common().getYN( SettingsAccess::sKeyShowZProgress(),
+			      showzprogress );
+
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     ConstRefMan<RegularSeisDataPack> preloadeddatapack;
     if ( targetdesc )
@@ -815,8 +821,9 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		rdr.setSelData( new Seis::RangeSelData(tkzs) );
 		RefMan<RegularSeisDataPack> sdp = new RegularSeisDataPack(
 				SeisDataPack::categoryStr(false,false) );
-		uiTaskRunner taskr( parent() );
-		if ( rdr.getDataPack(*sdp,&taskr) )
+		uiTaskRunner uitaskr( parent() );
+		TaskRunner* taskr = showzprogress ? &uitaskr : nullptr;
+		if ( rdr.getDataPack(*sdp,taskr) )
 		    return sdp;
 	    }
 
