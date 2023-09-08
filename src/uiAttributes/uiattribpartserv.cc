@@ -791,9 +791,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
     const bool isnla = targetspecs_[0].isNLA();
     bool atsamplepos = true;
 
-    bool showzprogress = true;
-    Settings::common().getYN( SettingsAccess::sKeyShowZProgress(),
-			      showzprogress );
+    bool showzprogress = true; // future usage
 
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     ConstRefMan<RegularSeisDataPack> preloadeddatapack;
