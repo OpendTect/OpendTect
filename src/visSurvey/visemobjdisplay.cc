@@ -769,6 +769,8 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     int minidx = -1;
 
     const TypeSet<EM::PosID>* pids = emobject_->getPosAttribList( attrib );
+    if ( !pids )
+	return res;
 
     for ( int idx=0; idx<pids->size(); idx++ )
     {
