@@ -8,7 +8,9 @@ ________________________________________________________________________
 -*/
 
 #include "vispolylinedisplay.h"
+
 #include "survinfo.h"
+#include "vismaterial.h"
 #include "vispolyline.h"
 
 
@@ -57,5 +59,16 @@ void PolyLineDisplay::setPixelDensity( float dpi )
 
 }
 
+
+void PolyLineDisplay::setColor( OD::Color col )
+{
+    getMaterial()->setColor( col );
+}
+
+
+OD::Color PolyLineDisplay::getColor() const
+{
+    return getMaterial()->getColor();
+}
 
 } // namespace visSurvey
