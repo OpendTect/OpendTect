@@ -33,13 +33,10 @@ const char* VolumeConverter::sKeyOutput() { return sKey::Output(); }
 VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
 				  const TrcKeySampling& ranges,
 				  const VelocityDesc& desc )
-    : tks_( ranges )
-    , veloutpdesc_( desc )
-    , input_( input.clone() )
-    , output_( output.clone() )
-    , reader_( 0 )
-    , writer_( 0 )
-    , sequentialwriter_(0)
+    : tks_(ranges)
+    , veloutpdesc_(desc)
+    , input_(input.clone())
+    , output_(output.clone())
 {
     reader_ = new SeisTrcReader( input );
     if ( !reader_->prepareWork() )
@@ -81,17 +78,13 @@ VolumeConverter::~VolumeConverter()
 
 bool VolumeConverter::doFinish( bool res )
 {
-    delete reader_;
-    reader_ = 0;
+    deleteAndNullPtr( reader_ );
 
     if ( !sequentialwriter_->finishWrite() )
 	res = false;
 
-    delete sequentialwriter_;
-    sequentialwriter_ = 0;
-
-    delete writer_;
-    writer_ = 0;
+    deleteAndNullPtr( sequentialwriter_ );
+    deleteAndNullPtr( writer_ );
 
     return res;
 }

@@ -35,15 +35,29 @@ mDefSimpleTranslatorSelector( PickSet )
 bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 				  bool checkdir, BufferString& bs )
 {
-    if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
+    if ( !ioobj )
+    {
+	bs = "Cannot find object in data base";	
+	return false;
+    }
+
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
 		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a PointSet"; return false; }
+    if ( !tr )
+    {
+	bs = "Selected object is not a PointSet";
+	return false;
+    }
+
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
-    bs = tr->read( ps, *conn, checkdir );
+    {
+	bs = "Cannot open ";
+	bs += ioobj->fullUserExpr( true );
+	return false;
+    }
 
+    bs = tr->read( ps, *conn, checkdir );
     IOPar disppars;
     const MultiID& mid = ioobj->key();
     if ( Pick::Mgr().readDisplayPars(mid,disppars) )
@@ -58,15 +72,27 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 				BufferString& bs )
 {
-    if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
+    if ( !ioobj )
+    {
+	bs = "No object to store set in data base";
+	return false;
+    }
+
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
 		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a PointSet"; return false; }
+    if ( !tr )
+    {
+	bs = "Selected object is not a PointSet";
+	return false;
+    }
 
     bs = "";
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
+    {
+	bs = "Cannot open ";
+	bs += ioobj->fullUserExpr( false );
+    }
     else
 	bs = tr->write( ps, *conn );
 
@@ -83,7 +109,11 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 	IOM().commitChanges( *ioobj );
     }
 
-    return bs.isEmpty();
+    const bool isok = bs.isEmpty();
+    if ( isok )
+	IOM().implUpdated.trigger( ioobj->key() );
+
+    return isok;
 }
 
 

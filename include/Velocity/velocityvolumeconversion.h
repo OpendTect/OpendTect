@@ -54,16 +54,16 @@ protected:
     char			getNewTrace(SeisTrc&,int threadidx);
 
     od_int64			totalnr_;
-    IOObj*			input_;
-    IOObj*			output_;
+    IOObj*			input_		    = nullptr;
+    IOObj*			output_		    = nullptr;
     VelocityDesc		velinpdesc_;
     VelocityDesc		veloutpdesc_;
-    TrcKeySampling			tks_;
+    TrcKeySampling		tks_;
     uiString			errmsg_;
 
-    SeisTrcReader*		reader_;
-    SeisTrcWriter*		writer_;
-    SeisSequentialWriter*	sequentialwriter_;
+    SeisTrcReader*		reader_		    = nullptr;
+    SeisTrcWriter*		writer_		    = nullptr;
+    SeisSequentialWriter*	sequentialwriter_   = nullptr;
 
     Threads::ConditionVar	lock_;
 };

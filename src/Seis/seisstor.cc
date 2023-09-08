@@ -360,7 +360,9 @@ bool SeisStoreAccess::cleanUp( bool alsoioobj_ )
 {
     bool ret = true;
     if ( strl() )
-	{ ret = strl()->close(); if ( !ret ) errmsg_ = strl()->errMsg(); }
+    { 
+	ret = strl()->close(); if ( !ret ) errmsg_ = strl()->errMsg();
+    }
 
     deleteAndNullPtr( trl_ );
     deleteAndNullPtr( dataset_ );

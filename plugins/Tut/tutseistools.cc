@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "tutseistools.h"
 
+#include "ioman.h"
 #include "ioobj.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
@@ -162,7 +163,12 @@ int Tut::SeisTools::nextStep()
 	return ErrorOccurred();
     }
     else if ( rv == 0 )
+    {
+	if ( wrr_ )
+	    wrr_->finish();
+
 	return Finished();
+    }
     else if ( rv == 1 )
     {
 	if ( !rdr_->get(trcin_) )

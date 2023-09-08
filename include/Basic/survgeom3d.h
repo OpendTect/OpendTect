@@ -84,7 +84,7 @@ protected:
     ZDomain::Def	zdomain_;
     Pos::IdxPair2Coord	b2c_;
 
-    float		zscale_;
+    float		zscale_ = 0.f;
 };
 
 } // namespace Survey

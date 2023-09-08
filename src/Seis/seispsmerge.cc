@@ -46,9 +46,9 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
 			    const IOObj& out, bool dostack,
 			    const Seis::SelData* sd )
     : Executor("Merging Prestack data")
-    , writer_(0)
+    , writer_(nullptr)
     , dostack_(dostack)
-    , sd_(sd && !sd->isAll() ? sd->clone() : 0)
+    , sd_(sd && !sd->isAll() ? sd->clone() : nullptr)
     , offsrg_(0,mUdf(float))
     , msg_(tr("Handling gathers"))
     , totnr_(-1)
@@ -123,7 +123,7 @@ int SeisPSMerger::nextStep()
 	return ErrorOccurred();
 
     const float offseps = 1e-6;
-    SeisTrcBuf* gather = 0;
+    SeisTrcBuf* gather = nullptr;
     while ( true )
     {
 	BinID curbid;

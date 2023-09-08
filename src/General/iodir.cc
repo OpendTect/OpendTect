@@ -46,8 +46,8 @@ IODir::IODir( const MultiID& ky )
 	fp.set( IOM().rootDir().fullPath() ).add( dirname_ );
 	dirname_ = fp.fullPath();
     }
-    delete ioobj;
 
+    delete ioobj;
     if ( build() )
 	isok_ = true;
 }
@@ -81,9 +81,11 @@ const IOObj* IODir::main() const
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	if ( ioobj->myKey() == 1 ) return ioobj;
+	if ( ioobj->myKey() == 1 )
+	    return ioobj;
     }
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -104,6 +106,7 @@ IOObj* IODir::doRead( const char* dirnm, IODir* dirptr, int needid )
 	sfio.closeSuccess();
     else
 	sfio.closeFail();
+
     return ret;
 }
 
@@ -170,6 +173,7 @@ IOObj* IODir::readOmf( od_istream& strm, const char* dirnm,
 
     if ( retobj )
 	setDirName( *retobj, dirnm );
+
     return retobj;
 }
 
@@ -218,7 +222,8 @@ const IOObj* IODir::get( const char* ky, const char* trgrpnm ) const
 		return ioobj;
 	}
     }
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -283,7 +288,8 @@ void IODir::reRead()
 bool IODir::permRemove( const MultiID& ky )
 {
     update();
-    if ( isBad() ) return false;
+    if ( isBad() )
+	return false;
 
     int sz = objs_.size();
     for ( int idx=0; idx<sz; idx++ )
@@ -296,6 +302,7 @@ bool IODir::permRemove( const MultiID& ky )
 	    break;
 	}
     }
+
     return doWrite();
 }
 
@@ -311,9 +318,15 @@ bool IODir::commitChanges( const IOObj* ioobj )
     }
 
     IOObj* clone = ioobj->clone();
-    if ( !clone ) return false;
+    if ( !clone )
+	return false;
+
     update();
-    if ( isBad() ) { delete clone; return false; }
+    if ( isBad() )
+    {
+	delete clone;
+	return false;
+    }
 
     int sz = objs_.size();
     bool found = false;
@@ -327,8 +340,10 @@ bool IODir::commitChanges( const IOObj* ioobj )
 	    break;
 	}
     }
+
     if ( !found )
 	objs_ += clone;
+
     return doWrite();
 }
 
@@ -345,7 +360,8 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
     if ( persist )
     {
 	update();
-	if ( isBad() ) return false;
+	if ( isBad() )
+	    return false;
     }
 
     if ( ioobj->key().isUdf() || objs_[ioobj] || isPresent(ioobj->key()) )
@@ -369,6 +385,7 @@ bool IODir::ensureUniqueName( IOObj& ioobj )
 	nr++;
 	nm.set( ioobj.name() ).add( " (" ).add( nr ).add( ")" );
     }
+
     if ( nr == 1 )
 	return false;
 
@@ -404,6 +421,7 @@ bool IODir::wrOmf( od_ostream& strm ) const
 	  && curleafid > curid_ )
 	    curid_ = curleafid;
     }
+
     fms += curid_;
     astream.put( "ID", fms );
     astream.newParagraph();

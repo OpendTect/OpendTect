@@ -173,8 +173,17 @@ bool SeisTrcTranslator::close()
 {
     bool ret = true;
     if ( conn_ && !conn_->forRead() )
+    {
 	ret = writeBlock();
-    delete conn_; conn_ = 0;
+	if ( ret )
+	{
+	    PtrMan<IOObj> obj = IOM().get( conn_->linkedTo() );
+	    if ( obj )
+		IOM().implUpdated.trigger( obj->key() );
+	}
+    }
+
+    deleteAndNullPtr( conn_ );
     return ret;
 }
 
@@ -414,9 +423,9 @@ bool SeisTrcTranslator::writeBlock()
     const int firstafter = crlrg.stop + crlrg.step;
     int stp = crlrg.step;
     int bufidx = 0;
-    SeisTrc* trc = bufidx < sz ? trcblock_.get(bufidx) : 0;
+    SeisTrc* trc = bufidx < sz ? trcblock_.get(bufidx) : nullptr;
     BinID binid( lastinlwritten_, crlrg.start );
-    SeisTrc* filltrc = 0;
+    SeisTrc* filltrc = nullptr;
     int nrwritten = 0;
     for ( ; binid.crl() != firstafter; binid.crl() += stp )
     {

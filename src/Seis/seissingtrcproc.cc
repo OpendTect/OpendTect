@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "seissingtrcproc.h"
 
+#include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -160,7 +161,10 @@ bool SeisSingleTraceProc::addReader()
 
 #define mHandlePastLastReader(to_do) \
     if ( !rdrs_.validIdx(currdridx_) ) \
-	{ to_do; }
+    { \
+	IOM().implUpdated.trigger( wrrkey_ ); \
+	to_do; \
+    }
 
 bool SeisSingleTraceProc::nextReader()
 {

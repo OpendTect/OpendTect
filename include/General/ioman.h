@@ -135,6 +135,7 @@ public:
     CNotifier<IOMan,const MultiID&>	entryRemoved;
     CNotifier<IOMan,const MultiID&>	entryAdded;
     CNotifier<IOMan,const MultiID&>	entryChanged;
+    CNotifier<IOMan,const MultiID&>	implUpdated;
 
     Notifier<IOMan>	newIODir;
     Notifier<IOMan>	prepareSurveyChange;  //!< Prepare, don't tear down

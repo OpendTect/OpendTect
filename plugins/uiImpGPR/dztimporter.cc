@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "dztimporter.h"
+#include "ioman.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "seisselectionimpl.h"
@@ -156,8 +157,8 @@ DZT::Importer::~Importer()
 int DZT::Importer::closeAll()
 {
     istream_.close();
-
-    deleteAndNullPtr(wrr_);
+    wrr_->finish();
+    deleteAndNullPtr( wrr_ );
 
     return Finished();
 }

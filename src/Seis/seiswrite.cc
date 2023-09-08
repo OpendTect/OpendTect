@@ -99,6 +99,13 @@ SeisTrcWriter::~SeisTrcWriter()
 }
 
 
+void SeisTrcWriter::finish()
+{
+    if ( ioobj_ )
+	IOM().implUpdated.trigger( ioobj_->key() );
+}
+
+
 bool SeisTrcWriter::close()
 {
     bool ret = true;
@@ -186,6 +193,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 		.arg( ioobj_->name() );
 	return false;
     }
+
     if ( is2d_ )
     {
 	const Pos::GeomID gid = geomID();
@@ -444,8 +452,11 @@ bool SeisTrcWriter::isMultiConn() const
 void SeisTrcWriter::setComponentNames( const BufferStringSet& compname )
 {
     compnames_ = compname;
-    if ( strl() ) strl()->setComponentNames( compnames_ );
-    if ( putter_ ) linePutter()->setComponentNames( compnames_ );
+    if ( strl() )
+	strl()->setComponentNames( compnames_ );
+
+    if ( putter_ )
+	linePutter()->setComponentNames( compnames_ );
 }
 
 
@@ -472,7 +483,6 @@ bool SeisSequentialWriter::finishWrite()
     }
 
     Threads::WorkManager::twm().emptyQueue( queueid_, true );
-
     return errmsg_.isEmpty();
 }
 

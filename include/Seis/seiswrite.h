@@ -82,6 +82,7 @@ public:
     void		setCrFrom( const char* str )	{ crfrom_ = str; }
     void		setCrUserInfo( const char* str ) { crusrinfo_ = str; }
     void		setComponentNames(const BufferStringSet&);
+    void		finish();
 
 protected:
 
@@ -165,7 +166,6 @@ public:
 			    after final submitTrace, before closure.*/
 
     uiString		errMsg() const { return errmsg_; }
-
 protected:
 
     bool			iterateBuffer(bool waitforbuffer);

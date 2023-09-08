@@ -187,6 +187,7 @@ public:
 			// overrule if you don't need sorting/buffering
 
     virtual bool	close();
+    void		closingUp();
     uiString		errMsg() const			{ return errmsg_; }
 
     virtual bool	inlCrlSorted() const		{ return true; }

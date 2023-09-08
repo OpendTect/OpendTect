@@ -153,8 +153,10 @@ IOMan::IOMan( const FilePath& rootdir )
     , surveyChanged(this)
     , afterSurveyChange(this)
     , applicationClosing(this)
+    , implUpdated(this)
     , rootdir_(rootdir)
     , lock_(false)
+    , curlvl_(-1)
 {
     SetCurBaseDataDir( rootdir.pathOnly().buf() );
     SurveyInfo::deleteInstance();
