@@ -8,13 +8,16 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiiomod.h"
+
 #include "task.h"
 #include "arraynd.h"
 #include "datapointset.h"
+#include "paralleltask.h"
 #include "ranges.h"
 #include "enums.h"
 
-mClass(uiIo) DPSDensityCalcND : public ParallelTask
+mExpClass(uiIo) DPSDensityCalcND : public ParallelTask
 { mODTextTranslationClass(DPSDensityCalcND);
 public:
 
