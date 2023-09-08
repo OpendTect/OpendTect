@@ -972,6 +972,12 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPackRM( const TrcKey& tk, float z,
     StepInterval<float> zintv2 = zintv; zintv2.step = sdp->zRange().step;
     const int nrz = zintv2.nrSteps() + 1;
     auto* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
+    if ( !seeddata->isOK() )
+    {
+	delete seeddata;
+	return nullptr;
+    }
+
     seeddata->setAll( mUdf(float) );
 
     const int trcidx0 = globidx - (int)(nrtrcs/2);
