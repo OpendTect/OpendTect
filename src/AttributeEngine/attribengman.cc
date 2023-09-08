@@ -675,6 +675,8 @@ void EngineMan::setTrcKeyZSampling( const TrcKeyZSampling& newcs )
 {
     tkzs_ = newcs;
     tkzs_.normalize();
+
+    setGeomID( newcs.hsamp_.getGeomID() );
 }
 
 

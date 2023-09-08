@@ -728,7 +728,9 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
     aem->setAttribSpecs( targetspecs_ );
     if ( tkzs )
 	aem->setTrcKeyZSampling( *tkzs );
-    aem->setGeomID( geomid );
+
+    if ( geomid.isValid() )
+	aem->setGeomID( geomid );
 
     return aem;
 }
