@@ -554,7 +554,11 @@ void HorizonFlatViewEditor2D::handleMouseClicked( bool dbl )
 	return;
 
     ConstRefMan<FlatDataPack> dp = vwr->getPack( !pickinvd_ ).get();
-    if ( !dp || !prepareTracking(pickinvd_,*tracker,*seedpicker,*dp) )
+    if ( !dp )
+	return;
+
+    DPM(DataPackMgr::FlatID()).add( dp );
+    if ( !prepareTracking(pickinvd_,*tracker,*seedpicker,*dp) )
 	return;
 
     const int prevevent = EM::EMM().undo(emobj->id()).currentEventID();

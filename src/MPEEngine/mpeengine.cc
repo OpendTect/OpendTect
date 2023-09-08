@@ -801,7 +801,8 @@ bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    DataPackID cacheid )
 {
-    auto regfdp = DPM(DataPackMgr::FlatID()).get<SeisFlatDataPack>( cacheid );
+    const auto& flatdpm = DPM(DataPackMgr::FlatID());
+    auto regfdp = flatdpm.get<SeisFlatDataPack>( cacheid );
     if ( regfdp )
     {
 	dpm_.add<SeisDataPack>( regfdp->getSource() );

@@ -116,7 +116,7 @@ public:
 				     this attrib, given that the activearea
 				     should be tracked. */
     int				getCacheIndexOf(const Attrib::SelSpec&) const;
-    DataPackID		getAttribCacheID(const Attrib::SelSpec&) const;
+    DataPackID			getAttribCacheID(const Attrib::SelSpec&) const;
     bool			hasAttribCache(const Attrib::SelSpec&) const;
     bool			setAttribData( const Attrib::SelSpec&,
 					       DataPackID);
@@ -137,7 +137,7 @@ public:
     RefMan<FlatDataPack>	getSeedPosDataPackRM(const TrcKey&,float z,
 					int nrtrcs,
 					const StepInterval<float>& zrg) const;
-    DataPackID		getSeedPosDataPack(const TrcKey&,float z,
+    DataPackID			getSeedPosDataPack(const TrcKey&,float z,
 					int nrtrcs,
 					const StepInterval<float>& zrg) const;
 
