@@ -572,7 +572,7 @@ bool EMObject::hasPosAttrib(int attr) const
 const TypeSet<PosID>* EMObject::getPosAttribList( int attr ) const
 {
     const int idx=attribs_.indexOf( attr );
-    return idx!=-1 ? &posattribs_[idx]->posids_ : 0;
+    return idx!=-1 ? &posattribs_[idx]->posids_ : nullptr;
 }
 
 
