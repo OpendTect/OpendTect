@@ -232,11 +232,11 @@ int FaultGeometry::nrStickDoubles( int sticknr,
     mDynamicCastGet(const Geometry::FaultStickSet*,reffss,
 		    ref->geometryElement())
     if ( !reffss )
-	return -1;
+	return 0;
 
     const StepInterval<int> rowrg = reffss->rowRange();
     if ( rowrg.isUdf() )
-	return -1;
+	return 0;
 
     RowCol rc;
     for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
