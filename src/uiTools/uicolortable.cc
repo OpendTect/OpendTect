@@ -590,11 +590,21 @@ void uiColorTable::canvasDoubleClick( CallBacker* )
 
 void uiColorTable::commitInput()
 {
-    mapsetup_.range_.start = minfld_ ? minfld_->getFValue() : 0.f;
-    mapsetup_.range_.stop = maxfld_ ? maxfld_->getFValue() : 1.f;
+    const float minval = minfld_ ? minfld_->getFValue() : 0.f;
+    const float maxval = maxfld_ ? maxfld_->getFValue() : 1.f;
+    if ( mIsEqual(minval,maxval,mDefEpsF) )
+    {
+	minfld_->setValue( mapsetup_.range_.start );
+	maxfld_->setValue( mapsetup_.range_.stop );
+	return;
+    }
+
+    mapsetup_.range_.start = minval;
+    mapsetup_.range_.stop = maxval;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
     scaleChanged.trigger();
-    if ( scalingdlg_ ) scalingdlg_->updateFields();
+    if ( scalingdlg_ )
+	scalingdlg_->updateFields();
 }
 
 
