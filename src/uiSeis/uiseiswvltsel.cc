@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uiseiswvltsel.h"
 
 #include "uicombobox.h"
+#include "uimsg.h"
 #include "uiseiswvltman.h"
 #include "uistrings.h"
 #include "uitoolbutton.h"
@@ -147,13 +148,20 @@ const char* uiSeisWaveletSel::getWaveletName() const
 
 void uiSeisWaveletSel::extractCB( CallBacker* )
 {
-    if ( !wvltextrdlg_ )
+    deleteAndNullPtr(wvltextrdlg_);
+    bool for2d = SI().has2D();
+    if ( for2d && SI().has3D() )
     {
-	wvltextrdlg_ = new uiWaveletExtraction( this, false );
-	mAttachCB( wvltextrdlg_->extractionDone,
-		   uiSeisWaveletSel::extractionDoneCB );
+	const int res = uiMSG().ask2D3D( tr("Use 2D or 3D data?"), true );
+	if ( res == -1 )
+	    return;
+	else
+	    for2d = res == 1;
     }
 
+    wvltextrdlg_ = new uiWaveletExtraction( this, for2d );
+    mAttachCB( wvltextrdlg_->extractionDone,
+	       uiSeisWaveletSel::extractionDoneCB );
     wvltextrdlg_->show();
 }
 
