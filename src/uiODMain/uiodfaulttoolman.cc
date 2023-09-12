@@ -1418,9 +1418,13 @@ void uiODFaultToolMan::undoCB( CallBacker* )
     if ( !curfltd_ && !curfssd_ )
 	return;
 
+    Undo& undoer = EM::EMM().undo( curemobj->id() );
+    if ( !undoer.canUnDo() )
+	return;
+
     MouseCursorChanger mcc( MouseCursor::Wait );
     EM::EMM().burstAlertToAll( true );
-    if ( !EM::EMM().undo(curemobj->id()).unDo( 1, true  ) )
+    if ( !undoer.unDo(1,true) )
 	uiMSG().error( tr("Could not undo everything.") );
 
     EM::EMM().burstAlertToAll( false );
