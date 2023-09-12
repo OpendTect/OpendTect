@@ -222,10 +222,9 @@ bool getNamesFromFactory( uiStringSet& uinms, BufferStringSet& nms, bool is2d )
 	nms.add( uiStepDialog::factory().getNames().get(idx) );
     }
 
-    int* idxs = uinms.getSortIndexes( true, true );
+    ConstArrPtrMan<int> idxs = uinms.getSortIndexes( true, true );
     uinms.useIndexes( idxs );
     nms.useIndexes( idxs );
-    delete [] idxs;
     return nms.size();
 }
 
