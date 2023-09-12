@@ -9,7 +9,7 @@
 set(CTEST_PROJECT_NAME "OpendTect")
 set(CTEST_NIGHTLY_START_TIME "00:00:00 UTC")
 
-set(CTEST_DROP_METHOD "http")
+set(CTEST_DROP_METHOD "https")
 set(CTEST_DROP_SITE "cdash.dgbes.com")
 set(CTEST_DROP_LOCATION "/submit.php?project=OpendTect")
 set(CTEST_DROP_SITE_CDASH TRUE)
