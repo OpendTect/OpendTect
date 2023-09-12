@@ -386,35 +386,10 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID(
 }
 
 
-#define mDefStickInfoStr( prefixstr, stickinfostr, sticknr ) \
-    BufferString stickinfostr(prefixstr); \
-    stickinfostr.add( " sticknr " ).add( sticknr );
-
-#define mDefEditNormalStr( editnormalstr, sticknr ) \
-    mDefStickInfoStr( "Edit normal", editnormalstr, sticknr )
-#define mDefLineSetStr( linesetstr, sticknr ) \
-    mDefStickInfoStr( "Line set", linesetstr, sticknr )
-#define mDefLineNameStr( linenamestr, sticknr ) \
-    mDefStickInfoStr( "Line name", linenamestr, sticknr )
-#define mDefPickedMultiIDStr( pickedmidstr, sticknr ) \
-    mDefStickInfoStr( "Picked MultiID", pickedmidstr, sticknr )
-#define mDefPickedNameStr( pickednmstr, sticknr ) \
-    mDefStickInfoStr( "Picked name", pickednmstr, sticknr )
-#define mDefPickedGeomIDStr( pickedgeomidstr, sticknr ) \
-	mDefStickInfoStr( "Picked GeomID", pickedgeomidstr, sticknr )
-#define mDefL2DKeyStr( l2dkeystr, sticknr ) \
-	mDefStickInfoStr( "GeomID", l2dkeystr, sticknr )
-
-//Following macros are for backward compatibility
-#define mGetOlderEditNormalStr( editnormalstr, sticknr ) \
-    editnormalstr = "Edit normal of section 0 sticknr "; \
-    editnormalstr.add( sticknr );
-#define mGetOlderLineSetStr( linesetstr, sticknr ) \
-    linesetstr = "Line set of section 0 sticknr "; \
-    linesetstr.add( sticknr );
-#define mGetOlderLineNameStr( linenamestr, sticknr ) \
-    linenamestr = "Line name of section 0 sticknr "; \
-    linenamestr.add( sticknr )
+static BufferString getKey( const char* prefix, int sticknr )
+{
+    return BufferString( prefix, " sticknr ", toString(sticknr) );
+}
 
 
 void FaultStickSetGeometry::fillPar( IOPar& par ) const
@@ -426,26 +401,28 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
     StepInterval<int> stickrg = fss->rowRange();
     for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
     {
-	mDefEditNormalStr( editnormalstr, sticknr );
+	const BufferString editnormalstr = getKey( "Edit normal", sticknr );
 	par.set( editnormalstr.buf(), fss->getEditPlaneNormal(sticknr) );
 	const MultiID* pickedmid = pickedMultiID( sticknr );
 	if ( pickedmid )
 	{
-	    mDefPickedMultiIDStr( pickedmidstr, sticknr );
+	    const BufferString pickedmidstr =
+					getKey( "Picked MultiID", sticknr );
 	    par.set( pickedmidstr.buf(), *pickedmid );
 	}
 
 	const char* pickednm = pickedName( sticknr );
 	if ( pickednm )
 	{
-	    mDefPickedNameStr( pickednmstr, sticknr );
+	    const BufferString pickednmstr = getKey( "Picked name" , sticknr );
 	    par.set( pickednmstr.buf(), pickednm );
 	}
 
 	Pos::GeomID geomid = pickedGeomID( sticknr );
 	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
 	{
-	    mDefPickedGeomIDStr( pickedgeomidstr, sticknr );
+	    const BufferString pickedgeomidstr =
+					getKey( "Picked GeomID", sticknr );
 	    par.set( pickedgeomidstr.buf(), geomid );
 	}
     }
@@ -460,23 +437,26 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
     StepInterval<int> stickrg = fss->rowRange();
     for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
     {
-	mDefEditNormalStr( editnormstr, sticknr );
+	BufferString editnormstr = getKey( "Edit normal", sticknr );
 	if ( !par.hasKey(editnormstr.buf()) )
-	    mGetOlderEditNormalStr( editnormstr, sticknr );
+	    editnormstr.set("Edit normal of section 0 sticknr ").add( sticknr );
 
 	Coord3 editnormal( Coord3::udf() );
 	par.get( editnormstr.buf(), editnormal );
-
 	fss->addEditPlaneNormal( editnormal );
 
 	stickinfo_.insertAt( new StickInfo, 0 );
 	stickinfo_[0]->sticknr = sticknr;
 
-	mDefPickedGeomIDStr( pickedgeomidstr, sticknr );
-	if ( par.get(pickedgeomidstr.buf(), stickinfo_[0]->pickedgeomid) )
+	BufferString geomidstr = getKey( "Picked GeomID", sticknr );
+	if ( par.get(geomidstr.buf(), stickinfo_[0]->pickedgeomid) )
 	    continue;
 
-	mDefL2DKeyStr( l2dkeystr, sticknr );
+	geomidstr.set("Picked GeomID of section 0 sticknr ").add(sticknr);
+	if ( par.get(geomidstr.buf(), stickinfo_[0]->pickedgeomid) )
+	    continue;
+
+	const BufferString l2dkeystr = getKey( "GeomID", sticknr );
 	BufferString keybuf;
 	if ( par.get(l2dkeystr.buf(),keybuf) )
 	{
@@ -491,22 +471,24 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	    continue;
 	}
 
-	mDefPickedMultiIDStr( pickedmidstr, sticknr );
+	const BufferString pickedmidstr = getKey( "Picked MultiID", sticknr );
 	if ( !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid) )
 	{
-	    mDefLineSetStr( linesetstr, sticknr );
+	    BufferString linesetstr = getKey( "Line set", sticknr );
 	    if ( !par.hasKey(linesetstr.buf()) )
-		mGetOlderLineSetStr(linesetstr,sticknr);
+	    {
+		linesetstr.set("Line set of section 0 sticknr ").add( sticknr );
+	    }
 
 	    par.get( linesetstr.buf(), stickinfo_[0]->pickedmid );
 	}
 
-	mDefPickedNameStr( pickednmstr, sticknr );
+	const BufferString pickednmstr = getKey( "Picked name" , sticknr );
 	if ( !par.get(pickednmstr.buf(), stickinfo_[0]->pickednm) )
 	{
-	    mDefLineNameStr( linenamestr, sticknr );
+	    BufferString linenamestr = getKey( "Line name", sticknr );
 	    if ( !par.hasKey(linenamestr.buf()) )
-		mGetOlderLineNameStr( linenamestr, sticknr );
+		linenamestr.set("Line name of section 0 sticknr ").add(sticknr);
 
 	    par.get( linenamestr.buf(), stickinfo_[0]->pickednm );
 	}
