@@ -135,16 +135,20 @@ void uiWaveletExtraction::choiceSelCB( CallBacker* )
 
 void uiWaveletExtraction::inputSelCB( CallBacker* )
 {
+    const IOObj* ioobj = seisselfld_->ioobj( true );
+    if ( !ioobj )
+	return;
+
     if ( linesel2dfld_ )
     {
-	linesel2dfld_->setInput( seisselfld_->key() );
+	linesel2dfld_->setInput( ioobj->key() );
 	return;
     }
 
     TrcKeyZSampling cs;
     if ( subselfld3d_ )
     {
-	const SeisIOObjInfo si( seisselfld_->ioobj() );
+	const SeisIOObjInfo si( ioobj );
 	si.getRanges( cs );
 	cs.hsamp_.step_.inl() = cs.hsamp_.step_.crl() = 10;
 	subselfld3d_->uiSeisSubSel::setInput( cs );
@@ -208,7 +212,8 @@ void uiWaveletExtraction::lineSelCB( CallBacker* )
 bool uiWaveletExtraction::acceptOK( CallBacker* )
 {
     const IOObj* seisioobj = seisselfld_->ioobj();
-    if ( !seisioobj ) return false;
+    if ( !seisioobj )
+	return false;
 
     if ( outputwvltfld_->isEmpty() )
     {
@@ -218,7 +223,8 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     }
 
     const IOObj* wvltioobj = outputwvltfld_->ioobj();
-    if ( !wvltioobj ) return false;
+    if ( !wvltioobj )
+	return false;
 
     if ( linesel2dfld_ && !check2DFlds() )
 	return false;
