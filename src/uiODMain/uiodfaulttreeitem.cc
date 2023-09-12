@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "mpeengine.h"
 #include "randcolor.h"
+#include "seistrctr.h"
 #include "threadwork.h"
 
 #include "uiempartserv.h"
@@ -96,7 +97,6 @@ bool uiODFaultParentTreeItem::showSubMenu()
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
     uiAction* newmenu = new uiAction( uiStrings::sNew() );
     mnu.insertAction( newmenu, mNewMnuID );
-    newmenu->setEnabled( !hastransform && SI().has3D() );
     showMenuNotifier().trigger( &mnu, this );
 
     if ( children_.size() )
@@ -150,6 +150,17 @@ bool uiODFaultParentTreeItem::showSubMenu()
     }
     else if ( mnuid == mNewMnuID )
     {
+	auto ctxt = mIOObjContext(SeisTrc);
+	if ( ctxt.nrMatches(true)==0 )
+	{
+	    uiMSG().message( tr("Fault planes can only be picked on 3D data,\n"
+			"but there's no 3D data available in this project.\n"
+			"When working with 2D data, create fault sticks first."
+			"\nThese sticks can then be combined into a "
+			"fault plane.") );
+	    return false;
+	}
+
 	RefMan<EM::EMObject> emo =
 	    EM::EMM().createTempObject( EM::Fault3D::typeStr() );
 	if ( !emo )
