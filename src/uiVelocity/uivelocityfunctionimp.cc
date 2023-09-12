@@ -75,6 +75,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p, bool is2d )
 
 uiImportVelFunc::~uiImportVelFunc()
 {
+    detachAllNotifiers();
     delete &fd_;
 }
 
