@@ -180,7 +180,7 @@ uiString uiODHelpMenuMgr::getAboutString()
     str.add( mCOPYRIGHT_STRING ).add( "<br>" )
        .add( "OpendTect is released under a triple licensing scheme. "
 	     "For more information, click "
-	     "<a href=\"http://dgbes.com/index.php/products/licenses\">"
+	     "<a href=\"https://dgbes.com/index.php/products/licenses\">"
 	     "here</a>.<br>" );
     str.add( "</html>" );
     return toUiString(str);
