@@ -92,74 +92,73 @@ uiGLInfo::~uiGLInfo()
 
 uiString uiGLInfo::getMessage( bool* warning )
 {
-    uiString msg;
+    BufferString msg( "<html>" );
     glinfo_.update();
+
+    const char* url = "https://doc.opendtect.org/7.0.0/doc/admindoc/"
+		      "Default.htm#system_requirements.htm";
+    BufferString sysreq( "<br><br>Click <a href=\"" );
+    sysreq.add( url ).add( "\">" ).add( "here</a>" )
+	    .add( " for OpendTect's System Requirements." );
 
     if ( !glinfo_.isPlatformSupported() )
     {
-	msg = tr("Current platform does not support graphics status messages");
-	return msg;
+	msg.add("Current platform does not support graphics status messages");
+	msg.add( sysreq );
+	msg.add( "<br></html>" );
+	return toUiString(msg);
     }
 
     BufferStringSet allinfo = glinfo_.allInfo();
 
-    msg.append( tr("Scanning your graphics card:") );
-    msg.append( "", true );
-    msg.append( tr("GL-vendor: "), true );
-    msg.append( toUiString(allinfo[0]->buf()) );
-    msg.append( tr("GL-renderer: "), true );
-    msg.append( toUiString(allinfo[1]->buf()) );
-    msg.append( tr("GL-version: "), true );
-    msg.append( toUiString(allinfo[2]->buf()) );
+    msg.add( "<h2>Graphics Card Information</h2><br>" )
+       .add( "GL-vendor: " ).add( allinfo[0]->buf() ).add( "<br>" )
+       .add( "GL-renderer: " ).add( allinfo[1]->buf() ).add( "<br>" )
+       .add( "GL-version: " ).add( allinfo[2]->buf() ).add( "<br>" );
 
     if ( !warning )
-	return msg;
+    {
+	msg.add( sysreq ).add( "</html>" );
+	return toUiString(msg);
+    }
 
     *warning = true;
 
+    msg.add( "<br>" );
     if ( !glinfo_.isOK() )
     {
-	msg.append( "\n", true );
-	msg.append( tr(
-	    "Missing all GL info indicates some graphics card problem.") );
+	msg.add( "Missing all GL info indicates some graphics card problem." );
     }
     else if ( stringStartsWithCI("intel",allinfo[0]->buf()) )
     {
-	msg.append( "\n", true );
-	msg.append( tr(
-	    "Intel card found. If your computer has multiple graphics cards,\n"
-	    "consider switching from the integrated graphics.") );
+	msg.add(
+	    "Intel card found. If your computer has multiple graphics cards,"
+	    "<br>consider switching from the integrated graphics." );
     }
     else if ( stringStartsWithCI("ati",allinfo[0]->buf()) ||
 	      stringStartsWithCI("amd",allinfo[0]->buf()) )
     {
-	msg.append( "\n", true );
-	msg.append( tr(
-		"AMD card found. Video cards by AMD are not supported.\n"
-		"Your card may work, but OpendTect will likely experience 3D\n"
-		"visualization issues. If your computer also has an NVIDIA\n"
-		"card, make sure OpendTect will use this NVIDIA card.") );
+	msg.add(
+	    "AMD card found. Video cards by AMD are not supported.<br>"
+	    "Your card may work, but OpendTect will likely experience 3D<br>"
+	    "visualization issues. If your computer also has an NVIDIA<br>"
+	    "card, make sure OpendTect will use this NVIDIA card." );
     }
     else if ( stringStartsWithCI("microsoft",allinfo[0]->buf()) ||
 	      stringStartsWithCI("gdi",allinfo[1]->buf()) )
     {
-	msg.append( "\n", true );
-	msg.append( tr(
-	    "No graphics card found or no drivers have been installed.") );
+	msg.add( "No graphics card found or no drivers have been installed." );
     }
     else if ( *allinfo[2] == "?" )
     {
-	msg.append( "\n", true );
-	msg.append( tr(
-	    "Missing GL-version indicates a graphics card driver problem.") );
+	msg.add("Missing GL-version indicates a graphics card driver problem.");
     }
     else
 	*warning = false;
 
-    if ( *warning )
-	msg.append( tr("\n\nPlease check our System Requirements.") );
 
-    return msg;
+    msg.add( sysreq ).add( "</html>" );
+    return toUiString( msg );
 }
 
 
