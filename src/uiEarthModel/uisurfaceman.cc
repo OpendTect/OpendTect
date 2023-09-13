@@ -641,11 +641,10 @@ void uiSurfaceMan::mkFileInfo()
     EM::IOObjInfo eminfo( curioobj_ );
     if ( !eminfo.isOK() )
     {
-	txt += eminfo.name(); txt.add( " has no file on disk (yet).\n" );
+	txt += getFileInfo();
 	setInfo( txt );
 	return;
     }
-
 
     if ( man2dbut_ )
 	man2dbut_->setSensitive( isCur2D() );
@@ -711,18 +710,6 @@ void uiSurfaceMan::mkFileInfo()
     }
 
     txt += getFileInfo();
-
-    BufferStringSet sectionnms;
-    eminfo.getSectionNames( sectionnms );
-    if ( sectionnms.size() > 1 )
-    {
-	txt += "Nr of sections: "; txt += sectionnms.size(); txt += "\n";
-	for ( int idx=0; idx<sectionnms.size(); idx++ )
-	{
-	    txt += "\tPatch "; txt += idx+1; txt += ": ";
-	    txt += sectionnms[idx]->buf(); txt += "\n";
-	}
-    }
 
     setInfo( txt );
     setToolButtonProperties();

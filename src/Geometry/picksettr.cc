@@ -41,6 +41,12 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 	return false;
     }
 
+    if ( !ioobj->implExists(true) )
+    {
+	bs = "No data exists for this object in the database";
+	return false;
+    }
+
     mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
 		 ioobj->createTranslator());
     if ( !tr )

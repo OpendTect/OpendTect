@@ -259,9 +259,12 @@ void uiSeisFileMan::mkFileInfo()
 {
     BufferString txt;
     SeisIOObjInfo oinf( curioobj_ );
-
-    if ( oinf.isOK() )
+    if ( !curioobj_->implExists(true) || !oinf.isOK() )
     {
+	txt.add( getFileInfo() );
+	setInfo( txt );
+	return;
+    }
 
     if ( is2d_ )
     {
@@ -383,11 +386,6 @@ void uiSeisFileMan::mkFileInfo()
     if ( nrcomp > 1 )
 	txt.add( "\nNumber of components: " ).add( nrcomp );
 
-
-    } // if ( oinf.isOK() )
-
-    if ( txt.isEmpty() )
-	txt = "<No specific info available>\n";
     txt.add( "\n" ).add( getFileInfo() );
 
     setInfo( txt );
@@ -396,7 +394,8 @@ void uiSeisFileMan::mkFileInfo()
 
 od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
+    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) )
+	return 0;
 
     od_int64 totalsz = 0;
     nrfiles = 0;

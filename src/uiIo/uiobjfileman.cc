@@ -335,37 +335,43 @@ BufferString uiObjFileMan::getFileInfo()
     }
     else
     {
-	int nrfiles = 0;
-	const IOStream* iostrm = getIOStream( *curioobj_ );
-	const BufferString usrnm = iostrm->fileSpec().dispName();
-	if ( iostrm->isMulti() )
-	    nrfiles = iostrm->nrFiles();
-
-	if ( !txt.isEmpty() )
-	    txt.addNewLine();
-
-	const od_int64 totsz = getFileSize( fname, nrfiles );
-	const BufferString fileszstr( File::getFileSizeString( totsz ) );
-	if ( isdir )
-	{
-	    txt.add( "Folder name: " ).add( usrnm );
-	    txt.add( "\nTotal size on disk: " ).add( fileszstr );
-	    txt.add( "\nNumber of files: " ).add( nrfiles );
-	}
+	if ( !curioobj_->implExists(true) )
+	    txt.add( "No data exists for " ).add( curioobj_->name() );
 	else
 	{
-	    FilePath fp( usrnm );
-	    txt.add( "File name: " ).add( fp.fileName() );
-	    fp.set( fname );
-	    txt.add( "\nLocation: " ).add( fp.pathOnly() );
-	    txt.add( "\nSize: " ).add( fileszstr );
-	}
-	BufferString timestr; getTimeStamp( fname, timestr );
-	if ( !timestr.isEmpty() )
-	    txt.add( "\nLast modified: " ).add( timestr );
-    }
-    txt.addNewLine();
+	    int nrfiles = 0;
+	    const IOStream* iostrm = getIOStream( *curioobj_ );
+	    const BufferString usrnm = iostrm->fileSpec().dispName();
+	    if ( iostrm->isMulti() )
+		nrfiles = iostrm->nrFiles();
 
+	    if ( !txt.isEmpty() )
+		txt.addNewLine();
+
+	    const od_int64 totsz = getFileSize( fname, nrfiles );
+	    const BufferString fileszstr( File::getFileSizeString( totsz ) );
+	    if ( isdir )
+	    {
+		txt.add( "Folder name: " ).add( usrnm );
+		txt.add( "\nTotal size on disk: " ).add( fileszstr );
+		txt.add( "\nNumber of files: " ).add( nrfiles );
+	    }
+	    else
+	    {
+		FilePath fp( usrnm );
+		txt.add( "File name: " ).add( fp.fileName() );
+		fp.set( fname );
+		txt.add( "\nLocation: " ).add( fp.pathOnly() );
+		txt.add( "\nSize: " ).add( fileszstr );
+	    }
+
+	    BufferString timestr; getTimeStamp( fname, timestr );
+	    if ( !timestr.isEmpty() )
+		txt.add( "\nLast modified: " ).add( timestr );
+	}
+    }
+
+    txt.addNewLine();
     BufferString crspec;
     curioobj_->pars().get( sKey::CrBy(), crspec );
     if ( crspec.isEmpty() )
