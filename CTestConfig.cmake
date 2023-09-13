@@ -9,6 +9,6 @@
 set(CTEST_PROJECT_NAME "OpendTect")
 set(CTEST_NIGHTLY_START_TIME "00:00:00 UTC")
 
-set(CTEST_SUBMIT_URL "https://cdash.dgbes.com/submit.php?project=OpendTect")
+set(CTEST_SUBMIT_URL "http://cdash.dgbes.com/submit.php?project=OpendTect")
 
 set(CTEST_DROP_SITE_CDASH TRUE)
