@@ -245,7 +245,7 @@ static BufferString getInfoText( const IOObj& ioobj )
 {
     BufferString txt;
     SeisIOObjInfo oinf( ioobj );
-    if ( !oinf.isOK() )
+    if ( !ioobj.implExists(true) || !oinf.isOK() )
 	return txt;
 
     const bool is2d = oinf.is2D();
@@ -397,7 +397,8 @@ void uiSeisFileMan::mkFileInfo()
 
 od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
+    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) )
+	return 0;
 
     od_int64 totalsz = 0;
     nrfiles = 0;

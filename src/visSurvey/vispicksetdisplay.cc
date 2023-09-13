@@ -784,7 +784,7 @@ void PickSetDisplay::getPickingMessage( BufferString& str ) const
 
     str = isPainting() ? "Painting " : "Picking ";
     str += set_ ? set_->name() : "";
-    str += " (Nr picks="; str += set_ ? set_->size() : 0;
+    str += " (Nr points="; str += set_ ? set_->size() : 0;
     if ( !areastring.isEmpty() ) { str +=", "; str += areastring; }
     str += ")";
 }

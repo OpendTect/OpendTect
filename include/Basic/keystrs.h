@@ -140,6 +140,7 @@ namespace sKey
     inline StringView Pars()		{ return "Parameters"; }
     inline StringView PickSet()		{ return "PickSet"; }
     inline StringView Polygon()		{ return "Polygon"; }
+    inline StringView PointSet()	{ return "PointSet"; }
     inline StringView Position()	{ return "Position"; }
     inline StringView PreStackSeis()	{ return "PreStack Seismic"; }
     inline StringView ProjSystem()	{ return "ProjectionBased System"; }

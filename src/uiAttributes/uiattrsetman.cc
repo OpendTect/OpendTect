@@ -74,12 +74,7 @@ void uiAttrSetMan::mkFileInfo()
     BufferString txt;
     uiString errmsg;
     Attrib::DescSet attrset(!SI().has3D());
-    if (!AttribDescSetTranslator::retrieve(attrset, curioobj_, errmsg))
-    {
-	BufferString msg("Read error: '"); msg += errmsg.getFullString();
-	msg += "'"; txt = msg;
-    }
-    else
+    if ( AttribDescSetTranslator::retrieve(attrset,curioobj_,errmsg) )
     {
 	if (!errmsg.isEmpty())
 	    ErrMsg(errmsg.getFullString());
@@ -89,9 +84,9 @@ void uiAttrSetMan::mkFileInfo()
 	addStoredNms( attrset, txt );
 
 	fillAttribList( attribfld_, attrset );
+	txt += "\n";
     }
 
-    txt += "\n";
     txt += getFileInfo();
     setInfo(txt);
 }

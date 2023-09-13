@@ -78,37 +78,28 @@ void uiPickSetMan::mkFileInfo()
 {
     if ( !curioobj_ ) { setInfo( "" ); return; }
 
-    BufferString txt;
     RefMan<Pick::Set> ps = new Pick::Set;
-    if ( !PickSetTranslator::retrieve(*ps,curioobj_,true, txt) )
+    BufferString txt, errmsg;
+    if ( PickSetTranslator::retrieve(*ps,curioobj_,true,errmsg) )
     {
-	BufferString msg( "Read error: '" ); msg += txt; msg += "'";
-	txt = msg;
-    }
-    else
-    {
-	if ( !txt.isEmpty() )
-	    ErrMsg( txt );
+	if ( !errmsg.isEmpty() )
+	    ErrMsg( errmsg );
 
-	const BufferString typ = curioobj_->pars().find( sKey::Type() );
+	BufferString typ = curioobj_->pars().find( sKey::Type() );
+	if ( typ.isEmpty() || typ == sKey::PickSet() )
+	    typ = sKey::PointSet();
+
 	const bool ispoly = typ.isEqual( sKey::Polygon() );
-	const bool havetype = !typ.isEmpty();
-	if ( havetype )
-	    txt.add( "Type: " ).add( typ );
+	txt.add( "Type: " ).add( typ );
 
 	const int sz = ps->size();
 	if ( sz < 1 )
-	    txt.add( havetype ? " <empty>" : "Empty PointSet." );
+	    txt.add( "\nSize: Empty" );
 	else
 	{
-	    txt.add( havetype ? " <" : "Size: " );
-	    txt.add( sz );
-	    if ( havetype )
-	    {
-		txt.add( ispoly ? " vertice" : " pick" );
-		if ( sz > 1 )
-		    txt += "s";
-	    }
+	    txt.add( "\nSize: " ).add( sz );
+	    txt.add( ispoly ? ( sz > 1 ? " vertices" : " vertex" )
+			    : ( sz > 1 ? " points" : " point" ) );
 	    if ( !ispoly && ps->get(0).hasDir() )
 		txt += " (with directions)";
 
@@ -121,9 +112,6 @@ void uiPickSetMan::mkFileInfo()
 		       .add( getAreaString(area,SI().xyInFeet(),2,true) );
 		}
 	    }
-
-	    if ( havetype )
-		txt += ">";
 	}
 
 	OD::Color col( ps->disp_.color_ );
@@ -132,9 +120,10 @@ void uiPickSetMan::mkFileInfo()
 	txt.add( "\nMarker size (pixels): " ).add( ps->disp_.pixsize_ );
 	txt.add( "\nMarker type: " ).add( MarkerStyle3D::getTypeString(
 			sCast(MarkerStyle3D::Type,ps->disp_.markertype_)) );
+	txt.add( "\n" );
     }
 
-    txt.add( "\n" ).add( getFileInfo() );
+    txt.add( getFileInfo() );
     setInfo( txt );
 }
 

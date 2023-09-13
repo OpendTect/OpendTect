@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seisbuf.h"
 #include "iostrm.h"
+#include "oddirs.h"
 #include "ptrman.h"
 #include "dirlist.h"
 #include "seisselection.h"
@@ -681,9 +682,16 @@ bool SEGYDirectSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
     BufferStringSet segyfiles;
     SEGY::DirectDef segydef( ioobj->mainFileName() );
     const SEGY::FileDataSet& fds = segydef.fileDataSet();
+    FilePath survfp( GetDataDir() );
+    survfp.makeCanonical();
     for ( int idx=0; idx<fds.nrFiles(); idx++ )
-	if ( File::exists(fds.fileName(idx)) )
-	    segyfiles.add( fds.fileName(idx) );
+    {
+	const BufferString segyfilename = fds.fileName( idx );
+	FilePath segyfp( segyfilename );
+	segyfp.makeCanonical();
+	if ( File::exists(segyfilename) && segyfp.isSubDirOf(survfp) )
+	    segyfiles.add( segyfilename );
+    }
 
     if ( segyfiles.isEmpty() )
 	return Translator::getConfirmRemoveMsg( ioobj, msg, canceltxt,
