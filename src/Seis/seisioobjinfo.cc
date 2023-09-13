@@ -273,17 +273,22 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
 void SeisIOObjInfo::setType()
 {
     bad_ = !ioobj_;
-    if ( bad_ ) return;
+    if ( bad_ )
+	return;
 
     const BufferString trgrpnm( ioobj_->group() );
     bool isps = false;
     if ( SeisTrcTranslator::isPS(*ioobj_) )
 	isps = true;
+
     ioobj_->pars().getYN( SeisTrcTranslator::sKeyIsPS(), isps );
 
     if ( !isps && ioobj_->group()!=mTranslGroupName(SeisTrc) &&
 	    ioobj_->group()!=mTranslGroupName(SeisTrc2D) )
-	{ bad_ = true; return; }
+    {
+	bad_ = true;
+	return;
+    }
 
     const bool is2d = SeisTrcTranslator::is2D( *ioobj_ );
     geomtype_ = isps ? (is2d ? Seis::LinePS : Seis::VolPS)
