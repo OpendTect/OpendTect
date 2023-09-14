@@ -109,6 +109,13 @@ public:
 		//!< withyesno false: 'OK' and 'Cancel', true: 'Yes' and 'No'
     bool	askGoOn(const uiString& msg,const uiString& textyes,
 			const uiString& textno);
+    bool	askGoOnWithDetails(const uiString& msg,
+				    const uiStringSet& details,
+				    const uiString& textyes,
+				    const uiString& textno);
+    bool	askGoOnWithDetails(const uiString& msg,
+				    const uiStringSet& details,
+				    bool withyesno=true);
     int		askGoOnAfter(const uiString&,
 			     const uiString& cnclmsg=uiString::emptyString(),
 			     const uiString& textyes=uiString::emptyString(),
