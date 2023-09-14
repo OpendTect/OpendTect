@@ -118,7 +118,10 @@ list( APPEND OD_TEST_PROGS
 	tempsurvey.cc
 	unitofmeasure.cc
 )
-set( OD_NIGHTLY_TEST_PROGS zip.cc )
+set( OD_NIGHTLY_TEST_PROGS
+	surveychanger.cc
+	zip.cc
+)
 
 if ( CMAKE_CXX_COMPILER_ID STREQUAL "GNU" )
     if ( CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.2 )
