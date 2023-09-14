@@ -653,6 +653,27 @@ bool uiMsg::askGoOn( const uiString& text, const uiString& textyes,
 }
 
 
+bool uiMsg::askGoOnWithDetails( const uiString& msg,
+				const uiStringSet& details, bool yn )
+{
+    const uiString oktxt = yn ? uiStrings::sYes() : uiStrings::sOk();
+    const uiString canceltxt = yn ? uiStrings::sNo() : uiStrings::sCancel();
+    return askGoOnWithDetails( msg, details, oktxt, canceltxt );
+}
+
+
+bool uiMsg::askGoOnWithDetails( const uiString& msg,
+			    const uiStringSet& details, const uiString& textyes,
+			    const uiString& textno )
+{
+    if ( msg.isEmpty() )
+	return false;
+
+    return showMessageBoxWithDetails( Question, popParnt(), msg, textyes,
+	textno, uiString::empty(), details, uiString::emptyString(), nullptr );
+}
+
+
 int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 			 const uiString& textyesinp, const uiString& textnoinp,
 			 bool* notagain	)
