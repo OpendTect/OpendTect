@@ -34,7 +34,8 @@ class VelGriddingTask;
 class VelGriddingFromFuncTask : public ParallelTask
 {
 public:
-				VelGriddingFromFuncTask(VelGriddingTask&);
+				VelGriddingFromFuncTask(VelGriddingTask&,
+							const Pos::GeomID&);
 				~VelGriddingFromFuncTask();
 
     bool			isOK() const;
@@ -46,12 +47,13 @@ public:
     const BinIDValueSet&	completedBids() const { return completedbids_; }
 
 protected:
-    ObjectSet<Vel::Function>	velfuncs_;
-    Vel::GriddedSource*		velfuncsource_;
     VelGriddingTask&		task_;
+    ObjectSet<Vel::Function>	velfuncs_;
+    Vel::GriddedSource*		velfuncsource_			= nullptr;
 
     Threads::Mutex		lock_;
     BinIDValueSet		completedbids_;
+    Pos::GeomID			geomid_;
 };
 
 
@@ -113,6 +115,7 @@ protected:
 
     VelocityGridder&		step_;
     od_int64			totalnr_;
+    TrcKeySampling		hrg_;
 };
 
 
@@ -125,14 +128,17 @@ VelGriddingTask::VelGriddingTask( VelocityGridder& step )
     , step_( step )
 {
     const RegularSeisDataPack* output = step_.getOutput();
-    const TrcKeySampling hrg = output->sampling().hsamp_;
+    hrg_ = output->sampling().hsamp_;
 
-    TrcKeySamplingIterator iterator( hrg );
+    definedbids_.setIs2D( step.is2D() );
+    remainingbids_.setIs2D( step.is2D() );
+
+    TrcKeySamplingIterator iterator( hrg_ );
     BinID bid;
     while ( iterator.next( bid ) )
 	remainingbids_.add( bid );
 
-    totalnr_ = hrg.totalNr();
+    totalnr_ = hrg_.totalNr();
 }
 
 
@@ -180,7 +186,11 @@ int VelGriddingTask::nextStep()
 
     if ( !nrdone_ )
     {
-	VelGriddingFromFuncTask task( *this );
+	const Pos::GeomID geomid = hrg_.getGeomID();
+	if ( !geomid.isValid() )
+	    return ErrorOccurred();
+
+	VelGriddingFromFuncTask task( *this, geomid );
 	if ( !task.execute() )
 	    return ErrorOccurred();
 
@@ -216,12 +226,14 @@ int VelGriddingTask::nextStep()
 
 
 // VelGriddingFromFuncTask
-VelGriddingFromFuncTask::VelGriddingFromFuncTask( VelGriddingTask& task )
+VelGriddingFromFuncTask::VelGriddingFromFuncTask( VelGriddingTask& task,
+						  const Pos::GeomID& geomid )
     : task_( task )
-    , velfuncsource_( 0 )
-    , completedbids_( 0, false )
+    , completedbids_(0,false)
+    , geomid_(geomid)
 {
-    mTryAlloc( velfuncsource_, Vel::GriddedSource );
+    completedbids_.setIs2D( geomid.is2D() );
+    mTryAlloc( velfuncsource_, Vel::GriddedSource(geomid) );
     if ( velfuncsource_ )
     {
 	velfuncsource_->ref();
@@ -258,6 +270,7 @@ bool VelGriddingFromFuncTask::doPrepare( int nrthreads )
    {
        RefMan<Vel::Function> velfunc = velfuncsource_->createFunction();
        velfunc->ref();
+       velfunc->setGeomID( geomid_ );
        velfuncs_ += velfunc;
    }
 
@@ -525,10 +538,13 @@ Task* VelocityGridder::createTask()
 
     const TrcKeyZSampling& tkzs = output->sampling();
     if ( !layermodel_ || !layermodel_->prepare(tkzs) )
-	return 0;
+	return nullptr;
 
     BinIDValueSet valset( 1, true );
     const OD::GeomSystem gs = tkzs.hsamp_.survid_;
+    const bool is2d = gs == OD::Geom2D;
+    valset.setIs2D( is2d );
+
     TrcKeySampling hsamp;
     Pos::IdxPairValueSet::SPos pos;
     const ObjectSet<Vel::FunctionSource>& sources = getSources();
@@ -542,14 +558,24 @@ Task* VelocityGridder::createTask()
 	pos.reset();
 	while( valset.next(pos,true) )
 	{
+	    const TrcKey tk( gs, valset.getIdxPair(pos) );
+	    if ( is2d && tkzs.hsamp_.getGeomID() != tk.geomID() )
+		continue;
+
 	    hsamp.init( false );
 	    hsamp.survid_ = gs;
-	    hsamp.include( TrcKey(gs,valset.getIdxPair(pos)) );
+	    hsamp.include( tk );
 	    tkss += hsamp;
 	}
     }
 
     const int nrfunctions = tkss.size();
+    if ( nrfunctions==0 )
+    {
+	errmsg_ = tr("No velocity sources available");
+	return nullptr;
+    }
+
     if ( nrfunctions < cMaxIsolatedFunctions )
     {
 	for ( int idx=0; idx<nrfunctions; idx++ )

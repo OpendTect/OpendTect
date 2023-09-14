@@ -21,11 +21,11 @@ namespace Vel
 
 FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
 			      od_istream& stm,
-			      bool is2d,
+			      Pos::GeomID geomid,
 			      od_int64 nrkbytes )
     : Table::AscIO(fd)
     , strm_(stm)
-    , is2d_(is2d)
+    , geomid_(geomid)
     , nrkbytes_( nrkbytes )
 {}
 
@@ -102,7 +102,7 @@ int FunctionAscIO::nextStep()
 	bool hasanisotropy = cnvrtr_->selcols_.size()>4;
 	output_->setEmpty();
 	output_->setNrVals( hasanisotropy ? 2 : 3, false );
-	output_->setIs2D( is2d_ );
+	output_->setIs2D( geomid_.is2D() );
     }
 
     BinID binid;
@@ -110,13 +110,26 @@ int FunctionAscIO::nextStep()
     if ( isXY() )
     {
 	const Coord pos = getPos( 0, 1 );
-	binid = SI().transform( pos );
+	if ( geomid_.is2D() )
+	{
+	    ConstRefMan<Survey::Geometry> geom =
+				Survey::GM().getGeometry( geomid_ );
+	    binid.lineNr() = geomid_.asInt();
+	    float dist;
+	    const TrcKey tk =
+		geom ? geom->nearestTrace( pos, &dist ) : TrcKey::udf();
+	    binid.trcNr() = tk.trcNr();
+	}
+	else
+	    binid = SI().transform( pos );
+
 	col += 2;
     }
     else
     {
-	if ( is2d_ )
+	if ( geomid_.is2D() )
 	{
+	    binid.lineNr() = geomid_.asInt();
 	    binid.trcNr() = getIntValue( 0 );
 	    col += 1;
 	}

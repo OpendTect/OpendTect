@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "tabledef.h"
 
 #include "uifileinput.h"
+#include "uigeom2dsel.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -59,14 +60,19 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p, bool is2d )
     dataselfld_->attach( alignedBelow, typefld_ );
     dataselfld_->attach( ensureBelow, sep );
 
-    sep = new uiSeparator( this, "H sep" );
-    sep->attach( alignedBelow, dataselfld_ );
+    uiObject* attachobj = dataselfld_->attachObj();
+    if ( is2d )
+    {
+	geom2dfld_ = new uiGeom2DSel( this, true, uiStrings::sLineName() );
+	geom2dfld_->attach( alignedBelow, dataselfld_ );
+	attachobj = geom2dfld_->attachObj();
+    }
 
     IOObjContext ctxt = StoredFunctionSource::ioContext();
     ctxt.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctxt,
-			      uiStrings::phrOutput( uiStrings::sVelocity() ) );
-    outfld_->attach( alignedBelow, dataselfld_ );
+			     uiStrings::phrOutput(tr("Velocity Function")) );
+    outfld_->attach( alignedBelow, attachobj );
     outfld_->attach( ensureBelow, sep );
 
     velTypeChangeCB( 0 );
@@ -119,8 +125,19 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !strm.isOK() )
 	 mErrRet( uiStrings::sCantOpenInpFile() );
 
+    Pos::GeomID geomid;
+    if ( is2d_ )
+    {
+	const IOObj* ioobj = geom2dfld_->ioobj();
+	if ( !ioobj )
+	    return false;
+
+	const MultiID key = ioobj->key();
+	geomid.set( key.objectID() );
+    }
+
     const od_int64 filesize = File::getKbSize( inpfld_->fileName() );
-    FunctionAscIO velascio( fd_, strm, is2d_, filesize ? filesize : -1 );
+    FunctionAscIO velascio( fd_, strm, geomid, filesize ? filesize : -1 );
 
     velascio.setOutput( bidvalset );
     bool success;

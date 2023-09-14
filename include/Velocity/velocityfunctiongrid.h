@@ -52,10 +52,10 @@ protected:
 
     ObjectSet<const Function>	velocityfunctions_;
     TypeSet<int>		sources_;
-    const Function*		directsource_;
+    const Function*		directsource_			= nullptr;
 
-    Gridder2D*			gridder_;
-    const InterpolationLayerModel* layermodel_;
+    Gridder2D*			gridder_			= nullptr;
+    const InterpolationLayerModel* layermodel_			= nullptr;
 
     mutable TypeSet<float>	gridvalues_;
 };
@@ -64,7 +64,8 @@ protected:
 mExpClass(Velocity) GriddedSource : public FunctionSource
 {
 public:
-				GriddedSource();
+				GriddedSource(const Pos::GeomID&);
+
     const VelocityDesc&		getDesc() const override;
     const char*			factoryKeyword() const override
 				{ return sType(); }
@@ -91,9 +92,10 @@ public:
     bool			usePar(const IOPar&) override;
 
 protected:
+				~GriddedSource();
+
     friend			class GriddedFunction;
     GriddedFunction*		createFunction(const BinID&) override;
-				~GriddedSource();
     bool			initGridder();
     static const char*		sKeyGridder() { return "Gridder"; }
 
@@ -104,8 +106,9 @@ protected:
     Notifier<GriddedSource>	notifier_;
     BinID			changebid_;
     Gridder2D*			gridder_;
-    bool			gridderinited_;
-    const InterpolationLayerModel* layermodel_;
+    bool			gridderinited_		= false;
+    const InterpolationLayerModel* layermodel_		= nullptr;
+    const Pos::GeomID		geomid_;
 
     BinIDValueSet		sourcepos_;		//All sources
 

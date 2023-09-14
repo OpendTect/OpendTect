@@ -132,14 +132,23 @@ bool StoredFunctionSource::store( const MultiID& velid )
     RefMan<Pick::Set> ps = new Pick::Set( ioobj->name() );
     BinIDValueSet::SPos arrpos;
 
+    const bool is2d = veldata_.is2D();
     while ( veldata_.next(arrpos,false) )
     {
 	const float* vals = veldata_.getVals(arrpos);
 	const BinID bid = veldata_.getBinID(arrpos);
 
-	const Coord3 pos( SI().transform(bid), vals[0] );
+	Coord3 pos;
+	pos.z = vals[0];
+	TrcKey tk( bid );
+	if ( is2d )
+	    tk.setIs2D();
+
+	pos.coord() = Survey::GM().toCoord( tk );
 	const Coord3 dir( vals[1], mUdf(float), mUdf(float) );
 	::Pick::Location pickloc( pos, dir );
+	if ( is2d )
+	    pickloc.setTrcKey( tk );
 
 	ps->add( pickloc );
     }
@@ -178,30 +187,37 @@ bool StoredFunctionSource::load( const MultiID& velid )
 	return false;
 
     RefMan<Pick::Set> ps = new Pick::Set( ioobj->name() );
-    if ( !PickSetTranslator::retrieve( *ps, ioobj, false, errmsg_ ) )
+    if ( !PickSetTranslator::retrieve(*ps,ioobj,false,errmsg_) )
 	return false;
 
-    if ( !ps->pars_.getYN( sKeyZIsTime(), zit_ ) ||
-	 !desc_.usePar( ps->pars_ ) )
+    if ( !ps->pars_.getYN(sKeyZIsTime(),zit_) || !desc_.usePar(ps->pars_) )
 	return false;
 
+    const bool is2d = ps->is2D();
     veldata_.setEmpty();
     veldata_.setNrVals( 2, false );
-    float vals[2];
+    veldata_.setIs2D( is2d );
 
+    float vals[2];
     for ( int idx=ps->size()-1; idx>=0; idx-- )
     {
 	const ::Pick::Location& pspick = ps->get( idx );
-	const BinID bid = SI().transform( pspick.pos() );
+
+	TrcKey tk;
+	if ( is2d )
+	    tk = pspick.trcKey();
+	else
+	{
+	    tk.setGeomSystem( OD::Geom3D );
+	    tk.setFrom( pspick.pos() );
+	}
 
 	vals[0] = pspick.z();
 	vals[1] = pspick.dir().radius;
-
-	veldata_.add( bid, vals );
+	veldata_.add( tk.binID(), vals );
     }
 
     mid_ = velid;
-
     return true;
 }
 

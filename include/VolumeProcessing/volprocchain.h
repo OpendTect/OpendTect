@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "sharedobject.h"
 
 #include "multiid.h"
-#include "threadlock.h"
 #include "volprocstep.h"
 
 class Scaler;
@@ -115,6 +114,7 @@ public:
     uiString			errMsg() const;
 
     Step::ID			getNewStepID() { return freeid_++; }
+    bool			is2D() const;
 
 protected:
     virtual			~Chain();
@@ -134,6 +134,7 @@ private:
     Step::OutputSlotID		outputslotid_;
 
     MultiID			storageid_;
+    bool			is2d_				= false;
     ObjectSet<Step>		steps_;
     Web				web_;
 

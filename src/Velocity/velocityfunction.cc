@@ -23,11 +23,11 @@ namespace Vel
 
 Function::Function( FunctionSource& vfs )
     : source_(vfs)
-    , desiredrg_(SI().zRange(true).start,SI().zRange(true).stop,
-	         SI().zRange(true).step)
     , bid_(mUdf(int),mUdf(int))
+    , desiredrg_(SI().zRange(true))
 {
     source_.ref();
+    geomid_ = Survey::default3DGeomID();
 }
 
 
@@ -46,11 +46,21 @@ const VelocityDesc& Function::getDesc() const
 
 
 const StepInterval<float>& Function::getDesiredZ() const
-{ return desiredrg_; }
+{
+    return desiredrg_;
+}
 
 
 void Function::setDesiredZRange( const StepInterval<float>& n )
-{ desiredrg_ = n; }
+{
+    desiredrg_ = n;
+}
+
+
+void Function::setGeomID( const Pos::GeomID& geomid )
+{
+    geomid_ = geomid;
+}
 
 
 #define cDefSampleSnapDist 1e-3f

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiFileInput;
+class uiGeom2DSel;
 class uiIOObjSel;
 class uiTableImpDataSel;
 class uiVelocityDesc;
@@ -31,6 +32,7 @@ protected:
 
     uiFileInput*	inpfld_;
     uiVelocityDesc*	typefld_;
+    uiGeom2DSel*	geom2dfld_;
     uiIOObjSel*		outfld_;
 
     Table::FormatDesc&	fd_;

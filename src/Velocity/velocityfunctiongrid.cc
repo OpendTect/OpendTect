@@ -10,23 +10,21 @@ ________________________________________________________________________
 #include "velocityfunctiongrid.h"
 
 #include "binidvalset.h"
-#include "trckeyzsampling.h"
 #include "gridder2d.h"
 #include "interpollayermodel.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "survinfo.h"
 #include "paralleltask.h"
+#include "posinfo2d.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
+
 
 namespace Vel
 {
 
-
 GriddedFunction::GriddedFunction( GriddedSource& source )
     : Function(source)
-    , gridder_(0)
-    , layermodel_(0)
-    , directsource_(0)
 {}
 
 
@@ -234,7 +232,12 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 {
     const bool nogridding = directsource_ || (velocityfunctions_.size() == 1);
     const bool doinverse = nogridding ? false :getDesc().isVelocity();
-    const Coord workpos = nogridding ? Coord::udf() : SI().transform( bid_ );
+    Coord workpos = Coord::udf();
+    if ( !nogridding )
+    {
+	const auto* geom = Survey::GM().getGeometry( geomid_ );
+	workpos = geom->toCoord( bid_ );
+    }
 						//TODO: Get a TrcKeySampling
     TypeSet<double> weights;
     TypeSet<int> usedpoints;
@@ -346,13 +349,15 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 
 
 // GriddedSource
-GriddedSource::GriddedSource()
+GriddedSource::GriddedSource( const Pos::GeomID& geomid )
     : notifier_(this)
     , gridder_(new TriangulatedGridder2D)
+    , geomid_(geomid)
     , sourcepos_(0,false)
-    , gridderinited_(false)
-    , layermodel_(0)
-{ initGridder(); }
+{
+    sourcepos_.setIs2D( geomid.is2D() );
+    initGridder();
+}
 
 
 GriddedSource::~GriddedSource()
@@ -384,11 +389,12 @@ class GridderSourceFilter : public ParallelTask
 {
 public:
 GridderSourceFilter( const BinIDValueSet& bvs, TypeSet<BinID>& bids,
-		     TypeSet<Coord>& coords )
+			TypeSet<Coord>& coords, const Pos::GeomID& geomid )
     : bvs_( bvs )
     , bids_( bids )
     , coords_( coords )
     , moretodo_( true )
+    , geomid_(geomid)
 {}
 
 
@@ -396,7 +402,11 @@ od_int64 nrIterations() const override { return bvs_.totalSize(); }
 bool doWork(od_int64 start, od_int64 stop, int ) override
 {
     TypeSet<BinID> sourcebids;
-    const BinID step( SI().inlRange(false).step, SI().crlRange(false).step );
+
+    const auto* geom = Survey::GM().getGeometry( geomid_ );
+    const TrcKeyZSampling& tkzs = geom->sampling();
+    const BinID step = tkzs.hsamp_.step_;
+
     while ( true )
     {
 	TypeSet<BinIDValueSet::SPos> positions;
@@ -416,12 +426,15 @@ bool doWork(od_int64 start, od_int64 stop, int ) override
 	}
 	lckr.unlockNow();
 
-	if ( !positions.size() )
+	if ( positions.isEmpty() )
 	    break;
 
 	for ( int idx=positions.size()-1; idx>=0; idx-- )
 	{
-	    const BinID bid = bvs_.getBinID(positions[idx]);
+	    const BinID bid = bvs_.getBinID( positions[idx] );
+	    if ( geomid_.is2D() && bid.lineNr()!=geomid_.asInt() )
+		continue;
+
 	    BinID neighbor( bid.inl()-step.inl(), bid.crl()-step.crl() );
 	    if ( !bvs_.isValid(neighbor) ) { sourcebids+=bid; continue; }
 	    neighbor.crl() += step.crl();
@@ -448,7 +461,7 @@ bool doWork(od_int64 start, od_int64 stop, int ) override
     TypeSet<Coord> coords;
 
     for ( int idx=0; idx<sourcebids.size(); idx++ )
-	coords += SI().transform( sourcebids[idx] );
+	coords += geom->toCoord( sourcebids[idx] );
 
     Threads::Locker lckr2( lock_ );
     bids_.append( sourcebids );
@@ -458,14 +471,15 @@ bool doWork(od_int64 start, od_int64 stop, int ) override
 }
 protected:
 
-    const BinIDValueSet& bvs_;
-    BinIDValueSet::SPos  pos_;
+    const BinIDValueSet&	bvs_;
+    BinIDValueSet::SPos		pos_;
 
-    TypeSet<BinID>&     bids_;
-    TypeSet<Coord>&     coords_;
-    bool                moretodo_;
+    TypeSet<BinID>&		bids_;
+    TypeSet<Coord>&		coords_;
+    bool			moretodo_;
+    const Pos::GeomID		geomid_;
 
-    Threads::Lock      lock_;
+    Threads::Lock		lock_;
 };
 
 
@@ -474,21 +488,24 @@ bool GriddedSource::initGridder()
     if ( gridderinited_ )
 	return true;
 
-    const Interval<int> inlrg = SI().inlRange( true );
-    const Interval<int> crlrg = SI().crlRange( true );
     Interval<float> xrg, yrg;
-    Coord c = SI().transform( BinID(inlrg.start,crlrg.start) );
-    xrg.start = xrg.stop = (float) c.x;
-    yrg.start = yrg.stop = (float) c.y;
-
-    c = SI().transform( BinID(inlrg.start,crlrg.stop) );
-    xrg.include( (float) c.x ); yrg.include( (float) c.y );
-
-    c = SI().transform( BinID(inlrg.stop,crlrg.start) );
-    xrg.include( (float) c.x ); yrg.include( (float) c.y );
-
-    c = SI().transform( BinID(inlrg.stop,crlrg.stop) );
-    xrg.include( (float) c.x ); yrg.include( (float) c.y );
+    if ( geomid_.is2D() )
+    {
+	auto* geom = Survey::GM().getGeometry( geomid_ );
+	auto* geom2d = geom ? geom->as2D() : nullptr;
+	if ( geom2d )
+	{
+	    xrg.setFrom( geom2d->data().xRange() );
+	    yrg.setFrom( geom2d->data().yRange() );
+	}
+    }
+    else
+    {
+	const Coord cmin = SI().minCoord( true );
+	const Coord cmax = SI().maxCoord( true );
+	xrg.set( cmin.x, cmax.x );
+	yrg.set( cmin.y, cmax.y );
+    }
 
     gridder_->setGridArea( xrg, yrg );
 
@@ -496,16 +513,21 @@ bool GriddedSource::initGridder()
     gridsourcecoords_.erase();
     gridsourcebids_.erase();
 
-
     for ( int idx=0; idx<datasources_.size(); idx++ )
     {
 	BinIDValueSet bids( 0, false );
+	bids.setIs2D( geomid_.is2D() );
 	datasources_[idx]->getAvailablePositions( bids );
+
+	if ( geomid_.is2D() )
+	{
+	}
 
 	sourcepos_.append( bids );
     }
 
-    GridderSourceFilter filter( sourcepos_, gridsourcebids_,gridsourcecoords_);
+    GridderSourceFilter filter( sourcepos_, gridsourcebids_, gridsourcecoords_,
+			       geomid_ );
     if ( !filter.execute() ||
 	 !gridder_->setPoints( gridsourcecoords_ ) )
 	return false;
@@ -566,7 +588,7 @@ void GriddedSource::setSource( ObjectSet<FunctionSource>& nvfs )
     {
 	if ( datasources_[idx]->changeNotifier() )
 	    datasources_[idx]->changeNotifier()->remove(
-		    mCB( this, GriddedSource, sourceChangeCB ));
+		    mCB(this,GriddedSource,sourceChangeCB) );
     }
 
     deepUnRef( datasources_ );
@@ -577,10 +599,11 @@ void GriddedSource::setSource( ObjectSet<FunctionSource>& nvfs )
     {
 	if ( datasources_[idx]->changeNotifier() )
 	    datasources_[idx]->changeNotifier()->notify(
-		    mCB( this, GriddedSource, sourceChangeCB ));
+		    mCB(this,GriddedSource,sourceChangeCB) );
     }
 
-    if ( datasources_.size() ) mid_ = datasources_[0]->multiID();
+    if ( datasources_.size() )
+	mid_ = datasources_[0]->multiID();
 
     gridderinited_ = false;
     initGridder();
@@ -617,11 +640,15 @@ void GriddedSource::getSources( TypeSet<MultiID>& mids ) const
 
 
 const ObjectSet<FunctionSource>& GriddedSource::getSources() const
-{ return datasources_; }
+{
+    return datasources_;
+}
 
 
 void GriddedSource::setLayerModel( const InterpolationLayerModel* mdl )
-{ layermodel_ = mdl; }
+{
+    layermodel_ = mdl;
+}
 
 
 GriddedFunction* GriddedSource::createFunction()

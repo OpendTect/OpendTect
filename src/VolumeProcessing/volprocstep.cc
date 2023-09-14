@@ -204,6 +204,12 @@ void VolProc::Step::setUserName( const char* nm )
 }
 
 
+bool VolProc::Step::is2D() const
+{
+    return chain_ && chain_->is2D();
+}
+
+
 int VolProc::Step::getNrInputs() const
 {
     return isInputPrevStep() ? 1 : 0;

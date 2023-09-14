@@ -51,6 +51,8 @@ public:
     void			setDesiredZRange(const StepInterval<float>&);
     const StepInterval<float>&	getDesiredZ() const;
 
+    void			setGeomID(const Pos::GeomID&);
+
 protected:
 				Function(FunctionSource&);
     virtual			~Function();
@@ -60,6 +62,7 @@ protected:
 
     FunctionSource&		source_;
     BinID			bid_;
+    Pos::GeomID			geomid_;
     StepInterval<float>		desiredrg_;
 
 private:

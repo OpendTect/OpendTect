@@ -309,9 +309,11 @@ void uiODMenuMgr::fillImportMenu()
     const bool has2d = SI().has2D();
     const bool has3d = SI().has3D();
     if ( has2d )
-	insertAction( impvelfn, ascii2d, mImpVelocityAscii2DMnuItm, ascic );
+	insertAction( impvelfn, m3Dots(ascii2d),
+		      mImpVelocityAscii2DMnuItm, ascic );
     if ( has3d )
-	insertAction( impvelfn, ascii3d, mImpVelocityAscii3DMnuItm, ascic );
+	insertAction( impvelfn, m3Dots(ascii3d),
+		      mImpVelocityAscii3DMnuItm, ascic );
 
     auto* impseissimple = new uiMenu( &appl_, tr("Simple File") );
     if ( has2d )

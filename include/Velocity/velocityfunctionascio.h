@@ -22,9 +22,9 @@ mExpClass(Velocity) FunctionAscIO : public Table::AscIO, public SequentialTask
 { mODTextTranslationClass(FunctionAscIO);
 public:
 				FunctionAscIO(const Table::FormatDesc& fd,
-					      od_istream&,
-					      bool is2d,
-					      od_int64 filesizeinkb=-1);
+					od_istream&,
+					Pos::GeomID geomid=Pos::GeomID::udf(),
+					od_int64 filesizeinkb=-1);
 				~FunctionAscIO();
 
    static Table::FormatDesc*	getDesc(bool is2d);
@@ -48,7 +48,7 @@ protected:
    BinIDValueSet*		output_				= nullptr;
    bool				first_				= true;
    od_int64			nrdone_				= 0;
-   bool				is2d_;
+   Pos::GeomID			geomid_;
    od_int64			nrkbytes_;
 };
 
