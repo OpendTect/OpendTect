@@ -118,7 +118,10 @@ list( APPEND OD_TEST_PROGS
 	tempsurvey.cc
 	unitofmeasure.cc
 )
-set( OD_NIGHTLY_TEST_PROGS zip.cc )
+set( OD_NIGHTLY_TEST_PROGS
+	surveychanger.cc
+	zip.cc
+)
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     if ( CMAKE_CXX_COMPILER STREQUAL "/usr/bin/g++4" )
