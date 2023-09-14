@@ -15,7 +15,9 @@ ________________________________________________________________________
 
 
 PosInfo::Line2DData::Line2DData( const char* lnm )
-    : zrg_(SI().sampling(false).zsamp_)
+    : xrg_(Interval<double>::udf())
+    , yrg_(Interval<double>::udf())
+    , zrg_(SI().sampling(false).zsamp_)
     , lnm_(lnm)
 {
 }
@@ -36,6 +38,8 @@ PosInfo::Line2DData& PosInfo::Line2DData::operator=( const Line2DData& oth )
     if ( this == &oth )
 	return *this;
 
+    xrg_ = oth.xrg_;
+    yrg_ = oth.yrg_;
     zrg_ = oth.zrg_;
     lnm_ = oth.lnm_;
     posns_ = oth.posns_;
@@ -278,6 +282,9 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 	    strm >> pos.coord_.x >> pos.coord_.y;
 	else
 	    strm.getBin( pos.coord_.x ).getBin( pos.coord_.y );
+
+	xrg_.include( pos.coord_.x );
+	yrg_.include( pos.coord_.y );
 	posns_ += pos;
     }
 

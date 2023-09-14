@@ -67,7 +67,10 @@ public:
 
     Line2DData&		operator=(const Line2DData&);
 
-    const StepInterval<float>& zRange() const		{ return zrg_; }
+    const Interval<double>	xRange() const		{ return xrg_; }
+    const Interval<double>	yRange() const		{ return yrg_; }
+    const StepInterval<float>&	zRange() const		{ return zrg_; }
+
     const OD::String&	lineName() const		{ return lnm_; }
     void		setZRange( const StepInterval<float>& zrg )
 							{ zrg_ = zrg; }
@@ -115,6 +118,8 @@ public:
 
 protected:
 
+    Interval<double>	xrg_;
+    Interval<double>	yrg_;
     StepInterval<float> zrg_;
     BufferString	lnm_;
     TypeSet<Line2DPos>  posns_;
