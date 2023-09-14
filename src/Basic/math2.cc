@@ -148,34 +148,17 @@ double Math::Atan2( double y, double x )
 
 int Math::NrSignificantDecimals( double val )
 {
-    int digits = 10; //double precision
-    const int magnitude = mCast(int,Floor( Log10( Abs(val) ) ) ) + 1;
-    digits -= magnitude;
-    if ( digits < 0 )
-	digits = 0;
-
-    BufferString resstr;
-#ifdef OD_NO_QT
-    char buf[80]; OD::memZero( buf, 80 );
-    sprintf( buf, "%.*f", digits, val );
-    resstr.set( buf );
-#else
-    const QString qstr = QString::number( val, 'f', digits );
-    resstr.set( qstr );
-#endif
-    const char* str = resstr.buf();
-    const char* ptrdot = firstOcc( str, '.' );
-    if ( !ptrdot ) return 0;
-    int ret = StringView(str).size();
-    const char* ptrend = str + ret;
-    while ( ptrend-- > ptrdot )
+    int nrdec = 0;
+    double intpart;
+    double decval = modf( val, &intpart );
+    while ( decval > Math::Floor(decval) &&
+	   !mIsZero(decval,1e-4) && !mIsEqual(decval,1.,1e-4) )
     {
-	if ( *ptrend != '0' )
-	    break;
-	ret--;
+	nrdec++;
+	decval = decval*10 - Math::Floor(decval*10);
     }
 
-    return ret-2;
+    return nrdec;
 }
 
 
