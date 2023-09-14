@@ -79,14 +79,16 @@ public:
 
     const PosInfo::CubeData&	cubeData() const { return cubedata_; }
     const PosInfo::Line2DData&	lineData() const { return linedata_; }
+    const TypeSet<float>&	spnrs() const	 { return spnrs_; }
 
 
 protected:
     void		getPosData(PosInfo::CubeData&) const;
-    void		getPosData(PosInfo::Line2DData&) const;
+    void		getPosData(PosInfo::Line2DData&,TypeSet<float>&) const;
 
     PosInfo::CubeData&	 cubedata_;
     PosInfo::Line2DData& linedata_;
+    TypeSet<float>	 spnrs_;
 
     const FileDataSet*	fds_ = nullptr;
     FileDataSet*	myfds_ = nullptr;

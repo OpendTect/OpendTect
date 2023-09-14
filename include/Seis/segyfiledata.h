@@ -73,6 +73,8 @@ public:
     void		addFile(const char* fnm);
     bool		addTrace(int fileidx,const Seis::PosKey&,const Coord&,
 				 bool usable);
+    bool		addTrace(int fileidx,const Seis::PosKey&,float spnr,
+				 const Coord&,bool usable);
 
     const SamplingData<float>&	getSampling() const { return sampling_; }
     int				getTrcSz() const { return trcsz_; }
@@ -91,6 +93,7 @@ public:
     bool		getDetails(od_int64,Seis::PosKey&,
 					   bool& usable) const;
     Coord		get2DCoord(int trcnr) const;
+    float		getShotPointNr(int trcnr) const;
     TrcIdx		getFileIndex(od_int64) const;
 
 
@@ -153,7 +156,20 @@ protected:
     TypeSet<Seis::PosKey>	keys_;
     BoolTypeSet			usable_;
     StoredData*			storeddata_;
-    SortedTable<int,Coord>*	coords_; //trcnr vs coord
+    struct Pos2D
+    {
+		Pos2D(float spnr=-1.f,Coord coord=Coord::udf())
+		    : spnr_(spnr),coord_(coord) {}
+
+	bool	operator ==(const Pos2D& oth) const
+		{ return mIsEqual(spnr_,oth.spnr_,mDefEps) &&
+			 coord_ == oth.coord_; }
+
+	float	spnr_;
+	Coord	coord_;
+    };
+
+    SortedTable<int,Pos2D>*	pos2ds_; //trcnr vs Pos2D
 
     Seis::PosIndexer*		indexer_;
 };

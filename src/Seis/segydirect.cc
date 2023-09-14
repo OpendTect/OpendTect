@@ -246,7 +246,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	indexer_ = new Seis::PosIndexer( *keylist_, true, true );
 	indexer_->setIOCompressed( false );
 	getPosData( cubedata_ );
-	getPosData( linedata_ );
+	getPosData( linedata_, spnrs_ );
     }
     else
     {
@@ -457,7 +457,7 @@ bool SEGY::DirectDef::writeFootersToFile()
     cubedatastart_ = strm.position();
 
     getPosData( cubedata_ );
-    getPosData( linedata_ );
+    getPosData( linedata_, spnrs_ );
 
     cubedata_.write( strm, false );
     linedata_.write( strm, false );
@@ -517,7 +517,8 @@ void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
 }
 
 
-void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
+void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld,
+				  TypeSet<float>& spnrs ) const
 {
     if ( !fds_ || !indexer_ || fds_->isEmpty() ||
 	 !Seis::is2D(indexer_->geomType()) )
@@ -534,6 +535,7 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
 	PosInfo::Line2DPos l2dpos( nr );
 	l2dpos.coord_ = fds_->get2DCoord( nr );
 	ld.add( l2dpos );
+	spnrs.add( fds_->getShotPointNr(nr) );
     }
 
     ld.setZRange( fds_->getSampling().interval(fds_->getTrcSz()) );
@@ -702,6 +704,7 @@ int SEGY::FileIndexer::nextStep()
 		const BufferString linename = geom2d->getName();
 		geom2d->dataAdmin() = directdef_->lineData();
 		geom2d->dataAdmin().setLineName( linename );
+		geom2d->spnrs() = directdef_->spnrs();
 		geom2d->touch();
 		if ( !Survey::GMAdmin().write(*geom2d,msg_) )
 		    return ErrorOccurred();

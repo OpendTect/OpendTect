@@ -120,7 +120,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop, ascistream& strm )
     , storeddata_( 0 )
     , totalsz_( 0 )
     , indexer_( 0 )
-    , coords_( 0 )
+    , pos2ds_( 0 )
     , nrusable_( 0 )
     , discardnull_(false)
 {
@@ -135,7 +135,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop,
     , storeddata_( new StoredData( filename, start, int32 ) )
     , totalsz_( 0 )
     , indexer_( 0 )
-    , coords_( 0 )
+    , pos2ds_( 0 )
     , nrstanzas_( 0 )
     , nrusable_( 0 )
     , discardnull_(false)
@@ -147,7 +147,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop )
     , storeddata_( 0 )
     , totalsz_( 0 )
     , indexer_( 0 )
-    , coords_( 0 )
+    , pos2ds_( 0 )
     , nrstanzas_( 0 )
     , nrusable_( 0 )
     , discardnull_(false)
@@ -158,7 +158,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop )
 SEGY::FileDataSet::~FileDataSet()
 {
     delete storeddata_;
-    delete coords_;
+    delete pos2ds_;
 }
 
 
@@ -288,6 +288,13 @@ void SEGY::FileDataSet::addFile( const char* file )
 bool SEGY::FileDataSet::addTrace( int fileidx, const Seis::PosKey& pk,
 				  const Coord& crd, bool usable )
 {
+    return addTrace( fileidx, pk, -1.f, crd, usable );
+}
+
+
+bool SEGY::FileDataSet::addTrace( int fileidx, const Seis::PosKey& pk,
+				  float spnr, const Coord& crd, bool usable )
+{
     if ( !filenames_.validIdx(fileidx) )
 	return false;
 
@@ -303,8 +310,8 @@ bool SEGY::FileDataSet::addTrace( int fileidx, const Seis::PosKey& pk,
     }
 
     if ( indexer_ ) indexer_->add( pk, totalsz_ );
-    if ( Seis::is2D(geom_) && coords_ )
-	coords_->set( pk.trcNr(), crd );
+    if ( Seis::is2D(geom_) && pos2ds_ )
+	pos2ds_->set( pk.trcNr(), Pos2D(spnr,crd) );
 
     totalsz_ ++;
 
@@ -355,25 +362,33 @@ bool SEGY::FileDataSet::readVersion1( ascistream& astrm )
 
 void SEGY::FileDataSet::save2DCoords( bool yn )
 {
-    if ( yn==((bool)coords_) )
+    if ( yn==((bool)pos2ds_) )
 	return;
 
-    if ( !coords_ ) coords_ = new SortedTable<int,Coord>;
+    if ( !pos2ds_ )
+	pos2ds_ = new SortedTable<int,Pos2D>;
     else
-    {
-	delete coords_;
-	coords_ = 0;
-    }
+	deleteAndNullPtr( pos2ds_ );
 }
 
 
-Coord SEGY::FileDataSet::get2DCoord( int nr ) const
+float SEGY::FileDataSet::getShotPointNr( int trcnr ) const
 {
-    Coord res = Coord::udf();
-    if ( coords_ )
-	coords_->get( nr, res );
+    Pos2D res;
+    if ( pos2ds_ )
+	pos2ds_->get( trcnr, res );
 
-    return res;
+    return res.spnr_;
+}
+
+
+Coord SEGY::FileDataSet::get2DCoord( int trcnr ) const
+{
+    Pos2D res;
+    if ( pos2ds_ )
+	pos2ds_->get( trcnr, res );
+
+    return res.coord_;
 }
 
 

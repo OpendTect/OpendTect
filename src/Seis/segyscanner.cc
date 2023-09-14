@@ -197,7 +197,7 @@ int SEGY::Scanner::readNext()
     if ( notrcinfo_ )
 	return MoreToDo();
 
-    fds_.addTrace( curfidx_, ti.posKey( geom_ ), ti.coord,
+    fds_.addTrace( curfidx_, ti.posKey( geom_ ), ti.refnr, ti.coord,
 		   tr_->trcHeader().isusable );
 
     return MoreToDo();
