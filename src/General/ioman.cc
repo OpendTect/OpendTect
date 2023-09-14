@@ -1932,20 +1932,13 @@ uiRetVal IOMan::setTempSurvey_( const SurveyDiskLocation& sdl )
 
     prevrootdiriommgr_.deleteAndNullPtrParam( this );
     const FilePath origrootdirfp( rootdir_ );
-    rootdir_ = temprootdir;
-    if ( setDir(temprootdir.buf()) )
-    {
+    SurveyInfo::setSurveyName( "" );
+    uirv = setRootDir( FilePath(temprootdir.buf()), true );
+    if ( uirv.isOK() )
 	prevrootdiriommgr_.setParam( this,
 				     new SurveyDiskLocation(origrootdirfp) );
-	PtrMan<SurveyInfo> newsi = SurveyInfo::readDirectory(temprootdir.buf());
-	if ( newsi )
-	    SurveyInfo::pushSI( newsi.release() );
-    }
     else
-    {
 	rootdir_ = origrootdirfp.fullPath();
-	uirv = msg_;
-    }
 
     return uirv;
 }
@@ -1967,14 +1960,10 @@ uiRetVal IOMan::cancelTempSurvey_()
     }
 
     const BufferString prevdir = prevrootdiriommgr_.getParam(this)->fullPath();
-    rootdir_ = prevdir;
-    if ( setDir(prevdir) )
+    SurveyInfo::setSurveyName( "" );
+    uirv = setRootDir( FilePath(prevdir.buf()), true );
+    if ( !uirv.isOK() )
     {
-	delete SI().popSI();
-    }
-    else
-    {
-	uirv = msg_;
 	uirv.add( tr("\nFailed to switch back to the current survey\n%1\n\n."
 		     "Please restart the application to continue")
 		  .arg(prevdir) );

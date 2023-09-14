@@ -11,11 +11,12 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "moddepmgr.h"
 #include "multiid.h"
+#include "oddirs.h"
 #include "survinfo.h"
 #include "testprog.h"
 #include "unitofmeasure.h"
 
-
+BufferString basedatadir_;
 const UnitOfMeasure* timeuom_ = nullptr;
 const UnitOfMeasure* timemsuom_ = nullptr;
 const UnitOfMeasure* meteruom_ = nullptr;
@@ -145,6 +146,18 @@ static ObjectSet<const UnitOfMeasure>& velUnits()
 
 #define mMsg(txt) BufferString( SI().name(), ": ", txt )
 
+static bool testSurveyLocation( const SurveyDiskLocation& sdl )
+{
+    mRunStandardTest( StringView(GetBaseDataDir()) == basedatadir_ &&
+		      sdl.basePath() == basedatadir_,
+		      mMsg("Base data dir") );
+    mRunStandardTest( StringView(GetSurveyName()) == sdl.dirName(),
+		      mMsg("Survey name") );
+
+    return true;
+}
+
+
 static bool testSurveyDefinitions( int isurv )
 {
     mRunStandardTestWithError( SI().getDirName() == survNames()[isurv]->str(),
@@ -206,9 +219,8 @@ int mTestMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded("General");
 
     clParser().setKeyHasValue( "datadir" );
-    BufferString basedir;
-    clParser().getVal( "datadir", basedir );
-    const uiRetVal uirv = IOMan::setDataSource_( basedir.buf(),
+    clParser().getVal( "datadir", basedatadir_ );
+    const uiRetVal uirv = IOMan::setDataSource_( basedatadir_.buf(),
 						 survNames().first()->str() );
     mRunStandardTestWithError( uirv.isOK(), "Initialize the first project",
 			       toString(uirv) );
@@ -223,7 +235,8 @@ int mTestMainFnName( int argc, char** argv )
     {
 	sdl.setDirName( survNames().get(isurv) );
 	SurveyChanger changer( sdl );
-	if ( !testSurveyDefinitions(isurv) ||
+	if ( !testSurveyLocation(sdl) ||
+	     !testSurveyDefinitions(isurv) ||
 	     !testSurveyUnits(isurv) )
 	    return 1;
     }
