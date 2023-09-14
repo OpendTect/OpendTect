@@ -182,7 +182,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	while ( !atEndOfSection(astrm) )
 	{
 	    Pick::Location loc;
-	    loc.setGeomSystem( gs );
+	    loc.setGeomSystem( gs, false );
 	    if ( loc.fromString(astrm.keyWord()) )
 		ps.add( loc );
 
