@@ -195,7 +195,8 @@ public:
 				      ConstRefMan<Coords::CoordSystem> crs=
 				      nullptr);
 			//!< form(0)=(X,Y), form(1)=inl/crl, form(1/2)=long/lat
-    static TargetInfo*	mk2DHorPosition(bool isreq,
+    static TargetInfo*	mk2DHorPosition(bool isreq,bool withsp=false,
+					bool withll=false,
 				ConstRefMan<Coords::CoordSystem> crs=
 				nullptr);
     static TargetInfo*	mkZPosition( bool isreq, bool withunits=true )

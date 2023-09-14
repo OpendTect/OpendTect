@@ -313,7 +313,8 @@ Table::TargetInfo*
 }
 
 
-Table::TargetInfo* TargetInfo::mk2DHorPosition( bool isreq,
+Table::TargetInfo* TargetInfo::mk2DHorPosition( bool isreq, bool withsp,
+						bool withll,
 					ConstRefMan<Coords::CoordSystem> crs )
 {
     const ReqSpec reqspec( isreq ? Required : Optional );
@@ -325,10 +326,14 @@ Table::TargetInfo* TargetInfo::mk2DHorPosition( bool isreq,
     auto* form1 = new TargetInfo::Form( "Trace Nr", IntInpSpec() );
     ti->add( form1 );
 
-    auto* form2 = new TargetInfo::Form( "SP Nr", FloatInpSpec() );
-    ti->add( form2 );
+    if ( withsp )
+    {
+	auto* form2 = new TargetInfo::Form( "SP Nr", FloatInpSpec() );
+	ti->add( form2 );
+    }
 
-    if ( ti->selection_.coordsys_ && ti->selection_.coordsys_->isProjection() )
+    if ( withll && ti->selection_.coordsys_ &&
+	 ti->selection_.coordsys_->isProjection() )
     {
 	auto* form3 = new TargetInfo::Form( sKeyLatLong(), StringInpSpec() );
 	form3->add( StringInpSpec() );
