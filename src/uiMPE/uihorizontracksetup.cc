@@ -13,40 +13,26 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emsurfaceauxdata.h"
-#include "emundo.h"
-#include "executor.h"
 #include "horizonadjuster.h"
-#include "horizon2dseedpicker.h"
-#include "horizon3dseedpicker.h"
 #include "horizon2dtracker.h"
 #include "horizon3dtracker.h"
 #include "mpeengine.h"
-#include "ptrman.h"
-#include "randcolor.h"
 #include "sectiontracker.h"
-#include "seisdatapack.h"
-#include "seispreload.h"
-#include "survinfo.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicolor.h"
-#include "uiflatviewer.h"
 #include "uigeninput.h"
-#include "uilabel.h"
 #include "uimpecorrelationgrp.h"
 #include "uimpeeventgrp.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "uiofferinfo.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
 #include "uislider.h"
 #include "uitabstack.h"
-#include "uitaskrunner.h"
 #include "uitoolbar.h"
-#include "uitoolbutton.h"
-#include "od_helpids.h"
 
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
@@ -86,15 +72,11 @@ uiBaseHorizonSetupGroup::~uiBaseHorizonSetupGroup()
 //uiHorizonSetupGroup
 uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     : uiSetupGroup(p,"")
-    , trackmgr_(nullptr)
-    , sectiontracker_(nullptr)
-    , horadj_(nullptr)
     , is2d_(StringView(typestr)==EM::Horizon2D::typeStr())
+    , mode_(EMSeedPicker::TrackFromSeeds)
     , modeChanged_(this)
     , varianceChanged_(this)
     , propertyChanged_(this)
-    , mps_(nullptr)
-    , mode_(EMSeedPicker::TrackFromSeeds)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
     uiGroup* modegrp = createModeGroup();
@@ -351,9 +333,22 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 	failfld_->valueChanged.notify(
 		mCB(this,uiHorizonSetupGroup,seedModeChange) );
     }
-    else
-	failfld_ = 0;
 
+    auto* infobut = new uiOfferInfo( grp );
+    const char* txt = "OpendTect supports the following ways of picking:\n\n"
+	"Auto-tracking mode:\n"
+	"- Recommended: Left-click to add seeds.\n"
+	"- Optional: Hold Left-click and draw along the section.\n"
+	"- Ctrl + Left-click to remove seeds.\n\n"
+	"Mouse draw:\n"
+	"- Recommended: Hold Left-click and draw along the section.\n"
+	"- Optional: Left-click to pick an individual patch and double-click to"
+	" finish it.\n"
+	"- Hold (Ctrl + Left-click) and drag to erase interpretation along the "
+	"line.\n";
+
+    infobut->setInfo( txt );
+    infobut->attach( rightOf, optiongrp );
     return grp;
 }
 

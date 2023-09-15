@@ -116,7 +116,7 @@ protected:
     uiCheckBox*			betweenseedsfld_;
     uiCheckBox*			snapfld_;
     uiGenInput*			methodfld_;
-    uiGenInput*			failfld_;
+    uiGenInput*			failfld_			= nullptr;
 
 // Event and Correlation Group
     uiEventGroup*		eventgrp_;
@@ -156,9 +156,9 @@ protected:
     EMSeedPicker::TrackMode	mode_;
     MarkerStyle3D		markerstyle_;
 
-    HorizonTrackerMgr*		trackmgr_;
-    SectionTracker*		sectiontracker_;
-    HorizonAdjuster*		horadj_;
+    HorizonTrackerMgr*		trackmgr_			= nullptr;
+    SectionTracker*		sectiontracker_			= nullptr;
+    HorizonAdjuster*		horadj_				= nullptr;
 
     Notifier<uiHorizonSetupGroup> modeChanged_;
     Notifier<uiHorizonSetupGroup> varianceChanged_;
@@ -167,7 +167,7 @@ protected:
     static const char**		sKeyEventNames();
     static const VSEvent::Type*	cEventTypes();
 
-    uiMPEPartServer*		mps_;
+    uiMPEPartServer*		mps_				= nullptr;
 };
 
 

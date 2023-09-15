@@ -28,7 +28,7 @@ uiOfferInfoWin::~uiOfferInfoWin()
 
 void uiOfferInfoWin::setText( const char* txt )
 {
-    uitb_->setHtmlText( txt );
+    uitb_->setText( txt );
 }
 
 
