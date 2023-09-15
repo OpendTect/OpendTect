@@ -191,7 +191,7 @@ int VelGriddingTask::nextStep()
 	    return ErrorOccurred();
 
 	VelGriddingFromFuncTask task( *this, geomid );
-	if ( !task.execute() )
+	if ( !task.executeParallel(false) )
 	    return ErrorOccurred();
 
 	definedbids_.append( task.completedBids() );

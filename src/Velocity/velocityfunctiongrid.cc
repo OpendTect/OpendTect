@@ -236,9 +236,10 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
     if ( !nogridding )
     {
 	const auto* geom = Survey::GM().getGeometry( geomid_ );
-	workpos = geom->toCoord( bid_ );
+	if ( geom )
+	    workpos = geom->toCoord( bid_ );
     }
-						//TODO: Get a TrcKeySampling
+
     TypeSet<double> weights;
     TypeSet<int> usedpoints;
     if ( !nogridding )
@@ -518,16 +519,11 @@ bool GriddedSource::initGridder()
 	BinIDValueSet bids( 0, false );
 	bids.setIs2D( geomid_.is2D() );
 	datasources_[idx]->getAvailablePositions( bids );
-
-	if ( geomid_.is2D() )
-	{
-	}
-
 	sourcepos_.append( bids );
     }
 
     GridderSourceFilter filter( sourcepos_, gridsourcebids_, gridsourcecoords_,
-			       geomid_ );
+			        geomid_ );
     if ( !filter.execute() ||
 	 !gridder_->setPoints( gridsourcecoords_ ) )
 	return false;
