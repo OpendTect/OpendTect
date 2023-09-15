@@ -642,7 +642,7 @@ bool uiMsg::askGoOn( const uiString& text, const uiString& textyes,
 
 
 bool uiMsg::askGoOnWithDetails( const uiString& msg,
-				const uiStringSet& details, bool withyesno )
+				const uiStringSet& details, bool yn )
 {
     const uiString oktxt = yn ? uiStrings::sYes() : uiStrings::sOk();
     const uiString canceltxt = yn ? uiStrings::sNo() : uiStrings::sCancel();
