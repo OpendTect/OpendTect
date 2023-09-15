@@ -9,48 +9,56 @@ ________________________________________________________________________
 
 #include "uivelocityfunctionimp.h"
 
-#include "file.h"
+#include "binidvalset.h"
+#include "ctxtioobj.h"
+#include "filepath.h"
+#include "hiddenparam.h"
+#include "od_helpids.h"
+#include "od_istream.h"
+#include "tabledef.h"
+
 #include "uifileinput.h"
+#include "uigeom2dsel.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
-#include "uitblimpexpdatasel.h"
-#include "uicombobox.h"
 #include "uitaskrunner.h"
-
-#include "binidvalset.h"
-#include "ctxtioobj.h"
-#include "oddirs.h"
-#include "picksettr.h"
-#include "od_istream.h"
-#include "tabledef.h"
+#include "uitblimpexpdatasel.h"
+#include "uiveldesc.h"
 #include "velocityfunctionascio.h"
 #include "velocityfunctionstored.h"
-#include "uiveldesc.h"
-#include "od_helpids.h"
+
+
+static HiddenParam<Vel::uiImportVelFunc,uiGeom2DSel*> hp_geom2dfld( nullptr );
 
 namespace Vel
 {
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
+    : uiImportVelFunc(p,false)
+{}
+
+
+uiImportVelFunc::uiImportVelFunc( uiParent* p, bool is2d )
     : uiDialog( p,uiDialog::Setup(tr("Import Velocity Function"),
 				  mNoDlgTitle,
 				  mODHelpKey(mImportVelFuncHelpID) )
 			    .modal(false))
-    , fd_( *FunctionAscIO::getDesc() )
+    , fd_( *FunctionAscIO::getDesc(is2d) )
 {
     setVideoKey( mODVideoKey(mImportVelFuncHelpID) );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiASCIIFileInput( this, true );
+    mAttachCB( inpfld_->valueChanged, uiImportVelFunc::inpSelCB );
 
     uiVelocityDesc::Setup su;
     su.desc_.type_ = VelocityDesc::Interval;
     typefld_ = new uiVelocityDesc( this, &su );
     typefld_->attach( alignedBelow, inpfld_ );
-    typefld_->typeChangeNotifier().notify(
-	    mCB(this,uiImportVelFunc,velTypeChangeCB) );
+    mAttachCB( typefld_->typeChangeNotifier(),
+	       uiImportVelFunc::velTypeChangeCB );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, typefld_ );
@@ -60,14 +68,21 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     dataselfld_->attach( alignedBelow, typefld_ );
     dataselfld_->attach( ensureBelow, sep );
 
-    sep = new uiSeparator( this, "H sep" );
-    sep->attach( alignedBelow, dataselfld_ );
+    hp_geom2dfld.setParam( this, nullptr );
+    uiObject* attachobj = dataselfld_->attachObj();
+    if ( is2d )
+    {
+	auto* geom2dfld = new uiGeom2DSel( this, true, uiStrings::sLineName() );
+	geom2dfld->attach( alignedBelow, dataselfld_ );
+	attachobj = geom2dfld->attachObj();
+	hp_geom2dfld.setParam( this, geom2dfld );
+    }
 
     IOObjContext ctxt = StoredFunctionSource::ioContext();
     ctxt.forread_ = false;
     outfld_ = new uiIOObjSel( this, ctxt,
-			      uiStrings::phrOutput( uiStrings::sVelocity() ) );
-    outfld_->attach( alignedBelow, dataselfld_ );
+			     uiStrings::phrOutput(tr("Velocity Function")) );
+    outfld_->attach( alignedBelow, attachobj );
     outfld_->attach( ensureBelow, sep );
 
     velTypeChangeCB( 0 );
@@ -76,7 +91,16 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 
 uiImportVelFunc::~uiImportVelFunc()
 {
+    detachAllNotifiers();
     delete &fd_;
+    hp_geom2dfld.removeParam( this );
+}
+
+
+void uiImportVelFunc::inpSelCB( CallBacker* )
+{
+    const FilePath fp( inpfld_->fileName() );
+    outfld_->setInputText( fp.baseName() );
 }
 
 
@@ -92,7 +116,8 @@ void uiImportVelFunc::velTypeChangeCB( CallBacker* )
 
 void uiImportVelFunc::formatSel( CallBacker* )
 {
-    FunctionAscIO::updateDesc( fd_ );
+    const bool is2d = hp_geom2dfld.getParam( this );
+    FunctionAscIO::updateDesc( fd_, is2d );
 }
 
 
@@ -112,8 +137,20 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !strm.isOK() )
 	 mErrRet( uiStrings::sCantOpenInpFile() );
 
+    auto* geom2dfld = hp_geom2dfld.getParam( this );
+    Pos::GeomID geomid;
+    if ( geom2dfld )
+    {
+	const IOObj* ioobj = geom2dfld->ioobj();
+	if ( !ioobj )
+	    return false;
+
+	const MultiID key = ioobj->key();
+	geomid.set( key.objectID() );
+    }
+
     const od_int64 filesize = File::getKbSize( inpfld_->fileName() );
-    FunctionAscIO velascio( fd_, strm, filesize ? filesize : -1 );
+    FunctionAscIO velascio( fd_, strm, geomid, filesize ? filesize : -1 );
 
     velascio.setOutput( bidvalset );
     bool success;

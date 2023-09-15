@@ -51,6 +51,7 @@ public:
     const Chain&		getChain() const;
     virtual const char*		userName() const;
     virtual void		setUserName(const char* nm);
+    bool			is2D() const;
 
     void			resetInput();
     virtual bool		needsInput() const		= 0;

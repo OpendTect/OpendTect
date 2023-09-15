@@ -302,17 +302,26 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertSeparator();
 
     const uiString ascii = m3Dots( uiStrings::sASCII() );
+    const uiString ascii2d = uiStrings::phrASCII( uiStrings::s2D() );
+    const uiString ascii3d = uiStrings::phrASCII( uiStrings::s3D() );
 
     insertAction( impattr, ascii, mImpAttrMnuItm, ascic );
     insertAction( imppick, ascii, mImpPickAsciiMnuItm, ascic );
     insertAction( impwvlt, ascii, mImpWvltAsciiMnuItm, ascic );
     insertAction( impmute, ascii, mImpMuteDefAsciiMnuItm, ascic );
     insertAction( impcpd, ascii, mImpPVDSAsciiMnuItm, ascic );
-    insertAction( impvelfn, ascii, mImpVelocityAsciiMnuItm, ascic );
     insertAction( imppdf, m3Dots(tr("ASCII (RokDoc)")),
 		       mImpPDFAsciiMnuItm, ascic );
 
-    const bool have2d = SI().has2D(); const bool only2d = !SI().has3D();
+    const bool have2d = SI().has2D();
+    const bool only2d = !SI().has3D();
+    if ( have2d )
+	insertAction( impvelfn, m3Dots(ascii2d),
+		      mImpVelocityAscii2DMnuItm, ascic );
+    if ( !only2d )
+	insertAction( impvelfn, m3Dots(ascii3d),
+		      mImpVelocityAsciiMnuItm, ascic );
+
     auto* impseissimple = new uiMenu( &appl_, tr("Simple File") );
     if ( have2d )
     {
@@ -345,7 +354,7 @@ void uiODMenuMgr::fillImportMenu()
 
     if ( have2d )
     {
-	auto* imphor2Dasc = new uiMenu( &appl_, tr("ASCII 2D"), ascic );
+	auto* imphor2Dasc = new uiMenu( &appl_, ascii2d, ascic );
 	insertAction( imphor2Dasc, m3Dots(tr("Single 2D Horizon")),
 	    mImpHor2DAsciiMnuItm );
 	insertAction( imphor2Dasc, m3Dots(tr("Bulk 2D Horizon")),
@@ -353,7 +362,7 @@ void uiODMenuMgr::fillImportMenu()
 	imphor->addMenu( imphor2Dasc );
     }
 
-    auto* imphor3Dasc = new uiMenu( &appl_, tr("ASCII 3D"), ascic );
+    auto* imphor3Dasc = new uiMenu( &appl_, ascii3d, ascic );
     insertAction( imphor3Dasc, m3Dots(tr("Single 3D Horizon")),
 	mImpHorAsciiMnuItm );
     insertAction( imphor3Dasc, m3Dots(tr("Bulk 3D Horizon")),
@@ -370,7 +379,7 @@ void uiODMenuMgr::fillImportMenu()
 
     if ( have2d )
     {
-	auto* impfltss2Dasc = new uiMenu( &appl_, tr("ASCII 2D"), ascic );
+	auto* impfltss2Dasc = new uiMenu( &appl_, ascii2d, ascic );
 	insertAction( impfltss2Dasc, m3Dots(tr("Single 2D FaultStickSet")),
 	    mImpFaultSSAscii2DMnuItm );
 	insertAction( impfltss2Dasc, m3Dots(tr("Bulk 2D FaultStickSets")),
@@ -378,7 +387,7 @@ void uiODMenuMgr::fillImportMenu()
 	impfaultstick->addMenu( impfltss2Dasc );
     }
 
-    auto* impfltss3Dasc = new uiMenu( &appl_, tr("ASCII 3D"), ascic );
+    auto* impfltss3Dasc = new uiMenu( &appl_, ascii3d, ascic );
     insertAction( impfltss3Dasc, m3Dots(tr("Single 3D FaultStickSet")),
 	mImpFaultSSAscii3DMnuItm );
     insertAction( impfltss3Dasc, m3Dots(tr("Bulk 3D FaultStickSets")),
@@ -428,8 +437,8 @@ void uiODMenuMgr::fillImportMenu()
     mAddImpMnu( Hor, imphor );
     mAddImpMnu( Flt, impfault );
     mAddImpMnu( Fltss, impfaultstick );
-	mAddImpMnu( FltSet, impfltset );
-	mAddImpMnu( Wll, impwell );
+    mAddImpMnu( FltSet, impfltset );
+    mAddImpMnu( Wll, impwell );
     mAddImpMnu( Attr, impattr );
     mAddImpMnu( Pick, imppick );
     mAddImpMnu( Wvlt, impwvlt );
@@ -1509,6 +1518,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpPVDSAsciiMnuItm:		mDoOp(Imp,PVDS,0); break;
     case mExpWellACII:			mDoOp(Exp,Wll,0); break;
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
+    case mImpVelocityAscii2DMnuItm:	mDoOp(Imp,Vel,1); break;
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
     case mExpLogLAS:			mDoOp(Exp,Wll,1); break;

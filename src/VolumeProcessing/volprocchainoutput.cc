@@ -58,18 +58,27 @@ VolProc::ChainOutput::~ChainOutput()
 
 
 void VolProc::ChainOutput::setChainID( const MultiID& chainid )
-{ chainid_ = chainid; }
+{
+    chainid_ = chainid;
+}
+
 
 void VolProc::ChainOutput::setOutputID( const MultiID& outid )
-{ outid_ = outid; }
+{
+    outid_ = outid;
+}
+
 
 void VolProc::ChainOutput::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
-{ cs_ = tkzs; }
+{
+    cs_ = tkzs;
+}
+
 
 void VolProc::ChainOutput::usePar( const IOPar& iop )
 {
     iop.get( VolProcessingTranslatorGroup::sKeyChainID(), chainid_ );
-    unRefAndZeroPtr( chain_ );
+    unRefAndNullPtr( chain_ );
     if ( chainid_.isUdf() || chainid_.isUdf() )
     {
 	if ( chainpar_ )
@@ -96,7 +105,9 @@ void VolProc::ChainOutput::setProgressMeter( ProgressMeter* pm )
 
 
 void VolProc::ChainOutput::setJobCommunicator( JobCommunic* jc )
-{ jobcomm_ = jc; }
+{
+    jobcomm_ = jc;
+}
 
 
 void VolProc::ChainOutput::enableWorkControl( bool yn )
@@ -128,11 +139,11 @@ void VolProc::ChainOutput::createNewChainExec()
 {
     deleteAndNullPtr( chainexec_ );
     if ( chain_ )
-	unRefAndZeroPtr( chain_ );
+	unRefAndNullPtr( chain_ );
 
     if ( getChain() != MoreToDo() )
     {
-	unRefAndZeroPtr( chain_ );
+	unRefAndNullPtr( chain_ );
 	return;
     }
     /* Many usePar implementations also allocate auxiliary data:
@@ -258,7 +269,8 @@ int VolProc::ChainOutput::getChain()
 	return retError( uiStrings::phrCannotFind(
 		tr("Volume Processing with id: %1").arg(chainid_) ) );
 
-    chain_ = new Chain; chain_->ref();
+    chain_ = new Chain;
+    chain_->ref();
     uiString errmsg;
     if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
 	return retError( errmsg );

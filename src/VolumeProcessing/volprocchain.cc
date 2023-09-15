@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "scaler.h"
 #include "survinfo.h"
+#include "volproctrans.h"
 
 namespace VolProc
 {
@@ -482,6 +483,16 @@ void Chain::setStorageID( const MultiID& mid )
 
     PtrMan<IOObj> ioobj = IOM().get( storageid_ );
     setName( ioobj ? ioobj->name() : "" );
+}
+
+
+bool Chain::is2D() const
+{
+    PtrMan<IOObj> ioobj = IOM().get( storageid_ );
+    mDynamicCastGet(VolProcessing2DTranslator*,t2,ioobj->createTranslator())
+    const bool is2d = t2;
+    delete t2;
+    return is2d;
 }
 
 

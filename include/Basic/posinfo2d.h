@@ -68,7 +68,10 @@ public:
 			, lnm_(l2d.lineName())
 			, posns_(l2d.positions()){}
 
-    const StepInterval<float>& zRange() const		{ return zrg_; }
+    void		getXYRange(Interval<double>& xrg,
+				   Interval<double>& yrg) const;
+    const StepInterval<float>&	zRange() const		{ return zrg_; }
+
     const OD::String&	lineName() const		{ return lnm_; }
     void		setZRange( const StepInterval<float>& zrg )
 							{ zrg_ = zrg; }

@@ -80,6 +80,7 @@ ________________________________________________________________________
 #define mImpMuteDefAsciiMnuItm	(mFileImpMnu + 81)
 #define mImpVelocityMnuItm	(mFileImpMnu + 90)
 #define mImpVelocityAsciiMnuItm	(mFileImpMnu + 91)
+#define mImpVelocityAscii2DMnuItm	(mFileImpMnu + 92)
 #define mImpPDFMnuItm		(mFileImpMnu + 100)
 #define mImpPDFAsciiMnuItm	(mFileImpMnu + 101)
 #define mImpPVDSMnuItm		(mFileImpMnu + 110)

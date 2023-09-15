@@ -21,6 +21,20 @@ PosInfo::Line2DData::Line2DData( const char* lnm )
 }
 
 
+void PosInfo::Line2DData::getXYRange( Interval<double>& xrg,
+				      Interval<double>& yrg ) const
+{
+    xrg.setUdf();
+    yrg.setUdf();
+    for ( const auto& pt : bendpoints_ )
+    {
+	const Coord& crd = posns_[pt].coord_;
+	xrg.include( crd.x );
+	yrg.include( crd.y );
+    }
+}
+
+
 // Returns the index, or the index just before if not found
 int PosInfo::Line2DData::gtIndex( int nr, bool& found ) const
 {

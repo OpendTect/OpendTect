@@ -233,6 +233,13 @@ Survey::Geometry::RelationType Survey::Geometry2D::compare(
 }
 
 
+void Survey::Geometry2D::getXYRange( Interval<double>& xrg,
+				     Interval<double>& yrg ) const
+{
+    return data_.getXYRange( xrg, yrg );
+}
+
+
 StepInterval<float> Survey::Geometry2D::zRange() const
 {
     return data_.zRange();

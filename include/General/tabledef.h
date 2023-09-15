@@ -198,6 +198,10 @@ public:
     static TargetInfo*	mk2DHorPosition(bool isreq,
 				ConstRefMan<Coords::CoordSystem> crs=
 				nullptr);
+    static TargetInfo*	mk2DHorPosition(bool isreq,bool withsp=false,
+					bool withll=false,
+				ConstRefMan<Coords::CoordSystem> crs=
+				nullptr);
     static TargetInfo*	mkZPosition( bool isreq, bool withunits=true )
 				{ return mkZPos(isreq,withunits); }
     static TargetInfo*	mkDepthPosition( bool isreq, bool withunits=true )
