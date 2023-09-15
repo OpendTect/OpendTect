@@ -115,6 +115,7 @@ public:
     uiString			errMsg() const;
 
     Step::ID			getNewStepID() { return freeid_++; }
+    bool			is2D() const;
 
 protected:
     virtual			~Chain();

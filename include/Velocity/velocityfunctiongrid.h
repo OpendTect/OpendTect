@@ -65,6 +65,7 @@ mExpClass(Velocity) GriddedSource : public FunctionSource
 {
 public:
 				GriddedSource();
+				GriddedSource(const Pos::GeomID&);
     const VelocityDesc&		getDesc() const override;
     const char*			factoryKeyword() const override
 				{ return sType(); }

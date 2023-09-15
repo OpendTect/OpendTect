@@ -55,6 +55,8 @@ public:
     TypeSet<float>&		spnrs()			{ return spnrs_; }
     const TypeSet<float>&	spnrs() const		{ return spnrs_; }
 
+    void			getXYRange(Interval<double>& xrg,
+					   Interval<double>& yrg) const;
     StepInterval<float>		zRange() const;
 
     static BufferString		makeUniqueLineName(const char* lsnm,

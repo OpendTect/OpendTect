@@ -199,6 +199,7 @@ public:
     void			doVolProcCB(CallBacker*);
     void			doVolProc2DCB(CallBacker*);
     void			doVolProc(const MultiID&);
+    void			doVolProc(const MultiID&,bool is2d);
     void			tieWellToSeismic(CallBacker*);
     void			doWellLogTools(CallBacker*);
     void			launchRockPhysics(CallBacker*);

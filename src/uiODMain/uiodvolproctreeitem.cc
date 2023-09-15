@@ -129,7 +129,9 @@ void uiDataTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==editmenuitem_.id )
     {
-	applMgr()->doVolProc( mid_ );
+	StringView parenttype = parentType();
+	const bool is2d = parenttype == typeid(uiOD2DLineTreeItem).name();
+	applMgr()->doVolProc( mid_, is2d );
     }
 }
 

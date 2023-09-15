@@ -25,6 +25,7 @@ mExpClass(uiVelocity) uiImportVelFunc : public uiDialog
 { mODTextTranslationClass(uiImportVelFunc);
 public:
 			uiImportVelFunc(uiParent*);
+			uiImportVelFunc(uiParent*,bool is2d);
 			~uiImportVelFunc();
 
 protected:
@@ -36,6 +37,7 @@ protected:
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;
 
+    void		inpSelCB(CallBacker*);
     void		velTypeChangeCB(CallBacker*);
     void		formatSel(CallBacker*);
 

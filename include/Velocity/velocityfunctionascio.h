@@ -24,10 +24,16 @@ public:
 				FunctionAscIO( const Table::FormatDesc& fd,
 					       od_istream&,
 					       od_int64 filesizeinkb=-1);
+				FunctionAscIO(const Table::FormatDesc& fd,
+					od_istream&,
+					Pos::GeomID geomid,
+					od_int64 filesizeinkb);
 				~FunctionAscIO();
 
    static Table::FormatDesc*	getDesc();
    static void			updateDesc(Table::FormatDesc&);
+   static Table::FormatDesc*	getDesc(bool is2d);
+   static void			updateDesc(Table::FormatDesc&,bool is2d);
 
    float			getUdfVal() const;
    bool				isXY() const;
@@ -43,6 +49,7 @@ protected:
 
    od_int64			totalNr() const override { return nrkbytes_; }
    static void			createDescBody(Table::FormatDesc&);
+   static void			createDescBody(Table::FormatDesc&,bool is2d);
 
    od_istream&			strm_;
    BinIDValueSet*		output_;

@@ -1842,7 +1842,9 @@ void uiODApplMgr::doVolProcCB( CallBacker* )
 void uiODApplMgr::doVolProc2DCB( CallBacker* )
 { volprocserv_->doVolProc( 0, 0, true ); }
 void uiODApplMgr::doVolProc( const MultiID& mid )
-{ volprocserv_->doVolProc( &mid, 0, false ); }
+{ doVolProc( mid, false ); }
+void uiODApplMgr::doVolProc( const MultiID& mid, bool is2d )
+{ volprocserv_->doVolProc( &mid, 0, is2d ); }
 void uiODApplMgr::createVolProcOutput( bool is2d )
 { volprocserv_->createVolProcOutput( 0, is2d ); }
 

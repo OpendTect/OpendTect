@@ -351,10 +351,17 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     case uiODApplMgr::Vel:
 	if ( at == uiODApplMgr::Imp)
 	{
-	    if ( !impvelfunc_ )
-		impvelfunc_ = new Vel::uiImportVelFunc( par_ );
-
-	    impvelfunc_->show();
+	    deleteAndNullPtr( impvelfunc_ );
+	    if ( opt==0 )
+	    {
+		impvelfunc_ = new Vel::uiImportVelFunc( par_, false );
+		impvelfunc_->show();
+	    }
+	    if ( opt==1 )
+	    {
+		impvelfunc_ = new Vel::uiImportVelFunc( par_, true );
+		impvelfunc_->show();
+	    }
 	}
     break;
     case uiODApplMgr::Strat:
