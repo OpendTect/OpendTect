@@ -45,6 +45,12 @@ Hor2DTo3DSectionData( const BinID& minbid, const BinID& maxbid,
 }
 
 
+bool isOK() const
+{
+    return arr_.isOK();
+}
+
+
 int getSz( int start, int stop, int step ) const
 {
     int diff = stop - start;
@@ -164,7 +170,15 @@ void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 	maxbid.crl() += extendedsize;
     }
 
-    sd_ += new Hor2DTo3DSectionData( minbid, maxbid, hs.step_ );
+    auto* sd = new Hor2DTo3DSectionData( minbid, maxbid, hs.step_ );
+    if ( !sd->isOK() )
+    {
+	msg_ = tr("Cannot allocate memory for new 3D horizon");
+	delete sd;
+	return;
+    }
+
+    sd_ += sd;
 }
 
 
