@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "ioman.h"
+#include "file.h"
 #include "filepath.h"
 #include "moddepmgr.h"
 #include "multiid.h"
@@ -36,6 +37,14 @@ static BufferStringSet survNames()
     }
 
     return survnames;
+}
+
+static BufferString expectValErrMsg( const char* expectval, const char* gtval )
+{
+    BufferString errmsg( "Expected : ", expectval, ", Got : " );
+    errmsg.add( gtval );
+    return errmsg;
+
 }
 
 static void assignUnitsFromRepository()
@@ -148,11 +157,15 @@ static ObjectSet<const UnitOfMeasure>& velUnits()
 
 static bool testSurveyLocation( const SurveyDiskLocation& sdl )
 {
-    mRunStandardTest( StringView(GetBaseDataDir()) == basedatadir_ &&
-		      sdl.basePath() == basedatadir_,
-		      mMsg("Base data dir") );
-    mRunStandardTest( StringView(GetSurveyName()) == sdl.dirName(),
-		      mMsg("Survey name") );
+    mRunStandardTestWithError( StringView(GetBaseDataDir()) == basedatadir_,
+		    mMsg("Base data dir"),
+		    expectValErrMsg(basedatadir_.buf(),GetBaseDataDir()) );
+    mRunStandardTestWithError( sdl.basePath() == basedatadir_,
+		    mMsg("Survey Disk Location"),
+		    expectValErrMsg(basedatadir_.buf(),sdl.basePath().buf()) );
+    mRunStandardTestWithError( StringView(GetSurveyName()) == sdl.dirName(),
+		    mMsg("Survey name"),
+		    expectValErrMsg(GetSurveyName(),sdl.dirName().buf()) );
 
     return true;
 }
@@ -162,10 +175,10 @@ static bool testSurveyDefinitions( int isurv )
 {
     mRunStandardTestWithError( SI().getDirName() == survNames()[isurv]->str(),
 			       mMsg("Name"), SI().getDirName() );
-    mRunStandardTest( SI().zIsTime() == zIsTime()[isurv] &&
-		      SI().zInMeter() == zInMeter()[isurv] &&
-		      SI().zInFeet() == zInFeet()[isurv],
-		      mMsg("zDomain") );
+    mRunStandardTestWithError( SI().zIsTime() == zIsTime()[isurv] &&
+	SI().zInMeter() == zInMeter()[isurv] &&
+	SI().zInFeet() == zInFeet()[isurv],
+	mMsg("zDomain"), BufferString("Got : ",SI().zDomain().unitStr()) );
     mRunStandardTest( SI().xyInFeet() == xyInFeet()[isurv],
 		      mMsg("XY units") );
     mRunStandardTest( SI().depthsInFeet() == depthsInFeet()[isurv],
@@ -224,6 +237,10 @@ int mTestMainFnName( int argc, char** argv )
 						 survNames().first()->str() );
     mRunStandardTestWithError( uirv.isOK(), "Initialize the first project",
 			       toString(uirv) );
+
+    mRunStandardTestWithError( File::isDirectory(basedatadir_.buf()),
+			    "Base data dir checked", expectValErrMsg(
+			    GetBaseDataDir(),basedatadir_.buf()).buf() );
 
     assignUnitsFromRepository();
     mRunStandardTest( timeuom_ && timemsuom_ && meteruom_ && feetuom_ &&
