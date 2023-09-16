@@ -37,7 +37,6 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 					bool is2d )
     : uiDialog(p,Setup(tr("Snap horizon to seismic event"),mNoDlgTitle,
 		       mODHelpKey(mSnapToEventHelpID) ).modal(false))
-    , horizon_(0)
     , is2d_(is2d)
     , readyForDisplay(this)
 {
@@ -65,8 +64,14 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 			  SI().zStep() * SI().zDomain().userFactor() );
     gatefld_->attach( alignedBelow, eventfld_ );
 
+    undefpolicyfld_ = new uiGenInput( this, tr("If event not found"),
+				      BoolInpSpec(true,tr("Erase position"),
+						  tr("Keep original Horizon"),
+						  true) );
+    undefpolicyfld_->attach( alignedBelow, gatefld_ );
+
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-    sep->attach( stretchedBelow, gatefld_ );
+    sep->attach( stretchedBelow, undefpolicyfld_ );
 
     savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_, is2d );
     savefldgrp_->setSaveFieldName( "Save snappeded horizon" );
@@ -77,7 +82,6 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 
 uiSeisEventSnapper::~uiSeisEventSnapper()
 {
-    if ( horizon_ ) horizon_->unRef();
 }
 
 
@@ -90,12 +94,10 @@ bool uiSeisEventSnapper::readHorizon()
 	return false;
 
     const MultiID& mid = horinfld_->key();
-    EM::Horizon* hor = savefldgrp_->readHorizon( mid );
-    if ( !hor ) mErrRet( tr("Could not load horizon") );
+    horizon_ = savefldgrp_->readHorizon( mid );
+    if ( !horizon_ )
+	mErrRet( tr("Could not load horizon") );
 
-    if ( horizon_ ) horizon_->unRef();
-    horizon_ = hor;
-    horizon_->ref();
     return true;
 }
 
@@ -114,70 +116,53 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
     if ( !savefldgrp_->acceptOK( cb ) )
 	return false;
 
-    EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
-	savefldgrp_->getNewHorizon() : horizon_;
-    usedhor->setBurstAlert( true );
+    EM::Horizon* outputhor = savefldgrp_->getNewHorizon() ?
+				savefldgrp_->getNewHorizon() : horizon_.ptr();
 
     Interval<float> rg = gatefld_->getFInterval();
     rg.scale( 1.f / SI().zDomain().userFactor() );
-
-    for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
+    const bool eraseundef = undefpolicyfld_->getBoolValue();
+    uiTaskRunner dlg( this );
+    if ( !is2d_ )
     {
-	if ( !is2d_ )
+	mDynamicCastGet(const EM::Horizon3D*,inhor3d,horizon_.ptr())
+	if ( !inhor3d )
+	    return false;
+
+	mDynamicCastGet(EM::Horizon3D*,outhor3d,outputhor)
+	if ( !outhor3d )
+	    return false;
+
+	SeisEventSnapper3D snapper( *seisioobj, *inhor3d, *outhor3d,
+				    rg, eraseundef );
+	snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
+
+	if ( !TaskRunner::execute(&dlg,snapper) )
+	    return false;
+    }
+    else
+    {
+	ExecutorGroup execgrp( "Event Snapper" );
+	mDynamicCastGet(const EM::Horizon2D*,inhor2d,horizon_.ptr())
+	if ( !inhor2d )
+	    return false;
+
+	mDynamicCastGet(EM::Horizon2D*,outhor2d,outputhor)
+	if ( !outhor2d )
+	    return false;
+
+	TypeSet<Pos::GeomID> geomids;
+	inhor2d->geometry().getGeomIDs( geomids );
+	for ( auto geomid : geomids )
 	{
-	    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
-	    if ( !hor3d )
-		return false;
-
-	    mDynamicCastGet(EM::Horizon3D*,newhor3d,usedhor)
-	    if ( !newhor3d )
-		return false;
-
-	    BinIDValueSet bivs( 1, false );
-	    hor3d->geometry().fillBinIDValueSet( bivs );
-
-	    SeisEventSnapper3D snapper( *seisioobj, bivs, rg );
-	    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
-
-	    uiTaskRunner dlg( this );
-	    if ( !TaskRunner::execute(&dlg,snapper) )
-		return false;
-
-	    hor3d->setBurstAlert( true );
-	    MouseCursorManager::setOverride( MouseCursor::Wait );
-	    BinIDValueSet::SPos pos;
-	    while ( bivs.next(pos) )
-	    {
-		BinID bid; float z;
-		bivs.get( pos, bid, z );
-		newhor3d->setPos( bid.toInt64(), Coord3(0,0,z),
-				  false );
-	    }
-
-	    hor3d->setBurstAlert( false );
-	    MouseCursorManager::restoreOverride();
-	}
-	else
-	{
-	    mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_)
-	    if ( !hor2d )
-		return false;
-
-	    mDynamicCastGet(EM::Horizon2D*,newhor2d,usedhor)
-	    if ( !newhor2d )
-		return false;
-
-	    SeisEventSnapper2D::Setup su(
-		    seisioobj, eventfld_->getIntValue()+1, rg );
-	    SeisEventSnapper2D snapper( hor2d, newhor2d, su );
-
-	    uiTaskRunner dlg( this );
-	    if ( !TaskRunner::execute( &dlg, snapper ) )
-		return false;
+	    auto* snapper = new SeisEventSnapper2D( *seisioobj, geomid,
+		    				    *inhor2d, *outhor2d,
+						    rg, eraseundef );
+	    execgrp.add( snapper );
 	}
 
-	usedhor->setBurstAlert( false );
-	MouseCursorManager::restoreOverride();
+	if ( !TaskRunner::execute( &dlg, execgrp ) )
+	    return false;
     }
 
     const bool res = savefldgrp_->saveHorizon();

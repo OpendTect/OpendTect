@@ -13,15 +13,16 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "valseriesevent.h"
 
-class BinIDValueSet;
+namespace EM { class Horizon3D; }
 class IOObj;
 class SeisMSCProvider;
 class SeisTrc;
 
 mExpClass(Seis) SeisEventSnapper : public Executor
-{
+{ mODTextTranslationClass(SeisEventSnapper);
 public:
-				SeisEventSnapper( const Interval<float>& gate);
+				SeisEventSnapper(const Interval<float>& gate,
+						 bool eraseundef=true);
 				~SeisEventSnapper();
 
     void			setEvent( VSEvent::Type tp )
@@ -34,6 +35,7 @@ public:
 
     od_int64			totalNr() const override { return totalnr_; }
     od_int64			nrDone() const override  { return nrdone_; }
+    uiString			uiNrDoneText() const;
 
 protected:
 
@@ -42,9 +44,10 @@ protected:
 
     Interval<float>		searchgate_;
     VSEvent::Type		eventtype_;
+    bool			eraseundef_	= true;
 
-    int				totalnr_;
-    int				nrdone_;
+    int				totalnr_	= 0;
+    int				nrdone_		= 0;
 
 };
 
@@ -52,13 +55,19 @@ protected:
 mExpClass(Seis) SeisEventSnapper3D : public SeisEventSnapper
 {
 public:
-				SeisEventSnapper3D(const IOObj&,BinIDValueSet&,
-						   const Interval<float>& gate);
+			SeisEventSnapper3D(const IOObj&,
+					   const EM::Horizon3D&,
+					   EM::Horizon3D&,
+					   const Interval<float>& gate,
+					   bool eraseundef=true);
 				~SeisEventSnapper3D();
 
 protected:
     int				nextStep() override;
 
-    BinIDValueSet&		positions_;
     SeisMSCProvider*		mscprov_;
+
+    ConstRefMan<EM::Horizon3D>	inhorizon_;
+    RefMan<EM::Horizon3D>	outhorizon_;
+
 };

@@ -37,11 +37,12 @@ protected:
     uiSeisSel*		seisfld_;
     uiGenInput*		eventfld_;
     uiGenInput*		gatefld_;
+    uiGenInput*		undefpolicyfld_;
     bool		is2d_;
 
     bool		acceptOK(CallBacker*) override;
     bool		readHorizon();
 
-    EM::Horizon*	horizon_;
+    RefMan<EM::Horizon> horizon_;
 
 };

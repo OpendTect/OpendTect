@@ -43,7 +43,6 @@ set( OD_MODULE_SOURCES
 	seisdatapack.cc
 	seisdatapackfromdps.cc
 	seisdatapackzaxistransformer.cc
-	seiseventsnapper.cc
 	seisimpbpsif.cc
 	seisimporter.cc
 	seisimpps.cc

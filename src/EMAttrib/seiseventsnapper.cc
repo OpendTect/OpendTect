@@ -12,14 +12,17 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seiscubeprov.h"
 #include "seisselectionimpl.h"
+#include "emhorizon3d.h"
 #include "ioobj.h"
 #include "trckeyzsampling.h"
 #include "binidvalset.h"
 
 
-SeisEventSnapper::SeisEventSnapper( const Interval<float>& gate	)
+SeisEventSnapper::SeisEventSnapper( const Interval<float>& gate,
+				    bool eraseundef )
     : Executor("Snapping to nearest event")
     , searchgate_(gate)
+    , eraseundef_(eraseundef)
 {
     searchgate_.sort();
 }
@@ -72,24 +75,36 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 }
 
 
-SeisEventSnapper3D::SeisEventSnapper3D( const IOObj& ioobj, BinIDValueSet& bvs,
-				    const Interval<float>& gate )
-    : SeisEventSnapper(gate)
-    , positions_(bvs)
+SeisEventSnapper3D::SeisEventSnapper3D( const IOObj& ioobj,
+					const EM::Horizon3D& in,
+					EM::Horizon3D& out,
+					const Interval<float>& gate,
+					bool eraseundef )
+    : SeisEventSnapper(gate,eraseundef)
+    , inhorizon_(&in),outhorizon_(&out)
 {
     mscprov_ = new SeisMSCProvider( ioobj );
     mscprov_->prepareWork();
 
-    const Interval<float> zrg = bvs.valRange( 0 );
-    mscprov_->setSelData( new Seis::TableSelData(bvs,&gate) );
-    totalnr_ = mCast( int, bvs.totalSize() );
-    nrdone_ = 0;
+    TrcKeyZSampling tkzs( true );
+    tkzs.hsamp_ = in.range();
+    mscprov_->setSelData( new Seis::RangeSelData(tkzs) );
+    totalnr_ = tkzs.hsamp_.totalNr();
+
+    outhorizon_->setBurstAlert( true );
 }
 
 
 SeisEventSnapper3D::~SeisEventSnapper3D()
 {
+    outhorizon_->setBurstAlert( false );
     delete mscprov_;
+}
+
+
+uiString SeisEventSnapper::uiNrDoneText() const
+{
+    return tr("Nr positions done");
 }
 
 
@@ -103,16 +118,20 @@ int SeisEventSnapper3D::nextStep()
 	case SeisMSCProvider::NewPosition:
 	{
 	    SeisTrc* trc = mscprov_->get(0,0);
-	    BinIDValueSet::SPos pos = positions_.find( trc->info().binID() );
-	    if ( pos.isValid() )
+	    const BinID pos = trc->info().binID();
+	    const float inzval = inhorizon_->getZ( pos );
+	    float outzval = inzval;
+	    if ( !mIsUdf(inzval) )
 	    {
-		BinID dummy; float zval;
-		positions_.get( pos, dummy, zval );
-		zval = findNearestEvent( *trc, zval );
-		positions_.set( pos, zval );
-		nrdone_++;
+		outzval = findNearestEvent( *trc, inzval );
+		if ( !eraseundef_ && mIsUdf(outzval) )
+		    outzval = inzval;
 	    }
+
+	    outhorizon_->setZ( pos, outzval, false );
+	    nrdone_++;
 	}
+
 	case SeisMSCProvider::Buffering:
 	    return MoreToDo();
     }

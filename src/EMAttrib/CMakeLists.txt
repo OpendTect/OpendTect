@@ -12,6 +12,7 @@ set( OD_MODULE_SOURCES
 	gridcreator.cc
 	hor2dfrom3dcreator.cc
 	horizonattrib.cc
+	seiseventsnapper.cc
 	seis2deventsnapper.cc
 	stratamp.cc
 	initemattrib.cc

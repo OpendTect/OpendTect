@@ -16,34 +16,34 @@ ________________________________________________________________________
 #include "seisread.h"
 
 
-Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,
-					EM::Horizon2D& newhor, const Setup& su )
-    : SeisEventSnapper(su.gate_)
-    , orghor_(orghor)
-    , newhor_(newhor)
-    , geomid_(su.geomid_)
+SeisEventSnapper2D::SeisEventSnapper2D( const IOObj& seisobj,
+					Pos::GeomID geomid,
+					const EM::Horizon2D& in,
+					EM::Horizon2D& out,
+					const Interval<float>& gate,
+					bool eraseundef )
+    : SeisEventSnapper(gate,eraseundef)
+    , geomid_(geomid)
+    , inhorizon_(&in),outhorizon_(&out)
     , seisrdr_(nullptr)
 {
-    if ( !su.ioobj_ )
-	return;
-
     const Seis::GeomType gt = Seis::Line;
-    seisrdr_ = new SeisTrcReader( *su.ioobj_, geomid_, &gt );
+    seisrdr_ = new SeisTrcReader( seisobj, geomid_, &gt );
     seisrdr_->prepareWork();
+    totalnr_ = seisrdr_->expectedNrTraces();
 }
 
 
-Seis2DLineEventSnapper::~Seis2DLineEventSnapper()
+SeisEventSnapper2D::~SeisEventSnapper2D()
 {
     delete seisrdr_;
 }
 
 
-int Seis2DLineEventSnapper::nextStep()
+int SeisEventSnapper2D::nextStep()
 {
     if ( !seisrdr_ )
 	return ErrorOccurred();
-    //TODO: Support multiple sections
 
     const int res = seisrdr_->get( trc_.info() );
     if ( res == -1 )
@@ -54,39 +54,17 @@ int Seis2DLineEventSnapper::nextStep()
     if ( !seisrdr_->get(trc_) )
 	return MoreToDo();
 
-    Coord3 coord = orghor_.getPos( geomid_, trc_.info().trcNr() );
-    newhor_.setPos( geomid_, trc_.info().trcNr(),
-		    findNearestEvent(trc_,(float) coord.z), false );
-    nrdone_ ++;
+    const float inzval = inhorizon_->getZ( trc_.info().trcKey() );
+    float outzval = inzval;
+    if ( !mIsUdf(inzval) )
+    {
+	outzval = findNearestEvent( trc_, inzval );
+	if ( !eraseundef_ && mIsUdf(outzval) )
+	    outzval = inzval;
+    }
 
+    outhorizon_->setZ( trc_.info().trcKey(), outzval, false );
+    nrdone_ ++;
     return MoreToDo();
 }
 
-
-SeisEventSnapper2D::SeisEventSnapper2D( const EM::Horizon2D* hor,
-					EM::Horizon2D* newhor,const Setup& su )
-    : ExecutorGroup("Seis Lineset Iterator", true)
-    , orghor_(hor)
-    , newhor_(newhor)
-    , type_(su.type_)
-    , gate_(su.gate_)
-{
-    hor2diterator_ = new EM::Hor2DSeisLineIterator( *hor );
-    while ( hor2diterator_->next() )
-    {
-	Pos::GeomID lineid = Survey::GM().getGeomID(hor2diterator_->lineName());
-	if ( lineid == Survey::GeometryManager::cUndefGeomID() )
-	    continue;
-	Seis2DLineEventSnapper::Setup setup( su.seisioobj_, lineid, gate_ );
-	Seis2DLineEventSnapper* snapper =
-	    new Seis2DLineEventSnapper( *orghor_, *newhor_, setup );
-	snapper->setEvent( VSEvent::Type(type_) );
-	add( snapper );
-    }
-}
-
-
-SeisEventSnapper2D::~SeisEventSnapper2D()
-{
-    delete hor2diterator_;
-}
