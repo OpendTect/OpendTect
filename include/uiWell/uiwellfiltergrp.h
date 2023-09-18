@@ -60,6 +60,7 @@ public:
     void			setSelected(const DBKeySet& wellids,
 					    const MnemonicSelection& mns,
 					    const BufferStringSet& mrkrs);
+    void			setMnemonicsSensitive(const MnemonicSelection&);
 
     void			getSelected(DBKeySet& wellids,
 					    BufferStringSet& logs,
