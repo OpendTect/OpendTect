@@ -232,7 +232,10 @@ int mTestMainFnName( int argc, char** argv )
     OD::ModDeps().ensureLoaded("General");
 
     clParser().setKeyHasValue( "datadir" );
-    clParser().getVal( "datadir", basedatadir_ );
+    FilePath basedatadirfp;
+    clParser().getVal( "datadir", basedatadirfp );
+    basedatadir_ = basedatadirfp.fullPath();
+
     const uiRetVal uirv = IOMan::setDataSource_( basedatadir_.buf(),
 						 survNames().first()->str() );
     mRunStandardTestWithError( uirv.isOK(), "Initialize the first project",

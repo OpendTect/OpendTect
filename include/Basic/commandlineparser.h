@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "convert.h"
 #include "dbkey.h"
+#include "filepath.h"
 #include "genc.h"
 #include "bufstringset.h"
 #include "typeset.h"
@@ -71,6 +72,8 @@ public:
     // Extract all string arguments after all occurrences of "key"
     bool			getVal(const char* key,BufferStringSet&,
 				       bool acceptnone=false) const;
+    bool			getVal(const char* key,FilePath&,
+				    bool acceptnone=false,int valnr=1) const;
     bool			getVal(const char* key,DBKey&,
 				       bool acceptnone=false,int valnr=1) const;
     template <class T> bool	getVal(const char* key,T&,
