@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "commandlineparser.h"
 
-#include "filepath.h"
 #include "oddirs.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
@@ -312,6 +311,16 @@ bool CommandLineParser::getVal( const char* key, DBKey& dbkey,
     else
 	dbkey.setUdf();
 
+    return res;
+}
+
+
+bool CommandLineParser::getVal( const char* key, FilePath& fp, bool acceptnone,
+					int valnr ) const
+{
+    BufferString str;
+    const bool res = getVal( key, str, acceptnone, valnr );
+    fp = res ? FilePath( str.buf() ) : FilePath();
     return res;
 }
 
