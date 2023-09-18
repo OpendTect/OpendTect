@@ -61,7 +61,7 @@ protected:
     uiString		caption_;
     bool		insens_;
 
-    uiOfferInfoWin*	infowin_;
+    uiOfferInfoWin*	infowin_				= nullptr;
 
     void		updateWin();
 

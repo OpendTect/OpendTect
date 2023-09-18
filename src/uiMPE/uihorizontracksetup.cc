@@ -335,17 +335,20 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     }
 
     auto* infobut = new uiOfferInfo( grp );
-    const char* txt = "OpendTect supports the following ways of picking:\n\n"
-	"Auto-tracking mode:\n"
-	"- Recommended: Left-click to add seeds.\n"
-	"- Optional: Hold Left-click and draw along the section.\n"
-	"- Ctrl + Left-click to remove seeds.\n\n"
-	"Mouse draw:\n"
-	"- Recommended: Hold Left-click and draw along the section.\n"
-	"- Optional: Left-click to pick an individual patch and double-click to"
-	" finish it.\n"
-	"- Hold (Ctrl + Left-click) and drag to erase interpretation along the "
-	"line.\n";
+    const char* txt =
+	"<html><body style=\"font-family: Verdana;\">"
+	"OpendTect supports the following ways of picking:<br><br>"
+	"<b>Auto-tracking mode:</b>"
+	"<ul><li>Recommended: Left-click to add seeds</li>"
+	"<li>Optional: Hold Left-click and draw along the section</li>"
+	"<li>Ctrl + Left-click to remove seeds</li></ul>"
+	"<b>Mouse draw:</b>"
+	"<ul><li>Recommended: Hold Left-click and draw along the section</li>"
+	"<li>Optional: Left-click to pick an individual patch and double-click "
+	"to finish it</li>"
+	"<li>Hold (Ctrl + Left-click) and drag to erase interpretation along "
+	"the line</li>"
+	"</ul></body></html>";
 
     infobut->setInfo( txt );
     infobut->attach( rightOf, optiongrp );
