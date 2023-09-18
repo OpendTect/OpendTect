@@ -301,6 +301,22 @@ void uiWellFilterGrp::setSelection( const BufferStringSet& wellnms,
 }
 
 
+void uiWellFilterGrp::setMnemonicsSensitive( const MnemonicSelection& sensmns )
+{
+    if ( initdesc_.logmode_ )
+	return;
+
+    for ( int idx=0; idx<logormnslist_->size(); idx++ )
+    {
+	const Mnemonic* mn = MNC().getByName( logormnslist_->textOfItem(idx),
+					      false);
+	const bool setsensitive = sensmns.isPresent( mn );
+	logormnslist_->setItemSelectable( idx, setsensitive );
+	logormnslist_->setChoosable( idx, setsensitive );
+    }
+}
+
+
 void uiWellFilterGrp::getSelected( DBKeySet& wellids,
 				   BufferStringSet& lognms,
 				   BufferStringSet& mrkrnms ) const
