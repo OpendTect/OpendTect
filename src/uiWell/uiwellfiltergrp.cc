@@ -341,7 +341,8 @@ void uiWellFilterGrp::setSelection( const BufferStringSet& wellnms,
 
 void uiWellFilterGrp::setMnemonicsSensitive( const MnemonicSelection& sensmns )
 {
-    if ( initdesc_.logmode_ )
+    const InitDesc& initdesc = *hp.getParam(this);
+    if ( initdesc.logmode_ )
 	return;
 
     for ( int idx=0; idx<logormnslist_->size(); idx++ )
