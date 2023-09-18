@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "uimpeeventgrp.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "uiofferinfo.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
 #include "uislider.h"
@@ -354,6 +355,24 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
     else
 	failfld_ = 0;
 
+    auto* infobut = new uiOfferInfo( grp );
+    const char* txt =
+	"<html><body style=\"font-family: Verdana;\">"
+	"OpendTect supports the following ways of picking:<br><br>"
+	"<b>Auto-tracking mode:</b>"
+	"<ul><li>Recommended: Left-click to add seeds</li>"
+	"<li>Optional: Hold Left-click and draw along the section</li>"
+	"<li>Ctrl + Left-click to remove seeds</li></ul>"
+	"<b>Mouse draw:</b>"
+	"<ul><li>Recommended: Hold Left-click and draw along the section</li>"
+	"<li>Optional: Left-click to pick an individual patch and double-click "
+	"to finish it</li>"
+	"<li>Hold (Ctrl + Left-click) and drag to erase interpretation along "
+	"the line</li>"
+	"</ul></body></html>";
+
+    infobut->setInfo( txt );
+    infobut->attach( rightOf, optiongrp );
     return grp;
 }
 
