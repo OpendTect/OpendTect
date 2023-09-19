@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "seiscbvs.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seistype.h"
@@ -44,13 +45,35 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 
 
 static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
-				const uiSeisSel::Setup& su )
+					const uiSeisSel::Setup& su )
 {
     IOObjContext ctxt( ct );
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
 	ctxt.toselect_.dontallow_.addVal( sKey::Type(), sKey::Steering() );
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
 	ctxt.toselect_.require_.set( sKey::Type(), sKey::Steering() );
+    if ( ctxt.trgroup_ && !ctxt.forread_ &&
+	    su.compnrpol_ == uiSeisSel::Setup::MultiCompOnly )
+    {
+	const TranslatorGroup& trgrp = *ctxt.trgroup_;
+	const ObjectSet<const Translator>& alltrs = trgrp.templates();
+	FileMultiString allowedtranlators;
+	for ( const auto* transl : alltrs )
+	{
+	    mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
+	    if ( seistr && seistr->supportsMultiCompTrc() )
+	    {
+		const BufferString nm = transl->typeName();
+		allowedtranlators.add( nm );
+	    }
+	}
+
+	if ( !allowedtranlators.isEmpty() )
+	    ctxt.toselect_.allowtransls_ = allowedtranlators.buf();
+	else
+	    ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+    }
+
 
     return ctxt;
 }
@@ -270,7 +293,7 @@ uiSeisSel::~uiSeisSel()
 }
 
 
-bool uiSeisSel::outputSupportMultiComp() const
+bool uiSeisSel::outputSupportsMultiComp() const
 {
     const Translator* transl = wrtrselfld_->selectedTranslator();
     mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
@@ -281,28 +304,12 @@ bool uiSeisSel::outputSupportMultiComp() const
 }
 
 uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su,
-						    const IOObjContext& ctxt )
+				     const IOObjContext& ctxt )
 {
     uiSeisSel::Setup ret( su );
     ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su, ctxt.forread_ );
     ret.filldef( su.allowsetdefault_ );
     ret.withwriteopts_ = !ctxt.forread_;
-    if ( ctxt.trgroup_ && !ctxt.forread_ &&
-					su.compnrpol_ == Setup::MultiCompOnly )
-    {
-	const TranslatorGroup& trgrp = *ctxt.trgroup_;
-	const ObjectSet<const Translator>& alltrs = trgrp.templates();
-	for ( const auto* transl : alltrs )
-	{
-	    mDynamicCastGet(const SeisTrcTranslator*,seistr,transl);
-	    if ( seistr && !seistr->supportsMultiCompTrc() )
-	    {
-		const BufferString nm = transl->typeName();
-		ret.trsnotallwed_.addIfNew( transl->typeName() );
-	    }
-	}
-    }
-
     return ret;
 }
 
@@ -511,6 +518,7 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
     uiSeisSel::Setup sssu( is2d, false );
     sssu.wantSteering().seltxt( txt );
     sssu.withwriteopts( true ).withinserters( false );
+    sssu.compnrpol( uiSeisSel::Setup::MultiCompOnly );
     return sssu;
 }
 

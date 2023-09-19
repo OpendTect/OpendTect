@@ -84,7 +84,7 @@ public:
     bool		existingTyped() const override;
     void		updateInput() override;
     void		updateOutputOpts(bool issteering);
-    bool		outputSupportMultiComp() const;
+    bool		outputSupportsMultiComp() const;
 
     static IOObjContext	ioContext(Seis::GeomType,bool forread);
 
