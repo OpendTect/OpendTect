@@ -297,6 +297,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     }
 
     iopar.set( sKey::LineKey(), sellinenm );
+    iopar.set( sKey::GeomID(), singlelnmsel_->getInputGeomID() );
     return uiSeisSubSel::fillPar( iopar );
 }
 
