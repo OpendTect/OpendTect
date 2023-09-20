@@ -842,7 +842,7 @@ void uiVisPartServer::setTranslation( VisID id, const Coord3& shift )
 Coord3 uiVisPartServer::getTranslation( VisID id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getTranslation() : Coord3::udf();
+    return so ? so->getTranslation() : Coord3(0,0,0);
 }
 
 
