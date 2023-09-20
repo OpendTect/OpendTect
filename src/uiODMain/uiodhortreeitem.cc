@@ -385,6 +385,11 @@ uiString uiODHorizonTreeItem::createDisplayName() const
 	const_cast<uiODHorizonTreeItem*>(this)->visserv_;
 
     uiString res = cvisserv->getUiObjectName( displayid_ );
+    if ( res.isEmpty() )
+    {
+	pErrMsg("Horizon name not found");
+	return res;
+    }
 
     if (  uivisemobj_ && uivisemobj_->getShift() )
     {
@@ -1103,6 +1108,12 @@ void uiODHorizon2DTreeItem::initNotify()
 uiString uiODHorizon2DTreeItem::createDisplayName() const
 {
     uiString res = visserv_->getUiObjectName( displayid_ );
+    if ( res.isEmpty() )
+    {
+	pErrMsg("Horizon name not found");
+	return res;
+    }
+
     const float curshift =
 		sCast(float,visserv_->getTranslation( displayid_ ).z);
 
