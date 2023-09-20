@@ -48,7 +48,7 @@ mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp())
 
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d, mODHelpKey(mHorizonAttribHelpID) )
-    , nrouttypes_( 2 )
+    , nrouttypes_( 1 )
 {
     inpfld_ = createInpFld( is2d );
 
