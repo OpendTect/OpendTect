@@ -285,6 +285,7 @@ VisID uiODEarthModelSurfaceTreeItem::reloadEMObject()
     uiEMPartServer* ems = applMgr()->EMServer();
     const MultiID mid = ems->getStorageID( emid_ );
 
+    const bool wasonlyatsections = uivisemobj_->isOnlyAtSections();
     applMgr()->visServer()->removeObject( displayid_, sceneID() );
     delete uivisemobj_; uivisemobj_ = 0;
 
@@ -295,7 +296,9 @@ VisID uiODEarthModelSurfaceTreeItem::reloadEMObject()
     timelastmodified_ = eminfo.timeLastModified( true );
     emid_ = applMgr()->EMServer()->getObjectID(mid);
     uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_, sceneID(), visserv_ );
-    return uivisemobj_->id();
+    uivisemobj_->setOnlyAtSectionsDisplay( wasonlyatsections );
+    displayid_ = uivisemobj_->id();
+    return displayid_;
 }
 
 
