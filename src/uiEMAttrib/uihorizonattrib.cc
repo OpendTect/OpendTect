@@ -59,7 +59,7 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     horfld_->attach( alignedBelow, inpfld_ );
 
     uiStringSet strs;
-    getOutputNames( strs, true );
+    getOutputNames( strs, false );
     typefld_ = new uiGenInput( this, uiStrings::sOutput(),
 			       StringListInpSpec(strs) );
     typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
