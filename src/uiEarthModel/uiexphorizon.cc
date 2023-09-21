@@ -698,7 +698,7 @@ void uiExportHorizon::typChg( CallBacker* cb )
 void uiExportHorizon::inpSel( CallBacker* )
 {
     const IOObj* ioobj = infld_ ? infld_->selIOObj() : nullptr;
-    if ( ioobj )
+    if ( ioobj && !doconvzfld_->getBoolValue() )
     {
 	gfname_ = ioobj->name();
 	EM::IOObjInfo info( ioobj->key() );
