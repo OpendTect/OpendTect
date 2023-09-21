@@ -1117,9 +1117,9 @@ void Scene::fillPar( IOPar& par ) const
     {
 	zdomaininfo_->def_.set( par );
 	par.mergeComp( zdomaininfo_->pars_, ZDomain::sKey() );
-	tkzs_.fillPar( par );
     }
 
+    tkzs_.fillPar( par );
     par.set( sKey::Scale(), zscale_ );
 
     if ( topimg_ )
@@ -1138,26 +1138,25 @@ void Scene::fillPar( IOPar& par ) const
 	par.mergeComp( botimgpar, sKeyBottomImage() );
     }
 
-    int nrchilds( 0 );
+    int nrchildren = 0;
     for ( int idx=0;  idx<size(); idx++ )
     {
-	BufferString childkey( childfix(), nrchilds );
-	mDynamicCastGet(const visSurvey::SurveyObject*,survobj, getObject(idx));
-
+	mDynamicCastGet(const visSurvey::SurveyObject*,survobj,getObject(idx))
 	if ( !survobj || survobj->getSaveInSessionsFlag() == false )
 	    continue;
 
 	IOPar childpar;
-	nrchilds++;
+	nrchildren++;
 
 	mDynamicCastGet(const visBase::DataObject*,dobj,survobj)
 	const VisID objid = dobj ? dobj->id() : VisID::udf();
 	childpar.set( sKeyChildID(), objid );
 	survobj->fillPar( childpar );
+	const BufferString childkey( childfix(), nrchildren );
 	par.mergeComp(childpar, childkey.buf() );
     }
 
-    par.set( sKeyNrChild(), nrchilds );
+    par.set( sKeyNrChild(), nrchildren );
 }
 
 
@@ -1193,10 +1192,10 @@ bool Scene::usePar( const IOPar& par )
 	const BufferString nm = transpar->find( sKey::Name() );
 	RefMan<ZAxisTransform> transform =
 	    ZAxisTransform::factory().create( nm );
-	if ( transform && transform->usePar( *transpar ) )
+	if ( transform && transform->usePar(*transpar) )
 	{
 	    float zscale;
-	    setZAxisTransform( transform,0 );
+	    setZAxisTransform( transform, nullptr );
 	    if ( !par.get(sKey::Scale(),zscale) )
 		zscale = transform->zScale();
 
@@ -1205,22 +1204,25 @@ bool Scene::usePar( const IOPar& par )
     }
     else
     {
-	TrcKeyZSampling cs; float zscale=0.0f;
-	if ( cs.usePar( par ) && par.get( sKey::Scale(), zscale ) )
+	float zscale = 0.0f;
+	if ( par.get(sKey::Scale(),zscale) )
 	{
-	    setTrcKeyZSampling( cs );
 	    setZScale( zscale );
 	    delete zdomaininfo_;
 	    zdomaininfo_ = new ZDomain::Info( par );
 	}
     }
 
-    int nrchilds( 0 );
-    par.get( sKeyNrChild(), nrchilds );
+    TrcKeyZSampling tkzs;
+    if ( tkzs.usePar(par) )
+	setTrcKeyZSampling( tkzs );
+
+    int nrchildren = 0;
+    par.get( sKeyNrChild(), nrchildren );
 
     TypeSet<int> childids;
     TypeSet<int> indexes;
-    for ( int idx=0; idx<nrchilds; idx++ )
+    for ( int idx=0; idx<nrchildren; idx++ )
     {
 	BufferString key( childfix(), idx );
 	PtrMan<IOPar> childpar = par.subselect( key.buf() );
