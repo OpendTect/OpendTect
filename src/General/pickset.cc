@@ -839,6 +839,12 @@ bool Set::setCapacity( int sz )
 }
 
 
+bool Set::setSize( int size, const Coord3& defval )
+{
+    return locations_.setSize( size, defval );
+}
+
+
 bool Set::append( const Pick::Set& oth )
 {
     return locations_.append( oth.locations_ );
