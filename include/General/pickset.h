@@ -77,6 +77,7 @@ public:
     void		setEmpty()		{ locations_.setEmpty(); }
     bool		validIdx(int idx) const;
     bool		setCapacity(int sz);
+    bool		setSize(int,const Coord3& defval=Coord3::udf());
     bool		append(const Pick::Set&);
     const TypeSet<Location>& locations() const		{ return locations_; }
     void		getLocations(TypeSet<Coord3>&,int setidx=0) const;
