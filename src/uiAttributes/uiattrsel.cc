@@ -226,6 +226,12 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 		if ( storcur != -1 && attrcur != -1 ) break;
 	    }
 	}
+
+	if ( attrdata_.zdomaininfo_ && !zdomoutfld_->isEmpty() )
+	{
+	    seltyp = 4;
+	    storcur = desc ? zdomoutfld_->indexOf(desc->userRef()) : -1;
+	}
     }
 
     const bool havenlaouts = attrinf_->nlaoutnms_.size();
@@ -233,18 +239,25 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     if ( attrcur == -1 )		attrcur = attrinf_->attrnms_.size()-1;
     if ( nlacur == -1 && havenlaouts )	nlacur = 0;
 
-    if ( storoutfld_  )			storoutfld_->setCurrentItem( storcur );
-    if ( attroutfld_ && attrcur != -1 )	attroutfld_->setCurrentItem( attrcur );
-    if ( nlaoutfld_ && nlacur != -1 )	nlaoutfld_->setCurrentItem( nlacur );
+    if ( storoutfld_  )
+	storoutfld_->setCurrentItem( storcur );
+    if ( attroutfld_ && attrcur != -1 )
+	attroutfld_->setCurrentItem( attrcur );
+    if ( nlaoutfld_ && nlacur != -1 )
+	nlaoutfld_->setCurrentItem( nlacur );
+    if ( zdomainfld_ )
+	zdomoutfld_->setCurrentItem( storcur );
 
-    if ( seltyp == 0 )
-	storfld_->setChecked(true);
-    else if ( steerfld_ && seltyp == 1 )
+    if ( seltyp==0 )
+	storfld_->setChecked( true );
+    else if ( steerfld_ && seltyp==1 )
 	steerfld_->setChecked( true );
-    else if ( seltyp == 2 )
-	attrfld_->setChecked(true);
-    else if ( nlafld_ )
-	nlafld_->setChecked(true);
+    else if ( seltyp==2 )
+	attrfld_->setChecked( true );
+    else if ( nlafld_ && seltyp==3 )
+	nlafld_->setChecked( true );
+    else if ( zdomainfld_ && seltyp==4 )
+	zdomainfld_->setChecked( true );
 
     preFinalize().notify( mCB( this,uiAttrSelDlg,doFinalize) );
 }
@@ -562,6 +575,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
 		: eDSHolder().getDescSet( is2D(), true );
 	attrdata_.attribid_ = descset->getStoredID( ioobj->key(), 0, true );
+	attrdata_.compnr_ = 0;
     }
     else
     {
