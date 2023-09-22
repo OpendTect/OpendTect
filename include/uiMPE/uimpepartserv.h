@@ -104,12 +104,14 @@ public:
     static int			evSetupClosed();
     static int			evInitFromSession();
     static int			evHorizonTracking();
+    static int			evSelectAttribForTracking();
 
     void			loadTrackSetupCB(CallBacker*);
     bool 			prepareSaveSetupAs(const MultiID&);
     bool 			saveSetupAs(const MultiID&);
     bool 			saveSetup(const MultiID&);
     bool 			readSetup(const MultiID&);
+    void			attribSelectedForTracking();
 
     bool			sendMPEEvent(int);
 

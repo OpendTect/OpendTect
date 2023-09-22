@@ -69,6 +69,7 @@ public:
     virtual int		getLineWidth() const			= 0;
     virtual void	setMarkerStyle(const MarkerStyle3D&)	{}
     virtual const MarkerStyle3D& getMarkerStyle()		= 0;
+    virtual void	updateAttribute()			{}
 
     virtual NotifierAccess*	modeChangeNotifier()		{ return 0; }
     virtual NotifierAccess*	propertyChangeNotifier()	{ return 0; }

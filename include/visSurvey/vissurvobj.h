@@ -246,9 +246,13 @@ public:
     virtual void		setSelSpecs(int attrib,
 					    const TypeSet<Attrib::SelSpec>&);
 
-    virtual const Attrib::SelSpec* getSelSpec(int attrib,int version=0) const;
+    virtual const Attrib::SelSpec* getSelSpec(int attrib,int version=-1) const;
+				   //!< version=-1 gives current version
+
     virtual const TypeSet<Attrib::SelSpec>* getSelSpecs( int attrib ) const
 					    { return 0; }
+    bool			hasSelSpec(const Attrib::SelSpec&,int& attrib,
+					   int& version) const;
 
 
     virtual bool		canHaveMultipleTextures() const { return false;}

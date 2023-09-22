@@ -61,7 +61,9 @@ public:
     void			allowShading(bool) override;
 
     const Attrib::SelSpec*	getSelSpec(int attrib,
-					   int version=0) const override;
+					   int version=-1) const override;
+				//!< version=-1 gives current version
+
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
 
     void			setSelSpec(int,const Attrib::SelSpec&) override;
@@ -97,6 +99,11 @@ public:
     void			selectTexture(int attrib,int texture) override;
     int				selectedTexture(int attrib) const override;
 
+    virtual bool		hasCache(int) const			= 0;
+    virtual bool		getCacheValue(int attrib,int version,
+					      const Coord3&,float&) const = 0;
+				//!<Coord is in attribute space
+
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
     bool			canBDispOn2DViewer() const override
@@ -116,16 +123,12 @@ protected:
     void			getValueString(const Coord3&,
 					       BufferString&) const;
 				//!<Coord is in ztransformed space
-    virtual bool		getCacheValue(int attrib,int version,
-					      const Coord3&,float&) const = 0;
-				//!<Coord is in attribute space
 
     void			updateMainSwitch();
     virtual void		addCache()				= 0;
     virtual void		removeCache(int)			= 0;
     virtual void		swapCache(int,int)			= 0;
     virtual void		emptyCache(int)				= 0;
-    virtual bool		hasCache(int) const			= 0;
     virtual bool		init();
 
     visBase::TextureChannels*	channels_;

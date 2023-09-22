@@ -52,6 +52,7 @@ int uiMPEPartServer::evUpdateTrees()		{ return 11; }
 int uiMPEPartServer::evUpdateSeedConMode()	{ return 12; }
 int uiMPEPartServer::evStoreEMObject()		{ return 13; }
 int uiMPEPartServer::evHorizonTracking()	{ return 14; }
+int uiMPEPartServer::evSelectAttribForTracking(){ return 15; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -797,6 +798,13 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     mergeAttribSets( newads, *tracker );
 
     return true;
+}
+
+
+void uiMPEPartServer::attribSelectedForTracking()
+{
+    if ( setupgrp_ )
+	setupgrp_->updateAttribute();
 }
 
 

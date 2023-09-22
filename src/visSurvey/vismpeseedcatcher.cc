@@ -10,6 +10,8 @@ ________________________________________________________________________
 #include "vismpeseedcatcher.h"
 
 #include "attribdataholder.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emsurfacetr.h"
@@ -21,6 +23,8 @@ ________________________________________________________________________
 #include "vishorizon2ddisplay.h"
 #include "vismpeeditor.h"
 #include "visrandomtrackdisplay.h"
+#include "visrgbatexturechannel2rgba.h"
+#include "vistexturechannels.h"
 #include "visseis2ddisplay.h"
 #include "visselman.h"
 #include "vissurvscene.h"
@@ -227,28 +231,15 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	mCheckRdlDisplay( trackertype_, dataobj, rtd, legalclick0 )
 	if ( rtd )
 	{
-	    DataPackID datapackid = DataPack::cNoID();
-	    int attrib = rtd->nrAttribs();
-	    while ( attrib )
-	    {
-		attrib--;
-		unsigned char transpar =
-		    rtd->getAttribTransparency( attrib );
-		datapackid = rtd->getDataPackID( attrib );
-		if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
-		     rtd->isAttribEnabled(attrib) && (transpar<198) )
-		    break;
-	    }
-
 	    info().setLegalClick( legalclick0 );
-	    info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+
+	    const int attrib =
+			handleAttribute( *rtd, eventinfo.worldpickedpos );
+	    if ( attrib >= 0 )
+		info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+
 	    info().setObjTKPath( rtd->getTrcKeyPath() );
 	    info().setObjRandomLineID( rtd->getRandomLineID() );
-	    info().setObjDataPackID( datapackid );
-
-	    const Attrib::SelSpec* as = rtd->getSelSpec( attrib );
-	    if ( as )
-		info().setObjDataSelSpec( *as );
 
 	    click.trigger();
 	    eventcatcher_->setHandled();
@@ -260,21 +251,10 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	{
 	    info().setLegalClick( legalclick1 );
 
-	    DataPackID datapackid = DataPack::cNoID();
-	    int attrib = pdd->nrAttribs();
-	    while ( attrib )
-	    {
-		attrib--;
-		datapackid = pdd->getDataPackID( attrib );
-		unsigned char transpar = pdd->getAttribTransparency( attrib );
-		if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
-		     pdd->isAttribEnabled(attrib) && (transpar<198) )
-		    break;
-	    }
-
-	    info().setObjCS( pdd->getDataPackSampling(attrib) );
-	    info().setObjDataPackID( datapackid );
-	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
+	    const int attrib =
+			handleAttribute( *pdd, eventinfo.worldpickedpos );
+	    if ( attrib >= 0 )
+		info().setObjCS( pdd->getDataPackSampling(attrib) );
 
 	    allowPickBasedReselection();
 	    click.trigger();
@@ -299,35 +279,99 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 void MPEClickCatcher::handleObjectOnSeis2DDisplay( Seis2DDisplay* seis2ddisp,
     const Coord3 worldpickedpos )
 {
-    DataPackID datapackid = DataPack::cNoID();
-    int attrib = seis2ddisp->nrAttribs();
-    while ( attrib )
-    {
-	attrib--;
-	unsigned char transpar =
-	    seis2ddisp->getAttribTransparency(attrib );
-	datapackid = seis2ddisp->getDataPackID( attrib );
-	if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
-	    seis2ddisp->isAttribEnabled(attrib) && (transpar<198) )
-	    break;
-    }
-
-    info().setObjDataPackID( datapackid );
-    //TODO remove memory leak
-    const Attrib::SelSpec* as = seis2ddisp->getSelSpec( attrib );
-    Attrib::SelSpec newas;
-    if ( as )
-	newas = *as;
-
-    info().setObjDataSelSpec(
-	newas.id().asInt()==Attrib::SelSpec::cAttribNotSel().asInt()
-	? *as : newas);
+    handleAttribute( *seis2ddisp, worldpickedpos );
     info().setGeomID( seis2ddisp->getGeomID() );
     info().setObjLineName( seis2ddisp->name() );
 
     const TrcKey tk( seis2ddisp->getGeomID(),
 	seis2ddisp->getNearestTraceNr(worldpickedpos) );
     info().setNode( tk );
+}
+
+
+#define mTranspCutOff 198
+
+int MPEClickCatcher::handleAttribute( const MultiTextureSurveyObject& survobj,
+				      const Coord3& pos )
+{
+    const visBase::TextureChannels* channels = survobj.getChannels();
+    mDynamicCastGet(const visBase::ColTabTextureChannel2RGBA*,ctab,
+		    survobj.SurveyObject::getChannels2RGBA())
+    if ( !channels || !ctab )
+	return -1;
+
+    int attrib = -1;
+    for ( int attridx=survobj.nrAttribs()-1; attridx>=0; attridx-- )
+    {
+	if ( !survobj.isAttribEnabled(attridx) ||
+		ctab->getTransparency(attridx)>mTranspCutOff )
+	    continue;
+
+	const int version = survobj.selectedTexture( attridx );
+	const Attrib::SelSpec* as = survobj.getSelSpec( attridx, version );
+	if ( !as )
+	    continue;
+
+	float val = mUdf(float);
+	if ( !survobj.getCacheValue(attridx,version,pos,val) )
+	    continue;
+
+	if ( !Math::IsNormalNumber(val) )
+	    val = mUdf(float);
+
+	bool islowest = true;
+	for ( int loweridx=attridx-1; loweridx>=0; loweridx-- )
+	{
+	    if ( !survobj.hasCache(loweridx) ||
+		    !survobj.isAttribEnabled(loweridx) ||
+		    ctab->getTransparency(loweridx)>mTranspCutOff )
+		continue;
+
+	    islowest = false;
+	    break;
+	}
+
+	if ( !islowest )
+	{
+	    const ColTab::Sequence* seq = survobj.getColTabSequence( attridx );
+	    const ColTab::Mapper& map =
+			channels->getColTabMapper( attridx, version );
+	    const OD::Color col = mIsUdf(val) ? seq->undefColor()
+					   : seq->color( map.position(val) );
+	    if ( col.t()>mTranspCutOff )
+		continue;
+	}
+
+	attrib = attridx;
+	info().setObjDataSelSpec( *as );
+	break;
+    }
+
+    if ( attrib < 0 )
+	return -1;
+
+    const DataPackID datapackid = survobj.getDataPackID( attrib );
+    info().setObjDataPackID( datapackid );
+    return attrib;
+}
+
+
+bool MPEClickCatcher::forceAttribute( const Attrib::SelSpec& as )
+{
+    const VisID clickedobjectid = info().getObjID();
+    mDynamicCastGet(const visSurvey::MultiTextureSurveyObject*,survobj,
+		    visBase::DM().getObject(clickedobjectid))
+    if ( !survobj )
+	return false;
+
+    int attrib, version;
+    if ( !survobj->hasSelSpec(as,attrib,version) )
+	return false;
+
+    info().setObjDataSelSpec( as );
+    const DataPackID datapackid = survobj->getDataPackID( attrib );
+    info().setObjDataPackID( datapackid );
+    return true;
 }
 
 

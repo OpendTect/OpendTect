@@ -33,6 +33,7 @@ namespace visSurvey
 
 class EMObjectDisplay;
 class MPEEditor;
+class MultiTextureSurveyObject;
 class Seis2DDisplay;
 
 
@@ -156,6 +157,8 @@ public:
     bool			moreToSow() const;
     void			stopSowing();
 
+    bool			forceAttribute(const Attrib::SelSpec&);
+
 protected:
 				~MPEClickCatcher();
     void			clickCB(CallBacker*);
@@ -168,6 +171,8 @@ protected:
 					const visBase::EventInfo&);
     void			handleObjectOnSeis2DDisplay(Seis2DDisplay*,
 							    const Coord3);
+    int				handleAttribute(const MultiTextureSurveyObject&,
+						const Coord3& worldpickedpos);
 
     void			allowPickBasedReselection();
     void			sowingEnd(CallBacker*);

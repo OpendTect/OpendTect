@@ -321,6 +321,54 @@ bool uiVisPartServer::clickablesInScene( const char* trackertype,
 }
 
 
+bool uiVisPartServer::getClickableAttributesInScene(
+					TypeSet<Attrib::SelSpec>& attribspecs,
+					BufferStringSet& attribnames,
+					const char* trackertype,
+					SceneID sceneid ) const
+{
+    TypeSet<VisID> sceneobjids;
+    getChildIds( sceneid, sceneobjids );
+    attribnames.setEmpty();
+    attribspecs.setEmpty();
+    for ( int idx=0; idx<sceneobjids.size(); idx++ )
+    {
+	const VisID objid = sceneobjids[idx];
+	if ( !visSurvey::MPEClickCatcher::isClickable(trackertype,objid) )
+	    continue;
+
+	mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(objid));
+	if ( !so )
+	    continue;
+
+	for ( int attridx=0; attridx<so->nrAttribs(); attridx++ )
+	{
+	    if ( !so->isAttribEnabled(attridx) )
+		continue;
+
+	    const TypeSet<Attrib::SelSpec>* specs = so->getSelSpecs( attridx );
+	    if ( !specs )
+		continue;
+
+	    for ( int specidx=0; specidx<specs->size(); specidx++ )
+	    {
+		const Attrib::SelSpec& spec = specs->get( specidx );
+		if ( attribnames.addIfNew(spec.userRef()) )
+		    attribspecs.add( spec );
+	    }
+	}
+    }
+
+    return !attribnames.isEmpty();
+}
+
+
+bool uiVisPartServer::selectAttribForTracking()
+{
+    return mpetools_ && mpetools_->selectAttribForTracking();
+}
+
+
 bool uiVisPartServer::disabMenus( bool yn )
 {
     const bool res = blockmenus_;

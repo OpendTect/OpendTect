@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
-#include "uilabel.h"
 #include "uimpepreviewgrp.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -77,6 +76,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     , is2d_(is2d)
     , seedpos_(TrcKeyValue::udf())
     , changed_(this)
+    , changeAttribPushed(this)
 {
     sNrZDecimals = SI().nrZDecimals();
 
@@ -161,10 +161,15 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     nrtrcsfld_->valueChanging.notify(
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
 
-    datalabel_ = new uiLabel( leftgrp, uiStrings::sEmptyString() );
-    datalabel_->setStretch( 2, 1 );
-    datalabel_->attach( leftAlignedBelow, nrzfld_ );
-    datalabel_->attach( ensureBelow, nrtrcsfld_ );
+    datafld_ = new uiGenInput( leftgrp, tr("Picked on") );
+    datafld_->setStretch( 2, 1 );
+    datafld_->setReadOnly( true );
+    datafld_->attach( alignedBelow, nrtrcsfld_ );
+
+    changebut_ = new uiPushButton( leftgrp, tr("Change"),
+				mCB(this,uiEventGroup,changeAttribCB), false );
+    changebut_->attach( rightOf, datafld_ );
+    changebut_->display( false );
 
     previewgrp_ = new uiPreviewGroup( this );
     previewgrp_->attach( rightTo, leftgrp );
@@ -200,7 +205,7 @@ void uiEventGroup::visibleDataChangeCB( CallBacker* )
 }
 
 
-void uiEventGroup::previewChgCB(CallBacker *)
+void uiEventGroup::previewChgCB( CallBacker* )
 {
     const Interval<float> intv = previewgrp_->getManipWindow();
     if ( mIsUdf(intv.start) )
@@ -274,6 +279,11 @@ void uiEventGroup::selAmpThresholdType( CallBacker* )
     changed_.trigger();
 }
 
+
+void uiEventGroup::changeAttribCB( CallBacker* )
+{
+    changeAttribPushed.trigger();
+}
 
 
 class uiStepDialog : public uiDialog
@@ -374,13 +384,20 @@ void uiEventGroup::init()
 void uiEventGroup::setSeedPos( const TrcKeyValue& tkv )
 {
     seedpos_ = tkv;
-    previewgrp_->setSeedPos( tkv );
+    updateAttribute();
+}
 
+
+void uiEventGroup::updateAttribute()
+{
     if ( adjuster_ && adjuster_->getAttributeSel(0) )
     {
 	const Attrib::SelSpec* as = adjuster_->getAttributeSel(0);
-	datalabel_->setText( tr("Picked on: %1").arg(as->userRef()) );
+	datafld_->setText( as->userRef() );
+	changebut_->display( true );
     }
+
+    previewgrp_->setSeedPos( seedpos_ );
 }
 
 

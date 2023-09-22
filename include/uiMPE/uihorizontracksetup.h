@@ -59,6 +59,7 @@ public:
     void			setLineWidth(int) override;
     void			setMarkerStyle(const MarkerStyle3D&) override;
     const MarkerStyle3D&	getMarkerStyle() override;
+    void			updateAttribute() override;
 
     NotifierAccess*		modeChangeNotifier() override
 				{ return &modeChanged_; }
@@ -141,6 +142,7 @@ protected:
     void			seedTypeSel(CallBacker*);
     void			seedColSel(CallBacker*);
     void			seedSliderMove(CallBacker*);
+    void			selectAttribCB(CallBacker*);
 
     uiColorInput*		colorfld_;
     uiSlider*			linewidthfld_;

@@ -956,6 +956,11 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	sceneMgr().updateTrees();
     else if ( evid==uiMPEPartServer::evStoreEMObject() )
 	storeEMObject();
+    else if ( evid==uiMPEPartServer::evSelectAttribForTracking() )
+    {
+	if ( visserv_->selectAttribForTracking() )
+	    mpeserv_->attribSelectedForTracking();
+    }
     else
     {
 	pErrMsg("Unknown event from mpeserv");

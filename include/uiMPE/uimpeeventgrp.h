@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiGenInput;
-class uiLabel;
 class uiPushButton;
 
 namespace MPE
@@ -38,9 +37,11 @@ public:
     void			setSectionTracker(SectionTracker*);
     void			setSeedPos(const TrcKeyValue&);
     void			updateSensitivity(bool doauto);
+    void			updateAttribute();
 
     NotifierAccess*		changeNotifier()
 				{ return &changed_; }
+    Notifier<uiEventGroup>	changeAttribPushed;
 
     bool			commitToTracker(bool& fieldchange) const;
 
@@ -54,6 +55,7 @@ protected:
     void			selAmpThresholdType(CallBacker*);
     void			addStepPushedCB(CallBacker*);
     void			visibleDataChangeCB(CallBacker*);
+    void			changeAttribCB(CallBacker*);
 
     uiGenInput*			evfld_;
     uiGenInput*			srchgatefld_;
@@ -63,7 +65,8 @@ protected:
     uiGenInput*			extriffailfld_;
     uiGenInput*			nrzfld_;
     uiGenInput*			nrtrcsfld_;
-    uiLabel*			datalabel_;
+    uiGenInput*			datafld_;
+    uiPushButton*		changebut_;
 
     uiPreviewGroup*		previewgrp_;
     void			previewChgCB(CallBacker*);
