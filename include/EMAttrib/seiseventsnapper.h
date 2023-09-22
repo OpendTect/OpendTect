@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "seismod.h"
+#include "emattribmod.h"
 #include "executor.h"
 #include "samplingdata.h"
 #include "valseriesevent.h"
@@ -18,7 +18,7 @@ class IOObj;
 class SeisMSCProvider;
 class SeisTrc;
 
-mExpClass(Seis) SeisEventSnapper : public Executor
+mExpClass(EMAttrib) SeisEventSnapper : public Executor
 { mODTextTranslationClass(SeisEventSnapper);
 public:
 				SeisEventSnapper(const Interval<float>& gate,
@@ -52,7 +52,7 @@ protected:
 };
 
 
-mExpClass(Seis) SeisEventSnapper3D : public SeisEventSnapper
+mExpClass(EMAttrib) SeisEventSnapper3D : public SeisEventSnapper
 {
 public:
 			SeisEventSnapper3D(const IOObj&,
