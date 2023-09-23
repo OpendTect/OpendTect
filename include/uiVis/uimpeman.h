@@ -41,6 +41,7 @@ public:
     void			deleteVisObjects();
     void			validateSeedConMode();
     void			initFromDisplay();
+    bool			selectAttribForTracking();
 
     void			turnSeedPickingOn(bool);
     bool			isSeedPickingOn() const;

@@ -38,9 +38,11 @@ public:
     void			setSectionTracker(SectionTracker*);
     void			setSeedPos(const TrcKeyValue&);
     void			updateSensitivity(bool doauto);
+    void			updateAttribute();
 
     NotifierAccess*		changeNotifier()
 				{ return &changed_; }
+    Notifier<uiEventGroup>*	changeAttribPushed();
 
     bool			commitToTracker(bool& fieldchange) const;
 
@@ -54,6 +56,7 @@ protected:
     void			selAmpThresholdType(CallBacker*);
     void			addStepPushedCB(CallBacker*);
     void			visibleDataChangeCB(CallBacker*);
+    void			changeAttribCB(CallBacker*);
 
     uiGenInput*			evfld_;
     uiGenInput*			srchgatefld_;

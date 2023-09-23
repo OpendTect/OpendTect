@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uimpeeventgrp.h"
 
 #include "draw.h"
+#include "hiddenparam.h"
 #include "horizonadjuster.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
@@ -23,14 +24,21 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uigeninput.h"
 #include "uigraphicsview.h"
-#include "uilabel.h"
 #include "uimpepreviewgrp.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitable.h"
 #include "od_helpids.h"
 
-// TODO: Move preview viewer to separate object
+class HP_uiEventGroup
+{
+public:
+    uiGenInput*		datafld_;
+    uiPushButton*	changebut_;
+    Notifier<MPE::uiEventGroup>*	changeAttribPushed_;
+};
+
+static HiddenParam<MPE::uiEventGroup,HP_uiEventGroup*> hp_members(nullptr);
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
@@ -68,6 +76,7 @@ static int sNrZDecimals = 0;
 
 uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     : uiDlgGroup(p,tr("Event"))
+    , datalabel_(nullptr)
     , addstepbut_(0)
     , sectiontracker_(0)
     , adjuster_(0)
@@ -160,10 +169,21 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     nrtrcsfld_->valueChanging.notify(
 		mCB(this,uiEventGroup,visibleDataChangeCB) );
 
-    datalabel_ = new uiLabel( leftgrp, uiStrings::sEmptyString() );
-    datalabel_->setStretch( 2, 1 );
-    datalabel_->attach( leftAlignedBelow, nrzfld_ );
-    datalabel_->attach( ensureBelow, nrtrcsfld_ );
+    auto* datagrp = new HP_uiEventGroup;
+    hp_members.setParam( this, datagrp );
+    datagrp->changeAttribPushed_ = new Notifier<uiEventGroup>( this );
+
+    auto* datafld = new uiGenInput( leftgrp, tr("Picked on") );
+    datafld->setStretch( 2, 1 );
+    datafld->setReadOnly( true );
+    datafld->attach( alignedBelow, nrtrcsfld_ );
+    datagrp->datafld_ = datafld;
+
+    auto* changebut = new uiPushButton( leftgrp, tr("Change"),
+				mCB(this,uiEventGroup,changeAttribCB), false );
+    changebut->attach( rightOf, datafld );
+    changebut->display( false );
+    datagrp->changebut_ = changebut;
 
     previewgrp_ = new uiPreviewGroup( this );
     previewgrp_->attach( rightTo, leftgrp );
@@ -174,6 +194,13 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 
 uiEventGroup::~uiEventGroup()
 {
+    hp_members.removeAndDeleteParam( this );
+}
+
+
+Notifier<uiEventGroup>* uiEventGroup::changeAttribPushed()
+{
+    return hp_members.getParam(this)->changeAttribPushed_;
 }
 
 
@@ -199,7 +226,7 @@ void uiEventGroup::visibleDataChangeCB( CallBacker* )
 }
 
 
-void uiEventGroup::previewChgCB(CallBacker *)
+void uiEventGroup::previewChgCB( CallBacker* )
 {
     const Interval<float> intv = previewgrp_->getManipWindowF();
     if ( mIsUdf(intv.start) )
@@ -273,6 +300,11 @@ void uiEventGroup::selAmpThresholdType( CallBacker* )
     changed_.trigger();
 }
 
+
+void uiEventGroup::changeAttribCB( CallBacker* )
+{
+    changeAttribPushed()->trigger();
+}
 
 
 class uiStepDialog : public uiDialog
@@ -372,13 +404,21 @@ void uiEventGroup::init()
 void uiEventGroup::setSeedPos( const TrcKeyValue& tkv )
 {
     seedpos_ = tkv;
-    previewgrp_->setSeedPos( tkv );
+    updateAttribute();
+}
 
+
+void uiEventGroup::updateAttribute()
+{
     if ( adjuster_ && adjuster_->getAttributeSel(0) )
     {
 	const Attrib::SelSpec* as = adjuster_->getAttributeSel(0);
-	datalabel_->setText( tr("Picked on: %1").arg(as->userRef()) );
+	auto* datagrp = hp_members.getParam( this );
+	datagrp->datafld_->setText( as->userRef() );
+	datagrp->changebut_->display( true );
     }
+
+    previewgrp_->setSeedPos( seedpos_ );
 }
 
 

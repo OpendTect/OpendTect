@@ -33,9 +33,10 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uistrings.h"
-#include "uitaskrunner.h"
-#include "uitoolbar.h"
+//#include "uistrings.h"
+//#include "uitaskrunner.h"
+//#include "uitoolbar.h"
+#include "uiselsimple.h"
 #include "uivispartserv.h"
 #include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
@@ -506,8 +507,10 @@ void uiMPEMan::seedClick( CallBacker* )
     const int trackerid =
 		MPE::engine().getTrackerByObject( tracker->objectID() );
 
-    const VisID clickedobject = clickcatcher_->info().getObjID();
-    if ( !clickedobject.isValid() )
+    const VisID clickedobjectid = clickcatcher_->info().getObjID();
+    mDynamicCastGet(const visSurvey::SurveyObject*,clickedobject,
+		    visserv_->getObject(clickedobjectid))
+    if ( !clickedobject )
 	mSeedClickReturn();
 
     const EM::ObjectID emobjid = clickcatcher_->info().getEMObjID();
@@ -517,7 +520,7 @@ void uiMPEMan::seedClick( CallBacker* )
     {
 	const VisID emvisid = clickcatcher_->info().getEMVisID();
 	visBase::DM().selMan().select(
-				emvisid.isValid() ? emvisid : clickedobject );
+				emvisid.isValid() ? emvisid : clickedobjectid );
 	mSeedClickReturn();
     }
 
@@ -570,26 +573,44 @@ void uiMPEMan::seedClick( CallBacker* )
 	? sectiontracker->adjuster()->getAttributeSel(0)
 	: 0;
 
-    if ( seedpicker->nrSeeds() > 0 )
+    if ( trackedatsel &&
+	 (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) &&
+	  seedpicker->getTrackMode()!=seedpicker->DrawAndSnap )
     {
-	if ( trackedatsel &&
-	     (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) &&
-	      seedpicker->getTrackMode()!=seedpicker->DrawAndSnap )
+	uiString msg;
+	const bool isdatasame = MPE::engine().pickingOnSameData(
+		    *trackedatsel, *clickedas, msg );
+	if ( !isdatasame )
 	{
-	    uiString msg;
-	    const bool isdatasame = MPE::engine().pickingOnSameData(
-			*trackedatsel, *clickedas, msg );
-	    if ( !isdatasame )
+	    int attrib, version;
+	    if ( clickedobject->hasSelSpec(*trackedatsel,attrib,version) &&
+		    clickedobject->isAttribEnabled(attrib) &&
+		    clickedobject->selectedTexture(attrib)==version )
+	    {
+		if ( !clickcatcher_->forceAttribute(*trackedatsel) )
+		    mSeedClickReturn();
+
+		clickedas = clickcatcher_->info().getObjDataSelSpec();
+		DataPackID datapackid =
+				clickcatcher_->info().getObjDataPackID();
+		if ( datapackid.isValid() &&
+			    datapackid!=DataPack::cNoID() )
+		    engine.setAttribData( *clickedas, datapackid );
+	    }
+	    else
 	    {
 		const bool res = uiMSG().askContinue( msg );
 		if ( res )
 		{
 		    DataPackID datapackid =
 				clickcatcher_->info().getObjDataPackID();
-		    if ( datapackid.isValid() && datapackid!=DataPack::cNoID() )
+		    if ( datapackid.isValid() &&
+			    datapackid!=DataPack::cNoID() )
 			engine.setAttribData( *clickedas, datapackid );
+
 		    seedpicker->setSelSpec( clickedas );
 		}
+
 		mSeedClickReturn();
 	    }
 	}
@@ -1299,4 +1320,48 @@ void uiMPEMan::setUndoLevel( const EM::ObjectID& id, int preveventnr )
     const int currentevent = emundo.currentEventID();
     if ( currentevent != preveventnr )
 	    emundo.setUserInteractionEnd(currentevent);
+}
+
+
+bool uiMPEMan::selectAttribForTracking()
+{
+    MPE::EMTracker* tracker = getSelectedTracker();
+    if ( !tracker )
+	return false;
+
+    const char* emobjtype = tracker->is2D() ? EM::Horizon2D::typeStr()
+					    : EM::Horizon3D::typeStr();
+    TypeSet<Attrib::SelSpec> attribspecs;
+    BufferStringSet attribnames;
+    if ( !visserv_->getClickableAttributesInScene(attribspecs,attribnames,
+						  emobjtype,clickablesceneid_) )
+	return false;
+
+    const MPE::SectionTracker* sectiontracker =
+			tracker->getSectionTracker( true );
+    const Attrib::SelSpec* curspec = sectiontracker ?
+		sectiontracker->adjuster()->getAttributeSel(0) : nullptr;
+    const int curidx = curspec ? attribnames.indexOf( curspec->userRef() ) : -1;
+
+    uiSelectFromList::Setup su( tr("Select Attribute for Horizon Tracking"),
+				attribnames );
+    if ( curidx >= 0 )
+	su.current( curidx );
+
+    uiSelectFromList uiseldlg( parent_, su );
+    if ( !uiseldlg.go() )
+	return false;
+
+    const int selidx = uiseldlg.selection();
+    if ( selidx < 0 || selidx == curidx )
+	return false;
+
+    const Attrib::SelSpec& selspec = attribspecs.get( selidx );
+
+    MPE::EMSeedPicker* seedpicker =
+		tracker ? tracker->getSeedPicker(true) : nullptr;
+    if ( seedpicker )
+	seedpicker->setSelSpec( &selspec );
+
+    return true;
 }

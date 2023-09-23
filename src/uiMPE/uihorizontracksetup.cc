@@ -102,6 +102,8 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     tabgrp_->addTab( modegrp, tr("Mode") );
 
     eventgrp_ = new uiEventGroup( tabgrp_->tabGroup(), is2d_ );
+    eventgrp_->changeAttribPushed()->notify(
+			mCB(this,uiHorizonSetupGroup,selectAttribCB) );
     tabgrp_->addTab( eventgrp_, tr("Event") );
 
     correlationgrp_ = new uiCorrelationGroup( tabgrp_->tabGroup(), is2d_ );
@@ -585,6 +587,15 @@ void uiHorizonSetupGroup::seedColSel( CallBacker* )
 }
 
 
+void uiHorizonSetupGroup::selectAttribCB( CallBacker* )
+{
+    if ( !mps_ )
+	return;
+
+    mps_->sendMPEEvent( uiMPEPartServer::evSelectAttribForTracking() );
+}
+
+
 void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 {
     sectiontracker_ = st;
@@ -684,6 +695,12 @@ void uiHorizonSetupGroup::setSeedPos( const TrcKeyValue& tkv )
     eventgrp_->setSeedPos( tkv );
     correlationgrp_->setSeedPos( tkv );
     updateButtonSensitivity();
+}
+
+
+void uiHorizonSetupGroup::updateAttribute()
+{
+    eventgrp_->updateAttribute();
 }
 
 

@@ -101,6 +101,10 @@ public:
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
     bool		clickablesInScene(const char* trackertype,
 					  SceneID sceneid) const;
+    bool		getClickableAttributesInScene(TypeSet<Attrib::SelSpec>&,
+						      BufferStringSet& attrnms,
+						      const char* trackertype,
+						      SceneID) const;
     const ObjectSet<visSurvey::Scene>& getAllScenes() const { return scenes_; }
     void		getSceneIds(TypeSet<SceneID>& sceneids) const;
 
@@ -146,6 +150,7 @@ public:
     void		setSelSpec(VisID,int attrib,const Attrib::SelSpec&);
     void		setSelSpecs(VisID,int attrib,
 				    const TypeSet<Attrib::SelSpec>&);
+    bool		selectAttribForTracking();
     void		setUserRefs(VisID,int attrib,BufferStringSet*);
     bool		interpolationEnabled(VisID) const;
 			/*!<Specifies that the data is integers that should

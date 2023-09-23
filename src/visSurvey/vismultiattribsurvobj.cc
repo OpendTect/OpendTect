@@ -265,8 +265,13 @@ const TypeSet<Attrib::SelSpec>*
 const Attrib::SelSpec* MultiTextureSurveyObject::getSelSpec(
 						int attrib, int version ) const
 {
-    return as_.validIdx(attrib) && as_[attrib]->validIdx(version)
-		? &(*as_[attrib])[version] : 0;
+    if ( !as_.validIdx(attrib) )
+	return nullptr;
+
+    if ( !as_[attrib]->validIdx(version) )
+	version = channels_->currentVersion( attrib );
+
+    return as_[attrib]->validIdx(version) ? &(*as_[attrib])[version] : nullptr;
 }
 
 
@@ -551,7 +556,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	for ( int idy=idx-1; idy>=0; idy-- )
 	{
 	    if ( !hasCache(idy) || !isAttribEnabled(idy) ||
-		 ctab->getTransparency(idx)==255 )
+		 ctab->getTransparency(idy)==255 )
 		continue;
 
 	    islowest = false;
@@ -584,5 +589,17 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
     }
 }
 
+
+bool MultiTextureSurveyObject::hasAttribCache( int attrib ) const
+{
+    return hasCache( attrib );
+}
+
+
+bool MultiTextureSurveyObject::getAttribCacheValue( int attrib, int version,
+					const Coord3& pos, float& val ) const
+{
+    return getCacheValue( attrib, version, pos, val );
+}
 
 } // namespace visSurvey
