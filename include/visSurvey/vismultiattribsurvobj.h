@@ -62,6 +62,8 @@ public:
 
     const Attrib::SelSpec*	getSelSpec(int attrib,
 					   int version=0) const override;
+				//!< version=-1 gives current version
+
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
 
     void			setSelSpec(int,const Attrib::SelSpec&) override;
@@ -96,6 +98,11 @@ public:
     int				nrTextures(int attrib) const override;
     void			selectTexture(int attrib,int texture) override;
     int				selectedTexture(int attrib) const override;
+
+    bool			hasAttribCache(int) const;
+    bool			getAttribCacheValue(int attrib,int version,
+					      const Coord3&,float&) const;
+				//!<Coord is in attribute space
 
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;

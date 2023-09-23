@@ -401,6 +401,28 @@ const Attrib::SelSpec* SurveyObject::getSelSpec( int attrib, int version ) const
 }
 
 
+bool SurveyObject::hasSelSpec( const Attrib::SelSpec& as,
+				int& attrib, int& version ) const
+{
+    for ( int attridx=0; attridx<nrAttribs(); attridx++ )
+    {
+	const TypeSet<Attrib::SelSpec>* attribas = getSelSpecs( attridx );
+	if ( !attribas )
+	    continue;
+
+	const int index = attribas->indexOf( as );
+	if ( index < 0 )
+	    continue;
+
+	attrib = attridx;
+	version = index;
+	return true;
+    }
+
+    return false;
+}
+
+
 void SurveyObject::setSelSpec( int attrib, const Attrib::SelSpec& newselspec )
 {
     setSelSpecs( attrib, TypeSet<Attrib::SelSpec>(1,newselspec) );
