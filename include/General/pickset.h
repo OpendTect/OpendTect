@@ -92,7 +92,7 @@ public:
     bool		isPolygon() const;
     void		getPolygon(ODPolygon<double>&,int idx=0) const;
     float		getXYArea(int idx=0) const;
-			//!<Only for closed polygons. Returns in m^2.
+			//!<Only for closed polygons. Returns in (XYUnit)^2.
     int			find(const TrcKey&) const;
     int			nearestLocation(const Coord&) const;
     int			nearestLocation(const Coord3&,bool ignorez=false) const;
