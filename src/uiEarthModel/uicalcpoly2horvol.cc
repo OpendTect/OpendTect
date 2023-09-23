@@ -164,7 +164,10 @@ void uiCalcHorVol::calcReq( CallBacker* )
     volumeinm3_ = ph2v.getM3( vel, upward, allownegativevalues );
     unitChgCB( volumeunitfld_ );
 
-    areainm2_ = ps->getXYArea();
+    areainm2_ = ps->getXYArea(); // This area is in XYUnits^2
+    if ( SI().xyInFeet() )
+	areainm2_ *= mFromFeetFactorF * mFromFeetFactorF;
+
     unitChgCB( areaunitfld_ );
 }
 
