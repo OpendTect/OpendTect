@@ -117,6 +117,9 @@ bool testNrSignificantDecimals()
 		     "nrDec(0.1234599999)");
     mRunStandardTest(Math::NrSignificantDecimals(0.01234599999)==6,
 		     "nrDec(0.01234599999)");
+
+    mRunStandardTest(Math::NrSignificantDecimals(0.123000012)==3,
+		     "nrDec(0.123000012)");
     return true;
 }
 
