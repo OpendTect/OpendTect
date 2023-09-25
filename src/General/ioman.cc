@@ -1775,7 +1775,7 @@ uiRetVal IOMan::setTempSurvey( const SurveyDiskLocation& sdl )
     SurveyInfo::setSurveyName( "" );
     uirv = setRootDir( FilePath(temprootdir.buf()), true );
     if ( uirv.isOK() )
-	prevrootdir_ = new SurveyDiskLocation( rootdir_ );
+	prevrootdir_ = new SurveyDiskLocation( origrootdirfp );
     else
 	rootdir_.set( origrootdirfp.fullPath() );
 
