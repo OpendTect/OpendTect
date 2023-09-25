@@ -25,19 +25,35 @@ const UnitOfMeasure* feetuom_ = nullptr;
 const UnitOfMeasure* metersecuom_ = nullptr;
 const UnitOfMeasure* ftsecuom_ = nullptr;
 
-static BufferStringSet survNames()
+static BufferStringSet& survNames()
 {
-    static BufferStringSet survnames;
-    if ( survnames.isEmpty() )
+    static BufferStringSet ret;
+    if ( ret.isEmpty() )
     {
-	survnames.add( "F3_Test_Survey" )
+	ret.add( "F3 Test Survey" )
+	 .add( "F3 Test Survey DisplayFT" ).add( "F3 Test Survey XYinft" )
+	 .add( "F3 Test Survey DepthM" ).add( "F3 Test Survey DepthM XYinft" )
+	 .add( "F3 Test Survey DepthFT").add("F3 Test Survey DepthFT (XYinft)");
+    }
+
+    return ret;
+}
+
+
+static BufferStringSet& survDirNames()
+{
+    static BufferStringSet ret;
+    if ( ret.isEmpty() )
+    {
+	ret.add( "F3_Test_Survey" )
 	 .add( "F3_Test_Survey_DisplayFT" ).add( "F3_Test_Survey_XYinft" )
 	 .add( "F3_Test_Survey_DepthM" ).add( "F3_Test_Survey_DepthM_XYinft" )
 	 .add( "F3_Test_Survey_DepthFT").add("F3_Test_Survey_DepthFT__XYinft_");
     }
 
-    return survnames;
+    return ret;
 }
+
 
 static BufferString expectValErrMsg( const char* expectval, const char* gtval )
 {
@@ -164,8 +180,11 @@ static bool testSurveyLocation( const SurveyDiskLocation& sdl )
 		    mMsg("Survey Disk Location"),
 		    expectValErrMsg(basedatadir_.buf(),sdl.basePath().buf()) );
     mRunStandardTestWithError( StringView(GetSurveyName()) == sdl.dirName(),
-		    mMsg("Survey name"),
-		    expectValErrMsg(GetSurveyName(),sdl.dirName().buf()) );
+		    mMsg("Survey directory name (global function)"),
+		    expectValErrMsg(sdl.dirName().buf(),GetSurveyName()) );
+    mRunStandardTestWithError( StringView(IOM().rootDir()) == sdl.fullPath(),
+		    mMsg("IOMan root dir"),
+		expectValErrMsg( sdl.fullPath(), IOM().rootDir() ) );
 
     return true;
 }
@@ -173,8 +192,15 @@ static bool testSurveyLocation( const SurveyDiskLocation& sdl )
 
 static bool testSurveyDefinitions( int isurv )
 {
-    mRunStandardTestWithError( SI().getDirName() == survNames()[isurv]->str(),
-			       mMsg("Name"), SI().getDirName() );
+    const char* survnm = survNames()[isurv]->str();
+    const char* survdirnm = survDirNames()[isurv]->str();
+    mRunStandardTestWithError( SI().name() == survnm,
+			       mMsg("Survey name (from SI)"),
+			       expectValErrMsg( survnm, SI().name() ) );
+    mRunStandardTestWithError( SI().getDirName() == survdirnm,
+			       mMsg("Survey directory name (from SI)"),
+			       expectValErrMsg(survdirnm, SI().getDirName()) );
+
     mRunStandardTestWithError( SI().zIsTime() == zIsTime()[isurv] &&
 	SI().zInMeter() == zInMeter()[isurv] &&
 	SI().zInFeet() == zInFeet()[isurv],
@@ -235,9 +261,11 @@ int mTestMainFnName( int argc, char** argv )
     FilePath basedatadirfp;
     clParser().getVal( "datadir", basedatadirfp );
     basedatadir_ = basedatadirfp.fullPath();
+    const BufferStringSet& survdirnms = survDirNames();
+    const char* firstsurvdir = survdirnms.first()->str();
 
     const uiRetVal uirv = IOMan::setDataSource_( basedatadir_.buf(),
-						 survNames().first()->str() );
+						 firstsurvdir );
     mRunStandardTestWithError( uirv.isOK(), "Initialize the first project",
 			       toString(uirv) );
 
@@ -251,9 +279,9 @@ int mTestMainFnName( int argc, char** argv )
 		      "Units of measure from repository" );
 
     SurveyDiskLocation sdl( FilePath(IOM().rootDir()) );
-    for ( int isurv=0; isurv<survNames().size(); isurv++ )
+    for ( int isurv=0; isurv<survdirnms.size(); isurv++ )
     {
-	sdl.setDirName( survNames().get(isurv) );
+	sdl.setDirName( survdirnms.get(isurv) );
 	SurveyChanger changer( sdl );
 	if ( !testSurveyLocation(sdl) ||
 	     !testSurveyDefinitions(isurv) ||
@@ -261,5 +289,7 @@ int mTestMainFnName( int argc, char** argv )
 	    return 1;
     }
 
-    return 0;
+    const SurveyDiskLocation firstsdl( firstsurvdir, basedatadir_ );
+
+    return testSurveyLocation( firstsdl ) && testSurveyDefinitions( 0 );
 }
