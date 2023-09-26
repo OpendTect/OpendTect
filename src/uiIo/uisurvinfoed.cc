@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
 #include "oddirs.h"
@@ -670,7 +671,8 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     const BufferString newdirnm( dirName() );
     const BufferString olddir(
 			FilePath(orgstorepath_).add(orgdirname_).fullPath() );
-    const BufferString newdir(FilePath(newstorepath).add(newdirnm).fullPath());
+    const FilePath newfp( newstorepath, newdirnm );
+    const BufferString newdir( newfp.fullPath() );
     const bool storepathchanged = orgstorepath_ != newstorepath;
     dirnamechanged = orgdirname_ != newdirnm;
 
@@ -736,6 +738,14 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
 	if ( ret )
 	    sip->launchSurveyImportDlg( this->parent() )->go();
+    }
+
+    if ( orgdirname_.isEqual(SurveyInfo::curSurveyName()) )
+    {
+	const SurveyDiskLocation sdl( newfp );
+	uiRetVal ret;
+	IOM().recordDataSource_( sdl, ret );
+	return ret.isOK();
     }
 
     return true;
