@@ -1073,16 +1073,40 @@ void uiTreeViewItem::setSelected( bool yn )
 
 
 bool uiTreeViewItem::isSelected() const
-{ return qItem()->isSelected(); }
+{
+    return qItem()->isSelected();
+}
+
 
 uiTreeViewItem* uiTreeViewItem::getChild( int idx ) const
-{ return idx<0 || idx>=nrChildren() ? 0 : mItemFor( qItem()->child( idx ) ); }
+{
+    return idx<0 || idx>=nrChildren() ? 0 : mItemFor( qItem()->child( idx ) );
+}
+
 
 uiTreeViewItem* uiTreeViewItem::firstChild() const
-{ return getChild(0); }
+{
+    return getChild(0);
+}
+
 
 uiTreeViewItem* uiTreeViewItem::lastChild() const
-{ return getChild( nrChildren()-1 ); }
+{
+    return getChild( nrChildren()-1 );
+}
+
+
+uiTreeViewItem* uiTreeViewItem::findChild( const char* txt ) const
+{
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	uiTreeViewItem* itm = getChild( idx );
+	if ( StringView(itm->text()) == txt )
+	    return itm;
+    }
+
+    return nullptr;
+}
 
 
 int uiTreeViewItem::siblingIndex() const
