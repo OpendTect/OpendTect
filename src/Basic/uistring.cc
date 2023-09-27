@@ -987,7 +987,7 @@ uiString toUiString( od_uint32 v )
 
 
 uiString toUiString( od_int64 v )
-{ return toUiStringImpl<od_int32,qlonglong>( v ); }
+{ return toUiStringImpl<od_int64,qlonglong>( v ); }
 
 
 uiString toUiString( od_uint64 v )
