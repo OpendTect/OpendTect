@@ -105,6 +105,7 @@ protected:
     void			setDisplayProperties();
 
     void			applyWDChanges(CallBacker*);
+    void			logsChanged(CallBacker*);
 };
 
 
