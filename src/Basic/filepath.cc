@@ -51,6 +51,10 @@ FilePath::FilePath( const FilePath& fp, const char* p2, const char* p3,
 }
 
 
+FilePath::~FilePath()
+{}
+
+
 FilePath& FilePath::operator =( const FilePath& oth )
 {
     lvls_ = oth.lvls_;
@@ -58,6 +62,7 @@ FilePath& FilePath::operator =( const FilePath& oth )
     postfix_ = oth.postfix_;
     domain_ = oth.domain_;
     isabs_ = oth.isabs_;
+    isuri_ = oth.isuri_;
     return *this;
 }
 
@@ -70,7 +75,8 @@ bool FilePath::operator ==( const FilePath& oth ) const
 {
     return lvls_ == oth.lvls_ &&
 	   prefix_ == oth.prefix_ && postfix_ == oth.postfix_ &&
-	   domain_ == oth.domain_ && isabs_ == oth.isabs_;
+	   domain_ == oth.domain_ && isabs_ == oth.isabs_ &&
+	   isuri_ == oth.isuri_;
 }
 
 
@@ -150,6 +156,7 @@ FilePath& FilePath::set( const char* inpfnm )
     postfix_.setEmpty();
     domain_.setEmpty();
     isabs_ = false;
+    isuri_ = false;
     if ( !inpfnm || !*inpfnm )
 	return *this;
 
@@ -161,6 +168,7 @@ FilePath& FilePath::set( const char* inpfnm )
 
     if ( File::isURI(fnm) )
     {
+	isuri_ = true;
 	BufferString fnmcopy( fnm );
 	char* sepptr = fnmcopy.find( uriProtocolSeparator() );
 	*sepptr = '\0';
@@ -171,6 +179,7 @@ FilePath& FilePath::set( const char* inpfnm )
 	    domain_.add( *domptr );
 	    domptr++;
 	}
+
 	fnm = nullptr;
 	if ( *domptr == '/' )
 	    fnm = fnmbs.buf() + (domptr - fnmcopy.buf());
@@ -315,7 +324,7 @@ bool FilePath::isAbsolute() const
 
 bool FilePath::isURI() const
 {
-    return !domain_.isEmpty();
+    return isuri_;
 }
 
 
@@ -408,16 +417,29 @@ BufferString FilePath::fullPath( Style f, bool cleanup ) const
 
 
 const char* FilePath::prefix() const
-{ return prefix_.buf(); }
+{
+    return prefix_.buf();
+}
 
 const char* FilePath::postfix() const
-{ return postfix_.buf(); }
+{
+    return postfix_.buf();
+}
 
 const char* FilePath::domain() const
-{ return domain_.buf(); }
+{
+    return domain_.buf();
+}
+
+void FilePath::setDomain( const char* dom )
+{
+    domain_ = dom;
+}
 
 int FilePath::nrLevels() const
-{ return lvls_.size(); }
+{
+    return lvls_.size();
+}
 
 
 const char* FilePath::extension() const
@@ -597,7 +619,8 @@ const char* FilePath::dirSep( Style stl )
 
 void FilePath::addPart( const char* fnm )
 {
-    if ( !fnm || !*fnm ) return;
+    if ( !fnm || !*fnm )
+	return;
 
     mSkipBlanks( fnm );
     const int maxlen = strlen( fnm );
@@ -630,8 +653,16 @@ void FilePath::addPart( const char* fnm )
 	fnm++;
 	prev = cur;
     }
+
     *bufptr = '\0';
-    if ( buf[0] ) lvls_.add( buf );
+    if ( buf[0] )
+    {
+	if ( isuri_ && lvls_.isEmpty() && domain_.isEmpty() )
+	    domain_ = buf;
+	else
+	    lvls_.add( buf );
+    }
+
     delete [] buf;
     if ( lvls_.isEmpty() )
 	return;

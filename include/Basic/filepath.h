@@ -39,6 +39,7 @@ public:
 			FilePath(const FilePath&,const char* p2,
 				 const char* p3=0,const char* p4=0,
 				 const char* p5=0);
+			~FilePath();
 
     FilePath&		operator =(const FilePath&);
     FilePath&		operator =(const char* fullinp);
@@ -70,6 +71,7 @@ public:
     const char*		prefix() const;
     const char*		postfix() const;
     const char*		domain() const;
+    void		setDomain(const char*);
     int			nrLevels() const;
     const char*		extension() const;	//!< may return null
 
@@ -107,7 +109,8 @@ public:
 
 protected:
 
-    bool		isabs_;
+    bool		isabs_				= true;
+    bool		isuri_				= false;
     BufferString	prefix_;
     BufferString	domain_;
     BufferString	postfix_;	//!< after '?'
