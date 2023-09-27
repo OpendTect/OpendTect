@@ -370,7 +370,7 @@ public:
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()		{ return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
-    static uiString sFileName()		{ return tr("File name"); }
+    static uiString sFileName(int n=1)	{ return tr("File name",0,n); }
     static uiString sFilter(int n=1)  { return tr("Filter",0,n); }
     static uiString sFiltering()	{ return tr("Filtering"); }
     static uiString sFilters()		{ return sFilter(mPlural); }
