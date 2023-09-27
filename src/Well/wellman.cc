@@ -206,6 +206,12 @@ void Well::Man::cleanup()
 }
 
 
+void Well::Man::cleanupNullPtrs()
+{
+    wells_.cleanupNullPtrs();
+}
+
+
 void Well::Man::checkForUndeletedRef()
 {
 #ifdef __debug__
