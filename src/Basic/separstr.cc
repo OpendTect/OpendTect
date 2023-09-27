@@ -182,6 +182,24 @@ StringView SeparString::operator[]( int elemnr ) const
 }
 
 
+StringView SeparString::first() const
+{
+    if ( isEmpty() )
+	return buf();
+
+    return (*this)[0];
+}
+
+
+StringView SeparString::last() const
+{
+    if ( isEmpty() )
+	return buf();
+
+    return (*this)[size()-1];
+}
+
+
 StringView SeparString::from( int idx ) const
 {
     const char* ptr = rep_.result();
