@@ -36,6 +36,19 @@ bool LatLong::operator!=( const LatLong& oth ) const
 }
 
 
+void LatLong::setFromCoord( const Coord& coord )
+{
+    lat_ = coord.x;
+    lng_ = coord.y;
+}
+
+
+LatLong LatLong::fromCoord( const Coord& coord )
+{
+    return LatLong( coord.x, coord.y );
+}
+
+
 Coord LatLong::transform( const LatLong& ll, bool towgs84,
 			  const Coords::CoordSystem* coordsys )
 {
