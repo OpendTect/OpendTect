@@ -30,13 +30,15 @@ public:
     bool		operator ==(const LatLong&) const;
     bool		operator !=(const LatLong&) const;
 
-    explicit		LatLong( const Coord& c ) { *this = transform(c); }
-			//Using SI()
-
     bool		isNull() const { return lat_==0 && lng_==0; }
     bool		isDefined() const {return !mIsUdf(lat_)&&!mIsUdf(lng_);}
     bool		isUdf() const { return mIsUdf(lat_) || mIsUdf(lng_); }
     static LatLong	udf() { return LatLong(mUdf(double),mUdf(double)); }
+
+    void		setFromCoord(const Coord&);
+    static LatLong	fromCoord(const Coord&);
+			/*!<Coord should have x=Latitude, y=Longitude
+			 * as stipulated by the ISO 6709 standard. */
 
     static Coord	transform(const LatLong&,bool towgs84=false,
 				  const Coords::CoordSystem* si=0);
@@ -55,6 +57,9 @@ public:
     double		lat_;
     double		lng_;
 
+    mDeprecated		("Obsolete: use LatLong::transform instead")
+    explicit		LatLong( const Coord& c ) { *this = transform(c); }
+			//Using SI()
 protected:
     bool		parseDMSString(const BufferString&,bool lat);
 };
