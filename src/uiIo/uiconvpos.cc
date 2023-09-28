@@ -342,7 +342,7 @@ void uiManualConvGroup::convFromLL()
 	const Coord outllascrd =
 	    outllsysselfld_->getCoordSystem()->convertFrom( incrd,
 						*survinfo_.getCoordSystem() );
-	lloutfld_->set( LatLong(outllascrd.y,outllascrd.x) );
+	lloutfld_->set( LatLong::fromCoord(outllascrd) );
     }
 }
 
@@ -366,7 +366,7 @@ void uiManualConvGroup::convFromIC()
 	const Coord outllascrd =
 	    outllsysselfld_->getCoordSystem()->convertFrom( crd,
 						*survinfo_.getCoordSystem() );
-	lloutfld_->set( LatLong(outllascrd.y,outllascrd.x) );
+	lloutfld_->set( LatLong::fromCoord(outllascrd) );
     }
 }
 
@@ -396,7 +396,7 @@ void uiManualConvGroup::convFromXY()
 	const Coord outllascrd =
 	    outllsysselfld_->getCoordSystem()->convertFrom( survcrd,
 						*survinfo_.getCoordSystem() );
-	lloutfld_->set( LatLong(outllascrd.y,outllascrd.x) );
+	lloutfld_->set( LatLong::fromCoord(outllascrd) );
     }
 }
 

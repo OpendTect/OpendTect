@@ -478,7 +478,7 @@ LatLong Coords::ProjProjection::transformTo( const Projection& target,
 	return LatLong::udf();
 
     const Coord llpos = convertCoordFromPJToPJ( pos, proj_, targetpj );
-    return LatLong( llpos.x, llpos.y );
+    return LatLong::fromCoord( llpos );
 }
 
 
