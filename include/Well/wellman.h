@@ -83,6 +83,7 @@ mExpClass(Well) Man : public CallBacker
 public:
 			~Man();
 
+    void		cleanupNullPtrs();
     void		removeObject(const Data*);
     void		removeObject(const MultiID&);
     RefMan<Data>	get(const MultiID&);

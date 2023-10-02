@@ -44,7 +44,7 @@ void uiWellLogDisplay::LogData::setLog( const Well::Log* l )
 {
     if ( dahobj_ != l )
     {
-	dahobj_ = l;
+	setData( l );
 	logSet.trigger();
     }
 }

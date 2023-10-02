@@ -330,6 +330,7 @@ public:
     size_type		size() const;
     bool		validIdx(idx_type) const;
     void		erase();
+    void		cleanupNullPtrs();
     void		removeRange(idx_type from,idx_type to);
     void		removeSingle(idx_type,bool keep_order=true);
     RefMan<T>		operator[](idx_type);
@@ -645,6 +646,26 @@ bool WeakPtrSet<T>::operator+=( RefMan<T>& toadd )
 {
     T* ptr = toadd.ptr();
     return WeakPtrSet<T>::operator+=( WeakPtr<T>(ptr) );
+}
+
+
+template <class T> inline
+void WeakPtrSet<T>::cleanupNullPtrs()
+{
+    lock_.lock();
+
+    const bool docleanup = blockcleanup_.setIfValueIs( 0, -1, nullptr );
+    for ( int idx=ptrs_.size()-1; idx>=0; idx-- )
+    {
+	const WeakPtr<T>& ptr = *ptrs_[idx];
+	if ( docleanup && !ptr )
+	    ptrs_.removeSingle( idx );
+    }
+
+    if ( docleanup )
+	blockcleanup_ = 0;
+
+    lock_.unLock();
 }
 
 

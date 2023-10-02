@@ -32,6 +32,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
     , control_(0)
     , stratdisp_(0)
 {
+    wd_.ref();
     const Well::DisplayProperties& disp = wd_.displayProperties( !use3ddisp_ );
 
     for ( int idx=0; idx<disp.getNrLogPanels(); idx++ )
@@ -79,6 +80,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
     setDahData();
     setDisplayProperties();
 
+    mAttachCB( wd_.logschanged, uiWellDisplay::logsChanged );
     mAttachCB( wd_.d2tchanged, uiWellDisplay::applyWDChanges );
     mAttachCB( wd_.markerschanged, uiWellDisplay::applyWDChanges );
     if ( use3ddisp_ )
@@ -91,6 +93,7 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w,
 uiWellDisplay::~uiWellDisplay()
 {
     detachAllNotifiers();
+    wd_.unRef();
     delete control_;
     deepErase( logdisps_ );
 }
@@ -150,6 +153,18 @@ void uiWellDisplay::setDisplayProperties()
 	logdisps_[idx]->markerDisp() = dpp.getMarkers();
 	logdisps_[idx]->dataChanged();
     }
+}
+
+
+void uiWellDisplay::logsChanged( CallBacker* )
+{
+    for ( int idx=0; idx<logdisps_.size(); idx++ )
+    {
+	logdisps_[idx]->dahObjData(true).setData( nullptr );
+	logdisps_[idx]->dahObjData(false).setData( nullptr );
+    }
+
+    applyWDChanges( nullptr );
 }
 
 

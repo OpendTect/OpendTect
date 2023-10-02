@@ -273,6 +273,12 @@ void Well::Man::wellDirChangedCB( CallBacker* cb )
 }
 
 
+void Well::Man::cleanupNullPtrs()
+{
+    wells_.cleanupNullPtrs();
+}
+
+
 void Well::Man::checkForUndeletedRef( CallBacker* )
 {
 #ifdef __debug__
