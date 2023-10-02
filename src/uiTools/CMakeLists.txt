@@ -38,6 +38,7 @@ set( OD_MODULE_SOURCES
 	uidirectionalplot.cc
 	uidlggroup.cc
 	uifileinput.cc
+	uifilesel.cc
 	uifillpattern.cc
 	uifontsel.cc
 	uifontselgrp.cc

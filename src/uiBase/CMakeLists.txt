@@ -30,6 +30,7 @@ set( OD_MODULE_SOURCES
 	uidockwin.cc
 	uieventfilter.cc
 	uifiledlg.cc
+	uifileselector.cc
 	uifont.cc
 	uigeom.cc
 	uigraphicscoltab.cc

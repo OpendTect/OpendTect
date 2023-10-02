@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uihelpview.h"
 #include "uirgbarray.h"
 
+void Init_uiLocalFileSelToolProvider_Class();
+
 mDefModInitFn(uiBase)
 {
     mIfNotFirstTime( return );
@@ -29,6 +31,8 @@ mDefModInitFn(uiBase)
     WebsiteHelp::initClass();
     ReleaseNotesProvider::initClass();
     uiRGBImageLoader::initClass();
+
+    Init_uiLocalFileSelToolProvider_Class();
 
     System::CrashDumper::getInstance().setSendAppl( "od_uiReportIssue" );
 }
