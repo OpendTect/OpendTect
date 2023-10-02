@@ -48,7 +48,7 @@ mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp())
 
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d, mODHelpKey(mHorizonAttribHelpID) )
-    , nrouttypes_( 2 )
+    , nrouttypes_( 1 )
 {
     inpfld_ = createInpFld( is2d );
 
@@ -59,7 +59,7 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     horfld_->attach( alignedBelow, inpfld_ );
 
     uiStringSet strs;
-    getOutputNames( strs, true );
+    getOutputNames( strs, false );
     typefld_ = new uiGenInput( this, uiStrings::sOutput(),
 			       StringListInpSpec(strs) );
     typefld_->valueChanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
