@@ -79,6 +79,13 @@ public:
 
     mDefineFactoryInClass( FileSystemAccess, factory );
 
+    virtual bool	getURIFromURL(const char* url,BufferString& uri,
+				      BufferString& region) const
+			{ return false; }
+    virtual bool	getURLFromURI(const char* uri,const char* region,
+				      BufferString& url) const
+			{ return false; }
+
     static BufferString getProtocol(const char* fnm);
     static BufferString withoutProtocol(const char*);
     static BufferString	iconForProtocol(const char*);
