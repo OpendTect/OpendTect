@@ -475,7 +475,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 			    logtrcs[ilog]->get( itrckpt, 0 ) : mUdf(float);
 	}
 
-	TrcKeySampling hrg(false);
+	TrcKeySampling hrg( Survey::default3DGeomID() );
 	hrg.start_ = trackpos - bidvar;
 	hrg.stop_ = trackpos + bidvar;
 	hrg.snapToSurvey();

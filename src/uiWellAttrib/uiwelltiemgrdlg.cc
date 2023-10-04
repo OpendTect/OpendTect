@@ -251,6 +251,9 @@ void WellTie::uiTieWinMGRDlg::typeSelChg( CallBacker* )
 
     if ( seislinefld_ )
 	seislinefld_->display( is2d );
+
+    if ( is2d )
+       seisSelChg( nullptr );
 }
 
 
