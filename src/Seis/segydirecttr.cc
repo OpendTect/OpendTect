@@ -8,18 +8,20 @@ ________________________________________________________________________
 -*/
 
 #include "segydirecttr.h"
-#include "segydirectdef.h"
-#include "posinfo.h"
+
+#include "dirlist.h"
 #include "filepath.h"
-#include "segytr.h"
-#include "seistrc.h"
-#include "seisbuf.h"
 #include "iostrm.h"
 #include "oddirs.h"
+#include "posinfo.h"
+#include "posinfo2d.h"
 #include "ptrman.h"
-#include "dirlist.h"
-#include "seisselection.h"
+#include "segydirectdef.h"
+#include "segytr.h"
+#include "seisbuf.h"
 #include "seispacketinfo.h"
+#include "seisselection.h"
+#include "seistrc.h"
 #include "survgeom.h"
 #include "uistrings.h"
 
@@ -725,6 +727,15 @@ void SEGYDirectSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
     SEGYSeisTrcTranslator* tmptr = SEGYSeisTrcTranslator::getInstance();
     tmptr->toSupported( dc );
     delete tmptr;
+}
+
+
+int SEGYDirectSeisTrcTranslator::estimatedNrTraces() const
+{
+    if ( !def_ )
+	return SeisTrcTranslator::estimatedNrTraces();
+
+    return is2D() ? def_->lineData().size() : def_->cubeData().totalSize();
 }
 
 

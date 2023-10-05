@@ -158,6 +158,7 @@ public:
 
     const char*		defExtension() const override	{ return "sgydef"; }
 
+    int			estimatedNrTraces() const override;
     bool		readInfo(SeisTrcInfo&) override;
     bool		read(SeisTrc&) override;
     bool		skip(int) override;
