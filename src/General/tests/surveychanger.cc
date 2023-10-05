@@ -291,5 +291,5 @@ int mTestMainFnName( int argc, char** argv )
 
     const SurveyDiskLocation firstsdl( firstsurvdir, basedatadir_ );
 
-    return testSurveyLocation( firstsdl ) && testSurveyDefinitions( 0 );
+    return testSurveyLocation( firstsdl ) && testSurveyDefinitions( 0 ) ? 0 : 1;
 }
