@@ -85,12 +85,14 @@ namespace sKey
     inline StringView Histogram()	{ return "Histogram"; }
     inline StringView Horizon()		{ return "Horizon"; }
     inline StringView Horizon2D()	{ return "Horizon2D"; }
+    inline StringView Hostname()	{ return "Hostname"; }
     inline StringView ID()		{ return "ID"; }
     inline StringView IDs()		{ return "IDs"; }
     inline StringView IOSelection()	{ return "I/O Selection"; }
     inline StringView InlRange()	{ return "In-line range"; }
     inline StringView Inline()		{ return "In-line"; }
     inline StringView Input()		{ return "Input"; }
+    inline StringView IPAddress()	{ return "IP Address"; }
     inline StringView Is2D()		{ return "Is2D"; }
     inline StringView IsLink()		{ return "Is Link"; }
     inline StringView Keys()		{ return "Keys"; }

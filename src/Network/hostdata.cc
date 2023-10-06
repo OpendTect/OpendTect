@@ -77,8 +77,6 @@ static bool getLocalNetMask( const char* localaddr,
 #define mDebugOn        (DBG::isOn(DBG_FILEPATH))
 
 static const char* sKeyDispName()	{ return "Display Name"; }
-static const char* sKeyHostName()	{ return "Hostname"; }
-static const char* sKeyIPAddress()	{ return "IP Address"; }
 
 HostData::HostData( const char* nm )
     : staticip_(false)
@@ -405,13 +403,13 @@ void HostData::fillPar( IOPar& par ) const
 {
     if ( staticip_ )
     {
-	par.set( sKeyIPAddress(), ipaddress_ );
-	par.removeWithKey( sKeyHostName() );
+	par.set( sKey::IPAddress(), ipaddress_ );
+	par.removeWithKey( sKey::Hostname() );
     }
     else
     {
-	par.set( sKeyHostName(), hostname_ );
-	par.removeWithKey( sKeyIPAddress() );
+	par.set( sKey::Hostname(), hostname_ );
+	par.removeWithKey( sKey::IPAddress() );
     }
     par.set( sKeyDispName(), nrAliases() ? alias(0) : "" );
     par.set( OD::Platform::sPlatform(), platform_.shortName() );
@@ -423,8 +421,8 @@ void HostData::fillPar( IOPar& par ) const
 
 void HostData::usePar( const IOPar& par )
 {
-    if ( par.get(sKeyHostName(), hostname_) &&
-					par.get(sKeyIPAddress(), ipaddress_) )
+    if ( par.get(sKey::Hostname(), hostname_) &&
+					par.get(sKey::IPAddress(), ipaddress_) )
     {
 	staticip_ = false;
 	if ( ipaddress_==getIPAddress() )
@@ -435,12 +433,12 @@ void HostData::usePar( const IOPar& par )
 	else
 	    ipaddress_.setEmpty();
     }
-    else if( par.get(sKeyIPAddress(), ipaddress_) )
+    else if( par.get(sKey::IPAddress(), ipaddress_) )
     {
 	staticip_ = true;
 	hostname_.setEmpty();
     }
-    else if( par.get(sKeyHostName(), hostname_) )
+    else if( par.get(sKey::Hostname(), hostname_) )
     {
 	staticip_ = false;
 	ipaddress_.setEmpty();
