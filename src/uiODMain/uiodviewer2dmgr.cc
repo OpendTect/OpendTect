@@ -177,14 +177,31 @@ void uiODViewer2DMgr::setupHorizon3Ds( uiODViewer2D* vwr2d )
 
 void uiODViewer2DMgr::setupHorizon2Ds( uiODViewer2D* vwr2d )
 {
-    if ( SI().has2D() )
+    if ( !SI().has2D() )
+	return;
+
+    TypeSet<EM::ObjectID> emids;
+    getLoadedHorizon2Ds( emids );
+    appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon2D::typeStr(),
+				     vwr2d->getSyncSceneID() );
+
+
+    const Pos::GeomID geomid = vwr2d->geomID();
+    TypeSet<EM::ObjectID> emids2load;
+    for ( const auto& emid : emids )
     {
-	TypeSet<EM::ObjectID> emids;
-	getLoadedHorizon2Ds( emids );
-	appl_.sceneMgr().getLoadedEMIDs( emids, EM::Horizon2D::typeStr(),
-					 vwr2d->getSyncSceneID() );
-	vwr2d->addHorizon2Ds( emids );
+	const EM::EMObject* emobj = EM::EMM().getObject( emid );
+	mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj)
+	if ( !hor2d )
+	    continue;
+
+	if ( !hor2d->geometry().hasLine(geomid) )
+	    continue;
+
+	emids2load += emid;
     }
+
+    vwr2d->addHorizon2Ds( emids2load );
 }
 
 
