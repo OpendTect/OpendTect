@@ -30,6 +30,9 @@ public:
     HostData		hostData() const;
     void		setHostData(const HostData&);
 
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
 protected:
 
     uiGenInput*		modefld_;

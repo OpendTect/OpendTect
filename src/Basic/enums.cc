@@ -83,16 +83,26 @@ void EnumDef::setIconFileForIndex( int i, const char* iconname )
 }
 
 
-void EnumDef::setUiStringForIndex(int idx,const uiString& str)
-{ uistrings_[idx]=str; }
+void EnumDef::setUiStringForIndex( int idx, const uiString& str )
+{
+    uistrings_[idx] = str;
+}
 
-int EnumDef::getEnumValForIndex(int idx) const
-{ return enums_[idx]; }
+int EnumDef::getEnumValForIndex( int idx ) const
+{
+    return enums_[idx];
+}
 
 
 int EnumDef::size() const
-{ return keys_.size(); }
+{
+    return keys_.size();
+}
 
+bool EnumDef::validIdx( int idx ) const
+{
+    return keys_.validIdx(idx);
+}
 
 void EnumDef::remove( const char* key )
 {

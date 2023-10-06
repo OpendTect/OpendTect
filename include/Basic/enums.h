@@ -57,6 +57,7 @@ public:
     void			setIconFileForIndex(int idx,const char*);
 
     int				size() const;
+    bool			validIdx(int idx) const;
 
     //Expert use only!
     void			remove(const char* key);
