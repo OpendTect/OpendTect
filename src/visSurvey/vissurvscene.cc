@@ -1141,6 +1141,7 @@ void Scene::fillPar( IOPar& par ) const
     int nrchildren = 0;
     for ( int idx=0;  idx<size(); idx++ )
     {
+	const BufferString childkey( childfix(), nrchildren );
 	mDynamicCastGet(const visSurvey::SurveyObject*,survobj,getObject(idx))
 	if ( !survobj || survobj->getSaveInSessionsFlag() == false )
 	    continue;
@@ -1152,7 +1153,6 @@ void Scene::fillPar( IOPar& par ) const
 	const VisID objid = dobj ? dobj->id() : VisID::udf();
 	childpar.set( sKeyChildID(), objid );
 	survobj->fillPar( childpar );
-	const BufferString childkey( childfix(), nrchildren );
 	par.mergeComp(childpar, childkey.buf() );
     }
 
