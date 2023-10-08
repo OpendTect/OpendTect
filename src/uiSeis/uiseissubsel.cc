@@ -428,6 +428,11 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 	    StepInterval<int> inlrg( 0, 0, 1 );
 	    cs.hsamp_.set( inlrg, trcrg );
 	    cs.zsamp_ = zrg;
+
+	    const bool hasworkzrg = SI().zRange(true) != SI().zRange(false);
+	    if ( hasworkzrg )
+		cs.zsamp_.limitTo( SI().zRange(true) );
+
 	    selfld_->setInput( cs );
 	    selfld_->setInputLimit( cs );
 	}

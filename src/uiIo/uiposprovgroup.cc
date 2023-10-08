@@ -169,6 +169,7 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 
     if ( setup_.is2d_ )
     {
+	iop.set( IOPar::compKey(sKey::GeomID(),0), cs.hsamp_.getGeomID() );
 	iop.set( IOPar::compKey(sKey::TrcRange(),0), cs.hsamp_.crlRange() );
 	if ( setup_.withz_ )
 	    iop.set( IOPar::compKey(sKey::ZRange(),0), cs.zsamp_ );
