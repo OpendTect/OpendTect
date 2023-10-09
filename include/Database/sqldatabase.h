@@ -46,7 +46,6 @@ public:
     BufferString	pwd_;
     BufferString	dbname_;
 
-    static const char*	sKeyHostName()		{ return "Hostname"; }
     static const char*	sKeyUserName()		{ return "Username"; }
     static const char*	sKeyPassword()		{ return "Password"; }
     static const char*	sKeyPort()		{ return "Port"; }
