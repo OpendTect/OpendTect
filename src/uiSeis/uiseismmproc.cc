@@ -156,7 +156,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	uiObject* inlperjobattach = nullptr;
 	if ( doresume )
 	{
-	    uiString msg = uiStrings::sTmpStor();
+	    uiString msg = toUiString("%1:").arg( uiStrings::sTmpStor() );
 	    auto* tmpstorloc = new uiLabel( specparsgroup_, msg );
 
 	    inlperjobattach = new uiLabel( specparsgroup_,
@@ -180,9 +180,12 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 			IntInpSpec(nrinlperjob_,1,1000) );
 	inlperjobfld_->setSensitive( !doresume );
 	inlperjobfld_->attach( alignedBelow, inlperjobattach );
-	saveasdeffld_ = new uiCheckBox( specparsgroup_,
-					uiStrings::sSaveAsDefault() );
-	saveasdeffld_->attach( rightTo, inlperjobfld_ );
+	if ( !doresume )
+	{
+	    saveasdeffld_ = new uiCheckBox( specparsgroup_,
+					    uiStrings::sSaveAsDefault() );
+	    saveasdeffld_->attach( rightTo, inlperjobfld_ );
+	}
     }
 }
 
@@ -228,8 +231,13 @@ bool uiSeisMMProc::initWork( bool retry )
 	    nrinlperjob_ = inlperjobfld_->getIntValue();
 	    inlperjobfld_->setSensitive( false );
 
-	    if ( saveasdeffld_ && saveasdeffld_->isChecked() )
-		InlineSplitJobDescProv::setDefaultNrInlPerJob( nrinlperjob_ );
+	    if ( saveasdeffld_ )
+	    {
+		if ( saveasdeffld_->isChecked() )
+		    InlineSplitJobDescProv::setDefaultNrInlPerJob(nrinlperjob_);
+
+		saveasdeffld_->setSensitive( false );
+	    }
 	}
     }
 
