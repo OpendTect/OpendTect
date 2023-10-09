@@ -63,7 +63,7 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
     posdatasel.usePar( seldatapar );
 
     if ( posdatasel.postype_ == Viewer2DPosDataSel::RdmLine &&
-	 posdatasel.rdmlineid_.isValid() )
+	 !posdatasel.rdmlineid_.isValid() )
     {
 	uiMSG().error( tr("Selected RandomLine is not valid.") );
 	return false;
