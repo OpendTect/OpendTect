@@ -427,7 +427,8 @@ public:
     void			removeAuxDatas(ObjectSet<AuxData>&);
     void			removeAllAuxData();
     virtual void		setAnnotChoice(int selannot)		{}
-    virtual int			getAnnotChoice(BufferStringSet&) const
+    virtual void		setAnnotChoice(const char* selannot)	{}
+    virtual int			getAnnotChoices(BufferStringSet&) const
 				{ return -1; }
     void			enableStatusBarUpdate()
 				{ needstatusbarupd_ = true; }

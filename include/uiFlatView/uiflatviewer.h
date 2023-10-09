@@ -36,8 +36,9 @@ public:
 
     void		setInitialSize(const uiSize&);
 
-    int			getAnnotChoices(BufferStringSet&) const;
-    void		setAnnotChoice(int) override;
+    int			getAnnotChoices(BufferStringSet&) const override;
+    void		setAnnotChoice(int idx) override;
+    void		setAnnotChoice(const char* nm) override;
 
     MouseEventHandler&	getMouseEventHandler();
     uiGraphicsView&	rgbCanvas()			{ return *view_; }
