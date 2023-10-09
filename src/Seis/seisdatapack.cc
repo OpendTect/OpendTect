@@ -792,7 +792,9 @@ void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 	const int trcidx = nrTrcs()==1 ? 0 : i0;
 	const TrcKey tk = getTrcKey( trcidx );
 	iop.set( mKeyTrcNr, tk.trcNr() );
-	iop.set( mKeyRefNr, source_->getRefNr(trcidx) );
+	const float refnr = source_->getRefNr( trcidx );
+	if ( !mIsUdf(refnr) )
+	    iop.set( mKeyRefNr, refnr );
     }
     else
     {
@@ -926,8 +928,9 @@ void RegularFlatDataPack::setTrcInfoFlds()
 const char* RegularFlatDataPack::dimName( bool dim0 ) const
 {
     if ( dim0 && hassingletrace_ ) return sKey::Series();
-    if ( is2D() ) return dim0 ? "Distance"
-			      : zDomain().userName().getFullString();
+    if ( is2D() )
+	return dim0 ? "Distance" : zDomain().userName().getFullString();
+
     return dim0 ? (dir_==TrcKeyZSampling::Inl ? mKeyCrl : mKeyInl)
 		: (dir_==TrcKeyZSampling::Z
 			? mKeyCrl : zDomain().userName().getFullString());

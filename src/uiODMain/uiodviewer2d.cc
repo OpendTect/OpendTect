@@ -214,7 +214,9 @@ void uiODViewer2D::setUpAux()
 	{
 	    vwrannot.x2_.showauxannot_ = false;
 	    vwrannot.x1_.auxlabel_ = intersection;
-	    vwrannot.x1_.auxlabel_.arg( tr("2D Line" ));
+	    vwrannot.x1_.auxlabel_.arg( tr("2D Line") );
+	    viewwin()->viewer().setAnnotChoice(
+		SeisTrcInfo::toString(SeisTrcInfo::TrcNr) );
 	}
 	else
 	{
