@@ -617,7 +617,7 @@ public:
     static uiString sTime()		{ return tr("Time"); }
     static uiString sTitle()		{ return tr("Title"); }
     static uiString sTmpStor()		{ return tr("Temporary storage "
-								"location :"); }
+								"location"); }
     static uiString sToolbar()		{ return tr("Toolbar"); }
     static uiString sTools()		{ return tr("Tools"); }
     static uiString sTooltip()		{ return tr("Tool Tip"); }
