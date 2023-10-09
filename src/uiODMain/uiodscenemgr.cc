@@ -394,10 +394,14 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
 	visServ().turnSelectionModeOn( false );
 
-	const uiString title = uiStrings::phrJoinStrings(
+	uiString scenenm = visscene->uiName();
+	if ( scenenm.isEmpty() )
+	{
+	    scenenm = uiStrings::phrJoinStrings(
 		uiStrings::sScene(), toUiString(vwridx_) );
-	scn.mdiwin_->setTitle( title );
-	visServ().setUiObjectName( sceneid, title );
+	    visServ().setUiObjectName( sceneid, scenenm );
+	}
+	scn.mdiwin_->setTitle( scenenm );
 
 	scn.vwr3d_->display( true );
 	scn.vwr3d_->showRotAxis( true );
