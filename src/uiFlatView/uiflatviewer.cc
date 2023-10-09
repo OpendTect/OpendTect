@@ -353,6 +353,15 @@ void uiFlatViewer::setAnnotChoice( int sel )
 }
 
 
+void uiFlatViewer::setAnnotChoice( const char* nm )
+{
+    BufferStringSet nms;
+    getAnnotChoices( nms );
+    const int sel = nms.indexOf( nm );
+    setAnnotChoice( sel );
+}
+
+
 void uiFlatViewer::reGenerate( FlatView::AuxData& ad )
 {
     mDynamicCastGet( FlatView::uiAuxDataDisplay*, uiad, &ad );
