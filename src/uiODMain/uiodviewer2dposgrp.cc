@@ -231,7 +231,8 @@ void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
 {
 
     ZDomain::Info zinfo( SI().zDomain() );
-    uiSliceSel* sliceselfld = new uiSliceSel( this, dir, zinfo );
+    auto* sliceselfld = new uiSliceSel( this, dir, zinfo );
+    sliceselfld->setMaxTrcKeyZSampling( SI().sampling(true) );
     sliceselfld->attach( alignedBelow, inp3dfld_ );
     sliceselfld->enableScrollButton( false );
 
@@ -497,9 +498,13 @@ void Viewer2DPosDataSel::fillPar( IOPar& iop ) const
 
 void Viewer2DPosDataSel::usePar( const IOPar& iop )
 {
-    tkzs_.usePar( iop );
-    selspec_.usePar( iop );
     parseEnum( iop, PosTypeDef().name(), postype_ );
+    if ( postype_==Viewer2DPosDataSel::Line2D )
+	tkzs_.set2DDef();
+
+    tkzs_.usePar( iop );
+
+    selspec_.usePar( iop );
     if ( postype_ == Viewer2DPosDataSel::RdmLine )
     {
 	iop.get( sKeyRdmLineID(), rdmlineid_ );

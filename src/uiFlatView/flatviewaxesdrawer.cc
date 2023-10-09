@@ -265,6 +265,9 @@ void AxesDrawer::transformAndSetAuxAnnotation( bool forx1 )
     const StepInterval<double> xrg = fdp->posData().range( forx1 );
     for ( int idx=0; idx<xannot.size(); idx++ )
     {
+	if ( !xrg.includes(xannot[idx].pos_,false) )
+	    continue;
+
 	const int annotposidx = xrg.getIndex( xannot[idx].pos_ );
 	auxannot[idx].pos_ = altdim0_>=0 && forx1
 	    ? mCast(float,fdp->getAltDim0Value(altdim0_,annotposidx))

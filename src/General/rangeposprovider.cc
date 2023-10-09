@@ -620,9 +620,16 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 void Pos::RangeProvider2D::getExtent( Interval<int>& rg, int lidx ) const
 {
     if ( lidx == curlineidx_ || !geomids_.validIdx(lidx) )
-    { rg = curTrcRange(); return; }
+    {
+	rg = curTrcRange();
+	if ( !rg.isUdf() )
+	    return;
+    }
 
     rg = trcrgs_.validIdx(lidx) ? trcrgs_[lidx] : trcrgs_[0];
+    if ( !geomids_.validIdx(lidx) )
+	return;
+
     mGet2DGeometry(geomids_[lidx]);
     if ( !geom2d )
 	return;
@@ -634,9 +641,16 @@ void Pos::RangeProvider2D::getExtent( Interval<int>& rg, int lidx ) const
 void Pos::RangeProvider2D::getZRange( Interval<float>& zrg, int lidx ) const
 {
     if ( lidx == curlineidx_ || !geomids_.validIdx(lidx) )
-    { zrg = curZRange(); return; }
+    {
+	zrg = curZRange();
+	if ( !zrg.isUdf() )
+	    return;
+    }
 
     zrg = zrgs_.validIdx(lidx) ? zrgs_[lidx] : zrgs_[0];
+    if ( !geomids_.validIdx(lidx) )
+	return;
+
     mGet2DGeometry(geomids_[lidx]);
     if ( !geom2d )
 	return;

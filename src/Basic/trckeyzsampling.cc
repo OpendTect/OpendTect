@@ -514,8 +514,8 @@ bool TrcKeyZSampling::usePar( const IOPar& par )
     }
 
     const IOPar& iop = is2d ? *subpars.ptr() : par;
-    if ( !is2d && !iop.get("Z Subsel.0.Range",zsamp_) )
-	isok = isok && par.get( sKey::ZRange(), zsamp_ );
+    if ( !iop.get("Z Subsel.0.Range",zsamp_) )
+	isok = isok && iop.get( sKey::ZRange(), zsamp_ );
 
     return isok;
 }
