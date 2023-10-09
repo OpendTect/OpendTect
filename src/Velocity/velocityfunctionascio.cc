@@ -102,7 +102,7 @@ int FunctionAscIO::nextStep()
 	bool hasanisotropy = cnvrtr_->selcols_.size()>4;
 	output_->setEmpty();
 	output_->setNrVals( hasanisotropy ? 2 : 3, false );
-	output_->setIs2D( geomid_.is2D() );
+	output_->setIs2D( geomid_.isValid() && geomid_.is2D() );
     }
 
     BinID binid;
