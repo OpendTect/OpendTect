@@ -38,6 +38,7 @@ public:
 
     int			getAnnotChoices(BufferStringSet&) const;
     void		setAnnotChoice(int) override;
+    void		setAnnotChoice(const char*);
 
     MouseEventHandler&	getMouseEventHandler();
     uiGraphicsView&	rgbCanvas()			{ return *view_; }
