@@ -1147,6 +1147,14 @@ bool ui3DViewerBody::isCameraOrthographic() const
 }
 
 
+void ui3DViewerBody::setCameraPerspective( bool yn )
+{
+    osgGeo::TrackballManipulator* manip = getCameraManipulator();
+    if ( manip )
+	manip->setProjectionAsPerspective( yn );
+}
+
+
 void ui3DViewerBody::toggleCameraType()
 {
     if ( mapview_ ) return;
@@ -1736,6 +1744,12 @@ bool ui3DViewer::isCameraPerspective() const
 }
 
 
+void ui3DViewer::setCameraPerspective( bool yn )
+{
+    osgbody_->setCameraPerspective( yn );
+}
+
+
 bool ui3DViewer::setStereoType( StereoType type )
 {
     return osgbody_->setStereoType( (ui3DViewerBody::StereoType)type );
@@ -1873,6 +1887,7 @@ void ui3DViewer::savePropertySettings() const
 
 void ui3DViewer::fillPar( IOPar& par ) const
 {
+    par.set( sKey::Name(), getScene()->uiName() );
     par.set( sKeySceneID(), getScene()->id() );
     par.set( sKeyBGColor(), (int)getBackgroundColor().rgb() );
     par.set( sKeyStereo(), toString( getStereoType() ) );
@@ -1891,7 +1906,13 @@ bool ui3DViewer::usePar( const IOPar& par )
 	return false;
 
     setSceneID( sceneid );
-    if ( !getScene() ) return false;
+    visBase::Scene* scene = getScene();
+    if ( !scene )
+	return false;
+
+    uiString scenenm;
+    if ( par.get(sKey::Name(),scenenm) )
+	scene->setUiName( scenenm );
 
     int col;
     if ( par.get(sKeyBGColor(),col) )
@@ -1909,8 +1930,11 @@ bool ui3DViewer::usePar( const IOPar& par )
     if ( par.get( sKeyStereoOff(), offset )  )
 	setStereoOffset( offset );
 
-    PtrMan<IOPar> homepos = par.subselect( sKeyHomePos() );
+    bool iscameraperspective;
+    if ( par.getYN(sKeyPersCamera(),iscameraperspective) )
+	setCameraPerspective( iscameraperspective );
 
+    PtrMan<IOPar> homepos = par.subselect( sKeyHomePos() );
     if ( homepos && osgbody_->isHomePosEmpty() )
 	osgbody_->setHomePos( *homepos );
 

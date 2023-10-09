@@ -82,8 +82,10 @@ public:
     OD::Color		getAnnotationColor() const;
     void		setAnnotationFont(const FontData&);
     bool		rotAxisShown() const;
+
     void		toggleCameraType();
     bool		isCameraPerspective() const;
+    void		setCameraPerspective(bool yn);
 
     enum WheelMode	{ Never, Always, OnHover };
 			mDeclareEnumUtils(WheelMode)

@@ -81,6 +81,7 @@ public:
     void			toggleCameraType();
     bool			isCameraPerspective() const;
     bool			isCameraOrthographic() const;
+    void			setCameraPerspective(bool yn);
 
     void			align();
     void			viewPlaneX();
