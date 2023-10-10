@@ -304,7 +304,8 @@ public:
     static ConstRefMan<ReflectivityModelSet>
 			getRefModels(const ElasticModelSet&,
 				     const IOPar& reflpar,uiString& msg,
-				     TaskRunner* =nullptr,
+				     TaskRunner*,float srd,
+				     bool depthsinfeet,bool offsetsinfeet,
 				     const ObjectSet<const TimeDepthModel>*
 						    forcedtdmodels =nullptr);
 

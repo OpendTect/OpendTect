@@ -17,11 +17,11 @@ namespace PreStack
 mImplFactory( Processor, Processor::factory );
 
 Processor::Processor( const char* nm )
-    : ParallelTask( nm )
-    , outputstepout_( 0, 0 )
+    : ParallelTask(nm)
+    , outputstepout_(0,0)
 {
-    inputs_.allowNull( true );
-    outputs_.allowNull( true );
+    inputs_.setNullAllowed();
+    outputs_.setNullAllowed();
     reset();
 }
 
@@ -103,7 +103,7 @@ bool Processor::setOutputInterest( const BinID& relbid, bool yn )
 	outputstepout_ = newstepout;
     }
 
-    const int offset=getRelBidOffset( relbid,outputstepout_ );
+    const int offset = getRelBidOffset( relbid,outputstepout_ );
     outputinterest_[offset] = yn;
 
     return true;
@@ -172,8 +172,9 @@ bool Processor::prepareWork()
 
 
 Gather* Processor::createOutputArray( const Gather& input ) const
-{ return new Gather(input); }
-
+{
+    return new Gather( input );
+}
 
 
 int Processor::nrOffsets() const

@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
-#include "veldesc.h"
+#include "unitofmeasure.h"
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
@@ -66,10 +66,10 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     fltrtpfld_->attach( alignedBelow, szfld_ );
 
     uiString lbl = tr("Min/max %1").arg(zIsTime() ? tr("%1 %2")
-				   .arg(uiStrings::sVelocity().toLower())
-				   .arg(VelocityDesc::getVelUnit(true))
-				   : tr("%1 (deg)")
-				   .arg(uiStrings::sDip().toLower()));
+		       .arg(uiStrings::sVelocity().toLower())
+		       .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true))
+		       : tr("%1 (deg)")
+		       .arg(uiStrings::sDip().toLower()));
     const char* fldnm = zIsTime() ? " velocity" : " dip";
     velfld_ = new uiGenInput( this, lbl,
 		FloatInpSpec().setName( BufferString("Min",fldnm).buf() ),

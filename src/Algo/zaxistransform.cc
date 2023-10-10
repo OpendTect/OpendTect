@@ -46,7 +46,12 @@ ZAxisTransform::ZAxisTransform( const ZDomain::Def& from,
 				const ZDomain::Def& to )
     : fromzdomaininfo_(*new ZDomain::Info(from))
     , tozdomaininfo_(*new ZDomain::Info(to))
-{}
+{
+    if ( from.isDepth() )
+	fromzdomaininfo_.setDepthUnit( SI().depthsInFeet() );
+    if ( to.isDepth() )
+	tozdomaininfo_.setDepthUnit( SI().depthsInFeet() );
+}
 
 
 ZAxisTransform::~ZAxisTransform()
@@ -174,27 +179,51 @@ float ZAxisTransform::transformBack2D( const char* linenm, int trcnr,
 }
 
 
-float ZAxisTransform::getZIntervalCenter( bool from ) const
+ZSampling ZAxisTransform::getZInterval( const ZSampling& zsamp,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to,
+					bool makenice ) const
 {
-    const Interval<float> rg = getZInterval( from );
-    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
-	return mUdf(float);
+    ZSampling ret = getWorkZrg( zsamp, from, to );
+    if ( makenice && from != to )
+    {
+	const int userfac = to.def_.userFactor();
+	float zstep = ret.step;
+	zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
+	zstep /= userfac;
+	ret.step = zstep;
 
-    return rg.center();
+	const Interval<float>& rg = ret;
+	const int startidx = rg.indexOnOrAfter( rg.start, zstep );
+	ret.start = zstep * mNINT32( rg.atIndex( startidx, zstep ) / zstep );
+	const int stopidx = rg.indexOnOrAfter( rg.stop, zstep );
+	ret.stop = zstep * mNINT32( rg.atIndex( stopidx, zstep ) / zstep );
+    }
+
+    return ret;
 }
 
 
-float ZAxisTransform::getGoodZStep() const
+ZSampling ZAxisTransform::getZInterval( bool isfrom, bool makenice ) const
 {
-    return SI().zRange(true).step;
+    const ZDomain::Info& from = SI().zDomainInfo();
+    const ZDomain::Info& to = isfrom ? fromZDomainInfo() : toZDomainInfo();
+    return getZInterval( SI().zRange(true), from, to, makenice );
+}
+
+
+float ZAxisTransform::getZIntervalCenter( bool from ) const
+{
+    const ZSampling rg = getZInterval( from, false );
+    return rg.isUdf() ?  mUdf(float) : rg.center();
 }
 
 
 const ZDomain::Info& ZAxisTransform::fromZDomainInfo() const
-{ return const_cast<ZAxisTransform*>(this)->fromZDomainInfo(); }
+{ return mSelf().fromZDomainInfo(); }
 
 const ZDomain::Info& ZAxisTransform::toZDomainInfo() const
-{ return const_cast<ZAxisTransform*>(this)->toZDomainInfo(); }
+{ return mSelf().toZDomainInfo(); }
 
 const char* ZAxisTransform::fromZDomainKey() const
 { return fromzdomaininfo_.key(); }
@@ -209,19 +238,6 @@ void ZAxisTransform::fillPar( IOPar& par ) const
 }
 
 
-void ZAxisTransform::setVelUnitOfMeasure( const Scaler* scaler )
-{
-    delete scaler_;
-    scaler_ = scaler && !scaler->isEmpty() ? scaler->clone() : nullptr;
-}
-
-
-const Scaler* ZAxisTransform::getVelUnitOfMeasure() const
-{
-    return scaler_;
-}
-
-
 float ZAxisTransform::toZScale() const
 {
     if ( toZDomainInfo().def_.isDepth() )
@@ -230,7 +246,7 @@ float ZAxisTransform::toZScale() const
 		SI().depthsInFeet() ? SurveyInfo::Feet : SurveyInfo::Meter,
 		SI().xyUnit() );
     }
-    else if (  toZDomainInfo().def_.isTime() )
+    else if ( toZDomainInfo().def_.isTime() )
     {
 	return SI().defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() );
     }

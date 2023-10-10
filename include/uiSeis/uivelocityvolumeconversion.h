@@ -32,6 +32,7 @@ public:
 
 protected:
 
+    void		initDlgCB(CallBacker*);
     void		inputChangeCB(CallBacker*);
     bool		fillPar();
     bool		acceptOK(CallBacker*) override;

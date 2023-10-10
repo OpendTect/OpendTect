@@ -961,7 +961,8 @@ Coord3 spherical2Cartesian( const Sphere& sph, bool math )
 
 
 // NearestCoordFinder
-NearestCoordFinder::NearestCoordFinder( const TypeSet<Coord3>& crds, const Coord3& crd )
+NearestCoordFinder::NearestCoordFinder( const TypeSet<Coord3>& crds,
+					const Coord3& crd )
     : ParallelTask("Finding nearest MD")
     , crds_(crds)
     , crd_(crd)
@@ -986,6 +987,24 @@ bool NearestCoordFinder::doPrepare( int nrthreads )
 }
 
 
+bool NearestCoordFinder::doWork( od_int64 start, od_int64 stop, int threadidx )
+{
+    double& mindist = mindists_[threadidx];
+    int& minidx = minidxs_[threadidx];
+    for ( int idx=start; idx<=stop; idx++ )
+    {
+	const double dist = crd_.sqDistTo( crds_[idx] );
+	if ( dist < mindist )
+	{
+	    mindist = dist;
+	    minidx = idx;
+	}
+    }
+
+    return true;
+}
+
+
 bool NearestCoordFinder::doFinish( bool success )
 {
     int thridx = -1;
@@ -1002,20 +1021,4 @@ bool NearestCoordFinder::doFinish( bool success )
     nearestidx_ = thridx != -1 ? minidxs_[thridx] : -1;
     nearestdist_ = thridx != -1 ? Math::Sqrt(mindists_[thridx]) : mUdf(float);
     return success;
-}
-
-
-bool NearestCoordFinder::doWork( od_int64 start, od_int64 stop, int threadidx )
-{
-    for ( int idx=start; idx<=stop; idx++ )
-    {
-	const double dist = crd_.sqDistTo( crds_[idx] );
-	if ( dist > mindists_[threadidx] )
-	    continue;
-
-	mindists_[threadidx] = dist;
-	minidxs_[threadidx] = idx;
-    }
-
-    return true;
 }

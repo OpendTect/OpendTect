@@ -66,6 +66,5 @@ public:
     const char*		read(PreStack::MuteDef&,Conn&) override;
     const char*		write(const PreStack::MuteDef&,Conn&) override;
 
-    static const char*	sKeyRefHor() { return "Reference Horizon";  }
     static bool		hasIOPar(int majorversion,int minorversion);
 };

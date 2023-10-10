@@ -76,3 +76,16 @@ bool isOptional( OD::ChoiceMode cm )
 {
     return cm == OD::ChooseZeroOrMore;
 }
+
+
+mDefineNameSpaceEnumUtils(Vel,Type,"Velocity Type")
+{
+    "Unknown",
+    "Vint",
+    "Vrms",
+    "Vavg",
+    "Delta",
+    "Epsilon",
+    "Eta",
+    nullptr
+};

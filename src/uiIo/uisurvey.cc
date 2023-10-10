@@ -1213,6 +1213,7 @@ void uiSurvey::putToScreen()
     BufferString inlinfo;
     BufferString crlinfo;
     BufferString zkey, zinfo;
+    BufferString srdinfo;
     BufferString bininfo;
     BufferString crsinfo;
     BufferString areainfo;
@@ -1269,6 +1270,12 @@ void uiSurvey::putToScreen()
 	 .add( sizrg.step, nrdec ).add( "]" );
     zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
 
+    float srd = si.seismicReferenceDatum();
+    if ( si.zIsTime() && si.depthsInFeet() )
+	srd *= mToFeetFactorF;
+    srdinfo.add( srd, 2 ).addSpace()
+	   .add( getDistUnitString(si.depthsInFeet(),true) );
+
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
     FilePath fp( si.diskLocation().fullPath() );
@@ -1283,6 +1290,8 @@ void uiSurvey::putToScreen()
     infoset_.add( "In-line range", inlinfo );
     infoset_.add( "Cross-line range", crlinfo );
     infoset_.add( zkey, zinfo );
+    if ( !mIsZero(srd,1e-1) )
+	infoset_.add( SurveyInfo::sKeySeismicRefDatum(), srdinfo );
     infoset_.add( "Inl/Crl bin size", bininfo );
     infoset_.add( "CRS", crsinfo );
     infoset_.add( "Area", areainfo );

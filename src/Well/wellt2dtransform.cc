@@ -12,14 +12,16 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "interpol1d.h"
 #include "binidvalue.h"
+#include "keystrs.h"
 #include "multiid.h"
+#include "odmemory.h"
 #include "position.h"
 #include "survinfo.h"
 #include "wellman.h"
 #include "welld2tmodel.h"
 #include "welltrack.h"
 #include "zdomain.h"
-#include "keystrs.h"
+#include "zvalseriesimpl.h"
 
 
 WellT2DTransform::WellT2DTransform()
@@ -42,113 +44,10 @@ WellT2DTransform::~WellT2DTransform()
 
 bool WellT2DTransform::isOK() const
 {
-    return data_ && tdmodel_.isOK();
-}
-
-
-bool WellT2DTransform::calcDepths()
-{
-    const Well::D2TModel* d2t = data_ ? data_->d2TModel() : 0;
-    if ( !d2t )
+    if ( !data_ || !tdmodel_.isOK() )
 	return false;
 
-    return d2t->getTimeDepthModel( *data_, tdmodel_ );
-}
-
-
-void WellT2DTransform::doTransform( const SamplingData<float>& sd,
-				    int ressz, float* res, bool back ) const
-{
-    const bool survistime = SI().zIsTime();
-    const bool depthsinfeet = SI().depthsInFeet();
-
-    for ( int idx=0; idx<ressz; idx++ )
-    {
-	if ( sd.isUdf() )
-	{
-	    res[idx] = mUdf(float);
-	    continue;
-	}
-
-	float inp = sd.atIndex( idx );
-	if ( back )
-	{
-	    if ( survistime && depthsinfeet ) inp *= mFromFeetFactorF;
-	    res[idx] = tdmodel_.getTime( inp );
-	}
-	else
-	{
-	    res[idx] = tdmodel_.getDepth( inp );
-	    if ( survistime && depthsinfeet ) res[idx] *= mToFeetFactorF;
-	}
-    }
-}
-
-
-void WellT2DTransform::transformTrc( const TrcKey&,
-				     const SamplingData<float>& sd,
-				     int ressz, float* res ) const
-{
-    doTransform( sd, ressz, res, false );
-}
-
-
-
-void WellT2DTransform::transformTrcBack( const TrcKey&,
-					 const SamplingData<float>& sd,
-					 int ressz, float* res ) const
-{
-    doTransform( sd, ressz, res, true );
-}
-
-
-float WellT2DTransform::getGoodZStep() const
-{
-    if ( !SI().zIsTime() )
-	return SI().zRange(true).step;
-
-    const Interval<float> zrg = getZRange( false );
-    const int userfac = toZDomainInfo().userFactor();
-    const int nrsteps = SI().zRange( false ).nrSteps();
-    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
-    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
-    zstep /= userfac;
-    return zstep;
-}
-
-
-Interval<float> WellT2DTransform::getZInterval( bool time ) const
-{
-    Interval<float> zrg = getZRange( time );
-    const float step = getGoodZStep();
-    const int userfac = toZDomainInfo().userFactor();
-    const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
-    zrg.stop = zrg.atIndex( stopidx, step );
-    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
-    return zrg;
-}
-
-
-Interval<float> WellT2DTransform::getZRange( bool time ) const
-{
-    Interval<float> zrg = SI().zRange( true );
-    const bool survistime = SI().zIsTime();
-    if ( time && survistime ) return zrg;
-
-    const BinIDValue startbidval( 0, 0, zrg.start );
-    const BinIDValue stopbidval( 0, 0, zrg.stop );
-    if ( survistime && !time )
-    {
-	zrg.start = ZAxisTransform::transform( startbidval );
-	zrg.stop = ZAxisTransform::transform( stopbidval );
-    }
-    else if ( !survistime && time )
-    {
-	zrg.start = ZAxisTransform::transformBack( startbidval );
-	zrg.stop = ZAxisTransform::transformBack( stopbidval );
-    }
-
-    return zrg;
+    return ZAxisTransform::isOK();
 }
 
 
@@ -190,4 +89,79 @@ bool WellT2DTransform::usePar( const IOPar& par )
 	return false;
 
     return true;
+}
+
+
+bool WellT2DTransform::calcDepths()
+{
+    const Well::D2TModel* d2t = data_ ? data_->d2TModel() : nullptr;
+    if ( !d2t )
+	return false;
+
+    return d2t->getTimeDepthModel( *data_, tdmodel_ );
+}
+
+
+void WellT2DTransform::transformTrc( const TrcKey&,
+				     const SamplingData<float>& sd,
+				     int sz, float* res ) const
+{
+    doTransform( sd, fromZDomainInfo(), sz, res );
+}
+
+
+
+void WellT2DTransform::transformTrcBack( const TrcKey&,
+					 const SamplingData<float>& sd,
+					 int sz, float* res ) const
+{
+    doTransform( sd, toZDomainInfo(), sz, res );
+}
+
+
+void WellT2DTransform::doTransform( const SamplingData<float>& sd,
+				    const ZDomain::Info& sdzinfo,
+				    int sz, float* res ) const
+{
+     if ( sd.isUdf() )
+     {
+	 OD::sysMemValueSet( res, mUdf(float), sz );
+	 return;
+     }
+
+     const RegularZValues zvals( sd, sz, sdzinfo );
+     if ( zvals.isTime() )
+	 for ( od_int64 idx=0; idx<sz; idx++ )
+	     res[idx] = tdmodel_.getDepth( float (zvals[idx]) );
+     else
+	 for ( od_int64 idx=0; idx<sz; idx++ )
+	     res[idx] = tdmodel_.getDepth( float (zvals[idx]) );
+}
+
+
+ZSampling WellT2DTransform::getWorkZrg( const ZSampling& zsamp,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to ) const
+{
+    if ( !isOK() )
+	return ZSampling::udf();
+
+    ZSampling ret = zsamp;
+    const int nrsamples = ret.nrSteps();
+    if ( from.isTime() && to.isDepth() )
+    {
+	ret.start = tdmodel_.getDepth( ret.start );
+	ret.stop = tdmodel_.getDepth( ret.stop );
+    }
+    else if ( from.isDepth() && to.isTime() )
+    {
+	ret.start = tdmodel_.getTime( ret.start );
+	ret.stop = tdmodel_.getTime( ret.stop );
+    }
+
+    if ( to != from )
+	ret.step = (ret.width()) / (nrsamples==0 ? 1 : nrsamples);
+
+    return ret;
+
 }

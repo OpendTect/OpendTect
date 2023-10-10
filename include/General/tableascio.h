@@ -41,18 +41,15 @@ mExpClass(General) AscIO
 { mODTextTranslationClass(AscIO);
 public:
 
-				AscIO( const FormatDesc& fd )
-				    : fd_(fd)
-				    , imphndlr_(0)
-				    , exphndlr_(0)
-				    , cnvrtr_(0)
-				    , needfullline_(false)
-				    , hdrread_(false) { units_.allowNull(true);}
+				AscIO(const FormatDesc&);
     virtual			~AscIO();
 
     const FormatDesc&		desc() const	{ return fd_; }
     uiString			errMsg() const	{ return errmsg_; }
     uiString			warnMsg() const { return warnmsg_; }
+
+    static const UnitOfMeasure* getTimeUnit();
+    static const UnitOfMeasure* getDepthUnit();
 
 protected:
 
@@ -61,11 +58,11 @@ protected:
     mutable uiString		warnmsg_;
     BufferStringSet		vals_;
     ObjectSet<const UnitOfMeasure> units_;
-    ImportHandler*		imphndlr_;
-    ExportHandler*		exphndlr_;
-    Converter*			cnvrtr_;
-    mutable bool		hdrread_;
-    bool			needfullline_;
+    ImportHandler*		imphndlr_ = nullptr;
+    ExportHandler*		exphndlr_ = nullptr;
+    Converter*			cnvrtr_ = nullptr;
+    mutable bool		hdrread_ = false;
+    bool			needfullline_ = false;
     BufferStringSet		fullline_;
 
     friend class		AscIOImp_ExportHandler;
@@ -82,8 +79,12 @@ protected:
     BufferString		getText(int) const;
     int				getIntValue(int,int udf=mUdf(int)) const;
     float			getFValue(int,float udf=mUdf(float)) const;
+				/*!< According to getTimeUnit, getDepthUnit
+				     if applicable. */
     double			getDValue(int,double udf=mUdf(double)) const;
-				// For more, use Conv:: stuff
+				/*!< According to getTimeUnit, getDepthUnit
+				     if applicable.
+				     For more, use Conv:: stuff */
 
     Coord			 getPos(int xfld,int yfld,
 					double udf=mUdf(double),bool isll=false,

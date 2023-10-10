@@ -16,46 +16,18 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "pickset.h"
 #include "sorting.h"
-#include "varlenarray.h"
-#include "velocitycalc.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
+#include "varlenarray.h"
+#include "veldesc.h"
+#include "zvalseriesimpl.h"
+
 
 namespace Vel
 {
 
-
-const char* StoredFunctionSource::sKeyVelocityFunction()
-{ return "Velocity Function"; }
-
-
-const char* StoredFunctionSource::sKeyZIsTime()
-{ return "Z Is Time"; }
-
-
-const char* StoredFunctionSource::sKeyVelocityType()
-{ return "Velocity Type"; }
-
-
-IOObjContext& StoredFunctionSource::ioContext()
-{
-    mDefineStaticLocalObject( PtrMan<IOObjContext>, ret, = 0 );
-
-    if ( !ret )
-    {
-	IOObjContext* newret =
-		    new IOObjContext(PickSetTranslatorGroup::ioContext());
-	newret->setName( "RMO picks" );
-	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityFunction() );
-
-	ret.setIfNull(newret,true);
-    }
-
-    return *ret;
-}
-
-
-StoredFunction:: StoredFunction( StoredFunctionSource& source )
-    : Function( source )
+StoredFunction::StoredFunction( StoredFunctionSource& source )
+    : Function(source)
 {}
 
 
@@ -63,22 +35,33 @@ StoredFunction::~StoredFunction()
 {}
 
 
+ZSampling StoredFunction::getAvailableZ() const
+{
+    return desiredrg_;
+}
+
+
 bool StoredFunction::moveTo( const BinID& bid )
 {
-    if ( !Function::moveTo( bid ) )
+    if ( !Function::moveTo(bid) )
 	return false;
 
+    if ( getDesc().isUdf() )
+	copyDescFrom( getSource() );
+
     mDynamicCastGet( StoredFunctionSource&, source, source_ );
-    if ( !source.getVel( bid, zval_, vel_ ) )
+    if ( !source.getVel(bid,zval_,vel_) )
 	return false;
 
     mAllocVarLenIdxArr( int, idxs, zval_.size() );
-    if ( !mIsVarLenArrOK(idxs) ) return false;
+    if ( !mIsVarLenArrOK(idxs) )
+	return false;
 
     sort_coupled( zval_.arr(), mVarLenArr(idxs), zval_.size() );
 
-    mAllocLargeVarLenArr( float, vels, vel_.size() );
-    if ( !vels ) return false;
+    mAllocLargeVarLenArr( double, vels, vel_.size() );
+    if ( !vels )
+	return false;
 
     for ( int idx=zval_.size()-1; idx>=0; idx-- )
 	vels[idx] = vel_[idxs[idx]];
@@ -90,18 +73,75 @@ bool StoredFunction::moveTo( const BinID& bid )
 }
 
 
+bool StoredFunction::computeVelocity( float z0, float dz, int sz,
+				      float* res ) const
+{
+    if ( vel_.isEmpty() )
+	return false;
+
+    const ArrayValueSeries<double,double> vels_in( (double*)(vel_.arr()), false,
+						   vel_.size() );
+    const ArrayZValues<double> zvals_in( (TypeSet<double>&)(zval_),
+					 source_.zDomain() );
+    const SamplingData<float> sd_out( z0, dz );
+    const RegularZValues zvals_out( sd_out, sz, zDomain() );
+    ArrayValueSeries<double,float> vels_out( res, false, sz );
+    const Vel::Worker worker( source_.getDesc(), SI().seismicReferenceDatum(),
+			      UnitOfMeasure::surveyDefSRDStorageUnit() );
+    if ( !worker.sampleVelocities(vels_in,zvals_in,zvals_out,vels_out) )
+	return false;
+
+    const UnitOfMeasure* funcveluom = getVelUnit();
+    const UnitOfMeasure* funcsrcveluom = source_.getVelUnit();
+    if ( funcveluom != funcsrcveluom )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	    convValue( res[idx], funcsrcveluom, funcveluom );
+    }
+
+    return true;
+}
+
+
+// StoredFunctionSource
+
+static const char* sKeyVelocityFunction = "Velocity Function";
+
+const char* StoredFunctionSource::sKeyVelocityType()
+{ return VelocityDesc::sKeyVelocityType(); }
+
+
+IOObjContext& StoredFunctionSource::ioContext()
+{
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ret, = nullptr );
+
+    if ( !ret )
+    {
+	auto* newret =
+		    new IOObjContext(PickSetTranslatorGroup::ioContext());
+	newret->setName( "RMO picks" );
+	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityFunction );
+
+	ret.setIfNull( newret, true );
+    }
+
+    return *ret;
+}
+
+
 StoredFunctionSource::StoredFunctionSource()
-    : zit_( SI().zIsTime() )
-    , veldata_( 0, true )
-{}
+    : FunctionSource()
+    , desc_(*new VelocityDesc)
+    , veldata_(0,true)
+{
+    desc_.setUnit( UnitOfMeasure::surveyDefVelStorageUnit() );
+}
 
 
 StoredFunctionSource::~StoredFunctionSource()
-{}
-
-
-bool StoredFunctionSource::zIsTime() const
-{ return zit_; }
+{
+    delete &desc_;
+}
 
 
 void StoredFunctionSource::initClass()
@@ -109,11 +149,12 @@ void StoredFunctionSource::initClass()
 
 
 void StoredFunctionSource::setData( const BinIDValueSet& bvs,
-				   const VelocityDesc& vd, bool zit )
+				    const VelocityDesc& vd,
+				    const ZDomain::Info& zinfo )
 {
-    zit_ = zit;
-    desc_ = vd;
     veldata_ = bvs;
+    desc_ = vd;
+    setZDomain( zinfo );
 }
 
 
@@ -123,7 +164,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
     if ( !ioobj )
 	return false;
 
-    if ( velid!=mid_ )
+    if ( velid != mid_ )
     {
 	mid_ = velid;
 	//Trigger something?
@@ -153,10 +194,9 @@ bool StoredFunctionSource::store( const MultiID& velid )
 	ps->add( pickloc );
     }
 
-    ps->pars_.setYN( sKeyZIsTime(), zit_ );
+    ps->setZDomain( zDomain() );
     desc_.fillPar( ps->pars_ );
-
-    if ( !PickSetTranslator::store( *ps, ioobj, errmsg_ ) )
+    if ( !PickSetTranslator::store(*ps,ioobj,errmsg_) )
 	return false;
 
     fillIOObjPar( ioobj->pars() );
@@ -175,12 +215,12 @@ bool StoredFunctionSource::store( const MultiID& velid )
 void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 {
     par.setEmpty();
-    par.set( sKey::Type(), sKeyVelocityFunction() );
-    par.set( sKeyVelocityType(), VelocityDesc::TypeNames()[(int)desc_.type_] );
+    par.set( sKey::Type(), sKeyVelocityFunction );
+    par.set( sKeyVelocityType(), Vel::toString(desc_.type_) );
 }
 
 
-bool StoredFunctionSource::load( const MultiID& velid )
+bool StoredFunctionSource::setFrom( const MultiID& velid )
 {
     PtrMan<IOObj> ioobj = IOM().get( velid );
     if ( !ioobj )
@@ -190,8 +230,10 @@ bool StoredFunctionSource::load( const MultiID& velid )
     if ( !PickSetTranslator::retrieve(*ps,ioobj,false,errmsg_) )
 	return false;
 
-    if ( !ps->pars_.getYN(sKeyZIsTime(),zit_) || !desc_.usePar(ps->pars_) )
+    if ( !desc_.usePar(ps->pars_) )
 	return false;
+
+    setZDomain( ps->zDomain() );
 
     const bool is2d = ps->is2D();
     veldata_.setEmpty();
@@ -212,7 +254,7 @@ bool StoredFunctionSource::load( const MultiID& velid )
 	    tk.setFrom( pspick.pos() );
 	}
 
-	vals[0] = pspick.z();
+	vals[0] = float (pspick.pos().z);
 	vals[1] = pspick.dir().radius;
 	veldata_.add( tk.binID(), vals );
     }
@@ -231,37 +273,42 @@ void StoredFunctionSource::getAvailablePositions( BinIDValueSet& binvals) const
 }
 
 
-StoredFunction* StoredFunctionSource::createFunction(const BinID& binid)
+StoredFunction* StoredFunctionSource::createFunction( const BinID& binid )
 {
-    StoredFunction* res = new StoredFunction( *this );
+    auto* res = new StoredFunction( *this );
     if ( !res->moveTo(binid) )
     {
 	delete res;
-	return 0;
+	return nullptr;
     }
 
     return res;
 }
 
 
-FunctionSource* StoredFunctionSource::create(const MultiID& mid)
+FunctionSource* StoredFunctionSource::create( const MultiID& mid )
 {
-    StoredFunctionSource* res = new StoredFunctionSource;
-    if ( !res->load( mid ) )
+    if ( mid.groupID() !=
+	    IOObjContext::getStdDirData( IOObjContext::Loc )->groupID() )
+	return nullptr;
+
+    auto* res = new StoredFunctionSource;
+    if ( !res->setFrom(mid) )
     {
+	FunctionSource::factory().errMsg() = res->errMsg();
 	delete res;
-	return 0;
+	return nullptr;
     }
 
     return res;
 }
 
 
-bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
-				   TypeSet<float>& vel )
+bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<double>& zval,
+				   TypeSet<double>& vel )
 {
-    zval.erase();
-    vel.erase();
+    zval.setEmpty();
+    vel.setEmpty();
 
     if ( !veldata_.isValid(binid) )
 	return false;
@@ -278,61 +325,6 @@ bool StoredFunctionSource::getVel( const BinID& binid, TypeSet<float>& zval,
     } while ( veldata_.next(pos) );
 
     return true;
-}
-
-
-bool StoredFunction::computeVelocity( float z0, float dz, int nr,
-				      float* res ) const
-{
-    if ( vel_.isEmpty() )
-	return false;
-
-    mDynamicCastGet( StoredFunctionSource&, source, source_ );
-    const SamplingData<double> sd = getDoubleSamplingData(
-						SamplingData<float>(z0,dz) );
-    const int zsz = zval_.size();
-    mAllocVarLenArr( double, zvals, zsz );
-    if ( !mIsVarLenArrOK(zvals) )
-	return false;
-
-    for ( int idx=0; idx<zsz; idx++ )
-	zvals[idx] = zval_[idx];
-
-    if ( getDesc().type_==VelocityDesc::Interval )
-    {
-	return sampleVint( vel_.arr(), zvals, zsz, sd, res, nr );
-    }
-    else if ( getDesc().type_==VelocityDesc::RMS && source.zIsTime() )
-    {
-	return sampleVrms( vel_.arr(), 0, 0, zvals, zsz, sd, res, nr );
-    }
-    else if ( getDesc().type_==VelocityDesc::Avg )
-    {
-	return sampleVavg( vel_.arr(), zvals, zsz, sd, res, nr );
-    }
-    else if ( getDesc().type_==VelocityDesc::Delta )
-    {
-	sampleIntvThomsenPars( vel_.arr(), zvals, zsz, sd, nr, res );
-	return true;
-    }
-    else if ( getDesc().type_==VelocityDesc::Epsilon )
-    {
-	sampleIntvThomsenPars( vel_.arr(), zvals, zsz, sd, nr, res );
-	return true;
-    }
-    else if ( getDesc().type_==VelocityDesc::Eta )
-    {
-	sampleEffectiveThomsenPars( vel_.arr(), zvals, zsz, sd, nr, res );
-	return true;
-    }
-
-    return false;
-}
-
-
-StepInterval<float> StoredFunction::getAvailableZ() const
-{
-    return desiredrg_;
 }
 
 } // namespace Vel

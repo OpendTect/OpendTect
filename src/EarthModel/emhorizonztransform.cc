@@ -29,19 +29,24 @@ static const ZDomain::Def& getZDom()
 
 HorizonZTransform::HorizonZTransform()
     : ZAxisTransform(ZDomain::SI(),getZDom())
-    , horizon_( 0 )
-    , change_( this )
+    , depthrange_(Interval<float>::udf())
+    , change_(this)
 {}
 
 
 HorizonZTransform::~HorizonZTransform()
 {
-    if ( horizon_ )
-    {
-	const_cast<Horizon*>(horizon_)->change.remove(
-		mCB(this,HorizonZTransform,horChangeCB) );
-	horizon_->unRef();
-    }
+    detachAllNotifiers();
+    unRefPtr( horizon_ );
+}
+
+
+bool HorizonZTransform::isOK() const
+{
+    if ( !horizon_ || depthrange_.isUdf() )
+	return false;
+
+    return ZAxisTransform::isOK();
 }
 
 
@@ -49,15 +54,13 @@ void HorizonZTransform::setHorizon( const Horizon& hor )
 {
     if ( horizon_ )
     {
-	const_cast<Horizon*>(horizon_)
-	    ->change.remove( mCB(this,HorizonZTransform,horChangeCB) );
+	mDetachCB( horizon_->change, HorizonZTransform::horChangeCB );
 	horizon_->unRef();
     }
 
     horizon_ = &hor;
+    mAttachCB( horizon_->change, HorizonZTransform::horChangeCB );
     horizon_->ref();
-    const_cast<Horizon*>(horizon_)
-	->change.notify( mCB(this,HorizonZTransform,horChangeCB) );
 
     fromzdomaininfo_.setID( horizon_->multiID() );
     tozdomaininfo_.setID( horizon_->multiID() );
@@ -84,87 +87,6 @@ void HorizonZTransform::setFlatZValue( float flatzval )
 }
 
 
-void HorizonZTransform::transformTrc( const TrcKey& trckey,
-	const SamplingData<float>& sd, int sz,float* res ) const
-{
-    if ( mIsUdf(sd.start) || mIsUdf(sd.step) )
-    {
-	for ( int idx=sz-1; idx>=0; idx-- )
-	    res[idx] = mUdf(float);
-
-	return;
-    }
-
-    if ( !horizon_ )
-    {
-	for ( int idx=sz-1; idx>=0; idx-- )
-	    res[idx] = sd.atIndex( idx );
-
-	return;
-    }
-
-    float top, bottom;
-    const bool hastopbot = getTopBottom( trckey, top, bottom );
-    if ( !hastopbot )
-    {
-	for ( int idx=sz-1; idx>=0; idx-- )
-	    res[idx] = mUdf(float);
-
-	return;
-    }
-
-    for ( int idx=sz-1; idx>=0; idx-- )
-    {
-	const float depth = sd.atIndex( idx );
-	res[idx] = depth - top + flatzval_;
-    }
-}
-
-
-void HorizonZTransform::transformTrcBack( const TrcKey& trckey,
-	const SamplingData<float>& sd, int sz,float* res ) const
-{
-    for ( int idx=sz-1; idx>=0; idx-- )
-	res[idx] = mUdf(float);
-
-    if ( !horizon_ || mIsUdf(sd.start) || mIsUdf(sd.step) )
-	return;
-
-    float top, bottom;
-    const bool hastopbot = getTopBottom( trckey, top, bottom );
-    if ( !hastopbot )
-	return;
-
-    for ( int idx=sz-1; idx>=0; idx-- )
-    {
-	const float depth = sd.atIndex( idx );
-	res[idx] = depth + top - flatzval_;
-    }
-}
-
-
-Interval<float> HorizonZTransform::getZInterval( bool from ) const
-{
-    if ( from )
-	return SI().zRange(true);
-
-    if ( horchanged_ )
-	const_cast<HorizonZTransform*>(this)->calculateHorizonRange();
-
-    if ( horchanged_ )
-	return SI().zRange(true);
-
-    Interval<float> intv( SI().zRange(true).start-depthrange_.stop+flatzval_,
-			  SI().zRange(true).stop-depthrange_.start+flatzval_ );
-    const float step = SI().zRange(true).step;
-    float idx = intv.start / step;
-    intv.start = Math::Floor(idx) * step;
-    idx = intv.stop / step;
-    intv.stop = ceil(idx) * step;
-    return intv;
-}
-
-
 void HorizonZTransform::fillPar( IOPar& par ) const
 {
     ZAxisTransform::fillPar( par );
@@ -176,11 +98,11 @@ void HorizonZTransform::fillPar( IOPar& par ) const
 
 bool HorizonZTransform::usePar( const IOPar& par )
 {
-    if ( !ZAxisTransform::usePar( par ) )
+    if ( !ZAxisTransform::usePar(par) )
 	return false;
 
     MultiID mid;
-    if ( !par.get( sKeyHorizonID(), mid ) )
+    if ( !par.get( sKeyHorizonID(),mid) )
 	return true;
 
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
@@ -203,12 +125,77 @@ bool HorizonZTransform::usePar( const IOPar& par )
 }
 
 
+void HorizonZTransform::transformTrc( const TrcKey& trckey,
+				      const SamplingData<float>& sd,
+				      int sz, float* res ) const
+{
+    doTransform( trckey, sd, sz, res, true );
+}
+
+
+void HorizonZTransform::transformTrcBack( const TrcKey& trckey,
+					  const SamplingData<float>& sd,
+					  int sz, float* res ) const
+{
+    doTransform( trckey, sd, sz, res, false );
+}
+
+
+void HorizonZTransform::doTransform( const TrcKey& trckey,
+				     const SamplingData<float>& sd,
+				     int sz,float* res, bool forward ) const
+{
+    float top, bottom;
+    const bool hastopbot = getTopBottom( trckey, top, bottom );
+    if ( sd.isUdf() || !horizon_ || !hastopbot )
+    {
+	for ( int idx=0; idx<sz; idx++ )
+	    res[idx] = mUdf(float);
+	return;
+    }
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float zval = sd.atIndex( idx );
+	if ( forward )
+	    res[idx] = zval - top + flatzval_;
+	else
+	    res[idx] = zval + top - flatzval_;
+    }
+}
+
+
+ZSampling HorizonZTransform::getWorkZrg( const ZSampling& zsamp,
+					 const ZDomain::Info& from,
+					 const ZDomain::Info& to ) const
+{
+    ZSampling ret = zsamp;
+    if ( to == from )
+	return ret;
+
+    if ( horchanged_ )
+	mSelf().calculateHorizonRange();
+
+    if ( !isOK() )
+	return ZSampling::udf();
+
+    if ( to.def_ == getZDom() )
+    {
+	ret.start -= depthrange_.stop;
+	ret.stop -= depthrange_.start;
+	ret.shift( flatzval_ );
+    }
+
+    return ret;
+}
+
+
 float HorizonZTransform::getZIntervalCenter( bool from ) const
 {
     if ( from )
 	return ZAxisTransform::getZIntervalCenter( from );
 
-    return 0;
+    return 0.f;
 }
 
 

@@ -42,10 +42,12 @@ public :
     bool		setVelLog(const Log&);
     bool		setDenLog(const Log&);
     bool		setSVelLog(const Log&);
-    void		setLogs(const Log& vel, const Log* den=nullptr,
+    void		setLogs(const Log& vel,const Log* den=nullptr,
 				const Log* svel=nullptr);
-    void		setZrange(const Interval<float>&, bool istime);
-    void		setExtractionPars(float step, bool intime);
+    void		setZrange(const Interval<float>& zrg,bool istime);
+			//!<\param zrg must be in SI units (meters or seconds).
+    void		setExtractionPars(float step,bool intime);
+			//!<\param step must be in SI units (meters or seconds).
 
     bool		computeFromLogs();
 			/*!<Set at least the velocity log before */
@@ -56,7 +58,6 @@ public :
 
 protected:
 
-    void		init();
     bool		getLogUnits();
     bool		extractLogs();
     float		getLogVal(int logidx, int sampidx) const;
@@ -65,17 +66,17 @@ protected:
     float		getSVel(int) const;
 
     ElasticModel	emodel_;
-    Interval<float>	zrange_;
-    bool		zrgistime_;
-    float		zstep_;
-    bool		extractintime_;
+    Interval<float>	zrange_ = Interval<float>::udf();
+    bool		zrgistime_ = false;
+    float		zstep_ = mUdf(float);
+    bool		extractintime_ = false;
     ConstRefMan<Data>	wd_;
 
     ObjectSet<const Log> inplogs_;
     ObjectSet<const UnitOfMeasure> uomset_;
-    bool		velpissonic_;
-    LogSampler*		ls_;
-    LogSampler*		lsnearest_;
+    bool		velpissonic_ = false;
+    LogSampler*		ls_ = nullptr;
+    LogSampler*		lsnearest_ = nullptr;
 
     uiString		errmsg_;
     uiString		warnmsg_;

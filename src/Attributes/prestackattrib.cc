@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "seispsread.h"
 #include "survinfo.h"
 #include "raytrace1d.h"
+#include "unitofmeasure.h"
 #include "windowfunction.h"
 
 #include "ioman.h"
@@ -210,12 +211,10 @@ PSAttrib::PSAttrib( Desc& ds )
 	if ( !velocityid_.isUdf() )
 	{
 	    RefMan<PreStack::VelocityBasedAngleComputer> velangcomp =
-				    new PreStack::VelocityBasedAngleComputer;
+				new PreStack::VelocityBasedAngleComputer();
 	    velangcomp->setMultiID( velocityid_ );
 	    anglecomp_ = velangcomp;
 	}
-	else
-	    velocityid_.setUdf();
 
 	if ( anglecomp_ )
 	{
@@ -322,7 +321,7 @@ void PSAttrib::setGatherIsAngle( PreStack::Gather& gather )
 {
     int gathertype = 0;
     mGetEnum( gathertype, gathertypeStr() );
-    gather.setOffsetIsAngle( gathertype == Ang );
+    gather.setOffsetIsAngle( gathertype == Ang, gather.isOffsetInFeet() );
 }
 
 
@@ -335,7 +334,8 @@ bool PSAttrib::getAngleInputData()
 	return false;
 
     const FlatPosData& fp = gather->posData();
-    anglecomp_->setOutputSampling( fp );
+    anglecomp_->setOutputSampling( fp , gather->zDomain(),
+				   gather->isOffsetInFeet() );
     anglecomp_->setGatherIsNMOCorrected( gather->isCorrected() );
     anglecomp_->setTrcKey( TrcKey(gather->getBinID()) );
     RefMan<PreStack::Gather> angledata = anglecomp_->computeAngles();

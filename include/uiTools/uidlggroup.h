@@ -29,18 +29,18 @@ public:
     const uiString&	getCaption() const		{ return caption_; }
 
     virtual bool	acceptOK()			{ return true; }
-    			/*!<Commit changes. Return true if success. */
+			/*!<Commit changes. Return true if success. */
     virtual bool	rejectOK()			{ return true; }
-    			/*!<Revert eventual changes allready done, so the
+			/*!<Revert eventual changes allready done, so the
 			    object is in it's original state. */
     virtual bool	revertChanges()			{ return true; }
-    			/*!<Revert eventual changes allready done, so the
+			/*!<Revert eventual changes allready done, so the
 			    object is in it's original state. The difference
 			    betweeen revertChanges() and rejectOK() is that
 			    revertChanges() may be called after a successful
 			    acceptOK() call, if another tab in the stack fails.
 			*/
-    virtual const char* errMsg() const			{ return 0; }
+    virtual const char* errMsg() const			{ return nullptr; }
 
     virtual HelpKey	helpKey() const			{ return mNoHelpKey; }
 
@@ -87,10 +87,10 @@ public:
     const uiDlgGroup&	getGroup(int idx) const { return *groups_[idx]; }
     void		showGroup(int idx);
     int			currentGroupID()
-    			{ return tabstack_->currentPageId(); }
+			{ return tabstack_->currentPageId(); }
 
     HelpKey		helpKey() const override;
-    			/*!<Returns the help id for the current group, or 0 if
+			/*!<Returns the help id for the current group, or 0 if
 			    no help available for any group, "" if there is
 			    help for one or more groups, but not the currently
 			    seleceted one. */
@@ -103,7 +103,7 @@ protected:
     virtual bool		acceptOK(CallBacker*) override;
     virtual bool		rejectOK(CallBacker*) override;
 
-    bool 			canrevert_;
+    bool			canrevert_;
     ObjectSet<uiDlgGroup>	groups_;
     uiTabStack*			tabstack_;
 };

@@ -21,15 +21,17 @@ ________________________________________________________________________
 #include "seiswrite.h"
 
 #include "coordsystem.h"
-#include "iostrm.h"
-#include "iopar.h"
 #include "ioman.h"
+#include "iopar.h"
+#include "iostrm.h"
 #include "keystrs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
 #include "strmprov.h"
 #include "survgeom.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
+#include "zdomain.h"
 
 const char* SeisStoreAccess::sNrTrcs = "Nr of traces";
 const char* Seis::SeqIO::sKeyODType = "OpendTect";
@@ -360,7 +362,7 @@ bool SeisStoreAccess::cleanUp( bool alsoioobj_ )
 {
     bool ret = true;
     if ( strl() )
-    { 
+    {
 	ret = strl()->close(); if ( !ret ) errmsg_ = strl()->errMsg();
     }
 
@@ -430,6 +432,43 @@ void SeisStoreAccess::usePar( const IOPar& iop )
 	strl()->usePar( iop );
 	strl()->setSelData( seldata_ );
     }
+}
+
+
+const ZDomain::Info& SeisStoreAccess::zDomain() const
+{
+    return zDomain( ioobj_ );
+}
+
+
+bool SeisStoreAccess::zIsTime() const
+{
+    return zDomain().isTime();
+}
+
+
+bool SeisStoreAccess::zInMeter() const
+{
+    return zDomain().isDepthMeter();
+}
+
+
+bool SeisStoreAccess::zInFeet() const
+{
+    return zDomain().isDepthFeet();
+}
+
+
+const UnitOfMeasure* SeisStoreAccess::getZUnit() const
+{
+    return UnitOfMeasure::getZUnit( zDomain() );
+}
+
+
+const ZDomain::Info& SeisStoreAccess::zDomain( const IOObj* ioobj )
+{
+    const ZDomain::Info* ret = ioobj ? ZDomain::get( ioobj->pars() ) : nullptr;
+    return ret ? *ret : SI().zDomainInfo();
 }
 
 

@@ -27,10 +27,6 @@ mExpClass(Algo) RayTracer1D : public ParallelTask
 public:
     mDefineFactoryInClass( RayTracer1D, factory );
 
-    static RayTracer1D* createInstance(const IOPar&,uiString&);
-    static RayTracer1D* createInstance(const IOPar&,const ElasticModel*,
-				       uiString&);
-
 			~RayTracer1D();
 
     mExpClass(Algo) Setup
@@ -42,6 +38,10 @@ public:
 	mDefSetupMemb(bool,pdown);		// def: true
 	mDefSetupMemb(bool,pup);		// def: true
 	mDefSetupMemb(bool,doreflectivity);	// def: true
+	mDefSetupMemb(float,starttime);
+	mDefSetupMemb(float,startdepth);
+	mDefSetupMemb(bool,depthsinfeet);
+	mDefSetupMemb(bool,offsetsinfeet);
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);
@@ -59,8 +59,10 @@ public:
 			  will fill them with Castagna
 			  to compute zoeppritz coeffs <!*/
 
-    void		setOffsets(const TypeSet<float>& offsets);
+    void		setOffsets(const TypeSet<float>& offsets,
+				   bool offsetsinfeet);
     void		getOffsets(TypeSet<float>& offsets) const;
+    bool		offsetsInFeet() const;
 
     uiString		uiMessage() const override	{ return msg_; }
 
@@ -76,9 +78,13 @@ public:
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
     static const char*	sKeyWavetypes()    { return "Wavetypes"; }
 
-    static StepInterval<float>	sDefOffsetRange();
+    static StepInterval<float>	sDefOffsetRange(bool infeet=false);
 
     static void		setIOParsToZeroOffset(IOPar&);
+    static RayTracer1D* createInstance(const IOPar&,uiString&,
+				       const Setup* =nullptr);
+    static RayTracer1D* createInstance(const IOPar&,const ElasticModel*,
+				       uiString&,const Setup* =nullptr);
 
 protected:
 			RayTracer1D();

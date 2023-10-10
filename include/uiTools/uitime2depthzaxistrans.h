@@ -15,20 +15,26 @@ class uiZRangeInput;
 mExpClass(uiTools) uiTime2DepthZTransformBase : public uiZAxisTransform
 {
 public:
-    StringView toDomain() const override;
-    StringView fromDomain() const override;
-
     void		enableTargetSampling() override;
-    bool		getTargetSampling(StepInterval<float>&) const override;
+    bool		getTargetSampling(ZSampling&) const override;
+
+    StringView		toDomain() const override;
+    StringView		fromDomain() const override;
 
 protected:
 			uiTime2DepthZTransformBase(uiParent*,bool t2d);
 			~uiTime2DepthZTransformBase();
 
-    void		finalizeDoneCB(CallBacker*);
+    bool		isTimeToDepth() const		{ return t2d_; }
+
+    virtual void	doInitGrp()			{}
     virtual void	rangeChangedCB(CallBacker*) { rangechanged_ = true; }
 
+    uiZRangeInput*	rangefld_ = nullptr;
+    bool		rangechanged_ = false;
+
+private:
+    void		initGrp(CallBacker*);
+
     bool		t2d_;
-    uiZRangeInput*	rangefld_;
-    bool		rangechanged_;
 };

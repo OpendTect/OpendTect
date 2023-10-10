@@ -14,10 +14,12 @@ ________________________________________________________________________
 
 class Conn;
 class IOObj;
-class Translator;
 class Seis2DDataSet;
 class SeisPSIOProvider;
 class SeisTrcTranslator;
+class UnitOfMeasure;
+class Translator;
+namespace ZDomain	{ class Info; }
 namespace Coords	{ class CoordSystem; }
 namespace Seis		{ class SelData; }
 
@@ -83,6 +85,12 @@ public:
     virtual void	fillPar(IOPar&) const;
     static PtrMan<IOObj> getFromPar(const IOPar&);
 
+    const ZDomain::Info& zDomain() const;
+    bool		zIsTime() const;
+    bool		zInMeter() const;
+    bool		zInFeet() const;
+    const UnitOfMeasure* getZUnit() const;
+
     static const char*	sNrTrcs;
 
     // Note that the Translator is always created, but only actually used for 3D
@@ -107,6 +115,8 @@ public:
     static const char*	sKeyHeader();
 
     static IOObj&	getTmp(const char* fnm,bool isps,bool is2d);
+
+    static const ZDomain::Info& zDomain(const IOObj*);
 
 protected:
 

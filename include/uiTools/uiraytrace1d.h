@@ -63,6 +63,8 @@ protected:
     void		setAdvancedGroup(uiRayTracerAdvancedGrp*);
     void		parsChangedCB(CallBacker*);
 
+    static  bool	offsetsInFeet();
+
 private:
 
     void		initGrpCB(CallBacker*);

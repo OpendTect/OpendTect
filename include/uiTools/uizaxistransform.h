@@ -27,11 +27,12 @@ public:
 				~uiZAxisTransform();
 
     virtual void		enableTargetSampling();
-    virtual bool		getTargetSampling(StepInterval<float>&) const;
+    virtual bool		getTargetSampling(ZSampling&) const;
+
+    virtual StringView		toDomain() const		= 0;
+    virtual StringView		fromDomain() const		= 0;
 
     virtual ZAxisTransform*	getSelection()			= 0;
-    virtual StringView 	toDomain() const		= 0;
-    virtual StringView 	fromDomain() const		= 0;
     virtual bool		canBeField() const		= 0;
 				/*!Returns true if it can be in one line,
 				   i.e. as a part of a field. If true,
@@ -44,13 +45,10 @@ public:
     bool			is2D() const { return is2dzat_; }
 
 protected:
-    static bool 		isField(const uiParent*);
 				uiZAxisTransform(uiParent*);
-    void			rangeChangedCB(CallBacker*);
-    void			finalizeDoneCB(CallBacker*);
 
-    uiGenInput* 		rangefld_;
-    bool			rangechanged_;
+    static bool			isField(const uiParent*);
+
     bool			is2dzat_ = false;
 };
 
@@ -59,12 +57,12 @@ protected:
 mExpClass(uiTools) uiZAxisTransformSel : public uiDlgGroup
 { mODTextTranslationClass(uiZAxisTransformSel);
 public:
-				uiZAxisTransformSel(uiParent*, bool withnone,
-						    const char* fromdomain=0,
-						    const char* todomain=0,
-						    bool withsampling=false,
-						    bool asfield=false,
-						    bool is2d=false);
+				uiZAxisTransformSel(uiParent*,bool withnone,
+						const char* fromdomain=nullptr,
+						const char* todomain=nullptr,
+						bool withsampling=false,
+						bool asfield=false,
+						bool is2d=false);
 				~uiZAxisTransformSel();
 
     bool			isField() const;
@@ -77,7 +75,7 @@ public:
     int				nrTransforms() const;
 
     NotifierAccess*		selectionDone();
-    StringView 		selectedToDomain() const;
+    StringView			selectedToDomain() const;
 				/*<!Always available. */
 
     bool			acceptOK() override;
@@ -86,7 +84,7 @@ public:
     ZAxisTransform*		getSelection();
 				/*!<Only after successful acceptOK() */
 
-    bool			getTargetSampling(StepInterval<float>&) const;
+    bool			getTargetSampling(ZSampling&) const;
 				/*!<Only after successful acceptOK and only if
 				    withsampling was specified in constructor*/
 
@@ -94,10 +92,11 @@ public:
 				/*!<Only after successful acceptOK() */
 
 protected:
+    void			initGrp(CallBacker*);
     void			selCB(CallBacker*);
 
     bool			isfield_;
     BufferString		fromdomain_;
-    uiGenInput*			selfld_;
+    uiGenInput*			selfld_ = nullptr;
     ObjectSet<uiZAxisTransform>	transflds_;
 };

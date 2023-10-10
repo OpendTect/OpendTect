@@ -55,7 +55,8 @@ public:
 						    bool zistrans=false);
     virtual void		removeVolumeOfInterest(int volid);
 
-    virtual bool		loadDataIfMissing(int volid,TaskRunner* =0);
+    virtual bool		loadDataIfMissing(int volid,
+						  TaskRunner* =nullptr);
 
     virtual bool		canTransformSurv(OD::GeomSystem) const	= 0;
     virtual bool		isReferenceHorizon(const MultiID& horid,
@@ -64,56 +65,66 @@ public:
 
 				//Generic 2D and 3D
     virtual void		transformTrc(const TrcKey&,
-					  const SamplingData<float>&,
-					 int sz,float* res) const	= 0;
+					     const SamplingData<float>&,
+					     int sz,float* res) const	= 0;
     float			transformTrc(const TrcKey&,float z) const;
     virtual void		transformTrcBack(const TrcKey&,
 					  const SamplingData<float>&,
 					  int sz,float* res) const	= 0;
     float			transformTrcBack(const TrcKey&,float z) const;
 
-    virtual Interval<float>	getZInterval(bool from) const		= 0;
-				/*!\return the z interval in either to
-				     or from domain. */
+    virtual ZSampling		getZInterval(const ZSampling&,
+					     const ZDomain::Info& from,
+					     const ZDomain::Info& to,
+					     bool makenice=true) const;
+
+    ZSampling			getZInterval(bool from,
+					     bool makenice=true) const;
+				/*!\return the z sampling in either to
+				     or from domain.
+				     Includes a reasonable step in the
+				     transformed domain for from=false */
+
     virtual float		getZIntervalCenter(bool from) const;
 				/*!\return a position within the
 				    z-range that is a logical 'center' */
-    virtual float		getGoodZStep() const;
-				/*!\return a reasonable step in the
-				    transformed domain. Default
-				    implementation gives the same step as in
-				    SI() (i.e. non transformed domain) */
 
-    void			setVelUnitOfMeasure(const Scaler*);
-    const Scaler*		getVelUnitOfMeasure() const;
-
-    ZDomain::Info&		fromZDomainInfo() { return fromzdomaininfo_; }
-    ZDomain::Info&		toZDomainInfo()	  { return tozdomaininfo_; }
-    const ZDomain::Info&	fromZDomainInfo() const;
-    const ZDomain::Info&	toZDomainInfo() const;
     const char*			fromZDomainKey() const;
     const char*			toZDomainKey() const;
+    const ZDomain::Info&	fromZDomainInfo() const;
+    const ZDomain::Info&	toZDomainInfo() const;
+    ZDomain::Info&		fromZDomainInfo() { return fromzdomaininfo_; }
+    ZDomain::Info&		toZDomainInfo()   { return tozdomaininfo_; }
 
     virtual float		toZScale() const;
 				/*!<\returns the target domain z-scale. */
     virtual float		zScale() const { return toZScale(); }
 				/*!<Old name, use toZScale instead. */
 
-    virtual NotifierAccess*	changeNotifier()	{ return 0; }
+    virtual NotifierAccess*	changeNotifier()	{ return nullptr; }
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
 protected:
 				ZAxisTransform(const ZDomain::Def& from,
 					       const ZDomain::Def& to);
-    virtual			~ZAxisTransform();
+				~ZAxisTransform();
 
-    ZDomain::Info&		tozdomaininfo_;
+    virtual ZSampling		getWorkZrg(const ZSampling& zsamp,
+					   const ZDomain::Info& from,
+					   const ZDomain::Info& to)  const = 0;
+				/*!\returns the equivalent to zsamp
+				     in another zdomain.
+				     Can be an approxmation */
+
+    ZSampling			getZInterval(const ZSampling&,
+					     const ZDomain::Def& from,
+					     const ZDomain::Def& to,
+					     bool makenice=true) const = delete;
+
     ZDomain::Info&		fromzdomaininfo_;
+    ZDomain::Info&		tozdomaininfo_;
     mutable uiString		errmsg_;
-
-private:
-    const Scaler*		scaler_		= nullptr;
 
 public: //Legacy stuff
 

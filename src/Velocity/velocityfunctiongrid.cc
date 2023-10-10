@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "posinfo2d.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "veldesc.h"
 
 
 namespace Vel
@@ -32,14 +33,13 @@ GriddedFunction::~GriddedFunction()
 {
     deepUnRef( velocityfunctions_ );
     delete gridder_;
-    if ( directsource_ )
-	directsource_->unRef();
+    unRefPtr( directsource_ );
 }
 
 
 bool GriddedFunction::moveTo( const BinID& bid )
 {
-    if ( !Function::moveTo( bid ) )
+    if ( !Function::moveTo(bid) )
 	return false;
 
     fetchPerfectFit( bid );
@@ -58,8 +58,7 @@ void GriddedFunction::fetchPerfectFit( const BinID& bid )
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     if ( !gvs.sourcepos_.isValid(bid) )
     {
-	if ( directsource_ ) directsource_->unRef();
-	directsource_ = 0;
+	unRefAndNullPtr( directsource_ );
 	return;
     }
 
@@ -67,8 +66,7 @@ void GriddedFunction::fetchPerfectFit( const BinID& bid )
     ConstRefMan<Function> velfunc = getInputFunction( bid_, funcsource );
     if ( !velfunc )
     {
-	if ( directsource_ ) directsource_->unRef();
-	directsource_ = 0;
+	unRefAndNullPtr( directsource_ );
 	return;
     }
 
@@ -175,11 +173,10 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 	//Hack to hope for a better randomization
 	for ( int idx=0; idx<3; idx++ )
 	{
-	    if ( gridder_->setPoints( *ng.getPoints() ) )
+	    if ( gridder_->setPoints(*ng.getPoints()) )
 		break;
 	}
     }
-
 
     removeCache();
     fetchSources();
@@ -196,7 +193,7 @@ GriddedFunction::getInputFunction( const BinID& bid, int& funcsource )
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
 
-    ConstRefMan<Function> velfunc = 0;
+    ConstRefMan<Function> velfunc;
     for ( funcsource=0; funcsource<velfuncsources.size();
 	  funcsource++ )
     {
@@ -213,17 +210,18 @@ GriddedFunction::getInputFunction( const BinID& bid, int& funcsource )
 	if ( !velfunc )
 	    velfunc = velfuncsources[funcsource]->getFunction( bid );
 
-	if ( velfunc ) break;
+	if ( velfunc )
+	    break;
     }
 
     return velfunc;
 }
 
 
-StepInterval<float> GriddedFunction::getAvailableZ() const
+ZSampling GriddedFunction::getAvailableZ() const
 {
-    return velocityfunctions_.size() ? velocityfunctions_[0]->getAvailableZ()
-				     : SI().zRange(true);
+    return velocityfunctions_.isEmpty() ? SI().zRange(true)
+				: velocityfunctions_.first()->getAvailableZ();
 }
 
 
@@ -231,7 +229,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
     const bool nogridding = directsource_ || (velocityfunctions_.size() == 1);
-    const bool doinverse = nogridding ? false :getDesc().isVelocity();
+    const bool doinverse = nogridding ? false : getDesc().isVelocity();
     Coord workpos = Coord::udf();
     if ( !nogridding )
     {
@@ -261,7 +259,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
     mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
     const TrcKey tk( bid_ ); //TODO: Get a OD::GeomSystem from TrcKeySampling
     const Vel::Function* velsrc = directsource_ ? directsource_ :
-		!velocityfunctions_.isEmpty() ?  velocityfunctions_[0] : 0;
+	    !velocityfunctions_.isEmpty() ?  velocityfunctions_[0] : nullptr;
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;
@@ -350,6 +348,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 
 
 // GriddedSource
+
 GriddedSource::GriddedSource( const Pos::GeomID& geomid )
     : notifier_(this)
     , gridder_(new TriangulatedGridder2D)
@@ -363,11 +362,12 @@ GriddedSource::GriddedSource( const Pos::GeomID& geomid )
 
 GriddedSource::~GriddedSource()
 {
+    detachAllNotifiers();
     for ( int idx=datasources_.size()-1; idx>=0; idx-- )
     {
 	if ( datasources_[idx]->changeNotifier() )
-	    datasources_[idx]->changeNotifier()->remove(
-		    mCB( this, GriddedSource, sourceChangeCB ));
+	    mDetachCB( *datasources_[idx]->changeNotifier(),
+		       GriddedSource::sourceChangeCB );
     }
 
     deepUnRef( datasources_ );
@@ -377,13 +377,26 @@ GriddedSource::~GriddedSource()
 
 const VelocityDesc& GriddedSource::getDesc() const
 {
-    if ( datasources_.size() )
-	return datasources_[0]->getDesc();
+    if ( !datasources_.isEmpty() )
+	return datasources_.first()->getDesc();
 
-    static const VelocityDesc defdesc( VelocityDesc::Unknown );
-
+    static const VelocityDesc defdesc( Vel::Unknown );
     return defdesc;
 }
+
+
+const ZDomain::Info& GriddedSource::zDomain() const
+{
+    return datasources_.isEmpty() ? SI().zDomainInfo()
+				  : datasources_.first()->zDomain();
+}
+
+
+FunctionSource& GriddedSource::setZDomain( const ZDomain::Info& )
+{
+    return *this;
+}
+
 
 
 class GridderSourceFilter : public ParallelTask
@@ -489,7 +502,7 @@ bool GriddedSource::initGridder()
     if ( gridderinited_ )
 	return true;
 
-    Interval<float> xrg, yrg;
+    ::Interval<float> xrg, yrg;
     if ( geomid_.is2D() )
     {
 	auto* geom = Survey::GM().getGeometry( geomid_ );
@@ -536,12 +549,11 @@ bool GriddedSource::initGridder()
 	    //Hack to hope for a better randomization
             for ( int idy=0; idy<3; idy++ )
 	    {
-		if ( func->getGridder()->setPoints( gridsourcecoords_ ) )
+		if ( func->getGridder()->setPoints(gridsourcecoords_) )
 		    break;
 	    }
 	}
     }
-
 
     gridderinited_ = true;
     return true;
@@ -583,8 +595,8 @@ void GriddedSource::setSource( ObjectSet<FunctionSource>& nvfs )
     for ( int idx=datasources_.size()-1; idx>=0; idx-- )
     {
 	if ( datasources_[idx]->changeNotifier() )
-	    datasources_[idx]->changeNotifier()->remove(
-		    mCB(this,GriddedSource,sourceChangeCB) );
+	    mDetachCB( *datasources_[idx]->changeNotifier(),
+		       GriddedSource::sourceChangeCB );
     }
 
     deepUnRef( datasources_ );
@@ -594,8 +606,8 @@ void GriddedSource::setSource( ObjectSet<FunctionSource>& nvfs )
     for ( int idx=datasources_.size()-1; idx>=0; idx-- )
     {
 	if ( datasources_[idx]->changeNotifier() )
-	    datasources_[idx]->changeNotifier()->notify(
-		    mCB(this,GriddedSource,sourceChangeCB) );
+	    mAttachCB( *datasources_[idx]->changeNotifier(),
+		       GriddedSource::sourceChangeCB );
     }
 
     if ( datasources_.size() )
@@ -649,20 +661,22 @@ void GriddedSource::setLayerModel( const InterpolationLayerModel* mdl )
 
 GriddedFunction* GriddedSource::createFunction()
 {
-    GriddedFunction* res = new GriddedFunction( *this );
-    if ( gridder_ ) res->setGridder( *gridder_ );
-    if ( layermodel_ ) res->setLayerModel( layermodel_ );
+    auto* res = new GriddedFunction( *this );
+    if ( gridder_ )
+	res->setGridder( *gridder_ );
+    if ( layermodel_ )
+	res->setLayerModel( layermodel_ );
     return res;
 }
 
 
 GriddedFunction* GriddedSource::createFunction( const BinID& binid )
 {
-    GriddedFunction* res = createFunction();
+    auto* res = createFunction();
     if ( !res->moveTo(binid) )
     {
 	delete res;
-	return 0;
+	return nullptr;
     }
 
     return res;
@@ -718,7 +732,7 @@ bool GriddedSource::usePar( const IOPar& par )
     if ( !gridder )
 	return false;
 
-    if ( !gridder->usePar( *gridpar ) )
+    if ( !gridder->usePar(*gridpar) )
     {
 	delete gridder;
 	return false;
@@ -728,6 +742,5 @@ bool GriddedSource::usePar( const IOPar& par )
 
     return true;
 }
-
 
 } // namespace Vel

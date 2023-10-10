@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
+class UnitOfMeasure;
 
 
 /*!\brief Prestack Seismics objects provider
@@ -88,18 +89,18 @@ public:
 				// string-based interface, The key passed must
 				// be what IOObj::fullUsrExpr would return.
     virtual SeisPS3DReader*	make3DReader(const char*,int i=mUdf(int)) const
-				{ return 0; }
+				{ return nullptr; }
     virtual SeisPS2DReader*	make2DReader(const char*,Pos::GeomID) const
-				{ return 0; }
+				{ return nullptr; }
     virtual SeisPS2DReader*	make2DReader(const char*,const char* lnm) const
-				{ return 0; }
+				{ return nullptr; }
 
     virtual SeisPSWriter*	make3DWriter(const char*) const
-				{ return 0; }
+				{ return nullptr; }
     virtual SeisPSWriter*	make2DWriter(const char*,Pos::GeomID) const
-				{ return 0; }
+				{ return nullptr; }
     virtual SeisPSWriter*	make2DWriter(const char*,const char* lnm) const
-				{ return 0; }
+				{ return nullptr; }
 
     virtual bool		getGeomIDs(const char*,
 					   TypeSet<Pos::GeomID>&) const
@@ -109,6 +110,16 @@ public:
 
     static const char*		sKeyCubeID;
 
+    static const UnitOfMeasure* getOffsetsUnit(const IOObj*,bool& isfound);
+    static const UnitOfMeasure* getOffsetsUnit(bool infeet);
+    static bool			getOffsetsUnitYN(const IOPar&,bool& infeet);
+    static bool			offsetIsAngle(const IOObj*,bool& yn);
+    static bool			gathersAreCorrected(const IOObj*,bool& yn);
+
+    static bool			setOffsetsAreAngles(IOObj&,bool yn);
+    static bool			setGathersAreCorrected(IOObj&,bool yn);
+
+    static const char*		sKeyOffsetUnit() { return "Offset-Unit"; }
 
 protected:
 

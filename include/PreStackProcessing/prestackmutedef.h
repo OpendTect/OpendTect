@@ -14,6 +14,9 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "namedobj.h"
 
+class UnitOfMeasure;
+namespace ZDomain { class Info; }
+
 
 namespace PreStack
 {
@@ -33,13 +36,16 @@ public:
 
     int					size() const;
     int					indexOf(const BinID&) const;
-    PointBasedMathFunction&		getFn(int idx);
-    BinID&				getPos(int idx);
     const PointBasedMathFunction&	getFn(int idx) const;
     const BinID&			getPos(int idx) const;
+    PointBasedMathFunction&		getFn(int idx);
+    BinID&				getPos(int idx);
+
+    void				fillPar(IOPar&) const;
+    bool				usePar(const IOPar&);
 
     void				add(PointBasedMathFunction*,
-					    const BinID& pos);
+					    const BinID&);
 					//!<Function becomes mine.
     void				remove(int idx);
     float				value(float offs,const BinID&) const;
@@ -54,14 +60,29 @@ public:
     bool				isChanged() const { return ischanged_; }
     void				setChanged(bool yn) { ischanged_=yn; }
 
+    const ZDomain::Info&		zDomain() const;
+    bool				zIsTime() const;
+    bool				zInMeter() const;
+    bool				zInFeet() const;
+    bool				isOffsetInMeters() const;
+    bool				isOffsetInFeet() const;
+    MuteDef&				setZDomain(const ZDomain::Info&);
+    MuteDef&				setOffsetsInFeet(bool yn);
+    const UnitOfMeasure*		getZUnit() const;
+    const UnitOfMeasure*		getOffsetUnit() const;
+
     void				setReferenceHorizon(const MultiID&);
     const MultiID&			getReferenceHorizon() const;
+
+    static const char*			sKeyRefHor();
 
 protected:
 
     ObjectSet<PointBasedMathFunction>	fns_;
     TypeSet<BinID>			pos_;
     MultiID				refhor_;
+    const ZDomain::Info*		zdomaininfo_;
+    bool				offsetsinfeet_;
 
     bool				ischanged_ = false;
 

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
+#include "zdomain.h"
 
 static Threads::Atomic<int> curdatasetid_( 0 );
 
@@ -159,16 +160,19 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 	    return nullptr;
 
 	const bool iscorrected = sgp.isCorrected();
+	const ZDomain::Info& zinfo = ZDomain::TWT();
+	const bool offsetsareangle = false;
+	const bool offsetsinfeet = sgp.offsetsInFeet();
 	RefObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
 	{
 	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
 	    RefMan<PreStack::Gather> gather = new PreStack::Gather();
-	    if ( !gather->setFromTrcBuf(*tbuf,0) )
+	    if ( !gather->setFromTrcBuf(*tbuf,0,iscorrected,zinfo,
+					offsetsareangle,offsetsinfeet))
 		continue;
 
 	    gather->setName( sgp.name_ );
-	    gather->setCorrected( iscorrected );
 	    gatherset += gather;
 	}
 

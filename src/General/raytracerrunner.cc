@@ -49,10 +49,11 @@ RayTracerRunner::RayTracerRunner( const IOPar& raypars )
 
 
 RayTracerRunner::RayTracerRunner( const ElasticModelSet& aims,
-				  const IOPar& raypars )
+				  const IOPar& raypars,
+				  const RayTracer1D::Setup* rtsu )
     : RayTracerRunner(raypars)
 {
-    setModel( aims );
+    setModel( aims, rtsu );
 }
 
 
@@ -84,17 +85,20 @@ od_int64 RayTracerRunner::nrDone() const
 }
 
 
-void RayTracerRunner::setOffsets( const TypeSet<float>& offsets )
+void RayTracerRunner::setOffsets( const TypeSet<float>& offsets,
+				  bool offsetsinfeet )
 {
     raypar_.set( RayTracer1D::sKeyOffset(), offsets );
+    raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(), offsetsinfeet );
     for ( auto* rt : raytracers_ )
-	rt->setOffsets( offsets );
+	rt->setOffsets( offsets, offsetsinfeet );
 }
 
 
 #define mErrRet(msg) { msg_ = msg; return false; }
 
-bool RayTracerRunner::setModel( const ElasticModelSet& aimodels )
+bool RayTracerRunner::setModel( const ElasticModelSet& aimodels,
+				const RayTracer1D::Setup* rtsu )
 {
     deepErase( raytracers_ );
 
@@ -109,7 +113,7 @@ bool RayTracerRunner::setModel( const ElasticModelSet& aimodels )
     for ( const auto* aimodel : aimodels )
     {
 	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, aimodel,
-							 errmsg );
+							 errmsg, rtsu );
 	if ( !rt1d )
 	{
 	    uiString msg = tr( "Wrong input for raytracing on model: %1" )
@@ -218,6 +222,7 @@ bool RayTracerRunner::getResults( ReflectivityModelSet& ret ) const
 ConstRefMan<ReflectivityModelSet> RayTracerRunner::getRefModels(
 				    const ElasticModelSet& emodels,
 				    const IOPar& raypar, uiString& msg,
+				    const RayTracer1D::Setup* rtsu,
 				    TaskRunner* taskrun,
 			    const ObjectSet<const TimeDepthModel>* tdmodels )
 {
@@ -236,7 +241,7 @@ ConstRefMan<ReflectivityModelSet> RayTracerRunner::getRefModels(
     if ( !raypar.isPresent(RayTracer1D::sKeyOffset()) )
 	RayTracer1D::setIOParsToZeroOffset( raypars );
 
-    RayTracerRunner rtrunner( emodels, raypars );
+    RayTracerRunner rtrunner( emodels, raypars, rtsu );
     bool parallel = true;
     if ( raypars.getYN(sKeyParallel(),parallel) )
 	rtrunner.doParallel( parallel );

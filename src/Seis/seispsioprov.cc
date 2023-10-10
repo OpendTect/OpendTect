@@ -8,25 +8,35 @@ ________________________________________________________________________
 -*/
 
 #include "seispsioprov.h"
-#include "seispsread.h"
-#include "seispswrite.h"
+
+#include "file.h"
+#include "iodir.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "iox.h"
+#include "posinfo.h"
+#include "seisbuf.h"
+#include "seiscbvsps.h"
+#include "seispacketinfo.h"
 #include "seispscubetr.h"
 #include "seispsfact.h"
-#include "seiscbvsps.h"
+#include "seispsread.h"
+#include "seispswrite.h"
 #include "seisselection.h"
-#include "seisbuf.h"
 #include "seistrc.h"
-#include "seispacketinfo.h"
-#include "posinfo.h"
 #include "survinfo.h"
-#include "file.h"
-#include "iox.h"
-#include "ioman.h"
-#include "iodir.h"
-#include "iopar.h"
+#include "unitofmeasure.h"
 
 
 const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";
+
+namespace PreStack
+{
+
+static const char* sKeyIsCorr = "Is Corrected";
+static const char* sKeyIsAngleGather = "Angle Gather";
+
+}
 
 
 Pos::GeomID SeisPS3DReader::geomID() const
@@ -112,6 +122,89 @@ bool SeisPSIOProvider::getLineNames( const char* dirnm,
 
     return linenms.size();
 }
+
+
+const UnitOfMeasure* SeisPSIOProvider::getOffsetsUnit( const IOObj*,
+						       bool& isfound )
+{
+    //TODO impl from IOObj
+    isfound = true;
+    return UnitOfMeasure::surveyDefOffsetUnit();
+}
+
+
+const UnitOfMeasure* SeisPSIOProvider::getOffsetsUnit( bool infeet )
+{
+    return infeet ? UnitOfMeasure::feetUnit()
+		  : UnitOfMeasure::meterUnit();
+}
+
+
+bool SeisPSIOProvider::getOffsetsUnitYN( const IOPar& par, bool& infeet )
+{
+    BufferString offsetunit;
+    if ( !par.get(sKeyOffsetUnit(),offsetunit) || offsetunit.isEmpty() )
+	return false;
+
+    const UnitOfMeasure* offsuom = UoMR().get( Mnemonic::Dist,
+					       offsetunit.str() );
+    if ( offsuom && offsuom == UnitOfMeasure::meterUnit() )
+    {
+	infeet = false;
+	return true;
+    }
+    else if ( offsuom && offsuom == UnitOfMeasure::feetUnit() )
+    {
+	infeet = true;
+	return true;
+    }
+
+    return false;
+}
+
+
+bool SeisPSIOProvider::offsetIsAngle( const IOObj* ioobj, bool& yn )
+{
+    if ( !ioobj )
+	return false;
+
+    bool offsetisangle;
+    if ( !ioobj->pars().getYN(PreStack::sKeyIsAngleGather,offsetisangle) )
+	return false;
+
+    yn = offsetisangle;
+    return true;
+}
+
+
+bool SeisPSIOProvider::gathersAreCorrected( const IOObj* ioobj, bool& yn )
+{
+    if ( !ioobj )
+	return false;
+
+    bool iscorr;
+    if ( !ioobj->pars().getYN(PreStack::sKeyIsCorr,iscorr) )
+	if ( !ioobj->pars().getYN("Is NMO Corrected",iscorr) )
+	    return false;
+
+    yn = iscorr;
+    return true;
+}
+
+
+bool SeisPSIOProvider::setOffsetsAreAngles( IOObj& ioobj, bool yn )
+{
+    ioobj.pars().setYN( PreStack::sKeyIsAngleGather, yn );
+    return IOM().commitChanges( ioobj );
+}
+
+
+bool SeisPSIOProvider::setGathersAreCorrected( IOObj& ioobj, bool yn )
+{
+    ioobj.pars().setYN( PreStack::sKeyIsCorr, yn );
+    return IOM().commitChanges( ioobj );
+}
+
 
 
 SeisPSIOProviderFactory& SPSIOPF()
@@ -332,7 +425,7 @@ SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcidx ) const
 }
 
 
-StepInterval<float> SeisPSReader::getZRange() const
+ZSampling SeisPSReader::getZRange() const
 {
     return SI().zRange( true );
 }

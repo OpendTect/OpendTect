@@ -18,10 +18,10 @@ ________________________________________________________________________
 mImplFactory(RayTracer1D,RayTracer1D::factory)
 
 
-StepInterval<float> RayTracer1D::sDefOffsetRange()
+StepInterval<float> RayTracer1D::sDefOffsetRange( bool infeet )
 {
-    return SI().xyInFeet() ? StepInterval<float>( 0.f, 18000.f, 300.f )
-			   : StepInterval<float>( 0.f, 6000.f, 100.f );
+    return infeet ? StepInterval<float>( 0.f, 18000.f, 300.f )
+		  : StepInterval<float>( 0.f, 6000.f, 100.f );
 }
 
 
@@ -31,6 +31,10 @@ RayTracer1D::Setup::Setup()
     : pdown_(true)
     , pup_(true)
     , doreflectivity_(true)
+    , starttime_(0.f)
+    , startdepth_(0.f)
+    , depthsinfeet_(false)
+    , offsetsinfeet_(false)
 {
 }
 
@@ -43,7 +47,7 @@ RayTracer1D::Setup::~Setup()
 bool RayTracer1D::Setup::usePar( const IOPar& par )
 {
     par.getYN( sKeyWavetypes(), pdown_, pup_ );
-    par.getYN( sKeyReflectivity(), doreflectivity_);
+    par.getYN( sKeyReflectivity(), doreflectivity_ );
     return true;
 }
 
@@ -71,15 +75,16 @@ RayTracer1D::~RayTracer1D()
 }
 
 
-RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
+RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm,
+					  const Setup* rtsu )
 {
-    return createInstance( par, nullptr, errm );
+    return createInstance( par, nullptr, errm, rtsu );
 }
 
 
 RayTracer1D* RayTracer1D::createInstance( const IOPar& par,
 					  const ElasticModel* model,
-					  uiString& errm )
+					  uiString& errm, const Setup* rtsu )
 {
     BufferString typekey;
     par.get( sKey::Type(), typekey );
@@ -98,6 +103,9 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par,
 	errm = tr("Raytracer not found. Perhaps all plugins are not loaded");
 	return nullptr;
     }
+
+    if ( rtsu )
+	raytracer->setup() = *rtsu;
 
     if ( !raytracer->usePar(par) )
     {
@@ -122,16 +130,12 @@ bool RayTracer1D::usePar( const IOPar& par )
     TypeSet<float> offsets;
     par.get( sKeyOffset(), offsets );
     if ( offsets.isEmpty() )
-	offsets += 0;
+	offsets += 0.f;
 
     bool offsetisinfeet = false;
-    if ( par.getYN(sKeyOffsetInFeet(),offsetisinfeet) && offsetisinfeet )
-    {
-	for ( int idx=0; idx<offsets.size(); idx++ )
-	    offsets[idx] = offsets[idx] * mFromFeetFactorF;
-    }
+    par.getYN( sKeyOffsetInFeet(), offsetisinfeet );
+    setOffsets( offsets, offsetisinfeet );
 
-    setOffsets( offsets );
     return setup().usePar( par );
 }
 
@@ -142,6 +146,10 @@ void RayTracer1D::fillPar( IOPar& par ) const
     TypeSet<float> offsets;
     getOffsets( offsets );
     par.set( sKeyOffset(), offsets );
+    if ( offsets.size() > 1 ||
+	 (offsets.size() == 1 && !mIsZero(offsets.first(),1e-2f)) )
+	par.setYN( sKeyOffsetInFeet(), offsetsInFeet() );
+
     setup().fillPar( par );
 }
 
@@ -160,18 +168,26 @@ bool RayTracer1D::hasSameParams( const RayTracer1D& rt ) const
 
 void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
 {
-    TypeSet<float> emptyset; emptyset += 0;
+    TypeSet<float> emptyset; emptyset += 0.f;
     par.set( RayTracer1D::sKeyOffset(), emptyset );
+    par.removeWithKey( RayTracer1D::sKeyOffsetInFeet() );
 }
 
 
-void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
+void RayTracer1D::setOffsets( const TypeSet<float>& offsets,
+			      bool offsetsinfeet )
 {
     offsets_ = offsets;
     sort( offsets_ );
-    if ( SI().zInFeet() )
+
+    if ( offsetsinfeet && !offsetsInFeet() )
     {
-	for ( int idx=0; idx<offsets_.size(); idx++ )
+	for ( int idx=0; idx<offsets.size(); idx++ )
+	    offsets_[idx] *= mFromFeetFactorF;
+    }
+    else if ( !offsetsinfeet && offsetsInFeet() )
+    {
+	for ( int idx=0; idx<offsets.size(); idx++ )
 	    offsets_[idx] *= mToFeetFactorF;
     }
 
@@ -190,11 +206,12 @@ void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
 {
     offsets = offsets_;
-    if ( SI().zInFeet() )
-    {
-	for ( int idx=0; idx<offsets.size(); idx++ )
-	    offsets[idx] *= mFromFeetFactorF;
-    }
+}
+
+
+bool RayTracer1D::offsetsInFeet() const
+{
+    return setup().offsetsinfeet_;
 }
 
 
@@ -221,7 +238,7 @@ bool RayTracer1D::setModel( const ElasticModel& lys )
 
     int firsterror = -1;
     model_.checkAndClean( firsterror, setup().doreflectivity_,
-			  reqtyp == RefLayer::Elastic );
+			  reqtyp >= RefLayer::Elastic );
 
     if ( model_.isEmpty() )
 	msg_ = tr( "Model is empty" );
@@ -251,8 +268,11 @@ bool RayTracer1D::doPrepare( int nrthreads )
 	return false;
     }
 
-    OffsetReflectivityModel::Setup rmsu( true, setup().doreflectivity_ );
-    rmsu.pdown( setup().pdown_ ).pup( setup().pup_ );
+    const Setup& su = setup();
+    OffsetReflectivityModel::Setup rmsu( true, su.doreflectivity_ );
+    rmsu.pdown( su.pdown_ ).pup( su.pup_ ).starttime( su.starttime_ )
+	.startdepth( su.startdepth_ ).depthsinfeet( su.depthsinfeet_ );
+    rmsu.offsetsinfeet( offsetsInFeet() );
     refmodel_ = new OffsetReflectivityModel( getModel(), rmsu,
 					     &offsets_, velmax_ );
     if ( !refmodel_ || !refmodel_->isOK() )
@@ -304,7 +324,20 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     const float downvel = setup().pdown_ ? ailayer.getPVel()
 					 : ailayer.getSVel();
 
+    if ( mIsUdf(downvel) || mIsUdf(rayparam) ||
+	 !Math::IsNormalNumber(downvel) || !Math::IsNormalNumber(rayparam) )
+    {
+	pErrMsg("Invalid angle");
+	DBG::forceCrash(false);
+    }
+
     const float sini = downvel * rayparam;
+    if ( mIsUdf(sini) || !Math::IsNormalNumber(sini) )
+    {
+	pErrMsg("Invalid angle");
+	DBG::forceCrash(false);
+    }
+
     sinarr_[offsetidx][layer] = sini;
 
     if ( !reflectivities_ || layer>=model_.size()-1 )
@@ -397,17 +430,26 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
     const int offsz = offsets_.size();
 
+    const float startdepth = setup().startdepth_;
+    const bool depthsinfeet = setup().depthsinfeet_;
+    const bool offsetsinfeet = setup().offsetsinfeet_;
     for ( int layer=mCast(int,start); layer<=stop; layer++, addToNrDone(1) )
     {
 	const RefLayer& ellayer = *model_.get( layer );
 	if ( !setup_.pdown_ && !ellayer.isElastic() )
 	    return false;
 
-	const float depth = 2.f * depths_[layer];
+	float depth = 2.f * (depths_[layer] - startdepth);
+	if ( depthsinfeet )
+	    depth *= mFromFeetFactorF;
+
 	const float vel = setup_.pdown_ ? ellayer.getPVel() : ellayer.getSVel();
 	for ( int osidx=0; osidx<offsz; osidx++ )
 	{
-	    const float offset = offsets_[osidx];
+	    float offset = offsets_[osidx];
+	    if ( offsetsinfeet )
+		offset *= mFromFeetFactorF;
+
 	    const float angle = depth ? atan( offset / depth ) : 0.f;
 	    const float rayparam = sin(angle) / vel;
 
@@ -428,8 +470,14 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const float tnmo = zerooffstwt_[layer];
-    const float vrms = velmax_[layer];
-    const float off = offsets_[offsetidx];
+    float vrms = velmax_[layer];
+    if ( setup().depthsinfeet_ )
+	vrms *= mFromFeetFactorF;
+
+    float off = offsets_[offsetidx];
+    if ( setup().offsetsinfeet_ )
+	off *= mFromFeetFactorF;
+
     float twt = tnmo;
     if ( vrms && !mIsUdf(tnmo) )
 	twt = Math::Sqrt(off*off/(vrms*vrms) + tnmo*tnmo);

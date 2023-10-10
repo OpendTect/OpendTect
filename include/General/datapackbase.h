@@ -22,6 +22,7 @@ ________________________________________________________________________
 class FlatPosData;
 class Scaler;
 class TaskRunner;
+class UnitOfMeasure;
 namespace ZDomain { class Info; }
 
 
@@ -193,7 +194,7 @@ protected:
 /*!\brief DataPack for volume data. Should be renamed to VolumeDataPack later*/
 
 mExpClass(General) SeisDataPack : public DataPack
-{
+{ mODTextTranslationClass(SeisDataPack)
 public:
 
     virtual bool		is2D() const				= 0;
@@ -231,9 +232,14 @@ public:
     const Array3DImpl<float>&	data(int component=0) const;
     Array3DImpl<float>&		data(int component=0);
 
-    void			setZDomain(const ZDomain::Info&);
-    const ZDomain::Info&	zDomain() const
-				{ return *zdomaininfo_; }
+    SeisDataPack&		setZDomain(const ZDomain::Info&);
+    const ZDomain::Info&	zDomain() const { return *zdomaininfo_; }
+    const UnitOfMeasure*	getZUnit() const;
+    BufferString		unitStr(bool val,bool withparens=false) const;
+
+    const UnitOfMeasure*	valUnit() const { return valunit_; }
+    void			setValUnit( const UnitOfMeasure* uom )
+				{ valunit_ = uom; }
 
     void			setScaler(const Scaler&);
     void			deleteScaler();
@@ -265,8 +271,9 @@ protected:
     BufferStringSet			componentnames_;
     ObjectSet<Array3DImpl<float> >	arrays_;
     TypeSet<float>			refnrs_;
-    ZDomain::Info*			zdomaininfo_;
+    const ZDomain::Info*		zdomaininfo_;
     BinDataDesc				desc_;
     const Scaler*			scaler_ = nullptr;
+    const UnitOfMeasure*		valunit_ = nullptr;
     RandomLineID			rdlid_;
 };

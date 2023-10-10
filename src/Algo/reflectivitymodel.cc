@@ -288,6 +288,7 @@ bool ReflectivityModelBase::isSpikeDefined( int ioff, int idz ) const
 
 OffsetReflectivityModel::Setup::Setup( bool withangles, bool withreflectivity )
     : ReflectivityModelBase::Setup(true,withangles,withreflectivity)
+    , offsetsinfeet_(false)
 {
 }
 
@@ -417,9 +418,10 @@ bool ReflectivityModelSet::hasSameParams( const IOPar& othcreatepars ) const
     if ( RayTracer1D::factory().hasName(type1str) )
     {
 	uiString msg1, msg2;
-	ConstPtrMan<RayTracer1D> rt = RayTracer1D::createInstance( iop, msg1 );
+	ConstPtrMan<RayTracer1D> rt =
+			     RayTracer1D::createInstance( iop, msg1 );
 	ConstPtrMan<RayTracer1D> othrt =
-				     RayTracer1D::createInstance( othiop, msg2);
+			     RayTracer1D::createInstance( othiop, msg2 );
 	if ( !rt || !othrt || !msg1.isEmpty() || !msg2.isEmpty() )
 	    return false;
 

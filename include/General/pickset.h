@@ -8,18 +8,22 @@ ________________________________________________________________________
 
 -*/
 
-#include "sharedobject.h"
-#include "picklocation.h"
+#include "generalmod.h"
+
+#include "draw.h"
 #include "enums.h"
 #include "namedobj.h"
-#include "trckey.h"
+#include "picklocation.h"
 #include "sets.h"
-#include "draw.h"
+#include "sharedobject.h"
 #include "tableascio.h"
+#include "trckey.h"
+
 template <class T> class ODPolygon;
 
 class DataPointSet;
 class TrcKeyZSampling;
+class UnitOfMeasure;
 class uiComboBox;
 
 
@@ -31,30 +35,26 @@ namespace Pick
 mExpClass(General) Set : public SharedObject
 {
 public:
-			Set(const char* nm=0);
+			Set(const char* nm=nullptr);
 			Set(const Set&);
 
     Set&		operator =(const Set&);
 
     struct Disp
     {
-			Disp()
-			    : color_(OD::Color::NoColor())
-			    , fillcolor_(OD::Color::NoColor())
-			    , pixsize_(3)
-			    , markertype_(3) // Sphere
-			    , dofill_(false)
-			    , connect_(None)
-			{}
+			Disp();
+			~Disp();
+
 	enum Connection { None, Open, Close };
 			mDeclareEnumUtils(Connection)
-	OD::Color	color_;		//!< marker color
-	OD::Color	fillcolor_;	//!< surface color
-	int		pixsize_;	//!< size in pixels
-	int		markertype_;	//!< MarkerStyle3D
-	bool		dofill_;	//!< Fill?
+
+	OD::Color	color_ = OD::Color::NoColor();	//!< marker color
+	OD::Color	fillcolor_ = OD::Color::NoColor(); //!< surface color
+	int		pixsize_ = 3;		//!< size in pixels
+	int		markertype_ = 3;	//!< MarkerStyle3D
+	bool		dofill_ = false;	//!< Fill?
 	OD::LineStyle	linestyle_;		//!< line type
-	Connection	connect_;	//!< connect picks in set order
+	Connection	connect_ = None;	//!< connect picks in set order
     };
 
     int			add(const Location&);
@@ -88,6 +88,12 @@ public:
 			//!< default is 3D
     OD::GeomSystem	geomSystem() const;
 			//!< pre-6.0.1 sets will return the survID of first loc
+    const ZDomain::Info& zDomain() const;
+    bool		zIsTime() const;
+    bool		zInMeter() const;
+    bool		zInFeet() const;
+    const UnitOfMeasure* getZUnit() const;
+    Set&		setZDomain(const ZDomain::Info&);
 
     bool		isPolygon() const;
     void		getPolygon(ODPolygon<double>&,int idx=0) const;
@@ -149,9 +155,10 @@ private:
 					 const TypeSet<Pick::Location>&);
 
     TypeSet<int>	startidxs_;
-    bool		readonly_;
+    bool		readonly_ = false;
 
     TypeSet<Location>	locations_;
+    ZDomain::Info*	zdomaininfo_;
 
     void		refNotify() const override;
     void		unRefNotify() const override;

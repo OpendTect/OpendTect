@@ -240,7 +240,9 @@ const mVisTrans* RandomTrackDisplay::getDisplayTransformation() const
 
 float RandomTrackDisplay::appliedZRangeStep() const
 {
-    float step = datatransform_ ? datatransform_->getGoodZStep() : SI().zStep();
+    float step = datatransform_
+	       ? datatransform_->getZInterval( false ).step
+	       : SI().zStep();
     if ( scene_ )
 	step = scene_->getTrcKeyZSampling().zsamp_.step;
 
@@ -697,7 +699,6 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this,RandomTrackDisplay,dataTransformCB) );
 	datatransform_->unRef();
-	datatransform_ = 0;
     }
 
     datatransform_ = zat;
@@ -711,7 +712,6 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 		    mCB(this,RandomTrackDisplay,dataTransformCB) );
 
 	dragger_->updateZLimit( datatransform_->getZInterval(false) );
-
     }
 
     return true;
@@ -733,7 +733,7 @@ void RandomTrackDisplay::updateRanges(bool resetinlcrl, bool resetz )
 {
     if ( resetz )
     {
-	const Interval<float>& depthrg = datatransform_->getZInterval(false);
+	const ZSampling depthrg = datatransform_->getZInterval( false );
 	setPanelStripZRange( depthrg );
 	dragger_->setDepthRange( depthrg );
 	moving_.trigger();
@@ -870,11 +870,12 @@ void RandomTrackDisplay::createTransformedDataPack(
 		tkzs.hsamp_.include( path[idx] );
 	    tkzs.zsamp_.setInterval( panelstrip_->getZRange() );
 	    tkzs.zsamp_.step = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step
-				      : datatransform_->getGoodZStep();
+			     : datatransform_->getZInterval( false ).step;
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
 		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
+
 	    datatransform_->loadDataIfMissing( voiidx_, taskr );
 	}
 

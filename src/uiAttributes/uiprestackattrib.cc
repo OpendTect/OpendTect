@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "prestackanglecomputer.h"
 #include "prestackanglemute.h"
 #include "prestackprop.h"
+#include "survinfo.h"
 #include "windowfunction.h"
 
 #include "uiattribfactory.h"

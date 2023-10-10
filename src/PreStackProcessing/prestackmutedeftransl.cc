@@ -136,9 +136,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     if ( hasiopar )
     {
 	IOPar pars( astrm );
-	MultiID hormid;
-	pars.get( sKeyRefHor(), hormid );
-	md.setReferenceHorizon( hormid );
+	md.usePar( pars );
     }
 
     if ( atEndOfSection(astrm) ) astrm.next();
@@ -152,7 +150,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 
     for ( int ifn=0; !atEndOfSection(astrm); ifn++ )
     {
-	if ( astrm.hasKeyword(sKeyRefHor()) )
+	if ( astrm.hasKeyword(PreStack::MuteDef::sKeyRefHor()) )
 	{
 	    const MultiID hormid( astrm.value() );
 	    md.setReferenceHorizon( hormid );
@@ -258,7 +256,7 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
     if ( hasiopar )
     {
 	IOPar pars;
-	pars.set( sKeyRefHor(), md.getReferenceHorizon() );
+	md.fillPar( pars );
 	pars.putTo( astrm );
     }
 
@@ -269,7 +267,8 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
     for ( int imd=0; imd<md.size(); imd++ )
     {
 	if ( !imd && !hasiopar )
-	    astrm.put( sKeyRefHor(), md.getReferenceHorizon() );
+	    astrm.put( PreStack::MuteDef::sKeyRefHor(),
+		       md.getReferenceHorizon() );
 
 	astrm.put( sKey::Position(), md.getPos(imd).toString() );
 	const PointBasedMathFunction& pbmf = md.getFn( imd );
@@ -289,8 +288,8 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 
     if ( strm.isOK() )
     {
-	const_cast<PreStack::MuteDef&>(md).setChanged( false );
-	return 0;
+	const_cast<PreStack::MuteDef&>( md ).setChanged( false );
+	return nullptr;
     }
 
     return "Error during write to output Mute Definition file";

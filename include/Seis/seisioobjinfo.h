@@ -24,7 +24,8 @@ class SeisIOObjInfo;
 class SeisTrcTranslator;
 class SurveyChanger;
 class TrcKeyZSampling;
-namespace ZDomain { class Def; }
+class UnitOfMeasure;
+namespace ZDomain { class Def; class Info; }
 
 
 /*!\brief Summary for a Seismic object */
@@ -109,9 +110,24 @@ public:
 
     Seis::GeomType	geomType() const	{ return geomtype_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
+    const ZDomain::Info& zDomain() const;
+    const ZDomain::Def& zDomainDef() const;
     bool		isTime() const;
     bool		isDepth() const;
-    const ZDomain::Def&	zDomainDef() const;
+    bool		zInMeter() const;
+    bool		zInFeet() const;
+    const UnitOfMeasure* getZUnit() const;
+    ZSampling		getConvertedZrg(const ZSampling&) const;
+			/*!\ If the dataset zunit is not the project zdomain
+			     unit, convert zsamp to the project zdomain unit
+			     Does not convert accross domains (Time/Depth)  */
+
+    const UnitOfMeasure* getOffsetsUnit() const;
+			//<! Pre-Stack only
+    bool		offsetIsAngle() const;
+			//<! Pre-Stack only
+    bool		isCorrected() const;
+			//<! Pre-Stack only
 
     mStruct(Seis) SpaceInfo
     {

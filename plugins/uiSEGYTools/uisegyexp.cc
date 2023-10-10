@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "od_iostream.h"
 #include "oddirs.h"
+#include "seisstor.h"
 #include "segybatchio.h"
 #include "segydirecttr.h"
 #include "segyhdr.h"
@@ -814,18 +815,9 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj )
     if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
 	return false;
 
-    const IOObj* useoutioobj = &outioobj;
-    IOObj* tmpioobj = nullptr;
-    const bool inissidom = ZDomain::isSI( inioobj.pars() );
-    if ( !inissidom )
-    {
-	tmpioobj = outioobj.clone();
-	ZDomain::Def::get(inioobj.pars()).set( tmpioobj->pars() );
-	useoutioobj = tmpioobj;
-    }
-
-#   define mRet(yn) \
-    { delete tmpioobj; return yn; }
+    PtrMan<IOObj> useoutioobj = outioobj.clone();
+    if ( SeisStoreAccess::zDomain(&inioobj).fillPar(useoutioobj->pars()) )
+	IOM().commitChanges( *useoutioobj );
 
     BufferString execnm( "Output seismic data" );
     if ( transffld_->selFld2D() && transffld_->selFld2D()->isSingLine() )
@@ -838,12 +830,9 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj )
 			    execnm, tr("Writing traces"),
 			    seissel_->compNr() );
     if ( !exec )
-	mRet( false )
+	return false;
 
     uiTaskRunner dlg( this );
-    const bool rv = TaskRunner::execute( &dlg, *exec );
-    if ( tmpioobj )
-	IOM().commitChanges( *tmpioobj );
-
-    mRet( rv )
+    const bool res = TaskRunner::execute( &dlg, *exec );
+    return res;
 }

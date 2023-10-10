@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "trckeyzsampling.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
 #include "zdomain.h"
 
 #include "uiioobjselgrp.h"
@@ -244,7 +246,7 @@ const uiSeisFileMan::BrowserDef* uiSeisFileMan::getBrowserDef() const
 static BufferString getInfoText( const IOObj& ioobj )
 {
     BufferString txt;
-    SeisIOObjInfo oinf( ioobj );
+    const SeisIOObjInfo oinf( ioobj );
     if ( !ioobj.implExists(true) || !oinf.isOK() )
 	return txt;
 
@@ -262,7 +264,7 @@ static BufferString getInfoText( const IOObj& ioobj )
     .add(cs.hsamp_.stop_.line) \
     .add(" [").add(cs.hsamp_.step_.line).add("]")
 
-    const ZDomain::Def& zddef = oinf.zDomainDef();
+    const ZDomain::Info& zinfo = oinf.zDomain();
     TrcKeyZSampling cs;
     if ( !is2d )
     {
@@ -281,13 +283,17 @@ static BufferString getInfoText( const IOObj& ioobj )
 		mAddRangeTxt(crl());
 	    }
 
-	    StepInterval<float> zrg = cs.zsamp_;
-	    zrg.scale( zddef.userFactor() );
-	    const int nrdec = SI().nrZDecimals();
-	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
-		.add(zddef.unitStr(true)).add(": ").add( zrg.start, nrdec )
-		.add(" - ").add( zrg.stop, nrdec )
-		.add(" [").add( zrg.step, nrdec ).add("]");
+	    ZSampling zrg = cs.zsamp_;
+	    const int nrdec = zinfo.def_.nrZDecimals( zrg.step );
+	    zrg.scale( zinfo.def_.userFactor() );
+	    const uiString unitstr = zinfo.uiUnitStr( true );
+	    BufferString keystr = toString( zinfo.def_.getRange() );
+	    keystr.addSpace().add( toString(unitstr) );
+	    txt.addNewLine()
+	       .add( keystr.str() )
+	       .add( ": " ).add( zrg.start, nrdec )
+	       .add( " - " ).add( zrg.stop, nrdec )
+	       .add( " [" ).add( zrg.step, nrdec ).add( "]" );
 
 	    SeisIOObjInfo::SpaceInfo spcinfo;
 	    double area;
@@ -317,41 +323,31 @@ static BufferString getInfoText( const IOObj& ioobj )
 	if ( !parstr.isEmpty() )
 	    txt.add( "\nOptimized direction: " ).add( parstr );
 
-	if ( pars.isTrue("Is Velocity") )
+	VelocityDesc desc;
+	if ( desc.usePar(pars) )
 	{
-	    Interval<float> topvavg, botvavg;
-	    txt += "\nVelocity Type: ";
-	    parstr = pars.find( "Velocity Type" );
-	    txt += parstr.isEmpty() ? "<unknown>" : parstr.str();
-
-	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
-	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
+	    txt.add( "\nVelocity Type: " ).add( Vel::toString(desc.type_) );
+	    if ( !is2d && cs.zsamp_.nrSteps() > 1 )
 	    {
-		const StepInterval<float> sizrg = SI().zRange(true);
-		StepInterval<float> dispzrg;
-
-		if ( SI().zIsTime() )
+		const ZDomain::Info& todomain = zinfo.isTime()
+			   ? (SI().depthsInFeet() ? ZDomain::DepthFeet()
+						  : ZDomain::DepthMeter())
+			   : ZDomain::TWT();
+		ZSampling zrg = oinf.getConvertedZrg( cs.zsamp_ );
+		zrg = VelocityStretcher::getWorkZrg( zrg, zinfo, todomain,pars);
+		if ( !zrg.isUdf() )
 		{
-		    dispzrg.start = sizrg.start * topvavg.start / 2;
-		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
-		    dispzrg.step = (dispzrg.stop-dispzrg.start)
-					/ sizrg.nrSteps();
-		    txt.add( "\nDepth Range " )
-			.add( ZDomain::Depth().unitStr(true) );
+		    const int nrdec = todomain.def_.nrZDecimals( zrg.step );
+		    zrg.scale( todomain.def_.userFactor() );
+		    const BufferString unitstr = todomain.unitStr( true );
+		    BufferString keystr = toString( todomain.def_.getRange() );
+		    keystr.addSpace().add( todomain.unitStr(true) );
+		    txt.addNewLine()
+		       .add( keystr.buf() )
+		       .add( ": " ).add( zrg.start, nrdec )
+		       .add( " - " ).add( zrg.stop, nrdec )
+		       .add( " [" ).add( zrg.step,nrdec ).add( "]" );
 		}
-		else
-		{
-		    dispzrg.start = 2 * sizrg.start / topvavg.stop;
-		    dispzrg.stop = 2 * sizrg.stop / botvavg.start;
-		    dispzrg.step = (dispzrg.stop-dispzrg.start)
-					/ sizrg.nrSteps();
-		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
-		    txt.add( "\nTime Range " )
-			.add( ZDomain::Time().unitStr(true) );
-		}
-
-		txt.add( ": " ).add( dispzrg.start )
-		    .add( " - " ).add( dispzrg.stop );
 	    }
 	}
     }

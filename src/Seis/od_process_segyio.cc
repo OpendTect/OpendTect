@@ -213,8 +213,7 @@ static bool doExport( od_ostream& strm, const IOPar& iop,
     if ( !inppar->get(sKey::Component(),compnr) )
 	compnr = 0;
 
-    if ( !ZDomain::isSI(inioobj->pars()) )
-	ZDomain::Def::get(inioobj->pars()).set( outioobj->pars() );
+    SeisStoreAccess::zDomain( inioobj ).fillPar( outioobj->pars() );
 
     Pos::GeomID gid = Seis::is3D(gt) ? Survey::default3DGeomID()
 				     : mUdf(Pos::GeomID);

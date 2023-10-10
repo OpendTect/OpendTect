@@ -79,10 +79,12 @@ SelSpec& SelSpec::operator=( const SelSpec& oth )
     objref_ = oth.objref_;
     defstring_ = oth.defstring_;
     zdomainkey_ = oth.zdomainkey_;
+    zunitstr_ = oth.zunitstr_;
     id_ = oth.id_;
     isnla_ = oth.isnla_;
     discrspec_ = oth.discrspec_;
     is2d_ = oth.is2d_;
+
     return *this;
 }
 
@@ -90,6 +92,7 @@ SelSpec& SelSpec::operator=( const SelSpec& oth )
 bool SelSpec::operator==( const SelSpec& ss ) const
 {
     return id()==ss.id() && isNLA()==ss.isNLA() && ss.ref_==ref_ &&
+	zdomainkey_ == ss.zdomainkey_ && zunitstr_ == ss.zunitstr_ &&
 	ss.objref_==objref_ && ss.defstring_==defstring_ && is2D()==ss.is2D();
 }
 
@@ -103,6 +106,7 @@ bool SelSpec::operator!=( const SelSpec& ss ) const
 void SelSpec::setZDomainKey( const Desc& desc )
 {
     zdomainkey_.setEmpty();
+    zunitstr_.setEmpty();
     BufferString storedid = desc.getStoredID();
     if ( storedid.isEmpty() ) return;
 
@@ -111,6 +115,7 @@ void SelSpec::setZDomainKey( const Desc& desc )
 	return;
 
     ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
+    ioobj->pars().get( ZDomain::sKeyUnit(), zunitstr_ );
 }
 
 
@@ -257,22 +262,24 @@ void SelSpec::fillPar( IOPar& par ) const
     par.set( sKeyObjRef(), objref_ );
     par.set( sKeyDefStr(), defstring_ );
     par.set( ZDomain::sKey(), zdomainkey_ );
+    par.set( ZDomain::sKeyUnit(), zunitstr_ );
     par.setYN( sKeyIs2D(), is2d_ );
 }
 
 
 bool SelSpec::usePar( const IOPar& par )
 {
-    ref_ = "";			par.get( sKeyRef(), ref_ );
+    ref_.setEmpty();		par.get( sKeyRef(), ref_ );
     id_ = cNoAttrib();		par.get( sKeyID(), id_.asInt() );
     bool isstored = false;	par.getYN( sKeyOnlyStoredData(), isstored );
     id_.setStored( isstored );
     isnla_ = false;		par.getYN( sKeyIsNLA(), isnla_ );
 				par.getYN( isnnstr, isnla_ );
-    objref_ = "";		par.get( sKeyObjRef(), objref_ );
-    defstring_ = "";		par.get( sKeyDefStr(), defstring_ );
-    zdomainkey_ = "";		if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
+    objref_.setEmpty();		par.get( sKeyObjRef(), objref_ );
+    defstring_.setEmpty();	par.get( sKeyDefStr(), defstring_ );
+    zdomainkey_.setEmpty();	if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
 				    par.get( "Depth Domain", zdomainkey_);
+    zunitstr_.setEmpty();	par.get( ZDomain::sKeyUnit(), zunitstr_ );
     is2d_ = false;		par.getYN( sKeyIs2D(), is2d_ );
 
     return true;

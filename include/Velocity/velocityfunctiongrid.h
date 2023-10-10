@@ -9,8 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
+
 #include "binidvalset.h"
-#include "samplingdata.h"
 #include "thread.h"
 #include "velocityfunction.h"
 
@@ -31,7 +31,7 @@ mExpClass(Velocity) GriddedFunction : public Function
 public:
 				GriddedFunction(GriddedSource&);
 
-    StepInterval<float>		getAvailableZ() const override;
+    ZSampling			getAvailableZ() const override;
     bool			moveTo(const BinID&) override;
     bool			fetchSources();
 
@@ -43,10 +43,12 @@ public:
 
 protected:
 				~GriddedFunction();
+
     friend			class GriddedSource;
 
-    bool			computeVelocity(float z0, float dz, int nr,
-					float* res ) const override;
+    bool			computeVelocity(float z0,float dz,int sz,
+						float* res) const override;
+
     ConstRefMan<Function>	getInputFunction(const BinID& bid,int& source);
     void			fetchPerfectFit(const BinID&);
 
@@ -67,6 +69,8 @@ public:
 				GriddedSource(const Pos::GeomID&);
 
     const VelocityDesc&		getDesc() const override;
+    const ZDomain::Info&	zDomain() const override;
+
     const char*			factoryKeyword() const override
 				{ return sType(); }
     static const char*		sType() { return "GridVelocity"; }
@@ -79,8 +83,9 @@ public:
     void			getSources(TypeSet<MultiID>&) const;
 
     void			setLayerModel(const InterpolationLayerModel*);
+    FunctionSource&		setZDomain(const ZDomain::Info&) override;
 
-    const ObjectSet<FunctionSource>&	getSources() const;
+    const ObjectSet<FunctionSource>& getSources() const;
 
     NotifierAccess*		changeNotifier() override { return &notifier_; }
     BinID			changeBinID() const override

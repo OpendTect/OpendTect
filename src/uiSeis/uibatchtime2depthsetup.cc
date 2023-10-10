@@ -30,7 +30,6 @@ ________________________________________________________________________
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
     : uiDialog(p,Setup(uiString::emptyString(),mNoDlgTitle,
 			mODHelpKey(mBatchTime2DepthSetupHelpID)))
-    , possubsel_(0)
 {
     const uiString capt = tr("Time - Depth Conversion %1")
 			.arg( is2d ? uiStrings::s2D() : uiStrings::s3D() );
@@ -39,8 +38,8 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
 
     directionsel_ = new uiGenInput( this, tr("Direction"),
 	BoolInpSpec(true, tr("Time to Depth"), tr("Depth to Time"), true ));
-    directionsel_->valueChanged.notify(
-			mCB(this,uiBatchTime2DepthSetup,dirChangeCB) );
+    mAttachCB( directionsel_->valueChanged,
+	       uiBatchTime2DepthSetup::dirChangeCB );
 
     t2dfld_ = new uiZAxisTransformSel( this, false, ZDomain::sKeyTime(),
 			ZDomain::sKeyDepth(), true, false, is2d );
@@ -79,13 +78,13 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
     inputdepthsel_ = new uiSeisSel( this, inputdepthctxt, sssu );
     inputdepthsel_->attach( alignedBelow, t2dfld_ );
 
-    uiObject* attachobj = 0;
+    uiObject* attachobj = nullptr;
     if ( is2d )
     {
 	Seis::SelSetup selsu( true );
 	selsu.multiline(true).withoutz(true).withstep(false);
-    subselfld_ = new uiSeis2DSubSel( this, selsu );
-    subselfld_->attach( alignedBelow, inputtimesel_ );
+	subselfld_ = new uiSeis2DSubSel( this, selsu );
+	subselfld_->attach( alignedBelow, inputtimesel_ );
 	attachobj = subselfld_->attachObj();
     }
     else
@@ -99,28 +98,35 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
     outputtimectxt.forread_ = false;
     sssu.seltxt( uiStrings::phrOutput(timevol) );
     outputtimesel_ = new uiSeisSel( this, outputtimectxt, sssu );
-    outputtimesel_->selectionDone.notify(
-			mCB(this,uiBatchTime2DepthSetup,objSelCB) );
+    mAttachCB( outputtimesel_->selectionDone,
+	       uiBatchTime2DepthSetup::objSelCB );
     outputtimesel_->attach( alignedBelow, attachobj );
 
     IOObjContext outputdepthctxt = inputdepthctxt;
     outputdepthctxt.forread_ = false;
     sssu.seltxt( uiStrings::phrOutput(depthvol) );
     outputdepthsel_ = new uiSeisSel( this, outputdepthctxt, sssu );
-    outputdepthsel_->selectionDone.notify(
-			mCB(this,uiBatchTime2DepthSetup,objSelCB) );
+    mAttachCB( outputdepthsel_->selectionDone,
+	       uiBatchTime2DepthSetup::objSelCB );
     outputdepthsel_->attach( alignedBelow, attachobj );
 
     batchfld_ = new uiBatchJobDispatcherSel( this, false,
 					     Batch::JobSpec::T2D );
     batchfld_->attach( alignedBelow, outputdepthsel_ );
 
-    dirChangeCB( 0 );
+    mAttachCB( postFinalize(), uiBatchTime2DepthSetup::initDlg );
 }
 
 
 uiBatchTime2DepthSetup::~uiBatchTime2DepthSetup()
 {
+    detachAllNotifiers();
+}
+
+
+void uiBatchTime2DepthSetup::initDlg( CallBacker* )
+{
+    dirChangeCB( nullptr );
 }
 
 
@@ -145,7 +151,8 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 {
     const bool istime2depth = directionsel_->getBoolValue();
 
-    const IOObj* outioobj = 0;
+    const IOObj* outioobj = nullptr;
+    bool parchanged = false;
     if ( istime2depth )
     {
 	if ( !t2dfld_->acceptOK() )
@@ -154,7 +161,12 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	outioobj = outputdepthsel_->ioobj();
 	if ( !inputtimesel_->ioobj() || !outioobj )
 	    return false;
-	ZDomain::Depth().set( outioobj->pars() );
+
+	// offer the choice in the GUI ?
+	const ZDomain::Info& zddef = SI().depthsInFeet()
+				   ? ZDomain::DepthFeet()
+				   : ZDomain::DepthMeter();
+	parchanged = zddef.fillPar( outioobj->pars() );
     }
     else
     {
@@ -164,11 +176,11 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 	outioobj = outputtimesel_->ioobj();
 	if ( !inputdepthsel_->ioobj() || !outioobj )
 	    return false;
-	ZDomain::Time().set( outioobj->pars() );
+
+	parchanged = ZDomain::TWT().fillPar( outioobj->pars() );
     }
 
-    IOM().commitChanges( *outioobj );
-    return true;
+    return parchanged ? IOM().commitChanges( *outioobj ) : true;
 }
 
 
@@ -176,9 +188,8 @@ bool uiBatchTime2DepthSetup::fillPar()
 {
     const bool istime2depth = directionsel_->getBoolValue();
     RefMan<ZAxisTransform> trans = istime2depth
-	? t2dfld_->getSelection()
-	: d2tfld_->getSelection();
-
+				 ? t2dfld_->getSelection()
+				 : d2tfld_->getSelection();
     if ( !trans )
 	return false;
 
@@ -189,22 +200,18 @@ bool uiBatchTime2DepthSetup::fillPar()
 	pErrMsg("No name is set");
     }
 
-    const IOObj* input = istime2depth
-	? inputtimesel_->ioobj( true )
-	: inputdepthsel_->ioobj( true );
-
+    const IOObj* input = istime2depth ? inputtimesel_->ioobj( true )
+				      : inputdepthsel_->ioobj( true );
     if ( !input )
 	return false;
 
-    const IOObj* output = istime2depth
-	? outputdepthsel_->ioobj( true )
-	: outputtimesel_->ioobj( true );
-
+    const IOObj* output = istime2depth ? outputdepthsel_->ioobj( true )
+				       : outputtimesel_->ioobj( true );
     if ( !output )
 	return false;
 
     IOPar& par = batchfld_->jobSpec().pars_;
-    par.set( ProcessTime2Depth::sKeyInputVolume(),  input->key() );
+    par.set( ProcessTime2Depth::sKeyInputVolume(), input->key() );
     if ( possubsel_ )
 	possubsel_->fillPar( par );
     else
@@ -213,7 +220,7 @@ bool uiBatchTime2DepthSetup::fillPar()
         subselfld_->fillPar( par );
     }
 
-    StepInterval<float> zrange;
+    ZSampling zrange;
     if ( istime2depth )
 	t2dfld_->getTargetSampling( zrange );
     else

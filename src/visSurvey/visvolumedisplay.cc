@@ -1246,11 +1246,9 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 	}
 	else
 	{
-	    StepInterval<float> zrg = datatransform_->getZInterval(false);
+	    ZSampling zrg = datatransform_->getZInterval( false );
 	    if ( scene_ )
 		zrg.step = scene_->getTrcKeyZSampling().zsamp_.step;
-	    else
-		zrg.step = datatransform_->getGoodZStep();
 
 	    zrg.snap( res.zsamp_.start );
 	    zrg.snap( res.zsamp_.stop );
@@ -1263,7 +1261,7 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 	if ( scene_ )
 	    res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
 	else if ( datatransform_ )
-	    res.zsamp_.step = datatransform_->getGoodZStep();
+	    res.zsamp_.step = datatransform_->getZInterval( false ).step;
 	return res;
     }
 
@@ -1271,15 +1269,15 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
     {
 	if ( !displayspace )
 	{
-	    res.zsamp_.set( datatransform_->getZInterval(true),
-			    SI().zRange(true).step );
+	    res.zsamp_ = datatransform_->getZInterval( true );
 	}
 	else
 	{
 	    if ( scene_ )
 		res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
 	    else
-		res.zsamp_.step = datatransform_->getGoodZStep();
+		res.zsamp_.step =
+			    datatransform_->getZInterval( false ).step;
 	}
     }
     else

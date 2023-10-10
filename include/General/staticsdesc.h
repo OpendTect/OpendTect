@@ -8,7 +8,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "algomod.h"
+#include "generalmod.h"
+
 #include "multiid.h"
 
 
@@ -17,15 +18,16 @@ ________________________________________________________________________
 constant velocity. Velocity is always in m/s.
 */
 
-mExpClass(Algo) StaticsDesc
+mExpClass(General) StaticsDesc
 {
 public:
 			StaticsDesc();
+			~StaticsDesc();
 
     MultiID		horizon_;
-    float		vel_;
+    double		vel_	= mUdf(double);
     BufferString	velattrib_;	//attrib on statichorizon_
-    					//if empty, use vel
+					//if empty, use vel
 
     bool		operator==(const StaticsDesc&) const;
     bool		operator!=(const StaticsDesc&) const;

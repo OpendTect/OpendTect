@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 
 // MapDataPackXYRotator
 class MapDataPackXYRotator : public ParallelTask
@@ -438,7 +439,7 @@ void VolumeDataPack::dumpInfo( StringPairSet& infoset ) const
 // SeisDataPack
 SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
-    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
+    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
     , rdlid_(RandomLineID::udf())
 {
@@ -448,8 +449,14 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
 SeisDataPack::~SeisDataPack()
 {
     deepErase( arrays_ );
-    deleteAndNullPtr( zdomaininfo_ );
-    deleteAndNullPtr( scaler_ );
+    delete zdomaininfo_;
+    delete scaler_;
+}
+
+
+const UnitOfMeasure* SeisDataPack::getZUnit() const
+{
+    return UnitOfMeasure::getZUnit( *zdomaininfo_ );
 }
 
 
@@ -642,10 +649,14 @@ float SeisDataPack::getRefNr( int globaltrcidx ) const
 }
 
 
-void SeisDataPack::setZDomain( const ZDomain::Info& zinf )
+SeisDataPack& SeisDataPack::setZDomain( const ZDomain::Info& zinfo )
 {
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+	return *this;
+
     delete zdomaininfo_;
-    zdomaininfo_ = new ZDomain::Info( zinf );
+    zdomaininfo_ = new ZDomain::Info( zinfo );
+    return *this;
 }
 
 
@@ -694,6 +705,27 @@ void SeisDataPack::dumpInfo( StringPairSet& infoset ) const
 	scaler_->put( info.getCStr(), info.bufSize() );
 	infoset.add( sKey::Scale(), info.buf() );
     }
+}
+
+
+BufferString SeisDataPack::unitStr( bool values, bool withparens ) const
+{
+    if ( !values && zDomain().isTime() )
+	return zDomain().unitStr( withparens );
+
+    const UnitOfMeasure* uom = values ? valunit_
+				      : UnitOfMeasure::getZUnit( zDomain() );
+    BufferString ret;
+    if ( uom )
+    {
+	ret = uom->symbol();
+	if ( !ret.isEmpty() && withparens )
+	    ret.embed('(',')');
+    }
+    else if ( !values )
+	ret = UnitOfMeasure::surveyDefZUnitAnnot( true, withparens );
+
+    return ret;
 }
 
 

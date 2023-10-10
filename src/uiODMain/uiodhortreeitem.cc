@@ -689,7 +689,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( scene && scene->getZAxisTransform() )
 	{
-	    const Interval<float> zintv =
+	    const ZSampling zintv =
 		scene->getZAxisTransform()->getZInterval( false );
 	    maxcs.zsamp_.start = zintv.start;
 	    maxcs.zsamp_.stop = zintv.stop;
@@ -830,11 +830,11 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSel(),
 			      false, 0 );
 	spec.setZDomainKey( attrnm );
+	//spec.setZDomainUnit( ?? );
 	spec.setDefString( uiContourTreeItem::sKeyContourDefString() );
 	visserv_->setSelSpec( visid, attrib, spec );
 
-	uiContourTreeItem* newitem =
-	    new uiContourTreeItem( typeid(*this).name() );
+	auto* newitem = new uiContourTreeItem( typeid(*this).name() );
 	newitem->setAttribName( attrnm );
 	addChild( newitem, false );
 	updateColumnText( uiODSceneMgr::cNameColumn() );

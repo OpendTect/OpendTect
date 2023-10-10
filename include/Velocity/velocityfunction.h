@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
-#include "sharedobject.h"
 
 #include "enums.h"
 #include "factory.h"
@@ -17,13 +16,16 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 #include "samplingdata.h"
+#include "sharedobject.h"
 #include "threadlock.h"
-#include "veldesc.h"
 
 
 namespace Attrib { class DataHolder; }
+namespace ZDomain { class Info; }
 
 class BinIDValueSet;
+class VelocityDesc;
+class UnitOfMeasure;
 
 namespace Vel
 {
@@ -39,7 +41,12 @@ mExpClass(Velocity) Function : public ReferencedObject
 public:
     const FunctionSource&	getSource() const	{ return source_; }
 
-    virtual const VelocityDesc&	getDesc() const;
+    virtual const VelocityDesc& getDesc() const		{ return desc_; }
+    virtual const ZDomain::Info& zDomain() const  { return *zdomaininfo_; }
+    bool			zIsTime() const;
+    bool			zInMeter() const;
+    bool			zInFeet() const;
+    const UnitOfMeasure*	getVelUnit() const;
 
     float			getVelocity(float z) const;
     const BinID&		getBinID() const;
@@ -47,27 +54,31 @@ public:
 
     virtual void		removeCache();
 
-    virtual StepInterval<float>	getAvailableZ() const			= 0;
-    void			setDesiredZRange(const StepInterval<float>&);
-    const StepInterval<float>&	getDesiredZ() const;
+    virtual ZSampling		getAvailableZ() const			= 0;
+    Function&			setDesiredZRange(const ZSampling&);
+    const ZSampling&		getDesiredZ() const;
 
-    void			setGeomID(const Pos::GeomID&);
+    Function&			setGeomID(const Pos::GeomID&);
+    virtual Function&		setZDomain(const ZDomain::Info&);
 
 protected:
 				Function(FunctionSource&);
     virtual			~Function();
 
-    virtual bool		computeVelocity(float z0, float dz, int nr,
-						float* res ) const	= 0;
+    Function&			copyDescFrom(const FunctionSource&);
+    virtual bool		computeVelocity(float z0,float dz,int nr,
+						float* res) const	= 0;
 
     FunctionSource&		source_;
     BinID			bid_;
     Pos::GeomID			geomid_;
-    StepInterval<float>		desiredrg_;
+    ZSampling			desiredrg_;
 
 private:
     friend			class FunctionSource;
 
+    VelocityDesc&		desc_;
+    const ZDomain::Info*	zdomaininfo_;
     mutable Threads::Lock	cachelock_;
     mutable TypeSet<float>*	cache_ = nullptr;
     mutable SamplingData<double> cachesd_;
@@ -75,7 +86,7 @@ private:
 
 
 /*!A source of Velocity functions of a certain sort. The FunctionSource
-   can create Functions at certian BinID locations. */
+   can create Functions at certain BinID locations. */
 
 mExpClass(Velocity) FunctionSource : public SharedObject
 {
@@ -85,8 +96,20 @@ public:
 
     virtual BufferString	userName() const;
     virtual const VelocityDesc&	getDesc() const				= 0;
+    virtual const ZDomain::Info& zDomain() const       { return *zdomaininfo_; }
+				/* zDomain of the function source in the
+				   storage, thus probably different from the
+				   function		*/
+    bool			zIsTime() const;
+    bool			zInMeter() const;
+    bool			zInFeet() const;
+    virtual const UnitOfMeasure* getVelUnit() const;
+				/* Unit of the function source in the storage,
+				   thus probably different from the function
+				   unit of measure			 */
+
     virtual void		getSurroundingPositions(const BinID&,
-				    BinIDValueSet&) const;
+							BinIDValueSet&) const;
     virtual void		getAvailablePositions(BinIDValueSet&) const {}
 
     ConstRefMan<Function>	getFunction(const BinID&);
@@ -94,7 +117,7 @@ public:
 
     const MultiID&		multiID() const		{ return mid_; }
 
-    virtual NotifierAccess*	changeNotifier()	{ return 0; }
+    virtual NotifierAccess*	changeNotifier()	{ return nullptr; }
     virtual BinID		changeBinID() const	{ return BinID::udf(); }
 
     virtual void		fillPar(IOPar&) const	{}
@@ -106,6 +129,8 @@ protected:
 				FunctionSource();
 				~FunctionSource();
 
+    virtual FunctionSource&	setZDomain(const ZDomain::Info&);
+
     friend			class Function;
     void			removeFunction(const Function*);
 
@@ -114,6 +139,7 @@ protected:
 
 
     MultiID				mid_;
+    const ZDomain::Info*		zdomaininfo_;
     BufferString			errmsg_;
 
     ObjectSet<Function>			functions_;

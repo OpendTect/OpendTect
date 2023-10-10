@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
+#include "emhorizon.h"
 #include "zaxistransform.h"
 
 namespace EM
 {
-class Horizon;
 
 /*!
 \brief Z-transform that flattens a horizon. Everything else will also be
@@ -32,38 +33,46 @@ public:
     static const char*	sKeyHorizonID()		{ return "Horizon"; }
 
 			HorizonZTransform();
+
+    bool		isOK() const override;
+
     void		setHorizon(const Horizon&);
     void		setFlatZValue(float);
-
-    void		transformTrc(const TrcKey&,const SamplingData<float>&,
-				  int sz,float* res) const override;
-    void		transformTrcBack(const TrcKey&,
-				  const SamplingData<float>&,
-				  int sz,float* res) const override;
-    bool		canTransformSurv(OD::GeomSystem) const override
-							{ return true; }
-
-    Interval<float>	getZInterval(bool from) const override;
-    float		getZIntervalCenter(bool from) const override;
-    bool		needsVolumeOfInterest() const override { return false; }
-
     bool		isReferenceHorizon(const MultiID& horid,
 					   float& refz) const override;
+
+    float		getZIntervalCenter(bool from) const override;
 
     Interval<float>	getDepthRange() const		{ return depthrange_; }
     NotifierAccess*	changeNotifier() override	{ return &change_; }
 
-    void		fillPar(IOPar&) const override;
-    bool		usePar(const IOPar&) override;
-
 protected:
 			~HorizonZTransform();
+private:
+
+    bool		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+
+    void		transformTrc(const TrcKey&,const SamplingData<float>&,
+				     int sz,float* res) const override;
+    void		transformTrcBack(const TrcKey&,
+					 const SamplingData<float>&,
+					 int sz,float* res) const override;
+    void		doTransform(const TrcKey&,const SamplingData<float>&,
+				    int sz,float* res,bool forward) const;
+
+    bool		needsVolumeOfInterest() const override { return false; }
+    bool		canTransformSurv(OD::GeomSystem) const override
+			{ return true; }
 
     void		calculateHorizonRange();
-    void		horChangeCB( CallBacker* );
+    void		horChangeCB(CallBacker*);
     bool		getTopBottom(const TrcKey&,float&top,float&bot) const;
+    ZSampling		getWorkZrg(const ZSampling&,
+				   const ZDomain::Info& from,
+				   const ZDomain::Info& to) const override;
 
-    const Horizon*	horizon_;
+    const Horizon*	horizon_		= nullptr;
     Interval<float>	depthrange_;
     float		flatzval_		= 0.f;
     bool		horchanged_		= false;

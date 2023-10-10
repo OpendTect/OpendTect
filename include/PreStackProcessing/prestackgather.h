@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
+
 #include "arrayndimpl.h"
 #include "datapackbase.h"
 #include "multiid.h"
@@ -20,9 +21,12 @@ class IOObj;
 class SeisPSReader;
 class SeisTrc;
 class SeisTrcBuf;
+namespace ZDomain { class Info; }
 
 namespace PreStack
 {
+
+class GatherSetDataPack;
 
 /*!
 \brief PreStack gather.
@@ -33,7 +37,11 @@ mExpClass(PreStackProcessing) Gather : public FlatDataPack
 public:
 				Gather();
 				Gather(const Gather&);
-				Gather(const FlatPosData&);
+				Gather(const FlatPosData&,
+				       const ZDomain::Info&,
+				       bool offisangle,bool offsetsinfeet);
+
+    Gather&			operator =(const Gather&)	= delete;
 
     bool			is3D() const { return tk_.is3D(); }
     bool			is2D() const { return tk_.is2D(); }
@@ -73,7 +81,7 @@ public:
 
 				//for 3d only
     const BinID&		getBinID() const;
-    void			setBinID(const BinID&);
+    Gather&			setBinID(const BinID&);
     const MultiID&		getStoredID() const	{ return storagemid_; }
     const ZSampling&		zRange() const		{ return zrg_; }
     Gather&			setZRange( const ZSampling& zrg )
@@ -95,11 +103,16 @@ public:
     OffsetAzimuth		getOffsetAzimuth(int) const;
 
     bool			isOffsetAngle() const	{return offsetisangle_;}
-    void			setOffsetIsAngle(bool yn);
+    bool			isOffsetInMeters() const;
+    bool			isOffsetInFeet() const;
+    Gather&			setOffsetIsAngle(bool yn,bool offsetsinfeet);
     bool			isCorrected() const	{ return iscorr_; }
-    void			setCorrected(bool yn)	{ iscorr_ = yn; }
-    bool			zIsTime() const		{ return zit_; }
-
+    Gather&			setCorrected(bool yn);
+    const ZDomain::Info&	zDomain() const;
+    bool			zIsTime() const;
+    bool			zInMeter() const;
+    bool			zInFeet() const;
+    Gather&			setZDomain(const ZDomain::Info&);
 
     const MultiID&		getVelocityID() const	{ return velocitymid_; }
     const MultiID&		getStorageID() const    { return storagemid_; }
@@ -108,10 +121,6 @@ public:
     static bool			getVelocityID(const MultiID& stor,MultiID& vid);
 
     static const char*		sDataPackCategory();
-    static const char*		sKeyIsAngleGather();
-    static const char*		sKeyIsCorr();
-    static const char*		sKeyZisTime();
-
     static const char*		sKeyPostStackDataID();
     static const char*		sKeyStaticsID();
 
@@ -126,10 +135,11 @@ protected:
     MultiID			velocitymid_;
     MultiID			storagemid_;
     MultiID			staticsmid_;
-    bool			offsetisangle_;
-    bool			iscorr_;
 
-    bool			zit_;
+    bool			iscorr_ = true;
+    const ZDomain::Info*	zdomaininfo_;
+    bool			offsetsinfeet_;
+    bool			offsetisangle_ = false;
     TrcKey			tk_;
     Coord			coord_;
     TypeSet<float>		azimuths_;
@@ -137,7 +147,14 @@ protected:
 
 public:
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
+					    bool iscorrected,
+					    const ZDomain::Info&,
+					    bool offsetsisangle,
+					    bool offsetsinfeet,
 					    bool snapzrangetosi=false);
+    bool			setFromTrcBuf(SeisTrcBuf&,int comp,
+					      const GatherSetDataPack&,
+					      bool snapzrangetosi=false);
 
     mDeprecated("Use TrcKey")
     bool			readFrom(const MultiID&,const BinID&,
@@ -198,6 +215,18 @@ public:
 
     ZSampling			zRange() const;
 
+    bool			isOffsetAngle() const	{return offsetisangle_;}
+    bool			isOffsetInMeters() const;
+    bool			isOffsetInFeet() const;
+    GatherSetDataPack&		setOffsetIsAngle(bool yn,bool offsetsinfeet);
+    bool			isCorrected() const	{ return iscorr_; }
+    GatherSetDataPack&		setCorrected(bool yn);
+    const ZDomain::Info&	zDomain() const;
+    bool			zIsTime() const;
+    bool			zInMeter() const;
+    bool			zInFeet() const;
+    GatherSetDataPack&		setZDomain(const ZDomain::Info&);
+
     static const char*		sDataPackCategory();
 
 protected:
@@ -211,6 +240,11 @@ private:
 
     RefObjectSet<Gather>	gathers_;
     Array3D<float>&		arr3d_;
+
+    bool			iscorr_ = true;
+    const ZDomain::Info*	zdomaininfo_;
+    bool			offsetsinfeet_;
+    bool			offsetisangle_ = false;
 
 public:
 

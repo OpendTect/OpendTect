@@ -28,7 +28,7 @@ public:
 
 			Track(const char* nm=nullptr);
 			Track(const Track&);
-    virtual		~Track();
+			~Track();
 
     Track&		operator =(const Track&);
 
@@ -98,12 +98,12 @@ protected:
 
 
     TypeSet<Coord3>	pos_;
-    bool		zistime_;
+    bool		zistime_ = false;
+    TypeSet<Coord3>*	zpos_ = nullptr;
 
-    void		removeAux( int idx ) override
-			{ pos_.removeSingle(idx); }
+    void		removeAux(int idx) override;
 
-    void		eraseAux() override		{ pos_.erase(); }
+    void		eraseAux() override;
 
 public:
 

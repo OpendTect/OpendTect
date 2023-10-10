@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uivelocitymod.h"
+
 #include "uidialog.h"
 
 class uiFileInput;
@@ -28,7 +29,7 @@ public:
 			uiImportVelFunc(uiParent*,bool is2d);
 			~uiImportVelFunc();
 
-protected:
+private:
 
     uiFileInput*	inpfld_;
     uiVelocityDesc*	typefld_;
@@ -39,6 +40,7 @@ protected:
     uiTableImpDataSel*	dataselfld_;
     bool		is2d_;
 
+    void		initDlgCB(CallBacker*);
     void		inpSelCB(CallBacker*);
     void		velTypeChangeCB(CallBacker*);
     void		formatSel(CallBacker*);

@@ -22,15 +22,15 @@ ________________________________________________________________________
 
 
 uiSeisIOObjInfo::uiSeisIOObjInfo( const IOObj& ioobj, bool errs )
-	: sii(ioobj)
-	, doerrs(errs)
+    : sii_(ioobj)
+    , doerrs_(errs)
 {
 }
 
 
 uiSeisIOObjInfo::uiSeisIOObjInfo( const MultiID& key, bool errs )
-	: sii(key)
-	, doerrs(errs)
+    : sii_(key)
+    , doerrs_(errs)
 {
 }
 
@@ -57,7 +57,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     Conn* conn = ioObj()->getConn( Conn::Read );
     if ( !conn || !trans->initRead(conn) )
     {
-	if ( doerrs )
+	if ( doerrs_ )
 	    uiMSG().error( tr("No output cube produced") );
 	return false;
     }
@@ -80,10 +80,10 @@ bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
     if ( sel )
 	geomids = *sel;
     else
-	sii.getGeomIDs( geomids );
+	sii_.getGeomIDs( geomids );
 
     const int nrlines = geomids.size();
-    const BufferString datanm( sii.ioObj()->name() );
+    const BufferString datanm( sii_.ioObj()->name() );
     uiString msg = nrlines < 2 ?
 	tr("The following line was added to dataset %2:\n").arg(datanm)
 	: tr("%1 lines were added to dataset %2:\n").arg(nrlines).arg(datanm);
@@ -94,7 +94,7 @@ bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
 	const BufferString linenm = Survey::GM().getName( geomids[idx] );
 	StepInterval<int> trcrg( 0, 0, 1 );
 	StepInterval<float> zrg( 0.f, 0.f, 1.f );
-	if ( sii.getRanges(geomids[idx],trcrg,zrg) )
+	if ( sii_.getRanges(geomids[idx],trcrg,zrg) )
 	    zrg.scale( zfac );
 
 	msg.append( tr("Line: %1, Trace range: %2 to %3 (step %4), "
@@ -132,7 +132,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     const int avszmb = System::getFreeMBOnDisk( *ioObj() );
     if ( avszmb == 0 )
     {
-	if ( !doerrs )
+	if ( !doerrs_ )
 	    return false;
 
 	if ( !uiMSG().askContinue( tr("The output disk seems to be full.\n\n"
@@ -141,7 +141,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     }
     else if ( szmb > avszmb )
     {
-	if ( !doerrs )
+	if ( !doerrs_ )
 	    return false;
 
 	uiString msg = tr( "The new cube size may exceed the space "

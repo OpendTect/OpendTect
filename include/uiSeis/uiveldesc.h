@@ -9,17 +9,20 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
+
 #include "uigeninput.h"
 #include "uiseissel.h"
 #include "uitime2depthzaxistrans.h"
-#include "veldesc.h"
-#include "timedepthconv.h"
 
+#include "timedepthconv.h"
+#include "veldesc.h"
+
+class UnitOfMeasure;
+class uiPushButton;
 class uiSeisSel;
 class uiStaticsDesc;
+class uiUnitSel;
 class uiZRangeInput;
-class uiPushButton;
-class VelocityStretcher;
 
 /*!Group that allows the user to edit VelocityDesc information. */
 
@@ -30,93 +33,122 @@ public:
     mExpClass(uiSeis) Setup
     {
     public:
-				Setup( const VelocityDesc* vd=0 )
-				    : is2d_(false)
-				{ if ( vd ) desc_ = *vd; }
-				~Setup()
-				{}
+				Setup(const IOObj*,bool is2d,
+				      bool onlyvelocity=true);
+				~Setup();
 
 	mDefSetupMemb(VelocityDesc,desc)
 	mDefSetupMemb(bool,is2d)
+	mDefSetupMemb(bool,onlyvelocity)
     };
 
-				uiVelocityDesc(uiParent*,const Setup* s=0);
+				uiVelocityDesc(uiParent*,const Setup&);
 				~uiVelocityDesc();
 
-    bool			get(VelocityDesc&,bool displayerrors) const;
     void			set(const VelocityDesc&);
     bool			updateAndCommit(IOObj&,bool displayerrors);
 
+    bool			isVelocity() const;
+    bool			get(VelocityDesc&,bool displayerrors) const;
+
     NotifierAccess&		typeChangeNotifier();
+    Notifier<uiVelocityDesc>	unitChanged;
 
-protected:
+private:
 
-    void			updateFlds(CallBacker*);
+    void			initGrpCB(CallBacker*);
+    void			typeChgCB(CallBacker*);
+    void			unitCheckCB(CallBacker*);
+    void			hasStaticsChgCB(CallBacker*);
 
+    Vel::Type			getType() const;
+    void			setType(Vel::Type);
+
+    Setup			vsu_;
+    EnumDefImpl<Vel::Type>	veltypedef_;
     uiGenInput*			typefld_;
+    uiCheckBox*			unitchkfld_;
+    uiUnitSel*			unitfld_;
+    bool			wasguessed_ = false;
     uiGenInput*			hasstaticsfld_;
     uiStaticsDesc*		staticsfld_;
 };
 
 
 /*!Dialog that allows the user to edit VelocityDesc information. */
+
 mExpClass(uiSeis) uiVelocityDescDlg : public uiDialog
 { mODTextTranslationClass(uiVelocityDescDlg)
 public:
-			uiVelocityDescDlg(uiParent*,const IOObj* cursel=0,
-					  const uiVelocityDesc::Setup* s=0);
+			uiVelocityDescDlg(uiParent*,const IOObj*,
+					  const uiVelocityDesc::Setup&);
 			~uiVelocityDescDlg();
 
-    IOObj*		getSelection() const;
-			//!<returned object must be managed by caller
+    MultiID		getSelection() const;
+    bool		isVelocity() const;
     Interval<float>	getVelocityTopRange() const
 			{ return toprange_; }
     Interval<float>	getVelocityBottomRange() const
 			{ return bottomrange_; }
 
+    const UnitOfMeasure* getVelUnit() const;
+
 protected:
 
-   bool			acceptOK(CallBacker*) override;
-   void			volSelChange(CallBacker*);
-   bool			scanAvgVel(const IOObj&, const VelocityDesc&);
+    void		initDlgCB(CallBacker*);
+    void		volSelChange(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
+    bool		scanAvgVel(const IOObj&, const VelocityDesc&);
 
-   Interval<float>	toprange_;
-   Interval<float>	bottomrange_;
+    Interval<float>	toprange_;
+    Interval<float>	bottomrange_;
 
-   VelocityDesc		oldveldesc_;
-   uiSeisSel*		volselfld_;
-   uiVelocityDesc*	veldescfld_;
+    VelocityDesc	oldveldesc_;
+    uiSeisSel*		volselfld_;
+    uiVelocityDesc*	veldescfld_;
+
 };
 
 
 //!Field that selects a velocity volume, and edit it's properties/velocity tag
 
-
 mExpClass(uiSeis) uiVelSel : public uiSeisSel
-{
+{ mODTextTranslationClass(uiVelSel)
 public:
+				uiVelSel(uiParent*,const uiString&
+					     =VelocityDesc::getVelVolumeLabel(),
+					     bool is2d=false,
+					     bool enabotherdomain=false);
 				uiVelSel(uiParent*,const IOObjContext&,
-					 const uiSeisSel::Setup&,
-					 bool iseditbutton=true);
+					 const uiSeisSel::Setup&);
 				~uiVelSel();
 
-    void			setInput(const MultiID&);
-    static const IOObjContext&	ioContext();
+    void			setInput(const IOObj&) override;
+    void			setInput(const MultiID&) override;
+    void			setVelocityOnly(bool yn);
+    static const IOObjContext&	ioContext(bool is2d);
 
+    uiRetVal			isOK() const;
+    uiRetVal			get(VelocityDesc&,
+				    const ZDomain::Info** =nullptr) const;
     Interval<float>		getVelocityTopRange() const	{ return trg_; }
     Interval<float>		getVelocityBottomRange() const	{ return brg_; }
+
+    const UnitOfMeasure*	getVelUnit() const;
+
     Notifier<uiVelSel>		velrgchanged;
 
-    void			setIs2D(bool);
-
-protected:
+private:
 
     void			fillDefault() override;
 
+    void			initGrpCB(CallBacker*);
     void			selectionDoneCB(CallBacker*);
     void			updateEditButton();
     void			editCB(CallBacker*);
+
     uiPushButton*		editcubebutt_;
+    bool			onlyvelocity_ = true;
     Interval<float>		trg_;
     Interval<float>		brg_;
 };
@@ -124,25 +156,24 @@ protected:
 
 mExpClass(uiSeis) uiVelModelZAxisTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiVelModelZAxisTransform);
-public:
-    void			enableTargetSampling() override;
-    bool			acceptOK() override;
+protected:
+				uiVelModelZAxisTransform(uiParent*,bool t2d);
+				~uiVelModelZAxisTransform();
+private:
 
     ZAxisTransform*		getSelection() override;
+    bool			canBeField() const override { return true; }
 
     const char*			selName() const;
     const MultiID&		selID() const { return selkey_; }
 
-    bool			canBeField() const override { return true; }
-protected:
-				uiVelModelZAxisTransform(uiParent*,bool);
-				~uiVelModelZAxisTransform();
-
     StringView			getZDomain() const;
-    void			finalizeCB(CallBacker*);
-    void			setZRangeCB(CallBacker*);
 
-    VelocityStretcher*		transform_;
+    void			doInitGrp() override;
+    void			setZRangeCB(CallBacker*);
+    bool			acceptOK() override;
+
+    RefMan<VelocityStretcher>	transform_;
     BufferString		selname_;
     MultiID			selkey_;
 
@@ -152,23 +183,25 @@ protected:
 
 mExpClass(uiSeis) uiTime2Depth : public uiVelModelZAxisTransform
 { mODTextTranslationClass(uiTime2Depth);
-public:
-    static void			initClass();
-    static uiZAxisTransform*	createInstance(uiParent*,
-					       const char*,const char*);
-
+private:
 				uiTime2Depth(uiParent*);
 				~uiTime2Depth();
+
+    static uiZAxisTransform*	createInstance(uiParent*,
+					       const char*,const char*);
+public:
+    static void			initClass();
 };
 
 
 mExpClass(uiSeis) uiDepth2Time : public uiVelModelZAxisTransform
 { mODTextTranslationClass(uiDepth2Time);
-public:
-    static void			initClass();
-    static uiZAxisTransform*	createInstance(uiParent*,
-					       const char*,const char*);
-
+private:
 				uiDepth2Time(uiParent*);
 				~uiDepth2Time();
+
+    static uiZAxisTransform*	createInstance(uiParent*,
+					       const char*,const char*);
+public:
+    static void			initClass();
 };

@@ -38,23 +38,13 @@ ________________________________________________________________________
 #include "stratlith.h"
 #include "stratreftree.h"
 #include "strattransl.h"
-#include "survinfo.h"
+#include "zdomain.h"
 
 
 #define mDispEach() tools_.dispEach()
 #define mUseLithCols() tools_.dispLith()
 #define mShowZoomed() tools_.dispZoomed()
 #define mSelLevelIdx() tools_.selLevelIdx()
-
-#define mGetConvZ(var,conv) \
-    if ( zinfeet_ ) var *= conv
-#define mEnsureZInMeter(var) mGetConvZ(var,mFromFeetFactorF)
-#define mEnsureZInUserUnit(var) mGetConvZ(var,mToFeetFactorF)
-#define mGetZrgInUserUnit( src, target ) \
-    Interval<float> target( src ); \
-    if ( zinfeet_ ) \
-	target.scale( mToFeetFactorF )
-
 
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelSuite& lms)
@@ -66,7 +56,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , lms_(lms)
     , tools_(t)
     , vwr_(*new uiFlatViewer(this))
-    , zinfeet_(SI().depthsInFeet())
+    , depthlbl_( " (", PropertyRef::thickness().disp_.getUnitLbl(), ")" )
 {
     vwr_.setInitialSize( initialSize() );
     vwr_.setStretch( 2, 2 );
@@ -220,6 +210,7 @@ uiFlatViewer* uiStratLayerModelDisp::getViewerClone( uiParent* p ) const
     vwr->rgbCanvas().disableImageSave();
     vwr->setInitialSize( initialSize() );
     vwr->setStretch( 2, 2 );
+    vwr_.setZDomain( ZDomain::Depth() );
     vwr->appearance() = vwr_.appearance();
     auto wvadp = vwr_.getPack( true ).get();
     auto vddp = vwr_.getPack( false ).get();
@@ -686,8 +677,6 @@ Strat::Layer* uiStratLayerModelDisp::usrPointedLayer( int& layidx ) const
 
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
     float zsel = vwr_.getWorld2Ui().toWorldY( mevh.event().pos().y );
-    mEnsureZInMeter( zsel );
-
     if ( showFlattened() )
     {
 	const int lvlidx = mSelLevelIdx();
@@ -737,13 +726,10 @@ void uiStratLayerModelDisp::mouseMovedCB( CallBacker* )
 	}
     }
 
-    if ( SI().depthsInFeet() )
-	depth *= mToFeetFactorF;
-
     BufferString depthstr( 16, true );
     od_sprintf( depthstr.getCStr(), depthstr.bufSize(), "%6.0f", depth );
-    depthstr += SI().depthsInFeet() ? "(ft)" : "(m)";
-    statusbarmsg.append( getKeyValStr("Depth",depthstr) );
+    depthstr.add( depthlbl_ );
+    statusbarmsg.append( getKeyValStr("TVDSS Depth",depthstr) );
 
     const Strat::LayerSequence& seq = layerModel().sequence( selseq );
     const int disppropidx = tools_.selPropIdx()+1;
@@ -1172,7 +1158,6 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 		zlvl -= lvldpth;
 	    }
 
-	    mEnsureZInUserUnit( zlvl );
 	    const double ypos = zlvl;
 	    const double xpos1 = iseq + 1;
 	    const double xpos2 = iseq + 1 + dispeach;
@@ -1307,8 +1292,6 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	    const double x1 = iseq + 1 + relx;
 	    float z0 = lay.zTop() - zshift;
 	    float z1 = lay.zBot() - zshift;
-	    mEnsureZInUserUnit( z0 );
-	    mEnsureZInUserUnit( z1 );
 	    if ( !canjoinlayers )
 		layad->poly_ += FlatView::Point( x0, (double)z0 );
 
@@ -1345,10 +1328,8 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
 {
     const Strat::LayerModel& lm = layerModel();
     const int nrseqs = lm.size();
-    mGetZrgInUserUnit( zrg_, dispzrg );
-    StepInterval<double> zrg( dispzrg.start, dispzrg.stop,
-			      dispzrg.width() * 0.2 );
 
+    const StepInterval<double> zrg( zrg_.start, zrg_.stop, zrg_.width() * 0.2 );
     fvdp_->posData().setRange( true,
 			StepInterval<double>( 1, nrseqs<2 ? 1 : nrseqs, 1 ) );
     fvdp_->posData().setRange( false, zrg );

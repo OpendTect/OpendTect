@@ -10,7 +10,9 @@ ________________________________________________________________________
 #include "uiseiscbvsimpfromothersurv.h"
 
 #include "ctxtioobj.h"
+#include "ioman.h"
 #include "seiscbvsimpfromothersurv.h"
+#include "zdomain.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -95,7 +97,7 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
     uiSelObjFromOtherSurvey objdlg( this, inctio );
     if ( objdlg.go() && inctio.ioobj_ )
     {
-	if ( import_ ) delete import_;
+	delete import_;
 	import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj_ );
 	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );
 	bool needinterpol = false;
@@ -108,7 +110,7 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 	else
 	{
 	    uiMSG().error( import_->errMsg() );
-	    delete import_; import_ = 0;
+	    deleteAndNullPtr( import_ );
 	}
 
 	interpfld_->setValue ( needinterpol );
@@ -127,6 +129,14 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;
+
+    if ( outfld_->getZDomain().fillPar(outioobj->pars()) &&
+	 !IOM().commitChanges(*outioobj) )
+    {
+	uiMSG().error( uiStrings::phrCannotWriteDBEntry(outioobj->uiName()) );
+	return false;
+    }
+
     int cellsz = issinc_ ? cellsizefld_->box()->getIntValue() : 0;
     TrcKeyZSampling cs; subselfld_->getSampling( cs );
     import_->setPars( interpol_, cellsz, cs );

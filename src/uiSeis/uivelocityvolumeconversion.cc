@@ -29,13 +29,8 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
 			tr("Velocity conversion"),
 			mODHelpKey(mVelBatchVolumeConversionHelpID) ) )
 {
-    IOObjContext velctxt = uiVelSel::ioContext();
-    velctxt.forread_ = true;
-    uiSeisSel::Setup velsetup( Seis::Vol );
-    velsetup.seltxt( tr("Input velocity model") );
-    input_ = new uiVelSel( this, velctxt, velsetup );
-    input_->selectionDone.notify(
-	    mCB(this,Vel::uiBatchVolumeConversion,inputChangeCB ) );
+    input_ = new uiVelSel( this, tr("Input velocity model") );
+    mAttachCB( input_->selectionDone, uiBatchVolumeConversion::inputChangeCB );
 
     possubsel_ =  new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     possubsel_->attach( alignedBelow, input_ );
@@ -52,12 +47,20 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
 					     Batch::JobSpec::VelConv );
     batchfld_->attach( alignedBelow, outputsel_ );
 
-    inputChangeCB( 0 );
+    mAttachCB( postFinalize(), uiBatchVolumeConversion::inputChangeCB );
 }
 
 
 Vel::uiBatchVolumeConversion::~uiBatchVolumeConversion()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void Vel::uiBatchVolumeConversion::initDlgCB( CallBacker* )
+{
+    inputChangeCB( nullptr );
+}
 
 
 void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
@@ -67,28 +70,24 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
 	return;
 
     VelocityDesc desc;
-    if ( !desc.usePar( velioobj->pars() ) ||
-	    (desc.type_!=VelocityDesc::Interval &&
-	     desc.type_!=VelocityDesc::RMS &&
-	     desc.type_!=VelocityDesc::Avg ) )
+    if ( !desc.usePar(velioobj->pars()) || !desc.isVelocity() )
 	return;
 
     StringView oldoutputtype =
 	outputveltype_->box()->textOfItem(outputveltype_->box()->currentItem());
 
-    TypeSet<VelocityDesc::Type> types;
-    if ( SI().zIsTime() ) types += VelocityDesc::RMS;
-    types += VelocityDesc::Interval;
-    types += VelocityDesc::Avg;
+    TypeSet<Type> types;
+    if ( SI().zIsTime() )
+	types += RMS;
+
+    types += Interval;
+    types += Avg;
     types -= desc.type_;
 
     outputveltype_->box()->setEmpty();
 
-    for ( int idx=0; idx<types.size(); idx++ )
-    {
-	outputveltype_->box()->addItem(toUiString(VelocityDesc::getTypeString(
-							    types[idx])));
-    }
+    for ( const auto& veltype : types )
+	outputveltype_->box()->addItem( TypeDef().toUiString(veltype) );
 
     outputveltype_->box()->setCurrentItem( oldoutputtype );
 
@@ -119,18 +118,16 @@ bool Vel::uiBatchVolumeConversion::fillPar()
 	return false;
 
     VelocityDesc inputveldesc;
-    if ( !inputveldesc.usePar( velioobj->pars() ) )
+    if ( !inputveldesc.usePar(velioobj->pars()) )
     {
 	uiMSG().error(tr("Could not read velocity information on input") );
 	return false;
     }
 
-    if ( inputveldesc.type_!=VelocityDesc::Interval &&
-         inputveldesc.type_!=VelocityDesc::Avg &&
-	 inputveldesc.type_!=VelocityDesc::RMS )
+    if ( !inputveldesc.isVelocity() )
     {
 	uiMSG().error(tr("Only RMS, Avg or Interval"
-			 " velcities can be converted"));
+			 " velocities can be converted"));
 	return false;
     }
 
@@ -142,26 +139,33 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     }
 
     const StringView outputtype =
-	outputveltype_->box()->textOfItem( outputvelidx );
-
+			outputveltype_->box()->textOfItem( outputvelidx );
     VelocityDesc outputdesc;
-    if ( !VelocityDesc::parseEnumType( outputtype, outputdesc.type_ ) )
+    if ( TypeDef().parse(outputtype,outputdesc.type_) )
+    {
+	outputdesc.setUnit( inputveldesc.getUnit() );
+	outputdesc.fillPar( outputioobj->pars() );
+    }
+    else
     {
 	pErrMsg("Imparsable velocity type");
 	return false;
     }
-    else
-	outputdesc.fillPar( outputioobj->pars() );
 
-    IOM().commitChanges( *outputioobj );
+    if ( SeisStoreAccess::zDomain(velioobj).fillPar(outputioobj->pars()) &&
+	 !IOM().commitChanges( *outputioobj ) )
+    {
+	uiMSG().error(uiStrings::phrCannotWriteDBEntry(outputioobj->uiName()));
+	return false;
+    }
 
     IOPar& par = batchfld_->jobSpec().pars_;
     outputdesc.fillPar( par );
 
-    par.set( Vel::VolumeConverter::sKeyInput(),  velioobj->key() );
+    par.set( VolumeConverter::sKeyInput(),  velioobj->key() );
 
     possubsel_->fillPar( par );
-    par.set( Vel::VolumeConverter::sKeyOutput(), outputioobj->key() );
+    par.set( VolumeConverter::sKeyOutput(), outputioobj->key() );
 
     batchfld_->saveProcPars( *outputioobj );
     return true;

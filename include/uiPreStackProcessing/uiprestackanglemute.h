@@ -32,7 +32,8 @@ public:
 				uiAngleCompGrp(uiParent*,
 					       PreStack::AngleCompParams&,
 					       bool dooffset=false,
-					       bool isformute=true);
+					       bool isformute=true,
+					       bool withadvanced=true);
 				~uiAngleCompGrp();
 
     void			updateFromParams();
@@ -47,7 +48,7 @@ protected:
     uiVelSel*			velfuncsel_;
     uiGenInput*			anglefld_;
     uiLabel*			anglelbl_ = nullptr;
-    uiPushButton*		advpushbut_;
+    uiPushButton*		advpushbut_ = nullptr;
     uiAngleCompAdvParsDlg*	advpardlg_ = nullptr;
 
     bool			isformute_;
@@ -101,9 +102,12 @@ mExpClass(uiPreStackProcessing) uiAngleMute : public uiDialog
 { mODTextTranslationClass(uiAngleMute);
 public:
 
-    static void		initClass();
-			uiAngleMute(uiParent*,AngleMute*);
+			uiAngleMute(uiParent*,AngleMute*,
+				    bool withadvanced=false);
 			~uiAngleMute();
+
+    static void		initClass();
+    static void		removeClass();
 
 protected:
 

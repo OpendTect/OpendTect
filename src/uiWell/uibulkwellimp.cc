@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "survinfo.h"
 #include "tabledef.h"
-#include "veldesc.h"
+#include "unitofmeasure.h"
 #include "welld2tmodel.h"
 #include "wellimpasc.h"
 #include "wellman.h"
@@ -67,7 +67,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     if ( SI().zIsTime() )
     {
 	const uiString vellbl = tr("Temporary model velocity %1" )
-				  .arg( VelocityDesc::getVelUnit( true ));
+		      .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
 	const float vel = uiD2TModelGroup::getDefaultTemporaryVelocity();
 	velocityfld_ = new uiGenInput( this, vellbl, FloatInpSpec(vel) );
 	velocityfld_->attach( alignedBelow, dataselfld_ );

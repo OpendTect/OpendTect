@@ -67,7 +67,7 @@ protected:
     const RefTree&	rt_;
     PropertyRefSelection propsel_;
     MultiID		elasticpropselmid_;
-    float		startdepth_ = 0.f;
+    float		startdepth_;
 
     void		erase() override;
 

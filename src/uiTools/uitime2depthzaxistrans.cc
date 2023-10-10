@@ -16,10 +16,8 @@ ________________________________________________________________________
 uiTime2DepthZTransformBase::uiTime2DepthZTransformBase( uiParent* p, bool t2d )
     : uiZAxisTransform( p )
     , t2d_( t2d )
-    , rangefld_( 0 )
-    , rangechanged_( false )
 {
-    mAttachCB( postFinalize(), uiTime2DepthZTransformBase::finalizeDoneCB );
+    mAttachCB( postFinalize(), uiTime2DepthZTransformBase::initGrp );
 }
 
 
@@ -41,33 +39,30 @@ StringView uiTime2DepthZTransformBase::fromDomain() const
 }
 
 
-void uiTime2DepthZTransformBase::enableTargetSampling()
+void uiTime2DepthZTransformBase::initGrp( CallBacker* )
 {
+    doInitGrp();
     if ( rangefld_ )
-	return;
-
-    if ( !finalized() )
-    {
-	rangefld_ = new uiZRangeInput(this,t2d_,true);
-	rangefld_->attach( alignedBelow, hAlignObj() );
-    }
+	mAttachCB( rangefld_->valueChanging,
+		   uiTime2DepthZTransformBase::rangeChangedCB );
 }
 
 
-bool
-uiTime2DepthZTransformBase::getTargetSampling(StepInterval<float>& res) const
+void uiTime2DepthZTransformBase::enableTargetSampling()
+{
+    if ( rangefld_ || finalized() )
+	return;
+
+    rangefld_ = new uiZRangeInput( this, t2d_, true );
+    rangefld_->attach( alignedBelow, hAlignObj() );
+}
+
+
+bool uiTime2DepthZTransformBase::getTargetSampling( ZSampling& res ) const
 {
     if ( !rangefld_ )
 	return false;
 
     res = rangefld_->getFZRange();
     return true;
-}
-
-
-void uiTime2DepthZTransformBase::finalizeDoneCB(CallBacker*)
-{
-    if ( rangefld_ )
-	mAttachCB( rangefld_->valueChanging,
-		   uiTime2DepthZTransformBase::rangeChangedCB );
 }

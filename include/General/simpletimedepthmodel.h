@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "factory.h"
 #include "tableascio.h"
 #include "tabledef.h"
@@ -26,19 +27,21 @@ mExpClass(General) SimpleTimeDepthModel : public TimeDepthModel
 public:
 				SimpleTimeDepthModel();
 				SimpleTimeDepthModel(const MultiID&);
-    virtual			~SimpleTimeDepthModel() {}
+				~SimpleTimeDepthModel();
 
     void			setRawData(const TypeSet<float>& times,
-				   const TypeSet<float>& depths);
+					   const TypeSet<float>& depths);
 
+    bool			isOK() const override;
     bool			save(const MultiID&) const;
 
     const TypeSet<float>&	getRawTimes() const	{ return rawtimes_; }
     const TypeSet<float>&	getRawDepths() const	{ return rawdepths_; }
 
-    virtual bool		isOK() const override;
+    static const UnitOfMeasure* getTimeUnit();
+    static const UnitOfMeasure* getDepthUnit();
 
-protected:
+private:
 
     bool			readFromFile(const char*);
     bool			writeToFile(const char*) const;
@@ -57,31 +60,43 @@ mExpClass(General) SimpleTimeDepthTransform : public ZAxisTransform
 { mODTextTranslationClass(SimpleTimeDepthTransform)
 public:
 
+    bool			isOK() const override;
+    bool			setID(const MultiID&);
+
+protected:
 				SimpleTimeDepthTransform(const ZDomain::Def&,
 							 const ZDomain::Def&);
 				SimpleTimeDepthTransform(const ZDomain::Def&,
 							 const ZDomain::Def&,
 							 const MultiID&);
+				~SimpleTimeDepthTransform();
 
-    bool			isOK() const override;
-    bool			setID(const MultiID&);
+private:
+
+    void			fillPar(IOPar&) const override;
+    bool			usePar(const IOPar&) override;
+
+    void			transformTrc(const TrcKey&,
+					  const SamplingData<float>&,
+					  int sz,float* res) const override;
+    void			transformTrcBack(const TrcKey&,
+					      const SamplingData<float>&,
+					      int sz,float* res) const override;
+    void			doTransform(const SamplingData<float>& sd,
+					    const ZDomain::Info& sdzinfo,
+					    int sz,float*) const;
+
     bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
     bool			needsVolumeOfInterest() const override
 				{ return false; }
 
-    void			fillPar(IOPar&) const override;
-    bool			usePar(const IOPar&) override;
-
-protected:
-
-				~SimpleTimeDepthTransform();
+    ZSampling			getWorkZrg(const ZSampling&,
+					   const ZDomain::Info& from,
+				       const ZDomain::Info& to) const override;
 
     SimpleTimeDepthModel*	tdmodel_ = nullptr;
-
-    void			doTransform(const SamplingData<float>&,
-					    int sz,float*,bool) const;
 };
 
 
@@ -95,19 +110,8 @@ public:
 				SimpleT2DTransform();
 				SimpleT2DTransform(const MultiID&);
 
-    void			transformTrc(const TrcKey&,
-					  const SamplingData<float>&,
-					  int sz,float* res) const override;
-    void			transformTrcBack(const TrcKey&,
-					      const SamplingData<float>&,
-					      int sz,float* res) const override;
-
-    float			getGoodZStep() const override;
-    Interval<float>		getZInterval(bool time) const override;
-
 protected:
-
-    Interval<float>		getZRange(bool time) const;
+				~SimpleT2DTransform();
 };
 
 
@@ -121,28 +125,17 @@ public:
 				SimpleD2TTransform();
 				SimpleD2TTransform(const MultiID&);
 
-    void			transformTrc(const TrcKey&,
-					  const SamplingData<float>&,
-					  int sz,float* res) const override;
-    void			transformTrcBack(const TrcKey&,
-					      const SamplingData<float>&,
-					      int sz,float* res) const override;
-
-    float			getGoodZStep() const override;
-    Interval<float>		getZInterval(bool time) const override;
-
 protected:
-
-    Interval<float>		getZRange(bool time) const;
+				~SimpleD2TTransform();
 };
 
 
 
 mExpClass(General) SimpleTimeDepthAscIO : public Table::AscIO
 { mODTextTranslationClass(SimpleTimeDepthAscIO)
-    public:
-			SimpleTimeDepthAscIO( const Table::FormatDesc& fd )
-				: Table::AscIO(fd)		{}
+public:
+				SimpleTimeDepthAscIO(const Table::FormatDesc&);
+				~SimpleTimeDepthAscIO();
 
     static Table::FormatDesc*	getDesc(bool withunitfld);
     static void			updateDesc(Table::FormatDesc&,bool withunitfld);

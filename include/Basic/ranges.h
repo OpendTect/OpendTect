@@ -813,9 +813,9 @@ T StepInterval<T>::snap( const X& t, OD::SnapDir dir ) const
 
     const float fidx = getfIndex( t );
     const int snappedidx = mNINT32(fidx);
-    const float releps = mIsZero(fidx,1e-5f) ? 1e-5f
-					     : fidx < 0.f ? -fidx*1e-5f
-							  :  fidx*1e-5f;
+    const float releps = mIsZero(fidx,1e-4f) ? 1e-4f
+					     : fidx < 0.f ? -fidx*1e-4f
+							  :  fidx*1e-4f;
     const int idx = mIsEqual(fidx,snappedidx,releps) ? snappedidx
 			: mNINT32( dir==OD::SnapDownward ? Math::Floor(fidx)
 							 : Math::Ceil(fidx) );

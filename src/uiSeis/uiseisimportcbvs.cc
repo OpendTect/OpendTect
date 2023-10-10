@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "seiscbvs.h"
 #include "seisselection.h"
+#include "zdomain.h"
 
 #include "uifileinput.h"
 #include "uiioobjsel.h"
@@ -168,8 +169,9 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 	outioobj_->pars().set( sKey::Type(), seltyp == 1 ?
 				    sKey::Attribute() : sKey::Steering() );
 
+    outfld_->getZDomain().fillPar( outioobj_->pars() );
     outioobj_->setTranslator( CBVSSeisTrcTranslator::translKey() );
-    PtrMan<IOObj> inioobj = 0;
+    PtrMan<IOObj> inioobj;
     if ( dolink )
 	iostrm->fileSpec().setFileName( fname );
     else

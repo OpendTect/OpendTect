@@ -13,45 +13,49 @@ ________________________________________________________________________
 #include "idxable.h"
 #include "ioman.h"
 #include "posinfo.h"
+#include "seisioobjinfo.h"
+#include "seispacketinfo.h"
 #include "seisread.h"
 #include "seistrc.h"
-#include "seispacketinfo.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
+#include "zvalseriesimpl.h"
 
 
 namespace Vel
 {
 
-
-void VolumeFunctionSource::initClass()
-{ FunctionSource::factory().addCreator( create, sFactoryKeyword() ); }
-
-
+// VolumeFunction
 
 VolumeFunction::VolumeFunction( VolumeFunctionSource& source )
-    : Function( source )
-    , extrapolate_( false )
-    , statics_( 0 )
-    , staticsvel_( 0 )
+    : Function(source)
 {}
 
 
 VolumeFunction::~VolumeFunction()
-{}
+{
+}
 
 
 bool VolumeFunction::moveTo( const BinID& bid )
 {
-    if ( !Function::moveTo( bid ) )
+    if ( !Function::moveTo(bid) )
 	return false;
 
     mDynamicCastGet( VolumeFunctionSource&, source, source_ );
-    if ( !source.getVel( bid, velsampling_, vel_ ) )
+    if ( !source.getVel(bid,velsampling_,vel_) )
     {
 	vel_.erase();
 	return false;
     }
+
+    if ( getDesiredZ().isUdf() && zDomain() == source.zDomain() )
+	setDesiredZRange( getLoadedZ() );
+
+    if ( getDesc().isUdf() )
+	copyDescFrom( getSource() );
 
     return true;
 }
@@ -72,106 +76,70 @@ void VolumeFunction::setStatics( float time, float vel )
 }
 
 
-StepInterval<float> VolumeFunction::getAvailableZ() const
+ZSampling VolumeFunction::getAvailableZ() const
 {
-    if ( extrapolate_ )
-	return SI().zRange(true);
+    if ( extrapolate_ && zDomain() == SI().zDomainInfo() )
+	return SI().zRange( true );
 
     return getLoadedZ();
 }
 
 
-StepInterval<float> VolumeFunction::getLoadedZ() const
+ZSampling VolumeFunction::getLoadedZ() const
 {
-    return StepInterval<float>( velsampling_.start,
-				velsampling_.atIndex(vel_.size()-1),
-			        velsampling_.step );
+    return ZSampling( float (velsampling_.start),
+		      float (velsampling_.atIndex(vel_.size()-1)),
+		      float (velsampling_.step) );
 }
 
 
-bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
+bool VolumeFunction::computeVelocity( float z0, float dz, int sz,
 				      float* res ) const
 {
-    const int velsz = vel_.size();
-
-    if ( !velsz )
+    const double t0 = mIsUdf(statics_) ? 0. : statics_;
+    const ArrayValueSeries<double,double> vels_in( (double*)(vel_.arr()), false,
+						   vel_.size() );
+    const RegularZValues zvals_in( velsampling_, vel_.size(),
+				   source_.zDomain() );
+    const SamplingData<float> sd_out( z0, dz );
+    const RegularZValues zvals_out( sd_out, sz, zDomain() );
+    ArrayValueSeries<double,float> vels_out( res, false, sz );
+    const Vel::Worker worker( source_.getDesc(), SI().seismicReferenceDatum(),
+			      UnitOfMeasure::surveyDefSRDStorageUnit() );
+    if ( !worker.sampleVelocities(vels_in,zvals_in,zvals_out,vels_out,t0) )
 	return false;
 
-    mDynamicCastGet( VolumeFunctionSource&, source, source_ );
-    const SamplingData<double> velsampling =
-					getDoubleSamplingData( velsampling_ );
-    const SamplingData<double> sd = getDoubleSamplingData(
-					SamplingData<float>(z0,dz) );
-
-    if ( mIsEqual(z0,velsampling_.start,1e-5) &&
-	 mIsEqual(velsampling_.step,dz,1e-5) &&
-	 velsz==nr )
-	OD::sysMemCopy( res, vel_.arr(), sizeof(float)*velsz );
-    else if ( source.getDesc().type_!=VelocityDesc::RMS ||
-	      !extrapolate_ ||
-	      velsampling.atIndex(velsz-1) > sd.atIndex(nr-1) )
+    const UnitOfMeasure* funcveluom = getVelUnit();
+    const UnitOfMeasure* funcsrcveluom = source_.getVelUnit();
+    if ( funcveluom != funcsrcveluom )
     {
-	for ( int idx=0; idx<nr; idx++ )
-	{
-	    const float z = mCast(float,sd.atIndex( idx ));
-	    const float sample = velsampling.getfIndex( z );
-	    if ( sample<0 )
-	    {
-		res[idx] = extrapolate_ ? vel_[0] : mUdf(float);
-		continue;
-	    }
-
-	    if ( sample<velsz )
-	    {
-		res[idx] = IdxAble::interpolateReg<const float*>( vel_.arr(),
-			velsz, sample, false );
-		continue;
-	    }
-
-	    //sample>=vel_.size()
-	    if ( !extrapolate_ )
-	    {
-		res[idx] = mUdf(float);
-		continue;
-	    }
-
-	    if ( source.getDesc().type_!=VelocityDesc::RMS )
-	    {
-		res[idx] = vel_[velsz-1];
-		continue;
-	    }
-
-	    pErrMsg( "Should not happen" );
-	}
-    }
-    else //RMS vel && extrapolate_ && extrapolation needed at the end
-    {
-	mAllocVarLenArr( double, times, velsz );
-	if ( !mIsVarLenArrOK(times) ) return false;
-	for ( int idx=0; idx<velsz; idx++ )
-	    times[idx] = velsampling.atIndex( idx );
-
-	return sampleVrms( vel_.arr(), (double)statics_, staticsvel_, times,
-			   velsz, sd, res, nr );
+	for ( int idx=0; idx<sz; idx++ )
+	    convValue( res[idx], funcsrcveluom, funcveluom );
     }
 
     return true;
 }
 
 
+// VolumeFunctionSource
+
+void VolumeFunctionSource::initClass()
+{ FunctionSource::factory().addCreator( create, sFactoryKeyword() ); }
+
+
 VolumeFunctionSource::VolumeFunctionSource()
-    : zit_( SI().zIsTime() )
-{}
+    : FunctionSource()
+    , desc_(*new VelocityDesc)
+{
+    desc_.setUnit( UnitOfMeasure::surveyDefVelStorageUnit() );
+}
 
 
 VolumeFunctionSource::~VolumeFunctionSource()
 {
     deepErase( velreader_ );
+    delete &desc_;
 }
-
-
-bool VolumeFunctionSource::zIsTime() const
-{ return zit_; }
 
 
 bool VolumeFunctionSource::setFrom( const MultiID& velid )
@@ -187,11 +155,13 @@ bool VolumeFunctionSource::setFrom( const MultiID& velid )
 	return false;
     }
 
-    if ( !desc_.usePar( velioobj->pars() ) )
+    const IOPar& par = velioobj->pars();
+    if ( !desc_.usePar(par) || desc_.isUdf() )
         return false;
 
-    zit_ = SI().zIsTime();
-    velioobj->pars().getYN( sKeyZIsTime(), zit_ );
+    const SeisIOObjInfo info( velid );
+    if ( info.isOK() )
+	setZDomain( info.zDomain() );
 
     mid_ = velid;
 
@@ -215,6 +185,7 @@ SeisTrcReader* VolumeFunctionSource::getReader()
     auto* velreader = new SeisTrcReader( *velioobj );
     if ( !velreader->prepareWork() )
     {
+	errmsg_ = toString( velreader->errMsg() );
 	delete velreader;
 	return nullptr;
     }
@@ -228,14 +199,12 @@ SeisTrcReader* VolumeFunctionSource::getReader()
 
 void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
 {
-    VolumeFunctionSource* myself = const_cast<VolumeFunctionSource*>(this);
-    SeisTrcReader* velreader = myself->getReader();
-
+    SeisTrcReader* velreader = mSelf().getReader();
     if ( !velreader || !velreader->seisTranslator() )
 	return;
 
     const SeisPacketInfo& packetinfo =
-	velreader->seisTranslator()->packetInfo();
+			  velreader->seisTranslator()->packetInfo();
 
     if ( packetinfo.cubedata )
 	bids.add( *packetinfo.cubedata );
@@ -244,23 +213,21 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
 	const StepInterval<int>& inlrg = packetinfo.inlrg;
 	const StepInterval<int>& crlrg = packetinfo.crlrg;
 	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )
-	{
 	    for ( int crl=crlrg.start; crl<=crlrg.stop; crl +=crlrg.step )
-	    {
 		bids.add( BinID(inl,crl) );
-	    }
-	}
     }
 }
 
 
-bool VolumeFunctionSource::getVel( const BinID& bid,
-			    SamplingData<float>& sd, TypeSet<float>& trcdata )
+bool VolumeFunctionSource::getVel( const BinID& bid, SamplingData<double>& sd,
+				   TypeSet<double>& trcdata )
 {
     SeisTrcReader* velreader = getReader();
     if ( !velreader )
     {
-	pErrMsg("No reader available");
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = "No reader available";
+
 	return false;
     }
 
@@ -280,42 +247,45 @@ bool VolumeFunctionSource::getVel( const BinID& bid,
     if ( !velreader->get(velocitytrc) )
 	return false;
 
-    trcdata.setSize( velocitytrc.size(), mUdf(float) );
+    const int icomp = 0;
+    trcdata.setSize( velocitytrc.size(), mUdf(double) );
     for ( int idx=0; idx<velocitytrc.size(); idx++ )
-	trcdata[idx] = velocitytrc.get( idx, 0 );
+	trcdata[idx] = velocitytrc.get( idx, icomp );
 
-    sd = velocitytrc.info().sampling;
+    sd = RegularZValues::getDoubleSamplingData( velocitytrc.info().sampling );
 
     return true;
 }
 
 
-VolumeFunction*
-VolumeFunctionSource::createFunction(const BinID& binid)
+VolumeFunction* VolumeFunctionSource::createFunction( const BinID& binid )
 {
-    VolumeFunction* res = new VolumeFunction( *this );
+    auto* res = new VolumeFunction( *this );
     if ( !res->moveTo(binid) )
     {
 	delete res;
-	return 0;
+	return nullptr;
     }
 
     return res;
 }
 
 
-FunctionSource* VolumeFunctionSource::create(const MultiID& mid)
+FunctionSource* VolumeFunctionSource::create( const MultiID& mid )
 {
-    VolumeFunctionSource* res = new VolumeFunctionSource;
-    if ( !res->setFrom( mid ) )
+    if ( mid.groupID() !=
+	    IOObjContext::getStdDirData( IOObjContext::Seis )->groupID() )
+	return nullptr;
+
+    auto* res = new VolumeFunctionSource;
+    if ( !res->setFrom(mid) )
     {
 	FunctionSource::factory().errMsg() = res->errMsg();
 	delete res;
-	return 0;
+	return nullptr;
     }
 
     return res;
 }
-
 
 } // namespace Vel

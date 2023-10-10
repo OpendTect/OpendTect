@@ -145,6 +145,24 @@ mDeclareNameSpaceEnumUtils(Basic,WellType);
 
 } // namespace OD
 
+namespace Vel
+{
+
+enum Type
+{
+    Unknown=0,
+    Interval=1,
+    RMS=2,
+    Avg=3,
+    Delta=4,
+    Epsilon=5,
+    Eta=6
+};
+
+mDeclareNameSpaceEnumUtils(Basic,Type)
+
+}
+
 
 mGlobal(Basic) bool isHorizontal(OD::Orientation);
 mGlobal(Basic) bool isVertical(OD::Orientation);

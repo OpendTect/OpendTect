@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "genericnumer.h"
 #include "samplfunc.h"
 #include "zaxistransform.h"
+#include "zdomain.h"
+
 
 SeisDataPackZAxisTransformer::SeisDataPackZAxisTransformer( ZAxisTransform& zat,
 							    SeisDataPack* out )
@@ -22,7 +24,7 @@ SeisDataPackZAxisTransformer::SeisDataPackZAxisTransformer( ZAxisTransform& zat,
     , outputdp_(out)
 {
     transform_.ref();
-    zrange_.set( transform_.getZInterval(false), transform_.getGoodZStep() );
+    zrange_ = transform_.getZInterval( false );
 }
 
 

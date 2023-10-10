@@ -428,8 +428,7 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& tkzs,
 	if ( datatransform_ )
 	{
 	    TrcKeyZSampling limitcs;
-	    limitcs.zsamp_.set( datatransform_->getZInterval(false),
-				datatransform_->getGoodZStep() );
+	    limitcs.zsamp_ = datatransform_->getZInterval( false );
 	    slicepos_->setLimitSampling( limitcs );
 	}
     }
@@ -723,8 +722,7 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackRM(
 	if ( tkzs.nrZ() == 1 )
 	    return createDataPackForTransformedZSliceRM( selspec );
 
-	tkzs.zsamp_.setFrom( zat->getZInterval(true) );
-	tkzs.zsamp_.step = SI().zStep();
+	tkzs.zsamp_ = zat->getZInterval( true );
     }
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
@@ -810,7 +808,8 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackForTransformedZSliceRM(
 	return nullptr;
 
     auto dp = RegularSeisDataPack::createDataPackForZSliceRM(
-	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
+		&data->bivSet(), tkzs, datatransform_->toZDomainInfo().def_,
+		&userrefs );
     return createFlatDataPackRM( *dp, 0 );
 }
 

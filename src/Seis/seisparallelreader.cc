@@ -463,9 +463,11 @@ bool Seis::ParallelReader::doPrepare( int nrthreads )
     }
     else if ( !dp_ )
     {
+	const SeisIOObjInfo seisinfo( ioobj_ );
 	dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,false) );
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
+	dp_->setZDomain( seisinfo.zDomain() );
 	if ( trcssampling_ )
 	    dp_->setTrcsSampling( new PosInfo::SortedCubeData(*trcssampling_) );
 
@@ -535,7 +537,7 @@ bool Seis::ParallelReader::doWork( od_int64 start, od_int64, int threadid )
 	return false;
     }
 
-    const StepInterval<float>& zsamp = tkzs_.zsamp_;
+    const ZSampling& zsamp = tkzs_.zsamp_;
     const bool samedatachar = seissummary.hasSameFormatAs( dp_->getDataDesc() );
     const bool needresampling = !zsamp.isCompatible( seissummary.zRange() );
     ObjectSet<Scaler> compscalers;
@@ -640,7 +642,8 @@ bool Seis::ParallelReader2D::doPrepare( int )
 bool Seis::ParallelReader2D::init()
 {
     const SeisIOObjInfo info( *ioobj_ );
-    if ( !info.isOK() ) return false;
+    if ( !info.isOK() )
+	return false;
 
     const Seis::GeomType gt = info.geomType();
     const Pos::GeomID geomid = tkzs_.hsamp_.getGeomID();
@@ -685,6 +688,7 @@ bool Seis::ParallelReader2D::init()
     dp_ = new RegularSeisDataPack( SeisDataPack::categoryStr(true,true), &dc_ );
     dp_->setName( ioobj_->name() );
     dp_->setSampling( tkzs_ );
+    dp_->setZDomain( info.zDomain() );
     if ( scaler_ )
 	dp_->setScaler( *scaler_ );
 
@@ -1026,7 +1030,7 @@ bool Seis::SequentialReader::init()
 	{
 	    const Pos::GeomID geomid = tkzs_.hsamp_.getGeomID();
 	    StepInterval<int> trcrg;
-	    StepInterval<float> zrg;
+	    ZSampling zrg;
 	    if ( !seisinfo.getRanges(geomid,trcrg,zrg) )
 		return false;
 
@@ -1048,6 +1052,7 @@ bool Seis::SequentialReader::init()
 				       &dc_);
 	dp_->setName( ioobj_->name() );
 	dp_->setSampling( tkzs_ );
+	dp_->setZDomain( seisinfo.zDomain() );
 	if ( scaler_ && !scaler_->isEmpty() )
 	    dp_->setScaler( *scaler_ );
 
@@ -1128,7 +1133,7 @@ bool Seis::SequentialReader::setDataPack( RegularSeisDataPack& dp,
 
     setDataChar( DataCharacteristics( dp.getDataDesc() ).userType() );
     setScaler( dp.getScaler() && !dp.getScaler()->isEmpty()
-	       ? dp.getScaler()->clone() : 0 );
+	       ? dp.getScaler()->clone() : nullptr );
     //scaler_ won't be used with external dp, but setting it for consistency
 
     if ( dp.sampling().isDefined() )
@@ -1239,8 +1244,11 @@ int Seis::SequentialReader::nextStep()
     if ( !databuf || !databuf->isOK() ||
 	 !fillTrcsBuffer(rdr_,*tks,*databuf,refnrs,*trcscalers,msg_) )
     {
-	if ( !databuf ) delete tks;
-	delete databuf; delete trcscalers;
+	if ( !databuf )
+	    delete tks;
+
+	delete databuf;
+	delete trcscalers;
 	msg_.append( tr("Cannot allocate trace data"), true );
 	return ErrorOccurred();
     }

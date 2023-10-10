@@ -38,6 +38,7 @@ set( OD_MODULE_SOURCES
 	hilberttransform.cc
 	histequalizer.cc
 	houghtransform.cc
+	initalgo.cc
 	interpollayermodel.cc
 	isocontourtracer.cc
 	linear.cc
@@ -56,7 +57,6 @@ set( OD_MODULE_SOURCES
 	scaler.cc
 	sincinterpolator.cc
 	spectrogram.cc
-	staticsdesc.cc
 	stats.cc
 	timedepthmodel.cc
 	timeser.cc
@@ -66,14 +66,13 @@ set( OD_MODULE_SOURCES
 	undo.cc
 	valseriesevent.cc
 	valseriestracker.cc
-	veldesc.cc
 	velocitycalc.cc
 	wavelettrans.cc
 	windowfunction.cc
 	zaxistransform.cc
 	zaxistransformer.cc
 	zoeppritzcoeff.cc
-	initalgo.cc
+	zvalseriesimpl.cc
 )
 
 set( OD_TEST_PROGS

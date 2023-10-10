@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
-#include "samplingdata.h"
+
 #include "thread.h"
 #include "velocityfunction.h"
 
@@ -21,7 +21,7 @@ namespace Vel
 
 class IntervalSource;
 
-/*!A velocity funcion that computes interval velocity from where from
+/*!A velocity funcion that computes interval velocity from
    another velocity function with RMS velocity */
 
 mExpClass(Velocity) IntervalFunction : public Function
@@ -29,25 +29,32 @@ mExpClass(Velocity) IntervalFunction : public Function
 public:
 			IntervalFunction(IntervalSource&);
 
-    StepInterval<float> getAvailableZ() const override;
+    const ZDomain::Info& zDomain() const override;
+    ZSampling		getAvailableZ() const override;
+
     bool		moveTo(const BinID&) override;
-    void		setInput(Function*);
+    Function&		setInput(Function*);
+    Function&		setZDomain(const ZDomain::Info&) override;
 
 protected:
-    			~IntervalFunction();
+			~IntervalFunction();
 
-    bool		computeVelocity(float z0, float dz, int nr,
+    bool		computeVelocity(float z0,float dz,int sz,
 					float* res ) const override;
 
-    Function*		inputfunc_;
+    Function*		inputfunc_ = nullptr;
 };
 
 
 mExpClass(Velocity) IntervalSource : public FunctionSource
 {
 public:
-    			IntervalSource();
-    const VelocityDesc& getDesc() const override;
+			IntervalSource();
+
+    const VelocityDesc& getDesc() const override	{ return desc_; }
+    const ZDomain::Info& zDomain() const override;
+    const UnitOfMeasure* getVelUnit() const override;
+
     const char*		factoryKeyword() const override { return sType(); }
     static const char*	sType() { return "Interval"; }
 
@@ -59,12 +66,13 @@ public:
     BinID		changeBinID() const override;
 
 protected:
+			~IntervalSource();
+
     void		sourceChangeCB(CallBacker*);
     IntervalFunction*	createFunction(const BinID&) override;
-    			~IntervalSource();
 
-    FunctionSource*	inputsource_;
-    VelocityDesc	veldesc_;
+    FunctionSource*	inputsource_ = nullptr;
+    VelocityDesc&	desc_;
 };
 
 } // namespace Vel

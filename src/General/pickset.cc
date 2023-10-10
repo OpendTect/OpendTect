@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "posimpexppars.h"
 #include "unitofmeasure.h"
 #include "od_iostream.h"
+
 #include <ctype.h>
 #include <iostream>
 
@@ -35,6 +36,17 @@ static OD::LineStyle	    defLineStyle()
 {
     return OD::LineStyle( OD::LineStyle::Solid, defPixSz(), defcolor() );
 }
+
+
+// Pick::Set::Disp
+
+Pick::Set::Disp::Disp()
+{}
+
+
+Pick::Set::Disp::~Disp()
+{}
+
 
 int Pick::Set::getSizeThreshold()
 {
@@ -397,7 +409,7 @@ void SetMgr::dumpMgrInfo( StringPairSet& infoset )
 	    ConstRefMan<Set> ps = setmgr->get( ids );
 	    BufferString setkey = IOPar::compKey( toString(idx+1), ids );
 	    infoset.add( IOPar::compKey(setkey,"PointSet ID"),
-		    	 setmgr->id(ids).toString() );
+			 setmgr->id(ids).toString() );
 	    infoset.add( IOPar::compKey(setkey,"PointSet Name"), ps->name() );
 	    infoset.add( IOPar::compKey(setkey,"PointSet Size"), ps->size() );
 	    infoset.add( IOPar::compKey(setkey,"PointSet References"),
@@ -714,35 +726,38 @@ static int getNearestLocation( const PicksType& ps,
 Set::Set( const char* nm )
     : SharedObject(nm)
     , pars_(*new IOPar)
-    , readonly_(false)
+    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
     setDefaultDispPars();
 }
 
 
-Set::Set( const Set& s )
+Set::Set( const Set& oth )
     : pars_(*new IOPar)
-    , readonly_(false)
+    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
-    *this = s;
+    *this = oth;
 }
 
 Set::~Set()
 {
     delete &pars_;
+    delete zdomaininfo_;
 }
 
 
-Set& Set::operator=( const Set& s )
+Set& Set::operator=( const Set& oth )
 {
-    if ( &s == this )
+    if ( &oth == this )
 	return *this;
 
-    locations_.copy( s.locations_ );
-    setName( s.name() );
-    disp_ = s.disp_;
-    pars_ = s.pars_;
-    readonly_ = s.readonly_;
+    locations_.copy( oth.locations_ );
+    setName( oth.name() );
+    disp_ = oth.disp_;
+    pars_ = oth.pars_;
+    readonly_ = oth.readonly_;
+    setZDomain( oth.zDomain() );
+
     return *this;
 }
 
@@ -901,6 +916,48 @@ bool Set::isPolygon() const
 }
 
 
+const ZDomain::Info& Set::zDomain() const
+{
+    return *zdomaininfo_;
+}
+
+
+bool Set::zIsTime() const
+{
+    return zDomain().isTime();
+}
+
+
+bool Set::zInMeter() const
+{
+    return zDomain().isDepthMeter();
+}
+
+
+bool Set::zInFeet() const
+{
+    return zDomain().isDepthFeet();
+}
+
+
+const UnitOfMeasure* Set::getZUnit() const
+{
+    return UnitOfMeasure::getZUnit( zDomain() );
+}
+
+
+Set& Set::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( readonly_ || (!zinfo.isTime() && !zinfo.isDepth()) ||
+	 zinfo == zDomain() )
+	return *this;
+
+    delete zdomaininfo_;
+    zdomaininfo_ = new ZDomain::Info( zinfo );
+    return *this;
+}
+
+
 void Set::getStartStopIdx( int setidx, int& start, int& stop ) const
 {
     start = 0; stop = size()-1;
@@ -986,6 +1043,7 @@ void Set::getBoundingBox( TrcKeyZSampling& tkzs ) const
 void Set::fillPar( IOPar& par ) const
 {
     par.set( sKeyStartIdx(), startidxs_ );
+    zDomain().fillPar( par );
     par.merge( pars_ );
 }
 
@@ -1001,7 +1059,12 @@ bool Set::usePar( const IOPar& par )
     else
 	startidxs_ = startidx;
 
+    const ZDomain::Info* zinfo = ZDomain::get( par );
+    if ( zinfo )
+	setZDomain( *zinfo );
+
     pars_ = par;
+    pars_.removeWithKey( sKey::ZUnit() );
     pars_.removeWithKey( sKey::Color() );
     pars_.removeWithKey( sKey::Size() );
     pars_.removeWithKey( sKeyMarkerType() );

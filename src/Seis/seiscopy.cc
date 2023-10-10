@@ -8,41 +8,24 @@ ________________________________________________________________________
 -*/
 
 #include "seiscopy.h"
-#include "seis2ddata.h"
-#include "seistrc.h"
-#include "seisread.h"
-#include "seiswrite.h"
-#include "seistrcprop.h"
-#include "seissingtrcproc.h"
-#include "seisselectionimpl.h"
-#include "scaler.h"
-#include "survgeom.h"
+
 #include "ioobj.h"
+#include "keystrs.h"
+#include "seis2ddata.h"
+#include "seisread.h"
+#include "seisselectionimpl.h"
+#include "seissingtrcproc.h"
+#include "seistrc.h"
+#include "seistrcprop.h"
+#include "seiswrite.h"
+#include "survgeom.h"
+#include "survinfo.h"
+#include "unitofmeasure.h"
 #include "veldesc.h"
-#include "velocitycalc.h"
+#include "zvalseriesimpl.h"
+
 
 static uiString sNrTrcsCopied = toUiString("Number of traces copied");
-
-
-#define mNoVelocity 0
-#define mVelocityIntv 1
-#define mVelocityRMS 2
-#define mVelocityAvg 3
-
-
-static int getVelType( const IOPar& iop )
-{
-    if ( !iop.isTrue(VelocityDesc::sKeyIsVelocity()) )
-	return mNoVelocity;
-
-    const BufferString typestr = iop.find( VelocityDesc::sKeyVelocityType() );
-    if ( typestr.isEqual(VelocityDesc::TypeNames()[VelocityDesc::RMS]) )
-	return mVelocityRMS;
-    else if ( typestr.isEqual(VelocityDesc::TypeNames()[VelocityDesc::Avg]) )
-	return mVelocityAvg;
-
-    return mVelocityIntv;
-}
 
 
 SeisCubeCopier::SeisCubeCopier( const IOObj& inobj, const IOObj& outobj,
@@ -74,16 +57,16 @@ SeisCubeCopier::~SeisCubeCopier()
 {
     detachAllNotifiers();
     delete stp_;
+    delete veldesc_;
 }
 
 
 bool SeisCubeCopier::goImpl( od_ostream* strm, bool first, bool last,
 			     int delay )
 {
-    if ( !stp_ )
+    if ( !stp_ || !init() )
 	return false;
 
-    inited_ = false;
     const bool res = stp_->goImpl( strm, first, last, delay );
     return res;
 }
@@ -91,12 +74,12 @@ bool SeisCubeCopier::goImpl( od_ostream* strm, bool first, bool last,
 
 bool SeisCubeCopier::init()
 {
-    veltype_ = mNoVelocity;
     if ( !stp_ )
 	return false;
 
+    const SeisTrcReader* rdr = stp_->reader();
     const SeisTrcWriter* wrr = stp_->writer();
-    if ( !stp_->reader(0) || !wrr )
+    if ( !rdr || !wrr )
     {
 	errmsg_ = stp_->uiMessage();
 	if ( errmsg_.isEmpty() )
@@ -104,14 +87,19 @@ bool SeisCubeCopier::init()
 	deleteAndNullPtr( stp_ );
     }
 
+    VelocityDesc veldesc;
     if ( wrr->ioObj() )
-	veltype_ = getVelType( wrr->ioObj()->pars() );
+	veldesc.usePar( rdr->ioObj()->pars() );
 
-    if ( compnr_<0 && veltype_<=0 )
+    if ( !veldesc.isUdf() )
     {
-	mDetachCB( stp_->proctobedone_, SeisCubeCopier::doProc );
-	return false;
+	delete veldesc_;
+	veldesc_ = new VelocityDesc( veldesc );
+	velzinfo_ = &rdr->zDomain();
     }
+
+    if ( compnr_<0 && !veldesc_ )
+	mDetachCB( stp_->proctobedone_, SeisCubeCopier::doProc );
 
     return true;
 }
@@ -149,70 +137,64 @@ int SeisCubeCopier::nextStep()
 
 void SeisCubeCopier::doProc( CallBacker* )
 {
-    if ( !inited_ )
-    {
-	if ( !init() )
-	    return;
-    }
-
     SeisTrc& trc = stp_->getTrace();
-    const int trcsz = trc.size();
+    if ( veldesc_ && !veldesc_->isUdf() )
+	resampleVels( stp_->getInputTrace(), trc );
 
-    if ( veltype_ > 0 )
+    if ( compnr_ >= 0 )
+	cropComponents( trc );
+}
+
+
+bool SeisCubeCopier::resampleVels( const SeisTrc& inptrc, SeisTrc& trc ) const
+{
+    const SeisTrcReader* rdr = stp_->reader();
+    const SeisTrcWriter* wrr = stp_->writer();
+    if ( !rdr || !wrr )
+	return false;
+
+    const RegularZValues zvals_in( inptrc.info().sampling,
+				   inptrc.size(), rdr->zDomain() );
+    const RegularZValues zvals_out( trc.info().sampling,
+				    trc.size(), wrr->zDomain() );
+    if ( zvals_in == zvals_out )
+	return true;
+
+    const Scaler* scaler = stp_->scaler();
+    const Vel::Worker worker( *veldesc_, SI().seismicReferenceDatum(),
+			      UnitOfMeasure::surveyDefSRDStorageUnit() );
+    SeisTrcValueSeries inptrcvs( inptrc, 0 );
+    SeisTrcValueSeries outptrcvs( trc, 0 );
+    PtrMan<ValueSeries<double> > inpvels, outpvels;
+    inpvels = ScaledValueSeries<double,float>::getFrom( inptrcvs );
+    outpvels = ScaledValueSeries<double,float>::getFrom( outptrcvs );
+    for ( int icomp=0; icomp<inptrc.nrComponents(); icomp++ )
     {
-	mAllocVarLenArr( float, vout, trcsz );
-	if ( !mIsVarLenArrOK(vout) )
-	    return;
-
-	const SeisTrc& intrc = stp_->getInputTrace();
-	const int sizein = intrc.size();
-	const SamplingData<float> sdin =
-				getDoubleSamplingData( intrc.info().sampling );
-	mAllocVarLenArr( double, timevals, sizein )
-	if ( !mIsVarLenArrOK(timevals) ) return;
-	for ( int idx=0; idx<sizein; idx++ )
-	    timevals[idx] = sdin.atIndex( idx );
-
-	const int nrcomps = trc.nrComponents();
-	const SamplingData<double> sdout =
-				getDoubleSamplingData( trc.info().sampling );
-	const Scaler* scaler = stp_->scaler();
-
-	for ( int icomp=0; icomp<nrcomps; icomp++ )
+	if ( icomp == compnr_ || compnr_ < 0 )
 	{
-	    TypeSet<float> trcvals;
-	    for ( int idx=0; idx<sizein; idx++ )
-		trcvals += intrc.get( idx, icomp );
-
-	    const float* vin = trcvals.arr();
-	    if ( veltype_ == mVelocityIntv )
-		sampleVint( vin, timevals, sizein, sdout, vout, trcsz );
-	    else if ( veltype_ == mVelocityRMS )
-		sampleVrms( vin, 0., 0, timevals, sizein, sdout, vout, trcsz );
-	    else if ( veltype_ == mVelocityAvg )
-		sampleVavg( vin, timevals, sizein, sdout, vout, trcsz );
-
-	    for ( int idx=0; idx<trcsz; idx++ )
-	    {
-		float trcval = vout[idx];
-		if ( scaler )
-		    trcval = (float)scaler->scale( trcval );
-		trc.set( idx, trcval, icomp );
-	    }
+	    inptrcvs.setComponent( icomp );
+	    outptrcvs.setComponent( icomp );
+	    worker.sampleVelocities( *inpvels, zvals_in, zvals_out, *outpvels );
+	    if ( scaler )
+		trc.data().scale( *scaler, icomp );
 	}
     }
 
-    if ( compnr_ >= 0 )
-    {
-	SeisTrc tmp( trc );
-	while ( trc.nrComponents() > 1 )
-	    trc.data().delComponent( 0 );
-
-	for ( int idx=0; idx<trcsz; idx++ )
-	    trc.set( idx, tmp.get(idx,compnr_), 0 );
-    }
+    return true;
 }
 
+
+void SeisCubeCopier::cropComponents( SeisTrc& trc ) const
+{
+    const TraceData& td = trc.data();
+    const DataCharacteristics dc( td.getInterpreter(compnr_)->dataChar() );
+    SeisTrc tmp( trc.size(), dc );
+    tmp.data().copyFrom( td, compnr_, compnr_ );
+    trc.data() = tmp.data();
+}
+
+
+// Seis2DCopier
 
 Seis2DCopier::Seis2DCopier( const IOObj& inobj, const IOObj& outobj,
 			    const IOPar& par )

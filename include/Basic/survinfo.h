@@ -85,6 +85,7 @@ public:
     uiString		getUiXYUnitString(bool abbrviated=true,
 						    bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
+    const ZDomain::Info& zDomainInfo() const;
     bool		depthsInFeet() const	{ return depthsinfeet_; }
     inline float	showZ2UserFactor() const
 			{ return float(zDomain().userFactor()); }

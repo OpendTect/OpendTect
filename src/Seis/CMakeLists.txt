@@ -92,6 +92,10 @@ set( OD_TEST_PROGS
 	seisbuf.cc
 )
 
+set( OD_NIGHTLY_TEST_PROGS
+	timedepthconv.cc
+)
+
 set( OD_BATCH_TEST_PROGS
 	synthseis.cc
 )

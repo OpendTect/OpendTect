@@ -15,6 +15,18 @@ ________________________________________________________________________
 class ElasticModelSet;
 class IOPar;
 
+/*!
+  A task to compute reflectivities from a set of ElasticModel objects,
+  using the RayTracer1D factory.
+  The results are stored as a set of ReflectivityModel objects,
+  which combine time-depth models and associated reflectivities.
+  Like for the TimeDepthModel class, the output depths units correspond to
+  SI().depthsInFeet(), and are TVDSS depths (0 at sea-level, not at SRD,
+  positive below sea-level and increasing downwards.
+  The first layer of each ElasticModel must be a SRD.
+ */
+
+
 mExpClass(General) RayTracerRunner : public ParallelTask
 { mODTextTranslationClass(RayTracerRunner);
 public:
@@ -22,13 +34,15 @@ public:
 					VrmsRayTracer1D::sFactoryKeyword());
 				RayTracerRunner(const IOPar& raypar);
 				RayTracerRunner(const ElasticModelSet&,
-						const IOPar& raypar);
+						const IOPar& raypar,
+						const RayTracer1D::Setup*);
 				~RayTracerRunner();
 
     //before execution only
-    bool			setModel(const ElasticModelSet&);
-    void			setOffsets(const TypeSet<float>&);
-
+    bool			setModel(const ElasticModelSet&,
+					 const RayTracer1D::Setup*);
+    void			setOffsets(const TypeSet<float>&,
+					   bool offsetsinfeet);
 
     uiString			uiMessage() const override { return msg_; }
     uiString			uiNrDoneText() const override;
@@ -42,6 +56,7 @@ public:
     static ConstRefMan<ReflectivityModelSet> getRefModels(
 				    const ElasticModelSet&,
 				    const IOPar& raypar,uiString& msg,
+				    const RayTracer1D::Setup* =nullptr,
 				    TaskRunner* =nullptr,
 			    const ObjectSet<const TimeDepthModel>* =nullptr);
 private:

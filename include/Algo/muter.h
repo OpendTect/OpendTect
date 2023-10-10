@@ -15,30 +15,27 @@ template <class T> class ValueSeries;
 
 /*!
 \brief Sets start or end part of a float series to 0.
-  
+
   This object measures distance in units of samples.
-  
+
   Taper is cosine taper.
 */
 
 mExpClass(Algo) Muter
 {
 public:
-    			Muter( float taperlen, bool tail=false )
-			    : taperlen_(taperlen)
-			    , tail_(tail)		{}
-
-    inline static float	mutePos( float z, const SamplingData<double>& sd )
-			{ return sd.getfIndex(z); }
+			Muter(float taperlen,bool tail=false);
+			~Muter();
 
     void		mute(ValueSeries<float>&,int sz,float mutepos) const;
-
-
-    static void 	muteIntervalsPos(const TypeSet< Interval<float> >&,
-					TypeSet< Interval<float> >&,
-					const SamplingData<double>&);
     void		muteIntervals(ValueSeries<float>&,int sz,
 				      const TypeSet< Interval<float> >&) const;
+
+    inline static float mutePos( float z, const SamplingData<double>& sd )
+			{ return sd.getfIndex(z); }
+    static void		muteIntervalsPos(const TypeSet< Interval<float> >&,
+					TypeSet< Interval<float> >&,
+					const SamplingData<double>&);
 
 protected:
 

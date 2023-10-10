@@ -33,12 +33,25 @@ StepInterval<float> ReflCalc1D::sDefAngleRange( bool indeg )
 // ReflCalc1D::Setup
 
 ReflCalc1D::Setup::Setup()
+    : starttime_(0.f)
+    , startdepth_(0.f)
+    , depthsinfeet_(false)
 {
 }
 
 
 ReflCalc1D::Setup::~Setup()
 {
+}
+
+
+void ReflCalc1D::Setup::fillPar( IOPar& ) const
+{}
+
+
+bool ReflCalc1D::Setup::usePar( const IOPar& )
+{
+    return true;
 }
 
 
@@ -56,15 +69,16 @@ ReflCalc1D::~ReflCalc1D()
 }
 
 
-ReflCalc1D* ReflCalc1D::createInstance( const IOPar& par, uiString& errm )
+ReflCalc1D* ReflCalc1D::createInstance( const IOPar& par, uiString& errm,
+					const Setup* rfsu )
 {
-    return createInstance( par, nullptr, errm );
+    return createInstance( par, nullptr, errm, rfsu );
 }
 
 
 ReflCalc1D* ReflCalc1D::createInstance( const IOPar& par,
 					const ElasticModel* model,
-					uiString& errm )
+					uiString& errm, const Setup* rfsu )
 {
     BufferString typekey;
     par.get( sKey::Type(), typekey );
@@ -84,6 +98,9 @@ ReflCalc1D* ReflCalc1D::createInstance( const IOPar& par,
 		  " Perhaps all plugins are not loaded");
 	return nullptr;
     }
+
+    if ( rfsu )
+	reflcalc->setup() = *rfsu;
 
     if ( !reflcalc->usePar(par) )
     {
@@ -223,9 +240,12 @@ bool ReflCalc1D::doPrepare( int /* nrthreads */ )
     if ( !isOK() )
 	return false;
 
+    const Setup& su = setup();
     AngleReflectivityModel::Setup amsu;
+    amsu.starttime( su.starttime_ ).startdepth( su.startdepth_ )
+	.depthsinfeet( su.depthsinfeet_ );
     IOPar par;
-    setup().fillPar( par );
+    su.fillPar( par );
     amsu.usePar( par );
     refmodel_ = new AngleReflectivityModel( getModel(), thetaangles_, amsu );
     if ( !refmodel_ || !refmodel_->isOK() || !refmodel_->hasReflectivities() )

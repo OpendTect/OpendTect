@@ -386,7 +386,10 @@ void TrcKeyZSampling::limitTo( const TrcKeyZSampling& tkzs, bool ignoresteps )
     }
 
     if ( ignoresteps )
-	((ZGate&)zsamp_).limitTo( tkzs.zsamp_ );
+    {
+	const ZGate othzsamp_( tkzs.zsamp_ );
+	sCast(ZGate&,zsamp_).limitTo( othzsamp_ );
+    }
     else
 	zsamp_.limitTo( tkzs.zsamp_ );
 
@@ -422,9 +425,14 @@ void TrcKeyZSampling::shrinkTo( const TrcKeyZSampling& innertkzs, float releps )
 
     hsamp_.shrinkTo( tkzs.hsamp_ );
 
-    const float eps = releps * zsamp_.step;
-    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
+    float eps = Math::Abs( mMAX(zsamp_.start,zsamp_.stop) );
+    if ( eps == 0.f )
+	eps = zsamp_.step == 0.f ? mDefEpsF : zsamp_.step;
+    eps *= releps;
+    if ( zsamp_.isEqual(tkzs.zsamp_,eps) )
+	return;
 
+    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
     mApproach(tkzs.zsamp_.start-zsamp_.start+eps, zsamp_.start,+=, zsamp_.step);
     mApproach(zsamp_.stop - tkzs.zsamp_.stop+eps, zsamp_.stop, -=, zsamp_.step);
 }
@@ -438,9 +446,14 @@ void TrcKeyZSampling::growTo( const TrcKeyZSampling& outertkzs, float releps )
 
     hsamp_.growTo( tkzs.hsamp_ );
 
-    const float eps = releps * zsamp_.step;
-    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
+    float eps = Math::Abs( mMAX(zsamp_.start,zsamp_.stop) );
+    if ( eps == 0.f )
+	eps = zsamp_.step == 0.f ? mDefEpsF : zsamp_.step;
+    eps *= releps;
+    if ( zsamp_.isEqual(tkzs.zsamp_,eps) )
+	return;
 
+    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
     mApproach(zsamp_.start-tkzs.zsamp_.start+eps, zsamp_.start,-=, zsamp_.step);
     mApproach(tkzs.zsamp_.stop - zsamp_.stop+eps, zsamp_.stop, +=, zsamp_.step);
 }

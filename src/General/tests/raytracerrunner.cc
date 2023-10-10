@@ -82,8 +82,8 @@ static bool doRun( bool raytracer, const ElasticModelSet& emodels,
 
     uiString msg;
     ConstRefMan<ReflectivityModelSet> refmodels = raytracer
-		    ? RayTracerRunner::getRefModels( emodels, iop, msg )
-		    : ReflCalcRunner::getRefModels( emodels, iop, msg );
+			? RayTracerRunner::getRefModels( emodels, iop, msg )
+			: ReflCalcRunner::getRefModels( emodels, iop, msg );
     mRunStandardTestWithError( refmodels.ptr(), "Execute runner",
 			       toString(msg) );
 

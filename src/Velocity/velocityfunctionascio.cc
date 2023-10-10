@@ -26,7 +26,7 @@ FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
     : Table::AscIO(fd)
     , strm_(stm)
     , geomid_(geomid)
-    , nrkbytes_( nrkbytes )
+    , nrkbytes_(nrkbytes)
 {}
 
 
@@ -36,7 +36,7 @@ FunctionAscIO::~FunctionAscIO()
 
 Table::FormatDesc* FunctionAscIO::getDesc( bool is2d )
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Velocity Function" );
+    auto* fd = new Table::FormatDesc( "Velocity Function" );
     createDescBody( *fd, is2d );
     return fd;
 }

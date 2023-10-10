@@ -724,6 +724,16 @@ bool putBodyRow( const BufferStringSet& bss, uiString& msg )
 
 } // namespace Table
 
+
+// Table::AscIO
+
+Table::AscIO::AscIO( const FormatDesc& fd )
+    : fd_(fd)
+{
+    units_.setNullAllowed();
+}
+
+
 Table::AscIO::~AscIO()
 {
     delete imphndlr_;
@@ -899,7 +909,7 @@ float Table::AscIO::getFValue( int ifld, float udf ) const
     if ( mIsEqual(mCast(float,val),udf,mDefEps) )
 	return mUdf(float);
 
-    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
+    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : nullptr;
     return mCast(float, unit ? unit->internalValue( val ) : val );
 }
 
@@ -915,7 +925,7 @@ double Table::AscIO::getDValue( int ifld, double udf ) const
     if ( mIsEqual(val,udf,mDefEps) )
 	return mUdf(double);
 
-    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
+    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : nullptr;
     return unit ? unit->internalValue( val ) : val;
 }
 
@@ -979,4 +989,16 @@ int Table::AscIO::columnOf( bool hdr, int iinf,int ielem ) const
     if ( tis.size() <= iinf ) return 0;
 
     return tis[iinf]->selection_.elems_[ielem].pos_.col();
+}
+
+
+const UnitOfMeasure* Table::AscIO::getTimeUnit()
+{
+    return UnitOfMeasure::surveyDefTimeStorageUnit();
+}
+
+
+const UnitOfMeasure* Table::AscIO::getDepthUnit()
+{
+    return UnitOfMeasure::surveyDefDepthStorageUnit();
 }

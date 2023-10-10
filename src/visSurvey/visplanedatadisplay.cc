@@ -196,20 +196,31 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 }
 
 
-TrcKeyZSampling PlaneDataDisplay::snapPosition(const TrcKeyZSampling& cs) const
+TrcKeyZSampling PlaneDataDisplay::snapPosition( const TrcKeyZSampling& cs,
+						bool onlyic ) const
 {
     TrcKeyZSampling res( cs );
     const Interval<float> inlrg( mCast(float,res.hsamp_.start_.inl()),
-				    mCast(float,res.hsamp_.stop_.inl()) );
+				 mCast(float,res.hsamp_.stop_.inl()) );
     const Interval<float> crlrg( mCast(float,res.hsamp_.start_.crl()),
-				    mCast(float,res.hsamp_.stop_.crl()) );
-    const Interval<float> zrg( res.zsamp_ );
+				 mCast(float,res.hsamp_.stop_.crl()) );
 
     res.hsamp_.snapToSurvey();
-    if ( scene_ )
+    if ( orientation_==OD::InlineSlice )
     {
-	const StepInterval<float>& scenezrg =
-					scene_->getTrcKeyZSampling().zsamp_;
+	res.hsamp_.start_.inl() = s3dgeom_->inlRange().snap( inlrg.center() );
+	res.hsamp_.stop_.inl() = res.hsamp_.start_.inl();
+    }
+    else if ( orientation_==OD::CrosslineSlice )
+    {
+	res.hsamp_.start_.crl() = s3dgeom_->crlRange().snap( crlrg.center() );
+	res.hsamp_.stop_.crl() = res.hsamp_.start_.crl();
+    }
+
+    if ( scene_ && !onlyic )
+    {
+	const Interval<float> zrg( res.zsamp_ );
+	const ZSampling& scenezrg = scene_->getTrcKeyZSampling().zsamp_;
 	res.zsamp_.limitTo( scenezrg );
 	res.zsamp_.start = scenezrg.snap( res.zsamp_.start );
 	res.zsamp_.stop = scenezrg.snap( res.zsamp_.stop );
@@ -217,13 +228,6 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition(const TrcKeyZSampling& cs) const
 	if ( orientation_!=OD::InlineSlice && orientation_!=OD::CrosslineSlice )
 	    res.zsamp_.start = res.zsamp_.stop = scenezrg.snap(zrg.center());
     }
-
-    if ( orientation_==OD::InlineSlice )
-	res.hsamp_.start_.inl() = res.hsamp_.stop_.inl() =
-	    s3dgeom_->inlRange().snap( inlrg.center() );
-    else if ( orientation_==OD::CrosslineSlice )
-	res.hsamp_.start_.crl() = res.hsamp_.stop_.crl() =
-	    s3dgeom_->crlRange().snap( crlrg.center() );
 
     return res;
 }
@@ -304,7 +308,7 @@ float PlaneDataDisplay::maxDist() const
 bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat,
 					  TaskRunner* taskr )
 {
-    const bool haddatatransform = datatransform_;
+    const bool haddatatransform = datatransform_ || displaytrans_;
     if ( datatransform_ )
     {
 	if ( datatransform_->changeNotifier() )
@@ -701,8 +705,8 @@ void PlaneDataDisplay::setTrcKeyZSampling( const TrcKeyZSampling& wantedcs )
 
 
 TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
-						bool displayspace,
-						int attrib ) const
+						      bool displayspace,
+						      int attrib ) const
 {
     TrcKeyZSampling res;
     Coord3 c0, c1;
@@ -739,7 +743,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     res.zsamp_.include( (float) c1.z );
 
     if ( manippos )
-	res = snapPosition( res );
+	res = snapPosition( res, true );
 
     const bool alreadytf = alreadyTransformed( attrib );
     if ( alreadytf )
@@ -747,24 +751,21 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 	if ( scene_ )
 	    res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
 	else if ( datatransform_ )
-	    res.zsamp_.step = datatransform_->getGoodZStep();
+	    res.zsamp_.step = datatransform_->getZInterval( false ).step;
 	return res;
     }
 
     if ( datatransform_ )
     {
-	if ( !displayspace )
-	{
-	    res.zsamp_.set( datatransform_->getZInterval(true),
-			    SI().zRange(true).step );
-	}
-	else
+	if ( displayspace )
 	{
 	    if ( scene_ )
 		res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
 	    else
-		res.zsamp_.step = datatransform_->getGoodZStep();
+		res.zsamp_.step = datatransform_->getZInterval( false ).step;
 	}
+	else
+	    res.zsamp_ = datatransform_->getZInterval( true );
     }
 
     return res;
@@ -858,7 +859,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 
     const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true, 0 );
     const DataPackID dpid = RegularSeisDataPack::createDataPackForZSlice(
-	bivset, tkzs, datatransform_->toZDomainInfo(), userrefs_[attrib] );
+	bivset, tkzs, datatransform_->toZDomainInfo().def_, userrefs_[attrib]);
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     RefMan<RegularSeisDataPack> regsdp = dpm.get<RegularSeisDataPack>( dpid );

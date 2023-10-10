@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "od_helpids.h"
@@ -608,6 +609,13 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    subselfld_->getZRange( cs.zsamp_ );
 	    data().setResampler( new SeisResampler(cs,is2D()) );
 	}
+    }
+
+    if ( seisfld_->getZDomain().fillPar(ioobj->pars()) &&
+	 !IOM().commitChanges(*ioobj) )
+    {
+	uiMSG().error(uiStrings::phrCannotWriteDBEntry(ioobj->uiName()));
+	return false;
     }
 
     SeisIOSimple sios( data(), isimp_ );

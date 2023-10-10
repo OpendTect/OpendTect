@@ -130,6 +130,8 @@ public:
     public:
 			Setup(bool withangles,bool withreflectivity);
 			~Setup();
+
+	mDefSetupMemb(bool,offsetsinfeet);
     };
 
 			OffsetReflectivityModel(const ElasticModel&,

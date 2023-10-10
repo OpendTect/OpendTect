@@ -49,10 +49,11 @@ ReflCalcRunner::ReflCalcRunner( const IOPar& reflpars )
 
 
 ReflCalcRunner::ReflCalcRunner( const ElasticModelSet& aims,
-				const IOPar& reflpars )
+				const IOPar& reflpars,
+				const ReflCalc1D::Setup* rfsu )
     : ReflCalcRunner(reflpars)
 {
-    setModel( aims );
+    setModel( aims, rfsu );
 }
 
 
@@ -103,7 +104,8 @@ void ReflCalcRunner::setAngles( const TypeSet<float>& angles,
 
 #define mErrRet(msg) { msg_ = msg; return false; }
 
-bool ReflCalcRunner::setModel( const ElasticModelSet& aimodels )
+bool ReflCalcRunner::setModel( const ElasticModelSet& aimodels,
+			       const ReflCalc1D::Setup* rfsu )
 {
     deepErase( reflcalcs_ );
 
@@ -118,7 +120,7 @@ bool ReflCalcRunner::setModel( const ElasticModelSet& aimodels )
     for ( const auto* aimodel : aimodels )
     {
 	ReflCalc1D* reflcalc = ReflCalc1D::createInstance( reflpar_, aimodel,
-							   errmsg );
+							   errmsg, rfsu );
 	if ( !reflcalc )
 	{
 	    uiString msg = tr( "Wrong input for reflectivity calculation"
@@ -228,6 +230,7 @@ bool ReflCalcRunner::getResults( ReflectivityModelSet& ret ) const
 ConstRefMan<ReflectivityModelSet> ReflCalcRunner::getRefModels(
 				    const ElasticModelSet& emodels,
 				    const IOPar& reflpar, uiString& msg,
+				    const ReflCalc1D::Setup* rfsu,
 				    TaskRunner* taskrun,
 			    const ObjectSet<const TimeDepthModel>* tdmodels )
 {
@@ -246,7 +249,7 @@ ConstRefMan<ReflectivityModelSet> ReflCalcRunner::getRefModels(
     if ( !reflpars.isPresent(ReflCalc1D::sKeyAngle()) )
 	ReflCalc1D::setIOParsToSingleAngle( reflpars );
 
-    ReflCalcRunner reflrunner( emodels, reflpars );
+    ReflCalcRunner reflrunner( emodels, reflpars, rfsu );
     bool parallel = true;
     if ( reflpars.getYN(sKeyParallel(),parallel) )
 	reflrunner.doParallel( parallel );

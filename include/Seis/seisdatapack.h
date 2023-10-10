@@ -87,7 +87,7 @@ protected:
 				~RegularSeisDataPack();
 
     TrcKeyZSampling		sampling_;
-    PosInfo::CubeData*		rgldpckposinfo_;
+    PosInfo::CubeData*		rgldpckposinfo_ = nullptr;
 };
 
 

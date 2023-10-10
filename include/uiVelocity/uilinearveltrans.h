@@ -19,25 +19,27 @@ namespace Vel
 
 mExpClass(uiVelocity) uiLinearVelTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiLinearVelTransform);
-public:
-    static void		initClass();
+private:
 			uiLinearVelTransform(uiParent*,bool t2d);
 			~uiLinearVelTransform();
 
     ZAxisTransform*	getSelection() override;
-
-    StringView toDomain() const override;
-    StringView fromDomain() const override;
     bool		canBeField() const override	{ return true; }
 
-protected:
+    StringView		toDomain() const override;
+    StringView		fromDomain() const override;
+
+    void		doInitGrp() override;
+    void		velChangedCB(CallBacker*);
+    bool		acceptOK() override;
+
+    uiGenInput*		velfld_;
+    uiGenInput*		gradientfld_;
+
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);
-    bool			acceptOK() override;
-    void			velChangedCB(CallBacker*);
-
-    uiGenInput*			velfld_;
-    uiGenInput*			gradientfld_;
+public:
+    static void		initClass();
 };
 
 } // namespace Vel

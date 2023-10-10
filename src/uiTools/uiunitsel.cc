@@ -18,12 +18,34 @@ ________________________________________________________________________
 static const char* sDispNone = "-";
 
 
+uiUnitSel::Setup::Setup( Mnemonic::StdType st, const uiString& labeltxt,
+			 const Mnemonic* mn )
+    : ptype_(st)
+    , mn_(mn)
+    , lbltxt_(mToUiStringTodo(labeltxt))
+    , mode_(Full)
+    , selproptype_(false)
+    , selmnemtype_(false)
+    , variableszpol_(false)
+    , allowneg_(false)
+    , withnone_(false)
+{
+}
+
+
 uiUnitSel::Setup::Setup( const uiString& txtlbl, const SurveyInfo* si )
     : Setup( Mnemonic::surveyZType(si), txtlbl )
 {
     allowneg( true );
 }
 
+
+uiUnitSel::Setup::~Setup()
+{
+}
+
+
+// uiUnitSel
 
 uiUnitSel::uiUnitSel( uiParent* p, const uiUnitSel::Setup& su )
     : uiGroup(p,"UnitSel")

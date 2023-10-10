@@ -29,10 +29,6 @@ mExpClass(Algo) ReflCalc1D : public ParallelTask
 public:
     mDefineFactoryInClass( ReflCalc1D, factory );
 
-    static ReflCalc1D* createInstance(const IOPar&,uiString&);
-    static ReflCalc1D* createInstance(const IOPar&,const ElasticModel*,
-				      uiString&);
-
 			~ReflCalc1D();
 
     mExpClass(Algo) Setup
@@ -41,8 +37,12 @@ public:
 			Setup();
 	virtual		~Setup();
 
-	virtual void	fillPar(IOPar&) const		{}
-	virtual bool	usePar(const IOPar&)		{ return true; }
+	mDefSetupMemb(float,starttime);
+	mDefSetupMemb(float,startdepth);
+	mDefSetupMemb(bool,depthsinfeet);
+
+	virtual void	fillPar(IOPar&) const;
+	virtual bool	usePar(const IOPar&);
     };
 
     virtual ReflCalc1D::Setup&	setup()			= 0;
@@ -84,6 +84,10 @@ public:
 
     static void		setIOParsToSingleAngle(IOPar&,float angle=0.f,
 					       bool angleisindegrees=true);
+    static ReflCalc1D* createInstance(const IOPar&,uiString&,
+				      const Setup* =nullptr);
+    static ReflCalc1D* createInstance(const IOPar&,const ElasticModel*,
+				      uiString&,const Setup* =nullptr);
 
 protected:
 			ReflCalc1D();

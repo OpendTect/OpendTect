@@ -9,15 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "bufstring.h"
+
 #include "binid.h"
+#include "bufstring.h"
 #include "posgeomid.h"
 #include "uistring.h"
 
+class BufferStringSet;
 class IOObj;
 class SeisTrc;
 class SeisTrcBuf;
-class BufferStringSet;
 namespace PosInfo { class CubeData; class Line2DData; }
 
 
@@ -47,7 +48,7 @@ public:
     virtual bool	getSampleNames(BufferStringSet&) const
 			{ return false; }
 
-    virtual StepInterval<float>	getZRange() const;
+    virtual StepInterval<float> getZRange() const;
 
 protected:
 			SeisPSReader();
@@ -59,6 +60,7 @@ mExpClass(Seis) SeisPS3DReader : public SeisPSReader
 {
 public:
 			~SeisPS3DReader();
+
     bool		is3D() const override	{ return true; }
     bool		is2D() const override	{ return false; }
     Pos::GeomID		geomID() const override;

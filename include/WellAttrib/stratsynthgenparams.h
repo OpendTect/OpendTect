@@ -60,6 +60,7 @@ public:
     bool		isPreStack() const	{ return synthtype_==PreStack; }
     bool		isCorrected() const;
 			//<! Only for PS gathers
+    bool		offsetsInFeet() const;
     bool		isPSBased() const
 			{ return synthtype_==AngleStack ||
 				 synthtype_==AVOGradient; }

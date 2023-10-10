@@ -9,15 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
 #include "refcount.h"
 #include "uistring.h"
 
 class ElasticModel;
 class RayTracer1D;
 class ReflCalc1D;
-class Scaler;
 class TimeDepthModelSet;
-class VelocityDesc;
 template <class T> class SamplingData;
 template <class T> class ValueSeries;
 
@@ -25,6 +24,9 @@ template <class T> class ValueSeries;
 \brief Converts between time, depth and velocity given a model. The velocity
 model can be either RMO-velocities in time, or interval velocity in either
 depth or time.
+The times are always TWT, in SI units (seconds).
+The depths units correspond to SI().depthsInFeet(), and are TVDSS depths
+(0 at sea-level, not at SRD, positive below sea-level and increasing downwards.
 */
 
 mExpClass(Algo) TimeDepthModel
@@ -98,6 +100,7 @@ public:
 \brief Data holder for all TimeDepthModels that share the same
        depths distributions. There will always be at least one model in the set.
        Models may be annotated by a given value, typically offset or angle
+       See the TimeDepthModel class for a description of the units of measure
 */
 
 mExpClass(Algo) TimeDepthModelSet : public ReferencedObject
@@ -107,17 +110,14 @@ public:
     mExpClass(Algo) Setup
     {
     public:
-			Setup()
-			    : pdown_(true)
-			    , pup_(true)
-			    , starttime_(0.f)
-			    , startdepth_(0.f)	    {}
-	virtual		~Setup() {}
+			Setup();
+	virtual		~Setup();
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);
 	mDefSetupMemb(float,starttime);
 	mDefSetupMemb(float,startdepth);
+	mDefSetupMemb(bool,depthsinfeet);
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);
@@ -167,76 +167,4 @@ private:
 
    friend class RayTracer1D;
    friend class ReflCalc1D;
-};
-
-
-/*!
-\brief Converts between time and depth given a model.
-It expects a valueseries, where unit of value should be SI unit.
-Scaler provides factor value in case the valueseries in non SI unit.
-*/
-
-mExpClass(Algo) TimeDepthConverter : public TimeDepthModel
-{ mODTextTranslationClass(TimeDepthConverter)
-public:
-			TimeDepthConverter();
-			~TimeDepthConverter();
-
-    bool		isOK() const override;
-    static bool		isVelocityDescUseable(const VelocityDesc&,
-					      bool velintime,
-					      uiString* errmsg = 0);
-
-    bool		setVelocityModel(const ValueSeries<float>& vels, int sz,
-					 const SamplingData<double>& sd,
-					 const VelocityDesc&,bool istime,
-					 const Scaler* scaler=nullptr);
-
-    bool		calcDepths(ValueSeries<float>&, int sz,
-				   const SamplingData<double>& timesamp) const;
-    bool		calcTimes(ValueSeries<float>&, int sz,
-				   const SamplingData<double>& depthsamp) const;
-
-    static bool		calcDepths(const ValueSeries<float>& vels,int velsz,
-				   const SamplingData<double>&,float* depths,
-				   const Scaler* scaler=nullptr);
-			/*!<\param vels Velocity as Vint in time
-			  \param velsz,depths
-			 */
-
-    static bool		calcDepths(const ValueSeries<float>& vels,int velsz,
-				   const ValueSeries<double>& times,
-				   double* depths,const Scaler* scaler=nullptr);
-			 /*!<\param vels Velocity as Vint in time
-			   \param velsz,times,depths
-			  */
-
-			mDeprecatedDef
-    static bool		calcDepths(const ValueSeries<float>& vels,
-				   int velsz,const ValueSeries<float>& times,
-				   float* depths);
-
-    static bool		calcTimes(const ValueSeries<float>& vels,int velsz,
-				  const ValueSeries<float>& depth,float* times,
-				  const Scaler* scaler=nullptr);
-			 /*!<\param vels Velocity as Vint in depth
-			   \param velsz,times,depth
-			  */
-
-    static bool		calcTimes(const ValueSeries<float>& vels, int velsz,
-				   const SamplingData<double>&, float* times,
-				   const Scaler* scaler=nullptr);
-			 /*!<\param vels Velocity as Vint in depth
-			   \param velsz,times
-			  */
-private:
-
-    void		calcZ(ValueSeries<float>&,int outpsz,
-			      const SamplingData<double>&,bool istime) const;
-
-    float		firstvel_;
-    float		lastvel_;
-
-    bool		regularinput_ = true;
-    SamplingData<double>& sd_;
 };

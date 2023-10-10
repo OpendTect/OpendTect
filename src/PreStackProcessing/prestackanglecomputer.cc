@@ -11,15 +11,18 @@ ________________________________________________________________________
 
 #include "ailayer.h"
 #include "arrayndimpl.h"
-#include "reflectivitymodel.h"
 #include "fftfilter.h"
+#include "keystrs.h"
 #include "mathfunc.h"
 #include "prestackgather.h"
 #include "raytrace1d.h"
+#include "reflectivitymodel.h"
 #include "smoother1d.h"
 #include "survinfo.h"
-#include "velocitycalc.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
 #include "velocityfunction.h"
+#include "zvalseriesimpl.h"
 
 
 namespace PreStack
@@ -47,21 +50,39 @@ static const float maxtwttime = 100.0f;
 AngleComputer::AngleComputer()
     : trckey_(BinID::udf())
 {
+    const float srd = getConvertedValue( SI().seismicReferenceDatum(),
+				    UnitOfMeasure::surveyDefSRDStorageUnit(),
+				    UnitOfMeasure::surveyDefDepthUnit() );
+    rtsu_.startdepth( -srd ).doreflectivity( false )
+	 .depthsinfeet( SI().depthsInFeet() );
+    raypars_.set( sKey::Type(), RayTracer1D::factory().getDefaultName() );
 }
 
 
 AngleComputer::~AngleComputer()
 {
+    delete zdomaininfo_;
 }
 
 
-void AngleComputer::setOutputSampling( const FlatPosData& os )
+void AngleComputer::setOutputSampling( const FlatPosData& os,
+				       const ZDomain::Info& zinfo,
+				       bool offsetsinfeet )
 {
+    if ( !zinfo.isTime() && !zinfo.isDepth() )
+	return;
+
     if ( outputsampling_ != os )
     {
 	outputsampling_  = os;
 	refmodel_ = nullptr;
     }
+
+    setZDomain( zinfo );
+    if ( zinfo.isDepth() )
+	rtsu_.depthsinfeet( zinfo.isDepthFeet() );
+
+    rtsu_.offsetsinfeet( offsetsinfeet );
 }
 
 
@@ -103,6 +124,18 @@ void AngleComputer::setSmoothingPars( const IOPar& smpar )
 	smpar.get( sKeyFreqF4(), freqf4 );
 	setFFTSmoother( freqf3, freqf4 );
     }
+}
+
+
+AngleComputer& AngleComputer::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) ||
+	  (zdomaininfo_ && zinfo == *zDomain()) )
+	return *this;
+
+    delete zdomaininfo_;
+    zdomaininfo_ = new ZDomain::Info( zinfo );
+    return *this;
 }
 
 
@@ -248,6 +281,9 @@ void AngleComputer::fftTimeSmooth( ::FFTFilter& filter,
 
 void AngleComputer::fftSmooth( Array2D<float>& angledata )
 {
+    if ( !zDomain() )
+	return;
+
     float freqf3=mUdf(float), freqf4=mUdf(float);
     iopar_.get( sKeyFreqF3(), freqf3 );
     iopar_.get( sKeyFreqF4(), freqf4 );
@@ -260,12 +296,11 @@ void AngleComputer::fftSmooth( Array2D<float>& angledata )
 
     const StepInterval<double> zrange = outputsampling_.range( false );
     const int zsize = zrange.nrSteps() + 1;
-    const bool survintime = SI().zDomain().isTime();
 
     ::FFTFilter filter( zsize, (float)zrange.step );
     filter.setLowPass( freqf3, freqf4 );
-    survintime ? fftTimeSmooth( filter, angledata )
-	       : fftDepthSmooth( filter, angledata );
+    zDomain()->isTime() ? fftTimeSmooth( filter, angledata )
+			: fftDepthSmooth( filter, angledata );
 }
 
 
@@ -281,8 +316,8 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
     const float zstep = mCast( float, outputsampling_.range( false ).step );
-    const int filtersz = !mIsUdf(smoothinglength)
-		? mNINT32( smoothinglength/zstep ) : mUdf(int);
+    const int filtersz = mIsUdf(smoothinglength)
+		       ? mUdf(int) : mNINT32( smoothinglength/zstep );
 
     Smoother1D<float> sm;
     mAllocVarLenArr( float, arr1dinput, zsize );
@@ -303,7 +338,7 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
 bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 {
     const ReflectivityModelBase* refmodel = curRefModel();
-    if ( !refmodel || !refmodel->hasAngles() )
+    if ( !refmodel || !refmodel->hasAngles() || !zDomain() )
 	return false;
 
     const float* depths = refmodel->getReflDepths();
@@ -315,7 +350,6 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
     const StepInterval<double> outputzrg = outputsampling_.range( false );
-    const bool zistime = SI().zIsTime();
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
 	const float offset = offsets[ofsidx];
@@ -345,7 +379,8 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	    if ( fabs(sinangle) > 1.0f )
 		sinangle = sinangle > 0.f ? 1.0f : -1.0f;
 
-	    const float zval = zistime ? times[layeridx] : depths[layeridx];
+	    const float zval = zDomain()->isTime() ? times[layeridx]
+						   : depths[layeridx];
 	    sinanglevals.add( zval, sinangle );
 	    anglevals.add( zval, Math::ASin(sinangle) );
 	}
@@ -369,7 +404,12 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 
 RefMan<Gather> AngleComputer::computeAngleData()
 {
-    RefMan<Gather> gather = new Gather( outputsampling_ );
+    if ( !zDomain() )
+	return nullptr;
+
+    const bool offsetisangle = false;
+    RefMan<Gather> gather = new Gather( outputsampling_, *zDomain(),
+					offsetisangle, rtsu_.offsetsinfeet_ );
     gather->setTrcKey( trckey_ );
     Array2D<float>& angledata = gather->data();
 
@@ -377,41 +417,40 @@ RefMan<Gather> AngleComputer::computeAngleData()
     {
 	const ElasticModel* emodel = curElasticModel();
 	if ( !emodel )
-	    return nullptr;
-
-	if ( !raypars_.isPresent(sKey::Type()) )
 	{
-	    const int lastitem = RayTracer1D::factory().size()-1;
-	    raypars_.set( sKey::Type(), lastitem >= 0
-		    ? RayTracer1D::factory().getNames().get( lastitem ).str()
-		    : VrmsRayTracer1D::sFactoryKeyword() );
+	    tr("Cannot retrieve current elastic model");
+	    return nullptr;
 	}
 
-	uiString errormsg;
 	PtrMan<RayTracer1D> raytracer =
-		     RayTracer1D::createInstance( raypars_, errormsg );
-	if ( !errormsg.isEmpty() )
+		     RayTracer1D::createInstance( raypars_, errmsg_, &rtsu_ );
+	if ( !raytracer || !errmsg_.isEmpty() )
 	    return nullptr;
 
-	raytracer->setup().doreflectivity( false );
 	TypeSet<float> offsets;
 	outputsampling_.getPositions( true, offsets );
-	raytracer->setOffsets( offsets );
-	if ( !raytracer->setModel(*emodel) )
+	raytracer->setOffsets( offsets, gather->isOffsetInFeet() );
+	if ( !raytracer->setModel(*emodel) || !raytracer->execute() )
+	{
+	    errmsg_ = raytracer->uiMessage();
 	    return nullptr;
-
-	if ( !raytracer->execute() )
-	    return nullptr;
+	}
 
 	ConstRefMan<OffsetReflectivityModel> refmodel =raytracer->getRefModel();
 	if ( !refmodel )
+	{
+	    errmsg_ = raytracer->uiMessage();
 	    return nullptr;
+	}
 
 	setRefModel( *refmodel.ptr() );
     }
 
     if ( !fillandInterpArray(angledata) )
+    {
+	errmsg_ = tr("Cannot interpolate angles");
 	return nullptr;
+    }
 
     int smtype;
     iopar_.get( sKeySmoothType(), smtype );
@@ -436,9 +475,17 @@ VelocityBasedAngleComputer::~VelocityBasedAngleComputer()
 }
 
 
+bool VelocityBasedAngleComputer::isOK() const
+{
+    return velsource_.ptr() && velsource_->getDesc().isVelocity();
+}
+
+
 bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
 {
-    velsource_ = Vel::FunctionSource::factory().create( 0, mid, false );
+    /* mid can be for either a seismic dataset or a velocity function,
+       thus two factory implementations need to be checked */
+    velsource_ = Vel::FunctionSource::factory().create( nullptr, mid, false );
 
     return velsource_;
 }
@@ -457,52 +504,77 @@ void VelocityBasedAngleComputer::setRefModel(
 }
 
 
+bool VelocityBasedAngleComputer::getLayers( const TrcKey& tk, float startdepth,
+					Vel::FunctionSource& velsource,
+					ElasticModel& emodel, uiString& errmsg )
+{
+    ConstRefMan<Vel::Function> func = velsource.getFunction( tk.position() );
+    if ( !func )
+    {
+	errmsg = mToUiStringTodo( velsource.errMsg() );
+	return false;
+    }
+
+    func.getNonConstPtr()->setZDomain( func->getSource().zDomain() );
+    const ZSampling zrange = func->getAvailableZ();
+    func.getNonConstPtr()->setDesiredZRange( zrange );
+
+    const ZDomain::Info& zinfo = func->zDomain();
+    const RegularZValues zvals_func( zrange, zinfo );
+    const od_int64 nrvels = zvals_func.size();
+    ArrayValueSeries<double,float> vels( nrvels );
+    for ( od_int64 idx=0; idx<nrvels; idx++ )
+	vels.setValue( idx, func->getVelocity( float (zvals_func[idx]) ) );
+
+    const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthUnit();
+    const double srd = -startdepth;
+    const Vel::Worker worker( func->getDesc(), srd, depthuom );
+    const VelocityDesc vintdesc( Vel::Interval,
+				 UnitOfMeasure::meterSecondUnit() );
+    if ( !worker.convertVelocities(vels,zvals_func,vintdesc,vels) )
+	return false;
+
+    ConstPtrMan<ZValueSerie> zvals = Vel::Worker::getZVals( zvals_func,
+							    srd, depthuom );
+    mDynamicCastGet(const RegularZValues*,zvalsin,zvals.ptr());
+    if ( !emodel.createFromVel(*zvalsin,vels.storArr()) )
+    {
+	errmsg = tr("Cannot create the model from the velocities");
+	return false;
+    }
+
+    return true;
+}
+
+
+
 RefMan<Gather> VelocityBasedAngleComputer::computeAngles()
 {
-    ConstRefMan<Survey::Geometry> geom =
-	Survey::GM().getGeometry( const_cast<const TrcKey&>(trckey_).geomID() );
+    if ( trckey_.is2D() )
+    {
+	errmsg_ = tr("Only 3D is supported at this time" );
+	return nullptr;
+    }
 
-    if ( geom && geom->is2D() )
-	{ pErrMsg( "Only 3D is supported at this time" ); return 0; }
-
-    if ( !velsource_ )
+    if ( !zDomain() )
 	return nullptr;
 
-    ConstRefMan<Vel::Function> func =
-			       velsource_->getFunction( trckey_.position() );
-    if ( !func )
+    const float startdepth = rtsu_.startdepth_;
+    if ( !velsource_ ||
+	 !getLayers(trckey_,startdepth,*velsource_,elasticmodel_,errmsg_) )
 	return nullptr;
 
-    VelocityDesc veldesc = func->getDesc();
-    if ( !veldesc.isVelocity() )
-	return nullptr;
+    if ( !mIsUdf(maxthickness_) )
+	elasticmodel_.setMaxThickness( maxthickness_ );
 
-    const StepInterval<float> desiredzrange = func->getDesiredZ();
-    StepInterval<float> zrange = func->getAvailableZ();
-    zrange.limitTo( desiredzrange );
-
-    const int zsize = zrange.nrSteps() + 1;
-    mAllocVarLenArr( float, velsrc, zsize );
-    mAllocVarLenArr( float, vel, zsize );
-    if ( !mIsVarLenArrOK(velsrc) || !mIsVarLenArrOK(vel) )
-	return nullptr;
-
-    for( int idx=0; idx<zsize; idx++ )
-	velsrc[idx] = func->getVelocity( zrange.atIndex(idx) );
-
-    if ( !convertToVintIfNeeded(velsrc,veldesc,zrange,vel) ||
-	 !elasticmodel_.createFromVel(zrange,vel) )
-	return nullptr;
-
-    elasticmodel_.setMaxThickness( maxthickness_ );
     refmodel_ = nullptr;
-
     return computeAngleData();
 }
 
 
 
 // ModelBasedAngleComputer
+
 ModelBasedAngleComputer::ModelTool::ModelTool( const ElasticModel& em,
 					       const TrcKey& tk )
     : em_(new ElasticModel(em))
@@ -579,6 +651,7 @@ void ModelBasedAngleComputer::ModelTool::splitModelIfNeeded( float maxthickness)
 }
 
 
+// ModelBasedAngleComputer
 
 ModelBasedAngleComputer::ModelBasedAngleComputer()
     : AngleComputer()
@@ -615,6 +688,7 @@ void ModelBasedAngleComputer::setElasticModel( const TrcKey& tk,
 	tools_ += tool;
     else
 	delete tools_.replace( toolidx, tool );
+
     trckey_ = tk;
 }
 

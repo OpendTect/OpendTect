@@ -9,32 +9,32 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
-#include "uitime2depthzaxistrans.h"
 
-class WellT2DTransform;
+#include "uitime2depthzaxistrans.h"
+#include "wellt2dtransform.h"
+
 class uiIOObjSel;
 
 /*!User interface that creates a ZAxisTransform from a Well's t2d model. */
 
 mExpClass(uiWell) uiWellT2DTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiWellT2DTransform);
-public:
+private:
 			uiWellT2DTransform(uiParent*);
 			~uiWellT2DTransform();
 
     ZAxisTransform*	getSelection() override;
     bool		canBeField() const override	{ return true; }
 
+    void		doInitGrp() override;
+    void		setZRangeCB(CallBacker*);
     bool		acceptOK() override;
 
-    static void 	initClass();
-
-protected:
+    uiIOObjSel*			selfld_;
+    RefMan<WellT2DTransform>	transform_;
 
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);
-    void			setZRangeCB(CallBacker*);
-
-    uiIOObjSel* 		fld_;
-    WellT2DTransform*		transform_;
+public:
+    static void initClass();
 };

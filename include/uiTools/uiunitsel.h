@@ -41,34 +41,23 @@ public:
 
 	enum Mode		{ SymbolsOnly, NamesOnly, Full };
 
-				Setup( Mnemonic::StdType st,
-				       const uiString& labeltxt=
-					     uiString::empty(),
-				       const Mnemonic* mn = nullptr )
-				    : ptype_(st)
-				    , mn_(mn)
-				    , lbltxt_(mToUiStringTodo(labeltxt))
-				    , mode_(Full)
-				    , selproptype_(false)
-				    , selmnemtype_(false)
-				    , variableszpol_(false)
-				    , allowneg_(false)
-				    , withnone_(false)	{}
+				Setup(Mnemonic::StdType,
+				     const uiString& labeltxt=uiString::empty(),
+				     const Mnemonic* =nullptr);
 				Setup(const uiString&,
 				      const SurveyInfo* =nullptr);
 				//<! For Z unit only
-	virtual			~Setup()
-				{}
+				~Setup();
 
 	mDefSetupMemb(Mnemonic::StdType,ptype)
 	mDefSetupMemb(const Mnemonic*,mn)
 	mDefSetupMemb(uiString,lbltxt)
-	mDefSetupMemb(Mode,mode)
-	mDefSetupMemb(bool,selproptype)
-	mDefSetupMemb(bool,selmnemtype)
-	mDefSetupMemb(bool,variableszpol)
-	mDefSetupMemb(bool,allowneg)
-	mDefSetupMemb(bool,withnone)
+	mDefSetupMemb(Mode,mode)		// Full
+	mDefSetupMemb(bool,selproptype)		// False
+	mDefSetupMemb(bool,selmnemtype)		// false
+	mDefSetupMemb(bool,variableszpol)	// false
+	mDefSetupMemb(bool,allowneg)		// false
+	mDefSetupMemb(bool,withnone)		// false
     };
 
 				uiUnitSel(uiParent*,const Setup&);
@@ -87,10 +76,6 @@ public:
     bool			hasMnemonicSelection() const { return mnfld_; }
     void			setMnemonic(const Mnemonic&);
 
-    CNotifier<uiUnitSel,const UnitOfMeasure*>		selChange;
-				//!< Returns previous unit
-    Notifier<uiUnitSel>		propSelChange;
-
     void			fillPar(IOPar&,
 					const char* altkey=nullptr) const;
     bool			usePar(const IOPar&,const char* altkey=nullptr);
@@ -99,10 +84,14 @@ public:
 				    //!< For UnitOfMeasure::currentDefaults()
 				    //!< default is prop std nm, else lbltxt
     void			setFallbackKey(const char*);
+    CNotifier<uiUnitSel,const UnitOfMeasure*> selChange;
+				//!< Returns previous unit
+    Notifier<uiUnitSel>		propSelChange;
+
     static IOPar&		lastUsed();
 				    //!< == UnitOfMeasure::currentDefaults()
 
-protected:
+private:
 
     Setup			setup_;
     ObjectSet<const UnitOfMeasure> units_;

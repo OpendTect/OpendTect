@@ -54,6 +54,7 @@ public:
     const char*		objectRef() const	{ return objref_; }
     const char*		defString() const	{ return defstring_; }
     const char*		zDomainKey() const	{ return zdomainkey_; }
+    const char*		zDomainUnit() const	{ return zunitstr_; }
 
     SelSpec&		operator=(const SelSpec&);
     bool		operator==(const SelSpec&) const;
@@ -70,6 +71,8 @@ public:
     void		setZDomainKey( const char* key )
 			    { zdomainkey_ = key; }
     void		setZDomainKey(const Desc&);
+    void		setZDomainUnit( const char* unitstr )
+			    { zunitstr_ = unitstr; }
 
     void		set( const char* r, const DescID& i, bool isnla,
 			     const char* objr )
@@ -104,6 +107,7 @@ protected:
     BufferString	objref_;
     BufferString	defstring_;
     BufferString	zdomainkey_;
+    BufferString	zunitstr_;
     DescID		id_;
     bool		isnla_			= false;
     StepInterval<int>	discrspec_;

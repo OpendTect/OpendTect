@@ -54,7 +54,6 @@ set( OD_MODULE_SOURCES
 	iodirentry.cc
 	ioman.cc
 	ioobj.cc
-	ioobjtags.cc
 	iostrm.cc
 	keyboardevent.cc
 	keyenum.cc
@@ -84,6 +83,7 @@ set( OD_MODULE_SOURCES
 	rockphysics.cc
 	serverprogtool.cc
 	simpletimedepthmodel.cc
+	staticsdesc.cc
 	stratlevel.cc
 	surveyfile.cc
 	survgeometrytransl.cc
@@ -94,6 +94,7 @@ set( OD_MODULE_SOURCES
 	unitofmeasure.cc
 	usrinputobj.cc
 	variogramcomputers.cc
+	veldesc.cc
 	zaxistransformutils.cc
 	ziparchiveinfo.cc
 	ziphandler.cc
@@ -117,6 +118,7 @@ list( APPEND OD_TEST_PROGS
 	reflectivitysampler.cc
 	tempsurvey.cc
 	unitofmeasure.cc
+	veldesc.cc
 )
 set( OD_NIGHTLY_TEST_PROGS
 	surveychanger.cc

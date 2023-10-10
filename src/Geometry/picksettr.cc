@@ -37,7 +37,7 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
 {
     if ( !ioobj )
     {
-	bs = "Cannot find object in data base";	
+	bs = "Cannot find object in data base";
 	return false;
     }
 
@@ -213,8 +213,6 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     BufferString str;
     IOPar par;
     ps.fillPar( par );
-    par.set( sKey::ZUnit(),
-	     UnitOfMeasure::surveyDefZStorageUnit()->name() );
     par.putTo( astrm );
 
     od_ostream& strm = astrm.stream();
@@ -225,8 +223,8 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     }
 
     astrm.newParagraph();
-    return astrm.isOK() ? 0
-	:  "Error during write to output PointSet file";
+    return astrm.isOK() ? nullptr
+			:  "Error during write to output PointSet file";
 }
 
 
@@ -281,7 +279,7 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 	    }
 	}
 
-	DataPointSet* dps = new DataPointSet( is2d, mini );
+	auto* dps = new DataPointSet( is2d, mini );
 	if ( !ps->fillDataPointSet(*dps) )
 	    continue;
 

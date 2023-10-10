@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "seistype.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
+#include "zdomain.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -28,7 +30,6 @@ ________________________________________________________________________
 #include "uiseisposprovgroup.h"
 #include "uiselsurvranges.h"
 #include "uistrings.h"
-#include "zdomain.h"
 
 
 uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
@@ -267,29 +268,74 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
     : uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt))
     , seissetup_(mkSetup(su,ctxt))
-    , compnr_(0)
+    , domainChanged(this)
+    , zUnitChanged(this)
 {
     workctio_.ctxt_ = inctio_.ctxt_;
     if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
-    mkOthDomBox();
-}
-
-
-void uiSeisSel::mkOthDomBox()
-{
     if ( !inctio_.ctxt_.forread_ && seissetup_.enabotherdomain_ )
     {
-	othdombox_ = new uiCheckBox( this, SI().zIsTime() ? uiStrings::sDepth()
-							  : uiStrings::sTime());
-	othdombox_->attach( rightOf, endObj(false) );
+	const bool zistime = SI().zIsTime();
+	othdombox_ = new uiCheckBox( this, zistime ? uiStrings::sDepth()
+						   : uiStrings::sTime(),
+				     mCB(this,uiSeisSel,domainChgCB) );
+
+	const UnitOfMeasure* defunit = UnitOfMeasure::surveyDefDepthUnit();
+	const UnitOfMeasure* muom = UnitOfMeasure::meterUnit();
+	const UnitOfMeasure* ftuom = UnitOfMeasure::feetUnit();
+	const UnitOfMeasure* altunit = defunit == muom ? ftuom : muom;
+	const BufferStringSet units( defunit->name().str(),
+				     altunit->name().str() );
+	othunitfld_ = new uiComboBox( this, units, nullptr );
+	othunitfld_->setHSzPol( uiObject::Small );
+	mAttachCB( othunitfld_->selectionChanged, uiSeisSel::zUnitChgCB );
+
+	if ( zistime )
+	{
+	    othdombox_->attach( rightOf, endObj(false) );
+	    othunitfld_->attach( rightOf, othdombox_ );
+	}
+	else
+	{
+	    othunitfld_->attach( rightOf, endObj(false) );
+	    othdombox_->attach( rightOf, othunitfld_ );
+	}
     }
+
+    mAttachCB( postFinalize(), uiSeisSel::initGrpCB );
 }
 
 
 uiSeisSel::~uiSeisSel()
 {
+    detachAllNotifiers();
+}
+
+
+void uiSeisSel::initGrpCB( CallBacker* )
+{
+    if ( othdombox_ )
+	domainChgCB( nullptr );
+}
+
+
+void uiSeisSel::domainChgCB( CallBacker* )
+{
+    const bool zistime = SI().zIsTime();
+    const bool istransformed = othdombox_->isChecked();
+    const bool idepth = (zistime && istransformed) ||
+			(!zistime && !istransformed);
+    othunitfld_->display( idepth );
+    domainChanged.trigger( getZDomain() );
+}
+
+
+void uiSeisSel::zUnitChgCB( CallBacker* )
+{
+    const BufferString unitstr( othunitfld_->text() );
+    zUnitChanged.trigger( unitstr );
 }
 
 
@@ -384,6 +430,52 @@ const char* uiSeisSel::compNameFromKey( const char* txt ) const
 }
 
 
+const ZDomain::Info& uiSeisSel::getZDomain() const
+{
+    if ( !othdombox_ )
+	return SI().zDomainInfo();
+
+    const bool istransformed = othdombox_->isChecked();
+    if ( !istransformed )
+	return SI().zDomainInfo();
+
+    const ZDomain::Def& zddef = SI().zIsTime() ? ZDomain::Depth()
+					       : ZDomain::Time();
+    const ZDomain::Info zinfo( zddef, getZUnit() );
+    if ( zinfo.isTime() )
+	return ZDomain::TWT();
+    if ( zinfo.isDepthMeter() )
+	return ZDomain::DepthMeter();
+    if ( zinfo.isDepthFeet() )
+	return ZDomain::DepthFeet();
+
+    return SI().zDomainInfo();
+}
+
+
+BufferString uiSeisSel::getZUnit() const
+{
+    if ( !othunitfld_ )
+	return SI().zDomainInfo().unitStr();
+
+    return BufferString( othunitfld_->text() );
+}
+
+
+void uiSeisSel::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( !othdombox_ )
+	return;
+
+    NotifyStopper ns( othdombox_->activated );
+    othdombox_->setChecked( zinfo.def_ != SI().zDomain() );
+    if ( zinfo.isDepth() )
+	othunitfld_->setCurrentItem( zinfo.unitStr() );
+
+    domainChgCB( nullptr );
+}
+
+
 bool uiSeisSel::existingTyped() const
 {
     bool containscompnm = false;
@@ -429,9 +521,17 @@ void uiSeisSel::updateInput()
     if ( !ioobjkey.isUdf() )
 	uiIOSelect::setInput( ioobjkey.toString() );
 
-    if ( seissetup_.selectcomp_ && !mIsUdf(compnr_) )
+    const bool needcomp = seissetup_.selectcomp_ && !mIsUdf(compnr_);
+    const bool needzdomain = othdombox_;
+    if ( !needcomp && !needzdomain )
+	return;
+
+    const SeisIOObjInfo info( ioobjkey );
+    if ( !info.isOK() )
+	return;
+
+    if ( needcomp )
     {
-	SeisIOObjInfo info( ioobjkey );
 	BufferStringSet compnms;
 	info.getComponentNames( compnms );
 	if ( !compnms.validIdx(compnr_) || compnms.size()<2 )
@@ -443,6 +543,8 @@ void uiSeisSel::updateInput()
 	uiIOSelect::setInputText( text.buf() );
     }
 
+    if ( needzdomain )
+	setZDomain( info.zDomain() );
 }
 
 
@@ -471,15 +573,11 @@ void uiSeisSel::updateOutputOpts( bool issteering )
 
 void uiSeisSel::commitSucceeded()
 {
-    if ( !othdombox_ || !othdombox_->isChecked() ) return;
-
-    const ZDomain::Def* def = SI().zIsTime() ? &ZDomain::Depth()
-					     : &ZDomain::Time();
-    def->set( dlgiopar_ );
+    getZDomain().fillPar( dlgiopar_ );
     if ( inctio_.ioobj_ )
     {
-	def->set( inctio_.ioobj_->pars() );
-	IOM().commitChanges( *inctio_.ioobj_ );
+	if ( getZDomain().fillPar(inctio_.ioobj_->pars()) )
+	    IOM().commitChanges( *inctio_.ioobj_ );
     }
 }
 

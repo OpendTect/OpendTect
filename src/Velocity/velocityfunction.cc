@@ -11,12 +11,15 @@ ________________________________________________________________________
 
 #include "attribdataholder.h"
 #include "binidvalset.h"
-#include "trckeyzsampling.h"
 #include "interpol1d.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "survinfo.h"
-#include "velocitycalc.h"
+#include "trckeyzsampling.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
+#include "zvalseriesimpl.h"
+
 
 namespace Vel
 {
@@ -24,42 +27,93 @@ namespace Vel
 Function::Function( FunctionSource& vfs )
     : source_(vfs)
     , bid_(mUdf(int),mUdf(int))
+    , geomid_(Survey::default3DGeomID())
     , desiredrg_(SI().zRange(true))
+    , desc_(*new VelocityDesc)
+    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
+    desc_.setUnit( UnitOfMeasure::surveyDefVelUnit() );
     source_.ref();
-    geomid_ = Survey::default3DGeomID();
 }
 
 
 Function::~Function()
 {
-    removeCache();
+    delete cache_;
     source_.removeFunction( this );
     source_.unRef();
+    delete &desc_;
+    delete zdomaininfo_;
 }
 
 
-const VelocityDesc& Function::getDesc() const
+bool Function::zIsTime() const
 {
-    return source_.getDesc();
+    return zDomain().isTime();
 }
 
 
-const StepInterval<float>& Function::getDesiredZ() const
+bool Function::zInMeter() const
+{
+    return zDomain().isDepthMeter();
+}
+
+
+bool Function::zInFeet() const
+{
+    return zDomain().isDepthFeet();
+}
+
+
+const UnitOfMeasure* Function::getVelUnit() const
+{
+    return getDesc().getUnit();
+}
+
+
+const ZSampling& Function::getDesiredZ() const
 {
     return desiredrg_;
 }
 
 
-void Function::setDesiredZRange( const StepInterval<float>& n )
+Function& Function::setDesiredZRange( const ZSampling& zsamp )
 {
-    desiredrg_ = n;
+    desiredrg_ = zsamp;
+    return *this;
 }
 
 
-void Function::setGeomID( const Pos::GeomID& geomid )
+Function& Function::setGeomID( const Pos::GeomID& geomid )
 {
     geomid_ = geomid;
+    return *this;
+}
+
+
+Function& Function::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == *zdomaininfo_ )
+	return *this;
+
+    delete zdomaininfo_;
+    zdomaininfo_ = new ZDomain::Info( zinfo );
+    desiredrg_.setUdf();
+
+    return *this;
+}
+
+
+Function& Function::copyDescFrom( const FunctionSource& src )
+{
+    if ( src.getDesc().isUdf() )
+	return *this;
+
+    const UnitOfMeasure* veluom = getDesc().getUnit();
+    desc_ = src.getDesc();
+    desc_.setUnit( veluom );
+
+    return *this;
 }
 
 
@@ -70,15 +124,17 @@ float Function::getVelocity( float z ) const
     Threads::Locker cachelckr( cachelock_ );
     if ( !cache_ )
     {
-	const StepInterval<float> sampling( getDesiredZ() );
-	cachesd_ = getDoubleSamplingData( SamplingData<float>( sampling ) );
+	const ZSampling sampling( getDesiredZ() );
+	cachesd_ = RegularZValues::getDoubleSamplingData(
+					SamplingData<float>( sampling ) );
 	const int zstart = mNINT32( cachesd_.start / cachesd_.step );
 	const int zstop = mNINT32( mCast(double,sampling.stop)/cachesd_.step );
 	mTryAlloc( cache_, TypeSet<float>( zstop-zstart+1, mUdf(float) ) );
-	if ( !cache_ ) return mUdf(float);
+	if ( !cache_ )
+	    return mUdf(float);
 
-	if ( !computeVelocity( (float) cachesd_.start, (float) cachesd_.step,
-			       cache_->size(), cache_->arr() ) )
+	if ( !computeVelocity((float)cachesd_.start,(float)cachesd_.step,
+			      cache_->size(),cache_->arr()) )
 	{
 	    deleteAndNullPtr( cache_ );
 	    return mUdf( float );
@@ -97,9 +153,7 @@ float Function::getVelocity( float z ) const
 
     const float pos = mCast(float,( z - cachesd_.start ) / cachesd_.step);
     if ( sampidx-pos > -cDefSampleSnapDist && sampidx-pos < cDefSampleSnapDist )
-    {
 	return (*cache_)[sampidx];
-    }
 
     return Interpolate::linearReg1DWithUdf( (*cache_)[sampidx], sampidx<(sz-1)
 					  ? (*cache_)[sampidx+1]
@@ -128,15 +182,19 @@ void Function::removeCache()
 
 
 // FunctionSource
+
 mImplFactory1Param( FunctionSource, const MultiID&, FunctionSource::factory );
 
 
 FunctionSource::FunctionSource()
+    : zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {}
 
 
 FunctionSource::~FunctionSource()
-{}
+{
+    delete zdomaininfo_;
+}
 
 
 BufferString FunctionSource::userName() const
@@ -149,6 +207,42 @@ BufferString FunctionSource::userName() const
 }
 
 
+bool FunctionSource::zIsTime() const
+{
+    return zDomain().isTime();
+}
+
+
+bool FunctionSource::zInMeter() const
+{
+    return zDomain().isDepthMeter();
+}
+
+
+bool FunctionSource::zInFeet() const
+{
+    return zDomain().isDepthFeet();
+}
+
+
+const UnitOfMeasure* FunctionSource::getVelUnit() const
+{
+    return getDesc().getUnit();
+}
+
+
+FunctionSource& FunctionSource::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == *zdomaininfo_ )
+	return *this;
+
+    delete zdomaininfo_;
+    zdomaininfo_ = new ZDomain::Info( zinfo );
+
+    return *this;
+}
+
+
 void FunctionSource::removeFunction( const Function* func )
 {
     Threads::Locker lckr( lock_ );
@@ -156,14 +250,14 @@ void FunctionSource::removeFunction( const Function* func )
     int idx = functions_.indexOf( func );
 
     if ( idx!=-1 )
-    {
 	functions_.removeSingle( idx );
-    }
 }
 
 
 const char* FunctionSource::errMsg() const
-{ return errmsg_.str(); }
+{
+    return errmsg_.buf();
+}
 
 
 void FunctionSource::getSurroundingPositions( const BinID& bid,
@@ -191,7 +285,7 @@ int FunctionSource::findFunction( const BinID& bid ) const
 ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
 {
     if ( mIsUdf(bid.inl()) || mIsUdf(bid.crl()) )
-	return 0;
+	return nullptr;
 
     Threads::Locker lckr( lock_ );
     RefMan<Function> tmpfunc;

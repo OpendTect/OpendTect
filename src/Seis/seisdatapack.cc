@@ -184,7 +184,6 @@ bool Regular2RandomDataCopier::doWork( od_int64 start, od_int64 stop,
 RegularSeisDataPack::RegularSeisDataPack( const char* cat,
 					  const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)
-    , rgldpckposinfo_(0)
 {
     sampling_.init( false );
 }
@@ -203,6 +202,7 @@ RegularSeisDataPack* RegularSeisDataPack::clone() const
 	ret->setTrcsSampling( new PosInfo::SortedCubeData(*getTrcsSampling()) );
 
     ret->setZDomain( zDomain() );
+    ret->setValUnit( valUnit() );
     ret->setRefNrs( refnrs_ );
     ret->setDataDesc( getDataDesc() );
     if ( getScaler() )
@@ -215,7 +215,7 @@ RegularSeisDataPack* RegularSeisDataPack::clone() const
 
 RegularSeisDataPack* RegularSeisDataPack::getSimilar() const
 {
-    RegularSeisDataPack* ret = new RegularSeisDataPack( category(), &desc_ );
+    auto* ret = new RegularSeisDataPack( category(), &desc_ );
     ret->setSampling( sampling() );
     return ret;
 }
@@ -308,7 +308,21 @@ void RegularSeisDataPack::dumpInfo( StringPairSet& infoset ) const
 	infoset.add( sKey::CrlRange(), toUserString(tks.trcRange()) );
     }
 
-    infoset.add( sKey::ZRange(), toUserString(sampling_.zsamp_,6) );
+    ZSampling zrg = sampling_.zsamp_;
+    if ( !zrg.isUdf() )
+    {
+	const ZDomain::Def& zddef = zDomain().def_;
+	const int nrdec = zddef.nrZDecimals( zrg.step );
+	zrg.scale( zddef.userFactor() );
+	const BufferString unitstr = unitStr( false, true );
+	BufferString keystr = toString( zddef.getRange() );
+	keystr.addSpace().add( unitstr.buf() );
+	BufferString valstr;
+	valstr.add( zrg.start, nrdec )
+	      .add( " - " ).add( zrg.stop, nrdec )
+	      .add( " [" ).add( zrg.step, nrdec ).add( "]" );
+	infoset.add( keystr, valstr );
+    }
 }
 
 
@@ -355,7 +369,7 @@ DataPackID RegularSeisDataPack::createDataPackForZSlice(
     if ( !bivset || !tkzs.isDefined() || tkzs.nrZ()!=1 )
 	return DataPack::cNoID();
 
-    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
+    auto* regsdp = new RegularSeisDataPack(
 					SeisDataPack::categoryStr(false,true) );
     regsdp->setSampling( tkzs );
     for ( int idx=1; idx<bivset->nrVals(); idx++ )
@@ -541,6 +555,7 @@ RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
     }
 
     randsdp->setZDomain( regsdp.zDomain() );
+    randsdp->setValUnit( regsdp.valUnit() );
     randsdp->setName( regsdp.name() );
     return randsdp;
 }
@@ -609,6 +624,7 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
     }
 
     randsdp->setZDomain( regsdp.zDomain() );
+    randsdp->setValUnit( regsdp.valUnit() );
     randsdp->setName( regsdp.name() );
     if ( DPM(DataPackMgr::SeisID()).add( randsdp ) )
     {
@@ -666,6 +682,7 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
     }
 
     randsdp->setZDomain( regsdp.zDomain() );
+    randsdp->setValUnit( regsdp.valUnit() );
     randsdp->setName( regsdp.name() );
     if ( DPM(DataPackMgr::SeisID()).add(randsdp) )
     {

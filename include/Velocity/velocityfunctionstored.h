@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
-#include "velocityfunction.h"
+
 #include "binidvalset.h"
+#include "velocityfunction.h"
 
 class BinIDValueSet;
 class IOObjContext;
@@ -30,16 +31,14 @@ public:
 				~StoredFunction();
 
     bool			moveTo(const BinID&) override;
-    StepInterval<float>		getAvailableZ() const override;
-
+    ZSampling			getAvailableZ() const override;
 
 protected:
-    bool			computeVelocity(float z0, float dz, int nr,
+    bool			computeVelocity(float z0,float dz,int sz,
 						float* res) const override;
 
-    bool			zit_;
-    TypeSet<float>		zval_;
-    TypeSet<float>		vel_;
+    TypeSet<double>		zval_;
+    TypeSet<double>		vel_;
 };
 
 
@@ -47,41 +46,39 @@ mExpClass(Velocity) StoredFunctionSource : public FunctionSource
 { mODTextTranslationClass(StoredFunctionSource);
 public:
 				mDefaultFactoryInstanciationBase(
-				    "StoredVelFunc", 
-				    toUiString(sFactoryKeyword()));
+				    "StoredVelFunc",
+				    ::toUiString(sFactoryKeyword()));
 
 				StoredFunctionSource();
     static IOObjContext&	ioContext();
 
     const VelocityDesc&		getDesc() const override { return desc_; }
 
-    bool			zIsTime() const;
-    bool			load(const MultiID&);
+    bool			setFrom(const MultiID&);
     bool			store(const MultiID&);
 
     StoredFunction*		createFunction(const BinID&) override;
 
     void			getAvailablePositions(
 						BinIDValueSet&) const override;
-    bool			getVel(const BinID&,TypeSet<float>& zvals,
-				       TypeSet<float>& vel);
+    bool			getVel(const BinID&,TypeSet<double>& zvals,
+				       TypeSet<double>& vel);
 
     void			setData(const BinIDValueSet&,
-					const VelocityDesc&,bool zit);
+					const VelocityDesc&,
+					const ZDomain::Info&);
 
-    static const char*		sKeyZIsTime();
-    static const char*		sKeyVelocityFunction();
     static const char*		sKeyVelocityType();
 
 protected:
+				~StoredFunctionSource();
+
     void			fillIOObjPar(IOPar&) const;
 
     static FunctionSource*	create(const MultiID&);
-				~StoredFunctionSource();
 
     BinIDValueSet		veldata_;
-    bool			zit_;
-    VelocityDesc		desc_;
+    VelocityDesc&		desc_;
 };
 
 } // namespace Vel

@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uistratmod.h"
-#include "uistratlayseqgendesc.h"
-#include "uigraphicsview.h"
+
 #include "property.h"
+#include "uigraphicsview.h"
+#include "uistratlayseqgendesc.h"
+
 class uiGenInput;
 class uiRectItem;
 class uiTextItem;
@@ -22,7 +24,7 @@ namespace Strat { class LayerSequenceGenDesc; }
   editors that are not also Layer Model displayers. */
 
 mExpClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
-				 , public uiLayerSequenceGenDesc
+					     , public uiLayerSequenceGenDesc
 { mODTextTranslationClass(uiExtLayerSequenceGenDesc)
 public:
 
@@ -47,12 +49,12 @@ protected:
     uiTextItem*		emptyitm_ = nullptr;
     uiBorder		border_ = 10;	//!< can be set
     const uiRect	workrect_;	//!< will be filled
-    bool		zinft_;		//!< From SI()
     MultiID		descid_;
 
     void		getTopDepthFromScreen();
     void		putTopDepthToScreen();
 
+    void		initView(CallBacker*);
     void		reDraw(CallBacker*);
     void		wheelMoveCB(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }
@@ -68,7 +70,7 @@ protected:
 
 private:
     const Strat::LayerSequenceGenDesc* editedDesc() const override
-							{ return &editdesc_;}
+							{ return &editdesc_; }
 
 };
 

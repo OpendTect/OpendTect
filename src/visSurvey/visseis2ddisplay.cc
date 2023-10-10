@@ -219,8 +219,9 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 	trcdisplayinfo_.alltrcpos_ += linepositions[idx].coord_;
     }
 
-    trcdisplayinfo_.zrg_.step = datatransform_ ? datatransform_->getGoodZStep()
-					       : geometry_.zRange().step;
+    trcdisplayinfo_.zrg_.step = datatransform_
+			     ? datatransform_->getZInterval( false ).step
+			     : geometry_.zRange().step;
     setTraceNrRange( maxtrcnrrg_ );
     setZRange( geometry_.zRange() );
 
@@ -257,8 +258,8 @@ StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
     if ( !datatransform_ || !displayspace )
 	return geometry_.zRange();
 
-    return StepInterval<float>( datatransform_->getZInterval(false),
-				geometry_.zRange().step );
+    return ZSampling( datatransform_->getZInterval( false ),
+		      geometry_.zRange().step );
 }
 
 
@@ -290,11 +291,7 @@ StepInterval<float> Seis2DDisplay::getZRange( bool displayspace,
 	return trcdisplayinfo_.zrg_;
 
     if ( datatransform_ && !displayspace )
-    {
-	StepInterval<float> zrg = datatransform_->getZInterval( true );
-	zrg.step = SI().zStep();
-	return zrg;
-    }
+	return datatransform_->getZInterval( true );
 
     return trcdisplayinfo_.zrg_;
 }
@@ -1080,7 +1077,6 @@ bool Seis2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* taskr )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this,Seis2DDisplay,dataTransformCB) );
 	datatransform_->unRef();
-	datatransform_ = 0;
     }
 
     datatransform_ = zat;
@@ -1118,7 +1114,7 @@ void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 {
     // TODO: handle update trcrg
     if ( updatez && datatransform_ )
-	setZRange( datatransform_->getZInterval(false) );
+	setZRange( datatransform_->getZInterval( false ) );
 }
 
 

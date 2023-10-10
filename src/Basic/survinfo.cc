@@ -633,7 +633,7 @@ SurveyInfo::SurveyInfo()
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
     : NamedCallBacker( si.name() )
-    , zdef_(*new ZDomain::Def( si.zDomain() ) )
+    , zdef_(*new ZDomain::Def(si.zDomain()) )
     , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
@@ -1208,18 +1208,7 @@ float SurveyInfo::zStep() const
 
 int SurveyInfo::nrZDecimals() const
 {
-    const double zstep =
-		sCast(double,zStep()*zDomain().userFactor());
-    int nrdec = 0;
-    double decval = zstep;
-    while ( decval > Math::Floor(decval) &&
-	    !mIsZero(decval,1e-4) && !mIsEqual(decval,1.,1e-4) )
-    {
-	nrdec++;
-	decval = decval*10 - Math::Floor(decval*10);
-    }
-
-    return nrdec;
+    return zDomain().nrZDecimals( zStep() );
 }
 
 
@@ -1441,6 +1430,14 @@ void SurveyInfo::putZDomain( IOPar& iop ) const
 
 const ZDomain::Def& SurveyInfo::zDomain() const
 { return zdef_; }
+
+
+const ZDomain::Info& SurveyInfo::zDomainInfo() const
+{
+    return zIsTime() ? ZDomain::TWT()
+		     : (zInMeter() ? ZDomain::DepthMeter()
+				   : ZDomain::DepthFeet() );
+}
 
 
 const char* SurveyInfo::getXYUnitString( bool wb ) const

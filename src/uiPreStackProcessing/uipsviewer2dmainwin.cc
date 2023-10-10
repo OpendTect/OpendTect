@@ -47,6 +47,7 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "windowfunction.h"
 
 
@@ -362,7 +363,9 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
     anglefp.setRange( true, x1rg );
     anglefp.setRange( false, x2rg );
 
-    PreStack::Gather* anglegather = new PreStack::Gather ( anglefp );
+    auto* anglegather = new PreStack::Gather( anglefp, angledata.zDomain(),
+					      angledata.isOffsetAngle(),
+					      angledata.isOffsetInFeet() );
     const int offsetsize = fp.nrPts( true );
     const int zsize = fp.nrPts( false );
 
@@ -1066,7 +1069,8 @@ ConstRefMan<PreStack::Gather> uiStoredViewer2DMainWin::getAngleData(
     velangcomp->setRayTracerPars( angleparams_->raypar_ );
     velangcomp->setSmoothingPars( angleparams_->smoothingpar_ );
     const FlatPosData& fp = gather->posData();
-    velangcomp->setOutputSampling( fp );
+    velangcomp->setOutputSampling( fp, gather->zDomain(),
+				   gather->isOffsetInFeet() );
     velangcomp->setGatherIsNMOCorrected( gather->isCorrected() );
     velangcomp->setTrcKey( TrcKey(gather->getBinID()) );
     RefMan<PreStack::Gather> angledata = velangcomp->computeAngles();

@@ -30,36 +30,38 @@ public:
 				WellT2DTransform();
 				WellT2DTransform(const MultiID&);
 
+    bool			setWellID(const MultiID&);
     bool			isOK() const override;
+
+protected:
+				~WellT2DTransform();
+private:
+
+    bool			usePar(const IOPar&) override;
+    void			fillPar(IOPar&) const override;
+
     void			transformTrc(const TrcKey&,
 					  const SamplingData<float>&,
 					  int sz,float* res) const override;
     void			transformTrcBack(const TrcKey&,
 					      const SamplingData<float>&,
 					      int sz,float* res) const override;
+    void			doTransform(const SamplingData<float>& sd,
+					    const ZDomain::Info& sdzinfo,
+					    int sz,float*) const;
+
+    bool			needsVolumeOfInterest() const override
+				{ return false; }
     bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
-    float			getGoodZStep() const override;
-    Interval<float>		getZInterval(bool time) const override;
-    bool			needsVolumeOfInterest() const override
-				{ return false; }
+    bool			calcDepths();
 
-    bool			setWellID(const MultiID&);
-
-    void			fillPar(IOPar&) const override;
-    bool			usePar(const IOPar&) override;
-
-protected:
-
-				~WellT2DTransform();
+    ZSampling			getWorkZrg(const ZSampling&,
+					   const ZDomain::Info& from,
+				       const ZDomain::Info& to) const override;
 
     RefMan<Well::Data>		data_;
     TimeDepthModel		tdmodel_;
 
-    Interval<float>		getZRange(bool time) const;
-
-    bool			calcDepths();
-    void			doTransform(const SamplingData<float>&,
-					    int sz,float*,bool) const;
 };

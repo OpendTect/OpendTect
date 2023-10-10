@@ -7,29 +7,30 @@ ________________________________________________________________________
 
 -*/
 
-#include "scaler.h"
 #include "seistrc.h"
+
+#include "arraynd.h"
+#include "iopar.h"
 #include "seiscommon.h"
 #include "simpnumer.h"
-#include "iopar.h"
-#include "valseriesinterpol.h"
-#include "arraynd.h"
-#include <math.h>
+#include "unitofmeasure.h"
+#include "veldesc.h"
+#include "zvalseriesimpl.h"
+
 #include <float.h>
+#include <math.h>
 
 const float SeisTrc::snapdist = Seis::cDefSampleSnapDist();
 
 SeisTrc::SeisTrc( int ns, const DataCharacteristics& dc )
-    : intpol_(0)
 {
     data_.addComponent(ns,dc);
 }
 
 
-SeisTrc::SeisTrc( const SeisTrc& t )
-    : intpol_(0)
+SeisTrc::SeisTrc( const SeisTrc& oth )
 {
-    *this = t;
+    *this = oth;
 }
 
 
@@ -343,6 +344,34 @@ void SeisTrc::convertToFPs( bool pres )
 }
 
 
+bool SeisTrc::updateVelocities( const VelocityDesc& inpdesc,
+		       const VelocityDesc& outdesc, const ZDomain::Info& zinfo,
+		       double srd, const UnitOfMeasure* srduom,
+		       int compnr, double t0 )
+{
+    if ( !inpdesc.isVelocity() || !outdesc.isVelocity() )
+	return false;
+
+    const int sz = size();
+    const RegularZValues zvals( info().sampling, sz, zinfo );
+    const Vel::Worker worker( inpdesc, srd, srduom );
+
+    PtrMan<ValueSeries<double> > vels;
+    for ( int icomp=0; icomp<nrComponents(); icomp++ )
+    {
+	if ( icomp == compnr || compnr < 0 )
+	{
+	    SeisTrcValueSeries trcvs( *this, icomp );
+	    vels = ScaledValueSeries<double,float>::getFrom( trcvs );
+	    if ( vels )
+		worker.convertVelocities( *vels, zvals, outdesc, *vels, t0 );
+	}
+    }
+
+    return true;
+}
+
+
 void SeisTrc::setAll( float val,int compnr )
 {
 // make MT
@@ -440,12 +469,10 @@ void SeisTrcValueSeries::setValue( od_int64 idx,float v )
 float* SeisTrcValueSeries::arr()
 {
     float val;
-    DataCharacteristics dc(val);
+    const DataCharacteristics dc( val );
     const TraceDataInterpreter* tdi = trc_.data().getInterpreter( icomp_ );
-    if ( !tdi ) return 0;
-
-    if ( tdi->dataChar()!=dc )
-	return 0;
+    if ( !tdi || tdi->dataChar() != dc )
+	return nullptr;
 
     return (float*) trc_.data().getComponent( icomp_ )->data();
 }

@@ -393,14 +393,15 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
     }
 
     dlg.setGroup( uitrans );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
     if ( !ztrans )
 	return;
 
-    StepInterval<float> zsampling;
-    if ( !uitrans->getTargetSampling( zsampling ) )
+    ZSampling zsampling;
+    if ( !uitrans->getTargetSampling(zsampling) )
     {
 	pErrMsg( "Cannot get sampling.");
 	return;

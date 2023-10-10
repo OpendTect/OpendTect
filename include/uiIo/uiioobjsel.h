@@ -61,8 +61,8 @@ public:
 			uiIOObjSel(uiParent*,const IOObjContext&,const Setup&);
 			~uiIOObjSel();
 
-    void		setInput(const IOObj&);
-    void		setInput(const MultiID&);
+    virtual void	setInput(const IOObj&);
+    virtual void	setInput(const MultiID&);
     void		setEmpty() override;
 
     MultiID		key(bool noerr=false) const;

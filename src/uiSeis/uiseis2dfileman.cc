@@ -42,8 +42,6 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrManage( tr("2D Seismic Lines")),
                                  mNoDlgTitle,
 				 mODHelpKey(mSeis2DManHelpID) ))
-    , issidomain(ZDomain::isSI( ioobj.pars() ))
-    , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
 {
     setCtrlStyle( CloseOnly );
     Survey::GMAdmin().updateGeometries( nullptr );
@@ -51,11 +49,11 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     objinfo_ = new uiSeisIOObjInfo( ioobj );
     dataset_ = new Seis2DDataSet( ioobj );
 
-    uiGroup* topgrp = new uiGroup( this, "Top" );
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("2D lines"),
-			 uiListBox::AboveMid );
+    auto* topgrp = new uiGroup( this, "Top" );
+    const uiListBox::Setup su( OD::ChooseAtLeastOne, tr("2D lines"),
+			       uiListBox::AboveMid );
     linefld_ = new uiListBox( topgrp, su );
-    linefld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,lineSel) );
+    mAttachCB( linefld_->selectionChanged, uiSeis2DFileMan::lineSel );
 
     linegrp_ = new uiManipButGrp( linefld_ );
     linegrp_->addButton( uiManipButGrp::Remove,
@@ -68,12 +66,12 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 		        mCB(this,uiSeis2DFileMan,browsePush) );
     linegrp_->attach( rightOf, linefld_->box() );
 
-    uiGroup* botgrp = new uiGroup( this, "Bottom" );
+    auto* botgrp = new uiGroup( this, "Bottom" );
     infofld_ = new uiTextEdit( botgrp, "File Info", true );
     infofld_->setPrefHeightInChar( 10 );
     infofld_->setPrefWidthInChar( 75 );
 
-    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
+    auto* splitter = new uiSplitter( this, "Splitter", false );
     splitter->addGroup( topgrp );
     splitter->addGroup( botgrp );
 
@@ -122,7 +120,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	}
 
 	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
+	ZSampling zrg;
 	const bool hasrg = dataset_->getRanges( geomid, trcrg, zrg );
 
 	PosInfo::Line2DData l2dd;
@@ -149,27 +147,30 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 		txt.addNewLine();
 
 	    txt.appendPhrase( tr("Details for line: %1").arg(linenms.get(idx)),
-			     uiString::NoSep, uiString::OnSameLine );
+			      uiString::NoSep, uiString::OnSameLine );
 	    txt.addNewLine();
 	    txt.append( tr("Number of traces: %1").arg(sz) );
 	    txt.addNewLine();
 	    txt.append( tr("First trace: %1 %2") );
-	    const int nrdec = SI().nrXYDecimals();
+	    const int nrxydec = SI().nrXYDecimals();
 	    if ( l2dd.getPos(trcrg.start,firstpos) )
 		txt.arg( firstpos.nr_ )
-		   .arg( firstpos.coord_.toPrettyString(nrdec) ).addNewLine();
+		   .arg( firstpos.coord_.toPrettyString(nrxydec) ).addNewLine();
 	    txt.append( tr("Last trace: %1 %2") );
 	    if ( l2dd.getPos(trcrg.stop,lastpos) )
 		txt.arg( lastpos.nr_ )
-		   .arg( lastpos.coord_.toPrettyString(nrdec) ).addNewLine();
+		   .arg( lastpos.coord_.toPrettyString(nrxydec) ).addNewLine();
 
-#define mAddZRangeTxt(memb) txt.arg( \
-			    zistm ? SI().zDomain().userFactor()*memb : memb )
-
-	    txt.append( tr("Z-range: %1 - %2 [%3]") );
-	    mAddZRangeTxt( zrg.start );
-	    mAddZRangeTxt( zrg.stop );
-	    mAddZRangeTxt( zrg.step );
+	    const ZDomain::Info& zinfo = objinfo_->zDomain();
+	    const int nrzdec = zinfo.def_.nrZDecimals( zrg.step );
+	    zrg.scale( zinfo.def_.userFactor() );
+	    const uiString unitstr = zinfo.uiUnitStr( true );
+	    const uiString rgstr = tr("%1: %2 - %3 [%4]")
+				.arg( zinfo.def_.getRange().withUnit(unitstr) )
+				.arg( toString(zrg.start,nrzdec) )
+				.arg( toString(zrg.stop,nrzdec) )
+				.arg( toString(zrg.step,nrzdec) );
+	    txt.append( rgstr );
 	}
 	else
 	{

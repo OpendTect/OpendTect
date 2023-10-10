@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "prestackprocessor.h"
+#include "raytrace1d.h"
 #include "velocityfunctionvolume.h"
 
 class ElasticModel;
@@ -35,8 +36,10 @@ public:
     float			mutecutoff_ = 30.f;
     Interval<int>		anglerange_;
     MultiID			velvolmid_;
+    RayTracer1D::Setup		rtsu_;
     IOPar			raypar_;
     IOPar			smoothingpar_;
+    float			maxthickness_ = 25.f;
 };
 
 
@@ -55,13 +58,15 @@ protected:
     virtual		~AngleMuteBase();
 
     bool		setVelocityFunction();
-    virtual void	block(ElasticModel&) const		{}
-    bool		getLayers(const BinID&,ElasticModel&,
-				  SamplingData<float>&,int resamplesz=-1);
+    virtual void	block(ElasticModel&) const;
+    bool		getLayers(const TrcKey&,ElasticModel&,uiString& errmsg);
     float		getOffsetMuteLayer(const ReflectivityModelBase&,
-					   int nrlayer,int ioff,bool tail,
-					   int startlayer=0,
-					   bool belowcutoff=true) const;
+					   int ioff,bool innermute,
+					   bool& nonemuted,bool& allmuted,
+					   TypeSet< Interval<float> >&) const;
+
+    float		getfMutePos(const TimeDepthModel&,bool intime,
+				    float offsetmutelayer,float offset) const;
 
     AngleCompParams*	params_ = nullptr;
     RefMan<Vel::VolumeFunctionSource>	velsource_;
@@ -79,7 +84,7 @@ public:
 			mDefaultFactoryInstantiation(Processor,
 				AngleMute,"AngleMute", tr("Angle Mute") )
 
-			AngleMute();
+			AngleMute(const char* nm=sFactoryKeyword());
 			~AngleMute();
 
     mStruct(PreStackProcessing) AngleMutePars : public AngleCompParams
@@ -98,6 +103,8 @@ public:
 
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
+
+    static void		removeClass();
 
 protected:
 

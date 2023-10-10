@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "mousecursor.h"
 #include "survinfo.h"
-#include "veldesc.h"
+#include "unitofmeasure.h"
 #include "zdomain.h"
 
 #include "visdataman.h"
@@ -168,7 +168,7 @@ void uiZStretchDlg::updateSliderValues( int sceneidx )
 
 	if ( scene->zDomainInfo().def_.isTime() )
 	    label = tr( "Apparent velocity %1")
-			.arg( VelocityDesc::getVelUnit(true) );
+		    .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
 
 	if ( !scene->zDomainInfo().def_.isTime() )
 	    nrdec = 2;

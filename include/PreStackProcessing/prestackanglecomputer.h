@@ -9,15 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "refcount.h"
 
 #include "ailayer.h"
 #include "enums.h"
 #include "flatposdata.h"
 #include "iopar.h"
 #include "position.h"
-#include "prestackprocessingmod.h"
-#include "reflectivitymodel.h"
+#include "raytrace1d.h"
+#include "refcount.h"
 #include "windowfunction.h"
 
 template <class T> class Array2D;
@@ -25,6 +24,7 @@ class FFTFilter;
 class VelocityDesc;
 
 namespace Vel { class FunctionSource; }
+namespace ZDomain { class Info; }
 
 namespace PreStack
 {
@@ -36,17 +36,21 @@ class Gather;
 */
 
 mExpClass(PreStackProcessing) AngleComputer : public ReferencedObject
-{
+{ mODTextTranslationClass(AngleComputer)
 public:
     enum smoothingType { None, MovingAverage, FFTFilter };
     mDeclareEnumUtils(smoothingType)
 
     virtual RefMan<Gather>	computeAngles() = 0;
     virtual bool		isOK() const = 0;
+    uiString			errMsg() const		{ return errmsg_; }
+
     void			setTrcKey( const TrcKey & tk )
 				{ trckey_ = tk; }
 
-    void			setOutputSampling(const FlatPosData&);
+    void			setOutputSampling(const FlatPosData&,
+						  const ZDomain::Info&,
+						  bool offsetsinfeet);
     void			setRayTracerPars(const IOPar&);
     void			setGatherIsNMOCorrected( bool yn )
 				{ gatheriscorrected_ = yn; }
@@ -75,12 +79,15 @@ protected:
 
     bool			fillandInterpArray(Array2D<float>& angledata);
     RefMan<Gather>		computeAngleData();
+    AngleComputer&		setZDomain(const ZDomain::Info&);
     void			averageSmooth(Array2D<float>& angledata);
     void			fftSmooth(Array2D<float>& angledata);
     void			fftTimeSmooth(::FFTFilter& fftfilter,
 					      Array2D<float>& angledata);
     void			fftDepthSmooth(::FFTFilter& fftfilter,
 					       Array2D<float>& angledata);
+
+    const ZDomain::Info*	zDomain() const { return zdomaininfo_; }
 
     virtual const ElasticModel* curElasticModel() const = 0;
     virtual const OffsetReflectivityModel* curRefModel() const = 0;
@@ -89,12 +96,15 @@ protected:
     IOPar			iopar_;
     IOPar			raypars_;
     FlatPosData			outputsampling_;
+    const ZDomain::Info*	zdomaininfo_ = nullptr;
+    RayTracer1D::Setup		rtsu_;
     ElasticModel		elasticmodel_;
     ConstRefMan<OffsetReflectivityModel> refmodel_;
     float			thresholdparam_ = 0.01f;
     float			maxthickness_ = 25.f;
     TrcKey			trckey_;
     bool			gatheriscorrected_ = true;
+    uiString			errmsg_;
 };
 
 
@@ -104,14 +114,18 @@ protected:
 */
 
 mExpClass(PreStackProcessing) VelocityBasedAngleComputer : public AngleComputer
-{
+{ mODTextTranslationClass(VelocityBasedAngleComputer)
 public:
 				VelocityBasedAngleComputer();
 
     bool			setMultiID(const MultiID&);
-    bool			isOK() const override { return velsource_; }
+    bool			isOK() const override;
 
     RefMan<Gather>		computeAngles() override;
+
+    static bool			getLayers(const TrcKey&,float startdepth,
+					  Vel::FunctionSource&,ElasticModel&,
+					  uiString& errmsg);
 
 protected:
 				~VelocityBasedAngleComputer();
@@ -132,8 +146,19 @@ protected:
 */
 
 mExpClass(PreStackProcessing) ModelBasedAngleComputer : public AngleComputer
-{
+{ mODTextTranslationClass(ModelBasedAngleComputer)
 public:
+				ModelBasedAngleComputer();
+
+    void			setElasticModel(const TrcKey&,bool doblock,
+						bool pvelonly,ElasticModel&);
+    void			setRefModel(const OffsetReflectivityModel&,
+					    const TrcKey&);
+
+    bool			isOK() const override;
+
+    RefMan<Gather>		computeAngles() override;
+
     class ModelTool
     {
     public:
@@ -159,17 +184,6 @@ public:
     private:
 				mOD_DisableCopy(ModelTool);
     };
-
-				ModelBasedAngleComputer();
-
-    void			setElasticModel(const TrcKey&,bool doblock,
-						bool pvelonly,ElasticModel&);
-    void			setRefModel(const OffsetReflectivityModel&,
-					    const TrcKey&);
-
-    bool			isOK() const override;
-
-    RefMan<Gather>		computeAngles() override;
 
 private:
 				~ModelBasedAngleComputer();

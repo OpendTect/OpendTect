@@ -10,42 +10,146 @@ ________________________________________________________________________
 #include "prestackmutedef.h"
 
 #include "genericnumer.h"
+#include "keystrs.h"
 #include "mathfunc.h"
+#include "pickset.h"
+#include "seispsioprov.h"
 #include "statruncalc.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 
 namespace PreStack
 {
 
+const char* MuteDef::sKeyRefHor()	{ return "Reference Horizon";  }
+
 MuteDef::MuteDef( const char* nm )
-    : NamedObject( nm )
+    : NamedObject(nm)
+    , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
+    setOffsetsInFeet( SI().xyInFeet() );
 }
 
 
-MuteDef::MuteDef( const MuteDef& b )
+MuteDef::MuteDef( const MuteDef& oth )
+    : zdomaininfo_(nullptr)
 {
-    *this = b;
+    *this = oth;
 }
 
 
 MuteDef::~MuteDef()
 {
     deepErase( fns_ );
+    delete zdomaininfo_;
 }
 
 
-MuteDef& MuteDef::operator=( const MuteDef& b )
+MuteDef& MuteDef::operator=( const MuteDef& oth )
 {
-    if ( &b == this )
+    if ( &oth == this )
 	return *this;
 
-    refhor_ = b.refhor_;
-    setName( b.name() );
-    deepCopy( fns_, b.fns_ );
-    pos_ = b.pos_;
-    ischanged_ = b.ischanged_;
+    setName( oth.name() );
+    deepCopy( fns_, oth.fns_ );
+    pos_ = oth.pos_;
+    refhor_ = oth.refhor_;
+    setZDomain( oth.zDomain() );
+    offsetsinfeet_ = oth.offsetsinfeet_;
+    ischanged_ = oth.ischanged_;
+
     return *this;
+}
+
+
+const ZDomain::Info& MuteDef::zDomain() const
+{
+    return *zdomaininfo_;
+}
+
+
+bool MuteDef::zIsTime() const
+{
+    return zDomain().isTime();
+}
+
+
+bool MuteDef::zInMeter() const
+{
+    return zDomain().isDepthMeter();
+}
+
+
+bool MuteDef::zInFeet() const
+{
+    return zDomain().isDepthFeet();
+}
+
+
+bool MuteDef::isOffsetInMeters() const
+{
+    return !offsetsinfeet_;
+}
+
+
+bool MuteDef::isOffsetInFeet() const
+{
+    return offsetsinfeet_;
+}
+
+
+MuteDef& MuteDef::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+	return *this;
+
+    delete zdomaininfo_;
+    zdomaininfo_ = new ZDomain::Info( zinfo );
+    return *this;
+}
+
+
+MuteDef& MuteDef::setOffsetsInFeet( bool yn )
+{
+    offsetsinfeet_ = yn;
+    return *this;
+}
+
+
+void MuteDef::fillPar( IOPar& par ) const
+{
+    if ( refhor_.isUdf() )
+	par.set( sKeyRefHor(), nullptr );
+    else
+	par.set( sKeyRefHor(), refhor_ );
+
+    zDomain().fillPar( par );
+    par.set( SeisPSIOProvider::sKeyOffsetUnit(), getOffsetUnit()->name().str());
+}
+
+
+bool MuteDef::usePar( const IOPar& par )
+{
+    par.get( sKeyRefHor(), refhor_ );
+    const ZDomain::Info* zinfo = ZDomain::get( par );
+    if ( zinfo && (zinfo->isTime() || zinfo->isDepth()) )
+	setZDomain( *zinfo );
+
+    SeisPSIOProvider::getOffsetsUnitYN( par, offsetsinfeet_ );
+
+    return true;
+}
+
+
+const UnitOfMeasure* MuteDef::getZUnit() const
+{
+    return UnitOfMeasure::getZUnit( zDomain() );
+}
+
+
+const UnitOfMeasure* MuteDef::getOffsetUnit() const
+{
+    return SeisPSIOProvider::getOffsetsUnit( isOffsetInFeet() );
 }
 
 

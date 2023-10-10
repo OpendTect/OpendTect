@@ -571,7 +571,7 @@ void uiODViewer2DMgr::handleLeftClick( uiODViewer2D* vwr2d )
 	ConstRefMan<ZAxisTransform> zat = vwr2d->getZAxisTransform();
 	if ( zat )
 	{
-	    newtkzs.zsamp_.set( zat->getZInterval(false), zat->getGoodZStep() );
+	    newtkzs.zsamp_ = zat->getZInterval( false );
 	    oldtkzs.zsamp_ = newtkzs.zsamp_;
 	}
 
@@ -713,7 +713,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	newtkzs.hsamp_.survid_ = tkzs.hsamp_.survid_;
 	ConstRefMan<ZAxisTransform> zat = curvwr2d->getZAxisTransform();
 	if ( zat )
-	    newtkzs.zsamp_.set( zat->getZInterval(false), zat->getGoodZStep() );
+	    newtkzs.zsamp_ = zat->getZInterval( false );
 
 	if ( menuid==0 )
 	{

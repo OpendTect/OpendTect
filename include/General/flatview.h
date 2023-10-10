@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class FlatView_CB_Rcvr;
 class ZAxisTransform;
-namespace ZDomain { class Def; }
+namespace ZDomain { class Def; class Info; }
 namespace FlatView
 {
 

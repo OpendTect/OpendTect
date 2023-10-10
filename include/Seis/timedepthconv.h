@@ -9,41 +9,125 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "zaxistransform.h"
-#include "uistring.h"
-#include "trckeyzsampling.h"
+
 #include "datapack.h"
 #include "multidimstorage.h"
-#include "veldesc.h"
+#include "trckeyzsampling.h"
+#include "uistring.h"
+#include "zaxistransform.h"
 
 
 class IOObj;
 class SeisTrc;
 class SeisTrcReader;
+class UnitOfMeasure;
+class VelocityDesc;
 template <class T> class Array3D;
 template <class T> class ValueSeries;
 
 
+/*!Base class for ZAxisstretchers that convert between time and depth using
+   a 2D/3D velocity model on disk. */
+
 mExpClass(Seis) VelocityStretcher : public ZAxisTransform
 { mODTextTranslationClass(VelocityStretcher);
 public:
-    virtual bool		setVelData(const MultiID&)		= 0;
 
-    bool			canTransformSurv(OD::GeomSystem) const override
-				{ return true; }
+    bool		setVelData(const MultiID&);
+    bool		isOK() const override;
 
-    static const char*		sKeyTopVavg()	{ return "Top Vavg"; }
-    static const char*		sKeyBotVavg()	{ return "Bottom Vavg"; }
+    MultiID		getVelID() const;
+
+    static bool		getRange(const IOPar&,const VelocityDesc&,
+				 bool top,Interval<float>&);
+    static void		setRange(const Interval<float>&,
+				 const VelocityDesc&,bool top,IOPar&);
+    static ZSampling	getWorkZrg(const ZSampling&,
+				   const ZDomain::Info& from,
+				   const ZDomain::Info& to,const IOPar&,
+				   bool makenice=true);
+    static ZSampling	getWorkZrg(const ZSampling&,
+				   const ZDomain::Info& from,
+				   const ZDomain::Info& to,
+				   const Interval<float>& topvavg,
+				   const Interval<float>& botvavg,
+				   const UnitOfMeasure* vavguom,
+				   bool makenice=true);
+
+    const UnitOfMeasure* getVelUnit() const;
+    static Interval<float> getDefaultVAvg(const UnitOfMeasure*);
 
 protected:
-				VelocityStretcher(const ZDomain::Def& from,
-						  const ZDomain::Def& to);
-				~VelocityStretcher();
+			VelocityStretcher(const ZDomain::Def& from,
+					  const ZDomain::Def& to,
+					  const MultiID&);
+			~VelocityStretcher();
+
+private:
+
+    bool		usePar(const IOPar&) override;
+    void		fillPar(IOPar&) const override;
+
+    void		transformTrc(const TrcKey&,const SamplingData<float>&,
+				     int,float*) const override;
+    void		transformTrcBack(const TrcKey&,
+					 const SamplingData<float>&,
+					 int,float*) const override;
+    void		doTransform(const TrcKey&,const SamplingData<float>&,
+				    const ZDomain::Info& sdzinfo,
+				    int sz,float*) const;
+
+    void		releaseData();
+    int			addVolumeOfInterest(const TrcKeyZSampling&,
+					    bool zistrans) override;
+    void		setVolumeOfInterest(int,const TrcKeyZSampling&,
+					    bool zistrans) override;
+    void		removeVolumeOfInterest(int) override;
+    bool		loadDataIfMissing(int,TaskRunner* =nullptr) override;
+
+    Interval<float>	getInterval(const BinID&,int voiidx,
+				    const ZDomain::Info&) const;
+
+    bool		needsVolumeOfInterest() const override	{ return true; }
+    bool		canTransformSurv(OD::GeomSystem) const override
+			{ return true; }
+
+    ZSampling		getWorkZrg(const ZSampling&,const ZDomain::Info& from,
+				   const ZDomain::Info& to) const override;
+    static ZSampling	getWorkZrg(const ZSampling&,
+				   const ZDomain::Def& from,
+				   const ZDomain::Def& to,const IOPar&,
+				   bool makenice=true)		= delete;
+    static ZSampling	getWorkZrg(const ZSampling&,
+				   const ZDomain::Def& from,
+				   const ZDomain::Def& to,
+				   const Interval<float>& topvavg,
+				   const Interval<float>& botvavg,
+				   const UnitOfMeasure* vavguom,
+				   bool makenice=true)		 = delete;
+
+    Interval<float>	getDefaultVAvg() const;
+
+    static const char*	sKeyTopVavg()	{ return "Top Vavg"; }
+    static const char*	sKeyBotVavg()	{ return "Bottom Vavg"; }
+
+    ObjectSet<Array3D<float> >		voidata_;
+    TypeSet<TrcKeyZSampling>		voivols_;
+    ObjectSet<const ZDomain::Info>	voizinfos_;
+    TypeSet<int>			voiids_;
+
+    SeisTrcReader*			velreader_ = nullptr;
+    VelocityDesc&			veldesc_;
+    const ZDomain::Info*		velzinfo_ = nullptr;
+
+    Interval<float>	topvavg_; //Used to compute ranges
+    Interval<float>	botvavg_; //Used to compute ranges
+
 };
 
 
-/*!ZAxisstretcher that converts from time to depth (or back) using a
-   velocity model on disk. */
+/*!ZAxisstretcher that converts from time to depth (or back) using
+   a 2D/3D velocity model on disk. */
 
 mExpClass(Seis) Time2DepthStretcher : public VelocityStretcher
 { mODTextTranslationClass(Time2DepthStretcher);
@@ -53,59 +137,15 @@ public:
 				  toUiString(sFactoryKeyword()));
 
 			Time2DepthStretcher();
-    bool		setVelData(const MultiID&) override;
-    bool		isOK() const override;
-
-    bool		needsVolumeOfInterest() const override	{ return true; }
-    int			addVolumeOfInterest(const TrcKeyZSampling&,
-					    bool) override;
-    void		setVolumeOfInterest(int,
-					const TrcKeyZSampling&,bool) override;
-    void		removeVolumeOfInterest(int) override;
-    bool		loadDataIfMissing(int,TaskRunner* =0) override;
-    void		transformTrc(const TrcKey&,const SamplingData<float>&,
-				  int,float*) const override;
-    void		transformTrcBack(const TrcKey&,
-					 const SamplingData<float>&,
-					 int,float*) const override;
-    Interval<float>	getZInterval(bool from) const override;
-    float		getGoodZStep() const override;
-    const char*		getToZDomainString() const;
-    const char*		getFromZDomainString() const;
-    MultiID		getZDomainID() const;
-
-    const Interval<float>& getVavgRg(bool start) const;
-    static Interval<float> getDefaultVAvg();
-
-    void		fillPar(IOPar&) const override;
-    bool		usePar(const IOPar&) override;
+			Time2DepthStretcher(const MultiID&);
 
 protected:
-    friend		class TimeDepthDataLoader;
 			~Time2DepthStretcher();
-    void		releaseData();
-    Interval<float>	getTimeInterval(const BinID&,int voiidx) const;
-    Interval<float>	getDepthInterval(const BinID&,int voiidx) const;
-
-    static void				udfFill(ValueSeries<float>&,int);
-
-    ObjectSet<Array3D<float> >		voidata_;
-    TypeSet<TrcKeyZSampling>		voivols_;
-    BoolTypeSet				voiintime_;
-    TypeSet<int>			voiids_;
-
-    SeisTrcReader*			velreader_;
-    VelocityDesc			veldesc_;
-    bool				velintime_;
-
-    Interval<float>			topvavg_; //Used to compute ranges
-    Interval<float>			botvavg_; //Used to compute ranges
 };
 
 
-/*!ZAxisstretcher that converts from depth to time (or back). Uses
-   an Time2Depth converter to do the job. */
-
+/*!ZAxisstretcher that converts from depth to time (or back) using
+   a 2D/3D velocity model on disk*/
 
 mExpClass(Seis) Depth2TimeStretcher : public VelocityStretcher
 { mODTextTranslationClass(Depth2TimeStretcher);
@@ -115,43 +155,19 @@ public:
 				  toUiString(sFactoryKeyword()));
 
 			Depth2TimeStretcher();
-    bool		setVelData(const MultiID&) override;
-    bool		isOK() const override;
-
-    bool		needsVolumeOfInterest() const override;
-    int			addVolumeOfInterest(const TrcKeyZSampling&,
-					    bool) override;
-    void		setVolumeOfInterest(int,
-					const TrcKeyZSampling&,bool) override;
-    void		removeVolumeOfInterest(int) override;
-    bool		loadDataIfMissing(int,TaskRunner* =0) override;
-    void		transformTrc(const TrcKey&,const SamplingData<float>&,
-				     int sz,float*) const override;
-    void		transformTrcBack(const TrcKey&,
-					 const SamplingData<float>&,
-					 int sz,float*) const override;
-    Interval<float>	getZInterval(bool from) const override;
-    float		getGoodZStep() const override;
-    const char*		getToZDomainString() const;
-    const char*		getFromZDomainString() const;
-    MultiID		getZDomainID() const;
-
-    void		fillPar(IOPar&) const override;
-    bool		usePar(const IOPar&) override;
+			Depth2TimeStretcher(const MultiID&);
 
 protected:
 			~Depth2TimeStretcher();
-
-    RefMan<Time2DepthStretcher>		stretcher_;
 };
+
 
 /*! Scans a velocity model for minimum top/bottom average velocity. */
 
 mExpClass(Seis) VelocityModelScanner : public SequentialTask
 { mODTextTranslationClass(VelocityModelScanner);
 public:
-			VelocityModelScanner(const IOObj&,
-				const VelocityDesc&);
+			VelocityModelScanner(const IOObj&,const VelocityDesc&);
 			~VelocityModelScanner();
 
     uiString		uiMessage() const override	{ return msg_; }
@@ -162,23 +178,28 @@ public:
 
     const Interval<float>&	getTopVAvg() const	{ return startavgvel_; }
     const Interval<float>&	getBotVAvg() const	{ return stopavgvel_; }
+    const UnitOfMeasure* getVelUnit() const;
 
-    int				nextStep() override;
+private:
 
-protected:
+    bool		doPrepare(od_ostream*) override;
+    int			nextStep() override;
+    bool		doFinish(bool success,od_ostream*) override;
 
     uiString			msg_;
     TrcKeySampling		subsel_;
     TrcKeySamplingIterator	hsiter_;
-    bool			definedv0_;
-    bool			definedv1_;
-    bool			zistime_;
-    int				nrdone_;
+    bool			definedv0_ = false;
+    bool			definedv1_ = false;
+    int				nrdone_ = 0;
 
     const IOObj&		obj_;
-    const VelocityDesc&		vd_;
-
-    SeisTrcReader*		reader_;
+    SeisTrcReader*		reader_ = nullptr;
+    double			srd_;
+    const UnitOfMeasure*	srduom_;
+    const VelocityDesc&		veldesc_;
+    const ZDomain::Info*	velzinfo_ = nullptr;
+    VelocityDesc&		vavgdesc_;
 
     Interval<float>		startavgvel_;
     Interval<float>		stopavgvel_;
@@ -188,24 +209,43 @@ protected:
 mExpClass(Seis) LinearVelTransform : public ZAxisTransform
 { mODTextTranslationClass(LinearVelTransform);
 public:
-    bool			usePar(const IOPar&) override;
-    void			fillPar(IOPar&) const override;
 
-    bool			canTransformSurv(OD::GeomSystem) const override
-				{ return true; }
+    bool			isOK() const override;
+    static const UnitOfMeasure* getVelUnit();
 
 protected:
 				LinearVelTransform(const ZDomain::Def& from,
 						   const ZDomain::Def& to,
-						   float v0, float dv);
+						   double v0,double k);
 				~LinearVelTransform();
-    void			transformT2D(const SamplingData<float>&,
-					     int sz,float* res) const;
-    void			transformD2T(const SamplingData<float>&,
-					     int sz,float* res) const;
 
-    float			startvel_;
-    float			dv_;
+private:
+
+    bool			usePar(const IOPar&) override;
+    void			fillPar(IOPar&) const override;
+
+    void			transformTrc(const TrcKey&,
+					  const SamplingData<float>&,
+					  int sz,float* res) const override;
+    void			transformTrcBack(const TrcKey&,
+					      const SamplingData<float>&,
+					      int sz,float* res) const override;
+    void			doTransform(const SamplingData<float>& sd,
+					    const ZDomain::Info& sdzinfo,
+					    int sz,float*) const;
+
+    bool			needsVolumeOfInterest() const override
+				{ return false; }
+    bool			canTransformSurv(OD::GeomSystem) const override
+				{ return true; }
+
+    ZSampling			getWorkZrg(const ZSampling&,
+					   const ZDomain::Info& from,
+				       const ZDomain::Info& to) const override;
+
+    double			v0_;
+    double			k_;
+    double			srd_;
 
 };
 
@@ -216,21 +256,13 @@ public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
 				  "LinearT2D", tr("Linear velocity") );
 
-				LinearT2DTransform(float v0=0, float dv=0);
+				LinearT2DTransform(double v0=2000.,double k=0.);
+
+				mDeprecated("Use double FP")
+				LinearT2DTransform(float v0,float k);
+
+protected:
 				~LinearT2DTransform();
-
-    void			transformTrc(const TrcKey&,
-					  const SamplingData<float>&,
-					  int sz,float* res) const override;
-    void			transformTrcBack(const TrcKey&,
-					      const SamplingData<float>&,
-					      int sz,float* res) const override;
-
-    Interval<float>		getZInterval(bool time) const override;
-    float			getGoodZStep() const override;
-
-    bool			needsVolumeOfInterest() const override
-				{ return false; }
 };
 
 
@@ -240,18 +272,11 @@ public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearD2TTransform,
 				  "LinearD2T", tr("Linear velocity") );
 
-				LinearD2TTransform(float v0=0, float dv=0);
+				LinearD2TTransform(double v0=2000.,double k=0.);
+
+				mDeprecated("Use double FP")
+				LinearD2TTransform(float v0,float k);
+
+protected:
 				~LinearD2TTransform();
-
-    void			transformTrc(const TrcKey&,
-					  const SamplingData<float>&,
-					  int sz,float* res) const override;
-    void			transformTrcBack(const TrcKey&,
-					      const SamplingData<float>&,
-					      int sz,float* res) const override;
-    Interval<float>		getZInterval(bool depth) const override;
-    float			getGoodZStep() const override;
-
-    bool			needsVolumeOfInterest() const override
-				{ return false; }
 };

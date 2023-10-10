@@ -21,7 +21,6 @@ ________________________________________________________________________
 Well::ElasticModelComputer::ElasticModelComputer( const Well::Data& wd )
     : wd_(&wd)
 {
-    init();
 }
 
 
@@ -31,7 +30,6 @@ Well::ElasticModelComputer::ElasticModelComputer( const Well::Data& wd,
 						  const Well::Log* svel )
     : wd_(&wd)
 {
-    init();
     setLogs( vel, den, svel );
 }
 
@@ -40,10 +38,8 @@ Well::ElasticModelComputer::~ElasticModelComputer()
 {
     inplogs_.erase();
     uomset_.erase();
-    if ( ls_ )
-	delete ls_;
-    if ( lsnearest_ )
-	delete lsnearest_;
+    delete ls_;
+    delete lsnearest_;
 }
 
 
@@ -119,19 +115,6 @@ void Well::ElasticModelComputer::setExtractionPars( float zstep,
 }
 
 
-void Well::ElasticModelComputer::init()
-{
-    emodel_ = ElasticModel();
-    zrange_ = Interval<float>( mUdf(float), mUdf(float) );
-    zrgistime_ = false;
-    zstep_ = mUdf(float);
-    extractintime_ = false;
-    ls_ = nullptr;
-    lsnearest_ = nullptr;
-    velpissonic_ = false;
-}
-
-
 bool Well::ElasticModelComputer::computeFromLogs()
 {
     if ( !inplogs_.size() )
@@ -149,19 +132,20 @@ bool Well::ElasticModelComputer::computeFromLogs()
     if ( !extractLogs() )
 	mErrRet( tr("Cannot extract logs") )
 
-    const float convfact = SI().zDomain().isDepth() && SI().depthsInFeet()
-			 ? mFromFeetFactorF : 1.0f;
-
     emodel_.erase();
     const int nrsteps = ls_->nrZSamples();
-    const float dz = !zrgistime_ ? zstep_ * convfact : zstep_ / 2.f;
+    const float dz = zrgistime_ ? zstep_ / 2.f : zstep_;
     int erroridx = -1;
     const bool needswave = inplogs_.validIdx( mSVelIdx ) &&
 			   inplogs_.get(mSVelIdx);
     RefLayer* newlayer = nullptr;
+    const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthStorageUnit();
     for ( int idl=0; idl<nrsteps; idl++ )
     {
-	const float thickness = !zrgistime_ ? dz : ls_->getThickness( idl );
+	const float thickness = zrgistime_
+			      ? depthuom->getSIValue( ls_->getThickness(idl) )
+			      : dz;
+
 	const float velp = getVelp( idl );
 	const float den = getDensity( idl );
 	if ( needswave )
@@ -180,19 +164,21 @@ bool Well::ElasticModelComputer::computeFromLogs()
 
     if ( erroridx != -1 )
     {
-	float depth = emodel_.getLayerDepth( erroridx );
-	depth = UnitOfMeasure::surveyDefDepthUnit()->userValue( depth );
+	const float depth =
+		UnitOfMeasure::surveyDefDepthUnit()->getUserValueFromSI(
+					  ls_->getDah(erroridx) +
+					  ls_->getThickness(erroridx)/2.f );
 	emodel_.interpolate( true, true, false );
 
 	warnmsg_ = tr("Invalid log values found.\n"
-		      "First occurences at depth: %1%2\n"
+		      "First occurence at MD: %1%2\n"
 		      "Invalid values will be interpolated.")
 		  .arg( toString(depth,2) )
 		  .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
     }
 
     float startdepth = zrange_.start;
-    const float srddepth = -1.f * (float)SI().seismicReferenceDatum();
+    const float srd = SI().seismicReferenceDatum();
     if ( zrgistime_ )
     {
 	const float startdah = ls_->getDah(0);
@@ -201,7 +187,7 @@ bool Well::ElasticModelComputer::computeFromLogs()
     }
 
     emodel_.first()->setThickness( emodel_.first()->getThickness()
-				   + ( startdepth - srddepth ) * convfact );
+				+ depthuom->getSIValue(startdepth + srd) );
 
     return true;
 }
@@ -232,7 +218,8 @@ bool Well::ElasticModelComputer::extractLogs()
     if ( !wd_->d2TModel() )
 	mErrRet( tr("Well has no valid time-depth model") )
 
-    const float srddepth = -1.f * (float)SI().seismicReferenceDatum();
+    const float srddepth = -1.f * UnitOfMeasure::surveyDefSRDStorageUnit()->
+				getSIValue(  SI().seismicReferenceDatum() );
     if ( (!zrgistime_ && zrange_.start < srddepth) ||
 	  (zrgistime_ && zrange_.start < 0.f) )
 	mErrRet( tr("Extraction interval should not start above SRD") )

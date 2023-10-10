@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
 #include "stratlith.h"
+#include "survinfo.h"
 #include "syntheticdataimpl.h"
 #include "wavelet.h"
 
@@ -736,6 +737,7 @@ void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
     vwr_->rgbCanvas().disableImageSave();
     vwr_->setInitialSize( initialsz_ );
     vwr_->setStretch( 2, 2 );
+    vwr_->setZDomain( ZDomain::Time() );
     setDefaultAppearance( vwr_->appearance() );
 
     uiFlatViewStdControl::Setup fvsu( this );
@@ -744,13 +746,6 @@ void uiStratSynthDisp::createViewer( uiGroup* vwrgrp )
 
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
     control_->setViewerType( vwr_, true );
-    float zshift = -1.f * mCast(float,SI().seismicReferenceDatum());
-    if ( SI().depthsInFeet() )
-    {
-	zshift *= mToFeetFactorF;
-	control_->setZFactor( mToFeetFactorF );
-    }
-    control_->setDepthShift( zshift );
 
     const int sz = 25; // looks best
     auto* exportbut = new uiToolButton( vwrgrp, "export",
@@ -1161,7 +1156,6 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
     if ( !validids.isEmpty() )
 	sd = datamgr_.getDataSet( validids.first() );
 
-    const float srd = mCast(float,SI().seismicReferenceDatum());
     if ( sd )
     {
 	const Strat::LevelID sellvlid = edtools_.selLevelID();
@@ -1207,7 +1201,7 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
 		if ( mIsUdf(depth) || !d2tmdl )
 		    continue;
 
-		const float time = d2tmdl->getTime( depth + srd );
+		const float time = d2tmdl->getTime( depth );
 		if ( mIsUdf(time) )
 		    continue;
 
@@ -1913,6 +1907,7 @@ uiFlatViewer* uiStratSynthDisp::getViewerClone( uiParent* p ) const
     vwr->rgbCanvas().disableImageSave();
     vwr->setInitialSize( initialsz_ );
     vwr->setStretch( 2, 2 );
+    vwr->setZDomain( ZDomain::Time() );
     vwr->appearance() = vwr_->appearance();
     auto wvadp = vwr_->getPack(true).get();
     auto vddp = vwr_->getPack(false).get();
@@ -1972,7 +1967,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	BufferString depthstr( 16, true );
 	zval = toFloat( valstr );
 	od_sprintf( depthstr.getCStr(), depthstr.bufSize(),
-		    "Depth : %6.0f", zval );
+		    "TWT : %6.0f", zval );
 	depthstr.add( SI().getZUnitString() );
 	mesg.addSpace().add( depthstr );
 
@@ -2034,11 +2029,10 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 
     const TimeDepthModel* d2tmdl = sd ? sd->getTDModel( seqidx ) : nullptr;
     const Strat::LayerModel& laymod = datamgr_.layerModel();
-    const float srd = mCast(float,SI().seismicReferenceDatum());
     if ( d2tmdl )
     {
 	const float realzval = zval / SI().showZ2UserFactor();
-	const float depth = d2tmdl->getDepth( realzval ) - srd;
+	const float depth = d2tmdl->getDepth( realzval );
 	const Strat::LayerSequence& curseq = laymod.sequence( seqidx );
 	for ( int lidx=0; lidx<curseq.size(); lidx++ )
 	{

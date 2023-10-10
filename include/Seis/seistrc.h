@@ -9,15 +9,19 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
+
+#include "datachar.h"
+#include "mathfunc.h"
 #include "seisinfo.h"
 #include "tracedata.h"
-#include "datachar.h"
 #include "valseries.h"
-#include "mathfunc.h"
 #include "valseriesinterpol.h"
 
-template <class T> class ValueSeriesInterpolator;
+class UnitOfMeasure;
+class VelocityDesc;
+namespace ZDomain { class Info; }
 template <class T> class Array1D;
+template <class T> class ValueSeriesInterpolator;
 
 /*!
 \brief Seismic trace.
@@ -31,12 +35,12 @@ mExpClass(Seis) SeisTrc
 {
 public:
 
-			SeisTrc( int ns=0, const DataCharacteristics& dc
-					   = DataCharacteristics() );
-			SeisTrc( const SeisTrc& t );
+			SeisTrc(int ns=0, const DataCharacteristics& dc
+					   = DataCharacteristics());
+			SeisTrc(const SeisTrc&);
 			~SeisTrc();
 
-    SeisTrc&		operator =(const SeisTrc& t);
+    SeisTrc&		operator =(const SeisTrc&);
     inline bool		isEmpty() const		{ return data_.isEmpty(); }
 
     SeisTrcInfo&	info()			{ return info_; }
@@ -109,6 +113,13 @@ public:
 			//!< or zeros
 
     void		convertToFPs(bool preserve_data=true);
+    bool		updateVelocities(const VelocityDesc& inpdesc,
+				  const VelocityDesc& outdesc,
+				  const ZDomain::Info&,double srd,
+				  const UnitOfMeasure* srduom,
+				  int icomp=-1,double t0=0.);
+			/*!< Updates the velocity type and unit according
+			     to provided VelocityDesc objects */
 
     static const char*	sKeyExtTrcToSI()
 			{ return "Extend Traces To Survey Z Range"; }

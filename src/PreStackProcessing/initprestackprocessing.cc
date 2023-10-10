@@ -20,19 +20,19 @@ ________________________________________________________________________
 mDefModInitFn(PreStackProcessing)
 {
     mIfNotFirstTime( return );
-    
+
     PSEventTranslatorGroup::initClass();
     MuteDefTranslatorGroup::initClass();
     PreStackProcTranslatorGroup::initClass();
-    
+
     dgbPSEventTranslator::initClass();
     dgbMuteDefTranslator::initClass();
     dgbPreStackProcTranslator::initClass();
 
-    PreStack::Mute::initClass();
     PreStack::AGC::initClass();
-    PreStack::LateralStack::initClass();
+    PreStack::Mute::initClass();
     PreStack::AngleMute::initClass();
+    PreStack::LateralStack::initClass();
 #ifdef __debug__
     PreStack::TrimStatics::initClass();
 #endif

@@ -53,26 +53,26 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
 
     if ( setup_.tiedto_ )
     {
-	const CallBack cb( mCB(this,uiT2DConvSel,inpSel) );
-	setup_.tiedto_->selectionDone.notify( cb );
-	postFinalize().notify( cb );
+	mAttachCB( setup_.tiedto_->selectionDone, uiT2DConvSel::inpSel );
+	mAttachCB( postFinalize(), uiT2DConvSel::inpSel );
     }
 }
 
 
 uiT2DConvSel::~uiT2DConvSel()
-{}
-
-
-#define mGetGroupIdx \
-    const int grpidx = choicefld_->currentItem() - (setup_.optional_ ? 1 : 0)
+{
+    detachAllNotifiers();
+}
 
 
 void uiT2DConvSel::inpSel( CallBacker* cb )
 {
-    if ( !setup_.tiedto_ ) return;
+    if ( !setup_.tiedto_ )
+	return;
+
     const IOObj* ioobj = setup_.tiedto_->ioobj( true );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     selfld_->setSensitive( ZDomain::isSI(ioobj->pars()) );
 }
