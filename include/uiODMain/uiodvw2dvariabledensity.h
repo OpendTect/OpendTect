@@ -52,7 +52,7 @@ protected:
 					       const BufferString& attribnm="",
 					       const bool steering=false,
 					       const bool stored=false);
-    mDeprecated("use createDataPackRM" );
+    mDeprecated("use createDataPackRM" )
     DataPackID			createDataPack(Attrib::SelSpec&,
 					       const BufferString& attribnm="",
 					       const bool steering=false,

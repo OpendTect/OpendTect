@@ -42,9 +42,9 @@ protected:
 mExpClass(uiSeis) uiSeisWvltGen : public uiSeisWvltCreate
 { mODTextTranslationClass(uiSeisWvltGen);
 public:
-			mDeprecated ("Use uiSeisWvltGenerator");
+			mDeprecated ("Use uiSeisWvltGenerator")
 			uiSeisWvltGen(uiParent*);
-			~uiSeisWvltGen(){};
+			~uiSeisWvltGen(){}
 
 protected:
 
