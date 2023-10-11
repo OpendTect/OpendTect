@@ -14,6 +14,7 @@ set( OD_MODULE_SOURCES
 	uiattrtrcselout.cc
 	uicreate2dgrid.cc
 	uiemattribpartserv.cc
+	uiemattrsel.cc
 	uiflatunflatcube.cc
 	uiflattenedcube.cc
 	uihor2dfrom3ddlg.cc

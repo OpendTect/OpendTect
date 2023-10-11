@@ -10,15 +10,18 @@ ________________________________________________________________________
 
 #include "uiemattribmod.h"
 #include "uiapplserv.h"
-#include "uistring.h"
+
 #include "attribdescid.h"
+#include "attribsel.h"
 #include "datacoldef.h"
 #include "emposid.h"
 #include "multiid.h"
 #include "ranges.h"
+#include "uistring.h"
 
 namespace Attrib { class DescSet; }
 namespace Geometry { class RandomLine; }
+namespace ZDomain { class Info; }
 class DataPointSet;
 class NLAModel;
 class TaskRunner;
@@ -95,6 +98,10 @@ public:
     void			create2DGrid(const Geometry::RandomLine*);
 
     const TypeSet<EM::ObjectID>& getEMObjIDs() const	{ return emobjids_; }
+
+    bool			selectRGBAttribs(const MultiID& hormid,
+						 TypeSet<Attrib::SelSpec>&,
+						 const ZDomain::Info* =nullptr);
 
 protected:
 

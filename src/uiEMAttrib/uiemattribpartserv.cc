@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
 #include "uicreate2dgrid.h"
+#include "uiemattrsel.h"
 #include "uiflatunflatcube.h"
 #include "uihorizonshiftdlg.h"
 #include "uihorsavefieldgrp.h"
@@ -21,6 +22,8 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 
 #include "attribdescset.h"
+#include "attribdescsetman.h"
+#include "attribdescsetsholder.h"
 #include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -368,4 +371,23 @@ void uiEMAttribPartServer::horShifted( CallBacker* )
 VisID uiEMAttribPartServer::getShiftedObjectVisID() const
 {
     return horshiftdlg_ ? horshiftdlg_->visID() : VisID::udf();
+}
+
+
+bool uiEMAttribPartServer::selectRGBAttribs( const MultiID& hormid,
+					TypeSet<Attrib::SelSpec>& rgbaspecs,
+					const ZDomain::Info* zinf )
+{
+    const Attrib::DescSetMan* adsman = Attrib::DSHolder().getDescSetMan(false);
+    const auto* ds = adsman ? adsman->descSet() : nullptr;
+    if ( !ds )
+	return false;
+
+    uiEMRGBAttrSelDlg dlg( parent(), hormid, *ds );
+    dlg.setSelSpec( rgbaspecs );
+    if ( !dlg.go() )
+	return false;
+
+    dlg.fillSelSpec( rgbaspecs );
+    return true;
 }

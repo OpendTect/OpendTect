@@ -89,6 +89,7 @@ public:
 
     void		setDataPointSet(const DataPointSet&);
     void		selectAndLoadAuxData();
+    void		selectAndLoadData();
 
 protected:
     void		createMenu(MenuHandler*,bool istb);
