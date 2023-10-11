@@ -157,6 +157,7 @@ void uiMPEMan::mpeActionFinishedCB( CallBacker* )
     if ( !hd ) return;
 
     hd->updateAuxData();
+    visserv_->sendVisEvent( uiVisPartServer::evUpdateTree() );
 }
 
 
