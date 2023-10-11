@@ -66,7 +66,8 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
     else
 	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
 
-    postFinalize().notify( mCB(this,uiIOSurface,objSel) );
+    if ( forread_ )
+	postFinalize().notify( mCB(this,uiIOSurface,objSel) );
 }
 
 
