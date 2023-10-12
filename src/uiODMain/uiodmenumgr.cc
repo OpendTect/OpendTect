@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "uiodstdmenu.h"
 #include "uipickpartserv.h"
 #include "uiproxydlg.h"
-#include "uisettings.h"
+#include "uipythonsettings.h"
 #include "uiseispartserv.h"
 #include "uistrings.h"
 #include "uitextfile.h"

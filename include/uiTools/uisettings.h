@@ -22,49 +22,6 @@ class uiMaterialGroup;
 class uiTable;
 
 
-mExpClass(uiTools) uiSettingsMgr : public CallBacker
-{ mODTextTranslationClass(uiSettingsMgr);
-public:
-		uiSettingsMgr();
-		~uiSettingsMgr();
-
-    void	loadToolBarCmds(uiMainWin&);
-    void	updateUserCmdToolBar();
-    uiRetVal	openTerminal(bool withfallback=true,
-			     const char* cmd=nullptr,
-			     const BufferStringSet* args=nullptr,
-			     const char* workingdir=nullptr);
-    uiToolBar*	getToolBar()		{ return usercmdtb_; }
-    const BufferStringSet* programArgs(int) const;
-
-    Notifier<uiSettingsMgr> terminalRequested;
-    Notifier<uiSettingsMgr> toolbarUpdated;
-
-private:
-			mOD_DisableCopy(uiSettingsMgr);
-
-    void		keyPressedCB(CallBacker*);
-    void		updateUserCmdToolBarCB(CallBacker*);
-    void		doTerminalCmdCB(CallBacker*);
-    void		doToolBarCmdCB(CallBacker*);
-    void		doPythonSettingsCB(CallBacker*);
-
-    BufferStringSet	commands_;
-    ObjectSet<const BufferStringSet>	progargs_;
-    BufferStringSet	prognms_;
-    TypeSet<int>	toolbarids_;
-    int			termcmdidx_ = -1;
-    int			idecmdidx_ = -1;
-
-    uiMenu*		usercmdmnu_ = nullptr;
-    uiToolBar*		usercmdtb_ = nullptr;
-
-};
-
-
-mGlobal(uiTools) uiSettingsMgr& uiSettsMgr();
-
-
 mExpClass(uiTools) uiSettings : public uiDialog
 { mODTextTranslationClass(uiSettings);
 public:

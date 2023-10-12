@@ -85,6 +85,7 @@ set( OD_MODULE_SOURCES
 	uipositiontable.cc
 	uipropvalfld.cc
 	uiproxydlg.cc
+	uipythonsettings.cc
 	uiraytrace1d.cc
 	uirefltrace1d.cc
 	uirgbarraycanvas.cc
