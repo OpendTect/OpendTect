@@ -317,6 +317,7 @@ protected:
 
 mGlobal(Basic) int getSystemNrProcessors();
 mGlobal(Basic) int getNrProcessors();
+mGlobal(Basic) bool setNrProcessors(int);
 mGlobal(Basic) ThreadID currentThread();
 mGlobal(Basic) void setCurrentThreadProcessorAffinity( int cpu );
 /*!<Tells the current thread to always run on a certain cpu. Set to

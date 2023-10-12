@@ -764,7 +764,7 @@ public:
 protected:
     void		run() override
 			{
-                            Threads::setCurrentThreadProcessorAffinity(-1);
+			    Threads::setCurrentThreadProcessorAffinity(-1);
 			    if ( !cb_.willCall() )
 				func_( 0 );
 			    else
@@ -910,60 +910,67 @@ void Threads::setCurrentThreadProcessorAffinity( int cpunum )
 #endif
 
 
+static int sNrProc = -1;
+
 int Threads::getNrProcessors()
 {
-    mDefineStaticLocalObject( int, nrproc, (-1) );
-    if ( nrproc > 0 ) return nrproc;
+    if ( sNrProc > 0 )
+	return sNrProc;
 
-    nrproc = 0;
+    sNrProc = 0;
 
-    bool havesett = false; bool haveenv = false;
-    if ( !GetEnvVarYN("OD_NO_MULTIPROC") )
+    bool haveenv = false;
+    bool havesett = Settings::common().get( "dTect.Nr Processors", sNrProc );
+    bool needauto = !havesett;
+    float perc = 100;
+    BufferString envval = GetEnvVar( "OD_NR_PROCESSORS" );
+    if ( !envval.isEmpty() )
     {
-	havesett = Settings::common().get( "Nr Processors", nrproc );
-	if ( !havesett )
-	    havesett = Settings::common().get( "dTect.Nr Processors", nrproc );
-
-	bool needauto = !havesett;
-	float perc = 100;
-	BufferString envval = GetEnvVar( "OD_NR_PROCESSORS" );
-	if ( !envval.isEmpty() )
+	char* ptr = envval.find( '%' );
+	if ( ptr )
 	{
-	    char* ptr = envval.find( '%' );
-	    if ( ptr )
-		{ *ptr = '\0'; needauto = true; perc = envval.toFloat(); }
-	    else
-		{ needauto = false; nrproc = envval.toInt(); }
-	    haveenv = true;
+	    *ptr = '\0';
+	    needauto = true;
+	    perc = envval.toFloat();
 	}
-
-	if ( nrproc < 1 || needauto )
-	{
-	    havesett = false;
-	    nrproc = getSystemNrProcessors();
-	}
-
-	float fnrproc = nrproc * perc * 0.01;
-	nrproc = mNINT32(fnrproc);
-    }
-
-    if ( DBG::isOn( DBG_MT ) )
-    {
-	BufferString msg;
-	if ( nrproc == 0 )
-	    msg = "OD_NO_MULTIPROC set: one processor used";
 	else
 	{
-	    msg = "Number of processors (";
-	    msg += haveenv ? "Environment"
-			   : (havesett ? "User settings" : "System");
-	    msg += "): "; msg += nrproc;
+	    needauto = false;
+	    sNrProc = envval.toInt();
 	}
+	haveenv = true;
+    }
+
+    if ( sNrProc<1 || needauto )
+    {
+	havesett = false;
+	sNrProc = getSystemNrProcessors();
+    }
+
+    const float fnrproc = sNrProc * perc * 0.01;
+    sNrProc = mNINT32(fnrproc);
+
+    if ( DBG::isOn(DBG_MT) )
+    {
+	BufferString msg = "Number of processors (";
+	msg.add( haveenv ? "Environment"
+		       : (havesett ? "User settings" : "System") )
+	.add( "): " ).add( sNrProc );
 	DBG::message( msg );
     }
 
-    if ( nrproc < 1 ) nrproc = 1;
-    return nrproc;
+    if ( sNrProc < 1 )
+	sNrProc = 1;
+
+    return sNrProc;
+}
+
+
+bool Threads::setNrProcessors( int nrproc )
+{
+    sNrProc = nrproc;
+    Settings::common().set( "dTect.Nr Processors", nrproc );
+    return Settings::common().write();
 }
 
 

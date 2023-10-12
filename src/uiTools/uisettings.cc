@@ -958,7 +958,7 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,tr("General"),setts)
     , iconsz_(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
 {
-    iconszfld_ = new uiGenInput( this, tr("Icon Size"),
+    iconszfld_ = new uiGenInput( this, tr("Icon size"),
 				 IntInpSpec(iconsz_,10,64) );
 
     setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
@@ -968,7 +968,7 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 		BoolInpSpec(enabvirtualkeyboard_) );
     virtualkeyboardfld_->attach( alignedBelow, iconszfld_ );
 
-    uiLabel* lbl = new uiLabel( this,
+    auto* lbl = new uiLabel( this,
 	tr("Show progress when loading stored data on:") );
     lbl->attach( leftAlignedBelow, virtualkeyboardfld_ );
 
@@ -992,6 +992,14 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     showrdlprogressfld_ = new uiGenInput( this, uiStrings::sRandomLine(mPlural),
 					  BoolInpSpec(showrdlprogress_) );
     showrdlprogressfld_->attach( alignedBelow, showzprogressfld_ );
+
+    const int nrprocsystem = Threads::getSystemNrProcessors();
+    const int nrproc = Threads::getNrProcessors();
+    const IntInpSpec iis( nrproc, StepInterval<int>(1,nrprocsystem,1) );
+    nrprocfld_ = new uiGenInput( this, tr("Number of threads to use"), iis );
+    lbl = new uiLabel( this, tr("(Available: %1)").arg(nrprocsystem) );
+    lbl->attach( rightTo, nrprocfld_ );
+    nrprocfld_->attach( alignedBelow, showrdlprogressfld_ );
 }
 
 
@@ -1030,6 +1038,9 @@ bool uiGeneralSettingsGroup::acceptOK()
 		    SettingsAccess::sKeyShowRdlProgress() );
     updateSettings( enabvirtualkeyboard_, virtualkeyboardfld_->getBoolValue(),
 		    uiVirtualKeyboard::sKeyEnabVirtualKeyboard() );
+
+    const int nrproc = nrprocfld_->getIntValue();
+    Threads::setNrProcessors( nrproc );
 
     return true;
 }

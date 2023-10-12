@@ -177,6 +177,7 @@ protected:
     uiGenInput*		showzprogressfld_;
     uiGenInput*		showrdlprogressfld_;
     uiGenInput*		virtualkeyboardfld_;
+    uiGenInput*		nrprocfld_;
 
     int			iconsz_;
     bool		showinlprogress_		= true;

@@ -257,7 +257,6 @@ int ODMain( uiMain& app )
 
 
 #define mMemStatusFld 4
-static uiString cputxt_;
 
 uiODMain::uiODMain( uiMain& a )
     : uiMainWin(nullptr,toUiString("OpendTect Main Window"),5,true)
@@ -283,13 +282,8 @@ uiODMain::uiODMain( uiMain& a )
     mAttachCB( IOM().afterSurveyChange, uiODMain::afterSurveyChgCB );
     mAttachCB( sesstimer_.tick, uiODMain::sessTimerCB );
 
-    const int systemnrcpus = Threads::getSystemNrProcessors();
-    const int odnrcpus = Threads::getNrProcessors();
-    const bool useallcpus = systemnrcpus == odnrcpus;
-
     uiString statustt = tr( "System memory: Free/Available" );
-    if ( !useallcpus )
-	statustt.append( tr("| CPU: Used/Available") );
+    statustt.append( tr("| CPU: Used/Available") );
     statusBar()->setToolTip( mMemStatusFld, statustt );
     statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
     mAttachCB( memtimer_.tick, uiODMain::memTimerCB );
@@ -301,9 +295,6 @@ uiODMain::uiODMain( uiMain& a )
 	newsurvinittimer_.start( 200, true );
 	mAttachCB( newsurvinittimer_.tick, uiODMain::newSurvInitTimerCB );
     }
-
-    if ( !useallcpus )
-	cputxt_ = tr( "[cpu] %1/%2" ).arg( odnrcpus ).arg( systemnrcpus );
 
     mAttachCB( postFinalize(), uiODMain::afterStartupCB );
 }
@@ -677,13 +668,15 @@ void uiODMain::memTimerCB( CallBacker* )
     OD::getSystemMemory( tot, free );
     NrBytesToStringCreator converter;
     converter.setUnitFrom( tot );
-    uiString txt = tr( "[free mem] %1/%2%3" );
+    uiString txt = tr( "[free mem] %1/%2 | [cpu] %3/%4" );
 
     //Use separate calls to avoid the reuse of the converter's buffer
-    txt.arg( converter.getString( free, 1, false ) );
-    txt.arg( converter.getString( tot,1,true ));
-    txt.arg( cputxt_.isEmpty() ? cputxt_ : toUiString(" | %1").arg(cputxt_));
+    txt.arg( converter.getString(free,1,false) );
+    txt.arg( converter.getString(tot,1,true) );
 
+    const int systemnrcpus = Threads::getSystemNrProcessors();
+    const int odnrcpus = Threads::getNrProcessors();
+    txt.arg( odnrcpus ).arg( systemnrcpus );
     statusBar()->message( txt, mMemStatusFld );
 }
 
