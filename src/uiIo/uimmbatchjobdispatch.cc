@@ -22,13 +22,12 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
-#include "plugins.h"
 #include "survinfo.h"
 #include "systeminfo.h"
 #include "timefun.h"
 #include "timer.h"
 
-#include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -41,6 +40,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitextfile.h"
+#include "uitoolbutton.h"
 
 
 uiRetVal uiMMBatchJobDispatcher::initMMProgram( const CommandLineParser& clp,
@@ -118,7 +118,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     int maxhostdisp = 1;
     if ( multihost )
 	maxhostdisp = nrhosts>7 ? 8 : (nrhosts<3 ? 3 : nrhosts);
-    const int hostnmwdth = 30;
+    const int hostnmwdth = 50;
 
     statusBar()->addMsgFld( toUiString("Message"), Alignment::Left, 20 );
     statusBar()->addMsgFld( toUiString("DoneTxt"), Alignment::Right, 20 );
@@ -140,8 +140,8 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	    avmachfld_->addItem( hd->getFullDispString() );
 
 	avmachfld_->setCurrentItem( 0 );
-	avmachfld_->setPrefWidthInChar( hostnmwdth );
-	avmachfld_->setPrefHeightInChar( maxhostdisp );
+	avmachfld_->box()->setPrefWidthInChar( hostnmwdth );
+	avmachfld_->box()->setPrefHeightInChar( maxhostdisp );
     }
 
     auto* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
@@ -150,36 +150,39 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 		uiListBox::AboveMid );
     su.prefnrlines( isMultiHost() ? maxhostdisp : 1 );
     usedmachfld_ = new uiListBox( usedmachgrp, su );
-    usedmachfld_->setPrefWidthInChar( hostnmwdth );
+    usedmachfld_->box()->setPrefWidthInChar( hostnmwdth );
+    usedmachfld_->box()->setPrefHeightInChar( maxhostdisp );
 
-    auto* stopbut = new uiPushButton( usedmachgrp, uiStrings::sStop(), true );
-    mAttachCB( stopbut->activated, uiMMBatchJobDispatcher::stopPush );
-    auto* vwlogbut = new uiPushButton( usedmachgrp, tr("View Log"), false );
-    mAttachCB( vwlogbut->activated, uiMMBatchJobDispatcher::vwLogPush );
-    vwlogbut->attach( rightAlignedBelow, usedmachfld_ );
 
     if ( multihost )
     {
-	stopbut->attach( alignedBelow, usedmachfld_ );
+	auto* butgrp = new uiButtonGroup( usedmachfld_, "grp", OD::Vertical );
+	butgrp->attach( rightOf, usedmachfld_->box() );
+	new uiToolButton( butgrp, "logfile", tr("View Log"),
+			mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
+	new uiToolButton( butgrp, "remove", uiStrings::sStop(),
+			mCB(this,uiMMBatchJobDispatcher,stopPush) );
+	new uiToolButton( butgrp, "stop", tr("Stop all"),
+			mCB(this,uiMMBatchJobDispatcher,stopAllPush) );
 
-	auto* stopallbut = new uiPushButton( usedmachgrp, tr("Stop all"), true);
-	stopallbut->attach( rightTo, stopbut );
-	mAttachCB( stopallbut->activated, uiMMBatchJobDispatcher::stopAllPush );
-
-	addbut_ = new uiPushButton( machgrp, tr( ">> Add >>" ), true );
+	addbut_ = new uiPushButton( machgrp, uiStrings::sAdd(),
+				    "rightarrow", true );
+	mAttachCB( addbut_->activated, uiMMBatchJobDispatcher::addPush );
 	if ( avmachfld_ )
 	    addbut_->attach( centeredRightOf, avmachfld_ );
 	usedmachgrp->attach( ensureRightOf, addbut_ );
     }
     else
     {
-	addbut_ = new uiPushButton( usedmachgrp, tr("Start"), true );
-	addbut_->attach( alignedBelow, usedmachfld_ );
-	stopbut->attach( centeredBelow, usedmachfld_ );
-	machgrp->setHAlignObj( stopbut );
+	auto* butgrp = new uiButtonGroup( usedmachfld_, "grp", OD::Horizontal );
+	butgrp->attach( alignedBelow, usedmachfld_->box() );
+	addbut_ = new uiToolButton( butgrp, "resume", uiStrings::sStart(),
+			mCB(this,uiMMBatchJobDispatcher,addPush) );
+	new uiToolButton( butgrp, "logfile", tr("View Log"),
+			mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
+	new uiToolButton( butgrp, "stop", uiStrings::sStop(),
+			mCB(this,uiMMBatchJobDispatcher,stopAllPush) );
     }
-
-    mAttachCB( addbut_->activated, uiMMBatchJobDispatcher::addPush );
 
     if ( sep )
 	machgrp->attach( ensureBelow, sep );
@@ -190,17 +193,18 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 		uiSlider::Setup(tr("'Nice' level (0-19)")), "Nice level" );
     nicefld_->setMinValue( -0.5 ); nicefld_->setMaxValue( 19.5 );
     nicefld_->setValue( hdl_.niceLevel() );
+    nicefld_->setStretch( 0, 0 );
     if ( avmachfld_ )
 	nicefld_->setPrefWidthInChar( hostnmwdth );
 
     jrppolselfld_ = new uiComboBox( jrppolgrp, "JobRun policy" );
+    jrppolselfld_->setStretch( 0, 0 );
     jrppolselfld_->addItem( tr("Run") );
     jrppolselfld_->addItem( uiStrings::sPause() );
     jrppolselfld_->addItem( tr("Schedule") );
     jrppolselfld_->setCurrentItem( ((int)0) );
     mAttachCB( jrppolselfld_->selectionChanged, uiMMBatchJobDispatcher::jrpSel);
     jrppolselfld_->attach( alignedBelow, nicefld_ );
-    if ( avmachfld_ ) jrppolselfld_->setPrefWidthInChar( hostnmwdth );
     jrpworklbl_ = new uiLabel( jrppolgrp, tr("Processes") );
     jrpworklbl_->attach( rightOf, jrppolselfld_ );
 
@@ -412,12 +416,15 @@ void uiMMBatchJobDispatcher::stopAllPush( CallBacker* )
 {
     if ( jobrunner_ )
 	jobrunner_->stopAll();
+
+    addbut_->setSensitive( true );
 }
 
 
 void uiMMBatchJobDispatcher::vwLogPush( CallBacker* )
 {
-    if ( !jobrunner_ ) return;
+    if ( !jobrunner_ )
+	return;
 
     BufferString hostnm( curUsedMachName() );
     const HostNFailInfo* hfi = 0;
@@ -425,13 +432,18 @@ void uiMMBatchJobDispatcher::vwLogPush( CallBacker* )
     for ( int idx=0; idx<hi.size(); idx++ )
     {
 	if ( hi[idx]->hostdata_.isKnownAs(hostnm) )
-	    { hfi = hi[idx]; break; }
+	{
+	    hfi = hi[idx];
+	    break;
+	}
     }
-    if ( !hfi ) return;
+
+    if ( !hfi )
+	return;
 
     JobInfo* ji = jobrunner_->currentJob( hfi );
-    FilePath logfp( jobrunner_->getBaseFilePath(*ji, hfi->hostdata_) );
-    logfp.setExtension( ".log", false );
+    FilePath logfp( jobrunner_->getBaseFilePath(*ji,hfi->hostdata_) );
+    logfp.setExtension( "log", false );
 
     delete logvwer_;
     const BufferString fnm( logfp.fullPath() );
@@ -452,8 +464,8 @@ void uiMMBatchJobDispatcher::jrpSel( CallBacker* )
 
 static void addObjNm( BufferString& msg, const JobRunner* jr, int nr )
 {
-    msg += jr->descProv()->objType(); msg += " ";
-    msg += jr->descProv()->objName( nr );
+    msg.add( jr->descProv()->objType() ).addSpace()
+       .add( jr->descProv()->objName(nr) );
 }
 
 
@@ -469,17 +481,23 @@ void uiMMBatchJobDispatcher::jobPrep( CallBacker* )
 }
 
 
+static void addHostInfo( const HostData* hd, BufferString& msg )
+{
+    if ( !hd )
+	return;
+
+    const BufferString ipaddress = hd->getIPAddress();
+    const BufferString hostname = hd->getHostName( false );
+    msg.add( " on " ).add( hostname ).add( " (" ).add( ipaddress ).add( ")" );
+}
+
+
 void uiMMBatchJobDispatcher::jobStart( CallBacker* )
 {
     const JobInfo& ji = jobrunner_->curJobInfo();
     BufferString msg( "Started processing " );
     addObjNm( msg, jobrunner_, ji.descnr_ );
-    if ( ji.hostdata_ )
-    {
-	msg.add( " on " )
-	   .add( ji.hostdata_->isStaticIP() ? ji.hostdata_->getIPAddress()
-					    : ji.hostdata_->getHostName(false));
-    }
+    addHostInfo( ji.hostdata_, msg );
 
     progrfld_->append( msg );
 }
@@ -490,10 +508,11 @@ void uiMMBatchJobDispatcher::jobFail( CallBacker* )
     const JobInfo& ji = jobrunner_->curJobInfo();
     BufferString msg( "Failure for " );
     addObjNm( msg, jobrunner_, ji.descnr_ );
-    if ( ji.hostdata_ )
-	{ msg += " on "; msg += ji.hostdata_->getHostName(); }
+    addHostInfo( ji.hostdata_, msg );
+
     if ( !ji.infomsg_.isEmpty() )
-	{ msg += ": "; msg += ji.infomsg_; }
+	msg.add( ": " ).add( ji.infomsg_ );
+
     progrfld_->append( msg );
 }
 
@@ -501,14 +520,16 @@ void uiMMBatchJobDispatcher::jobFail( CallBacker* )
 void uiMMBatchJobDispatcher::infoMsgAvail( CallBacker* )
 {
     const JobInfo& ji = jobrunner_->curJobInfo();
-    if ( ji.infomsg_.isEmpty() ) { pErrMsg("huh?"); return; }
+    if ( ji.infomsg_.isEmpty() )
+    {
+	pErrMsg("huh?");
+	return;
+    }
 
     BufferString msg( "Info for " );
     addObjNm( msg, jobrunner_, ji.descnr_ );
-    if ( ji.hostdata_ )
-	{ msg += " on "; msg += ji.hostdata_->getHostName(); }
-
-    msg += ": "; msg += ji.infomsg_;
+    addHostInfo( ji.hostdata_, msg );
+    msg.add( ": " ).add( ji.infomsg_ );
     progrfld_->append( msg );
 }
 
