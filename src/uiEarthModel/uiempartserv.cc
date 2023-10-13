@@ -86,12 +86,13 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , selectedrg_(false)
 {
-    IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
+    mAttachCB( IOM().surveyChanged, uiEMPartServer::survChangedCB );
 }
 
 
 uiEMPartServer::~uiEMPartServer()
 {
+    detachAllNotifiers();
     EM::EMM().setEmpty();
     cleanup();
 }

@@ -273,15 +273,14 @@ uiColorTableSel::uiColorTableSel( uiParent* p, const char* nm )
     : uiComboBox(p,nm)
 {
     update();
-    ColTab::SM().seqAdded.notify( mCB(this,uiColorTableSel,seqChgCB) );
-    ColTab::SM().seqRemoved.notify( mCB(this,uiColorTableSel,seqChgCB) );
+    mAttachCB( ColTab::SM().seqAdded, uiColorTableSel::seqChgCB );
+    mAttachCB( ColTab::SM().seqRemoved, uiColorTableSel::seqChgCB );
 }
 
 
 uiColorTableSel::~uiColorTableSel()
 {
-    ColTab::SM().seqAdded.remove( mCB(this,uiColorTableSel,seqChgCB) );
-    ColTab::SM().seqRemoved.remove( mCB(this,uiColorTableSel,seqChgCB) );
+    detachAllNotifiers();
 }
 
 

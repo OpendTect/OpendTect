@@ -1111,11 +1111,15 @@ void Picks::setReferenceOffset( double n )
 
 
 PicksMgr::PicksMgr()
-{ IOM().surveyToBeChanged.notify( mCB(this,PicksMgr,surveyChange) ); }
+{
+    mAttachCB( IOM().surveyToBeChanged, PicksMgr::surveyChange );
+}
 
 
 PicksMgr::~PicksMgr()
-{ IOM().surveyToBeChanged.remove( mCB(this,PicksMgr,surveyChange) ); }
+{
+    detachAllNotifiers();
+}
 
 
 Picks* PicksMgr::get( const MultiID& mid, bool sgmid, bool create,

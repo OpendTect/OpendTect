@@ -31,13 +31,13 @@ HorizonPreLoader& HPreL()
 
 HorizonPreLoader::HorizonPreLoader()
 {
-    IOM().surveyToBeChanged.notify( mCB(this,HorizonPreLoader,surveyChgCB) );
+    mAttachCB( IOM().surveyToBeChanged, HorizonPreLoader::surveyChgCB );
 }
 
 
 HorizonPreLoader::~HorizonPreLoader()
 {
-    IOM().surveyToBeChanged.remove( mCB(this,HorizonPreLoader,surveyChgCB) );
+    detachAllNotifiers();
 }
 
 
