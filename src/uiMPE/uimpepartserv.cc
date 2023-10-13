@@ -57,44 +57,36 @@ int uiMPEPartServer::evSelectAttribForTracking(){ return 15; }
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , attrset3d_( 0 )
-    , attrset2d_( 0 )
+    , attrset3d_(nullptr)
+    , attrset2d_(nullptr)
     , activetrackerid_(-1)
-    , eventattrselspec_( 0 )
+    , eventattrselspec_(nullptr)
     , temptrackerid_(-1)
     , trackercurrentobject_(-1)
     , initialundoid_(mUdf(int))
     , seedhasbeenpicked_(false)
     , setupbeingupdated_(false)
     , seedswithoutattribsel_(false)
-    , setupgrp_(0)
+    , setupgrp_(nullptr)
 {
     MPE::engine().setValidator( new MPE::uiTrackSettingsValidator() );
 
-    MPE::engine().activevolumechange.notify(
-		mCB(this,uiMPEPartServer,activeVolumeChange) );
-    MPE::engine().loadEMObject.notify(
-		mCB(this,uiMPEPartServer,loadEMObjectCB) );
-    MPE::engine().trackeraddremove.notify(
-		mCB(this,uiMPEPartServer,loadTrackSetupCB) );
-    MPE::engine().settingsChanged.notify(
-		mCB(this,uiMPEPartServer,settingsChangedCB) );
-    EM::EMM().addRemove.notify( mCB(this,uiMPEPartServer,nrHorChangeCB) );
+    mAttachCB( MPE::engine().activevolumechange,
+	       uiMPEPartServer::activeVolumeChange );
+    mAttachCB( MPE::engine().loadEMObject,
+	       uiMPEPartServer::loadEMObjectCB );
+    mAttachCB( MPE::engine().trackeraddremove,
+	       uiMPEPartServer::loadTrackSetupCB );
+    mAttachCB( MPE::engine().settingsChanged,
+	       uiMPEPartServer::settingsChangedCB );
+    mAttachCB( EM::EMM().addRemove,
+	       uiMPEPartServer::nrHorChangeCB );
 }
 
 
 uiMPEPartServer::~uiMPEPartServer()
 {
-    MPE::engine().activevolumechange.remove(
-		mCB(this,uiMPEPartServer,activeVolumeChange) );
-    MPE::engine().loadEMObject.remove(
-		mCB(this,uiMPEPartServer,loadEMObjectCB) );
-    MPE::engine().trackeraddremove.remove(
-		mCB(this,uiMPEPartServer,loadTrackSetupCB) );
-    MPE::engine().settingsChanged.remove(
-		mCB(this,uiMPEPartServer,settingsChangedCB) );
-    EM::EMM().addRemove.remove( mCB(this,uiMPEPartServer,nrHorChangeCB) );
-
+    detachAllNotifiers();
     trackercurrentobject_.setUdf();
     initialundoid_ = mUdf(int);
     seedhasbeenpicked_ = false;
@@ -103,7 +95,7 @@ uiMPEPartServer::~uiMPEPartServer()
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
     if ( setupgrp_ )
     {
-	setupgrp_->setMPEPartServer( 0 );
+	setupgrp_->setMPEPartServer( nullptr );
 	uiMainWin* mw = setupgrp_->mainwin();
 	delete mw;
     }

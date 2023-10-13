@@ -74,16 +74,16 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, SceneID sceneid )
     updateButtons();
 
     windowClosed.notify( mCB(this,uiDataPointSetPickDlg,winCloseCB) );
-    visBase::DM().selMan().selnotifier.notify(
-			mCB(this,uiDataPointSetPickDlg,objSelCB) );
+    mAttachCB( visBase::DM().selMan().selnotifier,
+	       uiDataPointSetPickDlg::objSelCB );
 }
 
 
 uiDataPointSetPickDlg::~uiDataPointSetPickDlg()
 {
-    visBase::DM().selMan().selnotifier.remove(
-			mCB(this,uiDataPointSetPickDlg,objSelCB) );
-    if ( psd_ ) cleanUp();
+    detachAllNotifiers();
+    if ( psd_ )
+	cleanUp();
 }
 
 

@@ -30,27 +30,16 @@ uiVisColTabEd::uiVisColTabEd( uiColorTable& ct )
     : survobj_( 0 )
     , uicoltab_(ct)
 {
-    visBase::DM().removeallnotify.notify(
-	    mCB(this,uiVisColTabEd,removeAllVisCB) );
+    mAttachCB( visBase::DM().removeallnotify, uiVisColTabEd::removeAllVisCB );
 }
 
 
-#define mImplNotification( refop, notify) \
-    if ( survobj_ ) \
-    { \
-	if ( survobj_->getColTabMapperSetup(channel_,version_) ) \
-	    survobj_->getColTabMapperSetup( channel_, version_ )-> \
-		rangeChange.notify( mCB(this,uiVisColTabEd,mapperChangeCB) ); \
-	mDynamicCastGet( visBase::DataObject*, dataobj, survobj_ ); \
-	if ( dataobj ) \
-	    dataobj->refop(); \
-    }
-
 uiVisColTabEd::~uiVisColTabEd()
 {
-    mImplNotification( unRef, remove );
-    visBase::DM().removeallnotify.remove(
-	    mCB(this,uiVisColTabEd,removeAllVisCB) );
+    detachAllNotifiers();
+    mDynamicCastGet(visBase::DataObject*,dataobj,survobj_)
+    if ( dataobj )
+	dataobj->unRef();
 }
 
 
@@ -67,13 +56,29 @@ void uiVisColTabEd::setColTab( const ColTab::Sequence* seq, bool editseq,
 void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
 			       int version )
 {
-    mImplNotification( unRef, remove );
+    mDynamicCastGet(visBase::DataObject*,dataobj,survobj_)
+    if ( dataobj )
+    {
+	dataobj->unRef();
+	const ColTab::MapperSetup* ctmsu =
+		survobj_->getColTabMapperSetup( channel_, version_ );
+	if ( ctmsu )
+	    mDetachCB( ctmsu->rangeChange, uiVisColTabEd::mapperChangeCB );
+    }
 
     survobj_ = so;
     channel_ = channel;
     version_ = version;
 
-    mImplNotification( ref, notify );
+    mDynamicCast(visBase::DataObject*,dataobj,survobj_)
+    if ( dataobj )
+    {
+	dataobj->ref();
+	const ColTab::MapperSetup* ctmsu =
+		survobj_->getColTabMapperSetup( channel_, version_ );
+	if ( ctmsu )
+	    mAttachCB( ctmsu->rangeChange, uiVisColTabEd::mapperChangeCB );
+    }
 
     uicoltab_.setSequence( so ? so->getColTabSequence(channel_) : 0,
 			    so && so->canSetColTabSequence(), true );
@@ -97,7 +102,16 @@ void uiVisColTabEd::mapperChangeCB( CallBacker* )
 
 void uiVisColTabEd::removeAllVisCB( CallBacker* )
 {
-    mImplNotification( unRef, remove);
+    mDynamicCastGet(visBase::DataObject*,dataobj,survobj_)
+    if ( dataobj )
+    {
+	dataobj->unRef();
+	const ColTab::MapperSetup* ctmsu =
+		survobj_->getColTabMapperSetup( channel_, version_ );
+	if ( ctmsu )
+	    mDetachCB( ctmsu->rangeChange, uiVisColTabEd::mapperChangeCB );
+    }
+
     survobj_ = 0;
 }
 

@@ -250,9 +250,9 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( VisID did, Pick::Set& ps )
     , convertbodymnuitem_( tr("Convert to Geobody") )
 {
     displayid_ = did;
-    Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
     onlyatsectmnuitem_.checkable = true;
 
+    mAttachCB( Pick::Mgr().setChanged, uiODPickSetTreeItem::setChg );
     mAttachCB( visBase::DM().selMan().selnotifier,
 	       uiODPickSetTreeItem::selChangedCB );
 
@@ -270,7 +270,6 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
 {
     detachAllNotifiers();
     delete paintdlg_;
-    Pick::Mgr().removeCBs( this );
 }
 
 
@@ -727,9 +726,9 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( VisID did, Pick::Set& ps )
     , calcvolmnuitem_(m3Dots(tr("Calculate Volume")))
 {
     displayid_ = did;
-    Pick::Mgr().setChanged.notify( mCB(this,uiODPolygonTreeItem,setChg) );
     onlyatsectmnuitem_.checkable = true;
 
+    mAttachCB( Pick::Mgr().setChanged, uiODPolygonTreeItem::setChg );
     mAttachCB( NotSavedPrompter::NSP().promptSaving,
 	       uiODPolygonTreeItem::askSaveCB );
 
@@ -742,7 +741,6 @@ uiODPolygonTreeItem::uiODPolygonTreeItem( VisID did, Pick::Set& ps )
 uiODPolygonTreeItem::~uiODPolygonTreeItem()
 {
     detachAllNotifiers();
-    Pick::Mgr().removeCBs( this );
 }
 
 
