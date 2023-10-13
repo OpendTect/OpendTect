@@ -13,8 +13,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
-#include "uigeom2dsel.h"
-#include "uigroup.h"
 #include "uiimpexp2dgeom.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -23,6 +21,7 @@ ________________________________________________________________________
 
 #include "dirlist.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "od_helpids.h"
 #include "oddirs.h"
 #include "posinfo2d.h"
@@ -34,6 +33,9 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 
+static HiddenParam<ui2DSurvInfoProvider,IOPar*> hp_2dsip(nullptr);
+
+
 static const char* dlgtitle =
 "Specify working area values.\n"
 "No need to be precise, parts can lie outside the ranges.\n"
@@ -41,10 +43,14 @@ static const char* dlgtitle =
 "and provide some defaults e.g. for 3D horizon generation.";
 
 ui2DSurvInfoProvider::ui2DSurvInfoProvider()
-{}
+{
+    hp_2dsip.setParam( this, nullptr );
+}
 
 ui2DSurvInfoProvider::~ui2DSurvInfoProvider()
-{}
+{
+    hp_2dsip.removeAndDeleteParam( this );
+}
 
 
 class ui2DDefSurvInfoDlg : public uiDialog
@@ -52,13 +58,11 @@ class ui2DDefSurvInfoDlg : public uiDialog
 public:
 
 ui2DDefSurvInfoDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Survey setup for 2D only"),
+    : uiDialog(p,uiDialog::Setup(tr("Survey Setup: Enter X/Y Ranges"),
 				 toUiString(dlgtitle),
 				 mODHelpKey(m2DDefSurvInfoDlgHelpID) ))
 {
-    FloatInpSpec fis;
     DoubleInpSpec dis;
-
     xrgfld_ = new uiGenInput( this, uiStrings::phrXcoordinate(
 				       uiStrings::sRange().toLower()),
 			      dis, dis );
@@ -71,15 +75,15 @@ ui2DDefSurvInfoDlg( uiParent* p )
     yrgfld_->setElemSzPol( uiObject::Medium );
 
     grdspfld_ = new uiGenInput( this,
-				tr("Default grid spacing for horizons"), fis );
+				tr("Default grid spacing for horizons"),
+				FloatInpSpec() );
     grdspfld_->attach( alignedBelow, yrgfld_ );
 
-    ismfld_ = new uiGenInput( this, tr("Coordinates are in"),
-	    BoolInpSpec(true,uiStrings::sMeter(),uiStrings::sFeet()) );
-    ismfld_->attach( alignedBelow, grdspfld_ );
+    crsfld_ = new Coords::uiCoordSystemSel( this, true, false, nullptr );
+    crsfld_->attach( alignedBelow, grdspfld_ );
 
     uiSeparator* optsep = new uiSeparator( this, "Optional" );
-    optsep->attach( stretchedBelow, ismfld_ );
+    optsep->attach( stretchedBelow, crsfld_ );
 
     uiLabel* zrglbl = new uiLabel( this, tr("Optional:") );
     zrglbl->attach( leftBorder );
@@ -90,7 +94,7 @@ ui2DDefSurvInfoDlg( uiParent* p )
 			DoubleInpIntervalSpec(true).setName("Z Start",0)
 						   .setName("Z Stop",1)
 						   .setName("Z step",2) );
-    zfld_->attach( alignedBelow, ismfld_ );
+    zfld_->attach( alignedBelow, crsfld_ );
     zfld_->attach( ensureBelow, zrglbl );
 }
 
@@ -112,14 +116,17 @@ bool acceptOK( CallBacker* ) override
     if ( mIsUdf(c0) || mIsUdf(c1) )
 	mErrRet(tr("Invalid input coordinates"))
 
+    if ( !crsfld_->getCoordSystem() )
+	mErrRet( tr("Please select a Coordinate System") );
+
     return true;
 }
 
-    uiGenInput*		grdspfld_;
-    uiGenInput*		xrgfld_;
-    uiGenInput*		yrgfld_;
-    uiGenInput*		ismfld_;
-    uiGenInput*		zfld_;
+    uiGenInput*			grdspfld_;
+    uiGenInput*			xrgfld_;
+    uiGenInput*			yrgfld_;
+    Coords::uiCoordSystemSel*	crsfld_;
+    uiGenInput*			zfld_;
 
 };
 
@@ -127,6 +134,77 @@ bool acceptOK( CallBacker* ) override
 uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p )
 {
     return new ui2DDefSurvInfoDlg( p );
+}
+
+
+#define cDefaultZMaxS 6.0f
+#define cDefaultZMaxM 6000.0f
+#define cDefaultZMaxF 10000.0f
+#define cDefaultSrS 0.004f
+#define cDefaultSrM 5.0f
+#define cDefaultSrF 15.0f
+
+bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
+				    Coord crd[3] )
+{
+    xyft_ = false;
+    mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
+    if ( !dlg )
+    {
+	pErrMsg("Huh?");
+	return false;
+    }
+
+    if ( dlg->uiResult() != 1 )
+	return false; // cancelled
+
+    Coord c0( dlg->xrgfld_->getDValue(0), dlg->yrgfld_->getDValue(0) );
+    Coord c1( dlg->xrgfld_->getDValue(1), dlg->yrgfld_->getDValue(1) );
+    if ( c0.x > c1.x ) Swap( c0.x, c1.x );
+    if ( c0.y > c1.y ) Swap( c0.y, c1.y );
+    const double grdsp = dlg->grdspfld_->getDValue();
+    if ( !uiSurvInfoProvider::getRanges(cs,crd,c0,c1,grdsp) )
+	return false;
+
+    const StepInterval<float> zrg = dlg->zfld_->getFStepInterval();
+    const bool hasstart = !mIsUdf(zrg.start);
+    const bool hasstop = !mIsUdf(zrg.stop);
+    const bool hasstep = !mIsUdf(zrg.step);
+    const float start = hasstart ? zrg.start : 0.f;
+    if ( SI().zIsTime() )
+	cs.zsamp_.set( start/1000, hasstop ? zrg.stop/1000 : cDefaultZMaxS,
+			hasstep ? zrg.step/1000 : cDefaultSrS );
+    else if ( SI().zInFeet() )
+	cs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxF,
+		hasstep ? zrg.step : cDefaultSrF );
+    else
+	cs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxM,
+		hasstep ? zrg.step : cDefaultSrM );
+
+    auto crs = dlg->crsfld_->getCoordSystem();
+    if ( crs )
+    {
+	xyft_ = crs->isFeet();
+	auto* crspar = new IOPar;
+	crs->fillPar( *crspar );
+	hp_2dsip.setParam( this, crspar );
+    }
+
+    return true;
+}
+
+
+void ui2DSurvInfoProvider::fillLogPars( IOPar& par ) const
+{
+    uiSurvInfoProvider::fillLogPars( par );
+    par.set( sKey::CrFrom(), "Min/max X/Y coordinates" );
+}
+
+
+IOPar* ui2DSurvInfoProvider::getCoordSystemPars() const
+{
+    auto* crspar = hp_2dsip.getParam( this );
+    return crspar ? new IOPar(*crspar) : nullptr;
 }
 
 
@@ -199,62 +277,6 @@ void uiSurvInfoProvider::addPluginsInfoProviders()
 	    (*sipinitfn)();
 	//Do NOT close the handle, as the plugin must remain loaded
     }
-}
-
-#define cDefaultZMaxS 6.0f
-#define cDefaultZMaxM 6000.0f
-#define cDefaultZMaxF 10000.0f
-#define cDefaultSrS 0.004f
-#define cDefaultSrM 5.0f
-#define cDefaultSrF 15.0f
-
-bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
-				    Coord crd[3] )
-{
-    xyft_ = false;
-    mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
-    if ( !dlg )
-    {
-	pErrMsg("Huh?");
-	return false;
-    }
-
-    if ( dlg->uiResult() != 1 )
-	return false; // cancelled
-
-    Coord c0( dlg->xrgfld_->getDValue(0), dlg->yrgfld_->getDValue(0) );
-    Coord c1( dlg->xrgfld_->getDValue(1), dlg->yrgfld_->getDValue(1) );
-    if ( c0.x > c1.x ) Swap( c0.x, c1.x );
-    if ( c0.y > c1.y ) Swap( c0.y, c1.y );
-    const double grdsp = dlg->grdspfld_->getDValue();
-    if ( !uiSurvInfoProvider::getRanges(cs,crd,c0,c1,grdsp) )
-	return false;
-
-    const StepInterval<float> zrg = dlg->zfld_->getFStepInterval();
-    const bool hasstart = !mIsUdf(zrg.start);
-    const bool hasstop = !mIsUdf(zrg.stop);
-    const bool hasstep = !mIsUdf(zrg.step);
-    const float start = hasstart ? zrg.start : 0.f;
-    if ( SI().zIsTime() )
-	cs.zsamp_.set( start/1000, hasstop ? zrg.stop/1000 : cDefaultZMaxS,
-			hasstep ? zrg.step/1000 : cDefaultSrS );
-    else if ( SI().zInFeet() )
-	cs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxF,
-		hasstep ? zrg.step : cDefaultSrF );
-    else
-	cs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxM,
-		hasstep ? zrg.step : cDefaultSrM );
-
-    xyft_ = !dlg->ismfld_->getBoolValue();
-
-    return true;
-}
-
-
-void ui2DSurvInfoProvider::fillLogPars( IOPar& par ) const
-{
-    uiSurvInfoProvider::fillLogPars( par );
-    par.set( sKey::CrFrom(), "Min/max X/Y coordinates" );
 }
 
 
