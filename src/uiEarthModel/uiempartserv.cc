@@ -119,12 +119,13 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , impbulkfssdlg_(0)
     , impbulk2dhordlg_(0)
 {
-    IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
+    mAttachCB( IOM().surveyChanged, uiEMPartServer::survChangedCB );
 }
 
 
 uiEMPartServer::~uiEMPartServer()
 {
+    detachAllNotifiers();
     em_.setEmpty();
     cleanup();
 }

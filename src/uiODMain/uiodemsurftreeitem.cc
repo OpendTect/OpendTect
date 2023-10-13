@@ -71,31 +71,21 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     saveasmnuitem_.iconfnm = "saveas";
     enabletrackingmnuitem_.checkable = true;
     changesetupmnuitem_.iconfnm = "seedpicksettings";
-    NotSavedPrompter::NSP().promptSaving.notify(
-	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODEarthModelSurfaceTreeItem::askSaveCB );
 }
 
 
 uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 {
-    NotSavedPrompter::NSP().promptSaving.remove(
-	    mCB(this,uiODEarthModelSurfaceTreeItem,askSaveCB));
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,
-		    emd,visserv_->getObject(displayid_));
-    if ( emd )
-    {
-	emd->selection()->remove(
-		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
-	emd->deSelection()->remove(
-		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
-	if ( ODMainWin() )
-	    ODMainWin()->colTabEd().setColTab( 0, 0, 0 );
-    }
+    detachAllNotifiers();
+    if ( ODMainWin() )
+	ODMainWin()->colTabEd().setColTab( 0, 0, 0 );
 
     if ( MPE::engine().hasTracker(emid_) )
 	MPE::engine().unRefTracker( emid_ );
-    delete uivisemobj_;
 
+    delete uivisemobj_;
 }
 
 
@@ -146,10 +136,8 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
 		    emd,visserv_->getObject(displayid_))
     if ( emd )
     {
-	emd->selection()->notify(
-		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
-	emd->deSelection()->notify(
-		mCB(this,uiODEarthModelSurfaceTreeItem,selChg) );
+	mAttachCB( emd->selection(), uiODEarthModelSurfaceTreeItem::selChg );
+	mAttachCB( emd->deSelection(), uiODEarthModelSurfaceTreeItem::selChg );
     }
 
     return true;

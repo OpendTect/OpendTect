@@ -140,12 +140,12 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
     menu_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 
-    visBase::DM().selMan().selnotifier.notify(
-	mCB(this,uiVisPartServer,selectObjCB) );
-    visBase::DM().selMan().deselnotifier.notify(
-	mCB(this,uiVisPartServer,deselectObjCB) );
-    visBase::DM().selMan().updateselnotifier.notify(
-	mCB(this,uiVisPartServer,updateSelObjCB) );
+    mAttachCB( visBase::DM().selMan().selnotifier,
+	       uiVisPartServer::selectObjCB );
+    mAttachCB( visBase::DM().selMan().deselnotifier,
+	       uiVisPartServer::deselectObjCB );
+    mAttachCB( visBase::DM().selMan().updateselnotifier,
+	       uiVisPartServer::updateSelObjCB );
 
     vismgr_ = new uiVisModeMgr(this);
     pickretriever_->ref();
@@ -154,7 +154,9 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 
 
 void uiVisPartServer::unlockEvent()
-{ eventmutex_.unLock(); }
+{
+    eventmutex_.unLock();
+}
 
 
 bool uiVisPartServer::sendVisEvent( int evid )
@@ -166,13 +168,7 @@ bool uiVisPartServer::sendVisEvent( int evid )
 
 uiVisPartServer::~uiVisPartServer()
 {
-    visBase::DM().selMan().selnotifier.remove(
-	    mCB(this,uiVisPartServer,selectObjCB) );
-    visBase::DM().selMan().deselnotifier.remove(
-	    mCB(this,uiVisPartServer,deselectObjCB) );
-    visBase::DM().selMan().updateselnotifier.remove(
-	    mCB(this,uiVisPartServer,updateSelObjCB) );
-
+    detachAllNotifiers();
     deleteAllObjects();
     delete vismgr_;
 

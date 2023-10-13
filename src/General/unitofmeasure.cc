@@ -38,20 +38,27 @@ public:
 
 UnitOfMeasureCurDefsMgr() : iop_(crNew())
 {
-    IOM().surveyChanged.notify( mCB(this,UnitOfMeasureCurDefsMgr,newSrv) );
-    const CallBack savedefscb( mCB(this,UnitOfMeasureCurDefsMgr,saveDefs) );
-    IOM().surveyToBeChanged.notify( savedefscb );
-    IOM().applicationClosing.notify( savedefscb );
+    mAttachCB( IOM().surveyChanged, UnitOfMeasureCurDefsMgr::newSrv );
+    mAttachCB( IOM().surveyToBeChanged, UnitOfMeasureCurDefsMgr::saveDefs );
+    mAttachCB( IOM().applicationClosing, UnitOfMeasureCurDefsMgr::saveDefs );
 }
 
 ~UnitOfMeasureCurDefsMgr()
-{ delete iop_; }
+{
+    detachAllNotifiers();
+    delete iop_;
+}
 
 void saveDefs( CallBacker* )
-{ UnitOfMeasure::saveCurrentDefaults(); }
+{
+    UnitOfMeasure::saveCurrentDefaults();
+}
 
 void newSrv( CallBacker* )
-{ delete iop_; iop_ = crNew(); }
+{
+    delete iop_;
+    iop_ = crNew();
+}
 
 static IOPar* crNew()
 {

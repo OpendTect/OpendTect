@@ -53,8 +53,8 @@ uiSlicePos::uiSlicePos( uiParent* p )
     toolbar_->addObject( prevbut_ );
     toolbar_->addObject( nextbut_ );
 
-    IOM().surveyChanged.notify( mCB(this,uiSlicePos,initSteps) );
-    SCMgr().shortcutsChanged.notify( mCB(this,uiSlicePos,shortcutsChg) );
+    mAttachCB( IOM().surveyChanged, uiSlicePos::initSteps );
+    mAttachCB( SCMgr().shortcutsChanged, uiSlicePos::shortcutsChg );
     initSteps();
     shortcutsChg( 0 );
 }
@@ -62,8 +62,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
 
 uiSlicePos::~uiSlicePos()
 {
-    IOM().surveyChanged.remove( mCB(this,uiSlicePos,initSteps) );
-    SCMgr().shortcutsChanged.remove( mCB(this,uiSlicePos,shortcutsChg) );
+    detachAllNotifiers();
 }
 
 

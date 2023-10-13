@@ -87,7 +87,7 @@ const PosInfo::Survey2D& S2DPOS()
     {
 	s2dpos_inst = new PosInfo::Survey2D;
 	mDefineStaticLocalObject( PosInfo::Survey2DDeleter, s2dd, );
-	const_cast<SurveyInfo&>(SI()).objectToBeDeleted().notify(
+	eSI().objectToBeDeleted().notify(
 			mCB(&s2dd,PosInfo::Survey2DDeleter,doDel) );
     }
     return *s2dpos_inst;

@@ -89,8 +89,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     uiVisPartServer* visserv = appl_.applMgr().visServer();
     visserv->createToolBars();
 
-    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
-    IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
+    mAttachCB( IOM().surveyChanged, uiODMenuMgr::updateDTectToolBar );
+    mAttachCB( IOM().surveyChanged, uiODMenuMgr::updateDTectMnus );
     visserv->selectionmodeChange.notify(
 				mCB(this,uiODMenuMgr,selectionMode) );
 }
@@ -98,6 +98,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
 uiODMenuMgr::~uiODMenuMgr()
 {
+    detachAllNotifiers();
     delete appl_.removeToolBar( dtecttb_ );
     delete appl_.removeToolBar( viewtb_ );
     delete appl_.removeToolBar( mantb_ );
