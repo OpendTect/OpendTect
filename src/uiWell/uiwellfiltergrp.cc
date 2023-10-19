@@ -45,7 +45,6 @@ public:
     BufferStringSet			markernms_;
 };
 
-
 static HiddenParam<uiWellFilterGrp,InitDesc*> hp( nullptr );
 static HiddenParam<uiWellFilterGrp,uiComboBox*> selopscbhp( nullptr );
 static HiddenParam<uiWellFilterGrp,int> basedonentiresethp( 1 );
@@ -60,6 +59,7 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     selopscbhp.setParam( this, nullptr );
     basedonentiresethp.setParam( this, 1 );
 
+    CallBack cb = mCB(this,uiWellFilterGrp,selButPush);
     auto* maingrp = new uiGroup( this, "Main group" );
     const bool hor = orient_ == OD::Horizontal;
     const IOObjContext ctxt = mIOObjContext( Well );
@@ -70,29 +70,27 @@ uiWellFilterGrp::uiWellFilterGrp( uiParent* p, OD::Orientation orient )
     welllist_ = welllistselgrp->getListField();
     welllist_->chooseAll();
     welllist_->addLabel( uiStrings::sSelection(), uiListBox::BelowMid );
+    fromwellbut_ = new uiToolButton( maingrp,
+		 hor ? uiToolButton::RightArrow : uiToolButton::DownArrow,
+		tr("Show logs/markers present selected wells"), cb );
+    fromwellbut_->attach(hor ? centeredBelow : centeredRightOf, welllistselgrp);
 
     logormnslist_ = new uiListBox( maingrp, "logs", OD::ChooseZeroOrMore );
     logormnsfilter_ = new uiListBoxFilter( *logormnslist_ );
-    logormnslist_->setHSzPol( uiObject::Wide );
     logormnslist_->attach( hor ? rightOf : alignedBelow, welllistselgrp );
+    logormnslist_->setHSzPol( uiObject::Wide );
     logormnslist_->addLabel( uiStrings::sSelection(), uiListBox::BelowMid );
+    fromlogormnsbut_ = new uiToolButton( maingrp,
+		hor ? uiToolButton::LeftArrow : uiToolButton::UpArrow,
+		tr("Show wells which have selected logs/mnemonics"), cb );
+    fromlogormnsbut_->attach( hor ? centeredBelow : centeredRightOf,
+			      logormnslist_ );
 
     markerlist_ = new uiListBox( maingrp, "markers", OD::ChooseZeroOrMore );
     markerfilter_ = new uiListBoxFilter( *markerlist_ );
     markerlist_->attach( hor ? rightOf : alignedBelow, logormnslist_ );
     markerlist_->setHSzPol( uiObject::Wide );
     markerlist_->addLabel( uiStrings::sSelection(), uiListBox::BelowMid );
-
-    CallBack cb = mCB(this,uiWellFilterGrp,selButPush);
-    fromwellbut_ = new uiToolButton( maingrp,
-		 hor ? uiToolButton::RightArrow : uiToolButton::DownArrow,
-		tr("Show logs/markers present selected wells"), cb );
-    fromwellbut_->attach(hor ? centeredBelow : centeredRightOf, welllistselgrp);
-    fromlogormnsbut_ = new uiToolButton( maingrp,
-		hor ? uiToolButton::LeftArrow : uiToolButton::UpArrow,
-		tr("Show wells which have selected logs/mnemonics"), cb );
-    fromlogormnsbut_->attach( hor ? centeredBelow : centeredRightOf,
-	    		      logormnslist_ );
     frommarkerbut_ = new uiToolButton( maingrp,
 		hor ? uiToolButton::LeftArrow : uiToolButton::UpArrow,
 		tr("Show wells which have selected markers"), cb );
@@ -164,6 +162,8 @@ void uiWellFilterGrp::initGrp( CallBacker* )
 				      initdesc.selmrkrnms_ )
 		      : setSelection( initdesc.selwellnms_, initdesc.selmns_,
 				      initdesc.selmrkrnms_ );
+    if ( markerlist_->isEmpty() )
+	frommarkerbut_->setSensitive( false );
 }
 
 
@@ -341,14 +341,14 @@ void uiWellFilterGrp::setSelection( const BufferStringSet& wellnms,
 
 void uiWellFilterGrp::setMnemonicsSensitive( const MnemonicSelection& sensmns )
 {
-    const InitDesc& initdesc = *hp.getParam(this);
+    const InitDesc& initdesc = *hp.getParam( this );
     if ( initdesc.logmode_ )
 	return;
 
     for ( int idx=0; idx<logormnslist_->size(); idx++ )
     {
-	const Mnemonic* mn = MNC().getByName( logormnslist_->textOfItem(idx),
-					      false);
+	const Mnemonic* mn = MNC().getByName( logormnslist_->textOfItem( idx ),
+					      false );
 	const bool setsensitive = sensmns.isPresent( mn );
 	logormnslist_->setItemSelectable( idx, setsensitive );
 	logormnslist_->setChoosable( idx, setsensitive );
