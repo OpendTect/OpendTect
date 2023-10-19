@@ -243,7 +243,9 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     else if ( mnuid == viewermenuitem_.id )
     {
 	menu->setIsHandled( true );
-	createMultiGather2DViewer( *psv );
+	uiFlatViewWin* viewwin = createMultiGather2DViewer( *psv );
+	if ( viewwin )
+	    viewers2d_ += viewwin;
     }
     else if ( mnuid==amplspectrumitem_.id )
     {
@@ -538,7 +540,9 @@ void uiViewer3DMgr::viewer2DClosedCB( CallBacker* cb )
     if ( idx==-1 )
 	return;
 
-    viewers2d_[idx]->windowClosed.remove(
+    mDynamicCastGet(uiMainWin*,mainwin,viewers2d_[idx])
+    if ( mainwin )
+	mainwin->windowClosed.remove(
 	    mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
 
     viewers2d_.removeSingle( idx );
