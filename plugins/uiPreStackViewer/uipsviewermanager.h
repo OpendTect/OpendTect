@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class uiVisPartServer;
+class uiFlatViewWin;
 class uiFlatViewMainWin;
 class uiMenuHandler;
 namespace visSurvey { class PreStackDisplay; }
@@ -90,7 +91,7 @@ protected:
     uiVisPartServer*			visserv_;
     ObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
-    ObjectSet<uiFlatViewMainWin>	viewers2d_;
+    ObjectSet<uiFlatViewWin>		viewers2d_;
     ObjectSet<uiViewer3DSettingDlg>	settingdlgs_;
 };
 
