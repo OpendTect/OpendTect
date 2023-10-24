@@ -130,6 +130,7 @@ private:
     static const char* sKeyStereoOff()	{ return "Stereo offset"; }
     static const char* sKeyPrintDlg()	{ return "Print dlg"; }
     static const char* sKeyPersCamera()	{ return "Perspective camera"; }
+    static const char* sKeyMapView()	{ return "MapView"; }
 
     ui3DViewerBody*	osgbody_;
 
