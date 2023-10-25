@@ -26,10 +26,12 @@ public:
 			//IOobj constr.
 			~uiSelObjFromOtherSurvey();
 
+    SurveyDiskLocation	getSurveyDiskLocation() const;
     void		setDirToCurrentSurvey();
+    void		setDirToOtherSurvey(const SurveyDiskLocation&);
+
     mDeprecated("Provide SurveyDiskLocation")
     void		setDirToOtherSurvey();
-    void		setDirToOtherSurvey(const SurveyDiskLocation&);
 
     void		getIOObjFullUserExpression(BufferString& exp) const
 			{ exp = fulluserexpression_; }
