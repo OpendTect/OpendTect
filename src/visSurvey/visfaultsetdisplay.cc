@@ -816,12 +816,11 @@ void FaultSetDisplay::setRandomPosDataInternal( int attrib,
 
 	mDeclareAndTryAlloc( Array2D<float>*, texturedata,
 			     Array2DImpl<float>(sz.col(),sz.row()) );
-
-	float* texturedataptr = texturedata->getData();
-	for ( int idy=0; idy<texturedata->info().getTotalSz(); idy++ )
-	    (*texturedataptr++) = mUdf(float);
-
-	delete texturedatas->replace( attrib, texturedata );
+	if ( texturedata && texturedata->isOK() )
+	{
+	    texturedata->setAll( mUdf(float) );
+	    delete texturedatas->replace( attrib, texturedata );
+	}
     }
 
     for ( int idx=0; idx<dpset->size(); idx++ )
