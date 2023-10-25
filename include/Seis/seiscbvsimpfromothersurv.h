@@ -68,9 +68,8 @@ protected:
 
 	mStruct(Seis)	PosData
 	{
-			    PosData()
-				: hsit_(0)
-				, tkzs_(false) {}
+			    PosData();
+			    ~PosData();
 
 	    BinID		curbid_;
 	    TrcKeyZSampling tkzs_;

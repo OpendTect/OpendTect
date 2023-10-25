@@ -216,7 +216,7 @@ void TrcKeyZSampling::init( bool tosi )
     if ( tosi )
 	zsamp_ = SI().zRange(false);
     else
-	{ zsamp_.start = zsamp_.stop = 0; zsamp_.step = 1; }
+	zsamp_.set( 0, 0, 1 );
 }
 
 
@@ -288,7 +288,6 @@ void TrcKeyZSampling::getDefaultNormal( Coord3& ret ) const
 
 od_int64 TrcKeyZSampling::totalNr() const
 { return ((od_int64) nrZ()) * ((od_int64) hsamp_.totalNr()); }
-
 
 int TrcKeyZSampling::lineIdx(int lineid)const
 {return hsamp_.lineIdx(lineid);}

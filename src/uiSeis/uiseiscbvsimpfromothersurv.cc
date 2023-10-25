@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
-
 static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 
 uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
@@ -79,7 +78,8 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 
 
 uiSeisImpCBVSFromOtherSurveyDlg::~uiSeisImpCBVSFromOtherSurveyDlg()
-{}
+{
+}
 
 
 void uiSeisImpCBVSFromOtherSurveyDlg::interpSelDone( CallBacker* )
@@ -95,8 +95,10 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 {
     CtxtIOObj inctio( uiSeisSel::ioContext( Seis::Vol, true ) );
     uiSelObjFromOtherSurvey objdlg( this, inctio );
+    objdlg.setDirToOtherSurvey( sdl_ );
     if ( objdlg.go() && inctio.ioobj_ )
     {
+	sdl_ = objdlg.getSurveyDiskLocation();
 	delete import_;
 	import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj_ );
 	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );

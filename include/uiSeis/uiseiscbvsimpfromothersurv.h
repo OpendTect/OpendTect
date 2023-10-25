@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "seiscbvsimpfromothersurv.h"
+#include "surveydisklocation.h"
 
 class uiGenInput;
 class uiLabeledSpinBox;
@@ -29,6 +30,7 @@ protected:
     SeisImpCBVSFromOtherSurvey* import_;
     SeisImpCBVSFromOtherSurvey::Interpol interpol_;
     bool		issinc_;
+    SurveyDiskLocation	sdl_;
 
     uiGenInput*		finpfld_;
     uiSeisSel*		outfld_;

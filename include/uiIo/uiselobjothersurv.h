@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class CtxtIOObj;
-class SurveyChanger;
 class uiSurveySelect;
 
 mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiDialog
@@ -27,6 +26,7 @@ public:
 			//IOobj constr.
 			~uiSelObjFromOtherSurvey();
 
+    SurveyDiskLocation	getSurveyDiskLocation() const;
     void		setDirToCurrentSurvey();
     void		setDirToOtherSurvey(const SurveyDiskLocation&);
 
@@ -38,7 +38,6 @@ protected:
     uiSurveySelect*	selfld_;
     CtxtIOObj&		ctio_;
     BufferString	fulluserexpression_;
-    SurveyChanger*	changer_ = nullptr;
 
     bool		acceptOK(CallBacker*) override;
 };
