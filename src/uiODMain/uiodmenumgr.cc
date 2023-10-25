@@ -1050,7 +1050,7 @@ void uiODMenuMgr::fillUtilMenu()
     insertAction( installmnu_, m3Dots(tr("Setup Distributed Computing")),
 		 mSetupBatchItm);
     insertAction( installmnu_, tr("Graphics Information"), mGraphicsInfoItm );
-    insertAction( installmnu_, tr("Show HostID"), mHostIDInfoItm );
+    insertAction( installmnu_, tr("System Information"), mHostIDInfoItm );
 
     if ( __iswin__ )
 	insertAction( installmnu_, m3Dots(tr("Firewall Management")),
