@@ -1441,6 +1441,12 @@ bool ui3DViewerBody::isHomePosEmpty() const
 
 void ui3DViewerBody::setStartupView()
 {
+    if ( mapview_ )
+    {
+	viewAll( true );
+	return;
+    }
+
     const bool hashomepos = !isHomePosEmpty();
     if ( hashomepos )
 	toHomePos();
@@ -1525,7 +1531,8 @@ float ui3DViewerBody::getStereoOffset() const
 
 void ui3DViewerBody::setMapView( bool yn )
 {
-    if ( !yn ) return;
+    if ( !yn )
+	return;
     // TODO: For now only an enable is supported.
     // Is a disable needed?
 
@@ -1718,7 +1725,8 @@ const char* ui3DViewer::getCurrentKeyBindings() const
 
 void ui3DViewer::viewPlane( PlaneType type )
 {
-    if ( isMapView() ) return;
+    if ( isMapView() )
+	return;
 
     switch ( type )
     {
@@ -1780,7 +1788,9 @@ void ui3DViewer::setMouseWheelZoomFactor( float factor )
 
 
 float ui3DViewer::getMouseWheelZoomFactor() const
-{ return osgbody_->getMouseWheelZoomFactor(); }
+{
+    return osgbody_->getMouseWheelZoomFactor();
+}
 
 
 void ui3DViewer::setReversedMouseWheelDirection( bool reversed )
@@ -1894,6 +1904,7 @@ void ui3DViewer::fillPar( IOPar& par ) const
     float offset = getStereoOffset();
     par.set( sKeyStereoOff(), offset );
     par.setYN( sKeyPersCamera(), isCameraPerspective() );
+    par.setYN( sKeyMapView(), isMapView() );
 
     osgbody_->fillCameraPos( par );
 }
@@ -1937,6 +1948,10 @@ bool ui3DViewer::usePar( const IOPar& par )
     PtrMan<IOPar> homepos = par.subselect( sKeyHomePos() );
     if ( homepos && osgbody_->isHomePosEmpty() )
 	osgbody_->setHomePos( *homepos );
+
+    bool mapview;
+    if ( par.getYN(sKeyMapView(),mapview) )
+	setMapView( mapview );
 
     osgbody_->useCameraPos( par );
     return true;

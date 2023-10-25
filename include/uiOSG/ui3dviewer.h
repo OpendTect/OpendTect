@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class FontData;
-class Timer;
 class ui3DViewerBody;
 
 namespace visBase { class Scene; class PolygonSelection; class SceneColTab; }
@@ -129,6 +128,7 @@ private:
     static const char* sKeyStereoOff()	{ return "Stereo offset"; }
     static const char* sKeyPrintDlg()	{ return "Print dlg"; }
     static const char* sKeyPersCamera()	{ return "Perspective camera"; }
+    static const char* sKeyMapView()	{ return "MapView"; }
 
     ui3DViewerBody*	osgbody_;
 
