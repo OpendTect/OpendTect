@@ -20,19 +20,17 @@ public:
 			ui2DSurvInfoProvider();
 			~ui2DSurvInfoProvider();
 
-    const char* usrText() const override	{ return "Enter X/Y ranges"; }
-    uiDialog*	dialog(uiParent*) override;
-    bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]) override;
+    const char*		usrText() const override;
+    uiDialog*		dialog(uiParent*) override;
+    bool		getInfo(uiDialog*,TrcKeyZSampling&,
+				Coord crd[3]) override;
+    const char*		iconName() const override;
 
-    void	fillLogPars(IOPar&) const override;
-
-    bool	xyInFeet() const override	{ return xyft_; }
-    const char* iconName() const override
-		    { return "seismicline2dcollection"; }
+    void		fillLogPars(IOPar&) const override;
+    IOPar*		getCoordSystemPars() const override;
 
 protected:
-
-    bool		xyft_		= false;
+    RefMan<Coords::CoordSystem>		coordsystem_;
 };
 
 
@@ -40,13 +38,13 @@ protected:
 mExpClass(uiIo) uiNavSurvInfoProvider : public uiSurvInfoProvider
 { mODTextTranslationClass(uiNavSurvInfoProvider);
 public:
-				uiNavSurvInfoProvider();
-    virtual			~uiNavSurvInfoProvider();
+			uiNavSurvInfoProvider();
+    virtual		~uiNavSurvInfoProvider();
 
     const char*		usrText() const override;
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,TrcKeyZSampling&,
-					Coord crd[3]) override;
+				Coord crd[3]) override;
     const char*		iconName() const override;
 
     void		fillLogPars(IOPar&) const override;

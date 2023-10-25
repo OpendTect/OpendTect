@@ -1975,11 +1975,8 @@ bool SurveyInfo::xyInFeet() const
 
 bool SurveyInfo::setCoordSystem( Coords::CoordSystem* system )
 {
-    if ( system && !system->isOrthogonal() )
-	return false;
-
     coordsystem_ = system;
-    return false;
+    return true;
 }
 
 

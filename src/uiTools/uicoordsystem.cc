@@ -13,10 +13,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "uigeninput.h"
-#include "uilabel.h"
-#include "uitoolbutton.h"
-#include "uilineedit.h"
-#include "uispinbox.h"
 #include "uimsg.h"
 
 namespace Coords

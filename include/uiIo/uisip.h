@@ -48,6 +48,7 @@ mExpClass(uiIo) uiSurvInfoProvider
 public:
 
     virtual			~uiSurvInfoProvider();
+				mOD_DisableCopy(uiSurvInfoProvider)
 
     virtual const char*		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
