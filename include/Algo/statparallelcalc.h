@@ -353,6 +353,9 @@ inline bool ParallelCalc<T>::doFinish( bool success )
     {
 	medvals_.setSize( nrused_, mUdf(float) );
 	T* medvalsarr = medvals_.arr();
+	if ( !medvalsarr )
+	    return false;
+
 	const bool* udfptr = udfarr_;
 	for ( idx_type idx=0; idx<nradded_; idx++ )
 	{
