@@ -10,6 +10,8 @@ ________________________________________________________________________
 #include "uiseiscbvsimpfromothersurv.h"
 
 #include "ctxtioobj.h"
+#include "hiddenparam.h"
+#include "surveydisklocation.h"
 #include "seiscbvsimpfromothersurv.h"
 
 #include "uibutton.h"
@@ -23,6 +25,8 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
+static HiddenParam<uiSeisImpCBVSFromOtherSurveyDlg,SurveyDiskLocation*>
+							hp_sdl( nullptr );
 
 static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 
@@ -33,6 +37,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 		 .modal(false))
     , import_(nullptr)
 {
+    hp_sdl.setParam( this, nullptr );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     finpfld_ = new uiGenInput( this, tr("CBVS file name") );
@@ -77,7 +82,9 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
 
 
 uiSeisImpCBVSFromOtherSurveyDlg::~uiSeisImpCBVSFromOtherSurveyDlg()
-{}
+{
+    hp_sdl.removeAndDeleteParam( this );
+}
 
 
 void uiSeisImpCBVSFromOtherSurveyDlg::interpSelDone( CallBacker* )
@@ -93,9 +100,19 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 {
     CtxtIOObj inctio( uiSeisSel::ioContext( Seis::Vol, true ) );
     uiSelObjFromOtherSurvey objdlg( this, inctio );
+    SurveyDiskLocation* sdl = hp_sdl.getParam( this );
+    if ( sdl )
+	objdlg.setDirToOtherSurvey( *sdl );
+
     if ( objdlg.go() && inctio.ioobj_ )
     {
-	if ( import_ ) delete import_;
+	if ( sdl )
+	    *sdl = objdlg.getSurveyDiskLocation();
+	else
+	    hp_sdl.setParam( this,
+		    new SurveyDiskLocation(objdlg.getSurveyDiskLocation()) );
+
+	delete import_;
 	import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj_ );
 	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );
 	bool needinterpol = false;
@@ -108,7 +125,7 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 	else
 	{
 	    uiMSG().error( import_->errMsg() );
-	    delete import_; import_ = 0;
+	    deleteAndNullPtr( import_ );
 	}
 
 	interpfld_->setValue ( needinterpol );

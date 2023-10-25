@@ -35,6 +35,7 @@ public:
 			TrcKeyZSampling();
 			TrcKeyZSampling(const TrcKeyZSampling&);
 			TrcKeyZSampling(bool settoSI);
+    explicit		TrcKeyZSampling(const Pos::GeomID&);
 
     enum Dir		{ Inl=0, Crl=1, Z=2 };
 			mDeclareEnumUtils(Dir)

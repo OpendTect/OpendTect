@@ -40,7 +40,6 @@ SeisImpCBVSFromOtherSurvey::~SeisImpCBVSFromOtherSurvey()
     deepErase( trcsset_ );
     delete tr_;
     delete wrr_;
-    delete data_.hsit_;
     delete fft_;
     delete arr_;
     delete fftarr_;
@@ -352,4 +351,17 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	    }
 	}
     }
+}
+
+
+SeisImpCBVSFromOtherSurvey::PosData::PosData()
+    : hsit_(nullptr)
+    , tkzs_(Survey::default3DGeomID())
+{
+}
+
+
+SeisImpCBVSFromOtherSurvey::PosData::~PosData()
+{
+    delete hsit_;
 }

@@ -1206,7 +1206,7 @@ void TrcKeyZSampling::init( bool tosi )
     if ( tosi )
 	zsamp_ = SI().zRange(false);
     else
-	{ zsamp_.start = zsamp_.stop = 0; zsamp_.step = 1; }
+	zsamp_.set( 0, 0, 1 );
 }
 
 
@@ -1302,8 +1302,16 @@ TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
     init( settoSI );
 }
 
-mStopAllowDeprecatedSection
 
+TrcKeyZSampling::TrcKeyZSampling( const Pos::GeomID& geomid )
+    : hrg(hsamp_),zrg(zsamp_)
+{
+    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( geomid );
+    if ( geom )
+	(*this) = geom->sampling();
+}
+
+mStopAllowDeprecatedSection
 
 int TrcKeyZSampling::lineIdx(int lineid)const
 {return hsamp_.lineIdx(lineid);}

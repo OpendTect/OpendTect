@@ -12,18 +12,51 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "oddirs.h"
+#include "transl.h"
 
-#include "uiioobjseldlg.h"
 #include "uimsg.h"
+#include "uiselsimple.h"
 #include "uisurveyselect.h"
 
-#include "hiddenparam.h"
 
-static HiddenParam<uiSelObjFromOtherSurvey,SurveyChanger*>
-					uiselobjchangermgr_(nullptr);
+bool getIOObjList( ObjectSet<IOObj>& objs, const SurveyDiskLocation& sdl,
+		  const IOObjContext& ctxt, BufferStringSet& nms )
+{
+    deepErase( objs );
+    nms.setEmpty();
+
+    const BufferString datadirnm( sdl.fullPathFor(
+			    ctxt.getDataDirName(ctxt.stdseltype_,true) ) );
+    const IODir iodir( datadirnm.buf() );
+    ObjectSet<IOObj> unsortedobjs;
+    for ( int idx=0; idx< iodir.size(); idx++ )
+    {
+	const IOObj* ioobj = iodir.get( idx );
+	if ( !ioobj )
+	    continue;
+
+	if ( ctxt.validIOObj(*ioobj) )
+	{
+	    IOObj* toadd = ioobj->clone();
+	    unsortedobjs += toadd;
+	    nms.add( toadd->name() );
+	}
+    }
+
+    if ( nms.isEmpty() )
+	return false;
+
+    ConstArrPtrMan<int> idxs = nms.getSortIndexes();
+    nms.useIndexes( idxs );
+    for ( int idx=0; idx<unsortedobjs.size(); idx++ )
+	objs += unsortedobjs[ idxs[idx] ];
+
+    return true;
+}
 
 
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
@@ -31,7 +64,6 @@ uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
 		       mODHelpKey(mSelObjFromOtherSurveyHelpID)))
     , ctio_(ctio)
 {
-    uiselobjchangermgr_.setParam( this, nullptr );
     selfld_ = new uiSurveySelect( this, true, true );
 }
 
@@ -39,49 +71,71 @@ uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
 uiSelObjFromOtherSurvey::~uiSelObjFromOtherSurvey()
 {
     ctio_.setObj( nullptr );
-    uiselobjchangermgr_.removeAndDeleteParam( this );
 }
 
 
 bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
 {
     BufferString othersurveyrootdir;
-    if ( !selfld_->getFullSurveyPath(othersurveyrootdir) )
-	return false;
-
-    if ( !IOMan::isValidSurveyDir(othersurveyrootdir.buf()) )
+    const SurveyDiskLocation sdl = selfld_->surveyDiskLocation();
+    if ( !IOMan::isValidSurveyDir(sdl.fullPath()) )
     {
 	const uiRetVal uirv = IOMan::isValidMsg();
 	uiMSG().error( tr("Survey doesn't seem to be valid: \n%1").arg(uirv) );
 	return false;
     }
 
-    const FilePath fp( othersurveyrootdir.buf() );
-    const SurveyDiskLocation sdl( fp );
-    setDirToOtherSurvey( sdl );
-    bool prevctiostate = ctio_.ctxt_.forread_;
-    ctio_.ctxt_.forread_ = true;
-    uiIOObjSelDlg objdlg( this, ctio_ );
-    bool success = false;
-    if ( objdlg.go() && objdlg.ioObj() )
+    BufferString typenm = ctio_.ctxt_.name();
+    if ( typenm.isEmpty() )
+	typenm = ctio_.ctxt_.trgroup_->typeName();
+
+    ObjectSet<IOObj> ioobjs;
+    BufferStringSet names;
+    if ( !getIOObjList(ioobjs,sdl,ctio_.ctxt_,names) )
     {
-	ctio_.setObj( objdlg.ioObj()->clone() );
-	ctio_.setName( ctio_.ioobj_->name() );
-	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj_);
-	if ( iostrm )
-	    iostrm->fileSpec().ensureBaseDir( othersurveyrootdir.buf() );
-	fulluserexpression_ = ctio_.ioobj_->fullUserExpr();
-	success = true;
+	uiMSG().error( tr("Survey doesn't have any objects of type '%1'")
+			.arg(typenm) );
+	return false;
     }
 
-    ctio_.ctxt_.forread_ = prevctiostate;
-    return success;
+    uiSelectFromList::Setup selsu( uiStrings::phrSelect(toUiString(typenm)),
+				   names );
+    uiSelectFromList objseldlg( this, selsu );
+    if ( !objseldlg.go() )
+    {
+	deepErase( ioobjs );
+	return false;
+    }
+
+    const int selidx = objseldlg.selection();
+    if ( !ioobjs.validIdx(selidx) )
+    {
+	deepErase( ioobjs );
+	return false;
+    }
+
+    IOObj* selobj = ioobjs[selidx];
+    mDynamicCastGet(IOStream*,iostrm,selobj);
+    if ( iostrm )
+	iostrm->fileSpec().ensureBaseDir( sdl.fullPath() );
+
+    ctio_.setObj( selobj->clone() );
+    ctio_.setName( selobj->name() );
+    fulluserexpression_ = selobj->fullUserExpr();
+    deepErase( ioobjs );
+    return true;
+}
+
+
+SurveyDiskLocation uiSelObjFromOtherSurvey::getSurveyDiskLocation() const
+{
+    return selfld_->surveyDiskLocation();
 }
 
 
 void uiSelObjFromOtherSurvey::setDirToCurrentSurvey()
 {
-    uiselobjchangermgr_.deleteAndNullPtrParam( this );
+    selfld_->setSurveyDiskLocation( SurveyDiskLocation::currentSurvey() );
 }
 
 
@@ -93,6 +147,5 @@ void uiSelObjFromOtherSurvey::setDirToOtherSurvey()
 void uiSelObjFromOtherSurvey::setDirToOtherSurvey(
 					const SurveyDiskLocation& sdl )
 {
-    uiselobjchangermgr_.deleteAndNullPtrParam( this );
-    uiselobjchangermgr_.setParam( this, new SurveyChanger( sdl ) );
+    selfld_->setSurveyDiskLocation( sdl );
 }
