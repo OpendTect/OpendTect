@@ -75,6 +75,7 @@ class CellObject
 			    , object_(obj)
 			    , rowcol_(rc)    {}
 			~CellObject();
+			mOD_DisableCopy(CellObject)
 
     QWidget*		qwidget_;
     uiObject*		object_;
@@ -279,17 +280,20 @@ void uiTableBody::keyPressEvent( QKeyEvent* ev )
 void uiTableBody::copy()
 {
     QList<QTableWidgetSelectionRange> ranges = selectedRanges();
-    if ( ranges.isEmpty() ) return;
+    if ( ranges.isEmpty() )
+	return;
 
     const QTableWidgetSelectionRange& range = ranges.first();
     QString str;
     for ( int i=0; i<range.rowCount(); i++ )
     {
-	if ( i > 0 ) str += "\n";
+	if ( i > 0 )
+	    str += "\n";
 
 	for ( int j=0; j<range.columnCount(); j++ )
 	{
-	    if ( j > 0 ) str += "\t";
+	    if ( j > 0 )
+		str += "\t";
 
 	    QTableWidgetItem* itm =
 		item( range.topRow()+i, range.leftColumn()+j );
@@ -311,6 +315,9 @@ void uiTableBody::paste()
 #else
     const QStringList rows = str.split( '\n', QString::SkipEmptyParts );
 #endif
+
+    if ( rows.isEmpty() )
+	return;
 
     const int nrrows = rows.count();
     const int nrcols = rows.first().count('\t') + 1;
@@ -346,7 +353,8 @@ void uiTableBody::cut()
     copy();
 
     QList<QTableWidgetSelectionRange> ranges = selectedRanges();
-    if ( ranges.isEmpty() ) return;
+    if ( ranges.isEmpty() )
+	return;
 
     const QTableWidgetSelectionRange& range = ranges.first();
     for ( int i=0; i<range.rowCount(); i++ )
@@ -355,7 +363,8 @@ void uiTableBody::cut()
 	{
 	    QTableWidgetItem* itm =
 		item( range.topRow()+i, range.leftColumn()+j );
-	    if ( itm ) itm->setText( "" );
+	    if ( itm )
+		itm->setText( "" );
 	}
     }
 }
