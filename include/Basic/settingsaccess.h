@@ -38,6 +38,7 @@ public:
     static const char*	sKeyIcons();
     static const char*	sKeyShowInlProgress();
     static const char*	sKeyShowCrlProgress();
+    static const char*	sKeyShowZProgress();
     static const char*	sKeyShowRdlProgress();
     static const char*	sKeyTexResFactor();
     static const char*	sKeyUseSurfShaders();
