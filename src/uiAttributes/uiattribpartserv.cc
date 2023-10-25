@@ -957,6 +957,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	    if ( !hideprogress )
 	    {
 		uiTaskRunner taskrunner( parent() );
+		taskrunner.displayMsgOnError( false );
 		success = TaskRunner::execute( &taskrunner, *process );
 	    }
 	    else
@@ -964,9 +965,8 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		if ( !process->execute() )
 		{
-		    const uiString msg( process->uiMessage() );
-		    if ( !msg.isEmpty() )
-			uiMSG().error( msg );
+		    // const uiString msg( process->uiMessage() );
+		    // ToDo: use this message as a tree tooltip
 		    return nullptr;
 		}
 	    }
