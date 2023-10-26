@@ -119,6 +119,9 @@ public:
     void		selectFaultStickSets(ObjectSet<EM::EMObject>&,
 	    				uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
+    void		selectFaultSets(ObjectSet<EM::EMObject>&,
+					uiParent* p=0);
+			//!<Returned set is reffed and must be unrefed by caller
     void		selectBodies(ObjectSet<EM::EMObject>&,
 	    				uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller

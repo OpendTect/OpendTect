@@ -691,17 +691,19 @@ void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d,
 
 void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
 					   uiParent* p )
-{  selectSurfaces( p, objs, EMFaultStickSetTranslatorGroup::sGroupName() ); }
-
-
-void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
 {
-    if ( !p ) p = parent();
+    selectSurfaces( p, objs, EMFaultStickSetTranslatorGroup::sGroupName() );
+}
 
-    CtxtIOObj ctio( EMBodyTranslatorGroup::ioContext() );
+
+static void selectEMObjects( uiParent* p, ObjectSet<EM::EMObject>& objs,
+			     const IOObjContext& ctxt, const char* exectext )
+{
+    CtxtIOObj ctio( ctxt );
     ctio.ctxt_.forread_ = true;
 
-    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+    uiIOObjSelDlg::Setup sdsu;
+    sdsu.multisel( true );
     uiIOObjSelDlg dlg( p, sdsu, ctio );
     if ( !dlg.go() )
 	return;
@@ -711,21 +713,20 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
     if ( mids.isEmpty() )
 	return;
 
-    ExecutorGroup loaders( "Loading Geobodies" );
+    ExecutorGroup loaders( exectext );
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mids[idx] );
 	if ( !ioobj )
 	    continue;
 
-	const BufferString& translator = ioobj->translator();
-	if ( translator!=EMBodyTranslatorGroup::sKeyUserWord() )
-	    continue;
+	BufferString typestr( ioobj->group() );
+	if ( typestr == EMBodyTranslatorGroup::sGroupName() )
+	    ioobj->pars().get( sKey::Type(), typestr );
 
-	BufferString typestr;
-	ioobj->pars().get( sKey::Type(), typestr );
 	EM::EMObject* object = EM::EMM().createTempObject( typestr );
-	if ( !object ) continue;
+	if ( !object )
+	    continue;
 
 	object->ref();
 	object->setMultiID( mids[idx] );
@@ -742,13 +743,36 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
 }
 
 
+void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
+				      uiParent* p )
+{
+    if ( !p )
+	p = parent();
+
+    selectEMObjects( p, objs, EMFaultSet3DTranslatorGroup::ioContext(),
+		     "Loading FaultSets" );
+}
+
+
+void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
+{
+    if ( !p )
+	p = parent();
+
+    selectEMObjects( p, objs, EMBodyTranslatorGroup::ioContext(),
+		     "Loading Geobodies" );
+}
+
+
 void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
 				     const char* typ )
 {
-    if ( !p ) p = parent();
+    if ( !p )
+	p = parent();
 
     uiMultiSurfaceReadDlg dlg( p, typ );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     TypeSet<MultiID> surfaceids;
     dlg.iogrp()->getSurfaceIds( surfaceids );
@@ -769,7 +793,9 @@ void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
     for ( int idx=0; idx<surfaceids.size(); idx++ )
     {
 	EM::EMObject* obj = em_.getObject( em_.getObjectID(surfaceids[idx]) );
-	if ( !obj ) continue;
+	if ( !obj )
+	    continue;
+
 	obj->ref();
 	objs += obj;
     }
@@ -781,7 +807,9 @@ void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
     for ( int idx=0; idx<idstobeloaded.size(); idx++ )
     {
 	EM::EMObject* obj = em_.getObject(em_.getObjectID(idstobeloaded[idx]));
-	if ( !obj ) continue;
+	if ( !obj )
+	    continue;
+
 	obj->setBurstAlert( true );
 	obj->ref();
 	objstobeloaded += obj;
@@ -796,13 +824,15 @@ void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
 
     for ( int idx=0; idx<objstobeloaded.size(); idx++ )
 	objstobeloaded[idx]->setBurstAlert( false );
-    deepUnRef( objstobeloaded );
 
+    deepUnRef( objstobeloaded );
 }
 
 
 void uiEMPartServer::setHorizon3DDisplayRange( const TrcKeySampling& hs )
-{ selectedrg_ = hs; }
+{
+    selectedrg_ = hs;
+}
 
 
 bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,

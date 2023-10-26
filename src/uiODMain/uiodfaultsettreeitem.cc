@@ -115,31 +115,16 @@ bool uiODFaultSetParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==mAddMnuID )
     {
-	CtxtIOObj ctio( mIOObjContext(EMFaultSet3D) );
-	ctio.ctxt_.forread_ = true;
-	uiIOObjSelDlg dlg( getUiParent(), ctio );
-	dlg.setCaption( tr("Load FaultSet") );
-	if ( !dlg.go() )
-	    return false;
-
-	const IOObj* ioobj = dlg.ioObj();
-	if ( !ioobj )
-	    return false;
-
-	PtrMan<EMFaultSet3DTranslator> transl =
-			(EMFaultSet3DTranslator*)ioobj->createTranslator();
-	if ( !transl )
-	    return false;
-
-	mDynamicCastGet( EM::FaultSet3D*, fltset,
-			 EM::EMM().createTempObject(EM::FaultSet3D::typeStr()));
-	PtrMan<Executor> loader = transl->reader( *fltset, *ioobj );
-	uiTaskRunner tskr( getUiParent() );
-	if ( !tskr.execute(*loader) )
-	    return false;
-
+	ObjectSet<EM::EMObject> objs;
+	applMgr()->EMServer()->selectFaultSets( objs, getUiParent() );
 	MouseCursorChanger mcc( MouseCursor::Wait );
-	addChild( new uiODFaultSetTreeItem(fltset->id()), false );
+	for ( int idx=0; idx<objs.size(); idx++ )
+	{
+	    setMoreObjectsToDoHint( idx<objs.size()-1 );
+	    addChild( new uiODFaultSetTreeItem(objs[idx]->id()), false );
+	}
+
+	deepUnRef( objs );
     }
     else if ( mnuid>=mDispInFull && mnuid<=mDispAtBoth )
     {

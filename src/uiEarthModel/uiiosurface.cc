@@ -63,6 +63,8 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
 	ctio_ = mMkCtxtIOObj(EMFaultStickSet);
     else if ( typ == EMFault3DTranslatorGroup::sGroupName() )
 	ctio_ = mMkCtxtIOObj(EMFault3D);
+    else if ( typ == EMFaultSet3DTranslatorGroup::sGroupName() )
+	ctio_ = mMkCtxtIOObj(EMFaultSet3D);
     else
 	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
 
