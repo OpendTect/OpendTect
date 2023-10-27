@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uimsg.h"
 #include "uiscaler.h"
+#include "uiseisioobjinfo.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
 #include "uiseistransf.h"
@@ -55,6 +56,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
 	if ( sts.zdomkey_ != ZDomain::SI().key() )
 	    inpfld_->setSensitive( false );
     }
+
     sts.withnullfill(true).withstep(true).onlyrange(false).fornewentry(true);
     transffld_ = new uiSeisTransfer( this, sts );
     transffld_->attach( alignedBelow, compfld_ );
@@ -114,6 +116,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )
 	return false;
+
     const IOObj* outioobj = outfld_->ioobj( true );
     if ( !outioobj )
 	return false;
@@ -124,6 +127,11 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 
     IOPar& outpars = outioobj->pars();
     outpars.addFrom( inioobj->pars() );
+    uiSeisIOObjInfo ioobjinfo( *outioobj, true );
+    SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
+    if (!ioobjinfo.checkSpaceLeft( spi ))
+	return false;
+
     const bool issteer = outpars.find( sKey::Type() ).
 						isEqual( sKey::Steering() );
     const int compnr = ismc_ ? compfld_->box()->currentItem()-1 : -1;
@@ -146,6 +154,7 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 	inpfld_->fillPar( inppar );
 	if ( compnr > 0 )
 	    inppar.set( sKey::Component(), compnr );
+
 	jobpars.mergeComp( inppar, sKey::Input() );
 
 	IOPar outpar;
@@ -254,6 +263,7 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
     const IOObj* inioobj = inpfld_->ioobj();
     if ( !inioobj )
 	return false;
+
     const IOObj* outioobj = outpfld_->ioobj( true );
     if ( !outioobj )
 	return false;

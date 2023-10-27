@@ -438,12 +438,22 @@ void uiSeisFileMan::mergePush( CallBacker* )
 	return;
 
     const MultiID key( curioobj_->key() );
-    TypeSet<MultiID> chsnmids;
-    selgrp_->getChosen( chsnmids );
     uiMergeSeis dlg( this );
-    dlg.setInputIds( chsnmids );
+    mAttachCB( dlg.postFinalize(), uiSeisFileMan::passSelToMergeDlgCB );
     if ( dlg.go() )
 	selgrp_->fullUpdate( key );
+}
+
+
+void uiSeisFileMan::passSelToMergeDlgCB( CallBacker* cb )
+{
+    mDynamicCastGet( uiMergeSeis*, dlg, cb )
+    if (!dlg)
+	return;
+
+    TypeSet<MultiID> chsnmids;
+    selgrp_->getChosen( chsnmids );
+    dlg->setInputIds( chsnmids );
 }
 
 
