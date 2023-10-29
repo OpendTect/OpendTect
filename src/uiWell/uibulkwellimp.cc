@@ -597,6 +597,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	lasimp.adjustTrack( info.zrg_, zistvdss, adjustedwelltrack );
 	if ( usecurvenms )
 	    info.lognms_ = info.logcurves_; // Hack
+
 	errmsg = lasimp.getLogs( fnm, info, zistvdss, usecurvenms );
 	if ( !errmsg.isEmpty() )
 	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
@@ -606,6 +607,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	if ( newwellinfo || adjustedwelltrack )
 	    wtr.putInfoAndTrack();
 	wtr.putLogs();
+	IOM().implUpdated.trigger( ioobj->key() );
 	wd->logschanged.trigger( -1 );
     }
 
