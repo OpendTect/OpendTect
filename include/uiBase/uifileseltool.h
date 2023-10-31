@@ -22,10 +22,8 @@ public:
     virtual		~uiFileSelTool();
 			mOD_DisableCopy(uiFileSelTool)
 
-    typedef uiFileSelectorSetup	Setup;
-
     uiString&		caption()		{ return caption_; }
-    Setup&		setup()			{ return setup_; }
+    uiFileSelectorSetup& setup()		{ return setup_; }
 
     bool		go()			{ return doSelection(); }
 
@@ -36,12 +34,14 @@ public:
     static BufferString	joinSelection(const BufferStringSet&);
     static void		separateSelection(const char*,BufferStringSet&);
 
+    virtual IOPar*	getPars() const			{ return nullptr; }
+
 protected:
 
-			uiFileSelTool(uiParent*,const Setup&);
+			uiFileSelTool(uiParent*,const uiFileSelectorSetup&);
 
     uiParent*		parent_;
-    Setup		setup_;
+    uiFileSelectorSetup	setup_;
     uiString		caption_;
 
     virtual bool	doSelection()				= 0;

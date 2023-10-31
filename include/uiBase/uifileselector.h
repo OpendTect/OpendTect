@@ -24,17 +24,16 @@ mExpClass(uiBase) uiFileSelectorSetup
 {
 public:
 
-    typedef OD::FileSelectionMode	SelectionMode;
-    typedef OD::FileContentType		ContentType;
     typedef uiFileSelectorSetup		Setup;
 
-    mDefSetupMemb(SelectionMode,	selmode)
-    mDefSetupMemb(ContentType,		contenttype)
+    mDefSetupMemb(OD::FileSelectionMode,selmode)
+    mDefSetupMemb(OD::FileContentType,	contenttype)
     mDefSetupMemb(BufferStringSet,	initialselection)
     mDefSetupMemb(BufferString,		initialselectiondir)
     mDefSetupMemb(FileFormatList,	formats)
     mDefSetupMemb(bool,			allowallextensions)
     mDefSetupMemb(BufferString,		defaultextension)
+    mDefSetupMemb(BufferString,		mask)
     mDefSetupMemb(bool,			confirmoverwrite)
     mDefSetupMemb(bool,			onlylocal)
 
@@ -109,16 +108,13 @@ private:
 mExpClass(uiBase) uiFileSelector
 { mODTextTranslationClass(uiFileSelector);
 public:
-
-    typedef uiFileSelectorSetup	Setup;
-
 			uiFileSelector(uiParent*,const char* fnm=nullptr,
 					bool onlylocal=false);
-			uiFileSelector(uiParent*,const Setup&);
+			uiFileSelector(uiParent*,const uiFileSelectorSetup&);
 			~uiFileSelector();
 
     uiString&		caption()		{ return caption_; }
-    Setup&		setup()			{ return setup_; }
+    uiFileSelectorSetup& setup()		{ return setup_; }
 
     bool		go();
 
@@ -128,7 +124,7 @@ public:
 protected:
 
     uiParent*		parent_;
-    Setup		setup_;
+    uiFileSelectorSetup	setup_;
     uiString		caption_;
 
     uiFileSelTool*	seltool_			= nullptr;

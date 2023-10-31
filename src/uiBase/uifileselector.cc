@@ -36,7 +36,7 @@ uiFileSelectorSetup::uiFileSelectorSetup( const char* fnm )
 }
 
 
-uiFileSelectorSetup::uiFileSelectorSetup( SelectionMode mode,
+uiFileSelectorSetup::uiFileSelectorSetup( OD::FileSelectionMode mode,
 					  const char* fnm )
     : selmode_(mode)
 {
@@ -58,7 +58,7 @@ void uiFileSelectorSetup::init( const char* fnm )
 
 
 // uiFileSelTool
-uiFileSelTool::uiFileSelTool( uiParent* p, const Setup& su )
+uiFileSelTool::uiFileSelTool( uiParent* p, const uiFileSelectorSetup& su )
     : parent_(p)
     , setup_(su)
 {
@@ -108,7 +108,7 @@ void uiFileSelTool::separateSelection( const char* inp, BufferStringSet& bss )
 
 
 // uiFileSelector
-uiFileSelector::uiFileSelector( uiParent* p, const Setup& su )
+uiFileSelector::uiFileSelector( uiParent* p, const uiFileSelectorSetup& su )
     : parent_(p)
     , setup_(su)
 {
@@ -179,7 +179,8 @@ class uiLocalFileSelTool : public uiFileSelTool
 { mODTextTranslationClass(uiLocalFileSelector);
 public:
 
-			uiLocalFileSelTool(uiParent*,const Setup&);
+			uiLocalFileSelTool(uiParent*,
+					   const uiFileSelectorSetup&);
 			~uiLocalFileSelTool()			{}
 
 protected:
@@ -217,7 +218,8 @@ uiString userName() const override
     return factUsrName();
 }
 
-uiFileSelTool* getSelTool( uiParent* p, const Setup& su ) const override
+uiFileSelTool* getSelTool( uiParent* p,
+			   const uiFileSelectorSetup& su ) const override
 {
     return new uiLocalFileSelTool( p, su );
 }
@@ -313,7 +315,8 @@ static QFileDialog::FileMode qmodeForUiMode( OD::FileSelectionMode mode )
 }
 
 
-uiLocalFileSelTool::uiLocalFileSelTool( uiParent* p, const Setup& su )
+uiLocalFileSelTool::uiLocalFileSelTool( uiParent* p,
+					const uiFileSelectorSetup& su )
     : uiFileSelTool(p,su)
 {
 }
@@ -356,8 +359,8 @@ bool uiLocalFileSelTool::doSelection()
     if ( GetEnvVarYN("OD_FILE_SELECTOR_BROKEN") )
     {
 	uiDialog dlg( parent_, uiDialog::Setup(tr("Specify file name"),
-			    tr("System file selection unavailable!"),
-                            mNoHelpKey) );
+				tr("System file selection unavailable!"),
+				mNoHelpKey) );
 	uiLineEdit* le = new uiLineEdit( &dlg, "File name" );
 	le->setText( dirname );
 	new uiLabel( &dlg, tr("File name"), le );

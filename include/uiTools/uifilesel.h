@@ -66,15 +66,18 @@ public:
     void		setSensitive(bool yn);
     void		setChecked(bool);
 
+    const char*		protocol() const;
     const char*		fileName() const;	//!< the first if multiple
     void		getFileNames(BufferStringSet&) const;
     BufferString	selectedExtension() const;
     BufferString	selectedProtocol() const;
     bool		isChecked() const;
+    const IOPar&	getPars() const			{ return filepars_; }
 
     Notifier<uiFileSel>	newSelection;
     Notifier<uiFileSel>	acceptReq;
     Notifier<uiFileSel>	checked;
+    Notifier<uiFileSel>	protocolChanged;
 
     void		selectFile( CallBacker* cb )	{ doSelCB(cb); }
     uiButton*		selectButton()			{ return selbut_; }
@@ -84,6 +87,7 @@ protected:
     Setup		setup_;
     uiString		objtype_;
     BufferStringSet	factnms_;
+    IOPar		filepars_;
 
     uiCheckBox*		checkbox_		= nullptr;
     uiComboBox*		protfld_		= nullptr;

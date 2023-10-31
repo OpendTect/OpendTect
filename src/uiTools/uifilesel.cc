@@ -52,6 +52,7 @@ uiFileSel::uiFileSel( uiParent* p, const uiString& txt, const Setup& setp )
     , newSelection(this)
     , acceptReq(this)
     , checked(this)
+    , protocolChanged(this)
     , setup_(setp)
 {
     init( txt );
@@ -63,6 +64,7 @@ uiFileSel::uiFileSel( uiParent* p, const uiString& txt, const char* fnm )
     , newSelection(this)
     , acceptReq(this)
     , checked(this)
+    , protocolChanged(this)
     , setup_(fnm)
 {
     setup_.withexamine( true );
@@ -304,6 +306,11 @@ void uiFileSel::protChgCB( CallBacker* )
 	    setFileName( fnm );
 	}
     }
+    else
+	fnmfld_->setPlaceholderText( uiString::empty() );
+
+    setButtonStates();
+    protocolChanged.trigger();
 }
 
 
@@ -372,7 +379,7 @@ void uiFileSel::checkCB( CallBacker* )
 
 void uiFileSel::doSelCB( CallBacker* )
 {
-    uiFileSelector::Setup fssu( setup_ );
+    Setup fssu( setup_ );
     fssu.initialselection_.setEmpty();
     getFileNames( fssu.initialselection_ );
     if ( fssu.initialselection_.isEmpty()
@@ -386,16 +393,39 @@ void uiFileSel::doSelCB( CallBacker* )
     const uiFileSelToolProvider& fsp = uiFileSelToolProvider::get( prot );
     PtrMan<uiFileSelTool> uifs = fsp.getSelTool( this, fssu );
     if ( !uifs )
-	{ pErrMsg( BufferString("No selector for ",prot) ); return; }
+    {
+	pErrMsg( BufferString("No selector for ",prot) );
+	return;
+    }
+
     uifs->caption() = setup_.isForWrite() ? tr("Specify output %1 %2" )
 					  : tr("Choose input %1 %2");
     uifs->caption().arg( objtype_ ).arg( seltyp );
     if ( !uifs->go() )
 	return;
 
+    filepars_.setEmpty();
     BufferStringSet newselection;
     uifs->getSelected( newselection );
+    if ( newselection.isEmpty() )
+	return;
+
+    filepars_.set( sKey::FileName(), newselection.get(0).buf() );
+    ConstPtrMan<IOPar> pars = uifs->getPars();
+    if ( pars )
+	filepars_.merge( *pars );
+
     setFileNames( newselection );
+}
+
+
+const char* uiFileSel::protocol() const
+{
+    if ( !protfld_ )
+	return "file";
+
+    const int currentprotocol = protfld_->currentItem();
+    return protKy( currentprotocol );
 }
 
 
