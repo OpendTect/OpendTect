@@ -20,6 +20,9 @@ mDefModInitFn(Network)
 {
     mIfNotFirstTime(return);
 
+#ifdef __debug__
     NetworkHttpFileSystemAccessinitClass();
+#endif
+
     setGlobal_Basic_Fns( System::localAddress );
 }
