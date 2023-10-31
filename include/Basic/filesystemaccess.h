@@ -30,7 +30,7 @@ namespace OD
 mExpClass(Basic) FileSystemAccess
 {
 public:
-				mOD_DisableCopy(FileSystemAccess)
+			mOD_DisableCopy(FileSystemAccess)
 
     static const FileSystemAccess&	get(const char* fnm);
 			    /*!<Looks at first part of filename to determine
