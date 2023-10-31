@@ -872,7 +872,19 @@ void uiSurvey::rmButPushed( CallBacker* )
 
 void uiSurvey::editButPushed( CallBacker* )
 {
-    if ( !cursurvinfo_ ) return; // defensive
+    if ( !cursurvinfo_ )
+	return; // defensive
+
+    const BufferString selsurv(selectedSurveyName());
+    if ( initialsurveyname_ == selsurv )
+    {
+	uiMSG().message( tr("You are trying to edit the active survey.\n"
+			"Please use Survey --> Edit Current Survey Parameters "
+			"for this purpose.") );
+	return;
+    }
+
+
     if ( doSurvInfoDialog(false) )
 	putToScreen();
 }

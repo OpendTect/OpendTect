@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uisurvinfoed.h"
 #include "uisip.h"
 
+#include "batchprogtracker.h"
 #include "bufstringset.h"
 #include "coordsystem.h"
 #include "trckeyzsampling.h"
@@ -19,6 +20,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
+#include "netservice.h"
 #include "oddirs.h"
 #include "ptrman.h"
 #include "survinfo.h"
@@ -35,7 +37,9 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uinotsaveddlg.h"
 #include "uiseparator.h"
+#include "uisetdatadir.h"
 #include "uisurveyselect.h"
 #include "uitabstack.h"
 #include "od_helpids.h"
@@ -61,8 +65,59 @@ uiString uiSurveyInfoEditor::getCoordString( bool infeet )
 }
 
 
+class uiBatchProgClosePrompter : public uiDialog
+{ mODTextTranslationClass(uiBatchProgClosePrompter)
+public:
+uiBatchProgClosePrompter( uiParent* p,
+			    const TypeSet<Network::Service::ID>& servids )
+    : uiDialog(p, uiDialog::Setup(tr("Batch Program Information"), mNoDlgTitle,
+	mNoHelpKey))
+{
+    setTitleText( tr("There are batch processes currently running.\n"
+	"Please close these processes before proceeding.\n"
+	"Click on continue once all the process are closed") );
+
+    label_ = new uiLabel( this, msg(servids.size()) );
+
+    setCtrlStyle( CtrlStyle::CloseOnly );
+    setCancelText( m3Dots(uiStrings::sContinue()) );
+}
+
+
+protected:
+bool rejectOK( CallBacker* ) override
+{
+    TypeSet<Network::Service::ID> servids;
+    BPT().getLiveServiceIDs( servids );
+    if ( !servids.isEmpty() )
+    {
+	updateLabel( msg(servids.size()) );
+	return false;
+    }
+
+    return true;
+}
+
+void updateLabel( const uiString& msg )
+{
+    label_->setText( msg );
+}
+
+uiString msg(int nr)
+{
+    uiString msg = tr("Current number of active batch processes : %1").arg(nr);
+    return msg;
+
+}
+
+
+uiLabel*    label_;
+
+};
+
+
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
-					bool isnew )
+					bool isnew, bool iscurr )
     : uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
 				 mNoDlgTitle,
 				 mODHelpKey(mSurveyInfoEditorHelpID))
@@ -72,6 +127,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     , orgdirname_(si_.getDirName().buf())
     , rootdir_(GetBaseDataDir())
     , isnew_(isnew)
+    , iscurr_(iscurr)
     , impiop_(nullptr)
     , lastsip_(nullptr)
     , coordsystem_(si.getCoordSystem())
@@ -154,9 +210,12 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     mkTransfGrp();
     mkCRSGrp();
 
-    uiButton* applybut = uiButton::getStd( this, OD::Apply,
+    if ( !iscurr )
+    {
+	uiButton* applybut = uiButton::getStd( this, OD::Apply,
 			    mCB(this,uiSurveyInfoEditor,appButPushed), true );
-    applybut->attach( centeredBelow, tabs_ );
+	applybut->attach( centeredBelow, tabs_ );
+    }
 
     mAttachCB( afterPopup, uiSurveyInfoEditor::doFinalize );
 }
@@ -513,19 +572,18 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
     if ( File::exists(fnmout) )
     {
 	uiString msg = tr("Cannot copy %1 to %2"
-			  "\nbecause target folder exists.")
-		     .arg(fnmin).arg(fnmout);
+		    "\nbecause target folder exists.").arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
+
     MouseCursorManager::setOverride( MouseCursor::Wait );
     File::copy( fnmin, fnmout );
     MouseCursorManager::restoreOverride();
     if ( !File::exists(fnmout) )
     {
 	uiString msg = tr("Copy %1 to %2 failed\n"
-			  "See startup window for details")
-		     .arg(fnmin).arg(fnmout);
+		    "Failed to write output location.").arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
@@ -547,12 +605,13 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 	uiMSG().error( msg );
 	return false;
     }
+
     File::rename( fnmin, fnmout );
     if ( !File::exists(fnmout) )
     {
 	uiString msg = tr("Rename %1 to %2 failed.\n"
-			  "See startup window for details.")
-		     .arg(fnmin).arg(fnmout);
+	   "Please close any active batch process to proceed")
+	    .arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
@@ -661,8 +720,27 @@ bool uiSurveyInfoEditor::setSurvName()
 
 bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 {
+    if ( iscurr_ )
+    {
+	const bool ret = uiMSG().askGoOn(
+		    tr("The survey will reloaded. Do you wish to continue?") );
+	if ( !ret )
+	    return true;
+    }
+
     if ( !doApply() )
 	return false;
+
+    if ( iscurr_ )
+    {
+	TypeSet<Network::Service::ID> servids;
+	BPT().getLiveServiceIDs( servids );
+	if ( !servids.isEmpty() )
+	{
+	    uiBatchProgClosePrompter dlg( this, servids );
+	    dlg.go();
+	}
+    }
 
     const BufferString newstorepath( pathfld_->text() );
     const BufferString newdirnm( dirName() );
@@ -692,6 +770,15 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     }
     else if ( dirnamechanged )
     {
+	if ( iscurr_ )
+	{
+	    if ( iscurr_ )
+		IOM().surveyParsChanged();
+
+	    if ( IOM().changeSurveyBlocked() )
+		return true;
+	}
+
 	if ( !renameSurv(orgstorepath_,orgdirname_,newdirnm) )
 	    return false;
     }
@@ -737,12 +824,22 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	    sip->launchSurveyImportDlg( this->parent() )->go();
     }
 
-    if ( orgdirname_.isEqual(SurveyInfo::curSurveyName()) )
+    if ( iscurr_ )
     {
 	const SurveyDiskLocation sdl( newfp );
 	uiRetVal ret;
-	IOM().recordDataSource( sdl, ret );
-	return ret.isOK();
+	if ( !IOM().recordDataSource(sdl,ret) )
+	{
+	    if ( !ret.isOK() )
+		uiMSG().error( ret );
+
+	    return false;
+	}
+
+	const bool iomok = IOMan::isOK();
+	if ( (iomok && !IOMan::setDataSource(sdl.fullPath()).isOK()) ||
+	    (!iomok && !IOMan::newSurvey(&si_).isOK()) )
+	    return false;
     }
 
     return true;
@@ -906,7 +1003,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
     const bool xyinfeet = si_.getCoordSystem()->isFeet();
     uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo();
     bool zistime = si_.zIsTime();
-    if ( tdinfo != uiSurvInfoProvider::Uknown )
+    if ( tdinfo != uiSurvInfoProvider::Unknown )
 	zistime = tdinfo == uiSurvInfoProvider::Time;
 
     bool zinfeet = !depthdispfld_->getBoolValue();
@@ -915,7 +1012,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	if ( xyinfeet )
 	    zinfeet = true;
     }
-    else if ( tdinfo != uiSurvInfoProvider::Uknown )
+    else if ( tdinfo != uiSurvInfoProvider::Unknown )
 	zinfeet = tdinfo == uiSurvInfoProvider::DepthFeet;
 
     si_.setZUnit( zistime, zinfeet );
@@ -1125,8 +1222,8 @@ uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 
 bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 {
-    tdinf_ = Uknown;
-    inft_ = false;
+    tdinf_ = Unknown;
+    xyinft_ = false;
     mDynamicCastGet(uiSurveySelectDlg*,seldlg,dlg)
     if ( !seldlg )
 	return false;
@@ -1144,8 +1241,8 @@ bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
 
     tdinf_ = survinfo->zIsTime() ? Time
-				 : (survinfo->zInFeet() ? DepthFeet : Depth);
-    inft_ = survinfo->xyInFeet();
+			    : (survinfo->zInFeet() ? DepthFeet : DepthMeter);
+    xyinft_ = survinfo->xyInFeet();
 
     RefMan<Coords::CoordSystem> crs = survinfo->getCoordSystem();
     IOPar* crspar = new IOPar;
@@ -1215,8 +1312,8 @@ uiDialog* uiSurveyFileSIP::dialog( uiParent* p )
 
 bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 {
-    tdinf_ = Uknown;
-    inft_ = false;
+    tdinf_ = Unknown;
+    xyinft_ = false;
     mDynamicCastGet(uiSurveyFileDlg*,filedlg,dlg)
     if ( !filedlg )
 	return false;
@@ -1233,8 +1330,8 @@ bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()));
 
     tdinf_ = survinfo->zIsTime() ? Time
-				 : (survinfo->zInFeet() ? DepthFeet : Depth);
-    inft_ = survinfo->xyInFeet();
+			    : ( survinfo->zInFeet() ? DepthFeet : DepthMeter );
+    xyinft_ = survinfo->xyInFeet();
     coordsystem_ = survinfo->getCoordSystem();
     surveynm_ = survinfo->name();
 

@@ -35,7 +35,7 @@ mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 
 public:
 			uiSurveyInfoEditor(uiParent*,SurveyInfo&,
-					   bool isnew=false);
+					   bool isnew=false,bool iscurr=false);
 			~uiSurveyInfoEditor();
 
     bool		isOK() const		{ return topgrp_; }
@@ -58,89 +58,90 @@ public:
 
 protected:
 
-    SurveyInfo&		si_;
-    BufferString	orgdirname_;
-    BufferString	orgstorepath_;
-    const BufferString	rootdir_;
-    bool		isnew_;
-    IOPar*		impiop_;
-    ObjectSet<uiSurvInfoProvider> sips_;
-    uiSurvInfoProvider*	lastsip_;
+    SurveyInfo&				    si_;
+    BufferString			    orgdirname_;
+    BufferString			    orgstorepath_;
+    const BufferString			    rootdir_;
+    bool				    isnew_;
+    bool				    iscurr_;
+    IOPar*				    impiop_;
+    ObjectSet<uiSurvInfoProvider>	    sips_;
+    uiSurvInfoProvider*			    lastsip_;
 
-    RefMan<Coords::CoordSystem>	coordsystem_;
+    RefMan<Coords::CoordSystem>		    coordsystem_;
 
-    uiGenInput*		survnmfld_;
-    uiGenInput*		pathfld_;
-    uiGenInput*		inlfld_;
-    uiGenInput*		crlfld_;
-    uiGenInput*		zfld_;
-    uiLabel*		nrinlslbl_;
-    uiLabel*		nrcrlslbl_;
-    uiComboBox*		zunitfld_;
-    uiComboBox*		pol2dfld_;
+    uiGenInput*				    survnmfld_;
+    uiGenInput*				    pathfld_;
+    uiGenInput*				    inlfld_;
+    uiGenInput*				    crlfld_;
+    uiGenInput*				    zfld_;
+    uiLabel*				    nrinlslbl_;
+    uiLabel*				    nrcrlslbl_;
+    uiComboBox*				    zunitfld_;
+    uiComboBox*				    pol2dfld_;
 
-    uiTabStack*		tabs_;
-    uiGenInput*		x0fld_;
-    uiGenInput*		xinlfld_;
-    uiGenInput*		xcrlfld_;
-    uiGenInput*		y0fld_;
-    uiGenInput*		yinlfld_;
-    uiGenInput*		ycrlfld_;
-    uiGenInput*		ic0fld_;
-    uiGenInput*		ic1fld_;
-    uiGenInput*		ic2fld_;
-    uiGenInput*		ic3fld_;
-    uiGenInput*		xy0fld_;
-    uiGenInput*		xy1fld_;
-    uiGenInput*		xy2fld_;
-    uiGenInput*		xy3fld_;
-    uiGroup*		topgrp_;
-    uiGroup*		crdgrp_;
-    uiGroup*		trgrp_;
-    uiGroup*		rangegrp_;
-    uiGroup*		crsgrp_;
-    uiComboBox*		sipfld_;
-    uiCheckBox*		overrulefld_;
-    uiPushButton*	coordsysfld_;
-    uiCheckBox*		xyinftfld_;
-    uiGenInput*		depthdispfld_;
-    uiGenInput*		refdatumfld_;
-    uiLabel*		xyunitlbl_;
-    Coords::uiCoordSystemSelGrp* crssel_;
+    uiTabStack*				    tabs_;
+    uiGenInput*				    x0fld_;
+    uiGenInput*				    xinlfld_;
+    uiGenInput*				    xcrlfld_;
+    uiGenInput*				    y0fld_;
+    uiGenInput*				    yinlfld_;
+    uiGenInput*				    ycrlfld_;
+    uiGenInput*				    ic0fld_;
+    uiGenInput*				    ic1fld_;
+    uiGenInput*				    ic2fld_;
+    uiGenInput*				    ic3fld_;
+    uiGenInput*				    xy0fld_;
+    uiGenInput*				    xy1fld_;
+    uiGenInput*				    xy2fld_;
+    uiGenInput*				    xy3fld_;
+    uiGroup*				    topgrp_;
+    uiGroup*				    crdgrp_;
+    uiGroup*				    trgrp_;
+    uiGroup*				    rangegrp_;
+    uiGroup*				    crsgrp_;
+    uiComboBox*				    sipfld_;
+    uiCheckBox*				    overrulefld_;
+    uiPushButton*			    coordsysfld_;
+    uiCheckBox*				    xyinftfld_;
+    uiGenInput*				    depthdispfld_;
+    uiGenInput*				    refdatumfld_;
+    uiLabel*				    xyunitlbl_;
+    Coords::uiCoordSystemSelGrp*	    crssel_;
 
-    bool		xyInFeet() const;
-    bool		dirnamechanged;
-    void		mkSIPFld(uiObject*);
-    void		mkRangeGrp();
-    void		mkCoordGrp();
-    void		mkTransfGrp();
-    void		mkCRSGrp();
-    void		setValues();
-    void		updateLabels();
-    void		updStatusBar(const char*);
-    bool		setRanges();
-    bool		setSurvName();
-    bool		setCoords();
-    bool		setRelation();
-    bool		doApply();
+    bool				    xyInFeet() const;
+    bool				    dirnamechanged;
+    void				    mkSIPFld(uiObject*);
+    void				    mkRangeGrp();
+    void				    mkCoordGrp();
+    void				    mkTransfGrp();
+    void				    mkCRSGrp();
+    void				    setValues();
+    void				    updateLabels();
+    void				    updStatusBar(const char*);
+    bool				    setRanges();
+    bool				    setSurvName();
+    bool				    setCoords();
+    bool				    setRelation();
+    bool				    doApply();
 
-    bool		acceptOK(CallBacker*) override;
-    bool		rejectOK(CallBacker*) override;
-    void		updatePar(CallBacker*);
-    void		sipCB(CallBacker*);
-    void		doFinalize(CallBacker*);
-    void		ic0ChgCB(CallBacker*);
-    void		ic2ChgCB(CallBacker*);
-    void		rangeChg(CallBacker*);
-    void		depthDisplayUnitSel(CallBacker*);
-    void		updZUnit(CallBacker*);
-    void		pathbutPush(CallBacker*);
-    void		appButPushed(CallBacker*);
+    bool				    acceptOK(CallBacker*) override;
+    bool				    rejectOK(CallBacker*) override;
+    void				    updatePar(CallBacker*);
+    void				    sipCB(CallBacker*);
+    void				    doFinalize(CallBacker*);
+    void				    ic0ChgCB(CallBacker*);
+    void				    ic2ChgCB(CallBacker*);
+    void				    rangeChg(CallBacker*);
+    void				    depthDisplayUnitSel(CallBacker*);
+    void				    updZUnit(CallBacker*);
+    void				    pathbutPush(CallBacker*);
+    void				    appButPushed(CallBacker*);
 
-    static uiString	getSRDString(bool infeet);
-    static uiString	getCoordString(bool infeet);
+    static uiString			    getSRDString(bool infeet);
+    static uiString			    getCoordString(bool infeet);
 
-    friend class	uiSurvey;
+    friend class			    uiSurvey;
 
 };
 
@@ -160,7 +161,7 @@ public:
     void		fillLogPars(IOPar&) const override;
 
     TDInfo		tdInfo() const override		{ return tdinf_; }
-    bool		xyInFeet() const override	{ return inft_; }
+    bool		xyInFeet() const override	{ return xyinft_; }
     const char*		iconName() const override	{ return "copyobj"; }
 
     IOPar*		getCoordSystemPars() const override;
@@ -168,8 +169,8 @@ public:
 protected:
 
     BufferString	othersurvey_;
-    TDInfo		tdinf_;
-    bool		inft_;
+    bool		xyinft_				= false;
+    TDInfo		tdinf_				= Unknown;
     BufferStringSet	survlist_;
     IOPar*		crspars_			= nullptr;
 
@@ -192,16 +193,16 @@ public:
     void		fillLogPars(IOPar&) const override;
 
     TDInfo		tdInfo() const override		{ return tdinf_; }
-    bool		xyInFeet() const override	{ return inft_; }
+    bool		xyInFeet() const override	{ return xyinft_; }
     const char*		iconName() const override	{ return "ascii"; }
 
     IOPar*		getCoordSystemPars() const override;
 
 protected:
 
-    BufferString	filenm_;
-    TDInfo		tdinf_;
-    bool		inft_;
-    BufferString	surveynm_;
+    BufferString		filenm_;
+    bool			xyinft_			= false;
+    TDInfo			tdinf_			= Unknown;
+    BufferString		surveynm_;
     RefMan<Coords::CoordSystem> coordsystem_;
 };

@@ -37,6 +37,7 @@ ________________________________________________________________________
 #define mManSurveyMnuItm	(mFileMnu + 10)
 #define mRestartMnuItm		(mFileMnu + 19)
 #define mExitMnuItm		(mFileMnu + 20)
+#define mCurrSurvUpdItm		(mFileMnu + 25)
 #define mSessSaveMnuItm		(mFileSessMnu + 10)
 #define mSessRestMnuItm		(mFileSessMnu + 20)
 #define mSessAutoMnuItm		(mFileSessMnu + 30)

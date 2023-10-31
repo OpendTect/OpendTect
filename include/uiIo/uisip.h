@@ -66,8 +66,8 @@ public:
     virtual void		fillLogPars(IOPar&) const;
     virtual bool		isAvailable() const	{ return true; }
 
-    enum TDInfo			{ Uknown, Time, Depth, DepthFeet };
-    virtual TDInfo		tdInfo() const		{ return Uknown; }
+    enum TDInfo			{ Unknown, Time, DepthMeter, DepthFeet };
+    virtual TDInfo		tdInfo() const		{ return Unknown; }
     virtual bool		xyInFeet() const	{ return false; }
     virtual const char*		iconName() const	{ return nullptr; }
 

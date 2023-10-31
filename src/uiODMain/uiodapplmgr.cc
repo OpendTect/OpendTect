@@ -10,11 +10,13 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
 
+#include "uiactiverunningproc.h"
 #include "uiattribpartserv.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uifiledlg.h"
 #include "uihelpview.h"
+#include "uimain.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uinlapartserv.h"
@@ -29,6 +31,7 @@ ________________________________________________________________________
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
 #include "uisurvey.h"
+#include "uisurvinfoed.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uivisdatapointsetdisplaymgr.h"
@@ -185,6 +188,17 @@ int uiODApplMgr::selectSurvey( uiParent* p )
     if ( res == 3 )
 	setZStretch();
     return res;
+}
+
+
+int uiODApplMgr::editCurrSurvey( uiParent* p )
+{
+    if ( !p )
+	p = uiMain::instance().topLevel();
+
+    uiSurveyInfoEditor dlg( p, eSI(), false, true );
+    dlg.go();
+    return 0;
 }
 
 
