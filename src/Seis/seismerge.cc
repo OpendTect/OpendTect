@@ -42,9 +42,16 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     , nrsamps_(-1)
 {
     if ( iops.isEmpty() )
-    { errmsg_ = tr("Nothing to merge"); return; }
-    if (iops.size() == 1)
-    { errmsg_ = tr("One single entry to merge: Please use copy"); return; }
+    {
+	errmsg_ = tr("Nothing to merge");
+	return;
+    }
+
+    if ( iops.size() == 1 )
+    {
+	errmsg_ = tr("One single entry to merge: Please use copy");
+	return;
+    }
 
     const Seis::GeomType gt = Seis::geomTypeOf( is2d_, false );
     StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
@@ -64,7 +71,9 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 	}
 
 	PtrMan<Seis::Bounds> rgs = newrdr->getBounds();
-	if ( rgs ) zrg.include( rgs->getZRange(), false );
+	if ( rgs )
+	    zrg.include( rgs->getZRange(), false );
+
 	rdrs_ += newrdr;
     }
 
@@ -110,7 +119,10 @@ SeisMerger::SeisMerger( const IOPar& iop )
     , nrsamps_(-1)
 {
     if ( iop.isEmpty() )
-    { errmsg_ = tr("Nothing to merge"); return; }
+    {
+	errmsg_ = tr("Nothing to merge");
+	return;
+    }
 
     FilePath fp( iop.find(sKey::TmpStor()) );
     DirList dlist( fp.fullPath(), File::FilesInDir );
@@ -127,7 +139,9 @@ SeisMerger::SeisMerger( const IOPar& iop )
 	}
 
 	PtrMan<Seis::Bounds> rgs = newrdr->getBounds();
-	if ( rgs ) zrg.include( rgs->getZRange(), false );
+	if ( rgs )
+	    zrg.include( rgs->getZRange(), false );
+
 	rdrs_ += newrdr;
     }
 
@@ -235,6 +249,7 @@ SeisTrc* SeisMerger::getNewTrc()
 	    {
 		if ( !errmsg_.isEmpty() )
 		    return 0;
+
 		currdridx_++;
 		if ( currdridx_ >= rdrs_.size() )
 		    return 0;
@@ -259,6 +274,7 @@ SeisTrc* SeisMerger::getTrcFrom( SeisTrcReader& rdr )
 	errmsg_ = rdr.errMsg();
 	delete newtrc; newtrc = 0;
     }
+
     return newtrc;
 }
 
@@ -302,8 +318,10 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
     SeisTrc* ret = 0;
     if ( nrtrcs < 1 )
 	ret = nulltrcs.remove(0);
+
     if ( nrtrcs == 1 )
 	ret = buf.remove( 0 );
+
     nulltrcs.deepErase();
     if ( ret )
 	return ret;
@@ -333,6 +351,7 @@ bool SeisMerger::toNextPos()
 	if ( curbid_.inl() > hs.stop_.inl() )
 	    return false;
     }
+
     return true;
 }
 
@@ -356,6 +375,7 @@ int SeisMerger::writeTrc( SeisTrc* trc )
 	    for ( int icomp=0; icomp<nrcomps; icomp++ )
 		newtrc->set( isamp, trc->getValue(z,icomp), icomp );
 	}
+
 	delete trc; trc = newtrc;
     }
 
@@ -391,6 +411,7 @@ int SeisMerger::writeFromBuf()
     {
 	if ( trcbuf_.get(0)->info().trcNr() != tnr )
 	    break;
+
 	tmp.add( trcbuf_.remove(0) );
     }
 
