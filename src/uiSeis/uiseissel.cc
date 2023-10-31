@@ -548,6 +548,7 @@ uiSeisPosProvGroup::uiSeisPosProvGroup( uiParent* p,
 {
     uiSeisSel::Setup ssu( Seis::Vol );
     ssu.seltxt( tr("Cube for positions") );
+    ssu.withinserters(false);
     seissel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true), ssu );
 
     if ( su.withz_ )
