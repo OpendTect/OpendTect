@@ -116,7 +116,6 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     if ( szmb < 0 ) // Unknown, but probably small
 	return true;
 
-
     if ( __iswin__ )
     {
 	const BufferString fsysname =
@@ -147,16 +146,14 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 
 	uiString msg = tr( "The new cube size may exceed the space "
 		       "available on disk:\n%1\n\nDo you want to continue?" );
-
 	uiString explanationmsg = avszmb == 0 ? tr("The disk seems to be full!")
 					      : tr("\nEstimated size: %1 MB\n"
 						   "Available on disk: %2 MB")
 					      .arg(szmb).arg(avszmb);
-
 	msg.arg( explanationmsg );
-
 	if ( !uiMSG().askContinue(msg) )
 	    return false;
     }
+
     return true;
 }

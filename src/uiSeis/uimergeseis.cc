@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
+#include "uiseissubsel.h"
 #include "uiseistransf.h"
 #include "od_helpids.h"
 
@@ -56,11 +57,44 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     ctxt.forread_ = false;
     outfld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
     outfld_->attach( alignedBelow, transffld_ );
+
+    mAttachCB( inpfld_->selectionChanged, uiMergeSeis::updateTransfldCB );
 }
 
 
 uiMergeSeis::~uiMergeSeis()
 {}
+
+
+void uiMergeSeis::updateTransfldCB( CallBacker* )
+{
+    TypeSet<MultiID> chosenids;
+    inpfld_->getChosen( chosenids );
+    if ( chosenids.isEmpty() )
+	return;
+
+    ObjectSet<const IOObj> chosenobjs;
+    for ( const auto& id : chosenids )
+    {
+	const IOObj* obj = IOM().get( id );
+	if ( obj )
+	    chosenobjs.addIfNew( obj );
+    }
+
+    TrcKeyZSampling tkzs;
+    for ( const auto* obj : chosenobjs )
+    {
+	const SeisIOObjInfo sobj( obj );
+	if ( !sobj.isOK() )
+	    continue;
+
+	TrcKeyZSampling inptkzs;
+	sobj.getRanges( inptkzs );
+	tkzs.include( inptkzs );
+    }
+
+    transffld_->selfld->setInput( tkzs );
+}
 
 
 bool uiMergeSeis::acceptOK( CallBacker* )
@@ -92,8 +126,11 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 
     TypeSet<MultiID> chosenids;
     inpfld_->getChosen( chosenids );
-    if ( chosenids.size()  < 2 )
-	{ uiMSG().error( tr("Please select at least 2 inputs") ); return false;}
+    if ( chosenids.size() < 2 )
+    {
+	uiMSG().error( tr("Please select at least 2 inputs") );
+	return false;
+    }
 
     outpar.set( sKey::ID(), outioobj->key() );
 

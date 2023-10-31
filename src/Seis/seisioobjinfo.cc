@@ -402,6 +402,7 @@ int SeisIOObjInfo::SpaceInfo::expectedMBs() const
 {
     if ( expectednrsamps<0 || expectednrtrcs<0 )
 	return -1;
+
     od_int64 totnrbytes = expectednrsamps;
     totnrbytes *= expectednrtrcs;
     totnrbytes *= maxbytespsamp;
