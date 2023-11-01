@@ -294,10 +294,10 @@ uiSeisWvltMerge::~uiSeisWvltMerge()
 }
 
 
-void uiSeisWvltMerge::funcSelChg( CallBacker* )
+void uiSeisWvltMerge::funcSelChg( CallBacker* cb )
 {
     uiFuncSelDraw* wd = getCurrentDrawer();
-    if ( !wd )
+    if ( !wd || (cb && cb != wd) )
 	return;
 
     NotifyStopper nsf( wd->funclistselChged );
@@ -307,11 +307,10 @@ void uiSeisWvltMerge::funcSelChg( CallBacker* )
 
     clearStackedWvlt( nullptr );
     wvltfld_->setSensitive( selsz > 1 );
-    if ( selsz <= 1 ) return;
+    if ( selsz <= 1 )
+	return;
 
     makeStackedWvlt();
-    wd->funcCheckChg( nullptr );
-
     TypeSet<int> selitems;
     wd->getSelectedItems( selitems );
     uiFuncSelDraw* od = wvltdrawer_[!normalizefld_->isChecked()];
