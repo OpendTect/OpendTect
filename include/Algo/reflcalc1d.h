@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "factory.h"
 #include "odcomplex.h"
+#include "odcommonenums.h"
 #include "paralleltask.h"
 #include "reflectivitymodel.h"
 
@@ -29,7 +30,9 @@ mExpClass(Algo) ReflCalc1D : public ParallelTask
 public:
     mDefineFactoryInClass( ReflCalc1D, factory );
 
+    mDeprecated("Provide ReflCalc1D::Setup")
     static ReflCalc1D* createInstance(const IOPar&,uiString&);
+    mDeprecated("Provide ReflCalc1D::Setup")
     static ReflCalc1D* createInstance(const IOPar&,const ElasticModel*,
 				      uiString&);
 
@@ -39,10 +42,22 @@ public:
     {
     public:
 			Setup();
+			Setup(const Setup&);
 	virtual		~Setup();
+
+	Setup&		operator =(const Setup&);
+
+	float		getStartTime() const;
+	float		getStartDepth() const;
+	ZDomain::DepthType depthType() const;
+	Setup&		starttime(float newval);
+	Setup&		startdepth(float newbal);
+	Setup&		depthtype(ZDomain::DepthType);
 
 	virtual void	fillPar(IOPar&) const		{}
 	virtual bool	usePar(const IOPar&)		{ return true; }
+
+	bool		areDepthsInFeet() const;
     };
 
     virtual ReflCalc1D::Setup&	setup()			= 0;
@@ -61,11 +76,21 @@ public:
 			  are undef and required, will fill them with Castagna
 			  to compute the reflection coeffs <!*/
 
+    mDeprecated("Use Seis::OffsetType")
     void		setAngle(float thetaangle,bool angleisindegrees);
+    mDeprecated("Use Seis::OffsetType")
     void		setAngles(const TypeSet<float>& thetaangles,
 				  bool angleisindegrees);
+    mDeprecated("Use Seis::OffsetType")
     void		getAngles(TypeSet<float>& thetaangles,
 				  bool retindegrees=true) const;
+
+    void		setAngle(float thetaangle,Seis::OffsetType);
+    void		setAngles(const TypeSet<float>& thetaangles,
+				  Seis::OffsetType);
+    void		getAngles(TypeSet<float>& thetaangles,
+				  Seis::OffsetType) const;
+    bool		areDepthsInFeet() const;
 
     uiString		uiMessage() const override	{ return msg_; }
 
@@ -79,11 +104,23 @@ public:
     static const char*	sKeyAngle()	   { return "Angle Range"; }
     static const char*	sKeyAngleInDegrees() { return "Angles in Degrees"; }
 
+    mDeprecated("Use Seis::OffsetType")
     static float	sDefAngle(bool indegrees);
+    mDeprecated("Use Seis::OffsetType")
     static StepInterval<float> sDefAngleRange(bool indegrees);
 
+    static float	sDefAngle(Seis::OffsetType);
+    static StepInterval<float> sDefAngleRange(Seis::OffsetType);
+
+    mDeprecated("Use Seis::OffsetType")
     static void		setIOParsToSingleAngle(IOPar&,float angle=0.f,
 					       bool angleisindegrees=true);
+    static void		setIOParsToSingleAngle(IOPar&,float angle,
+					   Seis::OffsetType);
+    static ReflCalc1D* createInstance(const IOPar&,uiString&,
+				      const Setup*);
+    static ReflCalc1D* createInstance(const IOPar&,const ElasticModel*,
+				      uiString&,const Setup*);
 
 protected:
 			ReflCalc1D();

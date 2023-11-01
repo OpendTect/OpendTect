@@ -74,9 +74,7 @@ uiCalcHorVol::~uiCalcHorVol()
 
 uiGroup* uiCalcHorVol::mkStdGrp()
 {
-    const CallBack calccb( mCB(this,uiCalcHorVol,calcReq) );
-
-    uiGroup* grp = new uiGroup( this, "uiCalcHorVol group" );
+    auto* grp = new uiGroup( this, "uiCalcHorVol group" );
 
     optsfld_ = new uiCheckList( grp );
     optsfld_->addItem( tr("Ignore negative thicknesses") )
@@ -86,13 +84,16 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     uiObject* attachobj = optsfld_->attachObj();
     if ( SI().zIsTime() )
     {
-	velfld_ = new uiGenInput( grp, VelocityDesc::getVelVolumeLabel(),
+	velfld_ = new uiGenInput( grp, tr("%1 %2")
+			.arg(VelocityDesc::getVelVolumeLabel())
+			.arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true)),
 		FloatInpSpec(Vel::getGUIDefaultVelocity()) );
 	velfld_->attach( alignedBelow, optsfld_ );
-	velfld_->valuechanged.notify( calccb );
+	mAttachCB( velfld_->valueChanged, uiCalcHorVol::calcReq );
 	attachobj = velfld_->attachObj();
     }
 
+    const CallBack calccb( mCB(this,uiCalcHorVol,calcReq) );
     auto* calcbut = new uiPushButton( grp, uiStrings::sCalculate(),
 				      calccb, true);
     calcbut->setIcon( "downarrow" );

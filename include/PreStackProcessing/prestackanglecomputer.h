@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "iopar.h"
 #include "position.h"
-#include "prestackprocessingmod.h"
+#include "raytrace1d.h"
 #include "reflectivitymodel.h"
 #include "windowfunction.h"
 
@@ -25,6 +25,7 @@ class FFTFilter;
 class VelocityDesc;
 
 namespace Vel { class FunctionSource; }
+namespace ZDomain { class Info; }
 
 namespace PreStack
 {
@@ -46,6 +47,10 @@ public:
     void			setTrcKey( const TrcKey & tk )
 				{ trckey_ = tk; }
 
+    void			setOutputSampling(const FlatPosData&,
+						  Seis::OffsetType,
+						  const ZDomain::Info&);
+    mDeprecated("Provide Seis::OffsetType and ZDomain::Info")
     void			setOutputSampling(const FlatPosData&);
     void			setRayTracerPars(const IOPar&);
     void			setGatherIsNMOCorrected( bool yn )
@@ -75,12 +80,15 @@ protected:
 
     bool			fillandInterpArray(Array2D<float>& angledata);
     RefMan<Gather>		computeAngleData();
+    AngleComputer&		setZDomain(const ZDomain::Info&);
     void			averageSmooth(Array2D<float>& angledata);
     void			fftSmooth(Array2D<float>& angledata);
     void			fftTimeSmooth(::FFTFilter& fftfilter,
 					      Array2D<float>& angledata);
     void			fftDepthSmooth(::FFTFilter& fftfilter,
 					       Array2D<float>& angledata);
+
+    const ZDomain::Info*	zDomain() const;
 
     virtual const ElasticModel* curElasticModel() const = 0;
     virtual const OffsetReflectivityModel* curRefModel() const = 0;
@@ -89,6 +97,9 @@ protected:
     IOPar			iopar_;
     IOPar			raypars_;
     FlatPosData			outputsampling_;
+    const ZDomain::Info*	zdomaininfo_();
+    const RayTracer1D::Setup&	rtsu_() const;
+    RayTracer1D::Setup&		rtsu_();
     ElasticModel		elasticmodel_;
     ConstRefMan<OffsetReflectivityModel> refmodel_;
     float			thresholdparam_ = 0.01f;
@@ -112,6 +123,10 @@ public:
     bool			isOK() const override { return velsource_; }
 
     RefMan<Gather>		computeAngles() override;
+
+    static bool			getLayers(const TrcKey&,float startdepth,
+					  Vel::FunctionSource&,ElasticModel&,
+					  uiString& errmsg);
 
 protected:
 				~VelocityBasedAngleComputer();

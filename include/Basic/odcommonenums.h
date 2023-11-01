@@ -120,7 +120,73 @@ enum WellType
 
 mDeclareNameSpaceEnumUtils(Basic,WellType);
 
+
+enum class XYType
+{
+    Meter=0,
+    Feet=1
+};
+
+mDeclareNameSpaceEnumUtils(Basic,XYType)
+
+
+enum class VelocityType
+{
+    Unknown=0,
+    Interval=1,
+    RMS=2,
+    Avg=3,
+    Delta=4,
+    Epsilon=5,
+    Eta=6
+};
+
+mDeclareNameSpaceEnumUtils(Basic,VelocityType)
+
 } // namespace OD
+
+
+namespace Seis
+{
+
+enum class OffsetType
+{
+    OffsetMeter=0,
+    OffsetFeet=1,
+    AngleRadians=2,
+    AngleDegrees=3
+};
+
+mDeclareNameSpaceEnumUtils(Basic,OffsetType)
+
+mGlobal(Basic) bool isOffsetDist(OffsetType);
+mGlobal(Basic) bool isOffsetAngle(OffsetType);
+
+} // namespace Seis
+
+
+namespace ZDomain
+{
+
+enum class TimeType
+{
+    Seconds=0,
+    MilliSeconds=1,
+    MicroSeconds=2
+};
+
+mDeclareNameSpaceEnumUtils(Basic,TimeType)
+
+
+enum class DepthType
+{
+    Meter=0,
+    Feet=1
+};
+
+mDeclareNameSpaceEnumUtils(Basic,DepthType)
+
+} // namespace ZDomain
 
 
 mGlobal(Basic) bool isHorizontal(OD::Orientation);

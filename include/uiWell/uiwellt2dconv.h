@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
+
 #include "uitime2depthzaxistrans.h"
 
 class WellT2DTransform;
@@ -33,6 +34,7 @@ protected:
 
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);
+    void			initGrpCB(CallBacker*);
     void			setZRangeCB(CallBacker*);
 
     uiIOObjSel* 		fld_;

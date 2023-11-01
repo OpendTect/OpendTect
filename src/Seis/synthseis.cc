@@ -950,20 +950,42 @@ RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
 				 TaskRunner* taskrun,
 			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
 {
+    const Seis::OffsetType offstyp = SI().xyInFeet()
+				   ? Seis::OffsetType::OffsetFeet
+				   : Seis::OffsetType::OffsetMeter;
+    const ZDomain::DepthType depthtype = SI().depthType();
+    return getRefModels( emodels, reflpars, msg, taskrun,
+			 SI().seismicReferenceDatum(),
+			 offstyp, depthtype, forcedtdmodels );
+}
+
+
+ConstRefMan<ReflectivityModelSet>
+RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
+				 const IOPar& reflpars, uiString& msg,
+				 TaskRunner* taskrun, float srd,
+				 Seis::OffsetType offstyp,
+				 ZDomain::DepthType depthtype,
+			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
+{
     const BufferString refltype = reflpars.find( sKey::Type() );
     if ( refltype.isEmpty() )
 	return nullptr;
 
     if ( ReflCalc1D::factory().hasName(refltype.str()) )
     {
-	return ReflCalcRunner::getRefModels( emodels, reflpars, msg, taskrun,
-					     forcedtdmodels );
+	ReflCalc1D::Setup rfsu;
+	rfsu.startdepth( -srd ).depthtype( depthtype );
+	return ReflCalcRunner::getRefModels( emodels, reflpars, msg, &rfsu,
+					     taskrun, forcedtdmodels );
     }
 
     if ( RayTracer1D::factory().hasName(refltype.str()) )
     {
-	return RayTracerRunner::getRefModels( emodels, reflpars, msg, taskrun,
-					      forcedtdmodels );
+	RayTracer1D::Setup rtsu;
+	rtsu.startdepth( -srd ).offsettype( offstyp ).depthtype( depthtype );
+	return RayTracerRunner::getRefModels( emodels, reflpars, msg, &rtsu,
+					      taskrun, forcedtdmodels );
     }
 
     return nullptr;
@@ -1107,8 +1129,8 @@ uiString RaySynthGenerator::uiNrDoneText() const
 
 bool RaySynthGenerator::checkPars( bool* skipnmo )
 {
-    const ReflectivityModelBase* model = refmodels_->get(0);
-    const int nrtrcsperpos = model ? model->nrRefModels() : 0;
+    const int nrtrcsperpos = refmodels_ && refmodels_->nrModels()>0 ?
+	refmodels_->get(0)->nrRefModels() : 0;
     if ( nrtrcsperpos < 1 )
 	mErrRet( tr("No reflectivity models given to make synthetics"), false );
 

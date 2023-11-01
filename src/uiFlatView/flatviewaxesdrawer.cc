@@ -75,7 +75,7 @@ void AxesDrawer::updateScene()
 
     uiString x2axisstr( toUiString(annot.x2_.name_) );
     if ( isVertical(vwr_) )
-	x2axisstr.addSpace().append( vwr_.zDomain().uiUnitStr(true) );
+	x2axisstr.addSpace().append( vwr_.zDomain().uiUnitStr_(true) );
     axis(OD::Left)->setup().caption( x2axisstr );
 
     if ( annot.x1_.name_.isEmpty() )

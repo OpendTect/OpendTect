@@ -26,14 +26,15 @@ public:
 
     ZAxisTransform*	getSelection() override;
 
-    StringView toDomain() const override;
-    StringView fromDomain() const override;
+    StringView		toDomain() const override;
+    StringView		fromDomain() const override;
     bool		canBeField() const override	{ return true; }
 
 protected:
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);
     bool			acceptOK() override;
+    void			initGrpCB(CallBacker*);
     void			velChangedCB(CallBacker*);
 
     uiGenInput*			velfld_;

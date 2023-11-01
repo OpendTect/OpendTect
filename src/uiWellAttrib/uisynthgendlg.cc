@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "stratlayermodel.h"
 #include "stratsynth.h"
+#include "survinfo.h"
 #include "wavelet.h"
 
 

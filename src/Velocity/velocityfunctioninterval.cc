@@ -9,79 +9,119 @@ ________________________________________________________________________
 
 #include "velocityfunctioninterval.h"
 
+#include "survinfo.h"
+#include "unitofmeasure.h"
 #include "varlenarray.h"
-#include "velocitycalc.h"
+#include "veldescimpl.h"
+#include "zvalseriesimpl.h"
 
 namespace Vel
 {
 
 
 IntervalFunction::IntervalFunction( IntervalSource& source )
-    : Function( source )
-    , inputfunc_( 0 )
+    : Function(source)
+    , inputfunc_(nullptr)
 {}
 
 
 IntervalFunction::~IntervalFunction()
 {
-    setInput( 0 );
+    unRefPtr( inputfunc_ );
+}
+
+
+const ZDomain::Info& IntervalFunction::zDomain_() const
+{
+    return inputfunc_ ? inputfunc_->zDomain() : Function::zDomain();
 }
 
 
 void IntervalFunction::setInput( Function* func )
 {
-    if ( inputfunc_ ) inputfunc_->unRef();
+    unRefPtr( inputfunc_ );
     inputfunc_ = func;
-    if ( inputfunc_ ) inputfunc_->ref();
+    refPtr( inputfunc_ );
+}
+
+
+Function& IntervalFunction::setZDomain_( const ZDomain::Info& )
+{
+    return *this;
 }
 
 
 bool IntervalFunction::moveTo( const BinID& bid )
 {
-    if ( !Function::moveTo( bid ) )
+    if ( !Function::moveTo(bid) || !inputfunc_->moveTo(bid) )
 	return false;
 
-    return inputfunc_->moveTo( bid );
+    if ( getDesc().isUdf() )
+	copyDescFrom( getSource() );
+
+    return true;
 }
 
 
 StepInterval<float> IntervalFunction::getAvailableZ() const
-{ return inputfunc_->getAvailableZ(); }
-
-
-bool IntervalFunction::computeVelocity( float z0, float dz, int nr,
-				       float* res ) const
 {
-    mAllocVarLenArr( float, input, nr );
-    if ( !mIsVarLenArrOK(input) ) return false;
-
-    const SamplingData<double> sd( z0, dz );
-
-    for ( int idx=0; idx<nr; idx++ )
-    {
-	float z = (float) sd.atIndex( idx );
-	input[idx] = inputfunc_->getVelocity( z );
-    }
-
-    return computeDix( input, sd, nr, res );
+    return inputfunc_->getAvailableZ();
 }
 
 
-IntervalSource::IntervalSource()
-    : inputsource_( 0 )
-    , veldesc_( VelocityDesc::Interval )
+bool IntervalFunction::computeVelocity( float z0, float dz, int sz,
+					float* res ) const
+{
+    const SamplingData<float> sd( z0, dz );
+    const RegularZValues zvals( sd, sz, inputfunc_->zDomain() );
+    for ( od_int64 idx=0; idx<sz; idx++ )
+	res[idx] = inputfunc_->getVelocity( zvals[idx] );
 
-{}
+    if ( getDesc() == inputfunc_->getDesc() )
+	return true;
+
+    const Worker worker( inputfunc_->getDesc(), SI().seismicReferenceDatum(),
+			 UnitOfMeasure::surveyDefSRDStorageUnit() );
+    ArrayZValues<float> vels( res, sz, zDomain() );
+    return worker.convertVelocities( vels.asVS(), zvals, getDesc(),vels.asVS());
+}
+
+
+// IntervalSource
+
+IntervalSource::IntervalSource()
+    : inputsource_(nullptr)
+    , veldesc_(OD::VelocityType::Interval)
+
+{
+    Worker::setUnit( UnitOfMeasure::surveyDefVelStorageUnit(), veldesc_ );
+}
 
 
 IntervalSource::~IntervalSource()
 {
-    setInput( 0 );
+    detachAllNotifiers();
+    unRefPtr( inputsource_ );
+}
+
+
+const ZDomain::Info& IntervalSource::zDomain_() const
+{
+    return inputsource_ ? inputsource_->zDomain() : SI().zDomainInfo();
+}
+
+
+const UnitOfMeasure* IntervalSource::getVelUnit_() const
+{
+    return inputsource_ ? inputsource_->velUnit()
+			: UnitOfMeasure::surveyDefVelUnit();
 }
 
 
 const VelocityDesc& IntervalSource::getDesc() const
-{ return veldesc_; }
+{
+    return veldesc_;
+}
 
 
 void IntervalSource::setInput( FunctionSource* input )
@@ -89,8 +129,8 @@ void IntervalSource::setInput( FunctionSource* input )
     if ( inputsource_ )
     {
 	if ( inputsource_->changeNotifier() )
-	    inputsource_->changeNotifier()->notify(
-		mCB( this, IntervalSource, sourceChangeCB ));
+	    mDetachCB( *inputsource_->changeNotifier(),
+		       IntervalSource::sourceChangeCB );
 	inputsource_->unRef();
     }
 
@@ -100,10 +140,8 @@ void IntervalSource::setInput( FunctionSource* input )
     {
 	inputsource_->ref();
 	if ( inputsource_->changeNotifier() )
-	{
-	    inputsource_->changeNotifier()->notify(
-		mCB( this, IntervalSource, sourceChangeCB ));
-	}
+	    mAttachCB( *inputsource_->changeNotifier(),
+		       IntervalSource::sourceChangeCB );
     }
 }
 
@@ -116,7 +154,9 @@ void IntervalSource::getAvailablePositions( BinIDValueSet& bidset ) const
 
 
 NotifierAccess* IntervalSource::changeNotifier()
-{ return inputsource_ ? inputsource_->changeNotifier() : 0; }
+{
+    return inputsource_ ? inputsource_->changeNotifier() : nullptr;
+}
 
 
 BinID IntervalSource::changeBinID() const
@@ -125,14 +165,15 @@ BinID IntervalSource::changeBinID() const
 
 IntervalFunction* IntervalSource::createFunction( const BinID& bid )
 {
-    if ( !inputsource_ || inputsource_->getDesc().type_!=VelocityDesc::RMS )
-	return 0;
+    if ( !inputsource_ || (!inputsource_->getDesc().isRMS() &&
+			   !inputsource_->getDesc().isAvg()) )
+	return nullptr;
 
     RefMan<Function> inputfunc = inputsource_->createFunction( bid );
     if ( !inputfunc )
-	return 0;
+	return nullptr;
 
-    IntervalFunction* res = new IntervalFunction( *this );
+    auto* res = new IntervalFunction( *this );
     res->setInput( inputfunc );
 
     return res;
@@ -155,6 +196,5 @@ void IntervalSource::sourceChangeCB( CallBacker* cb )
 	func->removeCache();
     }
 }
-
 
 } // namespace Vel

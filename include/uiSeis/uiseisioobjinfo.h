@@ -26,6 +26,7 @@ public:
     bool		isTime() const		{ return sii.isTime(); }
     bool		isDepth() const		{ return sii.isDepth(); }
     const ZDomain::Def&	zDomainDef() const	{ return sii.zDomainDef(); }
+    const ZDomain::Info& zDomain() const	{ return sii.zDomain(); }
 
     bool		provideUserInfo() const;
     bool		provideUserInfo2D(

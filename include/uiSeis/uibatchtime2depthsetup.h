@@ -29,6 +29,7 @@ protected:
 
     bool			fillPar();
     bool			prepareProcessing();
+    void			initDlg(CallBacker*);
     void			dirChangeCB(CallBacker*);
     void			objSelCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
@@ -40,7 +41,7 @@ protected:
 
     uiSeisSel*			inputtimesel_;
     uiSeisSel*			inputdepthsel_;
-    uiSeis2DSubSel*     subselfld_ = nullptr;
+    uiSeis2DSubSel*		subselfld_ = nullptr;
 
     uiPosSubSel*		possubsel_;
 

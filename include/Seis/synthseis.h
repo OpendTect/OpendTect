@@ -304,7 +304,8 @@ public:
     static ConstRefMan<ReflectivityModelSet>
 			getRefModels(const ElasticModelSet&,
 				     const IOPar& reflpar,uiString& msg,
-				     TaskRunner* =nullptr,
+				     TaskRunner*,float srd,
+				     Seis::OffsetType,ZDomain::DepthType,
 				     const ObjectSet<const TimeDepthModel>*
 						    forcedtdmodels =nullptr);
 
@@ -379,6 +380,16 @@ private:
 
     ObjectSet<SynthRes>		results_;
     ConstRefMan<SynthGenDataPack> synthresdp_;
+
+public:
+
+    mDeprecatedDef
+    static ConstRefMan<ReflectivityModelSet>
+			getRefModels(const ElasticModelSet&,
+				     const IOPar& reflpar,uiString& msg,
+				     TaskRunner* =nullptr,
+				     const ObjectSet<const TimeDepthModel>*
+						    forcedtdmodels =nullptr);
 
 };
 

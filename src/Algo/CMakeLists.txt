@@ -38,6 +38,7 @@ set( OD_MODULE_SOURCES
 	hilberttransform.cc
 	histequalizer.cc
 	houghtransform.cc
+	initalgo.cc
 	interpollayermodel.cc
 	isocontourtracer.cc
 	linear.cc
@@ -73,7 +74,7 @@ set( OD_MODULE_SOURCES
 	zaxistransform.cc
 	zaxistransformer.cc
 	zoeppritzcoeff.cc
-	initalgo.cc
+	zvalseriesimpl.cc
 )
 
 set( OD_TEST_PROGS

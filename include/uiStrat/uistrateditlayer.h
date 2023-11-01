@@ -40,6 +40,7 @@ protected:
     bool		chgd_ = false;
 
     bool		getFromScreen(bool);
+    void		initDlg(CallBacker*);
     void		valChg(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 

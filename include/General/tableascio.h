@@ -54,6 +54,9 @@ public:
     uiString			errMsg() const	{ return errmsg_; }
     uiString			warnMsg() const { return warnmsg_; }
 
+    static const UnitOfMeasure* getTimeUnit();
+    static const UnitOfMeasure* getDepthUnit();
+
 protected:
 
     const FormatDesc&		fd_;
@@ -82,8 +85,12 @@ protected:
     BufferString		getText(int) const;
     int				getIntValue(int,int udf=mUdf(int)) const;
     float			getFValue(int,float udf=mUdf(float)) const;
+				/*!< According to getTimeUnit, getDepthUnit
+				     if applicable. */
     double			getDValue(int,double udf=mUdf(double)) const;
-				// For more, use Conv:: stuff
+				/*!< According to getTimeUnit, getDepthUnit
+				     if applicable.
+				     For more, use Conv:: stuff */
 
     Coord			 getPos(int xfld,int yfld,
 					double udf=mUdf(double),bool isll=false,

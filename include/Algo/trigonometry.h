@@ -10,8 +10,10 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "coord.h"
+#include "paralleltask.h"
 #include "typeset.h"
 #include <math.h>
+
 class Plane3;
 
 
@@ -651,3 +653,33 @@ inline Coord3 lineSegmentIntersectsTriangle( Coord3 segStart, Coord3 segEnd,
 
     return res;
 }
+
+
+/*!
+\brief Find nearest coordinate in a TypeSet
+*/
+
+mExpClass(Algo) NearestCoordFinder : public ParallelTask
+{
+public:
+			NearestCoordFinder(const TypeSet<Coord3>&,
+					   const Coord3&);
+			~NearestCoordFinder();
+
+    int			nearestIndex() const		{ return nearestidx_; }
+    double		nearestDistance() const		{ return nearestdist_; }
+
+protected:
+    od_int64		nrIterations() const override;
+    bool		doPrepare(int nrthreads) override;
+    bool		doFinish(bool success) override;
+    bool		doWork(od_int64,od_int64,int) override;
+
+    int				nearestidx_		= -1;
+    double			nearestdist_		= mUdf(double);
+
+    const TypeSet<Coord3>&	crds_;
+    Coord3			crd_;
+    TypeSet<int>		minidxs_;
+    TypeSet<double>		mindists_;
+};

@@ -31,11 +31,67 @@ ________________________________________________________________________
 /*!\brief [do not use, helper function] */
 
 template <class T, class fT>
+inline bool removeLinPart( const T* inpptr, T* outptr, int sz, bool trend )
+{
+    T avg = 0;
+    T sum = 0;
+    fT sumindexes = 0;
+    fT sumsqidx = 0;
+    T crosssum = 0;
+    T aval = mUdf(T);
+    T bval = mUdf(T);
+
+    int count = 0;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const T value = inpptr[idx];
+	if ( mIsUdf(value) )
+	    continue;
+
+	sum += inpptr[idx];
+	count++;
+	if ( !trend )
+	    continue;
+
+	const fT fidx = mCast(fT,idx);
+	sumindexes += fidx;
+	sumsqidx += fidx * fidx;
+	crosssum += inpptr[idx] * fidx;
+    }
+
+    if ( count <= 1 )
+	return false;
+
+    if ( trend )
+	mComputeTrendAandB(count)
+    else
+	avg = sum / (fT)count;
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const T value = inpptr[idx];
+	outptr[idx] = mIsUdf(value) ? mUdf(T)
+				    : (trend ? value - (aval*(fT)idx+bval)
+				    :  value - avg);
+    }
+
+    return true;
+}
+
+
+template <class T, class fT>
 inline bool removeLinPart( const ArrayND<T>& in_, ArrayND<T>* out, bool trend )
 {
-    ArrayND<T>& out_ = out ? *out : const_cast<ArrayND<T>&>(in_);
+    ArrayND<T>& out_ = out ? *out : const_cast<ArrayND<T>&>( in_ );
     if ( out && in_.info() != out_.info() )
 	return false;
+
+    const od_int64 sz = in_.info().getTotalSz();
+    const T* inpptr = in_.getData();
+    T* outptr = out_.getData();
+
+    if ( inpptr && outptr )
+	return removeLinPart<T,fT>( inpptr, outptr, sz, trend );
 
     T avg = 0;
     T sum = 0;
@@ -45,89 +101,45 @@ inline bool removeLinPart( const ArrayND<T>& in_, ArrayND<T>* out, bool trend )
     T aval = mUdf(T);
     T bval = mUdf(T);
 
-    const od_int64 sz = in_.info().getTotalSz();
+    ArrayNDIter iter( in_.info() );
+    int index = 0, count = 0;
 
-    const T* inpptr = in_.getData();
-    T* outptr = out_.getData();
-
-    if ( inpptr && outptr )
+    do
     {
-	int count = 0;
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    const T value = inpptr[idx];
-	    if ( mIsUdf(value) )
-		continue;
+	const T value = in_.getND( iter.getPos() );
+	index++;
+	if ( mIsUdf(value) )
+	    continue;
 
-	    sum += inpptr[idx];
-	    count++;
-	    if ( !trend )
-		continue;
+	sum += value;
+	count++;
+	if ( !trend )
+	    continue;
 
-	    const fT fidx = mCast(fT,idx);
-	    sumindexes += fidx;
-	    sumsqidx += fidx * fidx;
-	    crosssum += inpptr[idx] * fidx;
-	}
+	sumindexes += index;
+	sumsqidx += index * index;
+	crosssum += value * (fT)index;
+    } while ( iter.next() );
 
-	if ( count <= 1 )
-	    return false;
+    iter.reset();
+    if ( count <= 1 )
+	return false;
 
-	if ( trend )
-	    mComputeTrendAandB(count)
-	else
-	    avg = sum / (fT)count;
-
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    const T value = inpptr[idx];
-	    outptr[idx] = mIsUdf(value) ? mUdf(T)
-					: (trend ? value - (aval*(fT)idx+bval)
-					:  value - avg);
-	}
-    }
+    if ( trend )
+	mComputeTrendAandB(count)
     else
+	avg = sum / (fT)count;
+
+    index = 0;
+    do
     {
-	ArrayNDIter iter( in_.info() );
-	int index = 0, count = 0;
-
-	do
-	{
-	    const T value = in_.getND( iter.getPos() );
-	    index++;
-	    if ( mIsUdf(value) )
-		continue;
-
-	    sum += value;
-	    count++;
-	    if ( !trend )
-		continue;
-
-	    sumindexes += index;
-	    sumsqidx += index * index;
-	    crosssum += value * (fT)index;
-	} while ( iter.next() );
-
-	iter.reset();
-	if ( count <= 1 )
-	    return false;
-
-	if ( trend )
-	    mComputeTrendAandB(count)
-	else
-	    avg = sum / (fT)count;
-
-	index = 0;
-	do
-	{
-	    const T inpval = in_.getND( iter.getPos() );
-	    const T outval = mIsUdf(inpval) ? mUdf(T)
-			   : (trend ? inpval - avg-(aval*(fT)index+bval)
-				    : inpval - avg);
-	    out_.setND(iter.getPos(), outval );
-	    index++;
-	} while ( iter.next() );
-    }
+	const T inpval = in_.getND( iter.getPos() );
+	const T outval = mIsUdf(inpval) ? mUdf(T)
+		       : (trend ? inpval - avg-(aval*(fT)index+bval)
+				: inpval - avg);
+	out_.setND(iter.getPos(), outval );
+	index++;
+    } while ( iter.next() );
 
     return true;
 }
@@ -138,7 +150,7 @@ inline bool removeLinPart( const ArrayND<T>& in_, ArrayND<T>* out, bool trend )
 template <class T, class fT>
 inline bool removeBias( ArrayND<T>& inout )
 {
-    return removeLinPart<T,fT>( inout, 0, false );
+    return removeLinPart<T,fT>( inout, nullptr, false );
 }
 
 /*!\brief Fills an ArrayND with an unbiased version of another. */
@@ -154,7 +166,7 @@ inline bool removeBias( const ArrayND<T>& in, ArrayND<T>& out )
 template <class T, class fT>
 inline bool removeTrend( ArrayND<T>& inout )
 {
-    return removeLinPart<T,fT>( inout, 0, true );
+    return removeLinPart<T,fT>( inout, nullptr, true );
 }
 
 /*!\brief Fills an ArrayND with a de-trended version of another. */

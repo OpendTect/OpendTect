@@ -18,19 +18,15 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uimsg.h"
 
+// uiZAxisTransform
 
 mImplFactory3Param( uiZAxisTransform, uiParent*, const char*,
 		    const char*, uiZAxisTransform::factory );
 
-bool uiZAxisTransform::isField( const uiParent* p )
-{
-    mDynamicCastGet(const uiZAxisTransformSel*,sel,p);
-    return sel && sel->isField();
-}
-
-
 uiZAxisTransform::uiZAxisTransform( uiParent* p )
-    : uiDlgGroup( p, uiStrings::sEmptyString() )
+    : uiDlgGroup(p,uiStrings::sEmptyString())
+    , rangefld_(nullptr)
+    , rangechanged_(false)
 {
 }
 
@@ -41,19 +37,29 @@ uiZAxisTransform::~uiZAxisTransform()
 
 
 void uiZAxisTransform::enableTargetSampling()
-{}
+{
+}
 
 
 bool uiZAxisTransform::getTargetSampling( StepInterval<float>& ) const
-{ return false; }
+{
+    return false;
+}
 
+
+bool uiZAxisTransform::isField( const uiParent* p )
+{
+    mDynamicCastGet(const uiZAxisTransformSel*,sel,p);
+    return sel && sel->isField();
+}
 
 
 // uiZAxisTransformSel
+
 uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	const char* fromdomain, const char* todomain, bool withsampling,
 	bool isfield, bool is2d )
-    : uiDlgGroup( p, uiStrings::sEmptyString() )
+    : uiDlgGroup( p, uiString::empty() )
     , isfield_(isfield)
     , selfld_(nullptr)
 {
@@ -63,7 +69,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	return;
     }
 
-    transflds_.allowNull( true );
+    transflds_.setNullAllowed();
     uiStringSet names;
 
     const BufferStringSet& factorynames =
@@ -74,8 +80,8 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 
     for ( int idx=0; idx<factorynames.size(); idx++ )
     {
-	uiZAxisTransform* uizat = uiZAxisTransform::factory().create(
-		factorynames[idx]->buf(), this, fromdomain, todomain );
+	auto* uizat = uiZAxisTransform::factory().create(
+			factorynames[idx]->buf(), this, fromdomain, todomain );
 	if ( !uizat )
 	    continue;
 
@@ -106,12 +112,8 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     if ( names.size()>1 )
     {
 	selfld_ = new uiGenInput( this, tr("Z transform"),
-		StringListInpSpec(names) );
-	selfld_->valuechanged.notify( mCB(this, uiZAxisTransformSel,selCB) );
-
-	setHAlignObj( selfld_ );
-
-
+				  StringListInpSpec(names) );
+	mAttachCB( selfld_->valueChanged, uiZAxisTransformSel::selCB );
 	for ( int idx=0; idx<transflds_.size(); idx++ )
 	{
 	    if ( !transflds_[idx] )
@@ -120,18 +122,38 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	    transflds_[idx]->attach( isfield_ ? rightOf : alignedBelow,
 				     selfld_ );
 	}
+
+	setHAlignObj( selfld_ );
+	mAttachCB( postFinalize(), uiZAxisTransformSel::initGrp );
     }
     else if ( hastransforms )
-    {
-	setHAlignObj( transflds_[0] );
-    }
-
-    selCB( nullptr );
+	setHAlignObj( transflds_.first() );
 }
 
 
 uiZAxisTransformSel::~uiZAxisTransformSel()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void uiZAxisTransformSel::initGrp( CallBacker* )
+{
+    selCB( nullptr );
+}
+
+
+void uiZAxisTransformSel::selCB( CallBacker* )
+{
+    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
+    for ( int idx=0; idx<transflds_.size(); idx++ )
+    {
+	if ( !transflds_[idx] )
+	    continue;
+
+	transflds_[idx]->display( idx==selidx );
+    }
+}
 
 
 bool uiZAxisTransformSel::isField() const
@@ -191,7 +213,7 @@ StringView uiZAxisTransformSel::selectedToDomain() const
 
 bool uiZAxisTransformSel::fillPar( IOPar& par )
 {
-    RefMan<ZAxisTransform> sel = getSelection();
+    ConstRefMan<ZAxisTransform> sel = getSelection();
     if ( !sel )
 	return false;
 
@@ -210,7 +232,7 @@ bool uiZAxisTransformSel::acceptOK()
 	return false;
 
     StepInterval<float> zrg;
-    if ( !getTargetSampling( zrg ) )
+    if ( !getTargetSampling(zrg) )
 	return true;
 
     if ( zrg.isUdf() )
@@ -232,17 +254,4 @@ bool uiZAxisTransformSel::acceptOK()
     }
 
     return true;
-}
-
-
-void uiZAxisTransformSel::selCB( CallBacker* )
-{
-    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
-    for ( int idx=0; idx<transflds_.size(); idx++ )
-    {
-	if ( !transflds_[idx] )
-	    continue;
-
-	transflds_[idx]->display( idx==selidx );
-    }
 }

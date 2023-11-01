@@ -9,13 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
+#include "atomic.h"
 #include "namedobj.h"
 #include "ranges.h"
-#include "enums.h"
-#include "zdomain.h"
-#include "atomic.h"
 #include "surveydisklocation.h"
 #include "survgeom3d.h"
+#include "zdomain.h"
 
 class ascostream;
 class LatLong2Coord;
@@ -85,7 +85,9 @@ public:
     uiString		getUiXYUnitString(bool abbrviated=true,
 						    bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
+    const ZDomain::Info& zDomainInfo() const;
     bool		depthsInFeet() const	{ return depthsinfeet_; }
+    ZDomain::DepthType	depthType() const;
     inline float	showZ2UserFactor() const
 			{ return float(zDomain().userFactor()); }
 

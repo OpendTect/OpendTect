@@ -29,7 +29,8 @@ static const char* feetKey = "Feet";
 static const char* meterKey = "Meter";
 static const char* ftpersecondKey = "Feet/second";
 static const char* mpersecondKey = "Meter/second";
-
+static const char* radiansKey = "Radians";
+static const char* degreesKey = "Degrees";
 
 
 class UnitOfMeasureCurDefsMgr : public CallBacker
@@ -167,38 +168,131 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefZStorageUnit()
 {
-    return SI().zIsTime() ? UoMR().get( secondsKey )
+    return SI().zIsTime() ? surveyDefTimeStorageUnit()
 			  : surveyDefDepthStorageUnit();
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefTimeUnit()
 {
-    return UoMR().get( millisecondsKey );
+    return millisecondsUnit();
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefTimeStorageUnit()
 {
-    return UoMR().get( secondsKey );
+    return secondsUnit();
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 {
-    return UoMR().get( SI().depthsInFeet() ? feetKey : meterKey );
+    return SI().depthsInFeet() ? feetUnit() : meterUnit();
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefDepthStorageUnit()
 {
-    return UoMR().get( SI().zInFeet() ? feetKey : meterKey );
+    return SI().zInFeet() ? feetUnit() : meterUnit();
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefVelUnit()
 {
-    return UoMR().get( SI().depthsInFeet() ? ftpersecondKey : mpersecondKey );
+    return SI().depthsInFeet() ? feetSecondUnit() : meterSecondUnit();
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::surveyDefVelStorageUnit()
+{
+    return SI().zInFeet() ? feetSecondUnit() : meterSecondUnit();
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::surveyDefSRDUnit()
+{
+    return SI().depthsInFeet() ? feetUnit() : meterUnit();
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::surveyDefSRDStorageUnit()
+{
+    return SI().zInFeet() ? feetUnit() : meterUnit();
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::surveyDefOffsetUnit()
+{
+    return SI().xyInFeet() ? feetUnit() : meterUnit();
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::secondsUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( secondsKey );
+    return ret;
+}
+
+const UnitOfMeasure* UnitOfMeasure::millisecondsUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( millisecondsKey );
+    return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::meterUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( meterKey );
+    return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::feetUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( feetKey );
+    return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::meterSecondUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( mpersecondKey );
+    return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::feetSecondUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( ftpersecondKey );
+    return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::radiansUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( radiansKey );
+    return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::degreesUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( degreesKey );
+    return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::zUnit( const ZDomain::Info& zinfo,
+					   bool storage )
+{
+    if ( zinfo.isTime() )
+	return storage ? surveyDefTimeStorageUnit() : surveyDefTimeUnit();
+    if ( zinfo.isDepthMeter() )
+	return meterUnit();
+    if ( zinfo.isDepthFeet() )
+	return feetUnit();
+
+    return nullptr;
 }
 
 
@@ -237,7 +331,7 @@ uiString UnitOfMeasure::surveyDefVelUnitAnnot( bool symb, bool withparens )
 {
     const UnitOfMeasure* uom = surveyDefVelUnit();
     if ( !uom )
-	return uiString::emptyString();
+	return uiString::empty();
 
     uiString lbl = toUiString( withparens ? "(%1)" : "%1" ).arg(
 					symb ? uom->symbol() : uom->name() );

@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "valseries.h"
 
+#include "samplingdata.h"
+
 #ifdef __debug__
 #include "debug.h"
 #endif
@@ -57,7 +59,7 @@ protected:
 /*!
 \brief Series of values from a pointer to some kind of array.
   If a more advanced conversion between the return type and the array type is
-  wanted, use ConvValueSeries instead.
+  wanted, use ConvMemValueSeries instead.
 */
 
 template <class RT, class AT>
@@ -69,6 +71,9 @@ public:
 		ArrayValueSeries( od_int64 sz );
 		~ArrayValueSeries() override
 		{ if ( mine_ ) delete [] ptr_; }
+
+    bool	operator ==(const ArrayValueSeries<RT,AT>&) const;
+    bool	operator !=(const ArrayValueSeries<RT,AT>&) const;
 
     ValueSeries<RT>*	clone() const override;
 
@@ -83,6 +88,9 @@ public:
 
     const RT*	arr() const override			mImplArr;
     RT*		arr() override				mImplArr;
+
+    const AT*	storArr() const				{ return ptr_; }
+    AT*		storArr()				{ return ptr_; }
 
     bool	reSizeable() const override		{ return mine_; }
     inline bool	setSize(od_int64) override;
@@ -140,6 +148,48 @@ protected:
     ObjectSet<AT>	ptrs_;
     od_int64		cursize_;
     const od_int64	chunksize_;
+};
+
+
+/*!
+\brief Series of values from a SamplingData object.
+       Never writable, only a quick way of providing all values
+       without storing them in an array
+*/
+
+template <class T>
+mClass(Basic) SamplingValues : public virtual ValueSeries<T>
+{
+public:
+				SamplingValues(const SamplingData<T>&,
+					       od_int64 sz);
+				SamplingValues(const StepInterval<T>&);
+				SamplingValues(const SamplingValues&);
+				~SamplingValues();
+
+    ValueSeries<T>&		operator =(const SamplingValues&);
+    bool			operator ==(const SamplingValues<T>&) const;
+    bool			operator !=(const SamplingValues<T>&) const;
+
+    ValueSeries<T>*		clone() const override;
+    bool			isOK() const override;
+
+    T				value(od_int64) const override;
+    bool			reSizeable() const override { return true; }
+    bool			setSize(od_int64) override;
+    void			setSampling(const SamplingData<T>&,
+					    od_int64 sz=-1);
+    void			setSampling(const StepInterval<T>&);
+
+    od_int64			size() const override	{ return sz_; }
+    char			bytesPerItem() const override	{ return 0; }
+
+    const SamplingData<T>&	getSampling() const	{ return sd_; }
+
+protected:
+
+    SamplingData<T>		sd_;
+    od_int64			sz_;
 };
 
 
@@ -258,6 +308,25 @@ ArrayValueSeries<RT,AT>::ArrayValueSeries( od_int64 sz )
     : ptr_( 0 ), mine_(true), cursize_( -1 )
 {
     setSize( sz );
+}
+
+
+template <class RT, class AT>
+bool ArrayValueSeries<RT,AT>::operator ==(
+				   const ArrayValueSeries<RT,AT>& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    return oth.cursize_ == cursize_ && oth.mine_ == mine_ && oth.ptr_ == ptr_;
+}
+
+
+template <class RT, class AT>
+bool ArrayValueSeries<RT,AT>::operator !=(
+				   const ArrayValueSeries<RT,AT>& oth ) const
+{
+    return !(oth == *this);
 }
 
 
@@ -491,3 +560,104 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 }
 
 #undef mChunkSize
+
+
+template <class T> inline
+SamplingValues<T>::SamplingValues( const SamplingData<T>& sd, od_int64 sz )
+    : sd_(sd)
+    , sz_(sz)
+{}
+
+
+template <class T> inline
+SamplingValues<T>::SamplingValues( const StepInterval<T>& rg )
+{
+    setSampling( rg );
+}
+
+
+template <class T> inline
+SamplingValues<T>::SamplingValues( const SamplingValues<T>& oth )
+    : SamplingValues<T>(oth.sd_,oth.sz_)
+{}
+
+
+template <class T> inline
+SamplingValues<T>::~SamplingValues()
+{}
+
+
+template <class T> inline
+ValueSeries<T>& SamplingValues<T>::operator =( const SamplingValues<T>& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    sd_ = oth.sd_;
+    sz_ = oth.sz_;
+
+    return *this;
+}
+
+
+template <class T> inline
+bool SamplingValues<T>::operator ==( const SamplingValues<T>& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    return oth.sz_ == sz_ && oth.sd_ == sd_;
+}
+
+
+template <class T> inline
+bool SamplingValues<T>::operator !=( const SamplingValues<T>& oth ) const
+{
+    return !(oth == *this);
+}
+
+
+template <class T> inline
+ValueSeries<T>* SamplingValues<T>::clone() const
+{
+    return new SamplingValues<T>( sd_, sz_ );
+}
+
+
+template <class T> inline
+bool SamplingValues<T>::isOK() const
+{
+    return sz_ >=0 && !sd_.isUdf();
+}
+
+
+template <class T> inline
+T SamplingValues<T>::value( od_int64 idx ) const
+{
+    return sd_.atIndex( idx );
+}
+
+
+template <class T> inline
+bool SamplingValues<T>::setSize( od_int64 sz )
+{
+    sz_ = sz;
+    return true;
+}
+
+
+template <class T> inline
+void SamplingValues<T>::setSampling( const SamplingData<T>& sd, od_int64 sz )
+{
+    sd_.set( sd );
+    if ( sz >= 0 )
+	setSize( sz );
+}
+
+
+template <class T> inline
+void SamplingValues<T>::setSampling( const StepInterval<T>& rg )
+{
+    sd_.set( rg );
+    setSize( od_int64 (rg.nrSteps()) + 1 );
+}

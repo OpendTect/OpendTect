@@ -1266,6 +1266,7 @@ void uiSurvey::putToScreen()
     BufferString inlinfo;
     BufferString crlinfo;
     BufferString zkey, zinfo;
+    BufferString srdinfo;
     BufferString bininfo;
     BufferString crsinfo;
     BufferString areainfo;
@@ -1301,11 +1302,11 @@ void uiSurvey::putToScreen()
     {
 	inlinfo.add( si.sampling(false).hsamp_.start_.inl() );
 	inlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.inl() );
-	inlinfo.add( " - " ).add( si.inlStep() );
+	inlinfo.add( " [" ).add( si.inlStep() ).add( "]" );
 	inlinfo.add( "; Total: ").add( si.sampling(false).nrInl() );
 	crlinfo.add( si.sampling(false).hsamp_.start_.crl() );
 	crlinfo.add( " - ").add( si.sampling(false).hsamp_.stop_.crl() );
-	crlinfo.add( " - " ).add( si.crlStep() );
+	crlinfo.add( " [" ).add( si.crlStep() ).add( "]" );
 	crlinfo.add( "; Total: ").add( si.sampling(false).nrCrl() );
 
 	const float inldist = si.inlDistance(), crldist = si.crlDistance();
@@ -1318,9 +1319,15 @@ void uiSurvey::putToScreen()
     sizrg.scale( si.zDomain().userFactor() );
     const int nrdec = si.nrZDecimals();
     zinfo.add( sizrg.start, nrdec ).add( " - " )
-	 .add( sizrg.stop, nrdec ).add( " - " )
-	 .add( sizrg.step, nrdec );
+	 .add( sizrg.stop, nrdec ).add( " [" )
+	 .add( sizrg.step, nrdec ).add( "]" );
     zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
+
+    float srd = si.seismicReferenceDatum();
+    if ( si.zIsTime() && si.depthsInFeet() )
+	srd *= mToFeetFactorF;
+    srdinfo.add( srd, 2 ).addSpace()
+	   .add( getDistUnitString(si.depthsInFeet(),true) );
 
     survtypeinfo.add( SurveyInfo::toString(si.survDataType()) );
 
@@ -1336,6 +1343,8 @@ void uiSurvey::putToScreen()
     infoset_.add( "In-line range", inlinfo );
     infoset_.add( "Cross-line range", crlinfo );
     infoset_.add( zkey, zinfo );
+    if ( !mIsZero(srd,1e-1) )
+	infoset_.add( SurveyInfo::sKeySeismicRefDatum(), srdinfo );
     infoset_.add( "Inl/Crl bin size", bininfo );
     infoset_.add( "CRS", crsinfo );
     infoset_.add( "Area", areainfo );

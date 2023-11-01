@@ -37,7 +37,7 @@ AngleMuteComputer::AngleMuteCompPars::~AngleMuteCompPars()
 }
 
 
-// PreStack::AngleMuteComputer::
+// PreStack::AngleMuteComputer
 
 AngleMuteComputer::AngleMuteComputer()
     : outputmute_(*new MuteDef)
@@ -66,7 +66,16 @@ void AngleMuteComputer::fillPar( IOPar& par ) const
 bool AngleMuteComputer::usePar( const IOPar& par )
 {
     par.get( sKeyMuteDefID(), params().outputmutemid_ );
-    return AngleMuteBase::usePar( par );
+    if ( !AngleMuteBase::usePar(par) )
+	return false;
+
+    bool offsetsinfeet = outputmute_.isOffsetInFeet();
+    if ( params().raypar_.getYN(RayTracer1D::sKeyOffsetInFeet(),offsetsinfeet) )
+	outputmute_.setOffsetType( offsetsinfeet
+				   ? Seis::OffsetType::OffsetFeet
+				   : Seis::OffsetType::OffsetMeter );
+
+    return true;
 }
 
 
@@ -88,6 +97,12 @@ bool AngleMuteComputer::doPrepare( int nrthreads )
 
     MuteDefTranslator::store( outputmute_, muteioobj, errmsg_ );
 
+    bool offsetsinfeet = outputmute_.isOffsetInFeet();
+    if ( params().raypar_.getYN(RayTracer1D::sKeyOffsetInFeet(),offsetsinfeet) )
+	outputmute_.setOffsetType( offsetsinfeet
+					? Seis::OffsetType::OffsetFeet
+					: Seis::OffsetType::OffsetMeter );
+
     for ( int idx=0; idx<nrthreads; idx++ )
 	rtrunners_ += new RayTracerRunner( params().raypar_ );
 
@@ -102,22 +117,29 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
 
-    const TrcKeySampling& hrg = params().tks_;
+    const TrcKeySampling& tks = params().tks_;
     ObjectSet<PointBasedMathFunction> mutefuncs;
     TypeSet<BinID> bids;
+
+    const bool zistime = outputmute_.zIsTime();
+    TypeSet<float> offsets_;
+    params().raypar_.get( RayTracer1D::sKeyOffset(), offsets_ );
+
+    const RayTracer1D::Setup& rtsu = params().rtsu_();
+    const float cutoffsin = (float) sin( params().mutecutoff_ * M_PIf / 180.f );
 
     ElasticModelSet emodels;
     auto* layers = new ElasticModel();
     emodels.add( layers );
+    bool nonemuted, allmuted;
     for ( od_int64 pidx=start; pidx<=stop && shouldContinue(); pidx++ )
     {
-	BinID curbid = hrg.atIndex( pidx );
-	SamplingData<float> sd;
+	const TrcKey tk = tks.trcKeyAt( pidx );
 	layers->setEmpty();
-	if ( !getLayers(curbid,*layers,sd) )
+	if ( !getLayers(tk,*layers,errmsg_) )
 	    continue;
 
-	rtrunner->setModel( emodels );
+	rtrunner->setModel( emodels, &rtsu );
 	if ( !rtrunner->executeParallel(false) )
 	    { errmsg_ = rtrunner->uiMessage(); continue; }
 
@@ -127,54 +149,68 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !refmodel || !refmodel->hasAngles() )
 	    return false;
 
+	const TimeDepthModel& tdmodel = refmodel->getDefaultModel();
 	auto* mutefunc = new PointBasedMathFunction();
 
-	const int nrlayers = layers->size();
-	TypeSet<float> offsets;
-	params().raypar_.get( RayTracer1D::sKeyOffset(), offsets );
-	float zpos = 0;
-	int lastioff =0;
-	float lastvalidmutelayer = 0;
-	for ( int ioff=0; ioff<offsets.size(); ioff++ )
+	const bool innermute = false;
+	float zpos = 0.f;
+	int lastioff = 0;
+	for ( int ioff=0; ioff<offsets_.size(); ioff++ )
 	{
-	    const float mutelayer =
-			getOffsetMuteLayer( *refmodel, nrlayers, ioff, true );
-	    if ( !mIsUdf( mutelayer ) )
+	    const float offset = offsets_[ioff];
+	    TypeSet< Interval<float> > mutelayeritvs;
+	    const float mutelayer = getOffsetMuteLayer( *refmodel, ioff,
+						innermute, nonemuted,
+						allmuted, mutelayeritvs );
+	    if ( !mIsUdf(mutelayer) )
 	    {
-		zpos = offsets[ioff] == 0 ? 0 : sd.start + sd.step*mutelayer;
-		lastvalidmutelayer = mutelayer;
-		mutefunc->add( offsets[ioff], zpos );
+		zpos = getfMutePos( tdmodel, zistime, mutelayer, offset );
+		mutefunc->add( offset, zpos );
 		lastioff = ioff;
+		continue;
+	    }
+
+	    for ( auto& itvml : mutelayeritvs )
+	    {
+		if ( mIsUdf(itvml.start) )
+		    continue;
+
+		zpos = getfMutePos( tdmodel, zistime, itvml.start, offset );
+		mutefunc->add( offset, zpos );
+		lastioff = ioff;
+		break;
+/* These points should be added too to the function:
+		if ( mIsUdf(itvml.stop) )
+		    continue;
+
+		zpos = getfMutePos( tdmodel, zistime, itvml.stop, offset );
+		mutefunc->add( offset, zpos ); //Should be added too
+ */
 	    }
 	}
 
-	if ( lastioff != offsets.size()-1 )
+	const int nrlayers = layers->size();
+	if ( lastioff != offsets_.size()-1 )
 	{
-	    float zdpt = 0;
-	    for ( int idx=0; idx<(int)lastvalidmutelayer+1 ; idx++ )
+	    zpos = zistime ? tdmodel.getTime( nrlayers )
+			   : tdmodel.getDepth( nrlayers );
+	    const float prevangle = refmodel->getSinAngle( lastioff,
+							   nrlayers-1 );
+	    const float nextangle = refmodel->getSinAngle( lastioff+1,
+							   nrlayers-1 );
+	    const float relpos = ( cutoffsin - prevangle ) /
+				 ( nextangle - prevangle );
+	    if ( !mIsUdf(prevangle) && !mIsUdf(nextangle) )
 	    {
-		if ( idx < lastvalidmutelayer+1 )
-		    zdpt += layers->get(idx)->getThickness();
-	    }
-	    float lastdepth = 0;
-	    for ( int idx=0; idx<nrlayers; idx++ )
-		lastdepth += layers->get(idx)->getThickness();
-
-	    float thk = lastdepth - zdpt;
-	    const float lastzpos = sd.start + sd.step*(nrlayers-1);
-	    const float lastsinangle =
-				refmodel->getSinAngle( lastioff, nrlayers-1 );
-
-	    const float cosangle = Math::Sqrt(1-lastsinangle*lastsinangle);
-	    if ( cosangle > 0 )
-	    {
-		const float doff = thk*lastsinangle/cosangle;
-		mutefunc->add( lastzpos, offsets[lastioff]+doff );
+		const float doff = mIsEqual(nextangle,prevangle,1e-6f)
+				 ? 0.f
+		     : ( (offsets_[lastioff+1] - offsets_[lastioff])*relpos);
+		mutefunc->add( offsets_[lastioff]+doff, zpos );
 	    }
 	}
 
 	mutefuncs += mutefunc;
-	bids += curbid;
+	bids += tk.position();
 	addToNrDone( 1 );
     }
 

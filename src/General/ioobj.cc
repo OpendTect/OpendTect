@@ -270,15 +270,17 @@ bool IOObj::put( ascostream& astream ) const
 	astream.put( group(), fms );
     }
 
-    if ( !putTo( astream ) )
+    if ( !putTo(astream) )
 	return false;
 
-    IOParIterator iter( pars_ );
-    BufferString key, val;
-    while ( iter.next(key,val) )
+    BufferStringSet sortedkeys;
+    pars_.getKeys( sortedkeys );
+    sortedkeys.sort();
+    for ( const auto* key : sortedkeys )
     {
 	astream.stream() << '#';
-	astream.put( key, val );
+	const char* keystr = key->buf();
+	astream.put( keystr, pars_.find(keystr).buf() );
     }
 
     astream.newParagraph();
@@ -308,15 +310,13 @@ bool IOObj::isUserSelectable( bool forread ) const
 }
 
 
-void IOObj::setSurveyDefault( const char* subsel ) const
+void IOObj::setSurveyDefault( const char* /* subsel */ ) const
 {
     PtrMan<Translator> tr = createTranslator();
     if ( !tr )
 	return;
 
-    CompoundKey defaultkey = tr->group()->getSurveyDefaultKey( this );
-    if ( subsel )
-	defaultkey += subsel;
+    const BufferString defaultkey( tr->group()->getSurveyDefaultKey( this ) );
 
     SI().getPars().set( defaultkey.buf(), key() );
     SI().savePars();

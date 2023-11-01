@@ -40,7 +40,7 @@ static ConstRefMan<ReflectivityModelBase> getRefModel()
     IOPar raypars;
     raypars.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
     PtrMan<RayTracer1D> raytracer = RayTracer1D::createInstance( raypars,
-								 &emdl, msg );
+							 &emdl, msg, nullptr );
     if ( !raytracer || !raytracer->execute() )
 	return nullptr;
 

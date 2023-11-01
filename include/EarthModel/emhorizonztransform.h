@@ -44,7 +44,11 @@ public:
 							{ return true; }
 
     Interval<float>	getZInterval(bool from) const override;
+    ZSampling		getZInterval(bool from,bool makenice) const;
+
+    mDeprecatedDef
     float		getZIntervalCenter(bool from) const override;
+
     bool		needsVolumeOfInterest() const override { return false; }
 
     bool		isReferenceHorizon(const MultiID& horid,
@@ -59,9 +63,20 @@ public:
 protected:
 			~HorizonZTransform();
 
+    void		doTransform(const TrcKey&,const SamplingData<float>&,
+				    const ZDomain::Info& sdzinfo,
+				    int sz,float* res) const;
     void		calculateHorizonRange();
     void		horChangeCB( CallBacker* );
     bool		getTopBottom(const TrcKey&,float&top,float&bot) const;
+
+    ZSampling		getZInterval(const ZSampling&,
+				     const ZDomain::Info& from,
+				     const ZDomain::Info& to,
+				     bool makenice=true) const;
+    ZSampling		getWorkZSampling(const ZSampling&,
+					 const ZDomain::Info& from,
+					 const ZDomain::Info& to) const;
 
     const Horizon*	horizon_;
     Interval<float>	depthrange_;

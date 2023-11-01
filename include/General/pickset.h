@@ -8,6 +8,8 @@ ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
+
 #include "sharedobject.h"
 #include "picklocation.h"
 #include "enums.h"
@@ -20,6 +22,7 @@ template <class T> class ODPolygon;
 
 class DataPointSet;
 class TrcKeyZSampling;
+class UnitOfMeasure;
 class uiComboBox;
 
 
@@ -88,6 +91,12 @@ public:
 			//!< default is 3D
     OD::GeomSystem	geomSystem() const;
 			//!< pre-6.0.1 sets will return the survID of first loc
+    const ZDomain::Info& zDomain() const;
+    bool		zIsTime() const;
+    bool		zInMeter() const;
+    bool		zInFeet() const;
+    const UnitOfMeasure* zUnit() const;
+    Set&		setZDomain(const ZDomain::Info&);
 
     bool		isPolygon() const;
     void		getPolygon(ODPolygon<double>&,int idx=0) const;

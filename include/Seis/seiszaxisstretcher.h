@@ -9,26 +9,110 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-#include "trckeyzsampling.h"
+
 #include "paralleltask.h"
+#include "seistype.h"
 #include "thread.h"
+#include "trckeyzsampling.h"
 #include "unitofmeasure.h"
+#include "zaxistransform.h"
 
 class IOObj;
 class SeisTrc;
 class SeisTrcReader;
 class SeisTrcWriter;
 class SeisSequentialWriter;
-class ZAxisTransform;
+class VelocityDesc;
+class ZAxisTransformSampler;
+namespace Vel { class Worker; }
+template <class yT,class xT> class MathFunction;
+
+
+/*!
+  brief Stretches the zaxis from the input cube with a ZAxisTransform and
+  writes it out into another volume.
+ */
+
+mExpClass(Seis) SeisZAxisStretcherNew : public ParallelTask
+{ mODTextTranslationClass(SeisZAxisStretcherNew);
+public:
+			SeisZAxisStretcherNew(const IOObj& in,const IOObj& out,
+					      const TrcKeyZSampling& outcs,
+					      ZAxisTransform&,bool forward,
+					      const VelocityDesc* =nullptr);
+			~SeisZAxisStretcherNew();
+
+    bool		isOK() const;
+
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
+
+    void		setUdfVal(float val);
+
+private:
+
+    void		setRanges();
+    bool		init();
+    void		setWorkers(const VelocityDesc&);
+
+    od_int64		nrIterations() const override	{ return totalnr_; }
+    bool		doPrepare(int) override;
+    bool		doWork(od_int64,od_int64,int) override;
+    bool		doFinish(bool) override;
+
+    bool		getInputTrace(SeisTrc&);
+    bool		loadTransformChunk(int firstinl);
+    void		stretch(const SeisTrc&,int icomp,
+				const MathFunction<float,float>& intrcfunc,
+				ZAxisTransformSampler&,float* tmpptr,
+				SeisTrc&) const;
+    bool		selfStretchVelocity(const SeisTrc&,int icomp,
+					    SeisTrc&) const;
+    bool		stretchVelocity(const SeisTrc&,int icomp,
+					SeisTrc&) const;
+
+    const IOObj&			inpobj_;
+    const IOObj&			outobj_;
+
+    SeisTrcReader*			seisreader_ = nullptr;
+    Threads::ConditionVar		readerlock_;
+    Threads::ConditionVar		readerlockmodel_;
+
+    SeisTrcWriter*			seiswriter_ = nullptr;
+    SeisSequentialWriter*		sequentialwriter_ = nullptr;
+    bool				waitforall_ = false;
+    int					nrwaiting_ = 0;
+    int					nrthreads_ = 0;
+
+    TrcKeyZSampling			outcs_;
+    TrcKeySampling			curhrg_;
+    RefMan<ZAxisTransform>		ztransform_;
+    uiString				msg_;
+    int					totalnr_ = -1;
+    int					voiid_ = -1;
+    const bool				ist2d_;
+    Seis::GeomType			geomtype_;
+    float				udfval_		= mUdf(float);
+
+    Vel::Worker*			worker_		= nullptr;
+    Vel::Worker*			vintworker_	= nullptr;
+    bool				autotransform_	= false;
+    const ZDomain::Info*		zdomaininfo_ = nullptr;
+    double				srd_;
+    const UnitOfMeasure*		srduom_;
+
+};
 
 
 /*!Stretches the zaxis from the input cube with a ZAxisTransform and writes it
    out into another volume. If stretchinverse is true, the stretching will
-   be done on the inveres of the values. */
+   be done on the inveres of the values.
+ */
 
 mExpClass(Seis) SeisZAxisStretcher : public ParallelTask
 { mODTextTranslationClass(SeisZAxisStretcher);
 public:
+			mDeprecated("Use SeisZAxisStretcherNew")
 			SeisZAxisStretcher( const IOObj& in,
 					     const IOObj& out,
 					     const TrcKeyZSampling& outcs,

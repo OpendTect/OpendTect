@@ -17,15 +17,14 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "helpview.h"
+#include "od_helpids.h"
 #include "od_istream.h"
 #include "survinfo.h"
-#include "veldesc.h"
 #include "unitofmeasure.h"
 #include "welld2tmodel.h"
-#include "wellimpasc.h"
 #include "welldata.h"
+#include "wellimpasc.h"
 #include "welltrack.h"
-#include "od_helpids.h"
 
 uiString uiD2TModelGroup::sKeyTemporaryVelUiStr()
 { return tr("Temporary model velocity"); }
@@ -169,8 +168,9 @@ BufferString uiD2TModelGroup::dataSourceName() const
 	ret.set( filefld_->fileName() );
     else
     {
-	ret.set( "[V=" ).add( velfld_->getFValue() ).add( " " );
-	ret.add( VelocityDesc::getVelUnit(true).getFullString() ).add( "]" );
+	ret.set( "[V=" ).add( velfld_->getFValue() ).add( " " )
+	   .add( toString(UnitOfMeasure::surveyDefVelUnitAnnot(true,true)) )
+	   .add( "]" );
     }
     return ret;
 }

@@ -9,7 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "bufstring.h"
+#include "odcommonenums.h"
 #include "uistring.h"
 
 
@@ -17,6 +19,7 @@ namespace ZDomain
 {
 
 class Def;
+class Info;
 
 mGlobal(Basic) const Def&	SI();
 mGlobal(Basic) const Def&	Depth();
@@ -28,6 +31,12 @@ mGlobal(Basic) bool		isTime(const IOPar&);
 mGlobal(Basic) void		setSI(IOPar&);
 mGlobal(Basic) void		setDepth(IOPar&);
 mGlobal(Basic) void		setTime(IOPar&);
+
+mGlobal(Basic) const Info&	TWT();
+mGlobal(Basic) const Info&	DepthMeter();
+mGlobal(Basic) const Info&	DepthFeet();
+mGlobal(Basic) const Info*	get(const IOPar&);
+				// never manage the returned pointer
 
 
 /*!
@@ -54,6 +63,8 @@ public:
     const char*		unitStr(bool withparens=false) const;
 			//!<In case of depth, ft or m will come from SurvInfo
     uiString		uiUnitStr(bool withparens=false) const;
+
+    int			nrZDecimals(float zstep) const;
 
     bool		isSI() const;
     bool		isTime() const;
@@ -90,9 +101,17 @@ mExpClass(Basic) Info
 {
 public:
 			Info(const Def&);
+			Info(const Def&,const char* unitstr);
 			Info(const Info&);
 			Info(const IOPar&);
 			~Info();
+
+    bool		operator ==(const Info&) const;
+    bool		operator !=(const Info&) const;
+
+    bool		fillPar(IOPar&) const;
+   // No usePar(const IOPar&), use ZDomain::get(const IOPar&) or the constructor
+   // Returns true if changed
 
     const Def&		def_;
     IOPar&		pars_;
@@ -100,25 +119,42 @@ public:
     bool		hasID() const;
     const MultiID	getID() const;
     void		setID(const MultiID&);
+    void		setDepthUnit(DepthType);
 
+    bool		isCompatibleWith(const Info&) const;
     bool		isCompatibleWith(const IOPar&) const;
 
     // Convenience
     const char*		key() const		{ return def_.key(); }
     uiString		userName() const	{ return def_.userName(); }
+    const char*		unitStr_(bool wp=false) const;
+    uiString		uiUnitStr_(bool wp=false) const;
+    mDeprecated("use unitStr_")
     const char*		unitStr(bool wp=false) const
 						{ return def_.unitStr(wp); }
+    mDeprecated("use uiUnitStr_")
     uiString		uiUnitStr(bool wp=false) const
 						{ return def_.uiUnitStr(wp); }
     uiString		getLabel() const	{ return def_.getLabel(); }
     int			userFactor() const	{ return def_.userFactor(); }
 
+    bool		isTime() const		{ return def_.isTime(); }
+    bool		isDepth() const		{ return def_.isDepth(); }
+    TimeType		timeType() const;  // Only valid for Time
+    DepthType		depthType() const; // Only valid for Depth
+    bool		isDepthMeter() const;
+    bool		isDepthFeet() const;
+
     mDeprecated("Use MultiID Overloaded function")
     void		setID(const char*);
+
+private:
+    void		setDefaultUnit();
 };
 
 mGlobal(Basic) const char*	sKey();
 mGlobal(Basic) const char*	sKeyTime();
 mGlobal(Basic) const char*	sKeyDepth();
+mGlobal(Basic) const char*	sKeyUnit();
 
 } // namespace ZDomain

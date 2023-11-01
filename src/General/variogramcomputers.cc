@@ -9,15 +9,12 @@ ________________________________________________________________________
 
 #include "variogramcomputers.h"
 
-#include "arrayndimpl.h"
 #include "arrayndalgo.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "datapointset.h"
-#include "executor.h"
 #include "interpol1d.h"
 #include "posvecdataset.h"
-#include "ptrman.h"
 #include "statrand.h"
 #include "statruncalc.h"
 #include "survinfo.h"
@@ -277,12 +274,12 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    }
 	}
 
-	int ztop  = mNINT32(dpset.z(disorder[0].rowid_)*zstep)+step;
-	int zbase = mNINT32(dpset.z(disorder[nrin-1].rowid_)*zstep)-step;
+	const int ztop	= mNINT32(dpset.z(disorder[0].rowid_)*zstep)+step;
+	const int zbase = mNINT32(dpset.z(disorder[nrin-1].rowid_)*zstep)-step;
 
 	if ( zbase >  dpset.z(disorder[nrin-1].rowid_)*zstep ||
-	    ztop  <  dpset.z(disorder[0].rowid_)*zstep ||
-	    (zbase - ztop) < 3*step )
+	     ztop  <  dpset.z(disorder[0].rowid_)*zstep ||
+	     (zbase - ztop) < 3*step )
 	{
 	    errmsg ="Z interval too small for analysis.\n";
 	    errmsg += "Well ";
@@ -292,8 +289,10 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    continue;
 	}
 
-	int nrout = (zbase-ztop)/step+1;
-	Array1DImpl<double> interpolatedvals(nrout);
+	const int nrout = (zbase-ztop)/step+1;
+	mAllocVarLenArr( double, interpolatedvals, nrout );
+	if ( !mIsVarLenArrOK(interpolatedvals) )
+	    return false;
 
 	int previdx = 0;
 	double depth_out = ztop/zstep;
@@ -312,19 +311,20 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 		continue;
 	    }
 
-	    float reldist = ( float )
+	    const float reldist = ( float )
 			    ( depth_out-dpset.z(disorder[previdx].rowid_) )/
 			    ( dpset.z(disorder[previdx+1].rowid_)-
 			      dpset.z(disorder[previdx].rowid_) );
-	    double val_out = Interpolate::linearReg1D(
+	    const double val_out = Interpolate::linearReg1D(
 			    dpset.value( dpcolid,disorder[previdx].rowid_ ),
 			    dpset.value( dpcolid,disorder[previdx+1].rowid_ ),
 			    reldist);
-	    interpolatedvals.set(idz,val_out);
+	    interpolatedvals[idz] = val_out;
 	    depth_out += (double)(step/zstep);
 	}
 
-	removeTrend<double,double>( interpolatedvals );
+	removeLinPart<double,double>( interpolatedvals, interpolatedvals,
+				      nrout, true );
 	variogramvals_->set( nrcontribwells, 0, 0 );
 	axes_->set( nrcontribwells, 0, 0);
 	variogramnms_->add(grpnames.get( igroup-1 ));
@@ -338,9 +338,9 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 	    int idz=0;
 	    while ( idz < nrout-(lag/step+1) )
 	    {
-		double val1 = interpolatedvals.get(idz);
-		double val2 = interpolatedvals.get(idz+lag/step);
-		double diffval = 0.5*(val2-val1)*(val2-val1);
+		const double val1 = interpolatedvals[idz];
+		const double val2 = interpolatedvals[idz+lag/step];
+		const double diffval = 0.5*(val2-val1)*(val2-val1);
 		idz++;
 		if ( mIsZero(diffval,mDefEps) )
 		    continue;

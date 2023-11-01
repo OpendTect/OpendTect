@@ -205,6 +205,8 @@ protected:
     bool			hasCache(int) const override;
 
     TrcKeyZSampling		snapPosition(const TrcKeyZSampling&) const;
+    TrcKeyZSampling		snapPosition(const TrcKeyZSampling&,
+					     bool onlyic) const;
     void			updateTexShiftAndGrowth();
 
     visBase::EventCatcher*		eventcatcher_ = nullptr;

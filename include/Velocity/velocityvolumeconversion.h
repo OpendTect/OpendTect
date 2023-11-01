@@ -20,16 +20,68 @@ class SeisTrc;
 class SeisTrcReader;
 class SeisTrcWriter;
 class SeisSequentialWriter;
+class UnitOfMeasure;
+namespace ZDomain { class Info; }
 
 namespace Vel
 {
 
-/*!Reads in a volume with eather Vrms or Vint, and writes out a volume
-   with eather Vrms or Vint. */
+/*!Reads in a volume with either Vrms or Vint, and writes out a volume
+   with either Vrms or Vint. */
+
+mExpClass(Velocity) VolumeConverterNew : public ParallelTask
+{ mODTextTranslationClass(VolumeConverter);
+public:
+				VolumeConverterNew(const IOObj& input,
+						const IOObj& output,
+						const TrcKeySampling&,
+						const VelocityDesc& outdesc,
+						double srd,
+						const UnitOfMeasure* srduom);
+				~VolumeConverterNew();
+
+    uiString			uiMessage() const override;
+    uiString			uiNrDoneText() const override;
+
+    static const char*		sKeyInput();
+    static const char*		sKeyOutput();
+
+private:
+    od_int64			nrIterations() const override;
+
+    bool			doPrepare(int) override;
+    bool			doFinish(bool) override;
+    bool			doWork(od_int64,od_int64,int) override;
+
+    void			setRanges();
+    char			getNewTrace(SeisTrc&,int threadidx);
+
+    uiString			msg_;
+    od_int64			totalnr_ = -1;
+
+    const IOObj&		input_;
+    const IOObj&		output_;
+    const ZDomain::Info*	zdomaininfo_	    = nullptr;
+    VelocityDesc&		velinpdesc_;
+    VelocityDesc&		veloutpdesc_;
+    double			srd_;
+    const UnitOfMeasure*	srduom_;
+    TrcKeySampling		tks_;
+
+    SeisTrcReader*		reader_		    = nullptr;
+    SeisTrcWriter*		writer_		    = nullptr;
+    SeisSequentialWriter*	sequentialwriter_   = nullptr;
+
+    Threads::ConditionVar	lock_;
+};
+
+
+// Old task, do not use it
 
 mExpClass(Velocity) VolumeConverter : public ParallelTask
 { mODTextTranslationClass(VolumeConverter);
 public:
+				mDeprecated("Use VolumeConverterNew")
 				VolumeConverter(const IOObj& input,
 						const IOObj& output,
 						const TrcKeySampling& ranges,

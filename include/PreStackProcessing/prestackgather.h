@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
+
 #include "arrayndimpl.h"
 #include "datapackbase.h"
 #include "multiid.h"
+#include "odcommonenums.h"
 #include "offsetazimuth.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -20,9 +22,12 @@ class IOObj;
 class SeisPSReader;
 class SeisTrc;
 class SeisTrcBuf;
+namespace ZDomain { class Info; }
 
 namespace PreStack
 {
+
+class GatherSetDataPack;
 
 /*!
 \brief PreStack gather.
@@ -33,6 +38,10 @@ mExpClass(PreStackProcessing) Gather : public FlatDataPack
 public:
 				Gather();
 				Gather(const Gather&);
+				Gather(const FlatPosData&,
+				       Seis::OffsetType,
+				       const ZDomain::Info&);
+		mDeprecated("Provide Seis::OffsetType and ZDomain::Info")
 				Gather(const FlatPosData&);
 
     bool			is3D() const { return tk_.is3D(); }
@@ -94,12 +103,21 @@ public:
     float			getAzimuth(int) const;
     OffsetAzimuth		getOffsetAzimuth(int) const;
 
-    bool			isOffsetAngle() const	{return offsetisangle_;}
-    void			setOffsetIsAngle(bool yn);
     bool			isCorrected() const	{ return iscorr_; }
-    void			setCorrected(bool yn)	{ iscorr_ = yn; }
+    bool			isOffsetAngle() const	{return offsetisangle_;}
+    bool			isOffsetInMeters() const;
+    bool			isOffsetInFeet() const;
+    Seis::OffsetType		offsetType() const;
+    const ZDomain::Info&	zDomain() const;
     bool			zIsTime() const		{ return zit_; }
+    bool			zInMeter() const;
+    bool			zInFeet() const;
+    void			setCorrected( bool yn ) { iscorr_ = yn; }
+    Gather&			setOffsetType(Seis::OffsetType);
+    Gather&			setZDomain(const ZDomain::Info&);
 
+    mDeprecated("Use setOffsetType")
+    void			setOffsetIsAngle(bool yn);
 
     const MultiID&		getVelocityID() const	{ return velocitymid_; }
     const MultiID&		getStorageID() const    { return storagemid_; }
@@ -126,16 +144,26 @@ protected:
     MultiID			velocitymid_;
     MultiID			storagemid_;
     MultiID			staticsmid_;
-    bool			offsetisangle_;
+    bool			offsetisangle_; //deprecated
     bool			iscorr_;
 
-    bool			zit_;
+    bool			zit_; //deprecated
     TrcKey			tk_;
     Coord			coord_;
     TypeSet<float>		azimuths_;
     ZSampling			zrg_;
 
 public:
+    bool			setFromTrcBuf(SeisTrcBuf&,int comp,
+					    bool iscorrected,
+					    Seis::OffsetType,
+					    const ZDomain::Info&,
+					    bool snapzrangetosi=false);
+    bool			setFromTrcBuf(SeisTrcBuf&,int comp,
+					      const GatherSetDataPack&,
+					      bool snapzrangetosi=false);
+
+    mDeprecated("Provide GatherSetDataPack")
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
 					    bool snapzrangetosi=false);
 
@@ -184,8 +212,8 @@ public:
     float			offsetRangeStep() const;
 
     TrcKey			getTrcKeyByIdx(int idx) const;
-    DataPackID		getGatherIDByIdx(int idx) const;
-    DataPackID		getGatherID(const BinID&) const;
+    DataPackID			getGatherIDByIdx(int idx) const;
+    DataPackID			getGatherID(const BinID&) const;
 
     const Array3D<float>&	data() const		{ return arr3d_; }
 
@@ -196,6 +224,19 @@ public:
     void			setName(const char*) override;
 
     ZSampling			zRange() const;
+
+    bool			isCorrected() const;
+    bool			isOffsetAngle() const;
+    bool			isOffsetInMeters() const;
+    bool			isOffsetInFeet() const;
+    Seis::OffsetType		offsetType() const;
+    const ZDomain::Info&	zDomain() const;
+    bool			zIsTime() const;
+    bool			zInMeter() const;
+    bool			zInFeet() const;
+    GatherSetDataPack&		setCorrected(bool yn);
+    GatherSetDataPack&		setOffsetType(Seis::OffsetType);
+    GatherSetDataPack&		setZDomain(const ZDomain::Info&);
 
     static const char*		sDataPackCategory();
 

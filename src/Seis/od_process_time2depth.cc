@@ -8,22 +8,21 @@ ________________________________________________________________________
 -*/
 
 #include "batchprog.h"
-#include "process_time2depth.h"
 
-#include "trckeyzsampling.h"
 #include "ioman.h"
-#include "iopar.h"
 #include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "moddepmgr.h"
 #include "multiid.h"
+#include "process_time2depth.h"
 #include "progressmeter.h"
 #include "seisioobjinfo.h"
 #include "seiszaxisstretcher.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
-#include "moddepmgr.h"
-#include "unitofmeasure.h"
+#include "veldesc.h"
 
-#include "prog.h"
 
 
 mLoad2Modules("Seis","Well")
@@ -31,18 +30,17 @@ mLoad2Modules("Seis","Well")
 bool BatchProgram::doWork( od_ostream& strm )
 {
     TrcKeyZSampling outputcs;
-    if ( !outputcs.hsamp_.usePar( pars() ) )
-    { outputcs.hsamp_.init( true ); }
+    if ( !outputcs.hsamp_.usePar(pars()) )
+	outputcs.hsamp_.init( true );
 
-    if ( !pars().get( SurveyInfo::sKeyZRange(), outputcs.zsamp_ ) )
+    if ( !pars().get(SurveyInfo::sKeyZRange(),outputcs.zsamp_) )
     {
 	strm << "Cannot read output sampling";
 	return false;
     }
 
-
     MultiID inputmid;
-    if ( !pars().get( ProcessTime2Depth::sKeyInputVolume(), inputmid) )
+    if ( !pars().get(ProcessTime2Depth::sKeyInputVolume(),inputmid) )
     {
 	strm << "Cannot read input volume id";
 	return false;
@@ -56,7 +54,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
 
     MultiID outputmid;
-    if ( !pars().get( ProcessTime2Depth::sKeyOutputVolume(), outputmid ) )
+    if ( !pars().get(ProcessTime2Depth::sKeyOutputVolume(),outputmid) )
     {
 	strm << "Cannot read output volume id";
 	return false;
@@ -91,7 +89,6 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return false;
     }
 
-
     bool istime2depth;
     if ( !pars().getYN(ProcessTime2Depth::sKeyIsTimeToDepth(),istime2depth) )
     {
@@ -99,31 +96,22 @@ bool BatchProgram::doWork( od_ostream& strm )
 	return false;
     }
 
-    VelocityDesc veldesc;
-    const bool isvel = veldesc.usePar( inputioobj->pars() ) &&
-			veldesc.isVelocity();
-    const bool isvrms = veldesc.type_ == VelocityDesc::RMS;
-    if ( isvel )
+    PtrMan<VelocityDesc> veldesc = new VelocityDesc;
+    if ( veldesc->usePar(inputioobj->pars()) && veldesc->isVelocity() )
     {
 	//would we convert Thomsen? nothing prepared for this now
 	strm << "\nDetected that the stretching will be done on velocities.\n"
 		"Will stretch in z-domain and convert back to velocities.\n";
-	if ( isvrms )
+	if ( veldesc->isRMS() )
 	{
 	    strm << "\nDetected that the input cube contains RMS velocities.\n"
 		"RMS velocities are not present in Depth domain;\n"
 		"a conversion to interval velocities will thus be processed.\n";
 	}
     }
+    else
+	veldesc = nullptr;
 
-    const UnitOfMeasure* uom = nullptr;
-    if ( !veldesc.velunit_.isEmpty() )
-	uom = UoMR().get( veldesc.velunit_ );
-
-    if ( !uom )
-	uom = UnitOfMeasure::surveyDefVelUnit();
-
-    ztransform->setVelUnitOfMeasure( &uom->scaler() );
     TaskGroup taskgrp;
     const SeisIOObjInfo seisinfo( inputmid );
     const bool is2d = seisinfo.is2D();
@@ -151,45 +139,45 @@ bool BatchProgram::doWork( od_ostream& strm )
 	{
 	    outputcs.hsamp_.init( geomids[idx] );
 	    outputcs.hsamp_.setTrcRange( trcrgs[idx] );
-	    SeisZAxisStretcher* exec =
-		new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
-					*ztransform, istime2depth, isvel );
-	    exec->setGeomID( geomids[idx] );
+	    auto* exec =
+		new SeisZAxisStretcherNew( *inputioobj, *outputioobj, outputcs,
+					   *ztransform, istime2depth, veldesc );
 	    exec->setName( BufferString("Time to depth conversion - ",
 					Survey::GM().getName(geomids[idx])) );
-	    if ( isvel )
-	    {
-		exec->setVelTypeIsVint( veldesc.type_==VelocityDesc::Interval );
-		if ( isvrms )
-		    exec->setVelTypeIsVrms( isvrms );
-	    }
-
 	    taskgrp.addTask( exec );
 	}
     }
     else
     {
-	SeisZAxisStretcher* exec =
-		new SeisZAxisStretcher( *inputioobj, *outputioobj, outputcs,
-					*ztransform, istime2depth, isvel );
+	auto* exec =
+		new SeisZAxisStretcherNew( *inputioobj, *outputioobj, outputcs,
+					   *ztransform, istime2depth, veldesc );
 	exec->setName( "Time to depth conversion");
-	if ( !exec->isOK() )
-	{
-	    strm << "Cannot initialize readers/writers";
-	    return false;
-	}
-
-	if ( isvel )
-	{
-	    exec->setVelTypeIsVint( veldesc.type_ == VelocityDesc::Interval );
-	    if ( isvrms )
-		exec->setVelTypeIsVrms( isvrms );
-	}
-
 	taskgrp.addTask( exec );
     }
 
     TextStreamProgressMeter progressmeter( strm );
     ((Task&)taskgrp).setProgressMeter( &progressmeter );
-    return taskgrp.execute();
+    if ( !taskgrp.execute() )
+    {
+	strm << ::toString(taskgrp.uiMessage()) << od_endl;
+	return false;
+    }
+
+    if ( !veldesc )
+	return true;
+
+    VelocityModelScannerNew scanner( *outputioobj, *veldesc );
+    ((Task&)scanner).setProgressMeter( &progressmeter );
+    if ( !scanner.execute() )
+    {
+	strm << ::toString(scanner.uiMessage()) << od_endl;
+	return false;
+    }
+
+    VelocityStretcherNew::setRange( scanner.getTopVAvg(), *veldesc, true,
+				 outputioobj->pars() );
+    VelocityStretcherNew::setRange( scanner.getBotVAvg(), *veldesc, false,
+				 outputioobj->pars() );
+    return IOM().commitChanges( *outputioobj );
 }

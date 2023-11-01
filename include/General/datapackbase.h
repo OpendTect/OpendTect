@@ -22,6 +22,7 @@ ________________________________________________________________________
 class FlatPosData;
 class Scaler;
 class TaskRunner;
+class UnitOfMeasure;
 namespace ZDomain { class Info; }
 
 
@@ -193,7 +194,7 @@ protected:
 /*!\brief DataPack for volume data. Should be renamed to VolumeDataPack later*/
 
 mExpClass(General) SeisDataPack : public DataPack
-{
+{ mODTextTranslationClass(SeisDataPack)
 public:
 
     virtual bool		is2D() const				= 0;
@@ -234,6 +235,11 @@ public:
     void			setZDomain(const ZDomain::Info&);
     const ZDomain::Info&	zDomain() const
 				{ return *zdomaininfo_; }
+    const UnitOfMeasure*	zUnit() const;
+    BufferString		unitStr(bool val,bool withparens=false) const;
+
+    const UnitOfMeasure*	valUnit() const;
+    void			setValUnit(const UnitOfMeasure*);
 
     void			setScaler(const Scaler&);
     void			deleteScaler();

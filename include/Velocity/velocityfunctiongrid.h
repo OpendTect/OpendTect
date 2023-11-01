@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
+
 #include "binidvalset.h"
 #include "samplingdata.h"
 #include "thread.h"
@@ -43,10 +44,12 @@ public:
 
 protected:
 				~GriddedFunction();
+
     friend			class GriddedSource;
 
-    bool			computeVelocity(float z0, float dz, int nr,
-					float* res ) const override;
+    bool			computeVelocity(float z0,float dz,int sz,
+						float* res) const override;
+
     ConstRefMan<Function>	getInputFunction(const BinID& bid,int& source);
     void			fetchPerfectFit(const BinID&);
 
@@ -64,9 +67,13 @@ protected:
 mExpClass(Velocity) GriddedSource : public FunctionSource
 {
 public:
+				mDeprecated("Provide Pos::GeomID")
 				GriddedSource();
 				GriddedSource(const Pos::GeomID&);
+
     const VelocityDesc&		getDesc() const override;
+    const ZDomain::Info&	zDomain_() const;
+
     const char*			factoryKeyword() const override
 				{ return sType(); }
     static const char*		sType() { return "GridVelocity"; }
@@ -79,8 +86,9 @@ public:
     void			getSources(TypeSet<MultiID>&) const;
 
     void			setLayerModel(const InterpolationLayerModel*);
+    FunctionSource&		setZDomain_(const ZDomain::Info&);
 
-    const ObjectSet<FunctionSource>&	getSources() const;
+    const ObjectSet<FunctionSource>& getSources() const;
 
     NotifierAccess*		changeNotifier() override { return &notifier_; }
     BinID			changeBinID() const override
@@ -107,6 +115,7 @@ protected:
     Gridder2D*			gridder_;
     bool			gridderinited_;
     const InterpolationLayerModel* layermodel_;
+    Pos::GeomID			geomid_();
 
     BinIDValueSet		sourcepos_;		//All sources
 

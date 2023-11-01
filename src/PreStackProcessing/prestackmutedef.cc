@@ -10,42 +10,197 @@ ________________________________________________________________________
 #include "prestackmutedef.h"
 
 #include "genericnumer.h"
+#include "keystrs.h"
 #include "mathfunc.h"
+#include "seispsioprov.h"
 #include "statruncalc.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
+
+#include "hiddenparam.h"
+
 
 namespace PreStack
 {
 
-MuteDef::MuteDef( const char* nm )
-    : NamedObject( nm )
+class MuteDefHP
 {
+public:
+
+MuteDefHP( Seis::OffsetType offsettype, const ZDomain::Info& zinfo )
+    : offsettype_(offsettype)
+    , zdomaininfo_(new ZDomain::Info(zinfo))
+{}
+
+~MuteDefHP()
+{
+    delete zdomaininfo_;
+}
+
+const ZDomain::Info& zDomain() const
+{
+    return *zdomaininfo_;
+}
+
+MuteDefHP& setZDomain( const ZDomain::Info& zinfo )
+{
+    delete zdomaininfo_;
+    zdomaininfo_ = new ZDomain::Info( zinfo );
+    return *this;
+}
+
+    Seis::OffsetType offsettype_;
+    const ZDomain::Info* zdomaininfo_;
+};
+
+static HiddenParam<MuteDef,MuteDefHP*> psmutedefhpmgr_(nullptr);
+
+const char* MuteDef::sKeyRefHor()	{ return "Reference Horizon";  }
+
+MuteDef::MuteDef( const char* nm )
+    : NamedObject(nm)
+{
+    psmutedefhpmgr_.setParam( this,
+	    new MuteDefHP(
+		SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+				: Seis::OffsetType::OffsetMeter,
+		SI().zDomainInfo() ) );
 }
 
 
-MuteDef::MuteDef( const MuteDef& b )
+MuteDef::MuteDef( const MuteDef& oth )
 {
-    *this = b;
+    psmutedefhpmgr_.setParam( this,
+	    new MuteDefHP(
+		SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+				: Seis::OffsetType::OffsetMeter,
+		SI().zDomainInfo() ) );
+    *this = oth;
 }
 
 
 MuteDef::~MuteDef()
 {
     deepErase( fns_ );
+    psmutedefhpmgr_.removeAndDeleteParam( this );
 }
 
 
-MuteDef& MuteDef::operator=( const MuteDef& b )
+MuteDef& MuteDef::operator=( const MuteDef& oth )
 {
-    if ( &b == this )
+    if ( &oth == this )
 	return *this;
 
-    refhor_ = b.refhor_;
-    setName( b.name() );
-    deepCopy( fns_, b.fns_ );
-    pos_ = b.pos_;
-    ischanged_ = b.ischanged_;
+    setName( oth.name() );
+    deepCopy( fns_, oth.fns_ );
+    pos_ = oth.pos_;
+    refhor_ = oth.refhor_;
+    setOffsetType( oth.offsetType() );
+    setZDomain( oth.zDomain() );
+    ischanged_ = oth.ischanged_;
+
     return *this;
+}
+
+
+bool MuteDef::isOffsetInMeters() const
+{
+    return offsetType() == Seis::OffsetType::OffsetMeter;
+}
+
+
+bool MuteDef::isOffsetInFeet() const
+{
+    return offsetType() == Seis::OffsetType::OffsetFeet;
+}
+
+
+Seis::OffsetType MuteDef::offsetType() const
+{
+    return psmutedefhpmgr_.getParam( this )->offsettype_;
+}
+
+
+const ZDomain::Info& MuteDef::zDomain() const
+{
+    return psmutedefhpmgr_.getParam( this )->zDomain();
+}
+
+
+bool MuteDef::zIsTime() const
+{
+    return zDomain().isTime();
+}
+
+
+bool MuteDef::zInMeter() const
+{
+    return zDomain().isDepthMeter();
+}
+
+
+bool MuteDef::zInFeet() const
+{
+    return zDomain().isDepthFeet();
+}
+
+
+MuteDef& MuteDef::setOffsetType( Seis::OffsetType typ )
+{
+    if ( Seis::isOffsetDist(typ) )
+	psmutedefhpmgr_.getParam( this )->offsettype_ = typ;
+
+    return *this;
+}
+
+
+MuteDef& MuteDef::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+	return *this;
+
+    psmutedefhpmgr_.getParam( this )->setZDomain( zinfo );
+    return *this;
+}
+
+
+void MuteDef::fillPar( IOPar& par ) const
+{
+    if ( refhor_.isUdf() )
+	par.set( sKeyRefHor(), nullptr );
+    else
+	par.set( sKeyRefHor(), refhor_ );
+
+    zDomain().fillPar( par );
+    SeisPSIOProvider::setGatherOffsetType( offsetType(), par );
+}
+
+
+bool MuteDef::usePar( const IOPar& par )
+{
+    par.get( sKeyRefHor(), refhor_ );
+    Seis::OffsetType offsettype;
+    if ( SeisPSIOProvider::getGatherOffsetType(par,offsettype) &&
+	 Seis::isOffsetDist(offsettype) )
+	setOffsetType( offsettype );
+
+    const ZDomain::Info* zinfo = ZDomain::get( par );
+    if ( zinfo && (zinfo->isTime() || zinfo->isDepth()) )
+	setZDomain( *zinfo );
+
+    return true;
+}
+
+
+const UnitOfMeasure* MuteDef::zUnit() const
+{
+    return UnitOfMeasure::zUnit( zDomain() );
+}
+
+
+const UnitOfMeasure* MuteDef::offsetUnit() const
+{
+    return SeisPSIOProvider::offsetUnit( offsetType() );
 }
 
 

@@ -52,7 +52,9 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     if ( SI().zIsTime() )
     {
 	velfld_ = new uiGenInput( this,
-			 VelocityDesc::getVelVolumeLabel(),
+		    tr("%1 %2")
+		    .arg(VelocityDesc::getVelVolumeLabel())
+		    .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true)),
 			 FloatInpSpec(Vel::getGUIDefaultVelocity()) );
     }
 

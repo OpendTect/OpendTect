@@ -280,17 +280,18 @@ uiReflCalc1D::uiReflCalc1D( uiParent* p, const Setup& su )
     {
 	if ( su.singleangle_ )
 	{
-	    const float defangle = ReflCalc1D::sDefAngle( true );
+	    const float defangle =
+			ReflCalc1D::sDefAngle( Seis::OffsetType::AngleDegrees );
 	    anglefld_ = new uiGenInput( this, tr("Chi angle (deg)"),
 					IntInpSpec(defangle,-90,90) );
 	    anglefld_->setElemSzPol( uiObject::Small );
 	    anglefld_->setValue( defangle );
-	    mAttachCB( anglefld_->valuechanged, uiReflCalc1D::parsChangedCB );
+	    mAttachCB( anglefld_->valueChanged, uiReflCalc1D::parsChangedCB );
 	}
 	else
 	{
 	    const StepInterval<float> anglerg =
-				      ReflCalc1D::sDefAngleRange( true );
+		  ReflCalc1D::sDefAngleRange( Seis::OffsetType::AngleDegrees );
 	    const uiString olb = tr( "Chi angle range (start/stop) (deg)" );
 	    IntInpIntervalSpec chilimits;
 	    chilimits.setLimits( Interval<int>(-90,90) );
@@ -298,13 +299,13 @@ uiReflCalc1D::uiReflCalc1D( uiParent* p, const Setup& su )
 	    anglefld_->setElemSzPol( uiObject::Small );
 	    anglefld_->setValue(
 			    Interval<float>( anglerg.start, anglerg.stop ) );
-	    mAttachCB( anglefld_->valuechanged, uiReflCalc1D::parsChangedCB );
+	    mAttachCB( anglefld_->valueChanged, uiReflCalc1D::parsChangedCB );
 
 	    anglestepfld_ = new uiGenInput( this, uiStrings::sStep() );
 	    anglestepfld_->attach( rightOf, anglefld_ );
 	    anglestepfld_->setElemSzPol( uiObject::Small );
 	    anglestepfld_->setValue( anglerg.step );
-	    mAttachCB( anglestepfld_->valuechanged,uiReflCalc1D::parsChangedCB);
+	    mAttachCB( anglestepfld_->valueChanged,uiReflCalc1D::parsChangedCB);
 	}
     }
 
@@ -442,8 +443,9 @@ bool uiReflCalc1D::usePar( const IOPar& par )
 	    anglerg.scale( convfactor );
 	    anglefld_->setValue( anglerg );
 	    const float step = angles.size() > 1
-			     ? angles[1]-angles[0]
-			     : ReflCalc1D::sDefAngleRange(true).step;
+		     ? angles[1]-angles[0]
+		     : ReflCalc1D::sDefAngleRange(
+					 Seis::OffsetType::AngleDegrees ).step;
 	    anglestepfld_->setValue( step * convfactor );
 	}
     }

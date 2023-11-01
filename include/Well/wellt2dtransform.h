@@ -42,6 +42,8 @@ public:
 
     float			getGoodZStep() const override;
     Interval<float>		getZInterval(bool time) const override;
+    ZSampling			getZInterval(bool from,bool makenice) const;
+
     bool			needsVolumeOfInterest() const override
 				{ return false; }
 
@@ -57,9 +59,23 @@ protected:
     RefMan<Well::Data>		data_;
     TimeDepthModel		tdmodel_;
 
+    mDeprecatedDef
     Interval<float>		getZRange(bool time) const;
 
     bool			calcDepths();
+    void			doTransform(const SamplingData<float>& sd,
+					    const ZDomain::Info& sdzinfo,
+					    int sz,float*) const;
+
+    ZSampling			getZInterval(const ZSampling&,
+					     const ZDomain::Info& from,
+					     const ZDomain::Info& to,
+					     bool makenice=true) const;
+    ZSampling			getWorkZSampling(const ZSampling&,
+						 const ZDomain::Info& from,
+						 const ZDomain::Info& to) const;
+
+    mDeprecatedDef
     void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;
 };

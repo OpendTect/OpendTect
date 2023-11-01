@@ -246,10 +246,8 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 }
 
 
-void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
+void uiIOObjSelDlg::setSurveyDefaultSubsel( const char* /* subsel */ )
 {
-    selgrp_->setSurveyDefaultSubsel(subsel);
-
 }
 
 

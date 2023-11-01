@@ -1246,7 +1246,7 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 	}
 	else
 	{
-	    StepInterval<float> zrg = datatransform_->getZInterval(false);
+	    StepInterval<float> zrg = datatransform_->getZInterval( false) ;
 	    if ( scene_ )
 		zrg.step = scene_->getTrcKeyZSampling().zsamp_.step;
 	    else

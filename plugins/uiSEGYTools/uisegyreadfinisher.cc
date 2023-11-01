@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "posinfo2d.h"
 #include "segybatchio.h"
 #include "segydirectdef.h"
 #include "segydirecttr.h"
@@ -82,20 +83,6 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     : uiDialog(p,uiDialog::Setup(getWinTile(fs),getDlgTitle(usrspec),
 				 mODHelpKey(mSEGYReadFinisherHelpID)))
     , fs_(fs)
-    , outwllfld_(nullptr)
-    , lognmfld_(nullptr)
-    , inpdomfld_(nullptr)
-    , isfeetfld_(nullptr)
-    , outimpfld_(nullptr)
-    , outscanfld_(nullptr)
-    , transffld_(nullptr)
-    , remnullfld_(nullptr)
-    , lnmfld_(nullptr)
-    , docopyfld_(nullptr)
-    , coordsfromfld_(nullptr)
-    , coordfileextfld_(nullptr)
-    , coordfilefld_(nullptr)
-    , batchfld_(nullptr)
 {
     setOkText( uiStrings::sImport() );
     objname_ = FilePath( usrspec ).baseName();
@@ -108,7 +95,7 @@ uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
     else
 	crSeisFields();
 
-    postFinalize().notify( mCB(this,uiSEGYReadFinisher,initWin) );
+    mAttachCB( postFinalize(), uiSEGYReadFinisher::initDlgCB );
 }
 
 
@@ -121,7 +108,7 @@ void uiSEGYReadFinisher::crSeisFields()
     docopyfld_ = new uiGenInput( this, tr("Import as"),
 		BoolInpSpec(true,tr("OpendTect CBVS (copy&&import)"),
 				 tr("SEGYDirect (scan&&link)")) );
-    docopyfld_->valueChanged.notify( mCB(this,uiSEGYReadFinisher,doScanChg) );
+    mAttachCB( docopyfld_->valueChanged, uiSEGYReadFinisher::doScanChg );
 
     uiSeisTransfer::Setup trsu( gt );
     trsu.withnullfill( false ).fornewentry( true );
@@ -186,14 +173,13 @@ void uiSEGYReadFinisher::crSeisFields()
 
 void uiSEGYReadFinisher::cr2DCoordSrcFields( uiGroup*& attgrp, bool ismulti )
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-					    tr("Coordinate source") );
+    auto* lcb = new uiLabeledComboBox( this, tr("Coordinate source") );
     lcb->attach( alignedBelow, attgrp );
     attgrp = lcb;
     coordsfromfld_ = lcb->box();
     coordsfromfld_->setHSzPol( uiObject::WideVar );
-    coordsfromfld_->selectionChanged.notify(
-			mCB(this,uiSEGYReadFinisher,coordsFromChg) );
+    mAttachCB( coordsfromfld_->selectionChanged,
+	       uiSEGYReadFinisher::coordsFromChg );
     coordsfromfld_->addItem( tr("The trace headers") );
 
     coordsfromfld_->addItem( ismulti
@@ -236,16 +222,16 @@ void uiSEGYReadFinisher::crVSPFields()
     inptxt.arg( startz ).arg( endz );
     const char* doms[] = { "TWT", "TVDSS", "MD", 0 };
     inpdomfld_ = new uiGenInput( this, inptxt, StringListInpSpec(doms) );
-    inpdomfld_->valueChanged.notify( mCB(this,uiSEGYReadFinisher,inpDomChg) );
+    mAttachCB( inpdomfld_->valueChanged, uiSEGYReadFinisher::inpDomChg );
     isfeetfld_ = new uiCheckBox( this, tr("in Feet") );
     isfeetfld_->attach( rightOf, inpdomfld_ );
     isfeetfld_->setChecked( fs_.zinfeet_ );
 
     outwllfld_ = new uiWellSel( this, true, tr("Add to Well"), false );
-    outwllfld_->selectionDone.notify( mCB(this,uiSEGYReadFinisher,wllSel) );
+    mAttachCB( outwllfld_->selectionDone, uiSEGYReadFinisher::wllSel );
     outwllfld_->attach( alignedBelow, inpdomfld_ );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("New log name") );
+    auto* lcb = new uiLabeledComboBox( this, tr("New log name") );
     lcb->attach( alignedBelow, outwllfld_ );
     lognmfld_ = lcb->box();
     lognmfld_->setReadOnly( false );
@@ -255,14 +241,15 @@ void uiSEGYReadFinisher::crVSPFields()
 
 uiSEGYReadFinisher::~uiSEGYReadFinisher()
 {
+    detachAllNotifiers();
 }
 
 
-void uiSEGYReadFinisher::initWin( CallBacker* )
+void uiSEGYReadFinisher::initDlgCB( CallBacker* )
 {
-    inpDomChg( 0 );
-    coordsFromChg( 0 );
-    doScanChg( 0 );
+    inpDomChg( nullptr );
+    coordsFromChg( nullptr );
+    doScanChg( nullptr );
 }
 
 
@@ -310,14 +297,22 @@ void uiSEGYReadFinisher::coordsFromChg( CallBacker* )
 void uiSEGYReadFinisher::doScanChg( CallBacker* )
 {
     const bool copy = docopyfld_ ? docopyfld_->getBoolValue() : true;
+    if ( outimpfld_ && outscanfld_ )
+    {
+	const uiSeisSel* outfldsrc = copy ? outscanfld_ : outimpfld_;
+	uiSeisSel* outflddest = copy ? outimpfld_ : outscanfld_;
+	const ZDomain::Info& zinfo = outfldsrc->getZDomain();
+	outflddest->setZDomain( zinfo );
+    }
+
     if ( outimpfld_ )
 	outimpfld_->display( copy );
+    if ( outscanfld_ )
+	outscanfld_->display( !copy );
     if ( transffld_ )
 	transffld_->display( copy );
     if ( remnullfld_ )
 	remnullfld_->display( !copy );
-    if ( outscanfld_ )
-	outscanfld_->display( !copy );
     if ( lnmfld_ )
 	lnmfld_->display( !copy );
 }
@@ -394,10 +389,9 @@ bool uiSEGYReadFinisher::doVSP()
 void uiSEGYReadFinisher::updateInIOObjPars( IOObj& inioobj,
 					    const IOObj& outioobj )
 {
-    fs_.fillPar( inioobj.pars() );
-    const bool outissidom = ZDomain::isSI( outioobj.pars() );
-    if ( !outissidom )
-	ZDomain::Def::get(outioobj.pars()).set( inioobj.pars() );
+    IOPar& inpiop = inioobj.pars();
+    fs_.fillPar( inpiop );
+    SeisStoreAccess::zDomain( &outioobj ).fillPar( inpiop );
     IOM().commitChanges( inioobj );
 }
 
@@ -840,7 +834,7 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
 
     if ( doimp && !Seis::isPS(fs_.geomType()) )
     {
-	uiSeisIOObjInfo oinf( *outioobj, true );
+	const uiSeisIOObjInfo oinf( *outioobj, true );
 	if ( !oinf.checkSpaceLeft(transffld_->spaceInfo()) )
 	    return false;
     }

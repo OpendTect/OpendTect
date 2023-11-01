@@ -11,7 +11,7 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 
 #include "ailayer.h"
-#include "enums.h"
+#include "odcommonenums.h"
 #include "instantattrib.h"
 #include "iopar.h"
 
@@ -60,6 +60,7 @@ public:
     bool		isPreStack() const	{ return synthtype_==PreStack; }
     bool		isCorrected() const;
 			//<! Only for PS gathers
+    Seis::OffsetType	offsetType() const;
     bool		isPSBased() const
 			{ return synthtype_==AngleStack ||
 				 synthtype_==AVOGradient; }

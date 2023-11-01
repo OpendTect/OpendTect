@@ -9,7 +9,9 @@ ________________________________________________________________________
 
 #include "uiraytrace1d.h"
 
+#include "unitofmeasure.h"
 #include "survinfo.h"
+
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uidialog.h"
@@ -280,20 +282,21 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& su )
 {
     if ( su.dooffsets_ )
     {
-	const StepInterval<float> offsetrg = RayTracer1D::sDefOffsetRange();
-	uiString olb = tr( "Offset range (start/stop) %1" )
-			.arg( SI().getXYUnitString(true) );;
+	const StepInterval<float> offsetrg =
+				RayTracer1D::sDefOffsetRange( defOffsetType() );
+	const uiString olb = tr( "Offset range (start/stop) %1" )
+		    .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
 	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
 	offsetfld_->setElemSzPol( uiObject::Small );
 	offsetfld_->setValue(
 			Interval<float>( offsetrg.start, offsetrg.stop ) );
-	mAttachCB( offsetfld_->valuechanged, uiRayTracer1D::parsChangedCB );
+	mAttachCB( offsetfld_->valueChanged, uiRayTracer1D::parsChangedCB );
 
 	offsetstepfld_ = new uiGenInput( this, uiStrings::sStep() );
 	offsetstepfld_->attach( rightOf, offsetfld_ );
 	offsetstepfld_->setElemSzPol( uiObject::Small );
 	offsetstepfld_->setValue( offsetrg.step );
-	mAttachCB( offsetstepfld_->valuechanged, uiRayTracer1D::parsChangedCB );
+	mAttachCB( offsetstepfld_->valueChanged, uiRayTracer1D::parsChangedCB );
     }
 
     if ( su.convertedwaves_ )
@@ -421,15 +424,14 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 
     TypeSet<float> offsets;
     par.get( RayTracer1D::sKeyOffset(), offsets );
-    const float convfactor = SI().xyInFeet() ? mToFeetFactorF : 1;
     if ( !offsets.isEmpty() && offsetfld_ && offsetstepfld_ )
     {
-	Interval<float> offsetrg( offsets[0], offsets[offsets.size()-1] );
+	Interval<float> offsetrg( offsets.first(), offsets.last() );
 	offsetfld_->setValue( offsetrg );
 	const float step = offsets.size() > 1
-			 ? offsets[1]-offsets[0]
-			 : RayTracer1D::sDefOffsetRange().step;
-	offsetstepfld_->setValue( step * convfactor );
+	     ? offsets[1]-offsets[0]
+	     : RayTracer1D::sDefOffsetRange( defOffsetType() ).step;
+	offsetstepfld_->setValue( step );
     }
 
     if ( advdlg_ )
@@ -462,7 +464,8 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 	    offsets += offsetrg.atIndex( idx );
 
 	par.set( RayTracer1D::sKeyOffset(), offsets );
-	par.setYN( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
+	par.setYN( RayTracer1D::sKeyOffsetInFeet(),
+		   defOffsetType() == Seis::OffsetType::OffsetFeet );
     }
 
     par.setYN( RayTracer1D::sKeyReflectivity(), doreflectivity_ );
@@ -480,6 +483,13 @@ uiRetVal uiRayTracer1D::isOK() const
 	uirv = advgrp_->isOK();
 
     return uirv;
+}
+
+
+Seis::OffsetType uiRayTracer1D::defOffsetType()
+{
+    return SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+			   : Seis::OffsetType::OffsetMeter;
 }
 
 
@@ -516,13 +526,13 @@ uiRayTracerAdvancedGrp::uiRayTracerAdvancedGrp( uiParent* p,
     const RayTracer1D::Setup defrtsu;
     const BoolInpSpec inpspecdn( defrtsu.pdown_, tr("P"), tr("S") );
     downwavefld_ = new uiGenInput( this, tr("Downward wave-type"), inpspecdn );
-    mAttachCB( downwavefld_->valuechanged,
+    mAttachCB( downwavefld_->valueChanged,
 	       uiRayTracerAdvancedGrp::parsChangedCB );
 
     const BoolInpSpec inpspecup( defrtsu.pup_, tr("P"), tr("S") );
     upwavefld_ = new uiGenInput( this, tr("Upward wave-type"), inpspecup );
     upwavefld_->attach( alignedBelow, downwavefld_ );
-    mAttachCB( upwavefld_->valuechanged,
+    mAttachCB( upwavefld_->valueChanged,
 	       uiRayTracerAdvancedGrp::parsChangedCB );
 
     setHAlignObj( downwavefld_ );

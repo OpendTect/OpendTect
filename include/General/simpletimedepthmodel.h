@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "factory.h"
 #include "tableascio.h"
 #include "tabledef.h"
@@ -29,7 +30,7 @@ public:
     virtual			~SimpleTimeDepthModel() {}
 
     void			setRawData(const TypeSet<float>& times,
-				   const TypeSet<float>& depths);
+					   const TypeSet<float>& depths);
 
     bool			save(const MultiID&) const;
 
@@ -37,6 +38,9 @@ public:
     const TypeSet<float>&	getRawDepths() const	{ return rawdepths_; }
 
     virtual bool		isOK() const override;
+
+    static const UnitOfMeasure* getTimeUnit();
+    static const UnitOfMeasure* getDepthUnit();
 
 protected:
 
@@ -74,14 +78,28 @@ public:
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
 
+    ZSampling			getZInterval_(bool from,bool makenice) const;
+
 protected:
 
 				~SimpleTimeDepthTransform();
 
     SimpleTimeDepthModel*	tdmodel_ = nullptr;
 
+				mDeprecatedDef
     void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;
+    void			doTransform(const SamplingData<float>& sd,
+					    const ZDomain::Info& sdzinfo,
+					    int sz,float*) const;
+
+    ZSampling			getZInterval_(const ZSampling&,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to,
+					bool makenice=true) const;
+    ZSampling			getWorkZSampling(const ZSampling&,
+						 const ZDomain::Info& from,
+						 const ZDomain::Info& to) const;
 };
 
 
@@ -107,6 +125,7 @@ public:
 
 protected:
 
+    mDeprecatedDef
     Interval<float>		getZRange(bool time) const;
 };
 
@@ -129,11 +148,12 @@ public:
 					      int sz,float* res) const override;
 
     float			getGoodZStep() const override;
-    Interval<float>		getZInterval(bool time) const override;
+    Interval<float>		getZInterval(bool depth) const override;
 
 protected:
 
-    Interval<float>		getZRange(bool time) const;
+    mDeprecatedDef
+    Interval<float>		getZRange(bool depth) const;
 };
 
 

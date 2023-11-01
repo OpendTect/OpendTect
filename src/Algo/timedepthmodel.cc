@@ -11,12 +11,15 @@ ________________________________________________________________________
 
 #include "ailayer.h"
 #include "idxable.h"
+#include "odmemory.h"
 #include "scaler.h"
 #include "valseriesimpl.h"
 #include "veldesc.h"
 #include "velocitycalc.h"
 
 #include "uistrings.h"
+
+#include "hiddenparam.h"
 
 
 TimeDepthModel::TimeDepthModel()
@@ -119,11 +122,11 @@ float TimeDepthModel::getTime( int idx ) const
 
 
 float TimeDepthModel::getFirstTime() const
-{ return isOK() ? times_[0] : mUdf(float); }
+{ return isOK() ? getTime(0) : mUdf(float); }
 
 
 float TimeDepthModel::getLastTime() const
-{ return isOK() ? times_[sz_-1] : mUdf(float); }
+{ return isOK() ? getTime(sz_-1) : mUdf(float); }
 
 
 float TimeDepthModel::getVelocity( float dpt ) const
@@ -141,7 +144,7 @@ float TimeDepthModel::getTime( const float* dpths, const float* times,
 
 
 float TimeDepthModel::getVelocity( const float* dpths, const float* times,
-					int sz, float depth )
+				   int sz, float depth )
 {
     if ( sz < 2 )
 	return mUdf(float);
@@ -254,23 +257,84 @@ void TimeDepthModel::setVals( float* arr, bool isdepth, bool becomesmine )
 
 void TimeDepthModel::forceTimes( const TimeDepthModel& oth )
 {
-    for ( int idx=0; idx<sz_; idx++ )
-	times_[idx] = oth.getTime( depths_[idx] );
+    if ( oth.sz_ == sz_ )
+    {
+	for ( int idx=0; idx<sz_; idx++ )
+	    times_[idx] = oth.getTime( depths_[idx] );
+    }
+    else
+	*this = oth;
 }
 
 
 // TimeDepthModelSet::Setup
 
+static HiddenParam<TimeDepthModelSet::Setup,ZDomain::DepthType>
+		tdmodelsetsudepthtypemgr_(ZDomain::DepthType::Meter);
+
+
+TimeDepthModelSet::Setup::Setup( const Setup& oth )
+{
+    tdmodelsetsudepthtypemgr_.setParam( this, ZDomain::DepthType::Meter );
+    *this = oth;
+}
+
+
+void TimeDepthModelSet::Setup::removeParams()
+{
+    if ( tdmodelsetsudepthtypemgr_.hasParam(this) )
+	tdmodelsetsudepthtypemgr_.removeParam( this );
+}
+
+
+TimeDepthModelSet::Setup&
+TimeDepthModelSet::Setup::operator =( const Setup& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    pdown_ = oth.pdown_;
+    pup_ = oth.pup_;
+    starttime_ = oth.starttime_;
+    startdepth_ = oth.startdepth_;
+    depthtype( oth.depthType() );
+
+    return *this;
+}
+
+
 void TimeDepthModelSet::Setup::fillPar( IOPar& iop ) const
 {
-    //TODO
 }
 
 
 bool TimeDepthModelSet::Setup::usePar( const IOPar& iop )
 {
-    //TODO
     return true;
+}
+
+
+TimeDepthModelSet::Setup&
+TimeDepthModelSet::Setup::depthtype( ZDomain::DepthType typ )
+{
+    tdmodelsetsudepthtypemgr_.setParam( this, typ );
+    return *this;
+}
+
+
+ZDomain::DepthType TimeDepthModelSet::Setup::depthType() const
+{
+    if ( !tdmodelsetsudepthtypemgr_.hasParam(this) )
+	tdmodelsetsudepthtypemgr_.setParam( &mSelf(),
+				ZDomain::DepthType::Meter );
+
+    return tdmodelsetsudepthtypemgr_.getParam( this );
+}
+
+
+bool TimeDepthModelSet::Setup::areDepthsInFeet() const
+{
+    return depthType() == ZDomain::DepthType::Feet;
 }
 
 
@@ -428,19 +492,26 @@ void TimeDepthModelSet::setFrom( const ElasticModel& emodel,
     twtarr[idz] = tdmsu.starttime_;
     deptharr[idz++] = tdmsu.startdepth_;
 
-    const bool zinfeet = SI().zInFeet();
+    const bool zinfeet = tdmsu.areDepthsInFeet();
     float dnmotime, dvrmssum, unmotime, uvrmssum;
     float prevdnmotime, prevdvrmssum, prevunmotime, prevuvrmssum;
-    prevdnmotime = prevdvrmssum = prevunmotime = prevuvrmssum = 0;
+    prevdnmotime = prevdvrmssum = prevunmotime = prevuvrmssum = 0.f;
     for ( const auto* layer : emodel )
     {
-	const float dz = layer->getThickness();
-	const float thickness = zinfeet ? dz * mToFeetFactorF : dz;
-	deptharr[idz] = idz>1 ? deptharr[idz-1] + thickness : thickness;
+	float dz = layer->getThickness();
+	if ( zinfeet )
+	    dz *= mToFeetFactorF;
+	deptharr[idz] = deptharr[idz-1] + dz;
 
-	const float dvel = tdmsu.pdown_ ? layer->getPVel() : layer->getSVel();
-	const float uvel = tdmsu.pup_ ? layer->getPVel() : layer->getSVel();
-	dnmotime = dvrmssum = unmotime = uvrmssum = 0;
+	float dvel = tdmsu.pdown_ ? layer->getPVel() : layer->getSVel();
+	float uvel = tdmsu.pup_ ? layer->getPVel() : layer->getSVel();
+	if ( zinfeet )
+	{
+	    dvel *= mToFeetFactorF;
+	    uvel *= mToFeetFactorF;
+	}
+
+	dnmotime = dvrmssum = unmotime = uvrmssum = 0.f;
 
 	dnmotime = dz / dvel;
 	dvrmssum = dz * dvel;
@@ -520,6 +591,7 @@ void TimeDepthModelSet::forceTimes( const TimeDepthModel& tdmodel, bool defonly)
 
 
 // TimeDepthConverter
+mStartAllowDeprecatedSection
 
 TimeDepthConverter::TimeDepthConverter()
     : TimeDepthModel()
@@ -1077,3 +1149,5 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 
     return true;
 }
+
+mStopAllowDeprecatedSection

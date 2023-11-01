@@ -9,12 +9,13 @@ ________________________________________________________________________
 
 #include "uivelocityfunctionvolume.h"
 
-
 #include "uigeninput.h"
 #include "uiveldesc.h"
-#include "velocityfunctionvolume.h"
-#include "seistrctr.h"
+
+#include "seisioobjinfo.h"
 #include "seisselection.h"
+#include "seistrctr.h"
+#include "velocityfunctionvolume.h"
 
 
 namespace Vel
@@ -31,7 +32,7 @@ uiFunctionSettings* uiVolumeFunction::create( uiParent* p, FunctionSource* vs )
 {
     mDynamicCastGet( VolumeFunctionSource*, source, vs );
     if ( vs && !source )
-	return 0;
+	return nullptr;
 
     return new uiVolumeFunction( p, source );
 }
@@ -41,12 +42,29 @@ uiVolumeFunction::uiVolumeFunction( uiParent* p, VolumeFunctionSource* s )
     : uiFunctionSettings( p, "Volume" )
     , source_( s )
 {
-    if ( source_ ) source_->ref();
+    if ( source_ )
+	source_->ref();
 
-    IOObjContext ctxt = uiVelSel::ioContext();
-    ctxt.forread_ = true;
-    volumesel_ = new uiVelSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
-    if ( source_ ) volumesel_->setInput( source_->multiID() );
+    bool is2d = false;
+    MultiID srcid;
+    if ( source_ )
+    {
+	srcid = source_->multiID();
+	if ( !srcid.isUdf() )
+	{
+	    const SeisIOObjInfo info( srcid );
+	    if ( info.isOK() )
+		is2d = info.is2D();
+	}
+    }
+
+    auto* volumesel = new uiVelSel( this, VelocityDesc::getVelVolumeLabel(),
+				    is2d );
+    volumesel->setVelocityOnly( false );
+    if ( source_ )
+	volumesel->setInput( srcid );
+
+    volumesel_ = volumesel;
 
     setHAlignObj( volumesel_ );
 }
@@ -54,7 +72,7 @@ uiVolumeFunction::uiVolumeFunction( uiParent* p, VolumeFunctionSource* s )
 
 uiVolumeFunction::~uiVolumeFunction()
 {
-    if ( source_ ) source_->unRef();
+    unRefPtr( source_ );
 }
 
 

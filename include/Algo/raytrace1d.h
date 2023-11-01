@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "factory.h"
 #include "odcomplex.h"
+#include "odcommonenums.h"
 #include "paralleltask.h"
 #include "reflectivitymodel.h"
 
@@ -27,7 +28,9 @@ mExpClass(Algo) RayTracer1D : public ParallelTask
 public:
     mDefineFactoryInClass( RayTracer1D, factory );
 
+    mDeprecated("Provide RayTracer1D::Setup")
     static RayTracer1D* createInstance(const IOPar&,uiString&);
+    mDeprecated("Provide RayTracer1D::Setup")
     static RayTracer1D* createInstance(const IOPar&,const ElasticModel*,
 				       uiString&);
 
@@ -37,14 +40,28 @@ public:
     {
     public:
 			Setup();
+			Setup(const Setup&);
 	virtual		~Setup();
+
+	Setup&		operator =(const Setup&);
 
 	mDefSetupMemb(bool,pdown);		// def: true
 	mDefSetupMemb(bool,pup);		// def: true
 	mDefSetupMemb(bool,doreflectivity);	// def: true
+	float		getStartTime() const;
+	float		getStartDepth() const;
+	Seis::OffsetType offsetType() const;
+	ZDomain::DepthType depthType() const;
+	Setup&		starttime(float newval);
+	Setup&		startdepth(float newbal);
+	Setup&		offsettype(Seis::OffsetType);
+	Setup&		depthtype(ZDomain::DepthType);
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);
+
+	bool		areOffsetsInFeet() const;
+	bool		areDepthsInFeet() const;
     };
 
     virtual RayTracer1D::Setup&	setup()		= 0;
@@ -59,8 +76,13 @@ public:
 			  will fill them with Castagna
 			  to compute zoeppritz coeffs <!*/
 
+    mDeprecated("Provide Seis::OffsetType")
     void		setOffsets(const TypeSet<float>& offsets);
+    void		setOffsets(const TypeSet<float>& offsets,
+				   Seis::OffsetType);
     void		getOffsets(TypeSet<float>& offsets) const;
+    bool		areOffsetsInFeet() const;
+    bool		areDepthsInFeet() const;
 
     uiString		uiMessage() const override	{ return msg_; }
 
@@ -76,9 +98,15 @@ public:
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
     static const char*	sKeyWavetypes()    { return "Wavetypes"; }
 
+    mDeprecated("Use Seis::OffsetType")
     static StepInterval<float>	sDefOffsetRange();
+    static StepInterval<float>	sDefOffsetRange(Seis::OffsetType);
 
     static void		setIOParsToZeroOffset(IOPar&);
+    static RayTracer1D* createInstance(const IOPar&,uiString&,
+				       const Setup*);
+    static RayTracer1D* createInstance(const IOPar&,const ElasticModel*,
+				       uiString&,const Setup*);
 
 protected:
 			RayTracer1D();

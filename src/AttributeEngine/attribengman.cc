@@ -35,6 +35,8 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "survgeom2d.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
+#include "zdomain.h"
 
 #include <string.h>
 
@@ -307,14 +309,16 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(const Processor& proc)
 	output = const_cast<RegularSeisDataPack*>(
 			proc.outputs_[0]->getDataPack() );
 	if ( !output || !output->sampling().isDefined() )
-	    return 0;
+	    return nullptr;
 
 	for ( int idx=0; idx<attrspecs_.size(); idx++ )
 	    output->setComponentName( attrspecs_[idx].userRef(), idx );
 
-	output->setZDomain(
-		ZDomain::Info(ZDomain::Def::get(attrspecs_[0].zDomainKey())) );
-	output->setName( attrspecs_[0].userRef() );
+	const Attrib::SelSpec& attrspec = attrspecs_.first();
+	const ZDomain::Def& zddef = ZDomain::Def::get( attrspec.zDomainKey() );
+	const ZDomain::Info zdomain( zddef, attrspec.zDomainUnit() );
+	output->setZDomain( zdomain );
+	output->setName( attrspec.userRef() );
 	return output;
     }
 
@@ -647,14 +651,15 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
 	    output->addComponent( compnm );
     }
 
-    output->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(attrspecs_[0].zDomainKey())) );
-    output->setName( attrspecs_[0].userRef() );
+    const Attrib::SelSpec& attrspec = attrspecs_.first();
+    const ZDomain::Def& zddef = ZDomain::Def::get( attrspec.zDomainKey() );
+    const ZDomain::Info zdomain( zddef, attrspec.zDomainUnit() );
+    output->setZDomain( zdomain );
+    output->setName( attrspec.userRef() );
 
-    for ( int iset=0; iset<packset.size(); iset++ )
+    for ( const auto* regsdp : packset )
     {
-	const RegularSeisDataPack& regsdp = *packset[iset];
-	DataPackCopier copier( regsdp, *output );
+	DataPackCopier copier( *regsdp, *output );
 	copier.execute();
     }
 
@@ -751,7 +756,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		else
 		{
 		    BufferString rawnmbufstr;
-	    //because constructor has strange behaviour with embeded strings
+	    //because constructor has strange behavior with embeded strings
 		    rawnmbufstr += inpname;
 		    rawnmbufstr.unEmbed( '[', ']' );
 		    if ( rawnmbufstr.buf() && inpname &&

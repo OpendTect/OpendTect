@@ -31,16 +31,23 @@ namespace PreStack
 
 uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 				bool dooffset, bool isformute )
+    : uiAngleCompGrp(p,pars,dooffset,isformute,true)
+{
+}
+
+
+uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
+				bool dooffset, bool isformute,
+				bool withadvanced )
     : uiGroup(p,"Angle Mute Group")
     , params_(pars)
     , isformute_(isformute)
     , dooffset_(dooffset)
+    , advpushbut_(nullptr)
 {
-    velfuncsel_ = new uiVelSel( this, uiVelSel::ioContext(),
-				uiSeisSel::Setup(Seis::Vol), false);
-    velfuncsel_->setLabelText( tr("Input Velocity") );
+    velfuncsel_ = new uiVelSel( this );
     if ( !params_.velvolmid_.isUdf() )
-       velfuncsel_->setInput( params_.velvolmid_ );
+       velfuncsel_->setInput_( params_.velvolmid_ );
 
     if ( isformute_ )
     {
@@ -58,10 +65,13 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	anglelbl_->attach( rightOf, anglefld_ );
     }
 
-    CallBack cbadv = mCB(this,uiAngleCompGrp,advPushButCB);
-    advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"),
-				    cbadv, false );
-    advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
+    if ( withadvanced )
+    {
+	const CallBack cbadv = mCB(this,uiAngleCompGrp,advPushButCB);
+	advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"),
+					cbadv, false );
+	advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
+    }
 
     setHAlignObj( velfuncsel_ );
 }
@@ -75,7 +85,7 @@ uiAngleCompGrp::~uiAngleCompGrp()
 
 void uiAngleCompGrp::updateFromParams()
 {
-    velfuncsel_->setInput( params_.velvolmid_ );
+    velfuncsel_->setInput_( params_.velvolmid_ );
     if ( isformute_ )
 	anglefld_->setValue( params_.mutecutoff_ );
     else
@@ -88,8 +98,8 @@ bool uiAngleCompGrp::acceptOK()
     if ( !velfuncsel_->ioobj() )
 	return false;
 
-    params_.velvolmid_ = velfuncsel_->key(true);
-    Interval<int> normalanglevalrange( 0, 90 );
+    params_.velvolmid_ = velfuncsel_->key( true );
+    const Interval<int> normalanglevalrange( 0, 90 );
     if ( isformute_ )
     {
 	params_.mutecutoff_ = anglefld_->getFValue();
@@ -104,24 +114,27 @@ bool uiAngleCompGrp::acceptOK()
     {
 	Interval<int> anglerange = anglefld_->getIInterval();
 	anglerange.sort();
-
 	if ( !normalanglevalrange.includes(anglerange,false) )
 	{
 	    uiMSG().error(tr("Please provide angle range"
-                " between 0 and 90 degree"));
+			     " between 0 and 90 degree"));
 	    return false;
 	}
 
 	params_.anglerange_ = anglerange;
     }
 
-    if ( !advpardlg_ )
+    if ( advpushbut_ )
     {
-	advpardlg_ = new uiAngleCompAdvParsDlg( this, params_, dooffset_,
-						isformute_ );
-	advpardlg_->finalize();
+	if ( !advpardlg_ )
+	{
+	    advpardlg_ = new uiAngleCompAdvParsDlg( this, params_, dooffset_,
+						    isformute_ );
+	    advpardlg_->finalize();
+	}
+
+	advpardlg_->acceptOK( nullptr );
     }
-    advpardlg_->acceptOK(0);
 
     return true;
 }
@@ -141,6 +154,7 @@ void uiAngleCompGrp::advPushButCB( CallBacker* )
 }
 
 
+// uiAngleCompAdvParsDlg
 
 uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
@@ -152,8 +166,8 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
     , isformute_(isformute)
 {
     uiRayTracer1D::Setup rtsu;
-    rtsu.dooffsets(dooffsets).doreflectivity(false)
-	.convertedwaves(false).withadvanced(false);
+    rtsu.dooffsets( dooffsets ).doreflectivity( false )
+	.convertedwaves( false ).withadvanced( false );
     raytracerfld_ = new uiRayTracerSel( this, rtsu );
 
     if ( !isformute_ )
@@ -356,6 +370,12 @@ void uiAngleMute::initClass()
 }
 
 
+void uiAngleMute::removeClass()
+{
+    uiPSPD().removeCreator( create );
+}
+
+
 uiDialog* uiAngleMute::create( uiParent* p, Processor* sgp )
 {
     mDynamicCastGet( AngleMute*, sgmute, sgp );
@@ -367,13 +387,20 @@ uiDialog* uiAngleMute::create( uiParent* p, Processor* sgp )
 
 
 uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
+    : uiAngleMute(p,rt,false)
+{
+}
+
+
+uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt, bool withadvanced )
     : uiDialog( p, uiDialog::Setup(tr("AngleMute setup"),mNoDlgTitle,
                                     mODHelpKey(mAngleMuteHelpID) ) )
-    , processor_( rt )
+    , processor_(rt)
 {
-    anglecompgrp_ = new uiAngleCompGrp( this, processor_->params() );
+    anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), false, true,
+					withadvanced );
 
-    uiSeparator* sep = new uiSeparator( this, "Sep" );
+    auto* sep = new uiSeparator( this, "Sep" );
     sep->attach( stretchedBelow, anglecompgrp_ );
 
     topfld_ = new uiGenInput( this, tr("Mute type"),
@@ -391,14 +418,17 @@ uiAngleMute::~uiAngleMute()
 {}
 
 
-bool uiAngleMute::acceptOK(CallBacker*)
+bool uiAngleMute::acceptOK( CallBacker* )
 {
     if ( !anglecompgrp_->acceptOK() )
 	return false;
 
-    processor_->params().raypar_.setYN( RayTracer1D::sKeyReflectivity(), false);
-    processor_->params().taperlen_ = taperlenfld_->getFValue();
+    if ( !processor_->params().raypar_.isPresent(sKey::Type()) )
+	processor_->params().raypar_.set( sKey::Type(),
+				    RayTracer1D::factory().getDefaultName() );
+
     processor_->params().tail_ = !topfld_->getBoolValue();
+    processor_->params().taperlen_ = taperlenfld_->getFValue();
 
     return true;
 }

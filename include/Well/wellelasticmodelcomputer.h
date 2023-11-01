@@ -42,10 +42,12 @@ public :
     bool		setVelLog(const Log&);
     bool		setDenLog(const Log&);
     bool		setSVelLog(const Log&);
-    void		setLogs(const Log& vel, const Log* den=nullptr,
+    void		setLogs(const Log& vel,const Log* den=nullptr,
 				const Log* svel=nullptr);
-    void		setZrange(const Interval<float>&, bool istime);
-    void		setExtractionPars(float step, bool intime);
+    void		setZrange(const Interval<float>& zrg,bool istime);
+			//!<\param zrg must be in SI units (meters or seconds).
+    void		setExtractionPars(float step,bool intime);
+			//!<\param step must be in SI units (meters or seconds).
 
     bool		computeFromLogs();
 			/*!<Set at least the velocity log before */

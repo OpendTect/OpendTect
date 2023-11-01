@@ -191,6 +191,7 @@ public:
     void		setAskedToOverwrite( bool yn )
 				{ asked2overwrite_ = yn; }
     bool		askedToOverwrite() const { return asked2overwrite_; }
+    mDeprecatedDef
     void		setSurveyDefaultSubsel(const char* subsel);
 
     virtual bool	fillPar(IOPar&) const;

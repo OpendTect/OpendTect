@@ -9,14 +9,18 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
+
 #include "executor.h"
 
 class IOObj;
 class Scaler;
 class SeisSingleTraceProc;
+class SeisTrc;
 class SeisTrcReader;
 class SeisTrcWriter;
 namespace Seis { class SelData; }
+namespace Vel { class Worker; }
+namespace ZDomain { class Info; }
 
 
 /*!\brief Copies cubes. The IOPar constructor wants an IOPar as you would pass
@@ -43,11 +47,15 @@ protected:
 
     bool			goImpl(od_ostream*,bool,bool,int) override;
     int				nextStep() override;
+    bool			resampleVels(const SeisTrc&,SeisTrc&) const;
+    void			cropComponents(SeisTrc&) const;
 
     SeisSingleTraceProc*	stp_;
     uiString			errmsg_;
     int				compnr_;
-    int				veltype_;
+    int				veltype_; //deprecated
+    const Vel::Worker*		worker_() const;
+    Vel::Worker*		worker_();
 
     void			doProc(CallBacker*);
 

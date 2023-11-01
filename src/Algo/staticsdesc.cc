@@ -26,33 +26,37 @@ StaticsDesc::StaticsDesc()
 
 void StaticsDesc::fillPar( IOPar& par ) const
 {
-    par.set( sKeyHorizon(), horizon_ );
-
-    if ( !horizon_.isUdf() )
+    if ( horizon_.isUdf() )
+	removePars( par );
+    else
     {
+	par.set( sKeyHorizon(), horizon_ );
 	par.set( sKeyVelocity(), vel_ );
 	par.set( sKeyVelocityAttrib(), velattrib_ );
     }
 }
 
 
-bool StaticsDesc::operator==( const StaticsDesc& b ) const
+bool StaticsDesc::operator==( const StaticsDesc& oth ) const
 {
-    if ( horizon_!=b.horizon_ )
+    if ( &oth == this )
+	return true;
+
+    if ( horizon_!=oth.horizon_ )
 	return false;
 
-    if ( velattrib_!=b.velattrib_ )
+    if ( velattrib_!=oth.velattrib_ )
 	return false;
 
     if ( velattrib_.isEmpty() )
-	return mIsEqual( vel_, b.vel_, 1e-3 );
+	return mIsEqual(vel_,oth.vel_,1e-3);
 
     return true;
 }
 
 
-bool StaticsDesc::operator!=( const StaticsDesc& b ) const
-{ return !(*this==b); }
+bool StaticsDesc::operator!=( const StaticsDesc& oth ) const
+{ return !(*this==oth); }
 
 
 void StaticsDesc::removePars( IOPar& par )
@@ -68,7 +72,6 @@ bool StaticsDesc::usePar( const IOPar& par )
     horizon_.setUdf();
     vel_ = mUdf(float);
     par.get( sKeyHorizon(), horizon_ );
-
     if ( horizon_.isUdf() )
 	return true;
 

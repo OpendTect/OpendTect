@@ -42,6 +42,8 @@ ________________________________________________________________________
 #include "timedepthconv.h"
 #include "trckeyzsampling.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
 #include "zdomain.h"
 
 
@@ -375,26 +377,100 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 }
 
 
-bool SeisIOObjInfo::isTime() const
+const ZDomain::Info& SeisIOObjInfo::zDomain() const
 {
-    const bool siistime = SI().zIsTime();
-    mChk(siistime);
-    return ZDomain::isTime( ioobj_->pars() );
-}
-
-
-bool SeisIOObjInfo::isDepth() const
-{
-    const bool siisdepth = !SI().zIsTime();
-    mChk(siisdepth);
-    return ZDomain::isDepth( ioobj_->pars() );
+    mChk( SI().zDomainInfo() );
+    return SeisStoreAccess::zDomain( ioobj_ );
 }
 
 
 const ZDomain::Def& SeisIOObjInfo::zDomainDef() const
 {
-    mChk(ZDomain::SI());
-    return ZDomain::Def::get( ioobj_->pars() );
+    return zDomain().def_;
+}
+
+
+bool SeisIOObjInfo::isTime() const
+{
+    mChk( SI().zIsTime() );
+    return zDomain().isTime();
+}
+
+
+bool SeisIOObjInfo::isDepth() const
+{
+    return !isTime();
+}
+
+
+bool SeisIOObjInfo::zInMeter() const
+{
+    mChk( SI().zInMeter() );
+    return zDomain().isDepthMeter();
+}
+
+
+bool SeisIOObjInfo::zInFeet() const
+{
+    mChk( SI().zInFeet() );
+    return zDomain().isDepthFeet();
+}
+
+
+const UnitOfMeasure* SeisIOObjInfo::zUnit() const
+{
+    mChk(nullptr);
+    return UnitOfMeasure::zUnit( zDomain() );
+}
+
+
+const UnitOfMeasure* SeisIOObjInfo::offsetUnit() const
+{
+    mChk(nullptr);
+    bool hasoffsetsunit;
+    return isPS() ? SeisPSIOProvider::offsetUnit( ioobj_, hasoffsetsunit )
+		  : nullptr;
+}
+
+
+Seis::OffsetType SeisIOObjInfo::offsetType() const
+{
+    Seis::OffsetType typ = Seis::OffsetType::OffsetMeter;
+    mChk(typ);
+    if ( isPS() )
+	SeisPSIOProvider::getGatherOffsetType( ioobj_->pars(), typ );
+
+    return typ;
+}
+
+
+bool SeisIOObjInfo::isCorrected() const
+{
+    mChk(true);
+    bool iscorr = true;
+    if ( isPS() )
+	SeisPSIOProvider::getGatherCorrectedYN( ioobj_->pars(), iscorr );
+
+    return iscorr;
+}
+
+
+ZSampling SeisIOObjInfo::getConvertedZrg( const ZSampling& zsamp ) const
+{
+    ZSampling ret = zsamp;
+    mChk(ret);
+    if ( zDomain() == SI().zDomainInfo() || zDomain().isTime() )
+	return ret;
+
+    const UnitOfMeasure* zuom = zUnit();
+    if ( !zuom )
+	return ret;
+
+    const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthUnit();
+    convValue( ret.start, zuom, depthuom );
+    convValue( ret.stop, zuom, depthuom );
+    convValue( ret.step, zuom, depthuom );
+    return ret;
 }
 
 
@@ -1123,9 +1199,9 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	.arg( cs.hsamp_.stop_.memb() ) \
 	.arg( cs.hsamp_.step_.memb() ) )
 
+    const ZDomain::Info& zinfo = zDomain();
     if ( !is2d )
     {
-	const ZDomain::Def& zddef = zDomainDef();
 	TrcKeyZSampling cs;
 	if ( getRanges(cs) )
 	{
@@ -1150,11 +1226,16 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	    inf.addKeyValue( uiStrings::sArea(),
 		     getAreaString(float(area),SI().xyInFeet(),2,true) );
 
-	    StepInterval<float> dispzrg( cs.zsamp_ );
-	    dispzrg.scale( float(zddef.userFactor()) );
-	    inf.addKeyValue( zddef.getRange().withUnit(zddef.unitStr()),
+	    ZSampling zrg = cs.zsamp_;
+	    const int nrdec = zinfo.def_.nrZDecimals( zrg.step );
+	    zrg.scale( zinfo.userFactor() );
+	    const uiString unitstr = zinfo.uiUnitStr_();
+	    uiString keystr = zinfo.def_.getRange();
+	    inf.addKeyValue( keystr.withUnit( unitstr ),
 		    toUiString("%1 - %2 [%3]")
-		    .arg(dispzrg.start).arg(dispzrg.stop).arg(dispzrg.step) );
+		    .arg( toString(zrg.start,nrdec) )
+		    .arg( toString(zrg.stop,nrdec) )
+		    .arg( toString(zrg.step,nrdec) ) );
 	}
     }
 
@@ -1169,43 +1250,30 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	if ( !parstr.isEmpty() )
 	    inf.addKeyValue( tr("Optimized direction"), parstr );
 
-	if ( pars.isTrue("Is Velocity") )
+	VelocityDesc desc;
+	if ( desc.usePar(pars) )
 	{
-	    parstr = pars.find( "Velocity Type" );
-	    if ( !parstr.isEmpty() )
-		inf.addKeyValue( tr("Velocity Type"), parstr );
-
-	    Interval<float> topvavg, botvavg;
-	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
-	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
+	    inf.addKeyValue( tr("Velocity Type"),
+			     OD::toString(desc.getType()) );
+	    TrcKeyZSampling cs;
+	    if ( !is2d && getRanges(cs) )
 	    {
-		const StepInterval<float> sizrg = SI().zRange();
-		StepInterval<float> dispzrg;
-		uiString keystr;
-		if ( SI().zIsTime() )
+		const ZDomain::Info& todomain = zinfo.isTime()
+				? (SI().depthsInFeet() ? ZDomain::DepthFeet()
+						       : ZDomain::DepthMeter())
+				: ZDomain::TWT();
+		ZSampling zrg = getConvertedZrg( cs.zsamp_ );
+		zrg = VelocityStretcherNew::getWorkZSampling( zrg, zinfo,
+							      todomain, pars );
+		if ( !zrg.isUdf() )
 		{
-		    dispzrg.start = sizrg.start * topvavg.start / 2;
-		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
-		    dispzrg.step = (dispzrg.stop-dispzrg.start)
-					/ sizrg.nrSteps();
-		    dispzrg.scale( float(ZDomain::Depth().userFactor()) );
-		    keystr = tr("Depth Range")
-			    .withUnit( ZDomain::Depth().unitStr() );
+		    zrg.scale( todomain.def_.userFactor() );
+		    const uiString keystr = tr("%1 Range ")
+						.arg( todomain.userName() )
+						.withUnit( todomain.unitStr_());
+		    inf.addKeyValue( keystr, toUiString("%1 - %2 [%3]")
+			    .arg(zrg.start).arg(zrg.stop).arg(zrg.step) );
 		}
-
-		else
-		{
-		    dispzrg.start = 2 * sizrg.start / topvavg.stop;
-		    dispzrg.stop = 2 * sizrg.stop / botvavg.start;
-		    dispzrg.step = (dispzrg.stop-dispzrg.start)
-					/ sizrg.nrSteps();
-		    dispzrg.scale( float(ZDomain::Time().userFactor()) );
-		    keystr = tr("Time Range")
-			    .withUnit( ZDomain::Time().unitStr() );
-		}
-
-		inf.addKeyValue( keystr, toUiString("%1 - %2 [%3]")
-		    .arg(dispzrg.start).arg(dispzrg.stop).arg(dispzrg.step) );
 	    }
 	}
     }

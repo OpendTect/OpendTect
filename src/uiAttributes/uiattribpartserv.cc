@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "executor.h"
+#include "keystrs.h"
 #include "ioman.h"
 #include "mousecursor.h"
 #include "nlamodel.h"
@@ -40,6 +41,7 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "zdomain.h"
 
 #include "uiattr2dsel.h"
@@ -215,9 +217,10 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 }
 
 
-bool uiAttribPartServer::addToDescSet( const char* key, bool is2d )
+bool uiAttribPartServer::addToDescSet( const char* keystr, bool is2d )
 {
     //TODO: think of it: stored data can  be at 2 places: also in attrib set...
+    const MultiID key( keystr );
     return eDSHolder().getDescSet(is2d,true)->getStoredID(key,-1,true)
 								.isValid();
 }
@@ -453,6 +456,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     else if ( !isnla )
 	selspec.setRefFromID( attrdata.attrSet() );
     //selspec.setZDomainKey( dlg.zDomainKey() );
+    //selspec.setZDomainUnit( ?? );
 
     setTargetSelSpec( selspec );
     return true;
@@ -1114,8 +1118,9 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
-    const Desc* targetdesc = !attrds || attrds->isEmpty() ? 0
-	: attrds->getDesc(targetspecs_[0].id());
+    const Desc* targetdesc = !attrds || attrds->isEmpty()
+			   ? nullptr
+			   : attrds->getDesc(targetspecs_[0].id());
 
     if ( targetdesc )
     {
@@ -1173,9 +1178,11 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 	}
     }
 
-    newpack->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
-    newpack->setName( targetspecs_[0].userRef() );
+    const Attrib::SelSpec& targetspec = targetspecs_.first();
+    const ZDomain::Def& zddef = ZDomain::Def::get( targetspec.zDomainKey() );
+    const ZDomain::Info zdomain( zddef, targetspec.zDomainUnit() );
+    newpack->setZDomain( zdomain );
+    newpack->setName( targetspec.userRef() );
     return newpack;
 }
 
@@ -1248,9 +1255,11 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 	}
     }
 
-    newpack->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
-    newpack->setName( targetspecs_[0].userRef() );
+    const Attrib::SelSpec& targetspec = targetspecs_.first();
+    const ZDomain::Def& zddef = ZDomain::Def::get( targetspec.zDomainKey() );
+    const ZDomain::Info zdomain( zddef, targetspec.zDomainUnit() );
+    newpack->setZDomain( zdomain );
+    newpack->setName( targetspec.userRef() );
     newpack->ref();
     return newpack->id();
 }
@@ -1356,9 +1365,11 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 	}
     }
 
-    newpack->setZDomain(
-	    ZDomain::Info(ZDomain::Def::get(targetspecs_[0].zDomainKey())));
-    newpack->setName( targetspecs_[0].userRef() );
+    const Attrib::SelSpec& targetspec = targetspecs_.first();
+    const ZDomain::Def& zddef = ZDomain::Def::get( targetspec.zDomainKey() );
+    const ZDomain::Info zdomain( zddef, targetspec.zDomainUnit() );
+    newpack->setZDomain( zdomain );
+    newpack->setName( targetspec.userRef() );
     newpack->ref();
     return newpack->id();
 }
@@ -1513,7 +1524,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 bool doFinish( bool success ) override
 {
     outputdp_->setRefNrs( refnrs_ );
-    outputdp_->setZDomain( ZDomain::Info(zdef_) );
+    outputdp_->setZDomain( zdef_ );
     if ( !compnames_.isEmpty() )
 	outputdp_->setName( compnames_[0]->buf() );
     return true;

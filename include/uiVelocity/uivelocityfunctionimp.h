@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uivelocitymod.h"
+
 #include "uidialog.h"
 
 class uiFileInput;
@@ -24,6 +25,7 @@ namespace Vel
 mExpClass(uiVelocity) uiImportVelFunc : public uiDialog
 { mODTextTranslationClass(uiImportVelFunc);
 public:
+			mDeprecated("Provide is2d flag")
 			uiImportVelFunc(uiParent*);
 			uiImportVelFunc(uiParent*,bool is2d);
 			~uiImportVelFunc();
@@ -37,6 +39,7 @@ protected:
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;
 
+    void		initDlgCB(CallBacker*);
     void		inpSelCB(CallBacker*);
     void		velTypeChangeCB(CallBacker*);
     void		formatSel(CallBacker*);

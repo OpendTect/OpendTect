@@ -12,10 +12,12 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
-#include "hiddenparam.h"
+#include "oddirs.h"
 #include "od_helpids.h"
 #include "od_istream.h"
 #include "tabledef.h"
+#include "velocityfunctionascio.h"
+#include "velocityfunctionstored.h"
 
 #include "uifileinput.h"
 #include "uigeom2dsel.h"
@@ -26,8 +28,8 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "uiveldesc.h"
-#include "velocityfunctionascio.h"
-#include "velocityfunctionstored.h"
+
+#include "hiddenparam.h"
 
 
 static HiddenParam<Vel::uiImportVelFunc,uiGeom2DSel*> hp_geom2dfld( nullptr );
@@ -45,7 +47,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p, bool is2d )
 				  mNoDlgTitle,
 				  mODHelpKey(mImportVelFuncHelpID) )
 			    .modal(false))
-    , fd_( *FunctionAscIO::getDesc(is2d) )
+    , fd_(*FunctionAscIO::getDesc(is2d))
 {
     setVideoKey( mODVideoKey(mImportVelFuncHelpID) );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
@@ -53,20 +55,21 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p, bool is2d )
     inpfld_ = new uiASCIIFileInput( this, true );
     mAttachCB( inpfld_->valueChanged, uiImportVelFunc::inpSelCB );
 
-    uiVelocityDesc::Setup su;
-    su.desc_.type_ = VelocityDesc::Interval;
-    typefld_ = new uiVelocityDesc( this, &su );
+    uiVelocityDesc::Setup su( nullptr, is2d, false );
+    su.desc_.setType( OD::VelocityType::Interval );
+    typefld_ = new uiVelocityDesc( this, su );
     typefld_->attach( alignedBelow, inpfld_ );
     mAttachCB( typefld_->typeChangeNotifier(),
 	       uiImportVelFunc::velTypeChangeCB );
 
-    uiSeparator* sep = new uiSeparator( this, "H sep" );
+    auto* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, typefld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 					mODHelpKey(mImportVelFuncParsHelpID) );
     dataselfld_->attach( alignedBelow, typefld_ );
     dataselfld_->attach( ensureBelow, sep );
+    //TODO: set unit for velocities, copy back to typefld_
 
     hp_geom2dfld.setParam( this, nullptr );
     uiObject* attachobj = dataselfld_->attachObj();
@@ -85,7 +88,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p, bool is2d )
     outfld_->attach( alignedBelow, attachobj );
     outfld_->attach( ensureBelow, sep );
 
-    velTypeChangeCB( 0 );
+    mAttachCB( postFinalize(), uiImportVelFunc::initDlgCB );
 }
 
 
@@ -94,6 +97,12 @@ uiImportVelFunc::~uiImportVelFunc()
     detachAllNotifiers();
     delete &fd_;
     hp_geom2dfld.removeParam( this );
+}
+
+
+void uiImportVelFunc::initDlgCB( CallBacker* )
+{
+    velTypeChangeCB( nullptr );
 }
 
 
@@ -110,7 +119,7 @@ void uiImportVelFunc::velTypeChangeCB( CallBacker* )
 {
     VelocityDesc desc;
     typefld_->get( desc, false );
-    fd_.bodyinfos_[mVel]->setName( VelocityDesc::getTypeString(desc.type_) );
+    fd_.bodyinfos_[mVel]->setName( toString(desc.getType()) );
 }
 
 
@@ -127,7 +136,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 {
     BinIDValueSet bidvalset( 0, true);
     VelocityDesc desc;
-    if ( !typefld_->get( desc, true ) )
+    if ( !typefld_->get(desc,true) )
 	return false;
 
     if ( !*inpfld_->fileName() )
@@ -164,18 +173,18 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     else
 	success = velascio.execute();
 
-
     if ( !success )
-	mErrRet( uiStrings::phrCannotRead( toUiString(inpfld_->fileName())) );
+	mErrRet( uiStrings::phrCannotRead( ::toUiString(inpfld_->fileName())) );
 
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj )
 	mErrRet( outfld_->isEmpty() ? uiStrings::phrSelect(uiStrings::sOutput())
 				    : uiStrings::sEmptyString() )
 
+    const ZDomain::Info& zinfo = SI().zDomainInfo(); //TODO support more
     RefMan<StoredFunctionSource> functions = new StoredFunctionSource;
-    functions->setData( bidvalset, desc, true ); //set ZisT
-    if ( !functions->store( ioobj->key() ) )
+    functions->setData( bidvalset, desc, zinfo );
+    if ( !functions->store(ioobj->key()) )
 	mErrRet( tr("Cannot store velocity functions") );
 
     uiString msg = tr("Velocity Function successfully imported."

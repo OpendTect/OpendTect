@@ -168,6 +168,36 @@ static ObjectSet<const UnitOfMeasure>& velUnits()
     return ret;
 }
 
+static ObjectSet<const UnitOfMeasure>& velStorageUnits()
+{	//Expected unit for UnitOfMeasure::surveyDefVelStorageUnit
+    static ObjectSet<const UnitOfMeasure> ret;
+    if ( ret.isEmpty() )
+	{ ret.add( metersecuom_ ).add( metersecuom_ ).add( metersecuom_ )
+	     .add( metersecuom_ ).add( metersecuom_ )
+	     .add( ftsecuom_ ).add( ftsecuom_ ); }
+    return ret;
+}
+
+static ObjectSet<const UnitOfMeasure>& srdUnits()
+{	//Expected unit for UnitOfMeasure::surveyDefSRDUnit
+    static ObjectSet<const UnitOfMeasure> ret;
+    if ( ret.isEmpty() )
+	{ ret.add( meteruom_ ).add( feetuom_ ).add( feetuom_ )
+	     .add( meteruom_ ).add( meteruom_ )
+	     .add( feetuom_ ).add( feetuom_ ); }
+    return ret;
+}
+
+static ObjectSet<const UnitOfMeasure>& srdStorageUnits()
+{	//Expected unit for UnitOfMeasure::surveyDefSRDStorageUnit
+    static ObjectSet<const UnitOfMeasure> ret;
+    if ( ret.isEmpty() )
+	{ ret.add( meteruom_ ).add( meteruom_ ).add( meteruom_ )
+	     .add( meteruom_ ).add( meteruom_ )
+	     .add( feetuom_ ).add( feetuom_ ); }
+    return ret;
+}
+
 
 #define mMsg(txt) BufferString( SI().name(), ": ", txt )
 
@@ -224,6 +254,9 @@ static bool testSurveyUnits( int isurv )
     const UnitOfMeasure* depthstoruom =
 				    UnitOfMeasure::surveyDefDepthStorageUnit();
     const UnitOfMeasure* veluom = UnitOfMeasure::surveyDefVelUnit();
+    const UnitOfMeasure* velstoruom = UnitOfMeasure::surveyDefVelStorageUnit();
+    const UnitOfMeasure* srduom = UnitOfMeasure::surveyDefSRDUnit();
+    const UnitOfMeasure* srdstoruom = UnitOfMeasure::surveyDefSRDStorageUnit();
 
     mRunStandardTestWithError( zuom == zUnits()[isurv],
 		   mMsg("Vertical unit in displays (ms,m,ft)"),
@@ -246,6 +279,15 @@ static bool testSurveyUnits( int isurv )
     mRunStandardTestWithError( veluom == velUnits()[isurv],
 		      mMsg("Velocity unit in displays (m/s,ft/s)"),
 		      BufferString("Should not be in ", veluom->name()) );
+    mRunStandardTestWithError( velstoruom == velStorageUnits()[isurv],
+		      mMsg("Velocity unit in storage (m/s,ft/s)"),
+		      BufferString("Should not be in ", velstoruom->name()) );
+    mRunStandardTestWithError( srduom == srdUnits()[isurv],
+		   mMsg("SRD unit in displays (m,ft)"),
+		   BufferString( "Should not be in: ", srduom->name() ) );
+    mRunStandardTestWithError( srdstoruom == srdStorageUnits()[isurv],
+		   mMsg("SRD unit in storage (m,ft)"),
+		   BufferString( "Should not be in: ", srdstoruom->name() ) );
 
     return true;
 }

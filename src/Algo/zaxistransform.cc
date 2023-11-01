@@ -46,7 +46,12 @@ ZAxisTransform::ZAxisTransform( const ZDomain::Def& from,
 				const ZDomain::Def& to )
     : fromzdomaininfo_(*new ZDomain::Info(from))
     , tozdomaininfo_(*new ZDomain::Info(to))
-{}
+{
+    if ( from.isDepth() )
+	fromzdomaininfo_.setDepthUnit( SI().depthType() );
+    if ( to.isDepth() )
+	tozdomaininfo_.setDepthUnit( SI().depthType() );
+}
 
 
 ZAxisTransform::~ZAxisTransform()
@@ -191,10 +196,10 @@ float ZAxisTransform::getGoodZStep() const
 
 
 const ZDomain::Info& ZAxisTransform::fromZDomainInfo() const
-{ return const_cast<ZAxisTransform*>(this)->fromZDomainInfo(); }
+{ return mSelf().fromZDomainInfo(); }
 
 const ZDomain::Info& ZAxisTransform::toZDomainInfo() const
-{ return const_cast<ZAxisTransform*>(this)->toZDomainInfo(); }
+{ return mSelf().toZDomainInfo(); }
 
 const char* ZAxisTransform::fromZDomainKey() const
 { return fromzdomaininfo_.key(); }
@@ -211,14 +216,12 @@ void ZAxisTransform::fillPar( IOPar& par ) const
 
 void ZAxisTransform::setVelUnitOfMeasure( const Scaler* scaler )
 {
-    delete scaler_;
-    scaler_ = scaler && !scaler->isEmpty() ? scaler->clone() : nullptr;
 }
 
 
 const Scaler* ZAxisTransform::getVelUnitOfMeasure() const
 {
-    return scaler_;
+    return nullptr;
 }
 
 
@@ -230,7 +233,7 @@ float ZAxisTransform::toZScale() const
 		SI().depthsInFeet() ? SurveyInfo::Feet : SurveyInfo::Meter,
 		SI().xyUnit() );
     }
-    else if (  toZDomainInfo().def_.isTime() )
+    else if ( toZDomainInfo().def_.isTime() )
     {
 	return SI().defaultXYtoZScale( SurveyInfo::Second, SI().xyUnit() );
     }

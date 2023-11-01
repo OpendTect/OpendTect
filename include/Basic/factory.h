@@ -55,6 +55,8 @@ protected:
     int				indexOf(const char*) const;
     void			addNames(const char*,const uiString&);
     void			setNames(int,const char*,const uiString&);
+    void			removeByIndex(int);
+    bool			moveAfter_(int,int);
 
     mutable StaticStringManager	errmsgs_;
     mutable StaticStringManager currentname_;
@@ -130,6 +132,10 @@ public:
 
     inline T*			create(const char* nm) const;
 				//!<Name may be not be null
+
+    inline bool			moveAfter(int from,int to);
+				/*!<Moves an item at the index from,
+				    after the index to */
 protected:
 
     TypeSet<Creator>		creators_;
@@ -203,6 +209,10 @@ public:
     inline T*		create(const char* nm,P,bool chknm =true) const;
 			//!<Name may be be null, if null name is given
 			//!<chknm will be forced to false
+
+    inline bool		moveAfter(int from,int to);
+			//!<Moves an item at the index from, after the index to
+
 protected:
 
     TypeSet<Creator>	creators_;
@@ -233,6 +243,10 @@ public:
 			       bool chknm =true) const;
 			//!<Name may be be null, if null name is given
 			//!<chknm will be forced to false
+
+    inline bool		moveAfter(int from,int to);
+			//!<Moves an item at the index from, after the index to
+
 protected:
 
     TypeSet<Creator>	creators_;
@@ -263,6 +277,10 @@ public:
 			       bool chknm =true) const;
 			//!<Name may be be null, if null name is given
 			//!<chknm will be forced to false
+
+    inline bool		moveAfter(int from,int to);
+			//!<Moves an item at the index from, after the index to
+
 protected:
 
     TypeSet<Creator>	creators_;
@@ -363,8 +381,36 @@ static baseclss*	createInstance( parclss1 p1, parclss2 p2 ) \
     for ( int idx=creators_.size()-1; idx>=0; idx-- ) \
     { \
 	if ( creators_.get(idx) == cr ) \
+	{ \
 	    creators_.removeSingle(idx); \
+	    removeByIndex( idx ); \
+	} \
     }
+
+#define mMoveCreator \
+    if ( !moveAfter_(from,to) ) \
+	return false; \
+\
+    if ( from < to ) \
+    { \
+	int idx = from; \
+	while( idx < to ) \
+	{ \
+	    creators_.swap( idx, idx+1 ); \
+	    idx++; \
+	} \
+    } \
+    else \
+    { \
+	int idx = from-1; \
+	while ( idx > to && idx > 0 ) \
+	{ \
+	    creators_.swap( idx, idx+1 ); \
+	    idx--; \
+	} \
+    } \
+\
+    return true;
 
 
 template <class T> inline
@@ -390,6 +436,13 @@ T* Factory<T>::create( const char* name ) const
 }
 
 
+template <class T> inline
+bool Factory<T>::moveAfter( int from, int to )
+{
+    mMoveCreator
+}
+
+
 template <class T, class P> inline
 void Factory1Param<T,P>::addCreator( Creator cr, const char* name,
 				     const uiString& username )
@@ -409,6 +462,13 @@ template <class T, class P> inline
 T* Factory1Param<T,P>::create( const char* name, P data, bool chk ) const
 {
     mCreateImpl( chk, creators_[idx]( data ) );
+}
+
+
+template <class T, class P> inline
+bool Factory1Param<T,P>::moveAfter( int from, int to )
+{
+    mMoveCreator
 }
 
 
@@ -435,6 +495,13 @@ T* Factory2Param<T,P0,P1>::create( const char* name, P0 p0, P1 p1,
 }
 
 
+template <class T, class P0, class P1> inline
+bool Factory2Param<T,P0,P1>::moveAfter( int from, int to )
+{
+    mMoveCreator
+}
+
+
 template <class T, class P0, class P1, class P2> inline
 void Factory3Param<T,P0,P1,P2>::addCreator( Creator cr, const char* name,
 					 const uiString& username )
@@ -456,6 +523,14 @@ T* Factory3Param<T,P0,P1,P2>::create( const char* name, P0 p0, P1 p1, P2 p2,
 {
     mCreateImpl( chk, creators_[idx]( p0, p1, p2 ) );
 }
+
+
+template <class T, class P0, class P1, class P2> inline
+bool Factory3Param<T,P0,P1,P2>::moveAfter( int from, int to )
+{
+    mMoveCreator
+}
+
 
 
 #define mDefineFactory( mod, T, funcname ) \

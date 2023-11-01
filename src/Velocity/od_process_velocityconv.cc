@@ -17,7 +17,10 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "progressmeter.h"
 #include "seisioobjinfo.h"
+#include "survinfo.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
 
 #include "prog.h"
 
@@ -35,13 +38,19 @@ bool BatchProgram::doWork( od_ostream& strm )
     if ( !inputioobj )
 	mErrRet( "Cannot read input volume object" )
 
-    TrcKeySampling hrg;
-    if ( !hrg.usePar(pars()) )
+    TrcKeySampling tks;
+    if ( !tks.usePar(pars()) )
     {
-	SeisIOObjInfo seisinfo( inputioobj );
+	const SeisIOObjInfo seisinfo( inputioobj );
+	if ( !seisinfo.isOK() )
+	    mErrRet( "Cannot determine input dataset range" )
+
+	if ( seisinfo.is2D() )
+	    { pFreeFnErrMsg("Probably incorrect, must provide a GeomID"); }
+
 	TrcKeyZSampling cs;
 	seisinfo.getRanges( cs );
-	hrg = cs.hsamp_;
+	tks = cs.hsamp_;
     }
 
     MultiID outputmid;
@@ -53,28 +62,18 @@ bool BatchProgram::doWork( od_ostream& strm )
 	mErrRet( "Cannot read output volume object" )
 
     VelocityDesc veldesc;
-    if ( !veldesc.usePar( pars() ) )
+    if ( !veldesc.usePar(pars()) )
 	mErrRet( "Cannot read output velocity definition" )
 
-    Vel::VolumeConverter conv( *inputioobj, *outputioobj, hrg, veldesc );
+    const double srd = SI().seismicReferenceDatum();
+    const UnitOfMeasure* srduom = UnitOfMeasure::surveyDefSRDStorageUnit();
+    Vel::VolumeConverterNew conv( *inputioobj, *outputioobj, tks, veldesc,
+				  srd, srduom );
     TextStreamProgressMeter progressmeter( strm );
     ((Task&)conv).setProgressMeter( &progressmeter );
 
     if ( !conv.execute() )
-    {
-	if ( !conv.errMsg().isEmpty() )
-	    strm << conv.errMsg();
-
-	return false;
-    }
-
-    if ( veldesc.type_ != VelocityDesc::Unknown )
-	veldesc.fillPar( outputioobj->pars() );
-    else
-	veldesc.removePars( outputioobj->pars() );
-
-    if ( !IOM().commitChanges(*outputioobj) )
-	mErrRet( uiStrings::phrCannotWrite(tr("velocity information") ) )
+	mErrRet( ::toString(conv.uiMessage()) )
 
     return true;
 }

@@ -68,7 +68,7 @@ protected:
     const uiStratLayModEditTools& tools_;
 
     uiFlatViewer&	vwr_;
-    bool		zinfeet_;
+    bool		zinfeet_; //deprecated
     TypeSet<TypeSet<float> > lvldpths_;
     IOPar		dumppars_;
     uiTextItem*		modtypetxtitm_			= nullptr;

@@ -414,7 +414,7 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
     if ( track.isEmpty() )
 	return;
 
-    const double srddepth = -1.f * SI().seismicReferenceDatum();
+    const double srddepth = -1. * SI().seismicReferenceDatum();
     const double kb  = mCast(double,track.getKbElev());
     const double veld = mCast(double,vel);
     const double bulkshift = mIsUdf( replvel ) ? 0. : ( kb+srddepth ) *
@@ -462,17 +462,24 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
 bool Well::D2TModel::getTimeDepthModel( const Well::Data& wd,
 					TimeDepthModel& model ) const
 {
-    Well::D2TModel d2t = *this;
+    Well::D2TModel d2t( *this );
     uiString msg;
     if ( !d2t.ensureValid(wd,msg) )
 	return false;
 
     TypeSet<float> depths;
     TypeSet<float> times;
+    const Well::Track& track = wd.track();
+    const UnitOfMeasure* depthstoruom =
+			 UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthUnit();
     for ( int idx=0; idx<d2t.size(); idx++ )
     {
 	const float curdah = d2t.dah( idx );
-	depths += mCast(float, wd.track().getPos( curdah ).z );
+	const float depth = getConvertedValue(
+				       mCast(float,track.getPos(curdah).z ),
+				       depthstoruom, depthuom );
+	depths += depth;
 	times += d2t.t( idx );
     }
 
@@ -811,7 +818,7 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
     {
 	zvals.insert( 0, originz );
 	tvals.insert( 0, kbabovesrd ?
-			 0.f : 2. * ( zwllhead-srddepth ) / replveld );
+			 0. : 2. * ( zwllhead-srddepth ) / replveld );
     }
 
     TypeSet<float> dahs;

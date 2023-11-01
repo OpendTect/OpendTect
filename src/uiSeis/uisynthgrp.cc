@@ -255,7 +255,8 @@ void uiSynthSeisSel::fillPar( IOPar& par ) const
     {
 	IOPar reflpar;
 	reflpar.set( sKey::Type(), AICalc1D::sFactoryKeyword() );
-	ReflCalc1D::setIOParsToSingleAngle( reflpar );
+	ReflCalc1D::setIOParsToSingleAngle( reflpar, 0.f,
+					    Seis::OffsetType::AngleRadians );
 	par.mergeComp( reflpar, ReflCalc1D::sKeyReflPar() );
     }
 

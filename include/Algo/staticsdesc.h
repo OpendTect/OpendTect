@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
 #include "multiid.h"
 
 
@@ -25,7 +26,7 @@ public:
     MultiID		horizon_;
     float		vel_;
     BufferString	velattrib_;	//attrib on statichorizon_
-    					//if empty, use vel
+					//if empty, use vel
 
     bool		operator==(const StaticsDesc&) const;
     bool		operator!=(const StaticsDesc&) const;

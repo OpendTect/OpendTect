@@ -10,22 +10,242 @@ ________________________________________________________________________
 #include "velocityvolumeconversion.h"
 
 #include "binidvalset.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "ioobjtags.h"
+#include "posinfo.h"
 #include "seisbounds.h"
+#include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "seispacketinfo.h"
+#include "seistype.h"
 #include "sorting.h"
 #include "uistrings.h"
+#include "timedepthconv.h"
 #include "varlenarray.h"
+#include "veldescimpl.h"
 #include "velocitycalc.h"
 
 namespace Vel
 {
+
+const char* VolumeConverterNew::sKeyInput() { return sKey::Input(); }
+const char* VolumeConverterNew::sKeyOutput() { return sKey::Output(); }
+
+VolumeConverterNew::VolumeConverterNew( const IOObj& input, const IOObj& output,
+					const TrcKeySampling& ranges,
+					const VelocityDesc& desc, double srd,
+					const UnitOfMeasure* srduom )
+    : msg_(tr("Converting velocities"))
+    , tks_(ranges)
+    , velinpdesc_(*new VelocityDesc)
+    , veloutpdesc_(*new VelocityDesc(desc))
+    , input_(input)
+    , output_(output)
+    , srd_(srd)
+    , srduom_(srduom)
+{
+    velinpdesc_.usePar( input_.pars() );
+    msg_ = tr("Converting velocities from %1 to %2")
+		.arg( toString(velinpdesc_.type_) )
+		.arg( toString(veloutpdesc_.type_) );
+    setRanges();
+}
+
+
+VolumeConverterNew::~VolumeConverterNew()
+{
+    delete &velinpdesc_;
+    delete &veloutpdesc_;
+    delete reader_;
+    delete writer_;
+    delete sequentialwriter_;
+}
+
+
+uiString VolumeConverterNew::uiMessage() const
+{
+    return msg_;
+}
+
+
+uiString VolumeConverterNew::uiNrDoneText() const
+{
+    return sTrcFinished();
+}
+
+
+od_int64 VolumeConverterNew::nrIterations() const
+{
+    return totalnr_;
+}
+
+
+void VolumeConverterNew::setRanges()
+{
+    const SeisIOObjInfo info( input_ );
+    if ( !info.isOK() )
+	return;
+
+    const Seis::GeomType geomtype = info.geomType();
+    if ( Seis::is2D(geomtype) )
+    {
+	StepInterval<int> trcrg;
+	ZSampling zrg;
+	if ( !info.getRanges(tks_.getGeomID(),trcrg,zrg) )
+	    return;
+
+	totalnr_ = trcrg.nrSteps() + 1;
+    }
+    else
+    {
+	TrcKeyZSampling storhrg;
+	if ( !info.getRanges(storhrg) )
+	    return;
+
+	tks_.limitTo( storhrg.hsamp_ );
+	SeisTrcReader rdr( input_, &geomtype );
+	PosInfo::CubeData posinfo;
+	if ( !rdr.prepareWork(Seis::Scan) || !rdr.get3DGeometryInfo(posinfo) )
+	    return;
+
+	totalnr_ = posinfo.totalSizeInside( tks_ );
+    }
+}
+
+
+bool VolumeConverterNew::doPrepare( int nrthreads )
+{
+    msg_ = tr("Converting velocities from %1 to %2")
+		.arg( toString(velinpdesc_.type_) )
+		.arg( toString(veloutpdesc_.type_) );
+    if ( totalnr_ < 0 )
+    {
+	msg_ = tr("No positions to process");
+	return false;
+    }
+
+    if ( !velinpdesc_.isVelocity() || !veloutpdesc_.isVelocity() ||
+	 velinpdesc_.type_ == veloutpdesc_.type_ )
+    {
+	msg_ = tr("Input/output velocities are not interval, RMS, or Avg "
+		     "or are identical.");
+	return false;
+    }
+
+    delete reader_;
+    reader_ = new SeisTrcReader( input_ );
+    if ( !reader_->prepareWork() )
+    {
+	deleteAndNullPtr( reader_ );
+	msg_ = reader_->errMsg();
+	return false;
+    }
+
+    reader_->setSelData( new Seis::RangeSelData(tks_) );
+
+    zdomaininfo_ = &reader_->zDomain();
+    delete writer_;
+    writer_ = new SeisTrcWriter( output_ );
+    delete sequentialwriter_;
+    sequentialwriter_ = new SeisSequentialWriter( writer_ );
+
+    return true;
+}
+
+
+bool VolumeConverterNew::doWork( od_int64, od_int64, int threadidx )
+{
+    char res = 1;
+    SeisTrc trc;
+
+    lock_.lock();
+    res = getNewTrace( trc, threadidx );
+    lock_.unLock();
+
+    while ( res==1 )
+    {
+	if ( !shouldContinue() )
+	    return false;
+
+	auto* outputtrc = new SeisTrc( trc );
+	outputtrc->updateVelocities( velinpdesc_, veloutpdesc_,
+				     *zdomaininfo_, srd_, srduom_ );
+	sequentialwriter_->submitTrace( outputtrc, true );
+	addToNrDone( 1 );
+
+	Threads::MutexLocker lock( lock_ );
+	res = getNewTrace( trc, threadidx );
+    }
+
+    return res==0;
+}
+
+
+bool VolumeConverterNew::doFinish( bool success )
+{
+    zdomaininfo_= nullptr;
+    deleteAndNullPtr( reader_ );
+    if ( !sequentialwriter_->finishWrite() )
+	success = false;
+
+    deleteAndNullPtr( sequentialwriter_ );
+    deleteAndNullPtr( writer_ );
+
+    if ( !success )
+	return false;
+
+    const IOPar& inpiop = input_.pars();
+    IOPar& outiop = output_.pars();
+    veloutpdesc_.fillPar( outiop );
+    ::Interval<float> velrg;
+    VelocityStretcherNew::getRange( inpiop, velinpdesc_, true, velrg );
+    VelocityStretcherNew::setRange( velrg, veloutpdesc_, true, outiop );
+    VelocityStretcherNew::getRange( inpiop, velinpdesc_, false, velrg );
+    VelocityStretcherNew::setRange( velrg, veloutpdesc_, false, outiop );
+    if ( !IOM().commitChanges(output_) )
+    {
+	msg_ = uiStrings::phrCannotWrite( tr("velocity information") );
+	return false;
+    }
+
+    return success;
+}
+
+
+char VolumeConverterNew::getNewTrace( SeisTrc& trc, int threadidx )
+{
+    if ( !reader_ )
+	return 0;
+
+    int res = 2;
+    while ( res==2 || !tks_.includes(trc.info().binID()) )
+	res = reader_->get( trc.info() );
+
+    if ( res==1 )
+    {
+	if ( !reader_->get(trc) )
+	    return -1;
+
+	sequentialwriter_->announceTrace( trc.info().binID() );
+	return 1;
+    }
+
+    if ( res==-1 )
+	msg_ = uiStrings::sCantReadInp();
+
+    deleteAndNullPtr( reader_ );
+
+    return mCast( char, res );
+}
+
+
+// Old task implementation
+mStartAllowDeprecatedSection
 
 const char* VolumeConverter::sKeyInput() { return sKey::Input(); }
 const char* VolumeConverter::sKeyOutput() { return sKey::Output(); }
@@ -213,7 +433,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 	    }
 	    float* targetptr = interptr ? interptr : outptr;
 	    if ( (velinpdesc_.type_ == VelocityDesc::Avg &&
-		  !computeVint(inputptr,timesamps,trcsz,targetptr) ) ||
+		  !::computeVint(inputptr,timesamps,trcsz,targetptr) ) ||
 		 (velinpdesc_.type_ == VelocityDesc::RMS &&
 		  !computeDix(inputptr,sd,trcsz,targetptr) ) )
 	    {
@@ -223,7 +443,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 
 	const float* srcptr = interptr ? interptr : inputptr;
 	if ( (veloutpdesc_.type_ == VelocityDesc::Avg &&
-	      !computeVavg(srcptr,timesamps,trcsz,outptr) ) ||
+	      !::computeVavg(srcptr,timesamps,trcsz,outptr) ) ||
 	     (veloutpdesc_.type_ == VelocityDesc::RMS &&
 	      !computeVrms(srcptr,sd,trcsz,outptr) ) )
 	{
@@ -270,6 +490,8 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 
     return mCast( char, res );
 }
+
+mStopAllowDeprecatedSection
 
 
 } // namespace Vel

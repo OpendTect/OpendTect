@@ -21,7 +21,7 @@ namespace Vel
 
 class IntervalSource;
 
-/*!A velocity funcion that computes interval velocity from where from
+/*!A velocity funcion that computes interval velocity from
    another velocity function with RMS velocity */
 
 mExpClass(Velocity) IntervalFunction : public Function
@@ -29,14 +29,16 @@ mExpClass(Velocity) IntervalFunction : public Function
 public:
 			IntervalFunction(IntervalSource&);
 
+    const ZDomain::Info& zDomain_() const;
     StepInterval<float> getAvailableZ() const override;
     bool		moveTo(const BinID&) override;
     void		setInput(Function*);
+    Function&		setZDomain_(const ZDomain::Info&);
 
 protected:
     			~IntervalFunction();
 
-    bool		computeVelocity(float z0, float dz, int nr,
+    bool		computeVelocity(float z0,float dz,int sz,
 					float* res ) const override;
 
     Function*		inputfunc_;
@@ -47,7 +49,11 @@ mExpClass(Velocity) IntervalSource : public FunctionSource
 {
 public:
     			IntervalSource();
+
     const VelocityDesc& getDesc() const override;
+    const ZDomain::Info& zDomain_() const;
+    const UnitOfMeasure* getVelUnit_() const;
+
     const char*		factoryKeyword() const override { return sType(); }
     static const char*	sType() { return "Interval"; }
 

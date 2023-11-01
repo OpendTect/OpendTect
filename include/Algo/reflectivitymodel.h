@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
 #include "odcomplex.h"
 #include "timedepthmodel.h"
 
@@ -129,7 +130,15 @@ public:
     {
     public:
 			Setup(bool withangles,bool withreflectivity);
+			Setup(const Setup&);
 			~Setup();
+
+	Setup&		operator =(const Setup&);
+
+	Seis::OffsetType offsetType() const;
+	Setup&		offsettype(Seis::OffsetType);
+
+	bool		areOffsetsInFeet() const;
     };
 
 			OffsetReflectivityModel(const ElasticModel&,

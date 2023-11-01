@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 class UnitOfMeasureRepository;
+namespace ZDomain { class Info; }
 
 mGlobal(General) UnitOfMeasureRepository& UoMR();
 
@@ -78,6 +79,25 @@ public:
 				//!<Default depth unit in storage (m,ft)
     static const UnitOfMeasure* surveyDefVelUnit();
 				//!<Default velocity unit in displays (m/s,ft/s)
+    static const UnitOfMeasure* surveyDefVelStorageUnit();
+				//!<Default velocity unit in storage (m/s,ft/s)
+    static const UnitOfMeasure* surveyDefSRDUnit();
+				//!<Default srd unit in displays (m,ft)
+    static const UnitOfMeasure* surveyDefSRDStorageUnit();
+				//!<Default srd unit in storage (m,ft)
+    static const UnitOfMeasure* surveyDefOffsetUnit();
+				/*!<Default offset unit for real datasets (m,ft)
+				    Not used for synthetic gathers */
+    static const UnitOfMeasure* secondsUnit();
+    static const UnitOfMeasure* millisecondsUnit();
+    static const UnitOfMeasure* meterUnit();
+    static const UnitOfMeasure* meterSecondUnit();
+    static const UnitOfMeasure* feetUnit();
+    static const UnitOfMeasure* feetSecondUnit();
+    static const UnitOfMeasure* radiansUnit();
+    static const UnitOfMeasure* degreesUnit();
+    static const UnitOfMeasure* zUnit(const ZDomain::Info&,bool storage=true);
+
     static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);
     static uiString	surveyDefTimeUnitAnnot(bool symbol,bool withparens);
     static uiString	surveyDefDepthUnitAnnot(bool symbol,bool withparens);

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "manobjectset.h"
+#include "odcommonenums.h"
 #include "posgeomid.h"
 #include "seispsread.h"
 #include "seispswrite.h"
@@ -19,6 +20,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class IOObj;
+class UnitOfMeasure;
 
 
 /*!\brief Prestack Seismics objects provider
@@ -109,6 +111,18 @@ public:
 
     static const char*		sKeyCubeID;
 
+    static const UnitOfMeasure* offsetUnit(const IOObj*,bool& isfound);
+    static const UnitOfMeasure* offsetUnit(Seis::OffsetType);
+    static bool			getGatherOffsetType(const IOPar&,
+						    Seis::OffsetType&);
+    static bool			getGatherCorrectedYN(const IOPar&,bool& yn);
+
+    static void			setGatherOffsetType(Seis::OffsetType,IOPar&);
+    static bool			setGatherOffsetType(Seis::OffsetType,IOObj&);
+    static void			setGathersAreCorrected(bool yn,IOPar&);
+    static bool			setGathersAreCorrected(bool yn,IOObj&);
+
+    static const char*		sKeyOffsetUnit() { return "Offset-Unit"; }
 
 protected:
 

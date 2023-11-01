@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uicoordsystem.h"
 #include "uifileinput.h"
 #include "uifiledlg.h"
-#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiscrollarea.h"
@@ -24,7 +23,6 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseistransf.h"
-#include "uiselsimple.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
@@ -38,16 +36,12 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "od_iostream.h"
 #include "oddirs.h"
+#include "seisstor.h"
 #include "segybatchio.h"
 #include "segydirecttr.h"
 #include "segyhdr.h"
-#include "segytr.h"
 #include "seispacketinfo.h"
-#include "seisread.h"
-#include "seissingtrcproc.h"
-#include "seiswrite.h"
 #include "settings.h"
-#include "survgeom.h"
 #include "zdomain.h"
 
 #define mTxtHdrWidth	80
@@ -725,9 +719,9 @@ void uiSEGYExp::generateAutoTextHeader( BufferString& hdrtxt ) const
     if ( seldata )
     {
 	thdef.pinfo = new SeisPacketInfo;
-	thdef.pinfo->inlrg = seldata->inlRange();
-	thdef.pinfo->crlrg = seldata->crlRange();
-	thdef.pinfo->zrg = seldata->zRange();
+	thdef.pinfo->inlrg.setInterval( seldata->inlRange() );
+	thdef.pinfo->crlrg.setInterval( seldata->crlRange() );
+	thdef.pinfo->zrg.setInterval( seldata->zRange() );
     }
 
     SEGY::TxtHeader txthdr( 1 );
@@ -828,18 +822,9 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj )
     if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
 	return false;
 
-    const IOObj* useoutioobj = &outioobj;
-    IOObj* tmpioobj = nullptr;
-    const bool inissidom = ZDomain::isSI( inioobj.pars() );
-    if ( !inissidom )
-    {
-	tmpioobj = outioobj.clone();
-	ZDomain::Def::get(inioobj.pars()).set( tmpioobj->pars() );
-	useoutioobj = tmpioobj;
-    }
-
-#   define mRet(yn) \
-    { delete tmpioobj; return yn; }
+    PtrMan<IOObj> useoutioobj = outioobj.clone();
+    if ( SeisStoreAccess::zDomain(&inioobj).fillPar(useoutioobj->pars()) )
+	IOM().commitChanges( *useoutioobj );
 
     BufferString execnm( "Output seismic data" );
     if ( transffld_->selFld2D() && transffld_->selFld2D()->isSingLine() )
@@ -852,12 +837,9 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj )
 			    execnm, tr("Writing traces"),
 			    seissel_->compNr() );
     if ( !exec )
-	mRet( false )
+	return false;
 
     uiTaskRunner dlg( this );
-    const bool rv = TaskRunner::execute( &dlg, *exec );
-    if ( tmpioobj )
-	IOM().commitChanges( *tmpioobj );
-
-    mRet( rv )
+    const bool res = TaskRunner::execute( &dlg, *exec );
+    return res;
 }

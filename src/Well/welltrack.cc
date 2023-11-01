@@ -17,32 +17,63 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "trigonometry.h"
 
+#include "hiddenparam.h"
+
+static HiddenParam<Well::Track,TypeSet<Coord3>* > welltrackzposmgr_(nullptr);
 
 Well::Track::Track( const char* nm )
     : DahObj(nm)
     , zistime_(false)
-{}
+{
+    welltrackzposmgr_.setParam( this, nullptr );
+}
 
 
-Well::Track::Track( const Track& t )
+Well::Track::Track( const Track& oth )
     : DahObj("")
 {
-    *this = t;
+    welltrackzposmgr_.setParam( this, nullptr );
+    *this = oth;
 }
 
 
 Well::Track::~Track()
-{}
-
-
-Well::Track& Well::Track::operator =( const Track& t )
 {
-    if ( &t != this )
+    welltrackzposmgr_.removeAndDeleteParam( this );
+}
+
+
+const TypeSet<Coord3>* Well::Track::zpos_() const
+{
+    return welltrackzposmgr_.getParam( this );
+}
+
+
+TypeSet<Coord3>* Well::Track::zpos_()
+{
+    return welltrackzposmgr_.getParam( this );
+}
+
+
+void Well::Track::removeZPos()
+{
+    welltrackzposmgr_.deleteAndNullPtrParam( this );
+}
+
+
+Well::Track& Well::Track::operator =( const Track& oth )
+{
+    if ( &oth != this )
     {
-	DahObj::operator=( t );
-	pos_ = t.pos_;
-	zistime_ = t.zistime_;
+	DahObj::operator=( oth );
+	pos_ = oth.pos_;
+	zistime_ = oth.zistime_;
+	removeZPos();
+	if ( oth.zpos_() )
+	    welltrackzposmgr_.setParam( this,
+					new TypeSet<Coord3>(*oth.zpos_()));
     }
+
     return *this;
 }
 
@@ -533,6 +564,8 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
 }
 
 
+#define mSimpleWellVel 2000.
+
 float Well::Track::nearestDah( const Coord3& posin ) const
 {
     if ( dah_.isEmpty() )
@@ -540,8 +573,17 @@ float Well::Track::nearestDah( const Coord3& posin ) const
     if ( dah_.size() < 2 )
 	return dah_[0];
 
-    const double zfac = zistime_ ? 2000. : 1.;
-    Coord3 curpos(posin); curpos.z *= zfac;
+    const double zfac = zistime_ ? mSimpleWellVel : 1.;
+    Coord3 curpos = posin;
+    curpos.z *= zfac;
+    if ( pos_.size() > 1000 )
+    {
+	const TypeSet<Coord3>& input_pos = zistime_ ? *zpos_() : pos_;
+	NearestCoordFinder finder( input_pos, curpos );
+	if ( finder.execute() && finder.nearestIndex()!=-1 )
+	    return dah_[finder.nearestIndex()];
+    }
+
     int startidx = 0;
     Coord3 actualboundstart = getPos( dah_[startidx] );
     actualboundstart.z *= zfac;
@@ -573,12 +615,12 @@ float Well::Track::nearestDah( const Coord3& posin ) const
     double sqrdisttostart = actualboundstart.sqDistTo( curposonline );
     double sqrdisttostop = actualboundstop.sqDistTo( curposonline );
 
-    const double distfrmstrart = Math::Sqrt( sqrdisttostart );
+    const double distfrmstart = Math::Sqrt( sqrdisttostart );
     const double disttoend = Math::Sqrt( sqrdisttostop );
     const double dahnear = mCast(double,dah_[startidx]);
     const double dahsec = mCast(double,dah_[startidx+1]);
-    double res = ( distfrmstrart*dahsec+disttoend*dahnear )/
-					  ( distfrmstrart+disttoend );
+    double res = ( distfrmstart*dahsec+disttoend*dahnear )/
+					  ( distfrmstart+disttoend );
     return mCast( float, res );
 }
 
@@ -649,13 +691,21 @@ void Well::Track::toTime( const Data& wd )
     if ( track.isEmpty() )
 	return;
 
+    const UnitOfMeasure* depthstoruom =
+			 UnitOfMeasure::surveyDefDepthStorageUnit();
+    const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthUnit();
+
     TimeDepthModel replvelmodel;
-    const double srddepth = -1. * SI().seismicReferenceDatum();
+    const float srddepth = getConvertedValue(
+				-1.f * SI().seismicReferenceDatum(),
+				UnitOfMeasure::surveyDefSRDStorageUnit(),
+				depthuom );
     const float dummythickness = 1000.f;
     TypeSet<float> replveldepths, replveltimes;
-    replveldepths += mCast(float,srddepth) - dummythickness;
-    replveltimes += -2.f * dummythickness / wd.info().replvel_;
-    replveldepths += mCast(float,srddepth);
+    replveldepths += srddepth - dummythickness;
+    replveltimes += -2.f * dummythickness /
+	    getConvertedValue( wd.info().replvel_, depthstoruom, depthuom );
+    replveldepths += srddepth;
     replveltimes += 0.f;
     replvelmodel.setModel( replveldepths.arr(), replveltimes.arr(),
 			   replveldepths.size() );
@@ -706,9 +756,16 @@ void Well::Track::toTime( const Data& wd )
 	    continue; //Should never happen
 	}
 
+	convValue( depth, depthstoruom, depthuom );
 	depth = mCast( double, abovesrd ? replvelmodel.getTime( (float)depth )
 					: dtmodel.getTime( (float)depth ) );
     }
+
+    removeZPos();
+    auto* zpos = new TypeSet<Coord3>( pos_ );
+    welltrackzposmgr_.setParam( this, zpos );
+    for ( int idz=0; idz<pos_.size(); idz++ )
+	(*zpos)[idz].z *= mSimpleWellVel;
 
     zistime_ = true;
 }

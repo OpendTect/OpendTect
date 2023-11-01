@@ -70,6 +70,7 @@ public:
     bool		fillPar( IOPar& i ) const {return selgrp_->fillPar(i);}
     void		usePar( const IOPar& i ) { selgrp_->usePar(i); }
 
+    mDeprecatedDef
     void		setSurveyDefaultSubsel(const char*);
     bool		isForRead();
 

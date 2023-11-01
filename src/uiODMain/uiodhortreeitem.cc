@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uiodhortreeitem.h"
 
-#include "bendpointfinder.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -17,15 +16,15 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
 #include "mpeengine.h"
-#include "randomlinegeom.h"
+#include "od_helpids.h"
 #include "survinfo.h"
+#include "zaxistransform.h"
 
 #include "uiattribpartserv.h"
 #include "uicalcpoly2horvol.h"
 #include "uidatapointsetpickdlg.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
-#include "uiflattenedcube.h"
 #include "uihor2dfrom3ddlg.h"
 #include "uihorizonrelations.h"
 #include "uiisopachmaker.h"
@@ -37,19 +36,15 @@ ________________________________________________________________________
 #include "uiodcontourtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiposprovider.h"
-#include "uitaskrunner.h"
-#include "uitreeview.h"
+#include "uistrings.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
-#include "uistrings.h"
 
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
 #include "vishorizonsection.h"
-#include "vissurvscene.h"
 #include "visrgbatexturechannel2rgba.h"
-#include "zaxistransform.h"
-#include "od_helpids.h"
+#include "vissurvscene.h"
 
 
 #define mAddIdx		0
@@ -78,10 +73,10 @@ CNotifier<uiODHorizonParentTreeItem,uiMenu*>&
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODParentTreeItem(tr("3D Horizon"))
+    , handleMenu(this)
     , newmenu_(uiStrings::sNew())
     , trackitem_(m3Dots(tr("Auto and Manual Tracking")),mTrackIdx)
     , constzitem_(m3Dots(tr("With Constant Z")),mConstIdx)
-    , handleMenu(this)
 {
     if ( SI().has3D() )
 	newmenu_.addItem( &trackitem_ );
@@ -289,8 +284,8 @@ bool uiODHorizonParentTreeItem::addChld( uiTreeItem* child, bool below,
 uiTreeItem*
     uiODHorizonTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
 {
-    const StringView objtype = uiVisEMObject::getObjectType(visid);
-    if ( !objtype )
+    const StringView objtype = uiVisEMObject::getObjectType( visid );
+    if ( objtype.isEmpty() )
 	return nullptr;
 
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
@@ -703,7 +698,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	TrcKeyZSampling curcs;
-	curcs.zsamp_.setFrom( SI().zRange(true) );
+	curcs.zsamp_ = SI().zRange( true );
 	curcs.hsamp_.set( section->displayedRowRange(),
 		       section->displayedColRange() );
 
@@ -837,11 +832,11 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cAttribNotSel(),
 			      false, 0 );
 	spec.setZDomainKey( attrnm );
+	//spec.setZDomainUnit( ?? );
 	spec.setDefString( uiContourTreeItem::sKeyContourDefString() );
 	visserv_->setSelSpec( visid, attrib, spec );
 
-	uiContourTreeItem* newitem =
-	    new uiContourTreeItem( typeid(*this).name() );
+	auto* newitem = new uiContourTreeItem( typeid(*this).name() );
 	newitem->setAttribName( attrnm );
 	addChild( newitem, false );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
