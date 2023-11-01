@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "sorting.h"
 #include "zdomain.h"
+#include "zvalseriesimpl.h"
 
 namespace EM
 {
@@ -37,7 +38,6 @@ HorizonZTransform::HorizonZTransform()
 HorizonZTransform::~HorizonZTransform()
 {
     detachAllNotifiers();
-    unRefPtr( horizon_ );
 }
 
 
@@ -53,14 +53,10 @@ bool HorizonZTransform::isOK() const
 void HorizonZTransform::setHorizon( const Horizon& hor )
 {
     if ( horizon_ )
-    {
 	mDetachCB( horizon_->change, HorizonZTransform::horChangeCB );
-	horizon_->unRef();
-    }
 
     horizon_ = &hor;
     mAttachCB( horizon_->change, HorizonZTransform::horChangeCB );
-    horizon_->ref();
 
     fromzdomaininfo_.setID( horizon_->multiID() );
     tozdomaininfo_.setID( horizon_->multiID() );
@@ -129,7 +125,7 @@ void HorizonZTransform::transformTrc( const TrcKey& trckey,
 				      const SamplingData<float>& sd,
 				      int sz, float* res ) const
 {
-    doTransform( trckey, sd, sz, res, true );
+    doTransform( trckey, sd, fromZDomainInfo(), sz, res );
 }
 
 
@@ -137,31 +133,30 @@ void HorizonZTransform::transformTrcBack( const TrcKey& trckey,
 					  const SamplingData<float>& sd,
 					  int sz, float* res ) const
 {
-    doTransform( trckey, sd, sz, res, false );
+    doTransform( trckey, sd, toZDomainInfo(), sz, res );
 }
 
 
 void HorizonZTransform::doTransform( const TrcKey& trckey,
 				     const SamplingData<float>& sd,
-				     int sz,float* res, bool forward ) const
+				     const ZDomain::Info& sdzinfo,
+				     int sz, float* res ) const
 {
     float top, bottom;
     const bool hastopbot = getTopBottom( trckey, top, bottom );
     if ( sd.isUdf() || !horizon_ || !hastopbot )
     {
-	for ( int idx=0; idx<sz; idx++ )
-	    res[idx] = mUdf(float);
+	OD::sysMemValueSet( res, mUdf(float), sz );
 	return;
     }
 
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const float zval = sd.atIndex( idx );
-	if ( forward )
-	    res[idx] = zval - top + flatzval_;
-	else
-	    res[idx] = zval + top - flatzval_;
-    }
+    const RegularZValues zvals( sd, sz, sdzinfo );
+    if ( zvals.zDomainInfo().def_ == getZDom() )
+	for ( int idx=0; idx<sz; idx++ )
+	    res[idx] = zvals[idx] + top - flatzval_;
+    else
+	for ( int idx=0; idx<sz; idx++ )
+	    res[idx] = zvals[idx] - top + flatzval_;
 }
 
 
@@ -239,8 +234,8 @@ void HorizonZTransform::calculateHorizonRange()
 bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 				      float& bottom ) const
 {
-    mDynamicCastGet(const Horizon3D*,hor3d,horizon_)
-    mDynamicCastGet(const Horizon2D*,hor2d,horizon_)
+    mDynamicCastGet(const Horizon3D*,hor3d,horizon_.ptr())
+    mDynamicCastGet(const Horizon2D*,hor2d,horizon_.ptr())
     TypeSet<float> depths;
     TrcKey hortrckey;
     if ( trckey.geomSystem() == horizon_->getSurveyID() )

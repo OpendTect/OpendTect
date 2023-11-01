@@ -59,7 +59,8 @@ private:
 					 const SamplingData<float>&,
 					 int sz,float* res) const override;
     void		doTransform(const TrcKey&,const SamplingData<float>&,
-				    int sz,float* res,bool forward) const;
+				    const ZDomain::Info& sdzinfo,
+				    int sz,float* res) const;
 
     bool		needsVolumeOfInterest() const override { return false; }
     bool		canTransformSurv(OD::GeomSystem) const override
@@ -72,7 +73,7 @@ private:
 				   const ZDomain::Info& from,
 				   const ZDomain::Info& to) const override;
 
-    const Horizon*	horizon_		= nullptr;
+    ConstRefMan<Horizon> horizon_;
     Interval<float>	depthrange_;
     float		flatzval_		= 0.f;
     bool		horchanged_		= false;
