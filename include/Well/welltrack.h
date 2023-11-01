@@ -99,11 +99,16 @@ protected:
 
     TypeSet<Coord3>	pos_;
     bool		zistime_;
+    TypeSet<Coord3>*	zpos_();
+    const TypeSet<Coord3>* zpos_() const;
 
     void		removeAux( int idx ) override
-			{ pos_.removeSingle(idx); }
+			{ pos_.removeSingle(idx);
+			  if ( zpos_() ) zpos_()->removeSingle(idx); }
 
-    void		eraseAux() override		{ pos_.erase(); }
+    void		eraseAux() override
+			{ pos_.erase(); removeZPos(); }
+    void		removeZPos();
 
 public:
 

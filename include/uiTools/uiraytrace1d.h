@@ -63,6 +63,8 @@ protected:
     void		setAdvancedGroup(uiRayTracerAdvancedGrp*);
     void		parsChangedCB(CallBacker*);
 
+    static Seis::OffsetType defOffsetType();
+
 private:
 
     void		initGrpCB(CallBacker*);

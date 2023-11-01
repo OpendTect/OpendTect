@@ -1395,8 +1395,7 @@ void TrcKeyZSampling::include( const TrcKeyZSampling& c )
 
 bool TrcKeyZSampling::isDefined() const
 {
-    return hsamp_.isDefined() &&
-	!mIsUdf(zsamp_.start) && !mIsUdf(zsamp_.stop) && !mIsUdf(zsamp_.step);
+    return hsamp_.isDefined() && !zsamp_.isUdf();
 }
 
 
@@ -1410,7 +1409,10 @@ void TrcKeyZSampling::limitTo( const TrcKeyZSampling& tkzs, bool ignoresteps )
     }
 
     if ( ignoresteps )
-	((ZGate&)zsamp_).limitTo( tkzs.zsamp_ );
+    {
+	const ZGate othzsamp_( tkzs.zsamp_ );
+	sCast(ZGate&,zsamp_).limitTo( othzsamp_ );
+    }
     else
 	zsamp_.limitTo( tkzs.zsamp_ );
 
@@ -1435,9 +1437,14 @@ void TrcKeyZSampling::shrinkTo( const TrcKeyZSampling& innertkzs, float releps )
 
     hsamp_.shrinkTo( tkzs.hsamp_ );
 
-    const float eps = releps * zsamp_.step;
-    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
+    float eps = Math::Abs( mMAX(zsamp_.start,zsamp_.stop) );
+    if ( eps == 0.f )
+	eps = zsamp_.step == 0.f ? mDefEpsF : zsamp_.step;
+    eps *= releps;
+    if ( zsamp_.isEqual(tkzs.zsamp_,eps) )
+	return;
 
+    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
     mApproach(tkzs.zsamp_.start-zsamp_.start+eps, zsamp_.start,+=, zsamp_.step);
     mApproach(zsamp_.stop - tkzs.zsamp_.stop+eps, zsamp_.stop, -=, zsamp_.step);
 }
@@ -1451,9 +1458,14 @@ void TrcKeyZSampling::growTo( const TrcKeyZSampling& outertkzs, float releps )
 
     hsamp_.growTo( tkzs.hsamp_ );
 
-    const float eps = releps * zsamp_.step;
-    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
+    float eps = Math::Abs( mMAX(zsamp_.start,zsamp_.stop) );
+    if ( eps == 0.f )
+	eps = zsamp_.step == 0.f ? mDefEpsF : zsamp_.step;
+    eps *= releps;
+    if ( zsamp_.isEqual(tkzs.zsamp_,eps) )
+	return;
 
+    mSnapStop( zsamp_.start, zsamp_.stop, zsamp_.step, eps );
     mApproach(zsamp_.start-tkzs.zsamp_.start+eps, zsamp_.start,-=, zsamp_.step);
     mApproach(tkzs.zsamp_.stop - zsamp_.stop+eps, zsamp_.stop, +=, zsamp_.step);
 }
@@ -1476,12 +1488,15 @@ void TrcKeyZSampling::snapToSurvey()
 
 
 bool TrcKeyZSampling::operator==( const TrcKeyZSampling& tkzs ) const
-{ return isEqual( tkzs, (SI().zIsTime() ? 1e-6f : 1e-3f) ); }
+{
+    return isEqual( tkzs, (SI().zIsTime() ? 1e-6f : 1e-3f) );
+}
 
 
 bool TrcKeyZSampling::isEqual( const TrcKeyZSampling& tkzs, float zeps ) const
 {
-    if ( this == &tkzs ) return true;
+    if ( this == &tkzs )
+	return true;
 
     if ( tkzs.hsamp_ == this->hsamp_ )
     {
@@ -1493,13 +1508,16 @@ bool TrcKeyZSampling::isEqual( const TrcKeyZSampling& tkzs, float zeps ) const
 	}
 
 	float diff = tkzs.zsamp_.start - this->zsamp_.start;
-	if ( fabs(diff) > zeps ) return false;
+	if ( fabs(diff) > zeps )
+	    return false;
 
 	diff = tkzs.zsamp_.stop - this->zsamp_.stop;
-	if ( fabs(diff) > zeps ) return false;
+	if ( fabs(diff) > zeps )
+	    return false;
 
 	diff = tkzs.zsamp_.step - this->zsamp_.step;
-	if ( fabs(diff) > zeps ) return false;
+	if ( fabs(diff) > zeps )
+	    return false;
 
 	return true;
     }

@@ -32,7 +32,6 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "file.h"
-#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -46,7 +45,6 @@ ________________________________________________________________________
 #include "tabledef.h"
 #include "timedepthmodel.h"
 #include "unitofmeasure.h"
-#include "veldesc.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -58,6 +56,7 @@ ________________________________________________________________________
 #include "welltrack.h"
 #include "wellwriter.h"
 
+#include "hiddenparam.h"
 
 static const int nremptyrows = 5;
 static const int cXCol = 0;
@@ -1032,8 +1031,8 @@ int uiD2TModelDlg::getTVDSSCol() const
 
 int uiD2TModelDlg::getTVDSDCol() const
 {
-    return mIsZero(SI().seismicReferenceDatum(),1e-3) ? mUdf( int )
-						      : getTVDSSCol() + 1;
+    return mIsZero(SI().seismicReferenceDatum(),1e-3f) ? mUdf( int )
+						       : getTVDSSCol() + 1;
 }
 
 
@@ -1162,7 +1161,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 
     const float kbelev = wd_.track().getKbElev();
     const float groundevel = wd_.info().groundelev_;
-    const float srd = mCast(float,SI().seismicReferenceDatum());
+    const float srd = SI().seismicReferenceDatum();
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
     float vint;
@@ -1199,8 +1198,8 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 void uiD2TModelDlg::fillReplVel( CallBacker* )
 {
     NotifyStopper ns( replvelfld_->updateRequested );
-    uiString lbl = toUiString("%1 %2").arg(Well::Info::sKeyReplVel()).arg(
-				VelocityDesc::getVelUnit(true));
+    uiString lbl = toUiString("%1 %2").arg(Well::Info::sKeyReplVel())
+		    .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
     if ( zinftfld_->isChecked() ) lbl = toUiString("%1 ").arg(lbl);
     replvelfld_->setTitleText( lbl );
     replvelfld_->setValue( mConvertVal(wd_.info().replvel_,true) );
@@ -1251,7 +1250,7 @@ void uiD2TModelDlg::dtpointRemovedCB( CallBacker* )
 
     idah = d2t->indexOf( getDepthValue(nextrow,cMDCol) );
     const float nextdah = d2t->dah( idah );
-    const float srd = mCast(float,SI().seismicReferenceDatum());
+    const float srd = SI().seismicReferenceDatum();
     float vint;
     mGetVel( nextdah, d2t );
     NotifyStopper ns( tbl_->valueChanged );
@@ -1274,7 +1273,7 @@ void uiD2TModelDlg::selectionDeletedCB( CallBacker* )
 
     sort( notifrows );
     NotifyStopper ns( tbl_->valueChanged );
-    const float srd = mCast(float,SI().seismicReferenceDatum());
+    const float srd = SI().seismicReferenceDatum();
     float vint;
     for ( int idx=notifrows.size()-1; idx>=0; idx-- )
     {
@@ -1325,7 +1324,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool inistvdgl = hastvdgl && incol == getTVDGLCol();
 
-    const float srd = mCast(float,SI().seismicReferenceDatum());
+    const float srd = SI().seismicReferenceDatum();
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
     const bool inistvdsd = hastvdsd && incol == getTVDSDCol();
 
@@ -1537,7 +1536,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
 
     wd_.d2tchanged.trigger();
 
-    const float srd = mCast(float,SI().seismicReferenceDatum());
+    const float srd = SI().seismicReferenceDatum();
     float vint;
     mGetVel(dah,d2t);
     setDepthValue( row, getVintCol(), vint );
@@ -1681,8 +1680,7 @@ void uiD2TModelDlg::expData( CallBacker* )
 
     const float kbelev = mConvertVal( wd_.track().getKbElev(), true );
     const float groundevel = mConvertVal( wd_.info().groundelev_, true );
-    const float srd = mConvertVal( mCast(float,SI().seismicReferenceDatum()),
-				   true );
+    const float srd = mConvertVal( SI().seismicReferenceDatum(), true );
     const bool hastvdgl = !mIsUdf( groundevel );
     const bool hastvdsd = !mIsZero( srd, 1e-3f );
     BufferStringSet header;
@@ -1783,7 +1781,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     }
 
     const float kbelev = track.getKbElev();
-    const float srdelev = mCast(float,SI().seismicReferenceDatum());
+    const float srdelev = SI().seismicReferenceDatum();
     const bool kbabovesrd = srdelev < kbelev;
     const float firstdah = kbabovesrd ? track.getDahForTVD(-1.f*srdelev) : 0.f;
     const float firsttwt = d2t->getTime( firstdah, track );

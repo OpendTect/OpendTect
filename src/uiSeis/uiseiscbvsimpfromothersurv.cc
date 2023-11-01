@@ -11,8 +11,10 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "hiddenparam.h"
+#include "ioman.h"
 #include "surveydisklocation.h"
 #include "seiscbvsimpfromothersurv.h"
+#include "zdomain.h"
 
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -144,6 +146,14 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
 	return false;
+
+    if ( outfld_->getZDomain().fillPar(outioobj->pars()) &&
+	 !IOM().commitChanges(*outioobj) )
+    {
+	uiMSG().error( uiStrings::phrCannotWriteDBEntry(outioobj->uiName()) );
+	return false;
+    }
+
     int cellsz = issinc_ ? cellsizefld_->box()->getIntValue() : 0;
     TrcKeyZSampling cs; subselfld_->getSampling( cs );
     import_->setPars( interpol_, cellsz, cs );

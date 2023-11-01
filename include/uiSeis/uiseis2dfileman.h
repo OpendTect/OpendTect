@@ -49,7 +49,7 @@ protected:
     uiTextEdit*		infofld_;
     uiManipButGrp*	linegrp_;
 
-    const bool		issidomain;
-    const bool		zistm;
+    const bool		issidomain; //deprecated
+    const bool		zistm;	//deprecated
 
 };

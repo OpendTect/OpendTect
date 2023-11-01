@@ -143,8 +143,8 @@ bool uiFlatUnflatCube::acceptOK( CallBacker* )
     TrcKeyZSampling tkzs;
     rgfld_->getSampling( tkzs );
     tkzs.zsamp_ = tf->getZInterval( !fwd );
-    SeisZAxisStretcher stretcher( *seisioobjin, *seisioobjout, tkzs,
-				  *tf, fwd, false );
+    SeisZAxisStretcherNew stretcher( *seisioobjin, *seisioobjout, tkzs,
+				     *tf, fwd );
     stretcher.setUdfVal( 0.f );
     if ( !uitr.execute(stretcher) )
     {

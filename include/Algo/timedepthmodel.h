@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
+#include "odcommonenums.h"
 #include "refcount.h"
 #include "uistring.h"
 
@@ -25,6 +27,9 @@ template <class T> class ValueSeries;
 \brief Converts between time, depth and velocity given a model. The velocity
 model can be either RMO-velocities in time, or interval velocity in either
 depth or time.
+The times are always TWT, in SI units (seconds).
+The depths units correspond to SI().depthsInFeet(), and are TVDSS depths
+(0 at sea-level, not at SRD, positive below sea-level and increasing downwards.
 */
 
 mExpClass(Algo) TimeDepthModel
@@ -98,6 +103,7 @@ public:
 \brief Data holder for all TimeDepthModels that share the same
        depths distributions. There will always be at least one model in the set.
        Models may be annotated by a given value, typically offset or angle
+       See the TimeDepthModel class for a description of the units of measure
 */
 
 mExpClass(Algo) TimeDepthModelSet : public ReferencedObject
@@ -112,15 +118,23 @@ public:
 			    , pup_(true)
 			    , starttime_(0.f)
 			    , startdepth_(0.f)	    {}
+			Setup(const Setup&);
 	virtual		~Setup() {}
+
+	Setup&		operator =(const Setup&);
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);
 	mDefSetupMemb(float,starttime);
 	mDefSetupMemb(float,startdepth);
+	ZDomain::DepthType depthType() const;
+	Setup&		depthtype(ZDomain::DepthType);
+	void		removeParams();
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);
+
+	bool		areDepthsInFeet() const;
     };
 
 			TimeDepthModelSet(const ElasticModel&,

@@ -22,8 +22,10 @@ ________________________________________________________________________
 
 
 namespace Attrib { class DataHolder; }
+namespace ZDomain { class Info; }
 
 class BinIDValueSet;
+class UnitOfMeasure;
 
 namespace Vel
 {
@@ -41,6 +43,11 @@ public:
     const FunctionSource&	getSource() const	{ return source_; }
 
     virtual const VelocityDesc&	getDesc() const;
+    const ZDomain::Info&	zDomain() const;
+    bool			zIsTime() const;
+    bool			zInMeter() const;
+    bool			zInFeet() const;
+    const UnitOfMeasure*	velUnit() const;
 
     float			getVelocity(float z) const;
     const BinID&		getBinID() const;
@@ -54,20 +61,25 @@ public:
 
     void			setGeomID(const Pos::GeomID&);
     Pos::GeomID			getGeomID() const;
+    Function&			setZDomain(const ZDomain::Info&);
 
 protected:
     virtual			~Function();
 
-    virtual bool		computeVelocity(float z0, float dz, int nr,
-						float* res ) const	= 0;
+    Function&			copyDescFrom(const FunctionSource&);
+    virtual bool		computeVelocity(float z0,float dz,int sz,
+						float* res) const	= 0;
 
     FunctionSource&		source_;
     BinID			bid_;
+    Pos::GeomID			geomid_();
     StepInterval<float>		desiredrg_;
 
 private:
     friend			class FunctionSource;
 
+    VelocityDesc&		desc_();
+    const ZDomain::Info*	zdomaininfo_();
     mutable Threads::Lock	cachelock_;
     mutable TypeSet<float>*	cache_ = nullptr;
     mutable SamplingData<double> cachesd_;
@@ -75,7 +87,7 @@ private:
 
 
 /*!A source of Velocity functions of a certain sort. The FunctionSource
-   can create Functions at certian BinID locations. */
+   can create Functions at certain BinID locations. */
 
 mExpClass(Velocity) FunctionSource : public SharedObject
 {
@@ -85,8 +97,20 @@ public:
 
     virtual BufferString	userName() const;
     virtual const VelocityDesc&	getDesc() const				= 0;
+    const ZDomain::Info&	zDomain() const;
+				/* zDomain of the function source in the
+				   storage, thus probably different from the
+				   function		*/
+    bool			zIsTime() const;
+    bool			zInMeter() const;
+    bool			zInFeet() const;
+    const UnitOfMeasure*	velUnit() const;
+				/* Unit of the function source in the storage,
+				   thus probably different from the function
+				   unit of measure			 */
+
     virtual void		getSurroundingPositions(const BinID&,
-				    BinIDValueSet&) const;
+							BinIDValueSet&) const;
     virtual void		getAvailablePositions(BinIDValueSet&) const {}
 
     ConstRefMan<Function>	getFunction(const BinID&);
@@ -106,6 +130,8 @@ protected:
 				FunctionSource();
 				~FunctionSource();
 
+    FunctionSource&		setZDomain(const ZDomain::Info&);
+
     friend			class Function;
     void			removeFunction(const Function*);
 
@@ -114,6 +140,7 @@ protected:
 
 
     MultiID				mid_;
+    const ZDomain::Info*		zdomaininfo_();
     BufferString			errmsg_;
 
     ObjectSet<Function>			functions_;

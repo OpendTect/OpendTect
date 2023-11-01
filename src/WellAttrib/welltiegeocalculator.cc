@@ -19,12 +19,13 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "timedepthmodel.h"
 #include "unitofmeasure.h"
-#include "valseries.h"
+#include "veldescimpl.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welltrack.h"
+#include "zvalseriesimpl.h"
 
 
 #define	mLocalEps	1e-2f
@@ -139,7 +140,7 @@ void WellTie::GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd )
 
     const Well::Track& track = wd.track();
 
-    const float srddepth = -1.f*mCast(float,SI().seismicReferenceDatum());
+    const float srddepth = -1.f * SI().seismicReferenceDatum();
     const float srddah = track.getDahForTVD( srddepth );
     const float replveldz = -1.f * srddepth - track.getKbElev();
     const float startdah = replveldz < 0 ? srddah : track.dah(0);
@@ -166,7 +167,9 @@ void WellTie::GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd )
 
     TypeSet<float> sdpts, svals;
     mGetIdxArr( int, idxs, sz );
-    if ( !idxs) return;
+    if ( !idxs)
+	return;
+
     sort_coupled( dpts.arr(), idxs, sz );
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -177,6 +180,7 @@ void WellTie::GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd )
 	if ( cursz>1 && (mIsEqual(newdepth,sdpts[cursz-1],mLocalEps) ||
 			 mIsEqual(newval,svals[cursz-1],mLocalEps)) )
 	    continue;
+
 	sdpts += dpts[idx];
 	svals += vals[sidx];
     }
@@ -188,9 +192,15 @@ void WellTie::GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd )
     TypeSet<float> outvals( sz, mUdf(float) );
     if ( logisvel )
     {
-	ArrayValueSeries<float,float> svalsvs(svals.arr(),false);
-	ArrayValueSeries<float,float> sdptsvs(sdpts.arr(),false);
-	if ( !TimeDepthConverter::calcTimes(svalsvs,sz,sdptsvs,outvals.arr()) )
+	const ArrayValueSeries<double,float> svalsvs( svals.arr(), false, sz );
+	const ArrayZValues<float> sdptsvs( sdpts, SI().zInFeet()
+			    ? ZDomain::DepthFeet() : ZDomain::DepthMeter() );
+	const VelocityDesc desc( OD::VelocityType::Interval,
+			     UnitOfMeasure::meterSecondUnit()->getLabel() );
+	const Vel::Worker worker( desc, SI().seismicReferenceDatum(),
+				  UnitOfMeasure::surveyDefSRDStorageUnit() );
+	ArrayZValues<float> outvs( outvals, ZDomain::TWT() );
+	if ( !worker.calcZ(svalsvs,sdptsvs,outvs) )
 	    return;
 
 	const float startime = outvals[0];

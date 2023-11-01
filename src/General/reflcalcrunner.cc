@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "ailayer.h"
 #include "iopar.h"
+#include "keystrs.h"
 
 const char* ReflCalcRunner::sKeyParallel()	{ return "parallel"; }
 
@@ -49,9 +50,17 @@ ReflCalcRunner::ReflCalcRunner( const IOPar& reflpars )
 
 ReflCalcRunner::ReflCalcRunner( const ElasticModelSet& aims,
 				const IOPar& reflpars )
+    : ReflCalcRunner(aims,reflpars,nullptr)
+{
+}
+
+
+ReflCalcRunner::ReflCalcRunner( const ElasticModelSet& aims,
+				const IOPar& reflpars,
+				const ReflCalc1D::Setup* rfsu )
     : ReflCalcRunner(reflpars)
 {
-    setModel( aims );
+    setModel( aims, rfsu );
 }
 
 
@@ -85,24 +94,47 @@ od_int64 ReflCalcRunner::nrDone() const
 
 void ReflCalcRunner::setAngle( float angle, bool angleisindegrees )
 {
+    setAngle( angle, angleisindegrees ? Seis::OffsetType::AngleDegrees
+				      : Seis::OffsetType::AngleRadians );
+}
+
+
+void ReflCalcRunner::setAngle( float angle, Seis::OffsetType typ )
+{
     TypeSet<float> angles; angles += angle;
-    setAngles( angles, angleisindegrees );
+    setAngles( angles, typ );
 }
 
 
 void ReflCalcRunner::setAngles( const TypeSet<float>& angles,
 				bool angleisindegrees )
 {
+    setAngles( angles, angleisindegrees ? Seis::OffsetType::AngleDegrees
+					: Seis::OffsetType::AngleRadians );
+}
+
+
+void ReflCalcRunner::setAngles( const TypeSet<float>& angles,
+				Seis::OffsetType typ )
+{
     reflpar_.set( ReflCalc1D::sKeyAngle(), angles );
-    reflpar_.setYN( ReflCalc1D::sKeyAngleInDegrees(), angleisindegrees );
+    reflpar_.setYN( ReflCalc1D::sKeyAngleInDegrees(),
+		    typ == Seis::OffsetType::AngleDegrees );
     for ( auto* reflcalc : reflcalcs_ )
-	reflcalc->setAngles( angles, angleisindegrees );
+	reflcalc->setAngles( angles, typ );
 }
 
 
 #define mErrRet(msg) { msg_ = msg; return false; }
 
 bool ReflCalcRunner::setModel( const ElasticModelSet& aimodels )
+{
+    return setModel( aimodels, nullptr );
+}
+
+
+bool ReflCalcRunner::setModel( const ElasticModelSet& aimodels,
+			       const ReflCalc1D::Setup* rfsu )
 {
     deepErase( reflcalcs_ );
 
@@ -117,7 +149,7 @@ bool ReflCalcRunner::setModel( const ElasticModelSet& aimodels )
     for ( const auto* aimodel : aimodels )
     {
 	ReflCalc1D* reflcalc = ReflCalc1D::createInstance( reflpar_, aimodel,
-							   errmsg );
+							   errmsg, rfsu );
 	if ( !reflcalc )
 	{
 	    uiString msg = tr( "Wrong input for reflectivity calculation"
@@ -230,6 +262,17 @@ ConstRefMan<ReflectivityModelSet> ReflCalcRunner::getRefModels(
 				    TaskRunner* taskrun,
 			    const ObjectSet<const TimeDepthModel>* tdmodels )
 {
+    return getRefModels( emodels, reflpar, msg, nullptr, taskrun, tdmodels );
+}
+
+
+ConstRefMan<ReflectivityModelSet> ReflCalcRunner::getRefModels(
+				    const ElasticModelSet& emodels,
+				    const IOPar& reflpar, uiString& msg,
+				    const ReflCalc1D::Setup* rfsu,
+				    TaskRunner* taskrun,
+			    const ObjectSet<const TimeDepthModel>* tdmodels )
+{
     IOPar reflpars( reflpar );
     if ( !reflpar.isPresent(sKey::Type()) )
     {
@@ -243,9 +286,10 @@ ConstRefMan<ReflectivityModelSet> ReflCalcRunner::getRefModels(
     }
 
     if ( !reflpars.isPresent(ReflCalc1D::sKeyAngle()) )
-	ReflCalc1D::setIOParsToSingleAngle( reflpars );
+	ReflCalc1D::setIOParsToSingleAngle( reflpars, 0.f,
+					    Seis::OffsetType::AngleRadians );
 
-    ReflCalcRunner reflrunner( emodels, reflpars );
+    ReflCalcRunner reflrunner( emodels, reflpars, rfsu );
     bool parallel = true;
     if ( reflpars.getYN(sKeyParallel(),parallel) )
 	reflrunner.doParallel( parallel );

@@ -137,10 +137,10 @@ mDefModInitFn(Seis)
     SeisPSCubeSeisTrcTranslator::initClass();
     MultiCubeSeisPS3DTranslator::initClass();
 
-    LinearT2DTransform::initClass();
-    LinearD2TTransform::initClass();
-    Time2DepthStretcher::initClass();
-    Depth2TimeStretcher::initClass();
+    LinearT2DTransformNew::initClass();
+    LinearD2TTransformNew::initClass();
+    Time2DepthStretcherNew::initClass();
+    Depth2TimeStretcherNew::initClass();
     Seis::ODSeqInp::initClass();
     Seis::ODSeqOut::initClass();
 

@@ -75,16 +75,21 @@ public:
     virtual Interval<float>	getZInterval(bool from) const		= 0;
 				/*!\return the z interval in either to
 				     or from domain. */
+
+    mDeprecatedDef
     virtual float		getZIntervalCenter(bool from) const;
 				/*!\return a position within the
 				    z-range that is a logical 'center' */
+
     virtual float		getGoodZStep() const;
 				/*!\return a reasonable step in the
 				    transformed domain. Default
 				    implementation gives the same step as in
 				    SI() (i.e. non transformed domain) */
 
+    mDeprecatedDef
     void			setVelUnitOfMeasure(const Scaler*);
+    mDeprecatedDef
     const Scaler*		getVelUnitOfMeasure() const;
 
     ZDomain::Info&		fromZDomainInfo() { return fromzdomaininfo_; }

@@ -30,8 +30,8 @@ public:
     virtual bool		getTargetSampling(StepInterval<float>&) const;
 
     virtual ZAxisTransform*	getSelection()			= 0;
-    virtual StringView 	toDomain() const		= 0;
-    virtual StringView 	fromDomain() const		= 0;
+    virtual StringView	toDomain() const			= 0;
+    virtual StringView	fromDomain() const			= 0;
     virtual bool		canBeField() const		= 0;
 				/*!Returns true if it can be in one line,
 				   i.e. as a part of a field. If true,
@@ -44,13 +44,16 @@ public:
     bool			is2D() const { return is2dzat_; }
 
 protected:
-    static bool 		isField(const uiParent*);
+    static bool			isField(const uiParent*);
 				uiZAxisTransform(uiParent*);
+
+    mDeprecatedDef
     void			rangeChangedCB(CallBacker*);
+    mDeprecatedDef
     void			finalizeDoneCB(CallBacker*);
 
-    uiGenInput* 		rangefld_;
-    bool			rangechanged_;
+    uiGenInput*			rangefld_;	//deprecated
+    bool			rangechanged_;	//deprecated
     bool			is2dzat_ = false;
 };
 
@@ -77,7 +80,7 @@ public:
     int				nrTransforms() const;
 
     NotifierAccess*		selectionDone();
-    StringView 		selectedToDomain() const;
+    StringView			selectedToDomain() const;
 				/*<!Always available. */
 
     bool			acceptOK() override;
@@ -94,6 +97,7 @@ public:
 				/*!<Only after successful acceptOK() */
 
 protected:
+    void			initGrp(CallBacker*);
     void			selCB(CallBacker*);
 
     bool			isfield_;

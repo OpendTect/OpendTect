@@ -686,7 +686,7 @@ const ZAxisTransform* RandomTrackDisplay::getZAxisTransform() const
 { return datatransform_; }
 
 
-bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* t )
+bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 {
     if ( datatransform_ )
     {
@@ -697,7 +697,6 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* t )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this,RandomTrackDisplay,dataTransformCB) );
 	datatransform_->unRef();
-	datatransform_ = 0;
     }
 
     datatransform_ = zat;
@@ -711,7 +710,6 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* t )
 		    mCB(this,RandomTrackDisplay,dataTransformCB) );
 
 	dragger_->updateZLimit( datatransform_->getZInterval(false) );
-
     }
 
     return true;
@@ -733,7 +731,7 @@ void RandomTrackDisplay::updateRanges(bool resetinlcrl, bool resetz )
 {
     if ( resetz )
     {
-	const Interval<float>& depthrg = datatransform_->getZInterval(false);
+	const Interval<float> depthrg = datatransform_->getZInterval( false );
 	setPanelStripZRange( depthrg );
 	dragger_->setDepthRange( depthrg );
 	moving_.trigger();
@@ -793,7 +791,7 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 }
 
 
-void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* taskr )
+void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
 {
     const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     const DataPackID dpid = getDisplayedDataPackID( attrib );
@@ -868,13 +866,14 @@ void RandomTrackDisplay::createTransformedDataPack(
 	    TrcKeyZSampling tkzs( false );
 	    for ( int idx=0; idx<path.size(); idx++ )
 		tkzs.hsamp_.include( path[idx] );
-	    tkzs.zsamp_ = panelstrip_->getZRange();
+	    tkzs.zsamp_.setInterval( panelstrip_->getZRange() );
 	    tkzs.zsamp_.step = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step
-				      : datatransform_->getGoodZStep();
+			     : datatransform_->getGoodZStep();
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
 		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
+
 	    datatransform_->loadDataIfMissing( voiidx_, taskr );
 	}
 

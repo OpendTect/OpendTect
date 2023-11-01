@@ -280,14 +280,9 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 	return false;
     }
 
-    const IOObj* useinioobj = &inioobj; IOObj* tmpioobj = 0;
-    const bool outissidom = ZDomain::isSI( outioobj->pars() );
-    if ( !outissidom )
-    {
-	tmpioobj = inioobj.clone();
-	ZDomain::Def::get(outioobj->pars()).set( tmpioobj->pars() );
-	useinioobj = tmpioobj;
-    }
+    PtrMan<IOObj> useinioobj = inioobj.clone();
+    if ( SeisStoreAccess::zDomain(outioobj).fillPar(useinioobj->pars()) )
+	IOM().commitChanges( *useinioobj );
 
     bool retval;
     if ( !morebut_ || !morebut_->isChecked() )
@@ -318,9 +313,6 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 	retval = dlg.go();
     }
 
-    if ( tmpioobj )
-	IOM().commitChanges( *tmpioobj );
-    delete tmpioobj;
     return retval;
 }
 

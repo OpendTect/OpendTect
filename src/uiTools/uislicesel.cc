@@ -127,7 +127,7 @@ void uiSliceSel::createZFld()
 {
     uiString label = tr("%1 %2")
 		.arg(istsl_ ? uiStrings::sZ() : uiStrings::sZRange())
-		.arg(zdominfo_.uiUnitStr(true));
+		.arg(zdominfo_.uiUnitStr_(true));
     z0fld_ = new uiLabeledSpinBox( this, label, 0, istsl_ ? "Z" : "Z Start" );
     z1fld_ = new uiSpinBox( this, 0, "Z Stop" );
     z1fld_->attach( rightTo, z0fld_ );

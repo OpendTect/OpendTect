@@ -35,7 +35,7 @@ static ElasticModel getEModel()
     return emdl;
 }
 
-
+static Seis::OffsetType offsettype_ = Seis::OffsetType::OffsetMeter;
 static TypeSet<float> getOffsets()
 {
     TypeSet<float> offsets;
@@ -51,7 +51,7 @@ static bool testRayTracer( const RayTracer1D::Setup& rtsu )
 
     VrmsRayTracer1D raytracer;
     raytracer.setup() = rtsu;
-    raytracer.setOffsets( getOffsets() );
+    raytracer.setOffsets( getOffsets(), offsettype_ );
     raytracer.setModel( emdl );
     mRunStandardTest( raytracer.execute(), "VRMSRayTracer execution" );
     mTestVal(raytracer.getDepth(0),48.f,mDefDepthEps);
@@ -159,7 +159,8 @@ static bool testTDModelSet()
 
     const TimeDepthModelSet::Setup tdmssu;
 
-    ConstRefMan<TimeDepthModelSet> simple = new TimeDepthModelSet( emdl );
+    ConstRefMan<TimeDepthModelSet> simple =
+				   new TimeDepthModelSet( emdl, tdmssu );
     TypeSet<float> offsets;
     ConstRefMan<TimeDepthModelSet> emptyts =
 			new TimeDepthModelSet( emdl, tdmssu, &offsets );
@@ -209,6 +210,8 @@ static bool testTDModelSet()
     mTestVal(velmax[3],3154.95435f,mDefDepthEps);
 
     mRunStandardTest( true, "TimeDepthModelSet values" );
+
+    mNonConst(tdmssu).removeParams();
 
     return true;
 }

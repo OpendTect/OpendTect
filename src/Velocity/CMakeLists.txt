@@ -6,7 +6,7 @@
 #
 
 set( OD_MODULE_DEPS AttributeEngine EarthModel )
-set( OD_FOLDER "Base (GUI)" )
+set( OD_FOLDER "Base" )
 
 set( OD_MODULE_SOURCES
 	initvelocity.cc

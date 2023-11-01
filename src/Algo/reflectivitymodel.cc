@@ -10,11 +10,14 @@ ________________________________________________________________________
 #include "reflectivitymodel.h"
 
 #include "iopar.h"
+#include "keystrs.h"
 #include "manobjectset.h"
 #include "odmemory.h"
 #include "raytrace1d.h"
 #include "reflcalc1d.h"
 #include "typeset.h"
+
+#include "hiddenparam.h"
 
 
 const char* AngleReflectivityModel::sKeyMeanRhob()
@@ -74,6 +77,7 @@ ReflectivityModelBase::Setup::Setup( bool offsetdomain, bool withangles,
 
 ReflectivityModelBase::Setup::~Setup()
 {
+    removeParams();
 }
 
 void ReflectivityModelBase::Setup::fillPar( IOPar& iop ) const
@@ -286,14 +290,60 @@ bool ReflectivityModelBase::isSpikeDefined( int ioff, int idz ) const
 
 // OffsetReflectivityModel::Setup
 
+static HiddenParam<OffsetReflectivityModel::Setup,Seis::OffsetType>
+		offsetreflmodelsuoffsettypemgr_(Seis::OffsetType::OffsetMeter);
+
 OffsetReflectivityModel::Setup::Setup( bool withangles, bool withreflectivity )
     : ReflectivityModelBase::Setup(true,withangles,withreflectivity)
 {
+    offsetreflmodelsuoffsettypemgr_.setParam( this,
+					      Seis::OffsetType::OffsetMeter );
+}
+
+
+OffsetReflectivityModel::Setup::Setup( const Setup& oth )
+    : ReflectivityModelBase::Setup(oth)
+{
+    *this = oth;
 }
 
 
 OffsetReflectivityModel::Setup::~Setup()
 {
+    offsetreflmodelsuoffsettypemgr_.removeParam( this );
+}
+
+
+OffsetReflectivityModel::Setup&
+OffsetReflectivityModel::Setup::operator =( const Setup& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    ReflectivityModelBase::Setup::operator =( oth );
+    offsettype( oth.offsetType() );
+
+    return *this;
+}
+
+
+OffsetReflectivityModel::Setup&
+OffsetReflectivityModel::Setup::offsettype( Seis::OffsetType typ )
+{
+    offsetreflmodelsuoffsettypemgr_.setParam( this, typ );
+    return *this;
+}
+
+
+Seis::OffsetType OffsetReflectivityModel::Setup::offsetType() const
+{
+    return offsetreflmodelsuoffsettypemgr_.getParam( this );
+}
+
+
+bool OffsetReflectivityModel::Setup::areOffsetsInFeet() const
+{
+    return offsetType() == Seis::OffsetType::OffsetFeet;
 }
 
 
@@ -417,9 +467,10 @@ bool ReflectivityModelSet::hasSameParams( const IOPar& othcreatepars ) const
     if ( RayTracer1D::factory().hasName(type1str) )
     {
 	uiString msg1, msg2;
-	ConstPtrMan<RayTracer1D> rt = RayTracer1D::createInstance( iop, msg1 );
+	ConstPtrMan<RayTracer1D> rt =
+			RayTracer1D::createInstance( iop, msg1, nullptr );
 	ConstPtrMan<RayTracer1D> othrt =
-				     RayTracer1D::createInstance( othiop, msg2);
+			RayTracer1D::createInstance( othiop, msg2, nullptr );
 	if ( !rt || !othrt || !msg1.isEmpty() || !msg2.isEmpty() )
 	    return false;
 

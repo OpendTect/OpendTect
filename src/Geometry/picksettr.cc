@@ -213,8 +213,6 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     BufferString str;
     IOPar par;
     ps.fillPar( par );
-    par.set( sKey::ZUnit(),
-	     UnitOfMeasure::surveyDefZStorageUnit()->name() );
     par.putTo( astrm );
 
     od_ostream& strm = astrm.stream();
@@ -225,8 +223,8 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     }
 
     astrm.newParagraph();
-    return astrm.isOK() ? 0
-	:  "Error during write to output PointSet file";
+    return astrm.isOK() ? nullptr
+			:  "Error during write to output PointSet file";
 }
 
 

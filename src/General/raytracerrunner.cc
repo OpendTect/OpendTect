@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "ailayer.h"
 #include "iopar.h"
+#include "keystrs.h"
 
 const char* RayTracerRunner::sKeyParallel()	{ return "parallel"; }
 
@@ -49,9 +50,17 @@ RayTracerRunner::RayTracerRunner( const IOPar& raypars )
 
 RayTracerRunner::RayTracerRunner( const ElasticModelSet& aims,
 				  const IOPar& raypars )
+    : RayTracerRunner(aims,raypars,nullptr)
+{
+}
+
+
+RayTracerRunner::RayTracerRunner( const ElasticModelSet& aims,
+				  const IOPar& raypars,
+				  const RayTracer1D::Setup* rtsu )
     : RayTracerRunner(raypars)
 {
-    setModel( aims );
+    setModel( aims, rtsu );
 }
 
 
@@ -85,15 +94,32 @@ od_int64 RayTracerRunner::nrDone() const
 
 void RayTracerRunner::setOffsets( const TypeSet<float>& offsets )
 {
+    setOffsets( offsets, SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+					 : Seis::OffsetType::OffsetMeter );
+}
+
+
+void RayTracerRunner::setOffsets( const TypeSet<float>& offsets,
+				  Seis::OffsetType offstype )
+{
     raypar_.set( RayTracer1D::sKeyOffset(), offsets );
+    raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(),
+		   offstype == Seis::OffsetType::OffsetFeet );
     for ( auto* rt : raytracers_ )
-	rt->setOffsets( offsets );
+	rt->setOffsets( offsets, offstype );
 }
 
 
 #define mErrRet(msg) { msg_ = msg; return false; }
 
 bool RayTracerRunner::setModel( const ElasticModelSet& aimodels )
+{
+    return setModel( aimodels, nullptr );
+}
+
+
+bool RayTracerRunner::setModel( const ElasticModelSet& aimodels,
+				const RayTracer1D::Setup* rtsu )
 {
     deepErase( raytracers_ );
 
@@ -108,7 +134,7 @@ bool RayTracerRunner::setModel( const ElasticModelSet& aimodels )
     for ( const auto* aimodel : aimodels )
     {
 	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, aimodel,
-							 errmsg );
+							 errmsg, rtsu );
 	if ( !rt1d )
 	{
 	    uiString msg = tr( "Wrong input for raytracing on model: %1" )
@@ -220,6 +246,17 @@ ConstRefMan<ReflectivityModelSet> RayTracerRunner::getRefModels(
 				    TaskRunner* taskrun,
 			    const ObjectSet<const TimeDepthModel>* tdmodels )
 {
+    return getRefModels( emodels, raypar, msg, nullptr, taskrun, tdmodels );
+}
+
+
+ConstRefMan<ReflectivityModelSet> RayTracerRunner::getRefModels(
+				    const ElasticModelSet& emodels,
+				    const IOPar& raypar, uiString& msg,
+				    const RayTracer1D::Setup* rtsu,
+				    TaskRunner* taskrun,
+			    const ObjectSet<const TimeDepthModel>* tdmodels )
+{
     IOPar raypars( raypar );
     if ( !raypar.isPresent(sKey::Type()) )
     {
@@ -235,7 +272,7 @@ ConstRefMan<ReflectivityModelSet> RayTracerRunner::getRefModels(
     if ( !raypar.isPresent(RayTracer1D::sKeyOffset()) )
 	RayTracer1D::setIOParsToZeroOffset( raypars );
 
-    RayTracerRunner rtrunner( emodels, raypars );
+    RayTracerRunner rtrunner( emodels, raypars, rtsu );
     bool parallel = true;
     if ( raypars.getYN(sKeyParallel(),parallel) )
 	rtrunner.doParallel( parallel );

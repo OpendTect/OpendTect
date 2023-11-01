@@ -7,30 +7,32 @@ ________________________________________________________________________
 
 -*/
 
-#include "uistratlaycontent.h"
 #include "uistratbasiclayseqgendesc.h"
-#include "uistratsimplelaymoddisp.h"
-#include "uimanprops.h"
+
+#include "uicombobox.h"
+#include "uidialog.h"
+#include "uigeninput.h"
 #include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
-#include "uistratselunits.h"
-#include "uidialog.h"
-#include "uimenu.h"
-#include "uigeninput.h"
-#include "uicombobox.h"
 #include "uilabel.h"
+#include "uimanprops.h"
+#include "uimenu.h"
 #include "uimsg.h"
+#include "uistratlaycontent.h"
+#include "uistratselunits.h"
+#include "uistratsimplelaymoddisp.h"
 #include "uiunitsel.h"
+
+#include "keyenum.h"
+#include "mathproperty.h"
+#include "od_helpids.h"
+#include "stratcontent.h"
 #include "stratlayermodel.h"
-#include "stratsinglaygen.h"
 #include "stratlayseqgendesc.h"
 #include "stratreftree.h"
-#include "stratcontent.h"
+#include "stratsinglaygen.h"
 #include "stratunitrefiter.h"
 #include "unitofmeasure.h"
-#include "mathproperty.h"
-#include "keyenum.h"
-#include "od_helpids.h"
 
 
 mImplFactory2Param(uiLayerSequenceGenDesc,uiParent*,
@@ -192,7 +194,6 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     : uiGraphicsView(p,"LayerSequence Gen Desc editor")
     , uiLayerSequenceGenDesc(dsc)
     , editdesc_(*new Strat::LayerSequenceGenDesc(dsc))
-    , zinft_(SI().depthsInFeet())
 {
     setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAsNeeded );
     border_.setTop( border_.top() + 10 );
@@ -209,11 +210,13 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     mAttachCB( getMouseEventHandler().doubleClick,
 	       uiExtLayerSequenceGenDesc::dblClckCB );
 
-    const uiString lbltxt =
-	tr("top %1").arg(SI().getUiXYUnitString(true,true));
-    topdepthfld_ = new uiGenInput( p, lbltxt, FloatInpSpec(0) );
+    const uiString lbltxt = tr("top (%1)")
+		.arg( PropertyRef::thickness().disp_.getUnitLbl() );
+    topdepthfld_ = new uiGenInput( p, lbltxt, FloatInpSpec(dsc.startDepth()) );
     topdepthfld_->setElemSzPol( uiObject::Small );
     topdepthfld_->attach( rightBorder );
+
+    mAttachCB( postFinalize(), uiExtLayerSequenceGenDesc::initView );
 
     this->attach( ensureBelow, topdepthfld_ );
 }
@@ -223,6 +226,16 @@ uiExtLayerSequenceGenDesc::~uiExtLayerSequenceGenDesc()
 {
     detachAllNotifiers();
     delete &editdesc_;
+}
+
+
+void uiExtLayerSequenceGenDesc::initView( CallBacker* )
+{
+    if ( !topdepthfld_->finalized() )
+	topdepthfld_->preFinalize().trigger();
+
+    topdepthfld_->setToolTip( tr("TVDSS depth assigned to the first layer "
+				 "of each pseudowell") );
 }
 
 
@@ -309,16 +322,14 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 
 void uiExtLayerSequenceGenDesc::putTopDepthToScreen()
 {
-    float topz = editdesc_.startDepth();
-    if ( zinft_ ) topz *= mToFeetFactorF;
+    const float topz = editdesc_.startDepth();
     topdepthfld_->setValue( topz );
 }
 
 
 void uiExtLayerSequenceGenDesc::getTopDepthFromScreen()
 {
-    float topz = topdepthfld_->getFValue();
-    if ( zinft_ ) topz *= mFromFeetFactorF;
+    const float topz = topdepthfld_->getFValue();
     editdesc_.setStartDepth( topz );
 }
 

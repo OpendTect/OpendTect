@@ -9,35 +9,36 @@ ________________________________________________________________________
 
 #include "zdomain.h"
 
-#include "survinfo.h"
-#include "keystrs.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "perthreadrepos.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 
 const char* ZDomain::sKey()		{ return "ZDomain"; }
 const char* ZDomain::sKeyTime()		{ return "TWT"; }
 const char* ZDomain::sKeyDepth()	{ return "Depth"; }
+const char* ZDomain::sKeyUnit()		{ return "ZDomain.Unit"; }
 
-ObjectSet<ZDomain::Def>& DEFS()
+//Must match data/UnitsOfMeasure:
+static const char* sKeySeconds = "Seconds";
+static const char* sKeySecondsSymbol = "s";
+static const char* sKeyMeter = "Meter";
+static const char* sKeyMeterSymbol = "m";
+static const char* sKeyFeet = "Feet";
+static const char* sKeyFeetSymbol = "ft";
+
+ObjectSet<const ZDomain::Def>& DEFS()
 {
-    mDefineStaticLocalObject( PtrMan<ManagedObjectSet<ZDomain::Def> >,
-			      defs, (nullptr) );
-
-    if ( !defs )
+    static ObjectSet<const ZDomain::Def> defs;
+    if ( defs.isEmpty() )
     {
-        ManagedObjectSet<ZDomain::Def>* newdefs =
-				new ManagedObjectSet<ZDomain::Def>;
-        *newdefs += new ZDomain::Def( ZDomain::sKeyTime(),
-				      uiStrings::sTime(), "ms", 1000 );
-	*newdefs += new ZDomain::Def( ZDomain::sKeyDepth(),
-				      uiStrings::sDepth(), "", 1 );
-
-        defs.setIfNull( newdefs, true );
+	defs.add( &ZDomain::Time() );
+	defs.add( &ZDomain::Depth() );
     }
 
-    return *defs;
+    return defs;
 }
 
 
@@ -49,69 +50,140 @@ const ZDomain::Def& ZDomain::SI()
 
 const ZDomain::Def& ZDomain::Time()
 {
-    return *DEFS()[0];
+    static Def def( sKeyTime(), uiStrings::sTime(), "ms", 1000 );
+    return def;
 }
 
 
 const ZDomain::Def& ZDomain::Depth()
 {
-    return *DEFS()[1];
+    static Def def( sKeyDepth(), uiStrings::sDepth(), "", 1 );
+    return def;
+}
+
+namespace ZDomain
+{
+
+static bool zIsTime( const IOPar& iop, bool* isfound =nullptr )
+{
+    BufferString domstr;
+    if ( iop.get(sKey(),domstr) &&
+	 (domstr == Time().key() || domstr == Depth().key()) )
+    {
+	if ( isfound ) *isfound = true;
+	return domstr == Time().key();
+    }
+
+    bool zistime;
+    if ( iop.getYN("Z Is Time",zistime) )
+    {
+	if ( isfound ) *isfound = true;
+	return zistime;
+    }
+    else if ( iop.getYN("Z Is time",zistime) )
+    {
+	if ( isfound ) *isfound = true;
+	return zistime;
+    }
+
+    BufferString unitstr;
+    if ( iop.get(sKey::ZUnit(),unitstr) && !unitstr.isEmpty() )
+    {
+	if ( unitstr.isEqual(sKeySeconds,OD::CaseInsensitive) ||
+	     unitstr.isEqual(sKeySecondsSymbol,OD::CaseInsensitive) )
+	{
+	    if ( isfound ) *isfound = true;
+	    return true;
+	}
+	else if ( unitstr.isEqual(sKeyMeter,OD::CaseInsensitive) ||
+		  unitstr.isEqual(sKeyMeterSymbol,OD::CaseInsensitive) ||
+		  unitstr.isEqual(sKeyFeet,OD::CaseInsensitive) ||
+		  unitstr.isEqual(sKeyFeetSymbol,OD::CaseInsensitive) )
+	{
+	    if ( isfound ) *isfound = true;
+	    return false;
+	}
+    }
+
+    if ( isfound ) *isfound = false;
+    return ::SI().zIsTime();
+}
+
+} // namespace ZDomain
+
+
+const ZDomain::Info* ZDomain::get( const IOPar& iop )
+{
+    bool isfound = false;
+    const bool zit = zIsTime( iop, &isfound );
+    if ( !isfound )
+	return nullptr;
+
+    if ( zit )
+	return &TWT();
+
+    BufferString unitstr;
+    if ( !iop.get(sKeyUnit(),unitstr) || unitstr.isEmpty() )
+	if ( !iop.get(sKey::ZUnit(),unitstr) || unitstr.isEmpty() )
+	    return ::SI().depthsInFeet() ? &DepthFeet() : &DepthMeter();
+
+    const Info zinfo( Depth(), unitstr.buf() );
+    if ( zinfo.isDepthMeter() )
+	return &DepthMeter();
+    if ( zinfo.isDepthFeet() )
+	return &DepthFeet();
+
+    return ::SI().depthsInFeet() ? &DepthFeet() : &DepthMeter();
 }
 
 
 bool ZDomain::isSI( const IOPar& iop )
 {
-    const BufferString domstr = iop.find( sKey() );
-    if ( domstr.isEmpty() )
+    const ZDomain::Info* zinfo = get( iop );
+    if ( !zinfo )
 	return true;
 
-    const Def& def = Def::get( domstr );
-    return def.isSI();
+    return (zinfo->isTime() && ::SI().zIsTime()) ||
+	   (zinfo->isDepthMeter() && ::SI().zInMeter()) ||
+	   (zinfo->isDepthFeet() && ::SI().zInFeet());
 }
 
 
 bool ZDomain::isDepth( const IOPar& iop )
 {
-    const BufferString domstr = iop.find( sKey() );
-    return !domstr.isEmpty() ? domstr.isEqual( sKeyDepth() ) :
-							    !::SI().zIsTime();
+    return !zIsTime( iop );
 }
 
 
 bool ZDomain::isTime( const IOPar& iop )
 {
-    const BufferString domstr = iop.find( sKey() );
-    return domstr.isEmpty() ? ::SI().zIsTime() : domstr.isEqual( sKeyTime() );
+    return zIsTime( iop );
 }
 
 
 void ZDomain::setSI( IOPar& iop )
 {
-    iop.removeWithKey( sKey() );
+    iop.set( sKey(), SI().key() );
 }
 
 
 void ZDomain::setDepth( IOPar& iop )
 {
-    if ( ::SI().zIsTime() )
-	iop.set( sKey(), sKeyDepth() );
-    else
-	setSI( iop );
+    iop.set( sKey(), Depth().key() );
 }
 
 
 void ZDomain::setTime( IOPar& iop )
 {
-    if ( !::SI().zIsTime() )
-	iop.set( sKey(), sKeyTime() );
-    else
-	setSI( iop );
+    iop.set( sKey(), Time().key() );
 }
 
 
+// ZDomain::Def
+
 bool ZDomain::Def::isSI() const
 {
-    return ::SI().zIsTime() ? isTime() : isDepth();
+    return *this == ::SI().zDomain();
 }
 
 
@@ -146,41 +218,51 @@ uiString ZDomain::Def::getRange() const
 
 const char* ZDomain::Def::unitStr( bool withparens ) const
 {
-    if ( withparens )
+    mDeclStaticString( ret );
+    if ( isDepth() )
+	ret = getDistUnitString( ::SI().depthsInFeet(), withparens );
+    else
     {
-	mDeclStaticString( ret );
-	ret.setEmpty();
-	BufferString unitstr = unitStr( false );
-	if ( !unitstr.isEmpty() )
-	    ret.add( "(" ).add( unitstr ).add( ")" );
-	return ret.buf();
+	ret.set( defunit_ );
+	if ( withparens )
+	    ret.embed('(',')');
     }
 
-    if ( !isDepth() )
-	return defunit_;
-
-    return getDistUnitString( ::SI().depthsInFeet(), false );
+    return ret.buf();
 }
 
 
 uiString ZDomain::Def::uiUnitStr( bool withparens ) const
 {
-    if ( withparens )
+    uiString ret;
+    if ( isDepth() )
     {
-	mDeclStaticString( ret );
-	ret.setEmpty();
-	BufferString unitstr = unitStr( false );
-	if ( !unitstr.isEmpty() )
-	    ret.add( "(" ).add( unitstr ).add( ")" );
-	return toUiString(ret);
+	const bool abbreviated = true;
+	return uiStrings::sDistUnitString( ::SI().depthsInFeet(), abbreviated,
+					   withparens );
     }
 
-    if ( !isDepth() )
-	return toUiString(defunit_);
-
-    return uiStrings::sDistUnitString( ::SI().depthsInFeet(), true, false );
+    ret = ::toUiString( defunit_ );
+    if ( withparens )
+	ret.parenthesize();
+    return ret;
 }
 
+
+int ZDomain::Def::nrZDecimals( float zstepfp ) const
+{
+    const double zstep = sCast( double, zstepfp * userFactor() );
+    int nrdec = 0;
+    double decval = zstep;
+    while ( decval > Math::Floor(decval) &&
+	    !mIsZero(decval,1e-4) && !mIsEqual(decval,1.,1e-4) )
+    {
+	nrdec++;
+	decval = decval*10 - Math::Floor(decval*10);
+    }
+
+    return nrdec;
+}
 
 
 const ZDomain::Def& ZDomain::Def::get( const char* ky )
@@ -191,10 +273,10 @@ const ZDomain::Def& ZDomain::Def::get( const char* ky )
     if ( *ky == '`' )
 	ky++; // cope with "`TWT"
 
-    const ObjectSet<ZDomain::Def>& defs = DEFS();
-    for ( int idx=0; idx<defs.size(); idx++ )
-	if ( defs[idx]->key_ == ky )
-	    return *defs[idx];
+    const ObjectSet<const ZDomain::Def>& defs = DEFS();
+    for ( const auto* def : defs )
+	if ( def->key_ == ky )
+	    return *def;
 
     return ZDomain::SI();
 }
@@ -206,28 +288,78 @@ const ZDomain::Def& ZDomain::Def::get( const IOPar& iop )
 }
 
 
-bool ZDomain::Def::add( ZDomain::Def* def )
+bool ZDomain::Def::add( ZDomain::Def* newdef )
 {
-    if ( !def ) return false;
-    ObjectSet<ZDomain::Def>& defs = DEFS();
-    for ( int idx=0; idx<defs.size(); idx++ )
-	if ( defs[idx]->key_ == def->key_ )
-	    { delete def; return false; }
-    defs += def;
+    if ( !newdef )
+	return false;
+
+    ObjectSet<const ZDomain::Def>& defs = DEFS();
+    for ( const auto* def : defs )
+	if ( def->key_ == newdef->key_ )
+	    { delete newdef; return false; }
+
+    defs.add( newdef );
     return true;
 }
 
 
+// ZDomain::Info
+
+ObjectSet<const ZDomain::Info>& INFOS()
+{
+    static ObjectSet<const ZDomain::Info> infos;
+    if ( infos.isEmpty() )
+    {
+	infos.add( &ZDomain::TWT() );
+	infos.add( &ZDomain::DepthMeter() );
+	infos.add( &ZDomain::DepthFeet() );
+    }
+
+    return infos;
+}
+
+
+const ZDomain::Info& ZDomain::TWT()
+{
+    static Info zinfo( Time(), sKeySeconds );
+    return zinfo;
+}
+
+
+const ZDomain::Info& ZDomain::DepthMeter()
+{
+    static Info zinfo( Depth(), sKeyMeter );
+    return zinfo;
+}
+
+
+const ZDomain::Info& ZDomain::DepthFeet()
+{
+    static Info zinfo( Depth(), sKeyFeet );
+    return zinfo;
+}
+
+
 ZDomain::Info::Info( const Def& def )
-    : def_(def)
-    , pars_(*new IOPar)
+    : Info(def,nullptr)
 {
 }
 
 
-ZDomain::Info::Info( const ZDomain::Info& i )
-    : def_(i.def_)
-    , pars_(*new IOPar(i.pars_))
+ZDomain::Info::Info( const Def& def, const char* unitstr )
+    : def_(def)
+    , pars_(*new IOPar)
+{
+    if ( unitstr && *unitstr )
+	pars_.set( sKeyUnit(), unitstr );
+    else
+	setDefaultUnit();
+}
+
+
+ZDomain::Info::Info( const ZDomain::Info& oth )
+    : def_(oth.def_)
+    , pars_(*new IOPar(oth.pars_))
 {
 }
 
@@ -236,7 +368,9 @@ ZDomain::Info::Info( const IOPar& iop )
     : def_(ZDomain::Def::get(iop))
     , pars_(*new IOPar(iop))
 {
-    pars_.removeSubSelection( ZDomain::sKey() );
+    pars_.removeWithKey( sKey() );
+    if ( !pars_.isPresent(sKeyUnit()) )
+	setDefaultUnit();
 }
 
 
@@ -246,9 +380,109 @@ ZDomain::Info::~Info()
 }
 
 
+bool ZDomain::Info::operator ==( const Info& oth ) const
+{
+    if ( &oth == this )
+	return true;
+
+    return def_ == oth.def_ && pars_ == oth.pars_;
+}
+
+
+bool ZDomain::Info::operator !=( const Info& oth ) const
+{
+    return !(oth == *this);
+}
+
+
+void ZDomain::Info::setDefaultUnit()
+{
+    if ( isTime() )
+	pars_.set( sKeyUnit(), sKeySeconds );
+    else if ( isDepth() )
+	setDepthUnit( ::SI().depthType() );
+}
+
+
 bool ZDomain::Info::hasID() const
 {
     return !getID().isUdf();
+}
+
+
+const char* ZDomain::Info::unitStr_( bool wp ) const
+{
+    mDeclStaticString( ret );
+    if ( isDepthMeter() )
+    {
+	ret.set( getDistUnitString( false, wp ) );
+	return ret.buf();
+    }
+    if ( isDepthFeet() )
+    {
+	ret.set( getDistUnitString( true, wp ) );
+	return ret.buf();
+    }
+
+    return def_.unitStr( wp );
+}
+
+
+uiString ZDomain::Info::uiUnitStr_( bool wp ) const
+{
+    const bool abbrevated = true;
+    if ( isDepthMeter() )
+	return uiStrings::sDistUnitString( false, abbrevated, wp );
+    if ( isDepthFeet() )
+	return uiStrings::sDistUnitString( true, abbrevated, wp );
+
+    return def_.uiUnitStr( wp );
+}
+
+
+ZDomain::TimeType ZDomain::Info::timeType() const
+{
+    return TimeType::Seconds;
+}
+
+
+ZDomain::DepthType ZDomain::Info::depthType() const
+{
+    if ( isDepthFeet() )
+	return DepthType::Feet;
+
+    return DepthType::Meter;
+}
+
+
+bool ZDomain::Info::isDepthMeter() const
+{
+    if ( !isDepth() || !pars_.isPresent(sKeyUnit()) )
+	return false;
+
+    const BufferString unitstr = pars_.find( sKeyUnit() );
+    return unitstr.isEqual( sKeyMeter, OD::CaseInsensitive ) ||
+	   unitstr.isEqual( sKeyMeterSymbol, OD::CaseInsensitive );
+}
+
+
+bool ZDomain::Info::isDepthFeet() const
+{
+    if ( !isDepth() || !pars_.isPresent(sKeyUnit()) )
+	return false;
+
+    const BufferString unitstr = pars_.find( sKeyUnit() );
+    return unitstr.isEqual( sKeyFeet, OD::CaseInsensitive ) ||
+	   unitstr.isEqual( sKeyFeetSymbol, OD::CaseInsensitive );
+}
+
+
+void ZDomain::Info::setDepthUnit( DepthType typ )
+{
+    if ( !isDepth() )
+	return;
+
+    pars_.set( sKeyUnit(), typ == DepthType::Feet ? sKeyFeet : sKeyMeter );
 }
 
 
@@ -278,16 +512,63 @@ void ZDomain::Info::setID( const MultiID& key )
 }
 
 
-bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
+bool ZDomain::Info::fillPar( IOPar& par ) const
 {
-    ZDomain::Info inf( iop );
+    const Def& inpdef = Def::get( par );
+    if ( inpdef == def_ )
+    {
+	IOParIterator iopiter( pars_ );
+	BufferString key, val;
+	bool allequal = true;
+	while( iopiter.next(key,val) )
+	{
+	    if ( !par.isPresent(key) )
+	    {
+		allequal = false;
+		break;
+	    }
+
+	    const BufferString othval = par.find( key );
+	    if ( othval != val )
+	    {
+		allequal = false;
+		break;
+	    }
+	}
+
+	if ( allequal && par.isPresent(sKey()) )
+	    return false;
+    }
+
+    def_.set( par );
+    par.merge( pars_ );
+    return true;
+}
+
+
+bool ZDomain::Info::isCompatibleWith( const Info& inf ) const
+{
     if ( &inf.def_ != &def_ )
 	return false;
 
-    MultiID myid( getID() );
+    if ( def_.isDepth() )
+    {
+	if ( isDepthMeter() != inf.isDepthMeter() ||
+	     isDepthFeet() != inf.isDepthFeet() )
+	    return false;
+    }
+
+    const MultiID myid( getID() );
     const MultiID iopid = inf.getID();
     if ( myid.isUdf() || iopid.isUdf() )
 	return true;
 
     return myid == iopid;
+}
+
+
+bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
+{
+    const ZDomain::Info inf( iop );
+    return isCompatibleWith( inf );
 }

@@ -32,12 +32,11 @@ public:
     bool			moveTo(const BinID&) override;
     StepInterval<float>		getAvailableZ() const override;
 
-
 protected:
-    bool			computeVelocity(float z0, float dz, int nr,
+    bool			computeVelocity(float z0,float dz,int sz,
 						float* res) const override;
 
-    bool			zit_;
+    bool			zit_; //deprecated
     TypeSet<float>		zval_;
     TypeSet<float>		vel_;
 };
@@ -47,8 +46,8 @@ mExpClass(Velocity) StoredFunctionSource : public FunctionSource
 { mODTextTranslationClass(StoredFunctionSource);
 public:
 				mDefaultFactoryInstanciationBase(
-				    "StoredVelFunc", 
-				    toUiString(sFactoryKeyword()));
+				    "StoredVelFunc",
+				    ::toUiString(sFactoryKeyword()));
 
 				StoredFunctionSource();
     static IOObjContext&	ioContext();
@@ -67,8 +66,12 @@ public:
 				       TypeSet<float>& vel);
 
     void			setData(const BinIDValueSet&,
+					const VelocityDesc&,
+					const ZDomain::Info&);
+    mDeprecated("Use ZDomain::Info")
+    void			setData(const BinIDValueSet&,
 					const VelocityDesc&,bool zit);
-
+    mDeprecatedDef
     static const char*		sKeyZIsTime();
     static const char*		sKeyVelocityFunction();
     static const char*		sKeyVelocityType();
@@ -80,7 +83,7 @@ protected:
 				~StoredFunctionSource();
 
     BinIDValueSet		veldata_;
-    bool			zit_;
+    bool			zit_; //deprecated
     VelocityDesc		desc_;
 };
 

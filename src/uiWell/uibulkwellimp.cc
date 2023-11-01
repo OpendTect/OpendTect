@@ -16,17 +16,16 @@ ________________________________________________________________________
 #include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "mousecursor.h"
 #include "ptrman.h"
 #include "od_istream.h"
 #include "survinfo.h"
-#include "tableascio.h"
 #include "tabledef.h"
-#include "veldesc.h"
+#include "unitofmeasure.h"
 #include "welld2tmodel.h"
 #include "wellimpasc.h"
 #include "wellman.h"
 #include "wellmarker.h"
-#include "wellreader.h"
 #include "welltrack.h"
 #include "welltransl.h"
 #include "wellwriter.h"
@@ -41,7 +40,7 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uitblimpexpdatasel.h"
 #include "uid2tmodelgrp.h"
-#include "od_helpids.h"
+
 
 using namespace Well;
 
@@ -68,7 +67,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     if ( SI().zIsTime() )
     {
 	const uiString vellbl = tr("Temporary model velocity %1" )
-				  .arg( VelocityDesc::getVelUnit( true ));
+		      .arg( UnitOfMeasure::surveyDefVelUnitAnnot(true,true) );
 	const float vel = uiD2TModelGroup::getDefaultTemporaryVelocity();
 	velocityfld_ = new uiGenInput( this, vellbl, FloatInpSpec(vel) );
 	velocityfld_->attach( alignedBelow, dataselfld_ );

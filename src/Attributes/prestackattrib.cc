@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "seispsread.h"
 #include "survinfo.h"
 #include "raytrace1d.h"
+#include "unitofmeasure.h"
 #include "windowfunction.h"
 
 #include "ioman.h"
@@ -207,12 +208,10 @@ PSAttrib::PSAttrib( Desc& ds )
 	if ( !velocityid_.isUdf() )
 	{
 	    RefMan<PreStack::VelocityBasedAngleComputer> velangcomp =
-				    new PreStack::VelocityBasedAngleComputer;
+				new PreStack::VelocityBasedAngleComputer();
 	    velangcomp->setMultiID( velocityid_ );
 	    anglecomp_ = velangcomp;
 	}
-	else
-	    velocityid_.setUdf();
 
 	if ( anglecomp_ )
 	{
@@ -319,7 +318,15 @@ void PSAttrib::setGatherIsAngle( PreStack::Gather& gather )
 {
     int gathertype = 0;
     mGetEnum( gathertype, gathertypeStr() );
-    gather.setOffsetIsAngle( gathertype == Ang );
+    if ( (gathertype == Ang) == gather.isOffsetAngle() )
+	return;
+
+    const bool offsetinfeet = gather.isOffsetInFeet();
+    if ( gathertype == Ang )
+	gather.setOffsetType( Seis::OffsetType::AngleDegrees );
+    else
+	gather.setOffsetType( offsetinfeet ? Seis::OffsetType::OffsetFeet
+					   : Seis::OffsetType::OffsetMeter );
 }
 
 
@@ -327,12 +334,14 @@ bool PSAttrib::getAngleInputData()
 {
     if ( propcalc_->hasAngleData() )
 	return true;
+
     const PreStack::Gather* gather = propcalc_->getGather();
     if ( !gather || !anglecomp_ )
 	return false;
 
     const FlatPosData& fp = gather->posData();
-    anglecomp_->setOutputSampling( fp );
+    anglecomp_->setOutputSampling( fp, gather->offsetType(),
+				   gather->zDomain() );
     anglecomp_->setGatherIsNMOCorrected( gather->isCorrected() );
     anglecomp_->setTrcKey( TrcKey(gather->getBinID()) );
     RefMan<PreStack::Gather> angledata = anglecomp_->computeAngles();

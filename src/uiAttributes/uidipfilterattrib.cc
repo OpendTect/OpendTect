@@ -13,16 +13,14 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribparam.h"
-#include "attribfactory.h"
-#include "ioman.h"
-#include "ioobj.h"
+#include "od_helpids.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "survinfo.h"
-#include "veldesc.h"
+#include "unitofmeasure.h"
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
@@ -32,7 +30,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uislicesel.h"
 #include "uispinbox.h"
-#include "od_helpids.h"
 
 using namespace Attrib;
 
@@ -69,10 +66,10 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     fltrtpfld_->attach( alignedBelow, szfld_ );
 
     uiString lbl = tr("Min/max %1").arg(zIsTime() ? tr("%1 %2")
-				   .arg(uiStrings::sVelocity().toLower())
-				   .arg(VelocityDesc::getVelUnit(true))
-				   : tr("%1 (deg)")
-				   .arg(uiStrings::sDip().toLower()));
+		       .arg(uiStrings::sVelocity().toLower())
+		       .arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,true))
+		       : tr("%1 (deg)")
+		       .arg(uiStrings::sDip().toLower()));
     const char* fldnm = zIsTime() ? " velocity" : " dip";
     velfld_ = new uiGenInput( this, lbl,
 		FloatInpSpec().setName( BufferString("Min",fldnm).buf() ),

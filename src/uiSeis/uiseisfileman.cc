@@ -14,33 +14,26 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "iostrm.h"
 #include "keystrs.h"
 #include "od_helpids.h"
-#include "seis2dlineio.h"
 #include "seiscbvs.h"
-#include "seispsioprov.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
-#include "separstr.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "trckeyzsampling.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
 #include "zdomain.h"
 
-#include "ui2dgeomman.h"
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uimergeseis.h"
 #include "uiseis2dfileman.h"
 #include "uiseis2dfrom3d.h"
-#include "uiseis2dgeom.h"
 #include "uiseisbrowser.h"
 #include "uiseiscopy.h"
-#include "uiseisioobjinfo.h"
 #include "uiseispsman.h"
-#include "uisplitter.h"
-#include "uitaskrunner.h"
-#include "uitextedit.h"
 #include "uitoolbutton.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
@@ -258,7 +251,7 @@ const uiSeisFileMan::BrowserDef* uiSeisFileMan::getBrowserDef() const
 void uiSeisFileMan::mkFileInfo()
 {
     BufferString txt;
-    SeisIOObjInfo oinf( curioobj_ );
+    const SeisIOObjInfo oinf( curioobj_ );
     if ( !curioobj_->implExists(true) || !oinf.isOK() )
     {
 	txt.add( getFileInfo() );
@@ -279,7 +272,7 @@ void uiSeisFileMan::mkFileInfo()
     .add(cs.hsamp_.stop_.line) \
     .add(" [").add(cs.hsamp_.step_.line).add("]")
 
-    const ZDomain::Def& zddef = oinf.zDomainDef();
+    const ZDomain::Info& zinfo = oinf.zDomain();
     TrcKeyZSampling cs;
     if ( !is2d_ )
     {
@@ -287,9 +280,29 @@ void uiSeisFileMan::mkFileInfo()
 	{
 	    txt.setEmpty();
 	    if ( !mIsUdf(cs.hsamp_.stop_.inl()) )
-		{ txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
+	    {
+		txt.add(sKey::Inline())
+		mAddRangeTxt(inl());
+	    }
+
 	    if ( !mIsUdf(cs.hsamp_.stop_.crl()) )
-		{ txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
+	    {
+		txt.addNewLine().add(sKey::Crossline())
+		mAddRangeTxt(crl());
+	    }
+
+	    ZSampling zrg = cs.zsamp_;
+	    const int nrdec = zinfo.def_.nrZDecimals( zrg.step );
+	    zrg.scale( zinfo.def_.userFactor() );
+	    const uiString unitstr = zinfo.uiUnitStr_( true );
+	    BufferString keystr = toString( zinfo.def_.getRange() );
+	    keystr.addSpace().add( toString(unitstr) );
+	    txt.addNewLine()
+	       .add( keystr.str() )
+	       .add( ": " ).add( zrg.start, nrdec )
+	       .add( " - " ).add( zrg.stop, nrdec )
+	       .add( " [" ).add( zrg.step, nrdec ).add( "]" );
+
 	    SeisIOObjInfo::SpaceInfo spcinfo;
 	    double area;
 	    if ( oinf.getDefSpaceInfo(spcinfo) )
@@ -304,20 +317,12 @@ void uiSeisFileMan::mkFileInfo()
 	    }
 	    txt.add("\nArea: ")
 	       .add( getAreaString(sCast(float,area),SI().xyInFeet(),2,true) );
-
-	    StepInterval<float> zrg = cs.zsamp_;
-	    zrg.scale( zddef.userFactor() );
-	    const int nrdec = Math::NrSignificantDecimals( zrg.step );
-	    txt.add("\n").add(mFromUiStringTodo(zddef.getRange()))
-		.add(zddef.unitStr(true)).add(": ").add( zrg.start, nrdec )
-		.add(" - ").add( zrg.stop, nrdec )
-		.add(" [").add( zrg.step, nrdec ).add("]");
 	}
     }
 
-    if ( !curioobj_->pars().isEmpty() )
+    const IOPar& pars = curioobj_->pars();
+    if ( !pars.isEmpty() )
     {
-	const IOPar& pars = curioobj_->pars();
 	BufferString parstr = pars.find( "Type" );
 	if ( !parstr.isEmpty() )
 	    txt.add( "\nType: " ).add( parstr );
@@ -326,41 +331,32 @@ void uiSeisFileMan::mkFileInfo()
 	if ( !parstr.isEmpty() )
 	    txt.add( "\nOptimized direction: " ).add( parstr );
 
-	if ( pars.isTrue("Is Velocity") )
+	VelocityDesc desc;
+	if ( desc.usePar(pars) )
 	{
-	    Interval<float> topvavg, botvavg;
-	    txt += "\nVelocity Type: ";
-	    parstr = pars.find( "Velocity Type" );
-	    txt += parstr.isEmpty() ? "<unknown>" : parstr.str();
-
-	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
-	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
+	    txt.add( "\nVelocity Type: " ).add( OD::toString(desc.getType()) );
+	    if ( !is2d_ && cs.zsamp_.nrSteps() > 1 )
 	    {
-		const StepInterval<float> sizrg = SI().zRange(true);
-		StepInterval<float> dispzrg;
-
-		if ( SI().zIsTime() )
+		const ZDomain::Info& todomain = zinfo.isTime()
+			   ? (SI().depthsInFeet() ? ZDomain::DepthFeet()
+						  : ZDomain::DepthMeter())
+			   : ZDomain::TWT();
+		ZSampling zrg = oinf.getConvertedZrg( cs.zsamp_ );
+		zrg = VelocityStretcherNew::getWorkZSampling( zrg, zinfo,
+							      todomain, pars );
+		if ( !zrg.isUdf() )
 		{
-		    dispzrg.start = sizrg.start * topvavg.start / 2;
-		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
-		    dispzrg.step = (dispzrg.stop-dispzrg.start)
-					/ sizrg.nrSteps();
-		    txt.add( "\nDepth Range " )
-			.add( ZDomain::Depth().unitStr(true) );
+		    const int nrdec = todomain.def_.nrZDecimals( zrg.step );
+		    zrg.scale( todomain.def_.userFactor() );
+		    const BufferString unitstr = todomain.unitStr_( true );
+		    BufferString keystr = toString( todomain.def_.getRange() );
+		    keystr.addSpace().add( unitstr );
+		    txt.addNewLine()
+		       .add( keystr.buf() )
+		       .add( ": " ).add( zrg.start, nrdec )
+		       .add( " - " ).add( zrg.stop, nrdec )
+		       .add( " [" ).add( zrg.step,nrdec ).add( "]" );
 		}
-		else
-		{
-		    dispzrg.start = 2 * sizrg.start / topvavg.stop;
-		    dispzrg.stop = 2 * sizrg.stop / botvavg.start;
-		    dispzrg.step = (dispzrg.stop-dispzrg.start)
-					/ sizrg.nrSteps();
-		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
-		    txt.add( "\nTime Range " )
-			.add( ZDomain::Time().unitStr(true) );
-		}
-
-		txt.add( ": " ).add( dispzrg.start )
-		    .add( " - " ).add( dispzrg.stop );
 	    }
 	}
     }
@@ -379,6 +375,7 @@ void uiSeisFileMan::mkFileInfo()
 	}
 	delete tri;
     }
+
     if ( dsstr.size() > 4 )
 	txt.add( "\nStorage: " ).add( dsstr.buf() + 4 );
 

@@ -15,22 +15,45 @@ ________________________________________________________________________
 class ElasticModelSet;
 class IOPar;
 
+/*!
+  A task to compute reflectivities from a set of ElasticModel objects,
+  using the ReflCalc1D factory.
+  The results are stored as a set of ReflectivityModel objects,
+  which combine time-depth models and associated reflectivities.
+  Like for the TimeDepthModel class, the output depths units correspond to
+  SI().depthsInFeet(), and are TVDSS depths (0 at sea-level, not at SRD,
+  positive below sea-level and increasing downwards.
+  The first layer of each ElasticModel must be a SRD.
+ */
+
 mExpClass(General) ReflCalcRunner : public ParallelTask
 { mODTextTranslationClass(ReflCalcRunner);
 public:
 				ReflCalcRunner(const char* refl1dfactkeywd=
 					       AICalc1D::sFactoryKeyword());
 				ReflCalcRunner(const IOPar& reflpar);
+				mDeprecated("Provide setup")
 				ReflCalcRunner(const ElasticModelSet&,
 					       const IOPar& reflpar);
+				ReflCalcRunner(const ElasticModelSet&,
+					       const IOPar& reflpar,
+					       const ReflCalc1D::Setup*);
 				~ReflCalcRunner();
 
     //before execution only
+				mDeprecated("Provide setup")
     bool			setModel(const ElasticModelSet&);
+    bool			setModel(const ElasticModelSet&,
+					 const ReflCalc1D::Setup*);
 				//<! No copy: Must stay valid during execution
+    mDeprecated("Use Seis::OffsetType")
     void			setAngle(float thetaang,bool angleisindegrees);
+    mDeprecated("Use Seis::OffsetType")
     void			setAngles(const TypeSet<float>&,
 					  bool angleisindegrees);
+    void			setAngle(float thetaang,Seis::OffsetType);
+    void			setAngles(const TypeSet<float>&,
+					  Seis::OffsetType);
 
     uiString			uiMessage() const override { return msg_; }
     uiString			uiNrDoneText() const override;
@@ -41,9 +64,16 @@ public:
     //available after execution
     ConstRefMan<ReflectivityModelSet> getRefModels() const;
 
+				mDeprecated("Provide setup")
     static ConstRefMan<ReflectivityModelSet> getRefModels(
 				    const ElasticModelSet&,
 				    const IOPar& reflpar,uiString& msg,
+				    TaskRunner* =nullptr,
+			    const ObjectSet<const TimeDepthModel>* =nullptr);
+    static ConstRefMan<ReflectivityModelSet> getRefModels(
+				    const ElasticModelSet&,
+				    const IOPar& reflpar,uiString& msg,
+				    const ReflCalc1D::Setup*,
 				    TaskRunner* =nullptr,
 			    const ObjectSet<const TimeDepthModel>* =nullptr);
 private:

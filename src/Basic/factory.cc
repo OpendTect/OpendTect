@@ -90,3 +90,47 @@ int FactoryBase::indexOf( const char* name ) const
 
     return -1;
 }
+
+
+void FactoryBase::removeByIndex( int idx )
+{
+    if ( !names_.validIdx(idx) )
+	return;
+
+    names_.removeSingle( idx );
+    usernames_.removeSingle( idx );
+    aliases_.removeSingle( idx );
+}
+
+
+bool FactoryBase::moveAfter_( int from, int to )
+{
+    if ( !names_.validIdx(from) || !names_.validIdx(to) ||
+	 to == names_.size()-2 )
+	return false;
+
+    if ( from < to )
+    {
+	int idx = from;
+	while( idx < to )
+	{
+	    names_.swap( idx, idx+1 );
+	    usernames_.swap( idx, idx+1 );
+	    aliases_.swap( idx, idx+1 );
+	    idx++;
+	}
+    }
+    else
+    {
+	int idx = from-1;
+	while ( idx > to && idx > 0 )
+	{
+	    names_.swap( idx, idx+1 );
+	    usernames_.swap( idx, idx+1 );
+	    aliases_.swap( idx, idx+1 );
+	    idx--;
+	}
+    }
+
+    return true;
+}

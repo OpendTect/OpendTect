@@ -13,8 +13,12 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "multiid.h"
 #include "namedobj.h"
+#include "odcommonenums.h"
 #include "position.h"
 #include "samplingdata.h"
+
+class UnitOfMeasure;
+namespace ZDomain { class Info; }
 
 
 namespace PreStack
@@ -40,6 +44,9 @@ public:
     const PointBasedMathFunction&	getFn(int idx) const;
     const BinID&			getPos(int idx) const;
 
+    void				fillPar(IOPar&) const;
+    bool				usePar(const IOPar&);
+
     void				add(PointBasedMathFunction*,
 					    const BinID& pos);
 					//!<Function becomes mine.
@@ -56,8 +63,22 @@ public:
     bool				isChanged() const { return ischanged_; }
     void				setChanged(bool yn) { ischanged_=yn; }
 
+    bool				isOffsetInMeters() const;
+    bool				isOffsetInFeet() const;
+    Seis::OffsetType			offsetType() const;
+    const ZDomain::Info&		zDomain() const;
+    bool				zIsTime() const;
+    bool				zInMeter() const;
+    bool				zInFeet() const;
+    MuteDef&				setOffsetType(Seis::OffsetType);
+    MuteDef&				setZDomain(const ZDomain::Info&);
+    const UnitOfMeasure*		zUnit() const;
+    const UnitOfMeasure*		offsetUnit() const;
+
     void				setReferenceHorizon(const MultiID&);
     const MultiID&			getReferenceHorizon() const;
+
+    static const char*			sKeyRefHor();
 
 protected:
 

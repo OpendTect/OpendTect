@@ -279,7 +279,7 @@ void Seis::Blocks::Reader::initFromFileName( const char* inp )
 	if ( !inp || !*inp )
 	    state_.set( tr("No input specified") );
 	else
-	    state_.set( uiStrings::phrDoesntExist(toUiString(inp)) );
+	    state_.set( uiStrings::phrDoesntExist(::toUiString(inp)) );
 	return;
     }
 
@@ -290,7 +290,7 @@ void Seis::Blocks::Reader::initFromFileName( const char* inp )
     od_istream strm( infoFileName() );
     if ( !strm.isOK() )
     {
-	state_.set( uiStrings::phrCannotOpen(toUiString(strm.fileName())) );
+	state_.set( uiStrings::phrCannotOpen(::toUiString(strm.fileName())) );
 	uiString statestr( state_ );
 	strm.addErrMsgTo( statestr );
 	state_ = statestr;

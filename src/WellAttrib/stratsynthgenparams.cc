@@ -173,33 +173,39 @@ void SynthGenParams::setDefaultValues()
     }
 
     const SurveyInfo& si = IOMan::isOK() ? SI() : SurveyInfo::empty();
+    const Seis::OffsetType angtyp = Seis::OffsetType::AngleRadians;
     if ( isZeroOffset() )
     {
-	ReflCalc1D::setIOParsToSingleAngle( reflpars_ );
+	ReflCalc1D::setIOParsToSingleAngle( reflpars_, 0.f, angtyp );
     }
     else if ( isElasticStack() )
     {
 	ReflCalc1D::setIOParsToSingleAngle( reflpars_,
-					    ReflCalc1D::sDefAngle( true ) );
+				ReflCalc1D::sDefAngle( angtyp ), angtyp );
     }
     else if ( isElasticGather() )
     {
-	const bool indeg = true;
-	const StepInterval<float> anglerg = ReflCalc1D::sDefAngleRange( indeg );
+	const StepInterval<float> anglerg = ReflCalc1D::sDefAngleRange(angtyp);
 	TypeSet<float> angles;
 	for ( int idx=0; idx<anglerg.nrSteps()+1; idx++ )
 	    angles += anglerg.atIndex( idx );
 	reflpars_.set( ReflCalc1D::sKeyAngle(), angles );
-	reflpars_.setYN( ReflCalc1D::sKeyAngleInDegrees(), indeg );
+	reflpars_.setYN( ReflCalc1D::sKeyAngleInDegrees(),
+			 angtyp == Seis::OffsetType::AngleDegrees );
     }
     else if ( isPreStack() )
     {
-	const StepInterval<float> offsetrg = RayTracer1D::sDefOffsetRange();
+	const Seis::OffsetType offstyp = si.xyInFeet()
+					? Seis::OffsetType::OffsetFeet
+					: Seis::OffsetType::OffsetMeter;
+	const StepInterval<float> offsetrg =
+					RayTracer1D::sDefOffsetRange( offstyp );
 	TypeSet<float> offsets;
 	for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
 	    offsets += offsetrg.atIndex( idx );
 	raypars_.set( RayTracer1D::sKeyOffset(), offsets );
-	raypars_.set( RayTracer1D::sKeyOffsetInFeet(), si.xyInFeet() );
+	raypars_.set( RayTracer1D::sKeyOffsetInFeet(),
+		      offstyp == Seis::OffsetType::OffsetFeet );
     }
 
     if ( isRawOutput() )
@@ -238,7 +244,8 @@ void SynthGenParams::setReqType()
     uiString msg;
     if ( !reflpars_.isEmpty() )
     {
-	PtrMan<ReflCalc1D> calc = ReflCalc1D::createInstance( reflpars_, msg );
+	PtrMan<ReflCalc1D> calc =
+			ReflCalc1D::createInstance( reflpars_, msg, nullptr );
 	if ( calc && calc->isOK() )
 	{
 	    if ( !reqtype_ )
@@ -250,7 +257,8 @@ void SynthGenParams::setReqType()
     }
     else if ( !raypars_.isEmpty() )
     {
-	PtrMan<RayTracer1D> calc = RayTracer1D::createInstance( raypars_, msg );
+	PtrMan<RayTracer1D> calc =
+			RayTracer1D::createInstance( raypars_, msg, nullptr );
 	if ( calc && msg.isEmpty() )
 	{
 	    if ( !reqtype_ )
@@ -316,6 +324,19 @@ bool SynthGenParams::isCorrected() const
     synthpars_.getYN( Seis::SynthGenBase::sKeyNMO(), corrected );
 
     return corrected;
+}
+
+
+Seis::OffsetType SynthGenParams::offsetType() const
+{
+    Seis::OffsetType ret = SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+					   : Seis::OffsetType::OffsetMeter;
+    bool offsetsinfeet = ret == Seis::OffsetType::OffsetFeet;
+    if ( raypars_.getYN(RayTracer1D::sKeyOffsetInFeet(),offsetsinfeet) )
+	ret = offsetsinfeet ? Seis::OffsetType::OffsetFeet
+			    : Seis::OffsetType::OffsetMeter;
+
+    return ret;
 }
 
 
@@ -466,8 +487,9 @@ void SynthGenParams::createName( BufferString& nm ) const
 
     if ( isElasticStack() )
     {
-	bool isindegrees = true;
-	float angle = ReflCalc1D::sDefAngle( isindegrees );
+	const Seis::OffsetType angtyp = Seis::OffsetType::AngleDegrees;
+	bool isindegrees = angtyp == Seis::OffsetType::AngleDegrees;
+	float angle = ReflCalc1D::sDefAngle( angtyp );
 	if ( reflpars_.get(ReflCalc1D::sKeyAngle(),angle) &&
 	     reflpars_.getYN(ReflCalc1D::sKeyAngleInDegrees(),isindegrees) &&
 	     !isindegrees )
@@ -478,7 +500,8 @@ void SynthGenParams::createName( BufferString& nm ) const
 
     if ( isElasticGather() )
     {
-	bool isindegrees = true;
+	const Seis::OffsetType angtyp = Seis::OffsetType::AngleDegrees;
+	bool isindegrees = angtyp == Seis::OffsetType::AngleDegrees;
 	TypeSet<float> angles;
 	if ( reflpars_.get(ReflCalc1D::sKeyAngle(),angles) && !angles.isEmpty())
 	{
@@ -493,7 +516,7 @@ void SynthGenParams::createName( BufferString& nm ) const
 	{
 	    pErrMsg( "Should not be reached" );
 	    const StepInterval<float> anglerg =
-				ReflCalc1D::sDefAngleRange( isindegrees );
+				ReflCalc1D::sDefAngleRange( angtyp );
 	    for ( int idx=0; idx<anglerg.nrSteps()+1; idx++ )
 		angles += anglerg.atIndex( idx );
 	}

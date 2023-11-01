@@ -698,9 +698,9 @@ Coords::CRSInfoList* Coords::getCRSInfoList( bool /* orthogonal */ )
 
 uiString Coords::CRSInfoList::getDispString( int idx ) const
 {
-    return toUiString( "[%1:%2] %3" ).arg( authName(idx) )
-				     .arg( authCode(idx) )
-				     .arg( name(idx) );
+    return ::toUiString( "[%1:%2] %3" ).arg( authName(idx) )
+				       .arg( authCode(idx) )
+				       .arg( name(idx) );
 }
 
 
@@ -727,9 +727,9 @@ uiString Coords::CRSInfoList::getDescString( int idx ) const
     if ( !areastr.isEmpty() )
 	areapretty.addTab().add( areastr ).addNewLine();
 
-    return toUiString( "Authority:\t%1\nCode:\t%2\nName:\t%3\n"
-			"Projection method:\t%4\nArea of use:\t%5\n" )
-			.arg( authName(idx) ).arg( authCode(idx) )
-			.arg( name(idx) ).arg( projMethod(idx) )
-			.arg( areapretty );
+    return ::toUiString( "Authority:\t%1\nCode:\t%2\nName:\t%3\n"
+			 "Projection method:\t%4\nArea of use:\t%5\n" )
+			 .arg( authName(idx) ).arg( authCode(idx) )
+			 .arg( name(idx) ).arg( projMethod(idx) )
+			 .arg( areapretty );
 }

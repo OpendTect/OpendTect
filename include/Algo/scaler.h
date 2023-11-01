@@ -9,8 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
-#include "gendefs.h"
-#include "undefval.h"
+
+#include "valseriesimpl.h"
 
 #define sLinScaler	"Linear"
 #define sLogScaler	"Logarithmic"
@@ -175,3 +175,108 @@ protected:
 
     double		factor;
 };
+
+
+/*!
+\brief ValueSeries implementation where the values are
+ retrieved from another ValueSeries. The input object is never managed, and must
+ remain in memory while this object is being used.
+ Scaling is applied when reading from the source,
+ and unapplied when writing to it.
+*/
+
+template <class RT, class AT>
+mClass(Algo) ScaledValueSeries : public ValueSeries<RT>
+{
+public:
+				ScaledValueSeries(const Scaler*,
+						  ValueSeries<AT>&);
+				~ScaledValueSeries();
+
+    ValueSeries<RT>*		clone() const override;
+    bool			isOK() const override
+				{ return src_.isOK(); }
+    bool			writable() const override
+				{ return src_.writable(); }
+
+    bool			canSetAll() const override
+				{ return src_.canSetAll(); }
+    void			setAll(RT) override;
+
+    RT				value(od_int64) const override;
+    void			setValue(od_int64,RT) override;
+
+    od_int64			size() const override
+				{ return src_.size(); }
+
+    static ValueSeries<RT>*	getFrom(ValueSeries<AT>&,
+					const Scaler* =nullptr);
+
+private:
+
+    ValueSeries<AT>&		src_;
+    const Scaler*		scaler_ = nullptr;
+
+};
+
+
+
+template <class RT, class AT> inline
+ScaledValueSeries<RT,AT>::ScaledValueSeries( const Scaler* scaler,
+					     ValueSeries<AT>& src )
+    : src_(src)
+{
+    if ( scaler && !scaler->isEmpty() )
+	scaler_ = scaler->clone();
+}
+
+
+template <class RT, class AT> inline
+ScaledValueSeries<RT,AT>::~ScaledValueSeries()
+{
+    delete scaler_;
+}
+
+
+template <class RT, class AT> inline
+ValueSeries<RT>* ScaledValueSeries<RT,AT>::clone() const
+{
+    return new ScaledValueSeries<RT,AT>( scaler_, src_ );
+}
+
+
+template <class RT, class AT> inline
+void ScaledValueSeries<RT,AT>::setAll( RT val )
+{
+    const od_int64 sz = size();
+    for ( od_int64 idx=0; idx<sz; idx++ )
+	setValue( idx, val );
+}
+
+
+template <class RT, class AT> inline
+RT ScaledValueSeries<RT,AT>::value( od_int64 idx ) const
+{
+    const RT val = RT (src_.value(idx) );
+    return scaler_ ? scaler_->scale( val ) : val;
+}
+
+
+template <class RT, class AT> inline
+void ScaledValueSeries<RT,AT>::setValue( od_int64 idx, RT val )
+{
+    if ( scaler_ )
+	val = scaler_->unScale( val );
+
+    src_.setValue( idx, AT (val) );
+}
+
+
+template <class RT, class AT> inline
+ValueSeries<RT>* ScaledValueSeries<RT,AT>::getFrom( ValueSeries<AT>& src,
+						    const Scaler* scaler )
+{
+    if ( src.arr() && !scaler )
+	return new ArrayValueSeries<RT,AT>( src.arr(), false, src.size() );
+    return new ScaledValueSeries<RT,AT>( scaler, src );
+}

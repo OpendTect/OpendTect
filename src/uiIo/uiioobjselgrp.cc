@@ -833,9 +833,8 @@ void uiIOObjSelGrp::displayManipGroup( bool yn, bool shrink )
 }
 
 
-void uiIOObjSelGrp::setSurveyDefaultSubsel( const char* subsel )
+void uiIOObjSelGrp::setSurveyDefaultSubsel( const char* /* subsel */ )
 {
-    surveydefaultsubsel_ = subsel;
 }
 
 
@@ -1289,7 +1288,7 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
     if ( !ioobj )
 	return;
 
-    ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
+    ioobj->setSurveyDefault();
 
     const int cursel = currentItem();
     TypeSet<MultiID> chosenmids;

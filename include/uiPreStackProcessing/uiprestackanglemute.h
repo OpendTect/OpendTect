@@ -33,6 +33,11 @@ public:
 					       PreStack::AngleCompParams&,
 					       bool dooffset=false,
 					       bool isformute=true);
+				uiAngleCompGrp(uiParent*,
+					       PreStack::AngleCompParams&,
+					       bool dooffset,
+					       bool isformute,
+					       bool withadvanced);
 				~uiAngleCompGrp();
 
     void			updateFromParams();
@@ -102,7 +107,11 @@ mExpClass(uiPreStackProcessing) uiAngleMute : public uiDialog
 public:
 
     static void		initClass();
+    static void		removeClass();
+
 			uiAngleMute(uiParent*,AngleMute*);
+			uiAngleMute(uiParent*,AngleMute*,
+				    bool withadvanced);
 			~uiAngleMute();
 
 protected:

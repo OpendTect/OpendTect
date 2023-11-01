@@ -18,49 +18,45 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "uimenu.h"
 #include "uimpepartserv.h"
+#include "uimsg.h"
 #include "uiodmain.h"
-#include "uiodviewer2dmgr.h"
 #include "uiodscenemgr.h"
-#include "uiodvw2dtreeitem.h"
-#include "uiodvw2dhor3dtreeitem.h"
-#include "uiodvw2dhor2dtreeitem.h"
-#include "uiodvw2dfaulttreeitem.h"
-#include "uiodvw2dfaultsstreeitem.h"
+#include "uiodviewer2dmgr.h"
 #include "uiodvw2dfaultss2dtreeitem.h"
+#include "uiodvw2dfaultsstreeitem.h"
+#include "uiodvw2dfaulttreeitem.h"
+#include "uiodvw2dhor2dtreeitem.h"
+#include "uiodvw2dhor3dtreeitem.h"
 #include "uiodvw2dpicksettreeitem.h"
-#include "uipixmap.h"
+#include "uiodvw2dtreeitem.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
-#include "uimsg.h"
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
+#include "datacoldef.h"
+#include "datapointset.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "filepath.h"
 #include "flatposdata.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "mouseevent.h"
-#include "scaler.h"
-#include "seisdatapack.h"
+#include "od_helpids.h"
+#include "posvecdataset.h"
+#include "randomlinegeom.h"
 #include "seisdatapackzaxistransformer.h"
 #include "seisioobjinfo.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "datacoldef.h"
-#include "datapointset.h"
-#include "posvecdataset.h"
-#include "randomlinegeom.h"
-
+#include "view2ddata.h"
+#include "view2ddataman.h"
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
-#include "view2ddataman.h"
-#include "view2ddata.h"
-#include "od_helpids.h"
 
 #include "hiddenparam.h"
 
@@ -764,6 +760,7 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackRM(
     {
 	if ( tkzs.nrZ() == 1 )
 	    return createDataPackForTransformedZSliceRM( selspec );
+
 	tkzs.zsamp_.setFrom( zat->getZInterval(true) );
 	tkzs.zsamp_.step = SI().zStep();
     }
@@ -851,7 +848,8 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackForTransformedZSliceRM(
 	return nullptr;
 
     auto dp = RegularSeisDataPack::createDataPackForZSliceRM(
-	    &data->bivSet(), tkzs, datatransform_->toZDomainInfo(), &userrefs );
+		&data->bivSet(), tkzs, datatransform_->toZDomainInfo(),
+		&userrefs );
     return createFlatDataPackRM( *dp, 0 );
 }
 
@@ -1171,7 +1169,7 @@ void uiODViewer2D::trackSetupCB( CallBacker* )
 }
 
 
-void uiODViewer2D::selectionMode( CallBacker* cb )
+void uiODViewer2D::selectionMode( CallBacker* )
 {
     if ( !viewstdcontrol_ || !viewstdcontrol_->editToolBar() )
 	return;

@@ -216,14 +216,21 @@ bool SEGYDirect3DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
 	return false;
 
     SeisTrc* trc = getTrace( ti.filenr_, mCast(int,ti.trcidx_), bid );
-    if ( !trc ) return false;
+    if ( !trc )
+	return false;
 
-    tb.deepErase();
-    for ( int itrc=1; trc; itrc++ )
+    tb.erase();
+    tb.add( trc );
+    int itrc = 1;
+    while( true )
     {
+	trc = getTrace( bid, itrc++ );
+	if ( !trc )
+	    break;
+
 	tb.add( trc );
-	trc = getTrace( bid, itrc );
     }
+
     return true;
 }
 

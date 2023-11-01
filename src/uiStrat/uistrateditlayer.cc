@@ -40,11 +40,10 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     lithfld_ = new uiGenInput( this, uiStrings::sLithology(),
                                lay_.lithology().name() );
     lithfld_->setReadOnly();
-    const bool depthinft = SI().depthsInFeet();
-    float dpth = lay_.zTop(); if ( depthinft ) dpth *= mToFeetFactorF;
-    const uiString thtxt(tr("Top depth (%1").arg( depthinft ? tr("ft)")
-							    : tr("m)")));
-    topfld_ = new uiGenInput( this, thtxt, FloatInpSpec(dpth) );
+
+    const uiString thtxt = tr("Top depth (%1)")
+			    .arg( PropertyRef::thickness().disp_.getUnitLbl() );
+    topfld_ = new uiGenInput( this, thtxt, FloatInpSpec(lay_.zTop()) );
     topfld_->attach( alignedBelow, lithfld_ );
     topfld_->setReadOnly();
 
@@ -62,11 +61,8 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 
 	auto* valfld = new uiPropertyValFld( this, pr, val );
 	if ( ival == 0 )
-	{
-	    if ( depthinft )
-		valfld->setUnit( UnitOfMeasure::surveyDefDepthUnit() );
 	    valfld->attach( ensureBelow, sep );
-	}
+
 	valfld->attach( alignedBelow, algrp );
 	algrp = valfld;
 	valflds_ += valfld;
@@ -79,6 +75,8 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     contfld_ = new uiStratLayerContent( this, true, lay.unitRef().refTree() );
     contfld_->set( lay.content() );
     contfld_->attach( alignedBelow, algrp );
+
+    mAttachCB( postFinalize(), uiStratEditLayer::initDlg );
 }
 
 
@@ -86,6 +84,15 @@ uiStratEditLayer::~uiStratEditLayer()
 {
     detachAllNotifiers();
     delete &worklay_;
+}
+
+
+void uiStratEditLayer::initDlg( CallBacker* )
+{
+    if ( !topfld_->finalized() )
+	topfld_->preFinalize().trigger();
+
+    topfld_->setToolTip( tr("TVDSS depth at the top of this layer") );
 }
 
 

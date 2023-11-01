@@ -19,6 +19,8 @@ class uiSeisIOObjInfo;
 class uiLabeledComboBox;
 class uiListBox;
 class uiCheckBox;
+class UnitOfMeasure;
+namespace ZDomain { class Info; }
 
 mExpClass(uiSeis) uiSeisSel : public uiIOObjSel
 { mODTextTranslationClass(uiSeisSel);
@@ -80,9 +82,15 @@ public:
     void		processInput() override;
     bool		existingTyped() const override;
     void		updateInput() override;
+    const ZDomain::Info& getZDomain() const;
+    void		setZDomain(const ZDomain::Info&);
 
     static IOObjContext	ioContext(Seis::GeomType,bool forread);
     void		updateOutputOpts(bool issteering);
+
+    CNotifier<uiSeisSel,const ZDomain::Info&>& domainChanged();
+    CNotifier<uiSeisSel,BufferString>& zUnitChanged();
+
 protected:
 
     Setup		seissetup_;
@@ -95,13 +103,20 @@ protected:
     Setup		mkSetup(const Setup&,bool forread);
     Setup		mkSetupWithCtxt(const Setup&,const IOObjContext&);
     void		fillDefault() override;
+
+    void		initGrpCB(CallBacker*);
+    void		domainChgCB(CallBacker*);
+    void		zUnitChgCB(CallBacker*);
     void		newSelection(uiIOObjRetDlg*) override;
     void		commitSucceeded() override;
     const char*		userNameFromKey(const char*) const override;
     virtual const char* compNameFromKey(const char*) const;
     uiIOObjRetDlg*	mkDlg() override;
+    mDeprecatedDef
     void		mkOthDomBox();
+    mDeprecatedDef
     void		dlgPopupCB(CallBacker*);
+    BufferString	zUnit() const;
 
     virtual const char* getDefaultKey(Seis::GeomType) const;
 
@@ -129,6 +144,7 @@ protected:
     void		entrySel(CallBacker*);
     BufferString	getDataType();
     void		getComponentNames(BufferStringSet&) const;
+
 private:
     static uiString	gtSelTxt(const uiSeisSel::Setup& setup,bool forread);
     friend		class uiSeisSel;

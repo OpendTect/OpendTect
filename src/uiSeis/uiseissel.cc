@@ -8,38 +8,34 @@ ________________________________________________________________________
 -*/
 
 #include "uiseissel.h"
-#include "uiseisposprovgroup.h"
 
-#include "uicombobox.h"
-#include "uigeninput.h"
-#include "uiioobjselwritetransl.h"
-#include "uilabel.h"
-#include "uilistbox.h"
-#include "uibutton.h"
-#include "uiselsurvranges.h"
-#include "uimsg.h"
-#include "uistrings.h"
-
-#include "zdomain.h"
 #include "ctxtioobj.h"
-#include "trckeyzsampling.h"
-#include "iodirentry.h"
-#include "iostrm.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
-#include "seis2dlineio.h"
+#include "seiscbvs.h"
 #include "seisioobjinfo.h"
-#include "seisread.h"
-#include "seisselection.h"
 #include "seistrctr.h"
 #include "seistype.h"
-#include "separstr.h"
 #include "survinfo.h"
-#include "seiscbvs.h"
-#include "seispsioprov.h"
+#include "unitofmeasure.h"
+#include "zdomain.h"
 
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uiioobjselwritetransl.h"
+#include "uilistbox.h"
+#include "uiseisposprovgroup.h"
+#include "uiselsurvranges.h"
+#include "uistrings.h"
+#include "uiveldesc.h"
+
+#include "hiddenparam.h"
+
+
+// uiSeisSelDlg
 
 uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 {
@@ -55,7 +51,7 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 
 
 static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
-				const uiSeisSel::Setup& su )
+					const uiSeisSel::Setup& su )
 {
     IOObjContext ctxt( ct );
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
@@ -88,12 +84,10 @@ static uiIOObjSelDlg::Setup getSelDlgSU( const uiSeisSel::Setup& sssu )
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
     : uiIOObjSelDlg(p,getSelDlgSU(sssu),adaptCtio4Steering(c,sssu))
-    , compfld_(0)
+    , compfld_(nullptr)
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)
 {
-    setSurveyDefaultSubsel( sssu.survdefsubsel_ );
-
     const bool is2d = Seis::is2D( sssu.geom_ );
     const bool isps = Seis::isPS( sssu.geom_ );
 
@@ -151,8 +145,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !compfld_ )
 	return;
 
-    const int curitm = selgrp_->getListField()->currentItem();
-    if ( curitm < 0 )
+    if ( selgrp_->getListField()->currentItem() < 0 )
     {
 	compfld_->display( false );
 	return;
@@ -183,6 +176,7 @@ BufferString uiSeisSelDlg::getDataType()
     if ( steerpol_ )
 	return steerpol_ == uiSeisSel::Setup::NoSteering
 			  ? res : BufferString( sKey::Steering() );
+
     const IOObj* ioobj = ioObj();
     if ( ioobj )
 	res = ioobj->pars().find( sKey::Type() );
@@ -252,6 +246,24 @@ static IOObjContext getIOObjCtxt( const IOObjContext& c,
 }
 
 
+class uiSeisSelHP
+{
+public:
+
+uiSeisSelHP( uiSeisSel* p )
+    : domainChanged(p)
+    , zUnitChanged(p)
+{
+}
+
+    CNotifier<uiSeisSel,const ZDomain::Info&> domainChanged;
+    CNotifier<uiSeisSel,BufferString> zUnitChanged;
+    uiComboBox* othunitfld_ = nullptr;
+
+};
+
+static HiddenParam<uiSeisSel,uiSeisSelHP*> uiseisselhpmgr_( nullptr );
+
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
     : uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetupWithCtxt(su,ctxt))
@@ -259,27 +271,94 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
     , othdombox_(nullptr)
     , compnr_(0)
 {
+    auto* hppars = new uiSeisSelHP( this );
+    uiseisselhpmgr_.setParam( this, hppars );
+
     workctio_.ctxt_ = inctio_.ctxt_;
     if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
-    mkOthDomBox();
+    if ( !inctio_.ctxt_.forread_ && seissetup_.enabotherdomain_ )
+    {
+	const bool zistime = SI().zIsTime();
+	othdombox_ = new uiCheckBox( this, zistime ? uiStrings::sDepth()
+						   : uiStrings::sTime(),
+				     mCB(this,uiSeisSel,domainChgCB) );
+
+	const UnitOfMeasure* defunit = UnitOfMeasure::surveyDefDepthUnit();
+	const UnitOfMeasure* muom = UnitOfMeasure::meterUnit();
+	const UnitOfMeasure* ftuom = UnitOfMeasure::feetUnit();
+	const UnitOfMeasure* altunit = defunit == muom ? ftuom : muom;
+	const BufferStringSet units( defunit->name().str(),
+				     altunit->name().str() );
+	auto* othunitfld = new uiComboBox( this, units, nullptr );
+	othunitfld->setHSzPol( uiObject::Small );
+	mAttachCB( othunitfld->selectionChanged, uiSeisSel::zUnitChgCB );
+	hppars->othunitfld_ = othunitfld;
+
+	if ( zistime )
+	{
+	    othdombox_->attach( rightOf, endObj(false) );
+	    othunitfld->attach( rightOf, othdombox_ );
+	}
+	else
+	{
+	    othunitfld->attach( rightOf, endObj(false) );
+	    othdombox_->attach( rightOf, othunitfld );
+	}
+    }
+
+    mAttachCB( postFinalize(), uiSeisSel::initGrpCB );
 }
 
 
 void uiSeisSel::mkOthDomBox()
 {
-    if ( !inctio_.ctxt_.forread_ && seissetup_.enabotherdomain_ )
-    {
-	othdombox_ = new uiCheckBox( this, SI().zIsTime() ? uiStrings::sDepth()
-							  : uiStrings::sTime());
-	othdombox_->attach( rightOf, endObj(false) );
-    }
 }
 
 
 uiSeisSel::~uiSeisSel()
 {
+    detachAllNotifiers();
+    uiseisselhpmgr_.removeAndDeleteParam( this );
+}
+
+
+CNotifier<uiSeisSel,const ZDomain::Info&>& uiSeisSel::domainChanged()
+{
+    return uiseisselhpmgr_.getParam( this )->domainChanged;
+}
+
+
+CNotifier<uiSeisSel,BufferString>& uiSeisSel::zUnitChanged()
+{
+    return uiseisselhpmgr_.getParam( this )->zUnitChanged;
+}
+
+
+void uiSeisSel::initGrpCB( CallBacker* )
+{
+    if ( othdombox_ )
+	domainChgCB( nullptr );
+}
+
+
+void uiSeisSel::domainChgCB( CallBacker* )
+{
+    const bool zistime = SI().zIsTime();
+    const bool istransformed = othdombox_->isChecked();
+    const bool idepth = (zistime && istransformed) ||
+			(!zistime && !istransformed);
+    uiseisselhpmgr_.getParam( this )->othunitfld_->display( idepth );
+    domainChanged().trigger( getZDomain() );
+}
+
+
+void uiSeisSel::zUnitChgCB( CallBacker* )
+{
+    const BufferString unitstr(
+	    uiseisselhpmgr_.getParam( this )->othunitfld_->text() );
+    zUnitChanged().trigger( unitstr );
 }
 
 
@@ -319,13 +398,20 @@ uiSeisSel::Setup uiSeisSel::mkSetupWithCtxt( const uiSeisSel::Setup& su,
 }
 
 
-
 const char* uiSeisSel::getDefaultKey( Seis::GeomType gt ) const
 {
+    mDeclStaticString(defkey);
     const bool is2d = Seis::is2D( gt );
-    return IOPar::compKey( sKey::Default(),
-	is2d ? SeisTrcTranslatorGroup::sKeyDefault2D()
-	     : SeisTrcTranslatorGroup::sKeyDefault3D() );
+    const BufferString seiskey( IOPar::compKey( sKey::Default(),
+			is2d ? SeisTrcTranslatorGroup::sKeyDefault2D()
+			     : SeisTrcTranslatorGroup::sKeyDefault3D() ) );
+    mDynamicCastGet(const uiVelSel*,uivelsel,this);
+    if ( uivelsel )
+	defkey = IOPar::compKey( seiskey.str(), sKey::Velocity() );
+    else
+	defkey = seiskey;
+
+    return defkey.str();
 }
 
 
@@ -375,6 +461,7 @@ void uiSeisSel::setCompNr( int nr )
 	dlgiopar_.removeWithKey( sKey::Component() );
     else
 	dlgiopar_.set( sKey::Component(), nr );
+
     updateInput();
 }
 
@@ -386,6 +473,54 @@ const char* uiSeisSel::compNameFromKey( const char* txt ) const
 
     LineKey lk( txt );
     return uiIOObjSel::userNameFromKey( lk.attrName() );
+}
+
+
+const ZDomain::Info& uiSeisSel::getZDomain() const
+{
+    if ( !othdombox_ )
+	return SI().zDomainInfo();
+
+    const bool istransformed = othdombox_->isChecked();
+    if ( !istransformed )
+	return SI().zDomainInfo();
+
+    const ZDomain::Def& zddef = SI().zIsTime() ? ZDomain::Depth()
+					       : ZDomain::Time();
+    const ZDomain::Info zinfo( zddef, zUnit() );
+    if ( zinfo.isTime() )
+	return ZDomain::TWT();
+    if ( zinfo.isDepthMeter() )
+	return ZDomain::DepthMeter();
+    if ( zinfo.isDepthFeet() )
+	return ZDomain::DepthFeet();
+
+    return SI().zDomainInfo();
+}
+
+
+BufferString uiSeisSel::zUnit() const
+{
+    uiComboBox* othunitfld = uiseisselhpmgr_.getParam( this )->othunitfld_;
+    if ( !othunitfld )
+	return SI().zDomainInfo().unitStr_();
+
+    return BufferString( othunitfld->text() );
+}
+
+
+void uiSeisSel::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( !othdombox_ )
+	return;
+
+    NotifyStopper ns( othdombox_->activated );
+    othdombox_->setChecked( zinfo.def_ != SI().zDomain() );
+    if ( zinfo.isDepth() )
+	uiseisselhpmgr_.getParam( this )->othunitfld_->setCurrentItem(
+							zinfo.unitStr_() );
+
+    domainChgCB( nullptr );
 }
 
 
@@ -434,9 +569,17 @@ void uiSeisSel::updateInput()
     if ( !ioobjkey.isUdf() )
 	uiIOSelect::setInput( ioobjkey.toString() );
 
-    if ( seissetup_.selectcomp_ && !mIsUdf(compnr_) )
+    const bool needcomp = seissetup_.selectcomp_ && !mIsUdf(compnr_);
+    const bool needzdomain = othdombox_;
+    if ( !needcomp && !needzdomain )
+	return;
+
+    const SeisIOObjInfo info( ioobjkey );
+    if ( !info.isOK() )
+	return;
+
+    if ( needcomp )
     {
-	SeisIOObjInfo info( ioobjkey );
 	BufferStringSet compnms;
 	info.getComponentNames( compnms );
 	if ( !compnms.validIdx(compnr_) || compnms.size()<2 )
@@ -447,21 +590,9 @@ void uiSeisSel::updateInput()
 	text += compnms.get( compnr_ );
 	uiIOSelect::setInputText( text.buf() );
     }
-}
 
-
-void uiSeisSel::commitSucceeded()
-{
-    if ( !othdombox_ || !othdombox_->isChecked() ) return;
-
-    const ZDomain::Def* def = SI().zIsTime() ? &ZDomain::Depth()
-					     : &ZDomain::Time();
-    def->set( dlgiopar_ );
-    if ( inctio_.ioobj_ )
-    {
-	def->set( inctio_.ioobj_->pars() );
-	IOM().commitChanges( *inctio_.ioobj_ );
-    }
+    if ( needzdomain )
+	setZDomain( info.zDomain() );
 }
 
 
@@ -488,6 +619,20 @@ void uiSeisSel::updateOutputOpts( bool issteering )
 }
 
 
+void uiSeisSel::commitSucceeded()
+{
+    if ( inctio_.ctxt_.forread_ )
+	return;
+
+    getZDomain().fillPar( dlgiopar_ );
+    if ( inctio_.ioobj_ )
+    {
+	if ( getZDomain().fillPar(inctio_.ioobj_->pars()) )
+	    IOM().commitChanges( *inctio_.ioobj_ );
+    }
+}
+
+
 void uiSeisSel::processInput()
 {
     obtainIOObj();
@@ -501,8 +646,8 @@ void uiSeisSel::processInput()
 
 uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
-    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, workctio_, seissetup_ );
-    mAttachCB( dlg->afterPopup, uiSeisSel::dlgPopupCB );
+    auto* dlg = new uiSeisSelDlg( this, workctio_, seissetup_ );
+    dlg->usePar( dlgiopar_ );
     uiIOObjSelGrp* selgrp = dlg->selGrp();
     if ( selgrp )
     {
@@ -515,13 +660,9 @@ uiIOObjRetDlg* uiSeisSel::mkDlg()
 }
 
 
-void uiSeisSel::dlgPopupCB( CallBacker* cb )
+void uiSeisSel::dlgPopupCB( CallBacker* )
 {
-    mDynamicCastGet(uiSeisSelDlg*,dlg,cb)
-    if ( dlg )
-	dlg->usePar( dlgiopar_ );
 }
-
 
 
 // uiSteerCubeSel
@@ -530,16 +671,16 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
 						   const uiString& txt )
 {
     uiSeisSel::Setup sssu( is2d, false );
-    sssu.wantSteering().seltxt( txt );
-    sssu.withwriteopts( true ).withinserters( false );
+    sssu.wantSteering().allowsetsurvdefault( forread )
+	.withinserters( false ).withwriteopts( true ).seltxt( txt );
     return sssu;
 }
 
 
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, bool is2d, bool forread,
 				const uiString& txt )
-	: uiSeisSel(p,uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,forread),
-		    mkSeisSelSetupForSteering(is2d,forread,txt))
+    : uiSeisSel(p,uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,forread),
+		mkSeisSelSetupForSteering(is2d,forread,txt))
 {
 }
 
@@ -550,15 +691,17 @@ uiSteerCubeSel::~uiSteerCubeSel()
 
 const char* uiSteerCubeSel::getDefaultKey( Seis::GeomType gt ) const
 {
-    BufferString defkey = uiSeisSel::getDefaultKey( gt );
-    return IOPar::compKey( defkey, sKey::Steering() );
+    mDeclStaticString(defkey);
+    const BufferString seiskey( uiSeisSel::getDefaultKey(gt) );
+    defkey = IOPar::compKey( seiskey.str(), sKey::Steering() );
+    return defkey.str();
 }
 
 
 uiSeisPosProvGroup::uiSeisPosProvGroup( uiParent* p,
-					  const uiPosProvGroup::Setup& su )
+					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
-    , zrgfld_(0)
+    , zrgfld_(nullptr)
 {
     uiSeisSel::Setup ssu( Seis::Vol );
     ssu.seltxt( tr("Cube for positions") );

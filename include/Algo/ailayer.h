@@ -22,6 +22,7 @@ class AILayer;
 class ElasticLayer;
 class VTILayer;
 class HTILayer;
+class ZValueSeries;
 
 mGlobal(Algo) inline float cMinLayerThickness() { return 1e-4f; }
 mGlobal(Algo) inline const Interval<float> validThicknessRange();
@@ -32,6 +33,7 @@ mGlobal(Algo) inline const Interval<float> validImpRange();
 
 /*!
 \brief Base class for all Acoustic and Elastic impedance layers
+ This object uses SI values exclusively for all its properties
 */
 
 mExpClass(Algo) RefLayer
@@ -61,12 +63,12 @@ public:
 			     bool dofracrhocheck=true,
 			     bool dofracazicheck=true) const;
 
-    virtual float	getThickness() const			= 0;
-    virtual float	getPVel() const				= 0;
-    virtual float	getDen() const				= 0;
-    virtual float	getSVel() const		{ return mUdf(float); }
-    virtual float	getFracRho() const	{ return mUdf(float); }
-    virtual float	getFracAzi() const	{ return mUdf(float); }
+    virtual float	getThickness() const			= 0; // meter
+    virtual float	getPVel() const				= 0; // m/s
+    virtual float	getDen() const				= 0; // kg/m3
+    virtual float	getSVel() const		{ return mUdf(float); } // m/s
+    virtual float	getFracRho() const	{ return mUdf(float); } // Ratio
+    virtual float	getFracAzi() const	{ return mUdf(float); } // Rad
     virtual float	getAI() const				= 0;
     virtual float	getSI() const		{ return mUdf(float); }
 
@@ -76,6 +78,7 @@ public:
     virtual RefLayer&	setSVel(float)		{ return *this; }
     virtual RefLayer&	setFracRho(float)	{ return *this; }
     virtual RefLayer&	setFracAzi(float)	{ return *this; }
+			// All sets functions must provide values in SI units
 
     virtual bool	isValidThickness() const		= 0;
     virtual bool	isValidVel() const			= 0;
@@ -262,7 +265,10 @@ private:
 };
 
 
-/*!\brief A table of elastic prop layers with processing utilities*/
+/*!\brief A table of elastic prop layers with processing utilities
+  Like the RefLayer class, uses SI values exclusively
+ */
+
 mExpClass(Algo) ElasticModel : public ObjectSet<RefLayer>
 {
 public:
@@ -344,20 +350,40 @@ public:
 		  valid input layer */
 
     bool	getUpscaledBackus(RefLayer&,float theta=0.) const;
-		/* computes an upscaled elastic layer from an elastic model
+		/*!< computes an upscaled elastic layer from an elastic model
 		   using backus upscaling method. The thickness of the input and
 		   output remains constant.
 		   returns false if the input model does not contain a single
 		   valid input layer
 		   \param theta Incidence angle in radians */
 
+    mDeprecated("Use ZValueSeries")
     bool	createFromVel(const ZSampling& zrange,
 			      const float* pvel,const float* svel=nullptr,
 			      const float* den=nullptr);
+    bool	createFromVel(const ZValueSeries& zsamp,const float* pvel,
+			      const float* svel=nullptr,
+			      const float* den=nullptr);
+		/*!< creates an ElasticModel from sampled interval velocities
+		  /param zsamp Times in zsamp must be TWT in seconds
+			       Depths in zsamp must be TVDSD in meters
+		  /param pvel compressional velocities in m/s
+		  /param svel shear velocities in m/s
+		  /param den  bulk density in kg/m3  */
 
+    mDeprecated("Use ZValueSeries")
     bool	createFromAI(const ZSampling& zrange,const float* ai,
 			     const float* si =nullptr,
 			     const float* den =nullptr);
+    bool	createFromAI(const ZValueSeries& zsamp,const float* ai,
+			     const float* si =nullptr,
+			     const float* den =nullptr);
+		/*!< creates an ElasticModel from sampled impedance
+		  /param zsamp Times in zsamp must be TWT in seconds
+			       Depths in zsamp must be TVDSD in meters
+		  /param ai Acoustic Impedance in SI units
+		  /param si Shear Impedance in SI units
+		  /param den  bulk density in kg/m3  */
 
     float	getLayerDepth(int layerix) const;
 		//<!* Return depth of the middle of the layer
@@ -376,6 +402,14 @@ private:
 			   TypeSet<Interval<int> >& blocks) const;
 		/* Gives layer index distributions of similar properties */
 
+    void	removeSpuriousLayers(float zstep,bool zistime);
+		/*!< If a layer thickness is strictly identical to zstep,
+		   maybe split that layer over the last/previous layers
+		   /param zstep sampling rate in either time or depth (meter)
+		   /param zistime ZDomain corresponding to zstep
+		 */
+
+    mDeprecated("Provide zistime")
     void	removeSpuriousLayers(float zstep);
 		/* If a layer thickness is strictly identical to zstep,
 		   maybe split that layer over the last/previous layers */
@@ -399,13 +433,19 @@ public:
 
 
 inline const Interval<float> validThicknessRange()
-{ return Interval<float> ( cMinLayerThickness(), mUdf(float) ); }
+{
+    return Interval<float> ( cMinLayerThickness(), mUdf(float) );
+}
 
 inline const Interval<float> validDensityRange()
-{ return Interval<float> ( 100.f, 10000.f ); }
+{
+    return Interval<float> ( 100.f, 10000.f );
+}
 
 inline const Interval<float> validVelocityRange()
-{ return Interval<float> ( 10.f, 10000.f ); }
+{
+    return Interval<float> ( 100.f, 20000.f );
+}
 
 inline const Interval<float> validImpRange()
 {

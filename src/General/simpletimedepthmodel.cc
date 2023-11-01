@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "mnemonics.h"
 #include "od_stream.h"
 #include "unitofmeasure.h"
+#include "zvalseriesimpl.h"
+
 
 mDefSimpleTranslators(SimpleTimeDepthModel,"Simple Time-Depth Model",od,Mdl)
 
@@ -28,6 +30,9 @@ SimpleTimeDepthModel::SimpleTimeDepthModel()
 SimpleTimeDepthModel::SimpleTimeDepthModel( const MultiID& id )
     : TimeDepthModel()
 {
+    if ( id.isUdf() )
+	return;
+
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( ioobj )
 	readFromFile( ioobj->fullUserExpr(true) );
@@ -35,10 +40,13 @@ SimpleTimeDepthModel::SimpleTimeDepthModel( const MultiID& id )
 
 
 bool SimpleTimeDepthModel::isOK() const
-{ return rawtimes_.size() > 1 && rawtimes_.size() == rawdepths_.size(); }
+{
+    return rawtimes_.size() > 1 && rawtimes_.size() == rawdepths_.size();
+}
+
 
 void SimpleTimeDepthModel::setRawData( const TypeSet<float>& times,
-					 const TypeSet<float>& depths )
+				       const TypeSet<float>& depths )
 {
     rawtimes_ = times;
     rawdepths_ = depths;
@@ -48,8 +56,7 @@ void SimpleTimeDepthModel::setRawData( const TypeSet<float>& times,
 
 bool SimpleTimeDepthModel::readFromFile( const char* fnm )
 {
-    rawtimes_.erase();
-    rawdepths_.erase();
+    TypeSet<float> tarr, darr;
 
     od_istream strm( fnm );
     ascistream astrm( strm );
@@ -59,17 +66,26 @@ bool SimpleTimeDepthModel::readFromFile( const char* fnm )
     if ( !pars.get(sKey::NrValues(),sz) || sz < 2 )
 	return false;
 
-    const UnitOfMeasure* zuom = UnitOfMeasure::surveyDefZStorageUnit();
+    const UnitOfMeasure* tuom = getTimeUnit();
+    const UnitOfMeasure* zuom = getDepthUnit();
     BufferString zunit;
-    const UnitOfMeasure* outzuom = nullptr;
-    if ( pars.get(sKey::DepthUnit(),zunit) && !zunit.isEmpty() )
-	outzuom =  UoMR().get( zunit );
+    const UnitOfMeasure* retuom;
+    const UnitOfMeasure* asctuom = tuom;
+    if ( pars.get(sKey::TimeUnit(),zunit) && !zunit.isEmpty() )
+    {
+	retuom =  UoMR().get( zunit );
+	if ( retuom && retuom->isCompatibleWith(*tuom) )
+	    asctuom = retuom;
+    }
 
-    const UnitOfMeasure* tmuom = UnitOfMeasure::surveyDefTimeStorageUnit();
-    BufferString tmunit;
-    const UnitOfMeasure* outtmuom = nullptr;
-    if ( pars.get(sKey::DepthUnit(),tmunit) && !tmunit.isEmpty() )
-	outtmuom =  UoMR().get( tmunit );
+    zunit.setEmpty();
+    const UnitOfMeasure* asczuom = zuom;
+    if ( pars.get(sKey::DepthUnit(),zunit) && !zunit.isEmpty() )
+    {
+	retuom =  UoMR().get( zunit );
+	if ( retuom && retuom->isCompatibleWith(*zuom) )
+	    asczuom = retuom;
+    }
 
     float tval, dval;
     for ( int idx=0; idx<sz; idx++ )
@@ -78,12 +94,27 @@ bool SimpleTimeDepthModel::readFromFile( const char* fnm )
 	if( !strm.isOK() )
 	    break;
 
-	rawtimes_ += getConvertedValue( tval, tmuom, outtmuom );
-	rawdepths_ += getConvertedValue( dval, zuom, outzuom );
+	if ( mIsUdf(tval) || mIsUdf(dval) )
+	    continue;
+
+	tarr += getConvertedValue( tval, asctuom, tuom );
+	darr += getConvertedValue( dval, asczuom, zuom );
     }
 
-    setModel( rawdepths_.arr(), rawtimes_.arr(), rawtimes_.size() );
+    setRawData( tarr, darr );
     return isOK();
+}
+
+
+const UnitOfMeasure* SimpleTimeDepthModel::getTimeUnit()
+{
+    return UnitOfMeasure::surveyDefTimeStorageUnit();
+}
+
+
+const UnitOfMeasure* SimpleTimeDepthModel::getDepthUnit()
+{
+    return UnitOfMeasure::surveyDefDepthUnit();
 }
 
 
@@ -101,11 +132,8 @@ bool SimpleTimeDepthModel::writeToFile( const char* fnm ) const
 
     od_ostream strm( fnm );
     IOPar pars;
-    pars.set( sKey::TimeUnit(),
-	    UoMR().getInternalFor(
-			UnitOfMeasureRepository::PropType::Time)->getLabel() );
-    pars.set( sKey::DepthUnit(),
-			    UnitOfMeasure::surveyDefDepthUnit()->getLabel() );
+    pars.set( sKey::TimeUnit(), getTimeUnit()->getLabel() );
+    pars.set( sKey::DepthUnit(), getDepthUnit()->getLabel() );
     pars.set( sKey::NrValues(), rawtimes_.size() );
     pars.write( strm, "Simple Time-Depth Model" );
     for ( int idx=0; idx<rawtimes_.size(); idx++ )
@@ -114,6 +142,8 @@ bool SimpleTimeDepthModel::writeToFile( const char* fnm ) const
     return true;
 }
 
+
+// SimpleTimeDepthTransform
 
 SimpleTimeDepthTransform::SimpleTimeDepthTransform( const ZDomain::Def& from,
 						    const ZDomain::Def& to )
@@ -139,36 +169,35 @@ SimpleTimeDepthTransform::~SimpleTimeDepthTransform()
 
 bool SimpleTimeDepthTransform::isOK() const
 {
-    return tdmodel_ && tdmodel_->isOK();
+    if ( !tdmodel_ || !tdmodel_->isOK() )
+	return false;
+
+    return ZAxisTransform::isOK();
 }
 
 
+void SimpleTimeDepthTransform::doTransform( const SamplingData<float>&,
+				    int, float*, bool ) const
+{}
+
+
 void SimpleTimeDepthTransform::doTransform( const SamplingData<float>& sd,
-				    int ressz, float* res, bool t2d ) const
+					    const ZDomain::Info& sdzinfo,
+					    int sz, float* res ) const
 {
-    const bool survistime = SI().zIsTime();
-    const bool depthsinfeet = SI().depthsInFeet();
-
-    for ( int idx=0; idx<ressz; idx++ )
+    if ( sd.isUdf() )
     {
-	if ( sd.isUdf() )
-	{
-	    res[idx] = mUdf(float);
-	    continue;
-	}
-
-	float inp = sd.atIndex( idx );
-	if ( t2d )
-	{
-	    res[idx] = tdmodel_->getDepth( inp );
-	    if ( survistime && depthsinfeet ) res[idx] *= mToFeetFactorF;
-	}
-	else
-	{
-	    if ( survistime && depthsinfeet ) inp *= mFromFeetFactorF;
-	    res[idx] = tdmodel_->getTime( inp );
-	}
+	OD::sysMemValueSet( res, mUdf(float), sz );
+	return;
     }
+
+    const RegularZValues zvals( sd, sz, sdzinfo );
+    if ( zvals.isTime() )
+	for ( od_int64 idx=0; idx<sz; idx++ )
+	    res[idx] = tdmodel_->getDepth( float (zvals[idx]) );
+    else
+	for ( od_int64 idx=0; idx<sz; idx++ )
+	    res[idx] = tdmodel_->getTime( float (zvals[idx]) );
 }
 
 
@@ -206,6 +235,68 @@ bool SimpleTimeDepthTransform::usePar( const IOPar& par )
 }
 
 
+ZSampling SimpleTimeDepthTransform::getZInterval_( const ZSampling& zsamp,
+						   const ZDomain::Info& from,
+						   const ZDomain::Info& to,
+						   bool makenice ) const
+{
+    ZSampling ret = getWorkZSampling( zsamp, from, to );
+    if ( makenice && from != to )
+    {
+	const int userfac = to.def_.userFactor();
+	float zstep = ret.step;
+	zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
+	zstep /= userfac;
+	ret.step = zstep;
+
+	const Interval<float>& rg = ret;
+	const int startidx = rg.indexOnOrAfter( rg.start, zstep );
+	ret.start = zstep * mNINT32( rg.atIndex( startidx, zstep ) / zstep );
+	const int stopidx = rg.indexOnOrAfter( rg.stop, zstep );
+	ret.stop = zstep * mNINT32( rg.atIndex( stopidx, zstep ) / zstep );
+    }
+
+    return ret;
+}
+
+
+ZSampling SimpleTimeDepthTransform::getZInterval_( bool isfrom,
+						   bool makenice ) const
+{
+    const ZDomain::Info& from = SI().zDomainInfo();
+    const ZDomain::Info& to = isfrom ? fromZDomainInfo() : toZDomainInfo();
+    return getZInterval_( SI().zRange(true), from, to, makenice );
+}
+
+
+ZSampling SimpleTimeDepthTransform::getWorkZSampling( const ZSampling& zsamp,
+						const ZDomain::Info& from,
+						const ZDomain::Info& to ) const
+{
+    if ( !isOK() )
+	return ZSampling::udf();
+
+    const int nrsamples = zsamp.nrSteps();
+    ZSampling ret = zsamp;
+    if ( from.isTime() && to.isDepth() )
+    {
+	ret.start = tdmodel_->getDepth( ret.start );
+	ret.stop = tdmodel_->getDepth( ret.stop );
+    }
+    else if ( from.isDepth() && to.isTime() )
+    {
+	ret.start = tdmodel_->getTime( ret.start );
+	ret.stop = tdmodel_->getTime( ret.stop );
+    }
+
+    if ( to != from )
+	ret.step = (ret.width()) / (nrsamples==0 ? 1 : nrsamples);
+
+    return ret;
+}
+
+
+// Simplet2DTransform
 
 SimpleT2DTransform::SimpleT2DTransform()
     : SimpleTimeDepthTransform(ZDomain::Time(),ZDomain::Depth())
@@ -221,47 +312,30 @@ SimpleT2DTransform::SimpleT2DTransform( const MultiID& id )
 
 void SimpleT2DTransform::transformTrc( const TrcKey&,
 				     const SamplingData<float>& sd,
-				     int ressz, float* res ) const
+				     int sz, float* res ) const
 {
-    doTransform( sd, ressz, res, true );
+    doTransform( sd, fromZDomainInfo(), sz, res );
 }
 
 
 
 void SimpleT2DTransform::transformTrcBack( const TrcKey&,
 					 const SamplingData<float>& sd,
-					 int ressz, float* res ) const
+					 int sz, float* res ) const
 {
-    doTransform( sd, ressz, res, false );
+    doTransform( sd, toZDomainInfo(), sz, res );
 }
 
 
 float SimpleT2DTransform::getGoodZStep() const
 {
-    if ( !SI().zIsTime() )
-	return SI().zRange(true).step;
-
-    Interval<float> zrg = SI().zRange( true );
-    zrg.start = transform( BinIDValue(0,0,zrg.start) );
-    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
-    const int userfac = toZDomainInfo().userFactor();
-    const int nrsteps = SI().zRange( true ).nrSteps();
-    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
-    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
-    zstep /= userfac;
-    return zstep;
+    return getZInterval_( false, true ).step;
 }
 
 
-Interval<float> SimpleT2DTransform::getZInterval( bool time ) const
+Interval<float> SimpleT2DTransform::getZInterval( bool from ) const
 {
-    Interval<float> zrg = getZRange( time );
-    const float step = getGoodZStep();
-    const int userfac = toZDomainInfo().userFactor();
-    const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
-    zrg.stop = zrg.atIndex( stopidx, step );
-    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
-    return zrg;
+    return getZInterval_( from, true );
 }
 
 
@@ -303,47 +377,30 @@ SimpleD2TTransform::SimpleD2TTransform( const MultiID& id )
 
 void SimpleD2TTransform::transformTrc( const TrcKey&,
 				     const SamplingData<float>& sd,
-				     int ressz, float* res ) const
+				     int sz, float* res ) const
 {
-    doTransform( sd, ressz, res, false );
+    doTransform( sd, fromZDomainInfo(), sz, res );
 }
 
 
 
 void SimpleD2TTransform::transformTrcBack( const TrcKey&,
 					 const SamplingData<float>& sd,
-					 int ressz, float* res ) const
+					 int sz, float* res ) const
 {
-    doTransform( sd, ressz, res, true );
+    doTransform( sd, toZDomainInfo(), sz, res );
 }
 
 
 float SimpleD2TTransform::getGoodZStep() const
 {
-    if ( SI().zIsTime() )
-	return SI().zRange(true).step;
-
-    Interval<float> zrg = SI().zRange( true );
-    zrg.start = transform( BinIDValue(0,0,zrg.start) );
-    zrg.stop = transform( BinIDValue(0,0,zrg.stop) );
-    const int userfac = toZDomainInfo().userFactor();
-    const int nrsteps = SI().zRange( true ).nrSteps();
-    float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
-    zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
-    zstep /= userfac;
-    return zstep;
+    return getZInterval_( false, true ).step;
 }
 
 
-Interval<float> SimpleD2TTransform::getZInterval( bool depth ) const
+Interval<float> SimpleD2TTransform::getZInterval( bool from ) const
 {
-    Interval<float> zrg = getZRange( depth );
-    const float step = getGoodZStep();
-    const int userfac = toZDomainInfo().userFactor();
-    const int stopidx = zrg.indexOnOrAfter( zrg.stop, step );
-    zrg.stop = zrg.atIndex( stopidx, step );
-    zrg.stop = mCast(float,mNINT32(zrg.stop*userfac))/userfac;
-    return zrg;
+    return getZInterval_( from, true );
 }
 
 
@@ -370,21 +427,21 @@ Interval<float> SimpleD2TTransform::getZRange( bool depth ) const
 }
 
 
+// SimpleTimeDepthAscIO
 
 Table::FormatDesc* SimpleTimeDepthAscIO::getDesc( bool withunitfld )
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "TimeDepthModel" );
-    fd->headerinfos_ +=
-	new Table::TargetInfo( "Undefined Value",
-				StringInpSpec(sKey::FloatUdf()),
-				Table::Required );
+    auto* fd = new Table::FormatDesc( "TimeDepthModel" );
+    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+						StringInpSpec(sKey::FloatUdf()),
+						Table::Required );
     createDescBody( fd, withunitfld );
     return fd;
 }
 
 
 void SimpleTimeDepthAscIO::createDescBody( Table::FormatDesc* fd,
-					  bool withunits )
+					   bool withunits )
 {
     fd->bodyinfos_ += Table::TargetInfo::mkTimePosition( true, withunits );
     fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true, withunits );
@@ -402,23 +459,23 @@ bool SimpleTimeDepthAscIO::get( od_istream& strm,
 				SimpleTimeDepthModel& mdl ) const
 {
     TypeSet<float> tvals, dvals;
+    const UnitOfMeasure* twtascuom = Table::AscIO::getTimeUnit();
+    const UnitOfMeasure* zascuom = Table::AscIO::getDepthUnit();
+    const UnitOfMeasure* twtuom = SimpleTimeDepthModel::getTimeUnit();
+    const UnitOfMeasure* zuom = SimpleTimeDepthModel::getDepthUnit();
     while( true )
     {
 	const int ret = getNextBodyVals( strm );
 	if ( ret < 0 ) return false;
 	if ( ret == 0 ) break;
 
-	float tval = getFValue( 0 );
-	// time values are in internal standard i.e. (s) at this point
-	const UnitOfMeasure* inpuom = UnitOfMeasure::surveyDefTimeStorageUnit();
-	const UnitOfMeasure* outuom = UnitOfMeasure::surveyDefTimeUnit();
-	convValue( tval, inpuom, outuom );
+	const float tval = getFValue( 0 );
 	const float dval = getFValue( 1 );
 	if ( mIsUdf(tval) || mIsUdf(dval) )
 	    continue;
 
-	tvals += tval;
-	dvals += dval;
+	tvals += getConvertedValue( tval, twtascuom, twtuom );
+	dvals += getConvertedValue( dval, zascuom, zuom );
     }
 
     mdl.setRawData( tvals, dvals );

@@ -1079,7 +1079,6 @@ bool Seis2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* taskr )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this,Seis2DDisplay,dataTransformCB) );
 	datatransform_->unRef();
-	datatransform_ = 0;
     }
 
     datatransform_ = zat;
@@ -1117,7 +1116,11 @@ void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 {
     // TODO: handle update trcrg
     if ( updatez && datatransform_ )
-	setZRange( datatransform_->getZInterval(false) );
+    {
+	StepInterval<float> zrg = datatransform_->getZInterval( false );
+	zrg.step = datatransform_->getGoodZStep();
+	setZRange( zrg );
+    }
 }
 
 

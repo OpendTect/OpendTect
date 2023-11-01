@@ -8,14 +8,15 @@ ________________________________________________________________________
 -*/
 
 #include "batchprog.h"
-#include "testprog.h"
+
+#include "binid.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "moddepmgr.h"
 #include "prestackmutedef.h"
 #include "prestackmutedeftransl.h"
-#include "survinfo.h"
+#include "testprog.h"
 
 static const char* sKeyTestMute41()	{ return "Mute for V4.1"; }
 static const char* sKeyTestMute44()	{ return "Mute for V4.4"; }

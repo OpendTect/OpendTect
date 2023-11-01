@@ -9,14 +9,9 @@ ________________________________________________________________________
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
-#include "uiodscenemgr.h"
-#include "uiodmenumgr.h"
-#include "uiodtreeitem.h"
 
-#include "uiattribcrossplot.h"
+#include "uiactiverunningproc.h"
 #include "uiattribpartserv.h"
-#include "uiconvpos.h"
-#include "uidesktopservices.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uifiledlg.h"
@@ -26,74 +21,71 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uinlapartserv.h"
 #include "uiodemsurftreeitem.h"
-#include "uiodviewer2dposdlg.h"
+#include "uiodmenumgr.h"
+#include "uiodscenemgr.h"
+#include "uiodstratlayermodelmgr.h"
+#include "uiodtreeitem.h"
 #include "uiodviewer2dmgr.h"
+#include "uiodviewer2dposdlg.h"
 #include "uipickpartserv.h"
 #include "uiseispartserv.h"
 #include "uistereodlg.h"
-#include "uiodstratlayermodelmgr.h"
-#include "uistrings.h"
-#include "uisurvinfoed.h"
 #include "uisurvey.h"
+#include "uisurvinfoed.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
-#include "uiveldesc.h"
-#include "uivispartserv.h"
 #include "uivisdatapointsetdisplaymgr.h"
+#include "uivispartserv.h"
 #include "uivolprocpartserv.h"
-#include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
+#include "uiwellpartserv.h"
+#include "uizaxistransform.h"
+
 #include "visfaultdisplay.h"
 #include "visfaultsticksetdisplay.h"
-#include "vishorizondisplay.h"
 #include "vishorizon2ddisplay.h"
-#include "vispicksetdisplay.h"
-#include "visplanedatadisplay.h"
+#include "vishorizondisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
-#include "visselman.h"
 #include "visseis2ddisplay.h"
-#include "vistexturechannels.h"
+#include "visselman.h"
 
 #include "attribdescset.h"
 #include "bendpointfinder.h"
 #include "datacoldef.h"
 #include "datapointset.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"
-#include "emhorizon2d.h"
-#include "emhorizon3d.h"
-#include "emseedpicker.h"
-#include "emsurfacetr.h"
 #include "emtracker.h"
 #include "externalattrib.h"
 #include "file.h"
 #include "filepath.h"
-#include "genc.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
+#include "od_helpids.h"
 #include "oddirs.h"
 #include "odsession.h"
 #include "pickset.h"
-#include "posinfo2d.h"
 #include "posvecdataset.h"
 #include "randomlinegeom.h"
 #include "unitofmeasure.h"
-#include "od_helpids.h"
+#include "zaxistransform.h"
 
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
-	: appl_(a)
-	, applservice_(*new uiODApplService(&a,*this))
-	, nlaserv_(0)
-	, attribSetChg(this)
-	, getOtherFormatData(this)
-	, otherformatattrib_(-1)
-	, visdpsdispmgr_(0)
-	, mousecursorexchange_( *new MouseCursorExchange )
-	, dispatcher_(*new uiODApplMgrDispatcher(*this,&appl_))
-	, attrvishandler_(*new uiODApplMgrAttrVisHandler(*this,&appl_))
+    : appl_(a)
+    , applservice_(*new uiODApplService(&a,*this))
+    , nlaserv_(0)
+    , attribSetChg(this)
+    , getOtherFormatData(this)
+    , otherformatattrib_(-1)
+    , visdpsdispmgr_(0)
+    , mousecursorexchange_( *new MouseCursorExchange )
+    , dispatcher_(*new uiODApplMgrDispatcher(*this,&appl_))
+    , attrvishandler_(*new uiODApplMgrAttrVisHandler(*this,&appl_))
 {
     pickserv_ = new uiPickPartServer( applservice_ );
     visserv_ = new uiVisPartServer( applservice_ );
@@ -418,14 +410,15 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
     }
 
     dlg.setGroup( uitrans );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     RefMan<ZAxisTransform> ztrans = uitrans->getSelection();
     if ( !ztrans )
 	return;
 
     StepInterval<float> zsampling;
-    if ( !uitrans->getTargetSampling( zsampling ) )
+    if ( !uitrans->getTargetSampling(zsampling) )
     {
 	pErrMsg( "Cannot get sampling.");
 	return;

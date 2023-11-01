@@ -9,15 +9,13 @@ ________________________________________________________________________
 
 #include "velocitypicks.h"
 
-#include "velocitycalc.h"
-
 #include "binidvalset.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "emhorizon3d.h"
 #include "picksettr.h"
 #include "pickset.h"
 #include "ptrman.h"
@@ -25,9 +23,13 @@ ________________________________________________________________________
 #include "smoother1d.h"
 #include "settings.h"
 #include "survinfo.h"
-#include "velocitypicksundo.h"
-#include "zdomain.h"
 #include "uistrings.h"
+#include "unitofmeasure.h"
+#include "veldesc.h"
+#include "velocitycalc.h"
+#include "velocitypicksundo.h"
+
+#include "hiddenparam.h"
 
 #define mDepthIndex	0
 #define mVelIndex	1
@@ -36,11 +38,10 @@ namespace Vel
 {
 
 mDefineEnumUtils( Picks, PickType, "Pick types" )
-{ "RMO", "RMS", "Delta", "Epsilon", "Eta", 0 };
+{ "RMO", "RMS", "Delta", "Epsilon", "Eta", nullptr };
 
 
-Pick::Pick( float depth, float vel, float offset,
-			    EM::ObjectID oid )
+Pick::Pick( float depth, float vel, float offset, EM::ObjectID oid )
     : depth_( depth )
     , vel_( vel )
     , offset_( offset )
@@ -77,39 +78,44 @@ const char* Picks::sKeyHorizonPrefix()	{ return "Horizon "; }
 const char* Picks::sKeyPickType()	{ return "Pick Type"; }
 
 
+static HiddenParam<Picks,const ZDomain::Info*> velpickszinfomgr_(nullptr);
+
 const char* Picks::sKeyIsTime()	{ return "Z is time"; }
 
-Picks::Picks()
-    : change(this)
+Picks::Picks( const ZDomain::Info* zdinfo )
+    : picks_(2,1)
+    , snapper_(SI().zRange(true))
+    , changed_(false)
+    , smoother_(nullptr)
+    , undo_(nullptr)
+    , refoffset_(0.f)
+    , color_(OD::getRandomColor(false))
+    , change(this)
     , changelate(this)
-    , picks_( 2, 1 )
-    , snapper_( SI().zRange(true) )
-    , changed_( false )
-    , zit_( SI().zIsTime() )
-    , picktype_( SI().zIsTime() ? RMS : RMO )
-    , smoother_( 0 )
-    , undo_( 0 )
-    , refoffset_(0)
-    , color_( OD::getRandomColor(false) )
 {
+    auto* zdomaininfo = new ZDomain::Info( zdinfo ? *zdinfo
+						  : SI().zDomainInfo() );
+    velpickszinfomgr_.setParam( this, zdomaininfo );
+    picktype_ = zdomaininfo->isTime() ? RMS : RMO;
+    zit_ = zdomaininfo->isTime();
+
     getDefaultColor( color_ );
+    horizons_.setNullAllowed();
     picks_.allowDuplicates( true );
     VPM().velpicks_ += this;
-    horizons_.allowNull( true );
+}
+
+
+Picks::Picks()
+    : Picks(&SI().zDomainInfo())
+{
 }
 
 
 Picks::Picks( bool zit )
-    : change(this)
-    , changelate(this)
-    , picks_( 2, 1 )
-    , snapper_( SI().zRange(true) )
-    , changed_( false )
-    , zit_( zit )
-    , picktype_( zit ? RMS : RMO )
-    , smoother_( 0 )
-    , undo_( 0 )
-    , color_( OD::getRandomColor(false) )
+    : Picks(zit ? &ZDomain::TWT()
+		: (SI().depthsInFeet() ? &ZDomain::DepthFeet()
+				       : &ZDomain::DepthMeter()))
 {
     getDefaultColor( color_ );
 
@@ -124,6 +130,7 @@ Picks::~Picks()
     VPM().velpicks_ -= this;
     delete smoother_;
     delete undo_;
+    velpickszinfomgr_.removeAndDeleteParam( this );
 
     removeHorizons();
 }
@@ -143,6 +150,44 @@ void Picks::removeHorizons()
 
 const char* Picks::zDomain() const
 { return zit_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth(); }
+
+
+const ZDomain::Info* Picks::zdomaininfo_()
+{
+    return velpickszinfomgr_.getParam( this );
+}
+
+
+const ZDomain::Info& Picks::zDomainInfo() const
+{
+    return *mSelf().zdomaininfo_();
+}
+
+
+bool Picks::zInMeter() const
+{
+    return zDomainInfo().isDepthMeter();
+}
+
+
+bool Picks::zInFeet() const
+{
+    return zDomainInfo().isDepthFeet();
+}
+
+
+const UnitOfMeasure* Picks::zUnit() const
+{
+    return UnitOfMeasure::zUnit( zDomainInfo() );
+}
+
+
+const UnitOfMeasure* Picks::velUnit() const
+{
+    if ( pickType() == RMS )
+	return UnitOfMeasure::surveyDefVelUnit();
+    return nullptr;
+}
 
 
 Picks::PickType Picks::pickType() const
@@ -440,6 +485,19 @@ bool Picks::store( const IOObj* ioobjarg )
 }
 
 
+Picks& Picks::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomainInfo() )
+	return *this;
+
+    velpickszinfomgr_.deleteAndNullPtrParam( this );
+    auto* zdomaininfo = new ZDomain::Info( zinfo );
+    velpickszinfomgr_.setParam( this, zdomaininfo );
+    zit_ = zdomaininfo->isTime();
+    return *this;
+}
+
+
 void Picks::fillIOObjPar( IOPar& par ) const
 {
     par.setEmpty();
@@ -447,7 +505,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
     par.set( sKey::Type(), sKeyVelocityPicks() );
     par.set( sKeyGatherID(), gatherid_ );
     par.set( sKeyPickType(), getPickTypeString( picktype_ ) );
-    par.set( ZDomain::sKey(), zDomain() );
+    zDomainInfo().fillPar( par );
 }
 
 
@@ -476,35 +534,43 @@ void Picks::fillPar( IOPar& par ) const
 	par.set( key.buf(), horizons_[idx]->multiID() );
     }
 
-    par.setYN(sKeyIsTime(),zit_);
-    par.set( sKeyPickType(), getPickTypeString( picktype_ ) );
-    if ( smoother_ ) smoother_->fillPar( par );
-    par.set(sKeyRefOffset(),refoffset_);
-}
+    zDomainInfo().fillPar( par );
+mStartAllowDeprecatedSection
+    par.setYN( sKeyIsTime(), zIsTime() ); //for backward readability
+mStopAllowDeprecatedSection
+    if ( pickType() == RMS )
+	par.set( VelocityDesc::sKeyVelocityUnit(), velUnit()->name().str() );
 
+    par.set( sKeyPickType(), getPickTypeString(picktype_) );
+    if ( smoother_ )
+	smoother_->fillPar( par );
+
+    par.set( sKeyRefOffset(), refoffset_ );
+}
 
 
 bool Picks::usePar( const IOPar& par )
 {
-    if ( !par.getYN( sKeyIsTime(), zit_ ) )
-	return false;
+    const ZDomain::Info* zinfo = ZDomain::get( par );
+    if ( zinfo && (zinfo->isTime() || zinfo->isDepth()) )
+	setZDomain( *zinfo );
 
     const BufferString typestr = par.find( sKeyPickType() );
     if ( !typestr.isEmpty() )
     {
-	if ( !parseEnumPickType(typestr,picktype_ ) )
+	if ( !parseEnumPickType(typestr,picktype_) )
 	    return false;
     }
     else
-	picktype_ = zit_ ? RMS : RMO;
+	picktype_ = zIsTime() ? RMS : RMO;
 
-    if ( !par.get( sKeyRefOffset(), refoffset_ ) )
+    if ( !par.get(sKeyRefOffset(),refoffset_) )
 	return false;
 
     if ( !smoother_ )
 	smoother_ = new Smoother1D<float>;
 
-    if ( !smoother_->usePar( par ) )
+    if ( !smoother_->usePar(par) )
 	deleteAndNullPtr( smoother_ );
 
     removeHorizons();
@@ -516,7 +582,7 @@ bool Picks::usePar( const IOPar& par )
 	BufferString key = sKeyHorizonPrefix();
 	key += idx;
 	MultiID mid;
-	if ( !par.get( key.buf(), mid ) )
+	if ( !par.get(key.buf(),mid) )
 	    continue;
 
 	addHorizon( mid, true );
@@ -591,7 +657,8 @@ void Picks::addHorizon( const MultiID& mid, bool addzeroonfail )
     mDynamicCastGet( EM::Horizon3D*, hor3d, emobj.ptr() );
     if ( !hor3d )
     {
-	if ( addzeroonfail ) horizons_ += 0;
+	if ( addzeroonfail )
+	    horizons_ += nullptr;
 	return;
     }
 
@@ -646,7 +713,7 @@ EM::Horizon3D* Picks::getHorizon( EM::ObjectID id )
 	    return horizons_[idx];
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -771,7 +838,7 @@ bool Picks::load( const IOObj* ioobj )
 {
     picks_.setEmpty();
 
-    if ( !useIOObjPar( ioobj->pars() ) )
+    if ( !useIOObjPar(ioobj->pars()) )
     {
 	errmsg_ = "Internal: No valid storage selected";
 	return false;
@@ -780,12 +847,12 @@ bool Picks::load( const IOObj* ioobj )
     storageid_ = ioobj->key();
 
     RefMan<::Pick::Set> ps = new ::Pick::Set( ioobj->name() );
-    if ( !PickSetTranslator::retrieve( *ps, ioobj, true, errmsg_ ) )
+    if ( !PickSetTranslator::retrieve(*ps,ioobj,true,errmsg_) )
 	return false;
 
-    if ( !usePar( ps->pars_ ) )
+    if ( !usePar(ps->pars_) )
     {
-	if ( !usePar( ioobj->pars() ) ) //Old format
+	if ( !usePar(ioobj->pars()) ) //Old format
 	    return false;
     }
 
@@ -885,15 +952,14 @@ int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
 		continue;
 
 	    bidset.set( pos, vals );
-
-	    if ( !interpolateVelocity( hor->id(), mUdf(float), bidset ) )
+	    if ( !interpolateVelocity(hor->id(),mUdf(float),bidset) )
 		continue;
 
 	    const float* pick = bidset.getVals( pos );
 	    if ( mIsUdf(pick[0]) || mIsUdf(pick[1] ) )
 		continue;
 
-	    if ( depths )		(*depths) += pick[0];
+	    if ( depths )	(*depths) += pick[0];
 	    if ( velocities )	(*velocities) += pick[1];
 	    if ( positions )	(*positions) += RowCol(-1,-1);
 	    emids += hor->id();
@@ -905,7 +971,7 @@ int Picks::get( const BinID& pickbid, TypeSet<float>* depths,
 
 
 void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
-			 bool interpolhors, bool normalizeoffset ) const
+		 bool interpolhors, bool normalizeoffset ) const
 {
     picks.erase();
 
@@ -913,7 +979,7 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 
     RowCol arrpos;
     BinID curbid;
-    if ( picks_.findFirst( pickbid, arrpos ) )
+    if ( picks_.findFirst(pickbid,arrpos) )
     {
 	do
 	{
@@ -939,7 +1005,7 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 
 	    bidset.set( pos, vals );
 
-	    if ( !interpolateVelocity( hor->id(), mUdf(float), bidset ) )
+	    if ( !interpolateVelocity(hor->id(),mUdf(float),bidset) )
 		continue;
 
 	    const float* pick = bidset.getVals( pos );
@@ -971,9 +1037,10 @@ void Picks::get( const BinID& pickbid, TypeSet<Pick>& picks,
 
 float Picks::normalizeRMO(float depth, float rmo, float offset) const
 {
-    float curve = mUdf(float);
-    computeResidualMoveouts( depth, rmo, offset, 1, false, &refoffset_, &curve);
-    return curve;
+    const double refoffset = refoffset_;
+    double curve = mUdf(double);
+    computeResidualMoveouts( depth, rmo, offset, 1, false, &refoffset, &curve);
+    return float (curve);
 }
 
 
@@ -1047,15 +1114,14 @@ void Picks::setGatherID( const MultiID& m )
 
 const IOObjContext& Picks::getStorageContext()
 {
-    mDefineStaticLocalObject( PtrMan<IOObjContext>, ret, = 0 );
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, ret, = nullptr );
     if ( !ret )
     {
-	IOObjContext* newret =
-		new IOObjContext(PickSetTranslatorGroup::ioContext());
+	auto* newret = new IOObjContext(PickSetTranslatorGroup::ioContext());
 	newret->setName( "Velocity picks" );
 	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityPicks() );
 
-	ret.setIfNull(newret,true);
+	ret.setIfNull( newret, true );
     }
 
     return *ret;
@@ -1077,7 +1143,8 @@ void Picks::setReferenceOffset( float n )
 	return;
 
     refoffset_ = n;
-    if ( undo_ ) undo_->removeAll();
+    if ( undo_ )
+	undo_->removeAll();
 }
 
 
@@ -1119,7 +1186,7 @@ Picks* PicksMgr::get( const MultiID& mid, bool sgmid, bool create,
 
     if ( !res )
     {
-	res = new Picks();
+	res = new Picks( &SI().zDomainInfo() );
 	res->ref();
     }
 
@@ -1130,7 +1197,7 @@ Picks* PicksMgr::get( const MultiID& mid, bool sgmid, bool create,
 	return 0;
     }
 
-    if ( ioobj && !res->load( ioobj ) )
+    if ( ioobj && !res->load(ioobj) )
     {
 	errmsg_ = res->errMsg();
 	res->unRef();

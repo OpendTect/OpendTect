@@ -491,18 +491,39 @@ bool WellTie::DataPlayer::setAIModel()
 bool WellTie::DataPlayer::setTargetModel( TimeDepthModel& tdmodel ) const
 {
     const ZSampling& reflzrg = data_.getReflRange();
-    const int nrlayers = aimodel_.size();
+    const int nrlayers = aimodel_.size()+1;
     TypeSet<float> refldepths( nrlayers, mUdf(float) );
     TypeSet<float> refltimes( nrlayers, mUdf(float) );
     float* refldepthsarr = refldepths.arr();
     float* refltimesarr = refltimes.arr();
-    refldepthsarr[0] = aimodel_.first()->getThickness();
-    refltimesarr[0] = reflzrg.start;
-    for ( int idz=1; idz<nrlayers; idz++ )
+    const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthUnit();
+    const float kbelev = getConvertedValue( data_.wd_->track().getKbElev(),
+				UnitOfMeasure::surveyDefDepthStorageUnit(),
+				depthuom );
+    const float srd = getConvertedValue( SI().seismicReferenceDatum(),
+				    UnitOfMeasure::surveyDefSRDStorageUnit(),
+				    depthuom );
+    if ( kbelev < srd )
     {
-	refldepthsarr[idz] = refldepthsarr[idz-1]
-			   + aimodel_.get(idz)->getThickness();
-	refltimesarr[idz] = reflzrg.atIndex( idz );
+	const float replvel = getConvertedValue( data_.wd_->info().replvel_,
+			UnitOfMeasure::surveyDefDepthStorageUnit(), depthuom );
+	refldepthsarr[0] = -kbelev;
+	refltimesarr[0] = 2.f * (srd-kbelev) / replvel;
+    }
+    else
+    {
+	refldepthsarr[0] = -srd;
+	refltimesarr[0] = 0.f;
+    }
+
+    float dz = depthuom->getUserValueFromSI( aimodel_.first()->getThickness() );
+    refldepthsarr[1] = -srd + dz;
+    refltimesarr[1] = reflzrg.start;
+    for ( int idz=2; idz<nrlayers; idz++ )
+    {
+	dz = depthuom->getUserValueFromSI( aimodel_.get(idz-1)->getThickness());
+	refldepthsarr[idz] = refldepthsarr[idz-1] + dz;
+	refltimesarr[idz] = reflzrg.atIndex( idz-1 );
     }
 
     tdmodel.setModel( refldepthsarr, refltimesarr, nrlayers );
@@ -524,9 +545,16 @@ bool WellTie::DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 	forcedtdmodels.add( &tdmodel );
 
     const SynthGenParams& sgp = data_.setup().sgp_;
+    const float srd = getConvertedValue( SI().seismicReferenceDatum(),
+				    UnitOfMeasure::surveyDefSRDStorageUnit(),
+				    UnitOfMeasure::surveyDefDepthUnit() );
+    const Seis::OffsetType offstyp = SI().xyInFeet()
+				   ? Seis::OffsetType::OffsetFeet
+				   : Seis::OffsetType::OffsetMeter;
+    const ZDomain::DepthType depthtype = SI().depthType();
     ConstRefMan<ReflectivityModelSet> refmodels =
 	Seis::RaySynthGenerator::getRefModels( aimodels, *sgp.reflPars(),
-		       msg, taskrunner,
+		       msg, taskrunner, srd, offstyp, depthtype,
 		       forcedtdmodels.isEmpty() ? nullptr : &forcedtdmodels );
     if ( !refmodels )
 	mErrRet( uiStrings::phrCannotCreate(tr("synthetic: %1").arg(msg)) );

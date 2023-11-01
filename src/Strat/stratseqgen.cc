@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "mathproperty.h"
 #include "ptrman.h"
+#include "separstr.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
@@ -21,6 +22,7 @@ ________________________________________________________________________
 #include "strattransl.h"
 #include "stratsinglaygen.h"
 #include "stratreftree.h"
+#include "unitofmeasure.h"
 
 
 #define mFileType "Layer Sequence Generator Description"
@@ -125,18 +127,16 @@ bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
 }
 
 
-Strat::LayerSequenceGenDesc::LayerSequenceGenDesc(
-	const LayerSequenceGenDesc& seq )
-    : rt_(seq.rt_)
-{
-    *this = seq;
-}
-
+// Strat::LayerSequenceGenDesc
 
 Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     : ObjectSet<LayerGenerator>()
     , rt_(rt)
 {
+    startdepth_ = getConvertedValue( -SI().seismicReferenceDatum(),
+				    UnitOfMeasure::surveyDefSRDStorageUnit(),
+				    UnitOfMeasure::surveyDefSRDUnit() );
+
     if ( !ePROPS().ensureHasElasticProps(false,true) )
 	return;
 
@@ -144,6 +144,14 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     propsel_.add( props.getByMnemonic( Mnemonic::defDEN() ) )
 	    .add( props.getByMnemonic( Mnemonic::defPVEL() ) )
 	    .add( props.getByMnemonic( Mnemonic::defAI() ) );
+}
+
+
+Strat::LayerSequenceGenDesc::LayerSequenceGenDesc(
+					const LayerSequenceGenDesc& oth )
+    : rt_(oth.rt_)
+{
+    *this = oth;
 }
 
 
@@ -171,7 +179,9 @@ Strat::LayerSequenceGenDesc& Strat::LayerSequenceGenDesc::operator=(
 void Strat::LayerSequenceGenDesc::erase()
 {
     deepErase( *this );
-    startdepth_ = 0.f;
+    startdepth_ = getConvertedValue( -SI().seismicReferenceDatum(),
+				    UnitOfMeasure::surveyDefSRDStorageUnit(),
+				    UnitOfMeasure::surveyDefSRDUnit() );
     propsel_.setEmpty();
     elasticpropselmid_.setUdf();
     errmsg_.setEmpty();
@@ -187,7 +197,21 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
     erase();
 
     IOPar iop; iop.getFrom(astrm);
-    iop.get( sKeyTopdepth, startdepth_ );
+
+    const UnitOfMeasure* depthuom = PropertyRef::thickness().unit();
+    const UnitOfMeasure* zvaluom = nullptr;
+    FileMultiString fms;
+    iop.get( sKeyTopdepth, fms );
+    if ( !fms.isEmpty() )
+	startdepth_ = fms.getFValue( 0 );
+    if ( fms.size() > 1 )
+    {
+	const StringView zunitlbl = fms[1];
+	zvaluom = UoMR().get( zunitlbl.buf() );
+    }
+
+    convValue( startdepth_, zvaluom, depthuom );
+
     iop.get( ElasticPropSelection::sKeyElasticPropSel(), elasticpropselmid_ );
     PtrMan<IOPar> workbenchpars = iop.subselect( sKeyWorkBenchParams() );
     if ( !workbenchpars || workbenchpars->isEmpty() )
@@ -203,7 +227,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 	if ( iop.isEmpty() )
 	    continue;
 
-	LayerGenerator* lg = LayerGenerator::get( iop, rt_ );
+	auto* lg = LayerGenerator::get( iop, rt_ );
 	if ( lg )
 	    { lg->setGenDesc( this ); add( lg ); }
     }
@@ -228,7 +252,9 @@ bool Strat::LayerSequenceGenDesc::putTo( od_ostream& strm ) const
 	{ errmsg_ = tr("Cannot write file header"); return false; }
 
     IOPar iop;
-    iop.set( sKeyTopdepth, startdepth_ );
+    FileMultiString fms;
+    fms.add( startdepth_ ).add( PropertyRef::thickness().disp_.getUnitLbl() );
+    iop.set( sKeyTopdepth, fms );
     if ( !elasticpropselmid_.isUdf() )
 	iop.set( ElasticPropSelection::sKeyElasticPropSel(),elasticpropselmid_);
 

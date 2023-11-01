@@ -8,10 +8,12 @@ ________________________________________________________________________
 -*/
 
 #include "ailayer.h"
+
 #include "arrayndimpl.h"
 #include "math2.h"
 #include "mathfunc.h"
 #include "ranges.h"
+#include "zvalseriesimpl.h"
 
 
 #define mIsValidThickness(val) \
@@ -760,7 +762,7 @@ void ElasticModel::interpolate( bool dovp, bool doden, bool dovs )
 		val = layer.getFracAzi();
 
 	    if ( !mIsUdf(val) )
-		data.add( (float)idx, val );
+		data.add( (float)idx, val, false );
 	}
 
 	if ( data.isEmpty() )
@@ -1144,56 +1146,63 @@ bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
 				  const float* pvel, const float* svel,
 				  const float* den )
 {
-    if ( !pvel )
+    const RegularZValues zvals( zrange, SI().zDomainInfo() );
+    return createFromVel( zvals, pvel, svel, den );
+
+}
+
+
+bool ElasticModel::createFromVel( const ZValueSeries& zsamp,const float* pvel,
+				  const float* svel, const float* den )
+{
+    if ( !zsamp.isOK() || !pvel )
 	return false;
 
     setEmpty();
-    const bool zit =  SI().zDomain().isTime();
-    const bool zinfeet	= SI().depthsInFeet();
-    const int zsize = zrange.nrSteps()+1;
+    const int sz = od_int64 (zsamp.size());
+    const float startz = float (zsamp[0]);
+    const bool zistime = zsamp.isTime();
 
-    const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
-
-    int firstidx = 0; float firstlayerthickness;
-    const float firstvel = zinfeet ? pvel[firstidx] * mFromFeetFactorF
-				   : pvel[firstidx];
-    if ( zit )
+    int firstidx = 0;
+    float firstlayerthickness;
+    const float firstvel = pvel[firstidx];
+    if ( zistime )
     {
-	firstlayerthickness = zrange.start<0.f ? 0.0f : zrange.start;
+	firstlayerthickness = startz<0.f ? 0.0f : startz;
 	firstlayerthickness *= firstvel / 2.0f;
     }
     else
     {
-	if ( zrange.start < srddepth )
+	if ( startz < 0. )
 	{
-	    firstidx = zrange.getIndex( srddepth );
-	    if ( firstidx < 0 )
-		firstidx = 0;
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		if ( zsamp[idx] >= 0. )
+		{
+		    firstidx = idx;
+		    break;
+		}
+	    }
 	}
 
-	firstlayerthickness = zrange.atIndex( firstidx ) - srddepth;
-	if ( zinfeet ) firstlayerthickness *= mFromFeetFactorF;
+	firstlayerthickness = float (zsamp[firstidx]);
     }
 
     const float firstden = den ? den[firstidx] : mUdf(float);
-    const float firstsvel = svel ? ( zinfeet ? svel[firstidx] * mFromFeetFactorF
-					     : svel[firstidx] )
-				 : mUdf(float);
+    const float firstsvel = svel ? svel[firstidx] : mUdf(float);
     add( svel ? new ElasticLayer( firstlayerthickness, firstvel, firstsvel,
 				  firstden )
-	     : new AILayer( firstlayerthickness, firstvel, firstden ) );
+	      : new AILayer( firstlayerthickness, firstvel, firstden ) );
 
-    for ( int idx=firstidx+1; idx<zsize; idx++ )
+    for ( int idx=firstidx+1; idx<sz; idx++ )
     {
-	const float velp = zinfeet ? pvel[idx] * mFromFeetFactorF : pvel[idx];
-	const float layerthickness = zit ? zrange.step * velp / 2.0f
-				 : ( zinfeet ? zrange.step * mFromFeetFactorF
-					     : zrange.step );
+	const float velp = pvel[idx];
+	const float zstep = zsamp[idx] - zsamp[idx-1];
+	const float layerthickness = zistime ? zstep * velp / 2.0f : zstep;
 	const float rhob = den ? den[idx] : mUdf(float);
 	if ( svel )
 	{
-	    const float vels = zinfeet ? svel[idx] * mFromFeetFactorF
-				       : svel[idx];
+	    const float vels = svel[idx];
 	    add( new ElasticLayer( layerthickness, velp, vels, rhob ) );
 	}
 	else
@@ -1204,9 +1213,14 @@ bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
 	return false;
 
     mergeSameLayers();
-    removeSpuriousLayers( zrange.step );
+    if ( zsamp.isRegular() )
+    {
+	const float regzstep = float (
+				dCast(const RegularZValues&,zsamp).getStep());
+	removeSpuriousLayers( regzstep, zistime );
+    }
 
-    return true;
+    return !isEmpty();
 }
 
 
@@ -1214,63 +1228,86 @@ bool ElasticModel::createFromAI( const StepInterval<float>& zrange,
 				 const float* ai, const float* si,
 				 const float* den )
 {
-    if ( !ai )
+    const RegularZValues zvals( zrange, SI().zDomainInfo() );
+    return createFromAI( zvals, ai, si, den );
+}
+
+
+bool ElasticModel::createFromAI( const ZValueSeries& zsamp, const float* ai,
+				 const float* si, const float* den )
+{
+    if ( !ai || !zsamp.isOK() )
 	return false;
 
     setEmpty();
-    const bool zit =  SI().zDomain().isTime();
-    const bool zinfeet	= SI().depthsInFeet();
-    const int zsize = zrange.nrSteps()+1;
+    const int sz = od_int64 (zsamp.size());
+    const float startz = float (zsamp[0]);
+    const bool zistime = zsamp.isTime();
 
-    const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
-
-    int firstidx = 0; float firstlayerthickness;
-    if ( zit )
-	firstlayerthickness = zrange.start<0.f ? 0.0f : zrange.start;
+    int firstidx = 0;
+    float firstlayerthickness;
+    if ( zistime )
+	firstlayerthickness = startz<0.f ? 0.f : startz;
     else
     {
-	if ( zrange.start < srddepth )
+	if ( startz < 0. )
 	{
-	    firstidx = zrange.getIndex( srddepth );
-	    if ( firstidx < 0 )
-		firstidx = 0;
+	    for ( int idx=0; idx<sz; idx++ )
+	    {
+		if ( zsamp[idx] >= 0. )
+		{
+		    firstidx = idx;
+		    break;
+		}
+	    }
 	}
 
-	firstlayerthickness = zrange.atIndex( firstidx ) - srddepth;
-	if ( zinfeet ) firstlayerthickness *= mFromFeetFactorF;
+	firstlayerthickness = float (zsamp[firstidx]);
     }
 
     const float firstden = den ? den[firstidx] : mUdf(float);
     if ( si )
 	add( new ElasticLayer( firstlayerthickness, ai[firstidx], si[firstidx],
-			       firstden, zit ) );
+			       firstden, zistime ) );
     else
-	add( new AILayer( firstlayerthickness, ai[firstidx], firstden, zit ) );
+	add( new AILayer(firstlayerthickness,ai[firstidx],firstden,zistime) );
 
-    for ( int idx=firstidx+1; idx<zsize; idx++ )
+    for ( int idx=firstidx+1; idx<sz; idx++ )
     {
+	const float zstep = float (zsamp[idx] - zsamp[idx-1]);
 	const float rhob = den ? den[idx] : mUdf(float);
 	if ( si )
-	    add( new ElasticLayer(zrange.step, ai[idx], si[idx], rhob, zit) );
+	    add( new ElasticLayer(zstep, ai[idx], si[idx], rhob,zistime) );
 	else
-	    add( new AILayer(zrange.step, ai[idx], rhob, zit) );
+	    add( new AILayer(zstep, ai[idx], rhob, zistime) );
     }
 
     if ( isEmpty() )
 	return false;
 
     mergeSameLayers();
-    removeSpuriousLayers( zrange.step );
+    if ( zsamp.isRegular() )
+    {
+	const float regzstep = float (
+				dCast(const RegularZValues&,zsamp).getStep());
+	removeSpuriousLayers( regzstep, zistime );
+    }
 
-    return true;
+    return !isEmpty();
 }
 
 
 void ElasticModel::removeSpuriousLayers( float zrgstep )
 {
-    if ( SI().zInFeet() ) zrgstep *= mFromFeetFactorF;
+    if ( SI().zInFeet() )
+	zrgstep *= mFromFeetFactorF;
 
-    const bool zistime = SI().zIsTime();
+    removeSpuriousLayers( zrgstep, SI().zIsTime() );
+}
+
+
+void ElasticModel::removeSpuriousLayers( float zrgstep, bool zistime )
+{
     for ( int idx=size()-2; idx>0; idx-- )
     {
 	const float layervel = get(idx)->getPVel();
@@ -1284,10 +1321,10 @@ void ElasticModel::removeSpuriousLayers( float zrgstep )
 	const float velbelow = get(idx+1)->getPVel();
 	const float layerthicknessabove = get(idx-1)->getThickness();
 	const float layerthicknessbelow = get(idx+1)->getThickness();
-	const float twtthicknessabove = 2.f * layerthicknessabove / velabove;
-	const float twtthicknessbelow = 2.f * layerthicknessbelow / velbelow;
 	if ( zistime )
 	{
+	    const float twtthicknessabove = 2.f * layerthicknessabove /velabove;
+	    const float twtthicknessbelow = 2.f * layerthicknessbelow /velbelow;
 	    if ( mIsEqual(twtthicknessabove,zrgstep,1e-2f) ||
 		 mIsEqual(twtthicknessbelow,zrgstep,1e-2f) )
 		continue;
@@ -1301,7 +1338,13 @@ void ElasticModel::removeSpuriousLayers( float zrgstep )
 
 	const float twtbelow = layertwtthickness * ( layervel-velabove )
 						 / ( velbelow-velabove );
+	if ( twtbelow < 0.f )
+	    continue;
+
 	const float twtabove = layertwtthickness - twtbelow;
+	if ( twtabove < 0.f )
+	    continue;
+
 	get(idx-1)->setThickness( get(idx-1)->getThickness() +
 				  twtabove * velabove / 2.f );
 	get(idx+1)->setThickness( get(idx+1)->getThickness() +

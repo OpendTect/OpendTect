@@ -18,9 +18,14 @@ ________________________________________________________________________
 #include "raytracerrunner.h"
 #include "unitofmeasure.h"
 
+#include "hiddenparam.h"
+
 
 namespace PreStack
 {
+
+static HiddenParam<AngleCompParams,RayTracer1D::Setup*>
+						anglecompparsrtsumgr_(nullptr);
 
 // PreStack::AngleCompParams
 
@@ -34,20 +39,35 @@ AngleCompParams::AngleCompParams()
     // defaults for other types:
     smoothingpar_.set( AngleComputer::sKeyWinFunc(), HanningWindow::sName() );
     smoothingpar_.set( AngleComputer::sKeyWinLen(),
-		       100.0f/SI().zDomain().userFactor() );
+		       100.0f / SI().zDomain().userFactor() );
     smoothingpar_.set( AngleComputer::sKeyWinParam(), 0.95f );
 
-    raypar_.set( sKey::Type(), RayTracer1D::factory().getDefaultName() );
-    const StepInterval<float>& offsrange = RayTracer1D::sDefOffsetRange();
-    TypeSet<float> offsetvals;
+    const float srd = getConvertedValue( SI().seismicReferenceDatum(),
+				UnitOfMeasure::surveyDefSRDStorageUnit(),
+				UnitOfMeasure::surveyDefDepthUnit() );
+    const Seis::OffsetType offstyp = SI().xyInFeet()
+				   ? Seis::OffsetType::OffsetFeet
+				   : Seis::OffsetType::OffsetMeter;
+    const ZDomain::DepthType depthtype = SI().depthType();
+    auto* rtsu = new RayTracer1D::Setup();
+    rtsu->offsettype( offstyp ).depthtype( depthtype ).startdepth( -srd );
+    anglecompparsrtsumgr_.setParam( this, rtsu );
+
+    const StepInterval<float> offsrange =
+			      RayTracer1D::sDefOffsetRange( offstyp );
+    TypeSet<float> offsets;
     for ( int idx=0; idx<=offsrange.nrSteps(); idx++ )
-	offsetvals += offsrange.atIndex( idx );
-    raypar_.set( RayTracer1D::sKeyOffset(), offsetvals );
-    raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(), SI().xyInFeet() );
+	offsets += offsrange.atIndex( idx );
+
+    raypar_.set( sKey::Type(), RayTracer1D::factory().getDefaultName() );
+    raypar_.set( RayTracer1D::sKeyOffset(), offsets );
+    raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(),
+		   offstyp == Seis::OffsetType::OffsetFeet );
     raypar_.setYN( RayTracer1D::sKeyReflectivity(), false );
 
     uiString msg;
-    PtrMan<RayTracer1D> rt1d = RayTracer1D::createInstance( raypar_, msg );
+    PtrMan<RayTracer1D> rt1d = RayTracer1D::createInstance( raypar_, msg,
+							    nullptr );
     if ( !rt1d )
 	return;
 
@@ -57,6 +77,13 @@ AngleCompParams::AngleCompParams()
 
 AngleCompParams::~AngleCompParams()
 {
+    anglecompparsrtsumgr_.removeAndDeleteParam( this );
+}
+
+
+const RayTracer1D::Setup& AngleCompParams::rtsu_() const
+{
+    return *anglecompparsrtsumgr_.getParam( this );
 }
 
 
@@ -118,6 +145,29 @@ bool AngleMuteBase::setVelocityFunction()
 }
 
 
+void AngleMuteBase::block_( ElasticModel& emodel ) const
+{
+    if ( emodel.isEmpty() || !params_ )
+	return;
+
+    emodel.setMaxThickness( 25.f );
+}
+
+
+bool AngleMuteBase::getLayers( const TrcKey& tk, ElasticModel& model,
+			       uiString& errmsg )
+{
+    const float startdepth = params_->rtsu_().getStartDepth();
+    if ( !velsource_ ||
+	 !VelocityBasedAngleComputer::getLayers(tk,startdepth,
+						*velsource_,model,errmsg) )
+	return false;
+
+    block( model );
+    return !model.isEmpty();
+}
+
+
 bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 			       SamplingData<float>& sd, int resamplesz )
 {
@@ -170,6 +220,123 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 
     sd = zrg;
     return !model.isEmpty();
+}
+
+
+float AngleMuteBase::getOffsetMuteLayer( const ReflectivityModelBase& refmodel,
+					 int ioff, bool innermute,
+					 bool& nonemuted, bool& allmuted,
+					 TypeSet< Interval<float> >& ret ) const
+{
+    const bool belowcutoff = innermute;
+    const float cutoffsin = (float) sin( params_->mutecutoff_ * M_PIf / 180.f );
+
+    const int nrlayers = refmodel.nrLayers();
+    BoolTypeSet ismuted( nrlayers, false );
+    int nrmuted = 0;
+    for ( int ilay=0; ilay<nrlayers; ilay++ )
+    {
+	const float sini = refmodel.getSinAngle( ioff, ilay );
+	if ( mIsUdf(sini) || (mIsZero(sini,1e-8) && ilay<nrlayers/2) )
+	    continue; //Ordered down, get rid of edge 0.
+
+	const bool muted = belowcutoff ? sini < cutoffsin && belowcutoff
+				       : sini > cutoffsin;
+	ismuted[ilay] = muted;
+	if ( muted )
+	    nrmuted++;
+    }
+
+    nonemuted = nrmuted == 0;
+    allmuted = nrmuted == nrlayers;
+    if ( nonemuted || allmuted )
+	return mUdf(float);
+
+    TypeSet<int> mutedlayers;
+    for ( int ilay=0; ilay<nrlayers; ilay++ )
+    {
+	if ( ismuted[ilay] )
+	    mutedlayers += ilay;
+    }
+
+    TypeSet<int> addback;
+    for ( int ilay=0; ilay<nrlayers; ilay++ )
+    {
+	const bool mutedbefore = ilay == 0 ? false : (bool)ismuted[ilay-1];
+	const bool mutedafter = ilay == nrlayers-1 ? false
+						   : (bool)ismuted[ilay+1];
+	if ( ismuted[ilay] && !mutedbefore && !mutedafter )
+	    addback += ilay;
+    }
+
+    BoolTypeSet removeidxs( mutedlayers.size(), false );
+    for ( int idx=mutedlayers.size()-2; idx>0; idx-- )
+    {
+	if ( mutedlayers[idx] == mutedlayers[idx+1]-1 &&
+	     mutedlayers[idx] == mutedlayers[idx-1]+1 )
+	    removeidxs[idx] = true;
+    }
+
+    for ( int idx=mutedlayers.size()-2; idx>0; idx-- )
+	if ( removeidxs[idx] )
+	    mutedlayers.removeSingle( idx );
+
+    if ( !addback.isEmpty() )
+    {
+	mutedlayers.append( addback );
+	sort( mutedlayers );
+    }
+
+    ret.setEmpty();
+    for ( int idx=0; idx<mutedlayers.size(); idx+=2 )
+    {
+	Interval<float> mutelayer = Interval<float>::udf();
+	int ilay = mutedlayers[idx];
+	mutelayer.start = float(ilay);
+	const int previdx = ilay-1;
+	if ( ilay > 0 && ilay < nrlayers && previdx >=0 )
+	{
+	    const float sini = refmodel.getSinAngle( ioff, ilay );
+	    const float prevsini = refmodel.getSinAngle( ioff, previdx );
+	    mutelayer.start -= (sini-cutoffsin) / (sini-prevsini);
+	}
+
+	if ( mutedlayers.validIdx(idx+1) )
+	{
+	    ilay = mutedlayers[idx+1];
+	    mutelayer.stop = float(ilay);
+	    const int nextidx = ilay+1;
+	    if ( ilay >= 0 && ilay < nrlayers && nextidx < nrlayers )
+	    {
+		const float sini = refmodel.getSinAngle( ioff, ilay );
+		const float nextsini = refmodel.getSinAngle( ioff, nextidx );
+		mutelayer.stop += (sini-cutoffsin) / (sini-nextsini);
+	    }
+	}
+
+	ret += mutelayer;
+    }
+
+    if ( ret.size() != 1 )
+	return mUdf(float);
+
+    const Interval<float>& intv = ret.first();
+    if ( !mIsUdf(intv.start) && mIsUdf(intv.stop) )
+	return intv.start;
+
+    if ( innermute )
+    {
+	if ( mIsEqual(intv.stop,(float)(nrlayers-1),1e-3f) &&
+	     !mIsUdf(intv.start) )
+	    return intv.start;
+    }
+    else
+    {
+	if ( mIsEqual(intv.start,0.f,1e-3f) && !mIsUdf(intv.stop) )
+	    return intv.stop;
+    }
+
+    return mUdf(float);
 }
 
 
@@ -239,8 +406,36 @@ float AngleMuteBase::getOffsetMuteLayer( const ReflectivityModelBase& refmodel,
 }
 
 
+float AngleMuteBase::getfMutePos( const TimeDepthModel& tdmodel, bool intime,
+				  float mutelayer, float offset ) const
+{
+    if ( mIsZero(offset,1e-4f) )
+	return intime ? tdmodel.getTime( 0 ) : tdmodel.getDepth( 0 );
+
+    mutelayer += 1.f; //TD model has one more sample
+    const int muteintlayer = (int)mutelayer;
+    const float prevzpos = intime ? tdmodel.getTime( muteintlayer )
+				  : tdmodel.getDepth( muteintlayer );
+    if ( mIsEqual(mutelayer,(float)muteintlayer,1e-4f) )
+	return prevzpos;
+
+    const float nextzpos = intime ? tdmodel.getTime( muteintlayer+1 )
+				  : tdmodel.getDepth( muteintlayer+1 );
+    const float relpos = mutelayer - muteintlayer;
+    return prevzpos + ( nextzpos-prevzpos ) * relpos;
+}
+
+
+// PreStack::AngleMute
+
 AngleMute::AngleMute()
-    : Processor(sFactoryKeyword())
+    : AngleMute(sFactoryKeyword())
+{
+}
+
+
+AngleMute::AngleMute( const char* nm )
+    : Processor(nm)
 {
     params_ = new AngleMutePars();
 }
@@ -304,33 +499,38 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	return false;
 
     RayTracerRunner* rtrunner = rtrunners_[thread];
+    Muter* muter = getMuter( thread );
+    if ( !rtrunner || !muter )
+	return false;
+
+    const RayTracer1D::Setup& rtsu = params().rtsu_();
+    const bool innermute = params().tail_;
 
     ElasticModelSet emodels;
     auto* layers = new ElasticModel();
     emodels.add( layers );
+    bool nonemuted, allmuted;
+    TypeSet<float> offsets;
+    offsets.setCapacity( 100, true );
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
-	Gather* output = outputs_[idx];
 	const Gather* input = inputs_[idx];
-	if ( !output || !input )
+	Gather* output = outputs_[idx];
+	if ( !input || !output )
 	    continue;
 
-	const BinID bid = input->getBinID();
-
-	int nrlayers = input->data().info().getSize( Gather::zDim() );
+	const TrcKey& tk = input->getTrcKey();
 	layers->setEmpty();
-	SamplingData<float> sd;
-	if ( !getLayers(bid,*layers,sd,nrlayers) )
+	if ( !getLayers(tk,*layers,errmsg_) )
 	    continue;
 
-	rtrunner->setModel( emodels );
-	const int nrblockedlayers = layers->size();
-	TypeSet<float> offsets;
-	const int nroffsets = input->size( input->offsetDim()==0 );
-	for ( int ioffset=0; ioffset<nroffsets; ioffset++ )
-	    offsets += input->getOffset( ioffset );
+	rtrunner->setModel( emodels, &rtsu );
+	const int nroffsets = input->size( Gather::offsetDim()==0 );
+	offsets.setEmpty();
+	for ( int ioff=0; ioff<nroffsets; ioff++ )
+	    offsets += input->getOffset( ioff );
 
-	rtrunner->setOffsets( offsets );
+	rtrunner->setOffsets( offsets, input->offsetType() );
 	if ( !rtrunner->executeParallel(raytraceparallel_) )
 	    { errmsg_ = rtrunner->uiMessage(); continue; }
 
@@ -340,59 +540,58 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !refmodel || !refmodel->hasAngles() )
 	    return false;
 
+	const TimeDepthModel& tdmodel = refmodel->getDefaultModel();
 	Array1DSlice<float> trace( output->data() );
 	trace.setDimMap( 0, Gather::zDim() );
 
-	for ( int ioffs=0; ioffs<nroffsets; ioffs++ )
+	const ZSampling& zrg = input->zRange();
+	const bool zistime = input->zIsTime();
+	const int nrsamps = input->size( Gather::zDim() == 0 );
+	float zpos;
+	for ( int ioff=0; ioff<nroffsets; ioff++ )
 	{
-	    trace.setPos( Gather::offsetDim(), ioffs );
+	    trace.setPos( Gather::offsetDim(), ioff );
 	    if ( !trace.init() )
 		continue;
 
-	    float mutelayer = getOffsetMuteLayer( *refmodel, nrblockedlayers,
-						  ioffs, params().tail_ );
-	    if ( mIsUdf( mutelayer ) )
+	    const float offset = offsets[ioff];
+	    TypeSet< Interval<float> > mutelayeritvs;
+	    const float mutelayer = getOffsetMuteLayer( *refmodel, ioff,
+						innermute, nonemuted,
+						allmuted, mutelayeritvs );
+	    if ( nonemuted )
 		continue;
 
-	    if ( nrlayers != nrblockedlayers )
+	    if ( allmuted )
 	    {
-		const int muteintlayer = (int)mutelayer;
-		if ( input->zIsTime() )
-		{
-		    float mtime = 0;
-		    for ( int il=0; il<=muteintlayer; il++ )
-		    {
-			const RefLayer& layer = *layers->get( il );
-			mtime += layer.getThickness()/layer.getPVel();
-			if ( il==muteintlayer )
-			{
-			    const float diff = mutelayer-muteintlayer;
-			    if ( diff>0 )
-			    {
-				const RefLayer& layer1 = *layers->get( il );
-				mtime += diff*
-				    layer1.getThickness()/layer.getPVel();
-			    }
-			}
-		    }
-		    mutelayer = sd.getfIndex( mtime );
-		}
-		else
-		{
-		    float depth = 0;
-		    for ( int il=0; il<muteintlayer+2; il++ )
-		    {
-			if ( il >= nrblockedlayers ) break;
-			float thk = layers->get(il)->getThickness();
-			if ( il == muteintlayer+1 )
-			    thk *= ( mutelayer - muteintlayer);
-
-			depth += thk;
-		    }
-		    mutelayer = sd.getfIndex( depth );
-		}
+		trace.setAll( 0.f );
+		continue;
 	    }
-	    muters_[thread]->mute( trace, nrlayers, mutelayer );
+
+	    if ( !mIsUdf(mutelayer) )
+	    {
+		zpos = getfMutePos( tdmodel, zistime, mutelayer, offset );
+		const float muteflayer = zrg.getfIndex( zpos );
+		muter->mute( trace, nrsamps, muteflayer );
+		continue;
+	    }
+
+	    for ( auto& itvml : mutelayeritvs )
+	    {
+		if ( mIsUdf(itvml.start) )
+		    continue;
+
+		zpos = getfMutePos( tdmodel, zistime, itvml.start, offset );
+		itvml.start = zrg.getfIndex( zpos );
+		if ( mIsUdf(itvml.stop) )
+		    continue;
+
+		zpos = getfMutePos( tdmodel, zistime, itvml.stop, offset );
+		itvml.stop = zrg.getfIndex( zpos );
+	    }
+
+	    if ( !mutelayeritvs.isEmpty() )
+		muter->muteIntervals( trace, nrsamps, mutelayeritvs );
 	}
     }
 
@@ -406,5 +605,11 @@ AngleMute::AngleMutePars& AngleMute::params()
 
 const AngleMute::AngleMutePars& AngleMute::params() const
 { return static_cast<AngleMute::AngleMutePars&>(*params_); }
+
+
+void AngleMute::removeClass()
+{
+    factory().removeCreator( createInstance );
+}
 
 } // namespace PreStack

@@ -81,9 +81,11 @@ static bool doRun( bool raytracer, const ElasticModelSet& emodels,
     iop.setYN( RayTracerRunner::sKeyParallel(), parallel );
 
     uiString msg;
+    const RayTracer1D::Setup* rtsu = nullptr;
+    const ReflCalc1D::Setup* rflsu = nullptr;
     ConstRefMan<ReflectivityModelSet> refmodels = raytracer
-		    ? RayTracerRunner::getRefModels( emodels, iop, msg )
-		    : ReflCalcRunner::getRefModels( emodels, iop, msg );
+		? RayTracerRunner::getRefModels( emodels, iop, msg, rtsu )
+		: ReflCalcRunner::getRefModels( emodels, iop, msg, rflsu );
     mRunStandardTestWithError( refmodels.ptr(), "Execute runner",
 			       toString(msg) );
 

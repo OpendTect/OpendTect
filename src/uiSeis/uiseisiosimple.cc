@@ -9,36 +9,33 @@ ________________________________________________________________________
 
 #include "uiseisiosimple.h"
 
+#include "ctxtioobj.h"
+#include "file.h"
+#include "filepath.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "od_helpids.h"
+#include "oddirs.h"
+#include "seisioobjinfo.h"
+#include "seisresampler.h"
+#include "seisselection.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
+
 #include "ui2dgeomman.h"
 #include "uibutton.h"
+#include "uicoordsystem.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uimultcomputils.h"
 #include "uiscaler.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
-
-#include "ctxtioobj.h"
-#include "file.h"
-#include "filepath.h"
-#include "ioobj.h"
-#include "iopar.h"
-#include "keystrs.h"
-#include "od_helpids.h"
-#include "oddirs.h"
-#include "seisioobjinfo.h"
-#include "seispsioprov.h"
-#include "seisresampler.h"
-#include "seisselection.h"
-#include "seistrctr.h"
-#include "survgeom2d.h"
-#include "survinfo.h"
-#include "trckeyzsampling.h"
 
 
 static bool survChanged()
@@ -611,6 +608,13 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    subselfld_->getZRange( cs.zsamp_ );
 	    data().setResampler( new SeisResampler(cs,is2D()) );
 	}
+    }
+
+    if ( seisfld_->getZDomain().fillPar(ioobj->pars()) &&
+	 !IOM().commitChanges(*ioobj) )
+    {
+	uiMSG().error(uiStrings::phrCannotWriteDBEntry(ioobj->uiName()));
+	return false;
     }
 
     SeisIOSimple sios( data(), isimp_ );

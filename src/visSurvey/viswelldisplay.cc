@@ -257,7 +257,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
     mGetWD(return false);
     const Well::D2TModel* d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
-			      -1.f * float(SI().seismicReferenceDatum());
+			      -1.f * SI().seismicReferenceDatum();
     if ( zistime_ && !d2t && !trackabovesrd )
 	mErrRet( "No depth to time model defined" )
 

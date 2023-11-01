@@ -32,6 +32,8 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "zdomain.h"
 
+#include "hiddenparam.h"
+
 namespace Attrib
 {
 
@@ -52,21 +54,67 @@ const char* SelSpec::sKeyOnlyStoredData()
 static const char* isnnstr = "Is attrib NN"; // for backward compatibility
 
 
+static HiddenParam<SelSpec,BufferString*> attrselspeczunitmgr_(nullptr);
+
 SelSpec::SelSpec( const char* ref, DescID id, bool nla, const char* objref )
     : ref_(ref)
     , id_(id)
     , isnla_(nla)
     , objref_(objref)
-{}
+{
+     attrselspeczunitmgr_.setParam( this, new BufferString );
+}
+
+
+SelSpec::SelSpec( const SelSpec& oth )
+{
+    attrselspeczunitmgr_.setParam( this, new BufferString );
+    *this = oth;
+}
 
 
 SelSpec::~SelSpec()
-{}
+{
+    attrselspeczunitmgr_.removeAndDeleteParam( this );
+}
+
+
+const char* SelSpec::zDomainUnit() const
+{
+    return attrselspeczunitmgr_.getParam( this )->buf();
+}
+
+
+void SelSpec::setZDomainUnit( const char* zunitstr )
+{
+    attrselspeczunitmgr_.getParam( this )->set( zunitstr );
+}
+
+
+SelSpec& SelSpec::operator=( const SelSpec& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    ref_ = oth.ref_;
+    objref_ = oth.objref_;
+    defstring_ = oth.defstring_;
+    zdomainkey_ = oth.zdomainkey_;
+    setZDomainUnit( oth.zDomainUnit() );
+    id_ = oth.id_;
+    isnla_ = oth.isnla_;
+    discrspec_ = oth.discrspec_;
+    is2d_ = oth.is2d_;
+
+    return *this;
+}
 
 
 bool SelSpec::operator==( const SelSpec& ss ) const
 {
     return id()==ss.id() && isNLA()==ss.isNLA() && ss.ref_==ref_ &&
+	zdomainkey_ == ss.zdomainkey_ &&
+	StringView(zDomainUnit()) == ss.zDomainUnit() &&
 	ss.objref_==objref_ && ss.defstring_==defstring_ && is2D()==ss.is2D();
 }
 
@@ -80,6 +128,7 @@ bool SelSpec::operator!=( const SelSpec& ss ) const
 void SelSpec::setZDomainKey( const Desc& desc )
 {
     zdomainkey_.setEmpty();
+    attrselspeczunitmgr_.getParam( this )->setEmpty();
     BufferString storedid = desc.getStoredID();
     if ( storedid.isEmpty() ) return;
 
@@ -88,6 +137,9 @@ void SelSpec::setZDomainKey( const Desc& desc )
 	return;
 
     ioobj->pars().get( ZDomain::sKey(), zdomainkey_ );
+    BufferString zunitstr;
+    ioobj->pars().get( ZDomain::sKeyUnit(), zunitstr );
+    setZDomainUnit( zunitstr.buf() );
 }
 
 
@@ -234,22 +286,27 @@ void SelSpec::fillPar( IOPar& par ) const
     par.set( sKeyObjRef(), objref_ );
     par.set( sKeyDefStr(), defstring_ );
     par.set( ZDomain::sKey(), zdomainkey_ );
+    par.set( ZDomain::sKeyUnit(), zDomainUnit() );
     par.setYN( sKeyIs2D(), is2d_ );
 }
 
 
 bool SelSpec::usePar( const IOPar& par )
 {
-    ref_ = "";			par.get( sKeyRef(), ref_ );
+    ref_.setEmpty();		par.get( sKeyRef(), ref_ );
     id_ = cNoAttrib();		par.get( sKeyID(), id_.asInt() );
     bool isstored = false;	par.getYN( sKeyOnlyStoredData(), isstored );
     id_.setStored( isstored );
     isnla_ = false;		par.getYN( sKeyIsNLA(), isnla_ );
 				par.getYN( isnnstr, isnla_ );
-    objref_ = "";		par.get( sKeyObjRef(), objref_ );
-    defstring_ = "";		par.get( sKeyDefStr(), defstring_ );
-    zdomainkey_ = "";		if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
+    objref_.setEmpty();		par.get( sKeyObjRef(), objref_ );
+    defstring_.setEmpty();	par.get( sKeyDefStr(), defstring_ );
+    zdomainkey_.setEmpty();	if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
 				    par.get( "Depth Domain", zdomainkey_);
+    BufferString zunitstr;
+    attrselspeczunitmgr_.getParam( this )->setEmpty();
+    par.get( ZDomain::sKeyUnit(), zunitstr );
+    setZDomainUnit( zunitstr );
     is2d_ = false;		par.getYN( sKeyIs2D(), is2d_ );
 
     return true;

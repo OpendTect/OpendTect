@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
 #include "uitime2depthzaxistrans.h"
 
 class SimpleTimeDepthTransform;
 class uiIOObjSel;
 
-/*!User interface that creates a ZAxisTransform from a Well's t2d model. */
+/*!User interface that creates a ZAxisTransform from a table t2d model. */
 
 mExpClass(uiIo) uiSimpleTimeDepthTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiSimpleTimeDepthTransform);
@@ -33,6 +34,8 @@ protected:
 
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);
+
+    void			initGrpCB(CallBacker*);
     void			createCB(CallBacker*);
     void			setZRangeCB(CallBacker*);
     void			editCB(CallBacker*);

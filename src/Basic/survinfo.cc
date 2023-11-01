@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "survinfo.h"
+
 #include "ascstream.h"
 #include "coordsystem.h"
 #include "dirlist.h"
@@ -479,7 +480,7 @@ Coord3 Survey::Geometry3D::oneStepTranslation( const Coord3& planenormal ) const
     }
     else
     {
-	Coord norm2d = planenormal;
+	Coord norm2d = planenormal.coord();
 	norm2d.normalize();
 
 	if ( fabs(norm2d.dot(b2c_.inlDir())) > 0.5 )
@@ -874,7 +875,7 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
     }
 
     if ( si->coordsystem_ )
-	si->xyinfeet_ = si->coordsystem_->isFeet();
+	si->setXYInFeet( si->coordsystem_->isFeet() );
     else
     {
 	const BufferString ll2cstr = obj.getStringValue( sKeyLatLongAnchor );
@@ -884,13 +885,13 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& ret )
 	    RefMan<Coords::AnchorBasedXY> anchoredsystem =
 		new Coords::AnchorBasedXY( si->ll2c_.refLatLong(),
 		    si->ll2c_.refCoord() );
-	    anchoredsystem->setIsFeet( si->xyinfeet_ );
+	    anchoredsystem->setIsFeet( si->xyInFeet() );
 	    si->coordsystem_ = anchoredsystem;
 	}
 	else
 	{
 	    RefMan<Coords::UnlocatedXY> undefsystem = new Coords::UnlocatedXY;
-	    undefsystem->setIsFeet( si->xyinfeet_ );
+	    undefsystem->setIsFeet( si->xyInFeet() );
 	    si->coordsystem_ = undefsystem;
 	}
     }
@@ -1224,18 +1225,7 @@ float SurveyInfo::zStep() const
 
 int SurveyInfo::nrZDecimals() const
 {
-    const double zstep =
-		sCast(double,zStep()*zDomain().userFactor());
-    int nrdec = 0;
-    double decval = zstep;
-    while ( decval > Math::Floor(decval) &&
-	    !mIsZero(decval,1e-4) && !mIsEqual(decval,1.,1e-4) )
-    {
-	nrdec++;
-	decval = decval*10 - Math::Floor(decval*10);
-    }
-
-    return nrdec;
+    return zDomain().nrZDecimals( zStep() );
 }
 
 
@@ -1449,6 +1439,13 @@ SurveyInfo::Unit SurveyInfo::zUnit() const
 }
 
 
+ZDomain::DepthType SurveyInfo::depthType() const
+{
+    return depthsInFeet() ? ZDomain::DepthType::Feet
+			  : ZDomain::DepthType::Meter;
+}
+
+
 void SurveyInfo::putZDomain( IOPar& iop ) const
 {
     zdef_.set( iop );
@@ -1459,22 +1456,30 @@ const ZDomain::Def& SurveyInfo::zDomain() const
 { return zdef_; }
 
 
+const ZDomain::Info& SurveyInfo::zDomainInfo() const
+{
+    return zIsTime() ? ZDomain::TWT()
+		     : (zInMeter() ? ZDomain::DepthMeter()
+				   : ZDomain::DepthFeet() );
+}
+
+
 const char* SurveyInfo::getXYUnitString( bool wb ) const
 {
-    return getDistUnitString( xyinfeet_, wb );
+    return getDistUnitString( xyInFeet(), wb );
 }
 
 
 uiString SurveyInfo::getUiXYUnitString( bool abbrvt, bool wb ) const
 {
-    return uiStrings::sDistUnitString( xyinfeet_, abbrvt, wb );
+    return uiStrings::sDistUnitString( xyInFeet(), abbrvt, wb );
 }
 
 
 void SurveyInfo::setZUnit( bool istime, bool infeet )
 {
     zdef_ = istime ? ZDomain::Time() : ZDomain::Depth();
-    depthsinfeet_ = infeet;
+    setDepthInFeet( infeet );
 }
 
 
@@ -1560,7 +1565,9 @@ uiString SurveyInfo::set3PtsWithMsg( const Coord c[3], const BinID b[2],
     set3coords_[0] = c[0];
     set3coords_[1] = c[1];
     set3coords_[2] = c[2];
+
     update3DGeometry();
+
     return uiString::empty();
 }
 
@@ -1568,7 +1575,7 @@ uiString SurveyInfo::set3PtsWithMsg( const Coord c[3], const BinID b[2],
 void SurveyInfo::gen3Pts()
 {
     set3binids_[0] = tkzs_.hsamp_.start_;
-    set3binids_[1]  = tkzs_.hsamp_.stop_;
+    set3binids_[1] = tkzs_.hsamp_.stop_;
     set3binids_[2] = BinID( tkzs_.hsamp_.start_.inl(),
 			    tkzs_.hsamp_.stop_.crl() );
     set3coords_[0] = transform( set3binids_[0] );
@@ -1701,7 +1708,7 @@ bool SurveyInfo::writeSurveyFile( const char* basedir, bool isjson ) const
 
 	fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
 	fms += tkzs_.zsamp_.step;
-	fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
+	fms += zIsTime() ? "T" : ( depthsInFeet() ? "F" : "D" );
 	astream.put( sKeyZRange(), fms );
 
 	writeSpecLines( &astream );
@@ -1821,7 +1828,7 @@ void SurveyInfo::writeSpecLines( ascostream* astream,
 	}
     }
     else if ( !obj )
-	astream->putYN( sKeyXYInFt(), xyinfeet_ );
+	astream->putYN( sKeyXYInFt(), xyInFeet() );
 
     if ( obj )
     {

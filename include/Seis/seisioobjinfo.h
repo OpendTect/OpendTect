@@ -10,12 +10,13 @@ ________________________________________________________________________
 
 #include "seismod.h"
 
+#include "bufstring.h"
 #include "datachar.h"
 #include "datadistribution.h"
+#include "odcommonenums.h"
 #include "samplingdata.h"
 #include "seistype.h"
 #include "survgeom.h"
-#include "bufstring.h"
 
 
 class BinIDValueSet;
@@ -25,7 +26,8 @@ class SeisIOObjInfo;
 class SeisTrcTranslator;
 class SurveyChanger;
 class TrcKeyZSampling;
-namespace ZDomain { class Def; }
+class UnitOfMeasure;
+namespace ZDomain { class Def; class Info; }
 
 
 /*!\brief Summary for a Seismic object */
@@ -110,9 +112,24 @@ public:
 
     Seis::GeomType	geomType() const	{ return geomtype_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
+    const ZDomain::Info& zDomain() const;
+    const ZDomain::Def& zDomainDef() const;
     bool		isTime() const;
     bool		isDepth() const;
-    const ZDomain::Def&	zDomainDef() const;
+    bool		zInMeter() const;
+    bool		zInFeet() const;
+    const UnitOfMeasure* zUnit() const;
+    ZSampling		getConvertedZrg(const ZSampling&) const;
+			/*!\ If the dataset zunit is not the project zdomain
+			     unit, convert zsamp to the project zdomain unit
+			     Does not convert accross domains (Time/Depth)  */
+
+    const UnitOfMeasure* offsetUnit() const;
+			//<! Pre-Stack only
+    Seis::OffsetType	offsetType() const;
+			//<! Pre-Stack only
+    bool		isCorrected() const;
+			//<! Pre-Stack only
 
     mStruct(Seis) SpaceInfo
     {

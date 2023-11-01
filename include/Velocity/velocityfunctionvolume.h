@@ -43,10 +43,10 @@ public:
 
 protected:
 
-    bool		computeVelocity(float z0, float dz, int nr,
-					float* res ) const override;
+    bool		computeVelocity(float z0,float dz,int sz,
+					float* res) const override;
 
-    bool			zit_;
+    bool			zit_; //deprecated
     SamplingData<float>		velsampling_;
     TypeSet<float>		vel_;
 
@@ -60,13 +60,13 @@ mExpClass(Velocity) VolumeFunctionSource : public FunctionSource
 { mODTextTranslationClass(VolumeFunctionSource);
 public:
 				mDefaultFactoryInstanciationBase(
-				"Velocity volume", 
-				toUiString(sFactoryKeyword()));
+				"Velocity volume",
+				::toUiString(sFactoryKeyword()));
 				VolumeFunctionSource();
 
     const VelocityDesc&		getDesc() const override { return desc_; }
 
-    bool			zIsTime() const;
+    bool			zIsTime() const; // In base class now
     bool			setFrom(const MultiID& vel);
 
     VolumeFunction*		createFunction(const BinID&) override;
@@ -76,6 +76,7 @@ public:
     bool			getVel(const BinID&,SamplingData<float>&,
 				       TypeSet<float>&);
 
+    mDeprecatedDef
     static const char*		sKeyZIsTime() { return "Z is Time"; }
 
 protected:
@@ -88,7 +89,7 @@ protected:
     ObjectSet<const void>	threads_;
 
     Threads::Lock		readerlock_;
-    bool			zit_;
+    bool			zit_; //deprecated
     VelocityDesc		desc_;
 };
 

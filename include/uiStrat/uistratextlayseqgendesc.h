@@ -47,12 +47,13 @@ protected:
     uiTextItem*		emptyitm_ = nullptr;
     uiBorder		border_ = 10;	//!< can be set
     const uiRect	workrect_;	//!< will be filled
-    bool		zinft_;		//!< From SI()
+    bool		zinft_;		//!< deprecated
     MultiID		descid_;
 
     void		getTopDepthFromScreen();
     void		putTopDepthToScreen();
 
+    void		initView(CallBacker*);
     void		reDraw(CallBacker*);
     void		wheelMoveCB(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }

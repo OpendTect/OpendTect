@@ -10,14 +10,16 @@ ________________________________________________________________________
 #include "velocityfunctionascio.h"
 
 #include "binidvalset.h"
-#include "hiddenparam.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "tableconv.h"
 #include "unitofmeasure.h"
 #include "od_istream.h"
 
-static HiddenParam<Vel::FunctionAscIO,Pos::GeomID*> hp_geomid( nullptr );
+#include "hiddenparam.h"
+
+static HiddenParam<Vel::FunctionAscIO,Pos::GeomID*>
+			velfuncasciogeomidmgr_( nullptr );
 
 namespace Vel
 {
@@ -32,7 +34,8 @@ FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
     , nrdone_(0)
     , nrkbytes_(nrkbytes)
 {
-    hp_geomid.setParam( this, new Pos::GeomID(Survey::default3DGeomID()) );
+    velfuncasciogeomidmgr_.setParam( this,
+			new Pos::GeomID(Survey::default3DGeomID()) );
 }
 
 
@@ -47,13 +50,13 @@ FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
     , nrdone_(0)
     , nrkbytes_(nrkbytes)
 {
-    hp_geomid.setParam( this, new Pos::GeomID(geomid) );
+    velfuncasciogeomidmgr_.setParam( this, new Pos::GeomID(geomid) );
 }
 
 
 FunctionAscIO::~FunctionAscIO()
 {
-    hp_geomid.removeAndDeleteParam( this );
+    velfuncasciogeomidmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -78,7 +81,7 @@ void FunctionAscIO::createDescBody( Table::FormatDesc& fd )
 
 Table::FormatDesc* FunctionAscIO::getDesc( bool is2d )
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Velocity Function" );
+    auto* fd = new Table::FormatDesc( "Velocity Function" );
     createDescBody( *fd, is2d );
     return fd;
 }
@@ -132,7 +135,7 @@ int FunctionAscIO::nextStep()
     const od_stream::Pos newpos = strm_.position();
     nrdone_ += newpos-oldpos;
 
-    const Pos::GeomID geomid = *hp_geomid.getParam(this);
+    const Pos::GeomID geomid = *velfuncasciogeomidmgr_.getParam(this);
     if ( first_ )
     {
 	first_ = false;

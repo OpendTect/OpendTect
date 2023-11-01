@@ -325,7 +325,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	if ( nrfound && procman->process() )
 	{
 	    auto gather = DPM(DataPackMgr::FlatID()).get<Gather>(
-							procman->getOutput() );
+						    procman->getOutput() );
 	    if ( gather )
 	    {
 		const int nrtraces =

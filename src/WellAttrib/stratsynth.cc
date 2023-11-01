@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "fftfilter.h"
 #include "hilbertattrib.h"
 #include "ioman.h"
+#include "keystrs.h"
 #include "prestackanglecomputer.h"
 #include "prestackgather.h"
 #include "prestackprop.h"
@@ -191,7 +192,7 @@ void StratSynth::DataMgr::addLayModelSets( bool withmod )
 }
 
 
-void StratSynth::DataMgr::lmsEdChgCB( CallBacker* cb )
+void StratSynth::DataMgr::lmsEdChgCB( CallBacker* )
 {
     const int nrnow = lmdatasets_.size();
     for ( int idx=nrnow-1; idx>=1; idx-- )
@@ -1332,6 +1333,7 @@ ElasticModelCreator( const Strat::LayerModel& lm, ElasticModelSet& ems,
 		     int calceach )
     : ::ParallelTask( "Elastic Model Generator" )
     , lm_(lm)
+    , laydepthuom_(PropertyRef::thickness().unit())
     , elasticmodels_(ems)
     , calceach_(calceach)
 {
@@ -1412,10 +1414,13 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticPropGen& elpgen,
 {
     elmod.setEmpty();
 
-    const float srddepth = -1.f*mCast(float,SI().seismicReferenceDatum() );
+    const float srd =
+		getConvertedValue( SI().seismicReferenceDatum(),
+				   UnitOfMeasure::surveyDefSRDStorageUnit(),
+				   laydepthuom_ );
     int firstidx = 0;
-    if ( seq.startDepth() < srddepth )
-	firstidx = seq.nearestLayerIdxAtZ( srddepth );
+    if ( seq.startDepth() < -srd )
+	firstidx = seq.nearestLayerIdxAtZ( -srd );
 
     if ( seq.isEmpty() )
     {
@@ -1438,10 +1443,11 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticPropGen& elpgen,
 	const Strat::Layer& lay = *layers.get( idx );
 	float thickness = lay.thickness();
 	if ( idx == firstidx )
-	    thickness += lay.zTop() - srddepth;
+	    thickness += lay.zTop() + srd;
 	if ( thickness < 1e-4f )
 	    continue;
 
+	thickness = laydepthuom_->getSIValue( thickness );
 	const int propvalssz = lay.nrValues(); // May be smaller than prssz
 	lay.getValues( propvalsptr, propvalssz );
 	elpgen.getVals( propvalsptr, propvalssz, elvalsptr, elvalssz );
@@ -1485,6 +1491,7 @@ static float cMaximumVpWaterVel()
     const Strat::LayerModel&	lm_;
     od_int64			nrmodels_;
     const int			calceach_;
+    const UnitOfMeasure*	laydepthuom_;
     ElasticModelSet&		elasticmodels_;
     Threads::Mutex		mutex_;
     uiString			msg_;
@@ -1580,10 +1587,12 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 		    needinterpolatedvel = true;
 		    if ( needinfo && !infomsg_.isSet() )
 		    {
-			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
+			const Mnemonic& pvelmn = Mnemonic::defPVEL();
+			const float pvel =
+			    pvelmn.unit()->getUserValueFromSI(layer.getPVel());
 			msg.append( tr("'Pwave' ( sample value: %1 %2 )")
-				.arg(toString(layer.getPVel()))
-				.arg(uom ? uom->symbol() : "") );
+				.arg(toString(pvel))
+				.arg(pvelmn.disp_.getUnitLbl()) );
 		    }
 		}
 
@@ -1592,10 +1601,12 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 		    needinterpoltedden = true;
 		    if ( needinfo && !infomsg_.isSet() )
 		    {
-			const UnitOfMeasure* uom = UoMR().get( "Kg/m3" );
+			const Mnemonic& denmn = Mnemonic::defDEN();
+			const float den =
+			    denmn.unit()->getUserValueFromSI(layer.getDen());
 			msg.append( tr("'Density' ( sample value: %1 %2 )")
-				.arg(toString(layer.getDen()))
-				.arg(uom ? uom->symbol() : "") );
+				.arg(toString(den))
+				.arg(denmn.disp_.getUnitLbl()) );
 		    }
 		}
 
@@ -1604,10 +1615,12 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 		    needinterpolatedsvel = true;
 		    if ( needinfo && !infomsg_.isSet() )
 		    {
-			const UnitOfMeasure* uom = UoMR().get( "Meter/second" );
+			const Mnemonic& svelmn = Mnemonic::defSVEL();
+			const float svel =
+			    svelmn.unit()->getUserValueFromSI(layer.getSVel());
 			msg.append( tr("'Swave' ( sample value: %1 %2 )")
-				.arg(toString(layer.getSVel()))
-				.arg(uom ? uom->symbol() : "") );
+				.arg(toString(svel))
+				.arg(svelmn.disp_.getUnitLbl()) );
 		    }
 		}
 	    }
@@ -1786,8 +1799,17 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 	    {
 		const ElasticModelSet& elmdls =
 				    *elasticmodelsets_[ curLayerModelIdx() ];
+		const float srd = getConvertedValue(
+				    SI().seismicReferenceDatum(),
+				    UnitOfMeasure::surveyDefSRDStorageUnit(),
+				    UnitOfMeasure::surveyDefDepthUnit() );
+		const Seis::OffsetType offstyp = SI().xyInFeet()
+				    ? Seis::OffsetType::OffsetFeet
+				    : Seis::OffsetType::OffsetMeter;
+		const ZDomain::DepthType depthtype = SI().depthType();
 		refmodels = Seis::RaySynthGenerator::getRefModels( elmdls,
-						*sgp.reflPars(), msg, taskrun );
+					    *sgp.reflPars(), msg, taskrun,
+					    srd, offstyp, depthtype );
 	    }
 	    if ( !refmodels )
 		return nullptr;
@@ -2859,7 +2881,7 @@ bool doPrepare( int nrthreads ) override
     for ( int ithread=0; ithread<nrthreads; ithread++ )
     {
 	RefMan<PreStack::ModelBasedAngleComputer> anglecomputer =
-					new PreStack::ModelBasedAngleComputer;
+				new PreStack::ModelBasedAngleComputer();
 	anglecomputer->setRayTracerPars( *pssd_.getGenParams().reflPars() );
 	anglecomputer->setFFTSmoother( 10.f, 15.f );
 	anglecomputers_.add( anglecomputer );
@@ -2891,7 +2913,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 
 	mDynamicCastGet(const OffsetReflectivityModel*,offrefmodel,refmodel);
 	const PreStack::Gather& seisgather = *seisgathers_[idx];
-	anglecomputer.setOutputSampling( seisgather.posData() );
+	anglecomputer.setOutputSampling( seisgather.posData(),
+					 seisgather.offsetType(),
+					 seisgather.zDomain() );
 	anglecomputer.setGatherIsNMOCorrected( seisgather.isCorrected() );
 	anglecomputer.setRefModel( *offrefmodel, seisgather.getTrcKey() );
 	RefMan<PreStack::Gather> anglegather = anglecomputer.computeAngles();

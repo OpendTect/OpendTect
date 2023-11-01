@@ -161,7 +161,7 @@ void Scene::setup()
 
 
 #define mRemoveSelector \
-unRefAndZeroPtr( polyselector_ ); \
+unRefAndNullPtr( polyselector_ ); \
 deleteAndNullPtr( coordselector_ )
 
 Scene::~Scene()
@@ -276,7 +276,7 @@ uiString Scene::zDomainUserName() const
 { return mToUiStringTodo(zdomaininfo_->userName()); }
 
 const char* Scene::zDomainUnitStr( bool withparens ) const
-{ return zdomaininfo_->unitStr( withparens ); }
+{ return zdomaininfo_->unitStr_( withparens ); }
 
 int Scene::zDomainUserFactor() const
 { return zdomaininfo_->userFactor(); }
@@ -964,8 +964,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 	const Interval<float> zrg = zat->getZInterval( false );
 	if ( !zrg.isUdf() )
 	{
-	    cs.zsamp_.start = zrg.start;
-	    cs.zsamp_.stop = zrg.stop;
+	    cs.zsamp_.setFrom( zrg );
 	    cs.zsamp_.step = zat->getGoodZStep();
 	}
 

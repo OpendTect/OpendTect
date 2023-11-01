@@ -45,30 +45,30 @@ public:
 
     MultiID		getOutputKey() const	{ return outputid_;}
 
-protected:
+private:
 
     FullSpec		fs_;
     BufferString	objname_;
     MultiID		outputid_;
-    Coords::CoordSystem* coordsys_ 	= nullptr;
+    Coords::CoordSystem* coordsys_		= nullptr;
 
-    uiIOObjSel*		outwllfld_;
-    uiComboBox*		lognmfld_;
-    uiGenInput*		inpdomfld_;
-    uiCheckBox*		isfeetfld_;
+    uiIOObjSel*		outwllfld_		= nullptr;
+    uiComboBox*		lognmfld_		= nullptr;
+    uiGenInput*		inpdomfld_		= nullptr;
+    uiCheckBox*		isfeetfld_		= nullptr;
 
-    uiSeisSel*		outimpfld_;
-    uiSeisSel*		outscanfld_;
-    uiSeisTransfer*	transffld_;
-    uiGenInput*		remnullfld_;
-    uiSeis2DLineNameSel* lnmfld_;
-    uiGenInput*		docopyfld_;
-    uiComboBox*		coordsfromfld_;
-    uiGenInput*		coordfileextfld_;
-    uiGenInput*		coordsstartfld_;
-    uiGenInput*		coordsstepfld_;
-    uiFileInput*	coordfilefld_;
-    uiBatchJobDispatcherSel* batchfld_;
+    uiSeisSel*		outimpfld_		= nullptr;
+    uiSeisSel*		outscanfld_		= nullptr;
+    uiSeisTransfer*	transffld_		= nullptr;
+    uiGenInput*		remnullfld_		= nullptr;
+    uiSeis2DLineNameSel* lnmfld_		= nullptr;
+    uiGenInput*		docopyfld_		= nullptr;
+    uiComboBox*		coordsfromfld_		= nullptr;
+    uiGenInput*		coordfileextfld_	= nullptr;
+    uiGenInput*		coordsstartfld_		= nullptr;
+    uiGenInput*		coordsstepfld_		= nullptr;
+    uiFileInput*	coordfilefld_		= nullptr;
+    uiBatchJobDispatcherSel* batchfld_		= nullptr;
 
     void		crVSPFields();
     void		crSeisFields();
@@ -92,7 +92,7 @@ protected:
     bool		handleWarnings(bool,SEGY::FileIndexer*,SeisImporter*);
     bool		putCoordChoiceInSpec();
 
-    void		initWin(CallBacker*);
+    void		initDlgCB(CallBacker*);
     void		wllSel(CallBacker*);
     void		inpDomChg(CallBacker*);
     void		coordsFromChg(CallBacker*);

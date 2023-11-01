@@ -9,49 +9,54 @@ ________________________________________________________________________
 
 #include "uiwellt2dconv.h"
 
-#include "uiioobjsel.h"
-#include "survinfo.h"
 #include "binidvalue.h"
-#include "welltransl.h"
-#include "wellt2dtransform.h"
+#include "survinfo.h"
 #include "uimsg.h"
+#include "uiioobjsel.h"
 #include "uizrangeinput.h"
+
+#include "wellt2dtransform.h"
+#include "welltransl.h"
 #include "zdomain.h"
 
 
 uiWellT2DTransform::uiWellT2DTransform( uiParent* p )
-    : uiTime2DepthZTransformBase(p, true )
-    , transform_( 0 )
+    : uiTime2DepthZTransformBase(p,true)
+    , transform_(nullptr)
 {
-    fld_ = new uiIOObjSel( this, mIOObjContext(Well), 
+    fld_ = new uiIOObjSel( this, mIOObjContext(Well),
 			   uiString::emptyString() );
-    fld_->selectionDone.notify( mCB(this,uiWellT2DTransform,setZRangeCB) );
-
+    mAttachCB( fld_->selectionDone, uiWellT2DTransform::setZRangeCB );
     setHAlignObj( fld_ );
-    postFinalize().notify( mCB(this,uiWellT2DTransform,setZRangeCB) );
+    mAttachCB( postFinalize(), uiWellT2DTransform::initGrpCB );
 }
 
 
 uiWellT2DTransform::~uiWellT2DTransform()
 {
-    unRefAndZeroPtr( transform_ );
+    detachAllNotifiers();
+    unRefPtr( transform_ );
+}
+
+
+void uiWellT2DTransform::initGrpCB( CallBacker* )
+{
+    setZRangeCB( nullptr );
+    uiTime2DepthZTransformBase::finalizeDoneCB( nullptr );
 }
 
 
 ZAxisTransform* uiWellT2DTransform::getSelection()
 {
     unRefAndZeroPtr( transform_ );
-
     const IOObj* ioobj = fld_->ioobj( true );
-    if ( !ioobj ) return 0;
+    if ( !ioobj )
+	return nullptr;
 
     transform_ = new WellT2DTransform( ioobj->key() );
     refPtr( transform_ );
     if ( !transform_ || !transform_->isOK() )
-    {
 	unRefAndZeroPtr( transform_ );
-	return 0;
-    }
 
     return transform_;
 }
@@ -59,18 +64,17 @@ ZAxisTransform* uiWellT2DTransform::getSelection()
 
 void uiWellT2DTransform::setZRangeCB( CallBacker* )
 {
-    RefMan<ZAxisTransform> trans = getSelection();
+    ConstRefMan<ZAxisTransform> trans = getSelection();
     if ( !rangefld_ )
 	return;
 
     if ( !rangechanged_ )
     {
-	StepInterval<float> range( StepInterval<float>::udf() );
+	StepInterval<float> range = StepInterval<float>::udf();
 	if ( trans )
 	{
-	    range = trans->getZInterval( false );
+	    range.setFrom( trans->getZInterval( false ) );
 	    range.step = trans->getGoodZStep();
-	    if ( range.isUdf() ) range.setUdf();
 	}
 
 	rangefld_->setZRange( range );
@@ -103,7 +107,6 @@ bool uiWellT2DTransform::acceptOK()
 }
 
 
-
 void uiWellT2DTransform::initClass()
 {
     uiZAxisTransform::factory().addCreator( createInstance,
@@ -115,8 +118,9 @@ void uiWellT2DTransform::initClass()
 uiZAxisTransform* uiWellT2DTransform::createInstance(uiParent* p,
 				const char* fromdomain, const char* todomain )
 {
-    if ( fromdomain!=ZDomain::sKeyTime() || todomain!=ZDomain::sKeyDepth() )
-	return 0;
+    if ( StringView(fromdomain) != ZDomain::sKeyTime() ||
+	 StringView(todomain) != ZDomain::sKeyDepth() )
+	return nullptr;
 
     return new uiWellT2DTransform( p );
 }

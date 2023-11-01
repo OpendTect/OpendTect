@@ -10,9 +10,8 @@ ________________________________________________________________________
 #include "uilinearveltrans.h"
 
 #include "timedepthconv.h"
+#include "unitofmeasure.h"
 #include "zdomain.h"
-#include "survinfo.h"
-#include "binidvalue.h"
 
 #include "uiconstvel.h"
 #include "uimsg.h"
@@ -33,36 +32,47 @@ uiZAxisTransform* uiLinearVelTransform::createInstance( uiParent* p,
 						const char* todomain )
 {
     if ( !fromdomain || !todomain )
-	return 0;
+	return nullptr;
 
-    if ( fromdomain==ZDomain::sKeyTime() && todomain==ZDomain::sKeyDepth() )
+    if ( StringView(fromdomain) == ZDomain::sKeyTime() &&
+	 StringView(todomain) == ZDomain::sKeyDepth() )
 	return new uiLinearVelTransform( p, true );
-    else if ( fromdomain==ZDomain::sKeyDepth() && todomain==ZDomain::sKeyTime())
+    else if ( StringView(fromdomain) == ZDomain::sKeyDepth() &&
+	      StringView(todomain) == ZDomain::sKeyTime() )
 	return new uiLinearVelTransform( p, false );
 
-    return 0;
+    return nullptr;
 }
 
 
 uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase( p, t2d )
 {
-    const uiString velfldlbl( VelocityDesc::toUiString(VelocityDesc::Interval));
-    velfld_ = new uiConstantVel( this, Vel::getGUIDefaultVelocity(), velfldlbl);
-    mAttachCB( velfld_->valuechanging, uiLinearVelTransform::velChangedCB );
+    const uiString velfldlbl( OD::toUiString(OD::VelocityType::Interval) );
+    velfld_ = new uiConstantVel( this, getGUIDefaultVelocity(), velfldlbl );
+    mAttachCB( velfld_->valueChanging, uiLinearVelTransform::velChangedCB );
 
+    // gradient is always Vel/depth, thus always in m/s/m == 1/s
+    const uiString zunitlbl = UnitOfMeasure::surveyDefZUnitAnnot(true,false);
     gradientfld_ = new uiGenInput( this, tr("Gradient (1/s)"), FloatInpSpec(0));
     gradientfld_->attach( rightTo, velfld_ );
-    mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform::velChangedCB);
+    mAttachCB( gradientfld_->valueChanging, uiLinearVelTransform::velChangedCB);
 
     setHAlignObj( velfld_ );
-    postFinalize().notify( mCB(this,uiLinearVelTransform,velChangedCB) );
+    mAttachCB( postFinalize(), uiLinearVelTransform::initGrpCB );
 }
 
 
 uiLinearVelTransform::~uiLinearVelTransform()
 {
     detachAllNotifiers();
+}
+
+
+void uiLinearVelTransform::initGrpCB( CallBacker* )
+{
+    velChangedCB( nullptr );
+    uiTime2DepthZTransformBase::finalizeDoneCB( nullptr );
 }
 
 
@@ -73,13 +83,12 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 
     if ( !rangechanged_ )
     {
-	StepInterval<float> range( StepInterval<float>::udf() );
-	RefMan<ZAxisTransform> trans = getSelection();
+	ZSampling range = ZSampling::udf();
+	ConstRefMan<ZAxisTransform> trans = getSelection();
 	if ( trans )
 	{
-	    range = trans->getZInterval( false );
+	    range.setFrom( trans->getZInterval( false ) );
 	    range.step = trans->getGoodZStep();
-	    if ( range.isUdf() ) range.setUdf();
 	}
 
 	NotifyStopper stopper( rangefld_->valuechanging );
@@ -90,43 +99,43 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 
 StringView uiLinearVelTransform::toDomain() const
 {
-    return t2d_ ? ZDomain::sKeyDepth() : ZDomain::sKeyTime();
+    return isTimeToDepth() ? ZDomain::sKeyDepth() : ZDomain::sKeyTime();
 }
 
 
 StringView uiLinearVelTransform::fromDomain() const
 {
-    return t2d_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth();
+    return isTimeToDepth() ? ZDomain::sKeyTime() : ZDomain::sKeyDepth();
 }
 
 
 ZAxisTransform*	uiLinearVelTransform::getSelection()
 {
-    const float vel = velfld_->getFValue();
+    const double vel = velfld_->getDValue();
     if ( mIsUdf(vel) )
-	return 0;
+	return nullptr;
 
-    const float gradient = gradientfld_->getFValue();
+    const double gradient = gradientfld_->getDValue();
     if ( mIsUdf(gradient) )
-	return 0;
+	return nullptr;
 
-    if ( t2d_ )
-	return new LinearT2DTransform( vel, gradient );
-
-    return new LinearD2TTransform( vel, gradient );
+    if ( isTimeToDepth() )
+	return new LinearT2DTransformNew( vel, gradient );
+    else
+	return new LinearD2TTransformNew( vel, gradient );
 }
 
 
 bool uiLinearVelTransform::acceptOK()
 {
-    const float vel = velfld_->getFValue();
+    const double vel = velfld_->getDValue();
     if ( mIsUdf(vel) )
     {
 	uiMSG().error(tr("Velocity is not set"));
 	return false;
     }
 
-    const float gradient = gradientfld_->getFValue();
+    const double gradient = gradientfld_->getDValue();
     if ( mIsUdf(gradient) )
     {
 	uiMSG().error(tr("Gradient is not set"));
@@ -135,7 +144,7 @@ bool uiLinearVelTransform::acceptOK()
 
     if ( rangefld_ )
     {
-	const StepInterval<float> range = rangefld_->getFZRange();
+	const ZSampling range = rangefld_->getFZRange();
 	if ( range.isUdf() )
 	{
 	    uiMSG().error( tr("Z-Range is not set") );
