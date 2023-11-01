@@ -179,7 +179,7 @@ public:
     void			setSampling(const StepInterval<T>&);
 
     od_int64			size() const override	{ return sz_; }
-    char			bytesPerItem() const	{ return 0; }
+    char			bytesPerItem() const override	{ return 0; }
 
     const SamplingData<T>&	getSampling() const	{ return sd_; }
 

@@ -241,7 +241,7 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
     PtrMan<Array1D<float> > outputarr;
     PtrMan<FloatMathFunction> intrcfunc;
     PtrMan<ZAxisTransformSampler> sampler;
-    float* outputptr;
+    float* outputptr = nullptr;
     const bool standardstretch = !worker_;
     if ( standardstretch )
     {

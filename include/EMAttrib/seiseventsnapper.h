@@ -26,7 +26,7 @@ public:
 				~SeisEventSnapper();
 
     void			setEvent( VSEvent::Type tp )
-    				{ eventtype_ = tp; }
+				{ eventtype_ = tp; }
     VSEvent::Type		getEvent() const	{ return eventtype_; }
 
     void			setSearchGate( const Interval<float>& gate )
@@ -35,12 +35,12 @@ public:
 
     od_int64			totalNr() const override { return totalnr_; }
     od_int64			nrDone() const override  { return nrdone_; }
-    uiString			uiNrDoneText() const;
+    uiString			uiNrDoneText() const override;
 
 protected:
 
     float			findNearestEvent(const SeisTrc&,
-	    					 float tarz) const;
+						 float tarz) const;
 
     Interval<float>		searchgate_;
     VSEvent::Type		eventtype_;

@@ -72,10 +72,6 @@ ZSampling IntervalFunction::getAvailableZ() const
 bool IntervalFunction::computeVelocity( float z0, float dz, int sz,
 					float* res ) const
 {
-    mAllocVarLenArr( float, input, sz );
-    if ( !mIsVarLenArrOK(input) )
-	return false;
-
     const SamplingData<float> sd( z0, dz );
     const RegularZValues zvals( sd, sz, inputfunc_->zDomain() );
     for ( od_int64 idx=0; idx<sz; idx++ )

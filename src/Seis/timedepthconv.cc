@@ -62,7 +62,7 @@ private:
     od_int64	nrDone() const override			{ return nrdone_; }
     od_int64	totalNr() const override		{ return totalnr_; }
 
-    bool	doPrepare(od_ostream*);
+    bool	doPrepare(od_ostream*) override;
     int		nextStep() override;
 
     const TrcKeySampling&	tks_;
@@ -621,7 +621,7 @@ bool VelocityStretcher::getRange( const IOPar& par, const VelocityDesc& desc,
 {
     const char* velrgkey = top ? sKeyTopVavg() : sKeyBotVavg();
     FileMultiString fms;
-    if ( !par.get(velrgkey,fms) || !fms.size() > 1 )
+    if ( !par.get(velrgkey,fms) || fms.size() < 2 )
 	return false;
 
     Interval<float> ret;
