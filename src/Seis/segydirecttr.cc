@@ -690,6 +690,9 @@ bool SEGYDirectSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
 
     BufferStringSet segyfiles;
     SEGY::DirectDef segydef( ioobj->mainFileName() );
+    if ( segydef.isEmpty() )
+	return false;
+
     const SEGY::FileDataSet& fds = segydef.fileDataSet();
     FilePath survfp( GetDataDir() );
     survfp.makeCanonical();
