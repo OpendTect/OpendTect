@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uisurvinfoed.h"
 #include "uisip.h"
 
+#include "batchprogtracker.h"
 #include "bufstringset.h"
 #include "coordsystem.h"
 #include "trckeyzsampling.h"
@@ -19,6 +20,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "mousecursor.h"
+#include "netservice.h"
 #include "oddirs.h"
 #include "ptrman.h"
 #include "survinfo.h"
@@ -35,12 +37,66 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uinotsaveddlg.h"
 #include "uiseparator.h"
+#include "uisetdatadir.h"
 #include "uisurveyselect.h"
 #include "uitabstack.h"
 #include "od_helpids.h"
 
 extern "C" const char* GetBaseDataDir();
+
+class uiBatchProgClosePrompter : public uiDialog
+{ mODTextTranslationClass(uiBatchProgClosePrompter)
+public:
+    uiBatchProgClosePrompter( uiParent* p,
+	const TypeSet<Network::Service::ID>& servids )
+	: uiDialog(p,uiDialog::Setup(tr("Batch Program Information"),
+						    mNoDlgTitle, mNoHelpKey))
+    {
+	setTitleText( tr("There are batch processes currently running.\n"
+	    "Please close these processes before proceeding.\n"
+	    "Click on continue once all the process are closed") );
+
+	label_ = new uiLabel( this, msg(servids.size()) );
+
+	setCtrlStyle( CtrlStyle::CloseOnly );
+	setCancelText( m3Dots(uiStrings::sContinue()) );
+    }
+
+
+protected:
+    bool rejectOK( CallBacker* ) override
+    {
+	TypeSet<Network::Service::ID> servids;
+	BPT().getLiveServiceIDs( servids );
+	if ( !servids.isEmpty() )
+	{
+	    updateLabel( msg(servids.size()) );
+	    return false;
+	}
+
+	return true;
+    }
+
+    void updateLabel( const uiString& msg )
+    {
+	label_->setText( msg );
+    }
+
+    uiString msg( int nr )
+    {
+	uiString msg = tr("Current number of active batch processes : %1").
+								    arg(nr);
+	return msg;
+
+    }
+
+
+    uiLabel*	label_;
+
+};
+
 
 uiString uiSurveyInfoEditor::getSRDString( bool infeet )
 {
@@ -60,6 +116,7 @@ uiString uiSurveyInfoEditor::getCoordString( bool infeet )
     return txt;
 }
 
+static bool iscurr_;
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					bool isnew )
@@ -80,6 +137,38 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     , sipfld_(nullptr)
     , xyinftfld_(nullptr)
     , dirnamechanged(false)
+{
+    iscurr_ = false;
+    init();
+}
+
+
+uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, bool iscurr,
+						SurveyInfo& si, bool isnew )
+    : uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
+	mNoDlgTitle,
+	mODHelpKey(mSurveyInfoEditorHelpID))
+	.nrstatusflds(1))
+    , survParChanged(this)
+    , si_(si)
+    , orgdirname_(si_.getDirName().buf())
+    , rootdir_(GetBaseDataDir())
+    , isnew_(isnew)
+    , impiop_(nullptr)
+    , lastsip_(nullptr)
+    , coordsystem_(si.getCoordSystem())
+    , x0fld_(nullptr)
+    , topgrp_(nullptr)
+    , sipfld_(nullptr)
+    , xyinftfld_(nullptr)
+    , dirnamechanged(false)
+{
+    iscurr_ = iscurr;
+    init();
+}
+
+
+void uiSurveyInfoEditor::init()
 {
     orgstorepath_ = si_.getDataDirName().buf();
 
@@ -154,9 +243,12 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     mkTransfGrp();
     mkCRSGrp();
 
-    uiButton* applybut = uiButton::getStd( this, OD::Apply,
+    if ( !iscurr_ )
+    {
+	uiButton* applybut = uiButton::getStd( this, OD::Apply,
 			    mCB(this,uiSurveyInfoEditor,appButPushed), true );
-    applybut->attach( centeredBelow, tabs_ );
+	applybut->attach( centeredBelow, tabs_ );
+    }
 
     mAttachCB( afterPopup, uiSurveyInfoEditor::doFinalize );
 }
@@ -516,8 +608,7 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
     if ( File::exists(fnmout) )
     {
 	uiString msg = tr("Cannot copy %1 to %2"
-			  "\nbecause target folder exists.")
-		     .arg(fnmin).arg(fnmout);
+	    "\nbecause target folder exists.").arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
@@ -527,8 +618,7 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
     if ( !File::exists(fnmout) )
     {
 	uiString msg = tr("Copy %1 to %2 failed\n"
-			  "See startup window for details")
-		     .arg(fnmin).arg(fnmout);
+	    "Failed to write output location.").arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
@@ -554,8 +644,8 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
     if ( !File::exists(fnmout) )
     {
 	uiString msg = tr("Rename %1 to %2 failed.\n"
-			  "See startup window for details.")
-		     .arg(fnmin).arg(fnmout);
+	    "Please close any active batch process to proceed")
+	    .arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
@@ -664,8 +754,27 @@ bool uiSurveyInfoEditor::setSurvName()
 
 bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 {
+    if ( iscurr_ )
+    {
+	const bool ret = uiMSG().askGoOn(
+	    tr("The survey will reloaded. Do you wish to continue?") );
+	if ( !ret )
+	    return true;
+    }
+
     if ( !doApply() )
 	return false;
+
+    if ( iscurr_ )
+    {
+	TypeSet<Network::Service::ID> servids;
+	BPT().getLiveServiceIDs( servids );
+	if ( !servids.isEmpty() )
+	{
+	    uiBatchProgClosePrompter dlg( this, servids );
+	    dlg.go();
+	}
+    }
 
     const BufferString newstorepath( pathfld_->text() );
     const BufferString newdirnm( dirName() );
@@ -695,6 +804,15 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     }
     else if ( dirnamechanged )
     {
+	if ( iscurr_ )
+	{
+	    if ( iscurr_ )
+		IOM().surveyParsChanged();
+
+	    if ( IOM().changeSurveyBlocked() )
+		return true;
+	}
+
 	if ( !renameSurv(orgstorepath_,orgdirname_,newdirnm) )
 	    return false;
     }
@@ -740,12 +858,29 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	    sip->launchSurveyImportDlg( this->parent() )->go();
     }
 
-    if ( orgdirname_.isEqual(SurveyInfo::curSurveyName()) )
+    if ( !iscurr_ && orgdirname_.isEqual(SurveyInfo::curSurveyName()) )
     {
 	const SurveyDiskLocation sdl( newfp );
 	uiRetVal ret;
 	IOM().recordDataSource_( sdl, ret );
 	return ret.isOK();
+    }
+    else if ( iscurr_ )
+    {
+	const SurveyDiskLocation sdl( newfp );
+	uiRetVal ret;
+	if ( !IOM().recordDataSource_(sdl,ret) )
+	{
+	    if ( !ret.isOK() )
+		uiMSG().error( ret );
+
+	    return false;
+	}
+
+	const bool iomok = IOMan::isOK();
+	if ( (iomok && !IOMan::setDataSource_(sdl.fullPath()).isOK()) ||
+	    (!iomok && !IOMan::newSurvey(&si_)) )
+	    return false;
     }
 
     return true;
@@ -1102,6 +1237,8 @@ void uiSurvInfoProvider::fillLogPars( IOPar& par ) const
 
 // uiCopySurveySIP
 uiCopySurveySIP::uiCopySurveySIP()
+    : inft_(false)
+    , tdinf_(TDInfo::Uknown)
 {
 }
 
@@ -1178,6 +1315,8 @@ void uiCopySurveySIP::fillLogPars( IOPar& par ) const
 
 // uiSurveyFileSIP
 uiSurveyFileSIP::uiSurveyFileSIP()
+    : inft_(false)
+    , tdinf_(TDInfo::Uknown)
 {}
 
 

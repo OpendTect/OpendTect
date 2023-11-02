@@ -37,6 +37,8 @@ mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
 public:
 			uiSurveyInfoEditor(uiParent*,SurveyInfo&,
 					   bool isnew=false);
+			uiSurveyInfoEditor(uiParent*,bool iscurr,SurveyInfo&,
+						    bool isnew=false);
 			~uiSurveyInfoEditor();
 
     bool		isOK() const		{ return topgrp_; }
@@ -140,6 +142,8 @@ protected:
 
     static uiString	getSRDString(bool infeet);
     static uiString	getCoordString(bool infeet);
+
+    void		init();
 
     friend class	uiSurvey;
 

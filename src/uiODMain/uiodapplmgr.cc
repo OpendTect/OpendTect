@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "uistereodlg.h"
 #include "uiodstratlayermodelmgr.h"
 #include "uistrings.h"
+#include "uisurvinfoed.h"
 #include "uisurvey.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
@@ -191,6 +192,17 @@ void uiODApplMgr::setNlaServer( uiNLAPartServer* s )
     nlaserv_ = s;
     if ( nlaserv_ )
 	nlaserv_->setDPSDispMgr( visdpsdispmgr_ );
+}
+
+
+int uiODApplMgr::editCurrSurvey( uiParent* p )
+{
+    if ( !p )
+	p = uiMain::instance().topLevel();
+
+    uiSurveyInfoEditor dlg( p, true, eSI(), false );
+    dlg.go();
+    return 0;
 }
 
 
