@@ -25,10 +25,9 @@ ________________________________________________________________________
 #include <QTimeZone>
 
 uiHostIDDlg::uiHostIDDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Host Information"),mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,Setup(tr("System Information"),mNoDlgTitle,mNoHelpKey))
 {
     setOkCancelText( tr("Copy to Clipboard"), uiStrings::sClose() );
-    setTitleText( tr("Information needed to generate a license") );
 
     BufferStringSet hostids;
     BufferString errmsg;
@@ -72,6 +71,17 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     usernmfld_->attach( alignedBelow, productnmfld_ );
     usernmfld_->setElemSzPol( uiObject::Wide );
 
+    auto* settingsfld = new uiGenInput( this, tr("OpendTect Settings folder") );
+    settingsfld->setReadOnly();
+    settingsfld->setElemSzPol( uiObject::Wide );
+    settingsfld->attach( alignedBelow, usernmfld_ );
+
+    auto* odinstfld = new uiGenInput( this,
+				      tr("OpendTect Installation folder") );
+    odinstfld->setReadOnly();
+    odinstfld->setElemSzPol( uiObject::Wide );
+    odinstfld->attach( alignedBelow, settingsfld );
+
     BufferString hostidstext = hostids.cat( " " );
     if ( hostids.size() > 1 )
 	hostidstext.quote( '"' );
@@ -92,6 +102,8 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     osfld_->setText( OD::Platform().longName() );
     productnmfld_->setText( System::productName() );
     usernmfld_->setText( GetUserNm() );
+    settingsfld->setText( GetSettingsDir() );
+    odinstfld->setText( GetSoftwareDir(true) );
 
     mAttachCB( postFinalize(), uiHostIDDlg::finalizeCB );
 }
