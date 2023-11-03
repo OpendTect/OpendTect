@@ -173,7 +173,7 @@ private:
     void			setZRangeCB(CallBacker*);
     bool			acceptOK() override;
 
-    RefMan<VelocityStretcher>	transform_;
+    RefMan<ZAxisTransform>	transform_;
     BufferString		selname_;
     MultiID			selkey_;
 

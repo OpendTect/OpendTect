@@ -93,7 +93,7 @@ Function& Function::setGeomID( const Pos::GeomID& geomid )
 
 Function& Function::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == *zdomaininfo_ )
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
 	return *this;
 
     delete zdomaininfo_;
@@ -233,7 +233,7 @@ const UnitOfMeasure* FunctionSource::getVelUnit() const
 
 FunctionSource& FunctionSource::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == *zdomaininfo_ )
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
 	return *this;
 
     delete zdomaininfo_;

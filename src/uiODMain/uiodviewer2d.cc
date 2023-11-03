@@ -808,7 +808,7 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackForTransformedZSliceRM(
 	return nullptr;
 
     auto dp = RegularSeisDataPack::createDataPackForZSliceRM(
-		&data->bivSet(), tkzs, datatransform_->toZDomainInfo().def_,
+		&data->bivSet(), tkzs, datatransform_->toZDomainInfo(),
 		&userrefs );
     return createFlatDataPackRM( *dp, 0 );
 }

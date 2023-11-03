@@ -487,7 +487,7 @@ uiRetVal uiRayTracer1D::isOK() const
 
 bool uiRayTracer1D::offsetsInFeet()
 {
-    return SI().depthsInFeet();
+    return SI().xyInFeet();
 }
 
 

@@ -86,8 +86,8 @@ bool StoredFunction::computeVelocity( float z0, float dz, int sz,
     const SamplingData<float> sd_out( z0, dz );
     const RegularZValues zvals_out( sd_out, sz, zDomain() );
     ArrayValueSeries<double,float> vels_out( res, false, sz );
-    const Vel::Worker worker( source_.getDesc(), SI().seismicReferenceDatum(),
-			      UnitOfMeasure::surveyDefSRDStorageUnit() );
+    const Worker worker( source_.getDesc(), SI().seismicReferenceDatum(),
+			 UnitOfMeasure::surveyDefSRDStorageUnit() );
     if ( !worker.sampleVelocities(vels_in,zvals_in,zvals_out,vels_out) )
 	return false;
 
@@ -216,7 +216,7 @@ void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 {
     par.setEmpty();
     par.set( sKey::Type(), sKeyVelocityFunction );
-    par.set( sKeyVelocityType(), Vel::toString(desc_.type_) );
+    par.set( sKeyVelocityType(), toString(desc_.type_) );
 }
 
 

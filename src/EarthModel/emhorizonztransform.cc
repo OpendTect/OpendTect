@@ -185,15 +185,6 @@ ZSampling HorizonZTransform::getWorkZrg( const ZSampling& zsamp,
 }
 
 
-float HorizonZTransform::getZIntervalCenter( bool from ) const
-{
-    if ( from )
-	return ZAxisTransform::getZIntervalCenter( from );
-
-    return 0.f;
-}
-
-
 void HorizonZTransform::horChangeCB(CallBacker*)
 {
     horchanged_ = true;

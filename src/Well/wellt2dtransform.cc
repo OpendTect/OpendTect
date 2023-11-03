@@ -163,5 +163,4 @@ ZSampling WellT2DTransform::getWorkZrg( const ZSampling& zsamp,
 	ret.step = (ret.width()) / (nrsamples==0 ? 1 : nrsamples);
 
     return ret;
-
 }

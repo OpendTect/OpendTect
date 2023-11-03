@@ -253,6 +253,8 @@ bool uiVelocityDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 }
 
 
+// uiVelocityDescDlg
+
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
 				      const uiVelocityDesc::Setup& vsu )
     : uiDialog( p, uiDialog::Setup(tr("Specify velocity information"),
@@ -481,7 +483,10 @@ uiRetVal uiVelSel::get( VelocityDesc& desc,
 	return tr("Please select a valid velocity model");
 
     if ( zdomain )
-	*zdomain = ZDomain::get( obj->pars() );
+    {
+	const ZDomain::Info* zinfo = ZDomain::get( obj->pars() );
+	*zdomain = zinfo ? zinfo : &SI().zDomainInfo();
+    }
 
     if ( !desc.usePar(obj->pars()) )
 	return tr("Cannot read velocity information for selected model");
@@ -581,7 +586,6 @@ void uiVelSel::updateEditButton()
 uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase(p,t2d)
 {
-
     velsel_ = new uiVelSel( this, VelocityDesc::getVelVolumeLabel(),
 			    is2D(), true );
     mAttachCB( velsel_->velrgchanged, uiVelModelZAxisTransform::setZRangeCB );
@@ -662,7 +666,7 @@ bool uiVelModelZAxisTransform::acceptOK()
     const ZDomain::Info* zinfo = nullptr;
     BufferString zdomain;
     uirv = velsel_->get( desc, &zinfo );
-    if ( !uirv.isOK() || !zinfo )
+    if ( !uirv.isOK() )
 	mErrRet(uirv)
 
     uiRetVal res;

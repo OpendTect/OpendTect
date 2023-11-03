@@ -1083,7 +1083,6 @@ void uiD2TModelDlg::setDepthValue( int irow, int icol, float val )
 	mdvals_[irow] = mdval;
 
     tbl_->setValue( RowCol(irow,icol), mConvertVal(val,true), 2 );
-
 }
 
 

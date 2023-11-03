@@ -73,21 +73,12 @@ public:
 					  int sz,float* res) const	= 0;
     float			transformTrcBack(const TrcKey&,float z) const;
 
-    virtual ZSampling		getZInterval(const ZSampling&,
-					     const ZDomain::Info& from,
-					     const ZDomain::Info& to,
-					     bool makenice=true) const;
-
     ZSampling			getZInterval(bool from,
 					     bool makenice=true) const;
 				/*!\return the z sampling in either to
 				     or from domain.
 				     Includes a reasonable step in the
 				     transformed domain for from=false */
-
-    virtual float		getZIntervalCenter(bool from) const;
-				/*!\return a position within the
-				    z-range that is a logical 'center' */
 
     const char*			fromZDomainKey() const;
     const char*			toZDomainKey() const;
@@ -109,6 +100,11 @@ protected:
 				ZAxisTransform(const ZDomain::Def& from,
 					       const ZDomain::Def& to);
 				~ZAxisTransform();
+
+    virtual ZSampling		getZInterval(const ZSampling&,
+					     const ZDomain::Info& from,
+					     const ZDomain::Info& to,
+					     bool makenice=true) const;
 
     virtual ZSampling		getWorkZrg(const ZSampling& zsamp,
 					   const ZDomain::Info& from,

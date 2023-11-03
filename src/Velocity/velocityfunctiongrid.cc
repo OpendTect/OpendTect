@@ -259,7 +259,7 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
     mDynamicCastGet(RadialBasisFunctionGridder2D*,rbfgridder,gridder_)
     const TrcKey tk( bid_ ); //TODO: Get a OD::GeomSystem from TrcKeySampling
     const Vel::Function* velsrc = directsource_ ? directsource_ :
-	    !velocityfunctions_.isEmpty() ?  velocityfunctions_[0] : nullptr;
+	    !velocityfunctions_.isEmpty() ? velocityfunctions_[0] : nullptr;
     for ( int idx=0; idx<nr; idx++ )
     {
 	const float z = z0+idx*dz;

@@ -654,14 +654,13 @@ int GatherSetDataPack::nrGathers() const
 }
 
 
-ConstRefMan<PreStack::Gather> GatherSetDataPack::getGather( int idx ) const
+ConstRefMan<Gather> GatherSetDataPack::getGather( int idx ) const
 {
     return gathers_.validIdx(idx) ? gathers_.get( idx ) : nullptr;
 }
 
 
-ConstRefMan<PreStack::Gather> GatherSetDataPack::getGather(
-							const BinID& bid ) const
+ConstRefMan<Gather> GatherSetDataPack::getGather( const BinID& bid ) const
 {
     for ( const auto* gather : gathers_ )
     {

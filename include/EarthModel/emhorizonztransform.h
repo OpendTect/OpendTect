@@ -41,8 +41,6 @@ public:
     bool		isReferenceHorizon(const MultiID& horid,
 					   float& refz) const override;
 
-    float		getZIntervalCenter(bool from) const override;
-
     Interval<float>	getDepthRange() const		{ return depthrange_; }
     NotifierAccess*	changeNotifier() override	{ return &change_; }
 

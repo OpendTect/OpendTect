@@ -321,7 +321,7 @@ bool SynthGenParams::isCorrected() const
 
 bool SynthGenParams::offsetsInFeet() const
 {
-    bool offsetsinfeet = SI().depthsInFeet();
+    bool offsetsinfeet = SI().xyInFeet();
     raypars_.getYN( RayTracer1D::sKeyOffsetInFeet(), offsetsinfeet );
 
     return offsetsinfeet;

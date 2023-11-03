@@ -963,11 +963,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     {
 	const ZSampling zrg = zat->getZInterval( false );
 	if ( !zrg.isUdf() )
-	{
-	    cs.zsamp_.start = zrg.start;
-	    cs.zsamp_.stop = zrg.stop;
-	    cs.zsamp_.step = zrg.step;
-	}
+	    cs.zsamp_ = zrg;
 
 	setZDomainInfo( zat->toZDomainInfo() );
 	setZScale( zat->toZScale() );

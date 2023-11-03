@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "process_time2depth.h"
 #include "survinfo.h"
+#include "zaxistransform.h"
+#include "zdomain.h"
 
 #include "uibatchjobdispatchersel.h"
 #include "uigeninput.h"
@@ -23,8 +25,6 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uizaxistransform.h"
-#include "zaxistransform.h"
-#include "zdomain.h"
 
 
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )

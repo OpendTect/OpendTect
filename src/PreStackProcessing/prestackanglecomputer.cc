@@ -350,6 +350,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
     const StepInterval<double> outputzrg = outputsampling_.range( false );
+    const bool zistime = zDomain()->isTime();
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
 	const float offset = offsets[ofsidx];
@@ -379,8 +380,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	    if ( fabs(sinangle) > 1.0f )
 		sinangle = sinangle > 0.f ? 1.0f : -1.0f;
 
-	    const float zval = zDomain()->isTime() ? times[layeridx]
-						   : depths[layeridx];
+	    const float zval = zistime ? times[layeridx] : depths[layeridx];
 	    sinanglevals.add( zval, sinangle );
 	    anglevals.add( zval, Math::ASin(sinangle) );
 	}
@@ -418,7 +418,7 @@ RefMan<Gather> AngleComputer::computeAngleData()
 	const ElasticModel* emodel = curElasticModel();
 	if ( !emodel )
 	{
-	    tr("Cannot retrieve current elastic model");
+	    errmsg_ = tr("Cannot retrieve current elastic model");
 	    return nullptr;
 	}
 
@@ -545,7 +545,6 @@ bool VelocityBasedAngleComputer::getLayers( const TrcKey& tk, float startdepth,
 
     return true;
 }
-
 
 
 RefMan<Gather> VelocityBasedAngleComputer::computeAngles()

@@ -31,7 +31,7 @@ private:
     bool		acceptOK() override;
 
     uiIOObjSel*			selfld_;
-    RefMan<WellT2DTransform>	transform_;
+    RefMan<ZAxisTransform>	transform_;
 
     static uiZAxisTransform*	createInstance(uiParent*,const char*,
 					       const char*);

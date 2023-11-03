@@ -711,14 +711,6 @@ Time2DepthStretcher::~Time2DepthStretcher()
 {}
 
 
-float getZStep( const Interval<float>& zrg )
-{
-    const int nrsteps = SI().zRange( true ).nrSteps();
-    const float zstep = zrg.width() / (nrsteps==0 ? 1 : nrsteps);
-    return zstep;
-}
-
-
 // Depth2TimeStretcher
 
 Depth2TimeStretcher::Depth2TimeStretcher( const MultiID& mid )

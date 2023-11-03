@@ -57,7 +57,7 @@ SeisCubeCopier::~SeisCubeCopier()
 {
     detachAllNotifiers();
     delete stp_;
-    delete veldesc_;
+    delete worker_;
 }
 
 
@@ -68,6 +68,7 @@ bool SeisCubeCopier::goImpl( od_ostream* strm, bool first, bool last,
 	return false;
 
     const bool res = stp_->goImpl( strm, first, last, delay );
+    deleteAndNullPtr( worker_ );
     return res;
 }
 
@@ -93,12 +94,12 @@ bool SeisCubeCopier::init()
 
     if ( !veldesc.isUdf() )
     {
-	delete veldesc_;
-	veldesc_ = new VelocityDesc( veldesc );
-	velzinfo_ = &rdr->zDomain();
+	delete worker_;
+	worker_ = new Vel::Worker( veldesc, SI().seismicReferenceDatum(),
+				   UnitOfMeasure::surveyDefSRDStorageUnit() );
     }
 
-    if ( compnr_<0 && !veldesc_ )
+    if ( compnr_<0 && !worker_ )
 	mDetachCB( stp_->proctobedone_, SeisCubeCopier::doProc );
 
     return true;
@@ -138,7 +139,7 @@ int SeisCubeCopier::nextStep()
 void SeisCubeCopier::doProc( CallBacker* )
 {
     SeisTrc& trc = stp_->getTrace();
-    if ( veldesc_ && !veldesc_->isUdf() )
+    if ( worker_ )
 	resampleVels( stp_->getInputTrace(), trc );
 
     if ( compnr_ >= 0 )
@@ -161,8 +162,6 @@ bool SeisCubeCopier::resampleVels( const SeisTrc& inptrc, SeisTrc& trc ) const
 	return true;
 
     const Scaler* scaler = stp_->scaler();
-    const Vel::Worker worker( *veldesc_, SI().seismicReferenceDatum(),
-			      UnitOfMeasure::surveyDefSRDStorageUnit() );
     SeisTrcValueSeries inptrcvs( inptrc, 0 );
     SeisTrcValueSeries outptrcvs( trc, 0 );
     PtrMan<ValueSeries<double> > inpvels, outpvels;
@@ -174,7 +173,8 @@ bool SeisCubeCopier::resampleVels( const SeisTrc& inptrc, SeisTrc& trc ) const
 	{
 	    inptrcvs.setComponent( icomp );
 	    outptrcvs.setComponent( icomp );
-	    worker.sampleVelocities( *inpvels, zvals_in, zvals_out, *outpvels );
+	    worker_->sampleVelocities( *inpvels, zvals_in,
+				       zvals_out, *outpvels );
 	    if ( scaler )
 		trc.data().scale( *scaler, icomp );
 	}

@@ -104,8 +104,8 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int sz,
     const SamplingData<float> sd_out( z0, dz );
     const RegularZValues zvals_out( sd_out, sz, zDomain() );
     ArrayValueSeries<double,float> vels_out( res, false, sz );
-    const Vel::Worker worker( source_.getDesc(), SI().seismicReferenceDatum(),
-			      UnitOfMeasure::surveyDefSRDStorageUnit() );
+    const Worker worker( source_.getDesc(), SI().seismicReferenceDatum(),
+			 UnitOfMeasure::surveyDefSRDStorageUnit() );
     if ( !worker.sampleVelocities(vels_in,zvals_in,zvals_out,vels_out,t0) )
 	return false;
 

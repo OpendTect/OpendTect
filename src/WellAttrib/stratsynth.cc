@@ -52,7 +52,8 @@ int StratSynth::DataMgr::gtActualLMIdx( int lmsidx ) const
 
 
 StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
-    : entryAdded(this)
+    : lms_(lms)
+    , entryAdded(this)
     , entryRenamed(this)
     , entryChanged(this)
     , entryDisabled(this)
@@ -60,7 +61,6 @@ StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
     , elPropSelChanged(this)
     , newWvltUsed(this)
     , wvltScalingDone(this)
-    , lms_(lms)
 {
     for ( int idx=0; idx<nrLayerModels(); idx++ )
 	addLayModelSets();
@@ -70,7 +70,9 @@ StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
 
 
 StratSynth::DataMgr::DataMgr( const DataMgr& oth, int calceach )
-    : entryAdded(this)
+    : lms_(oth.lms_)
+    , calceach_(calceach)
+    , entryAdded(this)
     , entryRenamed(this)
     , entryChanged(this)
     , entryDisabled(this)
@@ -78,8 +80,6 @@ StratSynth::DataMgr::DataMgr( const DataMgr& oth, int calceach )
     , elPropSelChanged(this)
     , newWvltUsed(this)
     , wvltScalingDone(this)
-    , lms_(oth.lms_)
-    , calceach_(calceach)
 {
     ids_ = oth.ids_;
     genparams_ = oth.genparams_;

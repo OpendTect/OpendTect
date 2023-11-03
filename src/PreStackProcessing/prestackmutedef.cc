@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "genericnumer.h"
 #include "keystrs.h"
 #include "mathfunc.h"
-#include "pickset.h"
 #include "seispsioprov.h"
 #include "statruncalc.h"
 #include "survinfo.h"

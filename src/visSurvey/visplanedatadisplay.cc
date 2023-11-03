@@ -859,7 +859,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 
     const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true, 0 );
     const DataPackID dpid = RegularSeisDataPack::createDataPackForZSlice(
-	bivset, tkzs, datatransform_->toZDomainInfo().def_, userrefs_[attrib]);
+	bivset, tkzs, datatransform_->toZDomainInfo(), userrefs_[attrib] );
 
     DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
     RefMan<RegularSeisDataPack> regsdp = dpm.get<RegularSeisDataPack>( dpid );

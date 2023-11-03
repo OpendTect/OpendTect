@@ -341,7 +341,7 @@ static BufferString getInfoText( const IOObj& ioobj )
 		    zrg.scale( todomain.def_.userFactor() );
 		    const BufferString unitstr = todomain.unitStr( true );
 		    BufferString keystr = toString( todomain.def_.getRange() );
-		    keystr.addSpace().add( todomain.unitStr(true) );
+		    keystr.addSpace().add( unitstr );
 		    txt.addNewLine()
 		       .add( keystr.buf() )
 		       .add( ": " ).add( zrg.start, nrdec )

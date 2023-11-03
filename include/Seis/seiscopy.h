@@ -18,8 +18,8 @@ class SeisSingleTraceProc;
 class SeisTrc;
 class SeisTrcReader;
 class SeisTrcWriter;
-class VelocityDesc;
 namespace Seis { class SelData; }
+namespace Vel { class Worker; }
 namespace ZDomain { class Info; }
 
 
@@ -53,8 +53,7 @@ protected:
     SeisSingleTraceProc*	stp_;
     uiString			errmsg_;
     int				compnr_;
-    VelocityDesc*		veldesc_ = nullptr;
-    const ZDomain::Info*	velzinfo_ = nullptr;
+    Vel::Worker*		worker_ = nullptr;
 
     void			doProc(CallBacker*);
 

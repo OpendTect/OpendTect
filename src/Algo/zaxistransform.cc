@@ -212,13 +212,6 @@ ZSampling ZAxisTransform::getZInterval( bool isfrom, bool makenice ) const
 }
 
 
-float ZAxisTransform::getZIntervalCenter( bool from ) const
-{
-    const ZSampling rg = getZInterval( from, false );
-    return rg.isUdf() ?  mUdf(float) : rg.center();
-}
-
-
 const ZDomain::Info& ZAxisTransform::fromZDomainInfo() const
 { return mSelf().fromZDomainInfo(); }
 

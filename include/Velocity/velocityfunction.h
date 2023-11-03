@@ -66,7 +66,7 @@ protected:
     virtual			~Function();
 
     Function&			copyDescFrom(const FunctionSource&);
-    virtual bool		computeVelocity(float z0,float dz,int nr,
+    virtual bool		computeVelocity(float z0,float dz,int sz,
 						float* res) const	= 0;
 
     FunctionSource&		source_;

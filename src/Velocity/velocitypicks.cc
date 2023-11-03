@@ -39,8 +39,7 @@ mDefineEnumUtils( Picks, PickType, "Pick types" )
 { "RMO", "RMS", "Delta", "Epsilon", "Eta", nullptr };
 
 
-Pick::Pick( float depth, float vel, float offset,
-			    EM::ObjectID oid )
+Pick::Pick( float depth, float vel, float offset, EM::ObjectID oid )
     : depth_( depth )
     , vel_( vel )
     , offset_( offset )
@@ -455,7 +454,7 @@ bool Picks::store( const IOObj* ioobjarg )
 
 Picks& Picks::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == *zdomaininfo_ )
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
 	return *this;
 
     delete zdomaininfo_;
