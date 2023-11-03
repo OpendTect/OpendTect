@@ -268,7 +268,7 @@ Sampled2DProbDenFunc* get2DPDF()
     const int nrcols = cols_are_0 ? nr0 : nr1;
     const int nrrows = cols_are_0 ? nr1 : nr0;
 
-    float val = 0;
+    double val = 0;
     for ( int irow=0; irow<nrrows; irow++ )
     {
 	const int rowsdidx = nrrows - irow - 1;
