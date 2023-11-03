@@ -95,7 +95,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	uiString constzlbl = tr("Specify constant Z value %1")
 				.arg( SI().getZUnitString() );
 	constzfld_ = new uiGenInput( this, constzlbl, FloatInpSpec(0) );
-	constzfld_->attach( alignedBelow, zfld_ );
+	constzfld_->attach( rightTo, zfld_ );
 	constzfld_->display( zfld_->box()->currentItem() == 1 );
 
 	horinpfld_ = new uiLabeledComboBox( this,
@@ -104,34 +104,34 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	const ObjectSet<SurfaceInfo> hinfos = serv_->horInfos();
 	for ( int idx=0; idx<hinfos.size(); idx++ )
 	    horinpfld_->box()->addItem( toUiString(hinfos[idx]->name) );
-	horinpfld_->attach( alignedBelow, zfld_ );
+	horinpfld_->attach( rightTo, zfld_ );
 	horinpfld_->display( zfld_->box()->currentItem() == 2 );
-
-	uiSeparator* sep = new uiSeparator( this, "H sep" );
-	sep->attach( stretchedBelow, constzfld_ );
-
-	dataselfld_ = new uiTableImpDataSel( this, fd_,
-		      mODHelpKey(mTableImpDataSelpicksHelpID) );
-	dataselfld_->attach( alignedBelow, constzfld_ );
-	dataselfld_->attach( ensureBelow, sep );
-
-	sep = new uiSeparator( this, "H sep" );
-	sep->attach( stretchedBelow, dataselfld_ );
-
-	objfld_->attach( alignedBelow, constzfld_ );
-	objfld_->attach( ensureBelow, sep );
-
-	colorfld_ = new uiColorInput( this,
-				 uiColorInput::Setup(OD::getRandStdDrawColor()).
-				   lbltxt(uiStrings::sColor()) );
-	colorfld_->attach( alignedBelow, objfld_ );
 
 	uiStringSet impoptions;
 	impoptions.add( uiStrings::sPointSet() ).add( uiStrings::sPolyLine() )
 		  .add( uiStrings::sPolygon() );
 	polyfld_ = new uiGenInput( this, tr("Import as"),
 				   StringListInpSpec(impoptions) );
-	polyfld_->attach( rightTo, colorfld_ );
+	polyfld_->attach( alignedBelow, zfld_ );
+
+	uiSeparator* sep = new uiSeparator( this, "H sep" );
+	sep->attach( stretchedBelow, polyfld_ );
+
+	dataselfld_ = new uiTableImpDataSel( this, fd_,
+		      mODHelpKey(mTableImpDataSelpicksHelpID) );
+	dataselfld_->attach( alignedBelow, polyfld_ );
+	dataselfld_->attach( ensureBelow, sep );
+
+	sep = new uiSeparator( this, "H sep" );
+	sep->attach( stretchedBelow, dataselfld_ );
+
+	objfld_->attach( alignedBelow, dataselfld_ );
+	objfld_->attach( ensureBelow, sep );
+
+	colorfld_ = new uiColorInput( this,
+				 uiColorInput::Setup(OD::getRandStdDrawColor()).
+				   lbltxt(uiStrings::sColor()) );
+	colorfld_->attach( alignedBelow, objfld_ );
     }
     else
     {
@@ -181,7 +181,8 @@ bool uiImpExpPickSet::doImport()
     RefMan<Pick::Set> ps = new Pick::Set( psnm );
     const int zchoice = zfld_->box()->currentItem();
     float constz = zchoice==1 ? constzfld_->getFValue() : 0;
-    if ( SI().zIsTime() ) constz /= 1000;
+    if ( SI().zIsTime() )
+	constz /= 1000;
 
     ps->disp_.color_ = colorfld_->color();
     PickSetAscIO aio( fd_ );
@@ -196,17 +197,20 @@ bool uiImpExpPickSet::doImport()
 
     PtrMan<IOObj> ioobj = objfldioobj->clone();
     const int seloption = polyfld_->getIntValue();
-    if ( seloption )
-    {
-	ps->disp_.connect_ = seloption==1 ? Pick::Set::Disp::Open
-					 : Pick::Set::Disp::Close;
-	ps->disp_.linestyle_.color_ = colorfld_->color();
-	ioobj->pars().set( sKey::Type(), sKey::Polygon() );
-    }
-    else
+    if ( seloption==0 )
     {
 	ps->disp_.connect_ = Pick::Set::Disp::None;
 	ioobj->pars().set(sKey::Type(), PickSetTranslatorGroup::sKeyPickSet());
+    }
+    else
+    {
+	ps->disp_.connect_ = seloption==1 ? Pick::Set::Disp::Open
+					  : Pick::Set::Disp::Close;
+	ps->disp_.linestyle_.color_ = colorfld_->color();
+	ioobj->pars().set( sKey::Type(), sKey::Polygon() );
+
+	if ( seloption==2 )
+	    ps->findStartIdxs();
     }
 
     IOM().commitChanges( *ioobj );

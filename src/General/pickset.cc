@@ -757,7 +757,7 @@ Set& Set::operator=( const Set& oth )
     pars_ = oth.pars_;
     readonly_ = oth.readonly_;
     setZDomain( oth.zDomain() );
-
+    startidxs_ = oth.startidxs_;
     return *this;
 }
 
@@ -977,6 +977,30 @@ void Set::setStartIdx( int setidx, int locidx )
 {
     if ( startidxs_.validIdx(setidx) )
 	startidxs_[setidx] = locidx;
+}
+
+
+void Set::findStartIdxs()
+{
+    startidxs_.erase();
+    if ( isEmpty() )
+	return;
+
+    startidxs_.add( 0 );
+    Location firstloc = locations_.first();
+    for ( int idx=1; idx<locations_.size(); idx++ )
+    {
+	const Location& loc = locations_[idx];
+	if ( firstloc.pos().coord() != loc.pos().coord() )
+	    continue;
+
+	idx++;
+	if ( idx==locations_.size() )
+	    break;
+
+	startidxs_ += idx;
+	firstloc = locations_[idx];
+    }
 }
 
 
@@ -1364,16 +1388,15 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	Coord pos( getPos(0, 1) );
 	if ( pos.isUdf() )
 	    continue;
+
 	mPIEPAdj(Coord,pos,true);
-	if ( !isXY() || !SI().isReasonable(pos) )
+	if ( !isXY() )
 	{
 	    BinID bid( mNINT32(pos.x), mNINT32(pos.y) );
 	    mPIEPAdj(BinID,bid,true);
 	    SI().snap( bid );
 	    pos = SI().transform( bid );
 	}
-
-	if ( !SI().isReasonable(pos) ) continue;
 
 	float zread = constz;
 	if ( iszreq )
