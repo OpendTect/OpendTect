@@ -11,27 +11,25 @@ ________________________________________________________________________
 #include "picksetmgr.h"
 
 #include "datapointset.h"
-#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "polygon.h"
-#include "survinfo.h"
-#include "settings.h"
-#include "tabledef.h"
 #include "posimpexppars.h"
-#include "unitofmeasure.h"
-#include "od_iostream.h"
+#include "settings.h"
+#include "survinfo.h"
+#include "tabledef.h"
+
 #include <ctype.h>
 #include <iostream>
 
-static const char*	    sKeyStartIdx()  { return "Start index"; }
-static OD::Color	    defcolor()	    { return OD::Color::Red(); }
-static int		    defPixSz()	    { return 3; }
-static MarkerStyle3D::Type  defMarkerStyl() { return MarkerStyle3D::Point; }
-static OD::LineStyle	    defLineStyle()
+static const char*		sKeyStartIdx()	{ return "Start index"; }
+static OD::Color		defcolor()	{ return OD::Color::Red(); }
+static int			defPixSz()	{ return 3; }
+static MarkerStyle3D::Type	defMarkerStyl() { return MarkerStyle3D::Point; }
+static OD::LineStyle		defLineStyle()
 {
     return OD::LineStyle( OD::LineStyle::Solid, defPixSz(), defcolor() );
 }
@@ -730,6 +728,7 @@ Set& Set::operator=( const Set& s )
     disp_ = s.disp_;
     pars_ = s.pars_;
     readonly_ = s.readonly_;
+    startidxs_ = s.startidxs_;
     return *this;
 }
 
@@ -890,7 +889,8 @@ bool Set::isPolygon() const
 
 void Set::getStartStopIdx( int setidx, int& start, int& stop ) const
 {
-    start = 0; stop = size()-1;
+    start = 0;
+    stop = size()-1;
     if ( !startidxs_.validIdx(setidx) )
 	return;
 
@@ -900,13 +900,39 @@ void Set::getStartStopIdx( int setidx, int& start, int& stop ) const
 
 
 void Set::addStartIdx( int locidx )
-{ startidxs_ += locidx; }
+{
+    startidxs_ += locidx;
+}
 
 
 void Set::setStartIdx( int setidx, int locidx )
 {
     if ( startidxs_.validIdx(setidx) )
 	startidxs_[setidx] = locidx;
+}
+
+
+void Set::findStartIdxs()
+{
+    startidxs_.erase();
+    if ( isEmpty() )
+	return;
+
+    startidxs_.add( 0 );
+    Location firstloc = locations_.first();
+    for ( int idx=1; idx<locations_.size(); idx++ )
+    {
+	const Location& loc = locations_[idx];
+	if ( firstloc.pos().coord() != loc.pos().coord() )
+	    continue;
+
+	idx++;
+	if ( idx==locations_.size() )
+	    break;
+
+	startidxs_ += idx;
+	firstloc = locations_[idx];
+    }
 }
 
 
@@ -1288,16 +1314,15 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	Coord pos( getPos(0, 1) );
 	if ( pos.isUdf() )
 	    continue;
+
 	mPIEPAdj(Coord,pos,true);
-	if ( !isXY() || !SI().isReasonable(pos) )
+	if ( !isXY() )
 	{
 	    BinID bid( mNINT32(pos.x), mNINT32(pos.y) );
 	    mPIEPAdj(BinID,bid,true);
 	    SI().snap( bid );
 	    pos = SI().transform( bid );
 	}
-
-	if ( !SI().isReasonable(pos) ) continue;
 
 	float zread = constz;
 	if ( iszreq )
