@@ -130,6 +130,7 @@ public:
     int			nrSets() const		{ return startidxs_.size(); }
     void		getStartStopIdx(int setidx,int& start,int&stop) const;
     const TypeSet<int>&	startIndexs() const { return startidxs_; }
+    void		findStartIdxs();
 
     bool		isSizeLargerThanThreshold() const;
     static const char*	sKeyThresholdSize()
