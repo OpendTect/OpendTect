@@ -170,15 +170,15 @@ public:
 
     const Well::Log*		getLog(const char* lognm) const;
     Well::Log*			getLogForEdit(const char* lognm);
-    const BufferStringSet&	storedLogNames() const	{ return lognms_; }
+    void			getLogNames(BufferStringSet&) const;
+    void			getLoadedLogNames(BufferStringSet&) const;
 
     bool			haveLogs() const;
     bool			haveMarkers() const;
     bool			haveD2TModel() const	{ return d2tmodel_; }
     bool			haveCheckShotModel() const { return csmodel_; }
     Well::LoadReqs		loadState() const;
-    void			reloadLogNames() const;
-    void			reloadLogNames(CallBacker*);
+    void			reloadLogInfos() const;
 
     Notifier<Well::Data>	d2tchanged;
     Notifier<Well::Data>	csmdlchanged;
@@ -203,7 +203,6 @@ protected:
     MarkerSet&			markers_;
     DisplayProperties&		disp2d_;
     DisplayProperties&		disp3d_;
-    mutable BufferStringSet	lognms_;
 };
 
 } // namespace Well

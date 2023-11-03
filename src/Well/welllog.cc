@@ -52,9 +52,7 @@ void Well::LogSet::getNames( BufferStringSet& nms, bool onlyloaded ) const
     nms.setEmpty();
     for ( int idx=0; idx<logs_.size(); idx++ )
     {
-	if ( !onlyloaded )
-	    nms.add( logs_[idx]->name() );
-	else if ( logs_[idx]->isLoaded() )
+	if ( !onlyloaded || logs_[idx]->isLoaded() )
 	    nms.add( logs_[idx]->name() );
     }
 }
@@ -135,7 +133,17 @@ int Well::LogSet::indexOf( const char* nm ) const
 bool Well::LogSet::isLoaded( const char* nm ) const
 {
     const Well::Log* log = getLog( nm );
-    return log ? log->isLoaded() : false;
+    return log && log->isLoaded();
+}
+
+
+bool Well::LogSet::areAllLoaded() const
+{
+    for ( const auto* log : logs_ )
+	if ( !log->isLoaded() )
+	    return false;
+
+    return true;
 }
 
 
@@ -144,6 +152,7 @@ bool Well::LogSet::isPresent( const char* nm ) const
     for ( int idx=0; idx<logs_.size(); idx++ )
 	if ( logs_[idx]->name() == nm )
 	    return true;
+
     return false;
 }
 
@@ -156,6 +165,7 @@ Well::Log* Well::LogSet::remove( int logidx )
     init();
     for ( int idx=0; idx<tmp.size(); idx++ )
 	add( tmp[idx] );
+
     logRemoved.trigger();
     return log;
 }

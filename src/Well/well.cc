@@ -298,7 +298,6 @@ Well::Data::Data( const char* nm )
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     mAttachCB( lvlset.levelToBeRemoved, Data::levelToBeRemoved );
-    mAttachCB( logschanged, Data::reloadLogNames );
 }
 
 
@@ -330,9 +329,7 @@ bool Well::Data::haveMarkers() const
 
 bool Well::Data::haveLogs() const
 {
-    if ( lognms_.isEmpty() )
-	reloadLogNames();
-    return !lognms_.isEmpty();
+    return !logs_.isEmpty();
 }
 
 
@@ -524,20 +521,9 @@ Well::LoadReqs Well::Data::loadState() const
 	lreqs.add( CSMdl );
     if ( haveLogs() )
     {
-	int nloaded = 0;
-	for ( int idx=0; idx<logs_.size(); idx++ )
-	{
-	    if ( logs_.getLog( idx ).isLoaded() )
-		nloaded++;
-	}
-	if ( nloaded == lognms_.size() )
-	 {
+	lreqs.add( LogInfos );
+	if ( logs_.areAllLoaded() )
 	    lreqs.add( Logs );
-	    lreqs.add( LogInfos );
-	 }
-	else if ( logs_.size() == lognms_.size() )
-	    lreqs.add( LogInfos );
-
     }
 
     if ( !track_.isEmpty() )
@@ -549,10 +535,14 @@ Well::LoadReqs Well::Data::loadState() const
 
 const Well::Log* Well::Data::getLog( const char* nm ) const
 {
-    if ( lognms_.isEmpty() )
-	reloadLogNames();
+    Well::Data& wd = const_cast<Well::Data&>(*this);
+    return wd.getLogForEdit( nm );
+}
 
-    if ( lognms_.isPresent( nm ) && !logs().isLoaded( nm ) )
+
+Well::Log* Well::Data::getLogForEdit( const char* nm )
+{
+    if ( !logs().isLoaded(nm) )
     {
 	Well::Data& wd = const_cast<Well::Data&>(*this);
 	Well::Reader rdr( mid_, wd );
@@ -562,37 +552,29 @@ const Well::Log* Well::Data::getLog( const char* nm ) const
 	    return nullptr;
 	}
     }
+
     return logs().getLog( nm );
 }
 
 
-Well::Log* Well::Data::getLogForEdit( const char* nm )
+void Well::Data::getLogNames( BufferStringSet& nms ) const
 {
-    if ( lognms_.isEmpty() )
-	reloadLogNames();
+    if ( !haveLogs() )
+	reloadLogInfos();
 
-    if ( lognms_.isPresent( nm ) && !logs().isLoaded( nm ) )
-    {
-	Well::Reader rdr( mid_, *this );
-	if ( !rdr.getLog( nm ) )
-	{
-	    ErrMsg( rdr.errMsg() );
-	    return nullptr;
-	}
-    }
-    return logs().getLog( nm );
+    logs().getNames( nms, false );
 }
 
 
-void Well::Data::reloadLogNames() const
+void Well::Data::getLoadedLogNames( BufferStringSet& nms ) const
 {
-    MGR().getLogNamesByID(mid_, lognms_, false);
+    logs().getNames( nms, true );
 }
 
 
-void Well::Data::reloadLogNames( CallBacker* )
+void Well::Data::reloadLogInfos() const
 {
-    reloadLogNames();
+    MGR().reload( mid_, LoadReqs(LogInfos) );
 }
 
 

@@ -540,7 +540,8 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
     const int addstartidx = wd_->logs().size();
     BoolTypeSet issel( inplfi.size(), false );
 
-    BufferStringSet storedlognms = wd_->storedLogNames();
+    BufferStringSet storedlognms;
+    wd_->getLogNames( storedlognms );
     const BufferStringSet& lognms =
 		usecurvenms ? inplfi.logcurves_ : inplfi.lognms_;
     for ( int idx=0; idx<lognms.size(); idx++ )

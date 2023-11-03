@@ -44,6 +44,7 @@ public:
     const Log&		last() const		{ return *logs_.last(); }
     int			indexOf(const char*) const;
     bool		isLoaded(const char*) const;
+    bool		areAllLoaded() const;
     bool		isPresent(const char*) const;
     bool		hasDefaultFor(const Mnemonic&) const;
     bool		setDefaultMnemLog(const Mnemonic&,const char* lognm);
