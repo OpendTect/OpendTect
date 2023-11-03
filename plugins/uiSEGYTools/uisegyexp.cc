@@ -387,8 +387,7 @@ BufferString getSummary() const
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     : uiDialog(p,uiDialog::Setup(tr("Export Seismic Data to SEG-Y"),
-				 mNoDlgTitle,
-				 mODHelpKey(mSEGYExpHelpID)).modal(false))
+				 mNoDlgTitle,mNoHelpKey).modal(false))
     , geom_(gt)
     , autogentxthead_(true)
     , morebox_(nullptr)
@@ -398,6 +397,14 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     , coordsysselfld_(nullptr)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
+
+    switch (gt)
+    {
+    case Seis::Vol: setHelpKey( mODHelpKey(mSEGYExpHelpID) ); break;
+    case Seis::VolPS: setHelpKey( mODHelpKey(mSEGYExpVolPSHelpID) ); break;
+    case Seis::Line: setHelpKey( mODHelpKey(mSEGYExpLineHelpID) ); break;
+    case Seis::LinePS: setHelpKey( mODHelpKey(mSEGYExpLinePSHelpID) ); break;
+    }
 
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
     uiSeisSel::Setup sssu( geom_ ); sssu.steerpol(uiSeisSel::Setup::InclSteer);
@@ -421,7 +428,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	othercrsfld_ = new uiGenInput( this, tr("Export to other CRS"),
 				       BoolInpSpec(false) );
 	othercrsfld_->attach( alignedBelow, transffld_ );
-	mAttachCB( othercrsfld_->valuechanged, uiSEGYExp::crsCB );
+	mAttachCB( othercrsfld_->valueChanged, uiSEGYExp::crsCB );
 	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
 	mAttachCB( coordsysselfld_->changed, uiSEGYExp::updateTextHdrCB );
 	coordsysselfld_->attach( alignedBelow, othercrsfld_ );
