@@ -11,28 +11,24 @@ ________________________________________________________________________
 #include "prestackattrib.h"
 
 #include "attribdesc.h"
-#include "attribdescset.h"
 #include "attribparam.h"
 #include "attribstorprovider.h"
-#include "ctxtioobj.h"
 #include "multiid.h"
+#include "od_helpids.h"
 #include "prestackanglecomputer.h"
 #include "prestackanglemute.h"
 #include "prestackprop.h"
-#include "raytrace1d.h"
-#include "seispsioprov.h"
+#include "survinfo.h"
 #include "windowfunction.h"
-#include "uiattrsel.h"
+
 #include "uiattribfactory.h"
 #include "uibutton.h"
-#include "uiprestackanglemute.h"
-#include "uiprestacksel.h"
-#include "uiprestackprocessorsel.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uiveldesc.h"
-#include "od_helpids.h"
 #include "uimsg.h"
+#include "uiprestackanglemute.h"
+#include "uiprestackprocessorsel.h"
+#include "uiprestacksel.h"
 
 
 mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"Prestack",sKeyBasicGrp())
@@ -43,16 +39,15 @@ static const char*	statTypeAverageStr()	{ return "Stack"; }
 
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mODHelpKey(mPreStackAttribHelpID) )
-	, params_(*new PreStack::AngleCompParams)
+    : uiAttrDescEd(p,is2d, mODHelpKey(mPreStackAttribHelpID) )
+    , params_(*new PreStack::AngleCompParams)
 {
     prestackinpfld_ = new uiPreStackSel( this, is2d );
 
     gathertypefld_ = new uiGenInput( this, tr("Gather type"),
 			StringListInpSpec(PSAttrib::GatherTypeNames()) );
     gathertypefld_->attach( alignedBelow, prestackinpfld_ );
-    gathertypefld_->valuechanged.notify(
-				 mCB(this,uiPreStackAttrib,gatherTypSel) );
+    mAttachCB( gathertypefld_->valueChanged, uiPreStackAttrib::gatherTypSel );
 
     xrgfld_ = new uiGenInput( this, tr("Offset range (empty=all) "),
 	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
@@ -60,15 +55,14 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     dopreprocessfld_ = new uiGenInput( this, tr("Preprocess"),
 				       BoolInpSpec(false) );
     dopreprocessfld_->attach( alignedBelow, xrgfld_ );
-    dopreprocessfld_->valuechanged.notify(
-	    mCB(this,uiPreStackAttrib,doPreProcSel) );
+    mAttachCB( dopreprocessfld_->valueChanged, uiPreStackAttrib::doPreProcSel );
     preprocsel_ = new PreStack::uiProcSel( this, tr("Preprocessing setup"), 0 );
     preprocsel_->attach( alignedBelow, dopreprocessfld_ );
 
     calctypefld_ = new uiGenInput( this, tr("Calculation type"),
 		   StringListInpSpec(PreStack::PropCalc::CalcTypeNames()) );
     calctypefld_->attach( alignedBelow, preprocsel_ );
-    calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
+    mAttachCB( calctypefld_->valueChanged, uiPreStackAttrib::calcTypSel );
 
     BufferStringSet stattypenames; getStatTypeNames(stattypenames);
     stattypefld_ = new uiGenInput( this, tr("Statistics type"),
@@ -81,7 +75,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 
     useanglefld_ = new uiCheckBox( this, tr("Compute Angles") );
     useanglefld_->attach( rightOf, gathertypefld_ );
-    useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
+    mAttachCB( useanglefld_->activated, uiPreStackAttrib::angleTypSel );
 
     const uiString xlabel = SI().xyInFeet()?tr("feet     "):tr("meters    ");
     xrglbl_ = new uiLabel( this, xlabel );
@@ -90,7 +84,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     xunitfld_ = new uiGenInput( this, uiString::emptyString(),
 				StringListInpSpec(PSAttrib::XaxisUnitNames()) );
     xunitfld_->attach( rightOf, gathertypefld_ );
-    xunitfld_->valuechanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );
+    mAttachCB( xunitfld_->valueChanged, uiPreStackAttrib::gatherUnitSel );
 
     xaxistypefld_ = new uiGenInput( this, tr("X Axis Transformation:"),
 		    StringListInpSpec(PreStack::PropCalc::AxisTypeNames())
@@ -111,6 +105,8 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 
 uiPreStackAttrib::~uiPreStackAttrib()
 {
+    detachAllNotifiers();
+    delete &params_;
 }
 
 
@@ -148,16 +144,13 @@ Stats::Type uiPreStackAttrib::getStatEnumfromString( const char* stattypename )
 
 const char* uiPreStackAttrib::getStringfromStatEnum( Stats::Type enm )
 {
-    StringView typname = Stats::toString( enm );
-    if ( !typname )
-	return Stats::toString(Stats::Average);
-
+    const StringView typname = Stats::toString( enm );
     if ( typname == Stats::toString(Stats::Count) )
 	return statTypeCountStr();
     else if ( typname == Stats::toString(Stats::Average) )
 	return statTypeAverageStr();
 
-    return typname;
+    return Stats::toString(Stats::Average);
 }
 
 
