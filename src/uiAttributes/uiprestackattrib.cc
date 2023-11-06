@@ -39,16 +39,15 @@ static const char*	statTypeAverageStr()	{ return "Stack"; }
 
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mODHelpKey(mPreStackAttribHelpID) )
-	, params_(*new PreStack::AngleCompParams)
+    : uiAttrDescEd(p,is2d, mODHelpKey(mPreStackAttribHelpID) )
+    , params_(*new PreStack::AngleCompParams)
 {
     prestackinpfld_ = new uiPreStackSel( this, is2d );
 
     gathertypefld_ = new uiGenInput( this, tr("Gather type"),
 			StringListInpSpec(PSAttrib::GatherTypeNames()) );
     gathertypefld_->attach( alignedBelow, prestackinpfld_ );
-    gathertypefld_->valueChanged.notify(
-				 mCB(this,uiPreStackAttrib,gatherTypSel) );
+    mAttachCB( gathertypefld_->valuechanged, uiPreStackAttrib::gatherTypSel );
 
     xrgfld_ = new uiGenInput( this, tr("Offset range (empty=all) "),
 	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
@@ -56,15 +55,14 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     dopreprocessfld_ = new uiGenInput( this, tr("Preprocess"),
 				       BoolInpSpec(false) );
     dopreprocessfld_->attach( alignedBelow, xrgfld_ );
-    dopreprocessfld_->valueChanged.notify(
-	    mCB(this,uiPreStackAttrib,doPreProcSel) );
+    mAttachCB( dopreprocessfld_->valuechanged, uiPreStackAttrib::doPreProcSel );
     preprocsel_ = new PreStack::uiProcSel( this, tr("Preprocessing setup"), 0 );
     preprocsel_->attach( alignedBelow, dopreprocessfld_ );
 
     calctypefld_ = new uiGenInput( this, tr("Calculation type"),
 		   StringListInpSpec(PreStack::PropCalc::CalcTypeNames()) );
     calctypefld_->attach( alignedBelow, preprocsel_ );
-    calctypefld_->valueChanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
+    mAttachCB( calctypefld_->valuechanged, uiPreStackAttrib::calcTypSel );
 
     BufferStringSet stattypenames; getStatTypeNames(stattypenames);
     stattypefld_ = new uiGenInput( this, tr("Statistics type"),
@@ -77,7 +75,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 
     useanglefld_ = new uiCheckBox( this, tr("Compute Angles") );
     useanglefld_->attach( rightOf, gathertypefld_ );
-    useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
+    mAttachCB( useanglefld_->activated, uiPreStackAttrib::angleTypSel );
 
     const uiString xlabel = SI().xyInFeet()?tr("feet     "):tr("meters    ");
     xrglbl_ = new uiLabel( this, xlabel );
@@ -86,7 +84,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     xunitfld_ = new uiGenInput( this, uiString::emptyString(),
 				StringListInpSpec(PSAttrib::XaxisUnitNames()) );
     xunitfld_->attach( rightOf, gathertypefld_ );
-    xunitfld_->valueChanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );
+    mAttachCB( xunitfld_->valuechanged, uiPreStackAttrib::gatherUnitSel );
 
     xaxistypefld_ = new uiGenInput( this, tr("X Axis Transformation:"),
 		    StringListInpSpec(PreStack::PropCalc::AxisTypeNames())
@@ -107,6 +105,8 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 
 uiPreStackAttrib::~uiPreStackAttrib()
 {
+    detachAllNotifiers();
+    delete &params_;
 }
 
 

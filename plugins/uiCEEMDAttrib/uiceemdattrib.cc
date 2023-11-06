@@ -8,15 +8,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiceemdattrib.h"
-#include "ceemdattrib.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "ceemdattrib.h"
 #include "keystrs.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uibutton.h"
@@ -34,7 +35,7 @@ static const char* methodStr[] =
     "Empirical Mode Decomposition (EMD)",
     "Ensemble EMD",
     "Complete Ensemble EMD",
-    0
+    nullptr
 };
 
 static const char* attriboutputStr[] =
@@ -43,18 +44,16 @@ static const char* attriboutputStr[] =
     "Peak Frequency",
     "Peak Amplitude",
     "IMF Component",
-    0
+    nullptr
 };
 
 mInitAttribUI(uiCEEMDAttrib,CEEMD,"CEEMD",sKeyFreqGrp())
 
 uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d, mODHelpKey(mCEEMDAttribHelpID) )
-	, positiondlg_(0)
-	, panelview_( new uiCEEMDPanel(p) )
+    : uiAttrDescEd(p,is2d, mODHelpKey(mCEEMDAttribHelpID) )
 {
     inpfld_ = createInpFld( is2d );
-    inpfld_->selectionDone.notify( mCB(this,uiCEEMDAttrib,inputSelCB) );
+    mAttachCB( inpfld_->selectionDone, uiCEEMDAttrib::inputSelCB );
 
     setHAlignObj( inpfld_ );
 
@@ -85,8 +84,7 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 
     attriboutputfld_ = new uiGenInput( this, uiStrings::sOutput(),
 		StringListInpSpec(attriboutputStr) );
-    CallBack cboutsel = mCB(this, uiCEEMDAttrib, outSel);
-    attriboutputfld_->valueChanged.notify(cboutsel);
+    mAttachCB( attriboutputfld_->valueChanged, uiCEEMDAttrib::outSel );
     attriboutputfld_->attach( alignedBelow, tfpanelbut_ );
 
     uiString lbl = uiStrings::phrOutput(uiStrings::sFrequency());
@@ -96,17 +94,29 @@ uiCEEMDAttrib::uiCEEMDAttrib( uiParent* p, bool is2d )
 
     stepoutfreqfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 1 );
     stepoutfreqfld_->attach( rightOf, outputfreqfld_ );
-    stepoutfreqfld_->box()->valueChanged.notify(
-					mCB(this,uiCEEMDAttrib,stepChg));
+    mAttachCB( stepoutfreqfld_->box()->valueChanged, uiCEEMDAttrib::stepChg );
     prevpar_.setEmpty();
 
     outputcompfld_ = new uiGenInput( this, tr("Output IMF Component Nr."),
-	IntInpSpec() );
+				     IntInpSpec() );
     outputcompfld_->setElemSzPol(uiObject::Small);
     outputcompfld_->attach( alignedBelow, attriboutputfld_ );
 
-    stepChg(0);
-    outSel(0);
+    mAttachCB( postFinalize(), uiCEEMDAttrib::initGrp );
+}
+
+
+uiCEEMDAttrib::~uiCEEMDAttrib()
+{
+    detachAllNotifiers();
+    delete panelview_;
+}
+
+
+void uiCEEMDAttrib::initGrp( CallBacker* )
+{
+    stepChg( nullptr );
+    outSel( nullptr );
 }
 
 
@@ -141,11 +151,13 @@ bool uiCEEMDAttrib::getParameters( Desc& desc )
 
 void uiCEEMDAttrib::inputSelCB( CallBacker* )
 {
-    if ( !*inpfld_->getInput() ) return;
+    if ( !*inpfld_->getInput() )
+	return;
 
     TrcKeyZSampling cs;
     if ( !inpfld_->getRanges(cs) )
 	cs.init(true);
+
     float nyqfreq = 0.5f/SI().zStep();
     const float freqscale = zIsTime() ? 1.f : 1000.f;
     const float scalednyqfreq = nyqfreq * freqscale;
@@ -188,8 +200,8 @@ bool uiCEEMDAttrib::setParameters( const Desc& desc )
     mIfGetInt( CEEMD::outputcompStr(), outputcomp,
 	       outputcompfld_->setValue(outputcomp) );
 
-    stepChg(0);
-    outSel(0);
+    stepChg( nullptr );
+    outSel( nullptr );
 
     return true;
 }
@@ -259,13 +271,16 @@ void uiCEEMDAttrib::panelTFPush( CallBacker* cb )
 
     TrcKeyZSampling tzs;
     inpfld_->getRanges( tzs );
-    if ( positiondlg_ ) delete positiondlg_;
+    if ( positiondlg_ )
+    {
+	mDetachCB( positiondlg_->windowClosed, uiCEEMDAttrib::viewPanelCB );
+	delete positiondlg_;
+    }
 
     positiondlg_ = new uiTrcPositionDlg( this, tzs, is2d_, mid );
     setPrevSel();
     positiondlg_->show();
-    positiondlg_->windowClosed.notify(
-				mCB(this,uiCEEMDAttrib,viewPanelCB) );
+    mAttachCB( positiondlg_->windowClosed, uiCEEMDAttrib::viewPanelCB );
 }
 
 void uiCEEMDAttrib::getInputMID( MultiID& mid ) const
@@ -273,7 +288,8 @@ void uiCEEMDAttrib::getInputMID( MultiID& mid ) const
     if ( !ads_->is2D() ) return;
 
     Desc* tmpdesc = ads_->getDesc( inpfld_->attribID() );
-    if ( !tmpdesc ) return;
+    if ( !tmpdesc )
+	return;
 
     mid = MultiID( tmpdesc->getStoredID().buf() );
 }
@@ -314,13 +330,16 @@ void uiCEEMDAttrib::viewPanelCB( CallBacker* )
 	return;
 
     getPrevSel();
-    DescSet* dset = new DescSet( *ads_ );
+    auto* dset = new DescSet( *ads_ );
     DescID ceemdid = createCEEMDDesc( dset );
 
     const TrcKeyZSampling tzs = positiondlg_->getTrcKeyZSampling();
     LineKey lk;
     if ( dset->is2D() )
 	lk = LineKey( positiondlg_->getLineKey() );
+    if ( !panelview_ )
+	panelview_ = new uiCEEMDPanel( parent() );
+
     panelview_->compAndDispAttrib(
 	    dset,ceemdid,tzs,Survey::GM().getGeomID(lk.lineName().buf()));
 }
@@ -372,7 +391,7 @@ Desc* uiCEEMDAttrib::createNewDesc( DescSet* descset, DescID inpid,
     Desc* inpdesc = descset->getDesc( inpid );
     Desc* newdesc = PF().createDescCopy( attribnm );
     if ( !newdesc || !inpdesc )
-	return 0;
+	return nullptr;
 
     newdesc->selectOutput( 0 );
     newdesc->setInput( inpidx, inpdesc );
@@ -399,9 +418,9 @@ void uiCEEMDAttrib::fillInCEEMDDescParams( Desc* newdesc ) const
     mSetParam(Float,stopsift,CEEMD::stopsiftStr(),stopsiftfld_->getFValue())
     mSetParam(Int,maximf,CEEMD::maxnrimfStr(), maximffld_->getIntValue())
     mSetParam(Float,outputfreq,CEEMD::outputfreqStr(),
-	zIsTime() ? 1.f : 0.001f)
+	      zIsTime() ? 1.f : 0.001f)
     mSetParam(Float,stepoutfreq,CEEMD::stepoutfreqStr(),
-	zIsTime() ? 1.f : 0.001f)
+	       zIsTime() ? 1.f : 0.001f)
     mSetParam(Enum,output,CEEMD::attriboutputStr(), 0 )
     mSetParam(Int,outputcomp,CEEMD::outputcompStr(),
 	outputcompfld_->getIntValue())
@@ -410,13 +429,30 @@ void uiCEEMDAttrib::fillInCEEMDDescParams( Desc* newdesc ) const
 }
 
 
-//______________________________________________________________________
+// uiCEEMDPanel
+
+uiCEEMDPanel::uiCEEMDPanel( uiParent* p )
+    : uiAttribPanel(p)
+{}
+
+
+uiCEEMDPanel::~uiCEEMDPanel()
+{}
+
 
 const char* uiCEEMDPanel::getProcName()
-{ return "Compute all frequencies for a single trace"; }
+{
+    return "Compute all frequencies for a single trace";
+}
+
 
 const char* uiCEEMDPanel::getPackName()
-{ return "Spectral Decomposition time/frequency spectrum"; }
+{
+    return "Spectral Decomposition time/frequency spectrum";
+}
+
 
 const char* uiCEEMDPanel::getPanelName()
-{ return "Time Frequency spectrum"; }
+{
+    return "Time Frequency spectrum";
+}

@@ -27,7 +27,8 @@ class uiCEEMDAttrib : public uiAttrDescEd
 { mODTextTranslationClass(uiCEEMDAttrib)
 public:
 
-    uiCEEMDAttrib(uiParent*,bool);
+			uiCEEMDAttrib(uiParent*,bool);
+			~uiCEEMDAttrib();
 
 protected:
 
@@ -43,10 +44,11 @@ protected:
     uiGenInput*		outputcompfld_;
 
     uiPushButton*	tfpanelbut_;
-    uiCEEMDPanel*	panelview_;	//!< Time Frequency panel
-    uiTrcPositionDlg*	positiondlg_;
+    uiCEEMDPanel*	panelview_	= nullptr; //!< Time Frequency panel
+    uiTrcPositionDlg*	positiondlg_	= nullptr;
     IOPar		prevpar_;
 
+    void		initGrp(CallBacker*);
     void		panelTFPush(CallBacker*);
     void		outSel(CallBacker*);
     void		stepChg(CallBacker*);
@@ -70,15 +72,16 @@ protected:
 };
 
 
-class uiCEEMDPanel	: public uiAttribPanel
+class uiCEEMDPanel : public uiAttribPanel
 {
 public:
-				uiCEEMDPanel( uiParent* p )
-				    : uiAttribPanel( p )		{};
+				uiCEEMDPanel(uiParent*);
+				~uiCEEMDPanel();
 
-protected:
-    virtual const char*		getProcName();
-    virtual const char*		getPackName();
-    virtual const char*		getPanelName();
+private:
+
+    const char*			getProcName() override;
+    const char*			getPackName() override;
+    const char*			getPanelName() override;
 
 };
