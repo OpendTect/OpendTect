@@ -129,11 +129,17 @@ void Scene::setup()
     annot_->setFont( fd );
     annot_->allowShading( SettingsAccess().doesUserWantShading(false) );
 
-    if ( !SI().getPars().get(
-	IOPar::compKey(sKeyZScale(), zDomainInfo().key()), curzstretch_ ) )
+    const auto& sipars = SI().pars();
+    const BufferString zscalekey =
+	IOPar::compKey( sKeyZScale(), zDomainInfo().key() );
+    const bool res = sipars.get(zscalekey,curzstretch_) ||
+		     sipars.get(sKeyZStretch(),curzstretch_) ||
+		     sipars.get(sKeyZScale(),curzstretch_);
+    if ( !res && SI().zIsTime() )
     {
-	if ( !SI().pars().get(sKeyZStretch(),curzstretch_) )
-	    SI().pars().get( sKeyZScale(),curzstretch_ );
+	const float dist = Math::Sqrt( SI().getArea(false) );
+	curzstretch_ = 2.f * dist / SI().zRange().width();
+	curzstretch_ /= zdomaininfo_->userFactor();
     }
 
     const TrcKeyZSampling& tkzs = SI().sampling(true);
