@@ -8,17 +8,18 @@ ________________________________________________________________________
 -*/
 
 #include "uidirectionalplot.h"
-#include "uigraphicsscene.h"
-#include "uigraphicsitemimpl.h"
-#include "uigraphicscoltab.h"
-#include "uifont.h"
-#include "uistrings.h"
 
 #include "angles.h"
-#include "coltabsequence.h"
 #include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "dataclipper.h"
 #include "mouseevent.h"
+
+#include "uifont.h"
+#include "uigraphicscoltab.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
+#include "uistrings.h"
 
 
 #define mDefMarkerZValue 2
@@ -35,26 +36,11 @@ static uiPoint uiPointFromPolar( const uiPoint& c, float r, float angrad )
 uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
 				      const uiDirectionalPlot::Setup& su )
     : uiGraphicsView(p,"Function display viewer")
-    , setup_(su)
-    , selsector_(-1)
-    , cursector_(-1)
-    , outercircleitm_(0)
-    , selsectoritem_(0)
-    , sectorlines_(*scene().addItemGrp(new uiGraphicsItemGroup(true)))
-    , curveitems_(*scene().addItemGrp(new uiGraphicsItemGroup(true)))
-    , markeritems_(*scene().addItemGrp(new uiGraphicsItemGroup(true)))
-    , hdrannotitm1_(0)
-    , hdrannotitm2_(0)
-    , scalelineitm_(0)
-    , scalearcitm_(0)
-    , scalestartptitem_(0)
-    , scaleannotitm_(0)
-    , scalestartitm_(0)
-    , scalestopitm_(0)
-    , coltabitm_(0)
     , sectorPicked(this)
-    , colseq_(0)
-    , isempty_(true)
+    , setup_(su)
+    , sectorlines_(*scene().addItemGrp(new uiGraphicsItemGroup(true)))
+    , markeritems_(*scene().addItemGrp(new uiGraphicsItemGroup(true)))
+    , curveitems_(*scene().addItemGrp(new uiGraphicsItemGroup(true)))
 {
     disableScrollZoom();
     setPrefWidth( setup_.prefsize_.width() );
@@ -62,10 +48,10 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     setSceneBorder( 20 );
     setStretch( 2, 2 );
 
-    getMouseEventHandler().buttonReleased.notify(
-			mCB(this,uiDirectionalPlot,mouseRelease) );
+    mAttachCB( getMouseEventHandler().buttonReleased,
+		uiDirectionalPlot::mouseRelease );
 
-    reSize.notify( mCB(this,uiDirectionalPlot,reSized) );
+    mAttachCB( reSize, uiDirectionalPlot::reSized );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     draw();
@@ -74,6 +60,8 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
 
 uiDirectionalPlot::~uiDirectionalPlot()
 {
+    detachAllNotifiers();
+
     delete outercircleitm_;
     delete selsectoritem_;
     delete &sectorlines_;
@@ -99,6 +87,9 @@ void uiDirectionalPlot::reSized( CallBacker* )
 
 void uiDirectionalPlot::setData( const float* vals, int sz )
 {
+    if ( !vals )
+	return;
+
     data_.erase();
     highlightidxs_.erase();
     for ( int idx=0; idx<sz; idx++ )
@@ -109,7 +100,8 @@ void uiDirectionalPlot::setData( const float* vals, int sz )
     }
 
     cursector_ = selsector_ = -1;
-    gatherInfo(); draw();
+    gatherInfo();
+    draw();
 }
 
 
@@ -119,7 +111,8 @@ void uiDirectionalPlot::setData( const Stats::DirectionalData& dird )
     highlightidxs_.erase();
 
     cursector_ = selsector_ = -1;
-    gatherInfo(); draw();
+    gatherInfo();
+    draw();
 }
 
 
@@ -139,6 +132,7 @@ void uiDirectionalPlot::gatherInfo()
 		posrg_.start = posrg_.stop = spd.pos_;
 		maxcount_ = spd.count_;
 	    }
+
 	    const Stats::SectorData& sd = *data_[isect];
 	    int curcount = 0;
 	    for ( int ipart=0; ipart<sd.size(); ipart++ )
@@ -151,7 +145,9 @@ void uiDirectionalPlot::gatherInfo()
 		    curcount += spd.count_;
 		}
 	    }
-	    if ( curcount > maxcount_ ) maxcount_ = curcount;
+
+	    if ( curcount > maxcount_ )
+		maxcount_ = curcount;
 	}
     }
 
@@ -198,7 +194,8 @@ void uiDirectionalPlot::drawGrid()
 	{
 	    const float rad = (dr + dr*idx)*radius_ ;
 	    uiCircleItem& ci = *equicircles_[idx];
-	    ci.setPos( center_ ); ci.setRadius( mNINT32(rad) );
+	    ci.setPos( center_ );
+	    ci.setRadius( mNINT32(rad) );
 	}
     }
     else
@@ -253,7 +250,7 @@ void uiDirectionalPlot::drawScale()
     }
 
     const bool isvisible = scalearcitm_ ? scalearcitm_->isVisible() : true;
-    delete scalearcitm_; scalearcitm_ = 0;
+    deleteAndNullPtr( scalearcitm_ );
     const Interval<float> angs( Angle::usrdeg2rad(120.F),
 				Angle::usrdeg2rad(150.F) );
     const float r = (float)startpt.distTo( endpt );
@@ -263,12 +260,21 @@ void uiDirectionalPlot::drawScale()
     scalearcitm_->setVisible( isvisible );
 
     const char* nm = setup_.nameforpos_;
-    if ( !*nm ) nm = "Values";
+    if ( !*nm )
+	nm = "Values";
+
     uiPoint annotpt;
     annotpt.x = (startpt.x + endpt.x) / 2;
     annotpt.y = endpt.y + 20;
-    uiPoint txtstartpt = startpt; txtstartpt.x += 6; txtstartpt.y -= 3;
-    uiPoint txtendpt = endpt; txtendpt.x += 6; txtendpt.y -= 3;
+
+    uiPoint txtstartpt = startpt;
+    txtstartpt.x += 6;
+    txtstartpt.y -= 3;
+
+    uiPoint txtendpt = endpt;
+    txtendpt.x += 6;
+    txtendpt.y -= 3;
+
     if ( !scaleannotitm_ )
     {
 	Alignment al( mAlignment(HCenter,VCenter) );
@@ -280,6 +286,7 @@ void uiDirectionalPlot::drawScale()
 	scalestopitm_ = scene().addItem( new uiTextItem(txtendpt,
 						uiStrings::sEmptyString(),al) );
     }
+
     scalestartitm_->setPos( txtstartpt );
     scaleannotitm_->setPos( annotpt );
     scalestopitm_->setPos( txtendpt );
@@ -292,7 +299,7 @@ void uiDirectionalPlot::drawHeader()
 {
     Alignment al( Alignment::Left, Alignment::Top );
     if ( setup_.nameforval_.isEmpty() )
-	{ delete hdrannotitm1_; hdrannotitm1_ = 0; }
+	deleteAndNullPtr( hdrannotitm1_ );
     else if ( !hdrannotitm1_ )
     {
 	hdrannotitm1_ = scene().addItem(
@@ -301,7 +308,7 @@ void uiDirectionalPlot::drawHeader()
     }
 
     if ( setup_.hdrannot_.isEmpty() )
-	{ delete hdrannotitm2_; hdrannotitm2_ = 0; }
+	deleteAndNullPtr( hdrannotitm2_ );
     else if ( !hdrannotitm2_ )
     {
 	al.set( Alignment::Right );
@@ -331,8 +338,8 @@ void uiDirectionalPlot::drawColTab()
 	coltabitm_->setColTabSequence( *colseq_ );
 
     const uiRect br( coltabitm_->boundingRect() );
-    uiPoint targettl( 20, viewHeight() - br.height() );
-    coltabitm_->setPos( targettl );
+    coltabitm_->setPos( sceneborder_, viewHeight() - br.height() );
+    coltabitm_->update();
 }
 
 
@@ -490,10 +497,12 @@ uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
 void uiDirectionalPlot::drawSectorParts( bool isvals )
 {
     const int nrsectors = data_.nrSectors();
-    if ( nrsectors < 1 ) return;
+    if ( nrsectors < 1 )
+	return;
 
     const bool usecount = !isvals || setup_.docount_;
-    if ( usecount && maxcount_ < 1 ) return;
+    if ( usecount && maxcount_ < 1 )
+	return;
 
     for ( int isect=0; isect<nrsectors; isect++ )
     {
@@ -503,7 +512,8 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 	for ( int ipart=0; ipart<sd.size(); ipart++ )
 	{
 	    const Stats::SectorPartData& spd = sd[ipart];
-	    if ( spd.count_ < 1 ) continue;
+	    if ( spd.count_ < 1 )
+		continue;
 
 	    Interval<float> rrg( 0, 1 );
 	    if ( usecount )
@@ -534,8 +544,11 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 	    {
 		float relpos = (spd.val_-valrg_.start)
 			     / (valrg_.stop-valrg_.start);
-		if ( relpos < 0 ) relpos = 0;
-		if ( relpos > 1 ) relpos = 1;
+		if ( relpos < 0 )
+		    relpos = 0;
+		if ( relpos > 1 )
+		    relpos = 1;
+
 		col = colseq_->color( relpos );
 	    }
 
@@ -551,8 +564,9 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 void uiDirectionalPlot::drawSelection()
 {
     if ( selsectoritem_ )
-	{ delete selsectoritem_; selsectoritem_ = 0; }
-    if ( selsector_ < 0 ) return;
+	deleteAndNullPtr( selsectoritem_ );
+    if ( selsector_ < 0 )
+	return;
 
     selsectoritem_ = drawSectorPart( selsector_, Interval<float>(1.01,1.05),
 				     OD::Color::Black() );
@@ -561,12 +575,14 @@ void uiDirectionalPlot::drawSelection()
 
 void uiDirectionalPlot::getMousePosInfo( int& count, float& ang, float& pos )
 {
-    count = 0; ang = pos = mUdf(float);
+    count = 0;
+    ang = pos = mUdf(float);
     if ( getMouseEventHandler().isHandled() )
 	return;
 
     const MouseEvent& ev = getMouseEventHandler().event();
-    uiPoint relpos( ev.x(), ev.y() ); relpos -= center_;
+    uiPoint relpos( ev.x(), ev.y() );
+    relpos -= center_;
     if ( relpos.x == 0 && relpos.y == 0 )
 	return;
 
@@ -583,8 +599,10 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& ang, float& pos )
 
     const int nrparts = data_.nrParts( sector );
     int part = int( nrparts * r / radius_ );
-    if ( part<0 ) part = 0;
-    if ( part>=nrparts ) part = nrparts-1;
+    if ( part<0 )
+	part = 0;
+    if ( part>=nrparts )
+	part = nrparts-1;
 
     count = data_.getPartData( sector, part ).count_;
     ang = (float)azimuth;
@@ -609,8 +627,10 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& ang, float& pos )
 void uiDirectionalPlot::mouseRelease( CallBacker* )
 {
     mGetMousePos();
-    uiPoint relpos( ev.x(), ev.y() ); relpos -= center_;
-    if ( relpos.x == 0 && relpos.y == 0 ) return;
+    uiPoint relpos( ev.x(), ev.y() );
+    relpos -= center_;
+    if ( relpos.x == 0 && relpos.y == 0 )
+	return;
 
     const float ang = Math::Atan2( (float)-relpos.y, (float)relpos.x );
     cursector_ = data_.sector( ang, Angle::Rad );
@@ -661,10 +681,16 @@ void uiDirectionalPlot::showColTabItem( bool yn )
 
 void uiDirectionalPlot::showScaleItem( bool yn )
 {
-    if ( scalelineitm_ ) scalelineitm_->setVisible( yn );
-    if ( scalearcitm_ ) scalearcitm_->setVisible( yn );
-    if ( scalestartptitem_ ) scalestartptitem_->setVisible( yn );
-    if ( scaleannotitm_ ) scaleannotitm_->setVisible( yn );
-    if ( scalestartitm_ ) scalestartitm_->setVisible( yn );
-    if ( scalestopitm_ ) scalestopitm_->setVisible( yn );
+    if ( scalelineitm_ )
+	scalelineitm_->setVisible( yn );
+    if ( scalearcitm_ )
+	scalearcitm_->setVisible( yn );
+    if ( scalestartptitem_ )
+	scalestartptitem_->setVisible( yn );
+    if ( scaleannotitm_ )
+	scaleannotitm_->setVisible( yn );
+    if ( scalestartitm_ )
+	scalestartitm_->setVisible( yn );
+    if ( scalestopitm_ )
+	scalestopitm_->setVisible( yn );
 }
