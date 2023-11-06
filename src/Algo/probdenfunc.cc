@@ -525,6 +525,9 @@ float ArrayNDProbDenFunc::getAveragePos( int tardim ) const
 	grandtotal += arr[idx];
     }
 
+    if ( mIsZero(grandtotal,mDefEpsF) )
+	return 0.f;
+
     const float avgpos = findAveragePos( integrvals.arr(), integrvals.size(),
 					 grandtotal );
     const float val = sampling(tardim).atIndex( avgpos );
