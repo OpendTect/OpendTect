@@ -333,6 +333,7 @@ void uiDirectionalPlot::drawColTab()
     const uiRect br( coltabitm_->boundingRect() );
     uiPoint targettl( 20, viewHeight() - br.height() );
     coltabitm_->setPos( targettl );
+    coltabitm_->update();
 }
 
 
