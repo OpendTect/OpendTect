@@ -92,13 +92,17 @@ public:
 			{ return bottomrange_; }
 
     const UnitOfMeasure* getVelUnit() const;
+    static bool		doScanVels(const IOObj&,const VelocityDesc&,
+				   bool writergs,Interval<float>& topvelrg,
+				   Interval<float>& botvelrg,
+				   TaskRunner* =nullptr);
 
 protected:
 
     void		initDlgCB(CallBacker*);
     void		volSelChange(CallBacker*);
     bool		acceptOK(CallBacker*) override;
-    bool		scanAvgVel(const IOObj&, const VelocityDesc&);
+    bool		scanAvgVel(const IOObj&,const VelocityDesc&);
 
     Interval<float>	toprange_;
     Interval<float>	bottomrange_;
@@ -136,16 +140,18 @@ public:
 
     const UnitOfMeasure*	getVelUnit() const;
 
-    Notifier<uiVelSel>		velrgchanged;
+    Notifier<uiVelSel>		velChanged;
 
 private:
 
-    void			fillDefault() override;
+    BufferString		getDefaultKey(Seis::GeomType) const override;
 
     void			initGrpCB(CallBacker*);
     void			selectionDoneCB(CallBacker*);
     void			updateEditButton();
     void			editCB(CallBacker*);
+
+    static void			convertLegacyTypes();
 
     uiPushButton*		editcubebutt_;
     bool			onlyvelocity_ = true;

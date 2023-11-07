@@ -31,44 +31,22 @@ public:
 	enum SteerPol	{ NoSteering=0, OnlySteering=1, InclSteer=2 };
 	enum CompNrPol	{ SingleCompOnly=0, MultiCompOnly=1, Both=2};
 
-			Setup( Seis::GeomType gt )
-			    : geom_(gt)
-			    , allowsetdefault_(true)
-			    , steerpol_(NoSteering)
-			    , compnrpol_(Both)
-			    , enabotherdomain_(false)
-			    , survdefsubsel_( 0 )
-			    , allowsetsurvdefault_(false)
-			    , explprepost_(false)
-			    , selectcomp_(false)	{}
-			Setup( bool is2d, bool isps )
-			    : geom_(Seis::geomTypeOf(is2d,isps))
-			    , allowsetdefault_(true)
-			    , steerpol_(NoSteering)
-			    , compnrpol_(Both)
-			    , enabotherdomain_(false)
-			    , survdefsubsel_( 0 )
-			    , allowsetsurvdefault_(false)
-			    , explprepost_(false)
-			    , selectcomp_(false)	{}
-			~Setup()			{}
+			Setup(Seis::GeomType);
+			Setup(bool is2d,bool isps);
+			~Setup();
 
 	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
-	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
-	mDefSetupMemb(CompNrPol,compnrpol)
-	mDefSetupMemb(SteerPol,steerpol)
+	mDefSetupMemb(bool,allowsetdefault) //!< Fill with def cube/line? True
+	mDefSetupMemb(bool,enabotherdomain) //!< write only: T vs Depth False
+	mDefSetupMemb(CompNrPol,compnrpol)  //!< Both
+	mDefSetupMemb(SteerPol,steerpol)    //!< NoSteering
 	mDefSetupMemb(BufferString,zdomkey)
-	mDefSetupMemb(const char*,survdefsubsel)
-	mDefSetupMemb(bool,allowsetsurvdefault)
+	mDefSetupMemb(bool,allowsetsurvdefault) //!< False
 	mDefSetupMemb(bool,explprepost)		//!<Spell out if pre or post stk
-	mDefSetupMemb(bool,selectcomp)		//!< Select only one component
+	mDefSetupMemb(bool,selectcomp)		/*!< Select only one component
+						     False */
 
-	Setup&		wantSteering( bool yn=true )
-			{
-			    steerpol_ = yn ? OnlySteering : NoSteering;
-			    return *this;
-			}
+	Setup&		wantSteering(bool yn=true);
     };
 
 			uiSeisSel(uiParent*,const IOObjContext&,const Setup&);
@@ -118,7 +96,7 @@ protected:
     uiIOObjRetDlg*	mkDlg() override;
     BufferString	getZUnit() const;
 
-    virtual const char* getDefaultKey(Seis::GeomType) const;
+    virtual BufferString getDefaultKey(Seis::GeomType) const;
 
 };
 
@@ -165,6 +143,6 @@ public:
 
 protected:
 
-    const char*		getDefaultKey(Seis::GeomType gt) const override;
+    BufferString		getDefaultKey(Seis::GeomType) const override;
 
 };

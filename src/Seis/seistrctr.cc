@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "tracedata.h"
 #include "trckeyzsampling.h"
-#include "veldesc.h"
+
 #include <math.h>
 
 
@@ -78,7 +78,7 @@ SeisTrcTranslator::TargetComponentData::~TargetComponentData()
 
 
 const char*
-SeisTrcTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
+SeisTrcTranslatorGroup::getSurveyDefaultKey( const IOObj* ioobj ) const
 {
     static BufferString defkey =
 			IOPar::compKey( sKey::Default(), sKeyDefault3D() );
@@ -86,11 +86,6 @@ SeisTrcTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
 	return defkey.buf();
 
     BufferString type = ioobj->pars().find( sKey::Type() );
-    bool isvelocity = false;
-    if ( ioobj->pars().getYN(VelocityDesc::sKeyIsVelocity(),isvelocity) &&
-	    isvelocity )
-	type = sKey::Velocity();
-
     // tweak to club thinned and unthinned FL together
     const char* fltype = sKey::FaultLikelihood();
     if ( type.contains(fltype) )

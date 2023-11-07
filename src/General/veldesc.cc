@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 #include "zvalseriesimpl.h"
 
-const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
+const char* sKeyIsVelocity = "Is Velocity";
 const char* VelocityDesc::sKeyVelocityVolume()	{ return "Velocity volume"; }
 const char* VelocityDesc::sKeyVelocityUnit()	{ return "Velocity Unit"; }
 const char* VelocityDesc::sKeyVelocityType()
@@ -101,38 +101,67 @@ bool VelocityDesc::isThomsen() const
 { return isThomsen(type_); }
 
 
+bool VelocityDesc::hasVelocityUnit() const
+{
+    if ( velunit_.isEmpty() || !isVelocity() )
+	return false;
+
+    const UnitOfMeasure* veluom = UnitOfMeasure::surveyDefVelUnit();
+    const UnitOfMeasure* velstoruom = UoMR().get( velunit_.buf() );
+    return velstoruom && velstoruom->isCompatibleWith( *veluom );
+}
+
+
 const UnitOfMeasure* VelocityDesc::getUnit() const
 {
     if ( !isVelocity() )
 	return nullptr;
 
-    const UnitOfMeasure* veluom = UnitOfMeasure::surveyDefVelUnit();
-    const UnitOfMeasure* velstoruom = UoMR().get( velunit_.buf() );
-    return velstoruom && velstoruom->isCompatibleWith( *veluom )
-		    ? velstoruom : veluom;
+    return hasVelocityUnit() ? UoMR().get( velunit_.buf() )
+			     : UnitOfMeasure::surveyDefVelUnit();
+}
+
+
+void VelocityDesc::setUnit( const UnitOfMeasure* uom )
+{
+    if ( uom )
+    {
+	if ( uom->propType() == Mnemonic::Vel )
+	    velunit_.set( uom->getLabel() );
+	else
+	    { pErrMsg("Incorrect unit of measure"); }
+    }
+    else
+	velunit_.setEmpty();
 }
 
 
 void VelocityDesc::fillPar( IOPar& par ) const
 {
-    par.setYN( sKeyIsVelocity(), true );
+    par.set( sKey::Type(), sKey::Velocity() );
     par.set( sKeyVelocityType(), Vel::toString(type_) );
-    if ( isVelocity() && !velunit_.isEmpty() )
+    if ( hasVelocityUnit() )
 	par.set( sKeyVelocityUnit(), velunit_ );
 
     if ( type_ == Vel::RMS )
 	statics_.fillPar( par );
     else
 	StaticsDesc::removePars( par );
-}
 
+    // Legacy, keep it for backward readability of the database:
+    par.setYN( sKeyIsVelocity, true );
+}
 
 
 bool VelocityDesc::usePar( const IOPar& par )
 {
-    bool isvel;
-    if ( !par.getYN(sKeyIsVelocity(),isvel) || !isvel )
-	return false;
+    BufferString typstr;
+    if ( !par.get(sKey::Type(),typstr) && typstr != sKey::Velocity() )
+    {
+	bool isvel;
+	if ( !par.getYN(sKeyIsVelocity,isvel) || !isvel )
+	    return false;
+    }
 
     Vel::Type type = type_;
     if ( Vel::parseEnum(par,sKeyVelocityType(),type) )
@@ -141,7 +170,10 @@ bool VelocityDesc::usePar( const IOPar& par )
 	if ( type_ == Vel::RMS && !statics_.usePar(par) )
 	    return false;
 
-	par.get( sKeyVelocityUnit(), velunit_ );
+	BufferString velunit;
+	if ( par.get(sKeyVelocityUnit(),velunit) && !velunit.isEmpty() &&
+	     isVelocity() )
+	    setUnit( UoMR().get(velunit.buf()) );
     }
     else
     {  // legacy format
@@ -157,7 +189,11 @@ bool VelocityDesc::usePar( const IOPar& par )
 	    return false;
 
 	type_ = type;
-	par.get( sKeyVelocityUnit(), velunit_ );
+	BufferString velunit;
+	if ( par.get(sKeyVelocityUnit(),velunit) && !velunit.isEmpty() &&
+	     isVelocity() )
+	    setUnit( UoMR().get(velunit.buf()) );
+
 	statics_.velattrib_.setEmpty();
 	statics_.vel_ = mUdf(double);
 	return true;
@@ -167,26 +203,13 @@ bool VelocityDesc::usePar( const IOPar& par )
 }
 
 
-void VelocityDesc::setUnit( const UnitOfMeasure* uom )
-{
-    if ( uom )
-    {
-	if ( uom->propType() == Mnemonic::Vel )
-	    velunit_.set( uom->name().str() );
-	else
-	    { pErrMsg("Incorrect unit of measure"); }
-    }
-    else
-	velunit_.setEmpty();
-}
-
-
 void VelocityDesc::removePars( IOPar& par )
 {
-    par.removeWithKey( sKeyIsVelocity() );
+    par.removeWithKey( sKey::Type() );
     par.removeWithKey( sKeyVelocityType() );
     par.removeWithKey( sKeyVelocityUnit() );
     StaticsDesc::removePars( par );
+    par.removeWithKey( sKeyIsVelocity );
 }
 
 

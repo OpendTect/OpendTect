@@ -849,6 +849,9 @@ bool VelocityModelScanner::doFinish( bool success, od_ostream* )
 	return false;
     }
 
+    startavgvel_.sort();
+    stopavgvel_.sort();
+
     return success;
 }
 

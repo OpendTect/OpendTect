@@ -151,14 +151,8 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 }
 
 
-void uiIOObjSelDlg::setSurveyDefaultSubsel(const char* subsel)
-{
-    selgrp_->setSurveyDefaultSubsel(subsel);
-
-}
-
-
 // uiIOObjSel
+
 static uiString getString( const uiString& txt, const IOObjContext& ct )
 {
     if ( !txt.isEmpty() )

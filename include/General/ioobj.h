@@ -93,7 +93,7 @@ public:
 				//!< key
     static bool			isSurveyDefault(const MultiID&);
 				//!<Checks the 'Default.' entries in SI().pars()
-    void			setSurveyDefault(const char* subsel = 0) const;
+    void			setSurveyDefault() const;
 				/*!<\param subsel may be a subselection lower
 				    than the translator group, such as
 				    "Velocity".*/

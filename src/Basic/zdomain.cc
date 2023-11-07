@@ -515,7 +515,7 @@ bool ZDomain::Info::fillPar( IOPar& par ) const
 	    }
 	}
 
-	if ( allequal )
+	if ( allequal && par.isPresent(sKey()) )
 	    return false;
     }
 

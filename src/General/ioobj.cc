@@ -310,15 +310,13 @@ bool IOObj::isUserSelectable( bool forread ) const
 }
 
 
-void IOObj::setSurveyDefault( const char* subsel ) const
+void IOObj::setSurveyDefault() const
 {
     PtrMan<Translator> tr = createTranslator();
     if ( !tr )
 	return;
 
-    CompoundKey defaultkey = tr->group()->getSurveyDefaultKey( this );
-    if ( subsel )
-	defaultkey += subsel;
+    const BufferString defaultkey( tr->group()->getSurveyDefaultKey( this ) );
 
     SI().getPars().set( defaultkey.buf(), key() );
     SI().savePars();

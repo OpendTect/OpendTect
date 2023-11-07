@@ -62,6 +62,7 @@ public:
     bool		isThomsen() const;
 			//!<\returns true if not unknown or a Velocity
     const UnitOfMeasure* getUnit() const;
+    bool		hasVelocityUnit() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -69,7 +70,6 @@ public:
 
     static void		removePars(IOPar&);
 
-    static const char*	sKeyIsVelocity();
     static const char*	sKeyVelocityType();
     static const char*	sKeyVelocityUnit();
     static const char*	sKeyVelocityVolume();
@@ -78,10 +78,12 @@ public:
 
     Vel::Type		type_ = Vel::Unknown;
     StaticsDesc		statics_;
-    BufferString	velunit_;
 
     static bool		isUsable(Vel::Type,const ZDomain::Def&,uiRetVal&);
 
+private:
+
+    BufferString	velunit_;
 };
 
 

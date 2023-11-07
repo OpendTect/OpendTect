@@ -10,8 +10,10 @@ ________________________________________________________________________
 #include "uiveldesc.h"
 
 #include "ctxtioobj.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "od_helpids.h"
+#include "seistrctr.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "zdomain.h"
@@ -42,9 +44,6 @@ uiVelocityDesc::Setup::~Setup()
 
 
 // uiVelocityDesc
-
-static const char* sKeyDefVel2DCube = "Default.2D Cube.Velocity";
-static const char* sKeyDefVelCube = "Default.Cube.Velocity";
 
 uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup& vsu )
     : uiGroup( p, "Velocity type selector" )
@@ -168,12 +167,9 @@ void uiVelocityDesc::set( const VelocityDesc& desc )
     setType( desc.type_ );
     if ( desc.isVelocity() || desc.isUdf() )
     {
-	const UnitOfMeasure* velstoruom =
-			     UnitOfMeasure::surveyDefVelStorageUnit();
-	const UnitOfMeasure* descuom = desc.getUnit();
-	const bool hasunit = descuom;
+	const bool hasunit = desc.hasVelocityUnit();
 	unitchkfld_->setChecked( !hasunit );
-	unitfld_->setUnit( hasunit ? descuom : velstoruom );
+	unitfld_->setUnit( desc.getUnit() );
 	wasguessed_ = !hasunit;
     }
 
@@ -213,7 +209,10 @@ bool uiVelocityDesc::get( VelocityDesc& res, bool disperr ) const
     }
 
     if ( unitfld_->isDisplayed() )
-	res.velunit_.set( unitfld_->getUnitName() );
+    {
+	const UnitOfMeasure* veluom = UoMR().get( unitfld_->getUnitName() );
+	res.setUnit( veluom );
+    }
 
     return true;
 }
@@ -319,21 +318,36 @@ void uiVelocityDescDlg::volSelChange( CallBacker* cb )
 }
 
 
+bool uiVelocityDescDlg::doScanVels( const IOObj& ioobj,
+				    const VelocityDesc& desc, bool writergs,
+				    Interval<float>& topvelrg,
+				    Interval<float>& botvelrg,
+				    TaskRunner* taskrunner )
+{
+    VelocityModelScanner scanner( ioobj, desc );
+    if ( !TaskRunner::execute(taskrunner,scanner) )
+	return false;
+
+    topvelrg = scanner.getTopVAvg();
+    botvelrg = scanner.getBotVAvg();
+    if ( writergs )
+    {
+	VelocityStretcher::setRange( topvelrg, desc, true, ioobj.pars() );
+	VelocityStretcher::setRange( botvelrg, desc, false, ioobj.pars() );
+	if ( !IOM().commitChanges(ioobj) )
+	    return false;
+    }
+
+    return true;
+}
+
+
 bool uiVelocityDescDlg::scanAvgVel( const IOObj& ioobj,
 				    const VelocityDesc& desc )
 {
-    VelocityModelScanner scanner( ioobj, desc );
     uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute(&taskrunner,scanner) )
-	return false;
-
-    toprange_ = scanner.getTopVAvg();
-    bottomrange_ = scanner.getBotVAvg();
-
-    toprange_.sort();
-    bottomrange_.sort();
-
-    return true;
+    return doScanVels( ioobj, desc, false, toprange_, bottomrange_,
+		       &taskrunner );
 }
 
 
@@ -397,12 +411,13 @@ uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt,
     : uiSeisSel(p,ctxt,setup)
     , trg_(Interval<float>::udf())
     , brg_(Interval<float>::udf())
-    , velrgchanged( this )
+    , velChanged(this)
 {
-    seissetup_.allowsetsurvdefault( true ).survdefsubsel( "Velocity" );
+    seissetup_.allowsetsurvdefault( true );
     editcubebutt_ = new uiPushButton( this, uiString::empty(),
 			    mCB(this,uiVelSel,editCB), false );
     editcubebutt_->attach( rightOf, endObj(false) );
+    mAttachCB( selectionDone, uiVelSel::selectionDoneCB );
 
     mAttachCB( postFinalize(), uiVelSel::initGrpCB );
 }
@@ -417,6 +432,18 @@ uiVelSel::~uiVelSel()
 void uiVelSel::initGrpCB( CallBacker* )
 {
     selectionDoneCB( nullptr );
+    if ( trg_.isUdf() || brg_.isUdf() )
+    {
+	const UnitOfMeasure* veluom = getVelUnit();
+	const Interval<float> defvelrg =
+				VelocityStretcher::getDefaultVAvg( veluom );
+	if ( trg_.isUdf() )
+	    trg_.set( defvelrg.start, defvelrg.start );
+	if ( brg_.isUdf() )
+	    brg_.set( defvelrg.stop, defvelrg.stop );
+
+	velChanged.trigger();
+    }
 }
 
 
@@ -424,20 +451,19 @@ const IOObjContext& uiVelSel::ioContext( bool is2d )
 {
     mDefineStaticLocalObject( PtrMan<IOObjContext>, velctxt, = nullptr );
     mDefineStaticLocalObject( PtrMan<IOObjContext>, linectxt, = nullptr );
+    convertLegacyTypes();
     if ( is2d && !linectxt )
     {
 	auto* newctxt =
 		new IOObjContext( uiSeisSel::ioContext(Seis::Line,true) );
-	newctxt->toselect_.require_.setYN(
-				VelocityDesc::sKeyIsVelocity(), true );
+	newctxt->toselect_.require_.set( sKey::Type(), sKey::Velocity() );
 	linectxt.setIfNull( newctxt, true );
     }
     else if ( !is2d && !velctxt )
     {
 	auto* newctxt =
 		new IOObjContext( uiSeisSel::ioContext(Seis::Vol,true) );
-	newctxt->toselect_.require_.setYN(
-				VelocityDesc::sKeyIsVelocity(), true );
+	newctxt->toselect_.require_.set( sKey::Type(), sKey::Velocity() );
 	velctxt.setIfNull( newctxt, true );
     }
 
@@ -445,26 +471,23 @@ const IOObjContext& uiVelSel::ioContext( bool is2d )
 }
 
 
-void uiVelSel::fillDefault()
+BufferString uiVelSel::getDefaultKey( Seis::GeomType gt ) const
 {
-    workctio_.destroyAll();
-    if ( !setup_.filldef_ || !workctio_.ctxt_.forread_ )
-	return;
-
-    workctio_.fillDefaultWithKey(  is2D() ? sKeyDefVel2DCube : sKeyDefVelCube );
+    const BufferString seiskey = uiSeisSel::getDefaultKey( gt );
+    return IOPar::compKey( seiskey.str(), sKey::Velocity() );
 }
 
 
 void uiVelSel::setInput( const IOObj& ioobj )
 {
-    uiIOObjSel::setInput( ioobj );
+    uiSeisSel::setInput( ioobj );
     updateEditButton();
 }
 
 
 void uiVelSel::setInput( const MultiID& mid )
 {
-    uiIOObjSel::setInput( mid );
+    uiSeisSel::setInput( mid );
     updateEditButton();
 }
 
@@ -504,12 +527,7 @@ uiRetVal uiVelSel::isOK() const
 
     if ( desc.isUdf() )
 	uirv.add( tr("The velocity model type is undefined.") );
-    else if ( desc.isVelocity() )
-    {
-	if ( desc.velunit_.isEmpty() )
-	    uirv.add( tr("No units set for this velocity model") );
-    }
-    else if ( onlyvelocity_ )
+    else if ( onlyvelocity_ && !desc.isVelocity() )
     {
 	uirv.add( tr("The velocity type for this velocity model is not "
 		     "allowed for this workflow") );
@@ -532,18 +550,34 @@ const UnitOfMeasure* uiVelSel::getVelUnit() const
 
 void uiVelSel::selectionDoneCB( CallBacker* )
 {
-    PtrMan<IOObj> ioob = getIOObj( true );
-    if ( ioob )
+    PtrMan<IOObj> ioobj = getIOObj( true );
+    if ( ioobj )
     {
 	VelocityDesc desc;
-	const bool dotrigger = desc.usePar( ioob->pars() ) &&
-			       desc.isVelocity();
-	VelocityStretcher::getRange( ioob->pars(), desc, true, trg_ );
-	VelocityStretcher::getRange( ioob->pars(), desc, false, brg_ );
-	trg_.sort();
-	brg_.sort();
-	if ( dotrigger )
-	    velrgchanged.trigger();
+	if ( desc.usePar(ioobj->pars()) && desc.isVelocity() )
+	{
+	    Interval<float> trg = Interval<float>::udf();
+	    Interval<float> brg = Interval<float>::udf();
+	    VelocityStretcher::getRange( ioobj->pars(), desc, true, trg );
+	    VelocityStretcher::getRange( ioobj->pars(), desc, false, brg );
+	    if ( trg.isUdf() || brg.isUdf() )
+	    {
+		uiTaskRunner taskrunner( this );
+		if ( uiVelocityDescDlg::doScanVels(*ioobj,desc,true,trg,brg,
+						   &taskrunner) )
+		{
+		    trg_ = trg;
+		    brg_ = brg;
+		}
+	    }
+	    else
+	    {
+		trg_ = trg;
+		brg_ = brg;
+	    }
+
+	    velChanged.trigger();
+	}
     }
 
     updateEditButton();
@@ -566,10 +600,9 @@ void uiVelSel::editCB( CallBacker* )
     {
 	trg_ = dlg.getVelocityTopRange();
 	brg_ = dlg.getVelocityBottomRange();
-	velrgchanged.trigger();
+	velChanged.trigger();
     }
 
-    selectionDone.trigger();
     updateEditButton();
 }
 
@@ -581,6 +614,43 @@ void uiVelSel::updateEditButton()
 }
 
 
+void uiVelSel::convertLegacyTypes()
+{
+    if ( !IOM().isOK() )
+	return;
+
+    PtrMan<IODir> seisdir = IOM().getDir( IOObjContext::Seis );
+    if ( !seisdir )
+	return;
+
+    static bool wasconverted = false;
+    if ( wasconverted )
+	return;
+
+    const ObjectSet<IOObj>& seisobjs = seisdir->getObjs();
+    for ( const auto* seisobj : seisobjs )
+    {
+	if ( !seisobj )
+	    continue;
+
+	const IOPar curiop = seisobj->pars();
+	VelocityDesc desc;
+	if ( !desc.usePar(curiop) || !desc.isVelocity() )
+	    continue;
+
+	IOPar newiop( curiop );
+	desc.fillPar( newiop );
+	if ( newiop == curiop )
+	    continue;
+
+	mNonConst(seisobj)->pars() = newiop;
+	seisdir->commitChanges( seisobj );
+    }
+
+    wasconverted = true;
+}
+
+
 // uiVelModelZAxisTransform
 
 uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
@@ -588,9 +658,6 @@ uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
 {
     velsel_ = new uiVelSel( this, VelocityDesc::getVelVolumeLabel(),
 			    is2D(), true );
-    mAttachCB( velsel_->velrgchanged, uiVelModelZAxisTransform::setZRangeCB );
-    mAttachCB( velsel_->selectionDone, uiVelModelZAxisTransform::setZRangeCB );
-
     setHAlignObj( velsel_ );
 }
 
@@ -610,6 +677,7 @@ ZAxisTransform* uiVelModelZAxisTransform::getSelection()
 void uiVelModelZAxisTransform::doInitGrp()
 {
     setZRangeCB( nullptr );
+    mAttachCB( velsel_->velChanged, uiVelModelZAxisTransform::setZRangeCB );
 }
 
 

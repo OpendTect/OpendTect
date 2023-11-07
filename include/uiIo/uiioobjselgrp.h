@@ -187,7 +187,6 @@ public:
     void		setAskedToOverwrite( bool yn )
 				{ asked2overwrite_ = yn; }
     bool		askedToOverwrite() const { return asked2overwrite_; }
-    void		setSurveyDefaultSubsel(const char* subsel);
 
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -216,7 +215,6 @@ protected:
     CtxtIOObj&			ctio_;
     Setup			setup_;
     EntryDataSet		dataset_;
-    BufferString		surveydefaultsubsel_;
     bool			asked2overwrite_		= false;
 
     uiListBox*			listfld_;

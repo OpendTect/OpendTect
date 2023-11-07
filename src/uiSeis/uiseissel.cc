@@ -32,6 +32,8 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 
+// uiSeisSelDlg
+
 uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 {
     if ( !setup.seltxt_.isEmpty() )
@@ -69,12 +71,11 @@ static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
 	    }
 	}
 
-	if ( !allowedtranlators.isEmpty() )
-	    ctxt.toselect_.allowtransls_ = allowedtranlators.buf();
-	else
+	if ( allowedtranlators.isEmpty() )
 	    ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+	else
+	    ctxt.toselect_.allowtransls_ = allowedtranlators.buf();
     }
-
 
     return ctxt;
 }
@@ -104,8 +105,6 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)
 {
-    setSurveyDefaultSubsel( sssu.survdefsubsel_ );
-
     const bool is2d = Seis::is2D( sssu.geom_ );
     const bool isps = Seis::isPS( sssu.geom_ );
 
@@ -264,6 +263,39 @@ static IOObjContext getIOObjCtxt( const IOObjContext& c,
 }
 
 
+// uiSeisSel::Setup
+
+uiSeisSel::Setup::Setup( Seis::GeomType gt )
+    : geom_(gt)
+    , allowsetdefault_(true)
+    , steerpol_(NoSteering)
+    , compnrpol_(Both)
+    , enabotherdomain_(false)
+    , allowsetsurvdefault_(false)
+    , explprepost_(false)
+    , selectcomp_(false)
+{}
+
+
+uiSeisSel::Setup::Setup( bool is2d, bool isps )
+    : uiSeisSel::Setup(Seis::geomTypeOf(is2d,isps))
+{
+}
+
+
+uiSeisSel::Setup::~Setup()
+{}
+
+
+uiSeisSel::Setup& uiSeisSel::Setup::wantSteering( bool yn )
+{
+    steerpol_ = yn ? OnlySteering : NoSteering;
+    return *this;
+}
+
+
+// uiSeisSel
+
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
     : uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt))
@@ -360,12 +392,12 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su,
 }
 
 
-const char* uiSeisSel::getDefaultKey( Seis::GeomType gt ) const
+BufferString uiSeisSel::getDefaultKey( Seis::GeomType gt ) const
 {
     const bool is2d = Seis::is2D( gt );
-    return IOPar::compKey( sKey::Default(),
-	is2d ? SeisTrcTranslatorGroup::sKeyDefault2D()
-	     : SeisTrcTranslatorGroup::sKeyDefault3D() );
+    return IOPar::compKey( sKey::Default(), is2d
+			   ? SeisTrcTranslatorGroup::sKeyDefault2D()
+			   : SeisTrcTranslatorGroup::sKeyDefault3D() );
 }
 
 
@@ -595,7 +627,7 @@ void uiSeisSel::processInput()
 
 uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
-    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, workctio_, seissetup_ );
+    auto* dlg = new uiSeisSelDlg( this, workctio_, seissetup_ );
     dlg->usePar( dlgiopar_ );
     uiIOObjSelGrp* selgrp = dlg->selGrp();
     if ( selgrp )
@@ -614,17 +646,17 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
 						   const uiString& txt )
 {
     uiSeisSel::Setup sssu( is2d, false );
-    sssu.wantSteering().seltxt( txt );
-    sssu.withwriteopts( true ).withinserters( false );
-    sssu.compnrpol( uiSeisSel::Setup::MultiCompOnly );
+    sssu.wantSteering().compnrpol( uiSeisSel::Setup::MultiCompOnly )
+	.allowsetsurvdefault( forread )
+	.withinserters( false ).withwriteopts( true ).seltxt( txt );
     return sssu;
 }
 
 
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, bool is2d, bool forread,
 				const uiString& txt )
-	: uiSeisSel(p,uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,forread),
-		    mkSeisSelSetupForSteering(is2d,forread,txt))
+    : uiSeisSel(p,uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,forread),
+	        mkSeisSelSetupForSteering(is2d,forread,txt))
 {
 }
 
@@ -633,20 +665,20 @@ uiSteerCubeSel::~uiSteerCubeSel()
 {}
 
 
-const char* uiSteerCubeSel::getDefaultKey( Seis::GeomType gt ) const
+BufferString uiSteerCubeSel::getDefaultKey( Seis::GeomType gt ) const
 {
-    BufferString defkey = uiSeisSel::getDefaultKey( gt );
-    return IOPar::compKey( defkey, sKey::Steering() );
+    const BufferString seiskey = uiSeisSel::getDefaultKey( gt );
+    return IOPar::compKey( seiskey.str(), sKey::Steering() );
 }
 
 
 uiSeisPosProvGroup::uiSeisPosProvGroup( uiParent* p,
-					  const uiPosProvGroup::Setup& su )
+					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
 {
     uiSeisSel::Setup ssu( Seis::Vol );
     ssu.seltxt( tr("Cube for positions") );
-    ssu.withinserters(false);
+    ssu.withinserters( false );
     seissel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true), ssu );
 
     if ( su.withz_ )
