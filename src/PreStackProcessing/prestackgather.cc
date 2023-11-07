@@ -204,7 +204,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
     {
 	bool hasoffsetunit;
 	const UnitOfMeasure* offsetsuom =
-		    SeisPSIOProvider::getOffsetsUnit( &ioobj, hasoffsetunit );
+		    SeisPSIOProvider::offsetUnit( &ioobj, hasoffsetunit );
 	if ( hasoffsetunit && offsetsuom )
 	{
 	    if ( offsetsuom == UnitOfMeasure::meterUnit() )

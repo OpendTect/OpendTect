@@ -234,7 +234,7 @@ public:
 
     SeisDataPack&		setZDomain(const ZDomain::Info&);
     const ZDomain::Info&	zDomain() const { return *zdomaininfo_; }
-    const UnitOfMeasure*	getZUnit() const;
+    const UnitOfMeasure*	zUnit() const;
     BufferString		unitStr(bool val,bool withparens=false) const;
 
     const UnitOfMeasure*	valUnit() const { return valunit_; }

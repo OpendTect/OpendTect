@@ -184,7 +184,7 @@ ZSampling ZAxisTransform::getZInterval( const ZSampling& zsamp,
 					const ZDomain::Info& to,
 					bool makenice ) const
 {
-    ZSampling ret = getWorkZrg( zsamp, from, to );
+    ZSampling ret = getWorkZSampling( zsamp, from, to );
     if ( makenice && from != to )
     {
 	const int userfac = to.def_.userFactor();

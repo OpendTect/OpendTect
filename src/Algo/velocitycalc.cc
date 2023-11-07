@@ -221,7 +221,7 @@ static void resampleContinuousData( const ValueSeries<double>& yarr,
 #define mIsValidVel( v ) (!mIsUdf(v) && v>1e-3)
 
 bool Vel::calcDepthsFromVint( const ValueSeries<double>& Vint,
-			      const ZValueSerie& times,
+			      const ZValueSeries& times,
 			      ValueSeries<double>& depths )
 {
     const od_int64 sz = Vint.size();
@@ -268,7 +268,7 @@ bool Vel::calcDepthsFromVint( const ValueSeries<double>& Vint,
 
 
 bool Vel::calcDepthsFromVavg( const ValueSeries<double>& Vavg,
-			      const ZValueSerie& times,
+			      const ZValueSeries& times,
 			      ValueSeries<double>& depths )
 {
     return computeVint( Vavg, times, depths ) &&
@@ -277,7 +277,7 @@ bool Vel::calcDepthsFromVavg( const ValueSeries<double>& Vavg,
 
 
 bool Vel::calcDepthsFromVrms( const ValueSeries<double>& Vrms,
-			      const ZValueSerie& times,
+			      const ZValueSeries& times,
 			      ValueSeries<double>& depths, double t0 )
 {
     return computeDix( Vrms, times, depths, t0 ) &&
@@ -286,7 +286,7 @@ bool Vel::calcDepthsFromVrms( const ValueSeries<double>& Vrms,
 
 
 bool Vel::calcTimesFromVint( const ValueSeries<double>& Vint,
-			     const ZValueSerie& depths,
+			     const ZValueSeries& depths,
 			     ValueSeries<double>& times )
 {
     const od_int64 sz = Vint.size();
@@ -334,7 +334,7 @@ bool Vel::calcTimesFromVint( const ValueSeries<double>& Vint,
 
 
 bool Vel::calcTimesFromVavg( const ValueSeries<double>& Vavg,
-			     const ZValueSerie& depths,
+			     const ZValueSeries& depths,
 			     ValueSeries<double>& times )
 {
     return computeVint( Vavg, depths, times ) &&
@@ -343,8 +343,8 @@ bool Vel::calcTimesFromVavg( const ValueSeries<double>& Vavg,
 
 
 bool Vel::getSampledZ( const ValueSeries<double>& vels,
-		       const ZValueSerie& zvals_in, Vel::Type type,
-		       const ZValueSerie& zvals_out,
+		       const ZValueSeries& zvals_in, Vel::Type type,
+		       const ZValueSeries& zvals_out,
 		       ValueSeries<double>& Zout, double t0 )
 {
     if ( !vels.isOK() || !zvals_in.isOK() || !zvals_out.isOK() || !Zout.isOK()
@@ -375,8 +375,8 @@ bool Vel::getSampledZ( const ValueSeries<double>& vels,
     if ( !res )
 	return false;
 
-    const ZValueSerie& tarr = velisintime ? zvals_in : rev_zvals_in;
-    const ZValueSerie& darr = velisintime ? rev_zvals_in : zvals_in;
+    const ZValueSeries& tarr = velisintime ? zvals_in : rev_zvals_in;
+    const ZValueSeries& darr = velisintime ? rev_zvals_in : zvals_in;
     if ( zvals_out.isTime() )
 	Vel::resampleContinuousData( darr, tarr, zvals_out, 1e-9, 1e-4, Zout );
     else
@@ -387,7 +387,7 @@ bool Vel::getSampledZ( const ValueSeries<double>& vels,
 
 
 bool Vel::calcDepthsFromLinearV0k( double v0, double k,
-				   const ZValueSerie& times,
+				   const ZValueSeries& times,
 				   ValueSeries<double>& depths )
 {
     const od_int64 sz = times.size();
@@ -435,7 +435,7 @@ bool Vel::calcDepthsFromLinearV0k( double v0, double k,
 
 
 bool Vel::calcTimesFromLinearV0k( double v0, double k,
-				  const ZValueSerie& depths,
+				  const ZValueSeries& depths,
 				  ValueSeries<double>& times )
 {
     const od_int64 sz = depths.size();
@@ -475,7 +475,7 @@ bool Vel::calcTimesFromLinearV0k( double v0, double k,
 
 
 bool Vel::fitLinearVelocity( const ValueSeries<double>& Vint,
-			     const ZValueSerie& zvals,
+			     const ZValueSeries& zvals,
 			     const ::Interval<double>& zlayer, double refz,
 			     double& v0, double& gradient, double& error )
 {
@@ -664,7 +664,7 @@ bool Vel::fitLinearVelocity( const ValueSeries<double>& Vint,
 
 
 bool Vel::computeVavg( const ValueSeries<double>& Vint,
-		       const ZValueSerie& zvals, ValueSeries<double>& Vavg )
+		       const ZValueSeries& zvals, ValueSeries<double>& Vavg )
 {
     const od_int64 sz = Vint.size();
     if ( !Vint.isOK() || !zvals.isOK() || !Vavg.isOK() ||
@@ -704,7 +704,7 @@ bool Vel::computeVavg( const ValueSeries<double>& Vint,
 
 
 bool Vel::computeVrms( const ValueSeries<double>& Vint,
-		       const ZValueSerie& tvals, ValueSeries<double>& Vrms,
+		       const ZValueSeries& tvals, ValueSeries<double>& Vrms,
 		       double t0 )
 {
     const od_int64 sz = Vint.size();
@@ -766,7 +766,7 @@ bool Vel::computeVrms( const ValueSeries<double>& Vint,
 
 
 bool Vel::computeVint( const ValueSeries<double>& Vavg,
-		       const ZValueSerie& zvals, ValueSeries<double>& Vint )
+		       const ZValueSeries& zvals, ValueSeries<double>& Vint )
 {
     const od_int64 sz = Vavg.size();
     if ( !Vavg.isOK() || !zvals.isOK() || !Vint.isOK() ||
@@ -824,7 +824,7 @@ bool Vel::computeVint( const ValueSeries<double>& Vavg,
 
 
 bool Vel::computeDix( const ValueSeries<double>& Vrms,
-		      const ZValueSerie& tvals, ValueSeries<double>& Vint,
+		      const ZValueSeries& tvals, ValueSeries<double>& Vint,
 		      double t0 )
 {
     const od_int64 sz = Vrms.size();
@@ -880,8 +880,8 @@ bool Vel::computeDix( const ValueSeries<double>& Vrms,
 }
 
 
-bool Vel::sampleVint( const ValueSeries<double>& Vin, const ZValueSerie& z_in,
-		      const ZValueSerie& z_out, ValueSeries<double>& Vout )
+bool Vel::sampleVint( const ValueSeries<double>& Vin, const ZValueSeries& z_in,
+		      const ZValueSeries& z_out, ValueSeries<double>& Vout )
 {
     if ( !Vin.isOK() || !z_in.isOK() || Vin.size() != z_in.size() ||
 	 !z_out.isOK() || !Vout.isOK() || Vout.size() != z_out.size() )
@@ -941,7 +941,7 @@ bool Vel::sampleVint( const ValueSeries<double>& Vin, const ZValueSerie& z_in,
 
 
 bool Vel::sampleVavg( const ValueSeries<double>& Vin,
-		      const ZValueSerie& z_in, const ZValueSerie& z_out,
+		      const ZValueSeries& z_in, const ZValueSeries& z_out,
 		      ValueSeries<double>& Vout )
 {
     if ( !Vin.isOK() || !z_in.isOK() || Vin.size() != z_in.size() ||
@@ -986,7 +986,7 @@ bool Vel::sampleVavg( const ValueSeries<double>& Vin,
 
 
 bool Vel::sampleVrms( const ValueSeries<double>& Vin,
-		      const ZValueSerie& t_in, const ZValueSerie& t_out,
+		      const ZValueSeries& t_in, const ZValueSeries& t_out,
 		      ValueSeries<double>& Vout, double t0_in )
 {
     const od_int64 nr_in = Vin.size();
@@ -1011,8 +1011,8 @@ bool Vel::sampleVrms( const ValueSeries<double>& Vin,
 
 
 void Vel::sampleEffectiveThomsenPars( const ValueSeries<double>& inparr,
-				      const ZValueSerie& z_in,
-				      const ZValueSerie& z_out,
+				      const ZValueSeries& z_in,
+				      const ZValueSeries& z_out,
 				      ValueSeries<double>& res )
 {
     const double xeps = z_out.isTime() ? 1e-9 : 1e-4;
@@ -1021,8 +1021,8 @@ void Vel::sampleEffectiveThomsenPars( const ValueSeries<double>& inparr,
 
 
 void Vel::sampleIntvThomsenPars( const ValueSeries<double>& inparr,
-				 const ZValueSerie& z_in,
-				 const ZValueSerie& z_out,
+				 const ZValueSeries& z_in,
+				 const ZValueSeries& z_out,
 				 ValueSeries<double>& res )
 {
     const od_int64 nr_in = inparr.size();
@@ -1086,7 +1086,7 @@ void Vel::computeResidualMoveouts( double z0, double rmo, double refoffset,
 // DixConversion
 
 bool Vel::DixConversion::compute( const ValueSeries<double>& Vrms,
-				  const ZValueSerie& tvals,
+				  const ZValueSeries& tvals,
 				  ValueSeries<double>& Vint, double t0 )
 {
     return computeDix( Vrms, tvals, Vint, t0 );

@@ -110,9 +110,9 @@ public:
 
     static const char*		sKeyCubeID;
 
-    static const UnitOfMeasure* getOffsetsUnit(const IOObj*,bool& isfound);
-    static const UnitOfMeasure* getOffsetsUnit(bool infeet);
-    static bool			getOffsetsUnitYN(const IOPar&,bool& infeet);
+    static const UnitOfMeasure* offsetUnit(const IOObj*,bool& isfound);
+    static const UnitOfMeasure* offsetUnit(bool infeet);
+    static bool			getOffsetUnitYN(const IOPar&,bool& infeet);
     static bool			offsetIsAngle(const IOObj*,bool& yn);
     static bool			gathersAreCorrected(const IOObj*,bool& yn);
 

@@ -253,7 +253,7 @@ void SimpleTimeDepthTransform::doTransform( const SamplingData<float>& sd,
 }
 
 
-ZSampling SimpleTimeDepthTransform::getWorkZrg( const ZSampling& zsamp,
+ZSampling SimpleTimeDepthTransform::getWorkZSampling( const ZSampling& zsamp,
 						const ZDomain::Info& from,
 						const ZDomain::Info& to ) const
 {

@@ -26,8 +26,9 @@ mExpClass(uiSeis) uiSeisSel : public uiIOObjSel
 { mODTextTranslationClass(uiSeisSel);
 public:
 
-    struct Setup : public uiIOObjSel::Setup
+    mExpClass(uiSeis) Setup : public uiIOObjSel::Setup
     {
+    public:
 	enum SteerPol	{ NoSteering=0, OnlySteering=1, InclSteer=2 };
 	enum CompNrPol	{ SingleCompOnly=0, MultiCompOnly=1, Both=2};
 
@@ -94,7 +95,7 @@ protected:
     const char*		userNameFromKey(const char*) const override;
     virtual const char* compNameFromKey(const char*) const;
     uiIOObjRetDlg*	mkDlg() override;
-    BufferString	getZUnit() const;
+    BufferString	zUnit() const;
 
     virtual BufferString getDefaultKey(Seis::GeomType) const;
 

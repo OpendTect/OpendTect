@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class VelocityDesc;
-class ZValueSerie;
+class ZValueSeries;
 namespace ZDomain { class Info; }
 template <class T> class ValueSeries;
 
@@ -108,7 +108,7 @@ namespace Vel
   depths output values as TVDSD in meters */
 
 mGlobal(Algo) bool calcDepthsFromVint(const ValueSeries<double>& Vint,
-				      const ZValueSerie& times,
+				      const ZValueSeries& times,
 				      ValueSeries<double>& depths);
 
 
@@ -118,7 +118,7 @@ mGlobal(Algo) bool calcDepthsFromVint(const ValueSeries<double>& Vint,
   depths output values as TVDSD in meters */
 
 mGlobal(Algo) bool calcDepthsFromVavg(const ValueSeries<double>& Vavg,
-				      const ZValueSerie& times,
+				      const ZValueSeries& times,
 				      ValueSeries<double>& depths);
 
 
@@ -128,7 +128,7 @@ mGlobal(Algo) bool calcDepthsFromVavg(const ValueSeries<double>& Vavg,
   depths output values as TVDSD in meters */
 
 mGlobal(Algo) bool calcDepthsFromVrms(const ValueSeries<double>& Vrms,
-				      const ZValueSerie& times,
+				      const ZValueSeries& times,
 				      ValueSeries<double>& depths,
 				      double t0=0.);
 
@@ -139,7 +139,7 @@ mGlobal(Algo) bool calcDepthsFromVrms(const ValueSeries<double>& Vrms,
   times out values as TWT in seconds. */
 
 mGlobal(Algo) bool calcTimesFromVint(const ValueSeries<double>& Vint,
-				     const ZValueSerie& depths,
+				     const ZValueSeries& depths,
 				     ValueSeries<double>& times);
 
 
@@ -149,7 +149,7 @@ mGlobal(Algo) bool calcTimesFromVint(const ValueSeries<double>& Vint,
   times out values as TWT in seconds. */
 
 mGlobal(Algo) bool calcTimesFromVavg(const ValueSeries<double>& Vavg,
-				     const ZValueSerie& depths,
+				     const ZValueSeries& depths,
 				     ValueSeries<double>& times);
 
 
@@ -160,8 +160,8 @@ mGlobal(Algo) bool calcTimesFromVavg(const ValueSeries<double>& Vavg,
   input/output depths values as TVDSD in meters. */
 
 mGlobal(Algo) bool getSampledZ(const ValueSeries<double>& vels,
-			       const ZValueSerie& zvals_in,Vel::Type,
-			       const ZValueSerie& zvals_out,
+			       const ZValueSeries& zvals_in,Vel::Type,
+			       const ZValueSeries& zvals_out,
 			       ValueSeries<double>& Zout,double t0=0.);
 
 
@@ -170,7 +170,7 @@ mGlobal(Algo) bool getSampledZ(const ValueSeries<double>& vels,
    k is the velocity gradient with depth (always in s-1 thus) */
 
 mGlobal(Algo) bool calcDepthsFromLinearV0k(double v0,double k,
-					   const ZValueSerie& times,
+					   const ZValueSeries& times,
 					   ValueSeries<double>& depths);
 
 
@@ -179,7 +179,7 @@ mGlobal(Algo) bool calcDepthsFromLinearV0k(double v0,double k,
    k is the velocity gradient with depth (always in s-1 thus) */
 
 mGlobal(Algo) bool calcTimesFromLinearV0k(double v0,double k,
-					  const ZValueSerie& depths,
+					  const ZValueSeries& depths,
 					  ValueSeries<double>& times);
 
 
@@ -188,7 +188,7 @@ mGlobal(Algo) bool calcTimesFromLinearV0k(double v0,double k,
    pairs at the layer's boundary will be preserved. */
 
 mGlobal(Algo) bool fitLinearVelocity(const ValueSeries<double>& Vint,
-				     const ZValueSerie&,
+				     const ZValueSeries&,
 				     const ::Interval<double>& zlayer,
 				     double reference_z,double& V_0,
 				     double& gradient,double& error);
@@ -197,7 +197,7 @@ mGlobal(Algo) bool fitLinearVelocity(const ValueSeries<double>& Vint,
 //<!Converts a number of layers with Vint to average velocities.
 
 mGlobal(Algo) bool computeVavg(const ValueSeries<double>& Vint,
-			       const ZValueSerie&,
+			       const ZValueSeries&,
 			       ValueSeries<double>& Vavg);
 
 
@@ -206,14 +206,14 @@ mGlobal(Algo) bool computeVavg(const ValueSeries<double>& Vint,
    has the start time of the top layer. */
 
 mGlobal(Algo) bool computeVrms(const ValueSeries<double>& Vint,
-			       const ZValueSerie&,
+			       const ZValueSeries&,
 			       ValueSeries<double>& Vrms,double t0=0.);
 
 
 //!Converts a number of layers with Vavg to Vint velocities.
 
 mGlobal(Algo) bool computeVint(const ValueSeries<double>& Vavg,
-			       const ZValueSerie&,ValueSeries<double>& Vint);
+			       const ZValueSeries&,ValueSeries<double>& Vint);
 
 
 /*!Converts a number of layers with Vrms to interval velocities.
@@ -221,7 +221,7 @@ mGlobal(Algo) bool computeVint(const ValueSeries<double>& Vavg,
    has the start time of the top layer. */
 
 mGlobal(Algo) bool computeDix(const ValueSeries<double>& Vrms,
-			      const ZValueSerie&,ValueSeries<double>& Vint,
+			      const ZValueSeries&,ValueSeries<double>& Vint,
 			      double t0=0.);
 
 
@@ -230,8 +230,8 @@ mGlobal(Algo) bool computeDix(const ValueSeries<double>& Vrms,
    interval. */
 
 mGlobal(Algo) bool sampleVint(const ValueSeries<double>& Vin,
-			      const ZValueSerie& z_in,const ZValueSerie& z_out,
-			      ValueSeries<double>& Vout);
+			     const ZValueSeries& z_in,const ZValueSeries& z_out,
+			     ValueSeries<double>& Vout);
 
 
 /*!Given an irregularly sampled Vavg, create a regularly sampled one. The
@@ -239,8 +239,8 @@ mGlobal(Algo) bool sampleVint(const ValueSeries<double>& Vin,
    interval. */
 
 mGlobal(Algo) bool sampleVavg(const ValueSeries<double>& Vin,
-			      const ZValueSerie& z_in,const ZValueSerie& z_out,
-			      ValueSeries<double>& Vout);
+			     const ZValueSeries& z_in,const ZValueSeries& z_out,
+			     ValueSeries<double>& Vout);
 
 
 /*!Given an irregularly sampled Vrms, create a regularly sampled one. The
@@ -248,8 +248,8 @@ mGlobal(Algo) bool sampleVavg(const ValueSeries<double>& Vin,
    interval.*/
 
 mGlobal(Algo) bool sampleVrms(const ValueSeries<double>& Vin,
-			      const ZValueSerie& z_in,const ZValueSerie& z_out,
-			      ValueSeries<double>& Vout,double t0_in=0.);
+			     const ZValueSeries& z_in,const ZValueSeries& z_out,
+			     ValueSeries<double>& Vout,double t0_in=0.);
 
 
 /*!Given an irregularly sampled effective Thomsen parameter array, create a
@@ -257,7 +257,7 @@ mGlobal(Algo) bool sampleVrms(const ValueSeries<double>& Vin,
   before and after the input interval.*/
 
 mGlobal(Algo) void sampleEffectiveThomsenPars(const ValueSeries<double>& inparr,
-			    const ZValueSerie& z_in,const ZValueSerie& z_out,
+			    const ZValueSeries& z_in,const ZValueSeries& z_out,
 			    ValueSeries<double>& res);
 
 
@@ -266,7 +266,7 @@ mGlobal(Algo) void sampleEffectiveThomsenPars(const ValueSeries<double>& inparr,
   before and after the input interval.*/
 
 mGlobal(Algo) void sampleIntvThomsenPars(const ValueSeries<double>& inparr,
-			    const ZValueSerie& z_in,const ZValueSerie& z_out,
+			    const ZValueSeries& z_in,const ZValueSeries& z_out,
 			    ValueSeries<double>& res);
 
 
@@ -290,7 +290,7 @@ public:
     virtual		~Vrms2Vint()	{}
 
     virtual bool	compute(const ValueSeries<double>& Vrms,
-				const ZValueSerie&,
+				const ZValueSeries&,
 				ValueSeries<double>& Vint,double t0=0.) = 0;
 };
 
@@ -305,7 +305,7 @@ public:
 		mDefaultFactoryInstantiation(Vrms2Vint,DixConversion,"Dix",
 					     ::toUiString(sFactoryKeyword()));
 
-    bool	compute(const ValueSeries<double>& Vrms,const ZValueSerie&,
+    bool	compute(const ValueSeries<double>& Vrms,const ZValueSeries&,
 			ValueSeries<double>&,double t0=0.) override;
 };
 

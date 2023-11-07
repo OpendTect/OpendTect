@@ -143,13 +143,13 @@ bool Picks::zInFeet() const
 }
 
 
-const UnitOfMeasure* Picks::getZUnit() const
+const UnitOfMeasure* Picks::zUnit() const
 {
-    return UnitOfMeasure::getZUnit( zDomain() );
+    return UnitOfMeasure::zUnit( zDomain() );
 }
 
 
-const UnitOfMeasure* Picks::getVelUnit() const
+const UnitOfMeasure* Picks::velUnit() const
 {
     if ( pickType() == RMS )
 	return UnitOfMeasure::surveyDefVelUnit();
@@ -502,7 +502,7 @@ void Picks::fillPar( IOPar& par ) const
     zDomain().fillPar( par );
     par.setYN( sKeyIsTime, zIsTime() ); //for backward readability
     if ( pickType() == RMS )
-	par.set( VelocityDesc::sKeyVelocityUnit(), getVelUnit()->name().str() );
+	par.set( VelocityDesc::sKeyVelocityUnit(), velUnit()->name().str() );
 
     par.set( sKeyPickType(), getPickTypeString(picktype_) );
     if ( smoother_ )

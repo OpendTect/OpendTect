@@ -115,8 +115,8 @@ public:
     bool			zIsTime() const;
     bool			zInMeter() const;
     bool			zInFeet() const;
-    const UnitOfMeasure*	getZUnit() const;
-    const UnitOfMeasure*	getVelUnit() const;
+    const UnitOfMeasure*	zUnit() const;
+    const UnitOfMeasure*	velUnit() const;
 				//!<Only for RMS type
 
     Smoother1D<float>*		getSmoother()		{ return smoother_; }

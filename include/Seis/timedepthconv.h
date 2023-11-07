@@ -42,19 +42,19 @@ public:
 				 bool top,Interval<float>&);
     static void		setRange(const Interval<float>&,
 				 const VelocityDesc&,bool top,IOPar&);
-    static ZSampling	getWorkZrg(const ZSampling&,
-				   const ZDomain::Info& from,
-				   const ZDomain::Info& to,const IOPar&,
-				   bool makenice=true);
-    static ZSampling	getWorkZrg(const ZSampling&,
-				   const ZDomain::Info& from,
-				   const ZDomain::Info& to,
-				   const Interval<float>& topvavg,
-				   const Interval<float>& botvavg,
-				   const UnitOfMeasure* vavguom,
-				   bool makenice=true);
+    static ZSampling	getWorkZSampling(const ZSampling&,
+					 const ZDomain::Info& from,
+					 const ZDomain::Info& to,const IOPar&,
+					 bool makenice=true);
+    static ZSampling	getWorkZSampling(const ZSampling&,
+					 const ZDomain::Info& from,
+					 const ZDomain::Info& to,
+					 const Interval<float>& topvavg,
+					 const Interval<float>& botvavg,
+					 const UnitOfMeasure* vavguom,
+					 bool makenice=true);
 
-    const UnitOfMeasure* getVelUnit() const;
+    const UnitOfMeasure* velUnit() const;
     static Interval<float> getDefaultVAvg(const UnitOfMeasure*);
 
 protected:
@@ -92,19 +92,20 @@ private:
     bool		canTransformSurv(OD::GeomSystem) const override
 			{ return true; }
 
-    ZSampling		getWorkZrg(const ZSampling&,const ZDomain::Info& from,
-				   const ZDomain::Info& to) const override;
-    static ZSampling	getWorkZrg(const ZSampling&,
-				   const ZDomain::Def& from,
-				   const ZDomain::Def& to,const IOPar&,
-				   bool makenice=true)		= delete;
-    static ZSampling	getWorkZrg(const ZSampling&,
-				   const ZDomain::Def& from,
-				   const ZDomain::Def& to,
-				   const Interval<float>& topvavg,
-				   const Interval<float>& botvavg,
-				   const UnitOfMeasure* vavguom,
-				   bool makenice=true)		 = delete;
+    ZSampling		getWorkZSampling(const ZSampling&,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to) const override;
+    static ZSampling	getWorkZSampling(const ZSampling&,
+					 const ZDomain::Def& from,
+					 const ZDomain::Def& to,const IOPar&,
+					 bool makenice=true)	= delete;
+    static ZSampling	getWorkZSampling(const ZSampling&,
+					 const ZDomain::Def& from,
+					 const ZDomain::Def& to,
+					 const Interval<float>& topvavg,
+					 const Interval<float>& botvavg,
+					 const UnitOfMeasure* vavguom,
+					 bool makenice=true)	 = delete;
 
     Interval<float>	getDefaultVAvg() const;
 
@@ -178,7 +179,7 @@ public:
 
     const Interval<float>&	getTopVAvg() const	{ return startavgvel_; }
     const Interval<float>&	getBotVAvg() const	{ return stopavgvel_; }
-    const UnitOfMeasure* getVelUnit() const;
+    const UnitOfMeasure* velUnit() const;
 
 private:
 
@@ -211,7 +212,7 @@ mExpClass(Seis) LinearVelTransform : public ZAxisTransform
 public:
 
     bool			isOK() const override;
-    static const UnitOfMeasure* getVelUnit();
+    static const UnitOfMeasure* velUnit();
 
 protected:
 				LinearVelTransform(const ZDomain::Def& from,
@@ -239,8 +240,8 @@ private:
     bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
-    ZSampling			getWorkZrg(const ZSampling&,
-					   const ZDomain::Info& from,
+    ZSampling			getWorkZSampling(const ZSampling&,
+				       const ZDomain::Info& from,
 				       const ZDomain::Info& to) const override;
 
     double			v0_;

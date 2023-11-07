@@ -284,7 +284,7 @@ uiVelocityDescDlg::~uiVelocityDescDlg()
 }
 
 
-const UnitOfMeasure* uiVelocityDescDlg::getVelUnit() const
+const UnitOfMeasure* uiVelocityDescDlg::velUnit() const
 {
     VelocityDesc desc;
     return veldescfld_->get( desc, false ) ? desc.getUnit() : nullptr;
@@ -434,7 +434,7 @@ void uiVelSel::initGrpCB( CallBacker* )
     selectionDoneCB( nullptr );
     if ( trg_.isUdf() || brg_.isUdf() )
     {
-	const UnitOfMeasure* veluom = getVelUnit();
+	const UnitOfMeasure* veluom = velUnit();
 	const Interval<float> defvelrg =
 				VelocityStretcher::getDefaultVAvg( veluom );
 	if ( trg_.isUdf() )
@@ -540,7 +540,7 @@ uiRetVal uiVelSel::isOK() const
 }
 
 
-const UnitOfMeasure* uiVelSel::getVelUnit() const
+const UnitOfMeasure* uiVelSel::velUnit() const
 {
     VelocityDesc desc;
     const uiRetVal uirv = get( desc );
@@ -694,8 +694,8 @@ void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
     const ZSampling zsamp = SI().zRange( true );
     const Interval<float> topvelrg = velsel_->getVelocityTopRange();
     const Interval<float> botvelrg = velsel_->getVelocityBottomRange();
-    const UnitOfMeasure* veluom = velsel_->getVelUnit();
-    const ZSampling zrg = VelocityStretcher::getWorkZrg( zsamp, from, to,
+    const UnitOfMeasure* veluom = velsel_->velUnit();
+    const ZSampling zrg = VelocityStretcher::getWorkZSampling( zsamp, from, to,
 						 topvelrg, botvelrg, veluom );
     rangefld_->setZRange( zrg );
 }

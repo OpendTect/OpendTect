@@ -249,8 +249,8 @@ const UnitOfMeasure* UnitOfMeasure::feetSecondUnit()
 }
 
 
-const UnitOfMeasure* UnitOfMeasure::getZUnit( const ZDomain::Info& zinfo,
-					      bool storage )
+const UnitOfMeasure* UnitOfMeasure::zUnit( const ZDomain::Info& zinfo,
+					   bool storage )
 {
     if ( zinfo.isTime() )
 	return storage ? surveyDefTimeStorageUnit() : surveyDefTimeUnit();

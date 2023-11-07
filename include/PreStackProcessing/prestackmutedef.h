@@ -68,8 +68,8 @@ public:
     bool				isOffsetInFeet() const;
     MuteDef&				setZDomain(const ZDomain::Info&);
     MuteDef&				setOffsetsInFeet(bool yn);
-    const UnitOfMeasure*		getZUnit() const;
-    const UnitOfMeasure*		getOffsetUnit() const;
+    const UnitOfMeasure*		zUnit() const;
+    const UnitOfMeasure*		offsetUnit() const;
 
     void				setReferenceHorizon(const MultiID&);
     const MultiID&			getReferenceHorizon() const;

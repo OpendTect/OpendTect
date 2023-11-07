@@ -92,7 +92,7 @@ public:
     bool		zIsTime() const;
     bool		zInMeter() const;
     bool		zInFeet() const;
-    const UnitOfMeasure* getZUnit() const;
+    const UnitOfMeasure* zUnit() const;
     Set&		setZDomain(const ZDomain::Info&);
 
     bool		isPolygon() const;

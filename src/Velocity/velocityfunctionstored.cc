@@ -91,8 +91,8 @@ bool StoredFunction::computeVelocity( float z0, float dz, int sz,
     if ( !worker.sampleVelocities(vels_in,zvals_in,zvals_out,vels_out) )
 	return false;
 
-    const UnitOfMeasure* funcveluom = getVelUnit();
-    const UnitOfMeasure* funcsrcveluom = source_.getVelUnit();
+    const UnitOfMeasure* funcveluom = velUnit();
+    const UnitOfMeasure* funcsrcveluom = source_.velUnit();
     if ( funcveluom != funcsrcveluom )
     {
 	for ( int idx=0; idx<sz; idx++ )

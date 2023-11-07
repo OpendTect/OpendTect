@@ -163,8 +163,10 @@ public:
 				SamplingValues(const SamplingData<T>&,
 					       od_int64 sz);
 				SamplingValues(const StepInterval<T>&);
+				SamplingValues(const SamplingValues&);
 				~SamplingValues();
 
+    ValueSeries<T>&		operator =(const SamplingValues&);
     bool			operator ==(const SamplingValues<T>&) const;
     bool			operator !=(const SamplingValues<T>&) const;
 
@@ -586,8 +588,27 @@ SamplingValues<T>::SamplingValues( const StepInterval<T>& rg )
 
 
 template <class T> inline
+SamplingValues<T>::SamplingValues( const SamplingValues<T>& oth )
+    : SamplingValues<T>(oth.sd_,oth.sz_)
+{}
+
+
+template <class T> inline
 SamplingValues<T>::~SamplingValues()
 {}
+
+
+template <class T> inline
+ValueSeries<T>& SamplingValues<T>::operator =( const SamplingValues<T>& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    sd_ = oth.sd_;
+    sz_ = oth.sz_;
+
+    return *this;
+}
 
 
 template <class T> inline

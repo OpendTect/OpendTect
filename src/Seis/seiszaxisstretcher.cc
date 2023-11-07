@@ -444,8 +444,8 @@ bool SeisZAxisStretcher::selfStretchVelocity( const SeisTrc& inptrc, int icomp,
     }
 
     const RegularZValues trczvals( inputsd, inpsz, *zdomaininfo_ );
-    PtrMan<ZValueSerie> velszvals = Vel::Worker::getZVals( trczvals,
-							   srd_, srduom_ );
+    PtrMan<ZValueSeries> velszvals = Vel::Worker::getZVals( trczvals,
+							    srd_, srduom_ );
     ElasticModel tracemdl;
     if ( !tracemdl.createFromVel(*velszvals,inputvs->arr()) )
 	return false;

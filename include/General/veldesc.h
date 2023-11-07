@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class LinScaler;
 class UnitOfMeasure;
-class ZValueSerie;
+class ZValueSeries;
 namespace ZDomain { class Def; }
 template <class T> class ValueSeries;
 
@@ -105,7 +105,7 @@ public:
 			~Worker();
 
     bool		convertVelocities(const ValueSeries<double>& Vin,
-					  const ZValueSerie& zvals,
+					  const ZValueSeries& zvals,
 					  const VelocityDesc& newdesc,
 					  ValueSeries<double>& Vout,
 					  double t0=0.) const;
@@ -113,8 +113,8 @@ public:
 			     May also switch the units if different */
 
     bool		sampleVelocities(const ValueSeries<double>& Vin,
-					 const ZValueSerie& zvals_in,
-					 const ZValueSerie& zvals_out,
+					 const ZValueSeries& zvals_in,
+					 const ZValueSeries& zvals_out,
 					 ValueSeries<double>& Vout,
 					 double t0=0.) const;
 			/*!< Given an array of velocity in time or depth,
@@ -122,35 +122,35 @@ public:
 			  time or depth. t0 is only used by RMS type */
 
     bool		calcZ(const ValueSeries<double>& Vin,
-			      const ZValueSerie& zvals,
+			      const ZValueSeries& zvals,
 			      ValueSeries<double>& Zout,double t0=0.) const;
 			/*!< Given an array of velocity in time or depth
 			     with its sampling, compute the transformed Z
 			     t0 is only used by RMS type */
 
     bool		getSampledZ(const ValueSeries<double>& Vin,
-				const ZValueSerie& zvals_in,
-				const ZValueSerie& zvals_out,
+				const ZValueSeries& zvals_in,
+				const ZValueSeries& zvals_out,
 				ValueSeries<double>& Zout,double t0=0.) const;
 			/*!< Given an array of velocity in time or depth
 			     with its sampling, compute the transformed Z
 			     of another Z sampling
 			     t0 is only used by RMS type */
 
-    bool		calcZLinear(const ZValueSerie& zvals,
+    bool		calcZLinear(const ZValueSeries& zvals,
 				    ValueSeries<double>& Zout) const;
 			/*!< Given V0,k velocitymodel, compute the transformed Z
 			     corresponding to the input array
 			     of times or depths*/
 
-    static ZValueSerie* getZVals(const ZValueSerie&,double srd,
-				 const UnitOfMeasure* srduom);
+    static ZValueSeries* getZVals(const ZValueSeries&,double srd,
+				  const UnitOfMeasure* srduom);
 
     const VelocityDesc& getDesc() const		{ return desc_; }
 
 private:
 
-    static bool		getReverseScaler(const ZValueSerie&,double srd,
+    static bool		getReverseScaler(const ZValueSeries&,double srd,
 					 LinScaler&);
 
     const VelocityDesc	desc_;

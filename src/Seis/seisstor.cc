@@ -459,9 +459,9 @@ bool SeisStoreAccess::zInFeet() const
 }
 
 
-const UnitOfMeasure* SeisStoreAccess::getZUnit() const
+const UnitOfMeasure* SeisStoreAccess::zUnit() const
 {
-    return UnitOfMeasure::getZUnit( zDomain() );
+    return UnitOfMeasure::zUnit( zDomain() );
 }
 
 

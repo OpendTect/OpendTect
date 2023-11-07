@@ -91,7 +91,7 @@ public:
     Interval<float>	getVelocityBottomRange() const
 			{ return bottomrange_; }
 
-    const UnitOfMeasure* getVelUnit() const;
+    const UnitOfMeasure* velUnit() const;
     static bool		doScanVels(const IOObj&,const VelocityDesc&,
 				   bool writergs,Interval<float>& topvelrg,
 				   Interval<float>& botvelrg,
@@ -138,7 +138,7 @@ public:
     Interval<float>		getVelocityTopRange() const	{ return trg_; }
     Interval<float>		getVelocityBottomRange() const	{ return brg_; }
 
-    const UnitOfMeasure*	getVelUnit() const;
+    const UnitOfMeasure*	velUnit() const;
 
     Notifier<uiVelSel>		velChanged;
 

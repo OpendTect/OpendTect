@@ -454,9 +454,9 @@ SeisDataPack::~SeisDataPack()
 }
 
 
-const UnitOfMeasure* SeisDataPack::getZUnit() const
+const UnitOfMeasure* SeisDataPack::zUnit() const
 {
-    return UnitOfMeasure::getZUnit( *zdomaininfo_ );
+    return UnitOfMeasure::zUnit( *zdomaininfo_ );
 }
 
 
@@ -714,7 +714,7 @@ BufferString SeisDataPack::unitStr( bool values, bool withparens ) const
 	return zDomain().unitStr( withparens );
 
     const UnitOfMeasure* uom = values ? valunit_
-				      : UnitOfMeasure::getZUnit( zDomain() );
+				      : UnitOfMeasure::zUnit( zDomain() );
     BufferString ret;
     if ( uom )
     {

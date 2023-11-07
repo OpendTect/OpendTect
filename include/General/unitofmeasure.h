@@ -92,8 +92,7 @@ public:
     static const UnitOfMeasure* meterSecondUnit();
     static const UnitOfMeasure* feetUnit();
     static const UnitOfMeasure* feetSecondUnit();
-    static const UnitOfMeasure* getZUnit(const ZDomain::Info&,
-					 bool storage=true);
+    static const UnitOfMeasure* zUnit(const ZDomain::Info&,bool storage=true);
 
     static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);
     static uiString	surveyDefTimeUnitAnnot(bool symbol,bool withparens);

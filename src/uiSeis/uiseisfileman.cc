@@ -334,7 +334,8 @@ static BufferString getInfoText( const IOObj& ioobj )
 						  : ZDomain::DepthMeter())
 			   : ZDomain::TWT();
 		ZSampling zrg = oinf.getConvertedZrg( cs.zsamp_ );
-		zrg = VelocityStretcher::getWorkZrg( zrg, zinfo, todomain,pars);
+		zrg = VelocityStretcher::getWorkZSampling( zrg, zinfo,
+							   todomain, pars );
 		if ( !zrg.isUdf() )
 		{
 		    const int nrdec = todomain.def_.nrZDecimals( zrg.step );

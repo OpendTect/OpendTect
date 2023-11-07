@@ -414,10 +414,10 @@ bool SeisIOObjInfo::zInFeet() const
 }
 
 
-const UnitOfMeasure* SeisIOObjInfo::getZUnit() const
+const UnitOfMeasure* SeisIOObjInfo::zUnit() const
 {
     mChk(nullptr);
-    return UnitOfMeasure::getZUnit( zDomain() );
+    return UnitOfMeasure::zUnit( zDomain() );
 }
 
 
@@ -425,7 +425,7 @@ const UnitOfMeasure* SeisIOObjInfo::getOffsetsUnit() const
 {
     mChk(nullptr);
     bool hasoffsetsunit;
-    return isPS() ? SeisPSIOProvider::getOffsetsUnit( ioobj_, hasoffsetsunit )
+    return isPS() ? SeisPSIOProvider::offsetUnit( ioobj_, hasoffsetsunit )
 		  : nullptr;
 }
 
@@ -459,7 +459,7 @@ ZSampling SeisIOObjInfo::getConvertedZrg( const ZSampling& zsamp ) const
     if ( zDomain() == SI().zDomainInfo() || zDomain().isTime() )
 	return ret;
 
-    const UnitOfMeasure* zuom = getZUnit();
+    const UnitOfMeasure* zuom = zUnit();
     if ( !zuom )
 	return ret;
 
@@ -1281,7 +1281,8 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 						       : ZDomain::DepthMeter())
 				: ZDomain::TWT();
 		ZSampling zrg = getConvertedZrg( cs.zsamp_ );
-		zrg = VelocityStretcher::getWorkZrg( zrg, zinfo, todomain,pars);
+		zrg = VelocityStretcher::getWorkZSampling( zrg, zinfo,
+							   todomain, pars );
 		if ( !zrg.isUdf() )
 		{
 		    zrg.scale( todomain.def_.userFactor() );

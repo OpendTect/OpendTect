@@ -159,7 +159,7 @@ static bool testSimpleTimeDepthModel( const MultiID& mid )
 static bool testLinearT2DTransform()
 {
     const double v0 =
-		LinearVelTransform::getVelUnit()->getUserValueFromSI( 3000. );
+		LinearVelTransform::velUnit()->getUserValueFromSI( 3000. );
     const double k = 0.;
     ConstRefMan<ZAxisTransform> stretcher = new LinearT2DTransform( v0, k );
     mRunStandardTest( stretcher->isOK(), mMsg("Time-to-depth linear model") );
@@ -179,7 +179,7 @@ static bool testLinearT2DTransform()
 static bool testLinearD2TTransform()
 {
     const double v0 =
-		LinearVelTransform::getVelUnit()->getUserValueFromSI( 3000. );
+		LinearVelTransform::velUnit()->getUserValueFromSI( 3000. );
     const double k = 0.;
     ConstRefMan<ZAxisTransform> stretcher = new LinearD2TTransform( v0, k );
     mRunStandardTest( stretcher->isOK(), mMsg("Depth-to-time linear model") );

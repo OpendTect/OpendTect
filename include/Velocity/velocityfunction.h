@@ -46,7 +46,7 @@ public:
     bool			zIsTime() const;
     bool			zInMeter() const;
     bool			zInFeet() const;
-    const UnitOfMeasure*	getVelUnit() const;
+    const UnitOfMeasure*	velUnit() const;
 
     float			getVelocity(float z) const;
     const BinID&		getBinID() const;
@@ -103,7 +103,7 @@ public:
     bool			zIsTime() const;
     bool			zInMeter() const;
     bool			zInFeet() const;
-    virtual const UnitOfMeasure* getVelUnit() const;
+    virtual const UnitOfMeasure* velUnit() const;
 				/* Unit of the function source in the storage,
 				   thus probably different from the function
 				   unit of measure			 */

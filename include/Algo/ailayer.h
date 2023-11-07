@@ -20,7 +20,7 @@ class AILayer;
 class ElasticLayer;
 class VTILayer;
 class HTILayer;
-class ZValueSerie;
+class ZValueSeries;
 template <class T> class Array2D;
 
 mGlobal(Algo) inline float cMinLayerThickness() { return 1e-4f; }
@@ -356,7 +356,7 @@ public:
 		   valid input layer
 		   \param theta Incidence angle in radians */
 
-    bool	createFromVel(const ZValueSerie& zsamp,const float* pvel,
+    bool	createFromVel(const ZValueSeries& zsamp,const float* pvel,
 			      const float* svel=nullptr,
 			      const float* den=nullptr);
 		/*!< creates an ElasticModel from sampled interval velocities
@@ -366,7 +366,7 @@ public:
 		  /param svel shear velocities in m/s
 		  /param den  bulk density in kg/m3  */
 
-    bool	createFromAI(const ZValueSerie& zsamp,const float* ai,
+    bool	createFromAI(const ZValueSeries& zsamp,const float* ai,
 			     const float* si =nullptr,
 			     const float* den =nullptr);
 		/*!< creates an ElasticModel from sampled impedance

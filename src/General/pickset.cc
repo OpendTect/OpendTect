@@ -940,9 +940,9 @@ bool Set::zInFeet() const
 }
 
 
-const UnitOfMeasure* Set::getZUnit() const
+const UnitOfMeasure* Set::zUnit() const
 {
-    return UnitOfMeasure::getZUnit( zDomain() );
+    return UnitOfMeasure::zUnit( zDomain() );
 }
 
 

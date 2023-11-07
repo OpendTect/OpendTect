@@ -139,9 +139,9 @@ void WellT2DTransform::doTransform( const SamplingData<float>& sd,
 }
 
 
-ZSampling WellT2DTransform::getWorkZrg( const ZSampling& zsamp,
-					const ZDomain::Info& from,
-					const ZDomain::Info& to ) const
+ZSampling WellT2DTransform::getWorkZSampling( const ZSampling& zsamp,
+					      const ZDomain::Info& from,
+					      const ZDomain::Info& to ) const
 {
     if ( !isOK() )
 	return ZSampling::udf();

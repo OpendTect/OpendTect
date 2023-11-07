@@ -473,7 +473,7 @@ const ZDomain::Info& uiSeisSel::getZDomain() const
 
     const ZDomain::Def& zddef = SI().zIsTime() ? ZDomain::Depth()
 					       : ZDomain::Time();
-    const ZDomain::Info zinfo( zddef, getZUnit() );
+    const ZDomain::Info zinfo( zddef, zUnit() );
     if ( zinfo.isTime() )
 	return ZDomain::TWT();
     if ( zinfo.isDepthMeter() )
@@ -485,7 +485,7 @@ const ZDomain::Info& uiSeisSel::getZDomain() const
 }
 
 
-BufferString uiSeisSel::getZUnit() const
+BufferString uiSeisSel::zUnit() const
 {
     if ( !othunitfld_ )
 	return SI().zDomainInfo().unitStr();

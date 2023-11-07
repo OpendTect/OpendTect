@@ -123,7 +123,7 @@ void MuteDef::fillPar( IOPar& par ) const
 	par.set( sKeyRefHor(), refhor_ );
 
     zDomain().fillPar( par );
-    par.set( SeisPSIOProvider::sKeyOffsetUnit(), getOffsetUnit()->name().str());
+    par.set( SeisPSIOProvider::sKeyOffsetUnit(), offsetUnit()->name().str());
 }
 
 
@@ -134,21 +134,21 @@ bool MuteDef::usePar( const IOPar& par )
     if ( zinfo && (zinfo->isTime() || zinfo->isDepth()) )
 	setZDomain( *zinfo );
 
-    SeisPSIOProvider::getOffsetsUnitYN( par, offsetsinfeet_ );
+    SeisPSIOProvider::getOffsetUnitYN( par, offsetsinfeet_ );
 
     return true;
 }
 
 
-const UnitOfMeasure* MuteDef::getZUnit() const
+const UnitOfMeasure* MuteDef::zUnit() const
 {
-    return UnitOfMeasure::getZUnit( zDomain() );
+    return UnitOfMeasure::zUnit( zDomain() );
 }
 
 
-const UnitOfMeasure* MuteDef::getOffsetUnit() const
+const UnitOfMeasure* MuteDef::offsetUnit() const
 {
-    return SeisPSIOProvider::getOffsetsUnit( isOffsetInFeet() );
+    return SeisPSIOProvider::offsetUnit( isOffsetInFeet() );
 }
 
 

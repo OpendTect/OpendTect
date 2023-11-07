@@ -20,13 +20,13 @@ namespace ZDomain { class Info; }
  the values represent a Z value from a given ZDomain::Info
 */
 
-mExpClass(Algo) ZValueSerie : public virtual ValueSeries<double>
+mExpClass(Algo) ZValueSeries : public virtual ValueSeries<double>
 {
 public:
-				~ZValueSerie();
+				~ZValueSeries();
 
-    bool			operator ==(const ZValueSerie&) const;
-    bool			operator !=(const ZValueSerie&) const;
+    bool			operator ==(const ZValueSeries&) const;
+    bool			operator !=(const ZValueSeries&) const;
 
     virtual bool		isRegular() const	{ return false; }
 
@@ -39,7 +39,7 @@ public:
     bool			inFeet() const;
 
 protected:
-				ZValueSerie(const ZDomain::Info&);
+				ZValueSeries(const ZDomain::Info&);
 
     const LinScaler*		getScaler() const	{ return scaler_; }
 
@@ -56,7 +56,7 @@ private:
 */
 
 mExpClass(Algo) RegularZValues : public virtual SamplingValues<double>
-			       , public virtual ZValueSerie
+			       , public virtual ZValueSeries
 {
 public:
 				RegularZValues(const ZSampling&,
@@ -92,7 +92,7 @@ public:
 
 template <class AT>
 mClass(Algo) ArrayZValues : public virtual ArrayValueSeries<double,AT>
-			  , public virtual ZValueSerie
+			  , public virtual ZValueSeries
 {
 public:
 				ArrayZValues(AT* zvals,od_int64 sz,
@@ -120,7 +120,7 @@ template <class AT> inline
 ArrayZValues<AT>::ArrayZValues( AT* zvals, od_int64 sz,
 				const ZDomain::Info& zinfo )
     : ArrayValueSeries<double,AT>(zvals,false,sz)
-    , ZValueSerie(zinfo)
+    , ZValueSeries(zinfo)
 {
 }
 
@@ -153,7 +153,7 @@ bool ArrayZValues<AT>::operator ==( const ArrayZValues<AT>& oth ) const
 	return true;
 
     return ArrayValueSeries<double,AT>::operator ==( oth ) &&
-	   ZValueSerie::operator ==( oth );
+	   ZValueSeries::operator ==( oth );
 }
 
 

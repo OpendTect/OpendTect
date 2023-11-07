@@ -124,8 +124,7 @@ bool SeisPSIOProvider::getLineNames( const char* dirnm,
 }
 
 
-const UnitOfMeasure* SeisPSIOProvider::getOffsetsUnit( const IOObj*,
-						       bool& isfound )
+const UnitOfMeasure* SeisPSIOProvider::offsetUnit( const IOObj*, bool& isfound)
 {
     //TODO impl from IOObj
     isfound = true;
@@ -133,14 +132,14 @@ const UnitOfMeasure* SeisPSIOProvider::getOffsetsUnit( const IOObj*,
 }
 
 
-const UnitOfMeasure* SeisPSIOProvider::getOffsetsUnit( bool infeet )
+const UnitOfMeasure* SeisPSIOProvider::offsetUnit( bool infeet )
 {
     return infeet ? UnitOfMeasure::feetUnit()
 		  : UnitOfMeasure::meterUnit();
 }
 
 
-bool SeisPSIOProvider::getOffsetsUnitYN( const IOPar& par, bool& infeet )
+bool SeisPSIOProvider::getOffsetUnitYN( const IOPar& par, bool& infeet )
 {
     BufferString offsetunit;
     if ( !par.get(sKeyOffsetUnit(),offsetunit) || offsetunit.isEmpty() )

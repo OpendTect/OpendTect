@@ -1142,7 +1142,7 @@ void ElasticModel::mergeSameLayers()
 }
 
 
-bool ElasticModel::createFromVel( const ZValueSerie& zsamp,const float* pvel,
+bool ElasticModel::createFromVel( const ZValueSeries& zsamp,const float* pvel,
 				  const float* svel, const float* den )
 {
     if ( !zsamp.isOK() || !pvel )
@@ -1214,7 +1214,7 @@ bool ElasticModel::createFromVel( const ZValueSerie& zsamp,const float* pvel,
 }
 
 
-bool ElasticModel::createFromAI( const ZValueSerie& zsamp, const float* ai,
+bool ElasticModel::createFromAI( const ZValueSeries& zsamp, const float* ai,
 				 const float* si, const float* den )
 {
     if ( !ai || !zsamp.isOK() )

@@ -116,7 +116,7 @@ public:
     bool		isDepth() const;
     bool		zInMeter() const;
     bool		zInFeet() const;
-    const UnitOfMeasure* getZUnit() const;
+    const UnitOfMeasure* zUnit() const;
     ZSampling		getConvertedZrg(const ZSampling&) const;
 			/*!\ If the dataset zunit is not the project zdomain
 			     unit, convert zsamp to the project zdomain unit

@@ -127,7 +127,7 @@ int TimeDepthDataLoader::nextStep()
     const double t0 = 0.;
 
     ConstPtrMan<const ValueSeries<double> > Vin;
-    ConstPtrMan<const ZValueSerie> zvals_in;
+    ConstPtrMan<const ZValueSeries> zvals_in;
     PtrMan<SeisTrc> veltrace;
     PtrMan<ValueSeries<float> > trcvs;
     if ( seisdatapack_ )
@@ -545,9 +545,9 @@ Interval<float> VelocityStretcher::getInterval( const BinID& bid, int idx,
 }
 
 
-ZSampling VelocityStretcher::getWorkZrg( const ZSampling& zsamp,
-					 const ZDomain::Info& from,
-					 const ZDomain::Info& to ) const
+ZSampling VelocityStretcher::getWorkZSampling( const ZSampling& zsamp,
+					       const ZDomain::Info& from,
+					       const ZDomain::Info& to ) const
 {
     if ( topvavg_.isUdf() || botvavg_.isUdf() ) //Not !isOK()
 	return ZSampling::udf();
@@ -578,7 +578,7 @@ ZSampling VelocityStretcher::getWorkZrg( const ZSampling& zsamp,
 }
 
 
-const UnitOfMeasure* VelocityStretcher::getVelUnit() const
+const UnitOfMeasure* VelocityStretcher::velUnit() const
 {
     return veldesc_.getUnit();
 }
@@ -586,7 +586,7 @@ const UnitOfMeasure* VelocityStretcher::getVelUnit() const
 
 Interval<float> VelocityStretcher::getDefaultVAvg() const
 {
-    return getDefaultVAvg( getVelUnit() );
+    return getDefaultVAvg( velUnit() );
 }
 
 
@@ -648,7 +648,7 @@ bool VelocityStretcher::getRange( const IOPar& par, const VelocityDesc& desc,
 }
 
 
-ZSampling VelocityStretcher::getWorkZrg( const ZSampling& zsamp,
+ZSampling VelocityStretcher::getWorkZSampling( const ZSampling& zsamp,
 					 const ZDomain::Info& from,
 					 const ZDomain::Info& to,
 					 const IOPar& par, bool makenice )
@@ -662,12 +662,12 @@ ZSampling VelocityStretcher::getWorkZrg( const ZSampling& zsamp,
     if ( !getRange(par,desc,true,topvavg) || !getRange(par,desc,false,botvavg) )
 	return ZSampling::udf();
 
-    return getWorkZrg( zsamp, from, to, topvavg, botvavg,
-		       desc.getUnit(), makenice );
+    return getWorkZSampling( zsamp, from, to, topvavg, botvavg,
+			     desc.getUnit(), makenice );
 }
 
 
-ZSampling VelocityStretcher::getWorkZrg( const ZSampling& zsamp,
+ZSampling VelocityStretcher::getWorkZSampling( const ZSampling& zsamp,
 					 const ZDomain::Info& from,
 					 const ZDomain::Info& to,
 					 const Interval<float>& topvelrg,
@@ -685,7 +685,7 @@ ZSampling VelocityStretcher::getWorkZrg( const ZSampling& zsamp,
 
     stretcher->topvavg_ = topvelrg;
     stretcher->botvavg_ = botvelrg;
-    const UnitOfMeasure* veluom = stretcher->getVelUnit();
+    const UnitOfMeasure* veluom = stretcher->velUnit();
     convValue( stretcher->topvavg_.start, vavguom, veluom );
     convValue( stretcher->topvavg_.stop, vavguom, veluom );
     convValue( stretcher->botvavg_.start, vavguom, veluom );
@@ -751,7 +751,7 @@ VelocityModelScanner::~VelocityModelScanner()
 }
 
 
-const UnitOfMeasure* VelocityModelScanner::getVelUnit() const
+const UnitOfMeasure* VelocityModelScanner::velUnit() const
 {
     return vavgdesc_.getUnit();
 }
@@ -925,15 +925,15 @@ void LinearVelTransform::doTransform( const SamplingData<float>& sd_out,
 
     const RegularZValues zvals( sd_out, sz, sdzinfo );
     ArrayValueSeries<double,float> zout( res, false, sz );
-    const Vel::Worker worker( v0_, k_, srd_, getVelUnit(),
+    const Vel::Worker worker( v0_, k_, srd_, velUnit(),
 			      UnitOfMeasure::surveyDefSRDStorageUnit() );
     worker.calcZLinear( zvals, zout );
 }
 
 
-ZSampling LinearVelTransform::getWorkZrg( const ZSampling& zsamp,
-					  const ZDomain::Info& from,
-					  const ZDomain::Info& to ) const
+ZSampling LinearVelTransform::getWorkZSampling( const ZSampling& zsamp,
+						const ZDomain::Info& from,
+						const ZDomain::Info& to ) const
 {
     if ( !isOK() )
 	return ZSampling::udf();
@@ -956,7 +956,7 @@ ZSampling LinearVelTransform::getWorkZrg( const ZSampling& zsamp,
 }
 
 
-const UnitOfMeasure* LinearVelTransform::getVelUnit()
+const UnitOfMeasure* LinearVelTransform::velUnit()
 {
     return UnitOfMeasure::surveyDefVelUnit();
 }

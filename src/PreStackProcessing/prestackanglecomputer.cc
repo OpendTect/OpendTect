@@ -534,8 +534,8 @@ bool VelocityBasedAngleComputer::getLayers( const TrcKey& tk, float startdepth,
     if ( !worker.convertVelocities(vels,zvals_func,vintdesc,vels) )
 	return false;
 
-    ConstPtrMan<ZValueSerie> zvals = Vel::Worker::getZVals( zvals_func,
-							    srd, depthuom );
+    ConstPtrMan<ZValueSeries> zvals = Vel::Worker::getZVals( zvals_func,
+							     srd, depthuom );
     mDynamicCastGet(const RegularZValues*,zvalsin,zvals.ptr());
     if ( !emodel.createFromVel(*zvalsin,vels.storArr()) )
     {

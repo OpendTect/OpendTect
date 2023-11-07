@@ -92,8 +92,8 @@ private:
     bool			needsVolumeOfInterest() const override
 				{ return false; }
 
-    ZSampling			getWorkZrg(const ZSampling&,
-					   const ZDomain::Info& from,
+    ZSampling			getWorkZSampling(const ZSampling&,
+				       const ZDomain::Info& from,
 				       const ZDomain::Info& to) const override;
 
     SimpleTimeDepthModel*	tdmodel_ = nullptr;

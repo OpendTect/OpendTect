@@ -106,7 +106,7 @@ protected:
 					     const ZDomain::Info& to,
 					     bool makenice=true) const;
 
-    virtual ZSampling		getWorkZrg(const ZSampling& zsamp,
+    virtual ZSampling		getWorkZSampling(const ZSampling& zsamp,
 					   const ZDomain::Info& from,
 					   const ZDomain::Info& to)  const = 0;
 				/*!\returns the equivalent to zsamp

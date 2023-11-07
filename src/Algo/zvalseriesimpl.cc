@@ -13,21 +13,21 @@ ________________________________________________________________________
 #include "zdomain.h"
 
 
-// ZValueSerie
+// ZValueSeries
 
-ZValueSerie::ZValueSerie( const ZDomain::Info& zinfo )
+ZValueSeries::ZValueSeries( const ZDomain::Info& zinfo )
     : zdomaininfo_(zinfo)
 {
 }
 
 
-ZValueSerie::~ZValueSerie()
+ZValueSeries::~ZValueSeries()
 {
     delete scaler_;
 }
 
 
-bool ZValueSerie::operator ==( const ZValueSerie& oth ) const
+bool ZValueSeries::operator ==( const ZValueSeries& oth ) const
 {
     if ( &oth == this )
 	return true;
@@ -40,13 +40,13 @@ bool ZValueSerie::operator ==( const ZValueSerie& oth ) const
 }
 
 
-bool ZValueSerie::operator !=( const ZValueSerie& oth ) const
+bool ZValueSeries::operator !=( const ZValueSeries& oth ) const
 {
     return !(oth == *this);
 }
 
 
-void ZValueSerie::setScaler( const LinScaler& scaler )
+void ZValueSeries::setScaler( const LinScaler& scaler )
 {
     if ( scaler_ )
 	*scaler_ = scaler;
@@ -55,25 +55,25 @@ void ZValueSerie::setScaler( const LinScaler& scaler )
 }
 
 
-bool ZValueSerie::isTime() const
+bool ZValueSeries::isTime() const
 {
     return zdomaininfo_.isTime();
 }
 
 
-bool ZValueSerie::isDepth() const
+bool ZValueSeries::isDepth() const
 {
     return zdomaininfo_.isDepth();
 }
 
 
-bool ZValueSerie::inMeter() const
+bool ZValueSeries::inMeter() const
 {
     return zdomaininfo_.isDepthMeter();
 }
 
 
-bool ZValueSerie::inFeet() const
+bool ZValueSeries::inFeet() const
 {
     return zdomaininfo_.isDepthFeet();
 }
@@ -97,7 +97,7 @@ RegularZValues::RegularZValues( const SamplingData<float>& sd, od_int64 sz,
 RegularZValues::RegularZValues( const SamplingData<double>& sd, od_int64 sz,
 				const ZDomain::Info& zinfo )
     : SamplingValues<double>(sd,sz)
-    , ZValueSerie(zinfo)
+    , ZValueSeries(zinfo)
 {}
 
 
@@ -111,7 +111,7 @@ bool RegularZValues::operator ==( const RegularZValues& oth ) const
 	return true;
 
     return SamplingValues<double>::operator ==( oth ) &&
-	   ZValueSerie::operator ==( oth );
+	   ZValueSeries::operator ==( oth );
 }
 
 

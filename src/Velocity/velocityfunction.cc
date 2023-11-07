@@ -65,7 +65,7 @@ bool Function::zInFeet() const
 }
 
 
-const UnitOfMeasure* Function::getVelUnit() const
+const UnitOfMeasure* Function::velUnit() const
 {
     return getDesc().getUnit();
 }
@@ -225,7 +225,7 @@ bool FunctionSource::zInFeet() const
 }
 
 
-const UnitOfMeasure* FunctionSource::getVelUnit() const
+const UnitOfMeasure* FunctionSource::velUnit() const
 {
     return getDesc().getUnit();
 }

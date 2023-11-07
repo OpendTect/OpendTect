@@ -110,9 +110,9 @@ const ZDomain::Info& IntervalSource::zDomain() const
 }
 
 
-const UnitOfMeasure* IntervalSource::getVelUnit() const
+const UnitOfMeasure* IntervalSource::velUnit() const
 {
-    return inputsource_ ? inputsource_->getVelUnit()
+    return inputsource_ ? inputsource_->velUnit()
 			: UnitOfMeasure::surveyDefVelUnit();
 }
 

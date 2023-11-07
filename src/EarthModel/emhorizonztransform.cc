@@ -160,9 +160,9 @@ void HorizonZTransform::doTransform( const TrcKey& trckey,
 }
 
 
-ZSampling HorizonZTransform::getWorkZrg( const ZSampling& zsamp,
-					 const ZDomain::Info& from,
-					 const ZDomain::Info& to ) const
+ZSampling HorizonZTransform::getWorkZSampling( const ZSampling& zsamp,
+					       const ZDomain::Info& from,
+					       const ZDomain::Info& to ) const
 {
     ZSampling ret = zsamp;
     if ( to == from )

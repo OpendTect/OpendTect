@@ -57,8 +57,8 @@ private:
 
     bool			calcDepths();
 
-    ZSampling			getWorkZrg(const ZSampling&,
-					   const ZDomain::Info& from,
+    ZSampling			getWorkZSampling(const ZSampling&,
+				       const ZDomain::Info& from,
 				       const ZDomain::Info& to) const override;
 
     RefMan<Well::Data>		data_;

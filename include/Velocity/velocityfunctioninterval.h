@@ -53,7 +53,7 @@ public:
 
     const VelocityDesc& getDesc() const override	{ return desc_; }
     const ZDomain::Info& zDomain() const override;
-    const UnitOfMeasure* getVelUnit() const override;
+    const UnitOfMeasure* velUnit() const override;
 
     const char*		factoryKeyword() const override { return sType(); }
     static const char*	sType() { return "Interval"; }

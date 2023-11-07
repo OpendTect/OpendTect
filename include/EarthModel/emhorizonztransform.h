@@ -67,9 +67,9 @@ private:
     void		calculateHorizonRange();
     void		horChangeCB(CallBacker*);
     bool		getTopBottom(const TrcKey&,float&top,float&bot) const;
-    ZSampling		getWorkZrg(const ZSampling&,
-				   const ZDomain::Info& from,
-				   const ZDomain::Info& to) const override;
+    ZSampling		getWorkZSampling(const ZSampling&,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to) const override;
 
     ConstRefMan<Horizon> horizon_;
     Interval<float>	depthrange_;
