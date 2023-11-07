@@ -10,11 +10,12 @@ ________________________________________________________________________
 
 #include "seismod.h"
 
+#include "bufstring.h"
 #include "datachar.h"
 #include "datadistribution.h"
+#include "odcommonenums.h"
 #include "seistype.h"
 #include "survgeom.h"
-#include "bufstring.h"
 
 
 class BinIDValueSet;
@@ -122,9 +123,9 @@ public:
 			     unit, convert zsamp to the project zdomain unit
 			     Does not convert accross domains (Time/Depth)  */
 
-    const UnitOfMeasure* getOffsetsUnit() const;
+    const UnitOfMeasure* offsetUnit() const;
 			//<! Pre-Stack only
-    bool		offsetIsAngle() const;
+    Seis::OffsetType	offsetType() const;
 			//<! Pre-Stack only
     bool		isCorrected() const;
 			//<! Pre-Stack only

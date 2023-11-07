@@ -145,6 +145,24 @@ mDeclareNameSpaceEnumUtils(Basic,WellType);
 
 } // namespace OD
 
+namespace Seis
+{
+
+enum OffsetType
+{
+    OffsetMeter=0,
+    OffsetFeet=1,
+    AngleRadians=2,
+    AngleDegrees=3
+};
+
+mDeclareNameSpaceEnumUtils(Basic,OffsetType)
+
+mGlobal(Basic) bool isOffsetDist(OffsetType);
+mGlobal(Basic) bool isOffsetAngle(OffsetType);
+
+} // namespace Seis
+
 namespace Vel
 {
 
@@ -161,7 +179,7 @@ enum Type
 
 mDeclareNameSpaceEnumUtils(Basic,Type)
 
-}
+} // namespace Vel
 
 
 mGlobal(Basic) bool isHorizontal(OD::Orientation);

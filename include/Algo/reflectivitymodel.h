@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "odcomplex.h"
+#include "odcommonenums.h"
 #include "timedepthmodel.h"
 
 class RayTracer1D;
@@ -131,7 +132,10 @@ public:
 			Setup(bool withangles,bool withreflectivity);
 			~Setup();
 
-	mDefSetupMemb(bool,offsetsinfeet);
+	Setup&		offsettype(Seis::OffsetType);
+	Seis::OffsetType offsettype_;
+
+	bool		areOffsetsInFeet() const;
     };
 
 			OffsetReflectivityModel(const ElasticModel&,

@@ -124,7 +124,7 @@ bool SeisPSIOProvider::getLineNames( const char* dirnm,
 }
 
 
-const UnitOfMeasure* SeisPSIOProvider::offsetUnit( const IOObj*, bool& isfound)
+const UnitOfMeasure* SeisPSIOProvider::offsetUnit( const IOObj*, bool& isfound )
 {
     //TODO impl from IOObj
     isfound = true;
@@ -132,29 +132,60 @@ const UnitOfMeasure* SeisPSIOProvider::offsetUnit( const IOObj*, bool& isfound)
 }
 
 
-const UnitOfMeasure* SeisPSIOProvider::offsetUnit( bool infeet )
+const UnitOfMeasure* SeisPSIOProvider::offsetUnit( Seis::OffsetType typ )
 {
-    return infeet ? UnitOfMeasure::feetUnit()
-		  : UnitOfMeasure::meterUnit();
+    if ( typ == Seis::OffsetMeter )
+	return UnitOfMeasure::meterUnit();
+    if ( typ == Seis::OffsetFeet )
+	return UnitOfMeasure::feetUnit();
+    if ( typ == Seis::AngleRadians )
+	return UnitOfMeasure::radiansUnit();
+    if ( typ == Seis::AngleDegrees )
+	return UnitOfMeasure::degreesUnit();
+
+    return nullptr;
 }
 
 
-bool SeisPSIOProvider::getOffsetUnitYN( const IOPar& par, bool& infeet )
+bool SeisPSIOProvider::getGatherOffsetType( const IOPar& par,
+					    Seis::OffsetType& typ )
 {
     BufferString offsetunit;
-    if ( !par.get(sKeyOffsetUnit(),offsetunit) || offsetunit.isEmpty() )
-	return false;
+    const bool hasunit = par.get( sKeyOffsetUnit(), offsetunit ) &&
+			 !offsetunit.isEmpty();
+    if ( !hasunit )
+    {
+	bool offsetisangle;
+	if ( !par.getYN(PreStack::sKeyIsAngleGather,offsetisangle) )
+	    return false;
+
+	typ = Seis::AngleDegrees; //Most usual case, but actually we do not know
+	return true;
+    }
 
     const UnitOfMeasure* offsuom = UoMR().get( Mnemonic::Dist,
 					       offsetunit.str() );
     if ( offsuom && offsuom == UnitOfMeasure::meterUnit() )
     {
-	infeet = false;
+	typ = Seis::OffsetMeter;
 	return true;
     }
     else if ( offsuom && offsuom == UnitOfMeasure::feetUnit() )
     {
-	infeet = true;
+	typ = Seis::OffsetFeet;
+	return true;
+    }
+
+    const UnitOfMeasure* anguom = UoMR().get( Mnemonic::Ang,
+					      offsetunit.str() );
+    if ( anguom && anguom == UnitOfMeasure::radiansUnit() )
+    {
+	typ = Seis::AngleRadians;
+	return true;
+    }
+    else if ( anguom && anguom == UnitOfMeasure::degreesUnit() )
+    {
+	typ = Seis::AngleDegrees;
 	return true;
     }
 
@@ -162,45 +193,50 @@ bool SeisPSIOProvider::getOffsetUnitYN( const IOPar& par, bool& infeet )
 }
 
 
-bool SeisPSIOProvider::offsetIsAngle( const IOObj* ioobj, bool& yn )
+bool SeisPSIOProvider::getGatherCorrectedYN( const IOPar& par, bool& yn )
 {
-    if ( !ioobj )
-	return false;
-
-    bool offsetisangle;
-    if ( !ioobj->pars().getYN(PreStack::sKeyIsAngleGather,offsetisangle) )
-	return false;
-
-    yn = offsetisangle;
-    return true;
-}
-
-
-bool SeisPSIOProvider::gathersAreCorrected( const IOObj* ioobj, bool& yn )
-{
-    if ( !ioobj )
-	return false;
-
     bool iscorr;
-    if ( !ioobj->pars().getYN(PreStack::sKeyIsCorr,iscorr) )
-	if ( !ioobj->pars().getYN("Is NMO Corrected",iscorr) )
-	    return false;
+    if ( !par.getYN(PreStack::sKeyIsCorr,iscorr) &&
+	 !par.getYN("Is NMO Corrected",iscorr) )
+	return false;
 
     yn = iscorr;
     return true;
 }
 
 
-bool SeisPSIOProvider::setOffsetsAreAngles( IOObj& ioobj, bool yn )
+void SeisPSIOProvider::setGatherOffsetType( Seis::OffsetType typ, IOPar& par )
 {
-    ioobj.pars().setYN( PreStack::sKeyIsAngleGather, yn );
+    const bool isdist = Seis::isOffsetDist( typ );
+    const bool isangle = Seis::isOffsetAngle( typ );
+    if ( isdist || isangle )
+    {
+	const UnitOfMeasure* uom = offsetUnit( typ );
+	par.set( sKeyOffsetUnit(), uom ? uom->getLabel() : nullptr );
+    }
+
+    // For backward compatibility mainly:
+    if ( isangle )
+	par.setYN( PreStack::sKeyIsAngleGather, yn );
+}
+
+
+bool SeisPSIOProvider::setGatherOffsetType( Seis::OffsetType typ, IOObj& ioobj )
+{
+    setGatherOffsetType( typ, ioobj.pars() );
     return IOM().commitChanges( ioobj );
 }
 
 
-bool SeisPSIOProvider::setGathersAreCorrected( IOObj& ioobj, bool yn )
+void SeisPSIOProvider::setGathersAreCorrected( bool yn, IOPar& par )
 {
-    ioobj.pars().setYN( PreStack::sKeyIsCorr, yn );
+    par.setYN( PreStack::sKeyIsCorr, yn );
+}
+
+
+bool SeisPSIOProvider::setGathersAreCorrected( bool yn, IOObj& ioobj )
+{
+    setGathersAreCorrected( yn, ioobj.pars() );
     return IOM().commitChanges( ioobj );
 }
 

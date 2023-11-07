@@ -41,19 +41,21 @@ AngleCompParams::AngleCompParams()
 				UnitOfMeasure::surveyDefSRDStorageUnit(),
 				UnitOfMeasure::surveyDefDepthUnit() );
     const bool depthsinfeet = SI().depthsInFeet();
-    const bool offsetsinfeet = SI().xyInFeet();
-    rtsu_.depthsinfeet( depthsinfeet ).offsetsinfeet( offsetsinfeet )
+    const Seis::OffsetType offstyp = SI().xyInFeet() ? Seis::OffsetFeet
+						     : Seis::OffsetMeter;
+    rtsu_.depthsinfeet( depthsinfeet ).offsettype( offstyp )
 	 .startdepth( -srd );
 
     const StepInterval<float> offsrange =
-			      RayTracer1D::sDefOffsetRange( offsetsinfeet );
+			      RayTracer1D::sDefOffsetRange( offstyp );
     TypeSet<float> offsets;
     for ( int idx=0; idx<=offsrange.nrSteps(); idx++ )
 	offsets += offsrange.atIndex( idx );
 
     raypar_.set( sKey::Type(), RayTracer1D::factory().getDefaultName() );
     raypar_.set( RayTracer1D::sKeyOffset(), offsets );
-    raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(), offsetsinfeet );
+    raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(),
+		   offstyp == Seis::OffsetFeet );
     raypar_.setYN( RayTracer1D::sKeyReflectivity(), false );
 
     uiString msg;
@@ -386,7 +388,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	for ( int ioff=0; ioff<nroffsets; ioff++ )
 	    offsets += input->getOffset( ioff );
 
-	rtrunner->setOffsets( offsets, input->isOffsetInFeet() );
+	rtrunner->setOffsets( offsets, input->offsetType() );
 	if ( !rtrunner->executeParallel(raytraceparallel_) )
 	    { errmsg_ = rtrunner->uiMessage(); continue; }
 

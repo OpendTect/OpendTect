@@ -63,7 +63,7 @@ protected:
     void		setAdvancedGroup(uiRayTracerAdvancedGrp*);
     void		parsChangedCB(CallBacker*);
 
-    static  bool	offsetsInFeet();
+    static Seis::OffsetType defOffsetType();
 
 private:
 

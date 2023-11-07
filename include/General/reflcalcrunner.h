@@ -41,9 +41,9 @@ public:
     bool			setModel(const ElasticModelSet&,
 					 const ReflCalc1D::Setup*);
 				//<! No copy: Must stay valid during execution
-    void			setAngle(float thetaang,bool angleisindegrees);
+    void			setAngle(float thetaang,Seis::OffsetType);
     void			setAngles(const TypeSet<float>&,
-					  bool angleisindegrees);
+					  Seis::OffsetType);
 
     uiString			uiMessage() const override { return msg_; }
     uiString			uiNrDoneText() const override;

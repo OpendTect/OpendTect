@@ -24,9 +24,9 @@ const char* MuteDef::sKeyRefHor()	{ return "Reference Horizon";  }
 
 MuteDef::MuteDef( const char* nm )
     : NamedObject(nm)
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
-    setOffsetsInFeet( SI().xyInFeet() );
 }
 
 
@@ -53,11 +53,29 @@ MuteDef& MuteDef::operator=( const MuteDef& oth )
     deepCopy( fns_, oth.fns_ );
     pos_ = oth.pos_;
     refhor_ = oth.refhor_;
+    offsettype_ = oth.offsettype_;
     setZDomain( oth.zDomain() );
-    offsetsinfeet_ = oth.offsetsinfeet_;
     ischanged_ = oth.ischanged_;
 
     return *this;
+}
+
+
+bool MuteDef::isOffsetInMeters() const
+{
+    return offsettype_ == Seis::OffsetMeter;
+}
+
+
+bool MuteDef::isOffsetInFeet() const
+{
+    return offsettype_ == Seis::OffsetFeet;
+}
+
+
+Seis::OffsetType MuteDef::offsetType() const
+{
+    return offsettype_;
 }
 
 
@@ -85,15 +103,12 @@ bool MuteDef::zInFeet() const
 }
 
 
-bool MuteDef::isOffsetInMeters() const
+MuteDef& MuteDef::setOffsetType( Seis::OffsetType typ )
 {
-    return !offsetsinfeet_;
-}
+    if ( Seis::isOffsetDist(typ) )
+	offsettype_ = typ;
 
-
-bool MuteDef::isOffsetInFeet() const
-{
-    return offsetsinfeet_;
+    return *this;
 }
 
 
@@ -108,13 +123,6 @@ MuteDef& MuteDef::setZDomain( const ZDomain::Info& zinfo )
 }
 
 
-MuteDef& MuteDef::setOffsetsInFeet( bool yn )
-{
-    offsetsinfeet_ = yn;
-    return *this;
-}
-
-
 void MuteDef::fillPar( IOPar& par ) const
 {
     if ( refhor_.isUdf() )
@@ -123,18 +131,21 @@ void MuteDef::fillPar( IOPar& par ) const
 	par.set( sKeyRefHor(), refhor_ );
 
     zDomain().fillPar( par );
-    par.set( SeisPSIOProvider::sKeyOffsetUnit(), offsetUnit()->name().str());
+    SeisPSIOProvider::setGatherOffsetType( offsettype_, par );
 }
 
 
 bool MuteDef::usePar( const IOPar& par )
 {
     par.get( sKeyRefHor(), refhor_ );
+    Seis::OffsetType offsettype;
+    if ( SeisPSIOProvider::getGatherOffsetType(par,offsettype) &&
+	 Seis::isOffsetDist(offsettype) )
+	offsettype_ = offsettype;
+
     const ZDomain::Info* zinfo = ZDomain::get( par );
     if ( zinfo && (zinfo->isTime() || zinfo->isDepth()) )
 	setZDomain( *zinfo );
-
-    SeisPSIOProvider::getOffsetUnitYN( par, offsetsinfeet_ );
 
     return true;
 }
@@ -148,7 +159,7 @@ const UnitOfMeasure* MuteDef::zUnit() const
 
 const UnitOfMeasure* MuteDef::offsetUnit() const
 {
-    return SeisPSIOProvider::offsetUnit( isOffsetInFeet() );
+    return SeisPSIOProvider::offsetUnit( offsetType() );
 }
 
 

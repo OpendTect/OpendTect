@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "factory.h"
 #include "odcomplex.h"
+#include "odcommonenums.h"
 #include "paralleltask.h"
 #include "reflectivitymodel.h"
 
@@ -41,10 +42,13 @@ public:
 	mDefSetupMemb(float,starttime);
 	mDefSetupMemb(float,startdepth);
 	mDefSetupMemb(bool,depthsinfeet);
-	mDefSetupMemb(bool,offsetsinfeet);
+	Setup&		offsettype(Seis::OffsetType);
+	Seis::OffsetType offsettype_;
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);
+
+	bool		areOffsetsInFeet() const;
     };
 
     virtual RayTracer1D::Setup&	setup()		= 0;
@@ -60,9 +64,9 @@ public:
 			  to compute zoeppritz coeffs <!*/
 
     void		setOffsets(const TypeSet<float>& offsets,
-				   bool offsetsinfeet);
+				   Seis::OffsetType);
     void		getOffsets(TypeSet<float>& offsets) const;
-    bool		offsetsInFeet() const;
+    bool		areOffsetsInFeet() const;
 
     uiString		uiMessage() const override	{ return msg_; }
 
@@ -78,7 +82,8 @@ public:
     static const char*	sKeyReflectivity() { return "Compute reflectivity"; }
     static const char*	sKeyWavetypes()    { return "Wavetypes"; }
 
-    static StepInterval<float>	sDefOffsetRange(bool infeet=false);
+    static StepInterval<float>	sDefOffsetRange(Seis::OffsetType
+							=Seis::OffsetMeter);
 
     static void		setIOParsToZeroOffset(IOPar&);
     static RayTracer1D* createInstance(const IOPar&,uiString&,

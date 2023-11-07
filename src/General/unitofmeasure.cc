@@ -29,7 +29,8 @@ static const char* feetKey = "Feet";
 static const char* meterKey = "Meter";
 static const char* ftpersecondKey = "Feet/second";
 static const char* mpersecondKey = "Meter/second";
-
+static const char* radiansKey = "Radians";
+static const char* degreesKey = "Degrees";
 
 
 class UnitOfMeasureCurDefsMgr : public CallBacker
@@ -167,15 +168,13 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefZStorageUnit()
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefTimeUnit()
 {
-    static const UnitOfMeasure* ret =  UoMR().get( millisecondsKey );
-    return ret;
+    return millisecondsUnit();
 }
 
 
 const UnitOfMeasure* UnitOfMeasure::surveyDefTimeStorageUnit()
 {
-    static const UnitOfMeasure* ret =  UoMR().get( secondsKey );
-    return ret;
+    return secondsUnit();
 }
 
 
@@ -221,6 +220,19 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefOffsetUnit()
 }
 
 
+const UnitOfMeasure* UnitOfMeasure::secondsUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( secondsKey );
+    return ret;
+}
+
+const UnitOfMeasure* UnitOfMeasure::millisecondsUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( millisecondsKey );
+    return ret;
+}
+
+
 const UnitOfMeasure* UnitOfMeasure::meterUnit()
 {
     static const UnitOfMeasure* ret = UoMR().get( meterKey );
@@ -245,6 +257,20 @@ const UnitOfMeasure* UnitOfMeasure::meterSecondUnit()
 const UnitOfMeasure* UnitOfMeasure::feetSecondUnit()
 {
     static const UnitOfMeasure* ret = UoMR().get( ftpersecondKey );
+    return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::radiansUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( radiansKey );
+    return ret;
+}
+
+
+const UnitOfMeasure* UnitOfMeasure::degreesUnit()
+{
+    static const UnitOfMeasure* ret = UoMR().get( degreesKey );
     return ret;
 }
 

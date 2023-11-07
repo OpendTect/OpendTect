@@ -49,8 +49,8 @@ public:
 				{ trckey_ = tk; }
 
     void			setOutputSampling(const FlatPosData&,
-						  const ZDomain::Info&,
-						  bool offsetsinfeet);
+						  Seis::OffsetType,
+						  const ZDomain::Info&);
     void			setRayTracerPars(const IOPar&);
     void			setGatherIsNMOCorrected( bool yn )
 				{ gatheriscorrected_ = yn; }

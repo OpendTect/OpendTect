@@ -42,7 +42,7 @@ public:
     bool			setModel(const ElasticModelSet&,
 					 const RayTracer1D::Setup*);
     void			setOffsets(const TypeSet<float>&,
-					   bool offsetsinfeet);
+					   Seis::OffsetType);
 
     uiString			uiMessage() const override { return msg_; }
     uiString			uiNrDoneText() const override;

@@ -78,6 +78,28 @@ bool isOptional( OD::ChoiceMode cm )
 }
 
 
+mDefineNameSpaceEnumUtils(Seis,OffsetType,"Offset Type")
+{
+    "Offset in meters",
+    "Offset in feet",
+    "Angle in radians",
+    "Angle in degrees",
+    nullptr
+};
+
+
+bool Seis::isOffsetDist( OffsetType typ )
+{
+    return typ == OffsetMeter || typ == OffsetFeet;
+}
+
+
+bool Seis::isOffsetAngle( OffsetType typ )
+{
+    return typ == AngleRadians || typ == AngleDegrees;
+}
+
+
 mDefineNameSpaceEnumUtils(Vel,Type,"Velocity Type")
 {
     "Unknown",

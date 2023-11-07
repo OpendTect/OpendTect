@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "factory.h"
 #include "odcomplex.h"
+#include "odcommonenums.h"
 #include "paralleltask.h"
 #include "reflectivitymodel.h"
 
@@ -61,11 +62,11 @@ public:
 			  are undef and required, will fill them with Castagna
 			  to compute the reflection coeffs <!*/
 
-    void		setAngle(float thetaangle,bool angleisindegrees);
+    void		setAngle(float thetaangle,Seis::OffsetType);
     void		setAngles(const TypeSet<float>& thetaangles,
-				  bool angleisindegrees);
+				  Seis::OffsetType);
     void		getAngles(TypeSet<float>& thetaangles,
-				  bool retindegrees=true) const;
+				  Seis::OffsetType=Seis::AngleDegrees) const;
 
     uiString		uiMessage() const override	{ return msg_; }
 
@@ -79,11 +80,11 @@ public:
     static const char*	sKeyAngle()	   { return "Angle Range"; }
     static const char*	sKeyAngleInDegrees() { return "Angles in Degrees"; }
 
-    static float	sDefAngle(bool indegrees);
-    static StepInterval<float> sDefAngleRange(bool indegrees);
+    static float	sDefAngle(Seis::OffsetType);
+    static StepInterval<float> sDefAngleRange(Seis::OffsetType);
 
     static void		setIOParsToSingleAngle(IOPar&,float angle=0.f,
-					       bool angleisindegrees=true);
+					   Seis::OffsetType=Seis::AngleDegrees);
     static ReflCalc1D* createInstance(const IOPar&,uiString&,
 				      const Setup* =nullptr);
     static ReflCalc1D* createInstance(const IOPar&,const ElasticModel*,

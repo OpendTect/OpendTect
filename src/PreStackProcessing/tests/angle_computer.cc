@@ -251,8 +251,8 @@ static bool testSmoothing( PreStack::VelocityBasedAngleComputer& computer,
 
 
 static bool testAngleGatherComputer( const MultiID& velmid, const TrcKey& tk,
-			const FlatPosData& fp, const ZDomain::Info& zinfo,
-			bool offsetsinfeet, int isurv, int zid )
+			const FlatPosData& fp, Seis::OffsetType offstyp,
+			const ZDomain::Info& zinfo, int isurv, int zid )
 {
     PtrMan<IOObj> velobj = IOM().get( velmid );
     mRunStandardTestWithError( velobj.ptr(),
@@ -262,7 +262,7 @@ static bool testAngleGatherComputer( const MultiID& velmid, const TrcKey& tk,
     RefMan<PreStack::VelocityBasedAngleComputer> computer =
 			    new PreStack::VelocityBasedAngleComputer();
     computer->setMultiID( velobj->key() );
-    computer->setOutputSampling( fp, zinfo, offsetsinfeet );
+    computer->setOutputSampling( fp, offstyp, zinfo );
     computer->setTrcKey( tk );
     mRunStandardTestWithError( computer->isOK(),
 			       mMsg("Angle gather computer"),
@@ -331,7 +331,7 @@ static bool testAngleMuteApplier( const MultiID& velid, PreStack::Gather& input)
 static bool testAngleMuteComputer( const MultiID& velid, const MultiID& muteid,
 				   const TrcKey& tk,
 				   const TypeSet<double>& offsets,
-				   bool offsetinfeet )
+				   Seis::OffsetType offstyp )
 {
     PreStack::AngleMuteComputer computer;
     PreStack::AngleMuteComputer::AngleMuteCompPars& pars = computer.params();
@@ -339,7 +339,8 @@ static bool testAngleMuteComputer( const MultiID& velid, const MultiID& muteid,
     pars.velvolmid_ = velid;
     pars.outputmutemid_ = muteid;
     pars.raypar_.set( RayTracer1D::sKeyOffset(), offsets );
-    pars.raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(), offsetinfeet );
+    pars.raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(),
+			offstyp == Seis::OffsetFeet );
     pars.smoothingpar_.set( PreStack::AngleComputer::sKeySmoothType(),
 			    PreStack::AngleComputer::None );
     pars.tks_.set( tk );
@@ -380,7 +381,6 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     const TrcKey tk( BinID(426,800) );
     const MultiID muteid( "100070.5" );
-    const bool offsetisangle = false;
 
     SurveyDiskLocation sdl( IOM().rootDir() );
     int isurv = 0;
@@ -391,7 +391,9 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 	const ZDomain::Info& zinfo = SI().zDomainInfo();
 	const bool zistime = zinfo.isTime();
-	const bool offsetsinfeet = SI().xyInFeet();
+	const Seis::OffsetType offstyp = SI().xyInFeet() ? Seis::OffsetFeet
+							 : Seis::OffsetMeter;
+	const bool offsetsinfeet = offstyp == Seis::OffsetFeet;
 	const bool zinfeet = SI().zInFeet();
 	const float srd =
 	    UnitOfMeasure::surveyDefSRDStorageUnit()
@@ -418,8 +420,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	FlatPosData fpmute;
 	fpmute.setRange( true, offsetrange );
 	fpmute.setRange( false, zrange );
-	RefMan<PreStack::Gather> input = new PreStack::Gather( fpmute, zinfo,
-						offsetisangle, offsetsinfeet );
+	RefMan<PreStack::Gather> input = new PreStack::Gather( fpmute, offstyp,
+							       zinfo );
 	input->setTrcKey( tk );
 	input->setCorrected( true );
 
@@ -429,15 +431,15 @@ bool BatchProgram::doWork( od_ostream& strm )
 	for ( const auto& velidset : velids )
 	{
 	    const MultiID velmid = getVelID( velidset, isurv );
-	    if ( !testAngleGatherComputer(velmid,tk,fp,zinfo,
-				    offsetsinfeet,isurv,zid) )
+	    if ( !testAngleGatherComputer(velmid,tk,fp,offstyp,zinfo,
+					  isurv,zid) )
 		return false;
 
 	    if ( idx==0 )
 	    {
 		if ( !testAngleMuteApplier(velmid,*input) ||
 		     !testAngleMuteComputer(velmid,muteid,tk,
-					    offsets,offsetsinfeet) )
+					    offsets,offstyp) )
 		    return false;
 	    }
 

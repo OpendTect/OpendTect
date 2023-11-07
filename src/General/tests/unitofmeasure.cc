@@ -26,6 +26,21 @@ static bool isEqual( const char* unit, double sival, double usrval )
 }
 
 
+static bool testStandardUnits()
+{
+    mRunStandardTest( UnitOfMeasure::secondsUnit(), "Seconds" );
+    mRunStandardTest( UnitOfMeasure::millisecondsUnit(), "Milliseconds" );
+    mRunStandardTest( UnitOfMeasure::meterUnit(), "Meter" );
+    mRunStandardTest( UnitOfMeasure::feetUnit(), "Feet" );
+    mRunStandardTest( UnitOfMeasure::meterSecondUnit(), "Meter/second" );
+    mRunStandardTest( UnitOfMeasure::feetSecondUnit(), "Feet/second" );
+    mRunStandardTest( UnitOfMeasure::radiansUnit(), "Radians" );
+    mRunStandardTest( UnitOfMeasure::degreesUnit(), "Degrees" );
+
+    return true;
+}
+
+
 static bool testDistance()
 {
     mRunStandardTest( isEqual("um",1,1e6), "Micrometer" );
@@ -72,11 +87,10 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if (
-	!testDistance() ||
-	!testArea() ||
-	!testVolume()
-       )
+    if ( !testStandardUnits() ||
+	 !testDistance() ||
+	 !testArea() ||
+	 !testVolume() )
 	return 1;
 
     return 0;

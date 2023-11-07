@@ -35,7 +35,7 @@ static ElasticModel getEModel()
     return emdl;
 }
 
-static bool offsetsinfeet_ = false;
+static Seis::OffsetType offsettype_ = Seis::OffsetMeter;
 static TypeSet<float> getOffsets()
 {
     TypeSet<float> offsets;
@@ -51,7 +51,7 @@ static bool testRayTracer( const RayTracer1D::Setup& rtsu )
 
     VrmsRayTracer1D raytracer;
     raytracer.setup() = rtsu;
-    raytracer.setOffsets( getOffsets(), offsetsinfeet_ );
+    raytracer.setOffsets( getOffsets(), offsettype_ );
     raytracer.setModel( emdl );
     mRunStandardTest( raytracer.execute(), "VRMSRayTracer execution" );
     mTestVal(raytracer.getDepth(0),48.f,mDefDepthEps);

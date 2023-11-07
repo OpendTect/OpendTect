@@ -160,16 +160,14 @@ ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 	    return nullptr;
 
 	const bool iscorrected = sgp.isCorrected();
+	const Seis::OffsetType offstype = sgp.offsetType();
 	const ZDomain::Info& zinfo = ZDomain::TWT();
-	const bool offsetsareangle = false;
-	const bool offsetsinfeet = sgp.offsetsInFeet();
 	RefObjectSet<PreStack::Gather> gatherset;
 	while ( tbufs.size() )
 	{
 	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
 	    RefMan<PreStack::Gather> gather = new PreStack::Gather();
-	    if ( !gather->setFromTrcBuf(*tbuf,0,iscorrected,zinfo,
-					offsetsareangle,offsetsinfeet))
+	    if ( !gather->setFromTrcBuf(*tbuf,0,iscorrected,offstype,zinfo) )
 		continue;
 
 	    gather->setName( sgp.name_ );

@@ -321,7 +321,15 @@ void PSAttrib::setGatherIsAngle( PreStack::Gather& gather )
 {
     int gathertype = 0;
     mGetEnum( gathertype, gathertypeStr() );
-    gather.setOffsetIsAngle( gathertype == Ang, gather.isOffsetInFeet() );
+    if ( (gathertype == Ang) == gather.isOffsetAngle() )
+	return;
+
+    const bool offsetinfeet = gather.isOffsetInFeet();
+    if ( gathertype == Ang )
+	gather.setOffsetType( Seis::AngleDegrees );
+    else
+	gather.setOffsetType( offsetinfeet ? Seis::OffsetFeet
+					   : Seis::OffsetMeter );
 }
 
 
@@ -329,13 +337,14 @@ bool PSAttrib::getAngleInputData()
 {
     if ( propcalc_->hasAngleData() )
 	return true;
+
     const PreStack::Gather* gather = propcalc_->getGather();
     if ( !gather || !anglecomp_ )
 	return false;
 
     const FlatPosData& fp = gather->posData();
-    anglecomp_->setOutputSampling( fp , gather->zDomain(),
-				   gather->isOffsetInFeet() );
+    anglecomp_->setOutputSampling( fp, gather->offsetType(),
+				   gather->zDomain() );
     anglecomp_->setGatherIsNMOCorrected( gather->isCorrected() );
     anglecomp_->setTrcKey( TrcKey(gather->getBinID()) );
     RefMan<PreStack::Gather> angledata = anglecomp_->computeAngles();

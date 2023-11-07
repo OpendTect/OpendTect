@@ -86,12 +86,13 @@ od_int64 RayTracerRunner::nrDone() const
 
 
 void RayTracerRunner::setOffsets( const TypeSet<float>& offsets,
-				  bool offsetsinfeet )
+				  Seis::OffsetType offstype )
 {
     raypar_.set( RayTracer1D::sKeyOffset(), offsets );
-    raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(), offsetsinfeet );
+    raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(),
+		   offstype == Seis::OffsetFeet );
     for ( auto* rt : raytracers_ )
-	rt->setOffsets( offsets, offsetsinfeet );
+	rt->setOffsets( offsets, offstype );
 }
 
 

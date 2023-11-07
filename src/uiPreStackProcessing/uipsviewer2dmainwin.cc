@@ -363,9 +363,8 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
     anglefp.setRange( true, x1rg );
     anglefp.setRange( false, x2rg );
 
-    auto* anglegather = new PreStack::Gather( anglefp, angledata.zDomain(),
-					      angledata.isOffsetAngle(),
-					      angledata.isOffsetInFeet() );
+    auto* anglegather = new PreStack::Gather( anglefp, angledata.offsetType(),
+					      angledata.zDomain() );
     const int offsetsize = fp.nrPts( true );
     const int zsize = fp.nrPts( false );
 
@@ -1069,8 +1068,8 @@ ConstRefMan<PreStack::Gather> uiStoredViewer2DMainWin::getAngleData(
     velangcomp->setRayTracerPars( angleparams_->raypar_ );
     velangcomp->setSmoothingPars( angleparams_->smoothingpar_ );
     const FlatPosData& fp = gather->posData();
-    velangcomp->setOutputSampling( fp, gather->zDomain(),
-				   gather->isOffsetInFeet() );
+    velangcomp->setOutputSampling( fp, gather->offsetType(),
+				   gather->zDomain() );
     velangcomp->setGatherIsNMOCorrected( gather->isCorrected() );
     velangcomp->setTrcKey( TrcKey(gather->getBinID()) );
     RefMan<PreStack::Gather> angledata = velangcomp->computeAngles();

@@ -179,18 +179,20 @@ void SynthGenParams::setDefaultValues()
     }
     else if ( isElasticStack() )
     {
+	const Seis::OffsetType angtyp = Seis::AngleDegrees;
 	ReflCalc1D::setIOParsToSingleAngle( reflpars_,
-					    ReflCalc1D::sDefAngle( true ) );
+					    ReflCalc1D::sDefAngle(angtyp) );
     }
     else if ( isElasticGather() )
     {
-	const bool indeg = true;
-	const StepInterval<float> anglerg = ReflCalc1D::sDefAngleRange( indeg );
+	const Seis::OffsetType angtyp = Seis::AngleDegrees;
+	const StepInterval<float> anglerg = ReflCalc1D::sDefAngleRange(angtyp);
 	TypeSet<float> angles;
 	for ( int idx=0; idx<anglerg.nrSteps()+1; idx++ )
 	    angles += anglerg.atIndex( idx );
 	reflpars_.set( ReflCalc1D::sKeyAngle(), angles );
-	reflpars_.setYN( ReflCalc1D::sKeyAngleInDegrees(), indeg );
+	reflpars_.setYN( ReflCalc1D::sKeyAngleInDegrees(),
+			 angtyp == Seis::AngleDegrees );
     }
     else if ( isPreStack() )
     {
@@ -319,12 +321,16 @@ bool SynthGenParams::isCorrected() const
 }
 
 
-bool SynthGenParams::offsetsInFeet() const
+Seis::OffsetType SynthGenParams::offsetType() const
 {
+    Seis::OffsetType ret = SI().xyInFeet() ? Seis::OffsetFeet
+					   : Seis::OffsetMeter;
     bool offsetsinfeet = SI().xyInFeet();
-    raypars_.getYN( RayTracer1D::sKeyOffsetInFeet(), offsetsinfeet );
+    if ( raypars_.getYN(RayTracer1D::sKeyOffsetInFeet(),offsetsinfeet) )
+	ret = offsetsinfeet ? Seis::OffsetFeet
+			    : Seis::OffsetMeter;
 
-    return offsetsinfeet;
+    return ret;
 }
 
 
@@ -475,8 +481,9 @@ void SynthGenParams::createName( BufferString& nm ) const
 
     if ( isElasticStack() )
     {
-	bool isindegrees = true;
-	float angle = ReflCalc1D::sDefAngle( isindegrees );
+	Seis::OffsetType angtyp = Seis::AngleDegrees;
+	bool isindegrees = angtyp == Seis::AngleDegrees;
+	float angle = ReflCalc1D::sDefAngle( angtyp );
 	if ( reflpars_.get(ReflCalc1D::sKeyAngle(),angle) &&
 	     reflpars_.getYN(ReflCalc1D::sKeyAngleInDegrees(),isindegrees) &&
 	     !isindegrees )
@@ -487,7 +494,8 @@ void SynthGenParams::createName( BufferString& nm ) const
 
     if ( isElasticGather() )
     {
-	bool isindegrees = true;
+	Seis::OffsetType angtyp = Seis::AngleDegrees;
+	bool isindegrees = angtyp == Seis::AngleDegrees;
 	TypeSet<float> angles;
 	if ( reflpars_.get(ReflCalc1D::sKeyAngle(),angles) && !angles.isEmpty())
 	{
@@ -502,7 +510,7 @@ void SynthGenParams::createName( BufferString& nm ) const
 	{
 	    pErrMsg( "Should not be reached" );
 	    const StepInterval<float> anglerg =
-				ReflCalc1D::sDefAngleRange( isindegrees );
+				ReflCalc1D::sDefAngleRange( angtyp );
 	    for ( int idx=0; idx<anglerg.nrSteps()+1; idx++ )
 		angles += anglerg.atIndex( idx );
 	}

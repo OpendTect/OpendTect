@@ -421,7 +421,7 @@ const UnitOfMeasure* SeisIOObjInfo::zUnit() const
 }
 
 
-const UnitOfMeasure* SeisIOObjInfo::getOffsetsUnit() const
+const UnitOfMeasure* SeisIOObjInfo::offsetUnit() const
 {
     mChk(nullptr);
     bool hasoffsetsunit;
@@ -430,14 +430,14 @@ const UnitOfMeasure* SeisIOObjInfo::getOffsetsUnit() const
 }
 
 
-bool SeisIOObjInfo::offsetIsAngle() const
+Seis::OffsetType SeisIOObjInfo::offsetType() const
 {
-    mChk(false);
-    bool offsetisangle = false;
+    Seis::OffsetType typ = Seis::OffsetMeter;
+    mChk(typ);
     if ( isPS() )
-	SeisPSIOProvider::offsetIsAngle( ioobj_, offsetisangle );
+	SeisPSIOProvider::getGatherOffsetType( ioobj_->pars(), typ );
 
-    return offsetisangle;
+    return typ;
 }
 
 
@@ -446,7 +446,7 @@ bool SeisIOObjInfo::isCorrected() const
     mChk(true);
     bool iscorr = true;
     if ( isPS() )
-	SeisPSIOProvider::gathersAreCorrected( ioobj_, iscorr );
+	SeisPSIOProvider::getGatherCorrectedYN( ioobj_->pars(), iscorr );
 
     return iscorr;
 }

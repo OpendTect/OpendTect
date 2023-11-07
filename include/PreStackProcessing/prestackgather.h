@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "datapackbase.h"
 #include "multiid.h"
+#include "odcommonenums.h"
 #include "offsetazimuth.h"
 #include "position.h"
 #include "samplingdata.h"
@@ -38,8 +39,8 @@ public:
 				Gather();
 				Gather(const Gather&);
 				Gather(const FlatPosData&,
-				       const ZDomain::Info&,
-				       bool offisangle,bool offsetsinfeet);
+				       Seis::OffsetType,
+				       const ZDomain::Info&);
 
     Gather&			operator =(const Gather&)	= delete;
 
@@ -102,16 +103,17 @@ public:
     float			getAzimuth(int) const;
     OffsetAzimuth		getOffsetAzimuth(int) const;
 
-    bool			isOffsetAngle() const	{return offsetisangle_;}
+    bool			isCorrected() const;
+    bool			isOffsetAngle() const;
     bool			isOffsetInMeters() const;
     bool			isOffsetInFeet() const;
-    Gather&			setOffsetIsAngle(bool yn,bool offsetsinfeet);
-    bool			isCorrected() const	{ return iscorr_; }
-    Gather&			setCorrected(bool yn);
+    Seis::OffsetType		offsetType() const;
     const ZDomain::Info&	zDomain() const;
     bool			zIsTime() const;
     bool			zInMeter() const;
     bool			zInFeet() const;
+    Gather&			setCorrected(bool yn);
+    Gather&			setOffsetType(Seis::OffsetType);
     Gather&			setZDomain(const ZDomain::Info&);
 
     const MultiID&		getVelocityID() const	{ return velocitymid_; }
@@ -137,9 +139,8 @@ protected:
     MultiID			staticsmid_;
 
     bool			iscorr_ = true;
+    Seis::OffsetType		offsettype_;
     const ZDomain::Info*	zdomaininfo_;
-    bool			offsetsinfeet_;
-    bool			offsetisangle_ = false;
     TrcKey			tk_;
     Coord			coord_;
     TypeSet<float>		azimuths_;
@@ -148,9 +149,8 @@ protected:
 public:
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
 					    bool iscorrected,
+					    Seis::OffsetType,
 					    const ZDomain::Info&,
-					    bool offsetsisangle,
-					    bool offsetsinfeet,
 					    bool snapzrangetosi=false);
     bool			setFromTrcBuf(SeisTrcBuf&,int comp,
 					      const GatherSetDataPack&,
@@ -215,16 +215,17 @@ public:
 
     ZSampling			zRange() const;
 
-    bool			isOffsetAngle() const	{return offsetisangle_;}
+    bool			isCorrected() const;
+    bool			isOffsetAngle() const;
     bool			isOffsetInMeters() const;
     bool			isOffsetInFeet() const;
-    GatherSetDataPack&		setOffsetIsAngle(bool yn,bool offsetsinfeet);
-    bool			isCorrected() const	{ return iscorr_; }
-    GatherSetDataPack&		setCorrected(bool yn);
+    Seis::OffsetType		offsetType() const;
     const ZDomain::Info&	zDomain() const;
     bool			zIsTime() const;
     bool			zInMeter() const;
     bool			zInFeet() const;
+    GatherSetDataPack&		setCorrected(bool yn);
+    GatherSetDataPack&		setOffsetType(Seis::OffsetType);
     GatherSetDataPack&		setZDomain(const ZDomain::Info&);
 
     static const char*		sDataPackCategory();
@@ -242,9 +243,8 @@ private:
     Array3D<float>&		arr3d_;
 
     bool			iscorr_ = true;
+    Seis::OffsetType		offsettype_;
     const ZDomain::Info*	zdomaininfo_;
-    bool			offsetsinfeet_;
-    bool			offsetisangle_ = false;
 
 public:
 

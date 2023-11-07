@@ -283,7 +283,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& su )
     if ( su.dooffsets_ )
     {
 	const StepInterval<float> offsetrg =
-				RayTracer1D::sDefOffsetRange( offsetsInFeet() );
+				RayTracer1D::sDefOffsetRange( defOffsetType() );
 	const uiString olb = tr( "Offset range (start/stop) %1" )
 		    .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,true) );
 	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
@@ -430,7 +430,7 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	offsetfld_->setValue( offsetrg );
 	const float step = offsets.size() > 1
 	     ? offsets[1]-offsets[0]
-	     : RayTracer1D::sDefOffsetRange( offsetsInFeet() ).step;
+	     : RayTracer1D::sDefOffsetRange( defOffsetType() ).step;
 	offsetstepfld_->setValue( step );
     }
 
@@ -464,7 +464,7 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 	    offsets += offsetrg.atIndex( idx );
 
 	par.set( RayTracer1D::sKeyOffset(), offsets );
-	par.setYN( RayTracer1D::sKeyOffsetInFeet(), offsetsInFeet() );
+	par.setYN( RayTracer1D::sKeyOffsetInFeet(), defOffsetType() );
     }
 
     par.setYN( RayTracer1D::sKeyReflectivity(), doreflectivity_ );
@@ -485,9 +485,9 @@ uiRetVal uiRayTracer1D::isOK() const
 }
 
 
-bool uiRayTracer1D::offsetsInFeet()
+Seis::OffsetType uiRayTracer1D::defOffsetType()
 {
-    return SI().xyInFeet();
+    return SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter;
 }
 
 

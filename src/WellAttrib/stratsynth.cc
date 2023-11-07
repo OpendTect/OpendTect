@@ -1804,10 +1804,11 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),
 				    UnitOfMeasure::surveyDefDepthUnit() );
 		const bool depthsinfeet = SI().depthsInFeet();
-		const bool offsetsinfeet = SI().xyInFeet();
+		const Seis::OffsetType offstyp = SI().xyInFeet()
+				    ? Seis::OffsetFeet : Seis::OffsetMeter;
 		refmodels = Seis::RaySynthGenerator::getRefModels( elmdls,
 					    *sgp.reflPars(), msg, taskrun,
-					    srd, depthsinfeet, offsetsinfeet );
+					    srd, depthsinfeet, offstyp );
 	    }
 	    if ( !refmodels )
 		return nullptr;
@@ -2912,8 +2913,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	mDynamicCastGet(const OffsetReflectivityModel*,offrefmodel,refmodel);
 	const PreStack::Gather& seisgather = *seisgathers_[idx];
 	anglecomputer.setOutputSampling( seisgather.posData(),
-					 seisgather.zDomain(),
-					 seisgather.isOffsetInFeet() );
+					 seisgather.offsetType(),
+					 seisgather.zDomain() );
 	anglecomputer.setGatherIsNMOCorrected( seisgather.isCorrected() );
 	anglecomputer.setRefModel( *offrefmodel, seisgather.getTrcKey() );
 	RefMan<PreStack::Gather> anglegather = anglecomputer.computeAngles();

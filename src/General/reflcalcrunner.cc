@@ -85,20 +85,21 @@ od_int64 ReflCalcRunner::nrDone() const
 }
 
 
-void ReflCalcRunner::setAngle( float angle, bool angleisindegrees )
+void ReflCalcRunner::setAngle( float angle, Seis::OffsetType typ )
 {
     TypeSet<float> angles; angles += angle;
-    setAngles( angles, angleisindegrees );
+    setAngles( angles, typ );
 }
 
 
 void ReflCalcRunner::setAngles( const TypeSet<float>& angles,
-				bool angleisindegrees )
+				Seis::OffsetType typ )
 {
     reflpar_.set( ReflCalc1D::sKeyAngle(), angles );
-    reflpar_.setYN( ReflCalc1D::sKeyAngleInDegrees(), angleisindegrees );
+    reflpar_.setYN( ReflCalc1D::sKeyAngleInDegrees(),
+		    typ == Seis::AngleDegrees );
     for ( auto* reflcalc : reflcalcs_ )
-	reflcalc->setAngles( angles, angleisindegrees );
+	reflcalc->setAngles( angles, typ );
 }
 
 

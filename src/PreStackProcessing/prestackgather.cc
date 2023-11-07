@@ -46,9 +46,9 @@ const char* GatherSetDataPack::sDataPackCategory()
 Gather::Gather()
     : FlatDataPack(sDataPackCategory(),new Array2DImpl<float>(1,1))
     , coord_(0.,0.)
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
-    setOffsetIsAngle( offsetisangle_, SI().xyInFeet() );
 }
 
 
@@ -58,9 +58,8 @@ Gather::Gather( const Gather& oth )
     , storagemid_(oth.storagemid_)
     , staticsmid_(oth.staticsmid_)
     , iscorr_(oth.iscorr_)
+    , offsettype_(oth.offsettype_)
     , zdomaininfo_(new ZDomain::Info(oth.zDomain()))
-    , offsetsinfeet_(oth.offsetsinfeet_)
-    , offsetisangle_(oth.offsetisangle_)
     , tk_(oth.tk_)
     , coord_(oth.coord_)
     , azimuths_(oth.azimuths_)
@@ -68,15 +67,14 @@ Gather::Gather( const Gather& oth )
 {}
 
 
-Gather::Gather( const FlatPosData& fposdata, const ZDomain::Info& zinfo,
-		bool offsetisangle, bool offsetsinfeet )
+Gather::Gather( const FlatPosData& fposdata, Seis::OffsetType offsettype,
+		const ZDomain::Info& zinfo )
     : FlatDataPack( sDataPackCategory(),
         new Array2DImpl<float>(fposdata.nrPts(true),fposdata.nrPts(false)) )
+    , offsettype_(offsettype)
     , zdomaininfo_(new ZDomain::Info(zinfo))
     , coord_(0.,0.)
 {
-    setOffsetIsAngle( offsetisangle, offsetsinfeet );
-
     posdata_ = fposdata;
     const StepInterval<double> zsamp = fposdata.range( false );
     zrg_.set( mCast(float,zsamp.start), mCast(float,zsamp.stop),
@@ -193,29 +191,14 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
 	setZDomain( zinfo );
 
     bool iscorr;
-    if ( SeisPSIOProvider::gathersAreCorrected(&ioobj,iscorr) )
+    if ( SeisPSIOProvider::getGatherCorrectedYN(ioobj.pars(),iscorr) )
 	iscorr_ = iscorr;
 
-    bool offsetisangle;
-    if ( SeisPSIOProvider::offsetIsAngle(&ioobj,offsetisangle) )
-	offsetisangle_ = offsetisangle;
+    Seis::OffsetType offsettype;
+    if ( SeisPSIOProvider::getGatherOffsetType(ioobj.pars(),offsettype) )
+	setOffsetType( offsettype );
 
-    if ( !offsetisangle_ )
-    {
-	bool hasoffsetunit;
-	const UnitOfMeasure* offsetsuom =
-		    SeisPSIOProvider::offsetUnit( &ioobj, hasoffsetunit );
-	if ( hasoffsetunit && offsetsuom )
-	{
-	    if ( offsetsuom == UnitOfMeasure::meterUnit() )
-		offsetsinfeet_ = false;
-	    else if ( offsetsuom == UnitOfMeasure::feetUnit() )
-		offsetsinfeet_ = true;
-	}
-    }
-
-    if ( !setFromTrcBuf(tbuf,comp,iscorr_,zDomain(),
-			offsetisangle_,offsetsinfeet_,true) )
+    if ( !setFromTrcBuf(tbuf,comp,iscorr_,offsettype_,zDomain(),true) )
        return false;
 
     velocitymid_.setUdf();
@@ -235,16 +218,14 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
 bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp,
 			    const GatherSetDataPack& gdp, bool snapzrgtosi )
 {
-    return setFromTrcBuf( tbuf, comp, gdp.isCorrected(), gdp.zDomain(),
-			  gdp.isOffsetAngle(), gdp.isOffsetInFeet(),
-			  snapzrgtosi );
+    return setFromTrcBuf( tbuf, comp, gdp.isCorrected(), gdp.offsetType(),
+			  gdp.zDomain(), snapzrgtosi );
 }
 
 
 bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool iscorrected,
-			    const ZDomain::Info& zinfo,
-			    bool offsetsisangle, bool offsetsinfeet,
-			    bool snapzrgtosi )
+			    Seis::OffsetType offstyp,
+			    const ZDomain::Info& zinfo, bool snapzrgtosi )
 {
     tbuf.sort( true, SeisTrcInfo::Offset );
 
@@ -279,7 +260,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool iscorrected,
     }
 
     setZDomain( zinfo );
-    setOffsetIsAngle( offsetsisangle, offsetsinfeet );
+    setOffsetType( offstyp );
     if ( snapzrgtosi && zDomain() == SI().zDomainInfo() )
     {
 	SI().snapZ( zrg.start );
@@ -372,31 +353,46 @@ const char* Gather::getSeis2DName() const
 }
 
 
+bool Gather::isCorrected() const
+{
+    return iscorr_;
+}
+
+
+bool Gather::isOffsetAngle() const
+{
+    return Seis::isOffsetAngle( offsettype_ );
+}
+
+
 bool Gather::isOffsetInMeters() const
 {
-    return !isOffsetAngle() && !offsetsinfeet_;
+    return offsettype_ == Seis::OffsetMeter;
 }
 
 
 bool Gather::isOffsetInFeet() const
 {
-    return !isOffsetAngle() && offsetsinfeet_;
+    return offsettype_ == Seis::OffsetFeet;
 }
 
 
-Gather& Gather::setOffsetIsAngle( bool yn, bool offsetsinfeet )
+Seis::OffsetType Gather::offsetType() const
 {
-    offsetisangle_ = yn;
-    if ( !offsetisangle_ )
-	offsetsinfeet_ = offsetsinfeet;
-
-    return *this;
+    return offsettype_;
 }
 
 
 Gather& Gather::setCorrected( bool yn )
 {
     iscorr_ = yn;
+    return *this;
+}
+
+
+Gather& Gather::setOffsetType( Seis::OffsetType typ )
+{
+    offsettype_ = typ;
     return *this;
 }
 
@@ -606,9 +602,9 @@ float GatherSetArray3D::get( int idx, int idy, int idz ) const
 GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */ )
     : DataPack( sDataPackCategory() )
     , arr3d_(*new GatherSetArray3D(gathers_))
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
-    setOffsetIsAngle( offsetisangle_, SI().xyInFeet() );
 }
 
 
@@ -617,6 +613,7 @@ GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */,
     : DataPack(sDataPackCategory())
     , gathers_(gathers)
     , arr3d_(*new GatherSetArray3D(gathers_))
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
     const OD::String& nm = name();
@@ -628,8 +625,8 @@ GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */,
 
     const Gather& gather = *gathers.first();
     setCorrected( gather.isCorrected() );
+    setOffsetType( gather.offsetType() );
     setZDomain( gather.zDomain() );
-    setOffsetIsAngle( gather.isOffsetAngle(), gather.isOffsetInFeet() );
 }
 
 
@@ -844,25 +841,39 @@ ZSampling GatherSetDataPack::zRange() const
 }
 
 
+bool GatherSetDataPack::isCorrected() const
+{
+    return iscorr_;
+}
+
+
+bool GatherSetDataPack::isOffsetAngle() const
+{
+    return Seis::isOffsetAngle( offsettype_ );
+}
+
+
 bool GatherSetDataPack::isOffsetInMeters() const
 {
-    return !isOffsetAngle() && !offsetsinfeet_;
+    return offsettype_ == Seis::OffsetMeter;
 }
 
 
 bool GatherSetDataPack::isOffsetInFeet() const
 {
-    return !isOffsetAngle() && offsetsinfeet_;
+    return offsettype_ == Seis::OffsetFeet;
 }
 
 
-GatherSetDataPack& GatherSetDataPack::setOffsetIsAngle( bool yn,
-							bool offsetsinfeet )
+Seis::OffsetType GatherSetDataPack::offsetType() const
 {
-    offsetisangle_ = yn;
-    if ( !offsetisangle_ )
-	offsetsinfeet_ = offsetsinfeet;
+    return offsettype_;
+}
 
+
+GatherSetDataPack& GatherSetDataPack::setOffsetType( Seis::OffsetType typ )
+{
+    offsettype_ = typ;
     return *this;
 }
 
@@ -914,8 +925,8 @@ void GatherSetDataPack::addGather( Gather& gather )
     if ( gathers_.isEmpty() )
     {
 	setCorrected( gather.isCorrected() );
+	setOffsetType( gather.offsetType() );
 	setZDomain( gather.zDomain() );
-	setOffsetIsAngle( gather.isOffsetAngle(), gather.isOffsetInFeet() );
     }
 
     gather.setName( name() );

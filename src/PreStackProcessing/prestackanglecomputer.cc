@@ -66,8 +66,8 @@ AngleComputer::~AngleComputer()
 
 
 void AngleComputer::setOutputSampling( const FlatPosData& os,
-				       const ZDomain::Info& zinfo,
-				       bool offsetsinfeet )
+				       Seis::OffsetType offstyp,
+				       const ZDomain::Info& zinfo )
 {
     if ( !zinfo.isTime() && !zinfo.isDepth() )
 	return;
@@ -82,7 +82,7 @@ void AngleComputer::setOutputSampling( const FlatPosData& os,
     if ( zinfo.isDepth() )
 	rtsu_.depthsinfeet( zinfo.isDepthFeet() );
 
-    rtsu_.offsetsinfeet( offsetsinfeet );
+    rtsu_.offsettype( offstyp );
 }
 
 
@@ -407,9 +407,8 @@ RefMan<Gather> AngleComputer::computeAngleData()
     if ( !zDomain() )
 	return nullptr;
 
-    const bool offsetisangle = false;
-    RefMan<Gather> gather = new Gather( outputsampling_, *zDomain(),
-					offsetisangle, rtsu_.offsetsinfeet_ );
+    RefMan<Gather> gather = new Gather( outputsampling_, rtsu_.offsettype_,
+					*zDomain() );
     gather->setTrcKey( trckey_ );
     Array2D<float>& angledata = gather->data();
 
@@ -429,7 +428,7 @@ RefMan<Gather> AngleComputer::computeAngleData()
 
 	TypeSet<float> offsets;
 	outputsampling_.getPositions( true, offsets );
-	raytracer->setOffsets( offsets, gather->isOffsetInFeet() );
+	raytracer->setOffsets( offsets, gather->offsetType() );
 	if ( !raytracer->setModel(*emodel) || !raytracer->execute() )
 	{
 	    errmsg_ = raytracer->uiMessage();

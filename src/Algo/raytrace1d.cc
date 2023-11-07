@@ -18,10 +18,14 @@ ________________________________________________________________________
 mImplFactory(RayTracer1D,RayTracer1D::factory)
 
 
-StepInterval<float> RayTracer1D::sDefOffsetRange( bool infeet )
+StepInterval<float> RayTracer1D::sDefOffsetRange( Seis::OffsetType typ )
 {
-    return infeet ? StepInterval<float>( 0.f, 18000.f, 300.f )
-		  : StepInterval<float>( 0.f, 6000.f, 100.f );
+    if ( !Seis::isOffsetDist(typ) )
+	return StepInterval<float>::udf();
+
+    return typ == Seis::OffsetMeter
+		? StepInterval<float>( 0.f, 6000.f, 100.f )
+		: StepInterval<float>( 0.f, 18000.f, 300.f );
 }
 
 
@@ -34,7 +38,7 @@ RayTracer1D::Setup::Setup()
     , starttime_(0.f)
     , startdepth_(0.f)
     , depthsinfeet_(false)
-    , offsetsinfeet_(false)
+    , offsettype_(Seis::OffsetMeter)
 {
 }
 
@@ -56,6 +60,21 @@ void RayTracer1D::Setup::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyWavetypes(), pdown_, pup_ );
     par.setYN( sKeyReflectivity(), doreflectivity_);
+}
+
+
+RayTracer1D::Setup& RayTracer1D::Setup::offsettype( Seis::OffsetType typ )
+{
+    if ( Seis::isOffsetDist(typ) )
+	offsettype_ = typ;
+
+    return *this;
+}
+
+
+bool RayTracer1D::Setup::areOffsetsInFeet() const
+{
+    return offsettype_ == Seis::OffsetFeet;
 }
 
 
@@ -134,7 +153,7 @@ bool RayTracer1D::usePar( const IOPar& par )
 
     bool offsetisinfeet = false;
     par.getYN( sKeyOffsetInFeet(), offsetisinfeet );
-    setOffsets( offsets, offsetisinfeet );
+    setOffsets( offsets, offsetisinfeet ? Seis::OffsetFeet : Seis::OffsetMeter);
 
     return setup().usePar( par );
 }
@@ -148,7 +167,7 @@ void RayTracer1D::fillPar( IOPar& par ) const
     par.set( sKeyOffset(), offsets );
     if ( offsets.size() > 1 ||
 	 (offsets.size() == 1 && !mIsZero(offsets.first(),1e-2f)) )
-	par.setYN( sKeyOffsetInFeet(), offsetsInFeet() );
+	par.setYN( sKeyOffsetInFeet(), areOffsetsInFeet() );
 
     setup().fillPar( par );
 }
@@ -175,17 +194,18 @@ void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
 
 
 void RayTracer1D::setOffsets( const TypeSet<float>& offsets,
-			      bool offsetsinfeet )
+			      Seis::OffsetType offstype )
 {
     offsets_ = offsets;
     sort( offsets_ );
 
-    if ( offsetsinfeet && !offsetsInFeet() )
+    const bool offsetsinfeet = offstype == Seis::OffsetFeet;
+    if ( offsetsinfeet && !areOffsetsInFeet() )
     {
 	for ( int idx=0; idx<offsets.size(); idx++ )
 	    offsets_[idx] *= mFromFeetFactorF;
     }
-    else if ( !offsetsinfeet && offsetsInFeet() )
+    else if ( !offsetsinfeet && areOffsetsInFeet() )
     {
 	for ( int idx=0; idx<offsets.size(); idx++ )
 	    offsets_[idx] *= mToFeetFactorF;
@@ -209,9 +229,9 @@ void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
 }
 
 
-bool RayTracer1D::offsetsInFeet() const
+bool RayTracer1D::areOffsetsInFeet() const
 {
-    return setup().offsetsinfeet_;
+    return setup().areOffsetsInFeet();
 }
 
 
@@ -270,9 +290,9 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
     const Setup& su = setup();
     OffsetReflectivityModel::Setup rmsu( true, su.doreflectivity_ );
-    rmsu.pdown( su.pdown_ ).pup( su.pup_ ).starttime( su.starttime_ )
+    rmsu.offsettype( su.offsettype_ )
+	.pdown( su.pdown_ ).pup( su.pup_ ).starttime( su.starttime_ )
 	.startdepth( su.startdepth_ ).depthsinfeet( su.depthsinfeet_ );
-    rmsu.offsetsinfeet( offsetsInFeet() );
     refmodel_ = new OffsetReflectivityModel( getModel(), rmsu,
 					     &offsets_, velmax_ );
     if ( !refmodel_ || !refmodel_->isOK() )
@@ -432,7 +452,7 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
     const float startdepth = setup().startdepth_;
     const bool depthsinfeet = setup().depthsinfeet_;
-    const bool offsetsinfeet = setup().offsetsinfeet_;
+    const bool offsetsinfeet = setup().areOffsetsInFeet();
     for ( int layer=mCast(int,start); layer<=stop; layer++, addToNrDone(1) )
     {
 	const RefLayer& ellayer = *model_.get( layer );
@@ -475,7 +495,7 @@ bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	vrms *= mFromFeetFactorF;
 
     float off = offsets_[offsetidx];
-    if ( setup().offsetsinfeet_ )
+    if ( setup().areOffsetsInFeet() )
 	off *= mFromFeetFactorF;
 
     float twt = tnmo;

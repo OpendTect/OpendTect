@@ -88,10 +88,14 @@ public:
     static const UnitOfMeasure* surveyDefOffsetUnit();
 				/*!<Default offset unit for real datasets (m,ft)
 				    Not used for synthetic gathers */
+    static const UnitOfMeasure* secondsUnit();
+    static const UnitOfMeasure* millisecondsUnit();
     static const UnitOfMeasure* meterUnit();
     static const UnitOfMeasure* meterSecondUnit();
     static const UnitOfMeasure* feetUnit();
     static const UnitOfMeasure* feetSecondUnit();
+    static const UnitOfMeasure* radiansUnit();
+    static const UnitOfMeasure* degreesUnit();
     static const UnitOfMeasure* zUnit(const ZDomain::Info&,bool storage=true);
 
     static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);

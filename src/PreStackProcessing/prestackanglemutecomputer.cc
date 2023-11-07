@@ -75,7 +75,8 @@ bool AngleMuteComputer::usePar( const IOPar& par )
 
     bool offsetsinfeet = outputmute_.isOffsetInFeet();
     if ( params().raypar_.getYN(RayTracer1D::sKeyOffsetInFeet(),offsetsinfeet) )
-	outputmute_.setOffsetsInFeet( offsetsinfeet );
+	outputmute_.setOffsetType( offsetsinfeet ? Seis::OffsetFeet
+						 : Seis::OffsetMeter );
 
     return true;
 }
@@ -102,7 +103,8 @@ bool AngleMuteComputer::doPrepare( int nrthreads )
     params().raypar_.get( RayTracer1D::sKeyOffset(), offsets_ );
     bool offsetsinfeet = outputmute_.isOffsetInFeet();
     if ( params().raypar_.getYN(RayTracer1D::sKeyOffsetInFeet(),offsetsinfeet) )
-	outputmute_.setOffsetsInFeet( offsetsinfeet );
+	outputmute_.setOffsetType( offsetsinfeet ? Seis::OffsetFeet
+						 : Seis::OffsetMeter );
 
     for ( int idx=0; idx<nrthreads; idx++ )
 	rtrunners_ += new RayTracerRunner( params().raypar_ );

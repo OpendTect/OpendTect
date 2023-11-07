@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "multiid.h"
 #include "namedobj.h"
+#include "odcommonenums.h"
 
 class UnitOfMeasure;
 namespace ZDomain { class Info; }
@@ -60,14 +61,15 @@ public:
     bool				isChanged() const { return ischanged_; }
     void				setChanged(bool yn) { ischanged_=yn; }
 
+    bool				isOffsetInMeters() const;
+    bool				isOffsetInFeet() const;
+    Seis::OffsetType			offsetType() const;
     const ZDomain::Info&		zDomain() const;
     bool				zIsTime() const;
     bool				zInMeter() const;
     bool				zInFeet() const;
-    bool				isOffsetInMeters() const;
-    bool				isOffsetInFeet() const;
+    MuteDef&				setOffsetType(Seis::OffsetType);
     MuteDef&				setZDomain(const ZDomain::Info&);
-    MuteDef&				setOffsetsInFeet(bool yn);
     const UnitOfMeasure*		zUnit() const;
     const UnitOfMeasure*		offsetUnit() const;
 
@@ -81,8 +83,8 @@ protected:
     ObjectSet<PointBasedMathFunction>	fns_;
     TypeSet<BinID>			pos_;
     MultiID				refhor_;
+    Seis::OffsetType			offsettype_;
     const ZDomain::Info*		zdomaininfo_;
-    bool				offsetsinfeet_;
 
     bool				ischanged_ = false;
 

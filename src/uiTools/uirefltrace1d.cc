@@ -280,7 +280,7 @@ uiReflCalc1D::uiReflCalc1D( uiParent* p, const Setup& su )
     {
 	if ( su.singleangle_ )
 	{
-	    const float defangle = ReflCalc1D::sDefAngle( true );
+	    const float defangle = ReflCalc1D::sDefAngle( Seis::AngleDegrees );
 	    anglefld_ = new uiGenInput( this, tr("Chi angle (deg)"),
 					IntInpSpec(defangle,-90,90) );
 	    anglefld_->setElemSzPol( uiObject::Small );
@@ -290,7 +290,7 @@ uiReflCalc1D::uiReflCalc1D( uiParent* p, const Setup& su )
 	else
 	{
 	    const StepInterval<float> anglerg =
-				      ReflCalc1D::sDefAngleRange( true );
+			      ReflCalc1D::sDefAngleRange( Seis::AngleDegrees );
 	    const uiString olb = tr( "Chi angle range (start/stop) (deg)" );
 	    IntInpIntervalSpec chilimits;
 	    chilimits.setLimits( Interval<int>(-90,90) );
@@ -442,8 +442,8 @@ bool uiReflCalc1D::usePar( const IOPar& par )
 	    anglerg.scale( convfactor );
 	    anglefld_->setValue( anglerg );
 	    const float step = angles.size() > 1
-			     ? angles[1]-angles[0]
-			     : ReflCalc1D::sDefAngleRange(true).step;
+		     ? angles[1]-angles[0]
+		     : ReflCalc1D::sDefAngleRange( Seis::AngleDegrees ).step;
 	    anglestepfld_->setValue( step * convfactor );
 	}
     }

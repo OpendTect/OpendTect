@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "manobjectset.h"
+#include "odcommonenums.h"
 #include "posgeomid.h"
 #include "seispsread.h"
 #include "seispswrite.h"
@@ -111,13 +112,15 @@ public:
     static const char*		sKeyCubeID;
 
     static const UnitOfMeasure* offsetUnit(const IOObj*,bool& isfound);
-    static const UnitOfMeasure* offsetUnit(bool infeet);
-    static bool			getOffsetUnitYN(const IOPar&,bool& infeet);
-    static bool			offsetIsAngle(const IOObj*,bool& yn);
-    static bool			gathersAreCorrected(const IOObj*,bool& yn);
+    static const UnitOfMeasure* offsetUnit(Seis::OffsetType);
+    static bool			getGatherOffsetType(const IOPar&,
+						    Seis::OffsetType&);
+    static bool			getGatherCorrectedYN(const IOPar&,bool& yn);
 
-    static bool			setOffsetsAreAngles(IOObj&,bool yn);
-    static bool			setGathersAreCorrected(IOObj&,bool yn);
+    static void			setGatherOffsetType(Seis::OffsetType,IOPar&);
+    static bool			setGatherOffsetType(Seis::OffsetType,IOObj&);
+    static void			setGathersAreCorrected(bool yn,IOPar&);
+    static bool			setGathersAreCorrected(bool yn,IOObj&);
 
     static const char*		sKeyOffsetUnit() { return "Offset-Unit"; }
 

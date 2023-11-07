@@ -949,7 +949,7 @@ ConstRefMan<ReflectivityModelSet>
 RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
 				 const IOPar& reflpars, uiString& msg,
 				 TaskRunner* taskrun, float srd,
-				 bool depthsinfeet, bool offsetsinfeet,
+				 bool depthsinfeet, Seis::OffsetType offstyp,
 			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
 {
     const BufferString refltype = reflpars.find( sKey::Type() );
@@ -968,7 +968,7 @@ RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
     {
 	RayTracer1D::Setup rtsu;
 	rtsu.startdepth( -srd ).depthsinfeet( depthsinfeet )
-	    .offsetsinfeet( offsetsinfeet );
+	    .offsettype( offstyp );
 	return RayTracerRunner::getRefModels( emodels, reflpars, msg, &rtsu,
 					      taskrun, forcedtdmodels );
     }

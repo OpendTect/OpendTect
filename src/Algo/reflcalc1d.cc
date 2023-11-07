@@ -15,16 +15,16 @@ ________________________________________________________________________
 mImplFactory(ReflCalc1D,ReflCalc1D::factory)
 
 
-float ReflCalc1D::sDefAngle( bool indeg )
+float ReflCalc1D::sDefAngle( Seis::OffsetType typ )
 {
-    return indeg ? 15.f : 15.f * mDeg2RadF;
+    return typ == Seis::AngleDegrees ? 15.f : 15.f * mDeg2RadF;
 }
 
 
-StepInterval<float> ReflCalc1D::sDefAngleRange( bool indeg )
+StepInterval<float> ReflCalc1D::sDefAngleRange( Seis::OffsetType typ )
 {
     StepInterval<float> angles( 0.f, 30.f, 5.f );
-    if ( !indeg )
+    if ( typ == Seis::AngleRadians )
 	angles.scale( mDeg2RadF );
     return angles;
 }
@@ -129,7 +129,8 @@ bool ReflCalc1D::usePar( const IOPar& par )
 
     bool angleindegrees = false;
     par.getYN( sKeyAngleInDegrees(), angleindegrees );
-    setAngles( angles, angleindegrees );
+    setAngles( angles, angleindegrees ? Seis::AngleDegrees
+				      : Seis::AngleRadians );
     return setup().usePar( par );
 }
 
@@ -138,9 +139,10 @@ void ReflCalc1D::fillPar( IOPar& par ) const
 {
     par.set( sKey::Type(), factoryKeyword() );
     TypeSet<float> angles;
-    getAngles( angles, true );
+    const Seis::OffsetType typ = Seis::AngleDegrees;
+    getAngles( angles, typ );
     par.set( sKeyAngle(), angles );
-    par.setYN( sKeyAngleInDegrees(), true );
+    par.setYN( sKeyAngleInDegrees(), typ == Seis::AngleDegrees );
     setup().fillPar( par );
 }
 
@@ -148,31 +150,34 @@ void ReflCalc1D::fillPar( IOPar& par ) const
 bool ReflCalc1D::hasSameParams( const ReflCalc1D& oth ) const
 {
     TypeSet<float> othangles;
-    oth.getAngles( othangles, false );
+    oth.getAngles( othangles, Seis::AngleRadians );
     const BufferString othkeyword = oth.factoryKeyword();
     return othkeyword==factoryKeyword() && thetaangles_ == othangles;
 }
 
 
 void ReflCalc1D::setIOParsToSingleAngle( IOPar& par, float thetaangle,
-					 bool angleisindegrees )
+					 Seis::OffsetType typ )
 {
     par.set( sKeyAngle(), thetaangle );
-    par.setYN( sKeyAngleInDegrees(), angleisindegrees );
+    par.setYN( sKeyAngleInDegrees(), typ == Seis::AngleDegrees );
 }
 
 
-void ReflCalc1D::setAngle( float thetaangle, bool angleisindegrees )
+void ReflCalc1D::setAngle( float thetaangle, Seis::OffsetType typ )
 {
     TypeSet<float> angles; angles += thetaangle;
-    setAngles( angles, angleisindegrees );
+    setAngles( angles, typ );
 }
 
 
-void ReflCalc1D::setAngles( const TypeSet<float>& angles, bool angleisindegrees)
+void ReflCalc1D::setAngles( const TypeSet<float>& angles, Seis::OffsetType typ )
 {
+    if ( !Seis::isOffsetAngle(typ) )
+	return;
+
     thetaangles_ = angles;
-    if ( angleisindegrees )
+    if ( typ == Seis::AngleDegrees )
     {
 	for ( auto& ang : thetaangles_ )
 	    ang *= mDeg2RadF;
@@ -180,10 +185,11 @@ void ReflCalc1D::setAngles( const TypeSet<float>& angles, bool angleisindegrees)
 }
 
 
-void ReflCalc1D::getAngles(TypeSet<float>& angles, bool retindegrees ) const
+void ReflCalc1D::getAngles( TypeSet<float>& angles,
+			    Seis::OffsetType rettyp ) const
 {
     angles = thetaangles_;
-    if ( retindegrees )
+    if ( rettyp == Seis::AngleDegrees )
     {
 	for ( auto& ang : angles )
 	    ang *= mRad2DegF;
@@ -337,7 +343,7 @@ float ReflCalc1D::getTime( int layer ) const
 AICalc1D::AICalc1D()
     : ReflCalc1D()
 {
-    setAngle( 0.f, false );
+    setAngle( 0.f, Seis::AngleRadians );
 }
 
 

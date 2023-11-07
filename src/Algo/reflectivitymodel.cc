@@ -288,13 +288,29 @@ bool ReflectivityModelBase::isSpikeDefined( int ioff, int idz ) const
 
 OffsetReflectivityModel::Setup::Setup( bool withangles, bool withreflectivity )
     : ReflectivityModelBase::Setup(true,withangles,withreflectivity)
-    , offsetsinfeet_(false)
+    , offsettype_(Seis::OffsetMeter)
 {
 }
 
 
 OffsetReflectivityModel::Setup::~Setup()
 {
+}
+
+
+OffsetReflectivityModel::Setup&
+OffsetReflectivityModel::Setup::offsettype( Seis::OffsetType typ )
+{
+    if ( Seis::isOffsetDist(typ) )
+	offsettype_ = typ;
+
+    return *this;
+}
+
+
+bool OffsetReflectivityModel::Setup::areOffsetsInFeet() const
+{
+    return offsettype_ == Seis::OffsetFeet;
 }
 
 
