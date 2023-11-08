@@ -52,7 +52,6 @@ public:
     bool			get(VelocityDesc&,bool displayerrors) const;
 
     NotifierAccess&		typeChangeNotifier();
-    Notifier<uiVelocityDesc>	unitChanged;
 
 private:
 

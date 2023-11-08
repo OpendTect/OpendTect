@@ -49,7 +49,6 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup& vsu )
     : uiGroup( p, "Velocity type selector" )
     , vsu_(vsu)
     , veltypedef_(Vel::TypeDef())
-    , unitChanged(this)
 {
     const EnumDefImpl<Vel::Type>& typdef = Vel::TypeDef();
     if ( vsu.onlyvelocity_ )

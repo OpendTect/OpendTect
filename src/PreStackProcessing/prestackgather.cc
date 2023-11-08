@@ -871,20 +871,6 @@ Seis::OffsetType GatherSetDataPack::offsetType() const
 }
 
 
-GatherSetDataPack& GatherSetDataPack::setOffsetType( Seis::OffsetType typ )
-{
-    offsettype_ = typ;
-    return *this;
-}
-
-
-GatherSetDataPack& GatherSetDataPack::setCorrected( bool yn )
-{
-    iscorr_ = yn;
-    return *this;
-}
-
-
 const ZDomain::Info& GatherSetDataPack::zDomain() const
 {
     return *zdomaininfo_;
@@ -906,6 +892,20 @@ bool GatherSetDataPack::zInMeter() const
 bool GatherSetDataPack::zInFeet() const
 {
     return zDomain().isDepthFeet();
+}
+
+
+GatherSetDataPack& GatherSetDataPack::setCorrected( bool yn )
+{
+    iscorr_ = yn;
+    return *this;
+}
+
+
+GatherSetDataPack& GatherSetDataPack::setOffsetType( Seis::OffsetType typ )
+{
+    offsettype_ = typ;
+    return *this;
 }
 
 
