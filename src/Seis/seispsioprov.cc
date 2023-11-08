@@ -217,7 +217,9 @@ void SeisPSIOProvider::setGatherOffsetType( Seis::OffsetType typ, IOPar& par )
 
     // For backward compatibility mainly:
     if ( isangle )
-	par.setYN( PreStack::sKeyIsAngleGather, yn );
+	par.setYN( PreStack::sKeyIsAngleGather, true );
+    else
+	par.removeWithKey( PreStack::sKeyIsAngleGather );
 }
 
 
