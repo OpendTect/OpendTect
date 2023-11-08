@@ -37,8 +37,8 @@ RayTracer1D::Setup::Setup()
     , doreflectivity_(true)
     , starttime_(0.f)
     , startdepth_(0.f)
-    , depthsinfeet_(false)
     , offsettype_(Seis::OffsetMeter)
+    , depthtype_(ZDomain::Meter)
 {
 }
 
@@ -75,6 +75,12 @@ RayTracer1D::Setup& RayTracer1D::Setup::offsettype( Seis::OffsetType typ )
 bool RayTracer1D::Setup::areOffsetsInFeet() const
 {
     return offsettype_ == Seis::OffsetFeet;
+}
+
+
+bool RayTracer1D::Setup::areDepthsInFeet() const
+{
+    return depthtype_ == ZDomain::Feet;
 }
 
 
@@ -187,7 +193,7 @@ bool RayTracer1D::hasSameParams( const RayTracer1D& rt ) const
 
 void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
 {
-    TypeSet<float> emptyset; emptyset += 0.f;
+    static TypeSet<float> emptyset( 1, 0.f );
     par.set( RayTracer1D::sKeyOffset(), emptyset );
     par.removeWithKey( RayTracer1D::sKeyOffsetInFeet() );
 }
@@ -232,6 +238,12 @@ void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
 bool RayTracer1D::areOffsetsInFeet() const
 {
     return setup().areOffsetsInFeet();
+}
+
+
+bool RayTracer1D::areDepthsInFeet() const
+{
+    return setup().areDepthsInFeet();
 }
 
 
@@ -290,9 +302,9 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
     const Setup& su = setup();
     OffsetReflectivityModel::Setup rmsu( true, su.doreflectivity_ );
-    rmsu.offsettype( su.offsettype_ )
-	.pdown( su.pdown_ ).pup( su.pup_ ).starttime( su.starttime_ )
-	.startdepth( su.startdepth_ ).depthsinfeet( su.depthsinfeet_ );
+    rmsu.offsettype( su.offsettype_ ).depthtype( su.depthtype_ )
+	.starttime( su.starttime_ ).startdepth( su.startdepth_ )
+	.pdown( su.pdown_ ).pup( su.pup_ );
     refmodel_ = new OffsetReflectivityModel( getModel(), rmsu,
 					     &offsets_, velmax_ );
     if ( !refmodel_ || !refmodel_->isOK() )
@@ -341,8 +353,9 @@ bool RayTracer1D::doFinish( bool success )
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const RefLayer& ailayer = *model_.get( layer );
-    const float downvel = setup().pdown_ ? ailayer.getPVel()
-					 : ailayer.getSVel();
+    const bool pdown = setup().pdown_;
+    const bool pup = setup().pup_;
+    const float downvel = pdown ? ailayer.getPVel() : ailayer.getSVel();
 
     if ( mIsUdf(downvel) || mIsUdf(rayparam) ||
 	 !Math::IsNormalNumber(downvel) || !Math::IsNormalNumber(rayparam) )
@@ -388,8 +401,8 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	    coefs[iidx].setInterface( rayparam, *elay0, *elay1 );
 	}
 
-	reflectivity = coefs[0].getCoeff( true, layer!=0, setup().pdown_,
-				     layer==0 ? setup().pup_ : setup().pdown_ );
+	reflectivity = coefs[0].getCoeff( true, layer!=0, pdown,
+				     layer==0 ? pup : pdown );
 
 	if ( layer == 0 )
 	{
@@ -400,14 +413,13 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	for ( int iidx=1; iidx<nrinterfaces; iidx++ )
 	{
 	    reflectivity *= coefs[iidx].getCoeff( true, iidx!=layer,
-						 setup().pdown_, iidx==layer ?
-						 setup().pup_ : setup().pdown_);
+						  pdown, iidx==layer ?
+						  pup : pdown);
 	}
 
 	for ( int iidx=nrinterfaces-2; iidx>=0; iidx--)
 	{
-	    reflectivity *= coefs[iidx].getCoeff( false, false, setup().pup_,
-								setup().pup_);
+	    reflectivity *= coefs[iidx].getCoeff( false, false, pup, pup );
 	}
     }
     else
@@ -450,20 +462,21 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 {
     const int offsz = offsets_.size();
 
+    const bool pdown = setup().pdown_;
     const float startdepth = setup().startdepth_;
-    const bool depthsinfeet = setup().depthsinfeet_;
-    const bool offsetsinfeet = setup().areOffsetsInFeet();
+    const bool offsetsinfeet = areOffsetsInFeet();
+    const bool depthsinfeet = areDepthsInFeet();
     for ( int layer=mCast(int,start); layer<=stop; layer++, addToNrDone(1) )
     {
 	const RefLayer& ellayer = *model_.get( layer );
-	if ( !setup_.pdown_ && !ellayer.isElastic() )
+	if ( !pdown && !ellayer.isElastic() )
 	    return false;
 
 	float depth = 2.f * (depths_[layer] - startdepth);
 	if ( depthsinfeet )
 	    depth *= mFromFeetFactorF;
 
-	const float vel = setup_.pdown_ ? ellayer.getPVel() : ellayer.getSVel();
+	const float vel = pdown ? ellayer.getPVel() : ellayer.getSVel();
 	for ( int osidx=0; osidx<offsz; osidx++ )
 	{
 	    float offset = offsets_[osidx];
@@ -491,11 +504,11 @@ bool VrmsRayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
     const float tnmo = zerooffstwt_[layer];
     float vrms = velmax_[layer];
-    if ( setup().depthsinfeet_ )
+    if ( areDepthsInFeet() )
 	vrms *= mFromFeetFactorF;
 
     float off = offsets_[offsetidx];
-    if ( setup().areOffsetsInFeet() )
+    if ( areOffsetsInFeet() )
 	off *= mFromFeetFactorF;
 
     float twt = tnmo;

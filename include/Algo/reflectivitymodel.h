@@ -9,8 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+
 #include "odcomplex.h"
-#include "odcommonenums.h"
 #include "timedepthmodel.h"
 
 class RayTracer1D;

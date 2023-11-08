@@ -548,12 +548,13 @@ bool WellTie::DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     const float srd = getConvertedValue( SI().seismicReferenceDatum(),
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),
 				    UnitOfMeasure::surveyDefDepthUnit() );
-    const bool depthsinfeet = SI().depthsInFeet();
     const Seis::OffsetType offstyp = SI().xyInFeet() ? Seis::OffsetFeet
 						     : Seis::OffsetMeter;
+    const ZDomain::DepthType depthtype = SI().depthsInFeet() ? ZDomain::Feet
+							     : ZDomain::Meter;
     ConstRefMan<ReflectivityModelSet> refmodels =
 	Seis::RaySynthGenerator::getRefModels( aimodels, *sgp.reflPars(),
-		       msg, taskrunner, srd, depthsinfeet, offstyp,
+		       msg, taskrunner, srd, offstyp, depthtype,
 		       forcedtdmodels.isEmpty() ? nullptr : &forcedtdmodels );
     if ( !refmodels )
 	mErrRet( uiStrings::phrCannotCreate(tr("synthetic: %1").arg(msg)) );

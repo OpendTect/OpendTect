@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 
+#include "odcommonenums.h"
 #include "refcount.h"
 #include "uistring.h"
 
@@ -117,10 +118,12 @@ public:
 	mDefSetupMemb(bool,pup);
 	mDefSetupMemb(float,starttime);
 	mDefSetupMemb(float,startdepth);
-	mDefSetupMemb(bool,depthsinfeet);
+	mDefSetupMemb(ZDomain::DepthType,depthtype);
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);
+
+	bool		areDepthsInFeet() const;
     };
 
 			TimeDepthModelSet(const ElasticModel&,

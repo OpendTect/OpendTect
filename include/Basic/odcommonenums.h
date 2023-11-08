@@ -181,6 +181,20 @@ mDeclareNameSpaceEnumUtils(Basic,Type)
 
 } // namespace Vel
 
+namespace ZDomain
+{
+
+enum DistType
+{
+    Meter=0,
+    Feet=1
+};
+
+typedef DistType DepthType;
+typedef DistType XYType;
+
+} // namespace ZDomain
+
 
 mGlobal(Basic) bool isHorizontal(OD::Orientation);
 mGlobal(Basic) bool isVertical(OD::Orientation);

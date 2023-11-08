@@ -35,7 +35,7 @@ StepInterval<float> ReflCalc1D::sDefAngleRange( Seis::OffsetType typ )
 ReflCalc1D::Setup::Setup()
     : starttime_(0.f)
     , startdepth_(0.f)
-    , depthsinfeet_(false)
+    , depthtype_(ZDomain::Meter)
 {
 }
 
@@ -52,6 +52,12 @@ void ReflCalc1D::Setup::fillPar( IOPar& ) const
 bool ReflCalc1D::Setup::usePar( const IOPar& )
 {
     return true;
+}
+
+
+bool ReflCalc1D::Setup::areDepthsInFeet() const
+{
+    return depthtype_ == ZDomain::Feet;
 }
 
 
@@ -197,6 +203,12 @@ void ReflCalc1D::getAngles( TypeSet<float>& angles,
 }
 
 
+bool ReflCalc1D::areDepthsInFeet() const
+{
+    return setup().areDepthsInFeet();
+}
+
+
 bool ReflCalc1D::setModel( const ElasticModel& lys )
 {
     msg_.setEmpty();
@@ -249,7 +261,7 @@ bool ReflCalc1D::doPrepare( int /* nrthreads */ )
     const Setup& su = setup();
     AngleReflectivityModel::Setup amsu;
     amsu.starttime( su.starttime_ ).startdepth( su.startdepth_ )
-	.depthsinfeet( su.depthsinfeet_ );
+	.depthtype( su.depthtype_ );
     IOPar par;
     su.fillPar( par );
     amsu.usePar( par );

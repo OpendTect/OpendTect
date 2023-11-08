@@ -41,14 +41,15 @@ public:
 	mDefSetupMemb(bool,doreflectivity);	// def: true
 	mDefSetupMemb(float,starttime);
 	mDefSetupMemb(float,startdepth);
-	mDefSetupMemb(bool,depthsinfeet);
 	Setup&		offsettype(Seis::OffsetType);
 	Seis::OffsetType offsettype_;
+	mDefSetupMemb(ZDomain::DepthType,depthtype);
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);
 
 	bool		areOffsetsInFeet() const;
+	bool		areDepthsInFeet() const;
     };
 
     virtual RayTracer1D::Setup&	setup()		= 0;
@@ -67,6 +68,7 @@ public:
 				   Seis::OffsetType);
     void		getOffsets(TypeSet<float>& offsets) const;
     bool		areOffsetsInFeet() const;
+    bool		areDepthsInFeet() const;
 
     uiString		uiMessage() const override	{ return msg_; }
 

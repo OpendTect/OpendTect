@@ -949,7 +949,8 @@ ConstRefMan<ReflectivityModelSet>
 RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
 				 const IOPar& reflpars, uiString& msg,
 				 TaskRunner* taskrun, float srd,
-				 bool depthsinfeet, Seis::OffsetType offstyp,
+				 Seis::OffsetType offstyp,
+				 ZDomain::DepthType depthtype,
 			 const ObjectSet<const TimeDepthModel>* forcedtdmodels )
 {
     const BufferString refltype = reflpars.find( sKey::Type() );
@@ -959,7 +960,7 @@ RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
     if ( ReflCalc1D::factory().hasName(refltype.str()) )
     {
 	ReflCalc1D::Setup rfsu;
-	rfsu.startdepth( -srd ).depthsinfeet( depthsinfeet );
+	rfsu.startdepth( -srd ).depthtype( depthtype );
 	return ReflCalcRunner::getRefModels( emodels, reflpars, msg, &rfsu,
 					     taskrun, forcedtdmodels );
     }
@@ -967,8 +968,7 @@ RaySynthGenerator::getRefModels( const ElasticModelSet& emodels,
     if ( RayTracer1D::factory().hasName(refltype.str()) )
     {
 	RayTracer1D::Setup rtsu;
-	rtsu.startdepth( -srd ).depthsinfeet( depthsinfeet )
-	    .offsettype( offstyp );
+	rtsu.startdepth( -srd ).offsettype( offstyp ).depthtype( depthtype );
 	return RayTracerRunner::getRefModels( emodels, reflpars, msg, &rtsu,
 					      taskrun, forcedtdmodels );
     }

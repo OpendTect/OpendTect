@@ -305,7 +305,7 @@ public:
 			getRefModels(const ElasticModelSet&,
 				     const IOPar& reflpar,uiString& msg,
 				     TaskRunner*,float srd,
-				     bool depthsinfeet,Seis::OffsetType,
+				     Seis::OffsetType,ZDomain::DepthType,
 				     const ObjectSet<const TimeDepthModel>*
 						    forcedtdmodels =nullptr);
 

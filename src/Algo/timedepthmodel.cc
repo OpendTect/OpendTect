@@ -267,7 +267,7 @@ TimeDepthModelSet::Setup::Setup()
     , pup_(true)
     , starttime_(0.f)
     , startdepth_(0.f)
-    , depthsinfeet_(false)
+    , depthtype_(ZDomain::Meter)
 {
 }
 
@@ -279,14 +279,18 @@ TimeDepthModelSet::Setup::~Setup()
 
 void TimeDepthModelSet::Setup::fillPar( IOPar& iop ) const
 {
-    //TODO
 }
 
 
 bool TimeDepthModelSet::Setup::usePar( const IOPar& iop )
 {
-    //TODO
     return true;
+}
+
+
+bool TimeDepthModelSet::Setup::areDepthsInFeet() const
+{
+    return depthtype_ == ZDomain::Feet;
 }
 
 
@@ -444,7 +448,7 @@ void TimeDepthModelSet::setFrom( const ElasticModel& emodel,
     twtarr[idz] = tdmsu.starttime_;
     deptharr[idz++] = tdmsu.startdepth_;
 
-    const bool zinfeet = tdmsu.depthsinfeet_;
+    const bool zinfeet = tdmsu.areDepthsInFeet();
     float dnmotime, dvrmssum, unmotime, uvrmssum;
     float prevdnmotime, prevdvrmssum, prevunmotime, prevuvrmssum;
     prevdnmotime = prevdvrmssum = prevunmotime = prevuvrmssum = 0.f;

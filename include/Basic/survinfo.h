@@ -9,13 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "namedobj.h"
-#include "ranges.h"
-#include "enums.h"
-#include "zdomain.h"
+
 #include "atomic.h"
+#include "namedobj.h"
+#include "odcommonenums.h"
+#include "ranges.h"
 #include "surveydisklocation.h"
 #include "survgeom3d.h"
+#include "zdomain.h"
 
 class ascostream;
 class LatLong2Coord;
@@ -86,15 +87,15 @@ public:
 						    bool withparens=true) const;
     const ZDomain::Def&	zDomain() const;
     const ZDomain::Info& zDomainInfo() const;
-    bool		depthsInFeet() const	{ return depthsinfeet_; }
+    bool		depthsInFeet() const;
     inline float	showZ2UserFactor() const
 			{ return float(zDomain().userFactor()); }
 
     bool		zIsTime() const;
     inline bool		zInMeter() const
-			{ return zDomain().isDepth() && !depthsinfeet_;}
+			{ return zDomain().isDepth() && !depthsInFeet();}
     inline bool		zInFeet() const
-			{ return zDomain().isDepth() && depthsinfeet_;}
+			{ return zDomain().isDepth() && depthsInFeet();}
     const char*		getZUnitString(bool withparens=true) const
 			{ return zDomain().unitStr( withparens ); }
     const uiString	getUiZUnitString(bool withparens=true) const
@@ -160,8 +161,8 @@ protected:
     SurveyDiskLocation	disklocation_;
 
     ZDomain::Def&	zdef_;
-    bool		xyinfeet_			= false;
-    bool		depthsinfeet_			= false;
+    ZDomain::XYType	xytype_				= ZDomain::Meter;
+    ZDomain::DepthType	depthtype_			= ZDomain::Meter;
     TrcKeyZSampling&	tkzs_;
     TrcKeyZSampling&	wcs_;
     float		seisrefdatum_			= 0.f;
@@ -240,8 +241,8 @@ public:
     float		angleXCrl() const;
 			/*!< It's the angle between the X-axis (East) and
 			     a Crossline */
-    void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }
-    void		setDepthInFeet( bool yn=true ) { depthsinfeet_ = yn; }
+    void		setXYInFeet(bool yn=true);
+    void		setDepthInFeet(bool yn=true);
     void		setZUnit(bool istime,bool infeet=false);
     static float	defaultXYtoZScale(Unit,Unit);
 			/*!<Gives a ballpark figure of how to scale XY to

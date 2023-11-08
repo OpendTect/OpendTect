@@ -40,10 +40,12 @@ public:
 
 	mDefSetupMemb(float,starttime);
 	mDefSetupMemb(float,startdepth);
-	mDefSetupMemb(bool,depthsinfeet);
+	mDefSetupMemb(ZDomain::DepthType,depthtype);
 
 	virtual void	fillPar(IOPar&) const;
 	virtual bool	usePar(const IOPar&);
+
+	bool		areDepthsInFeet() const;
     };
 
     virtual ReflCalc1D::Setup&	setup()			= 0;
@@ -67,6 +69,7 @@ public:
 				  Seis::OffsetType);
     void		getAngles(TypeSet<float>& thetaangles,
 				  Seis::OffsetType=Seis::AngleDegrees) const;
+    bool		areDepthsInFeet() const;
 
     uiString		uiMessage() const override	{ return msg_; }
 

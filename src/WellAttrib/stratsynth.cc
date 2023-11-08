@@ -1803,12 +1803,13 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 				    SI().seismicReferenceDatum(),
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),
 				    UnitOfMeasure::surveyDefDepthUnit() );
-		const bool depthsinfeet = SI().depthsInFeet();
 		const Seis::OffsetType offstyp = SI().xyInFeet()
 				    ? Seis::OffsetFeet : Seis::OffsetMeter;
+		const ZDomain::DepthType depthtype = SI().depthsInFeet()
+				    ? ZDomain::Feet : ZDomain::Meter;
 		refmodels = Seis::RaySynthGenerator::getRefModels( elmdls,
 					    *sgp.reflPars(), msg, taskrun,
-					    srd, depthsinfeet, offstyp );
+					    srd, offstyp, depthtype );
 	    }
 	    if ( !refmodels )
 		return nullptr;

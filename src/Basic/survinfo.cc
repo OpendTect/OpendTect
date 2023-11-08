@@ -8,27 +8,29 @@ ________________________________________________________________________
 -*/
 
 #include "survinfo.h"
+
 #include "ascstream.h"
 #include "coordsystem.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "trckeyzsampling.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "latlong.h"
-#include "undefval.h"
 #include "safefileio.h"
 #include "separstr.h"
+#include "od_istream.h"
 #include "oddirs.h"
 #include "odjson.h"
-#include "iopar.h"
-#include "zdomain.h"
-#include "keystrs.h"
-#include "posidxpair2coord.h"
-#include "od_istream.h"
 #include "oscommand.h"
+#include "posidxpair2coord.h"
 #include "surveydisklocation.h"
+#include "trckeyzsampling.h"
 #include "uistrings.h"
+#include "undefval.h"
+#include "zdomain.h"
+
 #include <stdio.h>
 
 
@@ -673,8 +675,8 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& oth )
     zdef_ = oth.zdef_;
     disklocation_ = oth.disklocation_;
     coordsystem_ = oth.coordsystem_;
-    xyinfeet_ = oth.xyinfeet_;
-    depthsinfeet_ = oth.depthsinfeet_;
+    xytype_ = oth.xytype_;
+    depthtype_ = oth.depthtype_;
     b2c_ = oth.b2c_;
     survdatatype_ = oth.survdatatype_;
     survdatatypeknown_ = oth.survdatatypeknown_;
@@ -709,8 +711,8 @@ bool SurveyInfo::operator==( const SurveyInfo& oth ) const
     if ( name() != oth.name() ||
 	survdatatype_ != oth.survdatatype_ ||
 	survdatatypeknown_ != oth.survdatatypeknown_ ||
-	xyinfeet_ != oth.xyinfeet_ ||
-	depthsinfeet_ != oth.depthsinfeet_ ||
+	xytype_ != oth.xytype_ ||
+	depthtype_ != oth.depthtype_ ||
 	disklocation_ != oth.disklocation_ ||
 	zdef_ != oth.zdef_ ||
 	b2c_ != oth.b2c_ ||
@@ -857,7 +859,7 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& )
     }
 
     if ( si->coordsystem_ )
-	si->xyinfeet_ = si->coordsystem_->isFeet();
+	si->setXYInFeet( si->coordsystem_->isFeet() );
     else
     {
 	const BufferString ll2cstr = obj.getStringValue( sKeyLatLongAnchor );
@@ -867,13 +869,13 @@ SurveyInfo* SurveyInfo::readJSON( const OD::JSON::Object& obj, uiRetVal& )
 	    RefMan<Coords::AnchorBasedXY> anchoredsystem =
 		new Coords::AnchorBasedXY( si->ll2c_.refLatLong(),
 		    si->ll2c_.refCoord() );
-	    anchoredsystem->setIsFeet( si->xyinfeet_ );
+	    anchoredsystem->setIsFeet( si->xyInFeet() );
 	    si->coordsystem_ = anchoredsystem;
 	}
 	else
 	{
 	    RefMan<Coords::UnlocatedXY> undefsystem = new Coords::UnlocatedXY;
-	    undefsystem->setIsFeet( si->xyinfeet_ );
+	    undefsystem->setIsFeet( si->xyInFeet() );
 	    si->coordsystem_ = undefsystem;
 	}
     }
@@ -1409,7 +1411,7 @@ bool SurveyInfo::zIsTime() const
 
 SurveyInfo::Unit SurveyInfo::xyUnit() const
 {
-    return xyinfeet_ ? Feet : Meter;
+    return xyInFeet() ? Feet : Meter;
 }
 
 
@@ -1418,7 +1420,7 @@ SurveyInfo::Unit SurveyInfo::zUnit() const
     if ( zIsTime() )
 	return Second;
 
-    return depthsinfeet_ ? Feet : Meter;
+    return depthtype_ == ZDomain::Meter ? Meter : Feet;
 }
 
 
@@ -1440,22 +1442,40 @@ const ZDomain::Info& SurveyInfo::zDomainInfo() const
 }
 
 
+bool SurveyInfo::depthsInFeet() const
+{
+    return depthtype_ == ZDomain::Feet;
+}
+
+
 const char* SurveyInfo::getXYUnitString( bool wb ) const
 {
-    return getDistUnitString( xyinfeet_, wb );
+    return getDistUnitString( xyInFeet(), wb );
 }
 
 
 uiString SurveyInfo::getUiXYUnitString( bool abbrvt, bool wb ) const
 {
-    return uiStrings::sDistUnitString( xyinfeet_, abbrvt, wb );
+    return uiStrings::sDistUnitString( xyInFeet(), abbrvt, wb );
 }
 
 
 void SurveyInfo::setZUnit( bool istime, bool infeet )
 {
     zdef_ = istime ? ZDomain::Time() : ZDomain::Depth();
-    depthsinfeet_ = infeet;
+    setDepthInFeet( infeet );
+}
+
+
+void SurveyInfo::setXYInFeet( bool yn )
+{
+    xytype_ = yn ? ZDomain::Feet : ZDomain::Meter;
+}
+
+
+void SurveyInfo::setDepthInFeet( bool yn )
+{
+    depthtype_ = yn ? ZDomain::Feet : ZDomain::Meter;
 }
 
 
@@ -1672,7 +1692,7 @@ bool SurveyInfo::write( const char* basedir, bool isjson ) const
 
 	fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
 	fms += tkzs_.zsamp_.step;
-	fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
+	fms += zIsTime() ? "T" : ( depthsInFeet() ? "F" : "D" );
 	astream.put( sKeyZRange(), fms );
 
 	writeSpecLines( &astream );
@@ -1788,7 +1808,7 @@ void SurveyInfo::writeSpecLines( ascostream* astream,
 	}
     }
     else if ( !obj )
-	astream->putYN( sKeyXYInFt(), xyinfeet_ );
+	astream->putYN( sKeyXYInFt(), xyInFeet() );
 
     if ( obj )
     {
