@@ -13,9 +13,11 @@ ________________________________________________________________________
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
 #include "envvars.h"
+#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "oddirs.h"
 #include "seisdatapack.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
@@ -24,6 +26,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "uistrings.h"
 
 
 const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
@@ -690,8 +693,11 @@ static void renameAuxFile( const IOObj* ioobj, const char* newnm,
 	    return true;
 
 
-bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj, bool ) const
+bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj, bool deep ) const
 {
+    if ( ioobj && !deep )
+	return true;
+
     mImplStart( implRemove() );
 
     removeAuxFile( ioobj, "par" );
@@ -716,6 +722,9 @@ bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj, bool ) const
 bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj,
 					const char* newnm ) const
 {
+    if ( implIsLink(ioobj) )
+	return true;
+
     mImplStart( implRename(newnm) );
 
     renameAuxFile( ioobj, newnm, "par" );
@@ -756,4 +765,41 @@ bool CBVSSeisTrcTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
     }
 
     return rv;
+}
+
+
+bool CBVSSeisTrcTranslator::implIsLink( const IOObj* ioobj ) const
+{
+    if ( !ioobj || !ioobj->implExists(true) )
+	return false;
+
+    FilePath cbvsfp( ioobj->mainFileName() );
+    cbvsfp.makeCanonical();
+    FilePath survfp( GetDataDir() );
+    survfp.makeCanonical();
+    return !cbvsfp.isSubDirOf( survfp );
+}
+
+
+bool CBVSSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
+				uiString& msg, uiString& canceltxt,
+				uiString& deepremovetxt,
+				uiString& shallowremovetxt ) const
+{
+    if ( !ioobj || !ioobj->implExists(true) )
+	return false;
+
+    if ( !implIsLink(ioobj) )
+	return Translator::getConfirmRemoveMsg( ioobj, msg, canceltxt,
+					deepremovetxt, shallowremovetxt );
+
+    FilePath cbvsfp( ioobj->mainFileName() );
+    cbvsfp.makeCanonical();
+    msg = tr("This is a link to a CBVS file outside your current survey:\n"
+	    "'%1'\nDo you want to delete the actual CBVS file?")
+	    .arg(cbvsfp.fullPath());
+    canceltxt = uiStrings::sCancel();
+    deepremovetxt = tr("Delete CBVS file");
+    shallowremovetxt = tr("Delete link only");
+    return true;
 }
