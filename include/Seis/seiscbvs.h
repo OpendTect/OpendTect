@@ -45,9 +45,14 @@ public:
 
     bool		getGeometryInfo(PosInfo::CubeData&) const override;
 
+    bool		implIsLink(const IOObj*) const override;
     bool		implRemove(const IOObj*,bool) const override;
     bool		implRename(const IOObj*,const char*) const override;
     bool		implSetReadOnly(const IOObj*,bool) const override;
+    bool		getConfirmRemoveMsg(const IOObj*,uiString& msg,
+					    uiString& canceltxt,
+					    uiString& yestxt,
+					    uiString& notxt) const override;
     const char*		defExtension() const override
 			{ return sKeyDefExtension(); }
 
