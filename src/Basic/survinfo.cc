@@ -1424,6 +1424,12 @@ SurveyInfo::Unit SurveyInfo::zUnit() const
 }
 
 
+ZDomain::DepthType SurveyInfo::depthType() const
+{
+    return depthtype_;
+}
+
+
 void SurveyInfo::putZDomain( IOPar& iop ) const
 {
     zdef_.set( iop );

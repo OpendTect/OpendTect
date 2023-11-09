@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "atomic.h"
 #include "namedobj.h"
-#include "odcommonenums.h"
 #include "ranges.h"
 #include "surveydisklocation.h"
 #include "survgeom3d.h"
@@ -88,6 +87,7 @@ public:
     const ZDomain::Def&	zDomain() const;
     const ZDomain::Info& zDomainInfo() const;
     bool		depthsInFeet() const;
+    ZDomain::DepthType	depthType() const;
     inline float	showZ2UserFactor() const
 			{ return float(zDomain().userFactor()); }
 

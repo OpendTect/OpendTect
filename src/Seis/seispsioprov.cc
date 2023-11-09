@@ -212,7 +212,7 @@ void SeisPSIOProvider::setGatherOffsetType( Seis::OffsetType typ, IOPar& par )
     if ( isdist || isangle )
     {
 	const UnitOfMeasure* uom = offsetUnit( typ );
-	par.set( sKeyOffsetUnit(), uom ? uom->getLabel() : nullptr );
+	par.set( sKeyOffsetUnit(), uom ? uom->name().str() : nullptr );
     }
 
     // For backward compatibility mainly:

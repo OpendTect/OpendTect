@@ -151,9 +151,11 @@ bool SeisZAxisStretcher::init()
 
     zdomaininfo_ = &seisreader_->zDomain();
     if ( ztransform_->fromZDomainInfo().isDepth() )
-	ztransform_->fromZDomainInfo().setDepthUnit( seisreader_->zInFeet() );
+	ztransform_->fromZDomainInfo().setDepthUnit(
+					seisreader_->zDomain().depthType() );
     if ( ztransform_->toZDomainInfo().isDepth() )
-	ztransform_->toZDomainInfo().setDepthUnit( seiswriter_->zInFeet() );
+	ztransform_->toZDomainInfo().setDepthUnit(
+					seiswriter_->zDomain().depthType() );
 
     return true;
 }

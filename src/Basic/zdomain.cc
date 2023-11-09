@@ -22,6 +22,8 @@ const char* ZDomain::sKeyDepth()	{ return "Depth"; }
 const char* ZDomain::sKeyUnit()		{ return "ZDomain.Unit"; }
 
 //Must match data/UnitsOfMeasure:
+static const char* sKeySeconds = "Seconds";
+static const char* sKeySecondsSymbol = "s";
 static const char* sKeyMeter = "Meter";
 static const char* sKeyMeterSymbol = "m";
 static const char* sKeyFeet = "Feet";
@@ -88,7 +90,8 @@ static bool zIsTime( const IOPar& iop, bool* isfound =nullptr )
     BufferString unitstr;
     if ( iop.get(sKey::ZUnit(),unitstr) && !unitstr.isEmpty() )
     {
-	if ( unitstr == "s" || unitstr == "" )
+	if ( unitstr.isEqual(sKeySeconds,OD::CaseInsensitive) ||
+	     unitstr.isEqual(sKeySecondsSymbol,OD::CaseInsensitive) )
 	{
 	    if ( isfound ) *isfound = true;
 	    return true;
@@ -334,7 +337,7 @@ ObjectSet<const ZDomain::Info>& INFOS()
 
 const ZDomain::Info& ZDomain::TWT()
 {
-    static Info zinfo( Time(), "Seconds" );
+    static Info zinfo( Time(), sKeySeconds );
     return zinfo;
 }
 
@@ -357,7 +360,7 @@ ZDomain::Info::Info( const Def& def, const char* unitstr )
     : def_(def)
     , pars_(*new IOPar)
 {
-    if ( unitstr && *unitstr && def.isDepth() )
+    if ( unitstr && *unitstr )
 	pars_.set( sKeyUnit(), unitstr );
 }
 
@@ -374,8 +377,6 @@ ZDomain::Info::Info( const IOPar& iop )
     , pars_(*new IOPar(iop))
 {
     pars_.removeWithKey( sKey() );
-    if ( isTime() )
-	pars_.removeWithKey( sKeyUnit() );
 }
 
 
@@ -436,6 +437,21 @@ uiString ZDomain::Info::uiUnitStr( bool wp ) const
 }
 
 
+ZDomain::TimeType ZDomain::Info::timeType() const
+{
+    return Seconds;
+}
+
+
+ZDomain::DepthType ZDomain::Info::depthType() const
+{
+    if ( isDepthFeet() )
+	return Feet;
+
+    return Meter;
+}
+
+
 bool ZDomain::Info::isDepthMeter() const
 {
     if ( !isDepth() || !pars_.isPresent(sKeyUnit()) )
@@ -458,10 +474,12 @@ bool ZDomain::Info::isDepthFeet() const
 }
 
 
-void ZDomain::Info::setDepthUnit( bool infeet )
+void ZDomain::Info::setDepthUnit( DepthType typ )
 {
-    if ( isDepth() )
-	pars_.set( sKeyUnit(), infeet ? sKeyFeet : sKeyMeter );
+    if ( !isDepth() )
+	return;
+
+    pars_.set( sKeyUnit(), typ == ZDomain::Feet ? sKeyFeet : sKeyMeter );
 }
 
 

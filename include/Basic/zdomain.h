@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 #include "bufstring.h"
+#include "odcommonenums.h"
 #include "uistring.h"
 
 
@@ -117,7 +118,7 @@ public:
     bool		hasID() const;
     const MultiID	getID() const;
     void		setID(const MultiID&);
-    void		setDepthUnit(bool inft);
+    void		setDepthUnit(DepthType);
 
     bool		isCompatibleWith(const Info&) const;
     bool		isCompatibleWith(const IOPar&) const;
@@ -132,6 +133,8 @@ public:
 
     bool		isTime() const		{ return def_.isTime(); }
     bool		isDepth() const		{ return def_.isDepth(); }
+    TimeType		timeType() const;  // Only valid for Time
+    DepthType		depthType() const; // Only valid for Depth
     bool		isDepthMeter() const;
     bool		isDepthFeet() const;
 

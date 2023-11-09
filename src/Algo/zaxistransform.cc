@@ -48,9 +48,9 @@ ZAxisTransform::ZAxisTransform( const ZDomain::Def& from,
     , tozdomaininfo_(*new ZDomain::Info(to))
 {
     if ( from.isDepth() )
-	fromzdomaininfo_.setDepthUnit( SI().depthsInFeet() );
+	fromzdomaininfo_.setDepthUnit( SI().depthType() );
     if ( to.isDepth() )
-	tozdomaininfo_.setDepthUnit( SI().depthsInFeet() );
+	tozdomaininfo_.setDepthUnit( SI().depthType() );
 }
 
 
