@@ -260,8 +260,8 @@ ZSampling SimpleTimeDepthTransform::getWorkZSampling( const ZSampling& zsamp,
     if ( !isOK() )
 	return ZSampling::udf();
 
+    const int nrsamples = zsamp.nrSteps();
     ZSampling ret = zsamp;
-    const int nrsamples = ret.nrSteps();
     if ( from.isTime() && to.isDepth() )
     {
 	ret.start = tdmodel_->getDepth( ret.start );

@@ -135,7 +135,7 @@ void WellT2DTransform::doTransform( const SamplingData<float>& sd,
 	     res[idx] = tdmodel_.getDepth( float (zvals[idx]) );
      else
 	 for ( od_int64 idx=0; idx<sz; idx++ )
-	     res[idx] = tdmodel_.getDepth( float (zvals[idx]) );
+	     res[idx] = tdmodel_.getTime( float (zvals[idx]) );
 }
 
 
@@ -146,8 +146,8 @@ ZSampling WellT2DTransform::getWorkZSampling( const ZSampling& zsamp,
     if ( !isOK() )
 	return ZSampling::udf();
 
+    const int nrsamples = zsamp.nrSteps();
     ZSampling ret = zsamp;
-    const int nrsamples = ret.nrSteps();
     if ( from.isTime() && to.isDepth() )
     {
 	ret.start = tdmodel_.getDepth( ret.start );

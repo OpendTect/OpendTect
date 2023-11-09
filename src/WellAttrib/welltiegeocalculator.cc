@@ -199,7 +199,7 @@ void WellTie::GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd )
 				 UnitOfMeasure::meterSecondUnit() );
 	const Vel::Worker worker( desc, SI().seismicReferenceDatum(),
 				  UnitOfMeasure::surveyDefSRDStorageUnit() );
-	ArrayValueSeries<double,float> outvs( outvals.arr(), false, sz );
+	ArrayZValues<float> outvs( outvals, ZDomain::TWT() );
 	if ( !worker.calcZ(svalsvs,sdptsvs,outvs) )
 	    return;
 

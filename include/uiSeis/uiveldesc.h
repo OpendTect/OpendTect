@@ -150,8 +150,6 @@ private:
     void			updateEditButton();
     void			editCB(CallBacker*);
 
-    static void			convertLegacyTypes();
-
     uiPushButton*		editcubebutt_;
     bool			onlyvelocity_ = true;
     Interval<float>		trg_;

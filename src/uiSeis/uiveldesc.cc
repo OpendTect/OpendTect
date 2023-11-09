@@ -393,6 +393,87 @@ bool uiVelocityDescDlg::isVelocity() const
 }
 
 
+namespace Vel
+{
+
+class VelEntriesConvertManager : public CallBacker
+{
+public:
+
+VelEntriesConvertManager()
+{
+    mAttachCB( IOM().surveyToBeChanged,
+	       VelEntriesConvertManager::surveyChangedCB );
+    mAttachCB( IOM().applicationClosing,
+	       VelEntriesConvertManager::appClosingCB );
+}
+
+~VelEntriesConvertManager()
+{
+    detachAllNotifiers();
+}
+
+void convertLegacyTypes()
+{
+    if ( !IOM().isOK() )
+	return;
+
+    PtrMan<IODir> seisdir = IOM().getDir( IOObjContext::Seis );
+    if ( !seisdir )
+	return;
+
+    if ( wasconverted_ )
+	return;
+
+    const ObjectSet<IOObj>& seisobjs = seisdir->getObjs();
+    for ( const auto* seisobj : seisobjs )
+    {
+	if ( !seisobj )
+	    continue;
+
+	const IOPar curiop = seisobj->pars();
+	VelocityDesc desc;
+	if ( !desc.usePar(curiop) || !desc.isVelocity() )
+	    continue;
+
+	IOPar newiop( curiop );
+	desc.fillPar( newiop );
+	if ( newiop == curiop )
+	    continue;
+
+	mNonConst(seisobj)->pars() = newiop;
+	seisdir->commitChanges( seisobj );
+    }
+
+    wasconverted_ = true;
+}
+
+private:
+
+void surveyChangedCB( CallBacker* )
+{
+    wasconverted_ = false;
+}
+
+void appClosingCB( CallBacker* )
+{
+    detachAllNotifiers();
+}
+
+    bool wasconverted_ = false;
+
+};
+
+
+VelEntriesConvertManager& convertManager()
+{
+    static VelEntriesConvertManager man_;
+    return man_;
+}
+
+} // namespace Vel
+
+
 // uiVelSel
 
 uiVelSel::uiVelSel( uiParent* p, const uiString& lbltxt,
@@ -450,7 +531,7 @@ const IOObjContext& uiVelSel::ioContext( bool is2d )
 {
     mDefineStaticLocalObject( PtrMan<IOObjContext>, velctxt, = nullptr );
     mDefineStaticLocalObject( PtrMan<IOObjContext>, linectxt, = nullptr );
-    convertLegacyTypes();
+    Vel::convertManager().convertLegacyTypes();
     if ( is2d && !linectxt )
     {
 	auto* newctxt =
@@ -610,43 +691,6 @@ void uiVelSel::updateEditButton()
 {
     editcubebutt_->setText( ioobj(true) ? m3Dots(uiStrings::sEdit())
 					: m3Dots(uiStrings::sCreate()) );
-}
-
-
-void uiVelSel::convertLegacyTypes()
-{
-    if ( !IOM().isOK() )
-	return;
-
-    PtrMan<IODir> seisdir = IOM().getDir( IOObjContext::Seis );
-    if ( !seisdir )
-	return;
-
-    static bool wasconverted = false;
-    if ( wasconverted )
-	return;
-
-    const ObjectSet<IOObj>& seisobjs = seisdir->getObjs();
-    for ( const auto* seisobj : seisobjs )
-    {
-	if ( !seisobj )
-	    continue;
-
-	const IOPar curiop = seisobj->pars();
-	VelocityDesc desc;
-	if ( !desc.usePar(curiop) || !desc.isVelocity() )
-	    continue;
-
-	IOPar newiop( curiop );
-	desc.fillPar( newiop );
-	if ( newiop == curiop )
-	    continue;
-
-	mNonConst(seisobj)->pars() = newiop;
-	seisdir->commitChanges( seisobj );
-    }
-
-    wasconverted = true;
 }
 
 

@@ -135,24 +135,26 @@ static bool checkSampledVrmsVals( const ValueSeries<double>& vels,
 
 
 static bool checkSampledZVals( const ValueSeries<double>& zvals,
-			       bool velinfeetsec, const ZDomain::Info& zinfo )
+			       bool velinfeetsec, const ZDomain::Info& zinfo,
+			       const ZDomain::Info& zinfo_out )
 {
     const bool zistime = zinfo.isTime();
     const bool zinfeet = zinfo.isDepthFeet();
+    const double zfact = zinfo_out.isDepthFeet() ? mToFeetFactorD : 1.;
     const od_int64 idx0 = 0;
     const od_int64 idx1 = zistime ?  44 : (zinfeet ?  40 :  30);
     const od_int64 idx2 = zistime ?  56 : (zinfeet ?  52 :  41);
     const od_int64 idx3 = zistime ? 140 : (zinfeet ? 135 : 117);
     const od_int64 idx4 = zvals.size()-1;
-    const double val0 = zistime ? 376.76
+    const double val0 = zistime ? 376.76 * zfact
 				: (zinfeet ? 0.3887755102 : 0.423714285714 );
-    const double val1 = zistime ? 549.56130675
+    const double val1 = zistime ? 549.56130675 * zfact
 				: (zinfeet ? 0.5751528213 : 0.57640339609 );
-    const double val2 = zistime ? 601.7865545975
+    const double val2 = zistime ? 601.7865545975 * zfact
 				: (zinfeet ? 0.625519863 : 0.6268437569);
-    const double val3 = zistime ? 981.53582921375
+    const double val3 = zistime ? 981.53582921375 * zfact
 				: (zinfeet ? 0.961203475 : 0.9628868089 );
-    const double val4 = zistime ? 1149.5358292
+    const double val4 = zistime ? 1149.5358292 * zfact
 				: (zinfeet ? 1.1402734756: 1.142053475);
     const double fact = zistime && zinfeet ? mToFeetFactorD : 1.;
     { mCheckVal( zvals[idx0], val0*fact, idx0 ) }
@@ -391,13 +393,17 @@ static bool testCalcZ( VelocityDesc& desc, const ZDomain::Info& modzinfo,
 					       modvels.size() );
     const ArrayZValues<double> zvals_in( modzvals, modzinfo );
     const RegularZValues zvals_out( zsamp, zinfo );
-    ArrayValueSeries<double,double> Zout( zvals_out.size() );
+    const ZDomain::Info& zinfo_trans = zinfo.isTime() ? ZDomain::DepthFeet()
+						      : ZDomain::TWT();
+    ArrayValueSeries<double,double> Zout_src( zvals_out.size() );
+    ArrayZValues<double> Zout( Zout_src.arr(), Zout_src.size(), zinfo_trans );
 
     const Vel::Worker worker( desc, srd_, UnitOfMeasure::meterUnit() );
     mRunStandardTest( worker.getSampledZ( Vin, zvals_in, zvals_out, Zout ),
 	    zinfo.isTime() ? "Compute depth values" : "Compute time values" );
 
-    mRunStandardTestWithError( checkSampledZVals(Zout,velinftsec,zinfo),
+    mRunStandardTestWithError( checkSampledZVals(Zout,velinftsec,
+						 zinfo,zinfo_trans),
 	    zinfo.isTime() ? "Sampled depth values" : "Sampled time values",
 	    msg_ );
 
@@ -515,41 +521,48 @@ static bool testCalcZ()
 static bool testCalcZLinear()
 {
     const double v0 = 2000.;
-    ObjectSet<const ZDomain::Info> zinfos;
-    zinfos += &ZDomain::TWT();
-    zinfos += &ZDomain::DepthMeter();
+    ObjectSet<const ZDomain::Info> zinfos_in, zinfos_out;
+    zinfos_in += &ZDomain::TWT();
+    zinfos_in += &ZDomain::DepthMeter();
+    zinfos_out += &ZDomain::DepthMeter();
+    zinfos_out += &ZDomain::TWT();
     TypeSet<double> srdvals;
     srdvals += 0.;
     srdvals += 200.;
     TypeSet<double> vgrads;
     vgrads += 0.;
     vgrads += 0.1;
-    for ( const auto* zinfo : zinfos )
+    for ( int idx=0; idx<zinfos_in.size(); idx++ )
     {
-	const BufferString msg( "Linear ", zinfo->isTime() ? "time-to-depth"
-							   : "depth-to-time",
+	const ZDomain::Info& zinfoin = *zinfos_in.get( idx );
+	const ZDomain::Info& zinfoout = *zinfos_out.get( idx );
+	const BufferString msg( "Linear ", zinfoin.isTime() ? "time-to-depth"
+							    : "depth-to-time",
 				" transformation" );
-	const double* inpzarr = zinfo->isTime() ? t0 : z0;
-	const double* qczarr = zinfo->isTime() ? z0 : t0;
-	int idx = 0;
+	const double* inpzarr = zinfoin.isTime() ? t0 : z0;
+	const double* qczarr = zinfoin.isTime() ? z0 : t0;
+	int idy = 0;
 	for ( const auto& dv : vgrads )
 	{
 	    for ( const auto& srd : srdvals )
 	    {
 		TypeSet<double> inpzvals, qczvals;
-		inpzvals += inpzarr[idx]; qczvals += qczarr[idx++];
-		inpzvals += inpzarr[idx]; qczvals += qczarr[idx++];
+		inpzvals += inpzarr[idy]; qczvals += qczarr[idy++];
+		inpzvals += inpzarr[idy]; qczvals += qczarr[idy++];
 		const ArrayZValues zvals_in( inpzvals.arr(), inpzvals.size(),
-					     *zinfo );
+					     zinfoin );
+		ArrayValueSeries<double,double> outpzvals( inpzvals.size() );
+		ArrayZValues zvals_out( outpzvals.arr(), outpzvals.size(),
+					zinfoout );
+
 		const Vel::Worker worker( v0, dv, srd,
 					  UnitOfMeasure::meterSecondUnit(),
 					  UnitOfMeasure::meterUnit() );
-		ArrayValueSeries<double,double> outpzvals( inpzvals.size() );
-		mRunStandardTest( worker.calcZLinear(zvals_in,outpzvals),
+		mRunStandardTest( worker.calcZLinear( zvals_in, zvals_out ),
 				  msg );
 		mRunStandardTestWithError(
 			checkConvertedLinearVels( outpzvals.arr(),qczvals.arr(),
-			outpzvals.size(), *zinfo ),
+			outpzvals.size(), zinfoin ),
 			BufferString( msg, " QC"), msg_ );
 	    }
 	}

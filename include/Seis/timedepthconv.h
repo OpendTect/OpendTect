@@ -24,6 +24,7 @@ class UnitOfMeasure;
 class VelocityDesc;
 template <class T> class Array3D;
 template <class T> class ValueSeries;
+namespace Vel { class Worker; }
 
 
 /*!Base class for ZAxisstretchers that convert between time and depth using
@@ -115,6 +116,7 @@ private:
     ObjectSet<Array3D<float> >		voidata_;
     TypeSet<TrcKeyZSampling>		voivols_;
     ObjectSet<const ZDomain::Info>	voizinfos_;
+    ObjectSet<const ZDomain::Info>	voirevzinfos_;
     TypeSet<int>			voiids_;
 
     SeisTrcReader*			velreader_ = nullptr;
@@ -246,7 +248,7 @@ private:
 
     double			v0_;
     double			k_;
-    double			srd_;
+    Vel::Worker*		worker_;
 
 };
 

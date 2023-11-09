@@ -411,9 +411,9 @@ bool Vel::Worker::sampleVelocities( const ValueSeries<double>& Vin_src,
 }
 
 
-bool Vel::Worker::calcZ( const ValueSeries<double>& Vin_src,
-			 const ZValueSeries& zvals_in,
-			 ValueSeries<double>& Zout_src, double t0 ) const
+bool Vel::Worker::calcZ_( const ValueSeries<double>& Vin_src,
+			  const ZValueSeries& zvals_in,
+			  ZValueSeries& Zout_src, double t0 ) const
 {
     if ( !desc_.isVelocity() )
 	return false;
@@ -428,41 +428,36 @@ bool Vel::Worker::calcZ( const ValueSeries<double>& Vin_src,
     }
 
     const ValueSeries<double>& Vin = Vin_scaled ? *Vin_scaled : Vin_src;
-    PtrMan<ZValueSeries> zvals = getZVals( zvals_in, srd_, nullptr );
-    if ( !zvals )
+    PtrMan<ZValueSeries> zvals = getZVals( zvals_in, srd_, nullptr, true );
+    PtrMan<ZValueSeries> zout = getZVals( Zout_src, srd_, nullptr, false );
+    if ( !zvals || !zout )
 	return false;
 
-    PtrMan<ValueSeries<double> > Zout_scaled;
-    LinScaler scaler;
-    if ( getReverseScaler(zvals_in,srd_,scaler) )
-	Zout_scaled = new ScaledValueSeries<double,double>( &scaler, Zout_src );
-
-    ValueSeries<double>& Zout = Zout_scaled ? *Zout_scaled : Zout_src;
     if ( zvals_in.isTime() )
     {
 	if ( desc_.isInterval() )
-	    return calcDepthsFromVint( Vin, *zvals, Zout );
+	    return calcDepthsFromVint( Vin, *zvals, *zout );
 	if ( desc_.isRMS() )
-	    return calcDepthsFromVrms( Vin, *zvals, Zout, t0 );
+	    return calcDepthsFromVrms( Vin, *zvals, *zout, t0 );
 	if ( desc_.isAvg() )
-	    return calcDepthsFromVavg( Vin, *zvals, Zout );
+	    return calcDepthsFromVavg( Vin, *zvals, *zout );
     }
     else
     {
 	if ( desc_.isInterval() )
-	    return calcTimesFromVint( Vin, *zvals, Zout );
+	    return calcTimesFromVint( Vin, *zvals, *zout );
 	if ( desc_.isAvg() )
-	    return calcTimesFromVavg( Vin, *zvals, Zout );
+	    return calcTimesFromVavg( Vin, *zvals, *zout );
     }
 
     return false;
 }
 
 
-bool Vel::Worker::getSampledZ( const ValueSeries<double>& Vin_src,
+bool Vel::Worker::getSampledZ_( const ValueSeries<double>& Vin_src,
 			       const ZValueSeries& zvals_inp,
 			       const ZValueSeries& zvals_outp,
-			       ValueSeries<double>& Zout_src, double t0 ) const
+			       ZValueSeries& Zout_src, double t0 ) const
 {
     if ( !desc_.isVelocity() )
 	return false;
@@ -476,44 +471,35 @@ bool Vel::Worker::getSampledZ( const ValueSeries<double>& Vin_src,
 
     PtrMan<ZValueSeries> zvals_in = getZVals( zvals_inp, srd_, nullptr );
     PtrMan<ZValueSeries> zvals_out = getZVals( zvals_outp, srd_, nullptr );
-    if ( !zvals_in || !zvals_out )
+    PtrMan<ZValueSeries> zvals_trans = getZVals( Zout_src, srd_, nullptr,
+						 false );
+    if ( !zvals_in || !zvals_out || !zvals_trans )
 	return false;
 
-    PtrMan<ValueSeries<double> > Zout_scaled;
-    LinScaler scaler;
-    if ( getReverseScaler(zvals_outp,srd_,scaler) )
-	Zout_scaled = new ScaledValueSeries<double,double>( &scaler, Zout_src );
-
-    ValueSeries<double>& Zout = Zout_scaled ? *Zout_scaled : Zout_src;
-
-    return Vel::getSampledZ( Vin, *zvals_in, desc_.type_, *zvals_out, Zout, t0);
+    return Vel::getSampledZ( Vin, *zvals_in, desc_.type_, *zvals_out,
+			    *zvals_trans, t0 );
 }
 
 
-bool Vel::Worker::calcZLinear( const ZValueSeries& zvals_in,
-			       ValueSeries<double>& Zout_src ) const
+bool Vel::Worker::calcZLinear_( const ZValueSeries& zvals_in,
+			        ZValueSeries& zvals_out ) const
 {
     if ( mIsUdf(v0_) || !desc_.isInterval() )
 	return false;
 
-    PtrMan<ZValueSeries> zvals = getZVals( zvals_in, srd_, nullptr );
-    if ( !zvals )
+    PtrMan<ZValueSeries> zvals = getZVals( zvals_in, srd_, nullptr, true );
+    PtrMan<ZValueSeries> zout = getZVals( zvals_out, srd_, nullptr, false );
+    if ( !zvals || !zout )
 	return false;
 
-    PtrMan<ValueSeries<double> > Zout_scaled;
-    LinScaler scaler;
-    if ( getReverseScaler(zvals_in,srd_,scaler) )
-	Zout_scaled = new ScaledValueSeries<double,double>( &scaler, Zout_src );
-
-    ValueSeries<double>& Zout = Zout_scaled ? *Zout_scaled : Zout_src;
-    return zvals_in.isTime()
-	? calcDepthsFromLinearV0k( v0_, dv_, *zvals, Zout )
-	: calcTimesFromLinearV0k( v0_, dv_, *zvals, Zout );
+    return zvals_in.isTime() ? calcDepthsFromLinearV0k( v0_, dv_, *zvals, *zout)
+			     : calcTimesFromLinearV0k( v0_, dv_, *zvals, *zout);
 }
 
 
 ZValueSeries* Vel::Worker::getZVals( const ZValueSeries& zvals_in, double srd,
-				     const UnitOfMeasure* srduom )
+				     const UnitOfMeasure* srduom,
+				     bool forward )
 {
 
     auto* ret = zvals_in.clone();
@@ -522,7 +508,7 @@ ZValueSeries* Vel::Worker::getZVals( const ZValueSeries& zvals_in, double srd,
     {
 	LinScaler scaler;
 	if ( zvals->inFeet() )
-	    scaler.factor = mFromFeetFactorD;
+	    scaler.factor = forward ? mFromFeetFactorD : mToFeetFactorD;
 
 	if ( srduom && srduom->propType() == Mnemonic::Dist )
 	{
@@ -532,24 +518,12 @@ ZValueSeries* Vel::Worker::getZVals( const ZValueSeries& zvals_in, double srd,
 		{ pFreeFnErrMsg( "Incorrect unit of measure" ); }
 	}
 
-	scaler.constant = srd;
+	scaler.constant = forward ? srd
+				  : (zvals->inFeet() ? -srd * mToFeetFactorD
+						     : -srd);
+
 	zvals->setScaler( scaler );
     }
 
     return zvals;
-}
-
-
-bool Vel::Worker::getReverseScaler( const ZValueSeries& zvals, double srd,
-				    LinScaler& ret )
-{
-    if ( zvals.isTime() )
-    {
-	if ( zvals.inFeet() )
-	    ret.factor = mFromFeetFactorD;
-
-	ret.constant = srd;
-    }
-
-    return !ret.isEmpty();
 }

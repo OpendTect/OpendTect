@@ -47,6 +47,7 @@ public:
 					const VelocityDesc&,
 					const ZDomain::Info& velzinfo,
 					const RegularZValues& voizvals,
+					const ZDomain::Info& voirevzinfo,
 					SeisTrcReader&,Array3D<float>&);
 		    ~TimeDepthDataLoader();
 
@@ -73,6 +74,7 @@ private:
     Vel::Worker			worker_;
     const ZDomain::Info&	velzinfo_;
     const RegularZValues&	voizvals_;
+    const ZDomain::Info&	voirevzinfo_;
 
 };
 
@@ -80,6 +82,7 @@ private:
 TimeDepthDataLoader::TimeDepthDataLoader( const TrcKeySampling& tks,
 			const VelocityDesc& vd, const ZDomain::Info& velzinfo,
 			const RegularZValues& voizvals,
+			const ZDomain::Info& voirevzinfo,
 			SeisTrcReader& reader, Array3D<float>& arr )
     : tks_(tks)
     , hiter_(tks)
@@ -88,9 +91,11 @@ TimeDepthDataLoader::TimeDepthDataLoader( const TrcKeySampling& tks,
 	      UnitOfMeasure::surveyDefSRDStorageUnit())
     , velzinfo_(velzinfo)
     , voizvals_(voizvals)
+    , voirevzinfo_(voirevzinfo)
     , reader_(reader)
     , arr_(arr)
 {
+    msg_ = tr("Reading velocity model");
     seisdatapack_ = Seis::PLDM().get<RegularSeisDataPack>(
 						reader.ioObj()->key() );
 }
@@ -164,10 +169,25 @@ int TimeDepthDataLoader::nextStep()
     }
 
     Vin = ScaledValueSeries<double,float>::getFrom( *trcvs );
-    PtrMan<ValueSeries<double> > Zout =
-	ScaledValueSeries<double,float>::getFrom( arrvs );
+    PtrMan<ValueSeries<float> > zsrc;
+    PtrMan<ArrayZValues<float> > zout;
+    if ( arrvs.arr() )
+    {
+	zout = new ArrayZValues<float>( arrvs.arr(), arrvs.size(),
+					voirevzinfo_ );
+    }
+    else
+    {
+	zsrc = new ArrayValueSeries<float,float>( arrvs.size() );
+	if ( !zsrc->isOK() )
+	    return MoreToDo();
 
-    if ( !worker_.getSampledZ(*Vin,*zvals_in,voizvals_,*Zout,t0) )
+	arrvs.getValues( *zsrc, arrvs.size() );
+	zout = new ArrayZValues<float>( zsrc->arr(), zsrc->size(),
+					voirevzinfo_ );
+    }
+
+    if ( !worker_.getSampledZ(*Vin,*zvals_in,voizvals_,*zout,t0) )
     {
 	arrvs.setAll( mUdf(float) );
 	nrdone_++;
@@ -383,7 +403,7 @@ bool VelocityStretcher::loadDataIfMissing( int id, TaskRunner* taskr )
 
     const RegularZValues zvals_out( voi.zsamp_, *voizinfos_[idx] );
     TimeDepthDataLoader loader( tks, veldesc_, *velzinfo_, zvals_out,
-				*velreader_, *arr );
+				*voirevzinfos_[idx], *velreader_, *arr );
     if ( !TaskRunner::execute(taskr,loader) )
 	return false;
 
@@ -400,9 +420,12 @@ int VelocityStretcher::addVolumeOfInterest( const TrcKeyZSampling& tkzs,
 
     const ZDomain::Info& zdomain = zistrans ? toZDomainInfo()
 					    : fromZDomainInfo();
+    const ZDomain::Info& revzdomain = zistrans ? fromZDomainInfo()
+					       : toZDomainInfo();
     voidata_ += nullptr;
     voivols_ += tkzs;
     voizinfos_ += &zdomain;
+    voirevzinfos_ += &revzdomain;
     voiids_ += id;
 
     return id;
@@ -422,9 +445,13 @@ void VelocityStretcher::setVolumeOfInterest( int id,
     if ( domain == *voizinfos_[idx] && tkzs==voivols_[idx] )
 	return;
 
+    const ZDomain::Info& revzdomain = zistrans ? fromZDomainInfo()
+					       : toZDomainInfo();
+
     delete voidata_.replace( idx, nullptr );
     voivols_[idx] = tkzs;
     voizinfos_.replace( idx, &domain );
+    voirevzinfos_.replace( idx, &revzdomain );
 }
 
 
@@ -437,6 +464,7 @@ void VelocityStretcher::removeVolumeOfInterest( int id )
     delete voidata_.removeSingle( idx );
     voivols_.removeSingle( idx );
     voizinfos_.removeSingle( idx );
+    voirevzinfos_.removeSingle( idx );
     voiids_.removeSingle( idx );
 }
 
@@ -557,8 +585,8 @@ ZSampling VelocityStretcher::getWorkZSampling( const ZSampling& zsamp,
     const float seisrefdatum = getConvertedValue( SI().seismicReferenceDatum(),
 			       UnitOfMeasure::surveyDefSRDStorageUnit(), zuom );
 
+    const int nrsamples = zsamp.nrSteps();
     ZSampling ret = zsamp;
-    const int nrsamples = ret.nrSteps();
     if ( from.isTime() && to.isDepth() )
     {
 	ret.start *= topvavg_.start/2.f;
@@ -867,13 +895,16 @@ LinearVelTransform::LinearVelTransform(const ZDomain::Def& from,
     : ZAxisTransform(from,to)
     , v0_(v0)
     , k_(k)
-    , srd_(SI().seismicReferenceDatum())
 {
+    worker_ = new Vel::Worker( v0_, k_, SI().seismicReferenceDatum(), velUnit(),
+			       UnitOfMeasure::surveyDefSRDStorageUnit() );
 }
 
 
 LinearVelTransform::~LinearVelTransform()
-{}
+{
+    delete worker_;
+}
 
 
 bool LinearVelTransform::usePar( const IOPar& par )
@@ -894,7 +925,7 @@ void LinearVelTransform::fillPar( IOPar& par ) const
 
 bool LinearVelTransform::isOK() const
 {
-    return !mIsUdf(v0_) && !mIsUdf(k_);
+    return !mIsUdf(v0_) && !mIsUdf(k_) && worker_;
 }
 
 
@@ -925,10 +956,9 @@ void LinearVelTransform::doTransform( const SamplingData<float>& sd_out,
     }
 
     const RegularZValues zvals( sd_out, sz, sdzinfo );
-    ArrayValueSeries<double,float> zout( res, false, sz );
-    const Vel::Worker worker( v0_, k_, srd_, velUnit(),
-			      UnitOfMeasure::surveyDefSRDStorageUnit() );
-    worker.calcZLinear( zvals, zout );
+    ArrayZValues<float> zout( res, sz, sdzinfo == toZDomainInfo()
+				? fromZDomainInfo() : toZDomainInfo() );
+    worker_->calcZLinear( zvals, zout );
 }
 
 
@@ -939,19 +969,18 @@ ZSampling LinearVelTransform::getWorkZSampling( const ZSampling& zsamp,
     if ( !isOK() )
 	return ZSampling::udf();
 
-    ZSampling ret = zsamp;;
-    const int nrsamples = ret.nrSteps();
+    const int nrsamples = zsamp.nrSteps();
+    ZSampling ret;
     if ( (from.isTime() && to.isDepth()) ||
 	 (from.isDepth() && to.isTime()) )
     {
-	SamplingData<float> sd( ret.start, 1.f );
-	doTransform( sd, from, 1, &ret.start );
-	sd.start = ret.stop;
-	doTransform( sd, from, 1, &ret.stop );
-    }
-
-    if ( to != from )
+	const ArrayZValues<float> zvals( (float*)( &zsamp.start ), 2, from );
+	ArrayZValues<float> zout( &ret.start, 2, to );
+	worker_->calcZLinear( zvals, zout );
 	ret.step = (ret.width()) / (nrsamples==0 ? 1 : nrsamples);
+    }
+    else
+	ret = zsamp;
 
     return ret;
 }

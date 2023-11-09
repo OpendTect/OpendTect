@@ -160,7 +160,7 @@ static bool testLinearT2DTransform()
 {
     const double v0 =
 		LinearVelTransform::velUnit()->getUserValueFromSI( 3000. );
-    const double k = 0.;
+    const double k = 0.1;
     ConstRefMan<ZAxisTransform> stretcher = new LinearT2DTransform( v0, k );
     mRunStandardTest( stretcher->isOK(), mMsg("Time-to-depth linear model") );
     mRunStandardTest( stretcher->fromZDomainInfo().def_.isTime() &&
@@ -180,7 +180,7 @@ static bool testLinearD2TTransform()
 {
     const double v0 =
 		LinearVelTransform::velUnit()->getUserValueFromSI( 3000. );
-    const double k = 0.;
+    const double k = 0.1;
     ConstRefMan<ZAxisTransform> stretcher = new LinearD2TTransform( v0, k );
     mRunStandardTest( stretcher->isOK(), mMsg("Depth-to-time linear model") );
     mRunStandardTest( stretcher->fromZDomainInfo().def_.isDepth() &&
