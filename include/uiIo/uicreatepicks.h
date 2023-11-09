@@ -54,21 +54,14 @@ mExpClass(uiIo) uiCreatePicks : public uiDialog
 mODTextTranslationClass(uiCreatePicks)
 public:
 			uiCreatePicks(uiParent*,bool aspolygon=false,
-				   bool addstdfields=true, bool zvalreq=false);
+				   bool addstdfields=true,bool zvalreq=false);
     virtual		~uiCreatePicks();
-
-    enum DepthType	{ Feet=0, Meter };
-			mDeclareEnumUtils(DepthType);
-    enum TimeType	{ Seconds=0, MilliSeconds, MicroSeconds };
-			mDeclareEnumUtils(TimeType);
 
     MultiID		getStoredID() const;
     virtual RefMan<Pick::Set>	getPickSet() const;
     const char*		pickSetName() const {return name_; }
     float		getZVal() { return zvalfld_->getFValue(); }
     float		getZValInSurvUnit() { return zval_; }
-    DepthType		getDepthZValType() { return zdepthvaltyp_; }
-    TimeType		getTimeZValType()  { return ztimevaltyp_; }
 
     Notifier<uiCreatePicks>	picksetReady;
 
@@ -87,11 +80,9 @@ protected:
     bool		doAccept();
     bool		handlePickSet();
     bool		acceptOK(CallBacker*) override;
-    virtual void	addStdFields(uiObject* lastobj=0);
+    virtual void	addStdFields(uiObject* lastobj=nullptr);
     bool		iszvalreq_;
     float		zval_;
-    DepthType		zdepthvaltyp_;
-    TimeType		ztimevaltyp_;
 };
 
 

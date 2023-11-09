@@ -33,14 +33,13 @@ ________________________________________________________________________
 
 
 static int defnrpicks = 500;
-static const char* sGeoms2D[] = { "Z Range", "On Horizon",
-				  "Between Horizons", 0 };
-
-mDefineEnumUtils( uiCreatePicks, DepthType, "DepthType" )
-{ "Feet", "Meter", nullptr };
-
-mDefineEnumUtils( uiCreatePicks, TimeType, "TimeType" )
-{ "Seconds", "MilliSeconds", "MicroSeconds", nullptr };
+static const char* sGeoms2D[] =
+{
+    "Z Range",
+    "On Horizon",
+    "Between Horizons",
+    nullptr
+};
 
 
 // RandLocGenPars

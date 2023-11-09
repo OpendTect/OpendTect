@@ -1409,9 +1409,9 @@ bool SurveyInfo::zIsTime() const
 }
 
 
-SurveyInfo::Unit SurveyInfo::xyUnit() const
+Coords::XYType SurveyInfo::xyUnit() const
 {
-    return xyInFeet() ? Feet : Meter;
+    return xytype_;
 }
 
 
@@ -1469,7 +1469,7 @@ void SurveyInfo::setZUnit( bool istime, bool infeet )
 
 void SurveyInfo::setXYInFeet( bool yn )
 {
-    xytype_ = yn ? ZDomain::Feet : ZDomain::Meter;
+    xytype_ = yn ? Coords::Feet : Coords::Meter;
 }
 
 
@@ -1479,20 +1479,21 @@ void SurveyInfo::setDepthInFeet( bool yn )
 }
 
 
-float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
+float SurveyInfo::defaultXYtoZScale( Unit zunit, Coords::XYType xyunit )
 {
-    if ( zunit==xyunit )
+    if ( (zunit == Meter && xyunit == Coords::Meter) ||
+	 (zunit == Feet && xyunit == Coords::Feet) )
 	return 1;
 
     if ( zunit==Second )
     {
-	if ( xyunit==Meter )
+	if ( xyunit==Coords::Meter )
 	    return 1000;
 
 	//xyunit==feet
 	return 3048;
     }
-    else if ( zunit==Feet && xyunit==Meter )
+    else if ( zunit==Feet && xyunit==Coords::Meter )
 	return mFromFeetFactorF;
 
     //  zunit==Meter && xyunit==Feet

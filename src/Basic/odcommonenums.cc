@@ -78,6 +78,14 @@ bool isOptional( OD::ChoiceMode cm )
 }
 
 
+mDefineNameSpaceEnumUtils(Coords,XYType,"Coordinates Type")
+{
+    "Meter",
+    "Feet",
+    nullptr
+};
+
+
 mDefineNameSpaceEnumUtils(Seis,OffsetType,"Offset Type")
 {
     "Offset in meters",
@@ -109,5 +117,22 @@ mDefineNameSpaceEnumUtils(Vel,Type,"Velocity Type")
     "Delta",
     "Epsilon",
     "Eta",
+    nullptr
+};
+
+
+mDefineNameSpaceEnumUtils(ZDomain,TimeType,"Time Type")
+{
+    "Seconds",
+    "Milliseconds",
+    "Microseconds",
+    nullptr
+};
+
+
+mDefineNameSpaceEnumUtils(ZDomain,DepthType,"Distance Type")
+{
+    "Meter",
+    "Feet",
     nullptr
 };

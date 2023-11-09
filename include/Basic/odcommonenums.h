@@ -145,6 +145,21 @@ mDeclareNameSpaceEnumUtils(Basic,WellType);
 
 } // namespace OD
 
+
+namespace Coords
+{
+
+enum XYType
+{
+    Meter=0,
+    Feet=1
+};
+
+mDeclareNameSpaceEnumUtils(Basic,XYType)
+
+} // namespace Coords
+
+
 namespace Seis
 {
 
@@ -184,14 +199,23 @@ mDeclareNameSpaceEnumUtils(Basic,Type)
 namespace ZDomain
 {
 
-enum DistType
+enum TimeType
+{
+    Seconds=0,
+    MilliSeconds=1,
+    MicroSeconds=2
+};
+
+mDeclareNameSpaceEnumUtils(Basic,TimeType)
+
+
+enum DepthType
 {
     Meter=0,
     Feet=1
 };
 
-typedef DistType DepthType;
-typedef DistType XYType;
+mDeclareNameSpaceEnumUtils(Basic,DepthType)
 
 } // namespace ZDomain
 
