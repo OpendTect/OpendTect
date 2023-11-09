@@ -25,9 +25,10 @@ class Executor;
 class IOObj;
 class IOObjContext;
 class TaskRunner;
+class UnitOfMeasure;
 
 namespace Geometry { class Element; }
-namespace ZDomain { class Def; }
+namespace ZDomain { class Info; }
 
 template <class T> class Selector;
 template <class T> class Array2D;
@@ -293,10 +294,12 @@ public:
     virtual const IOObjContext& getIOObjContext() const = 0;
 
     Interval<float>		getZRange(bool compute_if_needed=false) const;
-    bool			isZInDepth() const;
-    void			setZInDepth();
-    void			setZInTime();
 
+    const UnitOfMeasure*	zUnit() const;
+    EMObject&			setZDomain(const ZDomain::Info&);
+    const ZDomain::Info&	zDomain() const { return *zdominfo_; }
+
+    void			userPar(const IOPar&);
 // Deprecated public functions
     mDeprecated("Use geometryElement() const")
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
@@ -331,7 +334,8 @@ public:
 					const EM::SubID& subid,
 					bool addtohistory)
 				{ return unSetPos(subid,addtohistory); }
-
+    mDeprecated("Use zDomain")
+    bool			isZInDepth() const;
 protected:
 				~EMObject();
 				EMObject( EMManager& );
@@ -360,18 +364,18 @@ protected:
 
     TrcKeyZSampling		removebypolyposbox_;
 
-    bool			changed_ = false;
-    bool			fullyloaded_ = false;
-    bool			locked_ = false;
-    int				burstalertcount_ = 0;
+    bool			changed_	    = false;
+    bool			fullyloaded_	    = false;
+    bool			locked_		    = false;
+    int				burstalertcount_    = 0;
     Threads::Lock		setposlock_;
-    bool			haslockednodes_ = false;
+    bool			haslockednodes_     = false;
     OD::Color			lockcolor_;
     OD::Color			selectioncolor_;
 
-    bool			insideselremoval_ = false;
-    bool			selremoving_ = false;
-    const ZDomain::Def*		zdomain_;
+    bool			insideselremoval_   = false;
+    bool			selremoving_	    = false;
+    const ZDomain::Info*	zdominfo_;
 
     static const char*		nrposattrstr();
     static const char*		posattrprefixstr();

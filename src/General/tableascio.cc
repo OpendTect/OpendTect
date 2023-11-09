@@ -910,7 +910,7 @@ float Table::AscIO::getFValue( int ifld, float udf ) const
 	return mUdf(float);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : nullptr;
-    return mCast(float, unit ? unit->internalValue( val ) : val );
+    return mCast(float, unit ? unit->getSIValue( val ) : val );
 }
 
 
@@ -926,7 +926,7 @@ double Table::AscIO::getDValue( int ifld, double udf ) const
 	return mUdf(double);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : nullptr;
-    return unit ? unit->internalValue( val ) : val;
+    return unit ? unit->getSIValue( val ) : val;
 }
 
 
@@ -994,11 +994,11 @@ int Table::AscIO::columnOf( bool hdr, int iinf,int ielem ) const
 
 const UnitOfMeasure* Table::AscIO::getTimeUnit()
 {
-    return UnitOfMeasure::surveyDefTimeStorageUnit();
+    return UnitOfMeasure::secondsUnit();
 }
 
 
 const UnitOfMeasure* Table::AscIO::getDepthUnit()
 {
-    return UnitOfMeasure::surveyDefDepthStorageUnit();
+    return UnitOfMeasure::meterUnit();
 }

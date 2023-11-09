@@ -198,18 +198,16 @@ int Write3DHorASCII::nextStep()
 
     Coord3 crd = hor_->getPos( posid );
     const BinID bid = SI().transform( crd.coord() );
+    const UnitOfMeasure* fromuom = nullptr;
     if ( zatf_ )
-	crd.z = zatf_->transformTrc( TrcKey(bid), (float)crd.z );
-
-    if ( zatf_ && SI().depthsInFeet() )
     {
-	const UnitOfMeasure* uom = UoMR().get( "ft" );
-	crd.z = uom->getSIValue( crd.z );
+	crd.z = zatf_->transformTrc( TrcKey(bid), (float)crd.z );
+	fromuom = UnitOfMeasure::zUnit( zatf_->toZDomainInfo() );
     }
+    else
+	fromuom = hor_->zUnit();
 
-    if ( !mIsUdf(crd.z) && unit_ )
-	crd.z = unit_->userValue( crd.z );
-
+    convValue( crd.z, fromuom, unit_ );
     if ( coordsys_ && !(*coordsys_ == *SI().getCoordSystem()) )
     {
 	const Coord crdxy =
@@ -587,7 +585,7 @@ bool uiExportHorizon::writeAscii()
 	for ( int sidx=0; sidx<sections.size(); sidx++ )
 	{
 	    BufferString dispstr("Writing Horizon ");
-	    dispstr.add(hor->name());
+	    dispstr.add( hor->name() );
 	    ExecutorGroup exphorgrp( dispstr );
 	    const int sectionidx = sections[sidx];
 
@@ -698,10 +696,10 @@ void uiExportHorizon::typChg( CallBacker* cb )
 void uiExportHorizon::inpSel( CallBacker* )
 {
     const IOObj* ioobj = infld_ ? infld_->selIOObj() : nullptr;
-    if ( ioobj )
+    if ( ioobj && !doconvzfld_->getBoolValue() )
     {
 	gfname_ = ioobj->name();
-	EM::IOObjInfo info( ioobj->key() );
+	const EM::IOObjInfo info( ioobj->key() );
 	unitsel_->setUnit( info.getZUoM() );
     }
 }

@@ -18,7 +18,7 @@ class ZAxisTransform;
 namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
-namespace ZDomain { class Def; }
+namespace ZDomain { class Info; }
 
 /*!
 \brief Executor to scan horizons.
@@ -29,7 +29,7 @@ mExpClass(EarthModel) HorizonScanner : public Executor
 public:
 			HorizonScanner(const BufferStringSet& fnms,
 					Table::FormatDesc& fd, bool isgeom,
-					ZAxisTransform*, bool iszdepth=false);
+					const ZDomain::Info&);
     mDeprecatedDef	HorizonScanner(const BufferStringSet& fnms,
 					Table::FormatDesc& fd, bool isgeom);
 			~HorizonScanner();
@@ -53,44 +53,36 @@ public:
     void		launchBrowser(const char* fnm=0) const;
     void		report(IOPar&) const;
 
-    void			setZAxisTransform(ZAxisTransform*);
-    const ZAxisTransform*	getZAxisTransform() const;
-
-    void		setZInDepth();
-    void		setZInTime();
-    bool		isZInDepth() const;
-
     const ObjectSet<BinIDValueSet>& getSections()	{ return sections_; }
 
 protected:
 
     int				nextStep() override;
-    void			transformZIfNeeded(const BinID&,float&) const;
+    void			getConvValue(float&);
 
     void			init();
-    const Interval<float>	getReasonableZRange() const;
+    bool			isInsideSurvey(const BinID&,float) const;
 
     mutable int			totalnr_;
-    int				nrdone_			= 0;
+    int				nrdone_		= 0;
     PosInfo::Detector&		dtctor_;
-    EM::Horizon3DAscIO*		ascio_			= nullptr;
+    EM::Horizon3DAscIO*		ascio_		= nullptr;
     BufferStringSet		filenames_;
-    int				fileidx_		= 0;
+    int				fileidx_	= 0;
     BufferStringSet		rejectedlines_;
 
-    bool			firsttime_		= true;
+    bool			firsttime_	= true;
     bool			isgeom_;
-    bool			isxy_			= false;
-    bool			selxy_			= false;
-    bool			doscale_		= false;
+    bool			isxy_		= false;
+    bool			selxy_		= false;
+    bool			doscale_	= false;
     TypeSet<Interval<float> >	valranges_;
     Table::FormatDesc&		fd_;
 
-    BinIDValueSet*		bvalset_		= nullptr;
+    BinIDValueSet*		bvalset_	= nullptr;
     ObjectSet<BinIDValueSet>	sections_;
 
-    ZAxisTransform*		transform_	= nullptr;
-    const ZDomain::Def*		zdomain_;
+    const ZDomain::Info&	zinfo_;
 
     mutable uiString		curmsg_;
 };

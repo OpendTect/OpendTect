@@ -382,7 +382,8 @@ Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
 {
     EMObject* emobj = EMM().createTempObject( typeStr() );
     mDynamicCastGet(Horizon3D*,hor3d,emobj)
-    if ( !hor3d ) return 0;
+    if ( !hor3d )
+	return nullptr;
 
     Array2D<float>* array = new Array2DImpl<float>( hrg.nrInl(), hrg.nrCrl() );
     array->setAll( z );
@@ -390,7 +391,7 @@ Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
     {
 	delete array;
 	hor3d->ref(); hor3d->unRef();
-	return 0;
+	return nullptr;
     }
 
     hor3d->setFullyLoaded( true );
@@ -1465,7 +1466,6 @@ TrcKey Horizon3DGeometry::getTrcKey( const PosID& pid ) const
     const RowCol rc = pid.getRowCol();
     return TrcKey( hor->getSurveyID(), rc );
 }
-
 
 
 bool Horizon3DGeometry::isNodeOK( const PosID& pid ) const

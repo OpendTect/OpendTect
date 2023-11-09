@@ -462,6 +462,7 @@ void VelocityStretcher::removeVolumeOfInterest( int id )
 	return;
 
     delete voidata_.removeSingle( idx );
+    voiids_.removeSingle( idx );
     voivols_.removeSingle( idx );
     voizinfos_.removeSingle( idx );
     voirevzinfos_.removeSingle( idx );

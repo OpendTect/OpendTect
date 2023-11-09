@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "rowcolsurface.h"
 #include "selector.h"
+#include "unitofmeasure.h"
 #include "zdomain.h"
 
 namespace EM
@@ -133,7 +134,7 @@ EMObject::EMObject( EMManager& emm )
 	*new MarkerStyle3D(MarkerStyle3D::Cube,2,OD::Color::White()))
     , posattribmarkerstyle_(*new MarkerStyle3D(MarkerStyle3D::Cube,2,
 			    preferredcolor_.complementaryColor()))
-    , zdomain_(&ZDomain::SI())
+    , zdominfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_.set( oid++ );
@@ -155,6 +156,7 @@ EMObject::~EMObject()
     delete &preferredlinestyle_;
     delete &preferredmarkerstyle_;
     delete &posattribmarkerstyle_;
+    delete zdominfo_;
 
     id_.set( -2 );	//To check easier if it has been deleted
 }
@@ -175,6 +177,23 @@ void EMObject::prepareForDelete()
 void EMObject::setNewName()
 {
     setName("<New EM Object>");
+}
+
+
+const UnitOfMeasure* EMObject::zUnit() const
+{
+    return UnitOfMeasure::zUnit( *zdominfo_, true );
+}
+
+
+EMObject& EMObject::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+	return *this;
+
+    delete zdominfo_;
+    zdominfo_ = new ZDomain::Info( zinfo );
+    return *this;
 }
 
 
@@ -787,6 +806,12 @@ bool EMObject::usePar( const IOPar& par )
 	}
     }
 
+    const ZDomain::Info* dominfo = ZDomain::get( par );
+    if ( dominfo )
+    {
+	setZDomain( *dominfo );
+    }
+
     return true;
 }
 
@@ -822,6 +847,7 @@ void EMObject::fillPar( IOPar& par ) const
     }
 
     par.set( nrposattrstr(), keyid );
+    zdominfo_->fillPar( par );
 }
 
 
@@ -965,25 +991,7 @@ Interval<float> EMObject::getZRange( bool docompute ) const
 
 bool EMObject::isZInDepth() const
 {
-    return zdomain_->isDepth();
-}
-
-
-void EMObject::setZInDepth()
-{
-    if ( isZInDepth() )
-	return;
-
-    zdomain_ = &ZDomain::Depth();
-}
-
-
-void EMObject::setZInTime()
-{
-    if ( !isZInDepth() )
-	return;
-
-    zdomain_ = &ZDomain::Time();
+    return zdominfo_->isDepth();
 }
 
 } // namespace EM

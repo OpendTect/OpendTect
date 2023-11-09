@@ -102,7 +102,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     if ( isgeom )
     {
 	zdomainfld_ = new uiGenInput( this, tr("Horizon is in"),
-				BoolInpSpec(true,tr("Time"),tr("Depth")) );
+		    BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
 	zdomainfld_->attach( alignedBelow, attrlistfld_ );
 	zdomainfld_->attach( ensureBelow, sep );
 	zdomainfld_->setValue( SI().zIsTime() );
@@ -336,8 +336,7 @@ bool uiImportHorizon::doScan()
     if ( !getFileNames(filenms) )
 	return false;
 
-    const bool zindepth = zdomainfld_ && !zdomainfld_->getBoolValue();
-    scanner_ = new HorizonScanner( filenms, fd_, isgeom_, nullptr, zindepth );
+    scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zDomain() );
     if ( !scanner_->uiMessage().isEmpty() )
     {
 	const bool res = uiMSG().askGoOn( scanner_->uiMessage(),
@@ -377,6 +376,27 @@ bool uiImportHorizon::doScan()
     cs.hsamp_.set( nilnrg, nclnrg );
     subselfld_->setInput( cs );
     return true;
+}
+
+
+const ZDomain::Info& uiImportHorizon::zDomain() const
+{
+    if ( !zdomainfld_ )
+	return SI().zDomainInfo();
+
+    const UnitOfMeasure* selunit = fd_.bodyinfos_.validIdx(1) ?
+	fd_.bodyinfos_[1]->selection_.unit_ : nullptr;
+    bool isimperial = false;
+    if ( selunit )
+	isimperial = selunit->isImperial();
+
+    const bool istime = zdomainfld_->getBoolValue();
+    if ( istime )
+	return ZDomain::TWT();
+    else if ( isimperial )
+	return ZDomain::DepthFeet();
+
+    return ZDomain::DepthMeter();
 }
 
 
@@ -438,7 +458,8 @@ bool uiImportHorizon::doImport()
 	mErrRet( tr("No Attributes Selected") );
 
     EM::Horizon3D* horizon = isgeom_ ? createHor() : loadHor();
-    if ( !horizon ) return false;
+    if ( !horizon )
+	return false;
 
     if ( !scanner_ && !doScan() )
     {
@@ -489,9 +510,7 @@ bool uiImportHorizon::doImport()
     if ( !success )
 	mErrRetUnRef(tr("Cannot import horizon"))
 
-    if ( zdomainfld_ )
-	zdomainfld_->getBoolValue() ? horizon->setZInTime()
-				    : horizon->setZInDepth();
+    horizon->setZDomain( zDomain() );
     bool rv;
     if ( isgeom_ )
     {
@@ -517,7 +536,8 @@ bool uiImportHorizon::doImport()
 
 bool uiImportHorizon::acceptOK( CallBacker* )
 {
-    if ( !checkInpFlds() ) return false;
+    if ( !checkInpFlds() )
+	return false;
 
     if ( !doImport() )
 	return false;
@@ -527,10 +547,14 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 	const IOObj* ioobj = outputfld_->ioobj();
 	if ( ioobj )
 	{
+	    EM::EMManager& em = EM::EMM();
+	    EM::ObjectID objid = em.getObjectID( ioobj->key() );
+	    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid))
+	    const ZDomain::Info& info = horizon ? horizon->zDomain() :
+								zDomain();
+	    info.fillPar( ioobj->pars() );
 	    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
 	    const bool zisdepth = !zdomainfld_->getBoolValue();
-	    ioobj->pars().update( ZDomain::sKey(),
-				  zisdepth ? sKey::Depth() : sKey::Time() );
 
 	    ioobj->updateCreationPars();
 	    IOM().commitChanges( *ioobj );
@@ -686,6 +710,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
     horizon->change.disable();
     horizon->setMultiID( mid );
     horizon->setStratLevelID( stratlvlfld_->getID() );
+    horizon->setZDomain( zDomain() );
     horizon->ref();
     return horizon;
 }
@@ -697,14 +722,16 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setMultiID( outputfld_->key(true) );
     Executor* loader = emobj->loader();
-    if ( !loader ) mErrRet( uiStrings::sCantReadHor());
+    if ( !loader )
+	mErrRet( uiStrings::sCantReadHor());
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) )
 	return nullptr;
 
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
-    if ( !horizon ) mErrRet( tr("Error loading horizon"));
+    if ( !horizon )
+	mErrRet( tr("Error loading horizon"));
 
     horizon->ref();
     delete loader;
