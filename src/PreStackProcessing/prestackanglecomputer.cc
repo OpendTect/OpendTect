@@ -238,8 +238,10 @@ void AngleComputer::fftDepthSmooth( ::FFTFilter& filter,
 	for ( int zidx=0; zidx<zsize; zidx++ )
 	{
 	    const float depth = sCast( float, zrange.atIndex(zidx) );
-	    arr1doutput[zidx] =
-		Math::ASin( sinanglevalsindepth.getValue(depth) );
+	    float sinangle = sinanglevalsindepth.getValue( depth );
+	    if ( sinangle < 0.f ) sinangle = 0.f;
+	    else if ( sinangle > 1.f ) sinangle = 1.f;
+	    arr1doutput[zidx] = Math::ASin( sinangle );
 	}
 
 	arr1doutput = arr1doutput + zsize;
@@ -272,7 +274,12 @@ void AngleComputer::fftTimeSmooth( ::FFTFilter& filter,
 	}
 
 	for ( int idx=0; idx<zsize; idx++ )
-	    arr1doutput[startidx+idx] = angles.get( idx );
+	{
+	    float angle = angles.get( idx );
+	    if ( angle < 0.f ) angle = 0.f;
+	    else if ( angle > M_PI_2f ) angle = M_PI_2f;
+	    arr1doutput[startidx+idx] = angle;
+	}
 
 	startidx += zsize;
     }
@@ -389,11 +396,18 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 	{
 	    const double layerz = outputzrg.atIndex( zidx );
 	    const float zval = mCast(float, layerz );
-	    const float sinangle = sinanglevals.getValue( zval );
-	    float angle = asin( sinangle );
-	    if ( mIsUdf(sinangle) || !Math::IsNormalNumber(angle) )
-		angle = anglevals.getValue( zval );
+	    float sinangle = sinanglevals.getValue( zval );
+	    if ( !mIsUdf(sinangle) && Math::IsNormalNumber(sinangle) )
+	    {
+		if ( sinangle < 0. ) sinangle = 0.f;
+		else if ( sinangle > 1.f ) sinangle = 1.f;
+		angledata.set( ofsidx, zidx, asin(sinangle) );
+		continue;
+	    }
 
+	    float angle = anglevals.getValue( zval );
+	    if ( angle < 0.f ) angle = 0.f;
+	    else if ( angle > M_PI_2f ) angle = M_PI_2f;
 	    angledata.set( ofsidx, zidx, angle );
 	}
     }
