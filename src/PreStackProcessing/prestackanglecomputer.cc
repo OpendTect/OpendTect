@@ -54,8 +54,8 @@ AngleComputer::AngleComputer()
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),
 				    UnitOfMeasure::surveyDefDepthUnit() );
     rtsu_.startdepth( -srd ).doreflectivity( false )
-	 .depthtype( SI().depthsInFeet() ? ZDomain::DepthType::Feet
-					 : ZDomain::DepthType::Meter );
+	 .depthtype( SI().depthType() );
+
     raypars_.set( sKey::Type(), RayTracer1D::factory().getDefaultName() );
 }
 
@@ -82,8 +82,7 @@ void AngleComputer::setOutputSampling( const FlatPosData& os,
     setZDomain( zinfo );
     rtsu_.offsettype( offstyp );
     if ( zinfo.isDepth() )
-	rtsu_.depthtype( zinfo.isDepthFeet() ? ZDomain::DepthType::Feet
-					     : ZDomain::DepthType::Meter );
+	rtsu_.depthtype( zinfo.depthType() );
 }
 
 

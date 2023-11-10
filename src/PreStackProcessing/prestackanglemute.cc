@@ -43,9 +43,7 @@ AngleCompParams::AngleCompParams()
     const Seis::OffsetType offstyp = SI().xyInFeet()
 				   ? Seis::OffsetType::OffsetFeet
 				   : Seis::OffsetType::OffsetMeter;
-    const ZDomain::DepthType depthtype = SI().depthsInFeet()
-				       ? ZDomain::DepthType::Feet
-				       : ZDomain::DepthType::Meter;
+    const ZDomain::DepthType depthtype = SI().depthType();
     rtsu_.offsettype( offstyp ).depthtype( depthtype ).startdepth( -srd );
 
     const StepInterval<float> offsrange =

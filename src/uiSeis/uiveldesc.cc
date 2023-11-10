@@ -71,6 +71,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup& vsu )
 			    &Mnemonic::defVEL() );
     uiusu.mode( uiUnitSel::Setup::SymbolsOnly );
     unitfld_ = new uiUnitSel( this, uiusu );
+    unitfld_->setUnit( UnitOfMeasure::surveyDefVelUnit() );
     unitfld_->attach( rightOf, unitchkfld_ );
 
     auto* vigrp = new uiGroup( this, "Vel info grp" );
@@ -168,7 +169,8 @@ void uiVelocityDesc::set( const VelocityDesc& desc )
     {
 	const bool hasunit = desc.hasVelocityUnit();
 	unitchkfld_->setChecked( !hasunit );
-	unitfld_->setUnit( desc.getUnit() );
+	if ( desc.isVelocity() )
+	    unitfld_->setUnit( desc.getUnit() );
 	wasguessed_ = !hasunit;
     }
 
@@ -622,9 +624,12 @@ uiRetVal uiVelSel::isOK() const
 
 const UnitOfMeasure* uiVelSel::velUnit() const
 {
+    if ( !ioobj(true) )
+	return UnitOfMeasure::surveyDefVelUnit();
+
     VelocityDesc desc;
     const uiRetVal uirv = get( desc );
-    return uirv.isOK() ? desc.getUnit() : nullptr;
+    return uirv.isOK() ? desc.getUnit() : UnitOfMeasure::surveyDefVelUnit();
 }
 
 

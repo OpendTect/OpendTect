@@ -551,9 +551,7 @@ bool WellTie::DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     const Seis::OffsetType offstyp = SI().xyInFeet()
 				   ? Seis::OffsetType::OffsetFeet
 				   : Seis::OffsetType::OffsetMeter;
-    const ZDomain::DepthType depthtype = SI().depthsInFeet()
-				       ? ZDomain::DepthType::Feet
-				       : ZDomain::DepthType::Meter;
+    const ZDomain::DepthType depthtype = SI().depthType();
     ConstRefMan<ReflectivityModelSet> refmodels =
 	Seis::RaySynthGenerator::getRefModels( aimodels, *sgp.reflPars(),
 		       msg, taskrunner, srd, offstyp, depthtype,

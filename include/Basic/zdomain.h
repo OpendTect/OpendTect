@@ -142,6 +142,9 @@ public:
 
     mDeprecated("Use MultiID Overloaded function")
     void		setID(const char*);
+
+private:
+    void		setDefaultUnit();
 };
 
 mGlobal(Basic) const char*	sKey();

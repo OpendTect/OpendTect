@@ -1806,9 +1806,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 		const Seis::OffsetType offstyp = SI().xyInFeet()
 				    ? Seis::OffsetType::OffsetFeet
 				    : Seis::OffsetType::OffsetMeter;
-		const ZDomain::DepthType depthtype = SI().depthsInFeet()
-				    ? ZDomain::DepthType::Feet
-				    : ZDomain::DepthType::Meter;
+		const ZDomain::DepthType depthtype = SI().depthType();
 		refmodels = Seis::RaySynthGenerator::getRefModels( elmdls,
 					    *sgp.reflPars(), msg, taskrun,
 					    srd, offstyp, depthtype );

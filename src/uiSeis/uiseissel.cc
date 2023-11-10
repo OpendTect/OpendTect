@@ -605,6 +605,9 @@ void uiSeisSel::updateOutputOpts( bool issteering )
 
 void uiSeisSel::commitSucceeded()
 {
+    if ( inctio_.ctxt_.forread_ )
+	return;
+
     getZDomain().fillPar( dlgiopar_ );
     if ( inctio_.ioobj_ )
     {

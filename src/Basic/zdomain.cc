@@ -9,10 +9,10 @@ ________________________________________________________________________
 
 #include "zdomain.h"
 
-#include "survinfo.h"
-#include "keystrs.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "perthreadrepos.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
 
@@ -125,7 +125,7 @@ const ZDomain::Info* ZDomain::get( const IOPar& iop )
     BufferString unitstr;
     if ( !iop.get(sKeyUnit(),unitstr) || unitstr.isEmpty() )
 	if ( !iop.get(sKey::ZUnit(),unitstr) || unitstr.isEmpty() )
-	    return nullptr;
+	    return ::SI().depthsInFeet() ? &DepthFeet() : &DepthMeter();
 
     const Info zinfo( Depth(), unitstr.buf() );
     if ( zinfo.isDepthMeter() )
@@ -133,7 +133,7 @@ const ZDomain::Info* ZDomain::get( const IOPar& iop )
     if ( zinfo.isDepthFeet() )
 	return &DepthFeet();
 
-    return nullptr;
+    return ::SI().depthsInFeet() ? &DepthFeet() : &DepthMeter();
 }
 
 
@@ -361,6 +361,8 @@ ZDomain::Info::Info( const Def& def, const char* unitstr )
 {
     if ( unitstr && *unitstr )
 	pars_.set( sKeyUnit(), unitstr );
+    else
+	setDefaultUnit();
 }
 
 
@@ -376,6 +378,8 @@ ZDomain::Info::Info( const IOPar& iop )
     , pars_(*new IOPar(iop))
 {
     pars_.removeWithKey( sKey() );
+    if ( !pars_.isPresent(sKeyUnit()) )
+	setDefaultUnit();
 }
 
 
@@ -397,6 +401,15 @@ bool ZDomain::Info::operator ==( const Info& oth ) const
 bool ZDomain::Info::operator !=( const Info& oth ) const
 {
     return !(oth == *this);
+}
+
+
+void ZDomain::Info::setDefaultUnit()
+{
+    if ( isTime() )
+	pars_.set( sKeyUnit(), sKeySeconds );
+    else if ( isDepth() )
+	setDepthUnit( ::SI().depthType() );
 }
 
 

@@ -481,7 +481,7 @@ Coord3 Survey::Geometry3D::oneStepTranslation( const Coord3& planenormal ) const
     }
     else
     {
-	Coord norm2d = planenormal;
+	Coord norm2d = planenormal.coord();
 	norm2d.normalize();
 
 	if ( fabs(norm2d.dot(b2c_.inlDir())) > 0.5 )
