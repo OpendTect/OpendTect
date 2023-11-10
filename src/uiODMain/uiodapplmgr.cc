@@ -187,14 +187,13 @@ void uiODApplMgr::setNlaServer( uiNLAPartServer* s )
 }
 
 
-int uiODApplMgr::editCurrSurvey( uiParent* p )
+int uiODApplMgr::editCurrentSurvey( uiParent* p )
 {
     if ( !p )
 	p = uiMain::instance().topLevel();
 
     uiSurveyInfoEditor dlg( p, true, eSI(), false );
-    dlg.go();
-    return 0;
+    return dlg.go();
 }
 
 
