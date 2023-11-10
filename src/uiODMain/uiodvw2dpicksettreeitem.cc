@@ -67,7 +67,7 @@ bool uiODView2DPickSetParentTreeItem::handleSubMenu( int menuid )
     handleStdSubMenu( menuid );
 
     TypeSet<MultiID> pickmidstoadd;
-    const Pick::Set* newps = 0;
+    ConstRefMan<Pick::Set> newps = 0;
     if ( menuid == 1  )
     {
 	newps = applMgr()->pickServer()->createEmptySet( false );

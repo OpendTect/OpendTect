@@ -243,8 +243,9 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     dps_.setValue( 0, row, val );
     dps_.dataChanged();
 
-    Pick::Set* set = psd_ ? psd_->getSet() : 0;
-    if ( !set ) return;
+    ConstRefMan<Pick::Set> set = psd_ ? psd_->getSet() : 0;
+    if ( !set )
+	return;
 
     const DataPointSet::Pos pos( dps_.pos(row) );
     const Coord3 dpscrd( pos.coord(), pos.z() );
@@ -317,7 +318,7 @@ void uiDataPointSetPickDlg::updateButtons()
 void uiDataPointSetPickDlg::updateDPS()
 {
     dps_.clearData();
-    const Pick::Set* set = psd_ ? psd_->getSet() : 0;
+    ConstRefMan<Pick::Set> set = psd_ ? psd_->getSet() : 0;
     if ( !set )
     {
 	dps_.dataChanged();
