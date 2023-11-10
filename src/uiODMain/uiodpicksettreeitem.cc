@@ -14,15 +14,10 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ioman.h"
 #include "pickset.h"
-#include "picksettr.h"
-#include "polygonzchanger.h"
-#include "randcolor.h"
-#include "selector.h"
 #include "survinfo.h"
 
 #include "uicalcpoly2horvol.h"
 #include "uimenu.h"
-#include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodbodydisplaytreeitem.h"
@@ -37,7 +32,6 @@ ________________________________________________________________________
 #include "threadwork.h"
 #include "visseedpainter.h"
 #include "vispicksetdisplay.h"
-#include "vispolylinedisplay.h"
 #include "visrandomposbodydisplay.h"
 #include "visselman.h"
 #include "vissurvscene.h"
@@ -233,7 +227,7 @@ uiTreeItem*
     if ( !psd || !isPickSetPolygon(psd->getMultiID()) )
 	return 0;
 
-    Pick::Set* pickset = psd->getSet();
+    RefMan<Pick::Set> pickset = psd->getSet();
     return pickset->isPolygon() ? 0 : new uiODPickSetTreeItem(visid,*pickset);
 }
 
@@ -245,9 +239,9 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( VisID did, Pick::Set& ps )
     , storeasmnuitem_(m3Dots(uiStrings::sSaveAs()))
     , dirmnuitem_(m3Dots(tr("Set Directions")))
     , onlyatsectmnuitem_(tr("Only at Sections"))
+    , convertbodymnuitem_( tr("Convert to Geobody") )
     , propertymnuitem_(m3Dots(uiStrings::sProperties() ) )
     , paintingmnuitem_(m3Dots(tr("Start Painting")))
-    , convertbodymnuitem_( tr("Convert to Geobody") )
 {
     displayid_ = did;
     onlyatsectmnuitem_.checkable = true;
@@ -707,7 +701,7 @@ uiTreeItem*
     if ( !psd || !isPickSetPolygon(psd->getMultiID()) )
 	return 0;
 
-    Pick::Set* pickset = psd->getSet();
+    RefMan<Pick::Set> pickset = psd->getSet();
     return !pickset->isPolygon() ? 0 : new uiODPolygonTreeItem(visid,*pickset);
 }
 

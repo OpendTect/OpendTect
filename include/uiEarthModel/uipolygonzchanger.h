@@ -8,13 +8,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "pickset.h"
-#include "uidialog.h"
 #include "uiearthmodelmod.h"
+#include "uidialog.h"
+
+#include "pickset.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 
+
+namespace EM { class PolygonZChanger; }
 namespace Pick { class Set; }
+
 
 mExpClass(uiEarthModel) uiPolygonZChanger : public uiDialog
 { mODTextTranslationClass(uiPolygonZChanger)
