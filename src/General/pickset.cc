@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include <iostream>
 
 static const char*		sKeyStartIdx()	{ return "Start index"; }
+static const char*		sKeyNrPts()	{ return "Nr points"; }
 static OD::Color		defcolor()	{ return OD::Color::Red(); }
 static int			defPixSz()	{ return 3; }
 static MarkerStyle3D::Type	defMarkerStyle(){ return MarkerStyle3D::Sphere;}
@@ -836,6 +837,11 @@ void Set::insert( int idx, const Location& loc )
 void Set::remove( int idx )
 {
     locations_.removeSingle( idx );
+    for ( int setidx=0; setidx<startidxs_.size(); setidx++ )
+    {
+	if ( idx < startidxs_[setidx] )
+	    startidxs_[setidx]--;
+    }
 }
 
 
@@ -1056,6 +1062,7 @@ void Set::fillPar( IOPar& par ) const
 {
     par.set( sKeyStartIdx(), startidxs_ );
     zDomain().fillPar( par );
+    par.set( sKeyNrPts(), size() );
     par.merge( pars_ );
 }
 
