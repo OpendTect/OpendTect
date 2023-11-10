@@ -343,7 +343,7 @@ bool Vel::calcTimesFromVavg( const ValueSeries<double>& Vavg,
 
 
 bool Vel::getSampledZ( const ValueSeries<double>& vels,
-		       const ZValueSeries& zvals_in, Vel::Type type,
+		       const ZValueSeries& zvals_in, OD::VelocityType type,
 		       const ZValueSeries& zvals_out,
 		       ValueSeries<double>& Zout, double t0 )
 {
@@ -361,15 +361,15 @@ bool Vel::getSampledZ( const ValueSeries<double>& vels,
 			       velisintime ? ZDomain::DepthMeter()
 					   : ZDomain::TWT() );
     bool res = false;
-    if ( velisintime && type == Vel::Interval )
+    if ( velisintime && type == OD::VelocityType::Interval )
 	res = calcDepthsFromVint( vels, zvals_in, rev_zvals_in );
-    if ( velisintime && type == Vel::Avg )
+    if ( velisintime && type == OD::VelocityType::Avg )
 	res = calcDepthsFromVavg( vels, zvals_in, rev_zvals_in );
-    if ( velisintime && type == Vel::RMS )
+    if ( velisintime && type == OD::VelocityType::RMS )
 	res = calcDepthsFromVrms( vels, zvals_in, rev_zvals_in, t0 );
-    if ( !velisintime && type == Vel::Interval )
+    if ( !velisintime && type == OD::VelocityType::Interval )
 	res = calcTimesFromVint( vels, zvals_in, rev_zvals_in );
-    if ( !velisintime && type == Vel::Avg )
+    if ( !velisintime && type == OD::VelocityType::Avg )
 	res = calcTimesFromVavg( vels, zvals_in, rev_zvals_in );
 
     if ( !res )
@@ -897,7 +897,7 @@ bool Vel::sampleVint( const ValueSeries<double>& Vin, const ZValueSeries& z_in,
 	return false;
 
     ArrayValueSeries<double,double> sampled_zout( zsampled, false, nr_out );
-    if ( !getSampledZ(Vin,z_in,Vel::Interval,z_out,sampled_zout) )
+    if ( !getSampledZ(Vin,z_in,OD::VelocityType::Interval,z_out,sampled_zout) )
 	return false;
 
     const bool zistime = z_out.isTime();
@@ -954,7 +954,7 @@ bool Vel::sampleVavg( const ValueSeries<double>& Vin,
 	return false;
 
     ArrayValueSeries<double,double> sampled_zout( zsampled, false, nr_out );
-    if ( !getSampledZ(Vin,z_in,Vel::Avg,z_out,sampled_zout) )
+    if ( !getSampledZ(Vin,z_in,OD::VelocityType::Avg,z_out,sampled_zout) )
 	return false;
 
     od_int64 firstvalid  = -1;

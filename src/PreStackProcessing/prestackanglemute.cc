@@ -40,10 +40,12 @@ AngleCompParams::AngleCompParams()
     const float srd = getConvertedValue( SI().seismicReferenceDatum(),
 				UnitOfMeasure::surveyDefSRDStorageUnit(),
 				UnitOfMeasure::surveyDefDepthUnit() );
-    const Seis::OffsetType offstyp = SI().xyInFeet() ? Seis::OffsetFeet
-						     : Seis::OffsetMeter;
-    const ZDomain::DepthType depthtype = SI().depthsInFeet() ? ZDomain::Feet
-							     : ZDomain::Meter;
+    const Seis::OffsetType offstyp = SI().xyInFeet()
+				   ? Seis::OffsetType::OffsetFeet
+				   : Seis::OffsetType::OffsetMeter;
+    const ZDomain::DepthType depthtype = SI().depthsInFeet()
+				       ? ZDomain::DepthType::Feet
+				       : ZDomain::DepthType::Meter;
     rtsu_.offsettype( offstyp ).depthtype( depthtype ).startdepth( -srd );
 
     const StepInterval<float> offsrange =
@@ -55,7 +57,7 @@ AngleCompParams::AngleCompParams()
     raypar_.set( sKey::Type(), RayTracer1D::factory().getDefaultName() );
     raypar_.set( RayTracer1D::sKeyOffset(), offsets );
     raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(),
-		   offstyp == Seis::OffsetFeet );
+		   offstyp == Seis::OffsetType::OffsetFeet );
     raypar_.setYN( RayTracer1D::sKeyReflectivity(), false );
 
     uiString msg;

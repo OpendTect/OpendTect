@@ -134,13 +134,13 @@ const UnitOfMeasure* SeisPSIOProvider::offsetUnit( const IOObj*, bool& isfound )
 
 const UnitOfMeasure* SeisPSIOProvider::offsetUnit( Seis::OffsetType typ )
 {
-    if ( typ == Seis::OffsetMeter )
+    if ( typ == Seis::OffsetType::OffsetMeter )
 	return UnitOfMeasure::meterUnit();
-    if ( typ == Seis::OffsetFeet )
+    if ( typ == Seis::OffsetType::OffsetFeet )
 	return UnitOfMeasure::feetUnit();
-    if ( typ == Seis::AngleRadians )
+    if ( typ == Seis::OffsetType::AngleRadians )
 	return UnitOfMeasure::radiansUnit();
-    if ( typ == Seis::AngleDegrees )
+    if ( typ == Seis::OffsetType::AngleDegrees )
 	return UnitOfMeasure::degreesUnit();
 
     return nullptr;
@@ -159,7 +159,8 @@ bool SeisPSIOProvider::getGatherOffsetType( const IOPar& par,
 	if ( !par.getYN(PreStack::sKeyIsAngleGather,offsetisangle) )
 	    return false;
 
-	typ = Seis::AngleDegrees; //Most usual case, but actually we do not know
+	typ = Seis::OffsetType::AngleDegrees;
+	//Most usual case, but actually we do not know
 	return true;
     }
 
@@ -167,12 +168,12 @@ bool SeisPSIOProvider::getGatherOffsetType( const IOPar& par,
 					       offsetunit.str() );
     if ( offsuom && offsuom == UnitOfMeasure::meterUnit() )
     {
-	typ = Seis::OffsetMeter;
+	typ = Seis::OffsetType::OffsetMeter;
 	return true;
     }
     else if ( offsuom && offsuom == UnitOfMeasure::feetUnit() )
     {
-	typ = Seis::OffsetFeet;
+	typ = Seis::OffsetType::OffsetFeet;
 	return true;
     }
 
@@ -180,12 +181,12 @@ bool SeisPSIOProvider::getGatherOffsetType( const IOPar& par,
 					      offsetunit.str() );
     if ( anguom && anguom == UnitOfMeasure::radiansUnit() )
     {
-	typ = Seis::AngleRadians;
+	typ = Seis::OffsetType::AngleRadians;
 	return true;
     }
     else if ( anguom && anguom == UnitOfMeasure::degreesUnit() )
     {
-	typ = Seis::AngleDegrees;
+	typ = Seis::OffsetType::AngleDegrees;
 	return true;
     }
 

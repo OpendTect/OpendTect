@@ -54,7 +54,8 @@ AngleComputer::AngleComputer()
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),
 				    UnitOfMeasure::surveyDefDepthUnit() );
     rtsu_.startdepth( -srd ).doreflectivity( false )
-	 .depthtype( SI().depthsInFeet() ? ZDomain::Feet : ZDomain::Meter );
+	 .depthtype( SI().depthsInFeet() ? ZDomain::DepthType::Feet
+					 : ZDomain::DepthType::Meter );
     raypars_.set( sKey::Type(), RayTracer1D::factory().getDefaultName() );
 }
 
@@ -81,7 +82,8 @@ void AngleComputer::setOutputSampling( const FlatPosData& os,
     setZDomain( zinfo );
     rtsu_.offsettype( offstyp );
     if ( zinfo.isDepth() )
-	rtsu_.depthtype( zinfo.isDepthFeet() ? ZDomain::Feet : ZDomain::Meter );
+	rtsu_.depthtype( zinfo.isDepthFeet() ? ZDomain::DepthType::Feet
+					     : ZDomain::DepthType::Meter );
 }
 
 
@@ -527,7 +529,7 @@ bool VelocityBasedAngleComputer::getLayers( const TrcKey& tk, float startdepth,
     const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthUnit();
     const double srd = -startdepth;
     const Vel::Worker worker( func->getDesc(), srd, depthuom );
-    const VelocityDesc vintdesc( Vel::Interval,
+    const VelocityDesc vintdesc( OD::VelocityType::Interval,
 				 UnitOfMeasure::meterSecondUnit() );
     if ( !worker.convertVelocities(vels,zvals_func,vintdesc,vels) )
 	return false;

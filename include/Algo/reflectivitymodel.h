@@ -133,7 +133,7 @@ public:
 			~Setup();
 
 	Setup&		offsettype(Seis::OffsetType);
-	Seis::OffsetType offsettype_;
+	Seis::OffsetType offsettype_	= Seis::OffsetType::OffsetMeter;
 
 	bool		areOffsetsInFeet() const;
     };

@@ -68,7 +68,8 @@ public:
     void		setAngles(const TypeSet<float>& thetaangles,
 				  Seis::OffsetType);
     void		getAngles(TypeSet<float>& thetaangles,
-				  Seis::OffsetType=Seis::AngleDegrees) const;
+				  Seis::OffsetType=
+				  Seis::OffsetType::AngleDegrees) const;
     bool		areDepthsInFeet() const;
 
     uiString		uiMessage() const override	{ return msg_; }
@@ -87,7 +88,8 @@ public:
     static StepInterval<float> sDefAngleRange(Seis::OffsetType);
 
     static void		setIOParsToSingleAngle(IOPar&,float angle=0.f,
-					   Seis::OffsetType=Seis::AngleDegrees);
+					   Seis::OffsetType=
+					   Seis::OffsetType::AngleDegrees);
     static ReflCalc1D* createInstance(const IOPar&,uiString&,
 				      const Setup* =nullptr);
     static ReflCalc1D* createInstance(const IOPar&,const ElasticModel*,

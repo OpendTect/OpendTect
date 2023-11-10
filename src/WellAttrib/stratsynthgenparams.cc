@@ -173,7 +173,7 @@ void SynthGenParams::setDefaultValues()
     }
 
     const SurveyInfo& si = IOMan::isOK() ? SI() : SurveyInfo::empty();
-    const Seis::OffsetType angtyp = Seis::AngleRadians;
+    const Seis::OffsetType angtyp = Seis::OffsetType::AngleRadians;
     if ( isZeroOffset() )
     {
 	ReflCalc1D::setIOParsToSingleAngle( reflpars_ );
@@ -185,17 +185,19 @@ void SynthGenParams::setDefaultValues()
     }
     else if ( isElasticGather() )
     {
-	const StepInterval<float> anglerg = ReflCalc1D::sDefAngleRange( angtyp );
+	const StepInterval<float> anglerg = ReflCalc1D::sDefAngleRange(angtyp);
 	TypeSet<float> angles;
 	for ( int idx=0; idx<anglerg.nrSteps()+1; idx++ )
 	    angles += anglerg.atIndex( idx );
 	reflpars_.set( ReflCalc1D::sKeyAngle(), angles );
-	reflpars_.setYN( ReflCalc1D::sKeyAngleInDegrees(), angtyp );
+	reflpars_.setYN( ReflCalc1D::sKeyAngleInDegrees(),
+			 angtyp == Seis::OffsetType::AngleDegrees );
     }
     else if ( isPreStack() )
     {
-	const Seis::OffsetType offstyp = si.xyInFeet() ? Seis::OffsetFeet
-						       : Seis::OffsetMeter;
+	const Seis::OffsetType offstyp = si.xyInFeet()
+					? Seis::OffsetType::OffsetFeet
+					: Seis::OffsetType::OffsetMeter;
 	const StepInterval<float> offsetrg =
 					RayTracer1D::sDefOffsetRange( offstyp );
 	TypeSet<float> offsets;
@@ -203,7 +205,7 @@ void SynthGenParams::setDefaultValues()
 	    offsets += offsetrg.atIndex( idx );
 	raypars_.set( RayTracer1D::sKeyOffset(), offsets );
 	raypars_.set( RayTracer1D::sKeyOffsetInFeet(),
-		      offstyp == Seis::OffsetFeet );
+		      offstyp == Seis::OffsetType::OffsetFeet );
     }
 
     if ( isRawOutput() )
@@ -325,11 +327,12 @@ bool SynthGenParams::isCorrected() const
 
 Seis::OffsetType SynthGenParams::offsetType() const
 {
-    Seis::OffsetType ret = SI().xyInFeet() ? Seis::OffsetFeet
-					   : Seis::OffsetMeter;
-    bool offsetsinfeet = ret == Seis::OffsetFeet;
+    Seis::OffsetType ret = SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+					   : Seis::OffsetType::OffsetMeter;
+    bool offsetsinfeet = ret == Seis::OffsetType::OffsetFeet;
     if ( raypars_.getYN(RayTracer1D::sKeyOffsetInFeet(),offsetsinfeet) )
-	ret = offsetsinfeet ? Seis::OffsetFeet : Seis::OffsetMeter;
+	ret = offsetsinfeet ? Seis::OffsetType::OffsetFeet
+			    : Seis::OffsetType::OffsetMeter;
 
     return ret;
 }
@@ -482,8 +485,8 @@ void SynthGenParams::createName( BufferString& nm ) const
 
     if ( isElasticStack() )
     {
-	const Seis::OffsetType angtyp = Seis::AngleDegrees;
-	bool isindegrees = angtyp == Seis::AngleDegrees;
+	const Seis::OffsetType angtyp = Seis::OffsetType::AngleDegrees;
+	bool isindegrees = angtyp == Seis::OffsetType::AngleDegrees;
 	float angle = ReflCalc1D::sDefAngle( angtyp );
 	if ( reflpars_.get(ReflCalc1D::sKeyAngle(),angle) &&
 	     reflpars_.getYN(ReflCalc1D::sKeyAngleInDegrees(),isindegrees) &&
@@ -495,8 +498,8 @@ void SynthGenParams::createName( BufferString& nm ) const
 
     if ( isElasticGather() )
     {
-	const Seis::OffsetType angtyp = Seis::AngleDegrees;
-	bool isindegrees = angtyp == Seis::AngleDegrees;
+	const Seis::OffsetType angtyp = Seis::OffsetType::AngleDegrees;
+	bool isindegrees = angtyp == Seis::OffsetType::AngleDegrees;
 	TypeSet<float> angles;
 	if ( reflpars_.get(ReflCalc1D::sKeyAngle(),angles) && !angles.isEmpty())
 	{

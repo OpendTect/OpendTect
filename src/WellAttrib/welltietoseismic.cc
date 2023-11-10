@@ -548,10 +548,12 @@ bool WellTie::DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     const float srd = getConvertedValue( SI().seismicReferenceDatum(),
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),
 				    UnitOfMeasure::surveyDefDepthUnit() );
-    const Seis::OffsetType offstyp = SI().xyInFeet() ? Seis::OffsetFeet
-						     : Seis::OffsetMeter;
-    const ZDomain::DepthType depthtype = SI().depthsInFeet() ? ZDomain::Feet
-							     : ZDomain::Meter;
+    const Seis::OffsetType offstyp = SI().xyInFeet()
+				   ? Seis::OffsetType::OffsetFeet
+				   : Seis::OffsetType::OffsetMeter;
+    const ZDomain::DepthType depthtype = SI().depthsInFeet()
+				       ? ZDomain::DepthType::Feet
+				       : ZDomain::DepthType::Meter;
     ConstRefMan<ReflectivityModelSet> refmodels =
 	Seis::RaySynthGenerator::getRefModels( aimodels, *sgp.reflPars(),
 		       msg, taskrunner, srd, offstyp, depthtype,

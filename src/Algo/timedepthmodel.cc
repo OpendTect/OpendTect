@@ -267,7 +267,7 @@ TimeDepthModelSet::Setup::Setup()
     , pup_(true)
     , starttime_(0.f)
     , startdepth_(0.f)
-    , depthtype_(ZDomain::Meter)
+    , depthtype_(ZDomain::DepthType::Meter)
 {
 }
 
@@ -290,7 +290,7 @@ bool TimeDepthModelSet::Setup::usePar( const IOPar& iop )
 
 bool TimeDepthModelSet::Setup::areDepthsInFeet() const
 {
-    return depthtype_ == ZDomain::Feet;
+    return depthtype_ == ZDomain::DepthType::Feet;
 }
 
 

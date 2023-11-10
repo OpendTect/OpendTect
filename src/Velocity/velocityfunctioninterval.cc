@@ -90,7 +90,7 @@ bool IntervalFunction::computeVelocity( float z0, float dz, int sz,
 // IntervalSource
 
 IntervalSource::IntervalSource()
-    : desc_(*new VelocityDesc(Vel::Interval))
+    : desc_(*new VelocityDesc(OD::VelocityType::Interval))
 {
     desc_.setUnit( UnitOfMeasure::surveyDefVelStorageUnit() );
 }

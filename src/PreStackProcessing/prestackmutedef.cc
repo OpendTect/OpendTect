@@ -24,7 +24,8 @@ const char* MuteDef::sKeyRefHor()	{ return "Reference Horizon";  }
 
 MuteDef::MuteDef( const char* nm )
     : NamedObject(nm)
-    , offsettype_(SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter)
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+				  : Seis::OffsetType::OffsetMeter)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
 }
@@ -63,13 +64,13 @@ MuteDef& MuteDef::operator=( const MuteDef& oth )
 
 bool MuteDef::isOffsetInMeters() const
 {
-    return offsettype_ == Seis::OffsetMeter;
+    return offsettype_ == Seis::OffsetType::OffsetMeter;
 }
 
 
 bool MuteDef::isOffsetInFeet() const
 {
-    return offsettype_ == Seis::OffsetFeet;
+    return offsettype_ == Seis::OffsetType::OffsetFeet;
 }
 
 

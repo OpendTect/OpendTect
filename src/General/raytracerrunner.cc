@@ -90,7 +90,7 @@ void RayTracerRunner::setOffsets( const TypeSet<float>& offsets,
 {
     raypar_.set( RayTracer1D::sKeyOffset(), offsets );
     raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(),
-		   offstype == Seis::OffsetFeet );
+		   offstype == Seis::OffsetType::OffsetFeet );
     for ( auto* rt : raytracers_ )
 	rt->setOffsets( offsets, offstype );
 }

@@ -340,7 +340,7 @@ static bool testAngleMuteComputer( const MultiID& velid, const MultiID& muteid,
     pars.outputmutemid_ = muteid;
     pars.raypar_.set( RayTracer1D::sKeyOffset(), offsets );
     pars.raypar_.setYN( RayTracer1D::sKeyOffsetInFeet(),
-			offstyp == Seis::OffsetFeet );
+			offstyp == Seis::OffsetType::OffsetFeet );
     pars.smoothingpar_.set( PreStack::AngleComputer::sKeySmoothType(),
 			    PreStack::AngleComputer::None );
     pars.tks_.set( tk );
@@ -391,9 +391,10 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 	const ZDomain::Info& zinfo = SI().zDomainInfo();
 	const bool zistime = zinfo.isTime();
-	const Seis::OffsetType offstyp = SI().xyInFeet() ? Seis::OffsetFeet
-							 : Seis::OffsetMeter;
-	const bool offsetsinfeet = offstyp == Seis::OffsetFeet;
+	const Seis::OffsetType offstyp = SI().xyInFeet()
+				       ? Seis::OffsetType::OffsetFeet
+				       : Seis::OffsetType::OffsetMeter;
+	const bool offsetsinfeet = offstyp == Seis::OffsetType::OffsetFeet;
 	const bool zinfeet = SI().zInFeet();
 	const float srd =
 	    UnitOfMeasure::surveyDefSRDStorageUnit()

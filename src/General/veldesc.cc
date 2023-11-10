@@ -23,7 +23,7 @@ const char* sKeyIsVelocity = "Is Velocity";
 const char* VelocityDesc::sKeyVelocityVolume()	{ return "Velocity volume"; }
 const char* VelocityDesc::sKeyVelocityUnit()	{ return "Velocity Unit"; }
 const char* VelocityDesc::sKeyVelocityType()
-{ return Vel::TypeDef().name().buf(); }
+{ return OD::VelocityTypeDef().name().buf(); }
 
 
 VelocityDesc::VelocityDesc()
@@ -31,7 +31,7 @@ VelocityDesc::VelocityDesc()
 }
 
 
-VelocityDesc::VelocityDesc( Vel::Type typ, const UnitOfMeasure* uom )
+VelocityDesc::VelocityDesc( OD::VelocityType typ, const UnitOfMeasure* uom )
     : type_(typ)
 {
     if ( uom )
@@ -57,9 +57,9 @@ bool VelocityDesc::operator!=( const VelocityDesc& oth ) const
 }
 
 
-bool VelocityDesc::isUdf( Vel::Type type )
+bool VelocityDesc::isUdf( OD::VelocityType type )
 {
-    return type == Vel::Unknown;
+    return type == OD::VelocityType::Unknown;
 }
 
 
@@ -67,8 +67,9 @@ bool VelocityDesc::isUdf() const
 { return isUdf(type_); }
 
 
-bool VelocityDesc::isVelocity( Vel::Type type )
-{ return type==Vel::Interval || type==Vel::RMS || type==Vel::Avg; }
+bool VelocityDesc::isVelocity( OD::VelocityType type )
+{ return type==OD::VelocityType::Interval || type==OD::VelocityType::RMS ||
+	 type==OD::VelocityType::Avg; }
 
 
 bool VelocityDesc::isVelocity() const
@@ -77,24 +78,25 @@ bool VelocityDesc::isVelocity() const
 
 bool VelocityDesc::isInterval() const
 {
-    return type_ == Vel::Interval;
+    return type_ == OD::VelocityType::Interval;
 }
 
 
 bool VelocityDesc::isRMS() const
 {
-    return type_ == Vel::RMS;
+    return type_ == OD::VelocityType::RMS;
 }
 
 
 bool VelocityDesc::isAvg() const
 {
-    return type_ == Vel::Avg;
+    return type_ == OD::VelocityType::Avg;
 }
 
 
-bool VelocityDesc::isThomsen( Vel::Type type )
-{ return type==Vel::Delta || type==Vel::Epsilon || type==Vel::Eta; }
+bool VelocityDesc::isThomsen( OD::VelocityType type )
+{ return type==OD::VelocityType::Delta || type==OD::VelocityType::Epsilon ||
+	 type==OD::VelocityType::Eta; }
 
 
 bool VelocityDesc::isThomsen() const
@@ -139,11 +141,11 @@ void VelocityDesc::setUnit( const UnitOfMeasure* uom )
 void VelocityDesc::fillPar( IOPar& par ) const
 {
     par.set( sKey::Type(), sKey::Velocity() );
-    par.set( sKeyVelocityType(), Vel::toString(type_) );
+    par.set( sKeyVelocityType(), OD::toString(type_) );
     if ( hasVelocityUnit() )
 	par.set( sKeyVelocityUnit(), velunit_ );
 
-    if ( type_ == Vel::RMS )
+    if ( type_ == OD::VelocityType::RMS )
 	statics_.fillPar( par );
     else
 	StaticsDesc::removePars( par );
@@ -163,11 +165,11 @@ bool VelocityDesc::usePar( const IOPar& par )
 	    return false;
     }
 
-    Vel::Type type = type_;
-    if ( Vel::parseEnum(par,sKeyVelocityType(),type) )
+    OD::VelocityType type = type_;
+    if ( OD::parseEnum(par,sKeyVelocityType(),type) )
     {
 	type_ = type;
-	if ( type_ == Vel::RMS && !statics_.usePar(par) )
+	if ( type_ == OD::VelocityType::RMS && !statics_.usePar(par) )
 	    return false;
 
 	BufferString velunit;
@@ -185,7 +187,7 @@ bool VelocityDesc::usePar( const IOPar& par )
 	if ( fms.isEmpty() )
 	    return false;
 
-	if ( !Vel::parseEnum(par,fms[0],type) )
+	if ( !OD::parseEnum(par,fms[0],type) )
 	    return false;
 
 	type_ = type;
@@ -219,15 +221,15 @@ uiString VelocityDesc::getVelVolumeLabel()
 }
 
 
-bool VelocityDesc::isUsable( Vel::Type type, const ZDomain::Def& zddef,
+bool VelocityDesc::isUsable( OD::VelocityType type, const ZDomain::Def& zddef,
 			     uiRetVal& uirv )
 {
-    if ( type == Vel::Interval || type == Vel::Avg )
+    if ( type == OD::VelocityType::Interval || type == OD::VelocityType::Avg )
 	return uirv.isOK();
 
     if ( zddef.isTime() )
     {
-	if ( type != Vel::RMS )
+	if ( type != OD::VelocityType::RMS )
 	    uirv.add( tr("Only RMS, Avg and Interval allowed for time based "
 			 "models") );
     }
@@ -260,7 +262,7 @@ Vel::Worker::Worker( const VelocityDesc& desc, double srd,
 
 Vel::Worker::Worker( double v0, double dv, double srd,
 		     const UnitOfMeasure* v0uom, const UnitOfMeasure* srduom )
-    : desc_(Vel::Interval)
+    : desc_(OD::VelocityType::Interval)
     , srd_(srd)
     , v0_(v0)
     , dv_(dv)
@@ -398,11 +400,12 @@ bool Vel::Worker::sampleVelocities( const ValueSeries<double>& Vin_src,
 	isok = zvals_in->isTime() && zvals_out->isTime() &&
 	       sampleVrms( Vin, *zvals_in, *zvals_out, Vout, t0 );
     }
-    else if ( desc_.type_ == Eta )
+    else if ( desc_.type_ == OD::VelocityType::Eta )
     {
 	sampleEffectiveThomsenPars( Vin, *zvals_in, *zvals_out, Vout );
     }
-    else if ( desc_.type_ == Delta || desc_.type_ == Epsilon )
+    else if ( desc_.type_ == OD::VelocityType::Delta ||
+	      desc_.type_ == OD::VelocityType::Epsilon )
     {
 	sampleIntvThomsenPars( Vin, *zvals_in, *zvals_out, Vout );
     }

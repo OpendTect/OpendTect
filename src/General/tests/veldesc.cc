@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "velocitycalc.h"
 #include "zvalseriesimpl.h"
 
+using namespace OD;
+
 static BufferString msg_;
 
 static double srd_ = 15.24;
@@ -176,8 +178,8 @@ static bool checkSampledZVals( const ValueSeries<double>& zvals,
 	    .add( "Expected: " ).add( toStringPrecise(float(expected)) ) \
 	    .add( "; Computed: " ).add( toStringPrecise(float(val)) ) \
 	    .add( " at idx " ).add( idx ).add( "; ") \
-	    .add( Vel::toString(typein) ).add( " to " ) \
-	    .add( Vel::toString(typeout) ); \
+	    .add( toString(typein) ).add( " to " ) \
+	    .add( toString(typeout) ); \
 	if ( zistime ) msg_.add( " (sampling in time)" ); \
 	else if ( zinfeet ) msg_.add( " (sampling in depth-Feet)" ); \
 	else msg_.add( " (sampling in depth-Meter)" ); \
@@ -188,7 +190,7 @@ static bool checkSampledZVals( const ValueSeries<double>& zvals,
 
 static bool checkConvertedVels( const ValueSeries<double>& vels,
 				const double* velsqc,
-				Vel::Type typein, Vel::Type typeout,
+				VelocityType typein, VelocityType typeout,
 				const ZDomain::Info& zinfo )
 
 {
@@ -279,7 +281,7 @@ static void getZVals( const ZDomain::Info& zinfo, TypeSet<double>& zvals )
 }
 
 
-static bool testVelConvs( Vel::Type typein, Vel::Type typeout,
+static bool testVelConvs( VelocityType typein, VelocityType typeout,
 			  const ZDomain::Info& zinfo,
 			  const bool* velinfeetsec =nullptr )
 {
@@ -418,16 +420,16 @@ static bool testVelocityConversion()
     const ZDomain::Info& zdepthm = ZDomain::DepthMeter();
     const ZDomain::Info& zdepthft = ZDomain::DepthFeet();
 
-    if ( !testVelConvs(Vel::Interval,Vel::Avg,ztwt) ||
-	 !testVelConvs(Vel::Interval,Vel::RMS,ztwt) ||
-	 !testVelConvs(Vel::Avg,Vel::Interval,ztwt) ||
-	 !testVelConvs(Vel::Avg,Vel::RMS,ztwt) ||
-	 !testVelConvs(Vel::RMS,Vel::Interval,ztwt) ||
-	 !testVelConvs(Vel::RMS,Vel::Avg,ztwt) ||
-	 !testVelConvs(Vel::Interval,Vel::Avg,zdepthm) ||
-	 !testVelConvs(Vel::Avg,Vel::Interval,zdepthm) ||
-	 !testVelConvs(Vel::Interval,Vel::Avg,zdepthft) ||
-	 !testVelConvs(Vel::Avg,Vel::Interval,zdepthft) )
+    if ( !testVelConvs(VelocityType::Interval,VelocityType::Avg,ztwt) ||
+	 !testVelConvs(VelocityType::Interval,VelocityType::RMS,ztwt) ||
+	 !testVelConvs(VelocityType::Avg,VelocityType::Interval,ztwt) ||
+	 !testVelConvs(VelocityType::Avg,VelocityType::RMS,ztwt) ||
+	 !testVelConvs(VelocityType::RMS,VelocityType::Interval,ztwt) ||
+	 !testVelConvs(VelocityType::RMS,VelocityType::Avg,ztwt) ||
+	 !testVelConvs(VelocityType::Interval,VelocityType::Avg,zdepthm) ||
+	 !testVelConvs(VelocityType::Avg,VelocityType::Interval,zdepthm) ||
+	 !testVelConvs(VelocityType::Interval,VelocityType::Avg,zdepthft) ||
+	 !testVelConvs(VelocityType::Avg,VelocityType::Interval,zdepthft) )
 	return false;
 
     return true;
@@ -444,7 +446,7 @@ static bool testSampleVelocities()
     const ZDomain::Info& zdepthft = ZDomain::DepthFeet();
 
     VelocityDesc desc;
-    desc.type_ = Vel::Interval;
+    desc.type_ = VelocityType::Interval;
     if ( !testSampleVels(desc,ztwt,zsamp_time,ztwt) ||
 	 !testSampleVels(desc,ztwt,zsamp_depthm,zdepthm) ||
 	 !testSampleVels(desc,ztwt,zsamp_depthft,zdepthft) ||
@@ -456,7 +458,7 @@ static bool testSampleVelocities()
 	 !testSampleVels(desc,zdepthft,zsamp_depthft,zdepthft) )
 	return false;
 
-    desc.type_ = Vel::Avg;
+    desc.type_ = VelocityType::Avg;
     if ( !testSampleVels(desc,ztwt,zsamp_time,ztwt) ||
 	 !testSampleVels(desc,ztwt,zsamp_depthm,zdepthm) ||
 	 !testSampleVels(desc,ztwt,zsamp_depthft,zdepthft) ||
@@ -468,7 +470,7 @@ static bool testSampleVelocities()
 	 !testSampleVels(desc,zdepthft,zsamp_depthft,zdepthft) )
 	return false;
 
-    desc.type_ = Vel::RMS;
+    desc.type_ = VelocityType::RMS;
     if ( !testSampleVels(desc,ztwt,zsamp_time,ztwt) )
 	return false;
 
@@ -486,7 +488,7 @@ static bool testCalcZ()
     const ZDomain::Info& zdepthft = ZDomain::DepthFeet();
 
     VelocityDesc desc;
-    desc.type_ = Vel::Interval;
+    desc.type_ = VelocityType::Interval;
     if ( !testCalcZ(desc,ztwt,zsamp_time,ztwt) ||
 	 !testCalcZ(desc,ztwt,zsamp_depthm,zdepthm) ||
 	 !testCalcZ(desc,ztwt,zsamp_depthft,zdepthft) ||
@@ -498,7 +500,7 @@ static bool testCalcZ()
 	 !testCalcZ(desc,zdepthft,zsamp_depthft,zdepthft) )
 	return false;
 
-    desc.type_ = Vel::Avg;
+    desc.type_ = VelocityType::Avg;
     if ( !testCalcZ(desc,ztwt,zsamp_time,ztwt) ||
 	 !testCalcZ(desc,ztwt,zsamp_depthm,zdepthm) ||
 	 !testCalcZ(desc,ztwt,zsamp_depthft,zdepthft) ||
@@ -510,7 +512,7 @@ static bool testCalcZ()
 	 !testCalcZ(desc,zdepthft,zsamp_depthft,zdepthft) )
 	return false;
 
-    desc.type_ = Vel::RMS;
+    desc.type_ = VelocityType::RMS;
     if ( !testCalcZ(desc,ztwt,zsamp_time,ztwt) )
 	return false;
 

@@ -195,7 +195,7 @@ void WellTie::GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd )
 	const ArrayValueSeries<double,float> svalsvs( svals.arr(), false, sz );
 	const ArrayZValues<float> sdptsvs( sdpts, SI().zInFeet()
 			    ? ZDomain::DepthFeet() : ZDomain::DepthMeter() );
-	const VelocityDesc desc( Vel::Interval,
+	const VelocityDesc desc( OD::VelocityType::Interval,
 				 UnitOfMeasure::meterSecondUnit() );
 	const Vel::Worker worker( desc, SI().seismicReferenceDatum(),
 				  UnitOfMeasure::surveyDefSRDStorageUnit() );

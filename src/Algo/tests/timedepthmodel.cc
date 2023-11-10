@@ -35,7 +35,7 @@ static ElasticModel getEModel()
     return emdl;
 }
 
-static Seis::OffsetType offsettype_ = Seis::OffsetMeter;
+static Seis::OffsetType offsettype_ = Seis::OffsetType::OffsetMeter;
 static TypeSet<float> getOffsets()
 {
     TypeSet<float> offsets;

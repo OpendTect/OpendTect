@@ -326,7 +326,7 @@ static BufferString getInfoText( const IOObj& ioobj )
 	VelocityDesc desc;
 	if ( desc.usePar(pars) )
 	{
-	    txt.add( "\nVelocity Type: " ).add( Vel::toString(desc.type_) );
+	    txt.add( "\nVelocity Type: " ).add( OD::toString(desc.type_) );
 	    if ( !is2d && cs.zsamp_.nrSteps() > 1 )
 	    {
 		const ZDomain::Info& todomain = zinfo.isTime()

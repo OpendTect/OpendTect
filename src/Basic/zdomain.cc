@@ -438,16 +438,16 @@ uiString ZDomain::Info::uiUnitStr( bool wp ) const
 
 ZDomain::TimeType ZDomain::Info::timeType() const
 {
-    return Seconds;
+    return TimeType::Seconds;
 }
 
 
 ZDomain::DepthType ZDomain::Info::depthType() const
 {
     if ( isDepthFeet() )
-	return Feet;
+	return DepthType::Feet;
 
-    return Meter;
+    return DepthType::Meter;
 }
 
 
@@ -478,7 +478,7 @@ void ZDomain::Info::setDepthUnit( DepthType typ )
     if ( !isDepth() )
 	return;
 
-    pars_.set( sKeyUnit(), typ == ZDomain::Feet ? sKeyFeet : sKeyMeter );
+    pars_.set( sKeyUnit(), typ == DepthType::Feet ? sKeyFeet : sKeyMeter );
 }
 
 

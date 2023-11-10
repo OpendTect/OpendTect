@@ -326,10 +326,10 @@ void PSAttrib::setGatherIsAngle( PreStack::Gather& gather )
 
     const bool offsetinfeet = gather.isOffsetInFeet();
     if ( gathertype == Ang )
-	gather.setOffsetType( Seis::AngleDegrees );
+	gather.setOffsetType( Seis::OffsetType::AngleDegrees );
     else
-	gather.setOffsetType( offsetinfeet ? Seis::OffsetFeet
-					   : Seis::OffsetMeter );
+	gather.setOffsetType( offsetinfeet ? Seis::OffsetType::OffsetFeet
+					   : Seis::OffsetType::OffsetMeter );
 }
 
 

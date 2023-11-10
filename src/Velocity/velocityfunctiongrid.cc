@@ -380,7 +380,7 @@ const VelocityDesc& GriddedSource::getDesc() const
     if ( !datasources_.isEmpty() )
 	return datasources_.first()->getDesc();
 
-    static const VelocityDesc defdesc( Vel::Unknown );
+    static const VelocityDesc defdesc( OD::VelocityType::Unknown );
     return defdesc;
 }
 

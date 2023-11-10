@@ -42,7 +42,7 @@ public:
 	mDefSetupMemb(float,starttime);
 	mDefSetupMemb(float,startdepth);
 	Setup&		offsettype(Seis::OffsetType);
-	Seis::OffsetType offsettype_;
+	Seis::OffsetType offsettype_		= Seis::OffsetType::OffsetMeter;
 	mDefSetupMemb(ZDomain::DepthType,depthtype);
 
 	virtual void	fillPar(IOPar&) const;
@@ -85,7 +85,7 @@ public:
     static const char*	sKeyWavetypes()    { return "Wavetypes"; }
 
     static StepInterval<float>	sDefOffsetRange(Seis::OffsetType
-							=Seis::OffsetMeter);
+						=Seis::OffsetType::OffsetMeter);
 
     static void		setIOParsToZeroOffset(IOPar&);
     static RayTracer1D* createInstance(const IOPar&,uiString&,

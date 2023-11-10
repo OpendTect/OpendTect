@@ -464,7 +464,8 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 	    offsets += offsetrg.atIndex( idx );
 
 	par.set( RayTracer1D::sKeyOffset(), offsets );
-	par.setYN( RayTracer1D::sKeyOffsetInFeet(), defOffsetType() );
+	par.setYN( RayTracer1D::sKeyOffsetInFeet(),
+		   defOffsetType() == Seis::OffsetType::OffsetFeet );
     }
 
     par.setYN( RayTracer1D::sKeyReflectivity(), doreflectivity_ );
@@ -487,7 +488,8 @@ uiRetVal uiRayTracer1D::isOK() const
 
 Seis::OffsetType uiRayTracer1D::defOffsetType()
 {
-    return SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter;
+    return SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+			   : Seis::OffsetType::OffsetMeter;
 }
 
 

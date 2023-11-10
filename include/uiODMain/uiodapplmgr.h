@@ -9,7 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+
 #include "uiodmain.h"
+#include "survinfo.h"
 
 class MouseCursorExchange;
 class uiApplPartServer;
@@ -262,8 +264,8 @@ protected:
 
 	void			refresh();
 
-	int			xyunit_			= 1;
-	int			zunit_			= 0;
+	OD::XYType		xyunit_			= OD::XYType::Meter;
+	SurveyInfo::Unit	zunit_			= SurveyInfo::Second;
 	float			zstep_			= 0.004f;
     };
 

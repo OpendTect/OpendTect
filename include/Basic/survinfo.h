@@ -101,7 +101,7 @@ public:
     const uiString	getUiZUnitString(bool withparens=true) const
 			{ return zDomain().uiUnitStr( withparens ); }
     enum Unit		{ Second, Meter, Feet };
-    Coords::XYType	xyUnit() const;
+    OD::XYType		xyUnit() const;
     Unit		zUnit() const;
 
     Coord		minCoord(bool work) const;
@@ -161,11 +161,11 @@ protected:
     SurveyDiskLocation	disklocation_;
 
     ZDomain::Def&	zdef_;
-    Coords::XYType	xytype_				= Coords::Meter;
-    ZDomain::DepthType	depthtype_			= ZDomain::Meter;
+    OD::XYType		xytype_			= OD::XYType::Meter;
+    ZDomain::DepthType	depthtype_		= ZDomain::DepthType::Meter;
     TrcKeyZSampling&	tkzs_;
     TrcKeyZSampling&	wcs_;
-    float		seisrefdatum_			= 0.f;
+    float		seisrefdatum_		= 0.f;
     IOPar&		pars_;
     IOPar		logpars_;
     RefMan<Coords::CoordSystem> coordsystem_;
@@ -244,7 +244,7 @@ public:
     void		setXYInFeet(bool yn=true);
     void		setDepthInFeet(bool yn=true);
     void		setZUnit(bool istime,bool infeet=false);
-    static float	defaultXYtoZScale(Unit,Coords::XYType);
+    static float	defaultXYtoZScale(Unit,OD::XYType);
 			/*!<Gives a ballpark figure of how to scale XY to
 			    make it comparable to Z. */
     float		zScale() const;

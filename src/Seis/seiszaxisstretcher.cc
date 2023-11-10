@@ -175,7 +175,7 @@ void SeisZAxisStretcher::setWorkers( const VelocityDesc& desc )
 	 desc.getUnit() == UnitOfMeasure::meterSecondUnit() )
 	return;
 
-    const VelocityDesc vintdesc( Vel::Interval,
+    const VelocityDesc vintdesc( OD::VelocityType::Interval,
 				 UnitOfMeasure::meterSecondUnit() );
     vintworker_ = new Vel::Worker( vintdesc, srd_, srduom_ );
 }
@@ -189,7 +189,8 @@ void SeisZAxisStretcher::setVelTypeIsVint( bool yn )
 	return;
     }
 
-    const VelocityDesc desc( Vel::Interval, UnitOfMeasure::surveyDefVelUnit() );
+    const VelocityDesc desc( OD::VelocityType::Interval,
+			     UnitOfMeasure::surveyDefVelUnit() );
     setWorkers( desc );
 }
 
@@ -202,7 +203,8 @@ void SeisZAxisStretcher::setVelTypeIsVrms( bool yn )
 	return;
     }
 
-    const VelocityDesc desc( Vel::RMS, UnitOfMeasure::surveyDefVelUnit() );
+    const VelocityDesc desc( OD::VelocityType::RMS,
+			     UnitOfMeasure::surveyDefVelUnit() );
     setWorkers( desc );
 }
 

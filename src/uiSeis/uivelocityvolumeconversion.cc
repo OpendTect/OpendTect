@@ -76,18 +76,19 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
     StringView oldoutputtype =
 	outputveltype_->box()->textOfItem(outputveltype_->box()->currentItem());
 
-    TypeSet<Type> types;
+    TypeSet<OD::VelocityType> types;
     if ( SI().zIsTime() )
-	types += RMS;
+	types += OD::VelocityType::RMS;
 
-    types += Interval;
-    types += Avg;
+    types += OD::VelocityType::Interval;
+    types += OD::VelocityType::Avg;
     types -= desc.type_;
 
     outputveltype_->box()->setEmpty();
 
     for ( const auto& veltype : types )
-	outputveltype_->box()->addItem( TypeDef().toUiString(veltype) );
+	outputveltype_->box()->addItem(
+				OD::VelocityTypeDef().toUiString(veltype) );
 
     outputveltype_->box()->setCurrentItem( oldoutputtype );
 
@@ -141,7 +142,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     const StringView outputtype =
 			outputveltype_->box()->textOfItem( outputvelidx );
     VelocityDesc outputdesc;
-    if ( TypeDef().parse(outputtype,outputdesc.type_) )
+    if ( OD::VelocityTypeDef().parse(outputtype,outputdesc.type_) )
     {
 	outputdesc.setUnit( inputveldesc.getUnit() );
 	outputdesc.fillPar( outputioobj->pars() );

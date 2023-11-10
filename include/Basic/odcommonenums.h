@@ -143,13 +143,8 @@ enum WellType
 
 mDeclareNameSpaceEnumUtils(Basic,WellType);
 
-} // namespace OD
 
-
-namespace Coords
-{
-
-enum XYType
+enum class XYType
 {
     Meter=0,
     Feet=1
@@ -157,13 +152,27 @@ enum XYType
 
 mDeclareNameSpaceEnumUtils(Basic,XYType)
 
-} // namespace Coords
+
+enum class VelocityType
+{
+    Unknown=0,
+    Interval=1,
+    RMS=2,
+    Avg=3,
+    Delta=4,
+    Epsilon=5,
+    Eta=6
+};
+
+mDeclareNameSpaceEnumUtils(Basic,VelocityType)
+
+} // namespace OD
 
 
 namespace Seis
 {
 
-enum OffsetType
+enum class OffsetType
 {
     OffsetMeter=0,
     OffsetFeet=1,
@@ -178,28 +187,11 @@ mGlobal(Basic) bool isOffsetAngle(OffsetType);
 
 } // namespace Seis
 
-namespace Vel
-{
-
-enum Type
-{
-    Unknown=0,
-    Interval=1,
-    RMS=2,
-    Avg=3,
-    Delta=4,
-    Epsilon=5,
-    Eta=6
-};
-
-mDeclareNameSpaceEnumUtils(Basic,Type)
-
-} // namespace Vel
 
 namespace ZDomain
 {
 
-enum TimeType
+enum class TimeType
 {
     Seconds=0,
     MilliSeconds=1,
@@ -209,7 +201,7 @@ enum TimeType
 mDeclareNameSpaceEnumUtils(Basic,TimeType)
 
 
-enum DepthType
+enum class DepthType
 {
     Meter=0,
     Feet=1

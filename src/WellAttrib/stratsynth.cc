@@ -1804,9 +1804,11 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),
 				    UnitOfMeasure::surveyDefDepthUnit() );
 		const Seis::OffsetType offstyp = SI().xyInFeet()
-				    ? Seis::OffsetFeet : Seis::OffsetMeter;
+				    ? Seis::OffsetType::OffsetFeet
+				    : Seis::OffsetType::OffsetMeter;
 		const ZDomain::DepthType depthtype = SI().depthsInFeet()
-				    ? ZDomain::Feet : ZDomain::Meter;
+				    ? ZDomain::DepthType::Feet
+				    : ZDomain::DepthType::Meter;
 		refmodels = Seis::RaySynthGenerator::getRefModels( elmdls,
 					    *sgp.reflPars(), msg, taskrun,
 					    srd, offstyp, depthtype );

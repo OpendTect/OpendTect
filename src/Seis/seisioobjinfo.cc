@@ -432,7 +432,7 @@ const UnitOfMeasure* SeisIOObjInfo::offsetUnit() const
 
 Seis::OffsetType SeisIOObjInfo::offsetType() const
 {
-    Seis::OffsetType typ = Seis::OffsetMeter;
+    Seis::OffsetType typ = Seis::OffsetType::OffsetMeter;
     mChk(typ);
     if ( isPS() )
 	SeisPSIOProvider::getGatherOffsetType( ioobj_->pars(), typ );
@@ -1271,8 +1271,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	VelocityDesc desc;
 	if ( desc.usePar(pars) )
 	{
-	    inf.addKeyValue( tr("Velocity Type"),
-			     Vel::toString(desc.type_) );
+	    inf.addKeyValue( tr("Velocity Type"), OD::toString(desc.type_) );
 	    TrcKeyZSampling cs;
 	    if ( !is2d && getRanges(cs) )
 	    {

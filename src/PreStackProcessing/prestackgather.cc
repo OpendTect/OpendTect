@@ -46,7 +46,8 @@ const char* GatherSetDataPack::sDataPackCategory()
 Gather::Gather()
     : FlatDataPack(sDataPackCategory(),new Array2DImpl<float>(1,1))
     , coord_(0.,0.)
-    , offsettype_(SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter)
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+				  : Seis::OffsetType::OffsetMeter)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
 }
@@ -367,13 +368,13 @@ bool Gather::isOffsetAngle() const
 
 bool Gather::isOffsetInMeters() const
 {
-    return offsettype_ == Seis::OffsetMeter;
+    return offsettype_ == Seis::OffsetType::OffsetMeter;
 }
 
 
 bool Gather::isOffsetInFeet() const
 {
-    return offsettype_ == Seis::OffsetFeet;
+    return offsettype_ == Seis::OffsetType::OffsetFeet;
 }
 
 
@@ -602,7 +603,8 @@ float GatherSetArray3D::get( int idx, int idy, int idz ) const
 GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */ )
     : DataPack( sDataPackCategory() )
     , arr3d_(*new GatherSetArray3D(gathers_))
-    , offsettype_(SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter)
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+				  : Seis::OffsetType::OffsetMeter)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
 }
@@ -613,7 +615,8 @@ GatherSetDataPack::GatherSetDataPack( const char* /* ctgery */,
     : DataPack(sDataPackCategory())
     , gathers_(gathers)
     , arr3d_(*new GatherSetArray3D(gathers_))
-    , offsettype_(SI().xyInFeet() ? Seis::OffsetFeet : Seis::OffsetMeter)
+    , offsettype_(SI().xyInFeet() ? Seis::OffsetType::OffsetFeet
+				  : Seis::OffsetType::OffsetMeter)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
     const OD::String& nm = name();
@@ -855,13 +858,13 @@ bool GatherSetDataPack::isOffsetAngle() const
 
 bool GatherSetDataPack::isOffsetInMeters() const
 {
-    return offsettype_ == Seis::OffsetMeter;
+    return offsettype_ == Seis::OffsetType::OffsetMeter;
 }
 
 
 bool GatherSetDataPack::isOffsetInFeet() const
 {
-    return offsettype_ == Seis::OffsetFeet;
+    return offsettype_ == Seis::OffsetType::OffsetFeet;
 }
 
 

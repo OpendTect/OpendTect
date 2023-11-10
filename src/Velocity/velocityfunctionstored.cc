@@ -216,7 +216,7 @@ void StoredFunctionSource::fillIOObjPar( IOPar& par ) const
 {
     par.setEmpty();
     par.set( sKey::Type(), sKeyVelocityFunction );
-    par.set( sKeyVelocityType(), toString(desc_.type_) );
+    par.set( sKeyVelocityType(), OD::toString(desc_.type_) );
 }
 
 

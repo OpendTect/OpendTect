@@ -48,7 +48,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p, bool is2d )
     mAttachCB( inpfld_->valueChanged, uiImportVelFunc::inpSelCB );
 
     uiVelocityDesc::Setup su( nullptr, is2d_, false );
-    su.desc_.type_ = Interval;
+    su.desc_.type_ = OD::VelocityType::Interval;
     typefld_ = new uiVelocityDesc( this, su );
     typefld_->attach( alignedBelow, inpfld_ );
     mAttachCB( typefld_->typeChangeNotifier(),

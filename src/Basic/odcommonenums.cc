@@ -78,7 +78,7 @@ bool isOptional( OD::ChoiceMode cm )
 }
 
 
-mDefineNameSpaceEnumUtils(Coords,XYType,"Coordinates Type")
+mDefineNameSpaceEnumUtils(OD,XYType,"Coordinates Type")
 {
     "Meter",
     "Feet",
@@ -98,17 +98,17 @@ mDefineNameSpaceEnumUtils(Seis,OffsetType,"Offset Type")
 
 bool Seis::isOffsetDist( OffsetType typ )
 {
-    return typ == OffsetMeter || typ == OffsetFeet;
+    return typ == OffsetType::OffsetMeter || typ == OffsetType::OffsetFeet;
 }
 
 
 bool Seis::isOffsetAngle( OffsetType typ )
 {
-    return typ == AngleRadians || typ == AngleDegrees;
+    return typ == OffsetType::AngleRadians || typ == OffsetType::AngleDegrees;
 }
 
 
-mDefineNameSpaceEnumUtils(Vel,Type,"Velocity Type")
+mDefineNameSpaceEnumUtils(OD,VelocityType,"Velocity Type")
 {
     "Unknown",
     "Vint",

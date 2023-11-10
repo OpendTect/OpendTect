@@ -60,11 +60,11 @@ private:
     void			unitCheckCB(CallBacker*);
     void			hasStaticsChgCB(CallBacker*);
 
-    Vel::Type			getType() const;
-    void			setType(Vel::Type);
+    OD::VelocityType		getType() const;
+    void			setType(OD::VelocityType);
 
     Setup			vsu_;
-    EnumDefImpl<Vel::Type>	veltypedef_;
+    EnumDefImpl<OD::VelocityType> veltypedef_;
     uiGenInput*			typefld_;
     uiCheckBox*			unitchkfld_;
     uiUnitSel*			unitfld_;

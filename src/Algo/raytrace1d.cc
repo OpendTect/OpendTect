@@ -23,7 +23,7 @@ StepInterval<float> RayTracer1D::sDefOffsetRange( Seis::OffsetType typ )
     if ( !Seis::isOffsetDist(typ) )
 	return StepInterval<float>::udf();
 
-    return typ == Seis::OffsetMeter
+    return typ == Seis::OffsetType::OffsetMeter
 		? StepInterval<float>( 0.f, 6000.f, 100.f )
 		: StepInterval<float>( 0.f, 18000.f, 300.f );
 }
@@ -37,8 +37,7 @@ RayTracer1D::Setup::Setup()
     , doreflectivity_(true)
     , starttime_(0.f)
     , startdepth_(0.f)
-    , offsettype_(Seis::OffsetMeter)
-    , depthtype_(ZDomain::Meter)
+    , depthtype_(ZDomain::DepthType::Meter)
 {
 }
 
@@ -74,13 +73,13 @@ RayTracer1D::Setup& RayTracer1D::Setup::offsettype( Seis::OffsetType typ )
 
 bool RayTracer1D::Setup::areOffsetsInFeet() const
 {
-    return offsettype_ == Seis::OffsetFeet;
+    return offsettype_ == Seis::OffsetType::OffsetFeet;
 }
 
 
 bool RayTracer1D::Setup::areDepthsInFeet() const
 {
-    return depthtype_ == ZDomain::Feet;
+    return depthtype_ == ZDomain::DepthType::Feet;
 }
 
 
@@ -159,7 +158,8 @@ bool RayTracer1D::usePar( const IOPar& par )
 
     bool offsetisinfeet = false;
     par.getYN( sKeyOffsetInFeet(), offsetisinfeet );
-    setOffsets( offsets, offsetisinfeet ? Seis::OffsetFeet : Seis::OffsetMeter);
+    setOffsets( offsets, offsetisinfeet ? Seis::OffsetType::OffsetFeet
+					: Seis::OffsetType::OffsetMeter );
 
     return setup().usePar( par );
 }
@@ -205,7 +205,7 @@ void RayTracer1D::setOffsets( const TypeSet<float>& offsets,
     offsets_ = offsets;
     sort( offsets_ );
 
-    const bool offsetsinfeet = offstype == Seis::OffsetFeet;
+    const bool offsetsinfeet = offstype == Seis::OffsetType::OffsetFeet;
     if ( offsetsinfeet && !areOffsetsInFeet() )
     {
 	for ( int idx=0; idx<offsets.size(); idx++ )

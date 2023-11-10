@@ -254,7 +254,7 @@ VelocityStretcher::VelocityStretcher( const ZDomain::Def& from,
 				      const ZDomain::Def& to,
 				      const MultiID& mid )
     : ZAxisTransform(from,to)
-    , veldesc_(*new VelocityDesc(Vel::Interval,
+    , veldesc_(*new VelocityDesc(OD::VelocityType::Interval,
 				 UnitOfMeasure::surveyDefVelUnit()))
     , topvavg_(getDefaultVAvg().start,getDefaultVAvg().start)
     , botvavg_(getDefaultVAvg().stop,getDefaultVAvg().stop)
@@ -765,7 +765,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
     , srd_(SI().seismicReferenceDatum())
     , srduom_(UnitOfMeasure::surveyDefSRDStorageUnit())
     , veldesc_(vd)
-    , vavgdesc_(*new VelocityDesc(Vel::Avg,vd.getUnit()))
+    , vavgdesc_(*new VelocityDesc(OD::VelocityType::Avg,vd.getUnit()))
     , startavgvel_(Interval<float>::udf())
     , stopavgvel_(Interval<float>::udf())
     , subsel_(true)

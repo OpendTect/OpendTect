@@ -29,7 +29,7 @@ Specifies velocity type and statics for a velocity.
 To tag a velocity volume as a velocity, this class can be used to do the work:
 
 \code
-    const VelocityDesc desc( Vel::Interval );
+    const VelocityDesc desc( OD::VelocityType::Interval );
 
     PtrMan<IOObj> ioobj = IOM().get( multiid );
     desc.fillPar( ioobj->pars() );
@@ -43,22 +43,23 @@ mExpClass(General) VelocityDesc
 { mODTextTranslationClass(VelocityDesc);
 public:
 			VelocityDesc();
-			VelocityDesc(Vel::Type,const UnitOfMeasure* =nullptr);
+			VelocityDesc(OD::VelocityType,
+				     const UnitOfMeasure* =nullptr);
 			~VelocityDesc();
 
     bool		operator==(const VelocityDesc&) const;
     bool		operator!=(const VelocityDesc&) const;
 
-    static bool		isUdf(Vel::Type);
+    static bool		isUdf(OD::VelocityType);
     bool		isUdf() const;
-    static bool		isVelocity(Vel::Type);
+    static bool		isVelocity(OD::VelocityType);
 			//!<\returns true if not unknown or a Thomsen parameter
     bool		isVelocity() const;
 			//!<\returns true if not unknown or a Thomsen parameter
     bool		isInterval() const;
     bool		isRMS() const;
     bool		isAvg() const;
-    static bool		isThomsen(Vel::Type);
+    static bool		isThomsen(OD::VelocityType);
 			//!<\returns true if not unknown or a Velocity
     bool		isThomsen() const;
 			//!<\returns true if not unknown or a Velocity
@@ -77,10 +78,11 @@ public:
 
     static uiString	getVelVolumeLabel();
 
-    Vel::Type		type_ = Vel::Unknown;
+    OD::VelocityType	type_ = OD::VelocityType::Unknown;
     StaticsDesc		statics_;
 
-    static bool		isUsable(Vel::Type,const ZDomain::Def&,uiRetVal&);
+    static bool		isUsable(OD::VelocityType,const ZDomain::Def&,
+				 uiRetVal&);
 
 private:
 

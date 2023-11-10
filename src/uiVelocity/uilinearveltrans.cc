@@ -48,7 +48,7 @@ uiZAxisTransform* uiLinearVelTransform::createInstance( uiParent* p,
 uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase( p, t2d )
 {
-    const uiString velfldlbl( toUiString(Interval) );
+    const uiString velfldlbl( OD::toUiString(OD::VelocityType::Interval) );
     velfld_ = new uiConstantVel( this, getGUIDefaultVelocity(), velfldlbl );
     mAttachCB( velfld_->valueChanging, uiLinearVelTransform::velChangedCB );
 

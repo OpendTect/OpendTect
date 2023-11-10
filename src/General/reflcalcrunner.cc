@@ -97,7 +97,7 @@ void ReflCalcRunner::setAngles( const TypeSet<float>& angles,
 {
     reflpar_.set( ReflCalc1D::sKeyAngle(), angles );
     reflpar_.setYN( ReflCalc1D::sKeyAngleInDegrees(),
-		    typ == Seis::AngleDegrees );
+		    typ == Seis::OffsetType::AngleDegrees );
     for ( auto* reflcalc : reflcalcs_ )
 	reflcalc->setAngles( angles, typ );
 }

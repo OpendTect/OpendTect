@@ -48,14 +48,14 @@ uiVelocityDesc::Setup::~Setup()
 uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup& vsu )
     : uiGroup( p, "Velocity type selector" )
     , vsu_(vsu)
-    , veltypedef_(Vel::TypeDef())
+    , veltypedef_(OD::VelocityTypeDef())
 {
-    const EnumDefImpl<Vel::Type>& typdef = Vel::TypeDef();
+    const EnumDefImpl<OD::VelocityType>& typdef = OD::VelocityTypeDef();
     if ( vsu.onlyvelocity_ )
     {
-	veltypedef_.remove( typdef.getKey(Vel::Delta) );
-	veltypedef_.remove( typdef.getKey(Vel::Epsilon) );
-	veltypedef_.remove( typdef.getKey(Vel::Eta) );
+	veltypedef_.remove( typdef.getKey(OD::VelocityType::Delta) );
+	veltypedef_.remove( typdef.getKey(OD::VelocityType::Epsilon) );
+	veltypedef_.remove( typdef.getKey(OD::VelocityType::Eta) );
     }
 
     typefld_ = new uiGenInput( this, tr("Velocity type"),
@@ -100,16 +100,16 @@ void uiVelocityDesc::initGrpCB( CallBacker* )
 }
 
 
-Vel::Type uiVelocityDesc::getType() const
+OD::VelocityType uiVelocityDesc::getType() const
 {
     const int curtypeidx = typefld_->getIntValue();
     return veltypedef_.getEnumForIndex( curtypeidx );
 }
 
 
-void uiVelocityDesc::setType( Vel::Type type )
+void uiVelocityDesc::setType( OD::VelocityType type )
 {
-    const BufferString typestr( Vel::TypeDef().getKey(type) );
+    const BufferString typestr( OD::VelocityTypeDef().getKey(type) );
     if ( !veltypedef_.keys().isPresent(typestr) )
 	return;
 
@@ -126,7 +126,7 @@ NotifierAccess& uiVelocityDesc::typeChangeNotifier()
 
 void uiVelocityDesc::typeChgCB( CallBacker* )
 {
-    const Vel::Type type = getType();
+    const OD::VelocityType type = getType();
     const bool dispunit = VelocityDesc::isUdf( type ) ||
 			  VelocityDesc::isVelocity( type );
     unitchkfld_->display( dispunit );
@@ -138,7 +138,7 @@ void uiVelocityDesc::typeChgCB( CallBacker* )
     }
 
     unitfld_->display( dispunit );
-    const bool isvrms = type==Vel::RMS;
+    const bool isvrms = type==OD::VelocityType::RMS;
     hasstaticsfld_->display( isvrms );
     hasStaticsChgCB( nullptr );
 }
@@ -180,7 +180,7 @@ void uiVelocityDesc::set( const VelocityDesc& desc )
 
 bool uiVelocityDesc::isVelocity() const
 {
-    const Vel::Type type = getType();
+    const OD::VelocityType type = getType();
     return VelocityDesc::isVelocity( type );
 }
 
@@ -302,7 +302,7 @@ void uiVelocityDescDlg::volSelChange( CallBacker* cb )
     if ( ioobj )
     {
 	if ( cb == volselfld_ && !oldveldesc_.usePar(ioobj->pars()) )
-	    oldveldesc_.type_ = Vel::Unknown;
+	    oldveldesc_.type_ = OD::VelocityType::Unknown;
 
 	const IOPar& par = ioobj->pars();
 	if ( !VelocityStretcher::getRange(par,oldveldesc_,true,toprange_) )

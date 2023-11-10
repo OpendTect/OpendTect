@@ -45,10 +45,10 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
     , source_( s )
 {
     IOObjContext context = StoredFunctionSource::ioContext();
-    BufferStringSet typnms = TypeDef().keys();
-    typnms.remove( toString(Unknown) );
+    BufferStringSet typnms = OD::VelocityTypeDef().keys();
+    typnms.remove( toString(OD::VelocityType::Unknown) );
     if ( !SI().zIsTime() )
-	typnms.remove( toString(RMS) );
+	typnms.remove( OD::toString(OD::VelocityType::RMS) );
 
     context.forread_ = true;
     context.toselect_.require_.set(StoredFunctionSource::sKeyVelocityType(),

@@ -160,7 +160,7 @@ mGlobal(Algo) bool calcTimesFromVavg(const ValueSeries<double>& Vavg,
   input/output depths values as TVDSD in meters. */
 
 mGlobal(Algo) bool getSampledZ(const ValueSeries<double>& vels,
-			       const ZValueSeries& zvals_in,Vel::Type,
+			       const ZValueSeries& zvals_in,OD::VelocityType,
 			       const ZValueSeries& zvals_out,
 			       ValueSeries<double>& Zout,double t0=0.);
 
