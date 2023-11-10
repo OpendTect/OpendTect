@@ -31,7 +31,7 @@ ________________________________________________________________________
 static const char*		sKeyStartIdx()	{ return "Start index"; }
 static OD::Color		defcolor()	{ return OD::Color::Red(); }
 static int			defPixSz()	{ return 3; }
-static MarkerStyle3D::Type	defMarkerStyl() { return MarkerStyle3D::Point; }
+static MarkerStyle3D::Type	defMarkerStyle(){ return MarkerStyle3D::Sphere;}
 static OD::LineStyle		defLineStyle()
 {
     return OD::LineStyle( OD::LineStyle::Solid, defPixSz(), defcolor() );
@@ -709,6 +709,7 @@ Set::Set( const char* nm )
 {
     picksetzdomainmgr_.setParam( this, new ZDomain::Info(SI().zDomainInfo()));
     setDefaultDispPars();
+    addStartIdx( 0 );
 }
 
 
@@ -719,6 +720,7 @@ Set::Set( const Set& oth )
     picksetzdomainmgr_.setParam( this, new ZDomain::Info(SI().zDomainInfo()));
     *this = oth;
 }
+
 
 Set::~Set()
 {
@@ -1095,7 +1097,7 @@ void Set::setDefaultDispPars()
 
     disp_.fillcolor_ = defcolor();
     disp_.pixsize_ = defPixSz();
-    disp_.markertype_ = defMarkerStyl();
+    disp_.markertype_ = defMarkerStyle();
     disp_.linestyle_ = defLineStyle();
     if ( isPolygon() )
 	disp_.connect_ = Disp::Close;
