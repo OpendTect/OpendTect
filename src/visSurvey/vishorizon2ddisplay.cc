@@ -240,15 +240,15 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
 		visBase::VertexShape* shape, visBase::PointSet* points,
 		ZAxisTransform* zaxt, const TypeSet<Pos::GeomID>& geomids,
 		TypeSet<int>& volumeofinterestids)
-    : surf_( rcs )
-    , lines_( shape )
-    , points_( points )
-    , lineranges_( lr )
-    , scale_( 1, 1, SI().zScale() )
-    , zaxt_( zaxt )
+    : surf_(rcs)
+    , lines_(shape)
+    , points_(points)
+    , lineranges_(lr)
+    , scale_(1,1,SI().zScale())
+    , zaxt_(zaxt)
     , geomids_(geomids)
     , crdidx_(0)
-    , volumeofinterestids_( volumeofinterestids )
+    , volumeofinterestids_(volumeofinterestids)
 {
     eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
     eps_ = (float) mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
@@ -275,6 +275,9 @@ int getNextRow()
 void prepareForTransform( int rowidx, Pos::GeomID geomid,
 			  const StepInterval<int>& colrg )
 {
+    if ( !zaxt_ )
+	return;
+
     Threads::MutexLocker lock( lock_ );
     TrcKeyZSampling cs;
     cs.hsamp_.set( geomid, colrg );
@@ -405,7 +408,7 @@ protected:
     const Horizon2DDisplay::LineRanges*	lineranges_;
     visBase::VertexShape*		lines_;
     visBase::PointSet*			points_;
-    ZAxisTransform*			zaxt_;
+    ZAxisTransform*			zaxt_		    = nullptr;
     const TypeSet<Pos::GeomID>&		geomids_;
     Threads::Mutex			lock_;
     int					nrthreads_;
@@ -442,7 +445,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     h2d->geometry().getGeomIDs( geomids );
 
     LineRanges linergs;
-    const bool redo = h2d && zaxistransform_ && geomids.isEmpty();
+    const bool redo = h2d && getZAxisTransform() && geomids.isEmpty();
     if ( redo )
     {
 	const EM::Horizon2DGeometry& emgeo = h2d->geometry();
@@ -479,8 +482,9 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     if ( !rcs || !pl )
 	return;
 
-    Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps,
-			zaxistransform_, geomids, volumeofinterestids_ );
+    ZAxisTransform* zatf = isAlreadyTransformed() ? nullptr : zaxistransform_;
+    Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps, zatf,
+					    geomids, volumeofinterestids_ );
     updater.execute();
 }
 
@@ -733,8 +737,9 @@ void Horizon2DDisplay::updateSeedsOnSections(
 		continue;
 
 	    Coord3 markerpos = markercoords->getPos( idy, true );
-	    if ( zaxistransform_ )
-		markerpos.z = zaxistransform_->transform( markerpos );
+	    if ( !isAlreadyTransformed() )
+		markerpos.z = getZAxisTransform()->transform( markerpos );
+
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
 		const Seis2DDisplay* s2dd = seis2dlist[idz];
@@ -859,7 +864,8 @@ void Horizon2DDisplay::setPixelDensity( float dpi )
 
 void Horizon2DDisplay::removeVolumesOfInterest()
 {
-    if ( !zaxistransform_ ) return;
+    if ( !zaxistransform_ )
+	return;
 
     for ( int idx=0; idx<volumeofinterestids_.size();idx++ )
 	zaxistransform_->removeVolumeOfInterest( volumeofinterestids_[idx] );

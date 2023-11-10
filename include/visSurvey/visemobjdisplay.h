@@ -73,8 +73,11 @@ public:
     virtual bool		setZAxisTransform(ZAxisTransform*,
 						  TaskRunner*) override
 				{ return false; }
+    bool			isAlreadyTransformed() const;
     const ZAxisTransform*	getZAxisTransform() const override
 				{ return zaxistransform_; }
+    void			setZDomain(const ZDomain::Info&);
+    const ZDomain::Info&	zDomain() const;
 
     virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getObjectID() const;
@@ -151,7 +154,6 @@ public:
 				    VisID whichobj )	=0;
     void			setPixelDensity(float dpi) override;
     const visBase::MarkerSet*	getSeedMarkerSet() const;
-
     virtual bool		getOnlyAtSectionsDisplay() const
 				{ return displayedOnlyAtSections(); }
 
@@ -176,8 +178,8 @@ protected:
     Notifier<EMObjectDisplay>	locknotifier;
 
     const mVisTrans*			transformation_		= nullptr;
-    ZAxisTransform*			zaxistransform_		= nullptr;
     visBase::EventCatcher*		eventcatcher_		= nullptr;
+    ZAxisTransform*			zaxistransform_		= nullptr;
 
     ObjectSet<visBase::MarkerSet>	posattribmarkers_;
 
@@ -220,6 +222,7 @@ protected:
 private:
     void				unSelectAll();
     void				updateLockedSeedsColor();
+    const ZDomain::Info*		zdominfo_;
 };
 
 } // namespace visSurvey

@@ -224,10 +224,10 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 		//comparison there.
 		const Coord3 horpos = hor_->getPos( horsubid );
 		Coord3 displayhorpos = horpos;
-		if ( horpos.isDefined() && hd_.zaxistransform_ )
+		if ( horpos.isDefined() && !hd_.isAlreadyTransformed() )
 		{
 		    displayhorpos.z =
-			hd_.zaxistransform_->transformTrc( hortrc,
+			hd_.getZAxisTransform()->transformTrc(hortrc,
 							   (float) horpos.z );
 		}
 
@@ -417,10 +417,12 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 
 bool HorizonDisplay::setZAxisTransform( ZAxisTransform* nz, TaskRunner* trans )
 {
-    if ( zaxistransform_ ) zaxistransform_->unRef();
+    if ( zaxistransform_ )
+	zaxistransform_->unRef();
 
     zaxistransform_ = nz;
-    if ( zaxistransform_ ) zaxistransform_->ref();
+    if ( zaxistransform_ )
+	zaxistransform_->ref();
 
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setZAxisTransform( nz, trans );
@@ -945,8 +947,8 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     col = positions->dataSet().findColDef( zvalsdef, PosVecDataSet::NameExact );
     if ( col==-1 )
 	col = 2;
-
-    ZValSetter zvalssetter( bivs, col, zaxistransform_ );
+    ZAxisTransform* zatf = isAlreadyTransformed() ? nullptr : zaxistransform_;
+    ZValSetter zvalssetter( bivs, col, zatf );
     zvalssetter.execute();
 
     setRandomPosData( channel, positions, 0 );
@@ -1193,11 +1195,14 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
     if ( !horizon )
 	return false;
 
+    setZDomain( horizon->zDomain() );
     RefMan<visBase::HorizonSection> surf = visBase::HorizonSection::create();
     surf->ref();
     surf->setDisplayTransformation( transformation_ );
-    surf->setZAxisTransform( zaxistransform_, trans );
-    if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
+    ZAxisTransform* zatf = isAlreadyTransformed() ? nullptr : zaxistransform_;
+    surf->setZAxisTransform( zatf, trans );
+    if ( scene_ )
+	surf->setRightHandSystem( scene_->isRightHandSystem() );
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     surf->setSurface( horizon->geometry().geometryElement(), true, trans );
@@ -1449,12 +1454,13 @@ int HorizonDisplay::getChannelIndex( const char* nm ) const
 
 void HorizonDisplay::updateAuxData()
 {
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
+    if ( !hor3d )
+	return;
+
     const int depthidx = getChannelIndex( sKeyZValues() );
     if ( depthidx != -1 )
 	setDepthAsAttrib( depthidx );
-
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
-    if ( !hor3d ) return;
 
     const ObjectSet<BinIDValueSet>& auxdata =
 	hor3d->auxdata.getData();
@@ -1809,7 +1815,7 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
     if ( !field ) return;
 
     ConstPtrMan<Array2D<float> > myfield;
-    if ( zaxistransform_ )
+    if ( !isAlreadyTransformed() )
 	myfield = field = horizon->createArray2D( zaxistransform_ );
 
     IsoContourTracer ictracer( *field );
@@ -2059,9 +2065,9 @@ void HorizonDisplay::updateSectionSeeds(
 		if ( transformation_ )
 		     mVisTrans::transform( transformation_,  markerpos );
 
-		if ( zaxistransform_ )
+		if ( !isAlreadyTransformed() )
 		{
-		    markerset->turnMarkerOn( idy,false );
+		    markerset->turnMarkerOn( idy, false );
 		    continue;
 		}
 
@@ -2542,7 +2548,7 @@ HorizonDisplay::IntersectionData::IntersectionData( const OD::LineStyle& lst )
 	? (visBase::VertexShape*) visBase::PolyLine3D::create()
 	: (visBase::VertexShape*) visBase::PolyLine::create() )
     , markerset_( visBase::MarkerSet::create() )
-    , zaxistransform_(0)
+    , zaxistransform_(nullptr)
     , voiid_(-2)
 {
     line_->ref();

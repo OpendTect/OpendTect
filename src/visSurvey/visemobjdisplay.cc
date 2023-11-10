@@ -56,6 +56,7 @@ EMObjectDisplay::EMObjectDisplay()
     , locknotifier(this)
     , em_(EM::EMM())
     , drawstyle_(new visBase::DrawStyle)
+    , zdominfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
     parposattrshown_.erase();
 
@@ -97,7 +98,32 @@ EMObjectDisplay::~EMObjectDisplay()
 
     clearSelections();
 
+    delete zdominfo_;
+
     emchangedata_.clearData();
+}
+
+
+void EMObjectDisplay::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( *zdominfo_ == zinfo )
+	return;
+
+    delete zdominfo_;
+    zdominfo_ = new ZDomain::Info( zinfo );
+}
+
+
+const ZDomain::Info& EMObjectDisplay::zDomain() const
+{
+    return *zdominfo_;
+}
+
+
+bool EMObjectDisplay::isAlreadyTransformed() const
+{
+    return zaxistransform_ &&
+	( zaxistransform_->toZDomainInfo().def_ == zdominfo_->def_ );
 }
 
 
