@@ -77,7 +77,8 @@ public:
     float		getZ(int idx) const;
     int			size() const		{ return locations_.size(); }
     bool		isEmpty() const		{ return locations_.isEmpty(); }
-    void		setEmpty()		{ locations_.setEmpty(); }
+    void		setEmpty()
+			{ locations_.setEmpty(); startidxs_.setEmpty(); }
     bool		validIdx(int idx) const;
     bool		setCapacity(int sz);
     bool		setSize(int,const Coord3& defval=Coord3::udf());
