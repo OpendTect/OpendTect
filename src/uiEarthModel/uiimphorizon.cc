@@ -554,8 +554,6 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 								zDomain();
 	    info.fillPar( ioobj->pars() );
 	    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
-	    const bool zisdepth = !zdomainfld_->getBoolValue();
-
 	    ioobj->updateCreationPars();
 	    IOM().commitChanges( *ioobj );
 	}

@@ -1570,11 +1570,7 @@ void dgbSurfaceWriter::finishWriting()
 	    par_->set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep);
     }
 
-    const UnitOfMeasure* zunit = surface_.isZInDepth()
-				 ? UnitOfMeasure::surveyDefDepthStorageUnit()
-				 : UnitOfMeasure::surveyDefTimeStorageUnit();
-    par_->set( sKey::ZUnit(), zunit->name() );
-
+    surface_.zDomain().fillPar( *par_ );
     ascostream astream( strm );
     astream.newParagraph();
     par_->putTo( astream );
