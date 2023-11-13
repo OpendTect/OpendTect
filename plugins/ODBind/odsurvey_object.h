@@ -182,6 +182,9 @@ void odSurveyObject::removeObjects( const odSurvey& survey,
     mExternC(ODBind) void bindnm##_removeobjs(hSurvey, const hStringSet); \
     mExternC(ODBind) bool bindnm##_zistime(h##classnm);
 
+#define mDeclareRemoveBindings(classnm, bindnm) \
+    mExternC(ODBind) void bindnm##_removeobjs(hSurvey, const hStringSet);
+
 //
 // Use mDefineBaseBindings(Horizon3D, horizon3d) in the .cc file
 //
@@ -250,7 +253,9 @@ void odSurveyObject::removeObjects( const odSurvey& survey,
 	const auto* p = static_cast<odSurvey*>(survey); \
 	if ( !p ) return nullptr; \
 	return od##classnm::getNames<od##classnm>( *p ); \
-    } \
+    }
+
+#define mDefineRemoveBindings(classnm, bindnm) \
     void bindnm##_removeobjs( hSurvey survey, const hStringSet objnms ) \
     { \
 	const auto* p = static_cast<odSurvey*>(survey); \

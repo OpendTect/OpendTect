@@ -12,6 +12,7 @@ class Survey(object):
     _bin = wrap_function(LIBODB, 'survey_bin', None, [ct.c_void_p, ct.c_double, ct.c_double, ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)])
     _bincoords = wrap_function(LIBODB, 'survey_bincoords', None, [ct.c_void_p, ct.c_double, ct.c_double, ct.POINTER(ct.c_double), ct.POINTER(ct.c_double)])
     _coords = wrap_function(LIBODB, 'survey_coords', None, [ct.c_void_p, ct.c_int, ct.c_int, ct.POINTER(ct.c_double), ct.POINTER(ct.c_double)])
+    _crlrange = wrap_function(LIBODB, 'survey_crlrange', None, [ct.c_void_p, ct.POINTER(ct.c_int)])
     _feature = wrap_function(LIBODB, 'survey_feature', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _features = wrap_function(LIBODB, 'survey_features', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_char_p])
     _has2d = wrap_function(LIBODB, 'survey_has2d', ct.c_bool, [ct.c_void_p])
@@ -19,6 +20,7 @@ class Survey(object):
     _hasobject = wrap_function(LIBODB, 'survey_hasobject', ct.c_bool, [ct.c_void_p, ct.c_char_p, ct.c_char_p])
     _info = wrap_function(LIBODB, 'survey_info', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _infos = wrap_function(LIBODB, 'survey_infos', ct.POINTER(ct.c_char_p), [ct.c_void_p,ct.c_char_p])
+    _inlrange = wrap_function(LIBODB, 'survey_inlrange', None, [ct.c_void_p, ct.POINTER(ct.c_int)])
     _names = wrap_function(LIBODB, 'survey_names', ct.c_void_p, [ct.c_char_p])
     _path = wrap_function(LIBODB, 'survey_path', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _type = wrap_function(LIBODB, 'survey_survtype', ct.POINTER(ct.c_char_p), [ct.c_void_p])
@@ -80,6 +82,24 @@ class Survey(object):
 
         Survey._zrange(self._handle, ct_zrg)
         return list(ct_zrg)
+
+    @property
+    def inlrange(self) ->list[int]:
+        """list[int]: inline range in survey definition (readonly)"""
+        inlrg = [0, 0, 0]
+        ct_inlrg = (ct.c_int * 3)(*inlrg)
+
+        Survey._inlrange(self._handle, ct_inlrg)
+        return list(ct_inlrg)
+
+    @property
+    def crlrange(self) ->list[int]:
+        """list[int]: crossline range in survey definition (readonly)"""
+        crlrg = [0, 0, 0]
+        ct_crlrg = (ct.c_int * 3)(*crlrg)
+
+        Survey._crlrange(self._handle, ct_crlrg)
+        return list(ct_crlrg)
 
     def bin(self, x: float, y: float ) ->tuple[int, int]:
         """Return the nearest inline and crossline location to the given X and Y coordinates.

@@ -77,6 +77,8 @@ protected:
 };
 
 mDeclareBaseBindings(Seismic3D, seismic3d)
+mDeclareRemoveBindings(Seismic3D, seismic3d)
+
 mExternC(ODBind) hSeismic3D	seismic3d_newout(hSurvey, const char* name,
 						 const char* format,
 						 hStringSet compnames,

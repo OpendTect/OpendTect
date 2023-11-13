@@ -241,6 +241,7 @@ void odSeismic2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
 
 mDefineBaseBindings(Seismic2D, seismic2d)
+mDefineRemoveBindings(Seismic2D, seismic2d)
 
 
 void seismic2d_close( hSeismic2D self )

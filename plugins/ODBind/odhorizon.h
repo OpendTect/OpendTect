@@ -109,6 +109,8 @@ protected:
 
 typedef void* hSurvey;
 mDeclareBaseBindings(Horizon3D, horizon3d)
+mDeclareRemoveBindings(Horizon3D, horizon3d)
+
 mExternC(ODBind) hHorizon3D	horizon3d_newout(hSurvey, const char* name,
 						 const int* inl_rg,
 						 const int* crl_rg,
@@ -129,6 +131,8 @@ mExternC(ODBind) void		horizon3d_putz_byxy(hHorizon3D,
 
 
 mDeclareBaseBindings(Horizon2D, horizon2d)
+mDeclareRemoveBindings(Horizon2D, horizon2d)
+
 mExternC(ODBind) hHorizon2D	horizon2d_newout(hSurvey, const char* name,
 						 bool creategeom,
 						 bool overwrite);
