@@ -28,11 +28,11 @@ ________________________________________________________________________
 #include <ctype.h>
 #include <iostream>
 
-static const char*	    sKeyStartIdx()  { return "Start index"; }
-static OD::Color	    defcolor()	    { return OD::Color::Red(); }
-static int		    defPixSz()	    { return 3; }
-static MarkerStyle3D::Type  defMarkerStyl() { return MarkerStyle3D::Point; }
-static OD::LineStyle	    defLineStyle()
+static const char*		sKeyStartIdx()	{ return "Start index"; }
+static OD::Color		defcolor()	{ return OD::Color::Red(); }
+static int			defPixSz()	{ return 3; }
+static MarkerStyle3D::Type	defMarkerStyle(){ return MarkerStyle3D::Sphere;}
+static OD::LineStyle		defLineStyle()
 {
     return OD::LineStyle( OD::LineStyle::Solid, defPixSz(), defcolor() );
 }
@@ -729,6 +729,7 @@ Set::Set( const char* nm )
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
     setDefaultDispPars();
+    addStartIdx( 0 );
 }
 
 
@@ -738,6 +739,7 @@ Set::Set( const Set& oth )
 {
     *this = oth;
 }
+
 
 Set::~Set()
 {
@@ -960,7 +962,8 @@ Set& Set::setZDomain( const ZDomain::Info& zinfo )
 
 void Set::getStartStopIdx( int setidx, int& start, int& stop ) const
 {
-    start = 0; stop = size()-1;
+    start = 0;
+    stop = size()-1;
     if ( !startidxs_.validIdx(setidx) )
 	return;
 
@@ -970,7 +973,9 @@ void Set::getStartStopIdx( int setidx, int& start, int& stop ) const
 
 
 void Set::addStartIdx( int locidx )
-{ startidxs_ += locidx; }
+{
+    startidxs_ += locidx;
+}
 
 
 void Set::setStartIdx( int setidx, int locidx )
@@ -1109,7 +1114,7 @@ void Set::setDefaultDispPars()
 
     disp_.fillcolor_ = defcolor();
     disp_.pixsize_ = defPixSz();
-    disp_.markertype_ = defMarkerStyl();
+    disp_.markertype_ = defMarkerStyle();
     disp_.linestyle_ = defLineStyle();
     if ( isPolygon() )
 	disp_.connect_ = Disp::Close;
