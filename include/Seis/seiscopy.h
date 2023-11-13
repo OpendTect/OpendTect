@@ -48,6 +48,7 @@ protected:
     bool			goImpl(od_ostream*,bool,bool,int) override;
     int				nextStep() override;
     bool			resampleVels(const SeisTrc&,SeisTrc&) const;
+    mDeprecatedDef
     void			cropComponents(SeisTrc&) const;
 
     SeisSingleTraceProc*	stp_;
@@ -57,6 +58,7 @@ protected:
     const Vel::Worker*		worker_() const;
     Vel::Worker*		worker_();
 
+    void			setInputCB(CallBacker*);
     void			doProc(CallBacker*);
 
 private:

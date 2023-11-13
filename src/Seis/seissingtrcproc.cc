@@ -32,7 +32,10 @@ ________________________________________________________________________
 
 #include "uistrings.h"
 
+#include "hiddenparam.h"
 
+static HiddenParam<SeisSingleTraceProc,
+	Notifier<SeisSingleTraceProc>* > seistprocinputreadymgr_( nullptr );
 SeisSingleTraceProc::SeisSingleTraceProc( const SeisStoreAccess::Setup& inpsu,
 					  const SeisStoreAccess::Setup& outsu,
 					  const char* nm, const uiString& msg )
@@ -47,6 +50,8 @@ SeisSingleTraceProc::SeisSingleTraceProc( const SeisStoreAccess::Setup& inpsu,
     , traceselected_(this)
     , proctobedone_(this)
 {
+    seistprocinputreadymgr_.setParam( this,
+			new Notifier<SeisSingleTraceProc>(this) );
     if ( outsu.ioobj_ )
 	wrrkey_ = outsu.ioobj_->key();
 
@@ -78,6 +83,13 @@ SeisSingleTraceProc::~SeisSingleTraceProc()
     delete &intrc_;
     delete &wrrkey_;
     delete scaler_;
+    seistprocinputreadymgr_.removeAndDeleteParam( this );
+}
+
+
+Notifier<SeisSingleTraceProc>& SeisSingleTraceProc::inputready_()
+{
+    return *seistprocinputreadymgr_.getParam( this );
 }
 
 
@@ -129,6 +141,8 @@ bool SeisSingleTraceProc::setInput()
 
     curmsg_ = initmsg_;
     setName( execnm_ );
+    inputready_().trigger();
+
     return true;
 }
 
