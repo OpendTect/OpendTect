@@ -200,4 +200,10 @@ public:
 
     bool		isUserSelectable(bool fr) const override { return fr; }
     const char*		iconName() const override	{ return "segy"; }
+
+    bool		implRemove(const IOObj*,bool) const override;
+    bool		getConfirmRemoveMsg(const IOObj*,uiString& msg,
+					    uiString& canceltxt,
+					    uiString& yestxt,
+					    uiString& notxt) const override;
 };
