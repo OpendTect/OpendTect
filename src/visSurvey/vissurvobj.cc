@@ -231,6 +231,8 @@ bool SurveyObject::usePar( const IOPar& par )
 
     int nrattribs = 0;
     par.get( sKeyNrAttribs(), nrattribs );
+    const int maxnrattribs = 7;
+    nrattribs = mMIN( nrattribs, maxnrattribs );
 
     bool firstattrib = true;
     for ( int attrib=0; attrib<nrattribs; attrib++ )
