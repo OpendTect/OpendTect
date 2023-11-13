@@ -11,24 +11,24 @@ ________________________________________________________________________
 #include "picksetmgr.h"
 
 #include "datapointset.h"
-#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "od_iostream.h"
 #include "oddirs.h"
 #include "polygon.h"
-#include "survinfo.h"
-#include "settings.h"
-#include "tabledef.h"
 #include "posimpexppars.h"
+#include "settings.h"
+#include "survinfo.h"
+#include "tabledef.h"
 #include "unitofmeasure.h"
-#include "od_iostream.h"
 
 #include <ctype.h>
 #include <iostream>
 
 static const char*		sKeyStartIdx()	{ return "Start index"; }
+static const char*		sKeyNrPts()	{ return "Nr points"; }
 static OD::Color		defcolor()	{ return OD::Color::Red(); }
 static int			defPixSz()	{ return 3; }
 static MarkerStyle3D::Type	defMarkerStyle(){ return MarkerStyle3D::Sphere;}
@@ -757,9 +757,10 @@ Set& Set::operator=( const Set& oth )
     setName( oth.name() );
     disp_ = oth.disp_;
     pars_ = oth.pars_;
+    startidxs_ = oth.startidxs_;
     readonly_ = oth.readonly_;
     setZDomain( oth.zDomain() );
-    startidxs_ = oth.startidxs_;
+
     return *this;
 }
 
@@ -854,6 +855,19 @@ void Set::insert( int idx, const Location& loc )
 void Set::remove( int idx )
 {
     locations_.removeSingle( idx );
+    for ( int setidx=0; setidx<startidxs_.size(); setidx++ )
+    {
+	if ( idx < startidxs_[setidx] )
+	    startidxs_[setidx]--;
+    }
+}
+
+
+void Set::setEmpty()
+{
+    locations_.setEmpty();
+    startidxs_.setEmpty();
+    startidxs_ += 0;
 }
 
 
@@ -1073,6 +1087,7 @@ void Set::fillPar( IOPar& par ) const
 {
     par.set( sKeyStartIdx(), startidxs_ );
     zDomain().fillPar( par );
+    par.set( sKeyNrPts(), size() );
     par.merge( pars_ );
 }
 
