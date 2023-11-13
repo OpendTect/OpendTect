@@ -294,7 +294,7 @@ int uiMsg::showMessageBoxWithDetails( Icon icon,QWidget* parent,
     if ( txt.isEmpty() )
 	return -1;
 
-    mCapt( title.isEmpty() ? uiStrings::sSpecify() : title );
+    mCapt( title.isEmpty() ? tr("Attention") : title);
     const int refnr = beginCmdRecEvent( utfwintitle );
 
     QCheckBox* checkbox = 0;
