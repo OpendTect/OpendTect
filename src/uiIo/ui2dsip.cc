@@ -291,8 +291,24 @@ uiNavReadDlg( uiParent* p )
     setModal( true );
     setOkCancelText( uiStrings::sContinue(), uiStrings::sCancel() );
 
-    crssel_ = new Coords::uiCoordSystemSel( this );
-    crssel_->attach( alignedBelow, dataselfld_ );
+    crsfld_ = new Coords::uiCoordSystemSel( this );
+    crsfld_->attach( alignedBelow, dataselfld_ );
+
+    uiSeparator* optsep = new uiSeparator( this, "Optional" );
+    optsep->attach( stretchedBelow, crsfld_ );
+
+    uiLabel* zrglbl = new uiLabel( this, tr("Optional:") );
+    zrglbl->attach( leftBorder );
+    zrglbl->attach( ensureBelow, optsep );
+
+    const uiString zunitlbl( UnitOfMeasure::surveyDefZUnitAnnot(true,true) );
+    zfld_ = new uiGenInput( this, tr( "Z range %1").arg( zunitlbl),
+			DoubleInpIntervalSpec(true).setName("Z Start",0)
+						   .setName("Z Stop",1)
+						   .setName("Z step",2) );
+    zfld_->attach( alignedBelow, crsfld_ );
+    zfld_->attach( ensureBelow, zrglbl );
+
 }
 
 
@@ -320,7 +336,7 @@ bool acceptOK( CallBacker* ) override
     { uiMSG().error(uiStrings::sInvInpFile()); return false; }
 
     const bool isll = geomfd_->bodyinfos_.last()->selection_.form_ == 1;
-    if ( isll && !crssel_->getCoordSystem()->isProjection() )
+    if ( isll && !crsfld_->getCoordSystem()->isProjection() )
     {
 	uiMSG().error( tr("Please select a Coordinate System "
 			  "when input file has Lat/Long."));
@@ -331,7 +347,8 @@ bool acceptOK( CallBacker* ) override
 }
 
     BufferString		fname_;
-    Coords::uiCoordSystemSel*	crssel_;
+    Coords::uiCoordSystemSel*	crsfld_;
+    uiGenInput*			zfld_;
 
 };
 
@@ -369,7 +386,7 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
 	return false;
 
     filename_ = navdlg->fname_;
-    coordsystem_ = navdlg->crssel_->getCoordSystem();
+    coordsystem_ = navdlg->crsfld_->getCoordSystem();
 
     deepUnRef( geoms_ );
     if ( !navdlg->fillGeom2D(geoms_) )
@@ -391,7 +408,25 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
     Coord c0( xrg.start, yrg.start );
     Coord c1( xrg.stop, yrg.stop );
     const double grdsp = 25.;
-    return uiSurvInfoProvider::getRanges(tkzs,crd,c0,c1,grdsp);
+    if ( !uiSurvInfoProvider::getRanges(tkzs,crd,c0,c1,grdsp) )
+	return false;
+
+    const StepInterval<float> zrg = navdlg->zfld_->getFStepInterval();
+    const bool hasstart = !mIsUdf(zrg.start);
+    const bool hasstop = !mIsUdf(zrg.stop);
+    const bool hasstep = !mIsUdf(zrg.step);
+    const float start = hasstart ? zrg.start : 0.f;
+    if ( SI().zIsTime() )
+	tkzs.zsamp_.set( start/1000, hasstop ? zrg.stop/1000 : cDefaultZMaxS,
+			hasstep ? zrg.step/1000 : cDefaultSrS );
+    else if ( SI().zInFeet() )
+	tkzs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxF,
+		hasstep ? zrg.step : cDefaultSrF );
+    else
+	tkzs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxM,
+		hasstep ? zrg.step : cDefaultSrM );
+
+    return true;
 }
 
 
@@ -437,7 +472,7 @@ const char* uiNavSurvInfoProvider::importAskQuestion() const
 IOPar* uiNavSurvInfoProvider::getCoordSystemPars() const
 {
     if ( !coordsystem_ )
-	return 0;
+	return nullptr;
 
     IOPar* crspar = new IOPar;
     coordsystem_->fillPar( *crspar );
