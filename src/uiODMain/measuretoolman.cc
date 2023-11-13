@@ -163,7 +163,7 @@ void MeasureToolMan::addScene( SceneID sceneid )
     psd->allowDoubleClick( false );
     psd->ref();
 
-    Pick::Set* ps = new Pick::Set( "Measure picks" );
+    RefMan<Pick::Set> ps = new Pick::Set( "Measure picks" );
     ps->disp_.connect_ = Pick::Set::Disp::Open;
     ps->disp_.color_ = OD::Color( 255, 0, 0 );
     psd->setSet( ps );
@@ -259,8 +259,9 @@ void MeasureToolMan::clearCB( CallBacker* )
 {
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
-	Pick::Set* ps = displayobjs_[idx]->getSet();
-	if ( !ps ) continue;
+	RefMan<Pick::Set> ps = displayobjs_[idx]->getSet();
+	if ( !ps )
+	    continue;
 
 	ps->setEmpty();
 	picksetmgr_.reportChange( this, *ps );
@@ -277,8 +278,9 @@ void MeasureToolMan::lineStyleChangeCB( CallBacker* )
 
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
-	Pick::Set* ps = displayobjs_[idx]->getSet();
-	if ( !ps ) continue;
+	RefMan<Pick::Set> ps = displayobjs_[idx]->getSet();
+	if ( !ps )
+	    continue;
 
 	OD::LineStyle ls( measuredlg_->getLineStyle() );
 	ps->disp_.color_ = ls.color_;

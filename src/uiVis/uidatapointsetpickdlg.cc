@@ -72,16 +72,16 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p,
     updateButtons();
 
     windowClosed.notify( mCB(this,uiDataPointSetPickDlg,winCloseCB) );
-    visBase::DM().selMan().selnotifier.notify(
-			mCB(this,uiDataPointSetPickDlg,objSelCB) );
+    mAttachCB( visBase::DM().selMan().selnotifier,
+	       uiDataPointSetPickDlg::objSelCB );
 }
 
 
 uiDataPointSetPickDlg::~uiDataPointSetPickDlg()
 {
-    visBase::DM().selMan().selnotifier.remove(
-			mCB(this,uiDataPointSetPickDlg,objSelCB) );
-    if ( psd_ ) cleanUp();
+    detachAllNotifiers();
+    if ( psd_ )
+	cleanUp();
 }
 
 
@@ -242,8 +242,9 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     dps_->setValue( 0, row, val );
     dps_->dataChanged();
 
-    Pick::Set* set = psd_ ? psd_->getSet() : 0;
-    if ( !set ) return;
+    ConstRefMan<Pick::Set> set = psd_ ? psd_->getSet() : 0;
+    if ( !set )
+	return;
 
     const DataPointSet::Pos pos( dps_->pos(row) );
     const Coord3 dpscrd( pos.coord(), pos.z() );
@@ -316,7 +317,7 @@ void uiDataPointSetPickDlg::updateButtons()
 void uiDataPointSetPickDlg::updateDPS()
 {
     dps_->clearData();
-    const Pick::Set* set = psd_ ? psd_->getSet() : 0;
+    ConstRefMan<Pick::Set> set = psd_ ? psd_->getSet() : 0;
     if ( !set )
     {
 	dps_->dataChanged();

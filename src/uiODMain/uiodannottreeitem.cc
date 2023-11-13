@@ -519,7 +519,7 @@ void uiODAnnotSubItem::setScale( float ns )
     if ( !ld ) return;
 
     const int newscale = mNINT32( ns );
-    Pick::Set* set = ld->getSet();
+    RefMan<Pick::Set> set = ld->getSet();
     if ( set->disp_.pixsize_==newscale )
 	return;
 
@@ -536,7 +536,7 @@ void uiODAnnotSubItem::setColor( OD::Color nc )
     if ( !ld )
 	return;
 
-    Pick::Set* set = ld->getSet();
+    RefMan<Pick::Set> set = ld->getSet();
     if ( set->disp_.color_==nc )
 	return;
 
