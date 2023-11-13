@@ -467,7 +467,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     auto* infogrp = new uiGroup( tabs->tabGroup(), "Info Group" );
     infofld_ = new uiTextEdit( infogrp, "Info", true );
-    infofld_->setPrefHeightInChar( 10 );
+    infofld_->setPrefHeightInChar( 11 );
     infofld_->setStretch( 2, 2 );
     tabs->addTab( infogrp, uiStrings::sInformation() );
     tabs->setTabIcon( 0, "info" );
@@ -549,7 +549,7 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     new uiToolButton( butgrp, "share",
 	tr("Download surveys from TerraNubis"),
 	mSCB(terraNubisCB) );
-    rmbut_ = new uiToolButton( butgrp, "delete", tr("Delete Survey"),
+    rmbut_ = new uiToolButton( butgrp, "delete", tr("Delete selected Survey"),
 			       mCB(this,uiSurvey,rmButPushed) );
 }
 
@@ -929,12 +929,14 @@ void uiSurvey::editButPushed( CallBacker* )
     if ( !cursurvinfo_ )
 	return; // defensive
 
-    const BufferString selsurv(selectedSurveyName());
-    if ( initialsurveyname_ == selsurv )
+    const BufferString selsurv( selectedSurveyName() );
+    const bool samedataroot = dataroot_ == orgdataroot_;
+    const bool samesurvey = samedataroot && initialsurveyname_ == selsurv;
+    if ( samesurvey )
     {
-	uiMSG().message( tr("You are trying to edit the active survey.\n"
-	    "Please use Survey --> Edit Current Survey Parameters "
-	    "for this purpose.") );
+	uiMSG().message( tr("The selected survey is your active survey.\n"
+			    "To edit the active survey, please use the menu:\n"
+			    "'Survey > Edit Survey Parameters'.") );
 	return;
     }
 

@@ -612,6 +612,7 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
 	uiMSG().error( msg );
 	return false;
     }
+
     MouseCursorManager::setOverride( MouseCursor::Wait );
     File::copy( fnmin, fnmout );
     MouseCursorManager::restoreOverride();
@@ -756,8 +757,9 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 {
     if ( iscurr_ )
     {
-	const bool ret = uiMSG().askGoOn(
-	    tr("The survey will reloaded. Do you wish to continue?") );
+	const bool ret = uiMSG().askContinue(
+		tr("The current session will close and a new scene\n"
+		   "will be created. Do you wish to continue?") );
 	if ( !ret )
 	    return true;
     }
