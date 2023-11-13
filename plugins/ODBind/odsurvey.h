@@ -123,6 +123,8 @@ mExternC(ODBind) hStringSet	survey_names(const char* basedir);
 mExternC(ODBind) const char*	survey_path(hSurvey);
 mExternC(ODBind) const char*	survey_survtype(hSurvey);
 mExternC(ODBind) void		survey_zrange(hSurvey, float* zrg);
+mExternC(ODBind) void		survey_inlrange(hSurvey, int32_t* rg);
+mExternC(ODBind) void		survey_crlrange(hSurvey, int32_t* rg);
 
 mExternC(ODBind) const char*	isValidSurveyDir(const char*);
 			    //!< Full path to an OpendTect project directory

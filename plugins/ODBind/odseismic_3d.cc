@@ -368,6 +368,7 @@ void odSeismic3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
 
 mDefineBaseBindings(Seismic3D, seismic3d)
+mDefineRemoveBindings(Seismic3D, seismic3d)
 
 
 hSeismic3D seismic3d_newout( hSurvey survey, const char* name,

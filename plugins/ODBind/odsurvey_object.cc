@@ -54,11 +54,14 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
     , zistime_(SI().zIsTime())
 {
     survey_.activate();
-    ioobj_ = survey_.createObj( name, tgname, fmt, overwrite, errmsg_);
-    if ( !ioobj_ || !errmsg_.isEmpty() )
-	errmsg_.insertAt( 0, "IO object creation error: " );
-    else
-	name_ = ioobj_->name();
+    if ( tgname )
+    {
+	ioobj_ = survey_.createObj( name, tgname, fmt, overwrite, errmsg_);
+	if ( !ioobj_ || !errmsg_.isEmpty() )
+	    errmsg_.insertAt( 0, "IO object creation error: " );
+	else
+	    name_ = ioobj_->name();
+    }
 }
 
 

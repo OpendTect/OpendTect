@@ -429,6 +429,7 @@ BufferStringSet* odWell::getCommonLogNames( const odSurvey& survey,
 
 
 mDefineBaseBindings(Well, well)
+mDefineRemoveBindings(Well, well)
 
 hStringSet well_lognames( hWell self )
 {

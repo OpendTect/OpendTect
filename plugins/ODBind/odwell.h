@@ -78,6 +78,8 @@ protected:
 };
 
 mDeclareBaseBindings(Well, well)
+mDeclareRemoveBindings(Well, well)
+
 mExternC(ODBind) hStringSet	well_lognames(hWell);
 mExternC(ODBind) const char*	well_loginfo(hWell, const hStringSet);
 mExternC(ODBind) hStringSet	well_markernames(hWell);

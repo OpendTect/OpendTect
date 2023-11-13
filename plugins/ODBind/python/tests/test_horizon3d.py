@@ -1,19 +1,41 @@
 import pytest
+import numpy as np
 from odbind.survey import Survey
 from odbind.horizon3d import Horizon3D
 
-def test_Horizon3D_class():
-    f3demo = Survey("F3_Demo_2020")
-    hors = Horizon3D.names(f3demo)
-    assert 'Demo 4 --> Truncation' in hors
-    hor = Horizon3D(f3demo, 'Trim_D0 --> FS4')
+@pytest.fixture
+def survey(request):
+    return Survey(request.config.getoption('--survey'))
 
-    info = hor.info()
-    assert info['name'] == 'Trim_D0 --> FS4'
-    assert info['inl_range'] == [104, 747, 1]
-    assert info['crl_range'] == [303, 1247, 1]
-    assert info['z_range'] == pytest.approx([574.454, 1126.021])
-    assert info['attrib_count'] == 0
+def test_Horizon3D_class(survey):
+    assert survey.has3d == True
 
-    assert hor.attribnames == []
-    assert 'SD_44Hz[-8,24ms]' in Horizon3D(f3demo, 'Demo 1 --> MFS4').attribnames
+    inlrg = survey.inlrange
+    crlrg = survey.crlrange
+    ilines = range(inlrg[0], inlrg[1]+inlrg[2], inlrg[2])
+    xlines = range(crlrg[0], crlrg[1]+crlrg[2], crlrg[2])
+    ninl = len(ilines)
+    ncrl = len(xlines)
+    data = np.ones((ninl, ncrl),dtype=np.float32)
+    data[0,0] = 100.0
+
+    with Horizon3D.create(survey, 'pytest', inlrg, crlrg, True) as test:
+        test.putz(data, ilines, xlines)
+
+    assert 'pytest' in Horizon3D.names(survey)
+    hor = Horizon3D(survey, 'pytest')
+
+    info = {
+                'name': 'pytest',
+                'inl_range': inlrg,
+                'crl_range': crlrg,
+                'z_range': [1.0, 100.0],
+                'attrib_count': 0
+            }
+    assert hor.info() == info
+
+    testdata = hor.getz()
+    np.testing.assert_equal(testdata, data)
+
+    Horizon3D.delete(survey,['pytest'])
+    assert 'pytest' not in Horizon3D.names(survey)
