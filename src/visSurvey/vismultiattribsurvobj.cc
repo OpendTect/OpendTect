@@ -136,13 +136,20 @@ int MultiTextureSurveyObject::nrAttribs() const
 { return as_.size(); }
 
 
+int MultiTextureSurveyObject::maxNrAttribs() const
+{
+    return channels_ && channels_->getChannels2RGBA() ?
+	channels_->getChannels2RGBA()->maxNrChannels() : 1;
+}
+
+
 bool MultiTextureSurveyObject::canAddAttrib( int nr ) const
 {
-    const int maxnr = channels_->getChannels2RGBA()->maxNrChannels();
+    const int maxnr = maxNrAttribs();
+    if ( maxnr<1 )
+	return true;
 
-    if ( !maxnr ) return true;
-
-    return nrAttribs()+nr<=maxnr;
+    return nrAttribs()+nr <= maxnr;
 }
 
 

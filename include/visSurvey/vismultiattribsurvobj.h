@@ -52,6 +52,7 @@ public:
 								const override;
     bool			canRemoveAttrib() const override;
     int				nrAttribs() const override;
+    int				maxNrAttribs() const override;
     bool			addAttrib() override;
     bool			removeAttrib(int attrib) override;
     bool			swapAttribs(int attrib0,int attrib1) override;

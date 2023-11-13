@@ -202,6 +202,7 @@ public:
     virtual AttribFormat	getAttributeFormat(int attrib=-1) const;
     virtual bool		canHaveMultipleAttribs() const { return false; }
     virtual int			nrAttribs() const;
+    virtual int			maxNrAttribs() const		{ return 1; }
     virtual bool		canAddAttrib(int nrattribstoadd=1) const;
     virtual bool		addAttrib()		   { return false; }
     virtual bool		canRemoveAttrib() const;
