@@ -83,6 +83,7 @@ public:
     void		setProcPars(const IOPar&,bool is2d);
 			//!< Sets all above proc pars from IOPar
 
+    Notifier<SeisSingleTraceProc>& inputready_();
     Notifier<SeisSingleTraceProc> traceselected_;
     Notifier<SeisSingleTraceProc> proctobedone_;
 
@@ -135,7 +136,7 @@ protected:
     bool		is2D() const;
     bool		isPS() const;
 
-    friend class SeisCubeCopier;
+    friend class SeisCubeCopier; //Obsolete
 
 public:
 
