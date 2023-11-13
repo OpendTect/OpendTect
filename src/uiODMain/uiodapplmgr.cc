@@ -191,14 +191,13 @@ int uiODApplMgr::selectSurvey( uiParent* p )
 }
 
 
-int uiODApplMgr::editCurrSurvey( uiParent* p )
+int uiODApplMgr::editCurrentSurvey( uiParent* p )
 {
     if ( !p )
 	p = uiMain::instance().topLevel();
 
     uiSurveyInfoEditor dlg( p, eSI(), false, true );
-    dlg.go();
-    return 0;
+    return dlg.go();
 }
 
 

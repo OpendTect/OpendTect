@@ -87,7 +87,7 @@ public:
 
     // Survey menu operations
     int				selectSurvey(uiParent*);
-    int				editCurrSurvey(uiParent*);
+    int				editCurrentSurvey(uiParent*);
     static int			manageSurvey()		{ return manSurv(0); }
     void			exportSurveySetup();
 

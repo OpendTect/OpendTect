@@ -226,11 +226,10 @@ void uiODMenuMgr::fillSurveyMenu()
 {
     insertAction( surveymnu_, m3Dots(tr("Select/Setup")), mManSurveyMnuItm,
 		  "survey" );
+    insertAction( surveymnu_, m3Dots(tr("Edit Survey Parameters")),
+		  mCurrSurvUpdItm, "editcurrsurv" );
 
-    insertAction( surveymnu_, m3Dots(tr("Edit Current Survey Parameters")),
-					    mCurrSurvUpdItm, "editcurrsurv" );
-
-    auto* sessionitm = new uiMenu(&appl_, tr("Session"));
+    auto* sessionitm = new uiMenu( &appl_, tr("Session") ) ;
     insertAction( sessionitm, m3Dots(uiStrings::sSave()), mSessSaveMnuItm,
 		  "save" );
     insertAction( sessionitm, m3Dots(tr("Restore")), mSessRestMnuItm, "open" );
@@ -1461,7 +1460,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     switch( id )
     {
     case mManSurveyMnuItm:		applMgr().selectSurvey(nullptr); break;
-    case mCurrSurvUpdItm:	      applMgr().editCurrSurvey(nullptr); break;
+    case mCurrSurvUpdItm:		applMgr().editCurrentSurvey(nullptr);
+					break;
     case mSessSaveMnuItm:		appl_.saveSession(); break;
     case mSessRestMnuItm:		appl_.restoreSession(); break;
     case mSessAutoMnuItm:		appl_.autoSession(); break;
