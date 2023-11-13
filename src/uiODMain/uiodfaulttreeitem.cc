@@ -287,7 +287,14 @@ void uiODFaultTreeItem::askSaveCB( CallBacker* )
 
 void uiODFaultTreeItem::saveCB( CallBacker* cb )
 {
-    const bool issaved = applMgr()->EMServer()->storeObject( emid_, true );
+    bool dosaveas = EM::EMM().getMultiID( emid_ ).isUdf();
+    if ( !dosaveas )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	dosaveas = !ioobj;
+    }
+
+    const bool issaved = applMgr()->EMServer()->storeObject( emid_, dosaveas );
     if ( issaved && faultdisplay_ &&
 	 !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
     {

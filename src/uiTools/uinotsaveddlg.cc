@@ -35,58 +35,64 @@ public:
 class uiNotSavedDlg : public uiDialog
 { mODTextTranslationClass(uiNotSavedDlg);
 public:
-    uiNotSavedDlg(uiParent* p, NotSavedPrompter& prompter, bool withcancel,
-		  const uiString& actiontype )
-	: uiDialog( p, uiDialog::Setup( tr("Not Saved"),
-		    tr("The following objects are not saved"), mNoHelpKey ) )
-	, prompter_( prompter )
+uiNotSavedDlg(uiParent* p, NotSavedPrompter& prompter, bool withcancel,
+	      const uiString& actiontype )
+    : uiDialog( p, uiDialog::Setup( tr("Not Saved"),
+		tr("The following objects are not saved"), mNoHelpKey ) )
+    , prompter_( prompter )
+{
+    if ( !withcancel )
+	setCancelText( uiStrings::sEmptyString() );
+
+    const uiString txt( tr("%1 now").arg( actiontype ) );
+    setOkText( txt );
+
+    for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
     {
-	if ( !withcancel ) setCancelText( uiStrings::sEmptyString() );
+	auto* label = new uiLabel( this,
+					prompter_.objects_[idx]->string_ );
 
-	const uiString txt( tr("%1 now").arg( actiontype ) );
-	setOkText( txt );
+	auto* curbutton = uiButton::getStd( this, OD::Save,
+				    mCB(this,uiNotSavedDlg,buttonCB),
+				    prompter_.objects_[idx]->issaveas_ );
+	curbutton->attach( rightOf, label );
 
-	for ( int idx=0; idx<prompter_.objects_.size(); idx++ )
-	{
-	    auto* label = new uiLabel( this,
-					    prompter_.objects_[idx]->string_ );
+	if ( idx )
+	    curbutton->attach( alignedBelow, buttons_[idx-1] );
 
-	    auto* curbutton = uiButton::getStd( this, OD::Save,
-					mCB(this,uiNotSavedDlg,buttonCB),
-					prompter_.objects_[idx]->issaveas_ );
-	    curbutton->attach( rightOf, label );
-
-	    if ( idx )
-		curbutton->attach( alignedBelow, buttons_[idx-1] );
-
-	    buttons_ += curbutton;
-	}
+	buttons_ += curbutton;
     }
+}
 
-    void	reportSuccessfullSave()
-    {
-	buttons_[activebutton_]->setText( tr("Saved") );
-	buttons_[activebutton_]->setSensitive( false );
-    }
 
-    void	buttonCB( CallBacker* cb )
-    {
-	activebutton_ = buttons_.indexOf( (uiButton*)cb );
-	prompter_.objects_[activebutton_]->cb_.doCall( &prompter_ );
-    }
+void reportSuccessfullSave()
+{
+    buttons_[activebutton_]->setText( tr("Saved") );
+    buttons_[activebutton_]->setSensitive( false );
+}
 
-    const void*				getCurrentObjectData() const
-    {
-	return prompter_.objects_.validIdx(activebutton_)
-	    ? prompter_.objects_[activebutton_]->dataptr_
-	    : nullptr;
-    }
-    bool				isSaveAs() const
-    {
-	return prompter_.objects_.validIdx(activebutton_)
-	    ? prompter_.objects_[activebutton_]->issaveas_
-	    : false;
-    }
+
+void buttonCB( CallBacker* cb )
+{
+    activebutton_ = buttons_.indexOf( (uiButton*)cb );
+    prompter_.objects_[activebutton_]->cb_.doCall( &prompter_ );
+}
+
+
+const void* getCurrentObjectData() const
+{
+    return prompter_.objects_.validIdx(activebutton_)
+	? prompter_.objects_[activebutton_]->dataptr_
+	: nullptr;
+}
+
+
+bool isSaveAs() const
+{
+    return prompter_.objects_.validIdx(activebutton_)
+	? prompter_.objects_[activebutton_]->issaveas_
+	: false;
+}
 
 
 protected:

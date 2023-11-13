@@ -380,6 +380,12 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
     else
 	mkObjFld( uiStrings::phrOutput( setup.typname_ ) );
 
+    const MultiID& surfkey = surf.multiID();
+    if ( !surfkey.isUdf() )
+	objfld_->setInput( surfkey );
+    else
+	objfld_->setInputText( surf.name() );
+
     if ( rgfld_ )
     {
 	objfld_->attach( alignedBelow, rgfld_ );
@@ -393,10 +399,10 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
        displayfld_->setChecked( true );
     }
 
-    if ( !fillFields(surf.multiID()) )
+    if ( !fillFields(surfkey) )
 	fillFields( surf.id() );
 
-    ioDataSelChg( 0 );
+    ioDataSelChg( nullptr );
 }
 
 
@@ -407,7 +413,10 @@ uiSurfaceWrite::~uiSurfaceWrite()
 bool uiSurfaceWrite::processInput()
 {
     if ( sectionfld_ && sectionfld_->nrChosen() < 1 )
-	{ uiMSG().error( tr("Horizon has no patches") ); return false; }
+    {
+	uiMSG().error( tr("Horizon has no patches") );
+	return false;
+    }
 
     const IOObj* ioobj = objfld_->ioobj();
     if ( ioobj )
@@ -418,12 +427,16 @@ bool uiSurfaceWrite::processInput()
 
 
 bool uiSurfaceWrite::replaceInTree() const
-{ return displayfld_ ? displayfld_->isChecked() : false; }
+{
+    return displayfld_ ? displayfld_->isChecked() : false;
+}
 
 
 void uiSurfaceWrite::stratLvlChg( CallBacker* )
 {
-    if ( !stratlvlfld_ ) return;
+    if ( !stratlvlfld_ )
+	return;
+    
     const OD::Color col( stratlvlfld_->getColor() );
     if ( col != OD::Color::NoColor() )
 	colbut_->setColor( col );
@@ -531,10 +544,16 @@ void uiSurfaceRead::setIOObj( const MultiID& mid )
 bool uiSurfaceRead::processInput()
 {
     if ( !objfld_->commitInput() )
-	{ uiMSG().error( tr("Please select input") ); return false; }
+    {
+	uiMSG().error( tr("Please select input") );
+	return false;
+    }
 
     if ( sectionfld_ && sectionfld_->nrChosen()<1 )
-	{ uiMSG().error( tr("Horizon has no pataches") ); return false; }
+    {
+	uiMSG().error( tr("Horizon has no pataches") );
+	return false;
+    }
 
     return true;
 }
