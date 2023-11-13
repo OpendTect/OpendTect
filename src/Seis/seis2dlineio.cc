@@ -17,8 +17,11 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "keystrs.h"
 #include "posinfo.h"
+#include "oddirs.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
+#include "segydirect2d.h"
+#include "segydirectdef.h"
 #include "seis2ddata.h"
 #include "seis2dlinemerge.h"
 #include "seisbuf.h"
@@ -720,3 +723,79 @@ SEGYDirectSeisTrc2DTranslator::SEGYDirectSeisTrc2DTranslator(const char* s1,
 
 SEGYDirectSeisTrc2DTranslator::~SEGYDirectSeisTrc2DTranslator()
 {}
+
+
+bool SEGYDirectSeisTrc2DTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
+				uiString& msg, uiString& canceltxt,
+				uiString& deepremovetxt,
+				uiString& shallowremovetxt ) const
+{
+    if ( !ioobj || !ioobj->implExists(true) )
+	return false;
+
+    SEGYDirect2DLineIOProvider l2dio;
+    TypeSet<Pos::GeomID> geomids;
+    if ( !l2dio.getGeomIDs(*ioobj,geomids) )
+	return false;
+
+    FilePath survfp( GetDataDir() );
+    survfp.makeCanonical();
+    BufferStringSet segyfiles;
+    for ( auto geomid : geomids )
+    {
+	const BufferString deffilename = l2dio.getFileName( *ioobj, geomid );
+	SEGY::DirectDef segydef( deffilename );
+	if ( segydef.isEmpty() )
+	    continue;
+
+	const BufferString segyfilename = segydef.fileDataSet().fileName( 0 );
+	FilePath segyfp( segyfilename );
+	segyfp.makeCanonical();
+	if ( File::exists(segyfilename) && segyfp.isSubDirOf(survfp) )
+	    segyfiles.add( segyfilename );
+    }
+
+    if ( segyfiles.isEmpty() )
+	return Translator::getConfirmRemoveMsg( ioobj, msg, canceltxt,
+					deepremovetxt, shallowremovetxt );
+
+    msg = tr("Do you want to delete '%1' permanently from the database?\n "
+	    "'Delete all' will delete the link as well as  the SEGY files.\n"
+	    "'Delete link only' will remove the link, but keep the SEGY files")
+	    .arg( ioobj->name() );
+    canceltxt = uiStrings::sCancel();
+    deepremovetxt = tr("Delete all");
+    shallowremovetxt = tr("Delete link only");
+    return true;
+
+}
+
+
+bool SEGYDirectSeisTrc2DTranslator::implRemove( const IOObj* ioobj,
+						bool deep ) const
+{
+    if ( !ioobj )
+	return true;
+
+    if ( !deep )
+	return Translator::implRemove( ioobj );
+
+    SEGYDirect2DLineIOProvider l2dio;
+    TypeSet<Pos::GeomID> geomids;
+    if ( !l2dio.getGeomIDs(*ioobj,geomids) )
+	return false;
+
+    BufferStringSet segyfiles;
+    for ( auto geomid : geomids )
+    {
+	const BufferString deffilename = l2dio.getFileName( *ioobj, geomid );
+	SEGY::DirectDef segydef( deffilename );
+	if ( segydef.isEmpty() )
+	    continue;
+
+	const BufferString segyfilename = segydef.fileDataSet().fileName( 0 );
+	File::remove( segyfilename );
+    }
+
+    return true;
+}

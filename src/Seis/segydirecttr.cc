@@ -709,12 +709,13 @@ bool SEGYDirectSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
 	return Translator::getConfirmRemoveMsg( ioobj, msg, canceltxt,
 					deepremovetxt, shallowremovetxt );
 
-    msg = tr("Do you want to delete '%1' permanently from the database "
-	    "along with the linked SEGY files:\n%2")
+    msg = tr("Do you want to delete '%1' permanently from the database?\n "
+	    "'Delete all' will delete the link as well as the SEGY files:\n%2\n"
+	    "'Delete link only' will remove the link, but keep the SEGY files")
 	    .arg(ioobj->name()).arg(segyfiles.cat());
     canceltxt = uiStrings::sCancel();
     deepremovetxt = tr("Delete all");
-    shallowremovetxt = tr("Keep SEGY files");
+    shallowremovetxt = tr("Delete link only");
     return true;
 }
 
