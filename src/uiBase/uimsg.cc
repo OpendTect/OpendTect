@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "mousecursor.h"
-#include "oddirs.h"
 #include "perthreadrepos.h"
 #include "separstr.h"
 
@@ -19,8 +18,6 @@ ________________________________________________________________________
 #include "uiicon.h"
 #include "uimain.h"
 #include "uimainwin.h"
-#include "uiobj.h"
-#include "uiparentbody.h"
 #include "uipixmap.h"
 #include "uibutton.h"
 #include "uistatusbar.h"
@@ -247,6 +244,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 	    qicon = icn.qicon();
 	}
 	nobut->setIcon( qicon );
+	mb->setDefaultButton( nobut );
     }
 
     if ( !cncltxt.isEmpty() )
@@ -259,6 +257,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 	    qicon = icn.qicon();
 	}
 	rejbut->setIcon( qicon );
+	mb->setDefaultButton( rejbut );
     }
 
     if ( notagain && mb->layout() )
