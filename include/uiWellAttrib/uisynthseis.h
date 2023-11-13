@@ -18,9 +18,11 @@ ________________________________________________________________________
 
 class EnumDef;
 class SynthGenParams;
+class uiFreqFilterSelFreq;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiLabeledListBox;
+class uiLabeledSpinBox;
 class uiSynthSeisSel;
 
 
@@ -147,6 +149,7 @@ private:
 
     void			inputChangedCB(CallBacker*);
     void			nameChangedCB(CallBacker*);
+    void			filterChgCB(CallBacker*);
 
     void			selChg(const char*) override;
     void			doParsChanged(IOPar* prev=nullptr) override;
@@ -159,5 +162,7 @@ private:
     uiGenInput*			angleinpfld_;
     uiLabeledListBox*		instattribfld_;
     uiGenInput*			namefld_;
-
+    uiGenInput*			filtertypefld_;
+    uiFreqFilterSelFreq*	freqfld_;
+    uiLabeledSpinBox*		smoothwindowfld_;
 };

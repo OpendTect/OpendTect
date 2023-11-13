@@ -23,6 +23,7 @@ class TaskRunner;
 class TrcKeyZSampling;
 class PostStackSyntheticData;
 class PreStackSyntheticData;
+class StratPropSyntheticData;
 
 namespace Strat
 {
@@ -113,12 +114,13 @@ public:
     bool		isPS(SynthID) const;
     bool		isAttribute(SynthID) const;
     bool		isStratProp(SynthID) const;
+    bool		isFilter(SynthID) const;
 
     enum SubSelType	{ NoSubSel, OnlyZO, NoZO, OnlyEIStack, NoEIStack,
 			  OnlyEIGather, NoEIGather, OnlyPS, NoPS,
 			  OnlyPSBased, NoPSBased,
-			  OnlyAttrib, NoAttrib, OnlyRaw, NoRaw,
-			  OnlyInput, OnlyWithInput, NoWithInput,
+			  OnlyAttrib, NoAttrib, OnlyFilter, NoFilter,
+			  OnlyRaw, NoRaw, OnlyInput, OnlyWithInput, NoWithInput,
 			  OnlyProps, NoProps };
     void		getNames(BufferStringSet&,SubSelType t=NoSubSel,
 				 bool omitempty=false,int lmsidx=-1) const;
@@ -232,6 +234,9 @@ private:
 					 TaskRunner*) const;
     void		createAngleData(PreStackSyntheticData&,
 					TaskRunner*) const;
+    ConstRefMan<SyntheticData> createFiltered(const PostStackSyntheticData&,
+					      const SynthGenParams&,
+					      TaskRunner*) const;
 
     const ReflectivityModelSet* getRefModels(const SynthGenParams&,
 					      int lmsidx) const;

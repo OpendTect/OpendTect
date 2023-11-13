@@ -95,6 +95,31 @@ private:
 };
 
 
+mExpClass(WellAttrib) FilteredSyntheticData
+		: public PostStackSyntheticDataWithInput
+{
+public:
+				FilteredSyntheticData(
+						const SynthGenParams&,
+						const Seis::SynthGenDataPack&,
+						SeisTrcBufDataPack&);
+
+    bool			isFilter() const override	{ return true; }
+    SynthGenParams::SynthType	synthType() const override
+				{ return sgp_.synthtype_; }
+
+    void			useGenParams(const SynthGenParams&);
+    void			fillGenParams(SynthGenParams&) const;
+
+private:
+				~FilteredSyntheticData();
+
+    BufferString		filtertype_;
+    int				windowsz_;
+    Interval<float>		freqrg_;
+};
+
+
 mExpClass(WellAttrib) PSBasedPostStackSyntheticData
 				: public PostStackSyntheticDataWithInput
 {

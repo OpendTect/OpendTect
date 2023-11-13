@@ -71,7 +71,8 @@ private:
     bool			confirmSave();
     bool			doSave(const char* fnm);
     void			getPSNames(BufferStringSet&);
-    void			getInpNames(BufferStringSet&);
+    void			getAttributeInpNames(BufferStringSet&);
+    void			getFilteringInpNames(BufferStringSet&, bool);
     void			forwardInputNames(const SynthGenParams*);
     bool			prepareSyntheticToBeRemoved();
     bool			checkSyntheticPars(const SynthGenParams&,

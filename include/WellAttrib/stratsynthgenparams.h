@@ -24,7 +24,8 @@ mExpClass(WellAttrib) SynthGenParams
 {
 public:
     enum SynthType	{ ZeroOffset, ElasticStack, ElasticGather, PreStack,
-			  StratProp, AngleStack, AVOGradient, InstAttrib };
+			  StratProp, AngleStack, AVOGradient, InstAttrib,
+			  FilteredSynthetic, FilteredStratProp };
 			mDeclareEnumUtils(SynthType);
 
 			SynthGenParams(SynthType tp=ZeroOffset);
@@ -45,6 +46,9 @@ public:
     IOPar		synthpars_;
     Interval<float>	anglerg_;
     Attrib::Instantaneous::OutType attribtype_;
+    BufferString	filtertype_;
+    int			windowsz_;
+    Interval<float>	freqrg_;
 
     const char*		getWaveletNm() const;
     MultiID		getWaveletID() const;
@@ -67,10 +71,19 @@ public:
     bool		canBeAttributeInput() const
 			{ return isZeroOffset() || isElasticStack() ||
 				 isPSBased(); }
+    bool		canBeFilterInput() const
+			{ return  !isPreStack() && !isElasticGather(); }
     bool		isStratProp() const   { return synthtype_==StratProp; }
     bool		isAttribute() const   { return synthtype_==InstAttrib; }
+    bool		isFilteredSynthetic() const
+				      { return synthtype_==FilteredSynthetic; }
+    bool		isFilteredStratProp() const
+				      { return synthtype_==FilteredStratProp; }
+    bool		isFiltered() const
+		      { return isFilteredSynthetic() || isFilteredStratProp(); }
+    bool		isFilterOK() const;
     bool		needsInput() const
-			{ return isPSBased() || isAttribute(); }
+			{ return isPSBased() || isAttribute() || isFiltered(); }
     bool		isRawOutput() const
 			{ return !needsInput() && !isStratProp(); }
 			/*!<Any type that can be created using
@@ -92,6 +105,7 @@ public:
     static const char*	sKeyInput()		{ return "Input Synthetic"; }
     static const char*	sKeyAngleRange()	{ return "Angle Range"; }
     static const char*	sKeyInvalidInputPS()	{ return "Invalid Input"; }
+    static const char*	sKeyFreqRange()		{ return "Frequency Range"; }
 
 private:
 

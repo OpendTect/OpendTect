@@ -11,8 +11,10 @@ ________________________________________________________________________
 
 #include "stratsynthgenparams.h"
 #include "uicombobox.h"
+#include "uifreqfilter.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
+#include "uispinbox.h"
 #include "uisynthgrp.h"
 
 
@@ -152,6 +154,10 @@ uiMultiSynthSeisSel::uiMultiSynthSeisSel( uiParent* p, const Setup& su,
 	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::AngleStack) );
 	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::AVOGradient) );
 	typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::InstAttrib) );
+	typedef_.remove( synthdef.getKeyForIndex(
+					SynthGenParams::FilteredSynthetic) );
+	typedef_.remove( synthdef.getKeyForIndex(
+					SynthGenParams::FilteredStratProp) );
     }
 
     typedef_.remove( synthdef.getKeyForIndex(SynthGenParams::StratProp) );
@@ -530,6 +536,23 @@ uiFullSynthSeisSel::uiFullSynthSeisSel( uiParent* p, const Setup& su )
     mAttachCB( instattribfld_->box()->selectionChanged,
 	       uiFullSynthSeisSel::parsChangedCB );
 
+    filtertypefld_ = new uiGenInput( topgrp, uiStrings::sType(),
+	 BoolInpSpec(true,
+	     uiStrings::phrJoinStrings(toUiString("FFT"), uiStrings::sFilter()),
+		     uiStrings::sAverage()) );
+    mAttachCB(filtertypefld_->valueChanged, uiFullSynthSeisSel::filterChgCB);
+    mAttachCB(filtertypefld_->valueChanged, uiFullSynthSeisSel::parsChangedCB);
+    filtertypefld_->attach( alignedBelow, inpselfld_ );
+    freqfld_ = new uiFreqFilterSelFreq( topgrp );
+    freqfld_->attach( alignedBelow, filtertypefld_ );
+    mAttachCB(freqfld_->parchanged, uiFullSynthSeisSel::parsChangedCB);
+    smoothwindowfld_ = new uiLabeledSpinBox( topgrp,
+					     tr("Window size (samples)") );
+    smoothwindowfld_->box()->setValue( 100 );
+    smoothwindowfld_->attach( alignedBelow, filtertypefld_ );
+    mAttachCB(smoothwindowfld_->box()->valueChanged,
+	      uiFullSynthSeisSel::parsChangedCB);
+
     namefld_ = new uiGenInput( this, uiStrings::sName() );
     namefld_->setElemSzPol( uiObject::Wide );
     namefld_->attach( ensureBelow, topgrp );
@@ -553,10 +576,27 @@ void uiFullSynthSeisSel::selChg( const char* typ )
     const bool psbased = synthtype == SynthGenParams::AngleStack ||
 			 synthtype == SynthGenParams::AVOGradient;
     const bool attrib = synthtype == SynthGenParams::InstAttrib;
+    const bool filter = synthtype == SynthGenParams::FilteredSynthetic ||
+			synthtype == SynthGenParams::FilteredStratProp;
     psselfld_->display( psbased );
     angleinpfld_->display( psbased );
-    inpselfld_->display( attrib );
+    inpselfld_->display( attrib || filter );
     instattribfld_->display( attrib );
+    filtertypefld_->display( filter );
+    filterChgCB( nullptr );
+    doParsChanged();
+}
+
+
+void uiFullSynthSeisSel::filterChgCB( CallBacker* )
+{
+    const SynthGenParams::SynthType synthtype =
+			      SynthGenParams::parseEnumSynthType( getType() );
+    const bool filter = synthtype == SynthGenParams::FilteredSynthetic ||
+			synthtype == SynthGenParams::FilteredStratProp;
+    const bool dofreqfilter = filtertypefld_->getBoolValue();
+    freqfld_->display( filter && dofreqfilter );
+    smoothwindowfld_->display( filter && !dofreqfilter );
 }
 
 
@@ -613,6 +653,7 @@ void uiFullSynthSeisSel::manPSSynth( const BufferStringSet& nms )
 void uiFullSynthSeisSel::manInpSynth( const BufferStringSet& nms )
 {
     doMan( inpselfld_->box(), nms );
+    doParsChanged();
 }
 
 
@@ -725,6 +766,44 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 	instattribfld_->box()->chooseAll( false );
 	instattribfld_->box()->setChosen( genparams.attribtype_ );
     }
+    else if ( genparams.isFiltered() )
+    {
+	NotifyStopper ns_inpsel( inpselfld_->box()->selectionChanged );
+	NotifyStopper ns_filter( filtertypefld_->valueChanged );
+	NotifyStopper ns_freq( freqfld_->parchanged );
+	NotifyStopper ns_window( smoothwindowfld_->box()->valueChanged );
+	uiComboBox* inpbox = inpselfld_->box();
+	if ( inpbox->isPresent(genparams.inpsynthnm_) )
+	{
+	    inpbox->setCurrentItem( genparams.inpsynthnm_.buf() );
+	    inpbox->setSensitive( genparams.inpsynthnm_ !=
+				  SynthGenParams::sKeyInvalidInputPS() ||
+				  inpbox->size() > 1 );
+	}
+	else if ( genparams.inpsynthnm_.isEmpty() )
+	    inpbox->setSensitive( true );
+	else
+	{
+	    inpbox->addItem( genparams.inpsynthnm_ );
+	    inpbox->setCurrentItem( genparams.inpsynthnm_.buf() );
+	    inpbox->setSensitive( genparams.inpsynthnm_ !=
+				  SynthGenParams::sKeyInvalidInputPS() ||
+				  inpbox->size() > 1 );
+	}
+
+	const bool doaverage = genparams.filtertype_==sKey::Average();
+	filtertypefld_->setValue( !doaverage );
+	if ( doaverage )
+	    smoothwindowfld_->box()->setValue( genparams.windowsz_ );
+	else
+	{
+	    FFTFilter::Type ftype;
+	    FFTFilter::parseEnum( genparams.filtertype_, ftype );
+	    freqfld_->setFreqRange( genparams.freqrg_ );
+	    freqfld_->setFilterType( ftype );
+	}
+	filterChgCB( nullptr );
+    }
     else
 	return false;
 
@@ -774,6 +853,11 @@ uiRetVal uiFullSynthSeisSel::isOK() const
 	     mErrRet( tr("Cannot change synthetic data as the dependent "
 			 "poststack synthetic data has already been removed") );
     }
+    else if ( sgp.isFiltered() )
+    {
+	if ( inpselfld_->box()->isEmpty() )
+	    mErrRet( tr("Cannot filter without input") );
+    }
     else
 	mErrRet(tr("Unknown internal error"))
 
@@ -813,6 +897,22 @@ void uiFullSynthSeisSel::fillPar( IOPar& iop ) const
 	  (Attrib::Instantaneous::OutType) instattribfld_->box()->firstChosen();
 	iop.set( SynthGenParams::sKeyInput(), inpselfld_->box()->text() );
 	iop.set( sKey::Attribute(),Attrib::Instantaneous::toString(attribtype));
+    }
+    else if ( sgp.isFiltered() )
+    {
+	const bool dofreqfilter = filtertypefld_->getBoolValue();
+	const FFTFilter::Type ftype = freqfld_->filterType();
+	iop.set( SynthGenParams::sKeyInput(), inpselfld_->box()->text() );
+	if ( dofreqfilter )
+	{
+	    iop.set( sKey::Filter(), FFTFilter::toString(ftype) );
+	    iop.set( SynthGenParams::sKeyFreqRange(), freqfld_->freqRange() );
+	}
+	else
+	{
+	    iop.set( sKey::Filter(), sKey::Average() );
+	    iop.set( sKey::Size(), smoothwindowfld_->box()->getIntValue() );
+	}
     }
     else
 	iop.setEmpty();

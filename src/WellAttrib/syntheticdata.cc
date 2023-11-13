@@ -239,7 +239,7 @@ TrcKey PostStackSyntheticData::getTrcKey( int trcnr ) const
 ZSampling PostStackSyntheticData::zRange() const
 {
     const SeisTrcBuf& tbuf = postStackPack().trcBuf();
-    return tbuf.isEmpty() ? tbuf.zRange() : tbuf.first()->zRange();
+    return tbuf.isEmpty() ? ZSampling::udf() : tbuf.first()->zRange();
 }
 
 
@@ -542,6 +542,19 @@ InstAttributeSyntheticData::~InstAttributeSyntheticData()
 {
 }
 
+
+FilteredSyntheticData::FilteredSyntheticData(
+					const SynthGenParams& sgp,
+					const Seis::SynthGenDataPack& synthdp,
+					SeisTrcBufDataPack& sdp )
+    : PostStackSyntheticDataWithInput(sgp,synthdp,sdp)
+{
+}
+
+
+FilteredSyntheticData::~FilteredSyntheticData()
+{
+}
 
 
 PSBasedPostStackSyntheticData::PSBasedPostStackSyntheticData(

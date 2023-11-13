@@ -35,7 +35,7 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     setHAlignObj( freqfld_ );
 
     const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
-    set( nyq*0.1, nyq*0.4, FFTFilter::LowPass );
+    set( 0.0, nyq*0.4, FFTFilter::LowPass );
 
     postFinalize().notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
 }

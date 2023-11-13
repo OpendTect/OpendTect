@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "stratsynthgenparams.h"
 
+#include "fftfilter.h"
 #include "genc.h"
 #include "ioman.h"
 #include "prestackanglemute.h"
@@ -39,6 +40,8 @@ mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
     "Angle Stack",
     "AVO Gradient",
     "Attribute",
+    "Filtered Synthetic",
+    "Filtered Strat Property",
     nullptr
 };
 
@@ -78,6 +81,9 @@ SynthGenParams& SynthGenParams::operator=( const SynthGenParams& oth )
     anglerg_ = oth.anglerg_;
     attribtype_ = oth.attribtype_;
     wvltnm_ = oth.wvltnm_;
+    filtertype_ = oth.filtertype_;
+    windowsz_ = oth.windowsz_;
+    freqrg_ = oth.freqrg_;
 
     return *this;
 }
@@ -97,6 +103,7 @@ bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
     bool hassameanglerg = true;
     bool hassameinput = true;
     bool hassameattrib = true;
+    bool hassamefilter = true;
     if ( oth.isPSBased() )
     {
 	hassameanglerg = anglerg_ == oth.anglerg_;
@@ -107,11 +114,18 @@ bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
 	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
 	hassameattrib = attribtype_ == oth.attribtype_;
     }
+    else if ( oth.isFiltered() )
+    {
+	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
+	hassamefilter = filtertype_==oth.filtertype_ &&
+			windowsz_ == oth.windowsz_ &&
+			freqrg_==oth.freqrg_;
+    }
 
     return synthtype_ == oth.synthtype_ && wvltnm_ == oth.wvltnm_ &&
 	   raypars_ == oth.raypars_ && reflpars_ == oth.reflpars_ &&
 	   synthpars_ == oth.synthpars_ &&
-	   hassameanglerg && hassameinput && hassameattrib;
+	   hassameanglerg && hassameinput && hassameattrib && hassamefilter;
 }
 
 
@@ -138,9 +152,20 @@ bool SynthGenParams::isOK() const
 	if ( isAttribute() &&
 	     attribtype_ == Attrib::Instantaneous::RotatePhase )
 	    return false;
+	if ( isFiltered()  && !isFilterOK() )
+	    return false;
     }
 
     return !name_.isEmpty();
+}
+
+
+bool SynthGenParams::isFilterOK() const
+{
+    if ( filtertype_==sKey::Average() )
+	return windowsz_>0;
+    else
+	return !freqrg_.isUdf();
 }
 
 
@@ -234,6 +259,13 @@ void SynthGenParams::setDefaultValues()
     }
     else
 	anglerg_ = Interval<float>::udf();
+
+    if ( isFiltered() )
+    {
+	filtertype_ = FFTFilter::toString( FFTFilter::LowPass );
+	windowsz_ = 101;
+	freqrg_ = Interval<float>(0, 15);
+    }
 
     createName( name_ );
 }
@@ -355,12 +387,21 @@ void SynthGenParams::fillPar( IOPar& par ) const
     }
     else if ( needsInput() )
     {
-	par.set( sKeyInput(), inpsynthnm_ );
+	BufferString synnm( inpsynthnm_ );
+	par.set( sKeyInput(), synnm );
 	if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
 	    par.set( sKeyAngleRange(), anglerg_ );
 	else if ( synthtype_ == InstAttrib )
 	    par.set( sKey::Attribute(),
 			     Attrib::Instantaneous::toString( attribtype_) );
+	else if ( isFiltered() )
+	{
+	    par.set( sKey::Filter(), filtertype_ );
+	    if ( filtertype_==sKey::Average() )
+		par.set( sKey::Size(), windowsz_ );
+	    else
+		par.set( sKeyFreqRange(), freqrg_ );
+	}
     }
 }
 
@@ -453,6 +494,16 @@ void SynthGenParams::usePar( const IOPar& par )
 		par.get( sKey::Attribute(), attribstr );
 		Attrib::Instantaneous::parseEnum( attribstr, attribtype_ );
 	    }
+	    else if ( isFiltered() )
+	    {
+		par.get( sKey::Filter(), filtertype_ );
+		windowsz_ = mUdf(float);
+		freqrg_ = Interval<float>::udf();
+		if ( filtertype_==sKey::Average() )
+		    par.get( sKey::Size(), windowsz_ );
+		else
+		    par.get( sKeyFreqRange(), freqrg_ );
+	    }
 	}
     }
 }
@@ -471,6 +522,28 @@ void SynthGenParams::createName( BufferString& nm ) const
     {
 	nm = Attrib::Instantaneous::toString( attribtype_ );
 	nm += " ["; nm += inpsynthnm_; nm += "]";
+	return;
+    }
+    else if ( isFiltered() )
+    {
+	nm = filtertype_;
+	if ( filtertype_==sKey::Average() )
+	    nm.add( "(" ).add( windowsz_ ).add( "pts)" );
+	else if ( filtertype_==FFTFilter::toString(FFTFilter::LowPass) )
+	    nm.add( "(" ).add( freqrg_.stop ).add( " Hz)" );
+	else if ( filtertype_==FFTFilter::toString(FFTFilter::HighPass) )
+	    nm.add( "(" ).add( freqrg_.start ).add( " Hz)" );
+	else
+	    nm.add( "(" ).add( freqrg_.start ).add( "-" ).add( freqrg_.stop )
+								.add( " Hz)" );
+	BufferString synnm( inpsynthnm_ );
+	if ( isFilteredSynthetic() )
+	{
+	    nm += " ["; nm += synnm; nm += "]";
+	}
+	else
+	    nm += synnm;
+
 	return;
     }
     else if ( !isRawOutput() )

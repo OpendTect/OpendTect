@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "stratsynthlevel.h"
 #include "syntheticdataimpl.h"
 
+#include "arrayndimpl.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
@@ -31,6 +32,7 @@ ________________________________________________________________________
 #include "propertyref.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
+#include "smoother1d.h"
 #include "statruncalc.h"
 #include "stratlayer.h"
 #include "stratlayermodel.h"
@@ -991,6 +993,13 @@ bool StratSynth::DataMgr::isStratProp( SynthID id ) const
 }
 
 
+bool StratSynth::DataMgr::isFilter( SynthID id ) const
+{
+    const SynthGenParams* sgp = getGenParams( id );
+    return sgp ? sgp->isFiltered() : false;
+}
+
+
 void StratSynth::DataMgr::getAllNames( const SynthGenParams& sgp, int lmsidx,
 				       BufferStringSet& nms ) const
 {
@@ -1068,6 +1077,8 @@ void StratSynth::DataMgr::gtIdxs( TypeSet<int>& idxs, SubSelType ss,
 	    mHandleCase( NoPSBased,	!sgp.isPSBased() );
 	    mHandleCase( OnlyAttrib,	sgp.isAttribute() );
 	    mHandleCase( NoAttrib,	!sgp.isAttribute() );
+	    mHandleCase( OnlyFilter,	sgp.isFiltered() );
+	    mHandleCase( NoFilter,	!sgp.isFiltered() );
 	    mHandleCase( OnlyRaw,	sgp.isRawOutput() );
 	    mHandleCase( NoRaw,		!sgp.isRawOutput() );
 	    mHandleCase( OnlyInput,	sgp.canBeAttributeInput() );
@@ -1873,6 +1884,17 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 	    const auto& postdp =
 			static_cast<const PostStackSyntheticData&>( *inpsd );
 	    sd = createAttribute( postdp, sgp, taskrun );
+	}
+	else if ( sgp.isFiltered() )
+	{
+	    if ( !inpsd->getGenParams().canBeFilterInput() )
+		mErrRet(
+		tr(" input synthetic data is not poststack or a log"),
+			 return nullptr )
+
+	    const auto& postdp =
+			static_cast<const PostStackSyntheticData&>( *inpsd );
+	    sd = createFiltered( postdp, sgp, taskrun );
 	}
     }
     else if ( sgp.isStratProp() )
@@ -2727,7 +2749,136 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
     uiString				msg_;
 }; // class AttributeSyntheticCreator
 
+
+mClass(WellAttrib) FilteredSyntheticCreator : public ParallelTask
+{ mODTextTranslationClass(FilteredSyntheticCreator);
+
+public:
+FilteredSyntheticCreator( const PostStackSyntheticData& sd,
+			  const SynthGenParams& sgp,
+			  SeisTrcBuf& seistrcbuf )
+    : ParallelTask( "Creating Filtered Synthetics" )
+    , sd_(sd)
+    , sgp_(sgp)
+    , seistrcbuf_(seistrcbuf)
+    , zrg_(sd.zRange())
+    , filter_(zrg_.nrSteps()+1, zrg_.step)
+    , totalnr_(sd.nrPositions())
+{
+    msg_ = tr("Filtering synthetic traces");
+}
+
+
+uiString uiMessage() const override
+{
+    return msg_;
+}
+
+
+uiString uiNrDoneText() const override
+{
+    return tr("Models done");
+}
+
+
+private:
+
+od_int64 nrIterations() const override
+{ return totalnr_; }
+
+
+bool doPrepare( int /* nrthreads */ ) override
+{
+    if ( sgp_.filtertype_==sKey::Average() )
+    {
+	windowsz_ = sgp_.windowsz_;
+	smoother_.setWindow( HanningWindow::sName(), 0.95, windowsz_ );
+    }
+    else if ( sgp_.filtertype_=="LowPass" )
+	filter_.setLowPass( sgp_.freqrg_.stop );
+    else if ( sgp_.filtertype_=="HighPass" )
+	filter_.setHighPass( sgp_.freqrg_.start );
+    else
+	filter_.setBandPass( sgp_.freqrg_.start, sgp_.freqrg_.stop );
+
+    sd_.postStackPack().trcBuf().copyInto( seistrcbuf_ );
+    return seistrcbuf_.size() == sd_.nrPositions();
+}
+
+
+bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
+{
+    for ( int itrc=mCast(int,start); itrc<=mCast(int,stop); itrc++,
+							    addToNrDone(1) )
+    {
+	auto* trc = seistrcbuf_.get( itrc );
+	if ( !trc )
+	    continue;
+
+
+	const int sz = trc->size();
+	Array1DImpl<float> dataout( sz );
+	for (int idx=0; idx<sz; idx++ )
+	    dataout.set( idx, trc->get(idx, 0) );
+
+	if ( mIsUdf(windowsz_) )
+	{
+	    if ( !filter_.apply(dataout) )
+		continue;
+	}
+	else
+	{
+	    Array1DImpl<float> datain( dataout );
+	    smoother_.setInput( datain.arr(), sz );
+	    smoother_.setOutput( dataout.arr() );
+	    if ( !smoother_.execute() )
+		continue;
+	}
+	for ( int idx=0; idx<sz; idx++ )
+	    trc->set( idx, dataout.get(idx), 0 );
+    }
+
+    return true;
+}
+
+    const PostStackSyntheticData&	sd_;
+    const SynthGenParams&		sgp_;
+    ZSampling				zrg_;
+    SeisTrcBuf&				seistrcbuf_;
+    ::FFTFilter				filter_;
+    Smoother1D<float>			smoother_;
+    int					windowsz_ = mUdf(int);
+    const od_int64			totalnr_;
+    uiString				msg_;
+
+}; // class FilteredSyntheticCreator
+
 } // namespace StratSynth
+
+
+ConstRefMan<SyntheticData> StratSynth::DataMgr::createFiltered(
+					    const PostStackSyntheticData& pssd,
+					    const SynthGenParams& synthgenpar,
+					    TaskRunner* taskrunner ) const
+{
+    auto* seistrcbuf = new SeisTrcBuf( true );
+    FilteredSyntheticCreator fsc( pssd, synthgenpar, *seistrcbuf );
+    if ( !TaskRunner::execute(taskrunner,fsc) )
+    {
+	errmsg_ = fsc.uiMessage();
+	return nullptr;
+    }
+
+    auto* dpname = new SeisTrcBufDataPack( seistrcbuf, Seis::Line,
+					   SeisTrcInfo::TrcNr,
+			       PostStackSyntheticData::sDataPackCategory() );
+
+    ConstRefMan<SyntheticData> ret = new FilteredSyntheticData(
+							synthgenpar,
+							pssd.synthGenDP(),
+							*dpname );
+    return ret;
+}
 
 
 ConstRefMan<SyntheticData> StratSynth::DataMgr::createAttribute(
