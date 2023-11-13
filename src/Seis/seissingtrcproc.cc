@@ -33,6 +33,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( const SeisStoreAccess::Setup& inpsu,
 					  const SeisStoreAccess::Setup& outsu,
 					  const char* nm, const uiString& msg )
     : Executor(nm)
+    , inputready_(this)
     , traceselected_(this)
     , proctobedone_(this)
     , inpsetup_(inpsu)
@@ -125,6 +126,8 @@ bool SeisSingleTraceProc::setInput()
 
     curmsg_ = initmsg_;
     setName( execnm_ );
+    inputready_.trigger();
+
     return true;
 }
 

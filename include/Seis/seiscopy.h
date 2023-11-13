@@ -48,13 +48,13 @@ protected:
     bool			goImpl(od_ostream*,bool,bool,int) override;
     int				nextStep() override;
     bool			resampleVels(const SeisTrc&,SeisTrc&) const;
-    void			cropComponents(SeisTrc&) const;
 
     SeisSingleTraceProc*	stp_;
     uiString			errmsg_;
     int				compnr_;
     Vel::Worker*		worker_ = nullptr;
 
+    void			setInputCB(CallBacker*);
     void			doProc(CallBacker*);
 
 private:

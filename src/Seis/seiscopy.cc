@@ -34,6 +34,7 @@ SeisCubeCopier::SeisCubeCopier( const IOObj& inobj, const IOObj& outobj,
     , stp_(new SeisSingleTraceProc(inobj,outobj,"Cube copier",&par))
     , compnr_(compnr)
 {
+    mAttachCB( stp_->inputready_, SeisCubeCopier::setInputCB );
     mAttachCB( stp_->proctobedone_, SeisCubeCopier::doProc );
 }
 
@@ -49,6 +50,7 @@ SeisCubeCopier::SeisCubeCopier( SeisSingleTraceProc* tp, int compnr )
 	return;
     }
 
+    mAttachCB( stp_->inputready_, SeisCubeCopier::setInputCB );
     mAttachCB( stp_->proctobedone_, SeisCubeCopier::doProc );
 }
 
@@ -61,13 +63,19 @@ SeisCubeCopier::~SeisCubeCopier()
 }
 
 
+void SeisCubeCopier::setInputCB( CallBacker* )
+{
+    init();
+}
+
+
 bool SeisCubeCopier::goImpl( od_ostream* strm, bool first, bool last,
 			     int delay )
 {
-    if ( !stp_ || !init() )
+    if ( !stp_ )
 	return false;
 
-    const bool res = stp_->goImpl( strm, first, last, delay );
+    const bool res = stp_->go( strm, first, last, delay );
     deleteAndNullPtr( worker_ );
     return res;
 }
@@ -86,10 +94,11 @@ bool SeisCubeCopier::init()
 	if ( errmsg_.isEmpty() )
 	    errmsg_ = uiStrings::phrCannotRead( uiStrings::sInput() );
 	deleteAndNullPtr( stp_ );
+	return false;
     }
 
     VelocityDesc veldesc;
-    if ( wrr->ioObj() )
+    if ( rdr->ioObj() )
 	veldesc.usePar( rdr->ioObj()->pars() );
 
     if ( !veldesc.isUdf() )
@@ -99,7 +108,7 @@ bool SeisCubeCopier::init()
 				   UnitOfMeasure::surveyDefSRDStorageUnit() );
     }
 
-    if ( compnr_<0 && !worker_ )
+    if ( !worker_ )
 	mDetachCB( stp_->proctobedone_, SeisCubeCopier::doProc );
 
     return true;
@@ -141,9 +150,6 @@ void SeisCubeCopier::doProc( CallBacker* )
     SeisTrc& trc = stp_->getTrace();
     if ( worker_ )
 	resampleVels( stp_->getInputTrace(), trc );
-
-    if ( compnr_ >= 0 )
-	cropComponents( trc );
 }
 
 
@@ -181,16 +187,6 @@ bool SeisCubeCopier::resampleVels( const SeisTrc& inptrc, SeisTrc& trc ) const
     }
 
     return true;
-}
-
-
-void SeisCubeCopier::cropComponents( SeisTrc& trc ) const
-{
-    const TraceData& td = trc.data();
-    const DataCharacteristics dc( td.getInterpreter(compnr_)->dataChar() );
-    SeisTrc tmp( trc.size(), dc );
-    tmp.data().copyFrom( td, compnr_, compnr_ );
-    trc.data() = tmp.data();
 }
 
 
