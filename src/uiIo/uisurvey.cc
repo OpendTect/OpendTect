@@ -417,7 +417,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     auto* infogrp = new uiGroup( tabs->tabGroup(), "Info Group" );
     infofld_ = new uiTextEdit( infogrp, "Info", true );
-    infofld_->setPrefHeightInChar( 10 );
+    infofld_->setPrefHeightInChar( 11 );
     infofld_->setStretch( 2, 2 );
     tabs->addTab( infogrp, uiStrings::sInformation(), "info" );
 
@@ -877,15 +877,16 @@ void uiSurvey::editButPushed( CallBacker* )
     if ( !cursurvinfo_ )
 	return; // defensive
 
-    const BufferString selsurv(selectedSurveyName());
-    if ( initialsurveyname_ == selsurv )
+    const BufferString selsurv( selectedSurveyName() );
+    const bool samedataroot = dataroot_ == orgdataroot_;
+    const bool samesurvey = samedataroot && initialsurveyname_ == selsurv;
+    if ( samesurvey )
     {
-	uiMSG().message( tr("You are trying to edit the active survey.\n"
-			"Please use Survey --> Edit Current Survey Parameters "
-			"for this purpose.") );
+	uiMSG().message( tr("The selected survey is your active survey.\n"
+			    "To edit the active survey, please use the menu:\n"
+			    "'Survey > Edit Survey Parameters'.") );
 	return;
     }
-
 
     if ( doSurvInfoDialog(false) )
 	putToScreen();
