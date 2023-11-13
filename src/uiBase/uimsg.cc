@@ -235,6 +235,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 	    qicon = icn.qicon();
 	}
 	nobut->setIcon( qicon );
+	mb->setDefaultButton( nobut );
     }
 
     if ( !cncltxt.isEmpty() )
@@ -247,6 +248,7 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
 	    qicon = icn.qicon();
 	}
 	rejbut->setIcon( qicon );
+	mb->setDefaultButton( rejbut );
     }
 
     if ( notagain && mb->layout() )
