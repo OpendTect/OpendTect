@@ -611,25 +611,38 @@ bool SynthGenerator::computeTrace()
 {
     SeisTrc& res = *outtrc_;
     res.zero();
+    const int outsz = res.size();
 
-    PtrMan<ValueSeries<float> > tmpvs = applynmo_
-			? new ArrayValueSeries<float, float>( convolvesize_ )
-			: nullptr;
+    PtrMan<ValueSeries<float> > tmpvs;
+    int uncorrsz = outsz;
+    if ( applynmo_ )
+    {
+	uncorrsz = convolvesize_ > 0
+		 ? convolvesize_
+		 : (uncorrsampling_ ? uncorrsampling_->nrSteps()+1
+				    : -1);
+	if ( uncorrsz <= 0 )
+	    return false;
+
+	tmpvs = new ArrayValueSeries<float,float>( uncorrsz );
+	if ( !tmpvs->isOK() )
+	    return false;
+    }
 
     SeisTrcValueSeries trcvs( res, 0 );
     ValueSeries<float>& vs = tmpvs ? *tmpvs : trcvs;
 
     if ( dofreq_ )
     {
-	if ( !doFFTConvolve(vs,tmpvs ? convolvesize_ : res.size()) )
+	if ( !doFFTConvolve(vs) )
 	    return false;
     }
-    else if ( !doTimeConvolve(vs,tmpvs ? convolvesize_ : res.size()) )
+    else if ( !doTimeConvolve(vs) )
 	return false;
 
     if ( applynmo_ )
     {
-	if ( !doNMOStretch(vs,convolvesize_,trcvs,res.size()) )
+	if ( !doNMOStretch(vs,trcvs) )
 	    return false;
     }
 
@@ -637,7 +650,7 @@ bool SynthGenerator::computeTrace()
 }
 
 
-bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz )
+bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res )
 {
     float_complex* temprefs = getTempRefs();
     if ( !csampledfreqreflectivities_ || !freqwavelet_ || !temprefs )
@@ -657,15 +670,16 @@ bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz )
     if ( !fft->run(true) )
 	mErrRet(tr("Cannot run FFT for convolution"), false)
 
-    sortOutput( getTempRefs(), res, outsz );
+    sortOutput( getTempRefs(), res );
 
     return true;
 }
 
 
 void SynthGenerator::sortOutput( const float_complex* cres,
-				 ValueSeries<float>& res, int outsz ) const
+				 ValueSeries<float>& res ) const
 {
+    const int outsz = int (res.size());
     const SamplingData<float>& trcsampling = outtrc_->info().sampling;
     const ZSampling twtrg = trcsampling.interval( outsz );
     const float step = trcsampling.step;
@@ -694,7 +708,7 @@ void SynthGenerator::sortOutput( const float_complex* cres,
 }
 
 
-bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz )
+bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res )
 {
     ObjectSet<Array1D<float> > wavelettrcs;
     int nrspikes = 0;
@@ -707,6 +721,7 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res, int outsz )
     if ( !refsarr || (issampled && !outtrc_) || (!issampled && !twtarr) )
 	mErrRet(tr("Cannot find data for Time convolution"), false)
 
+    const int outsz = int (res.size());
     const SamplingData<float>& trcsampling = outtrc_->info().sampling;
     for ( int iref=0; iref<rm->size(); iref++ )
     {
@@ -743,12 +758,13 @@ void SynthGenerator::getWaveletTrace( const SamplingData<float>& sampling,
 }
 
 
-bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input, int insz,
-				   ValueSeries<float>& out, int outsz ) const
+bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input,
+				   ValueSeries<float>& out ) const
 {
     if ( refmodel_->size() < 1 )
 	return true;
 
+    const int outsz = int (out.size());
     const SamplingData<float>& trcsampling = outtrc_->info().sampling;
     const ZSampling outputsampling = trcsampling.interval( outsz );
 
@@ -776,6 +792,7 @@ bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input, int insz,
     if ( firsttime > 0.f )
 	stretchfunc.add( 0.f, 0.f );
 
+    const int insz = int (input.size());
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( input,
 					    insz, trcsampling.start,
 					    trcsampling.step );
@@ -907,13 +924,13 @@ bool MultiTraceSynthGenerator::doWork(od_int64 start, od_int64 stop, int thread)
     {
 	const ReflectivityModelTrace* refmodel =
 					refmodel_.getReflectivities(idx);
-	const float* timesarr_ = refmodel_.getReflTimes( idx );
+	const float* timesarr = refmodel_.getReflTimes( idx );
 	const float* correctedtimesarr = refmodel_.getReflTimes();
-	if ( !refmodel || !timesarr_ || !correctedtimesarr ||
+	if ( !refmodel || !timesarr || !correctedtimesarr ||
 	     idx >= trcs_.size() )
 	    return false;
 
-	synthgen.setModel( *refmodel, timesarr_, correctedtimesarr,
+	synthgen.setModel( *refmodel, timesarr, correctedtimesarr,
 			   *trcs_.get(idx) );
 	if ( cfreqreflectivityset_ )
 	    synthgen.useSampledFreqReflectivities(

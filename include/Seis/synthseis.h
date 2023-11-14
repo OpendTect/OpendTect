@@ -212,15 +212,15 @@ private:
 
     void		setUnCorrSampling(const ZSampling*);
     int			setConvolveSize();
-    bool		doFFTConvolve(ValueSeries<float>&,int sz);
-    void		sortOutput(const float_complex*,ValueSeries<float>&,
-				   int sz) const;
-    bool		doTimeConvolve(ValueSeries<float>&,int sz);
+    bool		doFFTConvolve(ValueSeries<float>&);
+    void		sortOutput(const float_complex*,
+				   ValueSeries<float>&) const;
+    bool		doTimeConvolve(ValueSeries<float>&);
     void		getWaveletTrace(const SamplingData<float>&,
 					float z,float scal,
 					Array1D<float>&) const;
-    bool		doNMOStretch(const ValueSeries<float>&, int insz,
-				     ValueSeries<float>& out,int outsz) const;
+    bool		doNMOStretch(const ValueSeries<float>& uncorrvs,
+				     ValueSeries<float>& nmovs) const;
 
     PtrMan<ReflectivitySampler> refsampler_;
     RefMan<ReflectivityModelTrace> sampledfreqreflectivities_;
