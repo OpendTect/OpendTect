@@ -18,7 +18,7 @@ class ZAxisTransform;
 namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
-namespace ZDomain { class Def; }
+namespace ZDomain { class Def; class Info; }
 
 /*!
 \brief Executor to scan horizons.
@@ -28,6 +28,9 @@ mExpClass(EarthModel) HorizonScanner : public Executor
 { mODTextTranslationClass(HorizonScanner);
 public:
 			HorizonScanner(const BufferStringSet& fnms,
+			    Table::FormatDesc& fd, bool isgeom,
+			    const ZDomain::Info&);
+    mDeprecatedDef	HorizonScanner(const BufferStringSet& fnms,
 					Table::FormatDesc& fd, bool isgeom,
 					ZAxisTransform*, bool iszdepth=false);
     mDeprecatedDef	HorizonScanner(const BufferStringSet& fnms,
@@ -53,11 +56,16 @@ public:
     void		launchBrowser(const char* fnm=0) const;
     void		report(IOPar&) const;
 
+    mDeprecated("Not required")
     void			setZAxisTransform(ZAxisTransform*);
+    mDeprecated("Not required")
     const ZAxisTransform*	getZAxisTransform() const;
 
+    mDeprecated("Use ZDomain::Info")
     void		setZInDepth();
+    mDeprecated("Use ZDomain::Info")
     void		setZInTime();
+    mDeprecated("Use ZDomain::Info")
     bool		isZInDepth() const;
 
     const ObjectSet<BinIDValueSet>& getSections()	{ return sections_; }
@@ -66,9 +74,11 @@ protected:
 
     int				nextStep() override;
     void			transformZIfNeeded(const BinID&,float&) const;
+    void			getConvValue(float&);
 
     void			init();
     const Interval<float>	getReasonableZRange() const;
+    bool			isInsideSurvey(const BinID&,float) const;
 
     mutable int			totalnr_;
     int				nrdone_;

@@ -572,3 +572,30 @@ bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
     const ZDomain::Info inf( iop );
     return isCompatibleWith( inf );
 }
+
+Interval<float> ZDomain::Info::getReasonableZRange( bool foruser ) const
+{
+    Interval<float> validrg;
+    if ( isDepthFeet() )
+    {
+	validrg.start = -50000;
+	validrg.stop = 50000;
+    }
+    else if ( isDepthMeter() )
+    {
+	validrg.start = -15000;
+	validrg.stop = 15000;
+    }
+    else if ( isTime() )
+    {
+	validrg.start = -10; // s
+	validrg.stop = 30;
+    }
+    else
+	validrg.setUdf();
+
+    if ( foruser )
+	validrg.scale( userFactor() );
+
+    return validrg;
+}

@@ -25,6 +25,8 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "uistrings.h"
 
+#include "hiddenparam.h"
+
 namespace EM
 {
 
@@ -43,6 +45,7 @@ const char* EMObject::nrposattrstr()		{ return "Nr Pos Attribs"; }
 static const char* sLockColor()			{ return "Lock Color"; }
 static const char* sSelectionColor()		{ return "Selection Color"; }
 
+static HiddenParam<EMObject,const ZDomain::Info*> emobjecthpmgr_(nullptr);
 
 // EMObjectCallbackData
 EMObjectCallbackData::EMObjectCallbackData()
@@ -134,13 +137,12 @@ EMObject::EMObject( EMManager& emm )
 	*new MarkerStyle3D(MarkerStyle3D::Cube,2,OD::Color::White()))
     , posattribmarkerstyle_(*new MarkerStyle3D(MarkerStyle3D::Cube,2,
 			    preferredcolor_.complementaryColor()))
-    , zdomain_(&ZDomain::SI())
 {
+    emobjecthpmgr_.setParam( this, new ZDomain::Info(SI().zDomainInfo()) );
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_.set( oid++ );
-
+    zdomain_ = &SI().zDomainInfo().def_;
     removebypolyposbox_.setEmpty();
-
     mAttachCB(change,EMObject::posIDChangeCB);
 }
 
@@ -157,7 +159,38 @@ EMObject::~EMObject()
     delete &preferredmarkerstyle_;
     delete &posattribmarkerstyle_;
 
+    emobjecthpmgr_.removeAndDeleteParam( this );
+
     id_.set( -2 );	//To check easier if it has been deleted
+}
+
+
+const UnitOfMeasure* EMObject::zUnit() const
+{
+    const ZDomain::Info* zdominf = emobjecthpmgr_.getParam( this );
+    if ( !zdominf )
+	return nullptr;
+
+    return UnitOfMeasure::zUnit( *zdominf, true );
+}
+
+
+EMObject& EMObject::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+	return *this;
+
+    emobjecthpmgr_.removeAndDeleteParam( this );
+    emobjecthpmgr_.setParam( this, new ZDomain::Info(zinfo) );
+    zdomain_ = &zDomain().def_;
+    return *this;
+}
+
+
+const ZDomain::Info& EMObject::zDomain() const
+{
+    const ZDomain::Info* inf = emobjecthpmgr_.getParam( this );
+    return *inf;
 }
 
 
@@ -788,6 +821,12 @@ bool EMObject::usePar( const IOPar& par )
 	}
     }
 
+    const ZDomain::Info* dominfo = ZDomain::get( par );
+    if ( dominfo )
+    {
+	setZDomain( *dominfo );
+    }
+
     return true;
 }
 
@@ -823,6 +862,7 @@ void EMObject::fillPar( IOPar& par ) const
     }
 
     par.set( nrposattrstr(), keyid );
+    zDomain().fillPar(par);
 }
 
 
@@ -970,6 +1010,8 @@ bool EMObject::isZInDepth() const
 }
 
 
+mStartAllowDeprecatedSection
+
 void EMObject::setZInDepth()
 {
     if ( isZInDepth() )
@@ -986,5 +1028,7 @@ void EMObject::setZInTime()
 
     zdomain_ = &ZDomain::Time();
 }
+
+mStopAllowDeprecatedSection
 
 } // namespace EM
