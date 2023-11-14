@@ -32,6 +32,7 @@ class uiUnitSel;
 namespace Coords { class uiCoordSystemSel; }
 namespace EM { class Horizon3D; }
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 /*! \brief Dialog for Horizon Import */
 
@@ -91,6 +92,7 @@ protected:
 
 private:
     uiString		goOnMsg();
+    const ZDomain::Info&	zDomain() const;
 };
 
 

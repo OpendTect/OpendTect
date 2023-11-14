@@ -25,9 +25,10 @@ class Executor;
 class IOObj;
 class IOObjContext;
 class TaskRunner;
+class UnitOfMeasure;
 
 namespace Geometry { class Element; }
-namespace ZDomain { class Def; }
+namespace ZDomain { class Def; class Info; }
 
 template <class T> class Selector;
 template <class T> class Array2D;
@@ -146,6 +147,9 @@ public:
     virtual bool		isOK() const		{ return true; }
     mDeprecatedDef uiString	uiName() const { return toUiString(name()); }
     virtual void		setNewName();
+    const UnitOfMeasure*	zUnit() const;
+    EMObject&			setZDomain(const ZDomain::Info&);
+    const ZDomain::Info&	zDomain() const;
 
     int				nrSections() const	{ return 1; }
     SectionID			sectionID(int) const
@@ -293,9 +297,14 @@ public:
     virtual const IOObjContext& getIOObjContext() const = 0;
 
     Interval<float>		getZRange(bool compute_if_needed=false) const;
-    bool			isZInDepth() const;
-    void			setZInDepth();
-    void			setZInTime();
+    mDeprecated("Use zDomain")
+	bool			isZInDepth() const;
+
+    mDeprecated("Use setZDomain")
+	void			setZInDepth();
+    mDeprecated("Use setZDomain")
+	void			setZInTime();
+
 
 // Deprecated public functions
     mDeprecated("Use geometryElement() const")

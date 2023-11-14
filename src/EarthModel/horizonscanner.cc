@@ -24,6 +24,30 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 #include "file.h"
 
+#include "hiddenparam.h"
+
+static HiddenParam<HorizonScanner,const ZDomain::Info*> emobjecthpmgr_(nullptr);
+
+
+HorizonScanner::HorizonScanner(const BufferStringSet& fnms,
+    Table::FormatDesc& fd, bool isgeom, const ZDomain::Info& zinfo )
+    : Executor("Scan horizon file(s)")
+    , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
+    , fd_(fd)
+    , isgeom_(isgeom)
+    , ascio_(nullptr)
+    , isxy_(false)
+    , selxy_(false)
+    , doscale_(false)
+    , bvalset_(nullptr)
+    , fileidx_(0)
+    , nrdone_(0)
+{
+    emobjecthpmgr_.setParam( this, new ZDomain::Info(zinfo) );
+    zdomain_ = &zinfo.def_;
+    filenames_ = fnms;
+    init();
+}
 
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 				Table::FormatDesc& fd, bool isgeom )
@@ -41,6 +65,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , curmsg_(tr("Scanning"))
     , nrdone_(0)
 {
+    emobjecthpmgr_.setParam( this, new ZDomain::Info(SI().zDomainInfo()) );
     filenames_ = fnms;
     init();
 }
@@ -51,7 +76,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 				ZAxisTransform* trans, bool iszdepth )
     : Executor("Scan horizon file(s)")
     , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
-    , zdomain_(&ZDomain::SI())
+    , zdomain_(nullptr)
     , fd_(fd)
     , isgeom_(isgeom)
     , ascio_(nullptr)
@@ -62,8 +87,11 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , nrdone_(0)
 {
     filenames_ = fnms;
-    setZAxisTransform( trans );
-    iszdepth ? setZInDepth() : setZInTime();
+    const ZDomain::Info& zinf = SI().zIsTime() ? ZDomain::TWT() :
+	iszdepth && SI().zInFeet() ? ZDomain::DepthFeet() :
+	ZDomain::DepthMeter();
+    emobjecthpmgr_.setParam( this, new ZDomain::Info(zinf) );
+    zdomain_ = &zinf.def_;
     init();
 }
 
@@ -74,6 +102,8 @@ HorizonScanner::~HorizonScanner()
     deepErase( sections_ );
     if ( transform_ )
 	transform_->unRef();
+
+    emobjecthpmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -146,6 +176,8 @@ const ZAxisTransform* HorizonScanner::getZAxisTransform() const
 }
 
 
+mStartAllowDeprecatedSection
+
 bool HorizonScanner::isZInDepth() const
 {
     return zdomain_->isDepth();
@@ -169,6 +201,7 @@ void HorizonScanner::setZInTime()
     zdomain_ = &ZDomain::Time();
 }
 
+mStopAllowDeprecatedSection
 
 void HorizonScanner::report( IOPar& iopar ) const
 {
@@ -186,18 +219,10 @@ void HorizonScanner::report( IOPar& iopar ) const
     dtctor_.report( iopar );
     if ( isgeom_ && valranges_.size() > 0 )
     {
-	BufferString zrgkey = isZInDepth() ? sKey::DepthRange()
-					   : sKey::TimeRange();
-	zrgkey.add( UnitOfMeasure::zUnitAnnot(!isZInDepth(),true,true) );
+	const ZDomain::Info& zinfo = *emobjecthpmgr_.getParam( this );
+	BufferString zrgkey( zinfo.userName().getFullString() );
+	zrgkey.add( zinfo.unitStr_() );
 	Interval<float> zrg = valranges_[0];
-	if ( !isZInDepth() )
-	{
-	    zrg.start = UnitOfMeasure::surveyDefTimeUnit()
-					->getUserValueFromSI( zrg.start );
-	    zrg.stop = UnitOfMeasure::surveyDefTimeUnit()
-					->getUserValueFromSI( zrg.stop );
-	}
-
 	BufferString zrgstr;
 	zrgstr.add( zrg.start, SI().nrZDecimals() ).add( " - " )
 	      .add( zrg.stop, SI().nrZDecimals() );
@@ -287,29 +312,20 @@ void HorizonScanner::transformZIfNeeded( const BinID& bid, float& zval ) const
 
 const Interval<float> HorizonScanner::getReasonableZRange() const
 {
-    Interval<float> validrg( SI().zRange(false) );
-    validrg.sort();
-    float zscalestart = 1.f;
-    float zscalestop = 1.f;
-    const Mnemonic& vel = Mnemonic::defVEL();
-    const float zfacmtofeet = SI().depthsInFeet() ? mToFeetFactorF : 1.f;
-    if ( isZInDepth() && SI().zIsTime() )
-    {
-	zscalestart = ( zscalestart * vel.disp_.range_.start * zfacmtofeet )/2;
-	zscalestop = ( zscalestop * vel.disp_.range_.stop * zfacmtofeet )/2;
-    }
-    else if ( !isZInDepth() && !SI().zIsTime() )
-    {
-	zscalestart = ( zscalestart / vel.disp_.range_.stop * zfacmtofeet )*2;
-	zscalestop = ( zscalestop / vel.disp_.range_.start * zfacmtofeet )*2;
-    }
+    const ZDomain::Info& zinfo = *emobjecthpmgr_.getParam( this );
+    return zinfo.getReasonableZRange();
+}
 
-    validrg.start *= zscalestart;
-    validrg.stop *= zscalestop;
-    const float zwidth = validrg.width();
-    validrg.start -= zwidth;
-    validrg.stop += zwidth;
-    return validrg;
+
+void HorizonScanner::getConvValue( float& zval )
+{
+    if ( !ascio_ && !reInitAscIO(filenames_.get(0).buf()) )
+	return;
+
+    const ZDomain::Info& zinfo = *emobjecthpmgr_.getParam( this );
+    const UnitOfMeasure* fromuom = zinfo.isDepth() ?
+	Table::AscIO::getDepthUnit() : Table::AscIO::getTimeUnit();
+    convValue( zval, fromuom, UnitOfMeasure::zUnit(zinfo) );
 }
 
 
@@ -318,10 +334,8 @@ bool HorizonScanner::analyzeData()
     if ( !reInitAscIO( filenames_.get(0).buf() ) )
 	return false;
 
-    const bool hastransform = transform_ != nullptr;
-    const bool zistime = !isZInDepth();
-    const bool checkifzisvalid = isgeom_ && zistime && !hastransform;
-    Interval<float> validrg( getReasonableZRange() );
+    const Interval<float> validrg( getReasonableZRange() );
+
     int maxcount = 100;
     int count, nrxy, nrbid, nrvalid, nrnotvalid;
     count = nrxy = nrbid = nrvalid = nrnotvalid = 0;
@@ -367,19 +381,12 @@ bool HorizonScanner::analyzeData()
 	    }
 	}
 
-	if ( !checkifzisvalid )
-	{
-	    if ( validplacement )
-		count++;
-	    continue;
-	}
-
 	const BinID selbid = selxy_ ? SI().transform( crd ) : bid;
 	val = data[0];
-	transformZIfNeeded( selbid, val );
 	bool validvert = false;
 	if ( !mIsUdf(val) )
 	{
+	    getConvValue( val );
 	    validvert = true;
 	    if ( validrg.includes(val,false) )
 		nrvalid++;
@@ -400,7 +407,7 @@ bool HorizonScanner::analyzeData()
 		     .arg( apparentisxy ? "X/Y" : "Inl/Crl" );
     }
 
-    if ( checkifzisvalid && nrnotvalid>nrvalid )
+    if ( nrnotvalid > nrvalid )
     {
 	const UnitOfMeasure* selzunit = ascio_->getSelZUnit();
 	uiString zmsg = tr("You have selected Z in %1. "
@@ -419,16 +426,12 @@ bool HorizonScanner::analyzeData()
 }
 
 
-static bool isInsideSurvey( const BinID& bid, float zval )
+bool HorizonScanner::isInsideSurvey( const BinID& bid, float zval ) const
 {
     if ( !SI().isReasonable(bid) )
 	return false;
 
-    Interval<float> zrg( SI().zRange(false) );
-    const float zwidth = zrg.width();
-    zrg.sort();
-    zrg.start -= zwidth;
-    zrg.stop += zwidth;
+    const ZGate zrg = getReasonableZRange();
     return zrg.includes( zval, false );
 }
 
@@ -468,7 +471,7 @@ int HorizonScanner::nextStep()
 	return Executor::Finished();
     }
 
-    if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
+    if ( !ascio_ && !reInitAscIO(filenames_.get(fileidx_).buf()) )
 	mErrRet(tr("Error during initialization."
 		"\nPlease check the format definition"))
 
@@ -507,8 +510,7 @@ int HorizonScanner::nextStep()
     if ( !SI().isReasonable(bid) )
 	return Executor::MoreToDo();
 
-    if ( transform_ )
-	transformZIfNeeded( bid, data[0] );
+    getConvValue( data[0] );
 
     bool validpos = true;
     int validx = 0;
@@ -518,25 +520,18 @@ int HorizonScanner::nextStep()
 	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
 
 	const float val = data[validx];
-	if ( isgeom_ && validx==0 )
+	if ( isgeom_ && validx == 0)
 	{
-	    if ( zdomain_->isSI() && !isInsideSurvey(bid,val) )
+	    if ( !isInsideSurvey(bid,val) )
 	    {
 		validpos = false;
 		break;
-	    }
-	    else
-	    {
-		if ( !SI().isReasonable(bid) )
-		{
-		    validpos = false;
-		    break;
-		}
 	    }
 	}
 
 	if ( !mIsUdf(val) )
 	    valranges_[validx].include( val, false );
+
 	validx++;
     }
 
