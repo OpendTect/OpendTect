@@ -105,6 +105,7 @@ public:
 			Info(const IOPar&);
 			~Info();
 
+    Info&		operator =(const Info&)		= delete;
     bool		operator ==(const Info&) const;
     bool		operator !=(const Info&) const;
 
