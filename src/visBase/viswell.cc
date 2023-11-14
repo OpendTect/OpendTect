@@ -202,16 +202,8 @@ void Well::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 void Well::transformZIfNeeded( Coord3& crd ) const
 {
-    if ( !zaxistransform_ ) return;
-
-    const StringView ztransformkey( zaxistransform_->toZDomainKey() );
-    if ( ztransformkey == ZDomain::sKeyDepth() )
-    {
-	if ( SI().depthsInFeet() )
-	    crd.z *= mToFeetFactorD;
-
+    if ( !zaxistransform_ || zaxistransform_->toZDomainInfo().isDepth() )
 	return;
-    }
 
     crd.z = zaxistransform_->transform( crd );
 }

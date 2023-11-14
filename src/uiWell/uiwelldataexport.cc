@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioobj.h"
 #include "od_ostream.h"
+#include "oddirs.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "welldata.h"
@@ -159,6 +160,9 @@ uiWellExportFacility::uiWellExportFacility( uiParent* p,
     outfilefld_ = new uiFileInput( this,
 			uiStrings::phrOutput(uiStrings::sDirectory()), fssu );
     outfilefld_->attach( alignedBelow, basenmfld_ );
+    const FilePath expfp( GetDataDir(), "Export" );
+    if ( expfp.exists() )
+	outfilefld_->setText( expfp.fullPath() );
 
     mAttachCB( postFinalize(), uiWellExportFacility::inputChngCB );
 }
@@ -380,7 +384,9 @@ bool uiWellExportFacility::exportWellLogs( const char* fp )
 
 void uiWellExportFacility::writeLogHeader( od_ostream& strm )
 {
-    strm << "Depth" << getDistUnitString( !ztypefld_->getBoolValue(), true );
+    BufferString depthstr( "Depth",
+	getDistUnitString(!ztypefld_->getBoolValue(),true ) );
+    strm << depthstr.quote();
     const Well::LogSet& logs = wd_->logs();
     BufferStringSet logsel;
     loglist_->getChosen( logsel );
@@ -394,9 +400,11 @@ void uiWellExportFacility::writeLogHeader( od_ostream& strm )
 	lognm.clean();
 	lognm.replace( '+', '_' );
 	lognm.replace( '-', '_' );
-	strm << od_tab << lognm;
 	if ( *log.unitMeasLabel() )
-	    strm << "(" << log.unitMeasLabel() << ")";
+	    lognm.add( "(" ).add( log.unitMeasLabel() ).add( ")" );
+
+	lognm.quote();
+	strm << od_tab << lognm;
     }
 
     strm << od_newline;
