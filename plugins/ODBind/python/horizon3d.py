@@ -75,6 +75,12 @@ class Horizon3D(_SurveyObject):
             raise TypeError(newhor.errmsg)
 
         return newhor
+    
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        pass
 
     def getz(self):
         """Get the 3D horizon Z values as a Numpy array

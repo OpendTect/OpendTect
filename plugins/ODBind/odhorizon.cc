@@ -614,6 +614,8 @@ void odHorizon2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 // Horizon3D bindings
 //------------------------------------------------------------------------------
 mDefineBaseBindings(Horizon3D, horizon3d)
+mDefineRemoveBindings(Horizon3D, horizon3d)
+
 hHorizon3D horizon3d_newout( hSurvey survey, const char* name,
 			     const int* inl_rg, const int* crl_rg,
 			     bool overwrite )
@@ -674,6 +676,8 @@ void horizon3d_putz_byxy( hHorizon3D self, const uint32_t shape[2],
 // Horizon2D bindings
 //------------------------------------------------------------------------------
 mDefineBaseBindings(Horizon2D, horizon2d)
+mDefineRemoveBindings(Horizon2D, horizon2d)
+
 hHorizon2D horizon2d_newout( hSurvey survey, const char* name,
 			     bool creategeom, bool overwrite )
 {

@@ -12,6 +12,7 @@ set( OD_IS_PLUGIN yes )
 set( OD_MODULE_SOURCES
     odbind_pi.cc
     odbind.cc
+    odgeom_2d.cc
     odhorizon.cc
     odseismic_object.cc
     odseismic_3d.cc
@@ -27,6 +28,7 @@ OD_INIT_MODULE()
 set ( ODBIND_FILES
     python/__init__.py
     python/survey.py
+    python/geom2d.py
     python/horizon2d.py
     python/horizon3d.py
     python/seismic3d.py

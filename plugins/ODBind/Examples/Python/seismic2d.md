@@ -63,7 +63,7 @@ feature
 
 ```python
 import folium
-datamap = folium.Map(location=[52.3,8.0], tiles="Stamen Terrain", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
+datamap = folium.Map(location=[52.3,8.0], tiles="openstreetmap", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
 folium.GeoJson(feature, popup=folium.GeoJsonPopup(fields=['name'])).add_to(datamap)
 datamap
 ```
@@ -122,7 +122,7 @@ features
 
 ```python
 import folium
-datamap = folium.Map(location=[52.3,8.0], tiles="Stamen Terrain", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
+datamap = folium.Map(location=[52.3,8.0], tiles="openstreetmap", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
 folium.GeoJson(features, popup=folium.GeoJsonPopup(fields=['name'])).add_to(datamap)
 datamap
 ```

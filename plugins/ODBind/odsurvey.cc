@@ -600,6 +600,32 @@ void survey_zrange( hSurvey self, float* zrg )
 }
 
 
+void survey_inlrange( hSurvey self, int32_t* rg )
+{
+    const auto* p = static_cast<odSurvey*>(self);
+    if ( !p ) return;
+
+    p->activate();
+    auto r = SI().inlRange();
+    rg[0] = r.start;
+    rg[1] = r.stop;
+    rg[2] = r.step;
+}
+
+
+void survey_crlrange( hSurvey self, int32_t* rg )
+{
+    const auto* p = static_cast<odSurvey*>(self);
+    if ( !p ) return;
+
+    p->activate();
+    auto r = SI().crlRange();
+    rg[0] = r.start;
+    rg[1] = r.stop;
+    rg[2] = r.step;
+}
+
+
 bool initModule( const char* odbindfnm )
 {
     return odSurvey::initModule( odbindfnm );

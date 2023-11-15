@@ -64,6 +64,8 @@ protected:
 };
 
 mDeclareBaseBindings(Seismic2D, seismic2d)
+mDeclareRemoveBindings(Seismic2D, seismic2d)
+
 mExternC(ODBind) void		seismic2d_close(hSeismic2D);
 mExternC(ODBind) hStringSet	seismic2d_compnames(hSeismic2D);
 mExternC(ODBind) hStringSet	seismic2d_linenames(hSeismic2D);
