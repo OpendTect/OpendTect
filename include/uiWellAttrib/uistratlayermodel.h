@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 
+#include "helpview.h"
 #include "uimainwin.h"
 #include "uistring.h"
 #include "stratlevel.h"
@@ -78,6 +79,7 @@ protected:
     uiStratGenDescTools*	gentools_;
     uiStratLayModEditTools*	modtools_;
     uiToolBar*			analtb_		= nullptr;
+    HelpKey			helpkey_;
 
     Strat::LayerSequenceGenDesc& desc_;
     Strat::LayerModelSuite&	lms_;
