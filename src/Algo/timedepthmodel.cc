@@ -539,8 +539,11 @@ void TimeDepthModelSet::setFrom( const ElasticModel& emodel,
     const int sz = modelSize();
     for ( auto* model : tdmodels_ )
     {
-	if ( model != defmodel_ )
+	if ( model != defmodel_ && sz > 0 )
+	{
 	    OD::sysMemValueSet( model->getTimes(), mUdf(float), sz );
+	    model->getTimes()[0] = tdmsu.starttime_;
+	}
     }
 }
 
