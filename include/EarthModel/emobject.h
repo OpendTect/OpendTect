@@ -299,7 +299,6 @@ public:
     EMObject&			setZDomain(const ZDomain::Info&);
     const ZDomain::Info&	zDomain() const { return *zdominfo_; }
 
-    void			userPar(const IOPar&);
 // Deprecated public functions
     mDeprecated("Use geometryElement() const")
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
