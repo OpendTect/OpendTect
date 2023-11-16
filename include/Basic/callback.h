@@ -162,6 +162,9 @@ public:
 		//!<\note lock lock_ before calling
     void	removeWith(StaticCallBackFunction);
 		//!<\note lock lock_ before calling
+    void	moveWith(const CallBacker*,int idx);
+		/*!<\Move an existing item in the set to a desired index
+			Use idx=-1 to push at the end */
     void	transferTo(CallBackSet& to,const CallBacker* onlyfor=nullptr,
 					   const CallBacker* notfor=nullptr);
 		//!<\note lock lock_ before calling, also to's lock_
