@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "elasticpropsel.h"
 #include "propertyref.h"
 #include "manobjectset.h"
+#include "stattype.h"
 
 class od_istream;
 class od_ostream;
@@ -47,6 +48,9 @@ public:
     const LayerSequence&	sequence( int idx ) const { return *seqs_[idx];}
     int				nrLayers() const;
     Interval<float>		zRange() const;
+    float			startDepth(Stats::Type=Stats::Average) const;
+    float			overburdenVelocity(
+					Stats::Type=Stats::Average) const;
 
     void			setEmpty();
     LayerSequence&		addSequence();
@@ -70,8 +74,11 @@ public:
 					   int& nrseq,bool& mathpreserve);
 
     mDeprecatedObs bool		read(od_istream&);
-    bool			read(od_istream&,int start,int step,
+    mDeprecatedObs bool		read(od_istream&,int start,int step,
 				     uiString&,TaskRunner* t=nullptr);
+    bool			read(od_istream&,int start,int step,
+				     uiString&,TaskRunner*,
+				     float startdepth,float abovevel);
     bool			write(od_ostream&,int modnr=0,
 					bool mathpreserve=false) const;
 

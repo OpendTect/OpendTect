@@ -518,6 +518,7 @@ ElasticModel::~ElasticModel()
 ElasticModel& ElasticModel::operator =( const ElasticModel& oth )
 {
     ObjectSet<RefLayer>::operator= (oth );
+    setOverburden( oth.aboveThickness(), oth.startTime() );
     return *this;
 }
 
@@ -608,7 +609,48 @@ ElasticModel& ElasticModel::copyFrom( const ElasticModel& oth,
 	    add( newlayer );
     }
 
+    mDynamicCastGet(const ElasticModelOv*,othovmdl,&oth)
+    if ( othovmdl )
+	setOverburden( othovmdl->aboveThickness_(), othovmdl->startTime_() );
+    else
+	{ pErrMsg("Not supported"); }
+
     return *this;
+}
+
+
+ElasticModel& ElasticModel::setOverburden( double th, double t0 )
+{
+    mDynamicCastGet(ElasticModelOv*,ovmdl,this)
+    if ( ovmdl )
+	ovmdl->setOverburden_( th, t0 );
+    else
+	{ pErrMsg("Not supported"); }
+
+    return *this;
+}
+
+
+double ElasticModel::aboveThickness() const
+{
+    mDynamicCastGet(const ElasticModelOv*,ovmdl,this)
+    const float abovethickness = ovmdl ? ovmdl->aboveThickness_()
+				       : mUdf(double);
+    if ( mIsUdf(abovethickness) )
+	return 0.;
+
+    return abovethickness;
+}
+
+
+double ElasticModel::startTime() const
+{
+    mDynamicCastGet(const ElasticModelOv*,ovmdl,this)
+    const float starttime = ovmdl ? ovmdl->startTime_() : mUdf(double);
+    if ( mIsUdf(starttime) )
+	return 0.;
+
+    return starttime;
 }
 
 
@@ -792,15 +834,15 @@ void ElasticModel::upscale( float maxthickness )
     if ( isEmpty() || maxthickness < cMinLayerThickness() )
 	return;
 
-    const ElasticModel orgmodl = *this;
+    ConstPtrMan<ElasticModel> orgmodl = clone();
     setEmpty();
 
     float totthickness = 0.f;
     ElasticModel curmodel;
     PtrMan<RefLayer> newlayer;
-    for ( int lidx=0; lidx<orgmodl.size(); lidx++ )
+    for ( int lidx=0; lidx<orgmodl->size(); lidx++ )
     {
-	PtrMan<RefLayer> curlayer = orgmodl.get(lidx)->clone();
+	PtrMan<RefLayer> curlayer = orgmodl->get(lidx)->clone();
 	float thickness = curlayer->getThickness();
 	if ( !curlayer->isValidThickness() || !curlayer->isValidVel() )
 	    continue;
@@ -862,14 +904,14 @@ void ElasticModel::upscaleByN( int nbblock )
     if ( isEmpty() || nbblock < 2 )
 	return;
 
-    const ElasticModel orgmodl = *this;
+    ConstPtrMan<ElasticModel> orgmodl = clone();
     setEmpty();
 
     ElasticModel curmdl;
     PtrMan<RefLayer> newlayer;
-    for ( int lidx=0; lidx<orgmodl.size(); lidx++ )
+    for ( int lidx=0; lidx<orgmodl->size(); lidx++ )
     {
-	curmdl.add( orgmodl.get( lidx )->clone() );
+	curmdl.add( orgmodl->get( lidx )->clone() );
 	if ( (lidx+1) % nbblock == 0 )
 	{
 	    newlayer = RefLayer::create( curmdl.getType() );
@@ -898,14 +940,14 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
     if ( !doBlocking(relthreshold,pvelonly,blocks) )
 	return;
 
-    const ElasticModel orgmodl = *this;
+    ConstPtrMan<ElasticModel> orgmodl = clone();
     setEmpty();
     for ( int lidx=0; lidx<blocks.size(); lidx++ )
     {
 	ElasticModel blockmdl;
 	const Interval<int> curblock = blocks[lidx];
 	for ( int lidy=curblock.start; lidy<=curblock.stop; lidy++ )
-	    blockmdl.add( orgmodl.get(lidy)->clone() );
+	    blockmdl.add( orgmodl->get(lidy)->clone() );
 
 	PtrMan<RefLayer> outlay = RefLayer::create( blockmdl.getType() );
 	if ( !blockmdl.getUpscaledBackus(*outlay.ptr()) )
@@ -1076,17 +1118,17 @@ void ElasticModel::setMaxThickness( float maxthickness )
     if ( isEmpty() || maxthickness < cMinLayerThickness() )
 	return;
 
-    const ElasticModel orgmodl = *this;
+    ConstPtrMan<ElasticModel> orgmodl = clone();
     setEmpty();
-    const int initialsz = orgmodl.size();
+    const int initialsz = orgmodl->size();
     int nbinsert = mUdf(int);
     for ( int lidx=0; lidx<initialsz; lidx++ )
     {
-	const float thickness = orgmodl.get(lidx)->getThickness();
+	const float thickness = orgmodl->get(lidx)->getThickness();
 	if ( !mIsValidThickness(thickness) )
 	    continue;
 
-	PtrMan<RefLayer> newlayer = orgmodl.get(lidx)->clone();
+	PtrMan<RefLayer> newlayer = orgmodl->get(lidx)->clone();
 	nbinsert = 1;
 	if ( thickness > maxthickness - cMinLayerThickness() )
 	{
@@ -1105,15 +1147,15 @@ void ElasticModel::mergeSameLayers()
     if ( isEmpty() )
 	return;
 
-    const ElasticModel orgmodl = *this;
+    ConstPtrMan<ElasticModel> orgmodl = clone();
     setEmpty();
-    const int initialsz = orgmodl.size();
+    const int initialsz = orgmodl->size();
     bool havemerges = false;
     float totthickness = 0.f;
-    PtrMan<RefLayer> prevlayer = orgmodl.first()->clone();
+    PtrMan<RefLayer> prevlayer = orgmodl->first()->clone();
     for ( int lidx=1; lidx<initialsz; lidx++ )
     {
-	const RefLayer& curlayer = *orgmodl.get(lidx);
+	const RefLayer& curlayer = *orgmodl->get(lidx);
 	if ( mIsEqual(curlayer.getPVel(),prevlayer->getPVel(),1e-2f) &&
 	     mIsEqual(curlayer.getDen(),prevlayer->getDen(),1e-2f) &&
 	     mIsEqual(curlayer.getSVel(),prevlayer->getSVel(),1e-2f) )
@@ -1581,7 +1623,101 @@ Interval<float> ElasticModel::getTimeSampling( bool usevs ) const
     }
 
     ret.stop *= 2.f; // TWT needed
+    ret.shift( startTime() );
     return ret;
+}
+
+
+// ElasticModelOv
+
+ElasticModelOv::ElasticModelOv()
+    : ElasticModel()
+{
+}
+
+
+ElasticModelOv::ElasticModelOv( const ElasticModelOv& oth )
+{
+    *this = oth;
+}
+
+
+ElasticModelOv::ElasticModelOv( const ElasticModel& oth )
+{
+    *this = oth;
+}
+
+
+ElasticModelOv::~ElasticModelOv()
+{
+}
+
+
+ElasticModel& ElasticModelOv::operator =( const ElasticModelOv& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    ElasticModel::operator =( oth );
+    abovethickness_ = oth.abovethickness_;
+    starttime_ = oth.starttime_;
+
+    return *this;
+}
+
+
+ElasticModel& ElasticModelOv::operator =( const ElasticModel& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    ElasticModel::operator =( oth );
+
+    return *this;
+}
+
+
+ElasticModel& ElasticModelOv::setOverburden_( double th, double t0 )
+{
+    abovethickness_ = th;
+    starttime_ = t0;
+    return *this;
+}
+
+
+double ElasticModelOv::aboveThickness_() const
+{
+    return abovethickness_;
+}
+
+
+double ElasticModelOv::startTime_() const
+{
+    return starttime_;
+}
+
+
+void ElasticModelOv::setMaxThickness( float maxthickness, bool extend )
+{
+    ElasticModel::setMaxThickness( maxthickness );
+    if ( !extend || isEmpty() ||
+	 mIsUdf(abovethickness_) || abovethickness_ < cMinLayerThickness() )
+	return;
+
+    int nrextra = 1;
+    const float pvel = mCast(float, 2. * abovethickness_ / starttime_ );
+    PtrMan<RefLayer> newlayer =
+			new AILayer( abovethickness_, pvel, mUdf(float) );
+    if ( abovethickness_ > maxthickness - cMinLayerThickness() )
+    {
+	nrextra = mNINT32( Math::Ceil(abovethickness_/maxthickness) );
+	newlayer->setThickness( newlayer->getThickness() / nrextra );
+    }
+
+    for ( int idx=0; idx<nrextra; idx++ )
+	insertAt( newlayer->clone(), 0 );
+
+    setOverburden( mUdf(double), mUdf(double) );
 }
 
 
@@ -1611,7 +1747,7 @@ bool ElasticModelSet::setSize( int nrmdls )
     else // nrmdls > oldsz
     {
 	while ( size() < nrmdls )
-	    add( new ElasticModel );
+	    add( new ElasticModelOv );
     }
 
     return true;

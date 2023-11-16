@@ -117,6 +117,7 @@ protected:
     void			elasticPropsCB(CallBacker*);
     void			synthInfoChangedCB(CallBacker*);
     void			modChgCB(CallBacker*);
+    void			seqsChangedCB(CallBacker*);
     void			seqsAddedCB(CallBacker*);
     void			seqSelCB(CallBacker*);
     void			modInfoChangedCB(CallBacker*);

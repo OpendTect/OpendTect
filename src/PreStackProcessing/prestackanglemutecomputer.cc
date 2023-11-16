@@ -129,7 +129,7 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
     const float cutoffsin = (float) sin( params().mutecutoff_ * M_PIf / 180.f );
 
     ElasticModelSet emodels;
-    auto* layers = new ElasticModel();
+    auto* layers = new ElasticModelOv();
     emodels.add( layers );
     bool nonemuted, allmuted;
     for ( od_int64 pidx=start; pidx<=stop && shouldContinue(); pidx++ )

@@ -45,6 +45,8 @@ public:
     void		setPropSelection(const PropertyRefSelection&);
     float		startDepth() const	{ return startdepth_; }
     void		setStartDepth( float z)	{ startdepth_ = z; }
+    float		overburdenVelocity() const;
+    void		setOverburdenVelocity(float);
     const MultiID&	elasticPropSel() const;
     void		setElasticPropSel(const MultiID&);
 
@@ -60,6 +62,10 @@ public:
     int			indexFromUserIdentification(const char*) const;
     LayerSequenceGenDesc& operator=(const LayerSequenceGenDesc&);
 
+    static float	defOverburdenVelocity();
+    static float	getOverburdenVelocity(const char* skey,const IOPar&);
+    static void		setOverburdenVelocity(const char* skey,float vel,
+					      IOPar&);
 
 protected:
 

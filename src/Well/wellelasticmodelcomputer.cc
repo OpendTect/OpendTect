@@ -119,7 +119,7 @@ void Well::ElasticModelComputer::setExtractionPars( float zstep,
 
 void Well::ElasticModelComputer::init()
 {
-    emodel_ = ElasticModel();
+    emodel_ = ElasticModelOv();
     zrange_ = Interval<float>( mUdf(float), mUdf(float) );
     zrgistime_ = false;
     zstep_ = mUdf(float);
