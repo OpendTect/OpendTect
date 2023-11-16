@@ -90,6 +90,7 @@ protected:
 
     void			initWin(CallBacker*);
     void			setWinTitle();
+    void			orderNotifiers();
     void			handleNewModel(Strat::LayerModel* =nullptr,
 					       bool full=false);
 

@@ -29,12 +29,17 @@ public:
     bool		getViewRect(const uiFlatViewer* activevwr,
 				    const uiFlatViewer* curvwr,
 				    uiWorldRect&) const;
+    void		setFlattened(bool flattened,
+				     const TypeSet<float>* depths);
     void		setFlattened( bool flattened )
 			{ isflattened_ = flattened; }
+    mDeprecatedDef
     bool		isFlattened() const	{ return isflattened_; }
 protected:
     BoolTypeSet					zintimeflags_;
     ObjectSet<const TimeDepthModel>		d2tmodels_;
+    TypeSet<float>&				refdepths_();
+    const TypeSet<float>&			refdepths_() const;
     ObjectSet<const uiFlatViewer>		vwrs_;
     bool					isflattened_ = false;
 };
@@ -61,6 +66,9 @@ public:
 			{ viewmgr_.setViewerType( vwr, isintime ); }
     void		setD2TModels(const ObjectSet<const TimeDepthModel>& d2t)
 			{ viewmgr_.setD2TModels( d2t ); }
+    void		setFlattened(bool flattened,
+				     const TypeSet<float>* depths);
+    mDeprecated("Provide depths")
     void		setFlattened( bool flattened )
 			{ viewmgr_.setFlattened( flattened ); }
 
@@ -90,4 +98,8 @@ protected:
     void		zoomCB(CallBacker*) override;
     void		wheelMoveCB(CallBacker*) override;
     void		pinchZoomCB(CallBacker*) override;
+
+public:
+    void		setVwrsToBoundingBox_();
+    bool		isZoomCoupled() const	{ return iszoomcoupled_; }
 };
