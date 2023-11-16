@@ -22,7 +22,7 @@ namespace Strat { class LayerSequenceGenDesc; }
   editors that are not also Layer Model displayers. */
 
 mExpClass(uiStrat) uiExtLayerSequenceGenDesc : public uiGraphicsView
-				 , public uiLayerSequenceGenDesc
+					     , public uiLayerSequenceGenDesc
 { mODTextTranslationClass(uiExtLayerSequenceGenDesc)
 public:
 
@@ -33,7 +33,7 @@ public:
     uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
 				    Strat::LayerModelSuite&,int) override;
     uiObject*		outerObj() override	{ return this; }
-    void		prepareDesc() override	{ getTopDepthFromScreen(); }
+    void		prepareDesc() override	{}
     void		setDescID(const MultiID&) override;
     void		setEditDesc() override;
     void		setFromEditDesc() override;
@@ -42,7 +42,7 @@ public:
 protected:
 
     Strat::LayerSequenceGenDesc&	editdesc_;
-    uiGenInput*		topdepthfld_;
+    uiGenInput*		topdepthfld_; //!< deprecated
     uiRectItem*		outeritm_ = nullptr;
     uiTextItem*		emptyitm_ = nullptr;
     uiBorder		border_ = 10;	//!< can be set
@@ -50,10 +50,13 @@ protected:
     bool		zinft_;		//!< deprecated
     MultiID		descid_;
 
+    mDeprecatedObs
     void		getTopDepthFromScreen();
+    mDeprecatedObs
     void		putTopDepthToScreen();
-
+    mDeprecatedObs
     void		initView(CallBacker*);
+    void		ovButCB(CallBacker*);
     void		reDraw(CallBacker*);
     void		wheelMoveCB(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }

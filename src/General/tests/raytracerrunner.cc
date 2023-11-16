@@ -30,7 +30,7 @@ ________________________________________________________________________
 
 static ElasticModel* getEModel()
 {
-    auto* emdl = new ElasticModel();
+    auto* emdl = new ElasticModelOv();
     emdl->add( new AILayer( 48.f, 2000.f, 2500.f ) );
     emdl->add( new AILayer( 520.f, 2600.f, 2300.f ) );
     emdl->add( new AILayer( 385.f, 3500.f, 2200.f ) );
@@ -151,7 +151,7 @@ static bool setupAndApplyRunner( bool raytracer, int nr, bool parallel )
 
     if ( nr > 1 )
     {
-	auto* emdl = new ElasticModel;
+	auto* emdl = new ElasticModelOv;
 	// Single layer model
 	emdl->add( new AILayer( 48.f, 2000.f, 2500.f ) );
 	emodels.add( emdl->clone() );

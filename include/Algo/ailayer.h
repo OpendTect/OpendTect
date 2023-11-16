@@ -285,6 +285,10 @@ public:
 
     bool	isManaged() const override	{ return true; }
 
+    ElasticModel& setOverburden(double thickness,double starttime);
+    double	aboveThickness() const;
+    double	startTime() const;
+
     ElasticModel& copyFrom(const ElasticModel& mdl,RefLayer::Type reqtyp);
 		/*!< \param mdl input model (can be itself)
 		     \param reqtyp return type for all layers in model	 */
@@ -415,6 +419,34 @@ private:
 		   maybe split that layer over the last/previous layers */
 
 
+
+};
+
+
+mExpClass(Algo) ElasticModelOv : public ElasticModel
+{
+public:
+			ElasticModelOv();
+			ElasticModelOv(const ElasticModelOv&);
+			ElasticModelOv(const ElasticModel&);
+			~ElasticModelOv();
+
+    ElasticModel&	operator =(const ElasticModelOv&);
+    ElasticModel&	operator =(const ElasticModel&);
+    ElasticModel*	clone() const override
+			{ return new ElasticModelOv(*this); }
+
+    ElasticModel&	setOverburden_(double thickness,double starttime);
+
+    double		aboveThickness_() const;
+    double		startTime_() const;
+
+    void		setMaxThickness(float maxthickness,bool extendup);
+
+private:
+
+    double		abovethickness_ = mUdf(double);
+    double		starttime_ = mUdf(double);
 
 };
 

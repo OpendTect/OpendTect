@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 static ElasticModel getEModel()
 {
-    ElasticModel emdl;
+    ElasticModelOv emdl;
     emdl += new AILayer( 48.f, 2000.f, 2500.f );
     emdl += new AILayer( 520.f, 2600.f, 2300.f );
     emdl += new AILayer( 385.f, 3500.f, 2200.f );

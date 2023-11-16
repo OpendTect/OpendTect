@@ -491,6 +491,8 @@ void TimeDepthModelSet::setFrom( const ElasticModel& emodel,
     int idz = 0;
     twtarr[idz] = tdmsu.starttime_;
     deptharr[idz++] = tdmsu.startdepth_;
+    const double aboveth = emodel.aboveThickness();
+    const double starttime = emodel.startTime();
 
     const bool zinfeet = tdmsu.areDepthsInFeet();
     float dnmotime, dvrmssum, unmotime, uvrmssum;
@@ -502,6 +504,8 @@ void TimeDepthModelSet::setFrom( const ElasticModel& emodel,
 	if ( zinfeet )
 	    dz *= mToFeetFactorF;
 	deptharr[idz] = deptharr[idz-1] + dz;
+	if ( idz==1 )
+	    deptharr[idz] += aboveth;
 
 	float dvel = tdmsu.pdown_ ? layer->getPVel() : layer->getSVel();
 	float uvel = tdmsu.pup_ ? layer->getPVel() : layer->getSVel();
@@ -533,7 +537,7 @@ void TimeDepthModelSet::setFrom( const ElasticModel& emodel,
 	if ( velmax )
 	    velmax[idz-1] = Math::Sqrt( vrmssum / twt );
 
-	twtarr[idz++] = twt;
+	twtarr[idz++] = twt + starttime;
     }
 
     const int sz = modelSize();

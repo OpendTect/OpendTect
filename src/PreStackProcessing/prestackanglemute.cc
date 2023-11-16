@@ -507,7 +507,7 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
     const bool innermute = params().tail_;
 
     ElasticModelSet emodels;
-    auto* layers = new ElasticModel();
+    auto* layers = new ElasticModelOv();
     emodels.add( layers );
     bool nonemuted, allmuted;
     TypeSet<float> offsets;

@@ -50,7 +50,9 @@ public:
 						//!< returns -1 only if empty
 
     float		startDepth() const	{ return z0_; }
+    float		overburdenVelocity() const;
     void		setStartDepth( float z ) { z0_ = z; prepareUse(); }
+    void		setOverburdenVelocity(float vel);
     Interval<float>	zRange() const;
     Interval<float>	propRange(int) const;
     void		setXPos(float);
@@ -88,13 +90,37 @@ public:
 
 protected:
 
+    void		adjustLayers(float startz);
+
     ObjectSet<Layer>	layers_;
     float		z0_ = 0.f;
-    PropertyRefSelection	props_;
+    PropertyRefSelection props_;
 
 public:
     void		setStartDepthOnly( float z ) { z0_ = z; }
+    void		setStartDepthAndAdjust(float z);
 
+
+};
+
+
+mExpClass(Strat) LayerSequenceOv : public LayerSequence
+{
+public:
+			LayerSequenceOv(const PropertyRefSelection* =nullptr);
+			LayerSequenceOv(const LayerSequenceOv&);
+			LayerSequenceOv(const LayerSequence&);
+			~LayerSequenceOv();
+
+    LayerSequence&	operator =(const LayerSequenceOv&);
+    LayerSequence&	operator =(const LayerSequence&);
+
+    float		overburdenVelocity_() const	{ return velabove_; }
+    void		setOverburdenVelocity_(float vel);
+
+private:
+
+    float		velabove_ = 2000.f;
 };
 
 } // namespace Strat

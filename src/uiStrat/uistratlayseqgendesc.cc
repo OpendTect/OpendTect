@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uistratbasiclayseqgendesc.h"
 
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -158,6 +159,7 @@ bool uiLayerSequenceGenDesc::isValidSelection(
     return true;
 }
 
+
 const Strat::LayerSequenceGenDesc& uiLayerSequenceGenDesc::currentDesc() const
 {
     mDynamicCastGet(const uiExtLayerSequenceGenDesc*,extuidesc,this);
@@ -187,6 +189,91 @@ bool uiLayerSequenceGenDesc::selProps()
 }
 
 
+// uiOverburddenGrp
+
+uiOverburdenGrp::uiOverburdenGrp( uiParent* p, float topdepth,
+				  float velocityabove )
+    : uiGroup(p)
+{
+    const uiString zlbltxt = tr("Top depth (%1)")
+		.arg( PropertyRef::thickness().disp_.getUnitLbl() );
+    topdepthfld_ = new uiGenInput( this, zlbltxt, FloatInpSpec(topdepth) );
+    topdepthfld_->setElemSzPol( uiObject::Small );
+
+    const uiString vellbltxt = tr("Overburden velocity (%1)")
+			.arg(UnitOfMeasure::surveyDefVelUnitAnnot(true,false));
+    velocityfld_ = new uiGenInput( this, vellbltxt,FloatInpSpec(velocityabove));
+    velocityfld_->setElemSzPol( uiObject::Small );
+    velocityfld_->attach( alignedBelow, topdepthfld_ );
+
+    mAttachCB( postFinalize(), uiOverburdenGrp::initGrp );
+}
+
+
+
+uiOverburdenGrp::~uiOverburdenGrp()
+{
+    detachAllNotifiers();
+}
+
+
+void uiOverburdenGrp::initGrp( CallBacker* )
+{
+    if ( !topdepthfld_->finalized() )
+	topdepthfld_->preFinalize().trigger();
+    if ( !velocityfld_->finalized() )
+	velocityfld_->preFinalize().trigger();
+
+    topdepthfld_->setToolTip( tr("TVDSS depth assigned to the first layer "
+				 "of each pseudowell") );
+    velocityfld_->setToolTip( tr("Interval velocity to be used above the "
+				 "first layer of each pseudowell") );
+}
+
+
+float uiOverburdenGrp::getTopDepth() const
+{
+    return topdepthfld_->getFValue();
+}
+
+
+float uiOverburdenGrp::getVelocity() const
+{
+    return velocityfld_->getFValue();
+}
+
+
+// uiOverburdenDlg
+
+uiOverburdenDlg::uiOverburdenDlg( uiParent* p,
+				  Strat::LayerSequenceGenDesc& desc )
+    : uiDialog(p,uiDialog::Setup(uiStrings::sParameter(mPlural),
+			     tr("Specify overburden settings for each model"),
+			     mODHelpKey(mStratOverburdenParametersHelpID)))
+    , desc_(desc)
+{
+    ovgrp_ = new uiOverburdenGrp( this, desc_.startDepth(),
+				  desc_.overburdenVelocity() );
+}
+
+
+uiOverburdenDlg::~uiOverburdenDlg()
+{}
+
+
+bool uiOverburdenDlg::acceptOK( CallBacker* )
+{
+    const float topdepth = ovgrp_->getTopDepth();
+    const float abovevel = ovgrp_->getVelocity();
+    changed_ = !mIsEqual(topdepth,desc_.startDepth(),1e-2f) ||
+	       !mIsEqual(abovevel,desc_.overburdenVelocity(),1e-2f);
+    desc_.setStartDepth( topdepth );
+    desc_.setOverburdenVelocity( abovevel );
+
+    return true;
+}
+
+
 // uiExtLayerSequenceGenDesc
 
 uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
@@ -194,6 +281,7 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     : uiGraphicsView(p,"LayerSequence Gen Desc editor")
     , uiLayerSequenceGenDesc(dsc)
     , editdesc_(*new Strat::LayerSequenceGenDesc(dsc))
+    , topdepthfld_(nullptr)
 {
     setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAsNeeded );
     border_.setTop( border_.top() + 10 );
@@ -210,15 +298,10 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     mAttachCB( getMouseEventHandler().doubleClick,
 	       uiExtLayerSequenceGenDesc::dblClckCB );
 
-    const uiString lbltxt = tr("top (%1)")
-		.arg( PropertyRef::thickness().disp_.getUnitLbl() );
-    topdepthfld_ = new uiGenInput( p, lbltxt, FloatInpSpec(dsc.startDepth()) );
-    topdepthfld_->setElemSzPol( uiObject::Small );
-    topdepthfld_->attach( rightBorder );
-
-    mAttachCB( postFinalize(), uiExtLayerSequenceGenDesc::initView );
-
-    this->attach( ensureBelow, topdepthfld_ );
+    auto* ovbut = new uiPushButton( p, tr("Overburden parameters"),
+			mCB(this,uiExtLayerSequenceGenDesc,ovButCB), true );
+    ovbut->attach( rightBorder );
+    this->attach( ensureBelow, ovbut );
 }
 
 
@@ -231,11 +314,14 @@ uiExtLayerSequenceGenDesc::~uiExtLayerSequenceGenDesc()
 
 void uiExtLayerSequenceGenDesc::initView( CallBacker* )
 {
-    if ( !topdepthfld_->finalized() )
-	topdepthfld_->preFinalize().trigger();
+}
 
-    topdepthfld_->setToolTip( tr("TVDSS depth assigned to the first layer "
-				 "of each pseudowell") );
+
+void uiExtLayerSequenceGenDesc::ovButCB( CallBacker* )
+{
+    uiOverburdenDlg dlg( parent(), editdesc_ );
+    dlg.go();
+    // force press Go ?
 }
 
 
@@ -249,7 +335,6 @@ uiStratLayerModelDisp* uiExtLayerSequenceGenDesc::getLayModDisp(
 void uiExtLayerSequenceGenDesc::setDescID( const MultiID& dbky )
 {
     descid_ = dbky;
-    putTopDepthToScreen();
 }
 
 
@@ -276,9 +361,11 @@ bool uiExtLayerSequenceGenDesc::selProps()
     {
 	if ( !isValidSelection(prs) )
 	    return false;
+
 	editdesc_.setPropSelection( prs );
 	descHasChanged();
     }
+
     return ret;
 }
 
@@ -300,7 +387,6 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
     }
     outeritm_->setRect( workrect_.left(), workrect_.top(),
 			workrect_.width(), workrect_.height() );
-    putTopDepthToScreen();
 
     if ( editdesc_.isEmpty() )
     {
@@ -322,15 +408,11 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 
 void uiExtLayerSequenceGenDesc::putTopDepthToScreen()
 {
-    const float topz = editdesc_.startDepth();
-    topdepthfld_->setValue( topz );
 }
 
 
 void uiExtLayerSequenceGenDesc::getTopDepthFromScreen()
 {
-    const float topz = topdepthfld_->getFValue();
-    editdesc_.setStartDepth( topz );
 }
 
 
@@ -352,6 +434,7 @@ void uiExtLayerSequenceGenDesc::wheelMoveCB( CallBacker* cb )
 	scenerect += dsize;
     else
 	scenerect -= dsize;
+
     setSceneRect( scenerect );
     const int newmousescnposy =
 	scenerect.top()+(mNINT32(relscnposy*scenerect.height()));
@@ -397,6 +480,7 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 	    mnu.insertSeparator();
 	    mnu.insertAction( new uiAction(uiStrings::sRemove()), 3 );
 	}
+
 	mnuid = mnu.exec();
     }
 
@@ -605,7 +689,6 @@ void uiBasicLayerSequenceGenDesc::fillDispUnit( int idx, float totth,
 
 void uiBasicLayerSequenceGenDesc::descHasChanged()
 {
-    putTopDepthToScreen();
     rebuildDispUnits();
     reDraw(nullptr);
 }

@@ -43,7 +43,7 @@ void initTest( bool onespike, bool onemodel, float start_depth,
     AILayer layer3( 385.f, 3500.f, 2200.f );
     AILayer layer4( 350.f, 4000.f, 2800.f );
 
-    models.add( new ElasticModel );
+    models.add( new ElasticModelOv );
     models.get(0)->add( layer1.clone() );
     models.get(0)->add( layer3.clone() );
     if ( !onespike )
@@ -52,7 +52,7 @@ void initTest( bool onespike, bool onemodel, float start_depth,
     if ( onemodel )
 	return;
 
-    models.add( new ElasticModel );
+    models.add( new ElasticModelOv );
     models.get(1)->add( layer1.clone() );
     models.get(1)->add( layer2.clone() );
     if ( onespike )

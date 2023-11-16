@@ -636,7 +636,7 @@ RefMan<Gather> VelocityBasedAngleComputer::computeAngles()
 
 ModelBasedAngleComputer::ModelTool::ModelTool( const ElasticModel& em,
 					       const TrcKey& tk )
-    : em_(new ElasticModel(em))
+    : em_(new ElasticModelOv(em))
     , trckey_(tk)
 {
 }
@@ -695,7 +695,7 @@ void ModelBasedAngleComputer::ModelTool::splitModelIfNeeded( float maxthickness)
     if ( em_ )
 	em_->setEmpty();
     else
-	em_ = new ElasticModel();
+	em_ = new ElasticModelOv();
 
     const float* times = tdmodel.getTimes();
     for ( int idx=1; idx<tdmodel.size(); idx++ )

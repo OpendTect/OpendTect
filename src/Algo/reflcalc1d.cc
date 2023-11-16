@@ -148,7 +148,7 @@ bool ReflCalc1D::Setup::areDepthsInFeet() const
 // ReflCalc1D
 
 ReflCalc1D::ReflCalc1D()
-    : model_(*new ElasticModel())
+    : model_(*new ElasticModelOv())
 {}
 
 
@@ -503,8 +503,8 @@ void AICalc1D::computeAI( const AILayer& ail0, const AILayer& ail1,
 {
     const float ai0 = ail0.getAI();
     const float ai1 = ail1.getAI();
-    const float real =
-	   mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF) ? mUdf(float)
-							  : (ai1-ai0)/(ai1+ai0);
+    const float real = mIsUdf(ai0) || mIsUdf(ai1) ||
+		       (mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF))
+		     ? mUdf(float) : (ai1-ai0)/(ai1+ai0);
     reflectivity = float_complex( real, 0.f );
 }

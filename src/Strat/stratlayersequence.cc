@@ -31,7 +31,7 @@ Strat::LayerSequence::LayerSequence( const Strat::LayerSequence& ls )
 
 Strat::LayerSequence::~LayerSequence()
 {
-    setEmpty();
+    deepErase( layers_ );
 }
 
 
@@ -42,8 +42,10 @@ Strat::LayerSequence& Strat::LayerSequence::operator =(
     {
 	deepCopy( layers_, oth.layers_ );
 	z0_ = oth.z0_;
+	setOverburdenVelocity( oth.overburdenVelocity() );
 	props_ = oth.props_;
     }
+
     return *this;
 }
 
@@ -71,6 +73,37 @@ void Strat::LayerSequence::setXPos( float xpos )
     const int nrlays = layers_.size();
     for ( int ilay=0; ilay<nrlays; ilay++ )
 	layers_[ilay]->setXPos( xpos );
+}
+
+
+void Strat::LayerSequence::setStartDepthAndAdjust( float z )
+{
+    if ( mIsEqual(z,z0_,1e-2f) )
+	return;
+
+    setStartDepthOnly( z );
+    if ( isEmpty() )
+	return;
+
+    adjustLayers( z );
+    prepareUse();
+}
+
+
+float Strat::LayerSequence::overburdenVelocity() const
+{
+    mDynamicCastGet(const LayerSequenceOv*,ovseq,this);
+    return ovseq ? ovseq->overburdenVelocity_() : 2000.f;
+}
+
+
+void Strat::LayerSequence::setOverburdenVelocity( float vel )
+{
+    mDynamicCastGet(LayerSequenceOv*,ovseq,this);
+    if ( ovseq )
+	ovseq->setOverburdenVelocity_( vel );
+    else
+	{ pErrMsg("Possible incorrect operation"); }
 }
 
 
@@ -115,6 +148,7 @@ Interval<float> Strat::LayerSequence::zRange() const
 {
     if ( isEmpty() )
 	return Interval<float>( z0_, z0_ );
+
     return Interval<float>( z0_, layers_[layers_.size()-1]->zBot() );
 }
 
@@ -272,8 +306,32 @@ void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
 	out.layers() += newlay;
     }
 
-    out.z0_ = depthrg.start;
-    out.prepareUse();
+    out.setStartDepth( depthrg.start );
+}
+
+
+void Strat::LayerSequence::adjustLayers( float startz )
+{
+    if ( startDepth() > startz-1e-2f ||
+	 zRange().stop < startz-1e-2f )
+	return;
+
+    ObjectSet<Layer>& lays = layers();
+    while ( !lays.isEmpty() )
+    {
+	Layer* lay = lays.first();
+	const float th = lay->zBot() + startz;
+	if ( th < 0.f )
+	{
+	    delete lays.removeSingle( 0 );
+	    continue;
+	}
+
+	if ( th > 1e-2f )
+	    lay->setThickness( th );
+
+	break;
+    }
 }
 
 
@@ -286,4 +344,62 @@ void Strat::LayerSequence::prepareUse() const
 	ly.setZTop( z );
 	z += ly.thickness();
     }
+}
+
+
+// Strat::LayerSequenceOv
+
+Strat::LayerSequenceOv::LayerSequenceOv( const PropertyRefSelection* prs )
+    : LayerSequence(prs)
+{
+}
+
+
+Strat::LayerSequenceOv::LayerSequenceOv( const LayerSequenceOv& oth )
+    : LayerSequence()
+{
+    *this = oth;
+}
+
+
+Strat::LayerSequenceOv::LayerSequenceOv( const LayerSequence& oth )
+    : LayerSequence()
+{
+    *this = oth;
+}
+
+
+Strat::LayerSequenceOv::~LayerSequenceOv()
+{
+}
+
+
+Strat::LayerSequence&
+Strat::LayerSequenceOv::operator =( const LayerSequenceOv& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    LayerSequence::operator =( oth );
+    velabove_ = oth.velabove_;
+
+    return *this;
+}
+
+
+Strat::LayerSequence&
+Strat::LayerSequenceOv::operator =( const LayerSequence& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    LayerSequence::operator =( oth );
+
+    return *this;
+}
+
+
+void Strat::LayerSequenceOv::setOverburdenVelocity_( float vel )
+{
+    velabove_ = vel;
 }
