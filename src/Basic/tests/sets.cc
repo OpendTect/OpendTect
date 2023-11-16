@@ -7,9 +7,10 @@ ________________________________________________________________________
 
 -*/
 
-#include "typeset.h"
 #include "testprog.h"
+
 #include "manobjectset.h"
+#include "typeset.h"
 
 
 class DataElem
@@ -168,9 +169,7 @@ static int testObjSetFind()
     {
 	DataElem* elem = des.removeSingle(0);
 	while ( des.isPresent(elem) )
-	{
 	    des.removeSingle( des.indexOf(elem) );
-	}
 
 	delete elem;
     }
@@ -275,6 +274,62 @@ bool testManagedObjectSet()
 }
 
 
+static bool testMove()
+{
+    TypeSet<int> vals;
+    vals += 1;
+    vals += 2;
+    vals += 3;
+    vals += 4;
+
+    vals.move( 0, 0 );
+    vals.move( 1, 1 );
+    vals.move( 2, 2 );
+    vals.move( 3, 3 );
+    mRunStandardTest( vals[0] == 1 && vals[1] == 2 &&
+		      vals[2] == 3 && vals[3] == 4, "void move operation" );
+
+    vals.move( 0, 1 );
+    mRunStandardTest( vals[0] == 2 && vals[1] == 1 &&
+		      vals[2] == 3 && vals[3] == 4, "move 0->1 operation" );
+    vals.move( 1, 2 );
+    mRunStandardTest( vals[0] == 2 && vals[1] == 3 &&
+		      vals[2] == 1 && vals[3] == 4, "move 1->2 operation" );
+    vals.move( 2, 3 );
+    mRunStandardTest( vals[0] == 2 && vals[1] == 3 &&
+		      vals[2] == 4 && vals[3] == 1, "move 2->3 operation" );
+    vals.move( 0, 2 );
+    mRunStandardTest( vals[0] == 3 && vals[1] == 4 &&
+		      vals[2] == 2 && vals[3] == 1, "move 0->2 operation" );
+    vals.move( 1, 3 );
+    mRunStandardTest( vals[0] == 3 && vals[1] == 2 &&
+		      vals[2] == 1 && vals[3] == 4, "move 1->3 operation" );
+    vals.move( 0, 3 );
+    mRunStandardTest( vals[0] == 2 && vals[1] == 1 &&
+		      vals[2] == 4 && vals[3] == 3, "move 0->3 operation" );
+    vals.move( 3, 0 );
+    mRunStandardTest( vals[0] == 3 && vals[1] == 2 &&
+		      vals[2] == 1 && vals[3] == 4, "move 3->0 operation" );
+    vals.move( 3, 1 );
+    mRunStandardTest( vals[0] == 3 && vals[1] == 4 &&
+		      vals[2] == 2 && vals[3] == 1, "move 3->1 operation" );
+    vals.move( 2, 0 );
+    mRunStandardTest( vals[0] == 2 && vals[1] == 3 &&
+		      vals[2] == 4 && vals[3] == 1, "move 2->0 operation" );
+    vals.move( 3, 2 );
+    mRunStandardTest( vals[0] == 2 && vals[1] == 3 &&
+		      vals[2] == 1 && vals[3] == 4, "move 3->2 operation" );
+    vals.move( 2, 1 );
+    mRunStandardTest( vals[0] == 2 && vals[1] == 1 &&
+		      vals[2] == 3 && vals[3] == 4, "move 2->1 operation" );
+    vals.move( 1, 0 );
+    mRunStandardTest( vals[0] == 1 && vals[1] == 2 &&
+		      vals[2] == 3 && vals[3] == 4, "move 1->0 operation" );
+
+    return true;
+}
+
+
 
 int mTestMainFnName( int argc, char** argv )
 {
@@ -286,6 +341,7 @@ int mTestMainFnName( int argc, char** argv )
     res += testObjSetEqual();
     res += testSetCapacity() ? 0 : 1;
     res += testManagedObjectSet() ? 0 : 1;
+    res += testMove() ? 0 : 1;
 
     return res;
 }

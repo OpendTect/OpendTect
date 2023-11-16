@@ -470,12 +470,12 @@ void OD::ValVec<T,IT>::useIndexes( const idx_type* idxs )
 template <class T, class IT> inline
 void OD::ValVec<T,IT>::move( IT idxfrom, IT idxto )
 {
-    if ( !validIdx(idxfrom) || !validIdx(idxto) )
+    if ( !validIdx(idxfrom) || !validIdx(idxto) || idxto == idxfrom )
 	return;
 
-    T tmp = vec_[idxfrom];
-    insert( idxto, tmp );
-    vec_.remove( idxfrom < idxto ? idxfrom : idxfrom+1 );
+    T obj = vec_[idxfrom];
+    vec_.remove( idxfrom );
+    vec_.insert( idxto, obj );
 }
 
 

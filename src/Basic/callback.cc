@@ -598,6 +598,31 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
 }
 
 
+void CallBackSet::moveWith( const CallBacker* cbrm, int to_idx )
+{
+    Locker lckr( lock_ );
+    const int sz = size();
+    if ( sz < 2 )
+	return;
+
+    int from_idx = -1;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	CallBack& cb = (*this)[idx];
+	if ( cb.cbObj() == cbrm )
+	    { from_idx = idx; break; }
+    }
+
+    if ( !validIdx(from_idx) )
+	return;
+
+    if ( validIdx(to_idx) )
+	move( from_idx, to_idx );
+    else if ( to_idx == -1 )
+	move( from_idx, sz-1 );
+}
+
+
 void CallBackSet::transferTo( CallBackSet& to, const CallBacker* only_for,
 			      const CallBacker* not_for )
 {
