@@ -115,6 +115,7 @@ protected:
     virtual void	keyPressCB(CallBacker*)		{}
     virtual void	usrClickCB(CallBacker*);
     virtual bool	handleUserClick(int vwridx)	{ return false; }
+    void		setVwrsToBoundingBox();
 
     virtual void	propDlgClosed(CallBacker*);
     virtual void	applyProperties(CallBacker* cb);

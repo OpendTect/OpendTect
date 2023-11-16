@@ -168,11 +168,12 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 
 uiStratLayerModel::~uiStratLayerModel()
 {
-    hp_helpkey.removeAndDeleteParam( this );
     detachAllNotifiers();
     delete &desc_;
     delete &lms_;
-    delete descctio_.ioobj_; delete &descctio_;
+    delete descctio_.ioobj_;
+    delete &descctio_;
+    hp_helpkey.removeAndDeleteParam( this );
     StratTreeWin().changeLayerModelNumber( false );
     UnitOfMeasure::saveCurrentDefaults();
 }
@@ -193,8 +194,7 @@ void uiStratLayerModel::initWin( CallBacker* )
     mAttachCB( gentools_->propEdReq, uiStratLayerModel::manPropsCB );
     mAttachCB( gentools_->genReq, uiStratLayerModel::genModelsCB );
 
-    // This one should be the first callback to be called when model changes.
-    lms_.modelChanged.notify( mCB(this,uiStratLayerModel,modChgCB), true );
+    mAttachCB( lms_.modelChanged, uiStratLayerModel::modChgCB );
 
     mAttachCB( synthdatamgr_->elPropSelChanged,
 	       uiStratLayerModel::elasticPropsCB );
@@ -205,6 +205,8 @@ void uiStratLayerModel::initWin( CallBacker* )
     mAttachCB( moddisp_->infoChanged, uiStratLayerModel::modInfoChangedCB );
     mAttachCB( moddisp_->sequenceSelected, uiStratLayerModel::seqSelCB );
     mAttachCB( moddisp_->sequencesAdded, uiStratLayerModel::seqsAddedCB );
+
+    orderNotifiers();
 }
 
 
@@ -214,6 +216,36 @@ void uiStratLayerModel::setWinTitle()
 				      : uiStrings::sNew() );
     uiString txt( tr("Layer modeling [%1]").arg(descnm) );
     setCaption( txt );
+}
+
+
+void uiStratLayerModel::orderNotifiers()
+{
+    ObjectSet<NotifierAccess> notifs;
+    notifs += &lms_.curChanged;
+    notifs += &lms_.baseChanged;
+    notifs += &lms_.editingChanged;
+    notifs += &lms_.modelChanged;
+    notifs += &modtools_->selPropChg;
+    notifs += &modtools_->selLevelChg;
+    notifs += &modtools_->selContentChg;
+    notifs += &modtools_->dispEachChg;
+    notifs += &modtools_->dispZoomedChg;
+    notifs += &modtools_->dispLithChg;
+    notifs += &modtools_->showFlatChg;
+
+    // First notify this class
+    for ( auto* notif : notifs )
+	notif->cbs_.moveWith( this, 0 );
+
+    ObjectSet<CallBacker> cbers;
+    cbers += moddisp_; // Second last: notify the model display
+    cbers += synthdisp_; // Last: notify the synthetics display
+    for ( const auto* cber : cbers )
+    {
+	for ( auto* notif : notifs )
+	    notif->cbs_.moveWith( cber, -1 );
+    }
 }
 
 
@@ -588,13 +620,9 @@ void uiStratLayerModel::handleNewModel( Strat::LayerModel* newmodel, bool full )
 
     synthdisp_->handleModelChange( full );
 
-    uiMultiFlatViewControl* mfvc = synthdisp_->control();
-    PtrMan<NotifyStopper> zoomns;
-    if ( mfvc )
-    {
-	zoomns = new NotifyStopper( mfvc->zoomChanged, synthdisp_ );
-	mfvc->reInitZooms();
-    }
+    uiMultiFlatViewControl& mfvc = *synthdisp_->control();
+    NotifyStopper zoomns( mfvc.zoomChanged, synthdisp_ );
+    mfvc.reInitZooms();
 
     od_uint32 ctyp = sCast(od_uint32,FlatView::Viewer::All);
     if ( full )

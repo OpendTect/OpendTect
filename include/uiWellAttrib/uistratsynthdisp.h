@@ -49,6 +49,7 @@ public:
 
     uiFlatViewer*	viewer()		{ return vwr_; }
     uiMultiFlatViewControl* control()		{ return control_; }
+    const uiMultiFlatViewControl* control() const	{ return control_; }
 
     Notifier<uiStratSynthDisp> viewChanged;
 
