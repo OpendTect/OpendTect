@@ -46,8 +46,9 @@ public:
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
 
-    uiFlatViewer*	viewer()		{ return vwr_; }
-    uiMultiFlatViewControl* control()		{ return control_; }
+    uiFlatViewer*	viewer()			{ return vwr_; }
+    uiMultiFlatViewControl& control()			{ return *control_; }
+    const uiMultiFlatViewControl& control() const	{ return *control_; }
 
     Notifier<uiStratSynthDisp> viewChanged;
 

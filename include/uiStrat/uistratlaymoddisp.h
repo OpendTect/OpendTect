@@ -88,6 +88,7 @@ protected:
 
     void		initGrp(CallBacker*);
     void		vwResizeCB(CallBacker*);
+    void		zoomChgCB(CallBacker*);
     void		mouseMovedCB(CallBacker*);
     void		doubleClickedCB(CallBacker*);
     void		usrClickedCB(CallBacker*);

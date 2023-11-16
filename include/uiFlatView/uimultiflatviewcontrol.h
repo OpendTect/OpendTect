@@ -25,22 +25,17 @@ public:
 			~MFVCViewManager();
 
     void		setD2TModels(const ObjectSet<const TimeDepthModel>&);
-    void		setViewerType(const uiFlatViewer* vwr,bool isintime);
+    void		setViewerType(const uiFlatViewer*,bool isintime);
     bool		getViewRect(const uiFlatViewer* activevwr,
 				    const uiFlatViewer* curvwr,
 				    uiWorldRect&) const;
-    void		setFlattened( bool flattened )
-			{ isflattened_ = flattened; }
-    bool		isFlattened() const	{ return isflattened_; }
-
-    void		setDepthShift(float);
-    void		setZFactor(float);
+    void		setFlattened(bool flattened,
+				     const TypeSet<float>* depths);
 
 protected:
     BoolTypeSet					zintimeflags_;
     ObjectSet<const TimeDepthModel>		d2tmodels_;
-    float					zshift_ = 0.f;
-    float					zfactor_ = 1.f;
+    TypeSet<float>				refdepths_;
     ObjectSet<const uiFlatViewer>		vwrs_;
     bool					isflattened_ = false;
 };
@@ -54,7 +49,7 @@ public:
 
     void                setNewView(Geom::Point2D<double> mousepos,
 				   Geom::Size2D<double> size,
-				   uiFlatViewer* vwr=0) override;
+				   uiFlatViewer* =nullptr) override;
 
     uiToolBar*		getToolBar(int idx) { return toolbars_[idx]; }
 
@@ -67,12 +62,9 @@ public:
 			{ viewmgr_.setViewerType( vwr, isintime ); }
     void		setD2TModels(const ObjectSet<const TimeDepthModel>& d2t)
 			{ viewmgr_.setD2TModels( d2t ); }
-    void		setDepthShift( float shift )
-			{ viewmgr_.setDepthShift( shift ); }
-    void		setZFactor( float scale )
-			{ viewmgr_.setZFactor( scale ); }
-    void		setFlattened( bool flattened )
-			{ viewmgr_.setFlattened( flattened ); }
+    void		setFlattened( bool flattened,
+				      const TypeSet<float>* depths )
+			{ viewmgr_.setFlattened( flattened, depths ); }
 
     void		setParsButToolTip(const uiFlatViewer&,const uiString&);
 
@@ -84,10 +76,11 @@ protected:
     MFVCViewManager	viewmgr_;
 
     bool		handleUserClick(int vwridx) override;
-    bool		iszoomcoupled_;
-    bool		drawzoomboxes_;
+    bool		iszoomcoupled_ = true;
+    bool		drawzoomboxes_ = false;
 
     uiFlatViewer*	activevwr_;
+    void		setVwrsToBoundingBox() override;
     void		updateZoomManager() override;
 			//!< Should be called after the viewer is zoomed in/out.
 

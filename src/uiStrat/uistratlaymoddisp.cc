@@ -41,11 +41,6 @@ ________________________________________________________________________
 #include "zdomain.h"
 
 
-#define mDispEach() tools_.dispEach()
-#define mUseLithCols() tools_.dispLith()
-#define mShowZoomed() tools_.dispZoomed()
-#define mSelLevelIdx() tools_.selLevelIdx()
-
 uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
 					  const Strat::LayerModelSuite& lms)
     : uiGroup(t.parent(),"LayerModel display")
@@ -100,6 +95,9 @@ void uiStratLayerModelDisp::initGrp( CallBacker* )
     mAttachCB( lms_.curChanged, uiStratLayerModelDisp::curModEdChgCB );
     mAttachCB( lms_.modelChanged, uiStratLayerModelDisp::modelChangedCB );
     mAttachCB( vwr_.rgbCanvas().reSize, uiStratLayerModelDisp::vwResizeCB );
+    uiFlatViewControl* control = vwr_.control();
+    if ( control )
+	mAttachCB( control->zoomChanged, uiStratLayerModelDisp::zoomChgCB );
 
     MouseEventHandler& mehdlr = vwr_.rgbCanvas().getMouseEventHandler();
     mAttachCB( mehdlr.buttonReleased, uiStratLayerModelDisp::usrClickedCB );
@@ -151,7 +149,7 @@ void uiStratLayerModelDisp::dispZoomedChg()
     mDynamicCastGet(uiMultiFlatViewControl*,stdctrl,vwr_.control())
     if ( stdctrl )
     {
-	const bool showzoomed = mShowZoomed();
+	const bool showzoomed = tools_.dispZoomed();
 	stdctrl->setZoomCoupled( showzoomed );
 	stdctrl->setDrawZoomBoxes( !showzoomed );
     }
@@ -161,7 +159,37 @@ void uiStratLayerModelDisp::dispZoomedChg()
 void uiStratLayerModelDisp::showFlatChg()
 {
     modelChangedCB( nullptr );
-    clearZoom();
+}
+
+
+void uiStratLayerModelDisp::zoomChgCB( CallBacker* cb )
+{
+    if ( !showFlattened() )
+	return;
+
+    mDynamicCastGet(uiMultiFlatViewControl*,stdctrl,vwr_.control())
+    if ( !stdctrl || !stdctrl->activeVwr() )
+	return;
+
+    uiWorldRect activewr = stdctrl->activeVwr()->curView();
+    activewr.sortCorners();
+    const double relpos = ( 0. - activewr.top() ) / activewr.height();
+
+    uiWorldRect bb = vwr_.boundingBox(); bb.sortCorners();
+
+    uiWorldRect newview = vwr_.curView();
+    double depthdiff = newview.height();
+    if ( -bb.top() < depthdiff/2. )
+	depthdiff = -bb.top() * 2.;
+    if ( bb.bottom() < depthdiff/2. )
+	depthdiff = bb.bottom() * 2.;
+
+    newview.setTop( -relpos * depthdiff );
+    newview.setBottom( (1.-relpos) * depthdiff );
+    stdctrl->setZoomCoupled( false );
+    NotifyStopper ns( stdctrl->zoomChanged, this );
+    stdctrl->setNewView( newview.centre(), newview.size(), &vwr_ );
+    stdctrl->setZoomCoupled( true );
 }
 
 
@@ -237,7 +265,7 @@ void uiStratLayerModelDisp::selectSequence( int selidx )
 
 int uiStratLayerModelDisp::selLevelIdx() const
 {
-    return mSelLevelIdx();
+    return tools_.selLevelIdx();
 }
 
 
@@ -634,7 +662,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 bool uiStratLayerModelDisp::showFlattened() const
 {
     bool flattened = tools_.showFlattened();
-    if ( flattened && mSelLevelIdx()<0 )
+    if ( flattened && selLevelIdx()<0 )
 	flattened = false;
 
     return flattened;
@@ -679,7 +707,7 @@ Strat::Layer* uiStratLayerModelDisp::usrPointedLayer( int& layidx ) const
     float zsel = vwr_.getWorld2Ui().toWorldY( mevh.event().pos().y );
     if ( showFlattened() )
     {
-	const int lvlidx = mSelLevelIdx();
+	const int lvlidx = selLevelIdx();
 	const float lvlz = lvldpths_.get( lvlidx ).get( seqidx );
 	if ( mIsUdf(lvlz) )
 	    return nullptr;
@@ -1128,8 +1156,8 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 
     const Strat::LevelSet& lvls = Strat::LVLS();
     const int nrlevels = lvls.size();
-    const int dispeach = mDispEach();
-    const int sellvlidx = mSelLevelIdx();
+    const int dispeach = tools_.dispEach();
+    const int sellvlidx = selLevelIdx();
     const bool flattened = showFlattened();
 
     int auxdataidx = 0;
@@ -1200,9 +1228,9 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 {
     const Strat::LayerModel& laymod = layerModel();
     const int nrseq = laymod.size();
-    const int dispeach = mDispEach();
+    const int dispeach = tools_.dispEach();
     const int dispprop = curPropIdx();
-    const bool uselithcols = mUseLithCols();
+    const bool uselithcols = tools_.dispLith();
     const BufferString cntnm( tools_.selContent() );
     const Strat::Content* selcontent =
 			  laymod.refTree().contents().getByName( cntnm );
@@ -1213,7 +1241,7 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	{ vrg.start -= 1.f; vrg.stop += 1.f; }
 
     const float vwdth = vrg.width();
-    const int sellvlidx = mSelLevelIdx();
+    const int sellvlidx = selLevelIdx();
     const bool flattened = showFlattened();
 
     int auxdataidx = 0;

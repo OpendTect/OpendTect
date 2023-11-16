@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "elasticpropsel.h"
-#include "hiddenparam.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "objdisposer.h"
@@ -64,7 +63,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , lms_(*new Strat::LayerModelSuite)
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))
-    , nrmodels_(0)
+    , helpkey_(*new HelpKey(mODHelpKey(mSingleLayerGeneratorEdHelpID)))
 {
     setDeleteOnClose( true );
 
@@ -117,7 +116,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     analtb_ = new uiToolBar( this, tr("Analysis toolbar"), uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot", tr("Attributes vs model properties"),
 			    mCB(this,uiStratLayerModel,xPlotReq) );
-    synthdisp_->control()->getToolBar(0)->addButton(
+    synthdisp_->control().getToolBar(0)->addButton(
 				"snapshot", uiStrings::sTakeSnapshot(),
 				mCB(this,uiStratLayerModel,snapshotCB) );
     analtb_->addButton( tbsu );
@@ -125,7 +124,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     if ( moddispvwr )
     {
 	synthdisp_->addViewerToControl( *moddispvwr );
-	synthdisp_->control()->setParsButToolTip( *moddispvwr,
+	synthdisp_->control().setParsButToolTip( *moddispvwr,
 				tr("Layermodel display properties") );
     }
 
@@ -169,7 +168,9 @@ uiStratLayerModel::~uiStratLayerModel()
     detachAllNotifiers();
     delete &desc_;
     delete &lms_;
-    delete descctio_.ioobj_; delete &descctio_;
+    delete descctio_.ioobj_;
+    delete &descctio_;
+    delete &helpkey_;
     StratTreeWin().changeLayerModelNumber( false );
     UnitOfMeasure::saveCurrentDefaults();
 }
@@ -190,18 +191,19 @@ void uiStratLayerModel::initWin( CallBacker* )
     mAttachCB( gentools_->propEdReq, uiStratLayerModel::manPropsCB );
     mAttachCB( gentools_->genReq, uiStratLayerModel::genModelsCB );
 
-    // This one should be the first callback to be called when model changes.
-    lms_.modelChanged.notify( mCB(this,uiStratLayerModel,modChgCB), true );
+    mAttachCB( lms_.modelChanged, uiStratLayerModel::modChgCB );
 
     mAttachCB( synthdatamgr_->elPropSelChanged,
 	       uiStratLayerModel::elasticPropsCB );
-    mAttachCB( synthdisp_->control()->infoChanged,
+    mAttachCB( synthdisp_->control().infoChanged,
 	       uiStratLayerModel::synthInfoChangedCB );
 
     mAttachCB( moddisp_->genNewModelNeeded, uiStratLayerModel::genModelsCB );
     mAttachCB( moddisp_->infoChanged, uiStratLayerModel::modInfoChangedCB );
     mAttachCB( moddisp_->sequenceSelected, uiStratLayerModel::seqSelCB );
     mAttachCB( moddisp_->sequencesAdded, uiStratLayerModel::seqsAddedCB );
+
+    orderNotifiers();
 }
 
 
@@ -211,6 +213,36 @@ void uiStratLayerModel::setWinTitle()
 				      : uiStrings::sNew() );
     uiString txt( tr("Layer modeling [%1]").arg(descnm) );
     setCaption( txt );
+}
+
+
+void uiStratLayerModel::orderNotifiers()
+{
+    ObjectSet<NotifierAccess> notifs;
+    notifs += &lms_.curChanged;
+    notifs += &lms_.baseChanged;
+    notifs += &lms_.editingChanged;
+    notifs += &lms_.modelChanged;
+    notifs += &modtools_->selPropChg;
+    notifs += &modtools_->selLevelChg;
+    notifs += &modtools_->selContentChg;
+    notifs += &modtools_->dispEachChg;
+    notifs += &modtools_->dispZoomedChg;
+    notifs += &modtools_->dispLithChg;
+    notifs += &modtools_->showFlatChg;
+
+    // First notify this class
+    for ( auto* notif : notifs )
+	notif->cbs_.moveWith( this, 0 );
+
+    ObjectSet<CallBacker> cbers;
+    cbers += moddisp_; // Second last: notify the model display
+    cbers += synthdisp_; // Last: notify the synthetics display
+    for ( const auto* cber : cbers )
+    {
+	for ( auto* notif : notifs )
+	    notif->cbs_.moveWith( cber, -1 );
+    }
 }
 
 
@@ -583,13 +615,9 @@ void uiStratLayerModel::handleNewModel( Strat::LayerModel* newmodel, bool full )
 
     synthdisp_->handleModelChange( full );
 
-    uiMultiFlatViewControl* mfvc = synthdisp_->control();
-    PtrMan<NotifyStopper> zoomns;
-    if ( mfvc )
-    {
-	zoomns = new NotifyStopper( mfvc->zoomChanged, synthdisp_ );
-	mfvc->reInitZooms();
-    }
+    uiMultiFlatViewControl& mfvc = synthdisp_->control();
+    NotifyStopper zoomns( mfvc.zoomChanged, synthdisp_ );
+    mfvc.reInitZooms();
 
     od_uint32 ctyp = sCast(od_uint32,FlatView::Viewer::All);
     if ( full )

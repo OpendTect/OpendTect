@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 
-#include "helpview.h"
 #include "uimainwin.h"
 #include "uistring.h"
 #include "stratlevel.h"
@@ -71,7 +70,7 @@ public:
     const HelpKey&			helpKey() const;
     void				setHelpKey(const HelpKey&);
 
-protected:
+private:
 
     uiLayerSequenceGenDesc*	descdisp_;
     uiStratLayerModelDisp*	moddisp_	= nullptr;
@@ -79,7 +78,7 @@ protected:
     uiStratGenDescTools*	gentools_;
     uiStratLayModEditTools*	modtools_;
     uiToolBar*			analtb_		= nullptr;
-    HelpKey			helpkey_;
+    HelpKey&			helpkey_;
 
     Strat::LayerSequenceGenDesc& desc_;
     Strat::LayerModelSuite&	lms_;
@@ -87,11 +86,12 @@ protected:
     mutable DirtyCountType	synthdatamgrdc_ = -1;
 
     CtxtIOObj&			descctio_;
-    bool			needtoretrievefrpars_ = false;
-    int				nrmodels_;
+    bool			needtoretrievefrpars_	= false;
+    int				nrmodels_		= 0;
 
-    void			initWin(CallBacker*);
     void			setWinTitle();
+    void			initWin(CallBacker*);
+    void			orderNotifiers();
     void			handleNewModel(Strat::LayerModel* =nullptr,
 					       bool full=false);
 

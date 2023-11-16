@@ -36,18 +36,6 @@ void MFVCViewManager::setD2TModels(const ObjectSet<const TimeDepthModel>& d2tms)
 }
 
 
-void MFVCViewManager::setDepthShift( float shift )
-{
-    zshift_ = mIsUdf(shift) ? 0.f : shift;
-}
-
-
-void MFVCViewManager::setZFactor( float scale )
-{
-    zfactor_ = mIsUdf(scale) ? 1.f : scale;
-}
-
-
 void MFVCViewManager::setViewerType( const uiFlatViewer* vwr, bool isintime )
 {
     const int vwridx = vwrs_.indexOf( vwr );
@@ -101,28 +89,46 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	viewwr.setLeft( wr.left() );
 	viewwr.setRight( wr.right() );
 
+	const TimeDepthModel& firstd2t = *d2tmodels_.first();
 	if ( isactiveintime )
 	{
 	    Interval<float> timerg( mCast(float,wr.top()),
 				    mCast(float,wr.bottom()) );
-	    Interval<double> depthrg( d2tmodels_[0]->getDepth(timerg.start),
-				      d2tmodels_[0]->getDepth(timerg.stop) );
-	    if ( !depthrg.isUdf() )
+	    Interval<double> depthrg;
+	    if ( isflattened_ )
 	    {
-		depthrg.scale( zfactor_ );
-		depthrg.shift( zshift_ );
+		const float refz = refdepths_.first();
+		const float reftwt = firstd2t.getTime( refz );
+		depthrg.start = firstd2t.getDepth( reftwt + timerg.start );
+		depthrg.stop = firstd2t.getDepth( reftwt + timerg.stop );
+		depthrg.shift( -refz );
 	    }
+	    else
+	    {
+		depthrg.start = firstd2t.getDepth( timerg.start );
+		depthrg.stop = firstd2t.getDepth( timerg.stop );
+	    }
+
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
 	    {
 		const TimeDepthModel& d2t = *d2tmodels_[idx];
-		Interval<double> curdepthrg( d2t.getDepth(timerg.start),
-					     d2t.getDepth(timerg.stop) );
-		if ( !curdepthrg.isUdf() )
+		Interval<double> curdepthrg;
+		if ( isflattened_ )
 		{
-		    curdepthrg.scale( zfactor_ );
-		    curdepthrg.shift( zshift_ );
-		    depthrg.include( curdepthrg );
+		    const float refz = refdepths_[idx];
+		    const float reftwt = d2t.getTime( refz );
+		    curdepthrg.start = d2t.getDepth( reftwt + timerg.start );
+		    curdepthrg.stop = d2t.getDepth( reftwt + timerg.stop );
+		    curdepthrg.shift( -refz );
 		}
+		else
+		{
+		    curdepthrg.start = d2t.getDepth( timerg.start );
+		    curdepthrg.stop = d2t.getDepth( timerg.stop );
+		}
+
+		if ( !curdepthrg.isUdf() )
+		    depthrg.include( curdepthrg );
 	    }
 
 	    viewwr.setTop( depthrg.start );
@@ -132,16 +138,39 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	{
 	    Interval<float> depthrg( mCast(float,wr.top()),
 				     mCast(float,wr.bottom()) );
-	    depthrg.shift( -zshift_ );
-	    depthrg.scale( 1.f/zfactor_ );
+	    Interval<double> timerg;
+	    if ( isflattened_ )
+	    {
+		const float refz = refdepths_.first();
+		const float reftwt = firstd2t.getTime( refz );
+		timerg.start = firstd2t.getTime( refz + depthrg.start );
+		timerg.stop = firstd2t.getTime( refz + depthrg.stop );
+		timerg.shift( -reftwt );
+	    }
+	    else
+	    {
+		timerg.start = firstd2t.getTime( depthrg.start );
+		timerg.stop = firstd2t.getTime( depthrg.stop );
+	    }
 
-	    Interval<double> timerg( d2tmodels_[0]->getTime(depthrg.start),
-				     d2tmodels_[0]->getTime(depthrg.stop) );
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
 	    {
 		const TimeDepthModel& d2t = *d2tmodels_[idx];
-		Interval<double> curtimerg( d2t.getTime(depthrg.start),
-					     d2t.getTime(depthrg.stop) );
+		Interval<double> curtimerg;
+		if ( isflattened_ )
+		{
+		    const float refz = refdepths_[idx];
+		    const float reftwt = d2t.getTime( refz );
+		    curtimerg.start = d2t.getTime( refz + depthrg.start );
+		    curtimerg.stop = d2t.getTime( refz + depthrg.stop );
+		    curtimerg.shift( -reftwt );
+		}
+		else
+		{
+		    curtimerg.start = d2t.getTime( depthrg.start );
+		    curtimerg.stop = d2t.getTime( depthrg.stop );
+		}
+
 		if ( !curtimerg.isUdf() )
 		    timerg.include( curtimerg );
 	    }
@@ -155,17 +184,33 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 }
 
 
+void MFVCViewManager::setFlattened( bool flattened,
+				    const TypeSet<float>* refdepths )
+{
+    isflattened_ = flattened;
+    if ( isflattened_ )
+    {
+	if ( !refdepths || refdepths->size() != d2tmodels_.size() )
+	    { pErrMsg("Incorrect input for flattening"); }
+
+	refdepths_ = *refdepths;
+    }
+    else
+	refdepths_.setEmpty();
+}
+
+
+// uiMultiFlatViewControl
+
 uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 				    const uiFlatViewStdControl::Setup& setup )
     : uiFlatViewStdControl(vwr,setup)
-    , iszoomcoupled_(true)
-    , drawzoomboxes_(false)
     , activevwr_(&vwr)
 {
     zoomboxes_.setNullAllowed();
     setViewerType( &vwr, true );
-    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
+    mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
     parsbuts_ += parsbut_;
     toolbars_ += tb_;
 }
@@ -229,6 +274,19 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
     const uiWorldRect wr = activevwr_->getWorld2Ui().transform( *selarea );
     setNewView( wr.centre(), wr.size(), activevwr_ );
     rubberBandUsed.trigger();
+}
+
+
+void uiMultiFlatViewControl::setVwrsToBoundingBox()
+{
+    if ( !iszoomcoupled_ )
+    {
+	uiFlatViewStdControl::setVwrsToBoundingBox();
+	return;
+    }
+
+    if ( activeVwr() )
+	activeVwr()->setViewToBoundingBox();
 }
 
 
@@ -324,20 +382,22 @@ void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
 void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 {
     mDynamicCastGet(uiFlatViewer*,vwr,cb);
-    if ( !iszoomcoupled_ || !vwrs_.isPresent(vwr) ) return;
+    if ( !iszoomcoupled_ || !vwrs_.isPresent(vwr) )
+	return;
+
     activevwr_ = vwr;
 
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    for ( auto* vw : vwrs_ )
     {
-	if ( vwrs_[idx] == activeVwr() )
+	if ( vw == activeVwr() )
 	    continue;
 
 	uiWorldRect newwr;
-	if ( !viewmgr_.getViewRect(activeVwr(),vwrs_[idx],newwr) )
+	if ( !viewmgr_.getViewRect(activeVwr(),vw,newwr) )
 	    continue;
 
-	NotifyStopper ns( vwrs_[idx]->viewChanged );
-	vwrs_[idx]->setView( newwr );
+	NotifyStopper ns( vw->viewChanged );
+	vw->setView( newwr );
     }
 }
 

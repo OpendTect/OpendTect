@@ -37,7 +37,7 @@ public:
 			//!< Returns bounding boxes of all viewers.
     virtual void	setNewView(Geom::Point2D<double> mousepos,
 				   Geom::Size2D<double> newsize,
-				   uiFlatViewer* vwr=0);
+				   uiFlatViewer* =nullptr);
 			/*!< Pass centre instead of mousepos if there is no
 			MouseEvent. Retains uiWorldRect's LR/TB swapping while
 			changing the input to the actual new values. Use for
@@ -86,7 +86,7 @@ protected:
     FlatView::ZoomMgr	zoommgr_;
     bool		haverubber_;
     IOPar		infopars_;
-    bool	       initdone_ = false;
+    bool		initdone_ = false;
 
     uiFlatViewPropDlg*	propdlg_ = nullptr;
 
@@ -115,6 +115,7 @@ protected:
     virtual void	keyPressCB(CallBacker*)		{}
     virtual void	usrClickCB(CallBacker*);
     virtual bool	handleUserClick(int vwridx)	{ return false; }
+    virtual void	setVwrsToBoundingBox();
 
     virtual void	propDlgClosed(CallBacker*);
     virtual void	applyProperties(CallBacker* cb);

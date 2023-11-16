@@ -122,10 +122,16 @@ void uiFlatViewControl::dataChangeCB( CallBacker* )
 }
 
 
+void uiFlatViewControl::setVwrsToBoundingBox()
+{
+    for ( auto* vw : vwrs_ )
+	vw->setViewToBoundingBox();
+}
+
+
 void uiFlatViewControl::reInitZooms()
 {
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-	vwrs_[idx]->setViewToBoundingBox();
+    setVwrsToBoundingBox();
     zoommgr_.reInit( getBoundingBoxes() );
     zoommgr_.toStart();
     zoomChanged.trigger();
@@ -183,10 +189,10 @@ uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> mousepos,
     if ( newsz.width() > bb.width() ) newsz.setWidth( bb.width() );
     if ( newsz.height() > bb.height() ) newsz.setHeight( bb.height() );
 
-    const double lwdth = newsz.width() * (mousepos.x-cv.left())/cv.width();
-    const double bhght = newsz.height() * (mousepos.y-cv.bottom())/cv.height();
-    const double rwdth = newsz.width() * (cv.right()-mousepos.x)/cv.width();
-    const double thght = newsz.height() * (cv.top()-mousepos.y)/cv.height();
+    const double lwdth = newsz.width() / 2.;
+    const double bhght = newsz.height() / 2.;
+    const double rwdth = newsz.width() / 2.;
+    const double thght = newsz.height() / 2.;
 
     if ( mousepos.x - lwdth < bb.left() )      mousepos.x = bb.left() + lwdth;
     if ( mousepos.y - bhght < bb.bottom() )    mousepos.y = bb.bottom() + bhght;

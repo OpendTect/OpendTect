@@ -799,7 +799,8 @@ void uiStratSynthDisp::initGrp( CallBacker* )
     mAttachCB( vwr_->rgbCanvas().reSize, uiStratSynthDisp::canvasResizeCB );
     mAttachCB( vwr_->dispPropChanged, uiStratSynthDisp::dispPropChgCB );
     if ( control() )
-	mAttachCB( control()->zoomChanged, uiStratSynthDisp::zoomChangedCB );
+	mAttachCB( control().zoomChanged, uiStratSynthDisp::zoomChangedCB );
+
     mAttachCB( edtools_.selLevelChg, uiStratSynthDisp::lvlChgCB );
     mAttachCB( edtools_.showFlatChg, uiStratSynthDisp::flatChgCB );
     mAttachCB( edtools_.dispEachChg, uiStratSynthDisp::dispEachChgCB );
@@ -822,11 +823,8 @@ bool uiStratSynthDisp::curIsPS( FlatView::Viewer::VwrDest dest ) const
 
 void uiStratSynthDisp::addViewerToControl( uiFlatViewer& vwr )
 {
-    if ( !control_ )
-	return;
-
-    control_->addViewer( vwr );
-    control_->setViewerType( &vwr, false );
+    control().addViewer( vwr );
+    control().setViewerType( &vwr, false );
 }
 
 
@@ -922,7 +920,7 @@ void uiStratSynthDisp::handleChange( od_uint32 ctyp )
 
 void uiStratSynthDisp::reDisp( bool preserveview )
 {
-    NotifyStopper ns( control_->zoomChanged, this );
+    NotifyStopper ns( control().zoomChanged, this );
     if ( preserveview )
     {
 	const uiWorldRect curview = vwr_->curView();
@@ -1014,13 +1012,15 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 	    flatlvlid = sellvlid;
 
 	pack2use = entries_.find( curid, lmsidx, flatlvlid, curoffsidx );
+	TypeSet<float> zvals;
+	if ( showflattened )
+	    datamgr_.getLevelDepths( sellvlid, zvals );
+
 	if ( !pack2use )
 	{
 	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd.ptr());
 	    if ( showflattened )
 	    {
-		TypeSet<float> zvals;
-		datamgr_.getLevelDepths( sellvlid, zvals );
 		pack2use = presd
 			 ? presd->getFlattenedTrcDP( zvals, false, curoffsidx )
 			 : sd->getFlattenedTrcDP( zvals, false );
@@ -1031,6 +1031,15 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 				 : sd->getTrcDP();
 	    }
 	}
+
+	const bool uncorrected =
+		   sd->isPS() && !sd->getGenParams().isCorrected();
+	ObjectSet<const TimeDepthModel> d2tmodels;
+	for ( int itrc=0; itrc<sd->nrPositions(); itrc++ )
+	    d2tmodels.add( uncorrected ? sd->getTDModel( itrc, curoffsidx )
+				       : sd->getTDModel( itrc ) );
+	control().setD2TModels( d2tmodels );
+	control().setFlattened( showflattened, &zvals );
     }
 
     ConstRefMan<FlatDataPack> selfpackref = vwr_->getPack( wva ).get();
@@ -1053,17 +1062,6 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
     const bool updateview = vwr_->enableChange( false );
     vwr_->setPack( dest, fdp, !hadpack );
     ctyp = Math::SetBits( ctyp, FlatView::Viewer::BitmapData, true );
-
-    if ( control_ && sd )
-    {
-	const bool uncorrected =
-		   sd->isPS() && !sd->getGenParams().isCorrected();
-	ObjectSet<const TimeDepthModel> d2tmodels;
-	for ( int itrc=0; itrc<sd->nrPositions(); itrc++ )
-	    d2tmodels.add( uncorrected ? sd->getTDModel( itrc, curoffsidx )
-				       : sd->getTDModel( itrc ) );
-	control_->setD2TModels( d2tmodels );
-    }
 
     vwr_->enableChange( updateview );
     if ( preserveview && !isEmpty(curview) )
@@ -1179,9 +1177,6 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
 	    datamgr_.getLevelDepths( stratlvl.id(), depths );
 	    if ( depths.isEmpty() )
 		continue;
-	    else if ( showflattened )
-		for ( int idpth=0; idpth<depths.size(); idpth++ )
-		    depths[idpth] -= sellvldepths[idpth];
 
 	    const bool issellvl = stratlvl.id() == sellvlid;
 	    FlatView::AuxData* auxd = vwr_->createAuxData( stratlvl.name() );
@@ -1201,9 +1196,12 @@ void uiStratSynthDisp::drawLevels( od_uint32& ctyp )
 		if ( mIsUdf(depth) || !d2tmdl )
 		    continue;
 
-		const float time = d2tmdl->getTime( depth );
+		float time = d2tmdl->getTime( depth );
 		if ( mIsUdf(time) )
 		    continue;
+
+		if ( showflattened )
+		    time -= d2tmdl->getTime( sellvldepths[itrc] );
 
 		if ( dodecim )
 		{
@@ -1393,7 +1391,7 @@ void uiStratSynthDisp::zoomChangedCB( CallBacker* cb )
     if ( StratSynth::isEmpty(curvw) )
 	return;
 
-    if ( control_->zoomMgr().atStart() && StratSynth::isEqual(bbwr,curvw) )
+    if ( control().zoomMgr().atStart() && StratSynth::isEqual(bbwr,curvw) )
 	initialboundingbox_ = uiWorldRect();
 }
 
@@ -1431,26 +1429,20 @@ void uiStratSynthDisp::lvlChgCB( CallBacker* )
 
 void uiStratSynthDisp::flatChgCB( CallBacker* )
 {
-    const mUnusedVar uiWorldRect curview = vwr_->curView();
-    const mUnusedVar bool haszoom = control_ ? !control_->zoomMgr().atStart()
-					     : false;
+    enableDispUpdate( false );
+    const uiWorldRect& curvw = vwr_->curView();
+    const double twtdiff = curvw.height();
+    NotifyStopper ns( control().zoomChanged );
     reDisp( false );
-    if ( !control_ )
-	return;
-
-    control_->reInitZooms();
-/* TODO: make it work, and handle smart Z positioning
-    if ( !haszoom )
-    {
-	control_->reInitZooms();
-	return;
-    }
+    ns.enableNotification();
 
     uiWorldRect newview = vwr_->curView();
-    newview.setLeft( curview.left() );
-    newview.setRight( curview.right() );
-    control_->setNewView( newview.centre(), newview.size(), vwr_ );
-    vwr_->handleChange( sCast(od_uint32,FlatView::Viewer::Auxdata) );*/
+    const bool showflattened = edtools_.showFlattened();
+    const double middlez = showflattened ? 0. : curvw.centre().y;
+    newview.setTop( middlez - (twtdiff/2.) );
+    newview.setBottom( middlez + (twtdiff/2.) );
+    control().setNewView( newview.centre(), newview.size(), vwr_ );
+    enableDispUpdate( true );
 }
 
 
@@ -1465,10 +1457,10 @@ void uiStratSynthDisp::dispEachChgCB( CallBacker* )
 
 void uiStratSynthDisp::setSavedViewRect()
 {
-    if ( !control_ || mIsUdf(initialboundingbox_.left()) )
+    if ( mIsUdf(initialboundingbox_.left()) )
 	return;
 
-    control_->setNewView( initialboundingbox_.centre(),
+    control().setNewView( initialboundingbox_.centre(),
 			  initialboundingbox_.size(), vwr_ );
 }
 
@@ -1480,7 +1472,7 @@ void uiStratSynthDisp::useDispPars( const IOPar& iop, od_uint32* ctyp )
 	return;
 
     TypeSet<double> startviewareapts;
-    if ( control_ && par->get(sKeyViewArea(),startviewareapts) &&
+    if ( par->get(sKeyViewArea(),startviewareapts) &&
 	 startviewareapts.size() == 4 )
     {
 	initialboundingbox_.setLeft( startviewareapts[0] );
@@ -1520,7 +1512,7 @@ void uiStratSynthDisp::useDispPars( const IOPar& iop, od_uint32* ctyp )
 
     PtrMan<NotifyStopper> ns;
     if ( updatewvadisp || updatevddisp )
-	ns = new NotifyStopper( control_->zoomChanged, this );
+	ns = new NotifyStopper( control().zoomChanged, this );
 
     const FlatView::Viewer::VwrDest dest =
 	FlatView::Viewer::getDest( updatewvadisp, updatevddisp );
@@ -1578,18 +1570,27 @@ void uiStratSynthDisp::fillPar( IOPar& iop ) const
     }
 
     datamgr_.fillPar( iop, &dispiops );
-    if ( control_ && !control_->zoomMgr().atStart() &&
-	 !StratSynth::isEmpty(initialboundingbox_) )
+    const BufferString startviewstr(
+			IOPar::compKey(StratSynth::DataMgr::sKeySynthetics(),
+				       sKeyViewArea() ) );
+    if ( !control().zoomMgr().atStart() )
     {
-	TypeSet<double> startviewareapts;
-	startviewareapts.setSize( 4 );
-	startviewareapts[0] = initialboundingbox_.left();
-	startviewareapts[1] = initialboundingbox_.top();
-	startviewareapts[2] = initialboundingbox_.right();
-	startviewareapts[3] = initialboundingbox_.bottom();
-	iop.set( IOPar::compKey(StratSynth::DataMgr::sKeySynthetics(),
-		    sKeyViewArea()), startviewareapts );
+	const uiWorldRect& curvw = vwr_->curView();
+	if ( StratSynth::isEmpty(curvw) )
+	    iop.removeWithKey( startviewstr );
+	else
+	{
+	    TypeSet<double> startviewareapts;
+	    startviewareapts.setSize( 4 );
+	    startviewareapts[0] = curvw.left();
+	    startviewareapts[1] = curvw.top();
+	    startviewareapts[2] = curvw.right();
+	    startviewareapts[3] = curvw.bottom();
+	    iop.set( startviewstr, startviewareapts );
+	}
     }
+    else
+	iop.removeWithKey( startviewstr );
 }
 
 
@@ -1660,10 +1661,10 @@ void uiStratSynthDisp::synthRemovedCB( CallBacker* cb )
 
 	wvachanged = wvachanged || id == prevwvaid;
 	vdchanged = vdchanged || id == prevdid;
-	if ( (id == prevwvaid || id == prevdid) && control_ )
+	if ( (id == prevwvaid || id == prevdid) )
 	{
 	    ObjectSet<const TimeDepthModel> d2tmodels;
-	    control_->setD2TModels( d2tmodels );
+	    control().setD2TModels( d2tmodels );
 	}
 
 	SynthSpecificPars* disppars = entries_.getByID( id );
