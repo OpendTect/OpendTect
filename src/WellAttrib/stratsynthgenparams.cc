@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "stratsynthgenparams.h"
 
+#include "fftfilter.h"
 #include "genc.h"
 #include "ioman.h"
 #include "prestackanglemute.h"
@@ -19,6 +20,74 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "wavelet.h"
 #include "waveletio.h"
+
+#include "hiddenparam.h"
+
+class SynthGenParamsHP
+{
+public:
+    SynthGenParamsHP()
+    : windowsz_(mUdf(int))
+    {}
+
+    ~SynthGenParamsHP()
+    {}
+
+    BufferString	filtertype_;
+    int			windowsz_;
+    Interval<float>	freqrg_;
+};
+
+static HiddenParam<SynthGenParams, SynthGenParamsHP*> sgp_hpmgr_(nullptr);
+
+
+BufferString& SynthGenParams::filtertype_()
+{
+    return sgp_hpmgr_.getParam( this )->filtertype_;
+}
+
+
+BufferString& SynthGenParams::filtertype_() const
+{
+    return sgp_hpmgr_.getParam( this )->filtertype_;
+}
+
+
+int& SynthGenParams::windowsz_()
+{
+    return sgp_hpmgr_.getParam( this )->windowsz_;
+}
+
+
+int& SynthGenParams::windowsz_() const
+{
+    return sgp_hpmgr_.getParam( this )->windowsz_;
+}
+
+
+Interval<float>& SynthGenParams::freqrg_()
+{
+    return sgp_hpmgr_.getParam( this )->freqrg_;
+}
+
+
+Interval<float>& SynthGenParams::freqrg_() const
+{
+    return sgp_hpmgr_.getParam( this )->freqrg_;
+}
+
+
+bool SynthGenParams::needsInput_() const
+{
+    return isPSBased() || isAttribute() || isFiltered();
+}
+
+
+bool SynthGenParams::isRawOutput_() const
+{
+    return !needsInput_() && !isStratProp();
+}
+
 
 static const char* sKeyIsPreStack()		{ return "Is Pre Stack"; }
 const char* SynthGenParams::sKeyRayPar()
@@ -39,6 +108,8 @@ mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
     "Angle Stack",
     "AVO Gradient",
     "Attribute",
+    "Filtered Synthetic",
+    "Filtered Strat Property",
     nullptr
 };
 
@@ -46,18 +117,21 @@ mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
 SynthGenParams::SynthGenParams( SynthType tp )
     : synthtype_(tp)
 {
+    sgp_hpmgr_.setParam( this, new SynthGenParamsHP );
     setDefaultValues();
 }
 
 
 SynthGenParams::SynthGenParams( const SynthGenParams& oth )
 {
+    sgp_hpmgr_.setParam( this, new SynthGenParamsHP );
     *this = oth;
 }
 
 
 SynthGenParams::~SynthGenParams()
 {
+    sgp_hpmgr_.removeAndDeleteParam( this );
     delete reqtype_;
 }
 
@@ -78,6 +152,9 @@ SynthGenParams& SynthGenParams::operator=( const SynthGenParams& oth )
     anglerg_ = oth.anglerg_;
     attribtype_ = oth.attribtype_;
     wvltnm_ = oth.wvltnm_;
+    filtertype_() = oth.filtertype_();
+    windowsz_() = oth.windowsz_();
+    freqrg_() = oth.freqrg_();
 
     return *this;
 }
@@ -97,6 +174,7 @@ bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
     bool hassameanglerg = true;
     bool hassameinput = true;
     bool hassameattrib = true;
+    bool hassamefilter = true;
     if ( oth.isPSBased() )
     {
 	hassameanglerg = anglerg_ == oth.anglerg_;
@@ -107,11 +185,19 @@ bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
 	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
 	hassameattrib = attribtype_ == oth.attribtype_;
     }
+    else if ( oth.isFiltered() )
+    {
+	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
+	hassamefilter = filtertype_()==oth.filtertype_() &&
+			windowsz_() == oth.windowsz_() &&
+			freqrg_() == oth.freqrg_();
+    }
+
 
     return synthtype_ == oth.synthtype_ && wvltnm_ == oth.wvltnm_ &&
 	   raypars_ == oth.raypars_ && reflpars_ == oth.reflpars_ &&
 	   synthpars_ == oth.synthpars_ &&
-	   hassameanglerg && hassameinput && hassameattrib;
+	   hassameanglerg && hassameinput && hassameattrib && hassamefilter;
 }
 
 
@@ -123,12 +209,12 @@ bool SynthGenParams::operator!= ( const SynthGenParams& oth ) const
 
 bool SynthGenParams::isOK() const
 {
-    if ( isRawOutput() )
+    if ( isRawOutput_() )
     {
 	if ( wvltnm_.isEmpty() )
 	    return false;
     }
-    else if ( needsInput() )
+    else if ( needsInput_() )
     {
 	if ( inpsynthnm_.isEmpty() || inpsynthnm_ == sKeyInvalidInputPS() )
 	    return false;
@@ -138,15 +224,26 @@ bool SynthGenParams::isOK() const
 	if ( isAttribute() &&
 	     attribtype_ == Attrib::Instantaneous::RotatePhase )
 	    return false;
+	if ( isFiltered()  && !isFilterOK() )
+	    return false;
     }
 
     return !name_.isEmpty();
 }
 
 
+bool SynthGenParams::isFilterOK() const
+{
+    if ( filtertype_()==sKey::Average() )
+	return windowsz_()>0;
+    else
+	return !freqrg_().isUdf();
+}
+
+
 void SynthGenParams::setDefaultValues()
 {
-    if ( isRawOutput() )
+    if ( isRawOutput_() )
     {
 	if ( isZeroOffset() || isElasticStack() || isElasticGather() )
 	{
@@ -208,7 +305,7 @@ void SynthGenParams::setDefaultValues()
 		      offstyp == Seis::OffsetType::OffsetFeet );
     }
 
-    if ( isRawOutput() )
+    if ( isRawOutput_() )
     {
 	setReqType();
 	if ( IOMan::isOK() )
@@ -234,6 +331,13 @@ void SynthGenParams::setDefaultValues()
     }
     else
 	anglerg_ = Interval<float>::udf();
+
+    if ( isFiltered() )
+    {
+	filtertype_() = FFTFilter::toString( FFTFilter::LowPass );
+	windowsz_() = 101;
+	freqrg_() = Interval<float>(0, 15);
+    }
 
     createName( name_ );
 }
@@ -292,7 +396,7 @@ MultiID SynthGenParams::getWaveletID() const
 
 const IOPar* SynthGenParams::reflPars() const
 {
-    if ( !isRawOutput() )
+    if ( !isRawOutput_() )
 	return nullptr;
 
     return isPreStack() ? &raypars_ : &reflpars_;
@@ -340,11 +444,35 @@ Seis::OffsetType SynthGenParams::offsetType() const
 }
 
 
+bool SynthGenParams::canBeFilterInput() const
+{
+    return  !isPreStack() && !isElasticGather();
+}
+
+
+bool SynthGenParams::isFilteredSynthetic() const
+{
+    return synthtype_==FilteredSynthetic;
+}
+
+
+bool SynthGenParams::isFilteredStratProp() const
+{
+    return synthtype_==FilteredStratProp;
+}
+
+
+bool SynthGenParams::isFiltered() const
+{
+    return isFilteredSynthetic() || isFilteredStratProp();
+}
+
+
 void SynthGenParams::fillPar( IOPar& par ) const
 {
     par.set( sKey::Name(), name_ );
     par.set( sKeySynthType(), toString(synthtype_) );
-    if ( isRawOutput() )
+    if ( isRawOutput_() )
     {
 	par.set( sKeyWaveLetName(), wvltnm_ );
 	IOPar raypar, reflpar, synthpar;
@@ -355,7 +483,7 @@ void SynthGenParams::fillPar( IOPar& par ) const
 	par.merge( reflpar );
 	par.merge( synthpar );
     }
-    else if ( needsInput() )
+    else if ( needsInput_() )
     {
 	par.set( sKeyInput(), inpsynthnm_ );
 	if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
@@ -363,6 +491,14 @@ void SynthGenParams::fillPar( IOPar& par ) const
 	else if ( synthtype_ == InstAttrib )
 	    par.set( sKey::Attribute(),
 			     Attrib::Instantaneous::toString( attribtype_) );
+	else if ( isFiltered() )
+	{
+	    par.set( sKey::Filter(), filtertype_() );
+	    if ( filtertype_()==sKey::Average() )
+		par.set( sKey::Size(), windowsz_() );
+	    else
+		par.set( sKeyFreqRange(), freqrg_() );
+	}
     }
 }
 
@@ -390,7 +526,7 @@ void SynthGenParams::usePar( const IOPar& par )
 	parseEnum( par, sKeySynthType(), synthtype_ );
     }
 
-    if ( isRawOutput() )
+    if ( isRawOutput_() )
     {
 	par.get( sKeyWaveLetName(), wvltnm_ );
 	PtrMan<IOPar> raypar = par.subselect( sKeyRayPar() );
@@ -444,7 +580,7 @@ void SynthGenParams::usePar( const IOPar& par )
 	reflpars_.setEmpty();
 	synthpars_.setEmpty();
 	deleteAndNullPtr( reqtype_ );
-	if ( needsInput() )
+	if ( needsInput_() )
 	{
 	    par.get( sKeyInput(), inpsynthnm_ );
 	    if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
@@ -454,6 +590,16 @@ void SynthGenParams::usePar( const IOPar& par )
 		BufferString attribstr;
 		par.get( sKey::Attribute(), attribstr );
 		Attrib::Instantaneous::parseEnum( attribstr, attribtype_ );
+	    }
+	    else if ( isFiltered() )
+	    {
+		par.get( sKey::Filter(), filtertype_() );
+		windowsz_() = mUdf(float);
+		freqrg_() = Interval<float>::udf();
+		if ( filtertype_()==sKey::Average() )
+		    par.get( sKey::Size(), windowsz_() );
+		else
+		    par.get( sKeyFreqRange(), freqrg_() );
 	    }
 	}
     }
@@ -475,7 +621,29 @@ void SynthGenParams::createName( BufferString& nm ) const
 	nm += " ["; nm += inpsynthnm_; nm += "]";
 	return;
     }
-    else if ( !isRawOutput() )
+    else if ( isFiltered() )
+    {
+	nm = filtertype_();
+	if ( filtertype_()==sKey::Average() )
+	    nm.add( "(" ).add( windowsz_() ).add( "pts)" );
+	else if ( filtertype_()==FFTFilter::toString(FFTFilter::LowPass) )
+	    nm.add( "(" ).add( freqrg_().stop ).add( " Hz)" );
+	else if ( filtertype_()==FFTFilter::toString(FFTFilter::HighPass) )
+	    nm.add( "(" ).add( freqrg_().start ).add( " Hz)" );
+	else
+	    nm.add("(").add(freqrg_().start).add("-").add(freqrg_().stop)
+								.add(" Hz)");
+	BufferString synnm( inpsynthnm_ );
+	if ( isFilteredSynthetic() )
+	{
+	    nm += " ["; nm += synnm; nm += "]";
+	}
+	else
+	    nm += synnm;
+
+	return;
+    }
+    else if ( !isRawOutput_() )
 	return;
 
     nm = wvltnm_;
@@ -552,7 +720,7 @@ void SynthGenParams::createName( BufferString& nm ) const
 
 void SynthGenParams::setWavelet( const char* wvltnm )
 {
-    if ( !isRawOutput() || wvltnm_ == wvltnm )
+    if ( !isRawOutput_() || wvltnm_ == wvltnm )
 	return;
 
     wvltnm_.set( wvltnm );
@@ -566,7 +734,7 @@ void SynthGenParams::setWavelet( const char* wvltnm )
 
 void SynthGenParams::setWavelet( const Wavelet& wvlt )
 {
-    if ( !isRawOutput() || wvltnm_ == wvlt.name() )
+    if ( !isRawOutput_() || wvltnm_ == wvlt.name() )
 	return;
 
     wvltnm_.set( wvlt.name() );

@@ -57,6 +57,12 @@ bool SyntheticData::isOK() const
 }
 
 
+bool SyntheticData::isFilter() const
+{
+    return sgp_.isFiltered();
+}
+
+
 void SyntheticData::useGenParams( const SynthGenParams& sgp )
 {
     if ( sgp.synthtype_ != sgp_.synthtype_ )
@@ -128,7 +134,7 @@ const TimeDepthModel* SyntheticData::getTDModel( int itrc, int ioff ) const
 ConstRefMan<SyntheticData> SyntheticData::get( const SynthGenParams& sgp,
 					     Seis::RaySynthGenerator& synthgen )
 {
-    if ( !sgp.isRawOutput() )
+    if ( !sgp.isRawOutput_() )
 	return nullptr;
 
     ConstRefMan<Seis::SynthGenDataPack> genres = synthgen.getAllResults();
@@ -239,7 +245,7 @@ TrcKey PostStackSyntheticData::getTrcKey( int trcnr ) const
 ZSampling PostStackSyntheticData::zRange() const
 {
     const SeisTrcBuf& tbuf = postStackPack().trcBuf();
-    return tbuf.isEmpty() ? tbuf.zRange() : tbuf.first()->zRange();
+    return tbuf.isEmpty() ? ZSampling::udf() : tbuf.first()->zRange();
 }
 
 
@@ -542,6 +548,19 @@ InstAttributeSyntheticData::~InstAttributeSyntheticData()
 {
 }
 
+
+FilteredSyntheticData::FilteredSyntheticData(
+					const SynthGenParams& sgp,
+					const Seis::SynthGenDataPack& synthdp,
+					SeisTrcBufDataPack& sdp )
+    : PostStackSyntheticDataWithInput(sgp,synthdp,sdp)
+{
+}
+
+
+FilteredSyntheticData::~FilteredSyntheticData()
+{
+}
 
 
 PSBasedPostStackSyntheticData::PSBasedPostStackSyntheticData(

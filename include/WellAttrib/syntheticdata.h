@@ -56,6 +56,7 @@ public:
     virtual bool			isAVOGradient() const { return false; }
     virtual bool			isStratProp() const   { return false; }
     virtual bool			isAttribute() const   { return false; }
+    bool				isFilter() const;
     virtual SynthGenParams::SynthType	synthType() const	= 0;
 
     const SynthGenParams&		getGenParams() const	{ return sgp_; }

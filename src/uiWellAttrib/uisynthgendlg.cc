@@ -154,10 +154,14 @@ void uiSynthParsGrp::forwardInputNames( const SynthGenParams* sgp )
 	    synthselgrp_->manPSSynth( psnms );
     }
 
-    if ( !sgp || sgp->canBeAttributeInput() )
+    if ( sgp )
     {
 	BufferStringSet inpnms;
-	getInpNames( inpnms );
+	if ( sgp->isAttribute() )
+	    getAttributeInpNames( inpnms );
+	else if ( sgp->isFiltered() )
+	    getFilteringInpNames( inpnms, sgp->isFilteredSynthetic() );
+
 	if ( !inpnms.isEmpty() )
 	    synthselgrp_->manInpSynth( inpnms );
     }
@@ -192,6 +196,11 @@ void uiSynthParsGrp::getPSNames( BufferStringSet& synthnms )
 
 void uiSynthParsGrp::getInpNames( BufferStringSet& synthnms )
 {
+}
+
+
+void uiSynthParsGrp::getAttributeInpNames( BufferStringSet& synthnms )
+{
     synthnms.setEmpty();
     for ( int idx=0; idx<synthnmlb_->size(); idx++ )
     {
@@ -204,6 +213,40 @@ void uiSynthParsGrp::getInpNames( BufferStringSet& synthnms )
 
     TypeSet<SynthID> ids;
     stratsynth_.getIDs( ids, StratSynth::DataMgr::OnlyAttrib );
+    for ( const auto& id : ids )
+    {
+	const SynthGenParams* sgp = stratsynth_.getGenParams( id );
+	if ( sgp && sgp->inpsynthnm_ == SynthGenParams::sKeyInvalidInputPS() )
+	{
+	    synthnms.add( SynthGenParams::sKeyInvalidInputPS() );
+	    break;
+	}
+    }
+}
+
+
+void uiSynthParsGrp::getFilteringInpNames( BufferStringSet& synthnms,
+					   bool issynthetic )
+{
+    synthnms.setEmpty();
+    if ( issynthetic )
+    {
+	stratsynth_.getNames( synthnms, StratSynth::DataMgr::OnlyPSBased );
+	stratsynth_.getNames( synthnms, StratSynth::DataMgr::OnlyZO );
+	stratsynth_.getNames( synthnms, StratSynth::DataMgr::OnlyAttrib );
+    }
+    else
+    {
+	stratsynth_.getNames( synthnms, StratSynth::DataMgr::OnlyProps );
+	if ( synthnms.isEmpty() )
+	{
+	    stratsynth_.addPropertySynthetics();
+	    stratsynth_.getNames( synthnms, StratSynth::DataMgr::OnlyProps );
+	}
+    }
+
+    TypeSet<SynthID> ids;
+    stratsynth_.getIDs( ids, StratSynth::DataMgr::OnlyFilter );
     for ( const auto& id : ids )
     {
 	const SynthGenParams* sgp = stratsynth_.getGenParams( id );
@@ -577,7 +620,30 @@ void uiSynthParsGrp::addSyntheticsCB( CallBacker* )
 	    const BufferString attribnm = stratsynth_.nameOf( id );
 	    NotifyStopper ns( synthnmlb_->selectionChanged );
 	    synthnmlb_->addItem( attribnm );
+	    forwardInputNames( &sgp );
+	    synthAdded.trigger( id );
 	}
+    }
+    else if ( sgp.isFiltered() )
+    {
+	const SynthID inpid = stratsynth_.find( sgp.inpsynthnm_);
+	if ( !inpid.isValid() )
+	    return;
+
+	BufferString filtname;
+	sgp.createName( filtname );
+	if ( !checkSyntheticPars(sgp,false) )
+	    return;
+
+	const SynthID sdid = stratsynth_.addSynthetic( sgp );
+	if ( !sdid.isValid() )
+	    mErrRet( stratsynth_.errMsg(), return )
+
+	const BufferString& newsynthnm = stratsynth_.nameOf( sdid );
+	NotifyStopper ns( synthnmlb_->selectionChanged );
+	synthnmlb_->addItem( newsynthnm );
+	forwardInputNames( &sgp );
+	synthAdded.trigger( sdid );
     }
     else
     {
@@ -774,6 +840,10 @@ bool uiSynthParsGrp::doSave( const char* fnm )
 
 void uiSynthParsGrp::typeChgCB( CallBacker* cb )
 {
+    const SynthGenParams::SynthType synthtype =
+		SynthGenParams::parseEnumSynthType( synthselgrp_->getType() );
+    SynthGenParams sgp( synthtype );
+    forwardInputNames( &sgp );
     parsChangedCB( cb );
 }
 
@@ -809,7 +879,7 @@ void uiSynthParsGrp::putToScreen()
 	const SynthGenParams::SynthType synthtype =
 		SynthGenParams::parseEnumSynthType( synthselgrp_->getType() );
 	SynthGenParams sgp( synthtype );
-	if ( sgp.isRawOutput() )
+	if ( sgp.isRawOutput_() )
 	{
 	    const BufferString wvltnm( synthselgrp_->getWaveletName() );
 	    if ( !wvltnm.isEmpty() )
@@ -833,7 +903,7 @@ bool uiSynthParsGrp::getFromScreen( SynthGenParams& sgp )
     if ( !synthselgrp_->getGenParams(sgp) )
 	return false;
 
-    if ( sgp.needsInput() )
+    if ( sgp.needsInput_() )
     {
 	if ( !stratsynth_.find(sgp.inpsynthnm_).isValid() )
 	    mErrRet(tr("Problem with Input synthetic data"),return false);
