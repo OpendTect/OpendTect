@@ -346,7 +346,6 @@ bool uiImportHorizon::doScan()
     if ( !getFileNames(filenms) )
 	return false;
 
-    const bool zindepth = domsel_ && !domsel_->getBoolValue();
     delete scanner_;
     scanner_ = new HorizonScanner( filenms, fd_, isgeom_, zDomain() );
     if ( !scanner_->uiMessage().isEmpty() )
