@@ -402,6 +402,12 @@ void uiTextEdit::ignoreWheelEvents( bool yn )
 }
 
 
+void uiTextEdit::setWordWrapMode( WrapMode mode )
+{
+    body_->setWordWrapMode( QTextOption::WrapMode(mode) );
+}
+
+
 //-------------------------------------------------------
 
 
