@@ -305,7 +305,10 @@ bool PreStackDisplay::updateData()
 
     DataPackID displayid = DataPack::cNoID();
     if ( preprocmgr_.nrProcessors() )
+    {
 	displayid = preProcess();
+	gather = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( displayid );
+    }
     else
     {
 	TrcKey tk;
