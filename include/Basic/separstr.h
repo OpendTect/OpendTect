@@ -44,6 +44,8 @@ public:
 
     int			size() const;
     StringView		operator[](int) const;		//!< Output unescaped
+    StringView		first() const;
+    StringView		last() const;
     StringView		from(int) const;		//!< Output escaped
 
     od_int16		getI16Value(int) const;

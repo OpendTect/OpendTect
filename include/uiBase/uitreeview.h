@@ -272,6 +272,8 @@ public:
 			{ setText( toUiString(f), column ); }
     void		setText( double d, int column=0 )
 			{ setText( toUiString(d), column ); }
+    void		setText( const char* txt, int column=0 )
+			{ setText( toUiString(txt), column ); }
 
     const char*		text(int column=0) const;
 
@@ -297,6 +299,8 @@ public:
     uiTreeViewItem*	getChild(int) const;
     uiTreeViewItem*	firstChild() const;
     uiTreeViewItem*	lastChild() const;
+    uiTreeViewItem*	findChild(const char*) const;
+
     uiTreeViewItem*	nextSibling() const;
     uiTreeViewItem*	prevSibling() const;
     uiTreeViewItem*	parent() const;
