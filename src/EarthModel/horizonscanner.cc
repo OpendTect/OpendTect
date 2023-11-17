@@ -381,7 +381,6 @@ bool HorizonScanner::analyzeData()
 	    }
 	}
 
-	const BinID selbid = selxy_ ? SI().transform( crd ) : bid;
 	val = data[0];
 	bool validvert = false;
 	if ( !mIsUdf(val) )
