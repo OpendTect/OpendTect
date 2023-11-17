@@ -57,7 +57,7 @@ uiGrubbsFilterAttrib::uiGrubbsFilterAttrib( uiParent* p, bool is2d )
     replacetype_ = new uiGenInput( this, tr("Replace Type"),
 				   StringListInpSpec(replacetypestr) );
     replacetype_->attach( alignedBelow, stepoutfld_ );
-    replacetype_->valuechanged.notify(
+    replacetype_->valueChanged.notify(
 	    mCB(this,uiGrubbsFilterAttrib,replaceTypChanged) );
 
     setHAlignObj( gatefld_ );
