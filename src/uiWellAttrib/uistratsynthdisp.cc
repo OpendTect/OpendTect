@@ -251,9 +251,9 @@ void setMappers( const SyntheticData& sd )
     if ( prevtype_ )
     {
 	const SynthGenParams prevsgp( *prevtype_ );
-	sametype = sgp.isRawOutput() && prevsgp.isRawOutput()
+	sametype = sgp.isRawOutput_() && prevsgp.isRawOutput_()
 		 ? true : sgp.synthtype_ == prevsgp.synthtype_;
-	if ( sametype && sgp.isRawOutput() && !mIsUdf(prevwvltrms_) )
+	if ( sametype && sgp.isRawOutput_() && !mIsUdf(prevwvltrms_) )
 	{
 	    const float wvltrms = getWvltRMS( sd.getGenParams().getWaveletID());
 	    if ( !mIsUdf(wvltrms) )
@@ -275,8 +275,8 @@ void setMappers( const SyntheticData& sd )
     {
 	wvamapper_->setup_.type( ColTab::MapperSetup::Auto )
 			  .cliprate( cDefClipRate() )
-			  .autosym0( !sgp.isRawOutput() )
-			  .symmidval( sgp.isRawOutput() ? 0.f : mUdf(float) );
+			  .autosym0( !sgp.isRawOutput_() )
+			  .symmidval( sgp.isRawOutput_() ? 0.f : mUdf(float) );
 	if ( !sgp.isStratProp() && !sgp.isAttribute() )
 	    overlap_ = cDefSeisOverlap();
     }
@@ -916,7 +916,7 @@ void uiStratSynthDisp::updWvltFld()
 {
     BufferString wvltnm;
     const SynthGenParams* sgp = datamgr_.getGenParams( wvaselfld_->curID() );
-    if ( sgp && sgp->isRawOutput() )
+    if ( sgp && sgp->isRawOutput_() )
     {
 	wvltnm.set( sgp->getWaveletNm() );
 	PtrMan<IOObj> ioobj = Wavelet::getIOObj( sgp->getWaveletNm() );

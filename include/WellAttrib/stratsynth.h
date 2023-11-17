@@ -113,13 +113,14 @@ public:
     bool		isPS(SynthID) const;
     bool		isAttribute(SynthID) const;
     bool		isStratProp(SynthID) const;
+    bool		isFilter(SynthID) const;
 
     enum SubSelType	{ NoSubSel, OnlyZO, NoZO, OnlyEIStack, NoEIStack,
 			  OnlyEIGather, NoEIGather, OnlyPS, NoPS,
 			  OnlyPSBased, NoPSBased,
 			  OnlyAttrib, NoAttrib, OnlyRaw, NoRaw,
 			  OnlyInput, OnlyWithInput, NoWithInput,
-			  OnlyProps, NoProps };
+			  OnlyProps, NoProps, OnlyFilter, NoFilter };
     void		getNames(BufferStringSet&,SubSelType t=NoSubSel,
 				 bool omitempty=false,int lmsidx=-1) const;
     void		getNames(const MultiID& wvltid,BufferStringSet&,
@@ -234,6 +235,9 @@ private:
 					 TaskRunner*) const;
     void		createAngleData(PreStackSyntheticData&,
 					TaskRunner*) const;
+    ConstRefMan<SyntheticData> createFiltered(const PostStackSyntheticData&,
+					      const SynthGenParams&,
+					      TaskRunner*) const;
 
     const ReflectivityModelSet* getRefModels(const SynthGenParams&,
 					      int lmsidx) const;
