@@ -8,11 +8,13 @@ ________________________________________________________________________
 
 -*/
 
-#include "mousecursor.h"
 #include "vissurveymod.h"
-#include "vissurvobj.h"
 #include "visobject.h"
+#include "vissurvobj.h"
+
 #include "iopar.h"
+#include "mousecursor.h"
+#include "prestackgather.h"
 
 class IOObj;
 class SeisPSReader;
@@ -53,10 +55,10 @@ public:
 					      bool oncurrentline=true) const;
 
 				//for 3D only at present
-    DataPackID		preProcess();
+    DataPackID			preProcess();
 
     bool			is3DSeis() const;
-    DataPackID		getDataPackID(int i=0) const override;
+    DataPackID			getDataPackID(int i=0) const override;
 
     visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
     const visBase::FlatViewer*	flatViewer() const { return flatviewer_; }
@@ -85,13 +87,13 @@ public:
     int				traceNr() const	  { return trcnr_; }
     BufferString		lineName() const;
 
-    bool                        displayAutoWidth() const { return autowidth_; }
-    void                        displaysAutoWidth(bool yn);
-    bool                        displayOnPositiveSide() const {return posside_;}
-    void                        displaysOnPositiveSide(bool yn);
-    float                       getFactor() { return factor_; }
+    bool			displayAutoWidth() const { return autowidth_; }
+    void			displaysAutoWidth(bool yn);
+    bool			displayOnPositiveSide() const {return posside_;}
+    void			displaysOnPositiveSide(bool yn);
+    float			getFactor() { return factor_; }
     void			setFactor(float scale);
-    float                       getWidth() { return width_; }
+    float			getWidth() { return width_; }
     void			setWidth(float width);
     BinID			getBinID() const { return bid_; }
     MultiID			getMultiID() const override { return mid_; }
@@ -137,31 +139,33 @@ protected:
     void			draggerMotion(CallBacker*);
     void			finishedCB(CallBacker*);
 
+    RefMan<PreStack::Gather>	gather_;
+
     BinID			bid_;
     BinID			draggerpos_;
-    visBase::EventCatcher*	eventcatcher_;
+    visBase::EventCatcher*	eventcatcher_			= nullptr;
     MouseCursor			mousecursor_;
     visBase::DepthTabPlaneDragger*	planedragger_;
     visBase::FlatViewer*	flatviewer_;
     PreStack::ProcessManager&	preprocmgr_;
 
     MultiID			mid_;
-    PlaneDataDisplay*		section_;
-    Seis2DDisplay*		seis2d_;
-    int				trcnr_;
-    Coord			basedirection_;
-    Coord			seis2dpos_;
-    Coord			seis2dstoppos_;
+    PlaneDataDisplay*		section_			= nullptr;
+    Seis2DDisplay*		seis2d_				= nullptr;
+    int				trcnr_				= -1;
+    Coord			basedirection_			= Coord::udf();
+    Coord			seis2dpos_			= Coord::udf();
+    Coord			seis2dstoppos_			= Coord::udf();
 
-    bool			posside_;
-    bool			autowidth_;
-    float			factor_;
+    bool			posside_			= true;
+    bool			autowidth_			= true;
+    float			factor_				= 1.f;
     float			width_;
     Interval<float>		offsetrange_;
     Interval<float>		zrg_;
 
-    SeisPSReader*		reader_;
-    IOObj*			ioobj_;
+    SeisPSReader*		reader_				= nullptr;
+    IOObj*			ioobj_				= nullptr;
     Notifier<PreStackDisplay>	movefinished_;
 
 public:

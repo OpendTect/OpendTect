@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "oscommand.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
-#include "prestackgather.h"
 #include "prestackprocessor.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -43,29 +42,18 @@ namespace visSurvey
 
 PreStackDisplay::PreStackDisplay()
     : VisualObjectImpl( true )
-    , planedragger_( visBase::DepthTabPlaneDragger::create() )
-    , flatviewer_( visBase::FlatViewer::create() )
     , draggermoving( this )
-    , draggerpos_( -1, -1 )
     , bid_( -1, -1 )
-    , section_( 0 )
-    , seis2d_( 0 )
-    , factor_( 1 )
-    , trcnr_( -1 )
-    , basedirection_( mUdf(float), mUdf(float) )
-    , seis2dpos_( mUdf(float), mUdf(float) )
+    , draggerpos_( -1, -1 )
+    , planedragger_(visBase::DepthTabPlaneDragger::create())
+    , flatviewer_(visBase::FlatViewer::create())
+    , preprocmgr_(*new PreStack::ProcessManager)
     , width_( mDefaultWidth )
     , offsetrange_( 0, mDefaultWidth )
     , zrg_( SI().zRange(true) )
-    , posside_( true )
-    , autowidth_( true )
-    , preprocmgr_( *new PreStack::ProcessManager )
-    , reader_( 0 )
-    , ioobj_( 0 )
     , movefinished_(this)
-    , eventcatcher_( 0 )
 {
-    setMaterial( 0 );
+    setMaterial( nullptr );
 
     flatviewer_->ref();
     flatviewer_->enableTraversal( visBase::cDraggerIntersecTraversalMask(),
@@ -89,18 +77,12 @@ PreStackDisplay::PreStackDisplay()
 PreStackDisplay::~PreStackDisplay()
 {
     detachAllNotifiers();
-    setSceneEventCatcher( 0 );
+    setSceneEventCatcher( nullptr );
 
-    flatviewer_->unRef();
-
-    if ( planedragger_ )
-	planedragger_->unRef();
-
-    if ( section_ )
-	section_->unRef();
-
-    if ( seis2d_ )
-	seis2d_->unRef();
+    unRefPtr( flatviewer_ );
+    unRefPtr( planedragger_ );
+    unRefPtr( section_ );
+    unRefPtr( seis2d_ );
 
     delete reader_;
     delete ioobj_;
@@ -138,18 +120,23 @@ void PreStackDisplay::updateMouseCursorCB( CallBacker* cb )
 
 
 void PreStackDisplay::allowShading( bool yn )
-{ flatviewer_->allowShading( yn ); }
+{
+    flatviewer_->allowShading( yn );
+}
 
 
 BufferString PreStackDisplay::getObjectName() const
-{ return ioobj_->name(); }
+{
+    return ioobj_ ? ioobj_->name().buf() : "";
+}
 
 
 void PreStackDisplay::setMultiID( const MultiID& mid )
 {
     mid_ = mid;
-    delete ioobj_; ioobj_ = IOM().get( mid_ );
-    delete reader_; reader_ = 0;
+    delete ioobj_;
+    ioobj_ = IOM().get( mid_ );
+    deleteAndNullPtr( reader_ );
     if ( !ioobj_ )
 	return;
 
@@ -215,8 +202,7 @@ DataPackID PreStackDisplay::preProcess()
 	    if ( !gather->readFrom(*ioobj_,*reader_,tk) )
 		continue;
 
-	    DPM( DataPackMgr::FlatID() ).add( gather );
-	    preprocmgr_.setInput( relbid, gather->id() );
+	    preprocmgr_.setInput( relbid, gather );
 	}
     }
 
@@ -244,8 +230,8 @@ bool PreStackDisplay::setPosition( const TrcKey& tk )
 
     bid_ = tk.position();
 
-    RefMan<PreStack::Gather> gather = new PreStack::Gather;
-    if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,tk) )
+    gather_ = new PreStack::Gather;
+    if ( !ioobj_ || !reader_ || !gather_->readFrom(*ioobj_,*reader_,tk) )
     {
 	mDefineStaticLocalObject( bool, shown3d, = false );
 	mDefineStaticLocalObject( bool, resetpos, = true );
@@ -284,6 +270,7 @@ bool PreStackDisplay::setPosition( const TrcKey& tk )
 	}
     }
 
+    DPM(DataPackMgr::FlatID()).add( gather_ );
     draggerpos_ = bid_;
     draggermoving.trigger();
     dataChangedCB( nullptr );
@@ -301,11 +288,13 @@ bool PreStackDisplay::updateData()
     }
 
     const bool haddata = flatviewer_->hasPack( false );
-    RefMan<PreStack::Gather> gather = new PreStack::Gather;
 
     DataPackID displayid = DataPack::cNoID();
     if ( preprocmgr_.nrProcessors() )
+    {
 	displayid = preProcess();
+	gather_ = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( displayid );
+    }
     else
     {
 	TrcKey tk;
@@ -314,11 +303,15 @@ bool PreStackDisplay::updateData()
 	else
 	    tk.setGeomID( seis2d_->getGeomID() ).setTrcNr( trcnr_ );
 
-	if ( gather->readFrom(*ioobj_,*reader_,tk) )
+	if ( !gather_ || gather_->getTrcKey()!=tk )
 	{
-	    DPM(DataPackMgr::FlatID()).add( gather );
-	    displayid = gather->id();
+	    gather_ = new PreStack::Gather;
+	    if ( gather_->readFrom(*ioobj_,*reader_,tk) )
+		DPM(DataPackMgr::FlatID()).add( gather_ );
 	}
+
+	if ( gather_ )
+	    displayid = gather_->id();
     }
 
     if ( displayid==DataPack::cNoID() )
@@ -340,7 +333,7 @@ bool PreStackDisplay::updateData()
 	const bool canupdate = flatviewer_->enableChange( false );
 	flatviewer_->setVisible( FlatView::Viewer::VD, true );
 	flatviewer_->enableChange( canupdate );
-	flatviewer_->setPack( FlatView::Viewer::VD, gather, !haddata );
+	flatviewer_->setPack( FlatView::Viewer::VD, gather_, !haddata );
     }
 
     turnOn( true );
