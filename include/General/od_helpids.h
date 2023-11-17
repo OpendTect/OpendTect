@@ -142,6 +142,7 @@ ________________________________________________________________________
 #define		mReliefAttribHelpID				0x10100110
 #define		mCEEMDAttribHelpID				0x10100111
 #define		mTextureDirectionalHelpID			0x10100112
+#define		mAttribCorrelationHelpID			0x10100113
 // Attributes Selection 01
 #define		mAttribDescSetEdHelpID				0x10101000
 #define		mAttrSelDlgNo_NNHelpID				0x10101001
