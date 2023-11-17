@@ -9,16 +9,11 @@ ________________________________________________________________________
 
 #include "uicorrmultiattrib.h"
 #include "corrmultiattrib.h"
-#include "uibutton.h"
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "attribparamgroup.h"
-#include "survinfo.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
-#include "uisteeringsel.h"
-#include "uistepoutsel.h"
 
 
 using namespace Attrib;
@@ -29,10 +24,10 @@ mInitAttribUI(uiCorrMultiAttrib,CorrMultiAttrib,
 
 
 uiCorrMultiAttrib::uiCorrMultiAttrib(uiParent* p,bool is2d)
-		  : uiAttrDescEd(p,is2d,HelpKey("tut","attrib"))
+		  : uiAttrDescEd(p,is2d,mODHelpKey(mAttribCorrelationHelpID))
 {
-    inpfld_ = createInpFld( is2d, "Reference Attribute" );
-    inpfld2_ = createInpFld( is2d, "Select Attribute" );
+    inpfld_ = createInpFld( is2d, "Attribute 1" );
+    inpfld2_ = createInpFld( is2d, "Attribute 2" );
     gatefld_ = new uiGenInput( this, gateLabel(),
 		FloatInpIntervalSpec().setName("Z start",-28)
 				      .setName("Z stop",28) );
