@@ -88,6 +88,7 @@ set( OD_MODULE_SOURCES
 	executor.cc
 	factory.cc
 	file.cc
+	fileformat.cc
 	filepath.cc
 	filespec.cc
 	filesystemaccess.cc

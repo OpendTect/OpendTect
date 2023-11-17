@@ -55,6 +55,29 @@ enum CheckState
 };
 
 
+/*!\brief How to select files or directories */
+
+enum FileSelectionMode
+{
+    SelectFileForRead,	/*!<The name of a single existing file. */
+    SelectFileForWrite, /*!<The name of a file, whether it exists or not. */
+    SelectMultiFile,	/*!<The names of zero or more existing files. */
+    SelectDirectory,	/*!<The name of a directory. */
+    SelectDirectoryWithFile	//!<The name of a directory with a given file.
+};
+
+
+/*!\brief File content types, for which operations may be known. */
+
+enum FileContentType
+{
+    GeneralContent=0,
+    ImageContent,
+    TextContent,
+    HtmlContent
+};
+
+
 enum Edge
 {
     Top=0,

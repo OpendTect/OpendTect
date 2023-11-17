@@ -70,6 +70,7 @@ public:
     const char*		prefix() const;
     const char*		postfix() const;
     const char*		domain() const;
+    void		setDomain(const char*);
     int			nrLevels() const;
     const char*		extension() const;	//!< may return null
 

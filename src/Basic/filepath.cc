@@ -171,6 +171,7 @@ FilePath& FilePath::set( const char* inpfnm )
 	    domain_.add( *domptr );
 	    domptr++;
 	}
+
 	fnm = nullptr;
 	if ( *domptr == '/' )
 	    fnm = fnmbs.buf() + (domptr - fnmcopy.buf());
@@ -408,16 +409,29 @@ BufferString FilePath::fullPath( Style f, bool cleanup ) const
 
 
 const char* FilePath::prefix() const
-{ return prefix_.buf(); }
+{
+    return prefix_.buf();
+}
 
 const char* FilePath::postfix() const
-{ return postfix_.buf(); }
+{
+    return postfix_.buf();
+}
 
 const char* FilePath::domain() const
-{ return domain_.buf(); }
+{
+    return domain_.buf();
+}
+
+void FilePath::setDomain( const char* dom )
+{
+    domain_ = dom;
+}
 
 int FilePath::nrLevels() const
-{ return lvls_.size(); }
+{
+    return lvls_.size();
+}
 
 
 const char* FilePath::extension() const
@@ -597,7 +611,8 @@ const char* FilePath::dirSep( Style stl )
 
 void FilePath::addPart( const char* fnm )
 {
-    if ( !fnm || !*fnm ) return;
+    if ( !fnm || !*fnm )
+	return;
 
     mSkipBlanks( fnm );
     const int maxlen = strlen( fnm );
@@ -630,8 +645,16 @@ void FilePath::addPart( const char* fnm )
 	fnm++;
 	prev = cur;
     }
+
     *bufptr = '\0';
-    if ( buf[0] ) lvls_.add( buf );
+    if ( buf[0] )
+    {
+	if ( lvls_.isEmpty() && domain_.isEmpty() && !prefix_.isEmpty() )
+	    domain_ = buf;
+	else
+	    lvls_.add( buf );
+    }
+
     delete [] buf;
     if ( lvls_.isEmpty() )
 	return;
