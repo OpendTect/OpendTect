@@ -77,9 +77,8 @@ void uiEMAttrSelDlg::initAndBuild( const uiString& seltxt,
 
     setCaption( uiStrings::sSelect() );
 
-    uiString title = uiStrings::sSelect().append( seltxt );
-    setTitleText( title );
-    setName( title.getFullString() );
+    setTitleText( seltxt );
+    setName( seltxt.getFullString() );
 
     createSelectionButtons();
     createSelectionFields();
