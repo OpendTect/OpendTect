@@ -9,20 +9,15 @@ ________________________________________________________________________
 
 #include "uimanprops.h"
 
-#include "mathexpression.h"
 #include "mathproperty.h"
 #include "separstr.h"
+
 #include "uibuildlistfromlist.h"
 #include "uicolor.h"
-#include "uicombobox.h"
 #include "uigeninput.h"
-#include "uilabel.h"
-#include "uilineedit.h"
 #include "uilistbox.h"
-#include "uimathexpression.h"
 #include "uimathpropeddlg.h"
 #include "uimsg.h"
-#include "uirockphysform.h"
 #include "uistrings.h"
 #include "uitoolbutton.h"
 #include "uiunitsel.h"
@@ -127,7 +122,7 @@ private:
     MathProperty	defaultmathprop_;
 
     void		setForm(bool);
-    void		setUpdated()			{ changed_ = true; }
+    void		setUpdated();
 
     void		initDlg(CallBacker*);
     void		nameChgCB(CallBacker*);
@@ -156,7 +151,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(),
 			       StringInpSpec(pr.name()) );
-    mAttachCB( namefld_->valuechanged, uiEditPropRef::nameChgCB );
+    mAttachCB( namefld_->valueChanged, uiEditPropRef::nameChgCB );
 
     const MnemonicSelection mnsel = MnemonicSelection::getGroupFor( pr.mn() );
     BufferStringSet mnnames;
@@ -168,7 +163,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
 				    StringListInpSpec(mnnames) );
     mnemonicsfld_->setText( mn.name() );
     mnemonicsfld_->attach( alignedBelow, namefld_ );
-    mAttachCB( mnemonicsfld_->valuechanged, uiEditPropRef::mnemonicSelCB );
+    mAttachCB( mnemonicsfld_->valueChanged, uiEditPropRef::mnemonicSelCB );
 
     SeparString mnss, prss;
     for ( const auto* mnalias : mn.aliases() )
@@ -186,7 +181,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
 				StringInpSpec(prss.buf()) );
     praliasfld_->setElemSzPol( uiObject::Wide );
     praliasfld_->attach( alignedBelow, mnaliasfld_ );
-    mAttachCB( praliasfld_->valuechanged, uiEditPropRef::aliasChgCB );
+    mAttachCB( praliasfld_->valueChanged, uiEditPropRef::aliasChgCB );
 
     colfld_ = new uiColorInput( this, uiColorInput::Setup(pr_.disp_.color_)
 					.lbltxt(tr("Default display color")) );
@@ -196,7 +191,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
     rgfld_ = new uiGenInput( this, tr("Typical value range"),
 			     FloatInpIntervalSpec(pr.disp_.typicalrange_) );
     rgfld_->attach( alignedBelow, colfld_ );
-    mAttachCB( rgfld_->valuechanged, uiEditPropRef::rangeChgCB );
+    mAttachCB( rgfld_->valueChanged, uiEditPropRef::rangeChgCB );
 
     uiUnitSel::Setup ussu( pr_.stdType() );
     ussu.variableszpol( true );
@@ -220,7 +215,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd )
 	    defaultfld_->setText( defaultmathprop_.formText(true) );
 	}
     }
-    mAttachCB( defaultfld_->valuechanged, uiEditPropRef::valueChgCB );
+    mAttachCB( defaultfld_->valueChanged, uiEditPropRef::valueChgCB );
 
     defaultformbut_ = new uiPushButton( this, tr("Formula"),
 				mCB(this,uiEditPropRef,setDefaultForm), false );
@@ -253,6 +248,13 @@ uiEditPropRef::~uiEditPropRef()
 void uiEditPropRef::initDlg( CallBacker* )
 {
     mAttachCB( definitionfld_->checked, uiEditPropRef::definitionChecked );
+}
+
+
+void uiEditPropRef::setUpdated()
+{
+    pr_.source_ = Repos::User;
+    changed_ = true;
 }
 
 
@@ -428,29 +430,27 @@ void uiBuildPROPS::editReq( bool isadd )
 	return;
 
     uiEditPropRef dlg( this, *pr, isadd );
-    if ( !dlg.go() )
+    if ( dlg.go() != uiDialog::Accepted )
     {
 	if ( isadd )
 	    delete pr;
     }
-    else
-    {
-	if ( isadd )
-	{
-	    if ( props.getByName(pr->name(),false) )
-	    {
-		const BufferString propnm( pr->name() );
-		delete pr;
-		mErrRet( tr("Property with same name '%1' already "
-			    " present.").arg(propnm),  )
-	    }
 
-	    props_ += pr;
+    if ( isadd )
+    {
+	if ( props.getByName(pr->name(),false) )
+	{
+	    const BufferString propnm( pr->name() );
+	    delete pr;
+	    mErrRet( tr("Property with same name '%1' already "
+			" present.").arg(propnm),  )
 	}
 
-	usrchg_ = usrchg_ || dlg.isChanged();
-	handleSuccessfullEdit( isadd, pr->name() );
+	props_ += pr;
     }
+
+    usrchg_ = usrchg_ || dlg.isChanged();
+    handleSuccessfullEdit( isadd, pr->name() );
 }
 
 
