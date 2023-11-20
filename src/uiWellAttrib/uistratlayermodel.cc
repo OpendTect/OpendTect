@@ -9,15 +9,13 @@ ________________________________________________________________________
 
 #include "uistratlayermodel.h"
 
-#include "ascstream.h"
 #include "ctxtioobj.h"
 #include "elasticpropsel.h"
-#include "hiddenparam.h"
 #include "ioobj.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
+#include "od_iostream.h"
 #include "stratlayermodel.h"
-#include "stratlaygen.h"
 #include "stratlaymodgen.h"
 #include "stratlayseqgendesc.h"
 #include "stratreftree.h"
@@ -46,6 +44,8 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+
+#include "hiddenparam.h"
 
 
 mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
@@ -635,6 +635,10 @@ void uiStratLayerModel::handleNewModel( Strat::LayerModel* newmodel, bool full )
 
     synthdisp_->viewer()->enableChange( canchange );
     synthdisp_->viewer()->handleChange( ctyp );
+
+    const uiRetVal infomsg = synthdatamgr_->infoMsg();
+    if ( !infomsg.isOK() )
+	uiMSG().warning( infomsg );
 }
 
 
