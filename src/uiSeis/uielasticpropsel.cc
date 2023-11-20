@@ -283,8 +283,11 @@ void uiElasticPropSelGrp::getFromScreen()
 
 	for ( int iinp=0; iinp<inpgrps_.size(); iinp++ )
 	{
+	    if ( !inpgrps_[iinp]->isDisplayed() )
+		continue;
+
 	    const BufferString inptxt( inpgrps_[iinp]->textOfVariable() );
-	    if ( inptxt != eform.inputDef(iinp) )
+	    if ( !inptxt.isEmpty() && inptxt != eform.inputDef(iinp) )
 		eform.setInputDef( iinp, inptxt );
 		//TODO: Add missing UoM field
 	}
