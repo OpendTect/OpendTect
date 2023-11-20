@@ -1621,7 +1621,7 @@ bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
 		    }
 		}
 
-		if ( incorrectsvel )
+		if ( dosvelcheck && incorrectsvel )
 		{
 		    needinterpolatedsvel = true;
 		    if ( needinfo && !infomsg_.isSet() )
