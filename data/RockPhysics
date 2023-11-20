@@ -757,3 +757,20 @@ Variable.1.Name: DTS
 Variable.1.Description: Sonic travel time
 Variable.1.Unit: Seconds/meter
 !
+Young Modulus: YME
+Description: Compute the Young Modulus from Density, P-wave velocity and S-wave velocity
+Formula: ((4*velp*velp-3*vels*vels)/(velp*velp-vels-vels))*den*vels*vels
+Unit: Pa
+Variable.0.Type: PVEL
+Variable.0.Name: Vp
+Variable.0.Description: P-wave velocity
+Variable.0.Unit: Meter/second
+Variable.1.Type: SVEL
+Variable.1.Name: Vs
+Variable.1.Description: S-wave velocity
+Variable.1.Unit: Meter/second
+Variable.2.Type: RHOB
+Variable.2.Name: Rhob
+Variable.2.Description: Density
+Variable.2.Unit: Kg/m3
+!
