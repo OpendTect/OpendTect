@@ -763,6 +763,9 @@ uiRetVal uiVelSel::isOK() const
 
 const UnitOfMeasure* uiVelSel::velUnit() const
 {
+    if ( !ioobj(true) )
+	return UnitOfMeasure::surveyDefVelUnit();
+
     VelocityDesc desc;
     const uiRetVal uirv = get( desc );
     return uirv.isOK() ? Vel::Worker::getUnit( desc )
