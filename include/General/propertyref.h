@@ -128,6 +128,10 @@ protected:
     void		fillPar(IOPar&) const;
     static const Mnemonic* getFromLegacy(const Mnemonic*,const char* propnm);
 
+public:
+
+    bool		isUserDefined() const;
+
 };
 
 
