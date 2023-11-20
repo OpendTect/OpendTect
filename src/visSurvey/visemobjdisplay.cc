@@ -9,18 +9,19 @@ ________________________________________________________________________
 
 #include "visemobjdisplay.h"
 
+#include "callback.h"
+#include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "keystrs.h"
+#include "mousecursor.h"
 #include "mpeengine.h"
 #include "randcolor.h"
 #include "undo.h"
-#include "callback.h"
-#include "mousecursor.h"
-#include "emhorizon3d.h"
-#include "emhorizon2d.h"
 
 #include "visdrawstyle.h"
 #include "visevent.h"
@@ -37,6 +38,9 @@ ________________________________________________________________________
 #define mSelColor Color( 0, 255, 0 )
 #define mDefaultSize 4
 
+static HiddenParam<visSurvey::EMObjectDisplay,
+			const ZDomain::Info*> emobjectdisplayhpmgr_(nullptr);
+
 namespace visSurvey
 {
 
@@ -51,24 +55,26 @@ const char* EMObjectDisplay::sKeyPosAttrShown() { return "Pos Attribs shown"; }
 
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
-    , em_( EM::EMM() )
-    , emobject_( 0 )
-    , editor_( 0 )
-    , eventcatcher_( 0 )
-    , transformation_( 0 )
-    , zaxistransform_( 0 )
-    , displayonlyatsections_( false )
-    , hasmoved( this )
-    , changedisplay( this )
-    , locknotifier( this )
-    , drawstyle_( new visBase::DrawStyle )
-    , nontexturecolisset_( false )
-    , enableedit_( false )
-    , restoresessupdate_( false )
-    , burstalertison_( false )
-    , channel2rgba_( 0 )
-    , ctrldown_( false )
+    , em_(EM::EMM())
+    , emobject_(nullptr)
+    , editor_(nullptr)
+    , eventcatcher_(nullptr)
+    , transformation_(nullptr)
+    , zaxistransform_(nullptr)
+    , displayonlyatsections_(false)
+    , hasmoved(this)
+    , changedisplay(this)
+    , locknotifier(this)
+    , drawstyle_(new visBase::DrawStyle)
+    , nontexturecolisset_(false)
+    , enableedit_(false)
+    , restoresessupdate_(false)
+    , burstalertison_(false)
+    , channel2rgba_(nullptr)
+    , ctrldown_(false)
 {
+    emobjectdisplayhpmgr_.setParam( this,
+				    new ZDomain::Info(SI().zDomainInfo()) );
     parposattrshown_.erase();
 
     drawstyle_->ref();
@@ -112,6 +118,7 @@ EMObjectDisplay::~EMObjectDisplay()
 
     clearSelections();
 
+    emobjectdisplayhpmgr_.removeAndDeleteParam( this );
     emchangedata_.clearData();
 }
 
@@ -119,8 +126,9 @@ EMObjectDisplay::~EMObjectDisplay()
 bool EMObjectDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 {
     if ( channel2rgba_ ) channel2rgba_->unRef();
-    channel2rgba_ = t;
-    if ( channel2rgba_ ) channel2rgba_->ref();
+	channel2rgba_ = t;
+    if ( channel2rgba_ )
+	channel2rgba_->ref();
 
     return true;
 }
@@ -128,6 +136,30 @@ bool EMObjectDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 
 visBase::TextureChannel2RGBA* EMObjectDisplay::getChannels2RGBA()
 { return channel2rgba_; }
+
+
+void EMObjectDisplay::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( zinfo == zDomain() )
+	return;
+
+    emobjectdisplayhpmgr_.deleteAndNullPtrParam( this );
+    emobjectdisplayhpmgr_.setParam( this, new ZDomain::Info(zinfo) );
+}
+
+
+bool EMObjectDisplay::isAlreadyTransformed() const
+{
+    return zaxistransform_ &&
+	( zaxistransform_->toZDomainInfo().def_ == zDomain().def_ );
+}
+
+
+const ZDomain::Info& EMObjectDisplay::zDomain() const
+{
+    const ZDomain::Info* inf = emobjectdisplayhpmgr_.getParam( this );
+    return *inf;
+}
 
 
 const mVisTrans* EMObjectDisplay::getDisplayTransformation() const
