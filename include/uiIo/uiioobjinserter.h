@@ -42,6 +42,9 @@ public:
     static bool		isPresent( const Translator& t )
 			{ return factory().hasName(t.getDisplayName()); }
 
+    static uiButton*	createInsertButton(uiParent*,const CtxtIOObj&,
+					   ObjectSet<uiIOObjInserter>&,
+					   const BufferStringSet&);
     static void		addInsertersToDlg(uiParent*,CtxtIOObj&,
 					  ObjectSet<uiIOObjInserter>&,
 					  ObjectSet<uiButton>&,

@@ -52,15 +52,13 @@ uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( SeisTrc2D );
     if ( ctio )
     {
-	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
-						   OD::Vertical );
 	const BufferStringSet nms;
-	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
-					    insertbuts_, nms );
+	uiButton* but = uiIOObjInserter::createInsertButton( this, *ctio,
+							     inserters_, nms );
 	for ( auto* inserter : inserters_ )
-	    mAttachCB(inserter->objInserterd, uiSeis2DLineChoose::objInserted);
+	    mAttachCB(inserter->objInserterd, uiSeis2DLineChoose::objInserted );
 
-	butgrp->attach( centeredLeftOf, listfld_ );
+	but->attach( centeredLeftOf, listfld_ );
     }
 }
 

@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "linekey.h"
 #include "transl.h"
 
+#include "uiaction.h"
+#include "uimenu.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
 #include "uilistbox.h"
@@ -85,6 +87,63 @@ bool uiIOObjInserter::isDisabled() const
 void uiIOObjInserter::setIOObjCtxt( const IOObjContext& ctio )
 {
     ctxt_ = ctio;
+}
+
+
+uiButton* uiIOObjInserter::createInsertButton( uiParent* p,
+					const CtxtIOObj& ctio,
+					ObjectSet<uiIOObjInserter>& insertset,
+					const BufferStringSet& transltoavoid )
+{
+    if ( uiIOObjInserter::allDisabled() )
+	return nullptr;
+
+    ManagedObjectSet<uiToolButtonSetup> tbsetups;
+    const ObjectSet<const Translator>& tpls = ctio.ctxt_.trgroup_->templates();
+    for ( int idx=0; idx<tpls.size(); idx++ )
+    {
+	const BufferString trgrpnm = tpls[idx]->typeName();
+	if ( transltoavoid.isPresent(trgrpnm.buf()) )
+	    continue;
+
+	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
+	if ( !inserter || inserter->isDisabled() )
+	{
+	    delete inserter;
+	    continue;
+	}
+
+
+
+	inserter->setIOObjCtxt( ctio.ctxt_ );
+	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
+	if ( !tbsu )
+	{
+	    delete inserter;
+	    continue;
+	}
+
+	insertset.add( inserter );
+	tbsetups.add( tbsu );
+    }
+
+    if ( tbsetups.isEmpty() )
+	return nullptr;
+
+    if ( tbsetups.size() == 1 )
+	return new uiToolButton( p, *tbsetups.first() );
+
+    auto* menu = new uiMenu( nullptr );
+    auto* tb = new uiToolButton( p, "inserter", toUiString("Import from"),
+				 CallBack() );
+    for ( auto* tbsu : tbsetups )
+    {
+	auto* item = new uiAction( tbsu->tooltip_, tbsu->cb_, tbsu->icid_ );
+	menu->insertAction( item );
+    }
+
+    tb->setMenu( menu, uiToolButton::InstantPopup );
+    return tb;
 }
 
 
@@ -299,11 +358,16 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
 void uiIOObjSel::init()
 {
     workctio_.ctxt_.fillTrGroup();
-    wrtrselfld_ = 0;
-    if ( workctio_.ctxt_.forread_ && setup_.withinserters_ )
+    wrtrselfld_ = nullptr;
+    const bool insertersdisabled = uiIOObjInserter::allDisabled();
+    if ( workctio_.ctxt_.forread_ && setup_.withinserters_
+				  && !insertersdisabled )
     {
-	uiIOObjInserter::addInsertersToDlg( this, workctio_, inserters_,
-					extselbuts_, setup_.trsnotallwed_ );
+	uiButton* insertbut =
+		uiIOObjInserter::createInsertButton( this, workctio_,
+						     inserters_,
+						     setup_.trsnotallwed_ );
+	extselbuts_.add( insertbut );
 	for ( auto* inserter : inserters_ )
 	    mAttachCB( inserter->objInserterd, uiIOObjSel::objInserted );
     }

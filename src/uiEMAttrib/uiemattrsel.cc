@@ -87,15 +87,13 @@ void uiEMAttrSelDlg::initAndBuild( const uiString& seltxt,
     CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc );
     if ( ctio )
     {
-	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
-						   OD::Vertical );
 	const BufferStringSet nms;
-	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
-					    extselbuts_, nms );
+	uiButton* but = uiIOObjInserter::createInsertButton( this, *ctio,
+							    inserters_, nms );
 	for ( auto* inserter : inserters_ )
 	    mAttachCB( inserter->objInserterd, uiEMAttrSelDlg::objInserted );
 
-	butgrp->attach( ensureBelow, selgrp_ );
+	but->attach( ensureBelow, selgrp_ );
     }
 
     int seltyp = sLastSelType;

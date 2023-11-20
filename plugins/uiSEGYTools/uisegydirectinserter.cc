@@ -39,7 +39,7 @@ uiToolButtonSetup* uiSEGYDirectVolInserter::getButtonSetup() const
 {
     uiSEGYDirectVolInserter* self = const_cast<uiSEGYDirectVolInserter*>(this);
     uiToolButtonSetup* ret = new uiToolButtonSetup( "segydirect_ins",
-						    tr("Scan a SEG-Y file"),
+						    tr("Import a SEG-Y file"),
 		mCB(self,uiSEGYDirectVolInserter,startScan),
 		uiStrings::sSEGY() );
     return ret;
@@ -98,7 +98,7 @@ uiToolButtonSetup* uiSEGYDirect2DInserter::getButtonSetup() const
 {
     uiSEGYDirect2DInserter* self = const_cast<uiSEGYDirect2DInserter*>(this);
     uiToolButtonSetup* ret = new uiToolButtonSetup(
-	"segydirect_ins", tr("Scan a SEG-Y file"),
+	"segydirect_ins", tr("Import a SEG-Y file"),
 	mCB(self,uiSEGYDirect2DInserter,startScan), uiStrings::sSEGY() );
     return ret;
 }
@@ -156,7 +156,7 @@ uiToolButtonSetup* uiSEGYDirectPS3DInserter::getButtonSetup() const
     uiSEGYDirectPS3DInserter* self =
 				   const_cast<uiSEGYDirectPS3DInserter*>(this);
     uiToolButtonSetup* ret = new uiToolButtonSetup(
-	"segydirect_ins", tr("Scan a SEG-Y file"),
+	"segydirect_ins", tr("Import a SEG-Y file"),
 	mCB(self,uiSEGYDirectPS3DInserter,startScan), uiStrings::sSEGY() );
     return ret;
 }
