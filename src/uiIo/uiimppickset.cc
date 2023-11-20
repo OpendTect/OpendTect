@@ -135,12 +135,17 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
     }
     else
     {
-	filefld_->attach( alignedBelow, objfld_ );
+	uiObject* attachobj = objfld_->attachObj();
 	if ( SI().hasProjection() )
 	{
 	    coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-	    coordsysselfld_->attach(alignedBelow, filefld_);
+	    coordsysselfld_->attach(alignedBelow, attachobj );
+	    uiString seltxt = tr("Export to %1").arg(uiStrings::sCoordSys());
+	    coordsysselfld_->setSelText( seltxt );
+	    attachobj = coordsysselfld_->attachObj();
 	}
+
+	filefld_->attach( alignedBelow, attachobj );
     }
 }
 
