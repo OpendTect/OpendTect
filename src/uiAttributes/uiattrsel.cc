@@ -143,6 +143,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
     initAndBuild( mToUiStringTodo(stp.seltxt_), stp.ignoreid_, usedasinput_ );
 }
 
+
 uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 			    const TypeSet<DataPack::FullID>& dpfids,
 			    const Setup& stp )
@@ -175,15 +176,13 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     CtxtIOObj* ctio = mMkCtxtIOObj( SeisTrc );
     if ( ctio )
     {
-	uiButtonGroup* butgrp = new uiButtonGroup( this, "Inserters selection",
-						   OD::Vertical );
 	const BufferStringSet nms;
-	uiIOObjInserter::addInsertersToDlg( butgrp, *ctio, inserters_,
-					    extselbuts_, nms );
+	uiButton* but = uiIOObjInserter::createInsertButton( this, *ctio,
+							    inserters_, nms );
 	for ( auto* inserter : inserters_ )
 	    mAttachCB( inserter->objInserterd, uiAttrSelDlg::objInserted );
 
-	butgrp->attach( ensureBelow, selgrp_ );
+	but->attach( ensureBelow, selgrp_ );
     }
 
     int seltyp = 0;
