@@ -122,7 +122,7 @@ private:
     MathProperty	defaultmathprop_;
 
     void		setForm(bool);
-    void		setUpdated()			{ changed_ = true; }
+    void		setUpdated();
 
     void		initDlg(CallBacker*);
     void		nameChgCB(CallBacker*);
@@ -248,6 +248,13 @@ uiEditPropRef::~uiEditPropRef()
 void uiEditPropRef::initDlg( CallBacker* )
 {
     mAttachCB( definitionfld_->checked, uiEditPropRef::definitionChecked );
+}
+
+
+void uiEditPropRef::setUpdated()
+{
+    pr_.source_ = Repos::User;
+    changed_ = true;
 }
 
 
@@ -423,29 +430,27 @@ void uiBuildPROPS::editReq( bool isadd )
 	return;
 
     uiEditPropRef dlg( this, *pr, isadd );
-    if ( !dlg.go() )
+    if ( dlg.go() != uiDialog::Accepted )
     {
 	if ( isadd )
 	    delete pr;
     }
-    else
-    {
-	if ( isadd )
-	{
-	    if ( props.getByName(pr->name(),false) )
-	    {
-		const BufferString propnm( pr->name() );
-		delete pr;
-		mErrRet( tr("Property with same name '%1' already "
-			    " present.").arg(propnm),  )
-	    }
 
-	    props_ += pr;
+    if ( isadd )
+    {
+	if ( props.getByName(pr->name(),false) )
+	{
+	    const BufferString propnm( pr->name() );
+	    delete pr;
+	    mErrRet( tr("Property with same name '%1' already "
+			" present.").arg(propnm),  )
 	}
 
-	usrchg_ = usrchg_ || dlg.isChanged();
-	handleSuccessfullEdit( isadd, pr->name() );
+	props_ += pr;
     }
+
+    usrchg_ = usrchg_ || dlg.isChanged();
+    handleSuccessfullEdit( isadd, pr->name() );
 }
 
 

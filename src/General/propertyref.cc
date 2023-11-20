@@ -134,12 +134,13 @@ PropertyRef::DispDefs::~DispDefs()
 
 PropertyRef::DispDefs& PropertyRef::DispDefs::operator=( const DispDefs& oth )
 {
-    if ( this != &oth )
-    {
-	Mnemonic::DispDefs::operator=( oth );
-	delete defval_;
-	defval_ = oth.defval_ ? oth.defval_->clone() : nullptr;
-    }
+    if ( &oth == this )
+	return *this;
+
+    Mnemonic::DispDefs::operator=( oth );
+    delete defval_;
+    defval_ = oth.defval_ ? oth.defval_->clone() : nullptr;
+
     return *this;
 }
 
@@ -192,12 +193,12 @@ PropertyRef::PropertyRef( const Mnemonic& mn, const char* nm )
 }
 
 
-PropertyRef::PropertyRef( const PropertyRef& pr )
-    : NamedCallBacker(pr.name())
-    , mn_(pr.mn_)
+PropertyRef::PropertyRef( const PropertyRef& oth )
+    : NamedCallBacker(oth.name())
+    , mn_(oth.mn_)
     , unitChanged(this)
 {
-    *this = pr;
+    *this = oth;
 }
 
 
@@ -207,20 +208,21 @@ PropertyRef::~PropertyRef()
 }
 
 
-PropertyRef& PropertyRef::operator =( const PropertyRef& pr )
+PropertyRef& PropertyRef::operator =( const PropertyRef& oth )
 {
-    if ( this != &pr )
-    {
-	if ( &pr.mn_ != &mn_ )
-	    { pErrMsg( "PropertyRef should not switch Mnemonic" ); }
+    if ( &oth == this )
+	return *this;
 
-	NamedCallBacker::setName( pr.name() );
-	disp_ = pr.disp_;
-	uom_ = pr.uom_;
-	propaliases_ = pr.propaliases_;
-	delete mathdef_;
-	mathdef_ = pr.mathdef_ ? pr.mathdef_->clone() : nullptr;
-    }
+    if ( &oth.mn_ != &mn_ )
+	{ pErrMsg( "PropertyRef should not switch Mnemonic" ); }
+
+    NamedCallBacker::setName( oth.name() );
+    disp_ = oth.disp_;
+    uom_ = oth.uom_;
+    propaliases_ = oth.propaliases_;
+    delete mathdef_;
+    mathdef_ = oth.mathdef_ ? oth.mathdef_->clone() : nullptr;
+    source_ = oth.source_;
 
     return *this;
 }
@@ -566,6 +568,12 @@ void PropertyRef::fillPar( IOPar& iop ) const
 }
 
 
+bool PropertyRef::isUserDefined() const
+{
+    return Repos::isUserDefined( source_ );
+}
+
+
 const Mnemonic* PropertyRef::getFromLegacy( const Mnemonic* mn,
 					    const char* propstr )
 {
@@ -656,6 +664,9 @@ void doNull( CallBacker* )
 
 void createSet()
 {
+    PropertyRefSet* oldprs = prs_;
+    prs_ = new PropertyRefSet;
+
     Repos::FileProvider rfp( filenamebase, true );
     while ( rfp.next() )
     {
@@ -665,24 +676,34 @@ void createSet()
 	    continue;
 
 	ascistream astrm( sfio.istrm(), true );
-	PropertyRefSet* oldprs = prs_;
-	prs_ = new PropertyRefSet;
-	prs_->readFrom( astrm, rfp.source() );
+	PropertyRefSet prs;
+	prs.readFrom( astrm, rfp.source() );
 	sfio.closeSuccess();
-	if ( prs_->isEmpty() )
+	if ( prs.isEmpty() )
+	    continue;
+
+	const int insertidx = prs_->size();
+	for ( int idx=prs.size()-1; idx>=0; idx-- )
 	{
-	    delete prs_;
-	    prs_ = oldprs;
-	}
-	else
-	{
-	    delete oldprs;
-	    break;
+	    const PropertyRef* pr = prs.get( idx );
+	    if ( prs_->getByName(pr->name(),false) )
+		continue;
+
+	    if ( prs_->validIdx(insertidx) )
+		prs_->insertAt( prs.removeAndTake(idx), insertidx );
+	    else
+		prs_->add( prs.removeAndTake(idx) );
 	}
     }
 
-    if ( !prs_ )
-	prs_ = new PropertyRefSet;
+    if ( prs_->isEmpty() )
+    {
+	delete prs_;
+	prs_ = oldprs;
+	return;
+    }
+    else
+	delete oldprs;
 }
 
     PropertyRefSet* prs_ = nullptr;
@@ -978,6 +999,9 @@ bool PropertyRefSet::writeTo( ascostream& astrm ) const
     astrm.putHeader( filenamebase );
     for ( const auto* pr : *this )
     {
+	if ( !pr->isUserDefined() )
+	    continue;
+
 	IOPar iop;
 	iop.set( sKey::Name(), pr->name() );
 	pr->fillPar( iop );
