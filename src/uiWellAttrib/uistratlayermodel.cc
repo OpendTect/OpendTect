@@ -15,8 +15,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "objdisposer.h"
 #include "od_helpids.h"
-#include "od_istream.h"
-#include "od_ostream.h"
+#include "od_iostream.h"
 #include "stratlayermodel.h"
 #include "stratlaymodgen.h"
 #include "stratlayseqgendesc.h"
@@ -630,6 +629,10 @@ void uiStratLayerModel::handleNewModel( Strat::LayerModel* newmodel, bool full )
 
     synthdisp_->viewer()->enableChange( canchange );
     synthdisp_->viewer()->handleChange( ctyp );
+
+    const uiRetVal infomsg = synthdatamgr_->infoMsg();
+    if ( !infomsg.isOK() )
+	uiMSG().warning( infomsg );
 }
 
 
