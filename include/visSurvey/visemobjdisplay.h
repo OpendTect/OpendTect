@@ -73,8 +73,11 @@ public:
     virtual bool		setZAxisTransform(ZAxisTransform*,
 						  TaskRunner*) override
 				{ return false; }
+    bool			isAlreadyTransformed() const;
     const ZAxisTransform*	getZAxisTransform() const override
 				{ return zaxistransform_; }
+    void			setZDomain(const ZDomain::Info&);
+    const ZDomain::Info&	zDomain() const;
 
     virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getObjectID() const;
