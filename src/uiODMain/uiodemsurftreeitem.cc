@@ -9,6 +9,8 @@ ________________________________________________________________________
 
 #include "uiodemsurftreeitem.h"
 
+#include "attribdescsetman.h"
+#include "attribdescsetsholder.h"
 #include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"
@@ -58,6 +60,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , emid_(nemid)
     , uivisemobj_(0)
     , createflatscenemnuitem_(tr("Create Flattened Scene"))
+    , istrackingallowed_(true)
     , savemnuitem_(uiStrings::sSave(),-800)
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()),-850)
     , enabletrackingmnuitem_(tr("Enable Tracking"))
@@ -65,7 +68,6 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , reloadmnuitem_(uiStrings::sReload(),-750)
     , trackmenuitem_(uiStrings::sTracking())
     , starttrackmnuitem_(m3Dots(tr("Start Tracking")))
-    , istrackingallowed_(true)
 {
     savemnuitem_.iconfnm = "save";
     saveasmnuitem_.iconfnm = "saveas";
@@ -743,16 +745,23 @@ void uiODEarthModelSurfaceDataTreeItem::selectAndLoadAuxData()
 
 void uiODEarthModelSurfaceDataTreeItem::selectAndLoadData()
 {
+    Attrib::DescSetMan* adsman = Attrib::eDSHolder().getDescSetMan( false );
+    if ( !adsman || !adsman->descSet() )
+	return;
+
     const MultiID mid = applMgr()->EMServer()->getStorageID( emid_ );
-    uiAttrSelData ad( false );
+
+    const int attrib = attribNr();
+    uiAttrSelData ad( *adsman->descSet() );
     uiString txt = tr("Select Data");
-    uiEMAttrSelDlg dlg( ODMainWin(), ad, mid, uiEMAttrSelDlg::Setup(txt) );
+    visserv_->getAttribPosName( displayID(), attrib, txt );
+    uiEMAttrSelDlg dlg( ODMainWin(), ad, mid,
+			uiEMAttrSelDlg::Setup(txt).showsteeringdata(true) );
     if ( !dlg.go() )
 	return;
 
     Attrib::SelSpec as;
     dlg.fillSelSpec( as );
-    const int attrib = attribNr();
     visserv_->setSelSpec( displayID(), attrib, as );
     applMgr()->calcRandomPosAttrib( displayID(), attrib );
     updateColumnText( uiODSceneMgr::cNameColumn() );
