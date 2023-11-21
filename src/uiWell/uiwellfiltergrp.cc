@@ -150,6 +150,7 @@ uiWellFilterGrp::~uiWellFilterGrp()
     detachAllNotifiers();
     hp.removeAndDeleteParam( this );
     selopscbhp.removeParam( this );
+    basedonentiresethp.removeParam( this );
 }
 
 
