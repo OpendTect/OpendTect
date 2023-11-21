@@ -57,8 +57,14 @@ public:
     const ElasticPropertyRef*	getByType(ElasticFormula::Type) const;
     MultiID			getStoredID() const	{ return storedid_; }
 
+    mDeprecated("Provide PropertyRefSelection")
     static ElasticPropSelection* getByDBKey(const MultiID&);
+    static ElasticPropSelection* getByDBKey(const MultiID&,
+					    const PropertyRefSelection*);
+    mDeprecated("Provide PropertyRefSelection")
     static ElasticPropSelection* getByIOObj(const IOObj*);
+    static ElasticPropSelection* getByIOObj(const IOObj*,
+					    const PropertyRefSelection*);
     bool			put(const IOObj*) const;
 
     bool			ensureHasType(ElasticFormula::Type);
