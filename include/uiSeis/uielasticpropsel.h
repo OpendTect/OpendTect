@@ -9,20 +9,20 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "multiid.h"
+
 #include "elasticpropsel.h"
-#include "uistring.h"
-#include "uigroup.h"
+#include "multiid.h"
 #include "uidialog.h"
+#include "uigroup.h"
+#include "uistring.h"
 
 class CtxtIOObj;
 class IOObj;
 class PropertyRefSelection;
 
-class uiLabeledComboBox;
 class uiComboBox;
 class uiGenInput;
-class uiSeparator;
+class uiLabeledComboBox;
 class uiTabStack;
 
 
@@ -30,27 +30,21 @@ mExpClass(uiSeis) uiElasticPropSelGrp : public uiGroup
 { mODTextTranslationClass(uiElasticPropSelGrp);
 public:
 				uiElasticPropSelGrp(uiParent*,
-				     const BufferStringSet&,
-				     ElasticPropertyRef&,
+					const PropertyRefSelection& prs,
+					ElasticPropertyRef&,
 				     const ObjectSet<const ElasticFormula>&);
 				~uiElasticPropSelGrp();
 
-    void			setPropRef( const ElasticPropertyRef& pr )
-				{ elpropref_ = pr; }
-
-    void			getFromScreen();
-    void			putToScreen();
-
-    const char*			quantityName() const;
     bool			isDefinedQuantity() const;
 
-    void			updateRefPropNames();
+    void			putToScreen();
+    bool			getFromScreen();
 
-protected:
+private:
 
     uiGenInput*                 formfld_;
     uiLabeledComboBox*		selmathfld_;
-    const BufferStringSet&	propnms_;
+    const PropertyRefSelection& prs_;
 
     ElasticPropertyRef&		elpropref_;
     const ObjectSet<const ElasticFormula> availableformulas_;
@@ -58,37 +52,36 @@ protected:
     mExpClass(uiSeis) uiSelInpGrp : public uiGroup
     { mODTextTranslationClass(uiSelInpGrp);
     public:
-				uiSelInpGrp(uiParent*,const BufferStringSet&,
+				uiSelInpGrp(uiParent*,
+					    const PropertyRefSelection& prs,
 					    int);
 				~uiSelInpGrp();
 
+	void			use(const Math::Formula&);
+	void			set(Math::Formula&) const;
+
+    private:
+
+	void			initGrp(CallBacker*);
+	void			selVarCB(CallBacker*);
 	const char*		textOfVariable() const;
 	void			setConstant(double val);
 	void			setVariable(const char*);
 
-	bool			isActive()	{ return isactive_; }
-	void			use(const Math::Formula&);
-
-	void			fillList();
-    protected:
 	int			idx_;
-	bool			isactive_;
+	bool			isactive_ = false;
 	bool			isconstant_;
-	const BufferStringSet&	propnms_;
+	const PropertyRefSelection& prs_;
 
 	uiComboBox*		inpfld_;
 	uiGenInput*		varnmfld_;
 	uiGenInput*		ctefld_;
-
-	void			initGrp(CallBacker*);
-	void			selVarCB(CallBacker*);
     };
+
     ObjectSet<uiSelInpGrp>	inpgrps_;
     uiLabeledComboBox*		singleinpfld_;
 
-    uiGenInput*			storenamefld_;
-    uiSeparator*		storenamesep_;
-
+    void			initGrpCB(CallBacker*);
     void			selFormulaChgCB(CallBacker*);
     void			selComputeFldChgCB(CallBacker*);
 };
@@ -106,9 +99,6 @@ public:
 
 protected:
 
-    BufferStringSet		orgpropnms_;
-    BufferStringSet		propnms_;
-
     ObjectSet<uiElasticPropSelGrp> propflds_;
     uiTabStack*			ts_			= nullptr;
     CtxtIOObj&			ctio_;
@@ -117,7 +107,7 @@ protected:
     ElasticPropSelection&	elpropsel_;
     ElasticPropSelection	orgelpropsel_;
 
-    bool			doRead(const MultiID&);
+    bool			doRead(const IOObj&);
     bool			doStore(const IOObj&);
 
     void			updateFields();
@@ -129,5 +119,5 @@ protected:
     bool			rejectOK(CallBacker*) override;
     void			elasticPropSelectionChanged(CallBacker*);
     bool			screenSelectionChanged();
-    void			screenSelectionChanged(CallBacker*);
+    void			screenSelectionChangedCB(CallBacker*);
 };

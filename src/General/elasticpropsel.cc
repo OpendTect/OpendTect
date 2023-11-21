@@ -232,7 +232,9 @@ void ElasticFormula::usePar( const IOPar& par )
     par.get( sKeyInpMns, mnemonics );
     for ( int iinp=0; iinp<nrInputs(); iinp++ )
     {
-	setInputDef( iinp, variables.get(iinp) );
+	if ( variables.validIdx(iinp) )
+	    setInputDef( iinp, variables.get(iinp) );
+
 	if ( isConst(iinp) || isSpec(iinp) )
 	    continue;
 
@@ -1112,14 +1114,16 @@ float ElasticPropGen::getValue( const CalcData& cd, const float* vals, int sz )
 
 
 
-ElasticPropSelection* ElasticPropSelection::getByDBKey( const MultiID& mid )
+ElasticPropSelection* ElasticPropSelection::getByDBKey( const MultiID& mid,
+					    const PropertyRefSelection* prs )
 {
     const IOObj* obj = mid.isUdf() ? nullptr : IOM().get( mid );
-    return obj ? getByIOObj( obj ) : nullptr;
+    return obj ? getByIOObj( obj, prs ) : nullptr;
 }
 
 
-ElasticPropSelection* ElasticPropSelection::getByIOObj( const IOObj* ioobj )
+ElasticPropSelection* ElasticPropSelection::getByIOObj( const IOObj* ioobj,
+					    const PropertyRefSelection* prs )
 {
     if ( !ioobj )
 	return nullptr;
@@ -1144,11 +1148,15 @@ ElasticPropSelection* ElasticPropSelection::getByIOObj( const IOObj* ioobj )
 	    return nullptr;
 
 	eps = new ElasticPropSelection;
+	eps->setEmpty();
 	while ( !atEndOfSection(astream.next()) )
 	{
 	    IOPar iop; iop.getFrom( astream );
-	    ElasticFormula::Type tp;
-	    ElasticFormula::parseEnumType( iop.find(sKeyType), tp );
+	    ElasticFormula::Type tp = ElasticFormula::Undef;
+	    if ( ElasticFormula::parseEnumType(iop.find(sKeyType),tp) &&
+		 tp != ElasticFormula::Undef )
+		eps->ensureHasType( tp );
+
 	    ElasticPropertyRef* epr = eps->getByType( tp );
 	    if ( !epr )
 		continue;
@@ -1159,14 +1167,16 @@ ElasticPropSelection* ElasticPropSelection::getByIOObj( const IOObj* ioobj )
 		epr->setName( nm );
 	}
 
-	if ( !eps->isOK(nullptr) )
+	if ( !eps->isOK(prs) )
 	{
 	    deleteAndNullPtr( eps );
 	    ErrMsg( "Problem reading Elastic property selection from file" );
+	    return nullptr;
 	}
     }
     else
 	ErrMsg( "Cannot open elastic property selection file" );
+
 
     eps->storedid_ = ioobj->key();
 
@@ -1241,12 +1251,14 @@ void ElasticPropSelection::fillPar( IOPar& par ) const
 
 bool ElasticPropSelection::usePar( const IOPar& par )
 {
+    const PropertyRefSelection* prs = nullptr;
     MultiID storedid;
     if ( par.get(sKeyElasticPropSel(),storedid) && !storedid.isUdf() &&
 	 IOM().isUsable(storedid) && IOM().implExists(storedid) )
     {
-	PtrMan<ElasticPropSelection> storedelpropsel = getByDBKey( storedid );
-	if ( storedelpropsel && storedelpropsel->isOK(nullptr) )
+	PtrMan<ElasticPropSelection> storedelpropsel =
+						getByDBKey( storedid, prs );
+	if ( storedelpropsel && storedelpropsel->isOK(prs) )
 	{
 	    *this = *storedelpropsel.ptr();
 	    storedid_ = storedid;
@@ -1287,7 +1299,7 @@ bool ElasticPropSelection::usePar( const IOPar& par )
 	PtrMan<ElasticPropertyRef> epref =
 				   new ElasticPropertyRef( *mn, elasticnm );
 	epref->usePar( *elasticproprefpar );
-	if ( !epref->isOK(nullptr) )
+	if ( !epref->isOK(prs) )
 	{
 	    errocc = true;
 	    continue;
