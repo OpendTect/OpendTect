@@ -11,33 +11,68 @@ ________________________________________________________________________
 
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uimsg.h"
 #include "uiioobjseldlg.h"
-#include "uiseparator.h"
+#include "uimsg.h"
 #include "uistrings.h"
 #include "uitabstack.h"
 #include "uitoolbutton.h"
 
 #include "elasticpropseltransl.h"
 #include "ioman.h"
-#include "propertyref.h"
-#include "strmprov.h"
 #include "od_helpids.h"
+#include "propertyref.h"
+
+#include "hiddenparam.h"
+
+static HiddenParam<uiElasticPropSelGrp,const PropertyRefSelection*>
+					    uielpropselgrphpmgr_(nullptr);
+
+namespace Seis
+{
+
+static const BufferStringSet& elPropNms()
+{
+    static BufferStringSet propnms;
+    return propnms;
+}
+
+static PropertyRefSelection getPRS( const BufferStringSet& propnms )
+{
+    const PropertyRefSet& props = PROPS();
+    PropertyRefSelection prs( false );
+    for ( const auto* propnm : propnms )
+    {
+	const PropertyRef* pr = props.getByName( propnm->buf(), false );
+	if ( pr )
+	    prs.add( pr );
+    }
+
+    return prs;
+}
+
+} // namespace Seis
+
+
+// uiElasticPropSelGrp::uiSelInpGrp
 
 uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
-				const BufferStringSet& ppnms, int idx )
+				const PropertyRefSelection& prs, int idx )
     : uiGroup( p, "Inp data group" )
     , idx_(idx)
-    , propnms_(ppnms)
     , isactive_(false)
+    , propnms_(Seis::elPropNms())
 {
     varnmfld_ = new uiGenInput( this, tr("For") );
     varnmfld_->setElemSzPol( uiObject::Small );
 
     auto* lbl = new uiLabeledComboBox( this, uiStrings::sUse() );
+    inpfld_ = lbl->box();
+    for ( const auto* pr : prs )
+	if ( !pr->isThickness() )
+	    inpfld_->addItem( pr->name() );
+    inpfld_->addItem( tr("Constant") );
     lbl->attach( rightOf, varnmfld_ );
 
-    inpfld_ = lbl->box();
     mAttachCB( inpfld_->selectionChanged,
 	       uiElasticPropSelGrp::uiSelInpGrp::selVarCB );
 
@@ -50,26 +85,34 @@ uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
 }
 
 
+uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
+				const BufferStringSet& ppnms, int idx )
+    : uiElasticPropSelGrp::uiSelInpGrp(p,Seis::getPRS(ppnms),idx)
+{
+}
+
+
 uiElasticPropSelGrp::uiSelInpGrp::~uiSelInpGrp()
 {
     detachAllNotifiers();
 }
 
 
+const PropertyRefSelection& uiElasticPropSelGrp::uiSelInpGrp::prs_() const
+{
+    mDynamicCastGet(const uiElasticPropSelGrp*,propfld,parent())
+    return *uielpropselgrphpmgr_.getParam( propfld );
+}
+
+
 void uiElasticPropSelGrp::uiSelInpGrp::initGrp( CallBacker* )
 {
-    display( false );
     selVarCB( nullptr );
 }
 
 
 void uiElasticPropSelGrp::uiSelInpGrp::fillList()
 {
-    const BufferString seltxt = inpfld_->text();
-    inpfld_->setEmpty();
-    inpfld_->addItems( propnms_ );
-    inpfld_->addItem( tr("Constant") );
-    inpfld_->setCurrentItem( seltxt.buf() );
 }
 
 
@@ -91,7 +134,6 @@ const char* uiElasticPropSelGrp::uiSelInpGrp::textOfVariable() const
 
 void uiElasticPropSelGrp::uiSelInpGrp::setConstant( double val )
 {
-    isactive_ = true;
     isconstant_ = true;
     inpfld_->setCurrentItem( inpfld_->size()-1 );
     ctefld_->setValue( val );
@@ -101,14 +143,9 @@ void uiElasticPropSelGrp::uiSelInpGrp::setConstant( double val )
 
 void uiElasticPropSelGrp::uiSelInpGrp::setVariable( const char* txt )
 {
-    isactive_ = txt;
     isconstant_ = false;
     ctefld_->display( isconstant_ );
-    const int nearidx = propnms_.nearestMatch( txt );
-    if ( nearidx >= 0 )
-	inpfld_->setCurrentItem( nearidx );
-    else
-	inpfld_->setCurrentItem( txt );
+    inpfld_->setCurrentItem( txt );
 }
 
 
@@ -117,31 +154,62 @@ void uiElasticPropSelGrp::uiSelInpGrp::use( const Math::Formula& form )
     const int nrvars = form.isOK() ? form.nrInputs() : 0;
     isactive_ =  idx_ < nrvars;
     display( isactive_ );
-
     if ( !isactive_ )
 	return;
 
     const BufferString varnm = form.variableName( idx_ );
     varnmfld_->setText( varnm );
-    const int nearidx = propnms_.nearestMatch( varnm );
-    if ( nearidx >= 0 )
-	inpfld_->setCurrentItem( nearidx );
+    if ( form.isConst(idx_) )
+	setConstant( form.getConstVal(idx_) );
+    else if ( !form.isSpec(idx_) )
+    {
+	const PropertyRef* pr = prs_().getByName( form.inputDef(idx_), false );
+	if ( !pr && form.inputMnemonic(idx_) )
+	    pr = prs_().getByMnemonic( *form.inputMnemonic(idx_) );
+	if ( pr )
+	    setVariable( pr->name().str() );
+    }
 }
 
 
+void uiElasticPropSelGrp::uiSelInpGrp::set( Math::Formula& form ) const
+{
+    if ( !isDisplayed() )
+	return;
+
+    const BufferString inptxt( textOfVariable() );
+    if ( !inptxt.isEmpty() && inptxt != form.inputDef(idx_) )
+	form.setInputDef( idx_, inptxt );
+    //TODO: Add missing UoM field
+}
+
+
+// uiElasticPropSelGrp
 
 uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
-					const BufferStringSet& prs,
+					const PropertyRefSelection& prs,
 					ElasticPropertyRef& elprop,
 				    const ObjectSet<const ElasticFormula>& el )
     : uiGroup( p, "Elastic Prop Sel Grp" )
-    , propnms_(prs)
     , elpropref_(elprop)
     , availableformulas_(el)
+    , propnms_(Seis::elPropNms())
+    , storenamefld_(nullptr)
+    , storenamesep_(nullptr)
 {
+    uielpropselgrphpmgr_.setParam( this, &prs );
     BufferStringSet predeftitles;
+    int maxnrinputs = 0;
     for ( const auto* availableformula : availableformulas_ )
+    {
 	predeftitles.add( availableformula->name() );
+	const int nrinputs = availableformula->nrInputs();
+	if ( nrinputs > maxnrinputs )
+	    maxnrinputs = nrinputs;
+    }
+
+    if ( maxnrinputs < 8 ) // Allow enough variables for free formulas
+	maxnrinputs = 8;
 
     selmathfld_ = new uiLabeledComboBox( this, tr("Compute from") );
     selmathfld_->box()->addItem( tr("Defined quantity") );
@@ -150,62 +218,70 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
     mAttachCB( selmathfld_->box()->selectionChanged,
 	       uiElasticPropSelGrp::selComputeFldChgCB );
 
-    formfld_ = new uiGenInput( this, tr("Formula ") );
+    formfld_ = new uiGenInput( this, tr("Formula") );
     formfld_->attach( alignedBelow, selmathfld_ );
     mAttachCB( formfld_->valueChanged, uiElasticPropSelGrp::selFormulaChgCB );
 
     singleinpfld_ = new uiLabeledComboBox( this, uiStrings::sUse() );
     singleinpfld_->attach( alignedBelow, selmathfld_ );
-    const PropertyRefSet& props = PROPS();
     BufferStringSet propnms;
-    for ( const auto* propnm : propnms_ )
+    for ( const auto* pr : prs )
     {
-	const PropertyRef* pr = props.getByName( propnm->buf(), false );
-	if ( !pr )
-	    continue;
-
 	if ( elprop.isCompatibleWith(pr->mn()) )
-	    propnms.addIfNew( propnm->buf() );
+	    propnms.addIfNew( pr->name() );
     }
 
     singleinpfld_->box()->addItems( propnms );
 
-    for ( int idx=0; idx<propnms_.size(); idx++ )
+    uiObject* lastobj = (uiObject*) formfld_;
+    for ( int idx=0; idx<maxnrinputs; idx++ )
     {
-	inpgrps_.add( new uiElasticPropSelGrp::uiSelInpGrp(this,propnms_,idx) );
-	if ( idx )
-	    inpgrps_[idx]->attach( alignedBelow, inpgrps_[idx-1] );
-	else
-	    inpgrps_[idx]->attach( alignedBelow, formfld_ );
+	auto* inpgrp = new uiElasticPropSelGrp::uiSelInpGrp( this, prs, idx );
+	inpgrp->attach( alignedBelow, lastobj );
+	inpgrps_.add( inpgrp );
+	lastobj = (uiObject*) inpgrp;
     }
 
-    storenamesep_ = new uiSeparator( this, "sep" );
-    storenamesep_->attach( stretchedBelow, inpgrps_[inpgrps_.size()-1]  );
+    mAttachCB( postFinalize(), uiElasticPropSelGrp::initGrpCB );
+}
 
-    storenamefld_ = new uiGenInput( this, tr("Quantity name") );
-    storenamefld_->attach( alignedBelow, inpgrps_[inpgrps_.size()-1] );
-    storenamefld_->attach( ensureBelow, storenamesep_ );
 
-    updateRefPropNames();
+uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
+					const BufferStringSet& prs,
+					ElasticPropertyRef& elprop,
+				    const ObjectSet<const ElasticFormula>& el )
+  : uiElasticPropSelGrp(p,Seis::getPRS(prs),elprop,el)
+{
 }
 
 
 uiElasticPropSelGrp::~uiElasticPropSelGrp()
 {
     detachAllNotifiers();
+    uielpropselgrphpmgr_.removeParam( this );
+}
+
+
+const PropertyRefSelection& uiElasticPropSelGrp::prs_() const
+{
+    return *uielpropselgrphpmgr_.getParam( this );
+}
+
+
+void uiElasticPropSelGrp::initGrpCB( CallBacker* )
+{
+    putToScreen();
 }
 
 
 void uiElasticPropSelGrp::updateRefPropNames()
 {
-    for ( int idx=0; idx<inpgrps_.size(); idx++ )
-	inpgrps_[idx]->fillList();
 }
 
 
 void uiElasticPropSelGrp::selComputeFldChgCB( CallBacker* )
 {
-    if ( selmathfld_->box()->currentItem() == selmathfld_->box()->size() -1 )
+    if ( selmathfld_->box()->currentItem() == selmathfld_->box()->size()-1 )
 	formfld_->setText( 0 );
 
     selFormulaChgCB( nullptr );
@@ -244,24 +320,27 @@ bool uiElasticPropSelGrp::isDefinedQuantity() const
 
 const char* uiElasticPropSelGrp::quantityName() const
 {
-    return isDefinedQuantity() ? nullptr : storenamefld_->text();
+    return nullptr;
 }
 
 
 void uiElasticPropSelGrp::getFromScreen()
 {
-    const BufferString prname( storenamefld_->text() );
-    if ( prname != elpropref_.name() )
-	elpropref_.setName( prname );
+    getFromScreen_();
+}
 
+
+bool uiElasticPropSelGrp::getFromScreen_()
+{
     if ( isDefinedQuantity() )
     {
-	const PropertyRef* pr = PROPS().getByName( singleinpfld_->box()->text(),
-						   false );
-	if ( !pr || elpropref_.ref() == pr )
-	    return;
+	const PropertyRef* pr = prs_().getByName( singleinpfld_->box()->text(),
+						  false );
+	if ( !pr )
+	    return false;
 
-	elpropref_.setRef( pr );
+	if ( pr != elpropref_.ref() )
+	    elpropref_.setRef( pr );
     }
     else
     {
@@ -281,20 +360,14 @@ void uiElasticPropSelGrp::getFromScreen()
 		eform.setText( formfld_->text() );
 	}
 
-	for ( int iinp=0; iinp<inpgrps_.size(); iinp++ )
-	{
-	    if ( !inpgrps_[iinp]->isDisplayed() )
-		continue;
-
-	    const BufferString inptxt( inpgrps_[iinp]->textOfVariable() );
-	    if ( !inptxt.isEmpty() && inptxt != eform.inputDef(iinp) )
-		eform.setInputDef( iinp, inptxt );
-		//TODO: Add missing UoM field
-	}
+	for ( const auto* inpgrp : inpgrps_ )
+	    inpgrp->set( eform );
 
 	if ( !inpform || (inpform && eform != *inpform) )
 	    elpropref_.setFormula( eform );
     }
+
+    return true;
 }
 
 
@@ -303,7 +376,7 @@ void uiElasticPropSelGrp::putToScreen()
     const ElasticFormula* eform = elpropref_.formula();
     BufferString expr;
     if ( eform )
-	expr = eform->text();
+	expr.set( eform->text() );
 
     uiComboBox* mathbox = selmathfld_->box();
     const bool hasexpr = !expr.isEmpty() ||
@@ -320,28 +393,20 @@ void uiElasticPropSelGrp::putToScreen()
     else
 	mathbox->setCurrentItem( 0 );
 
-    storenamefld_->setText( elpropref_.name() );
     if ( elpropref_.ref() )
+    {
 	singleinpfld_->box()->setCurrentItem( elpropref_.ref()->name().buf() );
+	for ( auto* inpgrp : inpgrps_ )
+	    inpgrp->display( false );
+    }
     else if ( eform )
     {
 	formfld_->setText( expr );
-	for ( int idx=0; idx<inpgrps_.size(); idx++ )
-	{
-	    inpgrps_[idx]->use( *eform );
-	    if ( !inpgrps_[idx]->isActive() )
-		continue;
-
-	    if ( eform->isConst(idx) )
-		inpgrps_[idx]->setConstant( eform->getConstVal(idx) );
-	    else if ( !eform->isSpec(idx) )
-		inpgrps_[idx]->setVariable( eform->inputDef(idx) );
-	}
+	for ( auto* inpgrp : inpgrps_ )
+	    inpgrp->use( *eform );
     }
 
     singleinpfld_->display( !hasexpr );
-    storenamefld_->display( hasexpr );
-    storenamesep_->display( hasexpr );
     formfld_->display( hasexpr );
 }
 
@@ -350,6 +415,7 @@ void uiElasticPropSelGrp::putToScreen()
 static const char** props = ElasticFormula::TypeNames();
 
 #define mErrRet(s,act) { uiMSG().error(s); act; }
+
 uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 					const PropertyRefSelection& prs,
 					ElasticPropSelection& elsel )
@@ -363,16 +429,8 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
     , orgelpropsel_(elsel)
     , ts_(nullptr)
 {
-    for ( const auto* pr : prs_ )
-    {
-	if ( !pr->isThickness() )
-	    orgpropnms_.addIfNew( pr->name() );
-    }
-
-    if ( orgpropnms_.isEmpty() )
+    if ( prs_.size() < 2 )
 	mErrRet( tr("No property found"), return );
-
-    propnms_ = orgpropnms_;
 
     ts_ = new uiTabStack( this, "Property selection tab stack" );
     ObjectSet<uiGroup> tgs;
@@ -392,7 +450,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 	for ( const auto* fm : formulas )
 	    elasformulas.add( sCast(const ElasticFormula*,fm) );
 
-	propflds_ += new uiElasticPropSelGrp( tgs[idx], propnms_, *epr,
+	propflds_ += new uiElasticPropSelGrp( tgs[idx], prs_, *epr,
 					      elasformulas );
 	ts_->addTab( tgs[idx], toUiString(props[idx]) );
     }
@@ -408,15 +466,19 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 				tr("Save property selection"),
 				mCB(this,uiElasticPropSelDlg,savePropSelCB) );
     stb->attach( rightOf, opentb );
-
-    elasticPropSelectionChanged( nullptr );
 }
 
 
 uiElasticPropSelDlg::~uiElasticPropSelDlg()
 {
     detachAllNotifiers();
-    delete ctio_.ioobj_; delete &ctio_;
+    delete ctio_.ioobj_;
+    delete &ctio_;
+}
+
+
+void uiElasticPropSelDlg::initDlg( CallBacker* )
+{
 }
 
 
@@ -428,35 +490,9 @@ void uiElasticPropSelDlg::screenSelectionChanged( CallBacker* )
 
 bool uiElasticPropSelDlg::screenSelectionChanged()
 {
-    if ( !ts_ ) // when no properties found
-	return false;
-
-    NotifyStopper ns( ts_->selChange() );
-    propnms_ = orgpropnms_;
-    for ( int idx=0; idx<propflds_.size(); idx++ )
-    {
-	propflds_[idx]->getFromScreen();
-
-	if ( !propflds_[idx]->quantityName() )
-	    continue;
-
-	BufferString quantitynm( propflds_[idx]->quantityName() );
-	if ( quantitynm.isEmpty() )
-	    mErrRet( tr("Please select a name for the new quantity"),
-			ts_->setCurrentPage(idx); return false; )
-	else if( propnms_.isPresent( quantitynm.buf() ) )
-	{
-	    uiString msg = tr("%1 already exists, please select "
-			      "another name for this property")
-			 .arg(quantitynm.buf());
-	    mErrRet( msg, ts_->setCurrentPage(idx); return false; )
-	}
-
-	propnms_.addIfNew( quantitynm );
-    }
-
-    for ( int idx=0; idx<propflds_.size(); idx++ )
-	propflds_[idx]->updateRefPropNames();
+    for ( auto* propfld : propflds_ )
+	if ( !propfld->getFromScreen_() )
+	    return false;
 
     return true;
 }
@@ -464,8 +500,8 @@ bool uiElasticPropSelDlg::screenSelectionChanged()
 
 void uiElasticPropSelDlg::elasticPropSelectionChanged( CallBacker* )
 {
-    for ( int idx=0; idx<propflds_.size(); idx++ )
-	propflds_[idx]->putToScreen();
+    for ( auto* propfld : propflds_ )
+	propfld->putToScreen();
 }
 
 
@@ -481,12 +517,12 @@ bool uiElasticPropSelDlg::acceptOK( CallBacker* )
     if ( !screenSelectionChanged() )
 	return false;
 
-    if( ctio_.ioobj_ )
-	doStore( *ctio_.ioobj_ );
-
     uiString msg;
     if ( !elpropsel_.isOK(&prs_) || !elpropsel_.isValidInput(&msg) )
-	mErrRet( msg, return false; );
+	mErrRet( msg, return false );
+
+    if ( ctio_.ioobj_ )
+	doStore( *ctio_.ioobj_ );
 
     return true;
 }
@@ -496,7 +532,7 @@ bool uiElasticPropSelDlg::savePropSel()
 {
     ctio_.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio_ );
-    if ( !dlg.go() || !dlg.ioObj() )
+    if ( dlg.go() != uiDialog::Accepted || !dlg.ioObj() )
 	return false;
 
     ctio_.setObj( dlg.ioObj()->clone() );
@@ -506,18 +542,13 @@ bool uiElasticPropSelDlg::savePropSel()
 
 bool uiElasticPropSelDlg::doStore( const IOObj& ioobj )
 {
-    const BufferString fnm( ioobj.fullUserExpr(false) );
-    StreamData sd = StreamProvider::createOStream( fnm );
-    bool rv = false;
-    if ( !sd.usable() )
-	uiMSG().error( uiStrings::sCantOpenOutpFile() );
-    else if ( !elpropsel_.put(&ioobj) )
-	uiMSG().error( tr("Cann not write file") );
-    else
-	rv = true;
+    if ( !screenSelectionChanged() )
+	return false;
 
-    sd.close();
-    return rv;
+    if ( !elpropsel_.put(&ioobj) )
+	mErrRet( ioobj.phrCannotWriteObj(), return false )
+
+    return true;
 }
 
 
@@ -525,36 +556,28 @@ bool uiElasticPropSelDlg::openPropSel()
 {
     ctio_.ctxt_.forread_ = true;
     uiIOObjSelDlg dlg( this, ctio_ );
-    if ( !dlg.go() || !dlg.ioObj() )
+    if ( dlg.go() != uiDialog::Accepted || !dlg.ioObj() )
 	return false;
 
     ctio_.setObj( dlg.ioObj()->clone() );
-    const BufferString fnm( ctio_.ioobj_->fullUserExpr(true) );
-    StreamData sd = StreamProvider::createIStream( fnm );
-    if ( !sd.usable() )
-	mErrRet( uiStrings::sCantOpenInpFile(), return false; )
-    sd.close();
-
-    if ( !doRead( ctio_.ioobj_->key() ) )
-	mErrRet( tr("Unable to read elastic property selection"),
-		 return false; );
-    return true;
+    return doRead( *ctio_.ioobj_ );
 }
 
 
 bool uiElasticPropSelDlg::doRead( const MultiID& mid )
 {
-    PtrMan<ElasticPropSelection> elp = elpropsel_.getByDBKey( mid );
-    ctio_.setObj( IOM().get( mid ) );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    return ioobj ? doRead( *ioobj ) : false;
+}
 
+
+bool uiElasticPropSelDlg::doRead( const IOObj& ioobj )
+{
+    PtrMan<ElasticPropSelection> elp = elpropsel_.getByIOObj( &ioobj, &prs_ );
     if ( !elp )
-	return false;
+	mErrRet( ioobj.phrCannotReadObj(), return false )
 
     elpropsel_ = *elp;
-    propnms_ = orgpropnms_;
-    for ( const auto* elprop : elpropsel_ )
-	propnms_.addIfNew( elprop->name() );
-
     elasticPropSelectionChanged( nullptr );
 
     return true;

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
+
 #include "multiid.h"
 #include "elasticpropsel.h"
 #include "uistring.h"
@@ -30,27 +31,37 @@ mExpClass(uiSeis) uiElasticPropSelGrp : public uiGroup
 { mODTextTranslationClass(uiElasticPropSelGrp);
 public:
 				uiElasticPropSelGrp(uiParent*,
+					const PropertyRefSelection& prs,
+					ElasticPropertyRef&,
+				     const ObjectSet<const ElasticFormula>&);
+				mDeprecated("Use PropertyRefSelection")
+				uiElasticPropSelGrp(uiParent*,
 				     const BufferStringSet&,
 				     ElasticPropertyRef&,
 				     const ObjectSet<const ElasticFormula>&);
 				~uiElasticPropSelGrp();
 
+    mDeprecatedDef
     void			setPropRef( const ElasticPropertyRef& pr )
 				{ elpropref_ = pr; }
 
     void			getFromScreen();
+    bool			getFromScreen_();
     void			putToScreen();
 
+    mDeprecatedDef
     const char*			quantityName() const;
     bool			isDefinedQuantity() const;
 
+    mDeprecatedDef
     void			updateRefPropNames();
 
 protected:
 
     uiGenInput*                 formfld_;
     uiLabeledComboBox*		selmathfld_;
-    const BufferStringSet&	propnms_;
+    const BufferStringSet&	propnms_; //deprecated
+    const PropertyRefSelection& prs_() const;
 
     ElasticPropertyRef&		elpropref_;
     const ObjectSet<const ElasticFormula> availableformulas_;
@@ -58,6 +69,10 @@ protected:
     mExpClass(uiSeis) uiSelInpGrp : public uiGroup
     { mODTextTranslationClass(uiSelInpGrp);
     public:
+				uiSelInpGrp(uiParent*,
+					    const PropertyRefSelection& prs,
+					    int);
+				mDeprecated("Use PropertyRefSelection")
 				uiSelInpGrp(uiParent*,const BufferStringSet&,
 					    int);
 				~uiSelInpGrp();
@@ -66,15 +81,18 @@ protected:
 	void			setConstant(double val);
 	void			setVariable(const char*);
 
+	mDeprecatedDef
 	bool			isActive()	{ return isactive_; }
 	void			use(const Math::Formula&);
+	void			set(Math::Formula&) const;
 
 	void			fillList();
     protected:
 	int			idx_;
 	bool			isactive_;
 	bool			isconstant_;
-	const BufferStringSet&	propnms_;
+	const BufferStringSet&	propnms_; //deprecated
+	const PropertyRefSelection& prs_() const;
 
 	uiComboBox*		inpfld_;
 	uiGenInput*		varnmfld_;
@@ -86,9 +104,10 @@ protected:
     ObjectSet<uiSelInpGrp>	inpgrps_;
     uiLabeledComboBox*		singleinpfld_;
 
-    uiGenInput*			storenamefld_;
-    uiSeparator*		storenamesep_;
+    uiGenInput*			storenamefld_; //deprecated
+    uiSeparator*		storenamesep_; //deprecated
 
+    void			initGrpCB(CallBacker*);
     void			selFormulaChgCB(CallBacker*);
     void			selComputeFldChgCB(CallBacker*);
 };
@@ -106,8 +125,8 @@ public:
 
 protected:
 
-    BufferStringSet		orgpropnms_;
-    BufferStringSet		propnms_;
+    BufferStringSet		orgpropnms_; //deprecated
+    BufferStringSet		propnms_; //deprecated
 
     ObjectSet<uiElasticPropSelGrp> propflds_;
     uiTabStack*			ts_;
@@ -117,14 +136,18 @@ protected:
     ElasticPropSelection&	elpropsel_;
     ElasticPropSelection	orgelpropsel_;
 
+    mDeprecatedDef
     bool			doRead(const MultiID&);
+    bool			doRead(const IOObj&);
     bool			doStore(const IOObj&);
 
+    mDeprecatedDef
+    void			initDlg(CallBacker*);
     void			updateFields();
     bool			openPropSel();
-    void                        openPropSelCB(CallBacker*) { openPropSel(); }
+    void			openPropSelCB(CallBacker*) { openPropSel(); }
     bool			savePropSel();
-    void                        savePropSelCB(CallBacker*) { savePropSel(); }
+    void			savePropSelCB(CallBacker*) { savePropSel(); }
     bool			acceptOK(CallBacker*) override;
     bool			rejectOK(CallBacker*) override;
     void			elasticPropSelectionChanged(CallBacker*);
