@@ -37,7 +37,7 @@ namespace Geometry
 \
     const unsigned int hiddenmask = HiddenLowestBit<<(sceneidx+1);
 
-    
+
 FaultStickSet::FaultStickSet()
     : firstrow_(0)
 {}
@@ -130,7 +130,7 @@ bool FaultStickSet::removeStick( int sticknr )
     triggerNrPosCh( RowCol(stickidx,StickRemove).toInt64() );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
-    
+
     return true;
 }
 
@@ -180,7 +180,7 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
 	firstcols_[stickidx]++;
 
     triggerNrPosCh( RowCol(stickidx,StickChange).toInt64() );
-    
+
     return true;
 }
 
@@ -241,7 +241,7 @@ Coord3 FaultStickSet::getKnot( const RowCol& rc ) const
 {
     mGetValidStickIdx( stickidx, rc.row(), 0, Coord3::udf() );
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, Coord3::udf() );
-    
+
     return (*sticks_[stickidx])[knotidx];
 }
 
@@ -424,7 +424,8 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 	for ( int idx=0; reverse && idx<tailidx*0.5; idx++ )
 	    sticknrs.swap( idx, tailidx-idx );
 
-	sticknrs.swap( tailidx+1, minidx0 );
+	if ( tailidx < sticknrs.size()-1 )
+	    sticknrs.swap( tailidx+1, minidx0 );
     }
 }
 
