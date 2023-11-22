@@ -198,8 +198,14 @@ uiODLegalInfo(uiParent* p)
 	       "open source projects that are licensed under different "
 	       "licenses.") );
 
+    uiStringSet usernames = legalInformation().getUserNames();
+    ArrPtrMan<int> sortidxs = usernames.getSortIndexes( true, true );
+    usernames.useIndexes( sortidxs );
+    factorynames_ = legalInformation().getNames();
+    factorynames_.useIndexes( sortidxs );
+
     textsel_ = new uiGenInput( this, tr("Project"),
-		StringListInpSpec(legalInformation().getUserNames()) );
+			       StringListInpSpec(usernames) );
     textsel_->valueChanged.notify( mCB(this,uiODLegalInfo,selChgCB) );
     textsel_->attach( alignedBelow, label );
 
@@ -214,14 +220,15 @@ private:
 void selChgCB( CallBacker* )
 {
     const int sel = textsel_->getIntValue();
-    const BufferString key = legalInformation().getNames()[sel]->buf();
-
+    const BufferString& key = factorynames_.get( sel );
     PtrMan<uiString> newtext = legalInformation().create( key );
     if ( newtext )
 	textfld_->setText( *newtext );
     else
 	textfld_->setText( "" );
 }
+
+    BufferStringSet	factorynames_;
 
     uiGenInput*		textsel_;
     uiTextEdit*		textfld_;
