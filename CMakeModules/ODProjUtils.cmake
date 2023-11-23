@@ -116,14 +116,17 @@ macro(OD_SETUP_PROJ)
 	endif()
     endif()
 
+    get_filename_component( PROJ_DB_FILEPATH "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db" ABSOLUTE )
+    add_definitions( -D__PROJ_DB_FILEPATH__=\"${PROJ_DB_FILEPATH}\" )
+
     if ( OD_LINKPROJ OR OD_USEPROJ )
 	if ( APPLE )
-	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
+	    install( FILES "${PROJ_DB_FILEPATH}"
 		     DESTINATION Contents/Resources/data/CRS )
 	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
 		     DESTINATION Contents/Resources/data/CRS )
 	else()
-	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
+	    install( FILES "${PROJ_DB_FILEPATH}"
 		     DESTINATION data/CRS )
 	    install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
 		     DESTINATION data/CRS )
