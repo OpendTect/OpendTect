@@ -82,5 +82,6 @@ mDefModInitFn(General)
     SharedLibAccess::getLibName( "CRS", libnm.getCStr(), libnm.bufSize() );
     const FilePath libfp( GetLibPlfDir(), libnm );
     if ( libfp.exists() )
-	PIM().load( libfp.fullPath() );
+	PIM().load( libfp.fullPath(), PluginManager::Data::AppDir,
+		    PI_AUTO_INIT_EARLY );
 }
