@@ -42,17 +42,20 @@ static mUnusedVar uiString* sqliteLegalText()
 namespace Coords
 { extern "C" { mGlobal(Basic) void SetWGS84(const char*,CoordSystem*); } }
 
-bool initCRSPlugin()
+const char* initCRSPlugin()
 {
 #ifdef OD_NO_PROJ
-    return false;
+    return "proj dependency is disabled";
 #else
-    Coords::initCRSDatabase();
+    const char* msg = Coords::initCRSDatabase();
+    if ( msg && *msg )
+	return msg;
+
     Coords::ProjectionBasedSystem::initClass();
 
     SetWGS84( Coords::Projection::sWGS84ProjDispString(),
 	      Coords::ProjectionBasedSystem::getWGS84LLSystem() );
-    return true;
+    return nullptr;
 #endif
 }
 
@@ -66,7 +69,6 @@ mDefODInitPlugin(CRS)
     legalInformation().addCreator( projLegalText, "PROJ" );
     legalInformation().addCreator( sqliteLegalText, "SQLite" );
 #endif
-    initCRSPlugin();
 
-    return nullptr;
+    return initCRSPlugin();
 }

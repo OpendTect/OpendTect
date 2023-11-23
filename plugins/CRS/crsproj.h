@@ -131,13 +131,8 @@ protected:
 };
 
 
-mGlobal(CRS) void		initCRSDatabase();
+mGlobal(CRS) const char*	initCRSDatabase();
 mGlobal(CRS) CRSInfoList*	getCRSInfoList(bool orthogonal = true);
 mGlobal(CRS) BufferString	getProjVersion();
 
 } // namespace Coords
-
-
-extern "C" {
-    mGlobal(CRS) bool		initCRSPlugin(bool withdatabase);
-}

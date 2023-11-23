@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "crsproj.h"
+
 #include "bufstringset.h"
 #include "file.h"
 #include "filepath.h"
@@ -633,12 +634,26 @@ const PROJ_CRS_INFO* getInfo( int index ) const
 };
 
 
-void Coords::initCRSDatabase()
+const char* Coords::initCRSDatabase()
 {
-    FilePath fp( mGetSetupFileName("CRS"), "proj.db" );
-    if ( File::exists(fp.fullPath()) )
-	proj_context_set_database_path( PJ_DEFAULT_CTX, fp.fullPath(),
-					nullptr, nullptr );
+    static BufferString msg( "Cannot load the proj database" );
+#ifdef __PROJ_DB_FILEPATH__
+    const FilePath projdbfp( __PROJ_DB_FILEPATH__ );
+    FilePath fp( mGetSetupFileName("CRS"), projdbfp.fileName() );
+    if ( !fp.exists() )
+    {
+	if ( !isDeveloperBuild() || !projdbfp.exists() )
+	    return msg.str();
+
+	fp = projdbfp;
+    }
+
+    proj_context_set_database_path( PJ_DEFAULT_CTX, fp.fullPath(),
+				    nullptr, nullptr );
+    return nullptr;
+#else
+    return msg.str();
+#endif
 }
 
 
@@ -681,14 +696,21 @@ Coords::Projection* Coords::Projection::fromString( const char* /* str */,
 }
 
 
-void Coords::initCRSDatabase()
+const char* Coords::initCRSDatabase()
 {
+    return nullptr;
 }
 
 
 Coords::CRSInfoList* Coords::getCRSInfoList( bool /* orthogonal */ )
 {
     return nullptr;
+}
+
+
+BufferString Coords::getProjVersion()
+{
+    return "PROJ not found";
 }
 
 #endif // OD_NO_PROJ
