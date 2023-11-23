@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
+#include "earthmodelmod.h"
 #include "executor.h"
 #include "bufstringset.h"
 #include "posinfo2d.h"
@@ -20,7 +20,7 @@ namespace Survey { class Geometry2D; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
 
-mExpClass(uiEMAttrib) Horizon2DScanner : public Executor
+mExpClass(EarthModel) Horizon2DScanner : public Executor
 { mODTextTranslationClass(Horizon2DScanner);
 public:
 

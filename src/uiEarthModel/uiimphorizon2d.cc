@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uigeninputdlg.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uiseispartserv.h"
 #include "uiseparator.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"

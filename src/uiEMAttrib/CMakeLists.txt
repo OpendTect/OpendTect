@@ -19,10 +19,8 @@ set( OD_MODULE_SOURCES
 	uihor2dfrom3ddlg.cc
 	uihorizonattrib.cc
 	uihorizonshiftdlg.cc
-	uiimphorizon2d.cc
 	uiseiseventsnapper.cc
 	uistratamp.cc
-	horizon2dscanner.cc
 	inituiemattrib.cc
 )
 

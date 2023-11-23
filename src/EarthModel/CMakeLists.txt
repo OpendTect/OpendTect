@@ -59,6 +59,7 @@ set( OD_MODULE_SOURCES
 	horizonmodifier.cc
 	horizonrelation.cc
 	horizonscanner.cc
+	horizon2dscanner.cc
 	horizonsorter.cc
 	isopachmaker.cc
 	lmkemfaulttransl.cc

@@ -37,6 +37,7 @@ set( OD_MODULE_SOURCES
 	uiimpbodycaldlg.cc
 	uiimpfault.cc
 	uiimphorizon.cc
+	uiimphorizon2d.cc
 	uiiosurface.cc
 	uiiosurfacedlg.cc
 	uiisopachmaker.cc

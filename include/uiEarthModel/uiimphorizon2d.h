@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uiemattribmod.h"
+#include "uiearthmodelmod.h"
 #include "uidialog.h"
 #include "emposid.h"
 #include "multiid.h"
@@ -27,7 +27,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for Horizon Import */
 
-mExpClass(uiEMAttrib) uiImportHorizon2D : public uiDialog
+mExpClass(uiEarthModel) uiImportHorizon2D : public uiDialog
 { mODTextTranslationClass(uiImportHorizon2D);
 public:
 			uiImportHorizon2D(uiParent*);
