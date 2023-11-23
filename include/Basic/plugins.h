@@ -119,6 +119,9 @@ public:
 	bool			isloaded_;
     };
 
+    bool			load(const char* libnm,Data::AutoSource,
+				     int autotype);
+
     ObjectSet<Data>&	getData()		{ return data_; }
     Data*		findData( const char* nm ) { return fndData( nm ); }
     const Data*		findData( const char* nm ) const {return fndData( nm );}

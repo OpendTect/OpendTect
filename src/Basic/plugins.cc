@@ -505,6 +505,13 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
 
 bool PluginManager::load( const char* libnm )
 {
+    return load( libnm, Data::None, -1 );
+}
+
+
+bool PluginManager::load( const char* libnm, Data::AutoSource src,
+			  int autotype )
+{
     FilePath fp( libnm );
     const BufferString libnmonly( fp.fileName() );
 
@@ -513,7 +520,11 @@ bool PluginManager::load( const char* libnm )
     if ( !data->sla_->isOK() )
     {
 	ErrMsg( data->sla_->errMsg(), true );
-	delete data;
+	if ( src == Data::None )
+	    delete data;
+	else
+	    data_.add( data );
+
 	return false;
     }
 
@@ -521,7 +532,11 @@ bool PluginManager::load( const char* libnm )
     if ( !data->info_ )
     {
 	ErrMsg( BufferString( libnm, " does not return plugin information.") );
-	delete data;
+	if ( src == Data::None )
+	    delete data;
+	else
+	    data_.add( data );
+
 	return false;
     }
 
@@ -582,10 +597,22 @@ bool PluginManager::load( const char* libnm )
 	}
 	else
 	{
+	    data->autosource_ = src;
+	    data->autotype_ = autotype;
 	    if ( !loadPlugin(data->sla_,GetArgC(),GetArgV(),libnmonly,true) )
 	    {
-		data->sla_->close();
-		delete data;
+		if ( src == Data::None )
+		{
+		    data->sla_->close();
+		    delete data;
+		}
+		else
+		{
+		    data->info_ = nullptr;
+		    deleteAndNullPtr( data->sla_ );
+		    data_.add( data );
+		}
+
 		return false;
 	    }
 
