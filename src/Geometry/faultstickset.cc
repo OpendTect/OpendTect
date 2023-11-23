@@ -424,7 +424,8 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
 	for ( int idx=0; reverse && idx<tailidx*0.5; idx++ )
 	    sticknrs.swap( idx, tailidx-idx );
 
-	sticknrs.swap( tailidx+1, minidx0 );
+	if ( tailidx < sticknrs.size()-1 )
+	    sticknrs.swap( tailidx+1, minidx0 );
     }
 }
 

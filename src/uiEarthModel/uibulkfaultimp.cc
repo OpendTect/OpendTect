@@ -25,6 +25,8 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
+#include "emfsstofault3d.h"
+#include "emfaultset3d.h"
 #include "uiioobjsel.h"
 
 class BulkFaultAscIO : public Table::AscIO
@@ -107,6 +109,9 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
 static const char* sKeyGeometric()	{ return "Geometric"; }
 static const char* sKeyIndexed()	{ return "Indexed"; }
 static const char* sKeyFileOrder()	{ return "File order"; }
+static const char* sKeyAutoStickSel()	{ return "Auto"; }
+static const char* sKeyInlCrlSep()	{ return "Inl/Crl separation"; }
+static const char* sKeySlopeThres()	{ return "Slope threshold"; }
 
 
 #define mGet( tp, fss, f3d, fset ) \
@@ -158,12 +163,24 @@ void uiBulkFaultImport::init()
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setExamStyle( File::Table );
 
+    BufferStringSet stickselopt; stickselopt.add( sKeyAutoStickSel() )
+						.add( sKeyInlCrlSep() )
+						.add( sKeySlopeThres() );
+    stickselfld_ = new uiGenInput( this, tr("Stick selection"),
+				   StringListInpSpec(stickselopt) );
+    stickselfld_->attach( alignedBelow, inpfld_ );
+    mAttachCB( stickselfld_->valueChanged, uiBulkFaultImport::stickSelCB );
+
+    thresholdfld_ = new uiGenInput( this, uiString::emptyString(),
+				    DoubleInpSpec(1.0).setName("Threshold") );
+    thresholdfld_->attach( rightOf, stickselfld_ );
+
     BufferStringSet sticksortopt;
     sticksortopt.add( sKeyGeometric() )
 		.add( sKeyIndexed() ).add( sKeyFileOrder() );
     sortsticksfld_ = new uiGenInput( this, tr("Stick sorting"),
 				     StringListInpSpec(sticksortopt) );
-    sortsticksfld_->attach( alignedBelow, inpfld_ );
+    sortsticksfld_->attach( alignedBelow, stickselfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 		mODHelpKey(mTableImpDataSelwellsHelpID) );
@@ -179,6 +196,7 @@ void uiBulkFaultImport::init()
 
 	mAttachCB( inpfld_->valueChanged, uiBulkFaultImport::inpChangedCB );
     }
+    stickSelCB( nullptr );
 }
 
 
@@ -186,6 +204,17 @@ uiBulkFaultImport::~uiBulkFaultImport()
 {
     detachAllNotifiers();
     delete fd_;
+}
+
+
+void uiBulkFaultImport::stickSelCB( CallBacker* )
+{
+    if ( !stickselfld_ ) return;
+
+    const bool showthresfld
+	= StringView(stickselfld_->text()) == sKeySlopeThres();
+    const bool stickseldisplayed = stickselfld_->attachObj()->isDisplayed();
+    thresholdfld_->display( stickseldisplayed && showthresfld );
 }
 
 
@@ -369,6 +398,14 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	    return false;
     }
 
+    EM::FSStoFault3DConverter::Setup convsu;
+    convsu.sortsticks_ = sortsticksfld_ &&
+			StringView(sortsticksfld_->text()) == sKeyGeometric();
+    if ( stickselfld_ && StringView(stickselfld_->text()) == sKeyInlCrlSep() )
+	convsu.useinlcrlslopesep_ = true;
+    if ( stickselfld_ && StringView(stickselfld_->text()) == sKeySlopeThres() )
+	convsu.stickslopethres_ = thresholdfld_->getDValue();
+
     ExecutorGroup saver( savernm );
     for ( int idx=0; idx<pars.size(); idx++ )
     {
@@ -390,7 +427,18 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 
 	ManagedObjectSet<EM::FaultStick> faultsticks;
 	fillFaultSticks( *pars[idx], faultsticks );
-	updateFaultStickSet( flt, faultsticks, is2dfss_ );
+	if ( isfss_ )
+	    updateFaultStickSet( flt, faultsticks, is2dfss_ );
+	else
+	{
+	    RefMan<EM::EMObject> emobj_fss = em.createTempObject(
+						EM::FaultStickSet::typeStr() );
+	    mDynamicCastGet(EM::Fault3D*, fault3d, emobj.ptr())
+	    mDynamicCastGet(EM::FaultStickSet*, interfss, emobj_fss.ptr() );
+	    updateFaultStickSet( interfss, faultsticks, is2dfss_ );
+	    EM::FSStoFault3DConverter fsstof3d( convsu, *interfss, *fault3d );
+	    fsstof3d.convert( true );
+	}
 
 	if ( !isfltset_)
 	    saver.add( emobj->saver() );

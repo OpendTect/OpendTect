@@ -31,11 +31,14 @@ protected:
     bool		acceptOK(CallBacker*) override;
 
     void		inpChangedCB(CallBacker*);
+    void		stickSelCB(CallBacker*);
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
-    uiGenInput* sortsticksfld_ = nullptr;
-    uiIOObjSel* fltsetnmfld_ = nullptr;
+    uiGenInput*		sortsticksfld_ = nullptr;
+    uiIOObjSel*		fltsetnmfld_ = nullptr;
+    uiGenInput*		stickselfld_ = nullptr;
+    uiGenInput*		thresholdfld_ = nullptr;
 
     Table::FormatDesc*	fd_;
     bool		isfss_;
