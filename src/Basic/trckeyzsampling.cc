@@ -1222,20 +1222,28 @@ bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
 					TrcKeyZSampling& out,
 					bool ignoresteps ) const
 {
-    if ( !hsamp_.getInterSection(tkzs.hsamp_,out.hsamp_,ignoresteps) )
+    const bool hintersect = hsamp_.getInterSection( tkzs.hsamp_,out.hsamp_,
+						    ignoresteps );
+    if ( !hintersect )
 	return false;
 
     StepInterval<float> zsamp1( tkzs.zsamp_ );
     normalizeZ( zsamp1 );
     StepInterval<float> zsamp2( zsamp_ );
     normalizeZ( zsamp2 );
-    return ignoresteps ?
-	intersectFIgnoreSteps( zsamp1.start, zsamp1.stop,
-			       zsamp2.start, zsamp2.stop,
-			       out.zsamp_.start, out.zsamp_.stop )
-	: intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
-		       zsamp2.start, zsamp2.stop, zsamp2.step,
-		       out.zsamp_.start, out.zsamp_.stop, out.zsamp_.step );
+    const bool zintersect = ignoresteps ? intersectFIgnoreSteps( zsamp1.start,
+								 zsamp1.stop,
+								 zsamp2.start,
+								 zsamp2.stop,
+							     out.zsamp_.start,
+							     out.zsamp_.stop )
+					: intersectF( zsamp1.start, zsamp1.stop,
+						      zsamp1.step, zsamp2.start,
+						      zsamp2.stop, zsamp2.step,
+						      out.zsamp_.start,
+						      out.zsamp_.stop,
+						      out.zsamp_.step );
+    return (nrZ()==1 && tkzs.nrZ()==1 && zsamp1==zsamp2) || zintersect;
 }
 
 
