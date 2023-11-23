@@ -34,7 +34,11 @@ macro( OD_SETUP_PROJ )
 	    message( SEND_ERROR "Cannot find/use the PROJ installation" )
 	endif()
 
-	install( FILES "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db"
+	get_filename_component( PROJ_DB_FILEPATH "${PROJ_INCLUDE_DIRS}/../share/proj/proj.db" ABSOLUTE )
+	list( APPEND OD_MODULE_COMPILE_DEFINITIONS
+		"__PROJ_DB_FILEPATH__=\"${PROJ_DB_FILEPATH}\"" )
+
+	install( FILES "${PROJ_DB_FILEPATH}"
 		 DESTINATION "${OD_DATA_INSTALL_RELPATH}/CRS" )
 	install( FILES "${PROJ_INCLUDE_DIRS}/../share/doc/proj/COPYING"
 		 DESTINATION "${OD_DATA_INSTALL_RELPATH}/CRS" )
