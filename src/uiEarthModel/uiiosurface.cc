@@ -44,9 +44,10 @@ ________________________________________________________________________
 
 const int cListHeight = 5;
 
-uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
+uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp,
+						const ZDomain::Info* zinfo )
     : uiGroup(p,"Surface selection")
-    , ctio_( 0 )
+    , ctio_(nullptr)
     , sectionfld_(0)
     , attribfld_(0)
     , rgfld_(0)
@@ -69,13 +70,29 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
 	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
 
     if ( forread_ )
-	postFinalize().notify( mCB(this,uiIOSurface,objSel) );
+    {
+	if ( zinfo )
+	{
+	    const ZDomain::Def& def = SI().zIsTime() ?
+		ZDomain::Depth() : ZDomain::Time();
+	    if ( SI().zDomainInfo().isTime() == zinfo->isTime() )
+		ctio_->ctxt_.toselect_.
+				    restrictToZDomainDef( def, false );
+	    else
+		ctio_->ctxt_.toselect_.
+				    restrictToZDomainDef( def, true );
+	}
+
+	mAttachCB( postFinalize(), uiIOSurface::objSel );
+    }
 }
 
 
 uiIOSurface::~uiIOSurface()
 {
-    delete ctio_->ioobj_; delete ctio_;
+    detachAllNotifiers();
+    delete ctio_->ioobj_;
+    delete ctio_;
 }
 
 
@@ -296,7 +313,7 @@ void uiIOSurface::attrSel( CallBacker* )
 
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 				const uiSurfaceWrite::Setup& setup )
-    : uiIOSurface(p,false,setup.typ_)
+    : uiIOSurface(p,false,setup.typ_,nullptr)
     , displayfld_(0)
     , colbut_(0)
     , stratlvlfld_(0)
@@ -351,7 +368,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 				const uiSurfaceWrite::Setup& setup )
-    : uiIOSurface(p,false,setup.typ_)
+    : uiIOSurface(p,false,setup.typ_,nullptr)
     , displayfld_(0)
     , colbut_(0)
     , stratlvlfld_(0)
@@ -490,8 +507,9 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 }
 
 
-uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
-    : uiIOSurface(p,true,setup.typ_)
+uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup,
+						const ZDomain::Info* zinfo )
+    : uiIOSurface(p,true,setup.typ_,zinfo)
     , inpChange(this)
 {
     if ( setup.typ_ == EMFault3DTranslatorGroup::sGroupName() )

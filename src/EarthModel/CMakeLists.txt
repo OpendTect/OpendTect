@@ -51,6 +51,7 @@ set( OD_MODULE_SOURCES
 	emsurfaceposprov.cc
 	emsurfacetr.cc
 	emsurfauxdataio.cc
+	emsurft2dtransformer.cc
 	emundo.cc
 	emzmap.cc
 	faulttrace.cc

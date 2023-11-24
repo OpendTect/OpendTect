@@ -186,6 +186,8 @@ ________________________________________________________________________
 #define mCompBetweenHor3DMnuItm	(mUseHorMnu + 5)
 #define mCompAlongHor3DMnuItm	(mUseHorMnu + 6)
 #define mFlattenSingleMnuItm	(mUseHorMnu + 7)
+#define mT2DHor2DMnuItm		(mUseHorMnu + 8)
+#define mT2DHor3DMnuItm		(mUseHorMnu + 9)
 #define mStartBatchJobMnuItm	(mProcMnu + 50)
 
 

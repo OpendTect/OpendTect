@@ -107,26 +107,27 @@ public:
     void			saveNN();
     void			createVol(bool is2d,bool multiattrib);
     void			createVolProcOutput(bool);
-    void			doWellXPlot(CallBacker* =0);
+    void			doWellXPlot(CallBacker* =nullptr);
 				//!< This plots between well and attrib
-    void			doAttribXPlot(CallBacker* =0);
+    void			doAttribXPlot(CallBacker* =nullptr);
 				//!< This plots between attribs.
-    void			openCrossPlot(CallBacker* =0);
+    void			openCrossPlot(CallBacker* =nullptr);
 				//!< Create crossplot from file
     void			createHorOutput(int,bool);
     void			doStratAmp(CallBacker*);
     void			doIsochron(CallBacker*);
     void			startBatchJob();
-    void			processTime2Depth(CallBacker* =0);
-    void			processTime2Depth(bool is2d);
+    void			processTime2DepthSeis(CallBacker* =nullptr);
+    void			processTime2DepthSeis(bool is2d);
+    void			processTime2DepthHor(bool is2d);
     void			processPreStack(bool is2d);
-    void			createMultiCubeDS(CallBacker* =0);
+    void			createMultiCubeDS(CallBacker* =nullptr);
     void			createMultiAttribVol(CallBacker*);
-    void			processVelConv(CallBacker* =0);
-    void			genAngleMuteFunction(CallBacker* =0);
-    void			bayesClass2D(CallBacker* =0);
-    void			bayesClass3D(CallBacker* =0);
-    void			createCubeFromWells(CallBacker* =0);
+    void			processVelConv(CallBacker* =nullptr);
+    void			genAngleMuteFunction(CallBacker* =nullptr);
+    void			bayesClass2D(CallBacker* =nullptr);
+    void			bayesClass3D(CallBacker* =nullptr);
+    void			createCubeFromWells(CallBacker* =nullptr);
     void			create2DGrid()		{ process2D3D(0); }
     void			create2DFrom3D()	{ process2D3D(1); }
     void			create3DFrom2D()	{ process2D3D(2); }

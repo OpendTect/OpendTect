@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class TranslatorGroup;
 class IOStream;
+namespace ZDomain { class Def; }
 
 /*!
 \brief Holds constraints on IOObj selection.
@@ -36,6 +37,8 @@ public:
 
     BufferString	allowtransls_;	//!< FileMultiString of glob expressions
     bool		allownonuserselectable_; //!< allow 'alien' like SEG-Y
+
+    void		restrictToZDomainDef(const ZDomain::Def&,bool);
 
     bool		isGood(const IOObj&,bool forread=true) const;
     void		clear();

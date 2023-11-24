@@ -60,6 +60,7 @@ ________________________________________________________________________
 #include "uihorinterpol.h"
 #include "uihorsavefieldgrp.h"
 #include "uihor3dfrom2ddlg.h"
+#include "uitime2depthdlg.h"
 #include "uiimpfault.h"
 #include "uiimphorizon.h"
 #include "uiioobjsel.h"
@@ -127,6 +128,21 @@ void uiEMPartServer::cleanup()
     closeAndNullPtr( impbulkfssdlg_ );
     closeAndNullPtr( impbulk2dhordlg_ );
     deepErase( variodlgs_ );
+}
+
+
+
+void uiEMPartServer::processTime2Depth( EM::IOObjInfo::ObjectType objtype )
+{
+    const uiRetVal ret =  EM::uiTime2DepthDlg::canTransform( objtype );
+    if ( ret.isOK() )
+    {
+	EM::uiTime2DepthDlg dlg( parent(), objtype );
+	dlg.go();
+    }
+    else
+	uiMSG().message( ret.messages().cat() );
+
 }
 
 
@@ -641,25 +657,27 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
 
 
 void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d,
-				     uiParent* p )
+				uiParent* p, const ZDomain::Info* zinfo )
 {
     selectSurfaces( p, objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
-			      : EMHorizon3DTranslatorGroup::sGroupName() );
+			: EMHorizon3DTranslatorGroup::sGroupName(), zinfo );
 }
 
 
 void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d,
-				   uiParent* p )
+				   uiParent* p, const ZDomain::Info* zinfo )
 {
     if ( !is2d )
-	selectSurfaces( p, objs, EMFault3DTranslatorGroup::sGroupName() );
+	selectSurfaces( p, objs,
+			    EMFault3DTranslatorGroup::sGroupName(), zinfo );
 }
 
 
 void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
-					   uiParent* p )
+				    uiParent* p, const ZDomain::Info* zinfo )
 {
-    selectSurfaces( p, objs, EMFaultStickSetTranslatorGroup::sGroupName() );
+    selectSurfaces( p, objs,
+			EMFaultStickSetTranslatorGroup::sGroupName(), zinfo );
 }
 
 
@@ -711,7 +729,7 @@ static void selectEMObjects( uiParent* p, ObjectSet<EM::EMObject>& objs,
 
 
 void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
-				      uiParent* p )
+				      uiParent* p, const ZDomain::Info* zinfo )
 {
     if ( !p )
 	p = parent();
@@ -732,12 +750,13 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
 
 
 void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
-				     const char* typ )
+				const char* typ, const ZDomain::Info* zinfo )
 {
     if ( !p )
 	p = parent();
 
-    uiMultiSurfaceReadDlg dlg( p, typ );
+
+    uiMultiSurfaceReadDlg dlg( p, typ, zinfo );
     if ( !dlg.go() )
 	return;
 

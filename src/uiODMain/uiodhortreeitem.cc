@@ -156,7 +156,16 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	setSectionDisplayRestoreForAllHors( true );
 
 	RefObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectHorizons( objs, false );
+	const ZDomain::Info* zinfo = nullptr;
+	if ( !hastransform )
+	{
+	    zinfo = SI().zIsTime() ?
+		&ZDomain::TWT() : SI().depthsInFeet()
+			    ? &ZDomain::DepthFeet() : &ZDomain::DepthMeter();
+	}
+
+	applMgr()->EMServer()->selectHorizons( objs, false, nullptr, zinfo );
+
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );

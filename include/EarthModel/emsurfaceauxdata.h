@@ -66,6 +66,8 @@ public:
     int			addAuxData(const char* name);
 			/*!<\return The dataidx of the new data.
 				    The index is persistent in runtime.  */
+    void		addAuxData(const BufferStringSet&,
+							const BinIDValueSet&);
 
     void		setAuxDataName(int dataidx,const char*);
     void		removeAuxData(int dataidx);

@@ -97,6 +97,16 @@ IOObjSelConstraints::~IOObjSelConstraints()
 }
 
 
+void IOObjSelConstraints::restrictToZDomainDef( const ZDomain::Def& def,
+						    bool forrestrict )
+{
+    if ( forrestrict )
+	require_.set( ZDomain::sKey(), def.key() );
+    else
+	dontallow_.set( ZDomain::sKey(), def.key() );
+}
+
+
 IOObjSelConstraints& IOObjSelConstraints::operator =(
 				const IOObjSelConstraints& oth )
 {

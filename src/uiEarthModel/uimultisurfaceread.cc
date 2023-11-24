@@ -35,13 +35,14 @@ uiString getDispType(BufferString type)
 }
 
 
-uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type )
+uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type,
+						const ZDomain::Info* zinfo )
    : uiDialog(p,uiDialog::Setup( uiStrings::phrSelect(getDispType(type)),
 				 mNoDlgTitle,
 				 mODHelpKey(mMultiSurfaceReadDlgHelpID) )
 				 .nrstatusflds(1) )
 {
-    surfacefld_ = new uiMultiSurfaceRead( this, type );
+    surfacefld_ = new uiMultiSurfaceRead( this, type, zinfo );
     surfacefld_->objselGrp()->newStatusMsg.notify(
 				mCB(this,uiMultiSurfaceReadDlg,statusMsg) );
     surfacefld_->singleSurfaceSelected.notify( mCB(this,uiDialog,accept) );
@@ -79,8 +80,9 @@ bool uiMultiSurfaceReadDlg::acceptOK( CallBacker* )
 
 
 // ***** uiMultiSurfaceRead *****
-uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ )
-    : uiIOSurface(p,true,typ)
+uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ,
+						const ZDomain::Info* zinfo )
+    : uiIOSurface(p,true,typ,zinfo)
     , singleSurfaceSelected(this)
 {
     ioobjselgrp_ = new uiIOObjSelGrp( this, *ctio_,

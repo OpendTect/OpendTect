@@ -72,7 +72,7 @@ void SurfaceIOData::use( const Surface& surf )
     }
 
     for ( int idx=0; idx<surf.nrSections(); idx++ )
-	sections += new BufferString( surf.sectionName( surf.sectionID(idx) ) );
+	sections += new BufferString( surf.sectionName(surf.sectionID(idx)) );
 
     mDynamicCastGet(const Horizon3D*,horizon,&surf);
     if ( horizon )
@@ -199,7 +199,6 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 }
 
 
-
 // SurfaceIODataSelection
 SurfaceIODataSelection::SurfaceIODataSelection( const SurfaceIOData& s )
     : sd(s)
@@ -217,10 +216,10 @@ void SurfaceIODataSelection::setDefault()
     selvalues.erase(); selsections.erase();
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
 	selvalues += idx;
+
     for ( int idx=0; idx<sd.sections.size(); idx++ )
 	selsections += idx;
 }
-
 
 
 // Surface

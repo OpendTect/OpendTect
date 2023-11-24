@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 
+#include "emioobjinfo.h"
 #include "emposid.h"
 #include "trckeysampling.h"
 #include "multiid.h"
@@ -42,6 +43,7 @@ class uiVariogramDisplay;
 namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; }
 namespace Pick { class Set; }
 namespace PosInfo { class Line2DData; }
+namespace ZDomain { class Info; }
 
 template <class T> class Array2D;
 
@@ -77,6 +79,7 @@ public:
     bool		exportFaultSet();
     void		createHorWithConstZ(bool is2d);
     void		computeIsochron();
+    void		processTime2Depth(EM::IOObjInfo::ObjectType);
 
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
@@ -111,19 +114,23 @@ public:
 			/*!<Users can change the display range, hor 3D only. */
 
     void		selectHorizons(ObjectSet<EM::EMObject>&,bool is2d,
-	    				uiParent* p=0);
+					uiParent* =nullptr,
+					const ZDomain::Info* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
     void		selectFaults(ObjectSet<EM::EMObject>&,bool is2d,
-	    				uiParent* p=0);
+					uiParent* =nullptr,
+					const ZDomain::Info* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
     void		selectFaultStickSets(ObjectSet<EM::EMObject>&,
-	    				uiParent* p=0);
+					uiParent* =nullptr,
+					const ZDomain::Info* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
     void		selectFaultSets(ObjectSet<EM::EMObject>&,
-					uiParent* p=0);
+					uiParent* =nullptr,
+					const ZDomain::Info* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
     void		selectBodies(ObjectSet<EM::EMObject>&,
-	    				uiParent* p=0);
+					uiParent* =nullptr);
 			//!<Returned set is reffed and must be unrefed by caller
     bool		showLoadAuxDataDlg(const EM::ObjectID&);
     int			loadAuxData(const EM::ObjectID&,const char*,
@@ -210,7 +217,7 @@ protected:
     void		cleanup();
 
     void		selectSurfaces(uiParent*,ObjectSet<EM::EMObject>&,
-				       const char* type);
+					const char* type,const ZDomain::Info*);
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&,
 				    bool removeold=true);
     bool		changeAuxData(const EM::ObjectID&,const char* nm,

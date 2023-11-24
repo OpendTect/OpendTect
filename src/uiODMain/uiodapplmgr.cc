@@ -55,6 +55,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emtracker.h"
@@ -347,10 +348,10 @@ void uiODApplMgr::editAttribSet()
 void uiODApplMgr::editAttribSet( bool is2d )
 { attrserv_->editSet( is2d ); }
 
-void uiODApplMgr::processTime2Depth( CallBacker* )
+void uiODApplMgr::processTime2DepthSeis( CallBacker* )
 { seisserv_->processTime2Depth( false ); }
 
-void uiODApplMgr::processTime2Depth( bool is2d )
+void uiODApplMgr::processTime2DepthSeis( bool is2d )
 { seisserv_->processTime2Depth( is2d ); }
 
 void uiODApplMgr::processVelConv( CallBacker* )
@@ -368,6 +369,13 @@ void uiODApplMgr::setStereoOffset()
     sceneMgr().get3DViewers( vwrs );
     uiStereoDlg dlg( &appl_, vwrs );
     dlg.go();
+}
+
+
+void uiODApplMgr::processTime2DepthHor( bool is2d )
+{
+    emserv_->processTime2Depth( is2d ? EM::IOObjInfo::Horizon2D
+					: EM::IOObjInfo::Horizon3D );
 }
 
 

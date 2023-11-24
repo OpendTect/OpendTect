@@ -38,6 +38,7 @@ class uiPushButton;
 class uiStratLevelSel;
 
 namespace EM { class Surface; class SurfaceIODataSelection; }
+namespace ZDomain { class Info; }
 
 
 /*! \brief Base group for Surface input and output */
@@ -61,8 +62,8 @@ public:
     uiPosSubSel*	getPosSubSel()		{ return rgfld_; }
 
 protected:
-			uiIOSurface(uiParent*,bool forread,
-				    const char* type);
+			uiIOSurface(uiParent*,bool forread,const char* type,
+						    const ZDomain::Info*);
 
     bool		fillFields(const MultiID&,bool showerrmsg=true);
     void		fillFields(const EM::ObjectID&);
@@ -169,7 +170,8 @@ public:
 	mDefSetupMemb(bool,multiattribsel)
     };
 
-			uiSurfaceRead(uiParent*,const Setup&);
+			uiSurfaceRead(uiParent*,const Setup&,
+			    const ZDomain::Info* zinf=nullptr);
 			~uiSurfaceRead();
 
     bool		processInput() override;

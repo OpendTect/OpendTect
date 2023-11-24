@@ -253,11 +253,11 @@ int Write3DHorASCII::nextStep()
     {
 	const float auxvalue = hor_->auxdata.getAuxDataVal( idx, posid );
 	if ( mIsUdf(auxvalue) )
-	stream_ << od_tab << setup_.udfstr_;
+	    stream_ << od_tab << setup_.udfstr_;
 	else
 	{
 	    str = od_tab; str += auxvalue;
-	  stream_ << str;
+	    stream_ << str;
       }
     }
 
@@ -496,7 +496,10 @@ bool uiExportHorizon::writeAscii()
 	    mErrRet( errmsg )
 
 	EM::SurfaceIODataSelection sels( sd );
-	if ( !isbulk_ )
+	if ( isbulk_ )
+	    for ( int idx = 0; idx < sd.sections.size(); idx++ )
+		sels.selsections += idx;
+	else
 	    infld_->getSelection( sels );
 
 	sels.selvalues.erase();
@@ -514,12 +517,6 @@ bool uiExportHorizon::writeAscii()
 	if ( !TaskRunner::execute(&taskrunner,*loader) )
 	    return false;
 
-	if ( !isbulk_ )
-	    infld_->getSelection( sels );
-	else
-	    for( int idx=0; idx<sd.sections.size(); idx++ )
-		sels.selsections += idx;
-
 	if ( dogf && sels.selvalues.size() > 1 && uiMSG().askContinue(
 			tr("Only the first selected attribute will be used\n"
 				 "Do you wish to continue?")) )
@@ -531,90 +528,57 @@ bool uiExportHorizon::writeAscii()
 	    for ( int idx=0; idx<sels.selvalues.size(); idx++ )
 		exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
 
-	    if ( !TaskRunner::execute( &taskrunner, exgrp ) ) return false;
+	    if ( !TaskRunner::execute(&taskrunner,exgrp) )
+		return false;
 	}
 
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	const UnitOfMeasure* unit = unitsel_->getUnit();
-	TypeSet<int>& sections = sels.selsections;
 	int zatvoi = -1;
 	if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
 	{
 	    TrcKeyZSampling bbox;
-	    bool first = true;
-	    for ( int sidx=0; sidx<sections.size(); sidx++ )
+	    bbox.hsamp_ = hor->range();
+	    bbox.zsamp_.setFrom( hor->getZRange() );
+
+	    zatvoi = zatf->addVolumeOfInterest( bbox, false );
+	    if ( !zatf->loadDataIfMissing( zatvoi, &taskrunner ) )
 	    {
-		PtrMan<EM::EMObjectIterator> it = hor->createIterator();
-		while ( true )
-		{
-		    const EM::PosID posid = it->next();
-		    if ( !posid.isValid() )
-			break;
-
-		    const Coord3 crd = hor->getPos( posid );
-		    if ( !crd.isDefined() )
-			continue;
-
-		    const BinID bid = SI().transform( crd );
-		    if ( first )
-		    {
-			first = false;
-			bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
-			bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z;
-		    }
-		    else
-		    {
-			bbox.hsamp_.include( bid );
-			bbox.zsamp_.include( (float) crd.z );
-		    }
-		}
-	    }
-
-	    if ( !first && zatf->needsVolumeOfInterest() )
-	    {
-		zatvoi = zatf->addVolumeOfInterest( bbox, false );
-		if ( !zatf->loadDataIfMissing( zatvoi, &taskrunner ) )
-		{
-		    uiMSG().error( tr("Cannot load data for z-transform") );
-		    return false;
-		}
+		uiMSG().error( tr("Cannot load data for z-transform") );
+		return false;
 	    }
 	}
 
 	const int nrattribs = hor->auxdata.nrAuxData();
-	for ( int sidx=0; sidx<sections.size(); sidx++ )
+	BufferString dispstr("Writing Horizon ");
+	dispstr.add( hor->name() );
+	ExecutorGroup exphorgrp( dispstr );
+
+	if ( stream.isBad() )
+	    mErrRet( uiStrings::sCantOpenOutpFile() );
+
+	if ( dogf )
+	    initGF( stream, gfname_.buf(), gfcomment_.buf() );
+	else
 	{
-	    BufferString dispstr("Writing Horizon ");
-	    dispstr.add( hor->name() );
-	    ExecutorGroup exphorgrp( dispstr );
-	    const int sectionidx = sections[sidx];
-
-	    if ( stream.isBad() )
-		mErrRet( uiStrings::sCantOpenOutpFile() );
-
-	    if ( dogf )
-		initGF( stream, gfname_.buf(), gfcomment_.buf() );
-	    else
-	    {
-		stream.stdStream() << std::fixed;
-		writeHeader( stream );
-	    }
-
-	    Write3DHorASCII::Setup su;
-	    su.addzpos( addzpos ).doxy( doxy ).doic(doic).dogf( dogf )
-	      .issingle( !isbulk_ ).nrattrib( nrattribs ).udfstr( udfstr );
-
-	    const Coords::CoordSystem* crs =
-		coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
-	    Write3DHorASCII* executor = new Write3DHorASCII(stream, sectionidx,
-			    sidx, hor, zatf.ptr(), unit, crs, su);
-	    exphorgrp.add(executor);
-	    if ( !TaskRunner::execute(&taskrunner,exphorgrp) )
-		return false;
-
-	    if ( zatf && zatvoi>=0 )
-		zatf->removeVolumeOfInterest( zatvoi );
+	    stream.stdStream() << std::fixed;
+	    writeHeader( stream );
 	}
+
+	Write3DHorASCII::Setup su;
+	su.addzpos( addzpos ).doxy( doxy ).doic(doic).dogf( dogf )
+	    .issingle( !isbulk_ ).nrattrib( nrattribs ).udfstr( udfstr );
+
+	const Coords::CoordSystem* crs =
+	    coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
+	Write3DHorASCII* executor = new Write3DHorASCII( stream, 0,
+			0, hor, zatf.ptr(), unit, crs, su );
+	exphorgrp.add( executor );
+	if ( !TaskRunner::execute(&taskrunner,exphorgrp) )
+	    return false;
+
+	if ( zatf && zatvoi>=0 )
+	    zatf->removeVolumeOfInterest( zatvoi );
     }
 
     return true;

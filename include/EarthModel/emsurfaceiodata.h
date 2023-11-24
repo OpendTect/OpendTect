@@ -49,7 +49,7 @@ public:
     BufferStringSet		linenames;
     BufferStringSet		linesets;
     TypeSet<Pos::GeomID>	geomids;
-    TypeSet<StepInterval<int> > trcranges;
+    TypeSet<StepInterval<int>>	trcranges;
     int				nrfltsticks_		= 0;
 };
 
@@ -72,7 +72,7 @@ public:
 
     BufferStringSet		sellinenames;
     TypeSet<Pos::GeomID>	selgeomids;
-    TypeSet<StepInterval<int> >	seltrcranges;
+    TypeSet<StepInterval<int>>	seltrcranges;
 
     void			setDefault(); // selects all
 };

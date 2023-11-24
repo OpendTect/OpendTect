@@ -735,8 +735,12 @@ void uiODMenuMgr::fillProcMenu()
 	grditm->insertAction( new uiAction(m3Dots(tr("Stratal Amplitude")),
 			   mCB(&applMgr(),uiODApplMgr,doStratAmp)) );
     }
+
     grditm->insertAction( new uiAction(m3Dots(tr("Isochron")),
 			  mCB(&applMgr(),uiODApplMgr,doIsochron)) );
+    add2D3DMenuItem( *grditm, "empty", tr("Time - Depth Conversion"),
+				    mT2DHor2DMnuItm, mT2DHor3DMnuItm );
+
     procmnu_->addMenu( grditm );
 
     procwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
@@ -1567,11 +1571,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mPSProc3DMnuItm:	applMgr().processPreStack(false); break;
     case mVolProc2DMnuItm:	applMgr().createVolProcOutput(true); break;
     case mVolProc3DMnuItm:	applMgr().createVolProcOutput(false); break;
-    case mT2DConv2DMnuItm:	applMgr().processTime2Depth(true); break;
-    case mT2DConv3DMnuItm:	applMgr().processTime2Depth(false); break;
+    case mT2DConv2DMnuItm:	applMgr().processTime2DepthSeis(true); break;
+    case mT2DConv3DMnuItm:	applMgr().processTime2DepthSeis(false); break;
     case mCreateSurf2DMnuItm:	applMgr().createHorOutput(0,true); break;
     case mCreateSurf3DMnuItm:	applMgr().createHorOutput(0,false); break;
     case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;
+    case mT2DHor3DMnuItm:	applMgr().processTime2DepthHor(false); break;
+    case mT2DHor2DMnuItm:	applMgr().processTime2DepthHor(true); break;
     case mCompAlongHor3DMnuItm:	applMgr().createHorOutput(1,false); break;
     case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
