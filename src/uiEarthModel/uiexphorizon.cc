@@ -402,12 +402,18 @@ void uiExportHorizon::writeHeader( od_ostream& strm )
     if ( headerfld_->getIntValue() == 1 )
     {
 	BufferString posstr;
+	if ( isbulk_ )
+	    posstr.add( sKey::Name() ).addTab();
+
 	if ( doxy )
 	    posstr += "\"X\"\t\"Y\"";
+
 	if ( doxy && doic )
 	    posstr += "\t";
+
 	if ( doic )
 	    posstr += "\"Inline\"\t\"Crossline\"";
+
 	if ( addzpos )
 	    posstr += "\t\"Z\"";
 

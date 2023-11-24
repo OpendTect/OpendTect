@@ -206,7 +206,7 @@ void uiEMAttribPartServer::readyForDisplayCB( CallBacker* cb )
 	emobjids_ += grp->getNewHorizon()->id();
     }
     else if ( uiimphor2ddlg_ && cb==uiimphor2ddlg_ )
-	uiimphor2ddlg_->getEMObjIDs( emobjids_ );
+	emobjids_.add( uiimphor2ddlg_->getEMObjID() );
 
     if ( !emobjids_.isEmpty() )
 	sendEvent( evDisplayEMObject() );

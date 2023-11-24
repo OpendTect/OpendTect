@@ -12,9 +12,11 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiFileInput;
+class uiGenInput;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 mExpClass(uiEarthModel) uiBulkHorizonImport : public uiDialog
 { mODTextTranslationClass(uiBulkHorizonImport);
@@ -25,8 +27,10 @@ public:
 protected:
 
     bool		acceptOK(CallBacker*) override;
+    void		zDomainCB(CallBacker*);
 
-    uiFileInput*	inpfld_;
-    uiTableImpDataSel*	dataselfld_;
-    Table::FormatDesc*	fd_;
+    uiFileInput*	    inpfld_;
+    uiGenInput*		    zdomselfld_;
+    uiTableImpDataSel*	    dataselfld_;
+    Table::FormatDesc*	    fd_;
 };

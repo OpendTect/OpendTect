@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
+#include "emobject.h"
 #include "emposid.h"
 #include "multiid.h"
 
@@ -22,8 +23,10 @@ class uiFileInput;
 class uiGenInput;
 class uiListBox;
 class uiPushButton;
+class uiIOObjSel;
 class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 /*! \brief Dialog for Horizon Import */
 
@@ -33,33 +36,39 @@ public:
 			uiImportHorizon2D(uiParent*);
 			~uiImportHorizon2D();
 
-    void		getEMObjIDs(TypeSet<EM::ObjectID>&) const;
     Notifier<uiImportHorizon2D>	readyForDisplay;
+
+    EM::ObjectID	getEMObjID() const;
 
 protected:
 
     uiFileInput*	inpfld_;
     uiPushButton*       scanbut_;
-    uiListBox*		horselfld_;
     uiTableImpDataSel*  dataselfld_;
     uiGenInput*		udftreatfld_;
+    uiGenInput*		zdomselfld_;
+    uiIOObjSel*		timeoutputfld_;
+    uiIOObjSel*		depthoutputfld_;
 
     bool		acceptOK(CallBacker*) override;
     void                descChg(CallBacker*);
     void		setSel(CallBacker*);
-    void		addHor(CallBacker*);
     void		formatSel(CallBacker*);
     void		scanPush(CallBacker*);
+    void		zDomainCB(CallBacker*);
 
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();
     bool		doImport();
+    bool		isASCIIFileInTime() const;
 
-    Table::FormatDesc&  fd_;
-    Horizon2DScanner*	scanner_;
-    BufferStringSet&	linesetnms_;
-    TypeSet<MultiID>	setids_;
-    TypeSet<EM::ObjectID> emobjids_;
+    uiIOObjSel*		getWorkingOutFld() const;
 
-    ObjectSet<SurfaceInfo>	horinfos_;
+    const ZDomain::Info& zDomain() const;
+
+    Table::FormatDesc&	    fd_;
+    Horizon2DScanner*	    scanner_;
+    BufferStringSet&	    linesetnms_;
+    TypeSet<MultiID>	    setids_;
+    RefMan<EM::EMObject>    emobj_;
 };

@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 
 Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
-				    Table::FormatDesc& fd )
+			    Table::FormatDesc& fd, const ZDomain::Info& zinfo )
     : Executor("Scan horizon file(s)")
     , fd_(fd)
     , ascio_(nullptr)
@@ -34,6 +34,7 @@ Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
     , curlinegeom_(nullptr)
     , istracenr_(false)
     , msg_(uiStrings::sScanning())
+    , zinfo_(zinfo)
 {
     filenames_ = fnms;
     init();
@@ -231,7 +232,10 @@ int Horizon2DScanner::nextStep()
     const int nrvals = data.size();
 
     Interval<float> validzrg( curlinegeom_->data().zRange().start,
-			      curlinegeom_->data().zRange().stop );
+	curlinegeom_->data().zRange().stop );
+    if ( !zinfo_.isCompatibleWith(SI().zDomainInfo()) )
+	validzrg = zinfo_.getReasonableZRange();
+
     validzrg.widen( validzrg.width() );
     while ( validx < nrvals )
     {

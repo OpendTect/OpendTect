@@ -46,6 +46,8 @@ public:
 
     const FormatDesc&		desc() const	{ return fd_; }
     uiString			errMsg() const	{ return errmsg_; }
+
+    static const ZDomain::Info& zDomain(const FormatDesc&,int idx,uiRetVal&);
     uiString			warnMsg() const { return warnmsg_; }
 
     static const UnitOfMeasure* getTimeUnit();

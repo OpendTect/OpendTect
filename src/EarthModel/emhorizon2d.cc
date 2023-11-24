@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "tabledef.h"
 #include "unitofmeasure.h"
 #include "zaxistransform.h"
+#include "zdomain.h"
 
 
 namespace EM
@@ -770,19 +771,18 @@ Horizon2DAscIO::~Horizon2DAscIO()
 {}
 
 
-Table::FormatDesc* Horizon2DAscIO::getDesc()
+Table::FormatDesc* Horizon2DAscIO::getDesc( const ZDomain::Def& def  )
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
+    auto* fd = new Table::FormatDesc( "Horizon2D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
-    BufferStringSet hornms;
-    createDescBody( fd, hornms );
+    createDescBody( fd, def );
     return fd;
 }
 
 
-bool Horizon2DAscIO::isFormatOK(  const Table::FormatDesc& fd,
-				  BufferString& msg )
+bool Horizon2DAscIO::isFormatOK( const Table::FormatDesc& fd,
+							BufferString& msg )
 {
     const bool trccoldefined = fd.bodyinfos_[3]->selection_.isInFile( 0 );
     const bool xycolsdefined = fd.bodyinfos_[1]->selection_.isInFile( 0 )
@@ -796,35 +796,33 @@ bool Horizon2DAscIO::isFormatOK(  const Table::FormatDesc& fd,
 
 
 void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
-				     const BufferStringSet& hornms )
+						    const ZDomain::Def& def )
 {
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
+    auto* ti = Table::TargetInfo::mkHorPosition( false, false );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( "Position",
+    auto* trcspti = new Table::TargetInfo( "Position",
 						IntInpSpec(), Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
-    Table::TargetInfo::Form* spform =
-			new Table::TargetInfo::Form( "SP Nr", FloatInpSpec() );
+    auto* spform = new Table::TargetInfo::Form( "SP Nr", FloatInpSpec() );
     trcspti->add( spform );
     fd->bodyinfos_ += trcspti;
 
-    for ( int idx=0; idx<hornms.size(); idx++ )
-    {
-	const BufferString& fldname = hornms.get( idx );
-	ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
-			Table::Required, Mnemonic::surveyZType() );
-	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
-	fd->bodyinfos_ += ti;
-    }
+    const Mnemonic::StdType type = def.isDepth() ? Mnemonic::Dist
+						 : Mnemonic::Time;
+    ti = new Table::TargetInfo( def.key(), FloatInpSpec(),
+		    Table::Required, Mnemonic::surveyZType() );
+    ti->setPropertyType( type );
+
+    fd->bodyinfos_ += ti;
 }
 
 
 void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
-				 const BufferStringSet& hornms )
+						    const ZDomain::Def& def )
 {
     fd.bodyinfos_.erase();
-    createDescBody( &fd, hornms );
+    createDescBody( &fd, def );
 }
 
 

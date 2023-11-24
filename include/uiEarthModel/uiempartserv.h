@@ -154,7 +154,8 @@ public:
     bool		loadSurface(const MultiID&,
 			    const EM::SurfaceIODataSelection* s=nullptr) const;
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&) const;
-    static void		getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
+    static void		getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool is2d,
+					    const ZDomain::Info* =nullptr);
     void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
 				        BinIDValueSet&,
 				        const TrcKeySampling&) const;

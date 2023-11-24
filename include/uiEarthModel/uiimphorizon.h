@@ -27,7 +27,6 @@ class uiPushButton;
 class uiScaler;
 class uiStratLevelSel;
 class uiTableImpDataSel;
-class uiT2DConvSel;
 class uiUnitSel;
 namespace Coords { class uiCoordSystemSel; }
 namespace EM { class Horizon3D; }

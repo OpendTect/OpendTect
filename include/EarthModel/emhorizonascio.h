@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "tableascio.h"
 #include "od_istream.h"
 
+namespace ZDomain { class Def; }
 
 namespace EM
 {
@@ -61,11 +62,11 @@ public:
 						const char* filenm);
 				~Horizon2DAscIO();
 
-    static Table::FormatDesc*   getDesc();
+    static Table::FormatDesc*	getDesc(const ZDomain::Def&);
     static void			updateDesc(Table::FormatDesc&,
-					   const BufferStringSet&);
+						    const ZDomain::Def&);
     static void			createDescBody(Table::FormatDesc*,
-					   const BufferStringSet&);
+							const ZDomain::Def&);
 
     static bool			isFormatOK(const Table::FormatDesc&,
 					   BufferString&);

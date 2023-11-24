@@ -19,13 +19,14 @@ class BinIDValueSet;
 namespace Survey { class Geometry2D; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 mExpClass(EarthModel) Horizon2DScanner : public Executor
 { mODTextTranslationClass(Horizon2DScanner);
 public:
 
 			Horizon2DScanner(const BufferStringSet& fnms,
-					 Table::FormatDesc& fd);
+				    Table::FormatDesc&,const ZDomain::Info&);
 			~Horizon2DScanner();
 
     uiString		uiMessage() const override;
@@ -46,26 +47,27 @@ public:
 protected:
     int			nextStep() override;
 
-    void		init();
+    void			    init();
 
-    uiString		msg_;
-    mutable int		totalnr_;
-    EM::Horizon2DAscIO*	ascio_;
-    BufferStringSet	filenames_;
-    int			fileidx_;
+    uiString			    msg_;
+    mutable int			    totalnr_;
+    EM::Horizon2DAscIO*		    ascio_;
+    BufferStringSet		    filenames_;
+    int				    fileidx_;
 
-    BufferString	curline_;
-    bool		isgeom_;
-    TypeSet<Interval<float> > valranges_;
-    Table::FormatDesc&	fd_;
+    BufferString		    curline_;
+    bool			    isgeom_;
+    TypeSet<Interval<float> >	    valranges_;
+    Table::FormatDesc&		    fd_;
 
-    const Survey::Geometry2D* curlinegeom_;
+    const Survey::Geometry2D*	    curlinegeom_;
 
-    BufferStringSet	linenames_;
-    BufferStringSet	validnms_;
-    BufferStringSet	invalidnms_;
-    BinIDValueSet*	bvalset_;
+    BufferStringSet		    linenames_;
+    BufferStringSet		    validnms_;
+    BufferStringSet		    invalidnms_;
+    BinIDValueSet*		    bvalset_;
 
-protected:
-    bool		istracenr_;
+    const ZDomain::Info&	    zinfo_;
+
+    bool			    istracenr_;
 };
