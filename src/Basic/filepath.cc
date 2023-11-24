@@ -316,7 +316,12 @@ bool FilePath::isAbsolute() const
 
 bool FilePath::isURI() const
 {
-    return !domain_.isEmpty();
+#ifndef __win__
+    return prefix_.size() > 1;
+#else
+    return prefix_.startsWith( "http" ) || prefix_.startsWith( "s3" );
+#endif
+
 }
 
 
@@ -649,7 +654,7 @@ void FilePath::addPart( const char* fnm )
     *bufptr = '\0';
     if ( buf[0] )
     {
-	if ( lvls_.isEmpty() && domain_.isEmpty() && !prefix_.isEmpty() )
+	if ( lvls_.isEmpty() && isURI() && domain_.isEmpty() )
 	    domain_ = buf;
 	else
 	    lvls_.add( buf );
