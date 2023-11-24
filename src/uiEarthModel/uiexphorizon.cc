@@ -498,8 +498,12 @@ bool uiExportHorizon::writeAscii()
 	    mErrRet( errmsg )
 
 	EM::SurfaceIODataSelection sels( sd );
-	if ( !isbulk_ )
+	if ( isbulk_ )
+	    for ( int idx = 0; idx < sd.sections.size(); idx++ )
+		sels.selsections += idx;
+	else
 	    infld_->getSelection( sels );
+
 
 	sels.selvalues.erase();
 	RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
@@ -515,12 +519,6 @@ bool uiExportHorizon::writeAscii()
 	uiTaskRunner taskrunner( this );
 	if ( !TaskRunner::execute(&taskrunner,*loader) )
 	    return false;
-
-	if ( !isbulk_ )
-	    infld_->getSelection( sels );
-	else
-	    for( int idx=0; idx<sd.sections.size(); idx++ )
-		sels.selsections += idx;
 
 	if ( dogf && sels.selvalues.size() > 1 && uiMSG().askContinue(
 			tr("Only the first selected attribute will be used\n"

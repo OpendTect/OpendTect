@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 
+#include "emioobjinfo.h"
 #include "emposid.h"
 #include "trckeysampling.h"
 #include "multiid.h"
@@ -205,6 +206,10 @@ public:
     void		managePreLoad();
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		processTime2Depth(EM::IOObjInfo::ObjectType);
+
+    static void		launchTime2DepthDlg(uiParent*,
+						    EM::IOObjInfo::ObjectType);
 
 protected:
     void		cleanup();

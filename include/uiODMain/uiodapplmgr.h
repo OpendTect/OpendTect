@@ -322,4 +322,6 @@ protected:
 
 public:
     void			launch2DViewer(CallBacker*);
+    void			processTime2DepthHor(bool is2d);
+
 };

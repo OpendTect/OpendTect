@@ -113,6 +113,10 @@ public:
 
     void		applyPosFilter(const Pos::Filter&,int dataidx=-1);
 
+    void		addAuxData(const BufferStringSet&,
+							const BinIDValueSet&);
+
+
 // Deprecated public functions
 
     mDeprecated("Use without SectionID")

@@ -46,13 +46,34 @@ const int cListHeight = 5;
 
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
     : uiGroup(p,"Surface selection")
-    , ctio_( 0 )
-    , sectionfld_(0)
-    , attribfld_(0)
-    , rgfld_(0)
+    , ctio_(nullptr)
+    , sectionfld_(nullptr)
+    , attribfld_(nullptr)
+    , rgfld_(nullptr)
     , attrSelChange(this)
     , forread_(forread)
-    , objfld_(0)
+    , objfld_(nullptr)
+{
+    init( tp, nullptr );
+}
+
+
+uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp,
+						const ZDomain::Info* zinfo )
+    : uiGroup(p,"Surface selection")
+    , ctio_(nullptr)
+    , sectionfld_(nullptr)
+    , attribfld_(nullptr)
+    , rgfld_(nullptr)
+    , attrSelChange(this)
+    , forread_(forread)
+    , objfld_(nullptr)
+{
+    init( tp, zinfo );
+}
+
+
+void uiIOSurface::init( const char* tp, const ZDomain::Info* zinfo)
 {
     const StringView typ( tp );
     if ( typ == EMHorizon2DTranslatorGroup::sGroupName() )
@@ -69,13 +90,27 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
 	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
 
     if ( forread_ )
-	postFinalize().notify( mCB(this,uiIOSurface,objSel) );
+    {
+	if ( zinfo )
+	{
+	    const ZDomain::Def& def = SI().zIsTime() ?
+		ZDomain::Depth() : ZDomain::Time();
+	    if ( SI().zDomainInfo().isTime() == zinfo->isTime() )
+		ctio_->ctxt_.toselect_.dontAllowToZDomainDef( def );
+	    else
+		ctio_->ctxt_.toselect_.restrictToZDomainDef( def );
+	}
+
+	mAttachCB( postFinalize(), uiIOSurface::objSel );
+    }
 }
 
 
 uiIOSurface::~uiIOSurface()
 {
-    delete ctio_->ioobj_; delete ctio_;
+    detachAllNotifiers();
+    delete ctio_->ioobj_;
+    delete ctio_;
 }
 
 
@@ -480,6 +515,21 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
     : uiIOSurface(p,true,setup.typ_)
     , inpChange(this)
+{
+    init( setup );
+}
+
+
+uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup,
+		    const ZDomain::Info* zinfo )
+    : uiIOSurface(p,true,setup.typ_,zinfo)
+    , inpChange(this)
+{
+    init( setup );
+}
+
+
+void uiSurfaceRead::init( const Setup& setup )
 {
     if ( setup.typ_ == EMFault3DTranslatorGroup::sGroupName() )
 	mkObjFld( uiStrings::phrInput(uiStrings::sFault()));
