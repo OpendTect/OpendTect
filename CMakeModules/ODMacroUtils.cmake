@@ -706,6 +706,14 @@ if ( WIN32 AND (OD_${OD_MODULE_NAME}_EXTERNAL_LIBS OR
 			    "$<TARGET_FILE:${TRGT}>"
 			    "${PROJECT_OUTPUT_DIR}/${OD_RUNTIME_DIRECTORY}"
 		    COMMENT "\nCopying external DLLs of ${TRGT} for the plugin ${OD_MODULE_NAME}" )
+		get_target_property( TRGT_IMPORTED_OBJECTS ${TRGT} IMPORTED_OBJECTS )
+		if ( TRGT_IMPORTED_OBJECTS )
+		    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${TRGT_IMPORTED_OBJECTS}
+				"${PROJECT_OUTPUT_DIR}/${OD_RUNTIME_DIRECTORY}"
+			COMMENT "\nCopying external runtime DLLs of ${TRGT} for the plugin ${OD_MODULE_NAME}" )
+		endif()
 	    endif()
 	    unset( DEP_LIB_TYPE )
 	endforeach()
