@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class TranslatorGroup;
 class IOStream;
+namespace ZDomain { class Def; }
 
 /*!
 \brief Holds constraints on IOObj selection.
@@ -41,6 +42,8 @@ public:
     void		clear();
 
     static bool		isAllowedTranslator(const char* tnm,const char* allowd);
+    void		restrictToZDomainDef(const ZDomain::Def&);
+    void		dontAllowToZDomainDef(const ZDomain::Def&);
 
 };
 

@@ -46,6 +46,7 @@ set( OD_MODULE_SOURCES
 	uisurfaceman.cc
 	uisurfaceposprov.cc
 	uisurfacesel.cc
+	uitime2depthdlg.cc
 )
 
 OD_INIT_MODULE()

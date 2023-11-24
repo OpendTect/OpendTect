@@ -55,6 +55,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emhorizon3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emtracker.h"
@@ -372,6 +373,14 @@ void uiODApplMgr::processTime2Depth( bool is2d )
 
 void uiODApplMgr::processVelConv( CallBacker* )
 { seisserv_->processVelConv(); }
+
+
+void uiODApplMgr::processTime2DepthHor( bool is2d )
+{
+    emserv_->processTime2Depth( is2d ? EM::IOObjInfo::Horizon2D
+				     : EM::IOObjInfo::Horizon3D );
+}
+
 
 void uiODApplMgr::createMultiCubeDS( CallBacker* )
 { seisserv_->createMultiCubeDataStore(); }

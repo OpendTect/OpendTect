@@ -38,6 +38,7 @@ class uiPushButton;
 class uiStratLevelSel;
 
 namespace EM { class Surface; class SurfaceIODataSelection; }
+namespace ZDomain { class Info; }
 
 
 /*! \brief Base group for Surface input and output */
@@ -63,6 +64,8 @@ public:
 protected:
 			uiIOSurface(uiParent*,bool forread,
 				    const char* type);
+			uiIOSurface(uiParent*,bool forread,const char* type,
+			    const ZDomain::Info*);
 
     bool		fillFields(const MultiID&,bool showerrmsg=true);
     void		fillFields(const EM::ObjectID&);
@@ -86,6 +89,8 @@ protected:
 
     CtxtIOObj*		ctio_;
     bool		forread_;
+
+    void		init(const char* type,const ZDomain::Info*);
 
     virtual void	inpChanged()		{}
 };
@@ -170,6 +175,9 @@ public:
     };
 
 			uiSurfaceRead(uiParent*,const Setup&);
+			uiSurfaceRead(uiParent*,
+			    const uiSurfaceRead::Setup& setup,
+			    const ZDomain::Info*);
 			~uiSurfaceRead();
 
     bool		processInput() override;
@@ -180,6 +188,7 @@ public:
 protected:
 
     void		inpChanged() override	{ inpChange.trigger(); }
+    void		init(const Setup&);
 
 };
 

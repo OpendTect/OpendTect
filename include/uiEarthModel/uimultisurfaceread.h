@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 class uiIOObjSelGrp;
 class uiDialog;
+namespace ZDomain { class Info; }
 
 /*! \brief ui for multiple surface read */
 
@@ -21,6 +22,8 @@ mExpClass(uiEarthModel) uiMultiSurfaceRead : public uiIOSurface
 { mODTextTranslationClass(uiMultiSurfaceRead);
 public:
 			uiMultiSurfaceRead(uiParent*,const char* type);
+			uiMultiSurfaceRead(uiParent*,const char* type,
+							const ZDomain::Info*);
 			~uiMultiSurfaceRead();
 
     uiIOObjSelGrp*	objselGrp()		{ return ioobjselgrp_;}
@@ -36,6 +39,8 @@ protected:
 
     void                dClck(CallBacker*);
     void		selCB(CallBacker*);
+
+    void		init(uiParent*,const char*);
 };
 
 
@@ -43,6 +48,8 @@ mExpClass(uiEarthModel) uiMultiSurfaceReadDlg : public uiDialog
 { mODTextTranslationClass(uiMultiSurfaceReadDlg)
 public:
 			uiMultiSurfaceReadDlg(uiParent*,const char* type);
+			uiMultiSurfaceReadDlg(uiParent*,const char* type,
+							const ZDomain::Info*);
 			~uiMultiSurfaceReadDlg();
 
     uiMultiSurfaceRead*	iogrp()		{ return surfacefld_; }
@@ -51,6 +58,8 @@ protected:
 
     void		statusMsg(CallBacker*);
     bool		acceptOK(CallBacker*) override;
+
+    void		init(uiParent*,const char*,const ZDomain::Info*);
 
     uiMultiSurfaceRead*	surfacefld_;
 };

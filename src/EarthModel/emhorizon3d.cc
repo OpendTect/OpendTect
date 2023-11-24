@@ -53,7 +53,7 @@ public:
 
 AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 		 const BufferStringSet& attribnames, const int start,
-		 TrcKeySampling hs	)
+		 TrcKeySampling hs )
     : Executor("Data Import")
     , horizon_(hor)
     , bvss_(sects)
@@ -565,9 +565,16 @@ Array2D<float>* Horizon3D::createArray2D(
 	    {
 		for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 		{
-		    const Coord3 pos = geom->getKnot( RowCol(row,col), false );
-		    const float zval = zaxistransform->transform( pos );
-		    arr->set( rowrg.getIndex(row), colrg.getIndex(col), zval );
+		    const BinID bid( row, col );
+		    const Coord3 pos = geom->getKnot( bid, false );
+		    if ( pos.isDefined() )
+		    {
+			const TrcKey tk( bid );
+			const float zval =
+			    zaxistransform->transformTrc( tk, pos.z );
+			arr->set( rowrg.getIndex(row), colrg.getIndex(col),
+									zval );
+		    }
 		}
 	    }
 	}

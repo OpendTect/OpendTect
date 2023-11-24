@@ -111,6 +111,19 @@ IOObjSelConstraints& IOObjSelConstraints::operator =(
 }
 
 
+void IOObjSelConstraints::restrictToZDomainDef( const ZDomain::Def& def )
+{
+    require_.set( ZDomain::sKey(), def.key() );
+}
+
+
+void IOObjSelConstraints::dontAllowToZDomainDef( const ZDomain::Def& def )
+{
+    //TODO dont allow all other zdomain defs
+    dontallow_.set( ZDomain::sKey(), def.key() );
+}
+
+
 void IOObjSelConstraints::clear()
 {
     require_.setEmpty();

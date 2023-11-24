@@ -80,6 +80,7 @@ ________________________________________________________________________
 #include "uiselsimple.h"
 #include "uisurfaceman.h"
 #include "uitaskrunner.h"
+#include "uitime2depthdlg.h"
 #include "uivariogram.h"
 
 #include <math.h>
@@ -160,6 +161,26 @@ void uiEMPartServer::cleanup()
     closeAndNullPtr( impbulkfssdlg_ );
     closeAndNullPtr( impbulk2dhordlg_ );
     deepErase( variodlgs_ );
+}
+
+
+void uiEMPartServer::processTime2Depth( EM::IOObjInfo::ObjectType objtype )
+{
+    launchTime2DepthDlg( parent(), objtype );
+}
+
+
+void uiEMPartServer::launchTime2DepthDlg( uiParent* parent,
+					EM::IOObjInfo::ObjectType objtype )
+{
+    const uiRetVal ret =  EM::uiTime2DepthDlg::canTransform( objtype );
+    if ( ret.isOK() )
+    {
+	EM::uiTime2DepthDlg dlg( parent, objtype );
+	dlg.go();
+    }
+    else
+	uiMSG().message( ret.messages().cat() );
 }
 
 

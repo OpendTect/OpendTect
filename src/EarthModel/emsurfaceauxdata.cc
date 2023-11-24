@@ -143,6 +143,20 @@ int SurfaceAuxData::addAuxData( const char* name )
 }
 
 
+void SurfaceAuxData::addAuxData( const BufferStringSet& name,
+    const BinIDValueSet& data )
+{
+    for ( const auto* nm : name )
+	addAuxData( nm->buf() );
+
+    if ( !auxdata_.isEmpty() )
+    {
+	const int idx = auxdata_.size()-1;
+	auxdata_.replace( idx, new BinIDValueSet(data) );
+    }
+}
+
+
 void SurfaceAuxData::removeAuxData( int dataidx )
 {
     auxdatanames_.replace( dataidx, nullptr );
