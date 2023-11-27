@@ -36,7 +36,7 @@ ________________________________________________________________________
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seispreload.h"
-#include "seisparallelreader.h"
+#include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "settingsaccess.h"
@@ -801,7 +801,6 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     ConstRefMan<RegularSeisDataPack> preloadeddatapack;
-    const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == TrcKeyZSampling::Z;
     if ( targetdesc )
     {
 	if ( targetdesc->isStored() && !isnla )
@@ -815,6 +814,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	if ( defstr != targetspecs_[0].defString() )
 	    cache = nullptr;
 
+	const bool isz = tkzs.isFlat()&&tkzs.defaultDir() == TrcKeyZSampling::Z;
 	if ( !preloadeddatapack && isz )
 	{
 	    if ( targetdesc->isStored() )
@@ -822,15 +822,14 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 		const MultiID mid( targetdesc->getStoredID().buf() );
 		RefMan<RegularSeisDataPack> sdp = new RegularSeisDataPack(
 				SeisDataPack::categoryStr(false,false) );
-		PtrMan<IOObj> ioobj = IOM().get( mid );
-		if ( !ioobj )
-		    return nullptr;
 
-		Seis::SequentialReader rdr( *ioobj, &tkzs );
-		rdr.setDataPack( *sdp );
+		const SeisIOObjInfo seisinfo( mid );
+		SeisTrcReader rdr( mid, seisinfo.geomType() );
+		rdr.setSelData( new Seis::RangeSelData(tkzs) );
+
 		uiTaskRunner uitaskr( parent() );
 		TaskRunner* taskr = showzprogress ? &uitaskr : nullptr;
-		if ( TaskRunner::execute(taskr, rdr) )
+		if ( rdr.getDataPack(*sdp,taskr) )
 		    return sdp;
 	    }
 
