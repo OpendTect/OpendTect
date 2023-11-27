@@ -493,7 +493,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
     ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false ).get();
     int nrtrcs = 0;
-    if ( fdp )
+    if ( fdp && fdp->isOK() )
     {
 	offsetrange_.setFrom( fdp->posData().range( true ) );
 	zrg_.setFrom( fdp->posData().range( false ) );
@@ -929,7 +929,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	return;
 
     ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false ).get();
-    if ( !fdp )
+    if ( !fdp || !fdp->isOK() )
 	return;
 
     const int nrtrcs = fdp->size( true );
