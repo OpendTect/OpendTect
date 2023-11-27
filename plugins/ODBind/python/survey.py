@@ -366,6 +366,13 @@ class _SurveyObject(object):
 
         return pyjsonstr(self._info(self._handle))
 
+    def wrapindex(self, i):
+        if i < 0:
+            i += len(self)
+        if not 0 <= i < len(self):
+            raise IndexError('trace index out of range')
+        return i
+
     @classmethod
     def infos(clss, survey: Survey, fornms: list=[]) ->dict:
         """ Return basic information for all or a subset of objects in the given survey.

@@ -68,6 +68,9 @@ od_int64 PosInfo::CubeDataIndex::trcNumber( const BinID& bid ) const
 
     auto start = cdidx_.begin() + inlit.first->index_;
     auto stop = cdidx_.begin() + inlit.second->index_;
+    if ( inlit.second==inlidx_.end() )
+	stop =	cdidx_.end();
+
     const auto it = std::lower_bound( start, stop, bid.crl(),
 				     []( const Segment& seg, int val )
 				     {

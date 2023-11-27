@@ -16,6 +16,7 @@ def test_Survey_class():
                 'name': "F3 Demo 2020",
                 'type': "2D3D",
                 'crs': "EPSG:23031",
+                'zdomain': 'twt',
                 'xyunit': 'm',
                 'zunit': 'ms',
                 'srd': 0

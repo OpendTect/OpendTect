@@ -91,6 +91,7 @@ void odSurvey::getInfo( OD::JSON::Object& jsobj) const
     jsobj.set( "name", info.name().buf() );
     jsobj.set( "type", type().buf() );
     jsobj.set( "crs", get_crsCode().buf() );
+    jsobj.set( "zdomain", strdup(info.zIsTime() ? "twt" : "depth") );
     jsobj.set( "xyunit", info.getXYUnitString(false) );
     jsobj.set( "zunit", info.getZUnitString(false) );
     jsobj.set( "srd", info.seismicReferenceDatum() );
@@ -105,7 +106,7 @@ void odSurvey::getFeature(OD::JSON::Object& jsobj, bool towgs) const
     jsobj.set( "properties", info );
     auto* geom = new OD::JSON::Object;
     geom->set( "type", "Polygon" );
-    auto* rings = new OD::JSON::Array( false ) ;
+    auto* rings = new OD::JSON::Array( false );
     auto* coords = new OD::JSON::Array( false );
     getPoints( *coords, towgs );
     rings->add( coords );
