@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "ioman.h"
 #include "uistrings.h"
+#include "survinfo.h"
 #include "zaxistransform.h"
 
 namespace EM

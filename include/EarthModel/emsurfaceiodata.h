@@ -13,8 +13,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "trckeysampling.h"
 #include "typeset.h"
-#include "unitofmeasure.h"
 
+
+namespace ZDomain { class Info; }
+class UnitOfMeasure;
 
 namespace EM
 {
@@ -28,14 +30,17 @@ class Surface;
 mExpClass(EarthModel) SurfaceIOData
 {
 public:
-			SurfaceIOData();
-			~SurfaceIOData();
+			    SurfaceIOData();
+			    ~SurfaceIOData();
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    void		    fillPar(IOPar&) const;
+    void		    usePar(const IOPar&);
 
-    void		clear();
-    void		use(const Surface&);
+    void		    clear();
+    void		    use(const Surface&);
+
+    void		    setZDomain(const ZDomain::Info&);
+    const ZDomain::Info&    zDomain() const;
 
     BufferString		dbinfo;
     TrcKeySampling		rg;			// 3D only
@@ -43,7 +48,6 @@ public:
     BufferStringSet		valnames;
     TypeSet<float>		valshifts_;
     BufferStringSet		sections;
-    const UnitOfMeasure*	zunit = UnitOfMeasure::surveyDefZStorageUnit();
 
     /*! For 2D Only: */
     BufferStringSet		linenames;
@@ -51,6 +55,10 @@ public:
     TypeSet<Pos::GeomID>	geomids;
     TypeSet<StepInterval<int>>	trcranges;
     int				nrfltsticks_		= 0;
+
+protected:
+    const ZDomain::Info*	zinfo_;
+
 };
 
 

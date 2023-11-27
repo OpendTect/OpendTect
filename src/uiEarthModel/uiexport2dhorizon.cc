@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "tableconvimpl.h"
+#include "unitofmeasure.h"
 #include "zaxistransform.h"
 
 #include "uibutton.h"

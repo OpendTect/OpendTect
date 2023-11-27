@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "unitofmeasure.h"
 
 namespace EM
 {
@@ -42,21 +43,21 @@ mDefineEnumUtils( IOObjInfo, ObjectType, "Object Type" )
 IOObjInfo::IOObjInfo( const IOObj* ioobj )
     : ioobj_(ioobj ? ioobj->clone() : nullptr)
 {
-    setType();
+    init();
 }
 
 
 IOObjInfo::IOObjInfo( const IOObj& ioobj )
     : ioobj_(ioobj.clone())
 {
-    setType();
+    init();
 }
 
 
 IOObjInfo::IOObjInfo( const MultiID& id )
     : ioobj_(IOM().get(id))
 {
-    setType();
+    init();
 }
 
 
@@ -64,6 +65,26 @@ IOObjInfo::IOObjInfo( const IOObjInfo& sii )
     : type_(sii.type_)
 {
     ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
+    fillZDomain();
+}
+
+
+void IOObjInfo::init()
+{
+    setType();
+    fillZDomain();
+}
+
+
+void IOObjInfo::fillZDomain()
+{
+    if ( !ioobj_ )
+    {
+	zinfo_ = new ZDomain::Info( SI().zDomainInfo() );
+	return;
+    }
+
+    zinfo_ = new ZDomain::Info( ioobj_->pars() );
 }
 
 
@@ -87,7 +108,14 @@ IOObjInfo& IOObjInfo::operator =( const IOObjInfo& sii )
 	delete ioobj_;
 	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
 	type_ = sii.type_;
+	const ZDomain::Info& zinfo = sii.zDomain();
+	if ( !zDomain().isCompatibleWith(zinfo) )
+	{
+	    delete zinfo_;
+	    zinfo_ = new ZDomain::Info( zinfo );
+	}
     }
+
     return *this;
 }
 
@@ -166,27 +194,21 @@ Interval<float> IOObjInfo::getZRange() const
 }
 
 
+const ZDomain::Info& IOObjInfo::zDomain() const
+{
+    return *zinfo_;
+}
+
+
 const UnitOfMeasure* IOObjInfo::getZUoM() const
 {
-    if ( !ioobj_ )
-	return UnitOfMeasure::surveyDefZUnit();
-
-    return UnitOfMeasure::getGuessed( getZUnitLabel() );
+    return UnitOfMeasure::zUnit( zDomain() );
 }
 
 
 BufferString IOObjInfo::getZUnitLabel() const
 {
-    if ( !ioobj_ )
-	return BufferString::empty();
-
-    PtrMan<Translator> trans = ioobj_->createTranslator();
-    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
-    if ( !str || !str->startRead(*ioobj_) )
-	return BufferString::empty();
-
-    const SurfaceIOData& newsd = str->selections().sd;
-    return newsd.zunit->getLabel();
+    return zDomain().unitStr();
 }
 
 

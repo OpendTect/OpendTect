@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
+#include "zdomain.h"
 
 #include <limits.h>
 
@@ -102,7 +103,7 @@ dgbSurfaceReader::dgbSurfaceReader( const char* fulluserexp,
 void dgbSurfaceReader::init( const char* filetype, const char* objname )
 {
     zrange_ = Interval<float>(mUdf(float),mUdf(float));
-    zunit_ = UnitOfMeasure::surveyDefZStorageUnit();
+    zinfo_ = new ZDomain::Info( SI().zDomainInfo() );
     linenames_.allowNull();
 
     BufferString exnm( "Reading surface '", objname, "'" );
@@ -334,10 +335,12 @@ bool dgbSurfaceReader::readHeaders( StreamConn& conn, const char* filetype )
     linenames_.setEmpty();
     par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
 
-    BufferString zunitlbl;
-    par_->get( sKey::ZUnit(), zunitlbl );
-    if ( !zunitlbl.isEmpty() )
-	zunit_ = UoMR().get( zunitlbl );
+    const ZDomain::Info* info = ZDomain::get( *par_ );
+    if ( info && !info->isCompatibleWith(*zinfo_) )
+    {
+	delete zinfo_;
+	zinfo_ = new ZDomain::Info( *info );
+    }
 
     TypeSet< StepInterval<int> > trcranges;
     const int res = scanFor2DGeom( trcranges );
@@ -417,6 +420,8 @@ dgbSurfaceReader::~dgbSurfaceReader()
     delete floatinterpreter_;
     if ( surface_ )
 	surface_->geometry().resetChangedFlag();
+
+    delete zinfo_;
 }
 
 
@@ -530,9 +535,9 @@ const Interval<float>& dgbSurfaceReader::zInterval() const
 }
 
 
-const UnitOfMeasure* dgbSurfaceReader::zUnit() const
+const ZDomain::Info& dgbSurfaceReader::zDomain() const
 {
-    return zunit_;
+    return *zinfo_;
 }
 
 

@@ -48,6 +48,7 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 #include "zaxistransform.h"
 #include "od_helpids.h"
 

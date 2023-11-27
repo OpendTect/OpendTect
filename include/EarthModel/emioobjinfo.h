@@ -18,6 +18,7 @@ class BufferStringSet;
 class TrcKeyZSampling;
 class IOObj;
 class UnitOfMeasure;
+namespace ZDomain { class Info; }
 
 namespace EM
 {
@@ -66,6 +67,7 @@ public:
     uiString		getMessage() const;
     const char*		timeLastModified() const;
     const char*		timeLastModified(bool iso) const;
+    const ZDomain::Info& zDomain() const;
 
     // Surface
     inline bool		isSurface() const	{ return type_ != Body; }
@@ -102,11 +104,15 @@ public:
 
 protected:
 
-    ObjectType		type_;
-    IOObj*		ioobj_;
-    mutable dgbSurfaceReader* reader_	= nullptr;
+    ObjectType			type_;
+    IOObj*			ioobj_;
+    const ZDomain::Info*	zinfo_	= nullptr;
+    mutable dgbSurfaceReader*	reader_ = nullptr;
 
-    void		setType();
+    void			fillZDomain();
+    void			init();
+
+    void			setType();
 };
 
 } // namespace EM

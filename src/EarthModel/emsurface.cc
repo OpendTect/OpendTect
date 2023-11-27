@@ -21,7 +21,10 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "posfilter.h"
 #include "posinfo2dsurv.h"
+#include "survinfo.h"
 #include "trckeyzsampling.h"
+#include "unitofmeasure.h"
+#include "zdomain.h"
 
 
 static const char* sDbInfo = "DB Info";
@@ -34,12 +37,14 @@ namespace EM
 {
 
 SurfaceIOData::SurfaceIOData()
+    : zinfo_(new ZDomain::Info(SI().zDomainInfo()))
 {}
 
 
 SurfaceIOData::~SurfaceIOData()
 {
     clear();
+    delete zinfo_;
 }
 
 
@@ -53,6 +58,22 @@ void SurfaceIOData::clear()
     linesets.setEmpty();
     geomids.setEmpty();
     trcranges.setEmpty();
+}
+
+
+void SurfaceIOData::setZDomain( const ZDomain::Info& zinfo )
+{
+    if ( zinfo_->isCompatibleWith(zinfo) )
+	return;
+
+    delete zinfo_;
+    zinfo_ = new ZDomain::Info( zinfo );
+}
+
+
+const ZDomain::Info& SurfaceIOData::zDomain() const
+{
+    return *zinfo_;
 }
 
 

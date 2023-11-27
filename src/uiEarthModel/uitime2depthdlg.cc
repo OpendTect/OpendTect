@@ -21,8 +21,10 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "mousecursor.h"
+#include "survinfo.h"
 #include "task.h"
 #include "transl.h"
+#include "zdomain.h"
 
 #include "uigeninput.h"
 #include "uiioobjselgrp.h"

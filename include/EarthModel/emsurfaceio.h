@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class IOObj;
 class StreamConn;
-class UnitOfMeasure;
+namespace ZDomain { class Info; }
 template <class T> class DataInterpreter;
 template <class T> class Array3D;
 template <class T> class Array2D;
@@ -71,7 +71,7 @@ public:
     const StepInterval<int>&	rowInterval() const;
     const StepInterval<int>&	colInterval() const;
     const Interval<float>&	zInterval() const;
-    const UnitOfMeasure*	zUnit() const;
+    const ZDomain::Info&	zDomain() const;
 
     void		setRowInterval(const StepInterval<int>&);
     void		setColInterval(const StepInterval<int>&);
@@ -196,10 +196,10 @@ protected:
     Array2D<float>*	arr_				= nullptr;
 
 
-    StepInterval<int>	rowrange_;
-    StepInterval<int>	colrange_;
-    Interval<float>	zrange_;
-    const UnitOfMeasure*	zunit_			= nullptr;
+    StepInterval<int>	    rowrange_;
+    StepInterval<int>	    colrange_;
+    Interval<float>	    zrange_;
+    const ZDomain::Info*    zinfo_;
 
     StepInterval<int>*	readrowrange_			= nullptr;
     StepInterval<int>*	readcolrange_			= nullptr;
