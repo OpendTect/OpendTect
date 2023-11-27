@@ -98,6 +98,11 @@ vol.trace_index(100, 400)
 vol.bin(100)
 ```
 
+```python
+tst =Seismic3D(f3demo,'pytest')
+tst.z_index(40)
+```
+
 ## Static methods
 A number of methods are provided to get information either for all or a selected number of wells in the user provided survey.
 

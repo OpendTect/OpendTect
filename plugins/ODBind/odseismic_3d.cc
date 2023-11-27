@@ -432,13 +432,14 @@ int seismic3d_getzidx( hSeismic3D self, float zval )
 	return -1;
 
     const auto& zrg = p->getZrange();
-    if ( !zrg.includes(zval, false) )
+    const int zidx = zrg.getIndex( zval );
+    if ( zidx<0 || zidx>zrg.nrSteps() )
     {
 	p->setErrMsg( "invalid z value location.");
 	return -1;
     }
 
-    return zrg.getIndex( zval );
+    return zidx;
 }
 
 
