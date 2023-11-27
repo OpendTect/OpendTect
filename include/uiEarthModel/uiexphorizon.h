@@ -14,11 +14,10 @@ ________________________________________________________________________
 
 class uiFileInput;
 class uiGenInput;
-class uiIOObjSelGrp;
 class uiSurfaceRead;
+class uiMultiSurfaceRead;
 class uiUnitSel;
 class uiPushButton;
-class uiT2DConvSel;
 namespace Coords { class uiCoordSystemSel; }
 
 /*! \brief Dialog for horizon export */
@@ -38,13 +37,13 @@ protected:
     uiGenInput*		headerfld_;
     uiGenInput*		typfld_;
     uiGenInput*		writezfld_;
-    uiGenInput*		doconvzfld_;
     uiPushButton*	settingsbutt_;
     uiUnitSel*		unitsel_;
     uiGenInput*		udffld_;
-    uiT2DConvSel*	transfld_;
-    uiIOObjSelGrp*	bulkinfld_			= nullptr;
+    uiMultiSurfaceRead* multisurfdepthread_		= nullptr;
+    uiMultiSurfaceRead* multisurftimeread_		= nullptr;
     Coords::uiCoordSystemSel* coordsysselfld_		= nullptr;
+    uiGenInput*		horzdomypefld_			= nullptr;
 
     BufferString	gfname_;
     BufferString	gfcomment_;
@@ -56,11 +55,11 @@ protected:
     void		settingsCB(CallBacker*);
     void		inpSel(CallBacker*);
     void		writeHeader(od_ostream&);
+    void		zDomainTypeChg(CallBacker*);
     bool		writeAscii();
     bool		getInputMIDs(TypeSet<MultiID>&);
 
     bool		isbulk_;
 
     bool		exportToGF() const;
-    StringView		getZDomain() const;
 };

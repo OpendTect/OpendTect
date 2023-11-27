@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
+#include "uimultisurfaceread.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uit2dconvsel.h"
@@ -104,10 +105,9 @@ public:
 	  mDefSetupMemb(BufferString,udfstr)
       };
 
-Write3DHorASCII( od_ostream&, int sectionidx, int sidx,
-		 const EM::Horizon3D*,const ZAxisTransform*,
-		 const UnitOfMeasure*,const Coords::CoordSystem*,
-		 const Setup&);
+Write3DHorASCII( od_ostream&, int sectionidx, int sidx, const EM::Horizon3D*,
+			    const UnitOfMeasure*, const Coords::CoordSystem*,
+			    const Setup& );
 
     int				nextStep() override;
     const char*			message() const override    { return msg_; }
@@ -121,7 +121,6 @@ protected:
     int				maxsize_;
     const EM::Horizon3D*	hor_;
     EM::EMObjectIterator*	it_;
-    const ZAxisTransform*	zatf_;
     const UnitOfMeasure*	unit_;
     BufferString		msg_;
     int				counter_;
@@ -131,13 +130,12 @@ protected:
 
 
 Write3DHorASCII::Write3DHorASCII( od_ostream& stream, const int sectionidx,
-    const int sidx, const EM::Horizon3D* hor, const ZAxisTransform* zatf,
-    const UnitOfMeasure* unit, const Coords::CoordSystem* crs, const Setup& su )
+    const int sidx, const EM::Horizon3D* hor, const UnitOfMeasure* unit,
+    const Coords::CoordSystem* crs, const Setup& su )
     : Executor(hor->name())
     , stream_(stream)
     , sidx_(sidx)
     , hor_(hor)
-    , zatf_(zatf)
     , unit_(unit)
     , counter_(0)
     , coordsys_(crs)
@@ -198,15 +196,7 @@ int Write3DHorASCII::nextStep()
 
     Coord3 crd = hor_->getPos( posid );
     const BinID bid = SI().transform( crd.coord() );
-    const UnitOfMeasure* fromuom = nullptr;
-    if ( zatf_ )
-    {
-	crd.z = zatf_->transformTrc( TrcKey(bid), (float)crd.z );
-	fromuom = UnitOfMeasure::zUnit( zatf_->toZDomainInfo() );
-    }
-    else
-	fromuom = hor_->zUnit();
-
+    const UnitOfMeasure* fromuom = hor_->zUnit();
     convValue( crd.z, fromuom, unit_ );
     if ( coordsys_ && !(*coordsys_ == *SI().getCoordSystem()) )
     {
@@ -292,6 +282,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     uiIOObjSelGrp::Setup stup;
     stup.choicemode_ = OD::ChooseAtLeastOne;
     uiObject* attachobj = nullptr;
+
     if ( !isbulk )
     {
 	infld_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
@@ -303,9 +294,22 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     }
     else
     {
-	bulkinfld_ = new uiIOObjSelGrp( this, ctxt,
-				      uiStrings::sHorizon(mPlural), stup );
-	attachobj = bulkinfld_->attachObj();
+	horzdomypefld_ = new uiGenInput( this, tr("Depth Domain"),
+				    BoolInpSpec(SI().zIsTime(),
+				    uiStrings::sTime(), uiStrings::sDepth()) );
+	mAttachCB( horzdomypefld_->valueChanged,
+					   uiExportHorizon::zDomainTypeChg );
+
+	auto* multigrp = new uiGroup( this, "Multi Surface Read" );
+	multigrp->attach( alignedBelow, horzdomypefld_ );
+	const char* surftype = EMHorizon3DTranslatorGroup::sGroupName();
+	const ZDomain::Info& depthinfo = SI().depthsInFeet() ?
+			ZDomain::DepthFeet() : ZDomain::DepthMeter();
+	multisurfdepthread_ = new uiMultiSurfaceRead( multigrp, surftype,
+								&depthinfo );
+	multisurftimeread_ = new uiMultiSurfaceRead( multigrp, surftype,
+							    &ZDomain::TWT() );
+	attachobj = multigrp->attachObj();
     }
 
     typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
@@ -330,23 +334,14 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     writezfld_->attach( alignedBelow, attachobj );
     mAttachCB( writezfld_->valueChanged, uiExportHorizon::addZChg );
 
-    doconvzfld_ = new uiGenInput( this, tr("Apply Time-Depth conversion"),
-				  BoolInpSpec(false) );
-    doconvzfld_->attach( rightTo, writezfld_ );
-    mAttachCB( doconvzfld_->valueChanged, uiExportHorizon::addZChg );
-
-    uiT2DConvSel::Setup su( 0, false );
-    su.ist2d( SI().zIsTime() );
-    transfld_ = new uiT2DConvSel( this, su );
-    transfld_->display( false );
-    transfld_->attach( alignedBelow, writezfld_ );
-
     unitsel_ = new uiUnitSel( this, uiUnitSel::Setup(tr("Z Unit")) );
     unitsel_->setUnit( UnitOfMeasure::surveyDefZUnit() );
-    unitsel_->attach( alignedBelow, transfld_ );
+    unitsel_->attach( alignedBelow, writezfld_ );
 
+    const uiStringSet& headerdrtyps = hdrtyps();
     headerfld_ = new uiGenInput( this, tr("Header"),
-				 StringListInpSpec(hdrtyps()) );
+				 StringListInpSpec(headerdrtyps) );
+    headerfld_->setText( headerdrtyps[1].getOriginalString() );
     headerfld_->attach( alignedBelow, unitsel_ );
 
     udffld_ = new uiGenInput( this, tr("Undefined value"),
@@ -359,6 +354,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     mAttachCB( postFinalize(), uiExportHorizon::typChg );
     if ( !isbulk )
 	mAttachCB( postFinalize(), uiExportHorizon::inpSel );
+    else
+	mAttachCB( postFinalize(), uiExportHorizon::zDomainTypeChg );
 }
 
 
@@ -463,18 +460,6 @@ bool uiExportHorizon::writeAscii()
     const bool addzpos = writezfld_->getBoolValue();
     const bool dogf = exportToGF();
 
-    RefMan<ZAxisTransform> zatf = 0;
-    if ( doconvzfld_->getBoolValue() )
-    {
-	zatf = transfld_->getSelection();
-	if ( !zatf )
-	{
-	    uiMSG().message( tr("Z Transform of selected option is not "
-				"implemented") );
-	    return false;
-	}
-    }
-
     BufferString udfstr = udffld_->text();
     if ( udfstr.isEmpty() )
 	udfstr = sKey::FloatUdf();
@@ -534,21 +519,6 @@ bool uiExportHorizon::writeAscii()
 
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	const UnitOfMeasure* unit = unitsel_->getUnit();
-	int zatvoi = -1;
-	if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
-	{
-	    TrcKeyZSampling bbox;
-	    bbox.hsamp_ = hor->range();
-	    bbox.zsamp_.setFrom( hor->getZRange() );
-
-	    zatvoi = zatf->addVolumeOfInterest( bbox, false );
-	    if ( !zatf->loadDataIfMissing( zatvoi, &taskrunner ) )
-	    {
-		uiMSG().error( tr("Cannot load data for z-transform") );
-		return false;
-	    }
-	}
-
 	const int nrattribs = hor->auxdata.nrAuxData();
 	BufferString dispstr("Writing Horizon ");
 	dispstr.add( hor->name() );
@@ -572,27 +542,28 @@ bool uiExportHorizon::writeAscii()
 	const Coords::CoordSystem* crs =
 	    coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
 	Write3DHorASCII* executor = new Write3DHorASCII( stream, 0,
-			0, hor, zatf.ptr(), unit, crs, su );
+			0, hor, unit, crs, su );
 	exphorgrp.add( executor );
 	if ( !TaskRunner::execute(&taskrunner,exphorgrp) )
 	    return false;
-
-	if ( zatf && zatvoi>=0 )
-	    zatf->removeVolumeOfInterest( zatvoi );
     }
 
     return true;
 }
 
 
+void uiExportHorizon::zDomainTypeChg(CallBacker*)
+{
+    const bool istime = horzdomypefld_->getBoolValue();
+    multisurfdepthread_->display( !istime );
+    multisurftimeread_->display( istime );
+    const ZDomain::Info& zinfo( istime ? ZDomain::Time() : ZDomain::Depth() );
+    unitsel_->setUnit( UnitOfMeasure::zUnit(zinfo) );
+}
+
+
 bool uiExportHorizon::acceptOK( CallBacker* )
 {
-    if ( writezfld_->getBoolValue() && doconvzfld_->getBoolValue() )
-    {
-	if ( !transfld_->acceptOK() )
-	    return false;
-    }
-
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() );
@@ -632,7 +603,13 @@ bool uiExportHorizon::getInputMIDs( TypeSet<MultiID>& midset )
 	midset.add(mid);
     }
     else
-	bulkinfld_->getChosen( midset );
+    {
+	const bool istime = horzdomypefld_->getBoolValue();
+	if ( istime )
+	    multisurftimeread_->getSurfaceIds( midset );
+	else
+	    multisurfdepthread_->getSurfaceIds( midset );
+    }
 
     return true;
 }
@@ -660,7 +637,7 @@ void uiExportHorizon::typChg( CallBacker* cb )
 void uiExportHorizon::inpSel( CallBacker* )
 {
     const IOObj* ioobj = infld_ ? infld_->selIOObj() : nullptr;
-    if ( ioobj && !doconvzfld_->getBoolValue() )
+    if ( ioobj )
     {
 	gfname_ = ioobj->name();
 	const EM::IOObjInfo info( ioobj->key() );
@@ -674,44 +651,12 @@ void uiExportHorizon::addZChg( CallBacker* )
     const bool isgf = exportToGF();
     settingsbutt_->display( isgf );
     writezfld_->display( !isgf );
-    doconvzfld_->display( !isgf && writezfld_->getBoolValue() );
-    transfld_->display( !isgf && doconvzfld_->getBoolValue() );
-    const bool displayunit = !isgf && writezfld_->getBoolValue();
-    if ( displayunit )
-    {
-	const StringView zdomainstr = getZDomain();
-	if ( zdomainstr == ZDomain::sKeyDepth() )
-	{
-	    unitsel_->setPropType( Mnemonic::Dist );
-	    unitsel_->setUnit( UnitOfMeasure::surveyDefDepthUnit() );
-	}
-	else if ( zdomainstr == ZDomain::sKeyTime() )
-	{
-	    unitsel_->setPropType( Mnemonic::Time );
-	    unitsel_->setUnit( UnitOfMeasure::surveyDefTimeUnit() );
-	}
-    }
-
-    unitsel_->display( displayunit );
 }
 
 
 bool uiExportHorizon::exportToGF() const
 {
     return typfld_->getIntValue()==3;
-}
-
-
-StringView uiExportHorizon::getZDomain() const
-{
-    StringView zdomain = ZDomain::SI().key();
-    if ( exportToGF() )
-	return zdomain;
-
-    if ( writezfld_->getBoolValue() && doconvzfld_->getBoolValue() )
-	return transfld_->selectedToDomain();
-
-    return zdomain;
 }
 
 

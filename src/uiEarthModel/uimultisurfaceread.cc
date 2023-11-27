@@ -87,10 +87,9 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ,
 {
     ioobjselgrp_ = new uiIOObjSelGrp( this, *ctio_,
 	uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne).allowsetdefault(true) );
-    ioobjselgrp_->selectionChanged.notify( mCB(this,uiMultiSurfaceRead,selCB) );
-    ioobjselgrp_->getListField()->doubleClicked.notify(
-					mCB(this,uiMultiSurfaceRead,dClck) );
-
+    mAttachCB( ioobjselgrp_->selectionChanged, uiMultiSurfaceRead::selCB );
+    mAttachCB( ioobjselgrp_->getListField()->doubleClicked,
+						uiMultiSurfaceRead::dClck );
     mkRangeFld();
     rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
@@ -102,12 +101,13 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ,
 	rgfld_->display( false, true );
     }
 
-    selCB(0);
+    mAttachCB( postFinalize(), uiMultiSurfaceRead::selCB );
 }
 
 
 uiMultiSurfaceRead::~uiMultiSurfaceRead()
 {
+    detachAllNotifiers();
 }
 
 
