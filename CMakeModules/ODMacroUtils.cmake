@@ -684,38 +684,24 @@ endif( OD_USEBATCH )
 include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
 include_directories( ${OD_MODULE_INCLUDEPATH} )
 
-if ( WIN32 AND (OD_${OD_MODULE_NAME}_EXTERNAL_LIBS OR
-	        OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS ))
-    list ( APPEND EXTLIBS ${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS} )
-    list ( APPEND EXTLIBS ${OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS} )
-    list ( LENGTH EXTLIBS EXTLIBS_SIZE )
+if ( WIN32 )
 
-    if ( NOT ${EXTLIBS_SIZE} EQUAL -1 AND OD_IS_PLUGIN )
-	get_filename_component( QTDIR "${QT_DIR}/../../../" REALPATH )
-	foreach( TRGT ${EXTLIBS} )
-	    if ( NOT TARGET ${TRGT} OR
-		 "${TRGT}" MATCHES ".*Qt${QT_VERSION_MAJOR}.*" OR
-		 "${TRGT}" MATCHES "^${QTDIR}" )
-		continue()
-	    endif()
-	    get_target_property( DEP_LIB_TYPE ${TRGT} TYPE )
-	    if ( DEP_LIB_TYPE AND (${DEP_LIB_TYPE} STREQUAL "SHARED_LIBRARY" OR
-				   ${DEP_LIB_TYPE} STREQUAL "UNKNOWN_LIBRARY") )
-		add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
-		    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			    "$<TARGET_FILE:${TRGT}>"
-			    "${PROJECT_OUTPUT_DIR}/${OD_RUNTIME_DIRECTORY}"
-		    COMMENT "\nCopying external DLLs of ${TRGT} for the plugin ${OD_MODULE_NAME}" )
-		get_target_property( TRGT_IMPORTED_OBJECTS ${TRGT} IMPORTED_OBJECTS )
-		if ( TRGT_IMPORTED_OBJECTS )
-		    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				${TRGT_IMPORTED_OBJECTS}
-				"${PROJECT_OUTPUT_DIR}/${OD_RUNTIME_DIRECTORY}"
-			COMMENT "\nCopying external runtime DLLs of ${TRGT} for the plugin ${OD_MODULE_NAME}" )
-		endif()
-	    endif()
-	    unset( DEP_LIB_TYPE )
+    if ( OD_IS_PLUGIN AND NOT "${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS}" STREQUAL "" )
+	add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+	    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		    "$<TARGET_RUNTIME_DLLS:${OD_MODULE_NAME}>"
+		    "$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
+	    COMMAND_EXPAND_LISTS
+	    COMMENT "\nCopying runtime DLLs of the plugin ${OD_MODULE_NAME}" )
+    endif()
+    if ( NOT "${OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS}" STREQUAL "" )
+	foreach( TRGT ${OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS} )
+	    add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"$<TARGET_FILE:${TRGT}>"
+			"$<TARGET_FILE_DIR:${OD_MODULE_NAME}>"
+		COMMAND_EXPAND_LISTS
+		COMMENT "\nCopying runtime DLLs of the dependency ${TRGT}" )
 	endforeach()
     endif()
 

@@ -321,6 +321,36 @@ macro( OD_INSTALL_LIBRARY LIBNM INSTDEST )
     unset( _INST_DIR )
 endmacro(OD_INSTALL_LIBRARY)
 
+function( od_get_imported_link_dependent_libs trgt _var )
+
+    set( _libs )
+
+    get_target_property( TARGET_IMPORTED_LINK_DEP_LIBS ${trgt}
+			 IMPORTED_LINK_DEPENDENT_LIBRARIES )
+    if ( TARGET_IMPORTED_LINK_DEP_LIBS )
+	foreach( IMPORTED_LINK_DEP_LIB ${TARGET_IMPORTED_LINK_DEP_LIBS} )
+	    list( APPEND _libs "${IMPORTED_LINK_DEP_LIB}" )
+	endforeach()
+	unset( TARGET_IMPORTED_LINK_DEP_LIBS )
+    endif()
+    get_target_property( TARGET_CONFIGS ${trgt} IMPORTED_CONFIGURATIONS )
+    foreach( config ${TARGET_CONFIGS} )
+	get_target_property( TARGET_IMPORTED_LINK_DEP_LIBS_${config} ${trgt} IMPORTED_LINK_DEPENDENT_LIBRARIES_${config} )
+	if( NOT TARGET_IMPORTED_LINK_DEP_LIBS_${config} )
+	    continue()
+	endif()
+	foreach( TARGET_IMPORTED_LINK_DEP_LIB_${config} ${TARGET_IMPORTED_LINK_DEP_LIBS_${config}} )
+	    list( APPEND _libs "${TARGET_IMPORTED_LINK_DEP_LIB_${config}}" )
+	endforeach()
+	unset( TARGET_IMPORTED_LINK_DEP_LIBS_${config} )
+    endforeach()
+    unset( TARGET_CONFIGS )
+
+    list( REMOVE_DUPLICATES _libs )
+    set( ${_var} "${_libs}" PARENT_SCOPE )
+
+endfunction( od_get_imported_link_dependent_libs )
+
 function( od_get_imported_objects trgt _var _configs_out )
 
     set( _libs )
@@ -360,6 +390,19 @@ function( od_get_imported_objects trgt _var _configs_out )
 
 endfunction( od_get_imported_objects trgt )
 
+macro( OD_INSTALL_IMPORTED_LINK_DEPS TRGT )
+
+    od_get_imported_link_dependent_libs( ${TRGT} TRGT_IMPORTED_LINK_DEPS )
+    foreach( _imported_trgt ${TRGT_IMPORTED_LINK_DEPS} )
+	install( IMPORTED_RUNTIME_ARTIFACTS ${_imported_trgt}
+		 LIBRARY DESTINATION "${OD_LIBRARY_DIRECTORY}"
+		 FRAMEWORK DESTINATION "${OD_LIBRARY_DIRECTORY}"
+		 RUNTIME DESTINATION "${OD_LOCATION_DIRECTORY}" )
+    endforeach()
+    unset( TRGT_IMPORTED_LINK_DEPS )
+
+endmacro( OD_INSTALL_IMPORTED_LINK_DEPS )
+
 macro( OD_INSTALL_IMPORTED_OBJECTS TRGT )
 
     od_get_imported_objects( ${TRGT} TRGT_IMPORTED_OBJECTS IMPORTED_CONFIGS )
@@ -376,37 +419,26 @@ macro( OD_INSTALL_IMPORTED_OBJECTS TRGT )
 endmacro( OD_INSTALL_IMPORTED_OBJECTS TRGT )
 
 macro( OD_INSTALL_DEPENDENCIES MOD_DEPS )
-
-	foreach( TRGT ${MOD_DEPS} )
-	    if ( TARGET ${TRGT} )
-		get_target_property( TARGET_TYPE ${TRGT} TYPE )
-		if ( TARGET_TYPE AND ${TARGET_TYPE} STREQUAL "SHARED_LIBRARY" )
-		    if ( CMAKE_VERSION VERSION_GREATER_EQUAL 3.21 )
-			install( IMPORTED_RUNTIME_ARTIFACTS ${TRGT}
-				 LIBRARY DESTINATION "${OD_LIBRARY_DIRECTORY}"
-				 FRAMEWORK DESTINATION "${OD_LIBRARY_DIRECTORY}"
-				 RUNTIME DESTINATION "${OD_LOCATION_DIRECTORY}" )
-		    else()
-			install( PROGRAMS "$<TARGET_FILE:${TRGT}>"
-				 DESTINATION "${OD_LOCATION_DIRECTORY}" )
-		    endif()
-		    OD_INSTALL_IMPORTED_OBJECTS( ${TRGT} )
-		elseif ( TARGET_TYPE AND
-			 (${TARGET_TYPE} STREQUAL "UNKNOWN_LIBRARY" OR
-			  (CMAKE_VERSION VERSION_LESS 3.21 AND ${TARGET_TYPE} STREQUAL "SHARED_LIBRARY")) )
-		    if ( UNIX AND (${TRGT} STREQUAL "OpenSSL::SSL" OR ${TRGT} STREQUAL "OpenSSL::Crypto") )
-			set( _INSTDIR "/OpenSSL" )
-		    endif()
-		    install( PROGRAMS "$<TARGET_FILE:${TRGT}>"
-			     DESTINATION "${OD_LOCATION_DIRECTORY}${_INSTDIR}" )
-		    OD_INSTALL_IMPORTED_OBJECTS( ${TRGT} )
-		    unset( _INSTDIR )
-		endif()
-		unset( TARGET_TYPE )
-	    else()
-		message( AUTHOR_WARNING "Cannot install dependency ${TRGT} - It is not a target" )
+    foreach( TRGT IN LISTS OD_${OD_MODULE_NAME}_EXTERNAL_LIBS 
+			   OD_${OD_MODULE_NAME}_EXTERNAL_RUNTIME_LIBS )
+	get_target_property( TARGET_TYPE ${TRGT} TYPE )
+	if ( ${TARGET_TYPE} STREQUAL "SHARED_LIBRARY" )
+	    install( IMPORTED_RUNTIME_ARTIFACTS ${TRGT}
+		     LIBRARY DESTINATION "${OD_LIBRARY_DIRECTORY}"
+		     FRAMEWORK DESTINATION "${OD_LIBRARY_DIRECTORY}"
+		     RUNTIME DESTINATION "${OD_LOCATION_DIRECTORY}" )
+	OD_INSTALL_IMPORTED_LINK_DEPS( ${TRGT} )
+	OD_INSTALL_IMPORTED_OBJECTS( ${TRGT} )
+	elseif( ${TARGET_TYPE} STREQUAL "UNKNOWN_LIBRARY" )
+	    if ( UNIX AND (${TRGT} STREQUAL "OpenSSL::SSL" OR ${TRGT} STREQUAL "OpenSSL::Crypto") )
+		set( _INSTDIR "/OpenSSL" )
 	    endif()
-	endforeach()
+	    install( PROGRAMS "$<TARGET_FILE:${TRGT}>"
+		     DESTINATION "${OD_LOCATION_DIRECTORY}${_INSTDIR}" )
+	    unset( _INSTDIR )
+	endif()
+	unset( TARGET_TYPE )
+    endforeach()
 
 endmacro(OD_INSTALL_DEPENDENCIES)
 
