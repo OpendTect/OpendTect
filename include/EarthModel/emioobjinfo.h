@@ -17,6 +17,7 @@ class BufferStringSet;
 class TrcKeyZSampling;
 class IOObj;
 class UnitOfMeasure;
+namespace ZDomain { class Info; }
 
 namespace EM
 {
@@ -93,6 +94,8 @@ public:
 
     // Helpful stuff
     static ObjectType	objectTypeOfIOObjGroup(const char*);
+
+    const ZDomain::Info& zDomain() const;
 
 protected:
 

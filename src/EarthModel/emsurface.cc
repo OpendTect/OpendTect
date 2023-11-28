@@ -24,6 +24,8 @@ ________________________________________________________________________
 #include "posfilter.h"
 #include "posinfo2dsurv.h"
 
+#include "hiddenparam.h"
+
 
 static const char* sDbInfo = "DB Info";
 static const char* sRange = "Range";
@@ -34,13 +36,19 @@ static const char* sSections = "Patches";
 namespace EM
 {
 
+static HiddenParam<SurfaceIOData,const ZDomain::Info*>
+						surfaceiodatahpmgr_(nullptr);
 SurfaceIOData::SurfaceIOData()
-{}
+{
+    surfaceiodatahpmgr_.setParam( this,
+				    new ZDomain::Info(SI().zDomainInfo()) );
+}
 
 
 SurfaceIOData::~SurfaceIOData()
 {
     clear();
+    surfaceiodatahpmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -54,6 +62,24 @@ void SurfaceIOData::clear()
     linesets.setEmpty();
     geomids.setEmpty();
     trcranges.setEmpty();
+    setZDomain( SI().zDomainInfo() );
+}
+
+
+void SurfaceIOData::setZDomain( const ZDomain::Info& zinfo )
+{
+    const auto* orgzinfo = surfaceiodatahpmgr_.getParam( this );
+    if ( orgzinfo->isCompatibleWith(zinfo) )
+	return;
+
+    surfaceiodatahpmgr_.deleteAndNullPtrParam( this );
+    surfaceiodatahpmgr_.setParam( this, new ZDomain::Info(zinfo) );
+}
+
+
+const ZDomain::Info& SurfaceIOData::zDomain() const
+{
+    return *surfaceiodatahpmgr_.getParam( this );
 }
 
 
