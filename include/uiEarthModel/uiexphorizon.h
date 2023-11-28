@@ -55,6 +55,7 @@ protected:
     void		attrSel(CallBacker*);
     void		settingsCB(CallBacker*);
     void		inpSel(CallBacker*);
+    void		zDomainBulkTypeChg(CallBacker*);
     void		writeHeader(od_ostream&);
     bool		writeAscii();
     bool		getInputMIDs(TypeSet<MultiID>&);
@@ -62,5 +63,7 @@ protected:
     bool		isbulk_;
 
     bool		exportToGF() const;
+
+    mDeprecated("Not to be used, does nothing")
     StringView		getZDomain() const;
 };
