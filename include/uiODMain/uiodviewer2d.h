@@ -48,7 +48,7 @@ namespace ZDomain	{ class Def; }
 mExpClass(uiODMain) uiODViewer2D : public CallBacker
 { mODTextTranslationClass(uiODViewer2D);
 public:
-				uiODViewer2D(uiODMain&,VisID visid);
+				uiODViewer2D(uiODMain&,VisID);
 				~uiODViewer2D();
 
     mDeclInstanceCreatedNotifierAccess(uiODViewer2D);
@@ -231,8 +231,8 @@ protected:
     Viewer2DID			id_; /*!<Unique identifier */
     VisID			visid_; /*!<ID from 3D visualization */
 
-    uiSlicePos2DView*				slicepos_;
-    uiFlatViewStdControl*			viewstdcontrol_;
+    uiSlicePos2DView*				slicepos_	= nullptr;
+    uiFlatViewStdControl*			viewstdcontrol_ = nullptr;
     ObjectSet<uiFlatViewAuxDataEditor>		auxdataeditors_;
 
     Attrib::SelSpec&		wvaselspec_;
@@ -241,28 +241,27 @@ protected:
     RefMan<SeisFlatDataPack>	vddp_;
 
     View2D::DataManager*	datamgr_;
-    uiTreeFactorySet*		tifs_;
-    uiODView2DTreeTop*		treetp_;
-    uiFlatViewWin*		viewwin_;
-    MouseCursorExchange*	mousecursorexchange_;
-    FlatView::AuxData*		marker_;
-    ZAxisTransform*		datatransform_;
+    uiTreeFactorySet*		tifs_				= nullptr;
+    uiODView2DTreeTop*		treetp_				= nullptr;
+    uiFlatViewWin*		viewwin_			= nullptr;
+    MouseCursorExchange*	mousecursorexchange_		= nullptr;
+    FlatView::AuxData*		marker_				= nullptr;
+    ZAxisTransform*		datatransform_			= nullptr;
     TrcKeyZSampling		tkzs_;
     uiString			basetxt_;
     uiODMain&			appl_;
     RandomLineID		rdmlineid_;
-    int				voiidx_;
+    int				voiidx_				= -1;
     SceneID			syncsceneid_;
 
     uiWorldPoint		initialcentre_;
-    float			initialx1pospercm_;
-    float			initialx2pospercm_;
+    float			initialx1pospercm_		= mUdf(float);
+    float			initialx2pospercm_		= mUdf(float);
 
-    int				edittbid_;
-    int				polyseltbid_;
-    int				picksettingstbid_;
-    bool			ispolyselect_;
-    bool			isvertical_;
+    int				polyseltbid_			= -1;
+    int				picksettingstbid_		= -1;
+    bool			ispolyselect_			= true;
+    bool			isvertical_			= true;
 
     mDeprecated("Use createDataPackForTransformedZSliceRM")
     DataPackID			createDataPackForTransformedZSlice(

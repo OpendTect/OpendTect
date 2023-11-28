@@ -70,26 +70,12 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, VisID visid )
     , dataChanged(this)
     , posChanged(this)
     , visid_(visid)
-    , slicepos_(nullptr)
-    , viewstdcontrol_(nullptr)
     , wvaselspec_(*new Attrib::SelSpec)
     , vdselspec_(*new Attrib::SelSpec)
     , datamgr_(new View2D::DataManager)
-    , tifs_(0)
-    , treetp_(0)
-    , viewwin_(nullptr)
-    , mousecursorexchange_(0)
-    , marker_(0)
-    , datatransform_(0)
     , basetxt_(tr("2D Viewer - "))
     , appl_(appl)
-    , voiidx_(-1)
     , initialcentre_(uiWorldPoint::udf())
-    , initialx1pospercm_(mUdf(float))
-    , initialx2pospercm_(mUdf(float))
-    , polyseltbid_(-1)
-    , ispolyselect_(true)
-    , isvertical_(true)
 {
     mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
     id_.set( vwrid++ );
@@ -150,6 +136,11 @@ uiODViewer2D::~uiODViewer2D()
 	removeAvailablePacks();
 	viewwin()->viewer(0).removeAuxData( marker_ );
     }
+
+
+    delete &wvaselspec_;
+    delete &vdselspec_;
+
     delete marker_;
     delete viewwin();
 }
@@ -161,7 +152,7 @@ const View2D::DataObject* uiODViewer2D::getObject( Vis2DID id ) const
 }
 
 
-View2D::DataObject* uiODViewer2D::getObject(Vis2DID id)
+View2D::DataObject* uiODViewer2D::getObject( Vis2DID id )
 {
     return datamgr_ ? datamgr_->getObject( id ) : nullptr;
 }
@@ -371,10 +362,10 @@ void uiODViewer2D::setDataPack( FlatDataPack* indp, bool wva,
 
 void uiODViewer2D::setDataPack( DataPackID packid, bool wva, bool isnew )
 {
-	const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
-				   !wva || (isnew && wvaselspec_==vdselspec_) );
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+			       !wva || (isnew && wvaselspec_==vdselspec_) );
 
-	setDataPack( packid, dest, isnew );
+    setDataPack( packid, dest, isnew );
 }
 
 
@@ -382,7 +373,9 @@ void uiODViewer2D::setDataPack( DataPackID packid,
 				FlatView::Viewer::VwrDest dest,
 				bool isnew )
 {
-    if ( packid == DataPack::cNoID() ) return;
+    if ( packid == DataPack::cNoID() )
+	return;
+
     auto& dpm = DPM(DataPackMgr::FlatID());
     RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
     setDataPack( fdp, dest, isnew );
@@ -1879,10 +1872,7 @@ DataPackID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
 
 bool uiODViewer2D::useStoredDispPars( bool wva )
 {
-    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
-								      !wva );
+    const FlatView::Viewer::VwrDest dest =
+				FlatView::Viewer::getDest( wva, !wva );
     return useStoredDispPars( dest );
 }
-
-
-
