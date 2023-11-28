@@ -77,6 +77,7 @@ static uiIOObjSelDlg::Setup getSelDlgSU( const uiSeisSel::Setup& sssu )
     uiIOObjSelDlg::Setup sdsu;
     sdsu.allowsetsurvdefault( sssu.allowsetsurvdefault_ );
     sdsu.withwriteopts( sssu.withwriteopts_ );
+    sdsu.trsnotallwed( sssu.trsnotallwed_ );
     return sdsu;
 }
 
@@ -377,7 +378,6 @@ uiSeisSel::Setup uiSeisSel::mkSetupWithCtxt( const uiSeisSel::Setup& su,
     uiSeisSel::Setup ret( su );
     ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su,  ctxt.forread_ );
     ret.filldef( su.allowsetdefault_ );
-    ret.withwriteopts_ = !ctxt.forread_;
     if ( ctxt.trgroup_ && !ctxt.forread_ &&
 	su.steerpol_ == Setup::OnlySteering )
     {
@@ -672,7 +672,7 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
 {
     uiSeisSel::Setup sssu( is2d, false );
     sssu.wantSteering().allowsetsurvdefault( forread )
-	.withinserters( false ).withwriteopts( true ).seltxt( txt );
+	.withinserters( false ).withwriteopts( false ).seltxt( txt );
     return sssu;
 }
 
@@ -705,6 +705,7 @@ uiSeisPosProvGroup::uiSeisPosProvGroup( uiParent* p,
 {
     uiSeisSel::Setup ssu( Seis::Vol );
     ssu.seltxt( tr("Cube for positions") );
+    ssu.withinserters( false );
     seissel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true), ssu );
 
     if ( su.withz_ )
