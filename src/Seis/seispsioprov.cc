@@ -54,31 +54,59 @@ SeisPSIOProvider::~SeisPSIOProvider()
 {}
 
 
-SeisPS3DReader*	SeisPSIOProvider::get3DReader( const IOObj& ioobj,
-						int inl ) const
-{ return make3DReader( ioobj.fullUserExpr(true), inl ); }
-SeisPS2DReader*	SeisPSIOProvider::get2DReader( const IOObj& ioobj,
-						Pos::GeomID geomid ) const
-{ return make2DReader( ioobj.fullUserExpr(true), geomid ); }
-SeisPS2DReader*	SeisPSIOProvider::get2DReader( const IOObj& ioobj,
-						const char* lnm ) const
-{ return make2DReader( ioobj.fullUserExpr(true), lnm ); }
+SeisPS3DReader*
+	SeisPSIOProvider::get3DReader( const IOObj& ioobj, int inl ) const
+{
+    return make3DReader( ioobj.fullUserExpr(true), inl );
+}
 
-SeisPSWriter*	SeisPSIOProvider::get3DWriter( const IOObj& ioobj ) const
-{ return make3DWriter( ioobj.fullUserExpr(false) ); }
-SeisPSWriter*	SeisPSIOProvider::get2DWriter( const IOObj& ioobj,
+
+SeisPS2DReader* SeisPSIOProvider::get2DReader( const IOObj& ioobj,
 						Pos::GeomID geomid ) const
-{ return make2DWriter( ioobj.fullUserExpr(false), geomid ); }
-SeisPSWriter*	SeisPSIOProvider::get2DWriter( const IOObj& ioobj,
-						const char* lnm ) const
-{ return make2DWriter( ioobj.fullUserExpr(false), lnm ); }
+{
+    return make2DReader( ioobj.fullUserExpr(true), geomid );
+}
+
+
+SeisPS2DReader* SeisPSIOProvider::get2DReader( const IOObj& ioobj,
+					       const char* lnm ) const
+{
+    return make2DReader( ioobj.fullUserExpr(true), lnm );
+}
+
+
+SeisPSWriter* SeisPSIOProvider::get3DWriter( const IOObj& ioobj ) const
+{
+    return make3DWriter( ioobj.fullUserExpr(false) );
+}
+
+
+SeisPSWriter* SeisPSIOProvider::get2DWriter( const IOObj& ioobj,
+					     Pos::GeomID geomid ) const
+{
+    return make2DWriter( ioobj.fullUserExpr(false), geomid );
+}
+
+
+SeisPSWriter* SeisPSIOProvider::get2DWriter( const IOObj& ioobj,
+					     const char* lnm ) const
+{
+    return make2DWriter( ioobj.fullUserExpr(false), lnm );
+}
+
 
 bool SeisPSIOProvider::fetchGeomIDs( const IOObj& ioobj,
-				   TypeSet<Pos::GeomID>& geomids ) const
-{ return getGeomIDs( ioobj.fullUserExpr(true), geomids ); }
+				     TypeSet<Pos::GeomID>& geomids ) const
+{
+    return getGeomIDs( ioobj.fullUserExpr(true), geomids );
+}
+
+
 bool SeisPSIOProvider::fetchLineNames( const IOObj& ioobj,
-				     BufferStringSet& lnms ) const
-{ return getLineNames( ioobj.fullUserExpr(true), lnms ); }
+				       BufferStringSet& lnms ) const
+{
+    return getLineNames( ioobj.fullUserExpr(true), lnms );
+}
 
 
 const UnitOfMeasure* SeisPSIOProvider::offsetUnit( const IOObj*, bool& isfound )
@@ -573,8 +601,8 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     posdata_.getInlRange( pinfo_.inlrg );
     posdata_.getCrlRange( pinfo_.crlrg );
     pinfo_.inlrg.sort(); pinfo_.crlrg.sort();
-    curbinid_.inl() = pinfo_.inlrg.start;
-    curbinid_.crl() = pinfo_.crlrg.start - pinfo_.crlrg.step;
+    curbinid_.inl() = pinfo_.inlrg.snappedCenter();
+    curbinid_.crl() = pinfo_.crlrg.snappedCenter() - pinfo_.crlrg.step;
 
     TypeSet<float> offss;
     if ( !doRead(trc_,&offss) )
@@ -584,7 +612,7 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     innrsamples_ = trc_.size();
     for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
 	addComp( trc_.data().getInterpreter(icomp)->dataChar(),
-		 BufferString("O=",offss[icomp]) );
+		 BufferString("Offset: ",offss[icomp]) );
 
     curbinid_.inl() = pinfo_.inlrg.start;
     curbinid_.crl() = pinfo_.crlrg.start - pinfo_.crlrg.step;
