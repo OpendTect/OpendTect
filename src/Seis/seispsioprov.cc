@@ -622,8 +622,8 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     posdata_.getInlRange( pinfo_.inlrg );
     posdata_.getCrlRange( pinfo_.crlrg );
     pinfo_.inlrg.sort(); pinfo_.crlrg.sort();
-    curbinid_.inl() = pinfo_.inlrg.start;
-    curbinid_.crl() = pinfo_.crlrg.start - pinfo_.crlrg.step;
+    curbinid_.inl() = pinfo_.inlrg.snappedCenter();
+    curbinid_.crl() = pinfo_.crlrg.snappedCenter() - pinfo_.crlrg.step;
 
     TypeSet<float> offss;
     if ( !doRead(trc_,&offss) )
