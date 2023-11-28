@@ -25,7 +25,6 @@ class uiComboBox;
 mExpClass(uiIo) uiIOObjTranslatorWriteOpts : public uiGroup
 {
 public:
-			uiIOObjTranslatorWriteOpts(uiParent*,const Translator&);
 			~uiIOObjTranslatorWriteOpts();
 
     mDefineFactory1ParamInClasswKW( uiIOObjTranslatorWriteOpts, uiParent*,
@@ -47,6 +46,7 @@ public:
     virtual const char* suggestedName() const	{ return ""; }
 
 protected:
+			uiIOObjTranslatorWriteOpts(uiParent*,const Translator&);
 
     const Translator&	transl_;
     mutable BufferString errmsg_;
