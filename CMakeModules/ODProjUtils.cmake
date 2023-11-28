@@ -15,6 +15,8 @@ macro( OD_FIND_PROJ )
 	find_package( PROJ QUIET GLOBAL )
 	if ( TARGET PROJ::proj )
 	    od_map_configurations( PROJ::proj )
+	    set_target_properties( PROJ::proj PROPERTIES
+		IMPORTED_LINK_DEPENDENT_LIBRARIES SQLite::SQLite3 )
 	endif()
     endif()
 
