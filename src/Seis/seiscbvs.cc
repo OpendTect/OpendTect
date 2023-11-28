@@ -695,7 +695,7 @@ static void renameAuxFile( const IOObj* ioobj, const char* newnm,
 
 bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj, bool deep ) const
 {
-    if ( ioobj && !deep )
+    if ( ioobj && implIsLink(ioobj) && !deep )
 	return true;
 
     mImplStart( implRemove() );
