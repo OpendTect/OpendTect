@@ -22,6 +22,7 @@ class UnitOfMeasure;
 template <class T> class DataInterpreter;
 template <class T> class Array3D;
 template <class T> class Array2D;
+namespace ZDomain { class Info; }
 
 namespace EM
 {
@@ -133,6 +134,7 @@ public:
 			/*!< The given sectionIDs will be loaded. If
 			     this function is not called, all avaliable
 			     sections will be loaded. */
+    const ZDomain::Info&	zDomain() const;
 
 protected:
 

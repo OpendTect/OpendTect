@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "unitofmeasure.h"
 
+namespace ZDomain { class Info; }
 
 namespace EM
 {
@@ -50,6 +51,9 @@ public:
     TypeSet<Pos::GeomID>	geomids;
     TypeSet<StepInterval<int> > trcranges;
     int				nrfltsticks_		= 0;
+
+    void		    setZDomain(const ZDomain::Info&);
+    const ZDomain::Info&    zDomain() const;
 };
 
 

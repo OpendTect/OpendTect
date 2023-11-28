@@ -173,25 +173,13 @@ Interval<float> IOObjInfo::getZRange() const
 
 const UnitOfMeasure* IOObjInfo::getZUoM() const
 {
-    if ( !ioobj_ )
-	return UnitOfMeasure::surveyDefZUnit();
-
-    return UnitOfMeasure::getGuessed( getZUnitLabel() );
+    return UnitOfMeasure::zUnit( zDomain() );
 }
 
 
 BufferString IOObjInfo::getZUnitLabel() const
 {
-    if ( !ioobj_ )
-	return BufferString::empty();
-
-    PtrMan<Translator> trans = ioobj_->createTranslator();
-    mDynamicCastGet(EMSurfaceTranslator*,str,trans.ptr());
-    if ( !str || !str->startRead(*ioobj_) )
-	return BufferString::empty();
-
-    const SurfaceIOData& newsd = str->selections().sd;
-    return newsd.zunit->getLabel();
+    return zDomain().unitStr_();
 }
 
 
@@ -479,6 +467,16 @@ int IOObjInfo::nrSticks() const
     Interval<int> rowrange = Interval<int>::udf();
     reader_->pars()->get( "Row range", rowrange );
     return rowrange.isUdf() ? 0 : rowrange.width()+1;
+}
+
+
+const ZDomain::Info& IOObjInfo::zDomain() const
+{
+    if ( !ioobj_ )
+	return SI().zDomainInfo();
+
+    const ZDomain::Info* zinfo = ZDomain::get( ioobj_->pars() );
+    return zinfo ? *zinfo : SI().zDomainInfo();
 }
 
 } // namespace EM

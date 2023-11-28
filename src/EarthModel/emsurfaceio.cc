@@ -38,11 +38,14 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "uistrings.h"
 
+#include "hiddenparam.h"
+
 #include <limits.h>
 
 
 namespace EM
 {
+static HiddenParam<dgbSurfaceReader,ZDomain::Info*> dgbsurfacehpmgr_(nullptr);
 
 static uiString sMsgWriteError()
 { return uiStrings::phrCannotWrite( uiStrings::sSurface() ); }
@@ -108,6 +111,7 @@ dgbSurfaceReader::dgbSurfaceReader( const char* fulluserexp,
 
 void dgbSurfaceReader::init( const char* fullexpr, const char* objname )
 {
+    dgbsurfacehpmgr_.setParam( this, new ZDomain::Info(SI().zDomainInfo()) );
     conn_ = new StreamConn( fullexpr, Conn::Read );
     cube_ = 0;
     surface_ = nullptr;
@@ -374,10 +378,14 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     linenames_.setEmpty();
     par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
 
-    BufferString zunitlbl;
-    par_->get( sKey::ZUnit(), zunitlbl );
-    if ( !zunitlbl.isEmpty() )
-	zunit_ = UoMR().get( zunitlbl );
+    const ZDomain::Info* info = ZDomain::get( *par_ );
+    const ZDomain::Info* orginfo = dgbsurfacehpmgr_.getParam( this );
+    if ( info && !info->isCompatibleWith(*orginfo) )
+    {
+	dgbsurfacehpmgr_.deleteAndNullPtrParam( this );
+	dgbsurfacehpmgr_.setParam( this, new ZDomain::Info(*info) );
+	zunit_ = UoMR().get( info->unitStr() );
+    }
 
     TypeSet< StepInterval<int> > trcranges;
     const int res = scanFor2DGeom( trcranges );
@@ -468,6 +476,8 @@ dgbSurfaceReader::~dgbSurfaceReader()
 	surface_->geometry().resetChangedFlag();
 	surface_->unRef();
     }
+
+    dgbsurfacehpmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -584,6 +594,12 @@ const Interval<float>& dgbSurfaceReader::zInterval() const
 const UnitOfMeasure* dgbSurfaceReader::zUnit() const
 {
     return zunit_;
+}
+
+
+const ZDomain::Info& dgbSurfaceReader::zDomain() const
+{
+    return *dgbsurfacehpmgr_.getParam( this );
 }
 
 
