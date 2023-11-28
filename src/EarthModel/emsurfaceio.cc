@@ -384,7 +384,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     {
 	dgbsurfacehpmgr_.deleteAndNullPtrParam( this );
 	dgbsurfacehpmgr_.setParam( this, new ZDomain::Info(*info) );
-	zunit_ = UoMR().get( info->unitStr() );
+	zunit_ = UoMR().get( info->unitStr_() );
     }
 
     TypeSet< StepInterval<int> > trcranges;
