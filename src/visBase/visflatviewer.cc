@@ -100,7 +100,7 @@ void FlatViewer::handleChange( unsigned int dt)
 	case BitmapData:
 	    {
 		ConstRefMan<FlatDataPack> dp = getPack( false ).get();
-		if ( !dp )
+		if ( !dp || !dp->isOK() )
 		    channels_->turnOn( false );
 		else
 		{
@@ -310,7 +310,7 @@ Interval<float> FlatViewer::getDataRange( bool wva ) const
 
     DataClipper clipper;
     ConstRefMan<FlatDataPack> dp = getPack( wva ).get();
-    if ( dp )
+    if ( dp && dp->isOK() )
 	clipper.putData( dp->data() );
     clipper.fullSort();
 

@@ -138,18 +138,23 @@ void PreStackDisplay::updateMouseCursorCB( CallBacker* cb )
 
 
 void PreStackDisplay::allowShading( bool yn )
-{ flatviewer_->allowShading( yn ); }
+{
+    flatviewer_->allowShading( yn );
+}
 
 
 BufferString PreStackDisplay::getObjectName() const
-{ return ioobj_->name(); }
+{
+    return ioobj_ ? ioobj_->name().buf() : "";
+}
 
 
 void PreStackDisplay::setMultiID( const MultiID& mid )
 {
     mid_ = mid;
-    delete ioobj_; ioobj_ = IOM().get( mid_ );
-    delete reader_; reader_ = 0;
+    delete ioobj_;
+    ioobj_ = IOM().get( mid_ );
+    deleteAndNullPtr( reader_ );
     if ( !ioobj_ )
 	return;
 
@@ -503,7 +508,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
     ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false ).get();
     int nrtrcs = 0;
-    if ( fdp )
+    if ( fdp && fdp->isOK() )
     {
 	offsetrange_.setFrom( fdp->posData().range( true ) );
 	zrg_.setFrom( fdp->posData().range( false ) );
@@ -939,7 +944,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	return;
 
     ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false ).get();
-    if ( !fdp )
+    if ( !fdp || !fdp->isOK() )
 	return;
 
     const int nrtrcs = fdp->size( true );
