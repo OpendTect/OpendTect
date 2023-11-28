@@ -95,6 +95,7 @@ static uiIOObjSelDlg::Setup getSelDlgSU( const uiSeisSel::Setup& sssu )
     uiIOObjSelDlg::Setup sdsu;
     sdsu.allowsetsurvdefault( sssu.allowsetsurvdefault_ );
     sdsu.withwriteopts( sssu.withwriteopts_ );
+    sdsu.trsnotallwed( sssu.trsnotallwed_ );
     return sdsu;
 }
 
