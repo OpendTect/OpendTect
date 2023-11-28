@@ -47,7 +47,6 @@ SurfaceIOData::SurfaceIOData()
 
 SurfaceIOData::~SurfaceIOData()
 {
-    clear();
     surfaceiodatahpmgr_.removeAndDeleteParam( this );
 }
 
