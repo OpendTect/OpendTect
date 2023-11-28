@@ -64,7 +64,8 @@ public:
 				//!< Array2D become mine (of course)
 				FlatDataPack(const FlatDataPack&);
 
-    bool			isOK() const override	{ return arr2d_; }
+    bool			isOK() const override
+				{ return arr2d_ && arr2d_->isOK(); }
     virtual Array2D<float>&	data()			{ return *arr2d_; }
     const Array2D<float>&	data() const
 				{ return const_cast<FlatDataPack*>(this)
