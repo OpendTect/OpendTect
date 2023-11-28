@@ -387,7 +387,6 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su,
     uiSeisSel::Setup ret( su );
     ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su, ctxt.forread_ );
     ret.filldef( su.allowsetdefault_ );
-    ret.withwriteopts_ = !ctxt.forread_;
     return ret;
 }
 
@@ -651,7 +650,7 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
     uiSeisSel::Setup sssu( is2d, false );
     sssu.wantSteering().compnrpol( uiSeisSel::Setup::MultiCompOnly )
 	.allowsetsurvdefault( forread )
-	.withinserters( false ).withwriteopts( true ).seltxt( txt );
+	.withinserters( false ).withwriteopts( false ).seltxt( txt );
     return sssu;
 }
 
