@@ -10,12 +10,14 @@ ________________________________________________________________________
 #include "uifileseltool.h"
 #include "q_uiimpl.h"
 
+#include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "filesystemaccess.h"
 #include "oddirs.h"
 #include "separstr.h"
+#include "sharedlibs.h"
 
 #include "uiparentbody.h"
 #include "uidialog.h"
@@ -281,6 +283,46 @@ uiString uiFileSelToolProvider::userName() const
     const auto& fsa = OD::FileSystemAccess::getByProtocol( prot );
     return fsa.userName();
 }
+
+
+
+void uiFileSelToolProvider::addPluginFileSelProviders()
+{
+    const FilePath fsadatafp( mGetSWDirDataDir(), "FileSelProviders" );
+    if ( !fsadatafp.exists() )
+	return;
+
+    using VoidVoidFn = void(*)(void);
+    const DirList dl( fsadatafp.fullPath(), File::FilesInDir, "*.txt" );
+    BufferString libname;
+    libname.setBufSize( 256 );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const FilePath dirname( dl.get( idx ).buf() );
+	const BufferString piname = dirname.baseName();
+	if ( piname.isEmpty() )
+	    continue;
+
+	libname.setEmpty();
+	SharedLibAccess::getLibName( piname.buf(), libname.getCStr(),
+				     libname.bufSize() );
+	const FilePath fp( GetLibPlfDir(), libname );
+	if ( !fp.exists() )
+	    continue;
+
+	const SharedLibAccess pisha( fp.fullPath() );
+	if ( !pisha.isOK() )
+	    return;
+
+	const BufferString fsafuncnm( piname.str(), "InitFileSel" );
+	VoidVoidFn fsainitfn = (VoidVoidFn)pisha.getFunction( fsafuncnm.str() );
+	if ( fsainitfn )
+	    (*fsainitfn)();
+	//Do NOT close the handle, as the plugin must remain loaded
+    }
+
+}
+
 
 
 #include <QFileDialog>
