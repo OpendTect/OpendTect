@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class TranslatorGroup;
 class IOStream;
-namespace ZDomain { class Def; }
+namespace ZDomain { class Info; }
 
 /*!
 \brief Holds constraints on IOObj selection.
@@ -42,8 +42,12 @@ public:
     void		clear();
 
     static bool		isAllowedTranslator(const char* tnm,const char* allowd);
-    void		restrictToZDomainDef(const ZDomain::Def&);
-    void		dontAllowToZDomainDef(const ZDomain::Def&);
+    void		require(const char* key,const char* typ,
+				bool allowempty=false);
+    void		requireType(const char*,bool allowempty=false);
+    void		requireZDomain(const ZDomain::Info&,
+				       bool allowempty=true);
+    const ZDomain::Info* requiredZDomain() const; //!< nullptr if not restricted
 
 };
 
@@ -122,6 +126,13 @@ public:
     int			nrMatches() const;
     int			nrMatches(bool forgroup) const;
     inline bool		haveMatches() const { return nrMatches() > 0; }
+
+    void		require(const char* key,const char* typ,
+				bool allowempty=false);
+    void		requireType(const char*,bool allowempty=false);
+    void		requireZDomain(const ZDomain::Info&,
+				       bool allowempty=true);
+    const ZDomain::Info* requiredZDomain() const;
 
     mDeprecated("Use stdseltype_")	StdSelType&		stdseltype;
     mDeprecated("Use trgroup_")		const TranslatorGroup*& trgroup;

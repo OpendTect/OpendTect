@@ -73,7 +73,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     if ( !edtyp || !*edtyp )
 	edtyp = uiBasicLayerSequenceGenDesc::typeStr();
 
-    descctio_.ctxt_.toselect_.require_.set( sKey::Type(), edtyp );
+    descctio_.ctxt_.requireType( edtyp );
 
     auto* gengrp = new uiGroup( this, "Gen group" );
     descdisp_ = uiLayerSequenceGenDesc::factory().create( edtyp, gengrp, desc_);

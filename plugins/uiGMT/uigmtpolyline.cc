@@ -43,7 +43,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     : uiGMTOverlayGrp(p,uiStrings::sPolyLine())
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
-    ctio_.ctxt_.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
+    ctio_.ctxt_.requireType( sKey::Polygon() );
     inpfld_ = new uiIOObjSel( this, ctio_, uiStrings::sPolygon() );
     inpfld_->selectionDone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 

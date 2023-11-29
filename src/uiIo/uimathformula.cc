@@ -1111,8 +1111,7 @@ BufferString uiMathFormula::getIOFileName( bool forread )
     IOObjContext ctxt = mIOObjContext( MathFormula );
     const bool wantio = !setup_.stortype_.isEmpty();
     if ( wantio )
-	ctxt.toselect_.require_.set( sKey::Type(), setup_.stortype_ );
-
+	ctxt.requireType( setup_.stortype_ );
 
     BufferString fnm;
     ctxt.forread_ = forread;

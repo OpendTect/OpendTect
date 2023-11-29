@@ -42,6 +42,13 @@ ObjectSet<const ZDomain::Def>& DEFS()
 }
 
 
+ObjectSet<const ZDomain::Info>& ZDOMAINS()
+{
+    static ManagedObjectSet<const ZDomain::Info> zinfos;
+    return zinfos;
+}
+
+
 const ZDomain::Def& ZDomain::SI()
 {
     return ::SI().zIsTime() ? Time() : Depth();
@@ -117,8 +124,9 @@ const ZDomain::Info* ZDomain::get( const IOPar& iop )
     bool isfound = false;
     const bool zit = zIsTime( iop, &isfound );
     if ( !isfound )
-	return nullptr;
+	return Info::getFrom( iop );
 
+    // Below: time or depth only
     if ( zit )
 	return &TWT();
 
@@ -134,6 +142,21 @@ const ZDomain::Info* ZDomain::get( const IOPar& iop )
 	return &DepthFeet();
 
     return ::SI().depthsInFeet() ? &DepthFeet() : &DepthMeter();
+}
+
+
+const ZDomain::Info* ZDomain::Info::getFrom( const IOPar& iop )
+{
+    const BufferString keystr( iop.find(sKey() ) );
+    if ( keystr.isEmpty() )
+	return nullptr;
+
+    const ObjectSet<const Info>& zinfos = ZDOMAINS();
+    for ( const auto* zinfo : zinfos )
+	if ( keystr == zinfo->def_.key() )
+	    return zinfo;
+
+    return nullptr;
 }
 
 
@@ -299,6 +322,7 @@ bool ZDomain::Def::add( ZDomain::Def* newdef )
 	    { delete newdef; return false; }
 
     defs.add( newdef );
+    ZDOMAINS().add( new ZDomain::Info(*newdef) );
     return true;
 }
 

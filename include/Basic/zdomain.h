@@ -149,6 +149,8 @@ public:
     mDeprecated("Use MultiID Overloaded function")
     void		setID(const char*);
 
+    static const Info*	getFrom(const IOPar&);
+
 private:
     void		setDefaultUnit();
 };

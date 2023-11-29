@@ -59,7 +59,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
 
 
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp,
-						const ZDomain::Info* zinfo )
+			  const ZDomain::Info* zinfo )
     : uiGroup(p,"Surface selection")
     , ctio_(nullptr)
     , sectionfld_(nullptr)
@@ -73,7 +73,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp,
 }
 
 
-void uiIOSurface::init( const char* tp, const ZDomain::Info* zinfo)
+void uiIOSurface::init( const char* tp, const ZDomain::Info* zinfo )
 {
     const StringView typ( tp );
     if ( typ == EMHorizon2DTranslatorGroup::sGroupName() )
@@ -89,20 +89,14 @@ void uiIOSurface::init( const char* tp, const ZDomain::Info* zinfo)
     else
 	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
 
-    if ( forread_ )
+    if ( zinfo )
     {
-	if ( zinfo )
-	{
-	    const ZDomain::Def& def = SI().zIsTime() ?
-		ZDomain::Depth() : ZDomain::Time();
-	    if ( SI().zDomainInfo().isTime() == zinfo->isTime() )
-		ctio_->ctxt_.toselect_.dontAllowToZDomainDef( def );
-	    else
-		ctio_->ctxt_.toselect_.restrictToZDomainDef( def );
-	}
-
-	mAttachCB( postFinalize(), uiIOSurface::objSel );
+	const ZDomain::Info& siinfo = SI().zDomainInfo();
+	ctio_->ctxt_.requireZDomain( *zinfo, siinfo == *zinfo );
     }
+
+    if ( forread_ )
+	mAttachCB( postFinalize(), uiIOSurface::objSel );
 }
 
 
@@ -330,11 +324,12 @@ void uiIOSurface::attrSel( CallBacker* )
 
 
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
-				const uiSurfaceWrite::Setup& setup )
-    : uiIOSurface(p,false,setup.typ_)
-    , displayfld_(0)
-    , colbut_(0)
-    , stratlvlfld_(0)
+				const uiSurfaceWrite::Setup& setup,
+				const ZDomain::Info* zinfo )
+    : uiIOSurface(p,false,setup.typ_,zinfo)
+    , displayfld_(nullptr)
+    , colbut_(nullptr)
+    , stratlvlfld_(nullptr)
 {
     surfrange_.init( false );
 
@@ -380,16 +375,23 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     }
 
     setHAlignObj( objfld_ );
-    ioDataSelChg( 0 );
+    ioDataSelChg( nullptr );
+}
+
+
+uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
+				const uiSurfaceWrite::Setup& setup )
+    : uiSurfaceWrite(p,setup,nullptr)
+{
 }
 
 
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 				const uiSurfaceWrite::Setup& setup )
-    : uiIOSurface(p,false,setup.typ_)
-    , displayfld_(0)
-    , colbut_(0)
-    , stratlvlfld_(0)
+    : uiIOSurface(p,false,setup.typ_,nullptr)
+    , displayfld_(nullptr)
+    , colbut_(nullptr)
+    , stratlvlfld_(nullptr)
 {
     surfrange_.init( false );
 
@@ -434,7 +436,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
     if ( !fillFields(surf.multiID()) )
 	fillFields( surf.id() );
 
-    ioDataSelChg( 0 );
+    ioDataSelChg( nullptr );
 }
 
 

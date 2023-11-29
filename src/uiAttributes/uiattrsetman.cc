@@ -32,7 +32,7 @@ uiAttrSetMan::uiAttrSetMan( uiParent* p, bool is2d )
 			       .nrstatusflds(1).modal(false),
 		   AttribDescSetTranslatorGroup::ioContext())
 {
-    ctxt_.toselect_.dontallow_.set( sKey::Type(), is2d ? "3D" : "2D" );
+    ctxt_.requireType( is2d ? sKey::TwoD() : sKey::ThreeD() );
     createDefaultUI();
     setPrefWidth( 50 );
 

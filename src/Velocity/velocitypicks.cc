@@ -1119,7 +1119,7 @@ const IOObjContext& Picks::getStorageContext()
     {
 	auto* newret = new IOObjContext(PickSetTranslatorGroup::ioContext());
 	newret->setName( "Velocity picks" );
-	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityPicks() );
+	newret->requireType( sKeyVelocityPicks() );
 
 	ret.setIfNull( newret, true );
     }
@@ -1130,7 +1130,7 @@ const IOObjContext& Picks::getStorageContext()
 
 void Picks::setContextPickType( IOObjContext& ctxt, PickType type )
 {
-    ctxt.toselect_.require_.set( sKeyPickType(), getPickTypeString( type ) );
+    ctxt.require( sKeyPickType(), getPickTypeString(type) );
 }
 
 
