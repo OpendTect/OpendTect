@@ -345,3 +345,9 @@ public:
     bool		readTraceData( TraceData* td=nullptr )
 			{ return readData(td); }
 };
+
+
+namespace Seis
+{
+    void			addPluginSeisTrcTranslators();
+} // namespace Seis
