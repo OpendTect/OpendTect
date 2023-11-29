@@ -50,24 +50,27 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 }
 
 
-static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
+static IOObjContext adaptCtxtWithSetup( const IOObjContext& ct,
 					const uiSeisSel::Setup& su )
 {
     IOObjContext ctxt( ct );
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
 	ctxt.toselect_.dontallow_.addVal( sKey::Type(), sKey::Steering() );
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
-	ctxt.toselect_.require_.set( sKey::Type(), sKey::Steering() );
+	ctxt.requireType( sKey::Steering() );
+
+    if ( !su.enabotherdomain_ )
+	ctxt.requireZDomain( SI().zDomain() );
 
     return ctxt;
 }
 
 
 static CtxtIOObj adaptCtio4Steering( const CtxtIOObj& ct,
-				const uiSeisSel::Setup& su )
+				     const uiSeisSel::Setup& su )
 {
     CtxtIOObj ctio( ct );
-    ctio.ctxt_ = adaptCtxt4Steering( ctio.ctxt_, su );
+    ctio.ctxt_ = adaptCtxtWithSetup( ctio.ctxt_, su );
     return ctio;
 }
 
@@ -240,13 +243,6 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
 }
 
 
-static IOObjContext getIOObjCtxt( const IOObjContext& c,
-				  const uiSeisSel::Setup& s )
-{
-    return adaptCtxt4Steering( c, s );
-}
-
-
 class uiSeisSelHP
 {
 public:
@@ -267,7 +263,7 @@ static HiddenParam<uiSeisSel,uiSeisSelHP*> uiseisselhpmgr_( nullptr );
 
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
-    : uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetupWithCtxt(su,ctxt))
+    : uiIOObjSel(p,adaptCtxtWithSetup(ctxt,su),mkSetupWithCtxt(su,ctxt))
     , seissetup_(mkSetupWithCtxt(su,ctxt))
     , othdombox_(nullptr)
     , compnr_(0)
@@ -379,7 +375,7 @@ uiSeisSel::Setup uiSeisSel::mkSetupWithCtxt( const uiSeisSel::Setup& su,
     ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su,  ctxt.forread_ );
     ret.filldef( su.allowsetdefault_ );
     if ( ctxt.trgroup_ && !ctxt.forread_ &&
-	su.steerpol_ == Setup::OnlySteering )
+	 su.steerpol_ == Setup::OnlySteering )
     {
 	const TranslatorGroup& trgrp = *ctxt.trgroup_;
 	const ObjectSet<const Translator>& alltrs = trgrp.templates();
@@ -479,7 +475,10 @@ const char* uiSeisSel::compNameFromKey( const char* txt ) const
 const ZDomain::Info& uiSeisSel::getZDomain() const
 {
     if ( !othdombox_ )
-	return SI().zDomainInfo();
+    {
+	const ZDomain::Info* ret = requiredZDomain();
+	return ret ? *ret : SI().zDomainInfo();
+    }
 
     const bool istransformed = othdombox_->isChecked();
     if ( !istransformed )

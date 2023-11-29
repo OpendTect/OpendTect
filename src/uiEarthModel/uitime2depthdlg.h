@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 
 class IOObjContext;
-class uiIOObjSel;
 class uiGenInput;
 class uiSurfaceRead;
+class uiSurfaceWrite;
 class uiZAxisTransformSel ;
 class uiLabel;
 namespace ZDomain { class Info; }
@@ -36,19 +36,21 @@ public:
 
 protected:
 
-    uiGenInput*			directionsel_	    = nullptr;
-    uiZAxisTransformSel*	t2dtransfld_	    = nullptr;
-    uiZAxisTransformSel*	d2ttransfld_	    = nullptr;
-    uiSurfaceRead*		inptimehorsel_	    = nullptr;
-    uiSurfaceRead*		inpdepthhorsel_     = nullptr;
-    uiIOObjSel*			outfld_		    = nullptr;
+    uiGenInput*			directionsel_		= nullptr;
+    uiZAxisTransformSel*	t2dtransfld_		= nullptr;
+    uiZAxisTransformSel*	d2ttransfld_		= nullptr;
+    uiSurfaceRead*		inptimehorsel_		= nullptr;
+    uiSurfaceRead*		inpdepthhorsel_		= nullptr;
+    uiSurfaceWrite*		outtimehorsel_		= nullptr;
+    uiSurfaceWrite*		outdepthhorsel_		= nullptr;
 
     uiString			getDlgTitle(IOObjInfo::ObjectType) const;
 
     const ZDomain::Info&	outZDomain() const;
 
-    const uiSurfaceRead*	getWorkingInpSurfRead() const;
     RefMan<ZAxisTransform>	getWorkingZAxisTransform() const;
+    const uiSurfaceRead*	getWorkingInpSurfRead() const;
+    uiSurfaceWrite*		getWorkingOutSurfWrite();
 
     void			dirChangeCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;

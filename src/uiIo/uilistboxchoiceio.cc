@@ -29,7 +29,7 @@ uiListBoxChoiceIO::uiListBoxChoiceIO( uiListBox& lb, const char* omftypekey )
     , readDone(this)
 {
     if ( omftypekey && *omftypekey )
-	ctio_.ctxt_.toselect_.require_.add( sKey::Type(), omftypekey );
+	ctio_.ctxt_.requireType( omftypekey );
 
     lb_.offerReadWriteSelection( mCB(this,uiListBoxChoiceIO,readReqCB),
 			         mCB(this,uiListBoxChoiceIO,storeReqCB));

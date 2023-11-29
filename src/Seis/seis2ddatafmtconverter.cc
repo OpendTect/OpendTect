@@ -363,11 +363,13 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     ctio.ctxt_.deftransl_ = CBVSSeisTrc2DTranslator::translKey();
     if ( iop.hasKey(sKey::DataType()) )
     {
-	BufferString datatype, zdomain;
-	iop.get( sKey::DataType(), datatype );
-	iop.get( ZDomain::sKey(), zdomain );
-	ctio.ctxt_.toselect_.require_.set( sKey::Type(), datatype );
-	ctio.ctxt_.toselect_.require_.set( ZDomain::sKey(), zdomain );
+	BufferString datatype;
+	if ( iop.get(sKey::DataType(),datatype) && !datatype.isEmpty() )
+	    ctio.ctxt_.requireType( datatype );
+
+	const ZDomain::Info* zinfo = ZDomain::get( iop );
+	if ( zinfo )
+	    ctio.ctxt_.requireZDomain( *zinfo, *zinfo == SI().zDomainInfo() );
     }
 
     BufferString attribnm = iop.find( sKey::Attribute() );

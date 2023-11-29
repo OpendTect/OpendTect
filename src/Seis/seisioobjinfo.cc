@@ -898,10 +898,11 @@ static TypeSet<MultiID>& getIDs()
 void SeisIOObjInfo::initDefault( const char* typ )
 {
     BufferStringSet& typs = getTypes();
-    if ( typs.isPresent(typ) ) return;
+    if ( typs.isPresent(typ) )
+	return;
 
     IOObjContext ctxt( SeisTrcTranslatorGroup::ioContext() );
-    ctxt.toselect_.require_.set( sKey::Type(), typ );
+    ctxt.requireType( typ );
     int nrpresent = 0;
     PtrMan<IOObj> ioobj = IOM().getFirst( ctxt, &nrpresent );
     if ( !ioobj || nrpresent > 1 )

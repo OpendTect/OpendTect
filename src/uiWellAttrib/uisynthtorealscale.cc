@@ -172,7 +172,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     seisfld_->attach( alignedBelow, synthselfld_ );
 
     IOObjContext polyctxt( mIOObjContext(PickSet) );
-    polyctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
+    polyctxt.requireType( sKey::Polygon() );
     uiIOObjSel::Setup polysu( tr("Within Polygon") ); polysu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctxt, polysu );
     polyfld_->attach( alignedBelow, seisfld_ );

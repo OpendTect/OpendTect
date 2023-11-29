@@ -53,12 +53,12 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
     const Seis::GeomType geom = is2d ? Seis::Line : Seis::Vol;
     IOObjContext inputtimectxt = uiSeisSel::ioContext( geom, true );
     IOObjContext inputdepthctxt = uiSeisSel::ioContext( geom, true );
-    const ZDomain::Def& def = SI().zIsTime() ?
-					ZDomain::Depth() : ZDomain::Time();
-
-    inputdepthctxt.toselect_.restrictToZDomainDef( def );
-    inputtimectxt.toselect_.dontAllowToZDomainDef( def );
-
+    const ZDomain::Info& siinfo = SI().zDomainInfo();
+    const ZDomain::Info& timeinf = ZDomain::TWT();
+    const ZDomain::Info& depthinf = SI().depthsInFeet() ? ZDomain::DepthFeet()
+							: ZDomain::DepthMeter();
+    inputtimectxt.requireZDomain( timeinf, siinfo == timeinf );
+    inputdepthctxt.requireZDomain( depthinf, siinfo == depthinf );
 
     const uiString depthvol = is2d ? tr("Depth Data") : tr("Depth Volume");;
     const uiString timevol = is2d ? tr("Time Data") : tr("Time Volume");

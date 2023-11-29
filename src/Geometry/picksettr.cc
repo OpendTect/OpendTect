@@ -331,10 +331,7 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 
 void PickSetTranslator::fillConstraints( IOObjContext& ctxt, bool ispoly )
 {
-    if ( ispoly )
-	ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    else
-	ctxt.toselect_.require_.set( sKey::Type(), sKey::PickSet() );
+    ctxt.requireType( ispoly ? sKey::Polygon() : sKey::PickSet() );
 }
 
 

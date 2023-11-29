@@ -482,6 +482,30 @@ IOObjContext uiIOObjSel::getWriteIOObjCtxt( IOObjContext ctxt )
 }
 
 
+void uiIOObjSel::require( const char* keystr, const char* typ, bool allowempty )
+{
+    workctio_.ctxt_.require( keystr, typ, allowempty );
+}
+
+
+void uiIOObjSel::requireType( const char* typ, bool allowempty )
+{
+    workctio_.ctxt_.requireType( typ, allowempty );
+}
+
+
+void uiIOObjSel::requireZDomain( const ZDomain::Info& zinfo, bool allowempty )
+{
+    workctio_.ctxt_.requireZDomain( zinfo, allowempty );
+}
+
+
+const ZDomain::Info* uiIOObjSel::requiredZDomain() const
+{
+    return workctio_.ctxt_.requiredZDomain();
+}
+
+
 bool uiIOObjSel::fillPar( IOPar& iopar ) const
 {
     iopar.set( sKey::ID(),
@@ -742,6 +766,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 {
     if ( !workctio_.ctxt_.forread_ )
 	workctio_.setName( getInput() );
+
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg )
 	return;
@@ -786,7 +811,7 @@ uiIOObjRetDlg* uiIOObjSel::mkDlg()
 	.withwriteopts( setup_.withwriteopts_ )
 	.withinserters( setup_.withinserters_ )
 	.trsnotallwed( setup_.trsnotallwed_ );
-    uiIOObjSelDlg* ret = new uiIOObjSelDlg( this, sdsu, workctio_ );
+    auto* ret = new uiIOObjSelDlg( this, sdsu, workctio_ );
     uiIOObjSelGrp* selgrp = ret->selGrp();
     if ( selgrp )
     {

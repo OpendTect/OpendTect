@@ -283,7 +283,8 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 {
     IOObjContext ctxt = mIOObjContext( PickSet );
     ctxt.forread_ = true;
-    ctxt.toselect_.require_.set(sKey::Type(),managerName(),oldSelKey());
+    const FileMultiString fms( managerName(), oldSelKey() );
+    ctxt.requireType( fms.str() );
     uiIOObjSelDlg dlg( getUiParent(), ctxt );
     dlg.setCaption( uiStrings::phrLoad(typestr_) );
     dlg.setTitleText( uiStrings::phrSelect(typestr_) );
@@ -464,7 +465,7 @@ char uiODAnnotSubItem::createIOEntry( const char* nm, bool overwrite,
 
     CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = false;
-    ctio.ctxt_.toselect_.require_.set( sKey::Type(), mannm );
+    ctio.ctxt_.requireType( mannm );
     ctio.setName( nm );
     ctio.fillObj();
     if ( !ctio.ioobj_ )
@@ -499,7 +500,7 @@ void uiODAnnotSubItem::storeAs( bool trywitoutdlg ) const
     {
 	CtxtIOObj ctio( PickSetTranslatorGroup::ioContext() );
 	ctio.ctxt_.forread_ = false;
-	ctio.ctxt_.toselect_.require_.set( sKey::Type(), managerName() );
+	ctio.ctxt_.requireType( managerName() );
 	ctio.setName( nm );
 	uiIOObjSelDlg dlg( getUiParent(), ctio );
 	if ( !dlg.go() )

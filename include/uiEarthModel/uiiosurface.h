@@ -125,9 +125,12 @@ public:
     };
 
 			uiSurfaceWrite(uiParent*,const EM::Surface&,
-				       const uiSurfaceWrite::Setup& setup);
+				       const uiSurfaceWrite::Setup&);
 			uiSurfaceWrite(uiParent*,
-				       const uiSurfaceWrite::Setup& setup);
+				       const uiSurfaceWrite::Setup&);
+			uiSurfaceWrite(uiParent*,
+				       const uiSurfaceWrite::Setup&,
+				       const ZDomain::Info*);
 			~uiSurfaceWrite();
 
     bool		processInput() override;

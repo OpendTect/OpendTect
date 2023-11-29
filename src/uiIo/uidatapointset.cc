@@ -1433,7 +1433,8 @@ uiDataPointSetSave( uiParent* p, const char* typ )
 {
     ctio_.ctxt_.forread_ = false;
     if ( !type_.isEmpty() )
-	ctio_.ctxt_.toselect_.require_.set( sKey::Type(), typ );
+	ctio_.ctxt_.requireType( typ );
+
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
     tabfld_ = new uiGenInput( this, tr("Output to"),

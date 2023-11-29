@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "draw.h"
+#include "separstr.h"
 #include "picksettr.h"
 #include "pickset.h"
 #include "keystrs.h"
@@ -32,9 +33,8 @@ static IOObjContext getIOObjContext( const char* fixedtrkey )
     if ( fixedtrkey )
 	ctxt.fixTranslator( fixedtrkey );
 
-    BufferString types = sKey::PickSet();
-    types.add( "`" ).add( sKey::Polygon() );
-    ctxt.toselect_.require_.set( sKey::Type(), types.buf() );
+    const FileMultiString fms( sKey::PickSet(), sKey::Polygon() );
+    ctxt.requireType( fms.str() );
     return ctxt;
 }
 
