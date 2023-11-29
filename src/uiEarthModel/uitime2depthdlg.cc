@@ -142,7 +142,8 @@ RefMan<ZAxisTransform> uiTime2DepthDlg::getWorkingZAxisTransform() const
 {
     const bool todepth = directionsel_->getBoolValue();
     auto* zatffld = todepth ? t2dtransfld_ : d2ttransfld_;
-    return zatffld->getSelection();
+
+    return zatffld->acceptOK() ? zatffld->getSelection() : nullptr;
 }
 
 
@@ -162,7 +163,14 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     if ( !zatf )
 	mErrRet( tr("Provide valid transformation") );
 
-    auto* data = new SurfaceT2DTransfData();
+    EM::EMManager& em = EM::EMM();
+    EM::SurfaceIOData sd;
+    uiString errmsg;
+    const MultiID& inpmid = ioobj->key();
+    if ( !em.getSurfaceData(inpmid,sd,errmsg) )
+	mErrRet(errmsg)
+
+    auto* data = new SurfaceT2DTransfData( sd );
     data->inpmid_ = ioobj->key();
     data->outmid_ = outfld_->key();
     inpsel->getSelection( data->surfsel_ );

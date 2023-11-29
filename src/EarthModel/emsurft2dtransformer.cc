@@ -22,8 +22,8 @@ ________________________________________________________________________
 namespace EM
 {
 
-SurfaceT2DTransfData::SurfaceT2DTransfData()
-    : surfsel_(SurfaceIOData())
+SurfaceT2DTransfData::SurfaceT2DTransfData( const SurfaceIOData& surfdata )
+    : surfsel_(surfdata)
 {}
 
 SurfaceT2DTransformer::SurfaceT2DTransformer(
@@ -73,9 +73,19 @@ void SurfaceT2DTransformer::setZDomain( const ZDomain::Info& zinfo )
 
 void SurfaceT2DTransformer::preStepCB(CallBacker*)
 {
-    TrcKeyZSampling samp;
-    if ( zatf_.needsVolumeOfInterest() )
+    if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
     {
+	Interval<float> zgate( mUdf(float), mUdf(float) );
+	for ( const auto* data : datas_ )
+	{
+	    const SurfaceIODataSelection& surfsel = data->surfsel_;
+	    const Interval<float>& datagate = surfsel.sd.zrg;
+	    zgate.include( datagate );
+	}
+
+	TrcKeyZSampling samp( false );
+	samp.hsamp_ = datas_[0]->surfsel_.rg;
+	samp.zsamp_.setFrom( zgate );
 	zatvoi_ = zatf_.addVolumeOfInterest( samp, false );
 	TaskRunner tskr;
 	if ( !zatf_.loadDataIfMissing(zatvoi_,&tskr) )
@@ -127,23 +137,19 @@ bool SurfaceT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 	mErrRet( tr("Cannot find input horizon in repository") );
 
     EM::EMManager& em = EM::EMM();
-    EM::SurfaceIOData sd;
-    uiString errmsg;
-    if ( !em.getSurfaceData(inpmid,sd,errmsg) )
-	mErrRet(errmsg)
+    TaskRunner tskr;
+    PtrMan<Executor> loader = em.objectLoader( inpmid, &data.surfsel_ );
+    if ( !loader || !loader->execute() )
+	mErrRet( uiStrings::sCantCreateHor() )
 
-    RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
+    RefMan<EM::EMObject> emobj = em.getObject( inpmid );
     if ( !emobj )
-	mErrRet(uiStrings::sCantCreateHor())
+	mErrRet( tr("Failed to load the surface") );
 
-    emobj->setMultiID( inpmid );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
-    PtrMan<Executor> loader = hor->geometry().loader( &data.surfsel_ );
-    if ( !loader )
-	mErrRet(uiStrings::phrCannotRead(uiStrings::sHorizon()))
-
-    if ( !loader->execute() )
-	return false;
+    if ( !hor )
+	mErrRet( tr("Incorrect object selected, "
+				"3D horizon is expected for the workflow") );
 
     TrcKeyZSampling bbox;
     bbox.hsamp_ = hor->range();
