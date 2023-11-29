@@ -286,29 +286,8 @@ void uiFileSel::protChgCB( CallBacker* )
     if ( !protfld_ )
 	return;
 
-    BufferString fnm( fileName() );
-    const BufferString prot( OD::FileSystemAccess::getProtocol(fnm) );
-    const BufferString newprot = factnms_.get( protfld_->currentItem() );
-    if ( prot != newprot )
-    {
-	NotifyStopper ns( newSelection );
-	const BufferString filenmonly = FilePath(fnm).fileName();
-	if ( !filenmonly.isEmpty() )
-	    ns.enableNotification();
-
-	if ( filenmonly.isEmpty() )
-	{
-	    fnmfld_->setPlaceholderText( toUiString(newprot) );
-	}
-	else
-	{
-	    fnm = OD::FileSystemAccess::withProtocol( filenmonly, newprot );
-	    setFileName( fnm );
-	}
-    }
-    else
-	fnmfld_->setPlaceholderText( uiString::empty() );
-
+    const BufferString prot = factnms_.get( protfld_->currentItem() );
+    fnmfld_->setPlaceholderText( toUiString(prot) );
     setButtonStates();
     protocolChanged.trigger();
 }
