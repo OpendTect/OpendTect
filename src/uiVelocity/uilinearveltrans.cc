@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uilinearveltrans.h"
 
+#include "separstr.h"
 #include "timedepthconv.h"
 #include "unitofmeasure.h"
 #include "zdomain.h"
@@ -28,17 +29,21 @@ void uiLinearVelTransform::initClass()
 
 
 uiZAxisTransform* uiLinearVelTransform::createInstance( uiParent* p,
-					        const char* fromdomain,
-						const char* todomain )
+						const char* domainstr,
+						const char* /**/)
 {
-    if ( !fromdomain || !todomain )
+    const FileMultiString fms( domainstr );
+    if ( fms.isEmpty() || fms.size() < 2 )
 	return nullptr;
 
-    if ( StringView(fromdomain) == ZDomain::sKeyTime() &&
-	 StringView(todomain) == ZDomain::sKeyDepth() )
+    const BufferString fromdomain = fms[0];
+    const BufferString todomain = fms[1];
+
+    if ( fromdomain == ZDomain::sKeyTime() &&
+					todomain == ZDomain::sKeyDepth() )
 	return new uiLinearVelTransform( p, true );
-    else if ( StringView(fromdomain) == ZDomain::sKeyDepth() &&
-	      StringView(todomain) == ZDomain::sKeyTime() )
+    else if ( fromdomain == ZDomain::sKeyDepth() &&
+					    todomain == ZDomain::sKeyTime() )
 	return new uiLinearVelTransform( p, false );
 
     return nullptr;

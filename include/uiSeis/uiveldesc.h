@@ -196,7 +196,10 @@ public:
 
     bool			canBeField() const override { return true; }
 protected:
+				mDeprecated("Use constructor with is2d param")
 				uiVelModelZAxisTransform(uiParent*,bool t2d);
+				uiVelModelZAxisTransform(uiParent*,bool t2d,
+								    bool is2d);
 				~uiVelModelZAxisTransform();
 
     StringView			getZDomain() const;
@@ -208,6 +211,9 @@ protected:
     MultiID			selkey_;
 
     uiVelSel*			velsel_;
+
+    void			init(bool is2d);
+
 };
 
 
@@ -218,8 +224,11 @@ public:
     static uiZAxisTransform*	createInstance(uiParent*,
 					       const char*,const char*);
 
+				mDeprecated("Use constructor with is2d param")
 				uiTime2Depth(uiParent*);
 				~uiTime2Depth();
+
+				uiTime2Depth(uiParent*,bool is2d);
 };
 
 
@@ -230,6 +239,9 @@ public:
     static uiZAxisTransform*	createInstance(uiParent*,
 					       const char*,const char*);
 
+				mDeprecated("Use constructor with is2d param")
 				uiDepth2Time(uiParent*);
 				~uiDepth2Time();
+
+				uiDepth2Time(uiParent*,bool is2d);
 };

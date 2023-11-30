@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uizaxistransform.h"
 
 #include "datainpspec.h"
+#include "separstr.h"
 #include "refcount.h"
 #include "zaxistransform.h"
 
@@ -78,10 +79,12 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     const uiStringSet& usernames =
 	uiZAxisTransform::factory().getUserNames();
 
+    const FileMultiString zdomfms( fromdomain, todomain );
+    const BufferString str2d( is2d ? sKey::TwoD() : sKey::ThreeD() );
     for ( int idx=0; idx<factorynames.size(); idx++ )
     {
 	auto* uizat = uiZAxisTransform::factory().create(
-			factorynames[idx]->buf(), this, fromdomain, todomain );
+			factorynames[idx]->buf(), this, zdomfms.buf(), str2d );
 	if ( !uizat )
 	    continue;
 
@@ -94,7 +97,6 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	if ( withsampling )
 	    uizat->enableTargetSampling();
 
-	uizat->setIs2D( is2d );
 	transflds_ += uizat;
 	names += usernames[idx];
     }

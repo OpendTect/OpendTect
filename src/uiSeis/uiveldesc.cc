@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "od_helpids.h"
 #include "seistrctr.h"
+#include "separstr.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "veldescimpl.h"
@@ -866,9 +867,25 @@ uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase(p,t2d)
     , transform_(nullptr)
 {
+    const bool issurv2d = SI().has2D() && !SI().has3D();
+    init( issurv2d );
+}
+
+
+uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d,
+								bool is2d )
+    : uiTime2DepthZTransformBase(p,t2d)
+    , transform_(nullptr)
+{
+    init( is2d );
+}
+
+
+void uiVelModelZAxisTransform::init( bool is2d )
+{
     uivelzaxistfmgr_.setParam( this, nullptr );
     velsel_ = new uiVelSel( this, VelocityDesc::getVelVolumeLabel(),
-			    is2D(), true );
+								is2d, true );
     setHAlignObj( velsel_ );
     mAttachCB( postFinalize(), uiVelModelZAxisTransform::finalizeCB );
 }
@@ -983,7 +1000,8 @@ bool uiVelModelZAxisTransform::acceptOK()
 	uiRetVal msgs( tr("Internal: Could not initialize transform") );
 	if ( !transform->errMsg().isEmpty() )
 	    msgs.add( transform->errMsg() );
-	uiMSG().errorWithDetails( msgs );
+
+	uiMSG().errorWithDetails( msgs.messages() );
 	return false;
     }
 
@@ -1011,22 +1029,34 @@ void uiTime2Depth::initClass()
 
 
 uiZAxisTransform* uiTime2Depth::createInstance( uiParent* p,
-					const char* fromdomain,
-					const char* todomain )
+					const char* domainstr,
+					const char* is2dstr )
 {
-    if ( !fromdomain || !todomain )
+    const FileMultiString fms( domainstr );
+    const StringView str2d( is2dstr );
+    if ( fms.isEmpty() || fms.size() < 2 || str2d.isEmpty() )
 	return nullptr;
 
-    if ( StringView(fromdomain) != ZDomain::sKeyTime() ||
-	 StringView(todomain) != ZDomain::sKeyDepth() )
+    const BufferString fromdomain = fms[0];
+    const BufferString todomain = fms[1];
+
+    if ( fromdomain != ZDomain::sKeyTime() ||
+					todomain != ZDomain::sKeyDepth() )
 	return nullptr;
 
-    return new uiTime2Depth( p );
+    const bool is2d = str2d.isEqual( sKey::TwoD() );
+
+    return new uiTime2Depth( p, is2d );
 }
 
 
 uiTime2Depth::uiTime2Depth( uiParent* p )
-    : uiVelModelZAxisTransform(p,true)
+    : uiVelModelZAxisTransform(p,true,(SI().has2D() && !SI().has3D()))
+{}
+
+
+uiTime2Depth::uiTime2Depth( uiParent* p, bool is2d )
+    : uiVelModelZAxisTransform(p,true,is2d)
 {}
 
 
@@ -1042,21 +1072,32 @@ void uiDepth2Time::initClass()
 
 
 uiZAxisTransform* uiDepth2Time::createInstance( uiParent* p,
-			const char* fromdomain, const char* todomain )
+				const char* domainstr, const char* is2dstr )
 {
-    if ( !fromdomain || !todomain )
+    const FileMultiString fms( domainstr );
+    const StringView str2d( is2dstr );
+    if ( fms.isEmpty() || fms.size() < 2 || str2d.isEmpty() )
 	return nullptr;
 
-    if ( StringView(fromdomain) != ZDomain::sKeyDepth() ||
-	 StringView(todomain) != ZDomain::sKeyTime() )
+    const BufferString fromdomain = fms[0];
+    const BufferString todomain = fms[1];
+
+    if ( fromdomain != ZDomain::sKeyDepth() ||
+					    todomain != ZDomain::sKeyTime() )
 	return nullptr;
 
-    return new uiDepth2Time( p );
+    const bool is2d = str2d.isEqual( sKey::TwoD() );
+    return new uiDepth2Time( p, is2d );
 }
 
 
 uiDepth2Time::uiDepth2Time( uiParent* p )
-    : uiVelModelZAxisTransform( p, false )
+    : uiVelModelZAxisTransform(p,false,(SI().has2D() && !SI().has3D()))
+{}
+
+
+uiDepth2Time::uiDepth2Time( uiParent* p, bool is2d )
+    : uiVelModelZAxisTransform(p,false,is2d)
 {}
 
 
