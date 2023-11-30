@@ -48,6 +48,12 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	COPY_THIRDPARTYLIBS()
 	list( APPEND LIBLIST ${PLUGINS} )
     elseif( ${PACKAGE_NAME} STREQUAL "dgbpro" )
+	file( GLOB FILESEL_PROVS "${COPYFROMDATADIR}/data/FileSelProviders/uidGB*.txt" )
+	file( COPY ${FILESEL_PROVS}
+	      DESTINATION "${COPYTODATADIR}/data/FileSelProviders" )
+	file( GLOB SEISTRCTR_PROVS "${COPYFROMDATADIR}/data/SeisTrcTranslators/dGB*.txt" )
+	file( COPY ${SEISTRCTR_PROVS}
+	      DESTINATION "${COPYTODATADIR}/data/SeisTrcTranslators" )
 	file( GLOB SURV_PROVS "${COPYFROMDATADIR}/data/SurveyProviders/uidGB*.txt" )
 	file( COPY ${SURV_PROVS}
 	      DESTINATION "${COPYTODATADIR}/data/SurveyProviders" )
