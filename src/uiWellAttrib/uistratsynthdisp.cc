@@ -1897,7 +1897,8 @@ void uiStratSynthDisp::wvaSelCB( CallBacker* cb )
     if ( !wvaselfld_->isNoneSelected() && !vdselfld_->isNoneSelected() )
     {
 	const SynthGenParams* sgp = datamgr_.getGenParams( vdselfld_->curID() );
-	if ( sgp && !sgp->isStratProp() && !sgp->isAttribute() )
+	if ( sgp && !sgp->isStratProp() && !sgp->isAttribute() &&
+	    !sgp->isFiltered() )
 	{
 	    NotifyStopper ns( vdselfld_->selChange );
 	    vdselfld_->setCurrentItem( wvaselfld_->curID() );
@@ -1923,7 +1924,8 @@ void uiStratSynthDisp::vdSelCB( CallBacker* cb )
     const SynthGenParams* vdsgp = datamgr_.getGenParams( vdselfld_->curID() );
     if ( !vdselfld_->isNoneSelected() && !wvaselfld_->isNoneSelected() &&
 	 wvanm != vdnm &&
-	 vdsgp && !vdsgp->isStratProp() && !vdsgp->isAttribute() )
+	 vdsgp && !vdsgp->isStratProp() && !vdsgp->isAttribute() &&
+	 !vdsgp->isFiltered() )
     {
 	NotifyStopper ns( wvaselfld_->selChange );
 	wvaselfld_->setCurrentItem( vdselfld_->curID() );

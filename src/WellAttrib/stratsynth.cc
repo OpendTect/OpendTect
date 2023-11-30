@@ -1848,7 +1848,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
     {
 	const BufferString inpdsnm( getFinalDataSetName(sgp.inpsynthnm_,
 						    sgp.isStratProp(),lmsidx) );
-	const SynthID inpid = find( inpdsnm );
+	const SynthID inpid = find( sgp.inpsynthnm_ );
 	if ( !inpid.isValid() )
 	{
 	    errmsg_ = tr("input synthetic data '%1' not present").arg(inpdsnm);
