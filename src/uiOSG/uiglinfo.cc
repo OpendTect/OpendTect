@@ -110,11 +110,14 @@ uiString uiGLInfo::getMessage( bool* warning )
     }
 
     BufferStringSet allinfo = glinfo_.allInfo();
+    const BufferString& glvendor = allinfo.get( 0 );
+    const BufferString& glrenderer = allinfo.get( 1 );
+    const BufferString& glversion = allinfo.get( 2 );
 
     msg.add( "<h2>Graphics Card Information</h2><br>" )
-       .add( "GL-vendor: " ).add( allinfo[0]->buf() ).add( "<br>" )
-       .add( "GL-renderer: " ).add( allinfo[1]->buf() ).add( "<br>" )
-       .add( "GL-version: " ).add( allinfo[2]->buf() ).add( "<br>" );
+       .add( "GL-vendor: " ).add( glvendor.buf() ).add( "<br>" )
+       .add( "GL-renderer: " ).add( glrenderer.buf() ).add( "<br>" )
+       .add( "GL-version: " ).add( glversion.buf() ).add( "<br>" );
 
     if ( !warning )
     {
@@ -124,19 +127,22 @@ uiString uiGLInfo::getMessage( bool* warning )
 
     *warning = true;
 
+    OD::CaseSensitivity cs = OD::CaseInsensitive;
     msg.add( "<br>" );
     if ( !glinfo_.isOK() )
     {
 	msg.add( "Missing all GL info indicates some graphics card problem." );
     }
-    else if ( stringStartsWithCI("intel",allinfo[0]->buf()) )
+    else if ( glvendor.startsWith("intel",cs) )
     {
 	msg.add(
 	    "Intel card found. If your computer has multiple graphics cards,"
-	    "<br>consider switching from the integrated graphics." );
+	    "<br>consider switching from the integrated graphics.<br>"
+	    "NVIDIA cards are highly recommended." );
     }
-    else if ( stringStartsWithCI("ati",allinfo[0]->buf()) ||
-	      stringStartsWithCI("amd",allinfo[0]->buf()) )
+    else if ( glvendor.startsWith("ati",cs) ||
+	      glvendor.startsWith("amd",cs) ||
+	      glrenderer.startsWith("amd",cs) )
     {
 	msg.add(
 	    "AMD card found. Video cards by AMD are not supported.<br>"
@@ -144,14 +150,15 @@ uiString uiGLInfo::getMessage( bool* warning )
 	    "visualization issues. If your computer also has an NVIDIA<br>"
 	    "card, make sure OpendTect will use this NVIDIA card." );
     }
-    else if ( stringStartsWithCI("microsoft",allinfo[0]->buf()) ||
-	      stringStartsWithCI("gdi",allinfo[1]->buf()) )
+    else if ( glvendor.startsWith("microsoft",cs) ||
+	      glrenderer.startsWith("gdi",cs) )
     {
 	msg.add( "No graphics card found or no drivers have been installed." );
     }
-    else if ( *allinfo[2] == "?" )
+    else if ( glversion == "?" )
     {
-	msg.add("Missing GL-version indicates a graphics card driver problem.");
+	msg.add("Missing GL-version. This usually indicates a<br>"
+		"graphics card driver problem.");
     }
     else
 	*warning = false;
