@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
+
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
@@ -31,6 +32,7 @@ public:
     MultiID			outmid_;
     SurfaceIODataSelection	surfsel_;
 };
+
 
 mExpClass(EarthModel) SurfaceT2DTransformer : public Executor
 { mODTextTranslationClass(SurfaceT2DTransformer)
@@ -58,16 +60,15 @@ private:
 
     RefMan<Surface>		createSurface(const MultiID&);
 
-    od_int64					nrdone_     = 0;
-    od_int64					totnr_	    = 0;
+    od_int64					nrdone_		= 0;
+    od_int64					totnr_		= 0;
     uiString					curmsg_;
     ZAxisTransform&				zatf_;
     const ObjectSet<SurfaceT2DTransfData>&	datas_;
     const ZDomain::Info*			zinfo_;
     const IOObjInfo::ObjectType			objtype_;
-    int						zatvoi_     = -1;
+    int						zatvoi_		= -1;
     RefObjectSet<Surface>			surfs_;
-
-
 };
-}
+
+} // namespace EM
