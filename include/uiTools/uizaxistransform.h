@@ -39,8 +39,9 @@ public:
 				   uiZAxisTransformSel::isField() at
 				   construction.
 				 */
-
+    mDeprecated("Do not use, pass the parameter as second string paramter")
     void			setIs2D( bool yn ) { is2dzat_ = yn; }
+    mDeprecated("Should be retrieved from string passed to create function")
     bool			is2D() const { return is2dzat_; }
 
 protected:

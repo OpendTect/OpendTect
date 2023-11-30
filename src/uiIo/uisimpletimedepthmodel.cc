@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uisimpletimedepthmodel.h"
 
+#include "separstr.h"
 #include "od_iostream.h"
 #include "simpletimedepthmodel.h"
 #include "survinfo.h"
@@ -464,16 +465,20 @@ void uiSimpleTimeDepthTransform::initClass()
 
 
 uiZAxisTransform* uiSimpleTimeDepthTransform::createInstance( uiParent* p,
-				const char* fromdomain, const char* todomain )
+				const char* domainstr, const char* /**/ )
 {
-    if ( !fromdomain || !todomain )
+    const FileMultiString fms( domainstr );
+    if ( fms.isEmpty() || fms.size() < 2 )
 	return nullptr;
 
-    if ( StringView(fromdomain) == ZDomain::sKeyTime() &&
-	 StringView(todomain) == ZDomain::sKeyDepth() )
+    const BufferString fromdomain = fms[0];
+    const BufferString todomain = fms[1];
+
+    if ( fromdomain == ZDomain::sKeyTime() &&
+					    todomain == ZDomain::sKeyDepth() )
 	return new uiSimpleTimeDepthTransform( p, true );
-    else if ( StringView(fromdomain) == ZDomain::sKeyDepth() &&
-	      StringView(todomain) == ZDomain::sKeyTime() )
+    else if ( fromdomain == ZDomain::sKeyDepth() &&
+					    todomain == ZDomain::sKeyTime() )
 	return new uiSimpleTimeDepthTransform( p, false );
 
     return nullptr;

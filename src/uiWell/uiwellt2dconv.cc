@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uiwellt2dconv.h"
 
 #include "binidvalue.h"
+#include "separstr.h"
 #include "survinfo.h"
 #include "uimsg.h"
 #include "uiioobjsel.h"
@@ -116,10 +117,16 @@ void uiWellT2DTransform::initClass()
 
 
 uiZAxisTransform* uiWellT2DTransform::createInstance(uiParent* p,
-				const char* fromdomain, const char* todomain )
+				const char* domainstr, const char* /**/)
 {
-    if ( StringView(fromdomain) != ZDomain::sKeyTime() ||
-	 StringView(todomain) != ZDomain::sKeyDepth() )
+    const FileMultiString fms( domainstr );
+    if ( fms.isEmpty() || fms.size() < 2 )
+	return nullptr;
+
+    const BufferString fromdomain = fms[0];
+    const BufferString todomain = fms[1];
+    if ( fromdomain != ZDomain::sKeyTime() ||
+					    todomain != ZDomain::sKeyDepth() )
 	return nullptr;
 
     return new uiWellT2DTransform( p );
