@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
-#include "mousecursor.h"
 #include "task.h"
 #include "transl.h"
 
@@ -34,13 +33,12 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uit2dconvsel.h"
-#include "uiunitsel.h"
 
 namespace EM
 {
+
 uiTime2DepthDlg::uiTime2DepthDlg ( uiParent* p, IOObjInfo::ObjectType objtype )
-    : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype), mNoDlgTitle,
-								mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype),mNoDlgTitle,mNoHelpKey))
     , objtype_(objtype)
 {
     IOObjContext ioobjctxt( nullptr );
@@ -51,35 +49,35 @@ uiTime2DepthDlg::uiTime2DepthDlg ( uiParent* p, IOObjInfo::ObjectType objtype )
 	return;
 
     const bool istime = SI().zIsTime();
-    auto* topgrp = new uiGroup( this, "topgrp" );
-    directionsel_ = new uiGenInput( topgrp, tr("Convert from"),
+    directionsel_ = new uiGenInput( this, tr("Convert from"),
 	BoolInpSpec(true, tr("Time to Depth"), tr("Depth to Time"), true));
     directionsel_->setChecked( istime );
     mAttachCB(directionsel_->valueChanged,uiTime2DepthDlg::dirChangeCB);
 
-    auto* zatfgrp = new uiGroup( this, "ZAxisTranformGroup" );
-    zatfgrp->attach( alignedBelow, topgrp );
-    t2dtransfld_ = new uiZAxisTransformSel( zatfgrp, false,
-		ZDomain::sKeyTime(), ZDomain::sKeyDepth(), true, false, is2d );
-    d2ttransfld_ = new uiZAxisTransformSel( zatfgrp, false,
-		ZDomain::sKeyDepth(), ZDomain::sKeyTime(), true, false, is2d );
+    t2dtransfld_ = new uiZAxisTransformSel( this, false,
+		ZDomain::sKeyTime(), ZDomain::sKeyDepth(), false, false, is2d );
+    t2dtransfld_->attach( alignedBelow, directionsel_ );
 
-    auto* inphorgrp = new uiGroup( this, "HorizonGroup");
-    inphorgrp->attach( alignedBelow, zatfgrp );
+    d2ttransfld_ = new uiZAxisTransformSel( this, false,
+		ZDomain::sKeyDepth(), ZDomain::sKeyTime(), false, false, is2d );
+    d2ttransfld_->attach( alignedBelow, directionsel_ );
 
     const BufferString grpnm( ioobjctxt.trgroup_->groupName() );
-    inptimehorsel_ = new uiSurfaceRead( inphorgrp, uiSurfaceRead::Setup(
-	grpnm).withsubsel(true).withsectionfld(false), &ZDomain::TWT() );
+    inptimehorsel_ = new uiSurfaceRead( this,
+	uiSurfaceRead::Setup(grpnm).withsubsel(true).withsectionfld(false),
+	&ZDomain::TWT() );
+    inptimehorsel_->attach( alignedBelow, t2dtransfld_ );
 
     const ZDomain::Info& depthinf =
 	SI().depthsInFeet() ? ZDomain::DepthFeet() : ZDomain::DepthMeter();
-    inpdepthhorsel_ = new uiSurfaceRead( inphorgrp, uiSurfaceRead::Setup(
+    inpdepthhorsel_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
 	grpnm).withsubsel(true).withsectionfld(false), &depthinf );
+    inpdepthhorsel_->attach( alignedBelow, d2ttransfld_ );
 
-    auto* outgrp = new uiGroup( this, "outgrp" );
-    outgrp->attach( alignedBelow, inphorgrp );
     ioobjctxt.forread_ = false;
-    outfld_ = new uiIOObjSel( outgrp, ioobjctxt, uiString::empty() );
+    outfld_ = new uiIOObjSel( this, ioobjctxt, uiString::empty() );
+    outfld_->attach( alignedBelow, inptimehorsel_ );
+    outfld_->attach( ensureBelow, inpdepthhorsel_ );
 
     mAttachCB( postFinalize(), uiTime2DepthDlg::dirChangeCB );
 }
@@ -203,7 +201,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 	if ( surf->zDomain().fillPar(obj->pars()) )
 	    IOM().commitChanges( *obj );
 
-	ret = uiMSG().askGoOn( tr("Successfully transformed %1."
+	ret = uiMSG().askGoOn( tr("Successfully transformed %1.\n"
 			    "Do you want to tranform another 3D Horizon?").
 			    arg(ioobj->name()) );
     }
@@ -212,4 +210,4 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     return !ret;
 }
 
-}
+} // namespace EM
