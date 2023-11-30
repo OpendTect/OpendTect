@@ -27,6 +27,8 @@ data/Python/dgbpro_requirements.txt
 data/Python/machine_learning_requirements.txt
 data/Python/machine_learning_requirements_optional.txt
 data/Python/odpybind_requirements.txt
+data/FileSelProviders
+data/SeisTrcTranslators
 data/SurveyProviders
 data/Firewall
 doc/Videos.dgb
