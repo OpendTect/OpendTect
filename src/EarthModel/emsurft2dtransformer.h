@@ -24,7 +24,7 @@ class Horizon3D;
 mExpClass(EarthModel) SurfaceT2DTransfData
 {
 public:
-			    SurfaceT2DTransfData();
+			    SurfaceT2DTransfData(const SurfaceIOData&);
 			    mOD_DisableCopy(SurfaceT2DTransfData);
 
     MultiID			inpmid_;
