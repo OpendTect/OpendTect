@@ -36,8 +36,8 @@ private:
     uiGenInput*		velfld_;
     uiGenInput*		gradientfld_;
 
-    static uiZAxisTransform*	createInstance(uiParent*,const char*,
-					       const char*);
+    static uiZAxisTransform*	createInstance(uiParent*,
+						const uiZAxisTranformSetup&);
 public:
     static void		initClass();
 };

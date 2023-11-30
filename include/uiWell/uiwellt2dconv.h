@@ -33,8 +33,8 @@ private:
     uiIOObjSel*			selfld_;
     RefMan<ZAxisTransform>	transform_;
 
-    static uiZAxisTransform*	createInstance(uiParent*,const char*,
-					       const char*);
+    static uiZAxisTransform*	createInstance(uiParent*,
+						const uiZAxisTranformSetup&);
 public:
     static void initClass();
 };

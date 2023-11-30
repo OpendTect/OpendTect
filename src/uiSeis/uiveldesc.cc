@@ -701,11 +701,13 @@ void uiVelSel::updateEditButton()
 
 // uiVelModelZAxisTransform
 
-uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
+uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d,
+							 OD::Pol2D3D poltype )
     : uiTime2DepthZTransformBase(p,t2d)
 {
+    const bool is2d = poltype == OD::Only2D;
     velsel_ = new uiVelSel( this, VelocityDesc::getVelVolumeLabel(),
-			    is2D(), true );
+								is2d, true );
     setHAlignObj( velsel_ );
 }
 
@@ -829,22 +831,21 @@ void uiTime2Depth::initClass()
 
 
 uiZAxisTransform* uiTime2Depth::createInstance( uiParent* p,
-					const char* fromdomain,
-					const char* todomain )
+				    const uiZAxisTranformSetup& setup )
 {
-    if ( !fromdomain || !todomain )
+    if ( setup.fromdomain_.isEmpty() || setup.todomain_.isEmpty() )
 	return nullptr;
 
-    if ( StringView(fromdomain) != ZDomain::sKeyTime() ||
-	 StringView(todomain) != ZDomain::sKeyDepth() )
+    if ( setup.fromdomain_ != ZDomain::sKeyTime() ||
+				    setup.todomain_ != ZDomain::sKeyDepth() )
 	return nullptr;
 
-    return new uiTime2Depth( p );
+    return new uiTime2Depth( p, setup.datatype_ );
 }
 
 
-uiTime2Depth::uiTime2Depth( uiParent* p )
-    : uiVelModelZAxisTransform(p,true)
+uiTime2Depth::uiTime2Depth( uiParent* p, OD::Pol2D3D poltype )
+    : uiVelModelZAxisTransform(p,true,poltype)
 {}
 
 
@@ -860,21 +861,21 @@ void uiDepth2Time::initClass()
 
 
 uiZAxisTransform* uiDepth2Time::createInstance( uiParent* p,
-			const char* fromdomain, const char* todomain )
+					const uiZAxisTranformSetup& setup )
 {
-    if ( !fromdomain || !todomain )
+    if ( setup.fromdomain_.isEmpty() || setup.todomain_.isEmpty() )
 	return nullptr;
 
-    if ( StringView(fromdomain) != ZDomain::sKeyDepth() ||
-	 StringView(todomain) != ZDomain::sKeyTime() )
+    if ( setup.fromdomain_ != ZDomain::sKeyDepth() ||
+				    setup.todomain_ != ZDomain::sKeyTime() )
 	return nullptr;
 
-    return new uiDepth2Time( p );
+    return new uiDepth2Time( p, setup.datatype_ );
 }
 
 
-uiDepth2Time::uiDepth2Time( uiParent* p )
-    : uiVelModelZAxisTransform( p, false )
+uiDepth2Time::uiDepth2Time( uiParent* p, OD::Pol2D3D poltype )
+    : uiVelModelZAxisTransform(p,false,poltype)
 {}
 
 

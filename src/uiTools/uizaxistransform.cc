@@ -20,8 +20,8 @@ ________________________________________________________________________
 
 // uiZAxisTransform
 
-mImplFactory3Param( uiZAxisTransform, uiParent*, const char*,
-		    const char*, uiZAxisTransform::factory );
+mImplFactory2Param( uiZAxisTransform, uiParent*, const uiZAxisTranformSetup&,
+						uiZAxisTransform::factory );
 
 uiZAxisTransform::uiZAxisTransform( uiParent* p )
     : uiDlgGroup( p, uiString::empty() )
@@ -56,7 +56,7 @@ bool uiZAxisTransform::isField( const uiParent* p )
 
 uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	const char* fromdomain, const char* todomain, bool withsampling,
-	bool isfield, bool is2d )
+						    bool isfield, bool is2d )
     : uiDlgGroup( p, uiString::empty() )
     , isfield_(isfield)
 {
@@ -75,10 +75,15 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     const uiStringSet& usernames =
 	uiZAxisTransform::factory().getUserNames();
 
+    uiZAxisTranformSetup setup;
+    setup.fromdomain_ = fromdomain;
+    setup.todomain_ = todomain;
+    const OD::Pol2D3D poltype = is2d ? OD::Only2D : OD::Only3D;
+    setup.datatype_ = poltype;
     for ( int idx=0; idx<factorynames.size(); idx++ )
     {
 	auto* uizat = uiZAxisTransform::factory().create(
-			factorynames[idx]->buf(), this, fromdomain, todomain );
+				    factorynames[idx]->buf(), this, setup );
 	if ( !uizat )
 	    continue;
 
@@ -91,7 +96,6 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 	if ( withsampling )
 	    uizat->enableTargetSampling();
 
-	uizat->setIs2D( is2d );
 	transflds_ += uizat;
 	names += usernames[idx];
     }

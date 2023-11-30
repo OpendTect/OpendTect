@@ -28,17 +28,16 @@ void uiLinearVelTransform::initClass()
 
 
 uiZAxisTransform* uiLinearVelTransform::createInstance( uiParent* p,
-					        const char* fromdomain,
-						const char* todomain )
+					    const uiZAxisTranformSetup& setup )
 {
-    if ( !fromdomain || !todomain )
+    if ( setup.fromdomain_.isEmpty() || setup.todomain_.isEmpty() )
 	return nullptr;
 
-    if ( StringView(fromdomain) == ZDomain::sKeyTime() &&
-	 StringView(todomain) == ZDomain::sKeyDepth() )
+    if ( setup.fromdomain_ == ZDomain::sKeyTime() &&
+				    setup.todomain_ == ZDomain::sKeyDepth() )
 	return new uiLinearVelTransform( p, true );
-    else if ( StringView(fromdomain) == ZDomain::sKeyDepth() &&
-	      StringView(todomain) == ZDomain::sKeyTime() )
+    else if ( setup.fromdomain_ == ZDomain::sKeyDepth() &&
+				    setup.todomain_ == ZDomain::sKeyTime() )
 	return new uiLinearVelTransform( p, false );
 
     return nullptr;

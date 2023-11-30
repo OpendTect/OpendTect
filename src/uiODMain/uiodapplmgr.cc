@@ -386,12 +386,12 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 		mODHelpKey(mODApplMgraddTimeDepthSceneHelpID) );
 
     uiSingleGroupDlg dlg( &appl_, setup );
-
+    const OD::Pol2D3D poltype = is2d ? OD::Only2D : OD::Only3D;
     auto* uitrans = SI().zIsTime()
 	? new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyTime(),
-				   ZDomain::sKeyDepth(), true, false, is2d )
+				   ZDomain::sKeyDepth(), true, false, poltype )
 	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
-				   ZDomain::sKeyTime(), true, false, is2d );
+				   ZDomain::sKeyTime(), true, false, poltype );
 
     if ( !uitrans->isOK() )
     {

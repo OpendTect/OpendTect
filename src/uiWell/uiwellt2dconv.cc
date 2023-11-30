@@ -106,10 +106,10 @@ void uiWellT2DTransform::initClass()
 
 
 uiZAxisTransform* uiWellT2DTransform::createInstance(uiParent* p,
-				const char* fromdomain, const char* todomain )
+				    const uiZAxisTranformSetup& setup )
 {
-    if ( StringView(fromdomain) != ZDomain::sKeyTime() ||
-	 StringView(todomain) != ZDomain::sKeyDepth() )
+    if ( setup.fromdomain_ != ZDomain::sKeyTime() ||
+				setup.todomain_ != ZDomain::sKeyDepth() )
 	return nullptr;
 
     return new uiWellT2DTransform( p );

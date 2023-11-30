@@ -453,16 +453,16 @@ void uiSimpleTimeDepthTransform::initClass()
 
 
 uiZAxisTransform* uiSimpleTimeDepthTransform::createInstance( uiParent* p,
-				const char* fromdomain, const char* todomain )
+				const uiZAxisTranformSetup& setup )
 {
-    if ( !fromdomain || !todomain )
+    if ( setup.fromdomain_.isEmpty() || setup.todomain_.isEmpty() )
 	return nullptr;
 
-    if ( StringView(fromdomain) == ZDomain::sKeyTime() &&
-	 StringView(todomain) == ZDomain::sKeyDepth() )
+    if ( setup.fromdomain_ == ZDomain::sKeyTime() &&
+				setup.todomain_ == ZDomain::sKeyDepth() )
 	return new uiSimpleTimeDepthTransform( p, true );
-    else if ( StringView(fromdomain) == ZDomain::sKeyDepth() &&
-	      StringView(todomain) == ZDomain::sKeyTime() )
+    else if ( setup.fromdomain_ == ZDomain::sKeyDepth() &&
+				    setup.todomain_ == ZDomain::sKeyTime() )
 	return new uiSimpleTimeDepthTransform( p, false );
 
     return nullptr;

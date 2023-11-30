@@ -160,7 +160,8 @@ private:
 mExpClass(uiSeis) uiVelModelZAxisTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiVelModelZAxisTransform);
 protected:
-				uiVelModelZAxisTransform(uiParent*,bool t2d);
+				uiVelModelZAxisTransform(uiParent*,bool t2d,
+								OD::Pol2D3D);
 				~uiVelModelZAxisTransform();
 private:
 
@@ -187,11 +188,11 @@ private:
 mExpClass(uiSeis) uiTime2Depth : public uiVelModelZAxisTransform
 { mODTextTranslationClass(uiTime2Depth);
 private:
-				uiTime2Depth(uiParent*);
+				uiTime2Depth(uiParent*,OD::Pol2D3D);
 				~uiTime2Depth();
 
     static uiZAxisTransform*	createInstance(uiParent*,
-					       const char*,const char*);
+					    const uiZAxisTranformSetup&);
 public:
     static void			initClass();
 };
@@ -200,11 +201,11 @@ public:
 mExpClass(uiSeis) uiDepth2Time : public uiVelModelZAxisTransform
 { mODTextTranslationClass(uiDepth2Time);
 private:
-				uiDepth2Time(uiParent*);
+				uiDepth2Time(uiParent*,OD::Pol2D3D);
 				~uiDepth2Time();
 
     static uiZAxisTransform*	createInstance(uiParent*,
-					       const char*,const char*);
+					const uiZAxisTranformSetup&);
 public:
     static void			initClass();
 };

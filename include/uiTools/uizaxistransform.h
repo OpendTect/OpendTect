@@ -19,11 +19,19 @@ class uiZAxisTransformSel;
 
 /*! Base class for ZAxisTransform ui's*/
 
+mExpClass(uiTools) uiZAxisTranformSetup
+{
+public:
+    StringView		    fromdomain_;
+    StringView		    todomain_;
+    OD::Pol2D3D		    datatype_	    = OD::Both2DAnd3D;
+};
+
 mExpClass(uiTools) uiZAxisTransform : public uiDlgGroup
 { mODTextTranslationClass(uiZAxisTransform);
 public:
-    mDefineFactory3ParamInClass(uiZAxisTransform,uiParent*,
-				const char*,const char*,factory);
+    mDefineFactory2ParamInClass(uiZAxisTransform,uiParent*,
+				const uiZAxisTranformSetup&,factory);
 				~uiZAxisTransform();
 
     virtual void		enableTargetSampling();
@@ -41,15 +49,10 @@ public:
 				   construction.
 				 */
 
-    void			setIs2D( bool yn ) { is2dzat_ = yn; }
-    bool			is2D() const { return is2dzat_; }
-
 protected:
 				uiZAxisTransform(uiParent*);
 
     static bool			isField(const uiParent*);
-
-    bool			is2dzat_ = false;
 };
 
 
@@ -58,11 +61,11 @@ mExpClass(uiTools) uiZAxisTransformSel : public uiDlgGroup
 { mODTextTranslationClass(uiZAxisTransformSel);
 public:
 				uiZAxisTransformSel(uiParent*,bool withnone,
-						const char* fromdomain=nullptr,
-						const char* todomain=nullptr,
-						bool withsampling=false,
-						bool asfield=false,
-						bool is2d=false);
+					    const char* fromdomain=nullptr,
+					    const char* todomain=nullptr,
+					    bool withsampling=false,
+					    bool asfield=false,
+					    bool is2d=false);
 				~uiZAxisTransformSel();
 
     bool			isField() const;
