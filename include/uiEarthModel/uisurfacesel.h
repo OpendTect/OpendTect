@@ -18,10 +18,10 @@ class IOObjContext;
 class uiListBox;
 class uiListBoxFilter;
 
-mExpClass(uiEarthModel) uiSurfaceSel : public uiGroup
+mExpClass(uiEarthModel) uiSurfaceSelGrp : public uiGroup
 {
 public:
-			~uiSurfaceSel();
+			~uiSurfaceSelGrp();
 
     void		getChosen(TypeSet<MultiID>&) const;
     void		setChosen(const TypeSet<MultiID>&);
@@ -38,7 +38,7 @@ public:
     void		clearList();
 
 protected:
-    			uiSurfaceSel(uiParent*,const IOObjContext&);
+			uiSurfaceSelGrp(uiParent*,const IOObjContext&);
 
     void		getFullList();
 
@@ -55,44 +55,44 @@ protected:
 /*! \brief ui for horizon 3D selection */
 
 // TODO implement
-mExpClass(uiEarthModel) uiSurface3DSel : public uiSurfaceSel
+mExpClass(uiEarthModel) uiSurface3DSelGrp : public uiSurfaceSelGrp
 {
 public:
-			~uiSurface3DSel();
+			~uiSurface3DSelGrp();
 
 protected:
-    			uiSurface3DSel(uiParent*,const IOObjContext&);
+			uiSurface3DSelGrp(uiParent*,const IOObjContext&);
 };
 
 
 
 /*! \brief ui for horizon 2D selection */
 
-mExpClass(uiEarthModel) uiSurface2DSel : public uiSurfaceSel
+mExpClass(uiEarthModel) uiSurface2DSelGrp : public uiSurfaceSelGrp
 {
 public:
-			~uiSurface2DSel();
+			~uiSurface2DSelGrp();
 
 protected:
-			uiSurface2DSel(uiParent*,const IOObjContext&);
+			uiSurface2DSelGrp(uiParent*,const IOObjContext&);
 };
 
 
-mExpClass(uiEarthModel) uiHorizon2DSel : public uiSurface2DSel
+mExpClass(uiEarthModel) uiHorizon2DSelGrp : public uiSurface2DSelGrp
 {
 public:
-    			uiHorizon2DSel(uiParent*);
-			~uiHorizon2DSel();
+			uiHorizon2DSelGrp(uiParent*);
+			~uiHorizon2DSelGrp();
 protected:
 
 };
 
 
-mExpClass(uiEarthModel) uiHorizon3DSel : public uiSurface3DSel
+mExpClass(uiEarthModel) uiHorizon3DSelGrp : public uiSurface3DSelGrp
 {
 public:
-    			uiHorizon3DSel(uiParent*);
-			~uiHorizon3DSel();
+			uiHorizon3DSelGrp(uiParent*);
+			~uiHorizon3DSelGrp();
 protected:
 
 };

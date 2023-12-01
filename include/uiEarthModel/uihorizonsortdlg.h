@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 namespace EM { class Horizon; }
 
-class uiSurfaceSel;
+class uiSurfaceSelGrp;
 
 mExpClass(uiEarthModel) uiHorizonSortDlg : public uiDialog
 {
@@ -42,7 +42,7 @@ protected:
     void			updateRelationTree(const TypeSet<MultiID>&);
     bool			sortFromRelationTree(const TypeSet<MultiID>&);
 
-    uiSurfaceSel*		horsel_;
+    uiSurfaceSelGrp*		horsel_;
 
     bool			is2d_;
     bool			loadneeded_;

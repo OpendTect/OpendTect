@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class uiGenInput;
-class uiHorizon3DSel;
+class uiHorizon3DSelGrp;
 class uiSurfaceWrite;
 
 mExpClass(uiEarthModel) uiHorizonMergeDlg : public uiDialog
@@ -28,7 +28,7 @@ protected:
 
     bool		acceptOK(CallBacker*) override;
 
-    uiHorizon3DSel*	horselfld_;
+    uiHorizon3DSelGrp*	horselfld_;
     uiGenInput*		duplicatefld_;
     uiSurfaceWrite*	outfld_;
 };

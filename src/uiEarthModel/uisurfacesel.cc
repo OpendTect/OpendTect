@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 
 
-uiSurfaceSel::uiSurfaceSel( uiParent* p, const IOObjContext& ct )
+uiSurfaceSelGrp::uiSurfaceSelGrp( uiParent* p, const IOObjContext& ct )
     : uiGroup(p,"Surface Selection")
     , ctxt_(*new IOObjContext(ct))
 {
@@ -34,14 +34,14 @@ uiSurfaceSel::uiSurfaceSel( uiParent* p, const IOObjContext& ct )
 }
 
 
-uiSurfaceSel::~uiSurfaceSel()
+uiSurfaceSelGrp::~uiSurfaceSelGrp()
 {
     delete filterfld_;
     delete &ctxt_;
 }
 
 
-void uiSurfaceSel::getFullList()
+void uiSurfaceSelGrp::getFullList()
 {
     const IODir iodir( ctxt_.getSelKey() );
     const IODirEntryList del( iodir, ctxt_ );
@@ -63,7 +63,7 @@ void uiSurfaceSel::getFullList()
 }
 
 
-void uiSurfaceSel::removeFromList( const TypeSet<MultiID>& ids )
+void uiSurfaceSelGrp::removeFromList( const TypeSet<MultiID>& ids )
 {
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -77,7 +77,7 @@ void uiSurfaceSel::removeFromList( const TypeSet<MultiID>& ids )
 }
 
 
-void uiSurfaceSel::getChosen( TypeSet<MultiID>& mids ) const
+void uiSurfaceSelGrp::getChosen( TypeSet<MultiID>& mids ) const
 {
     TypeSet<int> selidxs;
     filterfld_->getChosen( selidxs );
@@ -86,7 +86,7 @@ void uiSurfaceSel::getChosen( TypeSet<MultiID>& mids ) const
 }
 
 
-void uiSurfaceSel::setChosen( const TypeSet<MultiID>& mids )
+void uiSurfaceSelGrp::setChosen( const TypeSet<MultiID>& mids )
 {
     BufferStringSet names;
     for ( int idx=0; idx<mids.size(); idx++ )
@@ -103,13 +103,13 @@ void uiSurfaceSel::setChosen( const TypeSet<MultiID>& mids )
 }
 
 
-int uiSurfaceSel::nrChosen() const
+int uiSurfaceSelGrp::nrChosen() const
 {
     return filterfld_->nrChosen();
 }
 
 
-void uiSurfaceSel::clearList()
+void uiSurfaceSelGrp::clearList()
 {
     filterfld_->setEmpty();
     names_.erase();
@@ -118,55 +118,55 @@ void uiSurfaceSel::clearList()
 
 
 // Deprecated
-void uiSurfaceSel::getSelSurfaceIds( TypeSet<MultiID>& mids ) const
+void uiSurfaceSelGrp::getSelSurfaceIds( TypeSet<MultiID>& mids ) const
 { getChosen( mids ); }
 
-void uiSurfaceSel::setSelSurfaceIds( const TypeSet<MultiID>& mids )
+void uiSurfaceSelGrp::setSelSurfaceIds( const TypeSet<MultiID>& mids )
 { setChosen( mids ); }
 
-int uiSurfaceSel::getSelItems() const
+int uiSurfaceSelGrp::getSelItems() const
 { return nrChosen(); }
 
 
-// uiSurface3DSel
-uiSurface3DSel::uiSurface3DSel( uiParent* p, const IOObjContext& ct )
-    : uiSurfaceSel( p, ct )
+// uiSurface3DSelGrp
+uiSurface3DSelGrp::uiSurface3DSelGrp( uiParent* p, const IOObjContext& ct )
+    : uiSurfaceSelGrp( p, ct )
 {}
 
 
-uiSurface3DSel::~uiSurface3DSel()
+uiSurface3DSelGrp::~uiSurface3DSelGrp()
 {}
 
 
-// uiSurface2DSel
-uiSurface2DSel::uiSurface2DSel( uiParent* p, const IOObjContext& ct )
-    : uiSurfaceSel( p, ct )
+// uiSurface2DSelGrp
+uiSurface2DSelGrp::uiSurface2DSelGrp( uiParent* p, const IOObjContext& ct )
+    : uiSurfaceSelGrp( p, ct )
 {
     getFullList();
 }
 
 
-uiSurface2DSel::~uiSurface2DSel()
+uiSurface2DSelGrp::~uiSurface2DSelGrp()
 {}
 
 
-// uiHorizon2DSel
-uiHorizon2DSel::uiHorizon2DSel( uiParent* p )
-    : uiSurface2DSel(p,EMHorizon2DTranslatorGroup::ioContext())
+// uiHorizon2DSelGrp
+uiHorizon2DSelGrp::uiHorizon2DSelGrp( uiParent* p )
+    : uiSurface2DSelGrp(p,EMHorizon2DTranslatorGroup::ioContext())
 {}
 
 
-uiHorizon2DSel::~uiHorizon2DSel()
+uiHorizon2DSelGrp::~uiHorizon2DSelGrp()
 {}
 
 
-// uiHorizon3DSel
-uiHorizon3DSel::uiHorizon3DSel( uiParent* p )
-    : uiSurface3DSel(p,EMHorizon3DTranslatorGroup::ioContext())
+// uiHorizon3DSelGrp
+uiHorizon3DSelGrp::uiHorizon3DSelGrp( uiParent* p )
+    : uiSurface3DSelGrp(p,EMHorizon3DTranslatorGroup::ioContext())
 {
     getFullList();
 }
 
 
-uiHorizon3DSel::~uiHorizon3DSel()
+uiHorizon3DSelGrp::~uiHorizon3DSelGrp()
 {}

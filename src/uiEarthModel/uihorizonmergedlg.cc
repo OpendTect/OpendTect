@@ -30,7 +30,7 @@ uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup(tr("Merge 3D Horizons"),uiString::emptyString(),
                        mODHelpKey(mHorizonMergeDlgHelpID) ))
 {
-    horselfld_ = new uiHorizon3DSel( this );
+    horselfld_ = new uiHorizon3DSelGrp( this );
 
     duplicatefld_ = new uiGenInput( this, tr("Duplicate positions"),
 	    StringListInpSpec(EM::HorizonMerger::ModeDef()) );

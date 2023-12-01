@@ -35,9 +35,9 @@ uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d, bool loadneeded )
     , loadneeded_(loadneeded)
 {
     if ( is2d )
-	horsel_ = new uiHorizon2DSel( this );
+	horsel_ = new uiHorizon2DSelGrp( this );
     else
-	horsel_ = new uiHorizon3DSel( this );
+	horsel_ = new uiHorizon3DSelGrp( this );
 
 }
 
