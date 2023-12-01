@@ -1848,7 +1848,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
     {
 	const BufferString inpdsnm( getFinalDataSetName(sgp.inpsynthnm_,
 						    sgp.isStratProp(),lmsidx) );
-	const SynthID inpid = find( inpdsnm );
+	const SynthID inpid = find( sgp.inpsynthnm_ );
 	if ( !inpid.isValid() )
 	{
 	    errmsg_ = tr("input synthetic data '%1' not present").arg(inpdsnm);
@@ -2762,10 +2762,16 @@ FilteredSyntheticCreator( const PostStackSyntheticData& sd,
     , sgp_(sgp)
     , seistrcbuf_(seistrcbuf)
     , zrg_(sd.zRange())
-    , filter_(zrg_.nrSteps()+1, zrg_.step)
     , totalnr_(sd.nrPositions())
 {
     msg_ = tr("Filtering synthetic traces");
+}
+
+
+~FilteredSyntheticCreator()
+{
+    deepErase( filters_ );
+    deepErase( smoothers_ );
 }
 
 
@@ -2787,26 +2793,41 @@ od_int64 nrIterations() const override
 { return totalnr_; }
 
 
-bool doPrepare( int /* nrthreads */ ) override
+bool doPrepare( int nrthreads ) override
 {
     if ( sgp_.filtertype_==sKey::Average() )
     {
 	windowsz_ = sgp_.windowsz_;
-	smoother_.setWindow( HanningWindow::sName(), 0.95, windowsz_ );
+	deepErase( smoothers_ );
+	for ( int idx=0; idx<nrthreads; idx++ )
+	{
+	    auto* smoother = new Smoother1D<float>;
+	    smoothers_ += smoother;
+	    smoother->setWindow( HanningWindow::sName(), 0.95, windowsz_ );
+	}
     }
-    else if ( sgp_.filtertype_=="LowPass" )
-	filter_.setLowPass( sgp_.freqrg_.stop );
-    else if ( sgp_.filtertype_=="HighPass" )
-	filter_.setHighPass( sgp_.freqrg_.start );
     else
-	filter_.setBandPass( sgp_.freqrg_.start, sgp_.freqrg_.stop );
+    {
+	deepErase( filters_ );
+	for ( int idx=0; idx<nrthreads; idx++ )
+	{
+	    auto* filter = new ::FFTFilter( zrg_.nrSteps()+1, zrg_.step );
+	    filters_ += filter;
+	    if ( sgp_.filtertype_=="LowPass" )
+		filter->setLowPass( sgp_.freqrg_.stop );
+	    else if ( sgp_.filtertype_=="HighPass" )
+		filter->setHighPass( sgp_.freqrg_.start );
+	    else
+		filter->setBandPass( sgp_.freqrg_.start, sgp_.freqrg_.stop );
+	}
+    }
 
     sd_.postStackPack().trcBuf().copyInto( seistrcbuf_ );
     return seistrcbuf_.size() == sd_.nrPositions();
 }
 
 
-bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
+bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 {
     for ( int itrc=mCast(int,start); itrc<=mCast(int,stop); itrc++,
 							    addToNrDone(1) )
@@ -2823,15 +2844,15 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 
 	if ( mIsUdf(windowsz_) )
 	{
-	    if ( !filter_.apply(dataout) )
+	    if ( !filters_[threadid]->apply(dataout) )
 		continue;
 	}
 	else
 	{
 	    Array1DImpl<float> datain( dataout );
-	    smoother_.setInput( datain.arr(), sz );
-	    smoother_.setOutput( dataout.arr() );
-	    if ( !smoother_.execute() )
+	    smoothers_[threadid]->setInput( datain.arr(), sz );
+	    smoothers_[threadid]->setOutput( dataout.arr() );
+	    if ( !smoothers_[threadid]->execute() )
 		continue;
 	}
 	for ( int idx=0; idx<sz; idx++ )
@@ -2841,12 +2862,20 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
     return true;
 }
 
+
+bool doFinish( bool success ) override
+{
+    deepErase( filters_ );
+    deepErase( smoothers_ );
+    return success;
+}
+
     const PostStackSyntheticData&	sd_;
     const SynthGenParams&		sgp_;
     ZSampling				zrg_;
     SeisTrcBuf&				seistrcbuf_;
-    ::FFTFilter				filter_;
-    Smoother1D<float>			smoother_;
+    ObjectSet<::FFTFilter>		filters_;
+    ObjectSet<Smoother1D<float>>	smoothers_;
     int					windowsz_ = mUdf(int);
     const od_int64			totalnr_;
     uiString				msg_;
