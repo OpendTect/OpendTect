@@ -224,7 +224,8 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 		//comparison there.
 		const Coord3 horpos = hor_->getPos( horsubid );
 		Coord3 displayhorpos = horpos;
-		if ( horpos.isDefined() && !hd_.isAlreadyTransformed() )
+		if ( hd_.getZAxisTransform() && horpos.isDefined() &&
+		     !hd_.isAlreadyTransformed() )
 		{
 		    displayhorpos.z =
 			hd_.getZAxisTransform()->transformTrc(hortrc,
