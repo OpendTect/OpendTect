@@ -15,33 +15,30 @@ ________________________________________________________________________
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
-#include "executor.h"
 #include "iopar.h"
 #include "isopachmaker.h"
 #include "multiid.h"
-#include "posvecdataset.h"
 #include "survinfo.h"
 
 #include "uibatchjobdispatchersel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uilineedit.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
+
 uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     : uiGroup(p,"Create Isochron")
     , horid_(horid)
 {
-    IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    ctxt.forread_ = true;
     baseemobj_ = EM::EMM().getObject( horid_ );
     if ( !baseemobj_ )
-	basesel_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
+	basesel_ = new uiHorizonSel( this, false, true, uiStrings::sHorizon() );
 
-    horsel_ = new uiIOObjSel( this, ctxt, tr("Calculate to") );
+    horsel_ = new uiHorizonSel( this, false, true, tr("Calculate to") );
     horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {

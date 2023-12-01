@@ -7,26 +7,27 @@ ________________________________________________________________________
 
 -*/
 
-#include "volprocsurfacelimitedfiller.h"
 #include "uivolprocsurfacelimitedfiller.h"
+#include "volprocsurfacelimitedfiller.h"
 
-#include "emsurfacetr.h"
+#include "emhorizon.h"
 #include "emmanager.h"
-#include "emobject.h"
+#include "emsurfacetr.h"
 #include "ioman.h"
+#include "od_helpids.h"
 #include "survinfo.h"
+#include "zdomain.h"
+
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uihorauxdatasel.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uitable.h"
 #include "uivolprocchain.h"
-#include "volprocchain.h"
-#include "zdomain.h"
-#include "od_helpids.h"
 
 namespace VolProc
 {
@@ -50,8 +51,11 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     : uiStepDialog( p, SurfaceLimitedFiller::sFactoryDisplayName(), slf, is2d )
     , surfacefiller_(slf)
     , table_(0)
-    , usestartvalfld_(0),usegradientfld_(0),gradienttypefld_(0)
-    , startgridfld_(0),gradgridfld_(0)
+    , usestartvalfld_(0)
+    , startgridfld_(0)
+    , usegradientfld_(0)
+    , gradienttypefld_(0)
+    , gradgridfld_(0)
 {
     setHelpKey( mODHelpKey(mSurfaceLimitedFillerHelpID) );
 
@@ -169,10 +173,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	    FloatInpSpec( refdepth ) );
     refdepthfld_->attach( alignedBelow, userefdepthfld_ );
 
-    IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
-			     : EMHorizon3DTranslatorGroup::ioContext();
-    ctxt.forread_ = true;
-    refhorizonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
+    refhorizonfld_ = new uiHorizonSel( this, is2d, true, uiStrings::sHorizon());
     refhorizonfld_->attach( alignedBelow, userefdepthfld_ );
     if ( !surfacefiller_->usesRefZValue() && surfacefiller_->getRefHorizonID() )
 	refhorizonfld_->setInput( *surfacefiller_->getRefHorizonID() );
@@ -191,10 +192,10 @@ uiSurfaceLimitedFiller::~uiSurfaceLimitedFiller()
 
 void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
 {
-    PtrMan<CtxtIOObj> allhorio = is2d_ ? mMkCtxtIOObj(EMHorizon2D)
-					: mMkCtxtIOObj(EMHorizon3D);
+    PtrMan<CtxtIOObj> ctio =
+			new CtxtIOObj( EM::Horizon::ioContext(is2d_,true) );
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
-    uiIOObjSelDlg dlg( this, sdsu, *allhorio );
+    uiIOObjSelDlg dlg( this, sdsu, *ctio );
     if ( !dlg.go() )
 	return;
 
@@ -210,7 +211,7 @@ void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
 	}
     }
 
-    delete allhorio->ioobj_;
+    delete ctio->ioobj_;
 }
 
 

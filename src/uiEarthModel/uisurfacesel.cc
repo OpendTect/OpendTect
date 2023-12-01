@@ -152,7 +152,7 @@ uiSurface2DSel::~uiSurface2DSel()
 
 // uiHorizon2DSel
 uiHorizon2DSel::uiHorizon2DSel( uiParent* p )
-    : uiSurface2DSel(p,EMHorizon2DTranslatorGroup::ioContext())
+    : uiSurface2DSel(p,EM::Horizon::ioContext(true,true))
 {}
 
 
@@ -162,7 +162,7 @@ uiHorizon2DSel::~uiHorizon2DSel()
 
 // uiHorizon3DSel
 uiHorizon3DSel::uiHorizon3DSel( uiParent* p )
-    : uiSurface3DSel(p,EMHorizon3DTranslatorGroup::ioContext())
+    : uiSurface3DSel(p,EM::Horizon::ioContext(false,true))
 {
     getFullList();
 }

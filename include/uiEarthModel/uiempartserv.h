@@ -123,6 +123,20 @@ public:
     void		selectFaultSets(ObjectSet<EM::EMObject>&,
 					uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
+
+    void		selectHorizons(ObjectSet<EM::EMObject>&,bool is2d,
+					uiParent*,const ZDomain::Info*);
+			//!<Returned set is reffed and must be unrefed by caller
+    void		selectFaults(ObjectSet<EM::EMObject>&,bool is2d,
+					uiParent*,const ZDomain::Info*);
+			//!<Returned set is reffed and must be unrefed by caller
+    void		selectFaultStickSets(ObjectSet<EM::EMObject>&,
+					uiParent*,const ZDomain::Info*);
+			//!<Returned set is reffed and must be unrefed by caller
+    void		selectFaultSets(ObjectSet<EM::EMObject>&,
+					uiParent*,const ZDomain::Info*);
+			//!<Returned set is reffed and must be unrefed by caller
+
     void		selectBodies(ObjectSet<EM::EMObject>&,
 	    				uiParent* p=0);
 			//!<Returned set is reffed and must be unrefed by caller
@@ -216,6 +230,8 @@ protected:
 
     void		selectSurfaces(uiParent*,ObjectSet<EM::EMObject>&,
 				       const char* type);
+    void		selectSurfaces(uiParent*,ObjectSet<EM::EMObject>&,
+				       const char* type,const ZDomain::Info*);
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&,
 				    bool removeold=true);
     bool		changeAuxData(const EM::ObjectID&,const char* nm,

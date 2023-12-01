@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 
+#include "ctxtioobj.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "stratlevel.h"
@@ -82,6 +83,10 @@ public:
 			}
 
     virtual OD::GeomSystem getSurveyID() const				= 0;
+
+    static IOObjContext		ioContext(bool is2d,const ZDomain::Info* zinfo,
+					  bool forread);
+    static IOObjContext		ioContext(bool is2d,bool forread);
 
 protected:
 			Horizon(EMManager&);

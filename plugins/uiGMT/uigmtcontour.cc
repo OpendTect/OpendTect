@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
 #include "uisellinest.h"
@@ -56,7 +57,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     , hor_(0)
     , lsfld_(0)
 {
-    inpfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
+    inpfld_ = new uiHorizonSel( this, false, true,
 			      uiStrings::sHorizon() );
     inpfld_->selectionDone.notify( mCB(this,uiGMTContourGrp,objSel) );
 

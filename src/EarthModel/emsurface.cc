@@ -9,20 +9,20 @@ ________________________________________________________________________
 
 #include "emsurface.h"
 
-#include "trckeyzsampling.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emrowcoliterator.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
-#include "emsurfaceauxdata.h"
+#include "emsurfacetr.h"
 #include "filepath.h"
-#include "ioobj.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "posfilter.h"
 #include "posinfo2dsurv.h"
+#include "trckeyzsampling.h"
 
 #include "hiddenparam.h"
 
@@ -376,5 +376,41 @@ Horizon::Horizon( EMManager& emm )
 
 Horizon::~Horizon()
 {}
+
+
+IOObjContext Horizon::ioContext( bool is2d, const ZDomain::Info* zinfo,
+			       bool forread )
+{
+    IOObjContext ctxt = is2d ? mIOObjContext(EMHorizon2D)
+			     : mIOObjContext(EMHorizon3D);
+    ctxt.forread_ = forread;
+    if ( zinfo )
+    {
+	const ZDomain::Info& siinfo = SI().zDomainInfo();
+	//ctxt.requireZDomain( *zinfo, siinfo == *zinfo );
+	// delete lines below when other changes are committed.
+	FileMultiString fms( zinfo->def_.key() );
+	const bool allowempty = siinfo == *zinfo;
+	if ( allowempty )
+	    fms.add( " " );
+
+	ctxt.toselect_.require_.set( ZDomain::sKey(), fms.str() );
+	const BufferString unitstr = zinfo->pars_.find( ZDomain::sKeyUnit() );
+	if ( unitstr.isEmpty() )
+	    return ctxt;
+
+	fms.set( unitstr.buf() ).add( " " ); //Always optional
+	ctxt.toselect_.require_.set( ZDomain::sKeyUnit(), fms.str() );
+    }
+
+    return ctxt;
+}
+
+
+IOObjContext Horizon::ioContext( bool is2d,  bool forread )
+{
+    ZDomain::Info zinfo( ZDomain::SI() );
+    return ioContext( is2d, &zinfo, forread );
+}
 
 } // namespace EM

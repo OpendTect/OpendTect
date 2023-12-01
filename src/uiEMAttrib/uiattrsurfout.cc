@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "array2dinterpolimpl.h"
 #include "attribdesc.h"
 #include "attriboutput.h"
-#include "ctxtioobj.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfauxdataio.h"
@@ -27,7 +26,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uilineedit.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uibatchjobdispatchersel.h"
 #include "uistrings.h"
@@ -59,7 +58,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );
 
-    objfld_ = new uiIOObjSel( pargrp_, mIOObjContext(EMHorizon3D),
+    objfld_ = new uiHorizonSel( pargrp_, false, true,
 			      uiStrings::phrCalculate(tr("on Horizon")) );
     objfld_->attach( alignedBelow, filludffld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrSurfaceOut,objSelCB) );

@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "ioman.h"
 #include "keyboardevent.h"
+#include "emhorizon.h"
 #include "emsurfacetr.h"
 #include "mouseevent.h"
 #include "seisioobjinfo.h"
@@ -24,7 +25,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uirgbarraycanvas.h"
 #include "uiseparator.h"
-#include "uitoolbutton.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uiwelldispprop.h"
@@ -291,14 +291,14 @@ void WellTie::uiControlView::loadHorizons( CallBacker* )
     if ( !seisinfo.isOK() )
 	return;
 
-    const bool is2d = seisinfo.is2D();
-    const IOObjContext horctxt = is2d ? mIOObjContext( EMHorizon2D )
-				      : mIOObjContext( EMHorizon3D );
     if ( !selhordlg_ )
     {
+	const bool is2d = seisinfo.is2D();
+	const IOObjContext horctxt = EM::Horizon::ioContext( is2d, true );
 	uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
 	selhordlg_ = new uiIOObjSelDlg( this, sdsu, horctxt );
     }
+
     TypeSet<MultiID> horselids;
     if ( selhordlg_->go() )
 	selhordlg_->getChosen( horselids );
