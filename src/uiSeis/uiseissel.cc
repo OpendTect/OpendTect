@@ -90,7 +90,6 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     : uiIOObjSelDlg(p,getSelDlgSU(sssu),adaptCtio4Steering(c,sssu))
     , compfld_(nullptr)
     , steerpol_(sssu.steerpol_)
-    , zdomainkey_(sssu.zdomkey_)
 {
     const bool is2d = Seis::is2D( sssu.geom_ );
     const bool isps = Seis::isPS( sssu.geom_ );
@@ -275,7 +274,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
     if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
-    if ( !inctio_.ctxt_.forread_ && seissetup_.enabotherdomain_ )
+    if ( enableTimeDepthToogle() )
     {
 	const bool zistime = SI().zIsTime();
 	othdombox_ = new uiCheckBox( this, zistime ? uiStrings::sDepth()
@@ -337,6 +336,19 @@ void uiSeisSel::initGrpCB( CallBacker* )
 {
     if ( othdombox_ )
 	domainChgCB( nullptr );
+}
+
+
+bool uiSeisSel::enableTimeDepthToogle() const
+{
+    if ( inctio_.ctxt_.forread_ || !seissetup_.enabotherdomain_ )
+	return false;
+
+    const ZDomain::Info* requiredzdom = requiredZDomain();
+    if ( requiredzdom && !requiredzdom->isTime() && !requiredzdom->isDepth() )
+	return false;
+
+    return !requiredzdom;
 }
 
 
