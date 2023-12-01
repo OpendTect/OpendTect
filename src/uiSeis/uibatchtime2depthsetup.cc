@@ -52,22 +52,27 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
     const Seis::GeomType geom = is2d ? Seis::Line : Seis::Vol;
     IOObjContext inputtimectxt = uiSeisSel::ioContext( geom, true );
     IOObjContext inputdepthctxt = uiSeisSel::ioContext( geom, true );
-
-    const ZDomain::Def& def = SI().zIsTime() ?
-					ZDomain::Depth() : ZDomain::Time();
-
-    inputdepthctxt.toselect_.restrictToZDomainDef( def, true );
-    inputtimectxt.toselect_.restrictToZDomainDef( def, false );
+    const ZDomain::Info& siinfo = SI().zDomainInfo();
+    const ZDomain::Info& timeinf = ZDomain::TWT();
+    const ZDomain::Info& depthinf = SI().depthsInFeet() ? ZDomain::DepthFeet()
+							: ZDomain::DepthMeter();
+    const bool zistime = siinfo == timeinf;
+    if ( zistime )
+	inputdepthctxt.requireZDomain( depthinf, false );
+    else
+	inputtimectxt.requireZDomain( timeinf, false );
 
     const uiString depthvol = is2d ? tr("Depth Data") : tr("Depth Volume");;
     const uiString timevol = is2d ? tr("Time Data") : tr("Time Volume");
 
-    uiSeisSel::Setup sssu( is2d, false );
-    sssu.seltxt( uiStrings::phrInput(timevol) );
-    inputtimesel_ = new uiSeisSel( this, inputtimectxt, sssu );
+    uiSeisSel::Setup twtsu( geom );
+    twtsu.enabotherdomain( !zistime ).seltxt( uiStrings::phrInput(timevol) );
+    inputtimesel_ = new uiSeisSel( this, inputtimectxt, twtsu );
     inputtimesel_->attach( alignedBelow, t2dfld_ );
-    sssu.seltxt( uiStrings::phrInput( depthvol ) );
-    inputdepthsel_ = new uiSeisSel( this, inputdepthctxt, sssu );
+
+    uiSeisSel::Setup depthsu( geom );
+    depthsu.enabotherdomain( zistime ).seltxt( uiStrings::phrInput(depthvol) );
+    inputdepthsel_ = new uiSeisSel( this, inputdepthctxt, depthsu );
     inputdepthsel_->attach( alignedBelow, t2dfld_ );
 
     uiObject* attachobj = nullptr;
@@ -88,16 +93,16 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p, bool is2d )
 
     IOObjContext outputtimectxt = inputtimectxt;
     outputtimectxt.forread_ = false;
-    sssu.seltxt( uiStrings::phrOutput(timevol) );
-    outputtimesel_ = new uiSeisSel( this, outputtimectxt, sssu );
+    twtsu.seltxt( uiStrings::phrOutput(timevol) );
+    outputtimesel_ = new uiSeisSel( this, outputtimectxt, twtsu );
     mAttachCB( outputtimesel_->selectionDone,
 	       uiBatchTime2DepthSetup::objSelCB );
     outputtimesel_->attach( alignedBelow, attachobj );
 
     IOObjContext outputdepthctxt = inputdepthctxt;
     outputdepthctxt.forread_ = false;
-    sssu.seltxt( uiStrings::phrOutput(depthvol) );
-    outputdepthsel_ = new uiSeisSel( this, outputdepthctxt, sssu );
+    depthsu.seltxt( uiStrings::phrOutput(depthvol) );
+    outputdepthsel_ = new uiSeisSel( this, outputdepthctxt, depthsu );
     mAttachCB( outputdepthsel_->selectionDone,
 	       uiBatchTime2DepthSetup::objSelCB );
     outputdepthsel_->attach( alignedBelow, attachobj );

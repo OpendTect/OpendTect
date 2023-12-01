@@ -116,8 +116,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , zdomaininfo_(0)
 {
     setOkCancelText( uiStrings::sClose(), uiString::emptyString() );
-    setctio_.ctxt_.toselect_.dontallow_.set( sKey::Type(),
-					   adsm->is2D() ? "3D" : "2D" );
+    setctio_.ctxt_.requireType( adsm->is2D() ? sKey::TwoD() : sKey::ThreeD() );
 
     createMenuBar();
     createToolBar();
@@ -1194,7 +1193,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     // TODO: Only display files with have saved attributes
     const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
     IOObjContext ctxt( uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,true) );
-    ctxt.toselect_.require_.set( sKey::Type(), sKey::Attribute() );
+    ctxt.requireType( sKey::Attribute() );
 
     uiSeisSelDlg dlg( this, ctxt, uiSeisSel::Setup(is2d,false) );
     if ( !dlg.go() )

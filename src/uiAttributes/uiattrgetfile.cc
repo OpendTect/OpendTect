@@ -142,7 +142,7 @@ CtxtIOObj& uiAttrSrchProcFiles::mkCtio( bool is2d )
     ctioptr_ = new CtxtIOObj(
 		uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,true) );
     ctioptr_->ctxt_.forread_ = true;
-    ctioptr_->ctxt_.toselect_.require_.set( sKey::Type(), sKey::Attribute() );
+    ctioptr_->ctxt_.requireType( sKey::Attribute() );
     return *ctioptr_;
 }
 

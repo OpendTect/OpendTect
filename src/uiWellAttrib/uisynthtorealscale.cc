@@ -168,7 +168,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     seisfld_->attach( alignedBelow, synthselfld_ );
 
     IOObjContext polyctxt( mIOObjContext(PickSet) );
-    polyctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
+    polyctxt.requireType( sKey::Polygon() );
     uiIOObjSel::Setup polysu( tr("Within Polygon") ); polysu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctxt, polysu );
     polyfld_->attach( alignedBelow, seisfld_ );
@@ -385,10 +385,10 @@ uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
     : Executor( "Collect Amplitudes" )
     , dlg_(d)
     , rdr_(r)
-	, seldata_(0)
-	, msg_(tr("Collecting"))
-	, nrdone_(0)
-	, totalnr_(-1)
+    , msg_(tr("Collecting"))
+    , nrdone_(0)
+    , totalnr_(-1)
+    , seldata_(0)
 {
     if ( dlg_.polygon_ )
 	seldata_ = new Seis::PolySelData( *dlg_.polygon_ );

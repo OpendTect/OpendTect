@@ -80,12 +80,12 @@ protected:
     void		attrSel(CallBacker*);
     virtual void	ioDataSelChg(CallBacker*)			{}
 
-    uiListBox*		sectionfld_;
-    uiListBox*		attribfld_;
-    uiPosSubSel*	rgfld_;
-    uiIOObjSel*		objfld_;
+    uiListBox*		sectionfld_	= nullptr;
+    uiListBox*		attribfld_	= nullptr;
+    uiPosSubSel*	rgfld_		= nullptr;
+    uiIOObjSel*		objfld_		= nullptr;
 
-    CtxtIOObj*		ctio_;
+    CtxtIOObj*		ctio_	= nullptr;
     bool		forread_;
 
     virtual void	inpChanged()		{}
@@ -121,9 +121,10 @@ public:
     };
 
 			uiSurfaceWrite(uiParent*,const EM::Surface&,
-				       const uiSurfaceWrite::Setup& setup);
-			uiSurfaceWrite(uiParent*,
-				       const uiSurfaceWrite::Setup& setup);
+				       const Setup&,
+				       const ZDomain::Info* =nullptr);
+			uiSurfaceWrite(uiParent*,const Setup&,
+				       const ZDomain::Info* =nullptr);
 			~uiSurfaceWrite();
 
     bool		processInput() override;
@@ -138,10 +139,10 @@ protected:
     void		stratLvlChg(CallBacker*);
     void		ioDataSelChg(CallBacker*) override;
 
-    uiCheckBox*		displayfld_;
-    uiColorInput*       colbut_;
-    uiStratLevelSel*    stratlvlfld_;
-    TrcKeySampling		surfrange_;
+    uiCheckBox*		displayfld_	= nullptr;
+    uiColorInput*       colbut_		= nullptr;
+    uiStratLevelSel*    stratlvlfld_	= nullptr;
+    TrcKeySampling	surfrange_;
 };
 
 
@@ -171,7 +172,7 @@ public:
     };
 
 			uiSurfaceRead(uiParent*,const Setup&,
-			    const ZDomain::Info* zinf=nullptr);
+			    const ZDomain::Info* =nullptr);
 			~uiSurfaceRead();
 
     bool		processInput() override;

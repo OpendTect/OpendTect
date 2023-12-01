@@ -94,13 +94,13 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 
     bs = "";
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
-    if ( !conn )
+    if ( conn )
+	bs = tr->write(ps, *conn);
+    else
     {
 	bs = "Cannot open ";
-	bs += ioobj->fullUserExpr( false );
+	bs += ioobj->fullUserExpr(false);
     }
-    else
-	bs = tr->write( ps, *conn );
 
     IOPar disppars;
     ps.fillDisplayPars( disppars );
@@ -331,10 +331,7 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 
 void PickSetTranslator::fillConstraints( IOObjContext& ctxt, bool ispoly )
 {
-    if ( ispoly )
-	ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
-    else
-	ctxt.toselect_.require_.set( sKey::Type(), sKey::PickSet() );
+    ctxt.requireType( ispoly ? sKey::Polygon() : sKey::PickSet() );
 }
 
 

@@ -324,7 +324,7 @@ uiHor3DInterpolSel::uiHor3DInterpolSel( uiParent* p, bool musthandlefaults )
     filltypefld_->valueChanged.notify( mCB(this,uiHor3DInterpolSel,scopeChgCB));
 
     IOObjContext ctxt = mIOObjContext( PickSet );
-    ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
+    ctxt.requireType( sKey::Polygon() );
     polyfld_ = new uiIOObjSel( this,ctxt,
 			       uiIOObjSel::Setup(uiStrings::sEmptyString()) );
     polyfld_->setCaption( uiStrings::sEmptyString() );

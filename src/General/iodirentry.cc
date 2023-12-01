@@ -69,11 +69,11 @@ void IODirEntryList::fill( const IODir& iodir, const char* nmfilt )
     if ( maycd_ && FilePath(iodir.dirName()) !=
 		   FilePath(IOM().rootDir().fullPath()) )
     {
-        *this += new IODirEntry( 0 );
+	*this += new IODirEntry( nullptr );
 	curset++;
     }
 
-    GlobExpr* ge = nmfilt && *nmfilt ? new GlobExpr(nmfilt) : 0;
+    GlobExpr* ge = nmfilt && *nmfilt ? new GlobExpr(nmfilt) : nullptr;
 
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {

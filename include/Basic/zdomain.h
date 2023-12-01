@@ -125,7 +125,6 @@ public:
     bool		isCompatibleWith(const IOPar&) const;
     Interval<float>	getReasonableZRange(bool foruser=false) const;
 
-
     // Convenience
     const char*		key() const		{ return def_.key(); }
     uiString		userName() const	{ return def_.userName(); }
@@ -143,6 +142,8 @@ public:
 
     mDeprecated("Use MultiID Overloaded function")
     void		setID(const char*);
+
+    static const Info*	getFrom(const IOPar&);
 
 private:
     void		setDefaultUnit();

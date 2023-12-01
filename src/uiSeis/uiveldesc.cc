@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "od_helpids.h"
 #include "seistrctr.h"
+#include "separstr.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "zdomain.h"
@@ -263,9 +264,15 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
     , bottomrange_(Interval<float>::udf())
 {
     const Seis::GeomType gt = vsu.is2d_ ? Seis::Line : Seis::Vol;
-    uiSeisSel::Setup ssu( gt ); ssu.seltxt( tr("Velocity cube") );
-    volselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,true),
-				ssu );
+    IOObjContext ioctxt = uiSeisSel::ioContext( gt, true );
+    const FileMultiString zdomfms( ZDomain::Time().key(),
+				   ZDomain::Depth().key() );
+    ioctxt.require( ZDomain::sKey(), zdomfms.str(), true );
+    const FileMultiString typefms( sKey::Attribute(), sKey::Velocity() );
+    ioctxt.requireType( typefms.str(), true );
+    uiSeisSel::Setup ssu( gt );
+    ssu.enabotherdomain( true ).seltxt( tr("Velocity cube") );
+    volselfld_ = new uiSeisSel( this, ioctxt, ssu );
     if ( sel )
 	volselfld_->setInput( *sel );
 
@@ -538,14 +545,14 @@ const IOObjContext& uiVelSel::ioContext( bool is2d )
     {
 	auto* newctxt =
 		new IOObjContext( uiSeisSel::ioContext(Seis::Line,true) );
-	newctxt->toselect_.require_.set( sKey::Type(), sKey::Velocity() );
+	newctxt->requireType( sKey::Velocity() );
 	linectxt.setIfNull( newctxt, true );
     }
     else if ( !is2d && !velctxt )
     {
 	auto* newctxt =
 		new IOObjContext( uiSeisSel::ioContext(Seis::Vol,true) );
-	newctxt->toselect_.require_.set( sKey::Type(), sKey::Velocity() );
+	newctxt->requireType( sKey::Velocity() );
 	velctxt.setIfNull( newctxt, true );
     }
 
@@ -806,7 +813,8 @@ bool uiVelModelZAxisTransform::acceptOK()
 	uiRetVal msgs( tr("Internal: Could not initialize transform") );
 	if ( !transform_->errMsg().isEmpty() )
 	    msgs.add( transform_->errMsg() );
-	uiMSG().errorWithDetails( msgs );
+
+	uiMSG().errorWithDetails( msgs.messages() );
 	return false;
     }
 

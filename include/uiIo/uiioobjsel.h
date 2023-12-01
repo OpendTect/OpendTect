@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
 #include "uiiosel.h"
 #include "helpview.h"
 
@@ -18,6 +19,7 @@ class IOObjContext;
 class uiIOObjRetDlg;
 class uiIOObjInserter;
 class uiIOObjSelWriteTranslator;
+namespace ZDomain { class Info; }
 
 
 /*!
@@ -78,6 +80,12 @@ public:
     void		setConfirmOverwrite( bool yn )
 					{ setup_.confirmoverwr_ = yn; }
     void		setHelpKey(const HelpKey& helpkey) { helpkey_=helpkey; }
+    void		require(const char* key,const char* typ,
+				bool allowempty=false);
+    void		requireType(const char*,bool allowempty=false);
+    void		requireZDomain(const ZDomain::Info&,
+				       bool allowempty=true);
+    const ZDomain::Info* requiredZDomain() const;
 
     virtual void	updateInput();	//!< a.o. updates from CtxtIOObj
     void		processInput() override;

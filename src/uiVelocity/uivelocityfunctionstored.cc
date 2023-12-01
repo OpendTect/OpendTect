@@ -51,9 +51,7 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
 	typnms.remove( OD::toString(OD::VelocityType::RMS) );
 
     context.forread_ = true;
-    context.toselect_.require_.set(StoredFunctionSource::sKeyVelocityType(),
-				   typnms );
-
+    context.require( StoredFunctionSource::sKeyVelocityType(), typnms.cat("`"));
     funcsel_ = new uiIOObjSel( this, context, uiStrings::sInput() );
 
     if ( source_ )

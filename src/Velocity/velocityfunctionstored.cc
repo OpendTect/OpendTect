@@ -120,7 +120,7 @@ IOObjContext& StoredFunctionSource::ioContext()
 	auto* newret =
 		    new IOObjContext(PickSetTranslatorGroup::ioContext());
 	newret->setName( "RMO picks" );
-	newret->toselect_.require_.set( sKey::Type(), sKeyVelocityFunction );
+	newret->requireType( sKeyVelocityFunction );
 
 	ret.setIfNull( newret, true );
     }

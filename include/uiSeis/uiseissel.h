@@ -41,7 +41,6 @@ public:
 	mDefSetupMemb(bool,enabotherdomain) //!< write only: T vs Depth False
 	mDefSetupMemb(CompNrPol,compnrpol)  //!< Both
 	mDefSetupMemb(SteerPol,steerpol)    //!< NoSteering
-	mDefSetupMemb(BufferString,zdomkey)
 	mDefSetupMemb(bool,allowsetsurvdefault) //!< False
 	mDefSetupMemb(bool,explprepost)		//!<Spell out if pre or post stk
 	mDefSetupMemb(bool,selectcomp)		/*!< Select only one component
@@ -86,6 +85,7 @@ protected:
 
     Setup		mkSetup(const Setup&,const IOObjContext&);
     void		fillDefault() override;
+    bool		enableTimeDepthToogle() const;
 
     void		initGrpCB(CallBacker*);
     void		domainChgCB(CallBacker*);

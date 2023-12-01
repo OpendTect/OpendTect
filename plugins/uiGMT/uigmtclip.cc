@@ -42,7 +42,7 @@ uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
 				tr("Stop clipping"),true));
 
     IOObjContext ctxt( PickSetTranslatorGroup::ioContext() );
-    ctxt.toselect_.require_.set( sKey::Type(), sKey::Polygon() );
+    ctxt.requireType( sKey::Polygon() );
     polygonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sPolygon() );
     polygonfld_->attach( alignedBelow, actionfld_ );
 

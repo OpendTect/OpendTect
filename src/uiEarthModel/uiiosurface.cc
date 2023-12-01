@@ -44,16 +44,13 @@ ________________________________________________________________________
 
 const int cListHeight = 5;
 
+// uiIOSurface
+
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp,
-						const ZDomain::Info* zinfo )
+			  const ZDomain::Info* zinfo )
     : uiGroup(p,"Surface selection")
-    , ctio_(nullptr)
-    , sectionfld_(0)
-    , attribfld_(0)
-    , rgfld_(0)
-    , attrSelChange(this)
     , forread_(forread)
-    , objfld_(0)
+    , attrSelChange(this)
 {
     const StringView typ( tp );
     if ( typ == EMHorizon2DTranslatorGroup::sGroupName() )
@@ -69,22 +66,14 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp,
     else
 	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
 
-    if ( forread_ )
+    if ( zinfo )
     {
-	if ( zinfo )
-	{
-	    const ZDomain::Def& def = SI().zIsTime() ?
-		ZDomain::Depth() : ZDomain::Time();
-	    if ( SI().zDomainInfo().isTime() == zinfo->isTime() )
-		ctio_->ctxt_.toselect_.
-				    restrictToZDomainDef( def, false );
-	    else
-		ctio_->ctxt_.toselect_.
-				    restrictToZDomainDef( def, true );
-	}
-
-	mAttachCB( postFinalize(), uiIOSurface::objSel );
+	const ZDomain::Info& siinfo = SI().zDomainInfo();
+	ctio_->ctxt_.requireZDomain( *zinfo, siinfo == *zinfo );
     }
+
+    if ( forread_ )
+	mAttachCB( postFinalize(), uiIOSurface::objSel );
 }
 
 
@@ -311,12 +300,11 @@ void uiIOSurface::attrSel( CallBacker* )
 }
 
 
-uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
-				const uiSurfaceWrite::Setup& setup )
-    : uiIOSurface(p,false,setup.typ_,nullptr)
-    , displayfld_(0)
-    , colbut_(0)
-    , stratlvlfld_(0)
+// uiSurfaceWrite
+
+uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const Setup& setup,
+				const ZDomain::Info* zinfo )
+    : uiIOSurface(p,false,setup.typ_,zinfo)
 {
     surfrange_.init( false );
 
@@ -362,16 +350,13 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     }
 
     setHAlignObj( objfld_ );
-    ioDataSelChg( 0 );
+    ioDataSelChg( nullptr );
 }
 
 
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
-				const uiSurfaceWrite::Setup& setup )
-    : uiIOSurface(p,false,setup.typ_,nullptr)
-    , displayfld_(0)
-    , colbut_(0)
-    , stratlvlfld_(0)
+				const Setup& setup, const ZDomain::Info* zinfo )
+    : uiIOSurface(p,false,setup.typ_,zinfo)
 {
     surfrange_.init( false );
 
@@ -456,7 +441,7 @@ void uiSurfaceWrite::stratLvlChg( CallBacker* )
 {
     if ( !stratlvlfld_ )
 	return;
-    
+
     const OD::Color col( stratlvlfld_->getColor() );
     if ( col != OD::Color::NoColor() )
 	colbut_->setColor( col );
@@ -507,8 +492,10 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 }
 
 
+// uiSurfaceRead
+
 uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup,
-						const ZDomain::Info* zinfo )
+			      const ZDomain::Info* zinfo )
     : uiIOSurface(p,true,setup.typ_,zinfo)
     , inpChange(this)
 {
@@ -581,6 +568,7 @@ bool uiSurfaceRead::processInput()
 
 
 // uiHorizonParSel
+
 uiHorizonParSel::uiHorizonParSel( uiParent* p, bool is2d, bool wclear )
     : uiCompoundParSel(p,uiStrings::sHorizon(mPlural))
     , is2d_(is2d)

@@ -47,14 +47,18 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 }
 
 
-static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
+static IOObjContext adaptCtxtWithSetup( const IOObjContext& ct,
 					const uiSeisSel::Setup& su )
 {
     IOObjContext ctxt( ct );
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
 	ctxt.toselect_.dontallow_.addVal( sKey::Type(), sKey::Steering() );
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
-	ctxt.toselect_.require_.set( sKey::Type(), sKey::Steering() );
+	ctxt.requireType( sKey::Steering() );
+
+    if ( !su.enabotherdomain_ )
+	ctxt.requireZDomain( SI().zDomain() );
+
     if ( ctxt.trgroup_ && !ctxt.forread_ &&
 	    su.compnrpol_ == uiSeisSel::Setup::MultiCompOnly )
     {
@@ -82,10 +86,10 @@ static IOObjContext adaptCtxt4Steering( const IOObjContext& ct,
 
 
 static CtxtIOObj adaptCtio4Steering( const CtxtIOObj& ct,
-				const uiSeisSel::Setup& su )
+				     const uiSeisSel::Setup& su )
 {
     CtxtIOObj ctio( ct );
-    ctio.ctxt_ = adaptCtxt4Steering( ctio.ctxt_, su );
+    ctio.ctxt_ = adaptCtxtWithSetup( ctio.ctxt_, su );
     return ctio;
 }
 
@@ -105,7 +109,6 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
     : uiIOObjSelDlg(p,getSelDlgSU(sssu),adaptCtio4Steering(c,sssu))
     , steerpol_(sssu.steerpol_)
-    , zdomainkey_(sssu.zdomkey_)
 {
     const bool is2d = Seis::is2D( sssu.geom_ );
     const bool isps = Seis::isPS( sssu.geom_ );
@@ -258,13 +261,6 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
 }
 
 
-static IOObjContext getIOObjCtxt( const IOObjContext& c,
-				  const uiSeisSel::Setup& s )
-{
-    return adaptCtxt4Steering( c, s );
-}
-
-
 // uiSeisSel::Setup
 
 uiSeisSel::Setup::Setup( Seis::GeomType gt )
@@ -300,7 +296,7 @@ uiSeisSel::Setup& uiSeisSel::Setup::wantSteering( bool yn )
 
 uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 		      const uiSeisSel::Setup& su )
-    : uiIOObjSel(p,getIOObjCtxt(ctxt,su),mkSetup(su,ctxt))
+    : uiIOObjSel(p,adaptCtxtWithSetup(ctxt,su),mkSetup(su,ctxt))
     , seissetup_(mkSetup(su,ctxt))
     , domainChanged(this)
     , zUnitChanged(this)
@@ -309,7 +305,7 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
     if ( !ctxt.forread_ && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
-    if ( !inctio_.ctxt_.forread_ && seissetup_.enabotherdomain_ )
+    if ( enableTimeDepthToogle() )
     {
 	const bool zistime = SI().zIsTime();
 	othdombox_ = new uiCheckBox( this, zistime ? uiStrings::sDepth()
@@ -352,6 +348,19 @@ void uiSeisSel::initGrpCB( CallBacker* )
 {
     if ( othdombox_ )
 	domainChgCB( nullptr );
+}
+
+
+bool uiSeisSel::enableTimeDepthToogle() const
+{
+    if ( inctio_.ctxt_.forread_ || !seissetup_.enabotherdomain_ )
+	return false;
+
+    const ZDomain::Info* requiredzdom = requiredZDomain();
+    if ( requiredzdom && !requiredzdom->isTime() && !requiredzdom->isDepth() )
+	return false;
+
+    return !requiredzdom;
 }
 
 
@@ -466,7 +475,10 @@ const char* uiSeisSel::compNameFromKey( const char* txt ) const
 const ZDomain::Info& uiSeisSel::getZDomain() const
 {
     if ( !othdombox_ )
-	return SI().zDomainInfo();
+    {
+	const ZDomain::Info* ret = requiredZDomain();
+	return ret ? *ret : SI().zDomainInfo();
+    }
 
     const bool istransformed = othdombox_->isChecked();
     if ( !istransformed )

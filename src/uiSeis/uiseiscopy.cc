@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "seiscopy.h"
 #include "seissingtrcproc.h"
+#include "survinfo.h"
 #include "zdomain.h"
 
 #include "uibatchjobdispatchersel.h"
@@ -51,10 +52,13 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     if ( startobj )
     {
 	inpfld_->setInput( startobj->key() );
-	SeisIOObjInfo oinf( *startobj );
-	sts.zdomkey_ = oinf.zDomainDef().key();
-	if ( sts.zdomkey_ != ZDomain::SI().key() )
+	const SeisIOObjInfo oinf( *startobj );
+	if ( oinf.zDomain() != SI().zDomainInfo() )
+	{
 	    inpfld_->setSensitive( false );
+	    uiMSG().warning(
+		    tr("Copying this dataset is not supported (yet)") );
+	}
     }
 
     sts.withnullfill(true).withstep(true).onlyrange(false).fornewentry(true);

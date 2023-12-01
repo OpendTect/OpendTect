@@ -26,18 +26,18 @@ ________________________________________________________________________
 
 mDefineEnumUtils(IOObjContext,StdSelType,"Std sel type") {
 
-	"Seismic data",
-	"Surface data",
-	"Location data",
-	"Feature Sets",
-	"Well Info",
-	"Neural Networks",
-	"Miscellaneous data",
-	"Attribute definitions",
-	"Model data",
-	"Survey Geometries",
-	"None",
-	0
+    "Seismic data",
+    "Surface data",
+    "Location data",
+    "Feature Sets",
+    "Well Info",
+    "Neural Networks",
+    "Miscellaneous data",
+    "Attribute definitions",
+    "Model data",
+    "Survey Geometries",
+    "None",
+    nullptr
 
 };
 #define mStdDirD IOObjContext::StdDirData
@@ -54,15 +54,15 @@ static const IOObjContext::StdDirData stddirdata[] = {
     mStdDirD( 100090, "Models", IOObjContext::StdSelTypeNames()[8] ),
     mStdDirD( 100100, "Geometry", IOObjContext::StdSelTypeNames()[9] ),
     mStdDirD( 0, "None", IOObjContext::StdSelTypeNames()[10] ),
-    mStdDirD( 0, 0, 0 )
+    mStdDirD( 0, nullptr, nullptr )
 };
 
 
 IOObjContext::StdDirData::StdDirData( int theid, const char* thedirnm,
 				      const char* thedesc )
-    : id_( theid, 0 )
-    , dirnm_( thedirnm )
-    , desc_( thedesc )
+    : id_(theid,0)
+    , dirnm_(thedirnm)
+    , desc_(thedesc)
 {
 }
 
@@ -97,16 +97,6 @@ IOObjSelConstraints::~IOObjSelConstraints()
 }
 
 
-void IOObjSelConstraints::restrictToZDomainDef( const ZDomain::Def& def,
-						    bool forrestrict )
-{
-    if ( forrestrict )
-	require_.set( ZDomain::sKey(), def.key() );
-    else
-	dontallow_.set( ZDomain::sKey(), def.key() );
-}
-
-
 IOObjSelConstraints& IOObjSelConstraints::operator =(
 				const IOObjSelConstraints& oth )
 {
@@ -118,6 +108,55 @@ IOObjSelConstraints& IOObjSelConstraints::operator =(
 	allownonuserselectable_ = oth.allownonuserselectable_;
     }
     return *this;
+}
+
+
+void IOObjSelConstraints::require( const char* keystr, const char* typstr,
+				   bool allowempty )
+{
+    FileMultiString fms( typstr );
+    if ( allowempty )
+	fms.add( " " );
+
+    require_.set( keystr, fms.str() );
+}
+
+
+void IOObjSelConstraints::requireType( const char* typstr, bool allowempty )
+{
+    require( sKey::Type(), typstr, allowempty );
+}
+
+
+void IOObjSelConstraints::requireZDomain( const ZDomain::Info& zinfo,
+					  bool allowempty )
+{
+    FileMultiString fms( zinfo.def_.key() );
+    if ( allowempty )
+	fms.add( " " );
+
+    require_.set( ZDomain::sKey(), fms.str() );
+    const BufferString unitstr = zinfo.pars_.find( ZDomain::sKeyUnit() );
+    if ( unitstr.isEmpty() )
+	return;
+
+    fms.set( unitstr.buf() ).add( " " ); //Always optional
+    require_.set( ZDomain::sKeyUnit(), fms.str() );
+}
+
+
+const ZDomain::Info* IOObjSelConstraints::requiredZDomain() const
+{
+    IOPar iop;
+    FileMultiString fms;
+    if ( require_.get(ZDomain::sKey(),fms) && !fms.isEmpty() )
+	iop.set( ZDomain::sKey(), fms[0] );
+
+    fms.setEmpty();
+    if ( require_.get(ZDomain::sKeyUnit(),fms) && !fms.isEmpty() )
+	iop.set( ZDomain::sKeyUnit(), fms[0] );
+
+    return ZDomain::get( iop );
 }
 
 
@@ -160,14 +199,23 @@ bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
     while ( iter.next(key,val) )
     {
 	FileMultiString fms( val );
-	const int fmssz = fms.size();
+	int fmssz = fms.size();
 	const BufferString ioobjval = ioobj.pars().find( key );
 	if ( fmssz == 0 && ioobjval.isEmpty() )
 	    continue;
 
+	StringView lastfld;
+	if ( fms.size() > 1 )
+	    lastfld = fms.last();
+
+	const bool allowmissing = fmssz > 1 &&
+				  (lastfld.isEmpty() || lastfld == " " );
+	if ( allowmissing )
+	    fmssz--;
+
 	const FileMultiString valfms( ioobjval );
 	const int valfmssz = valfms.size();
-	bool isok = false;
+	bool isok = allowmissing;
 	for ( int ifms=0; ifms<fmssz; ifms++ )
 	{
 	    const BufferString fmsstr( fms[ifms] );
@@ -474,6 +522,31 @@ int IOObjContext::nrMatches( bool forgroup ) const
 }
 
 
+void IOObjContext::require( const char* keystr, const char* typstr,
+			    bool allowempty )
+{
+    toselect_.require( keystr, typstr, allowempty );
+}
+
+
+void IOObjContext::requireType( const char* typstr, bool allowempty )
+{
+    toselect_.requireType( typstr, allowempty );
+}
+
+
+void IOObjContext::requireZDomain( const ZDomain::Info& zinfo, bool allowempty )
+{
+    toselect_.requireZDomain( zinfo, allowempty );
+}
+
+
+const ZDomain::Info* IOObjContext::requiredZDomain() const
+{
+    return toselect_.requiredZDomain();
+}
+
+
 mStartAllowDeprecatedSection
 
 CtxtIOObj::CtxtIOObj( const IOObjContext& ct, IOObj* o )
@@ -528,7 +601,7 @@ void CtxtIOObj::fillDefault( bool oone2 )
 
     const BufferString typestr = ctxt_.toselect_.require_.find( sKey::Type() );
     if ( !typestr.isEmpty() )
-	    keystr = IOPar::compKey( keystr, typestr );
+	keystr = IOPar::compKey( keystr, typestr );
 
     return fillDefaultWithKey( keystr, oone2 );
 }
@@ -539,7 +612,11 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
     MultiID mid;
     SI().pars().get( parky, mid );
     if ( !mid.isUdf() )
-	setObj( IOM().get(mid) );
+    {
+	PtrMan<IOObj> defioobj = IOM().get( mid );
+	if ( defioobj && ctxt_.toselect_.isGood(*defioobj,ctxt_.forread_) )
+	    setObj( defioobj.release() );
+    }
 
     if ( !ioobj_ && oone2 )
 	fillIfOnlyOne();
