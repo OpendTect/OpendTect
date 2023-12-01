@@ -158,7 +158,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     , uiparent_( uip )
 {
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
-    visSurvey::EMObjectDisplay* emod = 0;
+    visSurvey::EMObjectDisplay* emod = nullptr;
     mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj);
     if ( hor3d )
     {
@@ -170,8 +170,9 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 	emod = new visSurvey::Horizon2DDisplay;
 
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
-    if ( emod )
+    if ( scene && emod )
     {
+	emod->setZDomain( emobj->zDomain() );
 	emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
 	ZAxisTransform* zt = const_cast<ZAxisTransform*>(
 		scene->getZAxisTransform() );
