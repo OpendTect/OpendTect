@@ -132,6 +132,7 @@ uiButton* uiIOObjInserter::createInsertButton( uiParent* p,
     }
 
     tb->setMenu( menu, uiToolButton::InstantPopup );
+    tb->setPrefWidth( tb->height() ); // hack to remove unnecessary spacing
     return tb;
 }
 
