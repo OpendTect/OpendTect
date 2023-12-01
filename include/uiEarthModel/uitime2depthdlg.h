@@ -53,6 +53,7 @@ protected:
     uiSurfaceWrite*		getWorkingOutSurfWrite();
 
     void			dirChangeCB(CallBacker*);
+    void			horSelCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
 
     bool			is2DObject() const;
