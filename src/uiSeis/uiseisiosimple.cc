@@ -94,8 +94,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     else
     {
 	const IOObjContext ctxt = uiSeisSel::ioContext( gt, !imp );
-	ssu.steerpol(uiSeisSel::Setup::InclSteer);
-	ssu.withinserters(false);
+	ssu.steerpol(uiSeisSel::Setup::InclSteer).withinserters(false);
 	seisfld_ = new uiSeisSel( this, ctxt, ssu );
 	mAttachCB( seisfld_->selectionDone, uiSeisIOSimple::inpSeisSel );
 	sep = mkDataManipFlds();

@@ -226,7 +226,8 @@ void uiIOObjSel::init()
 	for ( auto* inserter : inserters_ )
 	    mAttachCB( inserter->objInserterd, uiIOObjSel::objInserted );
     }
-    else if ( setup_.withwriteopts_ )
+
+    if ( !workctio_.ctxt_.forread_ && setup_.withwriteopts_ )
     {
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_,
 					    setup_.trsnotallwed_, false );
