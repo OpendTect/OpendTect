@@ -43,11 +43,11 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
     , objtype_(objtype)
 {
     IOObjContext ioobjctxt( nullptr );
-    bool is2d = false;
+    bool is2d = is2DObject();
     if ( objtype == IOObjInfo::Horizon3D )
 	ioobjctxt = mIOObjContext(EMHorizon3D);
-    else
-	return;
+    else if ( objtype == IOObjInfo::Horizon2D )
+	ioobjctxt = mIOObjContext(EMHorizon2D);
 
     const bool istime = SI().zIsTime();
     directionsel_ = new uiGenInput( this, tr("Convert from"),
@@ -73,14 +73,16 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
 							 uigrpnm );
     const uiString depthobjm = uiStrings::phrJoinStrings( uiStrings::sDepth(),
 							  uigrpnm );
-
+    const bool canhaveattribs = objtype_ == IOObjInfo::Horizon3D;
     inptimehorsel_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
-	grpnm).withsubsel(true).withsectionfld(false), &timeinf );
+		    grpnm).withsubsel(true).withsectionfld(false).
+		    withattribfld(canhaveattribs), &timeinf );
     inptimehorsel_->getObjSel()->setLabelText( uiStrings::phrInput(timeobjm) );
     inptimehorsel_->attach( alignedBelow, t2dtransfld_ );
 
     inpdepthhorsel_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
-	grpnm).withsubsel(true).withsectionfld(false), &depthinf );
+			grpnm).withsubsel(true).withsectionfld(false).
+			withattribfld(canhaveattribs), &depthinf );
     inpdepthhorsel_->getObjSel()->setLabelText( uiStrings::phrInput(depthobjm));
     inpdepthhorsel_->attach( alignedBelow, d2ttransfld_ );
 
@@ -104,10 +106,16 @@ uiTime2DepthDlg::~uiTime2DepthDlg ()
 }
 
 
+bool uiTime2DepthDlg::is2DObject() const
+{
+    return objtype_ == IOObjInfo::Horizon2D;
+}
+
+
 uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
 {
     uiRetVal ret;
-    if ( objtype == IOObjInfo::Horizon3D )
+    if ( objtype == IOObjInfo::Horizon3D || objtype == IOObjInfo::Horizon2D )
 	return ret;
     else
 	ret.add( tr("Object type is not yet supported") );
@@ -227,7 +235,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 	    IOM().commitChanges( *obj );
 
 	ret = uiMSG().askGoOn( tr("Successfully transformed %1.\n"
-			    "Do you want to tranform another 3D Horizon?").
+			    "Do you want to tranform another horizon?").
 			    arg(inpioobj->name()) );
     }
 
