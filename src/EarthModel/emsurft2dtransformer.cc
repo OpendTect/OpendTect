@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "emsurft2dtransformer.h"
 
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emposid.h"
 #include "emsurfaceauxdata.h"
@@ -70,8 +71,23 @@ void SurfaceT2DTransformer::setZDomain( const ZDomain::Info& zinfo )
 }
 
 
-void SurfaceT2DTransformer::preStepCB(CallBacker*)
+bool SurfaceT2DTransformer::is2DObject() const
 {
+    return objtype_ == IOObjInfo::Horizon2D;
+}
+
+
+bool SurfaceT2DTransformer::is3DObject() const
+{
+    return objtype_ == IOObjInfo::Horizon3D;
+}
+
+
+void SurfaceT2DTransformer::preStepCB( CallBacker* )
+{
+    if ( is2DObject() )
+	return;
+
     if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
     {
 	Interval<float> zgate( mUdf(float), mUdf(float) );
@@ -106,10 +122,18 @@ RefMan<Surface> SurfaceT2DTransformer::createSurface( const MultiID& outmid )
     if ( !obj )
 	return nullptr;
 
+    BufferString typestr;
+    if ( objtype_ == IOObjInfo::Horizon3D )
+	typestr =  EM::Horizon3D::typeStr();
+    else if ( objtype_ == IOObjInfo::Horizon2D )
+	typestr =  EM::Horizon2D::typeStr();
+    else
+	return nullptr;
+
     EM::EMManager& em = EM::EMM();
     ObjectID objid = em.getObjectID( outmid );
     if ( !objid.isValid() )
-	objid = em.createObject( EM::Horizon3D::typeStr(), obj->name() );
+	objid = em.createObject( typestr, obj->name() );
 
     RefMan<EM::EMObject> emobj = em.getObject( objid );
     mDynamicCastGet(EM::Surface*,horizon,emobj.ptr())
@@ -128,8 +152,7 @@ RefMan<Surface> SurfaceT2DTransformer::createSurface( const MultiID& outmid )
 bool SurfaceT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 {
     RefMan<Surface> surf = createSurface( data.outmid_ );
-    mDynamicCastGet(EM::Horizon3D*,outhor3D,surf.ptr())
-    if ( !outhor3D )
+    if ( !surf )
 	mErrRet( tr("Cannot access database") );
 
     const MultiID& inpmid = data.inpmid_;
@@ -147,7 +170,24 @@ bool SurfaceT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
     if ( !emobj )
 	mErrRet( tr("Failed to load the surface") );
 
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
+    if ( objtype_ == IOObjInfo::Horizon3D )
+	do3DHorizon( *emobj, *surf );
+    else if ( objtype_ == IOObjInfo::Horizon2D )
+	do2DHorizon( *emobj, data, *surf );
+
+    return true;
+}
+
+
+bool SurfaceT2DTransformer::do3DHorizon( const EM::EMObject& emobj,
+								Surface& surf )
+{
+    mDynamicCastGet(EM::Horizon3D*,outhor3D,&surf)
+    if ( !outhor3D )
+	mErrRet( tr("The output type is incompatible with input type, "
+	    "3D Horizon object expected") );
+
+    mDynamicCastGet(const EM::Horizon3D*,hor,&emobj)
     if ( !hor )
 	mErrRet( tr("Incorrect object selected, "
 			    "3D horizon is expected for the workflow") );
@@ -186,6 +226,47 @@ bool SurfaceT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 }
 
 
+bool SurfaceT2DTransformer::do2DHorizon( const EM::EMObject& emobj,
+    const SurfaceT2DTransfData& surfdata, Surface& surf  )
+{
+    mDynamicCastGet(EM::Horizon2D*,outhor2D,&surf)
+    if ( !outhor2D )
+	mErrRet( tr("The output type is incompatible with input type, "
+	    "2D Horizon object expected") );
+
+    mDynamicCastGet(const EM::Horizon2D*,hor,&emobj)
+    if ( !hor )
+	mErrRet( tr("Incorrect object selected, "
+	    "2D horizon is expected for the workflow") );
+
+    outhor2D->enableGeometryChecks( false );
+    outhor2D->setStratLevelID( hor->stratLevelID() );
+    const BufferStringSet& linenms = surfdata.surfsel_.sd.linenames;
+    for ( const auto* linenm : linenms )
+    {
+	const Pos::GeomID geomid = Survey::GM().getGeomID( linenm->buf() );
+	if ( !geomid.isUdf() )
+	{
+	    const StepInterval<int>& trcrng =
+		hor->geometry().colRange( geomid );
+	    if ( !load2DVelCubeTransf(geomid,trcrng) )
+		continue;
+
+	    PtrMan<Array1D<float>> array = hor->createArray1D( geomid,
+		&zatf_ );
+	    if ( !array )
+		continue;
+
+	    outhor2D->setArray1D( *array, trcrng, geomid, false );
+	    unload2DVelCubeTransf();
+	}
+    }
+
+    surfs_.add( outhor2D );
+    return true;
+}
+
+
 int SurfaceT2DTransformer::nextStep()
 {
     if ( nrdone_ == totnr_ )
@@ -196,7 +277,8 @@ int SurfaceT2DTransformer::nextStep()
 	if ( !data )
 	    continue;
 
-	if ( objtype_ == IOObjInfo::Horizon3D )
+	if ( objtype_ == IOObjInfo::Horizon3D ||
+					    objtype_ == IOObjInfo::Horizon2D )
 	    doHorizon( *data );
 
 	nrdone_++;
@@ -206,14 +288,39 @@ int SurfaceT2DTransformer::nextStep()
 }
 
 
+bool SurfaceT2DTransformer::load2DVelCubeTransf( const Pos::GeomID& geomid,
+    const StepInterval<int>& trcrg )
+{
+    if ( !zatf_.needsVolumeOfInterest() )
+	return true;
+
+    TrcKeyZSampling tkzs;
+    tkzs.hsamp_.set( geomid, trcrg );
+    zatvoi_ = zatf_.addVolumeOfInterest( tkzs );
+    TaskRunner tskr;
+    return zatf_.loadDataIfMissing( zatvoi_, &tskr );
+}
+
+
+void SurfaceT2DTransformer::unload2DVelCubeTransf()
+{
+    unloadVolume();
+}
+
+
+void SurfaceT2DTransformer::unloadVolume()
+{
+    if ( zatvoi_ >= 0 )
+	zatf_.removeVolumeOfInterest( zatvoi_ );
+}
+
+
 void SurfaceT2DTransformer::postStepCB( CallBacker* )
 {
-    if ( nrdone_ == totnr_ )
-    {
-	if ( zatvoi_ >= 0 )
-	    zatf_.removeVolumeOfInterest( zatvoi_ );
-    }
+    if ( (nrdone_==totnr_) && is3DObject() )
+	unloadVolume();
 }
+
 
 RefMan<Surface> SurfaceT2DTransformer::getTransformedSurface(
 						    const MultiID& mid ) const
