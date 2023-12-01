@@ -100,9 +100,11 @@ void SurfaceT2DTransformer::preStepCB( CallBacker* )
 	    zgate.include( datagate );
 	}
 
-	TrcKeyZSampling samp( false );
+	TrcKeyZSampling samp;
 	samp.hsamp_ = datas_[0]->surfsel_.rg;
-	samp.zsamp_.setFrom( zgate );
+	if ( samp.zsamp_.stop > zgate.stop )
+	    samp.zsamp_.stop = samp.zsamp_.snap( zgate.stop, OD::SnapUpward );
+
 	zatvoi_ = zatf_.addVolumeOfInterest( samp, false );
 	TaskRunner tskr;
 	if ( !zatf_.loadDataIfMissing(zatvoi_,&tskr) )
