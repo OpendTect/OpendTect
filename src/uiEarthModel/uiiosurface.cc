@@ -1284,17 +1284,6 @@ uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
 }
 
 
-uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
-			    bool forread )
-    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread),Setup())
-{
-    setLabelText( forread
-		 ? uiStrings::phrInput( uiStrings::sHorizon() )
-		 : uiStrings::phrOutput( uiStrings::sHorizon() ) );
-    fillEntries();
-}
-
-
 uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
 			    bool forread, const uiIOObjSel::Setup& setup )
     : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),setup)
@@ -1307,16 +1296,24 @@ uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
 }
 
 
-uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
-			    bool forread )
-    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),Setup())
+uiHorizonSel::~uiHorizonSel()
+{}
+
+
+// uiHorizon3DSel
+uiHorizon3DSel::uiHorizon3DSel( uiParent* p, const ZDomain::Info* zinfo,
+			    bool forread, const uiIOObjSel::Setup& setup )
+    : uiHorizonSel(p,false,zinfo,forread,setup)
 {
-    setLabelText( forread
-		 ? uiStrings::phrInput( uiStrings::sHorizon() )
-		 : uiStrings::phrOutput( uiStrings::sHorizon() ) );
-    fillEntries();
 }
 
 
-uiHorizonSel::~uiHorizonSel()
+uiHorizon3DSel::uiHorizon3DSel( uiParent* p,
+			    bool forread, const uiIOObjSel::Setup& setup )
+    : uiHorizonSel(p,false,forread,setup)
+{
+}
+
+
+uiHorizon3DSel::~uiHorizon3DSel()
 {}

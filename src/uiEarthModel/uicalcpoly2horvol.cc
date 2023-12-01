@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uiconstvel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
@@ -186,8 +187,7 @@ uiCalcPolyHorVol::uiCalcPolyHorVol( uiParent* p, const Pick::Set& ps )
 	return;
     }
 
-    horsel_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
-				tr("Calculate to") );
+    horsel_ = new uiHorizonSel( this, false, true, tr("Calculate to") );
     horsel_->selectionDone.notify( mCB(this,uiCalcPolyHorVol,horSel) );
 
     mkStdGrp()->attach( alignedBelow, horsel_ );

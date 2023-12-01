@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uibutton.h"
 #include "uimsg.h"
 #include "od_helpids.h"
@@ -52,9 +53,7 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
 
-    horfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
-					 : mIOObjContext(EMHorizon3D),
-			      uiStrings::sHorizon() );
+    horfld_ = new uiHorizonSel( this, is2d, true );
     horfld_->selectionDone.notify( mCB(this,uiHorizonAttrib,horSel) );
     horfld_->attach( alignedBelow, inpfld_ );
 

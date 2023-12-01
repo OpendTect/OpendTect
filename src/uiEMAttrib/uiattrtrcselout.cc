@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "attriboutput.h"
-#include "ctxtioobj.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
@@ -33,6 +32,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseissel.h"
@@ -83,10 +83,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 
 void uiAttrTrcSelOut::createSingleHorUI()
 {
-    IOObjContext ctxt =
-		is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
-    ctxt.forread_ = true;
-    objfld_ = new uiIOObjSel( pargrp_, ctxt,
+    objfld_ = new uiHorizonSel( pargrp_, is2d_, true,
 			      uiStrings::phrCalculate(tr("along Horizon")) );
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
@@ -112,17 +109,13 @@ void uiAttrTrcSelOut::createTwoHorUI()
 				mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
     xparsdlg_->postFinalize().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 
-    IOObjContext ctxt =
-		is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
-    ctxt.forread_ = true;
-
     uiIOObjSel::Setup su( tr("Calculate between top Horizon") );
     su.filldef(false);
-    objfld_ = new uiIOObjSel( pargrp_, ctxt, su );
+    objfld_ = new uiHorizonSel( pargrp_, is2d_, true, su );
     objfld_->attach( alignedBelow, attrfld_ );
 
     su.seltxt( tr("and bottom Horizon") );
-    obj2fld_ = new uiIOObjSel( pargrp_, ctxt, su );
+    obj2fld_ = new uiHorizonSel( pargrp_, is2d_, true, su );
     obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );

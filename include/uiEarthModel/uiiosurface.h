@@ -320,11 +320,21 @@ mODTextTranslationClass(uiHorizonSel)
 public:
 			uiHorizonSel(uiParent*,bool is2d,
 				     const ZDomain::Info*,bool isforread,
-				     const uiIOObjSel::Setup&);
-			uiHorizonSel(uiParent*,bool is2d,
-				     const ZDomain::Info*,bool forread);
+				     const uiIOObjSel::Setup& ={});
 			uiHorizonSel(uiParent*,bool is2d,bool isforread,
-				     const uiIOObjSel::Setup&);
-			uiHorizonSel(uiParent*,bool is2d,bool forread);
+				     const uiIOObjSel::Setup& ={});
 			~uiHorizonSel();
+};
+
+
+mExpClass(uiEarthModel) uiHorizon3DSel : public uiHorizonSel
+{
+mODTextTranslationClass(uiHorizon3DSel)
+public:
+			uiHorizon3DSel(uiParent*,
+				       const ZDomain::Info*,bool isforread,
+				       const uiIOObjSel::Setup& ={});
+			uiHorizon3DSel(uiParent*,bool isforread,
+				       const uiIOObjSel::Setup& ={});
+			~uiHorizon3DSel();
 };

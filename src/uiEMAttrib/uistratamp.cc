@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiioobjsel.h"
-#include "uilineedit.h"
+#include "uiiosurface.h"
 #include "uipossubsel.h"
 #include "uistrings.h"
 #include "od_helpids.h"
@@ -54,12 +54,11 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     mAttachCB( winoption_->valueChanged, uiStratAmpCalc::choiceSel );
     winoption_->attach( alignedBelow, classfld_ );
 
-    const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    horfld1_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
+    horfld1_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
     mAttachCB( horfld1_->selectionDone, uiStratAmpCalc::inpSel );
     horfld1_->attach( alignedBelow, winoption_ );
 
-    horfld2_ = new uiIOObjSel( this, ctxt, uiStrings::sBottomHor() );
+    horfld2_ = new uiHorizon3DSel( this, true, uiStrings::sBottomHor() );
     mAttachCB( horfld2_->selectionDone, uiStratAmpCalc::inpSel );
     horfld2_->attach( alignedBelow, horfld1_ );
 
