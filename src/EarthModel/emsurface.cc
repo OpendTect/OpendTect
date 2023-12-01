@@ -387,20 +387,7 @@ IOObjContext Horizon::ioContext( bool is2d, const ZDomain::Info* zinfo,
     if ( zinfo )
     {
 	const ZDomain::Info& siinfo = SI().zDomainInfo();
-	//ctxt.requireZDomain( *zinfo, siinfo == *zinfo );
-	// delete lines below when other changes are committed.
-	FileMultiString fms( zinfo->def_.key() );
-	const bool allowempty = siinfo == *zinfo;
-	if ( allowempty )
-	    fms.add( " " );
-
-	ctxt.toselect_.require_.set( ZDomain::sKey(), fms.str() );
-	const BufferString unitstr = zinfo->pars_.find( ZDomain::sKeyUnit() );
-	if ( unitstr.isEmpty() )
-	    return ctxt;
-
-	fms.set( unitstr.buf() ).add( " " ); //Always optional
-	ctxt.toselect_.require_.set( ZDomain::sKeyUnit(), fms.str() );
+	ctxt.requireZDomain( *zinfo, siinfo == *zinfo );
     }
 
     return ctxt;
