@@ -401,9 +401,10 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     }
 
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
-    uiSeisSel::Setup sssu( geom_ ); sssu.steerpol(uiSeisSel::Setup::InclSteer);
-    sssu.selectcomp(true);
-    sssu.trsnotallwed_.add( mSEGYDirectTranslNm );
+    uiSeisSel::Setup sssu( geom_ );
+    sssu.steerpol(uiSeisSel::Setup::InclSteer)
+	.selectcomp(true).withinserters(false)
+	.trsnotallwed_.add( mSEGYDirectTranslNm );
     seissel_ = new uiSeisSel( this, ctxt, sssu );
     mAttachCB( seissel_->selectionDone, uiSEGYExp::inpSel );
 

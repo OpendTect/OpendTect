@@ -113,8 +113,6 @@ uiButton* uiIOObjInserter::createInsertButton( uiParent* p,
 	    continue;
 	}
 
-
-
 	inserter->setIOObjCtxt( ctio.ctxt_ );
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
 	if ( !tbsu )
@@ -143,6 +141,7 @@ uiButton* uiIOObjInserter::createInsertButton( uiParent* p,
     }
 
     tb->setMenu( menu, uiToolButton::InstantPopup );
+    tb->setPrefWidth( tb->height() ); // hack to remove unnecessary spacing
     return tb;
 }
 
@@ -371,7 +370,8 @@ void uiIOObjSel::init()
 	for ( auto* inserter : inserters_ )
 	    mAttachCB( inserter->objInserterd, uiIOObjSel::objInserted );
     }
-    else if ( setup_.withwriteopts_ )
+
+    if ( !workctio_.ctxt_.forread_ && setup_.withwriteopts_ )
     {
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_,
 					    setup_.trsnotallwed_, false );
