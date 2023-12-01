@@ -624,7 +624,7 @@ bool uiSeisBrowser::storeChgdData( const bool isnew )
     {
 	IOObjContext ctxt( uiSeisSel::ioContext(is2D()?Seis::Line:Seis::Vol,
 								    false) );
-	ctxt.toselect_.require_.set( sKey::Type(), sKey::Attribute() );
+	ctxt.requireType( sKey::Attribute() );
 	uiSeisSelDlg seiseldlg( this, ctxt, uiSeisSel::Setup(is2D(),false) );
 	if ( !seiseldlg.go() )
 	    return false;
@@ -988,7 +988,7 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 	if ( !mIsUdf(v) )
 	{
 	    v0 = v;
-	    z0 = trc.info().samplePos( isamp );	
+	    z0 = trc.info().samplePos( isamp );
 	    break;
 	}
     }

@@ -145,7 +145,7 @@ uiSaveCrossplotData::uiSaveCrossplotData( uiParent* p, const DataPointSet& dps,
     IOObjContext ctxt = mIOObjContext(PosVecDataSet);
     ctxt.forread_ = false;
     if ( !type_.isEmpty() )
-	ctxt.toselect_.require_.set( sKey::Type(), type_.buf() );
+	ctxt.requireType( type_.buf() );
 
     outfld_ = new uiIOObjSelGrp( this, ctxt );
 }
