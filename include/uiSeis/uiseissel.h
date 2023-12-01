@@ -54,7 +54,7 @@ public:
 	mDefSetupMemb(bool,allowsetdefault)	//!< Fill with def cube/line?
 	mDefSetupMemb(bool,enabotherdomain)	//!< write only: T vs Depth
 	mDefSetupMemb(SteerPol,steerpol)
-	mDefSetupMemb(BufferString,zdomkey)
+	mDefSetupMemb(BufferString,zdomkey)	// Obsolete
 	mDefSetupMemb(const char*,survdefsubsel)
 	mDefSetupMemb(bool,allowsetsurvdefault)
 	mDefSetupMemb(bool,explprepost)		//!<Spell out if pre or post stk
@@ -103,6 +103,7 @@ protected:
     Setup		mkSetup(const Setup&,bool forread);
     Setup		mkSetupWithCtxt(const Setup&,const IOObjContext&);
     void		fillDefault() override;
+    bool		enableTimeDepthToogle() const;
 
     void		initGrpCB(CallBacker*);
     void		domainChgCB(CallBacker*);
