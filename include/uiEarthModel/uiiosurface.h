@@ -304,10 +304,27 @@ protected:
 
 
 mExpClass(uiEarthModel) uiBodySel : public uiIOObjSel
-{ mODTextTranslationClass(uiWaveletSel)
+{
+mODTextTranslationClass(uiBodySel)
 public:
 			uiBodySel(uiParent*,bool forread,
 				     const uiIOObjSel::Setup&);
 			uiBodySel(uiParent*,bool forread);
 			~uiBodySel();
+};
+
+
+mExpClass(uiEarthModel) uiHorizonSel : public uiIOObjSel
+{
+mODTextTranslationClass(uiHorizonSel)
+public:
+			uiHorizonSel(uiParent*,bool is2d,
+				     const ZDomain::Info*,bool isforread,
+				     const uiIOObjSel::Setup&);
+			uiHorizonSel(uiParent*,bool is2d,
+				     const ZDomain::Info*,bool forread);
+			uiHorizonSel(uiParent*,bool is2d,bool isforread,
+				     const uiIOObjSel::Setup&);
+			uiHorizonSel(uiParent*,bool is2d,bool forread);
+			~uiHorizonSel();
 };

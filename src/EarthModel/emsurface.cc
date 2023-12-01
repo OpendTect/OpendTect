@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -383,6 +384,29 @@ bool Horizon::usePar( const IOPar& par )
 {
     par.get( sKey::StratRef(), stratlevelid_ );
     return Surface::usePar( par );
+}
+
+
+IOObjContext Horizon::ioContext( bool is2d, const ZDomain::Info* zinfo,
+			       bool forread )
+{
+    IOObjContext ctxt = is2d ? mIOObjContext(EMHorizon2D)
+			     : mIOObjContext(EMHorizon3D);
+    ctxt.forread_ = forread;
+    if ( zinfo )
+    {
+	const ZDomain::Info& siinfo = SI().zDomainInfo();
+	ctxt.requireZDomain( *zinfo, siinfo == *zinfo );
+    }
+
+    return ctxt;
+}
+
+
+IOObjContext Horizon::ioContext( bool is2d,  bool forread )
+{
+    ZDomain::Info zinfo( ZDomain::SI() );
+    return ioContext( is2d, &zinfo, forread );
 }
 
 } // namespace EM

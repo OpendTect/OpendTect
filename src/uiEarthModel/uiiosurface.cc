@@ -9,29 +9,29 @@ ________________________________________________________________________
 
 #include "uiiosurface.h"
 
-#include "uipossubsel.h"
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
+#include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uipossubsel.h"
 #include "uistratlvlsel.h"
 #include "uitable.h"
 
 #include "ctxtioobj.h"
-#include "emmanager.h"
-#include "emfaultset3d.h"
 #include "embodytr.h"
 #include "emfaultstickset.h"
-#include "emsurface.h"
-#include "emsurfacetr.h"
+#include "emhorizon.h"
 #include "emioobjinfo.h"
-#include "emsurfaceiodata.h"
+#include "emmanager.h"
+#include "emsurface.h"
 #include "emsurfaceauxdata.h"
+#include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "iodir.h"
 #include "iodirentry.h"
 #include "ioman.h"
@@ -49,8 +49,8 @@ const int cListHeight = 5;
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp,
 			  const ZDomain::Info* zinfo )
     : uiGroup(p,"Surface selection")
-    , forread_(forread)
     , attrSelChange(this)
+    , forread_(forread)
 {
     const StringView typ( tp );
     if ( typ == EMHorizon2DTranslatorGroup::sGroupName() )
@@ -962,7 +962,7 @@ void uiFaultParSel::setIs2D( bool is2d )
 }
 
 
-void uiFaultParSel::updateOnSelChgCB( CallBacker* cb )
+void uiFaultParSel::updateOnSelChgCB( CallBacker* )
 {
     setSelText( isfltset_ ? uiStrings::sFaultSet( mPlural )
 			: (is2d_ ? uiStrings::sFaultStickSet(mPlural)
@@ -971,7 +971,7 @@ void uiFaultParSel::updateOnSelChgCB( CallBacker* cb )
 
 void uiFaultParSel::hideClearButton( bool yn )
 {
-    clearbut_->display( false, true );
+    clearbut_->display( !yn, true );
 }
 
 
@@ -1266,4 +1266,57 @@ uiBodySel::uiBodySel( uiParent* p, bool forread )
 
 
 uiBodySel::~uiBodySel()
+{}
+
+
+
+// uiHorizonSel
+
+uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
+			    bool forread, const uiIOObjSel::Setup& setup )
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread),setup)
+{
+    if ( setup.seltxt_.isEmpty() )
+	setLabelText( forread
+		     ? uiStrings::phrInput( uiStrings::sHorizon() )
+		     : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+    fillEntries();
+}
+
+
+uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
+			    bool forread )
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread),Setup())
+{
+    setLabelText( forread
+		 ? uiStrings::phrInput( uiStrings::sHorizon() )
+		 : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+    fillEntries();
+}
+
+
+uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
+			    bool forread, const uiIOObjSel::Setup& setup )
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),setup)
+{
+    if ( setup.seltxt_.isEmpty() )
+	setLabelText( forread
+		     ? uiStrings::phrInput( uiStrings::sHorizon() )
+		     : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+    fillEntries();
+}
+
+
+uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
+			    bool forread )
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),Setup())
+{
+    setLabelText( forread
+		 ? uiStrings::phrInput( uiStrings::sHorizon() )
+		 : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+    fillEntries();
+}
+
+
+uiHorizonSel::~uiHorizonSel()
 {}
