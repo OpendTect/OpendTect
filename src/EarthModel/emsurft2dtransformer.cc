@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "emsurft2dtransformer.h"
 
+#include "arraynd.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
