@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uitabstack.h"
 #include "uitabbar.h"
-#include "uiobjbody.h"
 #include "objectset.h"
 
 #include <QFrame>
@@ -25,8 +24,7 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     tabgrp_ = new uiGroup( this, nm );
     tabbar_ = new uiTabBar( this, nm );
 
-    tabgrp_->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-    tabgrp_->setBorder(10);
+    tabgrp_->setBorder( 10, 10, 10, 10 );
     tabgrp_->attach( stretchedBelow, tabbar_, 0 );
 
     tabbar_->selected.notify( mCB(this,uiTabStack,tabSel) );

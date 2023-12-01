@@ -19,10 +19,11 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "systeminfo.h"
 
+
 uiDataRootSel::uiDataRootSel( uiParent* p )
     : uiGroup(p)
-    , dataroot_(GetBaseDataDir())
     , selectionChanged(this)
+    , dataroot_(GetBaseDataDir())
 {
     auto* datarootbut = new uiPushButton( this, tr("Survey Data Root"), false );
     datarootbut->setIcon( "database" );
@@ -35,7 +36,8 @@ uiDataRootSel::uiDataRootSel( uiParent* p )
     datarootlbl_->setBackgroundColor( backgroundColor() );
     datarootlbl_->attach( rightOf, datarootbut );
 
-    auto* infobut = new uiToolButton( this, "info", tr("Data Root Information"),
+    auto* infobut = new uiToolButton( this, "info",
+				      tr("Survey Data Root Information"),
 				      mCB(this,uiDataRootSel,dataRootInfoCB) );
     infobut->attach( rightTo, datarootlbl_ );
 

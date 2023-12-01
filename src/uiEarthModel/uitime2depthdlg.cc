@@ -76,16 +76,20 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
     const uiString depthobjm = uiStrings::phrJoinStrings( uiStrings::sDepth(),
 							  uigrpnm );
     const bool canhaveattribs = objtype_ == IOObjInfo::Horizon3D;
-    inptimehorsel_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
-		    grpnm).withsubsel(true).withsectionfld(false).
-		    withattribfld(canhaveattribs), &timeinf );
+    inptimehorsel_ = new uiSurfaceRead( this,
+		uiSurfaceRead::Setup(grpnm).withsubsel(true)
+			.withsectionfld(false).withattribfld(canhaveattribs),
+		&timeinf );
     inptimehorsel_->getObjSel()->setLabelText( uiStrings::phrInput(timeobjm) );
+    mAttachCB( inptimehorsel_->inpChange, uiTime2DepthDlg::horSelCB );
     inptimehorsel_->attach( alignedBelow, t2dtransfld_ );
 
-    inpdepthhorsel_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
-			grpnm).withsubsel(true).withsectionfld(false).
-			withattribfld(canhaveattribs), &depthinf );
+    inpdepthhorsel_ = new uiSurfaceRead( this,
+		uiSurfaceRead::Setup(grpnm).withsubsel(true)
+			.withsectionfld(false).withattribfld(canhaveattribs),
+		&depthinf );
     inpdepthhorsel_->getObjSel()->setLabelText( uiStrings::phrInput(depthobjm));
+    mAttachCB( inpdepthhorsel_->inpChange, uiTime2DepthDlg::horSelCB );
     inpdepthhorsel_->attach( alignedBelow, d2ttransfld_ );
 
     outdepthhorsel_ = new uiSurfaceWrite( this,
@@ -156,6 +160,29 @@ void uiTime2DepthDlg::dirChangeCB( CallBacker* )
     d2ttransfld_->display( !todepth );
     inpdepthhorsel_->display( !todepth );
     outtimehorsel_->display( !todepth );
+}
+
+
+void uiTime2DepthDlg::horSelCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiSurfaceRead*,inpfld,cb)
+    if ( !inpfld )
+	return;
+
+    BufferString hornm = inpfld->getObjSel()->getInput();
+    if ( hornm.isEmpty() )
+	return;
+
+    if ( cb == inptimehorsel_ )
+    {
+	hornm.add( " Depth" );
+	outdepthhorsel_->getObjSel()->setInputText( hornm.buf() );
+    }
+    else
+    {
+	hornm.add( " Time" );
+	outtimehorsel_->getObjSel()->setInputText( hornm.buf() );
+    }
 }
 
 

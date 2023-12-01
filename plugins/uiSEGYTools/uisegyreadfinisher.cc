@@ -105,9 +105,10 @@ void uiSEGYReadFinisher::crSeisFields()
     const bool is2d = Seis::is2D( gt );
     const bool ismulti = fs_.spec_.nrFiles() > 1;
 
-    docopyfld_ = new uiGenInput( this, tr("Import as"),
-		BoolInpSpec(true,tr("OpendTect CBVS (copy&&import)"),
-				 tr("SEGYDirect (scan&&link)")) );
+    docopyfld_ = new uiGenInput( this, tr("Copy data"),
+	BoolInpSpec(true,uiStrings::sYes(),
+			 tr("%1, use SEGYDirect (scan&&link)")
+				.arg(uiStrings::sNo())) );
     mAttachCB( docopyfld_->valueChanged, uiSEGYReadFinisher::doScanChg );
 
     uiSeisTransfer::Setup trsu( gt );
