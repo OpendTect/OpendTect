@@ -420,14 +420,14 @@ void uiSurveyInfoEditor::mkTransfGrp()
 				tr("+ %1 *").arg(uiStrings::sCrossline()),
 				DoubleInpSpec() .setName("Crl"));
     ycrlfld_->setElemSzPol( uiObject::SmallVar );
-    overrulefld_ = new uiCheckBox( trgrp_, tr("Overrule easy settings") );
+    overrulefld_ = new uiCheckBox( trgrp_, tr("Overrule Coordinate settings") );
     overrulefld_->setChecked( false );
     xinlfld_->attach( rightOf, x0fld_ );
     xcrlfld_->attach( rightOf, xinlfld_ );
     y0fld_->attach( alignedBelow, x0fld_ );
     yinlfld_->attach( rightOf, y0fld_ );
     ycrlfld_->attach( rightOf, yinlfld_ );
-    overrulefld_->attach( alignedBelow, ycrlfld_ );
+    overrulefld_->attach( alignedBelow, y0fld_ );
     trgrp_->setHAlignObj( xinlfld_ );
 
     tabs_->addTab( trgrp_, tr("I/C to X/Y transformation"),
