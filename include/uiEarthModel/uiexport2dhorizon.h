@@ -58,6 +58,7 @@ protected:
     void		horChg(CallBacker*);
     void		convCB(CallBacker*);
     void		undefCB(CallBacker*);
+    void		zDomTypeUpdatedCB(CallBacker*);
     bool		doExport();
     void		writeHeader(od_ostream&);
 
