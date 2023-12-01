@@ -15,26 +15,24 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uihorizonsortdlg.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 
 #include "arraynd.h"
 #include "bufstringset.h"
-#include "ctxtioobj.h"
 #include "emhorizon.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emsurfacetr.h"
-#include "ctxtioobj.h"
 #include "horizonmodifier.h"
 #include "horizonrelation.h"
 #include "horizonsorter.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "filepath.h"
 #include "iopar.h"
 #include "od_helpids.h"
 
@@ -135,7 +133,6 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     , mid1_(mid1)
     , mid2_(mid2)
     , is2d_(is2d)
-    , ctio_(is2d ? mMkCtxtIOObj(EMHorizon2D) : mMkCtxtIOObj(EMHorizon3D))
 {
     BufferStringSet hornms;
     hornms.add( EM::EMM().objectName(mid1) );
@@ -165,8 +162,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     savefld_->attach( alignedBelow, modefld_ );
     savefld_->setSensitive( EM::canOverwrite(mid1) );
 
-    ctio_->ctxt_.forread_ = false;
-    objfld_ = new uiIOObjSel( this, *ctio_, uiStrings::sHorizon() );
+    objfld_ = new uiHorizonSel( this, is2d, false );
     objfld_->display( false );
     objfld_->attach( alignedBelow, savefld_ );
 
@@ -177,8 +173,6 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 
 ~HorizonModifyDlg()
 {
-    delete ctio_->ioobj_;
-    delete ctio_;
 }
 
 
@@ -215,13 +209,13 @@ bool acceptOK( CallBacker* ) override
 
     if ( saveas )
     {
-	if ( !objfld_->commitInput() )
-	    mErrRet((objfld_->isEmpty() ? uiStrings::phrSelect(
-		    uiStrings::phrOutput(uiStrings::sSurface())) :
-		    uiStrings::sEmptyString()))
-	outmid = ctio_->ioobj_->key();
+	const IOObj* horioobj = objfld_->ioobj();
+	if ( !horioobj )
+	    return false;
+
+	outmid = horioobj->key();
 	EM::ObjectID outemobjid =
-	    EM::EMM().createObject( emobj->getTypeStr(), ctio_->ioobj_->name());
+	    EM::EMM().createObject( emobj->getTypeStr(), horioobj->name());
 	outemobj = EM::EMM().getObject( outemobjid );
 	outemobj->setPreferredColor( emobj->preferredColor() );
 
@@ -279,8 +273,6 @@ protected:
     bool	is2d_;
     MultiID	mid1_;
     MultiID	mid2_;
-
-    CtxtIOObj*	ctio_;
 
     uiGenInput*	horizonfld_;
     uiGenInput*	modefld_;

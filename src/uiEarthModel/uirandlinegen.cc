@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiselsurvranges.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uiselsimple.h"
@@ -47,9 +48,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 			 uiGenRanLinesByContour::sSpecGenPar(),
 			 mODHelpKey(mGenRanLinesByContourHelpID) ) )
 {
-    IOObjContext horctxt = mIOObjContext( EMHorizon3D );
-    infld_ = new uiIOObjSel( this, horctxt,
-			     uiStrings::phrInput(uiStrings::sHorizon()) );
+    infld_ = new uiHorizonSel( this, false, true );
 
     IOObjContext polyctxt = mIOObjContext( PickSet );
     PickSetTranslator::fillConstraints( polyctxt, true );

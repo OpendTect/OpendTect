@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uihorsavefieldgrp.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uiseparator.h"
 #include "uimsg.h"
 #include "undo.h"
@@ -42,14 +43,8 @@ uiChangeHorizonDlg::uiChangeHorizonDlg( uiParent* p, EM::Horizon* hor,
     if ( horizon_ )
 	horizon_->ref();
     else
-    {
-	IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
-	    			 : EMHorizon3DTranslatorGroup::ioContext();
-	ctxt.forread_ = true;
-	inputfld_ =
-	    new uiIOObjSel( this, ctxt,
+	inputfld_ = new uiHorizonSel( this, is2d, true,
 			    uiStrings::phrInput(uiStrings::sHorizon(1)) );
-    }
 
     savefldgrp_ = new uiHorSaveFieldGrp( this, horizon_ );
     savefldgrp_->setSaveFieldName( "Save interpolated horizon" );

@@ -24,10 +24,9 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "emmanager.h"
-#include "emfaultset3d.h"
 #include "embodytr.h"
 #include "emfaultstickset.h"
-#include "emsurface.h"
+#include "emhorizon.h"
 #include "emsurfacetr.h"
 #include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
@@ -653,8 +652,7 @@ void uiHorizonParSel::clearPush(CallBacker *)
 
 void uiHorizonParSel::doDlg(CallBacker *)
 {
-    IOObjContext ctxt =
-	is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
+    IOObjContext ctxt = EM::Horizon::ioContext( is2d_, true );
     uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(uiStrings::sHorizon(2)) );
 			 sdsu.multisel( true );
     uiIOObjSelDlg dlg( this, sdsu, ctxt );
@@ -1184,8 +1182,7 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel,
 {
     if ( withobjsel )
     {
-	const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-	objfld_ = new uiIOObjSel( this, ctxt );
+	objfld_ = new uiHorizonSel( this, false, true );
 	mAttachCB( objfld_->selectionDone, uiAuxDataSel::objSelCB );
     }
 
@@ -1293,4 +1290,57 @@ uiBodySel::uiBodySel( uiParent* p, bool forread )
 
 
 uiBodySel::~uiBodySel()
+{}
+
+
+
+// uiHorizonSel
+
+uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
+			    bool forread, const uiIOObjSel::Setup& setup )
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread),setup)
+{
+    if ( setup.seltxt_.isEmpty() )
+	setLabelText( forread
+		     ? uiStrings::phrInput( uiStrings::sHorizon() )
+		     : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+    fillEntries();
+}
+
+
+uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
+			    bool forread )
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread),Setup())
+{
+    setLabelText( forread
+		 ? uiStrings::phrInput( uiStrings::sHorizon() )
+		 : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+    fillEntries();
+}
+
+
+uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
+			    bool forread, const uiIOObjSel::Setup& setup )
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),setup)
+{
+    if ( setup.seltxt_.isEmpty() )
+	setLabelText( forread
+		     ? uiStrings::phrInput( uiStrings::sHorizon() )
+		     : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+    fillEntries();
+}
+
+
+uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
+			    bool forread )
+    : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),Setup())
+{
+    setLabelText( forread
+		 ? uiStrings::phrInput( uiStrings::sHorizon() )
+		 : uiStrings::phrOutput( uiStrings::sHorizon() ) );
+    fillEntries();
+}
+
+
+uiHorizonSel::~uiHorizonSel()
 {}

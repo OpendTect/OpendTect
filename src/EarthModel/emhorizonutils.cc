@@ -48,8 +48,7 @@ HorizonSelInfo::~HorizonSelInfo()
 
 void HorizonSelInfo::getAll( ObjectSet<HorizonSelInfo>& set, bool is2d )
 {
-    IOObjContext ctxt = is2d ? mIOObjContext(EMHorizon2D)
-			     : mIOObjContext(EMHorizon3D);
+    IOObjContext ctxt = EM::Horizon::ioContext( is2d, true );
     IODir iodir( ctxt.getSelKey() );
     IODirEntryList entries( iodir, ctxt );
     for ( int idx=0; idx<entries.size(); idx++ )

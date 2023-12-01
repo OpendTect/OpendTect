@@ -717,6 +717,31 @@ void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
 }
 
 
+void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d,
+				uiParent* p, const ZDomain::Info* zinfo )
+{
+    selectSurfaces( p, objs, is2d ? EMHorizon2DTranslatorGroup::sGroupName()
+			: EMHorizon3DTranslatorGroup::sGroupName(), zinfo );
+}
+
+
+void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d,
+				   uiParent* p, const ZDomain::Info* zinfo )
+{
+    if ( !is2d )
+	selectSurfaces( p, objs,
+			    EMFault3DTranslatorGroup::sGroupName(), zinfo );
+}
+
+
+void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
+				    uiParent* p, const ZDomain::Info* zinfo )
+{
+    selectSurfaces( p, objs,
+			EMFaultStickSetTranslatorGroup::sGroupName(), zinfo );
+}
+
+
 static void selectEMObjects( uiParent* p, ObjectSet<EM::EMObject>& objs,
 			     const IOObjContext& ctxt, const char* exectext )
 {
@@ -775,6 +800,17 @@ void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
 }
 
 
+void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
+				      uiParent* p, const ZDomain::Info* zinfo )
+{
+    if ( !p )
+	p = parent();
+
+    selectEMObjects( p, objs, EMFaultSet3DTranslatorGroup::ioContext(),
+		     "Loading FaultSets" );
+}
+
+
 void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
 {
     if ( !p )
@@ -786,12 +822,20 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
 
 
 void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
-				     const char* typ )
+				const char* typ )
+{
+    selectSurfaces( p, objs, typ, nullptr );
+}
+
+
+void uiEMPartServer::selectSurfaces( uiParent* p, ObjectSet<EM::EMObject>& objs,
+				const char* typ, const ZDomain::Info* zinfo )
 {
     if ( !p )
 	p = parent();
 
-    uiMultiSurfaceReadDlg dlg( p, typ );
+
+    uiMultiSurfaceReadDlg dlg( p, typ, zinfo );
     if ( !dlg.go() )
 	return;
 
@@ -1609,10 +1653,7 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
 		 uiDialog::Setup(uiStrings::phrSelect(uiStrings::sHorizon()),
 				 mNoDlgTitle,
 				 mODHelpKey(mgetHorizonZAxisTransformHelpID)) );
-    const IOObjContext ctxt = is2d
-	? EMHorizon2DTranslatorGroup::ioContext()
-	: EMHorizon3DTranslatorGroup::ioContext();
-    uiIOObjSel* horfld = new uiIOObjSel( &dlg, ctxt );
+    auto* horfld = new uiHorizonSel( &dlg, is2d, true );
     if ( !dlg.go() || !horfld->ioobj() )
 	return nullptr;
 
@@ -1768,7 +1809,8 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 				  TypeSet<Coord>& coords, TypeSet<BinID>& bids,
 				  TypeSet< Interval<float> >& zrgs )
 {
-    if ( !selhorids.size() ) return;
+    if ( !selhorids.size() )
+	return;
 
     EM::ObjectID id;
     const bool issecondhor = selhorids.size()>1;

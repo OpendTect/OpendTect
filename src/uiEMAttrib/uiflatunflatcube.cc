@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "uigeninput.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
@@ -41,8 +42,7 @@ uiFlatUnflatCube::uiFlatUnflatCube( uiParent* p )
     mAttachCB( seisinfld_->selectionDone, uiFlatUnflatCube::inpSelCB );
     seisinfld_->attach( alignedBelow, modefld_ );
 
-    const IOObjContext horctxt = EMHorizon3DTranslatorGroup::ioContext();
-    horfld_ = new uiIOObjSel( this, horctxt );
+    horfld_ = new uiHorizonSel( this, false, true );
     mAttachCB( horfld_->selectionDone, uiFlatUnflatCube::horSelCB );
     horfld_->attach( alignedBelow, seisinfld_ );
 

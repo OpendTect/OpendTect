@@ -733,8 +733,9 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
     if ( !isflt && addhorbutton_!=cb )
 	return;
 
-    PtrMan<CtxtIOObj> objio =  isflt ? mMkCtxtIOObj(EMFault3D)
-				     : mMkCtxtIOObj(EMHorizon3D);
+    PtrMan<CtxtIOObj> objio =
+		isflt ? mMkCtxtIOObj(EMFault3D)
+		      : new CtxtIOObj( EM::Horizon::ioContext(false,true) );
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     PtrMan<uiIOObjSelDlg> dlg = new uiIOObjSelDlg( this, sdsu, *objio );
     if ( !dlg->go() )

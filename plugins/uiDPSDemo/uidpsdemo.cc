@@ -29,17 +29,18 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uitaskrunner.h"
 #include "uidatapointset.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 
 
 uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 	: uiDialog(p,Setup(tr("DataPointSet demo"),
-                           tr("Data extraction parameters"),
+			   tr("Data extraction parameters"),
 			   mNoHelpKey))
 	, dps_(0)
 	, dpsdispmgr_(dpsdispmgr)
 {
-    horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D) );
+    horfld_ = new uiHorizonSel( this, false, true );
 
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
     seisfld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(false,false) );

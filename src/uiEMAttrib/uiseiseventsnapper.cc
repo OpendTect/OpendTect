@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uihorsavefieldgrp.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiseparator.h"
@@ -43,8 +44,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 {
     setCtrlStyle( RunAndClose );
 
-    horinfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
-					   : mIOObjContext(EMHorizon3D),
+    horinfld_ = new uiHorizonSel( this, is2d, true,
 			        tr("%1 to snap").arg(uiStrings::sHorizon()) );
     if ( inp ) horinfld_->setInput( *inp );
 

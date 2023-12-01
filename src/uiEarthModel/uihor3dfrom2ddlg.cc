@@ -10,24 +10,24 @@ ________________________________________________________________________
 #include "uihor3dfrom2ddlg.h"
 
 #include "array2dinterpol.h"
+#include "array2dinterpol.h"
+#include "emhor2dto3d.h"
+#include "emhorizon2d.h"
+#include "emhorizon3d.h"
+#include "emmanager.h"
+#include "emsurfacetr.h"
+#include "ioman.h"
+#include "od_helpids.h"
+#include "survinfo.h"
+
 #include "uiarray2dinterpol.h"
+#include "uibutton.h"
 #include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uibutton.h"
-#include "uitaskrunner.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
-
-#include "emhorizon2d.h"
-#include "emhorizon3d.h"
-#include "emsurfacetr.h"
-#include "emmanager.h"
-#include "emhor2dto3d.h"
-#include "array2dinterpol.h"
-#include "ctxtioobj.h"
-#include "ioman.h"
-#include "survinfo.h"
-#include "od_helpids.h"
+#include "uitaskrunner.h"
 
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
@@ -42,9 +42,7 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     interpolsel_ = new uiArray2DInterpolSel( this, false, false, false, 0 );
     interpolsel_->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
 
-    IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
-    ctxt.forread_ = false;
-    outfld_ = new uiIOObjSel( this, ctxt,
+    outfld_ = new uiHorizonSel( this, false, false,
 			      uiStrings::phrOutput(uiStrings::sHorizon(1)));
     outfld_->attach( alignedBelow, interpolsel_ );
     outfld_->setInputText( BufferString(h2d.name()," ","3D") );
