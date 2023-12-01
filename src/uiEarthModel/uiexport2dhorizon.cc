@@ -34,6 +34,8 @@ ________________________________________________________________________
 #include "uicoordsystem.h"
 #include "uifileinput.h"
 #include "uilistbox.h"
+#include "uiiosurface.h"
+#include "uimultisurfaceread.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
@@ -41,12 +43,271 @@ ________________________________________________________________________
 #include "uiunitsel.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
 #include <stdio.h>
 
 
-static const char* hdrtyps[] = { "No", "Single line", "Multi line", nullptr };
+static uiStringSet hdrtyps()
+{
+    uiStringSet hdrtypes;
+    hdrtypes.add( uiStrings::sNo() );
+    hdrtypes.add( od_static_tr("hdrtyps", "Single Line") );
+    hdrtypes.add( od_static_tr("hdrtyps", "Multi Line") );
+    return hdrtypes;
+}
 
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
+#define mmaxhornm  15;
+#define mmaxlinenm 15;
+
+class HorInfo
+{ mODTextTranslationClass(HorInfo)
+public:
+    HorInfo( const MultiID& mid )
+	: horid_(mid)	{}
+
+    MultiID		horid_;
+    BufferStringSet	linenames_;
+
+    void updateMax( od_uint32& maxhornm, od_uint32& maxlinenm )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( horid_ );
+	if ( !ioobj )
+	    return;
+
+	maxhornm = mMAX( maxhornm, ioobj->name().size() );
+
+	for ( int lidx=0; lidx<linenames_.size(); lidx++ )
+	    maxlinenm = mMAX( maxlinenm, linenames_.get(lidx).size() );
+    }
+
+    bool fillLineNames()
+    {
+	PtrMan<IOObj> ioobj = IOM().get( horid_ );
+	if ( !ioobj )
+	    return false;
+
+	EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );
+	uiString errmsg;
+	if ( !oi.getSurfaceData(emdata,errmsg) )
+	    mErrRet( tr("Error in reading data") );
+
+	linenames_ = emdata.linenames;
+	return true;
+    }
+};
+
+
+class uiHorHandlerGroup : public uiGroup
+{ mODTextTranslationClass(uiHorHandlerGroup)
+public:
+    uiHorHandlerGroup( uiParent* p, bool isbulk )
+	: uiGroup(p,"Horizon List Group")
+	, zdomtypupdated(this)
+	, horselpupdated(this)
+	, isbulk_(isbulk)
+    {
+	const char* surftype = EMHorizon2DTranslatorGroup::sGroupName();
+	if ( isbulk )
+	{
+	    horzdomypefld_ = new uiGenInput( this, tr("Depth Domain"),
+		BoolInpSpec(true, uiStrings::sTime(),
+		uiStrings::sDepth()) );
+	    mAttachCB( horzdomypefld_->valueChanged,
+					uiHorHandlerGroup::zDomainTypeChg );
+
+	    auto* multigrp = new uiGroup( this, "Multi Surface Read" );
+	    multigrp->attach( alignedBelow, horzdomypefld_ );
+	    const ZDomain::Info& depthinfo = SI().depthsInFeet() ?
+		ZDomain::DepthFeet() : ZDomain::DepthMeter();
+	    multisurfdepthread_ = new uiMultiSurfaceRead( multigrp, surftype,
+		&depthinfo );
+	    multisurfdepthread_->display( false );
+	    multisurftimeread_ = new uiMultiSurfaceRead( multigrp, surftype,
+		&ZDomain::TWT() );
+	    multisurftimeread_->display( true );
+	}
+	else
+	{
+	    uiSurfaceRead::Setup su( EMHorizon2DTranslatorGroup::sGroupName() );
+	    su.withattribfld( false ).withsectionfld( false );
+	    surfread_ = new uiSurfaceRead( this, su, nullptr );
+	    mAttachCB( surfread_->inpChange, uiHorHandlerGroup::horChg );
+
+	    uiListBox::Setup listbxsu( OD::ChooseZeroOrMore,
+		uiStrings::phrSelect(uiStrings::sLine(mPlural).toLower()) );
+	    linenmfld_ = new uiListBox( this, listbxsu );
+	    linenmfld_->attach( alignedBelow, surfread_ );
+	}
+
+    }
+
+
+    ~uiHorHandlerGroup()
+    {
+	detachAllNotifiers();
+    }
+
+
+    void zDomainTypeChg( CallBacker* )
+    {
+	if ( !isbulk_ )
+	    return;
+
+	const bool istime = isTime();
+	multisurfdepthread_->display( !istime );
+	multisurftimeread_->display( istime );
+	zdomtypupdated.trigger();
+    }
+
+
+    const ZDomain::Info& zDomain() const
+    {
+	if ( isTime() )
+	    return ZDomain::TWT();
+	else if ( SI().depthsInFeet() )
+	    return ZDomain::DepthFeet();
+
+	return ZDomain::DepthMeter();
+    }
+
+
+    void getSelectedMIDs( TypeSet<MultiID>& selmids ) const
+    {
+	if ( isbulk_ )
+	{
+	    if ( isTime() )
+		multisurftimeread_->getSurfaceIds( selmids );
+	    else
+		multisurfdepthread_->getSurfaceIds( selmids );
+	}
+	else
+	{
+	    const IOObj* selobj = surfread_->selIOObj();
+	    if ( selobj )
+		selmids.add( selobj->key() );
+	}
+    }
+
+
+    void getSurfaceSelection( EM::SurfaceIODataSelection& sel ) const
+    {
+	if ( isbulk_ )
+	{
+	    if ( isTime() )
+		multisurftimeread_->getSurfaceSelection( sel );
+	    else
+		multisurfdepthread_->getSurfaceSelection( sel );
+	}
+	else
+	    surfread_->getSelection( sel );
+    }
+
+
+    bool fillHorInfo( ManagedObjectSet<HorInfo>& horinfos, od_uint32& maxhornm,
+						od_uint32& maxlinenm )
+    {
+	TypeSet<MultiID> mids;
+	getSelectedMIDs( mids );
+	if ( mids.isEmpty() )
+	    return false;
+
+	if ( isbulk_ )
+	{
+	    for ( int idx=0; idx<mids.size(); idx++ )
+	    {
+		auto* hi = new HorInfo( mids[idx] );
+		hi->fillLineNames();
+		hi->updateMax( maxhornm, maxlinenm );
+		horinfos += hi;
+	    }
+	}
+	else
+	{
+	    auto* hi = new HorInfo( mids.first() );
+	    linenmfld_->getChosen( hi->linenames_ );
+	    if ( hi->linenames_.isEmpty() )
+		mErrRet( tr("Select at least one line to proceed") )
+
+	    hi->updateMax( maxhornm, maxlinenm );
+	    horinfos += hi;
+	}
+
+	return true;
+    }
+
+    Notifier<uiHorHandlerGroup> zdomtypupdated;
+    Notifier<uiHorHandlerGroup> horselpupdated;
+
+protected:
+    uiMultiSurfaceRead*		    multisurfdepthread_     = nullptr;
+    uiMultiSurfaceRead*		    multisurftimeread_	    = nullptr;
+    uiListBox*			    linenmfld_		    = nullptr;
+    uiGenInput*			    horzdomypefld_	    = nullptr;
+    uiSurfaceRead*		    surfread_		    = nullptr;
+    bool			    isbulk_;
+
+    bool isTime() const
+    {
+	if ( isbulk_ )
+	    return horzdomypefld_->getBoolValue();
+	else
+	{
+	    const IOObj* selobj = surfread_->selIOObj();
+	    if ( !selobj )
+		return SI().zIsTime();
+
+	    EM::SurfaceIOData emdata;
+	    const EM::IOObjInfo oi( *selobj );
+	    uiString errmsg;
+	    if ( !oi.getSurfaceData(emdata,errmsg) )
+		return SI().zIsTime();
+
+	    const UnitOfMeasure* uom = oi.getZUoM();
+	    if ( !uom )
+		return SI().zIsTime();
+
+	    return uom->propType() == Mnemonic::Time;
+	}
+    }
+
+
+    void horChg( CallBacker* )
+    {
+	if ( isbulk_ )
+	    return;
+
+	const IOObj* selobj = surfread_->selIOObj();
+	if ( !selobj )
+	    return;
+
+	BufferStringSet sellines;
+	linenmfld_->getChosen( sellines );
+	linenmfld_->setEmpty();
+
+	EM::SurfaceIOData emdata;
+	const EM::IOObjInfo oi( *selobj );
+	uiString errmsg;
+	if ( !oi.getSurfaceData(emdata,errmsg) )
+	    return;
+
+	const BufferString nm( selobj->name() );
+	linenmfld_->addItems( emdata.linenames );
+	linenmfld_->setChosen( sellines );
+	if ( linenmfld_->nrChosen() == 0 )
+	    linenmfld_->chooseAll();
+
+	horselpupdated.trigger();
+    }
+};
+
+
+//uiExport2DHorizon
+static HiddenParam<uiExport2DHorizon,uiHorHandlerGroup*>
+					uiexport2dhorizonhpmgr_(nullptr);
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 			const ObjectSet<SurfaceInfo>& hinfos, bool isbulk )
     : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("2D Horizon") ),
@@ -55,57 +316,30 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     , isbulk_(isbulk)
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
-
-    uiObject* attachobj = nullptr;
+    auto* surfread = new uiHorHandlerGroup( this, isbulk_ );
     if ( isbulk_ )
-    {
-	IOObjContext ctxt = mIOObjContext( EMHorizon2D );
-	uiIOObjSelGrp::Setup stup; stup.choicemode_ = OD::ChooseAtLeastOne;
-	bulkinfld_ = new uiIOObjSelGrp( this, ctxt,
-				uiStrings::sHorizon( mPlural ), stup );
-	attachobj = bulkinfld_->attachObj();
-    }
+	mAttachCB( surfread->zdomtypupdated,
+				    uiExport2DHorizon::zDomTypeUpdatedCB );
     else
-    {
-	auto* lcbox = new uiLabeledComboBox( this,
-		uiStrings::phrSelect(uiStrings::sHorizon().toLower()),
-		"Select 2D Horizon" );
-	horselfld_ = lcbox->box();
-	horselfld_->setHSzPol( uiObject::MedVar );
-	mAttachCB( horselfld_->selectionChanged, uiExport2DHorizon::horChg );
-	for ( int idx=0; idx<hinfos_.size(); idx++ )
-	    horselfld_->addItem( hinfos_[idx]->name );
+	mAttachCB( surfread->horselpupdated, uiExport2DHorizon::horChg );
 
-	uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Select lines") );
-	linenmfld_ = new uiListBox( this, su );
-	linenmfld_->attach( alignedBelow, lcbox );
-	attachobj = linenmfld_->attachObj();
-    }
-
+    uiexport2dhorizonhpmgr_.setParam( this, surfread );
+    uiObject* attachobj = surfread->attachObj();
     if ( SI().hasProjection() )
     {
 	coordsysselfld_ = new Coords::uiCoordSystemSel( this );
-	coordsysselfld_->attach( alignedBelow, attachobj );
+	coordsysselfld_->attach( alignedBelow, surfread );
 	attachobj = coordsysselfld_->attachObj();
     }
 
-    doconvfld_ = new uiGenInput( this, tr("Apply Time-Depth conversion"),
-				 BoolInpSpec(false) );
-    doconvfld_->attach( alignedBelow, attachobj );
-    mAttachCB( doconvfld_->valueChanged, uiExport2DHorizon::convCB );
-
-    uiT2DConvSel::Setup su( nullptr, false, true );
-    su.ist2d( SI().zIsTime() );
-    transfld_ = new uiT2DConvSel( this, su );
-    transfld_->display( false );
-    transfld_->attach( alignedBelow, doconvfld_ );
-
     unitsel_ = new uiUnitSel( this, uiUnitSel::Setup(tr("Z Unit")) );
     unitsel_->setUnit( UnitOfMeasure::surveyDefZUnit() );
-    unitsel_->attach( alignedBelow, transfld_ );
+    unitsel_->attach( alignedBelow, attachobj );
 
+    const uiStringSet hdrtypes = hdrtyps();
     headerfld_ = new uiGenInput( this, tr("Header"),
-				 StringListInpSpec(hdrtyps) );
+				 StringListInpSpec(hdrtypes) );
+    headerfld_->setText( hdrtypes[1].getFullString() );
     headerfld_->attach( alignedBelow, unitsel_ );
 
     writeudffld_ = new uiCheckBox( this, tr("Write undefined parts") );
@@ -125,7 +359,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     outfld_->attach( alignedBelow, writelinenmfld_ );
 
     if ( !isbulk )
-	horChg( nullptr );
+	mAttachCB( postFinalize(), uiExport2DHorizon::horChg );
 }
 
 
@@ -133,32 +367,23 @@ uiExport2DHorizon::~uiExport2DHorizon()
 {
     detachAllNotifiers();
     deepErase( hinfos_ );
+    uiexport2dhorizonhpmgr_.deleteAndNullPtrParam( this );
 }
 
 
 void uiExport2DHorizon::convCB( CallBacker* )
 {
-    const bool doconv = doconvfld_->getBoolValue();
-    transfld_->display( doconv );
-
-    StringView zdomainstr = ZDomain::SI().key();
-    if ( doconv )
-	zdomainstr = transfld_->selectedToDomain();
-
-    if ( zdomainstr == ZDomain::sKeyDepth() )
-    {
-	unitsel_->setPropType( Mnemonic::Dist );
-	unitsel_->setUnit( UnitOfMeasure::surveyDefDepthUnit() );
-    }
-    else if ( zdomainstr == ZDomain::sKeyTime() )
-    {
-	unitsel_->setPropType( Mnemonic::Time );
-	unitsel_->setUnit( UnitOfMeasure::surveyDefTimeUnit() );
-    }
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+void uiExport2DHorizon::zDomTypeUpdatedCB( CallBacker* )
+{
+    auto* surfread = uiexport2dhorizonhpmgr_.getParam( this );
+    const ZDomain::Info& zdom = surfread->zDomain();
+    unitsel_->setUnit( UnitOfMeasure::zUnit(zdom) );
+}
+
+
 
 bool uiExport2DHorizon::doExport()
 {
@@ -183,67 +408,12 @@ bool uiExport2DHorizon::doExport()
     if ( !strm.isOK() )
 	mErrRet( strm.errMsg() );
 
-    struct HorInfo
-    {
-	HorInfo( const MultiID& mid )
-	    : horid_(mid)	{}
-
-	MultiID		horid_;
-	BufferStringSet linenames_;
-
-	void updateMax( od_uint32& maxhornm, od_uint32& maxlinenm )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( horid_ );
-	    if ( !ioobj )
-		return;
-
-	    maxhornm = mMAX( maxhornm, ioobj->name().size() );
-
-	    for ( int lidx=0; lidx<linenames_.size(); lidx++ )
-		maxlinenm = mMAX( maxlinenm, linenames_.get(lidx).size() );
-	}
-
-	bool fillLineNames()
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( horid_ );
-	    if ( !ioobj )
-		return false;
-
-	    EM::SurfaceIOData emdata; EM::IOObjInfo oi( *ioobj );
-	    uiString errmsg;
-	    if ( !oi.getSurfaceData(emdata,errmsg) )
-		mErrRet( tr("Error in reading data") )
-
-	    linenames_ = emdata.linenames;
-	    return true;
-	}
-    };
-
     ManagedObjectSet<HorInfo> horinfos;
-
-    od_uint32 maxhornm = 15;
-    od_uint32 maxlinenm = 15;
-
-    if ( isbulk_ )
-    {
-	for ( int idx=0; idx<midset.size(); idx++ )
-	{
-	    auto* hi = new HorInfo( midset[idx] );
-	    hi->fillLineNames();
-	    hi->updateMax( maxhornm, maxlinenm );
-	    horinfos += hi;
-	}
-    }
-    else
-    {
-	auto* hi = new HorInfo( midset.first() );
-	linenmfld_->getChosen( hi->linenames_ );
-	if ( hi->linenames_.isEmpty() )
-	    mErrRet( tr("Select at least one line to proceed") )
-
-	hi->updateMax( maxhornm, maxlinenm );
-	horinfos += hi;
-    }
+    od_uint32 maxhornm = mmaxhornm;
+    od_uint32 maxlinenm = mmaxlinenm;
+    auto* surfread = uiexport2dhorizonhpmgr_.getParam( this );
+    if ( !surfread->fillHorInfo(horinfos,maxhornm,maxlinenm) )
+	return false;
 
     const bool wrlinenms = writelinenmfld_->isChecked();
     const bool wrhornms = isbulk_;
@@ -259,18 +429,6 @@ bool uiExport2DHorizon::doExport()
 
     int nrzdec = SI().nrZDecimals();
     nrzdec += 3; // extra precision
-
-    RefMan<ZAxisTransform> zatf;
-    if ( doconvfld_->getBoolValue() )
-    {
-	zatf = transfld_->getSelection();
-	if ( !zatf )
-	{
-	    uiMSG().message( tr("Z Transform of selected option is not "
-				"implemented") );
-	    return false;
-	}
-    }
 
     const UnitOfMeasure* uom = unitsel_->getUnit();
     EM::EMManager& em = EM::EMM();
@@ -316,16 +474,6 @@ bool uiExport2DHorizon::doExport()
 	    if ( !survgeom2d || trcrg.isUdf() || !trcrg.step )
 		continue;
 
-	    int zatfvoi = -1;
-	    if ( zatf && zatf->needsVolumeOfInterest() )
-	    {
-		uiTaskRunner uitr( this );
-		TrcKeyZSampling tkzs;
-		tkzs.hsamp_.set( geomid, trcrg );
-		zatfvoi = zatf->addVolumeOfInterest( tkzs );
-		zatf->loadDataIfMissing( zatfvoi, &uitr );
-	    }
-
 	    TrcKey tk( geomid, -1 );
 	    Coord crd; float spnr = mUdf(float);
 	    for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
@@ -342,9 +490,6 @@ bool uiExport2DHorizon::doExport()
 		else
 		{
 		    float newz = z;
-		    if ( zatf )
-			newz = zatf->transform2D( linename, trcnr, z );
-
 		    if ( uom )
 			newz = uom->userValue( newz );
 
@@ -401,9 +546,6 @@ bool uiExport2DHorizon::doExport()
 		    mErrRet(msg)
 		}
 	    }
-
-	    if ( zatf && zatfvoi>=0 )
-		zatf->removeVolumeOfInterest( zatfvoi );
 	}
     }
 
@@ -450,8 +592,18 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	    headerstr.addNewLine().add( "# " )
 		     .add( coordsysselfld_->getCoordSystem()->summary() );
 	if ( !isbulk_ )
+	{
+	    auto* surf = uiexport2dhorizonhpmgr_.getParam( this );
+	    if ( !surf )
+		return;
+
+	    TypeSet<MultiID> mids;
+	    surf->getSelectedMIDs( mids );
+	    PtrMan<IOObj> obj = IOM().get( mids.first() );
 	    headerstr.addNewLine().add( "# Horizon: " )
-		     .add( horselfld_->text() );
+		     .add( obj->name() );
+	}
+
 	headerstr.addNewLine().add( "#-------------------" );
     }
 
@@ -461,18 +613,12 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 
 bool uiExport2DHorizon::acceptOK( CallBacker* )
 {
-    if ( doconvfld_->getBoolValue() && !transfld_->acceptOK() )
-	    return false;
-
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
 	mErrRet( uiStrings::sSelOutpFile() )
 
     if ( File::exists(outfnm) &&
 	!uiMSG().askOverwrite(uiStrings::sOutputFileExistsOverwrite()) )
-	return false;
-
-    if ( doconvfld_->getBoolValue() && !transfld_->acceptOK() )
 	return false;
 
     const bool res = doExport();
@@ -492,16 +638,8 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 
 bool uiExport2DHorizon::getInputMultiIDs( TypeSet<MultiID>& midset )
 {
-    if ( !isbulk_ )
-    {
-	const int horidx = horselfld_->currentItem();
-	if ( !hinfos_.validIdx(horidx) )
-	    return false;
-
-	midset.add( hinfos_[horidx]->multiid );
-    }
-    else
-	bulkinfld_->getChosen( midset );
+    auto* surf = uiexport2dhorizonhpmgr_.getParam( this );
+    surf->getSelectedMIDs( midset );
 
     return true;
 }
@@ -509,29 +647,24 @@ bool uiExport2DHorizon::getInputMultiIDs( TypeSet<MultiID>& midset )
 
 void uiExport2DHorizon::horChg( CallBacker* )
 {
-    BufferStringSet sellines;
-    linenmfld_->getChosen( sellines );
-    linenmfld_->setEmpty();
-    const int horidx = horselfld_->currentItem();
-    if ( !hinfos_.validIdx(horidx) )
+    if ( isbulk_ )
 	return;
 
-    const MultiID horid = hinfos_[horidx]->multiid;
-    PtrMan<IOObj> ioobj = IOM().get( horid );
-    if ( !ioobj ) return;
+    auto* surf = uiexport2dhorizonhpmgr_.getParam( this );
+    TypeSet<MultiID> mids;
+    surf->getSelectedMIDs( mids );
+    if ( mids.isEmpty() )
+	return;
 
+    PtrMan<IOObj> selobj = IOM().get( mids.first() );
     EM::SurfaceIOData emdata;
-    EM::IOObjInfo oi( *ioobj );
+    EM::IOObjInfo oi( *selobj );
     uiString errmsg;
     if ( !oi.getSurfaceData(emdata,errmsg) )
 	return;
 
-    linenmfld_->addItems( emdata.linenames );
-    linenmfld_->setChosen( sellines );
-    if ( linenmfld_->nrChosen() == 0 )
-	linenmfld_->chooseAll();
-
-    const FilePath fp( ioobj->mainFileName() );
+    unitsel_->setUnit( oi.getZUoM() );
+    const FilePath fp( selobj->mainFileName() );
     outfld_->setFileName( fp.baseName() );
 }
 

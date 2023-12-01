@@ -71,7 +71,7 @@ static uiStringSet exptyps()
 static uiStringSet hdrtyps()
 {
     uiStringSet hdrtyps;
-    hdrtyps.add(uiStrings::sNo());
+    hdrtyps.add( uiStrings::sNo() );
     hdrtyps.add( od_static_tr("hdrtyps", "Single Line") );
     hdrtyps.add( od_static_tr("hdrtyps", "Multi Line") );
     return hdrtyps;
