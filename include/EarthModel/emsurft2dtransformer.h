@@ -20,6 +20,7 @@ namespace EM
 {
 
 class Horizon3D;
+class EMObject;
 
 mExpClass(EarthModel) SurfaceT2DTransfData
 {
@@ -55,6 +56,17 @@ private:
     void			postStepCB(CallBacker*);
 
     bool			doHorizon(const SurfaceT2DTransfData&);
+    bool			do3DHorizon(const EM::EMObject&,Surface&);
+    bool			do2DHorizon(const EM::EMObject&,
+					const SurfaceT2DTransfData&,Surface&);
+
+    bool			load2DVelCubeTransf(const Pos::GeomID&,
+						const StepInterval<int>&);
+    void			unload2DVelCubeTransf();
+    void			unloadVolume();
+
+    bool			is2DObject() const;
+    bool			is3DObject() const;
 
     RefMan<Surface>		createSurface(const MultiID&);
 
@@ -67,7 +79,5 @@ private:
     const IOObjInfo::ObjectType			objtype_;
     int						zatvoi_     = -1;
     RefObjectSet<Surface>			surfs_;
-
-
 };
 }

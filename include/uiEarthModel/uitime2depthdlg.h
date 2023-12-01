@@ -53,6 +53,8 @@ protected:
     void			dirChangeCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
 
+    bool			is2DObject() const;
+
     const IOObjInfo::ObjectType objtype_;
 };
 }

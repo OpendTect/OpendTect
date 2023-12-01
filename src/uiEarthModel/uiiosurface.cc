@@ -525,7 +525,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup,
 	mkSectionFld( setup.withattribfld_ );
 
     if ( objfld_->ctxtIOObj().ioobj_ )
-	objSel(0);
+	objSel( nullptr );
 
     if ( setup.withattribfld_ )
     {
