@@ -9,8 +9,8 @@ ________________________________________________________________________
 
 #include "uistratseisevent.h"
 
+#include "emhorizon.h"
 #include "emioobjinfo.h"
-#include "emsurfacetr.h"
 #include "stratlevel.h"
 #include "survinfo.h"
 #include "valseriesevent.h"
@@ -37,11 +37,12 @@ uiStratLevelHorSel::uiStratLevelHorSel( uiParent* p,
     lvlsel_ = new uiStratLevelSel( this, false, tr("Reference level"));
 
     uiIOObjSel::Setup hsu( tr("Horizon at that level") );
-    horsel3d_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D), hsu );
+    horsel3d_ = new uiIOObjSel( this, EM::Horizon::ioContext(false,true), hsu );
     horsel3d_->attach( alignedBelow, lvlsel_ );
     if ( SI().has2D() )
     {
-	horsel2d_ = new uiIOObjSel( this, mIOObjContext(EMHorizon2D), hsu );
+	horsel2d_ = new uiIOObjSel( this, EM::Horizon::ioContext(true,true),
+				    hsu );
 	horsel2d_->attach( alignedBelow, lvlsel_ );
     }
 

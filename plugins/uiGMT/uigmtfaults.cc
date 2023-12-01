@@ -14,17 +14,15 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiioobjselgrp.h"
+#include "uiiosurface.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uisellinest.h"
-#include "uitaskrunner.h"
 
 #include "bufstring.h"
-#include "ctxtioobj.h"
 #include "draw.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
-#include "stringview.h"
 #include "gmtpar.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -70,8 +68,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     zvaluefld_ = new uiGenInput( this, lbl, IntInpSpec(0) );
     zvaluefld_->attach( alignedBelow, optionfld_ );
 
-    horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
-			      uiStrings::sHorizon() );
+    horfld_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
     horfld_->attach( alignedBelow, optionfld_ );
 
     linestfld_ = new uiSelLineStyle( this, OD::LineStyle(),

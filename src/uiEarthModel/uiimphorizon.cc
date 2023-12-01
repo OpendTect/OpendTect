@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
@@ -129,9 +130,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     subselfld_->attach( ensureBelow, sep );
     subselfld_->setSensitive( false );
 
-    IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    ctxt.forread_ = !isgeom_;
-    outputfld_ = new uiIOObjSel( this, ctxt );
+    outputfld_ = new uiHorizon3DSel( this, !isgeom_ );
     outputfld_->setLabelText( isgeom_
 			     ? uiStrings::phrOutput( uiStrings::sHorizon() )
 			     : tr("Add to Horizon") );
@@ -767,9 +766,7 @@ uiImpHorFromZMap::uiImpHorFromZMap( uiParent* p )
     unitfld_->setUnit( UnitOfMeasure::surveyDefZUnit() );
     unitfld_->attach( alignedBelow, attachobj );
 
-    IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    ctxt.forread_ = false;
-    outputfld_ = new uiIOObjSel( this, ctxt, tr("Output Horizon") );
+    outputfld_ = new uiHorizon3DSel( this, false );
     outputfld_->attach( alignedBelow, unitfld_ );
 }
 

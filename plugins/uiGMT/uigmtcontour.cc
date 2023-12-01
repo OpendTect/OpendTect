@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
 #include "uisellinest.h"
@@ -22,7 +23,6 @@ ________________________________________________________________________
 
 #include "axislayout.h"
 #include "coltabsequence.h"
-#include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
@@ -52,12 +52,11 @@ uiGMTOverlayGrp* uiGMTContourGrp::createInstance( uiParent* p )
 
 uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     : uiGMTOverlayGrp(p,uiStrings::sContour())
-    , sd_(*new EM::SurfaceIOData)
     , hor_(0)
+    , sd_(*new EM::SurfaceIOData)
     , lsfld_(0)
 {
-    inpfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
-			      uiStrings::sHorizon() );
+    inpfld_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
     inpfld_->selectionDone.notify( mCB(this,uiGMTContourGrp,objSel) );
 
     subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
@@ -191,7 +190,7 @@ void uiGMTContourGrp::resetCB( CallBacker* )
 }
 
 
-void uiGMTContourGrp::selChg( CallBacker* cb )
+void uiGMTContourGrp::selChg( CallBacker* )
 {
     TrcKeySampling hs = subselfld_->envelope().hsamp_;
     if ( hs == sd_.rg )

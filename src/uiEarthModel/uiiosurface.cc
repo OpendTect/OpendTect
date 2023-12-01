@@ -626,8 +626,7 @@ void uiHorizonParSel::clearPush(CallBacker *)
 
 void uiHorizonParSel::doDlg(CallBacker *)
 {
-    IOObjContext ctxt =
-	is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
+    IOObjContext ctxt = EM::Horizon::ioContext( is2d_, true );
     uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(uiStrings::sHorizon(2)) );
 			 sdsu.multisel( true );
     uiIOObjSelDlg dlg( this, sdsu, ctxt );
@@ -1157,8 +1156,7 @@ uiAuxDataSel::uiAuxDataSel( uiParent* p, const char* typ, bool withobjsel,
 {
     if ( withobjsel )
     {
-	const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-	objfld_ = new uiIOObjSel( this, ctxt );
+	objfld_ = new uiHorizon3DSel( this, true );
 	mAttachCB( objfld_->selectionDone, uiAuxDataSel::objSelCB );
     }
 

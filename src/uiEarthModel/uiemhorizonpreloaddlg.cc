@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "ctxtioobj.h"
+#include "emhorizon.h"
 #include "emhorizonpreload.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
@@ -120,9 +121,8 @@ void uiHorizonPreLoadDlg::add2DPushCB( CallBacker* )
 
 bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 {
-    PtrMan<CtxtIOObj> ctio = is2d ? mMkCtxtIOObj(EMHorizon2D)
-				  : mMkCtxtIOObj(EMHorizon3D);
-
+    PtrMan<CtxtIOObj> ctio =
+		new CtxtIOObj( EM::Horizon::ioContext(is2d,true) );
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiIOObjSelDlg hordlg( this, sdsu, *ctio );
     if ( !hordlg.go() || !hordlg.ioObj() || hordlg.nrChosen() < 1 )

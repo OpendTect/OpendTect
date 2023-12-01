@@ -7,12 +7,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "polygonzchanger.h"
-#include "emhorizon3d.h"
-#include "emsurfacetr.h"
-#include "survinfo.h"
 #include "uipolygonzchanger.h"
+#include "polygonzchanger.h"
+
+#include "emhorizon3d.h"
+#include "survinfo.h"
+
 #include "uicombobox.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 
@@ -33,9 +35,7 @@ uiPolygonZChanger::uiPolygonZChanger( uiParent* p, Pick::Set& ps )
 	  FloatInpSpec(SI().zRange(true).start*SI().zDomain().userFactor()) );
     zvalfld_->attach( alignedBelow, isconstzfld_ );
 
-    IOObjContext surfctxt( EMHorizon3DTranslatorGroup::ioContext() );
-    surfctxt.forread_ = true;
-    horinpfld_ = new uiIOObjSel( this, surfctxt,
+    horinpfld_ = new uiHorizon3DSel( this, true,
 				uiStrings::phrSelect(uiStrings::sHorizon()) );
     horinpfld_->attach( alignedBelow, isconstzfld_ );
     horinpfld_->display( false );

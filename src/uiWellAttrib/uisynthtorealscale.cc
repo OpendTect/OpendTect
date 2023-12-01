@@ -177,8 +177,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     evfld_ = new uiStratSeisEvent( this, ssesu );
     evfld_->attach( alignedBelow, polyfld_ );
 
-    const IOObjContext horctxt( is2d_ ? mIOObjContext(EMHorizon2D)
-				      : mIOObjContext(EMHorizon3D) );
+    const IOObjContext horctxt = EM::Horizon::ioContext( is2d_, true );
     uiIOObjSel::Setup horsu( tr("Horizon for '%1'").arg( evfld_->levelName() ));
     horfld_ = new uiIOObjSel( this, horctxt, horsu );
     horfld_->attach( alignedBelow, evfld_ );

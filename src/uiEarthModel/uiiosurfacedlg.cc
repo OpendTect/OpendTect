@@ -238,9 +238,9 @@ uiCopySurface::~uiCopySurface()
 CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 {
     if ( ioobj.group() == EM::Horizon2D::typeStr() )
-	return mMkCtxtIOObj( EMHorizon2D );
+	return new CtxtIOObj( EM::Horizon::ioContext(true,true) );
     if ( ioobj.group() == EM::Horizon3D::typeStr() )
-	return mMkCtxtIOObj( EMHorizon3D );
+	return new CtxtIOObj( EM::Horizon::ioContext(false,true) );
     if ( ioobj.group() == EM::FaultStickSet::typeStr() )
 	return mMkCtxtIOObj( EMFaultStickSet );
     if ( ioobj.group() == EM::Fault3D::typeStr() )

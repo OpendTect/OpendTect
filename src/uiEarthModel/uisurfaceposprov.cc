@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiselsurvranges.h"
@@ -43,8 +44,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	return;
     }
 
-    const IOObjContext ctxt = mIOObjContext( EMHorizon3D );
-    surf1fld_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
+    surf1fld_ = new uiHorizon3DSel( this, true, uiStrings::sHorizon() );
 
     const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
     issingfld_ = new uiGenInput( this, uiStrings::sSelect(),
@@ -53,7 +53,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     issingfld_->attach( alignedBelow, surf1fld_ );
     issingfld_->valueChanged.notify( selcb );
 
-    surf2fld_ = new uiIOObjSel( this, ctxt, uiStrings::sBottomHor() );
+    surf2fld_ = new uiHorizon3DSel( this, true, uiStrings::sBottomHor() );
     surf2fld_->attach( alignedBelow, issingfld_ );
 
     uiString txt;

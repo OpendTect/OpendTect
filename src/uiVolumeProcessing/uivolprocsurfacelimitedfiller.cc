@@ -7,15 +7,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "volprocsurfacelimitedfiller.h"
 #include "uivolprocsurfacelimitedfiller.h"
+#include "volprocsurfacelimitedfiller.h"
 
-#include "emsurfacetr.h"
+#include "emhorizon.h"
 #include "emmanager.h"
-#include "emobject.h"
+#include "emsurfacetr.h"
 #include "ioman.h"
 #include "mousecursor.h"
+#include "od_helpids.h"
 #include "survinfo.h"
+#include "zdomain.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -23,9 +25,10 @@ ________________________________________________________________________
 #include "uihorauxdatasel.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uitable.h"
-#include "zdomain.h"
+#include "uivolprocchain.h"
 
 namespace VolProc
 {
@@ -168,10 +171,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	    FloatInpSpec( refdepth ) );
     refdepthfld_->attach( alignedBelow, userefdepthfld_ );
 
-    IOObjContext ctxt = is2d ? EMHorizon2DTranslatorGroup::ioContext()
-			     : EMHorizon3DTranslatorGroup::ioContext();
-    ctxt.forread_ = true;
-    refhorizonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
+    refhorizonfld_ = new uiHorizonSel( this, is2d, true, uiStrings::sHorizon());
     refhorizonfld_->attach( alignedBelow, userefdepthfld_ );
     if ( !surfacefiller_->usesRefZValue() && surfacefiller_->getRefHorizonID() )
 	refhorizonfld_->setInput( *surfacefiller_->getRefHorizonID() );
@@ -190,10 +190,10 @@ uiSurfaceLimitedFiller::~uiSurfaceLimitedFiller()
 
 void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
 {
-    PtrMan<CtxtIOObj> allhorio = is2d_ ? mMkCtxtIOObj(EMHorizon2D)
-					: mMkCtxtIOObj(EMHorizon3D);
+    PtrMan<CtxtIOObj> ctio =
+			new CtxtIOObj( EM::Horizon::ioContext(is2d_,true) );
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
-    uiIOObjSelDlg dlg( this, sdsu, *allhorio );
+    uiIOObjSelDlg dlg( this, sdsu, *ctio );
     if ( !dlg.go() )
 	return;
 
@@ -209,7 +209,7 @@ void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
 	}
     }
 
-    delete allhorio->ioobj_;
+    delete ctio->ioobj_;
 }
 
 

@@ -9,37 +9,38 @@ ________________________________________________________________________
 
 #include "uidpsdemo.h"
 
-#include "datapointset.h"
-#include "binidvalset.h"
-#include "posvecdataset.h"
-#include "datacoldef.h"
-#include "statrand.h"
-#include "emsurfacetr.h"
-#include "emmanager.h"
-#include "emhorizon3d.h"
 #include "binidsurface.h"
-#include "seistrc.h"
+#include "binidvalset.h"
+#include "datacoldef.h"
+#include "datapointset.h"
+#include "emhorizon3d.h"
+#include "emmanager.h"
+#include "emsurfacetr.h"
+#include "posvecdataset.h"
 #include "seisbuf.h"
 #include "seisread.h"
-#include "seistrctr.h"
-#include "seistrcprop.h"
 #include "seisselectionimpl.h"
+#include "seistrc.h"
+#include "seistrcprop.h"
+#include "seistrctr.h"
+#include "statrand.h"
 
-#include "uiseissel.h"
-#include "uigeninput.h"
-#include "uitaskrunner.h"
 #include "uidatapointset.h"
+#include "uigeninput.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
+#include "uiseissel.h"
+#include "uitaskrunner.h"
 
 
 uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
-	: uiDialog(p,Setup(tr("DataPointSet demo"),
-                           tr("Data extraction parameters"),
-			   mNoHelpKey))
-	, dps_(0)
-	, dpsdispmgr_(dpsdispmgr)
+    : uiDialog(p,Setup(tr("DataPointSet demo"),
+		       tr("Data extraction parameters"),
+		       mNoHelpKey))
+    , dps_(0)
+    , dpsdispmgr_(dpsdispmgr)
 {
-    horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D) );
+    horfld_ = new uiHorizon3DSel( this, true );
 
     IOObjContext ctxt( mIOObjContext(SeisTrc) );
     seisfld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(false,false) );

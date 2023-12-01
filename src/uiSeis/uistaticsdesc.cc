@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uistaticsdesc.h"
 
 #include "ctxtioobj.h"
+#include "emhorizon.h"
 #include "emioobjinfo.h"
 #include "emsurfacetr.h"
 #include "ioman.h"
@@ -26,8 +27,7 @@ ________________________________________________________________________
 uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
     : uiGroup( p, "Statics editor" )
 {
-    IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
-    ctxt.forread_ = true;
+    IOObjContext ctxt = EM::Horizon::ioContext( false, true );
     horfld_ = new uiIOObjSel( this, ctxt, tr("Statics elevation") );
     horfld_->selectionDone.notify( mCB(this,uiStaticsDesc,updateFlds));
 

@@ -278,7 +278,6 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     setDeleteOnClose( false );
 
-    IOObjContext ctxt = mIOObjContext( EMHorizon3D );
     uiIOObjSelGrp::Setup stup;
     stup.choicemode_ = OD::ChooseAtLeastOne;
     uiObject* attachobj = nullptr;

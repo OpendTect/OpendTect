@@ -10,20 +10,20 @@ ________________________________________________________________________
 #include "uituthortools.h"
 #include "tuthortools.h"
 
-#include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emsurfacetr.h"
-#include "ioobj.h"
 #include "keystrs.h"
 #include "transl.h"
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
+
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
 	: uiDialog( p, Setup( tr("Tut Horizon tools"),
@@ -35,12 +35,11 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 					 tr("Smooth a horizon")) );
     mAttachCB( taskfld_->valueChanged, uiTutHorTools::choiceSel );
 
-    IOObjContext ctxt = mIOObjContext(EMHorizon3D);
-    inpfld_ = new uiIOObjSel( this, ctxt, tr("Input Horizon") );
+    inpfld_ = new uiHorizon3DSel( this, true );
     inpfld_->attach( alignedBelow, taskfld_ );
 
     // For thickness calculation
-    inpfld2_ = new uiIOObjSel( this, ctxt, uiStrings::sBottomHor() );
+    inpfld2_ = new uiHorizon3DSel( this, true, uiStrings::sBottomHor() );
     inpfld2_->attach( alignedBelow, inpfld_ );
 
     selfld_= new uiGenInput( this, tr("Add Result as an Attribute to "),
@@ -53,9 +52,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     attribnamefld_->attach( alignedBelow, selfld_ );
 
     // For smoothing
-    ctxt.forread_ = false;
-    outfld_ = new uiIOObjSel( this, ctxt,
-			    uiStrings::phrOutput( uiStrings::sHorizon() ) );
+    outfld_ = new uiHorizon3DSel( this, false );
     outfld_->attach( alignedBelow, inpfld_ );
 
     strengthfld_ = new uiGenInput( this, tr("Filter Strength"),

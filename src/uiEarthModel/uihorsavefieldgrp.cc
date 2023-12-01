@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uihorsavefieldgrp.h"
 
-#include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
@@ -22,10 +21,12 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
+
 
 uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     : uiGroup( p )
@@ -70,18 +71,15 @@ void uiHorSaveFieldGrp::init( bool withsubsel )
 
 
     savefld_ = new uiGenInput( this, uiStrings::phrSave(uiStrings::sHorizon(1)),
-			       BoolInpSpec(true,tr("As new"),
-                               uiStrings::sOverwrite()) );
+				BoolInpSpec(true,tr("As new"),
+				uiStrings::sOverwrite()) );
 
     savefld_->valueChanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
     if ( withsubsel )
 	savefld_->attach( alignedBelow, rgfld_ );
 
-    IOObjContext ctxt = is2d_ ? EMHorizon2DTranslatorGroup::ioContext()
-			      : EMHorizon3DTranslatorGroup::ioContext();
-    ctxt.forread_ = false;
-    outputfld_ = new uiIOObjSel( this, ctxt,
+    outputfld_ = new uiHorizonSel( this, is2d_, false,
 				 uiStrings::phrOutput(uiStrings::sHorizon(1)) );
     outputfld_->attach( alignedBelow, savefld_ );
 

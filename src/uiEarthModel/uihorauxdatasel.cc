@@ -11,11 +11,12 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "datainpspec.h"
-#include "emsurfacetr.h"
+#include "emhorizon.h"
 #include "emioobjinfo.h"
+#include "emsurfacetr.h"
 #include "iodir.h"
-#include "ioman.h"
 #include "iodirentry.h"
+#include "ioman.h"
 #include "mousecursor.h"
 
 #include "uibutton.h"
@@ -125,10 +126,9 @@ uiHorizonAuxDataSel::HorizonAuxDataInfo::HorizonAuxDataInfo( bool load )
     if ( !load ) return;
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    PtrMan<CtxtIOObj> allhorio =  mMkCtxtIOObj(EMHorizon3D);
-    const IODir iodir( allhorio->ctxt_.getSelKey() );
-    const IODirEntryList horlist( iodir, allhorio->ctxt_ );
-
+    const IOObjContext ctxt = EM::Horizon::ioContext(false,true);
+    const IODir iodir( ctxt.getSelKey() );
+    const IODirEntryList horlist( iodir, ctxt );
     for ( int idx=0; idx<horlist.size(); idx++ )
     {
 	const IOObj* obj = horlist[idx]->ioobj_;

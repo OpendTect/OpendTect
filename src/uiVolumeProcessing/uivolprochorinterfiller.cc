@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uivolprocchain.h"
@@ -37,9 +38,8 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
 		tr("Survey top")) );
     usetophorfld_->valueChanged.notify(mCB(this, uiHorInterFiller,updateFlds));
 
-    IOObjContext ctxt = is2d ? mIOObjContext(EMHorizon2D)
-			     : mIOObjContext(EMHorizon3D);
-    tophorfld_ = new uiIOObjSel( this, ctxt, uiStrings::sTopHor() );
+    tophorfld_ = new uiHorizonSel( this, is2d, true,
+				   uiStrings::sTopHor() );
     tophorfld_->attach( alignedBelow, usetophorfld_ );
     topvalfld_ = new uiGenInput( this, tr("Top Value"),
 				 FloatInpSpec( hf->getTopValue() ) );
@@ -52,7 +52,8 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf, bool is2d )
 	    mCB(this, uiHorInterFiller,updateFlds) );
     usebottomhorfld_->attach( alignedBelow, topvalfld_ );
 
-    bottomhorfld_ = new uiIOObjSel( this, ctxt, uiStrings::sBottomHor() );
+    bottomhorfld_ = new uiHorizonSel( this, is2d, true,
+				      uiStrings::sBottomHor() );
     bottomhorfld_->attach( alignedBelow, usebottomhorfld_ );
 
     usegradientfld_ = new uiGenInput( this, tr("Slope type"),
