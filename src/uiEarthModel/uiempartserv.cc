@@ -131,7 +131,6 @@ void uiEMPartServer::cleanup()
 }
 
 
-
 void uiEMPartServer::processTime2Depth( EM::IOObjInfo::ObjectType objtype )
 {
     const uiRetVal ret =  EM::uiTime2DepthDlg::canTransform( objtype );
@@ -142,7 +141,6 @@ void uiEMPartServer::processTime2Depth( EM::IOObjInfo::ObjectType objtype )
     }
     else
 	uiMSG().message( ret.messages().cat() );
-
 }
 
 
