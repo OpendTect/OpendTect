@@ -47,7 +47,7 @@ uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
 	    mNoDlgTitle,
 	    mODHelpKey(mPickSetManHelpID) )
 	    .nrstatusflds(1).modal(false),
-	    getIOObjContext(fixedtrkey))
+	    getIOObjContext(fixedtrkey),sKey::Type())
 {
     createDefaultUI();
     mergebut_ = addManipButton( "mergepicksets",

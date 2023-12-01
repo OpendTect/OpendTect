@@ -129,6 +129,8 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
     BufferString nm( astream.keyWord() );
     fms = astream.value();
     const MultiID objkey( groupid, fms.getIValue(0) );
+    const bool issurf = groupid ==
+		IOObjContext::getStdDirData(IOObjContext::Surf)->id_.groupID();
 
     astream.next();
     BufferString groupnm( astream.keyWord() );
@@ -165,7 +167,13 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
 	{
 	    while ( *astream.keyWord() == '#' )
 	    {
-		objptr->pars_.set( astream.keyWord()+1, astream.value() );
+		const BufferString keystr( astream.keyWord()+1 );
+		BufferString valstr = astream.value();
+		if ( issurf && keystr == ZDomain::sKey() &&
+			       valstr == sKey::Time() )
+		    valstr = sKey::TWT();
+
+		objptr->pars_.set( keystr.buf(), valstr );
 		astream.next();
 	    }
 	}

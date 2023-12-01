@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "od_iostream.h"
 #include "settings.h"
+#include "separstr.h"
 #include "survinfo.h"
 
 #include "uicombobox.h"
@@ -447,7 +448,11 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 
 uiObject* uiIOObjSelGrp::getFilterFieldAttachObj()
 {
-    return ctxtfiltfld_ ? ctxtfiltfld_ : filtfld_->attachObj();
+    if ( !ctxtfiltfld_ )
+	return filtfld_->attachObj();
+
+    mDynamicCastGet(uiLabeledComboBox*,uilcb,ctxtfiltfld_->parent());
+    return uilcb->attachObj();
 }
 
 
@@ -461,9 +466,23 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     filtfld_ = new uiGenInput( listfld_, uiStrings::sFilter() );
     filtfld_->setElemSzPol( uiObject::SmallVar );
     mAttachCB( filtfld_->updateRequested, uiIOObjSelGrp::filtChg );
-    const BufferString withctxtfilter( setup_.withctxtfilter_ );
-    if ( !withctxtfilter.isEmpty() )
+
+    uiLabeledComboBox* lastuilcb = nullptr;
+    const FileMultiString withctxtfilters( setup_.withctxtfilter_ );
+    for ( int ifilt=0; ifilt<withctxtfilters.size(); ifilt++ )
     {
+	const StringView withctxtfilter = withctxtfilters[ifilt];
+	if ( withctxtfilter.isEmpty() )
+	    continue;
+
+	const bool iszdomain = withctxtfilter == ZDomain::sKey();
+	const bool istype = withctxtfilter == sKey::Type();
+	const bool istransl = !iszdomain && !istype;
+	const uiString lblstr( iszdomain
+			? tr("Z Domain")
+			: (istype ? uiStrings::sType()
+			      : uiStrings::phrJoinStrings(uiStrings::sFile(),
+							  uiStrings::sType())));
 	const IODir iodir( ctio_.ctxt_.getSelKey() );
 	const IODirEntryList entrylist( iodir, ctio_.ctxt_ );
 	BufferStringSet valstrs = entrylist.getValuesFor( withctxtfilter );
@@ -473,22 +492,45 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	//This is strictly for display purpose without changing the key
 	if ( valstrs.size()>1 )
 	{
+	    FileMultiString fms( withctxtfilter.str() );
+	    BufferString filterval;
+	    if ( istransl )
+		filterval = ctio_.ctxt_.toselect_.allowtransls_;
+	    else
+		filterval = ctio_.ctxt_.toselect_.require_.find(withctxtfilter);
+
+	    if ( !filterval.isEmpty() )
+		fms.add( filterval.str() );
+
 	    valstrs.sort();
-	    auto* firstline = new BufferString("All ");
-	    firstline->add( withctxtfilter );
+	    auto* firstline = new BufferString( sKey::All() );
 	    valstrs.insertAt( firstline, 0 );
-	    auto* lbl = new uiLabel( listfld_, uiStrings::sType() );
-	    ctxtfiltfld_ = new uiComboBox( listfld_, "ctxtfilter" );
-	    ctxtfiltfld_->setHSzPol( uiObject::MedVar );
-	    ctxtfiltfld_->addItems( valstrs );
-	    ctxtfiltfld_->attach( alignedBelow, filtfld_ );
-	    lbl->attach( leftOf, ctxtfiltfld_ );
-	    mAttachCB( ctxtfiltfld_->selectionChanged,
-		       uiIOObjSelGrp::ctxtChgCB );
+	    auto* ctxtfiltfld = new uiLabeledComboBox( listfld_, valstrs,
+						       lblstr, fms.str() );
+	    uiComboBox* box = ctxtfiltfld->box();
+	    box->setHSzPol( uiObject::SmallVar );
+	    if ( lastuilcb )
+		ctxtfiltfld->attach( alignedBelow, lastuilcb );
+	    else
+		ctxtfiltfld->attach( alignedBelow, filtfld_ );
+
+	    lastuilcb = ctxtfiltfld;
+	    ctxtfiltfld_ = box;
+
+	    if ( istransl )
+		mAttachCB( box->selectionChanged,
+			   uiIOObjSelGrp::ctxtFileTypeChgCB );
+	    else if ( iszdomain )
+		mAttachCB( box->selectionChanged,
+			   uiIOObjSelGrp::ctxtZDomainChgCB );
+	    else
+		mAttachCB( box->selectionChanged,
+		       uiIOObjSelGrp::ctxtTypeChgCB );
 	}
     }
 
     listfld_->box()->attach( rightAlignedBelow, getFilterFieldAttachObj() );
+
     topgrp_->setHAlignObj( listfld_ );
 
     listfld_->setName( "Objects list" );
@@ -1298,32 +1340,103 @@ void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
 
 void uiIOObjSelGrp::ctxtChgCB( CallBacker* )
 {
-    const BufferString withctxtfilter( setup_.withctxtfilter_ );
-    if ( ctxtfiltfld_ )
+}
+
+
+void uiIOObjSelGrp::ctxtFileTypeChgCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiComboBox*,ctxtfiltfld,cb);
+    if ( !ctxtfiltfld )
+	return;
+
+    const FileMultiString fms( ctxtfiltfld->name() );
+    const BufferString withctxtfilter( fms[0] );
+    BufferString filterval;
+    if ( fms.size() > 1 )
+	filterval.set( fms[1] );
+
+    const int curitm = ctxtfiltfld->currentItem();
+    if ( withctxtfilter == ctio_.ctxt_.trgroup_->groupName() )
     {
-	const int curitm = ctxtfiltfld_->currentItem();
-	if ( withctxtfilter == ctio_.ctxt_.trgroup_->groupName() )
-	{
-	    if ( curitm <= 0 )
-		ctio_.ctxt_.toselect_.allowtransls_ = BufferString::empty();
-	    else
-	    {
-		BufferString currnm = ctxtfiltfld_->textOfItem( curitm );
-		if ( currnm.isEqual(dGBToDispStorageStr()) )
-		    currnm = mDGBKey;
-		ctio_.ctxt_.toselect_.allowtransls_ = currnm;
-	    }
-	}
+	if ( curitm <= 0 )
+	    ctio_.ctxt_.toselect_.allowtransls_ = filterval.buf();
 	else
 	{
-	    if ( curitm <= 0 )
-		ctio_.ctxt_.toselect_.require_.removeWithKey( withctxtfilter );
-	    else
-		ctio_.ctxt_.toselect_.require_.set( withctxtfilter,
-					ctxtfiltfld_->textOfItem( curitm ) );
+	    BufferString currnm = ctxtfiltfld->textOfItem( curitm );
+	    if ( currnm.isEqual(dGBToDispStorageStr()) )
+		currnm = mDGBKey;
+
+	    ctio_.ctxt_.toselect_.allowtransls_ = currnm;
 	}
-	fullUpdate( -2 );
     }
+
+    fullUpdate( -2 );
+}
+
+
+void uiIOObjSelGrp::ctxtZDomainChgCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiComboBox*,ctxtfiltfld,cb);
+    if ( !ctxtfiltfld )
+	return;
+
+    const FileMultiString fms( ctxtfiltfld->name() );
+    const BufferString withctxtfilter( fms[0] );
+    BufferString filterval;
+    if ( fms.size() > 1 )
+	filterval.set( fms[1] );
+
+    const int curitm = ctxtfiltfld->currentItem();
+    if ( curitm <= 0 )
+    {
+	if ( filterval.isEmpty() )
+	    ctio_.ctxt_.toselect_.require_.removeWithKey( withctxtfilter );
+	else
+	    ctio_.ctxt_.require( withctxtfilter, filterval.str() );
+    }
+    else
+    {
+	const BufferString curzdom( ctxtfiltfld->textOfItem( curitm ));
+	IOPar iop;
+	iop.set( ZDomain::sKey(), curzdom );
+	const ZDomain::Info* zdom = ZDomain::get( iop );
+	if ( zdom )
+	    ctio_.ctxt_.requireZDomain( *zdom, *zdom == SI().zDomain() );
+	else
+	    ctio_.ctxt_.require( withctxtfilter, curzdom.buf() );
+    }
+
+    fullUpdate( -2 );
+}
+
+
+void uiIOObjSelGrp::ctxtTypeChgCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiComboBox*,ctxtfiltfld,cb);
+    if ( !ctxtfiltfld )
+	return;
+
+    const FileMultiString fms( ctxtfiltfld->name() );
+    const BufferString withctxtfilter( fms[0] );
+    BufferString filterval;
+    if ( fms.size() > 1 )
+	filterval.set( fms[1] );
+
+    const int curitm = ctxtfiltfld->currentItem();
+    if ( curitm <= 0 )
+    {
+	if ( filterval.isEmpty() )
+	    ctio_.ctxt_.toselect_.require_.removeWithKey( withctxtfilter );
+	else
+	    ctio_.ctxt_.require( withctxtfilter, filterval.str() );
+    }
+    else
+    {
+	const BufferString curval( ctxtfiltfld->textOfItem( curitm ) );
+	ctio_.ctxt_.require( withctxtfilter, curval.buf() );
+    }
+
+    fullUpdate( -2 );
 }
 
 

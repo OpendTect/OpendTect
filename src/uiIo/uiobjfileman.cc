@@ -62,8 +62,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );
     sgsu.withctxtfilter_.add( ctxtfilter_ );
 
-    selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiStrings::sEmptyString(),
-									sgsu );
+    selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiString::empty(), sgsu );
     mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
     mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );

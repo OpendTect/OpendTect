@@ -16,9 +16,11 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "od_helpids.h"
+#include "seis2dlineio.h"
 #include "seiscbvs.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
+#include "separstr.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
 #include "trckeyzsampling.h"
@@ -60,7 +62,20 @@ void doBrowse( CallBacker* cb )
 
 };
 
-static uiSeisCBVSBrowerMgr* cbvsbrowsermgr_ = 0;
+static uiSeisCBVSBrowerMgr* cbvsbrowsermgr_ = nullptr;
+
+namespace Seis
+{
+
+static BufferString getManagerContextFilter( bool i2d )
+{
+    const BufferString translnm( i2d ? SeisTrc2DTranslatorGroup::sGroupName()
+				     : SeisTrcTranslatorGroup::sGroupName() );
+    const FileMultiString fms( sKey::Type(), ZDomain::sKey(), translnm.str() );
+    return fms.str();
+}
+
+} // namespace Seis
 
 
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
@@ -72,7 +87,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				    mNoDlgTitle,mHelpID)
 				    .nrstatusflds(1).modal(false),
 		  SeisTrcTranslatorGroup::ioContext(),
-		is2d ? "2D Seismic Data" : "Seismic Data" )
+		  Seis::getManagerContextFilter(is2d) )
     , is2d_(is2d)
 {
     if ( !cbvsbrowsermgr_ )
