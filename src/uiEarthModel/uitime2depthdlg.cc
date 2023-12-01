@@ -42,6 +42,8 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
 	       mODHelpKey(mProcessHorizonTime2DepthID)))
     , objtype_(objtype)
 {
+    setCtrlStyle( RunAndClose );
+
     IOObjContext ioobjctxt( nullptr );
     bool is2d = is2DObject();
     if ( objtype == IOObjInfo::Horizon3D )
@@ -56,11 +58,11 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
     mAttachCB( directionsel_->valueChanged, uiTime2DepthDlg::dirChangeCB );
 
     t2dtransfld_ = new uiZAxisTransformSel( this, false,
-		ZDomain::sKeyTime(), ZDomain::sKeyDepth(), true, false, is2d );
+		ZDomain::sKeyTime(), ZDomain::sKeyDepth(), false, false, is2d );
     t2dtransfld_->attach( alignedBelow, directionsel_ );
 
     d2ttransfld_ = new uiZAxisTransformSel( this, false,
-		ZDomain::sKeyDepth(), ZDomain::sKeyTime(), true, false, is2d );
+		ZDomain::sKeyDepth(), ZDomain::sKeyTime(), false, false, is2d );
     d2ttransfld_->attach( alignedBelow, directionsel_ );
 
     const ZDomain::Info& timeinf = ZDomain::TWT();
