@@ -31,10 +31,15 @@ public:
 
 protected:
 
+    bool		doFlatten() const;
+    uiSeisSel*		getInpFld();
+    uiSeisSel*		getOutpFld();
+
     void		finalizeCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    void		modeChgCB(CallBacker*);
     void		inpSelCB(CallBacker*);
     void		horSelCB(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
     uiGenInput*		modefld_;
     uiSeisSel*		seisinfld_;
