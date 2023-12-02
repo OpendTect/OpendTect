@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "ioman.h"
 #include "od_helpids.h"
 #include "seiszaxisstretcher.h"
 #include "survinfo.h"
@@ -26,6 +27,13 @@ ________________________________________________________________________
 #include "uiseissubsel.h"
 #include "uitaskrunner.h"
 
+#include "hiddenparam.h"
+
+static HiddenParam<uiFlatUnflatCube,uiSeisSel*>
+					uiflatunflatflatseisinfld_(nullptr);
+static HiddenParam<uiFlatUnflatCube,uiSeisSel*>
+					uiflatunflatflatseisoutfld_(nullptr);
+
 
 uiFlatUnflatCube::uiFlatUnflatCube( uiParent* p )
     : uiDialog(p,Setup(tr("Flatten / Unflatten Seismic Data"),
@@ -35,12 +43,22 @@ uiFlatUnflatCube::uiFlatUnflatCube( uiParent* p )
 
     modefld_ = new uiGenInput( this, uiStrings::sMode(),
 			      BoolInpSpec(true,tr("Flatten"),tr("Unflatten")));
+    mAttachCB( modefld_->valueChanged, uiFlatUnflatCube::modeChgCB );
 
-    const  Seis::GeomType geomtype = Seis::Vol;
-    const IOObjContext ctxtin = uiSeisSel::ioContext( geomtype, true );
-    seisinfld_ = new uiSeisSel( this, ctxtin, geomtype );
+    const Seis::GeomType geomtype = Seis::Vol;
+    IOObjContext seisctxt( uiSeisSel::ioContext(geomtype,true) );
+    seisinfld_ = new uiSeisSel( this, seisctxt, geomtype );
     mAttachCB( seisinfld_->selectionDone, uiFlatUnflatCube::inpSelCB );
     seisinfld_->attach( alignedBelow, modefld_ );
+
+    IOObjContext flatctxt( uiSeisSel::ioContext(geomtype,true) );
+    flatctxt.requireZDomain( EM::flattenedZDomain(), false );
+    uiSeisSel::Setup flatsu( geomtype );
+    flatsu.enabotherdomain( true ).seltxt( tr("Input Flattened Cube") );
+    auto* flatinfld = new uiSeisSel( this, flatctxt, flatsu );
+    mAttachCB( flatinfld->selectionDone, uiFlatUnflatCube::inpSelCB );
+    flatinfld->attach( alignedBelow, modefld_ );
+    uiflatunflatflatseisinfld_.setParam( this, flatinfld );
 
     horfld_ = new uiHorizonSel( this, false, true );
     mAttachCB( horfld_->selectionDone, uiFlatUnflatCube::horSelCB );
@@ -55,9 +73,15 @@ uiFlatUnflatCube::uiFlatUnflatCube( uiParent* p )
     rgfld_ = uiSeisSubSel::get( this, ss );
     rgfld_->attach( alignedBelow, flatvalfld_ );
 
-    const IOObjContext ctxtout = uiSeisSel::ioContext( geomtype, false );
-    seisoutfld_ = new uiSeisSel( this, ctxtout, geomtype );
+    seisctxt.forread_ = false;
+    seisoutfld_ = new uiSeisSel( this, seisctxt, geomtype );
     seisoutfld_->attach( alignedBelow, rgfld_ );
+
+    flatctxt.forread_ = false;
+    flatsu.seltxt( tr("Output Flattened Cube") );
+    auto* flatoutfld = new uiSeisSel( this, flatctxt, flatsu );
+    flatoutfld->attach( alignedBelow, rgfld_ );
+    uiflatunflatflatseisoutfld_.setParam( this, flatoutfld );
 
     mAttachCB( postFinalize(), uiFlatUnflatCube::finalizeCB );
 }
@@ -66,6 +90,22 @@ uiFlatUnflatCube::uiFlatUnflatCube( uiParent* p )
 uiFlatUnflatCube::~uiFlatUnflatCube()
 {
     detachAllNotifiers();
+    uiflatunflatflatseisinfld_.removeParam( this );
+    uiflatunflatflatseisoutfld_.removeParam( this );
+}
+
+
+uiSeisSel* uiFlatUnflatCube::getInpFld()
+{
+    return doFlatten() ? seisinfld_
+		       : uiflatunflatflatseisinfld_.getParam( this );
+}
+
+
+uiSeisSel* uiFlatUnflatCube::getOutpFld()
+{
+    return doFlatten() ? uiflatunflatflatseisoutfld_.getParam( this )
+		       : seisoutfld_;
 }
 
 
@@ -73,6 +113,7 @@ void uiFlatUnflatCube::finalizeCB( CallBacker* )
 {
     inpSelCB( nullptr );
     horSelCB( nullptr );
+    modeChgCB( nullptr );
 }
 
 
@@ -82,19 +123,50 @@ void uiFlatUnflatCube::setHorizon( const MultiID& key )
 }
 
 
+bool uiFlatUnflatCube::doFlatten() const
+{
+    return modefld_->getBoolValue();
+}
+
+
+void uiFlatUnflatCube::modeChgCB( CallBacker* )
+{
+    const bool doflat = doFlatten();
+    seisinfld_->display( doflat );
+    uiflatunflatflatseisoutfld_.getParam( this )->display( doflat );
+
+    uiflatunflatflatseisinfld_.getParam( this )->display( !doflat );
+    seisoutfld_->display( !doflat );
+    inpSelCB( nullptr );
+}
+
+
 void uiFlatUnflatCube::inpSelCB( CallBacker* )
 {
-    const bool doflat = modefld_->getBoolValue();
+    const bool doflat = doFlatten();
     if ( doflat )
 	return;
 
-    const IOObj* seisioobjin = seisinfld_->ioobj( true );
+    const IOObj* seisioobjin = getInpFld()->ioobj( true );
     if ( !seisioobjin )
 	return;
 
     rgfld_->setInput( *seisioobjin );
-// Read from IOObj's IOPar;
-// Set horizon and flat value
+    PtrMan<IOPar> iop = seisioobjin->pars().subselect( ZDomain::sKey() );
+    if ( !iop )
+	return;
+
+    MultiID horid;
+    if ( iop->get(sKey::ID(),horid) && !horid.isUdf() )
+    {
+	horfld_->setInput( horid );
+	horSelCB( nullptr );
+    }
+
+    float horval = mUdf(float);
+    if ( iop->get(EM::HorizonZTransform::sKeyReferenceZ(),horval) &&
+	 !mIsUdf(horval) )
+	flatvalfld_->setValue( horval );
 }
 
 
@@ -114,8 +186,8 @@ void uiFlatUnflatCube::horSelCB( CallBacker* )
 
 bool uiFlatUnflatCube::acceptOK( CallBacker* )
 {
-    const IOObj* seisioobjin = seisinfld_->ioobj();
-    const IOObj* seisioobjout = seisoutfld_->ioobj();
+    const IOObj* seisioobjin = getInpFld()->ioobj();
+    const IOObj* seisioobjout = getOutpFld()->ioobj();
     const IOObj* horioobjin = horfld_->ioobj();
     if ( !seisioobjin || !seisioobjout || !horioobjin )
 	return false;
@@ -138,13 +210,21 @@ bool uiFlatUnflatCube::acceptOK( CallBacker* )
 
     tf->setFlatZValue( flatzval / SI().zDomain().userFactor() );
 
-    const bool fwd = modefld_->getBoolValue();
+    const bool doflat = doFlatten();
+    if ( doflat )
+    {
+	ZDomain::Info zdinf( EM::flattenedZDomain() );
+	zdinf.setID( horioobjin->key() );
+	zdinf.pars_.set( EM::HorizonZTransform::sKeyReferenceZ(), flatzval );
+	seisioobjout->pars().mergeComp( zdinf.pars_, ZDomain::sKey() );
+	IOM().commitChanges( *seisioobjout );
+    }
 
     TrcKeyZSampling tkzs;
     rgfld_->getSampling( tkzs );
-    tkzs.zsamp_ = tf->getZInterval( !fwd );
+    tkzs.zsamp_ = tf->getZInterval( !doflat );
     SeisZAxisStretcherNew stretcher( *seisioobjin, *seisioobjout, tkzs,
-				     *tf, fwd );
+				     *tf, doflat );
     stretcher.setUdfVal( 0.f );
     if ( !uitr.execute(stretcher) )
     {
@@ -154,8 +234,8 @@ bool uiFlatUnflatCube::acceptOK( CallBacker* )
     }
 
     uiString msg = tr("Cube successfully %1. Do you want to %2 more cubes?")
-			.arg(fwd ? "flattened" : "unflattened" )
-			.arg(fwd ? "flattend" : "unflatten");
+			.arg(doflat ? "flattened" : "unflattened" )
+			.arg(doflat ? "flattend" : "unflatten");
     const bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				      tr("No, close window") );
     return !ret;
