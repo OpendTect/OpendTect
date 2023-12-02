@@ -26,6 +26,9 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 				"${COPYFROMDATADIR}/data/Firewall/od_SeisMMBatch.txt" )
 	    file( COPY ${ML_FW_RULENM}
 			DESTINATION "${COPYTODATADIR}/data/Firewall" )
+	    # Compatibility with SDK 7.0.0 to 7.0.2
+	    file( COPY "C:/appman/win64/proj/inst_proj_920_vs2022/bin/proj_9_2.dll"
+		  DESTINATION "${COPYTOLIBDIR}" )
 	endif()
 
 	file( GLOB SURV_PROVS "${COPYFROMDATADIR}/data/SurveyProviders/uiSEGYTools.txt"
@@ -47,6 +50,11 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 
 	COPY_THIRDPARTYLIBS()
 	list( APPEND LIBLIST ${PLUGINS} )
+    elseif( WIN32 AND ${PACKAGE_NAME} STREQUAL "devel" AND
+	    "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+	# Compatibility with SDK 7.0.0 to 7.0.2
+	file( COPY "C:/appman/win64/proj/inst_proj_920_vs2022/bin/proj_9_2.dll"
+	      DESTINATION "${COPYTOLIBDIR}" )
     elseif( ${PACKAGE_NAME} STREQUAL "dgbpro" )
 	file( GLOB FILESEL_PROVS "${COPYFROMDATADIR}/data/FileSelProviders/uidGB*.txt" )
 	file( COPY ${FILESEL_PROVS}
