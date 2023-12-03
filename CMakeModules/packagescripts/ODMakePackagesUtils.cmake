@@ -27,7 +27,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	    file( COPY ${ML_FW_RULENM}
 			DESTINATION "${COPYTODATADIR}/data/Firewall" )
 	    # Compatibility with SDK 7.0.0 to 7.0.2
-	    file( COPY "C:/appman/win64/proj/inst_proj_920_vs2022/bin/proj_9_2.dll"
+	    file( COPY "C:/appman/win64/proj/inst_proj_9.2.0_vs2022/bin/proj_9_2.dll"
 		  DESTINATION "${COPYTOLIBDIR}" )
 	endif()
 
@@ -53,7 +53,7 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
     elseif( WIN32 AND ${PACKAGE_NAME} STREQUAL "devel" AND
 	    "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
 	# Compatibility with SDK 7.0.0 to 7.0.2
-	file( COPY "C:/appman/win64/proj/inst_proj_920_vs2022/bin/proj_9_2.dll"
+	file( COPY "C:/appman/win64/proj/inst_proj_9.2.0_vs2022/bin/proj_9_2.dll"
 	      DESTINATION "${COPYTOLIBDIR}" )
     elseif( ${PACKAGE_NAME} STREQUAL "dgbpro" )
 	file( GLOB FILESEL_PROVS "${COPYFROMDATADIR}/data/FileSelProviders/uidGB*.txt" )
