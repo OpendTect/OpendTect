@@ -48,12 +48,15 @@ protected:
 */
 
 mExpClass(EarthModel) Horizon3DMerger : public HorizonMerger
-{
+{ mODTextTranslationClass(Horizon3DMerger)
 public:
 			Horizon3DMerger(const TypeSet<ObjectID>&);
 			~Horizon3DMerger();
 
     Horizon3D*		getOutputHorizon();
+
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
 
 protected:
     od_int64		nrIterations() const override;
@@ -64,11 +67,11 @@ private:
     bool		doFinish(bool success) override;
 
     Array2D<float>*	depths_;
-    Horizon3D*		outputhor_;
+    Horizon3D*		outputhor_ = nullptr;
     ObjectSet<Horizon3D> inputhors_;
 
     TrcKeySampling	hs_;
-    bool		ownsarray_;
+    bool		ownsarray_ = true;
 };
 
 } // namespace EM

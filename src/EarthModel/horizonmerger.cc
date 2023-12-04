@@ -22,7 +22,7 @@ namespace EM
 {
 
 mDefineEnumUtils(HorizonMerger,Mode,"Merge mode")
-{ "Take average", "Use top", "Use base", 0 };
+{ "Take average", "Use top", "Use base", nullptr };
 
 
 HorizonMerger::HorizonMerger()
@@ -34,9 +34,6 @@ HorizonMerger::~HorizonMerger()
 
 
 Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
-    : outputhor_(0)
-    , ownsarray_(true)
-    , hs_(false)
 {
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -48,7 +45,14 @@ Horizon3DMerger::Horizon3DMerger( const TypeSet<ObjectID>& ids )
 	SurfaceIOData sd;
 	uiString errmsg;
 	if ( oi.getSurfaceData(sd,errmsg) )
-	    { hs_.include( sd.rg ); hs_.step_ = sd.rg.step_; }
+	{
+	    if( idx == 0 )
+		hs_ = sd.rg;
+	    else
+		hs_.include( sd.rg );
+
+	    hs_.step_ = sd.rg.step_;
+	}
     }
 
     deepRef( inputhors_ );
@@ -81,18 +85,36 @@ Horizon3D* Horizon3DMerger::getOutputHorizon()
 
 
 od_int64 Horizon3DMerger::nrIterations() const
-{ return hs_.totalNr(); }
+{
+    return hs_.totalNr();
+}
+
+
+uiString Horizon3DMerger::uiMessage() const
+{
+    return tr("Merging 3D horizons");
+}
+
+
+uiString Horizon3DMerger::uiNrDoneText() const
+{
+    return sPosFinished();
+}
 
 
 bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     Stats::CalcSetup rcs;
-    rcs.require( Stats::Extreme ).require( Stats::Average );
+    rcs.require( mode_ == Average ? Stats::Average : Stats::Extreme );
     Stats::RunCalc<float> rc( rcs );
-    for ( od_int64 idx=start; idx<=stop; idx++ )
+    TrcKeySampling hs( hs_ );
+    TrcKeySamplingIterator iter( hs );
+    iter.setNextPos( hs.trcKeyAt(start) );
+    BinID bid;
+    for ( od_int64 idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
+	iter.next( bid );
 	rc.clear();
-	const BinID bid = hs_.atIndex( idx );
 	for ( int hidx=0; hidx<inputhors_.size(); hidx++ )
 	{
 	    const float zval = inputhors_[hidx]->getZ( bid );
@@ -111,8 +133,6 @@ bool Horizon3DMerger::doWork( od_int64 start, od_int64 stop, int threadid )
 	    depths_->getData()[idx] = rc.min();
 	else if ( mode_ == Base )
 	    depths_->getData()[idx] = rc.max();
-
-	addToNrDone( 1 );
     }
 
     return true;
