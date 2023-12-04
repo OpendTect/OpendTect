@@ -38,7 +38,7 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     outputveltype_ = new uiLabeledComboBox( this, tr("Output velocity type") );
     outputveltype_->attach( alignedBelow, possubsel_ );
 
-    IOObjContext outputctxt = SeisTrcTranslatorGroup::ioContext();
+    IOObjContext outputctxt = uiVelSel::ioContext( false );
     outputctxt.forread_ = false;
     outputsel_ = new uiSeisSel(this, outputctxt,uiSeisSel::Setup(Seis::Vol));
     outputsel_->attach( alignedBelow, outputveltype_ );
