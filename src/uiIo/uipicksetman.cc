@@ -15,10 +15,10 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "draw.h"
+#include "separstr.h"
 #include "picksettr.h"
 #include "pickset.h"
 #include "keystrs.h"
-#include "separstr.h"
 #include "survinfo.h"
 #include "od_helpids.h"
 
@@ -44,7 +44,7 @@ uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
 	    mNoDlgTitle,
 	    mODHelpKey(mPickSetManHelpID) )
 	    .nrstatusflds(1).modal(false),
-	    getIOObjContext(fixedtrkey))
+	    getIOObjContext(fixedtrkey),sKey::Type())
 {
     createDefaultUI();
     mergebut_ = addManipButton( "mergepicksets",

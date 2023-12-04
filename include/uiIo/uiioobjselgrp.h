@@ -249,7 +249,9 @@ protected:
     void		makeDefaultCB(CallBacker*);
     void		readChoiceDone(CallBacker*);
     void		writeChoiceReq(CallBacker*);
-    void		ctxtChgCB(CallBacker*);
+    void		ctxtFileTypeChgCB(CallBacker*);
+    void		ctxtZDomainChgCB(CallBacker*);
+    void		ctxtTypeChgCB(CallBacker*);
     void		omfChgCB(CallBacker*);
 
 private:
