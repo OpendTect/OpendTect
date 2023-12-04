@@ -28,6 +28,17 @@ static const ZDomain::Def& getZDom()
 			  : ZDomain::Def::get( "Depth-Flattened" );
 }
 
+
+const ZDomain::Info& flattenedZDomain()
+{
+    IOPar flatiop;
+    flatiop.set( ZDomain::sKey(), getZDom().key() );
+    return *ZDomain::get( flatiop );
+}
+
+
+// HorizonZTransform
+
 HorizonZTransform::HorizonZTransform()
     : ZAxisTransform(ZDomain::SI(),getZDom())
     , depthrange_(Interval<float>::udf())

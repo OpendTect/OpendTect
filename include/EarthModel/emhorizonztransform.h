@@ -16,6 +16,8 @@ ________________________________________________________________________
 namespace EM
 {
 
+mGlobal(EarthModel) const ZDomain::Info& flattenedZDomain();
+
 /*!
 \brief Z-transform that flattens a horizon. Everything else will also be
 flattened accordingly. In case of reverse faulting, the area between the two
@@ -30,8 +32,6 @@ public:
 				  "HorizonZTransform",
 				  toUiString(sFactoryKeyword()));
 
-    static const char*	sKeyHorizonID()		{ return "Horizon"; }
-
 			HorizonZTransform();
 
     bool		isOK() const override;
@@ -43,6 +43,9 @@ public:
 
     Interval<float>	getDepthRange() const		{ return depthrange_; }
     NotifierAccess*	changeNotifier() override	{ return &change_; }
+
+    static const char*	sKeyHorizonID()		{ return "Horizon"; }
+    static const char*	sKeyReferenceZ()	{ return "Reference Z"; }
 
 protected:
 			~HorizonZTransform();

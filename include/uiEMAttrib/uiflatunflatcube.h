@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiemattribmod.h"
+
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -31,15 +32,22 @@ public:
 
 protected:
 
+    bool		doFlatten() const;
+    uiSeisSel*		getInpFld();
+    uiSeisSel*		getOutpFld();
+
     void		finalizeCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    void		modeChgCB(CallBacker*);
     void		inpSelCB(CallBacker*);
     void		horSelCB(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiGenInput*		modefld_;
     uiSeisSel*		seisinfld_;
+    uiSeisSel*		flatinfld_;
     uiIOObjSel*		horfld_;
     uiGenInput*		flatvalfld_;
     uiSeisSubSel*	rgfld_;
+    uiSeisSel*		flatoutfld_;
     uiSeisSel*		seisoutfld_;
 };
