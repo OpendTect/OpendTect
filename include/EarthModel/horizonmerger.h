@@ -48,12 +48,15 @@ protected:
 */
 
 mExpClass(EarthModel) Horizon3DMerger : public HorizonMerger
-{
+{ mODTextTranslationClass(Horizon3DMerger)
 public:
 			Horizon3DMerger(const TypeSet<ObjectID>&);
 			~Horizon3DMerger();
 
     Horizon3D*		getOutputHorizon();
+
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
 
 protected:
     od_int64		nrIterations() const override;
