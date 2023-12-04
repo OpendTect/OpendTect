@@ -746,14 +746,30 @@ void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
     const ZDomain::Info& twtdef = ZDomain::TWT();
     const ZDomain::Info& ddef = SI().depthsInFeet() ? ZDomain::DepthFeet()
 						    : ZDomain::DepthMeter();
-    const ZDomain::Info& from = isTimeToDepth() ? twtdef : ddef;
-    const ZDomain::Info& to = isTimeToDepth() ? ddef : twtdef;
+    const bool zistime = SI().zIsTime();
+    const ZDomain::Info& zrgfrom = zistime ? twtdef : ddef;
+    const ZDomain::Info& zrgto = zistime ? ddef : twtdef;
     const ZSampling zsamp = SI().zRange( true );
     const Interval<float> topvelrg = velsel_->getVelocityTopRange();
     const Interval<float> botvelrg = velsel_->getVelocityBottomRange();
     const UnitOfMeasure* veluom = velsel_->velUnit();
-    const ZSampling zrg = VelocityStretcher::getWorkZSampling( zsamp, from, to,
+    ZSampling zrg = VelocityStretcher::getWorkZSampling( zsamp,
+						 zrgfrom, zrgto,
 						 topvelrg, botvelrg, veluom );
+    if ( zrg.isUdf() )
+	return;
+
+    if ( zistime )
+    {
+	const ZDomain::Info& to = isTimeToDepth() ? ddef : twtdef;
+	zrg.scale( 1.f / to.userFactor() );
+    }
+    else
+    {
+	const ZDomain::Info& to = isTimeToDepth() ? twtdef : ddef;
+	zrg.scale( to.userFactor() );
+    }
+
     rangefld_->setZRange( zrg );
 }
 
