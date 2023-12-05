@@ -2863,7 +2863,6 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::createFiltered(
 {
     auto* seistrcbuf = new SeisTrcBuf( true );
     FilteredSyntheticCreator fsc( pssd, synthgenpar, *seistrcbuf );
-    fsc.doParallel( false );	// Temporary
     if ( !TaskRunner::execute(taskrunner,fsc) )
     {
 	errmsg_ = fsc.uiMessage();
