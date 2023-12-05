@@ -50,9 +50,11 @@ public:
     BufferString&	filtertype_();
     int&		windowsz_();
     Interval<float>&	freqrg_();
+    TypeSet<float>&	freqselrg_();
     BufferString&	filtertype_() const;
     int&		windowsz_() const;
     Interval<float>&	freqrg_() const;
+    TypeSet<float>&	freqselrg_() const;
 
     const char*		getWaveletNm() const;
     MultiID		getWaveletID() const;

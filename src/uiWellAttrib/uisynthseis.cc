@@ -32,7 +32,7 @@ public:
 	filtertypefld_ = fld;
     }
 
-    void setFreqFld(uiFreqFilterSelFreq* fld)
+    void setFreqFld(uiFreqFilter* fld)
     {
 	freqfld_ = fld;
     }
@@ -43,7 +43,7 @@ public:
     }
 
     uiGenInput*			filtertypefld_ = nullptr;
-    uiFreqFilterSelFreq*	freqfld_ = nullptr;
+    uiFreqFilter*		freqfld_ = nullptr;
     uiLabeledSpinBox*		smoothwindowfld_ = nullptr;
 };
 
@@ -58,9 +58,15 @@ uiGenInput* uiFullSynthSeisSel::filtertypefld_()
 }
 
 
-uiFreqFilterSelFreq* uiFullSynthSeisSel::freqfld_()
+uiFreqFilter* uiFullSynthSeisSel::freqselfld_()
 {
     return uifss_hpmgr_.getParam( this )->freqfld_;
+}
+
+
+uiFreqFilterSelFreq* uiFullSynthSeisSel::freqfld_()
+{
+    return nullptr;
 }
 
 
@@ -76,9 +82,15 @@ uiGenInput* uiFullSynthSeisSel::filtertypefld_() const
 }
 
 
-uiFreqFilterSelFreq* uiFullSynthSeisSel::freqfld_() const
+uiFreqFilter* uiFullSynthSeisSel::freqselfld_() const
 {
     return uifss_hpmgr_.getParam( this )->freqfld_;
+}
+
+
+uiFreqFilterSelFreq* uiFullSynthSeisSel::freqfld_() const
+{
+    return nullptr;
 }
 
 
@@ -616,9 +628,9 @@ uiFullSynthSeisSel::uiFullSynthSeisSel( uiParent* p, const Setup& su )
 	      uiFullSynthSeisSel::parsChangedCB);
     filtertypefld_()->attach( alignedBelow, inpselfld_ );
 
-    uifss_hpmgr_.getParam(this)->setFreqFld( new uiFreqFilterSelFreq(topgrp) );
-    freqfld_()->attach( alignedBelow, filtertypefld_() );
-    mAttachCB(freqfld_()->parchanged, uiFullSynthSeisSel::parsChangedCB);
+    uifss_hpmgr_.getParam(this)->setFreqFld( new uiFreqFilter(topgrp) );
+    freqselfld_()->attach( alignedBelow, filtertypefld_() );
+    mAttachCB(freqselfld_()->valueChanged, uiFullSynthSeisSel::parsChangedCB);
 
     uifss_hpmgr_.getParam(this)->setSmoothWindowFld(
 		new uiLabeledSpinBox( topgrp, tr("Window size (samples)")) );
@@ -670,7 +682,7 @@ void uiFullSynthSeisSel::filterChgCB( CallBacker* )
     const bool filter = synthtype == SynthGenParams::FilteredSynthetic ||
 			synthtype == SynthGenParams::FilteredStratProp;
     const bool dofreqfilter = filtertypefld_()->getBoolValue();
-    freqfld_()->display( filter && dofreqfilter );
+    freqselfld_()->display( filter && dofreqfilter );
     smoothwindowfld_()->display( filter && !dofreqfilter );
 }
 
@@ -845,7 +857,7 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
     {
 	NotifyStopper ns_inpsel( inpselfld_->box()->selectionChanged );
 	NotifyStopper ns_filter( filtertypefld_()->valueChanged );
-	NotifyStopper ns_freq( freqfld_()->parchanged );
+	NotifyStopper ns_freq( freqselfld_()->valueChanged );
 	NotifyStopper ns_window( smoothwindowfld_()->box()->valueChanged );
 	uiComboBox* inpbox = inpselfld_->box();
 	if ( inpbox->isPresent(genparams.inpsynthnm_) )
@@ -874,8 +886,16 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 	{
 	    FFTFilter::Type ftype;
 	    FFTFilter::parseEnum( genparams.filtertype_(), ftype );
-	    freqfld_()->setFreqRange( genparams.freqrg_() );
-	    freqfld_()->setFilterType( ftype );
+	    const auto& freqs = genparams.freqselrg_();
+	    if ( ftype==FFTFilter::BandPass && freqs.size()==4 )
+		freqselfld_()->setBandPass( freqs[0], freqs[1],
+					    freqs[2], freqs[3] );
+	    else if ( ftype==FFTFilter::LowPass && freqs.size()==2 )
+		freqselfld_()->setLowPass( freqs[0], freqs[1] );
+	    else if ( ftype==FFTFilter::HighPass && freqs.size()==2 )
+		freqselfld_()->setHighPass( freqs[0], freqs[1] );
+	    else
+		return false;
 	}
 	filterChgCB( nullptr );
     }
@@ -976,12 +996,13 @@ void uiFullSynthSeisSel::fillPar( IOPar& iop ) const
     else if ( sgp.isFiltered() )
     {
 	const bool dofreqfilter = filtertypefld_()->getBoolValue();
-	const FFTFilter::Type ftype = freqfld_()->filterType();
+	const FFTFilter::Type ftype = freqselfld_()->filterType();
 	iop.set( SynthGenParams::sKeyInput(), inpselfld_->box()->text() );
 	if ( dofreqfilter )
 	{
 	    iop.set( sKey::Filter(), FFTFilter::toString(ftype) );
-	    iop.set( SynthGenParams::sKeyFreqRange(), freqfld_()->freqRange() );
+	    iop.set( SynthGenParams::sKeyFreqRange(),
+		     freqselfld_()->frequencies(true) );
 	}
 	else
 	{
