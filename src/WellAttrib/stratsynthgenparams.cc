@@ -35,6 +35,7 @@ public:
 
     BufferString	filtertype_;
     int			windowsz_;
+    TypeSet<float>	freqselrg_;
     Interval<float>	freqrg_;
 };
 
@@ -62,6 +63,18 @@ int& SynthGenParams::windowsz_()
 int& SynthGenParams::windowsz_() const
 {
     return sgp_hpmgr_.getParam( this )->windowsz_;
+}
+
+
+TypeSet<float>& SynthGenParams::freqselrg_()
+{
+    return sgp_hpmgr_.getParam( this )->freqselrg_;
+}
+
+
+TypeSet<float>& SynthGenParams::freqselrg_() const
+{
+    return sgp_hpmgr_.getParam( this )->freqselrg_;
 }
 
 
@@ -154,7 +167,7 @@ SynthGenParams& SynthGenParams::operator=( const SynthGenParams& oth )
     wvltnm_ = oth.wvltnm_;
     filtertype_() = oth.filtertype_();
     windowsz_() = oth.windowsz_();
-    freqrg_() = oth.freqrg_();
+    freqselrg_() = oth.freqselrg_();
 
     return *this;
 }
@@ -190,7 +203,7 @@ bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
 	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
 	hassamefilter = filtertype_()==oth.filtertype_() &&
 			windowsz_() == oth.windowsz_() &&
-			freqrg_() == oth.freqrg_();
+			freqselrg_() == oth.freqselrg_();
     }
 
 
@@ -237,7 +250,7 @@ bool SynthGenParams::isFilterOK() const
     if ( filtertype_()==sKey::Average() )
 	return windowsz_()>0;
     else
-	return !freqrg_().isUdf();
+	return !freqselrg_().isEmpty();
 }
 
 
@@ -336,7 +349,8 @@ void SynthGenParams::setDefaultValues()
     {
 	filtertype_() = FFTFilter::toString( FFTFilter::LowPass );
 	windowsz_() = 101;
-	freqrg_() = Interval<float>(0, 15);
+	freqselrg_().setEmpty();
+	freqselrg_().add(10).add(15);
     }
 
     createName( name_ );
@@ -497,7 +511,7 @@ void SynthGenParams::fillPar( IOPar& par ) const
 	    if ( filtertype_()==sKey::Average() )
 		par.set( sKey::Size(), windowsz_() );
 	    else
-		par.set( sKeyFreqRange(), freqrg_() );
+		par.set( sKeyFreqRange(), freqselrg_() );
 	}
     }
 }
@@ -595,11 +609,11 @@ void SynthGenParams::usePar( const IOPar& par )
 	    {
 		par.get( sKey::Filter(), filtertype_() );
 		windowsz_() = mUdf(float);
-		freqrg_() = Interval<float>::udf();
+		freqselrg_().setEmpty();
 		if ( filtertype_()==sKey::Average() )
 		    par.get( sKey::Size(), windowsz_() );
 		else
-		    par.get( sKeyFreqRange(), freqrg_() );
+		    par.get( sKeyFreqRange(), freqselrg_() );
 	    }
 	}
     }
@@ -626,13 +640,17 @@ void SynthGenParams::createName( BufferString& nm ) const
 	nm = filtertype_();
 	if ( filtertype_()==sKey::Average() )
 	    nm.add( "(" ).add( windowsz_() ).add( "pts)" );
-	else if ( filtertype_()==FFTFilter::toString(FFTFilter::LowPass) )
-	    nm.add( "(" ).add( freqrg_().stop ).add( " Hz)" );
-	else if ( filtertype_()==FFTFilter::toString(FFTFilter::HighPass) )
-	    nm.add( "(" ).add( freqrg_().start ).add( " Hz)" );
 	else
-	    nm.add("(").add(freqrg_().start).add("-").add(freqrg_().stop)
-								.add(" Hz)");
+	{
+	    nm.add( "(" );
+	    for ( const auto& freq : freqselrg_() )
+	    {
+		nm.add( freq ).add( "-" );
+	    }
+	    nm.last() = ' ';
+	    nm.add( "Hz)" );
+	}
+
 	BufferString synnm( inpsynthnm_ );
 	if ( isFilteredSynthetic() )
 	{
