@@ -285,9 +285,19 @@ void ascistream::init( bool rdhead )
     if ( !rdhead )
 	return;
 
-    if ( !strm_.getLine(header_)
-      || !strm_.getLine(filetype_)
-      || !strm_.getLine(timestamp_) )
+    od_stream_Pos strmpos = strm_.position();
+    if ( strmpos > 0 )
+	strm_.setReadPosition( 0 ); // Jump to the beginning to read header
+
+    const bool res = strm_.getLine(header_) &&
+		     strm_.getLine(filetype_) &&
+		     strm_.getLine(timestamp_);
+    if ( strmpos > 0 )
+	strm_.setReadPosition( strmpos ); // Jump back to the current position
+    else if ( res )
+	next();
+
+    if ( !res )
 	return;
 
     filetype_.trimBlanks();
@@ -298,8 +308,6 @@ void ascistream::init( bool rdhead )
 	    *ptr = '\0';
 	filetype_.trimBlanks();
     }
-
-    next();
 }
 
 
