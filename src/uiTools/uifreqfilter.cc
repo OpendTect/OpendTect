@@ -140,8 +140,14 @@ uiFreqFilter::~uiFreqFilter()
 void uiFreqFilter::initGrp( CallBacker* )
 {
     const bool zistime = SI().zDomain().isTime();
-    const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
-    setLowPass( nyq*0.4, nyq*0.6 );
+    if ( zistime )
+	setLowPass( 10.f, 15.f );
+    else
+    {
+	const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
+	setLowPass( nyq*0.4, nyq*0.6 );
+    }
+
     mAttachCB(typefld_->valueChanged, uiFreqFilter::typeSelCB);
     mAttachCB(freqfld_->valueChanged, uiFreqFilter::freqChgCB);
     typeSelCB( nullptr );
