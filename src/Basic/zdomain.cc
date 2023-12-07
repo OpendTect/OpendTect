@@ -75,10 +75,11 @@ static bool zIsTime( const IOPar& iop, bool* isfound =nullptr )
 {
     BufferString domstr;
     if ( iop.get(sKey(),domstr) &&
-	 (domstr == Time().key() || domstr == Depth().key()) )
+	 (domstr == Time().key() || domstr == Depth().key() ||
+	  domstr == sKey::Time()) )
     {
 	if ( isfound ) *isfound = true;
-	return domstr == Time().key();
+	return domstr == Time().key() || domstr == sKey::Time();
     }
 
     bool zistime;
