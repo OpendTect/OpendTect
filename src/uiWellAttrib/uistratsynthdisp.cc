@@ -830,11 +830,13 @@ void uiStratSynthDisp::initGrp( CallBacker* )
 
 bool uiStratSynthDisp::curIsPS( FlatView::Viewer::VwrDest dest ) const
 {
+    ConstRefMan<SyntheticData> sd;
     if ( dest != FlatView::Viewer::VD && !wvaselfld_->isNoneSelected() )
-	return datamgr_.isPS( wvaselfld_->curID() );
-    if ( dest != FlatView::Viewer::WVA && !vdselfld_->isNoneSelected() )
-	return datamgr_.isPS( vdselfld_->curID() );
-    return false;
+	sd = datamgr_.getDataSet( wvaselfld_->curID() );
+    else if ( dest != FlatView::Viewer::WVA && !vdselfld_->isNoneSelected() )
+	sd = datamgr_.getDataSet( vdselfld_->curID() );
+
+    return sd && sd->isPS() && sd->hasOffset();
 }
 
 
@@ -1025,6 +1027,8 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 	const bool hascuroffset = sd->hasOffset();
 	if ( hascuroffset )
 	    curoffsidx = sd->synthGenDP().getOffsetIdx( curoffs_ );
+	else if ( sd->isPS() )
+	    curoffsidx = 0;
 
 	const Strat::LevelID sellvlid = edtools_.selLevelID();
 	const bool showflattened =
@@ -2003,6 +2007,19 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
     if ( valstr.isEmpty() )
 	valstr = pars.find( "Z-Coord" );
 
+    ConstRefMan<SyntheticData> sd;
+    if ( !wvaselfld_->isNoneSelected() )
+	sd = datamgr_.getDataSet( wvaselfld_->curID() );
+    else if ( !vdselfld_->isNoneSelected() )
+	sd = datamgr_.getDataSet( vdselfld_->curID() );
+    else
+    {
+	TypeSet<SynthID> validids;
+	datamgr_.getIDs( validids, DataMgr::NoSubSel, true );
+	if ( !validids.isEmpty() )
+	    sd = datamgr_.getDataSet( validids.first() );
+    }
+
     float zval = mUdf(float);
     if ( !valstr.isEmpty() )
     {
@@ -2013,7 +2030,7 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	depthstr.add( SI().getZUnitString() );
 	mesg.addSpace().add( depthstr );
 
-	if ( psgrp_->isDisplayed() )
+	if ( sd && sd->isPS() )
 	{
 	    BufferString offsetstr( 16, true );
 	    zval = offsslider_->getFValue();
@@ -2062,12 +2079,6 @@ void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
 	mAddSep(); mesg += "Offs="; mesg += val;
 	mesg += " "; mesg += SI().getXYUnitString();
     }
-
-    TypeSet<SynthID> validids;
-    datamgr_.getIDs( validids, DataMgr::NoSubSel, true );
-    ConstRefMan<SyntheticData> sd;
-    if ( !validids.isEmpty() )
-	sd = datamgr_.getDataSet( validids.first() );
 
     const TimeDepthModel* d2tmdl = sd ? sd->getTDModel( seqidx ) : nullptr;
     const Strat::LayerModel& laymod = datamgr_.layerModel();
