@@ -1090,9 +1090,10 @@ void ElasticModel::setMaxThickness( float maxthickness )
 	nbinsert = 1;
 	if ( thickness > maxthickness - cMinLayerThickness() )
 	{
-	    nbinsert = mCast( int, thickness/maxthickness ) + 1;
+	    nbinsert = mNINT32( Math::Ceil(thickness/maxthickness) );
 	    newlayer->setThickness( newlayer->getThickness() / nbinsert );
 	}
+
 	for ( int nlidx=0; nlidx<nbinsert; nlidx++ )
 	    add( newlayer->clone() );
     }
