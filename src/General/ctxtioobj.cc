@@ -571,6 +571,24 @@ CtxtIOObj::~CtxtIOObj()
 {}
 
 
+CtxtIOObj& CtxtIOObj::operator=( const CtxtIOObj& oth )
+{
+    if ( this == &oth )
+	return *this;
+
+    ctxt_ = oth.ctxt_;
+    deleteAndNullPtr( ioobj_ );
+    if ( oth.ioobj_ )
+	ioobj_ = oth.ioobj_->clone();
+
+    deleteAndNullPtr( iopar_ );
+    if ( oth.iopar_ )
+	iopar_ = oth.iopar_->clone();
+
+    return *this;
+}
+
+
 void CtxtIOObj::fillIfOnlyOne()
 {
     ctxt_.fillTrGroup();

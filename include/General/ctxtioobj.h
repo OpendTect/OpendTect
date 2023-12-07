@@ -161,6 +161,8 @@ public:
 			CtxtIOObj(const CtxtIOObj&);
 			~CtxtIOObj();
 
+    CtxtIOObj&		operator=(const CtxtIOObj&);
+
     void		destroyAll();
 
     virtual const OD::String& name() const override { return ctxt_.name(); }
