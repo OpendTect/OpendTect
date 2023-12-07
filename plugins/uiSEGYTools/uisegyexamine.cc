@@ -103,8 +103,6 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
     tblsu.rowdesc("Header field").coldesc("Trace").selmode(uiTable::SingleRow);
     tbl_ = new uiTable( tblgrp, tblsu, "Trace info" );
-    tbl_->setPrefHeightInChar( 14 );
-    tbl_->setPrefWidthInChar( 50 );
     tbl_->attach( ensureBelow, lbl );
     for ( int icol=0; icol<setup_.nrtrcs_; icol++ )
     {
@@ -116,7 +114,6 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	tbl_->setColumnReadOnly( icol, true );
     }
     tbl_->selectionChanged.notify( mCB(this,uiSEGYExamine,rowClck) );
-
 
     auto* lsb = new uiLabeledSpinBox( tblgrp, tr("Trace / Step") );
     lsb->attach( leftAlignedBelow, tbl_ );
@@ -150,16 +147,15 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     auto* nrtrcssb = new uiLabeledSpinBox( tblgrp, tr("Nr traces") );
     nrtrcssb->attach( leftOf, seistb );
+    nrtrcssb->attach( ensureRightOf, lbl );
     nrtrcsfld_ = nrtrcssb->box();
     mAttachCB( nrtrcsfld_->valueChanged, uiSEGYExamine::nrTrcsCB );
     nrtrcsfld_->setToolTip( tr("Number of traces to examine") );
     nrtrcsfld_->setInterval( 1, 100000, 1 );
     nrtrcsfld_->setValue( setup_.nrtrcs_ );
-    hvaldisp_ = new uiSEGYTrcHdrValPlot( this, true );
 
-    uiSplitter* vsplit = new uiSplitter( logrp, "VSplitter", true );
-    vsplit->addGroup( tblgrp );
-    vsplit->addGroup( hvaldisp_ );
+    hvaldisp_ = new uiSEGYTrcHdrValPlot( logrp, true );
+    hvaldisp_->attach( rightOf, tblgrp );
 
     uiSplitter* hsplit = new uiSplitter( this, "HSplitter", false );
     hsplit->addGroup( txtgrp );
