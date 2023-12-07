@@ -31,16 +31,17 @@ public:
 			uiWellSelGrp(uiParent*,bool withpos=true);
 			~uiWellSelGrp();
 
-    void		getCoordinates(TypeSet<Coord>&);
+    void			getCoordinates(TypeSet<Coord>&);
     const TypeSet<MultiID>&	getSelWells() const { return selwellsids_; }
-    void		setSelectedWells();
+    void			setSelectedWells();
+    Notifier<uiWellSelGrp>	orderChanged;
 
 protected:
 
     void		fillListBox();
 
     void		createSelectButtons(uiGroup*);
-    void                createMoveButtons(uiGroup*);
+    void		createMoveButtons(uiGroup*);
     void		createFields();
     void		attachFields(uiGroup*,uiGroup*);
     void		selButPush(CallBacker*);
@@ -59,7 +60,7 @@ protected:
     uiListBox*		wellsbox_;
     uiTable*		selwellstbl_;
 
-    uiGenInput*		onlytopfld_;
+    uiGenInput*		onlytopfld_			= nullptr;
 
     uiToolButton*	toselect_;
     uiToolButton*	fromselect_;
@@ -96,9 +97,9 @@ protected:
 
     uiGenInput*		extendfld_;
     uiIOObjSel*		outfld_;
-    uiCheckBox*	dispfld_;
+    uiCheckBox*		dispfld_			= nullptr;
 
-    uiPushButton*	previewbutton_;
+    uiPushButton*	previewbutton_			= nullptr;
 
     uiWellSelGrp*	selgrp_;
     uiWellPartServer*	wellserv_;
