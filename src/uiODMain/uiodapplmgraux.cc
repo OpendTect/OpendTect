@@ -509,10 +509,10 @@ void uiODApplMgrDispatcher::posDlgClose( CallBacker* )
 
 void uiODApplMgrDispatcher::openXPlot()
 {
-    CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt_.forread_ = true;
-    ctio.ctxt_.setName( "Cross-plot Data" );
-    uiIOObjSelDlg seldlg( par_, ctio );
+    IOObjContext ctxt = PosVecDataSetTranslatorGroup::ioContext();
+    ctxt.forread_ = true;
+    ctxt.setName( "Cross-plot Data" );
+    uiIOObjSelDlg seldlg( par_, ctxt );
     seldlg.setHelpKey( mODHelpKey(mOpenCossplotHelpID) );
     if ( !seldlg.go() || !seldlg.ioObj() ) return;
 

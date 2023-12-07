@@ -200,10 +200,11 @@ void uiWellPartServer::importLogs()
 
 void uiWellPartServer::importMarkers()
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    ctio->ctxt_.forread_ = true;
-    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( false );
-    uiIOObjSelDlg wellseldlg( parent(), sdsu, *ctio  );
+    IOObjContext ctxt = mIOObjContext( Well );
+    ctxt.forread_ = true;
+    uiIOObjSelDlg::Setup sdsu;
+    sdsu.multisel( false );
+    uiIOObjSelDlg wellseldlg( parent(), ctxt, sdsu );
     wellseldlg.setCaption( tr("Import Markers") );
     if ( !wellseldlg.go() ) return;
 
@@ -252,10 +253,11 @@ void uiWellPartServer::importReadyCB( CallBacker* cb )
 
 bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    ctio->ctxt_.forread_ = true;
-    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
-    uiIOObjSelDlg dlg( parent(), sdsu, *ctio  );
+    IOObjContext ctxt = mIOObjContext( Well );
+    ctxt.forread_ = true;
+    uiIOObjSelDlg::Setup sdsu;
+    sdsu.multisel( true );
+    uiIOObjSelDlg dlg( parent(), ctxt, sdsu );
     if ( !dlg.go() ) return false;
 
     wellids.setEmpty();
@@ -703,7 +705,8 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 	mErrRet(tr("Empty well track"))
 
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    ctio->setObj(0); ctio->setName( wellname );
+    ctio->setObj( nullptr );
+    ctio->setName( wellname );
     if ( !ctio->fillObj() )
 	mErrRet( uiStrings::phrCannotCreateDBEntryFor( toUiString(wellname) ))
 

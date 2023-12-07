@@ -67,10 +67,9 @@ int IOObj::addProducer( IOObjProducer* prod )
 
 
 IOObj::IOObj( const char* nm, const char* ky )
-	: NamedObject(nm)
-	, key_(ky)
-	, dirnm_("")
-	, pars_(*new IOPar)
+    : NamedObject(nm)
+    , key_(ky)
+    , pars_(*new IOPar)
 {
 }
 
@@ -78,7 +77,6 @@ IOObj::IOObj( const char* nm, const char* ky )
 IOObj::IOObj( const char* nm, const MultiID& ky )
     : NamedObject(nm)
     , key_(ky)
-    , dirnm_("")
     , pars_(*new IOPar)
 {
 }

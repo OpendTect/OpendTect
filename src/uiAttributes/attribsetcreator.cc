@@ -46,8 +46,8 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
     {
 	indirgrp = new uiGroup( this, "Indirect attribs" );
 	const uiString txt = indirinps.size() > 1
-            ? uiStrings::phrSpecify(tr("the input for these attributes"))
-	    : uiStrings::phrSpecify(tr("the input for this attribute"));
+		? uiStrings::phrSpecify(tr("the input for these attributes"))
+		: uiStrings::phrSpecify(tr("the input for this attribute"));
 	mkGrp( indirgrp, txt, indirinps );
     }
 
@@ -60,12 +60,12 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 
     if ( dirinps.size() )
     {
-	uiGroup* dirgrp = new uiGroup( this, "Direct attribs" );
+	auto* dirgrp = new uiGroup( this, "Direct attribs" );
 	const uiString txt = dirinps.size() > 1
-            ? uiStrings::phrSpecify(
-			 tr("the cubes that contain these attributes"))
-	    : uiStrings::phrSpecify(
-			 tr("the cube that contains this attribute"));
+		? uiStrings::phrSpecify(
+			tr("the cubes that contain these attributes"))
+		: uiStrings::phrSpecify(
+			tr("the cube that contains this attribute"));
 	mkGrp( dirgrp, txt, dirinps );
 	if ( indirgrp )
 	    dirgrp->attach( alignedBelow, indirgrp );
@@ -88,9 +88,9 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 	    const BufferStringSet& inps )
 {
-    uiLabel* lbl = new uiLabel( mkgrp, lbltxt );
-    uiGroup* fldgrp = new uiGroup( mkgrp, "sels" );
-    uiGroup* curgrp = new uiGroup( fldgrp, "sels1" );
+    auto* lbl = new uiLabel( mkgrp, lbltxt );
+    auto* fldgrp = new uiGroup( mkgrp, "sels" );
+    auto* curgrp = new uiGroup( fldgrp, "sels1" );
     mkgrp->setHAlignObj( fldgrp );
     fldgrp->setHAlignObj( curgrp );
     fldgrp->attach( centeredBelow, lbl );
@@ -101,16 +101,16 @@ void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 
     for ( int idx=0; idx<inps.size(); idx++ )
     {
-	CtxtIOObj* newctio = mMkCtxtIOObj(SeisTrc);
-	newctio->ctxt_.forread_ = true;
+	IOObjContext ctxt = mIOObjContext( SeisTrc );
+	ctxt.forread_ = true;
 	if ( neednewgrp )
 	{
-	    uiGroup* newgrp = new uiGroup( fldgrp, "selsN" );
+	    auto* newgrp = new uiGroup( fldgrp, "selsN" );
 	    newgrp->attach( rightOf, curgrp );
 	    curgrp = newgrp;
 	}
-	uiIOObjSel* newsel = new uiIOObjSel( curgrp, *newctio,
-						      toUiString(*inps[idx]) );
+
+	auto* newsel = new uiIOObjSel( curgrp, ctxt, toUiString(*inps[idx]) );
 	if ( neednewgrp )
 	    curgrp->setHAlignObj( newsel );
 	else if ( prevsel )

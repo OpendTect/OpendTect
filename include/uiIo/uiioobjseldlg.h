@@ -51,9 +51,11 @@ public:
 	mDefSetupMemb(BufferStringSet,trsnotallwed);
     };
 
-			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
+			uiIOObjSelDlg(uiParent*,const IOObjContext&,
+				      const Setup& = {});
+    explicit		uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
 			    const uiString& titletxt=uiString::emptyString());
-			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
+    explicit		uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
 			~uiIOObjSelDlg();
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }

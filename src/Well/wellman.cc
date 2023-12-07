@@ -892,8 +892,8 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
 
     if ( uwi && *uwi )
     {
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
-	const IODirEntryList del( iodir, ctio->ctxt_ );
+	const IOObjContext ctxt = mIOObjContext( Well );
+	const IODirEntryList del( iodir, ctxt );
 	RefMan<Well::Data> data = new Well::Data;
 	for ( int idx=0; idx<del.size(); idx++ )
 	{

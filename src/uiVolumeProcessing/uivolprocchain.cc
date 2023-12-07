@@ -427,7 +427,8 @@ bool uiChain::doSaveAs()
 {
     IOObjContext ctxt = mGetIOObjContext;
     ctxt.forread_ = false;
-    uiIOObjSelDlg dlg( this, ctxt, tr("Volume Builder Setup") );
+    uiIOObjSelDlg dlg( this, ctxt,
+		       uiIOObjSelDlg::Setup(tr("Volume Builder Setup")) );
     if ( !dlg.go() || !dlg.nrChosen() )
 	 return false;
 

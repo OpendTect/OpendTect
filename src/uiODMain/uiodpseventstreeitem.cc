@@ -77,8 +77,8 @@ bool uiODPSEventsParentTreeItem::showSubMenu()
 bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
 					      BufferString& eventname )
 {
-    CtxtIOObj context = PSEventTranslatorGroup::ioContext();
-    context.ctxt_.forread_ = true;
+    IOObjContext context = PSEventTranslatorGroup::ioContext();
+    context.forread_ = true;
     uiIOObjSelDlg dlg( getUiParent(), context );
     if ( !dlg.go() )
 	return false;

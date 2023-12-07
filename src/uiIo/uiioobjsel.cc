@@ -45,6 +45,20 @@ static HelpKey getHelpKey( bool forread )
 }
 
 
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const IOObjContext& ctxt,
+			      const Setup& setup )
+    : uiIOObjRetDlg(p,uiDialog::Setup(selTxt(ctxt.forread_),
+				      mNoDlgTitle,
+				      getHelpKey(ctxt.forread_))
+			.nrstatusflds(1))
+    , setup_(setup)
+{
+    CtxtIOObj ctio( ctxt );
+    init( ctio );
+    ctio.destroyAll();
+}
+
+
 uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
 				const uiString& ttxt )
     : uiIOObjRetDlg(p,uiDialog::Setup(selTxt(ctio.ctxt_.forread_),

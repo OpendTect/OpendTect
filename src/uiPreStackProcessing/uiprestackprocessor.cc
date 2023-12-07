@@ -11,15 +11,14 @@ ________________________________________________________________________
 
 #include "ioman.h"
 #include "ioobj.h"
-#include "ptrman.h"
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
+#include "ptrman.h"
 
 #include "uibuttongroup.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
 #include "uilistbox.h"
-#include "uipixmap.h"
 #include "uimsg.h"
 #include "uitoolbutton.h"
 
@@ -32,8 +31,8 @@ mImplFactory2Param( uiDialog, uiParent*, Processor*, uiPSPD )
 
 uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     : uiGroup( p )
-    , manager_( man )
     , change( this )
+    , manager_( man )
     , changed_( false )
 {
     manager_.fillPar( restorepar_ );
@@ -306,10 +305,10 @@ void uiProcessorManager::propertiesCB( CallBacker* )
 
 void uiProcessorManager::loadCB( CallBacker* )
 {
-    CtxtIOObj selcontext = PreStackProcTranslatorGroup::ioContext();
-    selcontext.ctxt_.forread_ = true;
+    IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
+    ctxt.forread_ = true;
 
-    uiIOObjSelDlg dlg( this, selcontext );
+    uiIOObjSelDlg dlg( this, ctxt );
     if ( dlg.go() && dlg.ioObj() )
     {
 	uiString errmsg;
@@ -322,7 +321,6 @@ void uiProcessorManager::loadCB( CallBacker* )
 	}
     }
 
-    delete selcontext.ioobj_;
     changed_ = false;
     updateButtons();
     change.trigger();
@@ -341,22 +339,19 @@ bool uiProcessorManager::save()
 
 bool uiProcessorManager::doSaveAs()
 {
-    CtxtIOObj selcontext = PreStackProcTranslatorGroup::ioContext();
-    selcontext.ctxt_.forread_ = false;
-
-    uiIOObjSelDlg dlg( this, selcontext );
+    IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
+    ctxt.forread_ = false;
+    uiIOObjSelDlg dlg( this, ctxt );
     if ( dlg.go() )
     {
 	const IOObj* selobj = dlg.ioObj();
 	if (selobj && doSave(*selobj) )
 	{
 	    lastmid_ = selobj->key();
-	    delete selcontext.ioobj_;
 	    return true;
 	}
     }
 
-    delete selcontext.ioobj_;
     return false;
 }
 

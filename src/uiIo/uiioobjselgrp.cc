@@ -350,15 +350,14 @@ void relocStart( const char* msg ) override
 // uiIOObjSelGrp
 #define muiIOObjSelGrpConstructorCommons \
       uiGroup(p) \
-    , ctio_(*new CtxtIOObj(c)) \
-    , lbchoiceio_(nullptr) \
-    , newStatusMsg(this) \
     , selectionChanged(this) \
     , itemChosen(this) \
+    , newStatusMsg(this) \
     , listUpdated(this) \
     , itemAdded(this) \
     , itemRemoved(this) \
-    , itemChanged(this)
+    , itemChanged(this) \
+    , ctio_(*new CtxtIOObj(c))
 
 
 // Note: don't combine first and second constructor making the uiString default

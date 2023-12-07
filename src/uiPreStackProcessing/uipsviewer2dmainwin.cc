@@ -322,8 +322,8 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 {
     uiIOObjSelDlg::Setup sdsu( uiStrings::phrSelect(tr("Mute for display")) );
     sdsu.multisel( true );
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(MuteDef);
-    uiIOObjSelDlg mutesel( this, sdsu, *ctio );
+    IOObjContext ctxt = mIOObjContext( MuteDef );
+    uiIOObjSelDlg mutesel( this, sdsu, ctxt );
     if ( !mutesel.go() )
 	return;
 
@@ -347,7 +347,6 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
     }
 
     displayMutes();
-    delete ctio->ioobj_;
 }
 
 

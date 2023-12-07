@@ -195,9 +195,9 @@ void uiPickPartServer::fetchHors( bool is2d )
 
 bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
-    ctio->ctxt_.forread_ = true;
-    PickSetTranslator::fillConstraints( ctio->ctxt_, poly );
+    IOObjContext ctxt = mIOObjContext( PickSet );
+    ctxt.forread_ = true;
+    PickSetTranslator::fillConstraints( ctxt, poly );
 
     uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
     uiString titletxt = uiStrings::phrSelect(uiStrings::sInput());
@@ -205,7 +205,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 						uiStrings::sPointSet(mPlural);
     sdsu.titletext_ = toUiString("%1 %2").arg(titletxt).arg(disptyp);
 
-    uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
+    uiIOObjSelDlg dlg( parent(), sdsu, ctxt );
     bool isforread = dlg.isForRead();
     uiString caption = !isforread ? tr("Save %1 as") :
 				uiStrings::phrLoad(toUiString("%1"));

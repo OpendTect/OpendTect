@@ -220,10 +220,10 @@ protected:
     uiListBox*			listfld_;
     uiGenInput*			nmfld_				= nullptr;
     uiGenInput*			filtfld_;
-    uiIOObjSelGrpManipSubj*	manipgrpsubj_		= nullptr;
-    uiIOObjSelWriteTranslator*	wrtrselfld_		= nullptr;
+    uiIOObjSelGrpManipSubj*	manipgrpsubj_			= nullptr;
+    uiIOObjSelWriteTranslator*	wrtrselfld_			= nullptr;
     uiToolButton*		mkdefbut_			= nullptr;
-    uiListBoxChoiceIO*		lbchoiceio_;
+    uiListBoxChoiceIO*		lbchoiceio_			= nullptr;
     ObjectSet<uiButton>		insertbuts_;
     ObjectSet<uiIOObjInserter>	inserters_;
     uiGroup*			topgrp_;

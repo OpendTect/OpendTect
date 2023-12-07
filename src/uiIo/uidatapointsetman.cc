@@ -75,13 +75,12 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     if ( !dps )
 	return;
 
-    CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt_.forread_ = true;
-
+    IOObjContext ctxt = PosVecDataSetTranslatorGroup::ioContext();
+    ctxt.forread_ = true;
     uiString lbl = tr("%1 to merge with '%2'")
 	.arg(uiStrings::phrSelect(uiStrings::phrCrossPlot(uiStrings::sData())))
 	.arg(toUiString(dps->name()));
-    uiIOObjSelDlg seldlg( this, ctio, lbl );
+    uiIOObjSelDlg seldlg( this, ctxt, uiIOObjSelDlg::Setup(lbl) );
     if ( !seldlg.go() )
 	return;
 
