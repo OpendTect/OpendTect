@@ -94,6 +94,7 @@ void uiFileSel::init( const uiString& lbltxt )
 	    protfld_->addItem( fsa.userName() );
 	    protfld_->setIcon( idx, fsa.iconName() );
 	}
+
 	if ( checkbox_ )
 	    checkbox_->attach( leftOf, protfld_ );
 	mAttachCB( protfld_->selectionChanged, uiFileSel::protChgCB );
@@ -297,7 +298,20 @@ void uiFileSel::inputChgCB( CallBacker* )
 {
     setButtonStates();
     if ( protfld_ )
-	protfld_->setText( selectedProtocol() );
+    {
+	const BufferString prot = selectedProtocol();
+	int idx = prot.isEmpty() ? 0 : factnms_.indexOf( prot.buf() );
+	if ( idx<0 )
+	{
+	    uiMSG().error( tr("Unknown protocol") );
+	    idx = 0;
+	}
+
+	protfld_->setCurrentItem( idx );
+	protChgCB( nullptr );
+    }
+
+    filepars_.set( sKey::FileName(), fileName() );
     newSelection.trigger();
 }
 
@@ -414,6 +428,9 @@ void uiFileSel::getFileNames( BufferStringSet& nms ) const
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	BufferString& fname = nms.get( idx );
+	if ( fname.isEmpty() )
+	    continue;
+
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() && !setup_.initialselectiondir_.isEmpty() )
 	{
