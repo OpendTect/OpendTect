@@ -204,6 +204,14 @@ IOPar::~IOPar()
 }
 
 
+IOPar* IOPar::clone() const
+{
+    auto* par = new IOPar;
+    *par = *this;
+    return par;
+}
+
+
 IOPar& IOPar::operator =( const IOPar& iop )
 {
     if ( this == &iop )

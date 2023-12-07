@@ -71,6 +71,8 @@ public:
     inline bool		operator !=( const IOPar& iop ) const
 			{ return !isEqual(iop); }
 
+    IOPar*		clone() const;
+
     int			size() const;
     bool		isPresent(const char* ky) const;
 
