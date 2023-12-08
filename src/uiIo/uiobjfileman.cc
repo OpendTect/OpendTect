@@ -63,8 +63,6 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     sgsu.withctxtfilter_.add( ctxtfilter_ );
 
     selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiString::empty(), sgsu );
-    mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
-    mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
     auto* refreshbut =
@@ -120,7 +118,10 @@ void uiObjFileMan::finalizeStartCB( CallBacker* )
 
 void uiObjFileMan::finalizeDoneCB( CallBacker* )
 {
+    mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
+    mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
     initDlg();
+    selChg( nullptr );
 }
 
 
@@ -178,7 +179,8 @@ static BufferString getNotesFileName( const IOObj& ioobj )
     if ( !fp.isAbsolute() || fp.isURI() )
     {
 	fnm.clean( BufferString::NoSpecialChars );
-	fp.set( IOM().rootDir() ); fp.add( ioobj.dirName() );
+	fp.set( IOM().rootDir() );
+	fp.add( ioobj.dirName() );
 	fp.add( fnm );
     }
     fp.setExtension( "note" );
@@ -232,7 +234,7 @@ void uiObjFileMan::readNotes()
 
 void uiObjFileMan::selChg( CallBacker* )
 {
-    saveNotes(0);
+    saveNotes( nullptr );
     delete curioobj_;
     curioobj_ = selgrp_->nrChosen() > 0 ? IOM().get(selgrp_->currentID()) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);

@@ -46,7 +46,6 @@ uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
 
     selgrp_->setPrefWidthInChar( cPrefWidth );
     infofld_->setPrefWidthInChar( cPrefWidth );
-    selChg( this );
 }
 
 

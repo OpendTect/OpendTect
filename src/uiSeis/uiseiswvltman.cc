@@ -86,7 +86,6 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     wvnamdisp_->attach(centeredAbove, waveletdisplay_->uiobj());
     wvnamdisp_->setAlignment( Alignment::HCenter );
 
-    selChg( this );
     mTriggerInstanceCreatedNotifier();
     windowClosed.notify( mCB(this,uiSeisWvltMan,closeDlg) );
 }

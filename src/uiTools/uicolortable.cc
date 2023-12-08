@@ -40,8 +40,8 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 				 mODHelpKey(mAutoRangeClipDlgHelpID) )
 				.modal(false).savebutton(enabsave))
     , formatChanged(this)
-    , ms_(ms)
     , scaleChanged(nf)
+    , ms_(ms)
 {
     showAlwaysOnTop();
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
@@ -95,6 +95,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     precisioninfolbl_ = new uiLabel( this, getPrecicionInfo(2) );
     precisioninfolbl_->attach( rightTo, precisionfld_ );
 
+    mAttachCB( postFinalize(), uiAutoRangeClipDlg::finalizeCB );
     updateFields();
 }
 
@@ -102,6 +103,12 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 ~uiAutoRangeClipDlg()
 {
     detachAllNotifiers();
+}
+
+
+void finalizeCB( CallBacker* )
+{
+    updateFields();
 }
 
 
@@ -127,9 +134,6 @@ void updateFields()
     cliptypefld_->setValue( issym );
 
     clipPush( nullptr );
-    cliptypePush( nullptr );
-    autoSymPush( nullptr );
-    symPush( nullptr );
 }
 
 
