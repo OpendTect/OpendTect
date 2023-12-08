@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "varlenarray.h"
 
 
-
 /*!\brief base class for Interval<T>
 
 Has no virtual functions and can therefore be used in places where virtual
@@ -196,6 +195,7 @@ public:
 			/*!< epsilon refers to the steps,
 				i.e eps=0.1 allows b to be 0.1 steps apart.
 			*/
+    inline bool		isMultipleOfStep(const T&) const;
     inline T		snapStep(const T& inpstep) const;
 			/*!<Snaps inpstep to a positive multiple of step. */
 
@@ -898,42 +898,35 @@ mDefFNrSteps(double)
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
+
+template <class T>
+inline bool StepInterval<T>::isMultipleOfStep( const T& val ) const
+{
+    return val % step == 0;
+}
+
+
+#define mDefFltIsMultipleOfStep(typ,releps) \
+template <> \
+inline bool StepInterval<typ>::isMultipleOfStep( const typ& val ) const \
+{ \
+    return mIsZero( remainder(val,step), step*releps ); \
+}
+
+mDefFltIsMultipleOfStep(float,1e-4f)
+mDefFltIsMultipleOfStep(double,1e-8)
+// Do not change the above releps values as they originate from the types.
+
 template <class T>
 inline bool StepInterval<T>::isCompatible( const StepInterval<T>& b,
 					   float ) const
 {
-    if ( !step || step>b.step || b.step%step )
+    if ( !step || step>b.step || !isMultipleOfStep(b.step) )
 	return false;
 
-    // const T diff = static_cast<const Interval<T>*>(this)->start - b.start;
     const T diff = this->start - b.start;
-    return !(diff%step);
+    return isMultipleOfStep( diff );
 }
-
-
-#define mDefFltisCompat(typ,releps) \
-template <> \
-inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
-			float eps ) const \
-{ \
-    const typ castedeps = (typ) eps; \
-    if ( !mIsEqual(step,b.step, castedeps) ) return false; \
- \
-    typ nrsteps = (start - b.start) / step; \
-    const int nrstepsi = mNINT32( nrsteps ); \
-    if ( !nrstepsi ) \
-	return mIsEqual( start, b.start, \
-		     mIsZero(start,releps) ? releps \
-					   : start < 0. ? -start * releps \
-							:  start * releps );\
-\
-    typ reldiff = (nrsteps - nrstepsi) / nrsteps; \
-    return ( (reldiff) < (releps) && (reldiff) > (-releps) ); \
-}
-
-mDefFltisCompat(float,1e-5f)
-mDefFltisCompat(double,1e-10)
-// Do not change the above releps values as they originate from the types.
 
 
 template <class T> inline
@@ -955,26 +948,19 @@ void StepInterval<T>::limitTo( const Interval<T>& oth )
     }
 
     mDynamicCastGet(const StepInterval<T>*,othsi,&oth)
-    if ( !othsi || isCompatible(*othsi) )
-	{ limitTo( Interval<T>(oth) ); return; }
-
-    if ( BasicInterval<T>::includes(oth.start,true) )
-	Interval<T>::start = snap( oth.start, OD::SnapUpward );
-    if ( BasicInterval<T>::includes(oth.stop,true) )
-	Interval<T>::stop = snap( oth.stop, OD::SnapDownward );
-
-    if ( othsi->step <= step )
-	return;
-
-    double fidxstart = mCast(double,Interval<T>::start) / step;
-    fidxstart -= Math::Floor( fidxstart );
-    double othfidxstart = mCast(double,oth.start) / step;
-    othfidxstart -= Math::Floor( othfidxstart );
-    const double releps = mIsZero(fidxstart,1e-6) ? 1e-6
-					    : fidxstart < 0. ? -fidxstart*1e-6
-							      : fidxstart*1e-6;
-    if ( mIsEqual(fidxstart,othfidxstart,releps) )
+    if ( isCompatible(*othsi) )
+    {
+	Interval<T>::limitTo( Interval<T>(oth) );
+	Interval<T>::start = othsi->snap( Interval<T>::start, OD::SnapUpward );
+	Interval<T>::stop = othsi->snap( Interval<T>::stop, OD::SnapDownward );
 	step = othsi->step;
+	return;
+    }
+
+    const StepInterval<T> org( *this );
+    Interval<T>::limitTo_( oth );
+    Interval<T>::start = org.snap( Interval<T>::start, OD::SnapUpward );
+    Interval<T>::stop = org.snap( Interval<T>::stop, OD::SnapDownward );
 }
 
 
