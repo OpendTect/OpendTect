@@ -354,13 +354,12 @@ bool Line2::operator==( const Line2& line ) const
 }
 
 
-#define mRetUdf return Coord( mUdf(double), mUdf(double) )
 Coord Line2::direction() const
 {
     if ( mIsUdf(slope_) )
     {
 	if ( !isvertical_ || mIsUdf(xintcpt_) )
-	    mRetUdf;
+	    return Coord::udf();
 
 	return Coord( 0, 1 );
     }
@@ -374,7 +373,7 @@ Coord Line2::closestPoint( const Coord& point ) const
     if ( mIsUdf(slope_) )
     {
 	if ( !isvertical_ || mIsUdf(xintcpt_) )
-	    mRetUdf;
+	    return Coord::udf();
 
 	return Coord( xintcpt_, point.y );
     }
@@ -389,16 +388,16 @@ Coord Line2::closestPoint( const Coord& point ) const
 Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 {
     Coord pos( mUdf(double), mUdf(double) );
-    if ( line.start_==line.stop_ && !isOnLine(line.start_) )
-	mRetUdf;
+    if ( line.start_.isDefined() && line.start_==line.stop_ )
+	return isOnLine(line.start_) ? line.start_ : Coord::udf();
 
     if ( mIsUdf(slope_) )
     {
 	if ( !isvertical_ || mIsUdf(xintcpt_) )
-	    mRetUdf;
+	    return Coord::udf();
 
 	if ( mIsUdf(line.slope_) || line.isvertical_ )
-	    mRetUdf;
+	    return Coord::udf();
 
 	pos.x = xintcpt_;
 	pos.y = line.slope_ * pos.x + line.yintcpt_;
@@ -408,7 +407,7 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 	if ( mIsUdf(line.slope_) )
 	{
 	    if ( !line.isvertical_ || mIsUdf(line.xintcpt_) )
-		mRetUdf;
+		return Coord::udf();
 
 	    pos.x = line.xintcpt_;
 	    pos.y = slope_ * pos.x + yintcpt_;
@@ -417,7 +416,7 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 	{
 	    double slopediff = slope_ - line.slope_;
 	    if ( mIsZero(slopediff,mDefEps) )
-		mRetUdf;
+		return Coord::udf();
 
 	    pos.x = ( line.yintcpt_ - yintcpt_ ) / slopediff;
 	    pos.y = slope_ * pos.x + yintcpt_;
@@ -454,7 +453,7 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
     }
 
     if ( !inlimits1 || !inlimits2 )
-	mRetUdf;
+	return Coord::udf();
 
     return pos;
 }
