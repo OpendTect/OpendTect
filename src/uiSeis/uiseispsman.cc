@@ -56,7 +56,6 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     }
 
     mTriggerInstanceCreatedNotifier();
-    selChg(0);
 }
 
 

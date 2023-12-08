@@ -448,11 +448,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 
 uiObject* uiIOObjSelGrp::getFilterFieldAttachObj()
 {
-    if ( !ctxtfiltfld_ )
-	return filtfld_->attachObj();
-
-    mDynamicCastGet(uiLabeledComboBox*,uilcb,ctxtfiltfld_->parent());
-    return uilcb->attachObj();
+    return filtfld_->attachObj();
 }
 
 
@@ -505,14 +501,14 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 	    valstrs.sort();
 	    auto* firstline = new BufferString( sKey::All() );
 	    valstrs.insertAt( firstline, 0 );
-	    auto* ctxtfiltfld = new uiLabeledComboBox( listfld_, valstrs,
+	    auto* ctxtfiltfld = new uiLabeledComboBox( topgrp_, valstrs,
 						       lblstr, fms.str() );
 	    uiComboBox* box = ctxtfiltfld->box();
 	    box->setHSzPol( uiObject::SmallVar );
 	    if ( lastuilcb )
-		ctxtfiltfld->attach( alignedBelow, lastuilcb );
+		ctxtfiltfld->attach( rightOf, lastuilcb );
 	    else
-		ctxtfiltfld->attach( alignedBelow, filtfld_ );
+		listfld_->attach( alignedBelow, ctxtfiltfld );
 
 	    lastuilcb = ctxtfiltfld;
 	    ctxtfiltfld_ = box;
@@ -561,7 +557,7 @@ void uiIOObjSelGrp::mkWriteFlds()
     nmfld_->setDefaultTextValidator();
     nmfld_->setElemSzPol( uiObject::SmallMax );
     nmfld_->setStretch( 2, 0 );
-    mAttachCB( nmfld_->valuechanged, uiIOObjSelGrp::newOutputNameCB );
+    mAttachCB( nmfld_->valueChanged, uiIOObjSelGrp::newOutputNameCB );
     if ( wrtrselfld_ && !wrtrselfld_->isEmpty() )
 	nmfld_->attach( alignedBelow, wrtrselfld_ );
 
@@ -964,7 +960,6 @@ void uiIOObjSelGrp::updateEntry( const MultiID& mid, const BufferString& objnm,
 
 void uiIOObjSelGrp::fullUpdate( int curidx )
 {
-    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     const IODir iodir( ctio_.ctxt_.getSelKey() );
     IODirEntryList del( iodir, ctio_.ctxt_ );
     BufferString nmflt = filtfld_->text();
