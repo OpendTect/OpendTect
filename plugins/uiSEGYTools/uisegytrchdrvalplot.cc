@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "uisegytrchdrvalplot.h"
 #include "uifunctiondisplay.h"
 #include "uilabel.h"
-#include "uistrings.h"
 #include "segyhdrdef.h"
 #include "statruncalc.h"
 #include "bendpointfinder.h"
@@ -19,9 +18,9 @@ ________________________________________________________________________
 uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh, int tnr0 )
     : uiGroup(p,"Trace header values plot")
     , issingle_(sh)
+    , trcnr0_(tnr0)
     , tlbl2_(0)
     , slbl2_(0)
-    , trcnr0_(tnr0)
 {
     tlbl1_ = new uiLabel( this, uiString::empty() );
     tlbl1_->setStretch( 2, 0 ); tlbl1_->setAlignment( Alignment::HCenter );
@@ -33,7 +32,8 @@ uiSEGYTrcHdrValPlot::uiSEGYTrcHdrValPlot( uiParent* p, bool sh, int tnr0 )
     }
 
     uiFunctionDisplay::Setup fdsu;
-    fdsu.pointsz(3).drawscatter(true).noy2axis(true).noy2gridline(true);
+    fdsu.pointsz(3).drawscatter(true).noy2axis(true).noy2gridline(true)
+	.canvaswidth(300);
     disp_ = new uiFunctionDisplay( this, fdsu );
     disp_->attach( centeredBelow, tlbl2_ ? tlbl2_ : tlbl1_ );
     tlbl1_->attach( widthSameAs, disp_ );
