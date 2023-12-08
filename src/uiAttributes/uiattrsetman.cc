@@ -40,7 +40,6 @@ uiAttrSetMan::uiAttrSetMan( uiParent* p, bool is2d )
     attribfld_->setHSzPol( uiObject::Wide );
 
     mTriggerInstanceCreatedNotifier();
-    selChg( this );
 }
 
 

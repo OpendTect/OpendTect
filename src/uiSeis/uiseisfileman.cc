@@ -131,7 +131,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 				  mCB(this,uiSeisFileMan,showSEGYHeader) );
 
     mTriggerInstanceCreatedNotifier();
-    mAttachCB( postFinalize(), uiSeisFileMan::selChg );
 }
 
 

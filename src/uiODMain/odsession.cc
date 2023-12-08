@@ -322,7 +322,6 @@ uiSessionMan::uiSessionMan( uiParent* p )
 {
     createDefaultUI();
     mTriggerInstanceCreatedNotifier();
-    selChg( this );
 }
 
 

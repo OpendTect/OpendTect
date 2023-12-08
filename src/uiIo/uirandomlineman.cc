@@ -25,7 +25,6 @@ uiRandomLineMan::uiRandomLineMan( uiParent* p )
 {
     createDefaultUI();
     mTriggerInstanceCreatedNotifier();
-    selChg( this );
 }
 
 

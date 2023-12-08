@@ -57,7 +57,6 @@ uiProbDenFuncMan::~uiProbDenFuncMan()
 
 void uiProbDenFuncMan::initDlg()
 {
-    selChg( this );
 }
 
 

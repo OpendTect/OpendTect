@@ -223,7 +223,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
 
     mTriggerInstanceCreatedNotifier();
-    selChg( this );
 }
 
 

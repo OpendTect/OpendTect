@@ -51,7 +51,6 @@ uiPickSetMan::uiPickSetMan( uiParent* p, const char* fixedtrkey )
 				uiStrings::phrMerge(uiStrings::sPointSet()),
 				mCB(this,uiPickSetMan,mergeSets) );
     mTriggerInstanceCreatedNotifier();
-    selChg( this );
 }
 
 

@@ -145,7 +145,6 @@ uiWellMan::uiWellMan( uiParent* p )
 		      tr("Log tools"), mCB(this,uiWellMan,logTools) );
     extrabutgrp_->attach( ensureBelow, logsgrp_ );
 
-    selChg( this );
     mTriggerInstanceCreatedNotifier();
 }
 

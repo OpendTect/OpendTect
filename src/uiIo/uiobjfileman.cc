@@ -64,8 +64,6 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     sgsu.withctxtfilter_.add( ctxtfilter_ );
 
     selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiString::empty(), sgsu );
-    mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
-    mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
     auto* refreshbut =
@@ -82,12 +80,9 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     extrabutgrp_->setPrefHeight( ft.height()*2 );
 
     infogrp_ = new uiGroup( this, "Info Group" );
-    auto* infolbl = new uiLabel( infogrp_, uiString::emptyString() );
-    infolbl->setIcon( "info" );
-    infolbl->setToolTip( tr("Data Information") );
 
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
-    infofld_->attach( rightTo, infolbl );
+    infofld_->setIcon( "info", tr("Data Information") );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
     auto* dummytb = new uiToolButton( infogrp_, "empty",
@@ -96,15 +91,12 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     dummytb->display( false );
 
     auto* notesgrp = new uiGroup( this, "Notes Group" );
-    auto* noteslbl = new uiLabel( notesgrp, uiString::emptyString() );
-    noteslbl->setIcon( "notes" );
-    noteslbl->setToolTip( tr("Notes for selected data") );
 
     notesfld_ = new uiTextEdit( notesgrp, "User info" );
+    notesfld_->setIcon( "notes", tr("Notes for selected data") );
     notesfld_->setPrefHeightInChar( 5 );
     notesfld_->setStretch( 2, 2 );
     notesfld_->setToolTip( tr("Notes") );
-    notesfld_->attach( rightTo, noteslbl );
     auto* savebut = new uiToolButton( notesgrp, "save", tr("Save Notes"),
 				      mCB(this,uiObjFileMan,saveNotes) );
     savebut->attach( rightTo, notesfld_ );
@@ -128,7 +120,10 @@ void uiObjFileMan::finalizeStartCB( CallBacker* )
 
 void uiObjFileMan::finalizeDoneCB( CallBacker* )
 {
+    mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
+    mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
     initDlg();
+    selChg( nullptr );
 }
 
 
@@ -186,7 +181,8 @@ static BufferString getNotesFileName( const IOObj& ioobj )
     if ( !fp.isAbsolute() || fp.isURI() )
     {
 	fnm.clean( BufferString::NoSpecialChars );
-	fp.set( IOM().rootDir().fullPath().buf() ); fp.add( ioobj.dirName() );
+	fp.set( IOM().rootDir().fullPath().buf() );
+	fp.add( ioobj.dirName() );
 	fp.add( fnm );
     }
     fp.setExtension( "note" );
@@ -240,7 +236,7 @@ void uiObjFileMan::readNotes()
 
 void uiObjFileMan::selChg( CallBacker* )
 {
-    saveNotes(0);
+    saveNotes( nullptr );
     delete curioobj_;
     curioobj_ = selgrp_->nrChosen() > 0 ? IOM().get(selgrp_->currentID()) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
