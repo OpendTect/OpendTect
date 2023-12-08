@@ -291,6 +291,7 @@ public:
     static uiString sClass()		{ return tr("Class"); }
     static uiString sClear()		{ return tr("Clear"); }
     static uiString sClose()		{ return tr("Close"); }
+    static uiString sCloud()		{ return tr("Cloud"); }
     static uiString sCode(int n=1)	{ return tr("Code",0,n); }
     static uiString sCoefficient()	{ return tr("Coefficient"); }
     static uiString sCount()		{ return tr("Count"); }
@@ -430,6 +431,7 @@ public:
     static uiString sLineStyle(int n=1) { return tr("Line Style",0,n); }
     static uiString sLithology(int n=1){ return tr("Lithology",0,n); }
     static uiString sLoad()		{ return tr("Load"); }
+    static uiString sLocal()		{ return tr("Local"); }
     static uiString sLocation(int n=1)	{ return tr("Location",0,n); }
     static uiString sLock()		{ return tr("Lock"); }
     static uiString sLog(int n=1)	{ return tr("Log",0,n); }
