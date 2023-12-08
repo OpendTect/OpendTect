@@ -52,7 +52,7 @@ void uiFileSelectorSetup::init( const char* fnm )
 
     initialselectiondir_.set( GetDataDir() );
     allowallextensions_ = confirmoverwrite_ = true;
-    onlylocal_ = false;
+    onlylocal_ = skiplocal_ = false;
 }
 
 

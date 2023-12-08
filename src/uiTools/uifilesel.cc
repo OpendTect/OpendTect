@@ -84,6 +84,9 @@ void uiFileSel::init( const uiString& lbltxt )
     const bool forread = setup_.isForRead();
     uiStringSet protnms;
     OD::FileSystemAccess::getProtocolNames( factnms_, forread );
+    if ( setup_.skiplocal_ )
+	factnms_.remove( "file" );
+
     const int nrfactnms = factnms_.size();
     if ( nrfactnms > 1 && !setup_.onlylocal_ )
     {
@@ -122,6 +125,12 @@ void uiFileSel::init( const uiString& lbltxt )
     selbut_ = uiButton::getStd( this, OD::Select,
 				mCB(this,uiFileSel,doSelCB), false );
     selbut_->attach( rightOf, fnmfld_ );
+
+    if ( nrfactnms==0 )
+    {
+	fnmfld_->setText( "No protocols available" );
+	selbut_->setSensitive( false );
+    }
 
     if ( setup_.withexamine_ )
     {
