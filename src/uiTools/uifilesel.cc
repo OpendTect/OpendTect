@@ -94,6 +94,7 @@ void uiFileSel::init( const uiString& lbltxt )
 	    protfld_->addItem( fsa.userName() );
 	    protfld_->setIcon( idx, fsa.iconName() );
 	}
+
 	if ( checkbox_ )
 	    checkbox_->attach( leftOf, protfld_ );
 	mAttachCB( protfld_->selectionChanged, uiFileSel::protChgCB );
@@ -286,29 +287,8 @@ void uiFileSel::protChgCB( CallBacker* )
     if ( !protfld_ )
 	return;
 
-    BufferString fnm( fileName() );
-    const BufferString prot( OD::FileSystemAccess::getProtocol(fnm) );
-    const BufferString newprot = factnms_.get( protfld_->currentItem() );
-    if ( prot != newprot )
-    {
-	NotifyStopper ns( newSelection );
-	const BufferString filenmonly = FilePath(fnm).fileName();
-	if ( !filenmonly.isEmpty() )
-	    ns.enableNotification();
-
-	if ( filenmonly.isEmpty() )
-	{
-	    fnmfld_->setPlaceholderText( toUiString(newprot) );
-	}
-	else
-	{
-	    fnm = OD::FileSystemAccess::withProtocol( filenmonly, newprot );
-	    setFileName( fnm );
-	}
-    }
-    else
-	fnmfld_->setPlaceholderText( uiString::empty() );
-
+    const BufferString prot = factnms_.get( protfld_->currentItem() );
+    fnmfld_->setPlaceholderText( toUiString(prot) );
     setButtonStates();
     protocolChanged.trigger();
 }
@@ -318,7 +298,20 @@ void uiFileSel::inputChgCB( CallBacker* )
 {
     setButtonStates();
     if ( protfld_ )
-	protfld_->setText( selectedProtocol() );
+    {
+	const BufferString prot = selectedProtocol();
+	int idx = prot.isEmpty() ? 0 : factnms_.indexOf( prot.buf() );
+	if ( idx<0 )
+	{
+	    uiMSG().error( tr("Unknown protocol") );
+	    idx = 0;
+	}
+
+	protfld_->setCurrentItem( idx );
+	protChgCB( nullptr );
+    }
+
+    filepars_.set( sKey::FileName(), fileName() );
     newSelection.trigger();
 }
 
@@ -435,6 +428,9 @@ void uiFileSel::getFileNames( BufferStringSet& nms ) const
     for ( int idx=0; idx<nms.size(); idx++ )
     {
 	BufferString& fname = nms.get( idx );
+	if ( fname.isEmpty() )
+	    continue;
+
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() && !setup_.initialselectiondir_.isEmpty() )
 	{
