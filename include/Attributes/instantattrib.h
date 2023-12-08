@@ -24,7 +24,7 @@ mExpClass(Attributes) Instantaneous : public Provider
 public:
     enum OutType { Amplitude, Phase, Frequency, Hilbert, Amp1Deriv, Amp2Deriv,
 		   CosPhase, EnvWPhase, EnvWFreq, PhaseAccel, ThinBed,
-		   Bandwidth, QFactor, RotatePhase };
+		   Bandwidth, QFactor, RotatePhase, Sweetness };
 		   mDeclareEnumUtils(OutType);
 
     static void			initClass();
@@ -77,6 +77,7 @@ private:
     float			calcQFactor(int,int) const;
     float			calcRotPhase(int,int,float angle) const;
     float			calcEnvWeighted(int,int,bool isphase) const;
+    float			calcSweetness(int,int) const;
 };
 
 } // namespace Attrib

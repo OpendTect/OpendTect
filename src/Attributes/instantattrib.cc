@@ -37,6 +37,7 @@ void EnumDefImpl<Attrib::Instantaneous::OutType>::init()
     uistrings_ += tr("Bandwidth");
     uistrings_ += tr("Q factor");
     uistrings_ += tr("Rotate phase");
+    uistrings_ += tr("Sweetness");
 }
 
 namespace Attrib
@@ -57,6 +58,7 @@ mDefineEnumUtils(Instantaneous,OutType,"Instantaneous Attribute")
     "Bandwidth",
     "Q factor",
     "Rotate phase",
+    "Sweetness",
     nullptr
 };
 
@@ -68,7 +70,7 @@ void Instantaneous::initClass()
     mAttrStartInitClassWithUpdate
 
     desc->addInput( InputSpec("Imag Data",true) );
-    desc->setNrOutputs( Seis::UnknowData, 14 );
+    desc->setNrOutputs( Seis::UnknowData, 15 );
 
     FloatParam* rotangle_ = new FloatParam( rotateAngle() );
     rotangle_->setLimits( Interval<float>(-180,180) );
@@ -196,8 +198,11 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 	if ( isOutputEnabled(QFactor) )
 	    setOutputValue( output, QFactor, idx, z0, calcQFactor(idx,z0) );
 	if ( isOutputEnabled(RotatePhase) )
-	    setOutputValue(output, RotatePhase, idx, z0,
+	    setOutputValue( output, RotatePhase, idx, z0,
 			    calcRotPhase(idx,z0,rotangle_));
+	if ( isOutputEnabled(Sweetness) )
+	    setOutputValue( output, Sweetness, idx, z0,
+			    calcSweetness(idx,z0) );
     }
 
     return true;
@@ -352,14 +357,39 @@ float Instantaneous::calcThinBed( int cursample, int z0 ) const
 }
 
 
+float Instantaneous::calcSweetness( int cursample, int z0 ) const
+{
+    const float env = calcAmplitude( cursample, z0 );
+    const float freq = calcFrequency( cursample, z0 );
+    mCheckRetUdf( env, freq )
+
+    if ( freq<0 || mIsZero(freq,mDefEpsF) )
+	return 0.f;
+
+    return env / Math::Sqrt(freq);
+}
+
+
 const Interval<int>* Instantaneous::reqZSampMargin( int inp, int out ) const
 {
-    if ( out == 5 || out == 8 || out == 9 || out == 10 )
-	return &sampgate2_;
-    else if ( out == 2 || out == 4 || out == 7 || out == 11 || out == 12 )
-	return &sampgate1_;
-    else
-	return 0;
+    const OutType type = sCast(OutType,out);
+    switch ( type )
+    {
+	case Frequency:
+	case Amp1Deriv:
+	case EnvWPhase:
+	case Bandwidth:
+	case QFactor:
+	case Sweetness:
+	    return &sampgate1_;
+	case Amp2Deriv:
+	case EnvWFreq:
+	case PhaseAccel:
+	case ThinBed:
+	    return &sampgate2_;
+	default:
+	    return nullptr;
+    }
 }
 
 
