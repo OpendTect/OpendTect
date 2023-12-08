@@ -88,12 +88,18 @@ static bool testLimitTo()
     mDeclTrcKeyZSampling( cs3, 2, 56, 2,
 			10, 100, 1,
 			1.0, 2.0, 0.004 );
+    mDeclTrcKeyZSampling( cs4, 1, 45, 1,
+			40, 120, 2,
+			0.8, 1.2, 0.002 );
     mDeclTrcKeyZSampling( cs1exp, 15, 63, 6,
 			10, 100, 1,
 			1.0, 2.0, 0.004 );
     mDeclTrcKeyZSampling( cs2exp, 13, 53, 4,
 			10, 100, 1,
 			1.0, 2.0, 0.005 );
+    mDeclTrcKeyZSampling( cs4exp, 2, 44, 2,
+			40, 100, 2,
+			1.0, 1.2, 0.004 );
     mDeclTrcKeyZSampling( csgeom, 1, 1, 1, 1, 1, 1, 0.006f, 4.994f, 0.004f );
     mDeclTrcKeyZSampling( csvol, 1, 1, 1, 1, 1, 1, 0.008f, 4.992f, 0.004f );
     mDeclTrcKeyZSampling( cswidevol, 1, 1, 1, 1, 1, 1, -0.116f, 5.116f,0.004f );
@@ -102,11 +108,12 @@ static bool testLimitTo()
 
     cs1.limitTo( cs2 );
     cs2.limitTo( cs3 );
+    cs4.limitTo( cs3 );
     csvol.limitTo( csgeomexp );
     cswidevol.limitTo( csgeomexp );
     csgeom.limitTo( csgeomexp );
     csvol2.limitTo( csvolexp );
-    if ( cs1 != cs1exp || cs2 != cs2exp ||
+    if ( cs1 != cs1exp || cs2 != cs2exp || cs4 != cs4exp ||
 	 csvol != csvolexp || cswidevol != csvolexp ||
 	 csvol2 != csvolexp || csgeom != csgeomexp )
 	mRetResult( "testLimitTo" );
@@ -139,6 +146,16 @@ static bool testIsCompatible()
     zrgdshifted.shift( zrgdshifted.step * 0.01 );
     zrgdstartneg.start = -1. * zrgdstartneg.start;
 
+    const StepInterval<float> zrgfiner( 1.0, 3.0, 0.002 );
+    StepInterval<float> zrgfinerextended( zrgfiner );
+    StepInterval<float> zrgfinershrinked( zrgfiner );
+    StepInterval<float> zrgfinershifted( zrgfiner );
+    StepInterval<float> zrgfinerstartneg( zrgfiner );
+    zrgfinerextended.widen( zrgfinerextended.step * 5 );
+    zrgfinershrinked.widen( -zrgfinershrinked.step * 5 );
+    zrgfinershifted.shift( zrgfinershifted.step * 0.01 );
+    zrgfinerstartneg.start = -1. * zrgfinerstartneg.start;
+
     if ( !zrgextended.isCompatible(cs.zsamp_) ||
 	 !zrgshrinked.isCompatible(cs.zsamp_) ||
 	 zrgshifted.isCompatible(cs.zsamp_) ||
@@ -148,7 +165,12 @@ static bool testIsCompatible()
 	 !zrgdshrinked.isCompatible(zrgd) ||
 	 zrgdshifted.isCompatible(zrgd) ||
 	!zrgdstartneg.isCompatible(zrgd) ||
-	!zrgdstartneg.isCompatible(zrgdstartneg) )
+	!zrgdstartneg.isCompatible(zrgdstartneg) ||
+	!zrgfiner.isCompatible(cs.zsamp_) ||
+	!zrgfinerextended.isCompatible(zrgextended) ||
+	!zrgfinershrinked.isCompatible(zrgshrinked) ||
+	zrgfinershifted.isCompatible(zrgshifted) ||
+	!zrgfinerstartneg.isCompatible(zrgstartneg) )
 	mRetResult( "testIsCompatible()" );
 }
 
