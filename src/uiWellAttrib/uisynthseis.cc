@@ -543,9 +543,9 @@ uiFullSynthSeisSel::uiFullSynthSeisSel( uiParent* p, const Setup& su )
     mAttachCB(filtertypefld_->valueChanged, uiFullSynthSeisSel::filterChgCB);
     mAttachCB(filtertypefld_->valueChanged, uiFullSynthSeisSel::parsChangedCB);
     filtertypefld_->attach( alignedBelow, inpselfld_ );
-    freqfld_ = new uiFreqFilterSelFreq( topgrp );
+    freqfld_ = new uiFreqFilter( topgrp );
     freqfld_->attach( alignedBelow, filtertypefld_ );
-    mAttachCB(freqfld_->parchanged, uiFullSynthSeisSel::parsChangedCB);
+    mAttachCB(freqfld_->valueChanged, uiFullSynthSeisSel::parsChangedCB);
     smoothwindowfld_ = new uiLabeledSpinBox( topgrp,
 					     tr("Window size (samples)") );
     smoothwindowfld_->box()->setValue( 100 );
@@ -770,7 +770,7 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
     {
 	NotifyStopper ns_inpsel( inpselfld_->box()->selectionChanged );
 	NotifyStopper ns_filter( filtertypefld_->valueChanged );
-	NotifyStopper ns_freq( freqfld_->parchanged );
+	NotifyStopper ns_freq( freqfld_->valueChanged );
 	NotifyStopper ns_window( smoothwindowfld_->box()->valueChanged );
 	uiComboBox* inpbox = inpselfld_->box();
 	if ( inpbox->isPresent(genparams.inpsynthnm_) )
@@ -799,8 +799,15 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 	{
 	    FFTFilter::Type ftype;
 	    FFTFilter::parseEnum( genparams.filtertype_, ftype );
-	    freqfld_->setFreqRange( genparams.freqrg_ );
-	    freqfld_->setFilterType( ftype );
+	    const auto& freqs = genparams.freqrg_;
+	    if ( ftype==FFTFilter::BandPass && freqs.size()==4 )
+		freqfld_->setBandPass( freqs[0], freqs[1], freqs[2], freqs[3] );
+	    else if ( ftype==FFTFilter::LowPass && freqs.size()==2 )
+		freqfld_->setLowPass( freqs[0], freqs[1] );
+	    else if ( ftype==FFTFilter::HighPass && freqs.size()==2 )
+		freqfld_->setHighPass( freqs[0], freqs[1] );
+	    else
+		return false;
 	}
 	filterChgCB( nullptr );
     }
@@ -906,7 +913,8 @@ void uiFullSynthSeisSel::fillPar( IOPar& iop ) const
 	if ( dofreqfilter )
 	{
 	    iop.set( sKey::Filter(), FFTFilter::toString(ftype) );
-	    iop.set( SynthGenParams::sKeyFreqRange(), freqfld_->freqRange() );
+	    iop.set( SynthGenParams::sKeyFreqRange(),
+		     freqfld_->frequencies() );
 	}
 	else
 	{

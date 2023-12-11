@@ -2813,12 +2813,21 @@ bool doPrepare( int nrthreads ) override
 	{
 	    auto* filter = new ::FFTFilter( zrg_.nrSteps()+1, zrg_.step );
 	    filters_ += filter;
-	    if ( sgp_.filtertype_=="LowPass" )
-		filter->setLowPass( sgp_.freqrg_.stop );
-	    else if ( sgp_.filtertype_=="HighPass" )
-		filter->setHighPass( sgp_.freqrg_.start );
+	    if ( sgp_.filtertype_=="LowPass" && sgp_.freqrg_.size()==2 )
+		filter->setLowPass( sgp_.freqrg_[0],
+				    sgp_.freqrg_[1] );
+	    else if ( sgp_.filtertype_=="HighPass" &&
+						sgp_.freqrg_.size()==2 )
+		filter->setHighPass( sgp_.freqrg_[0],
+				     sgp_.freqrg_[1] );
+	    else if ( sgp_.filtertype_=="BandPass" &&
+						sgp_.freqrg_.size()==4 )
+		filter->setBandPass( sgp_.freqrg_[0],
+				     sgp_.freqrg_[1],
+				     sgp_.freqrg_[2],
+				     sgp_.freqrg_[3] );
 	    else
-		filter->setBandPass( sgp_.freqrg_.start, sgp_.freqrg_.stop );
+		return false;
 	}
     }
 

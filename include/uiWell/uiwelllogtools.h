@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiComboBox;
-class uiFreqFilterSelFreq;
+class uiFreqFilter;
 class uiGenInput;
 class uiMultiWellLogSel;
 class uiLabel;
@@ -79,7 +79,7 @@ protected:
     uiLabeledSpinBox*		thresholdfld_;
     uiLabeledComboBox*		replacespikefld_;
     uiGenInput*			replacespikevalfld_;
-    uiFreqFilterSelFreq*	freqfld_;
+    uiFreqFilter*		freqfld_;
     uiButton*			applybut_;
     uiButton*			okbut_;
     uiButton*			cancelbut_;

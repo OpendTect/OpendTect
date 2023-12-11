@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uifreqfilter.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 #include "survinfo.h"
 
 
@@ -101,4 +102,195 @@ void uiFreqFilterSelFreq::set( float minf, float maxf, FFTFilter::Type tp )
     freqrg_.stop = maxf;
     filtertype_ = tp;
     putToScreen();
+}
+
+
+uiFreqFilter::uiFreqFilter( uiParent* p )
+    : uiGroup( p, "Frequency Filter Selection")
+    , valueChanged(this)
+{
+    const char** typestrs = FFTFilter::TypeNames();
+    typefld_ = new uiGenInput( this, tr("Filter type"),
+				StringListInpSpec(typestrs));
+
+    const bool zistime = SI().zDomain().isTime();
+    const bool zismeter = SI().zDomain().isDepth() && !SI().depthsInFeet();
+    uiString txt = tr("%1 (%2)").arg( zistime ? uiStrings::sFrequency(true)
+					      : uiStrings::sWaveNumber(true) )
+			    .arg( zistime ? "Hz" : zismeter ? "/km" : "/kft" );
+    const float nyq = 0.5f/SI().zStep() * (zistime ? 1.0f : 1000.0f);
+    const float deffrq = 0.4*nyq;
+    freqfld_ = new uiGenInput( this, txt, FloatInpSpec(deffrq),
+			       FloatInpSpec(deffrq), FloatInpSpec(deffrq) );
+    freqfld_->addInput( FloatInpSpec(deffrq) );
+    freqfld_->attach( alignedBelow, typefld_ );
+
+    setHAlignObj( typefld_ );
+
+    mAttachCB(postFinalize(), uiFreqFilter::initGrp);
+}
+
+
+uiFreqFilter::~uiFreqFilter()
+{
+    detachAllNotifiers();
+}
+
+
+bool uiFreqFilter::zisStdTime() const
+{
+    return SI().zDomain().isTime() && SI().zStep()>1e-4 && SI().zStep()<1e-2;
+}
+
+
+void uiFreqFilter::initGrp( CallBacker* )
+{
+    if ( zisStdTime() )
+	setLowPass( 10.f, 15.f );
+    else
+    {
+	const float nyq = 0.5f/SI().zStep() *
+				    (SI().zDomain().isTime() ? 1.0f : 1000.0f);
+	setLowPass( nyq*0.4f, nyq*0.5f );
+    }
+
+    mAttachCB(typefld_->valueChanged, uiFreqFilter::typeSelCB);
+    mAttachCB(freqfld_->valueChanged, uiFreqFilter::freqChgCB);
+    typeSelCB( nullptr );
+}
+
+
+void uiFreqFilter::setLowPass( float f3, float f4 )
+{
+    if ( f3>f4 )
+	return;
+
+    setFilter( mUdf(float), mUdf(float), f3, f4, FFTFilter::LowPass );
+}
+
+
+void uiFreqFilter::setHighPass( float f1, float f2 )
+{
+    if ( f1>f2 )
+	return;
+
+    setFilter( f1, f2, mUdf(float), mUdf(float), FFTFilter::HighPass );
+}
+
+
+void uiFreqFilter::setBandPass( float f1, float f2, float f3, float f4 )
+{
+    if ( f1>f2 || f2>f3 || f3>f4 )
+	return;
+
+    setFilter( f1, f2, f3, f4, FFTFilter::LowPass );
+}
+
+
+void uiFreqFilter::setFilter( float f1, float f2, float f3, float f4,
+			      FFTFilter::Type type )
+{
+    const bool islowpass = type==FFTFilter::LowPass;
+    const bool ishighpass = type==FFTFilter::HighPass;
+    const bool zisstdtime = zisStdTime();
+    const float nyq = 0.5f/SI().zStep() *
+				    (SI().zDomain().isTime() ? 1.0f : 1000.0f);
+    if ( islowpass )
+    {
+	f1_ = f2_ = mUdf(float);
+	f3_ = mIsUdf(f3) || f3<0.0f ? (zisstdtime ? 10.0f : 0.4f*nyq) : f3;
+	f4_ = mIsUdf(f4) || f3_>f4 ? (zisstdtime ? 15.0f : f3_+0.1f*nyq) : f4;
+    }
+    else if ( ishighpass )
+    {
+	f3_ = f4_ = mUdf(float);
+	f1_ = mIsUdf(f1) || f1<0 ? (zisstdtime ? 50.0f : 0.1f*nyq) : f1;
+	f2_ = mIsUdf(f2) || f1_>f2 ? (zisstdtime ? 60.0f : f1_+0.2f*nyq) : f2;
+    }
+    else
+    {
+	f1_ = mIsUdf(f1) || f1<0 ? (zisstdtime ? 10.0f : 0.1f*nyq) : f1;
+	f2_ = mIsUdf(f2) || f1_>f2 ? (zisstdtime ? 15.0f : f1_+0.1f*nyq) : f2;
+	f3_ = mIsUdf(f3) || f2_>f3 ? (zisstdtime ? 50.0f : f2_+0.2f*nyq) : f3;
+	f4_ = mIsUdf(f4) || f3_>f4 ? (zisstdtime ? 60.0f : f3_+0.1f*nyq) : f4;
+    }
+
+    filtertype_ = type;
+    putToScreen();
+}
+
+
+void uiFreqFilter::putToScreen()
+{
+    NotifyStopper nstype( typefld_->valueChanged );
+    NotifyStopper nsfreq( freqfld_->valueChanged );
+    typefld_->setValue( filtertype_ );
+    const bool islowpass = filtertype_==FFTFilter::LowPass;
+    const bool ishighpass = filtertype_==FFTFilter::HighPass;
+    if ( islowpass )
+    {
+	freqfld_->setValue( f3_, 0 );
+	freqfld_->setValue( f4_, 1 );
+	freqfld_->setEmpty( 2 );
+	freqfld_->setEmpty( 3 );
+    }
+    else if ( ishighpass )
+    {
+	freqfld_->setValue( f1_, 0 );
+	freqfld_->setValue( f2_, 1 );
+	freqfld_->setEmpty( 2 );
+	freqfld_->setEmpty( 3 );
+    }
+    else
+    {
+	freqfld_->setValue( f1_, 0 );
+	freqfld_->setValue( f2_, 1 );
+	freqfld_->setValue( f3_, 2 );
+	freqfld_->setValue( f4_, 3 );
+    }
+
+    valueChanged.trigger();
+}
+
+
+void uiFreqFilter::typeSelCB( CallBacker* )
+{
+    const auto type = (FFTFilter::Type)typefld_->getIntValue();
+    const bool isbandpass = type==FFTFilter::BandPass;
+    const bool islowpass = type==FFTFilter::LowPass;
+    const bool ishighpass = type==FFTFilter::HighPass;
+    freqfld_->displayField( isbandpass || ishighpass || islowpass, 0, 0 );
+    freqfld_->displayField( isbandpass || ishighpass || islowpass, 0, 1 );
+    freqfld_->displayField( isbandpass, 0, 2 );
+    freqfld_->displayField( isbandpass, 0, 3 );
+    setFilter( mUdf(float), mUdf(float), mUdf(float), mUdf(float), type );
+}
+
+
+void uiFreqFilter::freqChgCB( CallBacker* )
+{
+    const auto type = (FFTFilter::Type)typefld_->getIntValue();
+    const bool islowpass = type==FFTFilter::LowPass;
+    const float f1 = freqfld_->getFValue( 0 );
+    const float f2 = freqfld_->getFValue( 1 );
+    const float f3 = freqfld_->getFValue( islowpass ? 0 : 2 );
+    const float f4 = freqfld_->getFValue( islowpass ? 1 : 3 );
+    setFilter( f1, f2, f3, f4, type );
+}
+
+
+TypeSet<float> uiFreqFilter::frequencies() const
+{
+    TypeSet<float> res;
+    const bool isbandpass = filtertype_==FFTFilter::BandPass;
+    const bool islowpass = filtertype_==FFTFilter::LowPass;
+    res += islowpass ? f3_ : f1_;
+    res += islowpass ? f4_ : f2_;
+    if ( isbandpass )
+    {
+	res += f3_;
+	res += f4_;
+    }
+
+    return res;
 }

@@ -250,7 +250,7 @@ uiGroup* uiWellLogToolWin::createEditGroup()
     applybut_ = uiButton::getStd( actiongrp, OD::Apply, cb, true );
     applybut_->attach( rightOf, llc );
 
-    freqfld_ = new uiFreqFilterSelFreq( actiongrp );
+    freqfld_ = new uiFreqFilter( actiongrp );
     freqfld_->attach( alignedBelow, llc );
 
     auto* spbgt = new uiLabeledSpinBox( actiongrp,tr("Window size (samples)") );
@@ -503,20 +503,15 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		for ( int idz=0; idz<size; idz++ )
 		    logvals.set( idz, ls.getLogVal( 0, idz ) );
 
-		const Interval<float>& freqrg = freqfld_->freqRange();
+		const TypeSet<float> freqrg = freqfld_->frequencies();
 		FFTFilter filter( size, deftimestep );
 		if ( freqfld_->filterType() == FFTFilter::HighPass )
-		    filter.setHighPass( freqrg.start );
+		    filter.setHighPass( freqrg[0], freqrg[1] );
 		else if ( freqfld_->filterType() == FFTFilter::LowPass )
-		    filter.setLowPass( freqrg.stop );
+		    filter.setLowPass( freqrg[0], freqrg[1] );
 		else
-		{
-		    if ( freqrg.isRev() )
-			mAddErrMsg( "Taper start frequency must be larger"
-				       " than stop frequency", wllnm )
-
-		    filter.setBandPass( freqrg.start, freqrg.stop );
-		}
+		    filter.setBandPass( freqrg[0], freqrg[1],
+					freqrg[2], freqrg[3] );
 
 		if ( !filter.apply(logvals) )
 		    mAddErrMsg( "Could not apply the FFT Filter", wllnm )

@@ -48,7 +48,7 @@ public:
     Attrib::Instantaneous::OutType attribtype_;
     BufferString	filtertype_;
     int			windowsz_;
-    Interval<float>	freqrg_;
+    TypeSet<float>	freqrg_;
 
     const char*		getWaveletNm() const;
     MultiID		getWaveletID() const;

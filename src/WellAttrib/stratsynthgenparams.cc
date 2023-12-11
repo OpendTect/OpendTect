@@ -165,7 +165,7 @@ bool SynthGenParams::isFilterOK() const
     if ( filtertype_==sKey::Average() )
 	return windowsz_>0;
     else
-	return !freqrg_.isUdf();
+	return !freqrg_.isEmpty();
 }
 
 
@@ -264,7 +264,8 @@ void SynthGenParams::setDefaultValues()
     {
 	filtertype_ = FFTFilter::toString( FFTFilter::LowPass );
 	windowsz_ = 101;
-	freqrg_ = Interval<float>(0, 15);
+	freqrg_.setEmpty();
+	freqrg_.add(10).add(15);;
     }
 
     createName( name_ );
@@ -498,7 +499,7 @@ void SynthGenParams::usePar( const IOPar& par )
 	    {
 		par.get( sKey::Filter(), filtertype_ );
 		windowsz_ = mUdf(float);
-		freqrg_ = Interval<float>::udf();
+		freqrg_.setEmpty();
 		if ( filtertype_==sKey::Average() )
 		    par.get( sKey::Size(), windowsz_ );
 		else
@@ -529,13 +530,23 @@ void SynthGenParams::createName( BufferString& nm ) const
 	nm = filtertype_;
 	if ( filtertype_==sKey::Average() )
 	    nm.add( "(" ).add( windowsz_ ).add( "pts)" );
-	else if ( filtertype_==FFTFilter::toString(FFTFilter::LowPass) )
-	    nm.add( "(" ).add( freqrg_.stop ).add( " Hz)" );
-	else if ( filtertype_==FFTFilter::toString(FFTFilter::HighPass) )
-	    nm.add( "(" ).add( freqrg_.start ).add( " Hz)" );
 	else
-	    nm.add( "(" ).add( freqrg_.start ).add( "-" ).add( freqrg_.stop )
-								.add( " Hz)" );
+	{
+	    nm.add( "(" );
+	    bool first = true;
+	    for ( const auto& freq : freqrg_ )
+	    {
+		if ( first )
+		{
+		    first = false;
+		    nm.add( freq );
+		}
+		else
+		    nm.add( "-" ).add( freq );
+	    }
+	    nm.add( "Hz)" );
+	}
+
 	BufferString synnm( inpsynthnm_ );
 	if ( isFilteredSynthetic() )
 	{

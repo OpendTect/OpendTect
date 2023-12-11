@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class EnumDef;
 class SynthGenParams;
-class uiFreqFilterSelFreq;
+class uiFreqFilter;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiLabeledListBox;
@@ -163,6 +163,6 @@ private:
     uiLabeledListBox*		instattribfld_;
     uiGenInput*			namefld_;
     uiGenInput*			filtertypefld_;
-    uiFreqFilterSelFreq*	freqfld_;
+    uiFreqFilter*		freqfld_;
     uiLabeledSpinBox*		smoothwindowfld_;
 };
