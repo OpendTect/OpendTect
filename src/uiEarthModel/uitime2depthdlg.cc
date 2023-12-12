@@ -22,10 +22,11 @@ ________________________________________________________________________
 #include "../EarthModel/emsurft2dtransformer.h"
 #endif
 #include "executor.h"
-#include "ctxtioobj.h"
 #include "ioman.h"
 #include "task.h"
 #include "transl.h"
+#include "survinfo.h"
+#include "zdomain.h"
 
 #include "uigeninput.h"
 #include "uiioobjselgrp.h"
@@ -50,6 +51,8 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
 	ioobjctxt = mIOObjContext(EMHorizon3D);
     else if ( objtype == IOObjInfo::Horizon2D )
 	ioobjctxt = mIOObjContext(EMHorizon2D);
+    else
+	return;
 
     const bool istime = SI().zIsTime();
     directionsel_ = new uiGenInput( this, tr("Convert from"),
@@ -239,19 +242,23 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     ObjectSet<SurfaceT2DTransfData> datas;
     datas.add( data );
 
-    SurfaceT2DTransformer transf( datas, *zatf, objtype_ );
-    transf.setZDomain( outZDomain() );
+    PtrMan<Executor> exec = SurfaceT2DTransformer::createExecutor( datas,
+							    *zatf, objtype_ );
+    mDynamicCastGet(SurfaceT2DTransformer*,surftrans,exec.ptr());
+    if ( !surftrans )
+	return false;
+
     uiTaskRunner tskr( this );
-    if ( !TaskRunner::execute(&tskr,transf) )
+    if ( !TaskRunner::execute(&tskr,*surftrans) )
     {
 	uiMSG().errorWithDetails( tr("Fail to transform the %1").
-				    arg(inpioobj->name()), transf.uiMessage() );
+				arg(inpioobj->name()), surftrans->uiMessage() );
 	deepErase( datas );
 	return false;
     }
 
     bool ret = true;
-    RefMan<Surface> surf = transf.getTransformedSurface( data->outmid_ );
+    RefMan<Surface> surf = surftrans->getTransformedSurface( data->outmid_ );
     if ( surf )
     {
 	PtrMan<Executor> saver = surf->saver();
