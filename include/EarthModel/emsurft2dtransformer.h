@@ -87,8 +87,8 @@ public:
 protected:
 
     OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
-    void		    preStepCB(CallBacker*);
-    void		    postStepCB(CallBacker*);
+    void		    preStepCB(CallBacker*) override;
+    void		    postStepCB(CallBacker*) override;
     int			    nextStep() override;
     const StringView	    getTypeString() override;
     bool		    doHorizon(const SurfaceT2DTransfData&);
@@ -133,7 +133,7 @@ public:
 protected:
 
     OD::Pol2D3D		    dataTypeSupported() override { return OD::Only2D; }
-    void		    preStepCB(CallBacker*);
+    void		    preStepCB(CallBacker*) override;
     int			    nextStep() override;
     const StringView	    getTypeString() override;
     bool		    do2DHorizon(const Horizon2DDataHolder&);
