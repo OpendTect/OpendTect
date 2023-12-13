@@ -300,12 +300,13 @@ bool ServiceClientMgr::checkService( const Network::Service::ID servid ) const
 
 void ServiceClientMgr::cleanupServices()
 {
-    for ( auto* service : services_ )
+    for ( int idx=services_.size()-1; idx>=0; idx-- )
     {
-	if ( service->isAlive() )
+	auto* service = services_.get( idx );
+	if ( !service || service->isAlive() )
 	    continue;
 
-	services_ -= service;
+	services_.removeSingle( idx );
 	serviceRemoved.trigger( service->PID() );
 	delete service;
     }
