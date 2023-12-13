@@ -157,6 +157,8 @@ public:
     uiRetVal		cancelTempSurvey();
     bool		isUsingTempSurvey() const { return prevrootdir_; }
 
+    static bool		isPreparedForSurveyChange();
+
 private:
 
     enum State		{ Bad, NeedInit, Good };

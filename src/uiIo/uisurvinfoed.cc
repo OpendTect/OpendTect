@@ -606,13 +606,15 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 	return false;
     }
 
-    File::rename( fnmin, fnmout );
-    if ( !File::exists(fnmout) )
+    uiString errmsg;
+
+    if ( !File::rename(fnmin,fnmout,&errmsg) || !File::exists(fnmout) )
     {
-	uiString msg = tr("Rename %1 to %2 failed.\n"
-	   "Please close any active batch process to proceed")
-	    .arg(fnmin).arg(fnmout);
-	uiMSG().error( msg );
+	const uiString msg = tr("Rename %1 to %2 failed.\n"
+	    "Please make sure that all the files and processes related to "
+	    "current survey are closed").arg(fnmin).arg(fnmout);
+
+	uiMSG().errorWithDetails( errmsg, msg );
 	return false;
     }
 
@@ -718,30 +720,122 @@ bool uiSurveyInfoEditor::setSurvName()
 }
 
 
-bool uiSurveyInfoEditor::acceptOK( CallBacker* )
+bool uiSurveyInfoEditor::handleCurrentSurvey()
 {
-    if ( iscurr_ )
+    TypeSet<Network::Service::ID> servids;
+    BPT().getLiveServiceIDs( servids );
+    if ( !servids.isEmpty() )
     {
-	const bool ret = uiMSG().askContinue(
-		tr("The current session will close and a new scene\n"
-		   "will be created. Do you wish to continue?") );
-	if ( !ret )
-	    return true;
+	uiBatchProgClosePrompter dlg( this, servids );
+	dlg.go();
     }
+
+    if ( !IOM().isPreparedForSurveyChange() )
+	return false;
 
     if ( !doApply() )
 	return false;
 
-    if ( iscurr_ )
+    const BufferString storepath( pathfld_->text() );
+    const BufferString newdirnm( dirName() );
+    const BufferString olddir(
+	FilePath(orgstorepath_).add(orgdirname_).fullPath() );
+    const FilePath newfp( storepath, newdirnm );
+    const BufferString newdir( newfp.fullPath() );
+    dirnamechanged = orgdirname_ != newdirnm;
+
+    if ( dirnamechanged && File::exists(newdir) )
     {
-	TypeSet<Network::Service::ID> servids;
-	BPT().getLiveServiceIDs( servids );
-	if ( !servids.isEmpty() )
+	uiMSG().error( tr("The new target folder exists.\n"
+	    "Please enter another survey name or location.") );
+	return false;
+    }
+
+
+    if ( dirnamechanged && !renameSurv(orgstorepath_,orgdirname_,newdirnm) )
+	return false;
+
+    BufferString linkpos = FilePath(rootdir_).add(newdirnm).fullPath();
+    if ( File::exists(linkpos) )
+    {
+	if ( File::isLink(linkpos) )
+	    File::remove( linkpos );
+    }
+
+    if ( !File::exists(linkpos) )
+    {
+	if ( !File::createLink(newdir,linkpos) )
 	{
-	    uiBatchProgClosePrompter dlg( this, servids );
-	    dlg.go();
+	    uiString msg =
+		uiStrings::phrCannotCreate( tr("link from \n%1 to \n%2")
+		    .arg(newdir).arg(linkpos));
+	    uiMSG().error( msg );
+	    return false;
 	}
     }
+
+    si_.disklocation_.setDirName( newdirnm );
+    si_.setSurvDataType( sCast(OD::Pol2D3D,pol2dfld_->currentItem()) );
+    if ( mUseAdvanced() )
+	si_.get3Pts( si_.set3coords_, si_.set3binids_,
+						    si_.set3binids_[2].crl() );
+
+    if ( !si_.write(rootdir_) )
+    {
+	uiMSG().error(
+	    tr("Failed to write survey info.\nNo changes committed.") );
+	return false;
+    }
+
+
+    if ( dirnamechanged )
+    {
+	uiRetVal ret;
+	const SurveyDiskLocation sdl( newfp );
+	if ( !IOM().recordDataSource(sdl,ret) )
+	{
+	    if ( !ret.isOK() )
+		uiMSG().error( ret );
+
+	    return false;
+	}
+
+	const bool iomok = IOMan::isOK();
+	if ( (iomok && !IOMan::setDataSource(sdl.fullPath()).isOK()) ||
+	    (!iomok && !IOMan::newSurvey(&si_).isOK()) )
+	    return false;
+    }
+    else
+    {
+	IOM().surveyParsChanged();
+	if ( IOM().changeSurveyBlocked() )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool uiSurveyInfoEditor::acceptOK( CallBacker* )
+{
+    if ( iscurr_ )
+    {
+	const SurveyInfo backupsi( si_ );
+	bool ret = uiMSG().askGoOn(
+		tr("The current session will close and a new scene\n"
+		   "will be created. Do you wish to continue?"),
+		uiStrings::sProceed(), tr("Discard and close") );
+	if ( ret && !handleCurrentSurvey() )
+	{
+	    si_ = backupsi;
+	    return false;
+	}
+
+	return true;
+    }
+
+    if ( !doApply() )
+	return false;
 
     const BufferString newstorepath( pathfld_->text() );
     const BufferString newdirnm( dirName() );
@@ -769,20 +863,9 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	else if ( !uiMSG().askGoOn(tr("Keep the survey at the old location?")) )
 	    File::remove( olddir );
     }
-    else if ( dirnamechanged )
-    {
-	if ( iscurr_ )
-	{
-	    if ( iscurr_ )
-		IOM().surveyParsChanged();
-
-	    if ( IOM().changeSurveyBlocked() )
-		return true;
-	}
-
-	if ( !renameSurv(orgstorepath_,orgdirname_,newdirnm) )
+    else if ( dirnamechanged && !renameSurv(orgstorepath_,orgdirname_,
+								newdirnm) )
 	    return false;
-    }
 
     BufferString linkpos = FilePath(rootdir_).add(newdirnm).fullPath();
     if ( File::exists(linkpos) )
@@ -823,24 +906,6 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
 	if ( ret )
 	    sip->launchSurveyImportDlg( this->parent() )->go();
-    }
-
-    if ( iscurr_ )
-    {
-	const SurveyDiskLocation sdl( newfp );
-	uiRetVal ret;
-	if ( !IOM().recordDataSource(sdl,ret) )
-	{
-	    if ( !ret.isOK() )
-		uiMSG().error( ret );
-
-	    return false;
-	}
-
-	const bool iomok = IOMan::isOK();
-	if ( (iomok && !IOMan::setDataSource(sdl.fullPath()).isOK()) ||
-	    (!iomok && !IOMan::newSurvey(&si_).isOK()) )
-	    return false;
     }
 
     return true;

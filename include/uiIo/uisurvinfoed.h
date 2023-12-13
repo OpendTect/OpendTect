@@ -124,7 +124,7 @@ protected:
     bool				    setCoords();
     bool				    setRelation();
     bool				    doApply();
-
+    bool				    handleCurrentSurvey();
     bool				    acceptOK(CallBacker*) override;
     bool				    rejectOK(CallBacker*) override;
     void				    updatePar(CallBacker*);
