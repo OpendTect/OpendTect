@@ -31,7 +31,7 @@ Strat::LayerSequence::LayerSequence( const Strat::LayerSequence& ls )
 
 Strat::LayerSequence::~LayerSequence()
 {
-    setEmpty();
+    deepErase( layers_ );
 }
 
 
@@ -42,8 +42,10 @@ Strat::LayerSequence& Strat::LayerSequence::operator =(
     {
 	deepCopy( layers_, oth.layers_ );
 	z0_ = oth.z0_;
+	velabove_ = oth.velabove_;
 	props_ = oth.props_;
     }
+
     return *this;
 }
 
@@ -74,13 +76,25 @@ void Strat::LayerSequence::setXPos( float xpos )
 }
 
 
-void Strat::LayerSequence::setStartDepth( float z, bool only )
+void Strat::LayerSequence::setStartDepth( float z, bool only, bool ajustlayers )
 {
-    z0_ = z;
-    if ( only )
+    if ( mIsEqual(z,z0_,1e-2f) )
 	return;
 
+    z0_ = z;
+    if ( only || isEmpty() )
+	return;
+
+    if ( ajustlayers )
+	adjustLayers( z );
+
     prepareUse();
+}
+
+
+void Strat::LayerSequence::setOverburdenVelocity( float vel )
+{
+    velabove_ = vel;
 }
 
 
@@ -125,6 +139,7 @@ Interval<float> Strat::LayerSequence::zRange() const
 {
     if ( isEmpty() )
 	return Interval<float>( z0_, z0_ );
+
     return Interval<float>( z0_, layers_[layers_.size()-1]->zBot() );
 }
 
@@ -282,8 +297,32 @@ void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
 	out.layers() += newlay;
     }
 
-    out.z0_ = depthrg.start;
-    out.prepareUse();
+    out.setStartDepth( depthrg.start );
+}
+
+
+void Strat::LayerSequence::adjustLayers( float startz )
+{
+    if ( startDepth() > startz-1e-2f ||
+	 zRange().stop < startz-1e-2f )
+	return;
+
+    ObjectSet<Layer>& lays = layers();
+    while ( !lays.isEmpty() )
+    {
+	Layer* lay = lays.first();
+	const float th = lay->zBot() + startz;
+	if ( th < 0.f )
+	{
+	    delete lays.removeSingle( 0 );
+	    continue;
+	}
+
+	if ( th > 1e-2f )
+	    lay->setThickness( th );
+
+	break;
+    }
 }
 
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "od_iostream.h"
 #include "separstr.h"
+#include "statparallelcalc.h"
 #include "stratlayer.h"
 #include "stratlayersequence.h"
 #include "stratreftree.h"
@@ -108,6 +109,46 @@ Interval<float> Strat::LayerModel::zRange() const
 }
 
 
+float Strat::LayerModel::startDepth( Stats::Type st ) const
+{
+    const int sz = size();
+    if ( sz <= 0 )
+	return mUdf(float);
+
+    TypeSet<float> zvals( sz, mUdf(float) );
+    for ( int idx=0; idx<sz; idx++ )
+	zvals[idx] = seqs_.get( idx )->startDepth();
+
+    Stats::CalcSetup stsu;
+    stsu.require( st );
+    Stats::ParallelCalc calc( stsu, zvals.arr(), sz );
+    if ( !calc.execute() )
+	return mUdf(float);
+
+    return float( calc.getValue(st) );
+}
+
+
+float Strat::LayerModel::overburdenVelocity( Stats::Type st ) const
+{
+    const int sz = size();
+    if ( sz <= 0 )
+	return mUdf(float);
+
+    TypeSet<float> velvals( sz, mUdf(float) );
+    for ( int idx=0; idx<sz; idx++ )
+	velvals[idx] = seqs_.get( idx )->overburdenVelocity();
+
+    Stats::CalcSetup stsu;
+    stsu.require( st );
+    Stats::ParallelCalc calc( stsu, velvals.arr(), sz );
+    if ( !calc.execute() )
+	return mUdf(float);
+
+    return float( calc.getValue(st) );
+}
+
+
 void Strat::LayerModel::setEmpty()
 {
     deepErase( seqs_ );
@@ -126,8 +167,6 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 				const LayerSequence& inpls )
 {
     auto* newls = new LayerSequence( &proprefs_ );
-    newls->setStartDepth( inpls.startDepth() );
-
     const PropertyRefSelection& inpprops = inpls.propertyRefs();
     for ( int ilay=0; ilay<inpls.size(); ilay++ )
     {
@@ -144,7 +183,8 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 	newls->layers() += newlay;
     }
 
-    newls->prepareUse();
+    newls->setStartDepth( inpls.startDepth() );
+    newls->setOverburdenVelocity( inpls.overburdenVelocity() );
     seqs_ += newls;
     return *newls;
 }
@@ -229,12 +269,15 @@ class LayerModelReader : public Executor
 { mODTextTranslationClass(LayerModelReader)
 public:
 LayerModelReader( Strat::LayerModel& lm, od_istream& strm,
-		  const StepInterval<int>& readrg, bool mathpreserve )
+		  const StepInterval<int>& readrg, bool mathpreserve,
+		  float startdepth, float abovevel )
     : Executor("Reading pseudo-wells")
     , lm_(lm)
     , strm_(strm)
     , readrg_(readrg)
     , mathpreserve_(mathpreserve)
+    , startdepth_(startdepth)
+    , abovevel_(abovevel)
 {
     nextreadidx_ = readrg_.start;
 }
@@ -289,15 +332,13 @@ int nextStep()
     strm_.skipUntil( 'S' );
     BufferString linestr;
     strm_.getLine( linestr );
-    SeparString separlinestr( linestr.buf(), od_tab );
+    const SeparString separlinestr( linestr.buf(), od_tab );
     auto* seq = new LayerSequence( &lm_.propertyRefs() );
-    int nrlays = separlinestr.getIValue( 1 );
-    if ( separlinestr.size()>2 )
-    {
-	float startdepth = separlinestr.getFValue( 2 );
-	seq->setStartDepth( startdepth );
-    }
-
+    const int nrlays = separlinestr.getIValue( 1 );
+    const float startdepth = separlinestr.size()>2 ? separlinestr.getFValue( 2 )
+						   : startdepth_;
+    const float ovvel = separlinestr.size()>3 ? separlinestr.getFValue( 3 )
+					      : abovevel_;
     if ( !strm_.isOK() )
 	return ErrorOccurred();
 
@@ -326,6 +367,7 @@ int nextStep()
 	    const Content* c = rt.contents().getByName(fms[1]);
 	    newlay->setContent( c ? *c : Content::unspecified() );
 	}
+
 	float val; strm_ >> val;
 	newlay->setThickness( val );
 	if ( !mathpreserve_ )
@@ -357,7 +399,12 @@ int nextStep()
 	seq->layers() += newlay;
     }
 
-    seq->prepareUse();
+    if ( !mIsUdf(startdepth) )
+	seq->setStartDepth( startdepth );
+
+    if ( !mIsUdf(ovvel) )
+	seq->setOverburdenVelocity( ovvel );
+
     lm_.seqs_ += seq;
     curidx_++;
     nextreadidx_ += readrg_.step;
@@ -368,14 +415,19 @@ int nextStep()
     od_istream&			strm_;
     const StepInterval<int>&	readrg_;
     bool			mathpreserve_;
+    float			startdepth_;
+    float			abovevel_;
+
     int				curidx_ = 0;
     int				nextreadidx_;
     BufferStringSet		missinglayerunits_;
 };
+
 } // namespace Strat
 
 bool Strat::LayerModel::read( od_istream& strm, int start, int step,
-			      uiString& msg, TaskRunner* trunner )
+			      uiString& msg, TaskRunner* trunner,
+			      float z0, float v0 )
 {
     int nrseqs = 0;
     bool mathpreserve = false;
@@ -387,7 +439,7 @@ bool Strat::LayerModel::read( od_istream& strm, int start, int step,
     const int nrseqtoread = (nrseqs-start-1)/step + 1;
     StepInterval<int> readrg( start, start + step*(nrseqtoread-1), step );
 
-    LayerModelReader rdr( *this, strm, readrg, mathpreserve );
+    LayerModelReader rdr( *this, strm, readrg, mathpreserve, z0, v0 );
     if ( !TaskRunner::execute(trunner,rdr) )
 	return false;
 
@@ -397,14 +449,6 @@ bool Strat::LayerModel::read( od_istream& strm, int start, int step,
 	    .arg(rdr.missinglayerunits_.getDispString());
 
     return true;
-}
-
-
-bool Strat::LayerModel::read( od_istream& strm )
-{
-    deepErase( seqs_ );
-    uiString msg;
-    return read( strm, 0, 1, msg, nullptr );
 }
 
 
@@ -426,7 +470,8 @@ bool Strat::LayerModel::write( od_ostream& strm, int modnr,
 	const LayerSequence& seq = *seqs_[iseq];
 	const int nrlays = seq.size();
 	strm << "#S" << iseq << od_tab << nrlays
-		     << od_tab << seq.startDepth() <<od_endl;
+		     << od_tab << seq.startDepth()
+		     << od_tab << seq.overburdenVelocity() << od_endl;
 
 	for ( int ilay=0; ilay<nrlays; ilay++ )
 	{

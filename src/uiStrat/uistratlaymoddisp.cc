@@ -46,6 +46,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     : uiGroup(t.parent(),"LayerModel display")
     , sequenceSelected(this)
     , genNewModelNeeded(this)
+    , sequencesRead(this)
     , sequencesAdded(this)
     , infoChanged(this)
     , lms_(lms)
@@ -550,7 +551,8 @@ bool acceptOK( CallBacker* ) override
 	Strat::LayerModel newlm;
 	uiTaskRunner dlg( this );
 	uiString msg;
-	if ( !newlm.read(*strm,firstmdl-1,each,msg,&dlg) )
+	if ( !newlm.read(*strm,firstmdl-1,each,msg,&dlg,lm_.startDepth(),
+			 lm_.overburdenVelocity()) )
 	    mErrRet(tr("Cannot read layer model from file.\nDetails may be "
 		       "in the log file ('Utilities-Show log file')"))
 
@@ -638,8 +640,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 	mErrRet( tr("Please generate at least one layer sequence") )
 
     uiStratLayerModelDispIO dlg( this, lm, foradd );
-    const bool ret = dlg.go();
-    if ( !ret )
+    if ( dlg.go() != uiDialog::Accepted )
 	return false;
 
     if ( curidx > 0 )
@@ -652,8 +653,12 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 
     if ( dlg.addedmodels_ )
 	sequencesAdded.trigger();
+
     if ( dlg.changedmodel_ )
+    {
+	sequencesRead.trigger();
 	notifyModelChanged(-1);
+    }
 
     return true;
 }

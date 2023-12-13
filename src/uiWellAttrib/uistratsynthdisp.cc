@@ -788,6 +788,7 @@ uiStratSynthDisp::~uiStratSynthDisp()
 
 void uiStratSynthDisp::initGrp( CallBacker* )
 {
+    mAttachCB( datamgr_.elasticModelChanged, uiStratSynthDisp::lvlChgCB );
     mAttachCB( datamgr_.entryAdded, uiStratSynthDisp::synthAddedCB );
     mAttachCB( datamgr_.entryRenamed, uiStratSynthDisp::synthRenamedCB );
     mAttachCB( datamgr_.entryChanged, uiStratSynthDisp::synthRemovedCB );
@@ -1069,7 +1070,16 @@ void uiStratSynthDisp::setViewerData( FlatView::Viewer::VwrDest dest,
 
     vwr_->enableChange( updateview );
     if ( preserveview && !isEmpty(curview) )
-	vwr_->setView( curview );
+    {
+	uiWorldRect bb = vwr_->boundingBox(); bb.sortCorners();
+	const Interval<double> bbzrg( bb.top(), bb.bottom() );
+	Interval<double> viewrg( curview.top(), curview.bottom() );
+	viewrg.sort();
+	if ( bbzrg.includes(viewrg) )
+	    vwr_->setView( curview );
+	else
+	    vwr_->setViewToBoundingBox();
+    }
     else
 	vwr_->setViewToBoundingBox();
 

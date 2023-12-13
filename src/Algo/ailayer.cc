@@ -517,7 +517,13 @@ ElasticModel::~ElasticModel()
 
 ElasticModel& ElasticModel::operator =( const ElasticModel& oth )
 {
+    if ( &oth == this )
+	return *this;
+
     ObjectSet<RefLayer>::operator= (oth );
+    abovethickness_ = oth.abovethickness_;
+    starttime_ = oth.starttime_;
+
     return *this;
 }
 
@@ -608,7 +614,36 @@ ElasticModel& ElasticModel::copyFrom( const ElasticModel& oth,
 	    add( newlayer );
     }
 
+    abovethickness_ = oth.abovethickness_;
+    starttime_ = oth.starttime_;
+
     return *this;
+}
+
+
+ElasticModel& ElasticModel::setOverburden( double th, double t0 )
+{
+    abovethickness_ = th;
+    starttime_ = t0;
+    return *this;
+}
+
+
+double ElasticModel::aboveThickness() const
+{
+    if ( mIsUdf(abovethickness_) )
+	return 0.;
+
+    return abovethickness_;
+}
+
+
+double ElasticModel::startTime() const
+{
+    if ( mIsUdf(starttime_) )
+	return 0.;
+
+    return starttime_;
 }
 
 
@@ -1071,7 +1106,7 @@ bool ElasticModel::getUpscaledBackus( RefLayer& outlay, float theta ) const
 }
 
 
-void ElasticModel::setMaxThickness( float maxthickness )
+void ElasticModel::setMaxThickness( float maxthickness, bool extend )
 {
     if ( isEmpty() || maxthickness < cMinLayerThickness() )
 	return;
@@ -1097,6 +1132,25 @@ void ElasticModel::setMaxThickness( float maxthickness )
 	for ( int nlidx=0; nlidx<nbinsert; nlidx++ )
 	    add( newlayer->clone() );
     }
+
+    if ( !extend || isEmpty() ||
+	 mIsUdf(abovethickness_) || abovethickness_ < cMinLayerThickness() )
+	return;
+
+    int nrextra = 1;
+    const float pvel = mCast(float, 2. * abovethickness_ / starttime_ );
+    PtrMan<RefLayer> newlayer =
+			new AILayer( abovethickness_, pvel, mUdf(float) );
+    if ( abovethickness_ > maxthickness - cMinLayerThickness() )
+    {
+	nrextra = mNINT32( Math::Ceil(abovethickness_/maxthickness) );
+	newlayer->setThickness( newlayer->getThickness() / nrextra );
+    }
+
+    for ( int idx=0; idx<nrextra; idx++ )
+	insertAt( newlayer->clone(), 0 );
+
+    setOverburden( mUdf(double), mUdf(double) );
 }
 
 
@@ -1553,6 +1607,7 @@ Interval<float> ElasticModel::getTimeSampling( bool usevs ) const
     }
 
     ret.stop *= 2.f; // TWT needed
+    ret.shift( startTime() );
     return ret;
 }
 

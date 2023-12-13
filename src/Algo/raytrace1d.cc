@@ -352,10 +352,10 @@ bool RayTracer1D::doFinish( bool success )
 
 bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 {
-    const RefLayer& ailayer = *model_.get( layer );
+    const RefLayer& reflayer0 = *model_.get( layer );
     const bool pdown = setup().pdown_;
     const bool pup = setup().pup_;
-    const float downvel = pdown ? ailayer.getPVel() : ailayer.getSVel();
+    const float downvel = pdown ? reflayer0.getPVel() : reflayer0.getSVel();
 
     if ( mIsUdf(downvel) || mIsUdf(rayparam) ||
 	 !Math::IsNormalNumber(downvel) || !Math::IsNormalNumber(rayparam) )
@@ -379,12 +379,22 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
     const float off = offsets_[offsetidx];
     float_complex reflectivity = 0;
     const int nrinterfaces = layer+1;
+    const RefLayer& reflayer1 = *model_.get( nrinterfaces );
 
-    if ( !mIsZero(off,mDefEps) )
+    if ( mIsZero(off,mDefEps) )
+    {
+	const float ai0 = reflayer0.getAI();
+	const float ai1 = reflayer1.getAI();
+	const float real = mIsUdf(ai0) || mIsUdf(ai1) ||
+			   (mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF))
+			 ? mUdf(float) : (ai1-ai0)/(ai1+ai0);
+	reflectivity = float_complex( real, 0.f );
+    }
+    else
     {
 						 // critical angle reached
-	if ( rayparam*model_.get(layer)->getPVel() > 1 ||
-	     rayparam*model_.get(layer+1)->getPVel() > 1 )  // no reflection
+	if ( rayparam*reflayer0.getPVel() > 1 ||
+	     rayparam*reflayer1.getPVel() > 1 )  // no reflection
 	{
 	    reflectivities_[offsetidx][layer] = reflectivity;
 	    return true;
@@ -402,7 +412,7 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	}
 
 	reflectivity = coefs[0].getCoeff( true, layer!=0, pdown,
-				     layer==0 ? pup : pdown );
+					  layer==0 ? pup : pdown );
 
 	if ( layer == 0 )
 	{
@@ -421,15 +431,6 @@ bool RayTracer1D::compute( int layer, int offsetidx, float rayparam )
 	{
 	    reflectivity *= coefs[iidx].getCoeff( false, false, pup, pup );
 	}
-    }
-    else
-    {
-	const float ai0 = model_.get( layer )->getAI();
-	const float ai1 = model_.get( layer+1 )->getAI();
-	const float real =
-	   mIsZero(ai1,mDefEpsF) && mIsZero(ai0,mDefEpsF) ? mUdf(float)
-						          : (ai1-ai0)/(ai1+ai0);
-	reflectivity = float_complex( real, 0.f );
     }
 
     reflectivities_[offsetidx][layer] = reflectivity;

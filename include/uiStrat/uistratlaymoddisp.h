@@ -57,6 +57,7 @@ public:
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;
+    Notifier<uiStratLayerModelDisp> sequencesRead; // precedes modelChanged
     Notifier<uiStratLayerModelDisp> sequencesAdded; // precedes modelChanged
     CNotifier<uiStratLayerModelDisp,const uiString*> infoChanged;
 

@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "od_iostream.h"
 #include "stratlayermodel.h"
+#include "stratlayersequence.h"
 #include "stratlaymodgen.h"
 #include "stratlayseqgendesc.h"
 #include "stratreftree.h"
@@ -200,6 +201,7 @@ void uiStratLayerModel::initWin( CallBacker* )
     mAttachCB( moddisp_->genNewModelNeeded, uiStratLayerModel::genModelsCB );
     mAttachCB( moddisp_->infoChanged, uiStratLayerModel::modInfoChangedCB );
     mAttachCB( moddisp_->sequenceSelected, uiStratLayerModel::seqSelCB );
+    mAttachCB( moddisp_->sequencesRead, uiStratLayerModel::seqsChangedCB );
     mAttachCB( moddisp_->sequencesAdded, uiStratLayerModel::seqsAddedCB );
 
     orderNotifiers();
@@ -499,6 +501,36 @@ void uiStratLayerModel::seqSelCB( CallBacker* )
 void uiStratLayerModel::modChgCB( CallBacker* )
 {
     handleNewModel();
+}
+
+
+void uiStratLayerModel::seqsChangedCB( CallBacker* )
+{
+    const Strat::LayerModel& lm = layerModel();
+    const int nrseqs = lm.size();
+    if ( nrseqs > 0 )
+    {
+	const float topdepth = lm.startDepth();
+	const float abovevel = lm.overburdenVelocity();
+	const Strat::LayerSequenceGenDesc& curdesc = descdisp_->currentDesc();
+	if ( !mIsUdf(topdepth) &&
+	     !mIsEqual(topdepth,curdesc.startDepth(),1e-2f) )
+	{
+	    descdisp_->setNeedSave( true );
+	    auto& desc = const_cast<Strat::LayerSequenceGenDesc&>(
+						descdisp_->currentDesc() );
+	    desc.setStartDepth( topdepth );
+	}
+
+	if ( !mIsUdf(abovevel) &&
+	     !mIsEqual(abovevel,curdesc.overburdenVelocity(),1e-2f) )
+	{
+	    descdisp_->setNeedSave( true );
+	    auto& desc = const_cast<Strat::LayerSequenceGenDesc&>(
+						descdisp_->currentDesc() );
+	    desc.setOverburdenVelocity( abovevel );
+	}
+    }
 }
 
 

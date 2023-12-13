@@ -30,6 +30,7 @@ ________________________________________________________________________
 static const char* sKeyFileType = mFileType;
 static const char* sKeyIDNew = "[New]";
 static const char* sKeyTopdepth = "Top depth";
+static const char* sKeyVelAbove = "Overburden velocity";
 
 mImplFactory(Strat::LayerGenerator,Strat::LayerGenerator::factory)
 mDefSimpleTranslators(StratLayerSequenceGenDesc,mFileType,od,Mdl);
@@ -129,6 +130,12 @@ bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
 
 // Strat::LayerSequenceGenDesc
 
+float Strat::LayerSequenceGenDesc::defOverburdenVelocity()
+{
+    return SI().depthsInFeet() ? 8000.f : 2000.f;
+}
+
+
 Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     : ObjectSet<LayerGenerator>()
     , rt_(rt)
@@ -136,6 +143,7 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     startdepth_ = getConvertedValue( -SI().seismicReferenceDatum(),
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),
 				    UnitOfMeasure::surveyDefSRDUnit() );
+    velocityabove_ = defOverburdenVelocity();
 
     if ( !ePROPS().ensureHasElasticProps(false,true) )
 	return;
@@ -172,6 +180,8 @@ Strat::LayerSequenceGenDesc& Strat::LayerSequenceGenDesc::operator=(
     workbenchparams_ = oth.workbenchparams_;
     elasticpropselmid_ = oth.elasticpropselmid_;
     startdepth_ = oth.startdepth_;
+    velocityabove_ = oth.velocityabove_;
+
     return *this;
 }
 
@@ -182,6 +192,7 @@ void Strat::LayerSequenceGenDesc::erase()
     startdepth_ = getConvertedValue( -SI().seismicReferenceDatum(),
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),
 				    UnitOfMeasure::surveyDefSRDUnit() );
+    velocityabove_ = defOverburdenVelocity();
     propsel_.setEmpty();
     elasticpropselmid_.setUdf();
     errmsg_.setEmpty();
@@ -196,21 +207,32 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 
     erase();
 
-    IOPar iop; iop.getFrom(astrm);
+    IOPar iop; iop.getFrom( astrm );
 
-    const UnitOfMeasure* depthuom = PropertyRef::thickness().unit();
-    const UnitOfMeasure* zvaluom = nullptr;
-    FileMultiString fms;
-    iop.get( sKeyTopdepth, fms );
-    if ( !fms.isEmpty() )
-	startdepth_ = fms.getFValue( 0 );
-    if ( fms.size() > 1 )
+    BufferString topdepthstr;
+    if ( iop.get(sKeyTopdepth,topdepthstr) && !topdepthstr.isEmpty() )
     {
-	const StringView zunitlbl = fms[1];
-	zvaluom = UoMR().get( zunitlbl.buf() );
+	const FileMultiString fms( topdepthstr );
+	const UnitOfMeasure* depthuom = PropertyRef::thickness().unit();
+	const UnitOfMeasure* zvaluom = nullptr;
+	float topdepth = mUdf(float);
+	if ( !fms.isEmpty() )
+	    topdepth = fms.getFValue( 0 );
+
+	if ( fms.size() > 1 )
+	{
+	    const StringView zunitlbl = fms[1];
+	    zvaluom = UoMR().get( zunitlbl.buf() );
+	}
+
+	convValue( topdepth, zvaluom, depthuom );
+	if ( !mIsUdf(topdepth) )
+	    startdepth_ = topdepth;
     }
 
-    convValue( startdepth_, zvaluom, depthuom );
+    const float abovevel = getOverburdenVelocity( sKeyVelAbove, iop );
+    if ( !mIsUdf(abovevel) )
+	velocityabove_ = abovevel;
 
     iop.get( ElasticPropSelection::sKeyElasticPropSel(), elasticpropselmid_ );
     PtrMan<IOPar> workbenchpars = iop.subselect( sKeyWorkBenchParams() );
@@ -255,6 +277,9 @@ bool Strat::LayerSequenceGenDesc::putTo( od_ostream& strm ) const
     FileMultiString fms;
     fms.add( startdepth_ ).add( PropertyRef::thickness().disp_.getUnitLbl() );
     iop.set( sKeyTopdepth, fms );
+
+    setOverburdenVelocity( sKeyVelAbove, velocityabove_, iop );
+
     if ( !elasticpropselmid_.isUdf() )
 	iop.set( ElasticPropSelection::sKeyElasticPropSel(),elasticpropselmid_);
 
@@ -311,7 +336,8 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 {
     errmsg_.setEmpty();
 
-    ls.setStartDepth( startdepth_ );
+    ls.setStartDepth( startDepth(), true );
+    ls.setOverburdenVelocity( overburdenVelocity() );
     const Property::EvalOpts eo( Property::EvalOpts::New, modpos );
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -399,6 +425,45 @@ int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
     }
 
     return -1;
+}
+
+
+float Strat::LayerSequenceGenDesc::getOverburdenVelocity( const char* skey,
+							  const IOPar& iop )
+{
+    BufferString abovevelstr;
+    if ( !iop.get(skey,abovevelstr) || abovevelstr.isEmpty() )
+	return mUdf(float);
+
+    const FileMultiString fms( abovevelstr );
+    float abovevel = mUdf(float);
+    const UnitOfMeasure* veluom = UnitOfMeasure::surveyDefVelUnit();
+    if ( !fms.isEmpty() )
+	abovevel = fms.getFValue( 0 );
+
+    const UnitOfMeasure* velstoruom =
+			    UnitOfMeasure::surveyDefVelStorageUnit();
+    if ( fms.size() > 1 )
+    {
+	const StringView veluomstr = fms[1];
+	const UnitOfMeasure* velfileuom =
+			UoMR().get( veluom->propType(), veluomstr.buf() );
+	if ( velfileuom )
+	    velstoruom = velfileuom;
+    }
+
+    convValue( abovevel, velstoruom, veluom );
+    return abovevel;
+}
+
+
+void Strat::LayerSequenceGenDesc::setOverburdenVelocity( const char* skey,
+						float vel, IOPar& iop )
+{
+    FileMultiString fms;
+    fms.add( vel )
+       .add( UnitOfMeasure::surveyDefVelUnit()->getLabel() );
+    iop.set( skey, fms );
 }
 
 

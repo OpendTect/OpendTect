@@ -11,8 +11,7 @@ ________________________________________________________________________
 #include "stratmod.h"
 
 #include "elasticpropsel.h"
-#include "propertyref.h"
-#include "manobjectset.h"
+#include "stattype.h"
 
 class od_istream;
 class od_ostream;
@@ -47,6 +46,9 @@ public:
     const LayerSequence&	sequence( int idx ) const { return *seqs_[idx];}
     int				nrLayers() const;
     Interval<float>		zRange() const;
+    float			startDepth(Stats::Type=Stats::Average) const;
+    float			overburdenVelocity(
+					Stats::Type=Stats::Average) const;
 
     void			setEmpty();
     LayerSequence&		addSequence();
@@ -69,9 +71,10 @@ public:
     bool			readHeader(od_istream&,PropertyRefSelection&,
 					   int& nrseq,bool& mathpreserve);
 
-    mDeprecatedObs bool		read(od_istream&);
     bool			read(od_istream&,int start,int step,
-				     uiString&,TaskRunner* t=nullptr);
+				     uiString&,TaskRunner* =nullptr,
+				     float startdepth=mUdf(float),
+				     float abovevel=mUdf(float));
     bool			write(od_ostream&,int modnr=0,
 					bool mathpreserve=false) const;
 

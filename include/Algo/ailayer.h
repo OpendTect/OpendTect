@@ -284,6 +284,10 @@ public:
 
     bool	isManaged() const override	{ return true; }
 
+    ElasticModel& setOverburden(double thickness,double starttime);
+    double	aboveThickness() const;
+    double	startTime() const;
+
     ElasticModel& copyFrom(const ElasticModel& mdl,RefLayer::Type reqtyp);
 		/*!< \param mdl input model (can be itself)
 		     \param reqtyp return type for all layers in model	 */
@@ -327,7 +331,7 @@ public:
 		/*! Smashes every consecutive set of nblock layers
 		  into one output layer */
 
-    void	setMaxThickness(float maxthickness);
+    void	setMaxThickness(float maxthickness,bool extendup=true);
 		/*! Ensures that all layers in the elastic model are not thicker
 		    than a maximum thickness. Splits the blocks if necessary */
 
@@ -400,7 +404,8 @@ private:
 		   /param zistime ZDomain corresponding to zstep
 		 */
 
-
+    double	abovethickness_ = mUdf(double);
+    double	starttime_ = mUdf(double);
 
 };
 
@@ -412,6 +417,7 @@ public:
 			~ElasticModelSet();
 
     bool		setSize(int);
+
     bool		getTimeSampling(Interval<float>&,
 					bool usevs=false) const;
 

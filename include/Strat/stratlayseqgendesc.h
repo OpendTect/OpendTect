@@ -45,7 +45,10 @@ public:
     const PropertyRefSelection& propSelection() const	{ return propsel_; }
     void		setPropSelection(const PropertyRefSelection&);
     float		startDepth() const	{ return startdepth_; }
-    void		setStartDepth( float z)	{ startdepth_ = z; }
+    void		setStartDepth( float z)    { startdepth_ = z; }
+    float		overburdenVelocity() const { return velocityabove_; }
+    void		setOverburdenVelocity( float vel )
+						{ velocityabove_ = vel; }
     const MultiID&	elasticPropSel() const;
     void		setElasticPropSel(const MultiID&);
 
@@ -60,6 +63,11 @@ public:
     const char*		userIdentification(int) const;
     int			indexFromUserIdentification(const char*) const;
 
+    static float	defOverburdenVelocity();
+    static float	getOverburdenVelocity(const char* skey,const IOPar&);
+    static void		setOverburdenVelocity(const char* skey,float vel,
+					      IOPar&);
+
 protected:
 
     IOPar		workbenchparams_;
@@ -68,6 +76,7 @@ protected:
     PropertyRefSelection propsel_;
     MultiID		elasticpropselmid_;
     float		startdepth_;
+    float		velocityabove_;
 
     void		erase() override;
 

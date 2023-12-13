@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "uistratlayseqgendesc.h"
 
-class uiGenInput;
 class uiRectItem;
 class uiTextItem;
 namespace Strat { class LayerSequenceGenDesc; }
@@ -35,7 +34,6 @@ public:
     uiStratLayerModelDisp* getLayModDisp(uiStratLayModEditTools&,
 				    Strat::LayerModelSuite&,int) override;
     uiObject*		outerObj() override	{ return this; }
-    void		prepareDesc() override	{ getTopDepthFromScreen(); }
     void		setDescID(const MultiID&) override;
     void		setEditDesc() override;
     void		setFromEditDesc() override;
@@ -44,17 +42,13 @@ public:
 protected:
 
     Strat::LayerSequenceGenDesc&	editdesc_;
-    uiGenInput*		topdepthfld_;
     uiRectItem*		outeritm_ = nullptr;
     uiTextItem*		emptyitm_ = nullptr;
     uiBorder		border_ = 10;	//!< can be set
     const uiRect	workrect_;	//!< will be filled
     MultiID		descid_;
 
-    void		getTopDepthFromScreen();
-    void		putTopDepthToScreen();
-
-    void		initView(CallBacker*);
+    void		ovButCB(CallBacker*);
     void		reDraw(CallBacker*);
     void		wheelMoveCB(CallBacker*);
     void		singClckCB( CallBacker* cb )	{ hndlClick(cb,false); }

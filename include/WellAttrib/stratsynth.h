@@ -161,6 +161,7 @@ public:
 					     uiString* msg=nullptr);
 			//!< Will set a default if none found
 
+    Notifier<DataMgr>	elasticModelChanged;
     CNotifier<DataMgr,SynthID> entryAdded;
     CNotifier<DataMgr,const TypeSet<SynthID>&> entryRenamed;
     CNotifier<DataMgr,const TypeSet<SynthID>&> entryChanged;
@@ -214,10 +215,12 @@ private:
     bool		ensureAdequatePropSelection(int lmsidx,
 						    RefLayer::Type) const;
     bool		ensureElasticModels(int lmsidx,RefLayer::Type,
-					    TaskRunner*) const;
+					    bool& changed,TaskRunner*) const;
     bool		adjustElasticModel(const Strat::LayerModel&,
 					   ElasticModelSet&,RefLayer::Type,
 					   TaskRunner*) const;
+    void		addOverburdenVel(const Strat::LayerModel&,
+					 ElasticModelSet&) const;
     bool		checkNeedsInput(const SynthGenParams&) const;
 
     bool		generate(SynthID,int lmsidx,TaskRunner*) const;

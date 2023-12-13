@@ -458,6 +458,7 @@ ________________________________________________________________________
 #define		mSynthToRealScaleHelpID				0x11002001
 #define		mStratLayerModelcheckUnscaledWaveletHelpID	0x11002002
 #define		mStratLayerModelDispIOHelpID			0x11002003
+#define		mStratOverburdenParametersHelpID		0x11002004
 // Stratigraphy Crossplotting 03
 #define		mStratSynthCrossplotHelpID			0x11003000
 #define		mSingleAttribEdHelpID				0x11003001

@@ -55,6 +55,7 @@ int StratSynth::DataMgr::gtActualLMIdx( int lmsidx ) const
 
 StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
     : lms_(lms)
+    , elasticModelChanged(this)
     , entryAdded(this)
     , entryRenamed(this)
     , entryChanged(this)
@@ -74,6 +75,7 @@ StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
 StratSynth::DataMgr::DataMgr( const DataMgr& oth, int calceach )
     : lms_(oth.lms_)
     , calceach_(calceach)
+    , elasticModelChanged(this)
     , entryAdded(this)
     , entryRenamed(this)
     , entryChanged(this)
@@ -1222,7 +1224,8 @@ bool StratSynth::DataMgr::generate( SynthID id, int lmsidx,
     if ( !swaveinfomsgshown_ && sgp.requiredRefLayerType() )
 	checktyp = *sgp.requiredRefLayerType();
     mSelf().gtDSS( lmsidx ).replace( idx, nullptr );
-    if ( !ensureElasticModels(lmsidx,checktyp,taskrun) )
+    bool elmdlchanged = false;
+    if ( !ensureElasticModels(lmsidx,checktyp,elmdlchanged,taskrun) )
 	return false;
 
     ConstRefMan<SyntheticData> newds = generateDataSet( sgp, lmsidx, taskrun );
@@ -1231,6 +1234,8 @@ bool StratSynth::DataMgr::generate( SynthID id, int lmsidx,
     {
 	const_cast<SyntheticData&>( *newds.ptr() ).setID( id );
 	ensureLevels( lmsidx );
+	if ( elmdlchanged )
+	    mSelf().elasticModelChanged.trigger();
     }
 
     return newds.ptr();
@@ -1453,8 +1458,6 @@ bool fillElasticModel( const Strat::LayerSequence& seq, ElasticPropGen& elpgen,
     {
 	const Strat::Layer& lay = *layers.get( idx );
 	float thickness = lay.thickness();
-	if ( idx == firstidx )
-	    thickness += lay.zTop() + srd;
 	if ( thickness < 1e-4f )
 	    continue;
 
@@ -1550,7 +1553,7 @@ od_int64 nrIterations() const override
 }
 
 
-bool doWork( od_int64 start , od_int64 stop , int /* threadidx */ ) override
+bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
 {
     const bool dosvelcheck = checktyp_ > RefLayer::Acoustic;
     const bool dodencheck = !dosvelcheck; // ??
@@ -1714,6 +1717,7 @@ bool StratSynth::DataMgr::ensureAdequatePropSelection( int lmsidx,
 
 bool StratSynth::DataMgr::ensureElasticModels( int lmsidx,
 					       RefLayer::Type reqtype,
+					       bool& changed,
 					       TaskRunner* taskrun ) const
 {
     if ( !ensureAdequatePropSelection(lmsidx,reqtype) )
@@ -1723,8 +1727,8 @@ bool StratSynth::DataMgr::ensureElasticModels( int lmsidx,
 	return false;
     }
 
-    ElasticModelSet& elmdls = *const_cast<ElasticModelSet*>(
-			    elasticmodelsets_.get( gtActualLMIdx(lmsidx) ) );
+    ElasticModelSet& elmdls = const_cast<ElasticModelSet&>(
+					elasticModels(gtActualLMIdx(lmsidx)) );
     if ( !elmdls.isEmpty() )
 	return true;
 
@@ -1758,7 +1762,10 @@ bool StratSynth::DataMgr::ensureElasticModels( int lmsidx,
 	return false;
     }
 
-    return adjustElasticModel( lm, elmdls, reqtype, taskrun );
+    const bool res = adjustElasticModel( lm, elmdls, reqtype, taskrun );
+    addOverburdenVel( lm, elmdls );
+    changed = true;
+    return res;
 }
 
 
@@ -1772,6 +1779,32 @@ bool StratSynth::DataMgr::adjustElasticModel( const Strat::LayerModel& lm,
     infomsg_ = emadjuster.infoMsg();
     swaveinfomsgshown_ = swaveinfomsgshown_ || checktyp > RefLayer::Acoustic;
     return res;
+}
+
+
+void StratSynth::DataMgr::addOverburdenVel( const Strat::LayerModel& lm,
+					    ElasticModelSet& elmdls ) const
+{
+
+    const UnitOfMeasure* laydepthuom = PropertyRef::thickness().unit();
+    const float srddepth =
+		-1.f * getConvertedValue( SI().seismicReferenceDatum(),
+				   UnitOfMeasure::surveyDefSRDStorageUnit(),
+				   laydepthuom );
+    const UnitOfMeasure* veluom = UnitOfMeasure::surveyDefVelUnit();
+    for ( int imdl=0; imdl<elmdls.size(); imdl++ )
+    {
+	const int iseq = imdl * calceach_;
+	const Strat::LayerSequence& seq = lm.sequence( iseq );
+	float thickness = seq.startDepth() - srddepth;
+	if ( thickness < 1e-4f )
+	    continue;
+
+	const float replvel = veluom->getSIValue( seq.overburdenVelocity() );
+	thickness = laydepthuom->getSIValue( thickness );
+	const double t0 = 2. * thickness / replvel;
+	elmdls.get( imdl )->setOverburden( thickness, t0 );
+    }
 }
 
 
@@ -1809,7 +1842,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::generateDataSet(
 	    if ( !refmodels )
 	    {
 		const ElasticModelSet& elmdls =
-				    *elasticmodelsets_[ curLayerModelIdx() ];
+					elasticModels( curLayerModelIdx() );
 		const float srd = getConvertedValue(
 				    SI().seismicReferenceDatum(),
 				    UnitOfMeasure::surveyDefSRDStorageUnit(),

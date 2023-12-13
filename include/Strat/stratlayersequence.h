@@ -49,8 +49,11 @@ public:
     int			nearestLayerIdxAtZ(float z) const;
 						//!< returns -1 only if empty
 
-    float		startDepth() const	{ return z0_; }
-    void		setStartDepth(float z,bool only=false);
+    float		startDepth() const		{ return z0_; }
+    float		overburdenVelocity() const	{ return velabove_; }
+    void		setStartDepth(float z,bool only=false,
+				      bool ajustlayers=false);
+    void		setOverburdenVelocity(float vel);
     Interval<float>	zRange() const;
     Interval<float>	propRange(int) const;
     void		setXPos(float);
@@ -88,9 +91,12 @@ public:
 
 protected:
 
+    void		adjustLayers(float startz);
+
     ObjectSet<Layer>	layers_;
     float		z0_ = 0.f;
-    PropertyRefSelection	props_;
+    float		velabove_ = 2000.f;
+    PropertyRefSelection props_;
 
 };
 

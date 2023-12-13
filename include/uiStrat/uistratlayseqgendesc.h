@@ -9,12 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "uistratmod.h"
+
 #include "factory.h"
+#include "uidialog.h"
+#include "uigroup.h"
 
 class PropertyRefSelection;
 
-class uiParent;
-class uiObject;
+class uiGenInput;
 class uiStratLayerModelDisp;
 class uiStratLayModEditTools;
 namespace Strat { class LayerSequenceGenDesc; class LayerModelSuite; }
@@ -68,6 +70,43 @@ private:
     virtual const Strat::LayerSequenceGenDesc* editedDesc() const
 							{ return nullptr; }
 
+};
+
+
+mExpClass(uiStrat) uiOverburdenGrp : public uiGroup
+{ mODTextTranslationClass(uiOverburdenGrp)
+public:
+				uiOverburdenGrp(uiParent*,float topdepth,
+						float velocityabove);
+				~uiOverburdenGrp();
+
+    float			getTopDepth() const;
+    float			getVelocity() const;
+
+private:
+
+    void			initGrp(CallBacker*);
+
+    uiGenInput*			topdepthfld_;
+    uiGenInput*			velocityfld_;
+};
+
+
+mExpClass(uiStrat) uiOverburdenDlg : public uiDialog
+{ mODTextTranslationClass(uiOverburdenDlg)
+public:
+				uiOverburdenDlg(uiParent*,
+						Strat::LayerSequenceGenDesc&);
+				~uiOverburdenDlg();
+
+    bool			isChanged() const	{ return changed_; }
+
+private:
+    bool			acceptOK(CallBacker*) override;
+
+    uiOverburdenGrp*		ovgrp_;
+    Strat::LayerSequenceGenDesc& desc_;
+    bool			changed_ = false;
 };
 
 
