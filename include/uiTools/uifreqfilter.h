@@ -75,6 +75,7 @@ protected:
     float		f1_, f2_, f3_, f4_;
 
     void		setFilter(float,float,float,float,FFTFilter::Type);
+    bool		zisStdTime() const;
 
     void		putToScreen();
     void		typeSelCB(CallBacker*);
