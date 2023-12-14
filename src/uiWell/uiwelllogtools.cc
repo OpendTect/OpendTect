@@ -222,6 +222,39 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 }
 
 
+class uiWellLogToolWinHP
+{
+public:
+    uiWellLogToolWinHP()
+    {}
+
+    ~uiWellLogToolWinHP()
+    {}
+
+    void setFreqFld(uiFreqFilter* fld)
+    {
+	freqfld_ = fld;
+    }
+
+    uiFreqFilter*		freqfld_ = nullptr;
+};
+
+
+static HiddenParam<uiWellLogToolWin,uiWellLogToolWinHP*> uiwlt_hpmgr_(nullptr);
+
+
+uiFreqFilter* uiWellLogToolWin::freqfiltfld_()
+{
+    return uiwlt_hpmgr_.getParam( this )->freqfld_;
+}
+
+
+uiFreqFilter* uiWellLogToolWin::freqfiltfld_() const
+{
+    return uiwlt_hpmgr_.getParam( this )->freqfld_;
+}
+
+
 // uiWellLogToolWin
 uiWellLogToolWin::uiWellLogToolWin( uiParent* p,
 				    ObjectSet<WellLogToolData>& logs,
@@ -231,6 +264,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p,
     , savefld_(nullptr)
     , logdatas_(logs)
 {
+    uiwlt_hpmgr_.setParam( this, new uiWellLogToolWinHP );
+
     logdisp_ = GetWellDisplayServer().createWellLogToolGrp( this, logdatas_ );
 
     uiGroup* editgrp = withedit ? createEditGroup() : nullptr;
@@ -275,8 +310,8 @@ uiGroup* uiWellLogToolWin::createEditGroup()
     applybut_ = uiButton::getStd( actiongrp, OD::Apply, cb, true );
     applybut_->attach( rightOf, llc );
 
-    freqfld_ = new uiFreqFilterSelFreq( actiongrp );
-    freqfld_->attach( alignedBelow, llc );
+    uiwlt_hpmgr_.getParam(this)->setFreqFld( new uiFreqFilter(actiongrp) );
+    freqfiltfld_()->attach( alignedBelow, llc );
 
     auto* spbgt = new uiLabeledSpinBox( actiongrp,tr("Window size (samples)") );
     spbgt->attach( alignedBelow, llc );
@@ -322,6 +357,7 @@ uiGroup* uiWellLogToolWin::createEditGroup()
 uiWellLogToolWin::~uiWellLogToolWin()
 {
     deepErase( logdatas_ );
+    uiwlt_hpmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -338,7 +374,7 @@ void uiWellLogToolWin::actionSelCB( CallBacker* )
     thresholdfld_->display( act == 0 );
     replacespikevalfld_->display( act == 0 );
     replacespikefld_->display( act == 0 );
-    freqfld_->display( act == 1 );
+    freqfiltfld_()->display( act == 1 );
     gatefld_->display( act != 1 );
     gatelbl_->display( act != 1 );
     if ( act == 0 )
@@ -527,20 +563,15 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		for ( int idz=0; idz<size; idz++ )
 		    logvals.set( idz, ls.getLogVal( 0, idz ) );
 
-		const Interval<float>& freqrg = freqfld_->freqRange();
+		const TypeSet<float>& freqrg = freqfiltfld_()->frequencies();
 		FFTFilter filter( size, deftimestep );
-		if ( freqfld_->filterType() == FFTFilter::HighPass )
-		    filter.setHighPass( freqrg.start );
-		else if ( freqfld_->filterType() == FFTFilter::LowPass )
-		    filter.setLowPass( freqrg.stop );
+		if ( freqfiltfld_()->filterType() == FFTFilter::HighPass )
+		    filter.setHighPass( freqrg[0], freqrg[1] );
+		else if ( freqfiltfld_()->filterType() == FFTFilter::LowPass )
+		    filter.setLowPass( freqrg[0], freqrg[1] );
 		else
-		{
-		    if ( freqrg.isRev() )
-			mAddErrMsg( "Taper start frequency must be larger"
-				       " than stop frequency", wllnm )
-
-		    filter.setBandPass( freqrg.start, freqrg.stop );
-		}
+		    filter.setBandPass( freqrg[0], freqrg[1],
+					freqrg[2], freqrg[3] );
 
 		if ( !filter.apply(logvals) )
 		    mAddErrMsg( "Could not apply the FFT Filter", wllnm )
@@ -561,7 +592,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		    const float dah = outplog.dah( idz );
 		    outp[idz] = filtvals.getValue( dah );
 		}
-		if ( freqfld_->filterType() != FFTFilter::LowPass )
+		if ( freqfiltfld_()->filterType() != FFTFilter::LowPass )
 		    outplog.setMnemonicLabel( nullptr );
 
 	    }

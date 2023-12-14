@@ -643,11 +643,17 @@ void SynthGenParams::createName( BufferString& nm ) const
 	else
 	{
 	    nm.add( "(" );
+	    bool first = true;
 	    for ( const auto& freq : freqselrg_() )
 	    {
-		nm.add( freq ).add( "-" );
+		if ( first )
+		{
+		    first = false;
+		    nm.add( freq );
+		}
+		else
+		    nm.add( "-" ).add( freq );
 	    }
-	    nm.last() = ' ';
 	    nm.add( "Hz)" );
 	}
 
