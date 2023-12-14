@@ -217,6 +217,8 @@ namespace sKey
     inline StringView Unit()		{ return "Unit"; }
     inline StringView Units()		{ return "Units"; }
     inline StringView Unscale()		{ return "Unscale"; }
+    inline StringView URI()		{ return "URI"; }
+    inline StringView URL()		{ return "URL"; }
     inline StringView User()		{ return "User"; }
     inline StringView Value()		{ return "Value"; }
     inline StringView ValueRange()	{ return "Value Range"; }
