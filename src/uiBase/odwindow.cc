@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "keyboardevent.h"
+#include "od_ostream.h"
 #include "oddirs.h"
 
 #include <QApplication>
@@ -39,6 +40,9 @@ mUseQtnamespace
 static Threads::Mutex		winlistmutex_;
 static ObjectSet<uiMainWin>	orderedwinlist_;
 
+#ifdef __debug__
+static bool			debugmw = false;
+#endif
 
 static void addToOrderedWinList( uiMainWin* uimw )
 {
@@ -117,11 +121,27 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
     setDockOptions( VerticalTabs | AnimatedDocks );
 
     deletefrombody_ = deletefromod_ = false;
+
+#ifdef __debug__
+    static bool debugmw_loc = GetEnvVarYN("DTECT_DEBUG_MAINWIN");
+    debugmw = debugmw_loc;
+
+    if ( debugmw )
+	od_cout() << "uiMainWinBody: " << name() << od_endl;
+#endif
 }
 
 
 uiMainWinBody::~uiMainWinBody()
 {
+#ifdef __debug__
+    if ( debugmw )
+    {
+	const char* src = deletefromod_ ? " (from od)" : " (from qt)";
+	od_cout() << "~uiMainWinBody: " << name() << src << od_endl;
+    }
+#endif
+
     winlistmutex_.lock();
     orderedwinlist_ -= &handle_;
     winlistmutex_.unLock();
@@ -558,7 +578,8 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
 
 void uiMainWinBody::close()
 {
-    if ( !handle_.closeOK() ) return;
+    if ( !handle_.closeOK() )
+	return;
 
     handle_.windowClosed.trigger( handle_ );
 
