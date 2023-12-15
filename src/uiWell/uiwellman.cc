@@ -153,7 +153,6 @@ uiWellMan::~uiWellMan()
 {
     detachAllNotifiers();
     deepErase( currdrs_ );
-    deepUnRef( curwds_ );
 }
 
 
@@ -200,8 +199,6 @@ void uiWellMan::getCurrentWells()
 	currdrs_ += new Well::Reader( *obj, *curwds_[idx] );
 	getBasicInfo( currdrs_[idx] );
     }
-
-    deepRef( curwds_ );
 }
 
 
