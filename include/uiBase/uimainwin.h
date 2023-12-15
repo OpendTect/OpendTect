@@ -283,7 +283,10 @@ void closeAndNullPtr( T*& ptr )
 	return;
     }
 
-    uimw->forceClose();
+    uimw->setDeleteOnClose( false );
+    uimw->close();
+    delete uimw;
+
     ptr = nullptr;
 }
 
