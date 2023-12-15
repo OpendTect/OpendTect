@@ -165,11 +165,6 @@ void Scene::setup()
 }
 
 
-
-#define mRemoveSelector \
-unRefAndNullPtr( polyselector_ ); \
-deleteAndNullPtr( coordselector_ )
-
 Scene::~Scene()
 {
     detachAllNotifiers();
@@ -184,7 +179,9 @@ Scene::~Scene()
 	if ( so ) so->setScene( nullptr );
     }
 
-    mRemoveSelector;
+    unRefAndNullPtr( polyselector_ );
+    deleteAndNullPtr( coordselector_ );
+
     delete zdomaininfo_;
     delete &infopar_;
 }
@@ -1174,7 +1171,8 @@ void Scene::removeAll()
     annot_ = nullptr;
     markerset_ = nullptr;
 
-    mRemoveSelector;
+    unRefAndNullPtr( polyselector_ );
+    deleteAndNullPtr( coordselector_ );
 
     curzstretch_ = -1;
 
@@ -1394,7 +1392,8 @@ visBase::TopBotImage* Scene::getTopBotImage( bool istop )
 
 void Scene::setPolygonSelector( visBase::PolygonSelection* ps )
 {
-    mRemoveSelector;
+    unRefAndNullPtr( polyselector_ );
+    deleteAndNullPtr( coordselector_ );
 
     if ( ps )
     {
