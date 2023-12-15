@@ -196,9 +196,32 @@ protected:
 };
 
 
-/* 0=No old 2D data, 1=First time conversion, 2=Incremental conversion. */
+/* 0=No conversion needed, 1=First time conversion, 2=Incremental conversion. */
 mGlobal(Seis) int Seis_Get_2D_Data_Conversion_Status()
 {
+    if ( !SI().has2D() )
+       return 0;
+
+    bool islegacy = false;
+    if ( !Survey::GM().has2D() )
+    {
+	//Check Seismics omf version
+	const FilePath seisomffilepath(
+		IOObjContext::getDataDirName(IOObjContext::Seis), ".omf" );
+	od_istream omfstrm( seisomffilepath.fullPath() );
+	ascistream astrm( omfstrm );
+	if ( astrm.majorVersion()<4 ||
+		(astrm.majorVersion()==4 && astrm.minorVersion()<2) )
+	    islegacy = true;
+	else
+	    return 0; // There are no 2D data.
+    }
+
+    const FilePath old2dgeomfp( IOM().rootDir().fullPath(), "2DGeom",
+	    			"idx.txt" );
+    if ( !islegacy && !File::exists(old2dgeomfp.fullPath()) )
+       return 0; // All required conversions have already been done.
+
     bool hasold2d = false;
     bool has2dps = false;
     convertSeis2DTranslators();
@@ -226,9 +249,8 @@ mGlobal(Seis) int Seis_Get_2D_Data_Conversion_Status()
     if ( !hasold2d && !has2dps )
 	return 0;
 
-    FilePath geom2dfp( IOM().rootDir().fullPath().buf(), "2DGeom", "idx.txt" );
-    if ( hasold2d && !File::exists(geom2dfp.fullPath()) )
-	return 3;
+    if ( islegacy )
+	return 3; // Has unsupported 2D data.
 
     IOObjContext newctxt( mIOObjContext(SeisTrc2D) );
     newctxt.toselect_.allowtransls_ = CBVSSeisTrc2DTranslator::translKey();

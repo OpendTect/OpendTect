@@ -786,10 +786,10 @@ SurveyInfo* SurveyInfo::readFile( const char* loc )
     PtrMan<SurveyInfo> si;
     uiRetVal ret;
 
-    OD::JSON::Object obj;
     if ( isjson )
     {
 	od_istream strm( fp.fullPath() );
+	OD::JSON::Object obj;
 	obj.read( strm );
 	si = readJSON( obj, ret );
     }

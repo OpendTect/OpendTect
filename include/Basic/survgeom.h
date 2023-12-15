@@ -116,6 +116,7 @@ public:
     const Geometry2D&		get2D(const Pos::GeomID&) const;
 
     int				nrGeometries() const;
+    bool			has2D() const;
     bool			isUsable(const Pos::GeomID&) const;
 
     Pos::GeomID			getGeomID(const char* linenm) const;

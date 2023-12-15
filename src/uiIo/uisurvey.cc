@@ -1336,26 +1336,27 @@ bool uiSurvey::Convert_OD4_Data_To_OD5()
     if ( status == 0 )
 	return true;
 
-    if ( status == 3 ) // Pre 4.2 surveys
+    if ( status == 3 ) // Legacy (Pre 4.2) surveys
     {
 	uiString msg( tr( "The survey %1 appears to be too old. "
-		"Please open this survey first in OpendTect 4.6 to update "
-		"its database before using it in later versions of OpendTect." )
+		"OpendTect may not be able to retrieve all the data, "
+		"especially if the survey contains 2D data.\n\n"
+		"Please contact support@dgbes.com if you need assistance." )
 		.arg(SurveyInfo::curSurveyName()) );
-	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
-			     uiStrings::sExitOD() ) )
-	    return false;
+	const int resp = uiMSG().askGoOnAfter( msg, uiStrings::sExitOD(),
+					       tr("Continue anyway"),
+					       tr("Select another survey") );
+	if ( resp < 0 )
+	    uiMain::instance().exit();
 
-	uiMain::instance().exit();
+	return resp == 1 ? true : false;
     }
 
     if ( status == 1 )
     {
-	uiString msg( tr("The database of survey '%1' is still '4.6' or lower. "
-		"It will now be converted. "
-		"This may take some time depending on the amount of data. "
-		"Note that after the conversion you will not be able to use "
-		"this 2D data in 5.0 or older versions of OpendTect.")
+	uiString msg( tr("The database version of survey '%1' is still '4.6' "
+		"or lower. It will now be converted to the new version. "
+		"This may take some time depending on the amount of data. " )
 		.arg(SurveyInfo::curSurveyName()) );
 
 	const int res = uiMSG().question( msg, tr("Convert now"),
@@ -1533,18 +1534,13 @@ uiSurvey::SurvSelState uiSurvey::ensureValidSurveyDir( uiRetVal& uirv,
 	}
 	else
 	{
-	    while ( true )
+	    if ( !Convert_OD4_Data_To_OD5() )
 	    {
-		if ( !Convert_OD4_Data_To_OD5() )
-		{
-		    Threads::sleep( 0.1 );
-		    continue;
-		}
-
-		Convert_OD4_Body_To_OD5();
-		break;
+		Threads::sleep( 0.1 );
+		continue;
 	    }
 
+	    Convert_OD4_Body_To_OD5();
 	    res = prevnm == GetDataDir() ? SameSurvey
 		: dlg.freshSurveySelected() ? NewFresh : NewExisting;
 	    return res;
@@ -1564,34 +1560,24 @@ bool uiSurvey::ensureGoodSurveySetup( uiRetVal& uirv, uiParent* p )
     BufferString errmsg;
     if ( IOMan::validSurveySetup(errmsg) )
     {
-	while( true )
+	if ( Convert_OD4_Data_To_OD5() )
 	{
-	    if ( !Convert_OD4_Data_To_OD5() )
-	    {
-		Threads::sleep( 0.1 );
-		continue;
-	    }
-
 	    Convert_OD4_Body_To_OD5();
-	    break;
+	    return true;
 	}
-	return true;
     }
 
     SurvSelState res = InvalidSurvey;
     const BufferString programname = ApplicationData::applicationName();
-    if ( !IOMan::isOK() )
+    while ( res == InvalidSurvey )
     {
-	while ( res == InvalidSurvey )
-	{
-	    res = ensureValidSurveyDir( uirv, p );
-	    if ( res == InvalidSurvey &&
-		 uiMSG().askGoOn(od_static_tr("uiSurvey::ensureGoodSurveySetup",
-				  "Without a valid survey, %1 "
-				  "cannot start.\nDo you wish to exit?")
-			.arg( programname )) )
-		return false;
-	}
+	res = ensureValidSurveyDir( uirv, p );
+	if ( res == InvalidSurvey &&
+	     uiMSG().askGoOn(od_static_tr("uiSurvey::ensureGoodSurveySetup",
+			      "Without a valid survey, %1 "
+			      "cannot start.\nDo you wish to exit?")
+		    .arg( programname )) )
+	    return false;
     }
 
     return true;
