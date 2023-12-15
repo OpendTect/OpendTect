@@ -14,10 +14,10 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "uistring.h"
 
-class uiVisPartServer;
-class uiFlatViewWin;
-class uiFlatViewMainWin;
+class uiFlatViewer;
+class uiMainWin;
 class uiMenuHandler;
+class uiVisPartServer;
 namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
@@ -55,9 +55,10 @@ public:
 
 protected:
 
-    uiStoredViewer2DMainWin*	createMultiGather2DViewer(
+    uiMainWin*		createMultiGather2DViewer(
 					const visSurvey::PreStackDisplay&);
-    uiFlatViewMainWin*	create2DViewer(const uiString&,DataPackID dpid);
+    uiMainWin*		create2DViewer(const uiString&,DataPackID dpid);
+    const uiFlatViewer*	getViewer(int idx) const;
 
     SceneID		getSceneID(VisID) const;
     static void		getSeis2DTitle(int trnr,const char*,uiString&);
@@ -91,7 +92,7 @@ protected:
     uiVisPartServer*			visserv_;
     ObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
-    ObjectSet<uiFlatViewWin>		viewers2d_;
+    ObjectSet<uiMainWin>		viewers2d_;
     ObjectSet<uiViewer3DSettingDlg>	settingdlgs_;
 };
 
