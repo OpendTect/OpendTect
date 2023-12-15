@@ -289,11 +289,9 @@ void closeAndNullPtr( T*& ptr )
 	return;
     }
 
-    const bool explicitdelete = !uimw->isModal() || uimw->isDeleteOnClose();
-    auto* winptr = uimw;
-    uimw->forceClose();
-    if ( explicitdelete )
-	delete winptr;
+    uimw->setDeleteOnClose( false );
+    uimw->close();
+    delete uimw;
 
     ptr = nullptr;
 }
