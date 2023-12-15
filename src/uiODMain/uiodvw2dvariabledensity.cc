@@ -368,7 +368,7 @@ RefMan<SeisFlatDataPack> uiODView2DVariableDensityTreeItem::createDataPackRM(
 	auto rdp = attrserv->createRdmTrcsOutputRM( randfdp->zRange(),
 						randfdp->getRandomLineID() );
 
-	return viewer2D()->createFlatDataPackRM( *rdp, 0 );
+	return rdp ? viewer2D()->createFlatDataPackRM( *rdp, 0 ) : nullptr;
     }
 
     return viewer2D()->createDataPackRM( selas );
