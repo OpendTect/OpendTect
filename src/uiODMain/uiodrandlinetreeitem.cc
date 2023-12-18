@@ -109,6 +109,12 @@ VisID getDisplayID() const
 { return rtd_->id(); }
 
 
+const Attrib::SelSpec*	getSelSpec() const
+{
+    return rtd_->nrAttribs()>0 ? rtd_->getSelSpec( 0 ) : nullptr;
+}
+
+
 protected:
     visSurvey::RandomTrackDisplay* rtd_;
     uiLabel*		label_;
@@ -366,7 +372,10 @@ void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
 	ODMainWin()->applMgr().visServer()->removeObject( id, sceneID() );
     }
     else
-	itm->displayDefaultData();
+    {
+	const auto* selspec = rdlpolylinedlg_->getSelSpec();
+	itm->displayData( selspec );
+    }
 
     rdlpolylinedlg_ = 0;
 }
@@ -464,7 +473,16 @@ bool uiODRandomLineTreeItem::displayDefaultData()
 	Attrib::DSHolder().getDescSet( false, true );
     Attrib::SelSpec as( 0, descid, false, "" );
     as.setRefFromID( *ads );
-    visserv_->setSelSpec( displayid_, 0, as );
+    return displayData( &as );
+}
+
+
+bool uiODRandomLineTreeItem::displayData( const Attrib::SelSpec* selspec )
+{
+    if ( !selspec )
+	return displayDefaultData();
+
+    visserv_->setSelSpec( displayid_, 0, *selspec );
     const bool res = visserv_->calculateAttrib( displayid_, 0, false );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
@@ -476,7 +494,6 @@ bool uiODRandomLineTreeItem::displayDefaultData()
 
     return res;
 }
-
 
 #define mGetPickedPanelIdx( menu, rtd, panelidx ) \
     mDynamicCastGet( uiMenuHandler*, uimenuhandler, menu ); \
