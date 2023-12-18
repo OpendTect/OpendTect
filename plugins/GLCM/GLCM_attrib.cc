@@ -335,6 +335,23 @@ const BinID* GLCM_attrib::desStepout( int inp, int out ) const
 }
 
 
+bool GLCM_attrib::getValIJ( int ipos, int jpos, int ioff, int joff, int z0,
+			    float& valI, float& valJ ) const
+{
+    if ( !inpdata_.validIdx(ipos) || !inpdata_.validIdx(jpos) )
+	return false;
+
+    const auto* dh_i = inpdata_[ipos];
+    const auto* dh_j = inpdata_[jpos];
+    if ( !dh_i || !dh_j )
+	return false;
+
+    valI = getInterpolInputValue( *dh_i, dataidx_, ioff, z0 );
+    valJ = getInterpolInputValue( *dh_j, dataidx_, joff, z0 );
+    return true;
+}
+
+
 bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			       int z0, int nrsamples, int threadid ) const
 {
@@ -374,10 +391,12 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			    shift = getInputValue( *steerdata_, steeridx,
 						   idx, z0 );
 			}
-			const float valI = getInterpolInputValue(
-			   *inpdata_[posidx], dataidx_, idx+isamp+shift, z0 );
-			const float valJ = getInterpolInputValue(
-			   *inpdata_[posidx+1], dataidx_, idx+isamp+shift, z0 );
+
+			float valI, valJ;
+			if ( !getValIJ(posidx, posidx+1, idx+isamp+shift,
+					    idx+isamp+shift, z0, valI, valJ) )
+			    continue;
+
 			greyI = computeGreyLevel( valI );
 			greyJ = computeGreyLevel( valJ );
 			elements += 2;
@@ -448,12 +467,12 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			    shift = getInputValue( *steerdata_, steeridx,
 						   idx, z0 );
 			}
-			const float valI = getInterpolInputValue(
-						*inpdata_[posidx], dataidx_,
-						idx+isamp+shift, z0 );
-			const float valJ = getInterpolInputValue(
-						*inpdata_[posidx+1], dataidx_,
-						idx+isamp+shift+1, z0 );
+
+			float valI, valJ;
+			if ( !getValIJ(posidx, posidx+1, idx+isamp+shift,
+					    idx+isamp+shift+1, z0, valI, valJ) )
+			    continue;
+
 			greyI = computeGreyLevel( valI );
 			greyJ = computeGreyLevel( valJ );
 			elements += 2;
@@ -515,11 +534,11 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 	    {
 		for ( int posidx=0; posidx<inpdata_.size(); posidx++ )
 		{
-		    const float valI = getInputValue( *inpdata_[posidx],
-						      dataidx_, idx+isamp, z0 );
-		    const float valJ = getInputValue( *inpdata_[posidx],
-						      dataidx_,
-						      idx+isamp+1, z0 );
+		    float valI, valJ;
+		    if ( !getValIJ(posidx, posidx, idx+isamp,
+					    idx+isamp+1, z0, valI, valJ) )
+			    continue;
+
 		    greyI = computeGreyLevel( valI );
 		    greyJ = computeGreyLevel( valJ );
 		    elements += 2;
@@ -587,13 +606,11 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			    shift = getInputValue( *steerdata_, steeridx,
 						   idx, z0 );
 			}
-			const float valI =
-			    getInterpolInputValue( *inpdata_[posidx], dataidx_,
-						   idx+isamp+shift, z0 );
-			const float valJ =
-			    getInterpolInputValue( *inpdata_[posidx+1],
-						   dataidx_, idx+isamp+shift-1,
-						   z0 );
+			float valI, valJ;
+			if ( !getValIJ(posidx, posidx+1, idx+isamp+shift,
+					    idx+isamp+shift-1, z0, valI, valJ) )
+			    continue;
+
 			greyI = computeGreyLevel( valI );
 			greyJ = computeGreyLevel( valJ );
 			elements += 2;
@@ -665,13 +682,11 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			    shift = getInputValue( *steerdata_, steeridx,
 						   idx, z0 );
 			}
-			const float valI =
-			    getInterpolInputValue( *inpdata_[posidx], dataidx_,
-						   idx+isamp+shift, z0 );
-			const float valJ =
-			    getInterpolInputValue(
-					*inpdata_[posidx+stepout_.inl()*2+2],
-					dataidx_, idx+isamp+shift, z0 );
+			float valI, valJ;
+			if ( !getValIJ(posidx, posidx+stepout_.inl()*2+2,
+			    idx+isamp+shift, idx+isamp+shift, z0, valI, valJ) )
+			    continue;
+
 			greyI = computeGreyLevel( valI );
 			greyJ = computeGreyLevel( valJ );
 			elements += 2;
@@ -743,11 +758,13 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			    shift = getInputValue( *steerdata_, steeridx,
 						   idx, z0 );
 			}
-			const float valI = getInterpolInputValue(
-			    *inpdata_[posidx], dataidx_, idx+isamp+shift, z0 );
-			const float valJ = getInterpolInputValue(
-			    *inpdata_[posidx+stepout_.inl()*2+2], dataidx_,
-			    idx+isamp+shift+1, z0 );
+
+			float valI, valJ;
+			if ( !getValIJ(posidx, posidx+stepout_.inl()*2+2,
+					idx+isamp+shift, idx+isamp+shift+1,
+					z0, valI, valJ) )
+			    continue;
+
 			greyI = computeGreyLevel( valI );
 			greyJ = computeGreyLevel( valJ );
 			elements += 2;
@@ -819,12 +836,13 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			    shift = getInputValue( *steerdata_, steeridx,
 						   idx, z0 );
 			}
-			const float valI = getInterpolInputValue(
-					*inpdata_[posidx], dataidx_,
-					idx+isamp+shift, z0 );
-			const float valJ = getInterpolInputValue(
-					*inpdata_[posidx+stepout_.inl()*2+2],
-					dataidx_, idx+isamp+shift-1, z0 );
+
+			float valI, valJ;
+			if ( !getValIJ(posidx, posidx+stepout_.inl()*2+2,
+					idx+isamp+shift, idx+isamp+shift-1,
+					z0, valI, valJ) )
+			    continue;
+
 			greyI = computeGreyLevel( valI );
 			greyJ = computeGreyLevel( valJ );
 			elements += 2;
@@ -894,12 +912,12 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 						posidx+(stepout_.inl()*2+1)];
 			shift = getInputValue( *steerdata_, steeridx, idx, z0 );
 		    }
-		    const float valI = getInterpolInputValue(
-					*inpdata_[posidx], dataidx_,
-					idx+isamp+shift, z0 );
-		    const float valJ = getInterpolInputValue(
-					*inpdata_[posidx+(stepout_.inl()*2+1)],
-					dataidx_, idx+isamp+shift, z0 );
+
+		    float valI, valJ;
+		    if ( !getValIJ(posidx, posidx+stepout_.inl()*2+1,
+			    idx+isamp+shift, idx+isamp+shift, z0, valI, valJ) )
+			continue;
+
 		    greyI = computeGreyLevel( valI );
 		    greyJ = computeGreyLevel( valJ );
 		    elements += 2;
@@ -965,11 +983,12 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 						posidx+(stepout_.inl()*2+1)];
 			shift = getInputValue( *steerdata_, steeridx, idx, z0 );
 		    }
-		    const float valI = getInterpolInputValue(
-			    *inpdata_[posidx], dataidx_, idx+isamp+shift, z0 );
-		    const float valJ = getInterpolInputValue(
-			    *inpdata_[posidx+(stepout_.inl()*2+1)], dataidx_,
-			    idx+isamp+shift+1, z0 );
+
+		    float valI, valJ;
+		    if ( !getValIJ(posidx, posidx+stepout_.inl()*2+1,
+			idx+isamp+shift, idx+isamp+shift+1, z0, valI, valJ) )
+			continue;
+
 		    greyI = computeGreyLevel( valI );
 		    greyJ = computeGreyLevel( valJ );
 		    elements += 2;
@@ -1035,11 +1054,12 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 						posidx+(stepout_.inl()*2+1)];
 			shift = getInputValue( *steerdata_, steeridx, idx, z0 );
 		    }
-		    const float valI = getInterpolInputValue(
-			    *inpdata_[posidx], dataidx_, idx+isamp+shift, z0 );
-		    const float valJ = getInterpolInputValue(
-			    *inpdata_[posidx+(stepout_.inl()*2+1)], dataidx_,
-			    idx+isamp+shift-1, z0 );
+
+		    float valI, valJ;
+		    if ( !getValIJ(posidx, posidx+stepout_.inl()*2+1,
+			idx+isamp+shift, idx+isamp+shift-1, z0, valI, valJ) )
+			continue;
+
 		    greyI = computeGreyLevel( valI );
 		    greyJ = computeGreyLevel( valJ );
 		    elements += 2;
@@ -1108,12 +1128,12 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			    shift = getInputValue( *steerdata_, steeridx,
 						   idx, z0 );
 			}
-			const float valI = getInterpolInputValue(
-					*inpdata_[posidx], dataidx_,
-					idx+isamp+shift, z0 );
-			const float valJ = getInterpolInputValue(
-					*inpdata_[posidx+stepout_.inl()*2],
-					dataidx_, idx+isamp+shift, z0 );
+
+			float valI, valJ;
+			if ( !getValIJ(posidx, posidx+stepout_.inl()*2,
+			    idx+isamp+shift, idx+isamp+shift, z0, valI, valJ) )
+			    continue;
+
 			greyI = computeGreyLevel( valI );
 			greyJ = computeGreyLevel( valJ );
 			elements += 2;
@@ -1185,11 +1205,13 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			    shift = getInputValue( *steerdata_, steeridx,
 						   idx, z0 );
 			}
-			const float valI = getInterpolInputValue(
-			    *inpdata_[posidx], dataidx_, idx+isamp+shift, z0 );
-			const float valJ = getInterpolInputValue(
-			    *inpdata_[posidx+stepout_.inl()*2], dataidx_,
-			    idx+isamp+shift+1, z0 );
+
+			float valI, valJ;
+			if ( !getValIJ(posidx, posidx+stepout_.inl()*2,
+					    idx+isamp+shift, idx+isamp+shift+1,
+					    z0, valI, valJ) )
+			    continue;
+
 			greyI = computeGreyLevel( valI );
 			greyJ = computeGreyLevel( valJ );
 
@@ -1262,12 +1284,13 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			    shift = getInputValue( *steerdata_, steeridx,
 						   idx, z0 );
 			}
-			const float valI = getInterpolInputValue(
-					    *inpdata_[posidx], dataidx_,
-					    idx+isamp+shift, z0 );
-			const float valJ = getInterpolInputValue(
-					    *inpdata_[posidx+stepout_.inl()*2],
-					    dataidx_, idx+isamp+shift-1, z0 );
+
+			float valI, valJ;
+			if ( !getValIJ(posidx, posidx+stepout_.inl()*2,
+					    idx+isamp+shift, idx+isamp+shift-1,
+					    z0, valI, valJ) )
+			    continue;
+
 			greyI = computeGreyLevel( valI );
 			greyJ = computeGreyLevel( valJ );
 
