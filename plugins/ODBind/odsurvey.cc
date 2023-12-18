@@ -64,11 +64,17 @@ odSurvey::odSurvey( const char* surveynm, const char* basedir)
 {
     errmsg_ = isValidDataRoot( basedir_.buf() );
     if ( !isOK() )
+    {
+	errmsg_ = BufferString( "Invalid data root: ", errmsg_ );
 	return;
+    }
 
     errmsg_ = isValidSurveyDir( FilePath(basedir_,survey_).fullPath() );
     if ( !isOK() )
+    {
+	errmsg_ = BufferString( "Named survey does not exist in ", basedir_ );
 	return;
+    }
 
     activate();
 }

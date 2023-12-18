@@ -74,7 +74,7 @@ mfs4.ilines[0:10]
 ```python tags=[]
 import xarray as xr
 hor = mfs4.get_xarray()
-xr.plot.pcolormesh(hor, x='x', y='y')
+xr.plot.pcolormesh(hor, x='x', y='y', cmap='plasma_r', robust=True)
 ```
 
 ### Horizon3D.putz(), Horizon3D.putz_bycoord and Horizon3D.put_xarray functions

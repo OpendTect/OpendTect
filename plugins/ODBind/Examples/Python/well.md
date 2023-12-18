@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.5
+      jupytext_version: 1.14.0
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -19,10 +19,10 @@ jupyter:
 **If this notebook is not opened from OpendTect then the following paths should be set for your system and the cell executed.**
 
 ```python
-import os
-import sys
-odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/od7.0/bin/python'
-sys.path.insert(0,odpy_path)
+#import os
+#import sys
+#odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/od7.0/bin/python'
+#sys.path.insert(0,odpy_path)
 ```
 
 ```python
@@ -61,7 +61,7 @@ feature
 
 ```python
 import folium
-wellmap = folium.Map(location=[52.3,8.0], tiles="Stamen Terrain", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
+wellmap = folium.Map(location=[52.3,8.0], zoom_start = 6)
 folium.GeoJson(feature, popup=folium.GeoJsonPopup(fields=['name'])).add_to(wellmap)
 wellmap
 ```
@@ -88,7 +88,7 @@ well.marker_names
 ```
 
 ```python
-well.marker_info(['FS6'])
+well.marker_info_dataframe()
 ```
 
 ### Well.track and Well.track_dataframe functions
@@ -107,7 +107,8 @@ uom
 ```
 
 ```python
-well.logs_dataframe(['Density','Sonic','Gamma Ray'], zstep=10, upscale=False)
+df, uoms = well.logs_dataframe(['Density','Sonic','Gamma Ray'], zstep=10, upscale=False)
+df
 ```
 
 ### Well.put_log function
