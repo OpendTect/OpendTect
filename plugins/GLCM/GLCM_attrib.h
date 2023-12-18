@@ -14,7 +14,7 @@
 
 namespace Attrib
 {
-	
+
 mExpClass(GLCM) GLCM_attrib : public Provider
 { mODTextTranslationClass(GLCM_attrib);
 public:
@@ -70,7 +70,7 @@ private:
     Interval<int>		sampgate_;
     Interval<float>		gate_;
     Interval<float>		desgate_;
-	
+
     ObjectSet<const DataHolder> inpdata_;
     const DataHolder*		steerdata_;
     int				dataidx_;
@@ -164,6 +164,8 @@ private:
 						       int elements) const;
     double			computeInertia(Node* LinkedList,
 					       int elements) const;
+    bool			getValIJ(int,int,int,int,int,
+					 float&,float&) const;
 
 };
 
