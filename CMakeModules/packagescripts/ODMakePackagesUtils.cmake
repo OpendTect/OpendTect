@@ -194,6 +194,13 @@ macro( COPY_QTWEBENGINE )
 	file( COPY ${WEBENGINE_TRANSLATION_FILES}
 	      DESTINATION "${COPYTOEXEDIR}/../translations" )
 	unset( WEBENGINE_TRANSLATION_FILES )
+	if ( IS_DIRECTORY "${COPYFROMEXEDIR}/../translations/qtwebengine_locales" )
+	    file( GLOB WEBENGINE_TRANSLATION_FILES
+		    "${COPYFROMEXEDIR}/../translations/qtwebengine_locales/*.pak" )
+	    file( COPY ${WEBENGINE_TRANSLATION_FILES}
+		  DESTINATION "${COPYTOEXEDIR}/../translations/qtwebengine_locales" )
+	    unset( WEBENGINE_TRANSLATION_FILES )
+	endif()
 
 	file( GLOB WEBENGINE_RESOURCES_FILES
 		"${COPYFROMEXEDIR}/../resources/icudtl.dat"
