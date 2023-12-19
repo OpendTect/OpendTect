@@ -11,6 +11,13 @@ macro( OD_SETUP_ZLIB_TARGET )
 	get_filename_component( ZLIB_IMPORTED_LOCATION_RELEASE "${ZLIB_LOCATION}" REALPATH )
 	set_target_properties( ZLIB::ZLIB PROPERTIES
 			       IMPORTED_LOCATION_RELEASE "${ZLIB_IMPORTED_LOCATION_RELEASE}" )
+	if ( UNIX AND NOT APPLE )
+	    get_filename_component( ZLIB_SONAME "${ZLIB_IMPORTED_LOCATION_RELEASE}" NAME_WLE )
+	    get_filename_component( ZLIB_SONAME ${ZLIB_SONAME} NAME_WLE )
+	    set_target_properties( ZLIB::ZLIB PROPERTIES
+		IMPORTED_SONAME_RELEASE ${ZLIB_SONAME} )
+	    unset( IMPORTED_SONAME_RELEASE )
+	endif()
 	unset( ZLIB_IMPORTED_LOCATION_RELEASE )
 	od_map_configurations( ZLIB::ZLIB )
     endif()
