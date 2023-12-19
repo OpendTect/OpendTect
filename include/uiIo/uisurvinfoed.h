@@ -147,6 +147,10 @@ protected:
 
     friend class	uiSurvey;
 
+    bool		checkNecessaryPermissions();
+
+public:
+    bool		handleCurrentSurvey();
 };
 
 
