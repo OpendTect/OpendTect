@@ -164,6 +164,8 @@ private:
 						       int elements) const;
     double			computeInertia(Node* LinkedList,
 					       int elements) const;
+    bool			getValIJ(int,int,int,int,int,
+					 float&,float&) const;
 
 };
 
