@@ -374,8 +374,14 @@ void uiODApplMgr::setStereoOffset()
 
 void uiODApplMgr::processTime2DepthHor( bool is2d )
 {
-    emserv_->processTime2Depth( &appl_, is2d ? EM::IOObjInfo::Horizon2D
-					: EM::IOObjInfo::Horizon3D );
+    emserv_->processTime2Depth( &appl_, is2d ? EM::EMObjectType::Hor2D
+					: EM::EMObjectType::Hor3D );
+}
+
+
+void uiODApplMgr::fltTimeDepthConvCB( CallBacker* )
+{
+    emserv_->processTime2Depth( &appl_, EM::EMObjectType::Flt3D );
 }
 
 

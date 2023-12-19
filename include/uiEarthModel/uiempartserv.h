@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 
 #include "emioobjinfo.h"
+#include "emmanager.h"
 #include "emposid.h"
 #include "trckeysampling.h"
 #include "multiid.h"
@@ -81,7 +82,7 @@ public:
     bool		exportFaultSet();
     void		createHorWithConstZ(bool is2d);
     void		computeIsochron();
-    void		processTime2Depth(uiParent*,EM::IOObjInfo::ObjectType);
+    void		processTime2Depth(uiParent*,EM::EMObjectType);
 
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
@@ -248,6 +249,7 @@ protected:
     uiBulk2DHorizonImport*	impbulk2dhordlg_	= nullptr;
     EM::uiTime2DepthDlg*	t2d2dhordlg_		= nullptr;
     EM::uiTime2DepthDlg*	t2d3dhordlg_		= nullptr;
+    EM::uiTime2DepthDlg*	t2dfltdlg_		= nullptr;
 
     TrcKeySampling		selectedrg_;
     bool			disponcreation_		= false;
@@ -263,7 +265,7 @@ protected:
     uiSurfaceMan*	manbodydlg_		= nullptr;
 
     EM::uiTime2DepthDlg*	getTime2DepthEMDlg(uiParent*,
-					    EM::IOObjInfo::ObjectType,
+					    EM::EMObjectType,
 					    EM::uiTime2DepthDlg*&);
 
     void			displayOnCreateCB(CallBacker*);

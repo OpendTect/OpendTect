@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "emioobjinfo.h"
+#include "emmanager.h"
 #include "emsurface.h"
 #include "zaxistransform.h"
 
@@ -28,11 +29,10 @@ namespace EM
 mExpClass(uiEarthModel) uiTime2DepthDlg  : public uiDialog
 { mODTextTranslationClass(uiEMObjectTime2DepthDlg )
 public:
-				uiTime2DepthDlg (uiParent*,
-					    IOObjInfo::ObjectType);
+				uiTime2DepthDlg (uiParent*,EMObjectType);
 				~uiTime2DepthDlg ();
 
-    static uiRetVal		canTransform(IOObjInfo::ObjectType);
+    static uiRetVal		canTransform(EMObjectType);
     bool			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
@@ -47,7 +47,7 @@ protected:
     uiSurfaceWrite*		outdepthhorsel_		= nullptr;
 
 
-    uiString			getDlgTitle(IOObjInfo::ObjectType) const;
+    uiString			getDlgTitle(EMObjectType) const;
 
     const ZDomain::Info&	outZDomain() const;
 
@@ -64,6 +64,6 @@ protected:
     const char*			sKeyTime2Depth() const;
     const char*			sKeyTransformation() const;
 
-    const IOObjInfo::ObjectType objtype_;
+    const EMObjectType		objtype_;
 };
 }

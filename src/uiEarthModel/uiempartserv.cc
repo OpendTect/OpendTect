@@ -134,7 +134,7 @@ void uiEMPartServer::cleanup()
 
 
 EM::uiTime2DepthDlg* uiEMPartServer::getTime2DepthEMDlg( uiParent* p,
-    EM::IOObjInfo::ObjectType objtype, EM::uiTime2DepthDlg*& dlg )
+			EM::EMObjectType objtype, EM::uiTime2DepthDlg*& dlg )
 {
     if ( !dlg || (dlg->parent() != p) )
     {
@@ -157,7 +157,7 @@ EM::uiTime2DepthDlg* uiEMPartServer::getTime2DepthEMDlg( uiParent* p,
 
 
 void uiEMPartServer::processTime2Depth( uiParent* p,
-					EM::IOObjInfo::ObjectType objtype )
+						    EM::EMObjectType objtype )
 {
     const uiRetVal ret =  EM::uiTime2DepthDlg::canTransform( objtype );
     if ( !ret.isOK() )
@@ -167,10 +167,12 @@ void uiEMPartServer::processTime2Depth( uiParent* p,
     }
 
     EM::uiTime2DepthDlg* dlg = nullptr;
-    if ( objtype == EM::IOObjInfo::Horizon3D )
+    if ( objtype == EM::EMObjectType::Hor3D )
 	dlg = getTime2DepthEMDlg( p, objtype, t2d3dhordlg_ );
-    else if ( objtype == EM::IOObjInfo::Horizon2D )
+    else if ( objtype == EM::EMObjectType::Hor2D )
 	dlg = getTime2DepthEMDlg( p, objtype, t2d2dhordlg_ );
+    else if ( objtype == EM::EMObjectType::Flt3D )
+	dlg = getTime2DepthEMDlg( p, objtype, t2dfltdlg_ );
 
     if ( dlg )
 	dlg->show();

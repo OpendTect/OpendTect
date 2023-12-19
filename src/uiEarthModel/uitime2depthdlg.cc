@@ -33,7 +33,7 @@ ________________________________________________________________________
 
 namespace EM
 {
-uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
+uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, EMObjectType objtype )
     : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype),mNoDlgTitle,
 	       mODHelpKey(mProcessHorizonTime2DepthID)).modal(false))
     , objtype_(objtype)
@@ -42,10 +42,12 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
 
     IOObjContext ioobjctxt( nullptr );
     bool is2d = is2DObject();
-    if ( objtype == IOObjInfo::Horizon3D )
+    if ( objtype == EMObjectType::Hor3D )
 	ioobjctxt = mIOObjContext(EMHorizon3D);
-    else if ( objtype == IOObjInfo::Horizon2D )
+    else if ( objtype == EMObjectType::Hor2D )
 	ioobjctxt = mIOObjContext(EMHorizon2D);
+    else if ( objtype == EMObjectType::Flt3D )
+	ioobjctxt = mIOObjContext(EMFault3D);
     else
 	return;
 
@@ -73,7 +75,7 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
 							 uigrpnm );
     const uiString depthobjm = uiStrings::phrJoinStrings( uiStrings::sDepth(),
 							  uigrpnm );
-    const bool canhaveattribs = objtype_ == IOObjInfo::Horizon3D;
+    const bool canhaveattribs = objtype_ == EMObjectType::Hor3D;
     inptimehorsel_ = new uiSurfaceRead( this,
 		uiSurfaceRead::Setup(grpnm).withsubsel(true)
 			.withsectionfld(false).withattribfld(canhaveattribs),
@@ -112,14 +114,15 @@ uiTime2DepthDlg::~uiTime2DepthDlg ()
 
 bool uiTime2DepthDlg::is2DObject() const
 {
-    return objtype_ == IOObjInfo::Horizon2D;
+    return objtype_ == EMObjectType::Hor2D;
 }
 
 
-uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
+uiRetVal uiTime2DepthDlg::canTransform( EMObjectType objtype )
 {
     uiRetVal ret;
-    if ( objtype == IOObjInfo::Horizon3D || objtype == IOObjInfo::Horizon2D )
+    if ( objtype == EMObjectType::Hor3D || objtype == EMObjectType::Hor2D ||
+	objtype == EMObjectType::Flt3D )
 	return ret;
     else
 	ret.add( tr("Object type is not yet supported") );
@@ -128,10 +131,14 @@ uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
 }
 
 
-uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objyyp ) const
+uiString uiTime2DepthDlg::getDlgTitle( EMObjectType objyyp ) const
 {
-    if ( objyyp == IOObjInfo::Horizon3D )
+    if ( objyyp == EMObjectType::Hor3D )
 	return tr("Transform 3D Horizon");
+    else if ( objyyp == EMObjectType::Hor2D )
+	return tr("Transform 2D Horizon");
+    else if ( objyyp == EMObjectType::Flt3D )
+	return tr("Transform Fault");
 
     return tr("Object Type Not Supported");
 }
@@ -227,7 +234,7 @@ bool uiTime2DepthDlg::usePar( const IOPar& par )
 	return false;
 
     const IOPar* objpar = dimpar->subselect(
-				IOObjInfo::ObjectTypeDef().getKey(objtype_) );
+				    EMObjectTypeDef().getKey(objtype_) );
     if ( !objpar )
 	return false;
 
@@ -262,8 +269,7 @@ bool uiTime2DepthDlg::fillPar( IOPar& par ) const
 {
     const bool is2d = is2DObject();
     const BufferString dimkey( is2d ? sKey::TwoD() : sKey::ThreeD() );
-    const BufferString objtypekey(
-				IOObjInfo::ObjectTypeDef().getKey(objtype_) );
+    const BufferString objtypekey( EMObjectTypeDef().getKey(objtype_) );
     const BufferString basekey( IOPar::compKey(dimkey,objtypekey) );
     const bool ist2d = directionsel_->getBoolValue();
     par.setYN( IOPar::compKey(basekey,sKeyTime2Depth()), ist2d );

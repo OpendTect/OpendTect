@@ -42,7 +42,7 @@ public:
     bool			usePar(const IOPar&) override;
     void			fillPar(IOPar&) const override;
 
-    EMObjectIterator*	createIterator(
+    EMObjectIterator*		createIterator(
 				const TrcKeyZSampling* =nullptr) const override;
 
     bool			enableGeometryChecks(bool) override;
