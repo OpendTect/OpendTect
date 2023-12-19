@@ -52,7 +52,6 @@ protected:
 
     bool		acceptOK(CallBacker*) override;
     void                descChg(CallBacker*);
-    void		setSel(CallBacker*);
     void		formatSel(CallBacker*);
     void		scanPush(CallBacker*);
     void		zDomainCB(CallBacker*);
