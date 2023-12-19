@@ -135,7 +135,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     , topgrp_(nullptr)
     , sipfld_(nullptr)
     , xyinftfld_(nullptr)
-    , dirnamechanged(false)
 {
     orgstorepath_ = si_.getDataDirName().buf();
 
@@ -720,6 +719,77 @@ bool uiSurveyInfoEditor::setSurvName()
 }
 
 
+bool uiSurveyInfoEditor::checkNecessaryPermissions() const
+{
+    const bool isbasedirwritable = File::isWritable( orgstorepath_ );
+    if ( !isbasedirwritable )
+    {
+	uiString errmsg =
+	   tr("It seems the following Survey Data Root folder is not writable:"
+	    "\n%1\n\n"
+	    "Please make sure the folder is available and\nthe user is "
+	    "authorized to make modifications to the folder and try again.");
+	uiMSG().error( errmsg.arg(orgstorepath_) );
+	return false;
+    }
+
+    if ( isnew_ )
+	return true;
+
+    const BufferString olddir(
+		    FilePath(orgstorepath_).add(orgdirname_).fullPath() );
+    const bool issurveydirwritable = File::isWritable( olddir );
+    if ( !issurveydirwritable )
+    {
+	uiString errmsg =
+	    tr("It seems the following Survey folder is not writable:\n%1\n\n"
+	    "Please make sure the folder is available and\nthe user is "
+	    "authorized to make modifications to the folder and try again.");
+	uiMSG().error( errmsg.arg(olddir) );
+	return false;
+    }
+
+    const bool dirnamechanged = dirNameChanged();
+    if ( dirnamechanged && File::isInUse(olddir) )
+    {
+	uiString errmsg =
+	    tr("It looks like the following survey folder is open:\n%1\n\n"
+	    "Please close the folder and try again.").arg(olddir);
+	uiMSG().error( errmsg );
+	return false;
+    }
+
+    const FilePath setupfp( orgstorepath_, orgdirname_,
+	SurveyInfo::sKeySetupFileName() );
+    const BufferString setupfullpath = setupfp.fullPath();
+    const bool issurvfilewritable = File::isWritable( setupfullpath );
+    if ( dirnamechanged && !issurvfilewritable )
+    {
+	uiString errmsg;
+	if ( File::isInUse(setupfullpath) )
+	    errmsg =
+		tr("It seems the following survey configuration file is open "
+		"or is in use by another application:\n%1\n\n"
+		"Please close it and try again.");
+	else
+	    errmsg = tr("It seems the user does not the permission to modify "
+		"the following survey configuration file:\n%1\n\n"
+		"Please provide write permissions and try again.");
+
+	uiMSG().error( errmsg.arg(setupfullpath) );
+	return false;
+    }
+
+    return true;
+}
+
+
+bool uiSurveyInfoEditor::dirNameChanged() const
+{
+    return orgdirname_ != dirName();
+}
+
+
 bool uiSurveyInfoEditor::handleCurrentSurvey()
 {
     TypeSet<Network::Service::ID> servids;
@@ -733,17 +803,13 @@ bool uiSurveyInfoEditor::handleCurrentSurvey()
     if ( !IOM().isPreparedForSurveyChange() )
 	return false;
 
-    if ( !doApply() )
-	return false;
-
     const BufferString storepath( pathfld_->text() );
     const BufferString newdirnm( dirName() );
     const BufferString olddir(
 	FilePath(orgstorepath_).add(orgdirname_).fullPath() );
     const FilePath newfp( storepath, newdirnm );
     const BufferString newdir( newfp.fullPath() );
-    dirnamechanged = orgdirname_ != newdirnm;
-
+    const bool dirnamechanged = dirNameChanged();
     if ( dirnamechanged && File::exists(newdir) )
     {
 	uiMSG().error( tr("The new target folder exists.\n"
@@ -751,6 +817,8 @@ bool uiSurveyInfoEditor::handleCurrentSurvey()
 	return false;
     }
 
+    if ( !doApply() )
+	return false;
 
     if ( dirnamechanged && !renameSurv(orgstorepath_,orgdirname_,newdirnm) )
 	return false;
@@ -783,7 +851,7 @@ bool uiSurveyInfoEditor::handleCurrentSurvey()
     if ( !si_.write(rootdir_) )
     {
 	uiMSG().error(
-	    tr("Failed to write survey info.\nNo changes committed.") );
+	    tr("Failed to save changes to the survey configuration file.") );
 	return false;
     }
 
@@ -818,6 +886,9 @@ bool uiSurveyInfoEditor::handleCurrentSurvey()
 
 bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 {
+    if ( !checkNecessaryPermissions() )
+	return false;
+
     if ( iscurr_ )
     {
 	const SurveyInfo backupsi( si_ );
@@ -844,8 +915,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     const FilePath newfp( newstorepath, newdirnm );
     const BufferString newdir( newfp.fullPath() );
     const bool storepathchanged = orgstorepath_ != newstorepath;
-    dirnamechanged = orgdirname_ != newdirnm;
-
+    const bool dirnamechanged = dirNameChanged();
     if ( (dirnamechanged || storepathchanged) && File::exists(newdir) )
     {
 	uiMSG().error( tr("The new target folder exists.\n"
@@ -895,7 +965,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     if ( !si_.write(rootdir_) )
     {
 	uiMSG().error(
-	    tr("Failed to write survey info.\nNo changes committed.") );
+	    tr("Failed to save changes to the survey configuration file.") );
 	return false;
     }
 

@@ -41,7 +41,7 @@ public:
     bool		isOK() const		{ return topgrp_; }
 			//!<Must be checked before 'go'
 
-    bool		dirnmChanged() const	{ return dirnamechanged; }
+    bool		dirNameChanged() const;
     const char*		dirName() const;
     void		setNameandPathSensitive(bool, bool);
     IOPar*		getImportPars();
@@ -110,7 +110,6 @@ protected:
     Coords::uiCoordSystemSelGrp*	    crssel_;
 
     bool				    xyInFeet() const;
-    bool				    dirnamechanged;
     void				    mkSIPFld(uiObject*);
     void				    mkRangeGrp();
     void				    mkCoordGrp();
@@ -140,6 +139,8 @@ protected:
 
     static uiString			    getSRDString(bool infeet);
     static uiString			    getCoordString(bool infeet);
+
+    bool				    checkNecessaryPermissions() const;
 
     friend class			    uiSurvey;
 
