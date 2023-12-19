@@ -1,7 +1,7 @@
 [![OpendTect header logo][header-img]](https://dgbes.com/index.php/software#free)
 [![Example][example-img]]()
 
-OpendTect is a free, open source seismic interpretation system and software development platform. The system supports all tools needed for visualizing, analyzing and interpreting 2D, 3D and 4D seismic and Ground Penetrating Radar (GPR) data. The software is written in C++ and the same codebase compiles and runs on [Windows, MacOS and Linux](https://dgbes.com/index.php/software/supported-platforms). It also has a mature plugin programming interface that allows third parties to [develop plugins](https://dgbes.com/index.php/services/research-development#develop-your-own-plugins) to add functionality to the system without touching the OpendTect source code. A binary installer for OpendTect can be downloaded from the [dGB download page](https://dgbes.com/index.php/download).
+OpendTect is a free, open source seismic interpretation system and software development platform. The system supports all tools needed for visualizing, analyzing and interpreting 2D, 3D and 4D seismic and Ground Penetrating Radar (GPR) data. The software is written in C++ and the same codebase compiles and runs on [Windows, macOS and Linux](https://dgbes.com/index.php/software/supported-platforms). It also has a mature plugin programming interface that allows third parties to [develop plugins](https://dgbes.com/index.php/services/research-development#develop-your-own-plugins) to add functionality to the system without touching the OpendTect source code. A binary installer for OpendTect can be downloaded from the [dGB download page](https://dgbes.com/index.php/download).
 
 This source code is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gpl.html) license. Commercial and Academic licenses are offered by [dGB Earth Sciences](https://dgbes.com) for [OpendTect Pro](https://dgbes.com/index.php/software#commercial), an extension of OpendTect that adds special functions for professional users and the potential to [rent or purchase commercial plugins](https://prostore.dgbes.com/) offering access to [unique seismic interpretation workflows](https://dgbes.com/index.php/software/plugins). The differences in functionality of the open source OpendTect, commercial OpendTect Pro and commercial plugins is compared [here](https://dgbes.com/index.php/software/supported-functionality).
 
@@ -21,7 +21,7 @@ OpendTect is used worldwide by thousands of open source users, thousands of acad
 		- [Sqlite Install](#sqlite-install)
 		- [HDF5 Install](#hdf5-install)
  	- [Windows](#windows)
- 	- [MacOS](#macos)
+ 	- [macOS](#macos)
  	- [Linux](#linux)
 - [Contributing](#contributing)
 - [Contacts and More Information](#contacts-and-more-information)
@@ -43,8 +43,8 @@ OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gp
 ### Requirements
 
 - A C++ compiler and compilation tool chain:
-	- Windows: msvc2022 64 bit (>= v17.3.1) or msvc2019 64 bit (>= v16.7.5). The free community edition is sufficient.
-	- macOS: SDK 10.14
+	- Windows: msvc2022 64 bit (>= v17.4.3) or msvc2019 64 bit (>= v16.7.5). The free community edition is sufficient.
+	- macOS: SDK 10.15
 	- Linux: gcc 64 bit version 9.5.0 or higher
 - CMake version 3.14 or higher
 - The c++17 version is enabled by default on all platforms.
@@ -54,15 +54,15 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.1.1 (optional)](https://download.osgeo.org/proj/proj-9.1.1.tar.gz), [Sqlite 3.40 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od7.0_rel, od7.0 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.1.1 (optional)](https://download.osgeo.org/proj/proj-9.1.1.tar.gz), [Sqlite 3.40 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.3.0 (optional)](https://download.osgeo.org/proj/proj-9.3.0.tar.gz), [Sqlite 3.44 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od7.0_rel, od7.0 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.3.0 (optional)](https://download.osgeo.org/proj/proj-9.3.0.tar.gz), [Sqlite 3.44 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.0 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.6_rel, od6.6 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.4.5, od6.4 | [Qt 5.9.6](http://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
 
 #### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
 
--  Desktop msvc2019 64- bit (Windows), SDK 10.14 (macOS) or gcc 64 bit (Linux) 
+-  Desktop msvc2019 64- bit (Windows), SDK 10.15 (macOS) or gcc 64 bit (Linux) 
 -  QtWebEngine
 -  Optionally source code or debug information files
 
@@ -76,27 +76,27 @@ Configure using CMake, compile and install.
 Retrieve from their download site or the OpendTect SDK
 
 #### HDF5 Install
-The link to HDF5 requires to provide the path to an existing HDF5 installation. All versions above 1.10.3 are supported, but using the current API 1.12 is preferred. Installation is best done using their binary installations (on Windows especially), or from the package manager on Linux. Windows developers however need to recompile the sources since no debug binary libraries can be downloaded.
+The link to HDF5 requires to provide the path to an existing HDF5 installation. All versions above 1.10.3 are supported, but using the current API 1.14 is preferred. Installation is best done using their binary installations (on Windows especially), or from the package manager on Linux. Windows developers however need to recompile the sources since no debug binary libraries can be downloaded.
 
 ### Windows
 Configure CMake ensuring to set the following variables:
 
 - QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
 - OSG_DIR="OpenSceneGraph install location"
-- PROJ_DIR="PROJ install location" or BUILD_PROJ=ON or OD_NO_PROJ=ON to disable it
-- SQLITE_DIR="SQLITE install location" (optional, but required by Proj)
+- PROJ_DIR="PROJ install location" or OD_NO_PROJ=ON to disable it
+- SQLite3_ROOT="SQLite3 install location" (optional, but required by Proj)
 - HDF5_ROOT="HDF5 install location" (optional)
 
-Start Visual Studio 2022, open the OpendTect build solution and build.
+Start Visual Studio 2022, open the OpendTect solution and build.
 
-### MacOS
+### macOS
 ### Linux
 Configure CMake ensuring to set the following variables:
 
 - QTDIR= set this to the Qt install location for the appropriate version of Qt for the OpendTect version
 - OSG_DIR="OpenSceneGraph install location"
-- PROJ_DIR="PROJ install location" or BUILD_PROJ=ON or OD_NO_PROJ=ON to disable it
-- SQLITE_DIR="SQLITE install location" (optional, but required by Proj)
+- PROJ_DIR="PROJ install location" or OD_NO_PROJ=ON to disable it
+- SQLite3_ROOT="SQLite3 install location" (optional, but required by Proj)
 - HDF5_ROOT="HDF5 install location" (optional)
 - OpenGL\_GL\_PREFERENCE=LEGACY 
 - ZLIB\_INCLUDE\_DIR=  set this if not being found by CMake
