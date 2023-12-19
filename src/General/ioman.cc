@@ -456,12 +456,8 @@ bool IOMan::setSurvey( const char* survname )
 
 void IOMan::surveyParsChanged()
 {
-    IOM().prepareSurveyChange().trigger();
-    if ( IOM().changeSurveyBlocked() )
-    {
-	IOM().setChangeSurveyBlocked(false);
+    if ( !IOM().isPreparedForSurveyChange() )
 	return;
-    }
 
     IOM().surveyToBeChanged.trigger();
     IOM().surveyChanged.trigger();
@@ -1892,6 +1888,19 @@ BufferString IOMan::getNewTempDataRootDir()
     }
 
     return tmpdataroot;
+}
+
+
+bool IOMan::isPreparedForSurveyChange()
+{
+    IOM().prepareSurveyChange().trigger();
+    if ( IOM().changeSurveyBlocked() )
+    {
+	IOM().setChangeSurveyBlocked( false );
+	return false;
+    }
+
+    return true;
 }
 
 

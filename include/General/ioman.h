@@ -280,6 +280,7 @@ public:
     IODir*		getDir(IOObjContext::StdSelType) const;
     IODir*		getDir(const MultiID&) const;
     bool		ensureUniqueName(IOObj&);
+    static bool		isPreparedForSurveyChange();
 };
 
 
