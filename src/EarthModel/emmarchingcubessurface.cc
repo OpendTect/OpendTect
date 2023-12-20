@@ -60,7 +60,7 @@ public:
 	     !astream.isOfFileType( sOldFileType() ) &&
 	     !astream.isOfFileType( sOldFileType2() ) )
 	{
-	    errmsg_ = toUiString("Invalid filetype");
+	    errmsg_ = ::toUiString("Invalid filetype");
 	    return;
 	}
 
@@ -76,7 +76,7 @@ public:
 	     !par.get( sKeyCrlSampling(),crlsampling.start,crlsampling.step) ||
 	     !par.get( sKeyZSampling(),zsampling.start,zsampling.step ) )
 	{
-	    errmsg_ = toUiString("Invalid filetype");
+	    errmsg_ = ::toUiString("Invalid filetype");
 	    return;
 	}
 

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "uiioobjsel.h"
+#include "uisurfaceman.h"
 
 #include "bufstringset.h"
 #include "emposid.h"
@@ -304,8 +305,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiBodySel : public uiIOObjSel
-{
-mODTextTranslationClass(uiBodySel)
+{ mODTextTranslationClass(uiBodySel)
 public:
 			uiBodySel(uiParent*,bool forread,
 				     const uiIOObjSel::Setup&);
@@ -315,8 +315,7 @@ public:
 
 
 mExpClass(uiEarthModel) uiHorizonSel : public uiIOObjSel
-{
-mODTextTranslationClass(uiHorizonSel)
+{ mODTextTranslationClass(uiHorizonSel)
 public:
 			uiHorizonSel(uiParent*,bool is2d,
 				     const ZDomain::Info*,bool isforread,
@@ -324,12 +323,13 @@ public:
 			uiHorizonSel(uiParent*,bool is2d,bool isforread,
 				     const uiIOObjSel::Setup& ={});
 			~uiHorizonSel();
+protected:
+    const uiString	getLabelText(const ZDomain::Info&,bool forread) const;
 };
 
 
 mExpClass(uiEarthModel) uiHorizon3DSel : public uiHorizonSel
-{
-mODTextTranslationClass(uiHorizon3DSel)
+{ mODTextTranslationClass(uiHorizon3DSel)
 public:
 			uiHorizon3DSel(uiParent*,
 				       const ZDomain::Info*,bool isforread,
@@ -337,4 +337,19 @@ public:
 			uiHorizon3DSel(uiParent*,bool isforread,
 				       const uiIOObjSel::Setup& ={});
 			~uiHorizon3DSel();
+};
+
+
+mExpClass(uiEarthModel) uiFaultSel : public uiIOObjSel
+{ mODTextTranslationClass(uiFaultSel)
+public:
+			uiFaultSel(uiParent*,EM::EMObjectType,
+				    const ZDomain::Info*,bool isforread,
+				    const uiIOObjSel::Setup ={});
+			~uiFaultSel();
+protected:
+    const uiString	getLabelText(const ZDomain::Info&,bool forread,
+						    EM::EMObjectType) const;
+    IOObjContext	ioContext(bool,EM::EMObjectType,
+						    const ZDomain::Info*);
 };

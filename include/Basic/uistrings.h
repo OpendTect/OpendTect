@@ -368,6 +368,10 @@ public:
     static uiString sFaultSet(int n=1){ return tr("FaultSet",0,n); }
     static uiString sFaultStickSet(int n=1)
 					{ return tr( "FaultStickSet",0,n);}
+    static uiString sFaultStickSet2D(int n=1)
+					{ return tr( "FaultStickSet 2D",0,n);}
+    static uiString sFaultStickSet3D(int n=1)
+					{ return tr( "FaultStickSet 3D",0,n);}
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()		{ return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }

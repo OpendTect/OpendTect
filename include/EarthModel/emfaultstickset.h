@@ -172,7 +172,7 @@ public:
     uiString				getUserTypeStr() const override;
 
 
-    EMObjectIterator*	createIterator(
+    EMObjectIterator*		createIterator(
 				const TrcKeyZSampling* =nullptr) const override;
 
 protected:

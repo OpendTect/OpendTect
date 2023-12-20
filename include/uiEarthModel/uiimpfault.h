@@ -19,6 +19,7 @@ class uiTableImpDataSel;
 
 namespace EM { class Fault3D; class Fault; }
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 /*! \brief Dialog for fault import */
 
@@ -39,18 +40,25 @@ protected:
     void		inputChgd(CallBacker*);
     void		typeSel(CallBacker*);
     void		stickSel(CallBacker*);
+    void		zDomainCB(CallBacker*);
     bool		checkInpFlds();
     bool		handleAscii();
     bool		handleLMKAscii();
     bool		acceptOK(CallBacker*) override { return false; }
     virtual bool	getFromAscIO(od_istream&,EM::Fault&);
-    EM::Fault*		createFault() const;
+    virtual bool	is2D() const;
+    RefMan<EM::Fault>	createFault() const;
+    bool		isASCIIFileInTime() const;
+    uiIOObjSel*		getValidOutFld() const;
+    const ZDomain::Info& zDomain() const;
 
     uiFileInput*	infld_;
     uiFileInput*	formatfld_;
     uiGenInput*		typefld_;
-    uiIOObjSel*		outfld_;
+    uiGenInput*		zdomselfld_;
     uiGenInput*		sortsticksfld_;
+    uiIOObjSel*		outtimefld_;
+    uiIOObjSel*		outdepthfld_;
     uiGenInput*		stickselfld_;
     uiGenInput*		thresholdfld_;
     Table::FormatDesc*	fd_;
@@ -94,5 +102,6 @@ protected:
 
     bool		acceptOK(CallBacker*) override;
     bool		getFromAscIO(od_istream&,EM::Fault&) override;
+    bool		is2D() const override;
 
 };

@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uiobjfileman.h"
+#include "emmanager.h"
 #include "enums.h"
 
 class BufferStringSet;
@@ -22,29 +23,25 @@ class uiToolButton;
 mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 { mODTextTranslationClass(uiSurfaceMan);
 public:
-
-    enum Type		{ Hor2D, Hor3D, AnyHor, StickSet, Flt3D, Body, FltSet };
-			mDeclareEnumUtils(Type);
-
-			uiSurfaceMan(uiParent*,Type);
+			uiSurfaceMan(uiParent*,EM::EMObjectType);
 			~uiSurfaceMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSurfaceMan);
 
 protected:
 
-    const Type		type_;
+    const EM::EMObjectType		type_;
 
-    uiListBox*		attribfld_;
+    uiListBox*		attribfld_		= nullptr;
 
     bool		isCur2D() const;
     bool		isCurFault() const;
 
-    uiToolButton*	man2dbut_;
-    uiToolButton*	surfdatarenamebut_;
-    uiToolButton*	surfdataremovebut_;
-    uiToolButton*	copybut_;
-    uiToolButton*	mergehorbut_;
+    uiToolButton*	man2dbut_		= nullptr;
+    uiToolButton*	surfdatarenamebut_	= nullptr;
+    uiToolButton*	surfdataremovebut_	= nullptr;
+    uiToolButton*	copybut_		= nullptr;
+    uiToolButton*	mergehorbut_		= nullptr;
     uiToolButton*	applybodybut_;
     uiToolButton*	createregbodybut_;
     uiToolButton*	volestimatebut_;

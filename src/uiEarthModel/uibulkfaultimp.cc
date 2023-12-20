@@ -15,10 +15,12 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "ioman.h"
 #include "od_istream.h"
 #include "survinfo.h"
 #include "tableascio.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 
 #include "uifileinput.h"
 #include "uimsg.h"
@@ -28,6 +30,7 @@ ________________________________________________________________________
 #include "emfsstofault3d.h"
 #include "emfaultset3d.h"
 #include "uiioobjsel.h"
+#include "uiiosurface.h"
 
 class BulkFaultAscIO : public Table::AscIO
 {
@@ -40,24 +43,51 @@ BulkFaultAscIO( const Table::FormatDesc& fd, od_istream& strm, bool is2d )
 {}
 
 
-static Table::FormatDesc* getDesc( bool isfss, bool is2d )
+static Table::FormatDesc* getDesc( EM::EMObjectType type, bool is2d,
+						const ZDomain::Def& def )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkFault" );
 
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
-    BufferString typnm = isfss ? "FaultStickSet name" : "Fault name";
+    createDesc( fd, type, is2d, def );
+    return fd;
+}
+
+
+static void createDesc( Table::FormatDesc* fd, EM::EMObjectType type,
+					bool is2d, const ZDomain::Def& def )
+{
+    BufferString typnm;
+    if ( EM::isFaultStickSet(type) )
+	typnm = "FaultStickSet name";
+    else if ( type == EM::EMObjectType::Flt3D )
+	typnm = "Fault name";
+    else
+	typnm = "FaultSet name";
+
     fd->bodyinfos_ += new Table::TargetInfo( typnm , Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
+    if ( def.isTime() )
+	fd->bodyinfos_ += Table::TargetInfo::mkTimePosition( true );
+    else
+	fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
+
     fd->bodyinfos_ += new Table::TargetInfo( "Stick number", IntInpSpec(),
-					     Table::Required );
+	Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( "Node index", IntInpSpec(),
-					     Table::Optional );
+	Table::Optional );
     if ( is2d )
 	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
-						 Table::Required );
-    return fd;
+	    Table::Required );
+}
+
+
+static void updateDesc( Table::FormatDesc& fd, EM::EMObjectType type,
+					bool is2d, const ZDomain::Def& def )
+{
+    fd.bodyinfos_.erase();
+    createDesc( &fd, type, is2d, def );
 }
 
 
@@ -100,7 +130,7 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
 }
 
     od_istream&		strm_;
-    double		udfval_;
+    double		udfval_			= mUdf(double);
     bool		finishedreadingheader_;
     bool		is2d_;
 };
@@ -127,30 +157,41 @@ static const char* sKeySlopeThres()	{ return "Slope threshold"; }
 		    : mODHelpKey(mImportFaultStick3DHelpID) ), \
     mODHelpKey(mImportFaultHelpID), mTODOHelpKey )
 
+#define mGetType(tp) \
+    StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? \
+	EM::EMObjectType::FltSS3D : \
+    StringView(tp).isEqual("FaultStickSet 2D") ? EM::EMObjectType::FltSS2D : \
+    StringView(tp).isEqual("FaultStickSet 2D and 3D") ? \
+	EM::EMObjectType::FltSS2D3D : \
+    StringView(tp) == EMFaultSet3DTranslatorGroup::sGroupName() ? \
+	EM::EMObjectType::FltSet : EM::EMObjectType::Flt3D \
+
+
 uiBulkFaultImport::uiBulkFaultImport(uiParent* p)
-	: uiDialog(p, uiDialog::Setup(tr("Import Multiple Faults"), mNoDlgTitle,
-		mODHelpKey(mBulkFaultImportHelpID))
-		.modal(false))
-	, fd_(BulkFaultAscIO::getDesc(false, false))
-	, isfss_(false)
-	, isfltset_(false)
-	, is2dfss_(false)
+    : uiDialog(p, uiDialog::Setup(tr("Import Multiple Faults"), mNoDlgTitle,
+	    mODHelpKey(mBulkFaultImportHelpID))
+	    .modal(false))
+    , fd_(BulkFaultAscIO::getDesc(EM::EMObjectType::Flt3D,false,SI().zDomain()))
+    , isfss_(false)
+    , isfltset_(false)
+    , is2dfss_(false)
 {
     init();
 }
 
 
-uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type, bool is2d )
+uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type,
+								    bool is2d )
     : uiDialog(p,uiDialog::Setup(mGet( type, (is2d
 			      ? tr("Import Multiple FaultStickSets 2D")
 			      : tr("Import Multiple FaultStickSets")),
 				tr("Import Multiple Faults"),
 				tr("Import FaultSet")),mNoDlgTitle,
 				mGetHelpKey(type)).modal(false))
-    , fd_(BulkFaultAscIO::getDesc(mGet(type,true,false,false),is2d))
+    , fd_(BulkFaultAscIO::getDesc(mGetType(type),is2d,SI().zDomain()))
     , isfss_(mGet(type,true,false,false))
     , isfltset_(mGet(type,false,false,true))
-	, is2dfss_(is2d)
+    , is2dfss_(is2d)
 {
     init();
 }
@@ -162,13 +203,26 @@ void uiBulkFaultImport::init()
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setExamStyle( File::Table );
+    uiString zdomlbl;
+    if ( isfltset_ )
+	zdomlbl = tr("FaultSet is in");
+    else if ( isfss_ )
+	zdomlbl = tr("Fault Stickset is in");
+    else
+	zdomlbl = tr("Fault is in");
+
+    zdomselfld_ = new uiGenInput( this, zdomlbl,
+		    BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
+    zdomselfld_->attach( alignedBelow, inpfld_ );
+    zdomselfld_->setValue( SI().zIsTime() );
+    mAttachCB( zdomselfld_->valueChanged, uiBulkFaultImport::zDomainCB );
 
     BufferStringSet stickselopt; stickselopt.add( sKeyAutoStickSel() )
 						.add( sKeyInlCrlSep() )
 						.add( sKeySlopeThres() );
     stickselfld_ = new uiGenInput( this, tr("Stick selection"),
 				   StringListInpSpec(stickselopt) );
-    stickselfld_->attach( alignedBelow, inpfld_ );
+    stickselfld_->attach( alignedBelow, zdomselfld_ );
     mAttachCB( stickselfld_->valueChanged, uiBulkFaultImport::stickSelCB );
 
     thresholdfld_ = new uiGenInput( this, uiString::emptyString(),
@@ -188,15 +242,20 @@ void uiBulkFaultImport::init()
 
     if ( isfltset_ )
     {
-	IOObjContext ctxt = mIOObjContext(EMFaultSet3D);
-	ctxt.forread_ = false;
-	fltsetnmfld_ = new uiIOObjSel( this, ctxt,
-				uiStrings::phrOutput(uiStrings::sFaultSet()) );
-	fltsetnmfld_->attach( alignedBelow, dataselfld_ );
+	const ZDomain::Info& depthzinfo = SI().zInFeet() ? ZDomain::DepthFeet()
+						    : ZDomain::DepthMeter();
+	const EM::EMObjectType type = EM::EMObjectType::FltSet;
+	fltsettimefld_ = new uiFaultSel( this, type, &ZDomain::TWT(), false );
+	fltsetdepthfld_ = new uiFaultSel( this, type, &depthzinfo, false );
+	fltsettimefld_->attach( alignedBelow, dataselfld_ );
+	fltsetdepthfld_->attach( alignedBelow, dataselfld_ );
 
 	mAttachCB( inpfld_->valueChanged, uiBulkFaultImport::inpChangedCB );
     }
+
     stickSelCB( nullptr );
+    if ( isfltset_ )
+	zDomainCB( nullptr );
 }
 
 
@@ -207,9 +266,53 @@ uiBulkFaultImport::~uiBulkFaultImport()
 }
 
 
+const ZDomain::Info& uiBulkFaultImport::zDomain() const
+{
+    const UnitOfMeasure* selunit = fd_->bodyinfos_.validIdx(2) ?
+			fd_->bodyinfos_[2]->selection_.unit_ : nullptr;
+    bool isimperial = false;
+    if ( selunit )
+	isimperial = selunit->isImperial();
+
+    if ( isASCIIFileInTime() )
+	return ZDomain::TWT();
+    else if ( isimperial )
+	return ZDomain::DepthFeet();
+
+    return ZDomain::DepthMeter();
+}
+
+
+bool uiBulkFaultImport::isASCIIFileInTime() const
+{
+    return zdomselfld_->getBoolValue();
+}
+
+
+void uiBulkFaultImport::zDomainCB( CallBacker* )
+{
+    const bool istime = isASCIIFileInTime();
+    if ( isfltset_ )
+    {
+	fltsettimefld_->display( istime );
+	fltsetdepthfld_->display( !istime );
+    }
+
+    EM::EMObjectType type = EM::EMObjectType::Flt3D;
+    if ( isfss_ )
+	type = EM::EMObjectType::FltSS3D;
+    else if ( isfltset_ )
+	type = EM::EMObjectType::FltSet;
+
+    BulkFaultAscIO::updateDesc( *fd_, type, is2dfss_,
+				istime ? ZDomain::Time() : ZDomain::Depth() );
+}
+
+
 void uiBulkFaultImport::stickSelCB( CallBacker* )
 {
-    if ( !stickselfld_ ) return;
+    if ( !stickselfld_ )
+	return;
 
     const bool showthresfld
 	= StringView(stickselfld_->text()) == sKeySlopeThres();
@@ -355,8 +458,13 @@ static void updateFaultStickSet( EM::Fault* flt,
 
 void uiBulkFaultImport::inpChangedCB( CallBacker* )
 {
-    if ( fltsetnmfld_ )
-	fltsetnmfld_->setInput( MultiID(inpfld_->baseName()) );
+    if ( isfltset_ )
+    {
+	if ( isASCIIFileInTime() )
+	    fltsettimefld_->setInput( MultiID(inpfld_->baseName()) );
+	else
+	    fltsetdepthfld_->setInput( MultiID(inpfld_->baseName()) );
+    }
 }
 
 
@@ -386,15 +494,17 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 
     EM::FaultSet3D* fltset = nullptr;
 
-    if (isfltset_)
+    if ( isfltset_ )
     {
-	const IOObj* ioobj = fltsetnmfld_->ioobj();
+	const IOObj* ioobj = isASCIIFileInTime() ? fltsettimefld_->ioobj()
+						 : fltsetdepthfld_->ioobj();
 	if ( !ioobj )
 	    return false;
+
 	EM::ObjectID oid = EM::EMM().createObject(
 				EM::FaultSet3D::typeStr(), ioobj->name() );
 	mDynamicCast(EM::FaultSet3D*,fltset,EM::EMM().getObject(oid))
-	if (isfltset_ && !fltset )
+	if ( isfltset_ && !fltset )
 	    return false;
     }
 
@@ -403,22 +513,28 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 			StringView(sortsticksfld_->text()) == sKeyGeometric();
     if ( stickselfld_ && StringView(stickselfld_->text()) == sKeyInlCrlSep() )
 	convsu.useinlcrlslopesep_ = true;
+
     if ( stickselfld_ && StringView(stickselfld_->text()) == sKeySlopeThres() )
 	convsu.stickslopethres_ = thresholdfld_->getDValue();
 
     ExecutorGroup saver( savernm );
+    TypeSet<MultiID> mids;
+    const ZDomain::Info& zdominfo = zDomain();
     for ( int idx=0; idx<pars.size(); idx++ )
     {
 	EM::EMManager& em = EM::EMM();
 	RefMan<EM::EMObject> emobj = nullptr;
 	EM::ObjectID emid;
-	if (isfltset_)
+	if ( isfltset_ )
 	    emobj = em.createTempObject( typestr );
 	else
 	{
 	    emid = em.createObject( typestr, pars[idx]->name_.buf() );
 	    emobj = em.getObject( emid );
 	}
+
+	if ( emobj )
+	    emobj->setZDomain( zdominfo );
 
 	mDynamicCastGet( EM::Fault*, flt, emobj.ptr() );
 
@@ -441,7 +557,10 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	}
 
 	if ( !isfltset_)
+	{
 	    saver.add( emobj->saver() );
+	    mids.add( emobj->multiID() );
+	}
 	else
 	{
 	    mDynamicCastGet( EM::Fault3D*, flt3d, emobj.ptr() );
@@ -449,11 +568,21 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	}
     }
 
-    if (isfltset_)
+    if ( isfltset_ )
+    {
 	saver.add( fltset->saver() );
+	mids.add( fltset->multiID() );
+    }
 
     if ( TaskRunner::execute( &taskr, saver ) )
     {
+	for ( const auto& mid : mids )
+	{
+	    PtrMan<IOObj> obj = IOM().get( mid );
+	    zdominfo.fillPar( obj->pars() );
+	    IOM().commitChanges( *obj );
+	}
+
 	uiString msg = tr("%1 successfully imported.");
 	if ( isfltset_ )
 	{

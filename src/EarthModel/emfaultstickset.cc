@@ -388,7 +388,7 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID(
 
 static BufferString getKey( const char* prefix, int sticknr )
 {
-    return BufferString( prefix, " sticknr ", toString(sticknr) );
+    return BufferString( prefix, " sticknr ", ::toString(sticknr) );
 }
 
 

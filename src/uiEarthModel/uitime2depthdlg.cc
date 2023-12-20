@@ -133,7 +133,7 @@ uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objyyp ) const
     if ( objyyp == IOObjInfo::Horizon3D )
 	return tr("Transform 3D Horizon");
 
-    return toUiString("Object Type Not Supported");
+    return tr("Object Type Not Supported");
 }
 
 

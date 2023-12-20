@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "zdomain.h"
 
 namespace EM {
 
@@ -358,18 +359,37 @@ FaultAscIO::~FaultAscIO()
 {}
 
 
-Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
+Table::FormatDesc* FaultAscIO::getDesc( bool is2d, const ZDomain::Def& def )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Fault" );
 
+
+    return fd;
+}
+
+
+void FaultAscIO::createDescBody( Table::FormatDesc* fd, bool is2d,
+						    const ZDomain::Def& def )
+{
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
+    if ( def.isTime() )
+	fd->bodyinfos_ += Table::TargetInfo::mkTimePosition( true );
+    else
+	fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
+
     fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
-					     Table::Optional );
+	Table::Optional );
     if ( is2d )
 	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
-						 Table::Required );
-    return fd;
+	    Table::Required );
+}
+
+
+void FaultAscIO::updateDesc( Table::FormatDesc& fd, bool is2d,
+					    const ZDomain::Def& def )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, is2d, def );
 }
 
 

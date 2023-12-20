@@ -10,11 +10,13 @@ ________________________________________________________________________
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
+#include "embodytr.h"
 #include "emhorizon.h"
 #include "emioobjinfo.h"
 #include "emobject.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "executor.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -25,6 +27,30 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "selector.h"
 #include "stratlevel.h"
+
+
+mDefineNameSpaceEnumUtils(EM,EMObjectType,"Surface type")
+{
+    EMHorizon2DTranslatorGroup::sGroupName().buf(),
+    EMHorizon3DTranslatorGroup::sGroupName().buf(),
+    EMAnyHorizonTranslatorGroup::sGroupName().buf(),
+    EMFault3DTranslatorGroup::sGroupName().buf(),
+    "FaultStickSet 2D",
+    EMFaultStickSetTranslatorGroup::sGroupName().buf(),
+    "FaultStickSet 2D and 3D",
+    EMFaultSet3DTranslatorGroup::sGroupName().buf(),
+    EMBodyTranslatorGroup::sGroupName().buf(),
+    "Unknown",
+    nullptr
+};
+
+
+bool EM::isFaultStickSet( EM::EMObjectType emobjtyp )
+{
+    return emobjtyp == EM::EMObjectType::FltSS2D ||
+	emobjtyp == EM::EMObjectType::FltSS3D ||
+	emobjtyp == EM::EMObjectType::FltSS2D3D;
+}
 
 
 EM::EMManager& EM::EMM()

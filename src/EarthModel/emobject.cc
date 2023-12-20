@@ -214,7 +214,7 @@ int EMObject::sectionIndex( const SectionID& ) const
 
 BufferString EMObject::sectionName( const SectionID& sid ) const
 {
-    return BufferString( toString(sid.asInt()) );
+    return BufferString( ::toString(sid.asInt()) );
 }
 
 

@@ -53,33 +53,25 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
-mDefineEnumUtils(uiSurfaceMan,Type,"Surface type")
-{
-    EMHorizon2DTranslatorGroup::sGroupName(),
-    EMHorizon3DTranslatorGroup::sGroupName(),
-    EMAnyHorizonTranslatorGroup::sGroupName(),
-    EMFaultStickSetTranslatorGroup::sGroupName(),
-    EMFault3DTranslatorGroup::sGroupName(),
-    EMBodyTranslatorGroup::sGroupName(),
-    EMFaultSet3DTranslatorGroup::sGroupName(),
-    0
-};
+
 
 mDefineInstanceCreatedNotifierAccess(uiSurfaceMan)
 
 
 
 #define mCaseRetCtxt(enm,trgrpnm) \
-    case uiSurfaceMan::enm: return trgrpnm##TranslatorGroup::ioContext()
+    case EM::EMObjectType::enm: return trgrpnm##TranslatorGroup::ioContext()
 
-static IOObjContext getIOCtxt( uiSurfaceMan::Type typ )
+static IOObjContext getIOCtxt( EM::EMObjectType typ )
 {
     switch ( typ )
     {
 	mCaseRetCtxt(Hor2D,EMHorizon2D);
 	mCaseRetCtxt(Hor3D,EMHorizon3D);
 	mCaseRetCtxt(AnyHor,EMAnyHorizon);
-	mCaseRetCtxt(StickSet,EMFaultStickSet);
+	mCaseRetCtxt(FltSS2D,EMFaultStickSet);
+	mCaseRetCtxt(FltSS3D,EMFaultStickSet);
+	mCaseRetCtxt(FltSS2D3D,EMFaultStickSet);
 	mCaseRetCtxt(Flt3D,EMFault3D);
 	mCaseRetCtxt(FltSet,EMFaultSet3D);
 	default:
@@ -88,15 +80,17 @@ static IOObjContext getIOCtxt( uiSurfaceMan::Type typ )
 }
 
 #define mCaseRetStr(enm,str) \
-    case uiSurfaceMan::enm: return toUiString("%1 %2").arg(act).arg(str);
+    case EM::EMObjectType::enm: return toUiString("%1 %2").arg(act).arg(str);
 
-static uiString getActStr( uiSurfaceMan::Type typ, const uiString& act )
+static uiString getActStr( EM::EMObjectType typ, const uiString& act )
 {
     switch ( typ )
     {
 	mCaseRetStr( Hor2D, EMHorizon2DTranslatorGroup::sTypeName() );
 	mCaseRetStr( Hor3D, EMHorizon3DTranslatorGroup::sTypeName() );
-	mCaseRetStr( StickSet, uiStrings::sFaultStickSet() );
+	mCaseRetStr( FltSS2D, uiStrings::sFaultStickSet2D() );
+	mCaseRetStr( FltSS3D, uiStrings::sFaultStickSet3D() );
+	mCaseRetStr( FltSS2D3D, uiStrings::sFaultStickSet() );
 	mCaseRetStr( Flt3D, uiStrings::sFault() );
 	mCaseRetStr( FltSet, uiStrings::sFaultSet() );
 	mCaseRetStr( Body, uiStrings::sGeobody() );
@@ -106,29 +100,31 @@ static uiString getActStr( uiSurfaceMan::Type typ, const uiString& act )
 }
 
 
-static HelpKey getHelpID( uiSurfaceMan::Type typ )
+static HelpKey getHelpID( EM::EMObjectType typ )
 {
     switch ( typ )
     {
-	case uiSurfaceMan::Hor2D:
+	case EM::EMObjectType::Hor2D:
 			return mODHelpKey(mSurface2DManHelpID);
-	case uiSurfaceMan::StickSet:
+	case EM::EMObjectType::FltSS2D:
+	case EM::EMObjectType::FltSS3D:
+	case EM::EMObjectType::FltSS2D3D:
 			return mODHelpKey(mFaultStickSetsManageHelpID);
-	case uiSurfaceMan::Flt3D:
+	case EM::EMObjectType::Flt3D:
 			return mODHelpKey(mFaultsManageHelpID);
-	case uiSurfaceMan::Body:
+	case EM::EMObjectType::Body:
 			return mODHelpKey(mBodyManHelpID);
 	default:	return mODHelpKey(mSurfaceManHelpID);
     }
 }
 
 
-uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
+uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::EMObjectType typ )
     : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,tr("Manage")),
 			    mNoDlgTitle, getHelpID(typ)).nrstatusflds(1)
 			    .modal(false), getIOCtxt(typ), ZDomain::sKey() )
     , type_(typ)
-    , attribfld_(0)
+    , attribfld_(nullptr)
     , man2dbut_(0)
     , surfdatarenamebut_(0)
     , surfdataremovebut_(0)
@@ -140,11 +136,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , switchvalbut_(0)
 {
     createDefaultUI();
-    if ( type_ != Body )
+    if ( type_ != EM::EMObjectType::Body )
 	copybut_ = addManipButton( "copyobj", tr("Copy to new object"),
 					mCB(this,uiSurfaceMan,copyCB) );
 
-    if ( type_ == Hor2D || type_ == AnyHor )
+    if ( type_ == EM::EMObjectType::Hor2D ||
+					type_ == EM::EMObjectType::AnyHor )
     {
 	man2dbut_ = addManipButton( "man2d",
 	  uiStrings::phrManage( EMHorizon2DTranslatorGroup::sTypeName(mPlural)),
@@ -152,7 +149,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	man2dbut_->setSensitive( false );
     }
 
-    if ( type_ == Hor3D )
+    if ( type_ == EM::EMObjectType::Hor3D )
     {
 	mergehorbut_ = addManipButton( "mergehorizons",
 		uiStrings::phrMerge(uiStrings::phrJoinStrings(
@@ -160,7 +157,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 		mCB(this,uiSurfaceMan,merge3dCB) );
     }
 
-    if ( type_ == Hor3D || type_ == AnyHor )
+    if ( type_ == EM::EMObjectType::Hor3D ||
+					    type_ == EM::EMObjectType::AnyHor )
     {
 	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Horizon Data"),
 			     uiListBox::AboveMid );
@@ -186,13 +184,13 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	setPrefWidth( 50 );
     }
 
-    if ( type_==Hor3D || type_==Hor2D )
+    if ( type_==EM::EMObjectType::Hor3D || type_==EM::EMObjectType::Hor2D )
     {
 	new uiPushButton( extrabutgrp_, tr("Relations"),
 		mCB(this,uiSurfaceMan,setRelations), false );
     }
 
-    if ( type_==Body )
+    if ( type_ == EM::EMObjectType::Body )
     {
 	applybodybut_ = addManipButton( "set_union",
 					tr("Apply Geobody operations"),
@@ -208,7 +206,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 					mCB(this,uiSurfaceMan,switchValCB) );
     }
 
-    if ( type_ == FltSet )
+    if ( type_ == EM::EMObjectType::FltSet )
     {
 	manselsetbut_ = addManipButton( "man_flt",
 			    uiStrings::phrManage(uiStrings::sFault(mPlural)),
@@ -216,7 +214,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	manselsetbut_->setSensitive( false );
     }
 
-    if ( type_==Flt3D || type_==FltSet )
+    if ( type_==EM::EMObjectType::Flt3D || type_==EM::EMObjectType::FltSet )
     {
 	addManipButton( "faultplanes", tr("Copy Faults to FaultSet"),
 			mCB(this,uiSurfaceMan,copyFault2FaultSetCB) );
@@ -321,7 +319,7 @@ void uiSurfaceMan::setToolButtonProperties()
 				    uiStrings::sHorizon(2))) );
     }
 
-     if ( type_ == Body )
+     if ( type_ == EM::EMObjectType::Body )
      {
 	 applybodybut_->setSensitive( curioobj_ );
 	 volestimatebut_->setSensitive( curioobj_ );
@@ -354,7 +352,7 @@ void uiSurfaceMan::copyCB( CallBacker* )
     if ( !curioobj_ ) return;
 
     PtrMan<IOObj> ioobj = curioobj_->clone();
-    if ( type_ == FltSet )
+    if ( type_ == EM::EMObjectType::FltSet )
     {
 	uiCopyFaultSet dlg( this, *ioobj );
 	if ( dlg.go() )
@@ -363,7 +361,7 @@ void uiSurfaceMan::copyCB( CallBacker* )
 	return;
     }
 
-    const bool canhaveattribs = type_ == uiSurfaceMan::Hor3D;
+    const bool canhaveattribs = type_ == EM::EMObjectType::Hor3D;
     uiSurfaceRead::Setup su( ioobj->group() );
     su.withattribfld(canhaveattribs).withsubsel(!isCurFault())
       .multisubsel(true).withsectionfld(false);
@@ -667,7 +665,7 @@ void uiSurfaceMan::mkFileInfo()
 
 	txt += "\n";
     }
-    else if ( type_ == FltSet )
+    else if ( type_ == EM::EMObjectType::FltSet )
     {
 	DirList dl( curioobj_->fullUserExpr(), File::FilesInDir, "*.flt" );
 	txt = "Nr Faults: ";
@@ -676,7 +674,7 @@ void uiSurfaceMan::mkFileInfo()
 	if ( manselsetbut_ )
         manselsetbut_->setSensitive( dl.size() );
     }
-    else if ( type_ == Body )
+    else if ( type_ == EM::EMObjectType::Body )
     {
 	TrcKeyZSampling cs(false);
 	if ( eminfo.getBodyRange(cs) )
@@ -715,7 +713,7 @@ void uiSurfaceMan::mkFileInfo()
 
 od_int64 uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
-    if ( type_ == FltSet )
+    if ( type_ == EM::EMObjectType::FltSet )
 	return uiObjFileMan::getFileSize( filenm, nrfiles );
 
     if ( File::isEmpty(filenm) ) return -1;
@@ -1089,6 +1087,6 @@ void uiSurfaceMan::copyFault2FaultSetCB( CallBacker* )
     if ( !dlg.go() )
 	return;
 
-    if ( type_ == FltSet )
-	updateCB(nullptr);
+    if ( type_ == EM::EMObjectType::FltSet )
+	updateCB( nullptr );
 }

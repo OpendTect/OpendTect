@@ -191,14 +191,14 @@ EM::ObjectID uiEMPartServer::getObjectID( const MultiID& mid ) const
 
 void uiEMPartServer::manageSurfaces( const char* typstr )
 {
-    uiSurfaceMan dlg( parent(), uiSurfaceMan::parseEnumType(typstr) );
+    uiSurfaceMan dlg( parent(), EM::EMObjectTypeDef().parse(typstr) );
     dlg.go();
 }
 
 
 #define mManSurfaceDlg( dlgobj, surfacetype ) \
     delete dlgobj; \
-    dlgobj = new uiSurfaceMan( parent(), uiSurfaceMan::surfacetype ); \
+    dlgobj = new uiSurfaceMan( parent(), EM::EMObjectType::surfacetype ); \
     dlgobj->go();
 
 void uiEMPartServer::manage3DHorizons()
@@ -221,7 +221,7 @@ void uiEMPartServer::manage3DFaults()
 
 void uiEMPartServer::manageFaultStickSets()
 {
-    mManSurfaceDlg(manfssdlg_,StickSet);
+    mManSurfaceDlg(manfssdlg_,FltSS3D);
 }
 
 
