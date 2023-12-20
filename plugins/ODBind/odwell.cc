@@ -184,11 +184,11 @@ void odWell::getTrack( hAllocator allocator )
 
 
 void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
-		      OD::JSON::Array& jsarr, float zstep,
+		      OD::JSON::Object& jsuomobj, float zstep,
 		      SampleMode samplemode )
 {
     survey_.activate();
-    jsarr.setEmpty();
+    jsuomobj.setEmpty();
     if ( !wd_ )
     {
 	errmsg_ = "odWell::getLogs - invalid welldata object.";
@@ -238,10 +238,8 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 						     zduom );
 
 		first = false;
-		OD::JSON::Object loginfo;
-		loginfo.set( "dah",
+		jsuomobj.set( "dah",
 			     UnitOfMeasure::surveyDefDepthUnit()->getLabel() );
-		jsarr.add( loginfo.clone() );
 	    }
 
 	    float* log_data = static_cast<float*>(
@@ -250,9 +248,7 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
 		*log_data++ = mIsUdf(outlog->value(idx)) ? nanf("") :
 							    outlog->value(idx);
 
-	    OD::JSON::Object loginfo;
-	    loginfo.set( lognm->buf(), log->unitMeasLabel() );
-	    jsarr.add( loginfo.clone() );
+	    jsuomobj.set( lognm->buf(), log->unitMeasLabel() );
 	}
     }
 }
@@ -486,10 +482,10 @@ const char* well_getlogs( hWell self, hAllocator allocator,
     if ( !p || !nms )
 	return nullptr;
 
-    OD::JSON::Array jsarr( true );
-    p->getLogs( allocator, *nms, jsarr, zstep,
+    OD::JSON::Object jsuomobj;
+    p->getLogs( allocator, *nms, jsuomobj, zstep,
 				upscale ? odWell::Upscale : odWell::Sample );
-    return strdup( jsarr.dumpJSon().buf() );
+    return strdup( jsuomobj.dumpJSon().buf() );
 }
 
 

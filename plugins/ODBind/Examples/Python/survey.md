@@ -34,6 +34,10 @@ from odbind.survey import Survey
 odb.get_user_datadir()
 ```
 
+```python
+help(odb.get_user_datadir)
+```
+
 ## Survey class
 This class encapsulates an OpendTect project/survey. Creating a Survey object requires the project/survey name. Optionally a base data folder location can be included in the function parameters. If a base data folder is not provided the location stored in the users OpendTect settings is used.
 

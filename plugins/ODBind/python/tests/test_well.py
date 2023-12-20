@@ -87,7 +87,7 @@ def test_Well_class():
     assert np.allclose(logs['dah'], np.array([0., 500.1, 1000.2, 1500.3]), equal_nan=True)
     assert np.allclose(logs['Density'], np.array([np.nan, 2.1078, 2.2417, 2.003]), equal_nan=True)
     assert np.allclose(logs['Sonic'], np.array([np.nan, np.nan, 126.61453, 167.94113]), equal_nan=True)
-    assert uom == ['m', 'g/cc', 'us/ft']
+    assert uom == { 'dah':'m', 'Density': 'g/cc', 'Sonic': 'us/ft'}
     logs, uom = well.logs(['Density','Sonic'], zstep=500.1, upscale=True)
     assert np.allclose(logs['dah'], np.array([0., 500.1, 1000.2, 1500.3]), equal_nan=True)
     assert np.allclose(logs['Density'], np.array([2.1116648, 2.1382186, 2.1459596, 2.1021001]), equal_nan=True)

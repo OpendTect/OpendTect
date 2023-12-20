@@ -105,7 +105,7 @@ class Well(_SurveyObject):
 
         """
         from pandas import DataFrame
-        infolist = self.marker_info(formarkerms)
+        infolist = self.marker_info(formarkernms)
         return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
 
     def track(self):
@@ -155,18 +155,17 @@ class Well(_SurveyObject):
         Returns
         -------
         dict[np.arrays] keyed by the log names, 'dah' is the depth log
-        list[str] of the log unit of measures, there is one entry in the list for each array in the dict
+        dict[str] of the log unit of measures, keyed by log name
 
         """
         lognmsptr = makestrlist(lognms)
         allocator = NumpyAllocator()
-        infolist = pyjsonstr(self._logs(self._handle, allocator.cfunc, lognmsptr, zstep, upscale))
+        uoms = pyjsonstr(self._logs(self._handle, allocator.cfunc, lognmsptr, zstep, upscale))
         stringset_del(lognmsptr)
         if not self.isok:
             raise ValueError(self.errmsg)
 
-        logs = [key for item in infolist for key in item.keys()]
-        uoms = [val for item in infolist for val in item.values()]
+        logs = [key for key in uoms.keys()]
         data = { log: allocator.allocated_arrays[logs.index(log)] for log in logs }
         return data, uoms
 
@@ -185,13 +184,13 @@ class Well(_SurveyObject):
         Returns
         -------
         Pandas DataFrame
+        dict[str] of the log unit of measures, keyed by log name
 
         """
         from pandas import DataFrame, MultiIndex
         data, uoms = self.logs(lognms, zstep, upscale)
         df = DataFrame(data)
-        df.columns = MultiIndex.from_arrays((data.keys(), uoms))
-        return df
+        return df, uoms
 
     def put_log(self, lognm: str, dah: np.ndarray, logdata: np.ndarray, uom: str=None, mnem: str=None, overwrite: bool=False):
         """Add a log curve to this well
