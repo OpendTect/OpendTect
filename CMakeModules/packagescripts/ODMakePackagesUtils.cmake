@@ -15,6 +15,7 @@ macro( CLEAN_PACK_VARIABLES )
     unset( PLUGINS )
     unset( EXCLUDE_PLUGINS )
     unset( SPECMODS )
+    unset( EXCLUDE_SPECMODS )
 # root files
     unset( SPECFILES )
 # data files
@@ -305,7 +306,7 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 	    file( COPY "${COPYFROMEXEDIR}/${EXECFILE}"
 		  DESTINATION "${COPYTOEXEDIR}" )
 	endif()
-	if ( WIN32 AND "${PACKAGE_NAME}" STREQUAL "devel" )
+	if ( WIN32 AND "${PACKAGE_NAME}" STREQUAL "devel" AND DEFINED PDB_FILE )
 	    file( COPY "${COPYFROMEXEDIR}/${PDB_FILE}"
 		  DESTINATION "${COPYTOEXEDIR}" )
 	endif()
