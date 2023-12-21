@@ -347,6 +347,13 @@ function( od_get_imported_link_dependent_libs trgt _var )
     unset( TARGET_CONFIGS )
 
     list( REMOVE_DUPLICATES _libs )
+    if ( UNIX )
+	if ( APPLE )
+	    list( REMOVE_ITEM _libs Qt5::Gui_OpenGL Qt5::Gui_AGL )
+	else()
+	    list( REMOVE_ITEM _libs Qt5::Gui_GL Qt5::Gui_EGL )
+	endif()
+    endif()
     set( ${_var} "${_libs}" PARENT_SCOPE )
 
 endfunction( od_get_imported_link_dependent_libs )
