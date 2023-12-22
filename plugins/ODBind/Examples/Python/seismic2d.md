@@ -25,7 +25,7 @@ jupyter:
 #sys.path.insert(0,odpy_path)
 ```
 
-```python
+```python tags=[]
 import numpy as np
 from matplotlib import pyplot as plt
 import xarray as xr
@@ -91,8 +91,30 @@ data.line_info_dataframe()
 ```
 
 ```python
-xrline = data.as_xarray(*data.getdata('SSIS-Grid-Strike4'))
+xrline = data.getdata_xarray('SSIS-Grid-Strike4')
 xr.plot.imshow(xrline['Component 1'], x='trc', y='twt', yincrease=False, cmap='Greys')
+```
+
+### Creating 2D Seismic Data
+
+```python
+with Seismic2D.create(f3demo, 'pytest', ['comp1'], 'CBVS', True, True) as newdataset:
+    newdataset.putdata_xarray('test2', xrline, True, True)
+    
+newdata = Seismic2D(f3demo,'pytest')
+newdata.line_info()
+```
+
+### Deleting 2D Seismic Data
+
+```python
+newdata.delete_lines(['test2'])
+newdata.line_info()
+```
+
+```python
+Seismic2D.delete(f3demo,['pytest'])
+Seismic2D.names(f3demo)
 ```
 
 ## Static methods

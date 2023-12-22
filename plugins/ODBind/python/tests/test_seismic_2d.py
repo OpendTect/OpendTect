@@ -3,45 +3,90 @@ import json
 import numpy as np
 from odbind.survey import Survey
 from odbind.seismic2d import Seismic2D
+from odbind.geom2d import Geom2D
 
-def test_Seismic2D_class():
-    f3demo = Survey("F3_Demo_2020")
-    data = Seismic2D.names(f3demo)
-    assert 'Seis' in data
-    data = Seismic2D(f3demo, 'Seis')
-    info =  {
-                'name': 'Seis',
-                'line_count': 11,
-                'zunit' : 'ms',
-                'comp_count': 1,
-                'storage_dtype': 'Float`Signed`4`IEEE`Yes',
-            }
-    assert data.info() == info
-    # feature =   {
-    #                 'type': 'FeatureCollection',
-    #                 'features': [{
-    #                                 'type': 'Feature',
-    #                                 'properties': info,
-    #                                 'geometry': {
-    #                                                 'type': 'Polygon',
-    #                                                 'coordinates': [[ ['4.644803', '54.796120'],
-    #                                                                   ['4.643676', '54.942126'],
-    #                                                                   ['5.014355', '54.942512'],
-    #                                                                   ['5.014145', '54.796514'],
-    #                                                                   ['4.644803', '54.796120']
-    #                                                               ]]
-    #                                             }
-    #                             }]
-    #             }
-    # assert json.loads(data.feature()) == feature
+@pytest.fixture
+def survey(request):
+    return Survey(request.config.getoption('--survey'))
 
-    assert Seismic2D(f3demo,'Steering_2D').comp_names == ['Inline dip', 'Line dip']
-    assert data.line_names == [ 'SSIS-Grid-Strike4', 'SSIS-Grid-Strike5',
-                                'SSIS-Grid-Strike6', 'Well correlation-Line',
-                                'SSIS-Grid-Dip1', 'SSIS-Grid-Dip2',
-                                'SSIS-Grid-Dip3', 'SSIS-Grid-Dip4',
-                                'SSIS-Grid-Strike1', 'SSIS-Grid-Strike2',
-                                'SSIS-Grid-Strike3']
-    assert data.line_info(['SSIS-Grid-Strike4']) == [{'name': 'SSIS-Grid-Strike4', 'trc_range': [5, 679, 1],'z_range': [0, 1848, 4]}]
+def make_data(survey):
+    si = survey.info()
+    surv_inlrg = survey.inlrange
+    surv_crlrg = survey.crlrange
+    surv_zrg = survey.zrange
+    zistime = si['zdomain']=='twt'
+
+    ntrcs = 1000
+    nz = 101
+    fz = 10 * surv_zrg[2] + surv_zrg[0]
+    zrg = [fz, min(fz+(nz-1)*surv_zrg[2], surv_zrg[1]), surv_zrg[2]]
+    xst, yst = survey.coords(surv_inlrg[0], surv_crlrg[0])
+    xend, yend = survey.coords(surv_inlrg[1], surv_crlrg[1])
+    data_info= {
+                'comp': ['comp1','comp2'],
+                'line': 'pytest2d',
+                'trc': np.linspace(1, ntrcs, ntrcs, True, dtype=np.int32),
+                'ref': np.linspace(1*2, ntrcs*2, ntrcs, True, dtype=np.float32),
+                'x': np.linspace(xst, xend, ntrcs, True, dtype=np.float64),
+                'y': np.linspace(yst, yend, ntrcs, True, dtype=np.float64),
+                si['zdomain']: zrg,
+                'dims': ['trc', si['zdomain']]
+    }
+    data = []
+    for idx in range(len(data_info['comp'])):
+        trcs = np.ones((ntrcs,nz),dtype=np.float32) * np.linspace(zrg[0], zrg[1], nz, True, dtype=np.float32)
+        trcs[:,1] = data_info['trc']
+        trcs[:,0] = idx
+        data.append(trcs)
+
+    return (data, data_info)
+
+
+def test_Seismic2D_class(survey):
+    assert survey.has2d == True
+    si = survey.info()
+    zistime = si['zdomain']=='twt'
+
+    data, data_info = make_data(survey)
+
+    with Seismic2D.create(survey, 'pytest', data_info['comp'], 'CBVS', zistime, True) as test:
+        test.putdata(data_info['line'], data, data_info, True, True) 
+
+    assert 'pytest' in Seismic2D.names(survey)
+
+    info = {
+                'name': 'pytest',
+                'line_count': 1,
+                'zunit': si['zunit'],
+                'comp_count': len(data_info['comp']),
+                'storage_dtype': 'Float`Signed`4`IEEE`Yes'
+    }
+    test = Seismic2D(survey, 'pytest')
+    assert test.info() == info
+    assert test.zistime == zistime
+    assert test.comp_names == data_info['comp']
+    assert test.line_names == [data_info['line']]
+
+    line_info = [{  'name': data_info['line'], 
+                    'trc_range': [data_info['trc'][0], data_info['trc'][-1], data_info['trc'][1]-data_info['trc'][0]],
+                    'z_range': data_info[si['zdomain']]
+    }]
+    assert test.line_info(test.line_names) == line_info
+
+    test_data, test_info = test.getdata(data_info['line'])
+    for key in data_info:
+        assert data_info[key] == pytest.approx(test_info[key])
+
+    np.testing.assert_equal(data, test_data)
+
+    test.delete_lines([data_info['line']])
+    assert data_info['line'] not in test.line_names
+
+    Geom2D.delete(survey,[data_info['line']])
+    assert data_info['line'] not in Geom2D.names(survey)
+
+    Seismic2D.delete(survey, ['pytest'])
+    assert 'pytest' not in Seismic2D.names(survey)    
+
 
 

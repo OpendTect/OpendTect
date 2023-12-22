@@ -480,12 +480,13 @@ class Seismic3D(_SurveyObject):
         inlrg = info['iline']
         crlrg = info['xline']
         zrg = info[zdim]
+        ns = 1 if isinstance(zrg, float) else int((zrg[1]-zrg[0])/zrg[2])+1
         coords =    {
                         'iline': inlrg if isinstance(inlrg, int) else np.arange(inlrg[0],inlrg[1]+inlrg[2],inlrg[2], dtype=np.int32),
                         'xline': crlrg if isinstance(crlrg, int) else np.arange(crlrg[0],crlrg[1]+crlrg[2],crlrg[2], dtype=np.int32),
                         'cdp_x': info['x'][0] if len(info['x'])==1 else DataArray(info['x'], dims=dims_xy, attrs=xyattrs),
                         'cdp_y': info['y'][0] if len(info['y'])==1 else DataArray(info['y'], dims=dims_xy, attrs=xyattrs),
-                        zdim: zrg if isinstance(zrg, float) else DataArray(np.arange(zrg[0],zrg[1]+zrg[2],zrg[2], dtype=np.float32), dims=[zdim], attrs=zattrs)
+                        zdim: zrg if isinstance(zrg, float) else DataArray(np.linspace(zrg[0],zrg[1],ns,endpoint=True,dtype=np.float32), dims=[zdim], attrs=zattrs)
                     }
         attribs =   {
                         'description': di['name'],
@@ -693,7 +694,7 @@ class Slice3D(Sequence):
         if sdx==SliceType.ZSlice:
             return int((sampling.zrg[1]-sampling.zrg[0])/sampling.zrg[2]) + 1
         else:
-            return (sampling[sidx][1]-sampling[sidx][0])//sampling[sidx][2] + 1
+            return (sampling[sdx][1]-sampling[sdx][0])//sampling[sdx][2] + 1
 
     def is_slicedata(self, data: tuple[list[np.ndarray], dict]) ->bool:
         zdim = 'twt' if self.seis3d.zistime else 'depth'
