@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "executor.h"
+#include "ioman.h"
 #include "posinfodetector.h"
 #include "od_istream.h"
 #include "survinfo.h"
@@ -27,6 +28,8 @@ ________________________________________________________________________
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
 
+#include "hiddenparam.h"
+
 
 class BulkHorizonAscIO : public Table::AscIO
 {
@@ -38,16 +41,34 @@ BulkHorizonAscIO( const Table::FormatDesc& fd, od_istream& strm )
 {}
 
 
-static Table::FormatDesc* getDesc()
+static Table::FormatDesc* getDesc( const ZDomain::Def& zdef )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "BulkHorizon" );
-
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-			StringInpSpec(sKey::FloatUdf()), Table::Required );
+	StringInpSpec(sKey::FloatUdf()), Table::Required );
+    createDescBody( fd, zdef );
+    return fd;
+}
+
+
+static void createDescBody( Table::FormatDesc* fd, const ZDomain::Def& zdef )
+{
     fd->bodyinfos_ += new Table::TargetInfo( "Horizon name", Table::Required );
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
-    return fd;
+    const char* nm = zdef.key();
+    Table::TargetInfo* ti = new Table::TargetInfo( nm, FloatInpSpec(),
+	Table::Required );
+    const Mnemonic::StdType type = zdef.isTime() ? Mnemonic::Time
+						 : Mnemonic::Dist;
+    ti->setPropertyType( type );
+    fd->bodyinfos_ += ti;
+}
+
+
+static void updateDesc( Table::FormatDesc& fd, const ZDomain::Def& zdef )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, zdef );
 }
 
 
@@ -81,27 +102,49 @@ bool getData( BufferString& hornm, Coord3& crd )
 };
 
 
+
+//uiBulkHorizonImport
+static HiddenParam<uiBulkHorizonImport,uiGenInput*>
+					uibulkhorizonimporthpmgr_(nullptr);
 uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(
 				tr("Multiple Horizons")), mNoDlgTitle,
 				 mODHelpKey(mBulkHorizonImportHelpID) )
 			    .modal(false))
-    , fd_(BulkHorizonAscIO::getDesc())
+    , fd_(BulkHorizonAscIO::getDesc(SI().zDomain()))
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setExamStyle( File::Table );
 
+    auto* zdomselfld = new uiGenInput( this, tr("Horizon is in"),
+	BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
+    zdomselfld->attach( alignedBelow, inpfld_ );
+    zdomselfld->setValue( SI().zIsTime() );
+    mAttachCB( zdomselfld->valueChanged, uiBulkHorizonImport::zDomainCB );
+    uibulkhorizonimporthpmgr_.setParam( this, zdomselfld );
+
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 				mODHelpKey(mTableImpDataSelwellsHelpID) );
-    dataselfld_->attach( alignedBelow, inpfld_ );
+    dataselfld_->attach( alignedBelow, zdomselfld );
 }
 
 
 uiBulkHorizonImport::~uiBulkHorizonImport()
 {
     delete fd_;
+    uibulkhorizonimporthpmgr_.removeParam( this );
+}
+
+
+void uiBulkHorizonImport::zDomainCB( CallBacker* cb )
+{
+    BufferStringSet attrnms;
+    auto* fld = uibulkhorizonimporthpmgr_.getParam( this );
+    const bool istime = fld->getBoolValue();
+    BulkHorizonAscIO::updateDesc( *fd_,
+			    istime ? ZDomain::Time() : ZDomain::Depth() );
 }
 
 
@@ -112,6 +155,15 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( uiStrings::phrEnter(tr("the input file name")) )
+
+    uiRetVal ret;
+    const ZDomain::Info& zdominfo = Table::AscIO::zDomain( *fd_, 2, ret );
+    if ( ret.isError() )
+    {
+	uiMSG().error( ret.messages().cat() );
+	return false;
+    }
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()))
@@ -156,6 +208,7 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
     uiTaskRunner taskr( this );
     const BufferString savernm = "Saving Horizons";
     ExecutorGroup saver( savernm );
+    TypeSet<MultiID> mids;
     for ( int idx=0; idx<hornms.size(); idx++ )
     {
 	RefMan<EM::Horizon3D> hor3d = EM::Horizon3D::create( hornms.get(idx) );
@@ -174,27 +227,42 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 	    bid = bidvs->getBinID( pos );
 	    detector.add( SI().transform(bid), bid );
 	}
-	detector.finish();
 
+	detector.finish();
 	TrcKeySampling hs;
 	detector.getTrcKeySampling( hs );
 	ObjectSet<BinIDValueSet> curdata; curdata += bidvs;
 	PtrMan<Executor> importer = hor3d->importer( curdata, hs );
-	if ( !importer || !TaskRunner::execute( &taskr, *importer ) )
+	if ( !importer || !TaskRunner::execute(&taskr,*importer) )
 	    continue;
 
-	saver.add(hor3d->saver());
+	hor3d->setZDomain( zdominfo );
+	saver.add( hor3d->saver() );
+	mids.add( hor3d->multiID() );
     }
 
 
-    if ( TaskRunner::execute( &taskr, saver ) )
+    if ( TaskRunner::execute(&taskr,saver) )
     {
-	uiString msg = tr("%1 successfully imported."
+	for ( const auto& mid : mids )
+	{
+	    PtrMan<IOObj> ioobj = IOM().get( mid );
+	    if ( !ioobj )
+	    {
+		pErrMsg("Should not enter here.");
+		continue;
+	    }
+
+	    zdominfo.fillPar( ioobj->pars() );
+	    IOM().commitChanges( *ioobj );
+	}
+
+	const uiString msg = tr("%1 successfully imported."
 		      "\n\nDo you want to import more %1?")
 		      .arg( uiStrings::sHorizon(mPlural) );
-	bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+	const bool retval = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
-	return !ret;
+	return !retval;
     }
     else
     {

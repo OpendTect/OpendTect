@@ -999,3 +999,36 @@ const UnitOfMeasure* Table::AscIO::getDepthUnit()
 {
     return UnitOfMeasure::surveyDefDepthStorageUnit();
 }
+
+
+const ZDomain::Info& Table::AscIO::zDomain( const FormatDesc& fd, int idx,
+    uiRetVal& ret )
+{
+    const Table::TargetInfo* ti = fd.bodyinfos_.validIdx(idx) ?
+	fd.bodyinfos_[idx] : nullptr;
+    if ( !ti )
+    {
+	ret.add( tr("Unable to retrieve relevant domain information") );
+	return SI().zDomainInfo();
+    }
+
+    Mnemonic::StdType proptype = ti->propertyType();
+    if ( proptype != Mnemonic::Time && proptype != Mnemonic::Dist )
+    {
+	ret.add( tr("Unable to retrieve relevant domain information") );
+	return SI().zDomainInfo();
+    }
+
+    const UnitOfMeasure* selunit = ti->selection_.unit_;
+    bool isimperial = false;
+    if ( selunit )
+	isimperial = selunit->isImperial();
+
+    const bool istime = proptype == Mnemonic::Time;
+    if ( istime )
+	return ZDomain::TWT();
+    else if ( isimperial )
+	return ZDomain::DepthFeet();
+
+    return ZDomain::DepthMeter();
+}

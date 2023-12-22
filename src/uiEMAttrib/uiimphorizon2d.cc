@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 #include "uifileinput.h"
 #include "uigeninputdlg.h"
+#include "uiioobjsel.h"
+#include "uiiosurface.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseispartserv.h"
@@ -39,21 +41,201 @@ ________________________________________________________________________
 #include "od_helpids.h"
 #include "randcolor.h"
 
+#include "hiddenparam.h"
+
 #include <math.h>
 
+//userInputGroup
+class userInputGroup : public uiGroup
+{ mODTextTranslationClass(userInputGroup)
+public:
+    userInputGroup( uiParent* p, Table::FormatDesc& fd )
+	: uiGroup(p,"Display Group")
+	, descChanged(this)
+	, scanButtonPushed(this)
+	, fd_(fd)
+    {
+	inpfld_ = new uiASCIIFileInput( this, true );
+	inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
+	mAttachCB(inpfld_->valueChanged,userInputGroup::formatSel);
 
+	zdomselfld_ = new uiGenInput( this, tr("Horizon is in"),
+	    BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
+	zdomselfld_->attach( alignedBelow, inpfld_ );
+	zdomselfld_->setValue( SI().zIsTime() );
+	mAttachCB(zdomselfld_->valueChanged,userInputGroup::zDomainCB);
+
+	dataselfld_ = new uiTableImpDataSel( this, fd_,
+	    mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
+	dataselfld_->attach( alignedBelow, zdomselfld_ );
+	mAttachCB(dataselfld_->descChanged,userInputGroup::descChg);
+
+	scanbut_ = new uiPushButton( this, tr("Scan Input Files"),
+	    mCB(this,userInputGroup,scanPush), false );
+	scanbut_->attach( alignedBelow, dataselfld_ );
+
+	uiSeparator* sep = new uiSeparator( this );
+	sep->attach( stretchedBelow, scanbut_ );
+
+	BufferStringSet udftreatments;
+	udftreatments.add( "Skip" ).add( "Pass" ).add( "Interpolate" );
+	udftreatfld_ = new uiGenInput( this, tr("Undefined values"),
+	    StringListInpSpec(udftreatments) );
+	udftreatfld_->attach( alignedBelow, scanbut_ );
+	udftreatfld_->attach( ensureBelow, sep );
+
+	timeoutputfld_ = new uiHorizonSel( this, true, &ZDomain::TWT(), false );
+	timeoutputfld_->setLabelText(  tr("Output time horizon") );
+	timeoutputfld_->attach( alignedBelow, udftreatfld_ );
+
+	const ZDomain::Info& depthinfo = SI().zInFeet() ? ZDomain::DepthFeet() :
+	    ZDomain::DepthMeter();
+	depthoutputfld_ = new uiHorizonSel( this, true, &depthinfo, false );
+	depthoutputfld_->setLabelText( tr("Output depth horizon") );
+	depthoutputfld_->attach( alignedBelow, udftreatfld_ );
+	mAttachCB(postFinalize(),userInputGroup::zDomainCB);
+    }
+
+
+    ~userInputGroup()
+    {
+	detachAllNotifiers();
+    }
+
+
+    uiIOObjSel* getWorkingOutFld() const
+    {
+	return isASCIIFileInTime() ? timeoutputfld_ : depthoutputfld_;
+    }
+
+
+    bool getFileNames( BufferStringSet& filenames ) const
+    {
+	if ( StringView(inpfld_->fileName()).isEmpty() )
+	{
+	    uiMSG().error( tr("Please select input file") );
+	    return false;
+	}
+
+	inpfld_->getFileNames( filenames );
+	for ( int idx=0; idx<filenames.size(); idx++ )
+	{
+	    const char* fnm = filenames[idx]->buf();
+	    if ( !File::exists(fnm) )
+	    {
+		uiString errmsg = tr("Cannot find input file:\n%1")
+		    .arg(fnm);
+		filenames.setEmpty();
+		uiMSG().error( errmsg );
+		return false;
+	    }
+	}
+
+	return true;
+    }
+
+
+    const char* getFileName() const
+    {
+	return inpfld_->fileName();
+    }
+
+    bool commitChanges()
+    {
+	return dataselfld_->commit();
+    }
+
+
+    int getUdfChoice() const
+    {
+	return udftreatfld_->getIntValue();
+    }
+
+protected:
+
+    bool isASCIIFileInTime() const
+    {
+	return zdomselfld_->getBoolValue();
+    }
+
+    void zDomainCB( CallBacker* cb )
+    {
+	NotifyStopper ns1( inpfld_->valueChanged );
+	const bool istime = isASCIIFileInTime();
+	const ZDomain::Info& zinfo = istime ? ZDomain::TWT() :
+	    SI().depthsInFeet() ? ZDomain::DepthFeet() : ZDomain::DepthMeter();
+
+	timeoutputfld_->display( istime );
+	depthoutputfld_->display( !istime );
+
+	EM::Horizon2DAscIO::updateDesc_( fd_, zinfo.def_ );
+    }
+
+
+    void descChg( CallBacker* )
+    {
+	descChanged.trigger();
+    }
+
+
+    void formatSel( CallBacker* )
+    {
+	BufferStringSet hornms;
+	dataselfld_->updateSummary();
+	dataselfld_->setSensitive( true );
+	scanbut_->setSensitive( *inpfld_->fileName() );
+	EM::Horizon2DAscIO::updateDesc_( fd_,
+		    isASCIIFileInTime() ? ZDomain::Time() : ZDomain::Depth() );
+    }
+
+
+    const ZDomain::Info& zDomain() const
+    {
+	uiRetVal ret;
+	return Table::AscIO::zDomain( fd_, 3, ret );
+    }
+
+
+    void scanPush( CallBacker* cb )
+    {
+	if ( !dataselfld_->commit() )
+	    return;
+
+	scanButtonPushed.trigger();
+    }
+
+private:
+
+    uiFileInput*		    inpfld_;
+    uiPushButton*		    scanbut_;
+    uiTableImpDataSel*		    dataselfld_;
+    uiGenInput*			    udftreatfld_;
+    uiGenInput*			    zdomselfld_;
+    uiIOObjSel*			    timeoutputfld_;
+    uiIOObjSel*			    depthoutputfld_;
+    Table::FormatDesc&		    fd_;
+    Horizon2DScanner*		    scanner_;
+
+public:
+    Notifier<userInputGroup>	    descChanged;
+    Notifier<userInputGroup>	    scanButtonPushed;
+
+};
+
+
+//Horizon2DImporter
 class Horizon2DImporter : public Executor
 { mODTextTranslationClass(Horizon2DImporter);
 public:
 
     enum UndefTreat		{ Skip, Adopt, Interpolate };
 
-Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
+Horizon2DImporter( const BufferStringSet& lnms, EM::Horizon2D& hor,
 		   const BinIDValueSet* valset, UndefTreat udftreat )
     : Executor("2D Horizon Importer")
     , linenames_(lnms)
     , curlinegeom_(0)
-    , hors_(hors)
+    , hor_(&hor)
     , bvalset_(valset)
     , prevlineidx_(-1)
     , nrdone_(0)
@@ -78,8 +260,11 @@ od_int64 nrDone() const override
 
 int nextStep() override
 {
-    if ( !bvalset_ ) return Executor::ErrorOccurred();
-    if ( !bvalset_->next(pos_) ) return Executor::Finished();
+    if ( !bvalset_ )
+	return ErrorOccurred();
+
+    if ( !bvalset_->next(pos_) )
+	return Finished();
 
     BinID bid;
     const int nrvals = bvalset_->nrVals();
@@ -88,10 +273,10 @@ int nextStep() override
 	vals[idx] = mUdf(float);
 
     bvalset_->get( pos_, bid, vals );
-    if ( bid.inl() < 0 ) return Executor::ErrorOccurred();
+    if ( bid.inl() < 0 )
+	return ErrorOccurred();
 
     const Pos::GeomID geomid = geomids_[bid.inl()];
-
     if ( bid.inl() != prevlineidx_ )
     {
 	prevlineidx_ = bid.inl();
@@ -101,26 +286,19 @@ int nextStep() override
 	mDynamicCast( const Survey::Geometry2D*, curlinegeom_,
 		      Survey::GM().getGeometry(geomid) );
 	if ( !curlinegeom_ )
-	    return Executor::ErrorOccurred();
+	    return ErrorOccurred();
 
-	for ( int hdx=0; hdx<hors_.size(); hdx++ )
-	    hors_[hdx]->geometry().addLine( geomid );
+	hor_->geometry().addLine( geomid );
     }
 
     const int curtrcnr = bid.crl();
     for ( int validx=0; validx<nrvals; validx++ )
     {
-	if ( validx>=hors_.size() )
-	    break;
-
-	if ( !hors_[validx] )
-	    continue;
-
 	const float curval = vals[validx];
 	if ( mIsUdf(curval) && udftreat_==Skip )
 	    continue;
 
-	hors_[validx]->setPos( geomid, curtrcnr, curval, false );
+	hor_->setPos( geomid, curtrcnr, curval, false );
 
 	if ( mIsUdf(curval) )
 	    continue;
@@ -139,7 +317,7 @@ int nextStep() override
     }
 
     nrdone_++;
-    return Executor::MoreToDo();
+    return MoreToDo();
 }
 
 
@@ -168,14 +346,14 @@ void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
 	const float prod = sCast(float,vec.dot(newvec));
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
-	hors_[hidx]->setPos( geomid,trcnr,val,false);
+	hor_->setPos( geomid,trcnr,val,false);
     }
 }
 
 protected:
 
     const BufferStringSet&	linenames_;
-    ObjectSet<EM::Horizon2D>&	hors_;
+    RefMan<EM::Horizon2D>	hor_;
     const BinIDValueSet*	bvalset_;
     TypeSet<Pos::GeomID>	geomids_;
     const Survey::Geometry2D*	curlinegeom_;
@@ -187,59 +365,25 @@ protected:
     UndefTreat			udftreat_;
 };
 
-
+//uiImportHorizon2D
+static HiddenParam<uiImportHorizon2D,userInputGroup*>
+					    uiimporthorizon2dhpmgr_(nullptr);
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import 2D Horizon"),mNoDlgTitle,
 		mODHelpKey(mImportHorizon2DHelpID) ).modal(false))
     , scanner_(nullptr)
     , linesetnms_(*new BufferStringSet)
-    , fd_(*EM::Horizon2DAscIO::getDesc())
+    , fd_(*EM::Horizon2DAscIO::getDesc_(SI().zDomain()))
     , readyForDisplay(this)
 {
     enableSaveButton( tr("Display after import") );
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 
-    inpfld_ = new uiASCIIFileInput( this, true );
-    inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    mAttachCB(inpfld_->valuechanged,uiImportHorizon2D::formatSel);
-
-    BufferStringSet hornms;
-    uiEMPartServer::getAllSurfaceInfo( horinfos_, true );
-    for ( int idx=0; idx<horinfos_.size(); idx++ )
-	hornms.add( horinfos_[idx]->name );
-
-    uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Horizon(s) to import") );
-    horselfld_ = new uiListBox( this, su );
-    horselfld_->addItems( hornms );
-    horselfld_->attach( alignedBelow, inpfld_ );
-    horselfld_->setAllowDuplicates( false );
-    mAttachCB(horselfld_->selectionChanged,uiImportHorizon2D::formatSel);
-
-    uiPushButton* addbut = new uiPushButton( horselfld_, tr("Add new"),
-				mCB(this,uiImportHorizon2D,addHor), false );
-    addbut->attach( rightTo, horselfld_->box() );
-
-    dataselfld_ = new uiTableImpDataSel( this, fd_,
-			mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
-    dataselfld_->attach( alignedBelow, horselfld_ );
-    mAttachCB(dataselfld_->descChanged,uiImportHorizon2D::descChg);
-
-    scanbut_ = new uiPushButton( this, tr("Scan Input Files"),
-				 mCB(this,uiImportHorizon2D,scanPush), false );
-    scanbut_->attach( alignedBelow, dataselfld_ );
-
-    uiSeparator* sep = new uiSeparator( this );
-    sep->attach( stretchedBelow, scanbut_ );
-
-    BufferStringSet udftreatments;
-    udftreatments.add( "Skip" ).add( "Pass" ).add( "Interpolate" );
-    udftreatfld_ = new uiGenInput( this, tr("Undefined values"),
-				   StringListInpSpec(udftreatments) );
-    udftreatfld_->attach( alignedBelow, scanbut_ );
-    udftreatfld_->attach( ensureBelow, sep );
-
-    mAttachCB(postFinalize(),uiImportHorizon2D::formatSel);
+    auto* userinpgrp = new userInputGroup( this, fd_ );
+    mAttachCB(userinpgrp->descChanged,uiImportHorizon2D::descChg);
+    mAttachCB(userinpgrp->scanButtonPushed,uiImportHorizon2D::scanPush);
+    uiimporthorizon2dhpmgr_.setParam( this, userinpgrp );
 }
 
 
@@ -248,7 +392,14 @@ uiImportHorizon2D::~uiImportHorizon2D()
     detachAllNotifiers();
     delete &linesetnms_;
     deepErase( horinfos_ );
+    uiimporthorizon2dhpmgr_.removeParam( this );
 }
+
+
+void uiImportHorizon2D::zDomainCB( CallBacker* cb )
+{
+}
+
 
 
 void uiImportHorizon2D::descChg( CallBacker* )
@@ -260,44 +411,23 @@ void uiImportHorizon2D::descChg( CallBacker* )
 
 void uiImportHorizon2D::formatSel( CallBacker* )
 {
-    BufferStringSet hornms;
-    horselfld_->getChosen( hornms );
-    const int nrhors = hornms.size();
-    EM::Horizon2DAscIO::updateDesc( fd_, hornms );
-    dataselfld_->updateSummary();
-    dataselfld_->setSensitive( nrhors );
-    scanbut_->setSensitive( *inpfld_->fileName() && nrhors );
 }
 
 
 void uiImportHorizon2D::addHor( CallBacker* )
 {
-    uiGenInputDlg dlg( this, uiStrings::phrAdd(uiStrings::sHorizon()),
-		       uiStrings::sName(), new StringInpSpec() );
-    if ( !dlg.go() ) return;
+}
 
-    const char* hornm = dlg.text();
-    IOM().to( IOObjContext::Surf );
-    if ( IOM().getLocal(hornm,0) )
-    {
-	uiMSG().error(tr("Failed to add: a surface already "
-			 "exists with name %1").arg(toUiString(hornm)));
-	return;
-    }
 
-    horselfld_->addItem( toUiString(hornm) );
-    horselfld_->setChosen( horselfld_->size()-1, true );
-    horselfld_->scrollToBottom();
+const ZDomain::Info& uiImportHorizon2D::zDomain() const
+{
+    uiRetVal ret;
+    return Table::AscIO::zDomain( fd_, 3, ret );
 }
 
 
 void uiImportHorizon2D::scanPush( CallBacker* cb )
 {
-    if ( horselfld_->nrChosen() < 1 )
-	return;
-
-    if ( !dataselfld_->commit() ) return;
-
     BufferString msg;
     if ( !EM::Horizon2DAscIO::isFormatOK(fd_, msg) )
     {
@@ -314,9 +444,10 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
     }
 
     BufferStringSet filenms;
-    if ( !getFileNames(filenms) ) return;
+    if ( !getFileNames(filenms) )
+	return;
 
-    scanner_ = new Horizon2DScanner( filenms, fd_ );
+    scanner_ = new Horizon2DScanner( filenms, fd_, zDomain() );
     uiTaskRunner taskrunner( this );
     TaskRunner::execute( &taskrunner, *scanner_ );
     if ( cb )
@@ -346,108 +477,73 @@ bool uiImportHorizon2D::doImport()
     if ( !valset || valset->totalSize() == 0 )
     {
 	uiString msg = tr("No valid positions found\nPlease re-examine "
-			  "input files and format definition");
+	    "input files and format definition");
 	uiMSG().message( msg );
 	return false;
     }
 
-    const int udfchoice = udftreatfld_->getIntValue();
+    auto* inpgrp = uiimporthorizon2dhpmgr_.getParam( this );
+    const int udfchoice = inpgrp->getUdfChoice();
     if ( scanner_->hasGaps() && udfchoice==0 )
     {
 	const int res = uiMSG().askGoOn(
-		tr("Horizon has gaps, but interpolation is turned off.\n"
-		   "Continue?") );
+	    tr("Horizon has gaps, but interpolation is turned off.\n"
+	    "Continue?") );
 	if ( res==0 )
 	    return false;
     }
 
+    const IOObj* ioobj = inpgrp->getWorkingOutFld()->ioobj();
+    if ( !ioobj )
+    {
+	uiMSG().error( tr("Error in creating output object") );
+	return false;
+    }
+
+    EM::EMManager& em = EM::EMM();
+    RefMan<EM::EMObject> emobj =
+			    em.createTempObject( EM::Horizon2D::typeStr() );
+    mDynamicCastGet(EM::Horizon2D*,horizon,emobj.ptr())
+    if ( !horizon )
+    {
+	uiMSG().error(
+	   tr("Wrong output object detected, Horizon2D object was expected") );
+	return false;
+    }
+
+    horizon->setMultiID( ioobj->key() );
+    horizon->setName( ioobj->name() );
     BufferStringSet linenms;
     scanner_->getLineNames( linenms );
-    BufferStringSet hornms;
-    horselfld_->getChosen( hornms );
-    ObjectSet<EM::Horizon2D> horizons;
-    IOM().to( IOObjContext::Surf );
-    EM::EMManager& em = EM::EMM();
-    for ( int idx=0; idx<hornms.size(); idx++ )
-    {
-	BufferString nm = hornms.get( idx );
-	ConstPtrMan<IOObj> ioobj = IOM().getLocal( nm,
-				EMHorizon2DTranslatorGroup::sGroupName() );
-	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() )
-				: EM::ObjectID::udf();
-	EM::EMObject* emobj = em.getObject(id);
-	if ( emobj )
-	    emobj->setBurstAlert( true );
-
-	PtrMan<Executor> exec = ioobj ? em.objectLoader( ioobj->key() ) : 0;
-
-	if ( !ioobj || !exec || !exec->execute() )
-	{
-	    id = em.createObject( EM::Horizon2D::typeStr(), nm );
-	    mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
-	    if ( ioobj )
-		hor->setMultiID( ioobj->key() );
-
-	    hor->setPreferredColor( OD::getRandomColor() );
-
-	    hor->ref();
-	    hor->setBurstAlert( true );
-	    horizons += hor;
-	    continue;
-	}
-
-	id = em.getObjectID(ioobj->key());
-	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
-	if ( !hor )
-	{
-	    uiMSG().error( tr("Could not load horizon") );
-	    mDeburstRet( false, unRef );
-	}
-
-	BufferStringSet existinglines;
-	for ( int ldx=0; ldx<linenms.size(); ldx++ )
-	{
-	    const BufferString linenm = linenms.get( ldx );
-	    if ( hor->geometry().lineIndex(linenm) >= 0 )
-		existinglines.add( linenm );
-	}
-
-	const int nrexist = existinglines.size();
-	if ( nrexist > 0 )
-	{
-	    uiString msg = tr("Horizon %1 already exists for %2").arg(nm)
-			 .arg((nrexist == 1
-			 ? tr("2D line %1")
-			 : tr("some 2D lines (%1) and will be overwritten"))
-			 .arg(existinglines.getDispString(3, false)));
-	    if ( !uiMSG().askOverwrite(msg) )
-		mDeburstRet( false, unRef );
-	}
-
-	hor->setPreferredColor(OD::getRandomColor());
-	hor->ref();
-	horizons += hor;
-
-	if ( !hor->hasBurstAlert() )
-	    hor->setBurstAlert( true );
-    }
-
+    const ZDomain::Info& zinfo = zDomain();
+    horizon->setZDomain( zinfo );
     PtrMan<Horizon2DImporter> exec =
-	new Horizon2DImporter( linenms, horizons, valset,
-	    (Horizon2DImporter::UndefTreat) udftreatfld_->getIntValue() );
+	new Horizon2DImporter( linenms, *horizon, valset,
+				    (Horizon2DImporter::UndefTreat)udfchoice );
     uiTaskRunner impdlg( this );
     if ( !TaskRunner::execute(&impdlg,*exec) )
-	mDeburstRet( false, unRef );
-
-    emobjids_.erase();
-    for ( int idx=0; idx<horizons.size(); idx++ )
     {
-	PtrMan<Executor> saver = horizons[idx]->saver();
-	if ( saver && saver->execute() )
-	    emobjids_ += horizons[idx]->id();
+	uiMSG().error( tr("Error while importing data") );
+	if ( horizon->hasBurstAlert() )
+	    horizon->setBurstAlert( false );
+
+	return false;
     }
 
-    mDeburstRet( true, unRefNoDelete );
+    PtrMan<Executor> saver = horizon->saver();
+    if ( saver && saver->execute() )
+    {
+	zinfo.fillPar( ioobj->pars() );
+	ioobj->pars().update( sKey::CrFrom(), inpgrp->getFileName() );
+	ioobj->updateCreationPars();
+	IOM().commitChanges( *ioobj );
+    }
+
+    if ( horizon->hasBurstAlert() )
+	horizon->setBurstAlert( false );
+
+    emobjids_.add( horizon->id() );
+    return true;
 }
 
 
@@ -475,35 +571,18 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
 
 bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 {
-    if ( !*inpfld_->fileName() )
-	mErrRet( tr("Please select input file(s)") )
-
-    inpfld_->getFileNames( filenames );
-    for ( int idx=0; idx<filenames.size(); idx++ )
-    {
-	const char* fnm = filenames[idx]->buf();
-	if ( !File::exists(fnm) )
-	{
-	    uiString errmsg = tr("Cannot find input file:\n%1")
-			    .arg(fnm);
-	    filenames.setEmpty();
-	    mErrRet( errmsg );
-	}
-    }
-
-    return true;
+    auto* fld = uiimporthorizon2dhpmgr_.getParam( this );
+    return fld->getFileNames( filenames );
 }
 
 
 bool uiImportHorizon2D::checkInpFlds()
 {
     BufferStringSet filenames;
-    if ( !getFileNames(filenames) ) return false;
+    if ( !getFileNames(filenames) )
+	return false;
 
-    if ( horselfld_->nrChosen() < 1 )
-	mErrRet(tr("No horizons available"))
-
-    if ( !dataselfld_->commit() )
+    if ( !uiimporthorizon2dhpmgr_.getParam(this)->commitChanges())
 	mErrRet( tr("Please define data format") );
 
     return true;

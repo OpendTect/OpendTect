@@ -16,6 +16,7 @@ class uiFileInput;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 mExpClass(uiEarthModel) uiBulk2DHorizonImport : public uiDialog
 { mODTextTranslationClass(uiBul2DHorizonImport);
@@ -32,4 +33,5 @@ protected:
     uiGenInput*		udftreatfld_;
     Table::FormatDesc*	fd_;
 
+    void		zDomainCB(CallBacker*);
 };

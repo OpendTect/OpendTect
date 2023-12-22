@@ -141,7 +141,7 @@ EMObject::EMObject( EMManager& emm )
     emobjecthpmgr_.setParam( this, new ZDomain::Info(SI().zDomainInfo()) );
     mDefineStaticLocalObject( Threads::Atomic<int>, oid, (0) );
     id_.set( oid++ );
-    zdomain_ = &SI().zDomainInfo().def_;
+    zdomain_ = &SI().zDomain();
     removebypolyposbox_.setEmpty();
     mAttachCB(change,EMObject::posIDChangeCB);
 }

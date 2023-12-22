@@ -24,6 +24,7 @@ class uiListBox;
 class uiPushButton;
 class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 /*! \brief Dialog for Horizon Import */
 
@@ -62,4 +63,7 @@ protected:
     TypeSet<EM::ObjectID> emobjids_;
 
     ObjectSet<SurfaceInfo>	horinfos_;
+
+    void		zDomainCB(CallBacker*);
+    const ZDomain::Info& zDomain() const;
 };
