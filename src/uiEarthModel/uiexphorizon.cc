@@ -476,6 +476,15 @@ bool uiExportHorizon::writeAscii()
     uiString errmsg;
     BufferString fname( basename );
     od_ostream stream( fname );
+    if ( stream.isBad() )
+	mErrRet( uiStrings::sCantOpenOutpFile() );
+
+    if ( !dogf )
+    {
+	stream.stdStream() << std::fixed;
+	writeHeader( stream );
+    }
+
     for ( int horidx=0; horidx<midset.size(); horidx++ )
     {
 	ConstPtrMan<IOObj> ioobj = IOM().get( midset[horidx] );
@@ -534,11 +543,6 @@ bool uiExportHorizon::writeAscii()
 
 	if ( dogf )
 	    initGF( stream, gfname_.buf(), gfcomment_.buf() );
-	else
-	{
-	    stream.stdStream() << std::fixed;
-	    writeHeader( stream );
-	}
 
 	Write3DHorASCII::Setup su;
 	su.addzpos( addzpos ).doxy( doxy ).doic(doic).dogf( dogf )
