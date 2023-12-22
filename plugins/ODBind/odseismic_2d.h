@@ -51,7 +51,10 @@ public:
 				    const BufferStringSet&) const;
     void		getData(hAllocator, const char* line,
 				float zrg[3]) const;
-
+    void		putData(const char* line, const float** data,
+				int32_t ntrcs, int32_t nrz,
+				const float zrg[3], const int32_t* trcnrs);
+    bool		delLines(const BufferStringSet&);
     void		getInfo(OD::JSON::Object&) const override;
     void		getFeature(OD::JSON::Object&,
 				   bool towgs=true) const override;
@@ -66,6 +69,11 @@ protected:
 mDeclareBaseBindings(Seismic2D, seismic2d)
 mDeclareRemoveBindings(Seismic2D, seismic2d)
 
+mExternC(ODBind) hSeismic2D	seismic2d_newout(hSurvey, const char* name,
+						 const char* format,
+						 hStringSet compnames,
+						 bool zistime,
+						 bool overwrite);
 mExternC(ODBind) void		seismic2d_close(hSeismic2D);
 mExternC(ODBind) hStringSet	seismic2d_compnames(hSeismic2D);
 mExternC(ODBind) hStringSet	seismic2d_linenames(hSeismic2D);
@@ -74,6 +82,16 @@ mExternC(ODBind) const char*	seismic2d_lineinfo(hSeismic2D,
 mExternC(ODBind) void		seismic2d_getdata(hSeismic2D, hAllocator,
 						  const char* linenm,
 						  float zrg[3]);
+mExternC(ODBind) void		seismic2d_putdata(hSeismic2D, const char*,
+						  const float** data,
+						  int32_t ntrcs,
+						  int32_t nrz,
+						  const float zrg[3],
+						  const int32_t* trcnrs);
+mExternC(ODBind) bool		seismic2d_deletelines(hSeismic2D,
+						      const hStringSet);
+
+
 
 
 

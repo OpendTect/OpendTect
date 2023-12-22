@@ -48,8 +48,9 @@ odSeismic2D::odSeismic2D( const odSurvey& survey, const char* name,
 			  bool zistime, bool overwrite )
     : odSeismicObject(survey, name, components, translatorGrp(), toString(fmt),
 		      zistime, overwrite)
-    , seisdata_(new Seis2DDataSet(*ioobj_))
 {
+    if ( ioobj_ && isOK() )
+	seisdata_ = new Seis2DDataSet(*ioobj_);
 }
 
 
@@ -193,6 +194,102 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
 }
 
 
+void odSeismic2D::putData( const char* linenm, const float** data,
+			   int32_t ntrcs, int32_t nrz,
+			   const float zrg[3], const int32_t* trcnrs )
+{
+    errmsg_.setEmpty();
+    if ( !canWrite() )
+	return;
+
+    survey_.activate();
+    if ( !ioobj_ )
+    {
+	errmsg_ = "invalid ioobj.";
+	return;
+    }
+
+    survey_.activate();
+    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+    PtrMan<Seis2DLinePutter> putter = seisdata_->linePutter( geomid );
+    if ( !putter )
+    {
+	errmsg_ = BufferString( "no 2D line geometry exists for: ", linenm );
+	return;
+    }
+
+    putter->setComponentNames( components_ );
+    const float zfac = SI().showZ2UserFactor();
+    SamplingData<float> sd( zrg[0]/zfac, zrg[2]/zfac );
+    for ( int idx=0; idx<ntrcs; idx++ )
+    {
+	const TrcKey trckey( geomid, trcnrs[idx] );
+	if ( !trckey.exists() )
+	    continue;
+
+	PtrMan<SeisTrc> trc = new SeisTrc( nrz );
+	if ( !trc )
+	    return;
+
+	trc->setNrComponents( components_.size(), DataCharacteristics::F32 );
+	trc->info().setTrcKey( trckey );
+	trc->info().coord = trckey.getCoord();
+	trc->info().sampling = sd;
+	for ( int icomp=0; icomp<components_.size(); icomp++ )
+	{
+	    const float* compdata = data[icomp];
+	    const int idxstart = idx*nrz;
+	    for ( int iz=0; iz<nrz; iz++ )
+	    {
+		float val = mUdf(float);
+		val = compdata[idxstart + iz];
+		if ( !Math::IsNormalNumber(val) )
+		    val = mUdf(float);
+
+		trc->set( iz, val, icomp );
+	    }
+	}
+
+	if ( !putter->put(*trc) )
+	{
+	    errmsg_ = putter->errMsg().getOriginalString();
+	    break;
+	}
+    }
+    putter->close();
+}
+
+
+bool odSeismic2D::delLines( const BufferStringSet& linenms )
+{
+    if ( linenms.isEmpty() )
+	return true;
+
+    survey_.activate();
+    errmsg_.setEmpty();
+    bool first = true;
+    for ( const auto* line : linenms )
+    {
+	const int idx = seisdata_->indexOf( line->buf() );
+	if ( idx==-1 )
+	    continue;
+
+	const Pos::GeomID geomid = seisdata_->geomID( idx );
+	if ( !seisdata_->remove(geomid) )
+	{
+	    if ( first )
+	    {
+		first = false;
+		errmsg_ = "Error removing:";
+	    }
+
+	    errmsg_.addSpace().add(line->buf());
+	}
+    }
+    return true;
+}
+
+
 void odSeismic2D::getInfo( OD::JSON::Object& jsobj ) const
 {
     jsobj.setEmpty();
@@ -242,6 +339,24 @@ void odSeismic2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
 mDefineBaseBindings(Seismic2D, seismic2d)
 mDefineRemoveBindings(Seismic2D, seismic2d)
+
+hSeismic2D seismic2d_newout( hSurvey survey, const char* name,
+			     const char* format, hStringSet compnames,
+			     bool zistime, bool overwrite )
+{
+    auto* p = static_cast<odSurvey*>(survey);
+    const auto* nms = static_cast<BufferStringSet*>(compnames);
+    if ( !p || !nms ) return nullptr;
+
+    odSeismic2D::Seis2DFormat fmt;
+    if ( odSeismic2D::parseEnum(format, fmt) )
+	return new odSeismic2D( *p, name, fmt, *nms, zistime, overwrite );
+    else
+    {
+	p->setErrMsg("invalid output format");
+	return nullptr;
+    }
+}
 
 
 void seismic2d_close( hSeismic2D self )
@@ -295,5 +410,26 @@ void seismic2d_getdata( hSeismic2D self, hAllocator allocator,
     p->getData( allocator, linenm, zrg );
 }
 
+
+void seismic2d_putdata( hSeismic2D self, const char* linenm, const float** data,
+			int32_t ntrcs, int32_t nrz,
+			const float zrg[3], const int32_t* trcnrs )
+{
+    auto* p = static_cast<odSeismic2D*>(self);
+    if  ( !p || !p->canWrite() )
+	return;
+
+    p->putData( linenm, data, ntrcs, nrz, zrg, trcnrs );
+}
+
+
+bool seismic2d_deletelines( hSeismic2D self, const hStringSet linenms )
+{
+    auto* p = static_cast<odSeismic2D*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(linenms);
+    if ( !p || !nms ) return false;
+
+    return p->delLines( *nms );
+}
 
 

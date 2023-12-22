@@ -284,13 +284,15 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 	    PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
 	    if ( !IOM().implRemove(ioobj->key(), true) )
 	    {
-		errmsg = "cannot remove existing object.";
+		errmsg = BufferString( "cannot remove existing object - ",
+				       objname );
 		return nullptr;
 	    }
 	}
 	else
 	{
-	    errmsg = "object already exists and overwrite is disabled.";
+	    errmsg = BufferString( objname,
+			       " already exists and overwrite is disabled." );
 	    return nullptr;
 	}
     }
