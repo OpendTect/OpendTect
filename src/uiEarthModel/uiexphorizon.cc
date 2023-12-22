@@ -475,6 +475,9 @@ void uiExportHorizon::writeHeader( od_ostream& strm )
     if ( headerfld_->getIntValue() == 1 )
     {
 	BufferString posstr;
+	if ( isbulk_ )
+	    posstr.add( sKey::Name() ).addTab();
+
 	if ( doxy )
 	    posstr += "\"X\"\t\"Y\"";
 
@@ -534,7 +537,6 @@ bool uiExportHorizon::writeAscii()
     const bool doic = typ==1 || typ==2;
     const bool addzpos = writezfld_->getBoolValue();
     const bool dogf = exportToGF();
-
     BufferString udfstr = udffld_->text();
     if ( udfstr.isEmpty() )
 	udfstr = sKey::FloatUdf();
@@ -546,6 +548,15 @@ bool uiExportHorizon::writeAscii()
     uiString errmsg;
     BufferString fname( basename );
     od_ostream stream( fname );
+    if ( stream.isBad() )
+	mErrRet( uiStrings::sCantOpenOutpFile() );
+
+    if ( !dogf )
+    {
+	stream.stdStream() << std::fixed;
+	writeHeader( stream );
+    }
+
     for ( int horidx=0; horidx<midset.size(); horidx++ )
     {
 	ConstPtrMan<IOObj> ioobj = IOM().get( midset[horidx] );
@@ -600,17 +611,11 @@ bool uiExportHorizon::writeAscii()
 	BufferString dispstr("Writing Horizon ");
 	dispstr.add(hor->name());
 	ExecutorGroup exphorgrp( dispstr );
-
 	if ( stream.isBad() )
 	    mErrRet( uiStrings::sCantOpenOutpFile() );
 
 	if ( dogf )
 	    initGF( stream, gfname_.buf(), gfcomment_.buf() );
-	else if ( horidx==0 )
-	{
-	    stream.stdStream() << std::fixed;
-	    writeHeader( stream );
-	}
 
 	Write3DHorASCII::Setup su;
 	su.addzpos( addzpos ).doxy( doxy ).doic( doic ).dogf( dogf )
