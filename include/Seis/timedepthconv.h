@@ -215,6 +215,7 @@ public:
 
     bool			isOK() const override;
     static const UnitOfMeasure* velUnit();
+    static const char*		sKeyLinearTransKey();
 
 protected:
 				LinearVelTransform(const ZDomain::Def& from,

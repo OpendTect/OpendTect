@@ -176,6 +176,8 @@ private:
     void			doInitGrp() override;
     void			setZRangeCB(CallBacker*);
     bool			acceptOK() override;
+    bool			usePar(const IOPar&) override;
+    const char*			transformName() const override;
 
     RefMan<ZAxisTransform>	transform_;
     BufferString		selname_;

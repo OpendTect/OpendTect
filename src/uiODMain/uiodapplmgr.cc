@@ -374,7 +374,7 @@ void uiODApplMgr::setStereoOffset()
 
 void uiODApplMgr::processTime2DepthHor( bool is2d )
 {
-    emserv_->processTime2Depth( is2d ? EM::IOObjInfo::Horizon2D
+    emserv_->processTime2Depth( &appl_, is2d ? EM::IOObjInfo::Horizon2D
 					: EM::IOObjInfo::Horizon3D );
 }
 

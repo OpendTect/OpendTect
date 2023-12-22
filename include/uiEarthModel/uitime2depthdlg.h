@@ -33,6 +33,8 @@ public:
 				~uiTime2DepthDlg ();
 
     static uiRetVal		canTransform(IOObjInfo::ObjectType);
+    bool			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
 
@@ -43,6 +45,7 @@ protected:
     uiSurfaceRead*		inpdepthhorsel_		= nullptr;
     uiSurfaceWrite*		outtimehorsel_		= nullptr;
     uiSurfaceWrite*		outdepthhorsel_		= nullptr;
+
 
     uiString			getDlgTitle(IOObjInfo::ObjectType) const;
 
@@ -57,6 +60,9 @@ protected:
     bool			acceptOK(CallBacker*) override;
 
     bool			is2DObject() const;
+
+    const char*			sKeyTime2Depth() const;
+    const char*			sKeyTransformation() const;
 
     const IOObjInfo::ObjectType objtype_;
 };

@@ -34,9 +34,25 @@ uiWellT2DTransform::~uiWellT2DTransform()
 }
 
 
+const char* uiWellT2DTransform::transformName() const
+{
+    return WellT2DTransform::sFactoryKeyword();
+}
+
 void uiWellT2DTransform::doInitGrp()
 {
     setZRangeCB( nullptr );
+}
+
+
+bool uiWellT2DTransform::usePar( const IOPar& par )
+{
+    MultiID mid;
+    if ( !par.get(sKey::ID(),mid) || mid.isUdf() )
+	return false;
+
+    selfld_->setInput( mid );
+    return true;
 }
 
 

@@ -353,9 +353,26 @@ uiSimpleTimeDepthTransform::~uiSimpleTimeDepthTransform()
 }
 
 
+const char* uiSimpleTimeDepthTransform::transformName() const
+{
+    return SimpleT2DTransform::sFactoryKeyword();
+}
+
+
 void uiSimpleTimeDepthTransform::doInitGrp()
 {
     setZRangeCB( nullptr );
+}
+
+
+bool uiSimpleTimeDepthTransform::usePar( const IOPar& par )
+{
+    MultiID mid;
+    if ( !par.get(sKey::ID(),mid) || mid.isUdf() )
+	return false;
+
+    selfld_->setInput( mid );
+    return true;
 }
 
 

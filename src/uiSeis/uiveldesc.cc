@@ -725,8 +725,88 @@ uiVelModelZAxisTransform::~uiVelModelZAxisTransform()
 }
 
 
+const char* uiVelModelZAxisTransform::transformName() const
+{
+    return isTimeToDepth() ? Time2DepthStretcher::sFactoryKeyword() :
+				    Depth2TimeStretcher::sFactoryKeyword();
+}
+
+
+bool uiVelModelZAxisTransform::usePar( const IOPar& par )
+{
+    MultiID mid;
+    if ( !par.get(sKey::ID(),mid) || !mid.isUdf() )
+	return false;
+
+    velsel_->setInput( mid );
+    return true;
+}
+
+
 ZAxisTransform* uiVelModelZAxisTransform::getSelection()
 {
+    transform_ = nullptr;
+    uiRetVal uirv = velsel_->isOK();
+    if ( !uirv.isOK() )
+    {
+	uiMSG().error( uirv );
+	return nullptr;
+    }
+
+    const IOObj* ioobj = velsel_->ioobj( true );
+    if ( !ioobj )
+    {
+	pErrMsg("Should not be reached");
+	return nullptr;
+    }
+
+    const MultiID mid = ioobj->key();
+    if ( mid.isUdf() )
+    {
+	pErrMsg("Should not be reached");
+	return nullptr;
+    }
+
+    const BufferString selname = ioobj->name();
+
+    VelocityDesc desc;
+    const ZDomain::Info* zinfo = nullptr;
+    BufferString zdomain;
+    uirv = velsel_->get( desc, &zinfo );
+    if ( !uirv.isOK() )
+    {
+	uiMSG().error( uirv );
+	return nullptr;
+    }
+
+    uiRetVal res;
+    if ( !VelocityDesc::isUsable(desc.type_,zinfo->def_,res) )
+    {
+	uirv = tr("Cannot setup a time-depth transformation with the "
+	    "selected velocity model:");
+	uirv.add( res );
+	uiMSG().error( res );
+	return nullptr;
+    }
+
+    if ( isTimeToDepth() )
+	transform_ = new Time2DepthStretcher( mid );
+    else
+	transform_ = new Depth2TimeStretcher( mid );
+
+    if ( !transform_->isOK() )
+    {
+	uiRetVal msgs( tr("Internal: Could not initialize transform") );
+	if ( !transform_->errMsg().isEmpty() )
+	    msgs.add( transform_->errMsg() );
+
+	uiMSG().errorWithDetails( msgs.messages() );
+	return nullptr;
+    }
+
+    const int refnr = transform_->nrRefs();
+    selname_ = selname;
+    selkey_ = mid;
     return transform_;
 }
 
@@ -743,6 +823,7 @@ void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
     if ( !rangefld_ )
 	return;
 
+    getSelection();
     const ZDomain::Info& twtdef = ZDomain::TWT();
     const ZDomain::Info& ddef = SI().depthsInFeet() ? ZDomain::DepthFeet()
 						    : ZDomain::DepthMeter();
@@ -782,49 +863,10 @@ const char* uiVelModelZAxisTransform::selName() const
 
 bool uiVelModelZAxisTransform::acceptOK()
 {
-    transform_ = nullptr;
-    uiRetVal uirv = velsel_->isOK();
-    if ( !uirv.isOK() )
-	mErrRet(uirv)
-
-    const IOObj* ioobj = velsel_->ioobj( true );
-    if ( !ioobj )
-    {
-	pErrMsg("Should not be reached");
+    if ( !velsel_->ioobj(false) )
 	return false;
-    }
 
-    const MultiID mid = ioobj->key();
-    if ( mid.isUdf() )
-    {
-	pErrMsg("Should not be reached");
-	return false;
-    }
-
-    const BufferString selname = ioobj->name();
-
-    VelocityDesc desc;
-    const ZDomain::Info* zinfo = nullptr;
-    BufferString zdomain;
-    uirv = velsel_->get( desc, &zinfo );
-    if ( !uirv.isOK() )
-	mErrRet(uirv)
-
-    uiRetVal res;
-    if ( !VelocityDesc::isUsable(desc.type_,zinfo->def_,res) )
-    {
-	uirv = tr("Cannot setup a time-depth transformation with the "
-		  "selected velocity model:");
-	uirv.add( res );
-	mErrRet(uirv)
-    }
-
-    if ( isTimeToDepth() )
-	transform_ = new Time2DepthStretcher( mid );
-    else
-	transform_ = new Depth2TimeStretcher( mid );
-
-    if ( !transform_->isOK() )
+    if ( !transform_ || !transform_->isOK() )
     {
 	uiRetVal msgs( tr("Internal: Could not initialize transform") );
 	if ( !transform_->errMsg().isEmpty() )
@@ -834,8 +876,7 @@ bool uiVelModelZAxisTransform::acceptOK()
 	return false;
     }
 
-    selname_ = selname;
-    selkey_ = mid;
+
 
     return true;
 }

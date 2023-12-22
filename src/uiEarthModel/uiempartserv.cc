@@ -127,20 +127,53 @@ void uiEMPartServer::cleanup()
     closeAndNullPtr( crhordlg_ );
     closeAndNullPtr( impbulkfssdlg_ );
     closeAndNullPtr( impbulk2dhordlg_ );
+    closeAndNullPtr( t2d3dhordlg_ );
+    closeAndNullPtr( t2d2dhordlg_ );
     deepErase( variodlgs_ );
 }
 
 
-void uiEMPartServer::processTime2Depth( EM::IOObjInfo::ObjectType objtype )
+EM::uiTime2DepthDlg* uiEMPartServer::getTime2DepthEMDlg( uiParent* p,
+    EM::IOObjInfo::ObjectType objtype, EM::uiTime2DepthDlg*& dlg )
+{
+    if ( !dlg || (dlg->parent() != p) )
+    {
+	IOPar par;
+	bool usepar = false;
+	if ( dlg )
+	{
+	    usepar = true;
+	    dlg->fillPar( par );
+	    delete dlg;
+	}
+
+	dlg = new EM::uiTime2DepthDlg( p, objtype );
+	if ( usepar )
+	    dlg->usePar( par );
+    }
+
+    return dlg;
+}
+
+
+void uiEMPartServer::processTime2Depth( uiParent* p,
+					EM::IOObjInfo::ObjectType objtype )
 {
     const uiRetVal ret =  EM::uiTime2DepthDlg::canTransform( objtype );
-    if ( ret.isOK() )
+    if ( !ret.isOK() )
     {
-	EM::uiTime2DepthDlg dlg( parent(), objtype );
-	dlg.go();
-    }
-    else
 	uiMSG().message( ret.messages().cat() );
+	return;
+    }
+
+    EM::uiTime2DepthDlg* dlg = nullptr;
+    if ( objtype == EM::IOObjInfo::Horizon3D )
+	dlg = getTime2DepthEMDlg( p, objtype, t2d3dhordlg_ );
+    else if ( objtype == EM::IOObjInfo::Horizon2D )
+	dlg = getTime2DepthEMDlg( p, objtype, t2d2dhordlg_ );
+
+    if ( dlg )
+	dlg->show();
 }
 
 

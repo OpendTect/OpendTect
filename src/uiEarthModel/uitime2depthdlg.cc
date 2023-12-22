@@ -33,10 +33,9 @@ ________________________________________________________________________
 
 namespace EM
 {
-
 uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
     : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype),mNoDlgTitle,
-	       mODHelpKey(mProcessHorizonTime2DepthID)))
+	       mODHelpKey(mProcessHorizonTime2DepthID)).modal(false))
     , objtype_(objtype)
 {
     setCtrlStyle( RunAndClose );
@@ -185,11 +184,23 @@ void uiTime2DepthDlg::horSelCB( CallBacker* cb )
 }
 
 
+const char* uiTime2DepthDlg::sKeyTime2Depth() const
+{
+    return "Time2Depth";
+}
+
+
+const char* uiTime2DepthDlg::sKeyTransformation() const
+{
+    return "Transformation";
+}
+
+
 RefMan<ZAxisTransform> uiTime2DepthDlg::getWorkingZAxisTransform() const
 {
     const bool todepth = directionsel_->getBoolValue();
     auto* zatffld = todepth ? t2dtransfld_ : d2ttransfld_;
-    return zatffld->acceptOK() ? zatffld->getSelection() : nullptr;
+    return zatffld->getSelection();
 }
 
 
@@ -205,6 +216,77 @@ uiSurfaceWrite* uiTime2DepthDlg::getWorkingOutSurfWrite()
     const bool todepth = directionsel_->getBoolValue();
     return todepth ? outdepthhorsel_ : outtimehorsel_;
 }
+
+
+bool uiTime2DepthDlg::usePar( const IOPar& par )
+{
+    const bool is2d = is2DObject();
+    const IOPar* dimpar = par.subselect( is2d ? sKey::TwoD() :
+							    sKey::ThreeD() );
+    if ( !dimpar )
+	return false;
+
+    const IOPar* objpar = dimpar->subselect(
+				IOObjInfo::ObjectTypeDef().getKey(objtype_) );
+    if ( !objpar )
+	return false;
+
+    bool ist2d = SI().zIsTime();
+    objpar->getYN( sKeyTime2Depth(),ist2d );
+    directionsel_->setValue( ist2d );
+    MultiID mid;
+    const IOPar* transfldpar = objpar->subselect( sKeyTransformation() );
+    objpar->get( sKey::ID(), mid );
+    if ( ist2d )
+    {
+	if ( !mid.isUdf() )
+	    inptimehorsel_->getObjSel()->setInput( mid );
+
+	if ( transfldpar )
+	    t2dtransfld_->usePar( *transfldpar );
+    }
+    else
+    {
+	if ( !mid.isUdf() )
+	    inpdepthhorsel_->getObjSel()->setInput( mid );
+
+	if ( transfldpar )
+	    d2ttransfld_->usePar( *transfldpar );
+    }
+
+    return true;
+}
+
+
+bool uiTime2DepthDlg::fillPar( IOPar& par ) const
+{
+    const bool is2d = is2DObject();
+    const BufferString dimkey( is2d ? sKey::TwoD() : sKey::ThreeD() );
+    const BufferString objtypekey(
+				IOObjInfo::ObjectTypeDef().getKey(objtype_) );
+    const BufferString basekey( IOPar::compKey(dimkey,objtypekey) );
+    const bool ist2d = directionsel_->getBoolValue();
+    par.setYN( IOPar::compKey(basekey,sKeyTime2Depth()), ist2d );
+    const IOPar* data = par.subselect( basekey );
+    auto* readerfld = const_cast<uiSurfaceRead*>( getWorkingInpSurfRead() );
+    par.set( IOPar::compKey(basekey,sKey::ID()),
+					    readerfld->getObjSel()->key() );
+    IOPar transfldpar;
+    if ( ist2d )
+    {
+	if ( t2dtransfld_->isOK() && t2dtransfld_->getSelection() )
+	    t2dtransfld_->fillPar( transfldpar );
+    }
+    else
+    {
+	if ( d2ttransfld_->isOK() && d2ttransfld_->getSelection() )
+	    d2ttransfld_->fillPar( transfldpar );
+    }
+
+    par.mergeComp( transfldpar, IOPar::compKey(basekey,sKeyTransformation()) );
+    return true;
+}
+
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 

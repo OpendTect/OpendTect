@@ -49,6 +49,11 @@ public:
 				   construction.
 				 */
 
+    virtual bool		usePar(const IOPar&)		= 0;
+    virtual bool		fillPar(IOPar&) const;
+    virtual const char*		transformName() const		= 0;
+
+
 protected:
 				uiZAxisTransform(uiParent*);
 
@@ -74,7 +79,7 @@ public:
 				    settings */
     void			setLabel(const uiString&);
 
-    bool			isOK() const { return nrTransforms(); }
+    bool			isOK() const;
     int				nrTransforms() const;
 
     NotifierAccess*		selectionDone();
@@ -91,6 +96,7 @@ public:
 				/*!<Only after successful acceptOK and only if
 				    withsampling was specified in constructor*/
 
+    bool			usePar(const IOPar&);
     bool			fillPar(IOPar&);
 				/*!<Only after successful acceptOK() */
 

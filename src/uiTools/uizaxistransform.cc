@@ -39,6 +39,17 @@ void uiZAxisTransform::enableTargetSampling()
 }
 
 
+bool uiZAxisTransform::fillPar( IOPar& par ) const
+{
+    ConstRefMan<ZAxisTransform> transf = mSelf().getSelection();
+    if ( !transf )
+	return false;
+
+    transf->fillPar( par );
+    return true;
+}
+
+
 bool uiZAxisTransform::getTargetSampling( ZSampling& ) const
 {
     return false;
@@ -186,11 +197,18 @@ bool uiZAxisTransformSel::getTargetSampling( ZSampling& zrg ) const
 }
 
 
+bool uiZAxisTransformSel::isOK() const
+{
+    return nrTransforms();
+}
+
+
 int uiZAxisTransformSel::nrTransforms() const
 {
     int res = transflds_.size();
     if ( res && !transflds_[0] )
 	res--;
+
     return res;
 }
 
@@ -212,13 +230,47 @@ StringView uiZAxisTransformSel::selectedToDomain() const
 }
 
 
-bool uiZAxisTransformSel::fillPar( IOPar& par )
+bool uiZAxisTransformSel::usePar( const IOPar& par )
 {
-    ConstRefMan<ZAxisTransform> sel = getSelection();
-    if ( !sel )
+    BufferString transformnm;
+    par.get( "Tranform_Name", transformnm );
+    if ( transformnm.isEmpty() )
 	return false;
 
-    sel->fillPar( par );
+    const BufferStringSet& factorynames =
+				    uiZAxisTransform::factory().getNames();
+    const uiStringSet& usernames =
+			    uiZAxisTransform::factory().getUserNames();
+    const int sz = factorynames.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const BufferString transfactnm = factorynames.get( idx );
+	if ( transformnm.isEqual(transfactnm) )
+	{
+	    selfld_->setText( usernames.get(idx).getFullString() );
+	    selCB( nullptr );
+	    const int selidx = selfld_->getIntValue();
+	    if ( !transflds_[selidx]->usePar(par) )
+		return false;
+
+	    break;
+	}
+    }
+
+    return true;
+}
+
+
+bool uiZAxisTransformSel::fillPar( IOPar& par )
+{
+    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
+    if ( !transflds_.validIdx(selidx)  )
+	return false;
+
+    uiZAxisTransform* transfld = transflds_[selidx];
+    const BufferString transformnm = transfld->transformName();
+    par.set( "Tranform_Name", transformnm );
+    transfld->fillPar( par );
     return true;
 }
 
