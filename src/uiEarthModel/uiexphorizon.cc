@@ -606,7 +606,7 @@ bool uiExportHorizon::writeAscii()
 
 	if ( dogf )
 	    initGF( stream, gfname_.buf(), gfcomment_.buf() );
-	else if ( isbulk_ && (horidx==0) )
+	else if ( horidx==0 )
 	{
 	    stream.stdStream() << std::fixed;
 	    writeHeader( stream );
