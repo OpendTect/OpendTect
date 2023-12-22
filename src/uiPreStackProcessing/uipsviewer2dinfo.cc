@@ -44,17 +44,17 @@ void uiGatherDisplayInfoHeader::setOffsetRange( const Interval<float>& offs )
 }
 
 
-void uiGatherDisplayInfoHeader::setData( const BinID& pos, bool isinl,
-					bool  is2d, const char* datanm )
+void uiGatherDisplayInfoHeader::setData( const TrcKey& tk, bool isinl,
+					 bool  is2d, const char* datanm )
 {
     datalbl_->setText( toUiString(datanm) );
-    if ( mIsUdf(pos.inl()) && mIsUdf(pos.crl()) )
+    if ( tk.isUdf() )
 	return;
 
     uiString posstr = toUiString("%1 %2").arg(is2d ? uiStrings::sTrace() :
 					  isinl ? tr("Crl ") : tr("Inl "))
-					  .arg(isinl ? toUiString( pos.crl() )
-						     : toUiString( pos.inl() ));
+					  .arg(isinl ? toUiString( tk.crl() )
+						     : toUiString( tk.inl() ));
     poslbl_->setText( posstr );
 }
 

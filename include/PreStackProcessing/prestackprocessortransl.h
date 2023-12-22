@@ -26,6 +26,8 @@ public:
 			PreStackProcTranslatorGroup();
 
     const char*		defExtension() const override	{ return "psp"; }
+    const char*		getSurveyDefaultKey(
+					const IOObj* =nullptr) const override;
 };
 
 

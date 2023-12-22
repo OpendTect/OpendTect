@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "flatposdata.h"
 #include "flatviewzoommgr.h"
 #include "psviewer2dgatherpainter.h"
+
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
 #include "uigraphicsitemimpl.h"
@@ -24,11 +25,6 @@ namespace PreStackView
 
 uiGatherDisplay::uiGatherDisplay( uiParent* p  )
     : uiGroup(p, "Prestack gather Display" )
-    , bid_(-1,-1)
-    , zrg_(0)
-    , fixedoffset_( false )
-    , offsetrange_( mUdf(float), mUdf(float) )
-    , displayannotation_(true)
 {
     viewer_ = new uiFlatViewer( this );
     viewer_->appearance().setGeoDefaults( true );
@@ -99,20 +95,20 @@ void uiGatherDisplay::setWVAGather( const PreStack::Gather* wvadp )
 }
 
 
-BinID uiGatherDisplay::getBinID() const
+TrcKey uiGatherDisplay::getTrcKey() const
 {
-    return gatherpainter_->getBinID();
+    return gatherpainter_->getTrcKey();
 }
 
 
-void uiGatherDisplay::setPosition( const BinID& bid,
-				   const Interval<double>* zrg )
+void uiGatherDisplay::setZRange( const Interval<double>* zrg )
 {
-    bid_ = bid;
     if ( zrg )
     {
-	if ( !zrg_ ) zrg_ = new Interval<double>( *zrg );
-	else *zrg_ = *zrg;
+	if ( !zrg_ )
+	    zrg_ = new Interval<double>( *zrg );
+	else
+	    *zrg_ = *zrg;
     }
     else if ( zrg_ )
 	deleteAndNullPtr( zrg_ );
@@ -275,12 +271,12 @@ void uiViewer2D::removeAllGatherDisplays()
 }
 
 
-uiGatherDisplay* uiViewer2D::getGatherDisplay( const BinID& bid )
+uiGatherDisplay* uiViewer2D::getGatherDisplay( const TrcKey& tk )
 {
     for ( int idx=0; idx<objectitems_.size(); idx++ )
     {
 	uiGatherDisplay& gdisp = getGatherDisplay( idx );
-	if ( gdisp.getBinID() == bid )
+	if ( gdisp.getTrcKey() == tk )
 	    return &gdisp;
     }
 

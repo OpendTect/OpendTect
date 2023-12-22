@@ -229,14 +229,14 @@ void uiODViewer2DPosGrp::getSelAttrSamp( TrcKeyZSampling& seltkzs )
 
 void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
 {
-
-    ZDomain::Info zinfo( SI().zDomain() );
-    auto* sliceselfld = new uiSliceSel( this, dir, zinfo );
-    sliceselfld->setMaxTrcKeyZSampling( SI().sampling(true) );
+    const TrcKeyZSampling tkzs = SI().sampling(true);
+    auto* sliceselfld = new uiSliceSel( this, dir, SI().zDomainInfo(),
+					tkzs.hsamp_.getGeomID() );
+    sliceselfld->setMaxTrcKeyZSampling( tkzs );
     sliceselfld->attach( alignedBelow, inp3dfld_ );
     sliceselfld->enableScrollButton( false );
 
-    TrcKeyZSampling seltkzs;
+    TrcKeyZSampling seltkzs( tkzs.hsamp_.getGeomID() );
     getSelAttrSamp( seltkzs );
     TrcKeyZSampling sliceseltkzs;
 
@@ -248,8 +248,7 @@ void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
     }
     else if ( dir == uiSliceSel::Crl )
     {
-	sliceseltkzs.hsamp_.start_.crl() = seltkzs.hsamp_.trcRange()
-								    .center();
+	sliceseltkzs.hsamp_.start_.crl() = seltkzs.hsamp_.trcRange().center();
 	sliceseltkzs.hsamp_.stop_.crl() = sliceseltkzs.hsamp_.start_.crl();
     }
     else

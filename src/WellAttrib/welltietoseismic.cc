@@ -664,7 +664,7 @@ bool WellTie::DataPlayer::copyDataToLogSet()
 	synth += synthtrc->get( idx, 0 );
     }
 
-    createLog( data.sKeySynthetic(), dahsynth.arr(), synth.arr(),synth.size());
+    createLog( sKey::Synthetic(), dahsynth.arr(), synth.arr(),synth.size() );
 
     const Well::Log* sonlog = data.wd_->logs().getLog( data.sKeySonic() );
     const UnitOfMeasure* sonuom = sonlog ? sonlog->unitOfMeasure() : 0;

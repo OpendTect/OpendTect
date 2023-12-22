@@ -30,31 +30,45 @@ namespace PreStack
 {
 
 uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
-				bool dooffset, bool isformute,
-				bool withadvanced )
+				OD::GeomSystem gs, bool dooffset,
+				bool isformute, bool withadvanced )
     : uiGroup(p,"Angle Mute Group")
     , params_(pars)
     , isformute_(isformute)
     , dooffset_(dooffset)
 {
-    velfuncsel_ = new uiVelSel( this );
-    if ( !params_.velvolmid_.isUdf() )
-       velfuncsel_->setInput( params_.velvolmid_ );
+    const bool is2d = ::is2D( gs );
+    const bool issynth = ::isSynthetic( gs );
+    uiGroup* alignobj = nullptr;
+    if ( !issynth )
+    {
+	velfuncsel_ = new uiVelSel( this, VelocityDesc::getVelVolumeLabel(),
+				    is2d );
+	alignobj = velfuncsel_;
+	if ( !params_.velvolmid_.isUdf() )
+	   velfuncsel_->setInput( params_.velvolmid_ );
+    }
 
     if ( isformute_ )
     {
 	anglefld_ = new uiGenInput( this, tr("Mute cutoff angle (degree)"),
 				     FloatInpSpec(false) );
-	anglefld_->attach( alignedBelow, velfuncsel_ );
+	if ( velfuncsel_ )
+	    anglefld_->attach( alignedBelow, velfuncsel_ );
+
 	anglefld_->setValue( params_.mutecutoff_ );
+	alignobj = anglefld_;
     }
     else
     {
 	anglefld_ = new uiGenInput( this, tr("Angle range"),
 				    IntInpIntervalSpec(params_.anglerange_) );
-	anglefld_->attach( alignedBelow, velfuncsel_ );
+	if ( velfuncsel_ )
+	    anglefld_->attach( alignedBelow, velfuncsel_ );
+
 	anglelbl_ = new uiLabel( this, tr("degrees") );
 	anglelbl_->attach( rightOf, anglefld_ );
+	alignobj = anglefld_;
     }
 
     if ( withadvanced )
@@ -62,10 +76,16 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 	const CallBack cbadv = mCB(this,uiAngleCompGrp,advPushButCB);
 	advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"),
 					cbadv, false );
-	advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
+	if ( velfuncsel_ )
+	    advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
+	else if ( anglelbl_ )
+	    advpushbut_->attach( rightOf, anglelbl_ );
+	else if ( anglefld_ )
+	    advpushbut_->attach( rightOf, anglefld_ );
     }
 
-    setHAlignObj( velfuncsel_ );
+    if ( alignobj )
+	setHAlignObj( alignobj );
 }
 
 
@@ -77,7 +97,9 @@ uiAngleCompGrp::~uiAngleCompGrp()
 
 void uiAngleCompGrp::updateFromParams()
 {
-    velfuncsel_->setInput( params_.velvolmid_ );
+    if ( velfuncsel_ )
+	velfuncsel_->setInput( params_.velvolmid_ );
+
     if ( isformute_ )
 	anglefld_->setValue( params_.mutecutoff_ );
     else
@@ -87,10 +109,14 @@ void uiAngleCompGrp::updateFromParams()
 
 bool uiAngleCompGrp::acceptOK()
 {
-    if ( !velfuncsel_->ioobj() )
-	return false;
+    if ( velfuncsel_ )
+    {
+	if ( !velfuncsel_->ioobj() )
+	    return false;
 
-    params_.velvolmid_ = velfuncsel_->key( true );
+	params_.velvolmid_ = velfuncsel_->key( true );
+    }
+
     const Interval<int> normalanglevalrange( 0, 90 );
     if ( isformute_ )
     {
@@ -383,8 +409,9 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt, bool withadvanced )
                                     mODHelpKey(mAngleMuteHelpID) ) )
     , processor_(rt)
 {
-    anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), false, true,
-					withadvanced );
+    anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(),
+					processor_->getGeomSystem(),
+					false, true, withadvanced );
 
     auto* sep = new uiSeparator( this, "Sep" );
     sep->attach( stretchedBelow, anglecompgrp_ );

@@ -209,7 +209,8 @@ Data2DHolder::~Data2DHolder()
 
 TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 {
-    TrcKeyZSampling res;
+    Pos::GeomID gid = Survey::getDefault2DGeomID();
+    TrcKeyZSampling res( gid );
     if ( trcinfoset_.isEmpty() )
 	return res;
 
@@ -226,6 +227,7 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 
 	if ( !idx )
 	{
+	    gid = trcinfoset_[idx]->geomID();
 	    trcrange.start = trcrange.stop = curtrcnr;
 	    zrange.start = start;
 	    zrange.stop = stop;
@@ -250,9 +252,7 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 	prevtrcnr = curtrcnr;
     }
 
-    res.hsamp_ = TrcKeySampling( Pos::GeomID(0) ); //Why 0 ?
-    res.hsamp_.survid_ = OD::Geom2D;
-    res.hsamp_.step_.inl() = 1; //Why 1?
+    res.hsamp_.init( gid );
     res.hsamp_.setTrcRange( trcrange );
 
     res.zsamp_.start = zrange.start*zstep;

@@ -348,7 +348,7 @@ void StratSynth::DataMgr::fillPar( IOPar& iop,
 	}
     }
 
-    PtrMan<IOPar> par = iop.subselect( sKeySynthetics() );
+    PtrMan<IOPar> par = iop.subselect( sKey::Synthetic(2) );
     if ( !par )
 	par = new IOPar;
 
@@ -372,13 +372,13 @@ void StratSynth::DataMgr::fillPar( IOPar& iop,
     }
 
     par->set( sKeyNrSynthetics(), nr_nonproprefsynths );
-    iop.mergeComp( *par.ptr(), sKeySynthetics() );
+    iop.mergeComp( *par.ptr(), sKey::Synthetic(2) );
 }
 
 
 bool StratSynth::DataMgr::usePar( const IOPar& iop )
 {
-    PtrMan<IOPar> synthpar = iop.subselect( sKeySynthetics() );
+    PtrMan<IOPar> synthpar = iop.subselect( sKey::Synthetic(2) );
     if ( synthpar )
 	setElasticProperties( iop );
 
@@ -2610,6 +2610,7 @@ AttributeSyntheticCreator( const PostStackSyntheticData& sd,
     , seistrcbufs_(seisbufs)
     , sd_(sd)
     , attribdefs_(attribdefs)
+    , tkzs_(TrcKeyZSampling::getSynth())
 {
     const DataPack::FullID fid = sd.fullID();
     if ( !DPM( fid.mgrID() ).isPresent(fid.packID()) )
@@ -2688,7 +2689,7 @@ bool doPrepare( int /* nrthreads */ ) override
 	return false;
     }
 
-    sd_.postStackPack().getTrcKeyZSampling( tkzs_ );
+    tkzs_ = sd_.getTrcKeyZSampling();
 
     seistrcbufs_.setEmpty();
     comps_.setEmpty();

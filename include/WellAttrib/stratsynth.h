@@ -188,7 +188,6 @@ public:
 
     static bool		getAllGenPars(const IOPar&,ObjectSet<SynthGenParams>&);
 
-    static const char*	sKeySynthetics()	{ return "Synthetics"; }
     static const char*	sKeySyntheticNr()	{ return "Synthetics Nr"; }
     static const char*	sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 

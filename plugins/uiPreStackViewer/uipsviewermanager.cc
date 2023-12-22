@@ -477,9 +477,8 @@ uiMainWin* uiViewer3DMgr::createMultiGather2DViewer(
 
     auto* viewwin = new uiStoredViewer2DMainWin( ODMainWin(), title, is2d );
     const StepInterval<int>& trcrg = psv.getTraceRange( psv.getBinID() );
-    viewwin->init( mid, is2d ? BinID(0,psv.traceNr()) : psv.getBinID(),
-		   is2d ? true : psv.isOrientationInline(),
-		   trcrg, is2d ? psv.lineName().buf() : nullptr );
+    const TrcKey& tk = psv.getTrcKey();
+    viewwin->init( mid, tk,  is2d ? true : psv.isOrientationInline(), trcrg );
     viewwin->setDarkBG( false );
     viewwin->setAppearance( psv.flatViewer()->appearance() );
     mAttachCB( viewwin->seldatacalled_, uiViewer3DMgr::viewer2DSelDataCB );
@@ -717,7 +716,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 
     for ( int idx=0; idx<viewers3d_.size(); idx++ )
     {
-	viewers3d_[idx]->procMgr().usePar( *allwindowspar );
+	viewers3d_[idx]->setProcPar( *allwindowspar );
 	viewers3d_[idx]->updateDisplay();
     }
 }
@@ -767,7 +766,7 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
     }
 
     if ( !viewers3d_.isEmpty() )
-	viewers3d_[0]->procMgr().fillPar( allwindowpar );
+	viewers3d_[0]->getProcPar( allwindowpar );
 
     allwindowpar.set( sKeyNrWindows(), nrsaved );
     ODMainWin()->sessionPars().mergeComp( allwindowpar, sKey2DViewers() );

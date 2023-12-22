@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 
+class ElasticModel;
+class ElasticModelSet;
 class uiColorTableSel;
 class uiSlicePos2DView;
 
@@ -73,9 +75,9 @@ public:
     virtual void	getGatherNames(BufferStringSet&) const		= 0;
     virtual bool	is2D() const	{ return false; }
     bool		isStored() const;
-    void		getStartupPositions(const BinID& bid,
+    void		getStartupPositions(const TrcKey&,
 					    const StepInterval<int>& trcrg,
-					    bool isinl, TypeSet<BinID>&) const;
+					    bool isinl,TypeSet<TrcKey>&) const;
     void		setAppearance(const FlatView::Appearance&,
 				       int appidx=0);
 
@@ -103,17 +105,20 @@ protected:
     TypeSet<PSViewAppearance>	appearances_;
     bool		hasangledata_;
 
+    OD::GeomSystem	geomSystem() const;
     void		removeAllGathers();
     void		reSizeItems() override;
     virtual void	setGatherInfo(uiGatherDisplayInfoHeader*,
-				      const GatherInfo&)	{}
-    virtual void	setGather(const GatherInfo&)	{}
+				      const GatherInfo&)		{}
+    virtual void	setGather(const GatherInfo&)			{}
     void		setGatherView(uiGatherDisplay*,
 				      uiGatherDisplayInfoHeader*);
+    virtual const ElasticModel* getModel(const TrcKey&) const
+							{ return nullptr; }
     PreStack::Gather*	getAngleGather(const PreStack::Gather& gather,
 				       const PreStack::Gather& angledata,
 				       const Interval<int>& anglerange);
-    DataPackID	getPreProcessedID(const GatherInfo&);
+    DataPackID		getPreProcessedID(const GatherInfo&);
     ConstRefMan<PreStack::Gather>	getPreProcessed(const GatherInfo&);
     void		setGatherforPreProc(const BinID& relbid,
 					    const GatherInfo&);
@@ -148,14 +153,13 @@ public:
 						bool is2d=false);
 			~uiStoredViewer2DMainWin();
 
-    void		init(const MultiID&,const BinID& bid,bool isinl,
-			     const StepInterval<int>&,const char* linename=0);
+    void		init(const MultiID&,const TrcKey&,bool isinl,
+			     const StepInterval<int>&);
     void		setIDs(const TypeSet<MultiID>&);
     void		getIDs(TypeSet<MultiID>& mids) const
 			{ mids.copy( mids_ ); }
     void		getGatherNames(BufferStringSet&) const override;
     bool		is2D() const override	{ return is2d_; }
-    const char*		lineName() const	{ return linename_; }
     void		angleGatherCB(CallBacker*);
     void		angleDataCB(CallBacker*);
 
@@ -163,7 +167,6 @@ protected:
     TypeSet<MultiID>	mids_;
 
     bool		is2d_;
-    BufferString	linename_;
     PreStack::AngleCompParams* angleparams_ = nullptr;
     bool		doanglegather_ = false;
     uiSlicePos2DView*	slicepos_ = nullptr;
@@ -173,7 +176,7 @@ protected:
     void		setGatherInfo(uiGatherDisplayInfoHeader*,
 				      const GatherInfo&) override;
     void		setGather(const GatherInfo&) override;
-    void		setUpNewPositions(bool isinl,const BinID& posbid,
+    void		setUpNewPositions(bool isinl,const TrcKey&,
 				       const StepInterval<int>& trcrg);
     void		setUpNewSlicePositions();
     void		setUpNewIDs();
@@ -193,8 +196,13 @@ public:
 			uiSyntheticViewer2DMainWin(uiParent*,const char* title);
 			~uiSyntheticViewer2DMainWin();
 
-    void		setGathers(const TypeSet<PreStackView::GatherInfo>&);
-    void		removeGathers();
+    uiSyntheticViewer2DMainWin&
+			setGathers(const TypeSet<PreStackView::GatherInfo>&,
+				   const TrcKeyZSampling&);
+    uiSyntheticViewer2DMainWin& setModels(const ElasticModelSet&);
+
+    uiSyntheticViewer2DMainWin& removeGathers();
+    uiSyntheticViewer2DMainWin& removeModels();
     void		getGatherNames(BufferStringSet&) const override;
     void		setGatherNames(const BufferStringSet&);
 
@@ -204,6 +212,9 @@ protected:
     void		setGatherInfo(uiGatherDisplayInfoHeader*,
 				      const GatherInfo&) override;
     void		setGather(const GatherInfo&) override;
+    const ElasticModel* getModel(const TrcKey&) const override;
+
+    const ElasticModelSet* models_ = nullptr;
 };
 
 
@@ -232,7 +243,7 @@ protected:
     FlatView::Appearance	app_;
     uiColorTableSel*		ctabsel_;
     TypeSet<GatherInfo>		gatherinfos_;
-    PreStackView::uiPSMultiPropDlg* pspropdlg_;
+    PreStackView::uiPSMultiPropDlg* pspropdlg_ = nullptr;
     bool			isstored_;
 
     void		doPropertiesDialog(int vieweridx) override;

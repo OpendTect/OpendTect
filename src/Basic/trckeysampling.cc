@@ -55,30 +55,57 @@ TrcKeySampling::TrcKeySampling( bool settosi )
 mStopAllowDeprecatedSection
 
 
+TrcKeySampling TrcKeySampling::getSynth( const Interval<int>* trcrg )
+{
+    TrcKeySampling tks;
+    const TrcKey tk = TrcKey::getSynth( -1 );
+    tks.setGeomID( tk.geomID() );
+    if ( trcrg )
+	tks.setTrcRange( *trcrg );
+    else
+	tks.setTrcRange( StepInterval<int>::udf() );
+
+    return tks;
+}
+
+
 TrcKeySampling::~TrcKeySampling()
 {}
 
 
 Pos::GeomID TrcKeySampling::getGeomID() const
 {
-    return Pos::GeomID(is2D() ? start_.lineNr() : survid_);
+    return Pos::GeomID(is2D() || isSynthetic() ? start_.lineNr() : survid_);
 }
 
 
 void TrcKeySampling::setGeomID( const Pos::GeomID& geomid )
 {
-    if ( geomid.is2D() )
+    const Pos::GeomID oldid = getGeomID();
+    if ( geomid.is2D() || geomid.isSynth() )
     {
 	start_.lineNr() = stop_.lineNr() = geomid.asInt();
 	step_.lineNr() = 1;
     }
 
     survid_ = geomid.geomSystem();
+    if ( geomid != oldid )
+    {
+	if ( geomid.is3D() )
+	    setLineRange( StepInterval<int>::udf() );
+	setTrcRange( StepInterval<int>::udf() );
+    }
 }
 
 
 bool TrcKeySampling::init( const Pos::GeomID& gid )
 {
+    if ( Survey::isSynthetic(gid) )
+    {
+	setGeomID( gid );
+	return true;
+    }
+
     ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( gid );
     if ( !geom )
 	return false;

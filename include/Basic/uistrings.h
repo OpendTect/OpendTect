@@ -612,8 +612,9 @@ public:
     static uiString sStored()		{ return tr("Stored" ); }
     static uiString sStratigraphy()	{ return tr( "Stratigraphy" ); }
     static uiString sSurface()		{ return tr("Surface"); }
-    static uiString sSurvey(int n=1)  { return tr("Survey",0,n); }
+    static uiString sSurvey(int n=1)	{ return tr("Survey",0,n); }
     static uiString sSurveys()		{ return sSurvey(mPlural); }
+    static uiString sSynthetic(int n=1) { return tr("Synthetic",0,n); }
     static uiString sTable(int n=1)	{ return tr("Table",0,n); }
     static uiString sTakeSnapshot()	{ return tr("Take snapshot"); }
     static uiString sTarget()		{ return tr("Target"); }

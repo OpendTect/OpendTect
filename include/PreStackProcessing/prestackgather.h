@@ -201,8 +201,12 @@ public:
 
     TrcKey			getTrcKeyByIdx(int idx) const;
     DataPackID			getGatherIDByIdx(int idx) const;
+    DataPackID			getGatherID(const TrcKey&) const;
+    mDeprecated("Use TrcKey")
     DataPackID			getGatherID(const BinID&) const;
     ConstRefMan<PreStack::Gather> getGather(int gatheridx) const;
+    ConstRefMan<PreStack::Gather> getGather(const TrcKey&) const;
+    mDeprecated("Use TrcKey")
     ConstRefMan<PreStack::Gather> getGather(const BinID&) const;
 
     const Array3D<float>&	data() const		{ return arr3d_; }

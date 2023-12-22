@@ -319,6 +319,14 @@ const Coord3& Coord3::udf()
 }
 
 
+// TrcKey
+
+TrcKey::TrcKey()
+{
+    *this = udf();
+}
+
+
 TrcKey::TrcKey( const BinID& bid )
     : geomsystem_( OD::Geom3D )
     , pos_( bid )
@@ -351,6 +359,11 @@ TrcKey TrcKey::getSynth( Pos::TraceID tid )
 {
     return TrcKey( OD::GeomSynth,
 		   Pos::IdxPair( gtGeomID(OD::GeomSynth).asInt(), tid ) );
+}
+
+
+TrcKey::~TrcKey()
+{
 }
 
 

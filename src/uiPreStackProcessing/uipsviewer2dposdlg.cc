@@ -21,9 +21,10 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uitoolbutton.h"
 
-#include "seisioobjinfo.h"
-#include "zdomain.h"
 #include "od_helpids.h"
+#include "seisioobjinfo.h"
+#include "survinfo.h"
+#include "zdomain.h"
 
 
 namespace PreStackView
@@ -37,32 +38,30 @@ GatherInfo::~GatherInfo()
 
 
 
-uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
-	const TrcKeyZSampling& cs, const BufferStringSet& gathernms,
-	bool issynthetic )
+uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, const TrcKeyZSampling& tkzs,
+				    const BufferStringSet& gathernms )
     : uiDialog(p,uiDialog::Setup(tr("Prestack Gather display positions"),
 			      mNoDlgTitle, mODHelpKey(mViewer2DPSPosDlgHelpID) )
 			.modal(false))
     , okpushed_(this)
-    , is2d_(is2d)
 {
-    uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD :
-	cs.defaultDir()==TrcKeyZSampling::Inl ? uiSliceSel::Inl
-					      : uiSliceSel::Crl;
     setCtrlStyle( RunAndClose );
 
-    sliceselfld_ = new uiGatherPosSliceSel( this, tp, gathernms, issynthetic );
+    const uiSliceSel::Type tp = uiSliceSel::getType( tkzs );
+    sliceselfld_ = new uiGatherPosSliceSel( this, tp,
+					    tkzs.hsamp_.getGeomID(), gathernms);
     sliceselfld_->enableScrollButton( false );
-    if ( is2d_ || issynthetic )
-	sliceselfld_->setMaxTrcKeyZSampling( cs );
-    const bool isinl = tp == uiSliceSel::Inl;
-    TrcKeyZSampling slicecs = cs;
-    StepInterval<int> trcrg = is2d || isinl ? cs.hsamp_.crlRange()
-					    : cs.hsamp_.inlRange();
-    if ( is2d_ || isinl )
+    if ( sliceselfld_->is2DSlice() )
+	sliceselfld_->setMaxTrcKeyZSampling( tkzs );
+
+    TrcKeyZSampling slicecs = tkzs;
+    StepInterval<int> trcrg = sliceselfld_->useTrcNr() ? tkzs.hsamp_.trcRange()
+						       : tkzs.hsamp_.inlRange();
+    if ( sliceselfld_->useTrcNr() )
 	slicecs.hsamp_.setCrlRange( trcrg );
     else
 	slicecs.hsamp_.setInlRange( trcrg );
+
     setTrcKeyZSampling( slicecs );
     setOkText( uiStrings::sApply() );
 }
@@ -85,61 +84,52 @@ void uiViewer2DPosDlg::getTrcKeyZSampling( TrcKeyZSampling& cs )
     cs = sliceselfld_->getTrcKeyZSampling();
     const int step = sliceselfld_->step();
     cs.hsamp_.step_ = BinID( step, step );
-    if ( is2d_ )
-	cs.hsamp_.setInlRange( Interval<int>( 1, 1 ) );
 }
 
 
 void uiViewer2DPosDlg::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    const bool isinl = cs.defaultDir()==TrcKeyZSampling::Inl;
-    const int step = is2d_ || isinl ? cs.hsamp_.crlRange().step
-				    : cs.hsamp_.inlRange().step;
+    const int step = sliceselfld_->useTrcNr() ? cs.hsamp_.crlRange().step
+					      : cs.hsamp_.inlRange().step;
     sliceselfld_->setStep( step );
-    sliceselfld_->setTrcKeyZSampling(cs);
+    sliceselfld_->setTrcKeyZSampling( cs );
 }
 
 
+// uiGatherPosSliceSel
+
 uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
-					  const BufferStringSet& gnms,
-					  bool issynthetic )
-  : uiSliceSel(p,tp,ZDomain::SI(),!issynthetic)
-  , posseltbl_(0)
-  , gathernms_(gnms)
-  , issynthetic_(issynthetic)
+					  const Pos::GeomID& gid,
+					  const BufferStringSet& gnms )
+    : uiSliceSel(p,tp,ZDomain::SI(),gid)
+    , gathernms_(gnms)
 {
     setStretch( 2, 2 );
     uiString msg = tr( "Dynamic %1 %2" );
-    const char* linetxt = isinl_ ? is2d_ ? "Trace" : "Xline" : "Inline";
+    const bool usetrc = is2DSlice();
+    const char* linetxt = usetrc ? "Trace" : (isInl() ? "Inline" : "Xline");
     msg.arg(linetxt);
-    msg.arg(is2d_ ? tr(" Number") : tr(" Range"));
-    if ( issynthetic )
-    {
-	inl0fld_->display( false, true );
-	inl1fld_->display( false, true );
+    msg.arg(usetrc ? tr(" Number") : tr(" Range"));
+    if ( isSynth() )
 	crl0fld_->label()->setText( tr("Model range") );
-    }
 
     stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep() );
-    stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ );
+    stepfld_->attach( rightTo, isInl() || usetrc ? crl1fld_ : inl1fld_ );
     stepfld_->box()->setValue( 1 );
 
-    updbut_ =
-	new uiPushButton( this, tr("Update Postions"),
+    updbut_ = new uiPushButton( this, tr("Update Postions"),
 			  mCB(this,uiGatherPosSliceSel,updatePosTable), true );
     updbut_->attach( alignedBelow, z0fld_ );
 
-
-    uiSeparator* sep2 = new uiSeparator( this, "nr viewer/table sep" );
+    auto* sep2 = new uiSeparator( this, "nr viewer/table sep" );
     sep2->attach( stretchedBelow, updbut_ );
 
     uiTable::Setup tablesu( 10, gathernms_.size() );
     tablesu.selmode( uiTable::Multi );
-    posseltbl_ =
-	new uiTable( this, tablesu, "Select Position");
+    posseltbl_ = new uiTable( this, tablesu, "Select Position");
     posseltbl_->attach( ensureBelow, sep2 );
-    posseltbl_->selectionChanged.notify(
-	    mCB(this,uiGatherPosSliceSel,cellSelectedCB) );
+    mAttachCB( posseltbl_->selectionChanged,
+	       uiGatherPosSliceSel::cellSelectedCB );
 
     CallBack cb( mCB(this,uiGatherPosSliceSel,posChged) );
     stepfld_->box()->valueChanging.notify( cb );
@@ -151,12 +141,16 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
 
 
 uiGatherPosSliceSel::~uiGatherPosSliceSel()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiGatherPosSliceSel::reDoTable()
 {
-    if ( !posseltbl_ ) return;
+    if ( !posseltbl_ )
+	return;
+
     disptblposs_.erase();
     disptblposs_.setSize( dispgatheridxs_.size() );
 
@@ -167,15 +161,16 @@ void uiGatherPosSliceSel::reDoTable()
     }
 
     posseltbl_->setColumnLabels( gathernms_.getUiStringSet() );
-    StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hsamp_.crlRange()
-					      : tkzs_.hsamp_.inlRange();
+    StepInterval<int> trcrg = useTrcNr() ? tkzs_.hsamp_.trcRange()
+					 : tkzs_.hsamp_.inlRange();
     trcrg.step = stepfld_->box()->getIntValue();
     const int nrrows = trcrg.nrSteps()+1;
     posseltbl_->setNrRows( nrrows );
 
-    uiString lbl = tr("%1 Nr").arg(issynthetic_ ? tr("Model")
-			      : is2d_ ? uiStrings::sTrace() : isinl_ ?
-			      uiStrings::sCrossline() : uiStrings::sInline() );
+    uiString lbl = tr("%1 Nr").arg(isSynth() ? tr("Model")
+			      : is2DSlice() ? uiStrings::sTrace()
+					    :(isInl() ? uiStrings::sCrossline()
+						      : uiStrings::sInline()));
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
     {
 	int rowidx = 0;
@@ -185,30 +180,27 @@ void uiGatherPosSliceSel::reDoTable()
 	    const int gatheridx = dispgatheridxs_[idx];
 	    if ( !gatherinfos_.validIdx(gatheridx) )
 		continue;
+
 	    const GatherInfo& ginfo = gatherinfos_[gatheridx];
 	    if ( ginfo.gathernm_ != curgnm )
 		continue;
-	    const int gatherpos = is2d_ || isinl_ ? ginfo.bid_.crl()
-						  : ginfo.bid_.inl();
-	    TrcKeyZSampling cs( true );
-	    const int modelnr =
-		(ginfo.bid_.crl()-cs.hsamp_.stop_.crl())/cs.hsamp_.step_.crl();
+
+	    const int gatherpos = useTrcNr() ? ginfo.tk_.trcNr()
+					     : ginfo.tk_.inl();
+	    TrcKeyZSampling cs( ginfo.tk_.geomID() );
 	    const RowCol rc( rowidx, colidx );
-	    const int limitstep =
-		issynthetic_ ? 1 : isinl_ || is2d_ ? cs.hsamp_.crlRange().step
-						   : cs.hsamp_.inlRange().step;
-	    StepInterval<int> limitrg( issynthetic_ ? 1 : trcrg.start ,
-				       trcrg.stop, limitstep );
-	    uiGenInput* inpfld =
-		new uiGenInput( 0, lbl, IntInpSpec(trcrg.atIndex(rowidx))
-						   .setLimits(limitrg) );
+	    const int limitstep = useTrcNr() ? cs.hsamp_.trcRange().step
+					     : cs.hsamp_.inlRange().step;
+	    const StepInterval<int> limitrg( trcrg.start, trcrg.stop,limitstep);
+	    auto* inpfld = new uiGenInput( nullptr, lbl,
+					   IntInpSpec(trcrg.atIndex(rowidx))
+							.setLimits(limitrg) );
 	    inpfld->setWithCheck( true );
 	    inpfld->setChecked( gatherinfos_[gatheridx].isselected_ );
-	    inpfld->setValue( issynthetic_ ? modelnr : gatherpos );
-	    inpfld->checked.notify(mCB(this,uiGatherPosSliceSel,
-                                       gatherChecked));
-	    inpfld->valueChanging.notify(
-		    mCB(this,uiGatherPosSliceSel,gatherPosChanged));
+	    inpfld->setValue( gatherpos );
+	    mAttachCB( inpfld->checked, uiGatherPosSliceSel::gatherChecked );
+	    mAttachCB( inpfld->valueChanging,
+		       uiGatherPosSliceSel::gatherPosChanged );
 	    inpfld->preFinalize().trigger();
 	    posseltbl_->setCellGroup( rc, inpfld );
 	    disptblposs_[idx] = rc;
@@ -221,16 +213,6 @@ void uiGatherPosSliceSel::reDoTable()
 }
 
 
-void uiGatherPosSliceSel::setTrcKeyZSampling( const TrcKeyZSampling& cs )
-{
-    tkzs_ = cs;
-    if ( issynthetic_ )
-	tkzs_.hsamp_.setCrlRange( StepInterval<int>(0,gatherinfos_.size(),
-					      stepfld_->box()->getIntValue()) );
-    uiSliceSel::setTrcKeyZSampling( cs );
-}
-
-
 void uiGatherPosSliceSel::cellSelectedCB( CallBacker* cb )
 {
     TypeSet<RowCol> selectedcells;
@@ -239,7 +221,8 @@ void uiGatherPosSliceSel::cellSelectedCB( CallBacker* cb )
     {
 	uiGroup* selectedgrp = posseltbl_->getCellGroup(selectedcells[cellidx]);
 	mDynamicCastGet(uiGenInput*,selgi,selectedgrp);
-	if ( !selgi ) continue;
+	if ( !selgi )
+	    continue;
 
 	selgi->setChecked( true );
     }
@@ -251,11 +234,15 @@ void uiGatherPosSliceSel::gatherChecked( CallBacker* cb )
     mDynamicCastGet(uiGenInput*,geninp,cb);
     if ( !geninp )
 	return;
+
     const RowCol rc = posseltbl_->getCell( geninp );
     const int dispidx = disptblposs_.indexOf( rc );
-    if ( dispidx < 0 ) return;
+    if ( dispidx < 0 )
+	return;
+
     const int gatheridx = dispgatheridxs_[dispidx];
-    if ( gatheridx < 0 ) return;
+    if ( gatheridx < 0 )
+	return;
 
     gatherinfos_[gatheridx].isselected_ = geninp->isChecked();
 }
@@ -266,35 +253,27 @@ void uiGatherPosSliceSel::gatherPosChanged( CallBacker* cb )
     mDynamicCastGet(uiGenInput*,geninp,cb);
     if ( !geninp )
 	return;
+
     const RowCol rc = posseltbl_->getCell( geninp );
     const int dispidx = disptblposs_.indexOf( rc );
-    if ( dispidx < 0 ) return;
+    if ( dispidx < 0 )
+	return;
+
     const int prevgatheridx = dispgatheridxs_[dispidx];
-    if ( prevgatheridx < 0 ) return;
+    if ( prevgatheridx < 0 )
+	return;
 
-    if ( !issynthetic_ )
+    GatherInfo& ginfo = gatherinfos_[prevgatheridx];
+    int selpos = geninp->getIntValue();
+    if ( isSynth() )
     {
-	GatherInfo& ginfo = gatherinfos_[prevgatheridx];
-	int& pos = isinl_ ? ginfo.bid_.crl() : ginfo.bid_.inl();
-	pos = geninp->getIntValue();
-    }
-    else
-    {
-	GatherInfo ginfo = gatherinfos_[prevgatheridx];
-	int selpos = geninp->getIntValue()-1;
+	selpos--;
+	StepInterval<int> trcrg( mUdf(int), -mUdf(int), SI().crlRange().step );
+	for ( const auto& aginfo : gatherinfos_ )
+	    trcrg.include( aginfo.tk_.trcNr(), false );
 
-	if ( issynthetic_ )
-	{
-	    TrcKeyZSampling cs( true );
-	    StepInterval<int> trcrg( mUdf(int), -mUdf(int),
-				     cs.hsamp_.crlRange().step );
-	    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
-		trcrg.include( gatherinfos_[idx].bid_.crl(), false );
-	    selpos = trcrg.atIndex( selpos );
-	}
-
-	ginfo.bid_.crl() = selpos;
-
+	selpos = trcrg.atIndex( selpos );
+	ginfo.tk_.setTrcNr( selpos );
 	const int curgatheridx = gatherinfos_.indexOf( ginfo );
 	if ( curgatheridx >= 0 )
 	{
@@ -303,42 +282,46 @@ void uiGatherPosSliceSel::gatherPosChanged( CallBacker* cb )
 	    gatherinfos_[curgatheridx].isselected_ = geninp->isChecked();
 	}
     }
+    else
+    {
+	if ( is2DSlice() )
+	    ginfo.tk_.setTrcNr( selpos );
+	else
+	{
+	    if ( isInl() )
+		ginfo.tk_.setCrl( selpos );
+	    else
+		ginfo.tk_.setInl( selpos );
+	}
+    }
 }
 
 
 void uiGatherPosSliceSel::setSelGatherInfos(
-	const TypeSet<GatherInfo>& gatherinfos )
+				const TypeSet<GatherInfo>& gatherinfos )
 {
     gathernms_.erase();
     gatherinfos_ = gatherinfos;
-    TrcKeyZSampling cs( true );
+    TrcKeyZSampling cs( tkzs_.hsamp_.getGeomID() );
 
-    StepInterval<int> trcrg( mUdf(int), -mUdf(int), issynthetic_
-	    ? 1 : isinl_ || is2d_ ? cs.hsamp_.crlRange().step
-				  : cs.hsamp_.inlRange().step );
+    StepInterval<int> trcrg( mUdf(int), -mUdf(int),
+			    useTrcNr() ? maxcs_.hsamp_.trcRange().step
+				       : maxcs_.hsamp_.inlRange().step );
     BufferString firstgnm = gatherinfos[0].gathernm_;
     int rgstep = mUdf(int);
     int prevginfoidx = mUdf(int);
-    int modelnr = 0;
     for ( int gidx=0; gidx<gatherinfos.size(); gidx++ )
     {
 	const GatherInfo& ginfo = gatherinfos[gidx];
-	if ( ginfo.gathernm_ == firstgnm )
-	    modelnr++;
-
-	const int trcnr = issynthetic_ ? modelnr
-				       : isinl_ || is2d_ ? ginfo.bid_.crl()
-							 : ginfo.bid_.inl();
-	if ( (!issynthetic_ || ginfo.isselected_) &&
-	     ginfo.gathernm_ == firstgnm )
+	const int trcnr = useTrcNr() ? ginfo.tk_.trcNr()
+				     : ginfo.tk_.inl();
+	if ( ginfo.isselected_ && ginfo.gathernm_ == firstgnm )
 	{
 	    if ( !mIsUdf(prevginfoidx) )
 	    {
 		const GatherInfo& prevginfo = gatherinfos[prevginfoidx];
-		const int prevtrcnr =
-		    issynthetic_ ? prevginfoidx+1
-				 : isinl_ || is2d_ ? prevginfo.bid_.crl()
-						   : prevginfo.bid_.inl();
+		const int prevtrcnr = useTrcNr() ? prevginfo.tk_.trcNr()
+						 : prevginfo.tk_.inl();
 		if ( abs(trcnr-prevtrcnr) < rgstep )
 		    rgstep = abs(trcnr-prevtrcnr);
 	    }
@@ -357,16 +340,14 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     stepfld_->box()->setValue( rgstep );
 
     trcrg.step = stepfld_->box()->getIntValue();
-    if ( is2d_ || isinl_ )
-	tkzs_.hsamp_.setCrlRange( trcrg );
+    if ( useTrcNr() )
+	tkzs_.hsamp_.setTrcRange( trcrg );
     else
-	 tkzs_.hsamp_.setInlRange( trcrg );
+	tkzs_.hsamp_.setInlRange( trcrg );
 
-    if ( issynthetic_ )
-	setMaxTrcKeyZSampling( tkzs_ );
     setTrcKeyZSampling( tkzs_ );
-    dispgatheridxs_.erase();
 
+    dispgatheridxs_.setEmpty();
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
     {
 	if ( gatherinfos_[idx].isselected_ )
@@ -384,7 +365,9 @@ void uiGatherPosSliceSel::getSelGatherInfos( TypeSet<GatherInfo>& gatherinfos )
 
 
 int uiGatherPosSliceSel::step() const
-{ return stepfld_->box()->getIntValue(); }
+{
+    return stepfld_->box()->getIntValue();
+}
 
 
 void uiGatherPosSliceSel::setStep( int ns )
@@ -396,23 +379,28 @@ void uiGatherPosSliceSel::setStep( int ns )
 
 
 void uiGatherPosSliceSel::enableZDisplay( bool yn )
-{ z0fld_->display( yn ); z1fld_->display( yn ); }
+{
+    z0fld_->display( yn );
+    z1fld_->display( yn );
+}
 
 
 void uiGatherPosSliceSel::posChged( CallBacker* cb )
-{ updbut_->setSensitive( true ); }
+{
+    updbut_->setSensitive( true );
+}
 
 
 void uiGatherPosSliceSel::updatePosTable( CallBacker* )
 {
     acceptOK();
-    if ( !issynthetic_ )
-	gatherinfos_.erase();
-    else
+    if ( isSynth() )
     {
-	for ( int idx=0; idx<gatherinfos_.size(); idx++ )
-	    gatherinfos_[idx].isselected_ = false;
+	for ( auto& ginfo : gatherinfos_ )
+	    ginfo.isselected_ = false;
     }
+    else
+	gatherinfos_.erase();
 
     resetDispGatherInfos();
     reDoTable();
@@ -422,12 +410,12 @@ void uiGatherPosSliceSel::updatePosTable( CallBacker* )
 void uiGatherPosSliceSel::resetDispGatherInfos()
 {
     dispgatheridxs_.erase();
-    if ( !issynthetic_ )
+    if ( !isSynth() )
 	gatherinfos_.erase();
 
-    StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hsamp_.crlRange()
-					      : tkzs_.hsamp_.inlRange();
-    TrcKeyZSampling cs( true );
+    StepInterval<int> trcrg = useTrcNr() ? tkzs_.hsamp_.crlRange()
+					 : tkzs_.hsamp_.inlRange();
+    TrcKeyZSampling cs( tkzs_.hsamp_.getGeomID() );
     trcrg.step = stepfld_->box()->getIntValue();
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
     {
@@ -437,32 +425,42 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 	    const RowCol rc( rowidx, colidx );
 	    const int trcnr = trcrg.atIndex( rowidx );
 
-	    if ( !issynthetic_ )
-	    {
-		BinID bid( isinl_ ? tkzs_.hsamp_.start_.inl() : trcnr,
-			   isinl_ ? trcnr : tkzs_.hsamp_.start_.crl() );
-		GatherInfo ginfo;
-		ginfo.bid_ = bid;
-		ginfo.gathernm_ = gathernm;
-		ginfo.isstored_ = !issynthetic_;
-		ginfo.isselected_ = true;
-
-		gatherinfos_ += ginfo;
-		dispgatheridxs_ += gatherinfos_.size()-1;
-	    }
-	    else
+	    if ( isSynth() )
 	    {
 		const int ginfoidx = trcnr-1 + ((trcrg.width()+1)*colidx);
 		if ( !gatherinfos_.validIdx(ginfoidx) )
 		    continue;
+
 		dispgatheridxs_ += ginfoidx;
 		gatherinfos_[ginfoidx].isselected_ = true;
+	    }
+	    else
+	    {
+		TrcKey tk;
+		if ( is2D() )
+		    tk.setGeomID( tkzs_.hsamp_.getGeomID() ).setTrcNr( trcnr );
+		else
+		{
+		    tk.setIs3D()
+		      .setInl( isInl() ? tkzs_.hsamp_.start_.inl() : trcnr )
+		      .setCrl( isInl() ? trcnr : tkzs_.hsamp_.start_.crl() );
+		}
+
+		GatherInfo ginfo;
+		ginfo.tk_ = tk;
+		ginfo.gathernm_ = gathernm;
+		ginfo.isstored_ = true;
+		ginfo.isselected_ = true;
+
+		gatherinfos_ += ginfo;
+		dispgatheridxs_ += gatherinfos_.size()-1;
 	    }
 	}
     }
 }
 
 
+// uiViewer2DSelDataDlg
 
 uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 					    const BufferStringSet& gnms,
@@ -480,7 +478,7 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     allgatherfld_->addItems( gnms );
     selgatherfld_->addItems( selgnms );
 
-    uiLabel* sellbl = new uiLabel( this, uiStrings::sSelect() );
+    auto* sellbl = new uiLabel( this, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);
     toselect_ = new uiToolButton( this, uiToolButton::RightArrow,
 				  tr("Move right"), cb );
@@ -537,7 +535,8 @@ bool uiViewer2DSelDataDlg::acceptOK( CallBacker* )
 	uiMSG().error( tr("Please select at least one dataset") );
 	return false;
     }
-    selgathers_.erase();
+
+    selgathers_.setEmpty();
     for ( int idx=0; idx<selgatherfld_->size(); idx++ )
     {
 	const char* txt = selgatherfld_->textOfItem( idx );

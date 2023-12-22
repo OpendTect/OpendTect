@@ -34,6 +34,7 @@ public:
     virtual TrcKey			getTrcKey(int trcnr) const	= 0;
     virtual int				nrPositions() const		= 0;
     virtual ZSampling			zRange() const			= 0;
+    TrcKeyZSampling			getTrcKeyZSampling() const;
 
     float				getTime(float dpt,int trcnr) const;
     float				getDepth(float time,int trcnr) const;

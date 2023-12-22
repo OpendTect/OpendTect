@@ -31,7 +31,7 @@ protected:
 
     LateralStack*	processor_;
     uiGenInput*		stepoutfld_;
-    uiGenInput*		iscrossfld_;
+    uiGenInput*		iscrossfld_ = nullptr;
 };
 
 } // namespace PreStack

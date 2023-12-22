@@ -49,6 +49,17 @@ TrcKeyZSampling::TrcKeyZSampling( const Pos::GeomID& geomid )
 mStopAllowDeprecatedSection
 
 
+TrcKeyZSampling TrcKeyZSampling::getSynth( const Interval<int>* trcrg,
+					   const ZSampling* zrg )
+{
+    TrcKeyZSampling tkzs;
+    tkzs.hsamp_ = TrcKeySampling::getSynth( trcrg );
+    tkzs.zsamp_ = zrg ? *zrg : ZSampling::udf();
+
+    return tkzs;
+}
+
+
 TrcKeyZSampling::~TrcKeyZSampling()
 {}
 
@@ -200,6 +211,12 @@ void TrcKeyZSampling::set2DDef()
 
 bool TrcKeyZSampling::init( const Pos::GeomID& geomid )
 {
+    if ( Survey::isSynthetic(geomid) )
+    {
+	hsamp_.init( geomid );
+	return true;
+    }
+
     ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( geomid );
     if ( !geom )
 	return false;

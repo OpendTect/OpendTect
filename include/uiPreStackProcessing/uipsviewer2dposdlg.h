@@ -36,13 +36,13 @@ mStruct(uiPreStackProcessing) GatherInfo
     ConstRefMan<PreStack::Gather>	vddp_;
     ConstRefMan<PreStack::Gather>	wvadp_;
     BufferString			gathernm_;
-    BinID				bid_			= BinID::udf();
+    TrcKey				tk_			= TrcKey::udf();
 
 bool operator==( const GatherInfo& info ) const
 {
-    return isstored_==info.isstored_ && bid_==info.bid_ &&
+    return isstored_==info.isstored_ && tk_==info.tk_ &&
 	   (isstored_ ? mid_==info.mid_
-	   	      : (gathernm_==info.gathernm_));
+		      : (gathernm_==info.gathernm_));
 }
 
 };
@@ -53,13 +53,12 @@ mExpClass(uiPreStackProcessing) uiGatherPosSliceSel : public uiSliceSel
 { mODTextTranslationClass(uiGatherPosSliceSel);
 public:
 				uiGatherPosSliceSel(uiParent*,uiSliceSel::Type,
-						    const BufferStringSet&,
-						    bool issynthetic=false);
+						    const Pos::GeomID&,
+						    const BufferStringSet&);
 				~uiGatherPosSliceSel();
 
     const TrcKeyZSampling&	cubeSampling();
 
-    void		setTrcKeyZSampling(const TrcKeyZSampling&) override;
     void		setStep(int);
     int			step() const;
 
@@ -68,11 +67,10 @@ public:
     void		setSelGatherInfos(const TypeSet<GatherInfo>&);
 
 protected:
-    uiLabeledSpinBox* 		stepfld_;
+    uiLabeledSpinBox*		stepfld_;
     uiPushButton*		updbut_;
     uiTable*			posseltbl_;
     BufferStringSet		gathernms_;
-    bool			issynthetic_;
     TypeSet<GatherInfo>		gatherinfos_;
     TypeSet<int>		dispgatheridxs_;
     TypeSet<RowCol>		disptblposs_;
@@ -92,18 +90,17 @@ protected:
 mExpClass(uiPreStackProcessing) uiViewer2DPosDlg : public uiDialog
 { mODTextTranslationClass(uiViewer2DPosDlg);
 public:
-				uiViewer2DPosDlg(uiParent*,bool is2d,
-						const TrcKeyZSampling&,
-						const BufferStringSet&,
-						bool issynthetic);
+				uiViewer2DPosDlg(uiParent*,
+					    const TrcKeyZSampling&,
+					    const BufferStringSet& gathernms);
 				~uiViewer2DPosDlg();
 
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
     void			getTrcKeyZSampling(TrcKeyZSampling&);
 
-    void                        enableZDisplay(bool yn)
-				    { sliceselfld_->enableZDisplay(yn); }
-    void			getSelGatherInfos(TypeSet<GatherInfo>& infos)
+    void			enableZDisplay( bool yn )
+				{ sliceselfld_->enableZDisplay(yn); }
+    void			getSelGatherInfos( TypeSet<GatherInfo>& infos )
 				{ sliceselfld_->getSelGatherInfos(infos); }
     void			setSelGatherInfos(const TypeSet<GatherInfo>& gi)
 				{ sliceselfld_->setSelGatherInfos(gi); }
@@ -113,7 +110,6 @@ public:
 protected:
 
     uiGatherPosSliceSel*	sliceselfld_;
-    bool			is2d_;
     bool			acceptOK(CallBacker*) override;
 };
 
@@ -134,7 +130,7 @@ protected:
 
     BufferStringSet&		selgathers_;
 
-    void 			selButPush(CallBacker*);
+    void			selButPush(CallBacker*);
     bool			acceptOK(CallBacker*) override;
 };
 

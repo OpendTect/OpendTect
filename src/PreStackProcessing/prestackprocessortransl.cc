@@ -26,6 +26,25 @@ PreStackProcTranslatorGroup::PreStackProcTranslatorGroup()
 uiString PreStackProcTranslatorGroup::sTypeName( int num )
 { return tr("Prestack Processor", 0, num ); }
 
+
+const char* PreStackProcTranslatorGroup::getSurveyDefaultKey(
+						const IOObj* ioobj ) const
+{
+    static BufferString defkey = IOPar::compKey( sKey::Default(), sGroupName());
+    if ( !ioobj )
+	return defkey.buf();
+
+    const BufferString type = ioobj->pars().find( sKey::Type() );
+    if ( type.isEmpty() || type == sKey::ThreeD() )
+	return defkey.buf();
+
+    BufferString ret( type );
+    ret.addSpace().add( sGroupName() );
+    return IOPar::compKey( sKey::Default(), ret );
+}
+
+
+
 defineTranslator(dgb,PreStackProc,mDGBKey);
 
 mDefSimpleTranslatorioContext(PreStackProc,Misc);

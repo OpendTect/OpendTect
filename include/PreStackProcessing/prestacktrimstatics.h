@@ -74,6 +74,8 @@ protected:
     bool			doPilotTraceOutput(od_int64,od_int64);
     bool			doShiftOutput(od_int64,od_int64);
     bool			doTrimStaticsOutput(od_int64,od_int64);
+    bool			canDoSynthetics() const override
+				{ return false; }
 };
 
 } // namespace PreStack

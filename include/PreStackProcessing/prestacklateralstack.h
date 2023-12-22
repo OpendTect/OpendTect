@@ -34,6 +34,7 @@ public:
     bool		reset(bool force=true) override;
 
     bool		wantsInput(const BinID&) const override;
+    bool		canDoSynthetics() const override { return false; }
     bool		setPattern(const BinID& stepout,bool cross);
 			//If cross if false, it will be a rectangle
     bool		isCross() const { return iscross_; }

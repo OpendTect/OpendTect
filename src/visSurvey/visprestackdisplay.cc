@@ -47,7 +47,6 @@ PreStackDisplay::PreStackDisplay()
     , draggerpos_( -1, -1 )
     , planedragger_(visBase::DepthTabPlaneDragger::create())
     , flatviewer_(visBase::FlatViewer::create())
-    , preprocmgr_(*new PreStack::ProcessManager)
     , width_( mDefaultWidth )
     , offsetrange_( 0, mDefaultWidth )
     , zrg_( SI().zRange(true) )
@@ -86,7 +85,7 @@ PreStackDisplay::~PreStackDisplay()
 
     delete reader_;
     delete ioobj_;
-    delete &preprocmgr_;
+    delete preprocmgr_;
 }
 
 
@@ -167,13 +166,16 @@ DataPackID PreStackDisplay::preProcess()
     if ( !ioobj_ || !reader_ )
 	return DataPackID::udf();
 
-    if ( !preprocmgr_.nrProcessors() || !preprocmgr_.reset() )
+    if ( !preprocmgr_ )
+	setProcMgr( is3DSeis() ? OD::Geom3D : OD::Geom2D );
+
+    if ( !preprocmgr_->nrProcessors() || !preprocmgr_->reset() )
 	return DataPackID::udf();
 
-    if ( !preprocmgr_.prepareWork() )
+    if ( !preprocmgr_->prepareWork() )
 	return DataPackID::udf();
 
-    const BinID stepout = preprocmgr_.getInputStepout();
+    const BinID stepout = preprocmgr_->getInputStepout();
 
     BinID relbid;
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
@@ -182,7 +184,7 @@ DataPackID PreStackDisplay::preProcess()
 	for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
 					   relbid.crl()++ )
 	{
-	    if ( !preprocmgr_.wantsInput(relbid) )
+	    if ( !preprocmgr_->wantsInput(relbid) )
 		continue;
 
 	    TrcKey tk;
@@ -202,14 +204,14 @@ DataPackID PreStackDisplay::preProcess()
 	    if ( !gather->readFrom(*ioobj_,*reader_,tk) )
 		continue;
 
-	    preprocmgr_.setInput( relbid, gather );
+	    preprocmgr_->setInput( relbid, gather );
 	}
     }
 
-    if ( !preprocmgr_.process() )
+    if ( !preprocmgr_->process() )
 	return DataPackID::udf();
 
-    return preprocmgr_.getOutputID();
+    return preprocmgr_->getOutputID();
 }
 
 
@@ -217,6 +219,31 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 {
     const TrcKey tk( nb );
     return setPosition( tk );
+}
+
+
+void PreStackDisplay::setProcMgr( OD::GeomSystem gs )
+{
+    preprocmgr_ = new PreStack::ProcessManager( gs );
+    if ( !preprociop_.isEmpty() )
+	preprocmgr_->usePar( preprociop_ );
+}
+
+
+void PreStackDisplay::setProcPar( const IOPar& par )
+{
+    preprociop_ = par;
+    if ( preprocmgr_ )
+	preprocmgr_->usePar( par );
+}
+
+
+void PreStackDisplay::getProcPar( IOPar& par )
+{
+    if ( preprocmgr_ )
+	preprocmgr_->fillPar( par );
+    else
+	par.merge( preprociop_ );
 }
 
 
@@ -290,7 +317,7 @@ bool PreStackDisplay::updateData()
     const bool haddata = flatviewer_->hasPack( false );
 
     DataPackID displayid = DataPack::cNoID();
-    if ( preprocmgr_.nrProcessors() )
+    if ( preprocmgr_ && preprocmgr_->nrProcessors() )
     {
 	displayid = preProcess();
 	gather_ = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( displayid );
@@ -376,7 +403,7 @@ StepInterval<int> PreStackDisplay::getTraceRange( const BinID& bid,
 	    return StepInterval<int>(mUdf(int),mUdf(int),1);
 
 	const TypeSet<PosInfo::Line2DPos>& posnrs
-	    = rdr2d->posData().positions();
+					    = rdr2d->posData().positions();
 	const int nrtraces = posnrs.size();
 	if ( !nrtraces )
 	     return StepInterval<int>(mUdf(int),mUdf(int),1);
@@ -584,8 +611,22 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 }
 
 
+TrcKey PreStackDisplay::getTrcKey() const
+{
+    TrcKey tk;
+    if ( section_ )
+	tk.setIs3D().setPosition( bid_ );
+    else if ( seis2d_ )
+	tk.setGeomID( seis2d_->getGeomID() ).setTrcNr( trcnr_ );
+
+    return tk;
+}
+
+
 const BinID& PreStackDisplay::getPosition() const
-{ return bid_; }
+{
+    return bid_;
+}
 
 
 bool PreStackDisplay::isOrientationInline() const
@@ -598,11 +639,15 @@ bool PreStackDisplay::isOrientationInline() const
 
 
 const visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay() const
-{ return section_;}
+{
+    return section_;
+}
 
 
 visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay()
-{ return section_;}
+{
+    return section_;
+}
 
 
 void PreStackDisplay::setDisplayTransformation(
@@ -678,7 +723,9 @@ void PreStackDisplay::sectionMovedCB( CallBacker* )
 
 
 const visSurvey::Seis2DDisplay* PreStackDisplay::getSeis2DDisplay() const
-{ return seis2d_; }
+{
+    return seis2d_;
+}
 
 
 DataPackID PreStackDisplay::getDataPackID(int) const
@@ -792,13 +839,15 @@ void PreStackDisplay::seis2DMovedCB( CallBacker* )
 
 
 const Coord PreStackDisplay::getBaseDirection() const
-{ return basedirection_; }
+{
+    return basedirection_;
+}
 
 
 BufferString PreStackDisplay::lineName() const
 {
     if ( !seis2d_ )
-	return 0;
+	return BufferString::empty();
 
     return seis2d_->name();
 }

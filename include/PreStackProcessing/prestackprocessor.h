@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "paralleltask.h"
 
+class ElasticModel;
 
 namespace PreStack
 {
@@ -30,16 +31,20 @@ public:
 				~Processor();
 
     virtual bool		reset(bool force=true);
+    void			setGeomSystem(OD::GeomSystem);
+    OD::GeomSystem		getGeomSystem() const	{ return gs_; }
 
     virtual const BinID&	getInputStepout() const;
     virtual bool		wantsInput(const BinID& relbid) const;
     void			setInput(const BinID& relbid,DataPackID);
     void			setInput(const BinID&,Gather*);
     void			setInput(const BinID&,const Gather*);
+    void			setModel(const BinID&,const ElasticModel*);
 
     const BinID&		getOutputStepout() const;
     virtual bool		setOutputInterest(const BinID& relbid,bool);
     bool			getOutputInterest(const BinID& relbid) const;
+    const ElasticModel*		getModel(const BinID& relbid) const;
     DataPackID			getOutputID(const BinID& relbid) const;
     ConstRefMan<Gather>		getOutput(const BinID& relbid) const;
 
@@ -69,22 +74,23 @@ public:
     virtual bool		usesPreStackInput() const	{ return true; }
     virtual void		adjustPossibleCompArea(TrcKeySampling&){return;}
     virtual void		retainCurBID( const BinID& ) {};
-    virtual bool		mustHaveUserInput() { return true; }
+    virtual bool		mustHaveUserInput() const	{ return true; }
+    virtual bool		showInEditor() const		{ return true; }
+    virtual bool		canDoSynthetics() const		{ return true; }
 
 protected:
 				Processor(const char* nm);
     virtual Gather*		createOutputArray(const Gather& input) const;
     static int			getRelBidOffset(const BinID& relbid,
 						const BinID& stepout);
-    static void			freeArray(RefObjectSet<Gather>&);
-    mDeprecated("Use method taking RefObjectSet")
-    static void			freeArray(ObjectSet<Gather>&);
 
+    OD::GeomSystem		gs_;
     BinID			outputstepout_;
     RefObjectSet<Gather>	outputs_;
     BoolTypeSet			outputinterest_;
 
     RefObjectSet<Gather>	inputs_;
+    ObjectSet<const ElasticModel> models_;
 };
 
 
@@ -98,8 +104,8 @@ protected:
 
   Example:
   \code
-  PreStack::ProcessManager processmanager;
-  PreStack::AGC* agc = new PreStack::AGC;
+  PreStack::ProcessManager processmanager( OD::Geom3D );
+  auto* agc = new PreStack::AGC;
   agc->setWindow( Interval<float>( -120, 120 ) );
   processmanager.addProcessor( agc );
 
@@ -137,7 +143,7 @@ protected:
 mExpClass(PreStackProcessing) ProcessManager : public CallBacker
 { mODTextTranslationClass(ProcessManager)
 public:
-				ProcessManager();
+				ProcessManager(OD::GeomSystem);
 				~ProcessManager();
 
 				//Setup
@@ -145,7 +151,7 @@ public:
     Processor*			getProcessor(int);
     const Processor*		getProcessor(int) const;
     bool			needsPreStackInput() const;
-
+    OD::GeomSystem		getGeomSystem() const	{ return gs_; }
 
     void			addProcessor(Processor*);
     void			removeProcessor(int);
@@ -168,6 +174,7 @@ public:
     void			setInput(const BinID& relbid,DataPackID);
     void			setInput(const BinID&,Gather*);
     void			setInput(const BinID&,const Gather*);
+    void			setModel(const BinID&,const ElasticModel*);
 
     bool			process();
 
@@ -191,6 +198,7 @@ protected:
 
     static const char*	sKeyNrProcessors()	{ return "Nr processors"; }
 
+    OD::GeomSystem		gs_;
     ObjectSet<Processor>	processors_;
     uiString			errmsg_;
 };

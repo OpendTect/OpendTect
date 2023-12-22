@@ -56,7 +56,9 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 				       BoolInpSpec(false) );
     dopreprocessfld_->attach( alignedBelow, xrgfld_ );
     mAttachCB( dopreprocessfld_->valueChanged, uiPreStackAttrib::doPreProcSel );
-    preprocsel_ = new PreStack::uiProcSel( this, tr("Preprocessing setup"), 0 );
+
+    const OD::GeomSystem gs = is2d ? OD::Geom2D : OD::Geom3D;
+    preprocsel_ = new PreStack::uiProcSel( this, tr("Preprocessing setup"), gs);
     preprocsel_->attach( alignedBelow, dopreprocessfld_ );
 
     calctypefld_ = new uiGenInput( this, tr("Calculation type"),
@@ -95,7 +97,8 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 		     StringListInpSpec(PreStack::PropCalc::AxisTypeNames()) );
     valaxtypefld_->attach( alignedBelow, xaxistypefld_ );
 
-    anglecompgrp_ = new PreStack::uiAngleCompGrp( this, params_, false, false );
+    anglecompgrp_ = new PreStack::uiAngleCompGrp( this, params_, gs,
+						  false, false );
     anglecompgrp_->attach( alignedBelow, valaxtypefld_ );
 
     updateCalcType();

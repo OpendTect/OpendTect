@@ -38,7 +38,7 @@ protected:
     uiViewer3DShapeTab*		shapetab_;
     uiViewer3DScalingTab*	scaletab_;
     uiViewer3DAppearanceTab*	apptab_;
-    uiViewer3DPreProcTab* 	preproctab_;
+    uiViewer3DPreProcTab*	preproctab_;
     uiViewer3DEventsTab*	eventstab_;
     uiCheckBox*			applytoallfld_;
 };

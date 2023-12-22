@@ -22,33 +22,41 @@ namespace PreStack
 void uiLateralStack::initClass()
 {
     SeparString names( LateralStack::sFactoryKeyword(),
-	    		FactoryBase::cSeparator() );
+			FactoryBase::cSeparator() );
     names += "VerticalStack";
     uiPSPD().addCreator( create, names.buf(),
-	    		 LateralStack::sFactoryDisplayName() );
+			 LateralStack::sFactoryDisplayName() );
 }
 
 
 uiDialog* uiLateralStack::create( uiParent* p, Processor* sgp )
 {
     mDynamicCastGet( LateralStack*, sgvs, sgp );
-    if ( !sgvs ) return 0;
-
-    return new uiLateralStack( p, sgvs );
+    return sgvs ? new uiLateralStack( p, sgvs ) : nullptr;
 }
 
 
 uiLateralStack::uiLateralStack( uiParent* p, LateralStack* sgvs )
     : uiDialog( p, uiDialog::Setup(tr("Super Gather setup"),mNoDlgTitle,
                                     mODHelpKey(mPreStackVerticalStackHelpID) ) )
-    , processor_( sgvs )
+    , processor_(sgvs)
 {
-    stepoutfld_ = new uiGenInput( this, tr("Stepout (inl/crl)"),
-		     PositionInpSpec( processor_->getPatternStepout(), false));
-    iscrossfld_ = new uiGenInput( this, tr("Shape"),
-	BoolInpSpec( processor_->isCross(), tr("Cross"),
-                     uiStrings::sRectangle()) );
-    iscrossfld_->attach( alignedBelow, stepoutfld_ );
+    const bool is3d = ::is3D( processor_->getGeomSystem() );
+    const BinID& stepout = processor_->getPatternStepout();
+    if ( is3d )
+    {
+	stepoutfld_ = new uiGenInput( this, tr("Stepout (inl/crl)"),
+				      PositionInpSpec( stepout, false));
+	iscrossfld_ = new uiGenInput( this, tr("Shape"),
+				BoolInpSpec( processor_->isCross(),
+				tr("Cross"), uiStrings::sRectangle()) );
+	iscrossfld_->attach( alignedBelow, stepoutfld_ );
+    }
+    else
+    {
+	stepoutfld_ = new uiGenInput( this, tr("Stepout"),
+				      PositionInpSpec( stepout.trcNr() ) );
+    }
 }
 
 
@@ -58,20 +66,26 @@ uiLateralStack::~uiLateralStack()
 
 bool uiLateralStack::acceptOK( CallBacker* )
 {
-    if ( !processor_ ) return true;
+    if ( !processor_ )
+	return true;
 
-    const BinID stepout = stepoutfld_->getBinID();
-    if ( mIsUdf(stepout.inl()) || mIsUdf(stepout.crl()) ||
-	 stepout.inl()<0 || stepout.crl()<0 ||
-	 (!stepout.inl() && !stepout.crl()) )
+    const bool is3d = ::is3D( processor_->getGeomSystem() );
+    BinID stepout = stepoutfld_->getBinID();
+    if ( !is3d )
+	stepout.inl() = 0;
+
+    if ( mIsUdf(stepout.crl()) || stepout.crl()<0 ||
+	 (is3d && (mIsUdf(stepout.inl()) || stepout.inl()<0 ||
+		   (!stepout.inl() && !stepout.crl()))) )
     {
 	uiMSG().error(tr("Stepout is not set to a valid range"));
 	return false;
     }
 
-    if ( !processor_->setPattern( stepout, iscrossfld_->getBoolValue() ) )
+    const bool rectangle = iscrossfld_ ? iscrossfld_->getBoolValue() : true;
+    if ( !processor_->setPattern(stepout,rectangle) )
     {
-	uiMSG().error(tr("Could not set stack pattern"));
+	uiMSG().error( tr("Could not set stack pattern") );
 	return false;
     }
 

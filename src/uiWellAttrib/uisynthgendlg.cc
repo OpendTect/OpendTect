@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "file.h"
 #include "instantattrib.h"
+#include "keystrs.h"
 #include "od_helpids.h"
 #include "seistrctr.h"
 #include "stratlayermodel.h"
@@ -666,8 +667,7 @@ void uiSynthParsGrp::fillPar( IOPar& iop ) const
 {
     IOPar par;
     stratsynth_.fillPar( par );
-    PtrMan<IOPar> synthpars =
-			par.subselect( StratSynth::DataMgr::sKeySynthetics() );
+    PtrMan<IOPar> synthpars = par.subselect( sKey::Synthetic(2) );
     if ( synthpars )
 	iop.merge( *synthpars.ptr() );
 }

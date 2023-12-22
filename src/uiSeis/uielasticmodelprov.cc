@@ -15,91 +15,83 @@ ________________________________________________________________________
 #include "uiveldesc.h"
 
 
-
 static const char* inpsourceacstrs[] =
 {
     "PWave, Density",
     "Acoustic Impedance, (Density)",
-    0
+    nullptr
 };
 
 static const char* inpsourceelstrs[] =
 {
     "P-wave, S-wave, Density",
     "Acoustic Impedance, Shear Impedance, (Density)",
-    0
+    nullptr
 };
 
 
 uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
-    : uiGroup( p, "ElasticModelProvider setup" )
+    : uiGroup(p,"ElasticModelProvider setup")
 {
-
     inptypefld_ = new uiGenInput( this, tr("Input type"),
 				  BoolInpSpec(true, tr("Acoustic"),
-					      tr("Elastic")) );
-    inptypefld_->valueChanged.notify(
-			    mCB(this,uiElasticModelProvider,inpTypeSel) );
+						    tr("Elastic")) );
+    mAttachCB( inptypefld_->valueChanged, uiElasticModelProvider::inpTypeSel );
 
     inpsourceacfld_ = new uiGenInput( this, tr("Input Source"),
 				      StringListInpSpec(inpsourceacstrs) );
-    inpsourceacfld_->valueChanged.notify(
-			    mCB(this,uiElasticModelProvider,sourceSel) );
+    mAttachCB( inpsourceacfld_->valueChanged,uiElasticModelProvider::sourceSel);
     inpsourceacfld_->attach( alignedBelow, inptypefld_ );
 
     inpsourceelfld_ = new uiGenInput( this, tr("Input Source"),
 				      StringListInpSpec(inpsourceelstrs) );
-    inpsourceelfld_->valueChanged.notify(
-			    mCB(this,uiElasticModelProvider,sourceSel) );
+    mAttachCB( inpsourceelfld_->valueChanged,
+	       uiElasticModelProvider::sourceSel );
     inpsourceelfld_->attach( alignedBelow, inptypefld_ );
 
-    pwavefld_ = new uiVelSel( this, tr("P-wave Velocity cube") );
+    pwavefld_ = new uiVelSel( this, tr("P-wave Velocity cube"), is2d );
     pwavefld_->attach( alignedBelow, inpsourceacfld_ );
 
-    swavefld_ = new uiVelSel( this, tr("S-wave Velocity cube") );
+    swavefld_ = new uiVelSel( this, tr("S-wave Velocity cube"), is2d );
     swavefld_->attach( alignedBelow, pwavefld_ );
 
-    IOObjContext aictxt =
-		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
-    aictxt.forread_ = true;
-    uiSeisSel::Setup aisu( is2d, false );
-    aisu.seltxt( tr("Acoustic Impedance") );
-    aifld_ = new uiSeisSel( this, aictxt, aisu );
+    const Seis::GeomType gt = is2d ? Seis::Line : Seis::Vol;
+    const IOObjContext ctxt = uiSeisSel::ioContext( gt, true );
+
+    uiSeisSel::Setup aisu( gt );
+    aisu.allowsetdefault( false ).seltxt( tr("Acoustic Impedance") );
+    aifld_ = new uiSeisSel( this, ctxt, aisu );
     aifld_->attach( alignedBelow, inpsourceacfld_ );
 
-    IOObjContext sictxt =
-		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
-    sictxt.forread_ = true;
-    uiSeisSel::Setup sisu( is2d, false );
-    sisu.seltxt( tr("Shear Impedance") );
-    sifld_ = new uiSeisSel( this, sictxt, sisu );
+    uiSeisSel::Setup sisu( gt );
+    sisu.allowsetdefault( false ).seltxt( tr("Shear Impedance") );
+    sifld_ = new uiSeisSel( this, ctxt, sisu );
     sifld_->attach( alignedBelow, aifld_ );
 
-    IOObjContext denctxt =
-		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
-    denctxt.forread_ = true;
-    uiSeisSel::Setup su1( is2d, false );
-    su1.seltxt( tr("Density") );
-    densityfld_ = new uiSeisSel( this, denctxt, su1 );
+    uiSeisSel::Setup rhosu( gt );
+    rhosu.allowsetdefault( false ).seltxt( tr("Density") );
+    densityfld_ = new uiSeisSel( this, ctxt, rhosu );
     densityfld_->attach( alignedBelow, sifld_ );
 
-    IOObjContext optdenctxt =
-		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
-    optdenctxt.forread_ = true;
-    uiSeisSel::Setup su2( is2d, false );
-    su2.optional_= true;
-    su2.seltxt( tr("Density") );
-    optdensityfld_ = new uiSeisSel( this, optdenctxt, su2 );
+    rhosu.optional_= true;
+    optdensityfld_ = new uiSeisSel( this, ctxt, rhosu );
     optdensityfld_->attach( alignedBelow, sifld_ );
 
-    inpTypeSel(0);
-    sourceSel(0);
     setHAlignObj( inptypefld_ );
+    mAttachCB( postFinalize(), uiElasticModelProvider::initGrpCB );
 }
 
 
 uiElasticModelProvider::~uiElasticModelProvider()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void uiElasticModelProvider::initGrpCB( CallBacker* )
+{
+    inpTypeSel( nullptr );
+}
 
 
 void uiElasticModelProvider::inpTypeSel( CallBacker* cb )
@@ -107,7 +99,7 @@ void uiElasticModelProvider::inpTypeSel( CallBacker* cb )
     const bool isac = inptypefld_->getBoolValue();
     inpsourceacfld_->display( isac );
     inpsourceelfld_->display( !isac );
-    sourceSel(0);
+    sourceSel( nullptr );
 }
 
 
@@ -140,7 +132,7 @@ void uiElasticModelProvider::setInputMIDs(
     else
 	inpsourceacfld_->setValue( sourceoptidx );
 
-    sourceSel( 0 );
+    sourceSel( nullptr );
 
     pwavefld_->setInput( pwmid );
     swavefld_->setInput( swmid );
@@ -193,9 +185,7 @@ bool uiElasticModelProvider::getInputMIDs( MultiID& pwmid, MultiID& swmid,
 
     if ( !reasonstr.isEmpty() )
     {
-	const_cast<uiElasticModelProvider*>(this)->errmsg_ = basestr;
-	const_cast<uiElasticModelProvider*>(this)->
-					    errmsg_.append( reasonstr, true );
+	mSelf().errmsg_.set( basestr ).append( reasonstr, true );
 	return false;
     }
 

@@ -37,12 +37,16 @@ public:
 			TrcKeyZSampling(const Pos::GeomID&);
 			~TrcKeyZSampling();
 
+    static TrcKeyZSampling getSynth(const Interval<int>* trcrg =nullptr,
+				    const ZSampling* =nullptr);
+
 //    mDeprecated("Use TrcKeyZSampling(Pos::GeomID)")
     explicit		TrcKeyZSampling(bool settoSI);
 
     enum Dir		{ Inl=0, Crl=1, Z=2 };
 			mDeclareEnumUtils(Dir)
     bool		is2D() const		{ return hsamp_.is2D(); }
+    bool		isSynthetic() const	{ return hsamp_.isSynthetic(); }
     Dir			defaultDir() const;
 			//!< 'flattest' direction, i.e. direction with
 			//!< smallest size. If equal, prefer Inl then Crl then Z

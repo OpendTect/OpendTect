@@ -27,9 +27,11 @@ uiViewer3DPreProcTab::uiViewer3DPreProcTab( uiParent* p,
     , mgr_( mgr )
     , applyall_( false )
 {
-    uipreprocmgr_ = new PreStack::uiProcessorManager( this, vwr.procMgr() );
-    uipreprocmgr_->change.notify(
-	    mCB(this,uiViewer3DPreProcTab,processorChangeCB) );
+    if ( !vwr.procMgr() )
+	vwr.setProcMgr( vwr.is3DSeis() ? OD::Geom3D : OD::Geom2D );
+
+    uipreprocmgr_ = new PreStack::uiProcessorManager( this, *vwr.procMgr() );
+    mAttachCB( uipreprocmgr_->change, uiViewer3DPreProcTab::processorChangeCB );
 
     applybut_ = uiButton::getStd( this, OD::Apply,
 	   mCB(this,uiViewer3DPreProcTab,applyButPushedCB), true );
@@ -78,8 +80,8 @@ bool uiViewer3DPreProcTab::apply()
 	if ( !isownvwr )
 	{
 	    IOPar curpreprocpar;
-	    vwr_.procMgr().fillPar( curpreprocpar );
-	    vwr->procMgr().usePar( curpreprocpar );
+	    vwr_.getProcPar( curpreprocpar );
+	    vwr->setProcPar( curpreprocpar );
 	}
 
 	if ( !vwr->updateDisplay() )

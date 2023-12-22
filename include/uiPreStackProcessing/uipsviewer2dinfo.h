@@ -20,11 +20,11 @@ namespace PreStackView
 mClass(uiPreStackProcessing) uiGatherDisplayInfoHeader : public uiGroup
 { mODTextTranslationClass(uiGatherDisplayInfoHeader)
 public:
-    				uiGatherDisplayInfoHeader(uiParent*);
+				uiGatherDisplayInfoHeader(uiParent*);
 				~uiGatherDisplayInfoHeader();
 
-    void			setData(const BinID&,bool inl,bool is2d,
-	    				const char* data);
+    void			setData(const TrcKey&,bool inl,bool is2d,
+					const char* data);
     void			setData(int pos,const char* data);
     void			setOffsetRange(const Interval<float>&);
     const char*			getDataName() const;

@@ -122,8 +122,12 @@ bool AngleMuteBase::usePar( const IOPar& par  )
 bool AngleMuteBase::setVelocityFunction()
 {
     const MultiID& mid = params_->velvolmid_;
+    if ( mid.isUdf() )
+	return false;
+
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     velsource_->setFrom( mid );
     return true;
@@ -247,7 +251,7 @@ float AngleMuteBase::getOffsetMuteLayer( const ReflectivityModelBase& refmodel,
 	ret += mutelayer;
     }
 
-    if ( ret.size() != 1 )
+    if ( ret.size() != 1 ) // Multiple mute zones to be applied, or none
 	return mUdf(float);
 
     const Interval<float>& intv = ret.first();
@@ -316,11 +320,10 @@ bool AngleMute::doPrepare( int nrthreads )
     deepErase( rtrunners_ );
     deepErase( muters_ );
 
-    if ( !setVelocityFunction() )
+    if ( !::isSynthetic(gs_) && !setVelocityFunction() )
 	return false;
 
     raytraceparallel_ = nrthreads < Threads::getNrProcessors();
-
     for ( int idx=0; idx<nrthreads; idx++ )
     {
 	muters_ += new Muter( params().taperlen_, params().tail_ );
@@ -377,17 +380,28 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 	if ( !input || !output )
 	    continue;
 
-	const TrcKey& tk = input->getTrcKey();
-	layers->setEmpty();
-	if ( !getLayers(tk,*layers,errmsg_) )
-	    continue;
-
-	rtrunner->setModel( emodels, &rtsu );
 	const int nroffsets = input->size( Gather::offsetDim()==0 );
 	offsets.setEmpty();
 	for ( int ioff=0; ioff<nroffsets; ioff++ )
 	    offsets += input->getOffset( ioff );
 
+	if ( ::isSynthetic(gs_) )
+	{
+	    if ( !models_.validIdx(idx) || !models_.get(idx) )
+		continue;
+
+	    *layers = *models_.get( idx );
+	    block( *layers );
+	}
+	else
+	{
+	    const TrcKey& tk = input->getTrcKey();
+	    layers->setEmpty();
+	    if ( !getLayers(tk,*layers,errmsg_) )
+		continue;
+	}
+
+	rtrunner->setModel( emodels, &rtsu );
 	rtrunner->setOffsets( offsets, input->offsetType() );
 	if ( !rtrunner->executeParallel(raytraceparallel_) )
 	    { errmsg_ = rtrunner->uiMessage(); continue; }
@@ -414,15 +428,29 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	    const float offset = offsets[ioff];
 	    TypeSet< Interval<float> > mutelayeritvs;
-	    const float mutelayer = getOffsetMuteLayer( *refmodel, ioff,
+	    float mutelayer;
+	    if ( mIsZero(offset,1e-2f) )
+	    {
+		mutelayer = mUdf(float);
+		if ( innermute )
+		    allmuted = true;
+		else
+		    nonemuted = true;
+	    }
+	    else
+	    {
+		mutelayer = getOffsetMuteLayer( *refmodel, ioff,
 						innermute, nonemuted,
 						allmuted, mutelayeritvs );
+	    }
+
 	    if ( nonemuted )
 		continue;
 
 	    if ( allmuted )
 	    {
-		trace.setAll( 0.f );
+		for ( int idz=0; idz<nrsamps; idz++ )
+		    trace.set( idz, 0.f );
 		continue;
 	    }
 

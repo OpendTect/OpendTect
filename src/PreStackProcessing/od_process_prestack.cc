@@ -35,7 +35,7 @@ ________________________________________________________________________
 using namespace PreStack;
 
 #define mDestroyWorkers \
-{ delete procman; procman = 0; writer = 0; }
+{ deleteAndNullPtr( procman ); writer = nullptr; }
 
 
 mLoad1Module("PreStackProcessing")
@@ -85,7 +85,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	mRetError("\nCannot create setup object");
     }
 
-    procman = new ProcessManager;
+    const OD::GeomSystem gs = geomtype == Seis::VolPS ? OD::Geom3D : OD::Geom2D;
+    procman = new ProcessManager( gs );
     if ( !procman )
     {
 	mRetError( "Cannot create processor");
@@ -406,18 +407,15 @@ bool BatchProgram::doWork( od_ostream& strm )
     }
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
-    mDestroyWorkers
-    progressmeter.setFinished();
-
-    mMessage( "Threads closed; Writing finish status" );
-
+    deleteAndNullPtr( procman );
+    writer = nullptr;
     gathers.setEmpty();
 
+    progressmeter.setFinished();
+    mMessage( "Threads closed; Writing finish status" );
+
     if ( !comm_ )
-    {
-	delete procman;
 	return true;
-    }
 
     comm_->setState( JobCommunic::Finished );
     const bool ret = comm_->sendState();
@@ -425,8 +423,6 @@ bool BatchProgram::doWork( od_ostream& strm )
 	mMessage( "Successfully wrote finish status" );
     else
 	mMessage( "Could not write finish status" );
-
-    delete procman;
 
     return ret;
 }

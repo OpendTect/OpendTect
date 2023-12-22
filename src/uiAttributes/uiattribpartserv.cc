@@ -724,15 +724,15 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 	}
     }
 
-    EngineMan* aem = new EngineMan;
+    auto* aem = new EngineMan;
     aem->setAttribSet( curdescset );
     aem->setNLAModel( getNLAModel(is2d) );
     aem->setAttribSpecs( targetspecs_ );
-    if ( tkzs )
-	aem->setTrcKeyZSampling( *tkzs );
-
     if ( geomid.isValid() )
 	aem->setGeomID( geomid );
+
+    if ( tkzs )
+	aem->setTrcKeyZSampling( *tkzs );
 
     return aem;
 }
@@ -1447,7 +1447,6 @@ RegularSeisDataPackCreatorFor2D( const Data2DHolder& input,
     , zdef_(zdef)
     , refnrs_(sampling_.hsamp_.nrTrcs(),mUdf(float))
 {
-    sampling_.hsamp_.setGeomID( geomid );
     if ( compnames )
 	compnames_ = *compnames;
 }

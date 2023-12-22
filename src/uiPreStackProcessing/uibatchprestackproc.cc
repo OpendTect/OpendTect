@@ -26,37 +26,61 @@ ________________________________________________________________________
 namespace PreStack
 {
 
-uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
-    : uiBatchProcDlg(p,uiStrings::sEmptyString(),false,
-		     Batch::JobSpec::PreStack)
-    , is2d_(is2d)
+uiBatchProcSetup::uiBatchProcSetup( uiParent* p, OD::GeomSystem gs, int openidx,
+				    const uiStringSet* usemethods )
+    : uiBatchProcDlg(p,uiString::empty(),false,Batch::JobSpec::PreStack)
+    , gs_(gs)
 {
     setHelpKey( mODHelpKey(mPreStackBatchProcSetupHelpID) );
 
-    uiString dlgnm = toUiString("%1 %2 %3").arg(uiStrings::sPreStack())
-			       .arg(is2d_ ? uiStrings::s2D() : uiStrings::s3D())
+    const bool is3d = ::is3D( gs_ );
+    const bool is2d = ::is2D( gs_ );
+    const uiString dlgnm = toUiString("%1 %2 %3").arg(uiStrings::sPreStack())
+			       .arg(is2d ? uiStrings::s2D()
+					 : (is3d ? uiStrings::s3D()
+						 : tr("Synthetic")))
 			       .arg(uiStrings::sProcessing());
     setCaption( dlgnm );
-    chainsel_ = new uiProcSel( pargrp_, uiStrings::sSetup(), 0 );
-    chainsel_->selectionDone.notify( mCB(this,uiBatchProcSetup,setupSelCB) );
+    chainsel_ = new uiProcSel( pargrp_, uiStrings::sSetup(), gs_, openidx,
+			       usemethods );
 
-    const Seis::GeomType gt = is2d_ ? Seis::LinePS : Seis::VolPS;
+    const Seis::GeomType gt = ::is3D(gs_) ? Seis::VolPS : Seis::LinePS;
     inputsel_ = new uiSeisSel( pargrp_, uiSeisSel::ioContext(gt,true),
-				uiSeisSel::Setup(gt) );
+			       uiSeisSel::Setup(gt) );
     inputsel_->attach( alignedBelow, chainsel_ );
 
-    possubsel_ =  new uiPosSubSel( pargrp_, uiPosSubSel::Setup(is2d,false) );
+    possubsel_ =  new uiPosSubSel( pargrp_, uiPosSubSel::Setup(!is3d,false) );
     possubsel_->attach( alignedBelow, inputsel_ );
 
     outputsel_ = new uiSeisSel( pargrp_, uiSeisSel::ioContext(gt,false),
 				uiSeisSel::Setup(gt) );
     outputsel_->attach( alignedBelow, possubsel_ );
     pargrp_->setHAlignObj( outputsel_ );
+
+    mAttachCB( postFinalize(), uiBatchProcSetup::initDlgCB );
 }
 
 
 uiBatchProcSetup::~uiBatchProcSetup()
 {
+    detachAllNotifiers();
+}
+
+
+bool uiBatchProcSetup::isOK() const
+{
+    const bool noerr = true;
+    MultiID chainid;
+    if ( !chainsel_->getSel(chainid,noerr) || chainid.isUdf() )
+	return false;
+
+    if ( inputsel_->attachObj()->isDisplayed() && !inputsel_->ioobj(noerr) )
+	return false;
+
+    if ( !outputsel_->ioobj(noerr) )
+	return false;
+
+    return true;
 }
 
 
@@ -66,49 +90,39 @@ void uiBatchProcSetup::getJobName( BufferString& jobnm) const
 }
 
 
+void uiBatchProcSetup::initDlgCB( CallBacker* )
+{
+    mAttachCB( chainsel_->selectionDone, uiBatchProcSetup::setupSelCB );
+}
+
+
 void uiBatchProcSetup::setupSelCB( CallBacker* )
 {
     inputsel_->display( true );
 
     MultiID chainmid;
-    PtrMan<IOObj> setupioobj = 0;
-    if ( chainsel_->getSel(chainmid) )
+    PtrMan<IOObj> setupioobj;
+    if ( chainsel_->getSel(chainmid) && !chainmid.isUdf() )
 	setupioobj = IOM().get( chainmid );
 
     if ( !setupioobj )
 	return;
 
-    mDeclareAndTryAlloc(PreStack::ProcessManager*,procman,
-			PreStack::ProcessManager);
-    if ( !procman )
-	return;
-
+    ProcessManager procman( gs_ );
     uiString errmsg;
-    if ( !PreStackProcTranslator::retrieve(*procman,setupioobj,errmsg) )
-    {
-	delete procman;
+    if ( !PreStackProcTranslator::retrieve(procman,setupioobj,errmsg) )
 	return;
-    }
 
-    if ( !procman->needsPreStackInput() )
-	inputsel_->display( false );
-
-    delete procman;
+    inputsel_->display( procman.needsPreStackInput() );
 }
 
 
 bool uiBatchProcSetup::prepareProcessing()
 {
     MultiID chainmid;
-    PtrMan<IOObj> ioobj = 0;
+    PtrMan<IOObj> ioobj;
     if ( chainsel_->getSel(chainmid) )
 	ioobj = IOM().get( chainmid );
-
-    if ( !ioobj )
-    {
-	uiMSG().error( tr("Please select a processing setup") );
-	return false;
-    }
 
     if ( inputsel_->attachObj()->isDisplayed() && !inputsel_->commitInput() )
     {
@@ -147,8 +161,9 @@ bool uiBatchProcSetup::fillPar( IOPar& par )
 
     par.set( ProcessManager::sKeySetup(), mid );
 
-    Seis::GeomType geom = is2d_ ? Seis::LinePS : Seis::VolPS;
+    const Seis::GeomType geom = ::is3D(gs_) ? Seis::VolPS : Seis::LinePS;
     Seis::putInPar( geom, par );
     return true;
 }
+
 } // namespace PreStack
