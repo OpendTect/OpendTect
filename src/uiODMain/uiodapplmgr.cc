@@ -1298,11 +1298,11 @@ bool uiODApplMgr::handlePickServEv( int evid )
 {
     if ( evid == uiPickPartServer::evGetHorInfo3D() )
     {
-	emserv_->getAllSurfaceInfo( pickserv_->horInfos(), false );
+	emserv_->getAllSurfaceInfo_( pickserv_->horInfos(), false );
     }
     else if ( evid == uiPickPartServer::evGetHorInfo2D() )
     {
-	emserv_->getAllSurfaceInfo( pickserv_->horInfos(), true );
+	emserv_->getAllSurfaceInfo_( pickserv_->horInfos(), true );
     }
     else if ( evid == uiPickPartServer::evGetHorDef3D() )
     {
