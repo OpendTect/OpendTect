@@ -248,16 +248,16 @@ void MarchingCubesDisplay::setSelSpecs(
 
 
 const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec(
-					int attrib, int version ) const
+					int attrib, int /* version */ ) const
 {
-	return attrib ? 0 : &(selspecs_.first());
+    return attrib ? nullptr : &(selspecs_.first());
 }
 
 
 const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
 							int attrib ) const
 {
-    return attrib ? 0 : &selspecs_;
+    return attrib ? nullptr : &selspecs_;
 }
 
 

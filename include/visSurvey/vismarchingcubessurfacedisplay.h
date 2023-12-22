@@ -77,7 +77,7 @@ public:
     void			setSelSpecs(int attrib,
 				    const TypeSet<Attrib::SelSpec>&) override;
     const Attrib::SelSpec*	getSelSpec(int attrib,
-					   int version=0) const override;
+					   int version=-1) const override;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
     void			setDepthAsAttrib(int);
     void			setIsopach(int);

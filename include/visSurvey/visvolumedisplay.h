@@ -120,7 +120,7 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
     const Attrib::SelSpec*	    getSelSpec(int attrib,
-					       int version=0) const override;
+					       int version=-1) const override;
     const TypeSet<float>*	getHistogram(int attrib) const override;
     void			setSelSpec(int attrib,
 					   const Attrib::SelSpec&) override;
