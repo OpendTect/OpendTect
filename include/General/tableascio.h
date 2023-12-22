@@ -57,6 +57,8 @@ public:
     static const UnitOfMeasure* getTimeUnit();
     static const UnitOfMeasure* getDepthUnit();
 
+    static const ZDomain::Info& zDomain(const FormatDesc&,int idx,uiRetVal&);
+
 protected:
 
     const FormatDesc&		fd_;

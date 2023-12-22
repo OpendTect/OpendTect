@@ -624,19 +624,8 @@ const ZDomain::Info& uiImportHorizon::zDomain() const
     if ( !domsel_ )
 	return SI().zDomainInfo();
 
-    const UnitOfMeasure* selunit = fd_.bodyinfos_.validIdx(1) ?
-	fd_.bodyinfos_[1]->selection_.unit_ : nullptr;
-    bool isimperial = false;
-    if ( selunit )
-	isimperial = selunit->isImperial();
-
-    const bool istime = domsel_->getBoolValue();
-    if ( istime )
-	return ZDomain::TWT();
-    else if ( isimperial )
-	return ZDomain::DepthFeet();
-
-    return ZDomain::DepthMeter();
+    uiRetVal ret;
+    return Table::AscIO::zDomain( fd_, 1, ret );
 }
 
 

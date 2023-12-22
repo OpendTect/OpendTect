@@ -162,6 +162,7 @@ public:
     bool		loadSurface(const MultiID&,
 				    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
+    mDeprecated("Use getAllSurfaceInfo_")
     static void		getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
     void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
 				        BinIDValueSet&,
@@ -273,4 +274,8 @@ protected:
     uiSurfaceMan*	manbodydlg_;
 
     void		displayOnCreateCB(CallBacker*);
+
+public:
+    static void		getAllSurfaceInfo_(ObjectSet<SurfaceInfo>&,bool is2d,
+					const ZDomain::Info* =nullptr);
 };

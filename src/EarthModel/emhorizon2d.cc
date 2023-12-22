@@ -374,7 +374,7 @@ mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::sGroupName() )
 Horizon2D::Horizon2D( EMManager& emm )
     : Horizon(emm)
     , geometry_(*this)
-    , nodesource_( 0 )
+    , nodesource_(nullptr)
     , trackingsampling_(0,0,0)
 {
 }
@@ -485,7 +485,8 @@ void Horizon2D::setAttrib( const TrcKey& tk, int attr, int yn, bool addtohist )
 bool Horizon2D::isAttrib( const TrcKey& tk, int attr ) const
 {
     const int lineidx = geometry().lineIndex( tk.geomID() );
-    if ( lineidx<0 ) return false;
+    if ( lineidx<0 )
+	return false;
 
     const BinID bid( lineidx, tk.trcNr() );
     const PosID pid( id(), bid );
@@ -624,9 +625,9 @@ bool Horizon2D::setPos( const EM::SubID& subid,
 bool Horizon2D::setPos( Pos::GeomID geomid, int trcnr,
 			float z, bool addtohistory )
 {
-  Geometry::Horizon2DLine* geom = geometry_.geometryElement();
+    Geometry::Horizon2DLine* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
-	return 0;
+	return false;
 
     const int lineidx = geom->getRowIndex( geomid );
     if ( mIsUdf(lineidx) || lineidx<0 ) return false;
@@ -721,16 +722,16 @@ Array1D<float>* Horizon2D::createArray1D( Pos::GeomID geomid,
 {
     const Geometry::Horizon2DLine* geom = geometry_.geometryElement();
     if ( !geom || geom->isEmpty() )
-	return 0;
+	return nullptr;
 
     Array1DImpl<float>* arr = 0;
     const int lineidx = geom->getRowIndex( geomid );
     if ( lineidx < 0 )
-	return 0;
+	return nullptr;
 
     arr = new Array1DImpl<float>( geom->colRange(lineidx).nrSteps() + 1 );
     if ( !arr || !arr->isOK() )
-	return 0;
+	return nullptr;
 
     const StepInterval<int> colrg = geom->colRange( lineidx );
     for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
@@ -774,11 +775,16 @@ Horizon2DAscIO::~Horizon2DAscIO()
 
 Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
+    return getDesc_( SI().zDomain() );
+}
+
+
+Table::FormatDesc* Horizon2DAscIO::getDesc_( const ZDomain::Def& zdef )
+{
+    auto* fd = new Table::FormatDesc( "Horizon2D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-			StringInpSpec(sKey::FloatUdf()), Table::Required );
-    BufferStringSet hornms;
-    createDescBody( fd, hornms );
+	StringInpSpec(sKey::FloatUdf()), Table::Required );
+    createDescBody_( fd, zdef );
     return fd;
 }
 
@@ -798,35 +804,45 @@ bool Horizon2DAscIO::isFormatOK(  const Table::FormatDesc& fd,
 
 
 void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
-				     const BufferStringSet& hornms )
+				     const BufferStringSet& /**/)
+{
+    createDescBody_( fd, SI().zDomain() );
+}
+
+
+void Horizon2DAscIO::createDescBody_( Table::FormatDesc* fd,
+						 const ZDomain::Def& zdef )
 {
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
+    auto* ti = Table::TargetInfo::mkHorPosition( false, false );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti = new Table::TargetInfo( "Position",
-						IntInpSpec(), Table::Optional );
+    auto* trcspti = new Table::TargetInfo( "Position",
+					    IntInpSpec(), Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
-    Table::TargetInfo::Form* spform =
-			new Table::TargetInfo::Form( "SP Nr", FloatInpSpec() );
+    auto* spform = new Table::TargetInfo::Form( "SP Nr", FloatInpSpec() );
     trcspti->add( spform );
     fd->bodyinfos_ += trcspti;
-
-    for ( int idx=0; idx<hornms.size(); idx++ )
-    {
-	const BufferString& fldname = hornms.get( idx );
-	ti = new Table::TargetInfo( fldname.buf(), FloatInpSpec(),
-			Table::Required, Mnemonic::surveyZType() );
-	ti->selection_.unit_ = UnitOfMeasure::surveyDefZUnit();
-	fd->bodyinfos_ += ti;
-    }
+    const Mnemonic::StdType type = zdef.isTime() ? Mnemonic::Time
+						 : Mnemonic::Dist;
+    ti = new Table::TargetInfo( zdef.key(), FloatInpSpec(),
+	Table::Required, Mnemonic::surveyZType() );
+    ti->setPropertyType( type );
+    fd->bodyinfos_ += ti;
 }
 
 
 void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
-				 const BufferStringSet& hornms )
+						const BufferStringSet& /**/)
+{
+    updateDesc_( fd, SI().zDomain() );
+}
+
+
+void Horizon2DAscIO::updateDesc_( Table::FormatDesc& fd,
+					const ZDomain::Def& zdef )
 {
     fd.bodyinfos_.erase();
-    createDescBody( &fd, hornms );
+    createDescBody_( &fd, zdef );
 }
 
 

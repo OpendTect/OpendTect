@@ -477,10 +477,13 @@ void uiExportHorizon::writeHeader( od_ostream& strm )
 	BufferString posstr;
 	if ( doxy )
 	    posstr += "\"X\"\t\"Y\"";
+
 	if ( doxy && doic )
 	    posstr += "\t";
+
 	if ( doic )
 	    posstr += "\"Inline\"\t\"Crossline\"";
+
 	if ( addzpos )
 	    posstr += "\t\"Z\"";
 
@@ -603,14 +606,14 @@ bool uiExportHorizon::writeAscii()
 
 	if ( dogf )
 	    initGF( stream, gfname_.buf(), gfcomment_.buf() );
-	else
+	else if ( isbulk_ && (horidx==0) )
 	{
 	    stream.stdStream() << std::fixed;
 	    writeHeader( stream );
 	}
 
 	Write3DHorASCII::Setup su;
-	su.addzpos( addzpos ).doxy( doxy ).doic(doic).dogf( dogf )
+	su.addzpos( addzpos ).doxy( doxy ).doic( doic ).dogf( dogf )
 	    .issingle( !isbulk_ ).nrattrib( nrattribs ).udfstr( udfstr );
 
 	const Coords::CoordSystem* crs =

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "tableascio.h"
 #include "od_istream.h"
 
+namespace ZDomain { class Def; }
 
 namespace EM
 {
@@ -61,9 +62,12 @@ public:
 						const char* filenm);
 				~Horizon2DAscIO();
 
+    mDeprecated("Use getDesc_")
     static Table::FormatDesc*   getDesc();
+    mDeprecated("Use updateDesc_")
     static void			updateDesc(Table::FormatDesc&,
 					   const BufferStringSet&);
+    mDeprecated("Use createDescBody_")
     static void			createDescBody(Table::FormatDesc*,
 					   const BufferStringSet&);
 
@@ -80,6 +84,13 @@ protected:
     od_istream			strm_;
     float			udfval_				= mUdf(float);
     bool			finishedreadingheader_		= false;
+
+public:
+    static Table::FormatDesc*	getDesc_(const ZDomain::Def&);
+    static void			updateDesc_(Table::FormatDesc&,
+					    const ZDomain::Def&);
+    static void			createDescBody_(Table::FormatDesc*,
+					   const ZDomain::Def&);
 
 };
 

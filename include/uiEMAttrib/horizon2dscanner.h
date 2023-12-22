@@ -19,11 +19,12 @@ class BinIDValueSet;
 namespace Survey { class Geometry2D; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 mExpClass(uiEMAttrib) Horizon2DScanner : public Executor
 { mODTextTranslationClass(Horizon2DScanner);
 public:
-
+			mDeprecated("Use Contructor with ZDomain::Info");
 			Horizon2DScanner(const BufferStringSet& fnms,
 					 Table::FormatDesc& fd);
 			~Horizon2DScanner();
@@ -68,4 +69,8 @@ protected:
 
 protected:
     bool		istracenr_;
+
+public:
+			    Horizon2DScanner(const BufferStringSet& fnms,
+				   Table::FormatDesc& fd,const ZDomain::Info&);
 };

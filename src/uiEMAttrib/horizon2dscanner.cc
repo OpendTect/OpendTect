@@ -23,6 +23,11 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "survgeom2d.h"
 
+#include "hiddenparam.h"
+
+static HiddenParam<Horizon2DScanner,const ZDomain::Info*>
+					    horizon2dscannerhpmgr_(nullptr);
+
 
 Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
 				    Table::FormatDesc& fd )
@@ -35,13 +40,34 @@ Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
     , istracenr_(false)
     , msg_(uiStrings::sScanning())
 {
+    horizon2dscannerhpmgr_.setParam( this,
+				    new ZDomain::Info(SI().zDomainInfo()) );
+    filenames_ = fnms;
+    init();
+}
+
+
+Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
+			    Table::FormatDesc& fd, const ZDomain::Info& zinfo )
+    : Executor("Scan horizon file(s)")
+    , fd_(fd)
+    , ascio_(nullptr)
+    , bvalset_(nullptr)
+    , fileidx_(0)
+    , curlinegeom_(nullptr)
+    , istracenr_(false)
+    , msg_(uiStrings::sScanning())
+{
+    horizon2dscannerhpmgr_.setParam( this, new ZDomain::Info(zinfo) );
     filenames_ = fnms;
     init();
 }
 
 
 Horizon2DScanner::~Horizon2DScanner()
-{}
+{
+    horizon2dscannerhpmgr_.removeAndDeleteParam( this );
+}
 
 
 void Horizon2DScanner::init()
@@ -232,6 +258,10 @@ int Horizon2DScanner::nextStep()
 
     Interval<float> validzrg( curlinegeom_->data().zRange().start,
 			      curlinegeom_->data().zRange().stop );
+    const ZDomain::Info* zinfo = horizon2dscannerhpmgr_.getParam( this );
+    if ( !zinfo->isCompatibleWith(SI().zDomainInfo()) )
+	validzrg = zinfo->getReasonableZRange();
+
     validzrg.widen( validzrg.width() );
     while ( validx < nrvals )
     {

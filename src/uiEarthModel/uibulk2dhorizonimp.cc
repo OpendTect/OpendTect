@@ -28,6 +28,8 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "randcolor.h"
 
+#include "hiddenparam.h"
+
 class Horizon2DBulkImporter : public Executor
 { mODTextTranslationClass(Horizon2DBulkImporter);
 public:
@@ -129,13 +131,14 @@ int nextStep() override
 void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
 			    int prevtrcnr, float curval, float prevval )
 {
-    if ( !curlinegeom_ ) return;
+    if ( !curlinegeom_ )
+	return;
 
     const int nrpos = abs( curtrcnr - prevtrcnr ) - 1;
     const bool isrev = curtrcnr < prevtrcnr;
     PosInfo::Line2DPos curpos, prevpos;
     if ( !curlinegeom_->data().getPos(curtrcnr,curpos)
-	|| !curlinegeom_->data().getPos(prevtrcnr,prevpos) )
+			|| !curlinegeom_->data().getPos(prevtrcnr,prevpos) )
 	return;
 
     const Coord vec = curpos.coord_ - prevpos.coord_;
@@ -180,25 +183,43 @@ BulkHorizon2DAscIO( const Table::FormatDesc& fd, od_istream& strm )
 {}
 
 
-static Table::FormatDesc* getDesc()
+static Table::FormatDesc* getDesc( const ZDomain::Def& zdef )
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Bulk 2D Horizon" );
+    auto* fd = new Table::FormatDesc( "Bulk 2D Horizon" );
 
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
+    createDescBody( fd, zdef );
+    return fd;
+}
+
+
+static void createDescBody( Table::FormatDesc* fd, const ZDomain::Def& zdef )
+{
     fd->bodyinfos_ += new Table::TargetInfo( "Horizon name", Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( "Line name", Table::Required );
-    Table::TargetInfo* ti = Table::TargetInfo::mkHorPosition( false, false );
+    auto* ti = Table::TargetInfo::mkHorPosition( false, false );
     fd->bodyinfos_ += ti;
-    Table::TargetInfo* trcspti =
-		new Table::TargetInfo( "Position", Table::Optional );
+    auto* trcspti =
+	new Table::TargetInfo( "Position", Table::Optional );
     trcspti->form(0).setName( "Trace Nr" );
-    Table::TargetInfo::Form* spform =
-		new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );
+    auto* spform = new Table::TargetInfo::Form( "SP Nr", IntInpSpec() );
     trcspti->add( spform );
     fd->bodyinfos_ += trcspti;
-    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
-    return fd;
+    const char* nm = zdef.key();
+    auto* zti = new Table::TargetInfo( nm, FloatInpSpec(),
+						    Table::Required );
+    const Mnemonic::StdType type = zdef.isTime() ? Mnemonic::Time
+						 : Mnemonic::Dist;
+    zti->setPropertyType( type );
+    fd->bodyinfos_ += zti;
+}
+
+
+static void updateDesc( Table::FormatDesc& fd, const ZDomain::Def& zdef )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, zdef );
 }
 
 
@@ -235,21 +256,30 @@ bool getData( BufferString& hornm, BufferString& linenm, Coord3& crd,
 };
 
 
+static HiddenParam<uiBulk2DHorizonImport,uiGenInput*>
+				    uibulk2dhorizonimporthpmgr_(nullptr);
 uiBulk2DHorizonImport::uiBulk2DHorizonImport( uiParent* p )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrImport(
 				 tr("Multiple 2D Horizons")), mNoDlgTitle,
 				 mODHelpKey(mBulkHorizonImportHelpID) )
 			    .modal(false))
-    , fd_(BulkHorizon2DAscIO::getDesc())
+    , fd_(BulkHorizon2DAscIO::getDesc(SI().zDomain()))
 {
     setOkText( uiStrings::sImport() );
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setExamStyle( File::Table );
 
+    auto* zdomselfld = new uiGenInput( this, tr("Horizon is in"),
+	BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
+    zdomselfld->attach( alignedBelow, inpfld_ );
+    zdomselfld->setValue( SI().zIsTime() );
+    mAttachCB( zdomselfld->valueChanged, uiBulk2DHorizonImport::zDomainCB );
+    uibulk2dhorizonimporthpmgr_.setParam( this, zdomselfld );
+
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 				    mODHelpKey(mTableImpDataSelwellsHelpID) );
-    dataselfld_->attach( alignedBelow, inpfld_ );
+    dataselfld_->attach( alignedBelow, zdomselfld );
     BufferStringSet udftreatments;
     udftreatments.add( "Skip" ).add( "Adopt" ).add( "Interpolate" );
     udftreatfld_ = new uiGenInput( this, tr("Undefined values"),
@@ -261,6 +291,17 @@ uiBulk2DHorizonImport::uiBulk2DHorizonImport( uiParent* p )
 uiBulk2DHorizonImport::~uiBulk2DHorizonImport()
 {
     delete fd_;
+    uibulk2dhorizonimporthpmgr_.removeParam( this );
+}
+
+
+void uiBulk2DHorizonImport::zDomainCB( CallBacker* cb )
+{
+    BufferStringSet attrnms;
+    auto* fld = uibulk2dhorizonimporthpmgr_.getParam( this );
+    const bool istime = fld->getBoolValue();
+    BulkHorizon2DAscIO::updateDesc( *fd_,
+			    istime ? ZDomain::Time() : ZDomain::Depth() );
 }
 
 
@@ -299,6 +340,14 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     TypeSet<int> trnrset;
     int trnr=0;
     BufferString prevhornm;
+    uiRetVal ret;
+    const ZDomain::Info& zdominfo = Table::AscIO::zDomain( *fd_, 4, ret );
+    if ( ret.isError() )
+    {
+	uiMSG().error( ret.messages().cat() );
+	return false;
+    }
+
     while ( aio.getData(hornm,linenm,crd,trnr) )
     {
 	if ( prevhornm.isEmpty() )
@@ -348,7 +397,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     // TODO: Check if name exists, ask user to overwrite or give new name
     BufferStringSet errors;
     uiTaskRunner dlg( this );
-    ObjectSet<EM::Horizon2D> hor2ds;
+    RefObjectSet<EM::Horizon2D> hor2ds;
     EM::EMManager& em = EM::EMM();
     PtrMan<IOObj> existioobj(0);
     BufferStringSet existinghornms;
@@ -361,10 +410,10 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 
     if ( !existinghornms.isEmpty() )
     {
-	bool ret = uiMSG().askGoOn(tr("Horizons %1 already exist. "
+	const bool retval = uiMSG().askGoOn(tr("Horizons %1 already exist. "
 	    "Do You want to overwrite them.")
 	    .arg(toUiString(existinghornms.getDispString(5))));
-	if ( !ret )
+	if ( !retval )
 	    return false;
     }
 
@@ -386,7 +435,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	    hor->setMultiID( ioobj->key() );
 
 	hor->setPreferredColor( OD::getRandomColor() );
-	hor->ref();
+	hor->setZDomain( zdominfo );
 	hor->setBurstAlert( true );
 	hor2ds += hor;
 
@@ -396,15 +445,24 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	uiTaskRunner impdlg( this );
 	if ( !TaskRunner::execute(&impdlg,*importr) )
 	    mDeburstRet( false, unRef );
+
 	PtrMan<Executor> saver = hor2ds[0]->saver();
 	if ( !saver->execute() )
 	    mErrRet(uiStrings::phrCannotSave(toUiString(hornm)))
 
+	const MultiID& mid = hor->multiID();
+	PtrMan<IOObj> horobj = IOM().get( mid );
+	if ( horobj )
+	{
+	    zdominfo.fillPar( horobj->pars() );
+	    IOM().commitChanges( *horobj );
+	}
+
     }
 
-    uiString msg = tr( "2D Horizons successfully imported.\n\n"
+    const uiString msg = tr( "2D Horizons successfully imported.\n\n"
 		    "Do you want to import more 2D Horizons?" );
-    bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
+    const bool retval = uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
-    return !ret;
+    return !retval;
 }

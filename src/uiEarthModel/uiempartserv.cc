@@ -1694,6 +1694,13 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
+    getAllSurfaceInfo_( hinfos, is2d, nullptr );
+}
+
+
+void uiEMPartServer::getAllSurfaceInfo_( ObjectSet<SurfaceInfo>& hinfos,
+				 bool is2d, const ZDomain::Info* zinfo )
+{
     const IODir iodir( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
     StringView groupstr = is2d
 	? EMHorizon2DTranslatorGroup::sGroupName()
@@ -1702,9 +1709,23 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj* ioobj = ioobjs[idx];
-	if ( ioobj->translator() != "dGB" ) continue;
+	if ( ioobj->translator() != "dGB" )
+	    continue;
+
 	if ( ioobj->group() == groupstr  )
-	    hinfos += new SurfaceInfo( ioobj->name(), ioobj->key() );
+	{
+	    const ZDomain::Info* objzinfo = ZDomain::get( ioobj->pars() );
+	    if ( zinfo )
+	    {
+		if ( objzinfo && zinfo->isCompatibleWith(*objzinfo) )
+		    hinfos += new SurfaceInfo( ioobj->name(), ioobj->key() );
+		else if ( !objzinfo &&
+		    zinfo->isCompatibleWith(SI().zDomainInfo()) )
+		    hinfos += new SurfaceInfo( ioobj->name(), ioobj->key() );
+	    }
+	    else
+		hinfos += new SurfaceInfo( ioobj->name(), ioobj->key() );
+	}
     }
 }
 
