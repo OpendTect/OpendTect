@@ -115,8 +115,6 @@ void IOObj::copyFrom( const IOObj* obj )
 }
 
 
-static FileMultiString fms;
-
 IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
 {
     if ( atEndOfSection(astream) )
@@ -127,7 +125,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, int groupid )
 	return IOSubDir::get( astream, dirnm );
 
     BufferString nm( astream.keyWord() );
-    fms = astream.value();
+    FileMultiString fms = astream.value();
     const MultiID objkey( groupid, fms.getIValue(0) );
     const bool issurf = groupid ==
 		IOObjContext::getStdDirData(IOObjContext::Surf)->id_.groupID();
@@ -273,7 +271,7 @@ bool IOObj::put( ascostream& astream ) const
     if ( !isSubdir() )
     {
 	astream.put( name(), myKey() );
-	fms = translator();
+	FileMultiString fms = translator();
 	fms += connType();
 	astream.put( group(), fms );
     }
