@@ -325,7 +325,8 @@ void odSurvey::removeObj( const char* objname, const char* trgrpnm ) const
     if ( isObjPresent(objname, trgrpnm) )
     {
 	PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
-	if ( !IOM().implRemove(ioobj->key(), true) )
+	if ( !ioobj || !IOM().to(ioobj->key()) ||
+					!IOM().implRemove(ioobj->key(), true) )
 	    errmsg_ = "cannot remove existing object.";
     }
     else
