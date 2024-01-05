@@ -328,12 +328,12 @@ int Write3DHorASCII::nextStep()
     {
 	const float auxvalue = hor_->auxdata.getAuxDataVal( idx, posid );
 	if ( mIsUdf(auxvalue) )
-	stream_ << od_tab << setup_.udfstr_;
+	    stream_ << od_tab << setup_.udfstr_;
 	else
 	{
-	    str = od_tab; str += auxvalue;
-	  stream_ << str;
-      }
+	    str.set( od_tab ).add( auxvalue );
+	    stream_ << str;
+	}
     }
 
     stream_ << od_newline;
@@ -576,7 +576,6 @@ bool uiExportHorizon::writeAscii()
 	    infld_->getSelection( sels );
 
 
-	sels.selvalues.erase();
 	RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
 	if ( !emobj )
 	    mErrRet(uiStrings::sCantCreateHor())
@@ -595,15 +594,6 @@ bool uiExportHorizon::writeAscii()
 			tr("Only the first selected attribute will be used\n"
 				 "Do you wish to continue?")) )
 	    return false;
-
-	if ( !isbulk_ && !sels.selvalues.isEmpty() )
-	{
-	    ExecutorGroup exgrp( "Reading aux data" );
-	    for ( int idx=0; idx<sels.selvalues.size(); idx++ )
-		exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
-
-	    if ( !TaskRunner::execute( &taskrunner, exgrp ) ) return false;
-	}
 
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	const UnitOfMeasure* unit = unitsel_->getUnit();
