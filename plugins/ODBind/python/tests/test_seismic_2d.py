@@ -46,14 +46,20 @@ def test_Seismic2D_class(survey):
     assert survey.has2d == True
     si = survey.info()
     zistime = si['zdomain']=='twt'
-
+#
+# Create some test data
     data, data_info = make_data(survey)
-
+#
+# Save the test data to storage
+    linenm = data_info['line']
     with Seismic2D.create(survey, 'pytest', data_info['comp'], 'CBVS', zistime, True) as test:
-        test.putdata(data_info['line'], data, data_info, True, True) 
+        test.putdata(linenm, (data, data_info,), True, True) 
 
+#
+# Verify the saved data
+    Seismic2D.use_dataframe = False
+    Seismic2D.use_xarray = False
     assert 'pytest' in Seismic2D.names(survey)
-
     info = {
                 'name': 'pytest',
                 'line_count': 1,
@@ -65,28 +71,44 @@ def test_Seismic2D_class(survey):
     assert test.info() == info
     assert test.zistime == zistime
     assert test.comp_names == data_info['comp']
-    assert test.line_names == [data_info['line']]
-
-    line_info = [{  'name': data_info['line'], 
+    assert test.line_names == [linenm]
+    line_info = [{  'name': linenm, 
                     'trc_range': [data_info['trc'][0], data_info['trc'][-1], data_info['trc'][1]-data_info['trc'][0]],
                     'z_range': data_info[si['zdomain']]
     }]
     assert test.line_info(test.line_names) == line_info
-
-    test_data, test_info = test.getdata(data_info['line'])
+    test_data, test_info = test.getdata(linenm)
     for key in data_info:
         assert data_info[key] == pytest.approx(test_info[key])
-
     np.testing.assert_equal(data, test_data)
+    Seismic2D.use_dataframe = True
+    Seismic2D.use_xarray = True
+#
+# Convert to/from Xarray Dataset
+    xrdata = test.to_xarray(test_data, test_info)
+    test_data, test_info = test.from_xarray(xrdata)
+    for key in data_info:
+        assert data_info[key] == pytest.approx(test_info[key])
+    np.testing.assert_equal(data, test_data)
+#
+# Save and restore as Xarray Dataset
+    with Seismic2D.create(survey, 'pytest', data_info['comp'], 'CBVS', zistime, True) as test:
+        test.putdata(linenm, xrdata, True, True) 
 
+    test = Seismic2D(survey, 'pytest')
+    xrdata = test.getdata(linenm)
+    test_data, test_info = test.from_xarray(xrdata)
+    for key in data_info:
+        assert data_info[key] == pytest.approx(test_info[key])
+    np.testing.assert_equal(data, test_data)
+#
+# Cleanup the test data from storage
     test.delete_lines([data_info['line']])
     assert data_info['line'] not in test.line_names
-
-    Geom2D.delete(survey,[data_info['line']])
-    assert data_info['line'] not in Geom2D.names(survey)
-
     Seismic2D.delete(survey, ['pytest'])
     assert 'pytest' not in Seismic2D.names(survey)    
+    Geom2D.delete(survey,[data_info['line']])
+    assert data_info['line'] not in Geom2D.names(survey)
 
 
 

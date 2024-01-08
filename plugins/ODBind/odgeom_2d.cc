@@ -61,11 +61,10 @@ odGeom2D::odGeom2D( const odSurvey& survey, const char* name, bool overwrite )
     else
 	errmsg_ = "Object already exists and overwrite is disabled.";
 
-    ioobj_ = IOM().get( name, translatorGrp() );
-    if ( !ioobj_ )
-	errmsg_.insertAt( 0, "IO object creation error: " );
-    else
-	name_ = ioobj_->name();
+    tgname_.set( translatorGrp() );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	errmsg_ += "on new 2D geometry";
 
 }
 
@@ -87,12 +86,9 @@ void odGeom2D::getData( hAllocator allocator ) const
     if ( !canRead() )
 	return;
 
-    survey_.activate();
-    if ( !ioobj_ )
-    {
-	errmsg_ = "invalid ioobj.";
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
-    }
 
     const Pos::GeomID geomid = Survey::GM().getGeomID( getName().buf() );
     if ( !geomid.is2D() )
@@ -131,12 +127,10 @@ void odGeom2D::putData( int32_t numpos, const int32_t* trcnrs,
     if ( !canWrite() )
 	return;
 
-    survey_.activate();
-    if ( !ioobj_ )
-    {
-	errmsg_ = "invalid ioobj.";
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
-    }
+
     const Pos::GeomID geomid = Survey::GM().getGeomID( getName().buf() );
     if ( !geomid.is2D() )
     {

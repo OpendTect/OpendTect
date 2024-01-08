@@ -25,6 +25,7 @@ ________________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "ioman.h"
@@ -68,9 +69,11 @@ odEMObject::~odEMObject()
 BufferStringSet* odEMObject::getAttribNames() const
 {
     BufferStringSet* names = nullptr;
-    survey_.activate();
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return names;
 
-    const EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( !eminfo.isOK() )
 	return names;
 
@@ -82,7 +85,11 @@ BufferStringSet* odEMObject::getAttribNames() const
 
 int odEMObject::getNrAttributes() const
 {
-    const EM::IOObjInfo eminfo( ioobj_ );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return 0;
+
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( !eminfo.isOK() )
 	return 0;
 
@@ -95,10 +102,11 @@ int odEMObject::getNrAttributes() const
 odHorizon3D::odHorizon3D( const odSurvey& thesurvey, const char* name )
     : odEMObject(thesurvey, name, translatorGrp())
 {
-    if ( !ioobj_ )
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
 
-    const EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( eminfo.isOK() )
 	tk_.set( eminfo.getInlRange(), eminfo.getCrlRange() );
     else
@@ -127,41 +135,55 @@ odHorizon3D::~odHorizon3D()
 }
 
 
+RefMan<EM::Horizon3D> odHorizon3D::getHorizonObj( bool create)
+{
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return nullptr;
+
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
+    RefMan<EM::Horizon3D> hor3d;
+    if ( eminfo.isOK() && eminfo.isHorizon() )
+    {
+	const MultiID hor3dkey = ioobj->key();
+	EM::EMObject* obj = EM::EMM().loadIfNotFullyLoaded(hor3dkey);
+	if ( !obj )
+	{
+	    errmsg_ = "odHorizon3D::getHorizonObj - invalid emobject.";
+	    return nullptr;
+	}
+
+	hor3d = static_cast<EM::Horizon3D*>( obj );
+    }
+    else if ( create )
+    {
+	hor3d = EM::Horizon3D::create( name_);
+	if ( hor3d )
+	    hor3d->setMultiID( ioobj->key() );
+    }
+
+    if ( !hor3d )
+	errmsg_ = "odHorizon3D::getHorizonObj - invalid horizon object.";
+
+    return hor3d;
+}
+
+
 void odHorizon3D::save()
 {
-    survey_.activate();
-    if ( ioobj_ && array_ && writecount_ )
+    if ( array_ && writecount_ )
     {
-	const EM::IOObjInfo eminfo( ioobj_ );
-	RefMan<EM::Horizon3D> hor3d;
-	if ( eminfo.isOK() && eminfo.isHorizon() )
-	{
-	    const MultiID hor3dkey = ioobj_->key();
-	    RefMan<EM::EMObject> obj = EM::EMM().loadIfNotFullyLoaded(hor3dkey);
-	    if ( !obj )
-	    {
-		errmsg_ = "Horizon3D::save - invalid emobject.";
-		return;
-	    }
-
-	    hor3d = static_cast<EM::Horizon3D*>( obj.ptr() );
-	}
-	else
-	    hor3d = EM::Horizon3D::create( name_ );
-
+	RefMan<EM::Horizon3D> hor3d = getHorizonObj( true );
+	ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
 	if ( !hor3d )
-	{
-	    errmsg_ = "Horizon3D::save - invalid object.";
 	    return;
-	}
 
-	hor3d->setMultiID( ioobj_->key() );
 	if ( hor3d->setArray2D(array_, tk_.start_, tk_.step_) )
 	{
 	    PtrMan<Executor> saver = hor3d->saver();
 	    if (!saver || !TaskRunner::execute(nullptr, *saver.ptr()) )
 	    {
-		errmsg_ = "Horizon3D::save - error during save.";
+		errmsg_ = "odHorizon3D::save - error during save.";
 		return;
 	    }
 	}
@@ -173,18 +195,19 @@ void odHorizon3D::save()
 
 void odHorizon3D::getInfo( OD::JSON::Object& jsobj ) const
 {
-    survey_.activate();
     jsobj.setEmpty();
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     jsobj.set( "name", getName().buf() );
     jsobj.set( "inl_range", tk_.lineRange() );
     jsobj.set( "crl_range", tk_.trcRange() );
-    if ( ioobj_ )
+    if ( ioobj )
     {
-	const EM::IOObjInfo eminfo( ioobj_ );
+	const EM::IOObjInfo eminfo( ioobj.ptr() );
 	Interval<float> zrg = eminfo.getZRange();
 	zrg.start *= SI().showZ2UserFactor();
 	zrg.stop *= SI().showZ2UserFactor();
 	jsobj.set( "z_range", zrg );
+	jsobj.set( "zunit", eminfo.getZUnitLabel() );
     }
     jsobj.set( "attrib_count", getNrAttributes() );
 
@@ -206,29 +229,11 @@ void odHorizon3D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
 void odHorizon3D::getZ( hAllocator allocator )
 {
-    survey_.activate();
-    if ( !ioobj_ )
-    {
-	errmsg_ = "Horizon3D::get - invalid ioobj.";
-	return;
-    }
-
     if ( !array_ )
     {
-	const MultiID hor3dkey = ioobj_->key();
-	RefMan<EM::EMObject> obj = EM::EMM().loadIfNotFullyLoaded(hor3dkey);
-	if ( !obj )
-	{
-	    errmsg_ = "Horizon3D::get - invalid emobject.";
-	    return;
-	}
-
-	mDynamicCastGet(EM::Horizon3D*,hor,obj.ptr());
+	RefMan<EM::Horizon3D> hor = getHorizonObj();
 	if ( !hor )
-	{
-	    errmsg_ = "Horizon3D::get - invalid object.";
 	    return;
-	}
 
 	array_ = hor->createArray2D();
     }
@@ -266,7 +271,7 @@ void odHorizon3D::getXY( hAllocator allocator )
     errmsg_.setEmpty();
     if ( tk_.isEmpty() )
     {
-	errmsg_ = "Horizon3D::getXY - invalid horizon geometry";
+	errmsg_ = "odHorizon3D::getXY - invalid horizon geometry";
 	return;
     }
 
@@ -291,86 +296,172 @@ void odHorizon3D::getXY( hAllocator allocator )
 }
 
 
-void odHorizon3D::putZ( const uint32_t shape[2], const float* data,
-			const int32_t* inlines, const int32_t* crlines)
+void odHorizon3D::getAuxData( hAllocator allocator, const char* auxname )
 {
+    RefMan<EM::Horizon3D> hor = getHorizonObj();
+    if ( !hor )
+	return;
+
+    PtrMan<Executor> auxloader = hor->auxdata.auxDataLoader( auxname );
+    if ( !auxloader || !TaskRunner::execute( nullptr, *auxloader ) )
+    {
+	errmsg_ = "odHorizon3D::getAuxData - error loading attribute.";
+	return;
+    }
+
+    if ( hor->auxdata.hasAuxDataName(auxname) )
+    {
+	int iaux = hor->auxdata.auxDataIndex( auxname );
+	PtrMan<Array2D<float>> array = hor->auxdata.createArray2D( iaux );
+	const int ndim = 2;
+	int dims[ndim];
+	for ( int i=0; i<ndim; i++ )
+	    dims[i] = array->info().getSize(i);
+
+	float* data = static_cast<float*>( allocator(ndim, dims, 'f') );
+	const float valnan = std::nanf("");
+	for (int i=0; i<dims[0]; i++)
+	{
+	    for (int j=0; j<dims[1]; j++)
+	    {
+		float val = array->get( i, j );
+		if ( mIsUdf(val) )
+		    val = valnan;
+
+		*data++ = val;
+	    }
+	}
+    }
+}
+
+
+void odHorizon3D::putZ( const float* data, const TrcKeySampling& tk )
+{
+    errmsg_.setEmpty();
+    if ( !canWrite() )
+	return;
+
     TrcKey trckey;
     trckey.setIs2D( false );
     const float zfac = SI().showZ2UserFactor();
     writecount_ = 0;
-    for ( int xdx=0; xdx<shape[0]; xdx++ )
+    for ( od_int64 idx=0; idx<tk.totalNr(); idx++ )
     {
-	const int32_t inl = inlines[xdx];
-	for ( int ydx=0; ydx<shape[1]; ydx++ )
-	{
-	    const int32_t crl = crlines[ydx];
-	    trckey.setLineNr( inl );
-	    trckey.setTrcNr( crl );
-	    if ( tk_.includes(trckey) )
-	    {
-		float val = data[xdx*shape[1]+ydx];
-#ifdef __win__
-		if ( !isnan(val) )
-#else
-		if ( !std::isnan(val) )
-#endif
-		{
-		    val /= zfac;
-		    array_->set( tk_.lineIdx(trckey.inl()),
-				 tk_.trcIdx(trckey.crl()), val );
-		    writecount_++;
-		}
-	    }
-	}
+	trckey = tk.trcKeyAt( idx );
+	if ( !tk_.includes(trckey, false) )
+	    continue;
+
+	float val = data[idx];
+	if ( !Math::IsNormalNumber(val) )
+	    val = mUdf(float);
+	else
+	    val /= zfac;
+
+	array_->set( tk_.lineIdx(trckey.inl()), tk_.trcIdx(trckey.crl()), val );
+	writecount_++;
     }
 
     save();
 }
 
 
-void odHorizon3D::putZ( const uint32_t shape[2], const float* data,
-			const double* xpos, const double* ypos)
+void odHorizon3D::putAuxData( const char* name, const float* data,
+			      const TrcKeySampling& tk )
 {
-    TrcKey trckey;
-    trckey.setIs2D( false );
-    const float zfac = SI().showZ2UserFactor();
-    writecount_ = 0;
-    for ( int xdx=0; xdx<shape[0]; xdx++ )
+    errmsg_.setEmpty();
+    if ( !canWrite() )
+	return;
+
+    RefMan<EM::Horizon3D> hor3d = getHorizonObj( true );
+    if ( !hor3d )
+	return;
+
+    int auxidx = hor3d->auxdata.auxDataIndex( name );
+    if ( auxidx==-1 )
+	auxidx = hor3d->auxdata.addAuxData( name );
+    for ( od_int64 idx=0; idx<tk.totalNr(); idx++ )
     {
-	for ( int ydx=0; ydx<shape[1]; ydx++ )
-	{
-	    const int idx = xdx*shape[1]+ydx;
-	    const Coord pos( xpos[idx], ypos[idx] );
-	    trckey.setFrom( pos );
-	    if ( tk_.includes(trckey) )
-	    {
-		float val = data[idx];
-#ifdef __win__
-		if ( !isnan(val) )
-#else
-		if ( !std::isnan(val) )
-#endif
-		{
-		    val /= zfac;
-		    array_->set( tk_.lineIdx(trckey.inl()),
-				 tk_.trcIdx(trckey.crl()), val );
-		    writecount_++;
-		}
-	    }
-	}
+	const TrcKey trckey = tk.trcKeyAt( idx );
+	if ( !tk_.includes(trckey, false) )
+	    continue;
+
+	float val = data[idx];
+	if ( !Math::IsNormalNumber(val) )
+	    val = mUdf(float);
+
+	hor3d->auxdata.setAuxDataVal( auxidx, trckey, val );
     }
 
-    save();
+    PtrMan<Executor> auxsaver = hor3d->auxdata.auxDataSaver( auxidx, true );
+    if ( !auxsaver || !TaskRunner::execute( nullptr, *auxsaver ) )
+	errmsg_ = BufferString(
+		"odHorizon3D::putAuxData - error saving attribute: ", name );
+
+}
+
+
+// void odHorizon3D::putZ( const uint32_t shape[2], const float* data,
+//			const double* xpos, const double* ypos)
+// {
+//     TrcKey trckey;
+//     trckey.setIs2D( false );
+//     const float zfac = SI().showZ2UserFactor();
+//     writecount_ = 0;
+//     for ( int xdx=0; xdx<shape[0]; xdx++ )
+//     {
+//	for ( int ydx=0; ydx<shape[1]; ydx++ )
+//	{
+//	    const int idx = xdx*shape[1]+ydx;
+//	    const Coord pos( xpos[idx], ypos[idx] );
+//	    trckey.setFrom( pos );
+//	    if ( tk_.includes(trckey) )
+//	    {
+//		float val = data[idx];
+// #ifdef __win__
+//		if ( !isnan(val) )
+// #else
+//		if ( !std::isnan(val) )
+// #endif
+//		{
+//		    val /= zfac;
+//		    array_->set( tk_.lineIdx(trckey.inl()),
+//				 tk_.trcIdx(trckey.crl()), val );
+//		    writecount_++;
+//		}
+//	    }
+//	}
+//     }
+//
+//     save();
+// }
+
+
+bool odHorizon3D::deleteAttribs( const BufferStringSet& attribnms )
+{
+    RefMan<EM::Horizon3D> hor = getHorizonObj();
+    if ( !hor )
+	return false;
+
+    for ( auto* attrib : attribnms )
+    {
+	int idx = hor->auxdata.auxDataIndex( *attrib );
+	if ( idx>0 )
+	    hor->auxdata.removeAuxData( idx );
+
+	hor->auxdata.removeFile( *attrib );
+    }
+    return true;
 }
 
 
 odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name )
     : odEMObject(thesurvey, name, translatorGrp())
 {
-    if ( !ioobj_ )
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
 
-    const EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( !eminfo.isOK() )
     {
 	if ( errmsg_.isEmpty() )
@@ -379,18 +470,18 @@ odHorizon2D::odHorizon2D( const odSurvey& thesurvey, const char* name )
 	errmsg_.add( "invalid eminfo." );
     }
 
-    const MultiID hor2dkey = ioobj_->key();
+    const MultiID hor2dkey = ioobj->key();
     EM::EMObject* obj = EM::EMM().loadIfNotFullyLoaded(hor2dkey);
     if ( !obj )
     {
-	errmsg_ = "Horizon2D - invalid emobject.";
+	errmsg_ = "odHorizon2D - invalid emobject.";
 	return;
     }
 
     mDynamicCastGet(EM::Horizon2D*, hor, obj );
     if ( !hor )
     {
-	errmsg_ = "Horizon2D - invalid object.";
+	errmsg_ = "odHorizon2D - invalid object.";
 	return;
     }
     hor_ = hor;
@@ -440,9 +531,12 @@ odHorizon2D::~odHorizon2D()
 
 void odHorizon2D::getInfo( OD::JSON::Object& jsobj ) const
 {
-    survey_.activate();
     jsobj.setEmpty();
-    const EM::IOObjInfo eminfo( ioobj_ );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return;
+
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( !eminfo.isOK() )
 	return;
 
@@ -455,9 +549,12 @@ void odHorizon2D::getInfo( OD::JSON::Object& jsobj ) const
 
 BufferStringSet* odHorizon2D::getLineNames() const
 {
-    survey_.activate();
     BufferStringSet* names = nullptr;
-    const EM::IOObjInfo eminfo( ioobj_ );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return names;
+
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( !eminfo.isOK() )
 	return names;
 
@@ -476,9 +573,12 @@ BufferString odHorizon2D::getLineName( int lineid ) const
 
 int odHorizon2D::getNrLines() const
 {
-    survey_.activate();
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return 0;
+
     TypeSet<Pos::GeomID> geomids;
-    const EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( eminfo.isOK() )
 	eminfo.getGeomIDs( geomids );
 
@@ -488,8 +588,11 @@ int odHorizon2D::getNrLines() const
 
 void odHorizon2D::getLineIDs( int num, int* ids ) const
 {
-    survey_.activate();
-    const EM::IOObjInfo eminfo( ioobj_ );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return;
+
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( eminfo.isOK() )
     {
 	TypeSet<Pos::GeomID> geomids;
@@ -505,7 +608,7 @@ void odHorizon2D::getZ( hAllocator allocator, int lineid )
 {
     if ( !hor_ )
     {
-	errmsg_ = "Horizon2D::getZ - invalid object.";
+	errmsg_ = "odHorizon2D::getZ - invalid object.";
 	return;
     }
 
@@ -514,7 +617,7 @@ void odHorizon2D::getZ( hAllocator allocator, int lineid )
     PtrMan<Array1D<float>> array = hor_->createArray1D( geomid );
     if ( !array )
     {
-	errmsg_ = "Horizon2D::getZ - lineid not found.";
+	errmsg_ = "odHorizon2D::getZ - lineid not found.";
 	return;
     }
 
@@ -543,7 +646,7 @@ void odHorizon2D::getXY( hAllocator allocator, int lineid )
 {
     if ( !hor_ )
     {
-	errmsg_ = "Horizon2D::getZ - invalid object.";
+	errmsg_ = "odHorizon2D::getZ - invalid object.";
 	return;
     }
 
@@ -551,7 +654,7 @@ void odHorizon2D::getXY( hAllocator allocator, int lineid )
     Pos::GeomID geomid( lineid );
     if ( !hor_->geometry().hasLine(geomid) )
     {
-	errmsg_ = "Horizon2D::getXY - lineid not found.";
+	errmsg_ = "odHorizon2D::getXY - lineid not found.";
 	return;
     }
 
@@ -653,23 +756,59 @@ void horizon3d_getxy( hHorizon3D self , hAllocator allocator )
 }
 
 
-void horizon3d_putz( hHorizon3D self, const uint32_t shape[2],
-		     const float* data, const int32_t* inlines,
-		     const int32_t* crlines )
+void horizon3d_getauxdata( hHorizon3D self, hAllocator allocator,
+			   const char* auxname )
 {
     auto* p = static_cast<odHorizon3D*>(self);
     if ( p )
-	p->putZ( shape, data, inlines, crlines );
+	p->getAuxData( allocator, auxname );
 }
 
 
-void horizon3d_putz_byxy( hHorizon3D self, const uint32_t shape[2],
-			  const float* data,
-			  const double* xpos, const double* ypos )
+void horizon3d_putz( hHorizon3D self, const float* data, const int32_t inlrg[3],
+		     const int32_t crlrg[3] )
 {
     auto* p = static_cast<odHorizon3D*>(self);
-    if ( p )
-	p->putZ( shape, data, xpos, ypos );
+    if ( !p || !p->canWrite() )
+	return;
+
+    TrcKeySampling tktosave = odSurvey::tkFromRanges( inlrg, crlrg );
+    p->putZ( data, tktosave );
+}
+
+
+void horizon3d_putauxdata( hHorizon3D self, const char* nm, const float* data,
+			   const int32_t inlrg[3], const int32_t crlrg[3] )
+{
+    auto* p = static_cast<odHorizon3D*>(self);
+    if ( !p || !p->canWrite() )
+	return;
+
+    TrcKeySampling tktosave = odSurvey::tkFromRanges( inlrg, crlrg );
+    p->putAuxData( nm, data, tktosave );
+}
+
+
+// void horizon3d_putz_byxy( hHorizon3D self, const uint32_t shape[2],
+//			  const float* data,
+//			  const double* xpos, const double* ypos )
+// {
+//     auto* p = static_cast<odHorizon3D*>(self);
+//     if ( p )
+//	p->putZ( shape, data, xpos, ypos );
+// }
+
+
+bool horizon3d_deleteattribs( hHorizon3D self, const hStringSet attribnms )
+{
+    auto* p = static_cast<odHorizon3D*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(attribnms);
+    if ( !p || !nms ) return false;
+
+    if ( nms->isEmpty() )
+	return true;
+
+    return p->deleteAttribs( *nms );
 }
 
 
