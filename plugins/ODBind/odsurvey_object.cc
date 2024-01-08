@@ -32,15 +32,11 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
 				const char* tgname )
     : survey_(thesurvey)
     , name_(name)
+    , tgname_(tgname)
     , readonly_(true)
     , zistime_(SI().zIsTime())
 {
-    survey_.activate();
-    ioobj_ = IOM().get( name, tgname );
-    if ( !ioobj_ )
-	errmsg_ = "IO object read error: ";
-    else
-	name_ = ioobj_->name();
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
 }
 
 
@@ -49,6 +45,7 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
 				const char* fmt )
     : survey_(thesurvey)
     , name_(name)
+    , tgname_(tgname)
     , overwrite_(overwrite)
     , readonly_(false)
     , zistime_(SI().zIsTime())
@@ -56,11 +53,12 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
     survey_.activate();
     if ( tgname )
     {
-	ioobj_ = survey_.createObj( name, tgname, fmt, overwrite, errmsg_);
-	if ( !ioobj_ || !errmsg_.isEmpty() )
+	ConstPtrMan<IOObj> ioobj( survey_.createObj( name, tgname, fmt,
+						     overwrite, errmsg_) );
+	if ( !ioobj || !errmsg_.isEmpty() )
 	    errmsg_.insertAt( 0, "IO object creation error: " );
 	else
-	    name_ = ioobj_->name();
+	    name_ = ioobj->name();
     }
 }
 
@@ -68,6 +66,16 @@ odSurveyObject::odSurveyObject( const odSurvey& thesurvey, const char* name,
 odSurveyObject::~odSurveyObject()
 {}
 
+
+IOObj*	odSurveyObject::ioobj_ptr() const
+{
+    survey_.activate();
+    IOObj* ioobj = IOM().get( name_, tgname_ );
+    if ( !ioobj )
+	errmsg_.insertAt( 0, "IO object read error - " );
+
+    return ioobj;
+}
 
 BufferString odSurveyObject::getName() const
 {

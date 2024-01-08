@@ -63,7 +63,7 @@ public:
     static const char*	translatorGrp()		{return "2D Seismic Data";}
 
 protected:
-    PtrMan<Seis2DDataSet>	seisdata_;
+    Seis2DDataSet*		seisdata_ptr() const;
 };
 
 mDeclareBaseBindings(Seismic2D, seismic2d)

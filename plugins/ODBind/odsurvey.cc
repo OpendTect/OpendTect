@@ -453,19 +453,28 @@ void odSurvey::getFeatures( OD::JSON::Object& jsobj,
 }
 
 
+TrcKeySampling odSurvey::tkFromRanges( const int32_t inlrg[3],
+				       const int32_t crlrg[3] )
+{
+    StepInterval<int> linerg( inlrg[0], inlrg[1], inlrg[2] );
+    StepInterval<int> trcrg( crlrg[0], crlrg[1], crlrg[2] );
+    TrcKeySampling tk;
+    tk.setLineRange( linerg );
+    tk.setTrcRange( trcrg );
+    return tk;
+}
+
+
 TrcKeyZSampling odSurvey::tkzFromRanges( const int32_t inlrg[3],
 					 const int32_t crlrg[3],
 					 const float zrg[3], bool zistime )
 {
-    StepInterval<int> linerg( inlrg[0], inlrg[1], inlrg[2] );
-    StepInterval<int> trcrg( crlrg[0], crlrg[1], crlrg[2] );
     StepInterval<float> z_rg( zrg[0], zrg[1], zrg[2] );
     const float zscale = zistime ? ZDomain::Time().userFactor()
 				    : ZDomain::Depth().userFactor();
     z_rg.scale( 1.0/zscale );
     TrcKeyZSampling tkz;
-    tkz.hsamp_.setLineRange( linerg );
-    tkz.hsamp_.setTrcRange( trcrg );
+    tkz.hsamp_ = tkFromRanges( inlrg, crlrg );
     tkz.zsamp_ = z_rg;
     return tkz;
 }

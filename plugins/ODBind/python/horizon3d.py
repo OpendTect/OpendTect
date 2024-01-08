@@ -1,5 +1,6 @@
 import numpy as np
 import ctypes as ct
+from collections import namedtuple
 from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del 
 from odbind.survey import Survey, _SurveyObject
 
@@ -14,13 +15,18 @@ class Horizon3D(_SurveyObject):
         clss._attribnames = wrap_function(LIBODB, f'{bindnm}_attribnames', ct.c_void_p, [ct.c_void_p])
         clss._getz = wrap_function(LIBODB, f'{bindnm}_getz', ct.c_void_p, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
         clss._getxy = wrap_function(LIBODB, f'{bindnm}_getxy', ct.c_void_p, [ct.c_void_p, NumpyAllocator.CFUNCTYPE])
+        clss._getauxdata = wrap_function(LIBODB, f'{bindnm}_getauxdata', ct.c_void_p, [ct.c_void_p, NumpyAllocator.CFUNCTYPE, ct.c_char_p])
         putzargs = [ct.c_void_p, 
-                    np.ctypeslib.ndpointer(dtype=np.uint32, ndim=1, flags="C_CONTIGUOUS"),
                     np.ctypeslib.ndpointer(dtype=np.float32, ndim=2, flags="C_CONTIGUOUS"),
-                    np.ctypeslib.ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),
-                    np.ctypeslib.ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS")
+                    ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)
                     ]
         clss._putz = wrap_function(LIBODB, f'{bindnm}_putz', None, putzargs)
+        putauxdataargs = [ ct.c_void_p, ct.c_char_p, np.ctypeslib.ndpointer(dtype=np.float32, ndim=2, flags="C_CONTIGUOUS"),
+                           ct.POINTER(ct.c_int), ct.POINTER(ct.c_int)
+                         ]
+        clss._putauxdata = wrap_function(LIBODB, f'{bindnm}_putauxdata', None, putauxdataargs)
+        clss._delattribs = wrap_function(LIBODB, f'{bindnm}_deleteattribs', ct.c_bool, [ct.c_void_p, ct.c_void_p])
+
 
     @property
     def attribnames(self) ->list[str]:
@@ -28,18 +34,11 @@ class Horizon3D(_SurveyObject):
         return pystrlist(self._attribnames(self._handle))
 
     @property
-    def ilines(self) ->list[int]:
-        """list[int]: Inline numbers included in this 3D horizon (readonly)"""
-        hi_inl = self.info()['inl_range']
-        inlrg = range(hi_inl[0], hi_inl[1]+hi_inl[2], hi_inl[2] )
-        return [inl for inl in inlrg]
-
-    @property
-    def xlines(self) ->list[int]:
-        """list[int]: Crossline numbers included in this 3D horizon (readonly)"""
-        hi_crl = self.info()['crl_range']
-        crlrg = range(hi_crl[0], hi_crl[1]+hi_crl[2], hi_crl[2] )
-        return [crl for crl in crlrg]
+    def ranges(self) ->namedtuple:
+        """namedtuple[inlrg, crlrg, zrg]: inline and crossline of the 3D horizon (readonly)"""
+        Sampling = namedtuple('Sampling', ['inlrg', 'crlrg'])
+        info = self.info()
+        return Sampling(info['inl_range'], info['crl_range'])
 
     @classmethod
     def create(clss, survey: Survey, name: str, inl_rg: list[int], crl_rg: list[int], overwrite: bool=False):
@@ -82,7 +81,7 @@ class Horizon3D(_SurveyObject):
     def __exit__(self, type, value, traceback):
         pass
 
-    def getz(self):
+    def get_z(self):
         """Get the 3D horizon Z values as a Numpy array
 
         Returns
@@ -98,7 +97,7 @@ class Horizon3D(_SurveyObject):
 
         return allocator.allocated_arrays[0]
      
-    def getxy(self):
+    def get_xy(self):
         """Get the 3D horizon X,Y values as Numpy arrays
 
         Returns
@@ -114,73 +113,271 @@ class Horizon3D(_SurveyObject):
 
         return (allocator.allocated_arrays[:2])
 
-    def get_xarray(self):
-        """Get the 3D horizon Z values as an XArray DataArray
+    def get_attrib(self, attribname: str):
+        """Get a 3D horizon attribute as a Numpy array
+
+        Parameters
+        ----------
+        attribname : str
+            The attribute to get
 
         Returns
         -------
-        XArray DataArray with the horizon Z values and both inline/crossline and X/Y coordinates
+        Numpy 2D array with the horizon attribute values
 
         """
 
-        from xarray import DataArray
-        name = self.info()['name']
-        xy = self.getxy()
-        z = self.getz()
+        if attribname not in self.attribnames:
+            raise ValueError("invalid attribute name")
+
+        allocator = NumpyAllocator()
+        self._getauxdata(self._handle, allocator.cfunc, attribname.encode())
+        if not self.isok:
+            raise ValueError(self.errmsg)
+
+        return allocator.allocated_arrays[0]
+
+    def getdata(self, attribnms : list[str]=[]):
+        """Return the 3D horizon data
+
+        Return format determined by current setting of Horizon3D.use_xarray.
+        
+        For Horizon3D.use_xarray == True:
+            - The data is returned as a 2D Xarray.Dataset with the z values and horizon data as data variables.
+            - The axes of the data variables are inline number (first) and crossline (second).
+            - The coordinates defined in the Xarray dataset are:
+                - iline: inline number
+                - xline: crossline number
+                - x: Trace easting in the survey CRS
+                - y: Trace northing in the survey CRS
+            - The OpendTect data object name, survey CRS and z value units are included as attributes.
+
+        For Horizon3D.use_xarray == False:
+            - The data is returned as a tuple of:
+                -  a list of numpy arrays (length of the list must be the same as the length of the 'comp' info dict item)
+                -  a Python dict with information about the data
+            - The information dict has the following keys and data:
+                -  'comp': list[str] names of data components as they are present in the data array, at minumum "z"
+                -  'iline': list[int] with the inline start, stop and step
+                -  'xline': list[int] with the crossline start, stop and step
+                -  'x': double | np.ndarray(double) with the x coordinates of the traces  
+                -  'y': double | np.ndarray(double) with the y coordinates of the traces
+
+        Parameters
+        ----------
+        attribs : list[str] = []
+            list of attributes to include, default is none
+
+        Returns
+        -------
+         tuple(list[np.ndarray], dict) | Xarray.Datatset
+            see above for details
+
+        """
+        xy = self.get_xy()
+        z = self.get_z()
+        inlrg, crlrg = self.ranges 
+        info =  {
+                    'comp': ['z'],
+                    'iline': inlrg[0] if inlrg[0]==inlrg[1] else inlrg,
+                    'xline': crlrg[0] if crlrg[0]==crlrg[1] else crlrg,
+                    'x': xy[0],
+                    'y': xy[1],
+                }
+        data = [z]
+        allattribs = self.attribnames
+        for attrib in attribnms:
+            if attrib in allattribs:
+                info['comp'].append(attrib)
+                data.append( self.get_attrib(attrib))
+
+        return self.to_xarray(data, info) if Horizon3D.use_xarray else (data, info,)
+
+    def to_xarray(self, data: list[np.ndarray], info: dict):
+        """Convert 3D horizon data in simple list+dict format to an Xarray Dataset
+
+        See Horizon3D.getdata for details of the input and output formats.
+
+        Parameters
+        ----------
+        data : list[np.ndarray]
+           Z and any included horizon data, in iline, xline axis order
+        info : dict
+            at minimum require 'comp', 'iline, and 'xline' fields
+
+        Returns
+        -------
+        Xarray.Dataset
+
+        """
+
+        from xarray import DataArray, Dataset
         si = self._survey.info()
-        dims = ['inl', 'crl']
-        xyattrs = { 'units': si['xyunit']}
+        di = self.info()
+        dims = ['iline', 'xline']
+        xyattrs = {'units': si['xyunit']}
+        inlrg = info['iline']
+        crlrg = info['xline']
         coords =    {
-                        'inl': self.ilines,
-                        'crl': self.xlines,
-                        'x': DataArray(xy[0], dims=dims, attrs=xyattrs),
-                        'y': DataArray(xy[1], dims=dims, attrs=xyattrs)
+                        'iline': np.arange(inlrg[0],inlrg[1]+inlrg[2],inlrg[2], dtype=np.int32),
+                        'xline': np.arange(crlrg[0],crlrg[1]+crlrg[2],crlrg[2], dtype=np.int32),
                     }
+        if set(("x","y")) <= info.keys():   
+            coords['x'] = DataArray(info['x'], dims=dims, attrs=xyattrs)
+            coords['y'] = DataArray(info['y'], dims=dims, attrs=xyattrs)
+
         attribs =   {
-                        'description': name,
-                        'units': si['zunit'],
+                        'description': di['name'],
+                        'units': di['zunit'],
                         'crs': si['crs']
                     }
-        return DataArray(z, coords=coords, dims=dims, name=name, attrs=attribs)
+        return Dataset(data_vars={dv: (dims, data[idx]) for idx, dv in enumerate(info['comp'])}, coords=coords, attrs=attribs)
 
-    def putz(self, data, inlines, crlines):
+    def from_xarray(self, xrdata) ->tuple:
+        """Convert 3D horizon data in Xarray.Dataset to simple list+dict format
+
+        See Horizon3D.getdata for details of the input and output formats.
+        Note:
+        - only coordinates iline, xline need to be present in the dataset
+
+        Parameters
+        ----------
+        xrdata : Xarray.Dataset
+
+        Returns
+        -------
+        data : list[np.ndarrays], one array per "Z" and horizon data
+        info : dict
+
+        """
+        zdim = 'twt' if self.zistime else 'depth'
+        data = [xrdata[key].to_numpy() for key in list(xrdata.data_vars)]
+        info = { key: xrdata[key].to_numpy() for key in list(xrdata.coords) if key in ['iline','xline']}
+        il0 = xrdata['iline'].item() if xrdata['iline'].size==1 else xrdata['iline'][0].item()
+        il1 = xrdata['iline'].item() if xrdata['iline'].size==1 else xrdata['iline'][-1].item()
+        il2 = 1 if xrdata['iline'].size==1 else round((il1-il0)/(data[0].shape[0]-1))
+        xl0 =  xrdata['xline'].item() if xrdata['xline'].size==1 else xrdata['xline'][0].item()
+        xl1 = xrdata['xline'].item() if xrdata['xline'].size==1 else xrdata['xline'][-1].item()
+        xl2 = 1 if xrdata['xline'].size==1 else round((xl1-xl0)/(data[0].shape[-1]-1))
+        info['iline'] = [il0, il1, il2]
+        info['xline'] = [xl0, xl1, xl2]
+        info['comp'] = list(xrdata.data_vars)
+        return (data, info,)
+
+    def putdata(self, indata):
+        """Write 3D horizon data from either simple list+dict format or Xarray.Dataset
+
+        See Horizon3D.getdata for details of the input formats.
+        Note:
+        - assumes components in 'data' list are in same order as returned by comp_names property
+        - if number of components>len(comp_names), extra data items are ignored
+        - if number of components<len(comp_names), missing data items are zero filled
+        - raises ValueError if geometry in info dict is incompatible with data shape
+        - only data compatible with the ranges specified in the seismic volume creation call 
+        (ie inside and on the sample grid) are saved
+
+        Parameters
+        ----------
+        indata : tuple(list[np.ndarray], dict) | Xarray.Datatset
+            see Horizon3D.getdata for details
+
+        """
+        data = []
+        info = {}
+        if isinstance(indata, tuple):
+            data = indata[0]
+            info = indata[1]
+        else:
+            data, info = self.from_xarray(indata)
+
+        inlrg = info['iline']
+        crlrg = info['xline']
+        datashp = []
+        if inlrg[0]!=inlrg[1]:
+            datashp.append(((inlrg[1]-inlrg[0])//inlrg[2])+1)
+
+        if crlrg[0]!=crlrg[1]:
+            datashp.append(((crlrg[1]-crlrg[0])//crlrg[2])+1)
+
+        for idx, compnm in enumerate(info['comp']):
+            if idx<len(data):
+                datum = data[idx]
+            else:
+                return
+
+            if datum.shape!=tuple(datashp):
+                raise ValueError(f'ranges {tuple(datashp)} and data shape {datum.shape} are incompatible for {compnm}.')
+
+            datum = np.ascontiguousarray(datum, dtype=np.float32)
+            if compnm=='z':
+                self.put_z(datum, inlrg, crlrg)
+            else:
+                self.put_auxdata(compnm, datum, inlrg, crlrg)
+
+            if not self.isok:
+                raise ValueError(self.errmsg)
+
+
+
+    def put_z(self, data, inlrg: list[int], crlrg: list[int]):
         """Save the 3D horizon Z values from the data Numpy 2D array
 
         Parameters
         ----------
         data : numpy.ndarray
             Horizon Z values
-        inlines : arraylike
-            Inline locations of Z values
-        crlines : arraylike
-            Crossline locations of Z values
+        inlrg : list[int]
+            Inline start, stop and step
+        crlrg : list[int]
+            Crossline start, stop and step
         """
 
         npdata = data if isinstance(data, np.ndarray) else np.array(data)
-        npinlines = inlines if isinstance(inlines, np.ndarray) else np.array(inlines, dtype=np.int32)
-        npcrlines = crlines if isinstance(crlines, np.ndarray) else np.array(crlines, dtype=np.int32)
-        shape = np.array(npdata.shape, dtype=np.uint32)
-        self._putz(self._handle, shape, npdata, npinlines, npcrlines)
+        ct_inlrg = (ct.c_int * 3)(*inlrg)
+        ct_crlrg = (ct.c_int * 3)(*crlrg)
+        self._putz(self._handle, npdata, ct_inlrg, ct_crlrg)
         if not self.isok:
             raise ValueError(self.errmsg)
 
-    def put_xarray(self, data_array):
-        """Save the 3D horizon Z values from the data_array XArray DataArray
+    def put_auxdata(self, name: str, data, inlrg: list[int], crlrg: list[int]):
+        """Save the 3D horizon attribute data from a numpy 2D array
 
         Parameters
         ----------
-        data_array : XArray DataArray
-            Horizon Z values and 'inl' and 'crl' coordinates
+        name : str
+            Horizon attribute name
+        data : numpy.ndarray
+            Horizon sttribute values
+        inlrg : list[int]
+            Inline start, stop and step
+        crlrg : list[int]
+            Crossline start, stop and step
         """
 
-        npdata = data_array.values
-        npinlines = data_array.coords['inl'].to_numpy().astype(dtype=np.int32)
-        npcrlines = data_array.coords['crl'].to_numpy().astype(dtype=np.int32)
-        shape = np.array(npdata.shape, dtype=np.uint32)
-        self._putz(self._handle, shape, npdata, npinlines, npcrlines)
+        npdata = data if isinstance(data, np.ndarray) else np.array(data)
+        ct_inlrg = (ct.c_int * 3)(*inlrg)
+        ct_crlrg = (ct.c_int * 3)(*crlrg)
+        self._putauxdata(self._handle, name.encode(), npdata, ct_inlrg, ct_crlrg)
         if not self.isok:
             raise ValueError(self.errmsg)
 
+    def delete_attribs(self, attribnms: list[str]=[]):
+        """Delete the listed attributes from the 3D horizon
+
+        Parameters
+        ----------
+        attribnms : list[str]
+            list of attribute names to be deleted
+
+        Returns
+        -------
+        bool : True/False indicating success/failure
+
+        """
+        attribnmsptr = makestrlist(attribnms)
+        res = self._delattribs(self._handle, attribnmsptr)
+        stringset_del(attribnmsptr)
+        return res
 
 Horizon3D._initbindings('horizon3d')
  
