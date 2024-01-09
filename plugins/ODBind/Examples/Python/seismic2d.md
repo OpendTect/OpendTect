@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.5
+      jupytext_version: 1.14.0
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -31,6 +31,7 @@ from matplotlib import pyplot as plt
 import xarray as xr
 from odbind.survey import Survey
 from odbind.seismic2d import Seismic2D
+from odbind.geom2d import Geom2D
 ```
 
 ## Seismic2D class
@@ -83,24 +84,35 @@ Return a list of the seismic lines in the 2D seismic dataset.
 data.line_names
 ```
 
-### Seismic2D.line_info and line_info_dataframe functions
-These return a dictionary and a Pandas DataFrame respectively with basic information for the listed lines (or all lines if no list provided) in this 2D dataset.
+### Seismic2D.line_info functions
+This returns a Pandas DataFrame or a list of dictionaries (depending on the value od Seismic2D.use_dataframe) with basic information for the listed lines (or all lines if no list provided) in this 2D dataset.
 
 ```python
-data.line_info_dataframe()
+data.line_info()
+```
+
+### Reading 2D Seismic Data - Seismic2D.getdata
+
+This returns a Xarray Dataset or a tuple (depending on the value of Seismic2D.use_xarray) for the given line in the 2D dataset.
+
+```python
+xrline = data.getdata('SSIS-Grid-Strike4')
+xrline
 ```
 
 ```python
-xrline = data.getdata_xarray('SSIS-Grid-Strike4')
 xr.plot.imshow(xrline['Component 1'], x='trc', y='twt', yincrease=False, cmap='Greys')
 ```
 
-### Creating 2D Seismic Data
+### Creating 2D Seismic Data - Seismic2D.create and Seismic2D.putdata
+
+Seismic2D.create is used to create a new (or overwrite and existing) 2D seismic dataset.
+Seismic2D.putdata is used to write store data for a line into OpendTect
 
 ```python
 with Seismic2D.create(f3demo, 'pytest', ['comp1'], 'CBVS', True, True) as newdataset:
-    newdataset.putdata_xarray('test2', xrline, True, True)
-    
+    newdataset.putdata('test2', xrline, True, True)
+
 newdata = Seismic2D(f3demo,'pytest')
 newdata.line_info()
 ```
@@ -117,6 +129,11 @@ Seismic2D.delete(f3demo,['pytest'])
 Seismic2D.names(f3demo)
 ```
 
+```python
+Geom2D.delete(f3demo, ['test2'])
+Geom2D.names(f3demo)
+```
+
 ## Static methods
 A number of methods are provided to get information either for all or a selected number of 2D seismic datasets in the user provided survey.
 
@@ -129,8 +146,7 @@ datasets
 These return a dictionary and a Pandas DataFrame respectively with basic information for the listed 2D seismic datasets (or all datasets if no list provided) in the given survey.
 
 ```python
-Seismic2D.infos_dataframe(f3demo)
-#Seismic2D.infos(f3demo)
+Seismic2D.infos(f3demo)
 ```
 
 ### Seismic2D.features() function

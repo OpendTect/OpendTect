@@ -99,7 +99,7 @@ class Seismic2D(_SurveyObject):
     def close(self):
         self._close(self._handle)
 
-    def line_info(self, forlinenms: list[str]=[]) ->dict:
+    def line_info(self, forlinenms: list[str]=[]):
         """Return basic information for all or a subset of lines in this 2D dataset.
         
         Parameters
@@ -109,50 +109,48 @@ class Seismic2D(_SurveyObject):
         
         Returns
         -------
-        dict
+        dict or Pandas DataFrame depending on the value of Seismic2D.use_dataframe
 
         """
         fornmsptr = makestrlist(forlinenms)
         infolist = pyjsonstr(self._lineinfo(self._handle, fornmsptr ))
         stringset_del(fornmsptr)
-        return infolist
+        return self.dictlist_to_dataframe(infolist) if Seismic2D.use_dataframe else infolist 
 
-    def line_info_dataframe(self, forlinenms: list[str]=[]) ->dict:
-        """Return basic information for all or a subset of lines in this 2D dataset as a Pandas DataFrame.
+    def getdata(self, linenm: str):
+        """Return the 2D seismic data for the given linenm
+
+        Reads all components and various supporting data. Return format determined by
+        current setting of Seismic2D.use_xarray.
         
-        Parameters
-        ----------
-        forlinenms : list[str]=[]
-            (Optional) a list of line names to use. For an empty list information for all lines in the 2D dataset is provided.
-        
-        Returns
-        -------
-        Pandas Dataframe
+        For Seismic2D.use_xarray == True:
+            - The data is returned as an Xarray.Dataset with a data variable for each seismic 
+            component. 
+            - Each data variable will be a 2D Xarray Dataarray with trace number as the first 
+            axis of trace number and z sample index as the second (last) axis.
+            - The coordinates defined in the Xarray dataset are:
+                - line: the line name
+                - trc: the trace numbers
+                - ref: the source/shot point number at the trace location
+                - x: Trace easting in the survey CRS
+                - y: Trace northing in the survey CRS
+                - twt/depth: Trace z samples in milliseconds for twt and m/ft for depth
+            - The OpendTect data object name, survey CRS and units are added to the Xarray Dataset 
+            as attributes.
 
-        """
-        from pandas import DataFrame
-        infolist = self.line_info(forlinenms)
-        if len(infolist)>0:
-            return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
-        else:
-            return DataFrame()
-
-    def getdata(self, linenm: str) ->tuple:
-        """Read the data for the given linenm
-
-        Reads all components and various supporting data and returns a tuple of:
-        -  a list of numpy arrays, one for each seismic component
-        -  a Python dict with information about the data
-
-        The information dict has the following keys and data:
-        -  'comp': list[str] of the seismic component names
-        -  'line': str of the line name
-        -  'trc': np.ndarray(int) with the trace numbers
-        -  'ref': np.ndarray(float) with the SP numbers
-        -  'x': np.ndarray(double) with the x coordinates of the traces  
-        -  'y': np.ndarray(double) with the y coordinates of the traces
-        -  'twt' | 'depth': list[float] with the Z start, stop and step (in display units)
-        -  'dims': list[str] dimensions of the trace data
+        For Seismic2D.use_xarray == False:
+            - The data is returned as a tuple of:
+                -  a list of numpy arrays, one for each seismic component
+                -  a Python dict with information about the data
+            - The information dict has the following keys and data:
+                -  'comp': list[str] of the seismic component names
+                -  'line': str of the line name
+                -  'trc': np.ndarray(int) with the trace numbers
+                -  'ref': np.ndarray(float) with the SP numbers
+                -  'x': np.ndarray(double) with the x coordinates of the traces  
+                -  'y': np.ndarray(double) with the y coordinates of the traces
+                -  'twt' | 'depth': list[float] with the Z start, stop and step (in display units)
+                -  'dims': list[str] dimensions of the trace data
 
         Parameters
         ----------
@@ -162,6 +160,8 @@ class Seismic2D(_SurveyObject):
         Returns
         -------
         tuple : list[np.ndarrays], one array per seismic component and info dict
+        or
+        Xarray.Dataset depending on the value of Seismic2D.use_xarray
 
         """
         allocator = NumpyAllocator()
@@ -185,15 +185,18 @@ class Seismic2D(_SurveyObject):
                     zdim: zrg[:],
                     'dims': dims
                 }
-        return ([allocator.allocated_arrays[compnms.index(compnm)] for compnm in compnms], info,)
+        data = [allocator.allocated_arrays[compnms.index(compnm)] for compnm in compnms]
+        return self.to_xarray(data, info) if Seismic2D.use_xarray else (data, info,)
 
-    def getdata_xarray(self, linenm: str ):
-        """Read the data for the given line name and returns an Xarray Dataset
+    def to_xarray(self, data: list, info: dict):
+        """Convert 2D seismic data in simple list+dict format to an Xarray Dataset
 
+        See Seismic2D.getdata for details of the input and output formats.
+        
         Parameters
         ----------
-        linenm : str
-            line name to read
+        data : list[np.ndarrays], one array per seismic component
+        info : dict
 
         Returns
         -------
@@ -201,7 +204,6 @@ class Seismic2D(_SurveyObject):
 
         """
         from xarray import DataArray, Dataset
-        data, info = self.getdata(linenm)
         si = self._survey.info()
         di = self.info()
         zdim = 'twt' if self.zistime else 'depth'
@@ -209,7 +211,7 @@ class Seismic2D(_SurveyObject):
         xyattrs = {'units': si['xyunit']}
         zattrs = {'units': di['zunit']}
         zrg = info[zdim]
-        ns = 1 if isinstance(zrg, float) else int((zrg[1]-zrg[0])/zrg[2])+1
+        ns = 1 if isinstance(zrg, float) else round((zrg[1]-zrg[0])/zrg[2])+1
         coords =    {
                         'line': info['line'],
                         'trc': info['trc'],
@@ -225,31 +227,66 @@ class Seismic2D(_SurveyObject):
                     }
         return Dataset(data_vars={dv: (info['dims'], data[idx]) for idx, dv in enumerate(info['comp'])}, coords=coords, attrs=attribs)
 
-    def putdata(self, linenm: str, data: list, info: dict, creategeom: bool, overwrite: bool):
-        """Write a 2D seismic line
+    def from_xarray(self, xrdata) ->tuple:
+        """Convert 2D seismic data in Xarray.Dataset to tuple format
 
+        See Seismic2D.getdata for details of the input and output formats.
+
+        Parameters
+        ----------
+        xrdata : Xarray.Dataset
+
+        Returns
+        -------
+        data : list[np.ndarrays], one array per seismic component
+        info : dict
+
+        """
+        from xarray import DataArray, Dataset
+        zdim = 'twt' if self.zistime else 'depth'
+        data = [xrdata[key].to_numpy() for key in list(xrdata.data_vars)]
+        info = { key: xrdata[key].to_numpy() for key in list(xrdata.coords) if key in ['trc','ref','x','y']}
+        z0 = xrdata[zdim].to_numpy()[0]
+        z1= xrdata[zdim].to_numpy()[-1]
+        z2 = (z1-z0)/(data[0].shape[-1]-1)
+        info[zdim] = [z0, z1, z2]
+        info['line'] = xrdata['line']
+        info['comp'] = list(xrdata.data_vars)
+        info['dims'] = ['trc', zdim]
+        return (data, info,)
+
+    def putdata(self, linenm: str, indata, creategeom: bool, overwrite: bool):
+        """Write a 2D seismic line from either a tuple or Xarray.Dataset of 2D seismic data
+
+        See Seismic2D.getdata for details of the input formats.
         Note:
-        - assumes components in 'data' list are in same order as returned by comp_names property
-        - if len(data)>len(comp_names), extra data items are ignored
-        - if len<data)<len(comp_names), missing data items are zero filled
-        - raises ValueError if geometry in info dict is incompatible with data shape
+        - assumes components are in the same order as returned by comp_names property
+        - if number of components>len(comp_names), extra data items are ignored
+        - if number of components<len(comp_names), missing data items are zero filled
+        - raises ValueError if geometry is incompatible with data shape
         - if creategeom=False only traces in the defined geometry are saved
 
         Parameters
         ----------
         linenm : str
             2D line name
-        data : list of numpy 2D arrays
-            seismic trace data for each component
-        info : dict
-            as returned by the getdata method, if creategeom is False require at minimum the 'trc' and 'twt|depth' fields
-            if creategeom is True require the 'trc', 'ref', 'x', 'y' and 'twt|depth' fields
+        indata : tuple(list[np.ndarray], dict) | Xarray.Datatset
+            see Seismic2D.getdata for details
         creategeom: bool
-            if True and info contains the required information the 2D line geometry is overwritten
+            if True and info contains the required information ('trc', 'ref', 'x', 'y' and 'twt|depth' fields)
+            the 2D line geometry is created/overwritten
         overwrite: bool
             if True and the line name already exists in the dataset it is replaced
 
         """
+        data = []
+        info = {}
+        if isinstance(indata, tuple):
+            data = indata[0]
+            info = indata[1]
+        else:
+            data, info = self.from_xarray(indata)
+
         compnms = self.comp_names
         zdim = 'twt' if self.zistime else 'depth'
         trcnrs = info['trc']
@@ -297,40 +334,6 @@ class Seismic2D(_SurveyObject):
         self._putdata( self._handle, linenm.encode(), dataptr, datashp[0], datashp[1], ct_zrg, ct_trcnrs)
         if not self.isok:
             raise ValueError(self.errmsg)
-
-    def putdata_xarray(self, linenm, xrdata, creategeom, overwrite):
-        """Write a 2D seismic line from an Xarray Dataset
-
-        Note:
-        - assumes Xarray Dataset conforms to the structure described in the getdata_xarray method
-        - if number of data variables>len(comp_names), extra data variables are ignored
-        - if number of data variables<len(comp_names), missing data variables are zero filled
-        - raises ValueError if the Xarray coordinates are incompatible with data variable shape
-        - if creategeom=False only traces in the defined geometry are saved
-
-
-        Parameters
-        ----------
-        linenm : str
-            2D line name
-        xrdata : Xarray Dataset
-            seismic data to be saved
-            if creategeom is False require at the Xarray to have 'trc' and 'twt|depth' coordinates
-            if creategeom is True require the the Xarray to have 'trc', 'ref', 'x', 'y' and 'twt|depth' coordinates
-        creategeom: bool
-            if True and the Xarray contains the required coordinates the 2D line geometry is overwritten
-        overwrite: bool
-            if True and the line name already exists in the dataset it is replaced
-
-        """
-        zdim = 'twt' if self.zistime else 'depth'
-        data = [xrdata[key].to_numpy() for key in list(xrdata.data_vars)]
-        info = { key: xrdata[key].to_numpy() for key in list(xrdata.coords) if key in ['trc','ref','x','y']}
-        z0 = xrdata['twt'].to_numpy()[0]
-        z1= xrdata['twt'].to_numpy()[-1]
-        z2 = (z1-z0)/(data[0].shape[-1]-1)
-        info[zdim] = [z0, z1, z2]
-        self.putdata(linenm, data, info, creategeom, overwrite)
 
     def delete_lines(self, linenms: list[str]=[]):
         """Delete the listed lines from the 2D seismic dataset

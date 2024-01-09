@@ -156,8 +156,12 @@ void odFaultObject::getStick( int idx, hAllocator allocator ) const
 
 Geometry::FaultStickSet* odFaultObject::stickset() const
 {
-    EM::EMM().loadIfNotFullyLoaded( ioobj_->key() );
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( ioobj_->key() );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return nullptr;
+
+    EM::EMM().loadIfNotFullyLoaded( ioobj->key() );
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( ioobj->key() );
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
     return fss;
 }
@@ -166,10 +170,11 @@ Geometry::FaultStickSet* odFaultObject::stickset() const
 odFault3D::odFault3D( const odSurvey& thesurvey, const char* name )
     : odFaultObject(thesurvey, name, translatorGrp())
 {
-    if ( !ioobj_ )
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
 
-    const EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( !eminfo.isOK() )
     {
 	if ( errmsg_.isEmpty() )
@@ -195,12 +200,12 @@ odFault3D::~odFault3D()
 
 void odFault3D::getInfo( OD::JSON::Object& jsobj ) const
 {
-    survey_.activate();
     jsobj.setEmpty();
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     jsobj.set( "name", getName().buf() );
-    if ( ioobj_ )
+    if ( ioobj )
     {
-	const EM::IOObjInfo eminfo( ioobj_ );
+	const EM::IOObjInfo eminfo( ioobj.ptr() );
 	jsobj.set( "stick_count", eminfo.nrSticks() );
 	jsobj.set( "inl_range", eminfo.getInlRange() );
 	jsobj.set( "crl_range", eminfo.getCrlRange() );
@@ -214,17 +219,17 @@ void odFault3D::getInfo( OD::JSON::Object& jsobj ) const
 	    jsobj.set( "z_range", zrg );
 	}
     }
-
 }
 
 
 odFaultStickSet::odFaultStickSet( const odSurvey& thesurvey, const char* name )
     : odFaultObject(thesurvey, name, translatorGrp())
 {
-    if ( !ioobj_ )
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
 
-    const EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( !eminfo.isOK() )
     {
 	if ( errmsg_.isEmpty() )
@@ -250,12 +255,12 @@ odFaultStickSet::~odFaultStickSet()
 
 void odFaultStickSet::getInfo( OD::JSON::Object& jsobj ) const
 {
-    survey_.activate();
     jsobj.setEmpty();
     jsobj.set( "name", getName().buf() );
-    if ( ioobj_ )
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( ioobj )
     {
-	const EM::IOObjInfo eminfo( ioobj_ );
+	const EM::IOObjInfo eminfo( ioobj.ptr() );
 	jsobj.set( "stick_count", eminfo.nrSticks() );
 	Interval<float> zrg = eminfo.getZRange();
 	if ( zrg.isUdf() )

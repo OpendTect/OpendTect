@@ -35,10 +35,11 @@ ________________________________________________________________________________
 odWell::odWell( const odSurvey& thesurvey, const char* name )
     : odSurveyObject(thesurvey, name, translatorGrp())
 {
-    if ( !ioobj_ )
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
 
-    wd_ = Well::MGR().get( ioobj_->key(), Well::LoadReqs::AllNoLogs() );
+    wd_ = Well::MGR().get( ioobj->key(), Well::LoadReqs::AllNoLogs() );
 }
 
 

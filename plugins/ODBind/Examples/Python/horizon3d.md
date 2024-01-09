@@ -58,46 +58,55 @@ Return a list of the attributes attached to this horizon.
 mfs4.attribnames
 ```
 
-### Horizon3D.ilines and Horizon3D.xlines properties
-Return a list of the inline and crossline numbers covered by the horizon.
+### Horizon.ranges properties
+Returns a named tuple with the inline and crossline range of the horizon.
 
 ```python
-mfs4.ilines[0:10]
+mfs4.ranges
 ```
 
-### Horizon3D.getz(), Horizon3D.getxy() and Horizon3D.get_xarray() functions
+### Reading 3D Horizon Data
 
--  getz(): return a Numpy 2D array with the horizon Z values
--  getxy(): return a tuple of Numpy 2D arrays with the X and Y coordinates of the horizon z values
--  get_xarray(): return an XArray DataArray with the horizon X, Y and Z values
+The Horizon3D.getdata() function returns the horizon z values and optionally the horizon data attributes listed by named in the only parameter as either an Xarray.Dataset or simple list+dict format.
 
 ```python tags=[]
 import xarray as xr
-hor = mfs4.get_xarray()
-xr.plot.pcolormesh(hor, x='x', y='y', cmap='plasma_r', robust=True)
-```
-
-### Horizon3D.putz(), Horizon3D.putz_bycoord and Horizon3D.put_xarray functions
-
--  putz(): takes a Numpy 2D array of Z values, an inline number list/array and a crossline number list/array and saves it to an horizon
--  putz_bycoord(): takes a Numpy 2D array of z values, an array of X locations and an array of Y locations and saves it to an horizon
--  put_xarray(): takes horizon Z values and locations from a XArray DataFrame and saves it to an horizon
-
-In all case values outside the creation limits of the horizon will be ignored. 
-
-```python
-newhor = Horizon3D.create(f3demo, 'newhor', [300,400,1], [500,700,1], True)
+Horizon3D.use_xarray = True
+hor = mfs4.getdata(['SD_24Hz[-8,24ms]','SD_64Hz[-8,24ms]'])
+hor
 ```
 
 ```python
-newhor_z = newhor.get_xarray()
-newhor_z[:] = 900.0
-newhor.put_xarray(newhor_z)
+xr.plot.pcolormesh(hor['SD_64Hz[-8,24ms]'], x='x', y='y', cmap='plasma_r', robust=True)
+```
+
+### Writing 3D Horizon Data
+The Horizon3D.create method is used to create a new output horizon or overwrite an existing horizon.
+The Horizon3D.putdata() function is used to write the horizon data. The input data can be either an Xarray.Dataset or a simple tuple of list+dict as produced by Horizon3D.getdata. 
+
+Values at locations outside the creation limits of the horizon are ignored. 
+
+```python
+with Horizon3D.create(f3demo, 'newhor', [300,400,1], [500,700,1], True) as newhor:
+    newhor.putdata(hor)
 ```
 
 ```python
 newhor_read = Horizon3D(f3demo,'newhor')
 newhor_read.info()
+```
+
+### Deleting 3D Horizon Data
+
+```python
+newhor_read.delete_attribs(['SD_64Hz[-8,24ms]'])
+newhor_read.info()                       
+```
+
+### Deleting 3D Horizons
+
+```python
+Horizon3D.delete(f3demo,['newhor'])
 ```
 
 ### Horizon3D.feature() function
@@ -109,7 +118,7 @@ mfs4.feature()
 
 ```python
 import folium
-survmap = folium.Map(location=[52.3,8.0], tiles="Stamen Terrain", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
+survmap = folium.Map(location=[54.2,5.0], zoom_start = 8)
 folium.GeoJson(mfs4.feature(), popup=folium.GeoJsonPopup(fields=['name'])).add_to(survmap)
 survmap
 ```
@@ -122,11 +131,11 @@ hors = Horizon3D.names(f3demo)
 hors
 ```
 
-### Horizon3D.infos() and Horizon3D.infos_dataframe() functions
-These return a dictionary and a Pandas DataFrame respectively with basic information for the listed horizons (or all horizons if no list provided) in the given survey.
+### Horizon3D.infos() functions
+Return basic information for the listed horizons (or all horizons if no list provided) in the given survey in either a Pandas DataFrame or simple list+dict format depending on the value of Horizon3D.use_dataframe.
 
 ```python tags=[]
-Horizon3D.infos_dataframe(f3demo)
+Horizon3D.infos(f3demo)
 ```
 
 ### Horizon3D.features() function

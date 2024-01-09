@@ -265,6 +265,9 @@ class _SurveyObject(object):
     Base class for OpendTect survey objects - not useful on its own
     """
 
+    use_xarray = True
+    use_dataframe = True
+
     @classmethod
     def _initbasebindings(clss, bindnm):
         clss._newin = odb.wrap_function(LIBODB, f'{bindnm}_newin', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
@@ -335,6 +338,29 @@ class _SurveyObject(object):
         return '{"type":"FeatureCollection","features":['+ pystr(self._feature(self._handle)) + ']}'
 
     @classmethod
+    def dictlist_to_dataframe(self, inlist: list[dict]):
+        """Convert list of Python dicts to a Pandas DataFrame.
+
+        Requires all dicts to have the same keys. The keys of the firts dict of the list
+        are used for the DataFrame column names
+        
+        Parameters
+        ----------
+        inlist : list[dict]
+            a list of Python dicts. All dicts must have identical keys.
+        
+        Returns
+        -------
+        Pandas Dataframe
+
+        """
+        from pandas import DataFrame
+        if len(inlist)>0:
+            return DataFrame({key: [i[key] for i in inlist] for key in inlist[0]})
+        else:
+            return DataFrame()
+
+    @classmethod
     def features(clss, survey: Survey, fornms: list=[]) ->str:
         """ Return a GeoJSON Feature Collection for all or a subset of objects in the given survey.
 
@@ -374,7 +400,7 @@ class _SurveyObject(object):
         return i
 
     @classmethod
-    def infos(clss, survey: Survey, fornms: list=[]) ->dict:
+    def infos(clss, survey: Survey, fornms: list=[]):
         """ Return basic information for all or a subset of objects in the given survey.
 
         Parameters
@@ -386,33 +412,13 @@ class _SurveyObject(object):
             
         Returns
         -------
-        dict
+        dict or Pandas Dataframe
 
         """ 
         fornmsptr = makestrlist(fornms)
         infolist = pyjsonstr(clss._infos(survey._handle, fornmsptr ))
         stringset_del(fornmsptr)
-        return infolist
-
-    @classmethod
-    def infos_dataframe(clss, survey: Survey, fornms: list=[]) ->dict:
-        """ Return basic information for all or a subset of objects in the given survey as a Pandas DataFrame.
-
-        Parameters
-        ----------
-        survey : Survey
-            An OpendTect survey object
-        fornms : list[str]
-            A list of object names to use, an empty list will give information for all objects.
-            
-        Returns
-        -------
-        dict
-
-        """
-        from pandas import DataFrame
-        infolist =  clss.infos(survey, fornms)
-        return DataFrame({key: [i[key] for i in infolist] for key in infolist[0]})
+        return clss.dictlist_to_dataframe(infolist) if clss.use_dataframe else infolist
 
     @classmethod
     def names(clss, survey: Survey) ->list[str]:
