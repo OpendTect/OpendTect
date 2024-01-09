@@ -267,7 +267,6 @@ bool uiTime2DepthDlg::fillPar( IOPar& par ) const
     const BufferString basekey( IOPar::compKey(dimkey,objtypekey) );
     const bool ist2d = directionsel_->getBoolValue();
     par.setYN( IOPar::compKey(basekey,sKeyTime2Depth()), ist2d );
-    const IOPar* data = par.subselect( basekey );
     auto* readerfld = const_cast<uiSurfaceRead*>( getWorkingInpSurfRead() );
     par.set( IOPar::compKey(basekey,sKey::ID()),
 					    readerfld->getObjSel()->key() );

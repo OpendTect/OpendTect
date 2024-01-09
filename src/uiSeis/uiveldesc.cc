@@ -804,7 +804,6 @@ ZAxisTransform* uiVelModelZAxisTransform::getSelection()
 	return nullptr;
     }
 
-    const int refnr = transform_->nrRefs();
     selname_ = selname;
     selkey_ = mid;
     return transform_;
