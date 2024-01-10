@@ -198,9 +198,10 @@ float Strat::FormulaLayerValue::value() const
 	    inpvals[iinp] = lay_.value( inpidx );
 	else
 	{
-	    if ( form_.isSpec(iinp) )
-		inpvals[iinp] = form_.specIdx(iinp)<2 ? lay_.depth() : xpos_;
 	    // consts are already filled
+	    if ( form_.isSpec(iinp) )
+		inpvals[iinp] = form_.specIdx(iinp)<4 ? lay_.depth() : xpos_;
+	    //TODO: Implement relative depth, it is same as depth now.
 	}
     }
 
