@@ -431,10 +431,12 @@ bool MathProperty::init( const PropertySet& ps ) const
 	if ( form_.isSpec(iinp) )
 	{
 	    const int specidx = form_.specIdx(iinp);
-	    if ( specidx > 4 )
-		prop = &xposProp();
+	    if ( specidx==0 || specidx==1 )
+		prop = &depthProp();
+	    else if ( specidx==2 || specidx==3 )
+		prop = &relDepthProp();
 	    else
-		prop = specidx < 2 ? &depthProp() : &relDepthProp();
+		prop = &xposProp();
 	}
 	else if ( !form_.isConst(iinp) )
 	{
