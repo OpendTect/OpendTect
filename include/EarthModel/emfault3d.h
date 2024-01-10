@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "emfault.h"
+#include "locationbase.h"
 #include "tableascio.h"
 
 namespace Table { class FormatDesc; }
@@ -158,21 +159,6 @@ protected:
 };
 
 
-/*!
-\brief Class to hold Fault-stick coordinates and compute the normal.
-*/
 
-mExpClass(EarthModel) FaultStick
-{
-public:
-			FaultStick(int stickidx);
-			~FaultStick();
-
-    Coord3		getNormal(bool is2d) const;
-
-    int			stickidx_;
-    TypeSet<Coord3>	crds_;
-    BufferString	lnm_;
-};
 
 } // namespace EM

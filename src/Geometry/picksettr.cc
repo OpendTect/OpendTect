@@ -165,7 +165,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	    }
 	    while ( !atEndOfSection(astrm) )
 	    {
-		Pick::Location loc;
+		Pick::Location loc( Coord3::udf() );
 		if ( !loc.fromString(astrm.keyWord()) )
 		    break;
 
@@ -187,7 +187,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	astrm.next();
 	while ( !atEndOfSection(astrm) )
 	{
-	    Pick::Location loc;
+	    Pick::Location loc( Coord3::udf() );
 	    loc.setGeomSystem( gs, false );
 	    if ( loc.fromString(astrm.keyWord()) )
 		ps.add( loc );

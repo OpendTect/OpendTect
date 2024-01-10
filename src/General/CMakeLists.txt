@@ -57,6 +57,7 @@ set( OD_MODULE_SOURCES
 	iostrm.cc
 	keyboardevent.cc
 	keyenum.cc
+	locationbase.cc
 	linekey.cc
 	linesetposinfo.cc
 	mathexpression.cc

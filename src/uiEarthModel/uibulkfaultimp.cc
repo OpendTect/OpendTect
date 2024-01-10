@@ -376,7 +376,8 @@ static void readInput( BulkFaultAscIO& aio, ObjectSet<FaultPars>& pars )
 }
 
 
-static void fillFaultSticks( FaultPars& pars, ObjectSet<EM::FaultStick>& sticks)
+static void fillFaultSticks( FaultPars& pars,
+				    ObjectSet<Geometry::FaultStick>& sticks)
 {
     const TypeSet<Coord3>& nodes = pars.nodes_;
     const TypeSet<int>& stickidxs = pars.stickidxs_;
@@ -408,12 +409,14 @@ static void fillFaultSticks( FaultPars& pars, ObjectSet<EM::FaultStick>& sticks)
 	if ( addnewstick )
 	{
 	    mystickidx++;
-	    sticks += new EM::FaultStick( hasstickidx ? stickidx : mystickidx );
+	    sticks += new Geometry::FaultStick( hasstickidx ? stickidx
+							    : mystickidx );
 	}
-	sticks[mystickidx]->crds_ += crd;
+	sticks[mystickidx]->locs_ += crd;
 
 	if ( !pars.lnnms_.isEmpty() )
-	    sticks[ mystickidx ]->lnm_ = pars.lnnms_.get(nidx);
+	    sticks[ mystickidx ]->geomid_ = Survey::GM().getGeomID(
+						    pars.lnnms_.get(nidx) );
 
 	prevstickidx = stickidx;
 	prevnodeidx = nodeidx;
@@ -422,34 +425,33 @@ static void fillFaultSticks( FaultPars& pars, ObjectSet<EM::FaultStick>& sticks)
 
 
 static void updateFaultStickSet( EM::Fault* flt,
-				ObjectSet<EM::FaultStick>& sticks, bool is2d )
+			ObjectSet<Geometry::FaultStick>& sticks, bool is2d )
 {
     if ( !flt ) return;
 
-    int sticknr = !sticks.isEmpty() ? sticks[0]->stickidx_ : 0;
+    int sticknr = !sticks.isEmpty() ? sticks[0]->getStickIdx() : 0;
 
     for ( int idx=0; idx<sticks.size(); idx++ )
     {
-	EM::FaultStick* stick = sticks[idx];
-	if ( stick->crds_.isEmpty() )
+	Geometry::FaultStick* stick = sticks[idx];
+	if ( stick->locs_.isEmpty() )
 	    continue;
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,emfss,flt)
-	    const Pos::GeomID geomid = Survey::GM().getGeomID( stick->lnm_ );
-	    emfss->geometry().insertStick( sticknr, 0,
-		    stick->crds_[0], stick->getNormal(true), geomid, false );
+	    emfss->geometry().insertStick( sticknr, 0, stick->locs_[0].pos(),
+				stick->getNormal(), stick->geomid_, false);
 
 	}
 	else
 	    flt->geometry().insertStick( sticknr, 0,
-			stick->crds_[0], stick->getNormal(false), false );
+			stick->locs_[0].pos(), stick->getNormal(), false);
 
-	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
+	for ( int crdidx=1; crdidx<stick->locs_.size(); crdidx++ )
 	{
-	    const RowCol rc( stick->stickidx_, crdidx );
+	    const RowCol rc( stick->getStickIdx(), crdidx);
 	    flt->geometry().insertKnot( rc.toInt64(),
-				       stick->crds_[crdidx], false );
+				       stick->locs_[crdidx].pos(), false);
 	}
 	sticknr++;
     }
@@ -541,7 +543,7 @@ bool uiBulkFaultImport::acceptOK( CallBacker* )
 	if ( !flt )
 	    continue;
 
-	ManagedObjectSet<EM::FaultStick> faultsticks;
+	ManagedObjectSet<Geometry::FaultStick> faultsticks;
 	fillFaultSticks( *pars[idx], faultsticks );
 	if ( isfss_ )
 	    updateFaultStickSet( flt, faultsticks, is2dfss_ );

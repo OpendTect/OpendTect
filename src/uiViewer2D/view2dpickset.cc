@@ -84,7 +84,8 @@ void PickSet::pickAddChgCB( CallBacker* cb )
     const uiFlatViewer& vwr = editor->getFlatViewer();
     const FlatView::Point& selpt = editor->getSelPtPos();
     Coord3 crd = vwr.getCoord( selpt );
-    if ( !crd.isDefined() ) return;
+    if ( !crd.isDefined() )
+	return;
 
     if ( vwr.hasZAxisTransform() )
 	crd.z = vwr.getZAxisTransform()->transformBack( crd );
@@ -258,7 +259,7 @@ void PickSet::drawAll()
 	    if ( regfdp && regfdp->isVertical() )
 	    {
 		BufferString dipval;
-		pl.getText( "Dip" , dipval );
+		pl.getKeyedText( "Dip" , dipval );
 		SeparString dipstr( dipval );
 		double distance = 0.;
 		const TrcKeyZSampling& vwr2dtkzs = regfdp->sampling();

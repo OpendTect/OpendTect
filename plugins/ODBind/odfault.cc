@@ -97,9 +97,13 @@ void odFaultObject::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
     for ( int idx=0; idx<fss->nrSticks(); idx++ )
     {
 	TypeSet<Coord> coords;
-	const TypeSet<Coord3>* stick = fss->getStick( idx );
-	for ( const auto& node : *stick )
-	    coords += node.coord();
+	const Geometry::FaultStick* stick = fss->getStick( idx );
+	if ( !stick )
+	    continue;
+
+	const TypeSet<LocationBase>& locs = stick->locs_;
+	for ( const auto& loc : locs )
+	    coords += loc.pos();
 
 	auto* jscoords = new OD::JSON::Array( false );
 	survey_.makeCoordsList( *jscoords, coords, towgs );
@@ -140,16 +144,21 @@ void odFaultObject::getStick( int idx, hAllocator allocator ) const
 
     const int ndim_xy = 1;
     PtrMan<int> dims_xy = new int[ndim_xy];
-    const TypeSet<Coord3>* stick = fss->getStick( idx );
+    const Geometry::FaultStick* stick = fss->getStick( idx );
+    if ( !stick )
+	return;
+
     dims_xy[0] = stick->size();
     double* xdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
     double* ydata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
     double* zdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
-    for ( const auto& node : *stick )
+    const TypeSet<LocationBase>& locs = stick->locs_;
+    for ( const auto& loc : locs )
     {
-	*xdata++ = node.x;
-	*ydata++ = node.y;
-	*zdata++ = node.z;
+	const Coord3& crd = loc.pos();
+	*xdata++ = crd.x;
+	*ydata++ = crd.y;
+	*zdata++ = crd.z;
     }
 }
 

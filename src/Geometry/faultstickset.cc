@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "faultstickset.h"
 
+#include "survinfo.h"
 #include "trigonometry.h"
 #include <math.h>
 
@@ -37,7 +38,100 @@ namespace Geometry
 \
     const unsigned int hiddenmask = HiddenLowestBit<<(sceneidx+1);
 
-    
+
+// FaultStick
+FaultStick::FaultStick( int idx )
+    : stickidx_(idx)
+{
+    int x = 0;
+}
+
+
+FaultStick::~FaultStick()
+{}
+
+
+int FaultStick::getStickIdx() const
+{
+    return stickidx_;
+}
+
+
+void FaultStick::setNormal( const Coord3 crd )
+{
+    normal_ = crd;
+}
+
+
+const Coord3& FaultStick::getNormal() const
+{
+    // TODO: Determine edit normal for sticks picked on 2D lines
+
+    if ( !normal_.isUdf() )
+	return normal_;
+
+    const int maxdist = 5;
+    int oninl = 0; int oncrl = 0; int ontms = 0;
+
+    for ( int idx=0; idx<locs_.size()-1; idx++ )
+    {
+
+	const BinID bid0 = locs_[idx].trcKey().position();
+	for ( int idy=idx+1; idy<locs_.size(); idy++ )
+	{
+	    const BinID bid1 = locs_[idy].trcKey().position();
+	    const int inldist = abs( bid0.inl()-bid1.inl() );
+	    if ( inldist < maxdist )
+		oninl += maxdist - inldist;
+	    const int crldist = abs( bid0.crl()-bid1.crl() );
+	    if ( crldist < maxdist )
+		oncrl += maxdist - crldist;
+	    const int zdist =
+		mNINT32( fabs(locs_[idx].pos().z-locs_[idy].pos().z) /
+		    fabs(SI().zStep()) );
+	    if ( zdist < maxdist )
+		ontms += maxdist - zdist;
+	}
+    }
+
+    const bool is2d = geomid_.is2D();
+    if ( ontms>oncrl && ontms>oninl && !is2d )
+	normal_ = Coord3( 0, 0, 1 );
+    else if ( oncrl > oninl )
+    {
+	normal_ = Coord3( SI().binID2Coord().crlDir(), 0 );
+    }
+    else
+	normal_ = Coord3( SI().binID2Coord().inlDir(), 0 );
+
+    return normal_;
+}
+
+
+void FaultStick::setLocationsFromCrds( const Coord3* crds, int sz,
+						    const Pos::GeomID& geomid )
+{
+    for ( int idx=0; idx<sz; idx++ )
+	locs_.add( LocationBase(crds[idx],geomid) );
+}
+
+
+int FaultStick::size() const
+{
+    return locs_.size();
+}
+
+
+const Coord3& FaultStick::getCoordAtIndex( int idx ) const
+{
+    if ( idx >= locs_.size() || idx < 0 )
+	return Coord3::udf();
+
+    return locs_[idx].pos();
+}
+
+
+//FaultStickSet
 FaultStickSet::FaultStickSet()
     : firstrow_(0)
 {}
@@ -56,7 +150,6 @@ Element* FaultStickSet::clone() const
     deepCopy( res->sticks_, sticks_ );
     res->firstcols_ = firstcols_;
     res->firstrow_ = firstrow_;
-    res->editplanenormals_ = editplanenormals_;
     res->stickstatus_ = stickstatus_;
     deepCopy( res->knotstatus_, knotstatus_ );
 
@@ -71,6 +164,7 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
 {
     if ( !firstpos.isDefined() )
 	return false;
+
     if ( !editnormal.isDefined() || mIsZero(editnormal.sqAbs(),mDefEps) )
 	return false;
 
@@ -86,24 +180,25 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
 	stickidx++;
     }
 
+    auto* fs = new FaultStick( stickidx );
+    fs->setNormal( normvec );
     if ( stickidx==sticks_.size() )
     {
-	sticks_ += new TypeSet<Coord3>;
-	editplanenormals_ += normvec;
+
+	sticks_ += fs;
 	stickstatus_ += NoStatus;
 	firstcols_ += firstcol;
 	knotstatus_ += new TypeSet<unsigned int>;
     }
     else
     {
-	sticks_.insertAt( new TypeSet<Coord3>, stickidx );
-	editplanenormals_.insert( stickidx, normvec );
+	sticks_.insertAt( fs, stickidx );
 	stickstatus_.insert( stickidx, NoStatus );
 	firstcols_.insert( stickidx, firstcol );
 	knotstatus_.insertAt( new TypeSet<unsigned int>, stickidx );
     }
 
-    sticks_[stickidx]->insert( 0, firstpos );
+    sticks_[stickidx]->locs_.insert( 0, firstpos );
     knotstatus_[stickidx]->insert( 0, NoStatus );
 
     triggerNrPosCh( RowCol(stickidx,StickInsert).toInt64() );
@@ -119,7 +214,6 @@ bool FaultStickSet::removeStick( int sticknr )
     mGetValidStickIdx( stickidx, sticknr, 0, false );
 
     delete sticks_.removeSingle( stickidx );
-    editplanenormals_.removeSingle( stickidx );
     stickstatus_.removeSingle( stickidx );
     firstcols_.removeSingle( stickidx );
     delete knotstatus_.removeSingle( stickidx );
@@ -150,12 +244,12 @@ bool FaultStickSet::insertKnot( const RowCol& rc, const Coord3& pos )
 
     if ( knotidx==sticks_[stickidx]->size() )
     {
-	(*sticks_[stickidx]) += pos;
+	(*sticks_[stickidx]).locs_.add( pos );
 	(*knotstatus_[stickidx]) += NoStatus;
     }
     else
     {
-	sticks_[stickidx]->insert( knotidx, pos );
+	sticks_[stickidx]->locs_.insert( knotidx, pos );
 	knotstatus_[stickidx]->insert( knotidx, NoStatus );
     }
 
@@ -173,7 +267,7 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
     if ( sticks_[stickidx]->size() <= 1 )
 	return removeStick( rc.row() );
 
-    sticks_[stickidx]->removeSingle( knotidx );
+    sticks_[stickidx]->locs_.removeSingle( knotidx );
     knotstatus_[stickidx]->removeSingle( knotidx );
 
     if ( !knotidx )
@@ -188,10 +282,10 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
 int FaultStickSet::nrSticks() const
 { return sticks_.size(); }
 
-const TypeSet<Coord3>* FaultStickSet::getStick( int stickidx ) const
+const FaultStick* FaultStickSet::getStick( int stickidx ) const
 {
    if ( stickidx<0 || stickidx>=sticks_.size() )
-      return 0;
+      return nullptr;
 
     return sticks_[stickidx];
 }
@@ -231,7 +325,7 @@ bool FaultStickSet::setKnot( const RowCol& rc, const Coord3& pos )
     mGetValidStickIdx( stickidx, rc.row(), 0, false );
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
 
-    (*sticks_[stickidx])[knotidx] = pos;
+    (*sticks_[stickidx]).locs_[knotidx] = pos;
     triggerMovement( RowCol(stickidx,StickChange).toInt64() );
     return true;
 }
@@ -242,7 +336,7 @@ Coord3 FaultStickSet::getKnot( const RowCol& rc ) const
     mGetValidStickIdx( stickidx, rc.row(), 0, Coord3::udf() );
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, Coord3::udf() );
     
-    return (*sticks_[stickidx])[knotidx];
+    return (*sticks_[stickidx]).locs_[knotidx].pos();
 }
 
 
@@ -258,16 +352,18 @@ bool FaultStickSet::isKnotDefined( const RowCol& rc ) const
 const Coord3& FaultStickSet::getEditPlaneNormal( int sticknr ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, Coord3::udf() );
-    if ( stickidx < editplanenormals_.size() )
-	return editplanenormals_[stickidx];
+    if ( stickidx < sticks_.size() )
+	return sticks_[stickidx]->getNormal();
 
     return Coord3::udf();
 }
 
 
-void FaultStickSet::addEditPlaneNormal( const Coord3& editnormal )
+void FaultStickSet::addEditPlaneNormal( const Coord3& editnormal, int sticknr )
 {
-    editplanenormals_ += editnormal;
+    mGetValidStickIdx( stickidx, sticknr, 0,  );
+    if ( stickidx < sticks_.size() )
+	return sticks_[stickidx]->setNormal( editnormal );
 }
 
 
@@ -275,9 +371,12 @@ void FaultStickSet::addUdfRow( int sticknr, int firstknotnr, int nrknots )
 {
     if ( isEmpty() )
 	firstrow_ = sticknr;
+
     firstcols_ += firstknotnr;
     stickstatus_ += NoStatus;
-    sticks_ += new TypeSet<Coord3>( nrknots, Coord3::udf() );
+    FaultStick* stick = new FaultStick( sticks_.size() );
+    stick->locs_.setSize( nrknots );
+    sticks_ += stick;
     knotstatus_ += new TypeSet<unsigned int>( nrknots, NoStatus );
 }
 

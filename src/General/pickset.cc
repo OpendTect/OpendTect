@@ -425,38 +425,13 @@ public:
     enum  UnDoType	    { Insert, PolygonClose, Remove, Move };
     PickSetKnotUndoEvent( UnDoType type, const MultiID& mid, int sidx,
 	const Pick::Location& pos )
-    { init( type, mid, sidx, pos ); }
-
-    void init( UnDoType type, const MultiID& mid, int sidx,
-	const Pick::Location& pos )
+    : type_(type)
+    , newpos_(Pick::Location(Coord3::udf()))
+    , pos_(Pick::Location(Coord3::udf()))
+    , mid_(mid)
+    , index_(sidx)
     {
-	type_ = type;
-	newpos_ = Coord3::udf();
-	pos_ = Coord3::udf();
-
-	mid_ = mid;
-	index_ = sidx;
-	Pick::SetMgr& mgr = Pick::Mgr();
-	const int mididx = mgr.indexOf( mid );
-	const bool haspickset = mididx >=0;
-	RefMan<Pick::Set> set = haspickset ? mgr.get(mididx) : nullptr;
-
-	if ( type == Insert || type == PolygonClose )
-	{
-	    if ( set && set->size()>index_ )
-		pos_ = set->get( index_ );
-	}
-	else if ( type == Remove )
-	{
-	    pos_ = pos;
-	}
-	else if ( type == Move )
-	{
-	    if ( set && set->size()>index_ )
-		pos_ = set->get( index_ );
-	    newpos_ = pos;
-	}
-
+	init( type, mid, sidx, pos );
     }
 
 
@@ -564,6 +539,35 @@ public:
     }
 
 protected:
+
+    void init( UnDoType type, const MultiID& mid, int sidx,
+						const Pick::Location& pos )
+    {
+
+	Pick::SetMgr& mgr = Pick::Mgr();
+	const int mididx = mgr.indexOf( mid );
+	const bool haspickset = mididx >=0;
+	RefMan<Pick::Set> set = haspickset ? mgr.get(mididx) : nullptr;
+
+	if ( type == Insert || type == PolygonClose )
+	{
+	    if ( set && set->size()>index_ )
+		pos_ = set->get( index_ );
+	}
+	else if ( type == Remove )
+	{
+	    pos_ = pos;
+	}
+	else if ( type == Move )
+	{
+	    if ( set && set->size()>index_ )
+		pos_ = set->get( index_ );
+	    newpos_ = pos;
+	}
+
+    }
+
+
     Pick::Location  pos_;
     Pick::Location  newpos_;
     MultiID	    mid_;
@@ -885,7 +889,7 @@ bool Set::setCapacity( int sz )
 
 bool Set::setSize( int size, const Coord3& defval )
 {
-    return locations_.setSize( size, defval );
+    return locations_.setSize( size, Pick::Location(defval) );
 }
 
 
@@ -1228,9 +1232,8 @@ void Set::addUndoEvent( EventType type, int idx, const Pick::Location& loc )
     if ( !mid.isUdf() )
     {
 	auto undotype = sCast(PickSetKnotUndoEvent::UnDoType,type);
-	const Pick::Location pos = type == Insert
-				   ? Coord3::udf()
-				   : loc;
+	const Pick::Location pos = type == Insert ?
+				    Pick::Location(Coord3::udf()) : loc;
 	PickSetKnotUndoEvent* undo = new PickSetKnotUndoEvent(
 	undotype, mid, idx, pos );
 	Pick::Mgr().undo().addEvent( undo, 0 );

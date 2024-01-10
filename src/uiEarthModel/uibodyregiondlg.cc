@@ -587,11 +587,12 @@ void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
     TrcKeySampling hrg(false);
     for ( int idx=0; idx<flt.nrSticks(); idx++ )
     {
-	const TypeSet<Coord3>* stick = flt.getStick(idx);
-	if ( !stick ) continue;
+	const Geometry::FaultStick* stick = flt.getStick(idx);
+	if ( !stick )
+	    continue;
 
 	for ( int idy=0; idy<stick->size(); idy++ )
-	    hrg.include( SI().transform((*stick)[idy]) );
+	    hrg.include( stick->locs_[idy].binID() );
     }
 
     Interval<int> insiderg;

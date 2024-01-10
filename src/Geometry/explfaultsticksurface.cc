@@ -532,21 +532,26 @@ bool ExplFaultStickSurface::reTriangulateSurface()
     TypeSet<Coord> knots;
     for ( int idx=0; idx<nrsticks; idx++ )
     {
-	const TypeSet<Coord3>& stick = *surface_->getStick(idx);
-	for ( int idy=0; idy<stick.size(); idy++ )
+	const Geometry::FaultStick* stick = surface_->getStick( idx );
+	if ( !stick )
+	    continue;
+
+	for ( int idy=0; idy<stick->size(); idy++ )
 	{
-	    if ( !stick[idy].isDefined() )
+	    const LocationBase& loc = stick->locs_[idy];
+	    const Coord3& crd = loc.pos();
+	    if ( !crd.isDefined() )
 		continue;
 
-	    const BinID bid = SI().transform( stick[idy] );
+	    const BinID& bid = loc.binID();
 	    const Coord pos( trialg_==ExplFaultStickSurface::Inline ? bid.crl()
 				: bid.inl(),
 			     trialg_==ExplFaultStickSurface::ZSlice ? bid.crl()
-				: stick[idy].z*zscale );
+				: crd.z * zscale);
 	    if ( !knots.isPresent(pos) )
 	    {
 		knots += pos;
-		coordlist_->add( stick[idy] );
+		coordlist_->add( crd );
 	    }
 	}
     }

@@ -170,11 +170,18 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     uiString errmsg;
     const bool rv = pvds.getFrom( ioobj->fullUserExpr(true), errmsg );
     if ( !rv )
-	{ uiMSG().error( errmsg ); return; }
-    if ( pvds.data().isEmpty() )
-    { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
+    {
+	uiMSG().error( errmsg );
+	return;
+    }
 
-    RefMan<Pick::Set> pickset = psd_ ? psd_->getSet() : 0;
+    if ( pvds.data().isEmpty() )
+    {
+	uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty());
+	return;
+    }
+
+    RefMan<Pick::Set> pickset = psd_ ? psd_->getSet() : nullptr;
     if ( !pickset )
 	return;
 

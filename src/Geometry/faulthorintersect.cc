@@ -373,22 +373,30 @@ void FaultBinIDSurfaceIntersector::compute()
     TypeSet<Coord3> res;
     for ( int ids=0; ids<fss->nrSticks(); ids++ )
     {
-	const TypeSet<Coord3>& stick = *( fss->getStick( ids ) );
-	for (int iseg=0; iseg<stick.size()-1; iseg++ )
+	const Geometry::FaultStick* stick = fss->getStick( ids );
+	if ( !stick )
+	    continue;
+
+	const TypeSet<LocationBase>& locs = stick->locs_;
+	for (int iseg=0; iseg<locs.size()-1; iseg++ )
 	{
-	    const Coord3 pos = surf.lineSegmentIntersection( stick[iseg],
-						    stick[iseg+1], zshift_ );
+	    const Coord3 pos = surf.lineSegmentIntersection( locs[iseg].pos(),
+						locs[iseg+1].pos(), zshift_);
 	    if ( !mIsUdf(pos) )
 		res += pos;
 	}
     }
     for ( int ids=fss->nrSticks()-1; ids>=0; ids-- )
     {
-	const TypeSet<Coord3>& stick = *(fss->getStick( ids ));
-	for (int iseg=stick.size()-1; iseg>0; iseg-- )
+	const Geometry::FaultStick* stick = fss->getStick( ids );
+	if ( !stick )
+	    continue;
+
+	for (int iseg=stick->size()-1; iseg>0; iseg-- )
 	{
-	    const Coord3 pos = surf.lineSegmentIntersection( stick[iseg-1],
-						    stick[iseg], zshift_ );
+	    const Coord3 pos = surf.lineSegmentIntersection(
+				    stick->getCoordAtIndex(iseg-1),
+				    stick->getCoordAtIndex(iseg), zshift_ );
 	    if ( !mIsUdf(pos) )
 		res += pos;
 	}
