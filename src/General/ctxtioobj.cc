@@ -643,7 +643,7 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 
 void CtxtIOObj::setObj( IOObj* obj )
 {
-    if ( obj && ioobj_ && *obj == *ioobj_ )
+    if ( areEqual(obj,ioobj_) )
 	return;
 
     delete ioobj_;
