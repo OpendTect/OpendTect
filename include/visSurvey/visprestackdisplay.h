@@ -8,11 +8,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
+
 #include "iopar.h"
+#include "mousecursor.h"
 
 class IOObj;
 class SeisPSReader;
@@ -32,11 +33,10 @@ class PlaneDataDisplay;
 class Seis2DDisplay;
 
 
-mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl,
-		 public visSurvey::SurveyObject
+mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl
+				     , public visSurvey::SurveyObject
 {
 public:
-
 				PreStackDisplay();
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,PreStackDisplay,
@@ -53,10 +53,10 @@ public:
 					      bool oncurrentline=true) const;
 
 				//for 3D only at present
-    DataPackID		preProcess();
+    DataPackID			preProcess();
 
     bool			is3DSeis() const;
-    DataPackID		getDataPackID(int i=0) const override;
+    DataPackID			getDataPackID(int i=0) const override;
 
     visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
     const visBase::FlatViewer*	flatViewer() const { return flatviewer_; }
@@ -85,13 +85,13 @@ public:
     int				traceNr() const	  { return trcnr_; }
     BufferString		lineName() const;
 
-    bool                        displayAutoWidth() const { return autowidth_; }
-    void                        displaysAutoWidth(bool yn);
-    bool                        displayOnPositiveSide() const {return posside_;}
-    void                        displaysOnPositiveSide(bool yn);
-    float                       getFactor() { return factor_; }
+    bool			displayAutoWidth() const { return autowidth_; }
+    void			displaysAutoWidth(bool yn);
+    bool			displayOnPositiveSide() const {return posside_;}
+    void			displaysOnPositiveSide(bool yn);
+    float			getFactor() { return factor_; }
     void			setFactor(float scale);
-    float                       getWidth() { return width_; }
+    float			getWidth() { return width_; }
     void			setWidth(float width);
     BinID			getBinID() const { return bid_; }
     MultiID			getMultiID() const override { return mid_; }
@@ -123,7 +123,8 @@ protected:
 				~PreStackDisplay();
 
     void			setDisplayTransformation(
-					const mVisTrans*) override;
+				    const visBase::Transformation*) override;
+    const mVisTrans*		getDisplayTransformation() const override;
     void			setSceneEventCatcher(
 					visBase::EventCatcher*) override;
     void			updateMouseCursorCB(CallBacker*) override;
