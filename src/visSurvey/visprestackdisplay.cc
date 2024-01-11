@@ -217,7 +217,7 @@ DataPackID PreStackDisplay::preProcess()
 	    }
 
 	    RefMan<PreStack::Gather> gather = new PreStack::Gather;
-	    if ( !gather->readFrom(*ioobj_,*reader_,tk) )
+	    if ( !gather->readFrom(*ioobj_,*reader_,tk,0,nullptr,true) )
 		continue;
 
 	    DPM( DataPackMgr::FlatID() ).add( gather );
@@ -322,7 +322,7 @@ bool PreStackDisplay::updateData()
 	else
 	    tk.setGeomID( seis2d_->getGeomID() ).setTrcNr( trcnr_ );
 
-	if ( gather->readFrom(*ioobj_,*reader_,tk) )
+	if ( gather->readFrom(*ioobj_,*reader_,tk,0,nullptr,true) )
 	{
 	    DPM(DataPackMgr::FlatID()).add( gather );
 	    displayid = gather->id();
@@ -511,7 +511,13 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     if ( fdp && fdp->isOK() )
     {
 	offsetrange_.setFrom( fdp->posData().range( true ) );
-	zrg_.setFrom( fdp->posData().range( false ) );
+	Interval<float> zrg2use;
+	zrg2use.setFrom( fdp->posData().range(false) );
+
+	if ( SI().isWorkRangeSet() && !getZAxisTransform() )
+	    zrg2use.limitTo( SI().zRange(true) );
+
+	zrg_.setFrom( zrg2use );
 	nrtrcs = fdp->size( true );
     }
 
@@ -629,6 +635,13 @@ void PreStackDisplay::setDisplayTransformation(
 }
 
 
+const visBase::Transformation* PreStackDisplay::getDisplayTransformation() const
+{
+// returning the one from planedagger to avoid adding a new hidden parameter
+    return planedragger_ ? planedragger_->getDisplayTransformation() : nullptr;
+}
+
+
 void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
 {
     if ( section_ )
@@ -714,7 +727,8 @@ void PreStackDisplay::setTraceNr( int trcnr )
     {
 	RefMan<PreStack::Gather> gather = new PreStack::Gather;
 	const TrcKey tk( seis2d_->getGeomID(), trcnr );
-	if ( !ioobj_ || !reader_ || !gather->readFrom(*ioobj_,*reader_,tk) )
+	if ( !ioobj_ || !reader_ ||
+	     !gather->readFrom(*ioobj_,*reader_,tk,0,nullptr,true) )
 	{
 	    mDefineStaticLocalObject( bool, show2d, = false );
 	    mDefineStaticLocalObject( bool, resettrace, = true );
@@ -933,7 +947,7 @@ void PreStackDisplay::finishedCB( CallBacker* )
 }
 
 
-void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
+void PreStackDisplay::getMousePosInfo( const visBase::EventInfo&,
 				      Coord3& pos,
 				      BufferString& val,
 				      BufferString& info ) const
@@ -975,7 +989,9 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     else if ( trcidx>=nrtrcs )
 	trcidx = nrtrcs-1;
 
-    IOPar ipar; float offset = mUdf(float), azimuth = mUdf(float);
+    IOPar ipar;
+    float offset = mUdf(float);
+    float azimuth = mUdf(float);
     fdp->getAuxInfo( trcidx, 0, ipar );
     ipar.get( sKey::Offset(), offset );
     ipar.get( sKey::Azimuth(), azimuth );
@@ -988,8 +1004,13 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     if ( !mIsUdf(azimuth) )
 	info.add( "Azimuth: " ).add(mNINT32(azimuth*360/M_PI));
 
-    const int zsample = posdata.range(false).nearestIndex( pos.z );
-    val = fdp->data().get( trcidx, zsample );
+    const StepInterval<double>& zrg = posdata.range( false );
+    val.setEmpty();
+    if ( zrg.includes(pos.z,false) )
+    {
+	const int zsample = zrg.nearestIndex( pos.z );
+	val = fdp->data().get( trcidx, zsample );
+    }
 }
 
 

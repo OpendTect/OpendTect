@@ -54,9 +54,13 @@ public:
     bool			readFrom(const IOObj&,const TrcKey&,
 					 int component=0,
 					 uiString* errmsg=nullptr);
-    bool			readFrom(const IOObj&,SeisPSReader& rdr,
+    bool			readFrom(const IOObj&,SeisPSReader&,
 					 const TrcKey&,int component=0,
 					 uiString* errmsg=nullptr);
+    bool			readFrom(const IOObj&,SeisPSReader&,
+					 const TrcKey&,int component,
+					 uiString* errmsg,
+					 bool adjustzrgtosi);
     mDeprecated("Use TrcKey")
     bool			readFrom(const IOObj&,SeisPSReader& rdr,
 					 const BinID&,int component=0,

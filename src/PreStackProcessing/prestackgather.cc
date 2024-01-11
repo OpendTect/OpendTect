@@ -255,7 +255,7 @@ bool Gather::readFrom( const MultiID& mid, const int trcnr,
 bool Gather::readFrom( const IOObj& ioobj, const int trcnr,
 		       const char* linename, int comp, uiString* errmsg )
 {
-    const TrcKey tk( Survey::GM().getGeomID( linename ), trcnr );
+    const TrcKey tk( Survey::GM().getGeomID(linename), trcnr );
     return readFrom( ioobj, tk, comp, errmsg );
 }
 
@@ -282,6 +282,13 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
 		       int comp, uiString* errmsg )
 {
+    return readFrom( ioobj, rdr, tk, comp, errmsg, false );
+}
+
+
+bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
+		       int comp, uiString* errmsg, bool adjustzrg2si )
+{
     if ( tk.isUdf() )
 	return false;
 
@@ -307,8 +314,9 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const TrcKey& tk,
     if ( SeisPSIOProvider::getGatherOffsetType(ioobj.pars(),offsettype) )
 	setOffsetType( offsettype );
 
-    if ( !setFromTrcBuf(tbuf,comp,isCorrected(),offsetType(),zDomain(),true) )
-       return false;
+    if ( !setFromTrcBuf(tbuf,comp,isCorrected(),offsetType(),
+			zDomain(),adjustzrg2si) )
+	return false;
 
     velocitymid_.setUdf();
     ioobj.pars().get( VelocityDesc::sKeyVelocityVolume(), velocitymid_ );
@@ -372,6 +380,9 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool iscorrected,
     setOffsetType( offstyp );
     if ( snapzrgtosi && zDomain() == SI().zDomainInfo() )
     {
+	if ( SI().isWorkRangeSet() )
+	    zrg.limitTo( SI().zRange(true) );
+
 	SI().snapZ( zrg.start );
 	SI().snapZ( zrg.stop );
     }

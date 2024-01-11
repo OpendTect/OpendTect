@@ -346,15 +346,17 @@ BufferString FlatViewer::getResolutionName( int res ) const
 
 void FlatViewer::setDisplayTransformation( const mVisTrans* trans )
 {
-   if ( rectangle_ )
-    rectangle_->setDisplayTransformation( trans );
+    if ( rectangle_ )
+    {
+	rectangle_->setDisplayTransformation( trans );
+	rectangle_->setRotationAndWidth( c10_-c00_, c01_-c00_ );
+    }
 
-   if ( x1gridlines_ )
-       x1gridlines_->setDisplayTransformation( trans );
+    if ( x1gridlines_ )
+	x1gridlines_->setDisplayTransformation( trans );
 
-   if ( x2gridlines_ )
-       x2gridlines_->setDisplayTransformation( trans );
-
+    if ( x2gridlines_ )
+	x2gridlines_->setDisplayTransformation( trans );
 }
 
 
