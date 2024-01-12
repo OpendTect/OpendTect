@@ -101,6 +101,9 @@ bool TrackAscIO::readTrackData( TypeSet<Coord3>& pos, TypeSet<double>& mdvals,
 	    kbelevinfile = dah - curpos.z;
     }
 
+    if ( pos.isEmpty() )
+	errmsg_.append( "No positions found in file." );
+
     return !pos.isEmpty();
 }
 
