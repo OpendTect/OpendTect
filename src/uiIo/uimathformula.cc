@@ -362,6 +362,9 @@ bool uiMathFormula::updateForm() const
     {
 	const uiMnemonicsSel* mnselfld = getMnSelFld();
 	const Mnemonic* mn = mnselfld ? mnselfld->mnemonic() : setup_.mn_;
+	if ( !mn )
+	    mn = form_.outputMnemonic();
+
 	if ( !mn || mn->isUdf() )
 	{
 	    if ( !uiMSG().askGoOn( tr("Formula return type is undefined.\n"
