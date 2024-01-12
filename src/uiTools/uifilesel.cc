@@ -136,7 +136,9 @@ void uiFileSel::init( const uiString& lbltxt )
     // needs to be done before finalising
     setFileNames( setup_.initialselection_ );
 
-    mAttachCB( fnmfld_->editingFinished, uiFileSel::inputChgCB );
+    if ( setup_.isForRead() )
+	mAttachCB( fnmfld_->editingFinished, uiFileSel::inputChgCB );
+
     mAttachCB( fnmfld_->returnPressed, uiFileSel::fnmEnteredCB );
     mAttachCB( postFinalize(), uiFileSel::finalizeCB );
 }
@@ -299,6 +301,7 @@ void uiFileSel::inputChgCB( CallBacker* )
     setButtonStates();
     if ( protfld_ )
     {
+	const int prevprot = protfld_->currentItem();
 	const BufferString prot = selectedProtocol();
 	int idx = prot.isEmpty() ? 0 : factnms_.indexOf( prot.buf() );
 	if ( idx<0 )
@@ -308,7 +311,8 @@ void uiFileSel::inputChgCB( CallBacker* )
 	}
 
 	protfld_->setCurrentItem( idx );
-	protChgCB( nullptr );
+	if ( prevprot != idx )
+	    protChgCB( nullptr );
     }
 
     filepars_.set( sKey::FileName(), fileName() );
