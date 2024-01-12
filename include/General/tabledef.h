@@ -234,7 +234,7 @@ public:
 			FormatDesc( const char* nm )
 			    : NamedObject(nm)
 			    , nrhdrlines_(0)
-			    , eohtokencol_(-1)		{}
+			    , eohtokencol_(-1)		{ init(); }
 			~FormatDesc()
 			{ deepErase( headerinfos_ ); deepErase( bodyinfos_ ); }
 
@@ -265,6 +265,9 @@ public:
 			    nrhdrlines_ = eohtokencol_ = 0;
 			    eohtoken_.setEmpty(); eobtoken_.setEmpty();
 			}
+
+private:
+    void		init();
 };
 
 } // namespace Table

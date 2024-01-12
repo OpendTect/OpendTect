@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "ascstream.h"
 #include "file.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "od_iostream.h"
@@ -487,6 +488,16 @@ bool FormatDesc::bodyUsesCol( int icol ) const
 }
 
 
+
+static const char* sKeyFielSep()	{ return "Field separator"; }
+void FormatDesc::init()
+{
+    BoolInpSpec spec( true, toUiString("Tab/Space"), toUiString("Comma") );
+    headerinfos_ +=
+	new Table::TargetInfo( sKeyFielSep(), spec, Table::Required );
+}
+
+
 class AscIOImp_ExportHandler : public ExportHandler
 {
 
@@ -731,8 +742,13 @@ bool putBodyRow( const BufferStringSet& bss, uiString& msg )
 
 } // namespace Table
 
+
+static HiddenParam<Table::AscIO,char> hp_commasep( false );
+
 Table::AscIO::~AscIO()
 {
+    hp_commasep.removeParam( this );
+
     delete imphndlr_;
     delete exphndlr_;
     delete cnvrtr_;
@@ -759,10 +775,21 @@ void Table::AscIO::addVal( const char* s, const UnitOfMeasure* mu ) const
 
 bool Table::AscIO::getHdrVals( od_istream& strm ) const
 {
+    int hdrstart = 0;
+    const TargetInfo* sepinfo = fd_.headerinfos_.isEmpty()
+				? nullptr : fd_.headerinfos_.first();
+    if ( sepinfo && sepinfo->name()==sKeyFielSep() )
+    {
+	const BufferString val = sepinfo->selection_.getVal( 0 );
+	hp_commasep.setParam( cCast(Table::AscIO*,this),
+			      val.startsWith("Com") );
+	hdrstart = 1;
+    }
+
     const int nrhdrlines = fd_.nrHdrLines();
     if ( nrhdrlines < 1 )
     {
-	for ( int itar=0; itar<fd_.headerinfos_.size(); itar++ )
+	for ( int itar=hdrstart; itar<fd_.headerinfos_.size(); itar++ )
 	{
 	    const Table::TargetInfo& tarinf = *fd_.headerinfos_[itar];
 	    const Table::TargetInfo::Form& selform
@@ -774,9 +801,15 @@ bool Table::AscIO::getHdrVals( od_istream& strm ) const
     }
     else
     {
-	Table::WSImportHandler hdrimphndlr( strm );
+	PtrMan<Table::ImportHandler> hdrimphndlr;
+	const bool iscomma = hp_commasep.getParam( this );
+	if ( iscomma )
+	    hdrimphndlr = new Table::CSVImportHandler( strm );
+	else
+	    hdrimphndlr = new Table::WSImportHandler( strm );
+
 	Table::AscIOImp_ExportHandler hdrexphndlr( *this, true );
-	Table::Converter hdrcnvrtr( hdrimphndlr, hdrexphndlr );
+	Table::Converter hdrcnvrtr( *hdrimphndlr, hdrexphndlr );
 	for ( int idx=0; idx<nrhdrlines; idx++ )
 	{
 	    int res = hdrcnvrtr.nextStep();
@@ -815,7 +848,13 @@ int Table::AscIO::getNextBodyVals( od_istream& strm ) const
     if ( !cnvrtr_ )
     {
 	AscIO& self = *const_cast<AscIO*>(this);
-	self.imphndlr_ = new Table::WSImportHandler( strm );
+
+	const bool iscomma = hp_commasep.getParam( this );
+	if ( iscomma )
+	    self.imphndlr_ = new Table::CSVImportHandler( strm );
+	else
+	    self.imphndlr_ = new Table::WSImportHandler( strm );
+
 	self.exphndlr_ = new Table::AscIOImp_ExportHandler( *this, false );
 	self.cnvrtr_ = new Table::Converter( *imphndlr_, *exphndlr_ );
     }
