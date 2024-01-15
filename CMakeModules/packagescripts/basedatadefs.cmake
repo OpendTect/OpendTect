@@ -13,7 +13,7 @@ SET( LIBLIST omf ColTabs MouseControls BatchPrograms
 	     Mnemonics )
 set( DATADIRLIST Attribs BasicSurvey CRS icons.Default Strat Scripts )
 set( LEGALLIST openssl zlib )
-if ( IS_DIRECTORY "${SQLITE_DIR}" )
+if ( IS_DIRECTORY "${SQLite3_ROOT}" )
     list( APPEND LEGALLIST sqlite )
 endif()
 if ( NOT OD_NO_PROJ )
