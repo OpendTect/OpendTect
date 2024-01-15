@@ -107,6 +107,7 @@ mDefineEnumUtils(Mnemonic,StdType,"Standard Property")
 	"Elastic Ratio",
 	"Electrical Potential",
 	"Fluid", // Only for some radioactive measurements
+	"Force",
 	"Gamma Ray",
 	"Impedance",
 	"Permeability",
