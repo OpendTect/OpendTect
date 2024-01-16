@@ -550,8 +550,10 @@ macro( CREATE_DEVELPACKAGES )
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}
 			     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE} )
 	# Compatibility with SDK 7.0.0 to 7.0.2
-	file( COPY "C:/appman/win64/proj/inst_proj_9.2.0_vs2022/bin/proj_9_2.dll"
-	      DESTINATION "${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}" )
+	if ( "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
+	    file( COPY "C:/appman/win64/proj/inst_proj_9.2.0_vs2022/bin/proj_9_2.dll"
+		  DESTINATION "${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/${CMAKE_BUILD_TYPE}" )
+	endif()
 
 	set( DEVELLIBS ${ODLIBLIST} ${ODPLUGINS} ${SPECSOURCES} )
 	#Copying dll, pdb and lib files.
