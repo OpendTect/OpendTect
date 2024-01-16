@@ -304,7 +304,7 @@ bool uiSimilarityAttrib::getOutput( Attrib::Desc& desc )
 
 void uiSimilarityAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr(), Similarity::gateStr() );
+    params += EvalParam( zGateLabel(), Similarity::gateStr() );
 
     const StringView ext = extfld_->text();
     if ( ext == extstrs3d[3] || ext == extstrs3d[4]

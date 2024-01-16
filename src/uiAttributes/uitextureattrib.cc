@@ -186,7 +186,7 @@ bool uiTextureAttrib::getOutput( Desc& desc )
 
 void uiTextureAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr(), Texture::gateStr() );
+    params += EvalParam( zGateLabel(), Texture::gateStr() );
     params += EvalParam( stepoutstr(), Texture::stepoutStr() );
 
     EvalParam ep( "Output" ); ep.evaloutput_ = true;

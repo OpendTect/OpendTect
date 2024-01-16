@@ -213,7 +213,7 @@ bool uiVolumeStatisticsAttrib::getOutput( Desc& desc )
 
 void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr(), VolStats::gateStr() );
+    params += EvalParam( zGateLabel(), VolStats::gateStr() );
     const int shapeidx = shapefld_->getIntValue();
     if ( shapeidx<2 )
 	params += EvalParam( stepoutstr(), VolStats::stepoutStr() );

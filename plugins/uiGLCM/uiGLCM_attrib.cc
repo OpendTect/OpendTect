@@ -259,7 +259,7 @@ void uiGLCM_attrib::steerTypeSel( CallBacker* )
 
 void uiGLCM_attrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr(), GLCM_attrib::sampStr() );
+    params += EvalParam( zGateLabel(), GLCM_attrib::sampStr() );
     params += EvalParam( stepoutstr(), GLCM_attrib::stepoutStr() );
 
     EvalParam ep( "GLCM Attribute");
