@@ -346,7 +346,9 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
     if ( !checkInpFlds() )
 	return false;
 
-    doWork();
+    if ( !doWork() )
+	return false;
+
     wd_.info().surfacecoord_.x = wd_.info().surfacecoord_.y = 0;
     wd_.info().groundelev_ = mUdf(float);
     uiString msg = tr("Well Track successfully imported."
@@ -485,7 +487,7 @@ bool uiWellImportAsc::doWork()
     if ( saveButtonChecked() )
 	importReady.trigger();
 
-    return false;
+    return true;
 }
 
 
