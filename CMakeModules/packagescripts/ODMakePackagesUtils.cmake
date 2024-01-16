@@ -432,6 +432,8 @@ macro( CREATE_DOCPACKAGE PACKAGE_NAME )
 	    file( COPY ${FILES}
 		  DESTINATION "${COPYTODIR}/doc" )
 	endif()
+	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACKAGE_NAME}
+			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     else()
 	if( ${PACKAGE_NAME} STREQUAL "classdoc" )
 	    if( EXISTS "${COPYFROMDIR}/doc/Programmer/Generated" )
@@ -441,10 +443,11 @@ macro( CREATE_DOCPACKAGE PACKAGE_NAME )
 		message( FATAL_ERROR "Class doc not installed correctly. ${PACKAGE_FILENAME} is not self contained." )
 	    endif()
 	endif()
+	if ( NOT APPLE )
+	    execute_process( COMMAND "${CLASSDOC_SCRIPT_LOCATION}" --reldir ${REL_DIR} --ver ${FULLVER_NAME}
+			     WORKING_DIRECTORY "${PACKAGE_DIR}" )
+	endif()
     endif()
-
-    execute_process( COMMAND "$<IF:$<STREQUAL:${PACK},classdoc>,${CLASSDOC_SCRIPT_LOCATION},${USERDOC_SCRIPT_LOCATION}>"
-		     ${PACKAGE_NAME} WORKING_DIRECTORY "${PACKAGE_DIR}" )
 endmacro(CREATE_DOCPACKAGE)
 
 macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
