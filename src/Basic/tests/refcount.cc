@@ -55,7 +55,7 @@ private:
 deleted = false; \
 voiddo; \
 if ( (refclass && !(test)) || delstatus!=deleted || \
-     (rc>=0 && rc!=refclass->nrRefs() )) \
+     (rc>=0 && refclass && rc!=refclass->nrRefs() )) \
 { \
     errStream() << "[FAIL] Test " << #voiddo << " " << #test << od_endl; \
     return false; \

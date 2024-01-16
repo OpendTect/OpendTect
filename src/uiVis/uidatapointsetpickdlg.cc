@@ -390,7 +390,7 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p,
 
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( emobj ) emobj->ref();
+    unRefPtr( emobj );
 }
 
 
@@ -404,9 +404,9 @@ void uiEMDataPointSetPickDlg::cleanUp()
     uiDataPointSetPickDlg::cleanUp();
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( emobj ) emobj->unRef();
+    unRefPtr( emobj );
 
-    delete &emdps_;
+    emdps_ = nullptr;
 }
 
 
