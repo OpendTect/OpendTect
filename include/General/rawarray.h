@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "gendefs.h"
+#include "commondefs.h"
 
 
 /*!\brief Raw binary data access.  */
@@ -17,9 +17,8 @@ ________________________________________________________________________
 mExpClass(General) RawDataArray
 {
 public:
-			RawDataArray( int byts=4 )
-			: nelem_(0), bytes_(byts), data_(0)
-						{}
+			~RawDataArray();
+
     inline bool		isEmpty() const		{ return !data_ || !nelem_; }
 
     inline int		size() const		{ return nelem_; }
@@ -30,9 +29,10 @@ public:
     inline const unsigned char* data() const	{ return data_; }
 
 protected:
+			RawDataArray(int byts=4);
 
-    int			nelem_;
+    int			nelem_				= 0;
     int			bytes_;
-    unsigned char*	data_;
+    unsigned char*	data_				= nullptr;
 
 };
