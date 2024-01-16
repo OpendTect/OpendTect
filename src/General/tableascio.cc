@@ -394,6 +394,33 @@ Table::TargetInfo* TargetInfo::mkZPos( bool isreq, bool wu, int zopt )
 }
 
 
+// FormatDesc
+static const char* sKeyFieldSep()	{ return "Field separator"; }
+
+FormatDesc::FormatDesc( const char* nm )
+    : NamedObject(nm)
+{
+    const BoolInpSpec spec( true, toUiString("Tab/Space"), toUiString("Comma"));
+    headerinfos_ +=
+	new Table::TargetInfo( sKeyFieldSep(), spec, Table::Required );
+}
+
+
+FormatDesc::~FormatDesc()
+{
+    deepErase( headerinfos_ );
+    deepErase( bodyinfos_ );
+}
+
+
+void FormatDesc::clear()
+{
+    nrhdrlines_ = eohtokencol_ = 0;
+    eohtoken_.setEmpty();
+    eobtoken_.setEmpty();
+}
+
+
 void FormatDesc::fillPar( IOPar& iopar ) const
 {
     iopar.set( sKeyHdrSize, nrhdrlines_ );
@@ -513,8 +540,8 @@ struct HdrInfo : public BodyInfo
 {
 		HdrInfo( const TargetInfo& ti, int specnr )
 		    : BodyInfo(ti,specnr)
-		    , found_(false)
 		    , row_(-1)
+		    , found_(false)
 		{
 		    const TargetInfo::Selection::Elem& elem
 						= sel_.elems_[specnr_];
@@ -543,8 +570,8 @@ struct HdrInfo : public BodyInfo
 
 AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
     : ExportHandler(od_cout())
-    , aio_(const_cast<AscIO&>(aio))
     , ishdr_(hdr)
+    , aio_(const_cast<AscIO&>(aio))
     , hdrready_(false)
     , bodyready_(false)
     , rownr_(0)
@@ -762,10 +789,20 @@ void Table::AscIO::addVal( const char* s, const UnitOfMeasure* mu ) const
 
 bool Table::AscIO::getHdrVals( od_istream& strm ) const
 {
+    int hdrstart = 0;
+    const TargetInfo* sepinfo = fd_.headerinfos_.isEmpty()
+				? nullptr : fd_.headerinfos_.first();
+    if ( sepinfo && sepinfo->name()==sKeyFieldSep() )
+    {
+	const BufferString val = sepinfo->selection_.getVal( 0 );
+	iscsv_ = val.startsWith( "Com" );
+	hdrstart = 1;
+    }
+
     const int nrhdrlines = fd_.nrHdrLines();
     if ( nrhdrlines < 1 )
     {
-	for ( int itar=0; itar<fd_.headerinfos_.size(); itar++ )
+	for ( int itar=hdrstart; itar<fd_.headerinfos_.size(); itar++ )
 	{
 	    const Table::TargetInfo& tarinf = *fd_.headerinfos_[itar];
 	    const Table::TargetInfo::Form& selform
@@ -777,9 +814,14 @@ bool Table::AscIO::getHdrVals( od_istream& strm ) const
     }
     else
     {
-	Table::WSImportHandler hdrimphndlr( strm );
+	PtrMan<Table::ImportHandler> hdrimphndlr;
+	if ( iscsv_ )
+	    hdrimphndlr = new Table::CSVImportHandler( strm );
+	else
+	    hdrimphndlr = new Table::WSImportHandler( strm );
+
 	Table::AscIOImp_ExportHandler hdrexphndlr( *this, true );
-	Table::Converter hdrcnvrtr( hdrimphndlr, hdrexphndlr );
+	Table::Converter hdrcnvrtr( *hdrimphndlr, hdrexphndlr );
 	for ( int idx=0; idx<nrhdrlines; idx++ )
 	{
 	    int res = hdrcnvrtr.nextStep();
@@ -818,7 +860,11 @@ int Table::AscIO::getNextBodyVals( od_istream& strm ) const
     if ( !cnvrtr_ )
     {
 	AscIO& self = *const_cast<AscIO*>(this);
-	self.imphndlr_ = new Table::WSImportHandler( strm );
+	if ( iscsv_ )
+	    self.imphndlr_ = new Table::CSVImportHandler( strm );
+	else
+	    self.imphndlr_ = new Table::WSImportHandler( strm );
+
 	self.exphndlr_ = new Table::AscIOImp_ExportHandler( *this, false );
 	self.cnvrtr_ = new Table::Converter( *imphndlr_, *exphndlr_ );
     }

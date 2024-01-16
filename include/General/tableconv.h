@@ -20,10 +20,8 @@ namespace Table
 mExpClass(General) ImportHandler
 {
 public:
-			ImportHandler( od_istream& strm )
-			    : strm_(strm)
-			    , colpos_(0)	{}
-    virtual		~ImportHandler()	{}
+    virtual		~ImportHandler();
+			mOD_DisableCopy(ImportHandler)
 
     enum State		{ Error, InCol, EndCol, EndRow };
 
@@ -38,10 +36,11 @@ public:
     bool		atEnd() const;
 
 protected:
+			ImportHandler(od_istream&);
 
     od_istream&		strm_;
     BufferString	col_;
-    int			colpos_;
+    int			colpos_		= 0;
 
     void		addToCol(char);
 
@@ -51,9 +50,8 @@ protected:
 mExpClass(General) ExportHandler
 {
 public:
-			ExportHandler( od_ostream& strm )
-			    : strm_(strm)		{}
-    virtual		~ExportHandler()		{}
+    virtual		~ExportHandler();
+			mOD_DisableCopy(ExportHandler)
 
     virtual bool	putRow(const BufferStringSet&,uiString&)	= 0;
 
@@ -68,11 +66,11 @@ public:
 			//!< After last record
 
 protected:
+			ExportHandler(od_ostream&);
 
     od_ostream&		strm_;
 
     uiString		getStrmMsg() const;
-
 };
 
 
@@ -80,11 +78,8 @@ protected:
 mExpClass(General) Converter : public Executor
 { mODTextTranslationClass(Converter);
 public:
-			Converter( ImportHandler& i, ExportHandler& o )
-			    : Executor("Data import")
-			    , imphndlr_(i), exphndlr_(o)
-			    , rowsdone_(0), selcolnr_(-1), atend_(false)
-			{}
+			Converter(ImportHandler&,ExportHandler&);
+			~Converter();
     // Setup
     TypeSet<int>	selcols_;
     uiString		msg_;
@@ -92,7 +87,7 @@ public:
     int			nextStep() override;
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override
-			    { return tr("Records read"); }
+			{ return tr("Records read"); }
     od_int64		nrDone() const override		{ return rowsdone_; }
 
     struct RowManipulator
@@ -112,10 +107,10 @@ protected:
     BufferStringSet	row_;
     ObjectSet<const RowManipulator> manipulators_;
 
-    int			colnr_;
-    int			selcolnr_;
-    int			rowsdone_;
-    bool		atend_;
+    int			colnr_				= 0;
+    int			selcolnr_			= -1;
+    int			rowsdone_			= 0;
+    bool		atend_				= false;
 
     bool		handleImpState(ImportHandler::State);
     inline bool		colSel() const
