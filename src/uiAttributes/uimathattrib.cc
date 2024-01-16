@@ -18,9 +18,8 @@ ________________________________________________________________________
 #include "attribfactory.h"
 #include "ioman.h"
 #include "seisioobjinfo.h"
-#include "survinfo.h"
 #include "uiattrsel.h"
-#include "uigeninput.h"
+#include "uilineedit.h"
 #include "uimathexpression.h"
 #include "uimathexpressionvariable.h"
 #include "uimathformula.h"
@@ -40,10 +39,12 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	, form_(*new Math::Formula(true,Attrib::Mathematics::getSpecVars()))
 {
     uiAttrSelData asd( is2d );
-    uiMathFormula::Setup mfsu( tr("Formula (like 'nearstk + c0 * farstk')") );
+    uiMathFormula::Setup mfsu( tr("Formula") );
     mfsu.withunits( false ).maxnrinps( 8 ).withsubinps( true )
 	.stortype( "Attribute calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
+    formfld_->exprFld()->textField()->setPlaceholderText(
+					toUiString("nearstk + c0 * farstk") );
 //    mAttachCB( formfld_->formSet, uiMathAttrib::formSel );
     mAttachCB( formfld_->inpSet, uiMathAttrib::inpSel );
     updateNonSpecInputs();

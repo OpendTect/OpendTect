@@ -237,7 +237,7 @@ void uiSpecDecompAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     EvalParam ep( "Frequency" ); ep.evaloutput_ = true;
     params += ep;
     if ( typefld_->getBoolValue() )
-	params += EvalParam( timegatestr(), SpecDecomp::gateStr() );
+	params += EvalParam( zGateLabel(), SpecDecomp::gateStr() );
 }
 
 

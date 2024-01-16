@@ -160,7 +160,7 @@ bool uiSemblanceAttrib::getInput( Attrib::Desc& desc )
 
 void uiSemblanceAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr(), Semblance::gateStr() );
+    params += EvalParam( zGateLabel(), Semblance::gateStr() );
 
     const bool needstepoutfld = is2D() ? extfld->getIntValue()>=2
 				     : extfld->getIntValue()>=3;

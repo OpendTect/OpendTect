@@ -123,6 +123,6 @@ bool uiGrubbsFilterAttrib::getInput( Attrib::Desc& desc )
 void uiGrubbsFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( "Cutoff Grubbs Value", GrubbsFilter::grubbsvalStr() );
-    params += EvalParam( timegatestr(), GrubbsFilter::gateStr() );
+    params += EvalParam( zGateLabel(), GrubbsFilter::gateStr() );
     params += EvalParam( stepoutstr(), GrubbsFilter::stepoutStr() );
 }

@@ -25,27 +25,27 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-const char* uiAttrDescEd::timegatestr()	        { return "Time gate"; }
-const char* uiAttrDescEd::stepoutstr()	        { return "Stepout"; }
-const char* uiAttrDescEd::frequencystr()        { return "Frequency"; }
-const char* uiAttrDescEd::filterszstr()	        { return "Filter size"; }
+const char* uiAttrDescEd::depthgatestr()	{ return "Depth gate"; }
+const char* uiAttrDescEd::timegatestr()		{ return "Time gate"; }
+const char* uiAttrDescEd::stepoutstr()		{ return "Stepout"; }
+const char* uiAttrDescEd::frequencystr()	{ return "Frequency"; }
+const char* uiAttrDescEd::filterszstr()		{ return "Filter size"; }
 
 const char* uiAttrDescEd::sKeyOtherGrp()	{ return "Other"; }
 const char* uiAttrDescEd::sKeyBasicGrp()	{ return "Basic"; }
 const char* uiAttrDescEd::sKeyFilterGrp()	{ return "Filters"; }
-const char* uiAttrDescEd::sKeyFreqGrp()	        { return "Frequency"; }
+const char* uiAttrDescEd::sKeyFreqGrp()		{ return "Frequency"; }
 const char* uiAttrDescEd::sKeyPatternGrp()	{ return "Patterns"; }
 const char* uiAttrDescEd::sKeyStatsGrp()	{ return "Statistics"; }
 const char* uiAttrDescEd::sKeyPositionGrp()	{ return "Positions"; }
-const char* uiAttrDescEd::sKeyDipGrp()	        { return "Dip"; }
+const char* uiAttrDescEd::sKeyDipGrp()		{ return "Dip"; }
 
 uiString uiAttrDescEd::sInputTypeError( int inp )
 {
     return tr("The suggested attribute for input %1 "
-            "is incompatible with the input (wrong datatype)")
-            .arg( toString( inp ) );
+		"is incompatible with the input (wrong datatype)")
+		.arg( toString( inp ) );
 }
-
 
 
 const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
@@ -267,6 +267,12 @@ void uiAttrDescEd::putInp( uiSteeringSel* inpfld, const Attrib::Desc& ad,
 	inpfld->setDescSet( ad.descSet() );
     else
 	inpfld->setDesc( inpdesc );
+}
+
+
+const char* uiAttrDescEd::zGateLabel() const
+{
+    return SI().zIsTime() ? timegatestr() : depthgatestr();
 }
 
 

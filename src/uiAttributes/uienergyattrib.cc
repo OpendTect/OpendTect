@@ -109,5 +109,5 @@ bool uiEnergyAttrib::getOutput( Attrib::Desc& desc )
 
 void uiEnergyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr(), Energy::gateStr() );
+    params += EvalParam( zGateLabel(), Energy::gateStr() );
 }

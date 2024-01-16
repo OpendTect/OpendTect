@@ -141,7 +141,7 @@ bool uiFrequencyAttrib::getOutput( Attrib::Desc& desc )
 
 void uiFrequencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr(), Frequency::gateStr() );
+    params += EvalParam( zGateLabel(), Frequency::gateStr() );
 }
 
 

@@ -127,6 +127,7 @@ public:
 
     static const char*	getInputAttribName(uiAttrSel*,const Desc&);
 
+    static const char*	depthgatestr();
     static const char*	timegatestr();
     static const char*	frequencystr();
     static const char*	stepoutstr();
@@ -156,6 +157,7 @@ protected:
 
     bool		needInputUpdate() const		{ return needinpupd_; }
 
+    const char*		zGateLabel() const;
     uiString		zDepLabel(const uiString& pre,
 				  const uiString& post) const;
     uiString		gateLabel() const

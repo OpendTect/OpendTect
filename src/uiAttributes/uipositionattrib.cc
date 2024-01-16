@@ -117,7 +117,7 @@ bool uiPositionAttrib::getInput( Desc& desc )
 
 void uiPositionAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr(), Position::gateStr() );
+    params += EvalParam( zGateLabel(), Position::gateStr() );
     params += EvalParam( stepoutstr(), Position::stepoutStr() );
 }
 
