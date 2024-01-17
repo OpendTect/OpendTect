@@ -1508,6 +1508,9 @@ void sampleEffectiveThomsenPars( const float* vinarr, const double* t_in,
     mAllocVarLenArr( double, dvinarr, nr_in );
     mAllocVarLenArr( double, dvoutarr, nr_out );
     if ( !mIsVarLenArrOK(dvinarr) || !mIsVarLenArrOK(dvoutarr) ) return;
+    for ( int idx=0; idx<nr_in; idx++ )
+	dvinarr[idx] = vinarr[idx];
+
     resampleContinuousData( dvinarr, t_in, nr_in, sd_out, nr_out, dvoutarr );
     for ( int idx=0; idx<nr_out; idx++ )
 	voutarr[idx] = mCast(float,dvoutarr[idx]);
