@@ -224,7 +224,7 @@ void uiAttribDescSetEd::createGroups()
 
     attrlistfld_ = new uiListBox( leftgrp, "Defined Attributes" );
     attrlistfld_->setStretch( 2, 2 );
-    attrlistfld_->selectionChanged.notify( mCB(this,uiAttribDescSetEd,selChg) );
+    mAttachCB(attrlistfld_->selectionChanged, uiAttribDescSetEd::selChg);
     attrlistfld_->attach( leftAlignedBelow, attrsetfld_ );
 
     moveupbut_ = new uiToolButton( leftgrp, uiToolButton::UpArrow,
@@ -250,7 +250,7 @@ void uiAttribDescSetEd::createGroups()
     degrp->setStretch( 1, 1 );
 
     attrtypefld_ = new uiAttrTypeSel( degrp );
-    attrtypefld_->selChg.notify( mCB(this,uiAttribDescSetEd,attrTypSel) );
+    mAttachCB(attrtypefld_->selChg, uiAttribDescSetEd::attrTypSel);
     desceds_.allowNull();
     for ( int idx=0; idx<uiAF().size(); idx++ )
     {
@@ -292,11 +292,11 @@ void uiAttribDescSetEd::createGroups()
     attrnmfld_ = new uiGenInput( rightgrp, uiStrings::sAttribName() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, degrp );
-    attrnmfld_->updateRequested.notify( mCB(this,uiAttribDescSetEd,addPush) );
+    mAttachCB(attrnmfld_->updateRequested, uiAttribDescSetEd::addPush);
 
     addbut_ = new uiPushButton( rightgrp, tr("Add as new"), true );
     addbut_->attach( rightTo, attrnmfld_ );
-    addbut_->activated.notify( mCB(this,uiAttribDescSetEd,addPush) );
+    mAttachCB(addbut_->activated, uiAttribDescSetEd::addPush);
 
     dispbut_ = new uiToolButton( rightgrp, "showattrnow",
 	tr("Recalculate this attribute on selected element"),
@@ -401,6 +401,7 @@ void uiAttribDescSetEd::init()
 
 uiAttribDescSetEd::~uiAttribDescSetEd()
 {
+    detachAllNotifiers();
     delete &userattrnames_;
     delete &setctio_;
     delete adsman_;
