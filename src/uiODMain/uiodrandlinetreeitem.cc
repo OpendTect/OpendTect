@@ -87,8 +87,11 @@ void colorChangeCB( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
+    showAlwaysOnTop( false );
     if ( !rtd_->createFromPolyLine() )
     {
+	showAlwaysOnTop( true );
+	showAndActivate();
 	uiMSG().error(tr("Please select at least two points"
 			 " on Z-Slice, Horizon, or Survey Top/Bottom"));
 	return false;
