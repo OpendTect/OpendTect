@@ -424,11 +424,14 @@ void SpecDecomp::getCompNames( BufferStringSet& nms ) const
 {
     nms.erase();
     const float fnyq = 0.5f / refstep_;
+    const float freqscale = zIsTime() ? 1.f : 1000.f;
     const char* basestr = "frequency=";
-    BufferString suffixstr = zIsTime() ? "Hz" : "cycles/mm";
+    const BufferString suffixstr = zIsTime() ? "Hz" :
+				(SI().zInMeter() ? "cycles/km" : "cycles/kft");
     for ( float freq=deltafreq_; freq<fnyq; freq+=deltafreq_ )
     {
-	BufferString tmpstr = basestr; tmpstr += freq; tmpstr += suffixstr;
+	BufferString tmpstr( basestr );
+	tmpstr.add( freq*freqscale ).add( suffixstr );
 	nms.add( tmpstr.buf() );
     }
 }
