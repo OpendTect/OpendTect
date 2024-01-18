@@ -43,7 +43,6 @@ namespace Geometry
 FaultStick::FaultStick( int idx )
     : stickidx_(idx)
 {
-    int x = 0;
 }
 
 
