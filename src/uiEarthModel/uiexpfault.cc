@@ -92,7 +92,6 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 
 	auto* multigrp = new uiGroup( this, "Multi Surface Read" );
 	multigrp->attach( alignedBelow, zdomypefld_ );
-	const char* surftype = EMHorizon3DTranslatorGroup::sGroupName();
 	const ZDomain::Info& depthinfo = SI().depthsInFeet() ?
 	    ZDomain::DepthFeet() : ZDomain::DepthMeter();
 	multisurfdepthread_ = new uiMultiSurfaceRead( multigrp, typ,
@@ -193,20 +192,6 @@ void uiExportFault::inpSelChg( CallBacker* )
 }
 
 
-static int stickNr( EM::EMObject* emobj, int stickidx )
-{
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
-    return fss->rowRange().atIndex( stickidx );
-}
-
-
-static int nrSticks( EM::EMObject* emobj )
-{
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
-    return fss->nrSticks();
-}
-
-
 static int nrKnots( EM::EMObject* emobj, int stickidx )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
@@ -266,14 +251,6 @@ bool uiExportFault::writeAscii()
 
     if ( objloader && !TaskRunner::execute(&taskrunner, *objloader) )
 	return false;
-
-    const UnitOfMeasure* unit = zunitsel_->getUnit();
-    const bool doxy = coordfld_->getBoolValue();
-    const bool inclstickidx = stickidsfld_->isChecked( 0 );
-    const bool inclknotidx = stickidsfld_->isChecked( 1 );
-    const Coords::CoordSystem* outcrs =
-	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
-    const Coords::CoordSystem* syscrs = SI().getCoordSystem();
 
     for ( int idx=0; idx<midset.size(); idx++ )
     {
