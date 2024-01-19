@@ -248,7 +248,6 @@ protected:
     bool			onSection(int sticknr);
     void			showActiveStickMarker();
 
-    ZAxisTransform*			zaxistransform_;
     int					voiid_;
 
     visBase::GeomIndexedShape*		paneldisplay_;

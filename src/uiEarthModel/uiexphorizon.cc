@@ -350,17 +350,23 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     outfld_ = new uiASCIIFileInput( this, false );
     outfld_->attach( alignedBelow, udffld_ );
 
-    mAttachCB( postFinalize(), uiExportHorizon::typChg );
-    if ( !isbulk )
-	mAttachCB( postFinalize(), uiExportHorizon::inpSel );
-    else
-	mAttachCB( postFinalize(), uiExportHorizon::zDomainTypeChg );
+    mAttachCB( postFinalize(), uiExportHorizon::initGrpCB );
 }
 
 
 uiExportHorizon::~uiExportHorizon()
 {
     detachAllNotifiers();
+}
+
+
+void uiExportHorizon::initGrpCB( CallBacker* )
+{
+    typChg( nullptr );
+    if ( isbulk_ )
+	zDomainTypeChg( nullptr );
+    else
+	inpSel( nullptr );
 }
 
 

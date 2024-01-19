@@ -77,7 +77,6 @@ FaultDisplay::FaultDisplay()
     , explicitpanels_( 0 )
     , explicitsticks_( 0 )
     , explicitintersections_( 0 )
-    , zaxistransform_( 0 )
     , voiid_( -1 )
     , activestick_( mUdf(int) )
     , colorchange( this )
@@ -737,10 +736,15 @@ bool FaultDisplay::usePar( const IOPar& par )
 void FaultDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
     StickSetDisplay::setDisplayTransformation( nt );
-    if ( paneldisplay_ ) paneldisplay_->setDisplayTransformation( nt );
-    if ( stickdisplay_ ) stickdisplay_->setDisplayTransformation( nt );
+    if ( paneldisplay_ )
+	paneldisplay_->setDisplayTransformation( nt );
+
+    if ( stickdisplay_ )
+	stickdisplay_->setDisplayTransformation( nt );
+
     if ( intersectiondisplay_ )
 	intersectiondisplay_->setDisplayTransformation( nt );
+
     for ( int idx=0; idx<horintersections_.size(); idx++ )
 	horintersections_[idx]->setDisplayTransformation( nt );
 
@@ -750,7 +754,9 @@ void FaultDisplay::setDisplayTransformation( const mVisTrans* nt )
 
 
 const mVisTrans* FaultDisplay::getDisplayTransformation() const
-{ return StickSetDisplay::getDisplayTransformation(); }
+{
+    return StickSetDisplay::getDisplayTransformation();
+}
 
 
 bool FaultDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
@@ -784,7 +790,9 @@ bool FaultDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 
 const ZAxisTransform* FaultDisplay::getZAxisTransform() const
-{ return zaxistransform_; }
+{
+    return zaxistransform_;
+}
 
 
 void FaultDisplay::dataTransformCB( CallBacker* )
@@ -1206,7 +1214,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     const RowCol sz = explicitpanels_->getTextureSize();
 
     while ( texuredatas_.size()-1 < attrib )
-	texuredatas_ += 0;
+	texuredatas_ += nullptr;
 
     mDeclareAndTryAlloc(Array2D<float>*,texturedata,
 			Array2DImpl<float>(sz.col(),sz.row()));
@@ -1288,7 +1296,7 @@ const BufferStringSet* FaultDisplay::selectedSurfaceDataNames()
 
 
 const Array2D<float>* FaultDisplay::getTextureData( int attrib )
-{ return texuredatas_.validIdx(attrib) ? texuredatas_[attrib] : 0; }
+{ return texuredatas_.validIdx(attrib) ? texuredatas_[attrib] : nullptr; }
 
 
 void FaultDisplay::setResolution( int res, TaskRunner* taskr )
@@ -1302,7 +1310,9 @@ void FaultDisplay::setResolution( int res, TaskRunner* taskr )
 
 bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 				  float& value ) const
-{ return true; }
+{
+    return true;
+}
 
 
 void FaultDisplay::addCache()

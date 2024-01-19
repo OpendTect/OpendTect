@@ -21,7 +21,7 @@ class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
 class uiIOObjSelGrp;
-class uiT2DConvSel;
+class uiMultiSurfaceRead;
 class uiUnitSel;
 
 
@@ -37,27 +37,30 @@ public:
 
 protected:
 
-    uiIOObjSelGrp*	bulkinfld_		= nullptr;
+    uiMultiSurfaceRead* multisurfdepthread_		= nullptr;
+    uiMultiSurfaceRead* multisurftimeread_		= nullptr;
     uiIOObjSel*		infld_			= nullptr;
+    uiGenInput*		zdomypefld_		= nullptr;
     uiGenInput*		coordfld_;
     uiCheckList*	stickidsfld_;
     uiCheckBox*		linenmfld_		= nullptr;
     uiFileInput*	outfld_;
     uiUnitSel*		zunitsel_;
     uiGenInput*		zfld_;
-    uiT2DConvSel*	transfld_;
-    Coords::uiCoordSystemSel* coordsysselfld_	= nullptr;
 
+    Coords::uiCoordSystemSel* coordsysselfld_	= nullptr;
+    bool		isbulk_;
+    uiString		dispstr_;
+    StringView		typ_;
+
+    bool		writeAscii();
     bool		getInputMIDs(TypeSet<MultiID>&);
 
     void		addZChg(CallBacker*);
     void		exportCoordSysChgCB(CallBacker*);
-    StringView		getZDomain() const;
-
+    void		inpSelChg(CallBacker*);
+    void		zDomainTypeChg(CallBacker*);
+    void		initGrpCB(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 
-    bool		writeAscii();
-    bool		isbulk_;
-    uiString		dispstr_;
-    StringView		typ_;
 };

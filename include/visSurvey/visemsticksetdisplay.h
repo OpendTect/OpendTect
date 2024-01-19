@@ -29,6 +29,8 @@ namespace visBase
 namespace Geometry { class FaultStickSet; }
 namespace Survey { class Geometry3D; }
 
+class ZAxisTransform;
+
 namespace visSurvey
 {
 class Scene;
@@ -51,6 +53,7 @@ public:
 
     bool			areAllKnotsHidden() const;
     virtual void		hideAllKnots(bool);
+    bool			isAlreadyTransformed() const;
 
 protected:
     Geometry::FaultStickSet*	faultStickSetGeometry();
@@ -72,6 +75,7 @@ protected:
     bool			pickmarker_;
     visSurvey::Scene*		ownerscene_;
     visBase::EventCatcher*	eventcatcher_;
+    ZAxisTransform*		zaxistransform_		= nullptr;
 
     ObjectSet<visBase::MarkerSet>   knotmarkersets_;
     struct StickIntersectPoint
