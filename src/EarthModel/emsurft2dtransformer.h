@@ -61,6 +61,7 @@ protected:
     virtual OD::Pol2D3D		dataTypeSupported() { return OD::Both2DAnd3D; }
     bool			do3DHorizon(const EM::EMObject&,Surface&);
 
+    void			load3DTranformVol();
     void			unloadVolume();
 
     virtual const StringView	getTypeString()		    = 0;
@@ -145,6 +146,25 @@ private:
     Horizon2DDataHolderSet	    dataset_;
     RefObjectSet<const Surface>     inpsurfs_;
     TypeSet<MultiID>		    preprocessesedinpmid_;
+};
+
+
+mExpClass(EarthModel) FaultT2DTransformer : public SurfaceT2DTransformer
+{ mODTextTranslationClass(FaultT2DTransformer)
+public:
+			    FaultT2DTransformer(
+				const ObjectSet<SurfaceT2DTransfData>&,
+				ZAxisTransform&);
+			    ~FaultT2DTransformer();
+protected:
+
+    OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
+    void		    preStepCB(CallBacker*) override;
+    void		    postStepCB(CallBacker*) override;
+    int			    nextStep() override;
+    bool		    doFault(const SurfaceT2DTransfData&);
+    const StringView	    getTypeString() override;
+
 };
 
 }

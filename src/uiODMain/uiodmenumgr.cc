@@ -746,6 +746,13 @@ void uiODMenuMgr::fillProcMenu()
 	mT2DHor2DMnuItm, mT2DHor3DMnuItm );
     procmnu_->addMenu( grditm );
 
+    auto* fltitm = new uiMenu( &appl_, tr("Create Fault Output") );
+    auto* flttditm = new uiMenu( tr("Time - Depth Conversion") );
+    flttditm->insertAction( new uiAction(m3Dots(uiStrings::sFault()),
+			mCB(&applMgr(),uiODApplMgr,processTime2DepthFault)) );
+    fltitm->addMenu( flttditm );
+    procmnu_->addMenu( fltitm );
+
     procwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
     procwellmnu_->insertAction( new uiAction(m3Dots(uiStrings::sRockPhy()),
 		mCB(&applMgr(),uiODApplMgr,launchRockPhysics),"rockphys") );
