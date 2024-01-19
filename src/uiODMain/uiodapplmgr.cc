@@ -382,6 +382,12 @@ void uiODApplMgr::processTime2DepthHor( bool is2d )
 }
 
 
+void uiODApplMgr::processTime2DepthFault( CallBacker* )
+{
+    emserv_->processTime2Depth( EM::IOObjInfo::Fault );
+}
+
+
 void uiODApplMgr::createMultiCubeDS( CallBacker* )
 { seisserv_->createMultiCubeDataStore(); }
 

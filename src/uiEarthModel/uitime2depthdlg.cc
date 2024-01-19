@@ -51,6 +51,8 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
 	ioobjctxt = mIOObjContext(EMHorizon3D);
     else if ( objtype == IOObjInfo::Horizon2D )
 	ioobjctxt = mIOObjContext(EMHorizon2D);
+    else if ( objtype == IOObjInfo::Fault )
+	ioobjctxt = mIOObjContext(EMFault3D);
     else
 	return;
 
@@ -124,7 +126,8 @@ bool uiTime2DepthDlg::is2DObject() const
 uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
 {
     uiRetVal ret;
-    if ( objtype == IOObjInfo::Horizon3D || objtype == IOObjInfo::Horizon2D )
+    if ( objtype == IOObjInfo::Horizon3D || objtype == IOObjInfo::Horizon2D ||
+	 objtype == IOObjInfo::Fault )
 	return ret;
     else
 	ret.add( tr("Object type is not yet supported") );
@@ -137,6 +140,10 @@ uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objyyp ) const
 {
     if ( objyyp == IOObjInfo::Horizon3D )
 	return tr("Transform 3D Horizon");
+    else if ( objyyp == IOObjInfo::Horizon2D )
+	return tr("Transform 2D Horizon");
+    else if ( objyyp == IOObjInfo::Fault )
+	return tr("Transform Fault");
 
     return toUiString("Object Type Not Supported");
 }

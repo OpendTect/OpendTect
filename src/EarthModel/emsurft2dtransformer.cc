@@ -13,6 +13,10 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
+#include "emfault3d.h"
+#include "emfaultauxdata.h"
+#include "emfaultstickset.h"
+#include "faultstickset.h"
 #include "emmanager.h"
 #include "emposid.h"
 #include "emsurfaceauxdata.h"
@@ -48,6 +52,8 @@ Executor* SurfaceT2DTransformer::createExecutor(
 	return new Horizon3DT2DTransformer( datas, zatf );
     else if ( objtype == IOObjInfo::Horizon2D )
 	return new Horizon2DT2DTransformer( datas, zatf );
+    else if ( objtype == IOObjInfo::Fault )
+	return new FaultT2DTransformer( datas, zatf );
 
     return nullptr;
 }
@@ -73,6 +79,31 @@ uiString SurfaceT2DTransformer::uiNrDoneText() const
 
 void SurfaceT2DTransformer::preStepCB( CallBacker* )
 {
+}
+
+
+void SurfaceT2DTransformer::load3DTranformVol()
+{
+    Interval<float> zgate( mUdf(float), mUdf(float) );
+    for ( const auto* data : datas_ )
+    {
+	const SurfaceIODataSelection& surfsel = data->surfsel_;
+	const Interval<float>& datagate = surfsel.sd.zrg;
+	zgate.include( datagate );
+    }
+
+    TrcKeyZSampling samp;
+    samp.hsamp_ = datas_[0]->surfsel_.rg;
+    if ( samp.zsamp_.stop > zgate.stop )
+	samp.zsamp_.stop = samp.zsamp_.snap( zgate.stop, OD::SnapUpward );
+
+    zatvoi_ = zatf_.addVolumeOfInterest( samp, false );
+    TaskRunner tskr;
+    if ( !zatf_.loadDataIfMissing(zatvoi_,&tskr) )
+    {
+	curmsg_ = tr("Cannot load data for z-transform");
+	return;
+    }
 }
 
 
@@ -148,28 +179,7 @@ const StringView Horizon3DT2DTransformer::getTypeString()
 void Horizon3DT2DTransformer::preStepCB( CallBacker* )
 {
     if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
-    {
-	Interval<float> zgate( mUdf(float), mUdf(float) );
-	for ( const auto* data : datas_ )
-	{
-	    const SurfaceIODataSelection& surfsel = data->surfsel_;
-	    const Interval<float>& datagate = surfsel.sd.zrg;
-	    zgate.include( datagate );
-	}
-
-	TrcKeyZSampling samp;
-	samp.hsamp_ = datas_[0]->surfsel_.rg;
-	if ( samp.zsamp_.stop > zgate.stop )
-	    samp.zsamp_.stop = samp.zsamp_.snap( zgate.stop, OD::SnapUpward );
-
-	zatvoi_ = zatf_.addVolumeOfInterest( samp, false );
-	TaskRunner tskr;
-	if ( !zatf_.loadDataIfMissing(zatvoi_,&tskr) )
-	{
-	    curmsg_ = tr("Cannot load data for z-transform");
-	    return;
-	}
-    }
+	load3DTranformVol();
 }
 
 
@@ -262,7 +272,6 @@ void Horizon3DT2DTransformer::postStepCB( CallBacker* )
     if ( nrdone_ == totnr_ )
 	unloadVolume();
 }
-
 
 
 //Horizon2DDataHolder
@@ -490,6 +499,140 @@ bool Horizon2DT2DTransformer::load2DVelCubeTransf( const Pos::GeomID& geomid,
 void Horizon2DT2DTransformer::unload2DVelCubeTransf()
 {
     unloadVolume();
+}
+
+
+//FaultT2DTransformer
+FaultT2DTransformer::FaultT2DTransformer(
+	const ObjectSet<SurfaceT2DTransfData>& data, ZAxisTransform& zatf )
+    : SurfaceT2DTransformer(data,zatf)
+{
+    mAttachCB(prestep,FaultT2DTransformer::preStepCB);
+    mAttachCB(poststep,FaultT2DTransformer::postStepCB);
+}
+
+
+FaultT2DTransformer::~FaultT2DTransformer()
+{
+    detachAllNotifiers();
+}
+
+
+void FaultT2DTransformer::preStepCB( CallBacker* )
+{
+    if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
+	load3DTranformVol();
+}
+
+
+void FaultT2DTransformer::postStepCB( CallBacker* )
+{
+    if ( nrdone_ == totnr_ )
+	unloadVolume();
+}
+
+
+const StringView FaultT2DTransformer::getTypeString()
+{
+    return EM::Fault3D::typeStr();
+}
+
+
+bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
+{
+    RefMan<Surface> surf = createSurface( data.outmid_ );
+    if ( !surf )
+	mErrRet( tr("Cannot access database") );
+
+    const MultiID& inpmid = data.inpmid_;
+    const IOObj* ioobj = IOM().get( inpmid );
+    if ( !ioobj )
+	mErrRet( tr("Cannot find input horizon in repository") );
+
+    EM::EMManager& em = EM::EMM();
+    TaskRunner tskr;
+    PtrMan<Executor> loader = em.objectLoader( inpmid, &data.surfsel_ );
+    if ( !loader || !loader->execute() )
+	mErrRet( uiStrings::sCantCreateHor() )
+
+    RefMan<EM::EMObject> emobj = em.getObject( inpmid );
+    if ( !emobj )
+	mErrRet( tr("Failed to load the surface") );
+
+    mDynamicCastGet(EM::Fault3D*,outfault3d,surf.ptr())
+    if ( !outfault3d )
+	mErrRet( tr("The output type is incompatible with input type, "
+						"Fault object expected") );
+
+    mDynamicCastGet(EM::Fault3D*,flt,emobj.ptr())
+    if ( !flt )
+	mErrRet( tr("Incorrect object selected, "
+				"3D horizon is expected for the workflow") );
+
+    outfault3d->enableGeometryChecks( false );
+    const EM::Fault3DGeometry& fltgeom = flt->geometry();
+    const Geometry::FaultStickSurface* fssurf = fltgeom.geometryElement();
+    if ( !fssurf )
+	mErrRet( tr("Fault is empty") );
+
+    const int nrsticks = fltgeom.nrSticks();
+    const ZSampling zint = zatf_.getZInterval( true );
+    TrcKey trckey;
+    trckey.setIs3D();
+    StepInterval<int> stickrg = fssurf->rowRange();
+    for ( int sticknr=stickrg.start; sticknr<=stickrg.stop;
+						    sticknr+=stickrg.step )
+    {
+	const StepInterval<int> colrg = fssurf->colRange( sticknr );
+	const Coord3& firstcrd = fssurf->getKnot(
+						RowCol(sticknr,colrg.start) );
+	const Coord3& lastcrd = fssurf->getKnot( RowCol(sticknr,colrg.stop) );
+	if ( !zint.includes(firstcrd.z,false) ||
+					    !zint.includes(lastcrd.z,false) )
+	    continue;
+
+	const Coord3& editnormal = fssurf->getEditPlaneNormal( sticknr );
+	for ( int knotidx=colrg.start; knotidx<=colrg.stop;
+							knotidx+=colrg.step )
+	{
+	    const RowCol rc( sticknr, knotidx );
+	    Coord3 pos = fssurf->getKnot( RowCol(sticknr,knotidx) );
+
+	    trckey.setFrom( pos.coord() );
+	    pos.z = zatf_.transformTrc( trckey, pos.z );
+	    if ( knotidx == colrg.start )
+	    {
+		if ( !outfault3d->geometry().insertStick(sticknr,0,pos,
+						    editnormal,false) )
+		    break;
+
+		continue;
+	    }
+
+	    outfault3d->geometry().insertKnot( rc.toInt64(), pos, false );
+	}
+    }
+
+    outsurfs_.add( outfault3d );
+    return true;
+}
+
+
+int FaultT2DTransformer::nextStep()
+{
+    if ( nrdone_ == totnr_ )
+	return Finished();
+
+    for ( const auto* data : datas_ )
+    {
+	if ( !data )
+	    continue;
+
+	doFault( *data );
+	nrdone_++;
+    }
+
+    return MoreToDo();
 }
 
 }
