@@ -32,8 +32,6 @@ public:
 				uiTreeItem(const uiString& nm=
 					   uiString::emptyString() );
     virtual			~uiTreeItem();
-				mOD_DisableCopy(uiTreeItem)
-
     virtual void		prepareForShutdown();
 				/*!<Override if you want to popup dlg
 				    for saving various things (or similar) */

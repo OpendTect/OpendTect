@@ -19,7 +19,6 @@ mExpClass(uiBase) uiBaseObject : public NamedCallBacker
 public:
 				uiBaseObject(const char* nm, uiBody* = 0);
     virtual			~uiBaseObject();
-				mOD_DisableCopy(uiBaseObject)
 
 				// implementation: uiobj.cc
     void			finalize();
