@@ -578,11 +578,6 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 
     const int nrsticks = fltgeom.nrSticks();
     const ZSampling zint = zatf_.getZInterval( true );
-    EM::EMObject* tmpemobj = EM::FaultStickSet::create(EM::EMM());
-    mDynamicCastGet( EM::FaultStickSet*, tmpfltss, tmpemobj )
-    if ( tmpfltss )
-	tmpfltss->enableGeometryChecks( false );
-
     for ( int idx=0; idx<nrsticks; idx++ )
     {
 	const Geometry::FaultStick* stick = fssurf->getStick( idx );
@@ -604,7 +599,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 								    outcrd.z );
 	    if ( crdidx == 0 )
 	    {
-		if ( !tmpfltss->geometry().insertStick(idx,0,outcrd,
+		if ( !outfault3d->geometry().insertStick(idx,0,outcrd,
 						    editnormal,false) )
 		    break;
 
@@ -612,18 +607,10 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	    }
 
 	    const RowCol rc( idx, crdidx );
-	    tmpfltss->geometry().insertKnot( rc.toInt64(), outcrd, false);
+	    outfault3d->geometry().insertKnot( rc.toInt64(), outcrd, false );
 	}
     }
 
-    //Following is necessary step to convert FSS to Fault, taking care of
-    //un-twisting Stick and resolving normals
-
-    EM::FSStoFault3DConverter::Setup setup;
-    setup.addtohistory_ = false;
-    setup.pickplanedir_ = EM::FSStoFault3DConverter::Setup::Auto;
-    EM::FSStoFault3DConverter fsstof3d( setup, *tmpfltss, *outfault3d );
-    fsstof3d.convert( false );
     outsurfs_.add( outfault3d );
     return true;
 }
