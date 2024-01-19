@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 
 static const char* sKeyXPos = "XPos";
+static const char* sKeyRelZ = "RelZ";
 
 //------ LayerValue ------
 
@@ -66,6 +67,20 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 }
 
 
+Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
+	const Layer& lay, const PropertyRefSelection& prs, int outpridx,
+	const Property::EvalOpts& eo )
+    : LayerValue()
+    , form_(form)
+    , lay_(lay)
+    , myform_(false)
+{
+    setXPos( eo.relpos_ );
+    setRelZ( eo.relz_ );
+    useForm( prs, outpridx );
+}
+
+
 Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
 		const Layer& lay, const PropertyRefSelection& prs,
 		int outpridx )
@@ -73,13 +88,16 @@ Strat::FormulaLayerValue::FormulaLayerValue( const IOPar& iop,
     , form_(*new Math::Formula(false,MathProperty::getSpecVars()))
     , lay_(lay)
     , myform_(true)
-    , xpos_(0.f)
 {
     const_cast<Math::Formula&>(form_).usePar( iop );
 
-    const BufferString res = iop.find( sKeyXPos );
+    BufferString res = iop.find( sKeyXPos );
     if ( !res.isEmpty() )
 	setXPos( res.toFloat() );
+
+    res = iop.find( sKeyRelZ );
+    if ( !res.isEmpty() )
+	setRelZ( res.toFloat() );
 
     useForm( prs, outpridx );
 }
@@ -98,8 +116,23 @@ Strat::FormulaLayerValue::FormulaLayerValue( const Math::Formula& form,
 
 void Strat::FormulaLayerValue::setXPos( float xpos )
 {
-    if ( xpos < 0.f ) xpos = 0.f; if ( xpos > 1.f ) xpos = 1.f;
+    if ( xpos < 0.f )
+	xpos = 0.f;
+    if ( xpos > 1.f )
+	xpos = 1.f;
+
     xpos_ = xpos;
+}
+
+
+void Strat::FormulaLayerValue::setRelZ( float relz )
+{
+    if ( relz < 0.f )
+	relz = 0.f;
+    if ( relz > 1.f )
+	relz = 1.f;
+
+    relz_ = relz;
 }
 
 
@@ -201,8 +234,8 @@ float Strat::FormulaLayerValue::value() const
 	{
 	    // consts are already filled
 	    if ( form_.isSpec(iinp) )
-		inpvals[iinp] = form_.specIdx(iinp)<4 ? lay_.depth() : xpos_;
-	    //TODO: Implement relative depth, it is same as depth now.
+		inpvals[iinp] = form_.specIdx(iinp)<2 ? lay_.depth()
+				: (form_.specIdx(iinp)<4 ? relz_ : xpos_);
 	}
     }
 
@@ -359,6 +392,16 @@ void Strat::Layer::setValue( int ival, const Math::Formula& form,
     mEnsureEnoughVals();
 
     setLV( ival, new FormulaLayerValue(form,*this,prs,ival,xpos) );
+}
+
+
+void Strat::Layer::setValue( int ival, const Math::Formula& form,
+			     const PropertyRefSelection& prs,
+			     const Property::EvalOpts& eo )
+{
+    mEnsureEnoughVals();
+
+    setLV( ival, new FormulaLayerValue(form,*this,prs,ival,eo) );
 }
 
 

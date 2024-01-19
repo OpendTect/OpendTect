@@ -73,6 +73,7 @@ public:
 	float		relpos_ = 0.5f;
 	float		absz_ = 0.f;
 	float		relz_ = 0.f;
+	float		refz_ = 0.f;
 
 	inline bool	isAvg() const		{ return valopt_==Avg; }
 	inline bool	isPrev() const		{ return valopt_==Prev;}
