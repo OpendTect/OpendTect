@@ -404,11 +404,15 @@ void uiODFaultToolMan::finalizeDoneCB( CallBacker* )
 
 
 uiToolBar* uiODFaultToolMan::getToolBar()
-{ return toolbar_; }
+{
+    return toolbar_;
+}
 
 
 void uiODFaultToolMan::displayModeChg( CallBacker* )
-{ editSelectToggleCB( 0 ); }
+{
+    editSelectToggleCB( nullptr );
+}
 
 
 void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
@@ -438,7 +442,9 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 
 	appl_.applMgr().visServer()->setCurInterObjID( selid );
 	processOutputName();
-	enableToolbar( true );
+	const bool hastransform = curfltd_ ? curfltd_->getZAxisTransform()
+					   : curfssd_->getZAxisTransform();
+	enableToolbar( !hastransform );
 
 	mAttachCBIfNotAttached( IOM().surveyChanged,
 				uiODFaultToolMan::surveyChg );

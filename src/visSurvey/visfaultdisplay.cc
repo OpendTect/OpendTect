@@ -69,25 +69,11 @@ FaultDisplay::FaultDisplay()
     : MultiTextureSurveyObject()
     , StickSetDisplay( false )
     , activestickmarker_( visBase::PolyLine3D::create() )
-    , paneldisplay_( 0 )
-    , stickdisplay_( 0 )
-    , intersectiondisplay_( 0 )
-    , viseditor_( 0 )
-    , faulteditor_( 0 )
-    , explicitpanels_( 0 )
-    , explicitsticks_( 0 )
-    , explicitintersections_( 0 )
-    , voiid_( -1 )
-    , activestick_( mUdf(int) )
-    , colorchange( this )
-    , displaymodechange( this )
-    , displaypanels_( true )
-    , displayintersections_( false )
-    , displayhorintersections_( false )
-    , drawstyle_( new visBase::DrawStyle )
-    , otherobjects_( false )
-    , endstick_( false )
-    , activestickid_( EM::PosID::udf() )
+    , voiid_(-1)
+    , activestick_(mUdf(int))
+    , colorchange(this)
+    , displaymodechange(this)
+    , drawstyle_(new visBase::DrawStyle)
 {
     activestickmarker_->ref();
     activestickmarker_->setPickable( false, false );
@@ -124,28 +110,20 @@ FaultDisplay::FaultDisplay()
 FaultDisplay::~FaultDisplay()
 {
     detachAllNotifiers();
-    setSceneEventCatcher( 0 );
+    setSceneEventCatcher( nullptr );
     showManipulator( false );
 
-    if ( viseditor_ ) viseditor_->unRef();
+    unRefPtr( viseditor_ );
+    unRefPtr( faulteditor_ );
+    if ( fault_ )
+	MPE::engine().removeEditor( fault_->id() );
 
-    if ( faulteditor_ ) faulteditor_->unRef();
-    if ( fault_ ) MPE::engine().removeEditor( fault_->id() );
-    faulteditor_ = 0;
-
-    if ( paneldisplay_ )
-	paneldisplay_->unRef();
-
-    if ( stickdisplay_ )
-	stickdisplay_->unRef();
-
-    if ( intersectiondisplay_ )
-	intersectiondisplay_->unRef();
-
+    faulteditor_ = nullptr;
+    unRefPtr( paneldisplay_ );
+    unRefPtr( stickdisplay_ );
+    unRefPtr( intersectiondisplay_ );
     while ( horintersections_.size() )
-    {
-	horintersections_.removeSingle(0)->unRef();
-    }
+	unRefPtr( horintersections_.removeSingle(0) );
 
     deepErase( horshapes_ );
     horintersectids_.erase();
@@ -153,10 +131,8 @@ FaultDisplay::~FaultDisplay()
     delete explicitsticks_;
     delete explicitintersections_;
 
-    activestickmarker_->unRef();
-
-    drawstyle_->unRef(); drawstyle_ = 0;
-
+    unRefPtr( activestickmarker_ );
+    unRefAndNullPtr( drawstyle_ );
     DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.unRef( datapackids_[idx] );
@@ -170,7 +146,7 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
     if ( eventcatcher_ )
     {
 	mDetachCB( eventcatcher_->eventhappened,FaultDisplay::mouseCB );
-	eventcatcher_->unRef();
+	unRefPtr( eventcatcher_ );
     }
 
     eventcatcher_ = vec;
@@ -181,7 +157,8 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 	mAttachCB( eventcatcher_->eventhappened,FaultDisplay::mouseCB );
     }
 
-    if ( viseditor_ ) viseditor_->setSceneEventCatcher( eventcatcher_ );
+    if ( viseditor_ )
+	viseditor_->setSceneEventCatcher( eventcatcher_ );
 }
 
 
@@ -189,9 +166,14 @@ void FaultDisplay::setScene( Scene* scene )
 {
     SurveyObject::setScene( scene );
 
-    if ( explicitsticks_ ) explicitsticks_->setSceneIdx( mSceneIdx );
-    if ( explicitpanels_ ) explicitpanels_->setSceneIdx( mSceneIdx );
-    if ( faulteditor_ ) faulteditor_->setSceneIdx( mSceneIdx );
+    if ( explicitsticks_ )
+	explicitsticks_->setSceneIdx( mSceneIdx );
+
+    if ( explicitpanels_ )
+	explicitpanels_->setSceneIdx( mSceneIdx );
+
+    if ( faulteditor_ )
+	faulteditor_->setSceneIdx( mSceneIdx );
 }
 
 
@@ -219,13 +201,13 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     if ( fault_ )
     {
 	mDetachCB( fault_->change,FaultDisplay::emChangeCB );
-	fault_->unRef();
+	unRefPtr( fault_ );
     }
 
-    fault_ = 0;
-    if ( faulteditor_ ) faulteditor_->unRef();
-    faulteditor_ = 0;
-    if ( viseditor_ ) viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
+    fault_ = nullptr;
+    unRefAndNullPtr( faulteditor_ );
+    if ( viseditor_ )
+	viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emfault,emobject.ptr());
@@ -243,7 +225,6 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     fault_ = (EM::Fault*)(emfault);
     mAttachCB( fault_->change,FaultDisplay::emChangeCB );
     fault_->ref();
-
 
     if ( !emfault->name().isEmpty() )
 	setName( emfault->name() );
@@ -333,31 +314,38 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     explicitsticks_->setSurface( fss );
     stickdisplay_->touch( true );
 
-    if ( !viseditor_ )
+    if ( !zaxistransform_ )
     {
-	viseditor_ = visSurvey::MPEEditor::create();
-	viseditor_->ref();
-	viseditor_->setSceneEventCatcher( eventcatcher_ );
-	viseditor_->setDisplayTransformation( displaytransform_ );
-	viseditor_->sower().alternateSowingOrder();
-	viseditor_->sower().setIfDragInvertMask();
-	addChild( viseditor_->osgNode() );
-    }
+	if ( !viseditor_ )
+	{
+	    viseditor_ = visSurvey::MPEEditor::create();
+	    viseditor_->ref();
+	    viseditor_->setSceneEventCatcher( eventcatcher_ );
+	    viseditor_->setDisplayTransformation( displaytransform_ );
+	    viseditor_->sower().alternateSowingOrder();
+	    viseditor_->sower().setIfDragInvertMask();
+	    addChild( viseditor_->osgNode() );
+	}
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
-    mDynamicCastGet( MPE::FaultEditor*, fe, editor.ptr() );
-    faulteditor_ = fe;
-    if ( faulteditor_ )
-    {
-	faulteditor_->ref();
-	faulteditor_->setSceneIdx( mSceneIdx );
-    }
+	RefMan<MPE::ObjectEditor> editor =
+				    MPE::engine().getEditor( emid, true );
+	mDynamicCastGet( MPE::FaultEditor*, fe, editor.ptr() );
+	faulteditor_ = fe;
+	if ( faulteditor_ )
+	{
+	    faulteditor_->ref();
+	    faulteditor_->setSceneIdx( mSceneIdx );
+	}
 
-    viseditor_->setEditor( faulteditor_ );
-    mAttachCB( viseditor_->sower().sowingend, FaultDisplay::sowingFinishedCB );
+	if ( viseditor_ )
+	{
+	    viseditor_->setEditor( faulteditor_ );
+	    mAttachCB( viseditor_->sower().sowingend,
+					    FaultDisplay::sowingFinishedCB );
+	}
+    }
 
     displaysticks_ = fault_->isEmpty();
-
     mSetStickIntersectPointColor( fault_->preferredColor() );
     nontexturecol_ = fault_->preferredColor();
     setPreferedMarkerStyle( fault_->getPosAttrMarkerStyle(0) );
@@ -748,7 +736,9 @@ void FaultDisplay::setDisplayTransformation( const mVisTrans* nt )
     for ( int idx=0; idx<horintersections_.size(); idx++ )
 	horintersections_[idx]->setDisplayTransformation( nt );
 
-    if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
+    if ( viseditor_ )
+	viseditor_->setDisplayTransformation( nt );
+
     activestickmarker_->setDisplayTransformation( nt );
 }
 
@@ -772,8 +762,7 @@ bool FaultDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 	    voiid_ = -1;
 	}
 
-	zaxistransform_->unRef();
-	zaxistransform_ = 0;
+	unRefAndNullPtr( zaxistransform_ );
     }
 
     zaxistransform_ = zat;
@@ -876,8 +865,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
     Coord3 pos = disp2world( eventinfo.displaypickedpos );
 
-    const EM::PosID pid = viseditor_ ?
-       viseditor_->mouseClickDragger(eventinfo.pickedobjids) : EM::PosID::udf();
+    const EM::PosID pid = viseditor_->mouseClickDragger(
+						    eventinfo.pickedobjids );
 
     if ( pid.isUdf() && mouseplanecs.isEmpty() )
     {
@@ -916,8 +905,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	}
     }
 
-    if ( locked_ || !pos.isDefined() ||
-	viseditor_->isDragging() )
+    if ( locked_ || !pos.isDefined() || viseditor_->isDragging() )
 	return;
 
     if ( !pid.isUdf() )
@@ -1478,7 +1466,7 @@ void FaultDisplay::updateHorizonIntersections( VisID whichobj,
 	    continue;
 
 	horintersections_[idx]->turnOn( false );
-	horintersections_.removeSingle( idx )->unRef();
+	unRefPtr( horintersections_.removeSingle(idx) );
 	delete horshapes_.removeSingle( idx );
 	horintersectids_.removeSingle( idx );
     }
@@ -1692,8 +1680,12 @@ void FaultDisplay::updateEditorMarkers()
 	{
 	    if ( StickSetDisplay::markerStyle() && viseditor_ )
 		viseditor_->setMarkerStyle( fault_->getPosAttrMarkerStyle(0) );
-	    Geometry::FaultStickSet* fs = fault3d->geometry().geometryElement();
-	    viseditor_->turnOnMarker(pid,!fs->isStickHidden(sticknr,mSceneIdx));
+
+	    Geometry::FaultStickSet* fs =
+					fault3d->geometry().geometryElement();
+	    if ( viseditor_ )
+		viseditor_->turnOnMarker( pid,
+				    !fs->isStickHidden(sticknr,mSceneIdx) );
 	}
     }
 }
@@ -2039,10 +2031,10 @@ FaultDisplay::getFaultDisplayedStickLines() const
 }
 
 
-const ObjectSet<visBase::MarkerSet>&
+const ObjectSet<visBase::MarkerSet>*
 FaultDisplay::getFaultDisplayedSticks() const
 {
-    return viseditor_->getDraggerMarkers();
+    return viseditor_ ? &viseditor_->getDraggerMarkers() : nullptr;
 }
 
 
@@ -2051,7 +2043,7 @@ const MarkerStyle3D* FaultDisplay::getPreferedMarkerStyle() const
     if ( fault_ )
 	return &fault_->getPosAttrMarkerStyle( 0 );
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -2066,6 +2058,7 @@ void FaultDisplay::setPreferedMarkerStyle( const MarkerStyle3D& mkstyle )
     setStickMarkerStyle( ftmkstyle );
     if ( viseditor_ )
 	viseditor_->setMarkerStyle( ftmkstyle );
+
     if ( fault_ )
 	fault_->setPosAttrMarkerStyle( 0, ftmkstyle );
 }

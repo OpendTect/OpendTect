@@ -185,7 +185,7 @@ public:
 
     const visBase::GeomIndexedShape* getFaultDisplayedPlane() const;
     const visBase::GeomIndexedShape* getFaultDisplayedStickLines() const;
-    const ObjectSet<visBase::MarkerSet>& getFaultDisplayedSticks() const;
+    const ObjectSet<visBase::MarkerSet>* getFaultDisplayedSticks() const;
 
     const MarkerStyle3D*	getPreferedMarkerStyle() const;
     void			setPreferedMarkerStyle(const MarkerStyle3D&);
@@ -250,43 +250,43 @@ protected:
 
     int					voiid_;
 
-    visBase::GeomIndexedShape*		paneldisplay_;
-    Geometry::ExplFaultStickSurface*	explicitpanels_;
+    visBase::GeomIndexedShape*		paneldisplay_		= nullptr;
+    Geometry::ExplFaultStickSurface*	explicitpanels_		= nullptr;
 
-    visBase::GeomIndexedShape*		stickdisplay_;
-    Geometry::ExplFaultStickSurface*	explicitsticks_;
+    visBase::GeomIndexedShape*		stickdisplay_		= nullptr;
+    Geometry::ExplFaultStickSurface*	explicitsticks_		= nullptr;
 
-    visBase::GeomIndexedShape*		intersectiondisplay_;
-    Geometry::ExplPlaneIntersection*	explicitintersections_;
+    visBase::GeomIndexedShape*		intersectiondisplay_	= nullptr;
+    Geometry::ExplPlaneIntersection*	explicitintersections_	= nullptr;
     ObjectSet<const SurveyObject>	intersectionobjs_;
     TypeSet<int>			planeids_;
 
     ObjectSet<visBase::GeomIndexedShape> horintersections_;
     ObjectSet<Geometry::ExplFaultStickSurface>	horshapes_;
     TypeSet<VisID>			horintersectids_;
-    bool				displayintersections_;
-    bool				displayhorintersections_;
+    bool				displayintersections_	    = false;
+    bool				displayhorintersections_    = false;
 
     visBase::PolyLine3D*		activestickmarker_;
     int					activestick_;
 
-    MPE::FaultEditor*			faulteditor_;
-    visSurvey::MPEEditor*		viseditor_;
+    MPE::FaultEditor*			faulteditor_		    = nullptr;
+    visSurvey::MPEEditor*		viseditor_		    = nullptr;
 
     Coord3				mousepos_;
 
-    TypeSet<DataPackID>		datapackids_;
+    TypeSet<DataPackID>			datapackids_;
 
     OD::Color				nontexturecol_;
 
-    bool				displaypanels_;
+    bool				displaypanels_		    = true;
 
     ObjectSet<Array2D<float> >		texuredatas_;
 
     visBase::DrawStyle*			drawstyle_;
-    bool				otherobjects_;
-    bool				endstick_;
-    EM::PosID				activestickid_;
+    bool				otherobjects_		    = false;
+    bool				endstick_		    = false;
+    EM::PosID				activestickid_	= EM::PosID::udf();
 
     static const char*			sKeyTriProjection();
     static const char*			sKeyEarthModelID();

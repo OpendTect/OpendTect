@@ -326,13 +326,17 @@ uiODDataTreeItem* uiODFaultTreeItem::createAttribItem(
 
 bool uiODFaultTreeItem::init()
 {
+    RefMan<ZAxisTransform> transform = nullptr;
     if ( !displayid_.isValid() )
     {
 	visSurvey::FaultDisplay* fd = new visSurvey::FaultDisplay;
 	mDynamicCastGet(visSurvey::Scene*,scene,
 	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
 	if ( scene )
-	    fd->setZAxisTransform( scene->getZAxisTransform(), nullptr );
+	{
+	    transform = scene->getZAxisTransform();
+	    fd->setZAxisTransform( transform, nullptr );
+	}
 
 	displayid_ = fd->id();
 	faultdisplay_ = fd;
@@ -343,20 +347,23 @@ bool uiODFaultTreeItem::init()
     }
     else
     {
-	mDynamicCastGet( visSurvey::FaultDisplay*, fd,
+	mDynamicCastGet( visSurvey::FaultDisplay*, fltdisp,
 			 visserv_->getObject(displayid_) );
-	if ( !fd )
+	if ( !fltdisp )
 	    return false;
 
-	faultdisplay_ = fd;
+	transform = const_cast<ZAxisTransform*>(
+						fltdisp->getZAxisTransform() );
+	faultdisplay_ = fltdisp;
 	faultdisplay_->ref();
-	emid_ = fd->getEMObjectID();
+	emid_ = fltdisp->getEMObjectID();
     }
 
-    ODMainWin()->menuMgr().createFaultToolMan();
+    if ( !transform )
+	ODMainWin()->menuMgr().createFaultToolMan();
 
     mAttachCB( faultdisplay_->materialChange(),
-	       uiODFaultTreeItem::colorChgCB );
+					    uiODFaultTreeItem::colorChgCB );
 
     return uiODDisplayTreeItem::init();
 }
