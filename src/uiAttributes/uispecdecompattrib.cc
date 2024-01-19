@@ -70,15 +70,16 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     tfpanelbut_ = new uiPushButton( this, tfstr, cbtfpanel, true );
     tfpanelbut_->attach( alignedBelow, gatefld_ );
 
+    const int nrdec = zIsTime() ? 1 : 2;
     uiString lbl = uiStrings::phrOutput(uiStrings::phrJoinStrings(
 	uiStrings::sFrequency().toLower(), toUiString("(%1)")
 	.arg(zIsTime() ? tr("Hz") : (SI().zInMeter() ? tr("cycles/km")
-	: tr("cycles/kft")))));
-    outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
+						     : tr("cycles/kft")))));
+    outpfld_ = new uiLabeledSpinBox( this, lbl, nrdec );
     outpfld_->attach( alignedBelow, tfpanelbut_ );
     outpfld_->box()->doSnap( true );
 
-    stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 1 );
+    stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), nrdec );
     stepfld_->attach( rightTo, outpfld_ );
     stepfld_->box()->valueChanged.notify(
 				mCB(this,uiSpecDecompAttrib,stepChg) );
@@ -103,23 +104,27 @@ uiSpecDecompAttrib::~uiSpecDecompAttrib()
 
 void uiSpecDecompAttrib::inputSel( CallBacker* )
 {
-    if ( !*inpfld_->getInput() ) return;
+    if ( !*inpfld_->getInput() )
+	return;
 
     TrcKeyZSampling cs;
     if ( !inpfld_->getRanges(cs) )
 	cs.init(true);
 
     ds_ = cs.zsamp_.step;
-    int ns = (int)((cs.zsamp_.stop-cs.zsamp_.start)/ds_ + .5) + 1;
+    const int ns = (int)((cs.zsamp_.stop-cs.zsamp_.start)/ds_ + .5) + 1;
     int temp = 2;
-    while ( temp  < ns ) temp *= 2;
+    while ( temp  < ns )
+	temp *= 2;
+
     nrsamples_ = temp;
     nyqfreq_ = 0.5f / ds_;
 
+    const float freqstep = zIsTime() ? 0.5f : 0.05f;
     const float freqscale = zIsTime() ? 1.f : 1000.f;
     const float scalednyqfreq = nyqfreq_ * freqscale;
-    stepfld_->box()->setInterval( (float)0.5, scalednyqfreq/2 );
-    stepfld_->box()->setStep( (float)0.5, true );
+    stepfld_->box()->setInterval( freqstep, scalednyqfreq/2 );
+    stepfld_->box()->setStep( freqstep, true );
     outpfld_->box()->setMinValue( stepfld_->box()->getFValue() );
     outpfld_->box()->setMaxValue( scalednyqfreq );
 }
