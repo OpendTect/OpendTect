@@ -192,23 +192,6 @@ void uiExportFault::inpSelChg( CallBacker* )
 }
 
 
-static int nrKnots( EM::EMObject* emobj, int stickidx )
-{
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
-    const int sticknr = fss->rowRange().atIndex( stickidx );
-    return fss->nrKnots( sticknr );
-}
-
-
-static Coord3 getCoord( EM::EMObject* emobj, int stickidx, int knotidx )
-{
-    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
-    const int sticknr = fss->rowRange().atIndex(stickidx);
-    const int knotnr = fss->colRange(sticknr).atIndex(knotidx);
-    return fss->getKnot( RowCol(sticknr,knotnr) );
-}
-
-
 bool uiExportFault::getInputMIDs( TypeSet<MultiID>& midset )
 {
     if ( isbulk_ )
