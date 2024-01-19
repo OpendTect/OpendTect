@@ -110,6 +110,10 @@ void SpecDecomp::updateDefaults( Desc& desc )
     if ( roundedzstep > 0 )
 	roundedzstep = Math::Floor( roundedzstep );
     zgate->setDefaultValue( Interval<float>(-roundedzstep*7, roundedzstep*7) );
+
+    mDynamicCastGet(FloatParam*,dfreq,desc.getValParam(deltafreqStr()))
+    if ( dfreq )
+	dfreq->setDefaultValue( SI().zIsTime() ? 5 : 0.001 );
 }
 
 
@@ -124,9 +128,9 @@ const char* SpecDecomp::transTypeNamesStr(int type)
 SpecDecomp::SpecDecomp( Desc& desc )
     : Provider( desc )
     , window_(0)
-    , fftisinit_(false)
-    , scalelen_(0)
     , fft_(Fourier::CC::createDefault())
+    , scalelen_(0)
+    , fftisinit_(false)
 {
     if ( !isOK() ) return;
 
@@ -425,13 +429,14 @@ void SpecDecomp::getCompNames( BufferStringSet& nms ) const
     nms.erase();
     const float fnyq = 0.5f / refstep_;
     const float freqscale = zIsTime() ? 1.f : 1000.f;
+    const int nrdec = zIsTime() ? 1 : 2;
     const char* basestr = "frequency=";
     const BufferString suffixstr = zIsTime() ? "Hz" :
 				(SI().zInMeter() ? "cycles/km" : "cycles/kft");
     for ( float freq=deltafreq_; freq<fnyq; freq+=deltafreq_ )
     {
 	BufferString tmpstr( basestr );
-	tmpstr.add( freq*freqscale ).add( suffixstr );
+	tmpstr.add( freq*freqscale, nrdec ).add( suffixstr );
 	nms.add( tmpstr.buf() );
     }
 }
