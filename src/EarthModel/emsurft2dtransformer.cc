@@ -617,7 +617,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
     }
 
     //Following is necessary step to convert FSS to Fault, taking care of
-    //un-twisting Stick and resolvinf normals
+    //un-twisting Stick and resolving normals
 
     EM::FSStoFault3DConverter::Setup setup;
     setup.addtohistory_ = false;
