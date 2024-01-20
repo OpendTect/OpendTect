@@ -42,8 +42,8 @@ static void addRedirect( OS::MachineCommand& mc )
 
 
 SVNAccess::SVNAccess( const char* dir )
-    : dir_(dir)
-    , havesvn_(File::exists( FilePath(dir,".svn").fullPath()) )
+    : havesvn_(File::exists( FilePath(dir,".svn").fullPath()) )
+    , dir_(dir)
 {
     if ( !havesvn_ ) return;
 
