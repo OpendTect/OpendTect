@@ -662,12 +662,12 @@ void Strat::SingleLayerGenerator::fillPar( IOPar& iop ) const
     else
 	iop.set( sKey::Content(), content().name() );
 
-    for ( const auto* prop : props_ )
+    for ( int iprop=0; iprop<props_.size(); iprop++ )
     {
+	const auto* prop = props_.get( iprop );
 	IOPar subpar;
 	prop->fillPar( subpar );
-	const BufferString ky( IOPar::compKey(sKey::Property(),
-			       props_.indexOf(prop)) );
+	const BufferString ky( IOPar::compKey(sKey::Property(),iprop) );
 	iop.mergeComp( subpar, ky );
     }
 }
@@ -698,12 +698,12 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     {
 	const PropertyRef* pr = prs[ipr];
 
-	for ( const auto* prop : props_ )
+	for ( int iprop=0; iprop<props_.size(); iprop++ )
 	{
+	    const auto* prop = props_.get( iprop );
 	    if ( &prop->ref() != pr )
 		continue;
 
-	    const int iprop = props_.indexOf( prop );
 	    if ( prop->isFormula() )
 	    {
 		indexesofprsmath += ipr;
@@ -718,6 +718,22 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 		    { delete newlay; return true; }
 
 		newlay->setValue( iprop, val ) ;
+		if ( pr->isThickness() && eo.relz_>1e-6 && !mIsUdf(eo.absz_) )
+		{
+		    // Lazy replacement of dummy relz_ (sequence thickness)
+		    // by actual relz_
+		    float reldepthfromseqtop = 0;
+		    if ( !seq.isEmpty() )
+		    {
+			seq.prepareUse();
+			reldepthfromseqtop +=
+			    (seq.layers().last()->zBot() - eo.absz_);
+		    }
+
+		    // val is thickness of the new layer;
+		    reldepthfromseqtop += val/2;
+		    eo.relz_ = reldepthfromseqtop / eo.relz_;
+		}
 	    }
 	    break;
 	}
@@ -736,7 +752,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	else
 	{
 	    mDynamicCastGet(const MathProperty&,mprop,prop)
-	    newlay->setValue( ipr, mprop.getForm(), prs, eo.relpos_ );
+	    newlay->setValue( ipr, mprop.getForm(), prs, eo );
 	}
     }
 

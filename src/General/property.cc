@@ -358,8 +358,8 @@ const Math::SpecVarSet& MathProperty::getSpecVars()
 	const Mnemonic* distmn = &Mnemonic::distance();
 	svs.add( "Depth", "Depth", true, distmn );
 	svs.add( "Z", "Depth", true, distmn );
-	svs.add( "RelDepth", "Relative Depth", true, distmn );
-	svs.add( "RelZ", "Relative Depth", true, distmn );
+	svs.add( "RelDepth", "Relative Depth (0-1)" );
+	svs.add( "RelZ", "Relative Depth (0-1)" );
 	svs.add( "XPos", "Relative horizontal position (0-1)" );
     }
 
