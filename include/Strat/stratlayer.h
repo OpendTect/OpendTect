@@ -10,13 +10,11 @@ ________________________________________________________________________
 
 #include "stratmod.h"
 #include "compoundkey.h"
+#include "property.h"
 #include "stratcontent.h"
 #include "typeset.h"
 #include "uistring.h"
 
-class PropertyRef;
-class PropertyRefSelection;
-class UnitOfMeasure;
 namespace Math { class Formula; }
 
 namespace Strat
@@ -68,6 +66,9 @@ public:
     void		setValue(int,float);
     void		setValue(int,const Math::Formula&,
 				 const PropertyRefSelection&,float xpos=0.5f);
+    void		setValue(int,const Math::Formula&,
+				 const PropertyRefSelection&,
+				 const Property::EvalOpts&);
     void		setValue(int,const IOPar&,const PropertyRefSelection&);
     void		setValue(int,LayerValue*); //!< becomes mine
     void		setContent( const Content& c )	{ content_ = &c; }
