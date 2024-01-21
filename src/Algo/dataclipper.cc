@@ -266,17 +266,19 @@ bool DataClipper::fullSort()
     od_int64 nrvals = samples_.size();
     if ( !nrvals ) return false;
 
-    if ( nrvals>100 )
+    if ( nrvals<=100 )
     {
-	if ( nrvals<=255 || !is8BitesData( samples_.arr(), nrvals, 100 ) ||
-	     !duplicate_sort( samples_.arr(), nrvals, 256 ))
-	{
-	    quickSort( samples_.arr(), nrvals );
-	}
-    }
-    else
 	sort_array( samples_.arr(), nrvals );
+	return true;
+    }
 
+    if ( nrvals>255 && hasDuplicateValues(samples_.arr(),nrvals,256,128) )
+    {
+	if ( duplicate_sort(samples_.arr(),nrvals,256) )
+	    return true;
+    }
+
+    quickSort( samples_.arr(), nrvals );
     return true;
 }
 
