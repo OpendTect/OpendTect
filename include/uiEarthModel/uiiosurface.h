@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 
 #include "bufstringset.h"
+#include "emioobjinfo.h"
 #include "emposid.h"
 #include "faulttrace.h"
 #include "posinfo2dsurv.h"
@@ -336,4 +337,19 @@ public:
 				     const uiIOObjSel::Setup&);
 			uiHorizonSel(uiParent*,bool is2d,bool forread);
 			~uiHorizonSel();
+};
+
+
+mExpClass(uiEarthModel) uiFaultSel : public uiIOObjSel
+{ mODTextTranslationClass(uiFaultSel)
+public:
+			    uiFaultSel(uiParent*,EM::IOObjInfo::ObjectType,
+				const ZDomain::Info*,bool isforread,
+				const uiIOObjSel::Setup ={});
+			    ~uiFaultSel();
+protected:
+    const uiString	getLabelText(const ZDomain::Info&,bool forread,
+					EM::IOObjInfo::ObjectType) const;
+    IOObjContext	ioContext(bool,EM::IOObjInfo::ObjectType,
+						    const ZDomain::Info*);
 };

@@ -185,10 +185,12 @@ public:
 
     const visBase::GeomIndexedShape* getFaultDisplayedPlane() const;
     const visBase::GeomIndexedShape* getFaultDisplayedStickLines() const;
+    mDeprecated("getFaultDisplayedSticks_")
     const ObjectSet<visBase::MarkerSet>& getFaultDisplayedSticks() const;
 
     const MarkerStyle3D*	getPreferedMarkerStyle() const;
     void			setPreferedMarkerStyle(const MarkerStyle3D&);
+    bool			isAlreadyTransformed() const;
 
 protected:
 
@@ -300,6 +302,9 @@ protected:
     static const char*			sKeyZValues();
 
     bool				isDisplayingSticksUseful() const;
+public:
+    const ObjectSet<visBase::MarkerSet>* getFaultDisplayedSticks_() const;
+
 };
 
 };

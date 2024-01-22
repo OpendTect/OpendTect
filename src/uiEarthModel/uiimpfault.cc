@@ -14,9 +14,11 @@ ________________________________________________________________________
 #include "emfault.h"
 #include "emfault3d.h"
 #include "emfsstofault3d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "ioobj.h"
 #include "lmkemfaulttransl.h"
 #include "oddirs.h"
@@ -30,9 +32,35 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "uiiosurface.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
+
+class uiFaultImportHP
+{
+public:
+    uiFaultImportHP()
+    {}
+
+    ~uiFaultImportHP()
+    {}
+
+
+
+    void setDepthOutField( uiIOObjSel* fld )
+    {
+	depthoutfld_ = fld;
+    }
+
+    void setZDomSelFld( uiGenInput* fld )
+    {
+	zdomselfld_ = fld;
+    }
+
+    uiGenInput*		zdomselfld_	= nullptr;
+    uiIOObjSel*		depthoutfld_	= nullptr;
+};
 
 #define mGet( tp, fss, f3d ) \
     StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? fss : f3d
@@ -45,6 +73,8 @@ ________________________________________________________________________
 		    : mODHelpKey(mImportFaultStick3DHelpID) ), \
     mODHelpKey(mImportFaultHelpID) )
 
+static HiddenParam<uiImportFault,uiFaultImportHP*> uiimportfaulthpmgr_(nullptr);
+
 uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
     : uiDialog(p,uiDialog::Setup(
 			mGet(type,(is2d ? tr("Import FaultStickSet 2D")
@@ -52,17 +82,16 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
 			     tr("Import Fault") ),
 		mNoDlgTitle,mGetHelpKey(type)).modal(false))
     , isfss_(mGet(type,true,false))
-    , fd_(0)
+    , fd_(nullptr)
     , type_(type)
-    , typefld_(0)
+    , typefld_(nullptr)
     , sortsticksfld_(0)
-    , stickselfld_(0)
-    , thresholdfld_(0)
+    , stickselfld_(nullptr)
+    , thresholdfld_(nullptr)
     , is2d_(is2d)
     , importReady(this)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
-
     enableSaveButton( tr("Display after import") );
 }
 
@@ -77,16 +106,29 @@ const char* uiImportFault::sKeyFileOrder()	{ return "File order"; }
 
 void uiImportFault::createUI()
 {
+    uiimportfaulthpmgr_.setParam( this, new uiFaultImportHP() );
     infld_ = new uiASCIIFileInput( this, true );
     mAttachCB( infld_->valuechanged, uiImportFault::inputChgd );
+    uiString zdomlbl;
+    if ( isfss_ )
+	zdomlbl = tr("Fault Stickset is in");
+    else
+	zdomlbl = tr("Fault is in");
 
+    auto* zdomselfld = new uiGenInput( this, zdomlbl,
+	BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
+    zdomselfld->attach( alignedBelow, infld_ );
+    zdomselfld->setValue( SI().zIsTime() );
+    mAttachCB( zdomselfld->valueChanged, uiImportFault::zDomainCB );
+    uiimportfaulthpmgr_.getParam(this)->setZDomSelFld( zdomselfld );
     if ( !isfss_ )
     {
-	BufferStringSet types; types.add( "Plain ASCII" );
+	BufferStringSet types;
+	types.add( "Plain ASCII" );
 	typefld_ = new uiGenInput( this, uiStrings::sType(),
 				   StringListInpSpec(types) );
 	mAttachCB( typefld_->valuechanged, uiImportFault::typeSel );
-	typefld_->attach( alignedBelow, infld_ );
+	typefld_->attach( alignedBelow, zdomselfld );
 
 	formatfld_ = new uiFileInput( this, tr("Input Landmark formatfile"),
 				      uiFileInput::Setup(uiFileDialog::Gen)
@@ -117,24 +159,50 @@ void uiImportFault::createUI()
 		mODHelpKey(mTableImpDataSelFaultStickSet2DHelpID) :
 		mODHelpKey(mTableImpDataSelFaultStickSet3DHelpID) )
 			: mODHelpKey(mTableImpDataSelFaultsHelpID) );
-    if ( !isfss_  )
-	dataselfld_->attach( alignedBelow, sortsticksfld_ );
+    if ( isfss_  )
+	dataselfld_->attach( alignedBelow, zdomselfld );
     else
-	dataselfld_->attach( alignedBelow, infld_ );
+	dataselfld_->attach( alignedBelow, sortsticksfld_ );
 
-    IOObjContext ctxt = mGetCtxt( type_ );
-    ctxt.forread_ = false;
-    uiString labl( tr("Output %1").arg(type_));
-    outfld_ = new uiIOObjSel( this, ctxt, labl );
+    const ZDomain::Info& depthzinfo = SI().zInFeet() ? ZDomain::DepthFeet() :
+	ZDomain::DepthMeter();
+    const EM::IOObjInfo::ObjectType type =
+			     isfss_ ? EM::IOObjInfo::FaultStickSet
+				    : EM::IOObjInfo::Fault;
+
+    outfld_ = new uiFaultSel( this, type, &ZDomain::TWT(), false );
+    auto* depthoutfld = new uiFaultSel( this, type, &depthzinfo, false );
     outfld_->attach( alignedBelow, dataselfld_ );
-    typeSel( 0 );
-    stickSel( 0 );
+    depthoutfld->attach( alignedBelow, dataselfld_ );
+    uiimportfaulthpmgr_.getParam(this)->setDepthOutField( depthoutfld );
+    mAttachCB( postFinalize(), uiImportFault::initGrpCB );
 }
 
 
 uiImportFault::~uiImportFault()
 {
     detachAllNotifiers();
+    uiimportfaulthpmgr_.removeParam( this );
+}
+
+
+uiGenInput* uiImportFault::zdomtypefld_() const
+{
+    return uiimportfaulthpmgr_.getParam(this)->zdomselfld_;
+}
+
+
+uiIOObjSel* uiImportFault::depthoutfld_() const
+{
+    return uiimportfaulthpmgr_.getParam(this)->depthoutfld_;
+}
+
+
+void uiImportFault::initGrpCB( CallBacker* )
+{
+    typeSel( nullptr );
+    stickSel( nullptr );
+    zDomainCB( nullptr );
 }
 
 
@@ -142,13 +210,30 @@ void uiImportFault::inputChgd( CallBacker* )
 {
     FilePath fnmfp( infld_->fileName() );
     fnmfp.setExtension( "" );
-    outfld_->setInputText( fnmfp.fileName() );
+    getValidOutFld()->setInputText(fnmfp.fileName());
+}
+
+
+void uiImportFault::zDomainCB( CallBacker* )
+{
+    const bool istime = zdomtypefld_()->getBoolValue();
+    outfld_->display( istime );
+    depthoutfld_()->display(!istime);
+    EM::FaultAscIO::updateDesc( *fd_, is2d_, istime ? ZDomain::Time()
+	: ZDomain::Depth() );
+}
+
+
+uiIOObjSel* uiImportFault::getValidOutFld() const
+{
+    return zdomtypefld_()->getBoolValue() ? outfld_ : depthoutfld_();
 }
 
 
 void uiImportFault::typeSel( CallBacker* )
 {
-    if ( !typefld_ ) return;
+    if ( !typefld_ )
+	return;
 
     const int tp = typefld_->getIntValue();
     typefld_->display( typefld_->nrElements()>1 );
@@ -156,13 +241,32 @@ void uiImportFault::typeSel( CallBacker* )
     dataselfld_->display( tp == 0 );
     sortsticksfld_->display( tp == 0 );
     stickselfld_->display( tp == 0 );
-    stickSel( 0 );
+    stickSel( nullptr );
+}
+
+
+const ZDomain::Info& uiImportFault::zDomain() const
+{
+    const UnitOfMeasure* selunit = fd_->bodyinfos_.validIdx(1) ?
+	fd_->bodyinfos_[1]->selection_.unit_ : nullptr;
+    bool isimperial = false;
+    if ( selunit )
+	isimperial = selunit->isImperial();
+
+    const bool istime = zdomtypefld_()->getBoolValue();
+    if ( istime )
+	return ZDomain::TWT();
+    else if ( isimperial )
+	return ZDomain::DepthFeet();
+
+    return ZDomain::DepthMeter();
 }
 
 
 void uiImportFault::stickSel( CallBacker* )
 {
-    if ( !stickselfld_ ) return;
+    if ( !stickselfld_ )
+	return;
 
     const bool showthresfld
 	= StringView(stickselfld_->text()) == sKeySlopeThres();
@@ -178,12 +282,13 @@ void uiImportFault::stickSel( CallBacker* )
 
 EM::Fault* uiImportFault::createFault() const
 {
-    const char* fltnm = outfld_->getInput();
+    const char* fltnm = getValidOutFld()->getInput();
     EM::EMManager& em = EM::EMM();
     const char* typestr = isfss_ ? EM::FaultStickSet::typeStr()
 				 : EM::Fault3D::typeStr();
     const EM::ObjectID emid = em.createObject( typestr, fltnm );
     mDynamicCastGet(EM::Fault*,fault,em.getObject(emid))
+    fault->setZDomain( zDomain() );
     return fault;
 }
 
@@ -262,7 +367,7 @@ bool uiImportFault::handleAscii()
 	fault->unRef();
 
     uiString msg = tr("%1 successfully imported."
-		      "\n\nDo you want to import more %2?")
+		      "\n\nDo you want to import more objects?")
 		      .arg(tp).arg(fault3d ? uiStrings::sFault(mPlural) :
 					   uiStrings::sFaultStickSet(mPlural));
     bool ret= uiMSG().askGoOn( msg, uiStrings::sYes(),
@@ -325,7 +430,7 @@ bool uiImportFault::checkInpFlds()
 	}
     }
 
-    if ( !outfld_->ioobj() )
+    if ( !getValidOutFld()->ioobj())
 	return false;
 
     if ( !dataselfld_->commit() )
@@ -337,7 +442,7 @@ bool uiImportFault::checkInpFlds()
 
 MultiID uiImportFault::getSelID() const
 {
-    return outfld_->key( false );
+    return getValidOutFld()->key(false);
 }
 
 
@@ -345,7 +450,7 @@ MultiID uiImportFault::getSelID() const
 uiImportFault3D::uiImportFault3D( uiParent* p, const char* type )
     : uiImportFault(p,type)
 {
-    fd_ = EM::FaultAscIO::getDesc(false);
+    fd_ = EM::FaultAscIO::getDesc_( false, SI().zDomain() );
     createUI();
 }
 
@@ -370,7 +475,7 @@ uiImportFaultStickSet2D::uiImportFaultStickSet2D( uiParent* p,
 						  const char* type )
     : uiImportFault(p,type,true)
 {
-    fd_ = EM::FaultAscIO::getDesc(true);
+    fd_ = EM::FaultAscIO::getDesc_( true, SI().zDomain() );
     createUI();
 }
 

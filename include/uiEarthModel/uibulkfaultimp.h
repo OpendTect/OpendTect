@@ -17,6 +17,7 @@ class uiIOObjSel;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 mExpClass(uiEarthModel) uiBulkFaultImport : public uiDialog
 { mODTextTranslationClass(uiBulkFaultImport)
@@ -44,4 +45,9 @@ protected:
     bool		isfss_;
     bool        is2dfss_;
     bool        isfltset_;
+    uiIOObjSel*		fltsetdepthfld_() const;
+    uiGenInput*		zdomselfld_() const;
+    const ZDomain::Info& zDomain() const;
+    void		zDomTypeChnagedCB(CallBacker*);
+    void		initGrpCB(CallBacker*);
 };

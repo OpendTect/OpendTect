@@ -30,13 +30,14 @@ namespace EM
 
 mDefineEnumUtils( IOObjInfo, ObjectType, "Object Type" )
 {
-  "Unknown",
-  EMHorizon3DTranslatorGroup::sGroupName(),
-  EMHorizon2DTranslatorGroup::sGroupName(),
-  EMFaultStickSetTranslatorGroup::sGroupName(),
-  EMFault3DTranslatorGroup::sGroupName(),
-  EMBodyTranslatorGroup::sGroupName(),
-  0
+    "Unknown",
+    EMHorizon3DTranslatorGroup::sGroupName(),
+    EMHorizon2DTranslatorGroup::sGroupName(),
+    EMFaultStickSetTranslatorGroup::sGroupName(),
+    EMFault3DTranslatorGroup::sGroupName(),
+    EMBodyTranslatorGroup::sGroupName(),
+    EMFaultSet3DTranslatorGroup::sGroupName(),
+    nullptr
 };
 
 

@@ -42,7 +42,7 @@ public:
     IOObjInfo&		operator =(const IOObjInfo&);
 
     enum ObjectType	{ Unknown, Horizon3D, Horizon2D,
-			  FaultStickSet, Fault, Body };
+			  FaultStickSet, Fault, Body, FaultSet };
 			mDeclareEnumUtils(ObjectType)
 
     static void		getIDs(ObjectType,TypeSet<MultiID>&);

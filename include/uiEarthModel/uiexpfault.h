@@ -51,7 +51,11 @@ protected:
     bool		getInputMIDs(TypeSet<MultiID>&);
 
     void		addZChg(CallBacker*);
+    void		inpSelChg(CallBacker*);
     void		exportCoordSysChgCB(CallBacker*);
+    void		zDomainBulkTypeChg(CallBacker*);
+    void		initGrpCB(CallBacker*);
+    mDeprecated("To be deleted")
     StringView		getZDomain() const;
 
     bool		acceptOK(CallBacker*) override;

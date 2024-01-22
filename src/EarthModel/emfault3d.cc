@@ -360,16 +360,41 @@ FaultAscIO::~FaultAscIO()
 
 Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Fault" );
+    return getDesc_( is2d, SI().zDomain() );
+}
 
-    fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
-    fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
-					     Table::Optional );
-    if ( is2d )
-	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
-						 Table::Required );
+
+Table::FormatDesc* FaultAscIO::getDesc_( bool is2d, const ZDomain::Def& def )
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "Fault" );
+    createDesc( *fd, is2d, def );
     return fd;
+}
+
+
+void FaultAscIO::createDesc( Table::FormatDesc& fd, bool is2d,
+						    const ZDomain::Def& def )
+{
+
+    fd.bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
+    if ( def.isTime() )
+	fd.bodyinfos_ += Table::TargetInfo::mkTimePosition( true );
+    else
+	fd.bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
+
+    fd.bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
+	Table::Optional );
+    if ( is2d )
+	fd.bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
+	    Table::Required );
+}
+
+
+void FaultAscIO::updateDesc( Table::FormatDesc& fd, bool is2d,
+						    const ZDomain::Def& def )
+{
+    fd.bodyinfos_.erase();
+    createDesc( fd, is2d, def );
 }
 
 
