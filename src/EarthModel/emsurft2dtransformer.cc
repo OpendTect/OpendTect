@@ -575,7 +575,6 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
     if ( !fssurf )
 	mErrRet( tr("Fault is empty") );
 
-    const int nrsticks = fltgeom.nrSticks();
     const ZSampling zint = zatf_.getZInterval( true );
     TrcKey trckey;
     trckey.setIs3D();
