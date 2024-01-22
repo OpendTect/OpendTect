@@ -215,6 +215,37 @@ bool uiExportFault::getInputMIDs( TypeSet<MultiID>& midset )
     return true;
 }
 
+static int stickNr( EM::EMObject* emobj, int stickidx )
+{
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
+    return fss->rowRange().atIndex( stickidx );
+}
+
+
+static int nrSticks( EM::EMObject* emobj )
+{
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
+    return fss->nrSticks();
+}
+
+
+
+static int nrKnots( EM::EMObject* emobj, int stickidx )
+{
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
+	const int sticknr = fss->rowRange().atIndex( stickidx );
+    return fss->nrKnots( sticknr );
+}
+
+
+static Coord3 getCoord( EM::EMObject* emobj, int stickidx, int knotidx )
+{
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
+	const int sticknr = fss->rowRange().atIndex(stickidx);
+    const int knotnr = fss->colRange(sticknr).atIndex(knotidx);
+    return fss->getKnot( RowCol(sticknr,knotnr) );
+}
+
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
@@ -235,6 +266,13 @@ bool uiExportFault::writeAscii()
     if ( objloader && !TaskRunner::execute(&taskrunner, *objloader) )
 	return false;
 
+    const UnitOfMeasure* unit = zunitsel_->getUnit();
+    const bool doxy = coordfld_->getBoolValue();
+    const bool inclstickidx = stickidsfld_->isChecked( 0 );
+    const bool inclknotidx = stickidsfld_->isChecked( 1 );
+    const Coords::CoordSystem* outcrs =
+	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
+    const Coords::CoordSystem* syscrs = SI().getCoordSystem();
     for ( int idx=0; idx<midset.size(); idx++ )
     {
 	EM::ObjectID objid = EM::EMM().getObjectID( midset[idx] );
@@ -260,6 +298,75 @@ bool uiExportFault::writeAscii()
 		fltobj = fset->getFault3D( fltid );
 		objnm = fset->name();
 		objnm.add("_").add( fltid.asInt() );
+	    }
+
+	    BufferString str;
+	    const int nrsticks = nrSticks( fltobj );
+	    mDynamicCastGet(Geometry::FaultStickSet*,fssgeom,
+						    fltobj->geometryElement())
+	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
+	    {
+		const int nrknots = nrKnots( fltobj, stickidx );
+		const Geometry::FaultStick* fs = fssgeom->getStick( stickidx );
+		for ( int knotidx=0; knotidx<nrknots; knotidx++ )
+		{
+		    Coord3 crd = getCoord( fltobj, stickidx, knotidx );
+		    if ( !crd.isDefined() )
+			continue;
+
+		    if ( isbulk_ || nrobjs > 1 )
+			ostrm << "\""<< objnm <<"\"" << "\t";
+
+		    const TrcKey& tk = fs->locs_[knotidx].trcKey();
+		    if ( !doxy )
+		    {
+			const BinID& bid = tk.position();
+			ostrm << bid.inl() << '\t' << bid.crl();
+		    }
+		    else
+		    {
+			// ostreams print doubles awfully
+			str.setEmpty();
+			if ( outcrs && !(*outcrs == *syscrs) )
+			{
+			    const Coord crd2d =
+				outcrs->convertFrom( crd.coord(), *syscrs );
+			    crd.setXY( crd2d.x, crd2d.y);
+			}
+
+			str += crd.x; str += "\t"; str += crd.y;
+			ostrm << str;
+		    }
+
+		    if ( !mIsUdf(crd.z) && unit )
+			crd.z = unit->userValue( crd.z );
+
+		    ostrm << '\t' << crd.z;
+
+		    if ( inclstickidx )
+			ostrm << '\t' << stickidx;
+		    if ( inclknotidx )
+			ostrm << '\t' << knotidx;
+
+		    if ( fss )
+		    {
+			const int sticknr =
+			    stickNr( fltobj, stickidx );
+			bool pickedon2d =
+			    fss->geometry().pickedOn2DLine( sticknr );
+			if ( pickedon2d && linenmfld_->isChecked() )
+			{
+			    Pos::GeomID geomid =
+				fss->geometry().pickedGeomID( sticknr );
+			    const char* linenm = Survey::GM().getName( geomid );
+
+			    if ( linenm )
+				ostrm << '\t' << linenm;
+			}
+		    }
+
+		    ostrm << '\n';
+		}
 	    }
 	}
     }
