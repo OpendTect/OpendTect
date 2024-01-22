@@ -27,7 +27,6 @@ public:
 
     			// info
     bool		isInSVN(const char*) const;
-    void		getEntries(const char* subdir,BufferStringSet&) const;
     const char*		baseDir() const		{ return dir_; }
     const char*		reposDir() const	{ return reposdir_; }
     void		diff(const char* fnm,BufferString&) const;
