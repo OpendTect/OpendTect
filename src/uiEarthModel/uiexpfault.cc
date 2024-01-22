@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "oddirs.h"
@@ -37,6 +38,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uiioobjselgrp.h"
 #include "uimsg.h"
+#include "uimultisurfaceread.h"
 #include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uit2dconvsel.h"
@@ -65,6 +67,81 @@ ________________________________________________________________________
 	      uiStrings::phrInput( uiStrings::sFaultSet(mGetObjNr) ) )
 
 
+class uiBulkFltFSSHandlerGroup : public uiGroup
+{ mODTextTranslationClass(uiBulkFltFSSHandlerGroup)
+public:
+    uiBulkFltFSSHandlerGroup( uiParent* p, const char* type )
+	: uiGroup(p,"Bulk Horizon List Group")
+	, zdomtypupdated(this)
+    {
+	horzdomypefld_ = new uiGenInput( this, tr("Depth Domain"),
+	    BoolInpSpec(true, uiStrings::sTime(),
+	    uiStrings::sDepth()) );
+	mAttachCB( horzdomypefld_->valueChanged,
+			    uiBulkFltFSSHandlerGroup::zDomainTypeChg );
+
+	auto* multigrp = new uiGroup( this, "Multi Surface Read" );
+	multigrp->attach( alignedBelow, horzdomypefld_ );
+	const ZDomain::Info& depthinfo = SI().depthsInFeet() ?
+	    ZDomain::DepthFeet() : ZDomain::DepthMeter();
+	multisurfdepthread_ = new uiMultiSurfaceRead( multigrp, type,
+								&depthinfo );
+	multisurfdepthread_->display( false );
+	multisurftimeread_ = new uiMultiSurfaceRead( multigrp, type,
+							    &ZDomain::TWT() );
+	multisurftimeread_->display( true );
+    }
+
+
+    ~uiBulkFltFSSHandlerGroup()
+    {
+	detachAllNotifiers();
+    }
+
+    void zDomainTypeChg( CallBacker* )
+    {
+	const bool istime = isTime();
+	multisurfdepthread_->display( !istime );
+	multisurftimeread_->display( istime );
+	zdomtypupdated.trigger();
+    }
+
+
+    const ZDomain::Info& zDomain() const
+    {
+	if ( isTime() )
+	    return ZDomain::TWT();
+	else if ( SI().depthsInFeet() )
+	    return ZDomain::DepthFeet();
+
+	return ZDomain::DepthMeter();
+    }
+
+    void getSelectedMIDs( TypeSet<MultiID>& selmids )
+    {
+	if ( isTime() )
+	    multisurftimeread_->getSurfaceIds( selmids );
+	else
+	    multisurfdepthread_->getSurfaceIds( selmids );
+    }
+
+    Notifier<uiBulkFltFSSHandlerGroup> zdomtypupdated;
+
+protected:
+    uiMultiSurfaceRead*		    multisurfdepthread_;
+    uiMultiSurfaceRead*		    multisurftimeread_;
+    uiGenInput*			    horzdomypefld_;
+
+    bool isTime() const
+    {
+	return horzdomypefld_->getBoolValue();
+    }
+};
+
+
+//uiExportFault
+static HiddenParam<uiExportFault,uiBulkFltFSSHandlerGroup*>
+					    uiexporthorizonhpmgr_(nullptr);
 uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
@@ -82,15 +159,19 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 
     IOObjContext ctxt = mGetCtxt( typ );
     uiIOObjSelGrp::Setup su; su.choicemode_ = OD::ChooseAtLeastOne;
-    if ( !isbulk_ )
+    if ( isbulk_ )
     {
-	infld_ = new uiIOObjSel( this, ctxt, mGetLbl(typ) );
-	coordfld_->attach( alignedBelow, infld_ );
+	auto* bulkgrp = new uiBulkFltFSSHandlerGroup( this, typ );
+	mAttachCB( bulkgrp->zdomtypupdated,
+					uiExportFault::zDomainBulkTypeChg );
+	uiexporthorizonhpmgr_.setParam( this, bulkgrp );
+	coordfld_->attach( alignedBelow, bulkgrp );
     }
     else
     {
-	bulkinfld_ = new uiIOObjSelGrp( this, ctxt, mGetLbl(typ), su );
-	coordfld_->attach( alignedBelow, bulkinfld_ );
+	infld_ = new uiIOObjSel( this, ctxt, mGetLbl(typ) );
+	mAttachCB(infld_->selectionDone,uiExportFault::inpSelChg);
+	coordfld_->attach( alignedBelow, infld_ );
     }
 
     uiObject* attachobj = coordfld_->attachObj();
@@ -101,25 +182,14 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 	attachobj = coordsysselfld_->attachObj();
     }
 
-    uiStringSet zmodes;
-    zmodes.add(uiStrings::sYes());
-    zmodes.add(uiStrings::sNo());
-    zmodes.add(tr("Transformed"));
-
     zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
-			    StringListInpSpec(zmodes) );
-    zfld_->valuechanged.notify( mCB(this,uiExportFault,addZChg ) );
+	BoolInpSpec(true) );
+    mAttachCB( zfld_->valueChanged, uiExportFault::addZChg );
     zfld_->attach( alignedBelow, attachobj );
-
-    uiT2DConvSel::Setup stup( nullptr, false );
-    stup.ist2d( SI().zIsTime() );
-    transfld_ = new uiT2DConvSel( this, stup );
-    transfld_->display( false );
-    transfld_->attach( alignedBelow, zfld_ );
 
     zunitsel_ = new uiUnitSel( this, uiUnitSel::Setup(tr("Z Unit")) );
     zunitsel_->setUnit( UnitOfMeasure::surveyDefZUnit() );
-    zunitsel_->attach( alignedBelow, transfld_ );
+    zunitsel_->attach( alignedBelow, zfld_ );
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
 				    OD::Horizontal );
@@ -142,39 +212,70 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     else
 	outfld_->attach( alignedBelow, stickidsfld_ );
 
-    exportCoordSysChgCB(nullptr);
 
     dispstr_ = EMFaultStickSetTranslatorGroup::sGroupName() == typ
 	? uiStrings::sFaultStickSet(mGetObjNr)
 	: (EMFaultSet3DTranslatorGroup::sGroupName() == typ
 	    ? uiStrings::sFaultSet(mGetObjNr) : uiStrings::sFault(mGetObjNr) );
+    mAttachCB( postFinalize(), uiExportFault::initGrpCB );
 }
 
 
 uiExportFault::~uiExportFault()
 {
+    detachAllNotifiers();
+}
+
+
+void uiExportFault::initGrpCB( CallBacker* )
+{
+    exportCoordSysChgCB(nullptr);
+    if ( isbulk_ )
+	zDomainBulkTypeChg( nullptr );
+    else
+	inpSelChg( nullptr );
 }
 
 
 static int stickNr( EM::EMObject* emobj, int stickidx )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
-    return fss->rowRange().atIndex( stickidx );
+	return fss->rowRange().atIndex( stickidx );
 }
 
 
 static int nrSticks( EM::EMObject* emobj )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
-    return fss->nrSticks();
+	return fss->nrSticks();
 }
+
 
 
 static int nrKnots( EM::EMObject* emobj, int stickidx )
 {
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
-    const int sticknr = fss->rowRange().atIndex( stickidx );
+	const int sticknr = fss->rowRange().atIndex( stickidx );
     return fss->nrKnots( sticknr );
+}
+
+
+void uiExportFault::zDomainBulkTypeChg(CallBacker*)
+{
+    auto* bulkgrp = uiexporthorizonhpmgr_.getParam( this );
+    const ZDomain::Info& zinfo = bulkgrp->zDomain();
+    zunitsel_->setUnit( UnitOfMeasure::zUnit(zinfo) );
+}
+
+
+void uiExportFault::inpSelChg( CallBacker* )
+{
+    const IOObj* ioobj = infld_ ? infld_->ioobj() : nullptr;
+    if ( ioobj )
+    {
+	const EM::IOObjInfo info( ioobj->key() );
+	zunitsel_->setUnit( info.getZUoM() );
+    }
 }
 
 
@@ -199,7 +300,10 @@ bool uiExportFault::getInputMIDs( TypeSet<MultiID>& midset )
 	midset.add(mid);
     }
     else
-	bulkinfld_->getChosen( midset );
+    {
+	auto* bulkgrp = uiexporthorizonhpmgr_.getParam( this );
+	bulkgrp->getSelectedMIDs( midset );
+    }
 
     return true;
 }
@@ -218,18 +322,6 @@ bool uiExportFault::writeAscii()
     if ( !ostrm.isOK() )
 	return false;
 
-    RefMan<ZAxisTransform> zatf = nullptr;
-    if ( zfld_->getIntValue()==2 )
-    {
-	zatf = transfld_->getSelection();
-	if ( !zatf )
-	{
-	    uiMSG().message(tr("Transform of selected option is "
-							"not implemented"));
-	    return false;
-	}
-    }
-
     uiTaskRunner taskrunner( this );
     PtrMan<Executor> objloader = EM::EMM().objectLoader( midset );
 
@@ -243,7 +335,7 @@ bool uiExportFault::writeAscii()
     const Coords::CoordSystem* outcrs =
 	coordsysselfld_ ? coordsysselfld_->getCoordSystem() : nullptr;
     const Coords::CoordSystem* syscrs = SI().getCoordSystem();
-
+    TrcKeyZSampling bbox( true );
     for ( int idx=0; idx<midset.size(); idx++ )
     {
 	EM::ObjectID objid = EM::EMM().getObjectID( midset[idx] );
@@ -274,49 +366,7 @@ bool uiExportFault::writeAscii()
 
 	    BufferString str;
 
-	    TrcKeyZSampling bbox(true);
 	    bool first = true;
-	    int zatvoi = -1;
-	    if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
-	    {
-		for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
-		{
-		    const int nrknots = nrKnots( fltobj, stickidx );
-		    for ( int knotidx=0; knotidx<nrknots; knotidx++ )
-		    {
-			Coord3 crd = getCoord( fltobj, stickidx, knotidx );
-			if ( !crd.isDefined() )
-			    continue;
-
-			const TrcKey tk( bbox.hsamp_.toTrcKey(crd) );
-			const BinID& bid = tk.position();
-			if ( first )
-			{
-			    first = false;
-			    bbox.hsamp_.start_ = bbox.hsamp_.stop_ = bid;
-			    bbox.zsamp_.start = bbox.zsamp_.stop
-					      = (float) crd.z;
-			}
-			else
-			{
-			    bbox.hsamp_.include( bid );
-			    bbox.zsamp_.include( (float) crd.z );
-			}
-		    }
-		}
-
-		uiTaskRunner taskr( this );
-		if ( bbox.isDefined() )
-		{
-		    if ( zatvoi == -1 )
-			zatvoi = zatf->addVolumeOfInterest( bbox, false );
-		    else
-			zatf->setVolumeOfInterest( zatvoi, bbox, false );
-		    if ( zatvoi>=0 )
-			    zatf->loadDataIfMissing( zatvoi, &taskr );
-		}
-	    }
-
 	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	    {
 		const int nrknots = nrKnots( fltobj, stickidx );
@@ -349,15 +399,6 @@ bool uiExportFault::writeAscii()
 
 			str += crd.x; str += "\t"; str += crd.y;
 			ostrm << str;
-		    }
-
-		    if ( zatf )
-			crd.z = double(zatf->transformTrc( tk, float(crd.z) ));
-
-		    if ( zatf && SI().depthsInFeet() )
-		    {
-			const UnitOfMeasure* uom = UoMR().get( "ft" );
-			crd.z = uom->getSIValue( crd.z );
 		    }
 
 		    if ( !mIsUdf(crd.z) && unit )
@@ -398,36 +439,9 @@ bool uiExportFault::writeAscii()
 }
 
 
-StringView uiExportFault::getZDomain() const
-{
-    StringView zdomain = ZDomain::SI().key();
-    if ( zfld_->getIntValue()==2 )
-	zdomain = transfld_->selectedToDomain();
-
-    return zdomain;
-}
-
-
 void uiExportFault::addZChg( CallBacker* )
 {
-    transfld_->display( zfld_->getIntValue()==2 );
-
     const bool displayunit = zfld_->getIntValue()!=1;
-    if ( displayunit )
-    {
-	const StringView zdomainstr = getZDomain();
-	if ( zdomainstr == ZDomain::sKeyDepth() )
-	{
-	    zunitsel_->setPropType( Mnemonic::Dist );
-	    zunitsel_->setUnit( UnitOfMeasure::surveyDefDepthUnit() );
-	}
-	else if ( zdomainstr == ZDomain::sKeyTime() )
-	{
-	    zunitsel_->setPropType( Mnemonic::Time );
-	    zunitsel_->setUnit( UnitOfMeasure::surveyDefTimeUnit() );
-	}
-    }
-
     zunitsel_->display( displayunit );
 }
 
@@ -441,20 +455,15 @@ void uiExportFault::exportCoordSysChgCB( CallBacker* )
 
 bool uiExportFault::acceptOK( CallBacker* )
 {
-    if ( zfld_->getIntValue()==2 )
-    {
-	if ( !transfld_->acceptOK() )
-	    return false;
-    }
-
-    BufferStringSet fltnms;
     bool isobjsel = true;
     if ( !isbulk_ )
 	isobjsel = infld_->ioobj( false );
     else
     {
-	bulkinfld_->getChosen(fltnms);
-	if ( fltnms.isEmpty() ) isobjsel = false;
+	TypeSet<MultiID> midset;
+	getInputMIDs( midset );
+	if ( midset.isEmpty() )
+	    isobjsel = false;
     }
 
     if ( !isobjsel )

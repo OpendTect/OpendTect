@@ -19,6 +19,7 @@ class uiTableImpDataSel;
 
 namespace EM { class Fault3D; class Fault; }
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 /*! \brief Dialog for fault import */
 
@@ -43,6 +44,7 @@ protected:
     bool		handleAscii();
     bool		handleLMKAscii();
     bool		acceptOK(CallBacker*) override { return false; }
+    void		zDomainCB(CallBacker*);
     virtual bool	getFromAscIO(od_istream&,EM::Fault&);
     EM::Fault*		createFault() const;
 
@@ -65,6 +67,13 @@ protected:
     static const char*	sKeyGeometric();
     static const char*	sKeyIndexed();
     static const char*	sKeyFileOrder();
+
+    const ZDomain::Info&    zDomain() const;
+    void		    initGrpCB(CallBacker*);
+
+    uiGenInput*		    zdomtypefld_() const;
+    uiIOObjSel*		    depthoutfld_() const;
+    uiIOObjSel*		    getValidOutFld() const;
 };
 
 

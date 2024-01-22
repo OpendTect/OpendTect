@@ -142,14 +142,21 @@ mExpClass(EarthModel) FaultAscIO : public Table::AscIO
 public:
 				FaultAscIO(const Table::FormatDesc&);
 				~FaultAscIO();
-
+    mDeprecated("Use getDesc_")
     static Table::FormatDesc*	getDesc(bool is2d);
+    static void			updateDesc(Table::FormatDesc&,bool is2d,
+							const ZDomain::Def&);
 
     bool			get(od_istream&,EM::Fault&,
 				    bool sortsticks=false,
 				    bool is2d=false) const;
 protected:
     bool			isXY() const;
+    static void			createDesc(Table::FormatDesc&,bool is2d,
+							const ZDomain::Def&);
+
+public:
+    static Table::FormatDesc*	getDesc_(bool is2d,const ZDomain::Def&);
 };
 
 

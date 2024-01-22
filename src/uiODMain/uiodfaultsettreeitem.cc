@@ -69,7 +69,7 @@ bool uiODFaultSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
     if ( hastransform )
     {
-	uiMSG().message( tr("Cannot add Faults to this scene") );
+	uiMSG().message( tr("Cannot add FaultSet to this scene") );
 	return false;
     }
 

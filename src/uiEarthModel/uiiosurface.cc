@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "emfaultstickset.h"
 #include "emhorizon.h"
 #include "emsurfacetr.h"
-#include "emioobjinfo.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
 #include "iodir.h"
@@ -1344,3 +1343,72 @@ uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
 
 uiHorizonSel::~uiHorizonSel()
 {}
+
+
+//uiFaultSel
+uiFaultSel::uiFaultSel( uiParent* p, EM::IOObjInfo::ObjectType type,
+    const ZDomain::Info* zinfo, bool isforread, const uiIOObjSel::Setup su )
+    : uiIOObjSel(p,ioContext(isforread,type,zinfo),su)
+{
+    if ( su.seltxt_.isEmpty() )
+	setLabelText( getLabelText(zinfo ? *zinfo : SI().zDomainInfo(),
+	    isforread,type) );
+
+    fillEntries();
+}
+
+
+uiFaultSel::~uiFaultSel()
+{}
+
+
+IOObjContext uiFaultSel::ioContext( bool isforread,
+		EM::IOObjInfo::ObjectType type, const ZDomain::Info* zinfo )
+{
+
+    IOObjContext ctxt( nullptr );
+    if ( type == EM::IOObjInfo::Fault )
+	ctxt = mIOObjContext(EMFault3D);
+    else if ( type == EM::IOObjInfo::FaultStickSet )
+	ctxt = mIOObjContext(EMFaultStickSet);
+    else
+	ctxt = mIOObjContext(EMFaultSet3D);
+
+    ctxt.forread_ = isforread;
+    if ( zinfo )
+    {
+	const ZDomain::Info& siinfo = SI().zDomainInfo();
+	ctxt.requireZDomain( *zinfo, siinfo == *zinfo );
+    }
+
+    return ctxt;
+}
+
+
+const uiString uiFaultSel::getLabelText( const ZDomain::Info& zinfo,
+    bool forread, EM::IOObjInfo::ObjectType type ) const
+{
+    uiString showstr;
+    if ( type == EM::IOObjInfo::Fault )
+    {
+	const uiString stimehflt = tr("time fault");
+	const uiString sdepthhflt = tr("depth fault");
+	showstr = zinfo.isTime() ? stimehflt : sdepthhflt;
+    }
+    else if ( type == EM::IOObjInfo::FaultStickSet )
+    {
+	const uiString stimehfss = tr("time faultstickset");
+	const uiString sdepthhfss = tr("depth faultstickset");
+	showstr = zinfo.isTime() ? stimehfss : sdepthhfss;
+    }
+    else
+    {
+	const uiString stimehfltset = tr("time faultset");
+	const uiString sdepthhfltset = tr("depth faultset");
+	showstr = zinfo.isTime() ? stimehfltset : sdepthhfltset;
+
+    }
+
+    return forread ? uiStrings::phrInput( showstr )
+	: uiStrings::phrOutput( showstr );
+}
