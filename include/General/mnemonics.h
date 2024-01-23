@@ -42,7 +42,7 @@ public:
 			    Ang, Anis, Area, Class, Comp, Den, Dist, ElaRa,
 			    ElPot, Fluid, GR, Imp, Perm, Pres, PresGrad,
 			    PresWt, Res, Son, Temp, Time, Vel, Volum, Vol,
-			    Other
+			    Other, Force
 			};
 			mDeclareEnumUtils(StdType)
     static StdType	surveyZType(const SurveyInfo* =nullptr);
