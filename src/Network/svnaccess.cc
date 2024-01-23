@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 
 
-static void addRedirect( OS::MachineCommand& )
+static void addRedirect( OS::MachineCommand& mc )
 {
 #ifndef __debug__
     mc.addFileRedirect( "/dev/null" )
