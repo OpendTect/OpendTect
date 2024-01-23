@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "wellman.h"
 
-#include "file.h"
 #include "filepath.h"
 #include "filesystemwatcher.h"
 #include "iodir.h"
@@ -19,7 +18,9 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "surveydisklocation.h"
 #include "survinfo.h"
+#include "timer.h"
 #include "welldata.h"
+#include "wellio.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellmarker.h"
@@ -27,7 +28,7 @@ ________________________________________________________________________
 #include "welltrack.h"
 #include "welltransl.h"
 #include "wellwriter.h"
-
+#include "wellupdate.h"
 
 Well::LoadReqs::LoadReqs( bool addall )
 {
@@ -56,6 +57,27 @@ Well::LoadReqs::LoadReqs( SubObjType typ1, SubObjType typ2, SubObjType typ3 )
 
 Well::LoadReqs::~LoadReqs()
 {
+}
+
+
+Well::LoadReqs Well::LoadReqs::getLoadReqFromFileExt( const char* ext )
+{
+    if ( StringView(Well::odIO::sExtWell()) == ext )
+	return LoadReqs( Inf );
+    else if ( StringView(Well::odIO::sExtTrack()) == ext )
+	return LoadReqs( Trck );
+    else if ( StringView(Well::odIO::sExtLog()) == ext )
+	return LoadReqs( LogInfos );
+    else if ( StringView(Well::odIO::sExtMarkers()) == ext )
+	return LoadReqs( Mrkrs );
+    else if ( StringView(Well::odIO::sExtD2T()) == ext )
+	return LoadReqs( D2T );
+    else if ( StringView(Well::odIO::sExtCSMdl()) == ext )
+	return LoadReqs( CSMdl );
+    else if ( StringView(Well::odIO::sExtDispProps()) == ext )
+	return LoadReqs( DispProps3D );
+    else
+	return LoadReqs( false );
 }
 
 
@@ -193,67 +215,77 @@ Well::Man& Well::MGR()
 const UnitOfMeasure* Well::Man::depthstorageunit_ = nullptr;
 const UnitOfMeasure* Well::Man::depthdisplayunit_ = nullptr;
 
+
 Well::Man::Man()
+    : wfl_(new WellFileList())
 {
-    addFileSystemWatchCB( nullptr );
+    WellUpdateQueue::WUQ();
+    addFSWOnFileCB( nullptr );
+    addFSWOnDirCB( nullptr );
+    addFSWTimerCB( nullptr );
     getWellKeys( allwellsids_ );
     mAttachCB( IOM().afterSurveyChange, Man::checkForUndeletedRef );
+    mAttachCB( WellUpdateQueue::WUQ().canupdate, Man::databaseUpdateCB);
 }
 
 
 Well::Man::~Man()
 {
     detachAllNotifiers();
+    delete wfl_;
     checkForUndeletedRef( nullptr );
 }
 
 
-void Well::Man::addFileSystemWatchCB( CallBacker* cb )
+void Well::Man::addFSWOnFileCB( CallBacker* )
 {
-    mEnsureExecutedInMainThread( Man::addFileSystemWatchCB );
+    mEnsureExecutedInMainThread( Man::addFSWOnFileCB );
     const FilePath welldir( wellDirPath() );
     const FilePath wellomffp( welldir, ".omf" );
-    FSW().addPath(welldir.fullPath());
     FSW().addFile(wellomffp.fullPath());
-    mAttachCB( FSW().fileChanged, Man::wellFilesChangedCB );
+    mAttachCB( FSW().fileChanged, Man::wellFileChangedCB );
+}
+
+
+void Well::Man::addFSWOnDirCB( CallBacker* )
+{
+    mEnsureExecutedInMainThread( Man::addFSWOnDirCB );
+    const FilePath welldir( wellDirPath() );
+    FSW().addPath(welldir.fullPath());
     mAttachCB( FSW().directoryChanged, Man::wellDirChangedCB );
 }
 
 
-void Well::Man::wellFilesChangedCB( CallBacker* cb )
+void Well::Man::addFSWTimerCB( CallBacker* )
+{
+    mEnsureExecutedInMainThread( Man::addFSWTimerCB );
+    fswtimer_ = new Timer( "Last FSW hit timer" );
+    mAttachCB( fswtimer_->tick, Man::wellUpdateNeededCB );
+}
+
+
+void Well::Man::wellFileChangedCB( CallBacker* cb )
 {
     if ( !cb || !cb->isCapsule() )
+    {
+	addFSWOnFileCB( nullptr );
 	return;
+    }
 
     mCBCapsuleUnpack( BufferString, fpstr, cb );
     const FilePath fp( fpstr );
     const FilePath wellomffp( wellDirPath(), ".omf" );
-    if ( fp != wellomffp )
+    if (fp != wellomffp)
+    {
+	addFSWOnFileCB( nullptr );
 	return;
-
-    TypeSet<MultiID> initwellids, currwellids;
-    initwellids = allwellsids_;
-    getWellKeys( currwellids );
-    allwellsids_ = currwellids;
-    if ( initwellids.size() > currwellids.size() )
-    {
-	initwellids.createDifference( currwellids );
-	for ( const auto& id : initwellids )
-	{
-	    if ( !isLoaded(id) )
-		continue;
-
-	    removeObject( id );
-	}
     }
-    else if ( currwellids.size() > initwellids.size() )
-    {
-	currwellids.createDifference( initwellids );
-	for ( const auto& id : currwellids )
-	    get( id );
-    }
-    else
-	reloadAll();
+
+    if (fswtimer_->isActive())
+	fswtimer_->stop();
+
+    fswtimer_->start( 2000, true );
+    addFSWOnFileCB( nullptr );
 }
 
 
@@ -268,8 +300,51 @@ void Well::Man::wellDirChangedCB( CallBacker* cb )
     if ( fp != welldirfp )
 	return;
 
-    pErrMsg("reloadAll disabled");
-//    reloadAll();
+    if ( fswtimer_->isActive() )
+	fswtimer_->stop();
+
+    fswtimer_->start( 2000, true );
+}
+
+
+void Well::Man::wellUpdateNeededCB( CallBacker* )
+{
+    wfl_->catchChange();
+}
+
+
+void Well::Man::databaseUpdateCB( CallBacker* cb )
+{
+
+    isreloading_ = true;
+    WellFileList currlist;
+    *wfl_ = currlist;
+    while ( WellUpdateQueue::WUQ().hasWellsToBeDeleted() )
+    {
+	MultiID delkey;
+	WellUpdateQueue::WUQ().dequeueWellsToBeDeleted( delkey );
+	if ( !isLoaded(delkey) )
+	    continue;
+
+	IOM().entryRemoved.trigger( delkey );
+    }
+
+    while ( !WellUpdateQueue::WUQ().isEmpty() )
+    {
+	std::pair<MultiID, LoadReqs> updreqs;
+	WellUpdateQueue::WUQ().dequeue( updreqs );
+	if ( !isLoaded(updreqs.first) )
+	    continue;
+
+	if ( !reload(updreqs.first, updreqs.second) )
+	{
+	    removeObject( updreqs.first );
+	    get( updreqs.first, updreqs.second );
+	    IOM().implUpdated.trigger( updreqs.first );
+	}
+    }
+
+    isreloading_ = false;
 }
 
 
@@ -303,10 +378,12 @@ void Well::Man::checkForUndeletedRef( CallBacker* )
 void Well::Man::removeObject( const Well::Data* wd )
 {
     auto* wdtmp = const_cast<Well::Data*>( wd );
+    const BufferString wdtmpnm = wd->name();
     const int idx = wells_.indexOf( wdtmp );
     if ( idx < 0 ) return;
 
     wells_.removeSingle( idx );
+    wfl_->removeFromLoadedWells( wdtmpnm );
 }
 
 
@@ -316,7 +393,9 @@ void Well::Man::removeObject( const MultiID& key )
     if ( !wells_.validIdx(idx) )
 	return;
 
+    const BufferString wdtmpnm = wells_[idx]->name();
     wells_.removeSingle( idx );
+    wfl_->removeFromLoadedWells( wdtmpnm );
 }
 
 
@@ -366,6 +445,7 @@ RefMan<Well::Data> Well::Man::addNew( const MultiID& key, LoadReqs reqs )
     {
 	wd->setMultiID( key );
 	wells_ += wd;
+	wfl_->addLoadedWells( wd->name(), wd->multiID() );
     }
     else
 	wd.erase();
@@ -416,6 +496,20 @@ bool Well::Man::readReqData( const MultiID& key, Data& wd,
 bool Well::Man::isLoaded( const MultiID& key ) const
 {
     return gtByKey( key ) >= 0;
+}
+
+
+Well::LoadReqs Well::Man::loadState( const MultiID& key ) const
+{
+    if ( !isLoaded(key) )
+	return Well::LoadReqs(false);
+
+    const int wdidx = gtByKey( key );
+    ConstRefMan<Data> wd = wdidx < 0 ? nullptr : wells_[wdidx];
+    if ( !wd )
+	return Well::LoadReqs(false);
+
+    return wd->loadState();
 }
 
 
@@ -481,6 +575,7 @@ bool Well::Man::reloadLogs( const MultiID& key )
     const int wdidx = gtByKey( key );
     if ( wdidx<0 )
 	return false;
+
     BufferStringSet loadedlogs;
     RefMan<Data> wd = wells_[wdidx];
     wd->logs().getNames( loadedlogs, true );

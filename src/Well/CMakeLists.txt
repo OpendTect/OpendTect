@@ -32,6 +32,7 @@ set( OD_MODULE_SOURCES
 	welltrack.cc
 	welltransl.cc
 	wellwriter.cc
+	wellupdate.cc
 )
 
 set( OD_MODULE_PROGS od_WellMan.cc )

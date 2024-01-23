@@ -26,6 +26,9 @@ class MnemonicSelection;
 class MultiID;
 class StringPairSet;
 class UnitOfMeasure;
+class WellFileList;
+class Timer;
+
 
 namespace Well
 {
@@ -50,6 +53,7 @@ public:
 			LoadReqs(SubObjType,SubObjType,SubObjType);
 			~LoadReqs();
 
+    static LoadReqs	getLoadReqFromFileExt(const char*);
     static LoadReqs	All();
     static LoadReqs	AllNoLogs();
     bool		operator ==( const LoadReqs& oth ) const
@@ -90,6 +94,7 @@ public:
     RefMan<Data>	get(const MultiID&,LoadReqs);
     RefMan<Data>	get(const DBKey&,LoadReqs);
     bool		isLoaded(const MultiID&) const;
+    Well::LoadReqs	loadState(const MultiID&) const;
     bool		reload(const MultiID&,LoadReqs lreq=LoadReqs(false));
     bool		reloadDispPars(const MultiID&, bool for2d=false);
     bool		reloadLogs(const MultiID&);
@@ -109,7 +114,7 @@ public:
 					  const RefObjectSet<const Data>&);
     static bool		getAllMarkerInfo(BufferStringSet&,
 					 TypeSet<OD::Color>&,
-				  bool onlyloaded=false);
+					 bool onlyloaded=false);
     static bool		getAllLogNames(BufferStringSet&,
 				       bool onlyloaded=false);
     static bool		getAllMnemonics(MnemonicSelection&,
@@ -146,13 +151,15 @@ protected:
 
 			Man();
 
-    static Man*		mgr_;
+    static Man*			mgr_;
     mGlobal(Well) friend Man&	MGR();
 
-    WeakPtrSet<Data>	wells_;
-    BufferString	msg_;
-    TypeSet<MultiID>	allwellsids_;
-    bool		isreloading_		= false;
+    WeakPtrSet<Data>		wells_;
+    BufferString		msg_;
+    TypeSet<MultiID>		allwellsids_;
+    bool			isreloading_		= false;
+    WellFileList*		wfl_			= nullptr;
+    Timer*			fswtimer_		= nullptr;
 
     void		checkForUndeletedRef(CallBacker*);
     int			gtByKey(const MultiID&) const;
@@ -160,9 +167,13 @@ protected:
     bool		readReqData(const MultiID&,Data&,LoadReqs);
     void		reloadAll();
 
-    void		addFileSystemWatchCB(CallBacker*);
+    void		addFSWOnFileCB(CallBacker*);
+    void		addFSWOnDirCB(CallBacker*);
+    void		addFSWTimerCB(CallBacker*);
+    void		wellUpdateNeededCB(CallBacker*);
     void		wellDirChangedCB(CallBacker*);
-    void		wellFilesChangedCB(CallBacker*);
+    void		wellFileChangedCB(CallBacker*);
+    void		databaseUpdateCB(CallBacker*);
 
     static const UnitOfMeasure*	depthstorageunit_;
     static const UnitOfMeasure*	depthdisplayunit_;
