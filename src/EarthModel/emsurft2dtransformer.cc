@@ -547,7 +547,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
     const MultiID& inpmid = data.inpmid_;
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
-	mErrRet( tr("Cannot find input horizon in repository") );
+	mErrRet( tr("Cannot find input fault in repository") );
 
     EM::EMManager& em = EM::EMM();
     TaskRunner tskr;
@@ -567,7 +567,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
     mDynamicCastGet(EM::Fault3D*,flt,emobj.ptr())
     if ( !flt )
 	mErrRet( tr("Incorrect object selected, "
-				"3D horizon is expected for the workflow") );
+				"3D fault is expected for the workflow") );
 
     outfault3d->enableGeometryChecks( false );
     const EM::Fault3DGeometry& fltgeom = flt->geometry();
