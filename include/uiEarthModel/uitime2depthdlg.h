@@ -59,6 +59,7 @@ protected:
     void			horSelCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
 
+    virtual bool		hasSurfaceIOData() const;
     bool			is2DObject() const;
 
     const char*			sKeyTime2Depth() const;

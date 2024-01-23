@@ -48,6 +48,8 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, EMObjectType objtype )
 	ioobjctxt = mIOObjContext(EMHorizon2D);
     else if ( objtype == EMObjectType::Flt3D )
 	ioobjctxt = mIOObjContext(EMFault3D);
+    else if ( objtype == EMObjectType::FltSet )
+	ioobjctxt = mIOObjContext(EMFaultSet3D);
     else
 	return;
 
@@ -122,7 +124,7 @@ uiRetVal uiTime2DepthDlg::canTransform( EMObjectType objtype )
 {
     uiRetVal ret;
     if ( objtype == EMObjectType::Hor3D || objtype == EMObjectType::Hor2D ||
-	objtype == EMObjectType::Flt3D )
+	objtype == EMObjectType::Flt3D || objtype == EMObjectType::FltSet )
 	return ret;
     else
 	ret.add( tr("Object type is not yet supported") );
@@ -131,14 +133,16 @@ uiRetVal uiTime2DepthDlg::canTransform( EMObjectType objtype )
 }
 
 
-uiString uiTime2DepthDlg::getDlgTitle( EMObjectType objyyp ) const
+uiString uiTime2DepthDlg::getDlgTitle( EMObjectType objtyp ) const
 {
-    if ( objyyp == EMObjectType::Hor3D )
+    if ( objtyp == EMObjectType::Hor3D )
 	return tr("Transform 3D Horizon");
-    else if ( objyyp == EMObjectType::Hor2D )
+    else if ( objtyp == EMObjectType::Hor2D )
 	return tr("Transform 2D Horizon");
-    else if ( objyyp == EMObjectType::Flt3D )
+    else if ( objtyp == EMObjectType::Flt3D )
 	return tr("Transform Fault");
+    else if ( objtyp == EMObjectType::FltSet )
+	return tr("Tranform FaultSet");
 
     return tr("Object Type Not Supported");
 }
@@ -293,6 +297,13 @@ bool uiTime2DepthDlg::fillPar( IOPar& par ) const
 }
 
 
+bool uiTime2DepthDlg::hasSurfaceIOData() const
+{
+    return objtype_ == EMObjectType::Hor3D || objtype_ == EMObjectType::Hor2D
+	    || objtype_ == EMObjectType::Flt3D;
+}
+
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiTime2DepthDlg::acceptOK( CallBacker* )
@@ -315,7 +326,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     EM::SurfaceIOData sd;
     uiString errmsg;
     const MultiID inpmid = inpioobj->key();
-    if ( !em.getSurfaceData(inpmid,sd,errmsg) )
+    if ( hasSurfaceIOData() && !em.getSurfaceData(inpmid,sd,errmsg) )
 	mErrRet(errmsg)
 
     auto* data = new SurfaceT2DTransfData( sd );

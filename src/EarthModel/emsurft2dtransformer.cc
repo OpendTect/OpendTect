@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emfault3d.h"
 #include "emfaultauxdata.h"
+#include "emfaultset3d.h"
 #include "emfaultstickset.h"
 #include "emfsstofault3d.h"
 #include "faultstickset.h"
@@ -55,6 +56,8 @@ Executor* SurfaceT2DTransformer::createExecutor(
 	return new Horizon2DT2DTransformer( datas, zatf );
     else if ( objtype == EMObjectType::Flt3D )
 	return new FaultT2DTransformer( datas, zatf );
+    else if ( objtype == EMObjectType::FltSet )
+	return new FaultSetT2DTransformer( datas, zatf );
 
     return nullptr;
 }
@@ -108,7 +111,7 @@ void SurfaceT2DTransformer::load3DTranformVol()
 }
 
 
-RefMan<Surface> SurfaceT2DTransformer::createSurface( const MultiID& outmid )
+RefMan<EMObject> SurfaceT2DTransformer::createObject( const MultiID& outmid )
 {
     PtrMan<IOObj> obj = IOM().get( outmid );
     if ( !obj )
@@ -119,15 +122,10 @@ RefMan<Surface> SurfaceT2DTransformer::createSurface( const MultiID& outmid )
     if ( !objid.isValid() )
 	objid = em.createObject( getTypeString(), obj->name());
 
-    RefMan<EM::EMObject> emobj = em.getObject( objid );
-    mDynamicCastGet(EM::Surface*,horizon,emobj.ptr())
-    if ( !horizon )
-	return nullptr;
-
-    const MultiID midx = horizon->multiID();
-    horizon->change.disable();
-    horizon->setZDomain( zatf_.toZDomainInfo() );
-    return horizon;
+    EM::EMObject* emobj = em.getObject( objid );
+    emobj->change.disable();
+    emobj->setZDomain( zatf_.toZDomainInfo() );
+    return emobj;
 }
 
 
@@ -137,7 +135,7 @@ void SurfaceT2DTransformer::postStepCB( CallBacker* )
 {
 }
 
-RefMan<Surface> SurfaceT2DTransformer::getTransformedSurface(
+RefMan<EMObject> SurfaceT2DTransformer::getTransformedSurface(
 						    const MultiID& mid ) const
 {
     for ( auto* surf : outsurfs_ )
@@ -186,7 +184,7 @@ void Horizon3DT2DTransformer::preStepCB( CallBacker* )
 
 bool Horizon3DT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 {
-    RefMan<Surface> surf = createSurface( data.outmid_ );
+    RefMan<EMObject> surf = createObject( data.outmid_ );
     if ( !surf )
 	mErrRet( tr("Cannot access database") );
 
@@ -381,7 +379,7 @@ void Horizon2DT2DTransformer::preStepCB( CallBacker* )
     TaskRunner tskr;
     for ( const auto* data : datas_ )
     {
-	RefMan<Surface> surf = createSurface( data->outmid_ );
+	RefMan<EMObject> surf = createObject( data->outmid_ );
 	if ( !surf )
 	    continue;
 
@@ -446,7 +444,7 @@ bool Horizon2DT2DTransformer::do2DHorizon( const
     {
 	const Surface* inpsurf = inpsurfs_.get( horidx );
 	mDynamicCastGet(const Horizon2D*,inphor2D,inpsurf)
-	Surface* outsurf = outsurfs_.get( horidx );
+	EMObject* outsurf = outsurfs_.get( horidx );
 	mDynamicCastGet(Horizon2D*,outhor2D,outsurf)
 	if ( !outsurf )
 	    continue;
@@ -541,14 +539,14 @@ const StringView FaultT2DTransformer::getTypeString()
 
 bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 {
-    RefMan<Surface> surf = createSurface( data.outmid_ );
+    RefMan<EMObject> surf = createObject( data.outmid_ );
     if ( !surf )
 	mErrRet( tr("Cannot access database") );
 
     const MultiID& inpmid = data.inpmid_;
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
-	mErrRet( tr("Cannot find input horizon in repository") );
+	mErrRet( tr("Cannot find input fault in repository") );
 
     EM::EMManager& em = EM::EMM();
     TaskRunner tskr;
@@ -558,7 +556,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 
     RefMan<EM::EMObject> emobj = em.getObject( inpmid );
     if ( !emobj )
-	mErrRet( tr("Failed to load the surface") );
+	mErrRet( tr("Failed to load the fault") );
 
     mDynamicCastGet(EM::Fault3D*,outfault3d,surf.ptr())
     if ( !outfault3d )
@@ -568,7 +566,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
     mDynamicCastGet(EM::Fault3D*,flt,emobj.ptr())
     if ( !flt )
 	mErrRet( tr("Incorrect object selected, "
-				"3D horizon is expected for the workflow") );
+				"3D fault is expected for the workflow") );
 
     outfault3d->enableGeometryChecks( false );
     const EM::Fault3DGeometry& fltgeom = flt->geometry();
@@ -627,6 +625,147 @@ int FaultT2DTransformer::nextStep()
 	    continue;
 
 	doFault( *data );
+	nrdone_++;
+    }
+
+    return MoreToDo();
+}
+
+
+//FaultSetT2DTransformer class
+FaultSetT2DTransformer::FaultSetT2DTransformer(
+	const ObjectSet<SurfaceT2DTransfData>& data, ZAxisTransform& zatf)
+    : SurfaceT2DTransformer(data, zatf)
+{
+    mAttachCB(prestep,FaultSetT2DTransformer::preStepCB);
+    mAttachCB(poststep,FaultSetT2DTransformer::postStepCB);
+}
+
+FaultSetT2DTransformer::~FaultSetT2DTransformer()
+{
+    detachAllNotifiers();
+}
+
+
+void FaultSetT2DTransformer::preStepCB( CallBacker* )
+{
+    if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
+	load3DTranformVol();
+}
+
+
+void FaultSetT2DTransformer::postStepCB( CallBacker* )
+{
+    if ( nrdone_ == totnr_ )
+	unloadVolume();
+}
+
+
+const StringView FaultSetT2DTransformer::getTypeString()
+{
+    return EM::FaultSet3D::typeStr();
+}
+
+
+bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
+{
+    RefMan<EMObject> outfltsetobj = createObject( data.outmid_ );
+    if ( !outfltsetobj )
+	mErrRet( tr("Cannot access database") );
+
+    const MultiID& inpmid = data.inpmid_;
+    const IOObj* ioobj = IOM().get( inpmid );
+    if ( !ioobj )
+	mErrRet( tr("Cannot find input FaultSet in repository") );
+
+    EM::EMManager& em = EM::EMM();
+    TaskRunner tskr;
+    PtrMan<Executor> loader = em.objectLoader( inpmid, &data.surfsel_ );
+    if ( !loader || !loader->execute() )
+	mErrRet( uiStrings::sCantCreateHor() )
+
+    RefMan<EM::EMObject> inpemobj = em.getObject( inpmid );
+    if ( !inpemobj )
+	mErrRet( tr("Failed to load the faultset") );
+
+    mDynamicCastGet(EM::FaultSet3D*,inpfltset,inpemobj.ptr())
+    if ( !inpfltset )
+	mErrRet( tr("Cannot access database") );
+
+    mDynamicCastGet(EM::FaultSet3D*,outfltset,outfltsetobj.ptr())
+    if ( !outfltset )
+	mErrRet( tr("The output type is incompatible with input type, "
+	    "FaultSet object expected") );
+
+    const int nrfaults = inpfltset->nrFaults();
+    for ( int idx=0; idx<nrfaults; idx++ )
+    {
+	const EM::FaultID fltid = inpfltset->getFaultID( idx );
+	RefMan<EM::EMObject> fltobj = inpfltset->getFault3D( fltid );
+	mDynamicCastGet(EM::Fault3D*,flt,fltobj.ptr())
+	    const EM::Fault3DGeometry& fltgeom = flt->geometry();
+	const Geometry::FaultStickSurface* fssurf = fltgeom.geometryElement();
+	if ( !fssurf )
+	    mErrRet( tr("FaultSet is empty") );
+
+	const int nrsticks = fltgeom.nrSticks();
+	const ZSampling zint = zatf_.getZInterval( true );
+	RefMan<EM::EMObject> fltemobj = em.createTempObject(
+						    EM::Fault3D::typeStr() );
+	mDynamicCastGet(EM::Fault3D*,outfault3d,fltemobj.ptr());
+	for ( int idx=0; idx<nrsticks; idx++ )
+	{
+	    const Geometry::FaultStick* stick = fssurf->getStick( idx );
+	    if ( !stick || stick->locs_.isEmpty() )
+		continue;
+
+	    const int sz = stick->size();
+	    const Coord3 firstcrd = stick->getCoordAtIndex( 0 );
+	    const Coord3 lastcrd = stick->getCoordAtIndex( sz-1 );
+	    if ( !zint.includes(firstcrd.z,false) ||
+		!zint.includes(lastcrd.z,false) )
+		continue;
+
+	    const Coord3& editnormal = stick->getNormal();
+	    for ( int crdidx=0; crdidx<sz; crdidx++ )
+	    {
+		Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
+		outcrd.z = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
+		    outcrd.z );
+		if ( crdidx == 0 )
+		{
+		    if ( !outfault3d->geometry().insertStick(idx,0,outcrd,
+			editnormal,false) )
+			break;
+
+		    continue;
+		}
+
+		const RowCol rc( idx, crdidx );
+		outfault3d->geometry().insertKnot( rc.toInt64(), outcrd,
+								    false );
+	    }
+	}
+
+	outfltset->addFault( outfault3d );
+    }
+
+    outsurfs_.add( outfltset );
+    return true;
+}
+
+
+int FaultSetT2DTransformer::nextStep()
+{
+    if ( nrdone_ == totnr_ )
+	return Finished();
+
+    for ( const auto* data : datas_ )
+    {
+	if ( !data )
+	    continue;
+
+	doFaultSet( *data );
 	nrdone_++;
     }
 

@@ -385,6 +385,11 @@ void uiODApplMgr::fltTimeDepthConvCB( CallBacker* )
 }
 
 
+void uiODApplMgr::fltsetTimeDepthConvCB( CallBacker* )
+{
+    emserv_->processTime2Depth( &appl_, EM::EMObjectType::FltSet );
+}
+
 void uiODApplMgr::addTimeDepthScene( bool is2d )
 {
     uiDialog::Setup setup(tr("Velocity model"),

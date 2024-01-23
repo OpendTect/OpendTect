@@ -294,7 +294,7 @@ bool uiExportFault::writeAscii()
 
 	    if ( fset )
 	    {
-		EM::FaultID fltid = fset->getFaultID( oidx );
+		const EM::FaultID fltid = fset->getFaultID( oidx );
 		fltobj = fset->getFault3D( fltid );
 		objnm = fset->name();
 		objnm.add("_").add( fltid.asInt() );

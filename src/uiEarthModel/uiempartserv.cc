@@ -173,6 +173,8 @@ void uiEMPartServer::processTime2Depth( uiParent* p,
 	dlg = getTime2DepthEMDlg( p, objtype, t2d2dhordlg_ );
     else if ( objtype == EM::EMObjectType::Flt3D )
 	dlg = getTime2DepthEMDlg( p, objtype, t2dfltdlg_ );
+    else if ( objtype == EM::EMObjectType::FltSet )
+	dlg = getTime2DepthEMDlg( p, objtype, t2dfltsetdlg_ );
 
     if ( dlg )
 	dlg->show();
@@ -713,19 +715,15 @@ void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
 
 
 static void selectEMObjects( uiParent* p, ObjectSet<EM::EMObject>& objs,
-			     const IOObjContext& ctxt, const char* exectext )
+			     const char* typ, const char* exectext,
+			     const ZDomain::Info* zinfo )
 {
-    CtxtIOObj ctio( ctxt );
-    ctio.ctxt_.forread_ = true;
-
-    uiIOObjSelDlg::Setup sdsu;
-    sdsu.multisel( true );
-    uiIOObjSelDlg dlg( p, sdsu, ctio );
+    uiMultiSurfaceReadDlg dlg( p, typ, zinfo );
     if ( !dlg.go() )
 	return;
 
     TypeSet<MultiID> mids;
-    dlg.getChosen( mids );
+    dlg.iogrp()->getSurfaceIds( mids );
     if ( mids.isEmpty() )
 	return;
 
@@ -765,8 +763,8 @@ void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
     if ( !p )
 	p = parent();
 
-    selectEMObjects( p, objs, EMFaultSet3DTranslatorGroup::ioContext(),
-		     "Loading FaultSets" );
+    selectEMObjects( p, objs, EMFaultSet3DTranslatorGroup::sGroupName(),
+		     "Loading FaultSets", zinfo );
 }
 
 
@@ -775,8 +773,8 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
     if ( !p )
 	p = parent();
 
-    selectEMObjects( p, objs, EMBodyTranslatorGroup::ioContext(),
-		     "Loading Geobodies" );
+    selectEMObjects( p, objs, EMBodyTranslatorGroup::sGroupName(),
+		     "Loading Geobodies", nullptr );
 }
 
 

@@ -250,6 +250,8 @@ protected:
     EM::uiTime2DepthDlg*	t2d2dhordlg_		= nullptr;
     EM::uiTime2DepthDlg*	t2d3dhordlg_		= nullptr;
     EM::uiTime2DepthDlg*	t2dfltdlg_		= nullptr;
+    EM::uiTime2DepthDlg*	t2dfltsetdlg_		= nullptr;
+
 
     TrcKeySampling		selectedrg_;
     bool			disponcreation_		= false;
