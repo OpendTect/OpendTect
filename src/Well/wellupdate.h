@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 
+#include "callback.h"
 #include "typeset.h"
 
 #include <QHash>
@@ -24,6 +25,7 @@ mExpClass(Well) WellUpdateQueue : public CallBacker
 {
 public:
 			~WellUpdateQueue();
+			mOD_DisableCopy(WellUpdateQueue)
 
     static WellUpdateQueue&	WUQ();
 

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "timer.h"
 #include "welldata.h"
 #include "wellman.h"
-#include "wellio.h"
 
 #include <QHashIterator>
 
@@ -132,7 +131,7 @@ bool WellUpdateQueue::hasWellsToBeDeleted() const
 }
 
 
-void WellUpdateQueue::checkUpdateStatus( CallBacker* cb )
+void WellUpdateQueue::checkUpdateStatus( CallBacker* )
 {
     Threads::Locker locker( lock_ );
     if ( isEmpty() )
@@ -162,9 +161,8 @@ WellFileList::WellFileList()
     for ( const auto* nmfp : filenmsfp )
     {
 	FilePath fullpath( *nmfp );
-	QString filenm = fullpath.fileName();
+	QString filenm = fullpath.fileName().buf();
 	QString lastmodified = File::timeLastModified( *nmfp );
-	BufferString lm(lastmodified);
 	filelist_[filenm] = lastmodified;
     }
 
@@ -332,7 +330,6 @@ bool WellFileList::getDeletedFiles( const WellFileList& oth )
 	if ( oth.fileList().contains(iter.key()) )
 	    continue;
 
-	QString nm = iter.key();
 	updateWellQueue( iter.key() );
     }
 
@@ -387,7 +384,7 @@ bool WellFileList::getChangedFiles( const WellFileList& oth )
 void WellFileList::updateWellQueue( const QString& fnm, bool reqall )
 {
     BufferString fname( fnm );
-    FilePath fp( fname );
+    const FilePath fp( fname );
     BufferString basenm = fp.baseName();
     BufferString extstr = fp.extension();
     BufferString ext(".",extstr);
@@ -407,15 +404,15 @@ void WellFileList::updateWellQueue( const QString& fnm, bool reqall )
     if ( inclreq.includes(Well::Logs) || inclreq.includes(Well::LogInfos) )
     {
 	const BufferString logfilechar = basenm.find( "^" );
-	basenm = basenm.remove( logfilechar );
+	basenm = basenm.remove( logfilechar.buf() );
     }
 
-    QString wellnm = basenm.buf();
+    const QString wellnm = basenm.buf();
     if ( !loadednmidpair_.contains(wellnm) )
 	return;
 
-    BufferString idstr( loadednmidpair_[wellnm] );
-    const MultiID& id = MultiID( idstr.str() );
+    const BufferString idstr( loadednmidpair_.value(wellnm) );
+    const MultiID id( idstr.str() );
     std::pair<MultiID, Well::LoadReqs> idreqpair( id, inclreq );
     fname = File::getAbsolutePath( Well::Man::wellDirPath(), fname );
     if ( !File::isInUse(fname) )
