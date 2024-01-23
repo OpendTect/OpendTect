@@ -144,6 +144,7 @@ protected:
     void		dtpointChangedCB(CallBacker*);
     void		dtpointRemovedCB(CallBacker*);
     void		selectionDeletedCB(CallBacker*);
+    void		selectionChangedCB(CallBacker*);
     bool		updateDtpointDepth(int row);
     bool		updateDtpointTime(int row);
     bool		updateDtpoint(int row,float oldval);
