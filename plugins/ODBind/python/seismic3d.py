@@ -2,12 +2,12 @@ import numpy as np
 import ctypes as ct
 from collections import namedtuple
 from collections.abc import Sequence
-from enum import Enum
+from enum import IntEnum
 import xarray as xr
 from odbind import wrap_function, LIBODB, makestrlist, NumpyAllocator, pyjsonstr, pystr, pystrlist, stringset_del, unpack_slice, is_none_slice 
 from odbind.survey import Survey, _SurveyObject
 
-class SliceType(Enum):
+class SliceType(IntEnum):
     Inline = 0
     Crossline = 1
     ZSlice = 2
