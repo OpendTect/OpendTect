@@ -719,12 +719,6 @@ void uiODMenuMgr::fillProcMenu()
     add2D3DMenuItem( *csoitm_, "empty", tr("Prestack Processing"),
 		     mPSProc2DMnuItm, mPSProc3DMnuItm );
 
-// Velocity
-    auto* velitm = new uiMenu( tr("Velocity") );
-    csoitm_->addMenu( velitm );
-
-
-
     add2D3DMenuItem( *csoitm_, "empty", tr("Volume Builder"),
 		     mVolProc2DMnuItm, mVolProc3DMnuItm );
 
