@@ -441,18 +441,20 @@ bool MathProperty::init( const PropertySet& ps ) const
 	else if ( !form_.isConst(iinp) )
 	{
 	    const char* inpnm = form_.inputDef( iinp );
-	    const Mnemonic* inpmn = form_.inputMnemonic( iinp );
-	    if ( inpmn )
-		prop = ps.getByMnemonic( *inpmn );
-	    if ( !prop )
-		prop = ps.getByName( inpnm );
-
+	    prop = ps.getByName( inpnm );
 	    if ( !prop )
 	    {
-		errmsg_ =
-		    tr( "Missing input '%1' for the calculation of '%2'" )
-			.arg( inpnm ).arg( name() );
-		return false;
+		const Mnemonic* inpmn = form_.inputMnemonic( iinp );
+		if ( inpmn )
+		    prop = ps.getByMnemonic( *inpmn );
+
+		if ( !prop )
+		{
+		    errmsg_ =
+			tr( "Missing input '%1' for the calculation of '%2'" )
+			    .arg( inpnm ).arg( name() );
+		    return false;
+		}
 	    }
 	}
 
