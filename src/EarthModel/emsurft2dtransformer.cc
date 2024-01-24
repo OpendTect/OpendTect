@@ -698,9 +698,9 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 	    "FaultSet object expected") );
 
     const int nrfaults = inpfltset->nrFaults();
-    for ( int idx=0; idx<nrfaults; idx++ )
+    for ( int fltidx=0; fltidx<nrfaults; fltidx++ )
     {
-	const EM::FaultID fltid = inpfltset->getFaultID( idx );
+	const EM::FaultID fltid = inpfltset->getFaultID( fltidx );
 	RefMan<EM::EMObject> fltobj = inpfltset->getFault3D( fltid );
 	mDynamicCastGet(EM::Fault3D*,flt,fltobj.ptr())
 	    const EM::Fault3DGeometry& fltgeom = flt->geometry();
