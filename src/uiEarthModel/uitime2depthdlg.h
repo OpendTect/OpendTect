@@ -57,6 +57,7 @@ protected:
     bool			acceptOK(CallBacker*) override;
 
     bool			is2DObject() const;
+    virtual bool		hasSurfaceIOData() const;
 
     const IOObjInfo::ObjectType objtype_;
 };

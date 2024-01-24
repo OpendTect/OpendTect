@@ -49,7 +49,7 @@ public:
     od_int64			nrDone() const override     { return nrdone_; }
     od_int64			totalNr() const override;
 
-    RefMan<Surface>		getTransformedSurface(const MultiID&) const;
+    RefMan<EMObject>		getTransformedSurface(const MultiID&) const;
 
 protected:
 				SurfaceT2DTransformer(
@@ -66,7 +66,7 @@ protected:
 
     virtual const StringView	getTypeString()		    = 0;
 
-    RefMan<Surface>		createSurface(const MultiID&);
+    RefMan<EMObject>		createObject(const MultiID&);
 
     od_int64					nrdone_     = 0;
     od_int64					totnr_	    = 0;
@@ -74,7 +74,7 @@ protected:
     uiString					curmsg_;
     ZAxisTransform&				zatf_;
     const ObjectSet<SurfaceT2DTransfData>&	datas_;
-    RefObjectSet<Surface>			outsurfs_;
+    RefObjectSet<EMObject>			outsurfs_;
 };
 
 
@@ -164,7 +164,24 @@ protected:
     int			    nextStep() override;
     bool		    doFault(const SurfaceT2DTransfData&);
     const StringView	    getTypeString() override;
+};
 
+
+mExpClass(EarthModel) FaultSetT2DTransformer : public SurfaceT2DTransformer
+{ mODTextTranslationClass(FaultSetT2DTransformer)
+public:
+				FaultSetT2DTransformer(
+				    const ObjectSet<SurfaceT2DTransfData>&,
+				    ZAxisTransform&);
+				~FaultSetT2DTransformer();
+protected:
+
+    OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
+    void		    preStepCB(CallBacker*) override;
+    void		    postStepCB(CallBacker*) override;
+    int			    nextStep() override;
+    bool		    doFaultSet(const SurfaceT2DTransfData&);
+    const StringView	    getTypeString() override;
 };
 
 }

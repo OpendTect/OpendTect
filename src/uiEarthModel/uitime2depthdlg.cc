@@ -53,6 +53,8 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
 	ioobjctxt = mIOObjContext(EMHorizon2D);
     else if ( objtype == IOObjInfo::Fault )
 	ioobjctxt = mIOObjContext(EMFault3D);
+    else if ( objtype == IOObjInfo::FaultSet )
+	ioobjctxt = mIOObjContext(EMFaultSet3D);
     else
 	return;
 
@@ -127,7 +129,7 @@ uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
 {
     uiRetVal ret;
     if ( objtype == IOObjInfo::Horizon3D || objtype == IOObjInfo::Horizon2D ||
-	 objtype == IOObjInfo::Fault )
+	 objtype == IOObjInfo::Fault || objtype == IOObjInfo::FaultSet )
 	return ret;
     else
 	ret.add( tr("Object type is not yet supported") );
@@ -136,14 +138,23 @@ uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
 }
 
 
-uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objyyp ) const
+bool uiTime2DepthDlg::hasSurfaceIOData() const
 {
-    if ( objyyp == IOObjInfo::Horizon3D )
+    return objtype_ == IOObjInfo::Horizon2D || objtype_ == IOObjInfo::Horizon3D
+	|| objtype_ == IOObjInfo::Fault;
+}
+
+
+uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objtyp ) const
+{
+    if ( objtyp == IOObjInfo::Horizon3D )
 	return tr("Transform 3D Horizon");
-    else if ( objyyp == IOObjInfo::Horizon2D )
+    else if ( objtyp == IOObjInfo::Horizon2D )
 	return tr("Transform 2D Horizon");
-    else if ( objyyp == IOObjInfo::Fault )
+    else if ( objtyp == IOObjInfo::Fault )
 	return tr("Transform Fault");
+    else if ( objtyp == IOObjInfo::FaultSet )
+	return tr("Tranform FaultSet");
 
     return toUiString("Object Type Not Supported");
 }
@@ -239,7 +250,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     EM::SurfaceIOData sd;
     uiString errmsg;
     const MultiID inpmid = inpioobj->key();
-    if ( !em.getSurfaceData(inpmid,sd,errmsg) )
+    if ( hasSurfaceIOData() && !em.getSurfaceData(inpmid, sd, errmsg))
 	mErrRet(errmsg)
 
     auto* data = new SurfaceT2DTransfData( sd );
@@ -278,7 +289,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 	    IOM().commitChanges( *obj );
 
 	ret = uiMSG().askGoOn( tr("Successfully transformed %1.\n"
-			    "Do you want to tranform another horizon?").
+			    "Do you want to tranform another object?").
 			    arg(inpioobj->name()) );
     }
 

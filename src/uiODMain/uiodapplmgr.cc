@@ -388,6 +388,12 @@ void uiODApplMgr::processTime2DepthFault( CallBacker* )
 }
 
 
+void uiODApplMgr::processTime2DepthFaultSet( CallBacker* )
+{
+    emserv_->processTime2Depth( EM::IOObjInfo::FaultSet );
+}
+
+
 void uiODApplMgr::createMultiCubeDS( CallBacker* )
 { seisserv_->createMultiCubeDataStore(); }
 
