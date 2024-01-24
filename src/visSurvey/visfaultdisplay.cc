@@ -1700,7 +1700,7 @@ void FaultDisplay::updateEditorMarkers()
 		viseditor_->setMarkerStyle( fault_->getPosAttrMarkerStyle(0) );
 	    const Geometry::FaultStickSet* fs =
 					fault3d->geometry().geometryElement();
-	    if ( !viseditor_ )
+	    if ( viseditor_ )
 		viseditor_->turnOnMarker( pid,
 				    !fs->isStickHidden(sticknr,mSceneIdx) );
 	}
