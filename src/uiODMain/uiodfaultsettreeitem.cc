@@ -64,15 +64,6 @@ const char* uiODFaultSetParentTreeItem::iconName() const
 
 bool uiODFaultSetParentTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    const bool hastransform = scene && scene->getZAxisTransform();
-    if ( hastransform )
-    {
-	uiMSG().message( tr("Cannot add FaultSet to this scene") );
-	return false;
-    }
-
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
 /*
@@ -116,7 +107,16 @@ bool uiODFaultSetParentTreeItem::showSubMenu()
     if ( mnuid==mAddMnuID )
     {
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectFaultSets( objs, getUiParent() );
+	mDynamicCastGet( visSurvey::Scene*,scene,
+	    ODMainWin()->applMgr().visServer()->getObject(sceneID()) );
+	RefMan<ZAxisTransform> transform = scene->getZAxisTransform();
+	const ZDomain::Info* zinfo = nullptr;
+	if ( transform )
+	    zinfo = &transform->toZDomainInfo();
+	else
+	    zinfo = &SI().zDomainInfo();
+
+	applMgr()->EMServer()->selectFaultSets( objs, getUiParent(), zinfo );
 	MouseCursorChanger mcc( MouseCursor::Wait );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{

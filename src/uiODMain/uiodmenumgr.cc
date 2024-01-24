@@ -643,6 +643,13 @@ void uiODMenuMgr::fillProcMenu()
     csoitm_ = new uiMenu( tr("Create Seismic Output") );
 
 // Attributes
+    if ( SI().has3D() )
+    {
+	csoitm_->insertAction(
+	    new uiAction(m3Dots(tr("Velocity Conversion")),
+	    mCB(&applMgr(),uiODApplMgr,processVelConv)) );
+    }
+
     auto* attritm = new uiMenu( uiStrings::sAttribute(mPlural) );
     csoitm_->addMenu( attritm );
 
@@ -681,6 +688,7 @@ void uiODMenuMgr::fillProcMenu()
 	insertAction( itm2d3d, m3Dots(tr("Extract 2D from 3D")),
 		     m2DFrom3DMnuItm );
     }
+
     const bool show3dfrom2d =
 		GetEnvVarYN( "OD_CREATE_3D_FROM_2D" ) && SI().has2D();
     if ( show3dfrom2d )
@@ -690,6 +698,7 @@ void uiODMenuMgr::fillProcMenu()
 	    itm2d3d = new uiMenu( menutext );
 	    csoitm_->addMenu( itm2d3d );
 	}
+
 	insertAction( itm2d3d, m3Dots(tr("Create 3D from 2D")),
 							    m3DFrom2DMnuItm );
 	insertAction( itm2d3d, m3Dots(tr("Interpolate 3D from 2D")),
@@ -714,18 +723,6 @@ void uiODMenuMgr::fillProcMenu()
     add2D3DMenuItem( *csoitm_, "empty", tr("Prestack Processing"),
 		     mPSProc2DMnuItm, mPSProc3DMnuItm );
 
-// Velocity
-    auto* velitm = new uiMenu( tr("Velocity") );
-    csoitm_->addMenu( velitm );
-    add2D3DMenuItem( *velitm, "empty", tr("Time - Depth Conversion"),
-		     mT2DConv2DMnuItm, mT2DConv3DMnuItm );
-    if ( SI().has3D() )
-    {
-	velitm->insertAction(
-	    new uiAction(m3Dots(tr("Velocity Conversion")),
-			 mCB(&applMgr(),uiODApplMgr,processVelConv)) );
-    }
-
     add2D3DMenuItem( *csoitm_, "empty", tr("Volume Builder"),
 		     mVolProc2DMnuItm, mVolProc3DMnuItm );
 
@@ -742,16 +739,25 @@ void uiODMenuMgr::fillProcMenu()
 
     grditm->insertAction( new uiAction(m3Dots(tr("Isochron")),
 			  mCB(&applMgr(),uiODApplMgr,doIsochron)) );
-    add2D3DMenuItem( *grditm, "empty", tr("Time - Depth Conversion"),
-	mT2DHor2DMnuItm, mT2DHor3DMnuItm );
     procmnu_->addMenu( grditm );
 
-    auto* fltitm = new uiMenu( &appl_, tr("Create Fault Output") );
-    auto* flttditm = new uiMenu( tr("Time - Depth Conversion") );
-    flttditm->insertAction( new uiAction(m3Dots(uiStrings::sFault()),
+//Time-Depth Conversion
+    auto* t2dconvitm = new uiMenu( tr("Time - Depth Conversion") );
+    if ( SI().has3D() )
+    {
+	t2dconvitm->insertAction( new uiAction(m3Dots(uiStrings::sFault()),
 			mCB(&applMgr(),uiODApplMgr,processTime2DepthFault)) );
-    fltitm->addMenu( flttditm );
-    procmnu_->addMenu( fltitm );
+
+
+	t2dconvitm->insertAction( new uiAction(m3Dots(uiStrings::sFaultSet()),
+		    mCB(&applMgr(),uiODApplMgr,processTime2DepthFaultSet)) );
+    }
+
+    add2D3DMenuItem( *t2dconvitm, "empty", uiStrings::sHorizon(),
+				    mT2DHor2DMnuItm, mT2DHor3DMnuItm );
+    add2D3DMenuItem( *t2dconvitm, "empty", uiStrings::sSeismic(),
+					mT2DConv2DMnuItm, mT2DConv3DMnuItm );
+    procmnu_->addMenu( t2dconvitm );
 
     procwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
     procwellmnu_->insertAction( new uiAction(m3Dots(uiStrings::sRockPhy()),

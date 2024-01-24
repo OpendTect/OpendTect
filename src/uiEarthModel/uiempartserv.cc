@@ -743,10 +743,16 @@ void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
 
 
 static void selectEMObjects( uiParent* p, ObjectSet<EM::EMObject>& objs,
-			     const IOObjContext& ctxt, const char* exectext )
+				const IOObjContext& ctxt, const char* exectext,
+				const ZDomain::Info* zinfo )
 {
     CtxtIOObj ctio( ctxt );
     ctio.ctxt_.forread_ = true;
+    if ( zinfo )
+    {
+	const ZDomain::Info& siinfo = SI().zDomainInfo();
+	ctio.ctxt_.requireZDomain( *zinfo, siinfo == *zinfo );
+    }
 
     uiIOObjSelDlg::Setup sdsu;
     sdsu.multisel( true );
@@ -796,7 +802,7 @@ void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
 	p = parent();
 
     selectEMObjects( p, objs, EMFaultSet3DTranslatorGroup::ioContext(),
-		     "Loading FaultSets" );
+		     "Loading FaultSets", nullptr );
 }
 
 
@@ -807,7 +813,7 @@ void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
 	p = parent();
 
     selectEMObjects( p, objs, EMFaultSet3DTranslatorGroup::ioContext(),
-		     "Loading FaultSets" );
+		     "Loading FaultSets", zinfo );
 }
 
 
@@ -817,7 +823,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
 	p = parent();
 
     selectEMObjects( p, objs, EMBodyTranslatorGroup::ioContext(),
-		     "Loading Geobodies" );
+		     "Loading Geobodies", nullptr );
 }
 
 
