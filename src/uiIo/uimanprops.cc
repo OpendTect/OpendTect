@@ -656,21 +656,18 @@ void uiSelectPropRefsGrp::fillList()
 
 void uiSelectPropRefsGrp::manPROPS( CallBacker* )
 {
-    BufferStringSet orgnms;
-    for ( int idx=0; idx<prsel_.size(); idx++ )
-	orgnms.add( prsel_[idx]->name() );
-
     uiManPROPS dlg( this );
-    if ( !dlg.go() )
-	return;
-
+    dlg.go();
     structchg_ = structchg_ || dlg.haveUserChange();
 
-    // Even if user will cancel we cannot leave removed PROP's in the set
-    for ( int idx=0; idx<orgnms.size(); idx++ )
+    // we cannot leave removed PROP's in the selection
+    for ( int idx=prsel_.size()-1; idx>=0; idx-- )
     {
 	if ( !props_.isPresent(prsel_[idx]) )
-	    { structchg_ = true; prsel_.removeSingle( idx ); idx--; }
+	{
+	    structchg_ = true;
+	    prsel_.removeSingle( idx );
+	}
     }
 
     propfld_->setEmpty();
