@@ -365,7 +365,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 	    IOM().commitChanges( *obj );
 
 	ret = uiMSG().askGoOn( tr("Successfully transformed %1.\n"
-			    "Do you want to tranform another horizon?").
+			    "Do you want to tranform another object?").
 			    arg(inpioobj->name()) );
     }
 
