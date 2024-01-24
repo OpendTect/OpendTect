@@ -748,7 +748,7 @@ void uiODMenuMgr::fillProcMenu()
     if ( SI().has3D() )
     {
 	t2dconvitm->insertAction( new uiAction(m3Dots(uiStrings::sFault()),
-			mCB(&applMgr(),uiODApplMgr,fltsetTimeDepthConvCB)) );
+			mCB(&applMgr(),uiODApplMgr,fltTimeDepthConvCB)) );
 
 
 	t2dconvitm->insertAction( new uiAction(m3Dots(uiStrings::sFaultSet()),
