@@ -363,10 +363,7 @@ bool uiExportFault::writeAscii()
 	    }
 
 	    const int nrsticks = nrSticks( fltobj );
-
 	    BufferString str;
-
-	    bool first = true;
 	    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
 	    {
 		const int nrknots = nrKnots( fltobj, stickidx );
