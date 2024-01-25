@@ -264,13 +264,16 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 							    *zatf, objtype_ );
     mDynamicCastGet(SurfaceT2DTransformer*,surftrans,exec.ptr());
     if ( !surftrans )
+    {
+	deepErase( datas );
 	return false;
+    }
 
     uiTaskRunner tskr( this );
     if ( !TaskRunner::execute(&tskr,*surftrans) )
     {
 	uiMSG().errorWithDetails( tr("Fail to transform the %1").
-				arg(inpioobj->name()), surftrans->uiMessage() );
+			    arg(inpioobj->name()), surftrans->uiMessage() );
 	deepErase( datas );
 	return false;
     }
@@ -281,7 +284,10 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     {
 	PtrMan<Executor> saver = surf->saver();
 	if ( !saver || !TaskRunner::execute(&tskr,*saver) )
-	    mErrRet( tr("Can not save output horizon data.") );
+	{
+	    deepErase( datas );
+	    mErrRet( tr("Cannot save transformed data.") );
+	}
 
 	const MultiID outmid = surf->multiID();
 	PtrMan<IOObj> obj = IOM().get( outmid );
@@ -291,6 +297,11 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 	ret = uiMSG().askGoOn( tr("Successfully transformed %1.\n"
 			    "Do you want to tranform another object?").
 			    arg(inpioobj->name()) );
+    }
+    else
+    {
+	ret = false;
+	uiMSG().error( tr("Cannot save transformed data.") );
     }
 
     deepErase( datas );
