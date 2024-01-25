@@ -38,6 +38,8 @@ mGlobal(Basic) const Info&	DepthFeet();
 mGlobal(Basic) const Info*	get(const IOPar&);
 				// never manage the returned pointer
 
+mGlobal(Basic) const ObjectSet<const ZDomain::Info>& sAll();
+
 
 /*!
 \brief Definition of z-domain.
@@ -130,7 +132,8 @@ public:
     uiString		userName() const	{ return def_.userName(); }
     const char*		unitStr(bool wp=false) const;
     uiString		uiUnitStr(bool wp=false) const;
-    uiString		getLabel() const	{ return def_.getLabel(); }
+    uiString		getLabel() const;
+    uiString		getRange(bool withunit=true) const;
     int			userFactor() const	{ return def_.userFactor(); }
 
     bool		isTime() const		{ return def_.isTime(); }
@@ -143,6 +146,7 @@ public:
     mDeprecated("Use MultiID Overloaded function")
     void		setID(const char*);
 
+    static const Info*	getFrom(const char* zdomkey,const char* zunitstr);
     static const Info*	getFrom(const IOPar&);
 
 private:

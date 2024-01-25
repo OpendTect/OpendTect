@@ -409,10 +409,9 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     mAttachCB( seissel_->selectionDone, uiSEGYExp::inpSel );
 
     uiSeisTransfer::Setup tsu( geom_ );
-    tsu.withnullfill(true).fornewentry(false).onlyrange(false);
+    tsu.withnullfill( true ).fornewentry( false ).onlyrange( false );
     transffld_ = new uiSeisTransfer( this, tsu );
-    if ( transffld_->selfld )
-	mAttachCB( transffld_->selfld->selChange, uiSEGYExp::updateTextHdrCB );
+    mAttachCB( transffld_->selChange, uiSEGYExp::updateTextHdrCB );
 
     transffld_->attach( alignedBelow, seissel_ );
 
@@ -655,16 +654,16 @@ bool doExp( const FilePath& fp )
     }
 
     bool nofails = true;
+    uiSeisTransfer* transffld = segyexp_->transffld_;
+    const bool dosingleline = transffld->is2D() && transffld->isSingleLine();
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
 	const BufferString& lnm = *lnms[idx];
 	BufferString filenm( fp.fullPath() );
 	filenm.replace( uiSEGYFileSpec::sKeyLineNmToken(), lnm );
 	IOObj* newioobj = getSubstIOObj( filenm );
-
-	uiSeis2DSubSel* seissel2d = segyexp_->transffld_->selFld2D();
-	if ( seissel2d && seissel2d->isSingLine() )
-	    seissel2d->setSelectedLine( lnm );
+	if ( dosingleline )
+	    transffld->setSelectedLine( lnm.buf() );
 
 	if ( !doWork(newioobj,idx>lnms.size()-2,nofails) )
 	    return false;
@@ -828,11 +827,8 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj )
 	IOM().commitChanges( *useoutioobj );
 
     BufferString execnm( "Output seismic data" );
-    if ( transffld_->selFld2D() && transffld_->selFld2D()->isSingLine() )
-    {
-	execnm.add( " (" ).add( transffld_->selFld2D()->selectedLine() )
-	      .add( ")" );
-    }
+    if ( transffld_->is2D() && transffld_->isSingleLine() )
+	execnm.add( " (" ).add( transffld_->selectedLine() ).add( ")" );
 
     PtrMan<Executor> exec = transffld_->getTrcProc( inioobj, *useoutioobj,
 			    execnm, tr("Writing traces"),

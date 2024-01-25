@@ -29,6 +29,8 @@ class uiSelSubline;
 class uiSeis2DMultiLineSel;
 class uiSeis2DLineNameSel;
 
+namespace ZDomain { class Info; }
+
 
 mExpClass(uiSeis) uiSeisSubSel : public uiGroup
 { mODTextTranslationClass(uiSeisSubSel);
@@ -38,9 +40,11 @@ public:
     virtual		~uiSeisSubSel();
 
     bool		isAll() const;
+    virtual bool	is2D() const					= 0;
     void		getSampling(TrcKeyZSampling&) const;
     void		getSampling(TrcKeySampling&) const;
     void		getZRange(StepInterval<float>&) const;
+    const ZDomain::Info* zDomain() const;
 
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -76,8 +80,9 @@ public:
 			uiSeis3DSubSel(uiParent*,const Seis::SelSetup&);
 			~uiSeis3DSubSel();
 
-    void		setInput(const IOObj&) override;
+    bool		is2D() const override	{ return false; }
 
+    void		setInput(const IOObj&) override;
 };
 
 
@@ -88,6 +93,8 @@ public:
 			uiSeis2DSubSel(uiParent*,const Seis::SelSetup&);
 			~uiSeis2DSubSel();
 
+    bool		is2D() const override	{ return true; }
+
     void		clear() override;
     bool		fillPar(IOPar&) const override;
     void		usePar(const IOPar&) override;
@@ -95,7 +102,7 @@ public:
     void		setInputLines(const TypeSet<Pos::GeomID>&);
 
     bool		isSingLine() const;
-    const char*		selectedLine() const;
+    BufferString	selectedLine() const;
     void		setSelectedLine(const char*);
 
     void		selectedGeomIDs(TypeSet<Pos::GeomID>&) const;
@@ -111,11 +118,47 @@ public:
 
 protected:
 
-    uiSeis2DMultiLineSel*	multilnmsel_;
-    uiSeis2DLineNameSel*	singlelnmsel_;
+    void		lineChg(CallBacker*);
 
-    bool		multiln_;
+    uiSeis2DMultiLineSel* multilnmsel_	= nullptr;
+    uiSeis2DLineNameSel* singlelnmsel_	= nullptr;
+
     MultiID		inpkey_;
 
-    void		lineChg(CallBacker*);
+};
+
+
+
+mExpClass(uiSeis) uiMultiZSeisSubSel : public uiGroup
+{
+public:
+			uiMultiZSeisSubSel(uiParent*,const Seis::SelSetup&,
+			      const ObjectSet<const ZDomain::Info>* =nullptr);
+			~uiMultiZSeisSubSel();
+
+    bool		setInput(const MultiID&);
+    bool		setInput(const IOObj&);
+    bool		setZDomain(const ZDomain::Info&);
+    bool		setInput(const TrcKeyZSampling&,
+				 const ZDomain::Info* =nullptr);
+    bool		setInputLimit(const TrcKeyZSampling&,
+				      const ZDomain::Info* =nullptr);
+
+    bool		getSampling(TrcKeyZSampling&) const;
+    const ZDomain::Info* zDomain() const;
+
+    const uiSeisSubSel* getSelGrp() const;
+    uiSeisSubSel*	getSelGrp();
+
+    Notifier<uiMultiZSeisSubSel> selChange;
+
+private:
+
+    void		initGrpCB(CallBacker*);
+    void		selCB(CallBacker*);
+
+    const uiSeisSubSel* getSelGrp(const ZDomain::Info*) const;
+    uiSeisSubSel*	getSelGrp(const ZDomain::Info*);
+
+    ObjectSet<uiSeisSubSel> subselflds_;
 };

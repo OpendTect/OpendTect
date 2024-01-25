@@ -24,9 +24,9 @@ class uiComboBox;
 class uiGenInput;
 class uiListBox;
 class uiMapperRangeEditor;
+class uiMultiZSeisSubSel;
 class uiScaler;
 class uiSeisSel;
-class uiSeisSubSel;
 class uiTextEdit;
 namespace Stats { class RandGen; }
 
@@ -45,6 +45,7 @@ protected:
     uiTextEdit*		infofld_;
 
     void		fillList();
+    void		initDlgCB(CallBacker*);
     void		fullUpd(CallBacker*);
     void		selChg(CallBacker*);
     void		cubeLoadPush(CallBacker*);
@@ -72,12 +73,13 @@ public:
     void		getDataChar(DataCharacteristics&) const;
 
 protected:
+
+    void		initDlgCB(CallBacker*);
     void		fillHist(CallBacker*);
     void		seisSel(CallBacker*);
     void		selChangeCB(CallBacker*);
     void		histChangeCB(CallBacker*);
     void		doScaleCB(CallBacker*);
-    void		finalizeDoneCB(CallBacker*);
     void		updateScaleFld();
     void		updateEstUsage();
     bool		acceptOK(CallBacker*) override;
@@ -86,7 +88,7 @@ protected:
     Stats::RandGen&		gen_;
 
     uiSeisSel*			seissel_;
-    uiSeisSubSel*		subselfld_;
+    uiMultiZSeisSubSel*		subselfld_;
     uiGenInput*			formatdiskfld_;
     uiGenInput*			sizediskfld_;
     uiGenInput*			typefld_;
@@ -119,6 +121,7 @@ public:
 
 protected:
 
+    void			initGrpCB(CallBacker*);
     void			selCB(CallBacker*);
     void			selPushCB(CallBacker*);
     void			preloadCB(CallBacker*);

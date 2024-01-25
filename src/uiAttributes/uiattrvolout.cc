@@ -204,10 +204,10 @@ void uiAttrVolOut::psSelCB( CallBacker* cb )
 
 void uiAttrVolOut::attrSel( CallBacker* )
 {
-    TrcKeyZSampling cs;
+    TrcKeyZSampling tkzs;
     const bool is2d = todofld_->is2D();
-    if ( todofld_->getRanges(cs) )
-	transffld_->selfld->setInput( cs );
+    if ( todofld_->getRanges(tkzs) )
+	transffld_->setInput( tkzs );
 
     Attrib::Desc* desc = ads_->getDesc( todofld_->attribID() );
     if ( !desc )
@@ -296,14 +296,15 @@ bool uiAttrVolOut::prepareProcessing()
 		return false;
 	    }
 
-	    SeisIOObjInfo info( outioobj );
+	    const SeisIOObjInfo info( outioobj );
 	    BufferStringSet lnms;
 	    info.getLineNames( lnms );
-	    const bool singline = transffld_->selFld2D()->isSingLine();
-	    const char* lnm =
-		singline ? transffld_->selFld2D()->selectedLine() : 0;
+	    const bool singline = transffld_->isSingleLine();
+	    BufferString lnm;
+	    if ( singline )
+		lnm = transffld_->selectedLine();
 	    if ( (!singline && lnms.size()) ||
-		 (singline && lnms.isPresent(lnm)) )
+		 (singline && lnms.isPresent(lnm.buf())) )
 	    {
 		const bool rv = uiMSG().askGoOn(
 		    tr("Output attribute already exists."),
@@ -384,10 +385,10 @@ bool uiAttrVolOut::prepareProcessing()
 	}
     }
 
-    uiSeisIOObjInfo ioobjinfo( *outioobj, true );
-    SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
+    const uiSeisIOObjInfo ioobjinfo( *outioobj, true );
+    const SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
     subselpar_.setEmpty();
-    transffld_->selfld->fillPar( subselpar_ );
+    transffld_->fillSelPar( subselpar_ );
     subselpar_.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
     return ioobjinfo.checkSpaceLeft(spi);
 }

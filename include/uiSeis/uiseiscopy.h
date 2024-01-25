@@ -9,15 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
+
 #include "uidialog.h"
 
 class IOObj;
-class uiSeisSel;
-class uiScaler;
-class uiSeis2DMultiLineSel;
-class uiLabeledComboBox;
-class uiSeisTransfer;
 class uiBatchJobDispatcherSel;
+class uiLabeledComboBox;
+class uiMultiZSeisSubSel;
+class uiScaler;
+class uiSeisSel;
+class uiSeisTransfer;
 
 
 /*!\brief UI for copying cubes */
@@ -39,7 +40,8 @@ protected:
 
     bool		ismc_;
 
-    void		inpSel(CallBacker*);
+    void		initDlgCB(CallBacker*);
+    void		inpSelCB(CallBacker*);
     void		compSel(CallBacker*);
 
     bool		acceptOK(CallBacker*) override;
@@ -53,17 +55,18 @@ mExpClass(uiSeis) uiSeisCopy2DDataSet : public uiDialog
 { mODTextTranslationClass(uiSeisCopy2DDataSet)
 public:
 			uiSeisCopy2DDataSet(uiParent*,const IOObj*,
-					    const char* fixedouttransl=0);
+					    const char* fixedouttransl=nullptr);
 			~uiSeisCopy2DDataSet();
 protected:
 
     uiSeisSel*		inpfld_;
-    uiSeis2DMultiLineSel* subselfld_;
+    uiMultiZSeisSubSel* subselfld_;
     uiScaler*		scalefld_;
     uiSeisSel*		outpfld_;
     uiBatchJobDispatcherSel* batchfld_;
 
-    void		inpSel(CallBacker*);
+    void		initDlgCB(CallBacker*);
+    void		inpSelCB(CallBacker*);
     bool		acceptOK(CallBacker*) override;
 
 };

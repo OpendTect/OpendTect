@@ -146,15 +146,31 @@ const ZDomain::Info* ZDomain::get( const IOPar& iop )
 }
 
 
+const ZDomain::Info* ZDomain::Info::getFrom( const char* zdomkey,
+					     const char* zunitstr )
+{
+    if ( !zdomkey || !*zdomkey )
+	return &::SI().zDomainInfo();
+
+    IOPar iop;
+    iop.set( sKey(), zdomkey );
+    if ( zunitstr && *zunitstr )
+	iop.set( sKeyUnit(), zunitstr );
+
+    const Info* ret = getFrom( iop );
+    return ret ? ret : &::SI().zDomainInfo();
+}
+
+
 const ZDomain::Info* ZDomain::Info::getFrom( const IOPar& iop )
 {
     const BufferString keystr( iop.find(sKey() ) );
     if ( keystr.isEmpty() )
 	return nullptr;
 
-    const ObjectSet<const Info>& zinfos = ZDOMAINS();
+    const ObjectSet<const Info>& zinfos = sAll();
     for ( const auto* zinfo : zinfos )
-	if ( keystr == zinfo->def_.key() )
+	if ( zinfo->isCompatibleWith(iop) )
 	    return zinfo;
 
     return nullptr;
@@ -245,13 +261,20 @@ void ZDomain::Def::set( IOPar& iop ) const
 
 
 uiString ZDomain::Def::getLabel() const
-{ return uiStrings::phrJoinStrings( userName(), uiUnitStr(true) ); }
+{
+    const uiString usrnm = userName();
+    const uiString unitstr = uiUnitStr( true );
+    if ( unitstr.isEmpty() )
+	return usrnm;
+    else
+	return uiStrings::phrJoinStrings( usrnm, unitstr );
+}
 
 
 uiString ZDomain::Def::getRange() const
 {
     return uiStrings::phrJoinStrings( userName(),
-				uiStrings::sRange().toLower() );
+				      uiStrings::sRange().toLower() );
 }
 
 
@@ -262,9 +285,14 @@ const char* ZDomain::Def::unitStr( bool withparens ) const
 	ret = getDistUnitString( ::SI().depthsInFeet(), withparens );
     else
     {
-	ret.set( defunit_ );
-	if ( withparens )
-	    ret.embed('(',')');
+	if ( defunit_.isEmpty() )
+	    ret.setEmpty();
+	else
+	{
+	    ret.set( defunit_ );
+	    if ( withparens )
+		ret.embed('(',')');
+	}
     }
 
     return ret.buf();
@@ -280,6 +308,9 @@ uiString ZDomain::Def::uiUnitStr( bool withparens ) const
 	return uiStrings::sDistUnitString( ::SI().depthsInFeet(), abbreviated,
 					   withparens );
     }
+
+    if ( defunit_.isEmpty() )
+	return uiString::empty();
 
     ret = ::toUiString( defunit_ );
     if ( withparens )
@@ -380,6 +411,19 @@ const ZDomain::Info& ZDomain::DepthFeet()
 }
 
 
+const ObjectSet<const ZDomain::Info>& ZDomain::sAll()
+{
+    static ObjectSet<const ZDomain::Info> zinfos;
+    if ( zinfos.isEmpty() )
+    {
+	zinfos.append( INFOS() );
+	zinfos.append( ZDOMAINS() );
+    }
+
+    return zinfos;
+}
+
+
 ZDomain::Info::Info( const Def& def, const char* unitstr )
     : def_(def)
     , pars_(*new IOPar)
@@ -471,6 +515,32 @@ uiString ZDomain::Info::uiUnitStr( bool wp ) const
 	return uiStrings::sDistUnitString( true, abbrevated, wp );
 
     return def_.uiUnitStr( wp );
+}
+
+
+uiString ZDomain::Info::getLabel() const
+{
+    const uiString usrnm = userName();
+    const uiString unitstr = uiUnitStr(true);
+    if ( unitstr.isEmpty() )
+	return usrnm;
+    else
+	return uiStrings::phrJoinStrings( usrnm, unitstr );
+}
+
+
+uiString ZDomain::Info::getRange( bool withunit ) const
+{
+    uiString ret = def_.getRange();
+    if ( withunit )
+    {
+	const uiString unitstr = uiUnitStr(true);
+	if ( !unitstr.isEmpty() )
+	    ret.appendPhrase( uiUnitStr(true), uiString::Space,
+			      uiString::OnSameLine );
+    }
+
+    return ret;
 }
 
 
@@ -613,21 +683,24 @@ Interval<float> ZDomain::Info::getReasonableZRange( bool foruser ) const
     Interval<float> validrg;
     if ( isDepthFeet() )
     {
-	validrg.start = -50000;
-	validrg.stop = 50000;
+	validrg.start = -50000.f;
+	validrg.stop = 50000.f;
     }
     else if ( isDepthMeter() )
     {
-	validrg.start = -15000;
-	validrg.stop = 15000;
+	validrg.start = -15000.f;
+	validrg.stop = 15000.f;
     }
     else if ( isTime() )
     {
-	validrg.start = -10; // s
-	validrg.stop = 30;
+	validrg.start = -10.f; // s
+	validrg.stop = 30.f;
     }
     else
+    {
+	//TODO support plugin-based defs
 	validrg.setUdf();
+    }
 
     if ( foruser )
 	validrg.scale( userFactor() );

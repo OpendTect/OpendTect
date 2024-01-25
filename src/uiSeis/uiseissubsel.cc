@@ -26,12 +26,14 @@ ________________________________________________________________________
 #include "uiseislinesel.h"
 
 
-uiSeisSubSel* uiSeisSubSel::get( uiParent* p, const Seis::SelSetup& s )
+// uiSeisSubSel
+
+uiSeisSubSel* uiSeisSubSel::get( uiParent* p, const Seis::SelSetup& ss )
 {
-    if ( s.is2d_ )
-       return new uiSeis2DSubSel( p, s );
+    if ( ss.is2d_ )
+       return new uiSeis2DSubSel( p, ss );
     else
-       return new uiSeis3DSubSel( p, s );
+       return new uiSeis3DSubSel( p, ss );
 }
 
 
@@ -41,15 +43,15 @@ uiSeisSubSel::uiSeisSubSel( uiParent* p, const Seis::SelSetup& ss )
 {
     uiPosSubSel::Setup pss( ss.is2d_, !ss.withoutz_ );
     pss.withstep(ss.withstep_)
-	.choicetype(ss.onlyrange_ ? uiPosSubSel::Setup::OnlyRanges
-				  : uiPosSubSel::Setup::OnlySeisTypes)
-	.zdomkey(ss.zdomkey_);
+       .choicetype(ss.onlyrange_ ? uiPosSubSel::Setup::OnlyRanges
+				 : uiPosSubSel::Setup::OnlySeisTypes)
+       .zdomkey( ss.zdomkey_ ).zunitstr( ss.zunitstr_ );
 
     selfld_ = new uiPosSubSel( this, pss );
-    selfld_->selChange.notify( mCB(this,uiSeisSubSel,selChangeCB) );
+    mAttachCB( selfld_->selChange, uiSeisSubSel::selChangeCB );
     setHAlignObj( selfld_ );
 
-    mAttachCB( IOM().afterSurveyChange, uiSeisSubSel::afterSurveyChangedCB);
+    mAttachCB( IOM().afterSurveyChange, uiSeisSubSel::afterSurveyChangedCB );
 }
 
 
@@ -68,7 +70,7 @@ void uiSeisSubSel::afterSurveyChangedCB( CallBacker* )
     if ( IOM().isBad() )
 	return;
 
-    selfld_->setInputLimit( SI().sampling( true ) );
+    selfld_->setInputLimit( SI().sampling(true) );
 }
 
 
@@ -96,6 +98,12 @@ void uiSeisSubSel::getZRange( StepInterval<float>& zrg ) const
 }
 
 
+const ZDomain::Info* uiSeisSubSel::zDomain() const
+{
+    return selfld_->zDomain();
+}
+
+
 bool uiSeisSubSel::fillPar( IOPar& iop ) const
 {
     selfld_->fillPar(iop); return true;
@@ -116,30 +124,34 @@ void uiSeisSubSel::clear()
 
 void uiSeisSubSel::setInput( const MultiID& id )
 {
-    IOObj* ioobj = IOM().get( id );
+    if ( id.isUdf() )
+	return;
+
+    PtrMan<IOObj> ioobj = IOM().get( id );
     if ( ioobj )
 	setInput( *ioobj );
-    delete ioobj;
 }
 
 
-void uiSeisSubSel::setInput( const TrcKeySampling& hs )
+void uiSeisSubSel::setInput( const TrcKeySampling& tks )
 {
-    TrcKeyZSampling cs = selfld_->envelope(); cs.hsamp_ = hs;
-    selfld_->setInput( cs );
+    TrcKeyZSampling tkzs = selfld_->envelope();
+    tkzs.hsamp_ = tks;
+    selfld_->setInput( tkzs );
 }
 
 
 void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
 {
-    TrcKeyZSampling cs = selfld_->envelope(); cs.zsamp_ = zrg;
-    selfld_->setInput( cs );
+    TrcKeyZSampling tkzs = selfld_->envelope();
+    tkzs.zsamp_ = zrg;
+    selfld_->setInput( tkzs );
 }
 
 
-void uiSeisSubSel::setInput( const TrcKeyZSampling& cs )
+void uiSeisSubSel::setInput( const TrcKeyZSampling& tkzs )
 {
-    selfld_->setInput( cs );
+    selfld_->setInput( tkzs );
 }
 
 
@@ -171,6 +183,7 @@ uiCompoundParSel* uiSeisSubSel::compoundParSel()
 
 
 // uiSeis3DSubSel
+
 uiSeis3DSubSel::uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
     : uiSeisSubSel(p,ss)
 {}
@@ -182,41 +195,47 @@ uiSeis3DSubSel::~uiSeis3DSubSel()
 
 void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 {
-    uiSeisIOObjInfo oinf(ioobj,false); TrcKeyZSampling cs;
-    if ( !oinf.getRanges(cs) )
-	clear();
-    else
+    const SeisIOObjInfo oinf( ioobj );
+    if ( !oinf.isOK() )
     {
-	selfld_->setInput( cs );
-	if ( &oinf.zDomainDef() != &ZDomain::SI() )
-	{
-	    TrcKeyZSampling limcs( selfld_->inputLimit() );
-	    limcs.zsamp_.start = -1e9; limcs.zsamp_.stop = 1e9;
-	    limcs.zsamp_.step = 0.001;
-	    selfld_->setInputLimit( limcs );
-	}
+	clear();
+	return;
     }
+
+    TrcKeyZSampling tkzs;
+    if ( !oinf.getRanges(tkzs) )
+    {
+	clear();
+	return;
+    }
+
+    if ( !oinf.zDomain().isCompatibleWith(SI().zDomainInfo()) )
+	selfld_->setInputLimit( tkzs );
+
+    selfld_->setInput( tkzs );
 }
 
 
+
+// uiSeis2DSubSel
+
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
-	: uiSeisSubSel(p,ss)
-	, multilnmsel_(nullptr)
-	, singlelnmsel_(nullptr)
-	, multiln_(ss.multiline_)
+    : uiSeisSubSel(p,ss)
 {
-    if ( multiln_ )
+    if ( ss.multiline_ )
     {
-	multilnmsel_ = new uiSeis2DMultiLineSel(this, uiStrings::sEmptyString(),
-						!ss.withoutz_, ss.withstep_ );
+	uiSeis2DMultiLineSel::Setup su( ss.seltxt_, true, false,
+					!ss.withoutz_, ss.withstep_ );
+	su.zdomkey( ss.zdomkey_ ).zunitstr( ss.zunitstr_ );
+	multilnmsel_ = new uiSeis2DMultiLineSel( this, su );
 	setHAlignObj( multilnmsel_ );
-	multilnmsel_->selectionChanged.notify(mCB(this,uiSeis2DSubSel,lineChg));
+	mAttachCB( multilnmsel_->selectionChanged, uiSeis2DSubSel::lineChg );
     }
     else
     {
 	singlelnmsel_ = new uiSeis2DLineNameSel( this, !ss.fornewentry_ );
 	setHAlignObj( singlelnmsel_ );
-	singlelnmsel_->nameChanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
+	mAttachCB( singlelnmsel_->nameChanged, uiSeis2DSubSel::lineChg );
     }
 
     if ( multilnmsel_ )
@@ -229,13 +248,13 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 
 uiSeis2DSubSel::~uiSeis2DSubSel()
 {
+    detachAllNotifiers();
 }
 
 
 void uiSeis2DSubSel::clear()
 {
     uiSeisSubSel::clear();
-
     if ( multilnmsel_ )
 	multilnmsel_->clearSelection();
 }
@@ -308,7 +327,7 @@ bool uiSeis2DSubSel::isSingLine() const
 }
 
 
-const char* uiSeis2DSubSel::selectedLine() const
+BufferString uiSeis2DSubSel::selectedLine() const
 {
     return multilnmsel_ ? multilnmsel_->lineName() : singlelnmsel_->getInput();
 }
@@ -438,4 +457,207 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
     }
 
     selChange.trigger();
+}
+
+
+
+// uiMultiZSeisSubSel
+
+uiMultiZSeisSubSel::uiMultiZSeisSubSel( uiParent* p, const Seis::SelSetup& ss,
+			    const ObjectSet<const ZDomain::Info>* zinfos_in )
+    : uiGroup(p)
+    , selChange(this)
+{
+    ObjectSet<const ZDomain::Info> zinfos;
+    if ( zinfos_in )
+	zinfos = *zinfos_in;
+    else
+	zinfos = ZDomain::sAll();
+
+    const ZDomain::Info& siinfo = SI().zDomainInfo();
+    if ( zinfos.isEmpty() )
+    {
+	pErrMsg("Should not happen");
+	zinfos.add( &siinfo );
+    }
+
+    if ( zinfos.isPresent(&siinfo) )
+    { //Put SI first, only to speed up the searches (most frequent case)
+	zinfos -= &siinfo;
+	zinfos.insertAt( &siinfo, 0 );
+    }
+
+    for ( const auto* zinfo : zinfos )
+    {
+	if ( !zinfo )
+	    continue;
+
+	Seis::SelSetup seisss( ss );
+	seisss.zdomkey( zinfo->key() ).zunitstr( zinfo->unitStr() );
+	auto* subselfld = uiSeisSubSel::get( this, seisss );
+	mAttachCB( subselfld->selChange, uiMultiZSeisSubSel::selCB );
+	subselflds_.add( subselfld );
+    }
+
+    if ( subselflds_.isEmpty() )
+	return;
+
+    setHAlignObj( subselflds_.first()->attachObj() );
+    mAttachCB( postFinalize(), uiMultiZSeisSubSel::initGrpCB );
+}
+
+
+uiMultiZSeisSubSel::~uiMultiZSeisSubSel()
+{
+    detachAllNotifiers();
+}
+
+
+void uiMultiZSeisSubSel::initGrpCB( CallBacker* )
+{
+    if ( !setZDomain(SI().zDomainInfo()) && !subselflds_.isEmpty() )
+    {
+	for ( auto* subselfld : subselflds_ )
+	    subselfld->display( false );
+
+	subselflds_.first()->display( true );
+    }
+}
+
+
+void uiMultiZSeisSubSel::selCB( CallBacker* )
+{
+    selChange.trigger( getSelGrp() );
+}
+
+
+bool uiMultiZSeisSubSel::setInput( const MultiID& id )
+{
+    if ( id.isUdf() )
+	return false;
+
+    PtrMan<IOObj> ioobj = IOM().get( id );
+    return ioobj ? setInput( *ioobj ) : false;
+}
+
+
+bool uiMultiZSeisSubSel::setInput( const IOObj& ioobj )
+{
+    const SeisIOObjInfo info( ioobj );
+    if ( !info.isOK() )
+	return false;
+
+    if ( !setZDomain(info.zDomain()) )
+	return false;
+
+    uiSeisSubSel* subselfld = getSelGrp();
+    if ( !subselfld )
+	return false;
+
+    NotifyStopper ns( subselfld->selChange );
+    subselfld->setInput( ioobj );
+    selChange.trigger();
+    return true;
+}
+
+
+bool uiMultiZSeisSubSel::setZDomain( const ZDomain::Info& zinfo )
+{
+    bool isfound = false;
+    for ( auto* subselfld : subselflds_ )
+    {
+	const ZDomain::Info* zinf = subselfld->zDomain();
+	if ( zinf && *zinf == zinfo )
+	{
+	    subselfld->display( true );
+	    isfound = true;
+	}
+	else
+	    subselfld->display( false );
+    }
+
+    return isfound;
+}
+
+
+bool uiMultiZSeisSubSel::setInput( const TrcKeyZSampling& tkzs,
+				   const ZDomain::Info* zinfo )
+{
+    uiSeisSubSel* subselfld = getSelGrp( zinfo );
+    if ( !subselfld )
+	return false;
+
+    subselfld->setInput( tkzs );
+    return true;
+}
+
+
+bool uiMultiZSeisSubSel::setInputLimit( const TrcKeyZSampling& tkzs,
+					const ZDomain::Info* zinfo )
+{
+    uiSeisSubSel* subselfld = getSelGrp( zinfo );
+    if ( !subselfld )
+	return false;
+
+    subselfld->setInputLimit( tkzs );
+    return true;
+}
+
+
+bool uiMultiZSeisSubSel::getSampling( TrcKeyZSampling& tkzs ) const
+{
+    const uiSeisSubSel* subselfld = getSelGrp();
+    if ( !subselfld )
+	return false;
+
+    subselfld->getSampling( tkzs );
+    return true;
+}
+
+
+const ZDomain::Info* uiMultiZSeisSubSel::zDomain() const
+{
+    const uiSeisSubSel* subselfld = getSelGrp();
+    return subselfld ? subselfld->zDomain() : nullptr;
+}
+
+
+const uiSeisSubSel* uiMultiZSeisSubSel::getSelGrp() const
+{
+    return mSelf().getSelGrp();
+}
+
+
+uiSeisSubSel* uiMultiZSeisSubSel::getSelGrp()
+{
+    for ( auto* subselfld : subselflds_ )
+    {
+	if ( subselfld->isDisplayed() )
+	    return subselfld;
+    }
+
+    return nullptr;
+}
+
+
+const uiSeisSubSel* uiMultiZSeisSubSel::getSelGrp(
+					const ZDomain::Info* zinfo ) const
+{
+    return mSelf().getSelGrp( zinfo );
+}
+
+
+uiSeisSubSel* uiMultiZSeisSubSel::getSelGrp( const ZDomain::Info* zinfo )
+{
+    if ( zinfo )
+    {
+	for ( auto* subselfld : subselflds_ )
+	{
+	    const ZDomain::Info* zinf = subselfld->zDomain();
+	    if ( zinf && *zinf == *zinfo )
+		return subselfld;
+	}
+    }
+
+    return getSelGrp();
 }

@@ -272,8 +272,7 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 	return false;
 
     const bool is2d = Seis::is2D( setup_.geom_ );
-    BufferString lnm = is2d && transffld_->selFld2D() ?
-		       transffld_->selFld2D()->selectedLine() : nullptr;
+    const BufferString lnm = transffld_->selectedLine();
     if ( is2d && lnm.isEmpty() )
     {
 	uiMSG().error( tr("Linename is empty. Please enter a line name") );

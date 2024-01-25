@@ -1248,9 +1248,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	    ZSampling zrg = cs.zsamp_;
 	    const int nrdec = zinfo.def_.nrZDecimals( zrg.step );
 	    zrg.scale( zinfo.userFactor() );
-	    const uiString unitstr = zinfo.uiUnitStr();
-	    uiString keystr = zinfo.def_.getRange();
-	    inf.addKeyValue( keystr.withUnit( unitstr ),
+	    inf.addKeyValue( zinfo.getRange(),
 		    toUiString("%1 - %2 [%3]")
 		    .arg( toString(zrg.start,nrdec) )
 		    .arg( toString(zrg.stop,nrdec) )

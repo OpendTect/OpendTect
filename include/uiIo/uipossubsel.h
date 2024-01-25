@@ -9,10 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
 #include "uigroup.h"
-namespace Pos { class Provider; }
+
 class TrcKeyZSampling;
 class uiPosProvSel;
+namespace Pos { class Provider; }
+namespace ZDomain { class Info; }
 
 
 /*!\brief Group to capture a user's position subselection wishes.
@@ -22,7 +25,7 @@ class uiPosProvSel;
   like Seis::Selection.
 
   Users can always choose to not subselect at all.
- 
+
  */
 
 
@@ -30,24 +33,22 @@ mExpClass(uiIo) uiPosSubSel : public uiGroup
 {
 public:
 
-    struct Setup
+    mExpClass(uiIo) Setup
     {
+    public:
 	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon,
-	    		  VolumeTypes };
-			Setup( bool is_2d, bool with_z )
-			    : seltxt_( is_2d	? "Trace subselection"
-				   : ( with_z	? "Volume subselection"
-						: "Area subselection"))
-			    , is2d_(is_2d)
-			    , withz_(with_z)
-			    , withstep_(true)
-			    , choicetype_(OnlyRanges)	{}
+			  VolumeTypes };
+
+			Setup(bool is_2d,bool with_z);
+			~Setup();
+
 	mDefSetupMemb(BufferString,seltxt)
 	mDefSetupMemb(bool,is2d)
 	mDefSetupMemb(bool,withz)
-	mDefSetupMemb(bool,withstep)
+	mDefSetupMemb(bool,withstep)		// true
+	mDefSetupMemb(ChoiceType,choicetype)	// OnlyRanges
 	mDefSetupMemb(BufferString,zdomkey)
-	mDefSetupMemb(ChoiceType,choicetype)
+	mDefSetupMemb(BufferString,zunitstr)
     };
 
 			uiPosSubSel(uiParent*,const Setup&);
@@ -59,8 +60,9 @@ public:
     Pos::Provider*	curProvider();
     const Pos::Provider* curProvider() const;
 
-    const TrcKeyZSampling&	envelope() const;
-    const TrcKeyZSampling&	inputLimit() const;
+    const ZDomain::Info* zDomain() const;
+    const TrcKeyZSampling& envelope() const;
+    const TrcKeyZSampling& inputLimit() const;
     void		setInput(const TrcKeyZSampling&,bool chgtype=true);
     void		setInput(const TrcKeyZSampling& initcs,
 				 const TrcKeyZSampling& ioparcs);
@@ -69,14 +71,15 @@ public:
     bool		isAll() const;
     void		setToAll();
 
+    const uiPosProvSel* provSel() const		{ return ps_; }
+    uiPosProvSel*	provSel()		{ return ps_; }
 
     Notifier<uiPosSubSel> selChange;
-    uiPosProvSel*	provSel()		{ return ps_; }
 
 protected:
 
-    uiPosProvSel*	ps_;
-
     void		selChg(CallBacker*);
+
+    uiPosProvSel*	ps_;
 
 };

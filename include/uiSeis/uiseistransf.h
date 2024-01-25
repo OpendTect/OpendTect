@@ -16,12 +16,13 @@ ________________________________________________________________________
 #include "seisselection.h"
 
 class IOObj;
-class Scaler;
 class Executor;
-class uiScaler;
-class uiGenInput;
-class uiSeisSubSel;
+class Scaler;
 class SeisResampler;
+class uiGenInput;
+class uiMultiZSeisSubSel;
+class uiScaler;
+class uiSeisSubSel;
 class uiSeis2DSubSel;
 class uiSeis3DSubSel;
 namespace Seis		{ class SelData; }
@@ -34,19 +35,13 @@ public:
     mExpClass(uiSeis) Setup : public Seis::SelSetup
     {
     public:
-			Setup( Seis::GeomType gt )
-			    : Seis::SelSetup(gt)
-			    , withnullfill_(false)	{}
-				    //!< 'add null traces' (3D)
-			Setup( const Seis::SelSetup& sss )
-			    : Seis::SelSetup(sss)
-			    , withnullfill_(false)	{}
-			Setup( bool _is2d, bool _isps )
-			    : Seis::SelSetup(_is2d,_isps)
-			    , withnullfill_(false)	{}
-			~Setup()			{}
+			Setup(Seis::GeomType);
+			Setup(bool is2d,bool isps);
+			Setup(const Seis::SelSetup&);
+			~Setup();
 
-	mDefSetupMemb(bool,withnullfill)
+	mDefSetupMemb(bool,withnullfill)	// false
+	mDefSetupMemb(bool,withmultiz)		// false
     };
 
 			uiSeisTransfer(uiParent*,const Setup&);
@@ -59,14 +54,6 @@ public:
 				   const uiString& work_txt,
 				   int compnr=-1) const;
 
-    uiSeisSubSel*	selfld;
-    uiScaler*		scalefld_;
-    uiGenInput*		remnullfld;
-    uiGenInput*		trcgrowfld_ = nullptr;
-
-    uiSeis2DSubSel*	selFld2D(); //!< null when not 2D
-    uiSeis3DSubSel*	selFld3D(); //!< null when not 3D
-
     void		setOutputHeader(const char*);
 			//!< Only for the write translators which supports it
     void		setCoordSystem(const Coords::CoordSystem&,bool inp);
@@ -74,22 +61,53 @@ public:
 
     void		setSteering(bool);
     void		setInput(const IOObj&);
+    void		setInput(const TrcKeyZSampling&);
+    void		setSelectedLine(const char* lnm);
+    void		setSelFldSensitive(bool yn);
+
+    bool		is2D() const;
+    bool		isSingleLine() const;
+    BufferString	selectedLine() const;
     Seis::SelData*	getSelData() const;
     SeisResampler*	getResampler() const; //!< may return null
-
     Scaler*		getScaler() const;
     bool		removeNull() const;
     bool		extendTrcsToSI() const;
     bool		fillNull() const;
     int			nullTrcPolicy() const
 			{ return removeNull() ? 0 : (fillNull() ? 2 : 1); }
+    od_int64		expectedNrTraces() const;
+    SeisIOObjInfo::SpaceInfo spaceInfo(int bps=4) const;
+    const ZDomain::Info* zDomain() const;
 
     void		fillPar(IOPar&) const;
+    void		fillSelPar(IOPar&) const;
+
+    Notifier<uiSeisTransfer> selChange;
+
     static const char*	sKeyNullTrcPol()	{ return "Null trace policy"; }
 
-    SeisIOObjInfo::SpaceInfo spaceInfo(int bps=4) const;
-
 protected:
+
+    const uiSeisSubSel* selFld() const;
+    const uiSeis2DSubSel* selFld2D() const;
+    const uiSeis3DSubSel* selFld3D() const;
+    uiSeisSubSel*	selFld();
+    uiSeis2DSubSel*	selFld2D();
+    uiSeis3DSubSel*	selFld3D();
+
+private:
+
+    void		initGrpCB(CallBacker*);
+    void		selChangeCB(CallBacker*);
+    void		updSteerCB(CallBacker*);
+    Pos::GeomID		curGeomID() const;
+
+    uiSeisSubSel*	selfld_ = nullptr;
+    uiMultiZSeisSubSel* multizselfld_ = nullptr;
+    uiScaler*		scalefld_;
+    uiGenInput*		remnullfld;
+    uiGenInput*		trcgrowfld_ = nullptr;
 
     Setup		setup_;
     bool		issteer_ = false;
@@ -97,11 +115,8 @@ protected:
     ConstRefMan<Coords::CoordSystem> inpcrs_;
     ConstRefMan<Coords::CoordSystem> outpcrs_;
 
-    void		updSteer(CallBacker*);
-    Pos::GeomID		curGeomID() const;
-
 public:
-    void		showSubselFld(bool showselfld);
+    void		showSubselFld(bool yn);
 
     mDeprecated("Use SeisTrcTranslator::setGeomID on 'to'")
     Executor*		getTrcProc(const IOObj& from,const IOObj& to,

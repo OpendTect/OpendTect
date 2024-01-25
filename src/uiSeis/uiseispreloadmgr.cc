@@ -60,15 +60,14 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 			mODHelpKey(mSeisPreLoadMgrHelpID) ))
 {
     setCtrlStyle( CloseOnly );
-    uiGroup* topgrp = new uiGroup( this, "Top group" );
+    auto* topgrp = new uiGroup( this, "Top group" );
     listfld_ = new uiListBox( topgrp, "Loaded entries", OD::ChooseAtLeastOne );
-    listfld_->selectionChanged.notify( mCB(this,uiSeisPreLoadMgr,selChg) );
+    mAttachCB( listfld_->selectionChanged, uiSeisPreLoadMgr::selChg );
     topgrp->setHAlignObj( listfld_ );
 
     const bool has2d = SI().has2D();
     const bool has3d = SI().has3D();
-    uiButtonGroup* bgrp = new uiButtonGroup( listfld_, "Manip buttons",
-					     OD::Vertical );
+    auto* bgrp = new uiButtonGroup( listfld_, "Manip buttons", OD::Vertical );
     bgrp->attach( rightOf, listfld_->box() );
 
 #define mAddBut(s,fn,ic) { \
@@ -80,6 +79,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     {
 	mAddBut(tr("Load Cube"), cubeLoadPush, "seismiccube" )
     }
+
     if ( has2d )
     {
 	if ( has3d )
@@ -87,29 +87,37 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 	else
 	    mAddBut( tr("Load DataSet"), linesLoadPush, "seismicline2d" )
     }
+
     mAddBut( tr("Unload"), unloadPush, "unload" );
 
-    uiToolButton* savetb = new uiToolButton( listfld_, "save",
-	    tr("Save pre-loads"), mCB(this,uiSeisPreLoadMgr,savePush) );
+    auto* savetb = new uiToolButton( listfld_, "save", tr("Save pre-loads"),
+				     mCB(this,uiSeisPreLoadMgr,savePush) );
     savetb->attach( rightAlignedAbove, listfld_->box() );
-    uiToolButton* opentb = new uiToolButton( listfld_, "open",
-	    tr("Retrieve pre-loads"), mCB(this,uiSeisPreLoadMgr,openPush) );
+    auto* opentb = new uiToolButton( listfld_, "open", tr("Retrieve pre-loads"),
+				     mCB(this,uiSeisPreLoadMgr,openPush) );
     opentb->attach( leftOf, savetb );
 
-    uiGroup* infogrp = new uiGroup( this, "Info Group" );
+    auto* infogrp = new uiGroup( this, "Info Group" );
     infofld_ = new uiTextEdit( infogrp, "Info" );
     infofld_->setPrefHeightInChar( 8 );
 
-    uiSplitter* spl = new uiSplitter( this, "Splitter", false );
+    auto* spl = new uiSplitter( this, "Splitter", false );
     spl->addGroup( topgrp );
     spl->addGroup( infogrp );
 
-    postFinalize().notify( mCB(this,uiSeisPreLoadMgr,fullUpd) );
+    mAttachCB( postFinalize(), uiSeisPreLoadMgr::initDlgCB );
 }
 
 
 uiSeisPreLoadMgr::~uiSeisPreLoadMgr()
-{}
+{
+}
+
+
+void uiSeisPreLoadMgr::initDlgCB( CallBacker* )
+{
+    fullUpd( nullptr );
+}
 
 
 void uiSeisPreLoadMgr::fullUpd( CallBacker* )
@@ -142,7 +150,7 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     }
 
     const MultiID mid = entries[selidx]->mid_;
-    SeisIOObjInfo ioinf( mid );
+    const SeisIOObjInfo ioinf( mid );
     if ( !ioinf.isOK() )
 	{ infofld_->setText(tr("Internal error: IOObj not OK")); return; }
 
@@ -164,7 +172,8 @@ if ( !ioobj->implExists( true ) ) \
 void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 {
     uiSeisPreLoadSel dlg( this, Vol, MultiID::udf() );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     const IOObj* ioobj = dlg.getIOObj();
     mCheckIOObjExistance( ioobj );
@@ -191,14 +200,15 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 	    uiMSG().error( emsg );
     }
 
-    fullUpd(0);
+    fullUpd( nullptr );
 }
 
 
 void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 {
     uiSeisPreLoadSel dlg( this, Line, MultiID::udf() );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     const IOObj* ioobj = dlg.getIOObj();
     mCheckIOObjExistance( ioobj );
@@ -252,7 +262,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     PreLoader spl( key, Pos::GeomID::udf(), &taskrunner );
     spl.load( tkzss, loadgeomids, dc.userType(), dlg.getScaler() );
 
-    fullUpd( 0 );
+    fullUpd( nullptr );
 }
 
 
@@ -262,16 +272,18 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
     ctio->ctxt_.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     uiIOObjSelDlg dlg( this, *ctio, tr("Select data store/part to load") );
     dlg.setCaption( tr("Select data store") );
-    uiSelNrRange* inlrgfld = new uiSelNrRange( dlg.selGrp()->getTopGroup(),
-					uiSelNrRange::Inl, false );
+    auto* inlrgfld = new uiSelNrRange( dlg.selGrp()->getTopGroup(),
+				       uiSelNrRange::Inl, false );
     inlrgfld->attach( centeredBelow, dlg.selGrp()->getListField() );
-    if ( !dlg.go() || !dlg.ioObj() ) return;
+    if ( dlg.go() != uiDialog::Accepted || !dlg.ioObj() )
+	return;
 
     mCheckIOObjExistance( dlg.ioObj() );
 
     PreLoader spl( dlg.ioObj()->key() );
     Interval<int> inlrg; assign(inlrg,inlrgfld->getRange());
-    uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
+    uiTaskRunner taskrunner( this );
+    spl.setTaskRunner( taskrunner );
     if ( !spl.loadPS3D(&inlrg) )
     {
 	const uiString emsg = spl.errMsg();
@@ -279,7 +291,7 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 	    uiMSG().error( emsg );
     }
 
-    fullUpd( 0 );
+    fullUpd( nullptr );
 }
 
 
@@ -295,17 +307,22 @@ uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
 			 uiListBox::AboveMid );
     lnmsfld_ = new uiListBox( selGrp(), su );
     lnmsfld_->attach( rightOf, selGrp()->getTopGroup() );
-    selGrp()->selectionChanged.notify(
-				mCB(this,uiSeisPreLoadMgrPS2DSel,dsSel) );
+    mAttachCB( selGrp()->selectionChanged, uiSeisPreLoadMgrPS2DSel::dsSel );
+}
+
+~uiSeisPreLoadMgrPS2DSel()
+{
+    detachAllNotifiers();
 }
 
 void dsSel( CallBacker* )
 {
     lnmsfld_->setEmpty();
-    if ( !ioObj() ) return;
+    if ( !ioObj() )
+	return;
 
-    SeisIOObjInfo sii( *ioObj() );
     lnms_.erase();
+    const SeisIOObjInfo sii( *ioObj() );
     sii.getLineNames( lnms_ );
     lnmsfld_->addItems( lnms_ );
     lnmsfld_->chooseAll();
@@ -318,6 +335,7 @@ bool acceptOK( CallBacker* ) override
 	uiMSG().error( tr("Please select a 2D Prestack Data Store") );
 	return false;
     }
+
     lnms_.erase();
     lnmsfld_->getChosen( lnms_ );
     if ( lnms_.isEmpty() )
@@ -341,12 +359,14 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS2D);
     ctio->ctxt_.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     uiSeisPreLoadMgrPS2DSel dlg( this, *ctio );
-    if ( !dlg.go() || !dlg.ioObj() ) return;
+    if ( dlg.go() != uiDialog::Accepted || !dlg.ioObj() )
+	return;
 
     mCheckIOObjExistance( dlg.ioObj() );
 
     PreLoader spl( dlg.ioObj()->key() );
-    uiTaskRunner taskrunner( this ); spl.setTaskRunner( taskrunner );
+    uiTaskRunner taskrunner( this );
+    spl.setTaskRunner( taskrunner );
     if ( !spl.loadPS2D(dlg.lnms_) )
     {
 	const uiString emsg = spl.errMsg();
@@ -354,7 +374,7 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
 	    uiMSG().error( emsg );
     }
 
-    fullUpd( 0 );
+    fullUpd( nullptr );
 }
 
 
@@ -367,7 +387,7 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
 
     uiString msg = tr("Unload selected items?\n(This will not delete "
 		      "the data from disk)");
-    if ( !uiMSG().askGoOn( msg ) )
+    if ( !uiMSG().askGoOn(msg) )
 	return;
 
     for ( int idx=selitms.size()-1; idx>=0; idx-- )
@@ -378,7 +398,7 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
     }
 
     fillList();
-    selChg( 0 );
+    selChg( nullptr );
 }
 
 
@@ -390,7 +410,8 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
     ctio.ctxt_.forread_ = true;
     ctio.fillDefault();
     uiIOObjSelDlg dlg( this, ctio, tr("Open pre-load settings") );
-    if ( !dlg.go() || !dlg.ioObj() ) return;
+    if ( dlg.go() != uiDialog::Accepted || !dlg.ioObj() )
+	return;
 
     const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
     delete ctio.ioobj_;
@@ -405,19 +426,21 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
 
     uiTaskRunner taskrunner( this );
     PreLoader::load( iop, &taskrunner );
-    fullUpd( 0 );
+    fullUpd( nullptr );
 }
 
 
 void uiSeisPreLoadMgr::savePush( CallBacker* )
 {
     const ObjectSet<PreLoadDataEntry>& entries = PLDM().getEntries();
-    if ( entries.isEmpty() ) return;
+    if ( entries.isEmpty() )
+	return;
 
     CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext() );
     ctio.ctxt_.forread_ = false;
     uiIOObjSelDlg dlg( this, ctio, tr("Save pre-load settings") );
-    if ( !dlg.go() || !dlg.ioObj() ) return;
+    if ( dlg.go() != uiDialog::Accepted || !dlg.ioObj() )
+	return;
 
     const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
     delete ctio.ioobj_;
@@ -441,16 +464,18 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 }
 
 
+
 #define mDefaultNrTrcs 1000
 
 // uiSeisPreLoadSel
+
 uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
 				    const MultiID& input )
     : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
 				 mNoDlgTitle,
 				 mODHelpKey(mSeisPreLoad2D3DDataHelpID))
 	      .nrstatusflds(1))
-    , scaler_(new LinScaler(0,1))
+    , scaler_(new LinScaler())
     , gen_(*new Stats::RandGen())
 {
     setCaption( geom==Vol ? tr("Pre-load 3D Data") : tr("Pre-load 2D Data") );
@@ -458,15 +483,17 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     auto* leftgrp = new uiGroup( this, "Left Group" );
     IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
     uiSeisSel::Setup sssu( geom );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer ).enabotherdomain( true );
     seissel_ = new uiSeisSel( leftgrp, ctxt, sssu );
     if ( !input.isUdf() )
 	seissel_->setInput( input );
 
     mAttachCB( seissel_->selectionDone, uiSeisPreLoadSel::seisSel );
 
-    SelSetup selsu( geom ); selsu.multiline(true);
-    subselfld_ = uiSeisSubSel::get( leftgrp, selsu );
+    SelSetup selsu( geom );
+    selsu.multiline( true ).seltxt( uiStrings::phrSelect(
+	    tr("%1 to pre-load").arg(uiStrings::sLine(mPlural).toLower()) ) );
+    subselfld_ = new uiMultiZSeisSubSel( leftgrp, selsu );
     mAttachCB( subselfld_->selChange, uiSeisPreLoadSel::selChangeCB );
     subselfld_->attach( alignedBelow, seissel_ );
 
@@ -515,7 +542,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     mAttachCB( histfld_->rangeChanged, uiSeisPreLoadSel::histChangeCB );
     histfld_->attach( leftAlignedBelow, nrtrcsfld_ );
 
-    mAttachCB( postFinalize(), uiSeisPreLoadSel::finalizeDoneCB );
+    mAttachCB( postFinalize(), uiSeisPreLoadSel::initDlgCB );
 }
 
 
@@ -527,7 +554,7 @@ uiSeisPreLoadSel::~uiSeisPreLoadSel()
 }
 
 
-void uiSeisPreLoadSel::finalizeDoneCB( CallBacker* )
+void uiSeisPreLoadSel::initDlgCB( CallBacker* )
 {
     doScaleCB( nullptr );
     seisSel( nullptr );
@@ -543,17 +570,22 @@ void uiSeisPreLoadSel::doScaleCB( CallBacker* )
 
 
 const IOObj* uiSeisPreLoadSel::getIOObj() const
-{ return seissel_->getIOObj(); }
+{
+    return seissel_->getIOObj();
+}
 
 
 void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs ) const
-{ subselfld_->getSampling( tkzs ); }
+{
+    subselfld_->getSampling( tkzs );
+}
 
 
 void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs,
 				    Pos::GeomID geomid ) const
 {
-    mDynamicCastGet(uiSeis2DSubSel*,ss2d,subselfld_)
+    const uiSeisSubSel* subselfld = subselfld_->getSelGrp();
+    mDynamicCastGet(const uiSeis2DSubSel*,ss2d,subselfld)
     if ( !ss2d )
     {
 	tkzs.setEmpty();
@@ -566,7 +598,8 @@ void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs,
 
 void uiSeisPreLoadSel::selectedGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
-    mDynamicCastGet(uiSeis2DSubSel*,ss2d,subselfld_)
+    const uiSeisSubSel* subselfld = subselfld_->getSelGrp();
+    mDynamicCastGet(const uiSeis2DSubSel*,ss2d,subselfld)
     if ( ss2d )
 	ss2d->selectedGeomIDs( geomids );
 }
@@ -580,9 +613,10 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     const IOObj* ioobj = seissel_->ioobj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
-    SeisIOObjInfo info( ioobj );
+    const SeisIOObjInfo info( ioobj );
     TrcKeyZSampling tkzs;
     if ( info.is2D() )
     {
@@ -627,7 +661,8 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
     SeisTrcReader rdr( *ioobj );
     rdr.prepareWork();
     mDynamicCastGet(SeisTrcTranslator*,trl,rdr.translator())
-    if ( !trl ) return;
+    if ( !trl )
+	return;
 
     for ( int idx=0; idx<nr2add; idx++ )
     {
@@ -660,7 +695,7 @@ void uiSeisPreLoadSel::fillHist( CallBacker* )
 
     histfld_->setColTabSeq( seq );
     histfld_->setColTabMapperSetup( ms );
-    histChangeCB( 0 );
+    histChangeCB( nullptr );
 }
 
 
@@ -674,10 +709,14 @@ void uiSeisPreLoadSel::histChangeCB( CallBacker* )
 void uiSeisPreLoadSel::seisSel( CallBacker* )
 {
     const IOObj* ioobj = seissel_->ioobj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     NotifyStopper ns( subselfld_->selChange );
     const SeisIOObjInfo info( ioobj );
+    if ( !info.isOK() )
+	return;
+
     typefld_->setValue( 0 );
     subselfld_->setInput( *ioobj );
 
@@ -692,7 +731,7 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
     const od_int64 filesz = info.getFileSize();
     sizediskfld_->setText( File::getFileSizeString(filesz) );
 
-    selChangeCB( 0 );
+    selChangeCB( nullptr );
 }
 
 
@@ -719,7 +758,7 @@ void uiSeisPreLoadSel::getDataChar( DataCharacteristics& dc ) const
 
 void uiSeisPreLoadSel::updateScaleFld()
 {
-    SeisIOObjInfo info( seissel_->ioobj() );
+    const SeisIOObjInfo info( seissel_->ioobj() );
     DataCharacteristics dcstor; info.getDataChar( dcstor );
     DataCharacteristics dc; getDataChar( dc );
     const bool doscale = dc.nrBytes()<dcstor.nrBytes() ||
@@ -727,15 +766,16 @@ void uiSeisPreLoadSel::updateScaleFld()
     if ( doscale )
 	torgfld_->setValue( Interval<double>(dc.getLimitValue(false),
 					     dc.getLimitValue(true)) );
+
     doscalefld_->setValue( doscale );
     doscalefld_->setReadOnly( !doscale );
-    doScaleCB( 0 );
+    doScaleCB( nullptr );
 }
 
 
 void uiSeisPreLoadSel::updateEstUsage()
 {
-    SeisIOObjInfo info( seissel_->ioobj() );
+    const SeisIOObjInfo info( seissel_->ioobj() );
     const int nrcomp = info.nrComponents();
 
     BufferString infotxt;
@@ -743,8 +783,9 @@ void uiSeisPreLoadSel::updateEstUsage()
     {
 	DataCharacteristics dc;
 	getDataChar( dc );
-	const od_int64 nrs = subselfld_->expectedNrSamples();
-	const od_int64 nrt = subselfld_->expectedNrTraces();
+	const uiSeisSubSel* subselfld = subselfld_->getSelGrp();
+	const od_int64 nrs = subselfld->expectedNrSamples();
+	const od_int64 nrt = subselfld->expectedNrTraces();
 	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
 	infotxt.set( File::getFileSizeString(nrbytes/1024) );
     }
@@ -758,7 +799,8 @@ void uiSeisPreLoadSel::updateEstUsage()
 bool uiSeisPreLoadSel::acceptOK( CallBacker* )
 {
     mDynamicCastGet(LinScaler*,linscaler,scaler_)
-    linscaler->constant = 0; linscaler->factor = 1;
+    linscaler->constant = 0;
+    linscaler->factor = 1;
     if ( doscalefld_->getBoolValue() )
     {
 	linscaler->set( fromrgfld_->getDValue(0), torgfld_->getDValue(0),
@@ -771,11 +813,11 @@ bool uiSeisPreLoadSel::acceptOK( CallBacker* )
 
 
 // uiSeisPreLoadedDataSel
+
 uiSeisPreLoadedDataSel::uiSeisPreLoadedDataSel( uiParent* p, GeomType geom,
 						const uiString& txt )
     : uiGroup(p,"Pre-loaded Data Selection")
     , geomtype_(geom)
-    , selkey_(MultiID::udf())
     , selectionChanged(this)
 {
     auto* lcb = new uiLabeledComboBox( this, txt );
@@ -793,7 +835,8 @@ uiSeisPreLoadedDataSel::uiSeisPreLoadedDataSel( uiParent* p, GeomType geom,
 
     mAttachCB( PLDM().changed, uiSeisPreLoadedDataSel::updateCB );
     setHAlignObj( lcb );
-    updateCB( nullptr );
+
+    mAttachCB( postFinalize(), uiSeisPreLoadedDataSel::initGrpCB );
 }
 
 
@@ -803,12 +846,17 @@ uiSeisPreLoadedDataSel::~uiSeisPreLoadedDataSel()
 }
 
 
+void uiSeisPreLoadedDataSel::initGrpCB( CallBacker* )
+{
+    updateCB( nullptr );
+}
+
+
 void uiSeisPreLoadedDataSel::setInput( const MultiID& inpkey, int compnr )
 {
     const int selidx = keys_.indexOf( inpkey );
     if ( selidx < 0 )
 	return;
-
 
     ConstRefMan<SeisDataPack> seisdp = PLDM().get<SeisDataPack>(inpkey );
     if ( !seisdp )

@@ -9,14 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
 #include "uigroup.h"
 #include "trckeyzsampling.h"
 
 class uiCheckBox;
 class uiSpinBox;
+class uiLabel;
 class uiLabeledSpinBox;
 class uiLineEdit;
-namespace ZDomain { class Def; }
+namespace ZDomain { class Info; }
 
 /*!\brief Selects sub-Z-range. Default will be SI() work Z Range. */
 
@@ -24,35 +26,42 @@ mExpClass(uiIo) uiSelZRange : public uiGroup
 { mODTextTranslationClass(uiSelZRange)
 public:
 			uiSelZRange(uiParent*,bool wstep,
-				    bool isrel=false,const char* lbltxt=0,
-				    const char* zdomkey=0);
-			uiSelZRange(uiParent* p,StepInterval<float> limitrg,
-				    bool wstep,const char* lbltxt=0,
-				    const char* zdomkey=0);
+				    const char* zdomkey=nullptr,
+				    const char* zunitstr=nullptr);
+    mDeprecatedObs	uiSelZRange(uiParent*,bool wstep,
+				    bool isrel,const char* lbltxt=nullptr,
+				    const char* zdomkey=nullptr,
+				    const char* zunitstr=nullptr);
+    mDeprecatedObs	uiSelZRange(uiParent* p,const ZSampling& limitrg,
+				    bool wstep,const char* lbltxt=nullptr,
+				    const char* zdomkey=nullptr,
+				    const char* zunitstr=nullptr);
 			~uiSelZRange();
 
-    StepInterval<float>	getRange() const;
-    void		setRange(const StepInterval<float>&);
-    void		setRangeLimits(const StepInterval<float>&);
-    void		displayStep( bool yn );
+    void		setLabel(const uiString&);
+    void		setRange(const ZSampling&);
+    void		setRangeLimits(const ZSampling&);
+    void		setIsRelative(bool yn=true);
 
-    Notifier<uiSelZRange>	rangeChanged;
+    ZSampling		getRange() const;
+    const ZDomain::Info& zDomain() const	{ return *zinfo_; }
+    bool		isSIDomain() const;
+    void		displayStep(bool yn);
 
-    const ZDomain::Def&	zDomainDef() const	{ return zddef_; }
+    Notifier<uiSelZRange> rangeChanged;
 
 protected:
 
+    void		makeInpFields(bool withstep);
+    bool		canSnap() const;
+    void		valChg(CallBacker*);
+
+    uiLabel*		lblfld_;
     uiSpinBox*		startfld_;
     uiSpinBox*		stopfld_;
-    uiLabeledSpinBox*	stepfld_;
-    bool		isrel_;
-    const ZDomain::Def&	zddef_; // keep above othdom_.
-    const bool		othdom_; // keep above cansnap_
-    const bool		cansnap_;
-
-    void		valChg(CallBacker*);
-    void		makeInpFields(const uiString&,bool,
-	    			      const StepInterval<float>*);
+    uiLabeledSpinBox*	stepfld_ = nullptr;
+    bool		isrel_ = false;
+    const ZDomain::Info* zinfo_;
 
 };
 
@@ -60,13 +69,16 @@ protected:
 /*!\brief Selects range of trace numbers */
 
 mExpClass(uiIo) uiSelNrRange : public uiGroup
-{
+{ mODTextTranslationClass(uiSelNrRange)
 public:
     enum Type		{ Inl, Crl, Gen };
 
 			uiSelNrRange(uiParent*,Type,bool wstep);
-			uiSelNrRange(uiParent*,StepInterval<int> limit,
-				     bool wstep,const char*);
+			uiSelNrRange(uiParent*,bool wstep,const uiString& lbl,
+				     const StepInterval<int>* limit=nullptr);
+    mDeprecated("Use uiString")
+			uiSelNrRange(uiParent*,const StepInterval<int>& limit,
+				     bool wstep,const char* lbltxt);
 			~uiSelNrRange();
 
     StepInterval<int>	getRange() const;
@@ -89,7 +101,7 @@ protected:
     uiSpinBox*		icstopfld_			= nullptr;
     uiLineEdit*		nrstopfld_			= nullptr;
     uiLabeledSpinBox*	stepfld_			= nullptr;
-    BufferString	lbltxt_;
+    uiString		lbltxt_;
     bool		finalized_			= false;
     bool		withchk_			= false;
     int			defstep_;
@@ -132,9 +144,8 @@ protected:
 mExpClass(uiIo) uiSelHRange : public uiGroup
 { mODTextTranslationClass(uiSelHRange)
 public:
-			uiSelHRange(uiParent*,bool wstep);
-			uiSelHRange(uiParent*,const TrcKeySampling& limiths,
-				    bool wstep);
+			uiSelHRange(uiParent*,bool wstep,
+				    const TrcKeySampling* limiths=nullptr);
 			~uiSelHRange();
 
     TrcKeySampling	getSampling() const;
@@ -153,7 +164,9 @@ public:
 mExpClass(uiIo) uiSelSubvol : public uiGroup
 {
 public:
-			uiSelSubvol(uiParent*,bool wstep,const char* zdomkey=0);
+			uiSelSubvol(uiParent*,bool wstep,
+				    const char* zdomkey=nullptr,
+				    const char* zunitstr=nullptr);
 			~uiSelSubvol();
 
     TrcKeyZSampling	getSampling() const;

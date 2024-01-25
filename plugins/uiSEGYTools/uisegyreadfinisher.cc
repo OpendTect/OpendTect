@@ -122,18 +122,17 @@ void uiSEGYReadFinisher::crSeisFields()
 	lnmfld_->attach( alignedBelow, docopyfld_ );
 	remnullfld_->attach( alignedBelow, lnmfld_ );
 
-	uiSeis2DSubSel& selfld = *transffld_->selFld2D();
-	if ( !ismulti )
+	if ( ismulti )
 	{
-	    selfld.setSelectedLine( objname_.buf() );
-	    lnmfld_->setInput( objname_.buf() );
+	    transffld_->setSelectedLine( "*" );
+	    transffld_->setSelFldSensitive( false );
+	    lnmfld_->setInput( "*" );
+	    lnmfld_->setSensitive( false );
 	}
 	else
 	{
-	    selfld.setSelectedLine( "*" );
-	    selfld.setSensitive( false );
-	    lnmfld_->setInput( "*" );
-	    lnmfld_->setSensitive( false );
+	    transffld_->setSelectedLine( objname_.buf() );
+	    lnmfld_->setInput( objname_.buf() );
 	}
     }
     else
@@ -822,7 +821,7 @@ bool uiSEGYReadFinisher::acceptOK( CallBacker* )
     BufferString lnm;
     if ( is2d )
     {
-	lnm = doimp ? transffld_->selFld2D()->selectedLine()
+	lnm = doimp ? transffld_->selectedLine().buf()
 		    : lnmfld_->getInput();
 	if ( lnm.isEmpty() )
 	    mErrRet( uiStrings::phrEnter(tr("a line name")) )

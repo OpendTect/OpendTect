@@ -299,10 +299,8 @@ static BufferString getInfoText( const IOObj& ioobj )
 
 	    ZSampling zrg = cs.zsamp_;
 	    const int nrdec = zinfo.def_.nrZDecimals( zrg.step );
-	    zrg.scale( zinfo.def_.userFactor() );
-	    const uiString unitstr = zinfo.uiUnitStr( true );
-	    BufferString keystr = toString( zinfo.def_.getRange() );
-	    keystr.addSpace().add( toString(unitstr) );
+	    zrg.scale( zinfo.userFactor() );
+	    const BufferString keystr = toString( zinfo.getRange() );
 	    txt.addNewLine()
 	       .add( keystr.str() )
 	       .add( ": " ).add( zrg.start, nrdec )
