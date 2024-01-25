@@ -137,8 +137,12 @@ bool AngleMuteBase::usePar( const IOPar& par  )
 bool AngleMuteBase::setVelocityFunction()
 {
     const MultiID& mid = params_->velvolmid_;
+    if ( mid.isUdf() )
+	return false;
+
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     velsource_->setFrom( mid );
     return true;
@@ -317,7 +321,7 @@ float AngleMuteBase::getOffsetMuteLayer( const ReflectivityModelBase& refmodel,
 	ret += mutelayer;
     }
 
-    if ( ret.size() != 1 )
+    if ( ret.size() != 1 ) // Multiple mute zones to be applied, or none
 	return mUdf(float);
 
     const Interval<float>& intv = ret.first();
@@ -556,15 +560,29 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	    const float offset = offsets[ioff];
 	    TypeSet< Interval<float> > mutelayeritvs;
-	    const float mutelayer = getOffsetMuteLayer( *refmodel, ioff,
+	    float mutelayer;
+	    if ( mIsZero(offset,1e-2f) )
+	    {
+		mutelayer = mUdf(float);
+		if ( innermute )
+		    allmuted = true;
+		else
+		    nonemuted = true;
+	    }
+	    else
+	    {
+		mutelayer = getOffsetMuteLayer( *refmodel, ioff,
 						innermute, nonemuted,
 						allmuted, mutelayeritvs );
+	    }
+
 	    if ( nonemuted )
 		continue;
 
 	    if ( allmuted )
 	    {
-		trace.setAll( 0.f );
+		for ( int idz=0; idz<nrsamps; idz++ )
+		    trace.set( idz, 0.f );
 		continue;
 	    }
 
