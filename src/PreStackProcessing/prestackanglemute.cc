@@ -370,7 +370,8 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
     ElasticModelSet emodels;
     auto* layers = new ElasticModel();
     emodels.add( layers );
-    bool nonemuted, allmuted;
+    bool nonemuted = false;
+    bool allmuted = false;
     TypeSet<float> offsets;
     offsets.setCapacity( 100, true );
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
