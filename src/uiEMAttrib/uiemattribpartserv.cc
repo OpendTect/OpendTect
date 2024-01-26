@@ -46,16 +46,17 @@ uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
 
 uiEMAttribPartServer::~uiEMAttribPartServer()
 {
-    delete horshiftdlg_;
-    delete aroundhor2ddlg_;
-    delete aroundhor3ddlg_;
-    delete betweenhor2ddlg_;
-    delete betweenhor3ddlg_;
-    delete surfattr2ddlg_;
-    delete surfattr3ddlg_;
-    delete crgriddlg_;
-    delete stratampdlg_;
-    delete flattendlg_;
+    closeAndNullPtr( horshiftdlg_ );
+    closeAndNullPtr( aroundhor2ddlg_ );
+    closeAndNullPtr( aroundhor3ddlg_ );
+    closeAndNullPtr( betweenhor2ddlg_ );
+    closeAndNullPtr( betweenhor3ddlg_ );
+    closeAndNullPtr( surfattr2ddlg_ );
+    closeAndNullPtr( surfattr3ddlg_ );
+    closeAndNullPtr( crgriddlg_ );
+    closeAndNullPtr( stratampdlg_ );
+    closeAndNullPtr( flattendlg_ );
+    closeAndNullPtr( uiimphor2ddlg_ );
 }
 
 

@@ -40,13 +40,13 @@ public:
 protected:
 
     uiFileInput*	inpfld_;
-    uiPushButton*       scanbut_;
+    uiPushButton*	scanbut_;
     uiListBox*		horselfld_;
     uiTableImpDataSel*  dataselfld_;
     uiGenInput*		udftreatfld_;
 
     bool		acceptOK(CallBacker*) override;
-    void                descChg(CallBacker*);
+    void		descChg(CallBacker*);
     void		setSel(CallBacker*);
     void		addHor(CallBacker*);
     void		formatSel(CallBacker*);
