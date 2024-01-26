@@ -220,7 +220,6 @@ private:
     uiIOObjSel*			timeoutputfld_;
     uiIOObjSel*			depthoutputfld_;
     Table::FormatDesc&		fd_;
-    RefMan<EM::Horizon2D>	horizon_;
 
 public:
     Notifier<UserInputGroup>	descChanged;
