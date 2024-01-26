@@ -151,6 +151,12 @@ public:
 	return udftreatfld_->getIntValue();
     }
 
+
+    void setHorizon( EM::Horizon2D* hor )
+    {
+	horizon_ = hor;
+    }
+
 protected:
 
     bool isASCIIFileInTime() const
@@ -204,6 +210,7 @@ protected:
 	scanButtonPushed.trigger();
     }
 
+
 private:
 
     uiFileInput*		    inpfld_;
@@ -215,7 +222,7 @@ private:
     uiIOObjSel*			    depthoutputfld_;
     Table::FormatDesc&		    fd_;
     Horizon2DScanner*		    scanner_;
-
+    RefMan<EM::Horizon2D>	    horizon_;
 public:
     Notifier<userInputGroup>	    descChanged;
     Notifier<userInputGroup>	    scanButtonPushed;
@@ -469,6 +476,7 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
 
 bool uiImportHorizon2D::doImport()
 {
+    emobjids_.setEmpty();
     scanPush( nullptr );
     if ( !scanner_ )
 	return false;
@@ -501,9 +509,9 @@ bool uiImportHorizon2D::doImport()
     }
 
     EM::EMManager& em = EM::EMM();
-    RefMan<EM::EMObject> emobj =
-			    em.createTempObject( EM::Horizon2D::typeStr() );
-    mDynamicCastGet(EM::Horizon2D*,horizon,emobj.ptr())
+    const EM::ObjectID id = em.createObject( EM::Horizon2D::typeStr(),
+							    ioobj->name() );
+    mDynamicCastGet(EM::Horizon2D*,horizon,em.getObject(id));
     if ( !horizon )
     {
 	uiMSG().error(
@@ -530,18 +538,22 @@ bool uiImportHorizon2D::doImport()
 	return false;
     }
 
-    PtrMan<Executor> saver = horizon->saver();
-    if ( saver && saver->execute() )
-    {
-	zinfo.fillPar( ioobj->pars() );
-	ioobj->pars().update( sKey::CrFrom(), inpgrp->getFileName() );
-	ioobj->updateCreationPars();
-	IOM().commitChanges( *ioobj );
-    }
-
     if ( horizon->hasBurstAlert() )
 	horizon->setBurstAlert( false );
 
+    PtrMan<Executor> saver = horizon->saver();
+    if ( !saver || !saver->execute() )
+    {
+	uiMSG().error( tr("2D Horizon not saved. "
+	    "Please check access permission") );
+	return false;
+    }
+
+    zinfo.fillPar( ioobj->pars() );
+    ioobj->pars().update( sKey::CrFrom(), inpgrp->getFileName() );
+    ioobj->updateCreationPars();
+    IOM().commitChanges( *ioobj );
+    inpgrp->setHorizon( horizon );
     emobjids_.add( horizon->id() );
     return true;
 }
