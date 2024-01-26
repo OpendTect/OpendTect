@@ -151,12 +151,6 @@ public:
 	return udftreatfld_->getIntValue();
     }
 
-
-    void setHorizon( EM::Horizon2D* hor )
-    {
-	horizon_ = hor;
-    }
-
 protected:
 
     bool isASCIIFileInTime() const
@@ -222,7 +216,6 @@ private:
     uiIOObjSel*			    depthoutputfld_;
     Table::FormatDesc&		    fd_;
     Horizon2DScanner*		    scanner_;
-    RefMan<EM::Horizon2D>	    horizon_;
 public:
     Notifier<userInputGroup>	    descChanged;
     Notifier<userInputGroup>	    scanButtonPushed;
@@ -360,7 +353,7 @@ void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
 protected:
 
     const BufferStringSet&	linenames_;
-    RefMan<EM::Horizon2D>	hor_;
+    EM::Horizon2D*		hor_;
     const BinIDValueSet*	bvalset_;
     TypeSet<Pos::GeomID>	geomids_;
     const Survey::Geometry2D*	curlinegeom_;
@@ -511,14 +504,15 @@ bool uiImportHorizon2D::doImport()
     EM::EMManager& em = EM::EMM();
     const EM::ObjectID id = em.createObject( EM::Horizon2D::typeStr(),
 							    ioobj->name() );
-    mDynamicCastGet(EM::Horizon2D*,horizon,em.getObject(id));
-    if ( !horizon )
+    mDynamicCastGet(EM::Horizon2D*,horizonptr,em.getObject(id));
+    if ( !horizonptr )
     {
 	uiMSG().error(
 	   tr("Wrong output object detected, Horizon2D object was expected") );
 	return false;
     }
 
+    RefMan<EM::Horizon2D> horizon = horizonptr;
     horizon->setMultiID( ioobj->key() );
     horizon->setName( ioobj->name() );
     BufferStringSet linenms;
@@ -528,6 +522,7 @@ bool uiImportHorizon2D::doImport()
     PtrMan<Horizon2DImporter> exec =
 	new Horizon2DImporter( linenms, *horizon, valset,
 				    (Horizon2DImporter::UndefTreat)udfchoice );
+
     uiTaskRunner impdlg( this );
     if ( !TaskRunner::execute(&impdlg,*exec) )
     {
@@ -553,8 +548,10 @@ bool uiImportHorizon2D::doImport()
     ioobj->pars().update( sKey::CrFrom(), inpgrp->getFileName() );
     ioobj->updateCreationPars();
     IOM().commitChanges( *ioobj );
-    inpgrp->setHorizon( horizon );
     emobjids_.add( horizon->id() );
+    if ( saveButtonChecked() )
+	horizon.setNoDelete( true );
+
     return true;
 }
 
