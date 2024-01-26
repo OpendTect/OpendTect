@@ -174,17 +174,14 @@ bool SVNAccess::remove( const BufferStringSet& fnms )
 
     const bool isok = isOK();
 
-    OS::MachineCommand machcomm( "svn", "delete", "-f" );
+    OS::MachineCommand machcomm( "svn", "delete" );
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
 	const char* fnm = fnms.get(idx).buf();
 	if ( !isok )
 	    File::remove( fnm );
 	else
-	{
-	    const BufferString reqfnm( FilePath(dir_,fnm).fullPath() );
-	    machcomm.addArg( reqfnm );
-	}
+	    machcomm.addArg( fnm );
     }
     if ( !isok )
 	return true;
@@ -209,7 +206,7 @@ bool SVNAccess::commit( const BufferStringSet& fnms, const char* msg )
     const BufferString tmpfnm = getTmpFnm( "svncommit", fnms.get(0) );
     bool havetmpfile = false;
     if ( !msg || !*msg )
-	machcomm.addArg( "-m" ).addArg( "." );
+	machcomm.addArg( "-m" ).addArg( "update" );
     else
     {
 	od_ostream strm( tmpfnm );
