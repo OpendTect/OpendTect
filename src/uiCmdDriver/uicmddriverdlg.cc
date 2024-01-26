@@ -922,6 +922,7 @@ bool uiScriptRunnerDlg::executeNext()
 	return executeNext();
 
     auto* scriptitem = sCast(ScriptItem*,item);
+    scriptlistfld_->ensureItemVisible( scriptitem );
     return scriptitem->execute();
 }
 
