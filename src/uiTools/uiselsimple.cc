@@ -76,10 +76,13 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& sup )
 	listfld_ = new uiListBox( this );
 	for ( int idx=0; idx<sup.items_.size(); idx++ )
 	    listfld_->addItem( mToUiStringTodo(sup.items_.get(idx)) );
+
 	if ( !sup.deflt_.isEmpty() )
 	    listfld_->setCurrentItem( sup.deflt_.buf() );
 	else
 	    listfld_->setCurrentItem( 0 );
+
+	listfld_->resizeToContents();
 	listfld_->selectionChanged.notify( mCB(this,uiGetObjectName,selChg) );
 	listfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
     }
