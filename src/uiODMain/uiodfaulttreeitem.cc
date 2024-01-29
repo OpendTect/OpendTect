@@ -531,17 +531,14 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    if ( scene && scene->getZAxisTransform() )
-    {
-	uiMSG().message( tr("Cannot add FaultStickSets to this scene") );
-	return false;
-    }
+    const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
-    mnu.insertAction( new uiAction(uiStrings::sNew()), mNewMnuID );
-    showMenuNotifier().trigger( &mnu, this );
+    if ( !hastransform )
+	mnu.insertAction( new uiAction(uiStrings::sNew()), mNewMnuID );
 
+    showMenuNotifier().trigger( &mnu, this );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
@@ -558,7 +555,14 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     if ( mnuid==mAddMnuID )
     {
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectFaultStickSets( objs );
+	const ZDomain::Info* zinfo = nullptr;
+	const ZAxisTransform* transform = scene->getZAxisTransform();
+	if ( transform )
+	    zinfo = &transform->toZDomainInfo();
+	else
+	    zinfo = &SI().zDomainInfo();
+
+	applMgr()->EMServer()->selectFaultStickSets( objs, nullptr, zinfo );
 	MouseCursorChanger uics( MouseCursor::Wait );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
@@ -657,11 +661,20 @@ uiODFaultStickSetTreeItem::~uiODFaultStickSetTreeItem()
 
 bool uiODFaultStickSetTreeItem::init()
 {
+    RefMan<ZAxisTransform> transform = nullptr;
     if ( !displayid_.isValid() )
     {
 	visSurvey::FaultStickSetDisplay* fd =
 				    new visSurvey::FaultStickSetDisplay;
 	displayid_ = fd->id();
+	mDynamicCastGet(visSurvey::Scene*,scene,
+	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+	if ( scene )
+	{
+	    transform = scene->getZAxisTransform();
+	    fd->setZAxisTransform( transform, nullptr );
+	}
+
 	faultsticksetdisplay_ = fd;
 	faultsticksetdisplay_->ref();
 
@@ -675,12 +688,14 @@ bool uiODFaultStickSetTreeItem::init()
 	if ( !fd )
 	    return false;
 
+	transform = const_cast<ZAxisTransform*>( fd->getZAxisTransform() );
 	faultsticksetdisplay_ = fd;
 	faultsticksetdisplay_->ref();
 	emid_ = fd->getEMObjectID();
     }
 
-    ODMainWin()->menuMgr().createFaultToolMan();
+    if ( !transform )
+	ODMainWin()->menuMgr().createFaultToolMan();
 
     mAttachCB( faultsticksetdisplay_->materialChange(),
 	       uiODFaultStickSetTreeItem::colorChCB );

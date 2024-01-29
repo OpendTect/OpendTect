@@ -120,6 +120,7 @@ public:
     void			processTime2DepthSeis(CallBacker* =nullptr);
     void			processTime2DepthSeis(bool is2d);
     void			processTime2DepthHor(bool is2d);
+    void			processTime2DepthFSS(bool is2d);
     void			processPreStack(bool is2d);
     void			createMultiCubeDS(CallBacker* =nullptr);
     void			createMultiAttribVol(CallBacker*);

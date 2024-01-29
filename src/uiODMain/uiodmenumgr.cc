@@ -639,13 +639,6 @@ void uiODMenuMgr::fillProcMenu()
     csoitm_ = new uiMenu( tr("Create Seismic Output") );
 
 // Attributes
-    if ( SI().has3D() )
-    {
-	csoitm_->insertAction(
-	    new uiAction(m3Dots(tr("Velocity Conversion")),
-	    mCB(&applMgr(),uiODApplMgr,processVelConv)) );
-    }
-
     auto* attritm = new uiMenu( uiStrings::sAttribute(mPlural) );
     csoitm_->addMenu( attritm );
 
@@ -719,6 +712,13 @@ void uiODMenuMgr::fillProcMenu()
     add2D3DMenuItem( *csoitm_, "empty", tr("Prestack Processing"),
 		     mPSProc2DMnuItm, mPSProc3DMnuItm );
 
+    if ( SI().has3D() )
+    {
+	csoitm_->insertAction(
+	    new uiAction(m3Dots(tr("Velocity Conversion")),
+				mCB(&applMgr(),uiODApplMgr,processVelConv)) );
+    }
+
     add2D3DMenuItem( *csoitm_, "empty", tr("Volume Builder"),
 		     mVolProc2DMnuItm, mVolProc3DMnuItm );
 
@@ -749,6 +749,8 @@ void uiODMenuMgr::fillProcMenu()
 			mCB(&applMgr(),uiODApplMgr,fltsetTimeDepthConvCB)) );
     }
 
+    add2D3DMenuItem( *t2dconvitm, "empty", uiStrings::sFaultStickSet(),
+				    mT2DFSS2DMnuItm, mT2DFSS3DMnuItm );
     add2D3DMenuItem( *t2dconvitm, "empty", uiStrings::sHorizon(),
 				    mT2DHor2DMnuItm, mT2DHor3DMnuItm );
     add2D3DMenuItem( *t2dconvitm, "empty", uiStrings::sSeismic(),
@@ -1590,6 +1592,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;
     case mT2DHor3DMnuItm:	applMgr().processTime2DepthHor(false); break;
     case mT2DHor2DMnuItm:	applMgr().processTime2DepthHor(true); break;
+    case mT2DFSS3DMnuItm:	applMgr().processTime2DepthFSS(false); break;
+    case mT2DFSS2DMnuItm:	applMgr().processTime2DepthFSS(true); break;
     case mCompAlongHor3DMnuItm:	applMgr().createHorOutput(1,false); break;
     case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;

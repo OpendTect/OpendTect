@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "zdomain.h"
 #include "visdrawstyle.h"
 #include "limits.h"
+#include "zaxistransform.h"
 
 namespace visSurvey
 {
@@ -120,6 +121,48 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     activestick_->removeNodeState( activestickdrawstyle_ );
     activestickdrawstyle_->unRef();
     activestick_->unRef();
+}
+
+
+bool FaultStickSetDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
+{
+    if ( zaxistransform_ )
+    {
+	if ( zaxistransform_->changeNotifier() )
+	    zaxistransform_->changeNotifier()->remove(
+		mCB(this,FaultStickSetDisplay,dataTransformCB) );
+	if ( voiid_>0 )
+	{
+	    zaxistransform_->removeVolumeOfInterest( voiid_ );
+	    voiid_ = -1;
+	}
+
+	zaxistransform_->unRef();
+	zaxistransform_ = nullptr;
+    }
+
+    zaxistransform_ = zat;
+    if ( zaxistransform_ )
+    {
+	zaxistransform_->ref();
+	if ( zaxistransform_->changeNotifier() )
+	    zaxistransform_->changeNotifier()->notify(
+		mCB(this,FaultStickSetDisplay,dataTransformCB) );
+    }
+
+    return true;
+}
+
+
+const ZAxisTransform* FaultStickSetDisplay::getZAxisTransform() const
+{
+    return zaxistransform_;
+}
+
+
+void FaultStickSetDisplay::dataTransformCB( CallBacker* )
+{
+    // TODO: implement
 }
 
 
@@ -210,7 +253,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	viseditor_->sower().setIfDragInvertMask();
 	addChild( viseditor_->osgNode() );
 	mAttachCB( viseditor_->draggingStarted,
-		   FaultStickSetDisplay::draggingStartedCB );
+				    FaultStickSetDisplay::draggingStartedCB );
     }
 
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
@@ -225,12 +268,11 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 
     viseditor_->setEditor( fsseditor_ );
     mAttachCB( viseditor_->sower().sowingend,
-	FaultStickSetDisplay::sowingFinishedCB );
+				    FaultStickSetDisplay::sowingFinishedCB );
 
     getMaterial()->setColor( fault_->preferredColor() );
-
-    mSetStickIntersectPointColor( fault_->preferredColor() );
     viseditor_->setMarkerSize( mDefaultMarkerSize );
+    mSetStickIntersectPointColor( fault_->preferredColor() );
     setPreferedMarkerStyle( fault_->getPosAttrMarkerStyle(0) );
 
     updateSticks();
@@ -299,7 +341,8 @@ const MarkerStyle3D* FaultStickSetDisplay::markerStyle() const
 
 void FaultStickSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
+    if ( viseditor_ )
+	viseditor_->setDisplayTransformation( nt );
 
     sticks_->setDisplayTransformation( nt );
     activestick_->setDisplayTransformation( nt );
@@ -746,6 +789,9 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 void FaultStickSetDisplay::draggingStartedCB( CallBacker* )
 {
+    if ( !viseditor_ )
+	return;
+
     fsseditor_->setLastClicked( viseditor_->getActiveDragger() );
     setActiveStick( viseditor_->getActiveDragger() );
 }
@@ -1043,7 +1089,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 
 void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 {
-    if ( !fault_ || !fsseditor_ )
+    if ( !fault_ || !fsseditor_ || !viseditor_ )
 	return;
 
     NotifyStopper ns( fsseditor_->editpositionchange );
@@ -1286,7 +1332,9 @@ void FaultStickSetDisplay::setPreferedMarkerStyle( const MarkerStyle3D& ms )
     MarkerStyle3D myms = ms;
     myms.color_ = OD::Color::Yellow();
 
-    viseditor_->setMarkerStyle( myms );
+    if ( viseditor_ )
+	viseditor_->setMarkerStyle( myms );
+
     setStickMarkerStyle( myms );
 
     if ( fault_ )

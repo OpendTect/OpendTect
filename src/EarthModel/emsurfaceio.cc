@@ -746,7 +746,7 @@ int dgbSurfaceReader::nextStep()
     if ( error_ || (!surface_ && !cube_) )
     {
 	if ( !surface_ && !cube_ )
-	    msg_ = toUiString("Internal: No Output Set");
+	    msg_ = ::toUiString("Internal: No Output Set");
 
 	return ErrorOccurred();
     }
@@ -2097,7 +2097,7 @@ bool dgbSurfaceWriter::writeDouble( od_ostream& strm, double val,
     if ( binary_ )
 	strm.addBin( val );
     else
-	strm << toString(val) << post;
+	strm << ::toString(val) << post;
 
     return strm.isOK();
 }

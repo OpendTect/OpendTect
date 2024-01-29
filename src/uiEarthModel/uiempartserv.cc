@@ -129,6 +129,10 @@ void uiEMPartServer::cleanup()
     closeAndNullPtr( impbulk2dhordlg_ );
     closeAndNullPtr( t2d3dhordlg_ );
     closeAndNullPtr( t2d2dhordlg_ );
+    closeAndNullPtr( t2dfltdlg_ );
+    closeAndNullPtr( t2dfltsetdlg_ );
+    closeAndNullPtr( t2d2dfssdlg_ );
+    closeAndNullPtr( t2d3dfssdlg_ );
     deepErase( variodlgs_ );
 }
 
@@ -175,6 +179,11 @@ void uiEMPartServer::processTime2Depth( uiParent* p,
 	dlg = getTime2DepthEMDlg( p, objtype, t2dfltdlg_ );
     else if ( objtype == EM::EMObjectType::FltSet )
 	dlg = getTime2DepthEMDlg( p, objtype, t2dfltsetdlg_ );
+    else if ( objtype == EM::EMObjectType::FltSS2D )
+	uiMSG().error( tr("Workflow not implemented") );
+    else if ( objtype == EM::EMObjectType::FltSS3D )
+	dlg = getTime2DepthEMDlg( p, objtype, t2d3dfssdlg_ );
+
 
     if ( dlg )
 	dlg->show();

@@ -379,6 +379,13 @@ void uiODApplMgr::processTime2DepthHor( bool is2d )
 }
 
 
+void uiODApplMgr::processTime2DepthFSS( bool is2d )
+{
+    emserv_->processTime2Depth( &appl_, is2d ? EM::EMObjectType::FltSS2D
+	: EM::EMObjectType::FltSS3D );
+}
+
+
 void uiODApplMgr::fltTimeDepthConvCB( CallBacker* )
 {
     emserv_->processTime2Depth( &appl_, EM::EMObjectType::Flt3D );

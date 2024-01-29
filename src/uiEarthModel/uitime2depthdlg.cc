@@ -50,6 +50,10 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, EMObjectType objtype )
 	ioobjctxt = mIOObjContext(EMFault3D);
     else if ( objtype == EMObjectType::FltSet )
 	ioobjctxt = mIOObjContext(EMFaultSet3D);
+    else if ( objtype == EMObjectType::FltSS2D )
+	ioobjctxt = mIOObjContext(EMFaultStickSet);
+    else if ( objtype == EMObjectType::FltSS3D )
+	ioobjctxt = mIOObjContext(EMFaultStickSet);
     else
 	return;
 
@@ -116,7 +120,8 @@ uiTime2DepthDlg::~uiTime2DepthDlg ()
 
 bool uiTime2DepthDlg::is2DObject() const
 {
-    return objtype_ == EMObjectType::Hor2D;
+    return objtype_ == EMObjectType::Hor2D ||
+	   objtype_ == EMObjectType::FltSS2D;
 }
 
 
@@ -124,7 +129,8 @@ uiRetVal uiTime2DepthDlg::canTransform( EMObjectType objtype )
 {
     uiRetVal ret;
     if ( objtype == EMObjectType::Hor3D || objtype == EMObjectType::Hor2D ||
-	objtype == EMObjectType::Flt3D || objtype == EMObjectType::FltSet )
+	objtype == EMObjectType::Flt3D || objtype == EMObjectType::FltSet ||
+	objtype == EMObjectType::FltSS2D || objtype == EMObjectType::FltSS3D )
 	return ret;
     else
 	ret.add( tr("Object type is not yet supported") );
@@ -143,6 +149,10 @@ uiString uiTime2DepthDlg::getDlgTitle( EMObjectType objtyp ) const
 	return tr("Transform Fault");
     else if ( objtyp == EMObjectType::FltSet )
 	return tr("Tranform FaultSet");
+    else if ( objtyp == EMObjectType::FltSS2D )
+	return tr("Tranform FaultStickSet 2D");
+    else if ( objtyp == EMObjectType::FltSS3D )
+	return tr("Tranform FaultStickSet 3D");
 
     return tr("Object Type Not Supported");
 }
@@ -300,7 +310,9 @@ bool uiTime2DepthDlg::fillPar( IOPar& par ) const
 bool uiTime2DepthDlg::hasSurfaceIOData() const
 {
     return objtype_ == EMObjectType::Hor3D || objtype_ == EMObjectType::Hor2D
-	    || objtype_ == EMObjectType::Flt3D;
+	    || objtype_ == EMObjectType::Flt3D
+	    || objtype_ == EMObjectType::FltSS2D
+	    || objtype_ == EMObjectType::FltSS3D;
 }
 
 
@@ -340,14 +352,18 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 							    *zatf, objtype_ );
     mDynamicCastGet(SurfaceT2DTransformer*,surftrans,exec.ptr());
     if ( !surftrans )
+    {
+	deepErase( datas );
 	return false;
+    }
 
     uiTaskRunner tskr( this );
-    if ( !TaskRunner::execute(&tskr,*surftrans) )
+    const bool errocc = TaskRunner::execute( &tskr, *surftrans );
+    if ( !errocc || surftrans->errMsg().isError() )
     {
-	uiMSG().errorWithDetails( tr("Fail to transform the %1").
-				arg(inpioobj->name()), surftrans->uiMessage() );
 	deepErase( datas );
+	uiMSG().errorWithDetails( surftrans->errMsg().messages(),
+		    tr("Fail to transform the %1").arg(inpioobj->name()) );
 	return false;
     }
 
@@ -357,7 +373,10 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     {
 	PtrMan<Executor> saver = surf->saver();
 	if ( !saver || !TaskRunner::execute(&tskr,*saver) )
-	    mErrRet( tr("Can not save output horizon data.") );
+	{
+	    deepErase( datas );
+	    mErrRet( tr("Can not save tranformed data.") );
+	}
 
 	const MultiID outmid = surf->multiID();
 	PtrMan<IOObj> obj = IOM().get( outmid );
@@ -367,6 +386,11 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 	ret = uiMSG().askGoOn( tr("Successfully transformed %1.\n"
 			    "Do you want to tranform another object?").
 			    arg(inpioobj->name()) );
+    }
+    else
+    {
+	ret = false;
+	uiMSG().error( tr("Cannot save tranformed data.") );
     }
 
     deepErase( datas );

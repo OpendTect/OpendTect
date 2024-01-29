@@ -10,13 +10,13 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "emfault.h"
+#include "emmanager.h"
 
 namespace Geometry { class FaultStickSet; }
 namespace Pos { class Filter; }
 
 namespace EM
 {
-class EMManager;
 
 /*!
 \brief FaultStickSet geometry.
@@ -55,6 +55,9 @@ public:
     const MultiID*	pickedMultiID(int sticknr) const override;
     const char*		pickedName(int sticknr) const override;
     Pos::GeomID		pickedGeomID(int sticknr)const;
+
+    EMObjectType	FSSObjType() const;
+
 
     Geometry::FaultStickSet* geometryElement() override;
     const Geometry::FaultStickSet* geometryElement() const override;

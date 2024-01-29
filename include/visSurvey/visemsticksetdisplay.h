@@ -55,6 +55,7 @@ public:
     virtual void		hideAllKnots(bool);
     bool			isAlreadyTransformed() const;
 
+
 protected:
     Geometry::FaultStickSet*	faultStickSetGeometry();
     void			stickSelectionCB(CallBacker*,

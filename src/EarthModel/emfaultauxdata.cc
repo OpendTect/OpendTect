@@ -302,7 +302,7 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
 
     IOPar allpars;
     for ( int pidx=0; pidx<pars.size(); pidx++ )
-	allpars.mergeComp( *pars[pidx], toString(pidx) );
+	allpars.mergeComp( *pars[pidx], ::toString(pidx) );
     allpars.putTo( astream );
 
     deepErase( pars );
