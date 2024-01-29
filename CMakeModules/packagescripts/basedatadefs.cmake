@@ -11,7 +11,7 @@
 
 set( SPECFILES GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
 
-set( DATALIST Attribs BasicSurvey CRS icons.Default Scripts Strat )
+set( DATALIST Attribs BasicSurvey CRS icons.Default Strat )
 list( APPEND DATALIST BatchPrograms ColTabs EnvVars FileFormats Mnemonics
 	ModDeps.od MouseControls odSettings omf qtdefaultstate.ini Properties
 	RockPhysics ShortCuts UnitsOfMeasure welldispSettings )
