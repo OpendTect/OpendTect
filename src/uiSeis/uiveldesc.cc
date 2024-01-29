@@ -822,7 +822,6 @@ void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
     if ( !rangefld_ )
 	return;
 
-    getSelection();
     const ZDomain::Info& twtdef = ZDomain::TWT();
     const ZDomain::Info& ddef = SI().depthsInFeet() ? ZDomain::DepthFeet()
 						    : ZDomain::DepthMeter();
