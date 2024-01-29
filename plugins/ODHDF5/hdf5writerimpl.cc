@@ -327,6 +327,19 @@ bool HDF5::WriterImpl::rmObj( const DataSetKey& dsky )
 }
 
 
+void HDF5::WriterImpl::renObj( const H5::H5Location& h5loc, const char* from,
+			       const char* to, uiRetVal& uirv )
+{
+    const H5std_string oldpath( from );
+    const H5std_string newpath( to );
+    try
+    {
+	h5loc.move( oldpath, newpath );
+    }
+    mCatchErrDuringWrite()
+}
+
+
 void HDF5::WriterImpl::rmAttrib( const char* nm, H5::H5Object& h5obj )
 {
     if ( !h5obj.attrExists(nm) )
@@ -372,6 +385,21 @@ void HDF5::WriterImpl::setAttribute( const char* ky, const char* val,
     if ( !h5scope )
 	return;
     setAttribute( ky, val, *h5scope );
+}
+
+
+void HDF5::WriterImpl::stComment( const H5::H5Location& h5loc, const char* name,
+				  const char* comment, uiRetVal& uirv )
+{
+    const BufferString nm( "/", name );
+    try
+    {
+	if ( !comment || !*comment )
+	    h5loc.removeComment( nm.buf() );
+	else
+	    h5loc.setComment( nm.buf(), comment );
+    }
+    mCatchErrDuringWrite()
 }
 
 

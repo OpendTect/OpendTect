@@ -12,7 +12,8 @@ ________________________________________________________________________
 #include "arrayndinfo.h"
 #include "factory.h"
 
-namespace H5 { class DataSet; class Group; class H5File; class H5Object; }
+namespace H5 { class DataSet; class Group; class H5File; class H5Location;
+	       class H5Object; }
 
 #define mDefHDF5FileExt "h5"
 
@@ -206,6 +207,8 @@ protected:
     virtual void	closeFile()					= 0;
     virtual void	openFile(const char*,uiRetVal&,bool ed)		= 0;
 
+    virtual H5::H5Location*	setLocation(const DataSetKey*)		= 0;
+    virtual H5::H5Location*	getLocation(const DataSetKey*) const	= 0;
     virtual H5::H5Object*	setScope(const DataSetKey*)		= 0;
     virtual H5::H5Object*	getScope(const DataSetKey*) const	= 0;
     virtual H5::Group*		setGrpScope(const DataSetKey*)		= 0;

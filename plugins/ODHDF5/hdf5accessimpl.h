@@ -46,6 +46,8 @@ protected:
 
     H5::Group*		selectGroup(const char*) const;
     H5::DataSet*	selectDataSet(const char*) const;
+    H5::H5Location*	stLocation(const DataSetKey*) const;
+    H5::H5Location*	stLocation(const DataSetKey*);
     H5::H5Object*	stScope(const DataSetKey*) const;
     H5::H5Object*	stScope(const DataSetKey*);
     H5::Group*		stGrpScope(const DataSetKey*) const;

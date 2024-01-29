@@ -488,6 +488,35 @@ uiRetVal HDF5::Reader::getValues( const DataSetKey& dsky,
 }
 
 
+uiRetVal HDF5::Reader::getComment( const DataSetKey& dsky,
+				   BufferString& txt ) const
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    const H5::H5Location* h5loc = getLocation( &dsky );
+    if ( !h5loc )
+	mRetNoScopeInUiRv()
+
+    gtComment( *h5loc, dsky.fullDataSetName().buf(), txt, uirv );
+    return uirv;
+}
+
+
+uiRetVal HDF5::Reader::getVersion( const DataSetKey& dsky,
+				   unsigned& ver ) const
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    const H5::H5Object* h5scope = getScope( &dsky );
+    if ( !h5scope )
+	mRetNoScopeInUiRv()
+
+    ver = gtVersion( *h5scope, uirv );
+    return uirv;
+}
+
 
 uiRetVal HDF5::Writer::open4Edit( const char* fnm )
 {
@@ -681,7 +710,7 @@ uiRetVal HDF5::Writer::put( const DataSetKey& dsky, const BufferStringSet& bss )
 
 bool HDF5::Writer::deleteObject( const DataSetKey& dsky )
 {
-    return file_ ? rmObj( dsky ) : true;
+    return file_ ? rmObj( dsky ) : false;
 }
 
 
@@ -694,6 +723,48 @@ bool HDF5::Writer::deleteObject( const DataSetKey& dsky )
 	uirv = sCantSetScope( DataSetKey() ); \
     return uirv; \
 }
+
+uiRetVal HDF5::Writer::renameObject( const DataSetKey& oldky,
+				     const DataSetKey& newky )
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+
+    if ( oldky.dataSetEmpty() && !newky.dataSetEmpty() )
+	return tr("Cannot rename a group into a dataset");
+
+    if ( !oldky.dataSetEmpty() && newky.dataSetEmpty() )
+	return tr("Cannot rename a dataset into a group");
+
+    const BufferString groupnm = oldky.groupName();
+    const bool hasgrp = hasGroup( groupnm );
+    if ( !hasgrp )
+	return tr("The group to be renamed does not exist");
+
+    if ( !oldky.dataSetEmpty() && !hasDataSet(oldky) )
+	return tr("The dataset to be renamed does not exist");
+
+    const BufferString from = oldky.fullDataSetName();
+    const BufferString to = newky.fullDataSetName();
+    const DataSetKey* dsky = nullptr;
+    const H5::H5Location* h5loc = getLocation( dsky );
+    if ( !h5loc )
+	mRetNoScopeInUiRv()
+
+    renObj( *h5loc, from.buf(), to.buf(), uirv );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    if ( !hasGroup(newky.groupName()) )
+	return tr("Failed to rename the HDF5 group");
+
+    if ( !newky.dataSetEmpty() && !hasDataSet(newky) )
+	return tr("Failed to rename the HDF5 dataset");
+
+    return uirv;
+}
+
 
 uiRetVal HDF5::Reader::getAttributeNames( BufferStringSet& nms,
 			const DataSetKey* dsky ) const
@@ -720,6 +791,22 @@ uiRetVal HDF5::Reader::get( IOPar& iop, const DataSetKey* dsky ) const
 	mRetNoScopeInUiRv()
 
     gtInfo( *h5scope, iop, uirv );
+    return uirv;
+}
+
+
+uiRetVal HDF5::Writer::setComment( const DataSetKey& dsky_, const char* txt )
+{
+    const DataSetKey* dsky = &dsky_;
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+    const H5::H5Location* h5loc = setLocation( dsky );
+    if ( !h5loc )
+	mRetNoScopeInUiRv()
+
+    stComment( *h5loc, dsky->fullDataSetName().buf(), txt, uirv );
+
     return uirv;
 }
 

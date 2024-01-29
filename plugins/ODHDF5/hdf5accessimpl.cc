@@ -185,6 +185,20 @@ H5::DataSet* HDF5::AccessImpl::selectDataSet( const char* dsnm ) const
 }
 
 
+H5::H5Location* HDF5::AccessImpl::stLocation( const DataSetKey* dsky ) const
+{
+    H5::H5Object* h5obj = stScope( dsky );
+    return h5obj;
+}
+
+
+H5::H5Location* HDF5::AccessImpl::stLocation( const DataSetKey* dsky )
+{
+    H5::H5Object* h5obj = stScope( dsky );
+    return h5obj;
+}
+
+
 H5::H5Object* HDF5::AccessImpl::stScope( const DataSetKey* dsky )
 {
     H5::Group* ret = stGrpScope( dsky );

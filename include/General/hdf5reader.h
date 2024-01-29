@@ -59,6 +59,7 @@ public:
 				  void*) const;
 				//!< Get a set of distinct points' values
 
+    uiRetVal		getComment(const DataSetKey&,BufferString&) const;
 			// null = root scope
     virtual bool	hasAttribute(const char*,
 				     const DataSetKey* =nullptr) const	= 0;
@@ -84,6 +85,8 @@ public:
 					  OD::JSON::ValueSet&,
 					  const DataSetKey* =nullptr) const = 0;
 
+    uiRetVal		getVersion(const DataSetKey&,unsigned&) const;
+
     bool		isReader() const override		{ return true; }
 
 protected:
@@ -106,11 +109,14 @@ private:
     virtual void	gtValues(const H5::DataSet&,const NDPosBufSet&,void*,
 				 uiRetVal&) const			= 0;
 
+    virtual void	gtComment(const H5::H5Location&,const char* name,
+				  BufferString&,uiRetVal&) const = 0;
     virtual void	gtAttribNames(const H5::H5Object&,
 				BufferStringSet&) const = 0;
 
     virtual void	gtInfo(const H5::H5Object&,IOPar&,
 				uiRetVal&) const			= 0;
+    virtual unsigned	gtVersion(const H5::H5Object&,uiRetVal&) const	= 0;
 
 };
 
