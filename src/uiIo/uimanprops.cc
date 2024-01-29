@@ -434,6 +434,8 @@ void uiBuildPROPS::editReq( bool isadd )
     {
 	if ( isadd )
 	    delete pr;
+
+	return;
     }
 
     if ( isadd )
