@@ -1232,7 +1232,9 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 	    zrg.scale( zinfo.userFactor() );
 	    const uiString unitstr = zinfo.uiUnitStr_();
 	    uiString keystr = zinfo.def_.getRange();
-	    inf.addKeyValue( keystr.withUnit( unitstr ),
+	    if ( !unitstr.isEmpty() )
+		keystr.withUnit( unitstr );
+	    inf.addKeyValue( unitstr,
 		    toUiString("%1 - %2 [%3]")
 		    .arg( toString(zrg.start,nrdec) )
 		    .arg( toString(zrg.stop,nrdec) )

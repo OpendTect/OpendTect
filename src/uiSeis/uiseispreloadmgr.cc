@@ -463,7 +463,7 @@ uiSeisPreLoadSel::uiSeisPreLoadSel( uiParent* p, GeomType geom,
     auto* leftgrp = new uiGroup( this, "Left Group" );
     IOObjContext ctxt = uiSeisSel::ioContext( geom, true );
     uiSeisSel::Setup sssu( geom );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer ).enabotherdomain( true );
     seissel_ = new uiSeisSel( leftgrp, ctxt, sssu );
     if ( !input.isUdf() )
 	seissel_->setInput( input );
@@ -552,7 +552,19 @@ const IOObj* uiSeisPreLoadSel::getIOObj() const
 
 
 void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs ) const
-{ subselfld_->getSampling( tkzs ); }
+{
+    if ( subselfld_->isDisplayed() )
+    {
+	subselfld_->getSampling( tkzs );
+	return;
+    }
+
+    const SeisIOObjInfo info( seissel_->key() );
+    if ( info.is2D() )
+	{ pErrMsg("Should not be reached"); }
+    else if ( !info.isOK() || !info.getRanges(tkzs) )
+	tkzs.setEmpty();
+}
 
 
 void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs,
@@ -565,15 +577,46 @@ void uiSeisPreLoadSel::getSampling( TrcKeyZSampling& tkzs,
 	return;
     }
 
-    ss2d->getSampling( tkzs, geomid );
+
+    if ( subselfld_->isDisplayed() )
+    {
+	ss2d->getSampling( tkzs, geomid );
+	return;
+    }
+
+    StepInterval<int> trcrg;
+    ZSampling zrg;
+    const SeisIOObjInfo info( seissel_->key() );
+    if ( !info.is2D() )
+	{ pErrMsg("Should not be reached"); }
+    else if ( info.isOK() && info.getRanges(geomid,trcrg,zrg) )
+    {
+	tkzs.hsamp_.init( geomid );
+	tkzs.hsamp_.setTrcRange( trcrg );
+	tkzs.zsamp_ = zrg;
+    }
+    else
+	tkzs.setEmpty();
 }
 
 
 void uiSeisPreLoadSel::selectedGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
     mDynamicCastGet(uiSeis2DSubSel*,ss2d,subselfld_)
-    if ( ss2d )
+    if ( !ss2d )
+	return;
+
+    if ( subselfld_->isDisplayed() )
+    {
 	ss2d->selectedGeomIDs( geomids );
+	return;
+    }
+
+    const SeisIOObjInfo info( seissel_->key() );
+    if ( !info.is2D() )
+	{ pErrMsg("Should not be reached"); }
+    else if ( info.isOK() )
+	info.getGeomIDs( geomids );
 }
 
 
@@ -679,12 +722,19 @@ void uiSeisPreLoadSel::histChangeCB( CallBacker* )
 void uiSeisPreLoadSel::seisSel( CallBacker* )
 {
     const IOObj* ioobj = seissel_->ioobj();
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     NotifyStopper ns( subselfld_->selChange );
     const SeisIOObjInfo info( ioobj );
     typefld_->setValue( 0 );
-    subselfld_->setInput( *ioobj );
+    if ( info.zDomain().isCompatibleWith(SI().zDomainInfo()) )
+    {
+	subselfld_->setInput( *ioobj );
+	subselfld_->display( true );
+    }
+    else
+	subselfld_->display( false );
 
     BufferString formatstr;
     DataCharacteristics dc; info.getDataChar( dc );
@@ -740,7 +790,7 @@ void uiSeisPreLoadSel::updateScaleFld()
 
 void uiSeisPreLoadSel::updateEstUsage()
 {
-    SeisIOObjInfo info( seissel_->ioobj() );
+    const SeisIOObjInfo info( seissel_->ioobj() );
     const int nrcomp = info.nrComponents();
 
     BufferString infotxt;
@@ -748,10 +798,20 @@ void uiSeisPreLoadSel::updateEstUsage()
     {
 	DataCharacteristics dc;
 	getDataChar( dc );
-	const od_int64 nrs = subselfld_->expectedNrSamples();
-	const od_int64 nrt = subselfld_->expectedNrTraces();
-	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
-	infotxt.set( File::getFileSizeString(nrbytes/1024) );
+	if ( subselfld_->isDisplayed() )
+	{
+	    const od_int64 nrs = subselfld_->expectedNrSamples();
+	    const od_int64 nrt = subselfld_->expectedNrTraces();
+	    const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
+	    infotxt.set( File::getFileSizeString(nrbytes/1024) );
+	}
+	else
+	{
+	    SeisIOObjInfo::SpaceInfo spi;
+	    info.getDefSpaceInfo( spi );
+	    const od_int64 nrmbytes = info.expectedMBs( spi );
+	    infotxt.set( File::getFileSizeString(nrmbytes*1024) );
+	}
     }
     else
 	infotxt.set( "-" );
