@@ -144,7 +144,7 @@ static bool testReadInfo( HDF5::Reader& rdr )
 {
     BufferStringSet grps;
     rdr.getGroups( grps );
-    mRunStandardTestWithError( grps.size()==6, "Groups in file",
+    mRunStandardTestWithError( grps.size()==8, "Groups in file",
 			       BufferString("nrgrps=",grps.size()) );
 
     BufferStringSet dsnms;
@@ -495,7 +495,7 @@ static bool testWrite()
     uirv = wrr->set( iop, &dsky );
     mAddTestResult( "Write Comp1/Block1 attrib using an IOPar" );
 
-    const auto maindsky = HDF5::DataSetKey( "MainGroup" );
+    const HDF5::DataSetKey maindsky( "MainGroup" );
     wrr->ensureGroup( maindsky.groupName(), uirv );
     mAddTestResult( "Create MainGroup group" );
     dsky = HDF5::DataSetKey::groupKey( maindsky, "GroupA" );
@@ -534,6 +534,23 @@ static bool testWrite()
     wrr->setAttribute( "Attrib 1 to be removed", "", &dsky );
     wrr->setAttribute( "Attrib 2 to be removed", "", &dsky );
     wrr->setAttribute( "Attrib 3 to be removed", "", &dsky );
+
+    const HDF5::DataSetKey logsdsky( "Logs" );
+    wrr->ensureGroup( logsdsky.groupName(), uirv );
+    mAddTestResult( "Create group Logs" );
+
+    dsky = HDF5::DataSetKey::groupKey( logsdsky.groupName(), toString(1) );
+    wrr->ensureGroup( dsky.groupName(), uirv );
+    mAddTestResult( "Create sub-group Logs/1" );
+
+    dsky.setGroupName( dsky.fullDataSetName() ).setDataSetName( "MDs" );
+    dsky.setMaximumSize( 0, 20 );
+    uirv = wrr->createDataSet( dsky, 500, OD::F64 );
+    mAddTestResult( "Create log MD array" );
+
+    dsky.setDataSetName( "TWTs" );
+    uirv = wrr->createDataSet( dsky, 500, OD::F64 );
+    mAddTestResult( "Create log values array" );
 
     return true;
 }
@@ -577,6 +594,22 @@ static bool testEdit()
     dsky.setGroupName( "" ).setDataSetName( "++info++" );
     uirv = wrr->removeAllAttributes( &dsky );
     mAddTestResult( "Removed all attributes of dataset ++info++" );
+
+    const HDF5::DataSetKey logsky( "Logs" );
+    dsky = HDF5::DataSetKey::groupKey( logsky, toString(1) );
+    const BufferString newdsnm( "this is a very long log name with many "
+	"characters in its name (but @ [must] - & _ need # know if $ "
+	"is supp^orted % or * \"this\"" );
+    const HDF5::DataSetKey newlogky =
+			    HDF5::DataSetKey::groupKey( logsky, newdsnm );
+    uirv = wrr->renameObject( dsky, newlogky );
+    mAddTestResult( "Renamed the HDF5 group" );
+
+    dsky.setGroupName( newlogky.fullDataSetName() ).setDataSetName( "TWTs" );
+    HDF5::DataSetKey newdsky = dsky;
+    newdsky.setDataSetName( "Values" );
+    uirv = wrr->renameObject( dsky, newdsky );
+    mAddTestResult( "Renamed the HDF5 dataset" );
 
     return true;
 }

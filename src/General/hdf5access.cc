@@ -681,7 +681,7 @@ uiRetVal HDF5::Writer::put( const DataSetKey& dsky, const BufferStringSet& bss )
 
 bool HDF5::Writer::deleteObject( const DataSetKey& dsky )
 {
-    return file_ ? rmObj( dsky ) : true;
+    return file_ ? rmObj( dsky ) : false;
 }
 
 
@@ -694,6 +694,48 @@ bool HDF5::Writer::deleteObject( const DataSetKey& dsky )
 	uirv = sCantSetScope( DataSetKey() ); \
     return uirv; \
 }
+
+uiRetVal HDF5::Writer::renameObject( const DataSetKey& oldky,
+				     const DataSetKey& newky )
+{
+    uiRetVal uirv;
+    if ( !file_ )
+	mRetNoFileInUiRv()
+
+    if ( oldky.dataSetEmpty() && !newky.dataSetEmpty() )
+	return tr("Cannot rename a group into a dataset");
+
+    if ( !oldky.dataSetEmpty() && newky.dataSetEmpty() )
+	return tr("Cannot rename a dataset into a group");
+
+    const BufferString groupnm = oldky.groupName();
+    const bool hasgrp = hasGroup( groupnm );
+    if ( !hasgrp )
+	return tr("The group to be renamed does not exist");
+
+    if ( !oldky.dataSetEmpty() && !hasDataSet(oldky) )
+	return tr("The dataset to be renamed does not exist");
+
+    const BufferString from = oldky.fullDataSetName();
+    const BufferString to = newky.fullDataSetName();
+    const DataSetKey* dsky = nullptr;
+    const H5::H5Object* h5obj = getScope( dsky );
+    if ( !h5obj )
+	mRetNoScopeInUiRv()
+
+    renObj( *h5obj, from.buf(), to.buf(), uirv );
+    if ( !uirv.isOK() )
+	return uirv;
+
+    if ( !hasGroup(newky.groupName()) )
+	return tr("Failed to rename the HDF5 group");
+
+    if ( !newky.dataSetEmpty() && !hasDataSet(newky) )
+	return tr("Failed to rename the HDF5 dataset");
+
+    return uirv;
+}
+
 
 uiRetVal HDF5::Reader::getAttributeNames( BufferStringSet& nms,
 			const DataSetKey* dsky ) const
@@ -768,4 +810,31 @@ uiRetVal HDF5::Writer::removeAllAttributes( const DataSetKey* dsky )
     rmAllAttribs( *h5scope );
 
     return uirv;
+}
+
+
+namespace HDF5 {
+
+static void NoRenameFn( const H5::H5Object&, const char*, const char*,
+			uiRetVal& uirv )
+{
+    uirv = uiStrings::phrInternalErr( "Rename function not available,"
+				   "Probably the ODHDF5 plugin is not loaded" );
+}
+using voidFromH5StringPairFn = void(*)(const H5::H5Object&,const char* from,
+				       const char* to,uiRetVal&);
+static voidFromH5StringPairFn renamefnobj_ = NoRenameFn;
+
+mGlobal(General) void setGlobal_General_Fns(voidFromH5StringPairFn);
+void setGlobal_General_Fns( voidFromH5StringPairFn renamefn )
+{
+    renamefnobj_ = renamefn;
+}
+
+} // namespace HDF5
+
+void HDF5::Writer::renObj( const H5::H5Object& h5obj, const char* from,
+			   const char* to, uiRetVal& uirv )
+{
+    (*renamefnobj_)( h5obj, from, to, uirv );
 }

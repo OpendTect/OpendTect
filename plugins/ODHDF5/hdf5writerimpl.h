@@ -88,6 +88,10 @@ private:
 
     unsigned		compressionlvl_ = 1;
 
+public:
+    static void		renObjImpl(const H5::H5Object&,const char* from,
+				   const char* to,uiRetVal&);
+
 };
 
 } // namespace HDF5

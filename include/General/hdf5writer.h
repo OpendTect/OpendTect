@@ -97,6 +97,8 @@ public:
 #undef mHDF5DeclFns
     uiRetVal		set(const IOPar&,const DataSetKey* =nullptr);
 
+    uiRetVal		renameObject(const DataSetKey& oldky,
+				     const DataSetKey& newky);
     bool		deleteObject(const DataSetKey&);
 			//!< after deletion, you can't add it again
 			//!< usually, you need a resize
@@ -123,6 +125,8 @@ private:
     virtual void	ptInfo(const IOPar&,H5::H5Object&,uiRetVal&)	= 0;
 
     virtual bool	rmObj(const DataSetKey&)			= 0;
+    void		renObj(const H5::H5Object&,const char* from,
+			       const char* to,uiRetVal&);
 
 };
 
