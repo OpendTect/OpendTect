@@ -143,7 +143,7 @@ RefMan<EM::Horizon3D> odHorizon3D::getHorizonObj( bool create)
 
     const EM::IOObjInfo eminfo( ioobj.ptr() );
     RefMan<EM::Horizon3D> hor3d;
-    if ( eminfo.isOK() && eminfo.isHorizon() )
+    if ( eminfo.isOK() && EM::isHorizon(eminfo.type()) )
     {
 	const MultiID hor3dkey = ioobj->key();
 	EM::EMObject* obj = EM::EMM().loadIfNotFullyLoaded(hor3dkey);

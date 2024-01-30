@@ -36,16 +36,16 @@ class SurfaceIODataSelection;
 
 enum class EMObjectType
 {
-    Hor2D	= 0,
-    Hor3D	= 1,
-    AnyHor	= 2,
-    Flt3D	= 3,
-    FltSS2D	= 4,
-    FltSS3D	= 5,
-    FltSS2D3D	= 6,
-    FltSet	= 7,
-    Body	= 8,
-    Unknown	= 9
+    Unknown	= 0,
+    Hor2D	= 1,
+    Hor3D	= 2,
+    AnyHor	= 3,
+    Flt3D	= 4,
+    FltSS2D	= 5,
+    FltSS3D	= 6,
+    FltSS2D3D	= 7,
+    FltSet	= 8,
+    Body	= 9
 };
 
 mDeclareNameSpaceEnumUtils(EarthModel,EMObjectType)
@@ -170,5 +170,7 @@ mDefineFactory1Param( EarthModel, EMObject, EMManager&, EMOF );
 mGlobal(EarthModel) EMManager& EMM();
 mGlobal(EarthModel) bool canOverwrite(const MultiID&);
 mGlobal(EarthModel) bool isFaultStickSet(EM::EMObjectType);
+mGlobal(EarthModel) bool isHorizon(EM::EMObjectType);
+mGlobal(EarthModel) bool is2DHorizon(EM::EMObjectType);
 
 } // namespace EM

@@ -179,7 +179,7 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj, bool ) const
     if ( ioobj )
     {
 	EM::IOObjInfo ioinfo( *ioobj );
-	if ( ioinfo.type() == EM::IOObjInfo::Fault )
+	if ( ioinfo.type() == EM::EMObjectType::Flt3D )
 	{
 	    EM::FaultAuxData fad( ioobj->key() );
 	    fad.removeAllData();
@@ -218,7 +218,7 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj,
     if ( ioobj )
     {
 	EM::IOObjInfo ioinfo( ioobj );
-	if ( ioinfo.type() == EM::IOObjInfo::Fault )
+	if ( ioinfo.type() == EM::EMObjectType::Flt3D )
 	{
 	    FilePath fp( newnm );
 	    fp.setExtension("");

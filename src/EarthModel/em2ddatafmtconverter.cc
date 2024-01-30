@@ -26,7 +26,7 @@ public:
 			    }
 			    ~OD_2DEMDataConverter_FromOD4ToOD5()   {}
 
-    void		    convertData(EM::IOObjInfo::ObjectType);
+    void		    convertData(EM::EMObjectType);
 
 protected:
 
@@ -42,40 +42,44 @@ mGlobal(EarthModel) void OD_Convert_EM2DData();
 mGlobal(EarthModel) void OD_Convert_EM2DData()
 {
     mDefineStaticLocalObject( OD_2DEMDataConverter_FromOD4ToOD5, converter, );
-    converter.convertData( EM::IOObjInfo::Horizon2D );
-    converter.convertData( EM::IOObjInfo::FaultStickSet );
+    converter.convertData( EM::EMObjectType::Hor2D );
+    converter.convertData( EM::EMObjectType::FltSS2D3D );
 }
 
 
-void OD_2DEMDataConverter_FromOD4ToOD5::convertData(
-                                            EM::IOObjInfo::ObjectType ftype )
+void OD_2DEMDataConverter_FromOD4ToOD5::convertData( EM::EMObjectType ftype )
 {
     TypeSet<MultiID> ioobjids;
     EM::IOObjInfo::getIDs( ftype, ioobjids );
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
-	IOObj* ioobj = IOM().get( ioobjids[idx] );
-	if ( !ioobj ) continue;
+	PtrMan<IOObj> ioobj = IOM().get( ioobjids[idx] );
+	if ( !ioobj )
+	    continue;
+
 	EM::IOObjInfo ioobjinfo( ioobj );
-	if ( ioobjinfo.hasGeomIDs() ) continue;
+	if ( ioobjinfo.hasGeomIDs() )
+	    continue;
+
 	surfacepara_ = ioobjinfo.getPars();
 	if ( !surfacepara_ )
 	    continue;
 
 	surfacepara_->set( sKey::GeomID(), "");
-	if ( ftype == EM::IOObjInfo::Horizon2D )
+	if ( ftype == EM::EMObjectType::Hor2D )
 	    addGeomIDTo2DHorPara( ioobjinfo );
-	else if ( ftype == EM::IOObjInfo::FaultStickSet )
+	else if ( isFaultStickSet(ftype) )
 	    addGeomIDToFSSPara( ioobjinfo );
 
         if ( ioobjinfo.getParsOffsetInFile() > 0 )
-	    writeToFile(ioobj->fullUserExpr(), ioobjinfo.getParsOffsetInFile());
+	    writeToFile( ioobj->fullUserExpr(),	
+					ioobjinfo.getParsOffsetInFile());
     }
 }
 
 
 void OD_2DEMDataConverter_FromOD4ToOD5::addGeomIDTo2DHorPara(
-                                                       EM::IOObjInfo& ioobjinfo)
+						     EM::IOObjInfo& ioobjinfo)
 {
     TypeSet<Pos::GeomID> geomids;
     TypeSet< StepInterval<int> > trcranges;

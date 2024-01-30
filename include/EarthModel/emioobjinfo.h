@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 
+#include "emmanager.h"
 #include "emposid.h"
 #include "enums.h"
 #include "stratlevel.h"
@@ -42,17 +43,13 @@ public:
 
     IOObjInfo&		operator =(const IOObjInfo&);
 
-    enum ObjectType	{ Unknown, Horizon3D, Horizon2D,
-			  FaultStickSet, Fault, Body };
-			mDeclareEnumUtils(ObjectType)
-
-    static void		getIDs(ObjectType,TypeSet<MultiID>&);
+    static void		getIDs(EMObjectType,TypeSet<MultiID>&);
 			//!< Does not erase the IDs at start
 
     bool		isOK() const;
     inline const IOObj*	ioObj() const		{ return ioobj_; }
     const char*		name() const;
-    inline ObjectType	type() const		{ return type_; }
+    inline EMObjectType type() const		{ return type_; }
 
     bool		getSectionIDs(TypeSet<SectionID>&) const;
     bool		getSectionNames(BufferStringSet&) const;
@@ -70,12 +67,11 @@ public:
     const ZDomain::Info& zDomain() const;
 
     // Surface
-    inline bool		isSurface() const	{ return type_ != Body; }
+    inline bool		isSurface() const
+					{ return type_ != EMObjectType::Body; }
     bool		getSurfaceData(SurfaceIOData&,uiString& err) const;
 
     // Horizon
-    inline bool		isHorizon() const	{ return type_ < FaultStickSet;}
-    inline bool		is2DHorizon() const	{ return type_ == Horizon2D; }
     Strat::LevelID	levelID() const;
     static void		getTiedToLevelID(Strat::LevelID,TypeSet<MultiID>&,
 					 bool is2d);
@@ -100,11 +96,11 @@ public:
     int			nrSticks() const;
 
     // Helpful stuff
-    static ObjectType	objectTypeOfIOObjGroup(const char*);
+    static EMObjectType objectTypeOfIOObjGroup(const char*);
 
 protected:
 
-    ObjectType			type_;
+    EMObjectType		type_;
     IOObj*			ioobj_;
     const ZDomain::Info*	zinfo_	= nullptr;
     mutable dgbSurfaceReader*	reader_ = nullptr;

@@ -204,7 +204,7 @@ void uiMultiSurfaceRead::getSurfaceSelection(
     EM::SurfaceIOData sd;
     uiString errmsg;
     if ( !info.getSurfaceData(sd,errmsg) || sd.sections.size() < 2
-	    || !info.isHorizon() )
+	    || !EM::isHorizon(info.type()) )
 	return;
 
     uiDialog dlg( const_cast<uiParent*>(parent()),

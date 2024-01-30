@@ -31,6 +31,7 @@ ________________________________________________________________________
 
 mDefineNameSpaceEnumUtils(EM,EMObjectType,"Surface type")
 {
+    "Unknown",
     EMHorizon2DTranslatorGroup::sGroupName().buf(),
     EMHorizon3DTranslatorGroup::sGroupName().buf(),
     EMAnyHorizonTranslatorGroup::sGroupName().buf(),
@@ -40,7 +41,6 @@ mDefineNameSpaceEnumUtils(EM,EMObjectType,"Surface type")
     "FaultStickSet 2D and 3D",
     EMFaultSet3DTranslatorGroup::sGroupName().buf(),
     EMBodyTranslatorGroup::sGroupName().buf(),
-    "Unknown",
     nullptr
 };
 
@@ -50,6 +50,18 @@ bool EM::isFaultStickSet( EM::EMObjectType emobjtyp )
     return emobjtyp == EM::EMObjectType::FltSS2D ||
 	emobjtyp == EM::EMObjectType::FltSS3D ||
 	emobjtyp == EM::EMObjectType::FltSS2D3D;
+}
+
+
+bool EM::isHorizon( EM::EMObjectType emobjtyp )
+{
+    return emobjtyp < EM::EMObjectType::Flt3D;
+}
+
+
+bool EM::is2DHorizon(EM::EMObjectType emobjtyp )
+{
+    return emobjtyp == EMObjectType::Hor2D;
 }
 
 
