@@ -310,7 +310,8 @@ void uiSeisFileMan::mkFileInfo()
 	    zrg.scale( zinfo.def_.userFactor() );
 	    const uiString unitstr = zinfo.uiUnitStr_( true );
 	    BufferString keystr = toString( zinfo.def_.getRange() );
-	    keystr.addSpace().add( toString(unitstr) );
+	    if ( !unitstr.isEmpty() )
+		keystr.addSpace().add( toString(unitstr) );
 	    txt.addNewLine()
 	       .add( keystr.str() )
 	       .add( ": " ).add( zrg.start, nrdec )

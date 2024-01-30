@@ -230,7 +230,14 @@ void ZDomain::Def::set( IOPar& iop ) const
 
 
 uiString ZDomain::Def::getLabel() const
-{ return uiStrings::phrJoinStrings( userName(), uiUnitStr(true) ); }
+{
+    const uiString usrnm = userName();
+    const uiString unitstr = uiUnitStr( true );
+    if ( unitstr.isEmpty() )
+	return usrnm;
+    else
+	return uiStrings::phrJoinStrings( usrnm, unitstr );
+}
 
 
 uiString ZDomain::Def::getRange() const
@@ -247,9 +254,14 @@ const char* ZDomain::Def::unitStr( bool withparens ) const
 	ret = getDistUnitString( ::SI().depthsInFeet(), withparens );
     else
     {
-	ret.set( defunit_ );
-	if ( withparens )
-	    ret.embed('(',')');
+	if ( defunit_.isEmpty() )
+	    ret.setEmpty();
+	else
+	{
+	    ret.set( defunit_ );
+	    if ( withparens )
+		ret.embed('(',')');
+	}
     }
 
     return ret.buf();
@@ -265,6 +277,9 @@ uiString ZDomain::Def::uiUnitStr( bool withparens ) const
 	return uiStrings::sDistUnitString( ::SI().depthsInFeet(), abbreviated,
 					   withparens );
     }
+
+    if ( defunit_.isEmpty() )
+	return uiString::empty();
 
     ret = ::toUiString( defunit_ );
     if ( withparens )
