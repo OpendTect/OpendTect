@@ -792,10 +792,19 @@ void uiWellMan::editLogPush( CallBacker* )
 	mErrRet(uiStrings::sNoLogSel())
 
     const char* lognm = logsfld_->textOfItem( selidx );
-    currdrs_.get(0)->getLog( lognm );
-    PtrMan<Well::Log> curlog = new Well::Log(
-					*curwds_.get(0)->logs().getLog(lognm) );
-    uiWellLogEditor dlg( this, *curlog );
+    const bool haslog = currdrs_.get(0)->getLog( lognm );
+    if ( !haslog )
+    {
+	uiMSG().error( tr("Log not available or no values present") );
+	return;
+    }
+
+    const auto* curlog = curwds_.get(0)->logs().getLog( lognm );
+    if ( !curlog )
+	return;
+
+    PtrMan<Well::Log> curlogcopy = new Well::Log( *curlog );
+    uiWellLogEditor dlg( this, *curlogcopy );
     if ( !dlg.go() || !dlg.isLogChanged() )
 	return;
 
@@ -805,9 +814,9 @@ void uiWellMan::editLogPush( CallBacker* )
     if ( !res )
 	return;
 
-    curlog->updateAfterValueChanges();
+    curlogcopy->updateAfterValueChanges();
     currdrs_.get(0)->getLogs( true );//--To-Do > fix this hack with a global sol
-    writeLog( curmultiids_[0], *curwds_.get(0), *curlog );
+    writeLog( curmultiids_[0], *curwds_.get(0), *curlogcopy );
     wellLogsChgd( BufferStringSet(lognm) );
 }
 
