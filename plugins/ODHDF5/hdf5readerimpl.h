@@ -69,7 +69,8 @@ private:
 
     bool		hasAttribute(const char*,
 				     const DataSetKey* =nullptr) const override;
-    int			getNrAttributes(const DataSetKey* =nullptr) const override;
+    int			getNrAttributes(
+				    const DataSetKey* =nullptr) const override;
     void		gtAttribNames(const H5::H5Object&,
 				BufferStringSet&) const override;
 

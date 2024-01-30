@@ -45,7 +45,7 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv, bool )
 
     try
     {
-	H5::H5File* newfile = new H5::H5File( fnm, H5F_ACC_RDONLY );
+	auto* newfile = new H5::H5File( fnm, H5F_ACC_RDONLY );
 	closeFile();
 	myfile_ = true;
 	file_ = newfile;

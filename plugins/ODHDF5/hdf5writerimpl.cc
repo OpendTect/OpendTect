@@ -327,6 +327,34 @@ bool HDF5::WriterImpl::rmObj( const DataSetKey& dsky )
 }
 
 
+void HDF5::WriterImpl::renObjImpl( const H5::H5Object& h5obj, const char* from,
+				   const char* to, uiRetVal& uirv )
+{
+    const H5std_string oldpath( from );
+    const H5std_string newpath( to );
+    try
+    {
+	h5obj.move( oldpath, newpath );
+    }
+    catch ( H5::Exception& exc ) {
+	const char* exc_msg = exc.getCDetailMsg();
+	uirv.add( sHDF5Err(toUiString(exc_msg)) );
+    }
+    catch ( std::exception& exc ) {
+	const char* exc_msg = exc.what();
+	const BufferString filenm( h5obj.getFileName().c_str() );
+	uirv.add( uiStrings::phrErrDuringWrite( filenm.buf() )
+	    .addMoreInfo( toUiString(exc_msg)) );
+    }
+    catch (...) {
+	const char* exc_msg = "Unexpected non-std exception";
+	const BufferString filenm( h5obj.getFileName().c_str() );
+	uirv.add( uiStrings::phrErrDuringWrite(filenm.buf() )
+	    .addMoreInfo( toUiString(exc_msg)) );
+    }
+}
+
+
 void HDF5::WriterImpl::rmAttrib( const char* nm, H5::H5Object& h5obj )
 {
     if ( !h5obj.attrExists(nm) )
