@@ -46,7 +46,6 @@ protected:
     uiCheckBox*		linenmfld_		= nullptr;
     uiFileInput*	outfld_;
     uiUnitSel*		zunitsel_;
-    uiGenInput*		zfld_;
 
     Coords::uiCoordSystemSel* coordsysselfld_	= nullptr;
     bool		isbulk_;
@@ -56,7 +55,6 @@ protected:
     bool		writeAscii();
     bool		getInputMIDs(TypeSet<MultiID>&);
 
-    void		addZChg(CallBacker*);
     void		exportCoordSysChgCB(CallBacker*);
     void		inpSelChg(CallBacker*);
     void		zDomainTypeChg(CallBacker*);
