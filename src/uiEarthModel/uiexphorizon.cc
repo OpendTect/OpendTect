@@ -501,13 +501,9 @@ bool uiExportHorizon::writeAscii()
 	    mErrRet( errmsg )
 
 	EM::SurfaceIODataSelection sels( sd );
-	if ( isbulk_ )
-	    for ( int idx = 0; idx < sd.sections.size(); idx++ )
-		sels.selsections += idx;
-	else
+	if ( !isbulk_ )
 	    infld_->getSelection( sels );
 
-	sels.selvalues.erase();
 	RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
 	if ( !emobj )
 	    mErrRet(uiStrings::sCantCreateHor())
@@ -526,16 +522,6 @@ bool uiExportHorizon::writeAscii()
 			tr("Only the first selected attribute will be used\n"
 				 "Do you wish to continue?")) )
 	    return false;
-
-	if ( !isbulk_ && !sels.selvalues.isEmpty() )
-	{
-	    ExecutorGroup exgrp( "Reading aux data" );
-	    for ( int idx=0; idx<sels.selvalues.size(); idx++ )
-		exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
-
-	    if ( !TaskRunner::execute(&taskrunner,exgrp) )
-		return false;
-	}
 
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	const UnitOfMeasure* unit = unitsel_->getUnit();
