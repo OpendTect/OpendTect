@@ -220,7 +220,7 @@ static const char* sKeySlopeThres()	{ return "Slope threshold"; }
 #define mGetHelpKey(tp) \
     mGet( tp, (is2d ? mODHelpKey(mImportFaultStick2DHelpID) \
 		    : mODHelpKey(mImportFaultStick3DHelpID) ), \
-    mODHelpKey(mImportFaultHelpID), mTODOHelpKey )
+    mODHelpKey(mImportFaultHelpID), mODHelpKey(mImportFaultSetHelpID) )
 
 #define mGetType(tp) \
     StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? \
