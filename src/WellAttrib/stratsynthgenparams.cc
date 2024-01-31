@@ -113,8 +113,8 @@ const char* SynthGenParams::sKeySynthPar()
 
 mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
 {
-    "Zero Offset Stack",
-    "Extended Elastic Stack",
+    "Zero Offset Trace",
+    "Extended Elastic Trace",
     "Elastic Gather",
     "Pre Stack",
     "Strat Property",
@@ -205,7 +205,6 @@ bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
 			windowsz_() == oth.windowsz_() &&
 			freqselrg_() == oth.freqselrg_();
     }
-
 
     return synthtype_ == oth.synthtype_ && wvltnm_ == oth.wvltnm_ &&
 	   raypars_ == oth.raypars_ && reflpars_ == oth.reflpars_ &&
