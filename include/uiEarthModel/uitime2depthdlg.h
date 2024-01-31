@@ -41,10 +41,10 @@ protected:
     uiGenInput*			directionsel_		= nullptr;
     uiZAxisTransformSel*	t2dtransfld_		= nullptr;
     uiZAxisTransformSel*	d2ttransfld_		= nullptr;
-    uiSurfaceRead*		inptimehorsel_		= nullptr;
-    uiSurfaceRead*		inpdepthhorsel_		= nullptr;
-    uiSurfaceWrite*		outtimehorsel_		= nullptr;
-    uiSurfaceWrite*		outdepthhorsel_		= nullptr;
+    uiSurfaceRead*		inptimesel_		= nullptr;
+    uiSurfaceRead*		inpdepthsel_		= nullptr;
+    uiSurfaceWrite*		outtimesel_		= nullptr;
+    uiSurfaceWrite*		outdepthsel_		= nullptr;
 
 
     uiString			getDlgTitle(EMObjectType) const;
@@ -56,7 +56,7 @@ protected:
     uiSurfaceWrite*		getWorkingOutSurfWrite();
 
     void			dirChangeCB(CallBacker*);
-    void			horSelCB(CallBacker*);
+    void			inpSelCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
 
     virtual bool		hasSurfaceIOData() const;
