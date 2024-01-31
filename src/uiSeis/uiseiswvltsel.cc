@@ -40,6 +40,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
     auto* lcb = new uiLabeledComboBox( this,
 		seltxt ? mToUiStringTodo(seltxt) : uiStrings::sWavelet() );
     nmfld_ = lcb->box();
+    nmfld_->setHSzPol( uiObject::Wide );
     uiObject* lastfld = lcb->attachObj();
 
     if ( withman )
