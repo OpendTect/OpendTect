@@ -154,7 +154,7 @@ WellTie::uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p,
     sep->attach( stretchedBelow, logsgrp );
 
     uiMultiSynthSeisSel::Setup sssu( "Reference wavelet" );
-    sssu.withelasticgather( false ).withps( false );
+    sssu.withelasticgather( false ).withps( false ).compact(true);
 
     wvltfld_ = new uiMultiSynthSeisSel( this, sssu );
     wvltfld_->attach( alignedBelow, wellfld_ );
