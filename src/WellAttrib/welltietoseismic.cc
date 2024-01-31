@@ -72,7 +72,7 @@ bool WellTie::DataPlayer::computeSynthetics( const Wavelet& wvlt )
 	mErrRet( tr( "No depth/time model computed" ) )
 
     if ( !setAIModel() )
-	mErrRet( tr( "Could not setup for raytracing" ) )
+	mErrRet( tr( "Could not use the density and/or velocity log" ) )
 
     if ( !doFullSynthetics(wvlt) )
 	mErrRet( tr( "Could not compute the synthetic trace" ) )
