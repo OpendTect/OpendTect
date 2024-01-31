@@ -183,14 +183,9 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 	attachobj = coordsysselfld_->attachObj();
     }
 
-    zfld_ = new uiGenInput( this, uiStrings::phrOutput( toUiString("Z") ),
-	BoolInpSpec(true) );
-    mAttachCB( zfld_->valueChanged, uiExportFault::addZChg );
-    zfld_->attach( alignedBelow, attachobj );
-
     zunitsel_ = new uiUnitSel( this, uiUnitSel::Setup(tr("Z Unit")) );
     zunitsel_->setUnit( UnitOfMeasure::surveyDefZUnit() );
-    zunitsel_->attach( alignedBelow, zfld_ );
+    zunitsel_->attach( alignedBelow, attachobj );
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
 				    OD::Horizontal );
@@ -271,7 +266,7 @@ void uiExportFault::zDomainBulkTypeChg(CallBacker*)
 
 void uiExportFault::inpSelChg( CallBacker* )
 {
-    const IOObj* ioobj = infld_ ? infld_->ioobj() : nullptr;
+    const IOObj* ioobj = infld_ ? infld_->ioobj( true ) : nullptr;
     if ( ioobj )
     {
 	const EM::IOObjInfo info( ioobj->key() );
@@ -439,8 +434,6 @@ bool uiExportFault::writeAscii()
 
 void uiExportFault::addZChg( CallBacker* )
 {
-    const bool displayunit = zfld_->getIntValue()!=1;
-    zunitsel_->display( displayunit );
 }
 
 
