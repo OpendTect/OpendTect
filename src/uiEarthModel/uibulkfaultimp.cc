@@ -46,7 +46,7 @@ BulkFaultAscIO( const Table::FormatDesc& fd, od_istream& strm, bool is2d )
 static Table::FormatDesc* getDesc( EM::EMObjectType type, bool is2d,
 						const ZDomain::Def& def )
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "BulkFault" );
+    auto* fd = new Table::FormatDesc( "BulkFault" );
 
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
 			StringInpSpec(sKey::FloatUdf()), Table::Required );
@@ -155,7 +155,7 @@ static const char* sKeySlopeThres()	{ return "Slope threshold"; }
 #define mGetHelpKey(tp) \
     mGet( tp, (is2d ? mODHelpKey(mImportFaultStick2DHelpID) \
 		    : mODHelpKey(mImportFaultStick3DHelpID) ), \
-    mODHelpKey(mImportFaultHelpID), mTODOHelpKey )
+    mODHelpKey(mImportFaultHelpID), mODHelpKey(mImportFaultSetHelpID) )
 
 #define mGetType(tp) \
     StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? \

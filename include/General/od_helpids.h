@@ -321,6 +321,8 @@ ________________________________________________________________________
 #define		mFault2FaultSelHeplID				0x10401011
 #define		mCopyFaultSetHelpID				0x10401012
 #define		mFltSetManHelpID				0x10401013
+#define		mImportFaultSetHelpID				0x10401014
+#define		mExportFaultSetHelpID				0x10401015
 // Surfaces Manage 02
 #define		mSurfaceManHelpID				0x10402000
 #define		mSurface2DManHelpID				0x10402001

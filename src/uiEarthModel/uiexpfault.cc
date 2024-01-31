@@ -69,7 +69,8 @@ ________________________________________________________________________
 uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
 				 mGet(typ,mODHelpKey(mExportFaultStickHelpID),
-				 mODHelpKey(mExportFaultHelpID),mTODOHelpKey)))
+				 mODHelpKey(mExportFaultHelpID),
+				 mODHelpKey(mExportFaultSetHelpID))))
     , isbulk_(isbulk)
     , typ_(typ)
 {
