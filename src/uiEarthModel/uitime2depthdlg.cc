@@ -83,31 +83,29 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
     const uiString depthobjm = uiStrings::phrJoinStrings( uiStrings::sDepth(),
 							  uigrpnm );
     const bool canhaveattribs = objtype_ == IOObjInfo::Horizon3D;
-    inptimehorsel_ = new uiSurfaceRead( this,
-		uiSurfaceRead::Setup(grpnm).withsubsel(true)
-			.withsectionfld(false).withattribfld(canhaveattribs),
-		&timeinf );
-    inptimehorsel_->getObjSel()->setLabelText( uiStrings::phrInput(timeobjm) );
-    mAttachCB( inptimehorsel_->inpChange, uiTime2DepthDlg::horSelCB );
-    inptimehorsel_->attach( alignedBelow, t2dtransfld_ );
+    inptimesel_ = new uiSurfaceRead( this,
+		uiSurfaceRead::Setup(grpnm).withsectionfld(false)
+		.withattribfld(canhaveattribs), &timeinf );
+    inptimesel_->getObjSel()->setLabelText( uiStrings::phrInput(timeobjm) );
+    mAttachCB( inptimesel_->inpChange, uiTime2DepthDlg::inpSelCB );
+    inptimesel_->attach( alignedBelow, t2dtransfld_ );
 
-    inpdepthhorsel_ = new uiSurfaceRead( this,
-		uiSurfaceRead::Setup(grpnm).withsubsel(true)
-			.withsectionfld(false).withattribfld(canhaveattribs),
-		&depthinf );
-    inpdepthhorsel_->getObjSel()->setLabelText( uiStrings::phrInput(depthobjm));
-    mAttachCB( inpdepthhorsel_->inpChange, uiTime2DepthDlg::horSelCB );
-    inpdepthhorsel_->attach( alignedBelow, d2ttransfld_ );
+    inpdepthsel_ = new uiSurfaceRead( this,
+		uiSurfaceRead::Setup(grpnm).withsectionfld(false)
+		.withattribfld(canhaveattribs), &depthinf );
+    inpdepthsel_->getObjSel()->setLabelText( uiStrings::phrInput(depthobjm));
+    mAttachCB( inpdepthsel_->inpChange, uiTime2DepthDlg::inpSelCB );
+    inpdepthsel_->attach( alignedBelow, d2ttransfld_ );
 
-    outdepthhorsel_ = new uiSurfaceWrite( this,
+    outdepthsel_ = new uiSurfaceWrite( this,
 	    uiSurfaceWrite::Setup(grpnm,uigrpnm), &depthinf );
-    outdepthhorsel_->getObjSel()->setLabelText(uiStrings::phrOutput(depthobjm));
-    outdepthhorsel_->attach( alignedBelow, inptimehorsel_ );
+    outdepthsel_->getObjSel()->setLabelText(uiStrings::phrOutput(depthobjm));
+    outdepthsel_->attach( alignedBelow, inptimesel_ );
 
-    outtimehorsel_ = new uiSurfaceWrite( this,
+    outtimesel_ = new uiSurfaceWrite( this,
 	    uiSurfaceWrite::Setup(grpnm,uigrpnm), &timeinf );
-    outtimehorsel_->getObjSel()->setLabelText( uiStrings::phrOutput(timeobjm) );
-    outtimehorsel_->attach( alignedBelow, inpdepthhorsel_ );
+    outtimesel_->getObjSel()->setLabelText( uiStrings::phrOutput(timeobjm) );
+    outtimesel_->attach( alignedBelow, inpdepthsel_ );
 
     mAttachCB( postFinalize(), uiTime2DepthDlg::dirChangeCB );
 }
@@ -172,37 +170,36 @@ const ZDomain::Info& uiTime2DepthDlg::outZDomain() const
 void uiTime2DepthDlg::dirChangeCB( CallBacker* )
 {
     const bool todepth = directionsel_->getBoolValue();
-    const uiString lbl = todepth ? tr("Output Depth Horizon")
-				 : tr("Output Time Horizon");
+
     t2dtransfld_->display( todepth );
-    inptimehorsel_->display( todepth );
-    outdepthhorsel_->display( todepth );
+    inptimesel_->display( todepth );
+    outdepthsel_->display( todepth );
 
     d2ttransfld_->display( !todepth );
-    inpdepthhorsel_->display( !todepth );
-    outtimehorsel_->display( !todepth );
+    inpdepthsel_->display( !todepth );
+    outtimesel_->display( !todepth );
 }
 
 
-void uiTime2DepthDlg::horSelCB( CallBacker* cb )
+void uiTime2DepthDlg::inpSelCB( CallBacker* cb )
 {
     mDynamicCastGet(uiSurfaceRead*,inpfld,cb)
     if ( !inpfld )
 	return;
 
-    BufferString hornm = inpfld->getObjSel()->getInput();
-    if ( hornm.isEmpty() )
+    BufferString nm = inpfld->getObjSel()->getInput();
+    if ( nm.isEmpty() )
 	return;
 
-    if ( cb == inptimehorsel_ )
+    if ( cb == inptimesel_ )
     {
-	hornm.add( " Depth" );
-	outdepthhorsel_->getObjSel()->setInputText( hornm.buf() );
+	nm.add( " Depth" );
+	outdepthsel_->getObjSel()->setInputText( nm.buf() );
     }
     else
     {
-	hornm.add( " Time" );
-	outtimehorsel_->getObjSel()->setInputText( hornm.buf() );
+	nm.add( " Time" );
+	outtimesel_->getObjSel()->setInputText( nm.buf() );
     }
 }
 
@@ -218,14 +215,14 @@ RefMan<ZAxisTransform> uiTime2DepthDlg::getWorkingZAxisTransform() const
 const uiSurfaceRead* uiTime2DepthDlg::getWorkingInpSurfRead() const
 {
     const bool todepth = directionsel_->getBoolValue();
-    return todepth ? inptimehorsel_ : inpdepthhorsel_;
+    return todepth ? inptimesel_ : inpdepthsel_;
 }
 
 
 uiSurfaceWrite* uiTime2DepthDlg::getWorkingOutSurfWrite()
 {
     const bool todepth = directionsel_->getBoolValue();
-    return todepth ? outdepthhorsel_ : outtimehorsel_;
+    return todepth ? outdepthsel_ : outtimesel_;
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
