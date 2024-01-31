@@ -131,14 +131,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     auto* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, formfld_ );
 
-    float defsr = SI().depthsInFeet() ? 0.5f : 0.1524f;
-    if ( !superwls_.isEmpty() )
-    {
-	defsr = superwls_.getLog(0).dahStep( false );
-	if ( SI().depthsInFeet() )
-	    defsr *= mToFeetFactorF;
-    }
-
+    const float defsr = SI().depthsInFeet() ? 0.5f : 0.1524f;
     srfld_ = new uiGenInput( this, uiStrings::phrOutput( tr("sample distance")),
 			     FloatInpSpec(defsr) );
     srfld_->attach( alignedBelow, formfld_ );
