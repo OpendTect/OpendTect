@@ -805,7 +805,7 @@ FaultStickSetT2DTransformer::~FaultStickSetT2DTransformer()
 
 void FaultStickSetT2DTransformer::preStepCB( CallBacker* )
 {
-    if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
+    if ( !is2d_ && (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
 	load3DTranformVol();
 }
 
@@ -857,12 +857,10 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
 
     outfault3d->enableGeometryChecks( false );
     const EM::FaultStickSetGeometry& fltgeom = fltss->geometry();
-    if ( zatf_.needsVolumeOfInterest() )
+    const EM::EMObjectType objtype = fltgeom.FSSObjType();
+    const bool reqtypecheck = objtype != EM::EMObjectType::FltSS2D3D;
+    if ( reqtypecheck && zatf_.needsVolumeOfInterest() )
     {
-	const EM::EMObjectType objtype = fltgeom.FSSObjType();
-	if ( objtype == EM::EMObjectType::FltSS2D3D )
-	    return true;
-
 	const EM::EMObjectType expectedtype = is2d_ ? EM::EMObjectType::FltSS2D
 						   : EM::EMObjectType::FltSS3D;
 	if ( objtype != expectedtype )
