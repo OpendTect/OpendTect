@@ -374,27 +374,27 @@ void uiODApplMgr::setStereoOffset()
 
 void uiODApplMgr::processTime2DepthHor( bool is2d )
 {
-    emserv_->processTime2Depth( &appl_, is2d ? EM::EMObjectType::Hor2D
-					: EM::EMObjectType::Hor3D );
+    emserv_->processTime2Depth( &appl_, is2d ? EM::ObjectType::Hor2D
+					: EM::ObjectType::Hor3D );
 }
 
 
 void uiODApplMgr::processTime2DepthFSS( bool is2d )
 {
-    emserv_->processTime2Depth( &appl_, is2d ? EM::EMObjectType::FltSS2D
-	: EM::EMObjectType::FltSS3D );
+    emserv_->processTime2Depth( &appl_, is2d ? EM::ObjectType::FltSS2D
+	: EM::ObjectType::FltSS3D );
 }
 
 
 void uiODApplMgr::fltTimeDepthConvCB( CallBacker* )
 {
-    emserv_->processTime2Depth( &appl_, EM::EMObjectType::Flt3D );
+    emserv_->processTime2Depth( &appl_, EM::ObjectType::Flt3D );
 }
 
 
 void uiODApplMgr::fltsetTimeDepthConvCB( CallBacker* )
 {
-    emserv_->processTime2Depth( &appl_, EM::EMObjectType::FltSet );
+    emserv_->processTime2Depth( &appl_, EM::ObjectType::FltSet );
 }
 
 void uiODApplMgr::addTimeDepthScene( bool is2d )

@@ -1274,10 +1274,10 @@ uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d, const ZDomain::Info* zinfo,
 			    bool forread, const uiIOObjSel::Setup& setup )
     : uiIOObjSel(p,EM::Horizon::ioContext(is2d,zinfo,forread),setup)
 {
-
     if ( setup.seltxt_.isEmpty() )
-	setLabelText( getLabelText(SI().zDomainInfo(),forread) );
-
+	setLabelText( forread
+		     ? uiStrings::phrInput( uiStrings::sHorizon() )
+		     : uiStrings::phrOutput( uiStrings::sHorizon() ) );
     fillEntries();
 }
 
@@ -1287,20 +1287,10 @@ uiHorizonSel::uiHorizonSel( uiParent* p, bool is2d,
     : uiIOObjSel(p,EM::Horizon::ioContext(is2d,forread),setup)
 {
     if ( setup.seltxt_.isEmpty() )
-	setLabelText( getLabelText(SI().zDomainInfo(),forread) );
-
+	setLabelText( forread
+		     ? uiStrings::phrInput( uiStrings::sHorizon() )
+		     : uiStrings::phrOutput( uiStrings::sHorizon() ) );
     fillEntries();
-}
-
-
-const uiString uiHorizonSel::getLabelText( const ZDomain::Info& zinfo,
-							bool forread ) const
-{
-    const uiString stimehor = tr("time horizon");
-    const uiString sdepthhor = tr("depth horizon");
-    const uiString showstr = zinfo.isTime() ? stimehor : sdepthhor;
-    return forread ? uiStrings::phrInput( showstr )
-		   : uiStrings::phrOutput( showstr );
 }
 
 
@@ -1328,28 +1318,27 @@ uiHorizon3DSel::~uiHorizon3DSel()
 
 
 //uiFaultSel
-uiFaultSel::uiFaultSel( uiParent* p, EM::EMObjectType type,
-    const ZDomain::Info* zinfo, bool isforread, const uiIOObjSel::Setup su )
-    : uiIOObjSel(p,ioContext(isforread,type,zinfo),su)
+static uiString getLabelText( bool forread, EM::ObjectType type )
 {
-    if ( su.seltxt_.isEmpty() )
-	setLabelText( getLabelText(zinfo ? *zinfo : SI().zDomainInfo(),
-							isforread,type) );
+    uiString showstr;
+    if ( type == EM::ObjectType::Flt3D )
+	showstr = uiStrings::sFault();
+    else if ( EM::isFaultStickSet(type) )
+	showstr = uiStrings::sFaultStickSet();
+    else
+	showstr = uiStrings::sFaultSet();
 
-    fillEntries();
+    return forread ? uiStrings::phrInput( showstr )
+		   : uiStrings::phrOutput( showstr );
 }
 
 
-uiFaultSel::~uiFaultSel()
-{}
-
-
-IOObjContext uiFaultSel::ioContext( bool isforread, EM::EMObjectType type,
-			const ZDomain::Info* zinfo )
+static IOObjContext ioContext( bool isforread,
+		EM::ObjectType type, const ZDomain::Info* zinfo )
 {
 
     IOObjContext ctxt( nullptr );
-    if ( type == EM::EMObjectType::Flt3D )
+    if ( type == EM::ObjectType::Flt3D )
 	ctxt = mIOObjContext(EMFault3D);
     else if ( EM::isFaultStickSet(type) )
 	ctxt = mIOObjContext(EMFaultStickSet);
@@ -1367,30 +1356,24 @@ IOObjContext uiFaultSel::ioContext( bool isforread, EM::EMObjectType type,
 }
 
 
-const uiString uiFaultSel::getLabelText( const ZDomain::Info& zinfo,
-				bool forread, EM::EMObjectType type ) const
+uiFaultSel::uiFaultSel( uiParent* p, EM::ObjectType type,
+			const ZDomain::Info* zinfo, bool isforread,
+			const uiIOObjSel::Setup& su )
+    : uiIOObjSel(p,ioContext(isforread,type,zinfo),su)
 {
-    uiString showstr;
-    if ( type == EM::EMObjectType::Flt3D )
-    {
-	const uiString stimehflt = tr("time fault");
-	const uiString sdepthhflt = tr("depth fault");
-	showstr = zinfo.isTime() ? stimehflt : sdepthhflt;
-    }
-    else if ( EM::isFaultStickSet(type) )
-    {
-	const uiString stimehfss = tr("time faultstickset");
-	const uiString sdepthhfss = tr("depth faultstickset");
-	showstr = zinfo.isTime() ? stimehfss : sdepthhfss;
-    }
-    else
-    {
-	const uiString stimehfltset = tr("time faultset");
-	const uiString sdepthhfltset = tr("depth faultset");
-	showstr = zinfo.isTime() ? stimehfltset : sdepthhfltset;
+    if ( su.seltxt_.isEmpty() )
+	setLabelText( getLabelText(isforread,type) );
 
-    }
-
-    return forread ? uiStrings::phrInput( showstr )
-		   : uiStrings::phrOutput( showstr );
+    fillEntries();
 }
+
+
+uiFaultSel::uiFaultSel( uiParent* p, EM::ObjectType type,
+			bool isforread, const uiIOObjSel::Setup& su )
+    : uiFaultSel(p,type,nullptr,isforread,su)
+{
+}
+
+
+uiFaultSel::~uiFaultSel()
+{}

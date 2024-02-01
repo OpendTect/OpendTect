@@ -23,14 +23,14 @@ class uiToolButton;
 mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
 { mODTextTranslationClass(uiSurfaceMan);
 public:
-			uiSurfaceMan(uiParent*,EM::EMObjectType);
+			uiSurfaceMan(uiParent*,EM::ObjectType);
 			~uiSurfaceMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSurfaceMan);
 
 protected:
 
-    const EM::EMObjectType		type_;
+    const EM::ObjectType		type_;
 
     uiListBox*		attribfld_		= nullptr;
 

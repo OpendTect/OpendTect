@@ -79,8 +79,8 @@ void IOObjInfo::fillZDomain()
 
 void IOObjInfo::setType()
 {
-    type_ = ioobj_ ? objectTypeOfIOObjGroup( ioobj_->group() ) :
-						    EM::EMObjectType::Unknown;
+    type_ = ioobj_ ? objectTypeOfIOObjGroup( ioobj_->group() )
+		   : EM::ObjectType::Unknown;
 }
 
 
@@ -148,7 +148,7 @@ bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
     if ( !ioobj_ )
 	return false;
 
-    if ( type_== EM::EMObjectType::Flt3D )
+    if ( type_== EM::ObjectType::Flt3D )
     {
 	FaultAuxData fad( ioobj_->key() );
 	fad.getAuxDataList( attrnames );
@@ -378,15 +378,15 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
 }
 
 
-EM::EMObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
+EM::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 {
-    EM::EMObjectType type = EM::EMObjectType::Unknown;
+    EM::ObjectType type = EM::ObjectType::Unknown;
     parseEnum( grpname, type );
     return type;
 }
 
 
-void IOObjInfo::getIDs( EM::EMObjectType reqtyp, TypeSet<MultiID>& ids )
+void IOObjInfo::getIDs( EM::ObjectType reqtyp, TypeSet<MultiID>& ids )
 {
     const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
     const IODir iodir( mid );
@@ -412,9 +412,9 @@ void IOObjInfo::getTiedToLevelID( Strat::LevelID lvlid, TypeSet<MultiID>& ids,
     ids.erase();
     TypeSet<MultiID> candidates;
     if ( is2d )
-	getIDs( EM::EMObjectType::Hor2D, candidates );
+	getIDs( EM::ObjectType::Hor2D, candidates );
     else
-	getIDs( EM::EMObjectType::Hor3D, candidates );
+	getIDs( EM::ObjectType::Hor3D, candidates );
 
     for ( int idx=0; idx<candidates.size(); idx++ )
     {
@@ -440,7 +440,7 @@ bool IOObjInfo::sortHorizonsOnZValues( const TypeSet<MultiID>& list,
 
 bool IOObjInfo::getBodyRange( TrcKeyZSampling& cs ) const
 {
-    if ( type_ != EM::EMObjectType::Body )
+    if ( type_ != EM::ObjectType::Body )
 	return false;
 
     RefMan<EMObject> emobj = EMM().loadIfNotFullyLoaded( ioobj_->key() );
@@ -505,7 +505,7 @@ void IOObjInfo::getHorizonIDsForLine( const Pos::GeomID& geomid,
 				      TypeSet<MultiID>& keys )
 {
     TypeSet<MultiID> allhorkeys;
-    getIDs( EM::EMObjectType::Hor2D, allhorkeys );
+    getIDs( EM::ObjectType::Hor2D, allhorkeys );
 
     for ( const auto& key : allhorkeys )
     {

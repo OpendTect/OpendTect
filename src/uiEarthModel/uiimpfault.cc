@@ -139,8 +139,8 @@ void uiImportFault::createUI()
 
     const ZDomain::Info& depthzinfo = SI().zInFeet() ? ZDomain::DepthFeet() :
 						    ZDomain::DepthMeter();
-    const EM::EMObjectType type = isfss_ ? EM::EMObjectType::FltSS3D
-					    : EM::EMObjectType::Flt3D;
+    const EM::ObjectType type = isfss_ ? EM::ObjectType::FltSS3D
+					    : EM::ObjectType::Flt3D;
     outtimefld_ = new uiFaultSel( this, type, &ZDomain::TWT(), false );
     outdepthfld_ = new uiFaultSel( this, type, &depthzinfo, false );
     outtimefld_->attach( alignedBelow, dataselfld_ );

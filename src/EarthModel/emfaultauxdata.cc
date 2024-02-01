@@ -75,7 +75,7 @@ bool FaultAuxData::init()
 
     PtrMan<IOObj> ioobj = IOM().get( faultmid_ );
     IOObjInfo ioinfo( ioobj );
-    if ( !ioobj || ioinfo.type()!=EM::EMObjectType::Flt3D )
+    if ( !ioobj || ioinfo.type()!=EM::ObjectType::Flt3D )
 	return false;
 
     FilePath fp( ioobj->fullUserExpr(true) );

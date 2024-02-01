@@ -29,10 +29,10 @@ namespace EM
 mExpClass(uiEarthModel) uiTime2DepthDlg  : public uiDialog
 { mODTextTranslationClass(uiEMObjectTime2DepthDlg )
 public:
-				uiTime2DepthDlg (uiParent*,EMObjectType);
+				uiTime2DepthDlg (uiParent*,ObjectType);
 				~uiTime2DepthDlg ();
 
-    static uiRetVal		canTransform(EMObjectType);
+    static uiRetVal		canTransform(ObjectType);
     bool			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
@@ -47,7 +47,7 @@ protected:
     uiSurfaceWrite*		outdepthsel_		= nullptr;
 
 
-    uiString			getDlgTitle(EMObjectType) const;
+    uiString			getDlgTitle(ObjectType) const;
 
     const ZDomain::Info&	outZDomain() const;
 
@@ -65,6 +65,6 @@ protected:
     const char*			sKeyTime2Depth() const;
     const char*			sKeyTransformation() const;
 
-    const EMObjectType		objtype_;
+    const ObjectType		objtype_;
 };
 }

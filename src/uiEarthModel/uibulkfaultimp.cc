@@ -43,7 +43,7 @@ BulkFaultAscIO( const Table::FormatDesc& fd, od_istream& strm, bool is2d )
 {}
 
 
-static Table::FormatDesc* getDesc( EM::EMObjectType type, bool is2d,
+static Table::FormatDesc* getDesc( EM::ObjectType type, bool is2d,
 						const ZDomain::Def& def )
 {
     auto* fd = new Table::FormatDesc( "BulkFault" );
@@ -55,13 +55,13 @@ static Table::FormatDesc* getDesc( EM::EMObjectType type, bool is2d,
 }
 
 
-static void createDesc( Table::FormatDesc* fd, EM::EMObjectType type,
+static void createDesc( Table::FormatDesc* fd, EM::ObjectType type,
 					bool is2d, const ZDomain::Def& def )
 {
     BufferString typnm;
     if ( EM::isFaultStickSet(type) )
 	typnm = "FaultStickSet name";
-    else if ( type == EM::EMObjectType::Flt3D )
+    else if ( type == EM::ObjectType::Flt3D )
 	typnm = "Fault name";
     else
 	typnm = "FaultSet name";
@@ -83,7 +83,7 @@ static void createDesc( Table::FormatDesc* fd, EM::EMObjectType type,
 }
 
 
-static void updateDesc( Table::FormatDesc& fd, EM::EMObjectType type,
+static void updateDesc( Table::FormatDesc& fd, EM::ObjectType type,
 					bool is2d, const ZDomain::Def& def )
 {
     fd.bodyinfos_.erase();
@@ -159,19 +159,19 @@ static const char* sKeySlopeThres()	{ return "Slope threshold"; }
 
 #define mGetType(tp) \
     StringView(tp) == EMFaultStickSetTranslatorGroup::sGroupName() ? \
-	EM::EMObjectType::FltSS3D : \
-    StringView(tp).isEqual("FaultStickSet 2D") ? EM::EMObjectType::FltSS2D : \
+	EM::ObjectType::FltSS3D : \
+    StringView(tp).isEqual("FaultStickSet 2D") ? EM::ObjectType::FltSS2D : \
     StringView(tp).isEqual("FaultStickSet 2D and 3D") ? \
-	EM::EMObjectType::FltSS2D3D : \
+	EM::ObjectType::FltSS2D3D : \
     StringView(tp) == EMFaultSet3DTranslatorGroup::sGroupName() ? \
-	EM::EMObjectType::FltSet : EM::EMObjectType::Flt3D \
+	EM::ObjectType::FltSet : EM::ObjectType::Flt3D \
 
 
 uiBulkFaultImport::uiBulkFaultImport(uiParent* p)
     : uiDialog(p, uiDialog::Setup(tr("Import Multiple Faults"), mNoDlgTitle,
 	    mODHelpKey(mBulkFaultImportHelpID))
 	    .modal(false))
-    , fd_(BulkFaultAscIO::getDesc(EM::EMObjectType::Flt3D,false,SI().zDomain()))
+    , fd_(BulkFaultAscIO::getDesc(EM::ObjectType::Flt3D,false,SI().zDomain()))
     , isfss_(false)
     , isfltset_(false)
     , is2dfss_(false)
@@ -244,7 +244,7 @@ void uiBulkFaultImport::init()
     {
 	const ZDomain::Info& depthzinfo = SI().zInFeet() ? ZDomain::DepthFeet()
 						    : ZDomain::DepthMeter();
-	const EM::EMObjectType type = EM::EMObjectType::FltSet;
+	const EM::ObjectType type = EM::ObjectType::FltSet;
 	fltsettimefld_ = new uiFaultSel( this, type, &ZDomain::TWT(), false );
 	fltsetdepthfld_ = new uiFaultSel( this, type, &depthzinfo, false );
 	fltsettimefld_->attach( alignedBelow, dataselfld_ );
@@ -298,11 +298,11 @@ void uiBulkFaultImport::zDomainCB( CallBacker* )
 	fltsetdepthfld_->display( !istime );
     }
 
-    EM::EMObjectType type = EM::EMObjectType::Flt3D;
+    EM::ObjectType type = EM::ObjectType::Flt3D;
     if ( isfss_ )
-	type = EM::EMObjectType::FltSS3D;
+	type = EM::ObjectType::FltSS3D;
     else if ( isfltset_ )
-	type = EM::EMObjectType::FltSet;
+	type = EM::ObjectType::FltSet;
 
     BulkFaultAscIO::updateDesc( *fd_, type, is2dfss_,
 				istime ? ZDomain::Time() : ZDomain::Depth() );

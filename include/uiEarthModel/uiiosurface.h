@@ -305,7 +305,8 @@ protected:
 
 
 mExpClass(uiEarthModel) uiBodySel : public uiIOObjSel
-{ mODTextTranslationClass(uiBodySel)
+{
+mODTextTranslationClass(uiBodySel)
 public:
 			uiBodySel(uiParent*,bool forread,
 				     const uiIOObjSel::Setup&);
@@ -315,7 +316,8 @@ public:
 
 
 mExpClass(uiEarthModel) uiHorizonSel : public uiIOObjSel
-{ mODTextTranslationClass(uiHorizonSel)
+{
+mODTextTranslationClass(uiHorizonSel)
 public:
 			uiHorizonSel(uiParent*,bool is2d,
 				     const ZDomain::Info*,bool isforread,
@@ -341,15 +343,14 @@ public:
 
 
 mExpClass(uiEarthModel) uiFaultSel : public uiIOObjSel
-{ mODTextTranslationClass(uiFaultSel)
+{
+mODTextTranslationClass(uiFaultSel)
 public:
-			uiFaultSel(uiParent*,EM::EMObjectType,
-				    const ZDomain::Info*,bool isforread,
-				    const uiIOObjSel::Setup ={});
+			uiFaultSel(uiParent*,EM::ObjectType,
+				   const ZDomain::Info*,bool isforread,
+				   const uiIOObjSel::Setup& ={});
+			uiFaultSel(uiParent*,EM::ObjectType,
+				   bool isforread,
+				   const uiIOObjSel::Setup& ={});
 			~uiFaultSel();
-protected:
-    const uiString	getLabelText(const ZDomain::Info&,bool forread,
-						    EM::EMObjectType) const;
-    IOObjContext	ioContext(bool,EM::EMObjectType,
-						    const ZDomain::Info*);
 };

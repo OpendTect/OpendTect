@@ -392,7 +392,7 @@ static BufferString getKey( const char* prefix, int sticknr )
 }
 
 
-EM::EMObjectType FaultStickSetGeometry::FSSObjType() const
+EM::ObjectType FaultStickSetGeometry::FSSObjType() const
 {
     const int nrsticks = nrSticks();
     int count2d = 0;
@@ -403,11 +403,11 @@ EM::EMObjectType FaultStickSetGeometry::FSSObjType() const
 	    count2d++;
     }
 
-    EM::EMObjectType objtype = EM::EMObjectType::FltSS2D3D;
+    EM::ObjectType objtype = EM::ObjectType::FltSS2D3D;
     if ( count2d == nrsticks )
-	objtype = EM::EMObjectType::FltSS2D;
+	objtype = EM::ObjectType::FltSS2D;
     else if ( count2d == 0 )
-	objtype = EM::EMObjectType::FltSS3D;
+	objtype = EM::ObjectType::FltSS3D;
 
     return objtype;
 }

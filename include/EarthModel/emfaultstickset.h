@@ -56,7 +56,7 @@ public:
     const char*		pickedName(int sticknr) const override;
     Pos::GeomID		pickedGeomID(int sticknr)const;
 
-    EMObjectType	FSSObjType() const;
+    ObjectType		FSSObjType() const;
 
 
     Geometry::FaultStickSet* geometryElement() override;

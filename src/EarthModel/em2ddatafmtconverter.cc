@@ -26,7 +26,7 @@ public:
 			    }
 			    ~OD_2DEMDataConverter_FromOD4ToOD5()   {}
 
-    void		    convertData(EM::EMObjectType);
+    void		    convertData(EM::ObjectType);
 
 protected:
 
@@ -42,12 +42,12 @@ mGlobal(EarthModel) void OD_Convert_EM2DData();
 mGlobal(EarthModel) void OD_Convert_EM2DData()
 {
     mDefineStaticLocalObject( OD_2DEMDataConverter_FromOD4ToOD5, converter, );
-    converter.convertData( EM::EMObjectType::Hor2D );
-    converter.convertData( EM::EMObjectType::FltSS2D3D );
+    converter.convertData( EM::ObjectType::Hor2D );
+    converter.convertData( EM::ObjectType::FltSS2D3D );
 }
 
 
-void OD_2DEMDataConverter_FromOD4ToOD5::convertData( EM::EMObjectType ftype )
+void OD_2DEMDataConverter_FromOD4ToOD5::convertData( EM::ObjectType ftype )
 {
     TypeSet<MultiID> ioobjids;
     EM::IOObjInfo::getIDs( ftype, ioobjids );
@@ -66,7 +66,7 @@ void OD_2DEMDataConverter_FromOD4ToOD5::convertData( EM::EMObjectType ftype )
 	    continue;
 
 	surfacepara_->set( sKey::GeomID(), "");
-	if ( ftype == EM::EMObjectType::Hor2D )
+	if ( ftype == EM::ObjectType::Hor2D )
 	    addGeomIDTo2DHorPara( ioobjinfo );
 	else if ( isFaultStickSet(ftype) )
 	    addGeomIDToFSSPara( ioobjinfo );

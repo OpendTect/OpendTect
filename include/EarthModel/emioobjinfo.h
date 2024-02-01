@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "emmanager.h"
 #include "emposid.h"
-#include "enums.h"
 #include "stratlevel.h"
 
 class BufferStringSet;
@@ -43,13 +42,13 @@ public:
 
     IOObjInfo&		operator =(const IOObjInfo&);
 
-    static void		getIDs(EMObjectType,TypeSet<MultiID>&);
+    static void		getIDs(ObjectType,TypeSet<MultiID>&);
 			//!< Does not erase the IDs at start
 
     bool		isOK() const;
     inline const IOObj*	ioObj() const		{ return ioobj_; }
     const char*		name() const;
-    inline EMObjectType type() const		{ return type_; }
+    inline ObjectType	type() const		{ return type_; }
 
     bool		getSectionIDs(TypeSet<SectionID>&) const;
     bool		getSectionNames(BufferStringSet&) const;
@@ -68,7 +67,7 @@ public:
 
     // Surface
     inline bool		isSurface() const
-					{ return type_ != EMObjectType::Body; }
+					{ return type_ != ObjectType::Body; }
     bool		getSurfaceData(SurfaceIOData&,uiString& err) const;
 
     // Horizon
@@ -96,11 +95,11 @@ public:
     int			nrSticks() const;
 
     // Helpful stuff
-    static EMObjectType objectTypeOfIOObjGroup(const char*);
+    static ObjectType	objectTypeOfIOObjGroup(const char*);
 
 protected:
 
-    EMObjectType		type_;
+    ObjectType			type_;
     IOObj*			ioobj_;
     const ZDomain::Info*	zinfo_	= nullptr;
     mutable dgbSurfaceReader*	reader_ = nullptr;

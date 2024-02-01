@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "stratlevel.h"
 
 
-mDefineNameSpaceEnumUtils(EM,EMObjectType,"Surface type")
+mDefineNameSpaceEnumUtils(EM,ObjectType,"Surface type")
 {
     "Unknown",
     EMHorizon2DTranslatorGroup::sGroupName().buf(),
@@ -45,23 +45,25 @@ mDefineNameSpaceEnumUtils(EM,EMObjectType,"Surface type")
 };
 
 
-bool EM::isFaultStickSet( EM::EMObjectType emobjtyp )
+bool EM::isFaultStickSet( EM::ObjectType emobjtyp )
 {
-    return emobjtyp == EM::EMObjectType::FltSS2D ||
-	emobjtyp == EM::EMObjectType::FltSS3D ||
-	emobjtyp == EM::EMObjectType::FltSS2D3D;
+    return emobjtyp == EM::ObjectType::FltSS2D ||
+	emobjtyp == EM::ObjectType::FltSS3D ||
+	emobjtyp == EM::ObjectType::FltSS2D3D;
 }
 
 
-bool EM::isHorizon( EM::EMObjectType emobjtyp )
+bool EM::isHorizon( EM::ObjectType emobjtyp )
 {
-    return emobjtyp < EM::EMObjectType::Flt3D;
+    return emobjtyp == EM::ObjectType::Hor2D ||
+	   emobjtyp == EM::ObjectType::Hor3D ||
+	   emobjtyp == EM::ObjectType::AnyHor;
 }
 
 
-bool EM::is2DHorizon(EM::EMObjectType emobjtyp )
+bool EM::is2DHorizon( EM::ObjectType emobjtyp )
 {
-    return emobjtyp == EMObjectType::Hor2D;
+    return emobjtyp == ObjectType::Hor2D;
 }
 
 
@@ -92,8 +94,8 @@ const char* EMManager::displayparameterstr() { return "Display Parameters"; }
 mImplFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager::EMManager()
-    : undo_( *new EMUndo() )
-    , addRemove( this )
+    : addRemove( this )
+    , undo_( *new EMUndo() )
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     mAttachCB( lvlset.levelToBeRemoved, EMManager::levelToBeRemoved );

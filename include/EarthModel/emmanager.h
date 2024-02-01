@@ -34,7 +34,7 @@ class EMObject;
 class SurfaceIOData;
 class SurfaceIODataSelection;
 
-enum class EMObjectType
+enum class ObjectType
 {
     Unknown	= 0,
     Hor2D	= 1,
@@ -48,7 +48,7 @@ enum class EMObjectType
     Body	= 9
 };
 
-mDeclareNameSpaceEnumUtils(EarthModel,EMObjectType)
+mDeclareNameSpaceEnumUtils(EarthModel,ObjectType)
 
 
 /*!
@@ -169,8 +169,8 @@ mDefineFactory1Param( EarthModel, EMObject, EMManager&, EMOF );
 
 mGlobal(EarthModel) EMManager& EMM();
 mGlobal(EarthModel) bool canOverwrite(const MultiID&);
-mGlobal(EarthModel) bool isFaultStickSet(EM::EMObjectType);
-mGlobal(EarthModel) bool isHorizon(EM::EMObjectType);
-mGlobal(EarthModel) bool is2DHorizon(EM::EMObjectType);
+mGlobal(EarthModel) bool isFaultStickSet(EM::ObjectType);
+mGlobal(EarthModel) bool isHorizon(EM::ObjectType);
+mGlobal(EarthModel) bool is2DHorizon(EM::ObjectType);
 
 } // namespace EM

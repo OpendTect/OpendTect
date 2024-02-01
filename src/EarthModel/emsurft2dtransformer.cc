@@ -48,19 +48,19 @@ SurfaceT2DTransformer::SurfaceT2DTransformer(
 
 Executor* SurfaceT2DTransformer::createExecutor(
 			const ObjectSet<SurfaceT2DTransfData>& datas,
-			ZAxisTransform& zatf, EMObjectType objtype )
+			ZAxisTransform& zatf, ObjectType objtype )
 {
-    if ( objtype == EMObjectType::Hor3D )
+    if ( objtype == ObjectType::Hor3D )
 	return new Horizon3DT2DTransformer( datas, zatf );
-    else if ( objtype == EMObjectType::Hor2D )
+    else if ( objtype == ObjectType::Hor2D )
 	return new Horizon2DT2DTransformer( datas, zatf );
-    else if ( objtype == EMObjectType::Flt3D )
+    else if ( objtype == ObjectType::Flt3D )
 	return new FaultT2DTransformer( datas, zatf );
-    else if ( objtype == EMObjectType::FltSet )
+    else if ( objtype == ObjectType::FltSet )
 	return new FaultSetT2DTransformer( datas, zatf );
-    else if ( objtype == EMObjectType::FltSS3D )
+    else if ( objtype == ObjectType::FltSS3D )
 	return new FaultStickSetT2DTransformer( datas, zatf, false );
-    else if ( objtype == EMObjectType::FltSS2D )
+    else if ( objtype == ObjectType::FltSS2D )
 	return new FaultStickSetT2DTransformer( datas, zatf, true );
 
     return nullptr;
@@ -857,12 +857,12 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
 
     outfault3d->enableGeometryChecks( false );
     const EM::FaultStickSetGeometry& fltgeom = fltss->geometry();
-    const EM::EMObjectType objtype = fltgeom.FSSObjType();
-    const bool reqtypecheck = objtype != EM::EMObjectType::FltSS2D3D;
+    const EM::ObjectType objtype = fltgeom.FSSObjType();
+    const bool reqtypecheck = objtype != EM::ObjectType::FltSS2D3D;
     if ( reqtypecheck && zatf_.needsVolumeOfInterest() )
     {
-	const EM::EMObjectType expectedtype = is2d_ ? EM::EMObjectType::FltSS2D
-						   : EM::EMObjectType::FltSS3D;
+	const EM::ObjectType expectedtype = is2d_ ? EM::ObjectType::FltSS2D
+						   : EM::ObjectType::FltSS3D;
 	if ( objtype != expectedtype )
 	    mErrRet( tr("Incorrect type of opbject provided.\n"
 		"Process is expecting a %1 FaultStickSet,\n"

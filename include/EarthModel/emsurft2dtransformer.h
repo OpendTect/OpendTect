@@ -42,7 +42,7 @@ public:
 
     static Executor*		createExecutor(
 				const ObjectSet<SurfaceT2DTransfData>& datas,
-				ZAxisTransform&,EMObjectType);
+				ZAxisTransform&,ObjectType);
 
 				~SurfaceT2DTransformer();
 

@@ -82,7 +82,7 @@ public:
     bool		exportFaultSet();
     void		createHorWithConstZ(bool is2d);
     void		computeIsochron();
-    void		processTime2Depth(uiParent*,EM::EMObjectType);
+    void		processTime2Depth(uiParent*,EM::ObjectType);
 
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
@@ -269,7 +269,7 @@ protected:
     uiSurfaceMan*	manbodydlg_		= nullptr;
 
     EM::uiTime2DepthDlg*	getTime2DepthEMDlg(uiParent*,
-					    EM::EMObjectType,
+					    EM::ObjectType,
 					    EM::uiTime2DepthDlg*&);
 
     void			displayOnCreateCB(CallBacker*);
