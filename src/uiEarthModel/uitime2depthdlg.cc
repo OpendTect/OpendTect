@@ -38,9 +38,31 @@ ________________________________________________________________________
 namespace EM
 {
 
+static HelpKey getHelpKey( IOObjInfo::ObjectType objtype )
+{
+    HelpKey key = mNoHelpKey;
+    switch (objtype)
+    {
+    case IOObjInfo::Horizon3D:
+    case IOObjInfo::Horizon2D:
+	key = mODHelpKey(mProcessHorizonTime2DepthID);
+	break;
+    case IOObjInfo::Fault:
+	key = mODHelpKey(mProcessFaultTime2DepthID);
+	break;
+    case IOObjInfo::FaultSet:
+	key = mODHelpKey(mProcessFaultSetTime2DepthID);
+	break;
+    default:
+	break;
+    }
+
+    return key;
+}
+
 uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
     : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype),mNoDlgTitle,
-	       mODHelpKey(mProcessHorizonTime2DepthID)))
+							getHelpKey(objtype)))
     , objtype_(objtype)
 {
     setCtrlStyle( RunAndClose );
