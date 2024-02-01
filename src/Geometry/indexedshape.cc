@@ -269,7 +269,7 @@ void IndexedGeometry::appendCoordIndicesAsTriangles(
 {
     if ( !primitiveset_ || primitivesettype_ == RangeSet ) return;
 
-    for ( int idx = 0; idx< indices.size()-2; idx+=3 )
+    for ( int idx = 0; idx< indices.size()-2; idx++ )
     {
 	const bool doreverse = reverse != bool(idx%2);
 
