@@ -323,6 +323,8 @@ ________________________________________________________________________
 #define		mFltSetManHelpID				0x10401013
 #define		mImportFaultSetHelpID				0x10401014
 #define		mExportFaultSetHelpID				0x10401015
+#define		mProcessFaultTime2DepthID			0x10401016
+#define		mProcessFaultSetTime2DepthID			0x10401017
 // Surfaces Manage 02
 #define		mSurfaceManHelpID				0x10402000
 #define		mSurface2DManHelpID				0x10402001
