@@ -33,9 +33,36 @@ ________________________________________________________________________
 
 namespace EM
 {
+static HelpKey getHelpKey( EMObjectType objtype )
+{
+    HelpKey key = mNoHelpKey;
+    switch( objtype )
+    {
+	case EMObjectType::Hor3D:
+	case EMObjectType::Hor2D:
+	    key = mODHelpKey( mProcessHorizonTime2DepthID );
+	    break;
+	case EMObjectType::Flt3D:
+	    key = mODHelpKey( mProcessFaultTime2DepthID );
+	    break;
+	case EMObjectType::FltSet:
+	    key = mODHelpKey( mProcessFaultSetTime2DepthID );
+	    break;
+	case EMObjectType::FltSS2D:
+	case EMObjectType::FltSS3D:
+	case EMObjectType::FltSS2D3D:
+	    key = mODHelpKey( mProcessFaultStickSetTime2DepthID );
+	    break;
+	default:
+	    break;
+    }
+
+    return key;
+}
+
 uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, EMObjectType objtype )
     : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype),mNoDlgTitle,
-	       mODHelpKey(mProcessHorizonTime2DepthID)).modal(false))
+					getHelpKey(objtype)).modal(false))
     , objtype_(objtype)
 {
     setCtrlStyle( RunAndClose );

@@ -180,7 +180,7 @@ void uiEMPartServer::processTime2Depth( uiParent* p,
     else if ( objtype == EM::EMObjectType::FltSet )
 	dlg = getTime2DepthEMDlg( p, objtype, t2dfltsetdlg_ );
     else if ( objtype == EM::EMObjectType::FltSS2D )
-	uiMSG().error( tr("Workflow not implemented") );
+	dlg = getTime2DepthEMDlg( p, objtype, t2d2dfssdlg_ );
     else if ( objtype == EM::EMObjectType::FltSS3D )
 	dlg = getTime2DepthEMDlg( p, objtype, t2d3dfssdlg_ );
 
