@@ -867,7 +867,7 @@ bool uiVelModelZAxisTransform::acceptOK()
     if ( !transform_ || !transform_->isOK() )
     {
 	uiRetVal msgs( tr("Internal: Could not initialize transform") );
-	if ( !transform_->errMsg().isEmpty() )
+	if ( transform_ && !transform_->errMsg().isEmpty() )
 	    msgs.add( transform_->errMsg() );
 
 	uiMSG().errorWithDetails( msgs.messages() );
