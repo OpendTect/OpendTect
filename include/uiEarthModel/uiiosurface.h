@@ -341,15 +341,14 @@ public:
 
 
 mExpClass(uiEarthModel) uiFaultSel : public uiIOObjSel
-{ mODTextTranslationClass(uiFaultSel)
+{
+mODTextTranslationClass(uiFaultSel)
 public:
-			    uiFaultSel(uiParent*,EM::IOObjInfo::ObjectType,
-				const ZDomain::Info*,bool isforread,
-				const uiIOObjSel::Setup ={});
-			    ~uiFaultSel();
-protected:
-    const uiString	getLabelText(const ZDomain::Info&,bool forread,
-					EM::IOObjInfo::ObjectType) const;
-    IOObjContext	ioContext(bool,EM::IOObjInfo::ObjectType,
-						    const ZDomain::Info*);
+			uiFaultSel(uiParent*,EM::IOObjInfo::ObjectType,
+				   const ZDomain::Info*,bool isforread,
+				   const uiIOObjSel::Setup& ={});
+			uiFaultSel(uiParent*,EM::IOObjInfo::ObjectType,
+				   bool isforread,
+				   const uiIOObjSel::Setup& ={});
+			~uiFaultSel();
 };
