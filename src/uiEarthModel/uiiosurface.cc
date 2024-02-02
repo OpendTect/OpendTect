@@ -44,13 +44,13 @@ const int cListHeight = 5;
 
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
     : uiGroup(p,"Surface selection")
-    , ctio_(nullptr)
+    , attrSelChange(this)
     , sectionfld_(nullptr)
     , attribfld_(nullptr)
     , rgfld_(nullptr)
-    , attrSelChange(this)
-    , forread_(forread)
     , objfld_(nullptr)
+    , ctio_(nullptr)
+    , forread_(forread)
 {
     init( tp, nullptr );
 }
@@ -59,13 +59,13 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp,
 			  const ZDomain::Info* zinfo )
     : uiGroup(p,"Surface selection")
-    , ctio_(nullptr)
+    , attrSelChange(this)
     , sectionfld_(nullptr)
     , attribfld_(nullptr)
     , rgfld_(nullptr)
-    , attrSelChange(this)
-    , forread_(forread)
     , objfld_(nullptr)
+    , ctio_(nullptr)
+    , forread_(forread)
 {
     init( tp, zinfo );
 }
@@ -986,7 +986,7 @@ void uiFaultParSel::setIs2D( bool is2d )
 }
 
 
-void uiFaultParSel::updateOnSelChgCB( CallBacker* cb )
+void uiFaultParSel::updateOnSelChgCB( CallBacker* )
 {
     setSelText( isfltset_ ? uiStrings::sFaultSet( mPlural )
 			: (is2d_ ? uiStrings::sFaultStickSet(mPlural)
@@ -1346,23 +1346,22 @@ uiHorizonSel::~uiHorizonSel()
 
 
 //uiFaultSel
-uiFaultSel::uiFaultSel( uiParent* p, EM::IOObjInfo::ObjectType type,
-    const ZDomain::Info* zinfo, bool isforread, const uiIOObjSel::Setup su )
-    : uiIOObjSel(p,ioContext(isforread,type,zinfo),su)
+static uiString getLabelText( bool forread, EM::IOObjInfo::ObjectType type )
 {
-    if ( su.seltxt_.isEmpty() )
-	setLabelText( getLabelText(zinfo ? *zinfo : SI().zDomainInfo(),
-	    isforread,type) );
+    uiString showstr;
+    if ( type == EM::IOObjInfo::Fault )
+	showstr = uiStrings::sFault();
+    else if ( type == EM::IOObjInfo::FaultStickSet )
+	showstr = uiStrings::sFaultStickSet();
+    else
+	showstr = uiStrings::sFaultSet();
 
-    fillEntries();
+    return forread ? uiStrings::phrInput( showstr )
+		   : uiStrings::phrOutput( showstr );
 }
 
 
-uiFaultSel::~uiFaultSel()
-{}
-
-
-IOObjContext uiFaultSel::ioContext( bool isforread,
+static IOObjContext ioContext( bool isforread,
 		EM::IOObjInfo::ObjectType type, const ZDomain::Info* zinfo )
 {
 
@@ -1385,30 +1384,24 @@ IOObjContext uiFaultSel::ioContext( bool isforread,
 }
 
 
-const uiString uiFaultSel::getLabelText( const ZDomain::Info& zinfo,
-    bool forread, EM::IOObjInfo::ObjectType type ) const
+uiFaultSel::uiFaultSel( uiParent* p, EM::IOObjInfo::ObjectType type,
+			const ZDomain::Info* zinfo, bool isforread,
+			const uiIOObjSel::Setup& su )
+    : uiIOObjSel(p,ioContext(isforread,type,zinfo),su)
 {
-    uiString showstr;
-    if ( type == EM::IOObjInfo::Fault )
-    {
-	const uiString stimehflt = tr("time fault");
-	const uiString sdepthhflt = tr("depth fault");
-	showstr = zinfo.isTime() ? stimehflt : sdepthhflt;
-    }
-    else if ( type == EM::IOObjInfo::FaultStickSet )
-    {
-	const uiString stimehfss = tr("time faultstickset");
-	const uiString sdepthhfss = tr("depth faultstickset");
-	showstr = zinfo.isTime() ? stimehfss : sdepthhfss;
-    }
-    else
-    {
-	const uiString stimehfltset = tr("time faultset");
-	const uiString sdepthhfltset = tr("depth faultset");
-	showstr = zinfo.isTime() ? stimehfltset : sdepthhfltset;
+    if ( su.seltxt_.isEmpty() )
+	setLabelText( getLabelText(isforread,type) );
 
-    }
-
-    return forread ? uiStrings::phrInput( showstr )
-	: uiStrings::phrOutput( showstr );
+    fillEntries();
 }
+
+
+uiFaultSel::uiFaultSel( uiParent* p, EM::IOObjInfo::ObjectType type,
+			bool isforread, const uiIOObjSel::Setup& su )
+    : uiFaultSel(p,type,nullptr,isforread,su)
+{
+}
+
+
+uiFaultSel::~uiFaultSel()
+{}

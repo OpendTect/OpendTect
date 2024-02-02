@@ -81,15 +81,15 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
 					: tr("Import FaultStickSet")),
 			     tr("Import Fault") ),
 		mNoDlgTitle,mGetHelpKey(type)).modal(false))
-    , isfss_(mGet(type,true,false))
-    , fd_(nullptr)
-    , type_(type)
+    , importReady(this)
     , typefld_(nullptr)
     , sortsticksfld_(0)
     , stickselfld_(nullptr)
     , thresholdfld_(nullptr)
+    , fd_(nullptr)
+    , isfss_(mGet(type,true,false))
+    , type_(type)
     , is2d_(is2d)
-    , importReady(this)
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     enableSaveButton( tr("Display after import") );
