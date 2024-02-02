@@ -643,8 +643,15 @@ void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
 
 void CtxtIOObj::setObj( IOObj* obj )
 {
-    if ( areEqual(obj,ioobj_) )
+    if ( obj == ioobj_ )
 	return;
+
+    if ( ioobj_ && obj && obj->key()==ioobj_->key() )
+    {
+	// It's the same DB object, just update the metadata.
+	ioobj_->copyFrom( obj );
+	return;
+    }
 
     delete ioobj_;
     ioobj_ = obj;
