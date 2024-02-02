@@ -166,17 +166,31 @@ void uiEMPartServer::cleanup()
 
 void uiEMPartServer::processTime2Depth( EM::IOObjInfo::ObjectType objtype )
 {
-    launchTime2DepthDlg( parent(), objtype );
+    launchTime2DepthDlg_( parent(), objtype, false );
 }
 
 
 void uiEMPartServer::launchTime2DepthDlg( uiParent* parent,
-					EM::IOObjInfo::ObjectType objtype )
+    EM::IOObjInfo::ObjectType objtype )
+{
+    launchTime2DepthDlg_( parent, objtype, false );
+}
+
+
+void uiEMPartServer::processTime2Depth_( EM::IOObjInfo::ObjectType objtype,
+							    bool is2d )
+{
+    launchTime2DepthDlg_( parent(), objtype, is2d );
+}
+
+
+void uiEMPartServer::launchTime2DepthDlg_( uiParent* parent,
+			EM::IOObjInfo::ObjectType objtype, bool is2d )
 {
     const uiRetVal ret =  EM::uiTime2DepthDlg::canTransform( objtype );
     if ( ret.isOK() )
     {
-	EM::uiTime2DepthDlg dlg( parent, objtype );
+	EM::uiTime2DepthDlg dlg( parent, objtype, is2d );
 	dlg.go();
     }
     else

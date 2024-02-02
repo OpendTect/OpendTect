@@ -156,6 +156,9 @@ protected:
 
     ObjectSet<StickInfo>	 stickinfo_;
 
+public:
+    OD::Pol2D3D			FSSObjType() const;
+
 };
 
 

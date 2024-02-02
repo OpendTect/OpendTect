@@ -29,7 +29,7 @@ mExpClass(uiEarthModel) uiTime2DepthDlg  : public uiDialog
 { mODTextTranslationClass(uiEMObjectTime2DepthDlg )
 public:
 				uiTime2DepthDlg (uiParent*,
-					    IOObjInfo::ObjectType);
+					    IOObjInfo::ObjectType,bool);
 				~uiTime2DepthDlg ();
 
     static uiRetVal		canTransform(IOObjInfo::ObjectType);
@@ -44,7 +44,7 @@ protected:
     uiSurfaceWrite*		outtimesel_		= nullptr;
     uiSurfaceWrite*		outdepthsel_		= nullptr;
 
-    uiString			getDlgTitle(IOObjInfo::ObjectType) const;
+    uiString			getDlgTitle(IOObjInfo::ObjectType,bool) const;
 
     const ZDomain::Info&	outZDomain() const;
 
@@ -60,5 +60,6 @@ protected:
     virtual bool		hasSurfaceIOData() const;
 
     const IOObjInfo::ObjectType objtype_;
+    bool			is2d_	= false;
 };
 }

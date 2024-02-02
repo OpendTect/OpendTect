@@ -377,20 +377,25 @@ void uiODApplMgr::processVelConv( CallBacker* )
 
 void uiODApplMgr::processTime2DepthHor( bool is2d )
 {
-    emserv_->processTime2Depth( is2d ? EM::IOObjInfo::Horizon2D
-				     : EM::IOObjInfo::Horizon3D );
+    emserv_->processTime2Depth_( is2d ? EM::IOObjInfo::Horizon2D
+				      : EM::IOObjInfo::Horizon3D, is2d );
+}
+
+void uiODApplMgr::processTime2DepthFSS( bool is2d )
+{
+    emserv_->processTime2Depth_( EM::IOObjInfo::FaultStickSet, is2d );
 }
 
 
 void uiODApplMgr::processTime2DepthFault( CallBacker* )
 {
-    emserv_->processTime2Depth( EM::IOObjInfo::Fault );
+    emserv_->processTime2Depth_( EM::IOObjInfo::Fault, false );
 }
 
 
 void uiODApplMgr::processTime2DepthFaultSet( CallBacker* )
 {
-    emserv_->processTime2Depth( EM::IOObjInfo::FaultSet );
+    emserv_->processTime2Depth_( EM::IOObjInfo::FaultSet, false );
 }
 
 

@@ -162,6 +162,7 @@ ________________________________________________________________________
 /* 'Processing' menu */
 
 #define mUseHorMnu		(mProcMnu + 40)
+#define mUseTDMnu		(mProcMnu + 60)
 
 
 #define mSeisOutMnuItm		(mProcMnu + 20)
@@ -175,8 +176,6 @@ ________________________________________________________________________
 #define m3DFrom2DInterPolMnuItm (mProcMnu + 28)
 #define mVolProc2DMnuItm	(mProcMnu + 29)
 #define mVolProc3DMnuItm	(mProcMnu + 30)
-#define mT2DConv2DMnuItm	(mProcMnu + 31)
-#define mT2DConv3DMnuItm	(mProcMnu + 32)
 #define mCreateSurf2DMnuItm	(mUseHorMnu + 1)
 #define mCompBetweenHor2DMnuItm	(mUseHorMnu + 2)
 #define mCompAlongHor2DMnuItm	(mUseHorMnu + 3)
@@ -184,9 +183,13 @@ ________________________________________________________________________
 #define mCompBetweenHor3DMnuItm	(mUseHorMnu + 5)
 #define mCompAlongHor3DMnuItm	(mUseHorMnu + 6)
 #define mFlattenSingleMnuItm	(mUseHorMnu + 7)
-#define mT2DHor2DMnuItm		(mUseHorMnu + 8)
-#define mT2DHor3DMnuItm		(mUseHorMnu + 9)
 #define mStartBatchJobMnuItm	(mProcMnu + 50)
+#define mT2DHor2DMnuItm		(mUseTDMnu + 1)
+#define mT2DHor3DMnuItm		(mUseTDMnu + 2)
+#define mT2DConv2DMnuItm	(mUseTDMnu + 3)
+#define mT2DConv3DMnuItm	(mUseTDMnu + 4)
+#define mT2DFSS2DMnuItm		(mUseTDMnu + 5)
+#define mT2DFSS3DMnuItm		(mUseTDMnu + 6)
 
 
 /* 'Scenes' menu */
