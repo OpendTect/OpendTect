@@ -1,0 +1,18 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Nanne Hemstra
+ Date:		Aug 2021
+________________________________________________________________________
+
+-*/
+
+
+/*!
+\defgroup ODHDF5 ODHDF5
+\brief Implementation of the HDF5 link
+
+\namespace HDF5
+For classes dealing with with HDF5 link
+*/
