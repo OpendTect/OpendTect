@@ -753,8 +753,10 @@ void uiODMenuMgr::fillProcMenu()
 		    mCB(&applMgr(),uiODApplMgr,processTime2DepthFaultSet)) );
     }
 
+#ifdef __debug__
     add2D3DMenuItem( *t2dconvitm, "empty", uiStrings::sFaultStickSet(),
 					mT2DFSS2DMnuItm, mT2DFSS3DMnuItm );
+#endif // DEBUG
     add2D3DMenuItem( *t2dconvitm, "empty", uiStrings::sHorizon(),
 				    mT2DHor2DMnuItm, mT2DHor3DMnuItm );
     add2D3DMenuItem( *t2dconvitm, "empty", uiStrings::sSeismic(),
