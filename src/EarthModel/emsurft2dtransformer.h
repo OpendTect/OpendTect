@@ -62,6 +62,7 @@ protected:
 
     virtual OD::Pol2D3D		dataTypeSupported() { return OD::Both2DAnd3D; }
     bool			do3DHorizon(const EM::EMObject&,Surface&);
+    inline virtual bool		updateHSamp() const { return false; }
 
     void			load3DTranformVol();
     void			unloadVolume();
@@ -95,6 +96,7 @@ protected:
     void		    postStepCB(CallBacker*) override;
     int			    nextStep() override;
     const StringView	    getTypeString() override;
+    inline virtual bool     updateHSamp() const override { return true; }
     bool		    doHorizon(const SurfaceT2DTransfData&);
 
     int			    zatvoi_	= -1;

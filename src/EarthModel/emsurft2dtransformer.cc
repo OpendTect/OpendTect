@@ -99,7 +99,9 @@ void SurfaceT2DTransformer::load3DTranformVol()
     }
 
     TrcKeyZSampling samp;
-    samp.hsamp_ = datas_[0]->surfsel_.rg;
+    if ( updateHSamp() )
+	samp.hsamp_ = datas_[0]->surfsel_.rg;
+
     if ( samp.zsamp_.stop > zgate.stop )
 	samp.zsamp_.stop = samp.zsamp_.snap( zgate.stop, OD::SnapUpward );
 
@@ -896,7 +898,6 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
 	{
 	    const RowCol rc( sticknr, knotidx );
 	    Coord3 pos = fss->getKnot( RowCol(sticknr,knotidx) );
-
 	    trckey.setFrom( pos.coord() );
 	    pos.z = zatf_.transformTrc( trckey, pos.z );
 	    if ( knotidx == colrg.start )
