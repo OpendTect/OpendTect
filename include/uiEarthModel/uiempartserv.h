@@ -229,7 +229,7 @@ protected:
     void		importReadyCB(CallBacker*);
     void		survChangedCB(CallBacker*);
 
-    EM::ObjectID	selemid_;
+    EM::ObjectID		selemid_;
     uiImportHorizon*		imphorattrdlg_		= nullptr;
     uiImportHorizon*		imphorgeomdlg_		= nullptr;
     uiBulkHorizonImport*	impbulkhordlg_		= nullptr;
@@ -273,4 +273,5 @@ protected:
 					    EM::uiTime2DepthDlg*&);
 
     void			displayOnCreateCB(CallBacker*);
+    void			dialogToBeDeleted(CallBacker*);
 };

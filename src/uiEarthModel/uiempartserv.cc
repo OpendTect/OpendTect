@@ -152,11 +152,32 @@ EM::uiTime2DepthDlg* uiEMPartServer::getTime2DepthEMDlg( uiParent* p,
 	}
 
 	dlg = new EM::uiTime2DepthDlg( p, objtype );
+	mAttachCB(dlg->objectToBeDeleted(),uiEMPartServer::dialogToBeDeleted);
 	if ( usepar )
 	    dlg->usePar( par );
     }
 
     return dlg;
+}
+
+
+void uiEMPartServer::dialogToBeDeleted( CallBacker* cb )
+{
+    if ( !cb )
+	return;
+
+    if ( cb == t2d3dfssdlg_ )
+	t2d3dfssdlg_ = nullptr;
+    else if ( cb == t2d2dfssdlg_ )
+	t2d2dfssdlg_ = nullptr;
+    else if ( cb == t2dfltsetdlg_ )
+	t2dfltsetdlg_ = nullptr;
+    else if ( cb == t2dfltdlg_ )
+	t2dfltdlg_ = nullptr;
+    else if ( cb == t2d3dhordlg_ )
+	t2d3dhordlg_ = nullptr;
+    else if ( cb == t2d2dhordlg_ )
+	t2d2dhordlg_ = nullptr;
 }
 
 
