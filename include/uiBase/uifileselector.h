@@ -36,6 +36,7 @@ public:
     mDefSetupMemb(BufferString,		mask)
     mDefSetupMemb(bool,			confirmoverwrite)
     mDefSetupMemb(bool,			onlylocal)
+    mDefSetupMemb(bool,			skiplocal)
 
 
 			uiFileSelectorSetup(const char* fnm=nullptr);
