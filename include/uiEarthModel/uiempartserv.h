@@ -221,10 +221,15 @@ public:
     void		managePreLoad();
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    mDeprecated("processTime2Depth_")
     void		processTime2Depth(EM::IOObjInfo::ObjectType);
+    void		processTime2Depth_(EM::IOObjInfo::ObjectType,bool);
 
+    mDeprecated("launchTime2DepthDlg_")
     static void		launchTime2DepthDlg(uiParent*,
 						    EM::IOObjInfo::ObjectType);
+    static void		launchTime2DepthDlg_(uiParent*,
+					    EM::IOObjInfo::ObjectType,bool);
 
 protected:
     void		cleanup();

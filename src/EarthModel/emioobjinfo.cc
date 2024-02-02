@@ -447,7 +447,7 @@ bool IOObjInfo::getBodyRange( TrcKeyZSampling& cs ) const
 int IOObjInfo::nrSticks() const
 {
     if ( !ioobj_ )
-	return false;
+	return 0;
 
     PtrMan<Translator> trans = ioobj_->createTranslator();
     mDynamicCastGet(EMSurfaceTranslator*,emtr,trans.ptr())

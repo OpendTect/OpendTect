@@ -34,6 +34,8 @@ ________________________________________________________________________
 #include "zdomain.h"
 #include "visdrawstyle.h"
 #include "limits.h"
+#include "zaxistransform.h"
+
 
 namespace visSurvey
 {
@@ -299,7 +301,8 @@ const MarkerStyle3D* FaultStickSetDisplay::markerStyle() const
 
 void FaultStickSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
+    if ( viseditor_ )
+	viseditor_->setDisplayTransformation( nt );
 
     sticks_->setDisplayTransformation( nt );
     activestick_->setDisplayTransformation( nt );
@@ -1043,7 +1046,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 
 void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 {
-    if ( !fault_ || !fsseditor_ )
+    if ( !fault_ || !fsseditor_ || !viseditor_ )
 	return;
 
     NotifyStopper ns( fsseditor_->editpositionchange );
@@ -1286,7 +1289,9 @@ void FaultStickSetDisplay::setPreferedMarkerStyle( const MarkerStyle3D& ms )
     MarkerStyle3D myms = ms;
     myms.color_ = OD::Color::Yellow();
 
-    viseditor_->setMarkerStyle( myms );
+    if ( !viseditor_ )
+	viseditor_->setMarkerStyle( myms );
+
     setStickMarkerStyle( myms );
 
     if ( fault_ )

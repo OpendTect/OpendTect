@@ -53,6 +53,9 @@ static HelpKey getHelpKey( IOObjInfo::ObjectType objtype )
     case IOObjInfo::FaultSet:
 	key = mODHelpKey(mProcessFaultSetTime2DepthID);
 	break;
+    case IOObjInfo::FaultStickSet:
+	key = mODHelpKey( mProcessFaultStickSetTime2DepthID );
+	break;
     default:
 	break;
     }
@@ -60,15 +63,16 @@ static HelpKey getHelpKey( IOObjInfo::ObjectType objtype )
     return key;
 }
 
-uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
-    : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype),mNoDlgTitle,
+uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype,
+								    bool is2d )
+    : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype,is2d),mNoDlgTitle,
 							getHelpKey(objtype)))
     , objtype_(objtype)
+    , is2d_(is2d)
 {
     setCtrlStyle( RunAndClose );
 
     IOObjContext ioobjctxt( nullptr );
-    bool is2d = is2DObject();
     if ( objtype == IOObjInfo::Horizon3D )
 	ioobjctxt = mIOObjContext(EMHorizon3D);
     else if ( objtype == IOObjInfo::Horizon2D )
@@ -77,6 +81,8 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
 	ioobjctxt = mIOObjContext(EMFault3D);
     else if ( objtype == IOObjInfo::FaultSet )
 	ioobjctxt = mIOObjContext(EMFaultSet3D);
+    else if ( objtype == IOObjInfo::FaultStickSet )
+	ioobjctxt = mIOObjContext(EMFaultStickSet);
     else
 	return;
 
@@ -149,7 +155,8 @@ uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
 {
     uiRetVal ret;
     if ( objtype == IOObjInfo::Horizon3D || objtype == IOObjInfo::Horizon2D ||
-	 objtype == IOObjInfo::Fault || objtype == IOObjInfo::FaultSet )
+	 objtype == IOObjInfo::Fault || objtype == IOObjInfo::FaultSet ||
+	 objtype == IOObjInfo::FaultStickSet )
 	return ret;
     else
 	ret.add( tr("Object type is not yet supported") );
@@ -161,11 +168,13 @@ uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
 bool uiTime2DepthDlg::hasSurfaceIOData() const
 {
     return objtype_ == IOObjInfo::Horizon2D || objtype_ == IOObjInfo::Horizon3D
-	|| objtype_ == IOObjInfo::Fault;
+	|| objtype_ == IOObjInfo::Fault
+	|| objtype_ == IOObjInfo::FaultStickSet;
 }
 
 
-uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objtyp ) const
+uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objtyp,
+							    bool is2d ) const
 {
     if ( objtyp == IOObjInfo::Horizon3D )
 	return tr("Transform 3D Horizon");
@@ -175,6 +184,10 @@ uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objtyp ) const
 	return tr("Transform Fault");
     else if ( objtyp == IOObjInfo::FaultSet )
 	return tr("Tranform FaultSet");
+    else if ( is2d && objtyp == IOObjInfo::FaultStickSet )
+	return tr("Tranform FaultStickSet 2D");
+    else if ( objtyp == IOObjInfo::FaultStickSet )
+	return tr("Tranform FaultStickSet 3D");
 
     return toUiString("Object Type Not Supported");
 }
@@ -280,7 +293,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     datas.add( data );
 
     PtrMan<Executor> exec = SurfaceT2DTransformer::createExecutor( datas,
-							    *zatf, objtype_ );
+						    *zatf, objtype_, is2d_ );
     mDynamicCastGet(SurfaceT2DTransformer*,surftrans,exec.ptr());
     if ( !surftrans )
     {
@@ -289,10 +302,11 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     }
 
     uiTaskRunner tskr( this );
-    if ( !TaskRunner::execute(&tskr,*surftrans) )
+    const bool errocc = TaskRunner::execute( &tskr, *surftrans );
+    if ( !errocc || surftrans->errMsg().isError() )
     {
 	uiMSG().errorWithDetails( tr("Fail to transform the %1").
-			    arg(inpioobj->name()), surftrans->uiMessage() );
+			    arg(inpioobj->name()), surftrans->errMsg() );
 	deepErase( datas );
 	return false;
     }
