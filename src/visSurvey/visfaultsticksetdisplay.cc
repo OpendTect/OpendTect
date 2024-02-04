@@ -1286,7 +1286,9 @@ void FaultStickSetDisplay::setPreferedMarkerStyle( const MarkerStyle3D& ms )
     MarkerStyle3D myms = ms;
     myms.color_ = OD::Color::Yellow();
 
-    viseditor_->setMarkerStyle( myms );
+    if ( viseditor_ )
+	viseditor_->setMarkerStyle( myms );
+
     setStickMarkerStyle( myms );
 
     if ( fault_ )
