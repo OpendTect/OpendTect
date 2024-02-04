@@ -700,10 +700,9 @@ IOPar uiStratLayerModel::getSynthPars() const
 	ret.mergeComp( *elpropiop.ptr(),
 		       ElasticPropSelection::sKeyElasticProp() );
 
-    PtrMan<IOPar> synthiop =
-		  wbpars.subselect( StratSynth::DataMgr::sKeySynthetics() );
+    PtrMan<IOPar> synthiop = wbpars.subselect( sKey::Synthetic(2) );
     if ( synthiop && !synthiop->isEmpty() )
-	ret.mergeComp( *synthiop.ptr(), StratSynth::DataMgr::sKeySynthetics() );
+	ret.mergeComp( *synthiop.ptr(), sKey::Synthetic(2) );
 
     return ret;
 }

@@ -891,6 +891,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     mAttachCB( tbl_->rowInserted, uiD2TModelDlg::dtpointAddedCB );
     mAttachCB( tbl_->rowDeleted, uiD2TModelDlg::dtpointRemovedCB );
     mAttachCB( tbl_->selectionDeleted, uiD2TModelDlg::selectionDeletedCB );
+    mAttachCB( tbl_->selectionChanged, uiD2TModelDlg::selectionChangedCB );
     uiString kbstr = toUiString(Well::Info::sKBElev());
     tbl_->setColumnToolTip( cMDCol,
 	   tr("Measured depth along the borehole, origin at %1").arg(kbstr));
@@ -1201,6 +1202,12 @@ void uiD2TModelDlg::dtpointChangedCB( CallBacker* )
     const int row = tbl_->currentRow();
     const int col = tbl_->currentCol();
 
+    if ( row>mdvals_.size()-1 )
+    {
+	mdvals_.setSize( row+1 );
+	tvals_.setSize( row+1 );
+    }
+
     if ( col < getTimeCol() )
 	updateDtpointDepth( row );
     else if ( col == getTimeCol() )
@@ -1284,13 +1291,23 @@ void uiD2TModelDlg::selectionDeletedCB( CallBacker* )
 }
 
 
+void uiD2TModelDlg::selectionChangedCB( CallBacker* )
+{
+    const RowCol curcell = tbl_->currentCell();
+    if ( curcell.row()==tbl_->nrRows()-1 )
+    {
+	tbl_->insertRows( curcell, 1 );
+	tbl_->setCurrentCell( curcell );
+    }
+}
+
 bool uiD2TModelDlg::updateDtpointDepth( int row )
 {
     NotifyStopper ns( tbl_->valueChanged );
     const Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
     const int tracksz = wd_.track().size();
-    if ( !d2t || d2t->size()<2 || tracksz<2 )
+    if ( !d2t || tracksz<2 )
     {
 	uiString errmsg = tracksz<2 ? tr("Invalid track")
 				    : tr("Invalid time-depth model");
@@ -1430,7 +1447,7 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
     const Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
     const int tracksz = wd_.track().size();
-    if ( !d2t || d2t->size()<2 || tracksz<2 )
+    if ( !d2t || tracksz<2 )
     {
 	uiString errmsg = tracksz<2 ? tr("Invalid track")
 				    : tr("Invalid time-depth model");
@@ -1492,7 +1509,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
     Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
     const int tracksz = wd_.track().size();
-    if ( !d2t || d2t->size()<2 || tracksz<2 )
+    if ( !d2t || tracksz<2 )
     {
 	uiString errmsg = tracksz<2 ? tr("Invalid track")
 				    : tr("Invalid time-depth model");
@@ -1550,7 +1567,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
 bool uiD2TModelDlg::rowIsIncomplete( int row ) const
 {
     Well::D2TModel* d2t = mD2TModel;
-    if ( !d2t || d2t->size()<2 )
+    if ( !d2t )
 	mErrRet( tr("Invalid time-depth model") )
 
     if ( row >= d2t->size() )

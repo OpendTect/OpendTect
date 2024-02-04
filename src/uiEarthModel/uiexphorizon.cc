@@ -350,17 +350,23 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     outfld_ = new uiASCIIFileInput( this, false );
     outfld_->attach( alignedBelow, udffld_ );
 
-    mAttachCB( postFinalize(), uiExportHorizon::typChg );
-    if ( !isbulk )
-	mAttachCB( postFinalize(), uiExportHorizon::inpSel );
-    else
-	mAttachCB( postFinalize(), uiExportHorizon::zDomainTypeChg );
+    mAttachCB( postFinalize(), uiExportHorizon::initGrpCB );
 }
 
 
 uiExportHorizon::~uiExportHorizon()
 {
     detachAllNotifiers();
+}
+
+
+void uiExportHorizon::initGrpCB( CallBacker* )
+{
+    typChg( nullptr );
+    if ( isbulk_ )
+	zDomainTypeChg( nullptr );
+    else
+	inpSel( nullptr );
 }
 
 
@@ -476,6 +482,15 @@ bool uiExportHorizon::writeAscii()
     uiString errmsg;
     BufferString fname( basename );
     od_ostream stream( fname );
+    if ( stream.isBad() )
+	mErrRet( uiStrings::sCantOpenOutpFile() );
+
+    if ( !dogf )
+    {
+	stream.stdStream() << std::fixed;
+	writeHeader( stream );
+    }
+
     for ( int horidx=0; horidx<midset.size(); horidx++ )
     {
 	ConstPtrMan<IOObj> ioobj = IOM().get( midset[horidx] );
@@ -486,13 +501,9 @@ bool uiExportHorizon::writeAscii()
 	    mErrRet( errmsg )
 
 	EM::SurfaceIODataSelection sels( sd );
-	if ( isbulk_ )
-	    for ( int idx = 0; idx < sd.sections.size(); idx++ )
-		sels.selsections += idx;
-	else
+	if ( !isbulk_ )
 	    infld_->getSelection( sels );
 
-	sels.selvalues.erase();
 	RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
 	if ( !emobj )
 	    mErrRet(uiStrings::sCantCreateHor())
@@ -512,16 +523,6 @@ bool uiExportHorizon::writeAscii()
 				 "Do you wish to continue?")) )
 	    return false;
 
-	if ( !isbulk_ && !sels.selvalues.isEmpty() )
-	{
-	    ExecutorGroup exgrp( "Reading aux data" );
-	    for ( int idx=0; idx<sels.selvalues.size(); idx++ )
-		exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
-
-	    if ( !TaskRunner::execute(&taskrunner,exgrp) )
-		return false;
-	}
-
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	const UnitOfMeasure* unit = unitsel_->getUnit();
 	const int nrattribs = hor->auxdata.nrAuxData();
@@ -534,11 +535,6 @@ bool uiExportHorizon::writeAscii()
 
 	if ( dogf )
 	    initGF( stream, gfname_.buf(), gfcomment_.buf() );
-	else
-	{
-	    stream.stdStream() << std::fixed;
-	    writeHeader( stream );
-	}
 
 	Write3DHorASCII::Setup su;
 	su.addzpos( addzpos ).doxy( doxy ).doic(doic).dogf( dogf )
@@ -656,6 +652,8 @@ void uiExportHorizon::addZChg( CallBacker* )
     const bool isgf = exportToGF();
     settingsbutt_->display( isgf );
     writezfld_->display( !isgf );
+    const bool addz = writezfld_->getBoolValue();
+    unitsel_->display( isgf || addz );
 }
 
 

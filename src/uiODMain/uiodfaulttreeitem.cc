@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "seistrctr.h"
 #include "threadwork.h"
+#include "zaxistransform.h"
 
 #include "uiempartserv.h"
 #include "uimenu.h"
@@ -87,18 +88,15 @@ bool uiODFaultParentTreeItem::showSubMenu()
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
-    if ( hastransform )
-    {
-	uiMSG().message( tr("Cannot add Faults to this scene") );
-	return false;
-    }
-
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
-    uiAction* newmenu = new uiAction( uiStrings::sNew() );
-    mnu.insertAction( newmenu, mNewMnuID );
-    showMenuNotifier().trigger( &mnu, this );
+    if ( !hastransform )
+    {
+	auto* newmenu = new uiAction( uiStrings::sNew() );
+	mnu.insertAction( newmenu, mNewMnuID );
+    }
 
+    showMenuNotifier().trigger( &mnu, this );
     if ( children_.size() )
     {
 	bool candispatsect = false;
@@ -138,7 +136,14 @@ bool uiODFaultParentTreeItem::showSubMenu()
     if ( mnuid==mAddMnuID )
     {
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectFaults( objs, false );
+	const ZDomain::Info* zinfo = nullptr;
+	const ZAxisTransform* transform = scene->getZAxisTransform();
+	if ( transform )
+	    zinfo = &transform->toZDomainInfo();
+	else
+	    zinfo = &SI().zDomainInfo();
+
+	applMgr()->EMServer()->selectFaults( objs, false, nullptr, zinfo );
 	MouseCursorChanger mcc( MouseCursor::Wait );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
@@ -321,9 +326,18 @@ uiODDataTreeItem* uiODFaultTreeItem::createAttribItem(
 
 bool uiODFaultTreeItem::init()
 {
+    RefMan<ZAxisTransform> transform = nullptr;
     if ( !displayid_.isValid() )
     {
 	visSurvey::FaultDisplay* fd = new visSurvey::FaultDisplay;
+	mDynamicCastGet(visSurvey::Scene*,scene,
+	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+	if ( scene )
+	{
+	    transform = scene->getZAxisTransform();
+	    fd->setZAxisTransform( transform, nullptr );
+	}
+
 	displayid_ = fd->id();
 	faultdisplay_ = fd;
 	faultdisplay_->ref();
@@ -333,20 +347,23 @@ bool uiODFaultTreeItem::init()
     }
     else
     {
-	mDynamicCastGet( visSurvey::FaultDisplay*, fd,
+	mDynamicCastGet( visSurvey::FaultDisplay*, fltdisp,
 			 visserv_->getObject(displayid_) );
-	if ( !fd )
+	if ( !fltdisp )
 	    return false;
 
-	faultdisplay_ = fd;
+	transform = const_cast<ZAxisTransform*>(
+						fltdisp->getZAxisTransform() );
+	faultdisplay_ = fltdisp;
 	faultdisplay_->ref();
-	emid_ = fd->getEMObjectID();
+	emid_ = fltdisp->getEMObjectID();
     }
 
-    ODMainWin()->menuMgr().createFaultToolMan();
+    if ( !transform )
+	ODMainWin()->menuMgr().createFaultToolMan();
 
     mAttachCB( faultdisplay_->materialChange(),
-	       uiODFaultTreeItem::colorChgCB );
+					    uiODFaultTreeItem::colorChgCB );
 
     return uiODDisplayTreeItem::init();
 }
@@ -514,17 +531,14 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    if ( scene && scene->getZAxisTransform() )
-    {
-	uiMSG().message( tr("Cannot add FaultStickSets to this scene") );
-	return false;
-    }
+    const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
-    mnu.insertAction( new uiAction(uiStrings::sNew()), mNewMnuID );
-    showMenuNotifier().trigger( &mnu, this );
+    if ( !hastransform )
+	mnu.insertAction( new uiAction(uiStrings::sNew()), mNewMnuID );
 
+    showMenuNotifier().trigger( &mnu, this );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
@@ -541,7 +555,14 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     if ( mnuid==mAddMnuID )
     {
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectFaultStickSets( objs );
+	const ZDomain::Info* zinfo = nullptr;
+	const ZAxisTransform* transform = scene->getZAxisTransform();
+	if ( transform )
+	    zinfo = &transform->toZDomainInfo();
+	else
+	    zinfo = &SI().zDomainInfo();
+
+	applMgr()->EMServer()->selectFaultStickSets( objs, nullptr, zinfo );
 	MouseCursorChanger uics( MouseCursor::Wait );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
@@ -640,11 +661,20 @@ uiODFaultStickSetTreeItem::~uiODFaultStickSetTreeItem()
 
 bool uiODFaultStickSetTreeItem::init()
 {
+    RefMan<ZAxisTransform> transform = nullptr;
     if ( !displayid_.isValid() )
     {
 	visSurvey::FaultStickSetDisplay* fd =
 				    new visSurvey::FaultStickSetDisplay;
 	displayid_ = fd->id();
+	mDynamicCastGet(visSurvey::Scene*,scene,
+	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+	if ( scene )
+	{
+	    transform = scene->getZAxisTransform();
+	    fd->setZAxisTransform( transform, nullptr );
+	}
+
 	faultsticksetdisplay_ = fd;
 	faultsticksetdisplay_->ref();
 
@@ -658,12 +688,14 @@ bool uiODFaultStickSetTreeItem::init()
 	if ( !fd )
 	    return false;
 
+	transform = const_cast<ZAxisTransform*>( fd->getZAxisTransform() );
 	faultsticksetdisplay_ = fd;
 	faultsticksetdisplay_->ref();
 	emid_ = fd->getEMObjectID();
     }
 
-    ODMainWin()->menuMgr().createFaultToolMan();
+    if ( !transform )
+	ODMainWin()->menuMgr().createFaultToolMan();
 
     mAttachCB( faultsticksetdisplay_->materialChange(),
 	       uiODFaultStickSetTreeItem::colorChCB );

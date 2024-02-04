@@ -145,7 +145,7 @@ public:
     void			setMultiID(const MultiID&);
 
     virtual bool		isOK() const		{ return true; }
-    mDeprecatedDef uiString	uiName() const { return toUiString(name()); }
+    mDeprecatedDef uiString	uiName() const { return ::toUiString(name()); }
     virtual void		setNewName();
 
     int				nrSections() const	{ return 1; }

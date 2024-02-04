@@ -68,6 +68,7 @@ public:
 
     bool		init();
     bool		displayDefaultData();
+    bool		displayData(const Attrib::SelSpec*);
     void		setRandomLineID(RandomLineID);
 
 protected:

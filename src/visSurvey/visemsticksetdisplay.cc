@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visfaultdisplay.h"
 #include "visfaultsticksetdisplay.h"
 #include "emfaultstickset.h"
+#include "zaxistransform.h"
 
 #include "keyenum.h"
 #include "emfault.h"
@@ -57,6 +58,17 @@ StickSetDisplay::~StickSetDisplay()
 	knotmarkersets_[idx]->unRef();
 
     deepErase( stickintersectpoints_ );
+}
+
+
+bool StickSetDisplay::isAlreadyTransformed() const
+{
+    if ( !fault_ )
+	return false;
+
+    const ZDomain::Info& zinfo = fault_->zDomain();
+    return zaxistransform_ &&
+	( zaxistransform_->toZDomainInfo().def_ == zinfo.def_ );
 }
 
 
@@ -109,7 +121,8 @@ else \
 
 void StickSetDisplay::polygonSelectionCB()
 {
-    if ( !ownerscene_ || ! ownerscene_->getPolySelection() ) return;
+    if ( !ownerscene_ || ! ownerscene_->getPolySelection() )
+	return;
 
     visBase::PolygonSelection* selection =  ownerscene_->getPolySelection();
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
@@ -146,8 +159,10 @@ void StickSetDisplay::polygonSelectionCB()
 	    continue;
 	else if ( selection->isInside(pos) )
 	    donenr += sticknr;
+
 	mSetKnotSelectStatus( fss, sticknr, pos );
     }
+
     updateStickMarkerSet();
     selection->clear();
 }

@@ -366,10 +366,13 @@ bool uiSeisSel::enableTimeDepthToogle() const
 
 void uiSeisSel::domainChgCB( CallBacker* )
 {
+    othdombox_->display( !customzinfo_ );
     const bool zistime = SI().zIsTime();
-    const bool istransformed = othdombox_->isChecked();
+    const bool istransformed = othdombox_->isDisplayed() &&
+			       othdombox_->isChecked();
     const bool idepth = (zistime && istransformed) ||
 			(!zistime && !istransformed);
+
     othunitfld_->display( idepth );
     domainChanged.trigger( getZDomain() );
 }
@@ -480,6 +483,10 @@ const ZDomain::Info& uiSeisSel::getZDomain() const
 	return ret ? *ret : SI().zDomainInfo();
     }
 
+    if ( !othdombox_->isDisplayed() && !othunitfld_->isDisplayed() &&
+	 customzinfo_ )
+	return *customzinfo_;
+
     const bool istransformed = othdombox_->isChecked();
     if ( !istransformed )
 	return SI().zDomainInfo();
@@ -503,6 +510,9 @@ BufferString uiSeisSel::zUnit() const
     if ( !othunitfld_ )
 	return SI().zDomainInfo().unitStr();
 
+    if ( !othunitfld_->isDisplayed() && customzinfo_ )
+	return customzinfo_->unitStr();
+
     return BufferString( othunitfld_->text() );
 }
 
@@ -512,10 +522,17 @@ void uiSeisSel::setZDomain( const ZDomain::Info& zinfo )
     if ( !othdombox_ )
 	return;
 
-    NotifyStopper ns( othdombox_->activated );
-    othdombox_->setChecked( zinfo.def_ != SI().zDomain() );
-    if ( zinfo.isDepth() )
-	othunitfld_->setCurrentItem( zinfo.unitStr() );
+    if ( zinfo.isTime() || zinfo.isDepth() )
+    {
+	customzinfo_ = nullptr;
+	othdombox_->display( true );
+	NotifyStopper ns( othdombox_->activated );
+	othdombox_->setChecked( zinfo.def_ != SI().zDomain() );
+	if ( zinfo.isDepth() )
+	    othunitfld_->setCurrentItem( zinfo.unitStr() );
+    }
+    else
+	customzinfo_ = &zinfo;
 
     domainChgCB( nullptr );
 }
@@ -699,7 +716,8 @@ uiSeisPosProvGroup::uiSeisPosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, su.withstep_, false, 0, su.zdomkey_ );
+	zrgfld_ = new uiSelZRange( this, su.withstep_,
+				   su.zdomkey_.buf(), su.zunitstr_.buf() );
 	zrgfld_->attach( alignedBelow, seissel_ );
     }
 

@@ -35,9 +35,10 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
 				mODHelpKey(mAngleMuteComputerHelpID) ) )
     , processor_(new AngleMuteComputer)
 {
-    anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), true );
+    const OD::GeomSystem gs = OD::Geom3D;
+    anglecompgrp_ = new uiAngleCompGrp( this, processor_->params(), gs, true );
 
-    uiSeparator* sep = new uiSeparator( this, "Sep" );
+    auto* sep = new uiSeparator( this, "Sep" );
     sep->attach( stretchedBelow, anglecompgrp_ );
 
     subsel_ = uiSeisSubSel::get( this, Seis::SelSetup( false ) );

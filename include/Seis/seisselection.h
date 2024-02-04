@@ -30,18 +30,20 @@ mExpClass(Seis) SelSetup
 {
 public:
 
-		SelSetup( Seis::GeomType gt );
-		SelSetup( bool is_2d, bool is_ps=false );
-		~SelSetup();
+				SelSetup(Seis::GeomType);
+				SelSetup(bool is_2d,bool is_ps=false);
+				~SelSetup();
 
     mDefSetupClssMemb(SelSetup,bool,is2d)
     mDefSetupClssMemb(SelSetup,bool,isps)
-    mDefSetupClssMemb(SelSetup,bool,onlyrange)
-    mDefSetupClssMemb(SelSetup,bool,fornewentry)
-    mDefSetupClssMemb(SelSetup,bool,multiline)
-    mDefSetupClssMemb(SelSetup,bool,withoutz)
-    mDefSetupClssMemb(SelSetup,bool,withstep)
+    mDefSetupClssMemb(SelSetup,bool,onlyrange)		// true
+    mDefSetupClssMemb(SelSetup,bool,fornewentry)	// false
+    mDefSetupClssMemb(SelSetup,bool,multiline)		// false
+    mDefSetupClssMemb(SelSetup,bool,withoutz)		// false
+    mDefSetupClssMemb(SelSetup,bool,withstep)		// true
+    mDefSetupClssMemb(SelSetup,uiString,seltxt)
     mDefSetupClssMemb(SelSetup,BufferString,zdomkey)
+    mDefSetupClssMemb(SelSetup,BufferString,zunitstr)
 
     Seis::GeomType geomType() const	{ return geomTypeOf(is2d_,isps_); }
 

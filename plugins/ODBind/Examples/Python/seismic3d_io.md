@@ -70,7 +70,7 @@ xr.plot.imshow(inln['mdf2'], x='xline', y='twt', yincrease=False, cmap='Greys')
 
 ```python
 fig, axs = plt.subplots(figsize=(25,5), ncols=3)
-for iln, ax in zip(vol.iline[200:220:10],axs):
+for iln, ax in zip(vol.iline[200:400:100],axs):
     xriln = vol.as_xarray(*iln)
     xr.plot.imshow(xriln['mdf2'], ax=ax, x='xline', y='twt', yincrease=False, cmap='Greys')
 ```

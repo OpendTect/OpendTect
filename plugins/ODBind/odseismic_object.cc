@@ -27,9 +27,13 @@ odSeismicObject::odSeismicObject( const odSurvey& thesurvey, const char* name,
 				  const char* tgname )
     : odSurveyObject(thesurvey, name, tgname)
 {
-    const SeisIOObjInfo seisinfo( ioobj_ );
-    zistime_ = seisinfo.isTime();
-    seisinfo.getComponentNames( components_ );
+    ConstPtrMan<IOObj> ioobj = ioobj_ptr();
+    if ( ioobj )
+    {
+	const SeisIOObjInfo seisinfo( ioobj.ptr() );
+	zistime_ = seisinfo.isTime();
+	seisinfo.getComponentNames( components_ );
+    }
 }
 
 
@@ -50,9 +54,15 @@ odSeismicObject::~odSeismicObject()
 
 BufferString odSeismicObject::getDtypeStr() const
 {
-    survey_.activate();
-    PtrMan<SeisIOObjInfo> info = new SeisIOObjInfo(ioobj_);
-    return getDtypeStr( *info );
+    BufferString res;
+    ConstPtrMan<IOObj> ioobj = ioobj_ptr();
+    if ( ioobj )
+    {
+	PtrMan<SeisIOObjInfo> info = new SeisIOObjInfo( ioobj.ptr() );
+	res = getDtypeStr( *info );
+    }
+
+    return res;
 }
 
 

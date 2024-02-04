@@ -161,7 +161,8 @@ PSAttrib::PSAttrib( Desc& ds )
     PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
     if ( preprociopar )
     {
-	preprocessor_ = new PreStack::ProcessManager;
+	const OD::GeomSystem gs = ds.is2D() ? OD::Geom2D : OD::Geom3D;
+	preprocessor_ = new PreStack::ProcessManager( gs );
 	uiString errmsg;
 	if ( !PreStackProcTranslator::retrieve(*preprocessor_,preprociopar,
 					       errmsg) )

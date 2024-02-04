@@ -44,7 +44,11 @@ odSeismic3D::odSeismic3D( const odSurvey& thesurvey, const char* name )
     : odSeismicObject(thesurvey, name, translatorGrp())
 {
     const Seis::GeomType gt = Seis::GeomType::Vol;
-    SeisTrcReader rdr( *ioobj_, &gt );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return;
+
+    SeisTrcReader rdr( ioobj->key(), gt );
     if ( !rdr.isOK() )
     {
 	errmsg_ = "unable to open SeisTrcReader\n";
@@ -60,7 +64,7 @@ odSeismic3D::odSeismic3D( const odSurvey& thesurvey, const char* name )
     }
 
     cubeidx_ = new PosInfo::CubeDataIndex( cubedata );
-    const SeisIOObjInfo seisinfo( ioobj_ );
+    const SeisIOObjInfo seisinfo( ioobj.ptr() );
     seisinfo.getRanges( tkz_ );
 }
 
@@ -74,7 +78,10 @@ odSeismic3D::odSeismic3D( const odSurvey& survey, const char* name,
     , tkz_(tkz)
 {
     const Seis::GeomType gt = Seis::GeomType::Vol;
-    writer_ = new SeisTrcWriter( *ioobj_, &gt );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( ioobj )
+	writer_ = new SeisTrcWriter( ioobj->key(), gt );
+
     if ( !writer_ || !writer_->isOK() )
     {
 	errmsg_ = "unable to open SeisTrcWriter\n";
@@ -106,8 +113,12 @@ void odSeismic3D::close()
     if ( writer_ )
     {
 	writer_ = nullptr;
-	if ( writecount_==0 && ioobj_ )
-	    IOM().implRemove( *ioobj_ );
+	ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+	if ( writecount_==0 && ioobj )
+	{
+	    IOM().to( ioobj->key() );
+	    IOM().implRemove( ioobj->key(), true );
+	}
 
 	writecount_ = 0;
     }
@@ -144,9 +155,15 @@ BinID odSeismic3D::getBinID( od_int64 trcnum ) const
 
 StepInterval<float> odSeismic3D::getZrange() const
 {
-    survey_.activate();
-    PtrMan<SeisIOObjInfo> info = new SeisIOObjInfo(ioobj_);
-    return getZrange( *info );
+    StepInterval<float> res;
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( ioobj )
+    {
+	PtrMan<SeisIOObjInfo> info = new SeisIOObjInfo( ioobj.ptr() );
+	res = getZrange( *info );
+    }
+
+    return res;
 }
 
 
@@ -201,12 +218,9 @@ void odSeismic3D::getData( hAllocator allocator,
     if ( !canRead() )
 	return;
 
-    survey_.activate();
-    if ( !ioobj_ )
-    {
-	errmsg_ = "invalid ioobj.";
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
-    }
 
     if ( tkzforload.isEmpty() )
     {
@@ -214,7 +228,7 @@ void odSeismic3D::getData( hAllocator allocator,
 	return;
     }
 
-    Seis::SequentialReader rdr( *ioobj_, &tkzforload );
+    Seis::SequentialReader rdr( *ioobj, &tkzforload );
     if ( !rdr.execute() )
     {
 	errmsg_ = "reading seismic volume failed.";
@@ -267,19 +281,13 @@ void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
     if ( !canWrite() )
 	return;
 
-    survey_.activate();
-    if ( !ioobj_ )
-    {
-	errmsg_ = "invalid ioobj.";
-	return;
-    }
-
     if ( !writer_ )
     {
 	errmsg_ = "no SeisTrcWriter.";
 	return;
     }
 
+    survey_.activate();
     if ( writecount_==0 )
     {
 	writer_->setComponentNames( components_ );
@@ -309,6 +317,7 @@ void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
 	{
 	    const float* compdata = data[icomp];
 	    const int idxstart = idx*tkz.nrZ();
+	    trc->setAll( mUdf(float), icomp);
 	    for ( int iz=0; iz<tkz_.nrZ(); iz++ )
 	    {
 		const int altiz = mNINT32( tkz.zsamp_.getfIndex(
@@ -334,8 +343,11 @@ void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
 void odSeismic3D::getInfo( OD::JSON::Object& jsobj ) const
 {
     jsobj.setEmpty();
-    survey_.activate();
-    const SeisIOObjInfo seisinfo( ioobj_ );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return;
+
+    const SeisIOObjInfo seisinfo( ioobj.ptr() );
     const ZDomain::Def& zdef = seisinfo.zDomainDef();
     jsobj.set( "name", getName().buf() );
     jsobj.set( "inl_range", tkz_.hsamp_.lineRange() );

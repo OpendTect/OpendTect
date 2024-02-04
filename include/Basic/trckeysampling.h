@@ -38,9 +38,11 @@ public:
 			TrcKeySampling(const Pos::GeomID&);
     //Legacy. Will be removed
     explicit		TrcKeySampling(bool settoSI);
+    static TrcKeySampling getSynth(const Interval<int>* trcrg =nullptr);
 			~TrcKeySampling();
 
     bool		is2D() const	{ return ::is2D(survid_); }
+    bool		isSynthetic() const { return ::isSynthetic(survid_); }
     Pos::GeomID		getGeomID() const;
     void		setGeomID(const Pos::GeomID&);
 

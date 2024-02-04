@@ -200,6 +200,16 @@ bool GeometryManager::isUsable( const Pos::GeomID& geomid ) const
     return geom->as3D() || (geom->as2D() && !geom->as2D()->isEmpty());
 }
 
+bool GeometryManager::has2D() const
+{
+    for ( auto* geometry : geometries_ )
+    {
+       if ( geometry->is2D() )
+	   return true;
+    }
+
+    return false;
+}
 
 void GeometryManager::ensureSIPresent() const
 {

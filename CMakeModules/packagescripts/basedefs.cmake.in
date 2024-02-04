@@ -32,7 +32,7 @@ if( WIN32 )
 else()
     file( GLOB ODSCRIPTS RELATIVE "${CMAKE_INSTALL_PREFIX}/bin"
 	    "${CMAKE_INSTALL_PREFIX}/bin/od_*" )
-    list( REMOVE_ITEM ODSCRIPTS od_cr_dev_env.bat od_external.bat od_main_debug.bat )
+    list( REMOVE_ITEM ODSCRIPTS od_cr_dev_env.csh od_cr_dev_env.bat od_external.bat od_main_debug.bat )
     list( APPEND ODSCRIPTS init_dtect_GL mksethdir )
     if ( APPLE )
 	list( APPEND ODSCRIPTS macterm.in )

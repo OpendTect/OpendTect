@@ -26,8 +26,8 @@ namespace PreStackView
 mExpClass(uiPreStackProcessing) Viewer2DGatherPainter
 {
 public:
-    				Viewer2DGatherPainter(FlatView::Viewer&);
-    				~Viewer2DGatherPainter();
+				Viewer2DGatherPainter(FlatView::Viewer&);
+				~Viewer2DGatherPainter();
 
     mDeprecated("No longer used")
     void			setVDGather(DataPackID);
@@ -38,9 +38,9 @@ public:
     void			setColorTableClipRate(float);
     float			colorTableClipRate() const;
 
-    BinID			getBinID() const;
+    TrcKey			getTrcKey() const;
     bool			hasData() const
-    				{ return inputwvagather_ || inputvdgather_; }
+				{ return inputwvagather_ || inputvdgather_; }
 
 protected:
     void			getGatherRange(const PreStack::Gather*,

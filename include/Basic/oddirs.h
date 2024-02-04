@@ -154,6 +154,8 @@ mGlobal(Basic) const char* GetSoftwareUser(void);
 mGlobal(Basic) const char* GetUserNm(void);
 /*!< user's name */
 
+mGlobal(Basic) const char* GetInterpreterName(void);
+/*!< Returns $DTECT_USER. Incase $DTECT_USER is null, returns user's name */
 
     /* Functions delivering files/directories in the 'user-specific' scope */
 mGlobal(Basic) const char* GetPersonalDir(void);

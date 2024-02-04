@@ -20,7 +20,8 @@ jupyter:
 
 ```python
 #import os
-#import sysodpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/odmain/bin/python'
+#import sys
+#odpy_path = '/home/wayne/Work/WMSeismicSolutions/dGB/Development/Build/bin/od7.0/bin/python'
 #sys.path.insert(0,odpy_path)
 ```
 

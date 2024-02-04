@@ -77,6 +77,7 @@ public:
     uiRetVal		put(const DataSetKey&,const TypeSet<T>&);
     uiRetVal		put(const DataSetKey&,const BufferStringSet&);
 
+    uiRetVal		setComment(const DataSetKey&,const char*);
 			// null = root scope
     virtual void	setAttribute(const char* ky,const char* val,
 				     const DataSetKey* =nullptr)	= 0;
@@ -97,6 +98,8 @@ public:
 #undef mHDF5DeclFns
     uiRetVal		set(const IOPar&,const DataSetKey* =nullptr);
 
+    uiRetVal		renameObject(const DataSetKey& oldky,
+				     const DataSetKey& newky);
     bool		deleteObject(const DataSetKey&);
 			//!< after deletion, you can't add it again
 			//!< usually, you need a resize
@@ -118,11 +121,15 @@ private:
 				  H5::Group&,H5::DataSet*,
 				  const char* dsnm,uiRetVal&) = 0;
     virtual void	rmAttrib(const char*,H5::H5Object&)		= 0;
+    virtual void	stComment(const H5::H5Location&,const char* name,
+				  const char* comment,uiRetVal&)	= 0;
     virtual void	rmAllAttribs(H5::H5Object&)			= 0;
 
     virtual void	ptInfo(const IOPar&,H5::H5Object&,uiRetVal&)	= 0;
 
     virtual bool	rmObj(const DataSetKey&)			= 0;
+    virtual void	renObj(const H5::H5Location&,const char* from,
+			       const char* to,uiRetVal&)		= 0;
 
 };
 

@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "prestackprocessor.h"
 
+#include "ailayer.h"
 #include "iopar.h"
 
 namespace PreStack
@@ -21,6 +22,7 @@ Processor::Processor( const char* nm )
     , outputstepout_(0,0)
 {
     inputs_.setNullAllowed();
+    models_.setNullAllowed();
     outputs_.setNullAllowed();
     reset();
 }
@@ -42,15 +44,23 @@ bool Processor::reset( bool force )
 {
     outputstepout_ = BinID::noStepout();
 
-    freeArray( inputs_ );
-    freeArray( outputs_ );
-    outputinterest_.erase();
+    inputs_.setEmpty();
+    models_.setEmpty();
+    outputs_.setEmpty();
+    outputinterest_.setEmpty();
 
+    inputs_ += nullptr;
+    models_ += nullptr;
     outputs_ += nullptr;
     outputinterest_ += false;
-    inputs_ += nullptr;
 
     return true;
+}
+
+
+void Processor::setGeomSystem( OD::GeomSystem gs )
+{
+    gs_ = gs;
 }
 
 
@@ -85,6 +95,17 @@ void Processor::setInput( const BinID& relbid, const Gather* input )
 }
 
 
+void Processor::setModel( const BinID& relbid, const ElasticModel* model )
+{
+    const BinID inputstepout = getInputStepout();
+    const int offset = getRelBidOffset( relbid, inputstepout );
+    if ( offset>=models_.size() )
+	return;
+
+    models_.replace( offset, model );
+}
+
+
 bool Processor::setOutputInterest( const BinID& relbid, bool yn )
 {
     const BinID needestepout( abs(relbid.inl()),abs(relbid.crl()) );
@@ -107,6 +128,12 @@ bool Processor::setOutputInterest( const BinID& relbid, bool yn )
     outputinterest_[offset] = yn;
 
     return true;
+}
+
+
+const ElasticModel* Processor::getModel( const BinID& relbid ) const
+{
+    return models_[getRelBidOffset(relbid,outputstepout_)];
 }
 
 
@@ -138,7 +165,7 @@ bool Processor::prepareWork()
     if ( !found && usesPreStackInput() )
 	return false;
 
-    freeArray( outputs_ );
+    outputs_.setEmpty();
 
     BinID inputstepout = getInputStepout();
     for ( int idx=-outputstepout_.inl(); idx<=outputstepout_.inl(); idx++ )
@@ -202,8 +229,11 @@ int Processor::getRelBidOffset( const BinID& relbid, const BinID& stepout )
 }
 
 
-ProcessManager::ProcessManager()
-    : setupChange( this )
+// ProcessManager
+
+ProcessManager::ProcessManager( OD::GeomSystem gs )
+    : gs_(gs)
+    , setupChange( this )
 {}
 
 
@@ -211,7 +241,6 @@ ProcessManager::~ProcessManager()
 {
     deepErase( processors_ );
 }
-
 
 
 bool ProcessManager::reset( bool force )
@@ -253,21 +282,28 @@ bool ProcessManager::wantsInput( const BinID& relbid ) const
 void ProcessManager::setInput( const BinID& relbid, DataPackID id )
 {
     if ( !processors_.isEmpty() )
-	processors_[0]->setInput( relbid, id );
+	processors_.first()->setInput( relbid, id );
 }
 
 
 void ProcessManager::setInput( const BinID& relbid, Gather* input )
 {
     if ( !processors_.isEmpty() )
-	processors_[0]->setInput( relbid, input );
+	processors_.first()->setInput( relbid, input );
 }
 
 
 void ProcessManager::setInput( const BinID& relbid, const Gather* input )
 {
     if ( !processors_.isEmpty() )
-	processors_[0]->setInput( relbid, input );
+	processors_.first()->setInput( relbid, input );
+}
+
+
+void ProcessManager::setModel( const BinID& relbid, const ElasticModel* model )
+{
+    if ( !processors_.isEmpty() )
+	processors_.first()->setModel( relbid, model );
 }
 
 
@@ -276,16 +312,15 @@ bool ProcessManager::prepareWork()
     for ( int proc=processors_.size()-1; proc>0; proc-- )
     {
 	const BinID inputstepout = processors_[proc]->getInputStepout();
-
-	for ( int idz=-inputstepout.inl(); idz<=inputstepout.inl(); idz++ )
+	for ( int iinl=-inputstepout.inl(); iinl<=inputstepout.inl(); iinl++ )
 	{
-	    for ( int idu=-inputstepout.crl();idu<=inputstepout.crl();idu++)
+	    for ( int itrc=-inputstepout.crl();itrc<=inputstepout.crl();itrc++)
 	    {
-		const BinID relinput(idz,idu);
-		if ( !processors_[proc]->wantsInput( relinput ) )
+		const BinID relinput( iinl, itrc );
+		if ( !processors_[proc]->wantsInput(relinput) )
 		    continue;
 
-		if ( !processors_[proc-1]->setOutputInterest( relinput, true ) )
+		if ( !processors_[proc-1]->setOutputInterest(relinput,true) )
 		    return false;
 	    }
 	}
@@ -297,24 +332,25 @@ bool ProcessManager::prepareWork()
 
 bool ProcessManager::process()
 {
-    for ( int proc=0; proc<processors_.size(); proc++ )
+    for ( int iproc=0; iproc<processors_.size(); iproc++ )
     {
-	if ( proc )
+	Processor* proc = processors_.get( iproc );
+	if ( iproc > 0 )
 	{
-	    const BinID stepout = processors_[proc]->getInputStepout();
-	    for ( int idx=-stepout.inl(); idx<=stepout.inl(); idx++ )
+	    const Processor* prevproc = processors_.get( iproc-1 );
+	    const BinID& stepout = proc->getInputStepout();
+	    for ( int iinl=-stepout.inl(); iinl<=stepout.inl(); iinl++ )
 	    {
-		for ( int idy=-stepout.crl(); idy<=stepout.crl(); idy++ )
+		for ( int itrc=-stepout.crl(); itrc<=stepout.crl(); itrc++ )
 		{
-		    const BinID relbid( idx,idy );
-		    processors_[proc]->setInput( relbid,
-			    processors_[proc-1]->getOutput( relbid ));
-
+		    const BinID relbid( iinl, itrc );
+		    proc->setInput( relbid, prevproc->getOutput( relbid ) );
+		    proc->setModel( relbid, prevproc->getModel( relbid ) );
 		}
 	    }
 	}
 
-	if ( !processors_[proc]->prepareWork() || !processors_[proc]->execute())
+	if ( !proc->prepareWork() || !proc->execute() )
 	    return false;
     }
 
@@ -342,6 +378,7 @@ ConstRefMan<Gather> ProcessManager::getOutput() const
 
 void ProcessManager::addProcessor( Processor* sgp )
 {
+    sgp->setGeomSystem( gs_ );
     processors_ += sgp;
     setupChange.trigger();
 }
@@ -449,18 +486,6 @@ bool ProcessManager::usePar( const IOPar& par )
     setupChange.trigger();
 
     return true;
-}
-
-
-void Processor::freeArray( RefObjectSet<Gather>& arr )
-{
-    arr.erase();
-}
-
-
-void Processor::freeArray( ObjectSet<Gather>& arr )
-{
-    arr.erase();
 }
 
 } // namespace PreStack

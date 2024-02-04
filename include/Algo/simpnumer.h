@@ -9,10 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "algomod.h"
+#include "math2.h"
+#include "ranges.h"
+#include "statrand.h"
 #include "typeset.h"
 #include "undefval.h"
-#include "ranges.h"
-#include "math2.h"
+
+#include <unordered_set>
 
 
 /*!> Finds the lower index of the bin for interpolation. Makes sure that a
@@ -381,21 +384,18 @@ inline bool holdsClassValues( const T* vals, od_int64 sz,
 	    if ( !holdsClassValue(vals[idx],maxclss) )
 		return false;
 	}
+
 	return true;
     }
 
-    mDefineStaticLocalObject( od_int64, seed, = mUdf(od_int64) );
-    seed *= seed + 1; // Clumsy but cheap sort-of random generation
-
+    Stats::RandGen randgen;
     for ( int idx=0; idx<samplesz; idx++ )
     {
-	od_int64 arridx = ((1+idx) * seed) % samplesz;
-	if ( arridx<0 )
-	    arridx = -arridx;
-
+	const od_int64 arridx = randgen.getIndex( sz );
 	if ( !holdsClassValue(vals[arridx],maxclss) )
 	    return false;
     }
+
     return true;
 }
 
@@ -425,20 +425,41 @@ inline bool is8BitesData( const T* vals, od_int64 sz,
 	    if ( !isSigned8BitesValue(vals[idx]) )
 		return false;
 	}
+
 	return true;
     }
 
-    mDefineStaticLocalObject( od_int64, seed, = mUdf(od_int64) );
-    seed *= seed + 1; // Clumsy but cheap sort-of random generation
-
+    Stats::RandGen randgen;
     for ( int idx=0; idx<samplesz; idx++ )
     {
-	od_int64 arridx = ((1+idx) * seed) % samplesz;
-	if ( arridx<0 )
-	    arridx = -arridx;
-
+	const od_int64 arridx = randgen.getIndex( sz );
 	if ( !isSigned8BitesValue(vals[arridx]) )
 	    return false;
     }
+
     return true;
+}
+
+
+template <class T>
+inline od_int64 nrUniqueValues( const T* vals, od_int64 sz )
+{
+    std::unordered_set<T> uniquevalues( vals, vals + sz );
+    return uniquevalues.size();
+}
+
+
+template <class T>
+inline bool hasDuplicateValues( const T* vals, od_int64 sz, int sampsize,
+				int maxallowedduplicates )
+{
+    std::unordered_set<T> uniquevalues;
+    Stats::RandGen randgen;
+    for ( int idx=0; idx<sampsize; idx++ )
+    {
+	const od_int64 arridx = randgen.getIndex( sz );
+	uniquevalues.insert( vals[arridx] );
+    }
+
+    return (sampsize - uniquevalues.size()) > maxallowedduplicates;
 }

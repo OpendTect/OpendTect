@@ -53,7 +53,7 @@ public:
     void		getTrack(hAllocator);
 
     void		getLogs(hAllocator, const BufferStringSet&,
-				OD::JSON::Array&,
+				OD::JSON::Object&,
 				float zstep=0.5, SampleMode samplemode=Upscale);
 
     void		putLog(const char* lognm, const float* dah,

@@ -452,10 +452,14 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 	    {
 		data = new Data( libnm );
 		data->autosource_ = usrdir ? Data::UserDir : Data::AppDir;
+		if ( !FilePath(getFileName(*data)).exists() )
+		{
+		    data->autosource_ = usrdir ? Data::AppDir : Data::UserDir;
+		    if ( !FilePath(getFileName(*data)).exists() )
+			continue;
+		}
 		data_ += data;
 	    }
-	    else if ( usrdir != Data::isUserDir(data->autosource_) )
-		data->autosource_ = Data::Both;
 	}
     }
 }

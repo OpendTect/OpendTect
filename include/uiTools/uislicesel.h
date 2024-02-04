@@ -27,17 +27,27 @@ mExpClass(uiTools) uiSliceSel : public uiGroup
 { mODTextTranslationClass(uiSliceSel);
 public:
 
-    enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
+    enum Type			{ Inl, Crl, Tsl, Vol, TwoD, Synth };
 
 				uiSliceSel(uiParent*,Type,const ZDomain::Info&,
-					   bool dogeomcheck=true);
+					   const Pos::GeomID&);
 				~uiSliceSel();
+
+    Type			getType() const { return type_; }
+    bool			isInl() const	{ return type_ == Inl; }
+    bool			isCrl() const	{ return type_ == Crl; }
+    bool			isZSlice() const { return type_ == Tsl; }
+    bool			isVol() const	{ return type_ == Vol; }
+    bool			is2D() const	{ return type_ == TwoD; }
+    bool			isSynth() const { return type_ == Synth; }
+    bool			useTrcNr() const;
+    bool			is3DSlice() const;
+    bool			is2DSlice() const;
 
     void			setApplyCB(const CallBack&);
 
-    const TrcKeyZSampling&		getTrcKeyZSampling() const { 
-								   return tkzs_;
-								   }
+    const TrcKeyZSampling&	getTrcKeyZSampling() const { return tkzs_; }
+
     virtual void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void			setMaxTrcKeyZSampling(const TrcKeyZSampling&);
     void			enableApplyButton(bool);
@@ -49,6 +59,10 @@ public:
     static uiString		sButTxtAdvance();
     static uiString		sButTxtPause();
 
+    static Type			getType(const TrcKeyZSampling&);
+    static bool			is3DSlice(Type);
+    static bool			is2DSlice(Type);
+
 protected:
 
     friend class		uiSliceScroll;
@@ -57,6 +71,7 @@ protected:
     void			createCrlFld();
     void			createZFld();
 
+    void			initGrp(CallBacker*);
     void			fullPush(CallBacker*);
     void			scrollPush(CallBacker*);
     void			applyPush(CallBacker*);
@@ -65,22 +80,22 @@ protected:
     void			setBoxValues(uiSpinBox*,
 					     const StepInterval<int>&,int);
 
-    uiLabeledSpinBox*		inl0fld_;
+    uiLabeledSpinBox*		inl0fld_ = nullptr;
     uiLabeledSpinBox*		crl0fld_;
     uiLabeledSpinBox*		z0fld_;
-    uiSpinBox*			inl1fld_;
+    uiSpinBox*			inl1fld_ = nullptr;
     uiSpinBox*			crl1fld_;
     uiSpinBox*			z1fld_;
-    uiButton*			applybut_;
-    uiButton*			scrollbut_;
+    uiButton*			applybut_ = nullptr;
+    uiButton*			scrollbut_ = nullptr;
 
-    uiSliceScroll*		scrolldlg_;
+    uiSliceScroll*		scrolldlg_ = nullptr;
 
     TrcKeyZSampling		maxcs_;
     TrcKeyZSampling		tkzs_;
-    CallBack*			applycb_;
-    bool			isinl_, iscrl_, istsl_, isvol_, is2d_,
-				dogeomcheck_;
+    CallBack*			applycb_ = nullptr;
+    Type			type_;
+    bool			dogeomcheck_;
     ZDomain::Info		zdominfo_;
 
     Threads::Lock		updatelock_;
@@ -120,22 +135,20 @@ public:
 			uiLinePosSelDlg(uiParent*,const TrcKeyZSampling&);
 			~uiLinePosSelDlg();
 
-    const TrcKeyZSampling&	getTrcKeyZSampling() const;
+    const TrcKeyZSampling& getTrcKeyZSampling() const;
     const char*		getLineName() const;
-    void		setPrefCS(TrcKeyZSampling* prefcs) { 
-							    prefcs_ = prefcs;
-							   }
+    void		setPrefCS( TrcKeyZSampling* tkzs )
+			{ prefcs_ = tkzs; }
 
 protected:
     bool		acceptOK(CallBacker*) override;
     bool		selectPos2D();
     bool		selectPos3D();
 
-    uiGenInput*		inlcrlfld_;
-    uiGenInput*		linesfld_;
+    uiGenInput*		inlcrlfld_ = nullptr;
+    uiGenInput*		linesfld_ = nullptr;
     TrcKeyZSampling	tkzs_;
-    TrcKeyZSampling*	prefcs_;
-    uiSliceSelDlg*	posdlg_;
-    bool		is2d_;
+    TrcKeyZSampling*	prefcs_ = nullptr;
+    uiSliceSelDlg*	posdlg_ = nullptr;
     IOPar		prevpar_;
 };

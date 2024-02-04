@@ -22,6 +22,7 @@ ________________________________________________________________________________
 #include "odbindmod.h"
 
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "odjson.h"
 #include "ptrman.h"
 #include "trckeysampling.h"
@@ -59,10 +60,14 @@ public:
 
     void		getZ(hAllocator);
     void		getXY(hAllocator);
-    void		putZ(const uint32_t shape[2], const float* data,
-			     const int32_t* inlines, const int32_t* crlines);
-    void		putZ(const uint32_t shape[2], const float* data,
-			     const double* xpos, const double* ypos);
+    void		getAuxData(hAllocator, const char*);
+    void		putZ(const float* data, const TrcKeySampling&);
+    void		putAuxData(const char* name, const float* data,
+				   const TrcKeySampling& tk);
+    // void		putZ(const uint32_t shape[2], const float* data,
+			 //	const double* xpos, const double* ypos);
+    void		putData(const float** data, const TrcKeySampling&);
+    bool		deleteAttribs(const BufferStringSet&);
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getPoints(OD::JSON::Array&, bool) const override;
@@ -74,6 +79,7 @@ protected:
     PtrMan<Array2D<float>>	array_;
     size_t			writecount_ = 0;
 
+    RefMan<EM::Horizon3D>	getHorizonObj(bool create=false);
     void			save();
 
 };
@@ -112,22 +118,30 @@ mDeclareBaseBindings(Horizon3D, horizon3d)
 mDeclareRemoveBindings(Horizon3D, horizon3d)
 
 mExternC(ODBind) hHorizon3D	horizon3d_newout(hSurvey, const char* name,
-						 const int* inl_rg,
-						 const int* crl_rg,
+						 const int inlrg[3],
+						 const int crlrg[3],
 						 bool overwrite);
 mExternC(ODBind) hStringSet	horizon3d_attribnames(hHorizon3D);
 mExternC(ODBind) void		horizon3d_getz(hHorizon3D, hAllocator);
 mExternC(ODBind) void		horizon3d_getxy(hHorizon3D, hAllocator);
+mExternC(ODBind) void		horizon3d_getauxdata(hHorizon3D, hAllocator,
+						     const char* auxname);
 mExternC(ODBind) void		horizon3d_putz(hHorizon3D,
-					       const uint32_t shape[2],
 					       const float* data,
-					       const int32_t* inlines,
-					       const int32_t* crlines);
-mExternC(ODBind) void		horizon3d_putz_byxy(hHorizon3D,
-						    const uint32_t shape[2],
-						    const float* data,
-						    const double* xpos,
-						    const double* ypos);
+					       const int32_t inlrg[3],
+					       const int32_t crlrg[3]);
+mExternC(ODBind) void		horizon3d_putauxdata(hHorizon3D, const char* nm,
+					       const float* data,
+					       const int32_t inlrg[3],
+					       const int32_t crlrg[3]);
+// mExternC(ODBind) void		horizon3d_putz_byxy(hHorizon3D,
+//						    const uint32_t shape[2],
+//						    const float* data,
+//						    const double* xpos,
+//						    const double* ypos);
+mExternC(ODBind) bool		horizon3d_deleteattribs(hHorizon3D,
+							const hStringSet);
+
 
 
 mDeclareBaseBindings(Horizon2D, horizon2d)

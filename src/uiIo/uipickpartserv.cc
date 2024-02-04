@@ -325,7 +325,8 @@ bool uiPickPartServer::mkRandLocs2DBetweenHors( Pick::Set& ps,
     sendEvent( evGetHorDef2D() );
 
     const int nrpos = coords2d_.size();
-    if ( !nrpos ) return false;
+    if ( !nrpos )
+	return false;
 
     ps.setCapacity( rp.nr_ );
     Stats::RandGen gen;

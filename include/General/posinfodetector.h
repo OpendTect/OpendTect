@@ -39,7 +39,7 @@ public:
     Coord	coord_;
     BinID	binid_;
     float	offset_;
-    float	azimuth_;
+    float	azimuth_	= 0;
 };
 
 

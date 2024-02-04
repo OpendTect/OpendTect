@@ -23,42 +23,69 @@ static const int cUnLim = 1000000;
 static const float cMaxUnsnappedZStep = 0.999f;
 
 
-#define mDefConstrList(isrel) \
-    uiGroup(p,"Z range selection") \
-    , rangeChanged(this) \
-    , stepfld_(nullptr) \
-    , isrel_(isrel) \
-    , zddef_(ZDomain::Def::get(domky)) \
-    , othdom_(&zddef_ != &ZDomain::SI()) \
-    , cansnap_( !othdom_ \
-	&& SI().zRange(false).step > cMaxUnsnappedZStep / zddef_.userFactor() )
+// uiSelZRange
 
-
-uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
-			  const char* lbltxt, const char* domky )
-	: mDefConstrList(isrel)
+uiSelZRange::uiSelZRange( uiParent* p, bool wstep, const char* domky,
+			  const char* zunitstr )
+    : uiGroup(p,"Z range selection")
+    , zinfo_(ZDomain::Info::getFrom(domky,zunitstr))
+    , rangeChanged(this)
 {
-    const StepInterval<float> limitrg( SI().zRange(false) );
-    makeInpFields( mToUiStringTodo(lbltxt), wstep,
-		   !othdom_ && !isrel_ ? &limitrg : nullptr );
-    if ( isrel_ )
-	setRange( StepInterval<float>(0,0,1) );
-    else if ( !othdom_ )
-	setRange( SI().zRange(true) );
+    if ( !zinfo_ )
+	zinfo_ = &SI().zDomainInfo();
+
+    makeInpFields( wstep );
 }
 
 
-uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
-			  const char* lbltxt, const char* domky )
-	: mDefConstrList(false)
+uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
+			  const char* lbltxt, const char* domky,
+			  const char* zunitstr )
+    : uiSelZRange(p,wstep,domky,zunitstr)
 {
-    makeInpFields( mToUiStringTodo(lbltxt), wstep, &limitrg );
+    if ( lbltxt && *lbltxt )
+	setLabel( toUiString(lbltxt) );
+
+    setIsRelative( isrel );
+}
+
+
+uiSelZRange::uiSelZRange( uiParent* p, const ZSampling& limitrg, bool wstep,
+			  const char* lbltxt, const char* domky,
+			  const char* zunitstr )
+    : uiSelZRange(p,wstep,domky,zunitstr)
+{
+    if ( lbltxt && *lbltxt )
+	setLabel( toUiString(lbltxt) );
+
+    setRangeLimits( limitrg );
     setRange( limitrg );
 }
 
 
 uiSelZRange::~uiSelZRange()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void uiSelZRange::setLabel( const uiString& lbl )
+{
+    lblfld_->setText( lbl );
+}
+
+
+bool uiSelZRange::isSIDomain() const
+{
+    return zDomain().isCompatibleWith( SI().zDomainInfo() );
+}
+
+
+bool uiSelZRange::canSnap() const
+{
+    return isSIDomain() &&
+	SI().zRange(false).step > cMaxUnsnappedZStep / zDomain().userFactor();
+}
 
 
 void uiSelZRange::displayStep( bool yn )
@@ -68,34 +95,44 @@ void uiSelZRange::displayStep( bool yn )
 }
 
 
-void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
-				 const StepInterval<float>* inplimitrg )
+void uiSelZRange::setIsRelative( bool yn )
 {
-    const float zfac = sCast( float, zddef_.userFactor() );
-    const StepInterval<float>& sizrg( SI().zRange(false) );
+    if ( yn == isrel_ )
+	return;
 
-    StepInterval<float> limitrg( -sCast(float,cUnLim), sCast(float,cUnLim), 1 );
-    if ( inplimitrg )
-	limitrg = *inplimitrg;
-    if ( !othdom_ && limitrg.step > sizrg.step )
-	limitrg.step = sizrg.step;
+    isrel_ = yn;
+    if ( isrel_ )
+	setRange( ZSampling(0.f,0.f,1.f) );
+    else if ( isSIDomain() )
+	setRange( SI().zRange(true) );
+}
 
-    if ( mIsZero(limitrg.step,mDefEpsF) )
-	limitrg.step = 1.0f;
+
+void uiSelZRange::makeInpFields( bool wstep )
+{
+    lblfld_ = new uiLabel( this, zDomain().getRange() );
+
+    const float zfac = sCast( float, zDomain().userFactor() );
+    ZSampling limitrg;
+    if ( isSIDomain() )
+	limitrg = SI().zRange( false );
+    else
+    {
+	limitrg.set( zDomain().getReasonableZRange(), 1.f );
+	if ( limitrg.isUdf() )
+	    limitrg.set( -sCast(float,cUnLim), sCast(float,cUnLim), 1.f );
+    }
+
     limitrg.scale( zfac );
 
-    const int nrdecimals =
-	cansnap_ ? 0 : Math::NrSignificantDecimals( limitrg.step );
+    const bool cansnap = canSnap();
+    const int nrdecimals = cansnap ? 0
+			 : zDomain().def_.nrZDecimals( limitrg.step );
     const StepInterval<int> izrg( mNINT32(limitrg.start),
 				  mNINT32(limitrg.stop), mNINT32(limitrg.step));
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
-    uiString ltxt( mToUiStringTodo(lbltxt) );
-    if ( ltxt.isEmpty() )
-	ltxt = zddef_.getRange();
-
-    new uiLabel( this, uiStrings::phrJoinStrings( ltxt, zddef_.uiUnitStr(true)),
-		startfld_ );
+    startfld_->attach( rightOf, lblfld_ );
 
     stopfld_ = new uiSpinBox( this, nrdecimals, "Z stop" );
     stopfld_->attach( rightOf, startfld_ );
@@ -110,8 +147,8 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 	stopfld_->setInterval( limitrg );
     }
 
-    startfld_->doSnap( cansnap_ );
-    stopfld_->doSnap( cansnap_ );
+    startfld_->doSnap( cansnap );
+    stopfld_->doSnap( cansnap );
 
     if ( wstep )
     {
@@ -123,8 +160,17 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 	else
 	    stepfld_->box()->setInterval(
 		StepInterval<float>(limitrg.step,limitrg.width(),limitrg.step));
-	stepfld_->box()->doSnap( cansnap_ );
+	stepfld_->box()->doSnap( cansnap );
 	stepfld_->attach( rightOf, stopfld_ );
+    }
+
+    if ( isSIDomain() )
+    {
+	const ZSampling workzrg = SI().zRange( true );
+	startfld_->setValue( workzrg.start );
+	stopfld_->setValue( workzrg.stop );
+	if ( wstep )
+	    stepfld_->box()->setValue( workzrg.step );
     }
 
     const CallBack cb( mCB(this,uiSelZRange,valChg) );
@@ -134,12 +180,12 @@ void uiSelZRange::makeInpFields( const uiString& lbltxt, bool wstep,
 }
 
 
-StepInterval<float> uiSelZRange::getRange() const
+ZSampling uiSelZRange::getRange() const
 {
-    StepInterval<float> zrg( startfld_->getFValue(), stopfld_->getFValue(),
-			     stepfld_ ? stepfld_->box()->getFValue() : 1 );
-    zrg.scale( 1.f / zddef_.userFactor() );
-    if ( !stepfld_ )
+    ZSampling zrg( startfld_->getFValue(), stopfld_->getFValue(),
+		   stepfld_ ? stepfld_->box()->getFValue() : 1.f );
+    zrg.scale( 1.f / zDomain().userFactor() );
+    if ( !stepfld_ && isSIDomain() )
 	zrg.step = SI().zRange(true).step;
     return zrg;
 }
@@ -189,17 +235,17 @@ static void adaptRangeToLimits( const StepInterval<T>& rg,
 }
 
 
-void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
+void uiSelZRange::setRange( const ZSampling& inpzrg )
 {
-    StepInterval<float> zrg( inpzrg );
-    zrg.scale( sCast(float,zddef_.userFactor()) );
+    ZSampling zrg( inpzrg );
+    zrg.scale( sCast(float,zDomain().userFactor()) );
 
-    StepInterval<float> limitrg = startfld_->getFInterval();
-    StepInterval<float> newzrg;
+    ZSampling limitrg = startfld_->getFInterval();
+    ZSampling newzrg;
     adaptRangeToLimits<float>( zrg, limitrg, newzrg );
 
-    const int nrdecimals =
-	cansnap_ ? 0 : Math::NrSignificantDecimals( limitrg.step );
+    const int nrdecimals = canSnap() ? 0
+			 : zDomain().def_.nrZDecimals( limitrg.step );
     if ( nrdecimals==0 )
     {
 	startfld_->setValue( mNINT32(newzrg.start) );
@@ -213,6 +259,21 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 	stopfld_->setValue( newzrg.stop );
 	if ( stepfld_ )
 	    stepfld_->box()->setValue( newzrg.step );
+    }
+}
+
+
+void uiSelZRange::setRangeLimits( const ZSampling& zlimits )
+{
+    ZSampling zrg( zlimits );
+    zrg.scale( sCast(float,zDomain().userFactor()) );
+    startfld_->setInterval( zrg );
+    stopfld_->setInterval( zrg );
+    if ( stepfld_ )
+    {
+	stepfld_->box()->setMinValue( zrg.step );
+	stepfld_->box()->setMaxValue( mMAX(zrg.step, zrg.stop-zrg.start) );
+	stepfld_->box()->setStep( zrg.step );
     }
 }
 
@@ -232,20 +293,8 @@ void uiSelZRange::valChg( CallBacker* cb )
 }
 
 
-void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
-{
-    StepInterval<float> zrg( zlimits );
-    zrg.scale( sCast(float,zddef_.userFactor()) );
-    startfld_->setInterval( zrg );
-    stopfld_->setInterval( zrg );
-    if ( stepfld_ )
-    {
-	stepfld_->box()->setMinValue( zrg.step );
-	stepfld_->box()->setMaxValue( mMAX(zrg.step, zrg.stop-zrg.start) );
-	stepfld_->box()->setStep( zrg.step );
-    }
-}
 
+// uiSelNrRange
 
 uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     : uiGroup(p,typ == Inl ? "In-line range selection"
@@ -253,45 +302,55 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 			   : "Number range selection"))
     , checked(this)
     , rangeChanged(this)
-    , lbltxt_("")
     , defstep_(1)
 {
     StepInterval<int> rg( 1, mUdf(int), 1 );
     StepInterval<int> wrg( rg );
-    const char* nm = "Number";
+    lbltxt_ = tr("Number");
     if ( typ != Gen )
     {
 	const TrcKeySampling& hs( SI().sampling(false).hsamp_ );
 	rg = typ == Inl ? hs.inlRange() : hs.crlRange();
 	const TrcKeySampling& whs( SI().sampling(true).hsamp_ );
 	wrg = typ == Inl ? whs.inlRange() : whs.crlRange();
-	nm = typ == Inl ? sKey::Inline() : sKey::Crossline();
+	lbltxt_ = typ == Inl ? uiStrings::sInline() : uiStrings::sCrossline();
 	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
     }
 
-    lbltxt_ = nm;
     makeInpFields( rg, wstep, typ==Gen );
     setRange( wrg );
-    preFinalize().notify( mCB(this,uiSelNrRange,doFinalize) );
+    mAttachCB( preFinalize(), uiSelNrRange::doFinalize );
 }
 
 
-uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
-			    const char* lbltxt )
-    : uiGroup(p,BufferString(lbltxt," range selection"))
-    , defstep_(limitrg.step)
+uiSelNrRange::uiSelNrRange( uiParent* p, bool wstep, const uiString& lbltxt,
+			    const StepInterval<int>* limitrg )
+    : uiGroup(p,BufferString(toString(lbltxt)," range selection"))
+    , lbltxt_(lbltxt)
+    , defstep_(limitrg ? limitrg->step : 1)
     , checked(this)
     , rangeChanged(this)
-    , lbltxt_(lbltxt)
 {
-    makeInpFields( limitrg, wstep, false );
-    setRange( limitrg );
-    preFinalize().notify( mCB(this,uiSelNrRange,doFinalize) );
+    StepInterval<int> rg( 1, mUdf(int), 1 );
+    if ( limitrg )
+	rg = *limitrg;
+
+    makeInpFields( rg, wstep, false );
+    mAttachCB( preFinalize(), uiSelNrRange::doFinalize );
+}
+
+
+uiSelNrRange::uiSelNrRange( uiParent* p, const StepInterval<int>& limitrg,
+			    bool wstep, const char* lbltxt )
+    : uiSelNrRange(p,wstep,toUiString(lbltxt),&limitrg)
+{
 }
 
 
 uiSelNrRange::~uiSelNrRange()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiSelNrRange::displayStep( bool yn )
@@ -305,31 +364,33 @@ void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
 				  bool isgen )
 {
     const CallBack cb( mCB(this,uiSelNrRange,valChg) );
-    startfld_ = new uiSpinBox( this, 0, BufferString(lbltxt_," start") );
+    const BufferString lbltxt = toString( lbltxt_ );
+    startfld_ = new uiSpinBox( this, 0, BufferString(lbltxt," start") );
     startfld_->setInterval( limitrg );
     startfld_->doSnap( true );
     uiObject* stopfld;
     if ( isgen )
     {
 	stopfld = nrstopfld_ = new uiLineEdit( this,
-					       BufferString(lbltxt_," stop") );
+					       BufferString(lbltxt," stop") );
 	nrstopfld_->setHSzPol( uiObject::Small );
 	nrstopfld_->editingFinished.notify( cb );
     }
     else
     {
 	stopfld = icstopfld_ = new uiSpinBox( this, 0,
-					      BufferString(lbltxt_," stop") );
+					      BufferString(lbltxt," stop") );
 	icstopfld_->setInterval( limitrg );
 	icstopfld_->doSnap( true );
 	icstopfld_->valueChanging.notify( cb );
     }
+
     stopfld->attach( rightOf, startfld_ );
 
     if ( wstep )
     {
 	stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 0,
-					 BufferString(lbltxt_," step") );
+					 BufferString(lbltxt," step") );
 	stepfld_->box()->setInterval( StepInterval<int>(limitrg.step,
 			    limitrg.width() ? limitrg.width() : limitrg.step,
 			    limitrg.step) );
@@ -385,20 +446,21 @@ void uiSelNrRange::valChg( CallBacker* cb )
 
 void uiSelNrRange::doFinalize( CallBacker* )
 {
-    if ( finalized_ ) return;
+    if ( finalized_ )
+	return;
 
+    const uiString lbl = uiStrings::phrJoinStrings( lbltxt_,
+				uiStrings::sRange().toLower() );
     if ( withchk_ )
     {
-	cbox_ = new uiCheckBox( this, toUiString("%1 %2").arg(lbltxt_)
-				.arg(uiStrings::sRange().toLower()) );
+	cbox_ = new uiCheckBox( this, lbl );
 	cbox_->attach( leftTo, startfld_ );
-	cbox_->activated.notify( mCB(this,uiSelNrRange,checkBoxSel) );
+	mAttachCB( cbox_->activated, uiSelNrRange::checkBoxSel );
 	setChecked( checked_ );
-	checkBoxSel(nullptr);
+	checkBoxSel( nullptr );
     }
     else
-	new uiLabel( this, toUiString("%1 %2").arg(lbltxt_)
-				.arg(uiStrings::sRange().toLower()), startfld_);
+	new uiLabel( this, lbl, startfld_ );
 
     finalized_ = true;
 }
@@ -472,6 +534,7 @@ void uiSelNrRange::checkBoxSel( CallBacker* cb )
 
 
 // uiSelSteps
+
 uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
     : uiGroup(p,"Step selection")
 {
@@ -522,29 +585,29 @@ void uiSelSteps::setSteps( const BinID& bid )
 
 
 // uiSelHRange
-uiSelHRange::uiSelHRange( uiParent* p, bool wstep )
-    : uiGroup(p,"Hor range selection")
-    , inlfld_(new uiSelNrRange(this,uiSelNrRange::Inl,wstep))
-    , crlfld_(new uiSelNrRange(this,uiSelNrRange::Crl,wstep))
-{
-    crlfld_->attach( alignedBelow, inlfld_ );
-    setHAlignObj( inlfld_ );
-}
 
-
-uiSelHRange::uiSelHRange( uiParent* p, const TrcKeySampling& hslimit,
-			  bool wstep )
+uiSelHRange::uiSelHRange( uiParent* p, bool wstep,
+			  const TrcKeySampling* hslimit )
     : uiGroup(p,"Hor range selection")
-    , inlfld_(new uiSelNrRange(this,hslimit.inlRange(),wstep,sKey::Inline()))
-    , crlfld_(new uiSelNrRange(this,hslimit.crlRange(),wstep,sKey::Crossline()))
 {
+    inlfld_ = new uiSelNrRange( this, uiSelNrRange::Inl, wstep );
+    crlfld_ = new uiSelNrRange( this, uiSelNrRange::Crl, wstep );
     crlfld_->attach( alignedBelow, inlfld_ );
+    if ( hslimit )
+    {
+	const StepInterval<int> inlrg = hslimit->inlRange();
+	const StepInterval<int> crlrg = hslimit->crlRange();
+	inlfld_->setLimitRange( inlrg );
+	crlfld_->setLimitRange( crlrg );
+    }
+
     setHAlignObj( inlfld_ );
 }
 
 
 uiSelHRange::~uiSelHRange()
-{}
+{
+}
 
 
 void uiSelHRange::displayStep( bool yn )
@@ -578,10 +641,12 @@ void uiSelHRange::setLimits( const TrcKeySampling& hs )
 
 
 // uiSelSubvol
-uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey )
+
+uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey,
+			  const char* zunitstr )
     : uiGroup(p,"Sub vol selection")
     , hfld_(new uiSelHRange(this,wstep))
-    , zfld_(new uiSelZRange(this,wstep,false,0,zdomkey))
+    , zfld_(new uiSelZRange(this,wstep,zdomkey,zunitstr))
 {
     zfld_->attach( alignedBelow, hfld_ );
     setHAlignObj( hfld_ );

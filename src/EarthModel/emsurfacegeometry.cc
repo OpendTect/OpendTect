@@ -879,9 +879,16 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
     PtrMan<EMSurfaceTranslator> trans =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !trans )
-	{ surface_.errmsg_ = toUiString("Internal: No Translator"); return 0; }
+    {
+	surface_.errmsg_ = ::toUiString("Internal: No Translator");
+	return nullptr;
+    }
+
     if ( !trans->startWrite(surface_) )
-	{ surface_.errmsg_ = trans->errMsg(); return 0; }
+    {
+	surface_.errmsg_ = trans->errMsg();
+	return nullptr;
+    }
 
 
     SurfaceIODataSelection& sel = trans->selections();

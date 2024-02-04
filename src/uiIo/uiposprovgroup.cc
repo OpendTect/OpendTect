@@ -27,10 +27,38 @@ ________________________________________________________________________
 mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvGroup::Setup&,
 		   uiPosProvGroup::factory);
 
+// uiPosProvGroup::Setup
+
+uiPosProvGroup::Setup::Setup( bool is_2d, bool with_step, bool with_z )
+    : uiPosFiltGroup::Setup(is_2d)
+    , withstep_(with_step)
+    , withz_(with_z)
+    , tkzs_(!is_2d)
+    , withrandom_(false)
+{
+    if ( is_2d )
+	tkzs_.set2DDef();
+}
+
+
+uiPosProvGroup::Setup::~Setup()
+{
+}
+
+
+uiPosProvGroup::Setup& uiPosProvGroup::Setup::cs( const TrcKeyZSampling& tkzs )
+{
+    tkzs_ = tkzs;
+    return *this;
+}
+
+
+
+// uiPosProvGroup
 
 uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
     : uiPosFiltGroup(p,su)
-    , posProvGroupChg(0)
+    , posProvGroupChg(nullptr)
 {
 }
 
@@ -62,7 +90,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     }
     else
     {
-	hrgfld_ = new uiSelHRange( this, su.tkzs_.hsamp_, su.withstep_ );
+	hrgfld_ = new uiSelHRange( this, su.withstep_, &su.tkzs_.hsamp_ );
 	hrgfld_->inlfld_->rangeChanged.notify( cb );
 	hrgfld_->crlfld_->rangeChanged.notify( cb );
 	attobj = hrgfld_->attachObj();
@@ -70,8 +98,9 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 
     if ( setup_.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, su.tkzs_.zsamp_, su.withstep_,
-				   nullptr, su.zdomkey_ );
+	zrgfld_ = new uiSelZRange( this, su.withstep_,
+				   su.zdomkey_.buf(), su.zunitstr_.buf() );
+	zrgfld_->setRangeLimits( su.tkzs_.zsamp_ );
 	zrgfld_->rangeChanged.notify( cb );
 	if ( attobj )
 	    zrgfld_->attach( alignedBelow, attobj );
@@ -290,7 +319,8 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, true, false, nullptr, su.zdomkey_ );
+	zrgfld_ = new uiSelZRange( this, true,
+				   su.zdomkey_.buf(), su.zunitstr_.buf() );
 	zrgfld_->attach( alignedBelow, attachobj );
 	attachobj = zrgfld_;
     }

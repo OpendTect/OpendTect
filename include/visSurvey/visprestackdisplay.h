@@ -62,7 +62,12 @@ public:
 
     visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
     const visBase::FlatViewer*	flatViewer() const { return flatviewer_; }
-    PreStack::ProcessManager&	procMgr()	{ return preprocmgr_; }
+    PreStack::ProcessManager*	procMgr()	{ return preprocmgr_; }
+    void			setProcMgr(OD::GeomSystem);
+    void			setProcPar(const IOPar&);
+    void			getProcPar(IOPar&);
+
+    TrcKey			getTrcKey() const;
 
 				//3D case
     bool			setPosition(const TrcKey&);
@@ -81,7 +86,7 @@ public:
 
 				//2D case
     const Seis2DDisplay*	getSeis2DDisplay() const;
-    bool			setSeis2DData(const IOObj* ioobj);
+    bool			setSeis2DData(const IOObj*);
     bool			setSeis2DDisplay(Seis2DDisplay*,int trcnr);
     void			setTraceNr(int trcnr);
     int				traceNr() const	  { return trcnr_; }
@@ -147,7 +152,8 @@ protected:
     MouseCursor			mousecursor_;
     visBase::DepthTabPlaneDragger*	planedragger_;
     visBase::FlatViewer*	flatviewer_;
-    PreStack::ProcessManager&	preprocmgr_;
+    PreStack::ProcessManager*	preprocmgr_			= nullptr;
+    IOPar			preprociop_;
 
     MultiID			mid_;
     PlaneDataDisplay*		section_			= nullptr;

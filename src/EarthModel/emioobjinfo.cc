@@ -28,17 +28,6 @@ ________________________________________________________________________
 namespace EM
 {
 
-mDefineEnumUtils( IOObjInfo, ObjectType, "Object Type" )
-{
-  "Unknown",
-  EMHorizon3DTranslatorGroup::sGroupName(),
-  EMHorizon2DTranslatorGroup::sGroupName(),
-  EMFaultStickSetTranslatorGroup::sGroupName(),
-  EMFault3DTranslatorGroup::sGroupName(),
-  EMBodyTranslatorGroup::sGroupName(),
-  0
-};
-
 
 IOObjInfo::IOObjInfo( const IOObj* ioobj )
     : ioobj_(ioobj ? ioobj->clone() : nullptr)
@@ -90,7 +79,8 @@ void IOObjInfo::fillZDomain()
 
 void IOObjInfo::setType()
 {
-    type_ = ioobj_ ? objectTypeOfIOObjGroup( ioobj_->group() ) : Unknown;
+    type_ = ioobj_ ? objectTypeOfIOObjGroup( ioobj_->group() )
+		   : EM::ObjectType::Unknown;
 }
 
 
@@ -158,7 +148,7 @@ bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
     if ( !ioobj_ )
 	return false;
 
-    if ( type_==Fault )
+    if ( type_== EM::ObjectType::Flt3D )
     {
 	FaultAuxData fad( ioobj_->key() );
 	fad.getAuxDataList( attrnames );
@@ -388,15 +378,15 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
 }
 
 
-IOObjInfo::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
+EM::ObjectType IOObjInfo::objectTypeOfIOObjGroup( const char* grpname )
 {
-    ObjectType type = Unknown;
+    EM::ObjectType type = EM::ObjectType::Unknown;
     parseEnum( grpname, type );
     return type;
 }
 
 
-void IOObjInfo::getIDs( IOObjInfo::ObjectType reqtyp, TypeSet<MultiID>& ids )
+void IOObjInfo::getIDs( EM::ObjectType reqtyp, TypeSet<MultiID>& ids )
 {
     const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
     const IODir iodir( mid );
@@ -422,9 +412,9 @@ void IOObjInfo::getTiedToLevelID( Strat::LevelID lvlid, TypeSet<MultiID>& ids,
     ids.erase();
     TypeSet<MultiID> candidates;
     if ( is2d )
-	getIDs( Horizon2D, candidates );
+	getIDs( EM::ObjectType::Hor2D, candidates );
     else
-	getIDs( Horizon3D, candidates );
+	getIDs( EM::ObjectType::Hor3D, candidates );
 
     for ( int idx=0; idx<candidates.size(); idx++ )
     {
@@ -443,13 +433,14 @@ bool IOObjInfo::sortHorizonsOnZValues( const TypeSet<MultiID>& list,
 	return true;
 
     IOObjInfo info( list[0] );
-    return RelationTree::sortHorizons( info.is2DHorizon(), list, sorted );
+    return RelationTree::sortHorizons( EM::is2DHorizon(info.type()),
+							    list, sorted );
 }
 
 
 bool IOObjInfo::getBodyRange( TrcKeyZSampling& cs ) const
 {
-    if ( type_ != IOObjInfo::Body )
+    if ( type_ != EM::ObjectType::Body )
 	return false;
 
     RefMan<EMObject> emobj = EMM().loadIfNotFullyLoaded( ioobj_->key() );
@@ -475,7 +466,7 @@ bool IOObjInfo::getBodyRange( TrcKeyZSampling& cs ) const
 int IOObjInfo::nrSticks() const
 {
     if ( !ioobj_ )
-	return false;
+	return 0;
 
     PtrMan<Translator> trans = ioobj_->createTranslator();
     mDynamicCastGet(EMSurfaceTranslator*,emtr,trans.ptr())
@@ -514,7 +505,7 @@ void IOObjInfo::getHorizonIDsForLine( const Pos::GeomID& geomid,
 				      TypeSet<MultiID>& keys )
 {
     TypeSet<MultiID> allhorkeys;
-    getIDs( Horizon2D, allhorkeys );
+    getIDs( EM::ObjectType::Hor2D, allhorkeys );
 
     for ( const auto& key : allhorkeys )
     {

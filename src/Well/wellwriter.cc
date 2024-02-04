@@ -49,15 +49,17 @@ bool Well::Writer::isFunctional( const IOObj& ioobj )
 
 
 Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
-    : wa_(0)
 {
+    nsfile_ = new NotifyStopper( FSW().fileChanged );
+    nsdir_ = new NotifyStopper( FSW().directoryChanged );
     init( ioobj, wd );
 }
 
 
 Well::Writer::Writer( const MultiID& ky, const Well::Data& wd )
-    : wa_(0)
 {
+    nsfile_ = new NotifyStopper( FSW().fileChanged );
+    nsdir_ = new NotifyStopper( FSW().directoryChanged );
     IOObj* ioobj = IOM().get( ky );
     if ( !ioobj )
 	errmsg_.appendPhrase( uiStrings::phrCannotFindDBEntry(ky) );
@@ -87,6 +89,8 @@ void Well::Writer::init( const IOObj& ioobj, const Well::Data& wd )
 Well::Writer::~Writer()
 {
     delete wa_;
+    delete nsfile_;
+    delete nsdir_;
 }
 
 #define mImplWWFn(rettyp,fnnm,typ,arg,udf) \

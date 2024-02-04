@@ -13,10 +13,19 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include <limits.h>
 #ifdef __mac__
-#include <malloc/malloc.h>
+# include <malloc/malloc.h>
 #else
-#include <malloc.h>
+# include <malloc.h>
 #endif
+
+
+RawDataArray::RawDataArray( int bytes )
+    : bytes_(bytes)
+{}
+
+
+RawDataArray::~RawDataArray()
+{}
 
 
 bool RawDataArray::isZero() const
@@ -32,6 +41,8 @@ bool RawDataArray::isZero() const
 }
 
 
+
+// DataBuffer
 DataBuffer::DataBuffer( int n, int byts, bool doinit )
 	: RawDataArray(byts)
 {
@@ -65,14 +76,18 @@ DataBuffer& DataBuffer::operator=( const DataBuffer& tb )
 	{
 	    if ( bytes_ != tb.bytes_ )
 	    {
-		delete [] data_; data_ = 0;
-		bytes_ = tb.bytes_; nelem_ = 0;
+		deleteAndNullArrPtr( data_ );
+		bytes_ = tb.bytes_;
+		nelem_ = 0;
 	    }
+
 	    reSize( tb.size() );
 	}
+
 	bytes_ = tb.bytes_;
 	nelem_ = tb.nelem_;
-	if ( data_ ) OD::memCopy( data_, tb.data_, nelem_*bytes_ );
+	if ( data_ )
+	    OD::memCopy( data_, tb.data_, nelem_*bytes_ );
     }
 
     return *this;
@@ -88,9 +103,11 @@ void DataBuffer::reSize( int newsz, bool copy )
 
     if ( newsz == 0 || !copy || nelem_ < 0 )
     {
-	delete [] data_; data_ = 0;
+	deleteAndNullArrPtr( data_ );
 	if ( newsz )
-	    { mTryAlloc( data_, unsigned char [ newsz * bytes_ ] ); }
+	{
+	    mTryAlloc( data_, unsigned char [ newsz * bytes_ ] );
+	}
     }
     else
     {
@@ -105,14 +122,17 @@ void DataBuffer::reSize( int newsz, bool copy )
 	}
 	delete [] olddata;
     }
+
     nelem_ = data_ ? newsz : 0;
 }
 
 
 void DataBuffer::reByte( int n, bool copy )
 {
-    if ( n < 1 ) n = 1;
-    if ( n == bytes_ ) return;
+    if ( n < 1 )
+	n = 1;
+    if ( n == bytes_ )
+	return;
 
     bytes_ = n;
     n = nelem_;
@@ -125,7 +145,8 @@ void DataBuffer::zero()
 {
     if ( data_ )
     {
-	od_int64 sz = nelem_; sz *= bytes_;
+	od_int64 sz = nelem_;
+	sz *= bytes_;
 	OD::memZero( data_, sz );
     }
 }
@@ -133,7 +154,8 @@ void DataBuffer::zero()
 
 bool DataBuffer::fitsInString() const
 {
-    od_int64 sz = nelem_; sz *= bytes_;
+    od_int64 sz = nelem_;
+    sz *= bytes_;
     return sz < INT_MAX;
 }
 
@@ -153,6 +175,18 @@ BufferString DataBuffer::getString() const
 }
 
 
+
+// TraceData
+TraceData::TraceData()
+{}
+
+
+TraceData::TraceData( const TraceData& td )
+{
+    copyFrom(td);
+}
+
+
 TraceData::~TraceData()
 {
     for ( int icomp=0; icomp<nrcomp_; icomp++ )
@@ -160,6 +194,7 @@ TraceData::~TraceData()
 	delete data_[icomp];
 	delete interp_[icomp];
     }
+
     delete [] data_;
     delete [] interp_;
 }
@@ -168,7 +203,9 @@ TraceData::~TraceData()
 bool TraceData::allOk() const
 {
     for ( int icomp=0; icomp<nrcomp_; icomp++ )
-	if ( !data_[icomp]->isOk() ) return false;
+	if ( !data_[icomp]->isOk() )
+	    return false;
+
     return true;
 }
 
@@ -176,7 +213,9 @@ bool TraceData::allOk() const
 bool TraceData::isEmpty() const
 {
     for ( int icomp=0; icomp<nrcomp_; icomp++ )
-	if ( !data_[icomp]->isEmpty() ) return false;
+	if ( !data_[icomp]->isEmpty() )
+	    return false;
+
     return true;
 }
 
@@ -214,8 +253,12 @@ void TraceData::convertTo( const DataCharacteristics& dc, bool pres )
     {
 	const TraceDataInterpreter* di = getInterpreter( icomp );
 	if ( di && di->dataChar() != dc )
-	    { allok = false; break; }
+	{
+	    allok = false;
+	    break;
+	}
     }
+
     if ( allok )
 	return;
 
@@ -223,6 +266,7 @@ void TraceData::convertTo( const DataCharacteristics& dc, bool pres )
     TraceData oldtd( *this );
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
 	setComponent( dc, icomp );
+
     reSize( sz );
 
     if ( pres )
@@ -246,8 +290,12 @@ void TraceData::convertToFPs( bool pres )
     {
 	const TraceDataInterpreter* di = getInterpreter( icomp );
 	if ( di && (di->nrBytes() < 4 || di->dataChar().isInteger()) )
-	    { allfloat = false; break; }
+	{
+	    allfloat = false;
+	    break;
+	}
     }
+
     if ( allfloat )
 	return;
 
@@ -255,6 +303,7 @@ void TraceData::convertToFPs( bool pres )
     TraceData oldtd( *this );
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
 	setComponent( DataCharacteristics(), icomp );
+
     reSize( sz );
 
     if ( pres )
@@ -273,7 +322,7 @@ void TraceData::convertToFPs( bool pres )
 
 bool TraceData::isValidComp( int icomp ) const
 {
-    return ( icomp>=0 && icomp<nrcomp_ && data_[icomp]->isOk() );
+    return icomp>=0 && icomp<nrcomp_ && data_[icomp]->isOk();
 }
 
 
@@ -319,6 +368,7 @@ void TraceData::addComponent( int ns, const DataCharacteristics& dc,
 	delete [] data_;
 	delete [] interp_;
     }
+
     newdata[nrcomp_] = new DataBuffer( ns, (int)dc.nrBytes(), cleardata );
     newinterp[nrcomp_] = new TraceDataInterpreter( dc );
     nrcomp_++;
@@ -329,11 +379,12 @@ void TraceData::addComponent( int ns, const DataCharacteristics& dc,
 
 void TraceData::delComponent( int todel )
 {
-    if ( todel < 0 || todel >= nrcomp_ ) return;
+    if ( todel < 0 || todel >= nrcomp_ )
+	return;
 
-    DataBuffer** newdata = nrcomp_ > 1 ? new DataBuffer* [nrcomp_-1] : 0;
+    DataBuffer** newdata = nrcomp_ > 1 ? new DataBuffer* [nrcomp_-1] : nullptr;
     TraceDataInterpreter** newinterp = nrcomp_ > 1
-		? new TraceDataInterpreter* [nrcomp_-1] : 0;
+		? new TraceDataInterpreter* [nrcomp_-1] : nullptr;
     int targetcomp = 0;
     for ( int icomp=0; icomp<nrcomp_; icomp++ )
     {
@@ -371,7 +422,8 @@ void TraceData::reSize( int n, int compnr, bool copydata )
 
 void TraceData::setComponent( const DataCharacteristics& dc, int icomp )
 {
-    if ( icomp >= nrcomp_ ) return;
+    if ( icomp >= nrcomp_ )
+	return;
 
     data_[icomp]->reByte( dc.nrBytes() );
     *interp_[icomp] = dc;
@@ -395,8 +447,12 @@ void TraceData::setNrComponents( int newnrcomps,
 	    DataCharacteristics::UserType ut =
 		getInterpreter(icomp)->dataChar().userType();
 	    if ( ut != utin )
-		{ isok = false; break; }
+	    {
+		isok = false;
+		break;
+	    }
 	}
+
 	if ( isok )
 	    return;
     }
@@ -439,7 +495,8 @@ void TraceData::scale( const Scaler& sclr, int compnr )
 
 void TraceData::zero( int targetcomp )
 {
-    if ( targetcomp < -1 || targetcomp >= nrcomp_ ) return;
+    if ( targetcomp < -1 || targetcomp >= nrcomp_ )
+	return;
 
     const int endicomp = targetcomp < 0 ? nrcomp_-1 : targetcomp;
     for ( int icomp=(targetcomp>=0?targetcomp:0); icomp<=endicomp; icomp++ )

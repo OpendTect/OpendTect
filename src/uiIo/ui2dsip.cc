@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uigeninputdlg.h"
 #include "uiimpexp2dgeom.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -217,15 +218,38 @@ uiSurvInfoProvider::~uiSurvInfoProvider()
 {}
 
 
+static void ensureMinSize( int minnum, int& nrnodes, double& originxy,
+			   double grdsp )
+{
+    if ( minnum%2 == 0 )
+       minnum++; // Use odd number for better centering
+
+    if ( nrnodes < minnum )
+    {
+	const int diff = minnum - nrnodes;
+	nrnodes = minnum;
+	originxy -= (diff/2) * grdsp;
+    }
+}
+
+
+#define mMinSize 21
 bool uiSurvInfoProvider::getRanges( TrcKeyZSampling& cs, Coord crd[3],
 					   Coord c0, Coord c1, double grdsp )
 {
     const Coord d( c1.x - c0.x, c1.y - c0.y );
-    const int nrinl = (int)(d.x / grdsp + 1.5);
-    const int nrcrl = (int)(d.y / grdsp + 1.5);
+    int nrinl = (int)(d.x / grdsp + 1.5);
+    int nrcrl = (int)(d.y / grdsp + 1.5);
     if ( nrinl < 2 && nrcrl < 2 )
 	mErrRet(od_static_tr("getRanges",
 			"Coordinate ranges are less than one trace distance"))
+
+    ensureMinSize( mMinSize, nrinl, c0.x, grdsp );
+    ensureMinSize( mMinSize, nrcrl, c0.y, grdsp );
+    if ( nrinl < nrcrl )
+	ensureMinSize( nrcrl/10, nrinl, c0.x, grdsp );
+    else
+	ensureMinSize( nrinl/10, nrcrl, c0.y, grdsp );
 
     cs.hsamp_.start_.inl() = cs.hsamp_.start_.crl() = 10000;
     cs.hsamp_.step_.inl() = cs.hsamp_.step_.crl() = 1;
@@ -411,9 +435,21 @@ IOPar* uiNavSurvInfoProvider::getImportPars() const
 }
 
 
-void uiNavSurvInfoProvider::startImport( uiParent*, const IOPar& )
+void uiNavSurvInfoProvider::startImport( uiParent* p, const IOPar& )
 {
     uiStringSet errors;
+    if ( geoms_.size() == 1 )
+    {
+	uiGenInputDlg dlg( p, tr("Specify Line Name"),
+			   tr("Enter the name of the 2D Line") );
+	if ( !dlg.go() )
+	    return;
+
+	const BufferString linename = dlg.text();
+	if ( !linename.isEmpty() )
+	    geoms_[0]->dataAdmin().setLineName( linename );
+    }
+
     for ( int idx=0; idx<geoms_.size(); idx++ )
     {
 	geoms_[idx]->dataAdmin().setZRange( SI().zRange(false) );

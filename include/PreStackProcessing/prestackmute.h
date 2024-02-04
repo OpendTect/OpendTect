@@ -52,7 +52,7 @@ public:
 
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
-    bool		mustHaveUserInput() override { return false; }
+    bool		mustHaveUserInput() const override { return false; }
 
 protected:
 

@@ -825,14 +825,18 @@ void HorizonDisplay::allowShading( bool yn )
 const Attrib::SelSpec* HorizonDisplay::getSelSpec(
 				int channel, int version ) const
 {
-    return as_.validIdx(channel) && as_[channel]->validIdx(version)
-		? &(*as_[channel])[version] : 0;
+    const TypeSet<Attrib::SelSpec>* specs = getSelSpecs( channel );
+    if ( !specs || specs->isEmpty() )
+	return nullptr;
+
+    return specs->validIdx( version ) ? &specs->get( version )
+				      : &specs->first();
 }
 
 
 const TypeSet<Attrib::SelSpec>* HorizonDisplay::getSelSpecs( int channel ) const
 {
-    return as_.validIdx(channel) ? as_[channel] : 0;
+    return as_.validIdx(channel) ? as_[channel] : nullptr;
 }
 
 

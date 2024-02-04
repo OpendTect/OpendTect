@@ -120,6 +120,7 @@ public:
     void			processTime2DepthSeis(CallBacker* =nullptr);
     void			processTime2DepthSeis(bool is2d);
     void			processTime2DepthHor(bool is2d);
+    void			processTime2DepthFSS(bool is2d);
     void			processPreStack(bool is2d);
     void			createMultiCubeDS(CallBacker* =nullptr);
     void			createMultiAttribVol(CallBacker*);
@@ -128,6 +129,8 @@ public:
     void			bayesClass2D(CallBacker* =nullptr);
     void			bayesClass3D(CallBacker* =nullptr);
     void			createCubeFromWells(CallBacker* =nullptr);
+    void			fltTimeDepthConvCB(CallBacker* =nullptr);
+    void			fltsetTimeDepthConvCB(CallBacker* =nullptr);
     void			create2DGrid()		{ process2D3D(0); }
     void			create2DFrom3D()	{ process2D3D(1); }
     void			create3DFrom2D()	{ process2D3D(2); }

@@ -38,7 +38,6 @@ mDefineEnumUtils(odSeismic2D, Seis2DFormat, "Output format/translator")
 
 odSeismic2D::odSeismic2D( const odSurvey& thesurvey, const char* name )
     : odSeismicObject(thesurvey, name, translatorGrp())
-    , seisdata_(new Seis2DDataSet(*ioobj_))
 {
 }
 
@@ -48,7 +47,6 @@ odSeismic2D::odSeismic2D( const odSurvey& survey, const char* name,
 			  bool zistime, bool overwrite )
     : odSeismicObject(survey, name, components, translatorGrp(), toString(fmt),
 		      zistime, overwrite)
-    , seisdata_(new Seis2DDataSet(*ioobj_))
 {
 }
 
@@ -59,6 +57,13 @@ odSeismic2D::~odSeismic2D()
 }
 
 
+Seis2DDataSet* odSeismic2D::seisdata_ptr() const
+{
+    PtrMan<IOObj> ioobj = ioobj_ptr();
+    return ioobj ? new Seis2DDataSet( *ioobj ) : nullptr;
+}
+
+
 void odSeismic2D::close()
 {
 }
@@ -66,42 +71,56 @@ void odSeismic2D::close()
 
 int odSeismic2D::getNrLines() const
 {
-    return seisdata_->nrLines();
+    PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
+    return seisdata ? seisdata->nrLines() : 0;
 }
 
 
 BufferStringSet* odSeismic2D::getLineNames() const
 {
-    auto* nms = new BufferStringSet;
-    seisdata_->getLineNames( *nms );
-    return nms;
+    PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
+    if ( seisdata )
+    {
+	auto* nms = new BufferStringSet;
+	seisdata->getLineNames( *nms );
+	return nms;
+    }
+    else
+	return nullptr;
 }
 
 
 void odSeismic2D::getLineInfo( OD::JSON::Array& jsarr,
 			       const BufferStringSet& fornames ) const
 {
-    survey_.activate();
+    jsarr.setEmpty();
     BufferStringSet nms;
     PtrMan<BufferStringSet> allnms = getLineNames();
+    if ( !allnms )
+	return;
+
     if ( fornames.isEmpty() )
 	nms = *allnms;
     else
 	nms = odSurvey::getCommonItems( *allnms, fornames );
 
-    jsarr.setEmpty();
-    const SeisIOObjInfo info( ioobj_ );
+    PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
+    if ( !seisdata )
+	return;
+
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    const SeisIOObjInfo info( ioobj.ptr() );
     const ZDomain::Def& zdef = info.zDomainDef();
     for ( const auto* nm : nms )
     {
-	int lidx = seisdata_->indexOf( nm->buf() );
+	int lidx = seisdata->indexOf( nm->buf() );
 	if ( lidx<0 )
 	    continue;
 
-	const auto geomid = seisdata_->geomID( lidx );
+	const auto geomid = seisdata->geomID( lidx );
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
-	seisdata_->getRanges( geomid, trcrg, zrg );
+	seisdata->getRanges( geomid, trcrg, zrg );
 	zrg.scale( zdef.userFactor() );
 	OD::JSON::Object lineinfo;
 	lineinfo.set( "name", nm->buf() );
@@ -120,22 +139,19 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     if ( !canRead() )
 	return;
 
-    survey_.activate();
-    if ( !ioobj_ )
-    {
-	errmsg_ = "invalid ioobj.";
+    PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
+    if ( !seisdata || !isOK() )
 	return;
-    }
 
-    if ( !seisdata_->isPresent(linenm) )
+    if ( !seisdata->isPresent(linenm) )
     {
 	errmsg_ = "invalid data request.";
 	return;
     }
 
-    Pos::GeomID geomid = seisdata_->geomID( seisdata_->indexOf(linenm) );
+    Pos::GeomID geomid = seisdata->geomID( seisdata->indexOf(linenm) );
     SeisTrcBuf tbuf( true );
-    PtrMan<Executor>ex = seisdata_->lineFetcher( geomid, tbuf );
+    PtrMan<Executor>ex = seisdata->lineFetcher( geomid, tbuf );
     if ( !ex->execute() || tbuf.isEmpty() )
     {
 	errmsg_ = "error reading 2D seismic data.";
@@ -146,7 +162,11 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     const int nsamp = tbuf.get(0)->size();
     const int nrcomp = getNrComponents();
     StepInterval<float> zrange = tbuf.get(0)->zRange();
-    const SeisIOObjInfo info( ioobj_ );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return;
+
+    const SeisIOObjInfo info( ioobj.ptr() );
     const ZDomain::Def& zdef = info.zDomainDef();
     zrange.scale( zdef.userFactor() );
     zrg[0] = zrange.start;
@@ -193,11 +213,109 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
 }
 
 
+void odSeismic2D::putData( const char* linenm, const float** data,
+			   int32_t ntrcs, int32_t nrz,
+			   const float zrg[3], const int32_t* trcnrs )
+{
+    errmsg_.setEmpty();
+    if ( !canWrite() )
+	return;
+
+    PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
+    if ( !seisdata || !isOK() )
+	return;
+
+    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+    PtrMan<Seis2DLinePutter> putter = seisdata->linePutter( geomid );
+    if ( !putter )
+    {
+	errmsg_ = BufferString( "no 2D line geometry exists for: ", linenm );
+	return;
+    }
+
+    putter->setComponentNames( components_ );
+    const float zfac = SI().showZ2UserFactor();
+    SamplingData<float> sd( zrg[0]/zfac, zrg[2]/zfac );
+    for ( int idx=0; idx<ntrcs; idx++ )
+    {
+	const TrcKey trckey( geomid, trcnrs[idx] );
+	if ( !trckey.exists() )
+	    continue;
+
+	PtrMan<SeisTrc> trc = new SeisTrc( nrz );
+	if ( !trc )
+	    return;
+
+	trc->setNrComponents( components_.size(), DataCharacteristics::F32 );
+	trc->info().setTrcKey( trckey );
+	trc->info().coord = trckey.getCoord();
+	trc->info().sampling = sd;
+	for ( int icomp=0; icomp<components_.size(); icomp++ )
+	{
+	    const float* compdata = data[icomp];
+	    const int idxstart = idx*nrz;
+	    for ( int iz=0; iz<nrz; iz++ )
+	    {
+		float val = mUdf(float);
+		val = compdata[idxstart + iz];
+		if ( !Math::IsNormalNumber(val) )
+		    val = mUdf(float);
+
+		trc->set( iz, val, icomp );
+	    }
+	}
+
+	if ( !putter->put(*trc) )
+	{
+	    errmsg_ = putter->errMsg().getOriginalString();
+	    break;
+	}
+    }
+    putter->close();
+}
+
+
+bool odSeismic2D::delLines( const BufferStringSet& linenms )
+{
+    if ( linenms.isEmpty() )
+	return true;
+
+    errmsg_.setEmpty();
+    bool first = true;
+    PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
+    if ( !seisdata )
+	return false;
+
+    for ( const auto* line : linenms )
+    {
+	const int idx = seisdata->indexOf( line->buf() );
+	if ( idx==-1 )
+	    continue;
+
+	const Pos::GeomID geomid = seisdata->geomID( idx );
+	if ( !seisdata->remove(geomid) )
+	{
+	    if ( first )
+	    {
+		first = false;
+		errmsg_ = "Error removing:";
+	    }
+
+	    errmsg_.addSpace().add(line->buf());
+	}
+    }
+    return true;
+}
+
+
 void odSeismic2D::getInfo( OD::JSON::Object& jsobj ) const
 {
     jsobj.setEmpty();
-    survey_.activate();
-    const SeisIOObjInfo seisinfo( ioobj_ );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return;
+
+    const SeisIOObjInfo seisinfo( ioobj.ptr() );
     const ZDomain::Def& zdef = seisinfo.zDomainDef();
     jsobj.set( "name", getName().buf() );
     jsobj.set( "line_count", getNrLines() );
@@ -224,9 +342,12 @@ void odSeismic2D::getFeature( OD::JSON::Object& jsobj, bool towgs ) const
 
 void odSeismic2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 {
-    survey_.activate();
     TypeSet<Pos::GeomID> geomids;
-    seisdata_->getGeomIDs( geomids );
+    PtrMan<Seis2DDataSet> seisdata( seisdata_ptr() );
+    if ( !seisdata )
+	return;
+
+    seisdata->getGeomIDs( geomids );
     for ( auto& geomid : geomids )
     {
 	TypeSet<Coord> coords;
@@ -242,6 +363,24 @@ void odSeismic2D::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
 
 mDefineBaseBindings(Seismic2D, seismic2d)
 mDefineRemoveBindings(Seismic2D, seismic2d)
+
+hSeismic2D seismic2d_newout( hSurvey survey, const char* name,
+			     const char* format, hStringSet compnames,
+			     bool zistime, bool overwrite )
+{
+    auto* p = static_cast<odSurvey*>(survey);
+    const auto* nms = static_cast<BufferStringSet*>(compnames);
+    if ( !p || !nms ) return nullptr;
+
+    odSeismic2D::Seis2DFormat fmt;
+    if ( odSeismic2D::parseEnum(format, fmt) )
+	return new odSeismic2D( *p, name, fmt, *nms, zistime, overwrite );
+    else
+    {
+	p->setErrMsg("invalid output format");
+	return nullptr;
+    }
+}
 
 
 void seismic2d_close( hSeismic2D self )
@@ -295,5 +434,26 @@ void seismic2d_getdata( hSeismic2D self, hAllocator allocator,
     p->getData( allocator, linenm, zrg );
 }
 
+
+void seismic2d_putdata( hSeismic2D self, const char* linenm, const float** data,
+			int32_t ntrcs, int32_t nrz,
+			const float zrg[3], const int32_t* trcnrs )
+{
+    auto* p = static_cast<odSeismic2D*>(self);
+    if  ( !p || !p->canWrite() )
+	return;
+
+    p->putData( linenm, data, ntrcs, nrz, zrg, trcnrs );
+}
+
+
+bool seismic2d_deletelines( hSeismic2D self, const hStringSet linenms )
+{
+    auto* p = static_cast<odSeismic2D*>(self);
+    const auto* nms = static_cast<BufferStringSet*>(linenms);
+    if ( !p || !nms ) return false;
+
+    return p->delLines( *nms );
+}
 
 

@@ -82,6 +82,7 @@ protected:
     IOPar		dlgiopar_;
     uiCheckBox*		othdombox_		= nullptr;
     uiComboBox*		othunitfld_		= nullptr;
+    const ZDomain::Info* customzinfo_		= nullptr; // neither T nor D
 
     Setup		mkSetup(const Setup&,const IOObjContext&);
     void		fillDefault() override;

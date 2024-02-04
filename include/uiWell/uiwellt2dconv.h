@@ -29,6 +29,8 @@ private:
     void		doInitGrp() override;
     void		setZRangeCB(CallBacker*);
     bool		acceptOK() override;
+    bool		usePar(const IOPar&) override;
+    const char*		transformName() const override;
 
     uiIOObjSel*			selfld_;
     RefMan<ZAxisTransform>	transform_;

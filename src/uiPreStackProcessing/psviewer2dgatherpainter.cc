@@ -16,10 +16,9 @@ namespace PreStackView
 {
 
 Viewer2DGatherPainter::Viewer2DGatherPainter( FlatView::Viewer& v )
-    : inputwvagather_( 0 )
-    , inputvdgather_( 0 )
-    , viewer_( v )
-{}
+    : viewer_(v)
+{
+}
 
 
 Viewer2DGatherPainter::~Viewer2DGatherPainter()
@@ -27,11 +26,11 @@ Viewer2DGatherPainter::~Viewer2DGatherPainter()
 }
 
 
-BinID Viewer2DGatherPainter::getBinID() const
+TrcKey Viewer2DGatherPainter::getTrcKey() const
 {
-    return inputwvagather_ ? inputwvagather_->getBinID()
-			   : (inputvdgather_ ? inputvdgather_->getBinID()
-					     : BinID::udf());
+    return inputwvagather_ ? inputwvagather_->getTrcKey()
+			   : (inputvdgather_ ? inputvdgather_->getTrcKey()
+					     : TrcKey::udf());
 }
 
 

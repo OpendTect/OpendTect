@@ -547,6 +547,16 @@ mExternC(Basic) const char* GetUserNm()
 }
 
 
+mExternC(Basic) const char* GetInterpreterName()
+{
+    const StringView dtectuser = GetSoftwareUser();
+    if ( dtectuser.isEmpty() )
+	return GetUserNm();
+
+    return dtectuser;
+}
+
+
 static void getHomeDir( BufferString& homedir )
 {
     const char* dir;

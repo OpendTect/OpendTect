@@ -15,6 +15,7 @@ macro( CLEAN_PACK_VARIABLES )
     unset( PLUGINS )
     unset( EXCLUDE_PLUGINS )
     unset( SPECMODS )
+    unset( EXCLUDE_SPECMODS )
 # root files
     unset( SPECFILES )
 # data files
@@ -194,6 +195,13 @@ macro( COPY_QTWEBENGINE )
 	file( COPY ${WEBENGINE_TRANSLATION_FILES}
 	      DESTINATION "${COPYTOEXEDIR}/../translations" )
 	unset( WEBENGINE_TRANSLATION_FILES )
+	if ( IS_DIRECTORY "${COPYFROMEXEDIR}/../translations/qtwebengine_locales" )
+	    file( GLOB WEBENGINE_TRANSLATION_FILES
+		    "${COPYFROMEXEDIR}/../translations/qtwebengine_locales/*.pak" )
+	    file( COPY ${WEBENGINE_TRANSLATION_FILES}
+		  DESTINATION "${COPYTOEXEDIR}/../translations/qtwebengine_locales" )
+	    unset( WEBENGINE_TRANSLATION_FILES )
+	endif()
 
 	file( GLOB WEBENGINE_RESOURCES_FILES
 		"${COPYFROMEXEDIR}/../resources/icudtl.dat"
@@ -298,7 +306,7 @@ macro( CREATE_PACKAGE PACKAGE_NAME )
 	    file( COPY "${COPYFROMEXEDIR}/${EXECFILE}"
 		  DESTINATION "${COPYTOEXEDIR}" )
 	endif()
-	if ( WIN32 AND "${PACKAGE_NAME}" STREQUAL "devel" )
+	if ( WIN32 AND "${PACKAGE_NAME}" STREQUAL "devel" AND DEFINED PDB_FILE )
 	    file( COPY "${COPYFROMEXEDIR}/${PDB_FILE}"
 		  DESTINATION "${COPYTOEXEDIR}" )
 	endif()
@@ -424,6 +432,8 @@ macro( CREATE_DOCPACKAGE PACKAGE_NAME )
 	    file( COPY ${FILES}
 		  DESTINATION "${COPYTODIR}/doc" )
 	endif()
+	execute_process( COMMAND "${USERDOC_SCRIPT_LOCATION}" ${PACKAGE_NAME}
+			 WORKING_DIRECTORY "${PACKAGE_DIR}" )
     else()
 	if( ${PACKAGE_NAME} STREQUAL "classdoc" )
 	    if( EXISTS "${COPYFROMDIR}/doc/Programmer/Generated" )
@@ -433,10 +443,11 @@ macro( CREATE_DOCPACKAGE PACKAGE_NAME )
 		message( FATAL_ERROR "Class doc not installed correctly. ${PACKAGE_FILENAME} is not self contained." )
 	    endif()
 	endif()
+	if ( NOT APPLE )
+	    execute_process( COMMAND "${CLASSDOC_SCRIPT_LOCATION}" --reldir ${REL_DIR} --ver ${FULLVER_NAME}
+			     WORKING_DIRECTORY "${PACKAGE_DIR}" )
+	endif()
     endif()
-
-    execute_process( COMMAND "$<IF:$<STREQUAL:${PACK},classdoc>,${CLASSDOC_SCRIPT_LOCATION},${USERDOC_SCRIPT_LOCATION}>"
-		     ${PACKAGE_NAME} WORKING_DIRECTORY "${PACKAGE_DIR}" )
 endmacro(CREATE_DOCPACKAGE)
 
 macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )

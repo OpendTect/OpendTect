@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "emfault.h"
+#include "locationbase.h"
 #include "tableascio.h"
 
 namespace Table { class FormatDesc; }
@@ -17,6 +18,7 @@ namespace Table { class FormatDesc; }
 namespace Geometry { class FaultStickSurface; }
 namespace Geometry { class FaultStickSet; }
 namespace Pos { class Filter; }
+namespace ZDomain { class Def; }
 
 namespace EM
 {
@@ -118,7 +120,7 @@ public:
     FaultAuxData*		auxData();
     const FaultAuxData*		auxData() const;
 
-    EMObjectIterator*	createIterator(
+    EMObjectIterator*		createIterator(
 				const TrcKeyZSampling* =nullptr) const override;
 
 protected:
@@ -142,31 +144,21 @@ public:
 				FaultAscIO(const Table::FormatDesc&);
 				~FaultAscIO();
 
-    static Table::FormatDesc*	getDesc(bool is2d);
+    static Table::FormatDesc*	getDesc(bool is2dq,const ZDomain::Def&);
+    static void			updateDesc(Table::FormatDesc&,bool is2d,
+						const ZDomain::Def&);
+    static void			createDescBody(Table::FormatDesc*,bool is2d,
+						    const ZDomain::Def&);
 
     bool			get(od_istream&,EM::Fault&,
 				    bool sortsticks=false,
 				    bool is2d=false) const;
 protected:
+
     bool			isXY() const;
 };
 
 
-/*!
-\brief Class to hold Fault-stick coordinates and compute the normal.
-*/
 
-mExpClass(EarthModel) FaultStick
-{
-public:
-			FaultStick(int stickidx);
-			~FaultStick();
-
-    Coord3		getNormal(bool is2d) const;
-
-    int			stickidx_;
-    TypeSet<Coord3>	crds_;
-    BufferString	lnm_;
-};
 
 } // namespace EM

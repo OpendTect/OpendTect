@@ -1604,7 +1604,8 @@ bool Horizon3DGeometry::getBoundingPolygon( Pick::Set& set ) const
 
 	nodefound = false;
 	const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
-	if ( dirs.size() != 8 ) return false;
+	if ( dirs.size() != 8 )
+	    return false;
 
 	for ( int idx=0; idx<dirs.size(); idx++ )
 	{

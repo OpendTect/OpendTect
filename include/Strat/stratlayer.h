@@ -10,13 +10,11 @@ ________________________________________________________________________
 
 #include "stratmod.h"
 #include "compoundkey.h"
+#include "property.h"
 #include "stratcontent.h"
 #include "typeset.h"
 #include "uistring.h"
 
-class PropertyRef;
-class PropertyRefSelection;
-class UnitOfMeasure;
 namespace Math { class Formula; }
 
 namespace Strat
@@ -68,6 +66,9 @@ public:
     void		setValue(int,float);
     void		setValue(int,const Math::Formula&,
 				 const PropertyRefSelection&,float xpos=0.5f);
+    void		setValue(int,const Math::Formula&,
+				 const PropertyRefSelection&,
+				 const Property::EvalOpts&);
     void		setValue(int,const IOPar&,const PropertyRefSelection&);
     void		setValue(int,LayerValue*); //!< becomes mine
     void		setContent(const Content&);
@@ -137,6 +138,11 @@ public:
 					  const Strat::Layer&,
 					  const PropertyRefSelection&,
 					  int outpridx,float xpos);
+			FormulaLayerValue(const Math::Formula&,
+					  const Strat::Layer&,
+					  const PropertyRefSelection&,
+					  int outpridx,
+					  const Property::EvalOpts&);
 			FormulaLayerValue(const IOPar&,const Strat::Layer&,
 					  const PropertyRefSelection&,
 					  int outpridx);
@@ -147,6 +153,7 @@ public:
     uiString		errMsg() const		{ return errmsg_; }
     void		fillPar(IOPar&) const;
     void		setXPos(float) override;
+    void		setRelZ(float);
 
     float		value() const override;
 
@@ -159,7 +166,8 @@ protected:
     const Math::Formula&	form_;
     const Layer&		lay_;
     const bool			myform_;
-    float			xpos_;
+    float			xpos_			= 0.f;
+    float			relz_			= 0.f;
 
     TypeSet<int>		inpidxs_;
     mutable TypeSet<double>	inpvals_;

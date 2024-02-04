@@ -19,6 +19,15 @@ ________________________________________________________________________
 const GlobExpr Table::RecordMatcher::emptyge_;
 
 
+Table::ImportHandler::ImportHandler( od_istream& strm )
+    : strm_(strm)
+{}
+
+
+Table::ImportHandler::~ImportHandler()
+{}
+
+
 char Table::ImportHandler::readNewChar() const
 {
     char c = strm_.peek();
@@ -57,6 +66,17 @@ void Table::ImportHandler::addToCol( char c )
 }
 
 
+
+// Table::ExportHandler
+Table::ExportHandler::ExportHandler( od_ostream& strm )
+    : strm_(strm)
+{}
+
+
+Table::ExportHandler::~ExportHandler()
+{}
+
+
 bool Table::ExportHandler::isNumber( const char* str )
 {
     return isNumberString( str );
@@ -86,6 +106,19 @@ uiString Table::ExportHandler::getStrmMsg() const
     uiString ret = strm_.errMsg();
     return ret.isEmpty() ? uiStrings::phrCannotWrite(uiStrings::sOutput()) :ret;
 }
+
+
+
+// Table::Converter
+Table::Converter::Converter( ImportHandler& i, ExportHandler& o )
+    : Executor("Data import")
+    , imphndlr_(i)
+    , exphndlr_(o)
+{}
+
+
+Table::Converter::~Converter()
+{}
 
 
 #define mFinishReturn( retval )		{  exphndlr_.finish(); return retval; }

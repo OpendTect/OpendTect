@@ -31,6 +31,8 @@ private:
     void		createCB(CallBacker*);
     void		editCB(CallBacker*);
     bool		acceptOK() override;
+    bool		usePar(const IOPar&) override;
+    const char*		transformName() const override;
 
     uiIOObjSel*		selfld_;
     RefMan<SimpleTimeDepthTransform> transform_;

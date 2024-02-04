@@ -1260,7 +1260,7 @@ void uiStratSynthDisp::setPSVwrData()
     if ( !presd )
 	return;
 
-    psvwrwin_->removeGathers();
+    psvwrwin_->removeGathers().removeModels();
     const_cast<PreStackSyntheticData*>( presd )->obtainGathers();
 
     TypeSet<PreStackView::GatherInfo> gatherinfos;
@@ -1274,14 +1274,15 @@ void uiStratSynthDisp::setPSVwrData()
 
 	newgi.isstored_ = false;
 	newgi.gathernm_ = sd->name();
-	newgi.bid_ = presd->getTrcKey( idx ).binID();
+	newgi.tk_ = presd->getTrcKey( idx );
 	newgi.wvadp_ = presd->getGather( idx, false );
 	newgi.vddp_ = presd->getGather( idx, true );
 
 	newgi.isselected_ = idx%dispeachgather==0 || idx == nrgathers-1;
     }
 
-    psvwrwin_->setGathers( gatherinfos );
+    psvwrwin_->setGathers( gatherinfos, sd->getTrcKeyZSampling() )
+	       .setModels( datamgr_.elasticModels() );
 }
 
 
@@ -1481,7 +1482,7 @@ void uiStratSynthDisp::setSavedViewRect()
 
 void uiStratSynthDisp::useDispPars( const IOPar& iop, od_uint32* ctyp )
 {
-    PtrMan<IOPar> par = iop.subselect( StratSynth::DataMgr::sKeySynthetics() );
+    PtrMan<IOPar> par = iop.subselect( sKey::Synthetic(2) );
     if ( !par )
 	return;
 
@@ -1585,8 +1586,7 @@ void uiStratSynthDisp::fillPar( IOPar& iop ) const
 
     datamgr_.fillPar( iop, &dispiops );
     const BufferString startviewstr(
-			IOPar::compKey(StratSynth::DataMgr::sKeySynthetics(),
-				       sKeyViewArea() ) );
+			IOPar::compKey(sKey::Synthetic(2),sKeyViewArea()) );
     if ( !control().zoomMgr().atStart() )
     {
 	const uiWorldRect& curvw = vwr_->curView();
@@ -1814,8 +1814,9 @@ void uiStratSynthDisp::setPSVwrDataCB( CallBacker* )
     if ( !seldlg.go() )
 	return;
 
-    psvwrwin_->removeGathers();
+    psvwrwin_->removeGathers().removeModels();
     TypeSet<PreStackView::GatherInfo> newginfos;
+    TrcKeyZSampling tkzs = TrcKeyZSampling::getSynth();
     for ( const auto* selnm : selgnms )
     {
 	const SynthID sid = datamgr_.find( selnm->buf() );
@@ -1836,6 +1837,7 @@ void uiStratSynthDisp::setPSVwrDataCB( CallBacker* )
 	if ( !presd )
 	    continue;
 
+	tkzs.include( sd->getTrcKeyZSampling() );
 	const_cast<PreStackSyntheticData*>( presd )->obtainGathers();
 	const PreStack::GatherSetDataPack& seisgdp = presd->preStackPack();
 	const PreStack::GatherSetDataPack& anglegdp = presd->angleData();
@@ -1843,14 +1845,15 @@ void uiStratSynthDisp::setPSVwrDataCB( CallBacker* )
 	{
 	    PreStackView::GatherInfo newginfo = ginfo;
 	    newginfo.gathernm_ = sd->name();
-	    newginfo.wvadp_ = seisgdp.getGather( newginfo.bid_ );
-	    newginfo.vddp_ = anglegdp.getGather( newginfo.bid_ );
+	    newginfo.wvadp_ = seisgdp.getGather( newginfo.tk_ );
+	    newginfo.vddp_ = anglegdp.getGather( newginfo.tk_ );
 	    if ( newginfo.wvadp_ && newginfo.vddp_ )
 		newginfos.addIfNew( newginfo );
 	}
     }
 
-    psvwrwin_->setGathers( newginfos );
+    psvwrwin_->setGathers( newginfos, tkzs )
+	      .setModels( datamgr_.elasticModels() );
 }
 
 

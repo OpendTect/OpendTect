@@ -618,11 +618,12 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 
 #define mPreStackBatchdlg(dlgobj) \
 	if ( !dlgobj ) \
-	    dlgobj = new PreStack::uiBatchProcSetup( par_, is2d ); \
+	    dlgobj = new PreStack::uiBatchProcSetup( par_, gs ); \
 	dlgobj->show(); \
 
 void uiODApplMgrDispatcher::processPreStack( bool is2d )
 {
+    const OD::GeomSystem gs = is2d ? OD::Geom2D : OD::Geom3D;
     if ( is2d )
     {
 #ifdef __debug__

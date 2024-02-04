@@ -84,6 +84,8 @@ public:
 					      const int32_t crlrg[3],
 					      const float zrg[3],
 					      bool zistime);
+    static TrcKeySampling	tkFromRanges(const int32_t inlrg[3],
+					     const int32_t crlrg[3]);
 
 protected:
     BufferString		basedir_, survey_;

@@ -170,11 +170,18 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     uiString errmsg;
     const bool rv = pvds.getFrom( ioobj->fullUserExpr(true), errmsg );
     if ( !rv )
-	{ uiMSG().error( errmsg ); return; }
-    if ( pvds.data().isEmpty() )
-    { uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty()); return; }
+    {
+	uiMSG().error( errmsg );
+	return;
+    }
 
-    RefMan<Pick::Set> pickset = psd_ ? psd_->getSet() : 0;
+    if ( pvds.data().isEmpty() )
+    {
+	uiMSG().error(uiDataPointSetMan::sSelDataSetEmpty());
+	return;
+    }
+
+    RefMan<Pick::Set> pickset = psd_ ? psd_->getSet() : nullptr;
     if ( !pickset )
 	return;
 
@@ -390,7 +397,7 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p,
 
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( emobj ) emobj->ref();
+    unRefPtr( emobj );
 }
 
 
@@ -404,9 +411,9 @@ void uiEMDataPointSetPickDlg::cleanUp()
     uiDataPointSetPickDlg::cleanUp();
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( emobj ) emobj->unRef();
+    unRefPtr( emobj );
 
-    delete &emdps_;
+    emdps_ = nullptr;
 }
 
 

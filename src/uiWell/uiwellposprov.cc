@@ -38,7 +38,8 @@ uiWellPosProvGroup::uiWellPosProvGroup( uiParent* p,
 
     if ( su.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, true, false, 0, su.zdomkey_ );
+	zrgfld_ = new uiSelZRange( this, true,
+				   su.zdomkey_.buf(), su.zunitstr_.buf() );
 	zrgfld_->attach( alignedBelow, stepoutfld_ );
     }
 

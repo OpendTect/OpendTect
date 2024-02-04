@@ -205,7 +205,7 @@ void PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
     Pos::GeomID geomid;
     iop.get( sKey::GeomID(), geomid );
 
-    SeisIOObjInfo info( mid );
+    const SeisIOObjInfo info( mid );
     if ( !info.isOK() )
 	return;
 

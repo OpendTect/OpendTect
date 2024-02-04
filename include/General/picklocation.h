@@ -9,10 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "coord.h"
-#include "trckey.h"
-#include "trigonometry.h"
-#include "coordsystem.h"
+#include "locationbase.h"
 
 
 namespace Pick
@@ -40,14 +37,20 @@ If no direction is available, you'll get nullSphere().
 
  */
 
-mExpClass(General) Location
+mExpClass(General) Location : public LocationBase
 {
 public:
-			Location(double x=0,double y=0,double z=0);
-			Location(const Coord&,float z=0);
-			Location(const Coord3&);
-			Location(const Coord3& pos,const Coord3& dir);
-			Location(const Coord3& pos,const Sphere& dir);
+			Location(const Coord3& pos,
+				    const Coord3& dir =Coord3::udf(),
+				    const Pos::GeomID& =Pos::GeomID::udf());
+			Location(const Coord3& pos,const Sphere& dir,
+				    const Pos::GeomID& =Pos::GeomID::udf());
+			Location(const Coord&,double z=0.,
+				    const Coord3& dir =Coord3::udf(),
+				    const Pos::GeomID& =Pos::GeomID::udf());
+			Location(double x=0.,double y=0.,double z=0.,
+				    const Coord3& dir =Coord3::udf(),
+				    const Pos::GeomID& =Pos::GeomID::udf());
 			Location(const Location&);
 			~Location();
 
@@ -57,81 +60,43 @@ public:
 			{ return !(*this == oth); }
     void		operator =(const Location&);
 
-    inline bool		hasPos() const		{ return pos_.isDefined(); }
-    bool		hasTrcKey() const;
     inline bool		hasDir() const		{ return !dir_.isNull(); }
     bool		hasText() const;
 
-    inline const Coord3& pos() const		{ return pos_; }
-    inline float	z() const		{ return (float)pos_.z; }
-    bool		is2D() const;
-    OD::GeomSystem	geomSystem() const;
-    Pos::GeomID		geomID() const;
-    const TrcKey&	trcKey() const;
-    Pos::LineID		lineNr() const;
-    Pos::TraceID	trcNr() const;
-    const BinID&	binID() const;
     const Sphere&	dir() const;
     const BufferString& text() const;
-
-    inline Location&	setPos( const Coord3& c )
-			{ pos_ = c; return *this; }
-    inline Location&	setPos( const Coord& c )
-			{ pos_.x = c.x; pos_.y = c.y; return *this; }
-    inline Location&	setPos( double x, double y, double zval )
-			{ setPos( Coord3(x,y,zval) ); return *this; }
-    inline Location&	setPos( const Coord& c, float zval )
-			{ setPos( c.x, c.y, zval ); return *this; }
-    template <class FT>
-    inline Location&	setZ( FT zval )
-			{ pos_.z = zval; return *this; }
-
-    Location&		setTrcKey(const TrcKey&);
-    Location&		setDir(const Sphere&);
-    Location&		setDir(const Coord&);
-    Location&		setLineNr(Pos::LineID);
-    Location&		setTrcNr(Pos::LineID);
-    Location&		setGeomID(Pos::GeomID);
-    Location&		setBinID(const BinID&,bool updcoord=false);
-    Location&		setGeomSystem(OD::GeomSystem,bool updfromcoord=true);
 
     bool		hasTextKey(const char* key) const;
     bool		getKeyedText(const char* key,BufferString&) const;
     void		setKeyedText(const char* key,const char* txt);
     void		removeTextKey(const char* key);
     Location&		setText(const char*);
+    Location&		setDir(const Sphere&);
+    Location&		setDir(const Coord&); //Why keep it not even has body
 			//!< make sure it's compatible with the keying system
 
     bool		fromString(const char*);
     void		toString(BufferString&,bool forexport=false,
 				      const Coords::CoordSystem* crs=0) const;
 
-			// renamed to 'Keyed' in post-6.0
-    /* mDeprecated */ void setText(const char* key,const char* txt);
-    /* mDeprecated */ void unSetText(const char* key);
-    /* mDeprecated */ bool getText(const char* key,BufferString&) const;
+    mDeprecated("Use setKeyedText")
+    void		setText(const char* key,const char* txt);
+    mDeprecated("Use removeTextKey")
+    void		unSetText(const char* key);
+    mDeprecated("Use getKeyedText")
+    bool		getText(const char* key,BufferString&) const;
 
-			// will go away post-6.0
-    /* mDeprecated */ void	setDip(float,float);
-    /* mDeprecated */ float	inlDip() const;
-    /* mDeprecated */ float	crlDip() const;
+    void		setDip(float,float);
+    float		inlDip() const;
+    float		crlDip() const;
 
 protected:
-    Coord3		pos_;
-    TrcKey		trckey_;
+
     Sphere		dir_;
     BufferString*	text_;
 
 
     bool		fndKeyTxt(const char*,BufferString*) const;
-
-public:
-
-    mDeprecated("Use setGeomSystem")
-    Location&		setSurvID(OD::GeomSystem,bool updfromcoord=true);
-
-    mDeprecated("Use geomSystem")
-    OD::GeomSystem	survID() const;
 };
 
 } // namespace Pick

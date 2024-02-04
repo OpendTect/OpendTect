@@ -37,6 +37,10 @@ private:
 
     DataSetKey		scope() const override		{ return gtScope(); }
     od_int64		curGroupID() const override	{ return gtGroupID(); }
+    H5::H5Location*	setLocation( const DataSetKey* dsky ) override
+						{ return stLocation( dsky ); }
+    H5::H5Location*	getLocation( const DataSetKey* dsky ) const override
+						{ return stLocation( dsky ); }
     H5::H5Object*	setScope( const DataSetKey* dsky ) override
 						{ return stScope( dsky ); }
     H5::H5Object*	getScope( const DataSetKey* dsky ) const override
@@ -64,6 +68,8 @@ private:
 				  H5::DataSet*,const char* dsnm,
 				  uiRetVal&) override;
 
+    void		stComment(const H5::H5Location&,const char* name,
+				  const char* comment,uiRetVal&) override;
     void		setAttribute(const char* ky,const char* val,
 				     const DataSetKey* =nullptr) override;
     void		setAttribute(const char* ky,const char* val,
@@ -85,6 +91,8 @@ private:
     void		ptInfo(const IOPar&,H5::H5Object&,uiRetVal&) override;
 
     bool		rmObj(const DataSetKey&) override;
+    void		renObj(const H5::H5Location&,const char* from,
+			       const char* to,uiRetVal&) override;
 
     unsigned		compressionlvl_ = 1;
 

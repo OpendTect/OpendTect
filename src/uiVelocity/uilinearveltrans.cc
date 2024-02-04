@@ -21,9 +21,11 @@ ________________________________________________________________________
 namespace Vel
 {
 
+static const char* sKeyLinVelKey = "Linear velocity";
+
 void uiLinearVelTransform::initClass()
 {
-    uiZAxisTransform::factory().addCreator( createInstance, "Linear velocity" );
+    uiZAxisTransform::factory().addCreator( createInstance, sKeyLinVelKey );
 }
 
 
@@ -64,6 +66,29 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
 uiLinearVelTransform::~uiLinearVelTransform()
 {
     detachAllNotifiers();
+}
+
+
+const char* uiLinearVelTransform::transformName() const
+{
+    return sKeyLinVelKey;
+}
+
+
+bool uiLinearVelTransform::usePar( const IOPar& par )
+{
+    double v0;
+    double k;
+    if ( par.get(LinearVelTransform::sKeyLinearTransKey(),v0,k) )
+    {
+	if ( !mIsUdf(v0) )
+	    velfld_->setValue( v0 );
+
+	if ( !mIsUdf(k) )
+	    gradientfld_->setValue( k );
+    }
+
+    return true;
 }
 
 

@@ -29,11 +29,10 @@ mExpClass(General) TraceData
 {
 public:
 
-			TraceData()
-			: data_(0), interp_(0), nrcomp_(0)	{}
-			TraceData( const TraceData& td )
-			: data_(0), interp_(0), nrcomp_(0)	{ copyFrom(td);}
-			~TraceData();
+			TraceData();
+			TraceData(const TraceData&);
+    virtual		~TraceData();
+
     bool		allOk() const;
     bool		isEmpty() const;
 
@@ -91,8 +90,8 @@ public:
 protected:
 
 
-    DataBuffer**	data_;
-    TraceDataInterpreter** interp_;
-    int			nrcomp_;
+    DataBuffer**	data_					= nullptr;
+    TraceDataInterpreter** interp_				= nullptr;
+    int			nrcomp_					= 0;
 
 };

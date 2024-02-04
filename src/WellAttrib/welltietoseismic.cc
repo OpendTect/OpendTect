@@ -72,7 +72,7 @@ bool WellTie::DataPlayer::computeSynthetics( const Wavelet& wvlt )
 	mErrRet( tr( "No depth/time model computed" ) )
 
     if ( !setAIModel() )
-	mErrRet( tr( "Could not setup for raytracing" ) )
+	mErrRet( tr( "Could not use the density and/or velocity log" ) )
 
     if ( !doFullSynthetics(wvlt) )
 	mErrRet( tr( "Could not compute the synthetic trace" ) )
@@ -664,7 +664,7 @@ bool WellTie::DataPlayer::copyDataToLogSet()
 	synth += synthtrc->get( idx, 0 );
     }
 
-    createLog( data.sKeySynthetic(), dahsynth.arr(), synth.arr(),synth.size());
+    createLog( sKey::Synthetic(), dahsynth.arr(), synth.arr(),synth.size() );
 
     const Well::Log* sonlog = data.wd_->logs().getLog( data.sKeySonic() );
     const UnitOfMeasure* sonuom = sonlog ? sonlog->unitOfMeasure() : 0;

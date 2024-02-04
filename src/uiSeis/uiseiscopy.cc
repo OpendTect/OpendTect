@@ -22,8 +22,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiscaler.h"
 #include "uiseisioobjinfo.h"
-#include "uiseislinesel.h"
 #include "uiseissel.h"
+#include "uiseissubsel.h"
 #include "uiseistransf.h"
 #include "uitaskrunner.h"
 
@@ -39,29 +39,20 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     const Seis::GeomType gt = Seis::Vol;
     IOObjContext inctxt( uiSeisSel::ioContext(gt,true) );
     uiSeisSel::Setup sssu( gt );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer ).enabotherdomain( true );
 
     inpfld_ = new uiSeisSel( this, inctxt, sssu );
-    mAttachCB( inpfld_->selectionDone, uiSeisCopyCube::inpSel );
+    if ( startobj )
+	inpfld_->setInput( startobj->key() );
+    mAttachCB( inpfld_->selectionDone, uiSeisCopyCube::inpSelCB );
 
     compfld_ = new uiLabeledComboBox( this, tr("Component(s)") );
     compfld_->attach( alignedBelow, inpfld_ );
     mAttachCB( compfld_->box()->selectionChanged, uiSeisCopyCube::compSel );
 
     uiSeisTransfer::Setup sts( gt );
-    if ( startobj )
-    {
-	inpfld_->setInput( startobj->key() );
-	const SeisIOObjInfo oinf( *startobj );
-	if ( oinf.zDomain() != SI().zDomainInfo() )
-	{
-	    inpfld_->setSensitive( false );
-	    uiMSG().warning(
-		    tr("Copying this dataset is not supported (yet)") );
-	}
-    }
-
-    sts.withnullfill(true).withstep(true).onlyrange(false).fornewentry(true);
+    sts.withnullfill( true ).withmultiz( true )
+       .withstep( true ).onlyrange( false ).fornewentry( true );
     transffld_ = new uiSeisTransfer( this, sts );
     transffld_->attach( alignedBelow, compfld_ );
 
@@ -74,7 +65,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outfld_ );
 
-    mAttachCB( postFinalize(), uiSeisCopyCube::inpSel );
+    mAttachCB( postFinalize(), uiSeisCopyCube::initDlgCB );
 }
 
 
@@ -84,7 +75,13 @@ uiSeisCopyCube::~uiSeisCopyCube()
 }
 
 
-void uiSeisCopyCube::inpSel( CallBacker* )
+void uiSeisCopyCube::initDlgCB( CallBacker* )
+{
+    inpSelCB( nullptr );
+}
+
+
+void uiSeisCopyCube::inpSelCB( CallBacker* )
 {
     const IOObj* inioobj = inpfld_->ioobj( true );
     ismc_ = false;
@@ -93,7 +90,7 @@ void uiSeisCopyCube::inpSel( CallBacker* )
 
     transffld_->updateFrom( *inioobj );
 
-    SeisIOObjInfo oinf( *inioobj );
+    const SeisIOObjInfo oinf( *inioobj );
     ismc_ = oinf.isOK() && oinf.nrComponents() > 1;
     if ( ismc_ )
     {
@@ -103,8 +100,10 @@ void uiSeisCopyCube::inpSel( CallBacker* )
 	compfld_->box()->addItems( cnms );
     }
 
-    outfld_->updateOutputOpts( ismc_ );
     compfld_->display( ismc_ );
+    outfld_->updateOutputOpts( ismc_ );
+    const ZDomain::Info* zinfo = transffld_->zDomain();
+    outfld_->setZDomain( zinfo ? *zinfo : SI().zDomainInfo() );
 }
 
 
@@ -131,9 +130,9 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 
     IOPar& outpars = outioobj->pars();
     outpars.addFrom( inioobj->pars() );
-    uiSeisIOObjInfo ioobjinfo( *outioobj, true );
+    const uiSeisIOObjInfo ioobjinfo( *outioobj, true );
     SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
-    if (!ioobjinfo.checkSpaceLeft( spi ))
+    if ( !ioobjinfo.checkSpaceLeft(spi) )
 	return false;
 
     const bool issteer = outpars.find( sKey::Type() ).
@@ -208,11 +207,12 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
 
 
 // uiSeisCopy2DDataSet
+
 uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 					  const char* fixedoutputtransl )
     : uiDialog(p,
 	Setup(uiStrings::phrCopy(uiStrings::sVolDataName(true,false,false)),
-	      uiString::emptyString(),mODHelpKey(mSeisCopyLineSetHelpID)))
+	      uiString::empty(),mODHelpKey(mSeisCopyLineSetHelpID)))
 {
     setCtrlStyle( RunAndClose );
 
@@ -220,18 +220,17 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
 
     IOObjContext ioctxt = uiSeisSel::ioContext( gt, true );
     uiSeisSel::Setup sssu( gt );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer ).enabotherdomain( true );
     inpfld_ = new uiSeisSel( this, ioctxt, sssu );
-    mAttachCB( inpfld_->selectionDone, uiSeisCopy2DDataSet::inpSel );
+    mAttachCB( inpfld_->selectionDone, uiSeisCopy2DDataSet::inpSelCB );
 
-    subselfld_ = new uiSeis2DMultiLineSel( this, uiStrings::phrSelect(
-		     tr("%1 to copy").arg(uiStrings::sLine(mPlural))), true );
+    Seis::SelSetup selsu( gt );
+    selsu.multiline( true ).seltxt( uiStrings::phrSelect(
+		tr("%1 to copy").arg(uiStrings::sLine(mPlural).toLower()) ) );
+    subselfld_ = new uiMultiZSeisSubSel( this, selsu );
     subselfld_->attach( alignedBelow, inpfld_ );
     if ( obj )
-    {
 	inpfld_->setInput( obj->key() );
-	subselfld_->setInput( obj->key() );
-    }
 
     scalefld_ = new uiScaler( this, tr("Scale values"), true );
     scalefld_->attach( alignedBelow, subselfld_ );
@@ -246,6 +245,8 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
     Batch::JobSpec js( sProgName ); js.execpars_.needmonitor_ = true;
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outpfld_ );
+
+    mAttachCB( postFinalize(), uiSeisCopy2DDataSet::initDlgCB );
 }
 
 
@@ -255,10 +256,21 @@ uiSeisCopy2DDataSet::~uiSeisCopy2DDataSet()
 }
 
 
-void uiSeisCopy2DDataSet::inpSel( CallBacker* )
+void uiSeisCopy2DDataSet::initDlgCB( CallBacker* )
 {
-    if ( inpfld_->ioobj(true) )
-	subselfld_->setInput( inpfld_->key() );
+    inpSelCB( nullptr );
+}
+
+
+void uiSeisCopy2DDataSet::inpSelCB( CallBacker* )
+{
+    const IOObj* obj = inpfld_->ioobj( true );
+    if ( !obj )
+	return;
+
+    subselfld_->setInput( *obj );
+    const ZDomain::Info* zinfo = subselfld_->zDomain();
+    outpfld_->setZDomain( zinfo ? *zinfo : SI().zDomainInfo() );
 }
 
 
@@ -275,7 +287,9 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
     if ( outioobj->implExists(false) )
     {
 	TypeSet<Pos::GeomID> ingeomids;
-	subselfld_->getSelGeomIDs( ingeomids );
+	mDynamicCastGet(const uiSeis2DSubSel*,subselfld,
+			subselfld_->getSelGrp());
+	subselfld->selectedGeomIDs( ingeomids );
 
 	TypeSet<Pos::GeomID> outgeomids;
 	const SeisIOObjInfo outinfo( outioobj );
@@ -295,7 +309,7 @@ bool uiSeisCopy2DDataSet::acceptOK( CallBacker* )
     outpars.addFrom( inioobj->pars() );
 
     IOPar procpars;
-    subselfld_->fillPar( procpars );
+    subselfld_->getSelGrp()->fillPar( procpars );
     scalefld_->fillPar( procpars );
 
     if ( batchfld_->wantBatch() )

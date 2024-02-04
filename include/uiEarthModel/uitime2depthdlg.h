@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "emioobjinfo.h"
+#include "emmanager.h"
 #include "emsurface.h"
 #include "zaxistransform.h"
 
@@ -28,23 +29,25 @@ namespace EM
 mExpClass(uiEarthModel) uiTime2DepthDlg  : public uiDialog
 { mODTextTranslationClass(uiEMObjectTime2DepthDlg )
 public:
-				uiTime2DepthDlg (uiParent*,
-					    IOObjInfo::ObjectType);
+				uiTime2DepthDlg (uiParent*,ObjectType);
 				~uiTime2DepthDlg ();
 
-    static uiRetVal		canTransform(IOObjInfo::ObjectType);
+    static uiRetVal		canTransform(ObjectType);
+    bool			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
 
     uiGenInput*			directionsel_		= nullptr;
     uiZAxisTransformSel*	t2dtransfld_		= nullptr;
     uiZAxisTransformSel*	d2ttransfld_		= nullptr;
-    uiSurfaceRead*		inptimehorsel_		= nullptr;
-    uiSurfaceRead*		inpdepthhorsel_		= nullptr;
-    uiSurfaceWrite*		outtimehorsel_		= nullptr;
-    uiSurfaceWrite*		outdepthhorsel_		= nullptr;
+    uiSurfaceRead*		inptimesel_		= nullptr;
+    uiSurfaceRead*		inpdepthsel_		= nullptr;
+    uiSurfaceWrite*		outtimesel_		= nullptr;
+    uiSurfaceWrite*		outdepthsel_		= nullptr;
 
-    uiString			getDlgTitle(IOObjInfo::ObjectType) const;
+
+    uiString			getDlgTitle(ObjectType) const;
 
     const ZDomain::Info&	outZDomain() const;
 
@@ -53,11 +56,15 @@ protected:
     uiSurfaceWrite*		getWorkingOutSurfWrite();
 
     void			dirChangeCB(CallBacker*);
-    void			horSelCB(CallBacker*);
+    void			inpSelCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
 
+    virtual bool		hasSurfaceIOData() const;
     bool			is2DObject() const;
 
-    const IOObjInfo::ObjectType objtype_;
+    const char*			sKeyTime2Depth() const;
+    const char*			sKeyTransformation() const;
+
+    const ObjectType		objtype_;
 };
 }

@@ -30,25 +30,31 @@ class Processor;
 mExpClass(uiPreStackProcessing) uiProcessorManager : public uiGroup
 { mODTextTranslationClass(uiProcessorManager);
 public:
-				uiProcessorManager(uiParent*,ProcessManager&);
+				uiProcessorManager(uiParent*,ProcessManager&,
+					int openidx=-1,
+					const uiStringSet* usemethods=nullptr);
 				~uiProcessorManager();
 
     Notifier<uiProcessorManager>change;
 
     bool			restore();
     const MultiID&		lastMid() const		{ return lastmid_; }
-    void 			setLastMid(const MultiID& mid);
+    void			setLastMid(const MultiID& mid);
     bool			isChanged() const	{ return changed_; }
-    				/*!<Returns if processmanager is changed since
+				/*!<Returns if processmanager is changed since
 				    last save or load. */
 
     bool			save();
+    static void			getMethods(OD::GeomSystem,uiStringSet&);
 
-protected:
+private:
+
     void			updateList();
     void			updateButtons();
     bool			hasPropDialog(int) const;
     bool			showPropDialog(int);
+
+    void			initGrpCB(CallBacker*);
     bool			showPropDialog(Processor&);
     void			factoryClickCB(CallBacker*);
     void			factoryDoubleClickCB(CallBacker*);
@@ -70,6 +76,7 @@ protected:
 
     ProcessManager&		manager_;
     MultiID			lastmid_;
+    int				openidx_;
 
     uiListBox*			factorylist_;
     uiButton*			addprocessorbutton_;
@@ -82,7 +89,7 @@ protected:
     uiButton*			saveasbutton_;
     uiButton*			loadbutton_;
 
-    bool			changed_;
+    bool			changed_ = false;
 };
 
 

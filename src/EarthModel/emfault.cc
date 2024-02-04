@@ -9,9 +9,12 @@ ________________________________________________________________________
 
 #include "emfault.h"
 
+#include "ctxtioobj.h"
 #include "emfaultstickset.h"
 #include "emmanager.h"
+#include "emsurfacetr.h"
 #include "survinfo.h"
+#include "transl.h"
 
 
 namespace EM {

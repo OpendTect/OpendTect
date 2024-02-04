@@ -9,16 +9,18 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
 #include "uicompoundparsel.h"
 #include "uidialog.h"
 #include "uiposprovgroup.h"
 #include "iopar.h"
 
+class TrcKeyZSampling;
 class uiButton;
 class uiGenInput;
-namespace Pos { class Provider; }
 class uiPosProvGroup;
-class TrcKeyZSampling;
+namespace Pos { class Provider; }
+namespace ZDomain { class Info; }
 
 /*! \brief lets user choose a way to provide positions */
 
@@ -26,23 +28,19 @@ mExpClass(uiIo) uiPosProvider : public uiGroup
 { mODTextTranslationClass(uiPosProvider)
 public:
 
-    struct Setup : public uiPosProvGroup::Setup
+    mExpClass(uiIo) Setup : public uiPosProvGroup::Setup
     {
+    public:
 	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges, RangewithPolygon,
 			  VolumeTypes };
 
-			Setup( bool is_2d, bool with_step, bool with_z )
-			    : uiPosProvGroup::Setup(is_2d,with_step,with_z)
-			    , seltxt_(uiStrings::sPosition(2))
-			    , allownone_(false)
-			    , useworkarea_(true)
-			    , choicetype_(OnlyRanges)	{}
-	virtual		~Setup()			{}
+			Setup(bool is_2d,bool with_step,bool with_z);
+	virtual		~Setup();
 
 	mDefSetupMemb(uiString,seltxt)
-	mDefSetupMemb(ChoiceType,choicetype)
-	mDefSetupMemb(bool,allownone)
-	mDefSetupMemb(bool,useworkarea)
+	mDefSetupMemb(ChoiceType,choicetype)	// OnlyRanges
+	mDefSetupMemb(bool,allownone)		// false
+	mDefSetupMemb(bool,useworkarea)		// true
     };
 
 			uiPosProvider(uiParent*,const Setup&);
@@ -53,9 +51,10 @@ public:
     void		setExtractionDefaults();
 
     void		setSampling(const TrcKeyZSampling&);
-    void		getSampling(TrcKeyZSampling&,const IOPar* =0) const;
+    void		getSampling(TrcKeyZSampling&,
+				    const IOPar* =nullptr) const;
 
-    Notifier<uiPosProvider>	posProvGroupChanged;
+    Notifier<uiPosProvider> posProvGroupChanged;
     bool		hasRandomSampling() const;
 
     Pos::Provider*	createProvider() const;
@@ -103,6 +102,7 @@ public:
 				 const TrcKeyZSampling& ioparcs);
     void		setInputLimit(const TrcKeyZSampling&);
     const TrcKeyZSampling&	inputLimit() const	{ return setup_.tkzs_; }
+    const ZDomain::Info* zDomain() const;
 
     bool		isAll() const;
     void		setToAll();
@@ -133,7 +133,8 @@ public:
 			~uiPosProvDlg();
 
     void		setSampling(const TrcKeyZSampling&);
-    void		getSampling(TrcKeyZSampling&,const IOPar* =0) const;
+    void		getSampling(TrcKeyZSampling&,
+				    const IOPar* =nullptr) const;
 
 protected:
     bool		acceptOK(CallBacker*) override;

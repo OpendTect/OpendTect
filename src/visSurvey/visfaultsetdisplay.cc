@@ -643,7 +643,9 @@ bool FaultSetDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 
 const ZAxisTransform* FaultSetDisplay::getZAxisTransform() const
-{ return zaxistransform_; }
+{
+    return zaxistransform_;
+}
 
 
 void FaultSetDisplay::dataTransformCB( CallBacker* )

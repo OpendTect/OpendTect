@@ -75,7 +75,7 @@ bool FaultAuxData::init()
 
     PtrMan<IOObj> ioobj = IOM().get( faultmid_ );
     IOObjInfo ioinfo( ioobj );
-    if ( !ioobj || ioinfo.type()!=IOObjInfo::Fault )
+    if ( !ioobj || ioinfo.type()!=EM::ObjectType::Flt3D )
 	return false;
 
     FilePath fp( ioobj->fullUserExpr(true) );
@@ -302,9 +302,9 @@ void FaultAuxData::updateDataFiles( Action act, int sdidx, const char* nm )
 
     IOPar allpars;
     for ( int pidx=0; pidx<pars.size(); pidx++ )
-	allpars.mergeComp( *pars[pidx], toString(pidx) );
+	allpars.mergeComp( *pars[pidx], ::toString(pidx) );
+    
     allpars.putTo( astream );
-
     deepErase( pars );
     File::remove( backupfp.fullPath() );
     sfio.closeSuccess();

@@ -440,10 +440,10 @@ const ColTab::MapperSetup*
 MultiTextureSurveyObject::getColTabMapperSetup( int attrib, int version ) const
 {
     if ( attrib<0 || attrib>=nrAttribs() )
-	return 0;
+	return nullptr;
 
     if ( mIsUdf(version) || version<0
-	    		 || version >= channels_->nrVersions(attrib) )
+			 || version >= channels_->nrVersions(attrib) )
 	version = channels_->currentVersion( attrib );
 
     return &channels_->getColTabMapperSetup( attrib, version );

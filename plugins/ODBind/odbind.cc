@@ -61,7 +61,7 @@ hStringSet stringset_new1( const char* arr[], int len )
 hStringSet stringset_copy( hStringSet self )
 {
     const auto* p = static_cast<BufferStringSet*>(self);
-    return new BufferStringSet(*p);
+    return p ? new BufferStringSet(*p) : nullptr;
 }
 
 void stringset_del(hStringSet self)
@@ -73,19 +73,20 @@ void stringset_del(hStringSet self)
 int stringset_size( hStringSet self )
 {
     const auto* p = static_cast<BufferStringSet*>(self);
-    return p->size();
+    return p ? p->size() : 0;
 }
 
 hStringSet stringset_add( hStringSet self, const char* txt )
 {
     auto* p = static_cast<BufferStringSet*>(self);
-    p->add( txt );
+    if ( p )
+	p->add( txt );
     return p;
 }
 
 const char* stringset_get( hStringSet self, int idx )
 {
     const auto* p = static_cast<BufferStringSet*>(self);
-    return strdup( p->get( idx ).buf() );
+    return p ? strdup( p->get( idx ).buf() ) : nullptr;
 }
 

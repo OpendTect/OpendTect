@@ -97,9 +97,13 @@ void odFaultObject::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
     for ( int idx=0; idx<fss->nrSticks(); idx++ )
     {
 	TypeSet<Coord> coords;
-	const TypeSet<Coord3>* stick = fss->getStick( idx );
-	for ( const auto& node : *stick )
-	    coords += node.coord();
+	const Geometry::FaultStick* stick = fss->getStick( idx );
+	if ( !stick )
+	    continue;
+
+	const TypeSet<LocationBase>& locs = stick->locs_;
+	for ( const auto& loc : locs )
+	    coords += loc.pos();
 
 	auto* jscoords = new OD::JSON::Array( false );
 	survey_.makeCoordsList( *jscoords, coords, towgs );
@@ -140,24 +144,33 @@ void odFaultObject::getStick( int idx, hAllocator allocator ) const
 
     const int ndim_xy = 1;
     PtrMan<int> dims_xy = new int[ndim_xy];
-    const TypeSet<Coord3>* stick = fss->getStick( idx );
+    const Geometry::FaultStick* stick = fss->getStick( idx );
+    if ( !stick )
+	return;
+
     dims_xy[0] = stick->size();
     double* xdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
     double* ydata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
     double* zdata = static_cast<double*>(allocator(ndim_xy, dims_xy, 'd'));
-    for ( const auto& node : *stick )
+    const TypeSet<LocationBase>& locs = stick->locs_;
+    for ( const auto& loc : locs )
     {
-	*xdata++ = node.x;
-	*ydata++ = node.y;
-	*zdata++ = node.z;
+	const Coord3& crd = loc.pos();
+	*xdata++ = crd.x;
+	*ydata++ = crd.y;
+	*zdata++ = crd.z;
     }
 }
 
 
 Geometry::FaultStickSet* odFaultObject::stickset() const
 {
-    EM::EMM().loadIfNotFullyLoaded( ioobj_->key() );
-    RefMan<EM::EMObject> emobj = EM::EMM().getObject( ioobj_->key() );
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
+	return nullptr;
+
+    EM::EMM().loadIfNotFullyLoaded( ioobj->key() );
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( ioobj->key() );
     mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->geometryElement())
     return fss;
 }
@@ -166,10 +179,11 @@ Geometry::FaultStickSet* odFaultObject::stickset() const
 odFault3D::odFault3D( const odSurvey& thesurvey, const char* name )
     : odFaultObject(thesurvey, name, translatorGrp())
 {
-    if ( !ioobj_ )
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
 
-    const EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( !eminfo.isOK() )
     {
 	if ( errmsg_.isEmpty() )
@@ -195,12 +209,12 @@ odFault3D::~odFault3D()
 
 void odFault3D::getInfo( OD::JSON::Object& jsobj ) const
 {
-    survey_.activate();
     jsobj.setEmpty();
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
     jsobj.set( "name", getName().buf() );
-    if ( ioobj_ )
+    if ( ioobj )
     {
-	const EM::IOObjInfo eminfo( ioobj_ );
+	const EM::IOObjInfo eminfo( ioobj.ptr() );
 	jsobj.set( "stick_count", eminfo.nrSticks() );
 	jsobj.set( "inl_range", eminfo.getInlRange() );
 	jsobj.set( "crl_range", eminfo.getCrlRange() );
@@ -214,17 +228,17 @@ void odFault3D::getInfo( OD::JSON::Object& jsobj ) const
 	    jsobj.set( "z_range", zrg );
 	}
     }
-
 }
 
 
 odFaultStickSet::odFaultStickSet( const odSurvey& thesurvey, const char* name )
     : odFaultObject(thesurvey, name, translatorGrp())
 {
-    if ( !ioobj_ )
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( !ioobj )
 	return;
 
-    const EM::IOObjInfo eminfo( ioobj_ );
+    const EM::IOObjInfo eminfo( ioobj.ptr() );
     if ( !eminfo.isOK() )
     {
 	if ( errmsg_.isEmpty() )
@@ -250,12 +264,12 @@ odFaultStickSet::~odFaultStickSet()
 
 void odFaultStickSet::getInfo( OD::JSON::Object& jsobj ) const
 {
-    survey_.activate();
     jsobj.setEmpty();
     jsobj.set( "name", getName().buf() );
-    if ( ioobj_ )
+    ConstPtrMan<IOObj> ioobj( ioobj_ptr() );
+    if ( ioobj )
     {
-	const EM::IOObjInfo eminfo( ioobj_ );
+	const EM::IOObjInfo eminfo( ioobj.ptr() );
 	jsobj.set( "stick_count", eminfo.nrSticks() );
 	Interval<float> zrg = eminfo.getZRange();
 	if ( zrg.isUdf() )

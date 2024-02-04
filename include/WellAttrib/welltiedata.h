@@ -136,7 +136,6 @@ public :
 
     static const char*		sKeyAI()	{ return "AI"; }
     static const char*		sKeyReflectivity() { return "Reflectivity"; }
-    static const char*		sKeySynthetic() { return "Synthetic"; }
     static const char*		sKeySeismic()	{ return "Seismic"; }
     static float		cDefSeisSr();
 

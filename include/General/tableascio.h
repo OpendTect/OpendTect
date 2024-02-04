@@ -60,12 +60,13 @@ protected:
     mutable uiString		warnmsg_;
     BufferStringSet		vals_;
     ObjectSet<const UnitOfMeasure> units_;
-    ImportHandler*		imphndlr_ = nullptr;
-    ExportHandler*		exphndlr_ = nullptr;
-    Converter*			cnvrtr_ = nullptr;
-    mutable bool		hdrread_ = false;
-    bool			needfullline_ = false;
+    ImportHandler*		imphndlr_			= nullptr;
+    ExportHandler*		exphndlr_			= nullptr;
+    Converter*			cnvrtr_				= nullptr;
+    mutable bool		hdrread_			= false;
+    bool			needfullline_			= false;
     BufferStringSet		fullline_;
+    mutable bool		iscsv_				= false;
 
     friend class		AscIOImp_ExportHandler;
     friend class		AscIOExp_ImportHandler;

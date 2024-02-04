@@ -228,19 +228,15 @@ protected:
 mExpClass(General) FormatDesc : public NamedObject
 {
 public:
-			FormatDesc( const char* nm )
-			    : NamedObject(nm)
-			    , nrhdrlines_(0)
-			    , eohtokencol_(-1)		{}
-			~FormatDesc()
-			{ deepErase( headerinfos_ ); deepErase( bodyinfos_ ); }
+			FormatDesc(const char* nm);
+			~FormatDesc();
 
     ObjectSet<TargetInfo> headerinfos_;
     ObjectSet<TargetInfo> bodyinfos_;
 
-    int			nrhdrlines_;	//!< if < 0 eohtoken will be used
+    int			nrhdrlines_=0;	//!< if < 0 eohtoken will be used
     BufferString	eohtoken_;	//!< end-of-header token
-    int			eohtokencol_;	//!< if < 0 eohtoken can be in any col
+    int			eohtokencol_=-1; //!< if < 0 eohtoken can be in any col
     BufferString	eobtoken_;	//!< end-of-body: no more data
 
     bool		needEOHToken() const
@@ -257,11 +253,7 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    void		clear()
-			{
-			    nrhdrlines_ = eohtokencol_ = 0;
-			    eohtoken_.setEmpty(); eobtoken_.setEmpty();
-			}
+    void		clear();
 };
 
 } // namespace Table

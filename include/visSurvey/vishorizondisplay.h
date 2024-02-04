@@ -105,7 +105,7 @@ public:
 
     void			allowShading(bool) override;
     const Attrib::SelSpec*	getSelSpec(int channel,
-					   int version=0) const override;
+					   int version=-1) const override;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
 
     void			setSelSpec(int,const Attrib::SelSpec&) override;

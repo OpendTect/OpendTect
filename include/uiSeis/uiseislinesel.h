@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uicompoundparsel.h"
 #include "uidialog.h"
 #include "uistring.h"
+
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -146,8 +147,26 @@ protected:
 mExpClass(uiSeis) uiSeis2DMultiLineSel : public uiSeis2DLineSel
 { mODTextTranslationClass(uiSeis2DMultiLineSel);
 public:
+
+    mExpClass(uiSeis) Setup
+    {
+    public:
+			Setup(const uiString& text=uiString::empty(),
+			      bool forread=true,bool isall=false,
+			      bool withz=false,bool withstep=false);
+			~Setup();
+
+	mDefSetupMemb(uiString,seltxt)
+	mDefSetupMemb(bool,forread)
+	mDefSetupMemb(bool,isall)
+	mDefSetupMemb(bool,withz)
+	mDefSetupMemb(bool,withstep)
+	mDefSetupMemb(BufferString,zdomkey)
+	mDefSetupMemb(BufferString,zunitstr)
+    };
+			uiSeis2DMultiLineSel(uiParent*,const Setup&);
 			uiSeis2DMultiLineSel(uiParent*,
-				 const uiString& text=uiStrings::sEmptyString(),
+				 const uiString& text=uiString::empty(),
 				 bool withz=false,bool withstep=false);
 			~uiSeis2DMultiLineSel();
 
@@ -160,7 +179,7 @@ public:
 
     void		setInput(const MultiID&) override;
     void		setInput(const BufferStringSet& lnms) override;
-    void		setInput(const TypeSet<Pos::GeomID>& geomid) override;
+    void		setInput(const TypeSet<Pos::GeomID>&) override;
 
     void		setSelLines(const BufferStringSet&);
     void		setAll(bool) override;
@@ -179,12 +198,11 @@ protected:
     TypeSet<StepInterval<float> > maxzrgs_;
     TypeSet<StepInterval<int> > maxtrcrgs_;
 
+    Setup		setup_;
     bool		isall_;
-    bool		withstep_;
-    bool		withz_;
 
     void		clearAll() override;
-    void		initRanges(const MultiID* datasetid=0);
+    void		initRanges(const MultiID* datasetid=nullptr);
 
     void		selPush(CallBacker*) override;
 };

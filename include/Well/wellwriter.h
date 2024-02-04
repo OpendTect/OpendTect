@@ -61,8 +61,10 @@ public:
 
 protected:
 
-    WriteAccess*	wa_;
+    WriteAccess*	wa_		= nullptr;
     mutable uiString	errmsg_;
+    NotifyStopper*	nsfile_		= nullptr;
+    NotifyStopper*	nsdir_		= nullptr;
 
     bool		putTrack() const;
 

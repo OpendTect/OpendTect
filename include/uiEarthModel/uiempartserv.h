@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 
 #include "emioobjinfo.h"
+#include "emmanager.h"
 #include "emposid.h"
 #include "trckeysampling.h"
 #include "multiid.h"
@@ -21,6 +22,7 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class BufferStringSet;
+class uiDialog;
 class TrcKeyZSampling;
 class DataPointSet;
 class TrcKeySampling;
@@ -40,7 +42,8 @@ class uiImpHorFromZMap;
 class uiSurfaceMan;
 class uiVariogramDisplay;
 
-namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; }
+namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection;
+	       class uiTime2DepthDlg; }
 namespace Pick { class Set; }
 namespace PosInfo { class Line2DData; }
 namespace ZDomain { class Info; }
@@ -79,7 +82,7 @@ public:
     bool		exportFaultSet();
     void		createHorWithConstZ(bool is2d);
     void		computeIsochron();
-    void		processTime2Depth(EM::IOObjInfo::ObjectType);
+    void		processTime2Depth(uiParent*,EM::ObjectType);
 
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
@@ -226,29 +229,36 @@ protected:
     void		importReadyCB(CallBacker*);
     void		survChangedCB(CallBacker*);
 
-    EM::ObjectID	selemid_;
-    uiImportHorizon*	imphorattrdlg_		= nullptr;
-    uiImportHorizon*	imphorgeomdlg_		= nullptr;
-    uiBulkHorizonImport* impbulkhordlg_		= nullptr;
-    uiImpHorFromZMap*	impzmapdlg_		= nullptr;
-    uiBulkFaultImport*	impbulkfltdlg_		= nullptr;
-    uiBulkFaultImport*	impfltsetdlg_		= nullptr;
-    uiImportFault3D*	impfltdlg_		= nullptr;
-    uiImportFault3D*	impfltstickdlg_		= nullptr;
-    uiImportFaultStickSet2D*	impfss2ddlg_	= nullptr;
-    uiExportHorizon*	exphordlg_		= nullptr;
-    uiExport2DHorizon*	exp2dhordlg_		= nullptr;
-    uiExportFault*	expfltdlg_		= nullptr;
-    uiExportFault*	expfltstickdlg_		= nullptr;
-    uiExportFault*	expfltsetdlg_		= nullptr;
-    uiCreateHorizon*	crhordlg_		= nullptr;
-    uiBulkFaultImport*	impbulkfssdlg_		= nullptr;
-    uiBulk2DHorizonImport* impbulk2dhordlg_	= nullptr;
+    EM::ObjectID		selemid_;
+    uiImportHorizon*		imphorattrdlg_		= nullptr;
+    uiImportHorizon*		imphorgeomdlg_		= nullptr;
+    uiBulkHorizonImport*	impbulkhordlg_		= nullptr;
+    uiImpHorFromZMap*		impzmapdlg_		= nullptr;
+    uiBulkFaultImport*		impbulkfltdlg_		= nullptr;
+    uiBulkFaultImport*		impfltsetdlg_		= nullptr;
+    uiImportFault3D*		impfltdlg_		= nullptr;
+    uiImportFault3D*		impfltstickdlg_		= nullptr;
+    uiImportFaultStickSet2D*	impfss2ddlg_		= nullptr;
+    uiExportHorizon*		exphordlg_		= nullptr;
+    uiExport2DHorizon*		exp2dhordlg_		= nullptr;
+    uiExportFault*		expfltdlg_		= nullptr;
+    uiExportFault*		expfltstickdlg_		= nullptr;
+    uiExportFault*		expfltsetdlg_		= nullptr;
+    uiCreateHorizon*		crhordlg_		= nullptr;
+    uiBulkFaultImport*		impbulkfssdlg_		= nullptr;
+    uiBulk2DHorizonImport*	impbulk2dhordlg_	= nullptr;
+    EM::uiTime2DepthDlg*	t2d2dhordlg_		= nullptr;
+    EM::uiTime2DepthDlg*	t2d3dhordlg_		= nullptr;
+    EM::uiTime2DepthDlg*	t2dfltdlg_		= nullptr;
+    EM::uiTime2DepthDlg*	t2dfltsetdlg_		= nullptr;
+    EM::uiTime2DepthDlg*	t2d2dfssdlg_		= nullptr;
+    EM::uiTime2DepthDlg*	t2d3dfssdlg_		= nullptr;
 
-    TrcKeySampling	selectedrg_;
-    bool		disponcreation_		= false;
 
-    ObjectSet<uiVariogramDisplay>	variodlgs_;
+    TrcKeySampling		selectedrg_;
+    bool			disponcreation_		= false;
+
+    ObjectSet<uiVariogramDisplay>   variodlgs_;
 
     static const char*  sKeySectionID() { return "Section ID"; }
     uiSurfaceMan*	man2dhordlg_		= nullptr;
@@ -258,5 +268,10 @@ protected:
     uiSurfaceMan*	manfltsetdlg_		= nullptr;
     uiSurfaceMan*	manbodydlg_		= nullptr;
 
-    void		displayOnCreateCB(CallBacker*);
+    EM::uiTime2DepthDlg*	getTime2DepthEMDlg(uiParent*,
+					    EM::ObjectType,
+					    EM::uiTime2DepthDlg*&);
+
+    void			displayOnCreateCB(CallBacker*);
+    void			dialogToBeDeleted(CallBacker*);
 };

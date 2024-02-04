@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uitoolbutton.h"
+#include "uiprestackprocessorsel.h"
 
 
 namespace PreStack
@@ -29,26 +30,34 @@ namespace PreStack
 mImplFactory2Param( uiDialog, uiParent*, Processor*, uiPSPD )
 
 
-uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
-    : uiGroup( p )
-    , change( this )
-    , manager_( man )
-    , changed_( false )
+uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man,
+					int openidx,
+					const uiStringSet* usemethods )
+    : uiGroup(p)
+    , manager_(man)
+    , openidx_(openidx)
+    , change(this)
 {
     manager_.fillPar( restorepar_ );
 
     const uiString lbltxt = tr("Preprocessing methods");
-    uiLabel* label = new uiLabel( this, lbltxt );
+    auto* label = new uiLabel( this, lbltxt );
+
+    uiStringSet methods;
+    if ( usemethods && !usemethods->isEmpty() )
+	methods = *usemethods;
+    else
+	getMethods( manager_.getGeomSystem(), methods );
 
     factorylist_ = new uiListBox( this, "Preprocessing methods",
 				  OD::ChooseOnlyOne );
-    factorylist_->addItems( Processor::factory().getUserNames() );
+    factorylist_->addItems( methods );
     factorylist_->resizeHeightToContents();
     factorylist_->setHSzPol( uiObject::Wide );
-    factorylist_->selectionChanged.notify(
-	    mCB(this,uiProcessorManager,factoryClickCB) );
-    factorylist_->doubleClicked.notify(
-	    mCB(this,uiProcessorManager,factoryDoubleClickCB) );
+    mAttachCB( factorylist_->selectionChanged,
+	       uiProcessorManager::factoryClickCB );
+    mAttachCB( factorylist_->doubleClicked,
+	       uiProcessorManager::factoryDoubleClickCB );
     factorylist_->attach( ensureBelow, label );
 
     addprocessorbutton_ = new uiToolButton( this, uiToolButton::RightArrow,
@@ -60,15 +69,15 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     processorlist_->setHSzPol( uiObject::Wide );
     processorlist_->attach( rightTo, factorylist_ );
     processorlist_->attach( ensureRightOf, addprocessorbutton_ );
-    processorlist_->selectionChanged.notify(
-	    mCB(this,uiProcessorManager,processorClickCB) );
-    processorlist_->doubleClicked.notify(
-	    mCB(this,uiProcessorManager,processorDoubleClickCB) );
+    mAttachCB( processorlist_->selectionChanged,
+	       uiProcessorManager::processorClickCB );
+    mAttachCB( processorlist_->doubleClicked,
+	       uiProcessorManager::processorDoubleClickCB );
 
     label = new uiLabel( this, tr("Used preprocessing methods") );
     label->attach( alignedAbove, processorlist_ );
 
-    uiButtonGroup* butgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
+    auto* butgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     butgrp->attach( rightOf, processorlist_ );
     moveupbutton_ = new uiToolButton( butgrp, uiToolButton::UpArrow,
 		uiStrings::sMoveUp(), mCB(this,uiProcessorManager,moveUpCB) );
@@ -85,24 +94,52 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 			     uiStrings::phrRemove(uiStrings::sStep().toLower()),
 			     mCB(this,uiProcessorManager,removeCB) );
 
-    uiButtonGroup* iogrp =
-	new uiButtonGroup( this, "IO Buttons", OD::Horizontal );
+    auto* iogrp = new uiButtonGroup( this, "IO Buttons", OD::Horizontal );
     iogrp->attach( alignedBelow, factorylist_ );
     iogrp->attach( ensureBelow, processorlist_ );
     loadbutton_ = new uiToolButton( iogrp, "open", tr("Open stored setup"),
-		mCB(this, uiProcessorManager,loadCB) );
+				mCB(this, uiProcessorManager,loadCB) );
     savebutton_ = new uiToolButton( iogrp, "save", tr("Save setup"),
-		mCB(this, uiProcessorManager,saveCB) );
+				mCB(this, uiProcessorManager,saveCB) );
     saveasbutton_ = new uiToolButton( iogrp, "saveas", tr("Save setup as"),
-		mCB(this, uiProcessorManager,saveAsCB) );
+				mCB(this, uiProcessorManager,saveAsCB) );
 
-    updateList();
-    updateButtons();
+    mAttachCB( postFinalize(), uiProcessorManager::initGrpCB );
 }
 
 
 uiProcessorManager::~uiProcessorManager()
-{}
+{
+    detachAllNotifiers();
+}
+
+
+void uiProcessorManager::initGrpCB( CallBacker* )
+{
+    updateList();
+    updateButtons();
+    if ( factorylist_->validIdx(openidx_) )
+    {
+	factorylist_->setCurrentItem( openidx_ );
+	addCB( nullptr );
+    }
+}
+
+
+void uiProcessorManager::getMethods( OD::GeomSystem gs, uiStringSet& nms )
+{
+    const bool issynth = ::isSynthetic( gs );
+    const BufferStringSet& methods = Processor::factory().getNames();
+    for ( const auto* method : methods )
+    {
+	PtrMan<Processor> proc = Processor::factory().create( method->str() );
+	if ( !proc || !proc->showInEditor() ||
+	     (issynth && !proc->canDoSynthetics()) )
+	    continue;
+
+	nms.add( proc->factoryDisplayName() );
+    }
+}
 
 
 bool uiProcessorManager::restore()
@@ -121,7 +158,7 @@ void uiProcessorManager::updateList()
 {
     NotifyStopper stopper( processorlist_->selectionChanged );
     int idx=0;
-    for ( ; idx<manager_.nrProcessors(); idx ++ )
+    for ( ; idx<manager_.nrProcessors(); idx++ )
     {
 	const char* procnm =  manager_.getProcessor(idx)->name();
 	const int factoryidx =
@@ -163,7 +200,8 @@ void uiProcessorManager::updateButtons()
 bool uiProcessorManager::hasPropDialog( int idx ) const
 {
     const Processor* proc = manager_.getProcessor(idx);
-    if ( !proc ) return false;
+    if ( !proc )
+	return false;
 
     return uiPSPD().getNames().isPresent( proc->name() );
 }
@@ -171,6 +209,9 @@ bool uiProcessorManager::hasPropDialog( int idx ) const
 
 bool uiProcessorManager::showPropDialog( int idx )
 {
+    if ( idx < 0 || idx >= manager_.nrProcessors() )
+	return false;
+
     Processor* proc = manager_.getProcessor(idx);
     return proc ? showPropDialog( *proc ) : false;
 }
@@ -179,7 +220,8 @@ bool uiProcessorManager::showPropDialog( int idx )
 bool uiProcessorManager::showPropDialog( Processor& proc )
 {
     PtrMan<uiDialog> dlg = uiPSPD().create( proc.name(), this, &proc );
-    if ( !dlg || !dlg->go() ) return false;
+    if ( !dlg || !dlg->go() )
+	return false;
 
     change.trigger();
     manager_.notifyChange();
@@ -200,7 +242,9 @@ void uiProcessorManager::factoryClickCB( CallBacker* )
 
 
 void uiProcessorManager::factoryDoubleClickCB( CallBacker* cb )
-{ addCB( cb ); }
+{
+    addCB( cb );
+}
 
 
 void uiProcessorManager::processorClickCB( CallBacker* )
@@ -227,17 +271,27 @@ void uiProcessorManager::addCB( CallBacker* )
     if ( factorylist_->firstChosen()==-1 )
 	return;
 
-    const char* nm =
-       Processor::factory().getNames()[factorylist_->currentItem()]->buf();
-    Processor* proc = Processor::factory().create( nm );
-    if ( !proc ) return;
+    const FactoryBase& fact = Processor::factory();
+    const uiString method = ::toUiString( factorylist_->getText() );
+    if ( !fact.getUserNames().isPresent(method) )
+	return;
 
+    const int idx = fact.getUserNames().indexOf( method );
+    if ( !fact.getNames().validIdx(idx) )
+	return;
+
+    const char* nm = fact.getNames().get( idx ).buf();
+    Processor* proc = Processor::factory().create( nm );
+    if ( !proc )
+	return;
+
+    proc->setGeomSystem( manager_.getGeomSystem() );
     manager_.addProcessor( proc );
     updateList();
     if ( proc->mustHaveUserInput() && !showPropDialog(*proc) )
     {
-	const int idx = manager_.indexOf( proc );
-	manager_.removeProcessor( idx );
+	const int iproc = manager_.indexOf( proc );
+	manager_.removeProcessor( iproc );
 	updateList();
 	return;
     }
@@ -252,7 +306,8 @@ void uiProcessorManager::addCB( CallBacker* )
 void uiProcessorManager::removeCB( CallBacker* )
 {
     const int idx = processorlist_->firstChosen();
-    if ( idx<0 ) return;
+    if ( idx<0 )
+	return;
 
     manager_.removeProcessor( idx );
     updateList();
@@ -267,7 +322,8 @@ void uiProcessorManager::removeCB( CallBacker* )
 void uiProcessorManager::moveUpCB( CallBacker* )
 {
     const int idx = processorlist_->firstChosen();
-    if ( idx<1 ) return;
+    if ( idx<1 )
+	return;
 
     manager_.swapProcessors( idx, idx-1 );
     updateList();
@@ -305,20 +361,20 @@ void uiProcessorManager::propertiesCB( CallBacker* )
 
 void uiProcessorManager::loadCB( CallBacker* )
 {
-    IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
-    ctxt.forread_ = true;
-
+    const IOObjContext& ctxt = uiPSProcObjSel::ioContext(
+						manager_.getGeomSystem() );
     uiIOObjSelDlg dlg( this, ctxt );
     if ( dlg.go() && dlg.ioObj() )
     {
 	uiString errmsg;
-	if ( !PreStackProcTranslator::retrieve( manager_, dlg.ioObj(), errmsg) )
-	    uiMSG().error( errmsg );
-	else
+	if ( !PreStackProcTranslator::retrieve(manager_,dlg.ioObj(),errmsg) )
 	{
-	    updateList();
-	    lastmid_ = dlg.ioObj()->key();
+	    uiMSG().error( errmsg );
+	    return;
 	}
+
+	updateList();
+	lastmid_ = dlg.ioObj()->key();
     }
 
     changed_ = false;
@@ -339,7 +395,7 @@ bool uiProcessorManager::save()
 
 bool uiProcessorManager::doSaveAs()
 {
-    IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
+    IOObjContext ctxt = uiPSProcObjSel::ioContext( manager_.getGeomSystem() );
     ctxt.forread_ = false;
     uiIOObjSelDlg dlg( this, ctxt );
     if ( dlg.go() )
@@ -365,17 +421,17 @@ void uiProcessorManager::saveAsCB( CallBacker* )
 void uiProcessorManager::saveCB( CallBacker* )
 {
     PtrMan<IOObj> ioobj = IOM().get( lastmid_ );
-    if ( !ioobj )
-	doSaveAs();
-    else
+    if ( ioobj )
 	doSave( *ioobj );
+    else
+	doSaveAs();
 }
 
 
 bool uiProcessorManager::doSave( const IOObj& ioobj )
 {
     uiString errmsg;
-    if ( !PreStackProcTranslator::store( manager_, &ioobj, errmsg) )
+    if ( !PreStackProcTranslator::store(manager_,&ioobj,errmsg) )
     {
 	uiMSG().error( errmsg );
 	return false;

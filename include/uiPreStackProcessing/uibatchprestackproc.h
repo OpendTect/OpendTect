@@ -26,14 +26,25 @@ mExpClass(uiPreStackProcessing) uiBatchProcSetup : public uiBatchProcDlg
 { mODTextTranslationClass(uiBatchProcSetup);
 public:
 
-			uiBatchProcSetup(uiParent*,bool is2d);
+			uiBatchProcSetup(uiParent*,OD::GeomSystem,
+					int openidx=-1,
+					const uiStringSet* usemethods=nullptr);
+			/*/< param openidx on popup, launch the GUI of
+				   this step index
+			     param usemethods selection of items from
+				PreStack::Processor::factory()
+				(using all if not provided)	 */
 			~uiBatchProcSetup();
+
+    bool		isOK() const;
 
 protected:
 
-    bool		fillPar(IOPar& iop) override;
+    bool		fillPar(IOPar&) override;
     bool		prepareProcessing() override;
     void		getJobName(BufferString& jobnm) const override;
+
+    void		initDlgCB(CallBacker*);
     void		setupSelCB(CallBacker*);
 
     uiProcSel*		chainsel_;
@@ -42,7 +53,7 @@ protected:
     uiPosSubSel*	possubsel_;
     uiBatchJobDispatcherSel* batchfld_;
 
-    const bool		is2d_;
+    const OD::GeomSystem gs_;
 };
 
 } // namespace PreStack

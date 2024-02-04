@@ -66,6 +66,8 @@ GigaPascal: Pressure`GPa`1e9
 Atmosphere: Pressure`atm`101325.01
 Bar: Pressure`bar`1e5
 Psi: Pressure`psi`6894.7573
+Newton: Force`N`1
+KiloNewton: Force`kN`1e3
 Square meter: Area`m2`1
 Square kilometer: Area`km2`1e6
 Square foot: Area`ft2`0.09290304

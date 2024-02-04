@@ -113,10 +113,10 @@ void uiSeis2DLineChoose::init( OD::ChoiceMode cm )
     if ( isMultiChoice(cm) )
     {
 	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, "Geometry" );
-	lbchoiceio_->readDone.notify(
-				mCB(this,uiSeis2DLineChoose,readChoiceDone) );
-	lbchoiceio_->storeRequested.notify(
-				mCB(this,uiSeis2DLineChoose,writeChoiceReq) );
+	mAttachCB( lbchoiceio_->readDone,
+		   uiSeis2DLineChoose::readChoiceDone );
+	mAttachCB( lbchoiceio_->storeRequested,
+		   uiSeis2DLineChoose::writeChoiceReq );
     }
 
     setHAlignObj( listfld_ );
@@ -125,6 +125,7 @@ void uiSeis2DLineChoose::init( OD::ChoiceMode cm )
 
 uiSeis2DLineChoose::~uiSeis2DLineChoose()
 {
+    detachAllNotifiers();
     delete lbchoiceio_;
     deepErase( inserters_ );
 }
@@ -214,6 +215,7 @@ void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
 
 
 // uiSeis2DLineSel
+
 uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
     : uiCompoundParSel(p,multisel
 	? uiStrings::phrSelect(mJoinUiStrs(s2D(),sLine(2).toLower()))
@@ -222,7 +224,7 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
     , selectionChanged(this)
 {
     txtfld_->setElemSzPol( uiObject::Wide );
-    butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
+    mAttachCB( butPush, uiSeis2DLineSel::selPush );
     BufferStringSet lnms; TypeSet<Pos::GeomID> geomids;
     SeisIOObjInfo::getLinesWithData( lnms, geomids );
     ConstArrPtrMan<int> idxs = lnms.getSortIndexes( false );
@@ -250,7 +252,9 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 
 
 uiSeis2DLineSel::~uiSeis2DLineSel()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 const char* uiSeis2DLineSel::lineName() const
@@ -332,7 +336,7 @@ void uiSeis2DLineSel::setInput( const BufferStringSet& lnms )
     clearAll();
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
-	Pos::GeomID geomid = Survey::GM().getGeomID( lnms.get(idx) );
+	const Pos::GeomID geomid = Survey::GM().getGeomID( lnms.get(idx) );
 	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	    continue;
 
@@ -368,7 +372,11 @@ void uiSeis2DLineSel::setInput( const TypeSet<Pos::GeomID>& geomids )
 void uiSeis2DLineSel::setInput( const MultiID& datasetid )
 {
     const SeisIOObjInfo oi( datasetid );
-    BufferStringSet lnms; oi.getLineNames( lnms );
+    if ( !oi.isOK() )
+	return;
+
+    BufferStringSet lnms;
+    oi.getLineNames( lnms );
     setInput( lnms );
 }
 
@@ -437,7 +445,7 @@ void uiSeis2DLineSel::selPush( CallBacker* )
 	chosenids += geomids_[ selidxs_[idx] ];
     lchfld->setChosen( chosenids );
 
-    if ( !dlg.go() )
+    if ( dlg.go() != uiDialog::Accepted )
 	return;
 
     selidxs_.erase();
@@ -474,12 +482,13 @@ void uiSeis2DLineSel::setSelLine( const Pos::GeomID geomid )
 
 
 // uiSeis2DLineNameSel
+
 uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     : uiGroup(p,"2D line name sel")
     , forread_(forread)
     , nameChanged(this)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Line name") );
+    auto* lcb = new uiLabeledComboBox( this, tr("Line name") );
     fld_ = lcb->box();
     fld_->setReadOnly( forread_ );
     fld_->setHSzPol( uiObject::Wide );
@@ -487,12 +496,14 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     if ( !forread_ )
 	fillWithAll();
 
-    fld_->selectionChanged.notify( mCB(this,uiSeis2DLineNameSel,selChg) );
+    mAttachCB( fld_->selectionChanged, uiSeis2DLineNameSel::selChg );
 }
 
 
 uiSeis2DLineNameSel::~uiSeis2DLineNameSel()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiSeis2DLineNameSel::fillWithAll()
@@ -515,7 +526,8 @@ void uiSeis2DLineNameSel::fillWithAll()
 void uiSeis2DLineNameSel::addLineNames( const MultiID& ky )
 {
     const SeisIOObjInfo oi( ky );
-    if ( !oi.isOK() || !oi.is2D() ) return;
+    if ( !oi.isOK() || !oi.is2D() )
+	return;
 
     BufferStringSet lnms; oi.getLineNames( lnms );
     lnms.sort();
@@ -557,7 +569,9 @@ void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
 {
     dsid_ = ky;
     fld_->setEmpty();
-    if ( !forread_ ) fld_->addItem( uiString::emptyString() );
+    if ( !forread_ )
+	fld_->addItem( uiString::empty() );
+
     addLineNames( ky );
     nameChanged.trigger();
 }
@@ -565,6 +579,7 @@ void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
 
 
 // uiSeis2DMultiLineSel
+
 class uiSeis2DMultiLineSelDlg : public uiDialog
 { mODTextTranslationClass(uiSeis2DMultiLineSelDlg)
 public:
@@ -573,36 +588,36 @@ public:
 				const BufferStringSet& lnms,
 				const TypeSet<StepInterval<int> >& maxtrcrgs,
 				const TypeSet<StepInterval<float> >& maxzrgs,
-				bool withz,bool withstep,
+				const uiSeis2DMultiLineSel::Setup&,
 				OD::ChoiceMode cm=OD::ChooseAtLeastOne);
-			~uiSeis2DMultiLineSelDlg()	{}
+			~uiSeis2DMultiLineSelDlg();
 
     BufferString	getSummary() const;
 
-    void		getSelLines(TypeSet<int>&) const;
     bool		isAll() const;
-    void		getZRgs(TypeSet<StepInterval<float> >&)const;
+    void		getSelLines(TypeSet<int>&) const;
     void		getTrcRgs(TypeSet<StepInterval<int> >&) const;
+    void		getZRgs(TypeSet<StepInterval<float> >&)const;
 
+    void		setAll(bool);
     void		setSelection(const TypeSet<int>&,
 				const TypeSet<StepInterval<int> >&,
 				const TypeSet<StepInterval<float> >&);
-    void		setAll(bool);
     void		setZRgs(const StepInterval<float>&);
 
-protected:
+private:
 
     uiListBox*		lnmsfld_;
     uiSelNrRange*	trcrgfld_;
-    uiSelZRange*	zrgfld_;
+    uiSelZRange*	zrgfld_ = nullptr;
 
     TypeSet<StepInterval<int> >	trcrgs_;
     TypeSet<StepInterval<float> > zrgs_;
 
-    const TypeSet<StepInterval<int> >&		maxtrcrgs_;
-    const TypeSet<StepInterval<float> >&	maxzrgs_;
+    const TypeSet<StepInterval<int> >&	maxtrcrgs_;
+    const TypeSet<StepInterval<float> >& maxzrgs_;
 
-    void		finalized(CallBacker*);
+    void		initDlgCB(CallBacker*);
     void		lineSel(CallBacker*);
     void		trcRgChanged(CallBacker*);
     void		zRgChanged(CallBacker*);
@@ -617,48 +632,54 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 				const BufferStringSet& lnms,
 				const TypeSet<StepInterval<int> >& maxtrcrgs,
 				const TypeSet<StepInterval<float> >& maxzrgs,
-				bool withz, bool withstep,
+				const uiSeis2DMultiLineSel::Setup& selsu,
 				OD::ChoiceMode cm )
     : uiDialog( p, uiDialog::Setup(tr("Select 2D Lines"),mNoDlgTitle,
 				   mODHelpKey(mSeis2DMultiLineSelDlgHelpID) ) )
     , maxtrcrgs_(maxtrcrgs), maxzrgs_(maxzrgs)
     , trcrgs_(maxtrcrgs), zrgs_(maxzrgs)
-    , zrgfld_(0)
 {
     uiListBox::Setup su( cm, tr("Select Lines") );
     lnmsfld_ = new uiListBox( this, su );
     lnmsfld_->addItems( lnms );
     lnmsfld_->resizeToContents();
-    lnmsfld_->selectionChanged.notify(
-		mCB(this,uiSeis2DMultiLineSelDlg,lineSel) );
+    mAttachCB( lnmsfld_->selectionChanged, uiSeis2DMultiLineSelDlg::lineSel );
 
-    trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(), withstep,
-				  "Trace" );
-    trcrgfld_->rangeChanged.notify(
-		mCB(this,uiSeis2DMultiLineSelDlg,trcRgChanged) );
+    trcrgfld_ = new uiSelNrRange( this, selsu.withstep_, uiStrings::sTrace() );
+    mAttachCB( trcrgfld_->rangeChanged, uiSeis2DMultiLineSelDlg::trcRgChanged );
     trcrgfld_->attach( alignedBelow, lnmsfld_ );
 
-    if ( withz )
+    if ( selsu.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, withstep,
-			BufferString("Z range",SI().getZUnitString()).buf());
-	zrgfld_->setRangeLimits( SI().zRange(false) );
-	zrgfld_->rangeChanged.notify(
-		mCB(this,uiSeis2DMultiLineSelDlg,zRgChanged) );
+	const ZDomain::Info* zinfo =
+				ZDomain::Info::getFrom( selsu.zdomkey_.buf(),
+							selsu.zunitstr_.buf() );
+	if ( !zinfo )
+	    zinfo = &SI().zDomainInfo();
+
+	zrgfld_ = new uiSelZRange( this, selsu.withstep_,
+				   selsu.zdomkey_.buf(), selsu.zunitstr_.buf());
+	mAttachCB( zrgfld_->rangeChanged, uiSeis2DMultiLineSelDlg::zRgChanged );
 	zrgfld_->attach( alignedBelow, trcrgfld_ );
 
-	uiPushButton* allbut = new uiPushButton( this, tr("Apply to all lines"),
+	auto* allbut = new uiPushButton( this, tr("Apply to all lines"),
 		mCB(this,uiSeis2DMultiLineSelDlg,applyZRgToAllCB), true );
 	allbut->attach( rightOf, zrgfld_ );
     }
 
-    postFinalize().notify( mCB(this,uiSeis2DMultiLineSelDlg,finalized) );
+    mAttachCB( postFinalize(), uiSeis2DMultiLineSelDlg::initDlgCB );
 }
 
 
-void uiSeis2DMultiLineSelDlg::finalized( CallBacker* )
+uiSeis2DMultiLineSelDlg::~uiSeis2DMultiLineSelDlg()
 {
-    lineSel(0);
+    detachAllNotifiers();
+}
+
+
+void uiSeis2DMultiLineSelDlg::initDlgCB( CallBacker* )
+{
+    lineSel( nullptr );
 }
 
 
@@ -680,7 +701,7 @@ void uiSeis2DMultiLineSelDlg::setSelection( const TypeSet<int>& selidxs,
 
     trcrgs_ = trcrgs;
     zrgs_ = zrgs;
-    lineSel(0);
+    lineSel( nullptr );
 }
 
 
@@ -723,7 +744,8 @@ void uiSeis2DMultiLineSelDlg::lineSel( CallBacker* )
     NotifyStopper ns( trcrgfld_->rangeChanged );
     trcrgfld_->setLimitRange( maxtrcrgs_[curitm] );
     trcrgfld_->setRange( trcrgs_[curitm] );
-    if ( !zrgfld_ || !zrgs_.validIdx(curitm) ) return;
+    if ( !zrgfld_ || !zrgs_.validIdx(curitm) )
+	return;
 
     NotifyStopper ns2( zrgfld_->rangeChanged );
     zrgfld_->setRangeLimits( maxzrgs_[curitm] );
@@ -734,7 +756,8 @@ void uiSeis2DMultiLineSelDlg::lineSel( CallBacker* )
 void uiSeis2DMultiLineSelDlg::trcRgChanged( CallBacker* )
 {
     const int curitm = lnmsfld_->currentItem();
-    if ( curitm<0 ) return;
+    if ( curitm<0 )
+	return;
 
     trcrgs_[curitm] = trcrgfld_->getRange();
 }
@@ -742,9 +765,12 @@ void uiSeis2DMultiLineSelDlg::trcRgChanged( CallBacker* )
 
 void uiSeis2DMultiLineSelDlg::zRgChanged( CallBacker* )
 {
-    if ( !zrgfld_ ) return;
+    if ( !zrgfld_ )
+	return;
+
     const int curitm = lnmsfld_->currentItem();
-    if ( curitm<0 ) return;
+    if ( curitm<0 )
+	return;
 
     zrgs_[curitm] = zrgfld_->getRange();
 }
@@ -773,13 +799,49 @@ bool uiSeis2DMultiLineSelDlg::acceptOK( CallBacker* )
 }
 
 
+
+// uiSeis2DMultiLineSel::Setup
+
+uiSeis2DMultiLineSel::Setup::Setup( const uiString& text, bool forread,
+				    bool isall, bool withz, bool withstep )
+    : seltxt_(text)
+    , forread_(forread)
+    , isall_(isall)
+    , withz_(withz)
+    , withstep_(withstep)
+{
+}
+
+
+uiSeis2DMultiLineSel::Setup::~Setup()
+{
+}
+
+
+
 // uiSeis2DMultiLineSel
+
+uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const Setup& su )
+    : uiSeis2DLineSel(p,su.forread_)
+    , setup_(su)
+    , isall_(su.isall_)
+{
+    if ( !setup_.seltxt_.isEmpty() )
+	setSelText( setup_.seltxt_ );
+
+    initRanges();
+}
+
+
 uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const uiString& text,
 					    bool withz, bool withstep )
     : uiSeis2DLineSel(p,true)
-    , isall_(false),withz_(withz),withstep_(withstep)
+    , setup_(text,true,false,withz,withstep)
+    , isall_(false)
 {
-    if ( !text.isEmpty() ) txtfld_->setTitleText( text );
+    if ( !setup_.seltxt_.isEmpty() )
+	txtfld_->setTitleText( setup_.seltxt_ );
+
     initRanges();
 }
 
@@ -788,11 +850,14 @@ uiSeis2DMultiLineSel::~uiSeis2DMultiLineSel()
 {
 }
 
+
 void uiSeis2DMultiLineSel::clearAll()
 {
     uiSeis2DLineSel::clearAll();
-    zrgs_.erase(); trcrgs_.erase();
-    maxzrgs_.erase(); maxtrcrgs_.erase();
+    trcrgs_.erase();
+    zrgs_.erase();
+    maxtrcrgs_.erase();
+    maxzrgs_.erase();
 }
 
 
@@ -820,9 +885,13 @@ void uiSeis2DMultiLineSel::setInput( const MultiID& datasetid )
 {
     selectionChanged.disable();
     const SeisIOObjInfo oi( datasetid );
-    BufferStringSet lnms; oi.getLineNames( lnms );
+    if ( !oi.isOK() )
+	return;
+
+    BufferStringSet lnms;
+    oi.getLineNames( lnms );
     uiSeis2DLineSel::setInput( lnms );
-    initRanges(&datasetid);
+    initRanges( &datasetid );
     selectionChanged.enable();
     selectionChanged.trigger();
 }
@@ -833,19 +902,20 @@ void uiSeis2DMultiLineSel::initRanges( const MultiID* datasetid )
     zrgs_.erase(); trcrgs_.erase();
     maxzrgs_.erase(); maxtrcrgs_.erase();
 
-    PtrMan<IOObj> ioobj = datasetid ? IOM().get( *datasetid ) : 0;
-    PtrMan<Seis2DDataSet> dataset = ioobj ?  new Seis2DDataSet( *ioobj ) : 0;
+    PtrMan<IOObj> ioobj = datasetid ? IOM().get( *datasetid ) : nullptr;
+    PtrMan<Seis2DDataSet> dataset = ioobj ?  new Seis2DDataSet( *ioobj )
+					  : nullptr;
 
-    for ( int idx=0; idx<geomids_.size(); idx++ )
+    for ( const auto& geomid : geomids_ )
     {
 	StepInterval<int> trcrg(0,0,1);
 	StepInterval<float> zrg = SI().zRange(false);
 	if ( dataset && !dataset->isEmpty() )
-	   dataset->getRanges( geomids_[idx], trcrg, zrg );
+	   dataset->getRanges( geomid, trcrg, zrg );
 	else
 	{
 	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			     Survey::GM().getGeometry( geomids_[idx]) );
+			     Survey::GM().getGeometry( geomid ) );
 	    if ( geom2d )
 	    {
 		trcrg = geom2d->data().trcNrRange();
@@ -863,19 +933,19 @@ void uiSeis2DMultiLineSel::selPush( CallBacker* )
 {
     OD::ChoiceMode cm = ismultisel_ ? OD::ChooseAtLeastOne : OD::ChooseOnlyOne;
     uiSeis2DMultiLineSelDlg dlg( this, geomids_, lnms_, maxtrcrgs_, maxzrgs_,
-				 withz_, withstep_, cm );
+				 setup_, cm );
     if ( isall_ )
 	dlg.setAll( true );
     else
 	dlg.setSelection( selidxs_, trcrgs_, zrgs_ );
 
-    if ( !dlg.go() )
+    if ( dlg.go() != uiDialog::Accepted )
 	return;
 
     isall_ = dlg.isAll();
     dlg.getSelLines( selidxs_ );
-    dlg.getZRgs( zrgs_ );
     dlg.getTrcRgs( trcrgs_ );
+    dlg.getZRgs( zrgs_ );
     updateSummary();
     selectionChanged.trigger();
 }
@@ -891,7 +961,7 @@ bool uiSeis2DMultiLineSel::fillPar( IOPar& par ) const
 	const Pos::GeomID selgeomid = geomids_[selidxs_[idx]];
 	linepar.set( sKey::GeomID(), selgeomid );
 	linepar.set( sKey::TrcRange(), trcrgs_[selidxs_[idx]] );
-	if ( withz_ )
+	if ( setup_.withz_ )
 	    linepar.set( sKey::ZRange(), zrgs_[selidxs_[idx]] );
 
 	mergekey = idx;
@@ -917,7 +987,8 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 
     clearSelection();
     PtrMan<IOPar> lspar = par.subselect( "Line" );
-    if ( !lspar ) return;
+    if ( !lspar )
+	return;
 
     TypeSet<Pos::GeomID> selgeomids;
     TypeSet<StepInterval<float> > selzrgs;
@@ -944,7 +1015,7 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 	    continue;
 
 	seltrcrgs += trcrg;
-	if ( !withz_ )
+	if ( !setup_.withz_ )
 	    continue;
 
 	StepInterval<float> zrg;
@@ -953,14 +1024,20 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
     }
 
     setSelGeomIDs( selgeomids );
-    if ( !selzrgs.isEmpty() ) setZRanges( selzrgs );
-    if ( !seltrcrgs.isEmpty() ) setTrcRanges( seltrcrgs );
+    if ( !seltrcrgs.isEmpty() )
+	setTrcRanges( seltrcrgs );
+
+    if ( !selzrgs.isEmpty() )
+	setZRanges( selzrgs );
+
     isall_ = uiSeis2DLineSel::isAll();
 }
 
 
 bool uiSeis2DMultiLineSel::isAll() const
-{ return isall_; }
+{
+    return isall_;
+}
 
 
 void uiSeis2DMultiLineSel::getZRanges(

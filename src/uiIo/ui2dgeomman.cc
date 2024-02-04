@@ -110,9 +110,16 @@ void ui2DGeomManageDlg::mkFileInfo()
     if ( geom2d )
     {
 	const StepInterval<int> trcrg = geom2d->data().trcNrRange();
-	Interval<float> sprg; sprg.setUdf();
+	Interval<float> sprg;
+	sprg.setUdf();
 	if ( !geom2d->spnrs().isEmpty() )
 	    sprg.set( geom2d->spnrs().first(), geom2d->spnrs().last() );
+	const ZDomain::Info& zinfo = SI().zDomainInfo();
+	ZSampling zrg = geom2d->zRange();
+	const int nrzdec = zinfo.def_.nrZDecimals( zrg.step );
+	if ( !zrg.isUdf() )
+	    zrg.scale( zinfo.userFactor() );
+
 	const BufferString diststr = toString(geom2d->averageTrcDist(),2);
 	const BufferString lengthstr = toString(geom2d->lineLength(),0);
 	const BufferString unitstr = SI().getXYUnitString();
@@ -122,9 +129,17 @@ void ui2DGeomManageDlg::mkFileInfo()
 	if ( !sprg.isUdf() )
 	    txt.add( "\nShotpoint range: ").add( sprg.start ).add( " - " )
 		.add( sprg.stop );
+	if ( !zrg.isUdf() )
+	{
+	    txt.addNewLine()
+	       .add( zinfo.getRange() )
+	       .add( ": " ).add( zrg.start, nrzdec )
+	       .add( " - " ).add( zrg.stop, nrzdec )
+	       .add( " [" ).add( zrg.step, nrzdec ).add( "]" );
+	}
 
 	txt.add( "\nAverage distance: " ).add( diststr ).addSpace().add(unitstr)
-	   .add( "\nLine length: " ).add( lengthstr ).addSpace().add(unitstr)
+	   .add( "\nLine length: " ).add( lengthstr ).addSpace().add( unitstr )
 	   .addNewLine();
     }
 

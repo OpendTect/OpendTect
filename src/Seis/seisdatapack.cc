@@ -311,12 +311,10 @@ void RegularSeisDataPack::dumpInfo( StringPairSet& infoset ) const
     ZSampling zrg = sampling_.zsamp_;
     if ( !zrg.isUdf() )
     {
-	const ZDomain::Def& zddef = zDomain().def_;
-	const int nrdec = zddef.nrZDecimals( zrg.step );
-	zrg.scale( zddef.userFactor() );
-	const BufferString unitstr = unitStr( false, true );
-	BufferString keystr = toString( zddef.getRange() );
-	keystr.addSpace().add( unitstr.buf() );
+	const ZDomain::Info& zinfo = zDomain();
+	const int nrdec = zinfo.def_.nrZDecimals( zrg.step );
+	zrg.scale( zinfo.userFactor() );
+	const BufferString keystr = toString( zinfo.getRange() );
 	BufferString valstr;
 	valstr.add( zrg.start, nrdec )
 	      .add( " - " ).add( zrg.stop, nrdec )

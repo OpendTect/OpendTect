@@ -56,6 +56,8 @@ protected:
     void		inpSel(CallBacker*);
     void		writeHeader(od_ostream&);
     void		zDomainTypeChg(CallBacker*);
+    void		initGrpCB(CallBacker*);
+
     bool		writeAscii();
     bool		getInputMIDs(TypeSet<MultiID>&);
 

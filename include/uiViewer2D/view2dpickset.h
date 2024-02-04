@@ -47,7 +47,7 @@ protected:
     void		triggerDeSel() override;
 
     RefMan<Pick::Set>	pickset_;
-    bool		isselected_;
+    bool		isselected_		= false;
     Notifier<PickSet>	deselected_;
     TypeSet<int>	auxids_;
 

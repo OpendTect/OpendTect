@@ -38,7 +38,7 @@ public:
 
     enum StdType	{
 			    Ang, Anis, Area, Class, Comp, Den, Dist, ElaRa,
-			    ElPot, Fluid, GR, Imp, Perm, Pres, PresGrad,
+			    ElPot, Fluid, Force, GR, Imp, Perm, Pres, PresGrad,
 			    PresWt, Res, Son, Temp, Time, Vel, Volum, Vol,
 			    Other
 			};

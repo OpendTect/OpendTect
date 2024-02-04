@@ -1050,8 +1050,15 @@ SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat( int ) const
 const Attrib::SelSpec* VolumeDisplay::getSelSpec(
 				int attrib, int version ) const
 {
-    return attribs_.validIdx(attrib) ? &(*attribs_[attrib]->selspec_)[version]
-				     : nullptr;
+    const TypeSet<Attrib::SelSpec>* specs = getSelSpecs( attrib );
+    if ( !specs || specs->isEmpty() )
+	return nullptr;
+
+    if ( !specs->validIdx(version) )
+	version = 0;
+
+    return specs->validIdx(version) ? &specs->get( version )
+				    : &specs->first();
 }
 
 

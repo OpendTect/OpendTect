@@ -21,48 +21,44 @@ static char newlinechar = '\n';
 static const char* sKeyDip = "Dip";
 
 
-#define mInitPtrs \
-      trckey_(TrcKey::udf()) \
+Pick::Location::Location( const Coord3& c, const Coord3& dir,
+						const Pos::GeomID& geomid )
+    : LocationBase(c,geomid)
+    , dir_(dir)
     , text_(nullptr)
-
-Pick::Location::Location( double x, double y, double zval )
-    : pos_(x,y,zval)
-    , mInitPtrs
 {
 }
 
 
-Pick::Location::Location( const Coord& c, float zval )
-    : pos_(c,zval)
-    , mInitPtrs
+Pick::Location::Location( const Coord3& c, const Sphere& dir,
+						const Pos::GeomID& geomid )
+    : LocationBase(c,geomid)
+    , dir_(dir)
+    , text_(nullptr)
 {
 }
 
 
-Pick::Location::Location( const Coord3& c )
-    : pos_(c)
-    , mInitPtrs
+Pick::Location::Location( const Coord& c,double z, const Coord3& dir,
+						const Pos::GeomID& geomid )
+    : LocationBase(c,z,geomid)
+    , dir_(dir)
+    , text_(nullptr)
 {
 }
 
 
-Pick::Location::Location( const Coord3& c, const Coord3& d )
-    : pos_(c)
-    , dir_(d)
-    , mInitPtrs
+Pick::Location::Location(double x, double y, double z, const Coord3& dir,
+						const Pos::GeomID& geomid )
+    : LocationBase(x,y,z,geomid)
+    , dir_(dir)
+    , text_(nullptr)
 {
 }
 
-
-Pick::Location::Location( const Coord3& c, const Sphere& d )
-    : pos_(c)
-    , dir_(d)
-    , mInitPtrs
-{
-}
 
 Pick::Location::Location( const Location& oth )
-    : mInitPtrs
+    : text_(nullptr)
 {
     *this = oth;
 }
@@ -99,10 +95,10 @@ void Pick::Location::operator=( const Location& oth )
 }
 
 
-bool Pick::Location::hasTrcKey() const
+Pick::Location& Pick::Location::setDir( const Sphere& sph )
 {
-    return !mIsUdf(trckey_.inl()) && !mIsUdf(trckey_.crl())
-	&& !trckey_.isSynthetic();
+    dir_ = sph;
+    return *this;
 }
 
 
@@ -111,58 +107,6 @@ bool Pick::Location::hasText() const
     return text_ && !text_->isEmpty();
 }
 
-
-const TrcKey& Pick::Location::trcKey() const
-{
-    if ( hasTrcKey() || !hasPos() )
-	return trckey_;
-
-    mDefineStaticLocalObject( TrcKey, rettk, );
-    rettk.setPosition( SI().transform(pos_) );
-    return rettk;
-}
-
-
-bool Pick::Location::is2D() const
-{
-    return trcKey().is2D();
-}
-
-
-OD::GeomSystem Pick::Location::survID() const
-{
-    return geomSystem();
-}
-
-
-OD::GeomSystem Pick::Location::geomSystem() const
-{
-    return trcKey().geomSystem();
-}
-
-
-Pos::GeomID Pick::Location::geomID() const
-{
-    return trcKey().geomID();
-}
-
-
-Pos::TraceID Pick::Location::lineNr() const
-{
-    return trcKey().lineNr();
-}
-
-
-Pos::TraceID Pick::Location::trcNr() const
-{
-    return trcKey().trcNr();
-}
-
-
-const BinID& Pick::Location::binID() const
-{
-    return trcKey().position();
-}
 
 
 const Sphere& Pick::Location::dir() const
@@ -177,55 +121,6 @@ const BufferString& Pick::Location::text() const
 }
 
 
-Pick::Location& Pick::Location::setTrcKey( const TrcKey& tk )
-{ trckey_ = tk; return *this; }
-Pick::Location& Pick::Location::setDir( const Sphere& sph )
-{ dir_ = sph; return *this; }
-
-
-Pick::Location& Pick::Location::setLineNr( Pos::LineID lnr )
-{
-    trckey_.setLineNr( lnr );
-    return *this;
-}
-
-
-Pick::Location& Pick::Location::setTrcNr( Pos::TraceID tnr )
-{
-    trckey_.setTrcNr( tnr );
-    return *this;
-}
-
-
-Pick::Location& Pick::Location::setGeomID( Pos::GeomID geomid )
-{
-    trckey_.setGeomID( geomid );
-    return *this;
-}
-
-
-Pick::Location& Pick::Location::setBinID( const BinID& bid, bool updcoord )
-{
-    trckey_.setPosition( bid );
-    if ( updcoord )
-	setPos( trckey_.getCoord() );
-    return *this;
-}
-
-
-Pick::Location& Pick::Location::setSurvID( OD::GeomSystem gs, bool updpos )
-{
-    return setGeomSystem( gs, updpos );
-}
-
-
-Pick::Location& Pick::Location::setGeomSystem( OD::GeomSystem gs, bool updpos )
-{
-    trckey_.setGeomSystem( gs );
-    if ( updpos )
-	trckey_.setFrom( pos_ );
-    return *this;
-}
 
 
 Pick::Location& Pick::Location::setText( const char* txt )

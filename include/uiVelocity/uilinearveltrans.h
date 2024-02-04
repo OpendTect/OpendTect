@@ -32,6 +32,8 @@ private:
     void		doInitGrp() override;
     void		velChangedCB(CallBacker*);
     bool		acceptOK() override;
+    bool		usePar(const IOPar&) override;
+    const char*		transformName() const override;
 
     uiGenInput*		velfld_;
     uiGenInput*		gradientfld_;

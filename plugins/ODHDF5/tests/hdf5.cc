@@ -144,7 +144,7 @@ static bool testReadInfo( HDF5::Reader& rdr )
 {
     BufferStringSet grps;
     rdr.getGroups( grps );
-    mRunStandardTestWithError( grps.size()==6, "Groups in file",
+    mRunStandardTestWithError( grps.size()==8, "Groups in file",
 			       BufferString("nrgrps=",grps.size()) );
 
     BufferStringSet dsnms;
@@ -344,6 +344,14 @@ static bool testReadData( HDF5::Reader& rdr )
 				BufferString("v3_11=",v3_11) )
     mRunStandardTestWithError( v3_31==431,"Correct Slabby value [3,31]",
 				BufferString("v3_31=",v3_31) )
+    BufferString comment;
+    uirv = rdr.getComment( dsky, comment );
+    mRunStandardTestWithError( comment == "Comment on a dataset",
+				"Dataset has comment", toString(uirv) );
+    dsky.setDataSetName( "" );
+    uirv = rdr.getComment( dsky, comment );
+    mRunStandardTestWithError( comment == "Comment on a group",
+			       "Group has comment", toString(uirv) );
 
     HDF5::DataSetKey dsky2( "", "ShortArr" );
     TypeSet<short> shortvals;
@@ -354,6 +362,13 @@ static bool testReadData( HDF5::Reader& rdr )
 				BufferString("sz=",shortvals.size()) )
     mRunStandardTestWithError( shortvals[0]==10, "Correct ShortArr value [0]",
 				BufferString("v[0]=",shortvals[0]) )
+    uirv = rdr.getComment( dsky2, comment );
+    mRunStandardTestWithError( comment.isEmpty(), "Group has no comment",
+				toString(uirv) );
+    unsigned version = 0;
+    uirv = rdr.getVersion( dsky2, version );
+    mRunStandardTestWithError( uirv.isOK() && version == 1, "DataSet version",
+			       toString(uirv) );
 
     dsky2.setDataSetName( "Strings" );
     BufferStringSet bss;
@@ -468,6 +483,8 @@ static bool testWrite()
     dsky.setDataSetName( "Slabby Data" );
     uirv = iarrtoolx2.createDataSet( *wrr, dsky );
     mAddTestResult( "Create Slabby DataSet" );
+    uirv = wrr->setComment( dsky, "Comment on a dataset" );
+    mAddTestResult( "Add comment to 'Slabby/Slabby Data' Dataset" );
     HDF5::SlabSpec slabspec; HDF5::SlabDimSpec dimspec;
     dimspec.start_ = 0; dimspec.step_ = 1; dimspec.count_ = dim1_;
     slabspec += dimspec;
@@ -482,6 +499,8 @@ static bool testWrite()
     mAddTestResult( "Write Slabby Second Slab" );
     dsky.setDataSetName( "" );
     wrr->setAttribute( "slabby key", "slabby value", &dsky );
+    uirv = wrr->setComment( dsky, "Comment on a group" );
+    mAddTestResult( "Add comment to Slabby group" );
 
     mRunStandardTest( !wrr->hasGroup("Yo"), "Does not have an invalid group" );
     dsky.setGroupName( "Component 1" );
@@ -495,7 +514,7 @@ static bool testWrite()
     uirv = wrr->set( iop, &dsky );
     mAddTestResult( "Write Comp1/Block1 attrib using an IOPar" );
 
-    const auto maindsky = HDF5::DataSetKey( "MainGroup" );
+    const HDF5::DataSetKey maindsky( "MainGroup" );
     wrr->ensureGroup( maindsky.groupName(), uirv );
     mAddTestResult( "Create MainGroup group" );
     dsky = HDF5::DataSetKey::groupKey( maindsky, "GroupA" );
@@ -534,6 +553,23 @@ static bool testWrite()
     wrr->setAttribute( "Attrib 1 to be removed", "", &dsky );
     wrr->setAttribute( "Attrib 2 to be removed", "", &dsky );
     wrr->setAttribute( "Attrib 3 to be removed", "", &dsky );
+
+    const HDF5::DataSetKey logsdsky( "Logs" );
+    wrr->ensureGroup( logsdsky.groupName(), uirv );
+    mAddTestResult( "Create group Logs" );
+
+    dsky = HDF5::DataSetKey::groupKey( logsdsky.groupName(), toString(1) );
+    wrr->ensureGroup( dsky.groupName(), uirv );
+    mAddTestResult( "Create sub-group Logs/1" );
+
+    dsky.setGroupName( dsky.fullDataSetName() ).setDataSetName( "MDs" );
+    dsky.setMaximumSize( 0, 20 );
+    uirv = wrr->createDataSet( dsky, 500, OD::F64 );
+    mAddTestResult( "Create log MD array" );
+
+    dsky.setDataSetName( "TWTs" );
+    uirv = wrr->createDataSet( dsky, 500, OD::F64 );
+    mAddTestResult( "Create log values array" );
 
     return true;
 }
@@ -577,6 +613,22 @@ static bool testEdit()
     dsky.setGroupName( "" ).setDataSetName( "++info++" );
     uirv = wrr->removeAllAttributes( &dsky );
     mAddTestResult( "Removed all attributes of dataset ++info++" );
+
+    const HDF5::DataSetKey logsky( "Logs" );
+    dsky = HDF5::DataSetKey::groupKey( logsky, toString(1) );
+    const BufferString newdsnm( "this is a very long log name with many "
+	"characters in its name (but @ [must] - & _ need # know if $ "
+	"is supp^orted % or * \"this\"" );
+    const HDF5::DataSetKey newlogky =
+			    HDF5::DataSetKey::groupKey( logsky, newdsnm );
+    uirv = wrr->renameObject( dsky, newlogky );
+    mAddTestResult( "Renamed the HDF5 group" );
+
+    dsky.setGroupName( newlogky.fullDataSetName() ).setDataSetName( "TWTs" );
+    HDF5::DataSetKey newdsky = dsky;
+    newdsky.setDataSetName( "Values" );
+    uirv = wrr->renameObject( dsky, newdsky );
+    mAddTestResult( "Renamed the HDF5 dataset" );
 
     return true;
 }

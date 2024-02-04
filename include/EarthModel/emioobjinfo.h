@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 
+#include "emmanager.h"
 #include "emposid.h"
-#include "enums.h"
 #include "stratlevel.h"
 
 class BufferStringSet;
@@ -42,10 +42,6 @@ public:
 
     IOObjInfo&		operator =(const IOObjInfo&);
 
-    enum ObjectType	{ Unknown, Horizon3D, Horizon2D,
-			  FaultStickSet, Fault, Body };
-			mDeclareEnumUtils(ObjectType)
-
     static void		getIDs(ObjectType,TypeSet<MultiID>&);
 			//!< Does not erase the IDs at start
 
@@ -70,12 +66,11 @@ public:
     const ZDomain::Info& zDomain() const;
 
     // Surface
-    inline bool		isSurface() const	{ return type_ != Body; }
+    inline bool		isSurface() const
+					{ return type_ != ObjectType::Body; }
     bool		getSurfaceData(SurfaceIOData&,uiString& err) const;
 
     // Horizon
-    inline bool		isHorizon() const	{ return type_ < FaultStickSet;}
-    inline bool		is2DHorizon() const	{ return type_ == Horizon2D; }
     Strat::LevelID	levelID() const;
     static void		getTiedToLevelID(Strat::LevelID,TypeSet<MultiID>&,
 					 bool is2d);

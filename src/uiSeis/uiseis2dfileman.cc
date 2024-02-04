@@ -163,10 +163,9 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 
 	    const ZDomain::Info& zinfo = objinfo_->zDomain();
 	    const int nrzdec = zinfo.def_.nrZDecimals( zrg.step );
-	    zrg.scale( zinfo.def_.userFactor() );
-	    const uiString unitstr = zinfo.uiUnitStr( true );
+	    zrg.scale( zinfo.userFactor() );
 	    const uiString rgstr = tr("%1: %2 - %3 [%4]")
-				.arg( zinfo.def_.getRange().withUnit(unitstr) )
+				.arg( zinfo.getRange() )
 				.arg( toString(zrg.start,nrzdec) )
 				.arg( toString(zrg.stop,nrzdec) )
 				.arg( toString(zrg.step,nrzdec) );

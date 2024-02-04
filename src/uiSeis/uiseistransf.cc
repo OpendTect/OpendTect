@@ -8,10 +8,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiseistransf.h"
-#include "uiseissubsel.h"
+
+#include "uimsg.h"
 #include "uigeninput.h"
 #include "uiscaler.h"
-#include "uimsg.h"
+#include "uiseissubsel.h"
 
 #include "ioobj.h"
 #include "iopar.h"
@@ -25,11 +26,55 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 
-uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
-    : uiGroup(p,"Seis transfer pars")
-    , setup_(s)
+// uiSeisTransfer::Setup
+
+uiSeisTransfer::Setup::Setup( Seis::GeomType gt )
+    : Seis::SelSetup(gt)
+    , withnullfill_(false)
+    , withmultiz_(false)
 {
-    selfld = uiSeisSubSel::get( this, setup_ );
+}
+
+
+uiSeisTransfer::Setup::Setup( bool _is2d, bool _isps )
+    : Seis::SelSetup(_is2d,_isps)
+    , withnullfill_(false)
+    , withmultiz_(false)
+{
+}
+
+
+uiSeisTransfer::Setup::Setup( const Seis::SelSetup& sss )
+    : Seis::SelSetup(sss)
+    , withnullfill_(false)
+    , withmultiz_(false)
+{
+}
+
+
+uiSeisTransfer::Setup::~Setup()
+{
+}
+
+
+
+// uiSeisTransfer
+
+uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& ss )
+    : uiGroup(p,"Seis transfer pars")
+    , setup_(ss)
+    , selChange(this)
+{
+    if ( setup_.withmultiz_ )
+    {
+	multizselfld_ = new uiMultiZSeisSubSel( this, setup_ );
+	mAttachCB( multizselfld_->selChange, uiSeisTransfer::selChangeCB );
+    }
+    else
+    {
+	selfld_ = uiSeisSubSel::get( this, setup_ );
+	mAttachCB( selfld_->selChange, uiSeisTransfer::selChangeCB );
+    }
 
     uiStringSet choices;
     choices += uiStrings::sDiscard();
@@ -41,9 +86,12 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     else
 	remnullfld = new uiGenInput( this, tr("Null traces"),
 				     BoolInpSpec(true,choices[0],choices[1]) );
-    remnullfld->attach( alignedBelow, selfld );
+    if ( multizselfld_ )
+	remnullfld->attach( alignedBelow, multizselfld_->attachObj() );
+    else
+	remnullfld->attach( alignedBelow, selfld_ );
 
-    scalefld_ = new uiScaler( this, uiStrings::sEmptyString(), true );
+    scalefld_ = new uiScaler( this, uiString::empty(), true );
     scalefld_->attach( alignedBelow, remnullfld );
 
     if ( !setup_.fornewentry_ )
@@ -54,7 +102,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     }
 
     setHAlignObj( remnullfld );
-    mAttachCB( postFinalize(), uiSeisTransfer::updSteer );
+    mAttachCB( postFinalize(), uiSeisTransfer::initGrpCB );
 }
 
 
@@ -64,22 +112,62 @@ uiSeisTransfer::~uiSeisTransfer()
 }
 
 
-void uiSeisTransfer::showSubselFld( bool showselfld )
+void uiSeisTransfer::initGrpCB( CallBacker* )
 {
-    selfld->display( showselfld );
+    updSteerCB( nullptr );
+}
+
+
+void uiSeisTransfer::showSubselFld( bool yn )
+{
+    if ( selfld_ )
+	selfld_->display( yn );
+
+    if ( multizselfld_ )
+	multizselfld_->display( yn );
+}
+
+
+const uiSeisSubSel* uiSeisTransfer::selFld() const
+{
+    return mSelf().selFld();
+}
+
+
+uiSeisSubSel* uiSeisTransfer::selFld()
+{
+    if ( selfld_ )
+	return selfld_;
+
+    if ( multizselfld_ )
+	return multizselfld_->getSelGrp();
+
+    return nullptr;
+}
+
+
+const uiSeis2DSubSel* uiSeisTransfer::selFld2D() const
+{
+    return mSelf().selFld2D();
 }
 
 
 uiSeis2DSubSel* uiSeisTransfer::selFld2D()
 {
-    mDynamicCastGet(uiSeis2DSubSel*,ret,selfld)
+    mDynamicCastGet(uiSeis2DSubSel*,ret,selFld())
     return ret;
+}
+
+
+const uiSeis3DSubSel* uiSeisTransfer::selFld3D() const
+{
+    return mSelf().selFld3D();
 }
 
 
 uiSeis3DSubSel* uiSeisTransfer::selFld3D()
 {
-    mDynamicCastGet(uiSeis3DSubSel*,ret,selfld)
+    mDynamicCastGet(uiSeis3DSubSel*,ret,selFld())
     return ret;
 }
 
@@ -92,7 +180,11 @@ void uiSeisTransfer::updateFrom( const IOObj& ioobj )
 
 void uiSeisTransfer::setInput( const IOObj& ioobj )
 {
-    selfld->setInput( ioobj );
+    if ( selfld_ )
+	selfld_->setInput( ioobj );
+
+    if ( multizselfld_ )
+	multizselfld_->setInput( ioobj );
 
     const BufferString res = ioobj.pars().find( sKey::Type() );
     if ( !res.isEmpty() )
@@ -105,15 +197,52 @@ void uiSeisTransfer::setInput( const IOObj& ioobj )
 }
 
 
+void uiSeisTransfer::setInput( const TrcKeyZSampling& tkzs )
+{
+    if ( selfld_ )
+	selfld_->setInput( tkzs );
+
+    if ( multizselfld_ )
+	multizselfld_->setInput( tkzs );
+}
+
+
+void uiSeisTransfer::setSelectedLine( const char* lnm )
+{
+    if ( !is2D() || !isSingleLine() )
+	return;
+
+    selFld2D()->setSelectedLine( lnm );
+}
+
+
+void uiSeisTransfer::setSelFldSensitive( bool yn )
+{
+    selFld()->setSensitive( yn );
+}
+
+
+od_int64 uiSeisTransfer::expectedNrTraces() const
+{
+    return selFld()->expectedNrTraces();
+}
+
+
 SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo( int bps ) const
 {
+    const uiSeisSubSel* selfld = selFld();
     SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(),
-		selfld->expectedNrTraces(), bps );
-
+				 selfld->expectedNrTraces(), bps );
     if ( setup_.is2d_ )
 	si.expectednrtrcs = -1;
 
     return si;
+}
+
+
+const ZDomain::Info* uiSeisTransfer::zDomain() const
+{
+    return selFld()->zDomain();
 }
 
 
@@ -142,14 +271,36 @@ bool uiSeisTransfer::extendTrcsToSI() const
 }
 
 
-void uiSeisTransfer::setSteering( bool yn )
+bool uiSeisTransfer::isSingleLine() const
 {
-    issteer_ = yn;
-    updSteer( nullptr );
+    return selFld()->is2D() && selFld2D()->isSingLine();
 }
 
 
-void uiSeisTransfer::updSteer( CallBacker* )
+BufferString uiSeisTransfer::selectedLine() const
+{
+    BufferString lnm;
+    if ( selFld()->is2D() )
+	lnm = selFld2D()->selectedLine();
+
+    return lnm;
+}
+
+
+void uiSeisTransfer::setSteering( bool yn )
+{
+    issteer_ = yn;
+    updSteerCB( nullptr );
+}
+
+
+void uiSeisTransfer::selChangeCB( CallBacker* )
+{
+    selChange.trigger();
+}
+
+
+void uiSeisTransfer::updSteerCB( CallBacker* )
 {
     if ( issteer_ )
 	scalefld_->setUnscaled();
@@ -171,10 +322,21 @@ void uiSeisTransfer::setCoordSystem( const Coords::CoordSystem& crs, bool inp )
 }
 
 
+bool uiSeisTransfer::is2D() const
+{
+    return selFld()->is2D();
+}
+
+
 Seis::SelData* uiSeisTransfer::getSelData() const
 {
     IOPar iop;
-    if ( !selfld || !selfld->isDisplayed() || !selfld->fillPar(iop) )
+    if ( (selfld_ && !selfld_->isDisplayed()) ||
+	 (multizselfld_ && !multizselfld_->isDisplayed()) )
+	return nullptr;
+
+    const uiSeisSubSel* selfld = selFld();
+    if ( !selfld->fillPar(iop) )
 	return nullptr;
 
     auto* sd = Seis::SelData::get( iop );
@@ -187,6 +349,7 @@ Seis::SelData* uiSeisTransfer::getSelData() const
 
 SeisResampler* uiSeisTransfer::getResampler() const
 {
+    const uiSeisSubSel* selfld = selFld();
     if ( selfld->isAll() )
 	return nullptr;
 
@@ -200,13 +363,13 @@ SeisResampler* uiSeisTransfer::getResampler() const
 Pos::GeomID uiSeisTransfer::curGeomID() const
 {
     Pos::GeomID geomid;
-    if ( setup_.is2d_ )
+    if ( selFld()->is2D() )
     {
-	uiSeis2DSubSel* sel2d = const_cast<uiSeisTransfer*>( this )->selFld2D();
+	const uiSeis2DSubSel* sel2d = selFld2D();
 	const BufferString linenm2d( sel2d->selectedLine() );
 	geomid = Survey::GM().getGeomID( linenm2d );
     }
-    else if ( !setup_.is2d_ )
+    else
 	geomid = Survey::default3DGeomID();
 
     return geomid;
@@ -217,9 +380,9 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj, const IOObj& outobj,
 				      const char* extxt,const uiString& worktxt,
 				      const char* linenm2d ) const
 {
-    if ( linenm2d && *linenm2d )
+    if ( selFld()->is2D() && linenm2d && *linenm2d )
     {
-	uiSeis2DSubSel* sel2d = const_cast<uiSeisTransfer*>( this )->selFld2D();
+	uiSeis2DSubSel* sel2d = mSelf().selFld2D();
 	if ( sel2d && sel2d->isSingLine() )
 	    sel2d->setSelectedLine( linenm2d );
     }
@@ -276,11 +439,17 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj, const IOObj& outobj,
 }
 
 
+void uiSeisTransfer::fillSelPar( IOPar& iop ) const
+{
+    selFld()->fillPar( iop );
+}
+
+
 void uiSeisTransfer::fillPar( IOPar& iop ) const
 {
     SeisTrcTranslator::setType( setup_.geomType(), iop );
     SeisTrcTranslator::setGeomID( curGeomID(), iop );
-    selfld->fillPar( iop );
+    fillSelPar( iop );
     scalefld_->fillPar( iop );
 
     iop.setYN( SeisTrc::sKeyExtTrcToSI(), extendTrcsToSI() );

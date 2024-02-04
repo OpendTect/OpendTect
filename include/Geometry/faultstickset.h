@@ -15,11 +15,39 @@ Info:
 */
 
 #include "geometrymod.h"
+#include "locationbase.h"
 #include "refcount.h"
+
 #include "rowcolsurface.h"
 
 namespace Geometry
 {
+
+/*!
+\brief Class to hold Fault-stick coordinates and compute the normal.
+*/
+
+mExpClass(Geometry) FaultStick
+{
+public:
+				    FaultStick(int stickidx);
+				    ~FaultStick();
+
+    const Coord3&		    getNormal() const;
+    void			    setLocationsFromCrds(const Coord3*,int sz,
+							const Pos::GeomID&);
+    const Coord3&		    getCoordAtIndex(int) const;
+    int				    getStickIdx() const;
+    void			    setNormal(const Coord3);
+    int				    size() const;
+
+    TypeSet<LocationBase>	    locs_;
+    Pos::GeomID			    geomid_;
+
+protected:
+    mutable Coord3		    normal_ = Coord3::udf();
+    int				    stickidx_;
+};
 
 mExpClass(Geometry) FaultStickSet : public RowColSurface
 {
@@ -40,7 +68,7 @@ public:
 
     int			nrSticks() const;
     int			nrKnots(int sticknr) const;
-    const TypeSet<Coord3>* getStick(int stickidx) const;
+    const FaultStick*	getStick(int stickidx) const;
 
     StepInterval<int>	rowRange() const override;
     virtual StepInterval<int> colRange() const override
@@ -57,7 +85,7 @@ public:
     
 			// To be used by surface reader only
     void		addUdfRow(int stickidx,int firstknotnr,int nrknots);
-    void		addEditPlaneNormal(const Coord3&);
+    void		addEditPlaneNormal(const Coord3&,int sticknr);
 
 			// Use zscale=0 to measure in xy-direction only and
 			// zscale=MAXDOUBLE to measure in z-direction only.
@@ -85,10 +113,9 @@ protected:
 
     int				firstrow_;
 
-    ObjectSet<TypeSet<Coord3> > sticks_;
+    ObjectSet<FaultStick>	sticks_;
     TypeSet<int>		firstcols_;
     
-    TypeSet<Coord3>		editplanenormals_;
     TypeSet<unsigned int>	stickstatus_;
 
     ObjectSet<TypeSet<unsigned int> > knotstatus_;

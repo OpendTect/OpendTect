@@ -14,11 +14,13 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
+#include "faultstickset.h"
 #include "undo.h"
 #include "posfilter.h"
 #include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "zdomain.h"
 
 namespace EM {
 
@@ -339,7 +341,7 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 	mDefEditNormalStr( editnormstr, 0, sticknr );
 	Coord3 editnormal( Coord3::udf() );
 	par.get( editnormstr.buf(), editnormal );
-	fss->addEditPlaneNormal( editnormal );
+	fss->addEditPlaneNormal( editnormal, sticknr );
 	if ( editnormal.isDefined() && fabs(editnormal.z)<0.5 )
 	    fss->setSticksVertical( true );
     }
@@ -358,18 +360,37 @@ FaultAscIO::~FaultAscIO()
 {}
 
 
-Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
+Table::FormatDesc* FaultAscIO::getDesc( bool is2d, const ZDomain::Def& def )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Fault" );
 
+
+    return fd;
+}
+
+
+void FaultAscIO::createDescBody( Table::FormatDesc* fd, bool is2d,
+						    const ZDomain::Def& def )
+{
     fd->bodyinfos_ += Table::TargetInfo::mkHorPosition( true );
-    fd->bodyinfos_ += Table::TargetInfo::mkZPosition( true );
+    if ( def.isTime() )
+	fd->bodyinfos_ += Table::TargetInfo::mkTimePosition( true );
+    else
+	fd->bodyinfos_ += Table::TargetInfo::mkDepthPosition( true );
+
     fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
-					     Table::Optional );
+	Table::Optional );
     if ( is2d )
 	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
-						 Table::Required );
-    return fd;
+	    Table::Required );
+}
+
+
+void FaultAscIO::updateDesc( Table::FormatDesc& fd, bool is2d,
+					    const ZDomain::Def& def )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, is2d, def );
 }
 
 
@@ -394,7 +415,7 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
     double firstz = mUdf(double);
     BinID firstbid;
 
-    ObjectSet<FaultStick> sticks;
+    ObjectSet<Geometry::FaultStick> sticks;
     const bool isxy = isXY();
 
     while ( true )
@@ -432,7 +453,7 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	    if ( !mIsUdf(stickidx) && stickidx!=curstickidx )
 	    {
 		curstickidx = stickidx;
-		sticks += new FaultStick( curstickidx );
+		sticks += new Geometry::FaultStick( curstickidx );
 	    }
 	}
 	else
@@ -446,16 +467,16 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	    if ( !oninl && !oncrl && !ontms )
 	    {
 		curstickidx++;
-		sticks += new FaultStick( stickidx );
+		sticks += new Geometry::FaultStick( stickidx );
 
 		firstbid = curbid; firstz = crd.z;
 		oninl = true; oncrl = true; ontms = true;
 	    }
 	}
 
-	sticks[ sticks.size()-1 ]->crds_ += crd;
+	sticks[ sticks.size()-1 ]->locs_ += crd;
 	if ( !lnm.isEmpty() )
-	    sticks[ sticks.size()-1 ]->lnm_ = lnm;
+	    sticks[ sticks.size()-1 ]->geomid_ = Survey::GM().getGeomID( lnm );
     }
 
     // Index-based stick sort
@@ -465,40 +486,40 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	{
 	    for ( int idy=idx+1; idy<sticks.size(); idy++ )
 	    {
-		if ( sticks[idx]->stickidx_ > sticks[idy]->stickidx_ )
+		if ( sticks[idx]->getStickIdx() > sticks[idy]->getStickIdx() )
 		    sticks.swap( idx, idy );
 	    }
 	}
     }
 
-    int sticknr = !sticks.isEmpty() && hasstickidx ? sticks[0]->stickidx_ : 0;
+    int sticknr = !sticks.isEmpty() && hasstickidx ? sticks[0]->getStickIdx()
+						   : 0;
 
     for ( int idx=0; idx<sticks.size(); idx++ )
     {
-	FaultStick* stick = sticks[idx];
-	if ( stick->crds_.isEmpty() )
+	Geometry::FaultStick* stick = sticks[idx];
+	if ( stick->locs_.isEmpty() )
 	    continue;
 
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
-	    const Pos::GeomID geomid = Survey::GM().getGeomID( stick->lnm_ );
 	    fss->geometry().insertStick( sticknr, 0,
-					stick->crds_[0], stick->getNormal(true),
-					geomid, false );
+				stick->locs_[0].pos(), stick->getNormal(),
+				stick->geomid_, false );
 	}
 	else
 	{
 	    bool res = flt.geometry().insertStick( sticknr, 0,
-			    stick->crds_[0], stick->getNormal(false), false );
+			stick->locs_[0].pos(), stick->getNormal(), false);
 	    if ( !res ) continue;
 	}
 
-	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
+	for ( int crdidx=1; crdidx<stick->locs_.size(); crdidx++ )
 	{
 	    const RowCol rc( sticknr, crdidx );
 	    flt.geometry().insertKnot( rc.toInt64(),
-				       stick->crds_[crdidx], false );
+				       stick->locs_[crdidx].pos(), false);
 	}
 
 	sticknr++;
@@ -506,50 +527,6 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 
     deepErase( sticks );
     return true;
-}
-
-
-// FaultStick
-FaultStick::FaultStick( int idx )
-    : stickidx_(idx)
-{}
-
-
-FaultStick::~FaultStick()
-{}
-
-
-Coord3	FaultStick::getNormal( bool is2d ) const
-{
-    // TODO: Determine edit normal for sticks picked on 2D lines
-
-    const int maxdist = 5;
-    int oninl = 0; int oncrl = 0; int ontms = 0;
-
-    for ( int idx=0; idx<crds_.size()-1; idx++ )
-    {
-	const BinID bid0 = SI().transform( crds_[idx] );
-	for ( int idy=idx+1; idy<crds_.size(); idy++ )
-	{
-	    const BinID bid1 = SI().transform( crds_[idy] );
-	    const int inldist = abs( bid0.inl()-bid1.inl() );
-	    if ( inldist < maxdist )
-		oninl += maxdist - inldist;
-	    const int crldist = abs( bid0.crl()-bid1.crl() );
-	    if ( crldist < maxdist )
-		oncrl += maxdist - crldist;
-	    const int zdist = mNINT32( fabs(crds_[idx].z-crds_[idy].z) /
-			             fabs(SI().zStep()) );
-	    if ( zdist < maxdist )
-		ontms += maxdist - zdist;
-	}
-    }
-
-    if ( ontms>oncrl && ontms>oninl && !is2d )
-	return Coord3( 0, 0, 1 );
-
-    return oncrl>oninl ? Coord3( SI().binID2Coord().crlDir(), 0 )
-		       : Coord3( SI().binID2Coord().inlDir(), 0 );
 }
 
 } // namespace EM

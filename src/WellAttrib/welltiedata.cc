@@ -398,10 +398,11 @@ void WellTie::HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
 	    if ( ( bynames && mrknm == hd.name_ )
 		|| ( !bynames && hd.id_.isValid() && hd.id_ == mrk.levelID() ))
 	    {
-		PosCouple pc; pcs += pc;
+		PosCouple pc;
 		pc.z1_ = dtm->getTime(mrk.dah(), wd_->track())*
 				      SI().zDomain().userFactor();
 		pc.z2_ = hd.zpos_;
+		pcs += pc;
 	    }
 	}
     }

@@ -33,8 +33,7 @@ public:
 				uiGatherDisplay(uiParent*);
 				~uiGatherDisplay();
 
-    virtual void		setPosition(const BinID&,
-					    const Interval<double>* zrg=0);
+    virtual void		setZRange(const Interval<double>* zrg=nullptr);
     mDeprecated("No longer used")
     void			setVDGather(DataPackID);
     mDeprecated("No longer used")
@@ -48,12 +47,12 @@ public:
     void			setFixedOffsetRange(bool yn,
 				    const Interval<float>&);
     bool			getFixedOffsetRange() const;
+    TrcKey			getTrcKey() const;
     const Interval<float>&	getOffsetRange() const;
     const Interval<double>*	getZRange() const	{ return zrg_; }
     const Interval<float>&	getZDataRange() const	{ return zdatarange_; }
 
-    uiFlatViewer*		getUiFlatViewer() 	{ return viewer_; }
-    BinID			getBinID() const;
+    uiFlatViewer*		getUiFlatViewer()	{ return viewer_; }
 
     void			setInitialSize(const uiSize&);
     void			setWidth(int);
@@ -62,14 +61,13 @@ public:
 protected:
 
     uiFlatViewer*		viewer_;
-    Viewer2DGatherPainter* 	gatherpainter_;
+    Viewer2DGatherPainter*	gatherpainter_;
 
-    bool			fixedoffset_;
-    Interval<float>		offsetrange_;
+    bool			fixedoffset_	= false;
+    Interval<float>		offsetrange_	= Interval<float>::udf();
     Interval<float>		zdatarange_;
-    Interval<double>*		zrg_;
-    BinID			bid_;
-    bool			displayannotation_;
+    Interval<double>*		zrg_		= nullptr;
+    bool			displayannotation_ = true;
 
     void			updateViewRange(const uiWorldRect&);
 };
@@ -88,9 +86,9 @@ public:
     uiGatherDisplay*		addGatherDisplay(PreStack::Gather* vd,
 						 PreStack::Gather* wva=nullptr);
     void			addGatherDisplay(uiGatherDisplay*);
-    void 			removeGatherDisplay(const uiGatherDisplay*);
-    uiGatherDisplay& 		getGatherDisplay(int idx);
-    uiGatherDisplay* 		getGatherDisplay(const BinID&);
+    void			removeGatherDisplay(const uiGatherDisplay*);
+    uiGatherDisplay&		getGatherDisplay(int idx);
+    uiGatherDisplay*		getGatherDisplay(const TrcKey&);
     void			removeAllGatherDisplays();
     void			enableScrollBars(bool);
     void			enableReSizeDraw(bool);

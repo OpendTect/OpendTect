@@ -1,27 +1,31 @@
 dTect V7.1.0
 Mnemonic
-Fri 28 Apr 2023, 08:00:00
+Thurs 30 Nov 2023, 08:00:00
 !
 GR: Gamma ray`Gamma Ray`Lin`0`250`0`150`API`255`0`0`CGR`GRS`SGR`KTH`GR1`GRC`GAMMA
 POTA: Spectral Gamma Ray`Volumetrics`Lin`0`100`0`100`%`255`0`0`GammaRayPotassium
 THOR: Spectral Gamma Ray`Fluid`Lin`0`40`0`40`ppm`255`0`0`GammaRayThorium
 URAN: Spectral Gamma Ray`Fluid`Lin`0`30`0`30`ppm`255`0`0`GammaRayUranium
-RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`g/cc`0`0`205`RHOZ`DEN`ZDEN`RHO8
+RHOB: Bulk Density`Density`Lin`1.5`3.5`2`3`g/cc`0`0`205`RHOZ`DEN`ZDEN`RHO8`LDEN`RHGX`FDC
+DRHO: Bulk Density Correction`Density`Lin`````g/cc`0`205`205`LDNC`ZCOR`FDCC
 SP: Spontaneous Potential`Electrical Potential`Lin`-250`100`-80`20`mV`0`255`100`SSP`SPAR
+RFOC: Calibrated Real Focus`Electrical Potential`Lin`````mV`0`255`100`
 RT: Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LL`ML`HALS`HRLD`HRLS`DLL`LLG
-RESD: Deep Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LLD
-RESM: Medium Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`
+RESD: Deep Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`LLD`LLS`MLL`RIPD`M0RX`M0R1`M0R2`M0R3`M0R6`M0R9`RFOC
+RESM: Medium Resistivity`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`RIPM
 RESS: Shallow Resistivity`Resistivity`Log`0.2`2000`0.2`2000`ohmm`200`200`0`HRLS
-IL: Induction Log`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`ILD`ILM`AHT`AHO`HDIL`HRI`InductionResistivity
+MSFL: Micro Spherically Focused Resistivity`Resitivity`Log`````ohmm`200`200`0`
+SFL: Spherically Focused Resistivity`Resitivity`Log`````ohmm`200`200`0`SFLA`SFLB`SFLU
+IL: Induction Log`Resistivity`Log`0.2`2000`0.2`20`ohmm`200`200`0`ILD`ILM`AHT`AHO`HDIL`HRI`InductionResistivity`ILD
 DT: Sonic`Sonic travel time`Lin`220`30`200`50`us/ft`0`255`255`AC`ACL`BHC`BCS`SonicTT`LSDT
 DTS: Shear Sonic`Sonic travel time`Lin`440`60`400`100`us/ft`255`20`147`DSI`FWS`DTSH_FAST
 PHI: Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
 PHIT: Total Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
 PHIE: Effective Porosity`Volumetrics`Lin`0`30`0`40`%`200`200`0`
-PHIS: Sonic Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`
-PHID: Density Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`DPHI`DPOR`PorosityDensity
-PHIN: Neutron Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`BPHI
-NPHI: Compensated Neutron`Volumetrics`Lin`45`-15`30`0`%`200`200`0`CNL
+PHIS: Sonic Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`PORA
+PHID: Density Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`DPHI`DPOR`PorosityDensity`PORZ
+PHIN: Neutron Porosity`Volumetrics`Lin`0`30`0`30`%`200`200`0`BPHI`TNHP
+NPHI: Compensated Neutron`Volumetrics`Lin`45`-15`30`0`%`200`200`0`CNL`CN`CNC`CNCF
 SW: Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`0`255`SAT`SWE`SUWI
 SWT: Total Water Saturation`Volumetrics`Lin`0`100`0`100`%`0`0`255
 SWO: Water Saturation in Flushed Zone`Volumetrics`Lin`0`100`0`100`%`0`0`255
@@ -68,6 +72,9 @@ DY:  Welltrack Y Offset`Distance/Depth`Lin`````m````
 DEV: Welltrack Deviation`Angle`Lin`0`90`0`90`Degrees````Deviation
 AZIM: Welltrack Azimuth`Angle`Lin`0`360`0`360`Degrees````Azimuth
 CONF: Confidence`Other`Lin`````````
+ROP: Rate of Penetration`Other`Lin`````````
+DF: Downhole Force`Force`Lin`````N````
+TENS: Cable Tension`Force`Lin`````N````
 BI: Brittleness index`Elastic Ratio`lin`````Ratio`72`209`204`
 TOC: Total Organic Carbon`Elastic Ratio`lin`````Ratio`255`215`0`
 PEF: Photoelectric Factor`Other`0`10`0`10``0`0`0`PE`PEFZ

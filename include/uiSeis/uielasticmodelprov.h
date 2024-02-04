@@ -24,30 +24,31 @@ public:
 			uiElasticModelProvider(uiParent*,bool is2d);
 			~uiElasticModelProvider();
 
-    bool		getInputMIDs(MultiID& pwmid,MultiID& swmid,
-				     MultiID& aimid,MultiID& simid,
-				     MultiID& denmid) const;
     void		setInputMIDs(const MultiID& pwmid,const MultiID& swmid,
 				     const MultiID& aimid,const MultiID& simid,
 				     const MultiID& denmid);
+    bool		getInputMIDs(MultiID& pwmid,MultiID& swmid,
+				     MultiID& aimid,MultiID& simid,
+				     MultiID& denmid) const;
 
     uiString		errMsg() const			{ return errmsg_; }
 
 protected:
 
+    void		initGrpCB(CallBacker*);
     void		inpTypeSel(CallBacker*);
     void		sourceSel(CallBacker*);
 
-    uiGenInput* 	inptypefld_;
-    uiGenInput* 	inpsourceacfld_;
-    uiGenInput* 	inpsourceelfld_;
+    uiGenInput*		inptypefld_;
+    uiGenInput*		inpsourceacfld_;
+    uiGenInput*		inpsourceelfld_;
     uiSeisSel*		optdensityfld_;
     uiSeisSel*		densityfld_;
     uiSeisSel*		aifld_;
     uiSeisSel*		sifld_;
     uiVelSel*		pwavefld_;
     uiVelSel*		swavefld_;
-    uiIOObjSel* 	waveletfld_;
+    uiIOObjSel*		waveletfld_;
     uiString		errmsg_;
 
 };

@@ -20,6 +20,7 @@ ________________________________________________________________________________
 
 -*/
 #include "bufstring.h"
+#include "ioobj.h"
 #include "odjson.h"
 #include "ptrman.h"
 #include "trckeyzsampling.h"
@@ -28,7 +29,6 @@ ________________________________________________________________________________
 #include <string.h>
 
 
-class IOObj;
 class SurveyInfo;
 
 class odSurveyObject {
@@ -50,7 +50,6 @@ public:
     virtual void	getFeature(OD::JSON::Object&, bool towgs=true) const;
     virtual void	getPoints(OD::JSON::Array&, bool towgs) const = 0;
 
-    const IOObj&	ioobj() const	{ return *ioobj_; }
     const odSurvey&	survey() const	{ return survey_; }
     bool		isReadOnly() const 	{ return readonly_; }
     bool		canRead() const;
@@ -74,11 +73,13 @@ public:
 protected:
     const odSurvey&		survey_;
     BufferString		name_;
-    PtrMan<IOObj>		ioobj_;
+    BufferString		tgname_;
     bool			overwrite_ = false;
     bool			readonly_ = true;
     bool			zistime_;
     mutable BufferString	errmsg_;
+
+    IOObj*			ioobj_ptr() const;
 
 };
 
@@ -156,6 +157,7 @@ template<typename T>
 void odSurveyObject::removeObjects( const odSurvey& survey,
 				    const BufferStringSet& objnames  )
 {
+    survey.activate();
     for ( const auto* name : objnames )
 	survey.removeObj( *name, T::translatorGrp() );
 }

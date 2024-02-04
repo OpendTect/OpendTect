@@ -127,20 +127,87 @@ void uiEMPartServer::cleanup()
     closeAndNullPtr( crhordlg_ );
     closeAndNullPtr( impbulkfssdlg_ );
     closeAndNullPtr( impbulk2dhordlg_ );
+    closeAndNullPtr( t2d3dhordlg_ );
+    closeAndNullPtr( t2d2dhordlg_ );
+    closeAndNullPtr( t2dfltdlg_ );
+    closeAndNullPtr( t2dfltsetdlg_ );
+    closeAndNullPtr( t2d2dfssdlg_ );
+    closeAndNullPtr( t2d3dfssdlg_ );
     deepErase( variodlgs_ );
 }
 
 
-void uiEMPartServer::processTime2Depth( EM::IOObjInfo::ObjectType objtype )
+EM::uiTime2DepthDlg* uiEMPartServer::getTime2DepthEMDlg( uiParent* p,
+			EM::ObjectType objtype, EM::uiTime2DepthDlg*& dlg )
+{
+    if ( !dlg || (dlg->parent() != p) )
+    {
+	IOPar par;
+	bool usepar = false;
+	if ( dlg )
+	{
+	    usepar = true;
+	    dlg->fillPar( par );
+	    delete dlg;
+	}
+
+	dlg = new EM::uiTime2DepthDlg( p, objtype );
+	mAttachCB(dlg->objectToBeDeleted(),uiEMPartServer::dialogToBeDeleted);
+	if ( usepar )
+	    dlg->usePar( par );
+    }
+
+    return dlg;
+}
+
+
+void uiEMPartServer::dialogToBeDeleted( CallBacker* cb )
+{
+    if ( !cb )
+	return;
+
+    if ( cb == t2d3dfssdlg_ )
+	t2d3dfssdlg_ = nullptr;
+    else if ( cb == t2d2dfssdlg_ )
+	t2d2dfssdlg_ = nullptr;
+    else if ( cb == t2dfltsetdlg_ )
+	t2dfltsetdlg_ = nullptr;
+    else if ( cb == t2dfltdlg_ )
+	t2dfltdlg_ = nullptr;
+    else if ( cb == t2d3dhordlg_ )
+	t2d3dhordlg_ = nullptr;
+    else if ( cb == t2d2dhordlg_ )
+	t2d2dhordlg_ = nullptr;
+}
+
+
+void uiEMPartServer::processTime2Depth( uiParent* p,
+						    EM::ObjectType objtype )
 {
     const uiRetVal ret =  EM::uiTime2DepthDlg::canTransform( objtype );
-    if ( ret.isOK() )
+    if ( !ret.isOK() )
     {
-	EM::uiTime2DepthDlg dlg( parent(), objtype );
-	dlg.go();
-    }
-    else
 	uiMSG().message( ret.messages().cat() );
+	return;
+    }
+
+    EM::uiTime2DepthDlg* dlg = nullptr;
+    if ( objtype == EM::ObjectType::Hor3D )
+	dlg = getTime2DepthEMDlg( p, objtype, t2d3dhordlg_ );
+    else if ( objtype == EM::ObjectType::Hor2D )
+	dlg = getTime2DepthEMDlg( p, objtype, t2d2dhordlg_ );
+    else if ( objtype == EM::ObjectType::Flt3D )
+	dlg = getTime2DepthEMDlg( p, objtype, t2dfltdlg_ );
+    else if ( objtype == EM::ObjectType::FltSet )
+	dlg = getTime2DepthEMDlg( p, objtype, t2dfltsetdlg_ );
+    else if ( objtype == EM::ObjectType::FltSS2D )
+	dlg = getTime2DepthEMDlg( p, objtype, t2d2dfssdlg_ );
+    else if ( objtype == EM::ObjectType::FltSS3D )
+	dlg = getTime2DepthEMDlg( p, objtype, t2d3dfssdlg_ );
+
+
+    if ( dlg )
+	dlg->show();
 }
 
 
@@ -158,49 +225,56 @@ EM::ObjectID uiEMPartServer::getObjectID( const MultiID& mid ) const
 
 void uiEMPartServer::manageSurfaces( const char* typstr )
 {
-    uiSurfaceMan dlg( parent(), uiSurfaceMan::parseEnumType(typstr) );
+    uiSurfaceMan dlg( parent(), EM::ObjectTypeDef().parse(typstr) );
     dlg.go();
 }
 
 
-#define mManSurfaceDlg( dlgobj, surfacetype ) \
-    delete dlgobj; \
-    dlgobj = new uiSurfaceMan( parent(), uiSurfaceMan::surfacetype ); \
-    dlgobj->go();
-
 void uiEMPartServer::manage3DHorizons()
 {
-    mManSurfaceDlg(man3dhordlg_,Hor3D);
+    delete man3dhordlg_;
+    man3dhordlg_ = new uiSurfaceMan( parent(), EM::ObjectType::Hor3D );
+    man3dhordlg_->go();
 }
 
 
 void uiEMPartServer::manage2DHorizons()
 {
-    mManSurfaceDlg(man2dhordlg_,Hor2D);
+    delete man2dhordlg_;
+    man2dhordlg_ = new uiSurfaceMan( parent(), EM::ObjectType::Hor2D );
+    man2dhordlg_->go();
 }
 
 
 void uiEMPartServer::manage3DFaults()
 {
-    mManSurfaceDlg(man3dfaultdlg_,Flt3D);
+    delete man3dfaultdlg_;
+    man3dfaultdlg_ = new uiSurfaceMan( parent(), EM::ObjectType::Flt3D );
+    man3dfaultdlg_->go();
 }
 
 
 void uiEMPartServer::manageFaultStickSets()
 {
-    mManSurfaceDlg(manfssdlg_,StickSet);
+    delete manfssdlg_;
+    manfssdlg_ = new uiSurfaceMan( parent(), EM::ObjectType::FltSS2D3D );
+    manfssdlg_->go();
 }
 
 
 void uiEMPartServer::manageFaultSets()
 {
-    mManSurfaceDlg(manfltsetdlg_,FltSet);
+    delete manfltsetdlg_;
+    manfltsetdlg_ = new uiSurfaceMan( parent(), EM::ObjectType::FltSet );
+    manfltsetdlg_->go();
 }
 
 
 void uiEMPartServer::manageBodies()
 {
-    mManSurfaceDlg(manbodydlg_,Body);
+    delete manbodydlg_;
+    manbodydlg_ = new uiSurfaceMan( parent(), EM::ObjectType::Body );
+    manbodydlg_->go();
 }
 
 
@@ -678,10 +752,16 @@ void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs,
 
 
 static void selectEMObjects( uiParent* p, ObjectSet<EM::EMObject>& objs,
-			     const IOObjContext& ctxt, const char* exectext )
+			    const IOObjContext& ctxt, const char* exectext,
+			     const ZDomain::Info* zinfo )
 {
     CtxtIOObj ctio( ctxt );
     ctio.ctxt_.forread_ = true;
+    if ( zinfo )
+    {
+	const ZDomain::Info& siinfo = SI().zDomainInfo();
+	ctio.ctxt_.requireZDomain( *zinfo, siinfo == *zinfo );
+    }
 
     uiIOObjSelDlg::Setup sdsu;
     sdsu.multisel( true );
@@ -731,7 +811,7 @@ void uiEMPartServer::selectFaultSets( ObjectSet<EM::EMObject>& objs,
 	p = parent();
 
     selectEMObjects( p, objs, EMFaultSet3DTranslatorGroup::ioContext(),
-		     "Loading FaultSets" );
+		     "Loading FaultSets", zinfo );
 }
 
 
@@ -741,7 +821,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs, uiParent* p )
 	p = parent();
 
     selectEMObjects( p, objs, EMBodyTranslatorGroup::ioContext(),
-		     "Loading Geobodies" );
+		     "Loading Geobodies", nullptr );
 }
 
 

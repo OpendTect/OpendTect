@@ -651,7 +651,7 @@ float SeisDataPack::getRefNr( int globaltrcidx ) const
 
 SeisDataPack& SeisDataPack::setZDomain( const ZDomain::Info& zinfo )
 {
-    if ( (!zinfo.isTime() && !zinfo.isDepth()) || zinfo == zDomain() )
+    if ( zinfo == zDomain() )
 	return *this;
 
     delete zdomaininfo_;

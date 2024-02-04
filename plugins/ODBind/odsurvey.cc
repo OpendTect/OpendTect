@@ -56,11 +56,17 @@ odSurvey::odSurvey( const char* surveynm, const char* basedir)
 {
     errmsg_ = isValidDataRoot( basedir_.buf() );
     if ( !isOK() )
+    {
+	errmsg_ = BufferString( "Invalid data root: ", errmsg_ );
 	return;
+    }
 
     errmsg_ = isValidSurveyDir( FilePath(basedir_,survey_).fullPath() );
     if ( !isOK() )
+    {
+	errmsg_ = BufferString( "Named survey does not exist in ", basedir_ );
 	return;
+    }
 
     activate();
 }
@@ -270,13 +276,15 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 	    PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
 	    if ( !IOM().implRemove(ioobj->key(), true) )
 	    {
-		errmsg = "cannot remove existing object.";
+		errmsg = BufferString( "cannot remove existing object - ",
+				       objname );
 		return nullptr;
 	    }
 	}
 	else
 	{
-	    errmsg = "object already exists and overwrite is disabled.";
+	    errmsg = BufferString( objname,
+			       " already exists and overwrite is disabled." );
 	    return nullptr;
 	}
     }
@@ -309,7 +317,8 @@ void odSurvey::removeObj( const char* objname, const char* trgrpnm ) const
     if ( isObjPresent(objname, trgrpnm) )
     {
 	PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
-	if ( !IOM().implRemove(ioobj->key(), true) )
+	if ( !ioobj || !IOM().to(ioobj->key()) ||
+					!IOM().implRemove(ioobj->key(), true) )
 	    errmsg_ = "cannot remove existing object.";
     }
     else
@@ -436,19 +445,28 @@ void odSurvey::getFeatures( OD::JSON::Object& jsobj,
 }
 
 
+TrcKeySampling odSurvey::tkFromRanges( const int32_t inlrg[3],
+				       const int32_t crlrg[3] )
+{
+    StepInterval<int> linerg( inlrg[0], inlrg[1], inlrg[2] );
+    StepInterval<int> trcrg( crlrg[0], crlrg[1], crlrg[2] );
+    TrcKeySampling tk;
+    tk.setLineRange( linerg );
+    tk.setTrcRange( trcrg );
+    return tk;
+}
+
+
 TrcKeyZSampling odSurvey::tkzFromRanges( const int32_t inlrg[3],
 					 const int32_t crlrg[3],
 					 const float zrg[3], bool zistime )
 {
-    StepInterval<int> linerg( inlrg[0], inlrg[1], inlrg[2] );
-    StepInterval<int> trcrg( crlrg[0], crlrg[1], crlrg[2] );
     StepInterval<float> z_rg( zrg[0], zrg[1], zrg[2] );
     const float zscale = zistime ? ZDomain::Time().userFactor()
 				    : ZDomain::Depth().userFactor();
     z_rg.scale( 1.0/zscale );
     TrcKeyZSampling tkz;
-    tkz.hsamp_.setLineRange( linerg );
-    tkz.hsamp_.setTrcRange( trcrg );
+    tkz.hsamp_ = tkFromRanges( inlrg, crlrg );
     tkz.zsamp_ = z_rg;
     return tkz;
 }

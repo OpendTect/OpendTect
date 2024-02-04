@@ -10,43 +10,102 @@ ________________________________________________________________________
 #include "uiprestackprocessorsel.h"
 
 #include "ioman.h"
+#include "od_helpids.h"
 #include "prestackprocessortransl.h"
 #include "prestackprocessor.h"
-#include "uiprestackprocessor.h"
 #include "uibutton.h"
 #include "uimsg.h"
-#include "uiioobjsel.h"
-#include "od_helpids.h"
+#include "uiprestackprocessor.h"
+
 
 namespace PreStack
 {
 
-uiProcSel::uiProcSel( uiParent* p, const uiString& lbl, const MultiID* mid,
-		      bool withedit )
-    : uiGroup( p )
-    , editbut_(0)
-    , selectionDone(this)
-{
-    const IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
-    selfld_ = new uiIOObjSel( this, ctxt, lbl );
-    ConstPtrMan<IOObj> ioobj = mid ? IOM().get(*mid) : 0;
-    if ( ioobj ) selfld_->setInput( *ioobj );
-    selfld_->selectionDone.notify( mCB(this,uiProcSel,selDoneCB));
+// uiPSProcObjSel
 
-    if ( withedit )
+uiPSProcObjSel::uiPSProcObjSel( uiParent* p, const uiString& lbl,
+				OD::GeomSystem gs )
+    : uiIOObjSel(p,ioContext(gs),lbl)
+    , gs_(gs)
+{
+}
+
+
+uiPSProcObjSel::uiPSProcObjSel( uiParent* p, const uiIOObjSel::Setup& su,
+				OD::GeomSystem gs )
+    : uiIOObjSel(p,ioContext(gs),su)
+    , gs_(gs)
+{
+}
+
+
+uiPSProcObjSel::~uiPSProcObjSel()
+{
+}
+
+
+StringView uiPSProcObjSel::reqType( OD::GeomSystem gs )
+{
+    return ::is3D( gs ) ? sKey::ThreeD()
+			: (::is2D( gs ) ? sKey::TwoD() : sKey::Synthetic());
+}
+
+
+const IOObjContext& uiPSProcObjSel::ioContext( OD::GeomSystem gs )
+{
+    static PtrMan<IOObjContext> ctxt3d;
+    static PtrMan<IOObjContext> ctxt2d;
+    static PtrMan<IOObjContext> ctxtsynth;
+    const bool is3d = ::is3D( gs );
+    const bool is2d = ::is2D( gs );
+    PtrMan<IOObjContext>& ctxt = is3d ? ctxt3d
+				      : (is2d ? ctxt2d : ctxtsynth);
+    if ( !ctxt )
     {
-	editbut_ = new uiPushButton( this, uiStrings::sEmptyString(),
-		mCB(this,uiProcSel,editPushCB), false );
-	editbut_->attach( rightOf, selfld_ );
+	ctxt = new IOObjContext( PreStackProcTranslatorGroup::ioContext() );
+	ctxt->requireType( reqType(gs), is3d );
     }
 
+    return *ctxt.ptr();
+}
+
+
+
+// uiProcSel
+
+uiProcSel::uiProcSel( uiParent* p, const uiString& lbl, OD::GeomSystem gs,
+		      int openidx, const uiStringSet* usemethods )
+    : uiGroup(p)
+    , gs_(gs)
+    , openidx_(openidx)
+    , selectionDone(this)
+{
+    if ( usemethods )
+	usemethods_ = *usemethods;
+
+    selfld_ = new uiPSProcObjSel( this, lbl, gs );
+    mAttachCB( selfld_->selectionDone, uiProcSel::selDoneCB );
+
+    editbut_ = new uiPushButton( this, uiString::empty(),
+				 mCB(this,uiProcSel,editPushCB), false );
+    editbut_->attach( rightOf, selfld_ );
+
     setHAlignObj( selfld_ );
-    selDoneCB( 0 );
+    mAttachCB( postFinalize(), uiProcSel::initGrpCB );
 }
 
 
 uiProcSel::~uiProcSel()
 {
+    detachAllNotifiers();
+}
+
+
+void uiProcSel::initGrpCB( CallBacker* )
+{
+    selDoneCB( nullptr );
+    if ( usemethods_.validIdx(openidx_) )
+	editPushCB( nullptr );
 }
 
 
@@ -56,9 +115,9 @@ void uiProcSel::setSel( const MultiID& mid )
 }
 
 
-bool uiProcSel::getSel( MultiID& mid ) const
+bool uiProcSel::getSel( MultiID& mid, bool noerr ) const
 {
-    const IOObj* ioobj = selfld_->ioobj();
+    const IOObj* ioobj = selfld_->ioobj( noerr );
     if ( !ioobj )
 	return false;
 
@@ -67,23 +126,59 @@ bool uiProcSel::getSel( MultiID& mid ) const
 }
 
 
-void uiProcSel::selDoneCB( CallBacker* cb )
+bool uiProcSel::checkInput( const IOObj& ioobj ) const
 {
-    if ( editbut_ )
+    ProcessManager man( gs_ );
+    uiString errmsg;
+    if ( !PreStackProcTranslator::retrieve(man,&ioobj,errmsg) &&
+	 man.nrProcessors() < 1 )
+	return false;
+
+    uiStringSet methods;
+    if ( usemethods_.isEmpty() )
+	uiProcessorManager::getMethods( gs_, methods );
+    else
+	methods = usemethods_;
+
+    for ( int iproc=0; iproc<man.nrProcessors(); iproc++ )
     {
-	const IOObj* ioobj = selfld_->ioobj( true );
-	editbut_->setText(
-		m3Dots(ioobj ? uiStrings::sEdit() : uiStrings::sCreate()) );
+	const Processor* proc = man.getProcessor( iproc );
+	if ( !proc )
+	    continue;
+
+	const uiString procuinm = proc->factoryDisplayName();
+	if ( !methods.isPresent(procuinm) )
+	    return false;
     }
 
-    selectionDone.trigger();
+    return true;
+}
+
+
+void uiProcSel::selDoneCB( CallBacker* cb )
+{
+    const IOObj* ioobj = selfld_->ioobj( true );
+    if ( ioobj && !checkInput(*ioobj) )
+    {
+	ioobj = nullptr;
+	if ( cb )
+	    uiMSG().error( tr("The selected setup cannot be used "
+			      "in this context") );
+	selfld_->setEmpty();
+    }
+
+    editbut_->setText(
+	    m3Dots(ioobj ? uiStrings::sEdit() : uiStrings::sCreate()) );
+
+    if ( ioobj )
+	selectionDone.trigger();
 }
 
 
 void uiProcSel::editPushCB( CallBacker* )
 {
     uiString title;
-    ProcessManager man;
+    ProcessManager man( gs_ );
     const IOObj* ioobj =  selfld_->ioobj( true );
     if ( ioobj )
     {
@@ -102,8 +197,9 @@ void uiProcSel::editPushCB( CallBacker* )
                                         mODHelpKey(mPreStackProcSelHelpID) ) );
     dlg.enableSaveButton(tr("Save on OK"));
     dlg.setSaveButtonChecked( true );
-    PreStack::uiProcessorManager* grp = new uiProcessorManager( &dlg, man );
-    grp->setLastMid( ioobj ? ioobj->key() : MultiID() );
+
+    auto* grp = new uiProcessorManager( &dlg, man, openidx_, &usemethods_ );
+    grp->setLastMid( ioobj ? ioobj->key() : MultiID::udf() );
 
     while ( dlg.go() )
     {
@@ -125,11 +221,10 @@ void uiProcSel::editPushCB( CallBacker* )
 	}
 
 	selfld_->setInput( grp->lastMid() );
-	selDoneCB( 0 );
+	selDoneCB( nullptr );
 
 	break;
     }
 }
-
 
 } // namespace PreStack

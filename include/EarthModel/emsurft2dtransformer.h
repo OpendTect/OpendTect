@@ -10,12 +10,14 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "emioobjinfo.h"
+#include "emmanager.h"
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "typeset.h"
 #include "objectset.h"
 
 class ZAxisTransform;
+namespace Geometry { class FaultStick; }
 
 namespace EM
 {
@@ -40,16 +42,17 @@ public:
 
     static Executor*		createExecutor(
 				const ObjectSet<SurfaceT2DTransfData>& datas,
-				ZAxisTransform&,IOObjInfo::ObjectType);
+				ZAxisTransform&,ObjectType);
 
 				~SurfaceT2DTransformer();
 
-    uiString			uiMessage() const override  { return curmsg_; }
+    uiString			uiMessage() const override  { return msg_; }
     uiString			uiNrDoneText() const override;
     od_int64			nrDone() const override     { return nrdone_; }
     od_int64			totalNr() const override;
 
-    RefMan<Surface>		getTransformedSurface(const MultiID&) const;
+    inline uiRetVal		errMsg() const { return errmsg_; }
+    RefMan<EMObject>		getTransformedSurface(const MultiID&) const;
 
 protected:
 				SurfaceT2DTransformer(
@@ -61,19 +64,21 @@ protected:
     virtual OD::Pol2D3D		dataTypeSupported() { return OD::Both2DAnd3D; }
     bool			do3DHorizon(const EM::EMObject&,Surface&);
 
+    void			load3DTranformVol();
     void			unloadVolume();
 
     virtual const StringView	getTypeString()		    = 0;
 
-    RefMan<Surface>		createSurface(const MultiID&);
+    RefMan<EMObject>		createObject(const MultiID&);
 
     od_int64					nrdone_     = 0;
     od_int64					totnr_	    = 0;
     int						zatvoi_     = -1;
-    uiString					curmsg_;
+    uiRetVal					errmsg_;
+    uiString					msg_;
     ZAxisTransform&				zatf_;
     const ObjectSet<SurfaceT2DTransfData>&	datas_;
-    RefObjectSet<Surface>			outsurfs_;
+    RefObjectSet<EMObject>			outsurfs_;
 };
 
 
@@ -147,4 +152,61 @@ private:
     TypeSet<MultiID>		    preprocessesedinpmid_;
 };
 
+
+mExpClass(EarthModel) FaultT2DTransformer : public SurfaceT2DTransformer
+{ mODTextTranslationClass(FaultT2DTransformer)
+public:
+			    FaultT2DTransformer(
+				const ObjectSet<SurfaceT2DTransfData>&,
+				ZAxisTransform&);
+			    ~FaultT2DTransformer();
+protected:
+
+    OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
+    void		    preStepCB(CallBacker*) override;
+    void		    postStepCB(CallBacker*) override;
+    int			    nextStep() override;
+    bool		    doFault(const SurfaceT2DTransfData&);
+    const StringView	    getTypeString() override;
+};
+
+
+mExpClass(EarthModel) FaultSetT2DTransformer : public SurfaceT2DTransformer
+{ mODTextTranslationClass(FaultSetT2DTransformer)
+public:
+				FaultSetT2DTransformer(
+				    const ObjectSet<SurfaceT2DTransfData>&,
+				    ZAxisTransform&);
+				~FaultSetT2DTransformer();
+protected:
+
+    OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
+    void		    preStepCB(CallBacker*) override;
+    void		    postStepCB(CallBacker*) override;
+    int			    nextStep() override;
+    bool		    doFaultSet(const SurfaceT2DTransfData&);
+    const StringView	    getTypeString() override;
+};
+
+
+mExpClass(EarthModel) FaultStickSetT2DTransformer :
+					    public SurfaceT2DTransformer
+{ mODTextTranslationClass(FaultSetT2DTransformer)
+public:
+				FaultStickSetT2DTransformer(
+				    const ObjectSet<SurfaceT2DTransfData>&,
+				    ZAxisTransform&,bool is2d);
+				~FaultStickSetT2DTransformer();
+protected:
+
+    bool		    is2d_;
+
+    OD::Pol2D3D		    dataTypeSupported() override
+						{ return OD::Both2DAnd3D; }
+    void		    preStepCB(CallBacker*) override;
+    void		    postStepCB(CallBacker*) override;
+    int			    nextStep() override;
+    bool		    doFaultStickSet(const SurfaceT2DTransfData&);
+    const StringView	    getTypeString() override;
+};
 }

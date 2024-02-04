@@ -294,7 +294,7 @@ RefMan<Pick::Set> uiGenPosPicks::getPickSet() const
     for ( DataPointSet::RowID idx=0; idx<dpssize; idx++ )
     {
 	const DataPointSet::Pos pos( dps_->pos(idx) );
-	ps->add( Pick::Location(pos.coord(),pos.z()) );
+	ps->add( Pick::Location(Coord3(pos.coord(),pos.z())) );
     }
 
     return ps;

@@ -17,6 +17,7 @@ class uiIOObjSel;
 class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
+namespace ZDomain { class Info; }
 
 mExpClass(uiEarthModel) uiBulkFaultImport : public uiDialog
 { mODTextTranslationClass(uiBulkFaultImport)
@@ -32,16 +33,22 @@ protected:
 
     void		inpChangedCB(CallBacker*);
     void		stickSelCB(CallBacker*);
+    void		zDomainCB(CallBacker*);
+
+    const ZDomain::Info& zDomain() const;
+    bool		isASCIIFileInTime() const;
 
     uiFileInput*	inpfld_;
     uiTableImpDataSel*	dataselfld_;
+    uiGenInput*		zdomselfld_;
     uiGenInput*		sortsticksfld_ = nullptr;
-    uiIOObjSel*		fltsetnmfld_ = nullptr;
+    uiIOObjSel*		fltsettimefld_ = nullptr;
+    uiIOObjSel*		fltsetdepthfld_ = nullptr;
     uiGenInput*		stickselfld_ = nullptr;
     uiGenInput*		thresholdfld_ = nullptr;
 
     Table::FormatDesc*	fd_;
     bool		isfss_;
-    bool        is2dfss_;
-    bool        isfltset_;
+    bool		is2dfss_;
+    bool		isfltset_;
 };

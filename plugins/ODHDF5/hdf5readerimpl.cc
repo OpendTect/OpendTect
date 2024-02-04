@@ -45,7 +45,7 @@ void HDF5::ReaderImpl::openFile( const char* fnm, uiRetVal& uirv, bool )
 
     try
     {
-	H5::H5File* newfile = new H5::H5File( fnm, H5F_ACC_RDONLY );
+	auto* newfile = new H5::H5File( fnm, H5F_ACC_RDONLY );
 	closeFile();
 	myfile_ = true;
 	file_ = newfile;
@@ -104,6 +104,38 @@ void HDF5::ReaderImpl::getDataSets( const char* grpnm,
 
     nms.setEmpty();
     listObjs( *group, nms, false );
+}
+
+
+void HDF5::ReaderImpl::gtComment( const H5::H5Location& h5loc, const char* name,
+				  BufferString& txt, uiRetVal& uirv ) const
+{
+    static size_t bufsz = 2048;
+    mDeclStaticString(buf);
+    buf.setEmpty().setBufSize( bufsz );
+    const BufferString nm( "/", name );
+    try
+    {
+
+	const mUnusedVar ssize_t outsz =
+			    h5loc.getComment( nm.buf(), bufsz, buf.getCStr() );
+    }
+    mCatchUnexpected( return )
+    txt.set( buf.buf() );
+}
+
+
+unsigned HDF5::ReaderImpl::gtVersion( const H5::H5Object& h5obj,
+				      uiRetVal& uirv ) const
+{
+    unsigned version = 0;
+    try
+    {
+	version = h5obj.objVersion();
+    }
+    mCatchUnexpected( return version )
+
+    return version;
 }
 
 

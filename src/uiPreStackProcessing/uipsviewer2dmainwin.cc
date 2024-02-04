@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "ailayer.h"
 #include "arrayndalgo.h"
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
@@ -64,8 +65,6 @@ PSViewAppearance::~PSViewAppearance()
 {}
 
 
-static const char* sKeySynthetic()	{ return "Synthteic"; }
-
 static void setAnnotationPars( FlatView::Annotation& annot )
 {
     annot.x1_.name_ = "Offset";
@@ -96,6 +95,7 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title,
 
 uiViewer2DMainWin::~uiViewer2DMainWin()
 {
+    detachAllNotifiers();
     deepErase( mutes_ );
     deepErase( gd_ );
     deepErase( gdi_ );
@@ -114,7 +114,17 @@ void uiViewer2DMainWin::snapshotCB( CallBacker* )
 void uiViewer2DMainWin::dataDlgPushed( CallBacker* )
 {
     seldatacalled_.trigger();
-    if ( posdlg_ ) posdlg_->setSelGatherInfos( gatherinfos_ );
+    if ( posdlg_ )
+	posdlg_->setSelGatherInfos( gatherinfos_ );
+}
+
+
+OD::GeomSystem uiViewer2DMainWin::geomSystem() const
+{
+    if ( !gatherinfos_.isEmpty() )
+	return gatherinfos_.first().tk_.geomSystem();
+
+    return OD::Geom3D;
 }
 
 
@@ -134,10 +144,21 @@ uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 }
 
 
-protected:
+private:
 
 bool acceptOK( CallBacker* ) override
 {
+    if ( preprocgrp_->isChanged() )
+    {
+	 const int ret =
+	     uiMSG().askSave(tr("Current settings are not saved.\n\n"
+				"Do you want to save them?"));
+	 if ( ret==-1 )
+	     return false;
+	 else if ( ret==1 )
+	     preprocgrp_->save();
+    }
+
     return apply();
 }
 
@@ -150,23 +171,13 @@ void applyCB( CallBacker* )
 
 bool apply()
 {
-    if ( preprocgrp_->isChanged() )
-    {
-	 const int ret =
-	     uiMSG().askSave(tr("Current settings are not saved.\n\n"
-			        "Do you want to save them?"));
-	 if ( ret==-1 )
-	     return false;
-	 else if ( ret==1 )
-	     preprocgrp_->save();
-    }
     cb_.doCall( this );
     return true;
 }
 
 
-PreStack::uiProcessorManager*	preprocgrp_;
-CallBack			cb_;
+    PreStack::uiProcessorManager*	preprocgrp_;
+    CallBack				cb_;
 };
 
 
@@ -174,7 +185,8 @@ CallBack			cb_;
 void uiViewer2DMainWin::preprocessingCB( CallBacker* )
 {
     if ( !preprocmgr_ )
-	preprocmgr_ = new PreStack::ProcessManager();
+	preprocmgr_ = new PreStack::ProcessManager( geomSystem() );
+
     uiPSPreProcessingDlg ppdlg( this, *preprocmgr_,
 				mCB(this,uiViewer2DMainWin,applyPreProcCB) );
     ppdlg.go();
@@ -278,7 +290,7 @@ void uiViewer2DMainWin::displayMutes()
 	for ( int muteidx=0; muteidx<mutes_.size(); muteidx++ )
 	{
 	    const PreStack::MuteDef* mutedef = mutes_[muteidx];
-	    const BinID& bid = gd->getBinID();
+	    const TrcKey tk = gd->getTrcKey();
 	    FlatView::AuxData* muteaux =
 			       uivwr->createAuxData( mutedef->name() );
 	    muteaux->linestyle_.color_ = mutecolors_[muteidx];
@@ -292,7 +304,7 @@ void uiViewer2DMainWin::displayMutes()
 	    for ( int offsidx=0; offsidx<sz; offsidx++ )
 	    {
 		const float offset = offsetrg.atIndex( offsidx );
-		const float zval = mutedef->value( offset, bid );
+		const float zval = mutedef->value( offset, tk.position() );
 		muteaux->poly_ += FlatView::Point( offset, zval );
 	    }
 
@@ -432,7 +444,7 @@ BufferString getSettingsKey( bool isstored )
 	key = PreStack::Gather::sDataPackCategory();
     else
 	key = IOPar::compKey( PreStack::Gather::sDataPackCategory(),
-			      sKeySynthetic() ) ;
+			      sKey::Synthetic() ) ;
     return key;
 }
 
@@ -448,16 +460,19 @@ uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
     , forstored_(stored)
 {
     setCtrlStyle( uiDialog::CloseOnly );
-    uiLabeledComboBox* lblcb =
-	new uiLabeledComboBox( this, tr("Select gather") );
+    auto* lblcb = new uiLabeledComboBox( this, tr("Select gather") );
     datasetcb_ = lblcb->box();
-    datasetcb_->selectionChanged.notify(
-	    mCB(this,uiPSMultiPropDlg,gatherChanged) );
-    uiPushButton* propbut =
-	new uiPushButton( this, uiStrings::sProperties(),
+    mAttachCB( datasetcb_->selectionChanged, uiPSMultiPropDlg::gatherChanged );
+    auto* propbut = new uiPushButton( this, uiStrings::sProperties(),
 			  uiPixmap("settings"),
 			  mCB(this,uiPSMultiPropDlg,selectPropCB), false );
     propbut->attach( rightTo, lblcb );
+}
+
+
+~uiPSMultiPropDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -550,7 +565,7 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 				       uiGatherDisplayInfoHeader* gdi )
 {
     const Interval<double> zrg( tkzs_.zsamp_.start, tkzs_.zsamp_.stop );
-    gd->setPosition( gd->getBinID(), tkzs_.zsamp_.width()==0 ? 0 : &zrg );
+    gd->setZRange( tkzs_.zsamp_.width()==0 ? 0 : &zrg );
     gd->updateViewRange();
     uiFlatViewer* fv = gd->getUiFlatViewer();
 
@@ -559,30 +574,22 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 
     if ( !control_ )
     {
-	uiViewer2DControl* ctrl = new uiViewer2DControl( *mainviewer_, *fv,
-							 isStored() );
-	ctrl->posdlgcalled_.notify(
-			    mCB(this,uiViewer2DMainWin,posDlgPushed));
-	ctrl->datadlgcalled_.notify(
-			    mCB(this,uiViewer2DMainWin,dataDlgPushed));
-	ctrl->propChanged.notify(
-			    mCB(this,uiViewer2DMainWin,propChangedCB));
-	ctrl->infoChanged.notify(
-		mCB(this,uiStoredViewer2DMainWin,displayInfo) );
-	ctrl->toolBar()->addButton(
-		"snapshot", uiStrings::sTakeSnapshot(),
-		mCB(this,uiStoredViewer2DMainWin,snapshotCB) );
-	ctrl->toolBar()->addButton(
-		"preprocessing", tr("Pre processing"),
-		mCB(this,uiViewer2DMainWin,preprocessingCB) );
+	auto* ctrl = new uiViewer2DControl( *mainviewer_, *fv, isStored() );
+	mAttachCB( ctrl->posdlgcalled_, uiViewer2DMainWin::posDlgPushed );
+	mAttachCB( ctrl->datadlgcalled_, uiViewer2DMainWin::dataDlgPushed );
+	mAttachCB( ctrl->propChanged, uiViewer2DMainWin::propChangedCB );
+	mAttachCB( ctrl->infoChanged, uiStoredViewer2DMainWin::displayInfo );
+	ctrl->toolBar()->addButton( "snapshot", uiStrings::sTakeSnapshot(),
+				mCB(this,uiStoredViewer2DMainWin,snapshotCB) );
+	ctrl->toolBar()->addButton( "preprocessing", tr("Pre processing"),
+				mCB(this,uiViewer2DMainWin,preprocessingCB) );
 	control_ = ctrl;
 
 	uiToolBar* tb = control_->toolBar();
 	if ( tb )
 	{
-	    tb->addObject(
-		new uiToolButton( tb, "mute", tr("Load Mute"),
-		    mCB(this,uiViewer2DMainWin,loadMuteCB) ) );
+	    tb->addObject( new uiToolButton( tb, "mute", tr("Load Mute"),
+				mCB(this,uiViewer2DMainWin,loadMuteCB) ) );
 
 	    if  ( isStored() )
 	    {
@@ -634,10 +641,9 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
     {
 	BufferStringSet gathernms;
 	getGatherNames( gathernms );
-	posdlg_ = new uiViewer2DPosDlg( this, is2D(), tkzs_, gathernms,
-					!isStored() );
-	posdlg_->okpushed_.notify( mCB(this,uiViewer2DMainWin,posDlgChgCB) );
-	posdlg_->windowClosed.notify( mCB(this,uiViewer2DMainWin,posDlgClosed));
+	posdlg_ = new uiViewer2DPosDlg( this, tkzs_, gathernms );
+	mAttachCB( posdlg_->okpushed_, uiViewer2DMainWin::posDlgChgCB );
+	mAttachCB( posdlg_->windowClosed, uiViewer2DMainWin::posDlgClosed );
 	posdlg_->setSelGatherInfos( gatherinfos_ );
     }
 
@@ -653,34 +659,42 @@ bool uiViewer2DMainWin::isStored() const
 }
 
 
-void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
-	const StepInterval<int>& trcrg, bool isinl, TypeSet<BinID>& bids )const
+void uiViewer2DMainWin::getStartupPositions( const TrcKey& tk,
+				const StepInterval<int>& trcrg, bool isinl,
+				TypeSet<TrcKey>& tks ) const
 {
-    bids.erase();
     int approxstep = trcrg.width()/sStartNrViewers;
-    if ( !approxstep ) approxstep = 1;
-    const int starttrcnr = isinl ? bid.crl() : bid.inl();
+    if ( !approxstep )
+	approxstep = 1;
+
+    const int starttrcnr = isinl ? tk.crl() : tk.inl();
     for ( int trcnr=starttrcnr; trcnr<=trcrg.stop; trcnr+=approxstep )
     {
 	const int trcidx = trcrg.nearestIndex( trcnr );
 	const int acttrcnr = trcrg.atIndex( trcidx );
-	BinID posbid( isinl ? bid.inl() : acttrcnr,
-		      isinl ? acttrcnr : bid.crl() );
-	bids.addIfNew( posbid );
-	if ( bids.size() >= sStartNrViewers )
+	TrcKey postk = tk;
+	if ( tk.is2D() || tk.isSynthetic() )
+	    postk.setTrcNr( acttrcnr );
+	else
+	    postk.setInl( isinl ? tk.inl() : acttrcnr )
+		 .setCrl( isinl ? acttrcnr : tk.crl() );
+	tks.addIfNew( postk );
+	if ( tks.size() >= sStartNrViewers )
 	    return;
     }
 
-    for ( int trcnr=starttrcnr; trcnr>=trcrg.start; trcnr-=approxstep )
+    for ( int trcnr=starttrcnr-approxstep; trcnr>=trcrg.start;trcnr-=approxstep)
     {
 	const int trcidx = trcrg.nearestIndex( trcnr );
 	const int acttrcnr = trcrg.atIndex( trcidx );
-	BinID posbid( isinl ? bid.inl() : acttrcnr,
-		      isinl ? acttrcnr : bid.crl() );
-	if ( bids.isPresent(posbid) )
-	    continue;
-	bids.insert( 0, posbid );
-	if ( bids.size() >= sStartNrViewers )
+	TrcKey postk = tk;
+	if ( tk.is2D() || tk.isSynthetic() )
+	    postk.setTrcNr( acttrcnr );
+	else
+	    postk.setInl( isinl ? tk.inl() : acttrcnr )
+		 .setCrl( isinl ? acttrcnr : tk.crl() );
+	tks.insert( 0, postk );
+	if ( tks.size() >= sStartNrViewers )
 	    return;
     }
 }
@@ -780,14 +794,25 @@ ConstRefMan<PreStack::Gather> uiViewer2DMainWin::getPreProcessed(
 	{
 	    if ( !preprocmgr_->wantsInput(relbid) )
 		continue;
+
 	    BinID facbid( 1, 1 );
 	    if ( isStored() && !is2D() )
 		facbid = BinID( SI().inlStep(), SI().crlStep() );
-	    const BinID bid = ginfo.bid_ + (relbid*facbid);
+
+	    TrcKey tk = ginfo.tk_;
+	    BinID bid = relbid * facbid;
+	    if ( tk.is3D() )
+	    {
+		bid.inl() += tk.inl();
+		tk.setInl( bid.inl() );
+	    }
+
+	    bid.trcNr() += const_cast<const TrcKey&>( tk ).trcNr();
+	    tk.setTrcNr( bid.trcNr() );
 	    GatherInfo relposginfo;
 	    relposginfo.isstored_ = ginfo.isstored_;
 	    relposginfo.gathernm_ = ginfo.gathernm_;
-	    relposginfo.bid_ = bid;
+	    relposginfo.tk_ = tk;
 	    if ( isStored() )
 		relposginfo.mid_ = ginfo.mid_;
 
@@ -816,17 +841,7 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	if ( !storedpsmw )
 	    return;
 
-	TrcKey tk;
-	if ( is2D() )
-	{
-	    const BufferString linename = storedpsmw->lineName();
-	    const Pos::GeomID gid = Survey::GM().getGeomID( linename );
-	    tk.setGeomID( gid ).setTrcNr( ginfo.bid_.trcNr() );
-	}
-	else
-	    tk.setPosition( ginfo.bid_ );
-
-	if ( gather->readFrom(ginfo.mid_,tk) )
+	if ( gather->readFrom(ginfo.mid_,ginfo.tk_) )
 	    preprocmgr_->setInput( relbid, gather->id() );
     }
     else
@@ -834,9 +849,12 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	const int gidx = gatherinfos_.indexOf( ginfo );
 	if ( gidx < 0 )
 	    return;
+
 	const GatherInfo& inputginfo = gatherinfos_[gidx];
+	const ElasticModel* model = getModel( inputginfo.tk_ );
 	preprocmgr_->setInput( relbid, inputginfo.vddp_ ? inputginfo.wvadp_
 							: inputginfo.vddp_ );
+	preprocmgr_->setModel( relbid, model );
     }
 }
 
@@ -857,6 +875,8 @@ bool uiViewer2DMainWin::getStoredAppearance( PSViewAppearance& psapp ) const
 }
 
 
+// uiStoredViewer2DMainWin
+
 uiStoredViewer2DMainWin::uiStoredViewer2DMainWin( uiParent* p,
 						  const char* title, bool is2d )
     : uiViewer2DMainWin(p,title,false)
@@ -865,14 +885,16 @@ uiStoredViewer2DMainWin::uiStoredViewer2DMainWin( uiParent* p,
     if ( !is2d_ )
     {
 	slicepos_ = new uiSlicePos2DView( this, ZDomain::Info(SI().zDomain()) );
-	slicepos_->positionChg.notify(
-			    mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
+	mAttachCB( slicepos_->positionChg,
+		   uiStoredViewer2DMainWin::posSlcChgCB );
     }
 }
 
 
 uiStoredViewer2DMainWin::~uiStoredViewer2DMainWin()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiStoredViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
@@ -887,66 +909,68 @@ void uiStoredViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
 }
 
 
-void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
-	bool isinl, const StepInterval<int>& trcrg, const char* linename )
+void uiStoredViewer2DMainWin::init( const MultiID& mid, const TrcKey& tk,
+				    bool isinl, const StepInterval<int>& trcrg )
 {
+    if ( tk.isSynthetic() )
+	{ pErrMsg("Incorrect TrcKey type"); }
+
     mids_ += mid;
-    linename_ = linename;
+    tkzs_.hsamp_.setGeomID( tk.geomID() );
     tkzs_.zsamp_ = SI().zRange(true);
 
-    if ( is2d_ )
-    {
-	tkzs_.hsamp_.setInlRange( Interval<int>( 1, 1 ) );
-	tkzs_.hsamp_.setCrlRange( trcrg );
-    }
+    if ( tk.is2D() )
+	tkzs_.hsamp_.setTrcRange( trcrg );
     else
     {
+	tkzs_.hsamp_.set( tk );
 	if ( isinl )
-	{
-	    tkzs_.hsamp_.setInlRange( Interval<int>( bid.inl(), bid.inl() ) );
 	    tkzs_.hsamp_.setCrlRange( trcrg );
-	}
 	else
-	{
-	    tkzs_.hsamp_.setCrlRange( Interval<int>( bid.crl(), bid.crl() ) );
 	    tkzs_.hsamp_.setInlRange( trcrg );
-	}
 
 	slicepos_->setTrcKeyZSampling( tkzs_ );
     }
 
-    setUpNewPositions( isinl, bid, trcrg );
+    setUpNewPositions( isinl, tk, trcrg );
     setUpNewIDs();
 }
 
 
 void uiStoredViewer2DMainWin::setUpNewSlicePositions()
 {
-    const bool isinl = is2d_ || tkzs_.defaultDir()==TrcKeyZSampling::Inl;
-    const int newpos = isinl
-	? tkzs_.hsamp_.start_.inl()
-	: tkzs_.hsamp_.start_.crl();
+    const bool usetraces = tkzs_.hsamp_.is2D();
+    const bool isinl = usetraces || tkzs_.defaultDir()==TrcKeyZSampling::Inl;
+    const int newpos = isinl ? tkzs_.hsamp_.start_.inl()
+			     : tkzs_.hsamp_.start_.crl();
 
-    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+    for ( auto& ginfo : gatherinfos_ )
     {
-	int& pos = isinl ? gatherinfos_[idx].bid_.inl()
-			 : gatherinfos_[idx].bid_.crl();
-	pos = newpos;
+	TrcKey& tk = ginfo.tk_;
+	if ( usetraces )
+	    tk.setTrcNr( newpos );
+	else
+	{
+	    if ( isinl )
+		tk.setInl( newpos );
+	    else
+		tk.setCrl( newpos );
+	}
     }
 }
 
 
-void uiStoredViewer2DMainWin::setUpNewPositions(bool isinl, const BinID& posbid,
+void uiStoredViewer2DMainWin::setUpNewPositions(bool isinl, const TrcKey& tk,
 						const StepInterval<int>& trcrg )
 {
-    TypeSet<BinID> bids;
-    getStartupPositions( posbid, trcrg, isinl, bids );
-    gatherinfos_.erase();
-    for ( int idx=0; idx<bids.size(); idx++ )
+    TypeSet<TrcKey> tks;
+    getStartupPositions( tk, trcrg, isinl, tks );
+    gatherinfos_.setEmpty();
+    for ( const auto& tkpos : tks )
     {
 	GatherInfo ginfo;
 	ginfo.isselected_ = true;
-	ginfo.bid_ = bids[idx];
+	ginfo.tk_ = tkpos;
 	ginfo.isselected_ = true;
 	gatherinfos_ += ginfo;
     }
@@ -971,15 +995,19 @@ void uiStoredViewer2DMainWin::setUpNewIDs()
     BufferString firstgathernm;
     if ( !oldginfos.isEmpty() )
 	firstgathernm = oldginfos[0].gathernm_;
+
     for ( int gidx=0; gidx<oldginfos.size(); gidx++ )
     {
 	GatherInfo ginfo = oldginfos[gidx];
 	if ( !firstgathernm.isEmpty() && firstgathernm != ginfo.gathernm_ )
 	    continue;
+
 	for ( int midx=0; midx<mids_.size(); midx++ )
 	{
 	    PtrMan<IOObj> gatherioobj = IOM().get( mids_[midx] );
-	    if ( !gatherioobj ) continue;
+	    if ( !gatherioobj )
+		continue;
+
 	    ginfo.gathernm_ = gatherioobj->name();
 	    ginfo.mid_ = mids_[midx];
 	    newgathernms.addIfNew( ginfo.gathernm_ );
@@ -998,7 +1026,9 @@ void uiStoredViewer2DMainWin::setUpNewIDs()
     }
 
     prepareNewAppearances( oldgathernms, newgathernms );
-    if ( posdlg_ ) posdlg_->setSelGatherInfos( gatherinfos_ );
+    if ( posdlg_ )
+	posdlg_->setSelGatherInfos( gatherinfos_ );
+
     setUpView();
 }
 
@@ -1008,8 +1038,8 @@ void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 {
     PtrMan<IOObj> ioobj = IOM().get( ginfo.mid_ );
     BufferString nm = ioobj ? ioobj->name().buf() : "";
-    info->setData( ginfo.bid_, tkzs_.defaultDir()==TrcKeyZSampling::Inl,
-		   is2d_, nm);
+    info->setData( ginfo.tk_, tkzs_.defaultDir()==TrcKeyZSampling::Inl,
+		   is2d_, nm );
 }
 
 
@@ -1045,6 +1075,7 @@ void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 {
     if ( slicepos_ )
 	tkzs_ = slicepos_->getTrcKeyZSampling();
+
     if ( posdlg_ )
 	posdlg_->setTrcKeyZSampling( tkzs_ );
 
@@ -1095,7 +1126,8 @@ class uiAngleCompParDlg : public uiDialog
 { mODTextTranslationClass(uiAngleCompParDlg)
 public:
 
-uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
+uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp,
+		   OD::GeomSystem gs, bool isag )
     : uiDialog(p,uiDialog::Setup(uiString::emptyString(),
 				 uiString::emptyString(),
 			      mODHelpKey(mViewer2DPSMainWindisplayAngleHelpID)))
@@ -1107,7 +1139,7 @@ uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
     uiString windowcaption = uiStrings::phrSpecify(tr("Parameters for %1")
 							     .arg(windowtitle));
     setCaption( windowcaption );
-    anglegrp_ = new PreStack::uiAngleCompGrp( this, acp, false, false );
+    anglegrp_ = new PreStack::uiAngleCompGrp( this, acp, gs, false, false );
 }
 
 protected:
@@ -1118,6 +1150,7 @@ bool acceptOK( CallBacker* ) override
 }
 
 PreStack::uiAngleCompGrp*	anglegrp_;
+
 };
 
 
@@ -1130,7 +1163,8 @@ bool uiStoredViewer2DMainWin::getAngleParams()
 	    angleparams_->anglerange_ = Interval<int>( 0 , 60 );
     }
 
-    uiAngleCompParDlg agcompdlg( this, *angleparams_, doanglegather_ );
+    const OD::GeomSystem gs = is2D() ? OD::Geom2D : OD::Geom3D;
+    uiAngleCompParDlg agcompdlg( this, *angleparams_, gs, doanglegather_ );
     return agcompdlg.go();
 }
 
@@ -1215,22 +1249,15 @@ void uiStoredViewer2DMainWin::displayAngle()
 
 void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 {
-    if ( !gatherinfo.isselected_ ) return;
+    if ( !gatherinfo.isselected_ )
+	return;
 
     Interval<float> zrg( mUdf(float), 0 );
-    auto* gd = new uiGatherDisplay( 0 );
+    auto* gd = new uiGatherDisplay( nullptr );
     RefMan<PreStack::Gather> gather = new PreStack::Gather;
     DPM(DataPackMgr::FlatID()).add( gather );
     const MultiID& mid = gatherinfo.mid_;
-    TrcKey tk;
-    if ( is2D() )
-    {
-	const Pos::GeomID gid = Survey::GM().getGeomID( linename_ );
-	tk.setGeomID( gid ).setTrcNr( gatherinfo.bid_.trcNr() );
-    }
-    else
-	tk.setPosition( gatherinfo.bid_ );
-
+    const TrcKey& tk = gatherinfo.tk_;
     if ( gather->readFrom(mid,tk) )
     {
 	ConstRefMan<PreStack::Gather> ppgather;
@@ -1243,6 +1270,7 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 	gd->setWVAGather( hasangledata_ ? ppgather : nullptr );
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
+
 	zrg.include( gd->getZDataRange() );
     }
     else
@@ -1258,9 +1286,17 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 }
 
 
+// uiSyntheticViewer2DMainWin
+
 uiSyntheticViewer2DMainWin::uiSyntheticViewer2DMainWin( uiParent* p,
 							const char* title )
     : uiViewer2DMainWin(p,title,true)
+{
+    tkzs_ = TrcKeyZSampling::getSynth();
+}
+
+
+uiSyntheticViewer2DMainWin::~uiSyntheticViewer2DMainWin()
 {
 }
 
@@ -1295,10 +1331,11 @@ void uiSyntheticViewer2DMainWin::setGatherNames( const BufferStringSet& nms)
     }
 
     prepareNewAppearances( oldgathernms, newgathernms );
-    if ( posdlg_ ) posdlg_->setSelGatherInfos( gatherinfos_ );
+    if ( posdlg_ )
+	posdlg_->setSelGatherInfos( gatherinfos_ );
+
     setUpView();
 }
-
 
 
 void uiSyntheticViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
@@ -1309,11 +1346,6 @@ void uiSyntheticViewer2DMainWin::getGatherNames( BufferStringSet& nms) const
 }
 
 
-uiSyntheticViewer2DMainWin::~uiSyntheticViewer2DMainWin()
-{
-}
-
-
 void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
 {
     if ( posdlg_ )
@@ -1321,16 +1353,15 @@ void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
 	TypeSet<GatherInfo> gatherinfos;
 	posdlg_->getTrcKeyZSampling( tkzs_ );
 	posdlg_->getSelGatherInfos( gatherinfos );
-	for ( int idx=0; idx<gatherinfos_.size(); idx++ )
-	    gatherinfos_[idx].isselected_ = false;
-	for ( int idx=0; idx<gatherinfos.size(); idx++ )
+	for ( auto& dpinfo : gatherinfos_ )
+	    dpinfo.isselected_ = false;
+
+	for ( const auto& ginfo : gatherinfos )
 	{
-	    GatherInfo ginfo = gatherinfos[idx];
-	    for ( int idy=0; idy<gatherinfos_.size(); idy++ )
+	    for ( auto& dpinfo : gatherinfos_ )
 	    {
-		GatherInfo& dpinfo = gatherinfos_[idy];
 		if ( dpinfo.gathernm_==ginfo.gathernm_ &&
-		     dpinfo.bid_==ginfo.bid_ )
+		     dpinfo.tk_==ginfo.tk_ )
 		    dpinfo.isselected_ = ginfo.isselected_;
 	    }
 	}
@@ -1340,7 +1371,9 @@ void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
 }
 
 
-void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps )
+uiSyntheticViewer2DMainWin&
+uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
+					const TrcKeyZSampling& tkzs )
 {
     TypeSet<PSViewAppearance> oldapps = appearances_;
     appearances_.setEmpty();
@@ -1349,14 +1382,10 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps )
 	oldgathernms.addIfNew( ginfo.gathernm_ );
 
     gatherinfos_ = dps;
-    StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
-    tkzs_.hsamp_.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl(),
-					   gatherinfos_[0].bid_.inl(),1) );
     BufferStringSet newgathernms;
     for ( const auto& ginfo : gatherinfos_ )
     {
 	PreStackView::GatherInfo newginfo( ginfo );
-	trcrg.include( newginfo.bid_.crl(), false );
 	PSViewAppearance dummypsapp;
 	dummypsapp.datanm_ = newginfo.gathernm_;
 	newgathernms.addIfNew( newginfo.gathernm_ );
@@ -1366,13 +1395,19 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps )
     }
 
     prepareNewAppearances( oldgathernms, newgathernms );
-    trcrg.step = SI().crlStep();
-    tkzs_.hsamp_.setCrlRange( trcrg );
-    if ( !posdlg_ )
-	tkzs_.zsamp_.set( mUdf(float), -mUdf(float), SI().zStep() );
-
+    tkzs_ = tkzs;
     setUpView();
-    reSizeSld(0);
+    reSizeSld( nullptr );
+
+    return *this;
+}
+
+
+uiSyntheticViewer2DMainWin&
+uiSyntheticViewer2DMainWin::setModels( const ElasticModelSet& models )
+{
+    models_ = &models;
+    return *this;
 }
 
 
@@ -1411,22 +1446,42 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
 }
 
 
-void uiSyntheticViewer2DMainWin::removeGathers()
+uiSyntheticViewer2DMainWin& uiSyntheticViewer2DMainWin::removeGathers()
 {
     gatherinfos_.setEmpty();
+    return *this;
 }
 
 
-void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
-					       const GatherInfo& ginfo )
+uiSyntheticViewer2DMainWin& uiSyntheticViewer2DMainWin::removeModels()
 {
-    TrcKeyZSampling cs;
-    const int modelnr = (ginfo.bid_.crl() - cs.hsamp_.stop_.crl())
-			/ cs.hsamp_.step_.crl();
-    info->setData( modelnr, ginfo.gathernm_ );
+    models_ = nullptr;
+    return *this;
 }
 
 
+void uiSyntheticViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
+						const GatherInfo& ginfo )
+{
+    info->setData( ginfo.tk_.trcNr(), ginfo.gathernm_ );
+}
+
+
+const ElasticModel* uiSyntheticViewer2DMainWin::getModel(
+							const TrcKey& tk ) const
+{
+    if ( !models_ )
+	return nullptr;
+
+    const int trcidx = tkzs_.hsamp_.trcIdx( tk.trcNr() );
+    if ( !models_->validIdx(trcidx) )
+	return nullptr;
+
+    return models_->get( trcidx );
+}
+
+
+// uiViewer2DControl
 
 #define mDefBut(fnm,cbnm,tt) \
     tb_->addButton( fnm, tt, mCB(this,uiViewer2DControl,cbnm) );
@@ -1442,7 +1497,6 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
     , posdlgcalled_(this)
     , datadlgcalled_(this)
     , propChanged(this)
-    , pspropdlg_(0)
     , isstored_(isstored)
 {
     removeViewer( vwr );
@@ -1457,8 +1511,8 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr,
     mDefBut("2ddisppars",propertiesDlgCB,
 	    tr("Set seismic display properties"));
     ctabsel_ = new uiColorTableSel( tb_, "Select Color Table" );
-    ctabsel_->selectionChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
-    vwr_.dispParsChanged.notify( mCB(this,uiViewer2DControl,updateColTabCB) );
+    mAttachCB( ctabsel_->selectionChanged, uiViewer2DControl::coltabChg );
+    mAttachCB( vwr_.dispParsChanged, uiViewer2DControl::updateColTabCB );
     ctabsel_->setCurrent( dispPars().vd_.ctab_ );
     tb_->addObject( ctabsel_ );
     tb_->addSeparator();
@@ -1477,6 +1531,7 @@ void uiViewer2DControl::propertiesDlgCB( CallBacker* )
     if ( !pspropdlg_ )
 	pspropdlg_ = new uiPSMultiPropDlg(
 	    this, vwrs_, mCB(this,uiViewer2DControl,applyProperties),isstored_);
+
     pspropdlg_->setGatherInfos( gatherinfos_ );
     pspropdlg_->go();
 }
@@ -1630,22 +1685,20 @@ void uiViewer2DControl::setGatherInfos( const TypeSet<GatherInfo>& gis )
     const bool showcoltab = gathernms.size() <= 1;
     ctabsel_->setSensitive( showcoltab );
     uiString tooltipstr;
-    if ( !showcoltab )
+    if ( showcoltab )
+	tooltipstr = uiString::empty();
+    else
 	tooltipstr = tr( "Mutiple datasets selected. "
 			 "Use 'Set seismic display properties' button" );
-    else
-	tooltipstr = uiString::emptyString();
+
     ctabsel_->setToolTip( tooltipstr );
 }
 
 
 DataPackID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
 {
-     auto gather = getPreProcessed( ginfo );
-     if ( !gather )
-	return DataPack::cNoID();
-
-     return gather->id();
+     ConstRefMan<PreStack::Gather> gather = getPreProcessed( ginfo );
+     return gather ? gather->id() : DataPack::cNoID();
 }
 
 

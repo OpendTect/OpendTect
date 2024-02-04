@@ -30,8 +30,8 @@ public:
 
     typedef IdxPair::IdxType	IdxType;
 
-			TrcKey()			{ *this = udf(); }
-
+			//Undefined
+			TrcKey();
 			//3D
     explicit		TrcKey(const BinID&); // default 3D surv ID
 			//2D
@@ -40,6 +40,7 @@ public:
 			TrcKey(const Pos::IdxPair&,bool is2d);
 			//Any type
 			TrcKey(OD::GeomSystem,const Pos::IdxPair&);
+			~TrcKey();
     static TrcKey	getSynth(Pos::TraceID);
 
     bool		operator==(const TrcKey&) const;

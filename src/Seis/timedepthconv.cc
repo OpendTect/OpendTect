@@ -887,8 +887,6 @@ bool VelocityModelScanner::doFinish( bool success, od_ostream* )
 
 // LinearVelTransform
 
-const char* lineartranskey = "V0,dV";
-
 LinearVelTransform::LinearVelTransform(const ZDomain::Def& from,
 				       const ZDomain::Def& to,
 				       double v0, double k )
@@ -907,19 +905,25 @@ LinearVelTransform::~LinearVelTransform()
 }
 
 
+const char* LinearVelTransform::sKeyLinearTransKey()
+{
+    return "V0,dV";
+}
+
+
 bool LinearVelTransform::usePar( const IOPar& par )
 {
     if ( !ZAxisTransform::usePar(par) )
 	return false;
 
-    return par.get( lineartranskey, v0_, k_ );
+    return par.get( sKeyLinearTransKey(), v0_, k_);
 }
 
 
 void LinearVelTransform::fillPar( IOPar& par ) const
 {
     ZAxisTransform::fillPar( par );
-    par.set( lineartranskey, v0_, k_ );
+    par.set( sKeyLinearTransKey(), v0_, k_);
 }
 
 

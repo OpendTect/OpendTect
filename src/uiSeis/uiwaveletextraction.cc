@@ -86,7 +86,8 @@ void uiWaveletExtraction::createCommonUIFlds()
     linesel2dfld_ ? zextraction_->attach( alignedBelow, linesel2dfld_ )
 		  : zextraction_->attach( alignedBelow, subselfld3d_ );
 
-    zrangefld_ = new uiSelZRange( this, false, false, "Z Range " );
+    zrangefld_ = new uiSelZRange( this, false );
+    zrangefld_->setLabel( uiStrings::sZRange() );
     zrangefld_->attach( alignedBelow, zextraction_ );
 
     surfacesel_ = uiPosProvGroup::factory().create( sKey::Surface(), this,

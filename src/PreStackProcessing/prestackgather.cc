@@ -157,7 +157,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 {
     TrcKey tk;
     if ( rdr.is3D() )
-	tk.setPosition( bid );
+	tk.setIs3D().setPosition( bid );
     else if ( rdr.is2D() )
     {
 	const Pos::GeomID gid = rdr.geomID();
@@ -462,11 +462,13 @@ const BinID& Gather::getBinID() const
     return tk_.position();
 }
 
+
 Gather& Gather::setBinID( const BinID& bid )
 {
     tk_.setPosition( bid );
     return *this;
 }
+
 
 #define mIfNonZero \
 const float val = data().get( offset, idz ); \
@@ -660,6 +662,18 @@ ConstRefMan<Gather> GatherSetDataPack::getGather( int idx ) const
 }
 
 
+ConstRefMan<Gather> GatherSetDataPack::getGather( const TrcKey& tk ) const
+{
+    for ( const auto* gather : gathers_ )
+    {
+	if ( gather->getTrcKey() == tk )
+	    return gather;
+    }
+
+    return nullptr;
+}
+
+
 ConstRefMan<Gather> GatherSetDataPack::getGather( const BinID& bid ) const
 {
     for ( const auto* gather : gathers_ )
@@ -711,6 +725,18 @@ DataPackID GatherSetDataPack::getGatherIDByIdx( int idx ) const
 }
 
 
+DataPackID GatherSetDataPack::getGatherID( const TrcKey& tk ) const
+{
+    for ( const auto* gather : gathers_ )
+    {
+	if ( gather->getTrcKey() == tk )
+	    return gather->id();
+    }
+
+    return DataPackID::udf();
+}
+
+
 DataPackID GatherSetDataPack::getGatherID( const BinID& bid ) const
 {
     for ( const auto* gather : gathers_ )
@@ -721,6 +747,7 @@ DataPackID GatherSetDataPack::getGatherID( const BinID& bid ) const
 
     return DataPackID::udf();
 }
+
 
 
 void GatherSetDataPack::obtainGathers()
@@ -751,7 +778,7 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
     {
 	const int gathersz = gather->size(false);
 	auto* trc = new SeisTrc( gathersz );
-	const TrcKey tk( gather->getBinID(), !gather->is3D() );
+	const TrcKey& tk = gather->getTrcKey();
 	trc->info().setTrcKey( tk ).calcCoord();
 	const SamplingData<double>& sd = gather->posData().range( false);
 	trc->info().sampling.set((float) sd.start, (float) sd.step );

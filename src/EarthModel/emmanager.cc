@@ -10,11 +10,13 @@ ________________________________________________________________________
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
+#include "embodytr.h"
 #include "emhorizon.h"
 #include "emioobjinfo.h"
 #include "emobject.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
 #include "executor.h"
 #include "filepath.h"
 #include "ioman.h"
@@ -25,6 +27,44 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "selector.h"
 #include "stratlevel.h"
+
+
+mDefineNameSpaceEnumUtils(EM,ObjectType,"Surface type")
+{
+    "Unknown",
+    EMHorizon2DTranslatorGroup::sGroupName().buf(),
+    EMHorizon3DTranslatorGroup::sGroupName().buf(),
+    EMAnyHorizonTranslatorGroup::sGroupName().buf(),
+    EMFault3DTranslatorGroup::sGroupName().buf(),
+    "FaultStickSet 2D",
+    EMFaultStickSetTranslatorGroup::sGroupName().buf(),
+    "FaultStickSet 2D and 3D",
+    EMFaultSet3DTranslatorGroup::sGroupName().buf(),
+    EMBodyTranslatorGroup::sGroupName().buf(),
+    nullptr
+};
+
+
+bool EM::isFaultStickSet( EM::ObjectType emobjtyp )
+{
+    return emobjtyp == EM::ObjectType::FltSS2D ||
+	emobjtyp == EM::ObjectType::FltSS3D ||
+	emobjtyp == EM::ObjectType::FltSS2D3D;
+}
+
+
+bool EM::isHorizon( EM::ObjectType emobjtyp )
+{
+    return emobjtyp == EM::ObjectType::Hor2D ||
+	   emobjtyp == EM::ObjectType::Hor3D ||
+	   emobjtyp == EM::ObjectType::AnyHor;
+}
+
+
+bool EM::is2DHorizon( EM::ObjectType emobjtyp )
+{
+    return emobjtyp == ObjectType::Hor2D;
+}
 
 
 EM::EMManager& EM::EMM()
@@ -54,8 +94,8 @@ const char* EMManager::displayparameterstr() { return "Display Parameters"; }
 mImplFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager::EMManager()
-    : undo_( *new EMUndo() )
-    , addRemove( this )
+    : addRemove( this )
+    , undo_( *new EMUndo() )
 {
     Strat::LevelSet& lvlset = Strat::eLVLS();
     mAttachCB( lvlset.levelToBeRemoved, EMManager::levelToBeRemoved );

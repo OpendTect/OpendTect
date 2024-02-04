@@ -31,6 +31,7 @@ mExpClass(uiPreStackProcessing) uiAngleCompGrp : public uiGroup
 public:
 				uiAngleCompGrp(uiParent*,
 					       PreStack::AngleCompParams&,
+					       OD::GeomSystem,
 					       bool dooffset=false,
 					       bool isformute=true,
 					       bool withadvanced=true);
@@ -45,7 +46,7 @@ protected:
 
     void			advPushButCB(CallBacker*);
 
-    uiVelSel*			velfuncsel_;
+    uiVelSel*			velfuncsel_ = nullptr;
     uiGenInput*			anglefld_;
     uiLabel*			anglelbl_ = nullptr;
     uiPushButton*		advpushbut_ = nullptr;

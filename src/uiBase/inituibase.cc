@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "settings.h"
 
+#include "uifileseltool.h"
 #include "uihelpview.h"
 #include "uirgbarray.h"
 
@@ -33,6 +34,7 @@ mDefModInitFn(uiBase)
     uiRGBImageLoader::initClass();
 
     Init_uiLocalFileSelToolProvider_Class();
+    uiFileSelToolProvider::addPluginFileSelProviders();
 
     System::CrashDumper::getInstance().setSendAppl( "od_uiReportIssue" );
 }

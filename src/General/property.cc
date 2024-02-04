@@ -351,8 +351,8 @@ const Math::SpecVarSet& MathProperty::getSpecVars()
 	const Mnemonic* distmn = &Mnemonic::distance();
 	svs.add( "Depth", "Depth", true, distmn );
 	svs.add( "Z", "Depth", true, distmn );
-	svs.add( "RelDepth", "Relative Depth", true, distmn );
-	svs.add( "RelZ", "Relative Depth", true, distmn );
+	svs.add( "RelDepth", "Relative Depth (0-1)" );
+	svs.add( "RelZ", "Relative Depth (0-1)" );
 	svs.add( "XPos", "Relative horizontal position (0-1)" );
     }
 
@@ -431,26 +431,30 @@ bool MathProperty::init( const PropertySet& ps ) const
 	if ( form_.isSpec(iinp) )
 	{
 	    const int specidx = form_.specIdx(iinp);
-	    if ( specidx > 4 )
-		prop = &xposProp();
+	    if ( specidx==0 || specidx==1 )
+		prop = &depthProp();
+	    else if ( specidx==2 || specidx==3 )
+		prop = &relDepthProp();
 	    else
-		prop = specidx < 2 ? &depthProp() : &relDepthProp();
+		prop = &xposProp();
 	}
 	else if ( !form_.isConst(iinp) )
 	{
 	    const char* inpnm = form_.inputDef( iinp );
-	    const Mnemonic* inpmn = form_.inputMnemonic( iinp );
-	    if ( inpmn )
-		prop = ps.getByMnemonic( *inpmn );
-	    if ( !prop )
-		prop = ps.getByName( inpnm );
-
+	    prop = ps.getByName( inpnm );
 	    if ( !prop )
 	    {
-		errmsg_ =
-		    tr( "Missing input '%1' for the calculation of '%2'" )
-			.arg( inpnm ).arg( name() );
-		return false;
+		const Mnemonic* inpmn = form_.inputMnemonic( iinp );
+		if ( inpmn )
+		    prop = ps.getByMnemonic( *inpmn );
+
+		if ( !prop )
+		{
+		    errmsg_ =
+			tr( "Missing input '%1' for the calculation of '%2'" )
+			    .arg( inpnm ).arg( name() );
+		    return false;
+		}
 	    }
 	}
 

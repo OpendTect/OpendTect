@@ -557,9 +557,10 @@ Well::Log* Well::Data::getLogForEdit( const char* nm )
 }
 
 
-void Well::Data::getLogNames( BufferStringSet& nms ) const
+void Well::Data::getLogNames( BufferStringSet& nms,
+			      bool needreload ) const
 {
-    if ( !haveLogs() )
+    if ( !haveLogs() && needreload )
 	reloadLogInfos();
 
     logs().getNames( nms, false );
@@ -574,7 +575,7 @@ void Well::Data::getLoadedLogNames( BufferStringSet& nms ) const
 
 void Well::Data::reloadLogInfos() const
 {
-    MGR().reload( mid_, LoadReqs(LogInfos) );
+    MGR().reloadLogs( mid_ );
 }
 
 

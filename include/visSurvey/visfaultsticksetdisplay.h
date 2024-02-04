@@ -122,7 +122,9 @@ public:
 
     const MarkerStyle3D*	getPreferedMarkerStyle() const;
     void			setPreferedMarkerStyle(const MarkerStyle3D&);
-
+    bool			setZAxisTransform(ZAxisTransform*,
+						    TaskRunner*) override;
+    const ZAxisTransform*	getZAxisTransform() const override;
 protected:
     virtual			~FaultStickSetDisplay();
 
@@ -157,6 +159,7 @@ protected:
 					TypeSet<Coord3>& intersectpoints);
     EM::FaultStickSet*		emFaultStickSet();
     void			sowingFinishedCB(CallBacker*);
+    void			dataTransformCB(CallBacker*);
     void			updateManipulator();
 
 
@@ -177,6 +180,7 @@ protected:
     bool			displayonlyatsections_;
     bool			makenewstick_;
     EM::PosID			activestickid_;
+    int				voiid_				= -1;
 
 public:
     void			setDisplayOnlyAtSections(bool yn)

@@ -1315,3 +1315,65 @@ uiHorizon3DSel::uiHorizon3DSel( uiParent* p,
 
 uiHorizon3DSel::~uiHorizon3DSel()
 {}
+
+
+//uiFaultSel
+static uiString getLabelText( bool forread, EM::ObjectType type )
+{
+    uiString showstr;
+    if ( type == EM::ObjectType::Flt3D )
+	showstr = uiStrings::sFault();
+    else if ( EM::isFaultStickSet(type) )
+	showstr = uiStrings::sFaultStickSet();
+    else
+	showstr = uiStrings::sFaultSet();
+
+    return forread ? uiStrings::phrInput( showstr )
+		   : uiStrings::phrOutput( showstr );
+}
+
+
+static IOObjContext ioContext( bool isforread,
+		EM::ObjectType type, const ZDomain::Info* zinfo )
+{
+
+    IOObjContext ctxt( nullptr );
+    if ( type == EM::ObjectType::Flt3D )
+	ctxt = mIOObjContext(EMFault3D);
+    else if ( EM::isFaultStickSet(type) )
+	ctxt = mIOObjContext(EMFaultStickSet);
+    else
+	ctxt = mIOObjContext(EMFaultSet3D);
+
+    ctxt.forread_ = isforread;
+    if ( zinfo )
+    {
+	const ZDomain::Info& siinfo = SI().zDomainInfo();
+	ctxt.requireZDomain( *zinfo, siinfo == *zinfo );
+    }
+
+    return ctxt;
+}
+
+
+uiFaultSel::uiFaultSel( uiParent* p, EM::ObjectType type,
+			const ZDomain::Info* zinfo, bool isforread,
+			const uiIOObjSel::Setup& su )
+    : uiIOObjSel(p,ioContext(isforread,type,zinfo),su)
+{
+    if ( su.seltxt_.isEmpty() )
+	setLabelText( getLabelText(isforread,type) );
+
+    fillEntries();
+}
+
+
+uiFaultSel::uiFaultSel( uiParent* p, EM::ObjectType type,
+			bool isforread, const uiIOObjSel::Setup& su )
+    : uiFaultSel(p,type,nullptr,isforread,su)
+{
+}
+
+
+uiFaultSel::~uiFaultSel()
+{}

@@ -388,9 +388,29 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID(
 
 static BufferString getKey( const char* prefix, int sticknr )
 {
-    return BufferString( prefix, " sticknr ", toString(sticknr) );
+    return BufferString( prefix, " sticknr ", ::toString(sticknr) );
 }
 
+
+EM::ObjectType FaultStickSetGeometry::FSSObjType() const
+{
+    const int nrsticks = nrSticks();
+    int count2d = 0;
+    for ( int idx=0; idx<nrsticks; idx++ )
+    {
+	const Pos::GeomID& geomid = stickinfo_[idx]->pickedgeomid;
+	if ( geomid.isValid() )
+	    count2d++;
+    }
+
+    EM::ObjectType objtype = EM::ObjectType::FltSS2D3D;
+    if ( count2d == nrsticks )
+	objtype = EM::ObjectType::FltSS2D;
+    else if ( count2d == 0 )
+	objtype = EM::ObjectType::FltSS3D;
+
+    return objtype;
+}
 
 void FaultStickSetGeometry::fillPar( IOPar& par ) const
 {
@@ -432,7 +452,8 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 bool FaultStickSetGeometry::usePar( const IOPar& par )
 {
     Geometry::FaultStickSet* fss = geometryElement();
-    if ( !fss ) return false;
+    if ( !fss )
+	return false;
 
     StepInterval<int> stickrg = fss->rowRange();
     for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
@@ -443,7 +464,7 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 
 	Coord3 editnormal( Coord3::udf() );
 	par.get( editnormstr.buf(), editnormal );
-	fss->addEditPlaneNormal( editnormal );
+	fss->addEditPlaneNormal( editnormal, sticknr );
 
 	stickinfo_.insertAt( new StickInfo, 0 );
 	stickinfo_[0]->sticknr = sticknr;

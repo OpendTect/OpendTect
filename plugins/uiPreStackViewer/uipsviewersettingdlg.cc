@@ -28,7 +28,6 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
 			          toUiString(viewer.getObjectName()),
                                   mODHelpKey(mPSViewerSettingDlgHelpID)
                                   ).modal(false) )
-    , preproctab_(0)
 {
     shapetab_ = new uiViewer3DShapeTab( tabParent(), viewer, mgr );
     addGroup( shapetab_ );

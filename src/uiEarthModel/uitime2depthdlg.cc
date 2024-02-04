@@ -33,20 +33,54 @@ ________________________________________________________________________
 
 namespace EM
 {
+static HelpKey getHelpKey( ObjectType objtype )
+{
+    HelpKey key = mNoHelpKey;
+    switch( objtype )
+    {
+	case ObjectType::Hor3D:
+	case ObjectType::Hor2D:
+	    key = mODHelpKey( mProcessHorizonTime2DepthID );
+	    break;
+	case ObjectType::Flt3D:
+	    key = mODHelpKey( mProcessFaultTime2DepthID );
+	    break;
+	case ObjectType::FltSet:
+	    key = mODHelpKey( mProcessFaultSetTime2DepthID );
+	    break;
+	case ObjectType::FltSS2D:
+	case ObjectType::FltSS3D:
+	case ObjectType::FltSS2D3D:
+	    key = mODHelpKey( mProcessFaultStickSetTime2DepthID );
+	    break;
+	default:
+	    break;
+    }
 
-uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
+    return key;
+}
+
+uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, ObjectType objtype )
     : uiDialog(p,uiDialog::Setup(getDlgTitle(objtype),mNoDlgTitle,
-	       mODHelpKey(mProcessHorizonTime2DepthID)))
+					getHelpKey(objtype)).modal(false))
     , objtype_(objtype)
 {
     setCtrlStyle( RunAndClose );
 
     IOObjContext ioobjctxt( nullptr );
     bool is2d = is2DObject();
-    if ( objtype == IOObjInfo::Horizon3D )
+    if ( objtype == ObjectType::Hor3D )
 	ioobjctxt = mIOObjContext(EMHorizon3D);
-    else if ( objtype == IOObjInfo::Horizon2D )
+    else if ( objtype == ObjectType::Hor2D )
 	ioobjctxt = mIOObjContext(EMHorizon2D);
+    else if ( objtype == ObjectType::Flt3D )
+	ioobjctxt = mIOObjContext(EMFault3D);
+    else if ( objtype == ObjectType::FltSet )
+	ioobjctxt = mIOObjContext(EMFaultSet3D);
+    else if ( objtype == ObjectType::FltSS2D )
+	ioobjctxt = mIOObjContext(EMFaultStickSet);
+    else if ( objtype == ObjectType::FltSS3D )
+	ioobjctxt = mIOObjContext(EMFaultStickSet);
     else
 	return;
 
@@ -74,32 +108,32 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype )
 							 uigrpnm );
     const uiString depthobjm = uiStrings::phrJoinStrings( uiStrings::sDepth(),
 							  uigrpnm );
-    const bool canhaveattribs = objtype_ == IOObjInfo::Horizon3D;
-    inptimehorsel_ = new uiSurfaceRead( this,
-		uiSurfaceRead::Setup(grpnm).withsubsel(true)
+    const bool canhaveattribs = objtype_ == ObjectType::Hor3D;
+    inptimesel_ = new uiSurfaceRead( this,
+		uiSurfaceRead::Setup(grpnm)
 			.withsectionfld(false).withattribfld(canhaveattribs),
 		&timeinf );
-    inptimehorsel_->getObjSel()->setLabelText( uiStrings::phrInput(timeobjm) );
-    mAttachCB( inptimehorsel_->inpChange, uiTime2DepthDlg::horSelCB );
-    inptimehorsel_->attach( alignedBelow, t2dtransfld_ );
+    inptimesel_->getObjSel()->setLabelText( uiStrings::phrInput(timeobjm) );
+    mAttachCB( inptimesel_->inpChange, uiTime2DepthDlg::inpSelCB);
+    inptimesel_->attach( alignedBelow, t2dtransfld_ );
 
-    inpdepthhorsel_ = new uiSurfaceRead( this,
-		uiSurfaceRead::Setup(grpnm).withsubsel(true)
+    inpdepthsel_ = new uiSurfaceRead( this,
+		uiSurfaceRead::Setup(grpnm)
 			.withsectionfld(false).withattribfld(canhaveattribs),
 		&depthinf );
-    inpdepthhorsel_->getObjSel()->setLabelText( uiStrings::phrInput(depthobjm));
-    mAttachCB( inpdepthhorsel_->inpChange, uiTime2DepthDlg::horSelCB );
-    inpdepthhorsel_->attach( alignedBelow, d2ttransfld_ );
+    inpdepthsel_->getObjSel()->setLabelText( uiStrings::phrInput(depthobjm));
+    mAttachCB( inpdepthsel_->inpChange, uiTime2DepthDlg::inpSelCB);
+    inpdepthsel_->attach( alignedBelow, d2ttransfld_ );
 
-    outdepthhorsel_ = new uiSurfaceWrite( this,
+    outdepthsel_ = new uiSurfaceWrite( this,
 	    uiSurfaceWrite::Setup(grpnm,uigrpnm), &depthinf );
-    outdepthhorsel_->getObjSel()->setLabelText(uiStrings::phrOutput(depthobjm));
-    outdepthhorsel_->attach( alignedBelow, inptimehorsel_ );
+    outdepthsel_->getObjSel()->setLabelText(uiStrings::phrOutput(depthobjm));
+    outdepthsel_->attach( alignedBelow, inptimesel_ );
 
-    outtimehorsel_ = new uiSurfaceWrite( this,
+    outtimesel_ = new uiSurfaceWrite( this,
 	    uiSurfaceWrite::Setup(grpnm,uigrpnm), &timeinf );
-    outtimehorsel_->getObjSel()->setLabelText( uiStrings::phrOutput(timeobjm) );
-    outtimehorsel_->attach( alignedBelow, inpdepthhorsel_ );
+    outtimesel_->getObjSel()->setLabelText( uiStrings::phrOutput(timeobjm) );
+    outtimesel_->attach( alignedBelow, inpdepthsel_ );
 
     mAttachCB( postFinalize(), uiTime2DepthDlg::dirChangeCB );
 }
@@ -113,14 +147,17 @@ uiTime2DepthDlg::~uiTime2DepthDlg ()
 
 bool uiTime2DepthDlg::is2DObject() const
 {
-    return objtype_ == IOObjInfo::Horizon2D;
+    return objtype_ == ObjectType::Hor2D ||
+	   objtype_ == ObjectType::FltSS2D;
 }
 
 
-uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
+uiRetVal uiTime2DepthDlg::canTransform( ObjectType objtype )
 {
     uiRetVal ret;
-    if ( objtype == IOObjInfo::Horizon3D || objtype == IOObjInfo::Horizon2D )
+    if ( objtype == ObjectType::Hor3D || objtype == ObjectType::Hor2D ||
+	objtype == ObjectType::Flt3D || objtype == ObjectType::FltSet ||
+	objtype == ObjectType::FltSS2D || objtype == ObjectType::FltSS3D )
 	return ret;
     else
 	ret.add( tr("Object type is not yet supported") );
@@ -129,12 +166,22 @@ uiRetVal uiTime2DepthDlg::canTransform( IOObjInfo::ObjectType objtype )
 }
 
 
-uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objyyp ) const
+uiString uiTime2DepthDlg::getDlgTitle( ObjectType objtyp ) const
 {
-    if ( objyyp == IOObjInfo::Horizon3D )
+    if ( objtyp == ObjectType::Hor3D )
 	return tr("Transform 3D Horizon");
+    else if ( objtyp == ObjectType::Hor2D )
+	return tr("Transform 2D Horizon");
+    else if ( objtyp == ObjectType::Flt3D )
+	return tr("Transform Fault");
+    else if ( objtyp == ObjectType::FltSet )
+	return tr("Tranform FaultSet");
+    else if ( objtyp == ObjectType::FltSS2D )
+	return tr("Tranform FaultStickSet 2D");
+    else if ( objtyp == ObjectType::FltSS3D )
+	return tr("Tranform FaultStickSet 3D");
 
-    return toUiString("Object Type Not Supported");
+    return tr("Object Type Not Supported");
 }
 
 
@@ -150,38 +197,48 @@ const ZDomain::Info& uiTime2DepthDlg::outZDomain() const
 void uiTime2DepthDlg::dirChangeCB( CallBacker* )
 {
     const bool todepth = directionsel_->getBoolValue();
-    const uiString lbl = todepth ? tr("Output Depth Horizon")
-				 : tr("Output Time Horizon");
     t2dtransfld_->display( todepth );
-    inptimehorsel_->display( todepth );
-    outdepthhorsel_->display( todepth );
+    inptimesel_->display( todepth );
+    outdepthsel_->display( todepth );
 
     d2ttransfld_->display( !todepth );
-    inpdepthhorsel_->display( !todepth );
-    outtimehorsel_->display( !todepth );
+    inpdepthsel_->display( !todepth );
+    outtimesel_->display( !todepth );
 }
 
 
-void uiTime2DepthDlg::horSelCB( CallBacker* cb )
+void uiTime2DepthDlg::inpSelCB( CallBacker* cb )
 {
     mDynamicCastGet(uiSurfaceRead*,inpfld,cb)
     if ( !inpfld )
 	return;
 
-    BufferString hornm = inpfld->getObjSel()->getInput();
-    if ( hornm.isEmpty() )
+    BufferString nm = inpfld->getObjSel()->getInput();
+    if ( nm.isEmpty() )
 	return;
 
-    if ( cb == inptimehorsel_ )
+    if ( cb == inptimesel_ )
     {
-	hornm.add( " Depth" );
-	outdepthhorsel_->getObjSel()->setInputText( hornm.buf() );
+	nm.add( " Depth" );
+	outdepthsel_->getObjSel()->setInputText( nm.buf() );
     }
     else
     {
-	hornm.add( " Time" );
-	outtimehorsel_->getObjSel()->setInputText( hornm.buf() );
+	nm.add( " Time" );
+	outtimesel_->getObjSel()->setInputText( nm.buf() );
     }
+}
+
+
+const char* uiTime2DepthDlg::sKeyTime2Depth() const
+{
+    return "Time2Depth";
+}
+
+
+const char* uiTime2DepthDlg::sKeyTransformation() const
+{
+    return "Transformation";
 }
 
 
@@ -189,22 +246,100 @@ RefMan<ZAxisTransform> uiTime2DepthDlg::getWorkingZAxisTransform() const
 {
     const bool todepth = directionsel_->getBoolValue();
     auto* zatffld = todepth ? t2dtransfld_ : d2ttransfld_;
-    return zatffld->acceptOK() ? zatffld->getSelection() : nullptr;
+    return zatffld->getSelection();
 }
 
 
 const uiSurfaceRead* uiTime2DepthDlg::getWorkingInpSurfRead() const
 {
     const bool todepth = directionsel_->getBoolValue();
-    return todepth ? inptimehorsel_ : inpdepthhorsel_;
+    return todepth ? inptimesel_ : inpdepthsel_;
 }
 
 
 uiSurfaceWrite* uiTime2DepthDlg::getWorkingOutSurfWrite()
 {
     const bool todepth = directionsel_->getBoolValue();
-    return todepth ? outdepthhorsel_ : outtimehorsel_;
+    return todepth ? outdepthsel_ : outtimesel_;
 }
+
+
+bool uiTime2DepthDlg::usePar( const IOPar& par )
+{
+    const bool is2d = is2DObject();
+    const IOPar* dimpar = par.subselect( is2d ? sKey::TwoD() :
+							    sKey::ThreeD() );
+    if ( !dimpar )
+	return false;
+
+    const IOPar* objpar = dimpar->subselect(
+				    ObjectTypeDef().getKey(objtype_) );
+    if ( !objpar )
+	return false;
+
+    bool ist2d = SI().zIsTime();
+    objpar->getYN( sKeyTime2Depth(),ist2d );
+    directionsel_->setValue( ist2d );
+    MultiID mid;
+    const IOPar* transfldpar = objpar->subselect( sKeyTransformation() );
+    objpar->get( sKey::ID(), mid );
+    if ( ist2d )
+    {
+	if ( !mid.isUdf() )
+	    inptimesel_->getObjSel()->setInput( mid );
+
+	if ( transfldpar )
+	    t2dtransfld_->usePar( *transfldpar );
+    }
+    else
+    {
+	if ( !mid.isUdf() )
+	    inpdepthsel_->getObjSel()->setInput( mid );
+
+	if ( transfldpar )
+	    d2ttransfld_->usePar( *transfldpar );
+    }
+
+    return true;
+}
+
+
+bool uiTime2DepthDlg::fillPar( IOPar& par ) const
+{
+    const bool is2d = is2DObject();
+    const BufferString dimkey( is2d ? sKey::TwoD() : sKey::ThreeD() );
+    const BufferString objtypekey( ObjectTypeDef().getKey(objtype_) );
+    const BufferString basekey( IOPar::compKey(dimkey,objtypekey) );
+    const bool ist2d = directionsel_->getBoolValue();
+    par.setYN( IOPar::compKey(basekey,sKeyTime2Depth()), ist2d );
+    auto* readerfld = const_cast<uiSurfaceRead*>( getWorkingInpSurfRead() );
+    par.set( IOPar::compKey(basekey,sKey::ID()),
+					    readerfld->getObjSel()->key() );
+    IOPar transfldpar;
+    if ( ist2d )
+    {
+	if ( t2dtransfld_->isOK() && t2dtransfld_->getSelection() )
+	    t2dtransfld_->fillPar( transfldpar );
+    }
+    else
+    {
+	if ( d2ttransfld_->isOK() && d2ttransfld_->getSelection() )
+	    d2ttransfld_->fillPar( transfldpar );
+    }
+
+    par.mergeComp( transfldpar, IOPar::compKey(basekey,sKeyTransformation()) );
+    return true;
+}
+
+
+bool uiTime2DepthDlg::hasSurfaceIOData() const
+{
+    return objtype_ == ObjectType::Hor3D || objtype_ == ObjectType::Hor2D
+	    || objtype_ == ObjectType::Flt3D
+	    || objtype_ == ObjectType::FltSS2D
+	    || objtype_ == ObjectType::FltSS3D;
+}
+
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
@@ -228,7 +363,7 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     EM::SurfaceIOData sd;
     uiString errmsg;
     const MultiID inpmid = inpioobj->key();
-    if ( !em.getSurfaceData(inpmid,sd,errmsg) )
+    if ( hasSurfaceIOData() && !em.getSurfaceData(inpmid,sd,errmsg) )
 	mErrRet(errmsg)
 
     auto* data = new SurfaceT2DTransfData( sd );
@@ -242,14 +377,18 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 							    *zatf, objtype_ );
     mDynamicCastGet(SurfaceT2DTransformer*,surftrans,exec.ptr());
     if ( !surftrans )
+    {
+	deepErase( datas );
 	return false;
+    }
 
     uiTaskRunner tskr( this );
-    if ( !TaskRunner::execute(&tskr,*surftrans) )
+    const bool errocc = TaskRunner::execute( &tskr, *surftrans );
+    if ( !errocc || surftrans->errMsg().isError() )
     {
-	uiMSG().errorWithDetails( tr("Fail to transform the %1").
-				arg(inpioobj->name()), surftrans->uiMessage() );
 	deepErase( datas );
+	uiMSG().errorWithDetails( surftrans->errMsg().messages(),
+		    tr("Fail to transform the %1").arg(inpioobj->name()) );
 	return false;
     }
 
@@ -259,7 +398,10 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
     {
 	PtrMan<Executor> saver = surf->saver();
 	if ( !saver || !TaskRunner::execute(&tskr,*saver) )
-	    mErrRet( tr("Can not save output horizon data.") );
+	{
+	    deepErase( datas );
+	    mErrRet( tr("Can not save tranformed data.") );
+	}
 
 	const MultiID outmid = surf->multiID();
 	PtrMan<IOObj> obj = IOM().get( outmid );
@@ -267,8 +409,13 @@ bool uiTime2DepthDlg::acceptOK( CallBacker* )
 	    IOM().commitChanges( *obj );
 
 	ret = uiMSG().askGoOn( tr("Successfully transformed %1.\n"
-			    "Do you want to tranform another horizon?").
+			    "Do you want to tranform another object?").
 			    arg(inpioobj->name()) );
+    }
+    else
+    {
+	ret = false;
+	uiMSG().error( tr("Cannot save tranformed data.") );
     }
 
     deepErase( datas );

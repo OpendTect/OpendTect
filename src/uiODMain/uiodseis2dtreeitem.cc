@@ -670,28 +670,28 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 
-	TrcKeyZSampling maxcs;
+	const TrcKeyZSampling tkzs( s2d->getTrcKeyZSampling(true) );
+	TrcKeyZSampling maxcs( tkzs.hsamp_.getGeomID() );
+	maxcs.hsamp_.setTrcRange( s2d->getMaxTraceNrRange() );
 	assign( maxcs.zsamp_, s2d->getMaxZRange(true)  );
-	maxcs.hsamp_.start_.crl() = s2d->getMaxTraceNrRange().start;
-	maxcs.hsamp_.stop_.crl() = s2d->getMaxTraceNrRange().stop;
 
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	CallBack dummy;
-	uiSliceSelDlg positiondlg( getUiParent(), s2d->getTrcKeyZSampling(true),
+	uiSliceSelDlg positiondlg( getUiParent(), tkzs,
 				   maxcs, dummy, uiSliceSel::TwoD,
 				   scene->zDomainInfo() );
-	if ( !positiondlg.go() ) return;
-	const TrcKeyZSampling newcs = positiondlg.getTrcKeyZSampling();
+	if ( !positiondlg.go() )
+	    return;
 
-	const Interval<float> newzrg( newcs.zsamp_.start, newcs.zsamp_.stop );
+	const TrcKeyZSampling newcs = positiondlg.getTrcKeyZSampling();
+	const Interval<float> newzrg = newcs.zsamp_;
 	if ( !newzrg.isEqual(s2d->getZRange(true),mDefEpsF) )
 	{
 	    s2d->annotateNextUpdateStage( true );
 	    s2d->setZRange( newzrg );
 	}
 
-	const Interval<int> ntrcnrrg(
-	    newcs.hsamp_.start_.crl(), newcs.hsamp_.stop_.crl() );
+	const Interval<int> ntrcnrrg = newcs.hsamp_.trcRange();
 	if ( ntrcnrrg != s2d->getTraceNrRange() )
 	{
 	    if ( !s2d->getUpdateStageNr() )

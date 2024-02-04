@@ -130,7 +130,7 @@ protected:
     const int		inputrowsize_;
     const int		inputcolsize_;
     const int		nrcols_;
-    bool		linefilt_;
+    bool		linefilt_	    = false;
     int			nrrowsdone_;
 
     inline void		filterRow(int);

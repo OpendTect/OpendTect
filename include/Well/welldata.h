@@ -170,7 +170,8 @@ public:
 
     const Well::Log*		getLog(const char* lognm) const;
     Well::Log*			getLogForEdit(const char* lognm);
-    void			getLogNames(BufferStringSet&) const;
+    void			getLogNames(BufferStringSet&,
+					    bool needreload=false) const;
     void			getLoadedLogNames(BufferStringSet&) const;
 
     bool			haveLogs() const;

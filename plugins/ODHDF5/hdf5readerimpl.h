@@ -33,6 +33,10 @@ private:
 
     DataSetKey		scope() const override		{ return gtScope(); }
     od_int64		curGroupID() const override	{ return gtGroupID(); }
+    H5::H5Location*	setLocation( const DataSetKey* dsky ) override
+						{ return stLocation( dsky ); }
+    H5::H5Location*	getLocation( const DataSetKey* dsky ) const override
+						{ return stLocation( dsky ); }
     H5::H5Object*	setScope( const DataSetKey* dsky ) override
 						{ return stScope( dsky ); }
     H5::H5Object*	getScope( const DataSetKey* dsky ) const override
@@ -49,6 +53,9 @@ private:
     void		getGroups(BufferStringSet&) const override;
     void		getDataSets(const char* grpnm,
 				    BufferStringSet&) const override;
+    void		gtComment(const H5::H5Location&,const char* name,
+				  BufferString&,uiRetVal&) const override;
+    unsigned		gtVersion(const H5::H5Object&,uiRetVal&) const override;
     template <class H5Dir>
     void		listObjs(const H5Dir&,BufferStringSet&,
 				 bool wantgroups) const;
@@ -69,7 +76,8 @@ private:
 
     bool		hasAttribute(const char*,
 				     const DataSetKey* =nullptr) const override;
-    int			getNrAttributes(const DataSetKey* =nullptr) const override;
+    int			getNrAttributes(
+				    const DataSetKey* =nullptr) const override;
     void		gtAttribNames(const H5::H5Object&,
 				BufferStringSet&) const override;
 

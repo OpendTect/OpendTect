@@ -25,6 +25,26 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 
 
+// uiPosProvider::Setup
+
+uiPosProvider::Setup::Setup( bool is_2d, bool with_step, bool with_z )
+    : uiPosProvGroup::Setup(is_2d,with_step,with_z)
+    , seltxt_(uiStrings::sPosition(2))
+    , allownone_(false)
+    , useworkarea_(true)
+    , choicetype_(OnlyRanges)
+{
+}
+
+
+uiPosProvider::Setup::~Setup()
+{
+}
+
+
+
+// uiPosProvider
+
 uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
     : uiGroup(p,"uiPosProvider")
     , setup_(su)
@@ -350,6 +370,9 @@ Pos::Provider* uiPosProvider::createProvider() const
 }
 
 
+
+// uiPosProvSel
+
 uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
     : uiCompoundParSel(p,su.seltxt_)
     , setup_(su)
@@ -478,6 +501,13 @@ void uiPosProvSel::setInputLimit( const TrcKeyZSampling& cs )
 }
 
 
+const ZDomain::Info* uiPosProvSel::zDomain() const
+{
+    return ZDomain::Info::getFrom( setup_.zdomkey_.buf(),
+				   setup_.zunitstr_.buf() );
+}
+
+
 bool uiPosProvSel::isAll() const
 {
     if ( setup_.allownone_ )
@@ -566,6 +596,27 @@ bool uiPosProvDlg::acceptOK( CallBacker* )
 { return true; }
 
 
+
+// uiPosSubSel::Setup
+
+uiPosSubSel::Setup::Setup( bool is_2d, bool with_z )
+    : seltxt_( is_2d ? "Trace subselection"
+		     : ( with_z  ? "Volume subselection"
+				 : "Area subselection") )
+    , is2d_(is_2d)
+    , withz_(with_z)
+    , withstep_(true)
+    , choicetype_(OnlyRanges)
+{
+}
+
+
+uiPosSubSel::Setup::~Setup()
+{
+}
+
+
+
 // uiPosSubSel
 
 uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
@@ -576,7 +627,8 @@ uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
     ppsu.seltxt( mToUiStringTodo(su.seltxt_) )
 	.allownone( true )
 	.choicetype( (uiPosProvider::Setup::ChoiceType)su.choicetype_ );
-    ppsu.zdomkey( su.zdomkey_ );
+    ppsu.zdomkey( su.zdomkey_ ).zunitstr( su.zunitstr_ );
+
     ps_ = new uiPosProvSel( this, ppsu );
     mAttachCB( ps_->butPush, uiPosSubSel::selChg );
     setHAlignObj( ps_ );
@@ -592,6 +644,13 @@ uiPosSubSel::~uiPosSubSel()
 void uiPosSubSel::selChg( CallBacker* )
 {
     selChange.trigger();
+}
+
+
+const ZDomain::Info* uiPosSubSel::zDomain() const
+{
+    const uiPosProvSel* ps = provSel();
+    return ps ? ps->zDomain() : nullptr;
 }
 
 

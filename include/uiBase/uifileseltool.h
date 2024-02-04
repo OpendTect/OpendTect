@@ -70,6 +70,8 @@ public:
 
     mDefineFactoryInClass( uiFileSelToolProvider, factory );
 
+    static void			addPluginFileSelProviders();
+
 protected:
 				uiFileSelToolProvider();
 };

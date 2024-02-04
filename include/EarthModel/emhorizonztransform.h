@@ -30,7 +30,7 @@ mODTextTranslationClass(HorizonZTransform)
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, HorizonZTransform,
 				  "HorizonZTransform",
-				  toUiString(sFactoryKeyword()));
+				  ::toUiString(sFactoryKeyword()));
 
 			HorizonZTransform();
 

@@ -368,6 +368,10 @@ public:
     static uiString sFaultSet(int n=1){ return tr("FaultSet",0,n); }
     static uiString sFaultStickSet(int n=1)
 					{ return tr( "FaultStickSet",0,n);}
+    static uiString sFaultStickSet2D(int n=1)
+					{ return tr( "FaultStickSet 2D",0,n);}
+    static uiString sFaultStickSet3D(int n=1)
+					{ return tr( "FaultStickSet 3D",0,n);}
     static uiString sFeet()		{ return tr("Feet"); }
     static uiString sFile()		{ return tr("File"); }
     static uiString sFileDoesntExist()	{ return phrDoesntExist(sFile(),1); }
@@ -608,8 +612,9 @@ public:
     static uiString sStored()		{ return tr("Stored" ); }
     static uiString sStratigraphy()	{ return tr( "Stratigraphy" ); }
     static uiString sSurface()		{ return tr("Surface"); }
-    static uiString sSurvey(int n=1)  { return tr("Survey",0,n); }
+    static uiString sSurvey(int n=1)	{ return tr("Survey",0,n); }
     static uiString sSurveys()		{ return sSurvey(mPlural); }
+    static uiString sSynthetic(int n=1) { return tr("Synthetic",0,n); }
     static uiString sTable(int n=1)	{ return tr("Table",0,n); }
     static uiString sTakeSnapshot()	{ return tr("Take snapshot"); }
     static uiString sTarget()		{ return tr("Target"); }

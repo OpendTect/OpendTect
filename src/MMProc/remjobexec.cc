@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "remjobexec.h"
 
+#include "envvars.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -77,16 +78,17 @@ PortNr_Type RemoteJobExec::legacyRemoteHandlerPort()
 
 PortNr_Type RemoteJobExec::stdRemoteHandlerPort()
 {
-    return mCast(PortNr_Type,15050);
+    static int portnr = GetEnvVarIVal( "DTECT_MM_ODREMPROC", 15050 );
+    return mCast(PortNr_Type,portnr);
 }
 
 
 PortNr_Type RemoteJobExec::getLocalHandlerPort()
 {
     mDefineStaticLocalObject( PortNr_Type, remport,
-		      = Network::isPortFree(legacyRemoteHandlerPort()) ?
-						  legacyRemoteHandlerPort() :
-						  stdRemoteHandlerPort() );
+		      = Network::isPortFree( stdRemoteHandlerPort() )
+				? stdRemoteHandlerPort()
+				: legacyRemoteHandlerPort() );
     return remport;
 }
 

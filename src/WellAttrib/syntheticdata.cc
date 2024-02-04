@@ -78,6 +78,26 @@ const char* SyntheticData::waveletName() const
 }
 
 
+TrcKeyZSampling SyntheticData::getTrcKeyZSampling() const
+{
+    const int nrpos = nrPositions();
+    TrcKeyZSampling tkzs = TrcKeyZSampling::getSynth();
+    if ( nrpos <= 0 )
+	return tkzs;
+
+    StepInterval<int> trcrg = StepInterval<int>::udf();
+    const TrcKey firstk = getTrcKey( 0 );
+    const TrcKey lasttk = getTrcKey( nrpos-1 );
+    trcrg.start = firstk.trcNr();
+    trcrg.stop = lasttk.trcNr();
+    trcrg.step = mNINT32( (1.f+trcrg.width()) / nrpos );
+    tkzs.hsamp_.setTrcRange( trcrg );
+    tkzs.zsamp_ = zRange();
+
+    return tkzs;
+}
+
+
 float SyntheticData::getTime( float dpt, int trcnr ) const
 {
     const TimeDepthModel* tdmodel = getTDModel( trcnr );

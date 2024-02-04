@@ -60,7 +60,9 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 
 
 uiMergeSeis::~uiMergeSeis()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiMergeSeis::updateTransfldCB( CallBacker* )
@@ -81,13 +83,13 @@ void uiMergeSeis::updateTransfldCB( CallBacker* )
     TrcKeyZSampling tkzs;
     for ( const auto* obj : chosenobjs )
     {
-	SeisIOObjInfo sobj( obj );
+	const SeisIOObjInfo sobj( obj );
 	TrcKeyZSampling inptkzs;
 	sobj.getRanges( inptkzs );
 	tkzs.include( inptkzs );
     }
 
-    transffld_->selfld->setInput( tkzs );
+    transffld_->setInput( tkzs );
 }
 
 

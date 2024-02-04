@@ -171,13 +171,14 @@ void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
 }
 
 
-struct uiScaleDlg : public uiDialog
+class uiScaleDlg : public uiDialog
 { mODTextTranslationClass(uiScaleDlg);
 public:
-uiScaleDlg( uiParent* p, const TrcKeyZSampling& scale, const char* zdomkey )
+uiScaleDlg( uiParent* p, const TrcKeyZSampling& scale, const char* zdomkey,
+	    const char* zunitstr )
     : uiDialog(p,Setup(tr("Set Annotation Scale"),mNoDlgTitle,mNoHelpKey))
 {
-    rangefld_ = new uiSelSubvol( this, true, zdomkey );
+    rangefld_ = new uiSelSubvol( this, true, zdomkey, zunitstr );
     rangefld_->setSampling( scale );
 }
 
@@ -196,8 +197,10 @@ uiSelSubvol*	rangefld_;
 
 void uiScenePropertyDlg::setAnnotScaleCB( CallBacker* )
 {
-    uiScaleDlg dlg( this, scene_->getAnnotScale(), scene_->zDomainKey() );
-    if ( !dlg.go() ) return;
+    uiScaleDlg dlg( this, scene_->getAnnotScale(), scene_->zDomainKey(),
+		    scene_->zDomainUnitStr() );
+    if ( dlg.go() != uiDialog::Accepted )
+	return;
 
     scene_->setAnnotScale( dlg.newscale_ );
 }
@@ -208,7 +211,7 @@ void uiScenePropertyDlg::updateCB( CallBacker* )
     if ( scene_ )
         updateScene( scene_ );
 
-    ui3DViewer* vwr = const_cast<ui3DViewer*> (viewers_[curvwridx_]);
+    auto* vwr = const_cast<ui3DViewer*> (viewers_[curvwridx_]);
     if ( vwr )
     {
 	vwr->setBackgroundColor( bgcolfld_->color() );

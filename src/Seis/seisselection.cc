@@ -8,22 +8,23 @@ ________________________________________________________________________
 -*/
 
 #include "seisselectionimpl.h"
-#include "trckeyzsampling.h"
-#include "pickset.h"
-#include "picksettr.h"
+
 #include "binidvalset.h"
-#include "polygon.h"
-#include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "ptrman.h"
-#include "survinfo.h"
-#include "survgeom2d.h"
+#include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
-#include "tableposprovider.h"
-#include "polyposprovider.h"
+#include "pickset.h"
+#include "picksettr.h"
+#include "polygon.h"
+#include "ptrman.h"
 #include "strmprov.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
+#include "tableposprovider.h"
+#include "trckeyzsampling.h"
+#include "polyposprovider.h"
 
 #define mGetSpecKey(s,k) IOPar::compKey(sKey::s(),k)
 static const char* sKeyBinIDSel = "BinID selection";
