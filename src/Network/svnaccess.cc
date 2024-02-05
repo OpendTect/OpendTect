@@ -26,7 +26,7 @@ static void addRedirect( OS::MachineCommand& mc )
 
 static bool executeCommand( OS::MachineCommand& mc, const BufferString& dir )
 {
-    addRedirect( mc );
+//    addRedirect( mc );
     OS::CommandExecPars pars( OS::Wait4Finish );
     if ( !dir.isEmpty() )
 	pars.workingdir( dir );
@@ -46,27 +46,6 @@ SVNAccess::SVNAccess( const char* dir )
     : havesvn_(File::exists( FilePath(dir,".svn").fullPath()) )
     , dir_(dir)
 {
-    if ( !havesvn_ )
-	return;
-
-    const BufferString fnm( FilePath(dir,".svn","entries").fullPath() );
-    od_istream strm( FilePath(dir,".svn","entries") );
-    if ( !strm.isOK() )
-
-    for ( int idx=0; idx<5; idx++ )
-	if ( !strm.skipLine() )
-	    return;
-
-    BufferString reposinfo;
-    if ( strm.getLine(reposinfo) )
-    {
-	char* reposnm = reposinfo.find( '/' );
-	if ( reposnm ) *reposnm++ = '\0';
-	const_cast<BufferString&>(reposdir_) = reposnm;
-	const char* hostnm = firstOcc( reposinfo.buf(), "//" );
-	if ( hostnm ) hostnm++;
-	const_cast<BufferString&>(host_) = hostnm;
-    }
 }
 
 
