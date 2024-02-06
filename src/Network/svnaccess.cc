@@ -8,25 +8,17 @@ ________________________________________________________________________
 -*/
 
 #include "svnaccess.h"
-#include "filepath.h"
+
+#include "dirlist.h"
 #include "file.h"
+#include "filepath.h"
 #include "genc.h"
 #include "od_iostream.h"
 #include "oscommand.h"
-#include "dirlist.h"
 
-
-static void addRedirect( OS::MachineCommand& mc )
-{
-#ifndef __debug__
-    mc.addFileRedirect( "/dev/null" )
-      .addFileRedirect( "&1", 2 );
-#endif
-}
 
 static bool executeCommand( OS::MachineCommand& mc, const BufferString& dir )
 {
-//    addRedirect( mc );
     OS::CommandExecPars pars( OS::Wait4Finish );
     if ( !dir.isEmpty() )
 	pars.workingdir( dir );
