@@ -195,7 +195,7 @@ bool EMSurfaceProvider::toNextPos()
 
 	    if ( surf2_ )
 	    {
-		const float stop = (float) surf2_->getPos( curpos_ ).z;
+		const float stop = (float) surf2_->getPos( curpos_.subID() ).z;
 		if ( !mIsUdf(stop) )
 		{
 		    curzrg_.stop = stop;
