@@ -78,6 +78,7 @@ public:
     void		restoreSession(); //!< pops up the restore session dlg
     void		autoSession(); //!< pops up the auto session dlg
     bool		isRestoringSession()	{ return restoringsess_; }
+    uiStringSet&	restoreMsgs()		{ return restoremsgs_; }
     void		setProgramName(const char*);
 			//Default is "OpendTect"
     void		setProgInfo(const char*);
@@ -100,6 +101,7 @@ protected:
     bool		restarting_	= false;
     BufferString	programname_;
     BufferString	programinfo_;
+    uiStringSet		restoremsgs_;
 
     MultiID		cursessid_;
     bool		failed_		= true;

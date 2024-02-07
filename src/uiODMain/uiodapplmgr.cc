@@ -514,7 +514,12 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
     const TypeSet<Attrib::SelSpec>* as = visserv_->getSelSpecs( visid, attrib );
     if ( !as || as->isEmpty() )
     {
-	uiMSG().error( tr("Cannot calculate attribute on this object") );
+	uiString msg( tr("Cannot calculate attribute on this object") );
+	if ( ODMainWin()->isRestoringSession() )
+	    ODMainWin()->restoreMsgs().add( msg );
+	else
+	    uiMSG().error( msg );
+
 	return false;
     }
 
@@ -532,7 +537,13 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 
 	if ( myas[idx].id().isUnselInvalid() )
 	{
-	    uiMSG().error( tr("Cannot find selected attribute") );
+	    uiString msg( tr("Cannot find selected attribute: %1").
+						    arg(myas[idx].userRef()) );
+	    if ( ODMainWin()->isRestoringSession() )
+		ODMainWin()->restoreMsgs().add( msg );
+	    else
+		uiMSG().error( msg );
+
 	    return false;
 	}
     }
@@ -558,10 +569,13 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 			Attrib::ExtAttrFact().create( nullptr, myas[0], false );
 		if ( !calc )
 		{
-		    uiString errstr(tr("Selected attribute '%1'\nis not present"
-				       " in the set and cannot be created")
-				  .arg(myas[0].userRef()));
-		    uiMSG().error( errstr );
+		    uiString msg(tr("Attribute not in the set,"
+				"cannot create: '%1'").arg(myas[0].userRef()));
+		    if ( ODMainWin()->isRestoringSession() )
+			ODMainWin()->restoreMsgs().add( msg );
+		    else
+			uiMSG().error( msg );
+
 		    return false;
 		}
 
@@ -570,7 +584,11 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 				 calc->createAttrib( tkzs, cacheid, &progm );
 		if ( dpid==DataPack::cNoID() && !calc->errmsg_.isEmpty() )
 		{
-		    uiMSG().error( calc->errmsg_ );
+		    if ( ODMainWin()->isRestoringSession() )
+			ODMainWin()->restoreMsgs().add( calc->errmsg_ );
+		    else
+			uiMSG().error( calc->errmsg_ );
+
 		    delete calc;
 		    return false;
 		}
