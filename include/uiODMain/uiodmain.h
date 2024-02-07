@@ -85,6 +85,9 @@ public:
     static uiString	sODDesc()
 				{ return tr("OpendTect Main Window"); }
 
+    uiStringSet&	restoremsgs_();
+    uiStringSet&	restoremsgs_() const;
+
 protected:
 
     uiODApplMgr*	applmgr_;
