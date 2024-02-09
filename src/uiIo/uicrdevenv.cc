@@ -28,9 +28,9 @@ ________________________________________________________________________
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 			const char* workdirnm )
     : uiDialog(p,uiDialog::Setup(tr("Create Development Environment"),
-				 mNoDlgTitle,mODHelpKey(mSetDataDirHelpID)))
+				 mNoDlgTitle,mODHelpKey(mCreateDevEnvHelpID)))
 {
-    uiLabel* lbl = new uiLabel( this,
+    auto* lbl = new uiLabel( this,
 	tr("Specify OpendTect plugin development location.\n") );
     lbl->attach( leftBorder );
 
@@ -44,7 +44,8 @@ uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 
 
 uiCrDevEnv::~uiCrDevEnv()
-{}
+{
+}
 
 
 bool uiCrDevEnv::isOK( const char* datadir )
@@ -73,7 +74,7 @@ bool uiCrDevEnv::isOK( const char* datadir )
 
 void uiCrDevEnv::crDevEnv( uiParent* appl )
 {
-    BufferString swdir = GetSoftwareDir(0);
+    const BufferString swdir = GetSoftwareDir(false);
     if ( !isOK(swdir) )
     {
 	uiMSG().error(tr("No source code found. Please download\n"
@@ -81,11 +82,10 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	return;
     }
 
-    FilePath oldworkdir( GetEnvVar("WORK") );
+    const FilePath oldworkdir( GetEnvVar("WORK") );
     const bool oldok = isOK( oldworkdir.fullPath() );
 
     BufferString workdirnm;
-
     if ( File::exists(oldworkdir.fullPath()) )
     {
 	uiString msg = tr("Your current development folder (%1) %2 to be "
@@ -111,7 +111,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	// pop dialog
 	uiCrDevEnv dlg( appl, basedirnm, worksubdirm );
-	if ( !dlg.go() ) return;
+	if ( dlg.go() != uiDialog::Accepted )
+	    return;
 
 	basedirnm = dlg.basedirfld->text();
 	worksubdirm = dlg.workdirfld->text();
@@ -122,7 +123,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	workdirnm = FilePath( basedirnm ).add( worksubdirm ).fullPath();
     }
 
-    if ( workdirnm.isEmpty() ) return;
+    if ( workdirnm.isEmpty() )
+	return;
 
     if ( File::exists(workdirnm) )
     {
@@ -150,7 +152,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     }
 
 
-    if ( !File::createDir( workdirnm ) )
+    if ( !File::createDir(workdirnm) )
 	mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(workdirnm)) )
 
     const uiString docmsg =
@@ -165,8 +167,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 #endif
 
     const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat"
-				      : "od_cr_dev_env.csh";
-    FilePath fp( swdir, "bin", scriptfnm );
+				      : "od_cr_dev_env.sh";
+    const FilePath fp( swdir, "bin", scriptfnm );
     OS::MachineCommand mc( fp.fullPath() );
     mc.addArg( swdir );
     mc.addArg( workdirnm );

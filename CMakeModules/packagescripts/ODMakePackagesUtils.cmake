@@ -390,7 +390,7 @@ macro( CREATE_DEVELPACKAGE )
 	file( COPY "${COPYFROMSCRIPTSDIR}/od_cr_dev_env.bat"
 	      DESTINATION "${COPYTOSCRIPTSDIR}" )
     else()
-	file( COPY "${COPYFROMSCRIPTSDIR}/od_cr_dev_env.csh"
+	file( COPY "${COPYFROMSCRIPTSDIR}/od_cr_dev_env.sh"
 	      DESTINATION "${COPYTODIR}" )
     endif()
 

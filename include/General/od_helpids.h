@@ -57,6 +57,7 @@ ________________________________________________________________________
 #define		mTrc2SPHelpID					0x00004017
 #define		mSimpleTimeDepthTableHelpID			0x00004018
 #define		mSEGYHdrEntrySettingsHelpID			0x00004019
+#define		mCreateDevEnvHelpID				0x00004020
 //Object-Management 008
 // Object-Management Basic 00
 #define		mSetDataDirHelpID				0x00800001
