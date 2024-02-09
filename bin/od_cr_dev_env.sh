@@ -73,6 +73,8 @@ fi
 # ----------------------------------------------------------------------------
 
 if ! cp -a "${inpdir}/doc/Programmer/pluginexample/CMakeLists.txt" "${outdir}" || \
+   ! mkdir -p "${outdir}/CMakeModules" || \
+   ! cp -a "${inpdir}/doc/Programmer/pluginexample/version.h.in" "${outdir}/CMakeModules" || \
    ! cp -a "${inpdir}/doc/Programmer/pluginexample/plugins" "${outdir}"; then
     echo "$0: Cannot copy all required files"
     exit 1

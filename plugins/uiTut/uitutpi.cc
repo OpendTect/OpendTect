@@ -10,6 +10,9 @@ ________________________________________________________________________
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
 #include "uitutseistools.h"
+#if __has_include("uitutversion.h")
+# include "uitutversion.h"
+#endif
 #include "uitutvolproc.h"
 #include "uitutwelltools.h"
 
@@ -19,27 +22,74 @@ ________________________________________________________________________
 #include "uiodmenumgr.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
-#include "viswelldisplay.h"
 
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "oddirs.h"
+#include "odplugin.h"
 #include "ptrman.h"
 #include "seistype.h"
 #include "survinfo.h"
+#include "viswelldisplay.h"
 
-#include "odplugin.h"
 
 static const int cTutIdx = -1100;
+
+static const char* getProductName()
+{
+#ifdef uiTut_PRODUCT_NAME
+    return uiTut_PRODUCT_NAME;
+#else
+    return "OpendTect";
+#endif
+}
+
+static const char* getCreatorNm()
+{
+#ifdef Vendor
+    return Vendor;
+#else
+    return "dGB Earth Sciences";
+#endif
+}
+
+static const char* getVersion()
+{
+#ifdef uiTut_VERSION
+    return uiTut_VERSION;
+#else
+    return "=od";
+#endif
+}
+
+static const char* dispName()	    { return "Tutorial plugin (GUI)"; }
+
+static const char* dispText()
+{
+    return "User Interface for some simple plugin development basics.\n"
+	   "Can be loaded into od_main only.";
+}
+
+static PluginInfo::LicenseType getLicType()
+{
+#ifdef Vendor
+    return PluginInfo::COMMERCIAL;
+#else
+    return PluginInfo::GPL;
+#endif
+}
 
 
 mDefODPluginInfo(uiTut)
 {
     static PluginInfo retpi(
-	"Tutorial plugin (GUI)",
-	"User Interface for some simple plugin development basics.\n"
-	"Can be loaded into od_main only." );
+	dispName(),
+	getProductName(),
+	getCreatorNm(),
+	getVersion(),
+	dispText(),
+	getLicType() );
     return &retpi;
 }
 
