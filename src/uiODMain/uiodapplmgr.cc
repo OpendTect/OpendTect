@@ -411,7 +411,7 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
 	: new uiZAxisTransformSel( &dlg, false, ZDomain::sKeyDepth(),
 				   ZDomain::sKeyTime(), true, false, poltype );
 
-    if ( !uitrans->isOK() )
+    if ( !uitrans->hasTransform() )
     {
 	uiMSG().error(tr("No suitable transforms found"));
 	return;

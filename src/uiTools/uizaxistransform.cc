@@ -197,17 +197,31 @@ bool uiZAxisTransformSel::getTargetSampling( ZSampling& zrg ) const
 }
 
 
+bool uiZAxisTransformSel::hasTransform() const
+{
+    return nrTransforms() > 0;
+}
+
+
 bool uiZAxisTransformSel::isOK() const
 {
-    return nrTransforms();
+    if ( !hasTransform() )
+	return false;
+
+    const int idx = selfld_ ? selfld_->getIntValue() : 0;
+    return transflds_[idx] ? transflds_[idx]->isOK() : true;
 }
 
 
 int uiZAxisTransformSel::nrTransforms() const
 {
     int res = transflds_.size();
-    if ( res && !transflds_[0] )
-	res--;
+    if ( res )
+    {
+	for ( auto* transfld : transflds_ )
+	    if ( !transfld )
+		res--;
+    }
 
     return res;
 }

@@ -40,6 +40,7 @@ public:
     virtual StringView		toDomain() const		= 0;
     virtual StringView		fromDomain() const		= 0;
 
+    virtual bool		isOK() const			= 0;
     virtual ZAxisTransform*	getSelection()			= 0;
     virtual bool		canBeField() const		= 0;
 				/*!Returns true if it can be in one line,
@@ -52,7 +53,6 @@ public:
     virtual bool		usePar(const IOPar&)		= 0;
     virtual bool		fillPar(IOPar&) const;
     virtual const char*		transformName() const		= 0;
-
 
 protected:
 				uiZAxisTransform(uiParent*);
@@ -81,6 +81,7 @@ public:
 
     bool			isOK() const;
     int				nrTransforms() const;
+    bool			hasTransform() const;
 
     NotifierAccess*		selectionDone();
     StringView			selectedToDomain() const;

@@ -484,3 +484,9 @@ uiZAxisTransform* uiSimpleTimeDepthTransform::createInstance( uiParent* p,
 
     return nullptr;
 }
+
+
+bool uiSimpleTimeDepthTransform::isOK() const
+{
+    return selfld_->ioobj( true );
+}

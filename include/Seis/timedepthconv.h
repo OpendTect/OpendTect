@@ -55,8 +55,8 @@ public:
 					 const UnitOfMeasure* vavguom,
 					 bool makenice=true);
 
-    const UnitOfMeasure* velUnit() const;
-    static Interval<float> getDefaultVAvg(const UnitOfMeasure*);
+    const UnitOfMeasure*    velUnit() const;
+    static Interval<float>  getDefaultVAvg(const UnitOfMeasure*);
 
 protected:
 			VelocityStretcher(const ZDomain::Def& from,

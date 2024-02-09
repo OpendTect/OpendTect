@@ -152,7 +152,7 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
     bool parchanged = false;
     if ( istime2depth )
     {
-	if ( !t2dfld_->acceptOK() )
+	if ( !t2dfld_->isOK() )
 	    return false;
 
 	outioobj = outputdepthsel_->ioobj();
@@ -167,7 +167,7 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
     }
     else
     {
-	if ( !d2tfld_->acceptOK() )
+	if ( !d2tfld_->isOK() )
 	    return false;
 
 	outioobj = outputtimesel_->ioobj();

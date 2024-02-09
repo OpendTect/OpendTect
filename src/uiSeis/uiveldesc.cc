@@ -743,28 +743,27 @@ bool uiVelModelZAxisTransform::usePar( const IOPar& par )
 }
 
 
-ZAxisTransform* uiVelModelZAxisTransform::getSelection()
+bool uiVelModelZAxisTransform::isOK() const
 {
-    transform_ = nullptr;
     uiRetVal uirv = velsel_->isOK();
     if ( !uirv.isOK() )
     {
 	uiMSG().error( uirv );
-	return nullptr;
+	return false;
     }
 
     const IOObj* ioobj = velsel_->ioobj( true );
     if ( !ioobj )
     {
 	pErrMsg("Should not be reached");
-	return nullptr;
+	return false;
     }
 
     const MultiID mid = ioobj->key();
     if ( mid.isUdf() )
     {
 	pErrMsg("Should not be reached");
-	return nullptr;
+	return false;
     }
 
     const BufferString selname = ioobj->name();
@@ -776,7 +775,7 @@ ZAxisTransform* uiVelModelZAxisTransform::getSelection()
     if ( !uirv.isOK() )
     {
 	uiMSG().error( uirv );
-	return nullptr;
+	return false;
     }
 
     uiRetVal res;
@@ -786,13 +785,22 @@ ZAxisTransform* uiVelModelZAxisTransform::getSelection()
 	    "selected velocity model:");
 	uirv.add( res );
 	uiMSG().error( res );
-	return nullptr;
+	return false;
     }
 
+    return true;
+}
+
+
+ZAxisTransform* uiVelModelZAxisTransform::getSelection()
+{
+    if ( !isOK() )
+	return nullptr;
+
     if ( isTimeToDepth() )
-	transform_ = new Time2DepthStretcher( mid );
+	transform_ = new Time2DepthStretcher( velsel_->key() );
     else
-	transform_ = new Depth2TimeStretcher( mid );
+	transform_ = new Depth2TimeStretcher( velsel_->key() );
 
     if ( !transform_->isOK() )
     {
@@ -801,11 +809,9 @@ ZAxisTransform* uiVelModelZAxisTransform::getSelection()
 	    msgs.add( transform_->errMsg() );
 
 	uiMSG().errorWithDetails( msgs.messages() );
-	return nullptr;
+	transform_ = nullptr;
     }
 
-    selname_ = selname;
-    selkey_ = mid;
     return transform_;
 }
 
@@ -853,10 +859,6 @@ void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
 }
 
 
-const char* uiVelModelZAxisTransform::selName() const
-{ return selname_.buf(); }
-
-
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiVelModelZAxisTransform::acceptOK()
@@ -873,8 +875,6 @@ bool uiVelModelZAxisTransform::acceptOK()
 	uiMSG().errorWithDetails( msgs.messages() );
 	return false;
     }
-
-
 
     return true;
 }

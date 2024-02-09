@@ -130,3 +130,9 @@ uiZAxisTransform* uiWellT2DTransform::createInstance(uiParent* p,
 
     return new uiWellT2DTransform( p );
 }
+
+
+bool uiWellT2DTransform::isOK() const
+{
+    return selfld_->ioobj( true );
+}

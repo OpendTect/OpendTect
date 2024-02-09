@@ -130,18 +130,15 @@ StringView uiLinearVelTransform::fromDomain() const
 
 ZAxisTransform*	uiLinearVelTransform::getSelection()
 {
-    const double vel = velfld_->getDValue();
-    if ( mIsUdf(vel) )
+    if ( !isOK() )
 	return nullptr;
 
+    const double velocity = velfld_->getDValue();
     const double gradient = gradientfld_->getDValue();
-    if ( mIsUdf(gradient) )
-	return nullptr;
-
     if ( isTimeToDepth() )
-	return new LinearT2DTransform( vel, gradient );
+	return new LinearT2DTransform( velocity, gradient );
     else
-	return new LinearD2TTransform( vel, gradient );
+	return new LinearD2TTransform( velocity, gradient );
 }
 
 
@@ -170,6 +167,20 @@ bool uiLinearVelTransform::acceptOK()
 	    return false;
 	}
     }
+
+    return true;
+}
+
+
+bool uiLinearVelTransform::isOK() const
+{
+    const double velocity = velfld_->getDValue();
+    if ( mIsUdf(velocity) )
+	return false;
+
+    const double gradient = gradientfld_->getDValue();
+    if ( mIsUdf(gradient) )
+	return false;
 
     return true;
 }

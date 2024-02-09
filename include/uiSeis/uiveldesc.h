@@ -163,13 +163,12 @@ protected:
 				uiVelModelZAxisTransform(uiParent*,bool t2d,
 								OD::Pol2D3D);
 				~uiVelModelZAxisTransform();
+
 private:
 
+    bool			isOK() const override;
     ZAxisTransform*		getSelection() override;
     bool			canBeField() const override { return true; }
-
-    const char*			selName() const;
-    const MultiID&		selID() const { return selkey_; }
 
     StringView			getZDomain() const;
 
@@ -180,9 +179,6 @@ private:
     const char*			transformName() const override;
 
     RefMan<ZAxisTransform>	transform_;
-    BufferString		selname_;
-    MultiID			selkey_;
-
     uiVelSel*			velsel_;
 };
 

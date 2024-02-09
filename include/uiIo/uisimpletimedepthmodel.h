@@ -23,6 +23,7 @@ private:
 			uiSimpleTimeDepthTransform(uiParent*,bool t2d);
 			~uiSimpleTimeDepthTransform();
 
+    bool		isOK() const override;
     ZAxisTransform*	getSelection() override;
     bool		canBeField() const override	{ return true; }
 
@@ -39,6 +40,7 @@ private:
 
     static uiZAxisTransform*	createInstance(uiParent*,
 						const uiZAxisTranformSetup&);
+
 public:
     static void		initClass();
 
