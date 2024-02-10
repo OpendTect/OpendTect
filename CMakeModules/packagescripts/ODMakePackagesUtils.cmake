@@ -391,7 +391,7 @@ macro( CREATE_DEVELPACKAGE )
 	      DESTINATION "${COPYTOSCRIPTSDIR}" )
     else()
 	file( COPY "${COPYFROMSCRIPTSDIR}/od_cr_dev_env.sh"
-	      DESTINATION "${COPYTODIR}" )
+	      DESTINATION "${COPYTOSCRIPTSDIR}" )
     endif()
 
     foreach( PLUGIN ${PLUGINS} )

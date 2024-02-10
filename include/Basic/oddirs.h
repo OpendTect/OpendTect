@@ -97,14 +97,14 @@ mGlobal(Basic) const char* GetExecPlfDir(void);
 /*!< Platform dependent executable directory
   Returns full path to bin dir:
   GetSoftwareDir()/bin/GetPlfSubDir()/GetBinSubDir() on Windows and Linux,
-  and GetSoftwareDir()/Contents/MacOS on Mac.
+  and GetSoftwareDir()/Contents/MacOS on macOS.
 */
 
 mGlobal(Basic) const char* GetScriptDir(void);
 /*!< Platform dependent script directory
   Returns full path to bin dir:
   GetSoftwareDir()/bin on Windows and Linux,
-  and GetSoftwareDir()/Contents/MacOS on Mac.
+  and GetSoftwareDir()/Contents/Resources/bin on macOS.
 */
 
 mGlobal(Basic) const char* GetShellScript(const char*);

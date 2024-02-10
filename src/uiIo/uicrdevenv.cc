@@ -56,9 +56,7 @@ bool uiCrDevEnv::isOK( const char* datadir )
     FilePath datafp( datadir );
 #endif
 
-    if ( !datafp.nrLevels() ) return false;
-
-    if ( !datafp.nrLevels() || !File::isDirectory( datafp.fullPath() ) )
+    if ( !File::isDirectory(datafp.fullPath()) )
 	return false;
 
     datafp.add( "CMakeLists.txt" );
@@ -151,7 +149,6 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	File::remove( workdirnm );
     }
 
-
     if ( !File::createDir(workdirnm) )
 	mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(workdirnm)) )
 
@@ -166,9 +163,9 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     workdirnm = shortpath;
 #endif
 
-    const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat"
-				      : "od_cr_dev_env.sh";
-    const FilePath fp( swdir, "bin", scriptfnm );
+    static const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat"
+					     : "od_cr_dev_env.sh";
+    const FilePath fp( GetScriptDir(), scriptfnm );
     OS::MachineCommand mc( fp.fullPath() );
     mc.addArg( swdir );
     mc.addArg( workdirnm );
@@ -192,7 +189,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	FilePath( workdirnm ).add( "plugins" ).fullPath();
     BufferStringSet testfiles;
     testfiles.add( cmakefile ).add( cmakecache ).add( pluginsdir );
-    for ( const auto testfile : testfiles )
+    for ( const auto* testfile : testfiles )
     {
 	if ( !File::exists(testfile->buf()) )
 	    mErrRet( tr("Creation seems to have failed:\n%1").arg(msgstr) )
