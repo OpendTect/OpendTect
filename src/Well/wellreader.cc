@@ -1017,7 +1017,7 @@ int MultiWellReader::nextStep()
 	if  ( wds_.size() == 0 )
 	{
 	    errmsg_ = tr("Failed to read well data.");
-	   return  ErrorOccurred();
+	    return  ErrorOccurred();
 	}
 	else
 	    return Finished();

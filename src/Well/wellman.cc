@@ -218,6 +218,7 @@ const UnitOfMeasure* Well::Man::depthdisplayunit_ = nullptr;
 
 Well::Man::Man()
     : wfl_(new WellFileList())
+    , wellsaddedtodbnotloaded(this)
 {
     WellUpdateQueue::WUQ();
     addFSWOnFileCB( nullptr );
@@ -225,6 +226,7 @@ Well::Man::Man()
     addFSWTimerCB( nullptr );
     getWellKeys( allwellsids_ );
     mAttachCB( IOM().afterSurveyChange, Man::checkForUndeletedRef );
+    mAttachCB( IOM().entryRemoved, Man::wellEntryRemovedCB );
     mAttachCB( WellUpdateQueue::WUQ().canupdate, Man::databaseUpdateCB);
 }
 
@@ -315,7 +317,6 @@ void Well::Man::wellUpdateNeededCB( CallBacker* )
 
 void Well::Man::databaseUpdateCB( CallBacker* cb )
 {
-
     isreloading_ = true;
     WellFileList currlist;
     *wfl_ = currlist;
@@ -326,7 +327,23 @@ void Well::Man::databaseUpdateCB( CallBacker* cb )
 	if ( !isLoaded(delkey) )
 	    continue;
 
+	if ( dbaddedwellsids_.isPresent(delkey) )
+	{
+	    const int idx = dbaddedwellsids_.indexOf( delkey );
+	    dbaddedwellsids_.removeSingle( idx );
+	}
+
 	IOM().entryRemoved.trigger( delkey );
+    }
+
+    allwellsids_.setEmpty();
+    getWellKeys( allwellsids_ );
+    while ( WellUpdateQueue::WUQ().hasWellsToBeAdded() )
+    {
+	MultiID addkey;
+	WellUpdateQueue::WUQ().dequeueWellsAdded( addkey );
+	allwellsids_.addIfNew( addkey );
+	dbaddedwellsids_.addIfNew( addkey );
     }
 
     while ( !WellUpdateQueue::WUQ().isEmpty() )
@@ -345,6 +362,22 @@ void Well::Man::databaseUpdateCB( CallBacker* cb )
     }
 
     isreloading_ = false;
+    if (!dbaddedwellsids_.isEmpty())
+	wellsaddedtodbnotloaded.trigger();
+}
+
+
+void Well::Man::wellEntryRemovedCB( CallBacker* cb )
+{
+    if (!cb || !cb->isCapsule())
+	return;
+
+    mCBCapsuleUnpack( const MultiID&, key, cb );
+    if (allwellsids_.isPresent( key ))
+    {
+	const int idx = allwellsids_.indexOf( key );
+	allwellsids_.removeSingle( idx );
+    }
 }
 
 
@@ -446,6 +479,11 @@ RefMan<Well::Data> Well::Man::addNew( const MultiID& key, LoadReqs reqs )
 	wd->setMultiID( key );
 	wells_ += wd;
 	wfl_->addLoadedWells( wd->name(), wd->multiID() );
+	if ( !dbaddedwellsids_.isEmpty() )
+	{
+	    const int idx = dbaddedwellsids_.indexOf( key );
+	    dbaddedwellsids_.removeSingle( idx );
+	}
     }
     else
 	wd.erase();

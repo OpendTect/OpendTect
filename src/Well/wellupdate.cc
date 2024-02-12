@@ -52,7 +52,7 @@ void WellUpdateQueue::enqueue( const std::pair<MultiID,
     Threads::Locker locker( lock_ );
     const int objid = updateobj.first.objectID();
     const Well::LoadReqs req = updateobj.second;
-    if ( delobjidqueue_.isPresent(objid) )
+    if ( delobjidqueue_.isPresent(objid) || addobjidqueue_.isPresent(objid) )
 	return;
 
     if ( !updobjidqueue_.isPresent(objid) )
@@ -76,6 +76,23 @@ void WellUpdateQueue::enqueueWellsToBeDeleted( const MultiID& key )
     const int objid = key.objectID();
     if ( !delobjidqueue_.isPresent(objid) )
 	delobjidqueue_.push( objid );
+
+    if ( addobjidqueue_.isPresent(objid) )
+    {
+	const int idx = addobjidqueue_.indexOf( objid );
+	addobjidqueue_.removeSingle( objid );
+    }
+
+    timer_->start( 1000 );
+}
+
+
+void WellUpdateQueue::enqueueWellsAdded( const MultiID& key )
+{
+    Threads::Locker locker( lock_ );
+    const int objid = key.objectID();
+    if ( !addobjidqueue_.isPresent(objid) )
+	addobjidqueue_.push( objid );
 
     timer_->start( 1000 );
 }
@@ -113,6 +130,21 @@ bool WellUpdateQueue::dequeueWellsToBeDeleted( MultiID& id )
 }
 
 
+bool WellUpdateQueue::dequeueWellsAdded( MultiID& id )
+{
+    if ( !hasWellsToBeAdded() )
+	return false;
+
+    Threads::Locker locker( lock_ );
+    id = MultiID( wellgrpid_, addobjidqueue_.first() );
+    addobjidqueue_.removeSingle( 0 );
+    if ( !isEmpty() )
+	timer_->stop();
+
+    return true;
+}
+
+
 int WellUpdateQueue::size() const
 {
     return updobjidqueue_.size();
@@ -121,13 +153,21 @@ int WellUpdateQueue::size() const
 
 bool WellUpdateQueue::isEmpty() const
 {
-    return updobjidqueue_.isEmpty() && delobjidqueue_.isEmpty();
+    return updobjidqueue_.isEmpty()
+	   && delobjidqueue_.isEmpty()
+	   && addobjidqueue_.isEmpty();
 }
 
 
 bool WellUpdateQueue::hasWellsToBeDeleted() const
 {
     return !delobjidqueue_.isEmpty();
+}
+
+
+bool WellUpdateQueue::hasWellsToBeAdded() const
+{
+    return !addobjidqueue_.isEmpty();
 }
 
 
@@ -264,6 +304,28 @@ void WellFileList::catchChange()
 
     catchChangedWells( currlist );
     catchChangedFiles( currlist );
+}
+
+
+bool WellFileList::getAddedWells( const WellFileList& oth )
+{
+    const int nrwellsthis = nrWells();
+    const int nrwellsoth = oth.nrWells();
+    if ( nrWells() >= oth.nrWells() )
+	return false;
+
+    QHashIterator<const QString,QString> iter( oth.allIdsNamePairs() );
+    while ( iter.hasNext() )
+    {
+	iter.next();
+	if ( allidsnmpair_.contains(iter.key()) )
+	    continue;
+
+	BufferString idstr( iter.key() );
+	WellUpdateQueue::WUQ().enqueueWellsAdded( MultiID(idstr.str()) );
+    }
+
+    return true;
 }
 
 
@@ -422,7 +484,8 @@ void WellFileList::updateWellQueue( const QString& fnm, bool reqall )
 
 bool WellFileList::catchChangedWells( const WellFileList& currlist )
 {
-    return getDeletedWells( currlist )
+    return getAddedWells( currlist )
+	|| getDeletedWells( currlist )
 	|| getRenamedWells( currlist );
 }
 

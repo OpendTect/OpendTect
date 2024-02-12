@@ -31,11 +31,14 @@ public:
 
     void		enqueue(const std::pair<MultiID,Well::LoadReqs>&);
     void		enqueueWellsToBeDeleted(const MultiID&);
+    void		enqueueWellsAdded(const MultiID&);
     bool		dequeue(std::pair<MultiID,Well::LoadReqs>&);
     bool		dequeueWellsToBeDeleted(MultiID&);
+    bool		dequeueWellsAdded(MultiID&);
     int			size() const;
     bool		isEmpty() const;
     bool		hasWellsToBeDeleted() const;
+    bool		hasWellsToBeAdded() const;
 
     Notifier<WellUpdateQueue>	canupdate;
 private:
@@ -47,6 +50,7 @@ private:
     TypeSet<int>		updobjidqueue_;
     TypeSet<Well::LoadReqs>	updreqsqueue_;
     TypeSet<int>		delobjidqueue_;
+    TypeSet<int>		addobjidqueue_;
     Timer*			timer_		    = nullptr;
     mutable Threads::Lock	lock_;
     const int			wellgrpid_;
@@ -78,6 +82,7 @@ private:
 
     bool		catchChangedWells(const WellFileList&);
     bool		catchChangedFiles(const WellFileList&);
+    bool		getAddedWells(const WellFileList&);
     bool		getDeletedWells(const WellFileList&);
     bool		getRenamedWells(const WellFileList&);
     bool		getDeletedFiles(const WellFileList&);
