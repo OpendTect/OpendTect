@@ -15,18 +15,24 @@ class uiGenInput;
 class uiFileInput;
 
 mExpClass(uiIo) uiCrDevEnv : public uiDialog
-{ mODTextTranslationClass(uiCrDevEnv);
+{ mODTextTranslationClass(uiCrDevEnv)
 public:
 			~uiCrDevEnv();
 
-    static void		crDevEnv(uiParent*);		
-    static bool		isOK(const char* dir=0); //!< default dir: $WORK
+    FilePath		getWorkDir() const;
 
-protected:
-			uiCrDevEnv(uiParent*,const char*,const char*);
+private:
+			uiCrDevEnv(uiParent*,const FilePath&);
 
-    uiGenInput*		workdirfld;
-    uiFileInput*	basedirfld;
+    uiGenInput*		workdirfld_;
+    uiFileInput*	basedirfld_;
 
     bool		acceptOK(CallBacker*) override;
+
+    static uiRetVal	copyEnv(const char* swdir,const char* envdir);
+
+public:
+
+    static uiRetVal	canCreateDevEnv();
+    static void		crDevEnv(uiParent*);
 };

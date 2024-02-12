@@ -47,7 +47,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odinst.h"
 #include "odsysmem.h"
-#include "odver.h"
 #include "od_ostream.h"
 #include "settings.h"
 #include "survinfo.h"
@@ -1072,9 +1071,7 @@ void uiODMenuMgr::fillUtilMenu()
 	insertAction( installmnu_, m3Dots(tr("Firewall Management")),
 			mFirewallProcItm );
 
-    BufferString develverstr;
-    GetSpecificODVersion( "devel", develverstr );
-    if ( !develverstr.isEmpty() )
+    if ( uiCrDevEnv::canCreateDevEnv().isOK() )
 	insertAction( utilmnu_, m3Dots(tr("Plugin Development")),
 		     mCrDevEnvMnuItm );
 

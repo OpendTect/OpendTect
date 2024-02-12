@@ -386,14 +386,6 @@ macro( CREATE_BASEPACKAGE PACKAGE_NAME )
 endmacro(CREATE_BASEPACKAGE)
 
 macro( CREATE_DEVELPACKAGE )
-    if ( WIN32 )
-	file( COPY "${COPYFROMSCRIPTSDIR}/od_cr_dev_env.bat"
-	      DESTINATION "${COPYTOSCRIPTSDIR}" )
-    else()
-	file( COPY "${COPYFROMSCRIPTSDIR}/od_cr_dev_env.sh"
-	      DESTINATION "${COPYTOSCRIPTSDIR}" )
-    endif()
-
     foreach( PLUGIN ${PLUGINS} )
 	file( COPY "${COPYFROMDIR}/plugins/${PLUGIN}"
 	      DESTINATION "${COPYTODIR}/plugins" )
