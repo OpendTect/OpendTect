@@ -163,6 +163,11 @@ public:
     Undo&			undo();
     const Undo&			undo() const;
 
+    void			setEditMode(bool yn)	{ ineditmode_ = yn; };
+    bool			inEditMode() const	{ return ineditmode_; }
+
+    bool			isPainting() const override
+    				{ return inEditMode(); }
 protected:
 				~PlaneDataDisplay();
 
@@ -211,6 +216,7 @@ protected:
     visBase::EventCatcher*		eventcatcher_ = nullptr;
     MouseCursor				mousecursor_;
     RefMan<visBase::DepthTabPlaneDragger> dragger_;
+    bool				ineditmode_	= false;
 
     visBase::GridLines*			gridlines_;
     SliceType				orientation_ = OD::InlineSlice;

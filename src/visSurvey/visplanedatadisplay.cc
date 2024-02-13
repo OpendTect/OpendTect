@@ -483,6 +483,9 @@ void PlaneDataDisplay::coltabChanged( CallBacker* )
 
 void PlaneDataDisplay::showManipulator( bool yn )
 {
+    if ( inEditMode() )
+	yn = false;
+
     dragger_->turnOn( yn );
     texturerect_->enableTraversal(visBase::cDraggerIntersecTraversalMask(),!yn);
 }
@@ -518,6 +521,9 @@ void PlaneDataDisplay::resetManipulation()
 
 void PlaneDataDisplay::acceptManipulation()
 {
+    if ( inEditMode() )
+	return;
+
     TrcKeyZSampling cs = getTrcKeyZSampling( true, true );
     setTrcKeyZSampling( cs );
 
