@@ -80,7 +80,7 @@ void WellUpdateQueue::enqueueWellsToBeDeleted( const MultiID& key )
     if ( addobjidqueue_.isPresent(objid) )
     {
 	const int idx = addobjidqueue_.indexOf( objid );
-	addobjidqueue_.removeSingle( objid );
+	addobjidqueue_.removeSingle( idx );
     }
 
     timer_->start( 1000 );
@@ -309,8 +309,6 @@ void WellFileList::catchChange()
 
 bool WellFileList::getAddedWells( const WellFileList& oth )
 {
-    const int nrwellsthis = nrWells();
-    const int nrwellsoth = oth.nrWells();
     if ( nrWells() >= oth.nrWells() )
 	return false;
 
