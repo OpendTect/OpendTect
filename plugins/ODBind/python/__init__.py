@@ -66,6 +66,11 @@ def wrap_function(lib, funcname, restype, argtypes):
     func.argtypes = argtypes
     return func
 
+def load_gssapi():
+    libfp = os.path.join( os.path.dirname( sys.executable ), '..', 'lib', 'libgssapi_krb5.so.2' )
+    if os.path.exists(libfp):
+      ct.CDLL( libfp )
+
 class NumpyAllocator:
     CFUNCTYPE = ct.CFUNCTYPE(ct.c_void_p, ct.c_int, ct.POINTER(ct.c_int), ct.c_char)
 
@@ -82,7 +87,16 @@ class NumpyAllocator:
     cfunc = property(getcfunc)
 
 libodbind = os.path.join(odc.getExecPlfDir(), get_lib_name('ODBind'))
-LIBODB = ct.CDLL(libodbind)
+try:
+  LIBODB = ct.CDLL(libodbind)
+except OSError:
+  try:
+    if sys.platform == 'linux':
+      load_gssapi()
+    LIBODB = ct.CDLL(libodbind)
+  except OSError as e:
+    raise e
+
 init_module = wrap_function(LIBODB, 'initModule', None, [ct.c_char_p])
 exit_module = wrap_function(LIBODB, 'exitModule', None, [])
 init_module(libodbind.encode())
