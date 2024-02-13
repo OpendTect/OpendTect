@@ -665,7 +665,7 @@ bool VelocityStretcher::getRange( const IOPar& par, const VelocityDesc& desc,
     {
 	const StringView unitlbl = fms[2];
 	const UnitOfMeasure* rgstoruom = UoMR().get( unitlbl );
-	if ( rgstoruom && rgstoruom->isCompatibleWith(*veluom) )
+	if ( rgstoruom && veluom && rgstoruom->isCompatibleWith(*veluom) )
 	    velstoruom = rgstoruom;
     }
 
