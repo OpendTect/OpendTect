@@ -41,18 +41,18 @@ VolumeConverterNew::VolumeConverterNew( const IOObj& input, const IOObj& output,
 					const VelocityDesc& desc, double srd,
 					const UnitOfMeasure* srduom )
     : msg_(tr("Converting velocities"))
-    , tks_(ranges)
-    , velinpdesc_(*new VelocityDesc)
-    , veloutpdesc_(*new VelocityDesc(desc))
     , input_(input)
     , output_(output)
+    , velinpdesc_(*new VelocityDesc)
+    , veloutpdesc_(*new VelocityDesc(desc))
     , srd_(srd)
     , srduom_(srduom)
+    , tks_(ranges)
 {
     velinpdesc_.usePar( input_.pars() );
     msg_ = tr("Converting velocities from %1 to %2")
-		.arg( toString(velinpdesc_.type_) )
-		.arg( toString(veloutpdesc_.type_) );
+		.arg( VelocityDesc::toString(velinpdesc_.type_) )
+		.arg( VelocityDesc::toString(veloutpdesc_.type_) );
     setRanges();
 }
 
@@ -120,9 +120,6 @@ void VolumeConverterNew::setRanges()
 
 bool VolumeConverterNew::doPrepare( int nrthreads )
 {
-    msg_ = tr("Converting velocities from %1 to %2")
-		.arg( toString(velinpdesc_.type_) )
-		.arg( toString(veloutpdesc_.type_) );
     if ( totalnr_ < 0 )
     {
 	msg_ = tr("No positions to process");
