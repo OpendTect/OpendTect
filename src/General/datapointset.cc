@@ -548,6 +548,12 @@ DataColDef& DataPointSet::gtColDef( DataPointSet::ColID cid ) const
 }
 
 
+OD::GeomSystem DataPointSet::geomSystem() const
+{
+    return bivSet().geomSystem();
+}
+
+
 DataPointSet::ColID DataPointSet::indexOf( const char* nmstr ) const
 {
     StringView nm( nmstr );
@@ -1035,7 +1041,7 @@ DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos,
 
 DataPointSet::RowID DataPointSet::findFirst( const TrcKey& tkey ) const
 {
-    if ( tkey.is2D() == !this->is2D() )
+    if ( tkey.geomSystem() != this->geomSystem() )
 	return -1;
 
     BinIDValueSet::SPos bpos = bivSet().find( tkey.position() );

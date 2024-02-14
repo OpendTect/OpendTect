@@ -43,6 +43,7 @@ public:
 
     void		setIs2D(bool yn);
     bool		is2D() const;
+    OD::GeomSystem	geomSystem() const;
 
 protected:
 
