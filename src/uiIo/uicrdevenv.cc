@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "dirlist.h"
 #include "file.h"
-#include "filepath.h"
 #include "oddirs.h"
 #include "odver.h"
 #include "od_helpids.h"

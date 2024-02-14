@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+
+#include "filepath.h"
 #include "uidialog.h"
 
 class uiGenInput;
