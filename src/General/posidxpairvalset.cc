@@ -1608,7 +1608,21 @@ void BinIDValueSet::addHorPosIfNeeded( const Pos::IdxPair& ip )
 
 
 void BinIDValueSet::setIs2D( bool yn )
-{ is2d_ = yn; }
+{
+    is2d_ = yn;
+}
+
 
 bool BinIDValueSet::is2D() const
-{ return is2d_; }
+{
+    return is2d_;
+}
+
+
+OD::GeomSystem	BinIDValueSet::geomSystem() const
+{
+    if ( nrFirst()==1 && firstIdxPair().lineNr()==OD::GeomSynth )
+	return OD::GeomSynth;
+
+    return is2D() ? OD::Geom2D : OD::Geom3D;
+}
