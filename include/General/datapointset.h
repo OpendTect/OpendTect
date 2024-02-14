@@ -150,6 +150,7 @@ public:
     virtual		~DataPointSet();
     DataPointSet&	operator =(const DataPointSet&);
     bool		is2D() const		{ return is2d_; }
+    OD::GeomSystem	geomSystem() const;
     bool		isMinimal() const	{ return minimal_; }
     bool		isEmpty() const		{ return bvsidxs_.isEmpty(); }
     void		setEmpty();

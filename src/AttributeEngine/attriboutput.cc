@@ -1201,8 +1201,8 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
     const TrcKey tkey = info.trcKey();
-    const BinID dpsbid = tkey.is2D() == datapointset_.is2D() ? tkey.position()
-					: SI().transform( tkey.getCoord() );
+    const BinID dpsbid = tkey.geomSystem() == datapointset_.geomSystem() ?
+			tkey.position() : SI().transform( tkey.getCoord() );
     DataPointSet::RowID rid = datapointset_.findFirst( dpsbid );
     if ( rid < 0 )
 	return;
@@ -1265,7 +1265,7 @@ bool TableOutput::wantsOutput( const Coord& coord ) const
 
 bool TableOutput::wantsOutput( const TrcKey& tkey ) const
 {
-    return tkey.is2D() == datapointset_.is2D() ?
+    return tkey.geomSystem() == datapointset_.geomSystem() ?
 			datapointset_.findFirst( tkey ) > -1 :
 			datapointset_.findFirst( tkey.getCoord() ) > -1;
 }
@@ -1303,7 +1303,7 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 						TypeSet<float>& exactz) const
 {
     TrcKey tkey;
-    tkey.setIs2D( datapointset_.is2D() ).setFrom( coord );
+    tkey.setGeomSystem( datapointset_.geomSystem() ).setFrom( coord );
     return getLocalZRanges( tkey, zstep, exactz );
 }
 
@@ -1316,8 +1316,8 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     if ( tkey.isUdf() )
 	return sampleinterval;
 
-    const BinID dpsbid = tkey.is2D() == datapointset_.is2D() ? tkey.position()
-					: SI().transform( tkey.getCoord() );
+    const BinID dpsbid = tkey.geomSystem() == datapointset_.geomSystem() ?
+			tkey.position() : SI().transform( tkey.getCoord() );
     DataPointSet::RowID rid = datapointset_.findFirst( dpsbid );
     if ( rid < 0 )
 	return sampleinterval;
