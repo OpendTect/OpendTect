@@ -295,7 +295,8 @@ bool uiZAxisTransformSel::acceptOK()
     if ( !transflds_[idx] )
 	return true;
 
-    if ( !transflds_[idx]->acceptOK() )
+    uiZAxisTransform* zatffld = transflds_[idx];
+    if ( !zatffld->getSelection() || !zatffld->acceptOK() )
 	return false;
 
     ZSampling zrg;
