@@ -30,6 +30,7 @@ ________________________________________________________________________________
 #include "iodir.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "latlong.h"
 #include "moddepmgr.h"
 #include "oddirs.h"
@@ -38,6 +39,7 @@ ________________________________________________________________________________
 #include "oscommand.h"
 #include "plugins.h"
 #include "safefileio.h"
+#include "serverprogtool.h"
 #include "settings.h"
 #include "surveyfile.h"
 #include "survinfo.h"
@@ -195,6 +197,12 @@ BufferString odSurvey::surveyPath() const
 BufferStringSet* odSurvey::getObjNames( const char* trgrpnm ) const
 {
     BufferStringSet* res = nullptr;
+    if ( !trgrpnm )
+    {
+	errmsg_ = BufferString( "translator group name required" );
+	return res;
+    }
+
     if ( !activate() )
 	return res;
 
@@ -216,18 +224,85 @@ BufferStringSet* odSurvey::getObjNames( const char* trgrpnm ) const
 }
 
 
-void odSurvey::getObjInfos( OD::JSON::Object& jsobj, const char* trgrpnm ) const
+void odSurvey::getObjInfoByID( const MultiID& mid,
+			       OD::JSON::Object& jsobj ) const
 {
     if ( !activate() )
 	return;
 
+    if ( mid.isUdf() || !IOM().isPresent(mid) )
+    {
+	errmsg_ = BufferString( "invalid database ID" );
+	return;
+    }
+
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj || !IOM().to(ioobj->key()) )
+    {
+	errmsg_ = BufferString( "invalid database object" );
+	return;
+    }
+
+    if ( ioobj->isTmp() )
+	return;
+
+    jsobj.set( sKey::ID(), ioobj->key().toString() );
+    jsobj.set( sKey::Name(), ioobj->name() );
+    jsobj.set( sKey::Format(), ioobj->translator() );
+    jsobj.set( TranslatorGroup::sKeyTransGrp(), ioobj->group() );
+    jsobj.set( sKey::FileName(), ioobj->mainFileName() );
+    BufferString typ;
+    if ( ioobj->pars().get(sKey::Type(),typ) && !typ.isEmpty() )
+	jsobj.set( sKey::Type(), typ );
+}
+
+
+void odSurvey::getObjInfo( const char* objname, const char* trgrpnm,
+			   OD::JSON::Object& jsobj ) const
+{
+    if (!objname )
+    {
+	errmsg_ = BufferString( "object name required" );
+	return;
+    }
+
+    if ( !activate() )
+	return;
+
+    if ( trgrpnm && !TranslatorGroup::hasGroup(trgrpnm) )
+    {
+	errmsg_ = BufferString( "translator group not found");
+	return;
+    }
+
+    PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
+    if ( !ioobj || !IOM().to(ioobj->key()) )
+    {
+	errmsg_ = BufferString( "object not found" );
+	return;
+    }
+
+    if ( ioobj->isTmp() )
+	return;
+
+    getObjInfoByID( ioobj->key(), jsobj );
+}
+
+
+void odSurvey::getObjInfos( const char* trgrpnm, bool all,
+			    OD::JSON::Array& jsarr ) const
+{
+    jsarr.setEmpty();
+    if ( !trgrpnm )
+    {
+	errmsg_ = BufferString( "translator group name required" );
+	return;
+    }
+
+    if ( !activate() )
+	return;
+
     const PtrMan<IODir> dbdir = IOM().getDir( trgrpnm );
-    auto* ids = new OD::JSON::Array( OD::JSON::String);
-    auto* nms = new OD::JSON::Array( OD::JSON::String);
-    auto* types = new OD::JSON::Array( OD::JSON::String);
-    auto* trls = new OD::JSON::Array( OD::JSON::String);
-    auto* files = new OD::JSON::Array( OD::JSON::String);
-    bool havetype = false;
     if ( dbdir )
     {
 	for ( int idx=0; idx<dbdir->size(); idx++ )
@@ -236,27 +311,18 @@ void odSurvey::getObjInfos( OD::JSON::Object& jsobj, const char* trgrpnm ) const
 	    if ( !ioobj )
 		continue;
 
-	    if ( !ioobj->isTmp() && ioobj->group() == trgrpnm )
+	    if ( !ioobj->isTmp() &&
+			(all || (!all && ioobj->group() == trgrpnm)) )
 	    {
-		nms->add( ioobj->name() );
-		ids->add( ioobj->key().toString() );
-		trls->add( ioobj->translator() );
+		OD::JSON::Object info;
+		getObjInfoByID( ioobj->key(), info );
+		if ( info.isEmpty() )
+		    continue;
 
-		BufferString typ;
-		if ( ioobj->pars().get(sKey::Type(),typ) && !typ.isEmpty() )
-		    havetype = true;
-		types->add( typ );
-		files->add( ioobj->mainFileName() );
+		jsarr.add( info.clone() );
 	    }
 	}
     }
-    jsobj.set( "name", nms );
-    jsobj.set( "id", ids );
-    jsobj.set( "format", trls );
-    if (havetype)
-	jsobj.set( "type", types );
-
-    jsobj.set( "files", files );
 }
 
 
@@ -270,6 +336,7 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 			    const char* translkey, bool overwrite,
 			    BufferString& errmsg ) const
 {
+    errmsg.setEmpty();
     if ( !objname || !trgrpnm || !TranslatorGroup::hasGroup(trgrpnm) )
 	return nullptr;
 
@@ -314,23 +381,45 @@ IOObj* odSurvey::createObj( const char* objname, const char* trgrpnm,
 }
 
 
+void odSurvey::createObj( const char* objname, const char* trgrpnm,
+			  const char* translkey, bool overwrite ) const
+{
+    PtrMan<IOObj> ioobj = createObj( objname, trgrpnm, translkey, overwrite,
+				     errmsg_ );
+}
+
+
 void odSurvey::removeObj( const char* objname, const char* trgrpnm ) const
 {
-    if ( !objname || !trgrpnm || !TranslatorGroup::hasGroup(trgrpnm) )
+    if ( !objname )
     {
-	errmsg_ = "invalid object or translator group name.";
+	errmsg_ = "object name required";
 	return;
     }
 
-    if ( isObjPresent(objname, trgrpnm) )
+    if ( !activate() )
+	return;
+
+    if ( trgrpnm && !TranslatorGroup::hasGroup(trgrpnm) )
     {
-	PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
-	if ( !ioobj || !IOM().to(ioobj->key()) ||
-					!IOM().implRemove(ioobj->key(), true) )
-	    errmsg_ = "cannot remove existing object.";
+	errmsg_ = "translator group not found";
+	return;
     }
-    else
-	errmsg_ = "object does not exist.";
+
+    PtrMan<IOObj> ioobj = IOM().get( objname, trgrpnm );
+    if ( !ioobj || !IOM().to(ioobj->key()) ||
+					!IOM().implRemove(ioobj->key(), true) )
+	errmsg_ = "cannot remove object";
+}
+
+
+void odSurvey::removeObjByID( const MultiID& mid ) const
+{
+    if ( mid.isUdf() )
+	errmsg_ = "invalid database id";
+    else if ( !activate() || !IOM().to(mid) ||
+					!IOM().implRemove(mid, true) )
+	errmsg_ = "cannot remove object";
 }
 
 
@@ -564,6 +653,58 @@ bool survey_hasobject( hSurvey self, const char* objname, const char* trgrpnm )
 {
     const auto* p = static_cast<odSurvey*>(self);
     return p->isObjPresent( objname, trgrpnm );
+}
+
+const char* survey_getobjinfo( hSurvey self, const char* objname,
+			       const char* trgrpnm )
+{
+    const auto* p = static_cast<odSurvey*>(self);
+    OD::JSON::Object jsobj;
+    p->getObjInfo( objname, trgrpnm, jsobj );
+    return strdup( jsobj.dumpJSon().buf() );
+}
+
+const char* survey_getobjinfobyid( hSurvey self, const char* id )
+{
+    const auto* p = static_cast<odSurvey*>(self);
+    OD::JSON::Object jsobj;
+    const MultiID mid( id );
+    p->getObjInfoByID( mid, jsobj );
+    return strdup( jsobj.dumpJSon().buf() );
+}
+
+const char* survey_getobjinfos( hSurvey self, const char* trgrpnm, bool all )
+{
+    const auto* p = static_cast<odSurvey*>(self);
+    OD::JSON::Array jsarr( true );
+    p->getObjInfos( trgrpnm, all, jsarr );
+    return strdup( jsarr.dumpJSon().buf() );
+}
+
+void survey_removeobj( hSurvey self, const char* objname, const char* trgrpnm )
+{
+    const auto* p = static_cast<odSurvey*>(self);
+    p->removeObj( objname, trgrpnm );
+}
+
+void survey_removeobjbyid( hSurvey self, const char* id )
+{
+    const auto* p = static_cast<odSurvey*>(self);
+    const MultiID mid( id );
+    p->removeObjByID( mid );
+}
+
+void survey_createobj( hSurvey self, const char* objname, const char* trgrpnm,
+		       const char* translkey, bool overwrite)
+{
+    const auto* p = static_cast<odSurvey*>(self);
+    p->createObj( objname, trgrpnm, translkey, overwrite );
+}
+
+hStringSet survey_getobjnames( hSurvey self, const char* trgrpnm )
+{
+    const auto* p = static_cast<odSurvey*>(self);
+    return p->getObjNames( trgrpnm );
 }
 
 const char* survey_info( hSurvey self )
