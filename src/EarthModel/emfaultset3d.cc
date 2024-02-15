@@ -64,6 +64,12 @@ int FaultSet3D::nrFaults() const
 }
 
 
+void FaultSet3D::setEnvelope( const TrcKeyZSampling& tkzs )
+{
+    tkzsenvelope_ = tkzs;
+}
+
+
 FaultID FaultSet3D::getFaultID( int idx ) const
 {
     return ids_.validIdx(idx) ? ids_[idx] : FaultID::udf();

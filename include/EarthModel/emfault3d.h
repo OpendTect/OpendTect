@@ -60,6 +60,8 @@ public:
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
+    inline TrcKeyZSampling	getEnvelope() const { return tkzsenvelope_; }
+
 // Deprecated public functions
     mDeprecated("Use geometryElement()")
     Geometry::FaultStickSurface*
@@ -102,6 +104,8 @@ public:
 
 protected:
     Geometry::FaultStickSurface*	createGeometryElement() const override;
+    TrcKeyZSampling			tkzsenvelope_;
+
 };
 
 
@@ -156,6 +160,26 @@ public:
 protected:
 
     bool			isXY() const;
+};
+
+
+mExpClass(EarthModel) FaultDataUpdater : public ParallelTask
+{ mODTextTranslationClass(FaultDataUpdater)
+public:
+			    FaultDataUpdater(Geometry::FaultStickSurface&);
+			    ~FaultDataUpdater();
+
+    TrcKeyZSampling		getEnvelope() const { return tkzsenvelope_; }
+
+protected:
+    bool			    doWork(od_int64,od_int64,int) override;
+    bool			    doFinish(bool) override;
+
+    od_int64			    nrIterations() const override;
+    Geometry::FaultStickSurface&    faultsurf_;
+    od_int64			    totnr_		= 0;
+    TypeSet<TrcKeyZSampling>	    tkzsset_;
+    TrcKeyZSampling		    tkzsenvelope_;
 };
 
 

@@ -346,6 +346,10 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 	    fss->setSticksVertical( true );
     }
 
+    FaultDataUpdater fssupdater( *fss );
+    if ( fssupdater.execute() )
+	tkzsenvelope_ = fssupdater.getEnvelope(); //Does not have zrange
+
     return true;
 }
 
@@ -526,6 +530,66 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
     }
 
     deepErase( sticks );
+    return true;
+}
+
+
+//FaultDataUpdater
+FaultDataUpdater::FaultDataUpdater( Geometry::FaultStickSurface& fss )
+    : ParallelTask("FaultStickSet Data Updater")
+    , faultsurf_(fss)
+{
+    totnr_ = faultsurf_.nrSticks();
+    tkzsenvelope_.setEmpty();
+    tkzsenvelope_.hsamp_.setGeomID( Survey::default3DGeomID() );
+    tkzsset_.setSize( totnr_, tkzsenvelope_ );
+}
+
+
+FaultDataUpdater::~FaultDataUpdater()
+{}
+
+
+od_int64 FaultDataUpdater::nrIterations() const
+{
+    return totnr_;
+}
+
+
+bool FaultDataUpdater::doWork( od_int64 start, od_int64 stop, int /**/ )
+{
+    TrcKey trckey( BinID::udf() );
+    for ( int index=start; index<=stop; index++ )
+    {
+	Geometry::FaultStick* fss = faultsurf_.getStick( index );
+	if ( !fss )
+	    return true;
+
+	const int size = fss->size();
+	TrcKeyZSampling& tkzs = tkzsset_[index];
+	for ( int kidx=0; kidx<size; kidx++ )
+	{
+	    LocationBase& loc = fss->locs_[kidx];
+	    trckey.setFrom( loc.pos() );
+	    loc.setTrcKey( trckey );
+	    tkzs.hsamp_.include( trckey );
+	    tkzs.zsamp_.include( loc.pos().z );
+	}
+    }
+
+    return true;
+}
+
+
+bool FaultDataUpdater::doFinish( bool success )
+{
+    if ( !success || tkzsset_.isEmpty() )
+	return false;
+
+    const int sz = tkzsset_.size();
+    for ( int idx=0; idx<sz; idx++ )
+	tkzsenvelope_.include( tkzsset_[idx] );
+
     return true;
 }
 

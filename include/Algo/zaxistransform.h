@@ -95,6 +95,9 @@ public:
     virtual NotifierAccess*	changeNotifier()	{ return nullptr; }
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
+    virtual ZSampling		getWorkZSampling(const ZSampling& zsamp,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to)  const = 0;
 
 protected:
 				ZAxisTransform(const ZDomain::Def& from,
@@ -106,9 +109,7 @@ protected:
 					     const ZDomain::Info& to,
 					     bool makenice=true) const;
 
-    virtual ZSampling		getWorkZSampling(const ZSampling& zsamp,
-					   const ZDomain::Info& from,
-					   const ZDomain::Info& to)  const = 0;
+
 				/*!\returns the equivalent to zsamp
 				     in another zdomain.
 				     Can be an approxmation */

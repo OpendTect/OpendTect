@@ -69,6 +69,8 @@ void LocationBase::operator =( const LocationBase& oth )
     {
 	pos_ = oth.pos_;
 	trckey_ = oth.trckey_;
+	if ( trckey_.position().isUdf() )
+	    trckey_.setFrom( pos_ );
     }
 }
 

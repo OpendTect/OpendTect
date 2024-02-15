@@ -235,7 +235,7 @@ bool uiBatchTime2DepthSetup::fillPar()
 
 bool uiBatchTime2DepthSetup::acceptOK( CallBacker* )
 {
-    if ( !prepareProcessing() || !fillPar() )
+    if ( !fillPar() || !prepareProcessing() )
 	return false;
 
     const bool istime2depth = directionsel_->getBoolValue();
