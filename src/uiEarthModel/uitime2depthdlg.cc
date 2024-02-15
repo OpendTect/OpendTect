@@ -87,18 +87,22 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype,
 	return;
 
     const bool istime = SI().zIsTime();
+#ifdef __debug__
     directionsel_ = new uiGenInput( this, tr("Convert from"),
 	BoolInpSpec(true, tr("Time to Depth"), tr("Depth to Time"), true));
     directionsel_->setChecked( istime );
     mAttachCB( directionsel_->valueChanged, uiTime2DepthDlg::dirChangeCB );
+#endif
 
     t2dtransfld_ = new uiZAxisTransformSel( this, false,
 		ZDomain::sKeyTime(), ZDomain::sKeyDepth(), false, false, is2d );
-    t2dtransfld_->attach( alignedBelow, directionsel_ );
 
     d2ttransfld_ = new uiZAxisTransformSel( this, false,
 		ZDomain::sKeyDepth(), ZDomain::sKeyTime(), false, false, is2d );
+#ifdef __debug__
+    t2dtransfld_->attach( alignedBelow, directionsel_ );
     d2ttransfld_->attach( alignedBelow, directionsel_ );
+#endif
 
     const ZDomain::Info& timeinf = ZDomain::TWT();
     const ZDomain::Info& depthinf = SI().depthsInFeet() ? ZDomain::DepthFeet()
@@ -195,24 +199,24 @@ uiString uiTime2DepthDlg::getDlgTitle( IOObjInfo::ObjectType objtyp,
 
 const ZDomain::Info& uiTime2DepthDlg::outZDomain() const
 {
-    const bool isdepth = t2dtransfld_->isDisplayed();
-    return isdepth ? (SI().depthsInFeet() ? ZDomain::DepthFeet()
-					  : ZDomain::DepthMeter())
-		   : ZDomain::TWT();
+    const bool isoutputdepth = directionsel_ ? directionsel_->getBoolValue() :
+							    SI().zIsTime();
+    return isoutputdepth ? (SI().depthsInFeet() ? ZDomain::DepthFeet()
+				: ZDomain::DepthMeter()) : ZDomain::TWT() ;
 }
 
 
 void uiTime2DepthDlg::dirChangeCB( CallBacker* )
 {
-    const bool todepth = directionsel_->getBoolValue();
+    const bool isoutputdepth = outZDomain().isDepth();
 
-    t2dtransfld_->display( todepth );
-    inptimesel_->display( todepth );
-    outdepthsel_->display( todepth );
+    t2dtransfld_->display( isoutputdepth );
+    inptimesel_->display( isoutputdepth );
+    outdepthsel_->display( isoutputdepth );
 
-    d2ttransfld_->display( !todepth );
-    inpdepthsel_->display( !todepth );
-    outtimesel_->display( !todepth );
+    d2ttransfld_->display( !isoutputdepth );
+    inpdepthsel_->display( !isoutputdepth );
+    outtimesel_->display( !isoutputdepth );
 }
 
 
@@ -241,23 +245,20 @@ void uiTime2DepthDlg::inpSelCB( CallBacker* cb )
 
 RefMan<ZAxisTransform> uiTime2DepthDlg::getWorkingZAxisTransform() const
 {
-    const bool todepth = directionsel_->getBoolValue();
-    auto* zatffld = todepth ? t2dtransfld_ : d2ttransfld_;
+    auto* zatffld = outZDomain().isDepth() ? t2dtransfld_ : d2ttransfld_;
     return zatffld->acceptOK() ? zatffld->getSelection() : nullptr;
 }
 
 
 const uiSurfaceRead* uiTime2DepthDlg::getWorkingInpSurfRead() const
 {
-    const bool todepth = directionsel_->getBoolValue();
-    return todepth ? inptimesel_ : inpdepthsel_;
+    return outZDomain().isDepth() ? inptimesel_ : inpdepthsel_;
 }
 
 
 uiSurfaceWrite* uiTime2DepthDlg::getWorkingOutSurfWrite()
 {
-    const bool todepth = directionsel_->getBoolValue();
-    return todepth ? outdepthsel_ : outtimesel_;
+    return outZDomain().isDepth() ? outdepthsel_ : outtimesel_;
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
