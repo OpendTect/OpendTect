@@ -416,7 +416,7 @@ void uiSimpleTimeDepthTransform::setZRangeCB( CallBacker* )
     {
 	ZSampling range = ZSampling::udf();
 	if ( trans )
-	    range = trans->getZInterval( false );
+	    range = trans->getModelZSampling();
 
 	rangefld_->setZRange( range );
     }

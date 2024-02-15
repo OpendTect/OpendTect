@@ -89,9 +89,6 @@ private:
     bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
-    bool			needsVolumeOfInterest() const override
-				{ return false; }
-
     ZSampling			getWorkZSampling(const ZSampling&,
 				       const ZDomain::Info& from,
 				       const ZDomain::Info& to) const override;

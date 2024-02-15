@@ -63,7 +63,6 @@ private:
 				    const ZDomain::Info& sdzinfo,
 				    int sz,float* res) const;
 
-    bool		needsVolumeOfInterest() const override { return false; }
     bool		canTransformSurv(OD::GeomSystem) const override
 			{ return true; }
 
@@ -73,6 +72,7 @@ private:
     ZSampling		getWorkZSampling(const ZSampling&,
 					const ZDomain::Info& from,
 					const ZDomain::Info& to) const override;
+    ZSampling		getModelZSampling() const override;
 
     ConstRefMan<Horizon> horizon_;
     Interval<float>	depthrange_;

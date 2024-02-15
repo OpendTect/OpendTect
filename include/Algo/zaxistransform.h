@@ -46,7 +46,7 @@ public:
     virtual bool		isOK() const		{ return true; }
     virtual uiString		errMsg() const		{ return errmsg_; }
 
-    virtual bool		needsVolumeOfInterest() const	{ return true; }
+    virtual bool		needsVolumeOfInterest() const { return false; }
     virtual int			addVolumeOfInterest(const TrcKeyZSampling&,
 						    bool zistrans=false);
 				/*!<\returns id of new Volume of Interest.*/
@@ -71,6 +71,7 @@ public:
     virtual void		transformTrcBack(const TrcKey&,
 					  const SamplingData<float>&,
 					  int sz,float* res) const	= 0;
+    virtual ZSampling		getModelZSampling() const;
     float			transformTrcBack(const TrcKey&,float z) const;
 
     ZSampling			getZInterval(bool from,bool makenice=true,

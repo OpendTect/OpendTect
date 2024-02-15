@@ -89,13 +89,13 @@ private:
     Interval<float>	getInterval(const BinID&,int voiidx,
 				    const ZDomain::Info&) const;
 
-    bool		needsVolumeOfInterest() const override	{ return true; }
+    bool		needsVolumeOfInterest() const override { return true; }
     bool		canTransformSurv(OD::GeomSystem) const override
 			{ return true; }
 
     ZSampling		getWorkZSampling(const ZSampling&,
-					const ZDomain::Info& from,
-					const ZDomain::Info& to) const override;
+				    const ZDomain::Info& from,
+				    const ZDomain::Info& to) const override;
     static ZSampling	getWorkZSampling(const ZSampling&,
 					 const ZDomain::Def& from,
 					 const ZDomain::Def& to,const IOPar&,
@@ -108,6 +108,7 @@ private:
 					 const UnitOfMeasure* vavguom,
 					 bool makenice=true)	 = delete;
 
+    ZSampling		getModelZSampling() const override;
     Interval<float>	getDefaultVAvg() const;
 
     static const char*	sKeyTopVavg()	{ return "Top Vavg"; }
@@ -238,8 +239,6 @@ private:
 					    const ZDomain::Info& sdzinfo,
 					    int sz,float*) const;
 
-    bool			needsVolumeOfInterest() const override
-				{ return false; }
     bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 

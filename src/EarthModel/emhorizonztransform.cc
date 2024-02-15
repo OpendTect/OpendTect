@@ -61,6 +61,12 @@ bool HorizonZTransform::isOK() const
 }
 
 
+ZSampling HorizonZTransform::getModelZSampling() const
+{
+    return horizon_->getZRange();
+}
+
+
 void HorizonZTransform::setHorizon( const Horizon& hor )
 {
     if ( horizon_ )

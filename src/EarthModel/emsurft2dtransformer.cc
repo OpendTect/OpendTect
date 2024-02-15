@@ -109,7 +109,7 @@ void SurfaceT2DTransformer::load3DTranformVol( const TrcKeyZSampling* tkzs )
 	if ( updateHSamp() )
 	    samp.hsamp_ = datas_[0]->surfsel_.rg;
 
-	zgate.start = 0.f; //temporary hack
+	zgate.start = zatf_.getModelZSampling().start;
 	samp.zsamp_ = zatf_.getZInterval( true, true, &zgate );
     }
 
@@ -133,7 +133,7 @@ bool SurfaceT2DTransformer::load2DVelCubeTransf( const Pos::GeomID& geomid,
     tkzs.hsamp_.set( geomid, trcrg );
     if ( SI().zDomainInfo().isCompatibleWith(zatf_.fromZDomainInfo()) )
     {
-	tkzs.zsamp_.start = 0.f;
+	tkzs.zsamp_.start = zatf_.getModelZSampling().start;
 	tkzs.zsamp_ = zatf_.getZInterval( true, true, &tkzs.zsamp_ );
     }
 
@@ -580,7 +580,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 
     const int nrsticks = fltgeom.nrSticks();
     TrcKeyZSampling tkzs = fltgeom.getEnvelope();
-    tkzs.zsamp_.start = 0.f;
+    tkzs.zsamp_.start = zatf_.getModelZSampling().start;
     tkzs.zsamp_ = zatf_.getZInterval( true, true, &tkzs.zsamp_ );
     load3DTranformVol( &tkzs );
     const ZSampling zint = zatf_.getZInterval( true );
@@ -703,7 +703,7 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 				zatf_.toZDomainInfo().getReasonableZRange();
     const int nrfaults = inpfltset->nrFaults();
     TrcKeyZSampling tkzs = inpfltset->getEnvelope();
-    tkzs.zsamp_.start = 0.f;
+    tkzs.zsamp_.start = zatf_.getModelZSampling().start;
     tkzs.zsamp_ = zatf_.getZInterval( true, true, &tkzs.zsamp_ );
 
     load3DTranformVol( &tkzs );
@@ -900,7 +900,7 @@ bool FaultStickSetT2DTransformer::handle3DTransformation(
 	    continue;
 
 	TrcKeyZSampling& samp = const_cast<TrcKeyZSampling&>( dh->tkzs_ );
-	samp.zsamp_.start = 0.f;
+	samp.zsamp_.start = zatf_.getModelZSampling().start;
 	samp.zsamp_ = zatf_.getZInterval( true, true, &samp.zsamp_ );
 	load3DTranformVol( &samp );
 	for ( int idx=0; idx<nrsticks; idx++ )

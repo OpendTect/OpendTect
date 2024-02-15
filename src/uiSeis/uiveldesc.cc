@@ -828,32 +828,10 @@ void uiVelModelZAxisTransform::setZRangeCB( CallBacker* )
     if ( !rangefld_ )
 	return;
 
-    const ZDomain::Info& twtdef = ZDomain::TWT();
-    const ZDomain::Info& ddef = SI().depthsInFeet() ? ZDomain::DepthFeet()
-						    : ZDomain::DepthMeter();
-    const bool zistime = SI().zIsTime();
-    const ZDomain::Info& zrgfrom = zistime ? twtdef : ddef;
-    const ZDomain::Info& zrgto = zistime ? ddef : twtdef;
-    const ZSampling zsamp = SI().zRange( true );
-    const Interval<float> topvelrg = velsel_->getVelocityTopRange();
-    const Interval<float> botvelrg = velsel_->getVelocityBottomRange();
-    const UnitOfMeasure* veluom = velsel_->velUnit();
-    ZSampling zrg = VelocityStretcher::getWorkZSampling( zsamp,
-						 zrgfrom, zrgto,
-						 topvelrg, botvelrg, veluom );
-    if ( zrg.isUdf() )
-	return;
-
-    if ( zistime )
-    {
-	const ZDomain::Info& to = isTimeToDepth() ? ddef : twtdef;
-	zrg.scale( 1.f / to.userFactor() );
-    }
-    else
-    {
-	const ZDomain::Info& to = isTimeToDepth() ? twtdef : ddef;
-	zrg.scale( to.userFactor() );
-    }
+    ConstRefMan<ZAxisTransform> trans = getSelection();
+    ZSampling zrg;
+    if ( trans )
+	zrg = trans->getModelZSampling();
 
     rangefld_->setZRange( zrg );
 }

@@ -179,6 +179,12 @@ float ZAxisTransform::transformBack2D( const char* linenm, int trcnr,
 }
 
 
+ZSampling ZAxisTransform::getModelZSampling() const
+{
+    return getZInterval( false );
+}
+
+
 ZSampling ZAxisTransform::getZInterval( const ZSampling& zsamp,
 					const ZDomain::Info& from,
 					const ZDomain::Info& to,

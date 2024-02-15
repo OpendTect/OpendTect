@@ -108,7 +108,7 @@ void uiLinearVelTransform::velChangedCB( CallBacker* )
 	ZSampling range = ZSampling::udf();
 	ConstRefMan<ZAxisTransform> trans = getSelection();
 	if ( trans )
-	    range = trans->getZInterval( false );
+	    range = trans->getModelZSampling();
 
 	NotifyStopper stopper( rangefld_->valueChanging );
 	rangefld_->setZRange( range );

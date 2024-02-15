@@ -50,8 +50,6 @@ private:
 					    const ZDomain::Info& sdzinfo,
 					    int sz,float*) const;
 
-    bool			needsVolumeOfInterest() const override
-				{ return false; }
     bool			canTransformSurv(OD::GeomSystem) const override
 				{ return true; }
 
