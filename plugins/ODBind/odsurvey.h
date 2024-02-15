@@ -62,15 +62,21 @@ public:
 				       bool towgs) const;
 
     BufferStringSet*	getObjNames(const char* trlgrpnm) const;
-    void		getObjInfos(OD::JSON::Object&,
-				    const char* trlgrpnm) const;
+    void		getObjInfoByID(const MultiID&, OD::JSON::Object&) const;
+    void		getObjInfo(const char* objname,const char* trlgrpnm,
+				   OD::JSON::Object&) const;
+    void		getObjInfos(const char* trlgrpnm, bool all,
+				    OD::JSON::Array&) const;
     bool		isObjPresent(const char* objname,
 				     const char* trgrpnm=nullptr) const;
     IOObj*		createObj(const char* objname, const char* trgrpnm,
 				  const char* translkey, bool overwrite,
 				  BufferString& errmsg) const;
+    void		createObj(const char* objname, const char* trgrpnm,
+				  const char* translkey, bool overwrite) const;
     void		removeObj(const char* objname,
-				  const char* trgrpnm) const;
+				  const char* trgrpnm=nullptr) const;
+    void		removeObjByID(const MultiID&) const;
 
     static bool		initModule(const char*);
     static BufferStringSet*	getNames(const char* data_root=nullptr);
@@ -113,8 +119,25 @@ mExternC(ODBind) const char*	survey_features(const hStringSet,
 						const char* basedir);
 mExternC(ODBind) bool		survey_has2d(hSurvey);
 mExternC(ODBind) bool		survey_has3d(hSurvey);
+
 mExternC(ODBind) bool		survey_hasobject(hSurvey, const char* objname,
 						 const char* trgrpnm);
+mExternC(ODBind) const char*	survey_getobjinfo(hSurvey, const char* objname,
+						  const char* trgrpnm);
+mExternC(ODBind) const char*	survey_getobjinfobyid(hSurvey,
+						      const char* idstr);
+mExternC(ODBind) const char*	survey_getobjinfos(hSurvey,
+					       const char* trgrpnm, bool all);
+mExternC(ODBind) void		survey_removeobj(hSurvey, const char* objname,
+						 const char* trgrpnm);
+mExternC(ODBind) void		survey_removeobjbyid(hSurvey, const char* id);
+mExternC(ODBind) void		survey_createobj(hSurvey, const char* name,
+						 const char* trgrpnm,
+						 const char* translkey,
+						 bool overwrite);
+mExternC(ODBind) hStringSet	survey_getobjnames(hSurvey,
+						   const char* trgrpnm);
+
 mExternC(ODBind) const char*	survey_info(hSurvey);
 mExternC(ODBind) const char*	survey_errmsg(hSurvey);
 mExternC(ODBind) bool		survey_isok(hSurvey);

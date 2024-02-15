@@ -18,6 +18,13 @@ class Survey(object):
     _has2d = wrap_function(LIBODB, 'survey_has2d', ct.c_bool, [ct.c_void_p])
     _has3d = wrap_function(LIBODB, 'survey_has3d', ct.c_bool, [ct.c_void_p])
     _hasobject = wrap_function(LIBODB, 'survey_hasobject', ct.c_bool, [ct.c_void_p, ct.c_char_p, ct.c_char_p])
+    _getobjinfo = wrap_function(LIBODB, 'survey_getobjinfo', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_char_p, ct.c_char_p])
+    _getobjinfobyid = wrap_function(LIBODB, 'survey_getobjinfobyid', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_char_p])
+    _getobjinfos = wrap_function(LIBODB, 'survey_getobjinfos', ct.POINTER(ct.c_char_p), [ct.c_void_p, ct.c_char_p, ct.c_bool])
+    _removeobj = wrap_function(LIBODB, 'survey_removeobj', None, [ct.c_void_p, ct.c_char_p, ct.c_char_p])
+    _removeobjbyid = wrap_function(LIBODB, 'survey_removeobjbyid', None, [ct.c_void_p, ct.c_char_p])
+    _createobj = wrap_function(LIBODB, 'survey_createobj', None, [ct.c_void_p, ct.c_char_p, ct.c_char_p, ct.c_char_p, ct.c_bool])
+    _getobjnames = wrap_function(LIBODB, 'survey_getobjnames', ct.c_void_p, [ct.c_void_p, ct.c_char_p])
     _info = wrap_function(LIBODB, 'survey_info', ct.POINTER(ct.c_char_p), [ct.c_void_p])
     _infos = wrap_function(LIBODB, 'survey_infos', ct.POINTER(ct.c_char_p), [ct.c_void_p,ct.c_char_p])
     _inlrange = wrap_function(LIBODB, 'survey_inlrange', None, [ct.c_void_p, ct.POINTER(ct.c_int)])
@@ -176,6 +183,138 @@ class Survey(object):
 
         """
         return pyjsonstr(Survey._info(self._handle))
+
+    def has_object(self, objname:str, trgrpnm:str=None)  ->bool:
+        """Return True if the specified object exists for the specified translator group in the current survey
+
+        Parameters
+        ----------
+        objname : str
+            the object name
+        trgrpnm : str
+            the translator group name
+
+        Returns
+        -------
+        True of it exists, False otherwise
+
+        """
+        return Survey._hasobject(self._handle, objname.encode(), trgrpnm.encode() if trgrpnm else None)
+
+    def get_object_info(self, objname:str, trgrpnm:str=None) ->dict:
+        """Return information for the specified object and translator group in the current survey.
+        
+        Parameters
+        ----------
+        objname : str
+            the object name
+        trgrpnm : str
+            the translator group name
+
+        Returns
+        -------
+        dict
+
+        """
+        res = Survey._getobjinfo(self._handle, objname.encode(), trgrpnm.encode() if trgrpnm else None)
+        if not self.isok:
+            raise TypeError(self.errmsg)
+        return pyjsonstr(res)
+
+    def get_object_info_byid(self, id:str) ->dict:
+        """Return information for the specfied database id
+        
+        Parameters
+        ----------
+        id : str
+            the database id 
+
+        Returns
+        -------
+        dict
+
+        """
+        res = Survey._getobjinfobyid(self._handle, id.encode())
+        if not self.isok:
+            raise TypeError(self.errmsg)
+        return pyjsonstr(res)
+
+    def get_object_infos(self, trgrpnm:str, all:bool=False) ->dict:
+        """Return information for all objects of the specified translator group.
+        
+        Parameters
+        ----------
+        trgrpnm : str
+            the translator group name 
+
+        Returns
+        -------
+        dict
+
+        """
+        return pyjsonstr(Survey._getobjinfos(self._handle, trgrpnm.encode(), all))
+
+    def remove_object(self, objname:str, trgrpnm:str=None):
+        """Remove the specified object in the specified translator group from the current survey.
+        
+        Parameters
+        ----------
+        objname : str
+            the object name
+        trgrpnm : str
+            the translator group name
+
+        """
+        Survey._removeobj(self._handle, objname.encode(), trgrpnm.encode() if trgrpnm else None)
+        if not self.isok:
+            raise TypeError(self.errmsg)
+
+    def remove_object_byid(self, id:str):
+        """Remove the object associated with the specified database id in the current survey.
+        
+        Parameters
+        ----------
+        id : str
+            the database id
+
+        """
+        Survey._removeobjbyid(self._handle, id.encode())
+        if not self.isok:
+            raise TypeError(self.errmsg)
+
+    def create_object(self, objname:str, trgrpnm:str, translkey:str, overwrite:bool=False):
+        """Create a new object associated with the specified parameters, optionally overwriting if an object
+        of the given name already exists in the current survey.
+        
+        Parameters
+        ----------
+        objname : str
+            the object name
+        trgrpnm : str
+            the translator group name
+        translkey: str
+            the specific translator to use for output
+        overwrite : bool=False
+            if True any existing objname/trgrpnm will be overwritten
+        """
+        Survey._createobj(self._handle, objname.encode(), trgrpnm.encode(), translkey.encode(), overwrite)
+        if not self.isok:
+            raise TypeError(self.errmsg)
+
+    def get_object_names(self, trgrpnm:str) ->list[str]: 
+        """ Return the names of all objects in the specified translator group
+
+        Parameters
+        ----------
+        trgrpnm : str
+            the translator group name
+
+        Returns
+        -------
+        list[str]
+
+        """
+        return pystrlist(Survey._getobjnames(self._handle, trgrpnm.encode()))
 
     @staticmethod
     def names(basedir: str=None) ->list[str]:
@@ -341,7 +480,7 @@ class _SurveyObject(object):
     def dictlist_to_dataframe(self, inlist: list[dict]):
         """Convert list of Python dicts to a Pandas DataFrame.
 
-        Requires all dicts to have the same keys. The keys of the firts dict of the list
+        Requires all dicts to have the same keys. The keys of the first dict of the list
         are used for the DataFrame column names
         
         Parameters
