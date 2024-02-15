@@ -166,8 +166,6 @@ public:
     void			setEditMode(bool yn)	{ ineditmode_ = yn; };
     bool			inEditMode() const	{ return ineditmode_; }
 
-    bool			isPainting() const override
-    				{ return inEditMode(); }
 protected:
 				~PlaneDataDisplay();
 
