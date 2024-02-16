@@ -133,7 +133,8 @@ public:
     void			lockGeometry(bool);
     bool			isGeometryLocked() const;
 
-    TrcKeyZSampling		getTrcKeyZSampling(int attrib) const override;
+    TrcKeyZSampling		getTrcKeyZSampling(bool displayspace,
+						int attrib) const override;
     void			setDepthInterval(const Interval<float>&);
     Interval<float>		getDepthInterval() const;
 

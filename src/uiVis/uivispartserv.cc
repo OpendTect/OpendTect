@@ -497,7 +497,8 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, SceneID sceneid,
 				 bool saveinsessions )
 {
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid));
-    if ( !scene ) return;
+    if ( !scene || !dobj )
+	return;
 
     scene->addObject( dobj );
     objectAdded.trigger( dobj->id() );
@@ -763,7 +764,7 @@ TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( VisID id,
 {
     TrcKeyZSampling res;
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) res = so->getTrcKeyZSampling( attribid );
+    if ( so ) res = so->getTrcKeyZSampling( false, attribid );
     return res;
 }
 

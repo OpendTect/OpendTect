@@ -236,7 +236,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    const int attrib =
 			handleAttribute( *rtd, eventinfo.worldpickedpos );
 	    if ( attrib >= 0 )
-		info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+		info().setObjCS( rtd->getTrcKeyZSampling(false,attrib) );
 
 	    info().setObjTKPath( rtd->getTrcKeyPath() );
 	    info().setObjRandomLineID( rtd->getRandomLineID() );
@@ -543,7 +543,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 		break;
 	}
 
-	info().setObjCS( rtd->getTrcKeyZSampling(attrib) );
+	info().setObjCS( rtd->getTrcKeyZSampling(false,attrib) );
 	info().setObjTKPath( rtd->getTrcKeyPath() );
 	info().setObjRandomLineID( rtd->getRandomLineID() );
 	info().setObjDataPackID( datapackid );

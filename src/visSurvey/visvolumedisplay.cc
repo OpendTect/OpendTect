@@ -306,7 +306,7 @@ void VolumeDisplay::updateRanges( bool updateic, bool updatez )
     else
     {
 	const TrcKeyZSampling& csin = scene_ ? scene_->getTrcKeyZSampling()
-					  : getTrcKeyZSampling( 0 );
+					  : getTrcKeyZSampling( false, 0 );
 	TrcKeyZSampling cs = getInitTrcKeyZSampling( csin );
 	setTrcKeyZSampling( cs );
     }
@@ -415,7 +415,7 @@ VisID VolumeDisplay::addSlice( int dim )
 		    : uiStrings::sInline()) );
 
     addChild( slice->osgNode() );
-    const TrcKeyZSampling cs = getTrcKeyZSampling( 0 );
+    const TrcKeyZSampling cs = getTrcKeyZSampling( false, 0 );
     const Interval<float> defintv(-0.5,0.5);
     slice->setSpaceLimits( defintv, defintv, defintv );
     // TODO: adapt to multi-attrib
@@ -1095,8 +1095,11 @@ void VolumeDisplay::setSelSpecs( int attrib, const TypeSet<Attrib::SelSpec>& as)
 }
 
 
-TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( int attrib ) const
-{ return getTrcKeyZSampling(true,false,attrib); }
+TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool displayspace,
+							int attrib ) const
+{
+    return getTrcKeyZSampling(true,displayspace,attrib);
+}
 
 
 bool VolumeDisplay::setDataPackID( int attrib, DataPackID dpid,

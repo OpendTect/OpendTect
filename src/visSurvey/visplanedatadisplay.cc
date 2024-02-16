@@ -620,9 +620,10 @@ bool PlaneDataDisplay::hasCache( int attrib ) const
 }
 
 
-TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( int attrib ) const
+TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool displayspace,
+							int attrib ) const
 {
-    return getTrcKeyZSampling( true, false, attrib );
+    return getTrcKeyZSampling( true, displayspace, attrib );
 }
 
 

@@ -90,7 +90,7 @@ void uiSlicePos3DDisp::setBoxRanges()
     if ( curpdd_ && curpdd_->getScene() )
 	curcs = curpdd_->getScene()->getTrcKeyZSampling();
     else if ( curvol_ )
-	curcs = curvol_->getTrcKeyZSampling( false );
+	curcs = curvol_->getTrcKeyZSampling( false, 0 );
     else
 	curcs = SI().sampling( true );
     const TrcKeyZSampling survcs( curcs );

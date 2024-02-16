@@ -857,7 +857,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdl,dataobj)
 	if ( rdl )
 	{
-	    mouseplanecs = rdl->getTrcKeyZSampling(-1);
+	    mouseplanecs = rdl->getTrcKeyZSampling(false,-1);
 	    editnormal = rdl->getNormal( eventinfo.displaypickedpos );
 	    break;
 	}
@@ -1549,7 +1549,7 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 
 	const TrcKeyZSampling cs = plane ?
 				   plane->getTrcKeyZSampling(true,true,-1) :
-				   rdtd->getTrcKeyZSampling(-1);
+				   rdtd->getTrcKeyZSampling(false,-1);
 
 	const BinID b00 = cs.hsamp_.start_, b11 = cs.hsamp_.stop_;
 	BinID b01, b10;

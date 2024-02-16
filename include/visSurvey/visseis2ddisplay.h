@@ -105,11 +105,8 @@ public:
     int				nrResolutions() const override;
     void			setResolution(int,TaskRunner*) override;
 
-    TrcKeyZSampling		getTrcKeyZSampling(
-						int attrib=-1 ) const override
-				{ return getTrcKeyZSampling( false, attrib ); }
-    TrcKeyZSampling		getTrcKeyZSampling(bool displayspace,
-						   int attrib=-1) const;
+    TrcKeyZSampling		getTrcKeyZSampling(bool displayspace=false,
+						int attrib=-1 ) const override;
     OD::Pol2D3D			getAllowedDataType() const override
 				{ return OD::Only2D; }
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;

@@ -67,6 +67,15 @@ bool SurveyObject::canRemoveAttrib() const
 { return canHaveMultipleAttribs() && nrAttribs()>1; }
 
 
+TrcKeyZSampling SurveyObject::getTrcKeyZSampling( bool displayspace,
+							    int attrib ) const
+{
+    TrcKeyZSampling cs( Survey::default3DGeomID() );
+    return cs;
+}
+
+
+
 void SurveyObject::setColTabMapperSetup( int, const ColTab::MapperSetup&,
 					 TaskRunner*)
 {}

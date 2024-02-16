@@ -250,7 +250,8 @@ float RandomTrackDisplay::appliedZRangeStep() const
 }
 
 
-TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
+TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( bool displayspace,
+							    int attrib ) const
 {
     TrcKeyZSampling cs( false );
     TrcKeyPath nodes;

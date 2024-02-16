@@ -158,11 +158,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	RefObjectSet<EM::EMObject> objs;
 	const ZDomain::Info* zinfo = nullptr;
 	if ( !hastransform )
-	{
-	    zinfo = SI().zIsTime() ?
-		&ZDomain::TWT() : SI().depthsInFeet()
-			    ? &ZDomain::DepthFeet() : &ZDomain::DepthMeter();
-	}
+	    zinfo = &SI().zDomainInfo();
 
 	applMgr()->EMServer()->selectHorizons( objs, false, nullptr, zinfo );
 
@@ -958,7 +954,11 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     if ( mnuid == 0 )
     {
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectHorizons( objs, true );
+	const ZDomain::Info* zinfo = nullptr;
+	if ( !hastransform )
+	    zinfo = &SI().zDomainInfo();
+
+	applMgr()->EMServer()->selectHorizons( objs, true, nullptr, zinfo );
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );

@@ -158,7 +158,8 @@ public:
 
     float			getValue(int attrib,const Coord3&) const;
 
-    TrcKeyZSampling		getTrcKeyZSampling(int attrib) const override;
+    TrcKeyZSampling		getTrcKeyZSampling(bool displayspace,
+						    int attrib) const override;
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						   bool displayspace,
 						   int attrib) const;

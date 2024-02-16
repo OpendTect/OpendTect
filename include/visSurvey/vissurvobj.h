@@ -289,8 +289,8 @@ public:
 				{ return DataPack::MgrID::udf(); }
 
 				//Volume data
-    virtual TrcKeyZSampling	getTrcKeyZSampling( int attrib ) const
-				{ TrcKeyZSampling cs; return cs; }
+    virtual TrcKeyZSampling	getTrcKeyZSampling(bool displayspace=false,
+						int attrib=-1) const;
 				/*!<\returns the volume in world survey
 				     coordinates. */
     virtual bool		setDataVolume(int attrib,

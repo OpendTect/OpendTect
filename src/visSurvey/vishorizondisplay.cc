@@ -1905,7 +1905,8 @@ void HorizonDisplay::updateIntersectionLines(
 	    const ObjectSet<const SurveyObject>& objs, VisID whichobj )
 {
     mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
-    if ( !horizon ) return;
+    if ( !horizon )
+	return;
 
     int objidx = -1;
     const bool doall = !whichobj.isValid() || whichobj==id();
@@ -1942,7 +1943,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    if ( !vo )
 		continue;
 
-	    const TrcKeyZSampling trzs = objs[objidx]->getTrcKeyZSampling(-1);
+	    const TrcKeyZSampling trzs = objs[objidx]->getTrcKeyZSampling();
 	    TrcKeyPath trckeypath;
 	    TypeSet<Coord> trccoords;
 	    objs[objidx]->getTraceKeyPath( trckeypath, &trccoords );
@@ -1968,13 +1969,17 @@ void HorizonDisplay::updateIntersectionLines(
 		}
 		else
 		{
-		    const Interval<float> zrg =
-			objs[objidx]->getDataTraceRange();
+		    const bool issidom = zaxistransform_ &&
+			horizon->zDomain().isCompatibleWith(
+			    zaxistransform_->toZDomainInfo());
+		    const TrcKeyZSampling tkzs =
+			objs[objidx]->getTrcKeyZSampling( issidom );
 		    data = getOrCreateIntersectionData( lines );
 		    if ( data )
 		    {
 			data->objid_ = vo->id();
-			traverseLine( trckeypath, trccoords, zrg, *data );
+			traverseLine( trckeypath, trccoords, tkzs.zsamp_,
+								    *data );
 		    }
 		    continue;
 		}

@@ -1108,7 +1108,7 @@ void FaultSetDisplay::otherObjectsMoved(
 
 	const TrcKeyZSampling cs = plane ?
 				   plane->getTrcKeyZSampling(true,true,-1) :
-				   rdtd->getTrcKeyZSampling(-1);
+				   rdtd->getTrcKeyZSampling(false,-1);
 
 	const BinID b00 = cs.hsamp_.start_, b11 = cs.hsamp_.stop_;
 	BinID b01, b10;

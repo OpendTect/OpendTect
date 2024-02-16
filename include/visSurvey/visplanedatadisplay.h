@@ -77,13 +77,13 @@ public:
     int				nrResolutions() const override;
     void			setResolution(int,TaskRunner*) override;
 
-    SurveyObject::AttribFormat	getAttributeFormat(
-						int attrib=-1) const override;
+    SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1)
+							    const override;
 
-    TrcKeyZSampling		getTrcKeyZSampling(
+    TrcKeyZSampling		getTrcKeyZSampling(bool displayspace=false,
 					int attrib=-1) const override;
     void			getTraceKeyPath(TrcKeyPath&,
-						TypeSet<Coord>*) const override;
+					    TypeSet<Coord>*) const override;
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						bool displayspace,
 						int attrib=-1) const;
