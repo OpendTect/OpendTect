@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "odjson.h"
 #include "prog.h"
 #include "surveydisklocation.h"
+#include "transl.h"
 
 
 static const int cProtocolNr = 1;
@@ -122,7 +123,7 @@ void DBManServerTool::listObjs()
     set( sKey::Names(), nms );
     set( sKey::Format(2), trls );
     if ( !trlgrps.isEmpty() )
-	set( ServerProgTool::sKeyTransGrp(2), trlgrps );
+	set( TranslatorGroup::sKeyTransGrp(2), trlgrps );
     if ( havetype )
 	set( sKey::Types(), types );
 
@@ -211,7 +212,7 @@ void DBManServerTool::provideInfo( const IOObj& ioobj, bool all )
     set( sKey::Name(), ioobj.name().buf() );
     set( sKey::Format(), ioobj.translator().buf() );
     if ( all )
-	set( ServerProgTool::sKeyTransGrp(), ioobj.group().buf() );
+	set( TranslatorGroup::sKeyTransGrp(), ioobj.group().buf() );
 
     BufferString typ;
     if ( ioobj.pars().get(sKey::Type(),typ) && !typ.isEmpty() )

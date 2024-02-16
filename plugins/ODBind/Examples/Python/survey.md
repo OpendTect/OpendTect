@@ -25,13 +25,17 @@ If this notebook is not opened from OpendTect then the following paths should be
 #sys.path.insert(0,odpy_path)
 ```
 
-```python
+```python tags=[]
 import odbind as odb
 from odbind.survey import Survey
 ```
 
 ```python
 odb.get_user_datadir()
+```
+
+```python
+odb.get_user_survey()
 ```
 
 ```python
@@ -80,7 +84,7 @@ f3demo.feature()
 
 ```python
 import folium
-survmap = folium.Map(location=[52.3,8.0], tiles="Stamen Terrain", zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
+survmap = folium.Map(location=[52.3,8.0], zoom_start = 6, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
 folium.GeoJson(f3demo.feature(), popup=folium.GeoJsonPopup(fields=['name','type'])).add_to(survmap)
 survmap
 ```
@@ -102,7 +106,7 @@ These return a dictionary and a Pandas DataFrame respectively with basic informa
 
 Note that **odb.Survey.infos()** and **odb.Survey.infos([], odb.get_user_datadir())** are equivalent. 
 
-```python tags=[]
+```python
 Survey.infos(['F3_Demo_2020', 'Penobscot'])
 ```
 
@@ -122,7 +126,51 @@ features
 ```
 
 ```python
-features_map = folium.Map(location=[52.3,8.0], tiles="Stamen Terrain", zoom_start = 3, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
+features_map = folium.Map(location=[52.3,8.0], zoom_start = 3, min_lat=-90, max_lat=90, min_lon=-180, max_lon=180, max_bounds=True, maxBoundsViscosity=1)
 folium.GeoJson(features, popup=folium.GeoJsonPopup(fields=['name','type'])).add_to(features_map)
 features_map
+```
+
+## Object Interface
+
+```python
+f3demo.get_object_names('Well')
+```
+
+```python
+f3demo.has_object('F02-1', 'Geometry')
+```
+
+```python
+f3demo.has_object('SSIS-Grid-Dip1', 'Geometry')
+```
+
+```python
+f3demo.has_object('SSIS-Grid-Dip1')
+```
+
+```python
+f3demo.get_object_info('SSIS-Grid-Dip1', 'Geometry')
+```
+
+```python
+f3demo.get_object_info('4 Dip steered median filter')
+```
+
+```python
+f3demo.get_object_info_byid('100100.3')
+```
+
+```python
+f3demo.get_object_infos('Well')
+```
+
+```python
+f3demo.create_object('test_object', 'Seismic Data', 'CBVS', True)
+f3demo.get_object_info('test_object')
+```
+
+```python
+f3demo.remove_object('test_object','Seismic Data')
+f3demo.has_object('test_object')
 ```

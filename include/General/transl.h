@@ -88,6 +88,9 @@ public:
 
     virtual const char*		translationApplication() const;
 
+    static const char*		sKeyTransGrp(int n=1)
+			{ return n<2 ? "TranslatorGroup" : "TranslatorGroups"; }
+
 protected:
 				TranslatorGroup(const char* clssnm);
     virtual			~TranslatorGroup();
