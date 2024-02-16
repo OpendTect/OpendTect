@@ -66,8 +66,7 @@ protected:
     virtual OD::Pol2D3D		dataTypeSupported() { return OD::Both2DAnd3D; }
     bool			do3DHorizon(const EM::EMObject&,Surface&);
 
-    void			load3DTranformVol(const TrcKeyZSampling&);
-    void			load3DTranformVol();
+    void			load3DTranformVol(const TrcKeyZSampling*);
     bool			load2DVelCubeTransf(const Pos::GeomID&,
 					    const StepInterval<int>&);
     void			unloadVolume();

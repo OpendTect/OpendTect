@@ -60,7 +60,7 @@ public:
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
-    inline TrcKeyZSampling	getEnvelope() const { return tkzsenvelope_; }
+    TrcKeyZSampling	getEnvelope() const { return tkzsenvelope_; }
 
 // Deprecated public functions
     mDeprecated("Use geometryElement()")

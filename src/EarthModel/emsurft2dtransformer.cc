@@ -90,32 +90,31 @@ void SurfaceT2DTransformer::preStepCB( CallBacker* )
 {
 }
 
-
-void SurfaceT2DTransformer::load3DTranformVol()
+void SurfaceT2DTransformer::load3DTranformVol( const TrcKeyZSampling* tkzs )
 {
-    StepInterval<float> zgate( mUdf(float), mUdf(float), mUdf(float) );
-    for ( const auto* data : datas_ )
+    TrcKeyZSampling samp;
+    if ( tkzs )
+	samp = *tkzs;
+    else
     {
-	const SurfaceIODataSelection& surfsel = data->surfsel_;
-	const Interval<float>& datagate = surfsel.sd.zrg;
-	zgate.include( datagate );
+	StepInterval<float> zgate = ZGate::udf();
+	for ( const auto* data : datas_ )
+	{
+	    const SurfaceIODataSelection& surfsel = data->surfsel_;
+	    const Interval<float>& datagate = surfsel.sd.zrg;
+	    zgate.include( datagate );
+	}
+
+	if ( updateHSamp() )
+	    samp.hsamp_ = datas_[0]->surfsel_.rg;
+
+	samp.zsamp_ = zatf_.getZInterval( zgate, 
+			    zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
+
+
     }
 
-    TrcKeyZSampling samp;
-    if ( updateHSamp() )
-	samp.hsamp_ = datas_[0]->surfsel_.rg;
-
-    zgate.start = 0;
-    samp.zsamp_ = zatf_.getWorkZSampling( zgate,
-			zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
-
-    load3DTranformVol( samp );
-}
-
-
-void SurfaceT2DTransformer::load3DTranformVol( const TrcKeyZSampling& tkzs )
-{
-    zatvoi_ = zatf_.addVolumeOfInterest( tkzs, true );
+    zatvoi_ = zatf_.addVolumeOfInterest( samp, true );
     TaskRunner tskr;
     if ( !zatf_.loadDataIfMissing(zatvoi_,&tskr) )
     {
@@ -134,7 +133,7 @@ bool SurfaceT2DTransformer::load2DVelCubeTransf( const Pos::GeomID& geomid,
     TrcKeyZSampling tkzs;
     tkzs.hsamp_.set( geomid, trcrg );
     if ( SI().zDomainInfo().isCompatibleWith(zatf_.fromZDomainInfo()) )
-	tkzs.zsamp_ = zatf_.getWorkZSampling( tkzs.zsamp_,
+	tkzs.zsamp_ = zatf_.getZInterval( tkzs.zsamp_,
 			    zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
 
     zatvoi_ = zatf_.addVolumeOfInterest( tkzs, true );
@@ -214,7 +213,7 @@ const StringView Horizon3DT2DTransformer::getTypeString() const
 void Horizon3DT2DTransformer::preStepCB( CallBacker* )
 {
     if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
-	load3DTranformVol();
+	load3DTranformVol( nullptr );
 }
 
 
@@ -581,10 +580,10 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
     const int nrsticks = fltgeom.nrSticks();
     TrcKeyZSampling tkzs = fltgeom.getEnvelope();
     tkzs.zsamp_.start = 0;
-    tkzs.zsamp_ = zatf_.getWorkZSampling( tkzs.zsamp_,
+    tkzs.zsamp_ = zatf_.getZInterval( tkzs.zsamp_,
 			    zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
 
-    load3DTranformVol( tkzs );
+    load3DTranformVol( &tkzs );
     const ZSampling zint = zatf_.getZInterval( true );
     const Interval<float> reasonablerange =
 				zatf_.toZDomainInfo().getReasonableZRange();
@@ -708,10 +707,10 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
     const int nrfaults = inpfltset->nrFaults();
     TrcKeyZSampling tkzs = inpfltset->getEnvelope();
     tkzs.zsamp_.start = 0;
-    tkzs.zsamp_ = zatf_.getWorkZSampling( tkzs.zsamp_,
+    tkzs.zsamp_ = zatf_.getZInterval( tkzs.zsamp_,
 			    zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
 
-    load3DTranformVol( tkzs );
+    load3DTranformVol( &tkzs );
     for ( int fltidx=0; fltidx<nrfaults; fltidx++ )
     {
 	const EM::FaultID fltid = inpfltset->getFaultID( fltidx );
@@ -860,7 +859,8 @@ bool FaultStickSetT2DTransformer::handle2DTransformation(
 				const EM::FaultStickSetGeometry& fssgeom,
 				EM::FaultStickSet& outfss )
 {
-    const ObjectSet<EM::DataHolder>& dataholders = fssgeom.getDataHodlers();
+    const ObjectSet<EM::FaultSSDataHolder>& dataholders = 
+						    fssgeom.getDataHodlers();
 
     const StepInterval<int> trcrg = fssgeom.geometryElement()->colRange();
     for ( auto* dh : dataholders )
@@ -894,19 +894,20 @@ bool FaultStickSetT2DTransformer::handle3DTransformation(
 	mErrRet( tr("FaultStickSet is empty") );
 
     const int nrsticks = fssgeom.nrSticks();
-    const ObjectSet<EM::DataHolder>& dataholders = fssgeom.getDataHodlers();
+    const ObjectSet<EM::FaultSSDataHolder>& dataholders = 
+						    fssgeom.getDataHodlers();
     const int dhsz = dataholders.size();
     for ( int dhidx=0; dhidx<dhsz; dhidx++ )
     {
-	const EM::DataHolder* dh = dataholders.get( dhidx );
+	const EM::FaultSSDataHolder* dh = dataholders.get( dhidx );
 	if ( !dh )
 	    continue;
 
 	TrcKeyZSampling& samp = const_cast<TrcKeyZSampling&>( dh->tkzs_ );
 	samp.zsamp_.start = 0;
-	samp.zsamp_ = zatf_.getWorkZSampling( samp.zsamp_,
+	samp.zsamp_ = zatf_.getZInterval( samp.zsamp_,
 		zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
-	load3DTranformVol( samp );
+	load3DTranformVol( &samp );
 	for ( int idx=0; idx<nrsticks; idx++ )
 	{
 	    const Geometry::FaultStick* stick = fss->getStick( idx );
