@@ -546,18 +546,17 @@ int FaultStickSetGeometry::indexOf( int sticknr ) const
 
 
 //DataHolder
-FaultSSDataHolder::FaultSSDataHolder()
+DataHolder::DataHolder()
 {}
 
 
-FaultSSDataHolder::~FaultSSDataHolder()
+DataHolder::~DataHolder()
 {}
 
 
 //FaultStickSetDataOrganiser
 FaultStickSetDataOrganiser::FaultStickSetDataOrganiser(
-				const FaultStickSetGeometry& fssgeom,
-				ObjectSet<FaultSSDataHolder>& dataholders )
+    const FaultStickSetGeometry& fssgeom, ObjectSet<DataHolder>& dataholders )
     : Executor("FaultStickSet Data Grouping")
     , fssgeom_(fssgeom)
     , dataholders_(dataholders)
@@ -596,7 +595,7 @@ int FaultStickSetDataOrganiser::nextStep()
 
     if ( processedgeomids_.addIfNew(geomid) )
     {
-	auto* dh = new FaultSSDataHolder();
+	auto* dh = new DataHolder();
 	dh->geomid_ = geomid;
 	dh->sticknr_.add( nrdone_ );
 	dh->sticks_.add( stick );
@@ -618,7 +617,7 @@ int FaultStickSetDataOrganiser::nextStep()
 
 //FaultStickDataUpdater
 FaultStickSetDataUpdater::FaultStickSetDataUpdater(
-	    Geometry::FaultStickSet& fss, ObjectSet<FaultSSDataHolder>& dhs )
+		Geometry::FaultStickSet& fss, ObjectSet<DataHolder>& dhs )
     : ParallelTask("FaultStickSet Data Updater")
     , faultstickset_(fss)
     , dataholders_(dhs)
@@ -639,7 +638,7 @@ od_int64 FaultStickSetDataUpdater::nrIterations() const
 
 bool FaultStickSetDataUpdater::doWork( od_int64 index, od_int64/**/, int /**/ )
 {
-    FaultSSDataHolder* dh = dataholders_[index];
+    DataHolder* dh = dataholders_[index];
     if ( !dh )
 	return true;
 

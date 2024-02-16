@@ -19,11 +19,11 @@ namespace Pos { class Filter; }
 namespace EM
 {
 
-mExpClass(EarthModel) FaultSSDataHolder
+mExpClass(EarthModel) DataHolder
 {
 public:
-						FaultSSDataHolder();
-						~FaultSSDataHolder();
+						DataHolder();
+						~DataHolder();
     ObjectSet<const Geometry::FaultStick>	sticks_;
     Pos::GeomID					geomid_;
     TypeSet<int>				sticknr_;
@@ -79,8 +79,7 @@ public:
 
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
-    const ObjectSet<FaultSSDataHolder>& getDataHodlers() const 
-						{ return dataholders_; }
+    const ObjectSet<DataHolder>& getDataHodlers() const { return dataholders_; }
     inline const Interval<float>&	getZRange() const { return zgate_; }
 
 // Deprecated public functions
@@ -172,9 +171,9 @@ protected:
 	BufferString		pickednm;
     };
 
-    ObjectSet<StickInfo>		stickinfo_;
-    ObjectSet<FaultSSDataHolder>	dataholders_;
-    Interval<float>			zgate_;
+    ObjectSet<StickInfo>	stickinfo_;
+    ObjectSet<DataHolder>	dataholders_;
+    Interval<float>		zgate_;
 };
 
 
@@ -207,7 +206,7 @@ mExpClass(EarthModel) FaultStickSetDataOrganiser : public Executor
 { mODTextTranslationClass(FaultStickSetDataOrganiser)
 public:
 		       FaultStickSetDataOrganiser(const FaultStickSetGeometry&,
-						 ObjectSet<FaultSSDataHolder>&);
+						    ObjectSet<DataHolder>&);
 		       ~FaultStickSetDataOrganiser();
 
     uiString			    uiMessage() const override { return msg_; }
@@ -223,7 +222,7 @@ protected:
     od_int64				totnr_		    = 0;
     int					nextStep() override;
 
-    ObjectSet<FaultSSDataHolder>&	dataholders_;
+    ObjectSet<DataHolder>&		dataholders_;
     TypeSet<Pos::GeomID>		processedgeomids_;
 
 };
@@ -232,14 +231,14 @@ mExpClass(EarthModel) FaultStickSetDataUpdater : public ParallelTask
 { mODTextTranslationClass(FaultStickSetDataUpdater)
 public:
 			    FaultStickSetDataUpdater(Geometry::FaultStickSet&,
-						 ObjectSet<FaultSSDataHolder>&);
+						    ObjectSet<DataHolder>&);
 			    ~FaultStickSetDataUpdater();
 
 protected:
     bool			    doWork(od_int64,od_int64,int);
     od_int64			    nrIterations() const override;
     Geometry::FaultStickSet&	    faultstickset_;
-    ObjectSet<FaultSSDataHolder>&   dataholders_;
+    ObjectSet<DataHolder>&	    dataholders_;
     od_int64			    totnr_		= 0;
 };
 

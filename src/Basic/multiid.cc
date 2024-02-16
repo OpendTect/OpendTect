@@ -144,10 +144,7 @@ bool MultiID::fromString( const char* str )
 
     ids_.setSize( nrids, sUdfID() );
     for ( int idx=0; idx<ss.size(); idx++ )
-    {
-	const int id = ss.getIValue(idx);
-	setID( idx, mIsUdf(id) ? udf().ID(idx) : id );
-    }
+	setID( idx, ss.getIValue(idx) );
 
     return true;
 }

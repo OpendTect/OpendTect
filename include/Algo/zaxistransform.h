@@ -95,22 +95,24 @@ public:
     virtual NotifierAccess*	changeNotifier()	{ return nullptr; }
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
-    virtual ZSampling		getZInterval(const ZSampling&,
-					     const ZDomain::Info& from,
-					     const ZDomain::Info& to,
-					     bool makenice=true) const;
-				    /*!\returns the equivalent to zsamp
-				     in another zdomain.
-				     Can be an approxmation */
+    virtual ZSampling		getWorkZSampling(const ZSampling& zsamp,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to)  const = 0;
 
 protected:
 				ZAxisTransform(const ZDomain::Def& from,
 					       const ZDomain::Def& to);
 				~ZAxisTransform();
 
-    virtual ZSampling		getWorkZSampling(const ZSampling& zsamp,
-					const ZDomain::Info& from,
-					const ZDomain::Info& to)  const = 0;
+    virtual ZSampling		getZInterval(const ZSampling&,
+					     const ZDomain::Info& from,
+					     const ZDomain::Info& to,
+					     bool makenice=true) const;
+
+
+				/*!\returns the equivalent to zsamp
+				     in another zdomain.
+				     Can be an approxmation */
 
     ZSampling			getZInterval(const ZSampling&,
 					     const ZDomain::Def& from,
