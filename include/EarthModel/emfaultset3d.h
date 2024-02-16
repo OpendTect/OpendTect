@@ -40,6 +40,9 @@ public:
     EMObjectIterator*		createIterator(
 				 const TrcKeyZSampling* =nullptr) const override
 				{ return nullptr; }
+    const TrcKeyZSampling&	getEnvelope() const { return tkzsenvelope_; }
+    void			setEnvelope(const TrcKeyZSampling&);
+
 
 protected:
 
@@ -51,6 +54,7 @@ protected:
     ObjectSet<Fault3D>		faults_;
     TypeSet<FaultID>		ids_;
     int				curidnr_ = 0;
+    TrcKeyZSampling		tkzsenvelope_;
 };
 
 } // namespace EM

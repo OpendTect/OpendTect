@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "posfilter.h"
+#include "survinfo.h"
 #include "undo.h"
 
 
@@ -173,7 +175,8 @@ bool FaultStickSetGeometry::insertStick( int sticknr,
 
     const bool firstrowchange = sticknr < fss->rowRange().start;
 
-    if ( !fss->insertStick(pos,editnormal,sticknr,firstcol) )
+    const Pos::GeomID geomid = Survey::GM().getGeomID( pickednm );
+    if ( !fss->insertStick(pos,editnormal,sticknr,firstcol,geomid) )
 	return false;
 
     for ( int idx=0; !firstrowchange && idx<stickinfo_.size(); idx++ )
@@ -399,7 +402,7 @@ EM::ObjectType FaultStickSetGeometry::FSSObjType() const
     for ( int idx=0; idx<nrsticks; idx++ )
     {
 	const Pos::GeomID& geomid = stickinfo_[idx]->pickedgeomid;
-	if ( geomid.isValid() )
+	if ( geomid.isValid() && geomid.is2D() )
 	    count2d++;
     }
 
@@ -455,6 +458,7 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
     if ( !fss )
 	return false;
 
+    par.get( sKey::ZRange(), zgate_ );
     StepInterval<int> stickrg = fss->rowRange();
     for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
     {
@@ -519,7 +523,12 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 					    stickinfo_[0]->pickednm );
     }
 
-    return true;
+    FaultStickSetDataOrganiser fssdataorganiser( *this, dataholders_ );
+    if ( !fssdataorganiser.execute() )
+	return false;
+
+    FaultStickSetDataUpdater fssupdater( *fss, dataholders_ );
+    return fssupdater.execute();
 }
 
 
@@ -531,7 +540,145 @@ int FaultStickSetGeometry::indexOf( int sticknr ) const
 	    return idx;
     }
 
+
     return -1;
+}
+
+
+//DataHolder
+FaultSSDataHolder::FaultSSDataHolder()
+{}
+
+
+FaultSSDataHolder::~FaultSSDataHolder()
+{}
+
+
+//FaultStickSetDataOrganiser
+FaultStickSetDataOrganiser::FaultStickSetDataOrganiser(
+			const FaultStickSetGeometry& fssgeom,
+			    ObjectSet<FaultSSDataHolder>& dataholders )
+    : Executor("FaultStickSet Data Grouping")
+    , fssgeom_(fssgeom)
+    , dataholders_(dataholders)
+{
+    const Geometry::FaultStickSet* fss = fssgeom_.geometryElement();
+    totnr_ = fss ? fssgeom.nrSticks() : 0;
+}
+
+
+FaultStickSetDataOrganiser::~FaultStickSetDataOrganiser()
+{}
+
+
+uiString FaultStickSetDataOrganiser::uiNrDoneText() const
+{
+    return tr("Grouping sticks");
+}
+
+int FaultStickSetDataOrganiser::nextStep()
+{
+    if ( nrdone_ >= totnr_ )
+	return Finished();
+
+    const Geometry::FaultStickSet* fss = fssgeom_.geometryElement();
+    if ( !fss )
+	return ErrorOccurred();
+
+
+    const Pos::GeomID geomid = fssgeom_.pickedGeomID( nrdone_ );
+    const Geometry::FaultStick* stick = fss->getStick( nrdone_ );
+    if ( !stick || stick->locs_.isEmpty() )
+    {
+	nrdone_++;
+	return MoreToDo();
+    }
+
+    if ( processedgeomids_.addIfNew(geomid) )
+    {
+	auto* dh = new FaultSSDataHolder();
+	dh->geomid_ = geomid;
+	dh->sticknr_.add( nrdone_ );
+	dh->sticks_.add( stick );
+	dh->tkzs_.zsamp_.setFrom( fssgeom_.getZRange() );
+	dataholders_.add( dh );
+    }
+    else
+    {
+	const int gidx = processedgeomids_.indexOf( geomid );
+	auto* dh = dataholders_.get( gidx );
+	dh->sticknr_.add( nrdone_ );
+	dh->sticks_.add( stick );
+    }
+
+    nrdone_++;
+    return MoreToDo();
+}
+
+
+//FaultStickDataUpdater
+FaultStickSetDataUpdater::FaultStickSetDataUpdater(
+	    Geometry::FaultStickSet& fss, ObjectSet<FaultSSDataHolder>& dhs )
+    : ParallelTask("FaultStickSet Data Updater")
+    , faultstickset_(fss)
+    , dataholders_(dhs)
+{
+    totnr_ = dataholders_.size();
+}
+
+
+FaultStickSetDataUpdater::~FaultStickSetDataUpdater()
+{}
+
+
+od_int64 FaultStickSetDataUpdater::nrIterations() const
+{
+    return totnr_;
+}
+
+
+bool FaultStickSetDataUpdater::doWork( od_int64 index, od_int64/**/, int /**/ )
+{
+    FaultSSDataHolder* dh = dataholders_[index];
+    if ( !dh )
+	return true;
+
+    const int size = dh->sticks_.size();
+    const Pos::GeomID& geomid = dh->geomid_;
+    TrcKey trckey;
+    trckey.setGeomID( geomid );
+    TrcKeyZSampling tkzs;
+    tkzs.setEmpty();
+    if ( geomid.isValid() && geomid.is2D() )
+    {
+	tkzs.hsamp_.setGeomID( geomid );
+	trckey.setGeomSystem( OD::Geom2D );
+    }
+    else
+    {
+	tkzs.hsamp_.setGeomID( Pos::GeomID(OD::Geom3D) );
+	trckey.setGeomSystem( OD::Geom3D );
+	tkzs.hsamp_.step_ = SI().sampling(true).hsamp_.step_;
+    }
+
+    for ( int idx=0; idx<size; idx++ )
+    {
+	Geometry::FaultStick* fss =
+		    const_cast<Geometry::FaultStick*>( dh->sticks_.get(idx) );
+	const int fsssz = fss->size();
+
+	for ( int kidx=0; kidx<fsssz; kidx++ )
+	{
+	    LocationBase& loc = fss->locs_[kidx];
+	    trckey.setFrom( loc.pos() );
+	    loc.setTrcKey( trckey );
+	    tkzs.hsamp_.include( trckey );
+	}
+    }
+
+    dh->tkzs_.hsamp_ = tkzs.hsamp_;
+    dh->tkzs_.hsamp_.step_.second = dh->tkzs_.hsamp_.step_.first;
+    return true;
 }
 
 } // namespace EM

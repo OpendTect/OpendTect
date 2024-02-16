@@ -25,7 +25,9 @@ TrcKeySampling::TrcKeySampling()
     , start( start_ )
     , stop( stop_ )
     , step( step_ )
-{ init( true ); }
+{
+    init( true );
+}
 
 
 TrcKeySampling::TrcKeySampling( const TrcKeySampling& tks )

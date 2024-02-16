@@ -73,8 +73,8 @@ public:
 					  int sz,float* res) const	= 0;
     float			transformTrcBack(const TrcKey&,float z) const;
 
-    ZSampling			getZInterval(bool from,
-					     bool makenice=true) const;
+    ZSampling			getZInterval(bool from,bool makenice=true,
+					    const ZSampling* =nullptr) const;
 				/*!\return the z sampling in either to
 				     or from domain.
 				     Includes a reasonable step in the
@@ -96,19 +96,20 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
+
 protected:
 				ZAxisTransform(const ZDomain::Def& from,
 					       const ZDomain::Def& to);
 				~ZAxisTransform();
 
+    virtual ZSampling		getWorkZSampling(const ZSampling& zsamp,
+					const ZDomain::Info& from,
+					const ZDomain::Info& to)  const = 0;
+
     virtual ZSampling		getZInterval(const ZSampling&,
 					     const ZDomain::Info& from,
 					     const ZDomain::Info& to,
 					     bool makenice=true) const;
-
-    virtual ZSampling		getWorkZSampling(const ZSampling& zsamp,
-					   const ZDomain::Info& from,
-					   const ZDomain::Info& to)  const = 0;
 				/*!\returns the equivalent to zsamp
 				     in another zdomain.
 				     Can be an approxmation */

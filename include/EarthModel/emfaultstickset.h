@@ -11,12 +11,24 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "emfault.h"
 #include "emmanager.h"
+#include "executor.h"
 
 namespace Geometry { class FaultStickSet; }
 namespace Pos { class Filter; }
 
 namespace EM
 {
+
+mExpClass(EarthModel) FaultSSDataHolder
+{
+public:
+						FaultSSDataHolder();
+						~FaultSSDataHolder();
+    ObjectSet<const Geometry::FaultStick>	sticks_;
+    Pos::GeomID					geomid_;
+    TypeSet<int>				sticknr_;
+    TrcKeyZSampling				tkzs_;
+};
 
 /*!
 \brief FaultStickSet geometry.
@@ -67,6 +79,9 @@ public:
 
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
+    const ObjectSet<FaultSSDataHolder>& getDataHodlers() const
+						    { return dataholders_; }
+    inline const Interval<float>&	getZRange() const { return zgate_; }
 
 // Deprecated public functions
     mDeprecated("Use without SectionID")
@@ -151,14 +166,15 @@ protected:
 				StickInfo();
 
 	SectionID		sid = SectionID::def();
-	int			sticknr;
+	int			sticknr		= mUdf(int);
 	Pos::GeomID		pickedgeomid;
 	MultiID			pickedmid;
 	BufferString		pickednm;
     };
 
-    ObjectSet<StickInfo>	 stickinfo_;
-
+    ObjectSet<StickInfo>		stickinfo_;
+    ObjectSet<FaultSSDataHolder>	dataholders_;
+    Interval<float>			zgate_;
 };
 
 
@@ -183,6 +199,48 @@ protected:
     const IOObjContext&			getIOObjContext() const override;
 
     FaultStickSetGeometry		geometry_;
+};
+
+
+
+mExpClass(EarthModel) FaultStickSetDataOrganiser : public Executor
+{ mODTextTranslationClass(FaultStickSetDataOrganiser)
+public:
+		       FaultStickSetDataOrganiser(const FaultStickSetGeometry&,
+						ObjectSet<FaultSSDataHolder>&);
+		       ~FaultStickSetDataOrganiser();
+
+    uiString			    uiMessage() const override { return msg_; }
+    uiString			    uiNrDoneText() const override;
+    od_int64			    nrDone() const override { return nrdone_; }
+    od_int64			    totalNr() const override { return totnr_; }
+protected:
+
+
+    const EM::FaultStickSetGeometry&	fssgeom_;
+    uiString				msg_;
+    od_int64				nrdone_		    = 0;
+    od_int64				totnr_		    = 0;
+    int					nextStep() override;
+
+    ObjectSet<FaultSSDataHolder>&	dataholders_;
+    TypeSet<Pos::GeomID>		processedgeomids_;
+
+};
+
+mExpClass(EarthModel) FaultStickSetDataUpdater : public ParallelTask
+{ mODTextTranslationClass(FaultStickSetDataUpdater)
+public:
+			    FaultStickSetDataUpdater(Geometry::FaultStickSet&,
+						ObjectSet<FaultSSDataHolder>&);
+			    ~FaultStickSetDataUpdater();
+
+protected:
+    bool			    doWork(od_int64,od_int64,int) override;
+    od_int64			    nrIterations() const override;
+    Geometry::FaultStickSet&	    faultstickset_;
+    ObjectSet<FaultSSDataHolder>&   dataholders_;
+    od_int64			    totnr_		= 0;
 };
 
 } // namespace EM
