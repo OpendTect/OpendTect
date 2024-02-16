@@ -78,6 +78,11 @@ public:
     static const char*	sInfoUsrCmd()	    { return "info"; }
     static const char*	sAllUsrCmd()	    { return "all"; }
 
+    mDeprecated("Use TranslatorGroup::sKeyTransGrp")
+    static const char*	sKeyTransGrp(int n=1)
+			{ return n<2 ? "TranslatorGroup"
+				     : "TranslatorGroups"; }
+
     void		setDBMDataSource();
 
 protected:
