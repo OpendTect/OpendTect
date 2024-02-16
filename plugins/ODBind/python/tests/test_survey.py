@@ -16,16 +16,6 @@ data = {
         'y': np.array([0.0,0.0,0.0],dtype=np.float64)
         }
 
-@pytest.fixture
-def make_geometry(survey):
-    assert survey.has2d == True
-
-    with Geom2D.create(survey,'pytest', True) as test:
-        test.putdata(data)
-
-    yield survey
-    Geom2D.delete(survey,['pytest'])
-
 def test_Survey_class():
     assert 'F3_Demo_2020' in Survey.names()
 
@@ -65,13 +55,30 @@ def test_Survey_class():
     assert f3demo.has3d == True
     assert f3demo.zrange == pytest.approx([0, 1848, 4])
 
-def test_Object_Interface(make_geometry):
-    assert 'pytest' in make_geometry.get_object_names('Geometry')
-    assert make_geometry.has_object('pytest','Geometry') == True
-    assert make_geometry.has_object('notpresent','Geometry') == False
-    result = make_geometry.get_object_info('pytest','Geometry')
+def test_Object_Interface(survey):
+    assert survey.has2d == True
+    with Geom2D.create(survey,'pytest', True) as test:
+        test.putdata(data)
+
+    assert 'pytest' in survey.get_object_names('Geometry')
+    assert survey.has_object('pytest','Geometry') == True
+    assert survey.has_object('notpresent','Geometry') == False
+    result = survey.get_object_info('pytest','Geometry')
     assert result['TranslatorGroup'] == 'Geometry'
-    assert result == make_geometry.find_object_info('pytest')
-    assert result == make_geometry.find_object_info(result['ID'])
-    assert result in make_geometry.get_object_infos('Geometry')
-    assert make_geometry.get_object_info('notpresent', 'Geometry') == {}
+    assert result == survey.get_object_info('pytest')
+    assert result == survey.get_object_info_byid(result['ID'])
+    assert result in survey.get_object_infos('Geometry')
+    survey.create_object('pytest_create', 'Seismic Data', 'CBVS', True)
+    assert survey.has_object('pytest_create', 'Seismic Data') == True
+    result = survey.get_object_info('pytest_create')
+    assert result == {
+                        'ID': result['ID'],
+                        'Name': 'pytest_create',
+                        'Format': 'CBVS',
+                        'TranslatorGroup': 'Seismic Data',
+                        'File name': result['File name']
+                    }
+    survey.remove_object('pytest_create', 'Seismic Data')
+    assert survey.has_object('pytest_create') == False
+
+    Geom2D.delete(survey,['pytest'])

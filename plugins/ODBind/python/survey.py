@@ -297,7 +297,7 @@ class Survey(object):
         overwrite : bool=False
             if True any existing objname/trgrpnm will be overwritten
         """
-        Survey._createobj(self._handle, objname.encode(), trgrpnm.encode(), translkey.encode(), overwrite)
+        Survey._createobj(self._handle, objname.encode(), trgrpnm.encode(), translkey.encode() if translkey else None, overwrite)
         if not self.isok:
             raise TypeError(self.errmsg)
 
