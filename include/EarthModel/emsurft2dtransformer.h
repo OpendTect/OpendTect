@@ -17,15 +17,13 @@ ________________________________________________________________________
 #include "objectset.h"
 
 class ZAxisTransform;
-namespace Geometry { class FaultStick; class FaultStickSet; }
+namespace Geometry { class FaultStick; }
 
 namespace EM
 {
 
 class Horizon3D;
 class EMObject;
-class FaultStickSet;
-class FaultStickSetGeometry;
 
 mExpClass(EarthModel) SurfaceT2DTransfData
 {
@@ -66,16 +64,12 @@ protected:
     virtual OD::Pol2D3D		dataTypeSupported() { return OD::Both2DAnd3D; }
     bool			do3DHorizon(const EM::EMObject&,Surface&);
 
-    void			load3DTranformVol(const TrcKeyZSampling&);
     void			load3DTranformVol();
-    bool			load2DVelCubeTransf(const Pos::GeomID&,
-					    const StepInterval<int>&);
     void			unloadVolume();
-    inline virtual bool		updateHSamp() const { return false; }
 
-    virtual const StringView	getTypeString() const	    = 0;
+    virtual const StringView	getTypeString()		    = 0;
 
-    RefMan<EMObject>		createObject(const MultiID&) const;
+    RefMan<EMObject>		createObject(const MultiID&);
 
     od_int64					nrdone_     = 0;
     od_int64					totnr_	    = 0;
@@ -101,8 +95,7 @@ protected:
     void		    preStepCB(CallBacker*) override;
     void		    postStepCB(CallBacker*) override;
     int			    nextStep() override;
-    const StringView	    getTypeString() const override;
-    inline virtual bool     updateHSamp() const { return true; }
+    const StringView	    getTypeString() override;
     bool		    doHorizon(const SurfaceT2DTransfData&);
 
     int			    zatvoi_	= -1;
@@ -147,8 +140,11 @@ protected:
     OD::Pol2D3D		    dataTypeSupported() override { return OD::Only2D; }
     void		    preStepCB(CallBacker*) override;
     int			    nextStep() override;
-    const StringView	    getTypeString() const override;
+    const StringView	    getTypeString() override;
     bool		    do2DHorizon(const Horizon2DDataHolder&);
+    bool		    load2DVelCubeTransf(const Pos::GeomID&,
+						const StepInterval<int>&);
+    void		    unload2DVelCubeTransf();
 private:
     TypeSet<Pos::GeomID>	    geomids_;
     Horizon2DDataHolderSet	    dataset_;
@@ -167,9 +163,11 @@ public:
 protected:
 
     OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
+    void		    preStepCB(CallBacker*) override;
+    void		    postStepCB(CallBacker*) override;
     int			    nextStep() override;
     bool		    doFault(const SurfaceT2DTransfData&);
-    const StringView	    getTypeString() const override;
+    const StringView	    getTypeString() override;
 };
 
 
@@ -183,9 +181,11 @@ public:
 protected:
 
     OD::Pol2D3D		    dataTypeSupported() override { return OD::Only3D; }
+    void		    preStepCB(CallBacker*) override;
+    void		    postStepCB(CallBacker*) override;
     int			    nextStep() override;
     bool		    doFaultSet(const SurfaceT2DTransfData&);
-    const StringView	    getTypeString() const override;
+    const StringView	    getTypeString() override;
 };
 
 
@@ -203,23 +203,10 @@ protected:
 
     OD::Pol2D3D		    dataTypeSupported() override
 						{ return OD::Both2DAnd3D; }
+    void		    preStepCB(CallBacker*) override;
+    void		    postStepCB(CallBacker*) override;
     int			    nextStep() override;
     bool		    doFaultStickSet(const SurfaceT2DTransfData&);
-    const StringView	    getTypeString() const override;
-    struct DataHolder
-    {
-	ObjectSet<const Geometry::FaultStick>	    sticks_;
-	Pos::GeomID				    geomid_;
-	TypeSet<int>				    sticknr_;
-    };
-
-    bool	    handle2DTransformation(const EM::FaultStickSetGeometry&,
-						EM::FaultStickSet&);
-    bool	    handle3DTransformation(const EM::FaultStickSetGeometry&,
-						EM::FaultStickSet&);
-    bool	    doTransformation(const Geometry::FaultStick*,int,
-						EM::FaultStickSet&,
-						Pos::GeomID=Pos::GeomID::udf());
-
+    const StringView	    getTypeString() override;
 };
 }

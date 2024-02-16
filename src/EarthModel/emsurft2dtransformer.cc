@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "uistrings.h"
 #include "survgeom.h"
-#include "survgeom2d.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
@@ -93,7 +92,7 @@ void SurfaceT2DTransformer::preStepCB( CallBacker* )
 
 void SurfaceT2DTransformer::load3DTranformVol()
 {
-    StepInterval<float> zgate( mUdf(float), mUdf(float), mUdf(float) );
+    Interval<float> zgate( mUdf(float), mUdf(float) );
     for ( const auto* data : datas_ )
     {
 	const SurfaceIODataSelection& surfsel = data->surfsel_;
@@ -102,20 +101,11 @@ void SurfaceT2DTransformer::load3DTranformVol()
     }
 
     TrcKeyZSampling samp;
-    if ( updateHSamp() )
-	samp.hsamp_ = datas_[0]->surfsel_.rg;
+    samp.hsamp_ = datas_[0]->surfsel_.rg;
+    if ( samp.zsamp_.stop > zgate.stop )
+	samp.zsamp_.stop = samp.zsamp_.snap( zgate.stop, OD::SnapUpward );
 
-    zgate.start = 0;
-    samp.zsamp_ = zatf_.getWorkZSampling( zgate,
-			zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
-
-    load3DTranformVol( samp );
-}
-
-
-void SurfaceT2DTransformer::load3DTranformVol( const TrcKeyZSampling& tkzs )
-{
-    zatvoi_ = zatf_.addVolumeOfInterest( tkzs, true );
+    zatvoi_ = zatf_.addVolumeOfInterest( samp, false );
     TaskRunner tskr;
     if ( !zatf_.loadDataIfMissing(zatvoi_,&tskr) )
     {
@@ -125,26 +115,7 @@ void SurfaceT2DTransformer::load3DTranformVol( const TrcKeyZSampling& tkzs )
 }
 
 
-bool SurfaceT2DTransformer::load2DVelCubeTransf( const Pos::GeomID& geomid,
-					const StepInterval<int>& trcrg )
-{
-    if ( !zatf_.needsVolumeOfInterest() )
-	return true;
-
-    TrcKeyZSampling tkzs;
-    tkzs.hsamp_.set( geomid, trcrg );
-    if ( SI().zDomainInfo().isCompatibleWith(zatf_.fromZDomainInfo()) )
-	tkzs.zsamp_ = zatf_.getWorkZSampling( tkzs.zsamp_,
-			    zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
-
-    zatvoi_ = zatf_.addVolumeOfInterest( tkzs, true );
-    TaskRunner tskr;
-    return zatf_.loadDataIfMissing( zatvoi_, &tskr );
-}
-
-
 RefMan<EMObject> SurfaceT2DTransformer::createObject( const MultiID& outmid )
-									const
 {
     PtrMan<IOObj> obj = IOM().get( outmid );
     if ( !obj )
@@ -205,7 +176,7 @@ Horizon3DT2DTransformer::~Horizon3DT2DTransformer()
 }
 
 
-const StringView Horizon3DT2DTransformer::getTypeString() const
+const StringView Horizon3DT2DTransformer::getTypeString()
 {
     return EM::Horizon3D::typeStr();
 }
@@ -404,7 +375,7 @@ Horizon2DT2DTransformer::~Horizon2DT2DTransformer()
 }
 
 
-const StringView Horizon2DT2DTransformer::getTypeString() const
+const StringView Horizon2DT2DTransformer::getTypeString()
 {
     return EM::Horizon2D::typeStr();
 }
@@ -498,7 +469,7 @@ bool Horizon2DT2DTransformer::do2DHorizon( const
 	outhor2D->setArray1D( *array, trcrng, geomid, false );
     }
 
-    unloadVolume();
+    unload2DVelCubeTransf();
     return true;
 }
 
@@ -515,6 +486,26 @@ int Horizon2DT2DTransformer::nextStep()
     }
 
     return MoreToDo();
+}
+
+
+bool Horizon2DT2DTransformer::load2DVelCubeTransf( const Pos::GeomID& geomid,
+					    const StepInterval<int>& trcrg )
+{
+    if ( !zatf_.needsVolumeOfInterest() )
+	return true;
+
+    TrcKeyZSampling tkzs;
+    tkzs.hsamp_.set( geomid, trcrg );
+    zatvoi_ = zatf_.addVolumeOfInterest( tkzs );
+    TaskRunner tskr;
+    return zatf_.loadDataIfMissing( zatvoi_, &tskr );
+}
+
+
+void Horizon2DT2DTransformer::unload2DVelCubeTransf()
+{
+    unloadVolume();
 }
 
 
@@ -535,7 +526,21 @@ FaultT2DTransformer::~FaultT2DTransformer()
 }
 
 
-const StringView FaultT2DTransformer::getTypeString() const
+void FaultT2DTransformer::preStepCB( CallBacker* )
+{
+    if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
+	load3DTranformVol();
+}
+
+
+void FaultT2DTransformer::postStepCB( CallBacker* )
+{
+    if ( nrdone_ == totnr_ )
+	unloadVolume();
+}
+
+
+const StringView FaultT2DTransformer::getTypeString()
 {
     return EM::Fault3D::typeStr();
 }
@@ -579,17 +584,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	mErrRet( tr("Fault is empty") );
 
     const int nrsticks = fltgeom.nrSticks();
-    TrcKeyZSampling tkzs = fltgeom.getEnvelope();
-    tkzs.zsamp_.start = 0;
-    tkzs.zsamp_ = zatf_.getWorkZSampling( tkzs.zsamp_,
-			    zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
-
-    load3DTranformVol( tkzs );
     const ZSampling zint = zatf_.getZInterval( true );
-    const Interval<float> reasonablerange =
-				zatf_.toZDomainInfo().getReasonableZRange();
-    const ZSampling zrgfrom = zatf_.getZInterval( true, false );
-    const ZSampling zrgto = zatf_.getZInterval( false, false );
     for ( int idx=0; idx<nrsticks; idx++ )
     {
 	const Geometry::FaultStick* stick = fssurf->getStick( idx );
@@ -609,9 +604,6 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	    Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
 	    outcrd.z = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
 								    outcrd.z );
-	    if ( !reasonablerange.includes(outcrd.z,false) )
-		continue;
-
 	    if ( crdidx == 0 )
 	    {
 		if ( !outfault3d->geometry().insertStick(idx,0,outcrd,
@@ -625,8 +617,6 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	    outfault3d->geometry().insertKnot( rc.toInt64(), outcrd, false );
 	}
     }
-
-    unloadVolume();
 
     outsurfs_.add( outfault3d );
     return true;
@@ -667,7 +657,21 @@ FaultSetT2DTransformer::~FaultSetT2DTransformer()
 }
 
 
-const StringView FaultSetT2DTransformer::getTypeString() const
+void FaultSetT2DTransformer::preStepCB( CallBacker* )
+{
+    if ( (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
+	load3DTranformVol();
+}
+
+
+void FaultSetT2DTransformer::postStepCB( CallBacker* )
+{
+    if ( nrdone_ == totnr_ )
+	unloadVolume();
+}
+
+
+const StringView FaultSetT2DTransformer::getTypeString()
 {
     return EM::FaultSet3D::typeStr();
 }
@@ -703,15 +707,7 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 	mErrRet( tr("The output type is incompatible with input type, "
 	    "FaultSet object expected") );
 
-    const Interval<float> reasonablerange =
-				zatf_.toZDomainInfo().getReasonableZRange();
     const int nrfaults = inpfltset->nrFaults();
-    TrcKeyZSampling tkzs = inpfltset->getEnvelope();
-    tkzs.zsamp_.start = 0;
-    tkzs.zsamp_ = zatf_.getWorkZSampling( tkzs.zsamp_,
-			    zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
-
-    load3DTranformVol( tkzs );
     for ( int fltidx=0; fltidx<nrfaults; fltidx++ )
     {
 	const EM::FaultID fltid = inpfltset->getFaultID( fltidx );
@@ -723,7 +719,6 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 	    mErrRet( tr("FaultSet is empty") );
 
 	const int nrsticks = fltgeom.nrSticks();
-
 	const ZSampling zint = zatf_.getZInterval( true );
 	RefMan<EM::EMObject> fltemobj = em.createTempObject(
 						    EM::Fault3D::typeStr() );
@@ -747,9 +742,6 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 		Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
 		outcrd.z = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
 		    outcrd.z );
-		if ( !reasonablerange.includes(outcrd.z,false) )
-		    continue;
-
 		if ( crdidx == 0 )
 		{
 		    if ( !outfault3d->geometry().insertStick(idx,0,outcrd,
@@ -768,7 +760,6 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 	outfltset->addFault( outfault3d );
     }
 
-    unloadVolume();
     outsurfs_.add( outfltset );
     return true;
 }
@@ -812,116 +803,28 @@ FaultStickSetT2DTransformer::~FaultStickSetT2DTransformer()
 }
 
 
-const StringView FaultStickSetT2DTransformer::getTypeString() const
+void FaultStickSetT2DTransformer::preStepCB( CallBacker* )
+{
+    if ( !is2d_ && (nrdone_==0) && zatf_.needsVolumeOfInterest() && (totnr_>0) )
+	load3DTranformVol();
+}
+
+
+void FaultStickSetT2DTransformer::postStepCB( CallBacker* )
+{
+    if ( nrdone_ == totnr_ )
+	unloadVolume();
+}
+
+
+const StringView FaultStickSetT2DTransformer::getTypeString()
 {
     return EM::FaultStickSet::typeStr();
 }
 
 
-bool FaultStickSetT2DTransformer::doTransformation(
-		const Geometry::FaultStick* stick, int sticknr,
-		EM::FaultStickSet& outfault3d, Pos::GeomID geomid )
-{
-    if ( !stick || stick->locs_.isEmpty() )
-	return false;
-
-    const int sz = stick->size();
-    const Coord3 firstcrd = stick->getCoordAtIndex(0);
-    const Coord3 lastcrd = stick->getCoordAtIndex(sz - 1);
-    const ZSampling zint = zatf_.getZInterval(true);
-    if ( !zint.includes(firstcrd.z,false) ||
-					!zint.includes(lastcrd.z,false) )
-	return false;
-
-    const Coord3& editnormal = stick->getNormal();
-    for ( int crdidx = 0; crdidx<sz; crdidx++ )
-    {
-	Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
-	outcrd.z = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
-								    outcrd.z );
-	if ( crdidx == 0 )
-	{
-	    if ( !outfault3d.geometry().insertStick(sticknr,0,outcrd,
-						    editnormal,geomid,false) )
-		break;
-
-	    continue;
-	}
-
-	const RowCol rc( sticknr, crdidx );
-	outfault3d.geometry().insertKnot(rc.toInt64(), outcrd, false);
-    }
-
-    return true;
-}
-
-
-bool FaultStickSetT2DTransformer::handle2DTransformation(
-				const EM::FaultStickSetGeometry& fssgeom,
-				EM::FaultStickSet& outfss )
-{
-    const ObjectSet<EM::DataHolder>& dataholders = fssgeom.getDataHodlers();
-
-    const StepInterval<int> trcrg = fssgeom.geometryElement()->colRange();
-    for ( auto* dh : dataholders )
-    {
-	const Pos::GeomID& geomid = dh->geomid_;
-	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-					    Survey::GM().getGeometry(geomid));
-	if ( !geom2d )
-	    continue;
-
-	load2DVelCubeTransf( geomid, geom2d->data().trcNrRange() );
-
-	const int sz = dh->sticks_.size();
-	for ( int idx = 0; idx<sz; idx++ )
-	    doTransformation( dh->sticks_.get(idx), dh->sticknr_[idx], outfss,
-								    geomid );
-
-	unloadVolume();
-    }
-
-    return true;
-}
-
-
-bool FaultStickSetT2DTransformer::handle3DTransformation(
-				    const EM::FaultStickSetGeometry& fssgeom,
-				    EM::FaultStickSet& outfss )
-{
-    const Geometry::FaultStickSet* fss = fssgeom.geometryElement();
-    if ( !fss )
-	mErrRet( tr("FaultStickSet is empty") );
-
-    const int nrsticks = fssgeom.nrSticks();
-    const ObjectSet<EM::DataHolder>& dataholders = fssgeom.getDataHodlers();
-    const int dhsz = dataholders.size();
-    for ( int dhidx=0; dhidx<dhsz; dhidx++ )
-    {
-	const EM::DataHolder* dh = dataholders.get( dhidx );
-	if ( !dh )
-	    continue;
-
-	TrcKeyZSampling& samp = const_cast<TrcKeyZSampling&>( dh->tkzs_ );
-	samp.zsamp_.start = 0;
-	samp.zsamp_ = zatf_.getWorkZSampling( samp.zsamp_,
-		zatf_.fromZDomainInfo(), zatf_.toZDomainInfo() );
-	load3DTranformVol( samp );
-	for ( int idx=0; idx<nrsticks; idx++ )
-	{
-	    const Geometry::FaultStick* stick = fss->getStick( idx );
-	    doTransformation( stick, idx, outfss );
-	}
-
-	unloadVolume();
-    }
-
-    return true;
-}
-
-
 bool FaultStickSetT2DTransformer::doFaultStickSet(
-				const SurfaceT2DTransfData& data )
+					    const SurfaceT2DTransfData& data )
 {
     RefMan<EMObject> surf = createObject( data.outmid_ );
     if ( !surf )
@@ -942,8 +845,8 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
     if ( !emobj )
 	mErrRet( tr("Failed to load the fault") );
 
-    mDynamicCastGet(EM::FaultStickSet*,outfss,surf.ptr())
-    if ( !outfss)
+    mDynamicCastGet(EM::FaultStickSet*,outfault3d,surf.ptr())
+    if ( !outfault3d )
 	mErrRet( tr("The output type is incompatible with input type, "
 		"FaultStickSet object expected") );
 
@@ -952,9 +855,9 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
 	mErrRet( tr("Incorrect object selected, "
 		"3D FaultStickSet is expected for the workflow") );
 
-    outfss->enableGeometryChecks( false );
-    const EM::FaultStickSetGeometry& fssgeom = fltss->geometry();
-    const EM::ObjectType objtype = fssgeom.FSSObjType();
+    outfault3d->enableGeometryChecks( false );
+    const EM::FaultStickSetGeometry& fltgeom = fltss->geometry();
+    const EM::ObjectType objtype = fltgeom.FSSObjType();
     const bool reqtypecheck = objtype != EM::ObjectType::FltSS2D3D;
     if ( reqtypecheck && zatf_.needsVolumeOfInterest() )
     {
@@ -968,12 +871,48 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
 		.arg(is2d_ ? uiStrings::s3D() : uiStrings::s2D()) );
     }
 
-    if ( is2d_ )
-	handle2DTransformation( fssgeom, *outfss );
-    else
-	handle3DTransformation( fssgeom, *outfss );
+    const Geometry::FaultStickSet* fss = fltgeom.geometryElement();
+    if ( !fss )
+	mErrRet( tr("FaultStickSet is empty") );
 
-    outsurfs_.add( outfss );
+    const int nrsticks = fltgeom.nrSticks();
+    const ZSampling zint = zatf_.getZInterval( true );
+    for ( int idx=0; idx<nrsticks; idx++ )
+    {
+	const Geometry::FaultStick* stick = fss->getStick( idx );
+	if ( !stick || stick->locs_.isEmpty() )
+	    continue;
+
+	const int sz = stick->size();
+	const Coord3 firstcrd = stick->getCoordAtIndex( 0 );
+	const Coord3 lastcrd = stick->getCoordAtIndex( sz-1 );
+	if ( !zint.includes(firstcrd.z,false) ||
+	    !zint.includes(lastcrd.z,false) )
+	    continue;
+
+	const Coord3& editnormal = stick->getNormal();
+	for ( int crdidx=0; crdidx<sz; crdidx++ )
+	{
+	    Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
+	    outcrd.z = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
+		outcrd.z );
+	    if ( crdidx == 0 )
+	    {
+		if ( !outfault3d->geometry().insertStick(idx,0,outcrd,
+		    editnormal,false) )
+		    break;
+
+		continue;
+	    }
+
+	    const RowCol rc( idx, crdidx );
+	    outfault3d->geometry().insertKnot( rc.toInt64(), outcrd, false );
+	}
+    }
+
+    const MultiID midx = outfault3d->multiID();
+    outsurfs_.add( outfault3d );
+    return true;
     return true;
 }
 

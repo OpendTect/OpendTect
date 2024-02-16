@@ -20,8 +20,7 @@ ________________________________________________________________________
 mStartAllowDeprecatedSection
 
 TrcKeyZSampling::TrcKeyZSampling()
-    : hrg(hsamp_)
-    , zrg(zsamp_)
+    : hrg(hsamp_),zrg(zsamp_)
 {
     init( true );
 }

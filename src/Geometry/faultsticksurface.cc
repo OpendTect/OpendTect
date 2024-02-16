@@ -25,7 +25,7 @@ FaultStickSurface::~FaultStickSurface()
 
 bool FaultStickSurface::insertStick( const Coord3& firstpos, 
 				     const Coord3& editnormal, int sticknr,
-				     int firstcol, const Pos::GeomID& geomid )
+				     int firstcol )
 {
     if ( !editnormal.isDefined() || mIsZero(editnormal.sqAbs(),mDefEps) )
 	return false;
@@ -39,8 +39,7 @@ bool FaultStickSurface::insertStick( const Coord3& firstpos,
     if ( newstickvert != sticksvertical_ )
 	return false;
 
-    return FaultStickSet::insertStick(firstpos, editnormal, sticknr, firstcol,
-									geomid);
+    return FaultStickSet::insertStick(firstpos, editnormal, sticknr, firstcol);
 }
 
 

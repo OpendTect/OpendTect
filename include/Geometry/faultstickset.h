@@ -22,6 +22,7 @@ Info:
 
 namespace Geometry
 {
+
 /*!
 \brief Class to hold Fault-stick coordinates and compute the normal.
 */
@@ -59,8 +60,7 @@ public:
 
     virtual bool	insertStick(const Coord3& firstpos,
 				    const Coord3& editnormal,int stick=0,
-				    int firstcol=0,
-				    const Pos::GeomID& =Pos::GeomID::udf());
+				    int firstcol=0);
     bool		removeStick(int sticknr);
 
     bool		insertKnot(const RowCol&,const Coord3&);
@@ -69,7 +69,6 @@ public:
     int			nrSticks() const;
     int			nrKnots(int sticknr) const;
     const FaultStick*	getStick(int stickidx) const;
-    FaultStick*		getStick(int stickidx);
 
     StepInterval<int>	rowRange() const override;
     virtual StepInterval<int> colRange() const override

@@ -159,7 +159,7 @@ Element* FaultStickSet::clone() const
 
 bool FaultStickSet::insertStick( const Coord3& firstpos, 
 				     const Coord3& editnormal, int sticknr,
-				     int firstcol, const Pos::GeomID& geomid )
+				     int firstcol )
 {
     if ( !firstpos.isDefined() )
 	return false;
@@ -180,7 +180,6 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
     }
 
     auto* fs = new FaultStick( stickidx );
-    fs->geomid_ = geomid;
     fs->setNormal( normvec );
     if ( stickidx==sticks_.size() )
     {
@@ -198,7 +197,7 @@ bool FaultStickSet::insertStick( const Coord3& firstpos,
 	knotstatus_.insertAt( new TypeSet<unsigned int>, stickidx );
     }
 
-    sticks_[stickidx]->locs_.insert( 0, LocationBase(firstpos,geomid) );
+    sticks_[stickidx]->locs_.insert( 0, firstpos );
     knotstatus_[stickidx]->insert( 0, NoStatus );
 
     triggerNrPosCh( RowCol(stickidx,StickInsert).toInt64() );
@@ -242,16 +241,14 @@ bool FaultStickSet::insertKnot( const RowCol& rc, const Coord3& pos )
 	knotidx++;
     }
 
-    const Pos::GeomID& geomid = (*sticks_[stickidx]).geomid_;
-    const LocationBase loc( pos, geomid );
     if ( knotidx==sticks_[stickidx]->size() )
     {
-	(*sticks_[stickidx]).locs_.add( loc );
+	(*sticks_[stickidx]).locs_.add( pos );
 	(*knotstatus_[stickidx]) += NoStatus;
     }
     else
     {
-	sticks_[stickidx]->locs_.insert( knotidx, loc );
+	sticks_[stickidx]->locs_.insert( knotidx, pos );
 	knotstatus_[stickidx]->insert( knotidx, NoStatus );
     }
 
@@ -292,16 +289,6 @@ const FaultStick* FaultStickSet::getStick( int stickidx ) const
     return sticks_[stickidx];
 }
 
-
-FaultStick* FaultStickSet::getStick( int stickidx )
-{
-    if ( stickidx<0 || stickidx>=sticks_.size() )
-      return nullptr;
-
-    return sticks_[stickidx];
-}
-
-
 int FaultStickSet::nrKnots( int sticknr ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, 0 );
@@ -336,9 +323,8 @@ bool FaultStickSet::setKnot( const RowCol& rc, const Coord3& pos )
 
     mGetValidStickIdx( stickidx, rc.row(), 0, false );
     mGetValidKnotIdx( knotidx, rc.col(), stickidx, 0, false );
-    FaultStick* fss = sticks_[stickidx];
-    const Pos::GeomID& geomid = fss->geomid_;
-    fss->locs_[knotidx] = LocationBase( pos, geomid );
+
+    (*sticks_[stickidx]).locs_[knotidx] = pos;
     triggerMovement( RowCol(stickidx,StickChange).toInt64() );
     return true;
 }

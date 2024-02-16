@@ -21,9 +21,8 @@ public:
 			~FaultStickSurface();
 
     bool		insertStick(const Coord3& firstpos,
-			    const Coord3& editnormal,int stick=0,
-			    int firstcol=0,
-			    const Pos::GeomID& =Pos::GeomID::udf()) override;
+				    const Coord3& editnormal,int stick=0,
+				    int firstcol=0) override;
 
     bool		areSticksVertical() const;
     void		setSticksVertical(bool yn)	{ sticksvertical_=yn; }

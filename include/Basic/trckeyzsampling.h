@@ -31,9 +31,10 @@ ________________________________________________________________________
 mExpClass(Basic) TrcKeyZSampling
 {
 public:
+
 			TrcKeyZSampling();
-			TrcKeyZSampling(const Pos::GeomID&);
 			TrcKeyZSampling(const TrcKeyZSampling&);
+			TrcKeyZSampling(const Pos::GeomID&);
 			~TrcKeyZSampling();
 
     static TrcKeyZSampling getSynth(const Interval<int>* trcrg =nullptr,

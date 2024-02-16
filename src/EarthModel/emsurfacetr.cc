@@ -506,21 +506,11 @@ dGBFaultSet3DReader( const IOObj& ioobj, EM::FaultSet3D& fltset )
     , curidx_(0)
     , dl_(ioobj.fullUserExpr(),File::FilesInDir,"*.flt")
 {
-    tkzsenvelope_.setEmpty();
-    tkzsenvelope_.hsamp_.setGeomID( Pos::GeomID(OD::Geom3D) );
     fltset_.setName( ioobj.name() );
     fltset_.setMultiID( ioobj.key() );
     IOPar disppars;
     EM::EMM().readDisplayPars( ioobj.key(), disppars );
     fltset_.useDisplayPar( disppars );
-    totalnr_ = dl_.size();
-    mAttachCB(poststep,dGBFaultSet3DReader::postStepCB);
-}
-
-
-~dGBFaultSet3DReader()
-{
-    detachAllNotifiers();
 }
 
 od_int64 nrDone() const override
@@ -530,7 +520,7 @@ od_int64 nrDone() const override
 
 od_int64 totalNr() const override
 {
-    return totalnr_;
+    return dl_.size();
 }
 
 uiString uiNrDoneText() const override
@@ -540,7 +530,8 @@ uiString uiNrDoneText() const override
 
 int nextStep() override
 {
-    if ( curidx_ >= totalnr_ )
+    const int nrfaults = dl_.size();
+    if ( curidx_ >= nrfaults )
        return Finished();
 
     const FilePath fp( dl_.fullPath(curidx_) );
@@ -565,25 +556,15 @@ int nextStep() override
 	return MoreToDo();
     }
 
-    tkzsenvelope_.include( newflt->geometry().getEnvelope() );
     newflt->setName( fltnm );
     fltset_.addFault( newflt, id );
     curidx_++;
     return MoreToDo();
 }
 
-
-void postStepCB( CallBacker* )
-{
-    if ( curidx_ >= totalnr_ )
-	fltset_.setEnvelope( tkzsenvelope_ );
-}
-
-	EM::FaultSet3D&     fltset_;
-	DirList		    dl_;
-	int		    curidx_;
-	TrcKeyZSampling     tkzsenvelope_;
-	od_int64	    totalnr_	     = 0;
+	EM::FaultSet3D&	fltset_;
+	DirList		dl_;
+	int		curidx_;
 
 };
 
