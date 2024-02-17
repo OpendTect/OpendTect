@@ -102,11 +102,13 @@ void uiFileSel::init( const uiString& lbltxt )
 	    checkbox_->attach( leftOf, protfld_ );
 	mAttachCB( protfld_->selectionChanged, uiFileSel::protChgCB );
 	protfld_->setHSzPol( uiObject::SmallVar );
+	protfld_->setStretch( 0, 0 );
     }
 
     fnmfld_ = new uiLineEdit( this, FileNameInpSpec(), "File Name" );
     setHAlignObj( fnmfld_ );
-    fnmfld_->setHSzPol( uiObject::WideVar );
+    fnmfld_->setHSzPol( uiObject::Wide );
+    fnmfld_->setStretch( 2, 0 );
 
     if ( lbltxt.isEmpty() || checkbox_ )
     {
@@ -301,6 +303,16 @@ void uiFileSel::protChgCB( CallBacker* )
     const BufferString prot = factnms_.get( protfld_->currentItem() );
     fnmfld_->setPlaceholderText( toUiString(prot) );
     setButtonStates();
+
+    Setup fssu( setup_ );
+    const uiFileSelToolProvider& fsp = uiFileSelToolProvider::get( prot );
+    PtrMan<uiFileSelTool> uifs = fsp.getSelTool( this, fssu );
+    if ( uifs && uifs->getPars() )
+    {
+	filepars_.setEmpty();
+	filepars_.merge( *uifs->getPars() );
+    }
+
     protocolChanged.trigger();
 }
 
