@@ -91,6 +91,9 @@ void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
 
 void uiVisColTabEd::mapperChangeCB( CallBacker* )
 {
+    if ( !survobj_ )
+	return;
+
     const ColTab::MapperSetup* ms  =
 			survobj_->getColTabMapperSetup( channel_, version_ );
 
