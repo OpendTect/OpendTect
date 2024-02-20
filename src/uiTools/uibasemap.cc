@@ -18,12 +18,9 @@ ________________________________________________________________________
 
 
 uiBasemapObject::uiBasemapObject( BasemapObject* bmo )
-    : bmobject_( bmo )
-    , graphitem_(*new uiGraphicsItem)
+    : graphitem_(*new uiGraphicsItem)
     , labelitem_(*new uiGraphicsItem)
-    , showlabels_(true)
-    , changed_(false)
-    , transform_(nullptr)
+    , bmobject_(bmo)
 {
     if ( bmobject_ )
     {
@@ -48,7 +45,9 @@ uiBasemapObject::~uiBasemapObject()
 
 
 BasemapObject* uiBasemapObject::getObject()
-{ return bmobject_; }
+{
+    return bmobject_;
+}
 
 
 const char* uiBasemapObject::name() const
@@ -148,7 +147,8 @@ void uiBasemapObject::getMousePosInfo( Coord3& crd, TrcKey& tk, float& val,
 
 void uiBasemapObject::update()
 {
-    if ( !bmobject_ ) return;
+    if ( !bmobject_ )
+	return;
 
     Threads::Locker locker( bmobject_->lock_ );
 
@@ -175,7 +175,8 @@ void uiBasemapObject::update()
 		    if ( !itm )
 			graphitem_.removeChild( graphitem_.getChild(itemnr),
 						true );
-		    else break;
+		    else
+			break;
 		}
 
 		if ( graphitem_.nrChildren()<=itemnr )
@@ -200,7 +201,8 @@ void uiBasemapObject::update()
 		    if ( !itm )
 			graphitem_.removeChild( graphitem_.getChild(itemnr),
 						true );
-		    else break;
+		    else
+			break;
 		}
 
 		if ( graphitem_.nrChildren()<=itemnr )
@@ -253,7 +255,7 @@ void uiBasemapObject::update()
 		bmobject_->getXYScale( idx, scalex, scaley );
 		itm->setScale( scalex, scaley );
 
-		const float transparency = bmobject_->getColor().t();
+		const float transparency = bmobject_->getTransparency( idx );
 		itm->setTransparency( transparency/255.f );
 		itemnr++;
 	    }
@@ -341,7 +343,8 @@ void uiBasemapObject::update()
 
 void uiBasemapObject::updateStyle()
 {
-    if ( !bmobject_ ) return;
+    if ( !bmobject_ )
+	return;
 
     Threads::Locker locker( bmobject_->lock_ );
 
@@ -391,13 +394,11 @@ void uiBasemapObject::updateStyle()
 // uiBasemap
 uiBasemap::uiBasemap( uiParent* p )
     : uiGroup(p,"Basemap")
-    , view_(*new uiGraphicsView(this,"Basemap"))
-    , w2ui_(*new uiWorld2Ui)
-    , worlditem_(*new uiGraphicsItem())
-    , changed_(false)
     , objectAdded(this)
     , objectRemoved(this)
-    , centerworlditem_(false)
+    , view_(*new uiGraphicsView(this,"Basemap"))
+    , worlditem_(*new uiGraphicsItem())
+    , w2ui_(*new uiWorld2Ui)
 {
     view_.scene().addItem( &worlditem_ );
     mAttachCB( view_.reSize, uiBasemap::reSizeCB );
@@ -532,10 +533,12 @@ uiBasemapObject* uiBasemap::getUiObject( BasemapObjectID id )
 
 bool uiBasemap::hasChanged()
 {
-    if ( changed_ ) return true;
+    if ( changed_ )
+	return true;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
-	if ( objects_[idx]->hasChanged() ) return true;
+	if ( objects_[idx]->hasChanged() )
+	    return true;
 
     return false;
 }
@@ -552,7 +555,8 @@ void uiBasemap::resetChangeFlag()
 
 void uiBasemap::addObject( uiBasemapObject* uiobj )
 {
-    if ( !uiobj ) return;
+    if ( !uiobj )
+	return;
 
     worlditem_.addChild( &uiobj->graphItem() );
     worlditem_.addChild( &uiobj->labelItem() );
@@ -566,7 +570,8 @@ void uiBasemap::addObject( uiBasemapObject* uiobj )
 void uiBasemap::show( const BasemapObject& obj, bool yn )
 {
     const int objidx = indexOf( &obj );
-    if ( !objects_.validIdx(objidx) ) return;
+    if ( !objects_.validIdx(objidx) )
+	return;
 
     objects_[objidx]->show( yn );
 }
@@ -580,7 +585,9 @@ void uiBasemap::showLabels( bool yn )
 
 
 bool uiBasemap::labelsShown() const
-{ return !objects_.isEmpty() && objects_[0]->labelsShown(); }
+{
+    return !objects_.isEmpty() && objects_[0]->labelsShown();
+}
 
 
 int uiBasemap::indexOf( const BasemapObject* obj ) const
@@ -620,10 +627,12 @@ const uiBasemapObject*
 	uiBasemap::uiObjectAt( const Geom::Point2D<float>& pt ) const
 {
     const uiGraphicsItem* itm = view_.scene().itemAt( pt );
-    if ( !itm ) return nullptr;
+    if ( !itm )
+	return nullptr;
 
     mDynamicCastGet(const uiTextItem*,txtitm,itm)
-    if ( txtitm ) return nullptr;
+    if ( txtitm )
+	return nullptr;
 
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
@@ -668,8 +677,12 @@ void uiBasemap::getMousePosInfo( BufferString& nm, Coord3& crd3, TrcKey& tk,
 
 
 uiGraphicsScene& uiBasemap::scene()
-{ return view_.scene(); }
+{
+    return view_.scene();
+}
 
 
 void uiBasemap::centerWorldItem( bool yn )
-{ centerworlditem_ = yn; }
+{
+    centerworlditem_ = yn;
+}

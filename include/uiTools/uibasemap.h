@@ -58,10 +58,10 @@ protected:
 
     uiGraphicsItem&		graphitem_;
     uiGraphicsItem&		labelitem_;
-    bool			showlabels_;
-    const uiWorld2Ui*		transform_;
+    bool			showlabels_			= true;
+    const uiWorld2Ui*		transform_			= nullptr;
 
-    bool			changed_;
+    bool			changed_			= false;
     BasemapObject*		bmobject_;
 
 private:
@@ -118,8 +118,8 @@ protected:
     uiGraphicsView&		view_;
     uiGraphicsItem&		worlditem_;
     ObjectSet<uiBasemapObject>	objects_;
-    bool			changed_;
-    bool			centerworlditem_;
+    bool			changed_			= false;
+    bool			centerworlditem_		= false;
 
     uiWorldRect			wr_;
 

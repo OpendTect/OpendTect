@@ -97,6 +97,9 @@ public:
 
     virtual void		setImage(int idx,OD::RGBImage*)     {}
     virtual const OD::RGBImage* getImage(int shapeidx) const	{ return 0;}
+    virtual float		getTransparency(int shapeidx) const
+				{ return 0.f; }
+    virtual void		setTransparency(int shapeidx,float t)	{}
 
     virtual const OD::RGBImage* createImage(Coord& origin,Coord& p11) const;
 				/*!<Returns image in xy plane. p11 is the
