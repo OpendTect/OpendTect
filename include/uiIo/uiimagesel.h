@@ -62,6 +62,25 @@ private:
 };
 
 
+mExpClass(uiIo) uiImageCoordGrp : public uiGroup
+{ mODTextTranslationClass(uiImportImageGrp)
+public:
+			uiImageCoordGrp(uiParent*);
+			~uiImageCoordGrp();
+
+    void		fillCoords(const IOObj&);
+    bool		saveCoords(const IOObj&);
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
+private:
+
+    uiGenInput*		tlcrdfld_;
+    uiGenInput*		brcrdfld_;
+};
+
+
 mExpClass(uiIo) uiEditImageDlg : public uiDialog
 { mODTextTranslationClass(uiImportImageDlg)
 public:
@@ -72,8 +91,7 @@ private:
     void		finalizeCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
-    uiGenInput*		tlcrdfld_;
-    uiGenInput*		brcrdfld_;
+    uiImageCoordGrp*	imagegrp_;
 
     const IOObj&	ioobj_;
 };
