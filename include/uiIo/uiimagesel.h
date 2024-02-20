@@ -63,7 +63,7 @@ private:
 
 
 mExpClass(uiIo) uiImageCoordGrp : public uiGroup
-{ mODTextTranslationClass(uiImportImageGrp)
+{ mODTextTranslationClass(uiImageCoordGrp)
 public:
 			uiImageCoordGrp(uiParent*);
 			~uiImageCoordGrp();
@@ -82,7 +82,7 @@ private:
 
 
 mExpClass(uiIo) uiEditImageDlg : public uiDialog
-{ mODTextTranslationClass(uiImportImageDlg)
+{ mODTextTranslationClass(uiEditImageDlg)
 public:
 			uiEditImageDlg(uiParent*,const IOObj&);
 			~uiEditImageDlg();
