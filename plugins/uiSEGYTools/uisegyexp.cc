@@ -402,14 +402,15 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
     uiSeisSel::Setup sssu( geom_ );
-    sssu.steerpol(uiSeisSel::Setup::InclSteer)
+    sssu.steerpol(uiSeisSel::Setup::InclSteer).enabotherdomain( true )
 	.selectcomp(true).withinserters(false)
 	.trsnotallwed_.add( mSEGYDirectTranslNm );
     seissel_ = new uiSeisSel( this, ctxt, sssu );
     mAttachCB( seissel_->selectionDone, uiSEGYExp::inpSel );
 
     uiSeisTransfer::Setup tsu( geom_ );
-    tsu.withnullfill( true ).fornewentry( false ).onlyrange( false );
+    tsu.withmultiz( true ).withnullfill(true).fornewentry(false)
+					     .onlyrange(false);
     transffld_ = new uiSeisTransfer( this, tsu );
     mAttachCB( transffld_->selChange, uiSEGYExp::updateTextHdrCB );
 

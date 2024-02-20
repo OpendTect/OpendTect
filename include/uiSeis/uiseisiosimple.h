@@ -20,11 +20,10 @@ class uiCheckBox;
 class uiGenInput;
 class uiFileInput;
 class uiSeparator;
-class uiSeisSubSel;
 class uiSeis2DLineNameSel;
+class uiMultiZSeisSubSel;
 
 namespace Coords { class uiCoordSystemSel; }
-
 
 mExpClass(uiSeis) uiSeisIOSimple : public uiDialog
 { mODTextTranslationClass(uiSeisIOSimple);
@@ -57,7 +56,7 @@ protected:
     uiGenInput*		remnullfld_;
     uiGenInput*		multcompfld_;
     uiSeisSel*		seisfld_;
-    uiSeisSubSel*	subselfld_			= nullptr;
+    uiMultiZSeisSubSel* subselfld_			= nullptr;
     uiSeis2DLineNameSel* lnmfld_			= nullptr;
     Coords::uiCoordSystemSel*	coordsysselfld_		= nullptr;
 
@@ -75,6 +74,7 @@ protected:
     void		initFlds(CallBacker*);
     bool		acceptOK(CallBacker*) override;
     void		positionInFileSelChg(CallBacker*);
+    void		zUnitChangedCB(CallBacker*);
 
     static SeisIOSimple::Data&	data2d();
     static SeisIOSimple::Data&	data3d();
@@ -89,6 +89,6 @@ protected:
 
 private:
 
-    void		mkIsAscFld();
-    uiSeparator*	mkDataManipFlds();
+    void		    mkIsAscFld();
+    uiSeparator*	    mkDataManipFlds();
 };

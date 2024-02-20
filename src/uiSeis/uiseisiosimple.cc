@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
+#include "unitofmeasure.h"
 
 #include "ui2dgeomman.h"
 #include "uibutton.h"
@@ -94,7 +95,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     else
     {
 	const IOObjContext ctxt = uiSeisSel::ioContext( gt, !imp );
-	ssu.steerpol(uiSeisSel::Setup::InclSteer).withinserters(false);
+	ssu.enabotherdomain(true).steerpol(uiSeisSel::Setup::InclSteer).
+	    withinserters(false);
 	seisfld_ = new uiSeisSel( this, ctxt, ssu );
 	mAttachCB( seisfld_->selectionDone, uiSeisIOSimple::inpSeisSel );
 	sep = mkDataManipFlds();
@@ -262,6 +264,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 
 	const IOObjContext ctxt = uiSeisSel::ioContext( gt, !imp );
 	seisfld_ = new uiSeisSel( this, ctxt, ssu );
+	mAttachCB( seisfld_->domainChanged, uiSeisIOSimple::zUnitChangedCB );
+	mAttachCB( seisfld_->zUnitChanged, uiSeisIOSimple::zUnitChangedCB );
 	seisfld_->attach( alignedBelow, remnullfld_ );
 	if ( is2d )
 	{
@@ -288,6 +292,18 @@ uiSeisIOSimple::~uiSeisIOSimple()
 }
 
 
+void uiSeisIOSimple::zUnitChangedCB( CallBacker* )
+{
+    if ( !isimp_ )
+	return;
+
+    const ZDomain::Info& zinfo = seisfld_->getZDomain();
+    const uiString lbl = tr("Sampling info: start, step %1 and #samples").
+	arg(zinfo.unitStr(true));
+    sdfld_->setTitleText( lbl );
+}
+
+
 void uiSeisIOSimple::mkIsAscFld()
 {
     isascfld_ = new uiGenInput( this, tr("File type"),
@@ -305,8 +321,9 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
 	sep->attach( stretchedBelow, sdfld_ );
     else
     {
-	subselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(geom_)
-						.onlyrange(false) );
+	Seis::SelSetup su( geom_ );
+	su.fornewentry( false ).onlyrange( false );
+	subselfld_ = new uiMultiZSeisSubSel( this, su );
 	subselfld_->attachObj()->attach( alignedBelow, seisfld_ );
     }
 
@@ -501,20 +518,26 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	return false;
 
     data().subselpars_.setEmpty();
+    auto* seissubsel = subselfld_ ? subselfld_->getSelGrp() : nullptr;
     if ( is2D() )
     {
 	BufferString linenm;
 	if ( lnmfld_ )
 	    linenm = lnmfld_->getInput();
 	else
-	    linenm = static_cast<uiSeis2DSubSel*>(subselfld_)->selectedLine();
+	    linenm = static_cast<uiSeis2DSubSel*>(seissubsel)->selectedLine();
 
 	if ( linenm.isEmpty() )
 	    mErrRet( tr("Please enter a line name") )
 
-	data().geomid_ = Geom2DImpHandler::getGeomID( linenm );
-	if ( isimp_ && !Survey::is2DGeom(data().geomid_) )
-	    return false;
+	if ( isimp_ )
+	{
+	    data().geomid_ = Geom2DImpHandler::getGeomID( linenm );
+	    if ( !Survey::is2DGeom(data().geomid_) )
+		return false;
+	}
+	else
+	    data().geomid_ = Survey::GM().getGeomID( linenm );
 
 	data().linename_ = linenm;
     }
@@ -535,8 +558,12 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     {
 	data().sd_.start = sdfld_->getFValue(0);
 	data().sd_.step = sdfld_->getFValue(1);
-	if ( SI().zIsTime() )
-	    { data().sd_.start *= 0.001; data().sd_.step *= 0.001; }
+	const LinScaler& scaler =
+	    UnitOfMeasure::zUnit( seisfld_->getZDomain(), false )->scaler();
+	data().sd_.start = scaler.scale( data().sd_.start );
+	data().sd_.step = scaler.scale( data().sd_.step );
+	const double st1 = data().sd_.start;
+	const double st2 = data().sd_.step;
 	data().nrsamples_ = sdfld_->getIntValue(2);
     }
 
@@ -600,19 +627,20 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     if ( subselfld_ )
     {
-	subselfld_->fillPar( data().subselpars_ );
-	if ( !subselfld_->isAll() )
+	subselfld_->getSelGrp()->fillPar( data().subselpars_ );
+	if ( !seissubsel->isAll())
 	{
 	    TrcKeyZSampling cs;
-	    subselfld_->getSampling( cs.hsamp_ );
-	    subselfld_->getZRange( cs.zsamp_ );
+	    seissubsel->getSampling( cs.hsamp_ );
+	    seissubsel->getZRange( cs.zsamp_ );
 	    data().setResampler( new SeisResampler(cs,is2D()) );
 	}
     }
 
-    if ( seisfld_->getZDomain().fillPar(ioobj->pars()) &&
-	 !IOM().commitChanges(*ioobj) )
+    seisfld_->getZDomain().fillPar( ioobj->pars() );
+    if ( isimp_ && !IOM().commitChanges(*ioobj) )
     {
+
 	uiMSG().error(uiStrings::phrCannotWriteDBEntry(ioobj->uiName()));
 	return false;
     }

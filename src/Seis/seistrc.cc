@@ -49,7 +49,7 @@ SeisTrc& SeisTrc::operator =( const SeisTrc& trc )
     info_ = trc.info_;
     copyDataFrom( trc, -1, false );
 
-    intpol_ = 0;
+    intpol_ = nullptr;
     if ( trc.intpol_ )
 	intpol_ = new ValueSeriesInterpolator<float>( *trc.intpol_ );
 
