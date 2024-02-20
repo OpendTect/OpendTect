@@ -75,6 +75,7 @@ protected:
     void		haveoffsSel(CallBacker*);
     void		initFlds(CallBacker*);
     bool		acceptOK(CallBacker*) override;
+    void		zUnitChangedCB(CallBacker*);
     void		positionInFileSelChg(CallBacker*);
 
     static SeisIOSimple::Data&	data2d();

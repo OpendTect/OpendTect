@@ -41,6 +41,8 @@ ________________________________________________________________________
 #include "segydirecttr.h"
 #include "segyhdr.h"
 #include "seispacketinfo.h"
+#include "seisresampler.h"
+#include "seissingtrcproc.h"
 #include "settings.h"
 #include "zdomain.h"
 
@@ -402,7 +404,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
     uiSeisSel::Setup sssu( geom_ );
-    sssu.steerpol(uiSeisSel::Setup::InclSteer)
+    sssu.enabotherdomain(true).steerpol(uiSeisSel::Setup::InclSteer)
 	.selectcomp(true).withinserters(false)
 	.trsnotallwed_.add( mSEGYDirectTranslNm );
     seissel_ = new uiSeisSel( this, ctxt, sssu );
@@ -486,7 +488,11 @@ void uiSEGYExp::inpSel( CallBacker* )
     if ( !ioobj )
 	return;
 
-    transffld_->updateFrom( *ioobj );
+    const SeisIOObjInfo oinf( *ioobj );
+    const bool issidom = oinf.zDomain().isCompatibleWith( SI().zDomainInfo() );
+    transffld_->selfld->compoundParSel()->setSensitive( issidom );
+    if ( issidom )
+	transffld_->updateFrom( *ioobj );
 
     const FilePath fp = ioobj->fullUserExpr();
     FilePath fnm( GetSurveyExportDir(), fp.baseName() );
@@ -839,6 +845,23 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj )
 			    seissel_->compNr() );
     if ( !exec )
 	return false;
+
+    mDynamicCastGet(SeisSingleTraceProc*,stp,exec.ptr());
+    const SeisIOObjInfo seisinfo( inioobj );
+    if ( !seisinfo.zDomain().isCompatibleWith(SI().zDomainInfo()) )
+    {
+	TrcKeyZSampling samp;
+	const bool is2d = is2D( geom_ );
+	if ( is2d )
+	{
+	    const BufferString& linenm =
+				    transffld_->selFld2D()->selectedLine();
+	    samp.hsamp_.setGeomID( Survey::GM().getGeomID(linenm) );
+	}
+
+	seisinfo.getRanges( samp );
+	stp->setResampler( new SeisResampler(samp,is2d) );
+    }
 
     uiTaskRunner dlg( this );
     const bool res = TaskRunner::execute( &dlg, *exec );

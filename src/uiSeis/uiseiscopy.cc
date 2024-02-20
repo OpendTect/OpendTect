@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "scaler.h"
 #include "seiscopy.h"
 #include "seissingtrcproc.h"
+#include "seistrctr.h"
 #include "survinfo.h"
 #include "zdomain.h"
 
@@ -40,14 +41,14 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     const Seis::GeomType gt = Seis::Vol;
     IOObjContext inctxt( uiSeisSel::ioContext(gt,true) );
     uiSeisSel::Setup sssu( gt );
-    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.enabotherdomain(true).steerpol(uiSeisSel::Setup::InclSteer);
 
     inpfld_ = new uiSeisSel( this, inctxt, sssu );
     inpfld_->selectionDone.notify( mCB(this,uiSeisCopyCube,inpSel) );
 
     compfld_ = new uiLabeledComboBox( this, tr("Component(s)") );
     compfld_->attach( alignedBelow, inpfld_ );
-
+    bool createfield = true;
     uiSeisTransfer::Setup sts( gt );
     if ( startobj )
     {
@@ -55,19 +56,24 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
 	const SeisIOObjInfo oinf( *startobj );
 	if ( oinf.zDomain() != SI().zDomainInfo() )
 	{
+	    createfield = false;
 	    inpfld_->setSensitive( false );
 	    uiMSG().warning(
 		    tr("Copying this dataset is not supported (yet)") );
 	}
     }
 
-    sts.withnullfill(true).withstep(true).onlyrange(false).fornewentry(true);
+    sts.withnullfill(true).withstep(true).onlyrange(false).
+	fornewentry(true);
     transffld_ = new uiSeisTransfer( this, sts );
-    transffld_->attach( alignedBelow, compfld_ );
+    transffld_->display( createfield );
+    if ( createfield )
+	transffld_->attach( alignedBelow, compfld_ );
 
     IOObjContext outctxt( uiSeisSel::ioContext(gt,false) );
     outfld_ = new uiSeisSel( this, outctxt, sssu );
-    outfld_->attach( alignedBelow, transffld_ );
+    outfld_->attach( alignedBelow, createfield ? transffld_->attachObj()
+					       : inpfld_->attachObj() );
 
     Batch::JobSpec js( sProgName );
     js.execpars_.needmonitor_ = true;
@@ -89,9 +95,12 @@ void uiSeisCopyCube::inpSel( CallBacker* cb )
     if ( !inioobj )
 	return;
 
-    transffld_->updateFrom( *inioobj );
+    const SeisIOObjInfo oinf( *inioobj );
+    const bool issidom = oinf.zDomain().isCompatibleWith( SI().zDomainInfo() );
+    transffld_->display( issidom );
+    if ( issidom )
+	transffld_->updateFrom( *inioobj );
 
-    SeisIOObjInfo oinf( *inioobj );
     ismc_ = oinf.isOK() && oinf.nrComponents() > 1;
     if ( ismc_ )
     {
@@ -100,6 +109,7 @@ void uiSeisCopyCube::inpSel( CallBacker* cb )
 	compfld_->box()->addItem( tr("<All>") );
 	compfld_->box()->addItems( cnms );
     }
+
     compfld_->display( ismc_ );
 }
 
@@ -122,6 +132,17 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     outpars.addFrom( inioobj->pars() );
     const uiSeisIOObjInfo ioobjinfo( *outioobj, true );
     SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
+    if ( !ioobjinfo.zDomain().isCompatibleWith(SI().zDomainInfo()) )
+    {
+	TrcKeyZSampling samp;
+	ioobjinfo.getRanges( samp );
+	const int expectednrsamps = samp.nrInl()*samp.nrCrl();
+	PtrMan<Translator> trl = inioobj->createTranslator();
+	mDynamicCastGet(SeisTrcTranslator*,seistr,trl.ptr());
+	spi = SeisIOObjInfo::SpaceInfo( samp.nrZ(),
+					    seistr->estimatedNrTraces(), 4 );
+    }
+
     if ( !ioobjinfo.checkSpaceLeft(spi) )
 	return false;
 
@@ -229,22 +250,35 @@ uiSeisCopy2DDataSet::uiSeisCopy2DDataSet( uiParent* p, const IOObj* obj,
     if ( fixedoutputtransl )
 	ioctxt.fixTranslator( fixedoutputtransl );
 
+    sssu.enabotherdomain( true );
     outpfld_ = new uiSeisSel( this, ioctxt, sssu );
     outpfld_->attach( alignedBelow, scalefld_ );
 
     Batch::JobSpec js( sProgName ); js.execpars_.needmonitor_ = true;
     batchfld_ = new uiBatchJobDispatcherSel( this, true, js );
     batchfld_->attach( alignedBelow, outpfld_ );
+
+    mAttachCB( postFinalize(), uiSeisCopy2DDataSet::inpSel );
 }
 
 
 uiSeisCopy2DDataSet::~uiSeisCopy2DDataSet()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiSeisCopy2DDataSet::inpSel( CallBacker* )
 {
-    if ( inpfld_->ioobj(true) )
+    const IOObj* ioobj = inpfld_->ioobj( true );
+    if ( !ioobj )
+	return;
+
+    const SeisIOObjInfo ioobjinfo( ioobj );
+    const bool issiinfo = ioobjinfo.zDomain().isCompatibleWith(
+							SI().zDomainInfo() );
+    subselfld_->display( issiinfo );
+    if ( issiinfo )
 	subselfld_->setInput( inpfld_->key() );
 }
 

@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
+#include "unitofmeasure.h"
 
 #include "ui2dgeomman.h"
 #include "uibutton.h"
@@ -95,6 +96,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     {
 	const IOObjContext ctxt = uiSeisSel::ioContext( gt, !imp );
 	ssu.steerpol(uiSeisSel::Setup::InclSteer).withinserters(false);
+	ssu.enabotherdomain( true );
 	seisfld_ = new uiSeisSel( this, ctxt, ssu );
 	mAttachCB( seisfld_->selectionDone, uiSeisIOSimple::inpSeisSel );
 	sep = mkDataManipFlds();
@@ -115,7 +117,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	haveposfld_->attach( alignedBelow,
 		    isimp_ ? fnmfld_->attachObj() : remnullfld_->attachObj() );
 
-    if ( sep ) haveposfld_->attach( ensureBelow, sep );
+    if ( sep )
+	haveposfld_->attach( ensureBelow, sep );
 
     uiObject* attachobj = haveposfld_->attachObj();
     if ( is2d )
@@ -263,6 +266,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	const IOObjContext ctxt = uiSeisSel::ioContext( gt, !imp );
 	seisfld_ = new uiSeisSel( this, ctxt, ssu );
 	seisfld_->attach( alignedBelow, remnullfld_ );
+	mAttachCB( seisfld_->domainChanged(), uiSeisIOSimple::zUnitChangedCB );
+	mAttachCB( seisfld_->zUnitChanged(), uiSeisIOSimple::zUnitChangedCB );
 	if ( is2d )
 	{
 	    lnmfld_ = new uiSeis2DLineNameSel( this, false );
@@ -285,6 +290,18 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 uiSeisIOSimple::~uiSeisIOSimple()
 {
     detachAllNotifiers();
+}
+
+
+void uiSeisIOSimple::zUnitChangedCB( CallBacker* )
+{
+    if ( !isimp_ )
+	return;
+
+    const ZDomain::Info& zinfo = seisfld_->getZDomain();
+    const uiString lbl = tr("Sampling info: start, step %1 and #samples").
+						    arg(zinfo.unitStr_(true));
+    sdfld_->setTitleText( lbl );
 }
 
 
@@ -376,7 +393,21 @@ void uiSeisIOSimple::inpSeisSel( CallBacker* )
     if ( !ioobj )
 	return;
 
-    subselfld_->setInput( *ioobj );
+
+    const SeisIOObjInfo oinf( *ioobj );
+    const bool issidom = oinf.zDomain().isCompatibleWith( SI().zDomainInfo() );
+    if ( is2D() )
+    {
+	subselfld_->setInput( *ioobj );
+	subselfld_->compoundParSel()->setSensitive( issidom );
+    }
+    else
+    {
+	subselfld_->display( issidom );
+	if ( issidom )
+	    subselfld_->setInput( *ioobj );
+    }
+
     BufferStringSet compnms;
     SeisIOObjInfo::getCompNames( ioobj->key(), compnms );
     multcompfld_->newSpec( StringListInpSpec(compnms), 0 );
@@ -512,9 +543,14 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	if ( linenm.isEmpty() )
 	    mErrRet( tr("Please enter a line name") )
 
-	data().geomid_ = Geom2DImpHandler::getGeomID( linenm );
-	if ( isimp_ && !Survey::is2DGeom(data().geomid_) )
-	    return false;
+	if ( isimp_ )
+	{
+	    data().geomid_ = Geom2DImpHandler::getGeomID( linenm );
+	    if ( !Survey::is2DGeom(data().geomid_) )
+		return false;
+	}
+	else
+	    data().geomid_ = Survey::GM().getGeomID( linenm );
 
 	data().linename_ = linenm;
     }
@@ -535,8 +571,10 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     {
 	data().sd_.start = sdfld_->getFValue(0);
 	data().sd_.step = sdfld_->getFValue(1);
-	if ( SI().zIsTime() )
-	    { data().sd_.start *= 0.001; data().sd_.step *= 0.001; }
+	const LinScaler& scaler =
+	    UnitOfMeasure::zUnit( seisfld_->getZDomain(), false )->scaler();
+	data().sd_.start = scaler.scale( data().sd_.start );
+	data().sd_.step = scaler.scale( data().sd_.step );
 	data().nrsamples_ = sdfld_->getIntValue(2);
     }
 
@@ -598,7 +636,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	data().nroffsperpos_ = data().offsdef_.nearestIndex( offsstop ) + 1;
     }
 
-    if ( subselfld_ )
+    if ( subselfld_ && subselfld_->isDisplayed() )
     {
 	subselfld_->fillPar( data().subselpars_ );
 	if ( !subselfld_->isAll() )
@@ -609,9 +647,16 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    data().setResampler( new SeisResampler(cs,is2D()) );
 	}
     }
+    else if ( !isimp_ )
+    {
+	const SeisIOObjInfo seisinfo( ioobj );
+	TrcKeyZSampling samp;
+	seisinfo.getRanges( samp );
+	data().setResampler( new SeisResampler(samp,is2D()) );
+    }
 
-    if ( seisfld_->getZDomain().fillPar(ioobj->pars()) &&
-	 !IOM().commitChanges(*ioobj) )
+    seisfld_->getZDomain().fillPar( ioobj->pars() );
+    if ( isimp_ && !IOM().commitChanges(*ioobj) )
     {
 	uiMSG().error(uiStrings::phrCannotWriteDBEntry(ioobj->uiName()));
 	return false;
