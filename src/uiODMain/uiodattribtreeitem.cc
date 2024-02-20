@@ -314,7 +314,9 @@ void uiODAttribTreeItem::updateColumnText( int col )
 		visserv->getSelSpec( displayID(), attribNr() );
 	const DataPack::ID dpid =
 		visserv->getDisplayedDataPackID( displayID(), attribNr() );
-	if ( selspec && selspec->id().isValid() && !dpid.isValid() )
+	const bool is_valid_dp_expected = selspec &&
+				selspec->id()!=Attrib::SelSpec::cAttribNotSel();
+	if ( is_valid_dp_expected && !dpid.isValid() )
 	    uitreeviewitem_->setIcon( uiODSceneMgr::cColorColumn(), "warning" );
 	else
 	    displayMiniCtab( so->getColTabSequence(attribNr()) );
