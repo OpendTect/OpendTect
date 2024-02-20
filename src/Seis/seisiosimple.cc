@@ -262,9 +262,16 @@ void SeisIOSimple::startImpRead()
 	binstrm.get( data_.sd_.start ).get( data_.sd_.step )
 	       .get( data_.nrsamples_ );
 	if ( !strm_->isOK() )
-	{ errmsg_ = tr("Input file contains no data"); return; }
+	{
+	    errmsg_ = tr("Input file contains no data");
+	    return;
+	}
+
 	if ( zistm_ )
-	    { data_.sd_.start *= .001; data_.sd_.step *= .001; }
+	{
+	    data_.sd_.start *= .001;
+	    data_.sd_.step *= .001;
+	}
     }
 
     trc_.info().sampling = data_.sd_;

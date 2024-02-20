@@ -345,7 +345,7 @@ bool Seis::RangeSelData::setZRange( const Interval<float>& rg )
     tkzs_.zsamp_.stop = rg.stop;
     if ( rg.hasStep() )
     {
-	mDynamicCastGet(const StepInterval<int>*,zrg,&rg);
+	mDynamicCastGet(const StepInterval<float>*,zrg,&rg);
 	if ( zrg )
 	    tkzs_.zsamp_.step = zrg->step;
     }
