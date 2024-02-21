@@ -2869,9 +2869,13 @@ bool uiCopyWellDlg::acceptOK( CallBacker* )
     if ( !inioobj || !outioobj )
 	return false;
 
-    RefMan<Well::Data> wdin = Well::MGR().get( inioobj->key() );
-    if ( !wdin )
+    RefMan<Well::Data> wdin = new Well::Data;
+    Well::Reader rdr( inioobj->key(), *wdin );
+    if ( !rdr.get() );
+    {
+	uiMSG().error( rdr.errMsg() );
 	return false;
+    }
 
     const Well::Writer wrr( *outioobj, *wdin );
     if ( !wrr.put() )
@@ -2880,6 +2884,7 @@ bool uiCopyWellDlg::acceptOK( CallBacker* )
 	return false;
     }
 
+    IOM().implUpdated.trigger( outioobj->key() );
     uiString msg = tr("Well successfully copied.\n\n"
 		      "Do you want to copy more Wells?");
     const bool ret =
