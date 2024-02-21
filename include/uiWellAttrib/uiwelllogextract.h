@@ -71,4 +71,5 @@ protected:
 					const BufferStringSet&,
 					ObjectSet<DataPointSet>&);
     bool		extractAttribData(DataPointSet&,int);
+    void		attribSelCB(CallBacker*);
 };
