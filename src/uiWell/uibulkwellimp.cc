@@ -259,12 +259,14 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	    }
 	}
 
+	bool wellwritten = true;
 	Writer ww( *ioobj, *wd );
 	if ( !ww.putInfoAndTrack() )
 	{
 	    uiString msg = uiStrings::phrCannotCreate(
 		    toUiString("%1: %2").arg(wd->name()).arg(ww.errMsg()) );
 	    errors.add( msg );
+	    wellwritten = false;
 	}
 
 	if ( writed2t && !ww.putD2T() )
@@ -281,6 +283,8 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	    if ( loadedwd )
 		loadedwd->trackchanged.trigger();
 	}
+	else if ( wellwritten )
+	    IOM().implUpdated().trigger( ioobj->key() );
     }
 }
 
