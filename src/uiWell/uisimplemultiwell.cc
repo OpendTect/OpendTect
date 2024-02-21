@@ -365,28 +365,34 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 	vel_ = zun_->internalValue( vel_ );
 
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
-	{ uiMSG().error(tr("Please enter a valid velocity")); return false; }
+    {
+	uiMSG().error( tr("Please enter a valid velocity") );
+	return false;
+    }
 
     IOM().to( IOObjContext::WllInf );
 
+    TypeSet<MultiID> newwellkeys;
     progbar_->setTotalSteps( tbl_->nrRows() );
     for ( int irow=0; irow<tbl_->nrRows(); irow++ )
     {
-       BufferString wellnm( tbl_->text(RowCol(irow,0) ) );
-       if ( wellnm.trimBlanks().isEmpty() )
+	BufferString wellnm( tbl_->text(RowCol(irow,0)) );
+	if ( wellnm.trimBlanks().isEmpty() )
 	   break;
 
-       uiSMWCData wcd( wellnm );
-       if ( !getWellCreateData(irow,wellnm,wcd) )
+	uiSMWCData wcd( wellnm );
+	if ( !getWellCreateData(irow,wellnm,wcd) )
 	   continue;
 
-       IOObj* ioobj = getIOObj( wellnm );
-       if ( !ioobj )
+	IOObj* ioobj = getIOObj( wellnm );
+	if ( !ioobj )
 	   continue;
 
-       progbar_->setProgress( irow + 1 );
-       if ( !createWell(wcd,*ioobj) )
+	progbar_->setProgress( irow + 1 );
+	if ( !createWell(wcd,*ioobj) )
 	   return false;
+
+	newwellkeys.addIfNew( ioobj->key() );
     }
 
     progbar_->setProgress( 0 );
@@ -398,6 +404,9 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
     }
 
     tbl_->clearTable();
+    for ( const auto& key : newwellkeys )
+	IOM().implUpdated().trigger( key );
+
     return true;
 }
 

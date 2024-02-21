@@ -351,6 +351,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 
     wd_.info().surfacecoord_.x = wd_.info().surfacecoord_.y = 0;
     wd_.info().groundelev_ = mUdf(float);
+    IOM().implUpdated().trigger( wd_.multiID() );
     uiString msg = tr("Well Track successfully imported."
 		      "\n\nDo you want to import more Well Tracks?");
     bool ret = uiMSG().askGoOn( msg, uiStrings::sYes(),
