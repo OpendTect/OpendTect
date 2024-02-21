@@ -93,32 +93,35 @@ void uiSeisImpCBVSFromOtherSurveyDlg::interpSelDone( CallBacker* )
 
 void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 {
-    CtxtIOObj inctio( uiSeisSel::ioContext( Seis::Vol, true ) );
+    CtxtIOObj inctio( uiSeisSel::ioContext(Seis::Vol,true) );
     uiSelObjFromOtherSurvey objdlg( this, inctio );
     objdlg.setDirToOtherSurvey( sdl_ );
-    if ( objdlg.go() && inctio.ioobj_ )
-    {
-	sdl_ = objdlg.getSurveyDiskLocation();
-	delete import_;
-	import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj_ );
-	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );
-	bool needinterpol = false;
-	if ( import_->prepareRead(fusrexp) )
-	{
-	    finpfld_->setText( fusrexp );
-	    subselfld_->setInput( import_->cubeSampling() );
-	    needinterpol = !import_->hasSameGridAsThisSurvey();
-	}
-	else
-	{
-	    uiMSG().error( import_->errMsg() );
-	    deleteAndNullPtr( import_ );
-	}
+    if ( !objdlg.go() || !inctio.ioobj_ )
+	return;
 
-	interpfld_->setValue ( needinterpol );
-	interpfld_->setSensitive( needinterpol );
-	interpSelDone(nullptr);
+    sdl_ = objdlg.getSurveyDiskLocation();
+    delete import_;
+    import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj_ );
+    BufferString fusrexp;
+    objdlg.getIOObjFullUserExpression( fusrexp );
+    bool needinterpol = false;
+    if ( import_->prepareRead(fusrexp) )
+    {
+	finpfld_->setText( fusrexp );
+	subselfld_->setInput( import_->cubeSampling() );
+	needinterpol = !import_->hasSameGridAsThisSurvey();
     }
+    else
+    {
+	uiMSG().error( import_->errMsg() );
+	deleteAndNullPtr( import_ );
+    }
+
+    interpfld_->setValue( needinterpol );
+    interpfld_->setSensitive( needinterpol );
+    interpSelDone( nullptr );
+
+    outfld_->setInputText( inctio.ioobj_->name() );
 }
 
 
