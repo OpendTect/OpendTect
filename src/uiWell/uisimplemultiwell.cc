@@ -369,6 +369,7 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 
     IOM().to( IOObjContext::WllInf );
 
+    TypeSet<MultiID> newwellkeys;
     progbar_->setTotalSteps( tbl_->nrRows() );
     for ( int irow=0; irow<tbl_->nrRows(); irow++ )
     {
@@ -387,6 +388,8 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
        progbar_->setProgress( irow + 1 );
        if ( !createWell(wcd,*ioobj) )
 	   return false;
+
+       newwellkeys.addIfNew( ioobj->key() );
     }
 
     progbar_->setProgress( 0 );
@@ -398,6 +401,9 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
     }
 
     tbl_->clearTable();
+    for ( const auto& key : newwellkeys )
+	IOM().implUpdated.trigger( key );
+
     return true;
 }
 

@@ -226,6 +226,7 @@ Well::Man::Man()
     addFSWTimerCB( nullptr );
     getWellKeys( allwellsids_ );
     mAttachCB( IOM().afterSurveyChange, Man::checkForUndeletedRef );
+    mAttachCB( IOM().implUpdated, Man::wellImplUpdated );
     mAttachCB( IOM().entryRemoved, Man::wellEntryRemovedCB );
     mAttachCB( WellUpdateQueue::WUQ().canupdate, Man::databaseUpdateCB);
 }
@@ -364,6 +365,21 @@ void Well::Man::databaseUpdateCB( CallBacker* cb )
     isreloading_ = false;
     if (!dbaddedwellsids_.isEmpty())
 	wellsaddedtodbnotloaded.trigger();
+}
+
+
+void Well::Man::wellImplUpdated( CallBacker* cb )
+{
+    if (!cb || !cb->isCapsule())
+	return;
+
+    mCBCapsuleUnpack( const MultiID&, key, cb );
+    if ( !isLoaded(key) )
+	return;
+
+    const Well::LoadReqs& curreq = loadState( key );
+    reload( key, curreq );
+    allwellsids_.addIfNew( key );
 }
 
 

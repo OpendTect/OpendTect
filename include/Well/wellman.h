@@ -179,6 +179,7 @@ protected:
     void		wellDirChangedCB(CallBacker*);
     void		wellFileChangedCB(CallBacker*);
     void		databaseUpdateCB(CallBacker*);
+    void		wellImplUpdated(CallBacker*);
     void		wellEntryRemovedCB(CallBacker*);
 
     static const UnitOfMeasure*	depthstorageunit_;
