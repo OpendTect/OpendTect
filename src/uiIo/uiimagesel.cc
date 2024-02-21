@@ -194,6 +194,68 @@ MultiID uiImportImageDlg::getKey() const
 }
 
 
+// uiImageCoordGrp
+uiImageCoordGrp::uiImageCoordGrp( uiParent* p )
+    : uiGroup(p,"Image Coordinate Group")
+{
+    tlcrdfld_ = new uiGenInput( this, tr("NorthWest (TopLeft) coordinate"),
+			     PositionInpSpec(Coord()) );
+    tlcrdfld_->setElemSzPol( uiObject::MedVar );
+
+    brcrdfld_ = new uiGenInput( this, tr("SouthEast (BottomRight) coordinate"),
+			     PositionInpSpec(Coord()) );
+    brcrdfld_->setElemSzPol( uiObject::MedVar );
+    brcrdfld_->attach( alignedBelow, tlcrdfld_ );
+
+    setHAlignObj( tlcrdfld_->attachObj() );
+}
+
+
+uiImageCoordGrp::~uiImageCoordGrp()
+{}
+
+
+void uiImageCoordGrp::fillCoords( const IOObj& ioobj )
+{
+    ImageDef def;
+    ODImageDefTranslator::readDef( def, ioobj );
+
+    tlcrdfld_->setValue( def.tlcoord_.coord() );
+    brcrdfld_->setValue( def.brcoord_.coord() );
+
+    const int nrdec = SI().nrXYDecimals();
+    tlcrdfld_->setNrDecimals( nrdec, 0 );
+    tlcrdfld_->setNrDecimals( nrdec, 1 );
+    brcrdfld_->setNrDecimals( nrdec, 0 );
+    brcrdfld_->setNrDecimals( nrdec, 1 );
+}
+
+
+bool uiImageCoordGrp::saveCoords( const IOObj& ioobj )
+{
+    ImageDef def;
+    ODImageDefTranslator::readDef( def, ioobj );
+
+    def.tlcoord_.coord() = tlcrdfld_->getCoord();
+    def.brcoord_.coord() = brcrdfld_->getCoord();
+    if ( !ODImageDefTranslator::writeDef(def,ioobj) )
+	return false;
+
+    return true;
+}
+
+
+void uiImageCoordGrp::fillPar( IOPar& par ) const
+{
+}
+
+
+bool uiImageCoordGrp::usePar( const IOPar& par )
+{
+    return true;
+}
+
+
 // uiEditImageDlg
 
 uiEditImageDlg::uiEditImageDlg( uiParent* p, const IOObj& ioobj )
@@ -202,17 +264,7 @@ uiEditImageDlg::uiEditImageDlg( uiParent* p, const IOObj& ioobj )
 {
     setOkCancelText( uiStrings::sEdit(), uiStrings::sClose() );
 
-    ImageDef def;
-    ODImageDefTranslator::readDef( def, ioobj );
-
-    tlcrdfld_ = new uiGenInput( this, tr("NorthWest (TopLeft) coordinate"),
-			     PositionInpSpec(def.tlcoord_) );
-    tlcrdfld_->setElemSzPol( uiObject::MedVar );
-
-    brcrdfld_ = new uiGenInput( this, tr("SouthEast (BottomRight) coordinate"),
-			     PositionInpSpec(def.brcoord_) );
-    brcrdfld_->setElemSzPol( uiObject::MedVar );
-    brcrdfld_->attach( alignedBelow, tlcrdfld_ );
+    imagegrp_ = new uiImageCoordGrp( this );
 
     mAttachCB( postFinalize(), uiEditImageDlg::finalizeCB );
 }
@@ -226,23 +278,11 @@ uiEditImageDlg::~uiEditImageDlg()
 
 void uiEditImageDlg::finalizeCB( CallBacker* )
 {
-    const int nrdec = SI().nrXYDecimals();
-    tlcrdfld_->setNrDecimals( nrdec, 0 );
-    tlcrdfld_->setNrDecimals( nrdec, 1 );
-    brcrdfld_->setNrDecimals( nrdec, 0 );
-    brcrdfld_->setNrDecimals( nrdec, 1 );
+    imagegrp_->fillCoords( ioobj_ );
 }
 
 
 bool uiEditImageDlg::acceptOK( CallBacker* )
 {
-    ImageDef def;
-    ODImageDefTranslator::readDef( def, ioobj_ );
-
-    def.tlcoord_.coord() = tlcrdfld_->getCoord();
-    def.brcoord_.coord() = brcrdfld_->getCoord();
-    if ( !ODImageDefTranslator::writeDef(def,ioobj_) )
-	return false;
-
-    return true;
+    return imagegrp_->saveCoords( ioobj_ );
 }
