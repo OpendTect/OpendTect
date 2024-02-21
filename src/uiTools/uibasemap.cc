@@ -244,13 +244,18 @@ void uiBasemapObject::update()
 		}
 
 		mDynamicCastGet(uiPixmapItem*,itm,graphitem_.getChild(itemnr));
-		if ( !itm ) return;
+		if ( !itm )
+		    return;
+
 		itm->setPixmap( uiPixmap(imgfnm) );
 		itm->setPos( crds[ptidx] );
 
 		float scalex=1.f, scaley=1.f;
 		bmobject_->getXYScale( idx, scalex, scaley );
 		itm->setScale( scalex, scaley );
+
+		const float transparency = bmobject_->getColor().t();
+		itm->setTransparency( transparency/255.f );
 		itemnr++;
 	    }
 	}
