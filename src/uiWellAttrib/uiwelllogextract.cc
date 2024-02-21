@@ -72,6 +72,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
     asu.lblpos( uiListBox::AboveMid );
     attrsfld_ = new uiListBox( this, asu );
     attrsfld_->display( setup.withattrib_, true );
+    attrsfld_->itemChosen.notify( mCB(this,uiWellLogExtractGrp,attribSelCB) );
     welllogselfld_->attach( ensureBelow, attrsfld_ );
 
     const float inldist = SI().inlDistance();
@@ -108,14 +109,23 @@ void uiWellLogExtractGrp::releaseDPS()
 
 
 ConstRefMan<DataPointSet> uiWellLogExtractGrp::getDPS() const
-{ return curdps_; }
+{
+    return curdps_;
+}
 
 
 void uiWellLogExtractGrp::setDescSet( const Attrib::DescSet* newads )
 {
     ads_  = newads;
     adsChg();
+    attribSelCB( nullptr );
     welllogselfld_->update();
+}
+
+
+void uiWellLogExtractGrp::attribSelCB( CallBacker* )
+{
+    radiusfld_->setSensitive( attrsfld_->nrChosen() > 0 );
 }
 
 
@@ -181,9 +191,12 @@ bool uiWellLogExtractGrp::extractWellData( const TypeSet<MultiID>& ioobjids,
     Well::TrackSampler wts( ioobjids, dpss, SI().zIsTime() );
     wts.for2d_ = false;
     wts.lognms_ = lognms;
-    wts.locradius_ = !radiusfld_ ? 0.f : radiusfld_->getFValue();
     wts.mkdahcol_ = true;
     wts.params_ = welllogselfld_->params();
+    wts.locradius_ = 0.f;
+    if ( radiusfld_ && attrsfld_->nrChosen() > 0 )
+	wts.locradius_ = radiusfld_->getFValue();
+
     if ( !wts.params_.isInTime() )
     {
 	wts.params_.zstep_ = getConvertedValue( wts.params_.zstep_,

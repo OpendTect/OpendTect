@@ -261,10 +261,8 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 
     if ( dostep_ )
     {
-	const UnitOfMeasure* uom = UnitOfMeasure::surveyDefDepthUnit();
-	const float dptstep = uom ? uom->getUserValueFromSI(s.defmeterstep_)
-				  : s.defmeterstep_;
 	const float timestep = SI().zStep()*ztimefac_;
+	const float dptstep = s.defmeterstep_; // Keep it a nice number.
 	params().zstep_ = dptstep;
 	uiString dptstpbuf = uiStrings::phrJoinStrings(uiStrings::sStep(),
 				    UnitOfMeasure::zUnitAnnot(false,true,true));
