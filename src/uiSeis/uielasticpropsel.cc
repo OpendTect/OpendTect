@@ -215,6 +215,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
     selmathfld_->box()->addItem( tr("Defined quantity") );
     selmathfld_->box()->addItems( predeftitles );
     selmathfld_->box()->addItem( tr("Formula") );
+    selmathfld_->box()->setHSzPol( uiObject::WideVar );
     mAttachCB( selmathfld_->box()->selectionChanged,
 	       uiElasticPropSelGrp::selComputeFldChgCB );
 
