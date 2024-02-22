@@ -59,7 +59,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     interpfld_ = new uiGenInput( this, tr("Interpolation"),
 			BoolInpSpec( true, toUiString(interpols[0]),
 				     toUiString(interpols[1]) ) );
-    interpfld_->valuechanged.notify(
+    interpfld_->valueChanged.notify(
 		mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
     interpfld_->attach( ensureBelow, sep1 );
     interpfld_->attach( alignedBelow, subselfld_ );
@@ -133,6 +133,8 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 	interpfld_->setValue ( needinterpol );
 	interpfld_->setSensitive( needinterpol );
 	interpSelDone(nullptr);
+
+	outfld_->setInputText( inctio.ioobj_->name() );
     }
 }
 
