@@ -421,7 +421,11 @@ void uiStratSynthCrossplot::preparePreStackDescs()
     synthmgr_->getIDs( ids );
     TypeSet<DataPack::FullID> dpids;
     for ( const auto& id : ids )
-	dpids += synthmgr_->getDataSet(id)->fullID();
+    {
+	ConstRefMan<SyntheticData> sd = synthmgr_->getDataSet( id );
+	if ( sd )
+	    dpids += sd->fullID();
+    }
 
     auto* ds = const_cast<Attrib::DescSet*>( &seisattrfld_->descSet() );
     for ( int dscidx=0; dscidx<ds->size(); dscidx++ )
