@@ -78,6 +78,7 @@ namespace sKey
     inline StringView FloatUdf()	{ return "1e30"; }
     inline StringView Font()		{ return "Font"; }
     inline StringView Format(int n=1)	{ return n<2 ? "Format" : "Formats"; }
+    inline StringView Formula()		{ return "Formula"; }
     inline StringView GeomID()		{ return "GeomID"; }
     inline StringView GeomIDs()		{ return "GeomIDs"; }
     inline StringView GeomSystem()	{ return "GeomSystem"; }
