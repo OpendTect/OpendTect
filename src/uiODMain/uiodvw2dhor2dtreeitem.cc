@@ -36,6 +36,8 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "view2ddataman.h"
 #include "view2dhorizon2d.h"
+#include "vissurvscene.h"
+
 
 #define mNewIdx		10
 
@@ -145,8 +147,18 @@ bool uiODView2DHor2DParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
+	mDynamicCastGet(visSurvey::Scene*,scene,
+	    ODMainWin()->applMgr().visServer()->getObject(
+	    viewer2D()->getSyncSceneID()));
+	const bool hastransform = scene && scene->getZAxisTransform();
+	const ZDomain::Info* zinfo = nullptr;
+	if ( !hastransform )
+	    zinfo = &SI().zDomainInfo();
+
 	ObjectSet<EM::EMObject> objs;
-	applMgr()->EMServer()->selectHorizons( objs, true, getUiParent() );
+	applMgr()->EMServer()->selectHorizons( objs, true, getUiParent(),
+	    zinfo );
+
 	TypeSet<EM::ObjectID> emids;
 	for ( int idx=0; idx<objs.size(); idx++ )
 	    emids += objs[idx]->id();
