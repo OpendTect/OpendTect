@@ -2871,7 +2871,7 @@ bool uiCopyWellDlg::acceptOK( CallBacker* )
 
     RefMan<Well::Data> wdin = new Well::Data;
     Well::Reader rdr( inioobj->key(), *wdin );
-    if ( !rdr.get() );
+    if ( !rdr.get() )
     {
 	uiMSG().error( rdr.errMsg() );
 	return false;
