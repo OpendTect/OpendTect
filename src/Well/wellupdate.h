@@ -65,6 +65,8 @@ public:
 
     WellFileList&	operator =(const WellFileList&);
     void		addLoadedWells(const BufferString&,const MultiID&);
+    void		addNewId(const MultiID&,const BufferString&);
+    void		removeId(const MultiID&);
     void		removeFromLoadedWells(const BufferString&);
     int			nrFiles() const;
     int			nrWells() const;
@@ -90,8 +92,8 @@ private:
     bool		getChangedFiles(const WellFileList&);
     void		updateWellQueue(const QString& fnm, bool reqall=false);
 
-    QHash<const QString, QString>	filelist_;
-    QHash<const QString, QString>	allidsnmpair_;
-    QHash<const QString, QString>	loadednmidpair_;
+    QHash<const QString,QString>	filelist_;
+    QHash<const QString,QString>	allidsnmpair_;
+    QHash<const QString,QString>	loadednmidpair_;
     mutable Threads::Lock		lock_;
 };

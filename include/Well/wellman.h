@@ -147,7 +147,6 @@ public:
     static const UnitOfMeasure*	surveyDepthStorageUnit();
     static const UnitOfMeasure*	surveyDepthDisplayUnit();
 
-    Notifier<Man>		wellsaddedtodbnotloaded;
     const TypeSet<MultiID>&	getWellsAddedToDB() const
 				    { return dbaddedwellsids_; }
 
@@ -160,7 +159,6 @@ protected:
 
     WeakPtrSet<Data>		wells_;
     BufferString		msg_;
-    TypeSet<MultiID>		allwellsids_;
     TypeSet<MultiID>		dbaddedwellsids_;
     bool			isreloading_		= false;
     WellFileList*		wfl_			= nullptr;
@@ -179,7 +177,7 @@ protected:
     void		wellDirChangedCB(CallBacker*);
     void		wellFileChangedCB(CallBacker*);
     void		databaseUpdateCB(CallBacker*);
-    void		wellImplUpdated(CallBacker*);
+    void		wellAddedToDB(CallBacker*);
     void		wellEntryRemovedCB(CallBacker*);
 
     static const UnitOfMeasure*	depthstorageunit_;

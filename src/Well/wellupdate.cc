@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "file.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "threadlock.h"
 #include "timer.h"
 #include "welldata.h"
@@ -123,7 +124,7 @@ bool WellUpdateQueue::dequeueWellsToBeDeleted( MultiID& id )
     Threads::Locker locker( lock_ );
     id = MultiID( wellgrpid_, delobjidqueue_.first() );
     delobjidqueue_.removeSingle( 0 );
-    if ( !isEmpty() )
+    if ( isEmpty() )
 	timer_->stop();
 
     return true;
@@ -138,7 +139,7 @@ bool WellUpdateQueue::dequeueWellsAdded( MultiID& id )
     Threads::Locker locker( lock_ );
     id = MultiID( wellgrpid_, addobjidqueue_.first() );
     addobjidqueue_.removeSingle( 0 );
-    if ( !isEmpty() )
+    if ( isEmpty() )
 	timer_->stop();
 
     return true;
@@ -233,11 +234,34 @@ WellFileList& WellFileList::operator =( const WellFileList& oth )
 void WellFileList::addLoadedWells( const BufferString& wellnm,
 				   const MultiID& key )
 {
+    QString idstr = key.toString().str();
+    if ( !allidsnmpair_.contains(idstr) )
+	return;
+
     Threads::Locker locker( lock_ );
     QString nmstr = wellnm.str();
-    QString idstr = key.toString().str();
     loadednmidpair_[nmstr] = idstr;
     allidsnmpair_[idstr] = nmstr;
+}
+
+
+void WellFileList::addNewId( const MultiID& key, const BufferString& nm )
+{
+    Threads::Locker locker( lock_ );
+    QString idstr = key.toString().str();
+    QString nmstr = "";
+    if ( !nm.isEmpty() )
+	nmstr = nm.str();
+
+    allidsnmpair_[idstr] = nmstr;
+}
+
+
+void WellFileList::removeId( const MultiID& key )
+{
+    Threads::Locker locker( lock_ );
+    QString idstr = key.toString().str();
+    allidsnmpair_.remove( idstr );
 }
 
 
@@ -292,7 +316,6 @@ void WellFileList::catchChange()
 {
     WellFileList currlist;
     TypeSet<MultiID> ids;
-    Well::Man::getWellKeys( ids, true );
     for ( const auto& id : ids )
     {
 	const Well::Data* wd = Well::MGR().get( id, Well::LoadReqs(Well::Inf) );

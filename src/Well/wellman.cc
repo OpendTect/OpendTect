@@ -218,15 +218,13 @@ const UnitOfMeasure* Well::Man::depthdisplayunit_ = nullptr;
 
 Well::Man::Man()
     : wfl_(new WellFileList())
-    , wellsaddedtodbnotloaded(this)
 {
     WellUpdateQueue::WUQ();
     addFSWOnFileCB( nullptr );
     addFSWOnDirCB( nullptr );
     addFSWTimerCB( nullptr );
-    getWellKeys( allwellsids_ );
     mAttachCB( IOM().afterSurveyChange, Man::checkForUndeletedRef );
-    mAttachCB( IOM().implUpdated, Man::wellImplUpdated );
+    mAttachCB( IOM().implUpdated, Man::wellAddedToDB );
     mAttachCB( IOM().entryRemoved, Man::wellEntryRemovedCB );
     mAttachCB( WellUpdateQueue::WUQ().canupdate, Man::databaseUpdateCB);
 }
@@ -325,26 +323,19 @@ void Well::Man::databaseUpdateCB( CallBacker* cb )
     {
 	MultiID delkey;
 	WellUpdateQueue::WUQ().dequeueWellsToBeDeleted( delkey );
+	wfl_->removeId( delkey );
 	if ( !isLoaded(delkey) )
 	    continue;
-
-	if ( dbaddedwellsids_.isPresent(delkey) )
-	{
-	    const int idx = dbaddedwellsids_.indexOf( delkey );
-	    dbaddedwellsids_.removeSingle( idx );
-	}
 
 	IOM().entryRemoved.trigger( delkey );
     }
 
-    allwellsids_.setEmpty();
-    getWellKeys( allwellsids_ );
     while ( WellUpdateQueue::WUQ().hasWellsToBeAdded() )
     {
 	MultiID addkey;
 	WellUpdateQueue::WUQ().dequeueWellsAdded( addkey );
-	allwellsids_.addIfNew( addkey );
-	dbaddedwellsids_.addIfNew( addkey );
+	if ( IOM().implExists(addkey) )
+	    IOM().implUpdated.trigger( addkey );
     }
 
     while ( !WellUpdateQueue::WUQ().isEmpty() )
@@ -363,23 +354,25 @@ void Well::Man::databaseUpdateCB( CallBacker* cb )
     }
 
     isreloading_ = false;
-    if (!dbaddedwellsids_.isEmpty())
-	wellsaddedtodbnotloaded.trigger();
 }
 
 
-void Well::Man::wellImplUpdated( CallBacker* cb )
+void Well::Man::wellAddedToDB( CallBacker* cb )
 {
-    if (!cb || !cb->isCapsule())
+    if ( !cb || !cb->isCapsule() )
 	return;
 
     mCBCapsuleUnpack( const MultiID&, key, cb );
-    if ( !isLoaded(key) )
-	return;
+    dbaddedwellsids_.addIfNew( key );
+    BufferString wellnm;
+    if ( isLoaded(key) )
+    {
+	const Well::LoadReqs& curreq = loadState( key );
+	if ( reload(key,curreq) )
+	    wellnm = get( key, Inf )->name();
+    }
 
-    const Well::LoadReqs& curreq = loadState( key );
-    reload( key, curreq );
-    allwellsids_.addIfNew( key );
+    wfl_->addNewId( key, wellnm );
 }
 
 
@@ -389,11 +382,13 @@ void Well::Man::wellEntryRemovedCB( CallBacker* cb )
 	return;
 
     mCBCapsuleUnpack( const MultiID&, key, cb );
-    if (allwellsids_.isPresent( key ))
+    if ( dbaddedwellsids_.isPresent(key) )
     {
-	const int idx = allwellsids_.indexOf( key );
-	allwellsids_.removeSingle( idx );
+	const int idx = dbaddedwellsids_.indexOf( key );
+	dbaddedwellsids_.removeSingle( idx );
     }
+
+    wfl_->removeId( key );
 }
 
 
@@ -495,7 +490,7 @@ RefMan<Well::Data> Well::Man::addNew( const MultiID& key, LoadReqs reqs )
 	wd->setMultiID( key );
 	wells_ += wd;
 	wfl_->addLoadedWells( wd->name(), wd->multiID() );
-	if ( !dbaddedwellsids_.isEmpty() )
+	if ( !dbaddedwellsids_.isEmpty() && dbaddedwellsids_.isPresent(key) )
 	{
 	    const int idx = dbaddedwellsids_.indexOf( key );
 	    dbaddedwellsids_.removeSingle( idx );
