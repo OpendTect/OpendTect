@@ -247,17 +247,21 @@ void uiMathExpressionVariable::use( const Math::Formula& form,
 
     const BufferString varnm = form.variableName( varidx_ );
     curmn_ = form.inputMnemonic( varidx_ );
-    setVariable( varnm, form.isConst( varidx_ ), hasfixedunits );
+    setVariable( varnm, form.isConst(varidx_), hasfixedunits );
     const BufferString inpdef( form.inputDef(varidx_) );
     const BufferString inpdesc( form.inputDescription(varidx_) );
     const bool isspec = isSpec();
+
+    if ( inpdef.isEmpty() )
+	return;
 
     if ( isConst() )
     {
 	constfld_->setValue( inpdef.toFloat() );
 	return;
     }
-    else if ( isspec && unfld_ )
+
+    if ( isspec && unfld_ )
     {
 	const Mnemonic& formmn = specvars_.mnemonic( specidx_ );
 	if ( &formmn != unfld_->mnemonic() )

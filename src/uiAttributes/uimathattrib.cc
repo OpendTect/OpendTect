@@ -341,7 +341,9 @@ bool uiMathAttrib::getInput( Desc& desc )
 		    desc.descSet()->addDesc( inpdesc );
 	    }
 
-	    desc.setInput( attrinpidx, inpdesc );
+	    const bool res = desc.setInput( attrinpidx, inpdesc );
+	    if ( !res )
+		return false;
 	}
     }
 
