@@ -388,9 +388,14 @@ bool Desc::setInput_( int input, Desc* nd )
 		inputspecs_[input].issteering_!=nd->isSteering()) )
 	return false;
 
-    if ( inputs_[input] ) inputs_[input]->unRef();
+    if ( nd == this )
+	return false;
+
+    if ( inputs_[input] )
+	inputs_[input]->unRef();
     inputs_.replace( input, nd );
-    if ( inputs_[input] ) inputs_[input]->ref();
+    if ( inputs_[input] )
+	inputs_[input]->ref();
 
     return true;
 }
