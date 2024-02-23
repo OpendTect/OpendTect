@@ -2896,6 +2896,7 @@ bool uiCopyWellDlg::acceptOK( CallBacker* )
 	return false;
     }
 
+    IOM().implUpdated().trigger(outioobj->key());
     uiString msg = tr("Well successfully copied.\n\n"
 		      "Do you want to copy more Wells?");
     const bool ret =
