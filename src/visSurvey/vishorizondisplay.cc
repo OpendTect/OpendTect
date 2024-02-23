@@ -1935,6 +1935,9 @@ void HorizonDisplay::updateIntersectionLines(
     if ( isOn() && (displayonlyatsections_ || displayintersectionlines_) )
     {
 	const int size = doall ? objs.size() : 1;
+	const bool dataneedtransform = zaxistransform_ &&
+				horizon->zDomain().isCompatibleWith(
+				zaxistransform_->toZDomainInfo() );
 	for ( int idx=0; idx<size; idx++ )
 	{
 	    objidx = doall ? idx : objidx;
@@ -1968,11 +1971,19 @@ void HorizonDisplay::updateIntersectionLines(
 		}
 		else
 		{
-		    const Interval<float> zrg =
+		    Interval<float> zrg =
 			objs[objidx]->getDataTraceRange();
 		    data = getOrCreateIntersectionData( lines );
 		    if ( data )
 		    {
+			if ( dataneedtransform )
+			{
+			    zrg.start = zaxistransform_->transformTrc(
+						trckeypath[0], zrg.start );
+			    zrg.stop = zaxistransform_->transformTrc(
+						    trckeypath[0], zrg.stop );
+			}
+
 			data->objid_ = vo->id();
 			traverseLine( trckeypath, trccoords, zrg, *data );
 		    }

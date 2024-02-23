@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "flatposdata.h"
 #include "zaxistransform.h"
+#include "zdomain.h"
 
 namespace EM
 {
@@ -220,8 +221,14 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid,const Coord3& crd,
     const PosID& posid, const Horizon3D& hor3d, Marker3D& marker,
     bool newmarker, int idx )
 {
+    bool isalreadytranformed = false;
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-    const double z = zat ? zat->transform(crd) : crd.z;
+    if ( zat )
+	isalreadytranformed = hor3d.zDomain().isCompatibleWith(
+	    zat->toZDomainInfo() );
+
+    const double z = zat && !isalreadytranformed ? zat->transform(crd)
+						 : crd.z;
 
     double x = 0.0;
     if ( path_ )
