@@ -86,8 +86,8 @@ uiTime2DepthDlg::uiTime2DepthDlg( uiParent* p, IOObjInfo::ObjectType objtype,
     else
 	return;
 
-    const bool istime = SI().zIsTime();
 #ifdef __debug__
+    const bool istime = SI().zIsTime();
     directionsel_ = new uiGenInput( this, tr("Convert from"),
 	BoolInpSpec(true, tr("Time to Depth"), tr("Depth to Time"), true));
     directionsel_->setChecked( istime );
