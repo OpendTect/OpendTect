@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "volprocbodyfiller.h"
 #include "volprochorinterfiller.h"
 #include "volproclateralsmoother.h"
+#include "volprocmath.h"
 #include "volprocsmoother.h"
 #include "volprocstatscomputer.h"
 #include "volprocsurfacelimitedfiller.h"
@@ -20,8 +21,6 @@ ________________________________________________________________________
 #include "volprocvolreader.h"
 #include "voxelconnectivityfilter.h"
 #include "wellloginterpolator.h"
-
-using namespace VolProc;
 
 mDefModInitFn(VolumeProcessing)
 {
@@ -32,17 +31,18 @@ mDefModInitFn(VolumeProcessing)
     dgbVolProcessingTranslator::initClass();
     dgbVolProcessing2DTranslator::initClass();
 
-    VolumeReader::initClass();
-    BodyFiller::initClass();
-    HorInterFiller::initClass();
-    SurfaceLimitedFiller::initClass();
-    LateralSmoother::initClass();
-    Smoother::initClass();
-    StatsCalculator::initClass();
-    ExternalAttribCalculator::initClass();
-    VelocityGridder::initClass();
-    VoxelConnectivityFilter::initClass();
-    WellLogInterpolator::initClass();
+    VolProc::BodyFiller::initClass();
+    VolProc::ExternalAttribCalculator::initClass();
+    VolProc::HorInterFiller::initClass();
+    VolProc::LateralSmoother::initClass();
+    VolProc::Math::initClass();
+    VolProc::Smoother::initClass();
+    VolProc::StatsCalculator::initClass();
+    VolProc::SurfaceLimitedFiller::initClass();
+    VolProc::VelocityGridder::initClass();
+    VolProc::VolumeReader::initClass();
+    VolProc::VoxelConnectivityFilter::initClass();
+    VolProc::WellLogInterpolator::initClass();
 
 #ifdef __debug__
     VolProcAttrib::initClass();

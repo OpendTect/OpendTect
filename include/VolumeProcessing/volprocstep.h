@@ -45,6 +45,7 @@ public:
 
 				mDefineFactoryInClass( Step, factory );
     virtual			~Step();
+				mOD_DisableCopy(Step)
 
     ID				getID() const		{ return id_; }
     Chain&			getChain();
@@ -82,7 +83,7 @@ public:
 				      const TrcKeySampling&,
 				      const StepInterval<int>&);
     const RegularSeisDataPack*	getOutput(OutputSlotID) const;
-    RegularSeisDataPack*		getOutput(OutputSlotID);
+    RegularSeisDataPack*	getOutput(OutputSlotID);
 
     int				getOutputIdx(OutputSlotID) const;
     void			enableOutput(OutputSlotID);
@@ -139,7 +140,7 @@ protected:
 
     TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
 
-    const StepInterval<float>& getZSampling() const { return zsamp_; }
+    const StepInterval<float>&	getZSampling() const { return zsamp_; }
     void			setHStep( const BinID& bid ) { hstep_ = bid; }
     void			setVStep( int zstep ) { vstep_ = zstep;  }
     void			setInpNrComps(InputSlotID,int);
@@ -153,11 +154,11 @@ private:
 
     RefMan<RegularSeisDataPack> output_;
 
-    BinID           hstep_;
-    int             vstep_ = 0;
-    TypeSet<int>    nrinpcomps_;
-    int             nroutcomps_ = 1;
-    StepInterval<float> zsamp_;
+    BinID			hstep_;
+    int				vstep_				= 0;
+    TypeSet<int>		nrinpcomps_;
+    int				nroutcomps_			= 1;
+    StepInterval<float>		zsamp_;
 
     void			setChain(Chain&);
 
