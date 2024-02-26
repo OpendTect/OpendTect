@@ -77,6 +77,7 @@ Cubic centimeters: Volume`cm3`1e-6
 Cubic mile: Volume`mi3`4168181825.4
 Cubic foot: Volume`ft3`0.0283168466
 Cubic inch: Volume`in3`1.6387064e-5
+Acre-foot: Volume`ac-ft`1233.48183754752
 Gallon [UK]: Volume`gal`0.00454609
 Gallon [US]: Volume`usgal`3.785411784e-3
 Barrels: Volume`bbl`0.1589872949
