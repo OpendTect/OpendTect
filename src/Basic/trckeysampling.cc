@@ -95,6 +95,7 @@ void TrcKeySampling::setGeomID( const Pos::GeomID& geomid )
     {
 	if ( geomid.is3D() )
 	    setLineRange( StepInterval<int>::udf() );
+
 	setTrcRange( StepInterval<int>::udf() );
     }
 }

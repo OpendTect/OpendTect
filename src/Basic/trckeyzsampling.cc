@@ -44,7 +44,7 @@ TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
 TrcKeyZSampling::TrcKeyZSampling( const Pos::GeomID& geomid )
     : hrg(hsamp_), zrg(zsamp_)
 {
-    hsamp_.setGeomID( geomid );
+    init( geomid );
 }
 
 mStopAllowDeprecatedSection
@@ -76,6 +76,14 @@ void EnumDefImpl<TrcKeyZSampling::Dir>::init()
      uistrings_ += uiStrings::sCrossline();
      uistrings_ += uiStrings::sZSlice();
  }
+
+
+void TrcKeyZSampling::setEmpty()
+{
+    hsamp_.setLineRange( Interval<int>::udf() );
+    hsamp_.setTrcRange( Interval<int>::udf() );
+    zsamp_.setFrom( Interval<int>::udf() );
+}
 
 
 bool TrcKeyZSampling::makeCompatibleWith(const TrcKeyZSampling& othertkzs )

@@ -55,7 +55,7 @@ public:
     bool		init(const Pos::GeomID&);
     void		init(bool settoSI=true);
 			//!< Sets hrg_.init and zrg_ to survey values or zeros
-    inline void		setEmpty()		{ init(false); }
+    void		setEmpty();
     void		set2DDef();
 			//!< Sets to survey zrange and
     void		normalize();
