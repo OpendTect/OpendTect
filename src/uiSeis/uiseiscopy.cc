@@ -136,7 +136,6 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     {
 	TrcKeyZSampling samp;
 	ioobjinfo.getRanges( samp );
-	const int expectednrsamps = samp.nrInl()*samp.nrCrl();
 	PtrMan<Translator> trl = inioobj->createTranslator();
 	mDynamicCastGet(SeisTrcTranslator*,seistr,trl.ptr());
 	spi = SeisIOObjInfo::SpaceInfo( samp.nrZ(),
