@@ -562,8 +562,6 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    UnitOfMeasure::zUnit( seisfld_->getZDomain(), false )->scaler();
 	data().sd_.start = scaler.scale( data().sd_.start );
 	data().sd_.step = scaler.scale( data().sd_.step );
-	const double st1 = data().sd_.start;
-	const double st2 = data().sd_.step;
 	data().nrsamples_ = sdfld_->getIntValue(2);
     }
 
