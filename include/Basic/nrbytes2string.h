@@ -9,9 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "file.h"
 #include "stringview.h"
-
-
 
 /*!Converts integer with number of bytes to a string with KB, GB or similar
    unit. */
@@ -44,4 +43,7 @@ protected:
 
     Unit		unit_;
 
+private:
+    static od_int64	convertToBytes(double fsz,File::SizeUnit inpunit);
+    static double	convertFromBytes(od_int64 fsz,File::SizeUnit outunit);
 };

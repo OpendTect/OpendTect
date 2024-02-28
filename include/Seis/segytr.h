@@ -129,6 +129,8 @@ private:
 
     bool		readData(TraceData* externalbuf) override;
 
+    od_int64		getFileSizeInBytes() const override;
+
 public:
 
     mDeprecatedObs

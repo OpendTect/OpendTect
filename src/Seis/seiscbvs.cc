@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "cbvsreader.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
+#include "dirlist.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
@@ -19,6 +20,7 @@ ________________________________________________________________________
 #include "iostrm.h"
 #include "oddirs.h"
 #include "seisdatapack.h"
+#include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
 #include "seistrc.h"
@@ -197,6 +199,102 @@ int CBVSSeisTrcTranslator::estimatedNrTraces() const
 {
     return rdmgr_ ? rdmgr_->estimatedNrTraces()
 		  : SeisTrcTranslator::estimatedNrTraces();
+}
+
+
+od_int64 CBVSSeisTrcTranslator::getFileSizeInBytes() const
+{
+    if ( !rdmgr_ )
+	return -1;
+
+    const BufferString filenm = rdmgr_->baseFileName();
+    if ( filenm.isEmpty() )
+	return -1;
+
+    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) )
+	return -1;
+
+    od_int64 totalsz = 0;
+    int nrfiles = 0;
+    if ( File::isDirectory(filenm) )
+    {
+	const DirList dl( filenm.buf(), File::FilesInDir );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    const FilePath filepath = dl.fullPath( idx );
+	    const StringView ext = filepath.extension();
+	    if ( ext != "cbvs" )
+		continue;
+
+	    totalsz += File::getFileSizeInBytes( filepath.fullPath() );
+	    nrfiles++;
+	}
+    }
+    else
+    {
+	while ( true )
+	{
+	    const BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
+	    if ( !File::exists(fullnm) )
+		break;
+
+	    totalsz += File::getFileSizeInBytes( fullnm );
+	    nrfiles++;
+	}
+    }
+
+    ManagedObjectSet<FilePath> fps;
+    SeisTrcTranslator::getAllFileNames( fps );
+    for ( const auto* fp : fps )
+	totalsz += File::getFileSizeInBytes( fp->fullPath() );
+
+    return totalsz;
+}
+
+
+void CBVSSeisTrcTranslator::getAllFileNames( ObjectSet<FilePath>& fps ) const
+{
+    if ( !rdmgr_ )
+	return;
+
+    const BufferString basefname = rdmgr_->baseFileName();
+    if ( !basefname.isEmpty() )
+	fps.addIfNew( new FilePath(basefname) );
+
+    SeisTrcTranslator::getAllFileNames( fps );
+}
+
+
+bool CBVSSeisTrcTranslator::haveAux( const char* ext ) const
+{
+    if ( !rdmgr_ )
+	return false;
+
+    const StringView filenm = rdmgr_->baseFileName();
+    if ( filenm.isEmpty() )
+	return false;
+
+    FilePath fp( filenm );
+    fp.setExtension( ext );
+    if ( !File::isDirectory(filenm) )
+	return File::exists( fp.fullPath() );
+
+    const DirList dl( filenm.buf(), File::FilesInDir );
+    return dl.isPresent( fp.fullPath() );
+}
+
+
+BufferString CBVSSeisTrcTranslator::getAuxFileName( const char* ext ) const
+{
+    if ( !rdmgr_ )
+	return BufferString::empty();
+
+    if ( !haveAux(ext) )
+	return BufferString::empty();
+
+    FilePath fp( rdmgr_->baseFileName() );
+    fp.setExtension( ext );
+    return fp.fullPath();
 }
 
 

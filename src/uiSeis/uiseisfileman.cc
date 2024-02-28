@@ -14,8 +14,11 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
+#include "iostrm.h"
 #include "keystrs.h"
 #include "od_helpids.h"
+#include "segydirecttr.h"
+#include "segydirectdef.h"
 #include "seis2dlineio.h"
 #include "seiscbvs.h"
 #include "seisioobjinfo.h"
@@ -76,6 +79,13 @@ static BufferString getManagerContextFilter( bool i2d )
 }
 
 } // namespace Seis
+
+
+static const IOStream* getIOStream( const IOObj& ioobj )
+{
+    mDynamicCastGet( const IOStream*, iostrm, &ioobj )
+    return iostrm;
+}
 
 
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
@@ -404,7 +414,8 @@ void uiSeisFileMan::mkFileInfo()
 }
 
 
-od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
+od_int64 uiSeisFileMan::getFileSizeInBytes( const char* filenm,
+					    int& nrfiles ) const
 {
     if ( !File::isDirectory(filenm) && File::isEmpty(filenm) )
 	return 0;
@@ -421,7 +432,7 @@ od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 	    if ( ext != "cbvs" )
 		continue;
 
-	    totalsz += File::getKbSize( filepath.fullPath() );
+	    totalsz += File::getFileSizeInBytes( filepath.fullPath() );
 	    nrfiles++;
 	}
     }
@@ -432,12 +443,52 @@ od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
 	    if ( !File::exists(fullnm) ) break;
 
-	    totalsz += File::getKbSize( fullnm );
+	    totalsz += File::getFileSizeInBytes( fullnm );
 	    nrfiles++;
 	}
     }
 
     return totalsz;
+}
+
+
+void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
+{
+    const BufferString fname = curioobj_->fullUserExpr();
+    const IOStream* iostrm = getIOStream( *curioobj_ );
+    const bool isdir = iostrm && File::isDirectory( fname );
+    const BufferString usrnm = iostrm->fileSpec().dispName();
+    if ( !txt.isEmpty() )
+	txt.addNewLine();
+
+    if ( isdir )
+    {
+	getBasicDirInfo( iostrm, txt );
+	return;
+    }
+
+    FilePath fp( usrnm );
+    txt.add( "File name: " ).add( fp.fileName() );
+    fp.set( fname );
+    txt.add("\nLocation: ").add( fp.pathOnly() );
+    ManagedObjectSet<FilePath> fps;
+    const SeisIOObjInfo seisobjinfo( curioobj_ );
+    seisobjinfo.getAllFileNames( fps );
+    if ( !fps.isEmpty() )
+    {
+	txt.add( "\nLinked file(s): " );
+	for ( const auto* fp : fps )
+	{
+	    if ( !fp || fp->fullPath() == fname )
+		continue;
+
+	    txt.add( "\n" ).add( fp->fullPath() );
+	}
+    }
+
+    const od_int64 totalsz = seisobjinfo.getFileSizeInBytes();
+    const BufferString szstr = File::getFileSizeStringFromBytes( totalsz );
+    txt.add("\nSize: ").add( szstr );
 }
 
 

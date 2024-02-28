@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "filepath.h"
 #include "filesystemaccess.h"
+#include "nrbytes2string.h"
 #include "od_iostream.h"
 #include "oddirs.h"
 #include "oscommand.h"
@@ -43,7 +44,6 @@ ________________________________________________________________________
 #define mMBFactor (1024*1024)
 const char* not_implemented_str = "Not implemented";
 
-
 mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 {
 	"text",
@@ -52,7 +52,6 @@ mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 	"bin",
 	0
 };
-
 
 namespace File
 {
@@ -303,8 +302,14 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 
 od_int64 getFileSize( const char* fnm, bool followlink )
 {
+    return getFileSizeInBytes( fnm, followlink );
+}
+
+
+od_int64 getFileSizeInBytes( const char* fnm, bool followlink )
+{
     const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.getFileSize( fnm, followlink );
+    return fsa.getFileSizeInBytes( fnm, followlink );
 }
 
 
@@ -320,7 +325,7 @@ bool exists( const char* fnm )
 
 bool isEmpty( const char* fnm )
 {
-    return getFileSize( fnm ) < 1;
+    return getFileSizeInBytes( fnm ) < 1;
 }
 
 
@@ -799,37 +804,30 @@ bool getContent( const char* fnm, BufferString& bs )
 
 od_int64 getKbSize( const char* fnm )
 {
-    od_int64 kbsz = getFileSize( fnm ) / 1024;
+    od_int64 kbsz = getFileSizeInBytes( fnm ) / 1024;
     return kbsz;
 }
 
 
-BufferString getFileSizeString( od_int64 filesz ) // filesz in kB
+BufferString getFileSizeString( od_int64 fileszinkb )
+{
+    return getFileSizeStringFromBytes( fileszinkb * 1024 );
+}
+
+
+BufferString getFileSizeStringFromBytes( od_int64 filesz, File::SizeUnit fsu )
 {
     BufferString szstr;
-    if ( filesz > 1024 )
-    {
-	const bool doGb = filesz > 1048576;
-	const int nr = doGb ? mNINT32(filesz/10485.76) : mNINT32(filesz/10.24);
-	szstr = nr/100;
-	const int rest = nr%100;
-	szstr += rest < 10 ? ".0" : "."; szstr += rest;
-	szstr += doGb ? " GB" : " MB";
-    }
-    else if ( filesz == 0 )
-	szstr = "< 1 kB";
-    else
-    {
-	szstr = filesz;
-	szstr += " kB";
-    }
-
+    NrBytesToStringCreator converter( filesz );
+    szstr.add( converter.getString(filesz) );
     return szstr;
 }
 
 
-BufferString getFileSizeString( const char* fnm )
-{ return getFileSizeString( getKbSize(fnm) ); }
+BufferString getFileSizeString( const char* fnm, File::SizeUnit fsu )
+{
+    return getFileSizeStringFromBytes( getFileSizeInBytes(fnm), fsu );
+}
 
 
 const char* timeCreated( const char* fnm, const char* fmt )

@@ -1169,7 +1169,11 @@ mImplGetFromStrFunc(double, strtod(s,&e) )
 
 #undef mImplGetFromStrFunc
 
-
+static const od_int64 kbtobytes = 1024;
+static const od_int64 mbtobytes = 1024*kbtobytes;
+static const od_int64 gbtobytes = 1024*mbtobytes;
+static const od_int64 tbtobytes = 1024*gbtobytes;
+static const od_int64 pbtobytes = 1024*tbtobytes;
 
 NrBytesToStringCreator::NrBytesToStringCreator()
     : unit_( Bytes )
@@ -1244,6 +1248,42 @@ StringView NrBytesToStringCreator::toString(NrBytesToStringCreator::Unit unit )
 {
     const char* units[] = { "bytes", "kB", "MB", "GB", "TB", "PB", 0 };
     return units[ int(unit) ];
+}
+
+
+od_int64 convertToBytes( double fsz, File::SizeUnit inpunit )
+{
+    od_int64 ret = static_cast<od_int64>(fsz);
+    if ( inpunit == File::SizeUnit::KB )
+       return ret * kbtobytes;
+    else if ( inpunit == File::SizeUnit::MB )
+       return ret * mbtobytes;
+    else if ( inpunit == File::SizeUnit::GB )
+       return ret * gbtobytes;
+    else if ( inpunit == File::SizeUnit::TB )
+       return ret * tbtobytes;
+    else if ( inpunit == File::SizeUnit::PB )
+       return ret * pbtobytes;
+
+    return ret;
+}
+
+
+double convertFromBytes( od_int64 fsz, File::SizeUnit opunit )
+{
+    double ret = static_cast<double>(fsz);
+    if ( opunit == File::SizeUnit::KB )
+	return ret/kbtobytes;
+    else if ( opunit == File::SizeUnit::MB )
+	return ret/mbtobytes;
+    else if ( opunit == File::SizeUnit::GB )
+	return ret/gbtobytes;
+    else if ( opunit == File::SizeUnit::TB )
+	return ret/tbtobytes;
+    else if ( opunit == File::SizeUnit::PB )
+	return ret/pbtobytes;
+
+    return ret;
 }
 
 

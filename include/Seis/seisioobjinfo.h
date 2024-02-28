@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "datachar.h"
 #include "datadistribution.h"
+#include "file.h"
 #include "odcommonenums.h"
 #include "seistype.h"
 #include "survgeom.h"
@@ -133,7 +134,9 @@ public:
     mStruct(Seis) SpaceInfo
     {
 			SpaceInfo(int ns=-1,int ntr=-1,int bps=4);
+	mDeprecated("Use expectedSizeInBytes")
 	int		expectedMBs() const;
+	od_int64	expectedSizeInBytes() const;
 
 	int		expectednrsamps;
 	int		expectednrtrcs;
@@ -141,9 +144,10 @@ public:
     };
 
     bool		getDefSpaceInfo(SpaceInfo&) const;
-    int			expectedMBs(const SpaceInfo&) const;
-    od_int64		getFileSize() const;
-    static od_int64	getFileSize(const char* fnm,int& nrfiles);
+
+    od_int64		expectedSizeInBytes(const SpaceInfo&) const;
+    od_int64		getFileSizeInBytes() const;
+    void		getAllFileNames(ObjectSet<FilePath>&) const;
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const; // Only CBVS
     bool		getDataChar(DataCharacteristics&) const;
@@ -236,4 +240,12 @@ protected:
     void		getCommonUserInfo(uiStringSet&) const;
     void		getPostStackUserInfo(uiStringSet&) const;
     void		getPreStackUserInfo(uiStringSet&) const;
+
+public:
+    mDeprecated("Use expectedSizeInBytes")
+    int			expectedMBs(const SpaceInfo&) const;
+
+    mDeprecated("Use getFileSizeInBytes")
+    od_int64		getFileSize() const;
+
 };

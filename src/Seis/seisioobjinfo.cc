@@ -24,6 +24,8 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
+#include "segydirecttr.h"
+#include "segytr.h"
 #include "seis2ddata.h"
 #include "seis2dlineio.h"
 #include "seisbuf.h"
@@ -36,6 +38,7 @@ ________________________________________________________________________
 #include "statrand.h"
 #include "survinfo.h"
 #include "timedepthconv.h"
+#include "transl.h"
 #include "trckeyzsampling.h"
 #include "uistrings.h"
 #include "unitofmeasure.h"
@@ -471,7 +474,7 @@ ZSampling SeisIOObjInfo::getConvertedZrg( const ZSampling& zsamp ) const
 }
 
 
-int SeisIOObjInfo::SpaceInfo::expectedMBs() const
+od_int64 SeisIOObjInfo::SpaceInfo::expectedSizeInBytes() const
 {
     if ( expectednrsamps<0 || expectednrtrcs<0 )
 	return -1;
@@ -479,7 +482,14 @@ int SeisIOObjInfo::SpaceInfo::expectedMBs() const
     od_int64 totnrbytes = expectednrsamps;
     totnrbytes *= expectednrtrcs;
     totnrbytes *= maxbytespsamp;
-    return sCast(int,(totnrbytes / 1048576));
+    return totnrbytes;
+}
+
+
+
+int SeisIOObjInfo::SpaceInfo::expectedMBs() const
+{
+    return expectedSizeInBytes() / 1048576 ;
 }
 
 
@@ -487,7 +497,17 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 {
     mChk(-1);
 
-    int nrbytes = si.expectedMBs();
+    const int sz = expectedSizeInBytes( si );
+    const double bytes2mb = 9.53674e-7;
+    return sCast(int,((sz * bytes2mb) + .5));
+}
+
+
+od_int64 SeisIOObjInfo::expectedSizeInBytes( const SpaceInfo& si ) const
+{
+    mChk(-1);
+
+    od_int64 nrbytes = si.expectedSizeInBytes();
     if ( nrbytes < 0 || isPS() )
 	return nrbytes;
 
@@ -496,57 +516,39 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
     if ( !sttr )
 	return -1;
 
-    int overhead = sttr->bytesOverheadPerTrace();
-    double sz = si.expectednrsamps;
+    od_int64 overhead = sttr->bytesOverheadPerTrace();
+    od_int64 sz = si.expectednrsamps;
     sz *= si.maxbytespsamp;
     sz = (sz + overhead) * si.expectednrtrcs;
-
-    const double bytes2mb = 9.53674e-7;
-    return sCast(int,((sz * bytes2mb) + .5));
-}
-
-
-od_int64 SeisIOObjInfo::getFileSize( const char* filenm, int& nrfiles )
-{
-    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
-
-    od_int64 totalsz = 0;
-    nrfiles = 0;
-    if ( File::isDirectory(filenm) )
-    {
-	DirList dl( filenm, File::FilesInDir );
-	for ( int idx=0; idx<dl.size(); idx++ )
-	{
-	    FilePath filepath = dl.fullPath( idx );
-	    StringView ext = filepath.extension();
-	    if ( ext != "cbvs" )
-		continue;
-
-	    totalsz += File::getKbSize( filepath.fullPath() );
-	    nrfiles++;
-	}
-    }
-    else
-    {
-	while ( true )
-	{
-	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
-	    if ( !File::exists(fullnm) ) break;
-
-	    totalsz += File::getKbSize( fullnm );
-	    nrfiles++;
-	}
-    }
-
-    return totalsz;
 }
 
 
 od_int64 SeisIOObjInfo::getFileSize() const
 {
-    const char* fnm = ioobj_->fullUserExpr();
-    int nrfiles;
-    return getFileSize( fnm, nrfiles );
+    return getFileSizeInBytes() / 1024;
+}
+
+
+od_int64 SeisIOObjInfo::getFileSizeInBytes() const
+{
+    const FilePath filepath = ioobj_->fullUserExpr();
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		 ioobj_->createTranslator())
+    if ( !sttr || !sttr->initRead(ioobj_->getConn(Conn::Read)) )
+	return -1;
+
+    return sttr->getFileSizeInBytes();
+}
+
+
+void SeisIOObjInfo::getAllFileNames( ObjectSet<FilePath>& fps ) const
+{
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		 ioobj_->createTranslator())
+    if ( !sttr || !sttr->initRead(ioobj_->getConn(Conn::Read)) )
+	return;
+
+    sttr->getAllFileNames( fps );
 }
 
 

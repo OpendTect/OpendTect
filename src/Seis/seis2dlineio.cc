@@ -227,13 +227,23 @@ bool SeisTrc2DTranslator::initRead_()
     errmsg_.setEmpty();
     PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : MultiID() );
     if ( !ioobj )
-	{ errmsg_ = tr("Cannot reconstruct 2D filename"); return false; }
-    BufferString fnm( ioobj->fullUserExpr(true) );
-    if ( !File::exists(fnm) ) return false;
+    {
+	errmsg_ = tr( "Cannot reconstruct 2D filename" );
+	return false;
+    }
+
+    BufferString filenm;
+    filenm = ioobj->fullUserExpr( true );
+    if ( filenm.isEmpty() || !File::exists(filenm) )
+	return false;
 
     Seis2DDataSet dset( *ioobj );
     if ( dset.nrLines() < 1 )
-	{ errmsg_ = tr("Data set is empty"); return false; }
+    {
+	errmsg_ = tr("Data set is empty");
+	return false;
+    }
+
     dset.getTxtInfo( dset.geomID(0), pinfo_.usrinfo, pinfo_.stdinfo );
     addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
 
@@ -318,6 +328,39 @@ bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 
     cd = PosInfo::SortedCubeData( rawcd );
     return true;
+}
+
+
+od_int64 SeisTrc2DTranslator::getFileSizeInBytes() const
+{
+    PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : MultiID() );
+    if ( !ioobj )
+	return -1;
+
+    BufferString filenm;
+    filenm = ioobj->fullUserExpr( true );
+    if ( filenm.isEmpty() || !File::exists(filenm) )
+	return -1;
+
+    od_int64 totalsz = 0;
+    if ( File::isDirectory(filenm) )
+    {
+	const DirList dl( filenm.buf(), File::FilesInDir );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	{
+	    const FilePath filepath = dl.fullPath( idx );
+	    totalsz += File::getFileSizeInBytes( filepath.fullPath() );
+	}
+    }
+    else
+	totalsz += File::getFileSizeInBytes( filenm );
+
+    ManagedObjectSet<FilePath> fps;
+    SeisTrcTranslator::getAllFileNames( fps );
+    for ( const auto* fp : fps )
+	totalsz += File::getFileSizeInBytes( fp->fullPath() );
+
+    return totalsz;
 }
 
 

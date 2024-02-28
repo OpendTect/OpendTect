@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "dirlist.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "iostrm.h"
 #include "oddirs.h"
 #include "posinfo.h"
@@ -740,6 +741,84 @@ int SEGYDirectSeisTrcTranslator::estimatedNrTraces() const
 	return SeisTrcTranslator::estimatedNrTraces();
 
     return is2D() ? def_->lineData().size() : def_->cubeData().totalSize();
+}
+
+
+od_int64 SEGYDirectSeisTrcTranslator::getFileSizeInBytes() const
+{
+    if ( !def_ )
+	return SeisTrcTranslator::getFileSizeInBytes();
+
+    const od_int64 sizedeffile = File::getFileSizeInBytes( segydeffilename_ );
+    od_int64 totalsz = sizedeffile;
+    const SEGY::FileDataSet& fds = def_->fileDataSet();
+    const int nrfiles = fds.nrFiles();
+    for ( int idx=0; idx<nrfiles; idx++ )
+    {
+	const StringView fname = fds.fileName( idx );
+	SEGY::FileSpec fs( fname );
+	PtrMan<IOObj> obj = fs.getIOObj( true );
+	PtrMan<SEGYSeisTrcTranslator> trl =
+				SEGYSeisTrcTranslator::getInstance();
+	if ( !trl->initRead( obj->getConn(Conn::Read)) )
+	    continue;
+
+	totalsz += trl->getFileSizeInBytes();
+    }
+
+    ManagedObjectSet<FilePath> fps;
+    SeisTrcTranslator::getAllFileNames( fps );
+    for ( const auto* fp : fps )
+	totalsz += File::getFileSizeInBytes( fp->fullPath() );
+
+    return totalsz;
+}
+
+
+void SEGYDirectSeisTrcTranslator::getAllFileNames(
+					    ObjectSet<FilePath>& fps ) const
+{
+    if ( def_ )
+    {
+	const SEGY::FileDataSet& fds = def_->fileDataSet();
+	const int nrfiles = fds.nrFiles();
+	for ( int idx=0; idx<nrfiles; idx++ )
+	    fps.add( new FilePath(fds.fileName(idx)) );
+    }
+
+    fps.add( new FilePath(segydeffilename_) );
+    SeisTrcTranslator::getAllFileNames( fps );
+}
+
+
+bool SEGYDirectSeisTrcTranslator::haveAux( const char* ext ) const
+{
+    if ( segydeffilename_.isEmpty() )
+	return false;
+
+    FilePath deffp( segydeffilename_ );
+    BufferString basenm = deffp.baseName();
+    BufferString path = deffp.pathOnly();
+    FilePath fp( basenm );
+    fp.setExtension( ext );
+    fp.setPath( path );
+    return File::exists( fp.fullPath() );
+}
+
+
+BufferString SEGYDirectSeisTrcTranslator::getAuxFileName(
+						    const char* ext ) const
+{
+    if ( !haveAux(ext) )
+	return BufferString::empty();
+
+    FilePath deffp( segydeffilename_ );
+    BufferString basenm = deffp.baseName();
+    BufferString path = deffp.pathOnly();
+    FilePath fp( basenm );
+    fp.setExtension( ext );
+    fp.setPath( path );
+    return fp.fullPath();
 }
 
 

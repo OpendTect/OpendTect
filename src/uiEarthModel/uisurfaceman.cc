@@ -711,21 +711,29 @@ void uiSurfaceMan::mkFileInfo()
 }
 
 
-od_int64 uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
+od_int64 uiSurfaceMan::getFileSizeInBytes( const char* filenm,
+					   int& nrfiles ) const
 {
     if ( type_ == EM::ObjectType::FltSet )
-	return uiObjFileMan::getFileSize( filenm, nrfiles );
+	return uiObjFileMan::getFileSizeInBytes( filenm, nrfiles );
 
-    if ( File::isEmpty(filenm) ) return -1;
+    if ( File::isEmpty(filenm) )
+	return -1;
+
     od_int64 totalsz = File::getKbSize( filenm );
     nrfiles = 1;
 
     const BufferString basefnm( filenm );
     for ( int idx=0; ; idx++ )
     {
-	BufferString fnm( basefnm ); fnm += "^"; fnm += idx; fnm += ".hov";
-	if ( !File::exists(fnm) ) break;
-	totalsz += File::getKbSize( fnm );
+	BufferString fnm( basefnm );
+	fnm += "^";
+	fnm += idx;
+	fnm += ".hov";
+	if ( !File::exists(fnm) )
+	    break;
+
+	totalsz += File::getFileSizeInBytes( fnm );
 	nrfiles++;
     }
 

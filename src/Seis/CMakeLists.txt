@@ -98,6 +98,7 @@ set( OD_NIGHTLY_TEST_PROGS
 
 set( OD_BATCH_TEST_PROGS
 	synthseis.cc
+	seissize.cc
 )
 
 OD_INIT_MODULE()

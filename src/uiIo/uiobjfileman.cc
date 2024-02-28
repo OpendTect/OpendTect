@@ -258,6 +258,15 @@ void uiObjFileMan::selChg( CallBacker* )
 od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
     nrfiles = 0;
+    od_int64 ret = getFileSizeInBytes( filenm, nrfiles );
+    return ret / 1024;
+}
+
+
+od_int64 uiObjFileMan::getFileSizeInBytes( const char* filenm,
+					   int& nrfiles ) const
+{
+    nrfiles = 0;
     BufferString actualfilenm = File::isLink(filenm) ? File::linkTarget(filenm)
 						     : filenm;
     if ( !File::exists(actualfilenm.buf()) )
@@ -265,7 +274,7 @@ od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 
     // File exists ...
     nrfiles = 1;
-    od_int64 ret = File::getKbSize( actualfilenm.buf() );
+    od_int64 ret = File::getFileSizeInBytes( actualfilenm.buf() );
     if ( !File::isDirectory(actualfilenm) )
     {
 	FilePath dirnm( actualfilenm );
@@ -281,7 +290,7 @@ od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
     File::makeRecursiveFileList( actualfilenm.buf(), filelist, true );
     nrfiles = filelist.size();
     for ( int idx=0; idx<nrfiles; idx++ )
-	ret += File::getKbSize( filelist.get(idx) );
+	ret += File::getFileSizeInBytes( filelist.get(idx) );
 
     return ret;
 }
@@ -328,8 +337,6 @@ BufferString uiObjFileMan::getFileInfo()
 	return txt;
 
     const bool isstrm = isIOStream( *curioobj_ );
-    const BufferString fname = curioobj_->fullUserExpr();
-    const bool isdir = isstrm && File::isDirectory( fname );
     if ( !isstrm )
     {
 	mDynamicCastGet(IOX*,iox,curioobj_)
@@ -342,33 +349,9 @@ BufferString uiObjFileMan::getFileInfo()
 	    txt.add( "No data exists for " ).add( curioobj_->name() );
 	else
 	{
-	    int nrfiles = 0;
-	    const IOStream* iostrm = getIOStream( *curioobj_ );
-	    const BufferString usrnm = iostrm->fileSpec().dispName();
-	    if ( iostrm->isMulti() )
-		nrfiles = iostrm->nrFiles();
-
-	    if ( !txt.isEmpty() )
-		txt.addNewLine();
-
-	    const od_int64 totsz = getFileSize( fname, nrfiles );
-	    const BufferString fileszstr( File::getFileSizeString( totsz ) );
-	    if ( isdir )
-	    {
-		txt.add( "Folder name: " ).add( usrnm );
-		txt.add( "\nTotal size on disk: " ).add( fileszstr );
-		txt.add( "\nNumber of files: " ).add( nrfiles );
-	    }
-	    else
-	    {
-		FilePath fp( usrnm );
-		txt.add( "File name: " ).add( fp.fileName() );
-		fp.set( fname );
-		txt.add( "\nLocation: " ).add( fp.pathOnly() );
-		txt.add( "\nSize: " ).add( fileszstr );
-	    }
-
-	    BufferString timestr; getTimeStamp( fname, timestr );
+	    getBasicFileInfo( txt );
+	    BufferString timestr;
+	    getTimeStamp( curioobj_->fullUserExpr(), timestr );
 	    if ( !timestr.isEmpty() )
 		txt.add( "\nLast modified: " ).add( timestr );
 	}
@@ -396,6 +379,56 @@ BufferString uiObjFileMan::getFileInfo()
     txt.add( "\nStorage type: " ).add( curioobj_->translator() );
     txt.add( "\nObject ID: " ).add( curioobj_->key() );
     return txt;
+}
+
+
+void uiObjFileMan::getBasicFileInfo( BufferString& txt ) const
+{
+    const IOStream* iostrm = getIOStream( *curioobj_ );
+    const BufferString fname = curioobj_->fullUserExpr();
+    const bool isdir = iostrm && File::isDirectory( fname );
+    if ( !txt.isEmpty() )
+	txt.addNewLine();
+
+    if ( isdir )
+    {
+	getBasicDirInfo( iostrm, txt );
+	return;
+    }
+
+    const BufferString usrnm = iostrm->fileSpec().dispName();
+    FilePath fp( usrnm );
+    txt.add( "File name: " ).add( fp.fileName() );
+    fp.set( fname );
+    txt.add( "\nLocation: " ).add( fp.pathOnly() );
+    BufferString fileszstr;
+    int nrfiles = 0;
+    getFileSizeString( iostrm, nrfiles, fileszstr );
+    txt.add( "\nSize: " ).add( fileszstr );
+}
+
+
+void uiObjFileMan::getBasicDirInfo( const IOStream* iostrm,
+				    BufferString& txt ) const
+{
+    const BufferString usrnm = iostrm->fileSpec().dispName();
+    txt.add( "Folder name: " ).add( usrnm );
+    BufferString fileszstr;
+    int nrfiles = 0;
+    getFileSizeString( iostrm, nrfiles, fileszstr );
+    txt.add( "\nTotal size on disk: " ).add( fileszstr );
+    txt.add( "\nNumber of files: " ).add( nrfiles );
+}
+
+
+void uiObjFileMan::getFileSizeString( const IOStream* iostrm, int& nrfiles,
+				      BufferString& fileszstr ) const
+{
+    if ( iostrm->isMulti() )
+	nrfiles = iostrm->nrFiles();
+
+    const od_int64 totsz = getFileSizeInBytes( iostrm->fullUserExpr(), nrfiles);
+    fileszstr = File::getFileSizeStringFromBytes( totsz );
 }
 
 

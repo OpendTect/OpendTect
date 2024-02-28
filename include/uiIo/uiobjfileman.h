@@ -9,16 +9,17 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
+#include "file.h"
 #include "uidialog.h"
 
 class IOObj;
+class IOStream;
 class IOObjContext;
 class uiButtonGroup;
 class uiGroup;
 class uiIOObjSelGrp;
 class uiTextEdit;
 class uiToolButton;
-
 
 mExpClass(uiIo) uiObjFileMan : public uiDialog
 { mODTextTranslationClass(uiObjFileMan)
@@ -75,11 +76,19 @@ protected:
     void			getTimeLastModified(const char*,BufferString&);
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			= 0;
-    virtual od_int64		getFileSize(const char*,int&) const;
+    virtual od_int64		getFileSizeInBytes(const char*,int&) const;
+    void			getFileSizeString(const IOStream*,int& nrfiles,
+						  BufferString&) const;
+    virtual void		getBasicFileInfo(BufferString&) const;
+    void			getBasicDirInfo(const IOStream*,
+						BufferString&) const;
 
     void			selChg(CallBacker*);
     virtual void		initDlg()		{}
     virtual void		ownSelChg()		{}
     void			updateCB(CallBacker*);
     virtual void		updateList()		{}
+
+    mDeprecated("Use getFileSizeBytes")
+    od_int64			getFileSize(const char*,int&) const;
 };

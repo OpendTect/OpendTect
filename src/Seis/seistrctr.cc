@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "dirlist.h"
 #include "envvars.h"
-#include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -760,6 +759,51 @@ void SeisTrcTranslator::setCurGeomID( Pos::GeomID gid )
 {
     geomid_ = gid;
     is_2d = Survey::is2DGeom( geomid_ );
+}
+
+
+void SeisTrcTranslator::getAllFileNames( ObjectSet<FilePath>& fps ) const
+{
+    if ( havePars() )
+    {
+	const BufferString parfilename = getAuxFileName( sParFileExtension() );
+	if ( !parfilename.isEmpty() )
+	    fps.addIfNew( new FilePath(parfilename) );
+    }
+
+    if ( haveStats() )
+    {
+	const BufferString statsfilename
+				    = getAuxFileName( sStatsFileExtension() );
+	if ( !statsfilename.isEmpty() )
+	    fps.addIfNew( new FilePath(statsfilename) );
+    }
+
+    if ( haveProc() )
+    {
+	const BufferString procfilename
+				    = getAuxFileName( sProcFileExtension() );
+	if ( !procfilename.isEmpty() )
+	    fps.addIfNew( new FilePath(procfilename) );
+    }
+}
+
+
+bool SeisTrcTranslator::havePars() const
+{
+    return haveAux( sParFileExtension() );
+}
+
+
+bool SeisTrcTranslator::haveStats() const
+{
+    return haveAux( sStatsFileExtension() );
+}
+
+
+bool SeisTrcTranslator::haveProc() const
+{
+    return haveAux( sProcFileExtension() );
 }
 
 

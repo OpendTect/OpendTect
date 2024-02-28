@@ -13,13 +13,17 @@ ________________________________________________________________________
 #include "conn.h"
 #include "datainterp.h"
 #include "envvars.h"
+#include "file.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "iopar.h"
+#include "iostrm.h"
 #include "od_iostream.h"
 #include "scaler.h"
 #include "segyfiledef.h"
 #include "segyhdr.h"
 #include "seistrc.h"
+#include "seisioobjinfo.h"
 #include "seispacketinfo.h"
 #include "seisstor.h"
 #include "settings.h"
@@ -507,6 +511,17 @@ int SEGYSeisTrcTranslator::estimatedNrTraces() const
 	const_cast<SEGYSeisTrcTranslator*>(this)->readTapeHeader();
 
     return estnrtrcs_;
+}
+
+
+od_int64 SEGYSeisTrcTranslator::getFileSizeInBytes() const
+{
+    mDynamicCastGet(StreamConn*,sconn,conn_)
+    const BufferString filenm = sconn->odStream().fileName();
+    if ( filenm.isEmpty() || !File::exists(filenm) )
+	return -1;
+
+    return File::getFileSizeInBytes( filenm );
 }
 
 

@@ -22,6 +22,19 @@ class Executor;
 namespace File
 {
 
+enum class SizeUnit
+{
+    Bytes=0,
+    KB=1,
+    MB=2,
+    GB=3,
+    TB=4,
+    PB=5,
+    Auto=6
+};
+
+mDeclareNameSpaceEnumUtils(Basic,SizeUnit)
+
 mGlobal(Basic) bool		exists(const char*);
 mGlobal(Basic) bool		isReadable(const char*);
 mGlobal(Basic) bool		isEmpty(const char*);
@@ -67,9 +80,6 @@ mGlobal(Basic) bool		setPermissions(const char*,const char* perms,
 					bool recursive);
 mGlobal(Basic) bool		isInUse(const char* fnm);
 
-mDeprecated			("Use isInUse instead")
-mGlobal(Basic) bool		isFileInUse(const char* fnm);
-
 enum DirListType		{ AllEntriesInDir, FilesInDir, DirsInDir };
 mGlobal(Basic) bool		listDir(const char*,DirListType,
 				    BufferStringSet& fnames,const char* mask=0);
@@ -96,11 +106,13 @@ mGlobal(Basic) bool		checkDir(const char* fnm,bool forread,
 				     is readable/writable */
 
 mGlobal(Basic) bool		getContent(const char*,BufferString&);
-mGlobal(Basic) od_int64		getFileSize(const char* fnm,
-					bool followlink=true); //!< bytes
-mGlobal(Basic) od_int64		getKbSize(const char*);
-mGlobal(Basic) BufferString	getFileSizeString(od_int64 fileszinkb);
-mGlobal(Basic) BufferString	getFileSizeString(const char* fnm);
+
+mGlobal(Basic) od_int64		getFileSizeInBytes(const char* fnm,
+						   bool followlink=true);
+mGlobal(Basic) BufferString	getFileSizeStringFromBytes(od_int64 filesz,
+					File::SizeUnit=File::SizeUnit::Auto);
+mGlobal(Basic) BufferString	getFileSizeString(const char* fnm,
+					File::SizeUnit=File::SizeUnit::Auto);
 
 mGlobal(Basic) const char*	timeCreated(const char* filenm,
 					const char* fmt=Time::defDateTimeFmt());
@@ -153,5 +165,16 @@ mGlobal(Basic) bool		launchViewer(const char*,
 				/* Internal use only: */
 mGlobal(Basic) bool		initTempDir();
 
+// -> Deprecated functions
+mDeprecated("Use getFileSizeInBytes")
+mGlobal(Basic) od_int64		getFileSize(const char* fnm,
+					    bool followlink=true); // bytes
+mDeprecated("Use getFileSizeStringFromBytes")
+mGlobal(Basic) BufferString	getFileSizeString(od_int64 fileszkb);
 
+mDeprecated("Use isInUse instead")
+mGlobal(Basic) bool		isFileInUse(const char* fnm);
+
+mDeprecated("Use getFileSizeInBytes")
+mGlobal(Basic) od_int64		getKbSize(const char*);
 } // namespace File

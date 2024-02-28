@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "basiccompinfo.h"
 #include "ctxtioobj.h"
 #include "coordsystem.h"
+#include "file.h"
 #include "samplingdata.h"
 #include "seisinfo.h"
 #include "seistype.h"
@@ -248,6 +249,14 @@ public:
 
     bool		isUserSelectable(bool) const override { return false; }
     virtual int		estimatedNrTraces() const	{ return -1; }
+    virtual od_int64	getFileSizeInBytes() const	{ return -1; }
+    virtual void	getAllFileNames(ObjectSet<FilePath>&) const;
+    virtual bool	haveAux(const char*) const	{ return false; }
+    bool		havePars() const;
+    bool		haveStats() const;
+    bool		haveProc() const;
+    virtual BufferString    getAuxFileName(const char*) const
+				{ return BufferString::empty(); }
 
     void		setComponentNames(const BufferStringSet&);
     void		getComponentNames(BufferStringSet&) const;
