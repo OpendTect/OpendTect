@@ -526,7 +526,7 @@ od_int64 SeisIOObjInfo::expectedSizeInBytes( const SpaceInfo& si ) const
 
 od_int64 SeisIOObjInfo::getFileSize() const
 {
-    return getFileSizeInBytes() / 1024;
+    return getFileSizeInBytes() / mDef1KB;
 }
 
 

@@ -266,7 +266,7 @@ bool ZipHandler::getFileList( const char* src,
 {
     File::makeRecursiveFileList( src, filenames, false );
     for( int idx=0; idx<filenames.size(); idx++ )
-	totalsize_ += File::getFileSize( filenames.get(idx) );
+	totalsize_ += File::getFileSizeInBytes( filenames.get(idx) );
 
     return true;
 }
@@ -439,7 +439,7 @@ bool ZipHandler::doZCompress()
 bool ZipHandler::setLocalFileHeader()
 {
     od_int64 srcfilesize;
-    uncompfilesize_ = File::getFileSize(srcfile_,false);
+    uncompfilesize_ = File::getFileSizeInBytes(srcfile_,false);
     if ( uncompfilesize_ > m32BitSizeLimit )
 	srcfilesize = m32BitSizeLimit + 1;
     else

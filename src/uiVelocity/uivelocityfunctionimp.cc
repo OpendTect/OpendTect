@@ -147,12 +147,13 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     else
 	geomid = Survey::default3DGeomID();
 
-    const od_int64 filesize = File::getKbSize( inpfld_->fileName() );
-    FunctionAscIO velascio( fd_, strm, geomid, filesize ? filesize : -1 );
+    const od_int64 filesize = File::getFileSizeInBytes( inpfld_->fileName() );
+    const od_int64 filesizekb = filesize / mDef1KB;
+    FunctionAscIO velascio( fd_, strm, geomid, filesizekb ? filesizekb : -1 );
 
     velascio.setOutput( bidvalset );
     bool success;
-    if ( filesize>2 )
+    if ( filesizekb>2 )
     {
 	uiTaskRunner taskrunner( this );
 	success = TaskRunner::execute( &taskrunner, velascio );

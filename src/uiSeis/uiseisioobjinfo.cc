@@ -111,7 +111,7 @@ bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
 int uiSeisIOObjInfo::expectedMBs( const SeisIOObjInfo::SpaceInfo& si ) const
 {
     const od_int64 szbytes = si.expectedSizeInBytes();
-    return szbytes / ( 1024 * 1024 );
+    return szbytes / mDef1MB;
 }
 
 
@@ -123,12 +123,12 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     if ( szbyte < 0 ) // Unknown, but probably small
 	return true;
 
-    const double szmb = szbyte / (1024*1024);
+    const double szmb = szbyte / mDef1MB;
     if ( __iswin__ )
     {
 	const BufferString fsysname =
 		System::getFileSystemName( ioObj()->dirName() );
-	const double szgb = szmb / 1024;
+	const double szgb = szmb / mDef1KB;
 	if ( fsysname == "FAT32" && szgb>=4.0 )
 	{
 	    uiMSG().error( tr("Target folder has a FAT32 File System.\n"

@@ -127,6 +127,7 @@ inline T& getNonConst( const T& t )
 
 //--- File size-related constants
 
+#define mDef1KB 1024ULL
 #define mDef1MB 1048576ULL
 #define mDef128MB 134217728ULL
 #define mDef1GB 1073741824ULL

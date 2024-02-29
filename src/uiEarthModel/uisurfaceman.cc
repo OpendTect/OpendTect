@@ -989,9 +989,9 @@ void fltSel( CallBacker* )
     if ( curitm < 0 )
 	return;
 
-    const int filesz = File::getKbSize( dl_.fullPath(curitm) );
+    const int filesz = File::getFileSizeInBytes( dl_.fullPath(curitm) );
     BufferString txt( "Size on disk: " );
-    txt.add( File::getFileSizeString(filesz) );
+    txt.add( File::getFileSizeStringFromBytes(filesz) );
 
     infofld_->setText( txt );
 }

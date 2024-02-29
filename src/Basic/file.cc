@@ -805,14 +805,14 @@ bool getContent( const char* fnm, BufferString& bs )
 
 od_int64 getKbSize( const char* fnm )
 {
-    od_int64 kbsz = getFileSizeInBytes( fnm ) / 1024;
+    od_int64 kbsz = getFileSizeInBytes( fnm ) / mDef1KB;
     return kbsz;
 }
 
 
 BufferString getFileSizeString( od_int64 fileszinkb )
 {
-    return getFileSizeStringFromBytes( fileszinkb * 1024 );
+    return getFileSizeStringFromBytes( fileszinkb * mDef1KB );
 }
 
 

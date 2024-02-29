@@ -108,7 +108,7 @@ bool testLineEndings()
     }
 
     ostrm.close();
-    mRunStandardTestWithError( File::getFileSize(testfnm) == size,
+    mRunStandardTestWithError( File::getFileSizeInBytes(testfnm) == size,
 		      "Checking size of temporary file",
 		      "File size is incorrect" );
 

@@ -390,7 +390,7 @@ bool uiAttrVolOut::prepareProcessing()
     subselpar_.setEmpty();
     transffld_->fillSelPar( subselpar_ );
     const od_int64 szbytes = ioobjinfo.expectedSizeInBytes( spi );
-    const double szmb = szbytes / (1024*1024);
+    const double szmb = szbytes / mDef1MB;
     subselpar_.set( "Estimated MBs", szmb );
     return ioobjinfo.checkSpaceLeft(spi);
 }

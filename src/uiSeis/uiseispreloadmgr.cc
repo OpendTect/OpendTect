@@ -728,8 +728,8 @@ void uiSeisPreLoadSel::seisSel( CallBacker* )
 	formatstr.set( usertypestr.buf()+4 );
     formatdiskfld_->setText( formatstr );
 
-    const od_int64 filesz = info.getFileSize();
-    sizediskfld_->setText( File::getFileSizeString(filesz) );
+    const od_int64 filesz = info.getFileSizeInBytes();
+    sizediskfld_->setText( File::getFileSizeStringFromBytes(filesz) );
 
     selChangeCB( nullptr );
 }
@@ -787,7 +787,7 @@ void uiSeisPreLoadSel::updateEstUsage()
 	const od_int64 nrs = subselfld->expectedNrSamples();
 	const od_int64 nrt = subselfld->expectedNrTraces();
 	const od_int64 nrbytes = nrcomp * nrs * nrt * dc.nrBytes();
-	infotxt.set( File::getFileSizeString(nrbytes/1024) );
+	infotxt.set( File::getFileSizeStringFromBytes(nrbytes) );
     }
     else
 	infotxt.set( "-" );

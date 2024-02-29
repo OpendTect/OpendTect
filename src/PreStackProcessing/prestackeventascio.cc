@@ -137,7 +137,7 @@ EventImporter::EventImporter( const char* filenm, const Table::FormatDesc& fd,
 {
     if ( strm_.isOK() )
 	ascio_ = new EventAscIO( fd, strm_ );
-    totalnr_ = File::getFileSize( filenm );
+    totalnr_ = File::getFileSizeInBytes( filenm );
     evmgr_.ref();
     message_ = ascio_
 	? tr("Importing")

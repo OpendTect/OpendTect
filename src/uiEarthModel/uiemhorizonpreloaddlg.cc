@@ -191,8 +191,10 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     FilePath fp( ioobj->fullUserExpr(true) );
     info.add( "Location: " ).add( fp.pathOnly() ).add ( "\n" );
     info.add( "File: " ).add( fp.fileName() ).add( "\n" );
+    const od_int64 sizebytes
+	= File::getFileSizeInBytes( ioobj->fullUserExpr(true) );
     info.add( "File size in KB: " )
-	.add( File::getKbSize(ioobj->fullUserExpr(true)) );
+	.add( sizebytes / mDef1KB );
     infofld_->setText( info );
 }
 

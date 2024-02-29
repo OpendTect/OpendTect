@@ -259,7 +259,7 @@ od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
     nrfiles = 0;
     od_int64 ret = getFileSizeInBytes( filenm, nrfiles );
-    return ret / 1024;
+    return ret / mDef1KB;
 }
 
 
