@@ -720,7 +720,7 @@ od_int64 uiSurfaceMan::getFileSizeInBytes( const char* filenm,
     if ( File::isEmpty(filenm) )
 	return -1;
 
-    od_int64 totalsz = File::getKbSize( filenm );
+    od_int64 totalsz = File::getFileSizeInBytes( filenm );
     nrfiles = 1;
 
     const BufferString basefnm( filenm );

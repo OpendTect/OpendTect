@@ -111,7 +111,8 @@ public:
 			{
 			    makeRecursiveFileList(src_,filelist_,false);
 			    for ( int idx=0; idx<filelist_.size(); idx++ )
-				totalnr_ += getFileSize( filelist_.get(idx) );
+				totalnr_
+				    += getFileSizeInBytes( filelist_.get(idx) );
 			}
 
     od_int64		nrDone() const override	{ return nrdone_ / mMBFactor; }
@@ -169,7 +170,7 @@ int RecursiveCopier::nextStep()
 	mErrRet( uiStrings::phrCannotCreate( tr("file %1").arg(destfile)) )
 
     fileidx_++;
-    nrdone_ += getFileSize( srcfile );
+    nrdone_ += getFileSizeInBytes( srcfile );
     return fileidx_ >= filelist_.size() ? Finished() : MoreToDo();
 }
 

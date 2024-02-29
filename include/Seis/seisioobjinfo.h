@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class BufferStringSet;
+class FilePath;
 class IOObj;
 class SeisIOObjInfo;
 class SeisTrcTranslator;

@@ -274,7 +274,8 @@ DataBuffer* Well::odWriter::getLogBuffer( od_istream& istrm ) const
 
     if ( istrm.isOK() )
     {
-	int size = File::getFileSize(istrm.fileName()) - istrm.position();
+	int size
+	    = File::getFileSizeInBytes(istrm.fileName()) - istrm.position();
 	auto* databuf = new DataBuffer( size, 1 );
 	istrm.getBin( databuf->data(), size );
 	return databuf;

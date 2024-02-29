@@ -35,8 +35,9 @@ public:
 
     bool		checkSpaceLeft(const SeisIOObjInfo::SpaceInfo&) const;
 
-    int			expectedMBs( const SeisIOObjInfo::SpaceInfo& s ) const
-					{ return sii_.expectedMBs(s); }
+    od_int64		expectedSizeInBytes(
+			    const SeisIOObjInfo::SpaceInfo& s ) const
+					{ return sii_.expectedSizeInBytes(s); }
     bool		getRanges( TrcKeyZSampling& cs ) const
 					{ return sii_.getRanges( cs ); }
     bool		getBPS( int& b, int icmp=-1 ) const
@@ -52,4 +53,7 @@ protected:
     SeisIOObjInfo	sii_;
     bool		doerrs_;
 
+public:
+    mDeprecated("Use expectedSizeInBytes")
+    int			expectedMBs( const SeisIOObjInfo::SpaceInfo& s ) const;
 };

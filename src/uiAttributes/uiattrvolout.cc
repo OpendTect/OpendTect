@@ -389,7 +389,9 @@ bool uiAttrVolOut::prepareProcessing()
     const SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
     subselpar_.setEmpty();
     transffld_->fillSelPar( subselpar_ );
-    subselpar_.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
+    const od_int64 szbytes = ioobjinfo.expectedSizeInBytes( spi );
+    const double szmb = szbytes / (1024*1024);
+    subselpar_.set( "Estimated MBs", szmb );
     return ioobjinfo.checkSpaceLeft(spi);
 }
 

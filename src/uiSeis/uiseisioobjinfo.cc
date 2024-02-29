@@ -108,20 +108,28 @@ bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
 }
 
 
+int uiSeisIOObjInfo::expectedMBs( const SeisIOObjInfo::SpaceInfo& si ) const
+{
+    const od_int64 szbytes = si.expectedSizeInBytes();
+    return szbytes / ( 1024 * 1024 );
+}
+
+
 bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 {
     mChk(false);
 
-    const int szmb = expectedMBs( si );
-    if ( szmb < 0 ) // Unknown, but probably small
+    const od_int64 szbyte = expectedSizeInBytes( si );
+    if ( szbyte < 0 ) // Unknown, but probably small
 	return true;
 
+    const double szmb = szbyte / (1024*1024);
     if ( __iswin__ )
     {
 	const BufferString fsysname =
 		System::getFileSystemName( ioObj()->dirName() );
-	const int szgb = szmb / 1024;
-	if ( fsysname == "FAT32" && szgb>=4 )
+	const double szgb = szmb / 1024;
+	if ( fsysname == "FAT32" && szgb>=4.0 )
 	{
 	    uiMSG().error( tr("Target folder has a FAT32 File System.\n"
 			      "Files larger than 4GB are not supported") );
@@ -129,7 +137,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 	}
     }
 
-    const int avszmb = System::getFreeMBOnDisk( *ioObj() );
+    const double avszmb = System::getFreeMBOnDisk( *ioObj() );
     if ( avszmb == 0 )
     {
 	if ( !doerrs_ )

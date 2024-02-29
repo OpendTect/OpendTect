@@ -12,8 +12,10 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "tracedata.h"
 #include "cbvsinfo.h"
+
 class CBVSReadMgr;
 class CBVSWriteMgr;
+class FilePath;
 class VBrickSpec;
 
 

@@ -520,6 +520,7 @@ od_int64 SeisIOObjInfo::expectedSizeInBytes( const SpaceInfo& si ) const
     od_int64 sz = si.expectednrsamps;
     sz *= si.maxbytespsamp;
     sz = (sz + overhead) * si.expectednrtrcs;
+    return sz;
 }
 
 

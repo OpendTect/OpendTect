@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "transl.h"
 
 class BufferStringSet;
+class FilePath;
 class LinScaler;
 class RegularSeisDataPack;
 class SeisPacketInfo;

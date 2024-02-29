@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "batchprog.h"
+#include "moddepmgr.h"
 #include "testprog.h"
 
 #include "cbvsio.h"
