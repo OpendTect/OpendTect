@@ -477,12 +477,12 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
     if ( !fps.isEmpty() )
     {
 	txt.add( "\nLinked file(s): " );
-	for ( const auto* fp : fps )
+	for ( const auto* fpath : fps )
 	{
-	    if ( !fp || fp->fullPath() == fname )
+	    if ( !fpath || fpath->fullPath() == fname )
 		continue;
 
-	    txt.add( "\n" ).add( fp->fullPath() );
+	    txt.add( "\n" ).add( fpath->fullPath() );
 	}
     }
 
