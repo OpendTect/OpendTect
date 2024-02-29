@@ -205,12 +205,6 @@ protected:
     int			    nextStep() override;
     bool		    doFaultStickSet(const SurfaceT2DTransfData&);
     const StringView	    getTypeString() const override;
-    struct DataHolder
-    {
-	ObjectSet<const Geometry::FaultStick>	    sticks_;
-	Pos::GeomID				    geomid_;
-	TypeSet<int>				    sticknr_;
-    };
 
     bool	    handle2DTransformation(const EM::FaultStickSetGeometry&,
 						EM::FaultStickSet&);
