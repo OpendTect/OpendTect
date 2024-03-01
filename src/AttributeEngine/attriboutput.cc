@@ -618,7 +618,9 @@ bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
     tkzs.hsamp_.init( seldata_->geomID() );
     tkzs.hsamp_.setTrcRange( seldata_->crlRange() );
     const Interval<float> zrg( seldata_->zRange() );
-    tkzs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
+    mDynamicCastGet(Seis::RangeSelData*,rsd,seldata_);
+    const float zstep = rsd ? rsd->cubeSampling().zsamp_.step : SI().zStep();
+    tkzs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, zstep );
     return true;
 }
 
