@@ -189,6 +189,7 @@ public:
     NotifierAccess*		colorTableSeqChange();
     void			addVisDPSChild(CallBacker*);
     void			manSurvCB(CallBacker*);
+    void			editSurvCB(CallBacker*);
     void			seisOut2DCB(CallBacker*);
     void			seisOut3DCB(CallBacker*);
     void			editAttr2DCB(CallBacker*)
