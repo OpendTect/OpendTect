@@ -131,8 +131,7 @@ public:
 protected:
 				~VelocityBasedAngleComputer();
 
-    const ElasticModel*		curElasticModel() const override
-				{ return &elasticmodel_; }
+    const ElasticModel*		curElasticModel() const override;
     const OffsetReflectivityModel* curRefModel() const override;
     void			setRefModel(const OffsetReflectivityModel&)
 								      override;
