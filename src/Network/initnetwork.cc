@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "moddepmgr.h"
 
+#include "odruncontext.h"
 #include "systeminfo.h"
 
 using constcharFromBoolFn = const char*(*)(bool);
@@ -22,7 +23,11 @@ mDefModInitFn(Network)
 
 #ifdef __debug__
     NetworkHttpFileSystemAccessinitClass();
-    //TODO: remove from tests/webstreamsource.cc when enabling release mode
+#else
+    const OD::RunCtxt ctxt = OD::GetRunContext();
+    if ( ctxt == OD::TestProgCtxt )
+	NetworkHttpFileSystemAccessinitClass();
+    //TODO: remove when enabling release mode
 #endif
 
     setGlobal_Basic_Fns( System::localAddress );
