@@ -98,11 +98,14 @@ bool testIsLocalFlag()
     return true;
 }
 
+void NetworkHttpFileSystemAccessinitClass();
+
 int mTestMainFnName(int argc, char** argv)
 {
     mInitTestProg();
     ApplicationData app;
     OD::ModDeps().ensureLoaded( "Network" );
+    NetworkHttpFileSystemAccessinitClass();
 
     if ( !testReadSmallFile() || !testIsLocalFlag() )
 	return 1;

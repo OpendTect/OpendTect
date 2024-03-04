@@ -22,6 +22,7 @@ mDefModInitFn(Network)
 
 #ifdef __debug__
     NetworkHttpFileSystemAccessinitClass();
+    //TODO: remove from tests/webstreamsource.cc when enabling release mode
 #endif
 
     setGlobal_Basic_Fns( System::localAddress );
