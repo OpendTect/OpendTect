@@ -70,6 +70,7 @@ AngleComputerHP& setZDomain( const ZDomain::Info& zinfo )
 }
 
     RayTracer1D::Setup rtsu_;
+    ElasticModelOv	elasticmodelov_;
     const ZDomain::Info* zdomaininfo_ = nullptr;
 };
 
@@ -550,6 +551,12 @@ bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
 }
 
 
+const ElasticModel* VelocityBasedAngleComputer::curElasticModel() const
+{
+    return &anglecomphpmgr_.getParam( this )->elasticmodelov_;
+}
+
+
 const OffsetReflectivityModel* VelocityBasedAngleComputer::curRefModel() const
 {
     return refmodel_.ptr();
@@ -619,12 +626,14 @@ RefMan<Gather> VelocityBasedAngleComputer::computeAngles()
 
     const float startdepth = rtsu_().getStartDepth();
     uiString errmsg_;
+    ElasticModel& elasticmodel =
+			anglecomphpmgr_.getParam( this )->elasticmodelov_;
     if ( !velsource_ ||
-	 !getLayers(trckey_,startdepth,*velsource_,elasticmodel_,errmsg_) )
+	 !getLayers(trckey_,startdepth,*velsource_,elasticmodel,errmsg_) )
 	return nullptr;
 
     if ( !mIsUdf(maxthickness_) )
-	elasticmodel_.setMaxThickness( maxthickness_ );
+	elasticmodel.setMaxThickness( maxthickness_ );
 
     refmodel_ = nullptr;
     return computeAngleData();
@@ -798,7 +807,8 @@ ModelBasedAngleComputer::ModelTool* ModelBasedAngleComputer::curModelTool()
 
 const ElasticModel* ModelBasedAngleComputer::curElasticModel() const
 {
-    return curModelTool() ? curModelTool()->elasticModel() : &elasticmodel_;
+    return curModelTool() ? curModelTool()->elasticModel()
+			  : &anglecomphpmgr_.getParam( this )->elasticmodelov_;
 }
 
 

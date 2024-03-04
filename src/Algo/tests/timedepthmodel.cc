@@ -25,7 +25,7 @@ ________________________________________________________________________
     }
 
 
-static ElasticModel getEModel()
+static ElasticModelOv getEModel()
 {
     ElasticModelOv emdl;
     emdl += new AILayer( 48.f, 2000.f, 2500.f );
@@ -47,7 +47,7 @@ static TypeSet<float> getOffsets()
 
 static bool testRayTracer( const RayTracer1D::Setup& rtsu )
 {
-    const ElasticModel emdl = getEModel();
+    const ElasticModelOv emdl = getEModel();
 
     VrmsRayTracer1D raytracer;
     raytracer.setup() = rtsu;
@@ -111,7 +111,7 @@ static bool testRefRayTracer()
 
 static bool testAICalc()
 {
-    const ElasticModel emdl = getEModel();
+    const ElasticModelOv emdl = getEModel();
 
     AICalc1D aicalc;
     aicalc.setModel( emdl );
@@ -154,7 +154,7 @@ static bool testAICalc()
 
 static bool testTDModelSet()
 {
-    const ElasticModel emdl = getEModel();
+    const ElasticModelOv emdl = getEModel();
     const int nrlayers = emdl.size();
 
     const TimeDepthModelSet::Setup tdmssu;
@@ -219,7 +219,7 @@ static bool testTDModelSet()
 
 static bool testOffRefModelSet( bool withangles, bool withrefs )
 {
-    const ElasticModel emdl = getEModel();
+    const ElasticModelOv emdl = getEModel();
     const int nrlayers = emdl.size();
 
     const OffsetReflectivityModel::Setup refmssu( withangles, withrefs );
@@ -286,7 +286,7 @@ static bool testOffRefModelSet( bool withangles, bool withrefs )
 
 static bool testAngRefModelSet()
 {
-    const ElasticModel emdl = getEModel();
+    const ElasticModelOv emdl = getEModel();
     const int nrlayers = emdl.size();
 
     TypeSet<float> angles;

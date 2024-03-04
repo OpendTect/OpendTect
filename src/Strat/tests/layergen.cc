@@ -93,7 +93,7 @@ static bool testGenerator( const PropertyRefSelection& prs )
     const LayerGenerator* slgcp = layerGenerator( &slg );
     mRunStandardTest( slgcp, "Cloned single generator" );
 
-    LayerSequence seq( &prs );
+    LayerSequenceOv seq( &prs );
     const Property::EvalOpts eo( Property::EvalOpts::New, xpos );
     mRunStandardTestWithError( slg.generateMaterial(seq,eo) &&
 			       seq.size() == 1 && seq.propertyRefs() == prs &&
@@ -129,7 +129,7 @@ static bool testDesc( const PropertyRefSelection& prs )
 	gendesc.add( slg->clone() );
 
     LayerSequenceGenDesc gendesccp( gendesc );
-    LayerSequence seq( &prs );
+    LayerSequenceOv seq( &prs );
     mRunStandardTestWithError( gendesccp.prepareGenerate() &&
 			       gendesccp.generate( seq, xpos ) &&
 			       seq.size() == nrlayers &&
@@ -141,7 +141,7 @@ static bool testDesc( const PropertyRefSelection& prs )
     mRunStandardTest( mIsEqual(seq.startDepth(),z0,z0*1e-6f), "Top depth" );
 
     const LayerSequenceGenDesc& gendesccp2 = layerGenDesc( &gendesccp );
-    LayerSequence seq2( &prs );
+    LayerSequenceOv seq2( &prs );
     mRunStandardTestWithError( gendesccp2.prepareGenerate() &&
 			       gendesccp2.generate( seq2, xpos ) &&
 			       seq2.size() == nrlayers &&
