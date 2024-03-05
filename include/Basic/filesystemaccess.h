@@ -44,7 +44,7 @@ public:
     virtual bool	isReadable(const char*) const			= 0;
     virtual bool	isFile(const char*) const;
     virtual bool	isDirectory(const char*) const	{ return false; }
-    virtual od_int64	getFileSizeInBytes(const char*,bool followlink) const;
+    virtual od_int64	getFileSize(const char*,bool followlink) const;
 			//!< 0 for non-existing, -1 for unknown
     virtual BufferString timeCreated(const char*) const		{ return ""; }
     virtual BufferString timeLastModified(const char*) const	{ return ""; }
@@ -109,11 +109,6 @@ protected:
     static const FileSystemAccess&	gtByProt(BufferString&);
 
     mutable BufferString	errmsg_;
-
-public:
-    mDeprecated("Use getFileSizeInBytes")
-    od_int64		getFileSize(const char*,bool followlink) const;
-			//!< 0 for non-existing, -1 for unknown
 };
 
 } // namespace OD

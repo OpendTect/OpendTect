@@ -258,15 +258,6 @@ void uiObjFileMan::selChg( CallBacker* )
 od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
     nrfiles = 0;
-    od_int64 ret = getFileSizeInBytes( filenm, nrfiles );
-    return ret / mDef1KB;
-}
-
-
-od_int64 uiObjFileMan::getFileSizeInBytes( const char* filenm,
-					   int& nrfiles ) const
-{
-    nrfiles = 0;
     BufferString actualfilenm = File::isLink(filenm) ? File::linkTarget(filenm)
 						     : filenm;
     if ( !File::exists(actualfilenm.buf()) )
@@ -274,7 +265,7 @@ od_int64 uiObjFileMan::getFileSizeInBytes( const char* filenm,
 
     // File exists ...
     nrfiles = 1;
-    od_int64 ret = File::getFileSizeInBytes( actualfilenm.buf() );
+    od_int64 ret = File::getFileSize( actualfilenm.buf() );
     if ( !File::isDirectory(actualfilenm) )
     {
 	FilePath dirnm( actualfilenm );
@@ -290,7 +281,7 @@ od_int64 uiObjFileMan::getFileSizeInBytes( const char* filenm,
     File::makeRecursiveFileList( actualfilenm.buf(), filelist, true );
     nrfiles = filelist.size();
     for ( int idx=0; idx<nrfiles; idx++ )
-	ret += File::getFileSizeInBytes( filelist.get(idx) );
+	ret += File::getFileSize( filelist.get(idx) );
 
     return ret;
 }
@@ -427,8 +418,8 @@ void uiObjFileMan::getFileSizeString( const IOStream* iostrm, int& nrfiles,
     if ( iostrm->isMulti() )
 	nrfiles = iostrm->nrFiles();
 
-    const od_int64 totsz = getFileSizeInBytes( iostrm->fullUserExpr(), nrfiles);
-    fileszstr = File::getFileSizeStringFromBytes( totsz );
+    const od_int64 totsz = getFileSize( iostrm->fullUserExpr(), nrfiles);
+    fileszstr = File::getFileSizeString( totsz );
 }
 
 

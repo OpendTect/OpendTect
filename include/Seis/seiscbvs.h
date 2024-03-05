@@ -112,7 +112,7 @@ private:
     void		destroyVars(int);
     bool		readData(TraceData* externalbuf) override;
 
-    od_int64		getFileSizeInBytes() const override;
+    od_int64		getFileSize() const override;
     void		getAllFileNames(ObjectSet<FilePath>&) const override;
     bool		haveAux(const char*) const override;
     BufferString	getAuxFileName(const char*) const override;

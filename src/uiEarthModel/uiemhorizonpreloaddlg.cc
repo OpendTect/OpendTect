@@ -192,7 +192,7 @@ void uiHorizonPreLoadDlg::selCB( CallBacker* )
     info.add( "Location: " ).add( fp.pathOnly() ).add ( "\n" );
     info.add( "File: " ).add( fp.fileName() ).add( "\n" );
     const od_int64 sizebytes
-	= File::getFileSizeInBytes( ioobj->fullUserExpr(true) );
+	= File::getFileSize( ioobj->fullUserExpr(true) );
     const od_int64 sizekb = sizebytes / mDef1KB;
     info.add( "File size in KB: " )
 	.add( sizekb );

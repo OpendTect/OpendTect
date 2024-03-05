@@ -147,7 +147,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     else
 	geomid = Survey::default3DGeomID();
 
-    const od_int64 filesize = File::getFileSizeInBytes( inpfld_->fileName() );
+    const od_int64 filesize = File::getFileSize( inpfld_->fileName() );
     const od_int64 filesizekb = filesize / mDef1KB;
     FunctionAscIO velascio( fd_, strm, geomid, filesizekb ? filesizekb : -1 );
 

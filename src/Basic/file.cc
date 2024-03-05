@@ -112,7 +112,7 @@ public:
 			    makeRecursiveFileList(src_,filelist_,false);
 			    for ( int idx=0; idx<filelist_.size(); idx++ )
 				totalnr_
-				    += getFileSizeInBytes( filelist_.get(idx) );
+				    += getFileSize( filelist_.get(idx) );
 			}
 
     od_int64		nrDone() const override	{ return nrdone_ / mMBFactor; }
@@ -170,7 +170,7 @@ int RecursiveCopier::nextStep()
 	mErrRet( uiStrings::phrCannotCreate( tr("file %1").arg(destfile)) )
 
     fileidx_++;
-    nrdone_ += getFileSizeInBytes( srcfile );
+    nrdone_ += getFileSize( srcfile );
     return fileidx_ >= filelist_.size() ? Finished() : MoreToDo();
 }
 
@@ -303,14 +303,8 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 
 od_int64 getFileSize( const char* fnm, bool followlink )
 {
-    return getFileSizeInBytes( fnm, followlink );
-}
-
-
-od_int64 getFileSizeInBytes( const char* fnm, bool followlink )
-{
     const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.getFileSizeInBytes( fnm, followlink );
+    return fsa.getFileSize( fnm, followlink );
 }
 
 
@@ -326,7 +320,7 @@ bool exists( const char* fnm )
 
 bool isEmpty( const char* fnm )
 {
-    return getFileSizeInBytes( fnm ) < 1;
+    return getFileSize( fnm ) < 1;
 }
 
 
@@ -805,29 +799,23 @@ bool getContent( const char* fnm, BufferString& bs )
 
 od_int64 getKbSize( const char* fnm )
 {
-    od_int64 kbsz = getFileSizeInBytes( fnm ) / mDef1KB;
+    od_int64 kbsz = getFileSize( fnm ) / mDef1KB;
     return kbsz;
 }
 
 
-BufferString getFileSizeString( od_int64 fileszinkb )
-{
-    return getFileSizeStringFromBytes( fileszinkb * mDef1KB );
-}
-
-
-BufferString getFileSizeStringFromBytes( od_int64 filesz, File::SizeUnit fsu )
+BufferString getFileSizeString( od_int64 fileszbytes, File::SizeUnit fsu )
 {
     BufferString szstr;
-    NrBytesToStringCreator converter( filesz );
-    szstr.add( converter.getString(filesz) );
+    NrBytesToStringCreator converter( fileszbytes );
+    szstr.add( converter.getString(fileszbytes) );
     return szstr;
 }
 
 
 BufferString getFileSizeString( const char* fnm, File::SizeUnit fsu )
 {
-    return getFileSizeStringFromBytes( getFileSizeInBytes(fnm), fsu );
+    return getFileSizeString( getFileSize(fnm), fsu );
 }
 
 

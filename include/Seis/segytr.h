@@ -129,7 +129,7 @@ private:
 
     bool		readData(TraceData* externalbuf) override;
 
-    od_int64		getFileSizeInBytes() const override;
+    od_int64		getFileSize() const override;
 
 public:
 

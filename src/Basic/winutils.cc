@@ -216,7 +216,7 @@ const char* GetSpecialFolderLocation( int nFolder )
 
 bool winCopy( const char* from, const char* to, bool isfile, bool ismove )
 {
-    if ( isfile && File::getFileSizeInBytes(from) < mDef1MB )
+    if ( isfile && File::getFileSize(from) < mDef1MB )
     {
 	OS::MachineCommand mc( "copy", "/Y", from, to );
 	return mc.execute();

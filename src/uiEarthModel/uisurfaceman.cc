@@ -711,16 +711,16 @@ void uiSurfaceMan::mkFileInfo()
 }
 
 
-od_int64 uiSurfaceMan::getFileSizeInBytes( const char* filenm,
+od_int64 uiSurfaceMan::getFileSize( const char* filenm,
 					   int& nrfiles ) const
 {
     if ( type_ == EM::ObjectType::FltSet )
-	return uiObjFileMan::getFileSizeInBytes( filenm, nrfiles );
+	return uiObjFileMan::getFileSize( filenm, nrfiles );
 
     if ( File::isEmpty(filenm) )
 	return -1;
 
-    od_int64 totalsz = File::getFileSizeInBytes( filenm );
+    od_int64 totalsz = File::getFileSize( filenm );
     nrfiles = 1;
 
     const BufferString basefnm( filenm );
@@ -733,7 +733,7 @@ od_int64 uiSurfaceMan::getFileSizeInBytes( const char* filenm,
 	if ( !File::exists(fnm) )
 	    break;
 
-	totalsz += File::getFileSizeInBytes( fnm );
+	totalsz += File::getFileSize( fnm );
 	nrfiles++;
     }
 
@@ -989,9 +989,9 @@ void fltSel( CallBacker* )
     if ( curitm < 0 )
 	return;
 
-    const int filesz = File::getFileSizeInBytes( dl_.fullPath(curitm) );
+    const od_int64 filesz = File::getFileSize( dl_.fullPath(curitm) );
     BufferString txt( "Size on disk: " );
-    txt.add( File::getFileSizeStringFromBytes(filesz) );
+    txt.add( File::getFileSizeString(filesz) );
 
     infofld_->setText( txt );
 }

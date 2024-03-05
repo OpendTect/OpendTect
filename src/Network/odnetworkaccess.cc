@@ -449,7 +449,7 @@ bool Network::uploadFile( const char* url, const char* localfname,
 			       .arg( localfname );
 	return false;
     }
-    const od_int64 filesize = File::getFileSizeInBytes( localfname );
+    const od_int64 filesize = File::getFileSize( localfname );
     if ( filesize > INT_MAX )
     {
 	errmsg = od_static_tr( "uploadFile", "%1\nFile too large for upload" )

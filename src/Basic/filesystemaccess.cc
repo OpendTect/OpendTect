@@ -76,7 +76,7 @@ public:
 		       uiString* errmsg=nullptr) const override;
     bool	copy(const char* from,const char* to,
 		     uiString* errmsg=nullptr) const override;
-    od_int64	getFileSizeInBytes(const char*, bool followlink) const override;
+    od_int64	getFileSize(const char*, bool followlink) const override;
     bool	createDirectory(const char*) const override;
     bool	listDirectory(const char*,File::DirListType,
 				      BufferStringSet&,
@@ -447,8 +447,8 @@ bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
 }
 
 
-od_int64 LocalFileSystemAccess::getFileSizeInBytes( const char* uri,
-						    bool followlink ) const
+od_int64 LocalFileSystemAccess::getFileSize( const char* uri,
+					     bool followlink ) const
 {
     const BufferString fnm = withoutProtocol( uri );
     if ( fnm.isEmpty() )
@@ -673,12 +673,6 @@ bool FileSystemAccess::isFile( const char* uri ) const
 
 
 od_int64 FileSystemAccess::getFileSize( const char* uri, bool followlink ) const
-{
-    return getFileSizeInBytes( uri, followlink );
-}
-
-
-od_int64 FileSystemAccess::getFileSizeInBytes( const char* uri, bool ) const
 {
     return isReadable(uri) ? -1 : 0;
 }

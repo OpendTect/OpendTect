@@ -107,10 +107,12 @@ mGlobal(Basic) bool		checkDir(const char* fnm,bool forread,
 
 mGlobal(Basic) bool		getContent(const char*,BufferString&);
 
-mGlobal(Basic) od_int64		getFileSizeInBytes(const char* fnm,
-						   bool followlink=true);
-mGlobal(Basic) BufferString	getFileSizeStringFromBytes(od_int64 filesz,
+mGlobal(Basic) od_int64		getFileSize(const char* fnm,
+					    bool followlink=true);
+				// -> returns size in bytes
+mGlobal(Basic) BufferString	getFileSizeString(od_int64 filesz,
 					File::SizeUnit=File::SizeUnit::Auto);
+				// -> takes bytes as input
 mGlobal(Basic) BufferString	getFileSizeString(const char* fnm,
 					File::SizeUnit=File::SizeUnit::Auto);
 
@@ -166,15 +168,9 @@ mGlobal(Basic) bool		launchViewer(const char*,
 mGlobal(Basic) bool		initTempDir();
 
 // -> Deprecated functions
-mDeprecated("Use getFileSizeInBytes")
-mGlobal(Basic) od_int64		getFileSize(const char* fnm,
-					    bool followlink=true); // bytes
-mDeprecated("Use getFileSizeStringFromBytes")
-mGlobal(Basic) BufferString	getFileSizeString(od_int64 fileszkb);
-
 mDeprecated("Use isInUse instead")
 mGlobal(Basic) bool		isFileInUse(const char* fnm);
 
-mDeprecated("Use getFileSizeInBytes")
+mDeprecated("Use getFileSize")
 mGlobal(Basic) od_int64		getKbSize(const char*);
 } // namespace File

@@ -135,9 +135,9 @@ public:
     mStruct(Seis) SpaceInfo
     {
 			SpaceInfo(int ns=-1,int ntr=-1,int bps=4);
-	mDeprecated("Use expectedSizeInBytes")
+	mDeprecated("Use expectedSize")
 	int		expectedMBs() const;
-	od_int64	expectedSizeInBytes() const;
+	od_int64	expectedSize() const;
 
 	int		expectednrsamps;
 	int		expectednrtrcs;
@@ -146,8 +146,8 @@ public:
 
     bool		getDefSpaceInfo(SpaceInfo&) const;
 
-    od_int64		expectedSizeInBytes(const SpaceInfo&) const;
-    od_int64		getFileSizeInBytes() const;
+    od_int64		expectedSize(const SpaceInfo&) const;
+    od_int64		getFileSize() const;
     void		getAllFileNames(ObjectSet<FilePath>&) const;
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const; // Only CBVS
@@ -243,10 +243,6 @@ protected:
     void		getPreStackUserInfo(uiStringSet&) const;
 
 public:
-    mDeprecated("Use expectedSizeInBytes")
+    mDeprecated("Use expectedSize")
     int			expectedMBs(const SpaceInfo&) const;
-
-    mDeprecated("Use getFileSizeInBytes")
-    od_int64		getFileSize() const;
-
 };

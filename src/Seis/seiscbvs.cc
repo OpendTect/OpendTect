@@ -202,7 +202,7 @@ int CBVSSeisTrcTranslator::estimatedNrTraces() const
 }
 
 
-od_int64 CBVSSeisTrcTranslator::getFileSizeInBytes() const
+od_int64 CBVSSeisTrcTranslator::getFileSize() const
 {
     if ( !rdmgr_ )
 	return -1;
@@ -226,7 +226,7 @@ od_int64 CBVSSeisTrcTranslator::getFileSizeInBytes() const
 	    if ( ext != "cbvs" )
 		continue;
 
-	    totalsz += File::getFileSizeInBytes( filepath.fullPath() );
+	    totalsz += File::getFileSize( filepath.fullPath() );
 	    nrfiles++;
 	}
     }
@@ -238,7 +238,7 @@ od_int64 CBVSSeisTrcTranslator::getFileSizeInBytes() const
 	    if ( !File::exists(fullnm) )
 		break;
 
-	    totalsz += File::getFileSizeInBytes( fullnm );
+	    totalsz += File::getFileSize( fullnm );
 	    nrfiles++;
 	}
     }
@@ -246,7 +246,7 @@ od_int64 CBVSSeisTrcTranslator::getFileSizeInBytes() const
     ManagedObjectSet<FilePath> fps;
     SeisTrcTranslator::getAllFileNames( fps );
     for ( const auto* fp : fps )
-	totalsz += File::getFileSizeInBytes( fp->fullPath() );
+	totalsz += File::getFileSize( fp->fullPath() );
 
     return totalsz;
 }

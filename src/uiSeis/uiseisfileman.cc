@@ -414,8 +414,8 @@ void uiSeisFileMan::mkFileInfo()
 }
 
 
-od_int64 uiSeisFileMan::getFileSizeInBytes( const char* filenm,
-					    int& nrfiles ) const
+od_int64 uiSeisFileMan::getFileSize( const char* filenm,
+				     int& nrfiles ) const
 {
     if ( !File::isDirectory(filenm) && File::isEmpty(filenm) )
 	return 0;
@@ -432,7 +432,7 @@ od_int64 uiSeisFileMan::getFileSizeInBytes( const char* filenm,
 	    if ( ext != "cbvs" )
 		continue;
 
-	    totalsz += File::getFileSizeInBytes( filepath.fullPath() );
+	    totalsz += File::getFileSize( filepath.fullPath() );
 	    nrfiles++;
 	}
     }
@@ -443,7 +443,7 @@ od_int64 uiSeisFileMan::getFileSizeInBytes( const char* filenm,
 	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
 	    if ( !File::exists(fullnm) ) break;
 
-	    totalsz += File::getFileSizeInBytes( fullnm );
+	    totalsz += File::getFileSize( fullnm );
 	    nrfiles++;
 	}
     }
@@ -486,8 +486,8 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
 	}
     }
 
-    const od_int64 totalsz = seisobjinfo.getFileSizeInBytes();
-    const BufferString szstr = File::getFileSizeStringFromBytes( totalsz );
+    const od_int64 totalsz = seisobjinfo.getFileSize();
+    const BufferString szstr = File::getFileSizeString( totalsz );
     txt.add("\nSize: ").add( szstr );
 }
 

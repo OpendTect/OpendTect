@@ -65,7 +65,7 @@ protected:
 
     void		mkFileInfo() override;
     void		fillAttribList();
-    od_int64		getFileSizeInBytes(const char*,int&) const override;
+    od_int64		getFileSize(const char*,int&) const override;
     void		setToolButtonProperties();
     void		ownSelChg() override;
     void		manFltSetCB(CallBacker*);

@@ -76,7 +76,7 @@ protected:
     void			getTimeLastModified(const char*,BufferString&);
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			= 0;
-    virtual od_int64		getFileSizeInBytes(const char*,int&) const;
+    virtual od_int64		getFileSize(const char*,int&) const;
     void			getFileSizeString(const IOStream*,int& nrfiles,
 						  BufferString&) const;
     virtual void		getBasicFileInfo(BufferString&) const;
@@ -88,7 +88,4 @@ protected:
     virtual void		ownSelChg()		{}
     void			updateCB(CallBacker*);
     virtual void		updateList()		{}
-
-    mDeprecated("Use getFileSizeBytes")
-    od_int64			getFileSize(const char*,int&) const;
 };

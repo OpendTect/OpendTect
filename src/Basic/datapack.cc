@@ -344,7 +344,7 @@ void DataPackMgr::dumpInfo( od_ostream& strm ) const
     strm << "Manager.ID: " << id().asInt() << od_newline;
     const auto nrkb = static_cast<od_int64>( nrKBytes()+0.5f );
     const od_int64 nrbytes = nrkb * 1024;
-    strm << "Total memory: " << File::getFileSizeStringFromBytes(nrbytes)
+    strm << "Total memory: " << File::getFileSizeString(nrbytes)
 			     << od_newline;
     ascostream astrm( strm );
     astrm.newParagraph();
@@ -519,7 +519,7 @@ void DataPack::dumpInfo( StringPairSet& infoset ) const
     const od_int64 nrkb = static_cast<od_int64>( nrKBytes()+0.5f );
     const od_int64 nrbytes = nrkb * 1024;
     infoset.add( "Memory consumption",
-		 File::getFileSizeStringFromBytes(nrbytes) );
+		 File::getFileSizeString(nrbytes) );
 }
 
 

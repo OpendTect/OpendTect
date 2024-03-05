@@ -110,7 +110,7 @@ bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
 
 int uiSeisIOObjInfo::expectedMBs( const SeisIOObjInfo::SpaceInfo& si ) const
 {
-    const od_int64 szbytes = si.expectedSizeInBytes();
+    const od_int64 szbytes = si.expectedSize();
     return szbytes / mDef1MB;
 }
 
@@ -119,7 +119,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 {
     mChk(false);
 
-    const od_int64 szbyte = expectedSizeInBytes( si );
+    const od_int64 szbyte = expectedSize( si );
     if ( szbyte < 0 ) // Unknown, but probably small
 	return true;
 

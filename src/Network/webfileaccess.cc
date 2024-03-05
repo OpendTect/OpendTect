@@ -545,7 +545,7 @@ public:
 			    { return false; }
 
     bool		isReadable(const char*) const override;
-    od_int64		getFileSizeInBytes(const char*,bool) const override;
+    od_int64		getFileSize(const char*,bool) const override;
     StreamData		createIStream(const char*,bool) const override;
     StreamData		createOStream(const char*,bool,bool) const override;
 
@@ -593,7 +593,7 @@ bool Network::HttpFileSystemAccess::isReadable( const char* uri ) const
 }
 
 
-od_int64 Network::HttpFileSystemAccess::getFileSizeInBytes( const char* uri,
+od_int64 Network::HttpFileSystemAccess::getFileSize( const char* uri,
 							    bool ) const
 {
     return Network::getFileSize( uri );

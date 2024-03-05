@@ -744,12 +744,12 @@ int SEGYDirectSeisTrcTranslator::estimatedNrTraces() const
 }
 
 
-od_int64 SEGYDirectSeisTrcTranslator::getFileSizeInBytes() const
+od_int64 SEGYDirectSeisTrcTranslator::getFileSize() const
 {
     if ( !def_ )
-	return SeisTrcTranslator::getFileSizeInBytes();
+	return SeisTrcTranslator::getFileSize();
 
-    const od_int64 sizedeffile = File::getFileSizeInBytes( segydeffilename_ );
+    const od_int64 sizedeffile = File::getFileSize( segydeffilename_ );
     od_int64 totalsz = sizedeffile;
     const SEGY::FileDataSet& fds = def_->fileDataSet();
     const int nrfiles = fds.nrFiles();
@@ -763,13 +763,13 @@ od_int64 SEGYDirectSeisTrcTranslator::getFileSizeInBytes() const
 	if ( !trl->initRead( obj->getConn(Conn::Read)) )
 	    continue;
 
-	totalsz += trl->getFileSizeInBytes();
+	totalsz += trl->getFileSize();
     }
 
     ManagedObjectSet<FilePath> fps;
     SeisTrcTranslator::getAllFileNames( fps );
     for ( const auto* fp : fps )
-	totalsz += File::getFileSizeInBytes( fp->fullPath() );
+	totalsz += File::getFileSize( fp->fullPath() );
 
     return totalsz;
 }

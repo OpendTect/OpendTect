@@ -223,6 +223,6 @@ private:
     bool		haveAux(const char*) const override;
     BufferString	getAuxFileName(const char*) const override;
 
-    od_int64		getFileSizeInBytes() const override;
+    od_int64		getFileSize() const override;
 
 };

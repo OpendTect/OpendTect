@@ -53,7 +53,7 @@ static const char* sKeySEGYDirID()		{ return "SEGYDirect"; }
     } \
     for ( const auto* fnm : auxfilenames ) \
     { \
-	totalsz += File::getFileSizeInBytes( *fnm ); \
+	totalsz += File::getFileSize( *fnm ); \
     }
 
 
@@ -81,10 +81,10 @@ bool testCBVSSize( const IOObj& obj, od_ostream& strm )
 {
     const BufferString testname( "Single CBVS file size" );
     mCheckSeisIOObjInfo( seisobj, obj, strm )
-    const od_int64 trlsize = seisobj.getFileSizeInBytes();
+    const od_int64 trlsize = seisobj.getFileSize();
 
     mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,strm)
-    od_int64 fsize = File::getFileSizeInBytes( obj.fullUserExpr() );
+    od_int64 fsize = File::getFileSize( obj.fullUserExpr() );
     mCalcAuxFileSize(fsize)
 
     BufferString msg( "Trl size = ", trlsize );
@@ -99,7 +99,7 @@ bool testZSliceCBVSSize( const IOObj& obj, od_ostream& strm )
 {
     const BufferString testname( "Z-Slice CBVS file size" );
     mCheckSeisIOObjInfo( seisobj, obj, strm )
-    const od_int64 trlsize = seisobj.getFileSizeInBytes();
+    const od_int64 trlsize = seisobj.getFileSize();
 
     const BufferString filenm = obj.fullUserExpr();
     od_int64 totalsz = 0;
@@ -111,7 +111,7 @@ bool testZSliceCBVSSize( const IOObj& obj, od_ostream& strm )
 	if ( !File::exists(currfname) )
 	    break;
 
-	const od_int64 fsize = File::getFileSizeInBytes( currfname );
+	const od_int64 fsize = File::getFileSize( currfname );
 	totalsz += fsize;
 	nrfiles++;
     }
@@ -130,7 +130,7 @@ bool test2DSize( const IOObj& obj, od_ostream& strm )
 {
     const BufferString testname( "2D file size" );
     mCheckSeisIOObjInfo( seisobj, obj, strm )
-    const od_int64 trlsize = seisobj.getFileSizeInBytes();
+    const od_int64 trlsize = seisobj.getFileSize();
 
     const BufferString filenm = obj.fullUserExpr();
     if ( filenm.isEmpty() || !File::exists(filenm))
@@ -143,11 +143,11 @@ bool test2DSize( const IOObj& obj, od_ostream& strm )
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    const FilePath filepath = dl.fullPath( idx );
-	    totalsz += File::getFileSizeInBytes( filepath.fullPath() );
+	    totalsz += File::getFileSize( filepath.fullPath() );
 	}
     }
     else
-	totalsz += File::getFileSizeInBytes( filenm );
+	totalsz += File::getFileSize( filenm );
 
     mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,strm)
     mCalcAuxFileSize(totalsz)
@@ -163,7 +163,7 @@ bool testSEGYDirectSize( const IOObj& obj, od_ostream& strm )
 {
     const BufferString testname( "SEGY-Direct file size" );
     mCheckSeisIOObjInfo( seisobj, obj, strm )
-    const od_int64 trlsize = seisobj.getFileSizeInBytes();
+    const od_int64 trlsize = seisobj.getFileSize();
 
     const BufferString filenm = obj.fullUserExpr();
     mCreateAndReadTransl(SEGYDirectSeisTrcTranslator,trl,obj,strm)
@@ -173,14 +173,14 @@ bool testSEGYDirectSize( const IOObj& obj, od_ostream& strm )
 
     const SEGY::FileDataSet& fds = def->fileDataSet();
     const int nrfiles = fds.nrFiles();
-    od_int64 totalsz = File::getFileSizeInBytes( filenm );
+    od_int64 totalsz = File::getFileSize( filenm );
     for ( int idx=0; idx<nrfiles; idx++ )
     {
 	const StringView fname = fds.fileName( idx );
 	if ( !File::exists(fname) )
 	    continue;
 
-	const od_int64 size = File::getFileSizeInBytes( fname );
+	const od_int64 size = File::getFileSize( fname );
 	totalsz += size;
     }
 

@@ -117,7 +117,7 @@ bool uiSeis2DTo3D::fillSeisPar()
     uiSeisIOObjInfo ioobjinfo( *(outfld_->ioobj()), true );
     TrcKeyZSampling cs = possubsel_->envelope();
     SeisIOObjInfo::SpaceInfo spi( cs.nrZ(), (int)cs.hsamp_.totalNr() );
-    const od_int64 szbytes = ioobjinfo.expectedSizeInBytes( spi );
+    const od_int64 szbytes = ioobjinfo.expectedSize( spi );
     const double szmb = szbytes / mDef1MB;
     subsel.set( "Estimated MBs", szmb );
     if ( !ioobjinfo.checkSpaceLeft(spi) )

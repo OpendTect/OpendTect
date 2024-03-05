@@ -42,8 +42,8 @@ else \
     dest.add( "F3_Test_Survey" ); \
     dest.add( relpart1 ); \
     dest.add( relpart2 ); \
-    if ( File::getFileSizeInBytes(dest.fullPath()) \
-	    != File::getFileSizeInBytes(src.fullPath()) ) \
+    if ( File::getFileSize(dest.fullPath()) \
+	    != File::getFileSize(src.fullPath()) ) \
     { \
 	errStream() << "Data integrety check failed!\n" \
 			       << dest.fullPath(); \

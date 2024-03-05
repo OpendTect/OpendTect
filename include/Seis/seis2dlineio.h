@@ -177,7 +177,7 @@ protected:
     const Seis2DDataSet*	dataset_ = nullptr;
 private:
 
-    od_int64		getFileSizeInBytes() const override;
+    od_int64		getFileSize() const override;
 
 };
 

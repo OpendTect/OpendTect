@@ -474,7 +474,7 @@ ZSampling SeisIOObjInfo::getConvertedZrg( const ZSampling& zsamp ) const
 }
 
 
-od_int64 SeisIOObjInfo::SpaceInfo::expectedSizeInBytes() const
+od_int64 SeisIOObjInfo::SpaceInfo::expectedSize() const
 {
     if ( expectednrsamps<0 || expectednrtrcs<0 )
 	return -1;
@@ -489,7 +489,7 @@ od_int64 SeisIOObjInfo::SpaceInfo::expectedSizeInBytes() const
 
 int SeisIOObjInfo::SpaceInfo::expectedMBs() const
 {
-    return expectedSizeInBytes() / 1048576 ;
+    return expectedSize() / mDef1MB ;
 }
 
 
@@ -497,17 +497,17 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 {
     mChk(-1);
 
-    const int sz = expectedSizeInBytes( si );
+    const int sz = expectedSize( si );
     const double bytes2mb = 9.53674e-7;
     return sCast(int,((sz * bytes2mb) + .5));
 }
 
 
-od_int64 SeisIOObjInfo::expectedSizeInBytes( const SpaceInfo& si ) const
+od_int64 SeisIOObjInfo::expectedSize( const SpaceInfo& si ) const
 {
     mChk(-1);
 
-    od_int64 nrbytes = si.expectedSizeInBytes();
+    od_int64 nrbytes = si.expectedSize();
     if ( nrbytes < 0 || isPS() )
 	return nrbytes;
 
@@ -526,19 +526,13 @@ od_int64 SeisIOObjInfo::expectedSizeInBytes( const SpaceInfo& si ) const
 
 od_int64 SeisIOObjInfo::getFileSize() const
 {
-    return getFileSizeInBytes() / mDef1KB;
-}
-
-
-od_int64 SeisIOObjInfo::getFileSizeInBytes() const
-{
     const FilePath filepath = ioobj_->fullUserExpr();
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
     if ( !sttr || !sttr->initRead(ioobj_->getConn(Conn::Read)) )
 	return -1;
 
-    return sttr->getFileSizeInBytes();
+    return sttr->getFileSize();
 }
 
 

@@ -514,14 +514,14 @@ int SEGYSeisTrcTranslator::estimatedNrTraces() const
 }
 
 
-od_int64 SEGYSeisTrcTranslator::getFileSizeInBytes() const
+od_int64 SEGYSeisTrcTranslator::getFileSize() const
 {
     mDynamicCastGet(StreamConn*,sconn,conn_)
     const BufferString filenm = sconn->odStream().fileName();
     if ( filenm.isEmpty() || !File::exists(filenm) )
 	return -1;
 
-    return File::getFileSizeInBytes( filenm );
+    return File::getFileSize( filenm );
 }
 
 
