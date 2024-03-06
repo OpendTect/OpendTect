@@ -63,7 +63,11 @@ set( OpendTect_DIR ${CMAKE_SOURCE_DIR} )
 set( OD_BINARY_BASEDIR ${CMAKE_BINARY_DIR} )
 
 if( NOT DEFINED CMAKE_BUILD_TYPE )
-    set( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
+    if ( DEFINED CMAKE_DEFAULT_BUILD_TYPE )
+	set( CMAKE_BUILD_TYPE ${CMAKE_DEFAULT_BUILD_TYPE} CACHE STRING "Release or Debug" )
+    else()
+	set( CMAKE_BUILD_TYPE "Debug" CACHE STRING "Release or Debug" )
+    endif()
 endif()
 
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
