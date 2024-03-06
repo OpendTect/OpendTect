@@ -82,7 +82,6 @@ set( OD_MODULE_SOURCES
 	raytracerrunner.cc
 	reflcalcrunner.cc
 	rockphysics.cc
-	serverprogtool.cc
 	simpletimedepthmodel.cc
 	staticsdesc.cc
 	stratlevel.cc
@@ -103,7 +102,6 @@ set( OD_MODULE_SOURCES
 	initgeneral.cc
 )
 
-set( OD_MODULE_PROGS od_DBMan.cc )
 set( OD_MODULE_TESTPROGS test_exit_program.cc )
 
 if ( UNIX )

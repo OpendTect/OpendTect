@@ -35,6 +35,4 @@ set( OD_MODULE_SOURCES
 	wellupdate.cc
 )
 
-set( OD_MODULE_PROGS od_WellMan.cc )
-
 OD_INIT_MODULE()
