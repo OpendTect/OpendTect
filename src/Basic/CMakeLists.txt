@@ -156,10 +156,6 @@ if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/safety" )
     list ( APPEND OD_MODULE_COMPILE_DEFINITIONS
 	   "__safety_dir__=\"${CMAKE_SOURCE_DIR}/external/safety\"" )
 endif()
-if ( IS_DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow" )
-    list ( APPEND OD_MODULE_COMPILE_DEFINITIONS
-	   "__marshmallow_dir__=\"${CMAKE_SOURCE_DIR}/external/marshmallow/src\"" )
-endif()
 
 if ( NOT ${BUILDINSRC} )
     if ( UNIX )

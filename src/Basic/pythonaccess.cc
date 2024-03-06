@@ -177,14 +177,6 @@ void OD::PythonAccess::initClass()
 	    PythA().addBasePath( pythonmodsfp );
     }
 #endif
-#ifdef __marshmallow_dir__
-    if ( isDeveloperBuild() )
-    {
-	pythonmodsfp.set( __marshmallow_dir__ );
-	if ( pythonmodsfp.exists() )
-	    PythA().addBasePath( pythonmodsfp );
-    }
-#endif
 
 #ifdef __win__
     ManagedObjectSet<FilePath> fps;
