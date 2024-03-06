@@ -196,7 +196,7 @@ void SeisTrc::ensureNoUndefs( float replval )
 	    }
 
 	    // extrapolate up to trace start
-	    const float val2set = interpolate ? get(icomp,cursamp) : replval;
+	    const float val2set = interpolate ? get(cursamp,icomp) : replval;
 	    for ( int isamp=0; isamp<cursamp; isamp++ )
 		set( isamp, val2set, icomp );
 
@@ -236,7 +236,7 @@ void SeisTrc::ensureNoUndefs( float replval )
 	if ( !componentfinished )
 	{
 	    // extrapolate to trace end
-	    const float val2set = interpolate ? get(icomp,cursamp-1) :replval;
+	    const float val2set = interpolate ? get(cursamp-1,icomp) :replval;
 	    for ( auto isamp=cursamp; isamp<sz; isamp++ )
 		set( isamp, val2set, icomp );
 	}
