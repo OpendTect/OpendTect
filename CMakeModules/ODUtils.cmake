@@ -5,26 +5,6 @@
 #________________________________________________________________________
 #
 
-if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
-     (CMAKE_GENERATOR STREQUAL "Ninja") OR
-     (CMAKE_GENERATOR STREQUAL "NMake Makefiles") )
-    if ( NOT CMAKE_BUILD_TYPE )
-	set ( DEBUGENV $ENV{DEBUG} )
-	if ( DEBUGENV AND
-	    ( ( DEBUGENV MATCHES "yes" ) OR
-	      ( DEBUGENV MATCHES "Yes" ) OR
-	      ( DEBUGENV MATCHES "YES" ) ) )
-	    set ( CMAKE_BUILD_TYPE "Debug"
-		  CACHE STRING "Debug or Release" FORCE )
-	else()
-	    set ( CMAKE_BUILD_TYPE "Release"
-		  CACHE STRING "Debug or Release" FORCE)
-	endif()
-
-	message( STATUS "Setting CMAKE_BUILD_TYPE to ${CMAKE_BUILD_TYPE}" )
-    endif()
-endif()
-
 function( get_buildinsrc REQUIRED_ARG )
     if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
 	get_filename_component( SRCDIR "${CMAKE_SOURCE_DIR}" REALPATH )
