@@ -142,11 +142,6 @@ if ( EXISTS "${CMAKE_SOURCE_DIR}/external/safety" )
 	      DESTINATION "${MISC_INSTALL_PREFIX}/bin/python"
 	      PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
 endif()
-if ( EXISTS "${CMAKE_SOURCE_DIR}/external/marshmallow" )
-    install ( DIRECTORY "${CMAKE_SOURCE_DIR}/external/marshmallow/src/marshmallow"
-	      DESTINATION "${MISC_INSTALL_PREFIX}/bin/python"
-	      PATTERN ".*.swp" EXCLUDE PATTERN "__pycache__" EXCLUDE )
-endif()
 
 install( FILES CMakeLists.txt DESTINATION ${MISC_INSTALL_PREFIX} )
 
