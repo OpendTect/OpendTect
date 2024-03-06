@@ -25,17 +25,13 @@ static const char* sKeyCBVSZSliceID()		{ return "CBVS_Z_Slice"; }
 static const char* sKey2DID()			{ return "2D"; }
 static const char* sKeySEGYDirID()		{ return "SEGYDirect"; }
 
-#define mTest( testname, test, message ) \
-    if ( (test)==true ) \
-    { \
-	handleTestResult( true, testname ); \
-    } \
-    else \
-    { \
-	handleTestResult( false, testname, message ); \
-	return false; \
-    }
+static const int sCBVSSize			= 21102400;
+static const int sZSliceCBVSSize		= 254588;
+static const int s2DSize			= 2724740;
+static const int sSEGYSize			= 39816;
 
+static const int sNrFilesZSlice			= 19;
+static const int sNrFilesSEGYDir		= 1;
 
 #define mCalcAuxFileSize( totalsz ) \
     BufferStringSet auxfilenames; \
@@ -57,39 +53,40 @@ static const char* sKeySEGYDirID()		{ return "SEGYDirect"; }
     }
 
 
-#define mCheckSeisIOObjInfo( seisobj, obj, strm ) \
+#define mCheckSeisIOObjInfo( seisobj, obj ) \
     const SeisIOObjInfo seisobj( obj ); \
-    if ( !seisobj.isOK() ) \
-    { \
-	strm << "SeisIOObjInfo of " << obj.name() \
-	     << " is not OK" << od_newline; \
-	return false; \
-    }
+    mRunStandardTest(seisobj.isOK(), "Info on object" );
 
 
-#define mCreateAndReadTransl( trl, trlnm, obj, strm ) \
+#define mCreateAndReadTransl( trl, trlnm, obj, msg ) \
     mDynamicCast(trl*,PtrMan<trl> trlnm,obj.createTranslator())\
-    if ( !trlnm || !trlnm->initRead(obj.getConn(Conn::Read)) ) \
-    { \
-	strm << "Couldn't create/read " << obj.name() \
-	     << " translator" << od_newline; \
-	return false; \
-    }
+    msg.add( "Failed to create " ).add( #trl ); \
+    mRunStandardTestWithError( trlnm.ptr(), "Has translator", msg ) \
+    mRunStandardTestWithError( trlnm->initRead(obj.getConn(Conn::Read)), \
+			       "Initialize translator read", \
+			       trlnm->message().getString() );
 
 
 bool testCBVSSize( const IOObj& obj, od_ostream& strm )
 {
     const BufferString testname( "Single CBVS file size" );
-    mCheckSeisIOObjInfo( seisobj, obj, strm )
-    const od_int64 trlsize = seisobj.getFileSize();
+    BufferString msg;
+    mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,msg)
+    mCheckSeisIOObjInfo( seisobj, obj )
+    const od_int64 dssize = seisobj.getFileSize();
+    BufferString dserrmsg( "Dataset size: ", dssize );
+    dserrmsg.add( "; Actual size: " ).add( sCBVSSize );
+    mRunStandardTestWithError( dssize == sCBVSSize,
+			       "CBVS dataset size from SeisIOObjInfo",
+			       dserrmsg )
 
-    mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,strm)
-    od_int64 fsize = File::getFileSize( obj.fullUserExpr() );
-    mCalcAuxFileSize(fsize)
-
-    BufferString msg( "Trl size = ", trlsize );
-    msg.add( "; ").add("File size: ").add( fsize );
-    mTest( testname, (trlsize==fsize), msg )
+    od_int64 totalsz = File::getFileSize( obj.fullUserExpr() );
+    mCalcAuxFileSize(totalsz)
+    BufferString errmsg( "Calculated size: ", dssize );
+    errmsg.add( "; Actual size: " ).add( sCBVSSize );
+    mRunStandardTestWithError( totalsz == sCBVSSize,
+			       "CBVS dataset size calculated from Files",
+			       errmsg )
 
     return true;
 }
@@ -98,8 +95,15 @@ bool testCBVSSize( const IOObj& obj, od_ostream& strm )
 bool testZSliceCBVSSize( const IOObj& obj, od_ostream& strm )
 {
     const BufferString testname( "Z-Slice CBVS file size" );
-    mCheckSeisIOObjInfo( seisobj, obj, strm )
-    const od_int64 trlsize = seisobj.getFileSize();
+    BufferString msg;
+    mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,msg)
+    mCheckSeisIOObjInfo( seisobj, obj )
+    const od_int64 dssize = seisobj.getFileSize();
+    BufferString dserrmsg( "Dataset size: ", dssize );
+    dserrmsg.add( "; Actual size: " ).add( sZSliceCBVSSize );
+    mRunStandardTestWithError( dssize == sZSliceCBVSSize,
+			       "Z-Slice CBVS dataset size from SeisIOObjInfo",
+			       dserrmsg )
 
     const BufferString filenm = obj.fullUserExpr();
     od_int64 totalsz = 0;
@@ -116,12 +120,14 @@ bool testZSliceCBVSSize( const IOObj& obj, od_ostream& strm )
 	nrfiles++;
     }
 
-    mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,strm)
+    mRunStandardTest( nrfiles == sNrFilesZSlice, "Number of files" );
     mCalcAuxFileSize(totalsz)
+    BufferString errmsg( "Calculated size: ", dssize );
+    errmsg.add( "; Actual size: " ).add( sZSliceCBVSSize );
+    mRunStandardTestWithError( totalsz == sZSliceCBVSSize,
+			   "Z-Slice CBVS dataset size calculated from Files",
+			   errmsg )
 
-    BufferString msg( "Trl size = ", trlsize );
-    msg.add( "; ").add("File size: ").add( totalsz );
-    mTest( testname, (trlsize==totalsz), msg )
     return true;
 }
 
@@ -129,8 +135,15 @@ bool testZSliceCBVSSize( const IOObj& obj, od_ostream& strm )
 bool test2DSize( const IOObj& obj, od_ostream& strm )
 {
     const BufferString testname( "2D file size" );
-    mCheckSeisIOObjInfo( seisobj, obj, strm )
-    const od_int64 trlsize = seisobj.getFileSize();
+    BufferString msg;
+    mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,msg)
+    mCheckSeisIOObjInfo( seisobj, obj )
+    const od_int64 dssize = seisobj.getFileSize();
+    BufferString dserrmsg( "Dataset size: ", dssize );
+    dserrmsg.add( "; Actual size: " ).add( s2DSize );
+    mRunStandardTestWithError( dssize == s2DSize,
+			       "2-D dataset size from SeisIOObjInfo",
+			       dserrmsg )
 
     const BufferString filenm = obj.fullUserExpr();
     if ( filenm.isEmpty() || !File::exists(filenm))
@@ -149,12 +162,13 @@ bool test2DSize( const IOObj& obj, od_ostream& strm )
     else
 	totalsz += File::getFileSize( filenm );
 
-    mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,strm)
     mCalcAuxFileSize(totalsz)
+    BufferString errmsg( "Calculated size: ", dssize );
+    errmsg.add( "; Actual size: " ).add( s2DSize );
+    mRunStandardTestWithError( totalsz == s2DSize,
+			       "2-D dataset size calculated from Files",
+			       errmsg )
 
-    BufferString msg( "Trl size = ", trlsize );
-    msg.add( "; ").add("File size: ").add( totalsz );
-    mTest( testname, (trlsize==totalsz), msg )
     return true;
 }
 
@@ -162,17 +176,26 @@ bool test2DSize( const IOObj& obj, od_ostream& strm )
 bool testSEGYDirectSize( const IOObj& obj, od_ostream& strm )
 {
     const BufferString testname( "SEGY-Direct file size" );
-    mCheckSeisIOObjInfo( seisobj, obj, strm )
-    const od_int64 trlsize = seisobj.getFileSize();
+    BufferString msg;
+    mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,msg)
+    mCheckSeisIOObjInfo( seisobj, obj )
+    const od_int64 dssize = seisobj.getFileSize();
+    BufferString dserrmsg( "Dataset size: ", dssize );
+    dserrmsg.add( "; Actual size: " ).add( sSEGYSize );
+    mRunStandardTestWithError( dssize == sSEGYSize,
+			       "SEG-Y Direct dataset size from SeisIOObjInfo",
+			       dserrmsg )
 
     const BufferString filenm = obj.fullUserExpr();
-    mCreateAndReadTransl(SEGYDirectSeisTrcTranslator,trl,obj,strm)
+    BufferString segydirmsg;
+    mCreateAndReadTransl(SEGYDirectSeisTrcTranslator,trl,obj,segydirmsg)
     const SEGY::DirectDef* def = trl->getDef();
     if ( !def )
 	return false;
 
     const SEGY::FileDataSet& fds = def->fileDataSet();
     const int nrfiles = fds.nrFiles();
+    mRunStandardTest( nrfiles == sNrFilesSEGYDir, "Number of files: SEG-Y" );
     od_int64 totalsz = File::getFileSize( filenm );
     for ( int idx=0; idx<nrfiles; idx++ )
     {
@@ -187,31 +210,23 @@ bool testSEGYDirectSize( const IOObj& obj, od_ostream& strm )
     // --beacuse getAuxFileName function is private in derived class. Not sure
     // --if it needs to be exposed. Didn't see any use-case for exposing outside
     // --this test program.
-    mCreateAndReadTransl(SeisTrcTranslator,sttr,obj,strm)
     mCalcAuxFileSize(totalsz);
-    BufferString msg( "Trl size = ", trlsize );
-    msg.add( "; ").add("File size: ").add( totalsz );
-    mTest( testname, (trlsize==totalsz), msg )
+    BufferString errmsg( "Calculated size: ", dssize );
+    errmsg.add( "; Actual size: " ).add( sSEGYSize );
+    mRunStandardTestWithError( totalsz == sSEGYSize,
+			   "SEG-Y Direct dataset size calculated from Files",
+			   errmsg )
+
     return true;
 }
 
 
-#define mLoadMIDFail(strm,pars,idstr,id)\
-    if ( !pars().get(idstr,id) )\
-    {\
-	strm << "Can not find " \
-	     << idstr << " from parameter file" << od_newline; \
-	return false;\
-    }\
-
-
-#define mIOObjAbsent(obj,id,strm)\
-    PtrMan<IOObj> obj = IOM().get( id );\
-    if ( !obj )\
-    {\
-	strm << obj->name() << " is not available" << od_newline;\
-	return false;\
-    }\
+#define mIOObjAbsent(obj,id,msg,objtyp) \
+    PtrMan<IOObj> obj = IOM().get( id ); \
+    msg.setEmpty(); \
+    msg.add( "Valid obj: " ) \
+       .add( objtyp ); \
+    mRunStandardTestWithError( obj.ptr(), msg, IOM().message() )
 
 
 mLoad1Module( "Seis" )
@@ -221,15 +236,20 @@ bool BatchProgram::doWork( od_ostream& strm )
     mInitBatchTestProg();
     bool alltestspassed = true;
     MultiID cbvsid, zcbvsid, twodid, sgydirid;
-    mLoadMIDFail(strm,pars,sKeyCBVSID(),cbvsid)
-    mLoadMIDFail(strm,pars,sKeyCBVSZSliceID(),zcbvsid)
-    mLoadMIDFail(strm,pars,sKey2DID(),twodid)
-    mLoadMIDFail(strm,pars,sKeySEGYDirID(),sgydirid)
+    mRunStandardTest(pars().get(sKeyCBVSID(), cbvsid),
+		     "CBVS volume multiID found")
+    mRunStandardTest(pars().get(sKeyCBVSZSliceID(), zcbvsid),
+		     "Z-optimized CBVS vol multiID found")
+    mRunStandardTest(pars().get(sKey2DID(), twodid),
+		     "2D multiID found")
+    mRunStandardTest(pars().get(sKeySEGYDirID(), sgydirid),
+		     "SEG-Y Direct multiID found")
 
-    mIOObjAbsent(cbvsobj, cbvsid, strm)
-    mIOObjAbsent(cbvszsobj,zcbvsid,strm)
-    mIOObjAbsent(twodobj,twodid,strm)
-    mIOObjAbsent(sgydirobj,sgydirid,strm)
+    BufferString ioobjmsg;
+    mIOObjAbsent(cbvsobj,cbvsid,ioobjmsg,"CBVS")
+    mIOObjAbsent(cbvszsobj,zcbvsid,ioobjmsg,"Z-Slice CBVS")
+    mIOObjAbsent(twodobj,twodid,ioobjmsg,"2D")
+    mIOObjAbsent(sgydirobj,sgydirid,ioobjmsg,"SEG-Y Direct")
 
     if ( !testCBVSSize(*cbvsobj,strm) )
 	alltestspassed = false;
