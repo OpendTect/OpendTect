@@ -86,6 +86,6 @@ foreach( opt trgt IN ZIP_LISTS LEGALOPTS LEGALTRGTS )
     endif()
 endforeach()
 
-set( PYTHONDIR odpy;odbind;safety )
+set( PYTHONDIR odpy;odbind;safety;marshmallow )
 
 set( PACK base )
