@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "color.h"
 #include "fontdata.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "separstr.h"
@@ -41,6 +42,8 @@ ________________________________________________________________________
 
 
 mCreateFactoryEntry( visSurvey::Scene )
+
+static HiddenParam<visSurvey::Scene,TrcKeyZSampling*> hp_inittkzs(nullptr);
 
 namespace visSurvey {
 
@@ -77,6 +80,8 @@ Scene::Scene()
     , mouseclicked(this)
     , sceneboundingboxupdated(this)
 {
+    hp_inittkzs.setParam( this, new TrcKeyZSampling );
+
     mAttachCB( events_.eventhappened, Scene::mouseCB );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
     mAttachCB( events_.eventhappened, Scene::keyPressCB );
@@ -89,7 +94,9 @@ Scene::Scene()
 
 
 void Scene::setEventHandled()
-{ events_.setHandled(); }
+{
+    events_.setHandled();
+}
 
 
 void Scene::updateAnnotationText()
@@ -181,6 +188,8 @@ Scene::~Scene()
     mRemoveSelector;
     delete zdomaininfo_;
     delete &infopar_;
+
+    hp_inittkzs.removeAndDeleteParam( this );
 }
 
 
@@ -294,26 +303,50 @@ void Scene::getAllowedZDomains( BufferString& dms ) const
 }
 
 
-void Scene::setTrcKeyZSampling( const TrcKeyZSampling& cs )
+void Scene::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 {
-    tkzs_ = cs;
-    if ( !annot_ ) return;
+    setTrcKeyZSampling( tkzs, false );
+}
 
-    annot_->setTrcKeyZSampling( cs );
+
+void Scene::setTrcKeyZSampling( const TrcKeyZSampling& tkzs, bool workarea )
+{
+    tkzs_ = tkzs;
+    if ( !workarea )
+	*hp_inittkzs.getParam(this) = tkzs;
+    else
+	tkzs_.zsamp_.step = hp_inittkzs.getParam(this)->zsamp_.step;
+
+    if ( !annot_ )
+	return;
+
+    annot_->setTrcKeyZSampling( tkzs );
+}
+
+
+const TrcKeyZSampling& Scene::getTrcKeyZSampling( bool workarea ) const
+{
+    if ( workarea )
+	return tkzs_;
+
+    return *hp_inittkzs.getParam(this);
 }
 
 
 void Scene::setAnnotScale( const TrcKeyZSampling& cs )
 {
     annotscale_ = cs;
-    if ( !annot_ ) return;
+    if ( !annot_ )
+	return;
 
     annot_->setScale( cs );
 }
 
 
 const TrcKeyZSampling& Scene::getAnnotScale() const
-{ return annot_ ? annot_->getScale() : annotscale_; }
+{
+    return annot_ ? annot_->getScale() : annotscale_;
+}
 
 
 int Scene::size() const

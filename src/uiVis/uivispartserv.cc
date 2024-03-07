@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 
 #include "attribsel.h"
-#include "binidvalset.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "flatview.h"
@@ -18,13 +17,11 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "oddirs.h"
-#include "seisbuf.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
 #include "uiattribtransdlg.h"
-#include "uitoolbutton.h"
 #include "uifiledlg.h"
 #include "uimaterialdlg.h"
 #include "uimenuhandler.h"
@@ -34,6 +31,7 @@ ________________________________________________________________________
 #include "uimapperrangeeditordlg.h"
 #include "uiposprovider.h"
 #include "uiscenecolorbarmgr.h"
+#include "uiselsurvranges.h"
 #include "uisurvtopbotimg.h"
 #include "uitaskrunner.h"
 #include "uivisslicepos3d.h"
@@ -57,7 +55,6 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "vissurvscene.h"
 #include "vistexturechannels.h"
-#include "vistransform.h"
 #include "vistransmgr.h"
 #include "zdomain.h"
 #include "od_helpids.h"
@@ -99,40 +96,40 @@ static const int cResolutionIdx = 500;
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
+    , objectAdded(this)
+    , objectRemoved(this)
+    , keyEvent(this)
+    , mouseEvent(this)
+    , selectionmodeChange(this)
+    , planeMovedEvent(this)
     , menu_(*new uiMenuHandler(appserv().parent(),-1))
     , toolbar_(0)
+    , multirgeditwin_(0)
+    , mapperrgeditinact_(false)
+    , xytmousepos_(Coord3::udf())
+    , zfactor_(1)
+    , mouseposstr_("")
+    , sceneeventsrc_(0)
+    , tracksetupactive_(false)
+    , topsetupgroupname_( 0 )
+    , viewmode_(false)
+    , workmode_(uiVisPartServer::Interactive)
+    , issolomode_(false)
+    , eventmutex_(*new Threads::Mutex)
+    , eventobjid_(-1)
+    , eventattrib_(-1)
+    , selattrib_(-1)
+    , seltype_((int)visBase::PolygonSelection::Off)
+    , selectionmode_(Polygon)
     , resetmanipmnuitem_(tr("Reset Manipulation"),cResetManipIdx)
     , changematerialmnuitem_(m3Dots(uiStrings::sProperties()),
 			     cPropertiesIdx)
     , resmnuitem_(tr("Resolution"),cResolutionIdx)
-    , eventmutex_(*new Threads::Mutex)
-    , tracksetupactive_(false)
-    , viewmode_(false)
-    , workmode_(uiVisPartServer::Interactive)
-    , issolomode_(false)
-    , eventobjid_(-1)
-    , eventattrib_(-1)
-    , selattrib_(-1)
-    , mouseposstr_("")
     , blockmenus_(false)
-    , xytmousepos_(Coord3::udf())
-    , zfactor_(1)
     , pickretriever_( new uiVisPickRetriever(this) )
     , nrscenesChange(this)
-    , keyEvent(this)
-    , mouseEvent(this)
-    , planeMovedEvent(this)
-    , seltype_((int)visBase::PolygonSelection::Off)
-    , multirgeditwin_(0)
-    , mapperrgeditinact_(false)
-    , dirlightdlg_(0)
     , mousecursorexchange_(0)
-    , objectAdded(this)
-    , objectRemoved(this)
-    , selectionmode_(Polygon)
-    , selectionmodeChange(this)
-    , topsetupgroupname_( 0 )
-    , sceneeventsrc_(0)
+    , dirlightdlg_(0)
 {
     changematerialmnuitem_.iconfnm = "disppars";
 
@@ -1502,9 +1499,36 @@ bool uiVisPartServer::setWorkingArea( const TrcKeyZSampling& newworkarea )
 	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
 	if ( scene && scene->zDomainInfo().def_==ZDomain::SI() )
-	    scene->setTrcKeyZSampling( SI().sampling(true) );
+	    scene->setTrcKeyZSampling( SI().sampling(true), true );
     }
 
+    return true;
+}
+
+
+bool uiVisPartServer::setWorkingArea( SceneID sceneid )
+{
+    visBase::DataObject* obj = visBase::DM().getObject( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( !scene )
+	return false;
+
+    if ( scene->zDomainInfo().def_==ZDomain::SI() )
+	return setWorkingArea();
+
+    const TrcKeyZSampling& tkzs = scene->getTrcKeyZSampling( false );
+    const TrcKeyZSampling& workarea = scene->getTrcKeyZSampling( true );
+    const char* zdomkey = scene->zDomainKey();
+    uiDialog dlg( parent(), uiDialog::Setup(tr("Set Work Area"),
+					    mNoDlgTitle,mNoHelpKey) );
+    auto* subvolfld = new uiSelSubvol( &dlg, false, zdomkey );
+    subvolfld->setSampling( workarea );
+    subvolfld->setLimits( tkzs );
+    if ( !dlg.go() )
+	return false;
+
+    TrcKeyZSampling newtkzs = subvolfld->getSampling();
+    scene->setTrcKeyZSampling( newtkzs, true );
     return true;
 }
 
