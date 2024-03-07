@@ -6,7 +6,7 @@
 #
 
 if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
-     (CMAKE_GENERATOR STREQUAL "Ninja") OR
+     (CMAKE_GENERATOR MATCHES "Ninja.*") OR
      (CMAKE_GENERATOR STREQUAL "NMake Makefiles") )
     if ( CMAKE_BUILD_TYPE STREQUAL "" )
 	set ( DEBUGENV $ENV{DEBUG} )
