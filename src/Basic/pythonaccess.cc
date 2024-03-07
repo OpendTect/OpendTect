@@ -1558,9 +1558,11 @@ uiRetVal OD::PythonAccess::hasModule( const ObjectSet<ModuleInfo>& moduleinfos,
     else
 	msg = tr("Package: %1 required").arg( modname );
 
+    BufferStringSet modnames;
+    modnames.unCat( modname, "|" );
     for ( const auto* reqmod : moduleinfos )
     {
-	if ( reqmod->name() == modname )
+	if ( modnames.isPresent(reqmod->name().buf()) )
 	{
 	    if ( minversion ) {
 		const SeparString actverstr( reqmod->versionstr_, '.' );
