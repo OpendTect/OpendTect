@@ -53,8 +53,11 @@ public:
     void		writeBulkData(od_ostream&,bool) const;
     bool		readBulkData(od_istream&,bool);
 
+    bool		hasCachedAveragePos() const;
     float		getAveragePos(int dim) const;
     static float	findAveragePos(const float*,int,float grandtotal);
+
+    static const char*	sKeyAvgPos();
 
 protected:
 			ArrayNDProbDenFunc(int nrdims);
@@ -89,14 +92,18 @@ private:
     nm##ProbDenFunc*		clone() const override \
 				{ return new nm##ProbDenFunc(*this); } \
     static const char*		typeStr()		{ return #nm; } \
-    const char*			getTypeStr() const override { return typeStr();} \
-    float			normFac() const override { return getNormFac();}\
-    bool			canScale() const override { return true; } \
-    void			scale( float f ) override	{ doScale(f); } \
+    const char*			getTypeStr() const override \
+				{ return typeStr(); } \
+    float			normFac() const override \
+				{ return getNormFac(); } \
+    bool			canScale() const override \
+				{ return true; } \
+    void			scale( float f ) override \
+				{ doScale(f); } \
     void			prepareRandDrawing() const override \
 				{ prepRndDrw(); } \
     bool			isEq( const ProbDenFunc& oth ) const override \
-							{ return gtIsEq(oth); }
+				{ return gtIsEq(oth); }
 
 
 /*!

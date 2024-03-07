@@ -221,6 +221,9 @@ ProbDenFunc2D::ProbDenFunc2D( const char* vnm0, const char* vnm1 )
 
 
 // ArrayNDProbDenFunc
+
+const char* ArrayNDProbDenFunc::sKeyAvgPos()	{ return "Average Pos"; }
+
 ArrayNDProbDenFunc::ArrayNDProbDenFunc( int nrdims )
     : gen_(*new Stats::RandGen())
 {
@@ -328,7 +331,10 @@ void ArrayNDProbDenFunc::fillPar( IOPar& par ) const
     {
 	par.set( IOPar::compKey(sKey::Size(),idx), size(idx) );
 	par.set( IOPar::compKey(sKey::Sampling(),idx), sampling(idx) );
+	mUnusedVar const float avgpos = getAveragePos( idx );
     }
+
+    par.set( sKeyAvgPos(), avgpos_ );
 }
 
 
@@ -342,6 +348,7 @@ bool ArrayNDProbDenFunc::usePar( const IOPar& par )
 	    sampling( idx ) = sd;
     }
 
+    par.get( sKeyAvgPos(), avgpos_ );
     return true;
 }
 
@@ -496,6 +503,12 @@ float ArrayNDProbDenFunc::findAveragePos( const float* arr, int sz,
 	prevsum = sum;
     }
     return sz-0.5f; // not normal
+}
+
+
+bool ArrayNDProbDenFunc::hasCachedAveragePos() const
+{
+    return avgpos_.size() == nrDims_();
 }
 
 
