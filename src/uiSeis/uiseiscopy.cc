@@ -58,8 +58,6 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
 	{
 	    createfield = false;
 	    inpfld_->setSensitive( false );
-	    uiMSG().warning(
-		    tr("Copying this dataset is not supported (yet)") );
 	}
     }
 
