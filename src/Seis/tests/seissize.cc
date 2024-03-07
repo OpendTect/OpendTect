@@ -28,7 +28,7 @@ static const char* sKeySEGYDirID()		{ return "SEGYDirect"; }
 static const int sCBVSSize			= 21102400;
 static const int sZSliceCBVSSize		= 254588;
 static const int s2DSize			= 2724740;
-static const int sSEGYSize			= 39816;
+static const int sSEGYSize			= 39651;
 
 static const int sNrFilesZSlice			= 19;
 static const int sNrFilesSEGYDir		= 1;
