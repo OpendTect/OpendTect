@@ -94,7 +94,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
     convs_.allowNull();
     convs_.erase();
 
-    BufferString linebuf; char wordbuf[64];
+    BufferString linebuf;
+    char wordbuf[64];
     const char* ptr;
     char section = '-';
     lfi.depthcolnr_ = -1;
@@ -104,13 +105,17 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
     while ( strm.isOK() )
     {
 	strm.getLine( linebuf );
-	ptr = linebuf.buf(); mSkipBlanks(ptr);
-	if ( *ptr == '#' || *ptr == '\0' ) continue;
+	ptr = linebuf.buf();
+	mSkipBlanks(ptr);
+	if ( *ptr == '#' || *ptr == '\0' )
+	    continue;
 
 	if ( *ptr == '~' )
 	{
 	    section = *(++ptr);
-	    if ( section == 'A' ) break;
+	    if ( section == 'A' )
+		break;
+
 	    continue;
 	}
 	else if ( section == '-' )
@@ -128,6 +133,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    char* closeparptr = firstOcc( unstr, ')' );
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
+
 		if ( lfi.depthcolnr_<0 &&
 			StringView(wordbuf).startsWith("dept",
 							OD::CaseInsensitive))
@@ -143,6 +149,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    lfi.logcurves_.add( wordbuf );
 		    lfi.logunits_.add( unstr );
 		}
+
 		convs_ += UnitOfMeasure::getGuessed( unstr );
 		unitmeasstrs_.add( unstr );
 		colnr++;
@@ -151,7 +158,9 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	}
 
 	char* keyw = const_cast<char*>(ptr);
-	char* val1; char* val2; char* info;
+	char* val1;
+	char* val2;
+	char* info;
 	parseHeader( keyw, val1, val2, info );
 
 	switch ( section )
@@ -171,7 +180,10 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    BufferString newnm( lognm );
 		    char* newptr = (char*)getNextWord( newnm.buf(), wordbuf );
 		    if ( newptr && *newptr )
-			{ mSkipBlanks(newptr); }
+		    {
+			mSkipBlanks(newptr);
+		    }
+
 		    if ( newptr && *newptr )
 			lognm = newptr;
 		}
@@ -184,8 +196,12 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 			lognm = newnm;
 		    else
 		    {
-			*newptr = '\0'; lognm = newnm; lognm += " (";
-			newptr += 10; lognm += newptr; lognm += ")";
+			*newptr = '\0';
+			lognm = newnm;
+			lognm += " (";
+			newptr += 10;
+			lognm += newptr;
+			lognm += ")";
 		    }
 		}
 		if ( lognm.isEmpty() ||
@@ -338,7 +354,9 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 void Well::LASImporter::parseHeader( char* startptr, char*& val1, char*& val2,
 				     char*& info ) const
 {
-    val1 = 0; val2 = 0; info = 0;
+    val1 = 0;
+    val2 = 0;
+    info = 0;
     char* ptr = firstOcc( startptr, '.' );
     if ( ptr ) *ptr++ = '\0';
     removeTrailingBlanks( startptr );
@@ -547,6 +565,9 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
     const int addstartidx = wd_->logs().size();
     BoolTypeSet issel( inplfi.size(), false );
 
+    if ( wd_->storedLogNames().isEmpty() )
+	wd_->reloadLogNames();
+
     BufferStringSet storedlognms = wd_->storedLogNames();
     const BufferStringSet& lognms =
 		usecurvenms ? inplfi.logcurves_ : inplfi.lognms_;
@@ -615,11 +636,16 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 	{
 	    strm >> val;
 	    if ( strm.isBad() || (icol<totalcols-1 && !strm.isOK()) )
-		{ atend = true; break; }
+	    {
+		atend = true;
+		break;
+	    }
+
 	    if ( mIsEqual(val,lfi.undefval_,mDefEps) )
 		val = mUdf(float);
 	    else if ( useconvs_ && convs_[icol] )
 		val = convs_[icol]->internalValue( val );
+
 	    vals += val;
 	}
 	if ( atend )
@@ -650,15 +676,22 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 	    if ( icol != lfi.depthcolnr_ && issel[valnr] )
 		selvals += vals[icol];
 	}
-	if ( selvals.isEmpty() ) continue;
+
+	if ( selvals.isEmpty() )
+	    continue;
 
 	float dah = dpth;
 	if ( istvd && !convToDah(wd_->track(),dah,prevdah) )
 	    continue;
+
 	prevdah = dah;
 
 	for ( int idx=0; idx<selvals.size(); idx++ )
-	    logs.getLog( addstartidx+idx ).addValue( dah, selvals[idx] );
+	{
+	    const int logidx = addstartidx + idx;
+	    if ( logs.validIdx(logidx) )
+		logs.getLog( logidx ).addValue( dah, selvals[idx] );
+	}
 
 	nradded++;
     }
