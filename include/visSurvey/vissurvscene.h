@@ -96,6 +96,10 @@ public:
 
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	getTrcKeyZSampling() const { return tkzs_; }
+    void			setTrcKeyZSampling(const TrcKeyZSampling&,
+						   bool workarea);
+    const TrcKeyZSampling&	getTrcKeyZSampling(bool workarea) const;
+
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
     void			showAnnotScale(bool);

@@ -594,15 +594,22 @@ uiSelSubvol::~uiSelSubvol()
 
 TrcKeyZSampling uiSelSubvol::getSampling() const
 {
-    TrcKeyZSampling cs( false );
-    cs.hsamp_ = hfld_->getSampling();
-    cs.zsamp_ = zfld_->getRange();
-    return cs;
+    TrcKeyZSampling tkzs( false );
+    tkzs.hsamp_ = hfld_->getSampling();
+    tkzs.zsamp_ = zfld_->getRange();
+    return tkzs;
 }
 
 
-void uiSelSubvol::setSampling( const TrcKeyZSampling& cs )
+void uiSelSubvol::setSampling( const TrcKeyZSampling& tkzs )
 {
-    hfld_->setSampling( cs.hsamp_ );
-    zfld_->setRange( cs.zsamp_ );
+    hfld_->setSampling( tkzs.hsamp_ );
+    zfld_->setRange( tkzs.zsamp_ );
+}
+
+
+void uiSelSubvol::setLimits( const TrcKeyZSampling& tkzs )
+{
+    hfld_->setLimits( tkzs.hsamp_ );
+    zfld_->setRangeLimits( tkzs.zsamp_ );
 }

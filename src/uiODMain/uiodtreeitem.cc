@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
 
+#include "hiddenparam.h"
 #include "keyboardevent.h"
 #include "settings.h"
 #include "ui3dviewer.h"
@@ -351,6 +352,8 @@ void uiODParentTreeItem::checkCB( CallBacker* )
 }
 
 
+static HiddenParam<uiODSceneTreeItem,MenuItem*> hp_menuitem( nullptr );
+
 // uiODSceneTreeItem
 uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, VisID id )
     : uiODTreeItem(nm)
@@ -362,6 +365,8 @@ uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, VisID id )
     , dumpivitem_( m3Dots( uiStrings::phrExport( uiStrings::sScene() )) )
 {
     propitem_.iconfnm = "disppars";
+
+    hp_menuitem.setParam( this, new MenuItem(m3Dots(tr("Set Work Area"))) );
 }
 
 
@@ -382,6 +387,8 @@ uiODSceneTreeItem::~uiODSceneTreeItem()
 	tb->createnotifier.remove( mCB(this,uiODSceneTreeItem,addToToolBarCB) );
 	tb->handlenotifier.remove( mCB(this,uiODSceneTreeItem,handleMenuCB) );
     }
+
+    hp_menuitem.removeAndDeleteParam( this );
 }
 
 
@@ -430,6 +437,8 @@ void uiODSceneTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuOrTBItem( istb, menu, menu, &propitem_, true, false );
     mAddMenuOrTBItem( istb, 0, menu, &imageitem_, true, false );
     mAddMenuOrTBItem( istb, 0, menu, &coltabitem_, true, false );
+    mAddMenuOrTBItem( istb, nullptr, menu, hp_menuitem.getParam(this),
+		      true, false );
     bool enabdump = true;
     Settings::common().getYN(
 		IOPar::compKey("dTect","Dump OI Menu"), enabdump );
@@ -460,6 +469,8 @@ void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
     else if( mnuid==dumpivitem_.id )
 	visserv->writeSceneToFile( displayid_,
 			    uiStrings::phrExport( uiStrings::sScene() ));
+    else if ( mnuid==hp_menuitem.getParam(this)->id )
+	visserv->setWorkingArea( sceneID() );
 }
 
 

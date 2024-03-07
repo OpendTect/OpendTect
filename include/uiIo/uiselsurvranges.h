@@ -158,6 +158,7 @@ public:
 
     TrcKeyZSampling	getSampling() const;
     void		setSampling(const TrcKeyZSampling&);
+    void		setLimits(const TrcKeyZSampling&);
 
     uiSelHRange*	hfld_;
     uiSelZRange*	zfld_;
