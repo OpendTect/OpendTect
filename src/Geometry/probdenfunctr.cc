@@ -40,8 +40,10 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
     {
-	if (emsg) *emsg = uiStrings::phrCannotCreate(tr("Translator"));
-	return 0;
+	if ( emsg )
+	    *emsg = uiStrings::phrCannotCreate(tr("Translator"));
+
+	return nullptr;
     }
 
     const BufferString fnm( ioobj.fullUserExpr(true) );
@@ -53,14 +55,27 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
 	    *emsg = uiStrings::phrCannotOpen(toUiString(fnm));
 	    strm.addErrMsgTo(*emsg);
 	}
-	return 0;
+
+	return nullptr;
     }
 
     ProbDenFunc* ret = pdftr->read( strm );
-    if ( !ret ) return 0;
+    if ( !ret )
+    {
+	if ( emsg )
+	    *emsg = tr("Cannot read PDF from '%1'").arg(fnm);
+
+	return nullptr;
+    }
+
+    mDynamicCastGet(ArrayNDProbDenFunc*,arrndpdf,ret)
+    if ( arrndpdf && !arrndpdf->hasCachedAveragePos() )
+    {
+	strm.close();
+	write( *ret, ioobj );	// Calculate and write cached average pos.
+    }
+
     ret->setName( ioobj.name() );
-    if ( !ret && emsg )
-    { *emsg = tr("Cannot read PDF from '%1'").arg(fnm); }
     return ret;
 }
 
@@ -110,8 +125,9 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
     {
-	if (emsg)
+	if ( emsg )
 	    *emsg = uiStrings::phrCannotCreate(tr("Translator"));
+
 	return false;
     }
 
@@ -129,7 +145,10 @@ bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
 
     const bool ret = pdftr->write( pdf, strm );
     if ( !ret && emsg )
-    { *emsg = uiStrings::phrCannotWrite(toUiString(fnm)); }
+    {
+	*emsg = uiStrings::phrCannotWrite(toUiString(fnm));
+    }
+
     return ret;
 }
 
@@ -192,6 +211,9 @@ bool odProbDenFuncTranslator::write( const ProbDenFunc& pdf, od_ostream& strm )
 
     ascostream astrm( strm );
     astrm.putHeader( mTranslGroupName(ProbDenFunc) );
+
+    if ( pdf.nrDims() > 2 ) // Not interesting for visual inspection
+	binary_ = true;
 
     IOPar par;
     pdf.fillPar( par );
