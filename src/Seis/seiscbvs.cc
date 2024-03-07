@@ -243,25 +243,25 @@ od_int64 CBVSSeisTrcTranslator::getFileSize() const
 	}
     }
 
-    ManagedObjectSet<FilePath> fps;
-    SeisTrcTranslator::getAllFileNames( fps );
-    for ( const auto* fp : fps )
-	totalsz += File::getFileSize( fp->fullPath() );
+    BufferStringSet filenames;
+    SeisTrcTranslator::getAllFileNames( filenames );
+    for ( const auto* nm : filenames )
+	totalsz += File::getFileSize( nm->buf() );
 
     return totalsz;
 }
 
 
-void CBVSSeisTrcTranslator::getAllFileNames( ObjectSet<FilePath>& fps ) const
+void CBVSSeisTrcTranslator::getAllFileNames( BufferStringSet& filenames ) const
 {
     if ( !rdmgr_ )
 	return;
 
     const BufferString basefname = rdmgr_->baseFileName();
     if ( !basefname.isEmpty() )
-	fps.addIfNew( new FilePath(basefname) );
+	filenames.addIfNew( basefname );
 
-    SeisTrcTranslator::getAllFileNames( fps );
+    SeisTrcTranslator::getAllFileNames( filenames );
 }
 
 

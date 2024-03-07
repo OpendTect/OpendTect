@@ -148,7 +148,7 @@ public:
 
     od_int64		expectedSize(const SpaceInfo&) const;
     od_int64		getFileSize() const;
-    void		getAllFileNames(ObjectSet<FilePath>&) const;
+    void		getAllFileNames(BufferStringSet&) const;
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const; // Only CBVS
     bool		getDataChar(DataCharacteristics&) const;

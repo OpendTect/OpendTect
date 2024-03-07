@@ -355,10 +355,10 @@ od_int64 SeisTrc2DTranslator::getFileSize() const
     else
 	totalsz += File::getFileSize( filenm );
 
-    ManagedObjectSet<FilePath> fps;
-    SeisTrcTranslator::getAllFileNames( fps );
-    for ( const auto* fp : fps )
-	totalsz += File::getFileSize( fp->fullPath() );
+    BufferStringSet filenames;
+    SeisTrcTranslator::getAllFileNames( filenames );
+    for ( const auto* nm : filenames )
+	totalsz += File::getFileSize( nm->buf() );
 
     return totalsz;
 }

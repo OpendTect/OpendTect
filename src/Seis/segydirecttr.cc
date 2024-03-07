@@ -766,28 +766,34 @@ od_int64 SEGYDirectSeisTrcTranslator::getFileSize() const
 	totalsz += trl->getFileSize();
     }
 
-    ManagedObjectSet<FilePath> fps;
-    SeisTrcTranslator::getAllFileNames( fps );
-    for ( const auto* fp : fps )
-	totalsz += File::getFileSize( fp->fullPath() );
+    BufferStringSet filenames;
+    SeisTrcTranslator::getAllFileNames( filenames );
+    for ( const auto* nm : filenames )
+	totalsz += File::getFileSize( nm->buf() );
 
     return totalsz;
 }
 
 
 void SEGYDirectSeisTrcTranslator::getAllFileNames(
-					    ObjectSet<FilePath>& fps ) const
+					    BufferStringSet& filenames ) const
 {
-    if ( def_ )
+    if ( !def_ || segydeffilename_.isEmpty() )
+	return;
+
+    const SEGY::FileDataSet& fds = def_->fileDataSet();
+    const int nrfiles = fds.nrFiles();
+    for ( int idx=0; idx<nrfiles; idx++ )
     {
-	const SEGY::FileDataSet& fds = def_->fileDataSet();
-	const int nrfiles = fds.nrFiles();
-	for ( int idx=0; idx<nrfiles; idx++ )
-	    fps.add( new FilePath(fds.fileName(idx)) );
+	const StringView fnm = fds.fileName( idx );
+	if ( fnm.isEmpty() )
+	    continue;
+
+	filenames.addIfNew( fnm );
     }
 
-    fps.add( new FilePath(segydeffilename_) );
-    SeisTrcTranslator::getAllFileNames( fps );
+    filenames.addIfNew( segydeffilename_ );
+    SeisTrcTranslator::getAllFileNames( filenames );
 }
 
 

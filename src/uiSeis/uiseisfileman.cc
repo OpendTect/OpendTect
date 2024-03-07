@@ -471,18 +471,21 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
     txt.add( "File name: " ).add( fp.fileName() );
     fp.set( fname );
     txt.add("\nLocation: ").add( fp.pathOnly() );
-    ManagedObjectSet<FilePath> fps;
     const SeisIOObjInfo seisobjinfo( curioobj_ );
-    seisobjinfo.getAllFileNames( fps );
-    if ( !fps.isEmpty() )
+    if ( !seisobjinfo.isOK() )
+	return;
+
+    BufferStringSet filenames;
+    seisobjinfo.getAllFileNames( filenames );
+    if ( !filenames.isEmpty() )
     {
 	txt.add( "\nLinked file(s): " );
-	for ( const auto* fpath : fps )
+	for ( const auto* nm : filenames )
 	{
-	    if ( !fpath || fpath->fullPath() == fname )
+	    if ( *nm == fname )
 		continue;
 
-	    txt.add( "\n" ).add( fpath->fullPath() );
+	    txt.add( "\n" ).add( nm->buf() );
 	}
     }
 

@@ -762,13 +762,13 @@ void SeisTrcTranslator::setCurGeomID( Pos::GeomID gid )
 }
 
 
-void SeisTrcTranslator::getAllFileNames( ObjectSet<FilePath>& fps ) const
+void SeisTrcTranslator::getAllFileNames( BufferStringSet& filenms ) const
 {
     if ( havePars() )
     {
 	const BufferString parfilename = getAuxFileName( sParFileExtension() );
 	if ( !parfilename.isEmpty() )
-	    fps.addIfNew( new FilePath(parfilename) );
+	    filenms.addIfNew( parfilename );
     }
 
     if ( haveStats() )
@@ -776,7 +776,7 @@ void SeisTrcTranslator::getAllFileNames( ObjectSet<FilePath>& fps ) const
 	const BufferString statsfilename
 				    = getAuxFileName( sStatsFileExtension() );
 	if ( !statsfilename.isEmpty() )
-	    fps.addIfNew( new FilePath(statsfilename) );
+	    filenms.addIfNew( statsfilename );
     }
 
     if ( haveProc() )
@@ -784,7 +784,7 @@ void SeisTrcTranslator::getAllFileNames( ObjectSet<FilePath>& fps ) const
 	const BufferString procfilename
 				    = getAuxFileName( sProcFileExtension() );
 	if ( !procfilename.isEmpty() )
-	    fps.addIfNew( new FilePath(procfilename) );
+	    filenms.addIfNew( procfilename );
     }
 }
 

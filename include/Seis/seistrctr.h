@@ -251,7 +251,7 @@ public:
     bool		isUserSelectable(bool) const override { return false; }
     virtual int		estimatedNrTraces() const	{ return -1; }
     virtual od_int64	getFileSize() const	{ return -1; }
-    virtual void	getAllFileNames(ObjectSet<FilePath>&) const;
+    virtual void	getAllFileNames(BufferStringSet&) const;
     virtual bool	haveAux(const char*) const	{ return false; }
     bool		havePars() const;
     bool		haveStats() const;

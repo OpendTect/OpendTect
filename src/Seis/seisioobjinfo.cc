@@ -536,14 +536,14 @@ od_int64 SeisIOObjInfo::getFileSize() const
 }
 
 
-void SeisIOObjInfo::getAllFileNames( ObjectSet<FilePath>& fps ) const
+void SeisIOObjInfo::getAllFileNames( BufferStringSet& filenames ) const
 {
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
     if ( !sttr || !sttr->initRead(ioobj_->getConn(Conn::Read)) )
 	return;
 
-    sttr->getAllFileNames( fps );
+    sttr->getAllFileNames( filenames );
 }
 
 
