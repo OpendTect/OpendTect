@@ -65,7 +65,8 @@ protected:
 
     void		mkFileInfo() override;
     void		fillAttribList();
-    od_int64		getFileSize(const char*,int&) const override;
+    od_int64		getFileSize(const char*) const override;
+    int			getNrFiles(const char*) const override;
     void		setToolButtonProperties();
     void		ownSelChg() override;
     void		manFltSetCB(CallBacker*);
@@ -74,4 +75,6 @@ protected:
 private:
     uiString		sRenameSelData();
     uiString		sRemoveSelData();
+
+    static BufferString createFileName(const char* basenm,int idx);
 };

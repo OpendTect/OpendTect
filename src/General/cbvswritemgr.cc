@@ -9,17 +9,19 @@ ________________________________________________________________________
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
-#include "strmprov.h"
-#include "filepath.h"
-#include "survinfo.h"
 #include "envvars.h"
+#include "file.h"
+#include "filepath.h"
+#include "strmprov.h"
+#include "survinfo.h"
 
 
 BufferString CBVSIOMgr::baseFileName( const char* fnm )
 {
     BufferString ret( fnm );
     char* caretptr = ret.find( '^' );
-    if ( !caretptr ) return ret;
+    if ( !caretptr )
+	return ret;
 
     char* dotptr = firstOcc( caretptr, '.' );
     BufferString ext( dotptr );
@@ -31,7 +33,8 @@ BufferString CBVSIOMgr::baseFileName( const char* fnm )
 
 BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 {
-    if ( curnr == 0 ) return basefname;
+    if ( curnr == 0 )
+	return basefname;
 
     FilePath fp( basefname );
     BufferString fname = fp.fileName();
@@ -39,7 +42,10 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
     char* ptr = fname.findLast( '.' );
     BufferString ext;
     if ( ptr )
-	{ ext = ptr; *ptr = '\0'; }
+    {
+	ext = ptr;
+	*ptr = '\0';
+    }
 
     if ( curnr < 0 )
 	fname += "^aux";
@@ -49,7 +55,8 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 	fname += curnr;
     }
 
-    if ( ptr ) fname += ext;
+    if ( ptr )
+	fname += ext;
 
     fp.setFileName( fname );
     return fp.fullPath();
@@ -58,16 +65,38 @@ BufferString CBVSIOMgr::getFileName( const char* basefname, int curnr )
 
 int CBVSIOMgr::getFileNr( const char* fnm )
 {
-    if ( !fnm || !*fnm ) return 0;
+    if ( !fnm || !*fnm )
+	return 0;
 
     const char* caretptr = lastOcc( fnm, '^' );
-    if ( !caretptr ) return 0;
+    if ( !caretptr )
+	return 0;
 
     BufferString nrstr( caretptr + 1 );
     char* dotptr = nrstr.find( '.' );
-    if ( dotptr ) *dotptr = '\0';
+    if ( dotptr )
+	*dotptr = '\0';
 
     return nrstr.toInt();
+}
+
+
+int CBVSIOMgr::nrFiles( const char* fnm )
+{
+    int nrfiles = 0;
+    if ( !fnm || !*fnm )
+	return nrfiles;
+
+    while ( true )
+    {
+	const BufferString fullnm( getFileName(fnm,nrfiles) );
+	if ( !File::exists(fullnm) )
+	    break;
+
+	nrfiles++;
+    }
+
+    return nrfiles;
 }
 
 

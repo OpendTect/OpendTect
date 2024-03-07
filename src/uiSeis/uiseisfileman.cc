@@ -414,14 +414,22 @@ void uiSeisFileMan::mkFileInfo()
 }
 
 
-od_int64 uiSeisFileMan::getFileSize( const char* filenm,
-				     int& nrfiles ) const
+od_int64 uiSeisFileMan::getFileSize( const char* filenm ) const
 {
-    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) )
+    const SeisIOObjInfo seisobjinfo( curioobj_ );
+    if ( !seisobjinfo.isOK() )
 	return 0;
 
-    od_int64 totalsz = 0;
-    nrfiles = 0;
+    return seisobjinfo.getFileSize();
+}
+
+
+int uiSeisFileMan::getNrFiles( const char* filenm ) const
+{
+    int nrfiles = 0;
+    if ( !File::isDirectory(filenm) && File::isEmpty(filenm) )
+	return nrfiles;
+
     if ( File::isDirectory(filenm) )
     {
 	DirList dl( filenm, File::FilesInDir );
@@ -432,30 +440,24 @@ od_int64 uiSeisFileMan::getFileSize( const char* filenm,
 	    if ( ext != "cbvs" )
 		continue;
 
-	    totalsz += File::getFileSize( filepath.fullPath() );
 	    nrfiles++;
 	}
-    }
-    else
-    {
-	while ( true )
-	{
-	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
-	    if ( !File::exists(fullnm) ) break;
 
-	    totalsz += File::getFileSize( fullnm );
-	    nrfiles++;
-	}
+	return nrfiles;
     }
 
-    return totalsz;
+    nrfiles = CBVSIOMgr::nrFiles( filenm );
+    return nrfiles;
 }
 
 
 void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
 {
-    const BufferString fname = curioobj_->fullUserExpr();
     const IOStream* iostrm = getIOStream( *curioobj_ );
+    if ( !iostrm || iostrm->isBad() )
+	return;
+
+    const BufferString fname = curioobj_->fullUserExpr();
     const bool isdir = iostrm && File::isDirectory( fname );
     const BufferString usrnm = iostrm->fileSpec().dispName();
     if ( !txt.isEmpty() )
@@ -463,7 +465,7 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
 
     if ( isdir )
     {
-	getBasicDirInfo( iostrm, txt );
+	getBasicDirInfo( *iostrm, txt );
 	return;
     }
 
@@ -489,8 +491,8 @@ void uiSeisFileMan::getBasicFileInfo( BufferString& txt ) const
 	}
     }
 
-    const od_int64 totalsz = seisobjinfo.getFileSize();
-    const BufferString szstr = File::getFileSizeString( totalsz );
+    BufferString szstr;
+    getFileSizeString( *iostrm, szstr );
     txt.add("\nSize: ").add( szstr );
 }
 

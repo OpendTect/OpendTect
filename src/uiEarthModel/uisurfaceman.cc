@@ -711,33 +711,58 @@ void uiSurfaceMan::mkFileInfo()
 }
 
 
-od_int64 uiSurfaceMan::getFileSize( const char* filenm,
-					   int& nrfiles ) const
+BufferString uiSurfaceMan::createFileName( const char* basenm, int idx )
+{
+    BufferString ret( basenm );
+    ret.add( "^" ).add( idx ).add( ".hov" );
+    return ret;
+}
+
+
+od_int64 uiSurfaceMan::getFileSize( const char* filenm ) const
 {
     if ( type_ == EM::ObjectType::FltSet )
-	return uiObjFileMan::getFileSize( filenm, nrfiles );
+	return uiObjFileMan::getFileSize( filenm );
 
     if ( File::isEmpty(filenm) )
 	return -1;
 
     od_int64 totalsz = File::getFileSize( filenm );
-    nrfiles = 1;
-
+    const int nrfiles = getNrFiles( filenm );
     const BufferString basefnm( filenm );
-    for ( int idx=0; ; idx++ )
+    for ( int idx=0; idx<nrfiles-1; idx++ )
     {
-	BufferString fnm( basefnm );
-	fnm += "^";
-	fnm += idx;
-	fnm += ".hov";
+	BufferString fnm = createFileName( basefnm, idx );
 	if ( !File::exists(fnm) )
-	    break;
+	    return -1;
 
 	totalsz += File::getFileSize( fnm );
-	nrfiles++;
     }
 
     return totalsz;
+}
+
+
+int uiSurfaceMan::getNrFiles( const char* filenm ) const
+{
+    if ( type_ == EM::ObjectType::FltSet )
+	return uiObjFileMan::getNrFiles( filenm );
+
+    if ( File::isEmpty(filenm) )
+	return 0;
+
+    int nrfiles = 1;
+    const BufferString basefnm( filenm );
+    for ( int idx=0; ; idx++ )
+    {
+	BufferString fnm = createFileName( basefnm, idx );
+	if ( !File::exists(fnm) )
+	    break;
+
+	nrfiles++;
+    }
+
+    return nrfiles;
 }
 
 

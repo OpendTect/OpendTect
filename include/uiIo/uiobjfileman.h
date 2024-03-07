@@ -76,11 +76,12 @@ protected:
     void			getTimeLastModified(const char*,BufferString&);
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			= 0;
-    virtual od_int64		getFileSize(const char*,int&) const;
-    void			getFileSizeString(const IOStream*,int& nrfiles,
+    virtual od_int64		getFileSize(const char*) const;
+    virtual int			getNrFiles(const char*) const;
+    void			getFileSizeString(const IOStream&,
 						  BufferString&) const;
     virtual void		getBasicFileInfo(BufferString&) const;
-    void			getBasicDirInfo(const IOStream*,
+    void			getBasicDirInfo(const IOStream&,
 						BufferString&) const;
 
     void			selChg(CallBacker*);

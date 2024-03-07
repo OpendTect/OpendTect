@@ -86,6 +86,7 @@ public:
     			//!< returns aux file name for negative nr
     static int		getFileNr(const char*);
     			//!< returns 0 or number behind '^'
+    static int		nrFiles(const char*);
 
 protected:
 

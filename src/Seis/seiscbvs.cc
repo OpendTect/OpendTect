@@ -215,7 +215,6 @@ od_int64 CBVSSeisTrcTranslator::getFileSize() const
 	return -1;
 
     od_int64 totalsz = 0;
-    int nrfiles = 0;
     if ( File::isDirectory(filenm) )
     {
 	const DirList dl( filenm.buf(), File::FilesInDir );
@@ -227,11 +226,11 @@ od_int64 CBVSSeisTrcTranslator::getFileSize() const
 		continue;
 
 	    totalsz += File::getFileSize( filepath.fullPath() );
-	    nrfiles++;
 	}
     }
     else
     {
+	int nrfiles = 0;
 	while ( true )
 	{
 	    const BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
