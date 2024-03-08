@@ -98,6 +98,10 @@ public:
     inline ValVec&		operator+=(const T& t)       { return add(t); }
     inline ValVec&		operator-=(const T& t);
 
+    template<class... Args>
+    inline void			emplace_back(Args&&... args)
+				{ vec_.vec().emplace_back( args... ); }
+
 protected:
 
     inline			ValVec();
