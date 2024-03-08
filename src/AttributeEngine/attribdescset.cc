@@ -714,7 +714,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 			    tmpcpypar.removeWithKey( compkey.buf() );
 		    }
 		}
-		err = tr( "Impossible to find stored data '%1' "
+		err = tr( "Cannot find stored data '%1' "
 			"used as input for another attribute %2 '%3'. \n"
 			"Data might have been deleted or corrupted.\n"
 			"Please check your attribute set "
