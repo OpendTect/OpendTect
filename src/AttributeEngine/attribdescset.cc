@@ -727,8 +727,8 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	    }
 	    else
 	    {
-		err = tr( "%1 for %2 attribute.")
-			.arg( dsc.errMsg() ).arg( dsc.userRef() );
+		err = tr( "Attribute '%1'\n\n%2")
+			.arg( dsc.userRef() ).arg( dsc.errMsg() );
 	    }
 
 	    toberemoved += idx;
