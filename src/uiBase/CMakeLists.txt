@@ -16,6 +16,7 @@ set( QT_MOC_HEADERS
 	i_qdial.h
 	i_qlineedit.h
 	i_qlistbox.h
+	i_qmainwindow.h
 	i_qmdiarea.h
 	i_qptr.h
 	i_qslider.h

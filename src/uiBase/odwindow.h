@@ -28,6 +28,7 @@ class uiStatusBar;
 class uiToolBar;
 class uiToolButton;
 class QWidget;
+class QMainWindowMessenger;
 
 
 class uiMainWinBody : public uiCentralWidgetBody, public QMainWindow
@@ -81,7 +82,7 @@ public:
 
     void		activateInGUIThread(const CallBack&,bool busywait);
 
-    bool		force_finalize_;
+    bool		force_finalize_			= false;
 
     static QScreen*	primaryScreen();
     QScreen*		screen(bool usetoplevel=false) const;
@@ -101,7 +102,6 @@ protected:
     void		doDisplay(bool yn);
     void		managePopupPos();
 
-
     void		renewToolbarsMenu();
     void		toggleToolbar(CallBacker*);
 
@@ -109,17 +109,17 @@ protected:
     void		readSettings();
     void		restoreDefaultState();
 
-    bool		exitapponclose_;
+    bool		exitapponclose_			= false;
 
     Threads::Mutex	activatemutex_;
     ObjectSet<CallBack> activatecbs_;
-    int			nractivated_;
+    int			nractivated_			= 0;
 
-    int			eventrefnr_ = -1;
+    int			eventrefnr_			= -1;
 
-    uiStatusBar*	statusbar_;
-    uiMenuBar*		menubar_;
-    uiMenu*		toolbarsmnu_;
+    uiStatusBar*	statusbar_			= nullptr;
+    uiMenuBar*		menubar_			= nullptr;
+    uiMenu*		toolbarsmnu_			= nullptr;
 
     ObjectSet<uiToolBar> toolbars_;
     ObjectSet<uiDockWin> dockwins_;
@@ -136,18 +136,21 @@ private:
     void		popTimTick(CallBacker*);
     void		getPosForScreenMiddle(int& x,int& y);
     void		getPosForParentMiddle(int& x,int& y);
+
     Timer		poptimer_;
-    bool		poppedup_;
-    uiSize		prefsz_;
-    uiPoint		prefpos_;
-    bool		moved_;
-    bool		createtbmenu_;
-    bool		intray_ = false;
+    bool		poppedup_			= false;
+    uiSize		prefsz_				= uiSize(-1,-1);
+    uiPoint		prefpos_			= uiPoint::udf();
+    bool		moved_				= false;
+    bool		createtbmenu_			= false;
+    bool		intray_				= false;
 
-    bool		deletefrombody_;
-    bool		deletefromod_;
+    bool		deletefrombody_			= false;
+    bool		deletefromod_			= false;
 
-    bool		hasguisettings_;
+    bool		hasguisettings_			= false;
+
+    QMainWindowMessenger& messenger_;
 };
 
 
