@@ -130,14 +130,11 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	}
     }
 
-    uiString titletxt( tr("Select %1") );
     if ( !sssu.seltxt_.isEmpty() )
-	titletxt = titletxt.arg( sssu.seltxt_ );
+	setTitleText( sssu.seltxt_ );
     else
-	titletxt = titletxt.arg( isps
-		? tr("Data Store")
-		: (is2d ? tr("Dataset") : uiStrings::sVolume()) );
-    setTitleText( titletxt );
+	setTitleText( tr("Select %1").arg(isps	? tr("Data Store")
+			: (is2d ? tr("Dataset") : uiStrings::sVolume())) );
 
     uiGroup* topgrp = selgrp_->getTopGroup();
     selgrp_->getListField()->selectionChanged.notify(
