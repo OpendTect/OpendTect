@@ -96,8 +96,8 @@ namespace Survey
 	zobj.add( tkzs.zsamp_.step );
 	OD::JSON::Object zdef;
 	zdef.set( sKey::Range(), new OD::JSON::Array(zobj) );
-	zdef.set( SurveyInfo::sKeyDomain(), zistime ? sKey::Time() :
-				    depthisfeet ? "Feet" : sKey::Depth() );
+	zdef.set( SurveyInfo::sKeyDomain(), zistime ? sKey::Time().str() :
+				depthisfeet ? "Feet" : sKey::Depth().str() );
 	jsonobj.set( SurveyInfo::sKeyZAxis(), new OD::JSON::Object(zdef) );
     }
 

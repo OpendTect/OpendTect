@@ -123,7 +123,8 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
 	    if ( nrkeys < 1 )
 		astrm.put( itmnm );
 	    else
-		astrm.put( itmnm, idx<nrkeys ? keys_.get(idx).toString() : "-");
+		astrm.put( itmnm, idx<nrkeys ? keys_.get(idx).toString().buf()
+					     : "-" );
 	}
     }
 

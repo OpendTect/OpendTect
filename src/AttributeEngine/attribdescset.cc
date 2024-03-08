@@ -892,8 +892,8 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 	if ( phaselock )
 	{
 	    steeringdef += " aperture=";
-	    const BufferString aperture = steeringpar.find("Aperture");
-	    steeringdef += aperture.isEmpty() ? "-5,5" : aperture;
+	    const BufferString aperture = steeringpar.find( "Aperture" );
+	    steeringdef += aperture.isEmpty() ? "-5,5" : aperture.buf();
 	}
     }
 

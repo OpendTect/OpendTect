@@ -613,15 +613,15 @@ void CrashDumper::init()
 	return;
 
 #ifdef mUseCrashDumper
+    const BufferString dmppathbuf = FilePath::getTempDir();
 # ifdef __win__
-    const QString dmppath = FilePath::getTempDir();
+    const QString dmppath( dmppathbuf.buf() );
     const std::wstring wpath = dmppath.toStdWString();
     handler_ = new google_breakpad::ExceptionHandler(
 		    wpath, NULL, MinidumpCB, NULL,
 		    google_breakpad::ExceptionHandler::HANDLER_ALL );
     legalInformation().addCreator( legalText, breakpadname );
 # elif __lux__
-    const BufferString dmppathbuf = FilePath::getTempDir();
     const google_breakpad::MinidumpDescriptor minidumpdesc( dmppathbuf.buf() );
     handler_ = new google_breakpad::ExceptionHandler(
 			minidumpdesc, NULL, MinidumpCB, NULL, true, -1 );

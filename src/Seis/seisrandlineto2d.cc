@@ -251,11 +251,11 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
 
     const BufferString parpref =
 	par.find( SeisRandLineTo2DGrid::sKeyParPrefix() );
-    parprefix_ = parpref.isEmpty() ? "Parallel" : parpref;
+    parprefix_ = parpref.isEmpty() ? "Parallel" : parpref.buf();
 
     const BufferString perpref =
 			par.find( SeisRandLineTo2DGrid::sKeyPerpPrefix() );
-    perprefix_ = perpref.isEmpty() ? "Perpendicular" : perpref;
+    perprefix_ = perpref.isEmpty() ? "Perpendicular" : perpref.buf();
 
     if ( !par.get(SeisRandLineTo2DGrid::sKeyGridSpacing(),gridspacing_) )
 	mNotOKRet("Error: Grid spacing not specified")

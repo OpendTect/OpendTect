@@ -480,7 +480,7 @@ bool uiWellExportFacility::exportD2TModel( const char* fp, bool ischksht )
 	*strm << BufferString(sKeyTVDSD(),depthunit) << od_tab;
 
     const bool istwt = traveltymfld_->getBoolValue();
-    *strm <<  BufferString( istwt ? sKey::TWT() : "OWT",
+    *strm <<  BufferString( istwt ? sKey::TWT().str() : "OWT",
 	    UnitOfMeasure::surveyDefTimeUnitAnnot(true,true).getFullString() )
 								    << od_tab;
     *strm << BufferString( sKeyVint(), getVelUnitString(zinfeet,true) )
