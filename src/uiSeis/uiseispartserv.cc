@@ -261,10 +261,12 @@ MultiID uiSeisPartServer::getDefault2DDataID() const
     if ( !tomanage )
 	return MultiID::udf();
 
-    uiIOObjSelDlg::Setup su( tr("Set default 2D seismic data") );
-    su.allowsetsurvdefault( false );
+    uiSeisSel::Setup su( Seis::Line );
+    su.seltxt( tr("Set default 2D seismic data") );
+    su.enabotherdomain(false).allowsetsurvdefault( false );
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc2D);
-    uiIOObjSelDlg dlg( parent(), su, *ctio );
+    ctio->ctxt_.toselect_.requireType( sKey::Attribute(), true );
+    uiSeisSelDlg dlg( parent(), *ctio, su );
     if ( !dlg.go() )
 	return MultiID::udf();
 
@@ -310,10 +312,12 @@ MultiID uiSeisPartServer::getDefaultDataID( bool is2d ) const
     if ( !tomanage )
 	return MultiID::udf();
 
-    uiIOObjSelDlg::Setup su( tr("Set default seismic data") );
-    su.allowsetsurvdefault( false );
+    uiSeisSel::Setup su( Seis::Vol );
+    su.seltxt( tr("Set default seismic data") );
+    su.enabotherdomain(false).allowsetsurvdefault( false );
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
-    uiIOObjSelDlg dlg( parent(), su, *ctio );
+    ctio->ctxt_.toselect_.requireType( sKey::Attribute(), true );
+    uiSeisSelDlg dlg( parent(), *ctio, su );
     if ( !dlg.go() )
 	return MultiID::udf();
 
