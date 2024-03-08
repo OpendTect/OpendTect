@@ -817,7 +817,7 @@ BufferString getFileSizeString( od_int64 filesz ) // filesz in kB
 	szstr += doGb ? " GB" : " MB";
     }
     else if ( filesz == 0 )
-	szstr = "< 1 kB";
+	szstr = "unknown";
     else
     {
 	szstr = filesz;
