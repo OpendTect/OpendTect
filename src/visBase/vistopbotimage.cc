@@ -63,6 +63,9 @@ void TopBotImage::setImageID( const MultiID& id )
 {
     odimageid_ = id;
     PtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj )
+	return;
+
     ImageDef def;
     ODImageDefTranslator::readDef( def, *ioobj );
     setRGBImageFromFile( def.filename_ );
