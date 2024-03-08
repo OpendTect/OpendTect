@@ -13,8 +13,8 @@ ________________________________________________________________________
 #include "hiddenparam.h"
 #include "keyboardevent.h"
 #include "settings.h"
+
 #include "ui3dviewer.h"
-#include "uimain.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "uiscenepropdlg.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
-#include "vissurvscene.h"
 
 
 const char* uiODTreeTop::sceneidkey()		{ return "Sceneid"; }
@@ -62,6 +61,7 @@ SceneID uiODTreeTop::sceneID() const
 bool uiODTreeTop::selectWithKey( int selkey )
 {
     applMgr()->visServer()->setSelObjectId( VisID(selkey) );
+    ODMainWin()->sceneMgr().setActiveScene( sceneID() );
     return true;
 }
 
@@ -122,7 +122,8 @@ bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
     if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
-    if ( !select() ) return false;
+    if ( !select() )
+	return false;
 
     applMgr()->updateColorTable( VisID::udf(), -1 );
     return true;
@@ -435,10 +436,11 @@ void uiODSceneTreeItem::addToToolBarCB( CallBacker* cb )
 void uiODSceneTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     mAddMenuOrTBItem( istb, menu, menu, &propitem_, true, false );
-    mAddMenuOrTBItem( istb, 0, menu, &imageitem_, true, false );
-    mAddMenuOrTBItem( istb, 0, menu, &coltabitem_, true, false );
+    mAddMenuOrTBItem( istb, nullptr, menu, &imageitem_, true, false );
+    mAddMenuOrTBItem( istb, nullptr, menu, &coltabitem_, true, false );
     mAddMenuOrTBItem( istb, nullptr, menu, hp_menuitem.getParam(this),
 		      true, false );
+
     bool enabdump = true;
     Settings::common().getYN(
 		IOPar::compKey("dTect","Dump OI Menu"), enabdump );

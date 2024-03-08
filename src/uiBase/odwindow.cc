@@ -8,10 +8,10 @@ ________________________________________________________________________
 -*/
 
 #include "odwindow.h"
+#include "i_qmainwindow.h"
 
 #include "uibutton.h"
 #include "uidockwin.h"
-#include "uihelpview.h"
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimenu.h"
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "keyboardevent.h"
+#include "keyenum.h"
 #include "od_ostream.h"
 #include "oddirs.h"
 
@@ -85,23 +85,12 @@ static bool hasChildWindows( uiMainWin& curwin )
 #define mParent p && p->pbody() ? p->pbody()->qwidget() : 0
 uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 			      const char* nm, bool modal )
-	: uiCentralWidgetBody(nm)
-	, QMainWindow(mParent)
-	, handle_(uimw)
-	, statusbar_(nullptr)
-	, menubar_(nullptr)
-	, toolbarsmnu_(0)
-	, modal_(p && modal)
-	, poptimer_("Popup timer")
-	, poppedup_(false)
-	, exitapponclose_(false)
-	, prefsz_(-1,-1)
-	, prefpos_(uiPoint::udf())
-	, nractivated_(0)
-	, moved_(false)
-	, createtbmenu_(false)
-	, hasguisettings_(false)
-	, force_finalize_(false)
+    : uiCentralWidgetBody(nm)
+    , QMainWindow(mParent)
+    , handle_(uimw)
+    , modal_(p && modal)
+    , poptimer_("Popup timer")
+    , messenger_(*new QMainWindowMessenger(this,&uimw))
 {
     if ( nm && *nm )
 	setObjectName( nm );
@@ -119,8 +108,6 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 #endif
 
     setDockOptions( VerticalTabs | AnimatedDocks );
-
-    deletefrombody_ = deletefromod_ = false;
 
 #ifdef __debug__
     static bool debugmw_loc = GetEnvVarYN("DTECT_DEBUG_MAINWIN");

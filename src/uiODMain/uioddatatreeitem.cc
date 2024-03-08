@@ -307,6 +307,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 bool uiODDataTreeItem::select()
 {
     visserv_->setSelObjectId( displayID(), attribNr() );
+    ODMainWin()->sceneMgr().setActiveScene( sceneID() );
     return true;
 }
 

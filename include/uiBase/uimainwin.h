@@ -131,6 +131,8 @@ public:
 
     void		removeDockWindow(uiDockWin*);
     void		addDockWindow(uiDockWin&,Dock);
+    void		tabifyDockWindow(uiDockWin& first,uiDockWin& second);
+
     void		addToolBar(uiToolBar*);
     uiToolBar*		findToolBar(const char*);
     uiToolBar*		removeToolBar(uiToolBar*);
