@@ -50,17 +50,19 @@ Well::LogSet::~LogSet()
 void Well::LogSet::getNames( BufferStringSet& nms, bool onlyloaded ) const
 {
     nms.setEmpty();
-    for ( int idx=0; idx<logs_.size(); idx++ )
+    for ( const auto* log : logs_ )
     {
-	if ( !onlyloaded || logs_[idx]->isLoaded() )
-	    nms.add( logs_[idx]->name() );
+	if ( !onlyloaded || log->isLoaded() )
+	    nms.add( log->name() );
     }
 }
 
 
 void Well::LogSet::add( Well::Log* wl )
 {
-    if ( !wl ) return;
+    if ( !wl )
+	return;
+
     Well::Log* log = getLog( wl->name().buf() );
     if ( !log )
     {
@@ -84,6 +86,7 @@ void Well::LogSet::add( const Well::LogSet& wls )
     const int prevsz = size();
     for ( int idx=0; idx<wls.size(); idx++ )
 	add( new Well::Log(wls.getLog(idx)) );
+
     if ( prevsz < size() )
     {
 	ns.enableNotification();
@@ -94,14 +97,19 @@ void Well::LogSet::add( const Well::LogSet& wls )
 
 void Well::LogSet::updateDahIntv( const Well::Log& wl )
 {
-    if ( wl.isEmpty() ) return;
+    if ( wl.isEmpty() )
+	return;
 
     if ( mIsUdf(dahintv_.start) )
-	{ dahintv_.start = wl.dah(0); dahintv_.stop = wl.dah(wl.size()-1); }
+    {
+	dahintv_.start = wl.dah(0);
+	dahintv_.stop = wl.dah(wl.size()-1);
+    }
     else
     {
 	if ( dahintv_.start > wl.dah(0) )
 	    dahintv_.start = wl.dah(0);
+
 	if ( dahintv_.stop < wl.dah(wl.size()-1) )
 	    dahintv_.stop = wl.dah(wl.size()-1);
     }
@@ -110,10 +118,10 @@ void Well::LogSet::updateDahIntv( const Well::Log& wl )
 
 void Well::LogSet::updateDahIntvs()
 {
-    for ( int idx=0; idx<logs_.size(); idx++ )
+    for ( auto* log : logs_ )
     {
-	logs_[idx]->ensureAscZ();
-	updateDahIntv( *logs_[idx] );
+	log->ensureAscZ();
+	updateDahIntv( *log );
     }
 }
 
@@ -126,6 +134,7 @@ int Well::LogSet::indexOf( const char* nm ) const
 	if ( l.name() == nm )
 	    return idx;
     }
+
     return -1;
 }
 
@@ -149,9 +158,11 @@ bool Well::LogSet::areAllLoaded() const
 
 bool Well::LogSet::isPresent( const char* nm ) const
 {
-    for ( int idx=0; idx<logs_.size(); idx++ )
-	if ( logs_[idx]->name() == nm )
+    for ( const auto* log : logs_ )
+    {
+	if ( log->name() == nm )
 	    return true;
+    }
 
     return false;
 }
@@ -159,7 +170,8 @@ bool Well::LogSet::isPresent( const char* nm ) const
 
 Well::Log* Well::LogSet::remove( int logidx )
 {
-    Log* log = logs_[logidx]; logs_ -= log;
+    Log* log = logs_[logidx];
+    logs_ -= log;
     ObjectSet<Well::Log> tmp( logs_ );
     logs_.setEmpty();
     init();
@@ -185,16 +197,18 @@ void Well::LogSet::setEmpty( bool withdelete )
 
 void Well::LogSet::removeTopBottomUdfs()
 {
-    for ( int idx=0; idx<logs_.size(); idx++ )
-	logs_[idx]->removeTopBottomUdfs();
+    for ( auto* log : logs_ )
+	log->removeTopBottomUdfs();
 }
 
 
 void Well::LogSet::getAllAvailMnems( MnemonicSelection& mns ) const
 {
     for ( const auto* log : logs_ )
+    {
 	if ( log->mnemonic(false) )
 	    mns.addIfNew( log->mnemonic() );
+    }
 }
 
 
@@ -202,8 +216,10 @@ TypeSet<int> Well::LogSet::getLogsWithNoMnemonics() const
 {
     TypeSet<int> ret;
     for ( const auto* log : logs_ )
+    {
 	if ( !log->mnemonic(false) )
 	    ret += logs_.indexOf(log);
+    }
 
     return ret;
 }
@@ -213,8 +229,10 @@ TypeSet<int> Well::LogSet::getSuitable( const Mnemonic& mn ) const
 {
     TypeSet<int> ret;
     for ( const auto* log : logs_ )
+    {
 	if ( mn.isCompatibleWith(log->mnemonic(true)) )
 	    ret += logs_.indexOf(log);
+    }
 
     return ret;
 }
@@ -235,6 +253,7 @@ TypeSet<int> Well::LogSet::getSuitable( Mnemonic::StdType ptype,
 		 || loguom->propType() == ptype;
 	if ( !isok && altpr )
 	    isok = isalt = loguom->propType() == altpr->stdType();
+
 	if ( isok )
 	{
 	    ret += idx;
@@ -427,18 +446,18 @@ Well::Log::~Log()
 
 Well::Log& Well::Log::operator =( const Well::Log& oth )
 {
-    if ( &oth != this )
-    {
-	DahObj::operator=( oth );
-	vals_ = oth.vals_;
-	range_ = oth.range_;
-	mn_ = oth.mn_;
-	uom_ = oth.uom_;
-	mnemlbl_ = oth.mnemlbl_;
-	unitmeaslbl_ = oth.unitmeaslbl_;
-	iscode_ = oth.iscode_;
-	pars_ = oth.pars_;
-    }
+    if ( &oth == this )
+	return *this;
+
+    DahObj::operator=( oth );
+    vals_ = oth.vals_;
+    range_ = oth.range_;
+    mn_ = oth.mn_;
+    uom_ = oth.uom_;
+    mnemlbl_ = oth.mnemlbl_;
+    unitmeaslbl_ = oth.unitmeaslbl_;
+    iscode_ = oth.iscode_;
+    pars_ = oth.pars_;
 
     return *this;
 }
@@ -498,7 +517,12 @@ float Well::Log::getValue( float dh, bool noudfs ) const
 	{
 	    const float val = value( idx );
 	    if ( !mIsUdf(val) )
-		{ dah1 = dah( idx ); val1 = val; found1 = true; break; }
+	    {
+		dah1 = dah( idx );
+		val1 = val;
+		found1 = true;
+		break;
+	    }
 	}
     }
     if ( idx1 < size()-1 )
@@ -507,15 +531,20 @@ float Well::Log::getValue( float dh, bool noudfs ) const
 	{
 	    const float val = value( idx );
 	    if ( !mIsUdf(val) )
-		{ dah2 = dah( idx ); val2 = val; found2 = true; break; }
+	    {
+		dah2 = dah( idx );
+		val2 = val;
+		found2 = true;
+		break;
+	    }
 	}
     }
 
     if ( !found1 && !found2 )
 	return 0;
-    else if ( !found1 )
+    if ( !found1 )
 	return val2;
-    else if ( !found2 )
+    if ( !found2 )
 	return val1;
 
     if ( iscode_ )
@@ -612,9 +641,13 @@ void Well::Log::prepareForDisplay()
 
 void Well::Log::ensureAscZ()
 {
-    if ( dah_.size() < 2 ) return;
+    if ( dah_.size() < 2 )
+	return;
+
     const int sz = dah_.size();
-    if ( dah_[0] < dah_[sz-1] ) return;
+    if ( dah_[0] < dah_[sz-1] )
+	return;
+
     const int hsz = sz / 2;
     for ( int idx=0; idx<hsz; idx++ )
     {
@@ -634,11 +667,14 @@ void Well::Log::removeTopBottomUdfs()
 	    break;
 	defrg.start++;
     }
+
     for ( int idx=sz-1; idx>=defrg.start; idx-- )
     {
 	if ( !mIsUdf(vals_[idx]) )
 	    break;
-	dah_.removeSingle( idx ); vals_.removeSingle( idx );
+
+	dah_.removeSingle( idx );
+	vals_.removeSingle( idx );
     }
 
     if ( defrg.start == 0 )
@@ -649,8 +685,13 @@ void Well::Log::removeTopBottomUdfs()
 
     TypeSet<float> newval, newdah;
     for ( int idx=defrg.start; idx<size(); idx++ )
-	{ newdah += dah_[idx]; newval += vals_[idx]; }
-    dah_ = newdah; vals_ = newval;
+    {
+	newdah += dah_[idx];
+	newval += vals_[idx];
+    }
+
+    dah_ = newdah;
+    vals_ = newval;
     updateDahRange();
 }
 
