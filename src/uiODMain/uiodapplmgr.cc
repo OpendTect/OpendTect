@@ -1862,6 +1862,14 @@ void uiODApplMgr::manSurvCB( CallBacker* )
     if ( retval == 4 )
 	appl_.exit( false, false );
 }
+
+
+void uiODApplMgr::editSurvCB( CallBacker* )
+{
+    editCurrentSurvey( nullptr );
+}
+
+
 void uiODApplMgr::tieWellToSeismic( CallBacker* )
 { wellattrserv_->createD2TModel(MultiID()); }
 void uiODApplMgr::doWellLogTools( CallBacker* )

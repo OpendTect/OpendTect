@@ -1130,7 +1130,16 @@ void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
 
 void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 {
-    mAddTB(dtecttb_,"survey",tr("Survey Setup"),false,manSurvCB);
+    const int surveyid = dtecttb_->addButton( "survey", tr("Survey Setup") );
+    auto* surveymenu = new uiMenu();
+    surveymenu->insertAction(
+	new uiAction(m3Dots(tr("Select/Manage Surveys")),
+			mCB(appman,uiODApplMgr,manSurvCB),"survey") );
+    surveymenu->insertAction(
+	new uiAction(m3Dots(tr("Edit Survey Parameters")),
+			mCB(appman,uiODApplMgr,editSurvCB),"editcurrsurv") );
+    dtecttb_->setButtonMenu( surveyid, surveymenu, uiToolButton::InstantPopup );
+
     ::add2D3DToolButton( *dtecttb_, "attributes", tr("Edit Attributes"),
 			 mCB(appman,uiODApplMgr,editAttr2DCB),
 			 mCB(appman,uiODApplMgr,editAttr3DCB) );
