@@ -523,8 +523,15 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-    const bool hastransform = scene && scene->getZAxisTransform();
+#ifndef __debug__
+    if ( scene && scene->getZAxisTransform() )
+    {
+	uiMSG().message( tr("Cannot add FaultStickSets to this scene") );
+	return false;
+    }
+#endif
 
+    const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
     if ( !hastransform )
