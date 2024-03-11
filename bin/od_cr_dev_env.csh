@@ -53,7 +53,6 @@ endif
 chmod +w -R .
 
 echo "OpendTect_DIR:PATH=${inpdir}" >> CMakeCache.txt
-echo "CMAKE_BUILD_TYPE:STRING=RelWithDebInfo" >> CMakeCache.txt
 echo "CMAKE_CXX_FLAGS_RELWITHDEBINFO=-Wno-inline " >> CMakeCache.txt
 set plf=`uname`
 if ( "${plf}" == "Darwin") then

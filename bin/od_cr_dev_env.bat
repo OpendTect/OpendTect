@@ -35,5 +35,4 @@ goto END
 set inpdir=%inpdir:\=/%
 set inpdir=%inpdir:"=%
 echo OpendTect_DIR:PATH=%inpdir% > %outdir%\CMakeCache.txt
-echo CMAKE_BUILD_TYPE:STRING=Debug >> %outdir%\CMakeCache.txt
 echo Done
