@@ -17,6 +17,7 @@ uiTime2DepthZTransformBase::uiTime2DepthZTransformBase( uiParent* p, bool t2d )
     : uiZAxisTransform(p)
     , t2d_(t2d)
     , rangefld_(nullptr)
+    , rangechanged_(false)
 {
     mAttachCB( postFinalize(), uiTime2DepthZTransformBase::finalizeDoneCB );
 }
