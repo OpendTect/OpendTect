@@ -1471,6 +1471,7 @@ void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
     int lnum = 1;
     while ( strm.isOK() )
     {
+	bool isminver = true;
 	strm.getLine( line, &newlinefound );
 	if ( !newlinefound )
 	    break;
@@ -1480,6 +1481,11 @@ void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
 	    modulestr.unCat( line, "==" );
 	else if ( line.contains(">=") )
 	    modulestr.unCat( line, ">=" );
+	else if ( line.contains("<") )
+	{
+	    modulestr.unCat( line, "<" );
+	    isminver = false;
+	}
 	else
 	    modulestr.add( line );
 
@@ -1489,7 +1495,7 @@ void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
 	else if (modulestr.size() >= 2 )
 	{
 	    const BufferString ver = modulestr.get( 1 ).trimBlanks();
-	    ret.add( hasModule( modname, ver ) );
+	    ret.add( hasModule( modname, isminver, ver ) );
 	}
 	else
 	{
@@ -1540,21 +1546,21 @@ BufferString OD::PythonAccess::getPacmanExecNm() const
 }
 
 
-uiRetVal OD::PythonAccess::hasModule( const char* modname,
-				      const char* minversion ) const
+uiRetVal OD::PythonAccess::hasModule( const char* modname, bool isminver,
+				      const char* version ) const
 {
-    return hasModule( moduleinfos_, modname, minversion );
+    return hasModule( moduleinfos_, modname, isminver, version );
 }
 
 
 uiRetVal OD::PythonAccess::hasModule( const ObjectSet<ModuleInfo>& moduleinfos,
-				      const char* modname,
-				      const char* minversion )
+				      const char* modname, bool isminver,
+				      const char* version )
 {
     uiString msg;
-    if ( minversion )
-	msg = tr("Package: %1 Version: %2 or higher required").arg( modname )
-		.arg( minversion );
+    if ( version )
+	msg = tr("Package: %1 Version: %2 %3 required").arg( modname )
+		.arg( isminver ? ">=" : "<" ).arg( version );
     else
 	msg = tr("Package: %1 required").arg( modname );
 
@@ -1564,18 +1570,19 @@ uiRetVal OD::PythonAccess::hasModule( const ObjectSet<ModuleInfo>& moduleinfos,
     {
 	if ( modnames.isPresent(reqmod->name().buf()) )
 	{
-	    if ( minversion ) {
+	    if ( version ) {
 		const SeparString actverstr( reqmod->versionstr_, '.' );
-		const SeparString reqverstr( minversion, '.' );
+		const SeparString reqverstr( version, '.' );
 		for ( int ver=0; ver<reqverstr.size(); ver++ )
 		{
-		    if ( actverstr.getUIValue(ver)<
-			 reqverstr.getUIValue(ver) )
+		    const int actver = actverstr.getUIValue(ver);
+		    const int reqver = reqverstr.getUIValue(ver);
+		    if ( (isminver && (actver<reqver)) ||
+					      (!isminver && (actver>reqver))  )
 			return uiRetVal( tr("%1, but installed Version: %2")
-					    .arg( msg )
-			.arg( reqmod->versionstr_ ) );
-		    else if ( actverstr.getUIValue(ver)>reqverstr
-				.getUIValue(ver))
+				    .arg( msg ).arg( reqmod->versionstr_ ) );
+		    else if ( (isminver && (actver>reqver)) ||
+						(!isminver && (actver<reqver)) )
 			break;
 		}
 	    }

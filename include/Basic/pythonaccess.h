@@ -121,10 +121,10 @@ namespace OD
 	BufferStringSet getUserPythonPath() const;
 			//<! Initial value of PYTHONPATH before OD starts
 
-	uiRetVal	hasModule(const char* modname,
-				  const char* minversion=nullptr) const;
+	uiRetVal	hasModule(const char* modname, bool isminver=true,
+				  const char* version=nullptr) const;
 	static uiRetVal	hasModule(const ObjectSet<ModuleInfo>&,
-				  const char* modname,
+				  const char* modname, bool isminver=true,
 				  const char* minversion=nullptr);
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
 	void		setForScript(const char* scriptnm,
