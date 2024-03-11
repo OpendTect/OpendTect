@@ -18,18 +18,6 @@ namespace Pos { class Filter; }
 
 namespace EM
 {
-
-mExpClass(EarthModel) FaultSSDataHolder
-{
-public:
-						FaultSSDataHolder();
-						~FaultSSDataHolder();
-    ObjectSet<const Geometry::FaultStick>	sticks_;
-    Pos::GeomID					geomid_;
-    TypeSet<int>				sticknr_;
-    TrcKeyZSampling				tkzs_;
-};
-
 /*!
 \brief FaultStickSet geometry.
 */
@@ -79,9 +67,12 @@ public:
 
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
-    const ObjectSet<FaultSSDataHolder>& getDataHodlers() const
-						    { return dataholders_; }
     inline const Interval<float>&	getZRange() const { return zgate_; }
+    void		    getPickedGeomIDs(TypeSet<Pos::GeomID>&) const;
+    void		    getStickNrsForGeomID(const Pos::GeomID&,
+							TypeSet<int>&) const;
+    void		    getTrcKeyZSamplingForGeomID(const Pos::GeomID&,
+						    TrcKeyZSampling&) const;
 
 // Deprecated public functions
     mDeprecated("Use without SectionID")
@@ -155,26 +146,54 @@ public:
 
 protected:
     Geometry::FaultStickSet*	createGeometryElement() const override;
-    int			indexOf(int sticknr) const;
+    bool		insertStick(int sticknr,int firstcol,
+			    const Coord3& pos,const Coord3& editnormal,
+			    const MultiID& pickedmid,
+			    const Pos::GeomID& pickedgeomid,bool addtohistory);
 
-    mDeprecated("Use without SectionID")
-    int			indexOf(const SectionID& sid,int sticknr) const
-			{ return indexOf(sticknr); }
-
-    struct StickInfo
-    {
-				StickInfo();
-
-	SectionID		sid = SectionID::def();
-	int			sticknr		= mUdf(int);
-	Pos::GeomID		pickedgeomid;
-	MultiID			pickedmid;
-	BufferString		pickednm;
-    };
-
-    ObjectSet<StickInfo>		stickinfo_;
-    ObjectSet<FaultSSDataHolder>	dataholders_;
     Interval<float>			zgate_;
+
+class GeomGroup
+{
+public:
+				    GeomGroup(const Pos::GeomID&);
+				    ~GeomGroup();
+
+    const Pos::GeomID		    geomID() const;
+    void			    setTrcKeyZSampling(const TrcKeyZSampling&);
+    const TrcKeyZSampling&	    trcKeyZSampling() const;
+    int				    size() const;
+    const MultiID&		    multiID() const;
+    void			    setMultiID(const MultiID&);
+
+    bool			    isPresent(int sticknr) const;
+
+    TypeSet<int>		    sticknrs_;
+protected:
+
+    MultiID			    mid_; //Only for picking on Horizon
+    TrcKeyZSampling		    tkzs_;
+};
+
+class GeomGroupUpdater : public ParallelTask
+{ mODTextTranslationClass(FaultStickSetDataUpdater)
+public:
+			    GeomGroupUpdater(Geometry::FaultStickSet&,
+				ObjectSet<GeomGroup>&);
+			    ~GeomGroupUpdater();
+
+protected:
+    bool			    doWork(od_int64,od_int64,int) override;
+    od_int64			    nrIterations() const override;
+    Geometry::FaultStickSet&	    faultstickset_;
+    ObjectSet<GeomGroup>&	    geomgroupset_;
+    od_int64			    totnr_		= 0;
+};
+
+ObjectSet<GeomGroup>	geomgroupset_;
+GeomGroup*		getGeomGroup(const Pos::GeomID&);
+GeomGroup*		getGeomGroup(const MultiID&);
+
 };
 
 
@@ -199,48 +218,6 @@ protected:
     const IOObjContext&			getIOObjContext() const override;
 
     FaultStickSetGeometry		geometry_;
-};
-
-
-
-mExpClass(EarthModel) FaultStickSetDataOrganiser : public Executor
-{ mODTextTranslationClass(FaultStickSetDataOrganiser)
-public:
-		       FaultStickSetDataOrganiser(const FaultStickSetGeometry&,
-						ObjectSet<FaultSSDataHolder>&);
-		       ~FaultStickSetDataOrganiser();
-
-    uiString			    uiMessage() const override { return msg_; }
-    uiString			    uiNrDoneText() const override;
-    od_int64			    nrDone() const override { return nrdone_; }
-    od_int64			    totalNr() const override { return totnr_; }
-protected:
-
-
-    const EM::FaultStickSetGeometry&	fssgeom_;
-    uiString				msg_;
-    od_int64				nrdone_		    = 0;
-    od_int64				totnr_		    = 0;
-    int					nextStep() override;
-
-    ObjectSet<FaultSSDataHolder>&	dataholders_;
-    TypeSet<Pos::GeomID>		processedgeomids_;
-
-};
-
-mExpClass(EarthModel) FaultStickSetDataUpdater : public ParallelTask
-{ mODTextTranslationClass(FaultStickSetDataUpdater)
-public:
-			    FaultStickSetDataUpdater(Geometry::FaultStickSet&,
-						ObjectSet<FaultSSDataHolder>&);
-			    ~FaultStickSetDataUpdater();
-
-protected:
-    bool			    doWork(od_int64,od_int64,int) override;
-    od_int64			    nrIterations() const override;
-    Geometry::FaultStickSet&	    faultstickset_;
-    ObjectSet<FaultSSDataHolder>&   dataholders_;
-    od_int64			    totnr_		= 0;
 };
 
 } // namespace EM

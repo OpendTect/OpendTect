@@ -284,21 +284,33 @@ bool FaultStickSet::removeKnot( const RowCol& rc )
 int FaultStickSet::nrSticks() const
 { return sticks_.size(); }
 
-const FaultStick* FaultStickSet::getStick( int stickidx ) const
+const FaultStick* FaultStickSet::getStick( int nr, bool issticknr ) const
 {
-   if ( stickidx<0 || stickidx>=sticks_.size() )
-      return nullptr;
+    if ( issticknr )
+    {
+	mGetValidStickIdx( stickidx, nr, 0, nullptr );
+	nr = stickidx;
+    }
 
-    return sticks_[stickidx];
+    if ( nr<0 || nr>=sticks_.size() )
+	return nullptr;
+
+    return sticks_[nr];
 }
 
 
-FaultStick* FaultStickSet::getStick( int stickidx )
+FaultStick* FaultStickSet::getStick( int nr,  bool issticknr )
 {
-    if ( stickidx<0 || stickidx>=sticks_.size() )
-      return nullptr;
+    if ( issticknr )
+    {
+	mGetValidStickIdx( stickidx, nr, 0, nullptr );
+	nr = stickidx;
+    }
 
-    return sticks_[stickidx];
+    if ( nr<0 || nr>=sticks_.size() )
+	return nullptr;
+
+    return sticks_[nr];
 }
 
 

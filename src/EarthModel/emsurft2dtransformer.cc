@@ -855,24 +855,25 @@ bool FaultStickSetT2DTransformer::handle2DTransformation(
 				const EM::FaultStickSetGeometry& fssgeom,
 				EM::FaultStickSet& outfss )
 {
-    const ObjectSet<EM::FaultSSDataHolder>& dataholders =
-						    fssgeom.getDataHodlers();
-
+    TypeSet<Pos::GeomID> geomids;
+    fssgeom.getPickedGeomIDs( geomids );
     const StepInterval<int> trcrg = fssgeom.geometryElement()->colRange();
-    for ( auto* dh : dataholders )
+    for ( auto& geomid : geomids )
     {
-	const Pos::GeomID& geomid = dh->geomid_;
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 					    Survey::GM().getGeometry(geomid));
 	if ( !geom2d )
 	    continue;
 
 	load2DVelCubeTransf( geomid, geom2d->data().trcNrRange() );
-
-	const int sz = dh->sticks_.size();
-	for ( int idx = 0; idx<sz; idx++ )
-	    doTransformation( dh->sticks_.get(idx), dh->sticknr_[idx], outfss,
-								    geomid );
+	TypeSet<int> sticknrs;
+	fssgeom.getStickNrsForGeomID( geomid, sticknrs );
+	for ( auto sticknr : sticknrs )
+	{
+	    doTransformation(
+		fssgeom.geometryElement()->getStick(sticknr,true), sticknr,
+		outfss, geomid );
+	}
 
 	unloadModel();
     }
@@ -890,16 +891,12 @@ bool FaultStickSetT2DTransformer::handle3DTransformation(
 	mErrRet( tr("FaultStickSet is empty") );
 
     const int nrsticks = fssgeom.nrSticks();
-    const ObjectSet<EM::FaultSSDataHolder>& dataholders =
-						    fssgeom.getDataHodlers();
-    const int dhsz = dataholders.size();
-    for ( int dhidx=0; dhidx<dhsz; dhidx++ )
+    TypeSet<Pos::GeomID> geomids;
+    fssgeom.getPickedGeomIDs( geomids );
+    for ( auto& geomid : geomids )
     {
-	const EM::FaultSSDataHolder* dh = dataholders.get( dhidx );
-	if ( !dh )
-	    continue;
-
-	TrcKeyZSampling& samp = const_cast<TrcKeyZSampling&>( dh->tkzs_ );
+	TrcKeyZSampling samp;
+	fssgeom.getTrcKeyZSamplingForGeomID( geomid, samp );
 	samp.zsamp_.start = zatf_.getModelZSampling().start;
 	samp.zsamp_ = zatf_.getZInterval( true, true, &samp.zsamp_ );
 	load3DTranformVol( &samp );

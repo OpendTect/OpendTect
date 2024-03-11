@@ -68,8 +68,8 @@ public:
 
     int			nrSticks() const;
     int			nrKnots(int sticknr) const;
-    const FaultStick*	getStick(int stickidx) const;
-    FaultStick*		getStick(int stickidx);
+    const FaultStick*	getStick(int,bool issticknr=false) const;
+    FaultStick*		getStick(int,bool issticknr=false);
 
     StepInterval<int>	rowRange() const override;
     virtual StepInterval<int> colRange() const override

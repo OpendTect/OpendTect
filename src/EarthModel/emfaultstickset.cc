@@ -56,7 +56,8 @@ void FaultStickSet::apply( const Pos::Filter& pf )
     for ( rc.row()=rowrg.stop; rc.row()>=rowrg.start; rc.row()-=rowrg.step )
     {
 	const StepInterval<int> colrg = fssg->colRange( rc.row() );
-	if ( colrg.isUdf() ) continue;
+	if ( colrg.isUdf() )
+	    continue;
 
 	for ( rc.col()=colrg.stop; rc.col()>=colrg.start;
 						    rc.col()-=colrg.step )
@@ -90,10 +91,62 @@ EMObjectIterator*
 }
 
 
-// FaultStickSetGeometry
+// FaultSSInfoHolder
 
-FaultStickSetGeometry::StickInfo::StickInfo()
+FaultStickSetGeometry::GeomGroup::GeomGroup(
+						const Pos::GeomID& geomid )
+{
+    tkzs_.hsamp_.setGeomID( geomid );
+}
+
+
+FaultStickSetGeometry::GeomGroup::~GeomGroup()
 {}
+
+
+const Pos::GeomID FaultStickSetGeometry::GeomGroup::geomID() const
+{
+    return tkzs_.hsamp_.getGeomID();
+}
+
+
+void FaultStickSetGeometry::GeomGroup::setTrcKeyZSampling(
+					    const TrcKeyZSampling& tkzs )
+{
+    tkzs_ = tkzs;
+    tkzs_.hsamp_.step_ = SI().sampling( true ).hsamp_.step_;
+}
+
+
+const TrcKeyZSampling&
+	    FaultStickSetGeometry::GeomGroup::trcKeyZSampling() const
+{
+    return tkzs_;
+}
+
+
+int FaultStickSetGeometry::GeomGroup::size() const
+{
+    return sticknrs_.size();
+}
+
+
+bool FaultStickSetGeometry::GeomGroup::isPresent( int sticknr ) const
+{
+    return sticknrs_.indexOf(sticknr) >= 0;
+}
+
+
+const MultiID& FaultStickSetGeometry::GeomGroup::multiID() const
+{
+    return mid_;
+}
+
+
+void FaultStickSetGeometry::GeomGroup::setMultiID( const MultiID& mid )
+{
+    mid_ = mid;
+}
 
 
 FaultStickSetGeometry::FaultStickSetGeometry( Surface& surf )
@@ -130,6 +183,42 @@ EMObjectIterator* FaultStickSetGeometry::createIterator(
 }
 
 
+void FaultStickSetGeometry::getPickedGeomIDs(
+				    TypeSet<Pos::GeomID>& geomids ) const
+{
+    for ( auto* geomgrp : geomgroupset_ )
+	geomids.add( geomgrp->geomID() );
+}
+
+
+void FaultStickSetGeometry::getStickNrsForGeomID( const Pos::GeomID& geomid,
+						TypeSet<int>& sticknrs ) const
+{
+    for ( auto* geomgrp : geomgroupset_ )
+    {
+	if ( geomgrp->geomID() == geomid )
+	{
+	    sticknrs = geomgrp->sticknrs_;
+	    break;
+	}
+    }
+}
+
+
+void FaultStickSetGeometry::getTrcKeyZSamplingForGeomID(
+		    const Pos::GeomID& geomid, TrcKeyZSampling& tkzs ) const
+{
+    for ( auto* geomgrp : geomgroupset_ )
+    {
+	if ( geomgrp->geomID() == geomid )
+	{
+	    tkzs = geomgrp->trcKeyZSampling();
+	    break;
+	}
+    }
+}
+
+
 int FaultStickSetGeometry::nrSticks() const
 {
     const Geometry::FaultStickSet* fss = geometryElement();
@@ -143,6 +232,31 @@ int FaultStickSetGeometry::nrKnots( int sticknr ) const
     return fss ? fss->nrKnots(sticknr) : 0;
 }
 
+
+FaultStickSetGeometry::GeomGroup* FaultStickSetGeometry::getGeomGroup(
+				    const Pos::GeomID& pickedgeomid )
+{
+    for ( auto* currgeomgrp : geomgroupset_ )
+    {
+	if ( currgeomgrp->geomID() == pickedgeomid )
+	    return currgeomgrp;
+    }
+
+    return nullptr;
+}
+
+
+FaultStickSetGeometry::GeomGroup* FaultStickSetGeometry::getGeomGroup(
+					    const MultiID& pickedmid )
+{
+    for ( auto* currgeomgrp : geomgroupset_ )
+    {
+	if ( currgeomgrp->multiID() == pickedmid )
+	    return currgeomgrp;
+    }
+
+    return nullptr;
+}
 
 #define mTriggerSurfaceChange( surf ) \
     surf.setChangedFlag(); \
@@ -168,36 +282,11 @@ bool FaultStickSetGeometry::insertStick( int sticknr,
 					 const char* pickednm,
 					 bool addtohistory )
 {
-    Geometry::FaultStickSet* fss = geometryElement();
+    const Pos::GeomID pickedgeomid = Survey::GM().getGeomID( pickednm );
+    MultiID mid = pickedmid ? *pickedmid : MultiID::udf();
+    return insertStick( sticknr, firstcol, pos, editnormal, mid, pickedgeomid,
+							    addtohistory );
 
-    if ( !fss )
-	return false;
-
-    const bool firstrowchange = sticknr < fss->rowRange().start;
-
-    const Pos::GeomID geomid = Survey::GM().getGeomID( pickednm );
-    if ( !fss->insertStick(pos,editnormal,sticknr,firstcol,geomid) )
-	return false;
-
-    for ( int idx=0; !firstrowchange && idx<stickinfo_.size(); idx++ )
-    {
-	if ( stickinfo_[idx]->sticknr>=sticknr )
-	    stickinfo_[idx]->sticknr++;
-    }
-
-    stickinfo_.insertAt( new StickInfo, 0 );
-    stickinfo_[0]->sticknr = sticknr;
-    stickinfo_[0]->pickedmid = pickedmid ? *pickedmid : MultiID::udf();
-    stickinfo_[0]->pickednm = pickednm;
-    if ( addtohistory )
-    {
-	const PosID posid( surface_.id(), RowCol(sticknr,0) );
-	UndoEvent* undo = new FaultStickUndoEvent( posid );
-	EMM().undo(surface_.id()).addEvent( undo, 0 );
-    }
-
-    mTriggerSurfaceChange( surface_ );
-    return true;
 }
 
 
@@ -207,6 +296,15 @@ bool FaultStickSetGeometry::insertStick( int sticknr,
 					 Pos::GeomID pickedgeomid,
 					 bool addtohistory )
 {
+    return insertStick( sticknr, firstcol, pos, editnormal, MultiID::udf(),
+	pickedgeomid, addtohistory );
+}
+
+
+bool FaultStickSetGeometry::insertStick(int sticknr, int firstcol,
+	const Coord3& pos, const Coord3& editnormal, const MultiID& pickedmid,
+	const Pos::GeomID& pickedgeomid, bool addtohistory )
+{
     Geometry::FaultStickSet* fss = geometryElement();
 
     if ( !fss )
@@ -214,18 +312,39 @@ bool FaultStickSetGeometry::insertStick( int sticknr,
 
     const bool firstrowchange = sticknr < fss->rowRange().start;
 
+    GeomGroup* geomgrp = nullptr;
+
+    if ( !pickedmid.isUdf() )
+	geomgrp = getGeomGroup( pickedmid );
+    else
+	geomgrp = getGeomGroup( pickedgeomid );
+
+    if ( !geomgrp )
+    {
+	geomgrp = new GeomGroup( pickedgeomid.isValid() ? pickedgeomid :
+						    Pos::GeomID(OD::Geom3D) );
+	geomgrp->setMultiID( pickedmid );
+	geomgroupset_.add( geomgrp );
+    }
+
     if ( !fss->insertStick(pos,editnormal,sticknr,firstcol) )
 	return false;
 
-    for ( int idx=0; !firstrowchange && idx<stickinfo_.size(); idx++ )
+    if ( !firstrowchange )
     {
-	if ( stickinfo_[idx]->sticknr>=sticknr )
-	    stickinfo_[idx]->sticknr++;
+	for ( auto* currgeomgrp : geomgroupset_ )
+	{
+	    const int sz = currgeomgrp->size();
+	    for ( int kidx=0; kidx<sz; kidx++ )
+	    {
+		if ( currgeomgrp->sticknrs_[kidx]>=sticknr)
+		    currgeomgrp->sticknrs_[kidx]++;
+	    }
+
+	}
     }
 
-    stickinfo_.insertAt( new StickInfo, 0 );
-    stickinfo_[0]->sticknr = sticknr;
-    stickinfo_[0]->pickedgeomid = pickedgeomid;
+    geomgrp->sticknrs_.add( sticknr );
     if ( addtohistory )
     {
 	const PosID posid( surface_.id(), RowCol(sticknr,0) );
@@ -250,7 +369,6 @@ bool FaultStickSetGeometry::removeStick( int sticknr,
 	return false;
 
     const RowCol rc( sticknr, colrg.start );
-
     const Coord3 pos = fss->getKnot( rc );
     const Coord3 normal = getEditPlaneNormal( sticknr );
     if ( !normal.isDefined() || !pos.isDefined() )
@@ -259,16 +377,22 @@ bool FaultStickSetGeometry::removeStick( int sticknr,
     if ( !fss->removeStick(sticknr) )
 	return false;
 
-    for ( int idx=stickinfo_.size()-1; idx>=0; idx-- )
+    const bool forrem = sticknr >= fss->rowRange().start;
+    for ( int idx=0; idx<geomgroupset_.size(); idx++ )
     {
-	if ( stickinfo_[idx]->sticknr == sticknr )
+	auto* geomgrp = geomgroupset_.get( idx );
+	const int sz = geomgrp->size();
+	for ( int kidx=sz-1; kidx>=0; kidx-- )
 	{
-	    delete stickinfo_.removeSingle( idx );
-	    continue;
+	    if ( forrem && geomgrp->sticknrs_[kidx]>sticknr)
+		geomgrp->sticknrs_[kidx]--;
+	    if ( geomgrp->sticknrs_[kidx] == sticknr )
+	    {
+		geomgrp->sticknrs_.removeSingle(kidx);
+		continue;
+	    }
 	}
 
-	if ( sticknr>=fss->rowRange().start && stickinfo_[idx]->sticknr>sticknr)
-	    stickinfo_[idx]->sticknr--;
     }
 
     if ( addtohistory )
@@ -350,40 +474,40 @@ bool FaultStickSetGeometry::pickedOn2DLine( int sticknr ) const
 }
 
 
-const MultiID* FaultStickSetGeometry::pickedMultiID(
-						     int sticknr) const
+const MultiID* FaultStickSetGeometry::pickedMultiID( int sticknr) const
 {
-    int idx = indexOf(sticknr);
-    if ( idx >= 0 )
+    for ( auto* geomgrp : geomgroupset_ )
     {
-	const MultiID& pickedmid = stickinfo_[idx]->pickedmid;
-	return pickedmid.isUdf() ? nullptr : &pickedmid;
+	const int idx = geomgrp->sticknrs_.indexOf( sticknr );
+	if ( idx >= 0 )
+	{
+	    const MultiID& pickedmid = geomgrp->multiID();
+	    return pickedmid.isUdf() ? nullptr : &pickedmid;
+	}
     }
 
     return nullptr;
 }
 
 
-const char* FaultStickSetGeometry::pickedName(
-					       int sticknr) const
+const char* FaultStickSetGeometry::pickedName( int sticknr) const
 {
-    int idx = indexOf(sticknr);
-    if ( idx >= 0 )
-    {
-        const char* pickednm = stickinfo_[idx]->pickednm.buf();
-	return *pickednm ? pickednm : nullptr;
-    }
+    const Pos::GeomID& geomid = pickedGeomID( sticknr );
+    if ( geomid.isValid() )
+	return Survey::GM().getName( geomid );
 
     return nullptr;
 }
 
 
-Pos::GeomID FaultStickSetGeometry::pickedGeomID(
-						 int sticknr) const
+Pos::GeomID FaultStickSetGeometry::pickedGeomID( int sticknr ) const
 {
-    int idx = indexOf(sticknr);
-    if ( idx >= 0 )
-	return stickinfo_[idx]->pickedgeomid;
+    for ( auto* geomgrp : geomgroupset_ )
+    {
+	const int idx = geomgrp->sticknrs_.indexOf( sticknr );
+	if ( geomgrp->isPresent(sticknr) )
+	    return geomgrp->geomID();
+    }
 
     return Survey::GeometryManager::cUndefGeomID();
 }
@@ -397,17 +521,18 @@ static BufferString getKey( const char* prefix, int sticknr )
 
 EM::ObjectType FaultStickSetGeometry::FSSObjType() const
 {
-    const int nrsticks = nrSticks();
+    const int nrdistinct = geomgroupset_.size();
     int count2d = 0;
-    for ( int idx=0; idx<nrsticks; idx++ )
+    for ( auto* geomgrp : geomgroupset_ )
     {
-	const Pos::GeomID& geomid = stickinfo_[idx]->pickedgeomid;
+	const int nrstricks = geomgrp->sticknrs_.size();
+	const Pos::GeomID& geomid = geomgrp->geomID();
 	if ( geomid.isValid() && geomid.is2D() )
 	    count2d++;
     }
 
     EM::ObjectType objtype = EM::ObjectType::FltSS2D3D;
-    if ( count2d == nrsticks )
+    if ( count2d == nrdistinct )
 	objtype = EM::ObjectType::FltSS2D;
     else if ( count2d == 0 )
 	objtype = EM::ObjectType::FltSS3D;
@@ -470,214 +595,159 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 	par.get( editnormstr.buf(), editnormal );
 	fss->addEditPlaneNormal( editnormal, sticknr );
 
-	stickinfo_.insertAt( new StickInfo, 0 );
-	stickinfo_[0]->sticknr = sticknr;
-
+	Pos::GeomID geomid;
+	MultiID mid;
 	BufferString geomidstr = getKey( "Picked GeomID", sticknr );
-	if ( par.get(geomidstr.buf(), stickinfo_[0]->pickedgeomid) )
-	    continue;
-
-	geomidstr.set("Picked GeomID of section 0 sticknr ").add(sticknr);
-	if ( par.get(geomidstr.buf(), stickinfo_[0]->pickedgeomid) )
-	    continue;
-
-	const BufferString l2dkeystr = getKey( "GeomID", sticknr );
-	BufferString keybuf;
-	if ( par.get(l2dkeystr.buf(),keybuf) )
+	if ( !par.get(geomidstr.buf(),geomid) )
 	{
-	    PosInfo::Line2DKey l2dkey;
-	    l2dkey.fromString( keybuf );
-	    if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
-		S2DPOS().setCurLineSet( l2dkey.lsID() );
+	    geomidstr.set("Picked GeomID of section 0 sticknr ").add(sticknr);
+	    if ( !par.get(geomidstr.buf(),geomid) )
+	    {
+		const BufferString l2dkeystr = getKey( "GeomID", sticknr );
+		BufferString keybuf;
+		if ( par.get(l2dkeystr.buf(),keybuf) )
+		{
+		    PosInfo::Line2DKey l2dkey;
+		    l2dkey.fromString( keybuf );
+		    if ( S2DPOS().curLineSetID() != l2dkey.lsID() )
+			S2DPOS().setCurLineSet( l2dkey.lsID() );
 
-	    stickinfo_[0]->pickedgeomid = Survey::GM().getGeomID(
-				S2DPOS().getLineSet(l2dkey.lsID()),
-				S2DPOS().getLineName(l2dkey.lineID()) );
-	    continue;
+		    geomid = Survey::GM().getGeomID(
+				    S2DPOS().getLineSet(l2dkey.lsID()),
+				    S2DPOS().getLineName(l2dkey.lineID()) );
+
+		}
+		else
+		{
+		    const BufferString pickedmidstr = getKey( "Picked MultiID",
+							    sticknr );
+		    if ( !par.get(pickedmidstr.buf(),mid) )
+		    {
+			BufferString linesetstr = getKey( "Line set",
+								    sticknr );
+			if ( !par.hasKey(linesetstr.buf()) )
+			    linesetstr.set("Line set of section 0 sticknr ").
+								add( sticknr );
+
+			par.get( linesetstr.buf(), mid );
+		    }
+
+		    BufferString pickednm;
+		    const BufferString pickednmstr = getKey( "Picked name",
+								sticknr );
+		    if ( !par.get(pickednmstr.buf(),pickednm) )
+		    {
+			BufferString linenamestr = getKey( "Line name",
+								    sticknr );
+			if ( !par.hasKey(linenamestr.buf()) )
+			    linenamestr.set("Line name of section 0 sticknr ").
+								add(sticknr);
+
+			par.get( linenamestr.buf(), pickednm );
+		    }
+
+		    geomid = Survey::GM().getGeomID( pickednm );
+		    PtrMan<IOObj> pickedioobj = IOM().get( mid );
+		    if ( pickedioobj )
+			geomid = Survey::GM().getGeomID( pickedioobj->name(),
+								    pickednm );
+		}
+	    }
 	}
 
-	const BufferString pickedmidstr = getKey( "Picked MultiID", sticknr );
-	if ( !par.get(pickedmidstr.buf(), stickinfo_[0]->pickedmid) )
+	GeomGroup* geomgrp = nullptr;
+	for ( auto* currgeomgrp : geomgroupset_ )
 	{
-	    BufferString linesetstr = getKey( "Line set", sticknr );
-	    if ( !par.hasKey(linesetstr.buf()) )
-		linesetstr.set("Line set of section 0 sticknr ").add( sticknr );
-
-	    par.get( linesetstr.buf(), stickinfo_[0]->pickedmid );
+	    if ( currgeomgrp->geomID() == geomid )
+	    {
+		geomgrp = currgeomgrp;
+		break;
+	    }
 	}
 
-	const BufferString pickednmstr = getKey( "Picked name" , sticknr );
-	if ( !par.get(pickednmstr.buf(), stickinfo_[0]->pickednm) )
+	if ( !geomgrp )
 	{
-	    BufferString linenamestr = getKey( "Line name", sticknr );
-	    if ( !par.hasKey(linenamestr.buf()) )
-		linenamestr.set("Line name of section 0 sticknr ").add(sticknr);
-
-	    par.get( linenamestr.buf(), stickinfo_[0]->pickednm );
+	    geomgrp = new GeomGroup( geomid );
+	    geomgrp->setMultiID( mid );
+	    geomgroupset_.add( geomgrp );
 	}
 
-	PtrMan<IOObj> pickedioobj = IOM().get( stickinfo_[0]->pickedmid );
-	if ( pickedioobj )
-	    stickinfo_[0]->pickedgeomid =
-		    Survey::GM().getGeomID( pickedioobj->name(),
-					    stickinfo_[0]->pickednm );
+	geomgrp->sticknrs_.add( sticknr );
     }
 
-    FaultStickSetDataOrganiser fssdataorganiser( *this, dataholders_ );
-    if ( !fssdataorganiser.execute() )
-	return false;
-
-    FaultStickSetDataUpdater fssupdater( *fss, dataholders_ );
-    return fssupdater.execute();
-}
-
-
-int FaultStickSetGeometry::indexOf( int sticknr ) const
-{
-    for ( int idx=0; idx<stickinfo_.size(); idx++ )
-    {
-	if ( stickinfo_[idx]->sticknr==sticknr )
-	    return idx;
-    }
-
-
-    return -1;
-}
-
-
-//DataHolder
-FaultSSDataHolder::FaultSSDataHolder()
-{}
-
-
-FaultSSDataHolder::~FaultSSDataHolder()
-{}
-
-
-//FaultStickSetDataOrganiser
-FaultStickSetDataOrganiser::FaultStickSetDataOrganiser(
-			const FaultStickSetGeometry& fssgeom,
-			    ObjectSet<FaultSSDataHolder>& dataholders )
-    : Executor("FaultStickSet Data Grouping")
-    , fssgeom_(fssgeom)
-    , dataholders_(dataholders)
-{
-    const Geometry::FaultStickSet* fss = fssgeom_.geometryElement();
-    totnr_ = fss ? fssgeom.nrSticks() : 0;
-}
-
-
-FaultStickSetDataOrganiser::~FaultStickSetDataOrganiser()
-{}
-
-
-uiString FaultStickSetDataOrganiser::uiNrDoneText() const
-{
-    return tr("Grouping sticks");
-}
-
-int FaultStickSetDataOrganiser::nextStep()
-{
-    if ( nrdone_ >= totnr_ )
-	return Finished();
-
-    const Geometry::FaultStickSet* fss = fssgeom_.geometryElement();
-    if ( !fss )
-	return ErrorOccurred();
-
-
-    const Pos::GeomID geomid = fssgeom_.pickedGeomID( nrdone_ );
-    const Geometry::FaultStick* stick = fss->getStick( nrdone_ );
-    if ( !stick || stick->locs_.isEmpty() )
-    {
-	nrdone_++;
-	return MoreToDo();
-    }
-
-    if ( processedgeomids_.addIfNew(geomid) )
-    {
-	auto* dh = new FaultSSDataHolder();
-	dh->geomid_ = geomid;
-	dh->sticknr_.add( nrdone_ );
-	dh->sticks_.add( stick );
-	dh->tkzs_.zsamp_.setFrom( fssgeom_.getZRange() );
-	dataholders_.add( dh );
-    }
-    else
-    {
-	const int gidx = processedgeomids_.indexOf( geomid );
-	auto* dh = dataholders_.get( gidx );
-	dh->sticknr_.add( nrdone_ );
-	dh->sticks_.add( stick );
-    }
-
-    nrdone_++;
-    return MoreToDo();
+    GeomGroupUpdater geomgroupupdater( *fss, geomgroupset_ );
+    return geomgroupupdater.execute();
 }
 
 
 //FaultStickDataUpdater
-FaultStickSetDataUpdater::FaultStickSetDataUpdater(
-	    Geometry::FaultStickSet& fss, ObjectSet<FaultSSDataHolder>& dhs )
+FaultStickSetGeometry::GeomGroupUpdater::GeomGroupUpdater(
+	    Geometry::FaultStickSet& fss, ObjectSet<GeomGroup>& geomgrps )
     : ParallelTask("FaultStickSet Data Updater")
     , faultstickset_(fss)
-    , dataholders_(dhs)
+    , geomgroupset_(geomgrps)
 {
-    totnr_ = dataholders_.size();
+    totnr_ = geomgroupset_.size();
 }
 
 
-FaultStickSetDataUpdater::~FaultStickSetDataUpdater()
+FaultStickSetGeometry::GeomGroupUpdater::~GeomGroupUpdater()
 {}
 
 
-od_int64 FaultStickSetDataUpdater::nrIterations() const
+od_int64 FaultStickSetGeometry::GeomGroupUpdater::nrIterations() const
 {
     return totnr_;
 }
 
 
-bool FaultStickSetDataUpdater::doWork( od_int64 index, od_int64/**/, int /**/ )
+bool FaultStickSetGeometry::GeomGroupUpdater::doWork(
+				    od_int64 start, od_int64 stop, int /**/ )
 {
-    FaultSSDataHolder* dh = dataholders_[index];
-    if ( !dh )
-	return true;
-
-    const int size = dh->sticks_.size();
-    const Pos::GeomID& geomid = dh->geomid_;
-    TrcKey trckey;
-    trckey.setGeomID( geomid );
-    TrcKeyZSampling tkzs;
-    tkzs.setEmpty();
-    if ( geomid.isValid() && geomid.is2D() )
+    for ( int index=start; index<=stop; index++ )
     {
-	tkzs.hsamp_.setGeomID( geomid );
-	trckey.setGeomSystem( OD::Geom2D );
-    }
-    else
-    {
-	tkzs.hsamp_.setGeomID( Pos::GeomID(OD::Geom3D) );
-	trckey.setGeomSystem( OD::Geom3D );
-	tkzs.hsamp_.step_ = SI().sampling(true).hsamp_.step_;
-    }
+	GeomGroup* geomgrp = geomgroupset_[index];
+	if ( !geomgrp )
+	    return true;
 
-    for ( int idx=0; idx<size; idx++ )
-    {
-	Geometry::FaultStick* fss =
-		    const_cast<Geometry::FaultStick*>( dh->sticks_.get(idx) );
-	const int fsssz = fss->size();
+	const int size = geomgrp->sticknrs_.size();
+	const Pos::GeomID& geomid = geomgrp->geomID();
+	TrcKey trckey;
 
-	for ( int kidx=0; kidx<fsssz; kidx++ )
+	trckey.setGeomID( geomid );
+	TrcKeyZSampling tkzs;
+	tkzs.setEmpty();
+	if ( geomid.isValid() && geomid.is2D() )
 	{
-	    LocationBase& loc = fss->locs_[kidx];
-	    trckey.setFrom( loc.pos() );
-	    loc.setTrcKey( trckey );
-	    tkzs.hsamp_.include( trckey );
+	    tkzs.hsamp_.setGeomID( geomid );
+	    trckey.setGeomSystem( OD::Geom2D );
 	}
+	else
+	{
+	    tkzs.hsamp_.setGeomID( Pos::GeomID(OD::Geom3D) );
+	    trckey.setGeomSystem( OD::Geom3D );
+	    tkzs.hsamp_.step_ = SI().sampling(true).hsamp_.step_;
+	}
+
+	for ( int idx=0; idx<size; idx++ )
+	{
+	    const int sticknr = geomgrp->sticknrs_[idx];
+
+	    Geometry::FaultStick* fss = faultstickset_.getStick( sticknr );
+	    const int fsssz = fss->size();
+	    for ( int kidx=0; kidx<fsssz; kidx++ )
+	    {
+		LocationBase& loc = fss->locs_[kidx];
+		trckey.setFrom( loc.pos() );
+		loc.setTrcKey( trckey );
+		tkzs.hsamp_.include( trckey );
+		tkzs.zsamp_.include( loc.pos().z );
+	    }
+	}
+
+	geomgrp->setTrcKeyZSampling( tkzs );
     }
 
-    dh->tkzs_.hsamp_ = tkzs.hsamp_;
-    dh->tkzs_.hsamp_.step_.second = dh->tkzs_.hsamp_.step_.first;
     return true;
 }
 
