@@ -707,10 +707,14 @@ void uiMainWinBody::renewToolbarsMenu()
 static BufferString getSettingsFileName()
 {
     BufferString fnm( "qtsettings_", (int)mODVersion );
+    if ( isDeveloperBuild() )
+	fnm.add( "_dev" );
+
     FilePath fp( GetSettingsDir(), fnm );
-    const char* swusr = GetSoftwareUser();
-    if ( swusr )
+    const StringView swusr = GetSoftwareUser();
+    if ( !swusr.isEmpty() )
 	fp.setExtension( swusr );
+
     return fp.fullPath();
 }
 
