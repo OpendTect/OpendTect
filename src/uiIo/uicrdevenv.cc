@@ -333,13 +333,6 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
     }
 
     strm << "OpendTect_DIR:PATH=" << swdirfnm.str() << od_newline;
-    strm << "CMAKE_BUILD_TYPE:STRING=";
-#ifdef __debug__
-    strm << "Debug";
-#else
-    strm << "RelWithDebInfo";
-#endif
-    strm << od_newline;
     strm << "CMAKE_INSTALL_PREFIX:PATH=" << instdirfnm.str() << od_newline;
     if ( __ismac__ )
 	strm << "AVOID_CLANG_ERROR:BOOL=ON" << od_newline;
