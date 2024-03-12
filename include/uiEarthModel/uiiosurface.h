@@ -225,9 +225,15 @@ protected:
 mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
 { mODTextTranslationClass(uiFaultParSel)
 public:
+				uiFaultParSel(uiParent*,
+					      EM::IOObjInfo::ObjectType,
+					      bool use_act_option=false);
+				mDeprecated("Use EM::IOObjInfo::ObjectType")
 				uiFaultParSel(uiParent*,bool is2d,
 					      bool use_act_option=false);
 				~uiFaultParSel();
+
+    EM::IOObjInfo::ObjectType	type() const;
 
 				/*Set my own options on selected, optional*/
     void			setActOptions(const BufferStringSet&,
@@ -244,7 +250,9 @@ public:
 				/*<for FaultStickSet picked from 2D lines.*/
 
     void			hideClearButton(bool yn=true);
+    mDeprecated("Should not be used after creation")
     void			updateOnSelChg(bool isfltset=false);
+    mDeprecated("Should not be used after creation")
     void			setIs2D(bool);
 
     Notifier<uiFaultParSel>	selChange;
@@ -254,9 +262,9 @@ protected:
     friend class		uiFaultOptSel;
     void			clearPush(CallBacker*);
     void			doDlg(CallBacker*);
-    void			updateOnSelChgCB(CallBacker*);
-    bool			is2d_;
-    bool			isfltset_;
+    void			updateOnSelChgCB(CallBacker*); // deprecated
+    bool			is2d_;	// deprecated, should be isfss_
+    bool			isfltset_; // deprecated
     BufferStringSet		selfaultnms_;
     TypeSet<MultiID>		selfaultids_;
     TypeSet<Pos::GeomID>	geomids_;
