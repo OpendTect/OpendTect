@@ -82,7 +82,7 @@ void TrcKeyZSampling::setEmpty()
 {
     hsamp_.setLineRange( Interval<int>::udf() );
     hsamp_.setTrcRange( Interval<int>::udf() );
-    zsamp_.setFrom( Interval<int>::udf() );
+    zsamp_.setFrom( Interval<float>::udf() );
 }
 
 
@@ -393,13 +393,27 @@ void TrcKeyZSampling::include( const BinID& bid, float z )
 
 void TrcKeyZSampling::include( const TrcKeyZSampling& c )
 {
-    TrcKeyZSampling tkzs( c ); tkzs.normalize();
+    TrcKeyZSampling tkzs( c );
+    tkzs.normalize();
     normalize();
+    if ( hsamp_.isUdf() )
+	hsamp_ = tkzs.hsamp_;
+    else
+	hsamp_.include( tkzs.hsamp_ );
 
-    hsamp_.include( tkzs.hsamp_ );
-    if ( tkzs.zsamp_.start < zsamp_.start ) zsamp_.start = tkzs.zsamp_.start;
-    if ( tkzs.zsamp_.stop > zsamp_.stop ) zsamp_.stop = tkzs.zsamp_.stop;
-    if ( tkzs.zsamp_.step < zsamp_.step ) zsamp_.step = tkzs.zsamp_.step;
+    if ( zsamp_.isUdf() )
+	zsamp_ = tkzs.zsamp_;
+    else
+    {
+	if ( tkzs.zsamp_.start < zsamp_.start )
+	    zsamp_.start = tkzs.zsamp_.start;
+
+	if ( tkzs.zsamp_.stop > zsamp_.stop )
+	    zsamp_.stop = tkzs.zsamp_.stop;
+
+	if ( tkzs.zsamp_.step < zsamp_.step )
+	    zsamp_.step = tkzs.zsamp_.step;
+    }
 }
 
 

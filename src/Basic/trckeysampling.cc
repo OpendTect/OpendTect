@@ -75,6 +75,12 @@ TrcKeySampling::~TrcKeySampling()
 {}
 
 
+bool TrcKeySampling::isUdf() const
+{
+    return lineRange().isUdf() && trcRange().isUdf();
+}
+
+
 Pos::GeomID TrcKeySampling::getGeomID() const
 {
     return Pos::GeomID(is2D() || isSynthetic() ? start_.lineNr() : survid_);

@@ -43,6 +43,7 @@ public:
 
     bool		is2D() const	{ return ::is2D(survid_); }
     bool		isSynthetic() const { return ::isSynthetic(survid_); }
+    bool		isUdf() const;
     Pos::GeomID		getGeomID() const;
     void		setGeomID(const Pos::GeomID&);
 

@@ -61,6 +61,19 @@ static bool testInclude()
 }
 
 
+static bool testIncludeUndefSampling()
+{
+    mDeclTrcKeyZSampling( cs1, 2, 50, 6,
+				10, 100, 9,
+				1.0, 3.0, 0.004 );
+    TrcKeyZSampling tkzs( false );
+    tkzs.setEmpty();
+    tkzs.include( cs1 );
+    if ( cs1 != tkzs )
+	mRetResult( "testIncludeUndefSampling" );
+}
+
+
 static bool testIncludes()
 {
     mDeclTrcKeyZSampling( cs1, 2, 50, 6,
@@ -316,6 +329,7 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testInclude()
       || !testIncludes()
       || !testEmpty()
+      || !testIncludeUndefSampling()
       || !testLimitTo()
       || !testIsCompatible()
       || !testIterator()
