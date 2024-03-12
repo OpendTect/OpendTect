@@ -123,9 +123,14 @@ namespace OD
 
 	uiRetVal	hasModule(const char* modname,
 				  const char* minversion=nullptr) const;
+	uiRetVal	hasModule(const char* modname, bool isminver,
+				  const char* version=nullptr) const;
 	static uiRetVal	hasModule(const ObjectSet<ModuleInfo>&,
 				  const char* modname,
 				  const char* minversion=nullptr);
+	static uiRetVal hasModule(const ObjectSet<ModuleInfo>&,
+				  const char* modname, bool isminver,
+				  const char* version=nullptr);
 	uiRetVal	getModules(ManagedObjectSet<ModuleInfo>&);
 	void		setForScript(const char* scriptnm,
 				     OS::MachineCommand&) const;
