@@ -119,6 +119,10 @@ void uiWellT2DTransform::initClass()
 uiZAxisTransform* uiWellT2DTransform::createInstance(uiParent* p,
 				const char* domainstr, const char* /**/)
 {
+    if ( !SI().zIsTime() )
+	return nullptr;	
+    //TODO: Remove above condition when D-T model for depth project supported
+
     const FileMultiString fms( domainstr );
     if ( fms.isEmpty() || fms.size() < 2 )
 	return nullptr;
