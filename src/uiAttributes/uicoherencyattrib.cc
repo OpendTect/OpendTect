@@ -28,8 +28,8 @@ mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp())
 
 uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,mODHelpID(mCoherencyAttrib))
-    	, is1fld(0)
-    	, stepoutfld(0)
+	, is1fld(0)
+	, stepoutfld(0)
 {
     inpfld = createImagInpFld(is2d);
 
@@ -37,10 +37,10 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
     {
 	is1fld = new uiGenInput( this, "Type", BoolInpSpec(true,"1","2") );
 	is1fld->attach( alignedBelow, inpfld );
-	is1fld->valuechanged.notify( mCB(this,uiCoherencyAttrib,is1Sel) );
+	is1fld->valueChanged.notify( mCB(this,uiCoherencyAttrib,is1Sel) );
     }
 
-    tgfld = new uiGenInput( this, gateLabel(), 
+    tgfld = new uiGenInput( this, gateLabel(),
 			    FloatInpIntervalSpec().setName("Z start",0)
 						  .setName("Z stop",1) );
     if ( is1fld )
@@ -111,7 +111,7 @@ bool uiCoherencyAttrib::getParameters( Attrib::Desc& desc )
 {
     if ( desc.attribName() != Coherency::attribName() )
 	return false;
-    
+
     mSetFloatInterval( Coherency::sKeyGate(), tgfld->getFInterval() );
     mSetFloat( Coherency::sKeyMaxDip(), maxdipfld->getFValue() );
     mSetFloat( Coherency::sKeyDDip(), deltadipfld->getFValue() );

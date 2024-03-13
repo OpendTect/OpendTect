@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 
 uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
-    : uiDialog(p,Setup(tr("Calculate Gravity"),uiStrings::sEmptyString(), 
+    : uiDialog(p,Setup(tr("Calculate Gravity"),uiStrings::sEmptyString(),
                        mTODOHelpKey))
     , topfld_(0)
     , t2dfld_(0)
@@ -47,16 +47,16 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     topfld_->setChecked( (bool)topfld_->ioobj(true) );
 
     denvarfld_ = new uiGenInput( inpgrp, tr("Density (contrast)"),
-	    			   BoolInpSpec(false,tr("Variable"),
+				   BoolInpSpec(false,tr("Variable"),
                                    tr("Constant")) );
     denvarfld_->attach( alignedBelow, topfld_ );
-    denvarfld_->valuechanged.notify( mCB(this,uiGravHorCalc,denVarSel) );
+    denvarfld_->valueChanged.notify( mCB(this,uiGravHorCalc,denVarSel) );
     denattrfld_ = new uiGenInput( inpgrp,
                                   tr("Attribute containing Density (kg/m3)"),
-	    			  StringListInpSpec() );
+				  StringListInpSpec() );
     denattrfld_->attach( alignedBelow, denvarfld_ );
     denvaluefld_ = new uiGenInput( inpgrp, tr("Density (kg/m3)"),
-	    			   FloatInpSpec(1000) );
+				   FloatInpSpec(1000) );
     denvaluefld_->attach( alignedBelow, denvarfld_ );
 
     su.seltxt_ = uiStrings::sBottomHor();
@@ -73,14 +73,14 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     }
 
     cutoffangfld_ = new uiGenInput( this, tr("Cutoff angle (deg)"),
-	    			    IntInpSpec(45) );
+				    IntInpSpec(45) );
     cutoffangfld_->attach( alignedBelow, inpgrp );
 
     attrnmfld_ = new uiGenInput( this, tr("Output attribute"),
-	    			 StringInpSpec("Grav") );
+				 StringInpSpec("Grav") );
     attrnmfld_->attach( alignedBelow, cutoffangfld_ );
     uiLabel* lbl = new uiLabel( this,
-	    		tr("(on '%1')").arg( horioobj_->name() ) );
+			tr("(on '%1')").arg( horioobj_->name() ) );
     lbl->attach( rightOf, attrnmfld_ );
 
     postFinalise().notify( mCB(this,uiGravHorCalc,initFlds) );
