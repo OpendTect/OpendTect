@@ -549,7 +549,7 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
     , stepsz_(1)
     , nrsteps_(mUdf(int))
 {
-    fltselfld_ = new uiFaultParSel( this, false );
+    fltselfld_ = new uiFaultParSel( this, EM::ObjectType::Flt3D );
 
     uiString lbltxt( tr("Search radius %1").arg( SI().getUiXYUnitString()) );
     radiusfld_ = new uiGenInput( this, lbltxt, FloatInpSpec(defaultRadius()) );
@@ -632,7 +632,7 @@ uiHor3DInterpol* uiTriangulationHor3DInterpol::create( uiParent* p )
 uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol( uiParent* p )
     : uiHor3DInterpol(p)
 {
-    fltselfld_ = new uiFaultParSel( this, false );
+    fltselfld_ = new uiFaultParSel( this, EM::ObjectType::Flt3D );
 
     useneighborfld_ = new uiCheckBox( this, tr("Use nearest neighbor") );
     useneighborfld_->setChecked( false );

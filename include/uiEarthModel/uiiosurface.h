@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uisurfaceman.h"
 
 #include "bufstringset.h"
+#include "emmanager.h"
 #include "emposid.h"
 #include "faulttrace.h"
 #include "posinfo2dsurv.h"
@@ -216,9 +217,12 @@ protected:
 mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
 { mODTextTranslationClass(uiFaultParSel)
 public:
-				uiFaultParSel(uiParent*,bool is2d,
+				uiFaultParSel(uiParent*,
+					      EM::ObjectType,
 					      bool use_act_option=false);
 				~uiFaultParSel();
+
+    EM::ObjectType		type() const;
 
 				/*Set my own options on selected, optional*/
     void			setActOptions(const BufferStringSet&,
@@ -226,7 +230,7 @@ public:
     const TypeSet<int>&		getSelectedOptIndies() const { return optids_; }
 
     void			setSelectedFaults(const TypeSet<MultiID>&,
-					const TypeSet<FaultTrace::Act>* =0);
+				    const TypeSet<FaultTrace::Act>* =nullptr);
     BufferString		getSummary() const override;
     const TypeSet<MultiID>&	selFaultIDs() const { return selfaultids_; }
 
@@ -235,8 +239,6 @@ public:
 				/*<for FaultStickSet picked from 2D lines.*/
 
     void			hideClearButton(bool yn=true);
-    void			updateOnSelChg(bool isfltset=false);
-    void			setIs2D(bool);
 
     Notifier<uiFaultParSel>	selChange;
 
@@ -245,9 +247,7 @@ protected:
     friend class		uiFaultOptSel;
     void			clearPush(CallBacker*);
     void			doDlg(CallBacker*);
-    void			updateOnSelChgCB(CallBacker*);
-    bool			is2d_;
-    bool			isfltset_;
+    EM::ObjectType		objtype_;
     BufferStringSet		selfaultnms_;
     TypeSet<MultiID>		selfaultids_;
     TypeSet<Pos::GeomID>	geomids_;
