@@ -65,7 +65,7 @@ static const char* ed50ogcwkt2 =
 "            LENGTHUNIT[\"metre\",1]],\n"
 "    USAGE[\n"
 "        SCOPE[\"Engineering survey, topographic mapping.\"],\n"
-"        AREA[\"Europe - between 0°E and 6°E - Andorra; Denmark (North Sea); Germany offshore; Netherlands offshore; Norway including Svalbard - onshore and offshore; Spain - onshore (mainland and Balearic Islands); United Kingdom (UKCS) offshore.\"],\n"
+"        AREA[\"Europe - between 0°E and 6°E - Andorra; Denmark (North Sea); France - offshore; Germany - offshore; Netherlands - offshore; Norway including Svalbard - onshore and offshore; Spain - onshore (mainland and Balearic Islands); United Kingdom - offshore UKCS.\"],\n"
 "        BBOX[38.56,0,82.45,6.01]],\n"
 "    ID[\"EPSG\",23031]]";
 
