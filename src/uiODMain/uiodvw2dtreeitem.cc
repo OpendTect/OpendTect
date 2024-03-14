@@ -48,7 +48,7 @@ uiODView2DTreeTop::uiODView2DTreeTop( uiTreeView* lv, uiODApplMgr* am,
     setPropertyPtr( applmgrstr(), am );
     setPropertyPtr( viewer2dptr(), vw2d );
     mAttachCB( tfs_->addnotifier, uiODView2DTreeTop::addFactoryCB );
-    mAttachCB( tfs_->removenotifier, uiODView2DTreeTop::addFactoryCB );
+    mAttachCB( tfs_->removenotifier, uiODView2DTreeTop::removeFactoryCB );
 }
 
 
@@ -133,7 +133,7 @@ void uiODView2DTreeTop::addFactoryCB( CallBacker* cb )
 	    continue;
 
 	PtrMan<uiTreeItem> itm = tfs_->getFactory(idx)->create();
-	itmbefore = findChild( mFromUiStringTodo(itm->name()) );
+	itmbefore = findChild( itm->name().getOriginalString() );
 	break;
     }
 
@@ -148,8 +148,10 @@ void uiODView2DTreeTop::removeFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs_->getFactory(idx)->create();
-    const uiTreeItem* child = findChild( mFromUiStringTodo(dummy->name()) );
-    if ( !children_.isPresent(child) ) return;
+    const uiTreeItem* child = findChild( dummy->name().getOriginalString() );
+    if ( !children_.isPresent(child) )
+	return;
+
     removeChild( const_cast<uiTreeItem*>(child) );
 }
 

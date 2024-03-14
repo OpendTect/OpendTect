@@ -96,6 +96,7 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
     detachAllNotifiers();
     if ( l2dintersections_ )
 	deepErase( *l2dintersections_ );
+
     deleteAndNullPtr( l2dintersections_ );
     deepErase( viewers2d_ );
     delete tifs2d_; delete tifs3d_;
