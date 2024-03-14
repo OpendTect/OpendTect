@@ -518,7 +518,6 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
     }
 
     removeItem( treeitem->getItem() );
-
     delete children_.removeSingle( idx );
     mEnabSelChg( true )
 }
