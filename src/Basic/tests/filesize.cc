@@ -22,7 +22,7 @@ bool testSizeStrEmptyAndCleanup( const BufferString& tempfile )
     const od_int64 emptyfsz = File::getFileSize( tempfile );
     mRunStandardTest((emptyfsz==sSizeZero),"File size of empty file");
     BufferString szstr;
-    szstr = File::getFileSizeString( tempfile );
+    szstr = File::getFileSizeString( tempfile.buf() );
     mRunStandardTest(!szstr.isEmpty(),"Size string created")
     mRunStandardTest((szstr=="empty"),"empty file size string")
     return true;
@@ -38,7 +38,7 @@ bool testSizeStrNonEmptyAndCleanup( const BufferString& tempfile )
     const od_int64 fsz = File::getFileSize( tempfile );
     mRunStandardTest((fsz==9),"Valid file size");
     BufferString szstr;
-    szstr = File::getFileSizeString( tempfile );
+    szstr = File::getFileSizeString( tempfile.buf() );
     mRunStandardTest(!szstr.isEmpty(),"Size string created")
     mRunStandardTest((szstr==sNonEmptyFSizeStr),"Valid file size string")
     return true;
@@ -55,7 +55,7 @@ bool testFileSize()
     mRunStandardTest(!File::exists(tempfile),"File does not exist");
     const od_int64 nofsz = File::getFileSize( tempfile );
     mRunStandardTest((nofsz==0),"File size of non-existent file")
-    szstr = File::getFileSizeString( tempfile );
+    szstr = File::getFileSizeString( tempfile.buf() );
     mRunStandardTest(!szstr.isEmpty(),"Size string created")
     mRunStandardTest((szstr=="File not found"),"non-existent file size string")
 
