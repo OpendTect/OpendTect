@@ -106,11 +106,11 @@ public:
 
     SeisIOObjInfo&	operator =(const SeisIOObjInfo&);
 
-    inline bool		isOK() const	{ return !bad_; }
     inline bool		is2D() const	{ return geomtype_ > Seis::VolPS; }
     inline bool		isPS() const	{ return geomtype_ == Seis::VolPS
 					      || geomtype_ == Seis::LinePS; }
 
+    bool		isOK(bool createtr=false) const;
     Seis::GeomType	geomType() const	{ return geomtype_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
     const ZDomain::Info& zDomain() const;
@@ -217,6 +217,7 @@ public:
 					 const char* omftypestr2);
 
     void		getUserInfo(uiStringSet&) const;
+    uiString		errMsg() const			{ return errmsg_; }
 
 
     mDeprecatedDef	SeisIOObjInfo(const char* ioobjnm);
@@ -228,9 +229,9 @@ public:
 protected:
 
     Seis::GeomType	geomtype_;
-    bool		bad_;
     IOObj*		ioobj_;
     SurveyChanger*	surveychanger_	= nullptr;
+    mutable uiString	errmsg_;
 
     void		setType();
 
@@ -241,6 +242,8 @@ protected:
     void		getCommonUserInfo(uiStringSet&) const;
     void		getPostStackUserInfo(uiStringSet&) const;
     void		getPreStackUserInfo(uiStringSet&) const;
+    bool		checkAndInitTranslRead(SeisTrcTranslator*,
+					Seis::ReadMode rt=Seis::Prod) const;
 
 public:
     mDeprecated("Use expectedSize")

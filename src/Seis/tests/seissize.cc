@@ -55,7 +55,8 @@ static const int sNrFilesSEGYDir		= 1;
 
 #define mCheckSeisIOObjInfo( seisobj, obj ) \
     const SeisIOObjInfo seisobj( obj ); \
-    mRunStandardTest(seisobj.isOK(), "Info on object" );
+    mRunStandardTestWithError(seisobj.isOK(),\
+			      "Info on object",seisobj.errMsg().getString());
 
 
 #define mCreateAndReadTransl( trl, trlnm, obj, msg ) \

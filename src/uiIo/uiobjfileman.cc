@@ -123,6 +123,7 @@ void uiObjFileMan::finalizeDoneCB( CallBacker* )
     mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
     mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
     initDlg();
+    checkAllEntriesOK();
     selChg( nullptr );
 }
 
@@ -461,4 +462,5 @@ void uiObjFileMan::updateCB( CallBacker* )
     const MultiID curmid = selgrp_->currentID();
     selgrp_->fullUpdate( curmid );
     updateList();
+    checkAllEntriesOK();
 }

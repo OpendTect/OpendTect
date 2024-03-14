@@ -380,10 +380,12 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
 	filefilt += "OpendTect Files (*."; filefilt += defext;
 	filefilt += ");;";
     }
+
     filefilt += "All Files(*)";
 
     uiFileDialog dlg( this, uiFileDialog::Directory, oldfnm, filefilt, caption);
-    if ( !dlg.go() ) return false;
+    if ( !dlg.go() )
+	return false;
 
     const char* newdir = dlg.fileName();
     if ( !File::isDirectory(newdir) )
@@ -392,6 +394,7 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
 			 "or is not a folder."));
 	return false;
     }
+
     if ( !IOM().implReloc(ioobj.key(), newdir) )
 	return false;
 

@@ -86,6 +86,7 @@ protected:
 
     void			selChg(CallBacker*);
     virtual void		initDlg()		{}
+    virtual void		checkAllEntriesOK()	{}
     virtual void		ownSelChg()		{}
     void			updateCB(CallBacker*);
     virtual void		updateList()		{}

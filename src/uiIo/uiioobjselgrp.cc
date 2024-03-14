@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uilistboxchoiceio.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uistrings.h"
 #include "uitoolbutton.h"
 
@@ -674,6 +675,16 @@ void uiIOObjSelGrp::setCurrent( int curidx )
 
     listfld_->setCurrentItem( curidx );
     selectionChanged.trigger();
+}
+
+
+void uiIOObjSelGrp::setIsBad( int idx )
+{
+    if ( !listfld_->validIdx(idx) )
+	return;
+
+    const uiPixmap badpm( "warning" );
+    listfld_->setPixmap( idx, badpm, uiListBox::Right );
 }
 
 

@@ -166,6 +166,7 @@ public:
     void		setCurrent(const MultiID&);
     void		setChosen(int,bool yn=true);
     void		setChosen(const TypeSet<MultiID>&);
+    void		setIsBad(int);
     void		chooseAll(bool yn=true);
     const TypeSet<MultiID>&	getIOObjIds() const;
 

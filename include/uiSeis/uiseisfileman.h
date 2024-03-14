@@ -64,6 +64,7 @@ protected:
     void		ownSelChg() override;
     od_int64		getFileSize(const char*) const override;
     int			getNrFiles(const char*) const override;
+    void		checkAllEntriesOK() override;
     void		getBasicFileInfo(BufferString&) const override;
     void		setToolButtonProperties();
     const BrowserDef*	getBrowserDef() const;

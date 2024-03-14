@@ -376,17 +376,38 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     initVars( true );
     mDynamicCastGet(StreamConn*,strmconn,conn_)
     if ( !strmconn )
-	{ errmsg_ = tr("Cannot open definition file"); return false; }
-    segydeffilename_ = strmconn->fileName();
+    {
+	errmsg_ = tr("Cannot open definition file");
+	return false;
+    }
 
-    delete strmconn; conn_ = 0;
+    segydeffilename_ = strmconn->fileName();
+    delete strmconn;
+    conn_ = nullptr;
     def_ = new SEGY::DirectDef( segydeffilename_ );
     if (def_->errMsg().isSet())
-	{ errmsg_ = def_->errMsg(); return false; }
+    {
+	errmsg_ = def_->errMsg();
+	return false;
+    }
     else if ( def_->isEmpty() )
-	{ errmsg_ = tr("Empty input file"); return false; }
+    {
+	errmsg_ = tr("Empty input file");
+	return false;
+    }
 
     const SEGY::FileDataSet& fds = def_->fileDataSet();
+    const int nrfiles = fds.nrFiles();
+    for ( int idx=0; idx<nrfiles; idx++ )
+    {
+	const StringView fnm = fds.fileName( idx );
+	if ( !File::exists(fnm) )
+	{
+	    errmsg_ = tr("One or more linked files missing");
+	    return false;
+	}
+    }
+
     pinfo_.cubedata = &def_->cubeData();
     insd_ = fds.getSampling();
     innrsamples_ = fds.getTrcSz();
@@ -492,7 +513,10 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
     {
 	fdsidx = def_->find( Seis::PosKey(bid), false );
 	if ( !fdsidx.isValid() )
-	    { pErrMsg("Huh"); return false; }
+	{
+	    pErrMsg("Huh");
+	    return false;
+	}
 	else if ( fdsidx.filenr_ == curfilenr_ )
 	    break;
 

@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
@@ -163,6 +164,29 @@ int uiSeisFileMan::addBrowser( uiSeisFileMan::BrowserDef* bd )
 void uiSeisFileMan::ownSelChg()
 {
     setToolButtonProperties();
+}
+
+
+void uiSeisFileMan::checkAllEntriesOK()
+{
+    if ( !selgrp_ || selgrp_->isEmpty() )
+	return;
+
+    const TypeSet<MultiID>& allids = selgrp_->getIOObjIds();
+    for ( const auto& id : allids )
+    {
+	const int idx = allids.indexOf( id );
+	const IOObj* obj = IOM().get( id );
+	if ( !obj )
+	{
+	    selgrp_->setIsBad( idx );
+	    continue;
+	}
+
+	const SeisIOObjInfo objinfo( obj );
+	if ( !objinfo.isOK(true) )
+	    selgrp_->setIsBad( idx );
+    }
 }
 
 

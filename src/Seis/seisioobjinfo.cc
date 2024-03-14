@@ -254,29 +254,67 @@ SeisIOObjInfo::~SeisIOObjInfo()
 
 SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
 {
-    if ( &sii != this )
+    if ( &sii == this )
+	return *this;
+
+    delete ioobj_;
+    ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
+    geomtype_ = sii.geomtype_;
+    errmsg_ = sii.errmsg_;
+    if ( surveychanger_ && surveychanger_->hasChanged() )
     {
-	delete ioobj_;
-	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : nullptr;
-	geomtype_ = sii.geomtype_;
-	bad_ = sii.bad_;
-	if ( surveychanger_ && surveychanger_->hasChanged() )
-	{
-	    SurveyDiskLocation sdl = surveychanger_->changedToSurvey();
-	    delete surveychanger_;
-	    surveychanger_ = new SurveyChanger( sdl );
-	}
+	SurveyDiskLocation sdl = surveychanger_->changedToSurvey();
+	delete surveychanger_;
+	surveychanger_ = new SurveyChanger( sdl );
     }
 
     return *this;
 }
 
 
+bool SeisIOObjInfo::checkAndInitTranslRead( SeisTrcTranslator* sttr,
+					    Seis::ReadMode rm ) const
+{
+    if ( !sttr )
+    {
+	errmsg_ = uiStrings::phrCannotOpen( ioobj_->uiName() );
+	return false;
+    }
+
+    if ( !sttr->initRead(ioobj_->getConn(Conn::Read),rm) )
+    {
+	errmsg_ = sttr->errMsg();
+	return false;
+    }
+
+    return true;
+}
+
+
+bool SeisIOObjInfo::isOK( bool createtr ) const
+{
+    if ( !errmsg_.isEmpty() )
+	return false;
+
+    if ( !createtr )
+	return true;
+
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		 ioobj_->createTranslator())
+    if ( !checkAndInitTranslRead(sttr) )
+	return false;
+
+    return true;
+}
+
+
 void SeisIOObjInfo::setType()
 {
-    bad_ = !ioobj_;
-    if ( bad_ )
+    if ( !ioobj_ )
+    {
+	errmsg_ = uiStrings::phrCannotFindObjInDB();
 	return;
+    }
 
     const BufferString trgrpnm( ioobj_->group() );
     bool isps = false;
@@ -288,7 +326,7 @@ void SeisIOObjInfo::setType()
     if ( !isps && ioobj_->group()!=mTranslGroupName(SeisTrc) &&
 	    ioobj_->group()!=mTranslGroupName(SeisTrc2D) )
     {
-	bad_ = true;
+	errmsg_ = uiStrings::phrSelectObjectWrongType( tr("Seismic object.") );
 	return;
     }
 
@@ -310,7 +348,14 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
 }
 
 
-#define mChk(ret) if ( bad_ ) return ret
+#define mChk(ret) \
+    if ( !ioobj_ ) \
+    { \
+	if ( errmsg_.isEmpty() ) \
+	    errmsg_ = uiStrings::phrCannotFindObjInDB(); \
+\
+	return ret; \
+    }
 
 bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 {
@@ -529,7 +574,7 @@ od_int64 SeisIOObjInfo::getFileSize() const
     const FilePath filepath = ioobj_->fullUserExpr();
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !sttr || !sttr->initRead(ioobj_->getConn(Conn::Read)) )
+    if ( !checkAndInitTranslRead(sttr) )
 	return -1;
 
     return sttr->getFileSize();
@@ -540,7 +585,7 @@ void SeisIOObjInfo::getAllFileNames( BufferStringSet& filenames ) const
 {
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !sttr || !sttr->initRead(ioobj_->getConn(Conn::Read)) )
+    if ( !checkAndInitTranslRead(sttr) )
 	return;
 
     sttr->getAllFileNames( filenames );
@@ -584,11 +629,7 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
     mChk(false);
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !sttr )
-	{ pErrMsg("No Translator!"); return false; }
-
-    Conn* conn = ioobj_->getConn( Conn::Read );
-    if ( !sttr->initRead(conn,Seis::PreScan) )
+    if ( !checkAndInitTranslRead(sttr,Seis::PreScan) )
 	return false;
 
     ObjectSet<SeisTrcTranslator::TargetComponentData>& comps
@@ -758,27 +799,28 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !sttr )
-	{ pErrMsg("No Translator!"); return false; }
-
-    Conn* conn = ioobj_->getConn( Conn::Read );
-    bool isgood = sttr->initRead(conn);
-    bps = 0;
-    if ( isgood )
+    bool isgood = checkAndInitTranslRead( sttr );
+    if ( !isgood )
     {
-	ObjectSet<SeisTrcTranslator::TargetComponentData>& comps
-		= sttr->componentInfo();
-	for ( int idx=0; idx<comps.size(); idx++ )
-	{
-	    int thisbps = sCast(int,comps[idx]->datachar.nrBytes());
-	    if ( icomp < 0 )
-		bps += thisbps;
-	    else if ( icomp == idx )
-		bps = thisbps;
-	}
+	bps = 4;
+	return isgood;
     }
 
-    if ( bps == 0 ) bps = 4;
+    bps = 0;
+    ObjectSet<SeisTrcTranslator::TargetComponentData>& comps
+	    = sttr->componentInfo();
+    for ( int idx=0; idx<comps.size(); idx++ )
+    {
+	int thisbps = sCast(int,comps[idx]->datachar.nrBytes());
+	if ( icomp < 0 )
+	    bps += thisbps;
+	else if ( icomp == idx )
+	    bps = thisbps;
+    }
+
+    if ( bps == 0 )
+	bps = 4;
+
     return isgood;
 }
 
@@ -794,7 +836,8 @@ void SeisIOObjInfo::getGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 	return;
     }
 
-    if ( !is2D() ) return;
+    if ( !is2D() )
+	return;
 
     PtrMan<Seis2DDataSet> dset = new Seis2DDataSet( *ioobj_ );
     dset->getGeomIDs( geomids );
@@ -953,36 +996,37 @@ int SeisIOObjInfo::getComponentInfo( const Pos::GeomID& geomid,
 
     mChk(ret);
     if ( isPS() )
-	return 0;
+	return ret;
 
     if ( !is2D() )
     {
 	mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		     ioobj_->createTranslator())
-	if ( !sttr )
-	    { pErrMsg("No Translator!"); return 0; }
-	Conn* conn = ioobj_->getConn( Conn::Read );
-	if ( sttr->initRead(conn) )
+	if ( !checkAndInitTranslRead(sttr) )
+	    return ret;
+
+	ret = sttr->componentInfo().size();
+	if ( nms )
 	{
-	    ret = sttr->componentInfo().size();
-	    if ( nms )
-	    {
-		for ( int icomp=0; icomp<ret; icomp++ )
-		    nms->add( sttr->componentInfo()[icomp]->name() );
-	    }
+	    for ( int icomp=0; icomp<ret; icomp++ )
+		nms->add( sttr->componentInfo()[icomp]->name() );
 	}
     }
     else
     {
 	PtrMan<Seis2DDataSet> dataset = new Seis2DDataSet( *ioobj_ );
 	if ( !dataset || dataset->nrLines() == 0 )
-	    return 0;
+	    return ret;
 
 	int lidx = dataset->indexOf( geomid );
-	if ( lidx < 0 ) lidx = 0;
+	if ( lidx < 0 )
+	    lidx = 0;
+
 	SeisTrcBuf tbuf( true );
 	Executor* ex = dataset->lineFetcher( dataset->geomID(lidx), tbuf, 1 );
-	if ( ex ) ex->doStep();
+	if ( ex )
+	    ex->doStep();
+
 	ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
 	if ( nms )
 	{
@@ -1004,6 +1048,7 @@ int SeisIOObjInfo::getComponentInfo( const Pos::GeomID& geomid,
 		}
 	    }
 	}
+
 	delete ex;
     }
 
@@ -1116,16 +1161,20 @@ void SeisIOObjInfo::getDataSetInfoForLine( const Pos::GeomID& geomid,
 
 bool SeisIOObjInfo::isFullyRectAndRegular() const
 {
-    PtrMan<Translator> trl = ioobj_->createTranslator();
-    mDynamicCastGet(CBVSSeisTrcTranslator*,cbvstrl,trl.ptr())
-    if ( !cbvstrl ) return false;
-
-    Conn* conn = ioobj_->getConn( Conn::Read );
-    if ( !cbvstrl->initRead(conn) || !cbvstrl->readMgr() )
+    mChk(false)
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		 ioobj_->createTranslator())
+    if ( !checkAndInitTranslRead(sttr) )
 	return false;
 
-    const CBVSInfo& info = cbvstrl->readMgr()->info();
-    return info.geom_.fullyrectandreg;
+    PosInfo::SortedCubeData scdata;
+    if ( !sttr->getGeometryInfo(scdata) )
+	return false;
+
+    if ( scdata.totalSize()<1 )
+	return false;
+
+    return scdata.isFullyRectAndReg();
 }
 
 

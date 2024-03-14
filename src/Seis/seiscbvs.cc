@@ -316,6 +316,33 @@ bool CBVSSeisTrcTranslator::initRead_()
     if ( is2D() )
 	rdmgr_->setSingleLineMode( true );
 
+    if ( !File::isDirectory(fnm) )
+    {
+	const int nrfiles = CBVSIOMgr::nrFiles( fnm );
+	if ( nrfiles == 1 && !File::exists(fnm) )
+	{
+	    errmsg_ = tr("%1 does not exist").arg( fnm );
+	    return false;
+	}
+
+	const FilePath basefp( fnm );
+	BufferString filemask( "*", basefp.baseName().buf(), "^*.cbvs");
+	const DirList dl( basefp.pathOnly().buf(),
+			  File::FilesInDir, filemask.buf());
+	if ( dl.size() != nrfiles-1 )
+	    return false;
+
+	for ( int idx=0; idx<nrfiles; idx++ )
+	{
+	    const BufferString fullnm( CBVSIOMgr::getFileName(fnm,idx) );
+	    if ( !File::exists(fullnm.buf()) )
+	    {
+		errmsg_ = tr( "Some Z-optimized slices are missing" );
+		return false;
+	    }
+	}
+    }
+
     const int nrcomp = rdmgr_->nrComponents();
     const CBVSInfo& info = rdmgr_->info();
     insd_ = info.sd_;
