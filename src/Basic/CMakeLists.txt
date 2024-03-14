@@ -16,6 +16,7 @@ set( OD_TEST_PROGS
 	commandlineparser.cc
 	datapack.cc
 	file.cc
+	filesize.cc
 	geometry.cc
 	globexpr.cc
 	iopar.cc

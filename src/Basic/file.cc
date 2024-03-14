@@ -807,6 +807,18 @@ od_int64 getKbSize( const char* fnm )
 BufferString getFileSizeString( od_int64 fileszbytes, File::SizeUnit fsu )
 {
     BufferString szstr;
+    if ( fileszbytes < 0 )
+    {
+	szstr = "File not found";
+	return szstr;
+    }
+
+    if ( fileszbytes < 1 )
+    {
+	szstr = "empty";
+	return szstr;
+    }
+
     NrBytesToStringCreator converter( fileszbytes );
     szstr.add( converter.getString(fileszbytes) );
     return szstr;
@@ -815,6 +827,15 @@ BufferString getFileSizeString( od_int64 fileszbytes, File::SizeUnit fsu )
 
 BufferString getFileSizeString( const char* fnm, File::SizeUnit fsu )
 {
+    if ( !File::exists(fnm) )
+	return getFileSizeString( -1, fsu );
+
+    if ( !File::isReadable(fnm) )
+    {
+	BufferString ret( "unknown" );
+	return ret;
+    }
+
     return getFileSizeString( getFileSize(fnm), fsu );
 }
 

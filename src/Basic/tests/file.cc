@@ -28,32 +28,56 @@ else\
 #define mRunTest( test ) \
 mTest( #test, test )
 
+
+bool testEmptyReadContent( const BufferString& tempfile )
+{
+    od_ostream stream( tempfile );
+    stream.close();
+    BufferString buf;
+    mRunStandardTest(File::getContent(tempfile,buf),"Empty file read")
+    mRunStandardTest(buf.isEmpty(),"empty file: No data to be read");
+    return true;
+}
+
+
+bool testNonEmptyReadContent( const BufferString& tempfile )
+{
+    BufferString buf;
+    od_ostream stream( tempfile );
+    stream << "test text";
+    stream.close();
+    mRunStandardTest(File::getContent(tempfile,buf),"Non-empty file read")
+    mRunStandardTest(buf.size(),"Valid data read");
+    return true;
+}
+
+
 bool testReadContent()
 {
-    BufferString basedir = GetSoftwareDir( 0 );
-
-    BufferString buf;
-
     //Read non existent file - should fail.
-    buf.setEmpty();
-    FilePath nofile( basedir.buf(), "src", "Basic", "tests","NonExistingFile");
-    mRunTest(!File::getContent(nofile.fullPath(),buf) && buf.isEmpty());
+    const BufferString tempfile = FilePath::getTempFullPath( "test", "txt" );
+    mRunStandardTest(!tempfile.isEmpty(),"Temp filepath created")
+    BufferString buf;
+    mRunStandardTest((!File::getContent(tempfile,buf) && buf.isEmpty()),
+		      "Non-existent file read");
 
     //Create empty file
-
     //Read empty file - should work fine.
-    buf.setEmpty();
-    FilePath emptyfile( basedir.buf(), "emptyfile.txt");
-    od_ostream stream(emptyfile.fullPath());
-    stream.close();
-    mRunTest(File::getContent(emptyfile.fullPath(),buf) && buf.isEmpty());
-
-    File::remove( emptyfile.fullPath() );
+    if ( !testEmptyReadContent(tempfile) )
+    {
+	File::remove( tempfile );
+	return false;
+    }
 
     //Read non empty file - should work fine.
-    buf.setEmpty();
-    FilePath nonempty( basedir.buf(), "CMakeCache.txt" );
-    mRunTest(File::getContent(nonempty.fullPath(),buf) && buf.size());
+    if ( !testNonEmptyReadContent(tempfile) )
+    {
+	File::remove( tempfile );
+	return false;
+    }
+
+    mRunStandardTest(File::remove(tempfile),"Remove temporary file")
+    mRunStandardTest(!File::exists(tempfile),"Temp file removed");
 
     return true;
 }
