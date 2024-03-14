@@ -31,7 +31,8 @@ mDefODPluginInfo(uiCRS)
 	"User interface for providing a library of Coordinate Reference Systems"
 	" that can be set at Survey level")
 	   .addNewLine(2)
-	   .add("Using PROJ version: ").add( Coords::getProjVersion() );
+	   .add("Using PROJ version: ").add( Coords::getProjVersion() )
+	   .addNewLine().add( Coords::getEPSGDBStr() );
 
     static PluginInfo retpi( "Coordinate Reference System (GUI)", infostr );
     return &retpi;

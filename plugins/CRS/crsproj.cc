@@ -672,6 +672,17 @@ BufferString Coords::getProjVersion()
     return version;
 }
 
+
+BufferString Coords::getEPSGDBStr()
+{
+    BufferString dbstr;
+    const PJ_INIT_INFO info = proj_init_info( "EPSG" );
+    dbstr.set( "Using " ).add( info.origin ).add( " database " )
+	 .add( info.version ).add( " from " ).add( info.lastupdate );
+
+    return dbstr;
+}
+
 #else
 
 Coord Coords::Projection::convert( const Coord& /* pos */,
@@ -712,6 +723,13 @@ BufferString Coords::getProjVersion()
 {
     return "PROJ not found";
 }
+
+
+BufferString Coords::getEPSGDBStr()
+{
+    return "EPSG database not found";
+}
+
 
 #endif // OD_NO_PROJ
 

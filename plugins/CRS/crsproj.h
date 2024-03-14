@@ -134,5 +134,6 @@ protected:
 mGlobal(CRS) const char*	initCRSDatabase();
 mGlobal(CRS) CRSInfoList*	getCRSInfoList(bool orthogonal = true);
 mGlobal(CRS) BufferString	getProjVersion();
+mGlobal(CRS) BufferString	getEPSGDBStr();
 
 } // namespace Coords
