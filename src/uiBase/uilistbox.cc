@@ -86,6 +86,7 @@ public:
 			    if ( !items_.validIdx(idx) )
 				return;
 
+			    setItemDelegateForRow( idx, nullptr );
 			    delete takeItem(idx);
 			    items_.removeSingle( idx );
 			    itemstrings_.removeSingle( idx );
@@ -222,6 +223,9 @@ void uiListBoxBody::updateText( int idx )
 
 void uiListBoxBody::removeAll()
 {
+    for ( int idx=0; idx<items_.size(); idx++ )
+	setItemDelegateForRow( idx, nullptr );
+
     QListWidget::clear();
     items_.erase();
     itemstrings_.setEmpty();

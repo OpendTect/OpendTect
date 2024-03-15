@@ -123,7 +123,6 @@ void uiObjFileMan::finalizeDoneCB( CallBacker* )
     mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
     mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
     initDlg();
-    checkAllEntriesOK();
     selChg( nullptr );
 }
 
@@ -237,6 +236,7 @@ void uiObjFileMan::readNotes()
 
 void uiObjFileMan::selChg( CallBacker* )
 {
+    checkAllEntriesOK();
     saveNotes( nullptr );
     delete curioobj_;
     curioobj_ = selgrp_->nrChosen() > 0 ? IOM().get(selgrp_->currentID()) : 0;

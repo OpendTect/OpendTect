@@ -271,7 +271,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 	    if ( !ioobjs.size() )
 		return;
 
-	    const bool res = ioobjs.size()>1 ?	rmEntries( ioobjs )
+	    const bool res = ioobjs.size()>1 ? rmEntries( ioobjs )
 					     : rmEntry( *ioobjs[0] );
 	    if ( !chgd && res )
 		chgd = res;
