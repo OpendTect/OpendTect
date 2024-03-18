@@ -233,7 +233,7 @@ bool Well::Reader::get() const
     wd->setD2TModel( nullptr );
     wd->setCheckShotModel( nullptr );
 
-    if ( !getTrack() || !getInfo() )
+    if ( !getInfo() || !getTrack() )
 	return false;
 
     if ( SI().zIsTime() )
