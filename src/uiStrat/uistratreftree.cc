@@ -470,20 +470,28 @@ void uiStratRefTree::removeUnit( uiTreeViewItem* lvit )
 void uiStratRefTree::updateUnitProperties( uiTreeViewItem* lvit )
 {
     UnitRef* unitref = tree_->find( getFullCodeFromLVIt(lvit) );
-    if ( !unitref || unitref->isLeaf() ) return;
+    if ( !unitref || unitref->isLeaf() )
+	return;
+
     unitref->setCode( lvit->text(cUnitsCol) );
     unitref->setDescription( lvit->text(cDescCol) );
 
-    NodeUnitRef& nur = (NodeUnitRef&)(*unitref);
-    uiStratUnitEditDlg urdlg( lv_->parent(), nur );
+    mDynamicCastGet(NodeUnitRef*,nur,unitref)
+    if ( !nur )
+	return;
+
+    uiStratUnitEditDlg urdlg( lv_->parent(), *nur );
     if ( urdlg.go() )
     {
-	ensureUnitTimeOK( nur );
-	if ( nur.isLeaved() )
+	ensureUnitTimeOK( *nur );
+	if ( nur->isLeaved() )
 	{
-	    for ( int iref=nur.nrRefs()-1; iref>=0; iref-- )
+	    for ( int iref=nur->nrRefs()-1; iref>=0; iref-- )
 		removeUnit( lvit->getChild( iref ) );
-	    addLithologies( (LeavedUnitRef&)nur, urdlg.getLithologies() );
+
+	    mDynamicCastGet(LeavedUnitRef*,lur,nur)
+	    if ( lur )
+		addLithologies( *lur, urdlg.getLithologies() );
 	}
 
 	lvit->setText( toUiString(unitref->code()), cUnitsCol );
@@ -723,23 +731,37 @@ void uiStratRefTree::getAvailableTime( const NodeUnitRef& unit,
     if ( !unit.nrRefs() || unit.isLeaved() )
 	return;
 
-    const NodeUnitRef& firstun = (NodeUnitRef&)unit.ref(0);
-    if ( timerg.start < firstun.timeRange().start )
-	{ timerg.stop = firstun.timeRange().start; return; }
-    const NodeUnitRef& lastun = (NodeUnitRef&)unit.ref( unit.nrRefs()-1 );
-    if ( timerg.stop > lastun.timeRange().stop )
-	{ timerg.start = lastun.timeRange().stop; return; }
+    mDynamicCastGet(const NodeUnitRef*,firstun,&unit.ref(0))
+    if ( firstun && timerg.start < firstun->timeRange().start )
+    {
+	timerg.stop = firstun->timeRange().start;
+	return;
+    }
+
+    mDynamicCastGet(const NodeUnitRef*,lastun,&unit.ref(unit.nrRefs()-1))
+    if ( lastun && timerg.stop > lastun->timeRange().stop )
+    {
+	timerg.start = lastun->timeRange().stop;
+	return;
+    }
 
     Interval<float> trg( 0, 0 );
     for ( int idx=0; idx<unit.nrRefs()-1; idx++ )
     {
-	const NodeUnitRef& cldun = (NodeUnitRef&)unit.ref(idx);
-	const NodeUnitRef& nldun = (NodeUnitRef&)unit.ref(idx +1);
-	timerg = nldun.timeRange();
-	trg.set( cldun.timeRange().stop, nldun.timeRange().start );
+	mDynamicCastGet(const NodeUnitRef*,cldun,&unit.ref(idx))
+	mDynamicCastGet(const NodeUnitRef*,nldun,&unit.ref(idx+1))
+	if ( !cldun || !nldun )
+	    continue;
+
+	timerg = nldun->timeRange();
+	trg.set( cldun->timeRange().stop, nldun->timeRange().start );
 	if ( trg.width() > 0 )
-	   { timerg = trg; return; }
+	{
+	    timerg = trg;
+	    return;
+	}
     }
+
     timerg.set( timerg.stop-timerg.width()/2, timerg.stop );
 }
 
@@ -756,9 +778,14 @@ void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
     const int posidx = getChildIdxFromTime( *par, mytimerg.start )-1;
     for ( int idx=0; idx<par->nrRefs(); idx++ )
     {
-	NodeUnitRef& ref = (NodeUnitRef&)par->ref(idx);
-	Interval<float> timerg = ref.timeRange();
-	if ( &ref == &unit ) continue;
+	mDynamicCastGet(const NodeUnitRef*,noderef,&par->ref(idx))
+	if ( !noderef )
+	    continue;
+
+	Interval<float> timerg = noderef->timeRange();
+	if ( noderef == &unit )
+	    continue;
+
 	if ( posidx-1 == idx && mytimerg.start < timerg.start )
 	    mytimerg.start = timerg.start;
 	else if ( posidx+1 == idx && mytimerg.stop > timerg.stop )
@@ -767,9 +794,12 @@ void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
 
     for ( int idx=0; idx<par->nrRefs(); idx++ )
     {
-	NodeUnitRef& ref = (NodeUnitRef&)par->ref(idx);
-	if ( &ref == &unit ) continue;
-	Interval<float> timerg = ref.timeRange();
+	mDynamicCastGet(NodeUnitRef*,noderef,
+			cCast(UnitRef*,&par->ref(idx)))
+	if ( !noderef || noderef == &unit )
+	    continue;
+
+	Interval<float> timerg = noderef->timeRange();
 	if ( timerg.overlaps( mytimerg ) )
 	{
 	    if ( timerg.stop==mytimerg.start || timerg.start==mytimerg.stop )
@@ -778,19 +808,27 @@ void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
 		timerg.stop = mytimerg.start;
 	    else
 		timerg.start = mytimerg.stop;
-	    ref.setTimeRange( timerg );
-	    setNodesDefaultTimes( ref );
+	    noderef->setTimeRange( timerg );
+	    setNodesDefaultTimes( *noderef );
 	}
     }
+
     unit.setTimeRange( mytimerg );
-    if ( unit.isLeaved() ) return;
+    if ( unit.isLeaved() )
+	return;
 
     for ( int idx=0; idx<unit.nrRefs(); idx++ )
     {
-	NodeUnitRef& ref = (NodeUnitRef&)unit.ref(idx);
-	Interval<float> timerg = ref.timeRange();
+	mDynamicCastGet(const NodeUnitRef*,noderef,&unit.ref(idx))
+	if ( !noderef )
+	    continue;
+
+	Interval<float> timerg = noderef->timeRange();
 	if ( timerg.start < mytimerg.start || timerg.stop > mytimerg.stop )
-	    { setNodesDefaultTimes( unit ); break; }
+	{
+	    setNodesDefaultTimes( unit );
+	    break;
+	}
     }
 }
 
@@ -798,12 +836,15 @@ void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
 int uiStratRefTree::getChildIdxFromTime( const NodeUnitRef& nur,
 						float pos ) const
 {
-    if ( nur.isLeaved() ) return -1;
+    if ( nur.isLeaved() )
+	return -1;
+
     for ( int idx=0; idx<nur.nrRefs(); idx++ )
     {
-	NodeUnitRef& cnur = (NodeUnitRef& )(nur.ref(idx));
-	if ( cnur.timeRange().start > pos )
+	mDynamicCastGet(const NodeUnitRef*,cnur,&nur.ref(idx))
+	if ( cnur && cnur->timeRange().start > pos )
 	    return idx;
     }
+
     return nur.nrRefs();
 }
