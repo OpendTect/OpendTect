@@ -967,17 +967,17 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     del.fill( iodir, nmflt );
 
     dataset_.setEmpty();
+    BufferStringSet defkeys;
+    TypeSet<int> curidxs;
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj_;
 	// 'uiIOObjEntryInfo'
 	BufferString dispnm( del[idx]->name() );
 	BufferString ioobjnm;
-	MultiID objid = MultiID::udf();
+	MultiID objid;
 	bool isdef = false;
-	if ( !ioobj )
-	    ioobjnm = dispnm;
-	else
+	if ( ioobj )
 	{
 	    objid = ioobj->key();
 	    const bool issel = ctio_.ioobj_ && ctio_.ioobj_->key() == objid;
@@ -994,23 +994,58 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 				trl->getSurveyDefaultKey( ioobj );
 		    isdef = SI().pars().isPresent(keynm) &&
 			    SI().pars().find(keynm) == objid.toString();
+		    if ( isdef )
+			defkeys.add( keynm.buf() );
 		}
 		else
+		{
 		    isdef = IOObj::isSurveyDefault( objid );
+		    if ( isdef )
+			defkeys.add( BufferString::empty() );
+		}
 	    }
 
 	    ioobjnm = ioobj->name();
 	    dispnm = ioobj->name();
 
-	    if ( curidx < 0 )
+	    if ( curidx < 0 &&
+		 (issel || (isdef && !ctio_.ioobj_ && ctio_.ctxt_.forread_)) )
 	    {
-		if ( issel || (isdef && !ctio_.ioobj_ && ctio_.ctxt_.forread_) )
-		    curidx = idx;
+		curidxs += idx;
+		if ( defkeys.size() < curidxs.size() )
+		    defkeys.add( BufferString::empty() );
 	    }
 	}
+	else
+	    ioobjnm = dispnm;
 
 	//TODO cleaner is to put this into one object: uiIOObjEntryInfo
 	dataset_.add( objid, ioobjnm, dispnm, isdef );
+    }
+
+    if ( defkeys.isEmpty() )
+    {
+	if ( !curidxs.isEmpty() )
+	    curidx = curidxs.first();
+    }
+    else
+    {
+	//Find the shortest non-empty key
+	int keyidx = -1; int keysz = mUdf(int);
+	for ( int idx=0; idx<defkeys.size(); idx++ )
+	{
+	    const BufferString& defkey = defkeys.get( idx );
+	    if ( !defkey.isEmpty() && defkey.size() < keysz )
+	    {
+		keyidx = idx;
+		keysz = defkey.size();
+	    }
+	}
+
+	if ( curidxs.validIdx(keyidx) )
+	    curidx = curidxs[keyidx];
+	else if ( !curidxs.isEmpty() )
+	    curidx = curidxs.first();
     }
 
     fillListBox();
