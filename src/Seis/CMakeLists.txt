@@ -30,6 +30,7 @@ set( OD_MODULE_SOURCES
 	seis2dto3dinterpol.cc
 	seisbayesclass.cc
 	seisblocks.cc
+	seisblocksdataglueer.cc
 	seisblocksreader.cc
 	seisblockstr.cc
 	seisbuf.cc

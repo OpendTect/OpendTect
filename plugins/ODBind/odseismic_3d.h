@@ -22,7 +22,9 @@ ________________________________________________________________________________
 #include "odbindmod.h"
 #include "odbind.h"
 
+#include "point3d.h"
 #include "ptrman.h"
+#include "seisblocksdataglueer.h"
 #include "trckeyzsampling.h"
 #include "odseismic_object.h"
 
@@ -31,6 +33,7 @@ class odSurvey;
 class SeisTrcWriter;
 class SeisSequentialWriter;
 namespace PosInfo{ class CubeDataIndex; }
+namespace Seis{ class DataGlueer; }
 
 
 class odSeismic3D : public odSeismicObject
@@ -56,6 +59,9 @@ public:
     StepInterval<float>	getZrange(const SeisIOObjInfo&) const;
     void		getData(hAllocator, const TrcKeyZSampling&) const;
     void		putData(const float** data, const TrcKeyZSampling&);
+    void		putBlock(const float* data, const TrcKeyZSampling&);
+    void		setBlockPars(const char* mergemode,
+				     const Geom::Point3D<float>&);
 
     void		getInfo(OD::JSON::Object&) const override;
     void		getPoints(OD::JSON::Array&, bool towgs) const override;
@@ -68,6 +74,9 @@ protected:
     PtrMan<PosInfo::CubeDataIndex>	cubeidx_;
     PtrMan<SeisTrcWriter>		writer_;
     PtrMan<SeisSequentialWriter>	sequentialwriter_;
+    PtrMan<Seis::DataGlueer>		dataglueer_;
+    Geom::Point3D<float>		overlap_;
+    Seis::DataGlueer::MergeMode		mergemode_;
     TrcKeyZSampling			tkz_;
     size_t				writecount_ = 0;
 
@@ -97,6 +106,10 @@ mExternC(ODBind) od_int64	seismic3d_gettrcidx(hSeismic3D, int32_t,
 						    int32_t);
 mExternC(ODBind) od_int64	seismic3d_nrbins(hSeismic3D);
 mExternC(ODBind) od_int64	seismic3d_nrtrcs(hSeismic3D);
+mExternC(ODBind) void		seismic3d_ranges(hSeismic3D, int32_t inlrg[3],
+						 int32_t crlrg[3],
+						 float zrg[3]);
+mExternC(ODBind) void		seismic3d_shape(hSeismic3D, int32_t dims[3]);
 mExternC(ODBind) void		seismic3d_zrange(hSeismic3D, float zrg[3]);
 mExternC(ODBind) bool		seismic3d_validrange(hSeismic3D,
 						     const int32_t inlrg[3],
@@ -111,6 +124,14 @@ mExternC(ODBind) void		seismic3d_putdata(hSeismic3D,
 						  const int32_t inlrg[3],
 						  const int32_t crlrg[3],
 						  const float zrg[3]);
+mExternC(ODBind) void		seismic3d_putblock(hSeismic3D,
+						  const float* data,
+						  const int32_t inlrg[3],
+						  const int32_t crlrg[3],
+						  const float zrg[3]);
+mExternC(ODBind) void		seismic3d_setblockpars(hSeismic3D,
+						       const char* mergemode,
+						       const float overlap[3]);
 
 
 

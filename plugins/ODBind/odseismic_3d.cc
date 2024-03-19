@@ -24,6 +24,7 @@ ________________________________________________________________________________
 
 #include "ioman.h"
 #include "ioobj.h"
+#include "point3d.h"
 #include "posinfo.h"
 #include "seisdatapack.h"
 #include "segydirecttr.h"
@@ -110,6 +111,18 @@ void odSeismic3D::close()
 	sequentialwriter_ = nullptr;
     }
 
+    if ( dataglueer_ )
+    {
+	uiRetVal uirv = dataglueer_->finish();
+	if ( !uirv.isOK() )
+	{
+	    errmsg_ = "error finishing chunk output\n";
+	    errmsg_.add( uirv.getText() );
+	}
+
+	dataglueer_ = nullptr;
+    }
+
     if ( writer_ )
     {
 	writer_ = nullptr;
@@ -122,6 +135,8 @@ void odSeismic3D::close()
 
 	writecount_ = 0;
     }
+
+    cubeidx_ = nullptr;
 }
 
 
@@ -287,6 +302,12 @@ void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
 	return;
     }
 
+    if ( dataglueer_ )
+    {
+	errmsg_ = "in chunk writing mode - use putBlock";
+	return;
+    }
+
     survey_.activate();
     if ( writecount_==0 )
     {
@@ -337,6 +358,76 @@ void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
 	sequentialwriter_->submitTrace( trc, true );
 	writecount_++;
     }
+}
+
+
+void odSeismic3D::setBlockPars( const char* mergemode,
+				const Geom::Point3D<float>& overlap )
+{
+    if ( dataglueer_ )
+    {
+	errmsg_ = "parameters can only be changed before first block output";
+	return;
+    }
+
+    overlap_ = overlap;
+    if ( !Seis::DataGlueer::parseEnum(mergemode, mergemode_) )
+	errmsg_ = "bad merge mode";
+}
+
+
+void odSeismic3D::putBlock( const float* data, const TrcKeyZSampling& tkz )
+{
+    errmsg_.setEmpty();
+    if ( !canWrite() )
+	return;
+
+    if ( !writer_ )
+    {
+	errmsg_ = "no SeisTrcWriter.";
+	return;
+    }
+
+    if ( sequentialwriter_ )
+    {
+	errmsg_ = "in sequential writing mode - use putData";
+	return;
+    }
+
+    survey_.activate();
+    if ( writecount_==0 )
+    {
+	writer_->setComponentNames( components_ );
+	dataglueer_ = new Seis::DataGlueer( tkz_, *writer_, overlap_,
+					    mergemode_ );
+    }
+
+    if ( !dataglueer_ )
+    {
+	errmsg_ = "no DataGlueer.";
+	return;
+    }
+
+    Array3DImpl<float> arr( tkz.nrLines(), tkz.nrTrcs(), tkz.nrZ() );
+    float* arrptr = arr.getData();
+    for ( int idx=0; idx<arr.totalSize(); idx++ )
+    {
+	float val = data[idx];
+	if ( !Math::IsNormalNumber(val) )
+	    val = mUdf(float);
+
+	*arrptr++ = val;
+    }
+
+    uiRetVal uirv = dataglueer_->addData( tkz.hsamp_.trcKeyAt(0),
+					  tkz.zAtIndex(0), arr );
+    if ( !uirv.isOK() )
+    {
+	errmsg_ = "error adding data in putBlock.";
+	return;
+    }
+
+    writecount_++;
 }
 
 
@@ -508,6 +599,35 @@ od_int64 seismic3d_nrtrcs( hSeismic3D self )
 }
 
 
+void seismic3d_shape( hSeismic3D self, int32_t dims[3] )
+{
+    const auto* p = static_cast<odSeismic3D*>(self);
+    if ( !p ) return;
+
+    const auto& tkz = p->tkz();
+    dims[0] = tkz.nrLines();
+    dims[1] = tkz.nrTrcs();
+    dims[2] = tkz.nrZ();
+}
+
+
+void seismic3d_ranges( hSeismic3D self, int32_t inlrg[3], int32_t crlrg[3],
+		       float zrg[3] )
+{
+    const auto* p = static_cast<odSeismic3D*>(self);
+    if ( !p ) return;
+
+    const auto& tkz = p->tkz();
+    inlrg[0] = tkz.hsamp_.start_.inl();
+    inlrg[1] = tkz.hsamp_.stop_.inl();
+    inlrg[2] = tkz.hsamp_.step_.inl();
+    crlrg[0] = tkz.hsamp_.start_.crl();
+    crlrg[1] = tkz.hsamp_.stop_.crl();
+    crlrg[2] = tkz.hsamp_.step_.crl();
+    seismic3d_zrange( self, zrg);
+}
+
+
 void seismic3d_zrange( hSeismic3D self, float zrg[3] )
 {
     const auto* p = static_cast<odSeismic3D*>(self);
@@ -562,5 +682,30 @@ void seismic3d_putdata( hSeismic3D self,
 }
 
 
+void seismic3d_putblock( hSeismic3D self,
+			const float* data,
+			const int32_t inlrg[3], const int32_t crlrg[3],
+			const float zrg[3] )
+{
+    auto* p = static_cast<odSeismic3D*>(self);
+    if	( !p || !p->canWrite() )
+	return;
+
+    TrcKeyZSampling tkztosave = odSurvey::tkzFromRanges( inlrg, crlrg, zrg,
+							 p->zIsTime() ) ;
+    p->putBlock( data, tkztosave );
+}
+
+
+void seismic3d_setblockpars( hSeismic3D self, const char* mergemode,
+			     const float ol[3] )
+{
+    auto* p = static_cast<odSeismic3D*>(self);
+    if	( !p )
+	return;
+
+    const Geom::Point3D<float> overlap( ol[0], ol[1], ol[2] );
+    p->setBlockPars( mergemode, overlap );
+}
 
 
