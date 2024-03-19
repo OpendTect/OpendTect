@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
 				    OD::StdActionType typ )
-    : uiGroup(p,mFromUiStringTodo(seltxt))
+    : uiGroup(p,seltxt.getOriginalString())
     , butPush(this)
 {
     crTextFld( seltxt );
@@ -27,7 +27,7 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
 
 uiCompoundParSel::uiCompoundParSel( uiParent* p, const uiString& seltxt,
 				    const uiString& btxt, const char* icid )
-    : uiGroup(p,mFromUiStringTodo(seltxt))
+    : uiGroup(p,seltxt.getOriginalString())
     , butPush(this)
 {
     crTextFld( seltxt );
@@ -56,8 +56,9 @@ void uiCompoundParSel::finishCreation( const uiString& seltxt,
 {
     selbut_->attach( rightOf, txtfld_ );
 
-    const uiString stnm = uiStrings::phrJoinStrings(btxt,seltxt);
-    selbut_->setName( mFromUiStringTodo(stnm) );
+    const BufferString stnm( btxt.getOriginalString(), " ",
+					seltxt.getOriginalString() );
+    selbut_->setName( stnm );
 
     setHAlignObj( txtfld_ );
     setHCenterObj( txtfld_ );

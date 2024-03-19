@@ -87,7 +87,7 @@ class PointSetDisplayUpdater : public Executor
 public:
 PointSetDisplayUpdater( visBase::PointSet& pointset, DataPointSet& dps,
 			DataPointSetDisplayProp& dpsdispprop )
-    : Executor(mFromUiStringTodo(tr("Creating Point Display in 3D Scene")))
+    : Executor("Creating Point Display in 3D Scene")
     , pointset_(pointset)
     , data_(&dps)
     , dpsdispprop_(dpsdispprop)

@@ -473,8 +473,8 @@ bool Picks::store( const IOObj* ioobjarg )
 
     if ( !IOM().commitChanges(*ioobj) )
     {
-	errmsg_ = mFromUiStringTodo(
-		    uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ) );
+	errmsg_ = "Cannot write database entry for ";
+	errmsg_.add( ioobj->uiName() );
 	return false;
     }
 

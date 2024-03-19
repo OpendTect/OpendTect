@@ -1001,7 +1001,7 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 	if ( !scene_ ) { info = val; return; }
 
 	const ZDomain::Info& zdinf = scene_->zDomainInfo();
-	info = mFromUiStringTodo(zdinf.userName()); info += ": ";
+	info = zdinf.userName().getOriginalString(); info += ": ";
 
 	const float userval = tkzs.zsamp_.step * zdinf.userFactor();
 	const int nrdec = Math::NrSignificantDecimals( userval );
