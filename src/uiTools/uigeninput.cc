@@ -811,7 +811,7 @@ uiGenInputInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 // uiGenInput
 
 uiGenInput::uiGenInput( const uiString& disptxt, uiParent* p )
-    : uiGroup(p,mFromUiStringTodo(disptxt))
+    : uiGroup(p,disptxt.getOriginalString())
     , checked(this)
     , valueChanging(this)
     , valueChanged(this)
@@ -831,7 +831,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
 {
     inputs_ += new StringInpSpec( inputStr );
     if ( !disptxt.isEmpty() )
-	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
+	inputs_[0]->setName( disptxt.getOriginalString() );
 
     preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
@@ -844,7 +844,7 @@ uiGenInput::uiGenInput( uiParent* p, const uiString& disptxt,
     inputs_ += inp1.clone();
     const bool inputhasnm = inputs_[0]->name() && *inputs_[0]->name();
     if ( !disptxt.isEmpty() && !inputhasnm )
-	inputs_[0]->setName( mFromUiStringTodo(disptxt) );
+	inputs_[0]->setName( disptxt.getOriginalString() );
 
     preFinalize().notify( mCB(this,uiGenInput,doFinalize) );
 }
