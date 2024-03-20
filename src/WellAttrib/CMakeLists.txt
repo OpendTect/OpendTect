@@ -33,4 +33,6 @@ set( OD_TEST_PROGS
 	stratsynthdatamgr.cc
 )
 
+set( OD_NIGHTLY_TEST_PROGS zaxistransforms.cc )
+
 OD_INIT_MODULE()

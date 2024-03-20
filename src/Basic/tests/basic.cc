@@ -73,18 +73,18 @@ bool testCompoundKey()
     mRunStandardTest( testid.isUdf(), "Empty multiid is undefined" );
     testid.fromString( "100010.2" );
     mRunStandardTest( testid.isDatabaseID() && !testid.isSyntheticID() &&
-		      !testid.isInMemoryID(), "Valid database MultiID" );
+		      !testid.isInMemoryDPID(), "Valid database MultiID" );
     testid.fromString( "100050.999998" );
     const MultiID testid2( 100010, MultiID::cSyntheticObjID() );
-    mRunStandardTest( testid.isSyntheticID() && !testid.isInMemoryID() &&
-		      testid2.isSyntheticID() && !testid2.isInMemoryID(),
+    mRunStandardTest( testid.isSyntheticID() && !testid.isInMemoryDPID() &&
+		      testid2.isSyntheticID() && !testid2.isInMemoryDPID(),
 		      "Valid synthetic MultiID" );
     testid.setSubGroupID( 1 );
-    mRunStandardTest( testid.isSyntheticID() && !testid.isInMemoryID(),
+    mRunStandardTest( testid.isSyntheticID() && !testid.isInMemoryDPID(),
 		      "Valid synthetic MultiID subgroup" );
     testid.fromString( "3.33" );
     mRunStandardTest( !testid.isDatabaseID() && !testid.isSyntheticID() &&
-		       testid.isInMemoryID() &&
+		       testid.isInMemoryDPID() &&
 		       testid.groupID() == DataPackMgr::SeisID().asInt() &&
 		       testid.toString() == "3.33",
 		      "Valid in-memory MultiID" );

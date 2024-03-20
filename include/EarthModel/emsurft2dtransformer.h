@@ -74,7 +74,8 @@ protected:
 
     virtual const StringView	getTypeString() const	    = 0;
 
-    RefMan<EMObject>		createObject(const MultiID&) const;
+    RefMan<EMObject>		createObject(const MultiID&,
+							const MultiID&) const;
 
     od_int64					nrdone_     = 0;
     od_int64					totnr_	    = 0;

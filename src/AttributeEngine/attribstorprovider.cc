@@ -61,7 +61,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 {
     const BufferString valstr( desc.getValParam(keyStr())->getStringValue(0) );
     const MultiID dbky( valstr.buf() );
-    if ( dbky.isInMemoryID() )
+    if ( dbky.isInMemoryDPID() )
     {
 	const DataPack::FullID fid( dbky );
 	if ( !DPM(fid).isPresent(fid) )
@@ -175,7 +175,7 @@ StorageProvider::StorageProvider( Desc& desc )
 {
     const MultiID dbky = getDBKey( &desc );
     const DataPack::FullID fid( dbky );
-    isondisc_ = dbky.isInMemoryID() ? !DPM(fid).isPresent(fid) : true;
+    isondisc_ = dbky.isInMemoryDPID() ? !DPM(fid).isPresent(fid) : true;
 }
 
 
@@ -731,7 +731,7 @@ DataPack::FullID StorageProvider::getDPID( const Desc* desc ) const
 {
     const Desc* usedesc = desc ? desc : &desc_;
     const MultiID dbky = getDBKey( usedesc );
-    return dbky.isInMemoryID() ? dbky : DataPack::FullID::udf();
+    return dbky.isInMemoryDPID() ? dbky : DataPack::FullID::udf();
 }
 
 

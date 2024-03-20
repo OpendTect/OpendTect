@@ -1050,7 +1050,7 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
 
 	objnm = ioobj->name();
     }
-    else if ( multiid.isInMemoryID() )
+    else if ( multiid.isInMemoryDPID() )
     {
 	DataPack::FullID fid( multiid );
 	if ( !DPM(fid).isPresent(fid) )

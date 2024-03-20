@@ -35,7 +35,8 @@ public:
     inline int		subObjectID() const		{ return ID(3); }
     MultiID		mainID() const;
     bool		isDatabaseID() const;
-    bool		isInMemoryID() const;
+    bool		isInMemoryDPID() const;
+    bool		isInMemoryObjID() const;
     bool		isTmpObjectID() const;
     bool		isSyntheticID() const;
 
@@ -59,6 +60,7 @@ public:
 
     static int		cLastInMemoryGrpID()	{ return 99; }
     static int		cFirstDatabaseGrpID()	{ return 100000; }
+    static int		cMemoryObjID()		{ return 999997; }
     static int		cSyntheticObjID()	{ return 999998; }
     static int		cTmpObjID()		{ return 999999; }
 

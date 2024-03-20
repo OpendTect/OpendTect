@@ -215,8 +215,14 @@ ZSampling ZAxisTransform::getZInterval( bool isfrom, bool makenice,
 {
     const ZSampling& samp = zsamp ? *zsamp : SI().zRange( true );
     if ( zsamp )
-	return getZInterval( samp, fromZDomainInfo(), toZDomainInfo(),
-								    makenice);
+    {
+	if ( isfrom )
+	    return getZInterval( samp, fromZDomainInfo(), toZDomainInfo(),
+								    makenice );
+	else
+	    return  getZInterval( samp, toZDomainInfo(), fromZDomainInfo(),
+								    makenice );
+    }
 
     const ZDomain::Info& from = SI().zDomainInfo();
     const ZDomain::Info& to = isfrom ? fromZDomainInfo() : toZDomainInfo();

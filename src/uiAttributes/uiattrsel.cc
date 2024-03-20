@@ -753,7 +753,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     if ( bs.size() == 1 )
     {
 	const MultiID dbky( txt );
-	if ( !dbky.isUdf() && dbky.isInMemoryID() )
+	if ( !dbky.isUdf() && dbky.isInMemoryDPID() )
 	    return DataPackMgr::nameOf( dbky );
 
 	return "";
@@ -919,7 +919,7 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
     //make sure the default stored data is not used
     const BufferString str( toString(attribID().asInt()) );
     const MultiID dbky( str.buf() );
-    if ( dbky.isInMemoryID() )
+    if ( dbky.isInMemoryDPID() )
 	return;
 
     const Attrib::Desc* inpdesc = getAttrSet().getDesc( attribID() );

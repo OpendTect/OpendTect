@@ -872,7 +872,7 @@ bool Desc::isStoredInMem() const
     const BufferString idstr( getValParam(
 			      StorageProvider::keyStr())->getStringValue(0) );
     const MultiID dbky( idstr.buf() );
-    return dbky.isInMemoryID();
+    return dbky.isInMemoryDPID();
 }
 
 

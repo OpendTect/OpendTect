@@ -261,6 +261,7 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
     {
 	if ( sels.rg.isEmpty() )
 	    sels.rg.init( true );
+
 	sels.rg.limitTo( SI().sampling(true).hsamp_ );
     }
 

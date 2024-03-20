@@ -109,7 +109,6 @@ void SurfaceT2DTransformer::load3DTranformVol( const TrcKeyZSampling* tkzs )
 	if ( updateHSamp() )
 	    samp.hsamp_ = datas_[0]->surfsel_.rg;
 
-	zgate.start = zatf_.getModelZSampling().start;
 	samp.zsamp_ = zatf_.getZInterval( true, true, &zgate );
     }
 
@@ -143,19 +142,33 @@ bool SurfaceT2DTransformer::load2DVelCubeTransf( const Pos::GeomID& geomid,
 }
 
 
-RefMan<EMObject> SurfaceT2DTransformer::createObject( const MultiID& outmid )
-									const
+RefMan<EMObject> SurfaceT2DTransformer::createObject( const MultiID& outmid,
+						const MultiID& inpmid ) const
 {
-    PtrMan<IOObj> obj = IOM().get( outmid );
-    if ( !obj )
-	return nullptr;
-
+    EM::EMObject* emobj = nullptr;
     EM::EMManager& em = EM::EMM();
-    ObjectID objid = em.getObjectID( outmid );
-    if ( !objid.isValid() )
-	objid = em.createObject( getTypeString(), obj->name());
+    if ( outmid.isInMemoryObjID() )
+    {
+	PtrMan<IOObj> inpioobj = IOM().get( inpmid );
+	if ( !inpioobj )
+	    return nullptr;
 
-    EM::EMObject* emobj = em.getObject( objid );
+	emobj = em.createTempObject( inpioobj->group() );
+	emobj->setMultiID( outmid );
+    }
+    else
+    {
+	PtrMan<IOObj> obj = IOM().get( outmid );
+	if ( !obj )
+	    return nullptr;
+
+	ObjectID objid = em.getObjectID( outmid );
+	if ( !objid.isValid() )
+	    objid = em.createObject( getTypeString(), obj->name());
+
+	emobj = em.getObject( objid );
+    }
+
     emobj->change.disable();
     emobj->setZDomain( zatf_.toZDomainInfo() );
     return emobj;
@@ -220,11 +233,11 @@ void Horizon3DT2DTransformer::preStepCB( CallBacker* )
 
 bool Horizon3DT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
 {
-    RefMan<EMObject> surf = createObject( data.outmid_ );
+    const MultiID& inpmid = data.inpmid_;
+    RefMan<EMObject> surf = createObject( data.outmid_, inpmid );
     if ( !surf )
 	mErrRet( tr("Cannot access database") );
 
-    const MultiID& inpmid = data.inpmid_;
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
 	mErrRet( tr("Cannot find input horizon in repository") );
@@ -416,7 +429,8 @@ void Horizon2DT2DTransformer::preStepCB( CallBacker* )
     TaskRunner tskr;
     for ( const auto* data : datas_ )
     {
-	RefMan<EMObject> surf = createObject( data->outmid_ );
+	const MultiID& inpmid = data->inpmid_;
+	RefMan<EMObject> surf = createObject( data->outmid_, inpmid );
 	if ( !surf )
 	    continue;
 
@@ -424,7 +438,6 @@ void Horizon2DT2DTransformer::preStepCB( CallBacker* )
 	if ( !outhor2D )
 	    continue;
 
-	const MultiID& inpmid = data->inpmid_;
 	const IOObj* ioobj = IOM().get( inpmid );
 	if ( !ioobj )
 	    continue;
@@ -543,11 +556,11 @@ const StringView FaultT2DTransformer::getTypeString() const
 
 bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 {
-    RefMan<EMObject> surf = createObject( data.outmid_ );
+    const MultiID& inpmid = data.inpmid_;
+    RefMan<EMObject> surf = createObject( data.outmid_, inpmid );
     if ( !surf )
 	mErrRet( tr("Cannot access database") );
 
-    const MultiID& inpmid = data.inpmid_;
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
 	mErrRet( tr("Cannot find input fault in repository") );
@@ -576,12 +589,15 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 
     const int nrsticks = fltgeom.nrSticks();
     TrcKeyZSampling tkzs = fltgeom.getEnvelope();
-    tkzs.zsamp_.start = zatf_.getModelZSampling().start;
-    tkzs.zsamp_ = zatf_.getZInterval( true, true, &tkzs.zsamp_ );
+    tkzs.zsamp_ = SI().sampling( false ).zsamp_;
+    if ( zatf_.toZDomainInfo().def_ != SI().zDomain() )
+	tkzs.zsamp_ = zatf_.getZInterval( true, true,
+					    &SI().sampling(false).zsamp_ );
+
     load3DTranformVol( &tkzs );
-    const ZSampling zint = zatf_.getZInterval( true );
     const Interval<float> reasonablerange =
 				zatf_.toZDomainInfo().getReasonableZRange();
+    int stickidx = 0;
     for ( int idx=0; idx<nrsticks; idx++ )
     {
 	const Geometry::FaultStick* stick = fssurf->getStick( idx );
@@ -591,11 +607,9 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	const int sz = stick->size();
 	const Coord3 firstcrd = stick->getCoordAtIndex( 0 );
 	const Coord3 lastcrd = stick->getCoordAtIndex( sz-1 );
-	if ( !zint.includes(firstcrd.z,false) ||
-					    !zint.includes(lastcrd.z,false) )
-	    continue;
-
 	const Coord3& editnormal = stick->getNormal();
+	bool stickinserted = false;
+	int colidx=1;
 	for ( int crdidx=0; crdidx<sz; crdidx++ )
 	{
 	    Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
@@ -604,18 +618,23 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	    if ( !reasonablerange.includes(outcrd.z,false) )
 		continue;
 
-	    if ( crdidx == 0 )
+	    if ( !stickinserted )
 	    {
-		if ( !outfault3d->geometry().insertStick(idx,0,outcrd,
+		if ( !outfault3d->geometry().insertStick(stickidx,0,outcrd,
 						    editnormal,false) )
 		    break;
 
+		stickinserted = true;
 		continue;
 	    }
 
-	    const RowCol rc( idx, crdidx );
-	    outfault3d->geometry().insertKnot( rc.toInt64(), outcrd, false );
+	    const RowCol rc( stickidx, colidx );
+	    if ( outfault3d->geometry().insertKnot(rc.toInt64(),outcrd,false) )
+		colidx++;
 	}
+
+	if ( stickinserted )
+	    stickidx++;
     }
 
     unloadModel();
@@ -667,11 +686,11 @@ const StringView FaultSetT2DTransformer::getTypeString() const
 
 bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 {
-    RefMan<EMObject> outfltsetobj = createObject( data.outmid_ );
+    const MultiID& inpmid = data.inpmid_;
+    RefMan<EMObject> outfltsetobj = createObject( data.outmid_, inpmid );
     if ( !outfltsetobj )
 	mErrRet( tr("Cannot access database") );
 
-    const MultiID& inpmid = data.inpmid_;
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
 	mErrRet( tr("Cannot find input FaultSet in repository") );
@@ -695,8 +714,10 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 				zatf_.toZDomainInfo().getReasonableZRange();
     const int nrfaults = inpfltset->nrFaults();
     TrcKeyZSampling tkzs = inpfltset->getEnvelope();
-    tkzs.zsamp_.start = zatf_.getModelZSampling().start;
-    tkzs.zsamp_ = zatf_.getZInterval( true, true, &tkzs.zsamp_ );
+    tkzs.zsamp_ = SI().sampling( false ).zsamp_;
+    if ( zatf_.toZDomainInfo().def_ != SI().zDomain() )
+	tkzs.zsamp_ = zatf_.getZInterval( true, true,
+						&SI().sampling(false).zsamp_ );
 
     load3DTranformVol( &tkzs );
     for ( int fltidx=0; fltidx<nrfaults; fltidx++ )
@@ -711,10 +732,10 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 
 	const int nrsticks = fltgeom.nrSticks();
 
-	const ZSampling zint = zatf_.getZInterval( true );
 	RefMan<EM::EMObject> fltemobj = em.createTempObject(
 						    EM::Fault3D::typeStr() );
 	mDynamicCastGet(EM::Fault3D*,outfault3d,fltemobj.ptr());
+	int stickidx = 0;
 	for ( int idx=0; idx<nrsticks; idx++ )
 	{
 	    const Geometry::FaultStick* stick = fssurf->getStick( idx );
@@ -724,11 +745,9 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 	    const int sz = stick->size();
 	    const Coord3 firstcrd = stick->getCoordAtIndex( 0 );
 	    const Coord3 lastcrd = stick->getCoordAtIndex( sz-1 );
-	    if ( !zint.includes(firstcrd.z,false) ||
-		!zint.includes(lastcrd.z,false) )
-		continue;
-
 	    const Coord3& editnormal = stick->getNormal();
+	    bool stickinserted = false;
+	    int colidx = 1;
 	    for ( int crdidx=0; crdidx<sz; crdidx++ )
 	    {
 		Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
@@ -737,19 +756,24 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 		if ( !reasonablerange.includes(outcrd.z,false) )
 		    continue;
 
-		if ( crdidx == 0 )
+		if ( !stickinserted )
 		{
-		    if ( !outfault3d->geometry().insertStick(idx,0,outcrd,
+		    if ( !outfault3d->geometry().insertStick(stickidx,0,outcrd,
 			editnormal,false) )
 			break;
 
+		    stickinserted = true;
 		    continue;
 		}
 
-		const RowCol rc( idx, crdidx );
-		outfault3d->geometry().insertKnot( rc.toInt64(), outcrd,
-								    false );
+		const RowCol rc( stickidx, colidx );
+		if ( outfault3d->geometry().insertKnot(rc.toInt64(),outcrd,
+								    false) )
+		    colidx++;
 	    }
+
+	    if ( stickinserted )
+		stickidx++;
 	}
 
 	outfltset->addFault( outfault3d );
@@ -815,28 +839,28 @@ bool FaultStickSetT2DTransformer::doTransformation(
     const int sz = stick->size();
     const Coord3 firstcrd = stick->getCoordAtIndex(0);
     const Coord3 lastcrd = stick->getCoordAtIndex(sz - 1);
-    const ZSampling zint = zatf_.getZInterval(true);
-    if ( !zint.includes(firstcrd.z,false) ||
-					!zint.includes(lastcrd.z,false) )
-	return false;
 
     const Coord3& editnormal = stick->getNormal();
+    bool stickinserted = false;
+    int colidx=1;
     for ( int crdidx = 0; crdidx<sz; crdidx++ )
     {
 	Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
 	outcrd.z = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
 								    outcrd.z );
-	if ( crdidx == 0 )
+	if ( !stickinserted )
 	{
 	    if ( !outfault3d.geometry().insertStick(sticknr,0,outcrd,
 						    editnormal,geomid,false) )
 		break;
 
+	    stickinserted = true;
 	    continue;
 	}
 
-	const RowCol rc( sticknr, crdidx );
-	outfault3d.geometry().insertKnot(rc.toInt64(), outcrd, false);
+	const RowCol rc( sticknr, colidx );
+	if ( outfault3d.geometry().insertKnot(rc.toInt64(),outcrd,false) )
+	    colidx++;
     }
 
     return true;
@@ -862,9 +886,8 @@ bool FaultStickSetT2DTransformer::handle2DTransformation(
 	fssgeom.getStickNrsForGeomID( geomid, sticknrs );
 	for ( auto sticknr : sticknrs )
 	{
-	    doTransformation(
-		fssgeom.geometryElement()->getStick(sticknr,true), sticknr,
-		outfss, geomid );
+	    doTransformation( fssgeom.geometryElement()->getStick(sticknr,
+					true), sticknr, outfss, geomid );
 	}
 
 	unloadModel();
@@ -889,8 +912,11 @@ bool FaultStickSetT2DTransformer::handle3DTransformation(
     {
 	TrcKeyZSampling samp;
 	fssgeom.getTrcKeyZSamplingForGeomID( geomid, samp );
-	samp.zsamp_.start = zatf_.getModelZSampling().start;
-	samp.zsamp_ = zatf_.getZInterval( true, true, &samp.zsamp_ );
+	samp.zsamp_ = SI().sampling( false ).zsamp_;
+	if ( zatf_.toZDomainInfo().def_ != SI().zDomain() )
+	    samp.zsamp_ = zatf_.getZInterval( true, true,
+						&SI().sampling(false).zsamp_ );
+
 	load3DTranformVol( &samp );
 	for ( int idx=0; idx<nrsticks; idx++ )
 	{
@@ -908,11 +934,11 @@ bool FaultStickSetT2DTransformer::handle3DTransformation(
 bool FaultStickSetT2DTransformer::doFaultStickSet(
 				const SurfaceT2DTransfData& data )
 {
-    RefMan<EMObject> surf = createObject( data.outmid_ );
+    const MultiID& inpmid = data.inpmid_;
+    RefMan<EMObject> surf = createObject( data.outmid_, inpmid );
     if ( !surf )
 	mErrRet( tr("Cannot access database") );
 
-    const MultiID& inpmid = data.inpmid_;
     const IOObj* ioobj = IOM().get( inpmid );
     if ( !ioobj )
 	mErrRet( tr("Cannot find input FaultStickSet in repository") );

@@ -514,7 +514,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 {
     delete psioobj_;
 
-    if ( psid_.isInMemoryID() )
+    if ( psid_.isInMemoryDPID() )
     {
 	const DataPack::FullID fid( psid_ );
 	const DataPack::MgrID mgrid = fid.mgrID();

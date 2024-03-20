@@ -90,9 +90,15 @@ bool MultiID::isDatabaseID() const
 }
 
 
-bool MultiID::isInMemoryID() const
+bool MultiID::isInMemoryDPID() const
 {
-    return groupID() > 0 && groupID() <= cLastInMemoryGrpID();
+    return (groupID() > 0 && groupID() <= cLastInMemoryGrpID());
+}
+
+
+bool MultiID::isInMemoryObjID() const
+{
+    return isDatabaseID() && objectID() == cMemoryObjID();
 }
 
 
