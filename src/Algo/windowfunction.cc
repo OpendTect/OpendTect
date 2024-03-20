@@ -176,7 +176,7 @@ float CosTaperWindow::getValue( float x ) const
     if ( x < -1 || x > 1 ) return 0;
     if ( x < 0 ) x = -x;
     double val = mCast(double,x);
-    if ( val < threshold_ )
+    if ( threshold_==1.f || val < threshold_ )
        return 1;
     val -= threshold_; val *= factor_;
     return mCast(float, (1. + cos( M_PI * val )) * 0.5 );
