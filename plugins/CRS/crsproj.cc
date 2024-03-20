@@ -636,24 +636,33 @@ const PROJ_CRS_INFO* getInfo( int index ) const
 
 const char* Coords::initCRSDatabase()
 {
-    static BufferString msg( "Cannot load the proj database" );
-#ifdef __PROJ_DB_FILEPATH__
-    const FilePath projdbfp( __PROJ_DB_FILEPATH__ );
-    FilePath fp( mGetSetupFileName("CRS"), projdbfp.fileName() );
-    if ( !fp.exists() )
+    static bool inited = false;
+    static BufferString msg;
+    if ( !inited )
     {
-	if ( !isDeveloperBuild() || !projdbfp.exists() )
-	    return msg.str();
+#ifdef __PROJ_DB_FILEPATH__
+	const FilePath projdbfp( __PROJ_DB_FILEPATH__ );
+	FilePath fp( mGetSetupFileName("CRS"), projdbfp.fileName() );
+	if ( !fp.exists() )
+	{
+	    if ( !isDeveloperBuild() || !projdbfp.exists() )
+		msg.set( "Cannot load the proj database" );
+	    else
+		fp = projdbfp;
+	}
 
-	fp = projdbfp;
+	if ( msg.isEmpty() )
+	{
+	    proj_context_set_database_path( PJ_DEFAULT_CTX, fp.fullPath(),
+					    nullptr, nullptr );
+	}
+#else
+	msg.set( "Cannot load the proj database" );
+#endif
+	inited = true;
     }
 
-    proj_context_set_database_path( PJ_DEFAULT_CTX, fp.fullPath(),
-				    nullptr, nullptr );
-    return nullptr;
-#else
-    return msg.str();
-#endif
+    return msg.buf();
 }
 
 
@@ -675,6 +684,7 @@ BufferString Coords::getProjVersion()
 
 BufferString Coords::getEPSGDBStr()
 {
+    initCRSDatabase();
     BufferString dbstr;
     const PJ_INIT_INFO info = proj_init_info( "EPSG" );
     dbstr.set( "Using " ).add( info.origin ).add( " database " )
