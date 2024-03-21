@@ -138,6 +138,9 @@ bool SEGYSeisTrcTranslator::getFullTrcAsBuf( unsigned char* buf )
 
 bool SEGYSeisTrcTranslator::readTapeHeader()
 {
+    if ( sConn().isBad() )
+	mErrRet( tr("Cannot read SEG-Y file.") )
+
     od_istream& strm = sConn().iStream();
 
     if ( !txthead_ )
