@@ -526,6 +526,7 @@ bool isInUse( const char* fnm )
 {
     if ( !exists(fnm) )
 	return false;
+
     if ( isDirectory(fnm) )
     {
 	if ( !OD::InInstallerRunContext() )
