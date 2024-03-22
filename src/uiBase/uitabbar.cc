@@ -173,7 +173,10 @@ void uiTabBar::setCurrentTab( int idx )
 
 void uiTabBar::setTabIcon( int idx, const char* icnnm )
 {
-    const uiIcon icon( icnnm );
+    uiIcon icon;
+    if ( icnnm && *icnnm )
+	icon.setIdentifier( icnnm );
+
     body_->setTabIcon( idx, icon.qicon() );
 }
 
