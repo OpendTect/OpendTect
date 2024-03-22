@@ -46,58 +46,6 @@ ________________________________________________________________________
 
 extern "C" const char* GetBaseDataDir();
 
-class uiBatchProgClosePrompter : public uiDialog
-{ mODTextTranslationClass(uiBatchProgClosePrompter)
-public:
-    uiBatchProgClosePrompter( uiParent* p,
-	const TypeSet<Network::Service::ID>& servids )
-	: uiDialog(p,uiDialog::Setup(tr("Batch Program Information"),
-						    mNoDlgTitle, mNoHelpKey))
-    {
-	setTitleText( tr("There are batch processes currently running.\n"
-	    "Please close these processes before proceeding.\n"
-	    "Click on continue once all the process are closed") );
-
-	label_ = new uiLabel( this, msg(servids.size()) );
-
-	setCtrlStyle( CtrlStyle::CloseOnly );
-	setCancelText( m3Dots(uiStrings::sContinue()) );
-    }
-
-
-protected:
-    bool rejectOK( CallBacker* ) override
-    {
-	TypeSet<Network::Service::ID> servids;
-	BPT().getLiveServiceIDs( servids );
-	if ( !servids.isEmpty() )
-	{
-	    updateLabel( msg(servids.size()) );
-	    return false;
-	}
-
-	return true;
-    }
-
-    void updateLabel( const uiString& msg )
-    {
-	label_->setText( msg );
-    }
-
-    uiString msg( int nr )
-    {
-	uiString msg = tr("Current number of active batch processes : %1").
-								    arg(nr);
-	return msg;
-
-    }
-
-
-    uiLabel*	label_;
-
-};
-
-
 uiString uiSurveyInfoEditor::getSRDString( bool infeet )
 {
     uiString lbl = uiString( tr("%1%2%3") )
@@ -787,15 +735,6 @@ bool uiSurveyInfoEditor::checkNecessaryPermissions()
     }
 
     dirnamechanged = orgdirname_ != dirName();
-    if ( dirnamechanged && File::isInUse(olddir) )
-    {
-	uiString errmsg =
-	    tr("It looks like the following survey folder is open:\n%1\n\n"
-		"Please close the folder and try again.").arg(olddir);
-	uiMSG().error( errmsg );
-	return false;
-    }
-
     const FilePath setupfp( orgstorepath_, orgdirname_,
 	SurveyInfo::sKeySetupFileName() );
     const BufferString setupfullpath = setupfp.fullPath();
@@ -828,8 +767,23 @@ bool uiSurveyInfoEditor::handleCurrentSurvey()
     BPT().getLiveServiceIDs( servids );
     if ( !servids.isEmpty() )
     {
-	uiBatchProgClosePrompter dlg( this, servids );
-	dlg.go();
+	uiString msgstr = tr("There are batch processes currently running");
+
+
+	msgstr.appendPhrase(
+	    tr("Current number of active batch processes : %1").
+							arg(servids.size()) );
+	if ( __iswin__ )
+	{
+	    msgstr.addNewLine();
+	    msgstr.appendPhrase(
+		    tr("Please close these processes before proceeding."),
+		    uiString::SeparType::NoSep);
+	    uiMSG().error( msgstr );
+	    return false;
+	}
+	else
+	    uiMSG().warning( msgstr );
     }
 
     if ( !IOM().isPreparedForSurveyChange() )
