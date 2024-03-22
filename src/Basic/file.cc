@@ -529,8 +529,10 @@ bool isInUse( const char* fnm )
     if ( isDirectory(fnm) )
     {
 	if ( !OD::InInstallerRunContext() )
+	{ 
 	    pFreeFnErrMsg("Argument passed is Directory path, "
 							"File path expected");
+	}
 
 	return false;
     }
