@@ -594,8 +594,8 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
     if ( !File::rename(fnmin,fnmout,&errmsg) || !File::exists(fnmout) )
     {
 	const uiString msg = tr("Rename %1 to %2 failed.\n"
-	    "Please make sure that all the files and processes related to "
-	    "current survey are closed").arg(fnmin).arg(fnmout);
+	    "Please make sure that all the folders, files and processes "
+	    "related to current survey are closed").arg(fnmin).arg(fnmout);
 
 	uiMSG().errorWithDetails( errmsg, msg );
 	return false;
@@ -773,17 +773,23 @@ bool uiSurveyInfoEditor::handleCurrentSurvey()
 	msgstr.appendPhrase(
 	    tr("Current number of active batch processes : %1").
 							arg(servids.size()) );
+	msgstr.addNewLine();
 	if ( __iswin__ )
 	{
-	    msgstr.addNewLine();
 	    msgstr.appendPhrase(
-		    tr("Please close these processes before proceeding."),
-		    uiString::SeparType::NoSep);
+		tr("Please close these processes before proceeding."),
+		uiString::SeparType::NoSep);
 	    uiMSG().error( msgstr );
 	    return false;
 	}
 	else
-	    uiMSG().warning( msgstr );
+	{
+	    msgstr.appendPhrase( tr("The batch process will be interrupted "
+		"upon survey reload"),uiString::SeparType::NoSep );
+	    msgstr.appendPhrase( tr("Do you wish to continue?") );
+	    if ( !uiMSG().askGoOn(msgstr) )
+		return false;
+	}
     }
 
     if ( !IOM().isPreparedForSurveyChange() )
