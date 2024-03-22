@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "pythonaccess.h"
 #include "od_iostream.h"
 #include "oddirs.h"
+#include "odruncontext.h"
 #include "oscommand.h"
 #include "uistrings.h"
 
@@ -525,7 +526,14 @@ bool isInUse( const char* fnm )
 {
     if ( !exists(fnm) )
 	return false;
+    if ( isDirectory(fnm) )
+    {
+	if ( !OD::InInstallerRunContext() )
+	    pFreeFnErrMsg("Argument passed is Directory path, "
+							"File path expected");
 
+	return false;
+    }
 #ifdef __win__
     if ( isURI(fnm) )
 	return false;
