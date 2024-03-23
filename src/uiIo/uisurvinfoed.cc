@@ -784,7 +784,7 @@ bool uiSurveyInfoEditor::handleCurrentSurvey()
 	}
 	else
 	{
-	    msgstr.appendPhrase( tr("The batch process will be interrupted "
+	    msgstr.appendPhrase( tr("The batch processing will be interrupted "
 		"upon survey reload"),uiString::SeparType::NoSep );
 	    msgstr.appendPhrase( tr("Do you wish to continue?") );
 	    if ( !uiMSG().askGoOn(msgstr) )
