@@ -74,7 +74,7 @@ const char* Seis2DDataSet::lineName( int idx ) const
 { return Survey::GM().getName( geomID(idx) ); }
 
 Pos::GeomID Seis2DDataSet::geomID( int idx ) const
-{ return geomids_.validIdx(idx) ? geomids_[idx] : mUdf(Pos::GeomID); }
+{ return geomids_.validIdx(idx) ? geomids_[idx] : Pos::GeomID::udf(); }
 
 int Seis2DDataSet::indexOf( Pos::GeomID geomid ) const
 { return geomids_.indexOf( geomid ); }

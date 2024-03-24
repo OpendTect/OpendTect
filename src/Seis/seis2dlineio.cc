@@ -50,7 +50,7 @@ Seis2DLineGetter::~Seis2DLineGetter()
 Pos::GeomID Seis2DLineGetter::geomID() const
 {
     return translator() ? translator()->curGeomID()
-			: (seldata_ ? seldata_->geomID() : mUdf(Pos::GeomID));
+			: (seldata_ ? seldata_->geomID() : Pos::GeomID::udf());
 }
 
 

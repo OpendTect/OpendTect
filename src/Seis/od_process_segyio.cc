@@ -131,7 +131,7 @@ static bool doImport( od_ostream& strm, const IOPar& iop, Seis::GeomType gt )
     }
 
     Pos::GeomID gid = Seis::is3D(gt) ? Survey::default3DGeomID()
-				     : mUdf(Pos::GeomID);
+				     : Pos::GeomID::udf();
     if ( Seis::is2D(gt) )
 	inppar->get( sKey::GeomID(), gid );
 
@@ -216,7 +216,7 @@ static bool doExport( od_ostream& strm, const IOPar& iop,
     SeisStoreAccess::zDomain( inioobj ).fillPar( outioobj->pars() );
 
     Pos::GeomID gid = Seis::is3D(gt) ? Survey::default3DGeomID()
-				     : mUdf(Pos::GeomID);
+				     : Pos::GeomID::udf();
     if ( Seis::is2D(gt) )
 	inppar->get( sKey::GeomID(), gid );
 

@@ -346,7 +346,7 @@ Pos::GeomID SeisStoreAccess::geomID() const
 	return Survey::GM().getGeomID( ioobj_->name() );
     }
 
-    return mUdf(Pos::GeomID);
+    return Pos::GeomID::udf();
 }
 
 

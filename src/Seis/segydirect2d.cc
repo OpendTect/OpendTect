@@ -43,10 +43,10 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
 	return geomid;
 
     capstr++;
-    geomid.set( toInt(capstr,mUdf(Pos::GeomID).asInt()) );
+    geomid.set( toInt(capstr,Pos::GeomID::udf().asInt()) );
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 		     Survey::GM().getGeometry(geomid) );
-    return geom2d ? geomid : mUdf(Pos::GeomID);
+    return geom2d ? geomid : Pos::GeomID::udf();
 }
 
 

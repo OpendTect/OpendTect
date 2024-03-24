@@ -42,7 +42,7 @@ static Pos::GeomID getGeomIDFromFileName( const char* fnm )
     geomid.fromString( capstr );
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 		     Survey::GM().getGeometry(geomid) );
-    return geom2d ? geomid : mUdf(Pos::GeomID);
+    return geom2d ? geomid : Pos::GeomID::udf();
 }
 
 

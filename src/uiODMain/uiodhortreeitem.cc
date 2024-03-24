@@ -472,7 +472,7 @@ bool uiODHorizonTreeItem::init()
     }
 
     if ( rgba_ && !applMgr()->isRestoringSession() )
-	selectRGBA( mUdf(Pos::GeomID) );
+	selectRGBA( Pos::GeomID::udf() );
 
     return res;
 }
