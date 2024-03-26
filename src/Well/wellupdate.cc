@@ -316,6 +316,7 @@ void WellFileList::catchChange()
 {
     WellFileList currlist;
     TypeSet<MultiID> ids;
+    Well::MGR().getWellKeys( ids, true );
     for ( const auto& id : ids )
     {
 	const Well::Data* wd = Well::MGR().get( id, Well::LoadReqs(Well::Inf) );
@@ -379,7 +380,8 @@ bool WellFileList::getRenamedWells( const WellFileList& oth )
     while ( iter.hasNext() )
     {
 	iter.next();
-	if ( allidsnmpair_.value( iter.key() ).isEmpty() )
+	if ( allidsnmpair_.value(iter.key()).isEmpty()
+	     || iter.value().isEmpty() )
 	    continue;
 
 	if ( allidsnmpair_.contains(iter.key())
@@ -432,8 +434,6 @@ bool WellFileList::getAddedFiles( const WellFileList& oth )
 	if ( filelist_.contains(iter.key()) )
 	    continue;
 
-	QString nm = iter.key();
-	BufferString nmbuf( nm );
 	updateWellQueue( iter.key() );
     }
 
@@ -450,9 +450,6 @@ bool WellFileList::getChangedFiles( const WellFileList& oth )
     while ( iter.hasNext() )
     {
 	iter.next();
-	const BufferString nm( iter.key() );
-	const BufferString val( iter.value() );
-	const BufferString currval( filelist_.value( iter.key() ) );
 	if ( filelist_.contains(iter.key())
 	    && filelist_.value(iter.key()) == iter.value() )
 	    continue;
