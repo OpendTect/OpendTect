@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "posgeomid.h"
 #include "samplingdata.h"
 
+#include <array>
+
 class BufferStringSet;
 class ODHashMap;
 class SeparString;
