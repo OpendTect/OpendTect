@@ -131,6 +131,10 @@ public:
     BufferString	operator[]( const char* ky ) const
 			{ return find( ky ); }
 			// Functions for getting 1,2,3 and 4 of the same type
+
+    template <class T, std::size_t N>
+    bool		get(const char*,std::array<T,N>&) const;
+
 #define mIOParDeclFns(type) \
     bool		get(const char*,type&) const; \
     bool		get(const char*,type&,type&) const; \
@@ -221,7 +225,10 @@ public:
     void		update(const char* ky,const char* val);
 			/*!< removes if val is empty or null */
 
-			// Functions for 1,2,3 and 4 of the same type
+    template <class T, std::size_t N>
+    void		set(const char*, const std::array<T,N>&);
+
+// Functions for 1,2,3 and 4 of the same type
 #define mIOParDeclFns(fnnm,type) \
     void		fnnm(const char*,type); \
     void		fnnm(const char*,type,type); \
@@ -424,4 +431,32 @@ template <class T>
 void IOPar::set( const char* key, const IntegerID<T>& id )
 {
     set( key, id.asInt() );
+}
+
+
+template <class T, std::size_t N>
+void IOPar::set( const char* key, const std::array<T,N>& arr )
+{
+    TypeSet<T> typset;
+    for ( const auto& val : arr )
+	typset += val;
+
+    set( key, typset );
+}
+
+
+template <class T,std::size_t N>
+bool IOPar::get( const char* key, std::array<T,N>& arr ) const
+{
+    TypeSet<T> typset;
+    const bool res = get( key, typset );
+    if ( res && typset.size()>=N )
+    {
+	for ( int idx=0; idx<N; idx++ )
+	    arr[idx] = typset[idx];
+    }
+    else
+	return false;
+
+    return true;
 }
