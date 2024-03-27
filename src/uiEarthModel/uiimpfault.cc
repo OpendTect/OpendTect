@@ -368,8 +368,7 @@ bool uiImportFault::handleAscii()
 
     uiString msg = tr("%1 successfully imported."
 		      "\n\nDo you want to import more objects?")
-		      .arg(tp).arg(fault3d ? uiStrings::sFault(mPlural) :
-					   uiStrings::sFaultStickSet(mPlural));
+		      .arg(tp);
     bool ret= uiMSG().askGoOn( msg, uiStrings::sYes(),
 				tr("No, close window") );
     return !ret;
