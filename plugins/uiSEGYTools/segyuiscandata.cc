@@ -219,9 +219,10 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 
 
 
-SEGY::LoadDef::LoadDef( bool is2d )
+SEGY::LoadDef::LoadDef( bool is2d, bool forsurveysetup )
     : BasicFileInfo(is2d)
-    , coordsys_(SI().getCoordSystem() )
+    , forsurveysetup_(forsurveysetup)
+    , coordsys_(forsurveysetup ? nullptr : SI().getCoordSystem())
 {
     reInit( is2d, true );
 }
@@ -240,7 +241,8 @@ void SEGY::LoadDef::reInit( bool is2d, bool alsohdef )
     init( is2d );
 
     coordscale_ = mUdf(float);
-    icvsxytype_ = FileReadOpts::ICOnly;
+    icvsxytype_ = forsurveysetup_ || is2d ? FileReadOpts::Both
+					  : FileReadOpts::ICOnly;
     havetrcnrs_ = true;
     trcnrdef_ = SamplingData<int>( 1000, 1 );
     psoffssrc_ = FileReadOpts::InFile;
@@ -275,6 +277,7 @@ SEGY::LoadDef& SEGY::LoadDef::operator =( const SEGY::LoadDef& oth )
 	usezsamplinginfile_ = oth.usezsamplinginfile_;
 	hdrdef_ = new TrcHeaderDef( *oth.hdrdef_ );
 	coordsys_ = oth.coordsys_;
+	forsurveysetup_ = oth.forsurveysetup_;
     }
     return *this;
 }
@@ -307,12 +310,14 @@ void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
     offscalc.setOffset( ti, thdr );
     if ( icvsxytype_ == FileReadOpts::ICOnly )
 	ti.calcCoord();
-    else if ( !is2d_ && icvsxytype_ == FileReadOpts::XYOnly )
+    else
     {
-	if ( coordsys_ && SI().getCoordSystem() &&
-				*SI().getCoordSystem() != *coordsys_ )
+	if ( !forsurveysetup_ && coordsys_ && SI().getCoordSystem() &&
+					*SI().getCoordSystem() != *coordsys_ )
 	    ti.coord = SI().getCoordSystem()->convertFrom(ti.coord,*coordsys_);
-	ti.setPos( SI().transform( ti.coord ) );
+
+	if ( !is2d_ && icvsxytype_ == FileReadOpts::XYOnly )
+	    ti.setPos( SI().transform( ti.coord ) );
     }
 }
 
@@ -571,7 +576,6 @@ int nextStep() override
 
 
 void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
-			bool forsurvsetup,
 		    DataClipSampler& clipsampler, TaskRunner* fullscanrunner )
 {
     reInit();
@@ -615,7 +619,7 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
 #define	mAddTrcs() addTraces(strm,trcrg,buf,vals,def,clipsampler,offscalc)
 	Interval<int> trcrg( 1, cQuickScanNrTrcsAtEnds );
 	mAddTrcs();
-	if ( !is2D() && forsurvsetup )
+	if ( !is2D() && indef.forsurveysetup_ )
 	    ensureStepsFound( strm, buf, vals, def, clipsampler, offscalc );
 	trcrg.start = nrtrcs_/3 - cQuickScanNrTrcsInMiddle/2;
 	trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
