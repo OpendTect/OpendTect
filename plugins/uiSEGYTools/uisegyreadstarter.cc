@@ -64,10 +64,10 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 					       .modal(forsurvsetup))
     , forsurvsetup_(forsurvsetup)
     , userfilename_("_") // any non-empty non-existing
-    , loaddef_(imptyp ? imptyp->is2D() : false)
+    , loaddef_(imptyp ? imptyp->is2D() : false,forsurvsetup)
     , clipsampler_(*new DataClipSampler(100000))
 {
-    if ( forsurvsetup )
+    if ( forsurvsetup || fixedimptype_.is2D() )
 	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
     else
     {
@@ -516,7 +516,7 @@ void uiSEGYReadStarter::typChg( CallBacker* )
 
     loaddef_.is2d_ = imptyp.is2D();
     if ( imptyp.is2D() )
-	loaddef_.icvsxytype_ = SEGY::FileReadOpts::XYOnly;
+	loaddef_.icvsxytype_ = SEGY::FileReadOpts::Both;
 
     if ( multilinebut_ )
 	multilinebut_->display( imptyp.is2D() && filespec_.nrFiles() > 1 );
@@ -845,7 +845,7 @@ void uiSEGYReadStarter::updateICvsXYButtons()
 {
     if ( !useicbut_ ) return;
 
-    const bool useic = loaddef_.icvsxytype_ != SEGY::FileReadOpts::XYOnly;
+    const bool useic = loaddef_.icvsxytype_ == SEGY::FileReadOpts::ICOnly;
     NotifyStopper nsic( useicbut_->activated );
     useicbut_->setChecked( useic );
     NotifyStopper nsxy( usexybut_->activated );
@@ -1090,7 +1090,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	}
     }
 
-    si.getFromSEGYBody( strm, loaddef_, forsurvsetup_, clipsampler_, trunner );
+    si.getFromSEGYBody( strm, loaddef_, clipsampler_, trunner );
     return true;
 }
 

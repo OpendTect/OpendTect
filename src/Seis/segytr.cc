@@ -801,6 +801,10 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 
 	if ( read_mode == Seis::Prod )
 	{
+	    if ( !ti.coord.isUdf() && coordsys_ && !mIsCoordSysSame )
+		ti.coord = SI().getCoordSystem()->convertFrom( ti.coord,
+								*coordsys_ );
+
 	    while ( mBadBid(ti) && mBadCoord(ti) )
 	    {
 		if ( !skipThisTrace(ti,nrbadtrcs) )

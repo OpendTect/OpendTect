@@ -94,7 +94,7 @@ mExpClass(uiSEGYTools) LoadDef : public BasicFileInfo
 {
 public:
 
-			LoadDef(bool is2d);
+			LoadDef(bool is2d,bool forsurveysetup);
 			LoadDef(const LoadDef&);
 			~LoadDef();
 
@@ -108,6 +108,7 @@ public:
     FileReadOpts::PSDefType psoffssrc_;
     SamplingData<float>	psoffsdef_;
     bool		usezsamplinginfile_;
+    bool		forsurveysetup_;
 
     TrcHeaderDef*	hdrdef_ = nullptr;
 
@@ -168,7 +169,7 @@ public:
 
     BasicFileInfo&	basicInfo()		{ return basicinfo_; }
 
-    void		getFromSEGYBody(od_istream&,const LoadDef&,bool surv,
+    void		getFromSEGYBody(od_istream&,const LoadDef&,
 				    DataClipSampler&,TaskRunner* t=0);
 			//!< will do full scan if TaskRunner passed
 
