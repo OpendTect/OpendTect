@@ -256,6 +256,9 @@ protected:
 
     void			resetStatusBar(VisID id=VisID::udf());
     void			showIfMinimized(CallBacker*);
+
+public:
+    static bool			canAddSceneAtStartup();
 };
 
 /*! Settings Tab for mouse interaction. */
