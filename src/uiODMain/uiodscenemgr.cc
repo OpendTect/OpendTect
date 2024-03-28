@@ -47,6 +47,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmarchingcubessurface.h"
 #include "emrandomposbody.h"
+#include "envvars.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "uiosgutil.h"
@@ -164,6 +165,13 @@ uiODSceneMgr::~uiODSceneMgr()
 }
 
 
+bool uiODSceneMgr::canAddSceneAtStartup()
+{
+    static bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" ) );
+    return addscene;
+}
+
+
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
     if ( scenes_.isEmpty() )
@@ -200,6 +208,9 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 		const uiString& name )
 {
+    if ( !canAddSceneAtStartup() )
+	return SceneID::udf();
+
     Scene& scn = mkNewScene();
     const SceneID sceneid = visServ().addScene();
     mDynamicCastGet(visSurvey::Scene*,visscene,visServ().getObject(sceneid));
