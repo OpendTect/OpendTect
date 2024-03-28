@@ -37,6 +37,7 @@ private:
 			uiMain(mQtclass(QApplication*));
     void		init(mQtclass(QApplication*),int& argc,char **argv);
     void		preInit();
+    void		iomReadyCB(CallBacker*);
 
 public:
 

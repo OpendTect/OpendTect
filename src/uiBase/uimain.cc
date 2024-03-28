@@ -524,7 +524,14 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     if ( OD::InNormalRunContext() || OD::InUiProgRunContext() ||
 	 OD::InSysAdmRunContext() )
-	TextTranslateMgr::loadTranslations();
+	mAttachCB( IOMan::iomReady(), uiMain::iomReadyCB );
+}
+
+
+void uiMain::iomReadyCB( CallBacker* )
+{
+    mDetachCB( IOMan::iomReady(), uiMain::iomReadyCB ); //only once, do:
+    TextTranslateMgr::loadTranslations();
 }
 
 
