@@ -167,7 +167,7 @@ uiODSceneMgr::~uiODSceneMgr()
 
 bool uiODSceneMgr::canAddSceneAtStartup()
 {
-    static bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" ) );
+    static bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" );
     return addscene;
 }
 
