@@ -142,3 +142,13 @@ mGlobal(Basic) bool SetProgramArgs(int argc,char** argv,
                                    bool require_valid_dataroot=true);
 mGlobal(Basic) char** GetArgV(void);
 mGlobal(Basic) int& GetArgC(void);
+
+mGlobal(Basic) bool InQAEnvironment();
+/*!< A flag for QA environment, defined by the environment variable
+ * OD_ENABLE_QA_ENVIRONMENT. Use this for features that need more testing
+ * before they go into a public release. For instance:
+ * if ( InQAEnvironment() )
+ *     mAddMenuItem( "New workflow" );
+ *
+ * Then set OD_ENABLE_QA_ENVIRONMENT to True for the testers.
+*/
