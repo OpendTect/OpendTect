@@ -165,6 +165,14 @@ BufferString Coords::Projection::sWGS84ProjDispString()
 
 namespace Coords
 {
+
+struct ProjCache
+{
+    PJ*		from_		= nullptr;
+    PJ*		to_		= nullptr;
+    PJ*		transform_	= nullptr;
+};
+
 class ProjProjection : public Projection
 {
 public:
@@ -193,6 +201,8 @@ public:
     Coord		transformTo(const Projection&,LatLong) const override;
     LatLong		transformTo(const Projection&,Coord) const override;
 
+    Coord		convertTo(const ProjProjection& target,Coord) const;
+
     inline PJ*		getProj() const		{ return proj_; }
     inline PJ*		getLLProj() const
 			{ return llproj_ ? llproj_ : proj_; }
@@ -201,26 +211,25 @@ private:
 
     void		init();
     void		calcData();
+    PJ*			getTransform(PJ* from,PJ* to) const;
 
     PJ*			proj_		= nullptr;
     PJ*			llproj_		= nullptr;
+    mutable ProjCache	cache_;
 
 };
 
 } // namespace Coords
 
 
-static Coord convertCoordFromPJToPJ( const Coord& pos, PJ* from, PJ* to )
+static Coord convertCoord( const Coord& pos, PJ* projtransform )
 {
-    PJ* pjtr = proj_create_crs_to_crs_from_pj( PJ_DEFAULT_CTX, from, to,
-					       nullptr, nullptr );
-    if ( !pjtr )
+    if ( !projtransform )
 	return Coord::udf();
 
     const PJ_COORD inpcrd = proj_coord( pos.x, pos.y, 0, 0 );
-    const PJ_COORD retcoord = proj_trans( pjtr, PJ_FWD, inpcrd );
+    const PJ_COORD retcoord = proj_trans( projtransform, PJ_FWD, inpcrd );
 
-    proj_destroy( pjtr );
     if ( retcoord.v[0] == HUGE_VAL || retcoord.v[1] == HUGE_VAL )
 	return Coord::udf();
 
@@ -248,6 +257,7 @@ Coords::ProjProjection::~ProjProjection()
 {
     proj_destroy( proj_ );
     proj_destroy( llproj_ );
+    proj_destroy( cache_.transform_ );
 }
 
 
@@ -450,6 +460,20 @@ void Coords::ProjProjection::calcData()
 }
 
 
+PJ* Coords::ProjProjection::getTransform( PJ* from, PJ* to ) const
+{
+    if ( from==cache_.from_ && to==cache_.to_ )
+	return cache_.transform_;
+
+    proj_destroy( cache_.transform_ );
+    cache_.transform_ = proj_create_crs_to_crs_from_pj( PJ_DEFAULT_CTX, from,
+							to, nullptr, nullptr );
+    cache_.from_ = from;
+    cache_.to_ = to;
+    return cache_.transform_;
+}
+
+
 Coord Coords::ProjProjection::transformTo( const Projection& target,
 					   LatLong ll ) const
 {
@@ -463,7 +487,8 @@ Coord Coords::ProjProjection::transformTo( const Projection& target,
 	return Coord::udf();
 
     const Coord pos( ll.lat_, ll.lng_ );
-    return convertCoordFromPJToPJ( pos, srcpj, targetpj );
+    PJ* pjtr = getTransform( srcpj, targetpj );
+    return convertCoord( pos, pjtr );
 }
 
 
@@ -478,8 +503,24 @@ LatLong Coords::ProjProjection::transformTo( const Projection& target,
     if ( !targetpj )
 	return LatLong::udf();
 
-    const Coord llpos = convertCoordFromPJToPJ( pos, proj_, targetpj );
+    PJ* pjtr = getTransform( proj_, targetpj );
+    const Coord llpos = convertCoord( pos, pjtr );
     return LatLong::fromCoord( llpos );
+}
+
+
+Coord Coords::ProjProjection::convertTo( const ProjProjection& target,
+					 Coord pos ) const
+{
+    if ( !isOK() || !target.isOK() )
+	return Coord::udf();
+
+    PJ* targetpj = target.proj_;
+    if ( !targetpj )
+	return Coord::udf();
+
+    PJ* pjtr = getTransform( proj_, targetpj );
+    return convertCoord( pos, pjtr );
 }
 
 
@@ -495,12 +536,7 @@ Coord Coords::Projection::convert( const Coord& pos,
     if ( !fromproj || !toproj )
 	return Coord::udf();
 
-    PJ* frompj = fromproj->getProj();
-    PJ* topj = toproj->getProj();
-    if ( !frompj || !topj )
-	return Coord::udf();
-
-    return convertCoordFromPJToPJ( pos, frompj, topj );
+    return fromproj->convertTo( *toproj, pos );
 }
 
 
