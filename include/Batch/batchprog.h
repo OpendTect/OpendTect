@@ -237,6 +237,9 @@ if ( comm_ ) \
 	SetProgramArgs( argc, argv );
 	ApplicationData app;
 	Execute_batch( &argc, argv );
+	if ( !BP().isOK() )
+	    return 1;
+
 	BP().eventLoopStarted.notify(mSCB(loadModulesCB));
 	BP().startDoWork.notify(mSCB(launchDoWorkCB));
 
