@@ -1071,3 +1071,10 @@ mExternC(Basic) void CloseBindings()
     PIM().unLoadAll();
     const_cast<OD::ModDepMgr&>( OD::ModDeps() ).closeAll();
 }
+
+
+bool InQAEnvironment()
+{
+    static const bool inqaenv = GetEnvVarYN( "OD_ENABLE_QA_ENVIRONMENT" );
+    return inqaenv;
+}
