@@ -425,15 +425,20 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
     TrcKeyZSampling tmpres = res;
     if ( inputs_.size()==0 )
     {
-	if ( !is2D() ) res.init(true);
+	if ( !is2D() )
+	    res.init(true);
+
 	if ( !possiblevolume_ )
 	    possiblevolume_ = new TrcKeyZSampling;
 
-	if ( is2D() ) *possiblevolume_ = res;
+	if ( is2D() )
+	    *possiblevolume_ = res;
+
 	return true;
     }
 
-    if ( !desiredvolume_ ) return false;
+    if ( !desiredvolume_ )
+	return false;
 
     TypeSet<int> outputs;
     if ( output != -1 )
@@ -883,6 +888,9 @@ bool Provider::setCurrentPosition( const BinID& bid )
 
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
+    if ( !possiblevolume_ )
+	return;
+
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
     const Interval<int> possintv( mNINT32(possiblevolume_->zsamp_.start/dz),
 				  mNINT32(possiblevolume_->zsamp_.stop/dz) );
