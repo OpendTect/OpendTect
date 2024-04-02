@@ -9,21 +9,21 @@ ________________________________________________________________________
 
 #include "view2dpickset.h"
 
-#include "angles.h"
-#include "zaxistransform.h"
 #include "flatposdata.h"
-#include "ioobj.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "picksettr.h"
-#include "posinfo2dsurv.h"
+#include "posinfo2d.h"
 #include "seisdatapack.h"
 #include "separstr.h"
-#include "survinfo.h"
 #include "survgeom2d.h"
-#include "uiflatviewer.h"
+#include "survinfo.h"
+#include "zaxistransform.h"
+
 #include "uiflatauxdataeditor.h"
+#include "uiflatviewer.h"
 #include "uigraphicsscene.h"
-#include "uirgbarraycanvas.h"
+
 
 namespace View2D
 {
@@ -334,6 +334,7 @@ void PickSet::drawAll()
 	    }
 	    picks->markerstyles_ += markerstyle;
 	}
+
 	vwr.handleChange( FlatView::Viewer::Auxdata );
     }
 }
@@ -361,6 +362,8 @@ void PickSet::enablePainting( bool yn )
 
 void PickSet::dataChangedCB( CallBacker* )
 {
+    mEnsureExecutedInMainThread( PickSet::dataChangedCB );
+
     drawAll();
 }
 

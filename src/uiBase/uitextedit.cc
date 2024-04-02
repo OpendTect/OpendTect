@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "uimain.h"
 #include "uiobjbodyimpl.h"
 
-#include "ascstream.h"
-#include "rowcol.h"
 #include "strmprov.h"
 #include "timer.h"
 #include "varlenarray.h"
@@ -295,7 +293,7 @@ void uiTextEditBody::append( const char* txt )
 {
     const bool sliderwasdown = handle_.verticalSliderIsDown();
     QTextEdit::append( txt );
-    repaint();
+    update();
     if ( sliderwasdown )
 	handle_.scrollToBottom();
 }
