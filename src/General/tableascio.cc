@@ -966,10 +966,12 @@ double Table::AscIO::getDValue( int ifld, double udf ) const
 	return mUdf(double);
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
-    if ( !sval ) return mUdf(double);
+    if ( !sval )
+	return mUdf( double );
+
     double val = toDouble( sval );
     if ( mIsEqual(val,udf,mDefEps) )
-	return mUdf(double);
+	return mUdf( double );
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : nullptr;
     return unit ? unit->getSIValue( val ) : val;
@@ -991,7 +993,8 @@ Coord Table::AscIO::getPos( int xfld, int yfld, double udf, bool isll,
 	    ConstRefMan<Coords::CoordSystem> inpcrs = isll ?
 				fd_.bodyinfos_[idx]->selection_.llsys_ :
 				fd_.bodyinfos_[idx]->selection_.coordsys_;
-	    if ( !inpcrs ) continue;
+	    if ( !inpcrs )
+		continue;
 
 	    if ( inpcrs && outcrs && !(*inpcrs == *outcrs) )
 		curpos.setFrom( outcrs->convertFrom(curpos,*inpcrs) );

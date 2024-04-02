@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 #include "zdomain.h"
 
 namespace EM {
@@ -421,12 +422,16 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 
     ObjectSet<Geometry::FaultStick> sticks;
     const bool isxy = isXY();
-
+    const UnitOfMeasure* tabledepthunit = getDepthUnit();
+    const UnitOfMeasure* emobjdepthunit = UnitOfMeasure::surveyDefDepthUnit();
     while ( true )
     {
 	const int ret = getNextBodyVals( strm );
-	if ( ret < 0 ) return false;
-	if ( ret == 0 ) break;
+	if ( ret < 0 )
+	    return false;
+
+	if ( ret == 0 )	
+	    break;
 
 	if ( isxy )
 	    crd = getPos3D( 0, 1, 2 );
@@ -437,9 +442,10 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	    crd.z = getDValue( 2 );
 	}
 
-      if ( !crd.isDefined() )
-	  continue;
+	if ( !crd.isDefined() )
+	    continue;
 
+	convValue( crd.z, tabledepthunit, emobjdepthunit );
 	const int stickidx = getIntValue( 3 );
 
 	BufferString lnm;
