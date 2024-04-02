@@ -448,17 +448,17 @@ bool uiGraphicsViewBody::gestureEvent( QGestureEvent* ev )
 
 uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     : uiObject( p, nm, mkbody(p,nm) )
-    , reDrawNeeded(this)
     , reSize(this)
+    , rubberBandUsed(this)
+    , reDrawNeeded(this)
     , reDrawn(this)
     , preDraw(this)
-    , rubberBandUsed(this)
     , scrollBarUsed(this)
-    , scene_(0)
     , selectedarea_(0)
+    , scene_(0)
     , sceneborder_(0)
-    , enabscrollzoom_(false)
     , isctrlpressed_(false)
+    , enabscrollzoom_(false)
 {
     enableScrollZoom( enabscrollzoom_ );
     setScene( *new uiGraphicsScene(nm) );
@@ -486,19 +486,33 @@ uiGraphicsViewBase::~uiGraphicsViewBase()
 
 
 MouseEventHandler& uiGraphicsViewBase::getNavigationMouseEventHandler()
-{ return body_->mouseEventHandler(); }
+{
+    return body_->mouseEventHandler();
+}
+
 
 MouseEventHandler& uiGraphicsViewBase::getMouseEventHandler()
-{ return scene_->getMouseEventHandler(); }
+{
+    return scene_->getMouseEventHandler();
+}
+
 
 KeyboardEventHandler& uiGraphicsViewBase::getKeyboardEventHandler()
-{ return body_->keyboardEventHandler(); }
+{
+    return body_->keyboardEventHandler();
+}
+
 
 GestureEventHandler& uiGraphicsViewBase::gestureEventHandler()
-{ return body_->gestureEventHandler(); }
+{
+    return body_->gestureEventHandler();
+}
+
 
 void uiGraphicsViewBase::rePaint()
-{ body_->viewport()->repaint(); }
+{
+    body_->viewport()->update();
+}
 
 
 const ObjectSet<uiGraphicsViewBase>& uiGraphicsViewBase::allInstances()

@@ -831,7 +831,7 @@ void uiTreeView::collapseAll()
 void uiTreeView::triggerUpdate()
 {
     body_->updateGeometry();
-    body_->repaint();
+    body_->update();
 }
 
 
