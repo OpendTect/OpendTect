@@ -504,7 +504,6 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID( int sticknr ) const
 {
     for ( auto* geomgrp : geomgroupset_ )
     {
-	const int idx = geomgrp->sticknrs_.indexOf( sticknr );
 	if ( geomgrp->isPresent(sticknr) )
 	    return geomgrp->geomID();
     }
@@ -525,7 +524,6 @@ EM::ObjectType FaultStickSetGeometry::FSSObjType() const
     int count2d = 0;
     for ( auto* geomgrp : geomgroupset_ )
     {
-	const int nrstricks = geomgrp->sticknrs_.size();
 	const Pos::GeomID& geomid = geomgrp->geomID();
 	if ( geomid.isValid() && geomid.is2D() )
 	    count2d++;
