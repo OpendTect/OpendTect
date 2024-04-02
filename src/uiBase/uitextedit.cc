@@ -295,7 +295,7 @@ void uiTextEditBody::append( const char* txt )
 {
     const bool sliderwasdown = handle_.verticalSliderIsDown();
     QTextEdit::append( txt );
-    repaint();
+    update();
     if ( sliderwasdown )
 	handle_.scrollToBottom();
 }

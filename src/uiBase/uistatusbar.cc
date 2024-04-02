@@ -115,9 +115,12 @@ void repaint()
     if ( !isMainThreadCurrent() )
 	return;
 
-    qthing()->repaint();
+    qthing()->update();
     for( int idx=0; idx<msgs_.size(); idx++)
-	if (msgs_[idx]) msgs_[idx]->repaint();
+    {
+	if ( msgs_[idx] )
+	    msgs_[idx]->update();
+    }
 }
 
 
