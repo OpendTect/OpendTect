@@ -133,6 +133,9 @@ void uiEMPartServer::cleanup()
     closeAndNullPtr( t2dfltsetdlg_ );
     closeAndNullPtr( t2d2dfssdlg_ );
     closeAndNullPtr( t2d3dfssdlg_ );
+    closeAndNullPtr( impfltstickdlg_ );
+    closeAndNullPtr( impfss2ddlg_ );
+    closeAndNullPtr( expfltstickdlg_ );
     deepErase( variodlgs_ );
 }
 
