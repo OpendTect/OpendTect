@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "linekey.h"
+
 #include "ranges.h"
 #include "posinfo2dsurv.h"
 #include "uistring.h"
@@ -369,8 +369,8 @@ protected:
     TypeSet<int>		outputinterest_;
     BinID			desbufferstepout_;
     BinID			reqbufferstepout_;
-    TrcKeyZSampling*		desiredvolume_;
-    TrcKeyZSampling*			possiblevolume_;
+    TrcKeyZSampling*		desiredvolume_			= nullptr;
+    TrcKeyZSampling*		possiblevolume_			= nullptr;
     TypeSet< Interval<int> >	localcomputezintervals_;
     ObjectSet<Provider>		allexistingprov_;
     TypeSet<float>		exactz_;
@@ -378,26 +378,26 @@ protected:
 				// data at exact z values not placed
 				// at sample locations
 
-    ProviderTask*		providertask_;
-    DataHolderLineBuffer*	linebuffer_;
-    BinID			currentbid_;
-    int				prevtrcnr_;
+    ProviderTask*		providertask_			= nullptr;
+    DataHolderLineBuffer*	linebuffer_			= nullptr;
+    BinID			currentbid_			= BinID::udf();
+    int				prevtrcnr_			= 0;
     Pos::GeomID			geomid_;
-    const Seis::SelData*	seldata_;
+    const Seis::SelData*	seldata_			= nullptr;
     Interval<float>		extraz_;
-    const SeisTrcInfo*		curtrcinfo_;
-    BinID			trcinfobid_;
-    bool			useshortcuts_;
+    const SeisTrcInfo*		curtrcinfo_			= nullptr;
+    BinID			trcinfobid_			= BinID::udf();
+    bool			useshortcuts_			= false;
     bool			parallel_ = true;
 
-    float			refz0_;
-    float			refstep_;
-    bool 			alreadymoved_;
+    float			refz0_				= 0.f;
+    float			refstep_			= 0.f;
+    bool 			alreadymoved_			= false;
 
-    bool			isusedmulttimes_;
-    bool			needinterp_;
+    bool			isusedmulttimes_		= false;
+    bool			needinterp_			= false;
     uiString			errmsg_;
-    bool			dataunavailableflag_;
+    bool			dataunavailableflag_		= false;
 
 public:
     void			setDataUnavailableFlag(bool yn);

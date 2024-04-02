@@ -16,22 +16,16 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attriblinebuffer.h"
-#include "attribparam.h"
 
 #include "binidvalset.h"
 #include "convmemvalseries.h"
 #include "trckeyzsampling.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "ptrman.h"
 #include "seiscubeprov.h"
-#include "seisinfo.h"
 #include "seisselectionimpl.h"
-#include "statruncalc.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
-#include "task.h"
-#include "uistrings.h"
 #include "valseriesinterpol.h"
 
 
@@ -220,24 +214,8 @@ Provider::Provider( Desc& nd )
     , outputinterest_( nd.nrOutputs(), 0 )
     , desbufferstepout_( 0, 0 )
     , reqbufferstepout_( 0, 0 )
-    , desiredvolume_( 0 )
-    , possiblevolume_( 0 )
-    , providertask_( 0 )
-    , linebuffer_( 0 )
-    , currentbid_( BinID::udf() )
-    , prevtrcnr_( 0 )
     , geomid_(Survey::GM().cUndefGeomID())
-    , seldata_( 0 )
     , extraz_( 0, 0 )
-    , curtrcinfo_( 0 )
-    , trcinfobid_( BinID::udf() )
-    , useshortcuts_( 0 )
-    , refz0_( 0 )
-    , refstep_( 0 )
-    , alreadymoved_( 0 )
-    , isusedmulttimes_( 0 )
-    , needinterp_( 0 )
-    , dataunavailableflag_(false)
 {
     desc_.ref();
     inputs_.allowNull( true );
@@ -425,15 +403,20 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
     TrcKeyZSampling tmpres = res;
     if ( inputs_.size()==0 )
     {
-	if ( !is2D() ) res.init(true);
+	if ( !is2D() )
+	    res.init(true);
+
 	if ( !possiblevolume_ )
 	    possiblevolume_ = new TrcKeyZSampling;
 
-	if ( is2D() ) *possiblevolume_ = res;
+	if ( is2D() )
+	    *possiblevolume_ = res;
+
 	return true;
     }
 
-    if ( !desiredvolume_ ) return false;
+    if ( !desiredvolume_ )
+	return false;
 
     TypeSet<int> outputs;
     if ( output != -1 )
@@ -883,6 +866,9 @@ bool Provider::setCurrentPosition( const BinID& bid )
 
 void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 {
+    if ( !possiblevolume_ )
+	return;
+
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
     const Interval<int> possintv( mNINT32(possiblevolume_->zsamp_.start/dz),
 				  mNINT32(possiblevolume_->zsamp_.stop/dz) );

@@ -134,13 +134,13 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 					uiParent* parent,
 					TypeSet<Attrib::SelSpec>& targetspecs)
 {
-    if ( !curdescset ) return false;
-    Desc* seldesc = curdescset->getDesc( attribid );
+    Desc* seldesc = curdescset ? curdescset->getDesc( attribid ) : nullptr;
     if ( !seldesc )
 	return false;
 
     Desc* inpdesc = curdescset->getDesc( multicompinpid );
-    if ( !inpdesc ) return false;
+    if ( !inpdesc )
+	return false;
 
     BufferStringSet complist;
     uiMultOutSel::fillInAvailOutNames( *inpdesc, complist );
@@ -171,19 +171,15 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
     if ( selcompssz )
 	targetspecs.erase();
 
-    TypeSet<int> outputids;
-    getOutputIDs( *inpdesc, outputids );
     for ( int idx=0; idx<selcompssz; idx++ )
     {
 	const int compidx = selectedcomps[idx];
 	const DescID newinpid = curdescset->getStoredID( mid, compidx,
 					true, true, complist.get(compidx) );
 	Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
-						    complist.get(compidx) );
-	if ( !newdesc ) continue;
-
-	if ( !outputids.isEmpty() )
-	    newdesc->selectOutput( outputids[compidx] );
+						complist.get(compidx) );
+	if ( !newdesc )
+	    continue;
 
 	DescID newdid = curdescset->getID( *newdesc );
 	SelSpec as( 0, newdid );

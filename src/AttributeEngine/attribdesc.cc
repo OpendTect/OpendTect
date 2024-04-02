@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "linekey.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 
@@ -106,18 +107,9 @@ const char* Desc::sKeyLineDipComp() { return "Line Dip"; }
 
 Desc::Desc( const char* attribname, DescStatusUpdater updater,
 	    DescDefaultsUpdater defupdater )
-    : descset_( 0 )
-    , attribname_( attribname )
+    : attribname_( attribname )
     , statusupdater_( updater )
     , defaultsupdater_( defupdater )
-    , issteering_( false )
-    , seloutput_( 0 )
-    , hidden_( false )
-    , is2d_( false )
-    , isps_( false )
-    , needprovinit_( false )
-    , locality_( PossiblyMultiTrace )
-    , usestrcpos_( false )
 {
     attribname_.replace( ' ', '_' );
     inputs_.allowNull(true);
@@ -125,18 +117,18 @@ Desc::Desc( const char* attribname, DescStatusUpdater updater,
 
 
 Desc::Desc( const Desc& a )
-    : descset_( a.descset_ )
-    , attribname_( a.attribname_ )
-    , statusupdater_( a.statusupdater_ )
+    : issteering_( a.issteering_ )
     , hidden_( a.hidden_ )
-    , issteering_( a.issteering_ )
-    , seloutput_( a.seloutput_ )
-    , userref_( a.userref_ )
     , needprovinit_( a.needprovinit_ )
     , is2d_(a.is2d_)
     , isps_(a.isps_)
     , locality_(a.locality_)
     , usestrcpos_(a.usestrcpos_)
+    , attribname_( a.attribname_ )
+    , userref_( a.userref_ )
+    , seloutput_( a.seloutput_ )
+    , descset_( a.descset_ )
+    , statusupdater_( a.statusupdater_ )
 {
     inputs_.allowNull(true);
 
@@ -163,7 +155,9 @@ Desc::~Desc()
 
 
 const OD::String& Desc::attribName() const
-{ return attribname_; }
+{
+    return attribname_;
+}
 
 
 void Desc::setDescSet( DescSet* nds )
@@ -173,10 +167,17 @@ void Desc::setDescSet( DescSet* nds )
 	set2D( nds->is2D() );
 }
 
-DescSet* Desc::descSet() const			{ return descset_; }
+
+DescSet* Desc::descSet() const
+{
+    return descset_;
+}
+
 
 DescID Desc::id() const
-{ return descset_ ? descset_->getID(*this) : DescID(-1,true); }
+{
+    return descset_ ? descset_->getID(*this) : DescID(-1,true);
+}
 
 
 bool Desc::getDefStr( BufferString& res ) const
@@ -267,7 +268,7 @@ bool Desc::parseDefStr( const char* defstr )
     }
 
     if ( statusupdater_ )
-     statusupdater_(*this);
+	statusupdater_(*this);
 
     if ( errmsg_.size() )
 	return false;
@@ -402,10 +403,15 @@ bool Desc::setInput_( int input, Desc* nd )
 
 
 const Desc* Desc::getInput( int input ) const
-{ return input>=0 && input<inputs_.size() ? inputs_[input] : 0; }
+{
+    return input>=0 && input<inputs_.size() ? inputs_[input] : nullptr;
+}
+
 
 Desc* Desc::getInput( int input )
-{ return input>=0 && input<inputs_.size() ? inputs_[input] : 0; }
+{
+    return input>=0 && input<inputs_.size() ? inputs_[input] : nullptr;
+}
 
 
 
@@ -484,9 +490,11 @@ bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
 
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs_[idx]==desc.inputs_[idx] ) continue;
+	if ( inputs_[idx]==desc.inputs_[idx] )
+	    continue;
 
-	if ( !inputs_[idx] && !desc.inputs_[idx] ) continue;
+	if ( !inputs_[idx] && !desc.inputs_[idx] )
+	    continue;
 
 	if ( !desc.inputs_[idx] ||
 	     !inputs_[idx]->isIdenticalTo(*desc.inputs_[idx], true) )

@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
+#include "linekey.h"
 #include "survinfo.h"
 #include "tutorialattrib.h"
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "linekey.h"
 #include "od_helpids.h"
 
 #include "uiattribfactory.h"

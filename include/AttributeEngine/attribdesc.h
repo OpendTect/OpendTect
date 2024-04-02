@@ -233,13 +233,13 @@ protected:
 
     TypeSet<Seis::DataType>	outputtypes_;
     TypeSet<int>		outputtypelinks_;
-    bool			issteering_;
-    bool			hidden_;
-    bool			needprovinit_;
-    bool			is2d_;
-    bool			isps_;
-    Locality			locality_;
-    bool			usestrcpos_;
+    bool			issteering_		= false;
+    bool			hidden_			= false;
+    bool			needprovinit_		= false;
+    bool			is2d_			= false;
+    bool			isps_			= false;
+    Locality			locality_		= PossiblyMultiTrace;
+    bool			usestrcpos_		= false;
 
     TypeSet<InputSpec>		inputspecs_;
     ObjectSet<Desc>		inputs_;
@@ -248,8 +248,8 @@ protected:
     ObjectSet<Param>		params_;
 
     BufferString		userref_;
-    int				seloutput_;
-    DescSet*			descset_;
+    int				seloutput_		= 0;
+    DescSet*			descset_		= nullptr;
 
     DescStatusUpdater		statusupdater_;
     DescDefaultsUpdater		defaultsupdater_;

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "linekey.h"
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"

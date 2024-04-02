@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "linekey.h"
 #include "linesetposinfo.h"
 #include "nladesign.h"
 #include "nlamodel.h"

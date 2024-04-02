@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "uisimilaritybyaw.h"
+#include "similaritybyaw.h"
 
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
@@ -17,9 +18,7 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "attribparamgroup.h"
-#include "similaritybyaw.h"
-#include "survinfo.h"
+#include "linekey.h"
 
 using namespace Attrib;
 

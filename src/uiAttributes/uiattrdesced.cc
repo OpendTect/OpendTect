@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "attribstorprovider.h"
 #include "iopar.h"
+#include "linekey.h"
 #include "survinfo.h"
 
 using namespace Attrib;

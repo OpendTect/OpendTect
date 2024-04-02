@@ -602,6 +602,10 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 
 	    attrserv_->setTargetSelSpecs( myas );
 	    const DataPackID newid = attrserv_->createOutput( tkzs, cacheid );
+	    const TypeSet<Attrib::SelSpec>& tmpset =
+						attrserv_->getTargetSelSpecs();
+	    if ( tmpset.size() != myas.size() && !tmpset.isEmpty() )
+		visserv_->setSelSpecs( visid, attrib, tmpset );
 
 	    if ( newid == DataPack::cNoID() )
 	    {

@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "linekey.h"
 #include "nlamodel.h"
 #include "od_helpids.h"
 #include "ptrman.h"
