@@ -67,7 +67,7 @@ protected:
     void		newFlow(CallBacker*);
     void		openFlow(CallBacker*);
     void		saveFlow(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     bool		fillPar();
     bool		usePar( const IOPar&);

@@ -24,7 +24,7 @@ public:
 						visSurvey::PolygonBodyDisplay*);
 					~uiVisPolygonSurfBezierDlg();
 
-    bool				acceptOK();
+    bool				acceptOK() override;
 
 protected:
     void				applyCB(CallBacker*);

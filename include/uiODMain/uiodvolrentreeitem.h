@@ -30,10 +30,12 @@ protected:
 mExpClass(uiODMain) uiODVolrenTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODVolrenTreeItemFactory)
 public:
-    const char*		name() const   { return getName(); }
+    const char*		name() const override	{ return getName(); }
     static const char*	getName();
-    uiTreeItem*		create() const { return new uiODVolrenParentTreeItem; }
-    uiTreeItem*		createForVis(VisID,uiTreeItem*) const;
+    uiTreeItem*		create() const override
+			{ return new uiODVolrenParentTreeItem; }
+
+    uiTreeItem*		createForVis(VisID,uiTreeItem*) const override;
 };
 
 
@@ -43,19 +45,19 @@ public:
 			uiODVolrenTreeItem(VisID displayid=VisID::udf(),
 					   bool rgba=false);
 
-    bool		showSubMenu();
+    bool		showSubMenu() override;
 
 protected:
 			~uiODVolrenTreeItem();
 
-    bool		init();
-    uiString    	createDisplayName() const;
-    uiODDataTreeItem*	createAttribItem( const Attrib::SelSpec* ) const;
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    bool		init() override;
+    uiString		createDisplayName() const override;
+    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const override;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
 
-    bool		isExpandable() const		{ return true; }
-    const char*		parentType() const;
+    bool		isExpandable() const override		{ return true; }
+    const char*		parentType() const override;
 
     MenuItem		positionmnuitem_;
     bool		rgba_;
@@ -70,9 +72,9 @@ public:
 
 protected:
 
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    bool		hasTransparencyMenu() const;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
+    bool		hasTransparencyMenu() const override;
 
     MenuItem		addmnuitem_;
     MenuItem		addisosurfacemnuitem_;
@@ -86,7 +88,7 @@ public:
 			uiODVolrenSubTreeItem(VisID displayid);
 
     bool		isIsoSurface() const;
-    void		updateColumnText(int col);
+    void		updateColumnText(int col) override;
 
 protected:
 			~uiODVolrenSubTreeItem();
@@ -94,13 +96,13 @@ protected:
     VisID		getParentDisplayID() const;
     int			getParentAttribNr() const;
 
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
     void		posChangeCB(CallBacker*);
     void		selChgCB(CallBacker*);
 
-    bool		init();
-    const char*		parentType() const;
+    bool		init() override;
+    const char*		parentType() const override;
 
     MenuItem		resetisosurfacemnuitem_;
     MenuItem		convertisotobodymnuitem_;

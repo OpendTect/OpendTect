@@ -29,6 +29,6 @@ protected:
     float		initialx2pospercm_;
 
     void		zoomLevelCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };

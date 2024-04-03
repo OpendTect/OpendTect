@@ -24,7 +24,7 @@ public:
                     : sz_( sz )
 		{}
 
-    bool	execute();
+    bool	execute() override;
 
 private:
 
@@ -103,7 +103,7 @@ bool testForwardCC( const TypeSet<float_complex>& input )
 
     testname = "FFT results ";
     testname.add( input.size() );
-    mTest( testname.buf(), checkRMSDifference( transformdata, reference, 2e-5 ) );
+    mTest( testname.buf(), checkRMSDifference(transformdata,reference,2e-5) );
 
     return true;
 }

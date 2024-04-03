@@ -71,9 +71,9 @@ public:
 
 			uiSEGYFileSpec(uiParent*,const Setup&);
 
-    bool		fillPar(IOPar&,bool permissive=false) const;
-    void		usePar(const IOPar&);
-    void		use(const IOObj*,bool force);
+    bool		fillPar(IOPar&,bool permissive=false) const override;
+    void		usePar(const IOPar&) override;
+    void		use(const IOObj*,bool force) override;
     void		setFileName(const char*);
     BufferString	getJobNameFromFileName() const;
 
@@ -119,9 +119,9 @@ public:
 			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0,
 					bool withiobuts=true);
 
-    bool		fillPar(IOPar&,bool permissive=false) const;
-    void		usePar(const IOPar&);
-    void		use(const IOObj*,bool force);
+    bool		fillPar(IOPar&,bool permissive=false) const override;
+    void		usePar(const IOPar&) override;
+    void		use(const IOObj*,bool force) override;
 
     FilePars		getPars() const;
     void		setPars(const FilePars&);
@@ -182,10 +182,10 @@ public:
     bool		forScan() const
 			{ return setup_.purpose_ != uiSEGYRead::Import; }
 
-    bool		fillPar(IOPar&,bool permissive=false) const;
-    void		usePar(const IOPar&);
-    void		getReport(IOPar&) const;
-    void		use(const IOObj*,bool force);
+    bool		fillPar(IOPar&,bool permissive=false) const override;
+    void		usePar(const IOPar&) override;
+    void		getReport(IOPar&) const override;
+    void		use(const IOObj*,bool force) override;
 
     Notifier<uiSEGYFileOpts> readParsReq;
     Notifier<uiSEGYFileOpts> writeParsReq;

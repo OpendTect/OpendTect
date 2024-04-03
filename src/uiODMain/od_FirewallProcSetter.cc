@@ -64,7 +64,7 @@ public:
 	    actcmd_ = cmd;
     }
 
-    bool acceptOK( CallBacker* )
+    bool acceptOK( CallBacker* ) override
     {
 	odpth_ = odpthfld_->text();
 	pypth_ = pypthfld_->text();

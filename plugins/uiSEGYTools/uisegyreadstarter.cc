@@ -806,7 +806,7 @@ uiSEGYHdrEntrySettings( uiParent* p )
     azimuthrgfld_->attach( alignedBelow, offsrgfld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     SEGY::HdrEntryConstraints& hec = SEGY::HdrEntryConstraints::get4Edit();
     hec.inlrg_ = inlrgfld_->getIInterval();

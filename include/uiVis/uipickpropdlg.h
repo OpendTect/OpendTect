@@ -32,11 +32,11 @@ public:
 
 protected:
 
-    void			doFinalize(CallBacker*);
-    void			sliderMove(CallBacker*);
-    void			typeSel(CallBacker*);
-    void			colSel(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    void			doFinalize(CallBacker*) override;
+    void			sliderMove(CallBacker*) override;
+    void			typeSel(CallBacker*) override;
+    void			colSel(CallBacker*) override;
+    bool			acceptOK(CallBacker*) override;
     void			fillColorChangeCB(CallBacker*);
     void			linePropertyChanged(CallBacker*);
     void			useThresholdCB(CallBacker*);

@@ -27,10 +27,10 @@ protected:
     MarkerStyle3D	markerstyle_;
     int			posattr_;
 
-    void		doFinalize(CallBacker*);
+    void		doFinalize(CallBacker*) override;
 
-    void		sliderMove(CallBacker*);
-    void		typeSel(CallBacker*);
-    void		colSel(CallBacker*);
+    void		sliderMove(CallBacker*) override;
+    void		typeSel(CallBacker*) override;
+    void		colSel(CallBacker*) override;
     void		updateMarkerStyle();
 };

@@ -27,7 +27,7 @@ public:
 
 protected:
     static uiDialog*	create(uiParent*, ProcessingStep*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     ThresholdStep*	thresholdstep_;
     uiGenInput*		thresholdfld_;

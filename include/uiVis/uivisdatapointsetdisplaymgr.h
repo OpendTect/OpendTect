@@ -30,30 +30,32 @@ public:
 		uiVisDataPointSetDisplayMgr(uiVisPartServer&);
 		~uiVisDataPointSetDisplayMgr();
 
-    void	lock();
-    void	unLock();
+    void	lock() override;
+    void	unLock() override;
 
-    int		getNrViewers() const;
+    int		getNrViewers() const override;
 		//!<Will return the number of scenes
-    const char*	getViewerName(int) const;
+    const char* getViewerName(int) const override;
 
-    bool	hasDisplays() const
+    bool	hasDisplays() const override
 		{ return displayinfos_.size()>0; }
-    DispID	getDisplayID(const DataPointSet&) const;
+    DispID	getDisplayID(const DataPointSet&) const override;
     DispID	getDisplayID(VisID visid) const;
 
-    DispID	addDisplay(const TypeSet<int>& parents,const DataPointSet&);
+    DispID	addDisplay(const TypeSet<int>& parents,
+			   const DataPointSet&) override;
     bool	addDisplays(const TypeSet<int>& parents,
 			    const ObjectSet<DataPointSet>&,TypeSet<DispID>&);
     void	updateDisplay(DispID id, const TypeSet<int>& parents,
-			      const DataPointSet&);
+			      const DataPointSet&) override;
     void	turnOn(DispID id,bool);
-    void	updateDisplay(DispID id,const DataPointSet&);
+    void	updateDisplay(DispID id,const DataPointSet&) override;
     void	updateColorsOnly(DispID id);
-    void	removeDisplay(DispID);
+    void	removeDisplay(DispID) override;
     void	clearDisplays();
 
-    void	getIconInfo(BufferString& fnm,BufferString& tooltip) const;
+    void	getIconInfo(BufferString& fnm,
+			    BufferString& tooltip) const override;
 
     CNotifier<uiVisDataPointSetDisplayMgr,EM::ObjectID>	treeToBeAdded;
     mClass(uiVis) DisplayInfo

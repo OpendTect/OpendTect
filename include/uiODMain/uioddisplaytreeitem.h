@@ -27,17 +27,17 @@ public:
 			uiODDisplayTreeItem();
     virtual		~uiODDisplayTreeItem();
 
-    void		updateColumnText(int);
-    bool		showSubMenu();
+    void		updateColumnText(int) override;
+    bool		showSubMenu() override;
     virtual bool	actModeWhenSelected() const	{ return false; }
-    void		updateCheckStatus();
+    void		updateCheckStatus() override;
     void		show(bool);
 
     VisID		displayID() const		{ return displayid_; }
     bool		isDisplayID(int) const;
 
     uiODDataTreeItem*	addAttribItem();
-    void		prepareForShutdown();
+    void		prepareForShutdown() override;
     void		handleAddAttrib();
 
     virtual void	setOnlyAtSectionsDisplay(bool);
@@ -47,16 +47,16 @@ protected:
 
     virtual uiODDataTreeItem* createAttribItem(const Attrib::SelSpec*) const;
 
-    bool		shouldSelect(int selkey) const;
-    int			selectionKey() const;
-    int			uiTreeViewItemType() const;
+    bool		shouldSelect(int selkey) const override;
+    int			selectionKey() const override;
+    int			uiTreeViewItemType() const override;
     virtual void	checkCB(CallBacker*);
     virtual void	keyPressCB(CallBacker*);
-    virtual bool	doubleClick(uiTreeViewItem*);
-    virtual bool	init();
+    bool		doubleClick(uiTreeViewItem*) override;
+    bool		init() override;
 
-    bool		isSelectable() const		{ return true; }
-    bool		isExpandable() const		{ return false; }
+    bool		isSelectable() const override	{ return true; }
+    bool		isExpandable() const override	{ return false; }
     uiString		getLockMenuText() const;
 
     virtual uiString	createDisplayName() const;
@@ -64,7 +64,7 @@ protected:
     void		selectRGBA(const Pos::GeomID&);
     virtual void	colorChgCB(CallBacker*);
 
-    virtual bool	askContinueAndSaveIfNeeded(bool withcancel)
+    bool		askContinueAndSaveIfNeeded(bool withcancel) override
 			{ return true; }
 
     void		addToToolBarCB(CallBacker*);

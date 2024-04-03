@@ -23,16 +23,20 @@ public:
 			uiSEGYClassicSurvInfoProvider()
 			    : xyinft_(false)	{}
 
-    const char*		usrText() const	{ return "Classic SEG-Y scanner"; }
-    uiDialog*		dialog(uiParent*);
-    bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
-    bool		xyInFeet() const	{ return xyinft_; }
-    virtual const char* iconName() const	{ return "segy_classic"; }
+    const char*		usrText() const override
+			{ return "Classic SEG-Y scanner"; }
 
-    IOPar*		getImportPars() const
+    uiDialog*		dialog(uiParent*) override;
+    bool		getInfo(uiDialog*,
+				TrcKeyZSampling&,Coord crd[3]) override;
+    bool		xyInFeet() const override	{ return xyinft_; }
+    const char*		iconName() const override
+			{ return "segy_classic"; }
+
+    IOPar*		getImportPars() const override
 			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }
-    void		startImport(uiParent*,const IOPar&);
-    const char*		importAskQuestion() const;
+    void		startImport(uiParent*,const IOPar&) override;
+    const char*		importAskQuestion() const override;
     const uiString	importAskUiQuestion() const;
 
     friend class	uiSEGYSIPMgrDlg;

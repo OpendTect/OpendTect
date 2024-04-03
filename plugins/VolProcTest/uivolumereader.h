@@ -30,7 +30,7 @@ public:
 			~uiReader();
 protected:
     static uiDialog*	create(uiParent*,ProcessingStep*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     VolumeReader*	volreader_;
 

@@ -50,9 +50,9 @@ public:
 			uiODApplService(uiParent*,uiODApplMgr&);
 			~uiODApplService();
 
-    uiParent*		parent() const;
-    bool		eventOccurred(const uiApplPartServer*,int);
-    void*		getObject(const uiApplPartServer*, int);
+    uiParent*		parent() const override;
+    bool		eventOccurred(const uiApplPartServer*,int) override;
+    void*		getObject(const uiApplPartServer*, int) override;
 
     uiParent*		par_;
     uiODApplMgr&	applman_;

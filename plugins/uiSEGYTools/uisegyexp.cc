@@ -315,7 +315,7 @@ void getText( BufferString& txt )
     }
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     getText( hdr_ );
     if ( edfld_->isModified() )
@@ -365,7 +365,7 @@ void resetPushed( CallBacker* cb )
     se_->generateAutoTextHeader( dlg->hdr_ );
 }
 
-BufferString getSummary() const
+BufferString getSummary() const override
 {
     if ( se_->autogentxthead_ )
 	return BufferString( "Auto-generated" );
@@ -587,7 +587,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     BufferString fnm = fnmfld_->fileName();
     FilePath fp( fnm );

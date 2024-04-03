@@ -134,7 +134,7 @@ void inpSel( CallBacker* )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( !inpfld_ ) return true;
 

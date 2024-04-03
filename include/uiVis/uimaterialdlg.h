@@ -68,7 +68,7 @@ public:
 
 protected:
 
-    virtual bool		rejectOK()	{ return rejectOK(0); }
+    bool			rejectOK() override	{ return rejectOK(0); }
     bool			rejectOK(CallBacker*);
     void			changedCB(CallBacker*);
 

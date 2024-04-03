@@ -33,7 +33,7 @@ protected:
     void		checkCB(CallBacker*);
     void		lineEditCB(CallBacker*);
     void		initTable();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     SEGY::FileSpec	filespec_;
     int			nrwc_;

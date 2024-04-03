@@ -50,10 +50,10 @@ namespace visSurvey { class RandomTrackDisplay; }
 mExpClass(uiODMain) uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODRandomLineTreeItemFactory)
 public:
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
     			{ return new uiODRandomLineParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 };
 
 
@@ -66,18 +66,18 @@ public:
 				    RandomLineID id=RandomLineID::udf());
 			~uiODRandomLineTreeItem();
 
-    bool		init();
+    bool		init() override;
     bool		displayDefaultData();
     bool		displayData(const Attrib::SelSpec*);
     void		setRandomLineID(RandomLineID);
 
 protected:
 
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
     void		changeColTabCB(CallBacker*);
     void		remove2DViewerCB(CallBacker*);
-    const char*		parentType() const
+    const char*		parentType() const override
 			{ return typeid(uiODRandomLineParentTreeItem).name(); }
 
     void		editNodes();

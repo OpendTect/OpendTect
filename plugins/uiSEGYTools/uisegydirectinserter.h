@@ -20,7 +20,7 @@ public:
 				uiSEGYDirectVolInserter();
 				~uiSEGYDirectVolInserter();
 
-    virtual uiToolButtonSetup*	getButtonSetup() const;
+    uiToolButtonSetup*		getButtonSetup() const override;
     static uiIOObjInserter*	create()
 				{ return new uiSEGYDirectVolInserter; }
 
@@ -28,7 +28,7 @@ public:
 
 protected:
 
-    void		startScan(CallBacker*);
+    void			startScan(CallBacker*);
 };
 
 
@@ -39,7 +39,7 @@ public:
 				uiSEGYDirect2DInserter();
 				~uiSEGYDirect2DInserter();
 
-    virtual uiToolButtonSetup*	getButtonSetup() const;
+    uiToolButtonSetup*		getButtonSetup() const override;
     static uiIOObjInserter*	create()
 				{ return new uiSEGYDirect2DInserter; }
 
@@ -47,7 +47,7 @@ public:
 
 protected:
 
-    void		startScan(CallBacker*);
+    void			startScan(CallBacker*);
 };
 
 
@@ -58,7 +58,7 @@ public:
 				uiSEGYDirectPS3DInserter();
 				~uiSEGYDirectPS3DInserter();
 
-    virtual uiToolButtonSetup*	getButtonSetup() const;
+    uiToolButtonSetup*		getButtonSetup() const override;
     static uiIOObjInserter*	create()
 				{ return new uiSEGYDirectPS3DInserter;  }
 
@@ -66,5 +66,5 @@ public:
 
 protected:
 
-    void		startScan(CallBacker*);
+    void			startScan(CallBacker*);
 };

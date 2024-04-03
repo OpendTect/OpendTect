@@ -33,5 +33,5 @@ protected:
     uiGISExpStdFld*	expfld_;
 
     void		putSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };

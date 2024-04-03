@@ -29,9 +29,9 @@ public:
 
     			~uiGMTContourGrp();
 
-    bool		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-    void		reset();
+    bool		fillPar(IOPar&) const override;
+    bool		usePar(const IOPar&) override;
+    void		reset() override;
 
 protected:
 

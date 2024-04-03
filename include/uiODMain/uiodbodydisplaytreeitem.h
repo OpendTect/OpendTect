@@ -41,10 +41,11 @@ protected:
 mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODBodyDisplayTreeItemFactory)
 public:
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
     			{ return new uiODBodyDisplayParentTreeItem; }
-    virtual uiTreeItem*	createForVis(VisID visid,uiTreeItem*) const;
+
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 };
 
 
@@ -56,24 +57,24 @@ public:
 			~uiODBodyDisplayTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
-    void		setOnlyAtSectionsDisplay(bool);
+    void		setOnlyAtSectionsDisplay(bool) override;
 
 protected:
     static uiString	sCalcVolume() { return tr("Calculate Volume"); }
     static uiString	sPickedPolygons() { return tr("Picked Polygons"); }
 
-    void		prepareForShutdown();
-    bool		askContinueAndSaveIfNeeded(bool withcancel);
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    void		prepareForShutdown() override;
+    bool		askContinueAndSaveIfNeeded(bool withcancel) override;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
     void		keyPressedCB(CallBacker*);
     void		askSaveCB(CallBacker*);
     void		saveCB(CallBacker*);
-    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
+    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const override;
     bool		createUiVisObj();
 
-    bool		init();
-    const char*		parentType() const
+    bool		init() override;
+    const char*		parentType() const override
 			{return typeid(uiODBodyDisplayParentTreeItem).name();}
 
     EM::ObjectID			emid_;
@@ -102,9 +103,9 @@ public:
 			~uiODBodyDisplayDataTreeItem();
 
 protected:
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    uiString		createDisplayName() const;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
+    uiString		createDisplayName() const override;
 
     MenuItem		depthattribmnuitem_;
     MenuItem		isochronmnuitem_;

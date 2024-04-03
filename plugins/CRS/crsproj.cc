@@ -571,42 +571,42 @@ ProjCRSInfoList( bool orthogonal )
     proj_crs_info_list_destroy( infos_ );
 }
 
-int size() const
+int size() const override
 {
     return sz_;
 }
 
-const char* authCode( int index ) const
+const char* authCode( int index ) const override
 {
     const PROJ_CRS_INFO* crsinfo = getInfo( index );
     return crsinfo ? crsinfo->code : nullptr;
 }
 
-const char* authName( int index ) const
+const char* authName( int index ) const override
 {
     const PROJ_CRS_INFO* crsinfo = getInfo( index );
     return crsinfo ? crsinfo->auth_name : nullptr;
 }
 
-const char* name( int index ) const
+const char* name( int index ) const override
 {
     const PROJ_CRS_INFO* crsinfo = getInfo( index );
     return crsinfo ? crsinfo->name : nullptr;
 }
 
-const char* areaName( int index ) const
+const char* areaName( int index ) const override
 {
     const PROJ_CRS_INFO* crsinfo = getInfo( index );
     return crsinfo ? crsinfo->area_name : nullptr;
 }
 
-const char* projMethod( int index ) const
+const char* projMethod( int index ) const override
 {
     const PROJ_CRS_INFO* crsinfo = getInfo( index );
     return crsinfo ? crsinfo->projection_method_name : nullptr;
 }
 
-int indexOf( const Coords::AuthorityCode& authcode ) const
+int indexOf( const Coords::AuthorityCode& authcode ) const override
 {
     for ( int idx=0; idx<sz_; idx++ )
     {

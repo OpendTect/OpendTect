@@ -97,7 +97,7 @@ private:
     void		inpDomChg(CallBacker*);
     void		coordsFromChg(CallBacker*);
     void		doScanChg(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     static uiString	getWinTile(const FullSpec&);
     static uiString	getDlgTitle(const char*);

@@ -32,7 +32,7 @@ public:
 						   uiViewer3DMgr&);
 protected:
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			applyCheckedCB(CallBacker*);
 
     uiViewer3DShapeTab*		shapetab_;

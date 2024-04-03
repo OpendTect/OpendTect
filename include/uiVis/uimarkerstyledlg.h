@@ -23,7 +23,7 @@ protected:
 
     uiMarkerStyle3D*	stylefld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     virtual void	doFinalize(CallBacker*)		=0;
 
     virtual void	sliderMove(CallBacker*)		=0;

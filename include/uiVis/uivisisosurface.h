@@ -33,9 +33,9 @@ public:
 			visSurvey::VolumeDisplay*, int attrib);
 		~uiVisIsoSurfaceThresholdDlg();
 
-    bool	acceptOK();
-    bool	rejectOK();
-    bool	revertChanges();
+    bool	acceptOK() override;
+    bool	rejectOK() override;
+    bool	revertChanges() override;
 
 protected:
 

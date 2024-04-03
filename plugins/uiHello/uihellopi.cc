@@ -82,7 +82,7 @@ uiHelloMsgBringer( uiParent* p )
     closefld_->attach( alignedBelow, typfld_ );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     const char* typedtxt = txtfld_->text();
     if ( ! *typedtxt )

@@ -365,7 +365,7 @@ void changeColCB( CallBacker* )
     }
 }
 
-bool acceptOk( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     for ( int idx=0; idx<names_.size(); idx++ )
     {

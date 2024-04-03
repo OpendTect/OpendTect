@@ -596,7 +596,7 @@ uiScriptRunnerSettings( uiParent* p )
 {}
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     FilePath fp = scriptsdirfld_->fileName();
     if ( !fp.exists() )

@@ -23,8 +23,8 @@ public:
 				~uiAttribTransDlg();
 
 protected:
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+    bool			rejectOK(CallBacker*) override;
     void			changeCB(CallBacker*);
 
     unsigned char		initaltrans_;

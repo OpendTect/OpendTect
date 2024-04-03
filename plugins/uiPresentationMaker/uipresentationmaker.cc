@@ -127,7 +127,7 @@ void formatCB( CallBacker* )
 }
 
 
-bool acceptOK()
+bool acceptOK() override
 {
     SlideLayout& layout = spec_.getSlideLayout();
     layout.format_ = formatfld_->currentItem();

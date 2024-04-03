@@ -28,7 +28,7 @@ public:
 			~uiPresentationMakerDlg();
 
 protected:
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     bool		checkInstallation();
     void		checkCB(CallBacker*);
 

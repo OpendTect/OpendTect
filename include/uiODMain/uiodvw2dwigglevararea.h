@@ -25,16 +25,16 @@ public:
 				uiODView2DWiggleVarAreaTreeItem();
 				~uiODView2DWiggleVarAreaTreeItem();
 
-    bool			select();
-    bool			showSubMenu();
+    bool			select() override;
+    bool			showSubMenu() override;
 
 protected:
 
-    bool			init();
-    const char*			iconName() const;
-    const char*			parentType() const
+    bool			init() override;
+    const char*			iconName() const override;
+    const char*			parentType() const override
 				{ return typeid(uiODView2DTreeTop).name(); }
-    bool			isSelectable() const	{ return true; }
+    bool			isSelectable() const override	{ return true; }
 
     View2D::Seismic*		dummyview_;
     uiMenuHandler*		menu_;
@@ -55,7 +55,7 @@ protected:
 
     void			checkCB(CallBacker*);
     void			dataChangedCB(CallBacker*);
-    void			dataTransformCB(CallBacker*);
+    void			dataTransformCB(CallBacker*) override;
     void			createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
 };
@@ -65,8 +65,9 @@ mExpClass(uiODMain) uiODView2DWiggleVarAreaTreeItemFactory
 				: public uiODView2DTreeItemFactory
 {
 public:
-    const char*		name() const		{ return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override	{ return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODView2DWiggleVarAreaTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,
+				     Vis2DID) const override;
 };

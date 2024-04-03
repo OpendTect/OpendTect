@@ -20,7 +20,7 @@ public:
 			SimilaritybyAW(Desc&);
 
     static void		initClass();
-    void		initSteering();
+    void		initSteering() override;
     
     static const char*	attribName()	{ return "SimilaritybyAW"; }
     static const char*	refTimeGateStr(){ return "refTimeGate"; }
@@ -33,16 +33,19 @@ protected:
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
 
-    bool		allowParallelComputation() const   { return true; }
-    bool		getInputOutput(int input,TypeSet<int>& res) const;
-    bool		getInputData(const BinID&,int zintv);
+    bool		allowParallelComputation() const override
+			    { return true; }
+
+    bool		getInputOutput(int input,
+				       TypeSet<int>& res) const override;
+    bool		getInputData(const BinID&,int zintv) override;
     bool 		computeData(const DataHolder&,const BinID& relpos,
-				int z0,int nrsamples,int threadid) const;
+			    int z0,int nrsamples,int threadid) const override;
     float		calSimilaritybyAW(float *) const;
     float		calSimilarity(float *,float *,int) const;
 
-    const BinID*	desStepout(int,int) const;
-    const Interval<int>* desZSampMargin(int,int) const;
+    const BinID*	desStepout(int,int) const override;
+    const Interval<int>* desZSampMargin(int,int) const override;
 
     int			attribute_;
     Interval<float>	reftimegate_;

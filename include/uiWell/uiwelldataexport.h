@@ -64,7 +64,7 @@ protected :
     uiWellPartServer&		wellpartserver_;
 
     void			inputChngCB(CallBacker*);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			updateDataCB(CallBacker*);
     void			updateTravelTimeFld(CallBacker*);
     void			selChngCB(CallBacker*);

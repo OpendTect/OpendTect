@@ -24,8 +24,8 @@ public:
     static uiArray2DInterpol*	create(uiParent*);
 
     void			fillPar(IOPar&) const;
-    bool			acceptOK();
-    void			setValuesFrom(const Array2DInterpol&);
+    bool			acceptOK() override;
+    void			setValuesFrom(const Array2DInterpol&) override;
 
 protected:
     void			gmtPushCB(CallBacker*);
@@ -45,8 +45,8 @@ public:
 
     BufferString		mkCommand();
     void			fillPar(IOPar&) const;
-    bool			acceptOK();
-    void			setValuesFrom(const Array2DInterpol&);
+    bool			acceptOK() override;
+    void			setValuesFrom(const Array2DInterpol&) override;
 
 protected:
     void			gmtPushCB(CallBacker*);

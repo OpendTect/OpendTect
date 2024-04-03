@@ -41,14 +41,14 @@ protected:
     static void			updateDefaults(Desc&);
 
     bool			getInputOutput(int input,
-						TypeSet<int>& res) const;
-    bool			getInputData(const BinID&,int zintv);
+					    TypeSet<int>& res) const override;
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
 					     const BinID& relpos,int z0,
 					     int nrsamples,int threadid)
-					     const;
+					     const override;
 
-    const Interval<float>*	desZMargin(int input,int output) const;
+    const Interval<float>*	desZMargin(int input,int output) const override;
 
     Interval<float>		gate_;
     ObjectSet<const DataHolder> inpdata_;

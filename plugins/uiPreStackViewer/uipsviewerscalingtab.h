@@ -26,10 +26,10 @@ public:
 						 uiViewer3DMgr&);
 				~uiViewer3DScalingTab();
 
-    virtual void		putToScreen();
-    virtual void		setData()		{ doSetData(true); }
+    void			putToScreen() override;
+    void			setData() override	{ doSetData(true); }
 
-    bool			acceptOK();
+    bool			acceptOK() override;
     void			applyToAll(bool yn)	{ applyall_ = yn; }
     bool			applyToAll()		{ return applyall_; }
     void			saveAsDefault(bool yn)  { savedefault_ = yn; }
@@ -41,11 +41,11 @@ protected:
     bool			apply();
     bool			settingCheck();
 
-    virtual BufferString	dataName() const;
-    void	dispSel(CallBacker*);
+    BufferString		dataName() const override;
+    void			dispSel(CallBacker*);
     void			dispChgCB(CallBacker*);
-    virtual void		handleFieldDisplay(bool) {}
-    FlatView::DataDispPars::Common& commonPars();
+    void			handleFieldDisplay(bool) override {}
+    FlatView::DataDispPars::Common& commonPars() override;
 
     uiButton*			applybut_;
     uiViewer3DMgr&		mgr_;

@@ -30,5 +30,5 @@ protected:
     uiSelLineStyle*	lsfld_;
     uiGenInput*		hghtfld_;
     uiGISExpStdFld*	expfld_;
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };

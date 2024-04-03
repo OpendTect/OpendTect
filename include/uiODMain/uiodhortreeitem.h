@@ -19,7 +19,7 @@ public:
 			uiODHorizonParentTreeItem();
 			~uiODHorizonParentTreeItem();
 
-    virtual void	removeChild(uiTreeItem*);
+    void		removeChild(uiTreeItem*) override;
 
     static CNotifier<uiODHorizonParentTreeItem,uiMenu*>& showMenuNotifier();
 
@@ -27,9 +27,9 @@ public:
     MenuItem		newmenu_;
 
 protected:
-    const char*		iconName() const;
-    bool		showSubMenu();
-    virtual bool	addChld(uiTreeItem*,bool,bool);
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
+    bool		addChld(uiTreeItem*,bool,bool) override;
 
     void		sort();
     MenuItem		trackitem_;
@@ -41,10 +41,10 @@ protected:
 mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODHorizonTreeItemFactory)
 public:
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODHorizonParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 };
 
 
@@ -57,22 +57,22 @@ public:
 					    bool rgba,bool atsect);
 			~uiODHorizonTreeItem();
 
-    virtual VisID	reloadEMObject();	// Return new display id.
+    VisID		reloadEMObject() override; // Return new display id.
 
 protected:
-    bool		init();
+    bool		init() override;
     void		initMenuItems();
-    void		initNotify();
-    uiString		createDisplayName() const;
+    void		initNotify() override;
+    uiString		createDisplayName() const override;
     void		dispChangeCB(CallBacker*);
     void		dataReadyCB(CallBacker*);
-    const char*		parentType() const
+    const char*		parentType() const override
 			{ return typeid(uiODHorizonParentTreeItem).name(); }
 
-    virtual void	createMenu(MenuHandler*,bool istb);
-    virtual void	handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
 
-    bool		askContinueAndSaveIfNeeded(bool withcancel);
+    bool		askContinueAndSaveIfNeeded(bool withcancel) override;
 
     MenuItem		hordatamnuitem_;
     MenuItem		algomnuitem_;
@@ -119,7 +119,7 @@ protected:
     const char*		iconName() const override;
     bool		showSubMenu() override;
     void		sort();
-    virtual void	removeChild(uiTreeItem*) override;
+    void		removeChild(uiTreeItem*) override;
     bool		addChld(uiTreeItem* child,bool below,
 				bool downwards) override;
 };
@@ -128,10 +128,10 @@ protected:
 mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODHorizon2DTreeItemFactory)
 public:
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODHorizon2DParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 };
 
 
@@ -144,16 +144,16 @@ public:
 
 protected:
     void		initMenuItems();
-    void		initNotify();
-    uiString		createDisplayName() const;
+    void		initNotify() override;
+    uiString		createDisplayName() const override;
     void		dispChangeCB(CallBacker*);
-    const char*		parentType() const
+    const char*		parentType() const override
 			{ return typeid(uiODHorizon2DParentTreeItem).name(); }
 
-    virtual void	createMenu(MenuHandler*,bool istb);
-    virtual void	handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
 
-    bool		askContinueAndSaveIfNeeded(bool withcancel);
+    bool		askContinueAndSaveIfNeeded(bool withcancel) override;
 
     MenuItem		shiftmnuitem_;
     MenuItem		algomnuitem_;

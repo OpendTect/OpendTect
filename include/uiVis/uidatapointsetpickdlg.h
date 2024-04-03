@@ -45,7 +45,7 @@ protected:
     void		doSave(bool saveas);
     void		pickCB(CallBacker*);
     void		locChgCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		winCloseCB(CallBacker*);
     void		objSelCB(CallBacker*);
 
@@ -82,7 +82,7 @@ protected:
     int			addSurfaceData();
     int			dataidx_				= -1;
 
-    virtual void	cleanUp();
+    void		cleanUp() override;
     void		interpolateCB(CallBacker*);
     void		settCB(CallBacker*);
 

@@ -29,7 +29,7 @@ protected:
 
     // might require icon name or color
     uiGISExpStdFld*	expfld_;
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		putSel(CallBacker*);
 
     MultiID		multiid_;

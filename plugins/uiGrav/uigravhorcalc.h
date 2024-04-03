@@ -42,6 +42,6 @@ protected:
     void		denVarSel(CallBacker*);
     void		topSel(CallBacker*);
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };

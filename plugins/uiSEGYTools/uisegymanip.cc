@@ -96,7 +96,7 @@ void valChg( CallBacker* )
     havechg_ = true;
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     if ( !havechg_ )
 	return true;
@@ -158,7 +158,7 @@ uiSEGYBinHdrEd( uiParent* p, SEGY::BinHeader& h )
     butPush.notify( mCB(this,uiSEGYBinHdrEd,doDlg) );
 }
 
-BufferString getSummary() const
+BufferString getSummary() const override
 {
     BufferString ret;
     if ( hdr_.isSwapped() )
@@ -475,7 +475,7 @@ void insTxt( CallBacker* )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     const char* txt = formfld_->text();
     if ( !txt || !*txt )
@@ -666,12 +666,12 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     deepErase( data_ );
 }
 
-uiString uiMessage() const	{ return tr("Collecting data"); }
-uiString uiNrDoneText() const	{ return tr("Traces scanned"); }
-od_int64 nrDone() const		{ return nrdone_; }
-od_int64 totalNr() const	{ return totalnr_; }
+uiString uiMessage() const override	{ return tr("Collecting data"); }
+uiString uiNrDoneText() const override	{ return tr("Traces scanned"); }
+od_int64 nrDone() const override	{ return nrdone_; }
+od_int64 totalNr() const override	{ return totalnr_; }
 
-int nextStep()
+int nextStep() override
 {
     if ( totalnr_ < 0 )
 	return Finished();

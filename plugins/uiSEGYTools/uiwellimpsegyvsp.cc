@@ -108,7 +108,7 @@ void readParsReq( CallBacker* cb )
     dd->use( ioobj, false );
 }
 
-BufferString getSummary() const
+BufferString getSummary() const override
 {
     return fnm_;
 }

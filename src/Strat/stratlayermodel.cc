@@ -282,17 +282,17 @@ LayerModelReader( Strat::LayerModel& lm, od_istream& strm,
     nextreadidx_ = readrg_.start;
 }
 
-od_int64 nrDone() const
+od_int64 nrDone() const override
 {
     return curidx_;
 }
 
-od_int64 totalNr() const
+od_int64 totalNr() const override
 {
     return readrg_.stop;
 }
 
-uiString uiNrDoneText() const
+uiString uiNrDoneText() const override
 {
     return tr("Pseudo-wells done");
 }
@@ -318,7 +318,7 @@ bool skipWell()
     return strm_.isOK();
 }
 
-int nextStep()
+int nextStep() override
 {
     if ( nextreadidx_ > readrg_.stop )
 	return Finished();

@@ -59,12 +59,12 @@ protected:
     void		openFlow(CallBacker*);
     void		saveFlowCB(CallBacker*);
     void		exportFlow(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
 
     bool		saveFlow();
     bool		fillPar();
     void		createToolBar();
     void		updateCaption();
     uiGroup*		crProcGroup(uiGroup*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };

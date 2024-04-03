@@ -22,7 +22,7 @@ public:
 
 protected:
     void		finalizeCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		copyToClipboard();
 
     uiGenInput*		hostidfld_;

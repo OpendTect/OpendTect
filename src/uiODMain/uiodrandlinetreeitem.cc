@@ -85,7 +85,7 @@ void colorChangeCB( CallBacker* )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     showAlwaysOnTop( false );
     if ( !rtd_->createFromPolyLine() )
@@ -101,7 +101,7 @@ bool acceptOK( CallBacker* )
 }
 
 
-bool rejectOK( CallBacker* )
+bool rejectOK( CallBacker* ) override
 {
     rtd_->setPolyLineMode( false );
     return true;

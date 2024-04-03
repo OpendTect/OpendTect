@@ -41,7 +41,7 @@ protected:
     uiSeisSel*		seisfld_;
     uiGenInput*		nrptsfld_;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		showSelPtsCB(CallBacker*);
     void		removeSelPtsCB(CallBacker*);
 

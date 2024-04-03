@@ -53,7 +53,7 @@ public:
 private:
     void		finalizeCB(CallBacker*);
     void		fileSelectedCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiFileInput*	inputfld_;
     uiGenInput*		tlcrdfld_;
@@ -89,7 +89,7 @@ public:
 
 private:
     void		finalizeCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiImageCoordGrp*	imagegrp_;
 

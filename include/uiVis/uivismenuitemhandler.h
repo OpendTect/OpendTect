@@ -37,7 +37,7 @@ public:
     		/*!<Does only give a valid answer if called from cb. */
 
 protected:
-    bool		shouldAddMenu() const;
+    bool		shouldAddMenu() const override;
 
     const char*		classnm_;
     uiVisPartServer&	visserv_;
@@ -63,7 +63,7 @@ public:
     VisID	getDisplayID() const;
 		/*!<Does only give a valid answer if called from cb. */
 protected:
-    bool		shouldAddMenu() const;
+    bool		shouldAddMenu() const override;
 
     uiVisPartServer&	visserv_;
     bool		addwhenpolygon_;

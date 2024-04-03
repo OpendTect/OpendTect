@@ -23,19 +23,22 @@ public:
     SceneID		sceneID() const;
 
 protected:
-    bool		init();
-    const char*		parentType() const;
-    virtual bool	rightClick(uiTreeViewItem*);
+    bool		init() override;
+    const char*		parentType() const override;
+    bool		rightClick(uiTreeViewItem*) override;
 };
 
 
 mExpClass(uiODMain) uiODAnnotTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODAnnotTreeItemFactory)
 public:
-    const char*		name() const   { return getName(); }
+    const char*		name() const override	{ return getName(); }
     static const char*	getName()
 			{ return typeid(uiODAnnotTreeItemFactory).name();}
-    uiTreeItem*		create() const { return new uiODAnnotParentTreeItem; }
+
+    uiTreeItem*		create() const override
+			{ return new uiODAnnotParentTreeItem; }
+
     uiTreeItem*		create(VisID,uiTreeItem*) const;
 };
 
@@ -49,10 +52,10 @@ protected:
 				uiODAnnotTreeItem(const uiString&);
 
     bool			readPicks(Pick::Set&);
-    virtual const char*		parentType() const;
-    virtual bool		init();
-    void			prepareForShutdown();
-    virtual bool		showSubMenu();
+    const char*			parentType() const override;
+    bool			init() override;
+    void			prepareForShutdown() override;
+    bool			showSubMenu() override;
     virtual int			defScale() const 		{ return -1; }
 
     virtual uiTreeItem*		createSubItem(VisID,Pick::Set&)	= 0;
@@ -87,18 +90,17 @@ protected:
 			//!<Pickset becomes mine, if it's not in the mgr
     virtual		~uiODAnnotSubItem();
 
-    void		prepareForShutdown();
+    void		prepareForShutdown() override;
     void		removeStuff();
-    bool		init();
-    virtual const char*	parentType() const		=0;
+    bool		init() override;
     virtual void	fillStoragePar(IOPar&) const	{}
 
     virtual void	clickCB(CallBacker*)		{}
     virtual void	mouseMoveCB(CallBacker*)	{}
     virtual void	rightclickCB(CallBacker*)	{}
 
-    virtual void	createMenu(MenuHandler*,bool istb);
-    virtual void	handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
 
     virtual bool	hasScale() const		{ return false; }
     virtual void	setScale(float);
@@ -123,20 +125,20 @@ mExpClass(uiODMain) ScaleBarSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ScaleBarSubItem);
 public:
 			ScaleBarSubItem(Pick::Set&,VisID displayid);
-    bool		init();
+    bool		init() override;
     static const char*	sKeyManager() 	{ return "ScaleBarAnnotations"; }
 
 protected:
 			~ScaleBarSubItem()	{ removeStuff(); }
 
-    const char*		parentType() const;
-    void		fillStoragePar(IOPar&) const;
+    const char*		parentType() const override;
+    void		fillStoragePar(IOPar&) const override;
 
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
     void		propertyChange(CallBacker*);
 
-    const char*		managerName() const		{ return sKeyManager();}
+    const char*		managerName() const override	{ return sKeyManager();}
 
     MenuItem		propmnuitem_;
 
@@ -147,24 +149,24 @@ mExpClass(uiODMain) ArrowSubItem : public uiODAnnotSubItem
 public:
 
 			ArrowSubItem(Pick::Set& pck,VisID displayid);
-    bool		init();
+    bool		init() override;
 
     static const char*	sKeyManager() 	{ return "ArrowAnnotations"; }
 
 protected:
 			~ArrowSubItem()	{ removeStuff(); }
-    virtual const char*	parentType() const;
+    const char*		parentType() const override;
 
-    void		fillStoragePar(IOPar&) const;
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    void		fillStoragePar(IOPar&) const override;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
     void		propertyChange(CallBacker*);
 
     MenuItem		propmnuitem_;
     int			arrowtype_;
 
-    bool		hasScale() const	{ return false; }
-    const char*		managerName() const	{ return sKeyManager(); }
+    bool		hasScale() const override	{ return false; }
+    const char*		managerName() const override   { return sKeyManager(); }
 
     static const char*		sKeyArrowType()	{ return "Arrow Type"; }
     static const char*		sKeyLineWidth()	{ return "Line width"; }
@@ -176,23 +178,23 @@ mExpClass(uiODMain) ImageSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ImageSubItem)
 public:
 			ImageSubItem(Pick::Set&,VisID displayid);
-    bool		init();
+    bool		init() override;
     static const char*	sKeyManager() 	{ return "ImageAnnotations"; }
 
 protected:
 			~ImageSubItem()	{ removeStuff(); }
-    const char*		parentType() const;
-    void		fillStoragePar(IOPar&) const;
+    const char*		parentType() const override;
+    void		fillStoragePar(IOPar&) const override;
 
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
 
     void		retrieveFileName(CallBacker*);
 
-    void		updateColumnText(int col);
+    void		updateColumnText(int col) override;
 
-    bool		hasScale() const		{ return true; }
-    const char*		managerName() const		{ return sKeyManager();}
+    bool		hasScale() const override	{ return true; }
+    const char*		managerName() const override	{ return sKeyManager();}
 
     void		selectFileName() const;
 
@@ -211,13 +213,15 @@ public: \
 		 type##ParentItem::setRemovedCB ); \
 		} \
 protected: \
-    uiTreeItem*	createSubItem(VisID di,Pick::Set& pck) \
+    uiTreeItem* createSubItem(VisID di,Pick::Set& pck) override \
 		{ return new type##SubItem(pck,di); } \
-    const char*	managerName() const { return type##SubItem::sKeyManager(); } \
-    const char* oldSelKey() const { return typestr.getFullString().buf(); } \
-    int		defScale() const 	{ return defsz; } \
+    const char* managerName() const override \
+		{ return type##SubItem::sKeyManager(); } \
+    const char* oldSelKey() const override \
+		{ return typestr.getFullString().buf(); } \
+    int		defScale() const override	{ return defsz; } \
     void	setRemovedCB(CallBacker*); \
-    const char*		iconName() const	{ return inm; } \
+    const char*		iconName() const override	{ return inm; } \
 }; \
 
 

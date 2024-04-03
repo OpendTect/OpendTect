@@ -35,9 +35,11 @@ mExpClass(uiODMain) uiODPickSetTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODPickSetTreeItemFactory)
 public:
 
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const { return new uiODPickSetParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
+			{ return new uiODPickSetParentTreeItem; }
+
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 
 };
 
@@ -48,21 +50,21 @@ public:
 			uiODPickSetTreeItem(VisID dispid,Pick::Set&);
     virtual		~uiODPickSetTreeItem();
 
-    virtual bool	actModeWhenSelected() const;
+    bool		actModeWhenSelected() const override;
     void		showAllPicks(bool yn);
     RefMan<Pick::Set>		getSet()		{ return set_; }
     ConstRefMan<Pick::Set>	getSet() const		{ return set_; }
 
 protected:
 
-    bool		init();
-    void		prepareForShutdown();
-    bool		askContinueAndSaveIfNeeded(bool withcancel);
+    bool		init() override;
+    void		prepareForShutdown() override;
+    bool		askContinueAndSaveIfNeeded(bool withcancel) override;
     void		setChg(CallBacker*);
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    bool		doubleClick(uiTreeViewItem*);
-    virtual const char*	parentType() const
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
+    bool		doubleClick(uiTreeViewItem*) override;
+    const char*		parentType() const override
     			{ return typeid(uiODPickSetParentTreeItem).name(); }
 
     RefMan<Pick::Set>	set_;
@@ -106,9 +108,11 @@ mExpClass(uiODMain) uiODPolygonTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODPolygonTreeItemFactory)
 public:
 
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const { return new uiODPolygonParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
+			{ return new uiODPolygonParentTreeItem; }
+
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 
 };
 
@@ -119,21 +123,21 @@ public:
 			uiODPolygonTreeItem(VisID dispid,Pick::Set&);
     virtual		~uiODPolygonTreeItem();
 
-    virtual bool	actModeWhenSelected() const;
+    bool		actModeWhenSelected() const override;
     void		showAllPicks(bool yn);
     RefMan<Pick::Set>	getSet()			{ return set_; }
     ConstRefMan<Pick::Set> getSet() const		{ return set_; }
 
 protected:
 
-    bool		init();
-    void		prepareForShutdown();
-    bool		askContinueAndSaveIfNeeded(bool withcancel);
+    bool		init() override;
+    void		prepareForShutdown() override;
+    bool		askContinueAndSaveIfNeeded(bool withcancel) override;
     void		setChg(CallBacker*);
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    bool		doubleClick(uiTreeViewItem*);
-    virtual const char*	parentType() const
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
+    bool		doubleClick(uiTreeViewItem*) override;
+    const char*		parentType() const override
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
 
     RefMan<Pick::Set>	set_;

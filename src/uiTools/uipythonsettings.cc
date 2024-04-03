@@ -674,7 +674,7 @@ uiCloneEnvDlg( uiParent* p, const FilePath& envpath )
 }
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     const BufferString destdir = destfld_->fileName();
     if ( destdir.isEmpty() )

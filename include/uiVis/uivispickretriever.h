@@ -19,23 +19,24 @@ mExpClass(uiVis) uiVisPickRetriever : public PickRetriever
 {
 public:
     			uiVisPickRetriever(uiVisPartServer*);
-    bool		enable(const TypeSet<SceneID>* allowedscenes);
-    NotifierAccess*	finished()		{ return &finished_; }
+    bool		enable(const TypeSet<SceneID>* allowedscenes) override;
+    NotifierAccess*	finished() override		{ return &finished_; }
 
-    void		reset();
-    bool		success() const		{ return status_==Success; }
-    bool		waiting() const		{ return status_==Waiting; }
-    const Coord3&	getPos() const		{ return pickedpos_; }
-    int			getTrcNr() const	{ return pickedtrcnr_; }
-    Pos::GeomID		getGeomID() const  	{ return pickedgeomid_; }
-    SceneID		getSceneID() const	{ return pickedscene_; }
-    const TypeSet<VisID>& getPickedObjIDs() const { return pickedobjids_; }
+    void		reset() override;
+    bool		success() const override    { return status_==Success; }
+    bool		waiting() const override    { return status_==Waiting; }
+    const Coord3&	getPos() const override     { return pickedpos_; }
+    int			getTrcNr() const override   { return pickedtrcnr_; }
+    Pos::GeomID		getGeomID() const override  { return pickedgeomid_; }
+    SceneID		getSceneID() const override { return pickedscene_; }
+    const TypeSet<VisID>& getPickedObjIDs() const override
+				{ return pickedobjids_; }
 
     void		addScene(visSurvey::Scene*);
     void		removeScene(visSurvey::Scene*);
 
-    SceneID		unTransformedSceneID() const;
-    const ZAxisTransform* getZAxisTransform() const;
+    SceneID		unTransformedSceneID() const override;
+    const ZAxisTransform* getZAxisTransform() const override;
 
 protected:
 				~uiVisPickRetriever();

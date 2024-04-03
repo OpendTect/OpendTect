@@ -39,11 +39,11 @@ protected:
     Interval<int>		dessamps_;
     BinID			reqstepout_;
 
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,const BinID&,
-	    				    int,int,int) const;
-    const Interval<int>*	desZSampMargin(int,int) const;
-    const BinID*                reqStepout(int input,int output) const;
+					    int,int,int) const override;
+    const Interval<int>*	desZSampMargin(int,int) const override;
+    const BinID*		reqStepout(int input,int output) const override;
 
     ObjectSet<const DataHolder> inputdata_;
 };

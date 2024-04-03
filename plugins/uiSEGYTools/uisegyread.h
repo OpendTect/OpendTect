@@ -57,7 +57,7 @@ public:
     void		use(const IOObj*,bool force);
     void		usePar(const IOPar&);
 
-    virtual void	raiseCurrent();
+    void		raiseCurrent() override;
 
     Seis::GeomType	geomType() const	{ return geom_; }
     int			revision() const	{ return rev_; }
@@ -84,8 +84,8 @@ protected:
     uiSEGYExamine*	examdlg_;
     uiSEGYReadRev1Question* rev1qdlg_;
 
-    virtual void	doPart();
-    virtual void	closeDown();
+    void		doPart() override;
+    void		closeDown() override;
     void		getBasicOpts();
     void		basicOptsGot();
     void		determineRevPol();

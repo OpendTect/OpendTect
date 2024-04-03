@@ -129,7 +129,7 @@ protected:
     void			inpSelCB(CallBacker*);
     void			settingsCB(CallBacker*);
     void			addChildren(ScriptItem&);
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			selChgCB(CallBacker*);
     void			editScriptCB(CallBacker*);
     void			showLogCB(CallBacker*);

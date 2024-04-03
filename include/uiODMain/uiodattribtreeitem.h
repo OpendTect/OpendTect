@@ -30,12 +30,12 @@ public:
 
 protected:
 
-    bool		anyButtonClick(uiTreeViewItem*);
+    bool		anyButtonClick(uiTreeViewItem*) override;
 
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB( CallBacker* );
-    void		updateColumnText( int col );
-    uiString		createDisplayName() const;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB( CallBacker* ) override;
+    void		updateColumnText( int col ) override;
+    uiString		createDisplayName() const override;
 
     MenuItem		selattrmnuitem_;
     MenuItem		colsettingsmnuitem_;

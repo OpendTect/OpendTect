@@ -67,12 +67,14 @@ public:
 			Importer(const char* fnm,const IOObj&,const LineKey&);
 			~Importer();
 
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
-    od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const		{ return totalnr_; }
+    uiString		uiMessage() const override	{ return msg_; }
+    uiString		uiNrDoneText() const override
+			{ return tr("Traces handled"); }
 
-    int			nextStep();
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override	{ return totalnr_; }
+
+    int			nextStep() override;
 
     FileHeader		fh_;
     float		zfac_;

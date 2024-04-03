@@ -27,7 +27,7 @@ public:
 protected:
 
     void		createAndDisplay2DViewer();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     uiFileInput*		maddatafld_;
     uiGenInput*			dowigglesfld_;

@@ -44,7 +44,7 @@ public:
 
 protected:
 
-    virtual bool	init();
+    bool		init() override;
     virtual const char*	iconName() const		{ return 0; }
     static uiString	sChangeSetup() { return m3Dots(tr("Change setup")); }
 
@@ -72,7 +72,7 @@ protected:
     virtual void	dataTransformCB(CallBacker*)		{}
     virtual void	showAllChildren();
     virtual void	hideAllChildren();
-    virtual void	removeAllChildren();
+    void		removeAllChildren() override;
     void		keyPressedCB(CallBacker*);
     void		doSave();
     void		doSaveAs();
@@ -112,10 +112,10 @@ protected:
     void			addFactoryCB(CallBacker*);
     void			removeFactoryCB(CallBacker*);
 
-    virtual const char*		parentType() const { return 0; }
+    const char*			parentType() const override { return 0; }
     uiODApplMgr*		applMgr();
     uiODViewer2D*		viewer2D();
 
     uiTreeFactorySet*		tfs_;
-    bool			selectWithKey(int);
+    bool			selectWithKey(int) override;
 };

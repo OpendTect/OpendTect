@@ -27,7 +27,7 @@ public:
 					visSurvey::PreStackDisplay&,
 					uiViewer3DMgr&);
 				~uiViewer3DPreProcTab();
-    bool			acceptOK();
+    bool			acceptOK() override;
 
     void			applyToAll(bool yn)	{ applyall_ = yn; }
     bool			applyToAll()		{ return applyall_; }

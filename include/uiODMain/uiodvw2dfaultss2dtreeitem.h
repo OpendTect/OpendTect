@@ -24,14 +24,14 @@ public:
 				uiODView2DFaultSS2DParentTreeItem();
 				~uiODView2DFaultSS2DParentTreeItem();
 
-    bool			showSubMenu();
+    bool			showSubMenu() override;
 
 protected:
 
-    bool			init();
-    const char*			iconName() const;
+    bool			init() override;
+    const char*			iconName() const override;
     bool			handleSubMenu(int);
-    const char*			parentType() const
+    const char*			parentType() const override
 				{ return typeid(uiODView2DTreeTop).name(); }
     void			tempObjAddedCB(CallBacker*);
 
@@ -52,10 +52,11 @@ mExpClass(uiODMain) uiODView2DFaultSS2DTreeItemFactory
 				: public uiODView2DTreeItemFactory
 {
 public:
-    const char*		name() const		{ return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override	{ return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODView2DFaultSS2DParentTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID visid) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,
+				     Vis2DID visid) const override;
 };
 
 
@@ -66,16 +67,16 @@ public:
 			uiODView2DFaultSS2DTreeItem(Vis2DID dispid,bool dummy);
 			~uiODView2DFaultSS2DTreeItem();
 
-    bool			showSubMenu();
-    bool			select();
+    bool			showSubMenu() override;
+    bool			select() override;
     EM::ObjectID		emObjectID() const	{ return emid_; }
     const View2D::FaultSS2D*	vw2DObject() const	{ return fssview_; }
 
 protected:
 
-    bool		init();
-    const char*		parentType() const;
-    bool		isSelectable() const			{ return true; }
+    bool		init() override;
+    const char*		parentType() const override;
+    bool		isSelectable() const override		{ return true; }
 
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);

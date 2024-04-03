@@ -28,21 +28,21 @@ mExpClass(Madagascar) ProcExec : public ::Executor
 public:
 
     enum FlowStage	{ Start, Intermediate, Finish };
-    			mDeclareEnumUtils(FlowStage)
+			mDeclareEnumUtils(FlowStage)
 
-    			ProcExec(const IOPar&,od_ostream&);
-    			~ProcExec();
+			ProcExec(const IOPar&,od_ostream&);
+			~ProcExec();
 
-    const IOPar&	pars() const		{ return pars_; }
+    const IOPar&	pars() const			{ return pars_; }
 
-    uiString		uiMessage() const;
-    uiString		uiNrDoneText() const;
-    od_int64		nrDone() const		{ return nrdone_; }
-    od_int64		totalNr() const;
-    int			nextStep();
+    uiString		uiMessage() const override;
+    uiString		uiNrDoneText() const override;
+    od_int64		nrDone() const override		{ return nrdone_; }
+    od_int64		totalNr() const override;
+    int			nextStep() override;
 
     bool		init();
-    uiString		errMsg()		{ return errmsg_; }
+    uiString		errMsg()			{ return errmsg_; }
 
     static const char*	sKeyFlowStage();
     static const char*	sKeyCurProc();

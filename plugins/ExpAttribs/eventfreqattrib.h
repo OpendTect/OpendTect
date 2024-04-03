@@ -30,9 +30,9 @@ protected:
 
     static Provider*	createInstance(Desc&);
 
-    bool		getInputData(const BinID&,int);
+    bool		getInputData(const BinID&,int) override;
     bool		computeData(const DataHolder&,const BinID&,
-				    int,int,int) const;
+				    int,int,int) const override;
 
     const DataHolder*	inpdata_;
     ValueSeries<float>*	inpseries_;
@@ -46,7 +46,7 @@ protected:
     void		fillFreqOutput(const DataHolder&,int,int) const;
     void		fillPhaseOutput(const DataHolder&,int,int) const;
 
-    const Interval<int>* desZSampMargin(int,int) const;
+    const Interval<int>* desZSampMargin(int,int) const override;
     float		getPDz(float*,int) const;
 
 };

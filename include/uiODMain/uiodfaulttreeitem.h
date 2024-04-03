@@ -29,18 +29,18 @@ public:
     static CNotifier<uiODFaultParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
-    const char*		iconName() const;
-    bool		showSubMenu();
+    const char*		iconName() const override;
+    bool		showSubMenu() override;
 };
 
 
 mExpClass(uiODMain) uiODFaultTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODFaultTreeItemFactory)
 public:
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODFaultParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 };
 
 
@@ -53,8 +53,8 @@ public:
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
 
-    void		setOnlyAtSectionsDisplay(bool);
-    bool		isOnlyAtSections() const;
+    void		setOnlyAtSectionsDisplay(bool) override;
+    bool		isOnlyAtSections() const override;
 
     static uiString	sFaultPlanes() { return tr("Fault Planes" ); }
     static uiString	sFaultSticks() { return tr("Fault Sticks" ); }
@@ -62,17 +62,17 @@ public:
     static uiString	sOnlyAtHorizons() { return tr( "Only at Horizons" ); }
 
 protected:
-    bool		askContinueAndSaveIfNeeded(bool withcancel);
-    void		prepareForShutdown();
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    bool		askContinueAndSaveIfNeeded(bool withcancel) override;
+    void		prepareForShutdown() override;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
     void		askSaveCB(CallBacker*);
     void		saveCB(CallBacker*);
 
-    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
+    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const override;
 
-    bool		init();
-    const char*		parentType() const
+    bool		init() override;
+    const char*		parentType() const override
 			{return typeid(uiODFaultParentTreeItem).name();}
 
     EM::ObjectID		emid_;
@@ -107,10 +107,10 @@ mExpClass(uiODMain) uiODFaultStickSetTreeItemFactory
     : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODFaultStickSetTreeItemFactory)
 public:
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODFaultStickSetParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 };
 
 
@@ -124,16 +124,16 @@ public:
     EM::ObjectID	emObjectID() const	{ return emid_; }
 
 protected:
-    bool		askContinueAndSaveIfNeeded( bool withcancel );
-    void		prepareForShutdown();
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    bool		askContinueAndSaveIfNeeded( bool withcancel ) override;
+    void		prepareForShutdown() override;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
     void		colorChCB(CallBacker*);
     void		askSaveCB(CallBacker*);
     void		saveCB(CallBacker*);
 
-    bool		init();
-    const char*		parentType() const
+    bool		init() override;
+    const char*		parentType() const override
 			{return typeid(uiODFaultStickSetParentTreeItem).name();}
 
 
@@ -156,9 +156,9 @@ public:
 
 protected:
 
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    uiString		createDisplayName() const;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
+    uiString		createDisplayName() const override;
 
     MenuItem		depthattribmnuitem_;
     MenuItem		savesurfacedatamnuitem_;

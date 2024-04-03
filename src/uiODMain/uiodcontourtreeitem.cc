@@ -134,13 +134,13 @@ public:
 
     visBase::Text2*		getLabels() { return labels_; }
     const TypeSet<double>&	getAreas() const { return areas_; }
-    uiString			uiNrDoneText() const;
+    uiString			uiNrDoneText() const override;
 
 protected:
-    bool	doPrepare(int);
-    bool	doWork(od_int64 start, od_int64 stop, int);
-    bool	doFinish(bool success);
-    od_int64	nrIterations() const;
+    bool	doPrepare(int) override;
+    bool	doWork(od_int64 start, od_int64 stop, int) override;
+    bool	doFinish(bool success) override;
+    od_int64	nrIterations() const override;
 
 private:
 
@@ -739,7 +739,7 @@ float getLabelElevation() const
 
 protected:
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     intervalChanged.trigger();
     propertyChanged.trigger();

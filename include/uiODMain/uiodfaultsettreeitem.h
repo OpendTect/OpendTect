@@ -35,10 +35,10 @@ protected:
 mExpClass(uiODMain) uiODFaultSetTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODFaultSetTreeItemFactory)
 public:
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODFaultSetParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 };
 
 
@@ -51,24 +51,24 @@ public:
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
 
-    void		setOnlyAtSectionsDisplay(bool);
-    bool		isOnlyAtSections() const;
+    void		setOnlyAtSectionsDisplay(bool) override;
+    bool		isOnlyAtSections() const override;
 
     static uiString	sFaultPlanes() { return tr("Fault Planes" ); }
     static uiString	sOnlyAtSections() { return tr( "Only at Sections" ); }
     static uiString	sOnlyAtHorizons() { return tr( "Only at Horizons" ); }
 
 protected:
-    bool		askContinueAndSaveIfNeeded(bool withcancel);
-    void		prepareForShutdown();
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    bool		askContinueAndSaveIfNeeded(bool withcancel) override;
+    void		prepareForShutdown() override;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
     void		colorChCB(CallBacker*);
 
-    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
+    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const override;
 
-    bool		init();
-    const char*		parentType() const
+    bool		init() override;
+    const char*		parentType() const override
 			{ return typeid(uiODFaultSetParentTreeItem).name(); }
 
     EM::ObjectID		emid_;
@@ -97,9 +97,9 @@ public:
 
 protected:
 
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    uiString		createDisplayName() const;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
+    uiString		createDisplayName() const override;
 
     MenuItem		depthattribmnuitem_;
 

@@ -64,7 +64,7 @@ public:
 			uiVisPartServer(uiApplService&);
 			~uiVisPartServer();
 
-    const char*		name() const;
+    const char*		name() const override;
 			/*<\returns the partservers name */
     NotifierAccess&	removeAllNotifier();
 			/*<\Returns a notifier that is triggered

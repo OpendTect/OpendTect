@@ -29,7 +29,7 @@ public:
 				~uiODDataTreeItem();
 
     virtual void		show(bool yn)		{}
-    virtual bool		select();
+    bool			select() override;
     VisID			displayID() const;
     int				attribNr() const;
 
@@ -43,33 +43,35 @@ public:
 				/*!<Adds custom create function for create
 				    function. */
 
-    void			prepareForShutdown();
+    void			prepareForShutdown() override;
 
 protected:
 				uiODDataTreeItem(const char* parenttype);
 
-    int				uiTreeViewItemType() const;
-    virtual bool		init();
+    int				uiTreeViewItemType() const override;
+    bool			init() override;
 
     virtual void		checkCB(CallBacker*);
     void			keyPressCB(CallBacker*);
-    bool			shouldSelect(int) const;
+    bool			shouldSelect(int) const override;
 
     virtual bool		hasTransparencyMenu() const { return true; }
 
     uiODApplMgr*		applMgr() const;
     uiVisPartServer*		visserv_;
     SceneID			sceneID() const;
-    bool			isSelectable() const	{ return true; }
-    bool			isExpandable() const	{ return false; }
-    const char*			parentType() const	{ return parenttype_; }
-    bool			showSubMenu();
+    bool			isSelectable() const override { return true; }
+    bool			isExpandable() const override { return false; }
+    const char*			parentType() const override
+				{ return parenttype_; }
+
+    bool			showSubMenu() override;
 
     virtual void		createMenu(MenuHandler*,bool istoolbar);
     void			addToToolBarCB(CallBacker*);
     void			createMenuCB(CallBacker*);
     virtual void		handleMenuCB(CallBacker*);
-    void			updateColumnText(int col);
+    void			updateColumnText(int col) override;
     virtual uiString		createDisplayName() const		= 0;
 
     void			displayMiniCtab( const ColTab::Sequence* );

@@ -48,7 +48,7 @@ protected:
 				    PDE::ActionType acttyp = PDE::AddNRemove);
     void			setEmpty();
 
-    bool			acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
     void			statusUpdateODProcCB(CallBacker*);
     void			statusUpdatePyProcCB(CallBacker*);
     void			selectionChgCB(CallBacker*);

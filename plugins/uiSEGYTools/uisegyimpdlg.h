@@ -26,8 +26,8 @@ public :
 
 			uiSEGYImpDlg(uiParent*,const Setup&,IOPar&);
 
-    virtual void	use(const IOObj*,bool force);
-    virtual MultiID	outputID() const;
+    void		use(const IOObj*,bool force) override;
+    MultiID		outputID() const override;
 
 
 protected:
@@ -37,7 +37,7 @@ protected:
     uiCheckBox*		morebut_;
     uiBatchJobDispatcherSel* batchfld_;
 
-    virtual bool	doWork(const IOObj&);
+    bool		doWork(const IOObj&) override;
 
     friend class	uiSEGYImpSimilarDlg;
     bool		impFile(const IOObj&,const IOObj&,const char*);

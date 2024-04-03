@@ -19,11 +19,11 @@ namespace visSurvey { class FaultDisplay; }
 mExpClass(uiVis) uiFaultDisplayOptGrp : public uiDlgGroup
 { mODTextTranslationClass(uiFaultDisplayOptGrp);
 public:
-		 		uiFaultDisplayOptGrp(uiParent*,
+				uiFaultDisplayOptGrp(uiParent*,
 						     visSurvey::FaultDisplay*);
 				~uiFaultDisplayOptGrp();
 
-    bool			acceptOK();
+    bool			acceptOK() override;
 
 protected:
 

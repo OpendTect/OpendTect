@@ -118,7 +118,7 @@ public:
     void		getTrcInfo(TrcHeader&,SeisTrcInfo&,
 				   const OffsetCalculator&) const;
 
-    virtual void	getFilePars(FilePars&) const;
+    void		getFilePars(FilePars&) const override;
     void		getFileReadOpts(FileReadOpts&) const;
     void		usePar(const IOPar&);
     void		setUserCoordSys(Coords::CoordSystem* crs)
@@ -129,7 +129,7 @@ public:
 
 protected:
 
-    virtual const TrcHeaderDef& getHDef() const	{ return *hdrdef_; }
+    const TrcHeaderDef& getHDef() const override	{ return *hdrdef_; }
     ConstRefMan<Coords::CoordSystem> coordsys_;
 
 };

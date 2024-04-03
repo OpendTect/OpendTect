@@ -14,10 +14,11 @@
 
 namespace Attrib
 {
-	
+
 mExpClass(GLCM) GLCM_attrib : public Provider
 { mODTextTranslationClass(GLCM_attrib);
 public:
+
     static void			initClass();
     explicit			GLCM_attrib(Desc&);
     static const char*		attribName()		{ return "GLCM"; }
@@ -32,29 +33,36 @@ public:
     static const char*		steeringStr()		{ return "steering"; }
     static const char*		attribTypeStr(int);
     static const char*		directTypeStr(int);
-    void			initSteering()	{ stdPrepSteering(stepout_); }
+    void			initSteering() override
+				    { stdPrepSteering(stepout_); }
 
 protected:
+
     ~GLCM_attrib()		{}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
     static void			updateDefaults(Desc&);
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return true; }
 
-    bool			getInputOutput(int input,TypeSet<int>&) const;
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputOutput(int input,
+					       TypeSet<int>&) const override;
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
 					    const BinID& relpos,int z0,
-					    int nrsamples, int threadid) const;
+					    int nrsamples, int threadid)
+					    const override;
 
-    const BinID*		desStepout(int,int) const;
-    const BinID*		reqStepout(int input, int output) const;
+    const BinID*		desStepout(int,int) const override;
+    const BinID*		reqStepout(int input,int output) const override;
 
-    const Interval<float>*	reqZMargin( int input, int output ) const;
-    const Interval<float>*	desZMargin( int input, int output ) const;
-    const Interval<int>*	desZSampMargin( int input, int output ) const;
+    const Interval<float>*	reqZMargin(int input,
+					   int output) const override;
+    const Interval<float>*	desZMargin(int input,
+					   int output) const override;
+    const Interval<int>*	desZSampMargin(int input,
+					       int output) const override;
 
 private:
     int				attribute_;
@@ -70,7 +78,7 @@ private:
     Interval<int>		sampgate_;
     Interval<float>		gate_;
     Interval<float>		desgate_;
-	
+
     ObjectSet<const DataHolder> inpdata_;
     const DataHolder*		steerdata_;
     int				dataidx_;

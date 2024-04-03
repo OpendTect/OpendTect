@@ -26,10 +26,10 @@ public:
     static CNotifier<uiODPSEventsParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
-    bool			init();
-    const char*			parentType() const;
-    const char*			iconName() const;
-    virtual bool		showSubMenu();
+    bool			init() override;
+    const char*			parentType() const override;
+    const char*			iconName() const override;
+    bool			showSubMenu() override;
     bool			loadPSEvent(MultiID&,BufferString&);
     uiODPSEventsTreeItem*	child_;
 };
@@ -38,8 +38,10 @@ protected:
 mExpClass(uiODMain) uiODPSEventsTreeItemFactory : public uiODTreeItemFactory
 {
 public:
-    const char*		name() const   { return typeid(*this).name(); }
-    uiTreeItem*		create() const { return new uiODPSEventsParentTreeItem;}
+    const char*		name() const override	{ return typeid(*this).name(); }
+    uiTreeItem*		create() const override
+			{ return new uiODPSEventsParentTreeItem;}
+
     uiTreeItem*		create(VisID visid,uiTreeItem*) const
 			{ return new uiODPSEventsParentTreeItem; }
 };
@@ -55,17 +57,17 @@ public:
     void		updateColorMode(int mode);
 
 protected:
-    virtual const char*	parentType() const
+    const char*		parentType() const override
 			{ return typeid(uiODPSEventsParentTreeItem).name();}
 
     virtual const char*	managerName() const { return "PreStackEvents"; }
-    virtual void	createMenu(MenuHandler*,bool istb);
-    virtual void	handleMenuCB(CallBacker*);
-    virtual bool	anyButtonClick(uiTreeViewItem*);
-    virtual void	updateColumnText(int);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
+    bool		anyButtonClick(uiTreeViewItem*) override;
+    void		updateColumnText(int) override;
 
     void		coltabChangeCB(CallBacker*);
-    bool		init();
+    bool		init() override;
     void		updateDisplay();
     void		displayMiniColTab();
 

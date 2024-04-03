@@ -66,7 +66,7 @@ public:
     TypeSet<int>	idxs_;		// in TrcHeader::hdrDef()
     SortedList<int>	rejectedidxs_;
 
-    virtual void	erase();
+    void		erase() override;
 
 };
 

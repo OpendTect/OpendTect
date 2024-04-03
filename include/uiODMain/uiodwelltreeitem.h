@@ -37,9 +37,11 @@ protected:
 mExpClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(uiODWellTreeItemFactory)
 public:
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const { return new uiODWellParentTreeItem(); }
-    uiTreeItem*		createForVis(VisID,uiTreeItem*) const;
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
+			{ return new uiODWellParentTreeItem(); }
+
+    uiTreeItem*		createForVis(VisID,uiTreeItem*) const override;
 };
 
 
@@ -52,12 +54,12 @@ public:
 
 protected:
     void		initMenuItems();
-    bool		init();
-    bool		askContinueAndSaveIfNeeded(bool withcancel);
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    bool		doubleClick(uiTreeViewItem*);
-    const char*		parentType() const
+    bool		init() override;
+    bool		askContinueAndSaveIfNeeded(bool withcancel) override;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
+    bool		doubleClick(uiTreeViewItem*) override;
+    const char*		parentType() const override
 			{ return typeid(uiODWellParentTreeItem).name(); }
 
     MultiID		mid_;

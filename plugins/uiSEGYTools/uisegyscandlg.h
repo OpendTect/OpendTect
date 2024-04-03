@@ -28,7 +28,7 @@ public :
 
     SEGY::Scanner*	getScanner();	//!< becomes yours
 
-    virtual MultiID	outputID() const;
+    MultiID		outputID() const override;
 
 protected:
 
@@ -41,6 +41,6 @@ protected:
     uiBatchJobDispatcherSel*	batchfld_;
     uiSeis2DLineNameSel*	lnmfld_;
 
-    virtual bool	doWork(const IOObj&);
+    bool		doWork(const IOObj&) override;
 
 };

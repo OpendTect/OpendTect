@@ -22,8 +22,8 @@ public:
 						visSurvey::PlaneDataDisplay*);
 			~uiVisPlaneDataDisplayDragProp();
 
-    bool		acceptOK();
-    bool		revertChanges();
+    bool		acceptOK() override;
+    bool		revertChanges() override;
 
 protected:
     visSurvey::PlaneDataDisplay*	pdd_;

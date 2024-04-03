@@ -30,13 +30,14 @@ public:
 
 protected:
     
-    bool			anyButtonClick(uiTreeViewItem*);
+    bool			anyButtonClick(uiTreeViewItem*) override;
    
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
-    void			createMenu(MenuHandler* menu ,bool istoolbar);
-    void			handleMenuCB(CallBacker*);
-    uiString    		createDisplayName() const;
-    void			updateColumnText( int col );
+    void			createMenu(MenuHandler* menu,
+					   bool istoolbar) override;
+    void			handleMenuCB(CallBacker*) override;
+    uiString			createDisplayName() const override;
+    void			updateColumnText( int col ) override;
 
     MenuItem			selmenuitem_;
     MenuItem			reloadmenuitem_;

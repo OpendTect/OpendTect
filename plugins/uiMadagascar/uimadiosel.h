@@ -39,7 +39,7 @@ protected:
     bool		isinp_;
     IOPar		iop_;
 
-    virtual BufferString getSummary() const;
+    BufferString	getSummary() const override;
     void		doDlg(CallBacker*);
 
 };
@@ -98,6 +98,6 @@ protected:
     void		sconsCB(CallBacker*);
 
     bool		getInp();
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
 };

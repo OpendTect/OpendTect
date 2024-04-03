@@ -161,7 +161,7 @@ protected:
     void		coordscaleChg(CallBacker*);
     void		updateAmplDisplay(CallBacker*);
     void		initClassic(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		coordSysChangedCB(CallBacker*);
     void		multiLineSelCB(CallBacker*);
 

@@ -26,8 +26,8 @@ public:
     EM::ObjectID	emObjectID() const	{ return emid_; }
     virtual VisID	reloadEMObject();	// Return new display id.
 
-    void		setOnlyAtSectionsDisplay(bool);
-    bool		isOnlyAtSections() const;
+    void		setOnlyAtSectionsDisplay(bool) override;
+    bool		isOnlyAtSections() const override;
 
     bool		askSave();
 
@@ -35,14 +35,14 @@ protected:
 			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
 			~uiODEarthModelSurfaceTreeItem();
 
-    virtual void	createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
 
-    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
+    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const override;
     void		addAuxDataItems();
 
     void		finishedEditingCB(CallBacker*);
-    void		prepareForShutdown();
+    void		prepareForShutdown() override;
 
     bool		doSave();
     void		askSaveCB(CallBacker*);
@@ -54,13 +54,13 @@ protected:
     MenuItem		createflatscenemnuitem_;
 
 protected:
-    bool		init();
+    bool		init() override;
     virtual void	initNotify() {}
     bool		createUiVisObj();
 
-    virtual void	checkCB(CallBacker*);
+    void		checkCB(CallBacker*) override;
     void		selChg(CallBacker*);
-    void		keyPressCB(CallBacker*);
+    void		keyPressCB(CallBacker*) override;
 
     void		updateTrackingState();
     bool		istrackingallowed_;
@@ -91,9 +91,9 @@ public:
     void		selectAndLoadAuxData();
 
 protected:
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
-    uiString		createDisplayName() const;
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
+    uiString		createDisplayName() const override;
 
     MenuItem		depthattribmnuitem_;
     MenuItem		savesurfacedatamnuitem_;

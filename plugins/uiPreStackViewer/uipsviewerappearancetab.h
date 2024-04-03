@@ -31,7 +31,7 @@ public:
 						 uiViewer3DMgr&);
 				~uiViewer3DAppearanceTab();
 
-    bool			acceptOK();
+    bool			acceptOK() override;
     void			applyToAll(bool yn)	{ applyall_ = yn; }
     bool			applyToAll()		{ return applyall_; }
     void			saveAsDefault(bool yn)  { savedefault_ = yn; }

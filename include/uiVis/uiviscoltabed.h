@@ -80,6 +80,6 @@ public:
     Notifier<uiColorBarDialog>	winClosing;
 
 protected:
-    bool			closeOK();
+    bool			closeOK() override;
     uiVisColTabEd*		coltabed_;
 };

@@ -45,7 +45,7 @@ protected:
     void		renCB(CallBacker*);
     void		delCB(CallBacker*);
     void		selChgCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     virtual void	selectionChanged()	{}
     virtual bool	doIO()			= 0;
@@ -63,10 +63,10 @@ public:
 
 protected:
 
-    virtual bool	doIO();
+    bool		doIO() override;
     uiTextEdit*		detailsfld_;
 
-    virtual void	selectionChanged();
+    void		selectionChanged() override;
 
 };
 
@@ -85,7 +85,7 @@ protected:
     uiCheckBox*		asdefbox_;
     Repos::IOPar*	parstostore_;
 
-    virtual bool	doIO();
-    virtual void	selectionChanged();
+    bool		doIO() override;
+    void		selectionChanged() override;
 
 };

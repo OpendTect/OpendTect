@@ -22,7 +22,7 @@ public:
 				uiODView2DHor3DParentTreeItem();
 				~uiODView2DHor3DParentTreeItem();
 
-    bool			showSubMenu();
+    bool			showSubMenu() override;
     void			getHor3DVwr2DIDs(EM::ObjectID emid,
 					TypeSet<Vis2DID>&) const;
     void			getLoadedHorizon3Ds(
@@ -33,10 +33,10 @@ public:
 
 protected:
 
-    bool			init();
-    const char*			iconName() const;
+    bool			init() override;
+    const char*			iconName() const override;
     bool			handleSubMenu(int);
-    const char*			parentType() const
+    const char*			parentType() const override
 				{ return typeid(uiODView2DTreeTop).name(); }
     void			getNonLoadedTrackedHor3Ds(
 					TypeSet<EM::ObjectID>&);
@@ -49,10 +49,14 @@ mExpClass(uiODMain) uiODView2DHor3DTreeItemFactory
     : public uiODView2DTreeItemFactory
 {
 public:
-    const char*		name() const		{ return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override
+			{ return typeid(*this).name(); }
+
+    uiTreeItem*		create() const override
 			{ return new uiODView2DHor3DParentTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
+
+    uiTreeItem*		createForVis(const uiODViewer2D&,
+				     Vis2DID) const override;
 };
 
 
@@ -63,21 +67,21 @@ public:
 			uiODView2DHor3DTreeItem(Vis2DID id,bool dummy);
 			~uiODView2DHor3DTreeItem();
 
-    bool			select();
-    bool			showSubMenu();
+    bool			select() override;
+    bool			showSubMenu() override;
     EM::ObjectID		emObjectID() const	{ return emid_; }
     const View2D::Horizon3D*	vw2DObject() const	{ return horview_; }
 
 protected:
 
-    bool		init();
-    const char*		parentType() const
+    bool		init() override;
+    const char*		parentType() const override
 			{ return typeid(uiODView2DHor3DParentTreeItem).name(); }
-    bool		isSelectable() const			{ return true; }
+    bool		isSelectable() const override		{ return true; }
 
 
-    void		updateSelSpec(const Attrib::SelSpec*,bool wva);
-    void		updateCS(const TrcKeyZSampling&,bool upd);
+    void		updateSelSpec(const Attrib::SelSpec*,bool wva) override;
+    void		updateCS(const TrcKeyZSampling&,bool upd) override;
     void		checkCB(CallBacker*);
     void		deSelCB(CallBacker*);
     void		mousePressInVwrCB(CallBacker*);

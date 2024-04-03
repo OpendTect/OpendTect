@@ -116,13 +116,13 @@ void updateOrientationFld()
     inlcrlfld_->display( !objectfld_->getBoolValue() );
 }
 
-bool acceptOK(CallBacker*)
+bool acceptOK(CallBacker*) override
 {
     changeCB(0);
     return true;
 }
 
-bool rejectOK(CallBacker*)
+bool rejectOK(CallBacker*) override
 {
     setPars( pars_ );
     propertyChange.trigger();

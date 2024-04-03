@@ -195,17 +195,17 @@ public:
 	, saved_( saved )
     {}
 
-    const char* getStandardDesc() const
+    const char* getStandardDesc() const override
     { return copy_ ? "Copy sticks" : "Move sticks"; }
 
-    bool unDo()
+    bool unDo() override
     {
 	if ( saved_ )
 	    uiMSG().message( tr("Will not undo saving the output file!") );
 	return true;
     }
 
-    bool reDo()
+    bool reDo() override
     { return true; }
 
 protected:

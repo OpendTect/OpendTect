@@ -20,12 +20,12 @@ public:
 			GMTCoastline( const IOPar& par, const char* workdir )
 			    : GMTPar(par,workdir) {}
 
-    virtual const char* userRef() const;
-    bool		fillLegendPar(IOPar&) const;
+    const char* userRef() const override;
+    bool		fillLegendPar(IOPar&) const override;
 
 protected:
 
-    virtual bool	doExecute(od_ostream&,const char*);
+    bool		doExecute(od_ostream&,const char*) override;
 
     static GMTPar*	createInstance(const IOPar&,const char*);
     static int		factoryid_;

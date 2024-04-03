@@ -27,18 +27,18 @@ public:
 				uiODView2DVariableDensityTreeItem();
 				~uiODView2DVariableDensityTreeItem();
 
-    bool			select();
-    bool			showSubMenu();
+    bool			select() override;
+    bool			showSubMenu() override;
 
 protected:
 
-    bool			init();
-    const char*			iconName() const;
+    bool			init() override;
+    const char*			iconName() const override;
     void			initColTab();
     void			displayMiniCtab(const ColTab::Sequence*);
-    const char*			parentType() const
+    const char*			parentType() const override
 				{ return typeid(uiODView2DTreeTop).name(); }
-    bool			isSelectable() const	{ return true; }
+    bool			isSelectable() const override	{ return true; }
 
     View2D::Seismic*		dummyview_;
     uiMenuHandler*		menu_;
@@ -61,7 +61,7 @@ protected:
     void			checkCB(CallBacker*);
     void			colTabChgCB(CallBacker*);
     void			dataChangedCB(CallBacker*);
-    void			dataTransformCB(CallBacker*);
+    void			dataTransformCB(CallBacker*) override;
     void			deSelectCB(CallBacker*);
     void			createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
@@ -72,8 +72,9 @@ mExpClass(uiODMain) uiODView2DVariableDensityTreeItemFactory
 				: public uiODView2DTreeItemFactory
 {
 public:
-    const char*		name() const		{ return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override	{ return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODView2DVariableDensityTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,
+				     Vis2DID) const override;
 };

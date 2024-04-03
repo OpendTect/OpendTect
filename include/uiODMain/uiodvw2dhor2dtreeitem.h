@@ -20,7 +20,7 @@ public:
 				uiODView2DHor2DParentTreeItem();
 				~uiODView2DHor2DParentTreeItem();
 
-    bool			showSubMenu();
+    bool			showSubMenu() override;
     void			getHor2DVwr2DIDs(EM::ObjectID,
 						 TypeSet<Vis2DID>&) const;
     void			getLoadedHorizon2Ds(
@@ -32,10 +32,10 @@ public:
 
 protected:
 
-    bool			init();
-    const char*			iconName() const;
+    bool			init() override;
+    const char*			iconName() const override;
     bool			handleSubMenu(int);
-    const char*			parentType() const
+    const char*			parentType() const override
 				{ return typeid(uiODView2DTreeTop).name(); }
     void			getNonLoadedTrackedHor2Ds(
 					TypeSet<EM::ObjectID>&);
@@ -46,10 +46,11 @@ mExpClass(uiODMain)
 uiODView2DHor2DTreeItemFactory : public uiODView2DTreeItemFactory
 {
 public:
-    const char*		name() const 	{ return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override	{ return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODView2DHor2DParentTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,
+				     Vis2DID) const override;
 };
 
 
@@ -60,19 +61,19 @@ public:
 			uiODView2DHor2DTreeItem(Vis2DID,bool dummy);
 			~uiODView2DHor2DTreeItem();
 
-    bool			showSubMenu();
-    bool			select();
+    bool			showSubMenu() override;
+    bool			select() override;
     EM::ObjectID		emObjectID() const	{ return emid_; }
     const View2D::Horizon2D*	vw2DObject() const	{ return horview_; }
 
 protected:
 
-    bool		init();
-    const char*		parentType() const
+    bool		init() override;
+    const char*		parentType() const override
 			{ return typeid(uiODView2DHor2DParentTreeItem).name(); }
-    bool		isSelectable() const			{ return true; }
+    bool		isSelectable() const override		{ return true; }
 
-    void		updateSelSpec(const Attrib::SelSpec*,bool wva);
+    void		updateSelSpec(const Attrib::SelSpec*,bool wva) override;
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
     void		emobjAbtToDelCB(CallBacker*);

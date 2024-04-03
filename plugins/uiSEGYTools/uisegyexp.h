@@ -59,7 +59,7 @@ protected:
     void		batchChg(CallBacker*);
     void		showSubselCB(CallBacker*);
     void		updateTextHdrCB(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 
     friend class	uiSEGYExpMore;
     friend class	uiSEGYExpTxtHeader;

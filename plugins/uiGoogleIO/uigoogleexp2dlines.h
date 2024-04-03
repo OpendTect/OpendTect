@@ -40,5 +40,5 @@ protected:
     void		getInitialSelectedLineNames();
     void		getFinalSelectedLineNames();
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
 };

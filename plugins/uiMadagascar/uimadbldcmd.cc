@@ -66,7 +66,7 @@ protected:
 
     BufferStringSet&	cmdlist_;
 
-    BufferString	getSummary() const;
+    BufferString	getSummary() const override;
     void		doDlg(CallBacker*);
 };
 

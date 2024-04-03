@@ -47,10 +47,10 @@ protected:
 mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
 { mODTextTranslationClass(Line2DTreeItemFactory)
 public:
-    const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override { return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODLine2DParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const;
+    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
 };
 
 
@@ -72,14 +72,14 @@ public:
 
 protected:
 			~uiOD2DLineTreeItem();
-    bool		init();
-    const char*		parentType() const;
-    uiString    	createDisplayName() const;
+    bool		init() override;
+    const char*		parentType() const override;
+    uiString		createDisplayName() const override;
 
-    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
+    uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const override;
 
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
     void		getNewData(CallBacker*);
 
 private:
@@ -106,8 +106,8 @@ public:
     void		clearAttrib();
 
 protected:
-    void		createMenu(MenuHandler*,bool istb);
-    void		handleMenuCB(CallBacker*);
+    void		createMenu(MenuHandler*,bool istb) override;
+    void		handleMenuCB(CallBacker*) override;
 
     MenuItem		storeditm_;
     MenuItem		steeringitm_;

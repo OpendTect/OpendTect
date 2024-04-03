@@ -33,12 +33,12 @@ private:
     RefMan<visSurvey::VolumeDisplay>	curvol_;
     uiVisPartServer*		vispartserv_;
 
-    uiSlicePos::SliceDir	getOrientation() const;
+    uiSlicePos::SliceDir	getOrientation() const override;
     TrcKeyZSampling		getSampling() const;
 
-    void			slicePosChg(CallBacker*);
-    void			sliceStepChg(CallBacker*);
-    void			setBoxRanges();
-    void			setPosBoxValue();
-    void			setStepBoxValue();
+    void			slicePosChg(CallBacker*) override;
+    void			sliceStepChg(CallBacker*) override;
+    void			setBoxRanges() override;
+    void			setPosBoxValue() override;
+    void			setStepBoxValue() override;
 };

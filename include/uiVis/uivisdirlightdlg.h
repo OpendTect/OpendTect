@@ -28,7 +28,7 @@ public:
 				uiDirLightDlg(uiParent*, uiVisPartServer*);
 				~uiDirLightDlg();
 
-    void			show();
+    void			show() override;
 
 protected:
 
@@ -48,8 +48,8 @@ protected:
     void			removeSceneNotifiers();
     float			getDiffuseIntensity() const;
 
-    bool			acceptOK(CallBacker*);
-    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+    bool			rejectOK(CallBacker*) override;
     void			pdDlgDoneCB(CallBacker*);
     void			showPolarDiagramCB(CallBacker*);
     void			lightSelChangedCB(CallBacker*);

@@ -29,7 +29,7 @@ protected:
     uiIOObjSelGrp*	selfld_			= nullptr;
     uiGenInput*		inputyp_		= nullptr;
 
-    bool		acceptOK(CallBacker*);
+    bool		acceptOK(CallBacker*) override;
     void		inputTypChngCB(CallBacker*);
     MultiID		mid_;
 };

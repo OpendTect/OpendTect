@@ -54,7 +54,7 @@ protected:
     void		atStart(CallBacker*);
     void		applyCB(CallBacker*);
 
-    bool		rejectOK(CallBacker*);
+    bool		rejectOK(CallBacker*) override;
 
     visSurvey::PreStackDisplay& viewer_;
 };

@@ -24,7 +24,7 @@ mExpClass(uiODMain) uiODTreeItem : public uiTreeItem
 mODTextTranslationClass(uiODTreeItem)
 public:
     virtual		~uiODTreeItem();
-    bool		anyButtonClick(uiTreeViewItem*);
+    bool		anyButtonClick(uiTreeViewItem*) override;
 
     SceneID		sceneID() const;
 
@@ -34,7 +34,7 @@ protected:
     uiODApplMgr*	applMgr();
     ui3DViewer*		viewer();
 
-    virtual bool	init();
+    bool		init() override;
     virtual const char*	iconName() const		{ return 0; }
 
     void		addStandardItems(uiMenu&);
@@ -58,7 +58,7 @@ public:
     static const char*	applmgrstr();
 
     SceneID		sceneID() const;
-    bool		selectWithKey(int selkey);
+    bool		selectWithKey(int selkey) override;
     TypeSet<VisID>	getDisplayIds(VisID&, bool);
     void		loopOverChildrenIds(TypeSet<VisID>&,VisID&,bool,
 	    				    const ObjectSet<uiTreeItem>&);
@@ -68,7 +68,7 @@ protected:
     void		addFactoryCB(CallBacker*);
     void		removeFactoryCB(CallBacker*);
 
-    virtual const char*	parentType() const { return 0; }
+    const char*		parentType() const override	{ return 0; }
     uiODApplMgr*	applMgr();
 
     uiTreeFactorySet*	tfs;
@@ -81,17 +81,15 @@ mODTextTranslationClass(uiODParentTreeItem)
 public:
     virtual		~uiODParentTreeItem();
 
-    virtual bool	showSubMenu() = 0;
-    bool		anyButtonClick(uiTreeViewItem*);
+    bool		anyButtonClick(uiTreeViewItem*) override;
     void		show(bool yn);
 
 protected:
 			uiODParentTreeItem(const uiString&);
-    virtual bool	init();
+    bool		init() override;
 
-    virtual const char* iconName() const = 0;
-    const char*		parentType() const;
-    virtual int		uiTreeViewItemType() const;
+    const char*		parentType() const override;
+    int			uiTreeViewItemType() const override;
     virtual void	checkCB(CallBacker*);
 };
 

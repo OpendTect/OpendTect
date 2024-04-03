@@ -62,16 +62,18 @@ public:
 
 private:
 
-    virtual bool		init();
-    virtual bool		hasTransparencyMenu() const { return false; }
-    virtual uiString		createDisplayName() const;
-    virtual void		checkCB(CallBacker*);
-    virtual bool		doubleClick(uiTreeViewItem*);
-    virtual void		createMenu(MenuHandler*,bool istb);
-    virtual void		handleMenuCB(CallBacker*);
+    bool			init() override;
+    bool			hasTransparencyMenu() const override
+				{ return false; }
+
+    uiString			createDisplayName() const override;
+    void			checkCB(CallBacker*) override;
+    bool			doubleClick(uiTreeViewItem*) override;
+    void			createMenu(MenuHandler*,bool istb) override;
+    void			handleMenuCB(CallBacker*) override;
     void			saveAreasAsCB(CallBacker*);
 
-    void			prepareForShutdown();
+    void			prepareForShutdown() override;
     void			removeAll();
     void			removeLabels();
     void			removeOldUICContoursFromScene();
@@ -89,7 +91,7 @@ private:
 
     void			showPropertyDlg();
     void			updateUICContours(const StepInterval<float>&);
-    void			updateColumnText(int);
+    void			updateColumnText(int) override;
     void			updateZShift();
 
     Array2D<float>*		getDataSet(visSurvey::HorizonDisplay*);

@@ -25,7 +25,7 @@ public:
 				uiODView2DPickSetParentTreeItem();
 				~uiODView2DPickSetParentTreeItem();
 
-    bool			showSubMenu();
+    bool			showSubMenu() override;
     void			getPickSetVwr2DIDs(const MultiID& mid,
 						   TypeSet<Vis2DID>&) const;
     void			getLoadedPickSets(TypeSet<MultiID>&) const;
@@ -34,10 +34,10 @@ public:
 
 protected:
 
-    bool			init();
-    const char*			iconName() const;
+    bool			init() override;
+    const char*			iconName() const override;
     bool			handleSubMenu(int);
-    const char*			parentType() const
+    const char*			parentType() const override
 				{ return typeid(uiODView2DTreeTop).name(); }
     Pick::SetMgr&		picksetmgr_;
 
@@ -50,10 +50,11 @@ mExpClass(uiODMain)
 uiODView2DPickSetTreeItemFactory : public uiODView2DTreeItemFactory
 {
 public:
-    const char*		name() const		{ return typeid(*this).name(); }
-    uiTreeItem*		create() const
+    const char*		name() const override	{ return typeid(*this).name(); }
+    uiTreeItem*		create() const override
 			{ return new uiODView2DPickSetParentTreeItem(); }
-    uiTreeItem*		createForVis(const uiODViewer2D&,Vis2DID) const;
+    uiTreeItem*		createForVis(const uiODViewer2D&,
+				     Vis2DID) const override;
 };
 
 
@@ -64,18 +65,18 @@ public:
 			uiODView2DPickSetTreeItem(Vis2DID id,bool dummy);
 			~uiODView2DPickSetTreeItem();
 
-    bool			showSubMenu();
-    bool			select();
+    bool			showSubMenu() override;
+    bool			select() override;
     const MultiID&		pickMultiID() const;
     const View2D::PickSet*	vw2DObject() const	{ return vw2dpickset_; }
     void			keyPressedCB(CallBacker*);
 
 protected:
 
-    bool		init();
-    const char*		parentType() const
+    bool		init() override;
+    const char*		parentType() const override
 			{return typeid(uiODView2DPickSetParentTreeItem).name();}
-    bool		isSelectable() const			{ return true; }
+    bool		isSelectable() const override		{ return true; }
 
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);

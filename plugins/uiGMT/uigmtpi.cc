@@ -82,7 +82,7 @@ void gmtPush( CallBacker* )
 	: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
 }
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     return true;
 }

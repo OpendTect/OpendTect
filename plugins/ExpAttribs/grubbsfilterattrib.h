@@ -34,7 +34,7 @@ public:
     static const char*		stepoutStr()	{ return "stepout"; }
     static const char*		replaceValStr()	{ return "replacewith"; }
 
-    void			prepPriorToBoundsCalc();
+    void			prepPriorToBoundsCalc() override;
     enum ReplaceType		{ Average, Median, Threshold, GrubbsValue,
 				  Interpolate };
 
@@ -43,18 +43,18 @@ protected:
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
-    bool			allowParallelComputation() const
+    bool			allowParallelComputation() const override
 				{ return false; }
 
     float			replaceVal(const Stats::RunCalc<float>&) const;
-    bool			getInputData(const BinID&,int zintv);
+    bool			getInputData(const BinID&,int zintv) override;
     bool			computeData(const DataHolder&,
 	    				    const BinID& relpos,
 					    int z0,int nrsamples,
-					    int threadid) const;
+					    int threadid) const override;
 
-    const BinID*		desStepout(int input,int output) const;
-    const Interval<float>*	desZMargin(int input,int output) const;
+    const BinID*		desStepout(int input,int output) const override;
+    const Interval<float>*	desZMargin(int input,int output) const override;
     bool			getTrcPos();
 
     float			cogrubbsval_;
