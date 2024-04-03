@@ -218,8 +218,10 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	return false;
     }
 
-    IOPar rep( "SEG-Y scan report" ); scanner_->getReport( rep );
-    uiSEGY::displayReport( parent(), rep );
+    StringPairSet report;
+    report.setName( "SEG-Y scan report" );
+    scanner_->getReport( report );
+    uiSEGY::displayReport( parent(), report, tr("SEG-Y Scan Report") );
     return true;
 }
 

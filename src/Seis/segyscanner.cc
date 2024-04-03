@@ -87,6 +87,81 @@ void SEGY::Scanner::closeTr()
 }
 
 
+void SEGY::Scanner::getReport( StringPairSet& report,
+			       const IOPar* inppars ) const
+{
+    const bool isrev0 = forcerev0_ || fds_.isEmpty() || fds_.isRev0();
+
+    if ( !inppars )
+	inppars = &pars_;
+    report.add( StringPairSet::sKeyH1(), "Provided information" );
+
+    FileSpec fs;
+    fs.usePar( *inppars );
+    fs.getReport( report );
+
+    FilePars fp( true );
+    fp.usePar( *inppars );
+    fp.getReport( report, isrev0 );
+
+    FileReadOpts fro( geom_ );
+    fro.usePar( *inppars );
+    fro.getReport( report, isrev0 );
+
+    if ( fds_.isEmpty() )
+    {
+	if ( failedfnms_.isEmpty() )
+	    report.add( StringPairSet::sKeyH2(), "No matching files found" );
+	else
+	    addErrReport( report );
+	return;
+    }
+
+    report.add( StringPairSet::sKeyH1(), "Position scanning results" );
+    dtctor_.report( report );
+    if ( richinfo_ )
+    {
+	report.add( StringPairSet::sKeyH1(), "Clipping data" );
+	clipsmplr_.report( report );
+    }
+    addErrReport( report );
+
+    fds_.getReport( report );
+}
+
+
+void SEGY::Scanner::addErrReport( StringPairSet& report ) const
+{
+    report.add( StringPairSet::sKeyH1(),  "Status" );
+    for ( int idx=0; idx<fnms_.size(); idx++ )
+    {
+	const char* fnm = fnms_.get( idx );
+	if ( !scanerrfnms_.isPresent(fnm) )
+	{
+	    if ( idx < fds_.nrFiles() )
+		report.add( "Successfully scanned", fnm );
+	    else
+		report.add( "Not scanned", fnm );
+	}
+	else
+	{
+	    BufferString keyw( "Error during read of " );
+	    keyw += fnm;
+	    report.add( keyw, scanerrmsgs_[idx].getFullString() );
+	}
+    }
+
+    for ( int idx=0; idx<failedfnms_.size(); idx++ )
+    {
+	BufferString keyw( "Failed to read " );
+	keyw += failedfnms_.get( idx );
+	report.add( keyw, failerrmsgs_[idx].getFullString() );
+    }
+}
+
+
+mStartAllowDeprecatedSection
+
 void SEGY::Scanner::getReport( IOPar& iop, const IOPar* inppars ) const
 {
     const bool isrev0 = forcerev0_ || fds_.isEmpty() || fds_.isRev0();
@@ -147,8 +222,9 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
 	keyw += failedfnms_.get( idx );
 	iop.add( keyw, failerrmsgs_[idx].getFullString() );
     }
-
 }
+
+mStopAllowDeprecatedSection
 
 
 od_int64 SEGY::Scanner::totalNr() const

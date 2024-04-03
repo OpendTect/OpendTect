@@ -102,6 +102,8 @@ public:
 			    indexer. Indexer must be kept alive outside
 			    object. */
 
+    void		getReport(StringPairSet&) const;
+    mDeprecated("Use with a StringPairSet")
     void		getReport(IOPar&) const;
     void		dump(od_ostream&) const;
 

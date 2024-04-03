@@ -84,20 +84,28 @@ void uiSEGYClassicSurvInfoProvider::showReport(
 	fnm.set( FilePath::getTempFullPath("segy_survinfo","txt") );
 	strm.open( fnm );
     }
-    if ( !strm.isOK() )
-	{ mShowErr( tr("Cannot open temporary file:\n%1").arg(fnm) ); return; }
 
-    IOPar iop;
-    scanner.getReport( iop );
-    if ( !iop.write(strm,IOPar::sKeyDumpPretty()) )
-	{ mShowErr(tr("Cannot write to file:\n%1").arg(fnm)); return; }
+    if ( !strm.isOK() )
+    {
+	mShowErr( tr("Cannot open temporary file:\n%1").arg(fnm) );
+	return;
+    }
+
+    StringPairSet report;
+    report.setName( "SEG-Y scan report" );
+    scanner.getReport( report );
+    if ( !report.write(fnm) )
+    {
+	mShowErr(tr("Cannot write to file:\n%1").arg(fnm));
+	return;
+    }
 
     File::launchViewer( fnm );
 }
 
 
 bool uiSEGYClassicSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
-				      Coord crd[3] )
+					     Coord crd[3] )
 {
     if ( !d )
 	return false;

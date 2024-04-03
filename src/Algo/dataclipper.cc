@@ -11,8 +11,9 @@ ________________________________________________________________________
 
 #include "arraynd.h"
 #include "atomic.h"
-#include "math2.h"
+#include "bufstringset.h"
 #include "iopar.h"
+#include "math2.h"
 #include "simpnumer.h"
 #include "sorting.h"
 #include "statrand.h"
@@ -23,8 +24,8 @@ ________________________________________________________________________
 
 
 DataClipper::DataClipper()
-    : gen_(*new Stats::RandGen())
-    , absoluterg_( mUdf(float), -mUdf(float) )
+    : absoluterg_( mUdf(float), -mUdf(float) )
+    , gen_(*new Stats::RandGen())
 {
 }
 
@@ -507,6 +508,26 @@ BufferString DataClipSampler::getClipRgStr( float pct ) const
     }
 
     return ret.buf();
+}
+
+
+void DataClipSampler::report( StringPairSet& report ) const
+{
+    if ( nrVals() < 3 )
+	report.add( "Not enough values collected", nrVals() );
+    else
+    {
+	report.add( "Value range", getClipRgStr(0) );
+	report.add( "0.1% clipping range", getClipRgStr(0.1) );
+	report.add( "0.25% clipping range", getClipRgStr(0.25) );
+	report.add( "0.5% clipping range", getClipRgStr(0.5) );
+	report.add( "1% clipping range", getClipRgStr(1) );
+	report.add( "2.5% clipping range", getClipRgStr(2.5) );
+	report.add( "5% clipping range", getClipRgStr(5) );
+	report.add( "10% clipping range", getClipRgStr(10) );
+	report.add( "25% clipping range", getClipRgStr(25) );
+	report.add( "Median value", vals_[nrVals()/2] );
+    }
 }
 
 

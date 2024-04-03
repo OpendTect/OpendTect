@@ -220,7 +220,6 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     , geom_(gt)
     , scanner_(0)
     , res_(false)
-    , rep_("SEG-Y scan report")
 {
     nrtrcsfld_ = new uiGenInput( this, tr("Limit to number of traces"),
 				 IntInpSpec(1000) );
@@ -261,9 +260,14 @@ bool acceptOK( CallBacker* )
 	return false;
     }
 
-    const char* fnm = saveasfld_->isChecked() ? saveasfld_->fileName() : 0;
-    IOPar rep( "SEG-Y scan report" ); scanner_->getReport( rep );
-    uiSEGY::displayReport( parent(), rep, fnm );
+    StringPairSet report;
+    report.setName( "SEG-Y scan report" );
+    scanner_->getReport( report );
+
+    if ( saveasfld_->isChecked() )
+	report.write( saveasfld_->fileName() );
+
+    uiSEGY::displayReport( parent(), report, tr("SEG-Y Scan Report") );
     return true;
 }
 
@@ -274,7 +278,6 @@ bool acceptOK( CallBacker* )
     uiFileInput*	saveasfld_;
 
     bool		res_;
-    IOPar		rep_;
     SEGY::Scanner*	scanner_;
 
 };
