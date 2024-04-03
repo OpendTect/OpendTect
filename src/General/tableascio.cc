@@ -940,7 +940,9 @@ float Table::AscIO::getFValue( int ifld, float udf ) const
 	return mUdf(float);
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
-    if ( !sval ) return mUdf(float);
+    if ( !sval )
+	return mUdf(float);
+
     const double val = toDouble( sval );
     if ( mIsEqual(mCast(float,val),udf,mDefEps) )
 	return mUdf(float);
@@ -956,7 +958,9 @@ double Table::AscIO::getDValue( int ifld, double udf ) const
 	return mUdf(double);
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
-    if ( !sval ) return mUdf(double);
+    if ( !sval )
+	return mUdf(double);
+
     double val = toDouble( sval );
     if ( mIsEqual(val,udf,mDefEps) )
 	return mUdf(double);

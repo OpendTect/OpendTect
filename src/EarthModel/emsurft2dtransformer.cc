@@ -557,11 +557,7 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 
     EM::EMManager& em = EM::EMM();
     TaskRunner tskr;
-    PtrMan<Executor> loader = em.objectLoader( inpmid, &data.surfsel_ );
-    if ( !loader || !loader->execute() )
-	mErrRet( uiStrings::sCantCreateHor() )
-
-    RefMan<EM::EMObject> emobj = em.getObject( inpmid );
+    RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( inpmid, &tskr );
     if ( !emobj )
 	mErrRet( tr("Failed to load the fault") );
 
@@ -690,11 +686,7 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 
     EM::EMManager& em = EM::EMM();
     TaskRunner tskr;
-    PtrMan<Executor> loader = em.objectLoader( inpmid, &data.surfsel_ );
-    if ( !loader || !loader->execute() )
-	mErrRet( uiStrings::sCantCreateHor() )
-
-    RefMan<EM::EMObject> inpemobj = em.getObject( inpmid );
+    RefMan<EM::EMObject> inpemobj = em.loadIfNotFullyLoaded( inpmid, &tskr );
     if ( !inpemobj )
 	mErrRet( tr("Failed to load the faultset") );
 
@@ -836,11 +828,7 @@ bool FaultStickSetT2DTransformer::doFaultStickSet(
 
     EM::EMManager& em = EM::EMM();
     TaskRunner tskr;
-    PtrMan<Executor> loader = em.objectLoader( inpmid, &data.surfsel_ );
-    if ( !loader || !loader->execute() )
-	mErrRet( uiStrings::sCantCreateHor() )
-
-    RefMan<EM::EMObject> emobj = em.getObject( inpmid );
+    RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( inpmid, &tskr );
     if ( !emobj )
 	mErrRet( tr("Failed to load the fault") );
 
