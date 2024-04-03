@@ -2076,7 +2076,7 @@ void HorizonDisplay::updateSectionSeeds(
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {
 	visBase::MarkerSet* markerset = posattribmarkers_[idx];
-	if ( !isAlreadyTransformed() )
+	if ( zaxistransform_ && !isAlreadyTransformed() )
 	{
 	    markerset->turnAllMarkersOn( false );
 	    continue;
