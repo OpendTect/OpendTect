@@ -160,6 +160,9 @@ void uiEMPartServer::cleanup()
     closeAndNullPtr( crhordlg_ );
     closeAndNullPtr( impbulkfssdlg_ );
     closeAndNullPtr( impbulk2dhordlg_ );
+    closeAndNullPtr( impfltstickdlg_ );
+    closeAndNullPtr( impfss2ddlg_ );
+    closeAndNullPtr( expfltstickdlg_ );
     deepErase( variodlgs_ );
 }
 
