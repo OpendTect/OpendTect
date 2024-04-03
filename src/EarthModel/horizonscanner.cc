@@ -32,16 +32,16 @@ static HiddenParam<HorizonScanner,const ZDomain::Info*> emobjecthpmgr_(nullptr);
 HorizonScanner::HorizonScanner(const BufferStringSet& fnms,
     Table::FormatDesc& fd, bool isgeom, const ZDomain::Info& zinfo )
     : Executor("Scan horizon file(s)")
+    , nrdone_(0)
     , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
-    , fd_(fd)
-    , isgeom_(isgeom)
     , ascio_(nullptr)
+    , fileidx_(0)
+    , isgeom_(isgeom)
     , isxy_(false)
     , selxy_(false)
     , doscale_(false)
+    , fd_(fd)
     , bvalset_(nullptr)
-    , fileidx_(0)
-    , nrdone_(0)
 {
     emobjecthpmgr_.setParam( this, new ZDomain::Info(zinfo) );
     zdomain_ = &zinfo.def_;
@@ -49,21 +49,22 @@ HorizonScanner::HorizonScanner(const BufferStringSet& fnms,
     init();
 }
 
+
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 				Table::FormatDesc& fd, bool isgeom )
     : Executor("Scan horizon file(s)")
+    , nrdone_(0)
     , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
-    , zdomain_(&ZDomain::SI())
-    , fd_(fd)
-    , isgeom_(isgeom)
     , ascio_(nullptr)
+    , fileidx_(0)
+    , isgeom_(isgeom)
     , isxy_(false)
     , selxy_(false)
     , doscale_(false)
+    , fd_(fd)
     , bvalset_(nullptr)
-    , fileidx_(0)
+    , zdomain_(&ZDomain::SI())
     , curmsg_(tr("Scanning"))
-    , nrdone_(0)
 {
     emobjecthpmgr_.setParam( this, new ZDomain::Info(SI().zDomainInfo()) );
     filenames_ = fnms;
@@ -75,16 +76,16 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 				Table::FormatDesc& fd, bool isgeom,
 				ZAxisTransform* trans, bool iszdepth )
     : Executor("Scan horizon file(s)")
+    , nrdone_(0)
     , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
-    , zdomain_(nullptr)
-    , fd_(fd)
-    , isgeom_(isgeom)
     , ascio_(nullptr)
+    , fileidx_(0)
+    , isgeom_(isgeom)
     , isxy_(false)
     , selxy_(false)
+    , fd_(fd)
     , bvalset_(nullptr)
-    , fileidx_(0)
-    , nrdone_(0)
+    , zdomain_(nullptr)
 {
     filenames_ = fnms;
     const ZDomain::Info& zinf = SI().zIsTime() ? ZDomain::TWT() :
@@ -203,6 +204,72 @@ void HorizonScanner::setZInTime()
 
 mStopAllowDeprecatedSection
 
+
+void HorizonScanner::report( StringPairSet& report ) const
+{
+    report.setEmpty();
+
+    const int firstattribidx = isgeom_ ? 1 : 0;
+    BufferString str = "Report for horizon file(s):\n";
+    for ( int idx=0; idx<filenames_.size(); idx++ )
+    {
+	if ( idx > 0 )
+	    str += "\n";
+
+	str += filenames_.get(idx).buf();
+    }
+
+    report.setName( str.buf() );
+
+    report.add( StringPairSet::sKeyH1(), "Geometry" );
+    dtctor_.report( report );
+    if ( isgeom_ && valranges_.size() > 0 )
+    {
+	const ZDomain::Info& zinfo = *emobjecthpmgr_.getParam( this );
+	BufferString zrgkey( zinfo.userName().getFullString() );
+	zrgkey.addSpace().add( zinfo.unitStr_(true) );
+	Interval<float> zrg = valranges_[0];
+	zrg.scale( zinfo.userFactor() );
+	BufferString zrgstr;
+	zrgstr.add( zrg.start, SI().nrZDecimals() ).add( " - " )
+	      .add( zrg.stop, SI().nrZDecimals() );
+	report.add( zrgkey, zrgstr );
+    }
+
+    if ( valranges_.size() > firstattribidx )
+    {
+	report.add( StringPairSet::sKeyH2(), "Data values" );
+	for ( int idx=firstattribidx; idx<valranges_.size(); idx++ )
+	{
+	    const char* attrnm = fd_.bodyinfos_[idx+1]->name().buf();
+	    report.add( IOPar::compKey(attrnm,"Minimum value"),
+		       valranges_[idx].start );
+	    report.add( IOPar::compKey(attrnm,"Maximum value"),
+		       valranges_[idx].stop );
+	}
+    }
+    else
+	report.add( StringPairSet::sKeyH2(), "No attribute data values" );
+
+    if ( nrPositions() == 0 )
+    {
+	report.add( "No Valid positions found",
+		   "Please re-examine input file and format definition" );
+	return;
+    }
+
+    if ( !rejectedlines_.isEmpty() )
+    {
+	report.add( StringPairSet::sKeyH1(), "Warning" );
+	report.add( "These positions were rejected", "" );
+	for ( int idx=0; idx<rejectedlines_.size(); idx++ )
+	    report.add( toString(idx), rejectedlines_.get(idx).buf() );
+    }
+}
+
+
+mStartAllowDeprecatedSection
+
 void HorizonScanner::report( IOPar& iopar ) const
 {
     iopar.setEmpty();
@@ -260,6 +327,7 @@ void HorizonScanner::report( IOPar& iopar ) const
     }
 }
 
+mStopAllowDeprecatedSection
 
 
 const char* HorizonScanner::defaultUserInfoFile()
@@ -278,9 +346,9 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
     if ( !fnm || !*fnm )
 	fnm = defaultUserInfoFile();
 
-    IOPar iopar;
-    report( iopar );
-    iopar.write( fnm, IOPar::sKeyDumpPretty() );
+    StringPairSet rep;
+    report( rep );
+    rep.write( fnm );
     File::launchViewer( fnm );
 }
 

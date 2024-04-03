@@ -11,9 +11,7 @@ ________________________________________________________________________
 #include "uiemattribmod.h"
 #include "executor.h"
 #include "bufstringset.h"
-#include "posinfo2d.h"
 #include "ranges.h"
-#include "multiid.h"
 
 class BinIDValueSet;
 namespace Survey { class Geometry2D; }
@@ -41,6 +39,8 @@ public:
 
     static const char*	defaultUserInfoFile();
     void		launchBrowser(const char* fnm=0) const;
+    void		report(StringPairSet&) const;
+    mDeprecated("Use with a StringPairSet")
     void		report(IOPar&) const;
     bool		hasGaps();
 

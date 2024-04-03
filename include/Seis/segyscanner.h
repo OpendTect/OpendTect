@@ -53,10 +53,13 @@ public:
 
     BufferStringSet	fnms_;		//!< Actually used, possibly with errs
     BufferStringSet	failedfnms_;	//!< Failed to open or read
-    uiStringSet failerrmsgs_;	//!< Err Msgs for failed
+    uiStringSet		failerrmsgs_;	//!< Err Msgs for failed
     BufferStringSet	scanerrfnms_;	//!< Error during scan (but in fnms_)
-    uiStringSet scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
+    uiStringSet		scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
 
+    void			getReport(StringPairSet&,
+					  const IOPar* inppars=0) const;
+    mDeprecated("Use with a StringPairSet")
     void			getReport(IOPar&,const IOPar* inppars=0) const;
     StepInterval<float>		zRange() const;
     const PosInfo::Detector&	posInfoDetector() const { return dtctor_; }
@@ -92,8 +95,9 @@ protected:
     int			finish(bool);
     void		addFailed(const uiString&);
     void		initFileData();
+    void		addErrReport(StringPairSet&) const;
     void		addErrReport(IOPar&) const;
-    uiString Openff()	{ return tr("Opening first file"); }
+    uiString		Openff()	{ return tr("Opening first file"); }
 };
 
 } // namespace SEGY

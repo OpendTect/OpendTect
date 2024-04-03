@@ -16,6 +16,7 @@ ________________________________________________________________________
 template <class T> class ArrayND;
 template <class T> class ValueSeries;
 namespace Stats { class RandomGenerator; class RandGen; }
+class StringPairSet;
 
 /*!
 \brief A DataClipper gets a bunch of data and determines at what value to
@@ -153,6 +154,8 @@ public:
     od_int64		nrVals() const;
     const float*	vals() const		{ return vals_; }
 
+    void		report(StringPairSet&) const;
+    mDeprecated("Use with a StringPairSet")
     void		report(IOPar&) const;
     Interval<float>	getRange(float clipratio) const;
 

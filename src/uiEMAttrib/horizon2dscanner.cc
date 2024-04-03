@@ -116,6 +116,45 @@ od_int64 Horizon2DScanner::totalNr() const
 }
 
 
+void Horizon2DScanner::report( StringPairSet& report ) const
+{
+    report.setEmpty();
+
+    BufferString str = "Report for horizon file(s):\n";
+    for ( int idx=0; idx<filenames_.size(); idx++ )
+	str.add( filenames_.get(idx).buf() ).add( "\n" );
+    report.setName( str.buf() );
+
+    report.add( StringPairSet::sKeyH1(), "Geometry" );
+    const int nrlines = validnms_.size();
+    if ( !nrlines )
+    {
+	report.add( StringPairSet::sKeyH2(), "No valid line names found\n"
+		   "Make sure the line names match with those in survey" );
+	return;
+    }
+
+    report.add( "Valid lines found", nrlines );
+    report.add( "Line names", validnms_.getDispString(-1,false) );
+    report.add( "Rejected line names", invalidnms_.getDispString(-1,false) );
+
+    const int nrpos = mCast( int, bvalset_ ? bvalset_->totalSize() : 0 );
+    if ( !nrpos )
+    {
+	report.add( "No valid positions found",
+		   "Please re-examine input files and format definition" );
+	return;
+    }
+
+    report.add( "Total number of positions", nrpos );
+    report.add( "Value ranges", "" );
+    for ( int idx=0; idx<valranges_.size(); idx++ )
+	report.add( fd_.bodyinfos_[idx+3]->name(), valranges_[idx] );
+}
+
+
+mStartAllowDeprecatedSection
+
 void Horizon2DScanner::report( IOPar& iopar ) const
 {
     iopar.setEmpty();
@@ -153,6 +192,8 @@ void Horizon2DScanner::report( IOPar& iopar ) const
 	iopar.set( fd_.bodyinfos_[idx+3]->name(), valranges_[idx] );
 }
 
+mStopAllowDeprecatedSection
+
 
 const char* Horizon2DScanner::defaultUserInfoFile()
 {
@@ -169,9 +210,10 @@ void Horizon2DScanner::launchBrowser( const char* fnm ) const
 {
     if ( !fnm || !*fnm )
 	fnm = defaultUserInfoFile();
-    IOPar iopar; report( iopar );
-    iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
+    StringPairSet rep;
+    report( rep );
+    rep.write( fnm );
     File::launchViewer( fnm );
 }
 

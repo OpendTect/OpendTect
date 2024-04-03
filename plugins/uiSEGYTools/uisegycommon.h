@@ -56,6 +56,7 @@ namespace uiSEGY
 
 bool displayWarnings(const BufferStringSet&,bool withstop=false);
 void displayReport(uiParent*,const IOPar&,const char* fnm=0);
+void displayReport(uiParent*,const StringPairSet&,const uiString& caption);
 void initClasses();
 
 } // namespace uiSEGY

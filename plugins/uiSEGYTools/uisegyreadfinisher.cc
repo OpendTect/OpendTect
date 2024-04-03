@@ -474,10 +474,12 @@ bool uiSEGYReadFinisher::do3D( const IOObj& inioobj, const IOObj& outioobj,
 
     if ( indexer )
     {
-	IOPar inpiop; fs_.fillPar( inpiop );
-	IOPar rep( "SEG-Y scan report" );
-	indexer->scanner()->getReport( rep, &inpiop );
-	uiSEGY::displayReport( parent(), rep );
+	IOPar inpiop;
+	fs_.fillPar( inpiop );
+	StringPairSet report;
+	report.setName( "SEG-Y Scan Report" );
+	indexer->scanner()->getReport( report, &inpiop );
+	uiSEGY::displayReport( parent(), report, tr("SEG-Y Scan Report") );
     }
 
     uiSeisIOObjInfo oinf( outioobj, true );

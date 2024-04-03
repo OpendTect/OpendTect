@@ -513,6 +513,88 @@ void SEGY::FileDataSet::setAuxData( const Seis::GeomType& gt,
 }
 
 
+void SEGY::FileDataSet::getReport( StringPairSet& info ) const
+{
+    info.add( StringPairSet::sKeyH2(), "General info" );
+    if ( totalsz_ < 1 )
+    {
+	info.add( "Number of traces found", "0" );
+	return;
+    }
+
+    BufferString nrtrcsstr( "", totalsz_, " (" );
+    if ( nrusable_ == totalsz_ )
+	nrtrcsstr += "all usable)";
+    else
+    {
+	nrtrcsstr += nrusable_;
+	nrtrcsstr += " usable)";
+    }
+
+    info.add( "Number of traces found", nrtrcsstr );
+    info.add( "Number of samples in file", trcsz_ );
+    const Interval<float> zrg( sampling_.interval(trcsz_) );
+    info.add( "Z range in file", zrg );
+    info.add( "Z step in file", sampling_.step );
+    info.addYN( "File marked as REV. 1 or higher", !isrev0_ );
+    if ( !isrev0_ && nrstanzas_ > 0 )
+	info.add( "Number of REV.1 extra stanzas", nrstanzas_ );
+
+    TrcKeySampling hs( false );
+    Interval<int> nrrg;
+    Interval<float> offsrg;
+
+    if ( indexer_ )
+    {
+	hs.set( indexer_->inlRange(), indexer_->crlRange() );
+	offsrg = indexer_->offsetRange();
+	nrrg = indexer_->trcNrRange();
+    }
+    else
+    {
+	int firstok = 0;
+	bool usable;
+	Seis::PosKey pk;
+	for ( ; firstok<totalsz_; firstok++ )
+	{
+	    if ( getDetails( firstok, pk, usable ) && usable )
+		break;
+	}
+
+	if ( firstok >= totalsz_ ) return;
+
+	hs.start_ = hs.stop_ = pk.binID();
+	nrrg.start = nrrg.stop = pk.trcNr();
+	offsrg.start = offsrg.stop = pk.offset();
+
+	for ( int idx=firstok+1; idx<totalsz_; idx++ )
+	{
+	    if ( !getDetails( idx, pk, usable ) || !usable )
+		continue;
+
+	    hs.include( pk.binID() );
+	    nrrg.include( pk.trcNr() );
+	    offsrg.include( pk.offset() );
+	}
+    }
+
+    info.add( StringPairSet::sKeyH2(), "Ranges" );
+    if ( Seis::is2D(geom_) )
+	info.add( "Trace number range", nrrg );
+    else
+    {
+	info.add( "In-line range", hs.inlRange() );
+	info.add( "Cross-line range", hs.crlRange() );
+    }
+
+    if ( Seis::isPS(geom_) )
+    {
+	BufferString offsetrangestr( "Offset range ", SI().getXYUnitString() );
+	info.add( offsetrangestr, offsrg );
+    }
+}
+
+
 void SEGY::FileDataSet::getReport( IOPar& iop ) const
 {
     iop.add( IOPar::sKeySubHdr(), "General info" );
