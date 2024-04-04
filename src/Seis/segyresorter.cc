@@ -73,15 +73,15 @@ Interval<int> SEGY::ReSorter::Setup::getInlRg( int curinl,
 
 SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
     : Executor("Re-sorting")
-    , posfilt_(0)
-    , cdp_(*new PosInfo::CubeDataPos)
     , setup_(su)
+    , drdr_(nullptr)
     , msg_(tr("Reading scan data"))
     , nrdone_(0)
-    , drdr_(0)
-    , trcbuf_(0)
-    , outstrm_(0)
+    , outstrm_(nullptr)
     , needwritefilehdrs_(true)
+    , trcbuf_(nullptr)
+    , cdp_(*new PosInfo::CubeDataPos)
+    , posfilt_(nullptr)
 {
     IOObj* ioobj = IOM().get( setup_.inpkey_ );
     if ( !ioobj )
@@ -133,20 +133,22 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
     }
     delete ioobj;
 
-    if ( drdr_ && drdr_->errMsg().isSet() )
+    if ( !drdr_ )
+	return;
+
+    if ( drdr_->errMsg().isSet() )
     {
 	msg_ = drdr_->errMsg();
 	deleteAndNullPtr( drdr_ );
+	return;
     }
 
     if ( dDef().isEmpty() )
     {
 	msg_ = tr("Empty input scan");
 	deleteAndNullPtr( drdr_ );
-    }
-
-    if ( !drdr_ )
 	return;
+    }
 
     if ( Seis::is2D(setup_.geom_) )
 	totnr_ = dDef().lineData().positions().size();
@@ -181,20 +183,23 @@ const SEGY::FileDataSet& SEGY::ReSorter::fds() const
 
 void SEGY::ReSorter::setFilter( const Pos::Filter& pf )
 {
-    delete posfilt_; posfilt_ = pf.clone();
+    delete posfilt_;
+    posfilt_ = pf.clone();
 }
 
 
 int SEGY::ReSorter::wrapUp()
 {
     // close everything
-    delete outstrm_; outstrm_ = 0;
+    deleteAndNullPtr( outstrm_ );
     deepErase( inpstrms_ );
 
     // prepare for new run ... (if ever needed)
     cdp_.toStart();
-    delete [] trcbuf_; trcbuf_ = 0;
-    setup_.curfnr_ = 0; nrdone_ = 0;
+    deleteAndNullArrPtr( trcbuf_ );
+
+    setup_.curfnr_ = 0;
+    nrdone_ = 0;
     needwritefilehdrs_ = true;
 
     return Finished();
@@ -366,6 +371,9 @@ bool SEGY::ReSorter::getNext( const BinID& bid, int& previdx,
 int SEGY::ReSorter::ensureFileOpen( int inpfidx )
 {
     int fidx = -1;
+    if ( !drdr_ )
+	return fidx;
+
     for ( int idx=0; idx<fidxs_.size(); idx++ )
 	if ( fidxs_[idx] == inpfidx )
 	    { fidx = idx; break ; }
@@ -374,7 +382,7 @@ int SEGY::ReSorter::ensureFileOpen( int inpfidx )
     {
 	const BufferString fnm(
 			drdr_->getDef()->fileDataSet().fileName(inpfidx) );
-	od_istream* strm = new od_istream( fnm );
+	auto* strm = new od_istream( fnm );
 	if ( !strm->isOK() )
 	{
 	    msg_ = tr( "Cannot open input file:\n%1").arg( fnm );
