@@ -9,7 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "gendefs.h"
+
+namespace Crypto { enum class Algorithm; }
 
 
 namespace OD
@@ -27,7 +30,6 @@ namespace OD
 mExpClass(Basic) String
 {
 public:
-
 
     virtual		~String()		{}
 
@@ -79,6 +81,7 @@ public:
     float		toFloat() const;
     double		toDouble() const;
     bool		toBool() const;
+    const char*		getHash(Crypto::Algorithm) const;
 
     bool		operator >(const String&) const;
     bool		operator <(const String&) const;

@@ -212,6 +212,24 @@ mDeclareNameSpaceEnumUtils(Basic,DepthType)
 } // namespace ZDomain
 
 
+namespace Crypto
+{
+
+enum class Algorithm
+{
+    Sha256=0,
+    Sha384=1,
+    Sha512=2,
+    Sha3_224=3,
+    Sha3_256=4,
+    Sha3_384=5,
+    Sha3_512=6,
+    None=-1
+};
+
+} // namespace Crypto
+
+
 mGlobal(Basic) bool isHorizontal(OD::Orientation);
 mGlobal(Basic) bool isVertical(OD::Orientation);
 mGlobal(Basic) bool isMultiChoice(OD::ChoiceMode);
