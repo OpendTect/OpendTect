@@ -67,6 +67,7 @@ set( OD_MODULE_SOURCES
 	mousecursor.cc
 	mouseevent.cc
 	odiconfile.cc
+	opensslaccess.cc
 	picklocation.cc
 	pickretriever.cc
 	pickset.cc
