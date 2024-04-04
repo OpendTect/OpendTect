@@ -194,9 +194,9 @@ public:
     bool		setSize(int);
     void		setInput(const RT*,bool datahasnoudf=false);
     bool		isOK() const	{ return data_ && isTableOK(); }
-    bool		initTable(float fmax,int lmax);
+    bool		initTable(float fmax,int lmax) override;
 
-    RT			getValue(PT) const;
+    RT			getValue(PT) const override;
 
 private:
 
@@ -213,9 +213,9 @@ mClass(Algo) SincInterpolator2D : public SincInterpolator,
 public:
 			SincInterpolator2D(const RT*,int nx,int ny);
     bool		isOK() const		{ return isTableOK(); }
-    bool		initTable(float fmax,int lmax);
+    bool		initTable(float fmax,int lmax) override;
 
-    RT			getValue(PT,PT) const;
+    RT			getValue(PT,PT) const override;
 
 private:
 
@@ -235,9 +235,9 @@ mClass(Algo) SincInterpolator3D : public SincInterpolator,
 public:
 			SincInterpolator3D(const RT* data,int nx,int ny,int nz);
     bool		isOK() const		{ return isTableOK(); }
-    bool		initTable(float fmax,int lmax);
+    bool		initTable(float fmax,int lmax) override;
 
-    RT			getValue(PT,PT,PT) const;
+    RT			getValue(PT,PT,PT) const override;
 
 private:
 
