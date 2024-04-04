@@ -1075,6 +1075,10 @@ mExternC(Basic) void CloseBindings()
 
 bool InQAEnvironment()
 {
+#ifdef __debug__
+    return true;
+#else
     static const bool inqaenv = GetEnvVarYN( "OD_ENABLE_QA_ENVIRONMENT" );
     return inqaenv;
+#endif
 }
