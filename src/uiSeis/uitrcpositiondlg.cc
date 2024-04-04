@@ -46,7 +46,7 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     altdimnmflds_ = new uiComboBox( this, altdimnms, "" );
     altdimnmflds_->selectionChanged.notify(
 	    mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
-    possldr_ = new uiSlider( this, uiSlider::Setup() );
+    possldr_ = new uiSlider( this, uiSlider::Setup(), "posslider" );
     possldr_->valueChanged.notify( mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
     StepInterval<double> posdatarg = fdp_->posData().range( true );
     StepInterval<float> floatrg( mCast(float,posdatarg.start),

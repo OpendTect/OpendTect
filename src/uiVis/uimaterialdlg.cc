@@ -242,12 +242,18 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
 	prevobj_ = colinp_;
     }
 
-    createSlider( ambience, ambslider_, tr("Ambient reflectivity") );
-    createSlider( diffusecolor, diffslider_, tr("Diffuse reflectivity") );
-    createSlider( specularcolor, specslider_, tr("Specular reflectivity") );
-    createSlider( emmissivecolor, emisslider_, tr("Emissive intensity") );
-    createSlider( shininess, shineslider_, tr("Shininess") );
-    createSlider( transparency, transslider_, uiStrings::sTransparency() );
+    createSlider( ambience, ambslider_, tr("Ambient reflectivity"),
+		  "ambient" );
+    createSlider( diffusecolor, diffslider_, tr("Diffuse reflectivity"),
+		  "diffuse" );
+    createSlider( specularcolor, specslider_, tr("Specular reflectivity"),
+		  "specular" );
+    createSlider( emmissivecolor, emisslider_, tr("Emissive intensity"),
+		  "emissive" );
+    createSlider( shininess, shineslider_, tr("Shininess"),
+		  "shininess" );
+    createSlider( transparency, transslider_, uiStrings::sTransparency(),
+		  "transparency" );
 
     initSlider( ambslider_, material_->getAmbience() );
     initSlider( diffslider_, material_->getDiffIntensity() );
@@ -265,14 +271,14 @@ uiMaterialGrp::~uiMaterialGrp()
 
 
 void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
-				  const uiString& lbltxt )
+				  const uiString& lbltxt,
+				  const char* nm )
 {
     if ( !domk )
 	return;
 
     uiSlider::Setup ss( lbltxt ); ss.withedit(true);
-    slider = new uiSlider( this, ss,
-	    BufferString( lbltxt.getFullString(), "slider").buf() );
+    slider = new uiSlider( this, ss, BufferString(nm,"slider").buf() );
     mAttachCB( slider->valueChanged, uiMaterialGrp::sliderMove );
     if ( prevobj_ )
 	slider->attach( alignedBelow, prevobj_ );

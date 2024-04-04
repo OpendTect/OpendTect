@@ -30,10 +30,6 @@ namespace PreStackView
 uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
 	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr )
     : uiDlgGroup( p, tr("Shape") )
-    , factorslider_( 0 )
-    , widthslider_( 0 )
-    , applyall_( false )
-    , savedefault_( false )
     , viewer_( vwr )
     , mgr_( mgr )
     , initialside_( vwr.displayOnPositiveSide() )
@@ -45,7 +41,7 @@ uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
 	    mCB( this, uiViewer3DShapeTab, widthTypeChangeCB ) );
 
     uiSlider::Setup ss; ss.nrdec(mSliderDecimal);
-    factorslider_ = new uiSlider( this, ss );
+    factorslider_ = new uiSlider( this, ss, "factor" );
     factorslider_->attach( alignedBelow, autowidthfld_ );
     const float curfactor = viewer_.getFactor();
     factorslider_->setInterval( StepInterval<float>(mSliderMinFactor*curfactor,
@@ -54,7 +50,7 @@ uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
     factorslider_->valueChanged.notify(
 	    mCB(this, uiViewer3DShapeTab, factorMoveCB) );
 
-    widthslider_ = new uiSlider( this, ss );
+    widthslider_ = new uiSlider( this, ss, "abswidth" );
     widthslider_->attach( alignedBelow, autowidthfld_ );
     const float curwidth = viewer_.getWidth();
     widthslider_->setInterval( StepInterval<float>( mSliderMinFactor*curwidth,
@@ -90,7 +86,7 @@ uiViewer3DShapeTab::~uiViewer3DShapeTab()
 }
 
 
-void uiViewer3DShapeTab::widthTypeChangeCB( CallBacker* cb )
+void uiViewer3DShapeTab::widthTypeChangeCB( CallBacker* )
 {
     const bool yn = autowidthfld_->getBoolValue();
     viewer_.displaysAutoWidth( yn );

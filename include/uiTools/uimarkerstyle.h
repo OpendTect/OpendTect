@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 class uiColorInput;
 class uiGenInput;
-class uiSlider;
 class uiSpinBox;
 
 

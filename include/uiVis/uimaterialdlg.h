@@ -40,7 +40,8 @@ public:
 				~uiMaterialGrp();
 
 protected:
-    void			createSlider(bool,uiSlider*&,const uiString&);
+    void			createSlider(bool,uiSlider*&,const uiString&,
+					     const char* nm);
 
     visBase::Material*		material_;
     visSurvey::SurveyObject*	survobj_;

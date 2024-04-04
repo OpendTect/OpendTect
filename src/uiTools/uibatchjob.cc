@@ -438,7 +438,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
 
     uiSlider::Setup ssu( tr("Job Priority") );
     ssu.nrdec( 7 );
-    unixpriofld_ = new uiSlider( this, ssu );
+    unixpriofld_ = new uiSlider( this, ssu, "unixjobpriority" );
     const StepInterval<int> unixmachpriorg(
 			OS::CommandExecPars::cMachineUserPriorityRange(false) );
     StepInterval<float> sliderrg( -1.f, 0.f, 1.f/
@@ -448,7 +448,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
     if ( remhostfld_ )
 	unixpriofld_->attach( alignedBelow, remhostfld_ );
 
-    windowspriofld_ = new uiSlider( this, ssu );
+    windowspriofld_ = new uiSlider( this, ssu, "winjobpriority" );
     const StepInterval<int> winmachpriorg(
 			OS::CommandExecPars::cMachineUserPriorityRange(true) );
     sliderrg.step = 1.f / mCast(float,winmachpriorg.nrSteps() );

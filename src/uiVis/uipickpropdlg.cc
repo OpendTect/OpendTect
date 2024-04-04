@@ -187,14 +187,14 @@ uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
 	    tr("Drag to paint seeds\nCtrl-drag to erase") );
 
     szfld_ = new uiSlider( this, uiSlider::Setup(tr("Brush size"))
-	    			 .withedit(true) );
+				 .withedit(true), "brushsize" );
     szfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
     szfld_->setValue( seedpainter_->radius() );
     szfld_->valueChanged.notify( mCB(this,uiSeedPainterDlg,sizeCB) );
     lbl->attach( centeredAbove, szfld_ );
 
     densfld_ = new uiSlider( this, uiSlider::Setup(tr("Density %"))
-	    			   .withedit(true) );
+				   .withedit(true), "density" );
     densfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
     densfld_->setValue( seedpainter_->density() );
     densfld_->valueChanged.notify( mCB(this,uiSeedPainterDlg,densCB) );

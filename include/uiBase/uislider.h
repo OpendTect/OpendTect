@@ -65,7 +65,7 @@ public:
 	mDefSetupMemb(uiString,lbl)
     };
 
-			uiSlider(uiParent*,const Setup&,const char* nm=0);
+			uiSlider(uiParent*,const Setup&,const char* nm);
 			~uiSlider();
 			mOD_DisableCopy(uiSlider)
 

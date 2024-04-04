@@ -30,8 +30,8 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
 				Well::DisplayProperties::BasicProps& pr )
     : uiGroup(p,"Well display properties group")
-    , props_(&pr)
     , propChanged(this)
+    , props_(&pr)
     , setup_(su)
 {
     szfld_ = new uiLabeledSpinBox( this, su.mysztxt_ );
@@ -494,7 +494,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
     const uiString lbl =
        tr("Log display width %1").arg(getDistUnitString(SI().xyInFeet(),true));
-    logwidthslider_ = new uiSlider( this, uiSlider::Setup(lbl).withedit(true) );
+    logwidthslider_ = new uiSlider( this, uiSlider::Setup(lbl).withedit(true),
+				    "logdisplaywidth" );
     logwidthslider_->attach( alignedBelow, coltablistfld_ );
     logwidthslider_->attach( ensureBelow, sep2 );
 

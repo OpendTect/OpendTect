@@ -17,6 +17,7 @@ namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
+
 class uiViewer3DMgr;
 
 mClass(uiPreStackViewer) uiViewer3DShapeTab : public uiDlgGroup
@@ -54,8 +55,8 @@ protected:
     float		initialwidth_;
     bool		initialautowidth_;
     bool		initialside_;
-    bool		applyall_;
-    bool		savedefault_;
+    bool		applyall_			= false;
+    bool		savedefault_			= false;
 };
 
-} // namespace
+} // namespace PreStackView
