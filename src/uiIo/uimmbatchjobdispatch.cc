@@ -134,7 +134,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     {
 	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available hosts"),
 			     uiListBox::AboveMid );
-	avmachfld_ = new uiListBox( machgrp, su );
+	avmachfld_ = new uiListBox( machgrp, su, "availablehosts" );
 	machgrp->setHAlignObj( avmachfld_ );
 	for ( const auto* hd : hdl_ )
 	    avmachfld_->addItem( hd->getFullDispString() );
@@ -149,7 +149,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 		multihost ? tr("Used hosts") : uiString::emptyString(),
 		uiListBox::AboveMid );
     su.prefnrlines( isMultiHost() ? maxhostdisp : 1 );
-    usedmachfld_ = new uiListBox( usedmachgrp, su );
+    usedmachfld_ = new uiListBox( usedmachgrp, su, "usedhosts" );
     usedmachfld_->box()->setPrefWidthInChar( hostnmwdth );
     usedmachfld_->box()->setPrefHeightInChar( maxhostdisp );
 

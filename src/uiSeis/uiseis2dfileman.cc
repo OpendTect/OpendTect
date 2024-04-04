@@ -52,7 +52,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     auto* topgrp = new uiGroup( this, "Top" );
     const uiListBox::Setup su( OD::ChooseAtLeastOne, tr("2D lines"),
 			       uiListBox::AboveMid );
-    linefld_ = new uiListBox( topgrp, su );
+    linefld_ = new uiListBox( topgrp, su, "linenames" );
     mAttachCB( linefld_->selectionChanged, uiSeis2DFileMan::lineSel );
 
     linegrp_ = new uiManipButGrp( linefld_ );
@@ -301,7 +301,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     datagrp->attach( ensureRightOf, horsep );
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Data Sets to merge") );
-    data2mergefld_ = new uiListBox( datagrp, su );
+    data2mergefld_ = new uiListBox( datagrp, su, "datatomerge" );
     data2mergefld_->attach( alignedBelow, stckfld_ );
 
     mAttachCB( postFinalize(), uiSeis2DFileManMergeDlg::initWin );

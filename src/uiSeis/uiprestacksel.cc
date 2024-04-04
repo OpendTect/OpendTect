@@ -23,7 +23,7 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
     , dpfids_(dpfids)
     , selid_(selid)
 {
-    datapackinpfld_ = new uiListBox( this );
+    datapackinpfld_ = new uiListBox( this, "prestackdata" );
 
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {

@@ -34,7 +34,7 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
     mAttachCB( wellfld_->selectionDone, uiWellLogAttrib::selDone );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select Log") );
-    logsfld_ = new uiListBox( this, su );
+    logsfld_ = new uiListBox( this, su, "lognames" );
     logsfld_->setStretch( 1, 1 );
     logsfld_->setHSzPol( uiObject::Wide );
     logsfld_->attach( alignedBelow, wellfld_ );

@@ -80,7 +80,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     OD::ChoiceMode mode =
 	isgeom ? OD::ChooseZeroOrMore : OD::ChooseAtLeastOne;
     uiListBox::Setup su( mode, tr("Attribute(s) to import") );
-    attrlistfld_ = new uiListBox( this, su );
+    attrlistfld_ = new uiListBox( this, su, "attributes" );
     attrlistfld_->attach( alignedBelow, inpfld_ );
     attrlistfld_->setNrLines( 5 );
     mAttachCB( attrlistfld_->itemChosen, uiImportHorizon::inputChgd );

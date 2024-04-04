@@ -87,7 +87,7 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj, bool wtable )
     else
     {
 	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Logs to import") );
-	logsfld_ = new uiListBox( this, su );
+	logsfld_ = new uiListBox( this, su, "lognames" );
 	logsfld_->attach( alignedBelow, udffld_ );
 	attachobj = logsfld_->attachObj();
     }

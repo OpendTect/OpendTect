@@ -409,7 +409,7 @@ void uiMultiWellLogSel::init()
     uiListBox::Setup su( chmode,
 	setup_.singlelog_ ? uiStrings::sLog() : uiStrings::sLogs(),
 	singlewid_ ? uiListBox::LeftTop : uiListBox::AboveMid);
-    logsfld_ = new uiListBox( this, su );
+    logsfld_ = new uiListBox( this, su, "lognames" );
     logsfld_->setHSzPol( hpol );
     logsfld_->setVSzPol( vpol );
 
@@ -417,7 +417,7 @@ void uiMultiWellLogSel::init()
     {
 	uiListBox::Setup suw( OD::ChooseAtLeastOne, uiStrings::sWells(),
 			      uiListBox::AboveMid );
-	wellsfld_ = new uiListBox( this, suw );
+	wellsfld_ = new uiListBox( this, suw, "wellnames" );
 	wellsfld_->setHSzPol( hpol );
 	wellsfld_->setVSzPol( vpol );
 	mAttachCB( wellsfld_->selectionChanged,

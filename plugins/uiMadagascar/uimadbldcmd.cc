@@ -190,14 +190,13 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     BufferStringSet grps; grps.add( sKeyAll ); grps.add( sKeySrchRes );
     BufferStringSet madgrps( ODMad::PI().groups() );
     madgrps.sort(); grps.add( madgrps, false );
-    uiLabeledComboBox* groupfld = new uiLabeledComboBox( selgrp, grps,
-                                                         tr("Group") );
+    auto* groupfld = new uiLabeledComboBox( selgrp, grps, tr("Group") );
     groupfld_ = groupfld->box();
     groupfld_->setToolTip( tr("Madagascar program group") );
     groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Program") );
-    progfld_ = new uiListBox( selgrp, su );
+    progfld_ = new uiListBox( selgrp, su, "rsfprograms" );
     progfld_->attach( alignedBelow, groupfld );
     progfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,progChg) );
     progfld_->doubleClicked.notify( mCB(this,uiMadagascarBldCmd,dClick) );

@@ -31,8 +31,7 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 	return;
     }
 
-    selfld_ = new uiListBox( this );
-    selfld_->setName("Select from List");
+    selfld_ = new uiListBox( this, "Select from List" );
 
     filtfld_ = new uiListBoxFilter( *selfld_ );
     filtfld_->setItems( setup_.items_ );
@@ -73,9 +72,9 @@ uiGetObjectName::uiGetObjectName( uiParent* p, const Setup& sup )
 {
     if ( sup.items_.size() > 0 )
     {
-	listfld_ = new uiListBox( this );
+	listfld_ = new uiListBox( this, "list" );
 	for ( int idx=0; idx<sup.items_.size(); idx++ )
-	    listfld_->addItem( mToUiStringTodo(sup.items_.get(idx)) );
+	    listfld_->addItem( sup.items_.get(idx) );
 
 	if ( !sup.deflt_.isEmpty() )
 	    listfld_->setCurrentItem( sup.deflt_.buf() );

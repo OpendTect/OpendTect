@@ -43,7 +43,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     : uiGMTOverlayGrp(p,toUiString("Wells"))
 {
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Well(s)") );
-    welllistfld_ = new uiListBox( this, su );
+    welllistfld_ = new uiListBox( this, su, "wellnames" );
     Well::InfoCollector wic( false, false );
     wic.execute();
     for ( int idx=0; idx<wic.ids().size(); idx++ )

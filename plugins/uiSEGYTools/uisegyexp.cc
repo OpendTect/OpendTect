@@ -565,7 +565,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Lines to export") );
-    lnmsfld_ = new uiListBox( this, su );
+    lnmsfld_ = new uiListBox( this, su, "linenames" );
     SeisIOObjInfo sii( inioobj_ );
     BufferStringSet lnms;
     sii.getLineNames( lnms );

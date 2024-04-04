@@ -60,7 +60,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 
     uiGroup* grp = new uiGroup( this, "Attr-Params" );
     uiLabel* paramlabel = new uiLabel( grp, tr("Parameter to evaluate") );
-    paramsfld_ = new uiListBox( grp );
+    paramsfld_ = new uiListBox( grp, "parameters" );
     paramsfld_->attach( ensureBelow, paramlabel );
     paramsfld_->addItems( paramnms );
     paramsfld_->setStretch( 0, 2 );

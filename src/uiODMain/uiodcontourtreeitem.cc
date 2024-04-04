@@ -535,10 +535,10 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     : uiDialog(p,Setup(tr("Contour Display Options"),mNoDlgTitle,
 			mODHelpKey(mContourParsDlgHelpID) )
 		.modal(false).nrstatusflds(1))
-    , rg_(rg)
-    , contourintv_(intv)
     , propertyChanged(this)
     , intervalChanged(this)
+    , rg_(rg)
+    , contourintv_(intv)
     , iszval_(StringView(uiContourTreeItem::sKeyZValue()) == attrnm)
 {
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
@@ -854,17 +854,17 @@ void uiContourTreeItem::initClass()
 
 uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     : uiODDataTreeItem(parenttype)
-    , optionsmenuitem_(m3Dots(uiStrings::sProperties()))
-    , areamenuitm_(tr("Contour areas"))
+    , color_(0,0,0)
+    , zshift_(mUdf(float))
+    , showlabels_(true)
+    , linewidth_(1)
     , lines_(nullptr)
     , drawstyle_(nullptr)
     , material_(nullptr)
-    , linewidth_(1)
-    , contoursteprange_(mUdf(float),-mUdf(float))
-    , zshift_(mUdf(float))
-    , color_(0,0,0)
-    , showlabels_(true)
     , labels_(nullptr)
+    , contoursteprange_(mUdf(float),-mUdf(float))
+    , optionsmenuitem_(m3Dots(uiStrings::sProperties()))
+    , areamenuitm_(tr("Contour areas"))
     , propdlg_(nullptr)
 {
     optionsmenuitem_.iconfnm = "disppars";
@@ -1497,7 +1497,7 @@ BufferString uiContourTreeItem::selectAttribute( uiParent* p,
 				     mNoDlgTitle,mNoHelpKey) );
     uiListBox::Setup su( OD::ChooseOnlyOne, toUiString(eminfo.name()),
 			 uiListBox::AboveMid );
-    auto* attrlb = new uiListBox( &dlg, su );
+    auto* attrlb = new uiListBox( &dlg, su, "horizondata" );
     attrlb->setHSzPol( uiObject::Wide );
     attrlb->addItems( attrnms );
     return dlg.go() ? attrlb->getText() : nullptr;

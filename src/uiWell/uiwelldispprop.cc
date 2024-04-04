@@ -217,7 +217,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     samecolasmarkerfld_->display( !setup_.onlyfor2ddisplay_ );
 
     uiListBox::Setup msu( OD::ChooseZeroOrMore, tr("Display markers") );
-    displaymarkersfld_ = new uiListBox( this, msu );
+    displaymarkersfld_ = new uiListBox( this, msu, "markernames" );
     displaymarkersfld_->addItems( allmarkernms );
     if ( !setup_.onlyfor2ddisplay_ )
 	displaymarkersfld_->attach( alignedBelow, nmcolfld_ );

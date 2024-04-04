@@ -444,7 +444,7 @@ uiFileConvGroup::uiFileConvGroup(uiParent* p, const SurveyInfo& si)
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Output types"),
 			 uiListBox::LblPos::LeftMid );
     su.prefnrlines( datatypedef_.size() + 1 );
-    outtypfld_ = new uiListBox( botgrp, su );
+    outtypfld_ = new uiListBox( botgrp, su, "outputtypes" );
     outtypfld_->addItems( datatypedef_.strings() );
     outtypfld_->attach( alignedBelow, insertpos_ );
     mAttachCB(outtypfld_->itemChosen, uiFileConvGroup::outTypChg);

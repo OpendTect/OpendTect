@@ -127,7 +127,7 @@ void uiFirewallProcSetter::initUI( const BufferString* path,
 
     su.lbl( tr("OpendTect Executables") );
     su.cm( OD::ChoiceMode::ChooseZeroOrMore );
-    odproclistbox_ = new uiListBox( this, su );
+    odproclistbox_ = new uiListBox( this, su, "odapps" );
     if ( addremfld_ || !odprocdescs_.isEmpty() )
     {
 	if ( attachobj )
@@ -146,7 +146,7 @@ void uiFirewallProcSetter::initUI( const BufferString* path,
     odproclistbox_->display( addremfld_ || !odprocdescs_.isEmpty() );
 
     su.lbl( tr("Python Executables") );
-    pythonproclistbox_ = new uiListBox( this, su );
+    pythonproclistbox_ = new uiListBox( this, su, "pythonapps" );
     pythonproclistbox_->blockScrolling( false );
     pythonproclistbox_->addItems( pyprocdescs_ );
     pythonproclistbox_->setHSzPol( uiObject::SzPolicy::WideMax );

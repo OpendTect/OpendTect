@@ -105,9 +105,9 @@ public:
 	mDefSetupMemb(uiListBox::LblPos,lblpos)
     };
 
-			uiListBox(uiParent*,const char* nm=0,
+			uiListBox(uiParent*,const char* nm,
 				  OD::ChoiceMode cm=OD::ChooseOnlyOne);
-			uiListBox(uiParent*,const Setup&,const char* nm=0);
+			uiListBox(uiParent*,const Setup&,const char* nm);
     virtual		~uiListBox();
 			mOD_DisableCopy(uiListBox)
 

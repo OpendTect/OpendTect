@@ -37,7 +37,7 @@ uiLASWriter::uiLASWriter( uiParent* p )
     mAttachCB( wellfld_->selectionDone, uiLASWriter::wellSelCB );
 
     uiListBox::Setup lbsu( OD::ChooseAtLeastOne, tr("Select Log(s)") );
-    logsfld_ = new uiListBox( this, lbsu );
+    logsfld_ = new uiListBox( this, lbsu, "lognames" );
     logsfld_->setStretch( 2, 1 );
     logsfld_->setHSzPol( uiObject::Wide );
     logsfld_->attach( alignedBelow, wellfld_ );

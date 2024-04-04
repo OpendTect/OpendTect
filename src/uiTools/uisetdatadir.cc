@@ -149,7 +149,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     mAttachCB( basedirfld_->valueChanged, uiSetDataDir::rootCheckCB );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Recent Data Roots") );
-    dirlistfld_ = new uiListBox( this, su );
+    dirlistfld_ = new uiListBox( this, su, "recentdataroots" );
     dirlistfld_->attach( alignedBelow, basedirfld_ );
 
     getRecentDataRoots( dirlist_ );

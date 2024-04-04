@@ -199,7 +199,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     }
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Initial setup") );
-    sipfld_ = new uiListBox( this, su );
+    sipfld_ = new uiListBox( this, su, "surveyproviders" );
     sipfld_->attach( alignedBelow, survnmfld_ );
 
     zistimefld_ = new uiButtonGroup( this, "Z Domain", OD::Horizontal );

@@ -65,7 +65,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man,
 			      mCB(this,uiProcessorManager,addCB) );
     addprocessorbutton_->attach( centeredRightOf, factorylist_ );
 
-    processorlist_ = new uiListBox( this );
+    processorlist_ = new uiListBox( this, "psprocessors" );
     processorlist_->setHSzPol( uiObject::Wide );
     processorlist_->attach( rightTo, factorylist_ );
     processorlist_->attach( ensureRightOf, addprocessorbutton_ );

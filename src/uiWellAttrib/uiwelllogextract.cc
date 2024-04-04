@@ -70,7 +70,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 
     uiListBox::Setup asu( OD::ChooseZeroOrMore, uiStrings::sAttribute(mPlural));
     asu.lblpos( uiListBox::AboveMid );
-    attrsfld_ = new uiListBox( this, asu );
+    attrsfld_ = new uiListBox( this, asu, "attributes" );
     attrsfld_->display( setup.withattrib_, true );
     attrsfld_->itemChosen.notify( mCB(this,uiWellLogExtractGrp,attribSelCB) );
     welllogselfld_->attach( ensureBelow, attrsfld_ );

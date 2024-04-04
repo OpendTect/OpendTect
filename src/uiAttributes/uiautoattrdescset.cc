@@ -153,7 +153,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 
     uiListBox::Setup su( OD::ChooseOnlyOne, mJoinUiStrs(sDefault(),
 							       sSet(mPlural)) );
-    defattrlist_ = new uiListBox( this, su );
+    defattrlist_ = new uiListBox( this, su, "attributesets" );
     defattrlist_->addItems( attribnames_ );
     defattrlist_->attach( alignedBelow, autoloadfld_ );
 

@@ -332,7 +332,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     }
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Line(s)") );
-    linenmfld_ = new uiListBox( this, su );
+    linenmfld_ = new uiListBox( this, su, "linenames" );
     linenmfld_->addItems( lnms );
     linenmfld_->attach( alignedBelow, nrfld_ );
 

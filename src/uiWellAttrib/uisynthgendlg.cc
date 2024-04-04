@@ -70,7 +70,7 @@ uiSynthParsGrp::uiSynthParsGrp( uiParent* p, StratSynth::DataMgr& gp )
     auto* syntlistgrp = new uiGroup( leftgrp, "Synthetics List" );
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Synthetics"),
 			 uiListBox::AboveMid );
-    synthnmlb_ = new uiListBox( syntlistgrp, su );
+    synthnmlb_ = new uiListBox( syntlistgrp, su, "syntheticdata" );
     synthnmlb_->setHSzPol( uiObject::SmallVar );
     mAttachCB( synthnmlb_->selectionChanged, uiSynthParsGrp::newSynthSelCB );
     updatefld_ = new uiPushButton( syntlistgrp, tr("Update selected"),

@@ -66,7 +66,7 @@ uiColTabImport::uiColTabImport( uiParent* p )
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Color table(s) to add") );
     su.lblpos( uiListBox::LeftTop );
-    listfld_ = new uiListBox( this, su );
+    listfld_ = new uiListBox( this, su, "colortables" );
     listfld_->attach( alignedBelow, dtectusrfld_ );
 
     messagelbl_ = new uiLabel( this, uiString::emptyString() );

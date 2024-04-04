@@ -68,7 +68,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
     uiListBox::Setup su( OD::ChooseAtLeastOne, uiStrings::sLogs(),
 			 uiListBox::AboveMid );
-    logsfld_ = new uiListBox( logsgrp_, su );
+    logsfld_ = new uiListBox( logsgrp_, su, "lognames" );
     logsfld_->setHSzPol( uiObject::Wide );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",

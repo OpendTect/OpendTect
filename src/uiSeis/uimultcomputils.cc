@@ -124,12 +124,12 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
 {
     useallfld_ = new uiGenInput( this, tr("Components to use:"),
 				 BoolInpSpec( true, uiStrings::sAll(),
-                                 tr("Subselection") ) );
+				 tr("Subselection") ) );
     useallfld_->valueChanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
 
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available components"),
 			 uiListBox::AboveMid );
-    outlistfld_ = new uiListBox( this, su );
+    outlistfld_ = new uiListBox( this, su, "availablecomponents" );
     outlistfld_->addItems( names );
     outlistfld_->attach( ensureBelow, useallfld_ );
 }

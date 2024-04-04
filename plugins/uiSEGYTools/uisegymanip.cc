@@ -436,14 +436,14 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     : uiDialog(p,Setup(tr("Header Calculation"),cs.indexOf(hc.he_.name()) < 0
 		     ? tr("Add header calculation")
 		     : tr("Edit header calculation"),
-                          mODHelpKey(mSEGYFileManipHdrCalcEdHelpID) ) )
+			mODHelpKey(mSEGYFileManipHdrCalcEdHelpID) ) )
     , hc_(hc)
     , calcset_(cs)
 {
     const CallBack cb( mCB(this,uiSEGYFileManipHdrCalcEd,insTxt) );
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Available"),
 			 uiListBox::AboveMid );
-    hdrfld_ = new uiListBox( this, su );
+    hdrfld_ = new uiListBox( this, su, "segyheaders" );
     hdrfld_->addItem( calcset_.trcIdxEntry().name() );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )
 	hdrfld_->addItem( calcset_.hdrDef()[idx]->name() );

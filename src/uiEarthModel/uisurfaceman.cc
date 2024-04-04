@@ -162,7 +162,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, EM::ObjectType typ )
     {
 	uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Horizon Data"),
 			     uiListBox::AboveMid );
-	attribfld_ = new uiListBox( listgrp_, su );
+	attribfld_ = new uiListBox( listgrp_, su, "horizondata" );
 	attribfld_->attach( rightOf, selgrp_ );
 	attribfld_->setHSzPol( uiObject::Wide );
 	attribfld_->box()->setToolTip(
@@ -898,7 +898,7 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     uiGroup* topgrp = new uiGroup( this, "Top" );
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("2D lines"),
 			 uiListBox::AboveMid );
-    linelist_ = new uiListBox( topgrp, su );
+    linelist_ = new uiListBox( topgrp, su, "linenames" );
     BufferStringSet linenames;
     info.getLineNames( linenames );
     linelist_->addItems( linenames );
@@ -968,7 +968,7 @@ uiFltSetMan( uiParent* p, const IOObj& ioobj )
     uiGroup* topgrp = new uiGroup( this, "Top" );
     uiListBox::Setup su( OD::ChooseAtLeastOne, uiStrings::sFault(mPlural),
 			 uiListBox::AboveMid );
-    fltlist_ = new uiListBox( topgrp, su );
+    fltlist_ = new uiListBox( topgrp, su, "inputfaults" );
     BufferStringSet fltnms;
     const int nrfaults = dl_.size();
     for ( int idx=0; idx<nrfaults; idx++ )

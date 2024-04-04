@@ -44,7 +44,7 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
 {
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Order (top to bottom)"),
 			 uiListBox::AboveLeft );
-    relationfld_ = new uiListBox( this, su );
+    relationfld_ = new uiListBox( this, su, "horizonorder" );
     relationfld_->setHSzPol( uiObject::Wide );
 
     uiPushButton* clearbut =
@@ -130,9 +130,9 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     : uiDialog(p,Setup(tr("Horizon relations (Solve crossings)"),
 		       uiString::emptyString(),
 			mODHelpKey(HorizonModifyDlgHelpID) ))
+    , is2d_(is2d)
     , mid1_(mid1)
     , mid2_(mid2)
-    , is2d_(is2d)
 {
     BufferStringSet hornms;
     hornms.add( EM::EMM().objectName(mid1) );

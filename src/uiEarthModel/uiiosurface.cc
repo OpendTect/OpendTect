@@ -92,7 +92,7 @@ void uiIOSurface::mkAttribFld( bool labelabove )
 	? tr("Horizon Data") : tr("Calculated attributes");
     uiListBox::Setup su( OD::ChooseZeroOrMore, lbl,
 	labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
-    attribfld_ = new uiListBox( this, su );
+    attribfld_ = new uiListBox( this, su, "surfacedata" );
     attribfld_->setStretch( 2, 2 );
     attribfld_->itemChosen.notify( mCB(this,uiIOSurface,attrSel) );
 }
@@ -102,7 +102,7 @@ void uiIOSurface::mkSectionFld( bool labelabove )
 {
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Available patches"),
 	labelabove ? uiListBox::AboveMid : uiListBox::LeftTop );
-    sectionfld_ = new uiListBox( this, su );
+    sectionfld_ = new uiListBox( this, su, "sections" );
     sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
     sectionfld_->setStretch( 2, 2 );
     sectionfld_->selectionChanged.notify(

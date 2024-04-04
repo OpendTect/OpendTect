@@ -128,7 +128,8 @@ uiCopyFaultSet::uiCopyFaultSet( uiParent* p, const IOObj& ioobj )
     inpfld_->selectionDone.notify( mCB(this,uiCopyFaultSet,inpSelCB) );
 
     surflist_ = new uiListBox( this, uiListBox::Setup(OD::ChooseAtLeastOne,
-			    uiStrings::phrSelect(uiStrings::sFault(mPlural))) );
+			    uiStrings::phrSelect(uiStrings::sFault(mPlural))),
+			       "faultlist" );
     surflist_->attach( alignedBelow, inpfld_ );
 
     ctxt.forread_ = false;

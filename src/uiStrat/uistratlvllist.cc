@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
     : uiListBox(p,Setup(OD::ChooseOnlyOne,tr("Regional markers"),
-			uiListBox::AboveMid))
+			uiListBox::AboveMid),"regionalmarkers")
 {
     setStretch( 2, 2 );
     setFieldWidth( 15 );

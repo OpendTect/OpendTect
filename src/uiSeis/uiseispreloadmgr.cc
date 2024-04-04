@@ -305,7 +305,7 @@ uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
     setCaption( tr("Pre-load %1").arg(uiStrings::sData().toLower()) );
     uiListBox::Setup su( OD::ChooseAtLeastOne, tr("Line(s) to load"),
 			 uiListBox::AboveMid );
-    lnmsfld_ = new uiListBox( selGrp(), su );
+    lnmsfld_ = new uiListBox( selGrp(), su, "linenames" );
     lnmsfld_->attach( rightOf, selGrp()->getTopGroup() );
     mAttachCB( selGrp()->selectionChanged, uiSeisPreLoadMgrPS2DSel::dsSel );
 }

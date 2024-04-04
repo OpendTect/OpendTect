@@ -25,9 +25,8 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "file.h"
 #include "ioman.h"
-#include "safefileio.h"
-#include "od_iostream.h"
 #include "od_helpids.h"
+#include "safefileio.h"
 
 static const char* sKeyFileType = "CrossPlot Selection";
 static const char* sKeyNrSelGrps = "Nr of Selection Groups";
@@ -217,10 +216,10 @@ static SGSelGrpManager& SGM()
 
 uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
     : uiGroup(p)
-    , forread_(forread)
     , selectionDone(this)
+    , forread_(forread)
 {
-    listfld_ = new uiListBox( this );
+    listfld_ = new uiListBox( this, "selectiongroups" );
     listfld_->selectionChanged.notify( mCB(this,uiSGSelGrp,selChangedCB) );
     listfld_->doubleClicked.notify( mCB(this,uiSGSelGrp,selDoneCB) );
 
@@ -554,8 +553,8 @@ protected:
 
 uiSGSel::uiSGSel( uiParent* p, bool forread )
     : uiGroup(p)
-    , forread_(forread)
     , selGrpSelected(this)
+    , forread_(forread)
 {
     inpfld_ = new uiGenInput( this, tr("Cross-plot Selections") );
     selbut_ = new uiPushButton( this,
@@ -621,9 +620,9 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
     : uiDialog(p,uiDialog::Setup(mJoinUiStrs(sOpen(), phrCrossPlot(
 				 uiStrings::sSelection())),mNoDlgTitle,
 				 mODHelpKey(mReadSelGrpHelpID) ))
+    , y2selfld_(0)
     , plotter_(plotter)
     , selgrpset_(plotter.selectionGrps())
-    , y2selfld_(0)
 {
     bool hasy2 = plotter.axisHandler(2);
     BufferStringSet nms;
@@ -1000,8 +999,8 @@ uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 				 uiStrings::sSelection(), tr("Area"))),
 				 mJoinUiStrs(sSpecify(), sParameter(mPlural)),
 				mODHelpKey(mExpSelectionAreaHelpID) ))
-    , selgrps_(selgrps)
     , setup_(su)
+    , selgrps_(selgrps)
 {
     outfld_ = new uiSGSel( this, false );
 }

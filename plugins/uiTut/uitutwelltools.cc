@@ -33,15 +33,15 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
 	: uiDialog( p, Setup( tr("Log Smoothing"),
 			      tr("Specify parameters for smoothing"),
 			      HelpKey("tut","well") ) )
-	, wellid_(wellid)
 	, wd_(Well::MGR().get(wellid, Well::LoadReqs(Well::LogInfos)))
+	, wellid_(wellid)
 {
     if ( !wd_ )
 	return;
 
     const Well::LogSet& logs = wd_->logs();
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Select Input Log") );
-    inplogfld_ = new uiListBox( this, su );
+    inplogfld_ = new uiListBox( this, su, "lognames" );
     inplogfld_->setHSzPol( uiObject::Wide );
     for ( int idx=0; idx<logs.size(); idx++ )
 	inplogfld_->addItem( logs.getLog(idx).name() );

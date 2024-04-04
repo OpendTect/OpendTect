@@ -61,7 +61,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
 
     uiListBox::Setup su1( OD::ChooseOnlyOne, tr("Available cubes"),
 			 uiListBox::AboveMid );
-    cubefld_ = new uiListBox( this, su1 );
+    cubefld_ = new uiListBox( this, su1, "availablecubes" );
     fillBox( cubefld_ );
     cubefld_->resizeWidthToContents();
     cubefld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,inputChg) );
@@ -79,7 +79,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const MultiID& ky )
 
     uiListBox::Setup su2( OD::ChooseOnlyOne, tr("Used cubes"),
 			  uiListBox::AboveMid );
-    selfld_ = new uiListBox( this, su2 );
+    selfld_ = new uiListBox( this, su2, "usedcubes" );
     selfld_->attach( rightTo, cubefld_ );
     selfld_->attach( ensureRightOf, bgrp );
     selfld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,selChg) );

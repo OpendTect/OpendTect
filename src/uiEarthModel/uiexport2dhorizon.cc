@@ -92,7 +92,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p, bool isbulk )
 	horselgrp->attach( alignedBelow, surfread_ );
 	uiListBox::Setup listbxsu( OD::ChooseZeroOrMore,
 	    uiStrings::phrSelect(uiStrings::sLine(mPlural).toLower()) );
-	linenmfld_ = new uiListBox( horselgrp, listbxsu );
+	linenmfld_ = new uiListBox( horselgrp, listbxsu, "linenames" );
     }
 
     attachobj = horselgrp->attachObj();

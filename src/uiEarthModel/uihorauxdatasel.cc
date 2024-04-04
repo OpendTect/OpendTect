@@ -43,14 +43,14 @@ uiHorizonAuxDataDlg( uiParent* p,
     uiGroup* grp = new uiGroup( this, "Group" );
     uiLabel* horlabel = new uiLabel(grp,
 				    uiStrings::sHorizon(mPlural));
-    horlistfld_ = new uiListBox( grp );
+    horlistfld_ = new uiListBox( grp, "horizons" );
     horlistfld_->addItems( auxinfo_->hornms_ );
     horlistfld_->attach( ensureBelow, horlabel );
     horlistfld_->setHSzPol( uiObject::Wide );
     horlistfld_->selectionChanged.notify(
 	    mCB(this,uiHorizonAuxDataDlg,selChg) );
 
-    datalistfld_ = new uiListBox( grp );
+    datalistfld_ = new uiListBox( grp, "horizondata" );
     datalistfld_->attach( rightTo, horlistfld_ );
     datalistfld_->setHSzPol( uiObject::Wide );
     datalistfld_->selectionChanged.notify(

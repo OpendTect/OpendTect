@@ -85,7 +85,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     flowgrp_ = new uiGroup( this, "Flow Group" );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Map overlays") );
-    flowfld_ = new uiListBox( flowgrp_, su );
+    flowfld_ = new uiListBox( flowgrp_, su, "gmtflow" );
     flowfld_->selectionChanged.notify( mCB(this,uiGMTMainWin,selChg) );
 
     const CallBack butpushcb( mCB(this,uiGMTMainWin,butPush) );

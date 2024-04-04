@@ -45,7 +45,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     uiGroup* attrgrp = new uiGroup( this, "Attribute group" );
     uiListBox::Setup asu( OD::ChooseZeroOrMore, uiStrings::sAttribute(mPlural),
 			  uiListBox::AboveMid );
-    attrsfld_ = new uiListBox( attrgrp, asu );
+    attrsfld_ = new uiListBox( attrgrp, asu, "attributes" );
 
     if ( ads_.is2D() )
     {
@@ -56,7 +56,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 
 	uiListBox::Setup lsu( OD::ChooseAtLeastOne, tr("Line(s)"),
 			      uiListBox::AboveMid );
-	lnmfld_ = new uiListBox( attrgrp, lsu );
+	lnmfld_ = new uiListBox( attrgrp, lsu, "linenames" );
 	lnmfld_->attach( rightTo, attrsfld_ );
 	lnmfld_->itemChosen.notify(
 		mCB(this,uiAttribCrossPlot,lineChecked) );

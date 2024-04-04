@@ -103,7 +103,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
     const CallBack butpushcb( mCB(this,uiMadagascarMain,butPush) );
 
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("FLOW") );
-    procsfld_ = new uiListBox( procgrp, su );
+    procsfld_ = new uiListBox( procgrp, su, "flow" );
     procsfld_->setPrefWidthInChar( 20 );
     procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
 

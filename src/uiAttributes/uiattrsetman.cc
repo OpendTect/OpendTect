@@ -35,7 +35,7 @@ uiAttrSetMan::uiAttrSetMan( uiParent* p, bool is2d )
 
     uiListBox::Setup su( OD::ChooseNone, uiStrings::sAttribute(2),
 			 uiListBox::AboveMid );
-    attribfld_ = new uiListBox( listgrp_, su );
+    attribfld_ = new uiListBox( listgrp_, su, "attributes" );
     attribfld_->attach( rightOf, selgrp_ );
     attribfld_->setHSzPol( uiObject::Wide );
 

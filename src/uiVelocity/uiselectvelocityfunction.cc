@@ -39,12 +39,12 @@ uiFunctionSettings::~uiFunctionSettings()
 uiFunctionSel::uiFunctionSel( uiParent* p,
     const ObjectSet<FunctionSource>& srcs, const TypeSet<OD::Color>* colors )
     : uiGroup(p,"Velocity Functions")
-    , velsources_(srcs)
-    , colorfld_(nullptr)
     , listChange(this)
+    , colorfld_(nullptr)
+    , velsources_(srcs)
 {
     deepRef( velsources_ );
-    list_ = new uiListBox( this );
+    list_ = new uiListBox( this, "velocitysources" );
     list_->selectionChanged.notify( mCB(this,uiFunctionSel,selChangedCB) );
 
     addbutton_ = new uiPushButton( this, uiStrings::sAdd(),

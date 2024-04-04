@@ -272,7 +272,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow, bool is2d )
 					tr("Add step"), addcb );
     addstepbutton_->attach( centeredRightOf, factorylist_ );
 
-    steplist_ = new uiListBox( flowgrp );
+    steplist_ = new uiListBox( flowgrp, "volumebuildersteps" );
     steplist_->setHSzPol( uiObject::Wide );
     steplist_->attach( rightTo, factorylist_ );
     steplist_->attach( ensureRightOf, addstepbutton_ );
