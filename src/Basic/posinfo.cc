@@ -8,9 +8,10 @@ ________________________________________________________________________
 -*/
 
 #include "posinfo.h"
-#include "survinfo.h"
-#include "od_iostream.h"
+
 #include "math2.h"
+#include "od_iostream.h"
+#include "survinfo.h"
 
 
 int PosInfo::LineData::size() const
@@ -934,4 +935,220 @@ void PosInfo::CubeDataFiller::finishLine()
     }
 
     initLine();
+}
+
+
+// CubeSliceSet
+PosInfo::CubeSliceSet::CubeSliceSet( const TrcKeyZSampling& tkzs )
+    : tkzs_(tkzs)
+{}
+
+PosInfo::CubeSliceSet::~CubeSliceSet()
+{}
+
+bool PosInfo::CubeSliceSet::isEmpty() const
+{
+    return nrSlices() == 0;
+}
+
+
+void PosInfo::CubeSliceSet::setEmpty()
+{
+    inlidxs_.setEmpty();
+    crlidxs_.setEmpty();
+    zidxs_.setEmpty();
+}
+
+
+int PosInfo::CubeSliceSet::nrSlices() const
+{
+    return nrInlines() + nrCrosslines() + nrZSlices();
+}
+
+
+int PosInfo::CubeSliceSet::nrInlines() const
+{
+    return inlidxs_.size();
+}
+
+
+int PosInfo::CubeSliceSet::nrCrosslines() const
+{
+    return crlidxs_.size();
+}
+
+
+int PosInfo::CubeSliceSet::nrZSlices() const
+{
+    return zidxs_.size();
+}
+
+
+bool PosInfo::CubeSliceSet::hasInline( int inl ) const
+{
+    return tkzs_.hsamp_.lineOK(inl) && inlidxs_.isPresent( tkzs_.lineIdx(inl) );
+}
+
+
+bool PosInfo::CubeSliceSet::hasCrossline( int crl ) const
+{
+    return tkzs_.hsamp_.trcOK(crl) && crlidxs_.isPresent( tkzs_.trcIdx(crl) );
+}
+
+
+bool PosInfo::CubeSliceSet::hasZSlice( float z ) const
+{
+    return tkzs_.zsamp_.isPresent(z) && zidxs_.isPresent( tkzs_.zIdx(z) );
+}
+
+
+bool PosInfo::CubeSliceSet::getSliceAtIndex( int idx, OD::SliceType type,
+					     TrcKeyZSampling& tkzs ) const
+{
+    if ( type == OD::SliceType::Inline )
+	return inlidxs_.validIdx(idx) ?
+	    getTKZSForInline( tkzs_.lineIdx(inlidxs_[idx]), tkzs ) : false;
+
+    if ( type == OD::SliceType::Crossline )
+	return crlidxs_.validIdx(idx) ?
+	    getTKZSForCrossline( tkzs_.trcIdx(crlidxs_[idx]), tkzs ) : false;
+
+    if ( type == OD::SliceType::Z )
+	return zidxs_.validIdx(idx) ?
+	    getTKZSForZSlice( tkzs_.zIdx(zidxs_[idx]), tkzs ) : false;
+
+    return false;
+}
+
+
+bool PosInfo::CubeSliceSet::getInline( int inl, TrcKeyZSampling& tkzs ) const
+{
+    return hasInline(inl) ? getTKZSForInline( inl, tkzs ) : false;
+}
+
+
+bool PosInfo::CubeSliceSet::getCrossline( int crl, TrcKeyZSampling& tkzs ) const
+{
+    return hasCrossline(crl) ? getTKZSForCrossline( crl, tkzs ) : false;
+}
+
+
+bool PosInfo::CubeSliceSet::getZSlice( float z, TrcKeyZSampling& tkzs ) const
+{
+    return hasZSlice(z) ? getTKZSForZSlice( z, tkzs ) : false;
+}
+
+
+bool PosInfo::CubeSliceSet::addSlice( const TrcKeyZSampling& flattkzs )
+{
+    if ( !flattkzs.isFlat() || !tkzs_.includes(flattkzs) )
+	return false;
+
+    TrcKeyZSampling::Dir flatdim = flattkzs.defaultDir();
+    switch ( flatdim )
+    {
+	case TrcKeyZSampling::Inl:
+	    return addInline( flattkzs.hsamp_.start_.inl() );
+	case TrcKeyZSampling::Crl:
+	    return addCrossline( flattkzs.hsamp_.start_.crl() );
+	case TrcKeyZSampling::Z:
+	    return addZSlice( flattkzs.zsamp_.start );
+	default:
+	    break;
+    }
+
+    return false;
+}
+
+
+bool PosInfo::CubeSliceSet::addInline( int inl )
+{
+    if ( !tkzs_.hsamp_.lineOK(inl) )
+	return false;
+
+    inlidxs_ += tkzs_.hsamp_.lineIdx( inl );
+    return true;
+}
+
+
+bool PosInfo::CubeSliceSet::addCrossline( int crl )
+{
+    if ( !tkzs_.hsamp_.trcOK(crl) )
+	return false;
+
+    crlidxs_ += tkzs_.hsamp_.trcIdx( crl );
+    return true;
+}
+
+
+bool PosInfo::CubeSliceSet::addZSlice( float z )
+{
+    if ( !tkzs_.zsamp_.isPresent(z) )
+	return false;
+
+    zidxs_ += tkzs_.zIdx( z );
+    return true;
+}
+
+
+bool PosInfo::CubeSliceSet::removeInline( int inl )
+{
+    const int index = inlidxs_.indexOf( tkzs_.hsamp_.lineIdx(inl) );
+    if ( index < 0 )
+	return false;
+
+    inlidxs_.removeSingle( index );
+    return true;
+}
+
+
+bool PosInfo::CubeSliceSet::removeCrossline( int crl )
+{
+    const int index = crlidxs_.indexOf( tkzs_.hsamp_.trcIdx(crl) );
+    if ( index < 0 )
+	return false;
+
+    crlidxs_.removeSingle( index );
+    return true;
+}
+
+
+bool PosInfo::CubeSliceSet::removeZSlice( float z )
+{
+    if ( tkzs_.zsamp_.isPresent(z) )
+	return false;
+
+    const int index = zidxs_.indexOf( tkzs_.zIdx(z) );
+    if ( index < 0 )
+	return false;
+
+    zidxs_.removeSingle( index );
+    return true;
+}
+
+
+bool PosInfo::CubeSliceSet::getTKZSForInline( int inl,
+					      TrcKeyZSampling& tkzs ) const
+{
+    tkzs = tkzs_;
+    tkzs.hsamp_.start_.inl() = tkzs.hsamp_.stop_.inl() = inl;
+    return true;
+}
+
+
+bool PosInfo::CubeSliceSet::getTKZSForCrossline( int crl,
+						 TrcKeyZSampling& tkzs ) const
+{
+    tkzs = tkzs_;
+    tkzs.hsamp_.start_.crl() = tkzs.hsamp_.stop_.crl() = crl;
+    return true;
+}
+
+
+bool PosInfo::CubeSliceSet::getTKZSForZSlice( float z,
+					      TrcKeyZSampling& tkzs ) const
+{
+    tkzs = tkzs_;
+    tkzs.zsamp_.start = tkzs.zsamp_.stop = z;
+    return true;
 }

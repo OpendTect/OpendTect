@@ -9,13 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "binid.h"
+#include "indexinfo.h"
 #include "manobjectset.h"
+#include "od_iosfwd.h"
 #include "typeset.h"
 #include "trckeyzsampling.h"
-#include "indexinfo.h"
-#include "binid.h"
-#include "od_iosfwd.h"
 
+namespace OD { enum class SliceType; }
 
 /*!\brief Position info, often segmented
 
@@ -234,5 +235,57 @@ public:
 
 };
 
+
+/*!
+\brief A class to hold a sorted set of Inline, Crossline and Z slices from a
+given TrcKeyZSampling. Each slice is defined by its relative position in tkzs_.
+*/
+
+mExpClass(Basic) CubeSliceSet
+{
+			CubeSliceSet(const TrcKeyZSampling&);
+    virtual		~CubeSliceSet();
+
+    bool		isEmpty() const;
+    void		setEmpty();
+
+    int			nrSlices() const;
+    int			nrInlines() const;
+    int			nrCrosslines() const;
+    int			nrZSlices() const;
+    bool		hasInline(int inl) const;
+    bool		hasCrossline(int crl) const;
+    bool		hasZSlice(float z) const;
+
+    bool		getSliceAtIndex(int index,OD::SliceType,
+					TrcKeyZSampling&) const;
+    bool		getInline(int inl,TrcKeyZSampling&) const;
+    bool		getCrossline(int crl,TrcKeyZSampling&) const;
+    bool		getZSlice(float z,TrcKeyZSampling&) const;
+
+    bool		addSlice(const TrcKeyZSampling& tkzs);
+			/*<! tkzs should be flat */
+
+    bool		addInline(int inl);
+    bool		addCrossline(int crl);
+    bool		addZSlice(float z);
+
+    bool		removeInline(int inl);
+    bool		removeCrossline(int crl);
+    bool		removeZSlice(float z);
+
+protected:
+
+    const TrcKeyZSampling	tkzs_;		// Reference TrcKeyZSampling
+
+			// Sorted
+    TypeSet<int>	inlidxs_;
+    TypeSet<int>	crlidxs_;
+    TypeSet<int>	zidxs_;
+
+    bool		getTKZSForInline(int inl,TrcKeyZSampling&) const;
+    bool		getTKZSForCrossline(int crl,TrcKeyZSampling&) const;
+    bool		getTKZSForZSlice(float z,TrcKeyZSampling&) const;
+};
 
 } // namespace PosInfo
