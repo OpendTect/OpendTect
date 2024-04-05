@@ -1631,8 +1631,8 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     par.set( sKeyWorkArea(), fms );
 
     par.set( sKeySliceSteps(),
-	     sCast(float,slicepostools_->getStep(OD::InlineSlice)),
-	     sCast(float,slicepostools_->getStep(OD::CrosslineSlice)),
+	     sCast(float,slicepostools_->getStep(OD::SliceType::Inline)),
+	     sCast(float,slicepostools_->getStep(OD::SliceType::Crossline)),
 	     slicepostools_->getZStep() );
 
     for ( int idx=0; idx<scenes_.size(); idx++ )

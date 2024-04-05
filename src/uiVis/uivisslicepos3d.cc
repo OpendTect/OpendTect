@@ -96,7 +96,7 @@ void uiSlicePos3DDisp::setBoxRanges()
     const TrcKeyZSampling survcs( curcs );
 
     const auto orient = getOrientation();
-    if ( orient == OD::ZSlice )
+    if ( orient == OD::SliceType::Z )
     {
 	SamplingData<float> sd( sliceposbox_->getFValue() / zfactor_,
 				slicestepbox_->getFValue() / zfactor_ );
@@ -115,7 +115,7 @@ void uiSlicePos3DDisp::setBoxRanges()
 	if ( sd.step != 0 )
 	{
 	    auto& hsamp = curcs.hsamp_;
-	    if ( orient == OD::InlineSlice )
+	    if ( orient == OD::SliceType::Inline )
 	    {
 		const auto startidx = sd.indexOnOrAfter( hsamp.start_.inl() );
 		sd.start = hsamp.start_.inl() = sd.atIndex( startidx );
@@ -178,13 +178,13 @@ OD::SliceType uiSlicePos3DDisp::getOrientation() const
     {
 	const int dim = curvol_->getSelectedSlice()->getDim();
 	if ( dim == Volume::cInLine() )
-	    return OD::InlineSlice;
+	    return OD::SliceType::Inline;
 	else if ( dim == Volume::cCrossLine() )
-	    return OD::CrosslineSlice;
+	    return OD::SliceType::Crossline;
 	else if ( dim == Volume::cTimeSlice() )
-	    return OD::ZSlice;
+	    return OD::SliceType::Z;
     }
-    return OD::InlineSlice;
+    return OD::SliceType::Inline;
 }
 
 

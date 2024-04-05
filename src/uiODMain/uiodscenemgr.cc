@@ -1379,13 +1379,13 @@ VisID uiODSceneMgr::addInlCrlItem( OD::SliceType st, int nr, SceneID sceneid )
     mGetOrAskForScene
     uiODPlaneDataTreeItem* itm = 0;
     TrcKeyZSampling tkzs = SI().sampling(true);
-    if ( st == OD::InlineSlice )
+    if ( st == OD::SliceType::Inline )
     {
 	itm = new uiODInlineTreeItem(
 				VisID::udf(), uiODPlaneDataTreeItem::Empty );
 	tkzs.hsamp_.setInlRange( Interval<int>(nr,nr) );
     }
-    else if ( st == OD::CrosslineSlice )
+    else if ( st == OD::SliceType::Crossline )
     {
 	itm = new uiODCrosslineTreeItem(
 				VisID::udf(), uiODPlaneDataTreeItem::Empty );

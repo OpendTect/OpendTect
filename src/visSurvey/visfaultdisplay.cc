@@ -1554,7 +1554,7 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	const BinID b00 = cs.hsamp_.start_, b11 = cs.hsamp_.stop_;
 	BinID b01, b10;
 
-	if ( plane && plane->getOrientation()==OD::ZSlice )
+	if ( plane && plane->getOrientation()==OD::SliceType::Z )
 	{
 	    b01 = BinID( cs.hsamp_.start_.inl(), cs.hsamp_.stop_.crl() );
 	    b10 = BinID( cs.hsamp_.stop_.inl(), cs.hsamp_.start_.crl() );

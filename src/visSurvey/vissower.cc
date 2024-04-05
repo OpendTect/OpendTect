@@ -197,7 +197,7 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
     visBase::DataObject* dataobj = visBase::DM().getObject( underlyingobjid_ );
     mDynamicCastGet( PlaneDataDisplay*, pdd, dataobj );
     Scene* scene = STM().currentScene();
-    if ( !pdd || pdd->getOrientation()==OD::ZSlice || !scene )
+    if ( !pdd || pdd->getOrientation()==OD::SliceType::Z || !scene )
 	return;
 
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling( false, false );

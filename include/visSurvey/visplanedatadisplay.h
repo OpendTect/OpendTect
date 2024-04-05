@@ -217,7 +217,7 @@ protected:
     bool				ineditmode_	= false;
 
     visBase::GridLines*			gridlines_;
-    SliceType				orientation_ = OD::InlineSlice;
+    SliceType				orientation_ = OD::SliceType::Inline;
 
     RefObjectSet<RegularSeisDataPack>	datapacks_;
     RefObjectSet<RegularSeisDataPack>	transfdatapacks_;
@@ -245,7 +245,7 @@ protected:
     {
 	bool		refreeze_ = true;
 	TrcKeyZSampling oldcs_;
-	SliceType	oldorientation_ = OD::InlineSlice;
+	SliceType	oldorientation_ = OD::SliceType::Inline;
     };
     UpdateStageInfo		updatestageinfo_;
     TrcKeyZSampling		startmovepos_;

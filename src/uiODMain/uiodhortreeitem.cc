@@ -809,7 +809,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    const TrcKey tk( SI().transform(pickedpos) );
 	    const bool isinl = mnuid == addinlitm_.id;
 	    ODMainWin()->sceneMgr().addInlCrlItem(
-		    isinl ? OD::InlineSlice : OD::CrosslineSlice,
+		    isinl ? OD::SliceType::Inline : OD::SliceType::Crossline,
 		    isinl ? tk.inl() : tk.crl(), sceneID() );
 	}
     }

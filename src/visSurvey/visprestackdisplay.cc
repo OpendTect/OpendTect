@@ -569,7 +569,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     bool isinline = true;
     if ( section_ )
     {
-	isinline = section_->getOrientation()==OD::InlineSlice;
+	isinline = section_->getOrientation()==OD::SliceType::Inline;
 	if ( isinline )
 	{
 	    xlim.set( mCast(float,startpos.x), mCast(float,stoppos.x) );
@@ -634,7 +634,7 @@ bool PreStackDisplay::isOrientationInline() const
     if ( !section_ )
 	return false;
 
-    return section_->getOrientation() == OD::InlineSlice;
+    return section_->getOrientation() == OD::SliceType::Inline;
 }
 
 
@@ -685,10 +685,10 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
 	reader_ = SPSIOPF().get3DReader( *ioobj_ );
 
     const bool offsetalonginl =
-	section_->getOrientation()==OD::CrosslineSlice;
+	section_->getOrientation()==OD::SliceType::Crossline;
     basedirection_ = offsetalonginl ? Coord( 0, 1  ) : Coord( 1, 0 );
 
-    if ( section_->getOrientation() == OD::ZSlice )
+    if ( section_->getOrientation() == OD::SliceType::Z )
 	return;
 
     mAttachCB(section_->getMovementNotifier(), PreStackDisplay::sectionMovedCB);
@@ -703,12 +703,12 @@ void PreStackDisplay::sectionMovedCB( CallBacker* )
 	return;
     else
     {
-	if ( section_->getOrientation() == OD::InlineSlice )
+	if ( section_->getOrientation() == OD::SliceType::Inline )
 	{
 	    newpos.inl() =
 		section_->getTrcKeyZSampling( -1 ).hsamp_.start_.inl();
 	}
-	else if ( section_->getOrientation() == OD::CrosslineSlice )
+	else if ( section_->getOrientation() == OD::SliceType::Crossline )
 	{
 	    newpos.crl() =
 		section_->getTrcKeyZSampling( -1 ).hsamp_.start_.crl();
@@ -891,9 +891,9 @@ void PreStackDisplay::draggerMotion( CallBacker* )
 	const OD::SliceType orientation = section_->getOrientation();
 	const int newinl = SI().inlRange( true ).snap( draggerbidf.x );
 	const int newcrl = SI().crlRange( true ).snap( draggerbidf.y );
-	if ( orientation==OD::InlineSlice && newcrl!=bid_.crl() )
+	if ( orientation==OD::SliceType::Inline && newcrl!=bid_.crl() )
 	    showplane = true;
-	else if ( orientation==OD::CrosslineSlice && newinl!=bid_.inl() )
+	else if ( orientation==OD::SliceType::Crossline && newinl!=bid_.inl() )
 	    showplane = true;
 
 	draggerpos_ = BinID( newinl, newcrl );
@@ -943,9 +943,9 @@ void PreStackDisplay::finishedCB( CallBacker* )
     {
 	int newinl = SI().inlRange( true ).snap( draggerbidf.x );
 	int newcrl = SI().crlRange( true ).snap( draggerbidf.y );
-	if ( section_->getOrientation() == OD::InlineSlice )
+	if ( section_->getOrientation() == OD::SliceType::Inline )
 	    newinl = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.inl();
-	else if ( section_->getOrientation() == OD::CrosslineSlice )
+	else if ( section_->getOrientation() == OD::SliceType::Crossline )
 	    newcrl = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.crl();
 
 	setPosition( TrcKey(BinID(newinl,newcrl)) );

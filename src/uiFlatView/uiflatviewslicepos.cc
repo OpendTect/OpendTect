@@ -28,11 +28,11 @@ uiSlicePos2DView::~uiSlicePos2DView()
 static OD::SliceType getSliceType( const TrcKeyZSampling& cs )
 {
     if ( cs.defaultDir() == TrcKeyZSampling::Crl )
-	return OD::CrosslineSlice;
+	return OD::SliceType::Crossline;
     if ( cs.defaultDir() == TrcKeyZSampling::Z )
-	return OD::ZSlice;
+	return OD::SliceType::Z;
 
-    return OD::InlineSlice;
+    return OD::SliceType::Inline;
 }
 
 

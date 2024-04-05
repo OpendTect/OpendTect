@@ -844,9 +844,9 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	    activeplanes[idx]->getTrcKeyZSampling(true,true,-1);
 
 	OD::SliceType ori = activeplanes[idx]->getOrientation();
-	const float pos = ori==OD::ZSlice
+	const float pos = ori==OD::SliceType::Z
 	    ? cs.zsamp_.start
-	    : (ori==OD::InlineSlice
+	    : (ori==OD::SliceType::Inline
 		? cs.hsamp_.start_.inl()
 		: cs.hsamp_.start_.crl());
 

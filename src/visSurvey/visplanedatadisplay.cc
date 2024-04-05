@@ -181,7 +181,7 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
     if ( resetic || resetz || newpos.isEmpty() )
     {
 	newpos = survey;
-	if ( orientation_==OD::ZSlice && datatransform_ && resetz )
+	if ( orientation_==OD::SliceType::Z && datatransform_ && resetz )
 	{
 	    const float center = survey.zsamp_.snappedCenter();
 	    if ( !mIsUdf(center) )
@@ -206,12 +206,12 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition( const TrcKeyZSampling& cs,
 				 mCast(float,res.hsamp_.stop_.crl()) );
 
     res.hsamp_.snapToSurvey();
-    if ( orientation_==OD::InlineSlice )
+    if ( orientation_==OD::SliceType::Inline )
     {
 	res.hsamp_.start_.inl() = s3dgeom_->inlRange().snap( inlrg.center() );
 	res.hsamp_.stop_.inl() = res.hsamp_.start_.inl();
     }
-    else if ( orientation_==OD::CrosslineSlice )
+    else if ( orientation_==OD::SliceType::Crossline )
     {
 	res.hsamp_.start_.crl() = s3dgeom_->crlRange().snap( crlrg.center() );
 	res.hsamp_.stop_.crl() = res.hsamp_.start_.crl();
@@ -225,7 +225,7 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition( const TrcKeyZSampling& cs,
 	res.zsamp_.start = scenezrg.snap( res.zsamp_.start );
 	res.zsamp_.stop = scenezrg.snap( res.zsamp_.stop );
 
-	if ( orientation_!=OD::InlineSlice && orientation_!=OD::CrosslineSlice )
+	if ( orientation_!=OD::SliceType::Inline && orientation_!=OD::SliceType::Crossline )
 	    res.zsamp_.start = res.zsamp_.stop = scenezrg.snap(zrg.center());
     }
 
@@ -235,10 +235,10 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition( const TrcKeyZSampling& cs,
 
 Coord3 PlaneDataDisplay::getNormal( const Coord3& pos  ) const
 {
-    if ( orientation_==OD::ZSlice )
+    if ( orientation_==OD::SliceType::Z )
 	return Coord3(0,0,1);
 
-    return Coord3( orientation_==OD::InlineSlice
+    return Coord3( orientation_==OD::SliceType::Inline
 		  ? s3dgeom_->binID2Coord().rowDir()
 		  : s3dgeom_->binID2Coord().colDir(), 0 );
 }
@@ -301,7 +301,7 @@ float PlaneDataDisplay::maxDist() const
     if ( scene_ )
 	maxzdist *= scene_->getFixedZStretch();
 
-    return orientation_==OD::ZSlice ? maxzdist : SurveyObject::sDefMaxDist();
+    return orientation_==OD::SliceType::Z ? maxzdist : SurveyObject::sDefMaxDist();
 }
 
 
@@ -377,13 +377,13 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
     const TrcKeyZSampling oldcs = getTrcKeyZSampling(false,true);
 
     bool showplane = false;
-    if ( orientation_==OD::InlineSlice
+    if ( orientation_==OD::SliceType::Inline
 	    && dragcs.hsamp_.start_.inl()!=oldcs.hsamp_.start_.inl() )
 	showplane = true;
-    else if ( orientation_==OD::CrosslineSlice &&
+    else if ( orientation_==OD::SliceType::Crossline &&
 	      dragcs.hsamp_.start_.crl()!=oldcs.hsamp_.start_.crl() )
 	showplane = true;
-    else if ( orientation_==OD::ZSlice &&
+    else if ( orientation_==OD::SliceType::Z &&
 	      dragcs.zsamp_.start!=oldcs.zsamp_.start )
 	showplane = true;
 
@@ -571,7 +571,7 @@ SurveyObject::AttribFormat
     if ( alreadyTransformed(attrib) )
 	return SurveyObject::Cube;
 
-    return datatransform_ && orientation_==OD::ZSlice
+    return datatransform_ && orientation_==OD::SliceType::Z
 	? SurveyObject::RandomPos : SurveyObject::Cube;
 }
 
@@ -630,7 +630,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool displayspace,
 void PlaneDataDisplay::getTraceKeyPath( TrcKeyPath& path,TypeSet<Coord>* ) const
 {
     path.erase();
-    if ( orientation_==OD::ZSlice )
+    if ( orientation_==OD::SliceType::Z )
 	return;
 
     const TrcKeyZSampling trczs = getTrcKeyZSampling( true, true, 0 );
@@ -722,7 +722,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     {
 	const Coord3 center = dragger_->center();
 	Coord3 halfsize = dragger_->size()/2;
-	halfsize[orientation_] = 0;
+	halfsize[sCast(int,orientation_)] = 0;
 
 	c0 = center + halfsize;
 	c1 = center - halfsize;
@@ -737,7 +737,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 	    return res;
 	}
 
-	halfsize[orientation_] = 0;
+	halfsize[sCast(int,orientation_)] = 0;
 
 	c0 = center + halfsize;
 	c1 = center - halfsize;
@@ -888,8 +888,8 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
     const int nrversions = regsdp->nrComponents();
     channels_->setNrVersions( attrib, nrversions );
 
-    const int dim0 = orientation_==OD::InlineSlice ? 1 : 0;
-    const int dim1 = orientation_==OD::ZSlice ? 1 : 2;
+    const int dim0 = orientation_==OD::SliceType::Inline ? 1 : 0;
+    const int dim1 = orientation_==OD::SliceType::Z ? 1 : 2;
 
     for ( int idx=0; idx<nrversions; idx++ )
     {
@@ -912,7 +912,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 		Array2DSlice<float> slice2d( array );
 		slice2d.setDimMap( 0, dim0 );
 		slice2d.setDimMap( 1, dim1 );
-		slice2d.setPos( orientation_, 0 );
+		slice2d.setPos( sCast(int,orientation_), 0 );
 		slice2d.init();
 
 		MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
@@ -983,12 +983,12 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 {
     const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
-    if ( orientation_==OD::InlineSlice )
+    if ( orientation_==OD::SliceType::Inline )
     {
 	info = "In-line: ";
 	info += tkzs.hsamp_.start_.inl();
     }
-    else if ( orientation_==OD::CrosslineSlice )
+    else if ( orientation_==OD::SliceType::Crossline )
     {
 	info = "Cross-line: ";
 	info += tkzs.hsamp_.start_.crl();
@@ -1031,7 +1031,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 
 bool PlaneDataDisplay::isVerticalPlane() const
 {
-    return orientation_ != OD::ZSlice;
+    return orientation_ != OD::SliceType::Z;
 }
 
 
@@ -1116,10 +1116,10 @@ bool PlaneDataDisplay::usePar( const IOPar& par )
     if ( !MultiTextureSurveyObject::usePar( par ) )
 	return false;
 
-    SliceType orientation = OD::InlineSlice;
+    SliceType orientation = OD::SliceType::Inline;
     const BufferString orstr = par.find( sKeyOrientation() );
     if ( !parseEnumSliceType(orstr,orientation) && orstr.isEqual("Timeslice") )
-	orientation = OD::ZSlice;	// Backward compatibilty with 4.0
+	orientation = OD::SliceType::Z;	// Backward compatibilty with 4.0
 
     setOrientation( orientation );
     TrcKeyZSampling cs;
@@ -1194,14 +1194,14 @@ void PlaneDataDisplay::updateTexShiftAndGrowth()
 
     bool refreeze = tkzs.hsamp_.start_.crl()==oldtkzs.hsamp_.start_.crl();
 
-    if ( orientation_ == OD::InlineSlice )
+    if ( orientation_ == OD::SliceType::Inline )
     {
 	startdif.y = crldif * crlfactor - erg1.start;
 	growth.y = tkzs.hsamp_.trcRange().width()*crlfactor - erg1.width();
 	refreeze = tkzs.hsamp_.start_.inl()==oldtkzs.hsamp_.start_.inl();
     }
 
-    if ( orientation_ == OD::ZSlice )
+    if ( orientation_ == OD::SliceType::Z )
     {
 	startdif.x = crldif * crlfactor - erg0.start;
 	growth.x = tkzs.hsamp_.trcRange().width()*crlfactor - erg0.width();
@@ -1248,13 +1248,13 @@ void PlaneDataDisplay::updateTexOriginAndScale( int attrib,
     Coord scale( tkzs.zsamp_.step / si.zsamp_.step,
 		 tkzs.hsamp_.step_.inl() / si.hsamp_.step_.inl() );
 
-    if ( orientation_ == OD::InlineSlice )
+    if ( orientation_ == OD::SliceType::Inline )
     {
 	origin.y = crldif * crlfactor;
 	scale.y = (float)tkzs.hsamp_.step_.crl() / si.hsamp_.step_.crl();
     }
 
-    if ( orientation_ == OD::ZSlice )
+    if ( orientation_ == OD::SliceType::Z )
     {
 	origin.x = crldif * crlfactor;
 	scale.x = (float)tkzs.hsamp_.step_.crl() / si.hsamp_.step_.crl();

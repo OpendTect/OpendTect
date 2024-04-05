@@ -302,8 +302,8 @@ void SeedPainter::paintSeeds( const visBase::EventInfo& curev,
     if ( !pdd )
 	return;
 
-    const bool iszslice = pdd->getOrientation()==OD::ZSlice;
-    const bool isinl = pdd->getOrientation()==OD::InlineSlice;
+    const bool iszslice = pdd->getOrientation()==OD::SliceType::Z;
+    const bool isinl = pdd->getOrientation()==OD::SliceType::Inline;
     const TrcKeyZSampling tkzs = pdd->getTrcKeyZSampling();
 
     if ( iszslice )
@@ -689,8 +689,8 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
 	return;
 
     const TrcKeyZSampling tkzs = pdd->getTrcKeyZSampling();
-    const bool isinl = pdd->getOrientation()==OD::InlineSlice;
-    const bool isz = pdd->getOrientation()==OD::ZSlice;
+    const bool isinl = pdd->getOrientation()==OD::SliceType::Inline;
+    const bool isz = pdd->getOrientation()==OD::SliceType::Z;
 
     const float inlfac = getTrcNrStretchPerZSample( *scene, SI().inlDistance());
     const float crlfac = getTrcNrStretchPerZSample( *scene, SI().crlDistance());
@@ -861,8 +861,8 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
     Coord3 pickedpos = eventinfo.worldpickedpos;
     BinID pickedbid = SI().transform( pickedpos );
     const TrcKeyZSampling tkzs = pdd->getTrcKeyZSampling();
-    const bool isinl = pdd->getOrientation()==OD::InlineSlice;
-    const bool isz = pdd->getOrientation()==OD::ZSlice;
+    const bool isinl = pdd->getOrientation()==OD::SliceType::Inline;
+    const bool isz = pdd->getOrientation()==OD::SliceType::Z;
 
     if ( circlecoords_.isEmpty() )
 	mkCircle();

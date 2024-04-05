@@ -298,7 +298,7 @@ void PSEventDisplay::otherObjectsMoved(
 	else
 	{
 	    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,objs[idx]);
-	    if ( pdd && pdd->getOrientation() != OD::ZSlice )
+	    if ( pdd && pdd->getOrientation() != OD::SliceType::Z )
 		objid = pdd->id();
 	}
 
@@ -495,7 +495,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
 	cs = pdd->getTrcKeyZSampling();
 	const bool isinl =
-	    pdd->getOrientation()==OD::InlineSlice;
+	    pdd->getOrientation()==OD::SliceType::Inline;
 
 	fullevent = displaymode_==FullOnSections;
 
@@ -780,7 +780,7 @@ void PSEventDisplay::retriveParents()
 	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,so);
 	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,so);
 	if ( gather || (pdd && pdd->isOn() &&
-	     pdd->getOrientation()!=OD::ZSlice) )
+	     pdd->getOrientation()!=OD::SliceType::Z) )
 	{
 	    const VisID parentid = scene_->getObject(idx)->id();
 	    if ( parentattached_.isEmpty() )

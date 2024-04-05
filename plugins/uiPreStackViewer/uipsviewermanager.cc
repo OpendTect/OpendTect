@@ -91,7 +91,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
-    if ( (pdd && pdd->getOrientation()!=OD::ZSlice) || s2d )
+    if ( (pdd && pdd->getOrientation()!=OD::SliceType::Z) || s2d )
     {
 	uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
 

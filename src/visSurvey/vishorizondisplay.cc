@@ -2045,7 +2045,7 @@ void HorizonDisplay::updateSectionSeeds(
 	}
 
 	mDynamicCastGet(const PlaneDataDisplay*,plane,objs[idx]);
-	if ( plane && plane->getOrientation()!=OD::ZSlice )
+	if ( plane && plane->getOrientation()!=OD::SliceType::Z )
 	{
 	    verticalsections += idx;
 	    if ( movedobj==plane->id() )

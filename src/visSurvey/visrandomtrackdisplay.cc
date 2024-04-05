@@ -1916,7 +1916,7 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
 	mDynamicCastGet(const HorizonDisplay*,hd,so);
 	mDynamicCastGet(const PlaneDataDisplay*,pdd,so);
 	validpicksurface = tbi || hd ||
-		(pdd && pdd->getOrientation() == OD::ZSlice);
+		(pdd && pdd->getOrientation() == OD::SliceType::Z);
 
 	if ( eventid.isValid() )
 	    break;

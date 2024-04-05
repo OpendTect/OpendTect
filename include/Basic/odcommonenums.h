@@ -26,11 +26,11 @@ enum Orientation
 
 /*!\brief OpendTect flat slice types */
 
-enum SliceType
+enum class SliceType
 {
-    InlineSlice=0,
-    CrosslineSlice=1,
-    ZSlice=2
+    Inline=0,
+    Crossline=1,
+    Z=2
 };
 
 

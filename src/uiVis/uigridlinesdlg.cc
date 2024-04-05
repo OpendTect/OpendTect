@@ -70,9 +70,9 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 	lsfld_->attach( alignedBelow, crlspacingfld_ );
 
     uiString allmsg = tr("Apply to all loaded %1");
-    if ( OD::InlineSlice == pdd_->getOrientation() )
+    if ( OD::SliceType::Inline == pdd_->getOrientation() )
 	allmsg.arg(uiStrings::sInline(mPlural));
-    else if ( OD::CrosslineSlice == pdd_->getOrientation() )
+    else if ( OD::SliceType::Crossline == pdd_->getOrientation() )
 	allmsg.arg( uiStrings::sCrossline(mPlural));
     else
 	allmsg.arg(uiStrings::sZSlice(mPlural));

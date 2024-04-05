@@ -208,7 +208,7 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
     const Coord surfacecoord = wd.info().surfacecoord_;
     const BinID bid = SI().transform( surfacecoord );
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling( true, true );
-    if ( orient_ == OD::InlineSlice )
+    if ( orient_ == OD::SliceType::Inline )
 	cs.hsamp_.setInlRange( Interval<int>(bid.inl(),bid.inl()) );
     else
 	cs.hsamp_.setCrlRange( Interval<int>(bid.crl(),bid.crl()) );
@@ -380,9 +380,9 @@ uiString uiODPlaneDataTreeItem::createDisplayName() const
     const TrcKeyZSampling cs = pdd->getTrcKeyZSampling(true,true);
     const OD::SliceType orientation = pdd->getOrientation();
 
-    if ( orientation==OD::InlineSlice )
+    if ( orientation==OD::SliceType::Inline )
 	res = toUiString(cs.hsamp_.start_.inl());
-    else if ( orientation==OD::CrosslineSlice )
+    else if ( orientation==OD::SliceType::Crossline )
 	res = toUiString(cs.hsamp_.start_.crl());
     else
     {
@@ -446,12 +446,12 @@ void uiODPlaneDataTreeItem::createMenu( MenuHandler* mh, bool istb )
     addcrlitem_.text = tr("Add Cross-line %1").arg( csttk.trcNr() );
     addzitem_.text = tr("Add Z-slice %1").arg( zpos );
 
-    if ( orient_ == OD::InlineSlice )
+    if ( orient_ == OD::SliceType::Inline )
     {
 	mAddMenuItem( mh, &addcrlitem_, true, false );
 	mAddMenuItem( mh, &addzitem_, true, false );
     }
-    else if ( orient_ == OD::CrosslineSlice )
+    else if ( orient_ == OD::SliceType::Crossline )
     {
 	mAddMenuItem( mh, &addinlitem_, true, false );
 	mAddMenuItem( mh, &addzitem_, true, false );
@@ -639,17 +639,17 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
     const int dir = forward ? step : -step;
 
-    if ( pdd->getOrientation() == OD::InlineSlice )
+    if ( pdd->getOrientation() == OD::SliceType::Inline )
     {
 	cs.hsamp_.start_.inl() += cs.hsamp_.step_.inl() * dir;
 	cs.hsamp_.stop_.inl() = cs.hsamp_.start_.inl();
     }
-    else if ( pdd->getOrientation() == OD::CrosslineSlice )
+    else if ( pdd->getOrientation() == OD::SliceType::Crossline )
     {
 	cs.hsamp_.start_.crl() += cs.hsamp_.step_.crl() * dir;
 	cs.hsamp_.stop_.crl() = cs.hsamp_.start_.crl();
     }
-    else if ( pdd->getOrientation() == OD::ZSlice )
+    else if ( pdd->getOrientation() == OD::SliceType::Z )
     {
 	cs.zsamp_.start += cs.zsamp_.step * dir;
 	cs.zsamp_.stop = cs.zsamp_.start;
@@ -668,7 +668,7 @@ uiTreeItem*
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
 
-    if ( !pdd || pdd->getOrientation()!=OD::InlineSlice )
+    if ( !pdd || pdd->getOrientation()!=OD::SliceType::Inline )
 	return 0;
 
     mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
@@ -714,7 +714,7 @@ bool uiODInlineParentTreeItem::showSubMenu()
 
 
 uiODInlineTreeItem::uiODInlineTreeItem( VisID id, Type tp )
-    : uiODPlaneDataTreeItem( id, OD::InlineSlice, tp )
+    : uiODPlaneDataTreeItem( id, OD::SliceType::Inline, tp )
 {}
 
 
@@ -729,7 +729,7 @@ uiTreeItem*
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
 		     ODMainWin()->applMgr().visServer()->getObject(visid));
 
-    if ( !pdd || pdd->getOrientation()!=OD::CrosslineSlice )
+    if ( !pdd || pdd->getOrientation()!=OD::SliceType::Crossline )
 	return 0;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
@@ -774,7 +774,7 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 
 
 uiODCrosslineTreeItem::uiODCrosslineTreeItem( VisID id, Type tp )
-    : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, tp )
+    : uiODPlaneDataTreeItem( id, OD::SliceType::Crossline, tp )
 {}
 
 
@@ -789,7 +789,7 @@ uiTreeItem*
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
 		     ODMainWin()->applMgr().visServer()->getObject(visid));
 
-    if ( !pdd || pdd->getOrientation()!=OD::ZSlice )
+    if ( !pdd || pdd->getOrientation()!=OD::SliceType::Z )
 	return 0;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
@@ -834,7 +834,7 @@ bool uiODZsliceParentTreeItem::showSubMenu()
 
 
 uiODZsliceTreeItem::uiODZsliceTreeItem( VisID id, Type tp )
-    : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
+    : uiODPlaneDataTreeItem( id, OD::SliceType::Z, tp )
 {
 }
 
