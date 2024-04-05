@@ -163,7 +163,9 @@ Desc::~Desc()
 
 
 const OD::String& Desc::attribName() const
-{ return attribname_; }
+{
+    return attribname_;
+}
 
 
 void Desc::setDescSet( DescSet* nds )
@@ -173,10 +175,17 @@ void Desc::setDescSet( DescSet* nds )
 	set2D( nds->is2D() );
 }
 
-DescSet* Desc::descSet() const			{ return descset_; }
+
+DescSet* Desc::descSet() const
+{
+    return descset_;
+}
+
 
 DescID Desc::id() const
-{ return descset_ ? descset_->getID(*this) : DescID(-1,true); }
+{
+    return descset_ ? descset_->getID(*this) : DescID(-1,true);
+}
 
 
 bool Desc::getDefStr( BufferString& res ) const
@@ -267,7 +276,7 @@ bool Desc::parseDefStr( const char* defstr )
     }
 
     if ( statusupdater_ )
-     statusupdater_(*this);
+	statusupdater_(*this);
 
     if ( errmsg_.size() )
 	return false;
@@ -388,19 +397,29 @@ bool Desc::setInput_( int input, Desc* nd )
 		inputspecs_[input].issteering_!=nd->isSteering()) )
 	return false;
 
-    if ( inputs_[input] ) inputs_[input]->unRef();
+    if ( nd == this )
+	return false;
+
+    if ( inputs_[input] )
+	inputs_[input]->unRef();
     inputs_.replace( input, nd );
-    if ( inputs_[input] ) inputs_[input]->ref();
+    if ( inputs_[input] )
+	inputs_[input]->ref();
 
     return true;
 }
 
 
 const Desc* Desc::getInput( int input ) const
-{ return input>=0 && input<inputs_.size() ? inputs_[input] : 0; }
+{
+    return input>=0 && input<inputs_.size() ? inputs_[input] : nullptr;
+}
+
 
 Desc* Desc::getInput( int input )
-{ return input>=0 && input<inputs_.size() ? inputs_[input] : 0; }
+{
+    return input>=0 && input<inputs_.size() ? inputs_[input] : nullptr;
+}
 
 
 
@@ -479,9 +498,11 @@ bool Desc::isIdenticalTo( const Desc& desc, bool cmpoutput ) const
 
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( inputs_[idx]==desc.inputs_[idx] ) continue;
+	if ( inputs_[idx]==desc.inputs_[idx] )
+	    continue;
 
-	if ( !inputs_[idx] && !desc.inputs_[idx] ) continue;
+	if ( !inputs_[idx] && !desc.inputs_[idx] )
+	    continue;
 
 	if ( !desc.inputs_[idx] ||
 	     !inputs_[idx]->isIdenticalTo(*desc.inputs_[idx], true) )
