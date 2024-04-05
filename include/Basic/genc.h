@@ -90,6 +90,14 @@ mGlobal(Basic) void PutIsLittleEndian(unsigned char*);
 mGlobal(Basic) void SwapBytes(void*,int nbytes);
 		/*!< nbytes=2,4,... e.g. nbytes=4: abcd becomes cdab */
 
+namespace OD
+{
+
+mGlobal(Basic) bool InDebugMode();
+/*!< This is running the Debug configuration of the application */
+
+}
+
 mGlobal(Basic) int InSysAdmMode(void);
 		/*!< returns 0 unless in sysadm mode */
 

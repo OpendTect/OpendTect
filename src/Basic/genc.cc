@@ -214,6 +214,17 @@ static IOPar& sEnvVarEntries()
     return *envvar_entries;
 }
 
+
+mExternC(Basic) bool OD::InDebugMode()
+{
+#ifdef __debug__
+    return true;
+#else
+    return false;
+#endif
+}
+
+
 static int insysadmmode_ = 0;
 mExternC( Basic ) int InSysAdmMode(void) { return insysadmmode_; }
 mExternC( Basic ) void SetInSysAdmMode(void) { insysadmmode_ = 1; }
