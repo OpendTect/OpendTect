@@ -63,12 +63,13 @@ uiGISExportWells::uiGISExportWells( uiParent* p, const MultiID& mid )
     lnmfld_->setWithCheck();
     lnmfld_->attach( alignedBelow, putnmfld_ );
     if ( ismultisel_ )
-	lnmfld_->setToolTip(
-			    tr("Base name will be prefixed to the well name") );
+	lnmfld_->setToolTip( tr("Base name will be prefixed to the well name"));
     else
     {
-	lnmfld_->setText( Well::MGR().get(mid,
-					  Well::LoadReqs(Well::Inf))->name() );
+	ConstRefMan<Well::Data> wd = Well::MGR().get(
+			mid, Well::LoadReqs(Well::Inf) );
+	if ( wd )
+	    lnmfld_->setText( wd->name() );
 	lnmfld_->setToolTip( tr("If the field is left empty, "
 				"well name will be used as annotation text") );
     }
