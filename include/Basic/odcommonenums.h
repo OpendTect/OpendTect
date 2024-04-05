@@ -60,7 +60,7 @@ enum CheckState
 enum FileSelectionMode
 {
     SelectFileForRead,	/*!<The name of a single existing file. */
-    SelectFileForWrite,	/*!<The name of a file, whether it exists or not. */
+    SelectFileForWrite, /*!<The name of a file, whether it exists or not. */
     SelectMultiFile,	/*!<The names of zero or more existing files. */
     SelectDirectory,	/*!<The name of a directory. */
     SelectDirectoryWithFile	//!<The name of a directory with a given file.
@@ -210,6 +210,23 @@ enum class DepthType
 mDeclareNameSpaceEnumUtils(Basic,DepthType)
 
 } // namespace ZDomain
+
+
+namespace SSL
+{
+
+enum class Algorithm
+{
+    Sha256=0,
+    Sha384=1,
+    Sha512=2,
+    Sha3_224=3,
+    Sha3_256=4,
+    Sha3_384=5,
+    Sha3_512=6
+};
+
+} // namespace SSL
 
 
 mGlobal(Basic) bool isHorizontal(OD::Orientation);

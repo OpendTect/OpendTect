@@ -9,12 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "enums.h"
 #include "gendefs.h"
 #include "timefun.h"
 
 class BufferStringSet;
 class Executor;
+namespace SSL { enum class Algorithm; }
 
 
 /*!\brief Interface for several file and directory related services */
@@ -106,7 +108,7 @@ mGlobal(Basic) bool		checkDir(const char* fnm,bool forread,
 				     is readable/writable */
 
 mGlobal(Basic) bool		getContent(const char*,BufferString&);
-
+mGlobal(Basic) BufferString	getHash(const char*,SSL::Algorithm);
 mGlobal(Basic) od_int64		getFileSize(const char* fnm,
 					    bool followlink=true);
 				// -> returns size in bytes

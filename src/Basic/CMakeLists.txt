@@ -19,6 +19,7 @@ set( OD_TEST_PROGS
 	filesize.cc
 	geometry.cc
 	globexpr.cc
+	hash.cc
 	iopar.cc
 	latlong.cc
 	math2.cc

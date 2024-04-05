@@ -8,10 +8,20 @@ ________________________________________________________________________
 -*/
 
 #include "bufstring.h"
-#include "globexpr.h"
+
 #include "arrayndimpl.h"
+#include "file.h"
+#include "globexpr.h"
 #include "perthreadrepos.h"
+#include "odcommonenums.h"
+
 #include <string.h>
+#include <QCryptographicHash>
+#include <QFile>
+#include <QString>
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+# include <QByteArrayView>
+#endif
 
 
 static StringView emptyfixedstring( "" );
@@ -204,7 +214,8 @@ bool OD::String::isNumber( bool int_only ) const
 
 bool OD::String::isYesNo() const
 {
-    return isEqual("yes",OD::CaseInsensitive) || isEqual("no",OD::CaseInsensitive);
+    return isEqual( "yes", OD::CaseInsensitive ) ||
+	   isEqual( "no", OD::CaseInsensitive );
 }
 
 
@@ -236,4 +247,68 @@ double OD::String::toDouble() const
 bool OD::String::toBool() const
 {
     return ::toBool( str() );
+}
+
+namespace SSL
+{
+
+static QCryptographicHash::Algorithm getAlgo( Algorithm typ )
+{
+    //Do not introduce obsolete algorithms like md4, md5, sha1
+    if ( typ == Algorithm::Sha256 )
+	return QCryptographicHash::Sha256;
+    if ( typ == Algorithm::Sha384 )
+	return QCryptographicHash::Sha384;
+    if ( typ == Algorithm::Sha512 )
+	return QCryptographicHash::Sha512;
+    if ( typ == Algorithm::Sha3_224 )
+	return QCryptographicHash::Sha3_224;
+    if ( typ == Algorithm::Sha3_256 )
+	return QCryptographicHash::Sha3_256;
+    if ( typ == Algorithm::Sha3_384 )
+	return QCryptographicHash::Sha3_384;
+    if ( typ == Algorithm::Sha3_512 )
+	return QCryptographicHash::Sha3_512;
+
+    return QCryptographicHash::Sha3_512;
+}
+
+} // namespace SSL
+
+
+const char* OD::String::getHash( SSL::Algorithm typ ) const
+{
+    mDeclStaticString(ret);
+
+    const QString input = buf();
+    const QCryptographicHash::Algorithm qalgo = getAlgo( typ );
+    const QByteArray qarr = input.toUtf8();
+#if QT_VERSION >= QT_VERSION_CHECK(6,3,0)
+    const QByteArrayView qarrview( qarr );
+    const QByteArray qhasharr = QCryptographicHash::hash( qarrview, qalgo );
+#else
+    const QByteArray qhasharr = QCryptographicHash::hash( qarr, qalgo );
+#endif
+    const QString qres = QLatin1String( qhasharr.toHex() );
+    ret.setEmpty().add( qres );
+
+    return ret.buf();
+}
+
+
+BufferString File::getHash( const char* fnm, SSL::Algorithm typ )
+{
+    const QCryptographicHash::Algorithm qalgo = getAlgo( typ );
+    QFile qfile( fnm );
+    if ( !qfile.open(QFile::ReadOnly) )
+	return BufferString::empty();
+
+    QCryptographicHash hasher( qalgo );
+    if ( !hasher.addData(&qfile) )
+	return BufferString::empty();
+
+    const QByteArray qarr = hasher.result();
+    const QString qres = QLatin1String( qarr.toHex() );
+
+    return BufferString( qres );
 }
