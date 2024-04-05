@@ -185,19 +185,10 @@ SeisTrc2DTranslator::~SeisTrc2DTranslator()
 
 bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj, bool ) const
 {
-    if ( !ioobj ) return true;
-    BufferString fnm( ioobj->fullUserExpr(true) );
-    Seis2DDataSet ds( *ioobj );
-    const int nrlines = ds.nrLines();
-    TypeSet<Pos::GeomID> geomids;
-    for ( int iln=0; iln<nrlines; iln++ )
-	geomids.add( ds.geomID(iln) );
+    if ( !ioobj )
+	return true;
 
-    for ( int iln=0; iln<nrlines; iln++ )
-	ds.remove( geomids[iln] );
-
-    DirList dl( fnm );
-    return dl.isEmpty() ? File::remove( fnm ) : true;
+    return File::remove( ioobj->fullUserExpr(true) );
 }
 
 
@@ -208,7 +199,8 @@ bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
 	return false;
 
     PtrMan<IOObj> oldioobj = IOM().get( ioobj->key() );
-    if ( !oldioobj ) return false;
+    if ( !oldioobj )
+	return false;
 
     const bool isro = implReadOnly( ioobj );
     BufferString oldname( oldioobj->name() );
