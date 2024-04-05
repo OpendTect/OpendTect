@@ -1019,7 +1019,7 @@ void WellDisplay::fillPar( IOPar& par ) const
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
 
-    par.set( sKeyEarthModelID, wellid_ );
+    par.set( sKeyWellID, wellid_ );
 
     mGetWD(return);
     wd->displayProperties().fillPar( par );
@@ -1034,8 +1034,11 @@ bool WellDisplay::usePar( const IOPar& par )
 	  return false;
 
     MultiID newmid;
-    if ( !par.get(sKeyEarthModelID,newmid) )
-	return false;
+    if ( !par.get(sKeyWellID,newmid) )
+    {
+	if ( !par.get(sKeyEarthModelID,newmid) ) //to handle legacy cases
+	    return false;
+    }
 
     if ( !setMultiID(newmid) )
 	return true;
