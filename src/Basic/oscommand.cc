@@ -524,13 +524,12 @@ OS::MachineCommand OS::MachineCommand::getExecCommand(
 
 void OS::MachineCommand::addShellIfNeeded()
 {
-#ifdef __win__
-    if ( prognm_ == StringView("cmd") && args_.size() > 0 &&
-	 *args_.first() == StringView("/c") )
-#else
-    if ( prognm_ == StringView("/bin/sh") && args_.size() > 0 &&
-	 *args_.first() == StringView("-c") )
-#endif
+    if ( !args_.isEmpty() &&
+	 ((__iswin__ && prognm_ == StringView("cmd") &&
+			*args_.first() == StringView("/c")) ||
+	 ( *args_.first() == StringView("/c") &&
+	   ((__islinux__ && prognm_ == StringView("/bin/sh")) ||
+	    (__ismac__ && prognm_ == StringView("/bin/bash"))) )) )
 	return;
 
     bool needsshell = prognm_.startsWith( "echo", OD::CaseInsensitive );
@@ -550,21 +549,29 @@ void OS::MachineCommand::addShellIfNeeded()
 	return;
 
     args_.insertAt( new BufferString(prognm_), 0 );
-#ifdef __win__
-    args_.insertAt( new BufferString("/c"), 0 );
-    prognm_.set( "cmd" );
-#else
-    prognm_.set( "/bin/sh" );
-    for ( auto arg : args_ )
+    if ( __iswin__ )
     {
-	if ( arg->find(' ') && arg->firstChar() != '\'' )
-	    arg->quote();
+	args_.insertAt( new BufferString("/c"), 0 );
+	prognm_.set( "cmd" );
     }
-    const BufferString cmdstr( args_.cat(" ") );
-    args_.setEmpty();
-    args_.add( "-c" ).add( cmdstr.buf() );
-    // The whole command as one arguments. Quotes will be added automatically
-#endif
+    else
+    {
+	if ( __islinux__ )
+	    prognm_.set( "/bin/sh" );
+	else
+	    prognm_.set( "/bin/bash" );
+
+	for ( auto arg : args_ )
+	{
+	    if ( arg->find(' ') && arg->firstChar() != '\'' )
+		arg->quote();
+	}
+
+	const BufferString cmdstr( args_.cat(" ") );
+	args_.setEmpty();
+	args_.add( "-c" ).add( cmdstr.buf() );
+	// The whole command as one arguments. Quotes will be added automatically
+    }
 }
 
 
