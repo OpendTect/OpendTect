@@ -16,8 +16,7 @@ uiOfferInfoWin::uiOfferInfoWin( uiParent* p, const uiString& captn, int nrln )
 {
     setDeleteOnClose( true );
 
-    uitb_ = new uiTextBrowser( this, captn.getOriginalString(), mUdf(int),
-								    false );
+    uitb_ = new uiTextBrowser( this, captn.getString(), mUdf(int), false );
     uitb_->setPrefHeightInChar( nrln );
     uitb_->setPrefWidthInChar( 80 );
     showAlwaysOnTop();

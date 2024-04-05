@@ -700,7 +700,8 @@ uiSize uiTextItem::getTextSize() const
     QFontMetrics qfm( qtextitem_->font() );
     // Extra space is added to avoid clipping on some platforms and the value is
     // arbitrarily chosen.
-    return uiSize( mGetTextWidth(qfm,text_.getOriginalString())+mExtraSpace,
+    const BufferString& txt = text_.getString();
+    return uiSize( mGetTextWidth(qfm,txt.buf())+mExtraSpace,
 		   qfm.height()+mExtraSpace );
 }
 
