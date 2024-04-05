@@ -40,9 +40,8 @@ mGlobal(Basic) const char* GetSoftwareDir(bool acceptnone);
 */
 
 mGlobal(Basic) bool isDeveloperBuild();
-/*!< Thus is running from a developers build. Checks the presence of
+/*!< This is running from a developers build. Checks the presence of
      CMakeCache.txt file at the location of GetSoftwareDir */
-
 
 mGlobal(Basic) const char* GetBinSubDir(void);
 /*!< Directory for the release-type, i.e. Debug, Release, ... */
