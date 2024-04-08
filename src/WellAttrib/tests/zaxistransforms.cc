@@ -37,7 +37,7 @@ static const MultiID tablet2did_m = MultiID( "100090.6" );
 static const MultiID tablet2did_ft = MultiID( "100090.7" );
 
 //Linear Vel Paramenters
-static const double v0()
+static double v0()
 {
     return LinearVelTransform::velUnit()->getUserValueFromSI( 3000.f );
 }
@@ -334,7 +334,6 @@ bool testFltSetOutput( RefMan<EM::EMObject> emobj, int zatfidx )
 
 bool handleEarthModelObjects( ZAxisTransform& zatf, int survidx, int zatfidx )
 {
-    const bool isnativetime = SI().zIsTime();
     TypeSet<OD::Pair<MultiID,EM::ObjectType>> inpdataset =
 	(zatf.fromZDomainInfo().def_ == SI().zDomain() ) ?
 			    getNativeInputData() : getTranformedInputData();
@@ -379,6 +378,7 @@ bool handleEarthModelObjects( ZAxisTransform& zatf, int survidx, int zatfidx )
 	    switch(objtype)
 	    {
 		case EM::ObjectType::Hor3D:
+		case EM::ObjectType::AnyHor:
 		    testHorizon3DOutput( surftrans->getTransformedSurface(
 			    data->outmid_), survidx, zatfidx );
 		    break;
@@ -390,6 +390,12 @@ bool handleEarthModelObjects( ZAxisTransform& zatf, int survidx, int zatfidx )
 		    testFltSetOutput( surftrans->getTransformedSurface(
 						data->outmid_), zatfidx );
 		    break;
+		case EM::ObjectType::Hor2D:
+		case EM::ObjectType::FltSS2D:
+		case EM::ObjectType::FltSS2D3D:
+		case EM::ObjectType::FltSS3D:
+		case EM::ObjectType::Body:
+		case EM::ObjectType::Unknown:
 	    }
 
 	}

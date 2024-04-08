@@ -605,8 +605,6 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	    continue;
 
 	const int sz = stick->size();
-	const Coord3 firstcrd = stick->getCoordAtIndex( 0 );
-	const Coord3 lastcrd = stick->getCoordAtIndex( sz-1 );
 	const Coord3& editnormal = stick->getNormal();
 	bool stickinserted = false;
 	int colidx=1;
@@ -743,8 +741,6 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 		continue;
 
 	    const int sz = stick->size();
-	    const Coord3 firstcrd = stick->getCoordAtIndex( 0 );
-	    const Coord3 lastcrd = stick->getCoordAtIndex( sz-1 );
 	    const Coord3& editnormal = stick->getNormal();
 	    bool stickinserted = false;
 	    int colidx = 1;
@@ -837,9 +833,6 @@ bool FaultStickSetT2DTransformer::doTransformation(
 	return false;
 
     const int sz = stick->size();
-    const Coord3 firstcrd = stick->getCoordAtIndex(0);
-    const Coord3 lastcrd = stick->getCoordAtIndex(sz - 1);
-
     const Coord3& editnormal = stick->getNormal();
     bool stickinserted = false;
     int colidx=1;
