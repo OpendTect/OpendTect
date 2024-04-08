@@ -396,6 +396,7 @@ bool handleEarthModelObjects( ZAxisTransform& zatf, int survidx, int zatfidx )
 		case EM::ObjectType::FltSS3D:
 		case EM::ObjectType::Body:
 		case EM::ObjectType::Unknown:
+		    break;
 	    }
 
 	}
