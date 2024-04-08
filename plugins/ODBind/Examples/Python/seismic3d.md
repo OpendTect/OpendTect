@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.5
+      jupytext_version: 1.14.0
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -27,6 +27,7 @@ jupyter:
 
 ```python
 import numpy as np
+from tqdm import tqdm
 from odbind.survey import Survey
 from odbind.seismic3d import Seismic3D, MergeMode
 ```
@@ -170,7 +171,7 @@ chunks[0]
 inlrg, crlrg, zrg = vol.ranges
 with Seismic3D.create(f3demo, 'create_test', inlrg, crlrg, [100,200,4], ['comp1'], 'CBVS', True, True) as test:
         test.volume[:] = vol.volume[300:400:10, 600:620,[100,200,4]]
-        
+
 Seismic3D(f3demo,'create_test').info()
 ```
 
@@ -180,7 +181,7 @@ Seismic3D(f3demo,'create_test').info()
 inlrg, crlrg, zrg = vol.ranges
 with Seismic3D.create(f3demo, 'create_test', inlrg, crlrg, zrg, ['comp1'], 'CBVS', True, True) as test:
         test.iline[:] = vol.iline[300:310:2]
-        
+
 Seismic3D(f3demo,'create_test').info()
 ```
 
@@ -190,21 +191,20 @@ Seismic3D(f3demo,'create_test').info()
 inlrg, crlrg, zrg = vol.ranges
 with Seismic3D.create(f3demo, 'create_test', inlrg, crlrg, zrg, ['comp1'], 'CBVS', True, True) as test:
         test.trace[:] = vol.trace[200:220,400:500:100]
-        
-Seismic3D(f3demo,'create_test').info()    
+
+Seismic3D(f3demo,'create_test').info()
 ```
 
 #### By Chunk
 
 ```python
 inlrg, crlrg, zrg = vol.ranges
-vol.chunk.set_chunkpars(chunkshape=(100,100,100),overlap=(10,10,10),mergemode=MergeMode.Average)
+inchunks = vol.chunk
+inchunks.set_chunkpars(volume=(inlrg,crlrg,zrg),chunkshape=(192,192,192),overlap=(16,16,16),mergemode=MergeMode.Average)
 with Seismic3D.create(f3demo, 'create_test', inlrg, crlrg, zrg, ['comp1'], 'CBVS', True, True) as test:
-    test.chunk.set_chunkpars_from(vol.chunk)
-    for idx in range(20):
-        chunk = vol.chunk[idx]
+    for chunk in tqdm(inchunks):
         test.chunk[:] = chunk
-        
+
 Seismic3D(f3demo,'create_test').info()
 ```
 
