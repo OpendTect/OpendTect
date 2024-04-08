@@ -483,7 +483,7 @@ if( OD_MODULE_TESTPROGS OR OD_MODULE_PROGS OR OD_MODULE_GUI_PROGS OR OD_ELEVATED
 
 	if ( APPLE )
 	    list ( APPEND TARGET_PROPERTIES
-		   INSTALL_RPATH "\@executable_path/../Frameworks" )
+		   INSTALL_RPATH "\@executable_path/..$<$<CONFIG:Debug>:/..>/Frameworks$<$<CONFIG:Debug>:/Debug>" )
 	endif()
 
 	if ( DEFINED OD_EXEC_FOLDER )
@@ -558,7 +558,7 @@ if( OD_MODULE_BATCHPROGS )
 
 	if ( APPLE )
 	    list ( APPEND TARGET_PROPERTIES
-		   INSTALL_RPATH "\@executable_path/../Frameworks" )
+		   INSTALL_RPATH "\@executable_path/..$<$<CONFIG:Debug>:/..>/Frameworks$<$<CONFIG:Debug>:/Debug>" )
 	endif()
 
 	if ( DEFINED OD_FOLDER )
@@ -647,7 +647,7 @@ foreach ( TEST_FILE ${OD_TEST_PROGS} ${OD_BATCH_TEST_PROGS} ${OD_NIGHTLY_TEST_PR
 
     if ( APPLE )
 	list ( APPEND TARGET_PROPERTIES
-	       INSTALL_RPATH "\@executable_path/../Frameworks" )
+	       INSTALL_RPATH "\@executable_path/..$<$<CONFIG:Debug>:/..>/Frameworks$<$<CONFIG:Debug>:/Debug>" )
     endif()
 
     ADD_TARGET_PROPERTIES( ${TEST_NAME} )

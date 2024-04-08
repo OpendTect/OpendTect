@@ -35,10 +35,10 @@ file ( REMOVE ${OD_SOURCELIST_FILE} )
 # LOCATION: runtime libraries directory
 # RUNTIME: executables directory
 if ( APPLE )
-    set ( OD_ARCHIVE_DIRECTORY "Contents/Frameworks" )
-    set ( OD_LIBRARY_DIRECTORY "Contents/Frameworks" )
-    set ( OD_RUNTIME_DIRECTORY "Contents/MacOS" )
-    set ( OD_PDB_DIRECTORY "Contents/MacOS" ) # not really used
+    set ( OD_ARCHIVE_DIRECTORY "Contents/Frameworks$<$<CONFIG:Debug>:/Debug>" )
+    set ( OD_LIBRARY_DIRECTORY "Contents/Frameworks$<$<CONFIG:Debug>:/Debug>" )
+    set ( OD_RUNTIME_DIRECTORY "Contents/MacOS$<$<CONFIG:Debug>:/Debug>" )
+    set ( OD_PDB_DIRECTORY "Contents/MacOS$<$<CONFIG:Debug>:/Debug>" ) # not really used
 else()
     set ( OD_ARCHIVE_DIRECTORY "bin/${OD_PLFSUBDIR}/$<IF:$<CONFIG:Debug>,Debug,Release>" )
     set ( OD_LIBRARY_DIRECTORY "bin/${OD_PLFSUBDIR}/$<IF:$<CONFIG:Debug>,Debug,Release>" )
