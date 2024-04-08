@@ -690,7 +690,7 @@ endif( OD_USEBATCH )
 include_directories( SYSTEM ${OD_MODULE_INCLUDESYSPATH} )
 include_directories( ${OD_MODULE_INCLUDEPATH} )
 
-if ( WIN32 )
+if ( WIN32 AND OD_MODULE_HAS_LIBRARY )
 
     if ( OD_IS_PLUGIN AND NOT "${OD_${OD_MODULE_NAME}_EXTERNAL_LIBS}" STREQUAL "" )
 	add_custom_command( TARGET ${OD_MODULE_NAME} POST_BUILD
