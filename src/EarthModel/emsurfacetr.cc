@@ -514,13 +514,11 @@ dGBFaultSet3DReader( const IOObj& ioobj, EM::FaultSet3D& fltset )
     EM::EMM().readDisplayPars( ioobj.key(), disppars );
     fltset_.useDisplayPar( disppars );
     totalnr_ = dl_.size();
-    mAttachCB(poststep,dGBFaultSet3DReader::postStepCB);
 }
 
 
 ~dGBFaultSet3DReader()
 {
-    detachAllNotifiers();
 }
 
 od_int64 nrDone() const override
@@ -573,10 +571,13 @@ int nextStep() override
 }
 
 
-void postStepCB( CallBacker* )
+bool doFinish( bool success, od_ostream*/**/ ) override
 {
     if ( curidx_ >= totalnr_ )
 	fltset_.setEnvelope( tkzsenvelope_ );
+
+    fltset_.setFullyLoaded( success );
+    return success;
 }
 
 	EM::FaultSet3D&     fltset_;
