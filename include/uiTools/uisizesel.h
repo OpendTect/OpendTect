@@ -27,6 +27,10 @@ public:
     void		setNrDim(int);
     int			currentNrDim() const;
     void		setSymmetric(bool yn);
+    void		setSnap(bool yn,int step,int dim=-1);
+    void		setMinValue(int minval,int dim=-1);
+    int			minValue(int dim) const;
+    int			stepValue(int dim) const;
 
     void		setImageSize(int dim,int sz);
     int			getImageSize(int dim) const;
