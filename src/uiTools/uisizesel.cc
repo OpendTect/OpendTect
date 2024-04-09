@@ -129,6 +129,58 @@ void uiSizeSel::setSymmetric( bool yn )
 }
 
 
+void uiSizeSel::setSnap( bool yn, int step, int dim )
+{
+    if ( dim==-1 )
+    {
+	for ( auto* fld : sizeflds_ )
+	{
+	    fld->doSnap( yn );
+	    fld->setStep( step );
+	}
+    }
+
+    if ( sizeflds_.validIdx(dim) )
+    {
+	sizeflds_[dim]->doSnap( yn );
+	sizeflds_[dim]->setStep( step );
+    }
+}
+
+
+void uiSizeSel::setMinValue( int val, int dim )
+{
+    if ( dim==-1 )
+    {
+	for ( auto* fld : sizeflds_ )
+	    fld->setMinValue( val );
+	return;
+    }
+
+    if ( sizeflds_.validIdx(dim) )
+	sizeflds_[dim]->setMinValue( val );
+
+}
+
+
+int uiSizeSel::minValue( int dim ) const
+{
+    if ( sizeflds_.validIdx(dim) )
+	return sizeflds_[dim]->minValue();
+
+    return mUdf(int);
+}
+
+
+int uiSizeSel::stepValue( int dim ) const
+{
+    if ( sizeflds_.validIdx(dim) )
+	return sizeflds_[dim]->step();
+
+    return mUdf(int);
+}
+
+
 void uiSizeSel::setImageSize( int dim, int sz )
 {
     if ( dim==-1 )
