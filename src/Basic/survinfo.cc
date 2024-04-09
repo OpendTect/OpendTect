@@ -1280,29 +1280,39 @@ void SurveyInfo::setWorkRange( const TrcKeyZSampling& cs )
 
 Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 {
-    const Interval<int> rg = inl
-      ? Interval<int>( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.stop_.inl() )
-      : Interval<int>( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
+    const Interval<int> inlrg = tkzs_.hsamp_.inlRange();
+    const Interval<int> crlrg = tkzs_.hsamp_.crlRange();
 
-    const int w = rg.stop - rg.start;
-
-    return Interval<int>( rg.start - 3*w, rg.stop +3*w );
+    const int maxwidth = mMAX( inlrg.width(), crlrg.width() );
+    Interval<int> ret = inl ? inlrg : crlrg;
+    ret.widen( 3*maxwidth, false );
+    return ret;
 }
 
 
 bool SurveyInfo::isReasonable( const BinID& b ) const
 {
-    return reasonableRange( true ).includes( b.inl(),false ) &&
-	   reasonableRange( false ).includes( b.crl(),false );
+    if ( b.isUdf() )
+	return false;
+
+    return isReasonable( transform(b) );
 }
 
 
 bool SurveyInfo::isReasonable( const Coord& crd ) const
 {
-    if ( Values::isUdf(crd.x) || Values::isUdf(crd.y) )
+    if ( crd.isUdf() )
 	return false;
 
-    return isReasonable( transform(crd) );
+    const Coord mincoord = minCoord( false );
+    const Coord maxcoord = maxCoord( false );
+    const double maxwidth = mMAX(maxcoord.x-mincoord.x, maxcoord.y-mincoord.y);
+    const Interval<double> reasonablexrg( mincoord.x-3*maxwidth,
+					  maxcoord.x+3*maxwidth );
+    const Interval<double> reasonableyrg( mincoord.y-3*maxwidth,
+					  maxcoord.y+3*maxwidth );
+    return reasonablexrg.includes( crd.x, false ) &&
+	   reasonableyrg.includes( crd.y, false );
 }
 
 
