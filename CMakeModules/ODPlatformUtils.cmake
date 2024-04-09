@@ -241,7 +241,7 @@ if(WIN32)
     set ( OD_GUI_SYSTEM "WIN32" )
     set ( OD_LINESEP "\n" ) #Will be converted to \r\n when written to files by cmake
 
-    if ( CMAKE_GENERATOR STREQUAL "Ninja" )
+    if ( CMAKE_GENERATOR MATCHES "Ninja.*" )
         set ( OD_UAC_LINKFLAGS "/MANIFESTUAC:\"level='requireAdministrator' uiAccess='false'\"" )
     else()
         set ( OD_UAC_LINKFLAGS "/level='requireAdministrator' /uiAccess='false'" )
