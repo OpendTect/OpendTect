@@ -1540,9 +1540,8 @@ bool RandomTrackDisplay::getSelMousePosInfo( const visBase::EventInfo& ei,
 
     if ( !mIsUdf(pos) )
     {
-	const uiString topbotname = pos.z<s3dgeom_->zRange().center() ?
-				    tr("Survey Top") : tr("Survey Bottom");
-	info = mFromUiStringTodo( topbotname );
+	info = pos.z<s3dgeom_->zRange().center() ? "Survey Top"
+						 : "Survey Bottom";
     }
 
     return shiftclick || !mIsUdf(pos);

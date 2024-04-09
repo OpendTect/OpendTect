@@ -14,7 +14,7 @@ ________________________________________________________________________
 uiOfferInfoWin::uiOfferInfoWin( uiParent* p, const uiString& captn, int nrln )
     : uiMainWin(p,Setup(captn).withmenubar(false).nrstatusflds(0))
 {
-    uitb_ = new uiTextBrowser(this, mFromUiStringTodo(captn), mUdf(int), false);
+    uitb_ = new uiTextBrowser(this, captn.getString(), mUdf(int), false);
     uitb_->setPrefHeightInChar( nrln );
     uitb_->setPrefWidthInChar( 80 );
     showAlwaysOnTop();

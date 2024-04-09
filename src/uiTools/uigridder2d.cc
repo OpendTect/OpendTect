@@ -146,6 +146,7 @@ uiInverseDistanceGridder2D::~uiInverseDistanceGridder2D()
 
 const char* uiInverseDistanceGridder2D::errMsg() const
 {
+    //TODO : mFromUiStringTodo
     return InverseDistanceGridder2D::searchRadiusErrMsg().getOriginalString();
 }
 //the only thing that can go wrong

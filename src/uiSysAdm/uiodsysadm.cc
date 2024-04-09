@@ -60,7 +60,7 @@ int ODSysAdmMain( uiMain& app )
 }
 
 #define mAddGroup(nm) \
-    groups_ += new GroupEntry( mFromUiStringTodo(nm) ); \
+    groups_ += new GroupEntry( nm.getString() ); \
     grpfld->addItem( nm )
 #define mAddTask(grpnr,nm,fn,comm) \
     te = new TaskEntry( nm, mCB(this,uiODSysAdm,fn), comm ); \

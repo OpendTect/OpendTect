@@ -156,5 +156,5 @@ const char* dgbAttribDescSetTranslator::write( const Attrib::DescSet& ads,
 		mTranslGroupName(AttribDescSet) ) )
 	return "Cannot write attributes to file";
 
-    return 0;
+    return nullptr;
 }

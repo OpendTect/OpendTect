@@ -116,7 +116,7 @@ void butPush( CallBacker* cb )
 {
     if ( inauto_ )
     {
-	paused_ = ctrlbut->text().getOriginalString()[0] == 'P';
+	paused_ = ctrlbut->text().getString()[0] == 'P';
 	ctrlbut->setText( paused_ ? uiStrings::sGo() :
 						  uiSliceSel::sButTxtPause() );
     }

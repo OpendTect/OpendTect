@@ -149,7 +149,7 @@ void uiMsg::setNextCaption( const uiString& s )
 BufferString addendum; \
 const uiString wintitle = \
 	getCaptn( uiMainWin::uniqueWinTitle((s),0,&addendum ) ); \
-const BufferString utfwintitle( wintitle.getOriginalString(), addendum )
+const BufferString utfwintitle( wintitle.getString(), addendum )
 
 
 uiString getCaptn( const uiString& s )
@@ -330,8 +330,8 @@ int uiMsg::showMessageBoxWithDetails( Icon icon,QWidget* parent,
 	break;
     }
 
-    endCmdRecEvent( refnr, 1-retval, yestxt.getOriginalString(),
-		    notxt.getOriginalString(), cncltxt.getOriginalString() );
+    endCmdRecEvent( refnr, 1-retval, yestxt.getString(),
+		    notxt.getString(), cncltxt.getString() );
 
     return retval;
 
@@ -459,7 +459,7 @@ void uiMsg::errorWithDetails( const uiStringSet& strings )
     }
 
     mb->exec();
-    endCmdRecEvent( refnr, 0, oktxt.getOriginalString() );
+    endCmdRecEvent( refnr, 0, oktxt.getString() );
 }
 
 
@@ -551,8 +551,8 @@ int uiMsg::ask2D3D( const uiString& text, bool wcancel )
     const int retval = res==QMessageBox::Yes ? 1 :
 		       res==QMessageBox::No  ? 0 : -1;
 
-    endCmdRecEvent( refnr, 1-retval, yestxt.getOriginalString(),
-		    notxt.getOriginalString(), cncltxt.getOriginalString() );
+    endCmdRecEvent( refnr, 1-retval, yestxt.getString(),
+		    notxt.getString(), cncltxt.getString() );
 
     return retval;
 }
@@ -592,7 +592,7 @@ void uiMsg::about( const uiString& text )
 
     mb->setIconPixmap( mb->windowIcon().pixmap(32) );
     mb->exec();
-    endCmdRecEvent( refnr, 0, oktxt.getOriginalString() );
+    endCmdRecEvent( refnr, 0, oktxt.getString() );
 }
 
 
@@ -612,7 +612,7 @@ void uiMsg::aboutOpendTect( const uiString& text )
 
     mb->setBaseSize( 600, 300 );
     mb->exec();
-    endCmdRecEvent( refnr, 0, oktxt.getOriginalString() );
+    endCmdRecEvent( refnr, 0, oktxt.getString() );
 }
 
 
@@ -719,8 +719,8 @@ bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
     bool checked = cb->isChecked() && res!=QMessageBox::Abort;
     checked = checked || res==QMessageBox::No;
 
-    endCmdRecEvent( refnr, checked ? 1 : 0, oktxt.getOriginalString(),
-		    notxt.getOriginalString() );
+    endCmdRecEvent( refnr, checked ? 1 : 0, oktxt.getString(),
+							notxt.getString() );
     return !checked;
 }
 

@@ -27,7 +27,7 @@ class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
 public:
 
 uiLabelBody( uiLabel& hndle, uiParent* parnt, const uiString& txt )
-    : uiObjBodyImpl<uiLabel,QLabel>(hndle,parnt,txt.getOriginalString())
+    : uiObjBodyImpl<uiLabel,QLabel>(hndle,parnt,txt.getString())
 {}
 
 int nrTxtLines() const override
@@ -45,7 +45,7 @@ int nrTxtLines() const override
 
 
 uiLabel::uiLabel( uiParent* p, const uiString& txt )
-    : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
+    : uiObject(p,txt.getString(),mkbody(p,txt))
     , isrequired_(false)
 {
     init( txt, 0 );
@@ -53,7 +53,7 @@ uiLabel::uiLabel( uiParent* p, const uiString& txt )
 
 
 uiLabel::uiLabel( uiParent* p, const uiString& txt, uiGroup* grp )
-    : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
+    : uiObject(p,txt.getString(),mkbody(p,txt))
     , isrequired_(false)
 {
     init( txt, grp ? grp->attachObj() : 0 );
@@ -61,7 +61,7 @@ uiLabel::uiLabel( uiParent* p, const uiString& txt, uiGroup* grp )
 
 
 uiLabel::uiLabel( uiParent* p, const uiString& txt, uiObject* buddy )
-    : uiObject(p,txt.getOriginalString(),mkbody(p,txt))
+    : uiObject(p,txt.getString(),mkbody(p,txt))
     , isrequired_(false)
 {
     init( txt, buddy );
@@ -133,10 +133,12 @@ void uiLabel::setText( const uiString& txt )
 {
     text_ = txt;
     QString qstr = toQString(text_);
-    if ( isrequired_ ) addRequiredChar( qstr );
+    if ( isrequired_ )
+	addRequiredChar( qstr );
+
     body_->setText( qstr );
     updateWidth();
-    setName( text_.getOriginalString() );
+    setName( text_.getString() );
 }
 
 
@@ -144,9 +146,12 @@ void uiLabel::makeRequired( bool yn )
 {
     isrequired_ = yn;
     QString qstr = toQString(text_);
-    if ( qstr.isEmpty() ) return;
+    if ( qstr.isEmpty() )
+	return;
 
-    if ( isrequired_ ) addRequiredChar( qstr );
+    if ( isrequired_ )
+	addRequiredChar( qstr );
+
     body_->setText( qstr );
     updateWidth();
 }
@@ -156,7 +161,9 @@ void uiLabel::translateText()
 {
     uiObject::translateText();
     QString qstr = toQString(text_);
-    if ( isrequired_ ) addRequiredChar( qstr );
+    if ( isrequired_ )
+	addRequiredChar( qstr );
+
     body_->setText( qstr );
     updateWidth();
 }

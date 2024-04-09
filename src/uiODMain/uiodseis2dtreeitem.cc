@@ -267,7 +267,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx])
 	    const StringView topattrnm = itm->nrChildren()<=0 ? "" :
-		itm->getChild(itm->nrChildren()-1)->name().getOriginalString();
+		itm->getChild(itm->nrChildren()-1)->name().getString().buf();
 	    if ( topattrnm != sKeyRightClick() )
 		itm->addAttribItem();
 	}
@@ -279,14 +279,14 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     else if ( replaceattritm_ && replaceattritm_->findAction(mnuid) )
     {
 	const uiAction* itm = replaceattritm_->findAction( mnuid );
-	StringView attrnm = itm->text().getOriginalString();
+	StringView attrnm = itm->text().getString().buf();
 	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
 	selectLoadAttribute( displayedgeomids, attrnm );
     }
     else if ( removeattritm_ && removeattritm_->findAction(mnuid) )
     {
 	const uiAction* itm = removeattritm_->findAction( mnuid );
-	StringView attrnm = itm->text().getOriginalString();
+	StringView attrnm = itm->text().getString().buf();
 	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -300,7 +300,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	const uiAction* itm = dispattritm_->findAction( mnuid );
 	const bool disp = itm;
 	if ( !itm ) itm = hideattritm_->findAction( mnuid );
-	const StringView attrnm = itm->text().getOriginalString();
+	const StringView attrnm = itm->text().getString().buf();
 	ObjectSet<uiTreeItem> set;
 	findChildren( attrnm, set );
 	for ( int idx=0; idx<set.size(); idx++ )
@@ -309,7 +309,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     else if ( editcoltabitm_ && editcoltabitm_->findAction(mnuid) )
     {
 	const uiAction* itm = editcoltabitm_->findAction( mnuid );
-	const StringView attrnm = itm->text().getOriginalString();
+	const StringView attrnm = itm->text().getString().buf();
 	ObjectSet<uiTreeItem> set;
 	findChildren( attrnm, set );
 	if ( set.size() )

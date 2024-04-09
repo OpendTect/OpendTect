@@ -267,7 +267,7 @@ void odSeismic2D::putData( const char* linenm, const float** data,
 
 	if ( !putter->put(*trc) )
 	{
-	    errmsg_ = putter->errMsg().getOriginalString();
+	    errmsg_ = mFromUiStringTodo( putter->errMsg() );
 	    break;
 	}
     }

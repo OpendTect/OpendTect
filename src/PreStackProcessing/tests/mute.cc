@@ -52,7 +52,7 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
 	msg += "Mute definition ";
 	msg += muteobj->name();
 	msg += " cannot be read. ";
-	msg += errmsg.getOriginalString();
+	msg += errmsg.getString();
 	strm<<msg.buf()<<od_newline;
 	return false;
     }

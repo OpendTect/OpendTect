@@ -225,7 +225,8 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition( const TrcKeyZSampling& cs,
 	res.zsamp_.start = scenezrg.snap( res.zsamp_.start );
 	res.zsamp_.stop = scenezrg.snap( res.zsamp_.stop );
 
-	if ( orientation_!=OD::SliceType::Inline && orientation_!=OD::SliceType::Crossline )
+	if ( orientation_!=OD::SliceType::Inline &&
+			    orientation_!=OD::SliceType::Crossline )
 	    res.zsamp_.start = res.zsamp_.stop = scenezrg.snap(zrg.center());
     }
 
@@ -301,7 +302,8 @@ float PlaneDataDisplay::maxDist() const
     if ( scene_ )
 	maxzdist *= scene_->getFixedZStretch();
 
-    return orientation_==OD::SliceType::Z ? maxzdist : SurveyObject::sDefMaxDist();
+    return orientation_==OD::SliceType::Z ? maxzdist
+					  : SurveyObject::sDefMaxDist();
 }
 
 
@@ -999,7 +1001,8 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 	if ( !scene_ ) { info = val; return; }
 
 	const ZDomain::Info& zdinf = scene_->zDomainInfo();
-	info = mFromUiStringTodo(zdinf.userName()); info += ": ";
+	info = zdinf.userName().getString();
+	info += ": ";
 
 	const float userval = tkzs.zsamp_.step * zdinf.userFactor();
 	const int nrdec = Math::NrSignificantDecimals( userval );

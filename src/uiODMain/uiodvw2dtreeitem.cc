@@ -133,7 +133,7 @@ void uiODView2DTreeTop::addFactoryCB( CallBacker* cb )
 	    continue;
 
 	PtrMan<uiTreeItem> itm = tfs_->getFactory(idx)->create();
-	itmbefore = findChild( itm->name().getOriginalString() );
+	itmbefore = findChild( itm->name().getString() );
 	break;
     }
 
@@ -148,7 +148,7 @@ void uiODView2DTreeTop::removeFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,idx,cb);
     PtrMan<uiTreeItem> dummy = tfs_->getFactory(idx)->create();
-    const uiTreeItem* child = findChild( dummy->name().getOriginalString() );
+    const uiTreeItem* child = findChild( dummy->name().getString() );
     if ( !children_.isPresent(child) )
 	return;
 

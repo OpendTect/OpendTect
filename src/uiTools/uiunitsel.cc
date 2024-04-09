@@ -217,8 +217,8 @@ void uiUnitSel::update()
     if ( !olddef.isEmpty() && inpfld_->isPresent(olddef) )
 	inpfld_->setText( olddef );
     else if ( setup_.ptype_ == Mnemonic::Dist )
-	inpfld_->setText( mFromUiStringTodo(getSelTxt(
-					UnitOfMeasure::surveyDefDepthUnit())) );
+	inpfld_->setText(
+		getSelTxt(UnitOfMeasure::surveyDefDepthUnit()).getString() );
     prevuom_ = getUnit();
     displayGroup( !inpfld_->isEmpty() );
 }
