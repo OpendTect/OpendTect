@@ -249,7 +249,7 @@ bool OD::String::toBool() const
     return ::toBool( str() );
 }
 
-namespace SSL
+namespace Crypto
 {
 
 static QCryptographicHash::Algorithm getAlgo( Algorithm typ )
@@ -273,10 +273,10 @@ static QCryptographicHash::Algorithm getAlgo( Algorithm typ )
     return QCryptographicHash::Sha3_512;
 }
 
-} // namespace SSL
+} // namespace Crypto
 
 
-const char* OD::String::getHash( SSL::Algorithm typ ) const
+const char* OD::String::getHash( Crypto::Algorithm typ ) const
 {
     mDeclStaticString(ret);
 
@@ -296,7 +296,7 @@ const char* OD::String::getHash( SSL::Algorithm typ ) const
 }
 
 
-BufferString File::getHash( const char* fnm, SSL::Algorithm typ )
+BufferString File::getHash( const char* fnm, Crypto::Algorithm typ )
 {
     const QCryptographicHash::Algorithm qalgo = getAlgo( typ );
     QFile qfile( fnm );

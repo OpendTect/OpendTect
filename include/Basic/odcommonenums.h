@@ -212,7 +212,7 @@ mDeclareNameSpaceEnumUtils(Basic,DepthType)
 } // namespace ZDomain
 
 
-namespace SSL
+namespace Crypto
 {
 
 enum class Algorithm
@@ -226,7 +226,7 @@ enum class Algorithm
     Sha3_512=6
 };
 
-} // namespace SSL
+} // namespace Crypto
 
 
 mGlobal(Basic) bool isHorizontal(OD::Orientation);

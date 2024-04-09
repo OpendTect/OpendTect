@@ -20,8 +20,8 @@ static const char* sha256hash =
 static const char* sha512hash =
 	"9c6f7579a0257d6cf6f5c4c20476194486f975f04c8aaa6d93e4024014144331"
 	"a7cb0d000adab16b97e58f7832dde17220fe476504714f1dcbe32dda52f0135b";
-static SSL::Algorithm algo1 = SSL::Algorithm::Sha3_256;
-static SSL::Algorithm algo2 = SSL::Algorithm::Sha3_512;
+static Crypto::Algorithm algo1 = Crypto::Algorithm::Sha3_256;
+static Crypto::Algorithm algo2 = Crypto::Algorithm::Sha3_512;
 
 
 static bool testStringHash()

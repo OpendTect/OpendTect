@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 
-namespace SSL { enum class Algorithm; }
+namespace Crypto { enum class Algorithm; }
 
 
 namespace OD
@@ -81,7 +81,7 @@ public:
     float		toFloat() const;
     double		toDouble() const;
     bool		toBool() const;
-    const char*		getHash(SSL::Algorithm) const;
+    const char*		getHash(Crypto::Algorithm) const;
 
     bool		operator >(const String&) const;
     bool		operator <(const String&) const;
