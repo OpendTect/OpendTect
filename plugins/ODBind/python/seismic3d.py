@@ -1018,21 +1018,27 @@ class Chunks3D(Sequence):
     def mergemode(self):
         return self._mergemode
 
-    def set_chunkpars_from(self, chunks):
-        """Copy chunk settings from another dataset
+    @property
+    def ranges(self):
+        """namedtuple[inlrg, crlrg, zrg]: inline, crossline and z range of the 3D seismic volume to chunk (readonly)"""
+        Sampling = namedtuple('Sampling', ['inlrg', 'crlrg', 'zrg'])
+        return Sampling(self._inlrg, self._crlrg, self._zrg)
 
-        Parameters:
-        -----------
-        chunks : Chunks3D object
-        """
+    @property
+    def shape(self) ->tuple[int,int,int]:
+        """tuple[nriln, nrcrl, nrz]: number of inlines, crosslines and z samples of 3D seismic volume being chunked (readonly)"""
+        niln = int((self._inlrg[1]-self._inlrg[0])/self._inlrg[2]) + 1
+        ncrl = int((self._crlrg[1]-self._crlrg[0])/self._crlrg[2]) + 1
+        nz = self._seis3d.z_index(self._zrg[1]) - self._seis3d.z_index(self._zrg[0]) + 1
+        return (niln, ncrl, nz)
 
-        self.set_chunkpars(chunkshape=chunks.chunkshape, overlap=chunks.overlap, mergemode=chunks.mergemode)
-
-    def set_chunkpars(self, chunkshape=(100,100,100), overlap=(0,0,0), mergemode=MergeMode.Blend):
+    def set_chunkpars(self, volume=([],[],[]), chunkshape=(100,100,100), overlap=(0,0,0), mergemode=MergeMode.Blend):
         """Set chunking parameters
 
         Parameters:
         -----------
+        volume : tuple[list[inlstart, inlstop, inlstep], list[crlstart,crlstop, crlstep], listzstart, zstop, zstep] 
+            the subvolume to source chunks from, default is the entire volume
         chunkshape : tuple[int]
             the chunk dimensions as (inline, crossline, zsamples)
         overlap : tuple[int]
@@ -1044,6 +1050,18 @@ class Chunks3D(Sequence):
             Blend is a cosine taper each chunk in the overlap and average
         """
 
+        sampling = self.seis3d.ranges
+        inlrg = []
+        crlrg = []
+        zrg = []
+        if isinstance(volume, tuple) and len(volume)==3 and isinstance(volume[2], list) and isinstance(volume[1], list) and isinstance(volume[0], list):
+            inlrg, crlrg, zrg = volume
+        else:
+            raise TypeError('volume should be [inline_range_list, crossline_range_list, Z_range_list].')
+
+        self._inlrg = inlrg if inlrg else sampling.inlrg
+        self._crlrg = crlrg if crlrg else sampling.crlrg
+        self._zrg = zrg if zrg else sampling.zrg
         self._chunkshape = chunkshape
         self._overlap = overlap
         self._mergemode = mergemode
@@ -1084,10 +1102,10 @@ class Chunks3D(Sequence):
 
         """
         inlidx, crlidx, zidx = self.subvol(idx)
-        inlrg, crlrg, zrg = self._seis3d.ranges
+        inlrg, crlrg, zrg = self.ranges
         inlgetrg = [inlrg[0]+inlidx[0]*inlrg[2], inlrg[0]+inlidx[1]*inlrg[2], inlrg[2]]
         crlgetrg = [crlrg[0]+crlidx[0]*crlrg[2], crlrg[0]+crlidx[1]*crlrg[2], crlrg[2]]
-        zgetrg = [self._seis3d.z_value(zidx[0]), self._seis3d.z_value(zidx[1]), zrg[2]]
+        zgetrg = [zrg[0]+self._seis3d.z_value(zidx[0]), zrg[0]+self._seis3d.z_value(zidx[1]), zrg[2]]
         return self.seis3d.getdata(inlgetrg, crlgetrg, zgetrg)
 
     def __setitem__(self, idx, vol):
@@ -1111,10 +1129,10 @@ class Chunks3D(Sequence):
     def _compute_number_of_chunks(self):
         """Recompute the number of chunks"""
 
-        niln, ncrl, nz = self._seis3d.shape
-        self._ninl_chunks = int(math.ceil(niln/(self._chunkshape[0]-self._overlap[0]+1e-10)))
-        self._ncrl_chunks = int(math.ceil(ncrl/(self._chunkshape[1]-self._overlap[1]+1e-10)))
-        self._nz_chunks = int(math.ceil(nz/(self._chunkshape[2]-self._overlap[2]+1e-10)))
+        niln, ncrl, nz = self.shape
+        self._ninl_chunks = 1 + int(math.ceil(max(0,niln-self._chunkshape[0])/(self._chunkshape[0]-self._overlap[0])))
+        self._ncrl_chunks = 1 + int(math.ceil(max(0,ncrl-self._chunkshape[1])/(self._chunkshape[1]-self._overlap[1])))
+        self._nz_chunks = 1 + int(math.ceil(max(0, nz-self._chunkshape[2])/(self._chunkshape[2]-self._overlap[2])))
         self._numchunks = self._ninl_chunks * self._ncrl_chunks * self._nz_chunks
 
     def subvol(self, idx):
@@ -1136,7 +1154,7 @@ class Chunks3D(Sequence):
         if idx>=self._numchunks:
             raise IndexError(f'idx must be less than number of chunks({self._numchunks})')
 
-        ninl, ncrl, nz = self._seis3d.shape
+        ninl, ncrl, nz = self.shape
         idx = idx % self._numchunks
         z_idx = idx % self._nz_chunks
         crl_idx = int(idx/self._nz_chunks) % self._ncrl_chunks

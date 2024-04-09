@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.5
+      jupytext_version: 1.16.1
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -27,6 +27,7 @@ jupyter:
 
 ```python
 import numpy as np
+from tqdm import tqdm
 from odbind.survey import Survey
 from odbind.seismic3d import Seismic3D, MergeMode
 ```
@@ -198,11 +199,10 @@ Seismic3D(f3demo,'create_test').info()
 
 ```python
 inlrg, crlrg, zrg = vol.ranges
-vol.chunk.set_chunkpars(chunkshape=(100,100,100),overlap=(10,10,10),mergemode=MergeMode.Average)
+inchunks = vol.chunk
+inchunks.set_chunkpars(volume=(inlrg,crlrg,zrg),chunkshape=(192,192,192),overlap=(16,16,16),mergemode=MergeMode.Average)
 with Seismic3D.create(f3demo, 'create_test', inlrg, crlrg, zrg, ['comp1'], 'CBVS', True, True) as test:
-    test.chunk.set_chunkpars_from(vol.chunk)
-    for idx in range(20):
-        chunk = vol.chunk[idx]
+    for chunk in tqdm(inchunks):
         test.chunk[:] = chunk
         
 Seismic3D(f3demo,'create_test').info()
