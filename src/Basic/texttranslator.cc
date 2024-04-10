@@ -57,9 +57,9 @@ TextTranslatorLanguage::TextTranslatorLanguage( const char* localename )
     else
     {
 	uiString name = tr("Language Name",0,1);
-	name.addLegacyVersion( uiString(name.getOriginalString(),
+	name.addLegacyVersion( uiString(name.getString(),
 			       "TextTranslateMgr",
-			       uiString::sODLocalizationApplication(), 0, 1 ));
+			       uiString::sODLocalizationApplication(),0,1) );
 	name.translate( maintrans, *languagename_ );
 	//Force be a part of the plural setup
     }

@@ -224,8 +224,6 @@ public:
     static uiString	getOrderString(int);	//!< 1st, 2nd, 3rd, ...
 
 			// UNtranslated:
-    const char*		getOriginalString() const;
-			//!< *untranslated*, no argument substitution
     BufferString	getString() const;
 			//!< *untranslated* but arguments evaluated
 
@@ -243,6 +241,8 @@ protected:
 
 private:
 
+    const char*			getOriginalString() const;
+				//!< *untranslated*, no argument substitution
     bool			isCacheValid() const;
     const mQtclass(QString)&	getQStringInternal() const;
 

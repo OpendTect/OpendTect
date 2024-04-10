@@ -102,10 +102,6 @@ bool testSharedData()
     c = toUiString("Another message");
     mRunStandardTest( c.getString() != toString(b), "assignment of copy" );
 
-    uiString d = b;
-    mRunStandardTest( d.getOriginalString() == b.getOriginalString(),
-		      "Use of same buffer on normal operations" );
-
     return true;
 }
 

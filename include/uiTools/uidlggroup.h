@@ -40,9 +40,9 @@ public:
 			    revertChanges() may be called after a successful
 			    acceptOK() call, if another tab in the stack fails.
 			*/
-    virtual const char* errMsg() const			{ return nullptr; }
+    virtual const uiString errMsg() const	{ return uiString::empty(); }
 
-    virtual HelpKey	helpKey() const			{ return mNoHelpKey; }
+    virtual HelpKey	helpKey() const		{ return mNoHelpKey; }
 
 protected:
     uiString		caption_;

@@ -24,7 +24,7 @@ public:
 				~uiGridder2DSel();
 
     const Gridder2D*		getSel();
-    const char*			errMsg() const override;
+    const uiString		errMsg() const override;
 
 protected:
     void			selChangeCB(CallBacker*);
@@ -50,7 +50,7 @@ public:
     bool		rejectOK() override;
     bool		revertChanges() override;
 
-    const char*		errMsg() const override;
+    const uiString	errMsg() const override;
 
 protected:
 

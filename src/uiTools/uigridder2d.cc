@@ -87,13 +87,13 @@ const Gridder2D* uiGridder2DSel::getSel()
 }
 
 
-const char* uiGridder2DSel::errMsg() const
+const uiString uiGridder2DSel::errMsg() const
 {
     const int selidx = griddingsel_->getIntValue();
     if ( griddingparams_[selidx] )
 	return griddingparams_[selidx]->errMsg();
 
-    return 0;
+    return uiString::empty();
 }
 
 
@@ -144,10 +144,9 @@ uiInverseDistanceGridder2D::~uiInverseDistanceGridder2D()
 {}
 
 
-const char* uiInverseDistanceGridder2D::errMsg() const
+const uiString uiInverseDistanceGridder2D::errMsg() const
 {
-    //TODO : mFromUiStringTodo
-    return InverseDistanceGridder2D::searchRadiusErrMsg().getOriginalString();
+    return InverseDistanceGridder2D::searchRadiusErrMsg();
 }
 //the only thing that can go wrong
 

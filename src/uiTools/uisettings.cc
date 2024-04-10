@@ -281,8 +281,8 @@ uiSettingsGroup::~uiSettingsGroup()
 {}
 
 
-const char* uiSettingsGroup::errMsg() const
-{ return errmsg_.buf(); }
+const uiString uiSettingsGroup::errMsg() const
+{ return errmsg_; }
 
 
 #define mUpdateSettings( type, setfunc ) \
@@ -362,7 +362,7 @@ bool uiGeneralSettingsGroup::acceptOK()
     const int newiconsz = iconszfld_->getIntValue();
     if ( newiconsz < 10 || newiconsz > 64 )
     {
-	errmsg_.set( "Please specify an icon size in the range 10-64" );
+	errmsg_ = tr("Please specify an icon size in the range 10-64 pixels");
 	return false;
     }
 

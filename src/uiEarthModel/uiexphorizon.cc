@@ -340,7 +340,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     const uiStringSet& headerdrtyps = hdrtyps();
     headerfld_ = new uiGenInput( this, tr("Header"),
 				 StringListInpSpec(headerdrtyps) );
-    headerfld_->setText( headerdrtyps[1].getOriginalString() );
+    headerfld_->setText( headerdrtyps[1].getString() );
     headerfld_->attach( alignedBelow, unitsel_ );
 
     udffld_ = new uiGenInput( this, tr("Undefined value"),

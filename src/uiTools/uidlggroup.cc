@@ -104,13 +104,13 @@ bool uiTabStackDlg::acceptOK(CallBacker*)
 	tabstack_->setCurrentPage( groups_[idx] );
 	if ( !groups_[idx]->acceptOK() )
 	{
-	    const char* errmsg = groups_[idx]->errMsg();
+	    const uiString errmsg = groups_[idx]->errMsg();
 
 	    for ( idx++; idx<groups_.size(); idx++ )
 		groups_[idx]->revertChanges();
 
-	    if ( errmsg )
-		 uiMSG().error( mToUiStringTodo(errmsg) );
+	    if ( !errmsg.isEmpty() )
+		 uiMSG().error( errmsg );
 
 	    return false;
 	}
@@ -127,9 +127,9 @@ bool uiTabStackDlg::rejectOK(CallBacker*)
     {
 	if ( !groups_[idx]->rejectOK() )
 	{
-	    const char* errmsg = groups_[idx]->errMsg();
-	    if ( errmsg )
-		 uiMSG().error( mToUiStringTodo(errmsg) );
+	    const uiString errmsg = groups_[idx]->errMsg();
+	    if ( !errmsg.isEmpty() )
+		 uiMSG().error( errmsg );
 
 	    return false;
 	}

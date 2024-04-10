@@ -99,9 +99,9 @@ bool uiVelocityGridder::acceptOK( CallBacker* cb )
     const Gridder2D* gridder2d = griddersel_->getSel();
     if ( !gridder2d )
     {
-	const BufferString errmsg = griddersel_->errMsg();
+	const uiString errmsg = griddersel_->errMsg();
 	if ( !errmsg.isEmpty() )
-	    uiMSG().error( toUiString(errmsg) );
+	    uiMSG().error( errmsg );
 
 	return false;
     }
