@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "bufstringset.h"
+#include "uistring.h"
 
 
 namespace Math
@@ -106,7 +107,7 @@ protected:
 -*/
 
 mExpClass(General) ExpressionParser
-{
+{ mODTextTranslationClass(ExpressionParser)
 public:
 
 			ExpressionParser( const char* str=0,
@@ -121,14 +122,14 @@ public:
     static Expression::VarType varTypeOf(const char*);
     static int		constIdxOf(const char*);
 
-    const char*		errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const		{ return errmsg_; }
     bool		foundOldAbs() const	{ return abswarn_; }
 
 protected:
 
     BufferString	inp_;
     const bool		inputsareseries_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
     mutable bool	abswarn_;
 
     Expression*		parse(const char*) const;

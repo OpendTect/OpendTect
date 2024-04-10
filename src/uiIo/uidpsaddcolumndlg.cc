@@ -101,8 +101,9 @@ void uiDPSAddColumnDlg::parsePush( CallBacker* )
     mathobj_ = mep.parse();
     if ( !mathobj_ )
     {
-	if ( mep.errMsg() )
-	    uiMSG().error( mToUiStringTodo(mep.errMsg()) );
+	if ( !mep.errMsg().isEmpty() )
+	    uiMSG().error( mep.errMsg() );
+
 	return;
     }
 

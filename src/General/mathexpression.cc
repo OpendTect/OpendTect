@@ -844,10 +844,12 @@ bool Math::ExpressionParser::findOuterParens( char* str, int len,
 	    else if ( parenslevel < 0 )
 	    {
 		str[idx+1] = '\0';
-		errmsg_.set( "Found a closing parenthesis ')' "
-			     "without a matching opening parenthesis '('" );
+		errmsg_ = tr("Found a closing parenthesis ')' "
+			     "without a matching opening parenthesis '('");
 		if ( idx > 1 )
-		    errmsg_.add( ": " ).add( str );
+		    errmsg_.appendPhrase( toUiString(str),
+							uiString::MoreInfo );
+
 		return true;
 	    }
 	}
@@ -855,9 +857,11 @@ bool Math::ExpressionParser::findOuterParens( char* str, int len,
 
     if ( parenslevel > 0 )
     {
-	errmsg_.set( "Not enough closing parentheses ')' found" );
+	errmsg_ = tr("Not enough closing parentheses ')' found");
 	if ( firstparenpos >= 0 )
-	    errmsg_.add( ": " ).add( str + firstparenpos );
+	    errmsg_.appendPhrase( toUiString(str+firstparenpos),
+							uiString::MoreInfo );
+
 	return true;
     }
 
@@ -1003,7 +1007,9 @@ bool Math::ExpressionParser::findInequality( char* str, int len,
 	    if ( (iseq || isnot) && nextch != '=' )
 	    {
 		str[idx+2] = '\0';
-		errmsg_.set( "Invalid operator found: ").add( str+idx );
+		errmsg_ = tr("Invalid operator found");
+		errmsg_.appendPhrase( toUiString(str+idx), uiString::MoreInfo,
+						uiString::OnSameLine );
 		return true;
 	    }
 	    if ( idx == 0 )
@@ -1015,10 +1021,11 @@ bool Math::ExpressionParser::findInequality( char* str, int len,
 	    PtrMan<Math::Expression> inp0 = parse( str );
 	    if ( !inp0 )
 		return true;
+
 	    const int nrchars = nextch == '=' ? 2 : 1;
 	    PtrMan<Math::Expression> inp1 = parse( str + idx + nrchars );
 	    if ( !inp1 )
-		{ return true; }
+		return true;
 
 	    if ( islt )
 	    {
@@ -1342,15 +1349,16 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 {
     errmsg_.setEmpty();
     if ( StringView(inpstr).isEmpty() )
-	return 0;
+	return nullptr;
 
     BufferString workstr( inpstr );
     workstr.remove( ' ' );
     const int len = workstr.size();
     if ( len < 1 )
-	return 0;
+	return nullptr;
+
     char* str = workstr.getCStr();
-    Math::Expression* ret = 0;
+    Math::Expression* ret = nullptr;
 
     if ( findOuterParens( str, len, ret ) )
 	return ret;
@@ -1381,10 +1389,13 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 
     if ( workstr.isEqual("pi",OD::CaseInsensitive) )
 	return new Math::ExpressionConstant( M_PI );
+
     if ( workstr.isEqual("euler",OD::CaseInsensitive) )
 	return new Math::ExpressionConstant( 2.7182818284590452353602874713 );
+
     if ( workstr.isEqual("undef",OD::CaseInsensitive) )
 	return new Math::ExpressionConstant( mUdf(double) );
+
     if ( workstr.isEqual("null",OD::CaseInsensitive) )
 	return new Math::ExpressionConstant( mUdf(double) );
 
@@ -1392,15 +1403,24 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 	return ret;
 
     if ( errmsg_.isEmpty() )
-	errmsg_.set( "Cannot parse this:\n'" ).add( inpstr ).add( "'" );
-    return 0;
+    {
+	errmsg_ = tr("Cannot parse this" ).arg( inpstr );
+	uiString argument( toUiString(inpstr) );
+	argument.quote( true );
+	errmsg_.appendPhrase( argument, uiString::SeparType::MoreInfo );
+    }
+
+    return nullptr;
 }
 
 
 Math::Expression* Math::ExpressionParser::parse() const
 {
     if ( inp_.isEmpty() )
-	{ errmsg_ = "Empty input"; return 0; }
+    {
+	errmsg_ = tr("No input provided");
+	return nullptr;
+    }
 
     return parse( inp_.buf() );
 }

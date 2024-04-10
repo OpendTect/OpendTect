@@ -83,7 +83,9 @@ void uiDPSRefineSelDlg::parsePush( CallBacker* )
     mathobj_ = mep.parse();
     if ( !mathobj_ )
     {
-	if ( mep.errMsg() ) uiMSG().error( mToUiStringTodo(mep.errMsg()) );
+	if ( !mep.errMsg().isEmpty() )
+	    uiMSG().error( mep.errMsg() );
+
 	dcolids_.erase();
 	vartable_->display( false );
 	return;
