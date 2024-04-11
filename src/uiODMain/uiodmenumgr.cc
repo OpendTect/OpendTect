@@ -1383,7 +1383,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 
 void uiODMenuMgr::keyPressCB( CallBacker* )
 {
-    KeyboardEventHandler& handler = uiMain::keyboardEventHandler();
+    const KeyboardEventHandler& handler = uiMain::keyboardEventHandler();
     if ( !handler.hasEvent() )
     {
 	kbevent.key_ = OD::KB_NoKey;
@@ -1397,8 +1397,6 @@ void uiODMenuMgr::keyPressCB( CallBacker* )
 
 void uiODMenuMgr::keyReleaseCB( CallBacker* )
 {
-    KeyboardEventHandler& handler = uiMain::keyboardEventHandler();
-    handler.setHandled( true );
     kbevent.key_ = OD::KB_NoKey;
 }
 
