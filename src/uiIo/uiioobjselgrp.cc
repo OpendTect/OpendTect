@@ -659,6 +659,13 @@ void uiIOObjSelGrp::getChosen( BufferStringSet& nms ) const
 {
     nms.setEmpty();
     const BufferStringSet& objnms = dataset_.getIOObjNms();
+    const int nrobjs = objnms.size();
+    if ( nrobjs != listfld_->size() )
+    {
+	pErrMsg("Should not happen");
+	return;
+    }
+
     for ( int idx=0; idx<listfld_->size(); idx++ )
     {
 	if ( listfld_->isChosen(idx) )
