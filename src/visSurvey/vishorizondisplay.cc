@@ -2058,6 +2058,12 @@ void HorizonDisplay::updateSectionSeeds(
     for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
     {
 	visBase::MarkerSet* markerset = posattribmarkers_[idx];
+	if ( zaxistransform_ && !isAlreadyTransformed() )
+	{
+	    markerset->turnAllMarkersOn( false );
+	    continue;
+	}
+
 	for ( int idy=0; idy<markerset->getCoordinates()->size(); idy++ )
 	{
 	    markerset->turnMarkerOn( idy,!displayonlyatsections_ );
@@ -2074,12 +2080,6 @@ void HorizonDisplay::updateSectionSeeds(
 
 		if ( transformation_ )
 		     mVisTrans::transform( transformation_,  markerpos );
-
-		if ( !isAlreadyTransformed() )
-		{
-		    markerset->turnMarkerOn( idy, false );
-		    continue;
-		}
 
 		for ( int idz=0; idz<verticalsections.size(); idz++ )
 		{
