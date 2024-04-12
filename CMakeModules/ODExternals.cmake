@@ -116,7 +116,7 @@ macro( DEFINE_GIT_EXTERNAL DIR URL_STR BRANCH )
 	    ERROR_VARIABLE OUTPUT
 	    RESULT_VARIABLE STATUS )
 	if ( ${STATUS} EQUAL 0 )
-	    if ( NOT OUTPUT MATCHES ".*Already up to date.*" )
+	    if ( NOT OUTPUT MATCHES ".*Already up.to.date.*" )
 		message ( STATUS "external/${DIR} is updated" )
 		if ( DEFINED OD_BINARY_BASEDIR )
 		    set( CACHEFILE "${OD_BINARY_BASEDIR}" )
