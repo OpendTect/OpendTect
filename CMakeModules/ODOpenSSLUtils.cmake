@@ -5,6 +5,14 @@
 #________________________________________________________________________
 #
 
+macro( OD_SETUP_OPENSSL_PROG )
+    set( OPENSSL_EXEC "${OPENSSL_ROOT_DIR}/bin/openssl" )
+    if ( WIN32 )
+	set( OPENSSL_EXEC "${OPENSSL_EXEC}.exe" )
+    endif()
+    
+endmacro( OD_SETUP_OPENSSL_PROG )
+
 macro( OD_ADD_QTOPENSSL_HINT )
     if ( EXISTS "${QT_DIR}" )
 	get_filename_component( QTINSTDIR ${QT_DIR} REALPATH )
@@ -73,6 +81,10 @@ macro( OD_SETUP_OPENSSL )
 	elseif( OD_USEOPENSSL )
 	    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS OpenSSL::SSL )
 	    OD_SETUP_OPENSSLCOMP( SSL )
+	endif()
+	OD_SETUP_OPENSSL_PROG()
+	if ( EXISTS "${OPENSSL_EXEC}" )
+	    add_definitions( -D__OPENSSL_EXEC__="${OPENSSL_EXEC}" )
 	endif()
     endif()
 
