@@ -100,8 +100,9 @@ bool odWellTranslator::implRename( const IOObj* ioobj,
 
     if ( Well::MGR().isLoaded(ioobj->key()) )
     {
-	Well::Data* wd = Well::MGR().get( ioobj->key() );
-	if ( wd ) wd->setName( ioobj->name() );
+	RefMan<Well::Data> wd = Well::MGR().get( ioobj->key() );
+	if ( wd )
+	    wd->setName( ioobj->name() );
     }
 
     return true;
