@@ -192,6 +192,13 @@ AILayer::AILayer( const RefLayer& oth )
 }
 
 
+AILayer::AILayer( const AILayer& oth )
+    : RefLayer()
+{
+    AILayer::copyFrom( oth );
+}
+
+
 AILayer::~AILayer()
 {
 }

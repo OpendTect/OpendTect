@@ -39,6 +39,7 @@ mExpClass(Algo) RefLayer
 {
 public:
     virtual		~RefLayer();
+			RefLayer(const RefLayer&)		= delete;
 
     enum Type		{ Acoustic, Elastic, VTI, HTI };
 			mDeclareEnumUtils(Type);
@@ -103,7 +104,7 @@ public:
 protected:
 			RefLayer();
 
-    virtual void copyFrom(const RefLayer&)			= 0;
+    virtual void	copyFrom(const RefLayer&)			= 0;
 
 };
 
@@ -120,6 +121,7 @@ public:
 		//in case one of them is undef.
 		AILayer(float thkness,float ai,float den,
 			bool needcompthkness);
+		AILayer(const AILayer&);
 		AILayer(const RefLayer&);
 		~AILayer();
 
