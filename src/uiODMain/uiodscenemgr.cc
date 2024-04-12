@@ -11,32 +11,32 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "scene.xpm"
 
-#include "uiattribpartserv.h"
-#include "uiempartserv.h"
-#include "uiodapplmgr.h"
-#include "uipickpartserv.h"
-#include "uivispartserv.h"
-#include "uisettings.h"
-#include "uigeninput.h"
-
+#include "ui3dviewer.h"
 #include "uiaction.h"
+#include "uiattribpartserv.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uidockwin.h"
+#include "uiempartserv.h"
 #include "uifont.h"
+#include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uimain.h"
 #include "uimdiarea.h"
 #include "uimsg.h"
+#include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
 #include "uiodviewer2dmgr.h"
+#include "uipickpartserv.h"
 #include "uiprintscenedlg.h"
-#include "ui3dviewer.h"
 #include "uiscenepropdlg.h"
+#include "uisettings.h"
 #include "uistatusbar.h"
 #include "uistrings.h"
 #include "uitreeitemmanager.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
+#include "uivispartserv.h"
 #include "uiwindowgrabber.h"
 
 #include "emfaultstickset.h"
@@ -47,6 +47,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmarchingcubessurface.h"
 #include "emrandomposbody.h"
+#include "envvars.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "uiosgutil.h"
@@ -89,19 +90,19 @@ static const char* sKeyWarnStereo = "Warning.Stereo Viewing";
 	scenes_[idx]->memb->fn( arg )
 
 uiODSceneMgr::uiODSceneMgr( uiODMain* a )
-    : appl_(*a)
+    : sceneClosed(this)
+    , treeToBeAdded(this)
+    , treeAdded(this)
+    , scenesHidden(this)
+    , scenesShown(this)
+    , viewModeChanged(this)
+    , activeSceneChanged(this)
+    , appl_(*a)
     , mdiarea_(new uiMdiArea(a,"OpendTect work space"))
     , vwridx_(0)
     , tifs_(new uiTreeFactorySet)
     , wingrabber_(new uiWindowGrabber(a))
-    , activeSceneChanged(this)
-    , sceneClosed(this)
-    , treeToBeAdded(this)
-    , viewModeChanged(this)
     , tiletimer_(new Timer)
-    , treeAdded(this)
-    , scenesShown(this)
-    , scenesHidden(this)
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 		       OD::Only3D );
@@ -164,6 +165,13 @@ uiODSceneMgr::~uiODSceneMgr()
 }
 
 
+bool uiODSceneMgr::canAddSceneAtStartup()
+{
+    static bool addscene = !GetEnvVarYN( "OD_NOSCENE_AT_STARTUP" );
+    return addscene;
+}
+
+
 void uiODSceneMgr::initMenuMgrDepObjs()
 {
     if ( scenes_.isEmpty() )
@@ -200,6 +208,9 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 		const uiString& name )
 {
+    if ( !canAddSceneAtStartup() )
+	return SceneID::udf();
+
     Scene& scn = mkNewScene();
     const SceneID sceneid = visServ().addScene();
     mDynamicCastGet(visSurvey::Scene*,visscene,visServ().getObject(sceneid));
@@ -261,7 +272,7 @@ SceneID uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 }
 
 
-void uiODSceneMgr::newSceneUpdated( CallBacker* cb )
+void uiODSceneMgr::newSceneUpdated( CallBacker* )
 {
     if ( scenes_.size() >0 && scenes_.last()->vwr3d_ )
     {
@@ -667,7 +678,18 @@ void uiODSceneMgr::viewCrl( CallBacker* )
 
 void uiODSceneMgr::setViewSelectMode( int md )
 {
-    mDoAllScenes(vwr3d_,viewPlane,(ui3DViewer::PlaneType)md);
+    mDoAllScenes(vwr3d_,viewPlane, sCast(ui3DViewer::PlaneType,md) );
+}
+
+
+void uiODSceneMgr::setViewSelectMode( SceneID sceneid,
+				      ui3DViewer::PlaneType type )
+{
+    ui3DViewer* vwr = get3DViewer( sceneid );
+    if ( !vwr )
+	return;
+
+    vwr->viewPlane( type );
 }
 
 
@@ -761,7 +783,9 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
 {
     ObjectSet<ui3DViewer> vwrs;
     get3DViewers( vwrs );
-    if ( vwrs.isEmpty() ) return;
+    if ( vwrs.isEmpty() )
+	return;
+
     mDoAllScenes(vwr3d_,toggleCameraType,);
     const bool isperspective = vwrs[0]->isCameraPerspective();
     if ( appl_.menuMgrAvailable() )
@@ -901,20 +925,41 @@ void uiODSceneMgr::mdiAreaChanged( CallBacker* )
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().updateSceneMenu();
 //    mdiarea_->paralyse( wasparalysed );
+
+    const SceneID sceneid = getActiveSceneID();
+    sceneChanged( sceneid );
+}
+
+
+void uiODSceneMgr::sceneChanged( SceneID sceneid )
+{
+    uiODSceneMgr::Scene* scene = getScene( sceneid );
+    if ( scene )
+    {
+	scene->dw_->raise();
+	if ( scene->vwr3d_ && appl_.menuMgrAvailable() )
+	    appl_.menuMgr().setCameraPixmap(
+			scene->vwr3d_->isCameraPerspective() );
+    }
+
     activeSceneChanged.trigger();
 }
 
 
 void uiODSceneMgr::setActiveScene( int idx )
 {
-    uiStringSet nms;
-    int act;
-    getSceneNames( nms, act );
-
-    mdiarea_->setActiveWin( nms[idx].getFullString() );
-    activeSceneChanged.trigger();
+    uiODSceneMgr::Scene* scene = scenes_.validIdx(idx) ? scenes_[idx] : nullptr;
+    if ( scene )
+	setActiveScene( scene->vwr3d_->sceneID() );
 }
 
+
+void uiODSceneMgr::setActiveScene( SceneID sceneid )
+{
+    const BufferString scenenm = getSceneName( sceneid ).getFullString();
+    mdiarea_->setActiveWin( scenenm );
+    sceneChanged( sceneid );
+}
 
 
 void uiODSceneMgr::initTree( Scene& scn, int vwridx )
@@ -962,6 +1007,15 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     scn.lv_->display( true );
     appl_.addDockWindow( *scn.dw_, uiMainWin::Left );
+    if ( scenes_.size() > 1 )
+    {
+	const int sceneidx = scenes_.indexOf( &scn );
+	Scene* prevscene = scenes_.validIdx(sceneidx-1) ? scenes_[sceneidx-1]
+							: nullptr;
+	if ( prevscene && prevscene->dw_ )
+	    appl_.tabifyDockWindow( *prevscene->dw_, *scn.dw_ );
+    }
+
     scn.dw_->setVisible( treeShown() );
 }
 
@@ -1047,7 +1101,8 @@ void uiODSceneMgr::updateSelectedTreeItem()
     {
 	resetStatusBar( id );
 	//applMgr().modifyColorTable( id );
-	if ( !visServ().isOn(id) ) visServ().turnOn(id, true, true);
+	if ( !visServ().isOn(id) )
+	    visServ().turnOn(id, true, true);
 	else if ( scenes_.size() != 1 && visServ().isSoloMode() )
 	    visServ().updateDisplay( true, id );
     }
@@ -1566,13 +1621,14 @@ void uiODSceneMgr::showIfMinimized( CallBacker* )
 
 // uiODSceneMgr::Scene
 uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
-	: lv_(0)
-	, dw_(0)
-	, mdiwin_(0)
-	, vwr3d_(0)
-	, itemmanager_(0)
+    : dw_(nullptr)
+    , lv_(nullptr)
+    , mdiwin_(nullptr)
+    , vwr3d_(nullptr)
+    , itemmanager_(nullptr)
 {
-    if ( !mdiarea ) return;
+    if ( !mdiarea )
+	return;
 
     mdiwin_ = new uiMdiAreaWindow( *mdiarea, toUiString("MDI Area Window") );
     mdiwin_->setIcon( scene_xpm_data );
@@ -1596,11 +1652,11 @@ uiODSceneMgr::Scene::~Scene()
 // uiKeyBindingSettingsGroup
 uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
     : uiSettingsGroup( p, tr("Mouse interaction"), s )
-    , keybindingfld_( 0 )
-    , wheeldirectionfld_( 0 )
-    , initialmousewheelreversal_( false )
-    , trackpadzoomspeedfld_( 0 )
-    , initialzoomfactor_( 0 )
+    , keybindingfld_(nullptr)
+    , wheeldirectionfld_(nullptr)
+    , trackpadzoomspeedfld_(nullptr)
+    , initialzoomfactor_(0)
+    , initialmousewheelreversal_(false)
 {
     TypeSet<SceneID> sceneids;
     if ( ODMainWin()->applMgr().visServer() )
@@ -1608,7 +1664,7 @@ uiKeyBindingSettingsGroup::uiKeyBindingSettingsGroup( uiParent* p, Settings& s )
 
     const ui3DViewer* viewer = sceneids.size()
 	? ODMainWin()->sceneMgr().get3DViewer( sceneids[0] )
-	: 0;
+	: nullptr;
 
     if ( viewer )
     {

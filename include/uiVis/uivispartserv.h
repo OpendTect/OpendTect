@@ -76,13 +76,13 @@ public:
 
     visBase::DataObject* getObject(VisID) const;
     VisID		highestID() const;
-    void		addObject(visBase::DataObject*,SceneID sceneid,
+    void		addObject(visBase::DataObject*,SceneID,
 				  bool saveinsessions);
-    void		shareObject(SceneID sceneid,VisID);
+    void		shareObject(SceneID,VisID);
     void		findObject(const std::type_info&,TypeSet<VisID>&);
     void		findObject(const MultiID&, TypeSet<VisID>& );
-    void		removeObject(visBase::DataObject*,SceneID sceneid);
-    void		removeObject(VisID,SceneID sceneid);
+    void		removeObject(visBase::DataObject*,SceneID);
+    void		removeObject(VisID,SceneID);
     void		setUiObjectName(VisID,const uiString&);
     void		setObjectName(VisID,const char*);
     uiString		getUiObjectName(VisID) const;
@@ -100,13 +100,13 @@ public:
     void		removeScene(VisID);
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
     bool		clickablesInScene(const char* trackertype,
-					  SceneID sceneid) const;
+					  SceneID) const;
     bool		getClickableAttributesInScene(TypeSet<Attrib::SelSpec>&,
 						      BufferStringSet& attrnms,
 						      const char* trackertype,
 						      SceneID) const;
     const ObjectSet<visSurvey::Scene>& getAllScenes() const { return scenes_; }
-    void		getSceneIds(TypeSet<SceneID>& sceneids) const;
+    void		getSceneIds(TypeSet<SceneID>&) const;
 
     void		getChildIds(VisID,TypeSet<VisID>&) const;
 			/*!< Gets a scenes' children or a volumes' parts
@@ -225,7 +225,7 @@ public:
     void		setCurInterObjID(VisID visid);
     VisID		getCurInterObjID() const;
     SceneID		getSceneID(VisID visid) const;
-    const ZDomain::Info* zDomainInfo(SceneID sceneid) const;
+    const ZDomain::Info* zDomainInfo(SceneID) const;
 			/*!< Returns Z domain info of scene */
 
 			//Events and their functions
@@ -327,6 +327,7 @@ public:
     void			setDirectionalLight();
     bool			setWorkingArea();
     bool			setWorkingArea(const TrcKeyZSampling&);
+    bool			setWorkingArea(SceneID);
     void			setOnlyAtSectionsDisplay(VisID,bool);
     bool			displayedOnlyAtSections(VisID) const;
     static int			evViewModeChange();
@@ -344,21 +345,21 @@ public:
     void			turnSelectionModeOn(bool);
     bool			isSelectionModeOn() const;
     Notifier<uiVisPartServer>	selectionmodeChange;
-    void			setZAxisTransform(SceneID sceneid,
+    void			setZAxisTransform(SceneID,
 						  ZAxisTransform*,
 						  TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform(SceneID sceneid) const;
-    visBase::EventCatcher*	getEventCatcher(SceneID sceneid);
+    const ZAxisTransform*	getZAxisTransform(SceneID) const;
+    visBase::EventCatcher*	getEventCatcher(SceneID);
 
-    const Selector<Coord3>*	getCoordSelector(SceneID scene) const;
+    const Selector<Coord3>*	getCoordSelector(SceneID) const;
     void			turnOn(VisID,bool,bool doclean=false);
     bool			isOn(VisID) const;
     void			updateDisplay(bool,VisID selid,
 					      VisID refid=VisID::udf());
-    void			setTopBotImg(SceneID sceneid);
+    void			setTopBotImg(SceneID);
 
     bool			canDuplicate(VisID) const;
-    VisID			duplicateObject(VisID,SceneID sceneid);
+    VisID			duplicateObject(VisID,SceneID);
 				/*!< \returns id of new object */
 
 				// Tracking stuff
@@ -403,8 +404,8 @@ public:
     bool			isLocked(VisID) const;
 
     bool			sendVisEvent(int);
-    void			setMoreObjectsToDoHint(SceneID sceneid,bool yn);
-    bool			getMoreObjectsToDoHint(SceneID sceneid) const;
+    void			setMoreObjectsToDoHint(SceneID,bool yn);
+    bool			getMoreObjectsToDoHint(SceneID) const;
     Notifier<uiVisPartServer>	planeMovedEvent;
 
 protected:

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uifirewallprocsetterdlg.h"
 #include "uiglinfo.h"
 #include "uihostiddlg.h"
+#include "uimain.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -36,7 +37,6 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uivolprocchain.h"
 #include "uiwellpartserv.h"
-#include "visemobjdisplay.h"
 
 #include "dirlist.h"
 #include "envvars.h"
@@ -54,6 +54,7 @@ ________________________________________________________________________
 
 static const char* sKeyIconSetNm = "Icon set name";
 static const char* ascic = "ascii";
+static KeyboardEvent kbevent;
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     : dTectTBChanged(this)
@@ -83,8 +84,11 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
     mAttachCB( IOM().surveyChanged, uiODMenuMgr::updateDTectToolBar );
     mAttachCB( IOM().surveyChanged, uiODMenuMgr::updateDTectMnus );
-    visserv->selectionmodeChange.notify(
-				mCB(this,uiODMenuMgr,selectionMode) );
+    mAttachCB( visserv->selectionmodeChange, uiODMenuMgr::selectionMode );
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+	       uiODMenuMgr::keyPressCB );
+    mAttachCB( uiMain::keyboardEventHandler().keyReleased,
+	       uiODMenuMgr::keyReleaseCB );
 }
 
 
@@ -1300,10 +1304,11 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     viewtb_->setButtonMenu( homeid, homemnu );
 
     mAddTB(viewtb_,"set_home",tr("Save Home Position"),false,saveHomePos);
-    mAddTB(viewtb_,"view_all",tr("View All"),false,viewAll);
-    cameraid_ = mAddTB(viewtb_,"perspective",
-		       tr("Switch to Orthographic Camera"),
-		       false,switchCameraType);
+    viewtb_->addButton( "view_all", tr("View All"),
+			mCB(this,uiODMenuMgr,handleViewClick), false );
+    cameraid_ = viewtb_->addButton( "perspective",
+			tr("Switch to Orthographic Camera"),
+			mCB(this,uiODMenuMgr,handleViewClick), false );
 
     curviewmode_ = ui3DViewer::Inl;
     bool separateviewbuttons = false;
@@ -1367,15 +1372,71 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 }
 
 
+void uiODMenuMgr::keyPressCB( CallBacker* )
+{
+    const KeyboardEventHandler& handler = uiMain::keyboardEventHandler();
+    if ( !handler.hasEvent() )
+    {
+	kbevent.key_ = OD::KB_NoKey;
+	return;
+    }
+
+    const KeyboardEvent& event = handler.event();
+    kbevent = event;
+}
+
+
+void uiODMenuMgr::keyReleaseCB( CallBacker* )
+{
+    kbevent.key_ = OD::KB_NoKey;
+}
+
+
 void uiODMenuMgr::handleViewClick( CallBacker* cb )
 {
     mDynamicCastGet(uiAction*,itm,cb)
-    if ( !itm ) return;
+    if ( !itm )
+	return;
+
+    const SceneID sceneid = sceneMgr().getActiveSceneID();
+    ui3DViewer* vwr = sceneMgr().get3DViewer( sceneid );
 
     const int itmid = itm->getID();
     if ( itmid==viewselectid_ )
     {
-	sceneMgr().setViewSelectMode( curviewmode_ );
+	if ( kbevent.key_ == OD::KB_Shift )
+	    sceneMgr().setViewSelectMode( curviewmode_ );
+	else
+	    sceneMgr().setViewSelectMode( sceneid,
+					  ui3DViewer::PlaneType(curviewmode_) );
+	return;
+    }
+
+    const StringView iconnm = itm->getIconName();
+    if ( iconnm == "view_all" )
+    {
+	if ( kbevent.key_ == OD::KB_Shift )
+	    sceneMgr().viewAll( nullptr );
+	else
+	{
+	    if ( vwr )
+		vwr->viewAll();
+	}
+	return;
+    }
+
+    if ( itmid == cameraid_ )
+    {
+	if ( kbevent.key_ == OD::KB_Shift )
+	    sceneMgr().switchCameraType( nullptr );
+	else
+	{
+	    if ( vwr )
+	    {
+		vwr->toggleCameraType();
+		setCameraPixmap( vwr->isCameraPerspective() );
+	    }
+	}
 	return;
     }
 
@@ -1396,7 +1457,12 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 
     viewtb_->setIcon( viewselectid_, pm );
     viewtb_->setToolTip( viewselectid_, tr("View %1").arg( dir ));
-    sceneMgr().setViewSelectMode( curviewmode_ );
+
+    if ( kbevent.key_ == OD::KB_Shift )
+	sceneMgr().setViewSelectMode( curviewmode_ );
+    else
+	sceneMgr().setViewSelectMode( sceneid,
+				      ui3DViewer::PlaneType(curviewmode_) );
 }
 
 
@@ -1640,9 +1706,10 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mAddMapSceneMnuItm: {
 	sceneMgr().tile();
-    const SceneID sceneid = sceneMgr().addScene( true, 0, tr("Map View") );
+	const SceneID sceneid = sceneMgr().addScene( true, 0, tr("Map View") );
 	ui3DViewer* vwr = sceneMgr().get3DViewer( sceneid );
-	if ( vwr ) vwr->setMapView( true );
+	if ( vwr )
+	    vwr->setMapView( true );
     } break;
     case mInstConnSettsMnuItm: {
 	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;

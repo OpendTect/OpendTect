@@ -45,4 +45,5 @@ protected:
     MenuItem		imageitem_;
     MenuItem		coltabitem_;
     MenuItem		dumpivitem_;
+    MenuItem		workareaitem_;
 };

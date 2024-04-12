@@ -29,6 +29,7 @@ public:
     void		setObject(uiObject*);
     void		setVisible(bool yn);
     bool		isVisible() const;
+    void		raise();
 
     void		setDockName(const uiString&);
     uiString		getDockName() const;

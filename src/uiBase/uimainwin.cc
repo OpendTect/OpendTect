@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "odwindow.h"
 
 #include "uiclipboard.h"
+#include "uidockwin.h"
 #include "uimain.h"
 #include "uimenu.h"
 #include "uipixmap.h"
@@ -220,6 +221,12 @@ void uiMainWin::removeDockWindow( uiDockWin* dwin )
 
 void uiMainWin::addDockWindow( uiDockWin& dwin, Dock d )
 { body_->addDockWin( dwin, d ); }
+
+
+void uiMainWin::tabifyDockWindow( uiDockWin& first, uiDockWin& second )
+{
+    body_->tabifyDockWidget( first.qwidget(), second.qwidget() );
+}
 
 
 void uiMainWin::addToolBar( uiToolBar* tb )

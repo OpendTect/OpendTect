@@ -126,6 +126,12 @@ bool uiDockWin::isVisible() const
 }
 
 
+void uiDockWin::raise()
+{
+    body_->raise();
+}
+
+
 uiString uiDockWin::getDockName() const
 {
     uiString res;

@@ -68,14 +68,14 @@ static const char* sKeyZScale()		{ return "Z Scale"; }
 
 
 Scene::Scene()
-    : zscale_( SI().zScale() )
-    , infopar_(*new IOPar)
-    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
-    , mouseposchange(this)
+    : mouseposchange(this)
     , mousecursorchange(this)
     , keypressed(this)
     , mouseclicked(this)
     , sceneboundingboxupdated(this)
+    , infopar_(*new IOPar)
+    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
+    , zscale_( SI().zScale() )
 {
     mAttachCB( events_.eventhappened, Scene::mouseCB );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
@@ -89,7 +89,9 @@ Scene::Scene()
 
 
 void Scene::setEventHandled()
-{ events_.setHandled(); }
+{
+    events_.setHandled();
+}
 
 
 void Scene::updateAnnotationText()
@@ -297,26 +299,50 @@ void Scene::getAllowedZDomains( BufferString& dms ) const
 }
 
 
-void Scene::setTrcKeyZSampling( const TrcKeyZSampling& cs )
+void Scene::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 {
-    tkzs_ = cs;
-    if ( !annot_ ) return;
+    setTrcKeyZSampling( tkzs, false );
+}
 
-    annot_->setTrcKeyZSampling( cs );
+
+void Scene::setTrcKeyZSampling( const TrcKeyZSampling& tkzs, bool workarea )
+{
+    tkzs_ = tkzs;
+    if ( !workarea )
+	inittkzs_ = tkzs;
+    else
+	tkzs_.zsamp_.step = inittkzs_.zsamp_.step;
+
+    if ( !annot_ )
+	return;
+
+    annot_->setTrcKeyZSampling( tkzs );
+}
+
+
+const TrcKeyZSampling& Scene::getTrcKeyZSampling( bool workarea ) const
+{
+    if ( workarea )
+	return tkzs_;
+
+    return inittkzs_;
 }
 
 
 void Scene::setAnnotScale( const TrcKeyZSampling& cs )
 {
     annotscale_ = cs;
-    if ( !annot_ ) return;
+    if ( !annot_ )
+	return;
 
     annot_->setScale( cs );
 }
 
 
 const TrcKeyZSampling& Scene::getAnnotScale() const
-{ return annot_ ? annot_->getScale() : annotscale_; }
+{
+    return annot_ ? annot_->getScale() : annotscale_;
+}
 
 
 int Scene::size() const

@@ -166,6 +166,8 @@ protected:
     void		toggViewMode(CallBacker*);
     void		defaultTBPos(CallBacker*);
     void		toggleTreeMode(CallBacker*);
+    void		keyPressCB(CallBacker*);
+    void		keyReleaseCB(CallBacker*);
     void		add2D3DMenuItem(uiMenu&,const char* iconnnm,
 					const uiString& menuitmtxt,
 					int itmid2d,int itmid3d);

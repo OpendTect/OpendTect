@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+
+#include "ui3dviewer.h"
 #include "uiodapplmgr.h"
 #include "uisettings.h"
 
@@ -112,6 +114,7 @@ public:
     void			get3DViewers(ObjectSet<ui3DViewer>&);
     void			getSceneNames(uiStringSet&,int& act) const;
     void			setActiveScene(int idx);
+    void			setActiveScene(SceneID);
     void			getActiveSceneName(BufferString&) const;
     SceneID			getActiveSceneID() const;
     Notifier<uiODSceneMgr>	activeSceneChanged;
@@ -182,6 +185,8 @@ public:
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
     void			setViewSelectMode(int);
+    void			setViewSelectMode(SceneID,
+						  ui3DViewer::PlaneType);
 
     float			getHeadOnLightIntensity(int) const;
     void			setHeadOnLightIntensity(int,float);
@@ -201,6 +206,7 @@ protected:
     uiODMain&			appl_;
     uiMdiArea*			mdiarea_;
     void			mdiAreaChanged(CallBacker*);
+    void			sceneChanged(SceneID);
 
     int				vwridx_;
     uiTreeFactorySet*		tifs_;
@@ -250,6 +256,9 @@ protected:
 
     void			resetStatusBar(VisID id=VisID::udf());
     void			showIfMinimized(CallBacker*);
+
+public:
+    static bool			canAddSceneAtStartup();
 };
 
 /*! Settings Tab for mouse interaction. */

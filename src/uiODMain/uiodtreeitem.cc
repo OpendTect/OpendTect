@@ -61,6 +61,7 @@ SceneID uiODTreeTop::sceneID() const
 bool uiODTreeTop::selectWithKey( int selkey )
 {
     applMgr()->visServer()->setSelObjectId( VisID(selkey) );
+    ODMainWin()->sceneMgr().setActiveScene( sceneID() );
     return true;
 }
 
@@ -121,7 +122,8 @@ bool uiODTreeItem::anyButtonClick( uiTreeViewItem* item )
     if ( item!=uitreeviewitem_ )
 	return uiTreeItem::anyButtonClick( item );
 
-    if ( !select() ) return false;
+    if ( !select() )
+	return false;
 
     applMgr()->updateColorTable( VisID::udf(), -1 );
     return true;
@@ -360,6 +362,7 @@ uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, VisID id )
     , imageitem_(m3Dots(tr("Top/Bottom Image")))
     , coltabitem_(m3Dots(tr("Scene Color Bar")))
     , dumpivitem_( m3Dots( uiStrings::phrExport( uiStrings::sScene() )) )
+    , workareaitem_(m3Dots(tr("Set Work Area")))
 {
     propitem_.iconfnm = "disppars";
 }
@@ -428,8 +431,11 @@ void uiODSceneTreeItem::addToToolBarCB( CallBacker* cb )
 void uiODSceneTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     mAddMenuOrTBItem( istb, menu, menu, &propitem_, true, false );
-    mAddMenuOrTBItem( istb, 0, menu, &imageitem_, true, false );
-    mAddMenuOrTBItem( istb, 0, menu, &coltabitem_, true, false );
+    mAddMenuOrTBItem( istb, nullptr, menu, &imageitem_, true, false );
+    mAddMenuOrTBItem( istb, nullptr, menu, &coltabitem_, true, false );
+    mAddMenuOrTBItem( istb, nullptr, menu, &workareaitem_,
+		      true, false );
+
     bool enabdump = true;
     Settings::common().getYN(
 		IOPar::compKey("dTect","Dump OI Menu"), enabdump );
@@ -460,6 +466,8 @@ void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
     else if( mnuid==dumpivitem_.id )
 	visserv->writeSceneToFile( displayid_,
 			    uiStrings::phrExport( uiStrings::sScene() ));
+    else if ( mnuid==workareaitem_.id )
+	visserv->setWorkingArea( sceneID() );
 }
 
 

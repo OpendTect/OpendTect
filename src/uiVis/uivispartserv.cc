@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiposprovider.h"
 #include "uiscenecolorbarmgr.h"
+#include "uiselsurvranges.h"
 #include "uisurvtopbotimg.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
@@ -1487,9 +1488,36 @@ bool uiVisPartServer::setWorkingArea( const TrcKeyZSampling& newworkarea )
 	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
 	if ( scene && scene->zDomainInfo().def_==ZDomain::SI() )
-	    scene->setTrcKeyZSampling( SI().sampling(true) );
+	    scene->setTrcKeyZSampling( SI().sampling(true), true );
     }
 
+    return true;
+}
+
+
+bool uiVisPartServer::setWorkingArea( SceneID sceneid )
+{
+    visBase::DataObject* obj = visBase::DM().getObject( sceneid );
+    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    if ( !scene )
+	return false;
+
+    if ( scene->zDomainInfo().def_==ZDomain::SI() )
+	return setWorkingArea();
+
+    const TrcKeyZSampling& tkzs = scene->getTrcKeyZSampling( false );
+    const TrcKeyZSampling& workarea = scene->getTrcKeyZSampling( true );
+    const char* zdomkey = scene->zDomainKey();
+    uiDialog dlg( parent(), uiDialog::Setup(tr("Set Work Area"),
+					    mNoDlgTitle,mNoHelpKey) );
+    auto* subvolfld = new uiSelSubvol( &dlg, false, zdomkey );
+    subvolfld->setSampling( workarea );
+    subvolfld->setLimits( tkzs );
+    if ( !dlg.go() )
+	return false;
+
+    TrcKeyZSampling newtkzs = subvolfld->getSampling();
+    scene->setTrcKeyZSampling( newtkzs, true );
     return true;
 }
 
