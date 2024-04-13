@@ -266,8 +266,6 @@ static QCryptographicHash::Algorithm getAlgo( Algorithm typ )
 	case Algorithm::Sha3_512: return QCryptographicHash::Sha3_512; break;
 	default: return QCryptographicHash::Sha3_512;
     }
-
-    return QCryptographicHash::Sha3_512;
 }
 
 } // namespace Crypto
