@@ -223,7 +223,8 @@ enum class Algorithm
     Sha3_224=3,
     Sha3_256=4,
     Sha3_384=5,
-    Sha3_512=6
+    Sha3_512=6,
+    None=-1
 };
 
 } // namespace Crypto

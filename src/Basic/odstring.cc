@@ -255,20 +255,17 @@ namespace Crypto
 static QCryptographicHash::Algorithm getAlgo( Algorithm typ )
 {
     //Do not introduce obsolete algorithms like md4, md5, sha1
-    if ( typ == Algorithm::Sha256 )
-	return QCryptographicHash::Sha256;
-    if ( typ == Algorithm::Sha384 )
-	return QCryptographicHash::Sha384;
-    if ( typ == Algorithm::Sha512 )
-	return QCryptographicHash::Sha512;
-    if ( typ == Algorithm::Sha3_224 )
-	return QCryptographicHash::Sha3_224;
-    if ( typ == Algorithm::Sha3_256 )
-	return QCryptographicHash::Sha3_256;
-    if ( typ == Algorithm::Sha3_384 )
-	return QCryptographicHash::Sha3_384;
-    if ( typ == Algorithm::Sha3_512 )
-	return QCryptographicHash::Sha3_512;
+    switch( typ )
+    {
+	case Algorithm::Sha256: return QCryptographicHash::Sha256; break;
+	case Algorithm::Sha384: return QCryptographicHash::Sha384; break;
+	case Algorithm::Sha512: return QCryptographicHash::Sha512; break;
+	case Algorithm::Sha3_224: return QCryptographicHash::Sha3_224; break;
+	case Algorithm::Sha3_256: return QCryptographicHash::Sha3_256; break;
+	case Algorithm::Sha3_384: return QCryptographicHash::Sha3_384; break;
+	case Algorithm::Sha3_512: return QCryptographicHash::Sha3_512; break;
+	default: return QCryptographicHash::Sha3_512;
+    }
 
     return QCryptographicHash::Sha3_512;
 }
@@ -279,6 +276,8 @@ static QCryptographicHash::Algorithm getAlgo( Algorithm typ )
 const char* OD::String::getHash( Crypto::Algorithm typ ) const
 {
     mDeclStaticString(ret);
+    if ( typ == Crypto::Algorithm::None )
+	return buf();
 
     const QString input = buf();
     const QCryptographicHash::Algorithm qalgo = getAlgo( typ );
