@@ -35,9 +35,9 @@ const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
     : SeisTrcTranslator(nm,unm)
-    , auxinf_(false)
-    , brickspec_(*new VBrickSpec)
     , coordpol_((int)CBVSIO::NotStored)
+    , brickspec_(*new VBrickSpec)
+    , auxinf_(false)
 {
     if ( Survey::isValidGeomID(geomid_) )
 	auxinf_.trckey_.setGeomID( geomid_ );

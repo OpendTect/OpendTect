@@ -26,17 +26,17 @@ ________________________________________________________________________
 
 WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     : Executor( "Extracting Wavelet" )
+    , wvlt_(*new Wavelet)
     , iobj_(ioobj)
+    , fft_( Fourier::CC::createDefault() )
+    , lineidx_(-1)
+    , paramval_( mUdf(float) )
     , wvltsize_(wvltsize)
     , phase_(0)
     , nrusedtrcs_(0)
     , nrdone_(0)
-    , fft_( Fourier::CC::createDefault() )
     , totalnr_(0)
     , msg_(tr("Extracting wavelet"))
-    , wvlt_(*new Wavelet)
-    , lineidx_(-1)
-    , paramval_( mUdf(float) )
 {
     fft_->setInputInfo( Array1DInfoImpl(wvltsize_) );
     fft_->setDir( true );

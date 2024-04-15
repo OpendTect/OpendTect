@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "seisbuf.h"
 #include "survgeom2d.h"
-#include "survinfo.h"
 
 #define mCapChar '^'
 

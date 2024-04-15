@@ -37,18 +37,18 @@ const char* SeisBayesClass::sKeySeisOutID()	{ return "Seismics.Output.ID"; }
 
 SeisBayesClass::SeisBayesClass( const IOPar& iop )
 	: Executor( "Bayesian classification" )
-	, pars_(*new IOPar(iop))
-	, needclass_(false)
-	, nrdone_(0)
-	, totalnr_(-2)
 	, inptrcs_(*new SeisTrcBuf(true))
 	, aptrcs_(*new SeisTrcBuf(true))
 	, outtrcs_(*new SeisTrcBuf(true))
-	, initstep_(1)
-	, nrdims_(0)
-	, nrpdfs_(0)
+	, pars_(*new IOPar(iop))
 	, doprenorm_(!iop.isFalse( sKeyPreNorm() ))
 	, dopostnorm_(!iop.isFalse( sKeyPostNorm() ))
+	, nrdims_(0)
+	, nrpdfs_(0)
+	, needclass_(false)
+	, nrdone_(0)
+	, totalnr_(-2)
+	, initstep_(1)
 {
     aprdrs_.allowNull( true );
 

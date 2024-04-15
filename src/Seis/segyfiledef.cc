@@ -14,13 +14,8 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
-#include "file.h"
-#include "filepath.h"
 #include "keystrs.h"
-#include "oddirs.h"
-#include "perthreadrepos.h"
 #include "seistrctr.h"
-#include "separstr.h"
 #include "segyhdr.h"
 
 namespace SEGY

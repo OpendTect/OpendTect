@@ -28,7 +28,6 @@ class SeisTrcBuf;
 mExpClass(Seis) SeisInterpol : public Executor
 { mODTextTranslationClass(SeisInterpol)
 public:
-
 			SeisInterpol();
 			~SeisInterpol();
 
@@ -51,18 +50,18 @@ public:
 protected:
 
     const ObjectSet<const SeisTrc>* inptrcs_;
-    int			nriter_;
-    float		maxvel_;
+    int			nriter_				= 10;
+    float		maxvel_				= 0.f;
     uiString		errmsg_;
 
-    int			nrdone_;
-    mutable int		totnr_;
+    int			nrdone_				= 0;
+    mutable int		totnr_				= 0;
 
-    Fourier::CC*	fft_;
-    int			szx_;
-    int			szy_;
-    int			szz_;
-    float		max_;
+    Fourier::CC*	fft_				= nullptr;
+    int			szx_				= 0;
+    int			szy_				= 0;
+    int			szz_				= 0;
+    float		max_				= 0.f;
 
     mStruct(Seis) TrcPosTrl
     {
@@ -80,8 +79,8 @@ protected:
     };
     TypeSet<TrcPosTrl>			posidxs_;
 
-    Array3DImpl<float_complex>*		trcarr_;
-    TrcKeySampling				hs_;
+    Array3DImpl<float_complex>*		trcarr_		= nullptr;
+    TrcKeySampling			hs_;
 
     void		clear();
     void		doWork(bool,int);
@@ -99,10 +98,8 @@ protected:
 mExpClass(Seis) Seis2DTo3D : public Executor
 { mODTextTranslationClass(Seis2DTo3D)
 public:
-
 			Seis2DTo3D();
 			~Seis2DTo3D();
-
 
     uiString		uiMessage() const override
 			{ return errmsg_.isEmpty() ? tr("interpolating")
@@ -133,36 +130,36 @@ protected:
     bool		doWorkFFT();
 
 
-    IOObj*		inioobj_;
-    IOObj*		outioobj_;
+    IOObj*		inioobj_			= nullptr;
+    IOObj*		outioobj_			= nullptr;
     TrcKeyZSampling	tkzs_;
 
     BinID		curbid_;
     BinID		prevbid_;
     int			nriter_;
 
-    float		maxvel_;
-    bool		reusetrcs_;
-    int			inlstep_;
-    int			crlstep_;
+    float		maxvel_				= mUdf(float);
+    bool		reusetrcs_			= false;
+    int			inlstep_			= 0;
+    int			crlstep_			= 0;
 
     uiString		errmsg_;
 
-    SeisScaler*		sc_;
+    SeisScaler*		sc_				= nullptr;
 
     SeisTrcBuf&		seisbuf_;
     TrcKeySampling	seisbuftks_;
 
-    SeisTrcWriter*	wrr_;
+    SeisTrcWriter*	wrr_				= nullptr;
     SeisTrcBuf		tmpseisbuf_;
 
     SeisInterpol	interpol_;
     TrcKeySamplingIterator hsit_;
 
-    bool		read_;
-    int			nrdone_;
-    mutable int		totnr_;
-    bool		nearesttrace_;
+    bool		read_				= false;
+    int			nrdone_				= 0;
+    mutable int		totnr_				= 0;
+    bool		nearesttrace_			= true;
 
     bool		writeTmpTrcs();
     bool		read();
@@ -180,6 +177,6 @@ public:
 
 protected:
 
-    float		avgmaxval_ = 0.f;
-    float		avgminval_ = 0.f;
+    float		avgmaxval_			= 0.f;
+    float		avgminval_			= 0.f;
 };

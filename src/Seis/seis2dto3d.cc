@@ -9,12 +9,9 @@ ________________________________________________________________________
 
 #include "seis2dto3d.h"
 
-#include "arrayndalgo.h"
-#include "bufstring.h"
 #include "dataclipper.h"
 #include "fftfilter.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "keystrs.h"
 #include "ptrman.h"
 #include "scaler.h"
@@ -43,19 +40,9 @@ const char* Seis2DTo3D::sKeyCreaterType() { return "Creater Type"; }
 
 Seis2DTo3D::Seis2DTo3D()
     : Executor("Generating a 3D cube from a 2DDataSet")
-    , inioobj_(0)
-    , outioobj_(0)
     , tkzs_(true)
-    , read_(false)
     , seisbuf_(*new SeisTrcBuf(true))
-    , nrdone_(0)
-    , sc_(0)
-    , wrr_(0)
     , tmpseisbuf_(true)
-    , maxvel_(mUdf(float))
-    , inlstep_(0)
-    , crlstep_(0)
-    , reusetrcs_(false)
 {}
 
 
@@ -127,7 +114,8 @@ bool Seis2DTo3D::setIO( const IOPar& pars )
 
 bool Seis2DTo3D::checkParameters()
 {
-    if ( nearesttrace_ ) return true;
+    if ( nearesttrace_ )
+	return true;
 
     if ( inlstep_ < 1 && crlstep_ < 1 )
     {
@@ -424,13 +412,10 @@ od_int64 Seis2DTo3D::totalNr() const
 
 
 
+// SeisInterpol
 SeisInterpol::SeisInterpol()
     : Executor("Interpolating")
     , hs_(false)
-    , fft_(0)
-    , nrdone_(0)
-    , max_(0)
-    , trcarr_(0)
 {}
 
 
@@ -546,16 +531,6 @@ void SeisInterpol::doWork( bool docomputemax, int poscutfreq )
 }
 
 
-#define mDoTransform(tf,isstraight,arr) \
-{\
-    tf->setInputInfo( arr->info() );\
-    tf->setDir(isstraight);\
-    tf->setNormalization(!isstraight);\
-    tf->setInput(arr->getData());\
-    tf->setOutput(arr->getData());\
-    tf->run(true);\
-}
-
 int SeisInterpol::nextStep()
 {
     for ( int idtrc=0; idtrc<posidxs_.size(); idtrc++ )
@@ -574,9 +549,15 @@ int SeisInterpol::nextStep()
     }
 
     if ( nrdone_ == nriter_ )
-	{ return Executor::Finished(); }
+	return Executor::Finished();
 
-    mDoTransform( fft_, true, trcarr_ );
+    fft_->setInputInfo( trcarr_->info() );
+    fft_->setDir( true );
+    fft_->setNormalization( false );
+    fft_->setInput( trcarr_->getData() );
+    fft_->setOutput( trcarr_->getData() );
+    fft_->run( true );
+
     const float df = Fourier::CC::getDf( SI().zStep(), szz_ );
     const float mindist = mMIN(SI().inlDistance(),SI().crlDistance() );
     const float fmax = mCast(float, maxvel_ / ( 2.f*mindist*sin( M_PIf/6.f ) ));
@@ -586,7 +567,13 @@ int SeisInterpol::nextStep()
 	doWork( true, poscutfreq );
 
     doWork( false, poscutfreq );
-    mDoTransform( fft_, false, trcarr_ );
+
+    fft_->setInputInfo( trcarr_->info() );
+    fft_->setDir( false );
+    fft_->setNormalization( true );
+    fft_->setInput( trcarr_->getData() );
+    fft_->setOutput( trcarr_->getData() );
+    fft_->run( true );
 
     nrdone_++;
     return Executor::MoreToDo();

@@ -35,11 +35,11 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
 					const VelocityDesc* veldesc )
     : inpobj_(in)
     , outobj_(out)
-    , curhrg_(false)
     , outcs_(outcs)
+    , curhrg_(false)
     , ztransform_(&ztf)
-    , ist2d_(ist2d)
     , msg_(tr("Stretching data"))
+    , ist2d_(ist2d)
     , srd_(SI().seismicReferenceDatum())
     , srduom_(UnitOfMeasure::surveyDefSRDStorageUnit())
 {

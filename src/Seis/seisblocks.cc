@@ -75,15 +75,15 @@ bool Seis::Blocks::HGeom::isCompatibleWith( const Survey::Geometry& geom ) const
 
 
 Seis::Blocks::IOClass::IOClass()
-    : basepath_(GetBaseDataDir(),sSeismicSubDir(),"new_cube")
+    : columns_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
+    , basepath_(GetBaseDataDir(),sSeismicSubDir(),"new_cube")
+    , hgeom_(*new HGeom(Survey::Geometry3D("",ZDomain::SI())))
     , dims_(Block::defDims())
     , version_(cVersion)
     , scaler_(0)
     , fprep_(DataCharacteristics::F32)
-    , hgeom_(*new HGeom(Survey::Geometry3D("",ZDomain::SI())))
-    , columns_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
-    , needreset_(true)
     , datatype_(UnknowData)
+    , needreset_(true)
 {
 }
 

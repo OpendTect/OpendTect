@@ -10,15 +10,11 @@ ________________________________________________________________________
 #include "seistrc.h"
 
 #include "arraynd.h"
-#include "iopar.h"
 #include "seiscommon.h"
-#include "simpnumer.h"
 #include "unitofmeasure.h"
 #include "veldesc.h"
 #include "zvalseriesimpl.h"
 
-#include <float.h>
-#include <math.h>
 
 const float SeisTrc::snapdist = Seis::cDefSampleSnapDist();
 

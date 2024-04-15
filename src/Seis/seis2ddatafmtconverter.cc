@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "posinfo2dsurv.h"
-#include "typeset.h"
 #include "safefileio.h"
 #include "seiscbvs2d.h"
 #include "seisioobjinfo.h"

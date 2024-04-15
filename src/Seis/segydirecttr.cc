@@ -675,7 +675,6 @@ IOObj* SEGYDirectSeisTrcTranslator::createWriteIOObj( const IOObjContext& ctxt,
 					      const MultiID& ioobjkey ) const
 {
     IOObj* ioobj = ctxt.crDefaultWriteObj( *this, ioobjkey );
-
     if ( ioobj && !segyfilename_.isEmpty() )
 	ioobj->pars().set( "SEG-Y file", segyfilename_ );
 
