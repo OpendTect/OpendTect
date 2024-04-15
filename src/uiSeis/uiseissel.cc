@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "seiscbvs.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
@@ -444,8 +443,7 @@ const char* uiSeisSel::userNameFromKey( const char* txt ) const
     if ( !txt || !*txt )
 	return "";
 
-    LineKey lk( txt );
-    curusrnm_ = uiIOObjSel::userNameFromKey( lk.lineName() );
+    curusrnm_ = uiIOObjSel::userNameFromKey( StringPair(txt).first().buf() );
     return curusrnm_.buf();
 }
 
@@ -467,8 +465,7 @@ const char* uiSeisSel::compNameFromKey( const char* txt ) const
     if ( !txt || !*txt )
 	return "";
 
-    LineKey lk( txt );
-    return uiIOObjSel::userNameFromKey( lk.attrName() );
+    return uiIOObjSel::userNameFromKey( StringPair(txt).second().buf() );
 }
 
 
@@ -543,8 +540,9 @@ bool uiSeisSel::existingTyped() const
     if ( ptr )
 	containscompnm = true;
 
-    return (!is2D() && !containscompnm) || isPS() ? uiIOObjSel::existingTyped()
-	 : existingUsrName( LineKey(getInput()).lineName() );
+    return (!is2D() && !containscompnm) || isPS()
+	? uiIOObjSel::existingTyped()
+	: existingUsrName( StringPair(getInput()).first().buf() );
 }
 
 

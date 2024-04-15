@@ -43,7 +43,20 @@ public:
 			{ return geomSystem() == OD::GeomSynth; }
 };
 
+
+/*!
+\brief Class providing a current line key.
+*/
+
+mExpClass(Basic) GeomIDProvider
+{
+public:
+    virtual		~GeomIDProvider()		{}
+    virtual GeomID	geomID() const			= 0;
+};
+
 } // namespace Pos
+
 
 namespace Values
 {

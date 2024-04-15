@@ -61,7 +61,7 @@ static bool addComponents( RegularSeisDataPack& dp, const IOObj& ioobj,
 			  cnames.get(cidx).buf() : BufferString::empty().buf();
 
 	// LineKey assembles composite "<attribute>|<component>" name
-	if ( !dp.addComponentNoInit(LineKey(ioobj.name().str(),cnm)) )
+	if ( !dp.addComponentNoInit(StringPair(ioobj.name().str(),cnm).buf()) )
 	    return false;
     }
 

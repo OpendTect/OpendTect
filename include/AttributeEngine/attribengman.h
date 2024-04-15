@@ -24,7 +24,6 @@ class BufferStringSet;
 class DataPackMgr;
 class DataPointSet;
 class Executor;
-class LineKey;
 class NLAModel;
 class SeisTrcBuf;
 
@@ -56,7 +55,7 @@ public:
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
 
-    SeisTrcStorOutput*	createOutput(const IOPar&,const LineKey&,uiString&);
+    SeisTrcStorOutput*	createOutput(const IOPar&,const Pos::GeomID&,uiString&);
 
     const DescSet*	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }

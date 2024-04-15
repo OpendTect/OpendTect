@@ -10,16 +10,13 @@ ________________________________________________________________________
 #include "nlacrdesc.h"
 
 #include "datacoldef.h"
+#include "datapointset.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
 #include "nlamodel.h"
 #include "posvecdataset.h"
-#include "datapointset.h"
 #include "ptrman.h"
 #include "statrand.h"
-#include "perthreadrepos.h"
-#include "uistrings.h"
 
 
 // NLACreationDesc

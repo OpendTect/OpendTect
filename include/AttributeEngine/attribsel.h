@@ -169,16 +169,13 @@ public:
     BufferStringSet	nlaoutnms_;
 
     void		fillStored(bool steerdata,const char* filter=0);
-    static bool		is2D(const char* defstr_or_ioobjid);
+    static bool		is2D(const MultiID&);
     static void		getZDomainItems(const ZDomain::Info&,
 					BufferStringSet& objnms);
     static void		getZDomainItems(const ZDomain::Info&,bool is2d,
 					BufferStringSet& objnms);
 
 			//!< 2D only
-    static void		getAttrNames(const char* defstr,
-				     BufferStringSet&,bool issteer=false,
-				     bool onlymulticomp=false);
     static void		getAttrNames(const MultiID&,
 				     BufferStringSet&,bool issteer=false,
 				     bool onlymulticomp=false);

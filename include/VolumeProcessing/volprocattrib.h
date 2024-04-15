@@ -76,8 +76,7 @@ public:
 				      TaskRunner* trans ) override
 			{ return Attrib::ExtAttribCalc::createAttrib(b,
 								tb,trans); }
-    DataPackID	createAttrib(const TrcKeyZSampling&,
-				      const LineKey&,TaskRunner*) override;
+    DataPackID	createAttrib(const TrcKeyZSampling&,TaskRunner*) override;
 
 protected:
 

@@ -47,7 +47,7 @@ public:
     virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&,
 					     TaskRunner*);
     virtual DataPackID		createAttrib(const TrcKeyZSampling&,
-					     const LineKey&,TaskRunner*);
+					     TaskRunner*);
 
     virtual bool		isIndexes() const	{ return false; }
 

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "od_helpids.h"
 #include "transl.h"
 
@@ -466,17 +465,21 @@ const char* uiIOObjSel::userNameFromKey( const char* ky ) const
 
 void uiIOObjSel::obtainIOObj()
 {
-    LineKey lk( getInput() );
-    const BufferString inp( lk.lineName() );
+    StringPair input( getInput() );
+    const BufferString& inp = input.first();
     if ( inp.isEmpty() )
-	{ workctio_.setObj( 0 ); return; }
+    {
+	workctio_.setObj( nullptr );
+	return;
+    }
 
     int selidx = getCurrentItem();
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( ( inp == itemusrnm || lk == itemusrnm ) && workctio_.ioobj_
-			      && workctio_.ioobj_->name()==inp.buf() )
+	if ( ( inp==itemusrnm || input.getCompString()==itemusrnm )
+				&& workctio_.ioobj_
+				&& workctio_.ioobj_->name()==inp.buf() )
 	    return;
     }
 
@@ -558,8 +561,8 @@ return false; }
 
 bool uiIOObjSel::doCommitInput( bool& alreadyerr )
 {
-    LineKey lk( getInput() );
-    const BufferString inp( lk.lineName() );
+    StringPair input( getInput() );
+    const BufferString& inp = input.first();
     if ( inp.isEmpty() )
     {
 	if ( !haveempty_ )

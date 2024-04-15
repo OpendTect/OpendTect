@@ -24,13 +24,14 @@ output cube's setup and extent.
 #include "seismod.h"
 #include "seisstor.h"
 #include "stringview.h"
-#include "linekey.h"
 #include "uistring.h"
+
 class SeisTrc;
 class SeisPSWriter;
 class Seis2DLinePutter;
 namespace Threads { class ConditionVar; }
 namespace PosInfo { class Line2DData; }
+namespace Pos { class GeomIDProvider; }
 
 
 mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
@@ -38,17 +39,17 @@ mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
 public:
 
 			SeisTrcWriter(const MultiID&,Seis::GeomType,
-				      const GeomIDProvider* =nullptr);
+				      const Pos::GeomIDProvider* =nullptr);
 				//!< Write to real user entries from '.omf' file
 				//!< Can be anything: SEGY - CBVS - database
 			SeisTrcWriter(const IOObj&,
 				      const Seis::GeomType* =nullptr,
-				      const GeomIDProvider* =nullptr);
+				      const Pos::GeomIDProvider* =nullptr);
 				//!< Write to real user entries from '.omf' file
 				//!< Can be anything: SEGY - CBVS - database
 			SeisTrcWriter(const IOObj&,Pos::GeomID,
 				      const Seis::GeomType* =nullptr,
-				      const GeomIDProvider* =nullptr);
+				      const Pos::GeomIDProvider* =nullptr);
 				//!< Restricted to a given Pos::GeomID
 			SeisTrcWriter(const SeisStoreAccess::Setup&);
 			~SeisTrcWriter();
@@ -69,9 +70,9 @@ public:
     const SeisPSWriter*	psWriter() const		{ return pswriter_; }
 
 			// 2D only
-    const GeomIDProvider* geomIDProvider() const	{ return gidp_; }
+    const Pos::GeomIDProvider* geomIDProvider() const	{ return gidp_; }
     Pos::GeomID		geomID() const override;
-    void		setGeomIDProvider(const GeomIDProvider*);
+    void		setGeomIDProvider(const Pos::GeomIDProvider*);
     void		setSelData(Seis::SelData*) override;
 				//!< If no GeomIDProvider set,
 				//!< seldata's GeomID will be used
@@ -104,27 +105,27 @@ protected:
     bool		start3DWrite(Conn*,const SeisTrc&);
 
     // 2D only
-    BufferString	attribnm_;
-    Seis2DLinePutter*	putter_ = nullptr;
-    PosInfo::Line2DData* linedata_ = nullptr;
-    TypeSet<float>	spnrs_;
-    Pos::GeomID		prevgeomid_;
-    const GeomIDProvider* gidp_ = nullptr;
-    BufferString	datatype_;
-    void		updateLineData();
-    bool		next2DLine();
-    bool		put2D(const SeisTrc&);
+    BufferString		attribnm_;
+    Seis2DLinePutter*		putter_				= nullptr;
+    PosInfo::Line2DData*	linedata_			= nullptr;
+    TypeSet<float>		spnrs_;
+    Pos::GeomID			prevgeomid_;
+    const Pos::GeomIDProvider*	gidp_				= nullptr;
+    BufferString		datatype_;
+    void			updateLineData();
+    bool			next2DLine();
+    bool			put2D(const SeisTrc&);
 
-    BufferString	crfrom_;
-    BufferString	crusrinfo_;
-    BufferStringSet	compnames_;
+    BufferString		crfrom_;
+    BufferString		crusrinfo_;
+    BufferStringSet		compnames_;
 
-			SeisTrcWriter(const MultiID&)		= delete;
+				SeisTrcWriter(const MultiID&)	= delete;
 
 public:
     mDeprecated("Provide an existing IOObj")
 			SeisTrcWriter(const IOObj*,
-				      const GeomIDProvider* =nullptr);
+				      const Pos::GeomIDProvider* =nullptr);
 
     mDeprecated("Make a temporary IOObj")
 			SeisTrcWriter(const char* fnm,bool is_2d,bool is_ps);

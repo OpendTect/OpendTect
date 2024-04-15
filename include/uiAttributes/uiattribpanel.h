@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
+
 #include "attribdescid.h"
 #include "datapackbase.h"
 #include "trckeyzsampling.h"
+
 class uiFlatViewMainWin;
 class uiParent;
 
@@ -25,11 +27,11 @@ mExpClass(uiAttributes) uiAttribPanel
 public:
 				uiAttribPanel(uiParent*);
     virtual			~uiAttribPanel();
+				mOD_DisableCopy(uiAttribPanel)
 
     void			compAndDispAttrib(Attrib::DescSet*,
 						const Attrib::DescID&,
-						const TrcKeyZSampling&,
-						const Pos::GeomID&);
+						const TrcKeyZSampling&);
 				//<! descset becomes mine!
 
 protected:

@@ -211,10 +211,8 @@ public:
     virtual void	cleanUp();
 			//!< Prepare for new initialization.
 
-    static bool		getRanges(const MultiID&,TrcKeyZSampling&,
-				  const char* linekey=nullptr);
-    static bool		getRanges(const IOObj&,TrcKeyZSampling&,
-				  const char* linekey=nullptr);
+    static bool		getRanges(const MultiID&,TrcKeyZSampling&);
+    static bool		getRanges(const IOObj&,TrcKeyZSampling&);
 
     virtual bool	getGeometryInfo(PosInfo::CubeData&) const
 			{

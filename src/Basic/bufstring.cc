@@ -1223,6 +1223,10 @@ StringPair::StringPair( const char* compstr )
 }
 
 
+StringPair::~StringPair()
+{}
+
+
 const OD::String& StringPair::getCompString() const
 {
     return getCompString( false );
@@ -1243,6 +1247,12 @@ const OD::String& StringPair::getCompString( bool withwhitespace ) const
 	ret.add( second() );
     }
     return ret;
+}
+
+
+const char* StringPair::buf() const
+{
+    return getCompString( false ).buf();
 }
 
 

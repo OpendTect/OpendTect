@@ -29,12 +29,12 @@ public:
 
 protected:
 
-    uiAttrSel*          inpfld;
-    uiAttrSel*          outfld;
-    uiGenInput*		operfld;
-    uiStepOutSel*	stepoutfld;
-    uiGenInput*		gatefld;
-    uiSteeringSel*	steerfld;
+    uiAttrSel*		inpfld_;
+    uiAttrSel*		outfld_;
+    uiGenInput*		operfld_;
+    uiStepOutSel*	stepoutfld_;
+    uiGenInput*		gatefld_;
+    uiSteeringSel*	steerfld_;
 
     bool		setParameters(const Attrib::Desc&) override;
     bool		setInput(const Attrib::Desc&) override;
@@ -42,7 +42,7 @@ protected:
     bool		getParameters(Attrib::Desc&) override;
     bool		getInput(Attrib::Desc&) override;
 
-    void                steerTypeSel(CallBacker*);
+    void		steerTypeSel(CallBacker*);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };

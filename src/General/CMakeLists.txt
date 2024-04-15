@@ -58,7 +58,6 @@ set( OD_MODULE_SOURCES
 	keyboardevent.cc
 	keyenum.cc
 	locationbase.cc
-	linekey.cc
 	linesetposinfo.cc
 	mathexpression.cc
 	mathformula.cc

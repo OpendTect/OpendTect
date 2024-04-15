@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "executor.h"
 #include "datainterp.h"
-#include "linekey.h"
 #include "samplingdata.h"
 #include "position.h"
 class IOObj;
@@ -64,7 +63,8 @@ mClass(uiImpGPR) Importer : public ::Executor
 { mODTextTranslationClass(Importer);
 public:
 
-			Importer(const char* fnm,const IOObj&,const LineKey&);
+			Importer(const char* fnm,const IOObj&,
+				 const Pos::GeomID&);
 			~Importer();
 
     uiString		uiMessage() const override	{ return msg_; }
@@ -84,14 +84,13 @@ protected:
     SeisTrc&		trc_;
     SeisTrcWriter*	wrr_;
     od_istream&		istream_;
-    LineKey		lk_;
 
     char*		databuf_;
     DataInterpreter<float> di_;
 
     od_int64		nrdone_;
     od_int64		totalnr_;
-    uiString	msg_;
+    uiString		msg_;
 
     int			closeAll();
 

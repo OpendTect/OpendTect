@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "linekey.h"
 #include "nladesign.h"
 #include "nlamodel.h"
 #include "od_helpids.h"
@@ -186,8 +185,8 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 		attrcur = attrinf_->attrnms_.indexOf( desc->userRef() );
 	    else if ( storoutfld_ )
 	    {
-		LineKey lk( desc->userRef() );
-		storcur = attrinf_->ioobjnms_.indexOf( lk.lineName() );
+		const StringPair userref( desc->userRef() );
+		storcur = attrinf_->ioobjnms_.indexOf( userref.first() );
 		//2D attrib is set in cubeSel, called from doFinalize
 	    }
 	}
@@ -397,7 +396,7 @@ int uiAttrSelDlg::selType() const
 }
 
 
-void uiAttrSelDlg::selDone( CallBacker* c )
+void uiAttrSelDlg::selDone( CallBacker* )
 {
     if ( !selgrp_ ) return;
 
@@ -476,13 +475,12 @@ void uiAttrSelDlg::cubeSel( CallBacker* )
 	}
     }
 
-    const bool is2d = ioobjkey.isEmpty()
-	? false : SelInfo::is2D( ioobjkey.buf() );
+    const MultiID key( ioobjkey.buf() );
+    const bool is2d = ioobjkey.isEmpty() ? false : SelInfo::is2D( key );
     const bool isstoreddata = seltyp==0 || seltyp==1;
     filtfld_->display( !is2d && isstoreddata );
 
     compfld_->box()->setCurrentItem(0);
-    const MultiID key( ioobjkey.buf() );
     BufferStringSet compnms;
     if ( is2d )
     {
@@ -800,11 +798,14 @@ bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
 	return false;
 
     const Desc* desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
-    if ( !desc ) return false;
+    if ( !desc )
+	return false;
+
+    if ( desc->is2D() )
+	cs.hsamp_.setGeomID( Survey::GM().getGeomID(getInput()) );
 
     const MultiID mid( desc->getStoredID(true).buf() );
-    return SeisTrcTranslator::getRanges( mid, cs,
-					 desc->is2D() ? getInput() : 0 );
+    return SeisTrcTranslator::getRanges( mid, cs );
 }
 
 

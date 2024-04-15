@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "mathexpression.h"
 #include "odver.h"
 #include "od_ostream.h"

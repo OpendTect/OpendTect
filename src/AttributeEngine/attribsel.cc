@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "nladesign.h"
 #include "nlamodel.h"
 #include "ptrman.h"
@@ -236,12 +235,13 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	    if ( ioobj )
 	    {
 		Desc* ncdesc = const_cast<Desc*>( desc );
-		const LineKey lk( desc->userRef() );
-		const BufferString component = lk.attrName();
+		const StringPair userref( desc->userRef() );
+		const BufferString& component = userref.second();
 		if ( component.isEmpty() )
 		    ncdesc->setUserRef( ioobj->name() );
 		else
-		    ncdesc->setUserRef( LineKey(ioobj->name(),component) );
+		    ncdesc->setUserRef(
+				StringPair(ioobj->name(),component).buf() );
 	    }
 	}
 
@@ -477,18 +477,10 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 }
 
 
-bool SelInfo::is2D( const char* defstr )
+bool SelInfo::is2D( const MultiID& key )
 {
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(LineKey(defstr).lineName().buf()));
+    PtrMan<IOObj> ioobj = IOM().get( key );
     return ioobj ? SeisTrcTranslator::is2D(*ioobj,true) : false;
-}
-
-
-void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
-			    bool issteer, bool onlymulticomp )
-{
-    const MultiID key( LineKey(defstr).lineName().buf() );
-    getAttrNames( key, nms, issteer, onlymulticomp );
 }
 
 

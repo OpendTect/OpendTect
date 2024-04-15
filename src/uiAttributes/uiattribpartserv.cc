@@ -1713,8 +1713,8 @@ static void insertItems( MenuItem& mnu, const BufferStringSet& nms,
 	const TypeSet<MultiID>* ids, const char* cursel,
 	int start, int stop, bool correcttype )
 {
-    const LineKey lk( cursel );
-    const BufferString selnm = lk.lineName();
+    const StringPair userref( cursel );
+    const BufferString& selnm = userref.first();
 
     mnu.removeItems();
     mnu.enabled = !nms.isEmpty();
@@ -2150,10 +2150,10 @@ void uiAttribPartServer::info2DAttribSubMenu( int mnuid, BufferString& attbnm,
 
 #define mFakeCompName( searchfor, replaceby ) \
 { \
-    LineKey lkey( desc->userRef() ); \
-    if ( lkey.attrName() == searchfor ) \
-	lkey.setAttrName( replaceby );\
-    desc->setUserRef( lkey.buf() ); \
+    StringPair userref( desc->userRef() ); \
+    if ( userref.second() == searchfor ) \
+	userref.second() = replaceby;\
+    desc->setUserRef( userref.buf() ); \
 }
 
 bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
@@ -2227,10 +2227,11 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	//Trick for PreStack offsets displayed on the fly
 	if ( desc->isStored() && desc->userRef()[0] == '{' )
 	{
-	    LineKey lkey( desc->userRef() );
-	    BufferString newnm = "offset index "; newnm += selectedcomps[idx];
-	    lkey.setAttrName( newnm );
-	    desc->setUserRef( lkey.buf() );
+	    StringPair userref( desc->userRef() );
+	    BufferString newnm = "offset index ";
+	    newnm += selectedcomps[idx];
+	    userref.second() = newnm;
+	    desc->setUserRef( userref.buf() );
 	}
 
 	as.setRefFromID( *ads );

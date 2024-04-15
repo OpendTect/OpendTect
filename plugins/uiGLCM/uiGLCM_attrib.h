@@ -24,10 +24,13 @@ class LineKey;
 
 
 class uiGLCM_attrib : public uiAttrDescEd
-{ mODTextTranslationClass(uiGLCM_attrib);
+{
+mODTextTranslationClass(uiGLCM_attrib)
 public:
 
-			uiGLCM_attrib( uiParent*, bool );
+			uiGLCM_attrib( uiParent*,bool is2d);
+			~uiGLCM_attrib();
+
     void		getEvalParams(TypeSet<EvalParam>&) const override;
 
 protected:
@@ -46,17 +49,17 @@ protected:
     void		GLCMdirectionSel(CallBacker*);
 
     void		analyzeData(CallBacker*);
-    bool		readInputCube(SeisTrcBuf&, const TrcKeyZSampling&,
-				      int, const LineKey&) const;
+    bool		readInputCube(SeisTrcBuf&,const TrcKeyZSampling&,
+				      int nrtrcs) const;
     void		determineMinMax( const SeisTrcBuf&);
 
-    bool		setParameters( const Attrib::Desc& ) override;
+    bool		setParameters(const Attrib::Desc&) override;
     bool		setInput( const Attrib::Desc& ) override;
 
-    bool		getParameters( Attrib::Desc&) override;
-    bool		getInput( Attrib::Desc&) override;
+    bool		getParameters(Attrib::Desc&) override;
+    bool		getInput(Attrib::Desc&) override;
 
-    void		steerTypeSel( CallBacker* );
+    void		steerTypeSel(CallBacker*);
 
 			mDeclReqAttribUIFns
 };

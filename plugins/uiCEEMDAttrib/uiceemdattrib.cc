@@ -247,7 +247,7 @@ void uiCEEMDAttrib::stepChg( CallBacker* )
 }
 
 
-void uiCEEMDAttrib::outSel( CallBacker* cb )
+void uiCEEMDAttrib::outSel( CallBacker* )
 {
     const bool needoutfreqfld = attriboutputfld_->getIntValue()==0;
     const bool needoutcompfld = attriboutputfld_->getIntValue()==3;
@@ -258,7 +258,7 @@ void uiCEEMDAttrib::outSel( CallBacker* cb )
 }
 
 
-void uiCEEMDAttrib::panelTFPush( CallBacker* cb )
+void uiCEEMDAttrib::panelTFPush( CallBacker* )
 {
     if ( inpfld_->attribID() == DescID::undef() )
     {
@@ -330,18 +330,14 @@ void uiCEEMDAttrib::viewPanelCB( CallBacker* )
 	return;
 
     getPrevSel();
-    auto* dset = new DescSet( *ads_ );
-    DescID ceemdid = createCEEMDDesc( dset );
 
-    const TrcKeyZSampling tzs = positiondlg_->getTrcKeyZSampling();
-    LineKey lk;
-    if ( dset->is2D() )
-	lk = LineKey( positiondlg_->getLineKey() );
     if ( !panelview_ )
 	panelview_ = new uiCEEMDPanel( parent() );
 
-    panelview_->compAndDispAttrib(
-	    dset,ceemdid,tzs,Survey::GM().getGeomID(lk.lineName().buf()));
+    auto* dset = new DescSet( *ads_ );
+    const DescID ceemdid = createCEEMDDesc( dset );
+    const TrcKeyZSampling tzs = positiondlg_->getTrcKeyZSampling();
+    panelview_->compAndDispAttrib( dset, ceemdid, tzs );
 }
 
 

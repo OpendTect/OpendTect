@@ -32,7 +32,7 @@ ________________________________________________________________________
 
 
 SeisTrcWriter::SeisTrcWriter( const MultiID& dbkey, Seis::GeomType gt,
-			      const GeomIDProvider* lprov )
+			      const Pos::GeomIDProvider* lprov )
     : SeisStoreAccess(dbkey,gt)
     , worktrc_(*new SeisTrc)
     , firstsampling_(mUdf(float),1.f)
@@ -43,7 +43,7 @@ SeisTrcWriter::SeisTrcWriter( const MultiID& dbkey, Seis::GeomType gt,
 
 
 SeisTrcWriter::SeisTrcWriter( const IOObj& ioobj, const Seis::GeomType* gt,
-			      const GeomIDProvider* lprov )
+			      const Pos::GeomIDProvider* lprov )
     : SeisStoreAccess(&ioobj,gt)
     , worktrc_(*new SeisTrc)
     , firstsampling_(mUdf(float),1.f)
@@ -55,7 +55,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj& ioobj, const Seis::GeomType* gt,
 
 SeisTrcWriter::SeisTrcWriter( const IOObj& ioobj, Pos::GeomID gid,
 			      const Seis::GeomType* gt,
-			      const GeomIDProvider* lprov )
+			      const Pos::GeomIDProvider* lprov )
     : SeisStoreAccess(&ioobj,gid,gt)
     , worktrc_(*new SeisTrc)
     , firstsampling_(mUdf(float),1.f)
@@ -74,7 +74,8 @@ SeisTrcWriter::SeisTrcWriter( const SeisStoreAccess::Setup& ssasu )
 }
 
 
-SeisTrcWriter::SeisTrcWriter( const IOObj* ioobj, const GeomIDProvider* lprov )
+SeisTrcWriter::SeisTrcWriter( const IOObj* ioobj,
+			      const Pos::GeomIDProvider* lprov )
     : SeisStoreAccess(ioobj,nullptr)
     , worktrc_(*new SeisTrc)
     , firstsampling_(mUdf(float),1.f)
@@ -153,7 +154,7 @@ void SeisTrcWriter::updateLineData()
 }
 
 
-void SeisTrcWriter::setGeomIDProvider( const GeomIDProvider* prov )
+void SeisTrcWriter::setGeomIDProvider( const Pos::GeomIDProvider* prov )
 {
     gidp_ = prov;
     updateLineData();

@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class Scaler;
 class SeisTrc;
-class LineKey;
 class SeisImporter;
 class SeisTrcReader;
 class SeisTrcWriter;

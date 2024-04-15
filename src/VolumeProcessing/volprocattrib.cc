@@ -242,7 +242,7 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 
 DataPackID
 ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
-					const LineKey& lk, TaskRunner* taskr )
+					TaskRunner* taskr )
 {
     return createAttrib( tkzs, DataPackID(-1), taskr );
 }

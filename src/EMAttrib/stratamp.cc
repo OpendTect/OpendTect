@@ -47,18 +47,18 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    Stats::Type stattyp, const TrcKeySampling& hs,
 			    bool outputfold )
     : Executor("Stratal amplitude Executor")
+    , stattyp_(stattyp)
     , rdr_(0)
+    , usesstored_(false)
     , tophorizon_(tophor)
     , bothorizon_(bothor)
-    , stattyp_(stattyp)
-    , dataidx_(-1)
     , nrdone_(0)
-    , usesstored_(false)
-    , proc_(0)
-    , hs_(hs)
-    , outfold_(outputfold)
     , tophorshift_(mUdf(float))
     , bothorshift_(mUdf(float))
+    , dataidx_(-1)
+    , outfold_(outputfold)
+    , hs_(hs)
+    , proc_(0)
 {
     TrcKeyZSampling cs;
     cs.hsamp_ = hs;
@@ -131,10 +131,10 @@ int StratAmpCalc::init( const IOPar& pars )
     usesstored_ = storstr.isStartOf( defstring );
     if ( usesstored_)
     {
-	const LineKey lk( targetdesc->getValParam(
-			Attrib::StorageProvider::keyStr())->getStringValue(0) );
-	const MultiID key( lk.lineName().buf() );
-	const BufferString attrnm = lk.attrName();
+	const Attrib::ValParam* param =
+		targetdesc->getValParam( Attrib::StorageProvider::keyStr() );
+	const StringPair userref = param->getStringValue();
+	const MultiID key( userref.first().buf() );
 	PtrMan<IOObj> seisobj = IOM().get( key );
 	if ( !seisobj )
 	    return -1;

@@ -224,7 +224,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     const bool is2d = mscprov_->is2D();
     desc_.set2D( is2d );
     if ( !is2d )
-	SeisTrcTranslator::getRanges( mid, storedvolume_, nullptr );
+	SeisTrcTranslator::getRanges( mid, storedvolume_ );
     else
     {
 	Seis2DDataSet* dset = mscprov_->reader().dataSet();

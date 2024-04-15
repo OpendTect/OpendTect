@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uiattr2dsel.h"
 #include "mousecursor.h"
 #include "uigeninput.h"
-#include "uigeninputdlg.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -24,13 +23,11 @@ ________________________________________________________________________
 #include "uiseispartserv.h"
 #include "uislicesel.h"
 #include "uistrings.h"
-#include "uitreeview.h"
 #include "uitaskrunner.h"
 #include "uivispartserv.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "visseis2ddisplay.h"
 
-#include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribdescid.h"
 #include "attribdescset.h"
@@ -40,8 +37,6 @@ ________________________________________________________________________
 #include "externalattrib.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
-#include "keystrs.h"
 #include "posinfo2d.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
@@ -803,8 +798,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
 	}
 
 	uiTaskRunner uitr( ODMainWin() );
-	const LineKey lk( s2d->name() );
-	dpid = calc->createAttrib( tkzs, lk, &uitr );
+	dpid = calc->createAttrib( tkzs, &uitr );
     }
     else
     {

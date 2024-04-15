@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "trckeyzsampling.h"
-#include "linekey.h"
 #include "multiid.h"
 #include "datapackbase.h"
 
@@ -51,16 +50,17 @@ public:
 						 const DataPack::FullID&);
 				uiTrcPositionDlg(uiParent*,
 						 const TrcKeyZSampling&,
-			      			 bool,const MultiID&);
+						 bool,const MultiID&);
 				~uiTrcPositionDlg();
 
     TrcKeyZSampling		getTrcKeyZSampling() const;
-    LineKey			getLineKey() const;
-    uiLabeledSpinBox*		trcnrfld_;
-    uiLabeledSpinBox*		inlfld_;
-    uiSpinBox*			crlfld_;
-    uiLabeledComboBox*		linesfld_;
-    uiFlatDPPosSel*		fdpposfld_;
+    Pos::GeomID			getGeomID() const;
+
+    uiLabeledSpinBox*		trcnrfld_			= nullptr;
+    uiLabeledSpinBox*		inlfld_				= nullptr;
+    uiSpinBox*			crlfld_				= nullptr;
+    uiLabeledComboBox*		linesfld_			= nullptr;
+    uiFlatDPPosSel*		fdpposfld_			= nullptr;
     MultiID			mid_;
 
 protected:
@@ -70,6 +70,6 @@ protected:
     bool			getSelLineGeom(PosInfo::Line2DData&);
 
     StepInterval<float>		zrg_;
-    uiToolButton*		getposbut_;
-    PickRetriever*		pickretriever_;
+    uiToolButton*		getposbut_			= nullptr;
+    PickRetriever*		pickretriever_			= nullptr;
 };

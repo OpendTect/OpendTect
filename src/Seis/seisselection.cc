@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "polygon.h"

@@ -389,11 +389,10 @@ bool SeisTrcStorOutput::doInit()
 
 
 
-class COLineKeyProvider : public GeomIDProvider
+class COGeomIDProvider : public Pos::GeomIDProvider
 {
 public:
-
-    COLineKeyProvider( Pos::GeomID geomid )
+COGeomIDProvider( Pos::GeomID geomid )
     : geomid_( geomid ) {}
 
 Pos::GeomID geomID() const override
@@ -494,7 +493,7 @@ bool SeisTrcStorOutput::writeTrc()
     {
 	SeisTrcTranslator* transl = 0;
 	if ( writer_->is2D() )
-	    writer_->setGeomIDProvider( new COLineKeyProvider(curGeomID()) );
+	    writer_->setGeomIDProvider( new COGeomIDProvider(curGeomID()) );
 	else
 	{
 	    transl = writer_->seisTranslator();

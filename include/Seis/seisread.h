@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seisstor.h"
 #include "seistype.h"
-#include "linekey.h"
 #include "uistring.h"
 
 class Executor;
@@ -36,6 +35,7 @@ namespace PosInfo
     class Line2DData;
     class Line2DDataIterator;
 }
+namespace Pos { class GeomIDProvider; }
 
 
 /*!\brief reads from a seismic data store.
@@ -111,7 +111,7 @@ public:
     int			curLineIdx() const		{ return curlineidx; }
     StepInterval<int>	curTrcNrRange() const		{ return curtrcnrrg; }
     Pos::GeomID		geomID() const override;
-    GeomIDProvider*	geomIDProvider() const;
+    Pos::GeomIDProvider* geomIDProvider() const;
     int			getNrOffsets(int maxnrpostobechecked=10) const;
 
     const SeisTrcTranslator*	seis2Dtranslator();

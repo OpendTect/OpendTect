@@ -669,16 +669,14 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 }
 
 
-bool SeisTrcTranslator::getRanges( const MultiID& ky, TrcKeyZSampling& cs,
-				   const char* lk )
+bool SeisTrcTranslator::getRanges( const MultiID& ky, TrcKeyZSampling& cs )
 {
     PtrMan<IOObj> ioobj = IOM().get( ky );
-    return ioobj ? getRanges( *ioobj, cs, lk ) : false;
+    return ioobj ? getRanges( *ioobj, cs ) : false;
 }
 
 
-bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
-				   const char* lnm )
+bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs )
 {
     PtrMan<Translator> transl = ioobj.createTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
@@ -686,10 +684,10 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
 	return false;
 
     PtrMan<Seis::SelData> sd;
-    if ( lnm && *lnm )
+    if ( cs.is2D() )
     {
 	sd = Seis::SelData::get( Seis::Range );
-	sd->setGeomID( Survey::GM().getGeomID(lnm) );
+	sd->setGeomID( cs.hsamp_.getGeomID() );
 	tr->setSelData( sd );
     }
 

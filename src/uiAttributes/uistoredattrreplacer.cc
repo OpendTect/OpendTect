@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "bufstringset.h"
 #include "iopar.h"
-#include "linekey.h"
 #include "varlenarray.h"
 
 #include "uiattrinpdlg.h"
@@ -33,12 +32,10 @@ uiStoredAttribReplacer::StoredEntry::~StoredEntry()
 
 uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
 						DescSet* attrset )
-    : is2d_(attrset->is2D())
-    , attrset_(attrset)
+    : attrset_(attrset)
     , iopar_(nullptr)
+    , is2d_(attrset->is2D())
     , parent_(parent)
-    , noofseis_(0)
-    , noofsteer_(0)
 {
     getStoredIds();
 
@@ -54,12 +51,10 @@ uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
 
 uiStoredAttribReplacer::uiStoredAttribReplacer( uiParent* parent,
 						IOPar* iopar, bool is2d )
-    : is2d_(is2d)
-    , attrset_(0)
+    : attrset_(nullptr)
     , iopar_(iopar)
+    , is2d_(is2d)
     , parent_(parent)
-    , noofseis_(0)
-    , noofsteer_(0)
 {
     usePar( *iopar );
 
@@ -155,14 +150,14 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 		const BufferString storedref = descpar->find(
 						Attrib::DescSet::userRefStr() );
 		storedids_ += StoredEntry( DescID(idx,false),
-					   LineKey(storagestr), storedref );
+					   MultiID(storagestr), storedref );
 	    }
 	    else
 	    {
 		for ( int idy=0; idy<storedids_.size(); idy++ )
 		{
-		    LineKey lk( storagestr );
-		    if ( lk == storedids_[idy].lk_ )
+		    const MultiID key( storagestr );
+		    if ( key == storedids_[idy].key_ )
 		    {
 			int outprevlisted =
 				getOutPut(storedids_[idy].firstid_.asInt());
@@ -659,7 +654,7 @@ void uiStoredAttribReplacer::getUserRef( const DescID& storedid,
 
 void uiStoredAttribReplacer::getStoredIds()
 {
-    TypeSet<LineKey> linekeys;
+    TypeSet<MultiID> keys;
     for ( int idx=0; idx<attrset_->size(); idx++ )
     {
 	const DescID descid = attrset_->getID( idx );
@@ -667,12 +662,12 @@ void uiStoredAttribReplacer::getStoredIds()
 	if ( !ad || !ad->isStored() ) continue;
 
 	const ValParam* keypar = ad->getValParam( StorageProvider::keyStr() );
-	LineKey lk( keypar->getStringValue() );
-	if ( !linekeys.addIfNew(lk) )
+	const MultiID key( keypar->getStringValue() );
+	if ( !keys.addIfNew(key) )
 	{
 	    for ( int idy=0; idy<storedids_.size(); idy++ )
 	    {
-		if ( lk == storedids_[idy].lk_ )
+		if ( key == storedids_[idy].key_ )
 		{
 		    int outprevlisted = attrset_->getDesc(
 				storedids_[idy].firstid_)->selectedOutput();
@@ -685,7 +680,7 @@ void uiStoredAttribReplacer::getStoredIds()
 	    }
 	}
 	else
-	    storedids_ += StoredEntry( descid, lk, ad->userRef() );
+	    storedids_ += StoredEntry( descid, key, ad->userRef() );
     }
 }
 

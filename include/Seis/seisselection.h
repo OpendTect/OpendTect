@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "posgeomid.h"
 #include "ranges.h"
 
-class LineKey;
 class TrcKey;
 namespace Pos { class Provider; }
 

@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
-#include "linekey.h"
 #include "survinfo.h"
 #include "tutorialattrib.h"
 
@@ -172,16 +171,4 @@ bool uiTutorialAttrib::getInput( Desc& desc )
 
 void uiTutorialAttrib::steerTypeSel( CallBacker* )
 {
-    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
-    {
-	const char* steertxt = steerfld_->text();
-	if ( steertxt )
-	{
-	    LineKey inp( inpfld_->getInput() );
-	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName()
-	      && inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ) )
-		steerfld_->clearInpField();
-	}
-    }
 }

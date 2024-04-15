@@ -300,12 +300,7 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
     DescSet* dset = ads_ ? new DescSet( *ads_ ) : new DescSet( is2D() );
     DescID specdecompid = createSpecDecompDesc( dset );
     const TrcKeyZSampling cs( positiondlg_->getTrcKeyZSampling() );
-
-    LineKey lk;
-    if ( dset->is2D() )
-	lk = LineKey( positiondlg_->getLineKey() );
-    panelview_->compAndDispAttrib(
-	    dset,specdecompid,cs,Survey::GM().getGeomID(lk.lineName().buf()));
+    panelview_->compAndDispAttrib( dset, specdecompid, cs );
 }
 
 

@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "multiid.h"
 #include "ptrman.h"
 #include "seis2ddata.h"
@@ -538,11 +537,10 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 	    desc = ads_->getFirstStored();
 	if ( desc )
 	{
-	    LineKey lk( desc->getStoredID(true) );
-	    if ( !lk.isEmpty() )
+	    const MultiID key( desc->getStoredID(true).buf() );
+	    if ( key.isDatabaseID() )
 	    {
-		PtrMan<IOObj> ioobj = IOM().get(
-					    MultiID(lk.lineName().buf()) );
+		PtrMan<IOObj> ioobj = IOM().get( key );
 		if ( ioobj )
 		    seissubselfld_->setInput( *ioobj );
 	    }

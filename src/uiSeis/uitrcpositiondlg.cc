@@ -90,13 +90,8 @@ void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
     : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
 				    uiStrings::sEmptyString(),
-                                    mODHelpKey(mTrcPositionDlgHelpID) )
+				    mODHelpKey(mTrcPositionDlgHelpID) )
 				    .modal(false) )
-    , linesfld_( 0 )
-    , trcnrfld_( 0 )
-    , inlfld_( 0 )
-    , crlfld_( 0 )
-    , pickretriever_( 0 )
 {
     const DataPack::MgrID dpmid = dpfid.mgrID();
     if ( dpmid!=DataPackMgr::FlatID() && dpmid!=DataPackMgr::SeisID() )
@@ -150,13 +145,8 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				    bool is2d, const MultiID& mid )
     : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),
 				   uiStrings::sEmptyString(),
-                                   mODHelpKey(mTrcPositionDlgHelpID) )
+				   mODHelpKey(mTrcPositionDlgHelpID) )
 				   .modal(false) )
-    , linesfld_( 0 )
-    , trcnrfld_( 0 )
-    , inlfld_( 0 )
-    , crlfld_( 0 )
-    , fdpposfld_( 0 )
     , mid_( mid )
 {
     if ( is2d )
@@ -271,13 +261,16 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 }
 
 
-LineKey uiTrcPositionDlg::getLineKey() const
+Pos::GeomID uiTrcPositionDlg::getGeomID() const
 {
-    LineKey lk;
-    if ( !linesfld_ ) return lk;
+    if ( fdpposfld_ )
+	return Pos::GeomID( OD::GeomSynth );
 
-    lk.setLineName( linesfld_->box()->text() );
-    return lk;
+    if ( !linesfld_ )
+	return Pos::GeomID( OD::Geom3D );
+
+    const char* linename = linesfld_->box()->text();
+    return Survey::GM().getGeomID( linename );
 }
 
 
@@ -286,17 +279,16 @@ TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
     TrcKeyZSampling cs;
     if ( trcnrfld_ || fdpposfld_ )
     {
-	int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )
-			       : trcnrfld_->box()->getIntValue();
-	cs.hsamp_.set( cs.hsamp_.inlRange(),
-		       StepInterval<int>( trcnr, trcnr, 1 ) );
+	const int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )
+				     : trcnrfld_->box()->getIntValue();
+	cs.hsamp_.set( getGeomID(), StepInterval<int>(trcnr,trcnr,1) );
     }
     else
     {
-	int inlnr = inlfld_->box()->getIntValue();
-	int crlnr = crlfld_->getIntValue();
-	cs.hsamp_.set( StepInterval<int>( inlnr, inlnr, 1 ),
-		    StepInterval<int>( crlnr, crlnr, 1 ) );
+	BinID bid;
+	bid.inl() = inlfld_->box()->getIntValue();
+	bid.crl() = crlfld_->getIntValue();
+	cs.hsamp_.set( TrcKey(bid) );
     }
 
     cs.zsamp_ = zrg_;
@@ -304,10 +296,10 @@ TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
 }
 
 
-void uiTrcPositionDlg::lineSel( CallBacker* cb )
+void uiTrcPositionDlg::lineSel( CallBacker* )
 {
     PosInfo::Line2DData line2d;
-    if ( !getSelLineGeom( line2d ) )
+    if ( !getSelLineGeom(line2d) )
 	return;
 
     trcnrfld_->box()->setInterval( line2d.trcNrRange() );

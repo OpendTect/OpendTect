@@ -33,7 +33,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "nlamodel.h"
 #include "od_helpids.h"
 #include "ptrman.h"
@@ -53,15 +52,15 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* model, const MultiID& id )
     : uiBatchProcDlg(p,uiString::emptyString(),false, Batch::JobSpec::Attrib)
-    , subselpar_(*new IOPar)
+    , needSaveNLA(this)
     , sel_(*new Attrib::CurrentSel)
+    , subselpar_(*new IOPar)
     , ads_(new Attrib::DescSet(ad))
-    , nlamodel_(0)
     , nlaid_(id)
+    , nlamodel_(0)
     , todofld_(0)
     , attrselfld_(0)
     , datastorefld_(0)
-    , needSaveNLA(this)
 {
     const bool is2d = ad.is2D();
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
@@ -219,15 +218,14 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    Attrib::Desc* firststoreddsc = ads_->getFirstStored();
 	    if ( firststoreddsc )
 	    {
-		const LineKey lk( firststoreddsc->getValParam(
-			Attrib::StorageProvider::keyStr())->getStringValue(0) );
-		BufferString linenm = lk.lineName();
-		if ( !linenm.isEmpty() && *linenm.buf() != '#' )
-		    mSetObjFld( LineKey(IOM().nameOf( linenm.buf() ),
-				todofld_->getInput()) )
+		const Attrib::ValParam* param = firststoreddsc->getValParam(
+					Attrib::StorageProvider::keyStr() );
+		const MultiID key( param->getStringValue() );
+		if ( key.isDatabaseID() )
+		    mSetObjFld( StringPair(IOM().nameOf(key),
+					   todofld_->getInput()).buf() )
 
-		PtrMan<IOObj> ioobj = IOM().get(
-		    MultiID(firststoreddsc->getStoredID(true).buf()) );
+		ConstPtrMan<IOObj> ioobj = IOM().get( key );
 		if ( ioobj )
 		    transffld_->setInput( *ioobj );
 	    }
@@ -513,7 +511,6 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     }
 
     iop.set( sKey::Target(), outioobj->name() );
-    BufferString linename;
     if ( is2d )
     {
 	Attrib::DescSet descset(true);
@@ -524,13 +521,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 			      : ads_->getDesc( todofld_->attribID() );
 	if ( desc )
 	{
-	    BufferString storedid = desc->getStoredID();
+	    const BufferString storedid( desc->getStoredID().buf() );
 	    if ( !storedid.isEmpty() )
-	    {
-		LineKey lk( storedid.buf() );
-		iop.set( "Input Line Set", lk.lineName() );
-		linename = lk.lineName();
-	    }
+		iop.set( "Input Line Set", storedid );
 	}
     }
 

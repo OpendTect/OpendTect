@@ -435,9 +435,9 @@ bool BatchProgram::doWork( od_ostream& strm )
 	SelSpec spec( nullptr, attribids[idx] );
 	spec.setRefFromID( attribset );
 	selspecs += spec;
-	const LineKey lk( spec.userRef() );
-	attribrefs.add( !lk.attrName().isEmpty() ? lk.attrName().buf()
-						 : lk.buf() );
+	const StringPair userref( spec.userRef() );
+	attribrefs.add( userref.hasSecond() ? userref.second().buf()
+					    : userref.buf() );
     }
 
     BufferString newattrnm;

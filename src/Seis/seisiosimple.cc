@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "msgh.h"
 #include "od_iostream.h"
 #include "oddirs.h"

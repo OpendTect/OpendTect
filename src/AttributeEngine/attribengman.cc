@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "linesetposinfo.h"
 #include "nladesign.h"
 #include "nlamodel.h"
@@ -151,12 +150,9 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	}
     }
 
-    //get attrib name from user reference for backward compatibility with 3.2.2
-    const Attrib::Desc* curdesc = attribset.getDesc( ids[0] );
-    BufferString attribname = curdesc->isStored() ? "" : curdesc->userRef();
-    LineKey lkey( linename, attribname );
-
-    RefMan<SeisTrcStorOutput> storeoutp = createOutput( iopar, lkey, errmsg );
+    const Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+    RefMan<SeisTrcStorOutput> storeoutp =
+				createOutput( iopar, geomid, errmsg );
     if ( !storeoutp )
 	return nullptr;
 
@@ -171,9 +167,9 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	BufferStringSet outnms;
 	for ( int idx=0; idx<ids.size(); idx++ )
 	{
-	    const LineKey lk( attribset.getDesc(ids[idx])->userRef() );
-	    outnms.add( !lk.attrName().isEmpty() ? lk.attrName().buf()
-						 : lk.buf() );
+	    const StringPair userref( attribset.getDesc(ids[idx])->userRef() );
+	    outnms.add(
+		userref.hasSecond() ? userref.second().buf() : userref.buf() );
 	}
 
 	storeoutp->setOutpNames( outnms );
@@ -240,15 +236,14 @@ void EngineMan::setExecutorName( Executor* ex )
 
 
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
-					    const LineKey& lkey,
+					    const Pos::GeomID& geomid,
 					    uiString& errmsg )
 {
     const BufferString typestr =
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
     if ( typestr.isEqual(sKey::Cube()) )
     {
-	auto* outp = new SeisTrcStorOutput( tkzs_,
-				Survey::GM().getGeomID(lkey.lineName()) );
+	auto* outp = new SeisTrcStorOutput( tkzs_, geomid );
 	outp->ref();
 	outp->setGeometry(tkzs_);
 	const bool res = outp->doUsePar( pars );
@@ -1105,11 +1100,15 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     if ( !storeddesc )
 	return;
 
-    const LineKey lk( storeddesc->getValParam(
-			StorageProvider::keyStr())->getStringValue(0) );
-    const MultiID key( lk.lineName().buf() );
+    const ValParam* param = storeddesc->getValParam( StorageProvider::keyStr());
+    if ( param )
+	return;
+
+    const StringPair sp( param->getStringValue() );
+    const MultiID key( sp.first().buf() );
     PtrMan<IOObj> ioobj = IOM().get( key );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     const Seis2DDataSet dset( *ioobj );
     PosInfo::LineSet2DData linesetgeom;

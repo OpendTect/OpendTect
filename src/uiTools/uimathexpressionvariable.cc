@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiunitsel.h"
 #include "uitoolbutton.h"
 
-#include "linekey.h"
 #include "odpair.h"
 #include "separstr.h"
 #include "mathspecvars.h"
@@ -289,11 +288,13 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact,
 
     isconst_ = false;
     updateDisp( hasfixedunits );
-    BufferString varnm( inpnm ), subnm;
+    BufferString varnm( inpnm );
+    BufferString subnm;
     if ( subinpfld_ )
     {
-	const LineKey linekey( inpnm );
-	varnm = linekey.lineName(); subnm = linekey.attrName();
+	const StringPair input( inpnm );
+	varnm = input.first();
+	subnm = input.second();
     }
 
     bool isfound = StringView(inpfld_->text()) == varnm;

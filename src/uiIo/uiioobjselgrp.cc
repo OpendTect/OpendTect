@@ -19,8 +19,6 @@ ________________________________________________________________________
 #include "iodirentry.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "linekey.h"
-#include "mousecursor.h"
 #include "settings.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -548,8 +546,8 @@ void uiIOObjSelGrp::mkWriteFlds()
     wrgrp->setHAlignObj( nmfld_ );
     wrgrp->attach( alignedBelow, topgrp_ );
 
-    const LineKey lk( ctio_.name() );
-    const BufferString nm( lk.lineName() );
+    const StringPair ctionm( ctio_.name() );
+    const BufferString& nm = ctionm.first();
     if ( !nm.isEmpty() )
     {
 	nmfld_->setText( nm );
@@ -759,9 +757,9 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
     }
 
     // from here for write only
-    LineKey lk( nmfld_->text() );
-    const BufferString seltxt( lk.lineName() );
-    int itmidx = dataset_.indexOfNm( seltxt.buf(), false );
+    StringPair nm( nmfld_->text() );
+    const BufferString& seltxt = nm.first();
+    const int itmidx = dataset_.indexOfNm( seltxt.buf(), false );
     if ( itmidx < 0 )
 	return createEntry( seltxt );
 

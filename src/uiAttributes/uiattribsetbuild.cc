@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "survinfo.h"
 
 #include "uiattrdesced.h"
@@ -175,10 +174,7 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 		    const char* idval;
 		    mGetStringFromDesc( (*tmpdesc), idval,
 					Attrib::StorageProvider::keyStr() )
-		    const LineKey lk( idval );
-		    BufferString bstring = lk.lineName();
-		    const char* linenm = bstring.buf();
-		    const MultiID mid( linenm+1 );
+		    const MultiID mid( idval );
 		    if ( psdpfids_.isPresent( mid ) )
 			descset_.removeDesc( tmpdesc->id() );
 		}

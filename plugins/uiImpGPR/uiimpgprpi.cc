@@ -136,21 +136,23 @@ void inpSel( CallBacker* )
 
 bool acceptOK( CallBacker* ) override
 {
-    if ( !inpfld_ ) return true;
+    if ( !inpfld_ )
+	return true;
 
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() ) mErrRet(tr("Please enter the input file name"))
     const BufferString lnm( lnmfld_->text() );
     if ( lnm.isEmpty() ) mErrRet(tr("Please enter the output line name"))
 
-    Pos::GeomID geomid = Geom2DImpHandler::getGeomID( lnm );
+    const Pos::GeomID geomid = Geom2DImpHandler::getGeomID( lnm );
     if (  geomid.isUdf() )
 	return false;
 
     const IOObj* ioobj = outfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
-    DZT::Importer importer( fnm, *ioobj, LineKey(lnm) );
+    DZT::Importer importer( fnm, *ioobj, geomid );
     importer.fh_.nrdef_.start = nrdeffld_->getIntValue(0);
     importer.fh_.nrdef_.step = nrdeffld_->getIntValue(0);
     importer.fh_.cstart_ = startposfld_->getCoord();

@@ -665,13 +665,13 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				  bool is2d, const MultiID& mid )
     : uiDialog( p, uiDialog::Setup(tr("Gap Decon viewer position"),
                                    mNoDlgTitle, mNoHelpKey) )
+    , inlcrlfld_(0)
+    , linesfld_(0)
     , tkzs_( cs )
     , prefcs_(0)
+    , posdlg_(0)
     , is2d_( is2d )
     , mid_( mid )
-    , linesfld_(0)
-    , inlcrlfld_(0)
-    , posdlg_(0)
 {
     if ( is2d )
     {
@@ -686,7 +686,8 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
     else
 	inlcrlfld_ = new uiGenInput( this, tr("Compute autocorrelation on:"),
 				    BoolInpSpec(true,uiStrings::sInline(),
-                                                uiStrings::sCrossline()) );
+						uiStrings::sCrossline()) );
+
     setOkText( uiStrings::sNext() );
 }
 
@@ -705,8 +706,8 @@ void uiGDPositionDlg::popUpPosDlg()
     TrcKeyZSampling inputcs = tkzs_;
     if ( is2d )
     {
-	SeisTrcTranslator::getRanges(
-		mid_, inputcs, Survey::GM().getName(getGeomID()) );
+	inputcs.hsamp_.setGeomID( getGeomID() );
+	SeisTrcTranslator::getRanges( mid_, inputcs );
 	tkzs_.hsamp_.set(inputcs.hsamp_.inlRange(), inputcs.hsamp_.crlRange());
     }
 

@@ -258,11 +258,11 @@ the pipe character ('|') in between.
 mExpClass(Basic) StringPair
 {
 public:
-
 			StringPair(const char* str1, const char* str2)
 			    : first_(str1), second_(str2) {}
 			StringPair(const StringPair&);
 			StringPair(const char* compstr);
+			~StringPair();
 
     static char		separator() { return '|'; }
 
@@ -274,6 +274,7 @@ public:
 
     const OD::String&	getCompString() const;
     const OD::String&	getCompString(bool withwhitespace) const;
+    const char*		buf() const;
 
 protected:
 

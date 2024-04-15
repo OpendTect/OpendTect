@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 
@@ -191,7 +190,7 @@ bool Desc::getDefStr( BufferString& res ) const
 	params_[idx]->fillDefStr( res );
     }
 
-    if ( seloutput_!=-1 || LineKey(userref_).attrName() == sKeyAll() )
+    if ( seloutput_!=-1 || StringPair(userref_).second() == sKeyAll() )
     {
 	res += " output=";
 	res += seloutput_;

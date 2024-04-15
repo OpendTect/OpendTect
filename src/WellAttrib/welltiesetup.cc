@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "ioman.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "settings.h"
 #include "stratsynthgenparams.h"
 #include "perthreadrepos.h"
@@ -128,10 +127,12 @@ void WellTie::Setup::usePar( const IOPar& iop )
     iop.getYN( sKeyUseExistingD2T(), useexistingd2tm_ );
     parseEnumCorrType( sKeyCSCorrType(), corrtype_ );
 
-    LineKey lk;
-    iop.get( sKeySeisLineID, lk );
-    if ( linenm_.isEmpty() && !lk.lineName().isEmpty() ) //copy old key to new
-	linenm_ = lk.lineName();
+    // For backward compatibility
+    BufferString lineid;
+    iop.get( sKeySeisLineID, lineid );
+    StringPair sp( lineid );
+    if ( linenm_.isEmpty() && !sp.first().isEmpty() ) //copy old key to new
+	linenm_ = sp.first();
 
     supportOldPar( iop );
 }
@@ -154,8 +155,7 @@ void WellTie::Setup::fillPar( IOPar& iop ) const
     iop.set( sKeyWavltID, sgp_.getWaveletID() ); //backward compatibility
     iop.setYN( sKeyUseExistingD2T(), useexistingd2tm_ );
     iop.set( sKeyCSCorrType(), getCorrTypeString( corrtype_ ) );
-    const LineKey lk( linenm_, 0 );
-    iop.set( sKeySeisLineID, lk ); //backward compatibility
+    iop.set( sKeySeisLineID, linenm_ ); //backward compatibility
 }
 
 

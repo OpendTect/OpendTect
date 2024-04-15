@@ -41,8 +41,7 @@ bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf,
 { return false; }
 
 
-DataPackID ExtAttribCalc::createAttrib( const TrcKeyZSampling&,const LineKey&,
-					  TaskRunner* )
+DataPackID ExtAttribCalc::createAttrib( const TrcKeyZSampling&, TaskRunner* )
 { return DataPack::cNoID(); }
 
 

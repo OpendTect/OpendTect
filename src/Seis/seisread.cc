@@ -649,7 +649,7 @@ Pos::GeomID SeisTrcReader::geomID() const
 }
 
 
-class SeisTrcReaderLKProv : public GeomIDProvider
+class SeisTrcReaderLKProv : public Pos::GeomIDProvider
 {
 public:
     SeisTrcReaderLKProv( const SeisTrcReader& r )
@@ -659,7 +659,7 @@ public:
 };
 
 
-GeomIDProvider* SeisTrcReader::geomIDProvider() const
+Pos::GeomIDProvider* SeisTrcReader::geomIDProvider() const
 {
     return new SeisTrcReaderLKProv( *this );
 }

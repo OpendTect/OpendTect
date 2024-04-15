@@ -20,7 +20,6 @@
 #include "uistepoutsel.h"
 
 #include "trckeyzsampling.h"
-#include "linekey.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 
@@ -142,8 +141,7 @@ uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
 
 
     steerfld_ = new uiSteeringSel( this, 0 , is2d );
-    steerfld_->steertypeSelected_.notify( mCB( this, uiGLCM_attrib,
-					       steerTypeSel ) );
+    steerfld_->steertypeSelected_.notify( mCB(this,uiGLCM_attrib,steerTypeSel));
     steerfld_->attach( alignedBelow, directfld_ );
 
     GLCMattributeSel(0);
@@ -152,6 +150,11 @@ uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
 
     setHAlignObj( inpfld_ );
 }
+
+
+uiGLCM_attrib::~uiGLCM_attrib()
+{}
+
 
 void uiGLCM_attrib::GLCMattributeSel( CallBacker* )
 {
@@ -243,17 +246,6 @@ bool uiGLCM_attrib::getInput( Desc& desc )
 
 void uiGLCM_attrib::steerTypeSel( CallBacker* )
 {
-    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
-    {
-	const char* steertxt = steerfld_->text();
-	if ( steertxt )
-	{
-	    LineKey inp( inpfld_->getInput() );
-	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName() )
-		    steerfld_->clearInpField();
-	}
-    }
 }
 
 
@@ -271,12 +263,9 @@ void uiGLCM_attrib::getEvalParams( TypeSet<EvalParam>& params ) const
 class uiSubSelForAnalysis : public uiDialog
 { mODTextTranslationClass(uiSubSelForAnalysis);
 public:
-uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
+uiSubSelForAnalysis( uiParent* p, const MultiID& mid, bool is2d )
     : uiDialog(p,uiDialog::Setup(tr("Select data"),tr("For analysis"),
 				 mNoHelpKey))
-    , attribnm_(anm)
-    , linesfld_(0)
-    , subvolfld_(0)
 {
     nrtrcfld_ = new uiGenInput( this, tr("Nr of Traces for Examination"),
 				IntInpSpec(100) );
@@ -300,11 +289,15 @@ uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
 }
 
 int nrTrcs()
-{ return nrtrcfld_->getIntValue();
+{
+    return nrtrcfld_->getIntValue();
 }
 
-LineKey lineKey() const
-{ return LineKey( linesfld_ ? linesfld_->box()->text() : "", attribnm_ ); }
+BufferString lineName() const
+{
+    return linesfld_ ? linesfld_->box()->text() : "";
+}
+
 
 bool acceptOK( CallBacker* ) override
 {
@@ -328,11 +321,9 @@ TrcKeyZSampling subVol() const
 
 protected:
 
-    BufferString	attribnm_;
-
     uiGenInput*		nrtrcfld_;
-    uiSelSubvol*	subvolfld_;
-    uiLabeledComboBox*	linesfld_;
+    uiSelSubvol*	subvolfld_			= nullptr;
+    uiLabeledComboBox*	linesfld_			= nullptr;
 };
 
 
@@ -342,16 +333,15 @@ void uiGLCM_attrib::analyzeData( CallBacker* )
     if ( !inpdesc )
 	return;
 
-    LineKey lk( inpdesc->getStoredID(true) );
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName().buf()) );
+    const MultiID key( inpdesc->getStoredID(true).buf() );
+    PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
     {
 	uiMSG().error( tr("Select a valid input") );
 	return;
     }
 
-    uiSubSelForAnalysis subseldlg( this, ioobj->key(), inpdesc->is2D(),
-				   lk.attrName() );
+    uiSubSelForAnalysis subseldlg( this, ioobj->key(), inpdesc->is2D() );
     if ( !subseldlg.go() )
 	return;
 
@@ -361,13 +351,10 @@ void uiGLCM_attrib::analyzeData( CallBacker* )
     {
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
-	seisinfo.getRanges(
-		Survey::GM().getGeomID(subseldlg.lineKey().lineName()),
-		trcrg, zrg );
-	cs.hsamp_.setCrlRange( trcrg );
-	cs.hsamp_.setInlRange( Interval<int>(0,0) );
+	const Pos::GeomID geomid = Survey::GM().getGeomID(subseldlg.lineName());
+	seisinfo.getRanges( geomid, trcrg, zrg );
+	cs.hsamp_.set( geomid, trcrg );
 	cs.zsamp_ = zrg;
-	lk = subseldlg.lineKey();
     }
     else
     {
@@ -377,13 +364,13 @@ void uiGLCM_attrib::analyzeData( CallBacker* )
 
     const int nrtrcs = subseldlg.nrTrcs();
     SeisTrcBuf buf( true );
-    if ( readInputCube(buf,cs,nrtrcs,lk) )
+    if ( readInputCube(buf,cs,nrtrcs) )
 	determineMinMax( buf );
 }
 
 
 bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
-				      int nrtrcs, const LineKey& lk) const
+				      int nrtrcs ) const
 {
     const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
@@ -400,7 +387,7 @@ bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
     aem->setAttribSet( descset );
     aem->setAttribSpec( sp );
     if ( inpdesc->is2D() )
-	aem->setGeomID( Survey::GM().getGeomID(lk.lineName().buf()) );
+	aem->setGeomID( cs.hsamp_.getGeomID() );
 
     aem->setTrcKeyZSampling( cs );
     TypeSet<TrcKey> trckeys;

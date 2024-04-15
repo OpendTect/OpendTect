@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "linekey.h"
 #include "od_helpids.h"
 
 #include "uiattribfactory.h"
@@ -38,30 +37,30 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mPositionAttribHelpID) )
 
 {
-    inpfld = createInpFld(  is2d, "Input attribute" );
+    inpfld_ = createInpFld(  is2d, "Input attribute" );
 
-    stepoutfld = new uiStepOutSel( this, is2d );
-    stepoutfld->setFieldNames( "Inl Stepout", "Crl Stepout" );
-    stepoutfld->attach( alignedBelow, inpfld );
+    stepoutfld_ = new uiStepOutSel( this, is2d );
+    stepoutfld_->setFieldNames( "Inl Stepout", "Crl Stepout" );
+    stepoutfld_->attach( alignedBelow, inpfld_ );
 
-    gatefld = new uiGenInput( this, gateLabel(),
+    gatefld_ = new uiGenInput( this, gateLabel(),
 			      FloatInpIntervalSpec().setName("Z start",0)
 						    .setName("Z stop",1) );
-    gatefld->attach( alignedBelow, stepoutfld );
+    gatefld_->attach( alignedBelow, stepoutfld_ );
 
-    steerfld = new uiSteeringSel( this, 0, is2d );
-    steerfld->steertypeSelected_.notify(
+    steerfld_ = new uiSteeringSel( this, 0, is2d );
+    steerfld_->steertypeSelected_.notify(
 				mCB(this,uiPositionAttrib,steerTypeSel) );
-    steerfld->attach( alignedBelow, gatefld );
+    steerfld_->attach( alignedBelow, gatefld_ );
 
-    operfld = new uiGenInput( this, uiStrings::sOperator(), 
+    operfld_ = new uiGenInput( this, uiStrings::sOperator(),
                               StringListInpSpec(opstrs) );
-    operfld->attach( alignedBelow, steerfld );
+    operfld_->attach( alignedBelow, steerfld_ );
 
-    outfld = createInpFld( is2d, "Output attribute" );
-    outfld->attach( alignedBelow, operfld );
+    outfld_ = createInpFld( is2d, "Output attribute" );
+    outfld_->attach( alignedBelow, operfld_ );
 
-    setHAlignObj( inpfld );
+    setHAlignObj( inpfld_ );
 }
 
 
@@ -74,10 +73,10 @@ bool uiPositionAttrib::setParameters( const Desc& desc )
     if ( desc.attribName() != Position::attribName() )
 	return false;
 
-    mIfGetFloatInterval( Position::gateStr(), gate, gatefld->setValue(gate) );
+    mIfGetFloatInterval( Position::gateStr(), gate, gatefld_->setValue(gate) );
     mIfGetBinID( Position::stepoutStr(), stepout,
-		 stepoutfld->setBinID(stepout) );
-    mIfGetEnum( Position::operStr(), oper, operfld->setValue(oper) );
+		 stepoutfld_->setBinID(stepout) );
+    mIfGetEnum( Position::operStr(), oper, operfld_->setValue(oper) );
 
     return true;
 }
@@ -85,9 +84,9 @@ bool uiPositionAttrib::setParameters( const Desc& desc )
 
 bool uiPositionAttrib::setInput( const Desc& desc )
 {
-    putInp( inpfld, desc, 0 );
-    putInp( outfld, desc, 1 );
-    putInp( steerfld, desc, 2 );
+    putInp( inpfld_, desc, 0 );
+    putInp( outfld_, desc, 1 );
+    putInp( steerfld_, desc, 2 );
 
     return true;
 }
@@ -98,10 +97,10 @@ bool uiPositionAttrib::getParameters( Desc& desc )
     if ( desc.attribName() != Position::attribName() )
 	return false;
 
-    mSetFloatInterval( Position::gateStr(), gatefld->getFInterval() );
-    mSetBinID( Position::stepoutStr(), stepoutfld->getBinID() );
-    mSetEnum( Position::operStr(), operfld->getIntValue() );
-    mSetBool( Position::steeringStr(), steerfld->willSteer() );
+    mSetFloatInterval( Position::gateStr(), gatefld_->getFInterval() );
+    mSetBinID( Position::stepoutStr(), stepoutfld_->getBinID() );
+    mSetEnum( Position::operStr(), operfld_->getIntValue() );
+    mSetBool( Position::steeringStr(), steerfld_->willSteer() );
 
     return true;
 }
@@ -109,9 +108,9 @@ bool uiPositionAttrib::getParameters( Desc& desc )
 
 bool uiPositionAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
-    fillInp( outfld, desc, 1 );
-    fillInp( steerfld, desc, 2 );
+    fillInp( inpfld_, desc, 0 );
+    fillInp( outfld_, desc, 1 );
+    fillInp( steerfld_, desc, 2 );
 
     return true;
 }
@@ -126,16 +125,4 @@ void uiPositionAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 void uiPositionAttrib::steerTypeSel( CallBacker* )
 {
-    if ( is2D() && steerfld->willSteer() && !inpfld->isEmpty() )
-    {
-	const char* steertxt = steerfld->text();
-	if ( steertxt )
-	{
-	    LineKey inp( inpfld->getInput() );
-	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName()
-	      && inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ) )
-		steerfld->clearInpField();
-	}
-    }
 }

@@ -245,9 +245,8 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
 	mNotOKRet("Error: Output cannot be found")
 
     const BufferString attrnm =
-			    par.find( SeisRandLineTo2DGrid::sKeyOutpAttrib() );
-    outpattrib_ = attrnm.isEmpty() ? BufferString( LineKey::sKeyDefAttrib() )
-								    : attrnm;
+			par.find( SeisRandLineTo2DGrid::sKeyOutpAttrib() );
+    outpattrib_ = attrnm.isEmpty() ? BufferString::empty() : attrnm;
 
     const BufferString parpref =
 	par.find( SeisRandLineTo2DGrid::sKeyParPrefix() );

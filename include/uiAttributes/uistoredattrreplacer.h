@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "bufstringset.h"
 #include "datapack.h"
-#include "linekey.h"
 #include "uistring.h"
 
 class uiParent;
@@ -28,18 +27,19 @@ public:
 
     struct StoredEntry
     {
-				StoredEntry( Attrib::DescID id1, LineKey lk,
+				StoredEntry( Attrib::DescID id1,
+					     const MultiID& key,
 					     const char* storedref )
 				    : firstid_(id1)
 				    , secondid_(Attrib::DescID::undef())
-				    , lk_(lk)
+				    , key_(key)
 				    , storedref_(storedref)	{}
 				~StoredEntry();
 
 	bool			operator == ( const StoredEntry& a ) const
 	    			{ return firstid_ == a.firstid_
 				      && secondid_ == a.secondid_
-				      && lk_ == a.lk_
+				      && key_ == a.key_
 				      && storedref_ == a.storedref_; }
 
 	bool			has2Ids() const
@@ -47,7 +47,7 @@ public:
 				    	 secondid_.isValid(); }
 	Attrib::DescID		firstid_;
 	Attrib::DescID		secondid_;
-	LineKey			lk_;
+	MultiID			key_;
 	BufferStringSet		userrefs_;
 	BufferString		storedref_;
     };
@@ -80,13 +80,14 @@ protected:
 					 const Attrib::DescID&) const;
     int				getOutPut(int descid);
     void			removeDescsWithBlankInp(const Attrib::DescID&);
+
     Attrib::DescSet* 		attrset_;
     IOPar*			iopar_;
     TypeSet<StoredEntry>	storedids_;
     TypeSet<DataPack::FullID>	dpfids_;
     bool		 	is2d_;
-    uiParent*	 		parent_;
-    int				noofsteer_;
-    int				noofseis_;
-    bool			multiinpcube_;
+    uiParent*			parent_				= nullptr;
+    int				noofsteer_			= 0;
+    int				noofseis_			= 0;
+    bool			multiinpcube_			= false;
 };

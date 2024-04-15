@@ -106,11 +106,10 @@ void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
 
 
 DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
-			 const LineKey& lk )
+			 const Pos::GeomID& geomid )
     : Executor("Importing DZT file")
     , nrdone_(0)
     , totalnr_(-1)
-    , lk_(lk)
     , wrr_(0)
     , databuf_(0)
     , di_(DataCharacteristics())
@@ -137,8 +136,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
 	trc_.data().addComponent( fh_.nsamp, DataCharacteristics() );
 
     const Seis::GeomType gt = Seis::Line;
-    const Pos::GeomID gid = Survey::GM().getGeomID( lk.lineName() );
-    wrr_ = new SeisTrcWriter( ioobj, gid, &gt );
+    wrr_ = new SeisTrcWriter( ioobj, geomid, &gt );
 
     databuf_ = new char [ fh_.nrBytesPerTrace() ];
     msg_ = tr("Handling traces");

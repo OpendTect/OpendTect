@@ -154,12 +154,11 @@ void uiAttribPanel::createAndDisplay2DViewer()
 
 
 void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
-				       const TrcKeyZSampling& cs,
-				       const Pos::GeomID& geomid )
+				       const TrcKeyZSampling& cs )
 {
     attribid_ = mpid;
     tkzs_ = cs;
-    geomid_ = geomid;
+    geomid_ = cs.hsamp_.getGeomID();
 
     delete dset_;
     dset_ = dset;

@@ -16,9 +16,6 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "linekey.h"
-#include "ptrman.h"
-#include "multiid.h"
 
 
 namespace Attrib
@@ -30,8 +27,8 @@ PosVecOutputGen::PosVecOutputGen( const DescSet& as,
 				  ObjectSet<PosVecDataSet>& v,
 				  const NLAModel* m )
     : Executor("Extracting")
-    , ads_(as)
     , inps_(in)
+    , ads_(as)
     , bvss_(b)
     , vdss_(v)
     , aem_(0)

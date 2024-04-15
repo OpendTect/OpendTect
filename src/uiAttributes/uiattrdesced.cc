@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "attribstorprovider.h"
 #include "iopar.h"
-#include "linekey.h"
 #include "survinfo.h"
 
 using namespace Attrib;
@@ -361,12 +360,12 @@ bool uiAttrDescEd::getOutput( Attrib::Desc& desc )
 bool uiAttrDescEd::getInputDPID( uiAttrSel* inpfld,
 				 DataPack::FullID& inpdpfid ) const
 {
-    const LineKey lk( inpfld->getInput() );
+    const StringPair input( inpfld->getInput() );
     for ( int idx=0; idx<dpfids_.size(); idx++ )
     {
 	DataPack::FullID dpfid = dpfids_[idx];
 	BufferString dpnm = DataPackMgr::nameOf( dpfid );
-	if ( lk.lineName() == dpnm )
+	if ( input.first() == dpnm )
 	{
 	    inpdpfid = dpfid;
 	    return true;

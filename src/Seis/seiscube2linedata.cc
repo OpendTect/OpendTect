@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "ioobj.h"
 
-class Seis2DFrom3DGeomIDProvider : public GeomIDProvider
+class Seis2DFrom3DGeomIDProvider : public Pos::GeomIDProvider
 {
 public:
 Seis2DFrom3DGeomIDProvider( const Seis2DFrom3DExtractor& extr )
@@ -40,12 +40,12 @@ Seis2DFrom3DExtractor::Seis2DFrom3DExtractor(
     : Executor("Extract 3D data into 2D lines")
     , rdr_(*new SeisTrcReader(cubein))
     , wrr_(*new SeisTrcWriter(dsout))
-    , geomids_(geomids)
     , nrdone_(0)
     , totalnr_(0)
-    , curgeom2d_(0)
     , curlineidx_(-1)
     , curtrcidx_(-1)
+    , geomids_(geomids)
+    , curgeom2d_(0)
 {
     for ( int idx=0; idx<geomids.size(); idx++ )
     {
@@ -89,8 +89,10 @@ int Seis2DFrom3DExtractor::goToNextLine()
     newseldata->setGeomID( geomids_[curlineidx_] );
     wrr_.setSelData( newseldata );
     curtrcidx_ = 0;
-    const GeomIDProvider* gip = wrr_.geomIDProvider();
-    if ( !gip ) gip = new Seis2DFrom3DGeomIDProvider( *this );
+    const Pos::GeomIDProvider* gip = wrr_.geomIDProvider();
+    if ( !gip )
+	gip = new Seis2DFrom3DGeomIDProvider( *this );
+
     wrr_.setGeomIDProvider( gip );
     return MoreToDo();
 }
