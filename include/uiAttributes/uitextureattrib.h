@@ -38,7 +38,7 @@ protected:
     uiGenInput*		globalminfld_;
     uiGenInput*		globalmaxfld_;
 
-    void		analyseCB(CallBacker*);
+    void		analyzeCB(CallBacker*);
     bool		readInpAttrib(SeisTrcBuf&,const TrcKeyZSampling&,int,
 				      const LineKey&) const;
     void		calcAndSetMinMaxVal(const SeisTrcBuf&);

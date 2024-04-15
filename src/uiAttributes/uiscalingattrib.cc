@@ -133,9 +133,9 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     lowenergymute->attach( alignedBelow, windowfld );
 
     // for Gain Correction
-    analysebut_ = new uiPushButton( this, tr("Analyze"),
-				    mCB(this,uiScalingAttrib,analyseCB), false);
-    analysebut_->attach( alignedBelow, typefld );
+    analyzebut_ = new uiPushButton( this, tr("Analyze"),
+				    mCB(this,uiScalingAttrib,analyzeCB), false);
+    analyzebut_->attach( alignedBelow, typefld );
 
     typeSel(0);
     statsSel(0);
@@ -162,7 +162,7 @@ void uiScalingAttrib::typeSel( CallBacker* )
     sqrgfld->display( typeval==3 );
     squrgfld->display( typeval==3 );
 
-    analysebut_->display( typeval==4 );
+    analyzebut_->display( typeval==4 );
 }
 
 
@@ -505,7 +505,7 @@ bool acceptOK( CallBacker* ) override
 };
 
 
-void uiScalingAttrib::analyseCB( CallBacker* )
+void uiScalingAttrib::analyzeCB( CallBacker* )
 {
     Attrib::Desc* inpdesc = !ads_ ? getInputDescFromDP( inpfld )
 				  : ads_->getDesc( inpfld->attribID() );

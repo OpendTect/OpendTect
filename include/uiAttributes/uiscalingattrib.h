@@ -40,14 +40,14 @@ protected:
     uiGenInput*         lowenergymute;
     uiGenInput*         sqrgfld;
     uiGenInput*         squrgfld;
-    uiPushButton*	analysebut_;
+    uiPushButton*	analyzebut_;
 
     TypeSet<float>	zvals_;
     TypeSet<float>	scalefactors_;
 
     void		typeSel(CallBacker*);
     void		statsSel(CallBacker*);
-    void		analyseCB(CallBacker*);
+    void		analyzeCB(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&) override;
     bool		setInput(const Attrib::Desc&) override;

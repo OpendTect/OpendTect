@@ -45,7 +45,7 @@ protected:
     void		GLCMattributeSel(CallBacker*);
     void		GLCMdirectionSel(CallBacker*);
 
-    void		analyseData(CallBacker*);
+    void		analyzeData(CallBacker*);
     bool		readInputCube(SeisTrcBuf&, const TrcKeyZSampling&,
 				      int, const LineKey&) const;
     void		determineMinMax( const SeisTrcBuf&);

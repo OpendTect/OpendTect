@@ -108,10 +108,10 @@ uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
     limitfld_->setElemSzPol( uiObject::Small );
     limitfld_->attach( alignedBelow, inpfld_);
 
-    uiPushButton* analyseButton = new uiPushButton(this,
+    uiPushButton* analyzeButton = new uiPushButton(this,
 				tr("Compute Amplitude Range"),
-				mCB(this, uiGLCM_attrib, analyseData), false);
-    analyseButton->attach( rightOf, limitfld_);
+				mCB(this, uiGLCM_attrib, analyzeData), false);
+    analyzeButton->attach( rightOf, limitfld_);
 
     numbergreyfld_ = new uiGenInput( this, tr("Number of Grey Levels"),
 				     IntInpSpec() );
@@ -336,7 +336,7 @@ protected:
 };
 
 
-void uiGLCM_attrib::analyseData( CallBacker* )
+void uiGLCM_attrib::analyzeData( CallBacker* )
 {
     const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )

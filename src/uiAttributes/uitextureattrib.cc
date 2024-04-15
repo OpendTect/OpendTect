@@ -91,9 +91,9 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
     globalmaxfld_->setElemSzPol(uiObject::Small);
     globalmaxfld_->attach( rightOf, globalminfld_ );
 
-    uiPushButton* analysebut = new uiPushButton( this, tr("Compute"),
-				 mCB(this,uiTextureAttrib,analyseCB), false );
-    analysebut->attach( rightOf, globalmaxfld_ );
+    uiPushButton* analyzebut = new uiPushButton( this, tr("Compute"),
+				 mCB(this,uiTextureAttrib,analyzeCB), false );
+    analyzebut->attach( rightOf, globalmaxfld_ );
     setHAlignObj( inpfld_ );
 }
 
@@ -258,7 +258,7 @@ protected:
 };
 
 
-void uiTextureAttrib::analyseCB( CallBacker* )
+void uiTextureAttrib::analyzeCB( CallBacker* )
 {
     const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !inpdesc )
