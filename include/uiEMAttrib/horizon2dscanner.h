@@ -22,7 +22,7 @@ namespace ZDomain { class Info; }
 mExpClass(uiEMAttrib) Horizon2DScanner : public Executor
 { mODTextTranslationClass(Horizon2DScanner);
 public:
-			mDeprecated("Use Contructor with ZDomain::Info");
+			mDeprecated("Use Contructor with ZDomain::Info")
 			Horizon2DScanner(const BufferStringSet& fnms,
 					 Table::FormatDesc& fd);
 			~Horizon2DScanner();
