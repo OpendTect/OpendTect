@@ -896,7 +896,7 @@ od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 		     : qfi.created();
 #endif
 
-    return dt.toSecsSinceEpoch();
+    return dt.isValid() ? dt.toSecsSinceEpoch() : 0;
 }
 
 
