@@ -171,7 +171,9 @@ void SharedLibAccess::getLibName( const char* modnm, char* out, int sz )
 RuntimeLibLoader::RuntimeLibLoader( const char* filenm, const char* subdir )
 {
     const FilePath libfp( filenm );
-    const FilePath relfp( GetLibPlfDir(), subdir, libfp.fileName() );
+    const FilePath relfp( __iswin__ ? GetExecPlfDir()
+				    : GetLibPlfDir(),
+			  subdir, libfp.fileName() );
     if ( relfp.exists() )
 	sha_ = new SharedLibAccess( relfp.fullPath() );
     else if ( libfp.exists() )

@@ -115,7 +115,7 @@ static void loadOpenSSL()
 	return;
 
     //Load first crypto, then ssl
-    const BufferString ssldir( "OpenSSL" );
+    const BufferString ssldir( __iswin__ ? "" : "OpenSSL" );
     mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,cryptosha,
 	    = new RuntimeLibLoader(__OpenSSL_Crypto_LIBRARY__,ssldir) );
 # ifdef __OpenSSL_SSL_LIBRARY__
