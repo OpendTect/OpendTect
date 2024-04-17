@@ -48,7 +48,8 @@ class OpenSSLFnSet;
 
 mExpClass(General) OpenSSLAccess
 { mODTextTranslationClass(OpenSSLAccess);
-public:			OpenSSLAccess();
+public:
+			OpenSSLAccess();
 			~OpenSSLAccess();
 
     bool		isOK(uiRetVal* =nullptr) const;
@@ -70,6 +71,10 @@ public:			OpenSSLAccess();
     static bool		sDefBase64()		{ return false; }
     static int		sDefNrIters()		{ return 10000; }
     static bool		sDefUseSalt()		{ return true; }
+
+    static bool		loadOpenSSL(const char* libfnm,bool iscrypto);
+			/* Loads the openssl or crypto libraries,
+			   but not ODOpenSSL */
 
 private:
 

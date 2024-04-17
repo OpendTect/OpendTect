@@ -58,6 +58,11 @@ bool testPing()
     mRunStandardTestWithError( Network::ping(url.str(),err)==false,
 	BufferString( prefix_, "Ping non-existing URL"), toString(err) );
 
+    url.set( "https://cdash.dgbes.com" );
+    mRunStandardTestWithError( Network::ping(url.str(),err)==false,
+        BufferString( prefix_, "Ping existing URL - invalid certificate"),
+	toString(err) );
+
     return true;
 }
 

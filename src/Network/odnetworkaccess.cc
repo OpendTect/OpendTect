@@ -13,125 +13,39 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "oscommand.h"
 #include "od_iostream.h"
 #include "oddirs.h"
+#include "opensslaccess.h"
 #include "perthreadrepos.h"
 #include "separstr.h"
 #include "settings.h"
-#include "sharedlibs.h"
 #include "uistrings.h"
 
 # include <QByteArray>
 # include <QNetworkProxy>
 
-
 namespace System
 {
-#ifdef __unix__
-static bool mUnusedVar findLibraryPath( const char* libnm, FilePath& ret )
-{
-#ifdef __mac__
-    //TODO
-    return false;
-#else
-    OS::MachineCommand mc( "/sbin/ldconfig" );
-    mc.addFlag( "p", OS::OldStyle ).addPipe()
-      .addArg( "grep" ).addArg( libnm );
-
-    if ( !File::exists(mc.program()) )
-	return false;
-
-    BufferString ldoutstr;
-    if ( !mc.execute(ldoutstr) )
-	return false;
-
-    BufferStringSet cmdoutlines, cmdoutlines_x64;
-    cmdoutlines.unCat( ldoutstr.buf() );
-    for ( const auto cmdoutline : cmdoutlines )
-    {
-      const SeparString cmdoutsep( cmdoutline->buf(), ' ' );
-      if ( cmdoutsep.size() < 4 || !cmdoutsep[1].contains("x86-64") )
-	  continue;
-
-      const char* syslibnm = cmdoutsep[0].buf();
-      if ( *syslibnm == '\t' )
-	  syslibnm++;
-
-      if ( StringView(syslibnm) != libnm )
-	  continue;
-
-      cmdoutlines_x64.add( cmdoutsep[3] );
-    }
-
-    if ( cmdoutlines_x64.isEmpty() )
-	return false;
-
-    ret.set( cmdoutlines_x64.first()->buf() );
-    return ret.exists();
-#endif
-}
-#endif
-
-} // namespace System
-
-
-namespace Network
-{
-
-#ifdef __OpenSSL_Crypto_LIBRARY__
-static bool canUseSystemOpenSSL()
-{
-#ifdef __unix__
-    const FilePath libfp( __OpenSSL_Crypto_LIBRARY__ );
-    const char* libnm = libfp.fileName().buf();
-    FilePath ret;
-    if ( !System::findLibraryPath(libnm,ret) )
-	return false;
-# ifdef __mac__
-    return ret.exists();
-# else
-    OS::MachineCommand mc( "strings" );
-    mc.addArg( ret.fullPath() ).addPipe()
-      .addArg( "grep" )
-      .addKeyedArg( "m", 1, OS::OldStyle )
-      .addArg( "EVP_PKEY_param_check" );
-
-    BufferString cmdoutstr;
-    return mc.execute( cmdoutstr ) && !cmdoutstr.isEmpty();
-# endif
-#else
-    return false;
-#endif
-}
-#endif
-
 
 static void loadOpenSSL()
 {
     mIfNotFirstTime(return);
-#ifdef __OpenSSL_Crypto_LIBRARY__
-    if ( canUseSystemOpenSSL() )
+    if ( __iswin__ ) // Manual load not required, automatic
 	return;
 
-    //Load first crypto, then ssl
-#ifdef __mac__
-    const BufferString ssldir( "../Resources/OpenSSL" );
-#else
-    const BufferString ssldir( "OpenSSL" );
-#endif
-    mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,cryptosha,
-	    = new RuntimeLibLoader(__OpenSSL_Crypto_LIBRARY__,ssldir) );
+#ifdef __OpenSSL_Crypto_LIBRARY__
+    const bool cryptook =
+	OD::OpenSSLAccess::loadOpenSSL( __OpenSSL_Crypto_LIBRARY__, true );
+    if ( !cryptook )
+	return;
+
 # ifdef __OpenSSL_SSL_LIBRARY__
-    mDefineStaticLocalObject(PtrMan<RuntimeLibLoader>,sslsha,
-	    = cryptosha && cryptosha->isOK()
-	    ? new RuntimeLibLoader(__OpenSSL_SSL_LIBRARY__,ssldir)
-	    : nullptr );
+    OD::OpenSSLAccess::loadOpenSSL( __OpenSSL_SSL_LIBRARY__, false );
 # endif
 #endif
 }
 
-} // namespace Network
+} // namespace System
 
 
 
@@ -243,7 +157,7 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
     , saveaspaths_( outputpaths )
     , urls_( urls )
 {
-    Network::loadOpenSSL(); //Keep at the first line
+    System::loadOpenSSL(); //Keep at the first line
     totalnr_ = getDownloadSize();
 }
 
@@ -252,7 +166,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer& db )
     : SequentialTask("Downloading file")
     , databuffer_(&db)
 {
-    Network::loadOpenSSL(); //Keep at the first line
+    System::loadOpenSSL(); //Keep at the first line
     urls_.add(url);
     totalnr_ = getDownloadSize();
 }
@@ -262,7 +176,7 @@ FileDownloader::FileDownloader( const char* url )
     : SequentialTask("Downloading file")
     , osd_(new od_ostream())
 {
-    Network::loadOpenSSL(); //Keep at the first line
+    System::loadOpenSSL(); //Keep at the first line
     urls_.add(url);
 }
 
@@ -387,9 +301,12 @@ bool FileDownloader::writeDataToBuffer(const char* buffer, int size)
 
 int FileDownloader::errorOccured()
 {
-    msg_ = tr("Oops! Something went wrong.\n");
-    if (odnr_)
-	msg_ = tr("Details: %1").arg( odnr_->errMsg() );
+    if ( odnr_ )
+	msg_ = odnr_->errMsg();
+
+    if ( msg_.isEmpty() )
+	msg_ = tr( "Oops! Something went wrong with the connection" );
+
     return ErrorOccurred();
 }
 
@@ -524,7 +441,7 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
     , url_(url)
     , header_(header)
 {
-    Network::loadOpenSSL(); //Keep at the first line
+    System::loadOpenSSL(); //Keep at the first line
 }
 
 
@@ -567,10 +484,12 @@ int DataUploader::nextStep()
 
 int DataUploader::errorOccured()
 {
-    msg_ = tr("Oops! Something went wrong.\n");
-    if (odnr_)
-	msg_ = tr("Details: %1")
-	     .arg( odnr_->errMsg() );
+    if ( odnr_ )
+	msg_ = odnr_->errMsg();
+
+    if ( msg_.isEmpty() )
+	msg_ = tr( "Oops! Something went wrong with the connection" );
+
     return ErrorOccurred();
 }
 
