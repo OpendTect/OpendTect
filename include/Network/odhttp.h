@@ -112,7 +112,7 @@ private:
 /*!The upload or download process. Can be queried for progress, data and
   errors*/
 mExpClass(Network) HttpRequestProcess : public SharedObject
-{
+{ mODTextTranslationClass(HttpRequestProcess);
 public:
 				 //General purpose callbacks
     Notifier<HttpRequestProcess> finished;
