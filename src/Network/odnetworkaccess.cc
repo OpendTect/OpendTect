@@ -30,6 +30,9 @@ namespace System
 static void loadOpenSSL()
 {
     mIfNotFirstTime(return);
+    if ( __iswin__ ) // Manual load not required, automatic
+	return;
+
 #ifdef __OpenSSL_Crypto_LIBRARY__
     const bool cryptook =
 	OD::OpenSSLAccess::loadOpenSSL( __OpenSSL_Crypto_LIBRARY__, true );

@@ -121,7 +121,7 @@ void OD::OpenSSLAccess::loadPlugin()
     }
 
     sla_ = pdata ? pdata->sla_ : nullptr;
-    if ( !isOK() )
+    if ( !sla_ || !sla_->isOK() )
 	return;
 
     delete functions_;
@@ -255,8 +255,8 @@ bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, bool iscrypto )
 	}
 	else
 	{
-	    const BufferString ssldir( __iswin__ ? "" : "OpenSSL" );
-	    libsha = new RuntimeLibLoader( libnm, ssldir );
+	    const BufferString subdir( __iswin__ ? "" : "OpenSSL" );
+	    libsha = new RuntimeLibLoader( libnm, subdir.buf() );
 	    res = libsha && libsha->isOK() ? 2 : 0;
 	}
     }
