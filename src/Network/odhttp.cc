@@ -56,10 +56,10 @@ HttpRequestProcess::~HttpRequestProcess()
 }
 
 
-uiString HttpRequestProcess::errMsg() const
+uiRetVal HttpRequestProcess::errMsgs() const
 {
     Threads::MutexLocker locker( statuslock_ );
-    return errmsg_;
+    return errmsgs_;
 }
 
 
@@ -158,19 +158,21 @@ void HttpRequestProcess::reportMetaDataChanged()
 }
 
 
-void HttpRequestProcess::reportSSLErrors( const QList<QSslError>& list )
+void HttpRequestProcess::reportSSLErrors( const QList<QSslError>& sslerrors )
 {
-    pErrMsg("SSL error occurred - SSL error handling not implemented");
-    QString errmsg( "SSL Error");
-
+    uiRetVal errors;
 #ifndef QT_NO_OPENSSL
-    if ( list.size() )
-	errmsg = list[0].errorString();
+    {
+	for ( int idx=0; idx<sslerrors.size(); idx++ )
+	    errors.add( toUiString(sslerrors[idx].errorString()) );
+    }
 #endif
+    if ( errors.isEmpty() )
+	errors.add( tr("SSL Error (unknown)") );
 
     statuslock_.lock();
     status_ = Error;
-    errmsg_.setFrom( errmsg );
+    errmsgs_.add( errors );
     statuslock_.signal( true );
     statuslock_.unLock();
 
@@ -182,7 +184,8 @@ void HttpRequestProcess::reportError()
 {
     statuslock_.lock();
     status_ = Error;
-    errmsg_.setFrom( qnetworkreply_->errorString() );
+    const uiString errmsg = toUiString( qnetworkreply_->errorString() );
+    errmsgs_.add( errmsg );
     statuslock_.signal( true );
     statuslock_.unLock();
 

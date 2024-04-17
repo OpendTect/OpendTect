@@ -112,7 +112,7 @@ private:
 /*!The upload or download process. Can be queried for progress, data and
   errors*/
 mExpClass(Network) HttpRequestProcess : public SharedObject
-{
+{ mODTextTranslationClass(HttpRequestProcess);
 public:
 				 //General purpose callbacks
     Notifier<HttpRequestProcess> finished;
@@ -141,7 +141,7 @@ public:
     od_int64			getBytesUploaded() const;
     od_int64			getTotalBytesToUpload() const;
 
-    uiString			errMsg() const;
+    uiRetVal			errMsgs() const;
 
 private:
 
@@ -192,7 +192,7 @@ private:
     QByteArray*					receiveddata_ = nullptr;
     mutable Threads::ConditionVar		receiveddatalock_;
 
-    uiString					errmsg_;
+    uiRetVal					errmsgs_;
 };
 
 } // namespace Network

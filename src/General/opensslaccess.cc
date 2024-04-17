@@ -9,10 +9,13 @@ ________________________________________________________________________
 
 #include "opensslaccess.h"
 
+#include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "oscommand.h"
 #include "plugins.h"
 #include "ptrman.h"
+#include "separstr.h"
 #include "uistringset.h"
 
 
@@ -152,4 +155,111 @@ bool OD::OpenSSLAccess::decryptFromFile( const char* fnm, BufferString& res,
 
     return (*functions_->decryptfromfilefn_)( fnm, res, uirv, passphrase,
 					      cipher, base64, nriters );
+}
+
+
+namespace System
+{
+
+static bool findLibraryPath( const char* libnm, FilePath& ret )
+{
+    if ( __iswin__ )
+	return false;
+
+    if ( __ismac__ )
+    {
+	//TODO impl
+	return false;
+    }
+
+    OS::MachineCommand mc( "/sbin/ldconfig" );
+    mc.addFlag( "p", OS::OldStyle ).addPipe()
+      .addArg( "grep" ).addArg( libnm );
+
+    if ( !File::exists(mc.program()) )
+	return false;
+
+    BufferString ldoutstr;
+    if ( !mc.execute(ldoutstr) )
+	return false;
+
+    BufferStringSet cmdoutlines, cmdoutlines_x64;
+    cmdoutlines.unCat( ldoutstr.buf() );
+    for ( const auto* cmdoutline : cmdoutlines )
+    {
+      const SeparString cmdoutsep( cmdoutline->buf(), ' ' );
+      if ( cmdoutsep.size() < 4 || !cmdoutsep[1].contains("x86-64") )
+	  continue;
+
+      const char* syslibnm = cmdoutsep[0].buf();
+      if ( *syslibnm == '\t' )
+	  syslibnm++;
+
+      if ( StringView(syslibnm) != libnm )
+	  continue;
+
+      cmdoutlines_x64.add( cmdoutsep[3] );
+    }
+
+    if ( cmdoutlines_x64.isEmpty() )
+	return false;
+
+    ret.set( cmdoutlines_x64.first()->buf() );
+    return ret.exists();
+}
+
+
+static bool canUseSystemOpenSSL( const char* libfnm, bool iscrypto,
+				 FilePath& syslibfnm )
+{
+    if ( __iswin__ )
+	return false;
+
+    const FilePath libfp( libfnm );
+    const char* libnm = libfp.fileName().buf();
+    if ( !findLibraryPath(libnm,syslibfnm) )
+	return false;
+
+    if ( __ismac__ )
+	return syslibfnm.exists();
+
+    const BufferString funcnm( iscrypto ? "EVP_PKEY_param_check"
+					: "EVP_PKEY_paramgen" );
+
+    OS::MachineCommand mc( "strings" );
+    mc.addArg( syslibfnm.fullPath() ).addPipe()
+      .addArg( "grep" )
+      .addKeyedArg( "m", 1, OS::OldStyle )
+      .addArg( funcnm.str() );
+
+    BufferString cmdoutstr;
+    return mc.execute( cmdoutstr ) && !cmdoutstr.isEmpty();
+}
+
+} // namespace System
+
+
+bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, bool iscrypto )
+{
+    static PtrMan<RuntimeLibLoader> libsha;
+    static int rescrypto = -1;
+    static int resssl = -1;
+    int& res = iscrypto ? rescrypto : resssl;
+    if ( res < 0 )
+    {
+	FilePath syslibfnm;
+	if ( System::canUseSystemOpenSSL(libnm,iscrypto,syslibfnm) )
+	{
+	    libsha = new RuntimeLibLoader( syslibfnm.fullPath() );
+	    res = libsha && libsha->isOK() ? 1 : 0;
+	}
+	else
+	{
+	    const BufferString ssldir( __iswin__ ? "" : "OpenSSL" );
+	    libsha = new RuntimeLibLoader( libnm, ssldir );
+	    res = libsha && libsha->isOK() ? 2 : 0;
+	}
+    }
+
+    return res > 0;
 }
