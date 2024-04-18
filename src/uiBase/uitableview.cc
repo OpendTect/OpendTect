@@ -139,6 +139,31 @@ DoubleItemDelegate( TableModel::CellType tp )
 {}
 
 
+QWidget* createEditor( QWidget* prnt,
+		       const QStyleOptionViewItem&,
+		       const QModelIndex& ) const override
+{
+    return new QLineEdit( prnt );
+}
+
+
+void setEditorData( QWidget* editor, const QModelIndex& index ) const override
+{
+    const double dval = index.model()->data(index,Qt::DisplayRole).toDouble();
+    QLineEdit* lineedit = static_cast<QLineEdit*>(editor);
+    lineedit->setText( toString(dval,nrdecimals_) );
+}
+
+
+void setModelData( QWidget* editor, QAbstractItemModel* model,
+		   const QModelIndex& index ) const override
+{
+    QLineEdit* lineedit = static_cast<QLineEdit*>(editor);
+    QString txt = lineedit->text();
+    model->setData( index, txt, Qt::EditRole );
+}
+
+
 QString displayText( const QVariant& val, const QLocale& locale ) const override
 {
     bool ok;
