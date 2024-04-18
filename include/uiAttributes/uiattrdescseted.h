@@ -119,6 +119,7 @@ protected:
     uiToolButton*		sortbut_;
     uiToolButton*		rmbut_;
 
+    void			finalizeCB(CallBacker*);
     void			attrTypSel(CallBacker*);
     void			selChg(CallBacker*);
     void			revPush(CallBacker*);

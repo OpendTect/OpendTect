@@ -40,7 +40,7 @@ public:
 
 protected:
     static Provider*	createInstance( Desc& );
-    static void         updateDesc( Desc& );
+    static void		updateDesc( Desc& );
 
     bool		getInputData(const BinID&,int intv) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
