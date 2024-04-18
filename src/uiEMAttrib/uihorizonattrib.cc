@@ -12,25 +12,30 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "ctxtioobj.h"
 #include "emioobjinfo.h"
-#include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "od_helpids.h"
 #include "survinfo.h"
+
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiiosurface.h"
-#include "uibutton.h"
+#include "uilabel.h"
 #include "uimsg.h"
-#include "od_helpids.h"
+
+#include "hiddenparam.h"
+
 
 using namespace Attrib;
 
-static void getOutputNames( uiStringSet& strs, bool surfdata )
+static HiddenParam<uiHorizonAttrib,uiLabel*> hp_nohdlabel(nullptr);
+
+static void getOutputNames( uiStringSet& strs )
 {
     uiString zstr;
     if ( SI().zIsTime() )
@@ -39,8 +44,7 @@ static void getOutputNames( uiStringSet& strs, bool surfdata )
 	zstr = uiStrings::sZ();
 
     strs.add( zstr );
-    if ( surfdata )
-	strs.add( uiStrings::sHorizonData() );
+    strs.add( uiStrings::sHorizonData() );
 }
 
 
@@ -54,30 +58,37 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     horfld_ = new uiHorizonSel( this, is2d, true );
-    horfld_->selectionDone.notify( mCB(this,uiHorizonAttrib,horSel) );
+    mAttachCB( horfld_->selectionDone, uiHorizonAttrib::horSel );
     horfld_->attach( alignedBelow, inpfld_ );
 
     uiStringSet strs;
-    getOutputNames( strs, false );
+    getOutputNames( strs );
     typefld_ = new uiGenInput( this, uiStrings::sOutput(),
 			       StringListInpSpec(strs) );
-    typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
+    mAttachCB( typefld_->valueChanged, uiHorizonAttrib::typeSel );
     typefld_->attach( alignedBelow, horfld_ );
 
     isrelbox_ = new uiCheckBox( this, tr("Relative") );
     isrelbox_->attach( rightOf, typefld_ );
 
     surfdatafld_ = new uiGenInput( this, tr("Select Horizon Data"),
-	    			   StringListInpSpec() );
+				   StringListInpSpec() );
+    surfdatafld_->setElemSzPol( uiObject::Wide );
     surfdatafld_->attach( alignedBelow, typefld_ );
 
+    const uiString nohdstr = tr("No Horizon Data available for this horizon.");
+    auto* lbl = new uiLabel( this, nohdstr );
+    lbl->attach( alignedBelow, typefld_ );
+    hp_nohdlabel.setParam( this, lbl );
+
     setHAlignObj( inpfld_ );
-    typeSel(0);
 }
 
 
 uiHorizonAttrib::~uiHorizonAttrib()
 {
+    detachAllNotifiers();
+    hp_nohdlabel.removeParam( this );
 }
 
 
@@ -89,7 +100,7 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetMultiID(Horizon::sKeyHorID(),horid,horfld_->setInput(horid))
 
     if ( horfld_->ioobj(true) )
-	horSel(0);
+	horSel( nullptr );
 
     mIfGetEnum(Horizon::sKeyType(), typ, typefld_->setValue(typ));
 
@@ -99,7 +110,7 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 
     mIfGetBool(Horizon::sKeyRelZ(), isrel, isrelbox_->setChecked(isrel));
 
-    typeSel(0);
+    typeSel( nullptr );
 
     return true;
 }
@@ -121,20 +132,23 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 	return false;
 
     mSetMultiID( Horizon::sKeyHorID(), horfld_->ioobj()->key() );
-    const int typ = typefld_->getIntValue();
-    mSetEnum( Horizon::sKeyType(), typ );
-    if ( typ==0 )
-    {
-	mSetBool( Horizon::sKeyRelZ(), isrelbox_->isChecked() )
-    }
-    else if ( typ==1 )
+    int typ = typefld_->getIntValue();
+    if ( typ==1 )
     {
 	const int surfdataidx = surfdatafld_->getIntValue();
-	if ( surfdatanms_.validIdx(surfdataidx) )
+	if ( !surfdatanms_.validIdx(surfdataidx) )
+	    typ = 0;
+	else
 	{
 	    const BufferString& surfdatanm = surfdatanms_.get( surfdataidx );
 	    mSetString( Horizon::sKeySurfDataName(), surfdatanm.buf() )
 	}
+    }
+
+    mSetEnum( Horizon::sKeyType(), typ );
+    if ( typ==0 )
+    {
+	mSetBool( Horizon::sKeyRelZ(), isrelbox_->isChecked() )
     }
 
     return true;
@@ -152,12 +166,13 @@ bool uiHorizonAttrib::getInput( Desc& desc )
 void uiHorizonAttrib::horSel( CallBacker* )
 {
     const IOObj* ioobj = horfld_->ioobj( true );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     const EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
     {
-	uiString msg = uiStrings::phrCannotRead( ioobj->uiName() );
+	const uiString msg = uiStrings::phrCannotRead( ioobj->uiName() );
 	uiMSG().error( msg );
 	return;
     }
@@ -169,16 +184,7 @@ void uiHorizonAttrib::horSel( CallBacker* )
 	surfdatanms_.add( attrnms.get(idx).buf() );
     surfdatafld_->newSpec( StringListInpSpec(surfdatanms_), 0 );
 
-    const bool actionreq = (surfdatanms_.size() && nrouttypes_<2) ||
-			   (!surfdatanms_.size() && nrouttypes_>1);
-    if ( actionreq )
-    {
-	uiStringSet strs;
-	getOutputNames( strs, surfdatanms_.size() );
-	nrouttypes_ = surfdatanms_.size() ? 2 : 1;
-	typefld_->newSpec( StringListInpSpec( strs ), 0 );
-	typeSel(0);
-    }
+    typeSel( nullptr );
 }
 
 
@@ -186,5 +192,8 @@ void uiHorizonAttrib::typeSel(CallBacker*)
 {
     const bool isz = typefld_->getIntValue() == 0;
     isrelbox_->display( isz );
-    surfdatafld_->display( !isz );
+
+    const bool hashorizondata = !surfdatanms_.isEmpty();
+    surfdatafld_->display( !isz && hashorizondata );
+    hp_nohdlabel.getParam(this)->display( !isz && !hashorizondata );
 }

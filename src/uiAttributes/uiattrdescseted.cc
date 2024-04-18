@@ -131,6 +131,12 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     createGroups();
     attrtypefld_->setGrp( prefgrp ? prefgrp : nmprefgrp_.buf() );
 
+    mAttachCB( postFinalize(), uiAttribDescSetEd::finalizeCB );
+}
+
+
+void uiAttribDescSetEd::finalizeCB( CallBacker* )
+{
     init();
 }
 
@@ -923,16 +929,16 @@ void uiAttribDescSetEd::updateCurDescEd()
 
 bool uiAttribDescSetEd::validName( const char* newnm ) const
 {
+    const StringView fsnewnm( newnm );
+    if ( fsnewnm.size() < 2 )
+	mErrRetFalse( tr("Please enter a name of at least 2 characters.") );
+
     if ( !iswalnum(newnm[0]) )
 	mErrRetFalse(tr("Please start attribute name with a letter or number"));
 
     if ( firstOcc(newnm,'!') || firstOcc(newnm,':') || firstOcc(newnm,';') ||
 	 firstOcc(newnm,'#') )
        mErrRetFalse(tr("Attribute name may not contain '!', '#', ';' or ':'."));
-
-    const StringView fsnewnm( newnm );
-    if ( fsnewnm.size() < 2 )
-	mErrRetFalse( tr("Please enter a name of at least 2 characters.") );
 
     TypeSet<DescID> ids;
     attrset_->getIds( ids );

@@ -20,8 +20,6 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "ptrman.h"
-#include "ioman.h"
-#include "ioobj.h"
 
 #define mOutTypeZ		0
 #define mOutTypeSurfData	1
@@ -70,10 +68,10 @@ void Horizon::updateDesc( Desc& desc )
 
 Horizon::Horizon( Desc& dsc )
     : Provider(dsc)
-    , inputdata_(0)
-    , horizon_(0)
-    , horizon2dlineid_( mUdf(int) )
     , relz_(false)
+    , horizon_(0)
+    , inputdata_(0)
+    , horizon2dlineid_( mUdf(int) )
 {
     BufferString idstr = desc_.getValParam( sKeyHorID() )->getStringValue();
     horid_ = MultiID( idstr.buf() );
@@ -211,10 +209,18 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
     const bool isz = outtype_ == mOutTypeZ;
     if ( relz_ && isz )
     {
-	for ( int iz=0; iz<nrsamples; iz++ )
+	if ( mIsUdf(zval) )
 	{
-	    const float ziz = (z0 + iz) * refstep_;
-	    setOutputValue( output, 0, iz, z0, ziz - zval );
+	    for ( int iz=0; iz<nrsamples; iz++ )
+		setOutputValue( output, 0, iz, z0, mUdf(float) );
+	}
+	else
+	{
+	    for ( int iz=0; iz<nrsamples; iz++ )
+	    {
+		const float ziz = (z0 + iz) * refstep_;
+		setOutputValue( output, 0, iz, z0, ziz - zval );
+	    }
 	}
     }
     else
