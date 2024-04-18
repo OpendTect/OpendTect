@@ -255,7 +255,7 @@ bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, bool iscrypto )
 	}
 	else
 	{
-	    const BufferString subdir( __linux__ ? "OpenSSL" : "" );
+	    const BufferString subdir( __islinux__ ? "OpenSSL" : "" );
 	    libsha = new RuntimeLibLoader( libnm, subdir.buf() );
 	    res = libsha && libsha->isOK() ? 2 : 0;
 	}
