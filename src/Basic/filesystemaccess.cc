@@ -471,22 +471,32 @@ od_int64 LocalFileSystemAccess::getFileSize( const char* uri,
 }
 
 
+static QDateTime getDateTime( const char* fnm, bool lastmodif )
+{
+    const QFileInfo qfi( fnm );
+    if ( lastmodif )
+	return qfi.lastModified();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+    const QDateTime dt = qfi.birthTime();
+    return dt.isValid() ? dt : qfi.metadataChangeTime();
+#else
+    return qfi.created();
+#endif
+}
+
 
 BufferString LocalFileSystemAccess::timeCreated( const char* uri ) const
 {
-    const QFileInfo qfi( uri );
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-    return qfi.birthTime().toString( Qt::ISODate );
-#else
-    return qfi.created().toString( Qt::ISODate );
-#endif
+    const QDateTime dt = getDateTime( uri, false );
+    return dt.toString( Qt::ISODate );
 }
 
 
 BufferString LocalFileSystemAccess::timeLastModified( const char* uri ) const
 {
-    const QFileInfo qfi( uri );
-    return qfi.lastModified().toString( Qt::ISODate );
+    const QDateTime dt = getDateTime( uri, true );
+    return dt.toString( Qt::ISODate );
 }
 
 

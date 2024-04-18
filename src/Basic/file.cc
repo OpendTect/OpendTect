@@ -530,7 +530,7 @@ bool isInUse( const char* fnm )
     if ( isDirectory(fnm) )
     {
 	if ( !OD::InInstallerRunContext() )
-	{ 
+	{
 	    pFreeFnErrMsg("Argument passed is Directory path, "
 							"File path expected");
 	}
@@ -852,8 +852,7 @@ const char* timeCreated( const char* fnm, const char* fmt )
     const StringView fmtstr = fmt;
     if ( !fmtstr.isEmpty() )
     {
-
-	QDateTime qdt =
+	const QDateTime qdt =
 		QDateTime::fromString( ret.buf(), Qt::ISODate ).toLocalTime();
 	ret = qdt.toString( fmt );
     }
@@ -874,7 +873,7 @@ const char* timeLastModified( const char* fnm, const char* fmt )
     const StringView fmtstr = fmt;
     if ( !fmtstr.isEmpty() )
     {
-	QDateTime qdt =
+	const QDateTime qdt =
 		QDateTime::fromString( ret.buf(), Qt::ISODate ).toLocalTime();
 	ret = qdt.toString( fmt );
     }
@@ -886,35 +885,39 @@ const char* timeLastModified( const char* fnm, const char* fmt )
 }
 
 
+static QDateTime getDateTime( const char* fnm, bool lastmodif )
+{
+    const QFileInfo qfi( fnm );
+    if ( lastmodif )
+	return qfi.lastModified();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+    const QDateTime dt = qfi.birthTime();
+    return dt.isValid() ? dt : qfi.metadataChangeTime();
+#else
+    return qfi.created();
+#endif
+}
+
+
 od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
 {
     if ( !isLocal(fnm) || (isEmpty(fnm) && !File::isDirectory(fnm)) )
-	return 0;
+	return -1;
 
-    const QFileInfo qfi( fnm );
-    const QDateTime dt = lastmodif ? qfi.lastModified()
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-		     : qfi.birthTime();
-#else
-		     : qfi.created();
-#endif
-
-    return dt.isValid() ? dt.toSecsSinceEpoch() : 0;
+    const QDateTime dt = getDateTime( fnm, lastmodif );
+    return dt.isValid() ? dt.toSecsSinceEpoch() : -1;
 }
 
 
 od_int64 getTimeInMilliSeconds( const char* fnm, bool lastmodif )
 {
-    const QFileInfo qfi( fnm );
-    const QTime qtime = lastmodif ? qfi.lastModified().time()
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-				: qfi.birthTime().time();
-#else
-				: qfi.created().time();
-#endif
+    const QDateTime dt = getDateTime( fnm, lastmodif );
+    if ( !dt.isValid() )
+	return -1;
 
-    const QTime daystart( 0, 0, 0, 0 );
-    return daystart.msecsTo( qtime );
+    const int res = dt.time().msecsSinceStartOfDay();
+    return res == 0 ? -1 : res;
 }
 
 
