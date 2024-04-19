@@ -38,6 +38,46 @@ ________________________________________________________________________
 #include <QFile>
 #include <QFileInfo>
 
+namespace File
+{
+
+static QDateTime getDateTime( const char* fnm, bool lastmodif )
+{
+    const QFileInfo qfi( fnm );
+    if ( lastmodif )
+	return qfi.lastModified();
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+    const QDateTime dt = qfi.birthTime();
+    return dt.isValid() ? dt : qfi.metadataChangeTime();
+#else
+    return qfi.created();
+#endif
+}
+
+} // namespace File
+
+
+od_int64 File::getTimeInSeconds( const char* fnm, bool lastmodif )
+{
+    if ( !isLocal(fnm) || (isEmpty(fnm) && !isDirectory(fnm)) )
+        return -1;
+
+    const QDateTime dt = getDateTime( fnm, lastmodif );
+    return dt.isValid() ? dt.toSecsSinceEpoch() : -1;
+}
+
+
+od_int64 File::getTimeInMilliSeconds( const char* fnm, bool lastmodif )
+{
+    const QDateTime dt = getDateTime( fnm, lastmodif );
+    if ( !dt.isValid() )
+        return -1;
+
+    const int res = dt.time().msecsSinceStartOfDay();
+    return res == 0 ? -1 : res;
+}
+
 
 mImplFactory( OD::FileSystemAccess, OD::FileSystemAccess::factory );
 
@@ -475,22 +515,17 @@ od_int64 LocalFileSystemAccess::getFileSize( const char* uri,
 }
 
 
-
 BufferString LocalFileSystemAccess::timeCreated( const char* uri ) const
 {
-    const QFileInfo qfi( uri );
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-    return qfi.birthTime().toString( Qt::ISODate );
-#else
-    return qfi.created().toString( Qt::ISODate );
-#endif
+    const QDateTime dt = File::getDateTime( uri, false );
+    return dt.toString( Qt::ISODate );
 }
 
 
 BufferString LocalFileSystemAccess::timeLastModified( const char* uri ) const
 {
-    const QFileInfo qfi( uri );
-    return qfi.lastModified().toString( Qt::ISODate );
+    const QDateTime dt = File::getDateTime( uri, true );
+    return dt.toString( Qt::ISODate );
 }
 
 

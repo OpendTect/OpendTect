@@ -50,7 +50,7 @@ mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 	"table",
 	"log",
 	"bin",
-	0
+	nullptr
 };
 
 namespace File
@@ -91,12 +91,6 @@ static bool fnmIsURI( const char*& fnm )
     }
 
     return false;
-}
-
-
-static inline bool isLocal( const char* fnm )
-{
-    return isSane(fnm) && !fnmIsURI(fnm);
 }
 
 
@@ -352,6 +346,12 @@ bool isDirectory( const char* fnm )
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.isDirectory( fnm );
+}
+
+
+bool isLocal( const char* fnm )
+{
+    return isSane(fnm) && !fnmIsURI(fnm);
 }
 
 
@@ -849,8 +849,7 @@ const char* timeCreated( const char* fnm, const char* fmt )
     const StringView fmtstr = fmt;
     if ( !fmtstr.isEmpty() )
     {
-
-	QDateTime qdt =
+	const QDateTime qdt =
 		QDateTime::fromString( ret.buf(), Qt::ISODate ).toLocalTime();
 	ret = qdt.toString( fmt );
     }
@@ -871,7 +870,7 @@ const char* timeLastModified( const char* fnm, const char* fmt )
     const StringView fmtstr = fmt;
     if ( !fmtstr.isEmpty() )
     {
-	QDateTime qdt =
+	const QDateTime qdt =
 		QDateTime::fromString( ret.buf(), Qt::ISODate ).toLocalTime();
 	ret = qdt.toString( fmt );
     }
@@ -880,38 +879,6 @@ const char* timeLastModified( const char* fnm, const char* fmt )
 	ret.set( "-" );
 
     return ret.buf();
-}
-
-
-od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
-{
-    if ( !isLocal(fnm) || (isEmpty(fnm) && !File::isDirectory(fnm)) )
-	return 0;
-
-    const QFileInfo qfi( fnm );
-    const QDateTime dt = lastmodif ? qfi.lastModified()
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-		     : qfi.birthTime();
-#else
-		     : qfi.created();
-#endif
-
-    return dt.isValid() ? dt.toSecsSinceEpoch() : 0;
-}
-
-
-od_int64 getTimeInMilliSeconds( const char* fnm, bool lastmodif )
-{
-    const QFileInfo qfi( fnm );
-    const QTime qtime = lastmodif ? qfi.lastModified().time()
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-				: qfi.birthTime().time();
-#else
-				: qfi.created().time();
-#endif
-
-    const QTime daystart( 0, 0, 0, 0 );
-    return daystart.msecsTo( qtime );
 }
 
 

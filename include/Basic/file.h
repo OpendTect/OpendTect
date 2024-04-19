@@ -43,6 +43,7 @@ mGlobal(Basic) bool		isEmpty(const char*);
 mGlobal(Basic) bool		isDirEmpty(const char*);
 mGlobal(Basic) bool		isFile(const char*);
 mGlobal(Basic) bool		isDirectory(const char*);
+mGlobal(Basic) bool		isLocal(const char*);
 mGlobal(Basic) bool		isURI(const char*);
 
 mGlobal(Basic) BufferString	findExecutable(const char* exenm,
