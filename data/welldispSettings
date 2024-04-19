@@ -3,7 +3,7 @@ Default settings
 2023-04-18T14:11:20Z
 !
 welldisp
-3D Display.Track.Color: 0`0`0`255
+3D Display.Track.Color: 0`0`255`0
 3D Display.Track.Size: 1
 3D Display.Track.Track Name Above: Yes
 3D Display.Track.Track Name Below: No
