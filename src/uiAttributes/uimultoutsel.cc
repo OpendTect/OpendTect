@@ -53,7 +53,7 @@ static void getOutputIDs( const Desc& desc, TypeSet<int>& ids )
 
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc, bool isisnglesel )
     : uiDialog(p,Setup(tr("Multiple attributes selection"),
-			tr("Select the outputs to compute"),
+		tr("Add other attributes, if required.\nPress OK to compute."),
 			mODHelpKey(mMultOutSelHelpID) ))
 {
     BufferStringSet outnames;
@@ -62,7 +62,10 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc, bool isisnglesel )
     fillInAvailOutNames( *tmpdesc, outnames );
     const bool dodlg = outnames.size() > 1;
     if ( dodlg )
+    {
 	createMultOutDlg( outnames, isisnglesel );
+	outlistfld_->setChosen( desc.selectedOutput() );
+    }
 
     getOutputIDs( *tmpdesc, outputids_ );
 
@@ -77,7 +80,7 @@ uiMultOutSel::~uiMultOutSel()
 void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames,
 							bool isisnglesel )
 {
-    outlistfld_ = new uiListBox( this, "Outputs", isisnglesel ?	
+    outlistfld_ = new uiListBox( this, "Outputs", isisnglesel ?
 				OD::ChooseOnlyOne : OD::ChooseAtLeastOne );
     outlistfld_->addItems( outnames );
 
