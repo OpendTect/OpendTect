@@ -327,12 +327,16 @@ void Well::setWellName( const TrackParams& tp )
     welltoptxt_->text(0)->setJustification( Text::Bottom );
     updateText( welltoptxt_->text(0), tp.isdispabove_ ? tp.name_.str() : 0,
 		&crdtop, tp.font_, tp.nmsizedynamic_ );
-    welltoptxt_->text(0)->setColor( tp.col_ );
+    OD::Color textcol = tp.col_;
+    if ( textcol == OD::Color::NoColor() )
+	textcol.setTransparency( 0 );
+
+    welltoptxt_->text(0)->setColor( textcol );
 
     wellbottxt_->text(0)->setJustification( Text::Top );
     updateText( wellbottxt_->text(0), tp.isdispbelow_ ? tp.name_.str() : 0,
 		&crdbot, tp.font_, tp.nmsizedynamic_ );
-    wellbottxt_->text(0)->setColor( tp.col_ );
+    wellbottxt_->text(0)->setColor( textcol );
 }
 
 
