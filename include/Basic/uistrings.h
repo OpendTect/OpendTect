@@ -206,6 +206,7 @@ public:
     static uiString phrCannotReadHor();
     static uiString phrCannotReadInp();
     static uiString phrCannotWriteSettings();
+    static uiString phrCannotConnectToDB();
     static uiString phrCheckPermissions();
     static uiString phrCheckUnits();
     static uiString phrDBIDNotValid();

@@ -28,22 +28,31 @@ mDefSimpleTranslatorioContext(RandomLineSet,Loc)
 
 
 bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
-				     const IOObj* ioobj, BufferString& bs )
+				     const IOObj* ioobj, uiString& errmsg )
 {
     if ( !ioobj )
-	{ bs = "Cannot find object in data base"; return false; }
+    {
+	errmsg = uiStrings::phrCannotFindObjInDB();
+	return false;
+    }
 
-    PtrMan<RandomLineSetTranslator> tr
+    PtrMan<RandomLineSetTranslator> trnsl
 	= dynamic_cast<RandomLineSetTranslator*>(ioobj->createTranslator());
-    if ( !tr )
-	{ bs = "Selected object is not a Random Line"; return false; }
+    if ( !trnsl )
+    {
+	errmsg = tr("Selected object is not a Random Line");
+	return false;
+    }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
+    {
+	errmsg = uiStrings::phrCannotOpen( ioobj->fullUserExpr(), true );
+	return false;
+    }
 
-    bs = tr->read( rdls, *conn );
-    if ( bs.isEmpty() )
+    errmsg = trnsl->read( rdls, *conn );
+    if ( errmsg.isEmpty() )
     {
 	for ( int iln=0; iln<rdls.lines().size(); iln++ )
 	{
@@ -56,6 +65,7 @@ bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
 		const_cast<Geometry::RandomLine&>(rdl).setName( nm );
 	    }
 	}
+
 	return true;
     }
 
@@ -64,22 +74,31 @@ bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
 
 
 bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
-				  const IOObj* ioobj, BufferString& bs )
+				  const IOObj* ioobj, uiString& errmsg )
 {
     if ( !ioobj )
-	{ bs = "No object to store set in data base"; return false; }
+    {
+	errmsg = tr("No object to store set in data base");
+	return false;
+    }
 
-    PtrMan<RandomLineSetTranslator> tr
+    PtrMan<RandomLineSetTranslator> trnsl
 	= dynamic_cast<RandomLineSetTranslator*>(ioobj->createTranslator());
-    if ( !tr )
-	{ bs = "Selected object is not an Attribute Set"; return false; }
+    if ( !trnsl )
+    {
+	errmsg = tr("Selected object is not an Attribute Set");
+	return false;
+    }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
+    {
+	errmsg = uiStrings::phrCannotOpen( ioobj->fullUserExpr(false), false );
+	return false;
+    }
 
-    bs = tr->write( rdl, *conn );
-    return bs.isEmpty();
+    errmsg = trnsl->write( rdl, *conn );
+    return errmsg.isEmpty();
 }
 
 
@@ -113,17 +132,20 @@ static void putZRangeAndName( ascostream& astrm,
 }
 
 
-const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
+uiString dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 					   Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return "Cannot read from input file";
+	return tr("Cannot read from input file");
     if ( !astrm.isOfFileType(mTranslGroupName(RandomLineSet)) )
-	return "Input file is not a RandomLineSet file";
+	return tr("Input file is not a RandomLineSet file");
     if ( atEndOfSection(astrm) )
 	astrm.next();
 
@@ -166,23 +188,27 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	astrm.next();
     }
 
-    return rdls.size() >= 1 ? 0 : "No valid random line in set";
+    return rdls.size() >= 1 ? uiString::empty()
+			    : tr("No valid random line in set");
 }
 
 
-const char* dgbRandomLineSetTranslator::write(
+uiString dgbRandomLineSetTranslator::write(
 			const Geometry::RandomLineSet& rdls, Conn& conn )
 {
     const int nrlines = rdls.size();
     if ( nrlines < 1 )
-	return "No random line to write";
+	return tr("No random line to write");
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(RandomLineSet) );
     if ( !astrm.isOK() )
-	return "Cannot write to output RandomLineSet file";
+	return tr("Cannot write to output RandomLineSet file");
 
     const bool issimple = nrlines < 2 && rdls.pars().isEmpty();
     if ( issimple )
@@ -212,5 +238,6 @@ const char* dgbRandomLineSetTranslator::write(
 	astrm.newParagraph();
     }
 
-    return strm.isOK() ? 0 : "Error during write of RandomLine Set file";
+    return strm.isOK() ? uiString::empty()
+		       : tr("Error during write of RandomLine Set file");
 }

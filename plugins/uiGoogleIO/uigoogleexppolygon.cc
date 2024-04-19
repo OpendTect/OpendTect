@@ -95,7 +95,7 @@ bool uiGISExportPolygon::acceptOK( CallBacker* )
     if ( !wrr )
 	return false; // Put some error message here
 
-    BufferString errmsg;
+    uiString errmsg;
     RefObjectSet<const Pick::Set> selsets;
     for ( auto objid : objids )
     {

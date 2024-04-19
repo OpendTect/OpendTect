@@ -453,10 +453,10 @@ void ui2DGridLinesFromRandLine::processInput()
 	return;
 
     Geometry::RandomLineSet geom;
-    BufferString msg;
-    if ( !RandomLineSetTranslator::retrieve(geom,rdlfld_->ioobj(),msg) )
+    uiString errmsg;
+    if ( !RandomLineSetTranslator::retrieve(geom,rdlfld_->ioobj(),errmsg) )
     {
-	uiMSG().error( mToUiStringTodo(msg) );
+	uiMSG().error( errmsg );
 	return;
     }
 

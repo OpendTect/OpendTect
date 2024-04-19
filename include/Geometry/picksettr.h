@@ -33,14 +33,14 @@ mExpClass(Geometry) PickSetTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(PickSet)
 
-    virtual const char*	read(Pick::Set&,Conn&,bool checkdir=true)	= 0;
+    virtual uiString	read(Pick::Set&,Conn&,bool checkdir=true)	= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const Pick::Set&,Conn&)			= 0;
+    virtual uiString	write(const Pick::Set&,Conn&)			= 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(Pick::Set&,const IOObj*,bool checkdir,
-				 BufferString&);
-    static bool		store(const Pick::Set&,const IOObj*,BufferString&);
+				 uiString&);
+    static bool		store(const Pick::Set&,const IOObj*,uiString&);
 
     static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&);
 			//!< Do not use, will be removed after 6.0
@@ -54,7 +54,7 @@ public:
 					     RefObjectSet<DataPointSet>&,
 					     bool is2d,bool mini=false);
 			//!< Utility function
-    static ODPolygon<float>* getPolygon(const IOObj&,BufferString& errmsg);
+    static ODPolygon<float>* getPolygon(const IOObj&,uiString& errmsg);
 			//!< Returns null on failure
 
     static void		fillConstraints(IOObjContext&,bool ispoly);
@@ -66,19 +66,20 @@ public:
 
 
 mExpClass(Geometry) dgbPickSetTranslator : public PickSetTranslator
-{			     isTranslator(dgb,PickSet)
+{ mODTextTranslationClass(dgbPickSetTranslator)
+			isTranslator(dgb,PickSet)
 public:
 
 			mDefEmptyTranslatorConstructor(dgb,PickSet)
 
-    const char*		read(Pick::Set&,Conn&,bool checkdir=true) override;
-    const char*		write(const Pick::Set&,Conn&) override;
+    uiString		read(Pick::Set&,Conn&,bool checkdir=true) override;
+    uiString		write(const Pick::Set&,Conn&) override;
 
 };
 
 
 namespace Pick
 {
-mGlobal(Geometry) RefMan<Pick::Set>	getSet(const MultiID&,BufferString&);
-mGlobal(Geometry) RefMan<Pick::Set>	getSet(const DBKey&,BufferString&);
+mGlobal(Geometry) RefMan<Pick::Set>	getSet(const MultiID&,uiString&);
+mGlobal(Geometry) RefMan<Pick::Set>	getSet(const DBKey&,uiString&);
 }

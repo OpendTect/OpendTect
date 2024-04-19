@@ -433,15 +433,14 @@ bool Picks::store( const IOObj* ioobjarg )
     fillPar( ps->pars_ );
     ps->pars_.set( sKey::Version(), 2 );
 
-    if ( !PickSetTranslator::store( *ps, ioobj, errmsg_ ) )
+    if ( !PickSetTranslator::store(*ps,ioobj,errmsg_) )
 	return false;
 
     fillIOObjPar( ioobj->pars() );
 
     if ( !IOM().commitChanges(*ioobj) )
     {
-	errmsg_ = mFromUiStringTodo(
-	    uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ));
+	errmsg_ = uiStrings::phrCannotWriteDBEntry( ioobj->uiName() );
 	return false;
     }
 
@@ -803,7 +802,8 @@ bool Picks::load( const IOObj* ioobj )
 
     if ( !useIOObjPar(ioobj->pars()) )
     {
-	errmsg_ = "Internal: No valid storage selected";
+	pErrMsg("Internal: No valid storage selected");
+	errmsg_ = tr("Storage location is not defined");
 	return false;
     }
 
@@ -1031,8 +1031,10 @@ void Picks::get(const EM::ObjectID& emid, TypeSet<RowCol>& res ) const
 
 
 
-const char* Picks::errMsg() const
-{ return errmsg_.str(); }
+uiString Picks::errMsg() const
+{
+    return errmsg_;
+}
 
 
 void Picks::setAll( float vel, bool addtoundo )

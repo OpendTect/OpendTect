@@ -166,10 +166,10 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
 bool uiPickSetMgr::doStore( const Pick::Set& ps, const IOObj& ioobj ) const
 {
     IOM().commitChanges( ioobj );
-    BufferString bs;
-    if ( !PickSetTranslator::store(ps,&ioobj,bs) )
+    uiString errmsg;
+    if ( !PickSetTranslator::store(ps,&ioobj,errmsg) )
     {
-	uiMSG().error( toUiString(bs) );
+	uiMSG().error( errmsg );
 	return false;
     }
 
@@ -255,20 +255,20 @@ void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 	{
 	    RefMan<Pick::Set> newset = new Pick::Set;
 	    ConstPtrMan<IOObj> ioobj = IOM().get( ky );
-	    BufferString msg;
+	    uiString msg;
 	    if ( PickSetTranslator::retrieve(*newset,ioobj,true, msg) )
 		mergedset->append( *newset );
 	    else
-		errmsgs.add( toUiString(msg) );
+		errmsgs.add( msg );
 	}
     }
 
     if ( !errmsgs.isEmpty() )
 	uiMSG().errorWithDetails( errmsgs, tr("Error during merge.") );
 
-    BufferString msg;
-    if ( !PickSetTranslator::store(*mergedset,dlg.ctioout_.ioobj_,msg) )
-	uiMSG().error( toUiString(msg) );
+    uiString errmsg;
+    if ( !PickSetTranslator::store(*mergedset,dlg.ctioout_.ioobj_,errmsg) )
+	uiMSG().error( errmsg );
 }
 
 

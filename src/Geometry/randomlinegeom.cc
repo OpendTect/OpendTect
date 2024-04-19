@@ -678,7 +678,8 @@ void RandomLineSet::getGeometry( const MultiID& rdlsid, TypeSet<BinID>& knots,
 void RandomLineSet::getGeometry( const MultiID& rdlsid, TrcKeyPath& knots,
 				 StepInterval<float>* zrg )
 {
-    Geometry::RandomLineSet rls; BufferString errmsg;
+    Geometry::RandomLineSet rls;
+    uiString errmsg;
     const PtrMan<IOObj> rdmline = IOM().get( rdlsid );
     RandomLineSetTranslator::retrieve( rls, rdmline, errmsg );
     if ( !errmsg.isEmpty() || rls.isEmpty() )
@@ -736,24 +737,26 @@ RandomLine* RandomLineManager::get( const MultiID& mid )
 {
     if ( mid.isUdf() ) return 0;
     const int rlidx = indexOf( mid );
-    RandomLine* rl = lines_.validIdx(rlidx) ? lines_[rlidx] : 0;
+    RandomLine* rl = lines_.validIdx(rlidx) ? lines_[rlidx] : nullptr;
     if ( rl )
 	return rl;
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return 0;
+    if ( !ioobj )
+	return nullptr;
 
     PtrMan<RandomLineSet> rdlset = new RandomLineSet;
-    BufferString msg;
+    uiString msg;
     const bool res = RandomLineSetTranslator::retrieve( *rdlset, ioobj, msg );
-    if ( !res || rdlset->isEmpty() ) return 0;
+    if ( !res || rdlset->isEmpty() )
+	return nullptr;
 
     rl = rdlset->getRandomLine( 0 );
     rl->ref();
     rl->setMultiID( mid );
     add( rl );
 
-    rdlset = 0;
+    rdlset = nullptr;
     rl->unRefNoDelete();
     return rl;
 }

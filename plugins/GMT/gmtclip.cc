@@ -80,10 +80,10 @@ bool GMTClip::doExecute( od_ostream& strm, const char* fnm )
     if ( !setobj ) mErrStrmRet("Cannot find polygon")
 
     strm << "Activating clipping with polygon " << setobj->name() << " ...  ";
-    BufferString errmsg;
+    uiString errmsg;
     RefMan<Pick::Set> ps = new Pick::Set;
     if ( !PickSetTranslator::retrieve(*ps,setobj,true,errmsg) )
-	mErrStrmRet( errmsg )
+	mErrStrmRet( errmsg.getString() )
 
     bool clipoutside = false;
     getYN( ODGMT::sKeyClipOutside(), clipoutside );

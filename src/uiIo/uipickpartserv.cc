@@ -160,8 +160,8 @@ RefMan<Pick::Set> uiPickPartServer::loadSet( const MultiID& mid )
     if ( setidx<0 )
     {
 	RefMan<Pick::Set> ps = new Pick::Set;
-	BufferString bs;
-	if ( PickSetTranslator::retrieve(*ps,ioobj,true,bs) )
+	uiString errmsg;
+	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
 	{
 	    psmgr_.set( mid, ps );
 	    return ps;
@@ -180,8 +180,8 @@ bool uiPickPartServer::reLoadSet( const MultiID& mid )
 
     RefMan<Pick::Set> ps = Pick::Mgr().get( mid );
     ps->setEmpty();
-    BufferString bs;
-    return PickSetTranslator::retrieve( *ps, ioobj, true, bs );
+    uiString errmsg;
+    return PickSetTranslator::retrieve( *ps, ioobj, true, errmsg );
 }
 
 
@@ -231,7 +231,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 	}
 
 	RefMan<Pick::Set> ps = new Pick::Set;
-	BufferString errmsg;
+	uiString errmsg;
 	if ( PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
 	{
 	    psmgr_.set( ioobj->key(), ps );
@@ -243,7 +243,7 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
 	    psmgr_.set( id, 0 ); //Remove from Mgr if present.
 
 	    uiString msg = uiStrings::phrJoinStrings(
-			   ioobj->uiName(), toUiString(errmsg) );
+						ioobj->uiName(), errmsg );
 	    errmsgs.add( msg );
 	}
     }

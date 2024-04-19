@@ -455,10 +455,10 @@ bool uiStratSynthExport::getGeometry( const char* linenm )
 		pickset = Pick::Mgr().get( picksetobj->key() );
 	    else
 	    {
-		BufferString errmsg;
+		uiString errmsg;
 		if ( !PickSetTranslator::retrieve(
-			    *pickset,IOM().get(picksetobj->key()),true,errmsg) )
-		    mErrRet( mToUiStringTodo(errmsg), false )
+			*pickset,IOM().get(picksetobj->key()),true,errmsg) )
+		    mErrRet( errmsg, false )
 	    }
 
 	    for ( int idx=0; idx<pickset->size(); idx++ )
@@ -471,14 +471,17 @@ bool uiStratSynthExport::getGeometry( const char* linenm )
 	    const IOObj* randlineobj = randlinesel_->ioobj();
 	    if ( !randlineobj )
 		mErrRet( tr("No random line selected"), false )
+
 	    Geometry::RandomLineSet lset;
-	    BufferString errmsg;
+	    uiString errmsg;
 	    if ( !RandomLineSetTranslator::retrieve(lset,randlineobj,errmsg) )
-		mErrRet( mToUiStringTodo(errmsg), false )
+		mErrRet( errmsg, false )
+
 	    const ObjectSet<Geometry::RandomLine>& lines = lset.lines();
 	    BufferStringSet linenames;
 	    for ( int idx=0; idx<lines.size(); idx++ )
 		linenames.add( lines[idx]->name() );
+
 	    int selitem = 0;
 	    if ( linenames.isEmpty() )
 		mErrRet( tr("Random line appears to be empty"), false )

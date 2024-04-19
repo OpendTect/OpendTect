@@ -33,37 +33,36 @@ mDefSimpleTranslatorioContext( PickSet, Loc )
 mDefSimpleTranslatorSelector( PickSet )
 
 bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
-				  bool checkdir, BufferString& bs )
+				  bool checkdir, uiString& errmsg )
 {
     if ( !ioobj )
     {
-	bs = "Cannot find object in data base";
+	errmsg = uiStrings::phrCannotFindObjInDB();
 	return false;
     }
 
     if ( !ioobj->implExists(true) )
     {
-	bs = "No data exists for this object in the database";
+	errmsg = tr("No data exists for this object in the database");
 	return false;
     }
 
-    mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
+    mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> trnsl,
 		 ioobj->createTranslator());
-    if ( !tr )
+    if ( !trnsl )
     {
-	bs = "Selected object is not a PointSet";
+	errmsg = tr("Selected object is not a PointSet");
 	return false;
     }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
     {
-	bs = "Cannot open ";
-	bs += ioobj->fullUserExpr( true );
+	errmsg = uiStrings::phrCannotOpen( ioobj->fullUserExpr(), true );
 	return false;
     }
 
-    bs = tr->read( ps, *conn, checkdir );
+    errmsg = trnsl->read( ps, *conn, checkdir );
     IOPar disppars;
     const MultiID& mid = ioobj->key();
     if ( Pick::Mgr().readDisplayPars(mid,disppars) )
@@ -71,36 +70,33 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
     else
 	ps.setDefaultDispPars();
 
-    return bs.isEmpty();
+    return errmsg.isEmpty();
 }
 
 
 bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
-				BufferString& bs )
+							    uiString& errmsg )
 {
     if ( !ioobj )
     {
-	bs = "No object to store set in data base";
+	errmsg = uiStrings::phrCannotFindObjInDB();
 	return false;
     }
 
-    mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> tr,
+    mDynamicCast(PickSetTranslator*,PtrMan<PickSetTranslator> trnsl,
 		 ioobj->createTranslator());
-    if ( !tr )
+    if ( !trnsl )
     {
-	bs = "Selected object is not a PointSet";
+	errmsg = tr("Selected object is not a PointSet");
 	return false;
     }
 
-    bs = "";
+    errmsg.setEmpty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( conn )
-	bs = tr->write(ps, *conn);
+	errmsg = trnsl->write(ps, *conn);
     else
-    {
-	bs = "Cannot open ";
-	bs += ioobj->fullUserExpr(false);
-    }
+	errmsg = uiStrings::phrCannotOpen( ioobj->fullUserExpr(false), false );
 
     IOPar disppars;
     ps.fillDisplayPars( disppars );
@@ -115,7 +111,7 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 	IOM().commitChanges( *ioobj );
     }
 
-    const bool isok = bs.isEmpty();
+    const bool isok = errmsg.isEmpty();
     if ( isok )
 	IOM().implUpdated.trigger( ioobj->key() );
 
@@ -123,20 +119,24 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 }
 
 
-const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
+uiString dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 					bool checkdir )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return "Cannot read from PointSet file";
+	return tr("Cannot read from PointSet file");
     else if ( !astrm.isOfFileType(mTranslGroupName(PickSet)) )
-	return "Input file is not a PointSet";
-    if ( atEndOfSection(astrm) ) astrm.next();
+	return tr("Input file is not a PointSet");
     if ( atEndOfSection(astrm) )
-	return "Input file contains no pick sets";
+	astrm.next();
+    if ( atEndOfSection(astrm) )
+	return tr("Input file contains no pick sets");
 
     ps.setName( IOM().nameOf(conn.linkedTo()) );
 
@@ -196,19 +196,22 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	}
     }
 
-    return nullptr;
+    return uiString::empty();
 }
 
 
-const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
+uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(PickSet) );
     if ( !astrm.isOK() )
-	return "Cannot write to output PointSet file";
+	return tr("Cannot write to output PointSet file");
 
     BufferString str;
     IOPar par;
@@ -223,8 +226,8 @@ const char* dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
     }
 
     astrm.newParagraph();
-    return astrm.isOK() ? nullptr
-			:  "Error during write to output PointSet file";
+    return astrm.isOK() ? uiString::empty()
+			:  tr("Error during write to output PointSet file");
 }
 
 
@@ -272,8 +275,10 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 	    }
 
 	    ps = createdps = new Pick::Set;
-	    if ( !retrieve(*createdps,ioobj,true,msg) )
+	    uiString errmsg;
+	    if ( !retrieve(*createdps,ioobj,true,errmsg) )
 	    {
+		msg = errmsg.getString();
 		ErrMsg( msg );
 		continue;
 	    }
@@ -314,8 +319,13 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
 	}
 
 	ps = createdps = new Pick::Set;
-	if ( !retrieve(*createdps,ioobj,true,msg) )
-	    { ErrMsg( msg ); return false; }
+	uiString errmsg;
+	if ( !retrieve(*createdps,ioobj,true,errmsg) )
+	{
+	    msg = errmsg.getString();
+	    ErrMsg( msg );
+	    return false;
+	}
     }
 
     for ( int ipck=0; ipck<ps->size(); ipck++ )
@@ -336,21 +346,21 @@ void PickSetTranslator::fillConstraints( IOObjContext& ctxt, bool ispoly )
 
 
 ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
-						 BufferString& emsg )
+						 uiString& emsg )
 {
     RefMan<Pick::Set> ps = new Pick::Set;
-    BufferString msg;
-    if ( !PickSetTranslator::retrieve(*ps,&ioobj,true,msg) )
+    uiString errmsg;
+    if ( !PickSetTranslator::retrieve(*ps,&ioobj,true,errmsg) )
     {
-	emsg = "Cannot read polygon '"; emsg += ioobj.name();
-	emsg += "':\n"; emsg += msg;
-	return 0;
+	emsg = uiStrings::phrCannotRead( ioobj.name() );
+	emsg.appendPhrase( errmsg, uiString::MoreInfo );
+	return nullptr;
     }
     if ( ps->size() < 2 )
     {
-	emsg = "Polygon '"; emsg += ioobj.name();
-	emsg += "' contains less than 2 points";
-	return 0;
+	emsg = tr("Polygon '%1' contains less than 2 points").
+							    arg(ioobj.name());
+	return nullptr;
     }
 
     ODPolygon<float>* ret = new ODPolygon<float>;
@@ -432,7 +442,7 @@ void PickSetTranslator::tagLegacyPickSets()
 }
 
 
-RefMan<Pick::Set> Pick::getSet( const MultiID& mid, BufferString& errmsg )
+RefMan<Pick::Set> Pick::getSet( const MultiID& mid, uiString& errmsg )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
     const int setidx = Pick::Mgr().indexOf( mid );
@@ -453,7 +463,7 @@ RefMan<Pick::Set> Pick::getSet( const MultiID& mid, BufferString& errmsg )
 
 
 
-RefMan<Pick::Set> Pick::getSet( const DBKey& key, BufferString& errmsg )
+RefMan<Pick::Set> Pick::getSet( const DBKey& key, uiString& errmsg )
 {
     if ( !key.hasSurveyLocation() )
 	return getSet( sCast(const MultiID&,key), errmsg );

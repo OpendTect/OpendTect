@@ -75,10 +75,15 @@ void uiPickSetMan::ownSelChg()
 
 void uiPickSetMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( "" ); return; }
+    if ( !curioobj_ )
+    {
+	setInfo( "" );
+	return;
+    }
 
     RefMan<Pick::Set> ps = new Pick::Set;
-    BufferString txt, errmsg;
+    BufferString txt;
+    uiString errmsg;
     if ( PickSetTranslator::retrieve(*ps,curioobj_,true,errmsg) )
     {
 	if ( !errmsg.isEmpty() )

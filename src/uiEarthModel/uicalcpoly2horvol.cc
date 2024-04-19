@@ -264,10 +264,13 @@ void uiCalcHorPolyVol::psSel( CallBacker* cb )
     if ( !ioobj )
 	return;
 
-    BufferString msg;
+    uiString errmsg;
     ps_ = new Pick::Set;
-    if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,msg) )
-	uiMSG().error( mToUiStringTodo(msg) );
+    if ( !PickSetTranslator::retrieve(*ps_,ioobj,false,errmsg) )
+    {
+	uiMSG().error( errmsg );
+	return;
+    }
 
     haveChg( cb );
 }

@@ -175,10 +175,10 @@ bool GMTLocations::doExecute( od_ostream& strm, const char* fnm )
     if ( !setobj ) mErrStrmRet("Cannot find pickset")
 
     strm << "Posting Locations " << setobj->name() << " ...  ";
-    BufferString errmsg;
+    uiString errmsg;
     RefMan<Pick::Set> ps = new Pick::Set;
     if ( !PickSetTranslator::retrieve(*ps,setobj,true,errmsg) )
-	mErrStrmRet( errmsg )
+	mErrStrmRet( errmsg.getString() )
 
     OD::Color outcol; get( sKey::Color(), outcol );
     BufferString outcolstr;
@@ -271,13 +271,14 @@ bool GMTPolyline::doExecute( od_ostream& strm, const char* fnm )
     MultiID id;
     get( sKey::ID(), id );
     const IOObj* setobj = IOM().get( id );
-    if ( !setobj ) mErrStrmRet("Cannot find pickset")
+    if ( !setobj )
+	mErrStrmRet("Cannot find pickset")
 
     strm << "Posting Polyline " << setobj->name() << " ...  ";
-    BufferString errmsg;
+    uiString errmsg;
     RefMan<Pick::Set> ps = new Pick::Set;
     if ( !PickSetTranslator::retrieve(*ps,setobj,true,errmsg) )
-	mErrStrmRet( errmsg )
+	mErrStrmRet( errmsg.getString() )
 
     OD::LineStyle ls;
     const BufferString lsstr = find( ODGMT::sKeyLineStyle() );

@@ -55,7 +55,7 @@ public:
 /*!Holds picks that the user has done, typically in a semblance plot. */
 
 mExpClass(Velocity) Picks : public SharedObject
-{
+{ mODTextTranslationClass(Picks)
 public:
 			Picks(const ZDomain::Info* =nullptr);
 
@@ -124,7 +124,7 @@ public:
     void			setSmoother(Smoother1D<float>*);
 				//!<Becomes mine
 
-    const char*			errMsg() const;
+    uiString			errMsg() const;
 
     void			setAll(float vel,bool undo=true);
 
@@ -193,7 +193,7 @@ protected:
 
     Undo*			undo_ = nullptr;
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     Smoother1D<float>*		smoother_ = nullptr;
     ObjectSet<EM::Horizon3D>	horizons_;
 

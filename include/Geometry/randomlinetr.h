@@ -26,28 +26,29 @@ public:
 
 
 mExpClass(Geometry) RandomLineSetTranslator : public Translator
-{
+{ mODTextTranslationClass(RandomLineSetTranslator)
 public:
 			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
 
-    virtual const char* read(Geometry::RandomLineSet&,Conn&)		= 0;
+    virtual uiString	 read(Geometry::RandomLineSet&,Conn&)		= 0;
 			//!< returns err msg or null on success
-    virtual const char* write(const Geometry::RandomLineSet&,Conn&)	= 0;
+    virtual uiString	 write(const Geometry::RandomLineSet&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(Geometry::RandomLineSet&,const IOObj*,
-				 BufferString&);
+								    uiString&);
     static bool		store(const Geometry::RandomLineSet&,const IOObj*,
-			      BufferString&);
+								    uiString&);
 };
 
 
 mExpClass(Geometry) dgbRandomLineSetTranslator : public RandomLineSetTranslator
-{				isTranslator(dgb,RandomLineSet)
+{ mODTextTranslationClass(dgbRandomLineSetTranslator)
+					isTranslator(dgb,RandomLineSet)
 public:
 
 			mDefEmptyTranslatorConstructor(dgb,RandomLineSet)
 
-    const char*		read(Geometry::RandomLineSet&,Conn&) override;
-    const char*		write(const Geometry::RandomLineSet&,Conn&) override;
+    uiString		read(Geometry::RandomLineSet&,Conn&) override;
+    uiString		write(const Geometry::RandomLineSet&,Conn&) override;
 };

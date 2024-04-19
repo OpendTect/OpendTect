@@ -151,10 +151,10 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 	if ( !polyioobj )
 	    return false;
 
-	BufferString msg;
-	poly = PickSetTranslator::getPolygon( *polyioobj, msg );
+	uiString errmsg;
+	poly = PickSetTranslator::getPolygon( *polyioobj, errmsg );
 	if ( !poly )
-	   mErrRet(mToUiStringTodo(msg))
+	   mErrRet( errmsg )
     }
 
     uiTaskRunner taskrunner( this );
@@ -185,9 +185,9 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
        mErrRet(uiStrings::phrCannotFind(tr("a contour in range")))
     else
     {
-	BufferString emsg;
+	uiString emsg;
 	if ( !RandomLineSetTranslator::store(rls,rlioobj,emsg) )
-	   mErrRet(mToUiStringTodo(emsg))
+	   mErrRet(emsg)
     }
 
     uiMSG().message(tr("Created %1%2").arg(rls.size())
@@ -257,9 +257,10 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
     if ( !ioobjout )
 	return false;
 
-    Geometry::RandomLineSet inprls; BufferString msg;
+    Geometry::RandomLineSet inprls;
+    uiString msg;
     if ( !RandomLineSetTranslator::retrieve(inprls,ioobjin,msg) )
-	mErrRet(mToUiStringTodo(msg))
+	mErrRet(msg)
 
     int lnr = 0;
     if ( inprls.size() > 1 )
@@ -268,9 +269,11 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 	for ( int idx=0; idx<inprls.size(); idx++ )
 	    lnms.add( inprls.lines()[idx]->name() );
 	uiSelectFromList dlg( this,
-		    uiSelectFromList::Setup(uiStrings::phrSelect(tr("one line"))
-			      ,lnms) );
-	if ( !dlg.go() ) return false;
+		uiSelectFromList::Setup(uiStrings::phrSelect(tr("one line"))
+								    ,lnms) );
+	if ( !dlg.go() )
+	    return false;
+
 	lnr = dlg.selection();
     }
 
@@ -282,7 +285,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 	mErrRet(tr("Not enough input points to create output"))
 
     if ( !RandomLineSetTranslator::store(outrls,ioobjout,msg) )
-	mErrRet(mToUiStringTodo(msg))
+	mErrRet(msg)
 
     return true;
 }
@@ -338,10 +341,10 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 	return false;
 
     PtrMan< ODPolygon<float> > poly = nullptr;
-    BufferString msg;
-    poly = PickSetTranslator::getPolygon( *psioobj, msg );
+    uiString errmsg;
+    poly = PickSetTranslator::getPolygon( *psioobj, errmsg );
     if ( !poly )
-       mErrRet(mToUiStringTodo(msg))
+       mErrRet( errmsg )
 
     RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine;
     for ( int idx=0; idx<poly->size(); idx++ )
@@ -356,8 +359,8 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );
-    if ( !RandomLineSetTranslator::store(outrls,rlioobj,msg) )
-	mErrRet(mToUiStringTodo(msg))
+    if ( !RandomLineSetTranslator::store(outrls,rlioobj,errmsg) )
+	mErrRet(errmsg)
 
     return true;
 }

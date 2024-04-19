@@ -254,9 +254,9 @@ void FunctionSource::removeFunction( const Function* func )
 }
 
 
-const char* FunctionSource::errMsg() const
+uiString FunctionSource::errMsg() const
 {
-    return errmsg_.buf();
+    return errmsg_;
 }
 
 

@@ -745,7 +745,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* taskr )
 	 isosurfsettings_[idx].seedsid_.isUdf() )
 	return false;
 
-    BufferString errmsg;
+    uiString errmsg;
     RefMan<Pick::Set> seeds =
 	Pick::getSet( isosurfsettings_[idx].seedsid_, errmsg );
     if ( !seeds )

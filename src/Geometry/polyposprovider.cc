@@ -167,9 +167,10 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr,
 	PtrMan<IOObj> ioobj = IOM().get( polyid );
 	if ( ioobj )
 	{
-	    BufferString msg;
+	    uiString msg;
 	    ret = PickSetTranslator::getPolygon(*ioobj,msg);
-	    if ( nm ) nm->set( ioobj->name() );
+	    if ( nm )
+		nm->set( ioobj->name() );
 	}
     }
 

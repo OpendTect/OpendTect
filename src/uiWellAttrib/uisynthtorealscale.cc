@@ -273,11 +273,13 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     if ( polyfld_->isChecked() )
     {
 	const IOObj* ioobj = polyfld_->ioobj();
-	if ( !ioobj ) return false;
-	BufferString errmsg;
+	if ( !ioobj )
+	    return false;
+
+	uiString errmsg;
 	polygon_ = PickSetTranslator::getPolygon( *ioobj, errmsg );
 	if ( !polygon_ )
-	    mErrRetBool( mToUiStringTodo(errmsg) );
+	    mErrRetBool( errmsg );
     }
 
     const IOObj* ioobj = horfld_->ioobj();
@@ -285,7 +287,9 @@ bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
 							  &taskr );
     mDynamicCastGet(EM::Horizon*,hor,emobj);
-    if ( !hor ) return false;
+    if ( !hor )
+	return false;
+
     horizon_ = hor;
     horiter_ = horizon_->createIterator();
     return true;

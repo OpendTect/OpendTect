@@ -445,6 +445,12 @@ uiString uiStrings::phrCannotReadInp()
 uiString uiStrings::phrCannotWriteSettings()
 { return phrCannotWrite(sSettings());}
 
+
+uiString uiStrings::phrCannotConnectToDB()
+{
+    return tr("Error in connecting to database");
+}
+
 uiString uiStrings::phrCheckPermissions()
 { return tr("You may want to check the access permissions"); }
 

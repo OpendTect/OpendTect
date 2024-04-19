@@ -271,8 +271,9 @@ bool GMTRandLines::doExecute( od_ostream& strm, const char* fnm )
     get( ODGMT::sKeyLineNames(), linenms );
     strm << "Posting Random Lines " << ioobj->name() << " ...  ";
 
-    Geometry::RandomLineSet inprls; BufferString msg;
-    if ( !RandomLineSetTranslator::retrieve(inprls,ioobj,msg) )
+    Geometry::RandomLineSet inprls;
+    uiString errmsg;
+    if ( !RandomLineSetTranslator::retrieve(inprls,ioobj,errmsg) )
 	mErrStrmRet("Cannot read random lines")
 
     OD::LineStyle ls;

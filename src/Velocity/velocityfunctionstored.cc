@@ -203,8 +203,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
 
     if ( !IOM().commitChanges(*ioobj) )
     {
-	errmsg_ = mFromUiStringTodo(
-	    uiStrings::phrCannotWriteDBEntry( ioobj->uiName() ));
+	errmsg_ = uiStrings::phrCannotWriteDBEntry( ioobj->uiName() );
 	return false;
     }
 

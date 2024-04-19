@@ -619,22 +619,24 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
 	    ctio->ctxt_.forread_ = false;
 	    uiIOObjSelDlg dlg( getUiParent(), *ctio );
-	    if ( !dlg.go() ) return;
+	    if ( !dlg.go() )
+		return;
 
 	    Geometry::RandomLineSet lset;
 	    lset.addLine( *rln );
 
 	    const IOObj* ioobj = dlg.ioObj();
-	    if ( !ioobj ) return;
+	    if ( !ioobj )
+		return;
 
-	    BufferString bs;
-	    if ( !RandomLineSetTranslator::store(lset,ioobj,bs) )
-		uiMSG().error( mToUiStringTodo(bs) );
+	    uiString errmsg;
+	    if ( !RandomLineSetTranslator::store(lset,ioobj,errmsg) )
+		uiMSG().error( errmsg );
 	    else
 	    {
-        const BufferString rdlname = ioobj->name();
-        applMgr()->visServer()->setObjectName( displayID(), rdlname );
-        rtd->getRandomLine()->setName( rdlname );
+		const BufferString rdlname = ioobj->name();
+		applMgr()->visServer()->setObjectName( displayID(), rdlname );
+		rtd->getRandomLine()->setName( rdlname );
 
 		updateColumnText( uiODSceneMgr::cNameColumn() );
 	    }

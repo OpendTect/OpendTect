@@ -398,9 +398,9 @@ bool PickSet::usePar( const IOPar& iop )
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( Pick::Mgr().indexOf(ioobj->key()) >= 0 )
 	return false;
-    BufferString bs;
+    uiString errmsg;
     RefMan<Pick::Set> newps = new Pick::Set;
-    if ( PickSetTranslator::retrieve(*newps,ioobj,true, bs) )
+    if ( PickSetTranslator::retrieve(*newps,ioobj,true,errmsg) )
     {
 	Pick::Mgr().set( ioobj->key(), newps );
 	pickset_ = newps;

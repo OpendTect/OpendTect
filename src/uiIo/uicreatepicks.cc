@@ -142,10 +142,10 @@ bool uiCreatePicks::handlePickSet()
 
     const IOObj* ioobj = outfld_->ioobj( true );
     IOM().commitChanges( *ioobj );
-    BufferString errmsg;
+    uiString errmsg;
     if ( !PickSetTranslator::store(*ps,ioobj,errmsg) )
     {
-	uiMSG().error( ::toUiString(errmsg) );
+	uiMSG().error( errmsg );
 	return false;
     }
 

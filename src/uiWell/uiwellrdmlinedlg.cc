@@ -500,10 +500,10 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( *rl );
-    BufferString msg;
-    const bool res = RandomLineSetTranslator::store( outrls, ioobj, msg );
+    uiString errmsg;
+    const bool res = RandomLineSetTranslator::store( outrls, ioobj, errmsg );
     if ( !res )
-	uiMSG().error(mToUiStringTodo(msg));
+	uiMSG().error( errmsg );
 
     return res;
 }

@@ -123,7 +123,7 @@ public:
     virtual void		fillPar(IOPar&) const	{}
     virtual bool		usePar(const IOPar&)	{ return true; }
 
-    const char*			errMsg() const;
+    uiString			errMsg() const;
 
 protected:
 				FunctionSource();
@@ -140,7 +140,7 @@ protected:
 
     MultiID				mid_;
     const ZDomain::Info*		zdomaininfo_;
-    BufferString			errmsg_;
+    uiString				errmsg_;
 
     ObjectSet<Function>			functions_;
     Threads::Lock			lock_;

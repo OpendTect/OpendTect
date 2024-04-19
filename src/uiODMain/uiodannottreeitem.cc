@@ -92,16 +92,18 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( VisID visid,
 {
     visBase::DataObject* dataobj =
 	ODMainWin()->applMgr().visServer()->getObject(visid);
-    if ( !dataobj ) return 0;
+    if ( !dataobj )
+	return nullptr;
 
     mDynamicCastGet(visSurvey::LocationDisplay*,ld, dataobj );
-    if ( !ld ) return 0;
+    if ( !ld )
+	return nullptr;
 
     if ( treeitem->findChild(visid.asInt()) )
-	return 0;
+	return nullptr;
 
     const MultiID mid = ld->getMultiID();
-    const char* factoryname = 0;
+    const char* factoryname = nullptr;
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( factoryname );
     int setidx = mgr.indexOf(mid);
@@ -109,15 +111,15 @@ uiTreeItem* uiODAnnotTreeItemFactory::create( VisID visid,
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	RefMan<Pick::Set> ps = new Pick::Set;
-	BufferString bs;
-	PickSetTranslator::retrieve(*ps,ioobj,true,bs);
+	uiString errmsg;
+	PickSetTranslator::retrieve(*ps,ioobj,true,errmsg);
 	mgr.set( mid, ps );
 
 	setidx = mgr.indexOf(mid);
 
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -294,10 +296,10 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
     if ( defScale()!=-1 )
 	ps.disp_.pixsize_= defScale();
 
-    BufferString bs;
-    if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,bs) )
+    uiString errmsg;
+    if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,errmsg) )
     {
-	uiMSG().error( toUiString(bs) );
+	uiMSG().error( errmsg );
 	return false;
     }
 
@@ -441,9 +443,9 @@ void uiODAnnotSubItem::store() const
     IOM().commitChanges( *ioobj );
 
     fillStoragePar( set_->pars_ );
-    BufferString bs;
-    if ( !PickSetTranslator::store( *set_, ioobj, bs ) )
-    uiMSG().error(mToUiStringTodo(bs));
+    uiString errmsg;
+    if ( !PickSetTranslator::store(*set_,ioobj,errmsg) )
+	uiMSG().error( errmsg );
     else
 	mgr.setUnChanged( setidx );
 }

@@ -150,8 +150,7 @@ bool VolumeFunctionSource::setFrom( const MultiID& velid )
     PtrMan<IOObj> velioobj = IOM().get( velid );
     if ( !velioobj )
     {
-	errmsg_ = "Velocity volume with id: ";
-	errmsg_.add( velid ).add(" is not found." );
+	errmsg_ = tr("Velocity volume with id: %1 is not found.").arg(velid);
 	return false;
     }
 
@@ -185,7 +184,7 @@ SeisTrcReader* VolumeFunctionSource::getReader()
     auto* velreader = new SeisTrcReader( *velioobj );
     if ( !velreader->prepareWork() )
     {
-	errmsg_ = toString( velreader->errMsg() );
+	errmsg_ = velreader->errMsg();
 	delete velreader;
 	return nullptr;
     }
@@ -226,7 +225,7 @@ bool VolumeFunctionSource::getVel( const BinID& bid, SamplingData<double>& sd,
     if ( !velreader )
     {
 	if ( errmsg_.isEmpty() )
-	    errmsg_ = "No reader available";
+	    errmsg_ = tr("No reader available");
 
 	return false;
     }

@@ -93,8 +93,9 @@ void uiGMTRandLinesGrp::objSel( CallBacker* )
 	return;
 
     namefld_->setText( ctio_.ioobj_->name() );
-    Geometry::RandomLineSet inprls; BufferString msg;
-    if ( !RandomLineSetTranslator::retrieve(inprls,ctio_.ioobj_,msg) )
+    Geometry::RandomLineSet inprls;
+    uiString errmsg;
+    if ( !RandomLineSetTranslator::retrieve(inprls,ctio_.ioobj_,errmsg) )
 	return;
 
     linenms_.erase();

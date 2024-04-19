@@ -1086,10 +1086,10 @@ bool LocationDisplay::usePar( const IOPar& par )
     if ( setidx==-1 )
     {
 	RefMan<Pick::Set> newps = new Pick::Set;
-	BufferString bs;
+	uiString errmsg;
 	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
 	if ( ioobj )
-	    PickSetTranslator::retrieve( *newps, ioobj, true, bs );
+	    PickSetTranslator::retrieve( *newps, ioobj, true, errmsg );
 
 	if ( newps->name().isEmpty() )
 	    newps->setName( getName() );

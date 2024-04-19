@@ -214,9 +214,9 @@ bool uiImpExpPickSet::doImport()
     }
 
     IOM().commitChanges( *ioobj );
-    BufferString errmsg;
+    uiString errmsg;
     if ( !PickSetTranslator::store(*ps,ioobj,errmsg) )
-	mErrRet( toUiString(errmsg) )
+	mErrRet( errmsg )
 
     storedid_ = ioobj->key();
     if ( saveButtonChecked() )
@@ -248,13 +248,14 @@ bool uiImpExpPickSet::doImport()
 bool uiImpExpPickSet::doExport()
 {
     const IOObj* objfldioobj = objfld_->ioobj();
-    if ( !objfldioobj ) return false;
+    if ( !objfldioobj )
+	return false;
 
     PtrMan<IOObj> ioobj = objfldioobj->clone();
-    BufferString errmsg;
+    uiString errmsg;
     RefMan<Pick::Set> ps = new Pick::Set;
-    if ( !PickSetTranslator::retrieve(*ps,ioobj,true, errmsg) )
-	mErrRet( toUiString(errmsg) )
+    if ( !PickSetTranslator::retrieve(*ps,ioobj,true,errmsg) )
+	mErrRet( errmsg )
 
     const char* fname = filefld_->fileName();
     od_ostream strm( fname );
