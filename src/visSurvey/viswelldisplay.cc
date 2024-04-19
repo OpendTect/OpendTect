@@ -45,8 +45,6 @@ static Well::LoadReqs defReqs()
     return lreqs;
 }
 
-#define mGetWD(act) RefMan<Well::Data> wd = getWD(defReqs()); \
-					    if ( !wd ) { act; }
 #define mGetDispPar(param) wd->displayProperties().param
 
 
@@ -86,37 +84,33 @@ RefMan<Well::Data> WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 {
     Well::LoadReqs lreqs( reqs );
     Well::Man& wllmgr = Well::MGR();
-    if ( !wd_ )
-    {
-	WellDisplay* self = const_cast<WellDisplay*>( this );
-	lreqs.includes( Well::DispProps3D );
-	const bool isloaded = wllmgr.isLoaded( wellid_ );
-	if ( isloaded )
-	    wllmgr.reload( wellid_, lreqs );
-
-	self->wd_ = wllmgr.get( wellid_, lreqs );
-	if ( wd_ )
-	{
-	    const auto& dispprop3d = wd_->displayProperties();
-	    if ( !isloaded && !dispprop3d.isValid() )
-	    { //Only for wells without pre-existing display properties
-		if ( dispprop3d.getTrack().getColor() == OD::Color::NoColor() )
-		{
-		    self->wd_->displayProperties()
-			   .ensureColorContrastWith( getBackgroundColor() );
-		}
-	    }
-	    attachCB( wd_->trackchanged, mCB(self,WellDisplay,fullRedraw) );
-	    attachCB( wd_->reloaded, mCB(self,WellDisplay,fullRedraw) );
-	    attachCB( wd_->markerschanged,mCB(self,WellDisplay,updateMarkers));
-	    attachCB( wd_->disp3dparschanged,mCB(self,WellDisplay,fullRedraw));
-	    if ( zistime_ )
-		attachCB( wd_->d2tchanged, mCB(self,WellDisplay,fullRedraw) );
-	}
-    }
-    else
+    if ( wd_ )
     {
 	wllmgr.get( wellid_, lreqs );
+	return wd_;
+    }
+
+    WellDisplay* self = const_cast<WellDisplay*>( this );
+    lreqs.include( Well::DispProps3D );
+    const bool isloaded = wllmgr.isLoaded( wellid_ );
+    self->wd_ = wllmgr.get( wellid_, lreqs );
+    if ( wd_ )
+    {
+	const auto& dispprop3d = wd_->displayProperties();
+	if ( !isloaded && !dispprop3d.isValid() )
+	{ //Only for wells without pre-existing display properties
+	    if ( dispprop3d.getTrack().getColor() == OD::Color::NoColor() )
+	    {
+		self->wd_->displayProperties()
+		       .ensureColorContrastWith( getBackgroundColor() );
+	    }
+	}
+	attachCB( wd_->trackchanged, mCB(self,WellDisplay,fullRedraw) );
+	attachCB( wd_->reloaded, mCB(self,WellDisplay,fullRedraw) );
+	attachCB( wd_->markerschanged,mCB(self,WellDisplay,updateMarkers));
+	attachCB( wd_->disp3dparschanged,mCB(self,WellDisplay,fullRedraw));
+	if ( zistime_ )
+	    attachCB( wd_->d2tchanged, mCB(self,WellDisplay,fullRedraw) );
     }
 
     return wd_;
@@ -136,7 +130,10 @@ void WellDisplay::restoreDispProp()
     if ( !dispprop_ )
 	return;
 
-    mGetWD( return );
+    RefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
+
     wd->displayProperties() = *dispprop_;
 }
 
@@ -156,7 +153,10 @@ void WellDisplay::setWell( visBase::Well* well )
 
 void WellDisplay::fillTrackParams( visBase::Well::TrackParams& tp )
 {
-    mGetWD(return);
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
+
     tp.size_		= mGetDispPar( getTrack().getSize() );
     tp.col_		= mGetDispPar( getTrack().getColor() );
     tp.isdispabove_	= mGetDispPar( getTrack().dispabove_ );
@@ -168,7 +168,10 @@ void WellDisplay::fillTrackParams( visBase::Well::TrackParams& tp )
 
 void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
 {
-    mGetWD(return);
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
+
     mp.size_		= mGetDispPar( getMarkers().getSize() );
     mp.col_		= mGetDispPar( getMarkers().getColor()  );
     mp.shapeint_	= mGetDispPar( getMarkers().shapeint_ );
@@ -187,7 +190,10 @@ side==visBase::Well::Center ? mGetDispPar(getLogs().center_.par) :\
 void WellDisplay::fillLogParams(
 		visBase::Well::LogParams& lp, visBase::Well::Side side )
 {
-    mGetWD(return);
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
+
     lp.size_		= mGetLogPar( side, getSize() );
     lp.col_		= mGetLogPar( side, getColor() );
     lp.cliprate_	= mGetLogPar( side, cliprate_ );
@@ -219,12 +225,14 @@ void WellDisplay::fillLogParams(
 }
 void WellDisplay::fullRedraw( CallBacker* )
 {
-    mGetWD(return);
-    if ( !well_ ) return;
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd || !well_ )
+	return;
 
     TypeSet<Coord3> trackpos;
     getTrackPos( wd, trackpos );
-    if ( trackpos.isEmpty() ) return;
+    if ( trackpos.isEmpty() )
+	return;
 
     visBase::Well::TrackParams tp;
     fillTrackParams( tp );
@@ -254,7 +262,11 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 {
     wd_ = nullptr;
     wellid_ = multiid;
-    mGetWD(return false);
+
+    RefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return false;
+
     const Well::D2TModel* d2t = wd->d2TModel();
     const bool trackabovesrd = wd->track().zRange().stop <
 			      -1.f * SI().seismicReferenceDatum();
@@ -314,7 +326,9 @@ void WellDisplay::updateMarkers( CallBacker* )
     if ( !well_ )
 	return;
 
-    mGetWD(return);
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
 
     const Well::DisplayProperties& dispprops = wd_->displayProperties();
     const Well::DisplayProperties::Markers& markerdp = dispprops.getMarkers();
@@ -588,11 +602,16 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 
 void WellDisplay::calcClippedRange( float rate, Interval<float>& rg, int lidx )
 {
-    mGetWD(return);
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
 
-    Well::Log& wl = wd->logs().getLog( lidx );
-    if ( rate > 100 ) rate = 100;
-    if ( mIsUdf(rate) || rate < 0 ) rate = 0;
+    const Well::Log& wl = wd->logs().getLog( lidx );
+    if ( rate > 100 )
+	rate = 100;
+    if ( mIsUdf(rate) || rate < 0 )
+	rate = 0;
+
     rate /= 100;
     const int logsz = wl.size();
     DataClipper dataclipper;
@@ -653,8 +672,12 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 				   BufferString& val,
 				   BufferString& info ) const
 {
-    val.setEmpty(); info.setEmpty();
-    mGetWD(return);
+    val.setEmpty();
+    info.setEmpty();
+
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
 
     const bool needsconversiontotime = needsConversionToTime();
     if ( needsconversiontotime && !timetrack_ )
@@ -688,7 +711,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     const float zstep2 = zfactor*SI().zStep()/2;
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
-	Well::Marker* wellmarker = wd->markers()[idx];
+	const Well::Marker* wellmarker = wd->markers()[idx];
 	if ( !mIsEqual(wellmarker->dah(),dah,zstep2) )
 	    continue;
 
@@ -702,7 +725,9 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 				float dah, bool isleft ) const
 {
-    mGetWD(return);
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
 
     const visBase::Well::Side side  =
 			isleft ? visBase::Well::Left : visBase::Well::Right;
@@ -713,7 +738,9 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
 				float dah, visBase::Well::Side side ) const
 {
-    mGetWD(return);
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
 
     BufferString lognm( mGetLogPar(side,name_) );
     if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
@@ -954,7 +981,10 @@ void WellDisplay::setupPicking( bool yn )
 
 void WellDisplay::showKnownPositions()
 {
-    mGetWD(return);
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
+
     setName( wd->name() );
     if ( !pseudotrack_ )
 	return;
@@ -1032,7 +1062,10 @@ void WellDisplay::fillPar( IOPar& par ) const
 
     par.set( sKeyWellID, wellid_ );
 
-    mGetWD(return);
+    ConstRefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return;
+
     wd->displayProperties().fillPar( par );
 
 }
@@ -1040,9 +1073,9 @@ void WellDisplay::fillPar( IOPar& par ) const
 
 bool WellDisplay::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) ||
-	  !visSurvey::SurveyObject::usePar( par ) )
-	  return false;
+    if ( !visBase::VisualObjectImpl::usePar(par) ||
+	 !visSurvey::SurveyObject::usePar(par) )
+	return false;
 
     MultiID newmid;
     if ( !par.get(sKeyWellID,newmid) )
@@ -1054,7 +1087,10 @@ bool WellDisplay::usePar( const IOPar& par )
     if ( !setMultiID(newmid) )
 	return true;
 
-    mGetWD(return false);
+    RefMan<Well::Data> wd = getWD( defReqs() );
+    if ( !wd )
+	return false;
+
     wd->displayProperties().usePar( par );
     displayLeftLog();
     displayRightLog();
