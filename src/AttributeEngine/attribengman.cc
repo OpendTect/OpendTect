@@ -1101,7 +1101,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 	return;
 
     const ValParam* param = storeddesc->getValParam( StorageProvider::keyStr());
-    if ( param )
+    if ( !param )
 	return;
 
     const StringPair sp( param->getStringValue() );
