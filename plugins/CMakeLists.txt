@@ -30,7 +30,7 @@ set( OD_PLUGINS
 
 if ( NOT OD_NO_OSG )
     list( APPEND OD_PLUGINS
-        CmdDriver
+	uiCmdDriverMgr
         uiCOLOP
         uiCrashMe
         uiDPSDemo

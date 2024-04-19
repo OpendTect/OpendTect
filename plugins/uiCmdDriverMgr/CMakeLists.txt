@@ -10,7 +10,7 @@ set( OD_FOLDER "OD Free Plugins" )
 set( OD_IS_PLUGIN yes )
 set( OD_MODULE_SOURCES
 	#coincommands.cc
-	cmddriverpi.cc
+	uicmddrivermgrpi.cc
 )
 set( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
 
