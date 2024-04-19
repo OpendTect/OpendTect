@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "cmddrivermod.h"
+#include "uicmddrivermgrmod.h"
 
 #include "uimenu.h"
 #include "uiodmain.h"
@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace CmdDrive
 {
 
-mDefODPluginInfo(CmdDriver)
+mDefODPluginInfo(uiCmdDriverMgr)
 {
     static PluginInfo retpi(
 	"Command driver (GUI)",
@@ -75,7 +75,7 @@ protected:
 };
 
 
-mDefODInitPlugin(CmdDriver)
+mDefODInitPlugin(uiCmdDriverMgr)
 {
     mDefineStaticLocalObject( PtrMan<CmdDriverPIMgr>, theinst_,
 				= new CmdDriverPIMgr() );
