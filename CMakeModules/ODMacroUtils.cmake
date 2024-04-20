@@ -130,7 +130,7 @@ macro( OD_SET_PROG_INSTALL_RPATH )
 	foreach( DEP ${OD_${OD_MODULE_NAME}_DEPS} )
 	    if ( OpenSSL::SSL IN_LIST OD_${DEP}_EXTERNAL_LIBS )
 		list ( APPEND TARGET_PROPERTIES
-			      INSTALL_RPATH "\${ORIGIN}:\$ORIGIN/OpenSSL" )
+			      INSTALL_RPATH "\$ORIGIN:\$ORIGIN/OpenSSL" )
 	    endif()
 	endforeach()
     endif()
@@ -420,7 +420,7 @@ if ( OD_MODULE_HAS_LIBRARY )
     if ( OD_LINKOPENSSL OR OD_LINKCRYPTO )
 	if ( UNIX AND NOT APPLE )
 	    set_target_properties( ${OD_MODULE_NAME}
-		PROPERTIES INSTALL_RPATH "\${ORIGIN}:\$ORIGIN/OpenSSL" )
+		PROPERTIES INSTALL_RPATH "\$ORIGIN:\$ORIGIN/OpenSSL" )
 	endif()
     endif()
 
