@@ -93,20 +93,20 @@ public:
 			RangeSelector()			{}
 			RangeSelector( const T& t1, const T& t2 )
 			: range_(t1,t2)			{}
-    virtual const char*	selectorType() const		{ return "Range"; }
-    virtual Selector<T>* clone() const
+    const char*		selectorType() const override	{ return "Range"; }
+    Selector<T>*	clone() const override
 			{ return new RangeSelector(range_.start,range_.stop); }
 
-    virtual bool	includes( const T& t ) const
+    bool		includes( const T& t ) const override
 			{ return range_.includes( t, true ); }
-    virtual bool	include( const T& t, const char* )
+    bool		include( const T& t, const char* ) override
 			{ range_.include( t ); return true; }
 
     Interval<T>		range_;
 
 protected:
 
-    virtual bool	isEq( const Selector<T>& rs ) const
+    bool		isEq( const Selector<T>& rs ) const override
 			{ return range_==((const RangeSelector<T>&)rs).range_; }
 
 };

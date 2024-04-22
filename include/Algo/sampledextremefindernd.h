@@ -37,8 +37,8 @@ public:
 		//!<ptr[0] ... ptr[ndim-1] is one position.
 
 protected:
-    inline od_int64	nrIterations() const;
-    inline bool		doWork(od_int64,od_int64,int);
+    inline od_int64	nrIterations() const override;
+    inline bool		doWork(od_int64,od_int64,int) override;
     inline bool		findExtreme(int*) const;
     inline int		indexOf(const int*) const;
 
@@ -64,7 +64,8 @@ int SampledExtremeFinderND<T>::nrExtremes() const
 
 
 template <class T> inline
-bool SampledExtremeFinderND<T>::doWork( od_int64 start, od_int64 stop, int )
+bool SampledExtremeFinderND<T>::doWork( od_int64 start,	
+					od_int64 stop, int )
 {
     const int ndim = array_.info().getNDim();
     mAllocVarLenArr( int, pos, ndim );
