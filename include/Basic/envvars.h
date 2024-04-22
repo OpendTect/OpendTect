@@ -27,8 +27,9 @@ mGlobal(Basic) bool GetEnvVarDirList(const char*,BufferStringSet&,
 				     bool checkdirs);
 /*!< Returns a list of directories, possibly filtering out the non-existing */
 mGlobal(Basic) bool GetEnvVarYN(const char*,bool defltval=false);
-/*!< Returns defltval if not set, false if set to 0, "no" or "false",
-     otherwise true */
+/*!< Returns defltval if not set,
+     false if set to 0, "n", "no", "f" or "false" (case-insensitive),
+     true if set to 1, "y", "yes", "t" or "true" (case-insensitive) */
 mGlobal(Basic) int GetEnvVarIVal(const char*,int defltval);
 mGlobal(Basic) double GetEnvVarDVal(const char*,double defltval);
 mGlobal(Basic) float GetEnvVarFVal(const char*,float defltval);
