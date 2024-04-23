@@ -91,6 +91,7 @@ void WellTie::uiTieWin::initAll()
     drawFields();
     addControls();
     doWork( nullptr );
+    nrtrcsCB( nullptr );
     show();
 }
 
@@ -213,12 +214,12 @@ void WellTie::uiTieWin::drawFields()
     vwrtaskgrp->attach( rightBorder );
     createViewerTaskFields( vwrtaskgrp );
 
-    polarityfld_ = new uiGenInput( this, uiStrings::sPolarity(),
-				   BoolInpSpec(true, Seis::sSEGPositive(),
-						     Seis::sSEGNegative()) );
+    polarityfld_ = new uiGenInput( this, uiString::empty(),
+			       BoolInpSpec(false, tr("Flip Wavelet Polarity"),
+					       uiString::empty(), false) );
     polarityfld_->attach( leftOf, vwrtaskgrp );
     polarityfld_->attach( ensureBelow, sep1 );
-    polarityfld_->valuechanged.notify( mCB(this, uiTieWin, polarityChanged) );
+    polarityfld_->valueChanged.notify( mCB(this, uiTieWin, polarityChanged) );
 
     wvltfld_ = new uiSeisWaveletSel( this, "Wavelet", false, false );
     wvltfld_->setInput( server_.data().setup().sgp_.getWaveletID() );
@@ -268,7 +269,7 @@ void WellTie::uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     eventtypefld_->box()->selectionChanged.notify(
 				mCB(this,uiTieWin,eventTypeChg) );
 
-    IntInpSpec iis( 5 );
+    IntInpSpec iis( 10 );
     iis.setLimits( StepInterval<int>(1,99,2) );
     nrtrcsfld_ = new uiGenInput( taskgrp, tr("Nr Traces"), iis );
     nrtrcsfld_->valuechanging.notify( mCB(this,uiTieWin,nrtrcsCB) );
@@ -468,8 +469,9 @@ void WellTie::uiTieWin::wvltSelCB( CallBacker* )
     if ( !server_.setNewWavelet(wvltfld_->getID()) )
 	mErrRet( server_.errMsg() )
 
+    NotifyStopper ns( polarityfld_->valueChanged );
+    polarityfld_->setValue( false );
     drawer_->redrawViewer();
-
     if ( infodlg_ )
 	infodlg_->updateInitialWavelet();
 }
@@ -517,8 +519,20 @@ void WellTie::uiTieWin::dispInfoMsg( CallBacker* cb )
 
 void WellTie::uiTieWin::polarityChanged( CallBacker* )
 {
-    const bool isSEGPositive = polarityfld_->getBoolValue();
-    drawer_->setSEGPositivePolarity( isSEGPositive );
+    drawer_->enableCtrlNotifiers( false );
+    server_.data().initwvlt_.reverse();
+    if ( !infodlg_ || (infodlg_ && infodlg_->isInitWvltActive()) )
+    {
+	if ( !server_.computeSynthetics(server_.data().initwvlt_) )
+	    { uiMSG().error( server_.errMsg() ); }
+
+	reDrawAll( nullptr );
+    }
+
+    if ( infodlg_ )
+	infodlg_->updateInitialWavelet();
+
+    drawer_->enableCtrlNotifiers( true );
 }
 
 

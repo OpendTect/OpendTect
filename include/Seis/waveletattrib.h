@@ -24,6 +24,7 @@ public:
 			~WaveletAttrib();
 
     void		setNewWavelet(const Wavelet&);
+    bool		isNormalPolarity() const;
     void		getHilbert(Array1DImpl<float>&) const;
     void		getPhase(Array1DImpl<float>&,bool degree=false) const;
     float		getAvgPhase(bool degree=false) const;
