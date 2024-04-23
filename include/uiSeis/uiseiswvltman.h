@@ -66,4 +66,5 @@ protected:
 				   defined in base class 'uiObjFileMan' */
     void			rotUpdateCB(CallBacker*);
     void			wvltCreatedCB(CallBacker*);
+    bool			waveletSaveAs(const Wavelet&, const uiString&);
 };

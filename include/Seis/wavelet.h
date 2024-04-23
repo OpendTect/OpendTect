@@ -67,6 +67,7 @@ public:
     void		transform(float b,float a);
 			//!< a*X+b transformation
     void		normalize();
+    void		reverse();
     bool		trimPaddedZeros(); //!< returns whether any change
     float		getExtrValue(bool ismax = true) const;
     void		getExtrValues(Interval<float>&) const;
