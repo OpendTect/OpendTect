@@ -208,18 +208,20 @@ void WellTie::uiWavelet::drawWavelet()
     if ( !wvlt_ )
 	return;
 
-    const int wvltsz = wvlt_->size();
+    Wavelet wvlt( *wvlt_ );
+    wvlt.normalize();
+    const int wvltsz = wvlt.size();
     Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
-    OD::memCopy( fva2d->getData(), wvlt_->samples(), wvltsz * sizeof(float) );
+    OD::memCopy( fva2d->getData(), wvlt.samples(), wvltsz * sizeof(float) );
     RefMan<FlatDataPack> dp = new FlatDataPack( "Wavelet", fva2d );
-    dp->setName( wvlt_->name() );
+    dp->setName( wvlt.name() );
     fdp_ =  dp;
 
     const bool canupdate = viewer_->enableChange( false );
     viewer_->clearAllPacks();
     viewer_->setPack( FlatView::Viewer::WVA, dp, false );
     StepInterval<double> posns;
-    posns.setFrom( wvlt_->samplePositions() );
+    posns.setFrom( wvlt.samplePositions() );
     if ( SI().zIsTime() )
        	posns.scale( SI().zDomain().userFactor() );
 

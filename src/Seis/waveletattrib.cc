@@ -53,6 +53,13 @@ static bool doFFT( bool isfwd, const Array1D<float_complex>& input,
 }
 
 
+bool WaveletAttrib::isNormalPolarity() const
+{
+    const float avgphase = getAvgPhase( true );
+    return avgphase>=-90 && avgphase<=90;
+}
+
+
 void WaveletAttrib::getHilbert( Array1DImpl<float>& hilb ) const
 {
     HilbertTransform hilbert;
@@ -95,7 +102,7 @@ float WaveletAttrib::getAvgPhase( bool indegrees ) const
     getWaveletArrForPhase( cindata );
     Phase phasecomputer( cindata );
     phasecomputer.setUnitDeg( indegrees );
-    if ( !phasecomputer.calculate() )
+    if ( !phasecomputer.calculate(true) )
 	return mUdf(float);
 
     return phasecomputer.getAvgPhase();

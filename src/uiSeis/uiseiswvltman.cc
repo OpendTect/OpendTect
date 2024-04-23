@@ -20,10 +20,10 @@ ________________________________________________________________________
 #include "uiaxishandlerbase.h"
 #include "uifuncdispbase.h"
 #include "uifunctiondisplayserver.h"
-#include "uiioobjmanip.h"
+#include "uilabel.h"
 #include "uiioobjselgrp.h"
-#include "uilabel.h"
-#include "uilabel.h"
+#include "uiioobjseldlg.h"
+#include "uiioobjmanip.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseiswvltattr.h"
@@ -256,7 +256,9 @@ void uiSeisWvltMan::mkFileInfo()
 	   .add( "/" ).add( extremevals.stop ).addNewLine();
 	float avgphase = wvltattrib.getAvgPhase( true );
 	if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
-	msg.add( "Average phase (deg): ").add( avgphase, 2 ).addNewLine();
+	msg.add( "Average phase (deg): ").add( avgphase, 0 ).addNewLine();
+	msg.add( "Polarity: ").add( wvltattrib.isNormalPolarity()
+					? "Normal" : "Reverse" ).addNewLine();
 	txt.add( msg );
 	delete wvlt;
 
@@ -331,64 +333,75 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 }
 
 
+bool uiSeisWvltMan::waveletSaveAs( const Wavelet& wvlt, const uiString& subj )
+{
+    CtxtIOObj ctio( mIOObjContext(Wavelet) );
+    ctio.ctxt_.forread_ = false;
+    uiIOObjSelDlg dlg( this, ctio, uiStrings::phrSave(subj) );
+    if ( dlg.go() )
+    {
+	const IOObj* ioobj = dlg.ioObj();
+	if ( !ioobj )
+	    return false;
+
+	if ( !wvlt.put(ioobj) )
+	{
+	    uiMSG().error( uiStrings::phrCannotWrite(subj) );
+	    return false;
+	}
+	else
+	{
+	    curioobj_ = ioobj->clone();
+	    selgrp_->fullUpdate( curioobj_->key() );
+	    selgrp_->setCurrent( curioobj_->key() );
+	}
+
+	return true;
+    }
+
+    return false;
+}
+
+
 void uiSeisWvltMan::reversePolarity( CallBacker* )
 {
-    Wavelet* wvlt = Wavelet::get( curioobj_ );
-    if ( !wvlt ) return;
+    PtrMan<Wavelet> wvlt = Wavelet::get( curioobj_ );
+    if ( !wvlt )
+	return;
 
-    float* samps = wvlt->samples();
-    for ( int idx=0; idx<wvlt->size(); idx++ )
-	samps[idx] *= -1;
-
-    if ( !wvlt->put(curioobj_) )
-	uiMSG().error(uiStrings::phrCannotWrite(tr(
-				    "new polarity reversed wavelet to disk")));
-    else
-	selgrp_->fullUpdate( curioobj_->key() );
-
-    delete wvlt;
+    wvlt->reverse();
+    waveletSaveAs( *wvlt, tr("reverse polarity wavelet") );
 }
 
 
 void uiSeisWvltMan::rotatePhase( CallBacker* )
 {
-    Wavelet* wvlt = Wavelet::get( curioobj_ );
-    if ( !wvlt ) return;
+    PtrMan<Wavelet> wvlt = Wavelet::get( curioobj_ );
+    if ( !wvlt )
+	return;
 
     uiSeisWvltRotDlg dlg( this, *wvlt );
     dlg.setCaption( curioobj_->uiName() );
     dlg.acting.notify( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     if ( dlg.go() )
-    {
-	if ( !wvlt->put(curioobj_) )
-	    uiMSG().error(tr("Cannot write rotated phase wavelet to disk"));
-	else
-	    selgrp_->fullUpdate( curioobj_->key() );
-    }
+	waveletSaveAs( *wvlt, tr("rotated phase wavelet") );
 
     dlg.acting.remove( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     mkFileInfo();
-
-    delete wvlt;
 }
 
 
 void uiSeisWvltMan::taper( CallBacker* )
 {
-    Wavelet* wvlt = Wavelet::get( curioobj_ );
-    if ( !wvlt ) return;
+    PtrMan<Wavelet> wvlt = Wavelet::get( curioobj_ );
+    if ( !wvlt )
+	return;
 
     uiSeisWvltTaperDlg dlg( this, *wvlt );
     uiString title = tr("Taper '%1'").arg(curioobj_->uiName());
     dlg.setCaption( title );
     if ( dlg.go() )
-    {
-	if ( !wvlt->put(curioobj_) )
-	    uiMSG().error(uiStrings::phrCannotWrite(
-						tr("tapered wavelet to disk")));
-	else
-	    selgrp_->fullUpdate( curioobj_->key() );
-    }
+	waveletSaveAs( *wvlt, tr("tapered wavelet") );
 }
 
 

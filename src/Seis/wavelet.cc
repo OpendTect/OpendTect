@@ -452,6 +452,12 @@ void Wavelet::normalize()
 }
 
 
+void Wavelet::reverse()
+{
+    transform( 0, -1.0f );
+}
+
+
 bool Wavelet::trimPaddedZeros()
 {
     if ( sz_ < 4 )
