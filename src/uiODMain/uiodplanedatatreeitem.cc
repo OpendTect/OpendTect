@@ -186,7 +186,8 @@ bool uiODPlaneDataTreeItem::init()
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_));
-    if ( !pdd ) return false;
+    if ( !pdd )
+	return false;
 
     pdd->ref();
     pdd->selection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
@@ -203,7 +204,8 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_));
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
 
     const Coord surfacecoord = wd.info().surfacecoord_;
     const BinID bid = SI().transform( surfacecoord );
@@ -222,7 +224,8 @@ void uiODPlaneDataTreeItem::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_));
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
 
     pdd->setTrcKeyZSampling( tkzs );
 }
@@ -251,7 +254,8 @@ bool uiODPlaneDataTreeItem::displayGuidance()
 
     Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
 					visserv_->getSelSpec( displayid_, 0 ));
-    if ( !as ) return false;
+    if ( !as )
+	return false;
 
     const bool notsel = as->id().isUnselInvalid();
 
@@ -275,7 +279,8 @@ bool uiODPlaneDataTreeItem::displayGuidance()
 
 	mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 			visserv_->getObject(displayid_))
-	if ( !pdd ) return false;
+	if ( !pdd )
+	    return false;
 
 	return displayDataFromOther( pdd->id() );
     }
@@ -433,7 +438,8 @@ void uiODPlaneDataTreeItem::createMenu( MenuHandler* mh, bool istb )
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
 
     const Coord3 pickedpos = uimh->getPickedPos();
     TrcKey tk( SI().transform(pickedpos) );
@@ -474,19 +480,21 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
+
+    TrcKeyZSampling scenetkzs = SI().sampling(true);
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+    if ( scene )
+	scenetkzs = scene->getTrcKeyZSampling();
 
     if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	delete positiondlg_;
-	TrcKeyZSampling maxcs = SI().sampling(true);
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-	if ( scene && scene->getZAxisTransform() )
-	    maxcs = scene->getTrcKeyZSampling();
 
 	positiondlg_ = new uiSliceSelDlg( getUiParent(),
-				pdd->getTrcKeyZSampling(true,true), maxcs,
+				pdd->getTrcKeyZSampling(true,true), scenetkzs,
 				mCB(this,uiODPlaneDataTreeItem,updatePlanePos),
 				(uiSliceSel::Type)orient_,scene->zDomainInfo());
 	positiondlg_->windowClosed.notify(
@@ -505,7 +513,8 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     }
 
     mDynamicCastGet(uiMenuHandler*,uimh,menu);
-    if ( !uimh ) return;
+    if ( !uimh )
+	return;
 
     const Coord3 pickedpos = uimh->getPickedPos();
     TrcKey tk( SI().transform(pickedpos) );
@@ -513,7 +522,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zpos );
     const TrcKey& csttk = const_cast<const TrcKey&>( tk );
 
-    TrcKeyZSampling newtkzs( true );
+    TrcKeyZSampling newtkzs = scenetkzs;
     uiODPlaneDataTreeItem* itm = 0;
     if ( mnuid == addinlitem_.id )
     {
@@ -546,7 +555,8 @@ void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
 
     const TrcKeyZSampling newcs = pdd->getTrcKeyZSampling( true, true );
     positiondlg_->setTrcKeyZSampling( newcs );
@@ -557,7 +567,8 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
 
     TrcKeyZSampling newcs = positiondlg_->getTrcKeyZSampling();
     bool samepos = newcs == pdd->getTrcKeyZSampling();
@@ -574,7 +585,8 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 {
     mDynamicCastGet(uiSliceSel*,slicesel,cb)
-    if ( !slicesel ) return;
+    if ( !slicesel )
+	return;
 
     movePlaneAndCalcAttribs( slicesel->getTrcKeyZSampling() );
 }
@@ -582,23 +594,22 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 
 void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs(
 	const TrcKeyZSampling& tkzs )
-{ visserv_->movePlaneAndCalcAttribs( displayid_, tkzs ); }
-
+{
+    visserv_->movePlaneAndCalcAttribs( displayid_, tkzs );
+}
 
 
 void uiODPlaneDataTreeItem::keyUnReDoPressedCB( CallBacker* )
 {
-    mDynamicCastGet( visSurvey::PlaneDataDisplay*,pdd,
-	visserv_->getObject(displayid_) )
-	if ( !pdd )
-	    return;
+    mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
+		    visserv_->getObject(displayid_))
+    if ( !pdd )
+	return;
 
     if ( !uiMain::keyboardEventHandler().hasEvent() )
 	return;
 
     const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
-
-
     if ( KeyboardEvent::isUnDo(kbe) )
     {
 	if ( pdd->isSelected() )
@@ -616,13 +627,15 @@ void uiODPlaneDataTreeItem::keyUnReDoPressedCB( CallBacker* )
 void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
 {
     mCBCapsuleGet(uiKeyDesc,caps,cb)
-    if ( !caps ) return;
+    if ( !caps )
+	return;
 
     const uiShortcutsList& scl = SCMgr().getList( "ODScene" );
     const BufferString act( scl.nameOf(caps->data) );
     const bool fwd = act == "Move slice forward";
     const bool bwd = fwd ? false : act == "Move slice backward";
-    if ( !fwd && !bwd ) return;
+    if ( !fwd && !bwd )
+	return;
 
     const int step = scl.valueOf( caps->data );
     caps->data.setKey( 0 );
@@ -634,7 +647,8 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
 
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
     const int dir = forward ? step : -step;
@@ -697,13 +711,15 @@ uiODInlineParentTreeItem::~uiODInlineParentTreeItem()
 
 
 const char* uiODInlineParentTreeItem::iconName() const
-{ return "tree-inl"; }
+{
+    return "tree-inl";
+}
 
 
 bool uiODInlineParentTreeItem::showSubMenu()
 {
-    if ( !SI().crlRange(true).width() ||
-	  SI().zRange(true).width() < SI().zStep() * 0.5 )
+    if ( SI().crlRange(true).width()==0 ||
+	 SI().zRange(true).width() < SI().zStep()*0.5 )
     {
 	uiMSG().warning( tr("Flat survey, disabled inline display") );
 	return false;
@@ -730,7 +746,7 @@ uiTreeItem*
 		     ODMainWin()->applMgr().visServer()->getObject(visid));
 
     if ( !pdd || pdd->getOrientation()!=OD::SliceType::Crossline )
-	return 0;
+	return nullptr;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
 		    pdd->getChannels2RGBA());
@@ -757,13 +773,15 @@ uiODCrosslineParentTreeItem::~uiODCrosslineParentTreeItem()
 
 
 const char* uiODCrosslineParentTreeItem::iconName() const
-{ return "tree-crl"; }
+{
+    return "tree-crl";
+}
 
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
 {
-    if ( !SI().inlRange(true).width() ||
-	  SI().zRange(true).width() < SI().zStep() * 0.5 )
+    if ( SI().inlRange(true).width()==0 ||
+	 SI().zRange(true).width() < SI().zStep() * 0.5 )
     {
 	uiMSG().warning( tr("Flat survey, disabled cross-line display") );
 	return false;
@@ -790,7 +808,7 @@ uiTreeItem*
 		     ODMainWin()->applMgr().visServer()->getObject(visid));
 
     if ( !pdd || pdd->getOrientation()!=OD::SliceType::Z )
-	return 0;
+	return nullptr;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
 		    pdd->getChannels2RGBA());
@@ -818,12 +836,14 @@ uiODZsliceParentTreeItem::~uiODZsliceParentTreeItem()
 
 
 const char* uiODZsliceParentTreeItem::iconName() const
-{ return "tree-zsl"; }
+{
+    return "tree-zsl";
+}
 
 
 bool uiODZsliceParentTreeItem::showSubMenu()
 {
-     if ( !SI().inlRange(true).width() || !SI().crlRange(true).width() )
+     if ( SI().inlRange(true).width()==0 || SI().crlRange(true).width()==0 )
      {
 	 uiMSG().warning( tr("Flat survey, disabled z display") );
 	 return false;
