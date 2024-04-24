@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "threadlock.h"
 #include "typeset.h"
+#include "uistring.h"
 
 class Mnemonic;
 class MnemonicSelection;
@@ -77,7 +78,7 @@ in IOPar, but this is aso required if there are constants in the expression.
 
 
 mExpClass(General) Formula : public NamedCallBacker
-{
+{ mODTextTranslationClass(Formula)
 public:
 
 			Formula(bool inputsareseries=true,
@@ -110,7 +111,7 @@ public:
     bool		isOK() const		{ return expr_; }
     bool		isBad() const		{ return !expr_
 						      && !text_.isEmpty(); }
-    const char*		errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const		{ return errmsg_; }
 
     const char*		text() const		{ return text_.buf(); }
     int			nrInputs() const    { return inps_.size(); }
@@ -259,7 +260,7 @@ protected:
     TypeSet<int>	validxs_;
 
     mutable TypeSet<double>	prevvals_;
-    mutable BufferString	errmsg_;
+    mutable uiString		errmsg_;
     mutable Threads::Lock	formlock_;
 
     int			varNameIdx(const char* varnm) const;

@@ -26,7 +26,7 @@ public:
 					uiMnemonicSettings,
 					uiParent*,Settings&,
 					"Mnemonics",
-					mToUiStringTodo(sFactoryKeyword()));
+					uiStrings::sMnemonics());
 
 protected:
 			uiMnemonicSettings(uiParent*, Settings&);

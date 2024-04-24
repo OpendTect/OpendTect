@@ -136,11 +136,12 @@ void uiSEGYClassicSurvInfoProvider::startImport( uiParent* p, const IOPar& iop )
 }
 
 
-const char* uiSEGYClassicSurvInfoProvider::importAskQuestion() const
+uiString uiSEGYClassicSurvInfoProvider::importAskQuestion() const
 {
     Seis::GeomType gt = Seis::Vol;
     Seis::getFromPar( imppars_, gt );
-    return gt == Seis::Vol ? "Import the scanned SEG-Y file(s) now?" : 0;
+    return gt == Seis::Vol ? tr("Import the scanned SEG-Y file(s) now?")
+			   : uiString::empty();
 }
 
 

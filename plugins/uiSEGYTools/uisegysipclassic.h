@@ -36,7 +36,7 @@ public:
     IOPar*		getImportPars() const override
 			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }
     void		startImport(uiParent*,const IOPar&) override;
-    const char*		importAskQuestion() const override;
+    uiString		importAskQuestion() const override;
     const uiString	importAskUiQuestion() const;
 
     friend class	uiSEGYSIPMgrDlg;

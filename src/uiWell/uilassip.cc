@@ -55,26 +55,47 @@ void lasSel( CallBacker* )
     BufferStringSet filenms;
     inpfld_->getFileNames( filenms );
     coords_.setEmpty();
-
+    uiString invflnmerrmsg = uiStrings::sInvInpFile();
+    uiString loginfoerrmsg;
+    bool errocc = false;
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
 	const BufferString& fnm = filenms.get( idx );
 	if ( !File::exists(fnm) || File::isEmpty(fnm) )
-	{ uiMSG().error(uiStrings::sInvInpFile()); continue; }
+	{
+	    errocc = true;
+	    invflnmerrmsg.appendPhrase( toUiString(fnm), uiString::NoSep );
+	    continue;
+	}
 
 	Well::LASImporter lasimp;
 	Well::LASImporter::FileInfo info;
-	BufferString errmsg = lasimp.getLogInfo( fnm, info );
+	const uiString errmsg = lasimp.getLogInfo( fnm, info );
 	if ( errmsg.isEmpty() )
 	{
 	    if ( !info.loc_.isUdf() )
 		coords_ += info.loc_;
+
 	    zrg_.include( info.zrg_ );
 	}
 	else
 	{
-	    uiMSG().error( toUiString( errmsg ) );
+	    errocc = true;
+
+	    loginfoerrmsg.appendPhrase( toUiString("%1 : %2").
+				    arg(fnm).arg(errmsg), uiString::NoSep );
 	}
+    }
+
+    if ( errocc )
+    {
+	uiStringSet errmsgsinfo;
+	errmsgsinfo.add( invflnmerrmsg );
+	errmsgsinfo.add( loginfoerrmsg );
+
+	uiMSG().errorWithDetails( errmsgsinfo,
+				    tr("Import failed some LAS files") );
+
     }
 }
 
@@ -185,8 +206,8 @@ void uiLASSurvInfoProvider::startImport( uiParent* p, const IOPar& pars )
 }
 
 
-const char* uiLASSurvInfoProvider::importAskQuestion() const
-{ return "Proceed to import files used to setup survey?"; }
+uiString uiLASSurvInfoProvider::importAskQuestion() const
+{ return tr("Proceed to import files used to setup survey?"); }
 
 
 IOPar* uiLASSurvInfoProvider::getCoordSystemPars() const

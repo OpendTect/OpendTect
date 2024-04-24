@@ -75,20 +75,24 @@ void selPush( CallBacker* )
     if ( nrexam > 0 )
 	uiSEGYExamine::launch( exsu );
 
-    BufferString emsg;
+    uiString emsg;
     PtrMan<SeisTrcReader> rdr = uiSEGYExamine::getReader( exsu, emsg );
     if ( !rdr )
     {
 	if ( !emsg.isEmpty() )
-	    uiMSG().warning( toUiString(emsg) );
+	    uiMSG().warning( emsg );
+
 	return;
     }
 
     mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr->translator())
-    if ( !trans ) return;
+    if ( !trans )
+	return;
 
     SeisTrc trc;
-    if ( !trans->read(trc) ) return;
+    if ( !trans->read(trc) )
+	return;
+
     imp_.use( trc );
 }
 

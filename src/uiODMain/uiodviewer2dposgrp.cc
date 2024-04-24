@@ -126,7 +126,8 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
     if ( SI().has2D() )
     {
 	Attrib::DescSet* ads = Attrib::eDSHolder().getDescSet(true,false);
-	inp2dfld_ = new uiAttrSel( this, *ads, 0, ads->getID(0) );
+	inp2dfld_ = new uiAttrSel( this, *ads, uiString::empty(),
+							    ads->getID(0));
 	inp2dfld_->selectionDone.notify( inpcb );
 	if ( postypefld_ )
 	    inp2dfld_->attach( alignedBelow, postypefld_ );
@@ -141,15 +142,17 @@ uiODViewer2DPosGrp::uiODViewer2DPosGrp( uiParent* p,
 	subsel2dfld_ = new uiSeis2DSubSel( this, Seis::SelSetup(true) );
 	subsel2dfld_->attachObj()->attach( alignedBelow, inp2dfld_ );
 	botgrp_ = subsel2dfld_;
-	attr2DSelected(0);
+	attr2DSelected( nullptr );
 	setHAlignObj( inp2dfld_ );
     }
 
     if ( SI().has3D() )
     {
-	const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
+	const Attrib::DescSet* ads =
+				Attrib::DSHolder().getDescSet( false, false );
 
-	inp3dfld_ = new uiAttrSel( this, *ads, 0, ads->getID(0) );
+	inp3dfld_ = new uiAttrSel( this, *ads, uiString::empty(),
+							    ads->getID(0) );
 	inp3dfld_->selectionDone.notify( inpcb );
 	if ( postypefld_ )
 	    inp3dfld_->attach( alignedBelow, postypefld_ );

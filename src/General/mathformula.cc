@@ -376,7 +376,8 @@ void Math::Formula::setText( const char* inp )
     {
 	errmsg_.set( mep.errMsg() );
 	if ( errmsg_.isEmpty() )
-	    errmsg_.set( "Invalid mathematical expression" );
+	    errmsg_.set( tr("Invalid mathematical expression") );
+
 	return;
     }
 

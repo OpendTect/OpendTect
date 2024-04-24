@@ -100,7 +100,7 @@ public:
     bool		reloadLogs(const MultiID&);
     bool		validID(const MultiID&) const;
 
-    const char*		errMsg() const		{ return msg_; }
+    uiString		errMsg() const		{ return errmsg_; }
     WeakPtrSet<Data>&	wells()			{ return wells_; }
 
     bool		deleteLogs(const MultiID&,const BufferStringSet&);
@@ -158,7 +158,7 @@ protected:
     mGlobal(Well) friend Man&	MGR();
 
     WeakPtrSet<Data>		wells_;
-    BufferString		msg_;
+    uiString			errmsg_;
     TypeSet<MultiID>		dbaddedwellsids_;
     bool			isreloading_		= false;
     WellFileList*		wfl_			= nullptr;

@@ -652,7 +652,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	if ( dsc.isSatisfied() == Desc::Error )
 	{
 	    uiString err;
-	    StringView dscerr = dsc.errMsg();
+	    const BufferString dscerr = dsc.errMsg().getString();
 	    const bool storagenotfound = dscerr==DescSet::storedIDErrStr();
 	    if ( storagenotfound && dsc.isStoredInMem() )
 		continue;
@@ -721,7 +721,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 			.arg( depattribnm.isEmpty() ? uiString::emptyString()
 						    : tr("called"))
 			.arg( depattribnm.isEmpty() ? uiString::emptyString()
-					    : mToUiStringTodo(depattribnm));
+					    : toUiString(depattribnm));
 	    }
 	    else
 	    {

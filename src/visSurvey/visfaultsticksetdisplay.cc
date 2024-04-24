@@ -1242,7 +1242,7 @@ void FaultStickSetDisplay::updateAll()
 
 void FaultStickSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 					    Coord3& pos, BufferString& val,
-					    BufferString& info ) const
+					    uiString& info ) const
 {
     StickSetDisplay::getMousePosInfo( eventinfo, pos, val, info );
 }

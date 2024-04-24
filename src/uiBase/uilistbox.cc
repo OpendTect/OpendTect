@@ -624,23 +624,30 @@ void uiListBox::updateCheckState()
 
 
 void uiListBox::mkLabel( const uiString& txt, LblPos pos )
-{
+{ //TODO: Pass the translated text as final label for printing
     setHAlignObj( lb_ );
 
     BufferStringSet txts;
     BufferString s( txt.getFullString() );
     char* ptr = s.getCStr();
-    if( !ptr || !*ptr ) return;
+    if( !ptr || !*ptr )
+	return;
+
     while ( 1 )
     {
 	char* nlptr = firstOcc( ptr, '\n' );
-	if ( nlptr ) *nlptr = '\0';
+	if ( nlptr )
+	    *nlptr = '\0';
+
 	txts += new BufferString( ptr );
-	if ( !nlptr ) break;
+	if ( !nlptr )
+	    break;
 
 	ptr = nlptr + 1;
     }
-    if ( txts.size() < 1 ) return;
+
+    if ( txts.size() < 1 )
+	return;
 
     bool last1st = pos > RightTop && pos < BelowLeft;
     ptr = last1st ? txts[txts.size()-1]->getCStr() : txts[0]->getCStr();

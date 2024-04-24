@@ -87,7 +87,7 @@ void Attrib::WellLog::prepareForComputeData()
 	wd = Well::MGR().get( wellid_, lreqs );
 	if ( !wd )
 	{
-	    errmsg_ = mToUiStringTodo( Well::MGR().errMsg() );
+	    errmsg_ = Well::MGR().errMsg();
 	    return;
 	}
     }

@@ -81,7 +81,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     uiSeparator* sep1 = 0;
     if ( !multioutput )
     {
-	todofld_ = new uiAttrSel( pargrp_, "Select Attribute", attrdata );
+	todofld_ = new uiAttrSel( pargrp_,
+		    uiStrings::phrSelect(uiStrings::sAttribute()), attrdata );
 	todofld_->selectionDone.notify( mCB(this,uiAttrVolOut,attrSel) );
     }
     else

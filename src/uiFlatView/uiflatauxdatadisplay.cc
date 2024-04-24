@@ -222,7 +222,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 	    display_->add( nameitem_ );
 	}
 
-	nameitem_->setText( mToUiStringTodo(name_) );
+	nameitem_->setText( toUiString(name_) );
 	nameitem_->setAlignment( namealignment_ );
 
 	nameitem_->setTextColor( linestyle_.color_ );

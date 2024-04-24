@@ -27,7 +27,7 @@ mInitAttribUI( uiSimilaritybyAW, SimilaritybyAW,
 uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
     :  uiAttrDescEd(p, is2d, mNoHelpKey)
 {
-    inputfld_ = createInpFld( is2d, "Input Data" );
+    inputfld_ = createInpFld( is2d, uiStrings::phrInput(uiStrings::sData()) );
 
     reftimegatefld_ =
 	new uiGenInput( this, tr("Ref time gate (ms)"), FloatInpIntervalSpec());
@@ -47,10 +47,11 @@ uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
 	    mCB(this, uiSimilaritybyAW, steerTypeSel) );
     steerfld_->attach( alignedBelow, stepoutfld_ );
 
-    const char* attributelist_[] = { "Optimal similarity",
-					    "Optimal time gate", 0 };
+    uiStringSet attributelist;
+    attributelist.add( tr("Optimal similarity") );
+    attributelist.add( tr("Optimal time gate") );
     attributefld_ = new uiGenInput( this, uiStrings::sOutput(),
-				    StringListInpSpec(attributelist_) );
+				    StringListInpSpec(attributelist) );
     attributefld_->valueChanged.notify(
 	    mCB(this, uiSimilaritybyAW, choiceSel) );
     attributefld_->attach(alignedBelow, steerfld_);

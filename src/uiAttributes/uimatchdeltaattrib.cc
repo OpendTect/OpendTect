@@ -25,9 +25,9 @@ mInitAttribUI(uiMatchDeltaAttrib,MatchDelta,"Match delta","Trace match")
 uiMatchDeltaAttrib::uiMatchDeltaAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mMatchDeltaHelpID) )
 {
-    refcubefld_ = createInpFld( is2d, "Reference Cube");
+    refcubefld_ = createInpFld( is2d, tr("Reference Cube") );
     
-    mtchcubefld_ = createInpFld( is2d, "Match Cube" );
+    mtchcubefld_ = createInpFld( is2d, tr("Match Cube") );
     mtchcubefld_->attach( alignedBelow, refcubefld_ );
 
     maxshiftfld_ = new uiGenInput( this, zDepLabel(tr("Maximum"),tr("shift")),

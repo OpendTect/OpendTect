@@ -23,7 +23,6 @@ namespace Pick { class Set; }
 namespace Pos { class Provider3D; }
 namespace Table { class FormatDesc; }
 namespace Threads { class WorkManager; }
-
 namespace EM
 {
 class SurfaceAuxData;

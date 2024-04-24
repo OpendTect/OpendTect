@@ -74,8 +74,8 @@ public:
     double		getConstVal(int) const;
 
     uiButton*		addButton(const uiToolButtonSetup&);
-    void		addInpViewIcon(const char* icnm,const char* tooltip,
-					const CallBack&);
+    void		addInpViewIcon(const char* icnm,
+				    const uiString& tooltip,const CallBack&);
 
     Notifier<uiMathFormula> inpSet;
     Notifier<uiMathFormula> subInpSet;

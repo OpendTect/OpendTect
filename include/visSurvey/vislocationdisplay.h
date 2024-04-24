@@ -32,7 +32,7 @@ class SeedPainter;
 
 mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl
 				     , public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(LocationDisplay)
     friend class Sower;
 
 public:
@@ -56,14 +56,14 @@ public:
     void			allowDoubleClick( bool yn )
 						    { allowdoubleclicks_ = yn; }
 
-    BufferString		getManipulationString() const override;
-    void			getObjectInfo(BufferString&) const override;
+    uiString			getManipulationString() const override;
+    void			getObjectInfo(uiString&) const override;
     void			getMousePosInfo( const visBase::EventInfo& ei,
 						 IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&,BufferString&,
-						BufferString&) const override;
+						uiString&) const override;
     bool			hasColor() const override	{ return true; }
     OD::Color			getColor() const override;
     void			setColor(OD::Color) override;

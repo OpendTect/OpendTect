@@ -66,7 +66,10 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
     if ( !mdtrl )
-	{ msg = sSelObjNotMuteDef(); return false; }
+    {
+	msg = sSelObjNotMuteDef();
+	return false;
+    }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -75,7 +78,7 @@ bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
 	return false;
     }
 
-    msg = mToUiStringTodo( mdtrl->read( md, *conn ) );
+    msg = mdtrl->read( md, *conn );
     return msg.isEmpty();
 }
 
@@ -88,6 +91,7 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
 	msg = sNoIoobjMsg();
 	return false;
     }
+
     mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
     if ( !mdtrl )
@@ -99,13 +103,9 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
     msg.setEmpty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    {
 	msg = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
-    }
     else
-    {
-	msg = mToUiStringTodo( mdtrl->write( md, *conn ) );
-    }
+	msg = mdtrl->write( md, *conn );
 
     return msg.isEmpty();
 }
@@ -119,16 +119,19 @@ dgbMuteDefTranslator::dgbMuteDefTranslator( const char* nm, const char* unm )
 }
 
 
-const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
+uiString dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return "Cannot read from input file";
+	return tr("Cannot read from input file");
     else if ( !astrm.isOfFileType(mTranslGroupName(MuteDef)) )
-	return "Input file is not a Mute Definition file";
+	return tr("Input file is not a Mute Definition file");
 
     const bool hasiopar = hasIOPar( astrm.majorVersion(),
 				    astrm.minorVersion() );
@@ -143,7 +146,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     if ( atEndOfSection(astrm) ) astrm.next(); //skip for anextraparagraph that
 					//was inserted between version 4.4 & 4.6
     if ( atEndOfSection(astrm) )
-	return "Input file contains no Mute Definition locations";
+	return tr("Input file contains no Mute Definition locations");
 
     while ( md.size() ) md.remove( 0 );
     md.setName( IOM().nameOf(conn.linkedTo()) );
@@ -225,10 +228,10 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     if ( md.size() )
     {
 	md.setChanged( false );
-	return 0;
+	return uiString::empty();
     }
 
-    return "No valid mute points found";
+    return tr("No valid mute points found");
 }
 
 
@@ -243,10 +246,13 @@ bool dgbMuteDefTranslator::hasIOPar(int majorversion, int minorversion )
 }
 
 
-const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
+uiString dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(MuteDef) );
@@ -262,7 +268,7 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 
     od_ostream& strm = astrm.stream();
     if ( !strm.isOK() )
-	return "Cannot write to output Mute Definition file";
+	return tr("Cannot write to output Mute Definition file");
 
     for ( int imd=0; imd<md.size(); imd++ )
     {
@@ -289,8 +295,8 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
     if ( strm.isOK() )
     {
 	const_cast<PreStack::MuteDef&>( md ).setChanged( false );
-	return nullptr;
+	return uiString::empty();
     }
 
-    return "Error during write to output Mute Definition file";
+    return tr("Error during write to output Mute Definition file");
 }

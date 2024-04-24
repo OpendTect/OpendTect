@@ -609,7 +609,7 @@ int Well::TrackSampler::nextStep()
     RefMan<Data> wd = MGR().get( ids_.get(curid_), lreqs );
     if ( !wd )
     {
-	errmsg_ = mToUiStringTodo(MGR().errMsg());
+	errmsg_ = MGR().errMsg();
 	mRetNext()
     }
 
@@ -788,15 +788,18 @@ int Well::LogDataExtracter::nextStep()
 	return MoreToDo();
     }
 
-    if ( dpss_.size() <= curid_ ) mRetNext()
+    if ( dpss_.size() <= curid_ )
+	mRetNext()
+
     DataPointSet& dps = *dpss_[curid_];
-    if ( dps.isEmpty() ) mRetNext()
+    if ( dps.isEmpty() )
+	mRetNext()
 
     RefMan<Data> wd = MGR().get( ids_.get(curid_), LoadReqs(Trck, LogInfos) );
     Track* track = nullptr;
     if ( !wd )
     {
-	msg_ = mToUiStringTodo(MGR().errMsg());
+	msg_ = MGR().errMsg();
 	mRetNext()
     }
 

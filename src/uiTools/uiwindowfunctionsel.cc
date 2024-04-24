@@ -53,7 +53,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
 	    const float v = winfunc->getVariable() * 100;
 	    if ( su.with2fldsinput_ )
 	    {
-		uiString twosidedvarname( mToUiStringTodo(su.inpfldtxt_) );
+		uiString twosidedvarname( toUiString(su.inpfldtxt_) );
 		varinpfld = new uiGenInput( this, twosidedvarname,
 					FloatInpSpec(v), FloatInpSpec(v) );
 	    }

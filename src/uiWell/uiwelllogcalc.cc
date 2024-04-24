@@ -78,25 +78,32 @@ static Math::SpecVarSet& getSpecVars()
 }
 
 
-static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
+static uiString getDlgTitle( const TypeSet<MultiID>& wllids )
 {
     const int sz = wllids.size();
     if ( sz < 1 )
-	return BufferString( "No wells selected" );
+	return od_static_tr( "getDlgTitle", "No wells selected" );
 
-    BufferString ret( "Calculate new logs for '", IOM().nameOf(wllids[0]), "'");
+    uiString ret = od_static_tr("getDlgTitle","Calculate new logs for '%1'").
+					    arg( IOM().nameOf(wllids[0]));
+    BufferString nmsstr;
     for ( int idx=1; idx<sz; idx++ )
-	ret.add( ", '" ).add( IOM().nameOf(wllids[idx]) ).add( "'" );
+	nmsstr.add( " ,'").add(IOM().nameOf(wllids[idx])).add("'");
 
-    ret = getLimitedDisplayString( ret.buf(), 80, true );
+    if ( !nmsstr.isEmpty() )
+    {
+	nmsstr = getLimitedDisplayString( nmsstr.buf(), 80, true );
+	ret.appendPhrase( toUiString(nmsstr), uiString::NoSep,
+							uiString::OnSameLine );
+    }
+
     return ret;
 }
 
 
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			      bool rockphysmode )
-    : uiDialog(p,uiDialog::Setup(tr("Calculate New Logs"),
-				 mToUiStringTodo(getDlgTitle(wllids)),
+    : uiDialog(p,uiDialog::Setup(tr("Calculate New Logs"),getDlgTitle(wllids),
 				 mODHelpKey(mWellLogCalcHelpID) ))
     , logschanged(this)
     , superwls_(*new Well::LogSet)
@@ -120,7 +127,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     mfsu.stortype( "Log calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
     formfld_->exprFld()->setPlaceholderText( toUiString("density / sonic") );
-    formfld_->addInpViewIcon( "view_log", "Display this log",
+    formfld_->addInpViewIcon( "view_log", tr("Display this log"),
 			      mCB(this,uiWellLogCalc,vwLog) );
     formfld_->setNonSpecInputs( lognms_, -1, &mnsel_ );
     mAttachCB( formfld_->inpSet, uiWellLogCalc::inpSel );
@@ -470,7 +477,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	if ( !Well::MGR().writeAndRegister(wmid,newwl) )
 	{
 	    deleteLog( inpdatas );
-	    errormsg.add( tr(Well::MGR().errMsg()) );
+	    errormsg.add( Well::MGR().errMsg() );
 	    continue;
 	}
 

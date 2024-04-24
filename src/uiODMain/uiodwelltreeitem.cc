@@ -349,7 +349,7 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
     Well::MGR().getLogNamesByID( wd->getMultiID(), lognms );
     for ( int logidx=0; logidx<lognms.size(); logidx++ )
     {
-    logmnuitems_ += new MenuItem( mToUiStringTodo(lognms.get( logidx ) ));
+	logmnuitems_ += new MenuItem( toUiString(lognms.get(logidx) ));
 	mAddMenuItem(&amplspectrummnuitem_,logmnuitems_[logidx],true,false);
     }
 

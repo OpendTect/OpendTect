@@ -106,13 +106,18 @@ uiImportLogsDlg::~uiImportLogsDlg()
 void uiImportLogsDlg::lasSel( CallBacker* )
 {
     const char* lasfnm = lasfld_->text();
-    if ( !lasfnm || !*lasfnm ) return;
+    if ( !lasfnm || !*lasfnm )
+	return;
 
     RefMan<Well::Data> wd = new Well::Data;
     Well::LASImporter wdai( *wd );
     Well::LASImporter::FileInfo lfi;
-    const char* res = wdai.getLogInfo( lasfnm, lfi );
-    if ( res ) { uiMSG().error( mToUiStringTodo(res) ); return; }
+    const uiString res = wdai.getLogInfo( lasfnm, lfi );
+    if ( !res.isEmpty() )
+    {
+	uiMSG().error( res );
+	return;
+    }
 
     if ( logstable_ )
     {
@@ -162,7 +167,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     RefMan<Well::Data> wd = new Well::Data;
     wd = Well::MGR().get( wmid, Well::LoadReqs(Well::LogInfos) );
     if ( !wd )
-	mErrRet( mToUiStringTodo(Well::MGR().errMsg()) )
+	mErrRet( Well::MGR().errMsg() )
 
     const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm )
@@ -226,10 +231,10 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     }
 
     lfi.lognms_ = lognms;
-    const char* res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue(),
+    const uiString res = wdai.getLogs( lasfnm, lfi, istvdfld_->getBoolValue(),
 				    usecurvenms );
-    if ( res )
-	mErrRet( mToUiStringTodo(res) )
+    if ( !res.isEmpty() )
+	mErrRet( res )
 
     uiString errmsg = tr("Cannot write following logs to disk");
     bool failed = false;

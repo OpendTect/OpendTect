@@ -753,7 +753,7 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 
     Well::Writer wwr( *ctio->ioobj_, *well );
     if ( !wwr.put() )
-	mErrRet( mToUiStringTodo(wwr.errMsg()) )
+	mErrRet( wwr.errMsg() )
 
     mid = ctio->ioobj_->key();
     if ( manwelldlg_ )

@@ -44,7 +44,7 @@ class uiDialog;
  */
 
 mExpClass(uiIo) uiSurvInfoProvider
-{
+{ mODTextTranslationClass(uiSurvInfoProvider)
 public:
 
     virtual			~uiSurvInfoProvider();
@@ -73,8 +73,8 @@ public:
 
     virtual IOPar*		getImportPars() const	{ return nullptr; }
     virtual void		startImport(uiParent*,const IOPar&) {}
-    virtual const char*		importAskQuestion() const
-				{ return "Proceed to import?"; }
+    virtual uiString		importAskQuestion() const
+				{ return tr("Proceed to import?"); }
 
     virtual IOPar*		getCoordSystemPars() const  { return nullptr; }
 

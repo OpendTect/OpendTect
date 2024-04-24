@@ -1038,7 +1038,7 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 
 	    const int posidx = trcrg.getIndex( intpos.mytrcnr );
 	    newannot.pos_ = sCast(float,posdata->position(true,posidx));
-	    newannot.txt_ = mToUiStringTodo( Survey::GM().getName(intpos.line));
+	    newannot.txt_ = toUiString( Survey::GM().getName(intpos.line) );
 	    x1auxannot += newannot;
 	}
     }

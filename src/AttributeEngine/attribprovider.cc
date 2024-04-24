@@ -119,7 +119,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     Provider* newprov = PF().create( desc );
     if ( !newprov )
     {
-	StringView errmsg = desc.errMsg();
+	const BufferString errmsg = desc.errMsg().getString();
 	if ( !errmsg.isEmpty() )
 	{
 	    if ( errmsg==DescSet::storedIDErrStr() && desc.isStored() )

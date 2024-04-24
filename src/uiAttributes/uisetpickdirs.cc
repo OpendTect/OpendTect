@@ -75,19 +75,21 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 
     uiAttrSelData asd( *ads_, false );
     asd.nlamodel_ = nlamdl_;
-    phifld_ = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])", asd );
+    phifld_ = new uiAttrSel( this, tr("Azimuth Angle ~ North (phi=[0-360])"),
+								asd );
     if ( dirinpfld_ )
 	phifld_->attach( alignedBelow, dirinpfld_ );
-    thetafld_ = new uiAttrSel( this, "Dip Angle ~ Horizontal (theta=[-90-90])",
-			      asd );
+    thetafld_ = new uiAttrSel( this,
+			tr("Dip Angle ~ Horizontal (theta=[-90-90])"), asd );
     thetafld_->attach( alignedBelow, phifld_ );
 
-    postFinalize().notify( mCB(this,uiSetPickDirs,dirinpSel) );
+    mAttachCB(postFinalize(),uiSetPickDirs::dirinpSel);
 }
 
 
 uiSetPickDirs::~uiSetPickDirs()
 {
+    detachAllNotifiers();
     delete ads_;
     delete createdset_;
 }

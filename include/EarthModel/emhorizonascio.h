@@ -56,7 +56,7 @@ protected:
 */
 
 mExpClass(EarthModel) Horizon2DAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(Horizon2DAscIO)
 public:
 				Horizon2DAscIO(const Table::FormatDesc&,
 						const char* filenm);
@@ -69,7 +69,7 @@ public:
 							const ZDomain::Def&);
 
     static bool			isFormatOK(const Table::FormatDesc&,
-					   BufferString&);
+					   uiString&);
     int				getNextLine(BufferString& lnm,Coord& crd,
 					    int& trcnr,float& spnm,
 					    TypeSet<float>& data);

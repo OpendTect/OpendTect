@@ -34,7 +34,7 @@ public:
     IOPar*			getCoordSystemPars() const override;
     IOPar*			getImportPars() const override;
     void			startImport(uiParent*,const IOPar&) override;
-    const char*			importAskQuestion() const override;
+    uiString			importAskQuestion() const override;
 
 private:
 

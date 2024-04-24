@@ -303,7 +303,7 @@ void uiDirectionalPlot::drawHeader()
     else if ( !hdrannotitm1_ )
     {
 	hdrannotitm1_ = scene().addItem(
-			new uiTextItem(mToUiStringTodo(setup_.nameforval_),al));
+			new uiTextItem(toUiString(setup_.nameforval_),al));
 	hdrannotitm1_->setPos( uiPoint(2,0) );
     }
 

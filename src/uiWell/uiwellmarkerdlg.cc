@@ -405,7 +405,7 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     ConstRefMan<Well::Data> wd = Well::MGR().get( mid, reqs );
     if ( !wd )
     {
-	uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
+	uiMSG().error( Well::MGR().errMsg() );
 	return;
     }
 
@@ -814,7 +814,7 @@ void uiMarkerDlg::updateDisplayCB( CallBacker* )
     RefMan<Well::Data> wd = Well::MGR().get( mid, Well::LoadReqs(Well::Mrkrs) );
     if ( !wd )
     {
-	uiMSG().error( mToUiStringTodo(Well::MGR().errMsg()) );
+	uiMSG().error( Well::MGR().errMsg() );
 	return;
     }
 

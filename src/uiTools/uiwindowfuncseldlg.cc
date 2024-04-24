@@ -276,7 +276,7 @@ void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc,
     const OD::Color& col = withcolor ? OD::Color::stdDrawColor( curidx )
 				 : OD::Color::Black();
     colors_ += col;
-    funclistfld_->addItem( mToUiStringTodo(fcname), col );
+    funclistfld_->addItem( toUiString(fcname), col );
 
     uiFuncDrawerBase::DrawFunction* drawfunction =
 			new uiFuncDrawerBase::DrawFunction( mfunc );

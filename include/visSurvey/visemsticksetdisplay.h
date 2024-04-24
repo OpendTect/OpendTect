@@ -46,7 +46,7 @@ public:
     void			updateStickMarkerSet();
     void			getMousePosInfo(const visBase::EventInfo&,
 					       Coord3& xyzpos,BufferString& val,
-					       BufferString& info) const;
+					       uiString& info) const;
     const MarkerStyle3D*	markerStyle() const;
     void			setMarkerStyle(const MarkerStyle3D&);
     void			setStickMarkerStyle(const MarkerStyle3D&);

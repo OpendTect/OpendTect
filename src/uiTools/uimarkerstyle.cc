@@ -185,9 +185,10 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	    }
 	}
 
-	if ( exclude ) continue;
+	if ( exclude )
+	    continue;
 
-	str.addString( mToUiStringTodo(MarkerStyle3D::TypeNames()[idx]) );
+	str.addString( MarkerStyle3D::toUiString(type) );
 	types_ += type;
     }
 

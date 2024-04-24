@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "emfault.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
+#include "uistrings.h"
 
 namespace visSurvey
 {
@@ -241,22 +242,26 @@ void StickSetDisplay::updateStickMarkerSet()
 }
 
 
-void StickSetDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
-    Coord3& pos,BufferString& val,
-    BufferString& info) const
+void StickSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
+			Coord3& pos,BufferString& val, uiString& info ) const
 {
-    info = ""; val = "";
-    if ( !fault_ ) return;
+    info.setEmpty();
+    val = "";
+    if ( !fault_ )
+	return;
 
-    info = faultstickset_ ? "FaultStickSet: " : "Fault: ";
-    info.add( fault_->name() );
+    info = faultstickset_ ? uiStrings::sFaultStickSet() : uiStrings::sFault();
+    info.appendPhrase( toUiString(fault_->name()), uiString::MoreInfo,
+							uiString::OnSameLine );
 }
 
 
 bool StickSetDisplay::matchMarker( int sticknr, const Coord3 mousepos,
 				   const Coord3 pos, const Coord3 eps )
 {
-    if ( !mousepos.isSameAs(pos,eps) ) return false;
+    if ( !mousepos.isSameAs(pos,eps) )
+	return false;
+
     Geometry::FaultStickSet* fss = faultStickSetGeometry();
     if ( fss )
     {
@@ -264,10 +269,12 @@ bool StickSetDisplay::matchMarker( int sticknr, const Coord3 mousepos,
 	    fss->selectStick( sticknr, !fss->isStickSelected( sticknr ) );
 	else
 	    fss->selectStick( sticknr, true );
+
 	updateStickMarkerSet();
 	eventcatcher_->setHandled();
 	return true;
     }
+
     return false;
 }
 

@@ -287,20 +287,23 @@ void PointSetDisplay::setPixelDensity( float dpi )
 void PointSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       Coord3& pos,
 				       BufferString& val,
-				       BufferString& info ) const
+				       uiString& info ) const
 {
-    info = ""; val = "";
-    if ( !data_ ) return;
+    info.setEmpty(); val.setEmpty();
+    if ( !data_ )
+	return;
 
-    info = data_->name();
+    info = toUiString( data_->name() );
+
     if ( !dpsdispprop_ )
 	return;
 
-    info += ": ";
     if ( dpsdispprop_->showSelected() )
-	info += "Selection Group";
+	info = info.appendPhrase(tr("Selection Group"), uiString::MoreInfo,
+	    uiString::OnSameLine );
     else
-	info += data_->colName( dpsdispprop_->dpsColID() );
+	info = info.appendPhrase(toUiString(data_->name()), uiString::MoreInfo,
+	    uiString::OnSameLine );
 
     BinID binid = SI().transform( pos );
     DataPointSet::RowID rid = data_->findFirst( binid );

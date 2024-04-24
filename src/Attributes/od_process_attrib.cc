@@ -298,7 +298,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		    const int percdone =
 				mNINT32( 100*(float)nrdone/proc->totalNr() );
 		    if ( comm_ && !comm_->updateProgress(percdone) )
-			mRetHostErr( comm_->errMsg().getFullString() )
+			mRetHostErr( comm_->errMsg().getString() )
 
 		    if ( proc->nrDone()>nrdone )
 		    {
@@ -310,7 +310,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		{
 		    if ( res == -1 )
 			mRetJobErr( BufferString("Cannot reach next position",
-				    ":\n",proc->uiMessage().getFullString()) )
+				    ":\n",proc->uiMessage().getString()) )
 		    break;
 		}
 
@@ -319,7 +319,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		    nriter++;
 		    if ( !proc->outputs_[0]->writeTrc() )
 			mRetJobErr( BufferString("Cannot write output trace",
-			    ":\n",proc->outputs_[0]->errMsg()) )
+			":\n",proc->outputs_[0]->errMsg().getString()) )
 		}
 	    }
 	}

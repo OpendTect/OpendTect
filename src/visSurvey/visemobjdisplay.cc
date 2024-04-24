@@ -623,31 +623,34 @@ void EMObjectDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 }
 
 
-void EMObjectDisplay::getObjectInfo( BufferString& info ) const
+void EMObjectDisplay::getObjectInfo( uiString& info ) const
 {
     info.setEmpty();
-    if ( !emobject_ ) return;
+    if ( !emobject_ )
+	return;
 
-    info = emobject_->getTypeStr(); info += ": ";
-    info += name();
+    const BufferString infostr( emobject_->getTypeStr(), ": ", name() );
+    info = toUiString( infostr );
 }
 
 
 void EMObjectDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       Coord3& pos,
 				       BufferString& val,
-				       BufferString& info ) const
+				       uiString& info ) const
 {
-    info = ""; val = "";
-    if ( !emobject_ ) return;
+    info.setEmpty();; val = "";
+    if ( !emobject_ )
+	return;
 
-    info = emobject_->getTypeStr(); info += ": ";
-    info += name();
-
+    info = toUiString( emobject_->getTypeStr() );
+    info.appendPhrase( toUiString(name()), uiString::MoreInfo,
+						    uiString::OnSameLine );
     if ( emobject_->nrSections()==1 )
 	return;
 
-    info += ", Section: 0";
+    info.appendPhrase( tr("Section: 0"), uiString::Comma,
+						uiString::OnSameLine );
 }
 
 

@@ -48,7 +48,7 @@ class Scene;
 
 mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
 		   , public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(WellDisplay)
 public:
 				WellDisplay();
 				mDefaultFactoryInstantiation(
@@ -126,7 +126,7 @@ public:
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo& pos,
 					    Coord3&,BufferString& val,
-					    BufferString& info) const override;
+					    uiString& info) const override;
     NotifierAccess*		getManipulationNotifier() override
 				{ return &changed_; }
     bool			hasChanged() const	{ return needsave_; }
@@ -162,7 +162,7 @@ protected:
     void			setLogProperties(visBase::Well::LogParams&);
     void			pickCB(CallBacker* cb=0);
     void			saveDispProp( const Well::Data* wd );
-    void			setLogInfo(BufferString&,BufferString&,
+    void			setLogInfo(uiString&,BufferString&,
 					   float,visBase::Well::Side) const;
     void			removePick(const visBase::EventInfo&);
     void			addPick(const visBase::EventInfo&,VisID);

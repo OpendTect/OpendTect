@@ -1679,12 +1679,10 @@ EM::SectionID HorizonDisplay::getSectionID( VisID visid ) const
 
 void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       Coord3& pos, BufferString& val,
-				       BufferString& info ) const
+				       uiString& info ) const
 {
     EMObjectDisplay::getMousePosInfo( eventinfo, pos, val, info );
-    if ( !emobject_ || !showsTexture() ) return;
-
-    if ( sections_.isEmpty() )
+    if ( !emobject_ || !showsTexture() || sections_.isEmpty() )
 	return;
 
     const visBase::HorizonSection* section = sections_.first();

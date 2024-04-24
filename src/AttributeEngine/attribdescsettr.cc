@@ -26,7 +26,7 @@ static uiString readFromStream( ascistream& astream, Attrib::DescSet& ads,
 				uiString& warningmsg )
 {
     if ( mTranslGroupName(AttribDescSet) != astream.fileType() )
-	return mToUiStringTodo("File has wrong file type");
+	return od_static_tr("readFromStream","File has wrong file type");
 
     IOPar iopar( astream );
     IOPar bupar; ads.fillPar( bupar );
@@ -36,8 +36,8 @@ static uiString readFromStream( ascistream& astream, Attrib::DescSet& ads,
     if ( ads.isEmpty() )
     {
 	ads.usePar( bupar );
-	return
-	    mToUiStringTodo("Could not find any attribute definitions in file");
+	return od_static_tr("readFromStream",
+			"Could not find any attribute definitions in file");
     }
 
     if ( parseerrmsgs.size() )
@@ -51,7 +51,9 @@ static uiString readFromStream( ascistream& astream, Attrib::DescSet& ads,
 
 	if ( parseerrmsgs.size() > 4 )
 	{
-	    warningmsg.append( "[More warnings omitted]", true );
+	    const uiString msg = od_static_tr("readFromStream",
+						"[More warnings omitted]");
+	    warningmsg.append( msg, true );
 	}
     }
 
@@ -81,80 +83,106 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
 
 
 bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
-					const IOObj* ioobj, uiString& bs)
+					const IOObj* ioobj, uiString& errmsg )
 {
-    if (!ioobj) { bs = uiStrings::sCantFindODB(); return false; }
-    PtrMan<AttribDescSetTranslator> trans
-	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
-    if (!trans)
+    if (!ioobj)
     {
-	bs = tr("Selected object is not an Attribute Set");
-	return false;
-    }
-    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
-    if ( !conn )
-    {
-	bs = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(true)));
+	errmsg = uiStrings::sCantFindODB();
 	return false;
     }
 
-    bs = mToUiStringTodo(trans->read( ads, *conn ));
-    bool rv = bs.isEmpty();
-    if ( rv ) bs = mToUiStringTodo(trans->warningMsg());
+    PtrMan<AttribDescSetTranslator> trans
+	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
+    if ( !trans )
+    {
+	errmsg = tr("Selected object is not an Attribute Set");
+	return false;
+    }
+
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
+    if ( !conn )
+    {
+	errmsg = uiStrings::phrCannotOpen(
+				    toUiString(ioobj->fullUserExpr(true)) );
+	return false;
+    }
+
+    errmsg = trans->read( ads, *conn );
+    const bool rv = errmsg.isEmpty();
+    if ( rv )
+	errmsg = trans->warningMsg();
+
     return rv;
 }
 
 
 bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
-				     const IOObj* ioobj, uiString& bs )
+				     const IOObj* ioobj, uiString& errmsg )
 {
-    if (!ioobj)
+    if ( !ioobj )
     {
-	bs = sNoIoobjMsg(); return false;
+	errmsg = sNoIoobjMsg();
+	return false;
     }
+
     PtrMan<AttribDescSetTranslator> trans
 	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
     if (!trans)
     {
-	bs = tr("Selected object is not an Attribute Set"); return false;
+	errmsg = tr("Selected object is not an Attribute Set");
+	return false;
     }
+
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
     {
-	bs = uiStrings::phrCannotOpen(toUiString(ioobj->fullUserExpr(false)));
+	errmsg = uiStrings::phrCannotOpen(
+				    toUiString(ioobj->fullUserExpr(false)) );
 	return false;
     }
+
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
-    IOM().commitChanges( *ioobj );
-    bs = mToUiStringTodo(trans->write( ads, *conn ));
-    return bs.isEmpty();
+    if ( !IOM().commitChanges(*ioobj) );
+    {
+	errmsg = uiStrings::phrCannotWriteDBEntry(toUiString(ioobj->name()));
+	return false;
+    }
+
+    errmsg = trans->write( ads, *conn );
+    return errmsg.isEmpty();
 }
 
 
-const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
+uiString dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
 {
     warningmsg_.setEmpty();
 
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     ascistream astream( ((StreamConn&)conn).iStream() );
-    return mFromUiStringTodo(readFromStream( astream, ads, warningmsg_ ));
+    return readFromStream( astream, ads, warningmsg_ );
 }
 
 
-const char* dgbAttribDescSetTranslator::write( const Attrib::DescSet& ads,
+uiString dgbAttribDescSetTranslator::write( const Attrib::DescSet& ads,
 						Conn& conn )
 {
     warningmsg_.setEmpty();
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     IOPar iopar( "Attribute Descriptions" );
     ads.fillPar( iopar );
     if ( !iopar.write( ((StreamConn&)conn).oStream(),
 		mTranslGroupName(AttribDescSet) ) )
-	return "Cannot write attributes to file";
+	return tr("Cannot write attributes to file");
 
-    return nullptr;
+    return uiString::empty();
 }

@@ -199,7 +199,7 @@ void WellDisplay::fillLogParams(
     lp.issinglcol_	= mGetLogPar( side, issinglecol_);
     lp.islogarithmic_	= mGetLogPar( side, islogarithmic_ );
     lp.logwidth_	= mGetLogPar( side, logwidth_ );
-    lp.name_		= mToUiStringTodo(mGetLogPar( side, name_ ));
+    lp.name_		= toUiString(mGetLogPar( side, name_ ));
     lp.ovlap_		= mGetLogPar( side, repeatovlap_ );
     lp.range_		= mGetLogPar( side, range_ );
     lp.repeat_		= mGetLogPar( side, repeat_);
@@ -232,7 +232,7 @@ void WellDisplay::fullRedraw( CallBacker* )
     const Coord3 welltd = trackpos.last();
     tp.toppos_ = &wellhead;
     tp.botpos_ = &welltd;
-    tp.name_ = mToUiStringTodo(wd->name());
+    tp.name_ = toUiString( wd->name() );
     if ( wd_->displayProperties().isValid() ||
 	 wd_->displayProperties().isModified() )
 	updateMarkers( nullptr );
@@ -344,7 +344,7 @@ void WellDisplay::updateMarkers( CallBacker* )
 	    continue;
 
 	mp.pos_ = &pos;
-	mp.name_ = mToUiStringTodo( wellmarker->name() );
+	mp.name_ = toUiString( wellmarker->name() );
 
 	if ( !mGetDispPar(getMarkers().issinglecol_) )
 	    mp.col_ = wellmarker->color();
@@ -651,7 +651,7 @@ OD::Color WellDisplay::getColor() const
 void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 				   Coord3& pos,
 				   BufferString& val,
-				   BufferString& info ) const
+				   uiString& info ) const
 {
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
@@ -663,10 +663,6 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     const Well::Track& track =
 		needsconversiontotime ? *timetrack_ : wd->track();
 
-    info = "Well: "; info += wd->name();
-    info += ", MD ";
-
-    info += zinfeet_ || SI().depthsInFeet() ? "(ft): " : "(m): ";
     const float zfac = SI().depthsInFeet() && SI().zIsTime() ?
 							mToFeetFactorF : 1;
 
@@ -678,7 +674,9 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
 
     const float dah = track.nearestDah( mouseworldpos );
 
-    info += toString( mNINT32(dah*zfac) );
+    info = tr("Well: %1, MD (%2): %3").arg(wd->name())
+			.arg(zinfeet_ || SI().depthsInFeet() ? "ft" : "m)")
+			.arg(mNINT32(dah*zfac));
 
     setLogInfo( info, val, dah, visBase::Well::Left );
     setLogInfo( info, val, dah, visBase::Well::Center );
@@ -689,17 +687,19 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
-	if ( !mIsEqual(wellmarker->dah(),dah,zstep2) )
+	if ( !wellmarker || !mIsEqual(wellmarker->dah(),dah,zstep2) )
 	    continue;
 
-	info += ", Marker: ";
-	info += wellmarker->name();
+	info.appendPhrase( uiStrings::sMarker(), uiString::Comma,
+	    uiString::OnSameLine );
+	info.appendPhrase( toUiString(wellmarker->name()), uiString::MoreInfo,
+	    uiString::OnSameLine );
 	break;
     }
 }
 
 
-void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
+void WellDisplay::setLogInfo( uiString& info, BufferString& val,
 				float dah, visBase::Well::Side side ) const
 {
     mGetWD(return);
@@ -708,13 +708,17 @@ void WellDisplay::setLogInfo( BufferString& info, BufferString& val,
     if ( !lognm.isEmpty() && !lognm.isEqual("None") && !lognm.isEqual("none") )
     {
 	if ( side==visBase::Well::Left )
-	    info.add( ", Left: " );
+	    info.appendPhrase( uiStrings::sLeft(), uiString::Comma,
+							uiString::OnSameLine );
 	else if ( side==visBase::Well::Center )
-	    info.add( ", Center: " );
+	    info.appendPhrase( uiStrings::sCenter(), uiString::Comma,
+		uiString::OnSameLine );
 	else
-	    info.add( ", Right: ");
+	    info.appendPhrase( uiStrings::sRight(), uiString::Comma,
+		uiString::OnSameLine );
 
-	info += lognm;
+	info.appendPhrase( toUiString(lognm), uiString::MoreInfo,
+		uiString::OnSameLine );
 	const Well::Log* log = wd->logs().getLog( lognm.buf() );
 	if (log)
 	{

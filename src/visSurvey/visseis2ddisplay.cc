@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "seisdatapackzaxistransformer.h"
 #include "survgeom2d.h"
 #include "survgeometrytransl.h"
+#include "uistrings.h"
 #include "zaxistransform.h"
 
 //For parsing old pars
@@ -854,7 +855,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo& evinfo,
 
 void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 				     Coord3& pos, BufferString& val,
-				     BufferString& info ) const
+				     uiString& info ) const
 {
     getObjectInfo( info );
     getValueString( pos, val );
@@ -863,19 +864,23 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     float minsqdist;
     if ( getNearestTrace(pos,dataidx,minsqdist) )
     {
-	info.add( ", TrcNr: " ).add( geometry_.positions()[dataidx].nr_ );
+	info.append( toUiString(", TrcNr: %1")
+			.arg(geometry_.positions()[dataidx].nr_) );
 
 	const Survey::Geometry* geom = Survey::GM().getGeometry(geomid_);
 	const Survey::Geometry2D* geom2d = geom ? geom->as2D() : 0;
 	if ( geom2d && geom2d->spnrs().validIdx(dataidx) )
-	    info.add( ", SP: " ).add( geom2d->spnrs()[dataidx] );
+	    info.append( toUiString(", SP: %1")
+					    .arg(geom2d->spnrs()[dataidx]) );
     }
 }
 
 
-void Seis2DDisplay::getObjectInfo( BufferString& info ) const
+void Seis2DDisplay::getObjectInfo( uiString& info ) const
 {
-    info = "Line: "; info.add( getLineName() );
+    info = uiStrings::sLine();
+    info.appendPhrase( toUiString(getLineName()), uiString::MoreInfo,
+					uiString::OnSameLine );
 }
 
 

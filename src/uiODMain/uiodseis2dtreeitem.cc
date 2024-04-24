@@ -496,7 +496,7 @@ uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, VisID displayid,
     , positionitm_(m3Dots(tr("Position")))
     , rgba_( rgba )
 {
-    name_ = mToUiStringTodo(Survey::GM().getName( geomid ));
+    name_ = toUiString(Survey::GM().getName( geomid ));
     displayid_ = displayid;
 
     positionitm_.iconfnm = "orientation64";
@@ -945,7 +945,7 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
     {
 	StringView nm = steerdatanames.get(idx).buf();
-	MenuItem* item = new MenuItem(mToUiStringTodo(nm));
+	auto* item = new MenuItem( toUiString(nm) );
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
 	mAddManagedMenuItem( &steeringitm_,item,true,docheck)

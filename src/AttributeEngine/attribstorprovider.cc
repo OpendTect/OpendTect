@@ -65,12 +65,13 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     {
 	const DataPack::FullID fid( dbky );
 	if ( !DPM(fid).isPresent(fid) )
-	    desc.setErrMsg( "Cannot find data in memory" );
+	    desc.setErrMsg( tr("Cannot find data in memory") );
+
 	return;
     }
     else if ( !dbky.isDatabaseID() )
     {
-	desc.setErrMsg( BufferString("Invalid MultiID: ",dbky.toString()) );
+	desc.setErrMsg( tr("Invalid MultiID: %1").arg(dbky.toString()) );
 	return;
     }
 

@@ -77,11 +77,11 @@ public:
     void		copyInfo(const FileInfo&,bool& changed);
     void		adjustTrack(const Interval<float>& zrg,bool istvdss,
 				    bool& changed);
-    const char*		getLogInfo(const char* lasfnm,FileInfo&) const;
-    const char*		getLogInfo(od_istream& lasstrm,FileInfo&) const;
-    const char*		getLogs(const char* lasfnm,const FileInfo&,
+    uiString		getLogInfo(const char* lasfnm,FileInfo&) const;
+    uiString		getLogInfo(od_istream& lasstrm,FileInfo&) const;
+    uiString		getLogs(const char* lasfnm,const FileInfo&,
 				bool istvd=true,bool usecurvenms=false);
-    const char*		getLogs(od_istream& lasstrm,const FileInfo&,
+    uiString		getLogs(od_istream& lasstrm,const FileInfo&,
 				bool istvd=true,bool usecurvenms=false);
 
     bool		willConvertToSI() const		{ return useconvs_; }
@@ -101,7 +101,7 @@ protected:
 
     void		parseHeader(char*,char*&,char*&,char*&) const;
     static void		parseLocation(const char*,const char*,Coord&);
-    const char*		getLogData(od_istream&,const BoolTypeSet&,
+    uiString		getLogData(od_istream&,const BoolTypeSet&,
 				   const FileInfo&,bool,int,int);
 
 };

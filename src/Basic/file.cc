@@ -170,7 +170,7 @@ int RecursiveCopier::nextStep()
 
 
 class RecursiveDeleter : public Executor
-{
+{ mODTextTranslationClass(RecursiveDeleter)
 public:
 			RecursiveDeleter(const char* dirnm,
 					 const BufferStringSet* externallist=0,
@@ -194,7 +194,7 @@ public:
     od_int64		totalNr() const override	{ return totalnr_; }
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override
-			{ return mToUiStringTodo( "Files removed" ); }
+			{ return tr( "Files removed" ); }
 
     int			nextStep() override;
 
@@ -233,7 +233,7 @@ int RecursiveDeleter::nextStep()
 
     if ( !res )
     {
-	uiString msg( mToUiStringTodo("Failed to remove ") );
+	uiString msg( tr("Failed to remove ") );
 	msg.append( filename );
 	msg_ = msg;
     }

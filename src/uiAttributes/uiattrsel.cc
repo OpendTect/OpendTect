@@ -122,7 +122,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
 			    const Setup& stp )
     mImplInitVar
 {
-    initAndBuild( mToUiStringTodo(stp.seltxt_), stp.ignoreid_, usedasinput_ );
+    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
 }
 
 
@@ -132,7 +132,7 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const uiAttrSelData& atd,
     mImplInitVar
 {
     dpfids_ = dpfids;
-    initAndBuild( mToUiStringTodo(stp.seltxt_), stp.ignoreid_, usedasinput_ );
+    initAndBuild( stp.seltxt_, stp.ignoreid_, usedasinput_ );
 }
 
 
@@ -647,9 +647,9 @@ void uiAttrSelDlg::fillSelSpec( SelSpec& as ) const
 
 uiString uiAttrSel::cDefLabel() { return uiStrings::sInputData(); }
 
-uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
+uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const uiString& txt,
 		      DescID curid, bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?mToUiStringTodo(txt):cDefLabel()),
+    : uiIOSelect(p,uiIOSelect::Setup(txt.isEmpty() ? cDefLabel() : txt),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ads)
     , ignoreid_(DescID::undef())
@@ -664,9 +664,9 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 }
 
 
-uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad,
+uiAttrSel::uiAttrSel( uiParent* p, const uiString& txt, const uiAttrSelData& ad,
 		      bool isinp4otherattrib )
-    : uiIOSelect(p,uiIOSelect::Setup(txt?mToUiStringTodo(txt):cDefLabel()),
+    : uiIOSelect(p,uiIOSelect::Setup(txt.isEmpty() ? cDefLabel() : txt),
 		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ad)
     , ignoreid_(DescID::undef())
@@ -940,7 +940,7 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
 
 
 // **** uiImagAttrSel ****
-uiImagAttrSel::uiImagAttrSel( uiParent* p, const char* txt,
+uiImagAttrSel::uiImagAttrSel( uiParent* p, const uiString& txt,
 			      const uiAttrSelData& asd )
     : uiAttrSel(p,txt,asd)
 {}

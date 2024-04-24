@@ -57,7 +57,7 @@ protected:
 
 
 mExpClass(General) MarkerStyle2D
-{
+{ mODTextTranslationClass(MarkerStyle2D)
 public:
 
     enum Type			{ None, Square, Circle, Cross, Plus, Target,
@@ -81,12 +81,18 @@ public:
 
     void			toString(BufferString&) const;
     void			fromString(const char*);
-
+    static uiString	sSquare()	    { return tr("Square"); }
+    static uiString	sCircle()	    { return tr("Circle"); }
+    static uiString	sPlus()		    { return tr("Plus"); }
+    static uiString	sTarget()	    { return tr("Target"); }
+    static uiString	sHorizontalLine()   { return tr("Horizontal line"); }
+    static uiString	sVerticalLine()     { return tr("Vertical line"); }
+    static uiString	sTriangle()	    { return tr("Triangle"); }
 };
 
 
 mExpClass(General) MarkerStyle3D
-{
+{ mODTextTranslationClass(MarkerStyle3D)
 public:
 
     enum Type		{ None=-1,
@@ -110,6 +116,10 @@ public:
     bool		operator==(const MarkerStyle3D& b) const;
     bool		operator!=(const MarkerStyle3D& b) const;
     static  MarkerStyle2D::Type getMS2DType(MarkerStyle3D::Type);
+
+    static uiString	sCone()		{ return tr("Cone"); }
+    static uiString	sCylinder()	{ return tr("Cylinder"); }
+    static uiString	sSphere()	{ return tr("Sphere"); }
 };
 
 

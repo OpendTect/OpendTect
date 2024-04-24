@@ -281,7 +281,7 @@ void uiSEGYExamine::setRow( int irow )
 
 
 SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
-					 BufferString& emsg )
+					 uiString& emsg )
 {
     PtrMan<IOObj> ioobj = su.fs_.getIOObj( true );
     if ( !ioobj )
@@ -298,7 +298,7 @@ SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
     PtrMan<SeisTrcReader> rdr = new SeisTrcReader( ssasu );
     if ( !rdr->prepareWork(Seis::PreScan) )
     {
-	emsg = rdr->errMsg().getFullString();
+	emsg = rdr->errMsg();
 	return nullptr;
     }
 
@@ -312,12 +312,13 @@ int uiSEGYExamine::getRev() const
 }
 
 
-int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, BufferString& emsg )
+int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, uiString& emsg )
 {
     PtrMan<SeisTrcReader> rdr = getReader( su, emsg );
     if ( !rdr && emsg.isEmpty() )
-	emsg.set( "Error opening file."
-	    "\nPlease check whether the file size is at least 3600 bytes." );
+	emsg.set( tr("Error opening file."
+	    "\nPlease check whether the file size is at least 3600 bytes.") );
+
     return rdr ? getRev( *rdr ) : -1;
 }
 
@@ -462,18 +463,29 @@ void uiSEGYExamine::updateInp()
 
     if ( stoppedatend || nrdone < 1 )
     {
-	BufferString str( "\n\n----  " );
+	uiString str( toUiString("\n\n----  ") );
 	const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
 	if ( nrdone < 1 )
-	    str += "No traces found";
+	{
+	    str.appendPhrase( tr("No traces found."), uiString::NoSep,
+							uiString::OnSameLine );
+	}
 	else
 	{
-	    str += "Total number of traces present in file";
-	    if ( ismulti ) str += "s";
-	    str += ": "; str += nrdone;
+	    uiString msg;
+	    if ( ismulti )
+		msg = tr("Total number of traces present in file");
+	    else
+		msg = tr("Total number of traces present in files");
+
+	    str.appendPhrase( msg, uiString::NoSep, uiString::OnSameLine );
+	    str.appendPhrase( toUiString(nrdone), uiString::MoreInfo,
+						    uiString::OnSameLine );
 	}
-	str += "  ----";
-	txtinfo_ += str;
+
+	str.appendPhrase( toUiString("	----"), uiString::NoSep,
+						    uiString::OnSameLine );
+	txtinfo_.appendPhrase( str, uiString::Space, uiString::OnSameLine );
     }
 
     const int estnrtrcs = trans->estimatedNrTraces();
@@ -494,10 +506,14 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
     txthead.dump( thstrm );
     binhead.dump( bhstrm );
 
-    txtinfo_ = thstrm.result();
-    txtinfo_ += "\n------\n\n"
-		"Binary header info (non-zero values displayed only):\n\n";
-    txtinfo_ += bhstrm.result();
+    txtinfo_ = toUiString(thstrm.result());
+    txtinfo_.appendPhrase( toUiString("------") );
+    txtinfo_.addNewLine();
+    txtinfo_.appendPhrase(
+	tr("Binary header info (non-zero values displayed only):"),
+	uiString::NoSep);
+    txtinfo_.addNewLine();
+    txtinfo_.appendPhrase( toUiString(bhstrm.result()), uiString::NoSep );
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();
@@ -507,7 +523,7 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 	uiString rownm = toUiString("%1 [%2]")
 				.arg(int(he.bytepos_)+1).arg(he.name());
 	tbl_->setRowLabel( ival, rownm );
-	tbl_->setRowToolTip( ival, mToUiStringTodo(he.description()) );
+	tbl_->setRowToolTip( ival, toUiString(he.description()) );
     }
 
     tbl_->resizeRowsToContents();

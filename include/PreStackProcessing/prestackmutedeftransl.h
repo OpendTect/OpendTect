@@ -37,9 +37,9 @@ mExpClass(PreStackProcessing) MuteDefTranslator : public Translator
 public:
 			~MuteDefTranslator();
 
-    virtual const char* read(PreStack::MuteDef&,Conn&)		= 0;
+    virtual uiString	read(PreStack::MuteDef&,Conn&)		= 0;
 			//!< returns err msg or null on success
-    virtual const char* write(const PreStack::MuteDef&,Conn&)	= 0;
+    virtual uiString	write(const PreStack::MuteDef&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(PreStack::MuteDef&,const IOObj*,uiString&);
@@ -59,12 +59,13 @@ private:
 */
 
 mExpClass(PreStackProcessing) dgbMuteDefTranslator : public MuteDefTranslator
-{ isTranslator(dgb,MuteDef)
+{ mODTextTranslationClass(dgbMuteDefTranslator)
+    isTranslator(dgb,MuteDef)
 public:
 			dgbMuteDefTranslator(const char* nm,const char* unm);
 
-    const char*		read(PreStack::MuteDef&,Conn&) override;
-    const char*		write(const PreStack::MuteDef&,Conn&) override;
+    uiString		read(PreStack::MuteDef&,Conn&) override;
+    uiString		write(const PreStack::MuteDef&,Conn&) override;
 
     static bool		hasIOPar(int majorversion,int minorversion);
 };

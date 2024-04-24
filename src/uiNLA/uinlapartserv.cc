@@ -138,7 +138,7 @@ public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     : uiDialog(p,uiDialog::Setup(uiStrings::phrData(tr("preparation")),
-	       mToUiStringTodo(gtTitle(dps)), mODHelpKey(mPrepNLADataHelpID)))
+	       gtTitle(dps), mODHelpKey(mPrepNLADataHelpID)))
     , statsfld_(0)
 {
     const BinIDValueSet& bvs = dps.dataSet().data();
@@ -183,15 +183,15 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     datagrp->attach( centeredBelow, graphgrp );
 }
 
-const char* gtTitle( const DataPointSet& dps ) const
+uiString gtTitle( const DataPointSet& dps ) const
 {
     const PosVecDataSet& pvds = dps.dataSet();
     const DataColDef& dcd = pvds.colDef( pvds.nrCols()-1 );
-    mDeclStaticString( ret );
-    ret = "Specify data preparation for '";
-    ret += dcd.name_;
-    ret += "'";
-    return ret.buf();
+
+    const uiString ret =
+			tr("Specify data preparation for '%1'").arg(dcd.name_);
+
+    return ret;
 }
 
 void doBalChg( CallBacker* )

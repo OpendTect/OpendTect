@@ -75,10 +75,10 @@ uiMathExpressionVariable::~uiMathExpressionVariable()
 }
 
 
-void uiMathExpressionVariable::addInpViewIcon( const char* icnm, const char* tt,
-					       const CallBack& cb )
+void uiMathExpressionVariable::addInpViewIcon( const char* icnm,
+				    const uiString& tt, const CallBack& cb )
 {
-    vwbut_ = new uiToolButton( inpgrp_, icnm, mToUiStringTodo(tt), cb );
+    vwbut_ = new uiToolButton( inpgrp_, icnm, tt, cb );
     vwbut_->attach( rightOf, subinpfld_ ? subinpfld_ : inpfld_ );
     mAttachCB( inpSel, uiMathExpressionVariable::showHideVwBut );
 }

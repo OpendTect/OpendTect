@@ -840,22 +840,24 @@ void LocationDisplay::removePick( int removeidx, bool setundo )
 }
 
 
-BufferString LocationDisplay::getManipulationString() const
+uiString LocationDisplay::getManipulationString() const
 {
-    return BufferString( set_ && set_->isPolygon() ? "Polygon: " : "PointSet: ",
-			 getName() );
+    uiString str = set_ && set_->isPolygon() ? tr("Polygon: %1")
+					     : tr("PointSet: %1");
+    str.arg( getName() );
+    return str;
 }
 
 
-void LocationDisplay::getObjectInfo( BufferString& info ) const
+void LocationDisplay::getObjectInfo( uiString& info ) const
 { info = getManipulationString(); }
 
 
 void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
 				      Coord3& pos, BufferString& val,
-				      BufferString& info ) const
+				      uiString& info ) const
 {
-    val = "";
+    val.setEmpty();
     info = getManipulationString();
 }
 

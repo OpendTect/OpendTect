@@ -15,14 +15,15 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "ioman.h"
 
-static const char* sDispNone = "-";
+static const char* sKeyDispNone = "-";
+static const uiString sDispNone = toUiString(sKeyDispNone);
 
 
 uiUnitSel::Setup::Setup( Mnemonic::StdType st, const uiString& labeltxt,
 			 const Mnemonic* mn )
     : ptype_(st)
     , mn_(mn)
-    , lbltxt_(mToUiStringTodo(labeltxt))
+    , lbltxt_(labeltxt)
     , mode_(Full)
     , selproptype_(false)
     , selmnemtype_(false)
@@ -177,7 +178,7 @@ void uiUnitSel::initGrp( CallBacker* )
 void uiUnitSel::update()
 {
     const BufferString olddef( !inpfld_->isEmpty() ? inpfld_->text()
-				    : (setup_.withnone_ ? sDispNone : "") );
+				: (setup_.withnone_ ? sKeyDispNone : "") );
     inpfld_->setEmpty();
     if ( propfld_ )
 	setup_.ptype_ = (Mnemonic::StdType)propfld_->currentItem();
@@ -423,18 +424,18 @@ bool uiUnitSel::usePar( const IOPar& iop, const char* altkey )
 uiString uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
 {
     if ( !un )
-	return mToUiStringTodo(sDispNone);
+	return sDispNone;
     else if ( setup_.mode_ == Setup::SymbolsOnly )
     {
 	const StringView symb( un->symbol() );
-	return mToUiStringTodo( symb.isEmpty() ? sDispNone : symb.str() );
+	return symb.isEmpty() ? sDispNone : toUiString(symb.str());
     }
     else if ( setup_.mode_ == Setup::NamesOnly )
-	return mToUiStringTodo(un->name().buf());
+	return toUiString(un->name());
 
     mDeclStaticString( ret );
     ret.set( un->symbol() ).add( " (" ).add( un->name() ).add( ")" );
-    return mToUiStringTodo(ret);
+    return toUiString(ret);
 }
 
 

@@ -457,7 +457,7 @@ void uiODView2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::NameChange:
 	{
-	    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	    name_ = toUiString( applMgr()->EMServer()->getName(emid_) );
 	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	    break;
 	}
@@ -478,7 +478,8 @@ bool uiODView2DHor3DTreeItem::showSubMenu()
     uiMPEPartServer* mps = applMgr()->mpeServer();
     uiVisPartServer* vps = applMgr()->visServer();
     const EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !ems || !mps || !vps || !emobj ) return false;
+    if ( !ems || !mps || !vps || !emobj )
+	return false;
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
 

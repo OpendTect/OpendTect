@@ -63,7 +63,7 @@ class EdgeLineSetDisplay;
 
 mExpClass(visSurvey) EMObjectDisplay : public visBase::VisualObjectImpl
 				     , public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(EMObjectDisplay)
 public:
     const mVisTrans*		getDisplayTransformation() const override;
     void			setDisplayTransformation(
@@ -111,13 +111,13 @@ public:
 
     bool			allowsPicks() const override	{ return true; }
 
-    void			getObjectInfo(BufferString&) const override;
+    void			getObjectInfo(uiString&) const override;
     void			getMousePosInfo( const visBase::EventInfo& ei,
 						 IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 					    Coord3&,BufferString& val,
-					    BufferString& info) const override;
+					    uiString& info) const override;
     MPEEditor*			getEditor();
     void			enableEditing(bool yn);
     bool			isEditingEnabled() const;

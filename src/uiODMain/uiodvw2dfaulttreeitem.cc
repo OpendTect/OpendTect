@@ -313,7 +313,7 @@ void uiODView2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::NameChange:
 	{
-	    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	    name_ = toUiString( applMgr()->EMServer()->getName(emid_) );
 	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	    break;
 	}

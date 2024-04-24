@@ -202,7 +202,7 @@ void uiFlatViewDataDispPropTab::setDataName( bool wva )
 	{
 	    if ( !dispfld_->isPresent(dp->name()) )
 	    {
-		dispfld_->addItem( mToUiStringTodo(dp->name()) );
+		dispfld_->addItem( toUiString(dp->name()) );
 		if ( dp->name() == dataName() )
 		    dispfld_->setCurrentItem( dispfld_->size() - 1 );
 	    }

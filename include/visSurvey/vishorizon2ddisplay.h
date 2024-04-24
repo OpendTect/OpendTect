@@ -42,7 +42,7 @@ public:
 				{ return EMObjectDisplay::getMousePosInfo(e,i);}
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 					    Coord3&,BufferString& val,
-					    BufferString& info) const override;
+					    uiString& info) const override;
     void			setLineStyle(const OD::LineStyle&) override;
 
     bool			setEMObject(const EM::ObjectID&,

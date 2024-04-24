@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
+#include "uistrings.h"
 
 #include "visevent.h"
 #include "visgridlines.h"
@@ -537,9 +538,9 @@ void PlaneDataDisplay::acceptManipulation()
 }
 
 
-BufferString PlaneDataDisplay::getManipulationString() const
+uiString PlaneDataDisplay::getManipulationString() const
 {
-    BufferString res;
+    uiString res;
     getObjectInfo( res );
     return res;
 }
@@ -975,38 +976,45 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 					Coord3& pos,
 					BufferString& val,
-					BufferString& info ) const
+					uiString& info ) const
 {
     info = getManipulationString();
     getValueString( pos, val );
 }
 
 
-void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
+void PlaneDataDisplay::getObjectInfo( uiString& info ) const
 {
     const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true );
     if ( orientation_==OD::SliceType::Inline )
     {
-	info = "In-line: ";
-	info += tkzs.hsamp_.start_.inl();
+	info = uiStrings::sInline();
+	info.appendPhrase( ::toUiString(tkzs.hsamp_.start_.inl()),
+	    uiString::MoreInfo, uiString::OnSameLine );
     }
     else if ( orientation_==OD::SliceType::Crossline )
     {
-	info = "Cross-line: ";
-	info += tkzs.hsamp_.start_.crl();
+	info = uiStrings::sCrossline();
+	info.appendPhrase( ::toUiString(tkzs.hsamp_.start_.inl()),
+	    uiString::MoreInfo, uiString::OnSameLine );
     }
     else
     {
 	const float val = tkzs.zsamp_.start;
-	if ( !scene_ ) { info = val; return; }
+	if ( !scene_ )
+	{
+	    info = ::toUiString(val);
+	    return;
+	}
 
 	const ZDomain::Info& zdinf = scene_->zDomainInfo();
-	info = zdinf.userName().getString();
-	info += ": ";
+	info = zdinf.userName();
 
 	const float userval = tkzs.zsamp_.step * zdinf.userFactor();
 	const int nrdec = Math::NrSignificantDecimals( userval );
-	info.add( val*zdinf.userFactor(), nrdec );
+	const BufferString zstr( val*zdinf.userFactor(), nrdec );
+	info.appendPhrase( ::toUiString(zstr), uiString::MoreInfo,
+						    uiString::OnSameLine );
     }
 }
 

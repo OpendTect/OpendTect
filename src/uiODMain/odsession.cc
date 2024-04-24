@@ -228,12 +228,18 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 				    const IOObj* ioobj, uiString& err )
 {
     if ( !ioobj )
-    { err = uiStrings::sCantFindODB(); return false; }
+    {
+	err = uiStrings::sCantFindODB();
+	return false;
+    }
 
     PtrMan<ODSessionTranslator> trans =
 		dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans )
-    { err = tr("Selected object is not an Session"); return false; }
+    {
+	err = tr("Selected object is not an Session");
+	return false;
+    }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
@@ -242,9 +248,11 @@ bool ODSessionTranslator::retrieve( ODSession& session,
 	return false;
     }
 
-    err = mToUiStringTodo(trans->read( session, *conn ));
-    bool rv = err.isEmpty();
-    if ( rv ) err = mToUiStringTodo(trans->warningMsg());
+    err = trans->read( session, *conn );
+    const bool rv = err.isEmpty();
+    if ( rv )
+	err = trans->warningMsg();
+
     return rv;
 }
 
@@ -253,13 +261,17 @@ bool ODSessionTranslator::store( const ODSession& session,
 				 const IOObj* ioobj, uiString& err )
 {
     if ( !ioobj )
-    { err = sNoIoobjMsg(); return false; }
+    {
+	err = sNoIoobjMsg();
+	return false;
+    }
 
     PtrMan<ODSessionTranslator> trans
 	 = dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
     if ( !trans )
     {
-	err = tr("Selected object is not an OpendTect Session"); return false;
+	err = tr("Selected object is not an OpendTect Session");
+	return false;
     }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
@@ -269,43 +281,56 @@ bool ODSessionTranslator::store( const ODSession& session,
        return false;
     }
 
-    err = mToUiStringTodo(trans->write( session, *conn ) );
+    err = trans->write( session, *conn );
     return err.isEmpty();
 }
 
 
-const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn )
+uiString dgbODSessionTranslator::read( ODSession& session, Conn& conn )
 {
-    warningmsg = "";
+    warningmsg_.setEmpty();
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     ascistream astream( ((StreamConn&)conn).iStream() );
     IOPar iopar( astream );
     if ( iopar.isEmpty() )
-	return "Empty input file";
+	return tr("Input file is empty");
 
-    if ( iopar.odVersion() < 400 )
-	return "Cannot read session files older than OpendTect V4.0";
+    const int odversion = iopar.odVersion();
+    if ( odversion < 400 )
+    {
+	uiString msg =
+		    tr("Cannot read session files older than OpendTect V4.0");
+	msg.appendPhrase( tr("Version in file is %1").arg(odversion) );
+	return msg;
+    }
 
     if ( !session.usePar(iopar) )
-	return "Could not read session-file";
+	return tr("Could not read session-file");
 
-    return 0;
+    return uiString::empty();
 }
 
 
-const char* dgbODSessionTranslator::write( const ODSession& session, Conn& conn)
+uiString dgbODSessionTranslator::write( const ODSession& session, Conn& conn)
 {
-    warningmsg = "";
+    warningmsg_.setEmpty();
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+    {
+	pErrMsg("Internal error: bad connection");
+	return uiStrings::phrCannotConnectToDB();
+    }
 
     IOPar iop( ODSessionTranslatorGroup::sGroupName() );
     session.fillPar( iop );
     if ( !iop.write(((StreamConn&)conn).oStream(),mTranslGroupName(ODSession)) )
-	return "Cannot write d-Tect session to file";
-    return 0;
+	return tr("Cannot write d-Tect session to file");
+
+    return uiString::empty();
 }
 
 
@@ -332,7 +357,11 @@ uiSessionMan::~uiSessionMan()
 
 void uiSessionMan::mkFileInfo()
 {
-    if ( !curioobj_ ) { setInfo( "" ); return; }
+    if ( !curioobj_ )
+    {
+	setInfo( "" );
+	return;
+    }
 
     BufferString txt;
     txt += getFileInfo();

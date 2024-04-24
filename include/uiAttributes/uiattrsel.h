@@ -175,11 +175,12 @@ mExpClass(uiAttributes) uiAttrSel : public uiIOSelect
 { mODTextTranslationClass(uiAttrSel);
 public:
 			uiAttrSel(uiParent*,const Attrib::DescSet&,
-				  const char* txt=0,
+				  const uiString& txt=uiString::empty(),
 				  Attrib::DescID curid=Attrib::DescID::undef(),
 				  bool isinp4otherattrib = true);
-			uiAttrSel(uiParent*,const char*,const uiAttrSelData&,
-				  bool isinp4otherattrib = true);
+			uiAttrSel(uiParent*,const uiString&,
+						const uiAttrSelData&,
+						bool isinp4otherattrib = true);
 			~uiAttrSel();
 
     Attrib::DescID	attribID() const	{ return attrdata_.attribid_; }
@@ -248,7 +249,7 @@ imaginary part.
 mExpClass(uiAttributes) uiImagAttrSel : public uiAttrSel
 { mODTextTranslationClass(uiImagAttrSel);
 public:
-			uiImagAttrSel(uiParent*,const char* txt,
+			uiImagAttrSel(uiParent*,const uiString& txt,
 				      const uiAttrSelData&);
 			~uiImagAttrSel();
 

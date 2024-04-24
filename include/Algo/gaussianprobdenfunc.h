@@ -18,21 +18,22 @@ namespace Stats { class NormalRandGen; }
 
 
 inline float cMaxGaussianCC()		{ return 0.99999f; }
-inline const char* sGaussianCCRangeErrMsg()
-{ return "Correlation coefficients should be in range <-1,1>.\n"
-	 "Maximum correlation is 0.99999."; }
+inline static uiString sGaussianCCRangeErrMsg()
+{ return od_static_tr("sGaussianCCRangeErrMsg",
+    "Correlation coefficients should be in range <-1,1>.\n"
+	 "Maximum correlation is 0.99999."); }
 
 #define mDefGaussianProbDenFuncFns(nm) \
-				~nm##ProbDenFunc(); \
-    nm##ProbDenFunc&		operator =(const nm##ProbDenFunc&); \
-    nm##ProbDenFunc*		clone() const override \
-				{ return new nm##ProbDenFunc(*this); } \
-    void			copyFrom(const ProbDenFunc&) override; \
-    static const char*		typeStr()		{ return #nm; } \
-    const char*			getTypeStr() const override { return typeStr();} \
-    void			fillPar(IOPar&) const override; \
-    bool			usePar(const IOPar&) override; \
-    bool			isEq(const ProbDenFunc&) const override;
+			    ~nm##ProbDenFunc(); \
+    nm##ProbDenFunc&	    operator =(const nm##ProbDenFunc&); \
+    nm##ProbDenFunc*	    clone() const override \
+			    { return new nm##ProbDenFunc(*this); } \
+    void		    copyFrom(const ProbDenFunc&) override; \
+    static const char*	    typeStr()		{ return #nm; } \
+    const char*		    getTypeStr() const override { return typeStr();} \
+    void		    fillPar(IOPar&) const override; \
+    bool		    usePar(const IOPar&) override; \
+    bool		    isEq(const ProbDenFunc&) const override;
 
 
 

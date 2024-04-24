@@ -1049,15 +1049,15 @@ void uiODViewer2D::setWinTitle( bool fromvisobjinfo )
 	info = getInfoTitle();
     else
     {
-	BufferString objectinfo;
+	uiString objectinfo;
 	appl_.applMgr().visServer()->getObjectInfo( visid_, objectinfo );
 	if ( objectinfo.isEmpty() )
 	    info = appl_.applMgr().visServer()->getUiObjectName( visid_ );
 	else
-	    info = toUiString( objectinfo );
+	    info = objectinfo;
     }
 
-    uiString title = toUiString("%1%2").arg( mToUiStringTodo(basetxt_) )
+    const uiString title = toUiString("%1%2").arg( basetxt_ )
 				       .arg( info );
     if ( !viewwin() )
 	return;

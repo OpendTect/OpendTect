@@ -443,7 +443,7 @@ void uiODView2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::NameChange:
 	{
-	    name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+	    name_ = toUiString(applMgr()->EMServer()->getName( emid_ ));
 	    uiTreeItem::updateColumnText( uiODViewer2DMgr::cNameColumn() );
 	    break;
 	}
@@ -532,7 +532,8 @@ bool uiODView2DHor2DTreeItem::showSubMenu()
 	const int trackerid = mps->getTrackerID( emid_ );
 	if ( trackerid>= 0 )
 	    renameVisObj();
-	name_ = mToUiStringTodo(applMgr()->EMServer()->getName( emid_ ));
+
+	name_ = toUiString(applMgr()->EMServer()->getName( emid_ ));
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
 		isRemoveItem(mnuid,false);
 	if ( isRemoveItem(mnuid,true) )

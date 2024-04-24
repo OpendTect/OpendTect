@@ -26,7 +26,7 @@ namespace visSurvey
 
 mExpClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl,
 			 public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(PointSetDisplay)
 public:
 				PointSetDisplay();
 				mDefaultFactoryInstantiation(
@@ -64,7 +64,7 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 					    Coord3& xyzpos,
 					    BufferString& val,
-					    BufferString& info) const override;
+					    uiString& info) const override;
     void			getMousePosInfo(const visBase::EventInfo& ei,
 						IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}

@@ -66,7 +66,7 @@ static void getGrps( BufferStringSet& grps )
 
 
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
-	: uiDialog(p,uiDialog::Setup(mToUiStringTodo(nm),
+	: uiDialog(p,uiDialog::Setup(toUiString(nm),
 				     tr("Set User Settings value"),
 				     mODHelpKey(mSettingsHelpID)) )
 	, issurvdefs_(StringView(settskey)==sKeySurveyDefs())

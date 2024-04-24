@@ -16,6 +16,7 @@ The main chunk is color table related.
 #include "separstr.h"
 #include "bufstringset.h"
 #include "iopar.h"
+#include "uistrings.h"
 
 // Beware if you add or change: there is a 'mirror' in
 // uiGraphicsItem::setFillPattern. Not an enum to keep full flexibility.
@@ -31,7 +32,7 @@ mDefineEnumUtils(MarkerStyle2D,Type,"Marker type")
 { "None", "Square", "Circle", "Cross", "Plus", "Target",
   "Horizontal line", "Vertical line", "Plane", "Triangle", "Arrow", 0 };
 mDefineEnumUtils(MarkerStyle3D,Type,"Marker type")
-{ "None", "Cube","Cone", "Cylinder", "Sphere", "Arrow",
+{ "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow",
   "Cross", "Point", "Plane", 0 };
 mDefineEnumUtils(OD::LineStyle,Type,"Line style")
 { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
@@ -41,6 +42,33 @@ void EnumDefImpl<MarkerStyle3D::Type>::init()
 {
     for ( int idx=0; idx<enums_.size(); idx++ )
 	enums_[idx]--;
+
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += uiStrings::sCube();
+    uistrings_ += MarkerStyle3D::sCone();
+    uistrings_ += MarkerStyle3D::sCylinder();
+    uistrings_ += MarkerStyle3D::sSphere();
+    uistrings_ += uiStrings::sArrow();
+    uistrings_ += uiStrings::sCross();
+    uistrings_ += uiStrings::sPoint();
+    uistrings_ += uiStrings::sPlane();
+}
+
+
+template <>
+void EnumDefImpl<MarkerStyle2D::Type>::init()
+{
+    uistrings_ += uiStrings::sNone();
+    uistrings_ += MarkerStyle2D::sSquare();
+    uistrings_ += MarkerStyle2D::sCircle();
+    uistrings_ += uiStrings::sCross();
+    uistrings_ += MarkerStyle2D::sPlus();
+    uistrings_ += MarkerStyle2D::sTarget();
+    uistrings_ += MarkerStyle2D::sHorizontalLine();
+    uistrings_ += MarkerStyle2D::sVerticalLine();
+    uistrings_ += uiStrings::sPlane();
+    uistrings_ += MarkerStyle2D::sTriangle();
+    uistrings_ += uiStrings::sArrow();
 }
 
 

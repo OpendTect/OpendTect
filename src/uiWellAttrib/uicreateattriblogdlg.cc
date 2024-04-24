@@ -53,7 +53,8 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     datasetup_.nlamodel_ = mdl;
     attribfld_ = datasetup_.attrib_ ?
 			      new uiAttrSel( this, *datasetup_.attrib_ )
-			    : new uiAttrSel( this, 0, uiAttrSelData(false) );
+			    : new uiAttrSel( this, uiString::empty(),
+						    uiAttrSelData(false) );
     attribfld_->setNLAModel( datasetup_.nlamodel_ );
     mAttachCB( attribfld_->selectionDone, uiCreateAttribLogDlg::selDone );
 

@@ -41,14 +41,15 @@ HorizonPreLoader::~HorizonPreLoader()
 }
 
 
-bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
+bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
+							    TaskRunner* tskr )
 {
-    errmsg_ = "";
+    errmsg_.setEmpty();
     if ( newmids.isEmpty() )
 	return false;
 
-    BufferString msg1( "The selected horizon(s):\n" );
-    BufferString msg2;
+    uiString msg1;( tr("The selected horizon(s):") );
+    uiString msg2;
     int nralreadyloaded = 0;
     int nrproblems = 0;
     PtrMan<ExecutorGroup> execgrp = new ExecutorGroup("Pre-loading horizons");
@@ -58,7 +59,9 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
 	const int selidx = loadedmids_.indexOf( newmids[idx] );
 	if ( selidx > -1 )
 	{
-	    msg1.add( " '" ).add( loadednms_.get(selidx) ).add( "' " );
+	    const uiString msgstr =
+			    ::toUiString("'%1'").arg(loadednms_.get(selidx));
+	    msg1.appendPhrase( msgstr, uiString::NoSep );
 	    nralreadyloaded++;
 	    continue;
 	}
@@ -85,24 +88,28 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
     if ( nrproblems == newmids.size() )
     {
 	if ( newmids.size() == 1 )
-	    msg2 = "Could not find the horizon for pre-load\n";
+	    msg2 = tr("Could not find the horizon for pre-load");
 	else
-	    msg2 = "Could not find any horizons for pre-load\n";
+	    msg2 = tr("Could not find any horizons for pre-load");
     }
     else
-	msg2 = "Could not pre-load some horizons\n";
+	msg2 = tr("Could not pre-load some horizons");
+
+    msg2.addNewLine();
 
 
     if ( nralreadyloaded > 0 )
     {
-	msg1.add( " already pre-loaded" );
-	errmsg_.add( msg1 );
+
+	msg1.appendPhrase( tr("already pre-loaded"), uiString::NoSep,
+	    uiString::OnSameLine );
+	errmsg_.appendPhrase( msg1, uiString::NoSep );
     }
 
     if ( nrproblems > 0 )
-	errmsg_.add( "\n" ).add( msg2 );
+	errmsg_.appendPhrase( msg2, uiString::NoSep );
 
-    if ( execgrp->nrExecutors()!=0 &&  !TaskRunner::execute( tr, *execgrp) )
+    if ( execgrp->nrExecutors()!=0 &&  !TaskRunner::execute( tskr, *execgrp) )
 	return false;
 
     for ( int idx=0; idx<emobjects.size(); idx++ )
@@ -135,7 +142,7 @@ void HorizonPreLoader::unload( const BufferStringSet& hornames )
     if ( hornames.isEmpty() )
 	return;
 
-    errmsg_ = "";
+    errmsg_.setEmpty();
     for ( int hidx=0; hidx<hornames.size(); hidx++ )
     {
 	const int selidx = loadednms_.indexOf( hornames.get(hidx) );
@@ -159,7 +166,7 @@ void HorizonPreLoader::surveyChgCB( CallBacker* )
     unload( loadednms_ );
     loadedmids_.erase();
     loadednms_.erase();
-    errmsg_ = "";
+    errmsg_.setEmpty();
 }
 
 } // namespace EM

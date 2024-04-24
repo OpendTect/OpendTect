@@ -64,7 +64,7 @@ public:
 				{ return true; }
     void			resetManipulation() override;
     void			acceptManipulation() override;
-    BufferString		getManipulationString() const override;
+    uiString			getManipulationString() const override;
     NotifierAccess*		getManipulationNotifier() override;
     NotifierAccess*		getMovementNotifier() override
 				{ return &movefinished_; }
@@ -115,8 +115,8 @@ public:
 						::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 					    Coord3&,BufferString& val,
-					    BufferString& info) const override;
-    void			getObjectInfo(BufferString&) const override;
+					    uiString& info) const override;
+    void			getObjectInfo(uiString&) const override;
 
     float			calcDist(const Coord3&) const override;
     float			maxDist() const override;

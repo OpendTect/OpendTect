@@ -26,13 +26,13 @@ ________________________________________________________________________
 
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
-	: uiDialog( p, Setup( tr("Tut Horizon tools"),
-			      tr("Specify process parameters"),
-			      HelpKey("tut","hor") ) )
+    : uiDialog( p, Setup( tr("Tut Horizon tools"),
+	tr("Specify process parameters"),
+	HelpKey("tut","hor") ) )
 {
     taskfld_= new uiGenInput( this, tr("Task"),
-			BoolInpSpec(true,tr("Thickness between two horizons"),
-					 tr("Smooth a horizon")) );
+	BoolInpSpec(true,tr("Thickness between two horizons"),
+	tr("Smooth a horizon")) );
     mAttachCB( taskfld_->valueChanged, uiTutHorTools::choiceSel );
 
     inpfld_ = new uiHorizon3DSel( this, true );

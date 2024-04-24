@@ -270,7 +270,7 @@ public:
 					uiKeyBindingSettingsGroup,
 					uiParent*,Settings&,
 					"Mouse interaction",
-					mToUiStringTodo(sFactoryKeyword()));
+					uiStrings::sMouseInteraction());
 
 protected:
 			uiKeyBindingSettingsGroup(uiParent*,Settings&);

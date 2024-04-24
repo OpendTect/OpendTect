@@ -451,7 +451,7 @@ RefMan<Well::Data> Well::Man::get( const MultiID& key )
 
 RefMan<Well::Data> Well::Man::get( const MultiID& key, LoadReqs reqs )
 {
-    msg_.setEmpty();
+    errmsg_.setEmpty();
 
     const int wdidx = gtByKey( key );
     RefMan<Data> wd = wdidx < 0 ? nullptr : wells_[wdidx];
@@ -520,10 +520,16 @@ bool Well::Man::readReqData( const MultiID& key, Data& wd,
 {
     Reader rdr( key, wd );
     if ( reqs.includes(Inf) && !rdr.getInfo() )
-    { msg_ = rdr.errMsg(); return false; }
+    {
+	errmsg_ = rdr.errMsg();
+	return false;
+    }
 
     if ( reqs.includes(Trck) && !rdr.getTrack() )
-    { msg_ = rdr.errMsg(); return false; }
+    {
+	errmsg_ = rdr.errMsg();
+	return false;
+    }
 
     if ( reqs.includes(D2T) )
 	rdr.getD2T();
@@ -788,7 +794,7 @@ bool Well::Man::deleteLogs( const MultiID& key,
     Writer wwr( wd->multiID(), *wd );
     if ( !wwr.putLogs() )
     {
-	msg_ = wwr.errMsg();
+	errmsg_ = wwr.errMsg();
 	return false;
     }
 
@@ -1096,7 +1102,7 @@ bool Well::Man::writeAndRegister( const MultiID& key ,
 	    delete currlogset.remove( idx );
 	}
 
-	msg_ = wtr.errMsg();
+	errmsg_ = wtr.errMsg();
 	return false;
     }
 

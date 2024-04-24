@@ -32,23 +32,24 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "geom2dintersections.h"
 #include "selector.h"
+#include "uistrings.h"
 
 namespace visSurvey
 {
 
 Horizon2DDisplay::Horizon2DDisplay()
-    : intersectmkset_( visBase::MarkerSet::create() )
-    , updateintsectmarkers_( true )
-    , nr2dlines_( 0 )
-    , ln2dset_( 0 )
-    , selections_( 0 )
+    : intersectmkset_(visBase::MarkerSet::create())
+    , updateintsectmarkers_(true)
+    , nr2dlines_(0)
+    , ln2dset_(nullptr)
+    , selections_(nullptr)
 {
     translation_ = visBase::Transformation::create();
     translation_->ref();
     setGroupNode( translation_ );
 
     points_.allowNull(true);
-    EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5 ) );
+    EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5) );
     intersectmkset_->ref();
     addChild( intersectmkset_->osgNode() );
     intersectmkset_->setMaterial( new visBase::Material );
@@ -102,14 +103,14 @@ void Horizon2DDisplay::setDisplayTransformation( const mVisTrans* nt )
 
 void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 				       Coord3& mousepos,
-				       BufferString& val,
-				       BufferString& info) const
+				       BufferString& val, uiString& info) const
 {
     EMObjectDisplay::getMousePosInfo( eventinfo, mousepos, val, info );
 
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
 		     emobject_->geometryElement())
-    if ( !rcs ) return;
+    if ( !rcs )
+	return;
 
     const StepInterval<int> rowrg = rcs->rowRange();
     RowCol rc;
@@ -122,8 +123,11 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 	    if ( pos.sqDistTo(mousepos) < mDefEps )
 	    {
 		mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
-		info += ", Linename: ";
-		info += h2d->geometry().lineName( rc.row() );
+		info.appendPhrase( uiStrings::sLineName(), uiString::Comma,
+					uiString::OnSameLine );
+		info.appendPhrase(
+		    toUiString(h2d->geometry().lineName(rc.row())),
+		    uiString::MoreInfo, uiString::OnSameLine );
 		return;
 	    }
 

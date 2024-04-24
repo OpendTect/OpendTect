@@ -146,7 +146,7 @@ uiString dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return uiStrings::phrCannotRead( mToUiStringTodo(userName()) );
+	return uiStrings::phrCannotRead( toUiString(userName()) );
     if ( !astrm.isOfFileType(mTranslGroupName(PreStackProc)) )
 	return tr("Input file is not a Mute Definition file");
     if ( atEndOfSection(astrm) ) astrm.next();

@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "posvecdataset.h"
 #include "settings.h"
+#include "uistrings.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "visgeomindexedshape.h"
@@ -1236,18 +1237,16 @@ EM::FaultID FaultSetDisplay::getFaultID(
 
 
 void FaultSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
-				    Coord3& pos, BufferString& val,
-				    BufferString& info ) const
+		    Coord3& pos, BufferString& val, uiString& info ) const
 {
-    info = ""; val = "";
+    info.setEmpty();
+    val = "";
     if ( !faultset_ )
 	return;
 
-    info = "FaultSet: ";
-    info.add( faultset_->name() );
-
     EM::FaultID selid = getFaultID( eventinfo );
-    info.add( "    ID: " ); info.add( selid.asInt() );
+    info = tr("FaultSet: %1    ID: %2").arg(faultset_->name())
+				      .arg(selid.asInt());
 }
 
 

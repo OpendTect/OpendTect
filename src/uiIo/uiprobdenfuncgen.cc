@@ -415,7 +415,7 @@ void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
     float cc = ccflds_[ifld]->getFValue(); \
     if ( mIsUdf(cc) ) cc = 0; \
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() ) \
-	mErrRet( mToUiStringTodo(sGaussianCCRangeErrMsg()) ) \
+	mErrRet( sGaussianCCRangeErrMsg() ) \
     ccs_ += cc; \
 }
 

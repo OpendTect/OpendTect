@@ -1423,15 +1423,15 @@ bool uiEMPartServer::computeVariogramAuxData( const EM::ObjectID& oid,
 	int(SI().inlDistance()) : int(SI().crlDistance());
     size++;
 
-    BufferString errmsg;
+    uiString errmsg;
     bool msgiserror = true;
 
     HorVariogramComputer hvc( dpset, size, cid, varsettings.getMaxRg(),
 			      varsettings.getFold(), errmsg, msgiserror );
     if ( !hvc.isOK() )
     {
-	msgiserror ? uiMSG().error( mToUiStringTodo(errmsg.buf()) )
-		   : uiMSG().warning( mToUiStringTodo(errmsg.buf()) );
+	msgiserror ? uiMSG().error( errmsg )
+		   : uiMSG().warning( errmsg );
 	return false;
     }
 

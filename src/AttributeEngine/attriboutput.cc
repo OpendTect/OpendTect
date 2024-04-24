@@ -573,8 +573,6 @@ bool SeisTrcStorOutput::finishWrite()
 // TwoDOutput
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 			Pos::GeomID geomid)
-    : errmsg_(0)
-    , output_( 0 )
 {
     seldata_->setGeomID( geomid );
     setGeometry( trg, zrg );
@@ -633,7 +631,8 @@ void TwoDOutput::collectData( const DataHolder& data, float refstep,
     if ( !nrcomp || nrcomp < desoutputs_.size() )
 	return;
 
-    if ( !output_ ) return;
+    if ( !output_ )
+	return;
 
     output_->dataset_ += data.clone();
 
@@ -663,6 +662,7 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
 				mNINT32(zrg.stop/zstep) );
 	const_cast<TwoDOutput*>(this)->sampleinterval_ += interval;
     }
+
     return sampleinterval_;
 }
 

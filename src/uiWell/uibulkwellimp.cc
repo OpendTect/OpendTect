@@ -430,17 +430,18 @@ void uiBulkLogImport::lasSel( CallBacker* )
 	LASImporter lasimp;
 	LASImporter::FileInfo info;
 	info.undefval_ = udffld_->getFValue();
-	BufferString errmsg = lasimp.getLogInfo( fnm, info );
-
+	lasimp.getLogInfo( fnm, info );
 	wellstable_->setText( RowCol(idx,0), info.wellnm_ );
 	wellstable_->setText( RowCol(idx,1), info.uwi_ );
 
 	BufferStringSet listwellnms( wellnms );
 	if ( !info.wellnm_.isEmpty() )
 	    listwellnms.addIfNew( info.wellnm_ );
+
 	if ( !info.uwi_.isEmpty() )
 	    listwellnms.addIfNew( info.uwi_ );
-	uiComboBox* wellsbox = new uiComboBox( 0, "Select Well" );
+
+	auto* wellsbox = new uiComboBox( 0, "Select Well" );
 	wellsbox->addItems( listwellnms );
 	wellstable_->setCellObject( RowCol(idx,2), wellsbox );
 
@@ -551,11 +552,11 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	LASImporter lasimp;
 	LASImporter::FileInfo info;
 	info.undefval_ = udffld_->getFValue();
-	BufferString errmsg = lasimp.getLogInfo( fnm, info );
+	uiString errmsg = lasimp.getLogInfo( fnm, info );
 	if ( !errmsg.isEmpty() )
 	{
 	    errors.add( toUiString("%1: %2").arg(toUiString(fnm))
-					    .arg(toUiString(errmsg)) );
+					    .arg(errmsg) );
 	    continue;
 	}
 

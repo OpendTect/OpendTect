@@ -79,7 +79,7 @@ public:
     static const char*		scalekey();
     static const char*		varzlinekey();
 
-    virtual const char*		errMsg() const	{ return ""; }
+    virtual uiString		errMsg() const	{ return uiString::empty(); }
 
 protected:
     virtual			~Output();
@@ -176,8 +176,8 @@ public:
     void			setOutpNames( const BufferStringSet& nms )
 				{ outpnames_ = nms; }
 
-    const char*			errMsg() const override
-				{ return errmsg_.getFullString(); }
+    uiString			errMsg() const override
+				{ return errmsg_; }
 
     static const char*		seisidkey();
     static const char*		attribkey();
@@ -277,16 +277,16 @@ public:
 
     void			collectData(const DataHolder&,float step,
 					    const SeisTrcInfo&) override;
-    const char*			errMsg() const override
-				{ return errmsg_.str(); }
+    uiString			errMsg() const override
+				{ return errmsg_; }
 
 protected:
 				~TwoDOutput();
 
-    TypeSet< Interval<int> >	sampleinterval_;
-    BufferString		errmsg_;
+    TypeSet<Interval<int>>	sampleinterval_;
+    uiString			errmsg_;
 
-    Data2DHolder*		output_;
+    Data2DHolder*		output_		    = nullptr;
 };
 
 

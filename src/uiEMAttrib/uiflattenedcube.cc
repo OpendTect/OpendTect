@@ -34,7 +34,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     : uiDialog(p,Setup(uiStrings::phrCreate(tr("flattened %2")
 		       .arg(uiStrings::sSeismic().toLower())),
 		       uiStrings::phrCreate(tr("Seismic flattened on '%2'")
-		       .arg(mToUiStringTodo(getHorNm(horid))))
+		       .arg(toUiString(getHorNm(horid))))
 		      , mODHelpKey(mFlattenedCubeHelpID) ))
     , seisselin_(0)
     , hormid_(EM::EMM().getMultiID(horid))

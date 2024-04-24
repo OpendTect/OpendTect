@@ -42,7 +42,8 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     setCtrlStyle( RunAndClose );
 
     const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet(false,false);
-    inpfld_ = new uiAttrSel( this, *ads, "Select Attribute" );
+    inpfld_ = new uiAttrSel( this, *ads,
+			    uiStrings::phrSelect(uiStrings::sAttribute()) );
     mAttachCB( inpfld_->selectionDone, uiStratAmpCalc::inpSel );
 
     classfld_ = new uiGenInput( this,

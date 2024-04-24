@@ -524,7 +524,7 @@ bool VelocityBasedAngleComputer::getLayers( const TrcKey& tk, float startdepth,
     ConstRefMan<Vel::Function> func = velsource.getFunction( tk.position() );
     if ( !func )
     {
-	errmsg = mToUiStringTodo( velsource.errMsg() );
+	errmsg = velsource.errMsg();
 	return false;
     }
 

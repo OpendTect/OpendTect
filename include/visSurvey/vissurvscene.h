@@ -129,7 +129,7 @@ public:
     Coord3			getMousePos(bool displayspace) const;
     TrcKeyValue			getMousePos() const;
     BufferString		getMousePosValue() const;
-    BufferString		getMousePosString() const;
+    uiString			getMousePosString() const;
     const MouseCursor*		getMouseCursor() const;
     void			passMouseCursor(const MouseCursor&);
     const KeyboardEvent&	getKeyboardEvent() const { return kbevent_; }
@@ -240,7 +240,7 @@ protected:
     Coord3			xytmousepos_;
     TrcKey			mousetrckey_;
     BufferString		mouseposval_;
-    BufferString		mouseposstr_;
+    uiString			mouseposstr_;
     const MouseCursor*		mousecursor_ = nullptr;
     IOPar&			infopar_;
 

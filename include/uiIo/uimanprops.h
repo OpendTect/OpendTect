@@ -57,7 +57,7 @@ mExpClass(uiIo) uiSelectPropRefsGrp : public uiDlgGroup
 public:
 
 			uiSelectPropRefsGrp(uiParent*,PropertyRefSelection&,
-					    const char* lbltxt=nullptr);
+				const uiString& lbltxt=uiString::empty());
 			~uiSelectPropRefsGrp();
 
     bool		structureChanged() const	{ return structchg_; }
@@ -81,8 +81,8 @@ mExpClass(uiIo) uiSelectPropRefs : public uiDialog
 { mODTextTranslationClass(uiSelectPropRefs);
 public:
 				uiSelectPropRefs(uiParent*,
-						 PropertyRefSelection&,
-						 const char* lbltxt=0);
+				    PropertyRefSelection&,
+				    const uiString& lbltxt=uiString::empty());
 				~uiSelectPropRefs();
 
     bool		structureChanged() const
@@ -99,7 +99,7 @@ mExpClass(uiIo) uiSelectPropRefsVWDlg : public uiVarWizardDlg
 { mODTextTranslationClass(uiSelectPropRefsVWDlg);
 public:
 			uiSelectPropRefsVWDlg(uiParent*,PropertyRefSelection&,
-					      IOPar&,int,const char* lbltxt=0);
+			  IOPar&,int,const uiString& lbltxt=uiString::empty());
 			~uiSelectPropRefsVWDlg();
 
 protected:

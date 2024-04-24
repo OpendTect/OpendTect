@@ -39,10 +39,10 @@ mExpClass(AttributeEngine) AttribDescSetTranslator : public Translator
 public:
 			mDefEmptyTranslatorBaseConstructor(AttribDescSet)
 
-    virtual const char* read(Attrib::DescSet&,Conn&)		= 0;
+    virtual uiString	read(Attrib::DescSet&,Conn&)		= 0;
 			//!< returns err msg or null on success
-    virtual const char* warningMsg() const			= 0;
-    virtual const char* write(const Attrib::DescSet&,Conn&)	= 0;
+    virtual uiString	warningMsg() const			= 0;
+    virtual uiString	write(const Attrib::DescSet&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
     static bool		retrieve(Attrib::DescSet&,const char* fnm,
@@ -68,10 +68,10 @@ dgbAttribDescSetTranslator : public AttribDescSetTranslator
   mODTextTranslationClass(dgbAttribDescSetTranslator);
 public:
 			mDefEmptyTranslatorConstructor(dgb,AttribDescSet)
-    const char*		read(Attrib::DescSet&,Conn&) override;
-    const char*		warningMsg() const override
-			{return warningmsg_.getFullString();}
-    const char*		write(const Attrib::DescSet&,Conn&) override;
+    uiString		read(Attrib::DescSet&,Conn&) override;
+    uiString		warningMsg() const override
+			{return warningmsg_;}
+    uiString		write(const Attrib::DescSet&,Conn&) override;
 
     uiString		warningmsg_;
 };

@@ -115,7 +115,7 @@ public:
 				{ return &boxMoving; }
     NotifierAccess*		getManipulationNotifier()  override
 				{ return &boxMoving; }
-    BufferString		getManipulationString() const override;
+    uiString			getManipulationString() const override;
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;
     const TypeSet<Attrib::SelSpec>* getSelSpecs(int attrib) const override;
@@ -182,8 +182,8 @@ public:
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 					    Coord3&,BufferString& val,
-					    BufferString& info) const override;
-    void			getObjectInfo(BufferString&) const override;
+					    uiString& info) const override;
+    void			getObjectInfo(uiString&) const override;
     void			getTreeObjectInfo(uiString&) const;
 
     const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,

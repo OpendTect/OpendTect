@@ -123,8 +123,8 @@ bool uiSurveyFile::newFile()
     uiSurvInfoProvider* impsip = info_dlg.getSIP();
     if ( impiop && impsip )
     {
-	const char* askq = impsip->importAskQuestion();
-	if ( askq && *askq && uiMSG().askGoOn(mToUiStringTodo(askq)) )
+	const uiString askq = impsip->importAskQuestion();
+	if ( !askq.isEmpty() && uiMSG().askGoOn(askq))
 	{
 	    MultiID mid;
 	    if ( impiop->get( sKey::ID(), mid ) )

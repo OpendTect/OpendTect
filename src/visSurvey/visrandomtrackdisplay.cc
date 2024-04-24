@@ -1093,9 +1093,9 @@ bool RandomTrackDisplay::isManipulatorShown() const
 { return dragger_->isOn(); }
 
 
-BufferString RandomTrackDisplay::getManipulationString() const
+uiString RandomTrackDisplay::getManipulationString() const
 {
-    BufferString str;
+    uiString str;
     const int sel = getSelNodeIdx();
 
     const int start = sel>=0 ? sel : -sel-1;
@@ -1103,11 +1103,10 @@ BufferString RandomTrackDisplay::getManipulationString() const
 
     for ( int idx=start; idx<=stop; idx++ )
     {
-	str += idx==start ? "" : ", ";
 	const BinID binid = getManipNodePos( idx );
-	str += "Node "; str += idx+1;
-	str += " Inl/Crl: ";
-	str += binid.inl(); str += "/"; str += binid.crl();
+	const uiString msg( tr("Node %1 Inl/Crl: %2/%3").arg(idx+1)
+					.arg(binid.inl()).arg(binid.crl()) );
+	str.appendPhrase( msg, uiString::Comma, uiString::OnSameLine );
     }
 
     return str;
@@ -1520,16 +1519,16 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 
 void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
 					  Coord3& pos, BufferString& val,
-					  BufferString& info ) const
+					  uiString& info ) const
 {
-    info = getName();
+    info = toUiString( getName() );
     getValueString( pos, val );
 }
 
 
 bool RandomTrackDisplay::getSelMousePosInfo( const visBase::EventInfo& ei,
 					     Coord3& pos, BufferString& val,
-					     BufferString& info ) const
+					     uiString& info ) const
 {
     if ( !isPicking() || !scene_ || OD::ctrlKeyboardButton(ei.buttonstate_)
 				 || OD::altKeyboardButton(ei.buttonstate_) )
@@ -1540,8 +1539,8 @@ bool RandomTrackDisplay::getSelMousePosInfo( const visBase::EventInfo& ei,
 
     if ( !mIsUdf(pos) )
     {
-	info = pos.z<s3dgeom_->zRange().center() ? "Survey Top"
-						 : "Survey Bottom";
+	info = pos.z<s3dgeom_->zRange().center() ? tr("Survey Top")
+						 : tr("Survey Bottom");
     }
 
     return shiftclick || !mIsUdf(pos);

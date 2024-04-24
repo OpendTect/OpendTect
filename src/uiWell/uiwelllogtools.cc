@@ -399,20 +399,19 @@ void uiWellLogToolWin::rejectOK( CallBacker* )
 }
 
 
-#define mAddErrMsg( msg, well ) \
+#define mAddErrMsg( msg ) \
 { \
     if ( emsg.isEmpty() ) \
 	emsg.set( msg ); \
     else \
-	emsg.add( "\n" ).add( msg ); \
-	emsg.add( " at well " ).add( well ); \
+	emsg.appendPhrase( msg, uiString::NoSep ); \
     continue; \
 }
 
 void uiWellLogToolWin::applyPushedCB( CallBacker* )
 {
     const int act = actionfld_->currentItem();
-    BufferString emsg;
+    uiString emsg;
     for ( int idldata=0; idldata<logdatas_.size(); idldata++ )
     {
 	WellLogToolData& ld = *logdatas_[idldata];
@@ -496,7 +495,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		Well::LogSampler ls( d2tm, &track, zrg, false, deftimestep,
 				     SI().zIsTime(), ut, reslogs );
 		if ( !ls.execute() )
-		    mAddErrMsg( "Could not resample the logs", wllnm )
+		    mAddErrMsg(tr("Could not resample the logs at well %1").
+								    arg(wllnm))
 
 		const int size = ls.nrZSamples();
 		Array1DImpl<float> logvals( size );
@@ -514,7 +514,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 					freqrg[2], freqrg[3] );
 
 		if ( !filter.apply(logvals) )
-		    mAddErrMsg( "Could not apply the FFT Filter", wllnm )
+		    mAddErrMsg(tr("Could not apply the FFT Filter at well %1").
+								    arg(wllnm))
 
 		PointBasedMathFunction filtvals(PointBasedMathFunction::Linear,
 						PointBasedMathFunction::EndVal);
@@ -544,7 +545,9 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const int winsz = gatefld_->getIntValue();
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		if ( !sm.execute() )
-		    mAddErrMsg( "Could not apply the smoothing window", wllnm )
+		    mAddErrMsg(
+			tr("Could not apply the smoothing window at well %1").
+								    arg(wllnm))
 	    }
 	    else if ( act == 3 )
 	    {
@@ -584,7 +587,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 
     okbut_->setSensitive( emsg.isEmpty() );
     if ( !emsg.isEmpty() )
-	uiMSG().error( mToUiStringTodo(emsg) );
+	uiMSG().error( emsg );
 
     logdisp_->displayLogs();
 }

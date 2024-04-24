@@ -362,13 +362,13 @@ void uiPresentationMakerDlg::settingsCB( CallBacker* )
 }
 
 
-static void createSlideName( BufferString& slidename )
+static void createSlideName( uiString& slidename )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const VisID visid = visserv->getSelObjectId();
     visserv->getObjectInfo( visid, slidename );
     if ( slidename.isEmpty() )
-	slidename = toString( visserv->getUiObjectName(visid) );
+	slidename = visserv->getUiObjectName( visid );
 
     const int attrib = visserv->getSelAttribNr();
     if ( attrib >= 0 )
@@ -382,7 +382,7 @@ static void createSlideName( BufferString& slidename )
 	}
 
 	if ( !attribnm.isEmpty() )
-	    slidename.add( " - " ).add( attribnm.buf() );
+	    slidename.append( " - " ).append( attribnm.buf() );
     }
 }
 
@@ -399,7 +399,7 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
     imagefp.setExtension( "png" );
     const BufferString imagefnm = imagefp.fullPath();
 
-    BufferString slidename;
+    uiString slidename;
     const bool grabscene = typegrp_->selectedId()==0;
     if ( grabscene )
     {
@@ -426,17 +426,17 @@ void uiPresentationMakerDlg::addCB( CallBacker* )
 	{
 	    const int screenidx = screenfld_->currentItem();
 	    uiMainWin::grabScreen( imagefnm, "png", -1, screenidx );
-	    slidename = screenfld_->text();
+	    slidename = toUiString( screenfld_->text() );
 	}
 	else
 	{
 	    const int selitm = windowfld_->currentItem();
 	    windowlist[selitm]->grab( imagefnm, 1, "png" );
-	    slidename = windowlist[selitm]->caption(true).getFullString();
+	    slidename = windowlist[selitm]->caption(true);
 	}
     }
 
-    SlideContent* ss = new SlideContent( slidename, imagefnm );
+    SlideContent* ss = new SlideContent( slidename.getString(), imagefnm);
     specs_.addSlide( *ss );
     slideidx++;
 

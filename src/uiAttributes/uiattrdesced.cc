@@ -188,7 +188,7 @@ void uiAttrDescEd::fillOutput( Attrib::Desc& desc, int selout )
 }
 
 
-uiAttrSel* uiAttrDescEd::createInpFld( bool is2d, const char* txt )
+uiAttrSel* uiAttrDescEd::createInpFld( bool is2d, const uiString& txt )
 {
     uiAttrSelData asd( is2d );
     return new uiAttrSel( this, asd.attrSet(), txt, asd.attribid_ );
@@ -196,7 +196,7 @@ uiAttrSel* uiAttrDescEd::createInpFld( bool is2d, const char* txt )
 
 
 uiAttrSel* uiAttrDescEd::createInpFld( const uiAttrSelData& asd,
-				       const char* txt )
+				       const uiString& txt )
 {
     return new uiAttrSel( this, txt, asd );
 }
@@ -205,7 +205,7 @@ uiAttrSel* uiAttrDescEd::createInpFld( const uiAttrSelData& asd,
 uiImagAttrSel* uiAttrDescEd::createImagInpFld( bool is2d )
 {
     uiAttrSelData asd( is2d );
-    return new uiImagAttrSel( this, 0, asd );
+    return new uiImagAttrSel( this, uiString::empty(), asd);
 }
 
 
@@ -309,7 +309,7 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 
     if ( desc->isSatisfied() == Desc::Error )
     {
-	const uiString derrmsg( mToUiStringTodo(desc->errMsg()) );
+	const uiString derrmsg( desc->errMsg() );
 	if ( !desc->isStored()
 		|| derrmsg.getFullString() != DescSet::storedIDErrStr() )
 	    errmsg_ = derrmsg;

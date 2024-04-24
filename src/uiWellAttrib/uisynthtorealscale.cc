@@ -56,8 +56,8 @@ class uiSynthToRealScaleStatsDisp : public uiGroup
 { mODTextTranslationClass(uiSynthToRealScaleStatsDisp);
 public:
 
-uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
-    : uiGroup(p,nm)
+uiSynthToRealScaleStatsDisp( uiParent* p, const uiString& nm, bool left )
+    : uiGroup(p,nm.getString())
     , usrval_(mUdf(float))
     , markerlineitem_(0)
     , usrValChanged(this)
@@ -77,7 +77,7 @@ uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
     valueslider_->attach( alignedBelow, dispfld_ );
     valueslider_->setStretch( 2, 1 );
 
-    uiLabel* lbl = new uiLabel( this, mToUiStringTodo(nm) );
+    uiLabel* lbl = new uiLabel( this, nm );
     dispfld_->attach( centeredBelow, lbl );
     setHAlignObj( dispfld_ );
 }
@@ -196,10 +196,10 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 
     auto* statsgrp = new uiGroup( this, "Stats displays" );
 
-    synthstatsfld_ =
-	new uiSynthToRealScaleStatsDisp( statsgrp, "Synthetic Data", true );
+    synthstatsfld_ = new uiSynthToRealScaleStatsDisp( statsgrp,
+						tr("Synthetic Data"), true );
     realstatsfld_ =
-	new uiSynthToRealScaleStatsDisp( statsgrp, "Real Data", false );
+	new uiSynthToRealScaleStatsDisp( statsgrp, tr("Real Data"), false );
     realstatsfld_->attach( rightOf, synthstatsfld_ );
     mAttachCB( synthstatsfld_->usrValChanged, uiSynthToRealScale::setScaleFld );
     statsgrp->attach( centeredBelow, valislbl_ );

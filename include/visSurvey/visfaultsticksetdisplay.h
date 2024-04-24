@@ -114,7 +114,7 @@ public:
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
-					BufferString& info) const override;
+					uiString& info) const override;
 
     void			setPixelDensity(float dpi) override;
     void			fillPar(IOPar&) const override;

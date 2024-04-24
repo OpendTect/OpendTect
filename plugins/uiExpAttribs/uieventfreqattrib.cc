@@ -21,10 +21,10 @@ mInitAttribUI(uiEventFreqAttrib,EventFreq,"Event Frequency","Experimental" )
 uiEventFreqAttrib::uiEventFreqAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mEventFreqAttribHelpID))
 {
-    inpfld_ = createInpFld( is2d, "Input" );
+    inpfld_ = createInpFld( is2d, uiStrings::sInput() );
     typfld_ = new uiGenInput( this, uiStrings::sOutput(),
-			      BoolInpSpec(true,tr("Frequency"),
-                                          tr("Phase")));
+			      BoolInpSpec(true,uiStrings::sFrequency(),
+					  uiStrings::sPhase()) );
     typfld_->attach( alignedBelow, inpfld_ );
     setHAlignObj( inpfld_ );
 }

@@ -275,13 +275,13 @@ bool uiImpPVDS::writeData( const DataPointSet& dps, const IOObj& ioobj )
     if ( dps.isEmpty() )
 	mErrRet(tr("No data read"))
 
-    BufferString errmsg;
+    uiString errmsg;
     MouseCursorManager::setOverride( MouseCursor::Wait );
     const bool isok = dps.dataSet().putTo( ioobj.fullUserExpr(false), errmsg,
 					   false);
     MouseCursorManager::restoreOverride();
     if ( !isok )
-	mErrRet(mToUiStringTodo(errmsg))
+	mErrRet( errmsg )
 
     return true;
 }

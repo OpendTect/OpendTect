@@ -36,7 +36,7 @@ class Seis2DDisplay;
 
 mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl,
 		 public visSurvey::SurveyObject
-{
+{ mODTextTranslationClass(PreStackDisplay)
 public:
 
 				PreStackDisplay();
@@ -110,7 +110,7 @@ public:
 				{ SurveyObject::getMousePosInfo(ei,iop); }
     void			getMousePosInfo(const visBase::EventInfo&,
 					    Coord3&,BufferString& val,
-					    BufferString& info) const override;
+					    uiString& info) const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
 					VisID whichobj ) override;

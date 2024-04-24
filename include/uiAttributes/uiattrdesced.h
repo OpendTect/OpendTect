@@ -25,6 +25,7 @@ class uiAttrSelData;
 class uiImagAttrSel;
 class uiSteeringSel;
 class uiSteerAttrSel;
+class uiString;
 
 using namespace Attrib;
 
@@ -167,8 +168,10 @@ protected:
     bool		zIsTime() const;
 
     ChangeTracker	chtr_;
-    uiAttrSel*		createInpFld(bool is2d,const char* txt=0);
-    uiAttrSel*		createInpFld(const uiAttrSelData&,const char* txt=0);
+    uiAttrSel*		createInpFld(bool is2d,
+				    const uiString& txt=uiString::empty());
+    uiAttrSel*		createInpFld(const uiAttrSelData&,
+				    const uiString& txt=uiString::empty());
     uiImagAttrSel*	createImagInpFld(bool is2d);
     bool		getInputDPID(uiAttrSel*,DataPack::FullID&) const;
     Desc*		getInputDescFromDP(uiAttrSel*) const;

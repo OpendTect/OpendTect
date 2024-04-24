@@ -297,10 +297,11 @@ void uiColorTableSel::update()
     for ( int idx=0; idx<seqnames.size(); idx++ )
     {
 	const int seqidx = ColTab::SM().indexOf( seqnames.get(idx) );
-	if ( seqidx<0 ) continue;
+	if ( seqidx<0 )
+	    continue;
 
 	const ColTab::Sequence& seq = *ColTab::SM().get( seqidx );
-	addItem( mToUiStringTodo(seq.name()) );
+	addItem( toUiString(seq.name()) );
 	uiPixmap pm( 16, 10 ); pm.fill( seq, true );
 	setPixmap( idx, pm );
     }

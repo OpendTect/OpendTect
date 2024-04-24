@@ -291,10 +291,10 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
     if ( !dataselfld_->commit() )
 	return;
 
-    BufferString msg;
-    if ( !EM::Horizon2DAscIO::isFormatOK(fd_, msg) )
+    uiString msg;
+    if ( !EM::Horizon2DAscIO::isFormatOK(fd_,msg) )
     {
-	uiMSG().message( mToUiStringTodo(msg) );
+	uiMSG().message( msg );
 	return;
     }
 

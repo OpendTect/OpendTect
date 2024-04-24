@@ -738,7 +738,7 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res )
     Array1DImpl<float> output( outsz );
     Array1DStacker<float, Array1D<float> > stktrcs( wavelettrcs, output );
     if ( !stktrcs.execute() )
-	mErrRet( mToUiStringTodo(stktrcs.errMsg()), false )
+	mErrRet( stktrcs.errMsg(), false )
 
     output.getAll( res );
     return true;

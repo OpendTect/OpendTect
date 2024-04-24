@@ -236,6 +236,8 @@ public:
     static uiString sAnd()		{ return tr("and"); }
     static uiString sApply()		{ return tr("Apply"); }
     static uiString sArea()		{ return tr("Area"); }
+    static uiString sArrow()		{ return tr("Arrow"); }
+    static uiString sArrows()		{ return tr("Arrows"); }
     static uiString sASCII()		{ return tr("ASCII"); }
     static uiString sAttribName()	{ return tr("Attribute Name"); }
     static uiString sAttribute(int n=1) { return tr("Attribute",0,n); }
@@ -322,6 +324,7 @@ public:
     static uiString sCreateNew()	{ return tr("Create new"); }
     static uiString sCreateOutput()	{ return tr("Create output"); }
     static uiString sCreateProbDesFunc();
+    static uiString sCross()		{ return tr("Cross"); }
     static uiString sCrossline(int n=1) { return tr("Cross-line",0,n); }
     static uiString sCrosslineDip()	{ return sLineDip(false); }
     static uiString sCrosslineRange()	{ return tr("Cross-line range"); }
@@ -385,6 +388,7 @@ public:
     static uiString sFlip()		{ return tr("Flip"); }
     static uiString sFlipLeftRight()	{ return tr("Flip left/right"); }
     static uiString sFolder(int n=1)	{ return tr("Folder",0,n); }
+    static uiString sFonts()		{ return tr("Fonts"); }
     static uiString sFormat()		{ return tr("Format"); }
     static uiString sFrequency(int n=1);
     static uiString sFull()		{ return tr("Full"); }
@@ -455,10 +459,12 @@ public:
     static uiString sMerge()		{ return tr("Merge"); }
     static uiString sMeter()		{ return tr("Meter"); }
     static uiString sMnemonic()		{ return tr("Mnemonic"); }
+    static uiString sMnemonics()	{ return tr("Mnemonics"); }
     static uiString sMode()		{ return tr("Mode"); }
     static uiString sModel(int n=1)	{ return tr("Model",0,n); }
     static uiString sModify()		{ return tr("Modify"); }
     static uiString sMouse()		{ return tr("Mouse"); }
+    static uiString sMouseInteraction() { return tr("Mouse interaction"); }
     static uiString sMove()		{ return tr("Move"); }
     static uiString sMoveDown()		{ return tr("Move down"); }
     static uiString sMoveToBottom()	{ return tr("Move to bottom"); }
@@ -513,6 +519,7 @@ public:
     static uiString sPetrelAlut()	{ return tr("Petrel *.alut"); }
     static uiString sPhase()		{ return tr("Phase"); }
     static uiString sPickSet(int n=1)	{ return tr("PickSet",0,n); }
+    static uiString sPlane()		{ return tr("Plane"); }
     static uiString sPlatform()		{ return tr("Platform"); }
     static uiString sPoint(int n=1)	{ return tr("Point",0,n); }
     static uiString sPointsDone()	{ return tr("Points done"); }
@@ -564,6 +571,7 @@ public:
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
     static uiString sSavingChanges()	{ return tr("Saving changes"); }
     static uiString sScale()		{ return tr("Scale"); }
+    static uiString sScaleBar()		{ return tr("Sacle Bar"); }
     static uiString sScaling()		{ return tr("Scaling"); }
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int n=1)	{ return tr("Scene",0,n); }
@@ -666,6 +674,7 @@ public:
     static uiString sVariable( bool math )
     { return math ? tr("Variable","in math") : tr("Variable","changing"); }
     static uiString sVelocity()		{ return tr("Velocity"); }
+    static uiString sVelocityInput()	{ return tr("Velocity Input"); }
     static uiString sVertical()		{ return tr("Vertical"); }
     static uiString sVideo()		{ return tr("Video"); }
     static uiString sView()		{ return tr("View"); }

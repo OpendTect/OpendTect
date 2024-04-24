@@ -291,12 +291,10 @@ static od_istream getUiInpStrm( const char* fnm, uiString& errmsg,
 }
 
 
-static od_istream getInpStrm( const char* fnm, BufferString& errmsg,
+static od_istream getInpStrm( const char* fnm, uiString& errmsg,
 			      bool& tabstyle )
 {
-    uiString msg;
-    od_istream strm = getUiInpStrm( fnm, msg, tabstyle );
-    msg.getFullString( &errmsg );
+    od_istream strm = getUiInpStrm( fnm, errmsg, tabstyle );
     return strm;
 }
 
@@ -323,7 +321,7 @@ static const UnitOfMeasure* parseColName( const char* inp, BufferString& nm )
 
 
 bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
-				 BufferString& errmsg, bool refs )
+				 uiString& errmsg, bool refs )
 {
     bool tabstyle = false;
     od_istream strm = getInpStrm( fnm, errmsg, tabstyle );
@@ -360,7 +358,7 @@ bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
 }
 
 
-bool PosVecDataSet::getIOPar( const char* fnm, IOPar& iop, BufferString& emsg )
+bool PosVecDataSet::getIOPar( const char* fnm, IOPar& iop, uiString& emsg )
 {
     bool tabstyle = false;
     od_istream strm = getInpStrm( fnm, emsg, tabstyle );

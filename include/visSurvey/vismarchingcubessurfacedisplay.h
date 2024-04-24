@@ -124,7 +124,7 @@ protected:
 						IOPar&) const override;
     void			getMousePosInfo(const visBase::EventInfo&,
 					Coord3& xyzpos,BufferString& val,
-					BufferString& info) const override;
+					uiString& info) const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
 					VisID whichobj) override;

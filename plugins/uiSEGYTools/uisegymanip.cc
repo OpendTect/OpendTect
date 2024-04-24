@@ -69,11 +69,11 @@ uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
     {
 	const SEGY::HdrEntry& he = *def_[irow];
 	tbl_->setRowLabel( irow, toUiString(he.name()) );
-	tbl_->setRowToolTip( irow, mToUiStringTodo(he.description()) );
+	tbl_->setRowToolTip( irow, toUiString(he.description()) );
 	tbl_->setValue( RowCol(irow,0), he.bytepos_+1 );
 	tbl_->setValue( RowCol(irow,1),
 			he.getValue(hdr_.buf(),hdr_.isSwapped()) );
-	tbl_->setText( RowCol(irow,2), mToUiStringTodo(he.description()) );
+	tbl_->setText( RowCol(irow,2), toUiString(he.description()) );
     }
     tbl_->setColumnResizeMode( uiTable::Interactive );
     tbl_->resizeColumnToContents( 2 );
@@ -297,7 +297,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     {
 	const SEGY::HdrEntry& he = *def[irow];
 	thtbl_->setRowLabel( irow, toUiString(he.name()) );
-	thtbl_->setRowToolTip( irow, mToUiStringTodo(he.description()) );
+	thtbl_->setRowToolTip( irow, toUiString(he.description()) );
 	thtbl_->setValue( RowCol(irow,0), he.bytepos_ + 1 );
     }
     thtbl_->attach( rightOf, edbut_ );

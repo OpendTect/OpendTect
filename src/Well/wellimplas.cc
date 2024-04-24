@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "welllogset.h"
 #include "od_istream.h"
+#include "uistrings.h"
 
 #include <math.h>
 
@@ -65,23 +66,22 @@ static bool convToDah( const Well::Track& trck, float& val,
     { \
 	mDeclStaticString(ret); \
 	ret = "Cannot open input file"; strm.addErrMsgTo( ret ); \
-	return ret.buf(); \
+	return uiStrings::phrCannotOpenInpFile(); \
     }
 
 
-const char* Well::LASImporter::getLogInfo( const char* fnm,
+uiString Well::LASImporter::getLogInfo( const char* fnm,
 					   FileInfo& lfi ) const
 {
     mOpenFile( fnm );
-    const char* res = getLogInfo( strm, lfi );
-    return res;
+    return getLogInfo( strm, lfi );
 }
 
 
 #define mIsKey(s) caseInsensitiveEqual(keyw,s,0)
 #define mErrRet(s) { lfi.depthcolnr_ = -1; return s; }
 
-const char* Well::LASImporter::getLogInfo( od_istream& strm,
+uiString Well::LASImporter::getLogInfo( od_istream& strm,
 					   FileInfo& lfi ) const
 {
     convs_.allowNull();
@@ -134,9 +134,12 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		else
 		{
 		    if ( colnr == 1 && ( StringView(wordbuf)=="in:"
-				    || iswdigit(wordbuf[0]) || wordbuf[0] == '+'
-				    || wordbuf[1] == '-' || wordbuf[2] == '.' ))
-			mErrRet( "Invalid LAS-like file" )
+				|| iswdigit(wordbuf[0]) || wordbuf[0] == '+'
+				|| wordbuf[1] == '-' || wordbuf[2] == '.' ))
+		    {
+			const uiString errmsg = tr("Invalid LAS-like file");
+			mErrRet( errmsg )
+		    }
 
 		    lfi.lognms_ += new BufferString( wordbuf );
 		    lfi.logcurves_.add( wordbuf );
@@ -314,9 +317,13 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 	lfi.loc_ = LatLong::transform( ll );
 
     if ( convs_.isEmpty() )
-	mErrRet( "Could not find any valid log in file" )
+    {
+	mErrRet( tr("Could not find any valid log in file") )
+    }
     if ( lfi.depthcolnr_ < 0 )
-	mErrRet( "Could not find a depth column ('DEPT' or 'DEPTH')")
+    {
+	mErrRet( tr("Could not find a depth column ('DEPT' or 'DEPTH')") )
+    }
 
     lfi.revz_ = lfi.zrg_.start > lfi.zrg_.stop;
     lfi.zrg_.sort();
@@ -336,11 +343,11 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
     }
 
     if ( !strm.isOK() )
-	mErrRet( "Only header found; No data" )
+	mErrRet( tr("Only header found; No data") )
     else if ( lfi.lognms_.size() < 1 )
-	mErrRet( "No logs present" )
+	mErrRet( tr("No logs present") )
 
-    return 0;
+    return uiString::empty();
 }
 
 
@@ -353,7 +360,8 @@ void Well::LASImporter::parseHeader( char* startptr, char*& val1, char*& val2,
     char* ptr = firstOcc( startptr, '.' );
     if ( ptr ) *ptr++ = '\0';
     removeTrailingBlanks( startptr );
-    if ( !ptr ) return;
+    if ( !ptr )
+	return;
 
     info = firstOcc( ptr, ':' ); //TODO: handle DATE
     if ( info )
@@ -532,26 +540,25 @@ void Well::LASImporter::adjustTrack( const Interval<float>& zrg, bool istvdss,
 }
 
 
-const char* Well::LASImporter::getLogs( const char* fnm, const FileInfo& lfi,
+uiString Well::LASImporter::getLogs( const char* fnm, const FileInfo& lfi,
 					bool istvd, bool usecurvenms )
 {
     mOpenFile( fnm );
-    const char* res = getLogs( strm, lfi, istvd, usecurvenms );
-    return res;
+    return getLogs( strm, lfi, istvd, usecurvenms );
 }
 
 
-const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
+uiString Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 					bool istvd, bool usecurvenms )
 {
     FileInfo inplfi;
-    const char* res = getLogInfo( strm, inplfi );
-    if ( res )
+    uiString res = getLogInfo( strm, inplfi );
+    if ( !res.isEmpty() )
 	return res;
     if ( lfi.lognms_.size() == 0 )
-	return "No logs selected";
+	return tr("No logs selected");
     if ( inplfi.depthcolnr_ < 0 )
-	return "Input file is invalid";
+	return tr("Input file is invalid");
 
     if ( lfi.depthcolnr_ < 0 )
 	const_cast<FileInfo&>(lfi).depthcolnr_ = inplfi.depthcolnr_;
@@ -587,6 +594,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 	{
 	    if ( useconvs_ )
 		unlbl = "Converted to SI from ";
+
 	    unlbl += unitmeasstrs_.get( colnr );
 	}
 
@@ -605,7 +613,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 }
 
 
-const char* Well::LASImporter::getLogData( od_istream& strm,
+uiString Well::LASImporter::getLogData( od_istream& strm,
 			    const BoolTypeSet& issel, const FileInfo& lfi,
 			    bool istvd, int addstartidx, int totalcols )
 {
@@ -688,7 +696,7 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
     }
 
     if ( nradded == 0 )
-	return "No matching log data found";
+	return tr("No matching log data found");
 
     for ( int idx=0; idx<lfi.size(); idx++ )
     {
@@ -699,5 +707,5 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 
     logs.updateDahIntvs();
     logs.removeTopBottomUdfs();
-    return nullptr;
+    return uiString::empty();
 }

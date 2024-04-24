@@ -781,8 +781,7 @@ Table::FormatDesc* Horizon2DAscIO::getDesc( const ZDomain::Def& def  )
 }
 
 
-bool Horizon2DAscIO::isFormatOK( const Table::FormatDesc& fd,
-							BufferString& msg )
+bool Horizon2DAscIO::isFormatOK( const Table::FormatDesc& fd, uiString& msg )
 {
     const bool trccoldefined = fd.bodyinfos_[3]->selection_.isInFile( 0 );
     const bool xycolsdefined = fd.bodyinfos_[1]->selection_.isInFile( 0 )
@@ -790,7 +789,8 @@ bool Horizon2DAscIO::isFormatOK( const Table::FormatDesc& fd,
      if ( trccoldefined || xycolsdefined )
 	 return true;
 
-     msg = "At least one of 'Trace Nr' and 'X Y' columns need to be defined";
+     msg =
+	 tr("At least one of 'Trace Nr' and 'X Y' columns need to be defined");
      return false;
 }
 

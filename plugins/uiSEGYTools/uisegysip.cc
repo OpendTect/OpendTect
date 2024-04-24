@@ -130,9 +130,9 @@ void uiSEGYSurvInfoProvider::startImport( uiParent* p, const IOPar& iop )
 }
 
 
-const char* uiSEGYSurvInfoProvider::importAskQuestion() const
+uiString uiSEGYSurvInfoProvider::importAskQuestion() const
 {
-    return "Import the SEG-Y data used for survey setup now?";
+    return tr("Import the SEG-Y data used for survey setup now?");
 }
 
 

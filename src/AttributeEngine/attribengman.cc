@@ -249,7 +249,7 @@ SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
 	const bool res = outp->doUsePar( pars );
 	if ( !res )
 	{
-	    errmsg = mToUiStringTodo(outp->errMsg());
+	    errmsg = outp->errMsg();
 	    outp->unRef();
 	    outp = nullptr;
 	}

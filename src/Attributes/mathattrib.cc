@@ -103,18 +103,23 @@ Mathematics::Mathematics( Desc& dsc )
     , reqintv_( Interval<int>(0,0) )
     , formula_(0)
 {
-    if ( !isOK() ) return;
+    if ( !isOK() )
+	return;
 
     inputdata_.allowNull(true);
 
     //Called expression for backward compatibility, it is now a Math::Formula
     ValParam* form = dsc.getValParam( expressionStr() );
-    if ( !form ) return;
+    if ( !form )
+	return;
 
     formula_ = new Math::Formula( true, Mathematics::getSpecVars() );
     formula_->setText( form->getStringValue() );
     if ( formula_->isBad() )
-    { errmsg_ = mToUiStringTodo(formula_->errMsg()); return; }
+    {
+	errmsg_ = formula_->errMsg();
+	return;
+    }
 
     int curinpidx = 0;
     TypeSet<int> inputsalreadyused;

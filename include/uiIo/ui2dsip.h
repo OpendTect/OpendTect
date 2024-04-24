@@ -50,7 +50,7 @@ public:
     void		fillLogPars(IOPar&) const override;
     IOPar*		getImportPars() const override;
     void		startImport(uiParent*,const IOPar&) override;
-    const char*		importAskQuestion() const override;
+    uiString		importAskQuestion() const override;
 
     IOPar*		getCoordSystemPars() const override;
 

@@ -21,8 +21,8 @@ uiPropertyValFld::uiPropertyValFld( uiParent* p, const PropertyRef& pr,
     , lastsetvalue_(defval)
     , valueChanged(this)
 {
-    valfld_ = new uiGenInput( this, mToUiStringTodo(pr.name()),
-			      FloatInpSpec(defval) );
+    valfld_ = new uiGenInput( this, toUiString(pr.name()),
+							FloatInpSpec(defval) );
 
     uiUnitSel::Setup ussu( pr.stdType() );
     ussu.mode( uiUnitSel::Setup::SymbolsOnly );

@@ -468,8 +468,8 @@ void uiNavSurvInfoProvider::startImport( uiParent* p, const IOPar& )
 }
 
 
-const char* uiNavSurvInfoProvider::importAskQuestion() const
-{ return "Proceed to import files used to setup survey?"; }
+uiString uiNavSurvInfoProvider::importAskQuestion() const
+{ return tr("Proceed to import files used to setup survey?"); }
 
 
 IOPar* uiNavSurvInfoProvider::getCoordSystemPars() const

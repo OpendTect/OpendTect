@@ -112,10 +112,10 @@ public:
     SurveyObject::AttribFormat	getAttributeFormat(int attrib) const override;
     void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&,BufferString&,
-						BufferString&) const override;
+						uiString&) const override;
     void			getMousePosInfo(const visBase::EventInfo&,
 						IOPar&) const override;
-    void			getObjectInfo(BufferString&) const override;
+    void			getObjectInfo(uiString&) const override;
     void			snapToTracePos(Coord3&) const override;
     int				getNearestTraceNr(const Coord3&) const;
 

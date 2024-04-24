@@ -45,7 +45,8 @@ uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
 	nlamodel_ = model->clone();
 
     setTitleText( uiString::emptyString() );
-    attrfld_ = new uiAttrSel( pargrp_, *ads_, "Select Attribute" );
+    attrfld_ = new uiAttrSel( pargrp_, *ads_,
+			    uiStrings::phrSelect(uiStrings::sAttribute()) );
     attrfld_->setNLAModel( nlamodel_ );
     attrfld_->selectionDone.notify( mCB(this,uiAttrEMOut,attribSel) );
 }

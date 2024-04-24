@@ -27,7 +27,7 @@ class DataColDef;
 mExpClass(General) PosVecDataSet
 { mODTextTranslationClass(PosVecDataSet);
 public:
-			PosVecDataSet(const char* nm=0);
+			PosVecDataSet(const char* nm=nullptr);
 			PosVecDataSet(const PosVecDataSet&);
     virtual		~PosVecDataSet();
     PosVecDataSet&	operator =(const PosVecDataSet&);
@@ -70,8 +70,8 @@ public:
 			//!< tabstyle -> for spreadsheet import (looses info)
 			//!< !tabstyle: dTect style (preserves all)
     static bool		getColNames(const char*,BufferStringSet& bss,
-				    BufferString& errmsg,bool refs=false);
-    static bool		getIOPar(const char*,IOPar& iop,BufferString& errmsg);
+				    uiString& errmsg,bool refs=false);
+    static bool		getIOPar(const char*,IOPar& iop,uiString& errmsg);
 
 protected:
 

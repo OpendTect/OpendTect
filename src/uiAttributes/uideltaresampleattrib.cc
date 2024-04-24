@@ -25,12 +25,14 @@ mInitAttribUI(uiDeltaResampleAttrib,DeltaResample,"Delta Resample",
 uiDeltaResampleAttrib::uiDeltaResampleAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mDeltaResampleHelpID) )
 {
-    refcubefld_ = createInpFld( is2d, "Input Cube");
+    refcubefld_ = createInpFld( is2d,
+				    uiStrings::phrInput(uiStrings::sCube()) );
     
-    deltacubefld_ = createInpFld( is2d, "Delta Cube" );
+    deltacubefld_ = createInpFld( is2d, tr("Delta Cube") );
     deltacubefld_->attach( alignedBelow, refcubefld_ );
 
-    periodfld_ = new uiGenInput( this, tr("Input is periodic"), FloatInpSpec());
+    periodfld_ = new uiGenInput( this, tr("Input is periodic"),
+							    FloatInpSpec() );
     periodfld_->setWithCheck(); periodfld_->setChecked( false );
     periodfld_->attach( alignedBelow, deltacubefld_ );
     

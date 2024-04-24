@@ -504,7 +504,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup,
     else if ( setup.typ_ == EMFaultStickSetTranslatorGroup::sGroupName() )
 	mkObjFld( uiStrings::phrInput(uiStrings::sFaultStickSet()));
     else
-	mkObjFld( uiStrings::phrInput(mToUiStringTodo(setup.typ_)) );
+	mkObjFld( uiStrings::phrInput(toUiString(setup.typ_)) );
 
     uiGroup* attachobj = objfld_;
 

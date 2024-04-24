@@ -25,7 +25,7 @@ mInitAttribUI(uiMadAGCAttrib,MadAGC,"Madagascar AGC","Madagascar AGC")
 uiMadAGCAttrib::uiMadAGCAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,mNoHelpKey)
 {
-    inpfld_ = createInpFld( is2d, "Input Data");
+    inpfld_ = createInpFld( is2d, uiStrings::phrInput(uiStrings::sData()) );
 
     smoothzradiusfld_ = new uiGenInput( this, tr("Z smoothing radius"),
 					IntInpSpec(0) );

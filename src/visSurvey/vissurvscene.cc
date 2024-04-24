@@ -278,7 +278,7 @@ const char* Scene::zDomainKey() const
 { return zdomaininfo_->key(); }
 
 uiString Scene::zDomainUserName() const
-{ return mToUiStringTodo(zdomaininfo_->userName()); }
+{ return toUiString(zdomaininfo_->userName()); }
 
 const char* Scene::zDomainUnitStr( bool withparens ) const
 { return zdomaininfo_->unitStr( withparens ); }
@@ -637,7 +637,7 @@ BufferString Scene::getMousePosValue() const
 { return BufferString(mouseposval_); }
 
 
-BufferString Scene::getMousePosString() const
+uiString Scene::getMousePosString() const
 { return mouseposstr_; }
 
 
@@ -865,7 +865,7 @@ void Scene::mouseCB( CallBacker* cb )
 		if ( !mouseposval_[0] )
 		{
 		    BufferString newmouseposval;
-		    BufferString newstr;
+		    uiString newstr;
 		    so->getMousePosInfo( eventinfo, xytmousepos_,
 					 newmouseposval, newstr );
 		    IOPar infopar;

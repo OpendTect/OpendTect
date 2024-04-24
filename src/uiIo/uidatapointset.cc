@@ -1366,12 +1366,12 @@ void uiDataPointSet::retrieveCB( CallBacker* )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PosVecDataSet pvds;
-    BufferString errmsg;
-    bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
+    uiString errmsg;
+    const bool rv = pvds.getFrom( seldlg.ioObj()->fullUserExpr(true), errmsg );
     MouseCursorManager::restoreOverride();
     if ( !rv )
     {
-	uiMSG().error( mToUiStringTodo(errmsg) );
+	uiMSG().error( errmsg );
 	return;
     }
 
@@ -1773,15 +1773,15 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
     if ( !varsettings.go() )
 	return;
 
-    BufferString errmsg;
+    uiString errmsg;
     bool msgiserror = true;
     VertVariogramComputer vvc( *dps_, dcid, varsettings.getStep(),
 			      varsettings.getMaxRg(), varsettings.getFold(),
 			      nrgroups, errmsg, msgiserror );
     if ( !vvc.isOK() )
     {
-	msgiserror ? uiMSG().error( mToUiStringTodo(errmsg) )
-		   : uiMSG().warning( mToUiStringTodo(errmsg) );
+	msgiserror ? uiMSG().error( errmsg )
+		   : uiMSG().warning( errmsg );
 	return;
     }
 

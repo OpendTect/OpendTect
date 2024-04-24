@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "uiodmainmod.h"
 
 #include "uioddisplaytreeitem.h"
+#include "uistrings.h"
 #include "color.h"
 #include "pickset.h"
 
@@ -225,6 +226,6 @@ protected: \
 }; \
 
 
-mDefineParentItem(Arrow,mToUiStringTodo("Arrows"),1000,"tree-arrows");
-mDefineParentItem(Image,mToUiStringTodo("Image"),1000,"tree-image");
-mDefineParentItem(ScaleBar,mToUiStringTodo("Scale Bar"),1000,"tree-scalebar");
+mDefineParentItem(Arrow,uiStrings::sArrows(), 1000, "tree-arrows");
+mDefineParentItem(Image,uiStrings::sImage(),1000,"tree-image");
+mDefineParentItem(ScaleBar,uiStrings::sScaleBar(),1000,"tree-scalebar");

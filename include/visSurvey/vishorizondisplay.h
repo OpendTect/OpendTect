@@ -154,7 +154,7 @@ public:
 				{ return EMObjectDisplay::getMousePosInfo(e,i);}
     void			getMousePosInfo(const visBase::EventInfo& pos,
 					    Coord3&,BufferString& val,
-					    BufferString& info) const override;
+					    uiString& info) const override;
     float			calcDist(const Coord3&) const override;
     float			maxDist() const override;
 

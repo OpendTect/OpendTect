@@ -198,7 +198,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
     const uiAttrSelData asd( is2d_, false );
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
+	auto* attrbox = new uiAttrSel( nullptr, uiString::empty(), asd);
 	attrbox->setBorder( 0 );
 	attribflds_ += attrbox;
 	table_->setCellGroup( RowCol(idx,0), attrbox );
@@ -213,7 +213,7 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* )
     const int newrow = table_->nrRows();
     table_->insertRows( newrow, 1 );
     const uiAttrSelData asd( is2d_, false );
-    uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
+    auto* attrbox = new uiAttrSel( nullptr, uiString::empty(), asd);
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellGroup( RowCol(newrow,0), attrbox );

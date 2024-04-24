@@ -394,7 +394,9 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
 				    IOPar& iopar ) const
 {
     const Coord3 xytmousepos = info.worldpickedpos;
-    if ( xytmousepos.isUdf() ) return;
+    if ( xytmousepos.isUdf() )
+	return;
+
     const MultiID mid = getMultiID();
     const Survey::Geometry& geom =  Survey::Geometry::default3D();
 

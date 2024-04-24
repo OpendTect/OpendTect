@@ -938,17 +938,18 @@ BufferString uiVisPartServer::getMousePosVal() const
 { return mouseposval_; }
 
 
-BufferString uiVisPartServer::getInteractionMsg( VisID id ) const
+uiString uiVisPartServer::getInteractionMsg( VisID id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    return so ? so->getManipulationString() : BufferString("");
+    return so ? so->getManipulationString() : uiString::empty();
 }
 
 
-void uiVisPartServer::getObjectInfo( VisID id, BufferString& info ) const
+void uiVisPartServer::getObjectInfo( VisID id, uiString& info ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    if ( so ) so->getObjectInfo( info );
+    if ( so )
+	so->getObjectInfo( info );
 }
 
 

@@ -230,7 +230,7 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
     : uiDialog(p,uiDialog::Setup(toUiString("%1 %2").arg(ed ? tr("Edit") :
 	     tr("Browse")).arg(tr("Probability Density Function")),
 	     toUiString("%1 '%2'").arg(ed ? "Edit" : "Browse").arg(pdf.name()
-	     .isEmpty() ? tr("PDF") : mToUiStringTodo(pdf.name())),
+	     .isEmpty() ? tr("PDF") : toUiString(pdf.name())),
 	     mODHelpKey(mEditProbDenFuncHelpID) ))
 {
     if ( ed )
@@ -244,7 +244,7 @@ uiEditProbDenFuncDlg::uiEditProbDenFuncDlg( uiParent* p, ProbDenFunc& pdf,
     if ( !issampled && !isgaussian )
     {
 	new uiLabel( this, tr("Unsupported PDF type: %1")
-						   .arg(mToUiStringTodo(typ)) );
+						   .arg(toUiString(typ)) );
 	return;
     }
 
@@ -1113,7 +1113,7 @@ float uiEditGaussianProbDenFunc::getCC() const
 	return 0;
     if ( cc < -cMaxGaussianCC() || cc > cMaxGaussianCC() )
     {
-	uiMSG().error( mToUiStringTodo(sGaussianCCRangeErrMsg()) );
+	uiMSG().error( sGaussianCCRangeErrMsg() );
 	return mUdf(float);
     }
     return cc;

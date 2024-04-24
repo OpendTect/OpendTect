@@ -88,11 +88,11 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 	return uiMSG().error( tr("Cannot merge same crossplots.") );
 
     PosVecDataSet spvds;
-    BufferString errmsg;
-    bool rv = spvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
+    uiString errmsg;
+    bool rv = spvds.getFrom( seldlg.ioObj()->fullUserExpr(true), errmsg );
     if ( !rv )
     {
-	uiMSG().error( mToUiStringTodo(errmsg) );
+	uiMSG().error( errmsg );
 	return;
     }
 

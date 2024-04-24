@@ -76,7 +76,8 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 
     if ( cancalcattrib )
     {
-	attrinpfld_ = new uiAttrSel( this, descset, "Select Attribute" );
+	attrinpfld_ = new uiAttrSel( this, descset,
+			uiStrings::phrSelect(uiStrings::sAttribute()) );
 	attrinpfld_->attach( alignedBelow, slider_ );
 	attrinpfld_->selectionDone.notify(
 		mCB(this,uiHorizonShiftDialog,attribChangeCB) );

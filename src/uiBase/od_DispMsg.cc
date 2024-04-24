@@ -65,10 +65,7 @@ int mProgMainFnName( int argc, char** argv )
     else if ( typ == 2 )
 	uiMSG().error( msg );
     else if ( typ == 3 )
-    {
-	msg = mToUiStringTodo(getYesNoString(uiMSG().askGoOn(msg)));
-	od_cout() << msg << od_endl;
-    }
+	od_cout() << getYesNoString(uiMSG().askGoOn(msg)) << od_endl;
 
     return 0;
 }

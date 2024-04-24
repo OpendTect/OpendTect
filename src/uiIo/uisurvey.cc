@@ -704,9 +704,9 @@ bool uiSurvey::acceptOK( CallBacker* )
     {
 	freshsurveyselected_ = true;
 	readSurvInfoFromFile();
-	const StringView askq = impsip_->importAskQuestion();
+	const uiString askq = impsip_->importAskQuestion();
 	const bool doimport = askq.isEmpty() ||
-			      uiMSG().askGoOn( toUiString(askq) );
+			      uiMSG().askGoOn( askq );
 	if ( doimport )
 	{
 	    IOM().to( IOObjContext::Seis );

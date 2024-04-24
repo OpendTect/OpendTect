@@ -968,12 +968,11 @@ void PreStackDisplay::finishedCB( CallBacker* )
 
 
 void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
-				      Coord3& pos,
-				      BufferString& val,
-				      BufferString& info ) const
+				      Coord3& pos, BufferString& val,
+				      uiString& info ) const
 {
-    val = "";
-    info = "";
+    val.setEmpty();
+    info.setEmpty();
     if ( !flatviewer_  )
 	return;
 
@@ -1017,10 +1016,15 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     pos = Coord3( disppos, pos.z );
 
     if ( seis2d_ )
-	info.add( "TrcNr: " ).add( trcnr_ ).addSpace();
-    info.add( "Offset: " ).add( offset ).addSpace();
+    {
+	const uiString str = toUiString( "TrcNr: %1" ).arg(trcnr_);
+	info.append( str );
+	info.addSpace();
+    }
+
+    info.append( tr("Offset: ").arg(offset) ).addSpace();
     if ( !mIsUdf(azimuth) )
-	info.add( "Azimuth: " ).add(mNINT32(azimuth*360/M_PI));
+	info.append( tr("Azimuth: ").arg(mNINT32(azimuth*360/M_PI)) );
 
     const int zsample = posdata.range(false).nearestIndex( pos.z );
     val = fdp->data().get( trcidx, zsample );

@@ -78,7 +78,7 @@ public:
 				{ return true; }
     void			resetManipulation() override;
     void			acceptManipulation() override;
-    BufferString		getManipulationString() const override;
+    uiString			getManipulationString() const override;
 
     bool			canDuplicate() const override	{ return true; }
     SurveyObject*		duplicate(TaskRunner*) const override;
@@ -145,7 +145,7 @@ public:
 						IOPar&) const override;
     void			getMousePosInfo(const visBase::EventInfo&,
 						Coord3&, BufferString&,
-						BufferString&) const override;
+						uiString&) const override;
 
     int				getSelNodeIdx() const	{ return selnodeidx_; }
 				//!<knotidx>=0, panelidx<0
@@ -297,7 +297,7 @@ public:
 
     bool			getSelMousePosInfo(const visBase::EventInfo&,
 						   Coord3&, BufferString&,
-						   BufferString&) const;
+						   uiString&) const;
     const TypeSet<BinID>*	getPath() const		{ return &trcspath_; }
     mDeprecated("Use TrcKey")
     void			getAllNodePos(TypeSet<BinID>&) const;

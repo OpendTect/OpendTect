@@ -24,7 +24,7 @@ namespace EM
 */
 
 mExpClass(EarthModel) HorizonPreLoader : public CallBacker
-{
+{ mODTextTranslationClass(HorizonPreLoader)
 public:
 				HorizonPreLoader();
 				~HorizonPreLoader();
@@ -33,7 +33,7 @@ public:
     const MultiID&		getMultiID(const char* name) const;
     const TypeSet<MultiID>&	getPreloadedIDs() const;
     const BufferStringSet&	getPreloadedNames() const;
-    const char*			errorMsg() const	    { return errmsg_; }
+    uiString			errorMsg() const	    { return errmsg_; }
     void			unload(const BufferStringSet& hornms);
 
 protected:
@@ -41,7 +41,7 @@ protected:
 
     TypeSet<MultiID>	loadedmids_;
     BufferStringSet	loadednms_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
 };
 
 

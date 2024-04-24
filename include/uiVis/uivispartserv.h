@@ -270,7 +270,7 @@ public:
     int			zFactor() const			{ return zfactor_; }
     BufferString	getMousePosVal() const;
     BufferString	getMousePosString() const	{ return mouseposstr_; }
-    void		getObjectInfo(VisID,BufferString&) const;
+    void		getObjectInfo(VisID,uiString&) const;
 
     static int			evKeyboardEvent();
     Notifier<uiVisPartServer>	keyEvent;
@@ -284,7 +284,7 @@ public:
 
     static int			evInteraction();
 				/*<! Get the id with getEventObjId() */
-    BufferString		getInteractionMsg(VisID) const;
+    uiString			getInteractionMsg(VisID) const;
 				/*!< Returns dragger position or
 				     Nr positions in picksets */
 

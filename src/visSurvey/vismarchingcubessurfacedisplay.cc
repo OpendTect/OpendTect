@@ -441,16 +441,17 @@ void MarchingCubesDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 
 void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 			    Coord3& xyzpos, BufferString& val,
-			    BufferString& info) const
+			    uiString& info) const
 {
     val = sKey::EmptyString();
-    info = "Geobody: ";
-    info += name();
+    info = tr("Geobody: %1").arg(name());
 
     int valididx = -1;
     for ( int idx=0; idx<cache_.size(); idx++ )
     {
-	if ( !cache_[idx] ) continue;
+	if ( !cache_[idx] )
+	    continue;
+
 	valididx = idx;
 	break;
     }

@@ -935,9 +935,9 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* taskr )
 }
 
 
-BufferString VolumeDisplay::getManipulationString() const
+uiString VolumeDisplay::getManipulationString() const
 {
-    BufferString str;
+    uiString str;
     getObjectInfo( str );
     return str;
 }
@@ -970,11 +970,9 @@ void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
 }
 
 
-void VolumeDisplay::getObjectInfo( BufferString& info ) const
+void VolumeDisplay::getObjectInfo( uiString& info ) const
 {
-    uiString uistring;
-    getObjectInfoText( uistring, false );
-    info = uistring.getFullString();
+    getObjectInfoText( info, false );
 }
 
 
@@ -1207,9 +1205,9 @@ DataPackID VolumeDisplay::getDisplayedDataPackID( int attrib ) const
 
 void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
 				     Coord3& pos, BufferString& val,
-				     BufferString& info ) const
+				     uiString& info ) const
 {
-    info = "";
+    info.setEmpty();
     val = "undef";
     Coord3 attribpos = pos;
     ConstRefMan<ZAxisTransform> datatrans = getZAxisTransform();

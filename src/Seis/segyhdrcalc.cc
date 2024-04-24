@@ -81,8 +81,10 @@ Math::Expression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
     Math::Expression* me = mep.parse();
     if ( !me )
     {
-	if ( emsg ) *emsg = mToUiStringTodo(mep.errMsg());
-	return 0;
+	if ( emsg )
+	    *emsg = mep.errMsg();
+
+	return nullptr;
     }
 
     heidxs.erase();
@@ -115,9 +117,12 @@ Math::Expression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
 		    *emsg = tr(" Found variable: '%1', which is not "
 			       "a header field").arg(varnm);
 		}
-		delete me; return 0;
+
+		delete me;
+		return nullptr;
 	    }
 	}
+
 	heidxs += heidx;
     }
 

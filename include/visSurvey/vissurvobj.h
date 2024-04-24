@@ -29,6 +29,7 @@ class RegularSeisDataPack;
 class SeisTrcBuf;
 class ZAxisTransform;
 class TaskRunner;
+class uiString;
 
 namespace ColTab  { class MapperSetup; class Sequence; }
 namespace OD { class LineStyle; }
@@ -130,11 +131,12 @@ public:
     virtual bool		canResetManipulation() const	{ return false;}
     virtual void		resetManipulation()		{}
     virtual void		acceptManipulation()		{}
-    virtual BufferString	getManipulationString() const	{ return ""; }
-    virtual NotifierAccess*	getManipulationNotifier()	{ return 0; }
+    virtual uiString		getManipulationString() const
+						{ return uiString::empty(); }
+    virtual NotifierAccess*	getManipulationNotifier()   { return nullptr; }
     virtual void		enableEditor(bool yn)		{}
 
-    virtual bool		allowMaterialEdit() const	{ return false;}
+    virtual bool		allowMaterialEdit() const   { return false;}
 				/*!\note Modification of color should be done
 					 with setMaterial on
 					 visBase::VisualObject */
@@ -264,8 +266,8 @@ public:
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 					    Coord3& xyzpos,
 					    BufferString& val,
-					    BufferString& info) const
-				{ val = mUdf(float); info = ""; }
+					    uiString& info) const
+				{ val = mUdf(float); info.setEmpty(); }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 						IOPar&) const;
     virtual const MouseCursor*	getMouseCursor() const		{ return 0; }
@@ -275,7 +277,7 @@ public:
 				    mouse in Act mode. */
     virtual void		updateMouseCursorCB(CallBacker*)	{}
 
-    virtual void		getObjectInfo(BufferString&) const	{}
+    virtual void		getObjectInfo(uiString&) const	{}
 
 				// Data via DataPacks
     virtual bool		setDataPackID(int attrib,DataPackID,

@@ -407,7 +407,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     }
     else
     {
-	uiAttrSelDlg::Setup setup( mToUiStringTodo(seltxt) );
+	uiAttrSelDlg::Setup setup( seltxt );
 	setup.showsteeringdata(true);
 	uiAttrSelDlg dlg( parent(), attrdata, setup );
 	if ( !dlg.go() )
@@ -1936,7 +1936,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	{
 	    if ( attribnms.isPresent(childnm) )
 	    {
-		MenuItem* item = new MenuItem( mToUiStringTodo(childnm) );
+		auto* item = new MenuItem( toUiString(childnm) );
 		const bool docheck = childnm==as.userRef();
 		mAddMenuItem(&subitem,item,true,docheck);
 	    }
@@ -1966,7 +1966,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	    PtrMan<IOObj> seisobj = IOM().get( mid );
 	    if ( !seisobj || attribnms.isPresent(seisobj->name()) )
 	    {
-		MenuItem* item = new MenuItem( mToUiStringTodo(childnm) );
+		auto* item = new MenuItem( toUiString(childnm) );
 		const bool docheck = childnm==as.userRef();
 		mAddMenuItem(&subitem,item,true,docheck);
 	    }

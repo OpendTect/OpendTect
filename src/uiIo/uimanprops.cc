@@ -558,7 +558,7 @@ bool uiManPROPS::haveUserChange() const
 
 
 uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
-				    const char* lbl )
+							const uiString& lbl )
     : uiDialog(p,uiDialog::Setup(toUiString("%1 %2 - %3")
 		.arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
 		.arg(uiStrings::sSelection()),
@@ -581,7 +581,7 @@ bool uiSelectPropRefs::acceptOK( CallBacker* )
 
 uiSelectPropRefsVWDlg::uiSelectPropRefsVWDlg(
 	uiParent* p, PropertyRefSelection& prs, IOPar& pars, int pos,
-	const char* lbl )
+	const uiString& lbl )
     : uiVarWizardDlg(p,uiDialog::Setup(toUiString("%1 %2 - %3")
 	    .arg(uiStrings::sLayer()).arg(uiStrings::sProperties())
 	    .arg(uiStrings::sSelection()),
@@ -608,15 +608,14 @@ bool uiSelectPropRefsVWDlg::acceptOK( CallBacker* )
 
 uiSelectPropRefsGrp::uiSelectPropRefsGrp( uiParent* p,
 					  PropertyRefSelection& prs,
-					  const char* lbl )
+					  const uiString& lbl )
     : uiDlgGroup(p,tr("Layer Properties"))
     , props_(PROPS())
     , prsel_(prs)
     , thref_(&PropertyRef::thickness())
     , structchg_(false)
 {
-    uiListBox::Setup su( OD::ChooseAtLeastOne, mToUiStringTodo(lbl),
-			 uiListBox::AboveMid );
+    uiListBox::Setup su( OD::ChooseAtLeastOne, lbl, uiListBox::AboveMid );
     propfld_ = new uiListBox( this, su, "Available properties" );
     fillList();
 
