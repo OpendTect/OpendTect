@@ -28,26 +28,27 @@ public:
     static CommandDefs	getPythonIDECommands();
 
 private:
-    void		initDlg(CallBacker*);
-    IOPar&		curSetts();
-    void		getChanges();
+    bool		isOK(bool noerr=false) const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
     bool		commitSetts(const IOPar&);
+    IOPar&		curSetts() const;
+    void		setCustomEnvironmentNames();
+    void		testPythonModules();
+    bool		getPythonEnvBinPath(BufferString&) const;
+    void		updateIDEfld();
+
+    void		initDlg(CallBacker*);
     void		sourceChgCB(CallBacker*);
     void		customEnvChgCB(CallBacker*);
     void		internalLocChgCB(CallBacker*);
     void		parChgCB(CallBacker*);
-    void		setCustomEnvironmentNames();
-    void		testPythonModules();
+
     void		testCB(CallBacker*);
     void		promptCB(CallBacker*);
+    void		safetycheckCB(CallBacker*);
     void		cloneCB(CallBacker*);
     void		cloneFinishedCB(CallBacker*);
-    void		safetycheckCB(CallBacker*);
-    bool		getPythonEnvBinPath(BufferString&) const;
-    void		updateIDEfld();
-    bool		useScreen();
     bool		rejectOK(CallBacker*) override;
     bool		acceptOK(CallBacker*) override;
 
@@ -60,9 +61,8 @@ private:
     uiToolBarCommandEditor* pytermfld_;
     uiButton*		clonebut_;
 
-    IOPar*		chgdsetts_ = nullptr;
-    bool		needrestore_ = false;
     IOPar		initialsetts_;
+    bool		needrestore_ = false;
 };
 
 

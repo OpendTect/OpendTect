@@ -258,7 +258,7 @@ void uiSafetyCheckDlg::saveCB( CallBacker* )
 }
 
 
-
+// uiPythonSettings
 
 uiPythonSettings::uiPythonSettings(uiParent* p, const char* nm )
 		: uiDialog(p, uiDialog::Setup(toUiString(nm),
@@ -345,10 +345,8 @@ uiPythonSettings::~uiPythonSettings()
 
 void uiPythonSettings::initDlg( CallBacker* )
 {
-    usePar( curSetts() );
-    fillPar( initialsetts_ ); //Backup for restore
-    sourceChgCB(0);
-    updateIDEfld();
+    initialsetts_ = curSetts(); //Backup for restore
+    usePar( initialsetts_ );
 
     mAttachCB( pythonsrcfld_->valueChanged, uiPythonSettings::sourceChgCB );
     if ( internalloc_ )
@@ -364,36 +362,13 @@ void uiPythonSettings::initDlg( CallBacker* )
     mAttachCB( pytermfld_->checked, uiPythonSettings::parChgCB );
 }
 
-IOPar& uiPythonSettings::curSetts()
+
+IOPar& uiPythonSettings::curSetts() const
 {
     BufferString pythonstr( sKey::Python() );
     return Settings::fetch( pythonstr.toLower() );
 }
 
-void uiPythonSettings::getChanges()
-{
-    IOPar* workpar = nullptr;
-    if ( chgdsetts_ )
-	workpar = chgdsetts_;
-    const bool alreadyedited = workpar;
-    if ( alreadyedited )
-	workpar->setEmpty();
-    else
-	workpar = new IOPar;
-
-    fillPar( *workpar );
-    if ( !curSetts().isEqual(*workpar) )
-    {
-	if ( !alreadyedited )
-	    chgdsetts_ = workpar;
-    }
-    else
-    {
-	if ( alreadyedited )
-	    chgdsetts_ = nullptr;
-	delete workpar;
-    }
-}
 
 void uiPythonSettings::fillPar( IOPar& par ) const
 {
@@ -447,6 +422,7 @@ void uiPythonSettings::fillPar( IOPar& par ) const
 	par.mergeComp( termcmd, sKey::PythonTerm() );
 }
 
+
 void uiPythonSettings::usePar( const IOPar& par )
 {
     OD::PythonSource source;
@@ -492,13 +468,15 @@ void uiPythonSettings::usePar( const IOPar& par )
     if ( idepar )
 	pyidefld_->usePar( *idepar );
     pyidefld_->setChecked( idepar );
-    updateIDEfld();
 
     PtrMan<IOPar> termpar = par.subselect( sKey::PythonTerm() );
     if ( termpar )
 	pytermfld_->usePar( *termpar );
     pytermfld_->setChecked( termpar );
+
+    sourceChgCB( nullptr );
 }
+
 
 bool uiPythonSettings::commitSetts( const IOPar& iop )
 {
@@ -513,7 +491,8 @@ bool uiPythonSettings::commitSetts( const IOPar& iop )
     return true;
 }
 
-void uiPythonSettings::sourceChgCB( CallBacker* )
+
+void uiPythonSettings::sourceChgCB( CallBacker* cb )
 {
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
@@ -526,28 +505,38 @@ void uiPythonSettings::sourceChgCB( CallBacker* )
     customloc_->display( iscustom );
     customenvnmfld_->display( iscustom );
     clonebut_->display( source != OD::System );
-
     updateIDEfld();
-    parChgCB( nullptr );
+
+    if ( cb == pythonsrcfld_ )
+	parChgCB( nullptr );
 }
 
-void uiPythonSettings::customEnvChgCB( CallBacker* )
+
+void uiPythonSettings::customEnvChgCB( CallBacker* cb )
 {
     setCustomEnvironmentNames();
     updateIDEfld();
-    parChgCB( nullptr );
+    if ( cb == customloc_ )
+	parChgCB( nullptr );
 }
 
 
-void uiPythonSettings::internalLocChgCB( CallBacker* )
+void uiPythonSettings::internalLocChgCB( CallBacker* cb )
 {
     updateIDEfld();
-    parChgCB( nullptr );
+    if ( cb == internalloc_ )
+	parChgCB( nullptr );
 }
+
 
 void uiPythonSettings::parChgCB( CallBacker* )
 {
-    getChanges();
+    if ( !isOK(true) )
+	return;
+
+    IOPar par;
+    fillPar( par );
+    needrestore_ = par != initialsetts_ && commitSetts( par );
 }
 
 
@@ -574,6 +563,7 @@ void uiPythonSettings::setCustomEnvironmentNames()
     customenvnmfld_->setChecked( !envnames.isEmpty() );
     customenvnmfld_->display( !envnames.isEmpty() );
 }
+
 
 void uiPythonSettings::testPythonModules()
 {
@@ -605,9 +595,10 @@ void uiPythonSettings::testPythonModules()
     dlg.go();
 }
 
-void uiPythonSettings::testCB(CallBacker*)
+
+void uiPythonSettings::testCB( CallBacker* )
 {
-    if ( !useScreen() )
+    if ( !isOK() )
 	return;
 
     uiUserShowWait usw( this, tr("Retrieving Python testing") );
@@ -627,7 +618,7 @@ void uiPythonSettings::testCB(CallBacker*)
 
 void uiPythonSettings::promptCB( CallBacker* )
 {
-    if ( !useScreen() )
+    if ( !isOK() )
 	return;
 
     uiRetVal uirv = uiSettsMgr().openTerminal( false );
@@ -641,7 +632,7 @@ void uiPythonSettings::promptCB( CallBacker* )
 
 void uiPythonSettings::safetycheckCB( CallBacker* )
 {
-    if ( !useScreen() )
+    if ( !isOK() )
 	return;
 
     uiSafetyCheckDlg dlg( this );
@@ -715,9 +706,10 @@ uiGenInput*	destnmfld_;
 
 };
 
+
 void uiPythonSettings::cloneCB( CallBacker* )
 {
-    if ( !useScreen() )
+    if ( !isOK() )
 	return;
 
     FilePath envpath;
@@ -762,7 +754,6 @@ void uiPythonSettings::cloneFinishedCB( CallBacker* cb )
 	}
 
 	uiMSG().message( tr("Cloning conda environment completed") );
-
 	setCustomEnvironmentNames();
     }
     setButtonSensitive( OK, true );
@@ -806,11 +797,7 @@ bool uiPythonSettings::getPythonEnvBinPath( BufferString& pybinpath ) const
 
     if ( !pypath.isEmpty() )
     {
-#ifdef __win__
-	pypath.add( "Scripts" );
-#else
-	pypath.add( "bin" );
-#endif
+	pypath.add( __iswin__ ? "Scripts" : "bin" );
 	pybinpath = pypath.fullPath();
 	if ( !File::exists(pybinpath) || !File::isDirectory(pybinpath) )
 	    return false;
@@ -822,15 +809,11 @@ bool uiPythonSettings::getPythonEnvBinPath( BufferString& pybinpath ) const
 
 void uiPythonSettings::updateIDEfld()
 {
-    getChanges();
-    if ( !useScreen() )
-	return;
-
     pyidefld_->updateCmdList( getPythonIDECommands() );
 }
 
 
-bool uiPythonSettings::useScreen()
+bool uiPythonSettings::isOK( bool noerr ) const
 {
     const int sourceidx = pythonsrcfld_->getIntValue();
     const OD::PythonSource source =
@@ -842,14 +825,16 @@ bool uiPythonSettings::useScreen()
 	const BufferString envroot( internalloc_->fileName() );
 	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
 	{
-	    uiMSG().error( uiStrings::phrSelect(envrootstr) );
+	    if ( !noerr )
+		uiMSG().error( uiStrings::phrSelect(envrootstr) );
 	    return false;
 	}
 
 	const FilePath envrootfp( envroot );
 	if ( !OD::PythonAccess::validInternalEnvironment(envrootfp) )
 	{
-	    uiMSG().error( tr("Invalid %1").arg(envrootstr) );
+	    if ( !noerr )
+		uiMSG().error( tr("Invalid %1").arg(envrootstr) );
 	    return false;
 	}
     }
@@ -858,28 +843,24 @@ bool uiPythonSettings::useScreen()
 	const BufferString envroot( customloc_->fileName() );
 	if ( !File::exists(envroot) || !File::isDirectory(envroot) )
 	{
-	    uiMSG().error( uiStrings::phrSelect(envrootstr) );
+	    if ( !noerr )
+		uiMSG().error( uiStrings::phrSelect(envrootstr) );
 	    return false;
 	}
 
 	const FilePath envrootfp( envroot, "envs" );
 	if ( !envrootfp.exists() )
 	{
-	    uiMSG().error( tr("%1 does not contain a folder called %2")
-				.arg(envrootstr).arg("'envs'") );
+	    if ( !noerr )
+		uiMSG().error( tr("%1 does not contain a folder called %2")
+				    .arg(envrootstr).arg("'envs'") );
 	    return false;
 	}
     }
 
-    if ( !chgdsetts_ )
-	return true;
-
-    needrestore_ = chgdsetts_;
-    if ( commitSetts(*chgdsetts_) )
-	deleteAndNullPtr( chgdsetts_ );
-
-    return chgdsetts_ ? false : true;
+    return true;
 }
+
 
 bool uiPythonSettings::rejectOK( CallBacker* )
 {
@@ -894,25 +875,22 @@ bool uiPythonSettings::rejectOK( CallBacker* )
     return true;
 }
 
+
 bool uiPythonSettings::acceptOK( CallBacker* )
 {
-    bool isok = true; bool ismodified = false;
-    if ( chgdsetts_ )
-    {
-	isok = useScreen();
-	ismodified = true;
-    }
+    if ( !isOK() )
+	return false;
 
-    needrestore_ = !isok;
-    if ( isok )
-    {
-	if ( ismodified )
-	    needrestore_ = !OD::PythA().isUsable( true ).isOK();
-    }
-    else
-	uiMSG().warning( tr("Cannot use the new settings") );
+    IOPar par;
+    fillPar( par );
+    if ( par == initialsetts_ )
+	return true;
 
-    return isok;
+    if ( !commitSetts(par) )
+	return false;
+
+    needrestore_ = !OD::PythA().isUsable( true ).isOK();
+    return true;
 }
 
 

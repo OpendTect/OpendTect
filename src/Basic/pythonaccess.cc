@@ -1425,6 +1425,7 @@ void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
     }
 
     Threads::Locker locker( lock_ );
+    ManagedObjectSet<ModuleInfo> moduleinfos;
     if ( moduleinfos_.isEmpty() )
     {
 	ret = updateModuleInfo( nullptr );
@@ -1434,6 +1435,8 @@ void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
 	    return;
 	}
     }
+
+    moduleinfos = moduleinfos_;
     locker.unlockNow();
 
     FilePath fp( mGetSWDirDataDir() );
@@ -1476,6 +1479,10 @@ void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
 	if ( !newlinefound )
 	    break;
 
+	line.trimBlanks();
+	if ( line.isEmpty() )
+	    continue;
+
 	BufferStringSet modulestr;
 	if ( line.contains("==") )
 	    modulestr.unCat( line, "==" );
@@ -1491,11 +1498,11 @@ void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
 
 	const BufferString modname = modulestr.get(0).trimBlanks().toLower();
 	if ( modulestr.size() == 1 )
-	    ret.add( hasModule( modname ) );
-	else if (modulestr.size() >= 2 )
+	    ret.add( hasModule( moduleinfos, modname ) );
+	else if ( modulestr.size() >= 2 )
 	{
 	    const BufferString ver = modulestr.get( 1 ).trimBlanks();
-	    ret.add( hasModule( modname, isminver, ver ) );
+	    ret.add( hasModule( moduleinfos, modname, isminver, ver ) );
 	}
 	else
 	{
