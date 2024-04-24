@@ -482,19 +482,21 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
+
+    TrcKeyZSampling scenetkzs = SI().sampling(true);
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+    if ( scene )
+	scenetkzs = scene->getTrcKeyZSampling();
 
     if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	delete positiondlg_;
-	TrcKeyZSampling maxcs = SI().sampling(true);
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-	if ( scene && scene->getZAxisTransform() )
-	    maxcs = scene->getTrcKeyZSampling();
 
 	positiondlg_ = new uiSliceSelDlg( getUiParent(),
-				pdd->getTrcKeyZSampling(true,true), maxcs,
+				pdd->getTrcKeyZSampling(true,true), scenetkzs,
 				mCB(this,uiODPlaneDataTreeItem,updatePlanePos),
 				(uiSliceSel::Type)orient_,scene->zDomainInfo());
 	positiondlg_->windowClosed.notify(
@@ -513,7 +515,8 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     }
 
     mDynamicCastGet(uiMenuHandler*,uimh,menu);
-    if ( !uimh ) return;
+    if ( !uimh )
+	return;
 
     const Coord3 pickedpos = uimh->getPickedPos();
     TrcKey tk( SI().transform(pickedpos) );
@@ -521,7 +524,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zpos );
     const TrcKey& csttk = const_cast<const TrcKey&>( tk );
 
-    TrcKeyZSampling newtkzs( true );
+    TrcKeyZSampling newtkzs = scenetkzs;
     uiODPlaneDataTreeItem* itm = 0;
     if ( mnuid == addinlitem_.id )
     {
