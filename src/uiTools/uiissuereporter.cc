@@ -87,7 +87,7 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
     emailfld_->attach( alignedBelow, commentfld_ );
     emailfld_->setStretch( 2, 1 );
 
-    auto* emaillbl = new uiLabel( this, tr("Email"), emailfld_ );
+    auto* emaillbl = new uiLabel( this, tr("Your email"), emailfld_ );
     emaillbl->setAlignment( Alignment::Right );
 
     uiButton* proxybut = new uiPushButton( this, tr("Proxy settings"),
