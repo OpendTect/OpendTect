@@ -692,12 +692,23 @@ mExtern(Basic) bool GetEnvVarDirList( const char* env, BufferStringSet& ret,
 
 mExtern(Basic) bool GetEnvVarYN( const char* env, bool defaultval )
 {
-    const char* s = GetEnvVar( env );
-    if ( !s )
+    const BufferString str( GetEnvVar(env) );
+    if ( str.isEmpty() )
 	return defaultval;
 
-    return *s == '0' || *s == 'n' || *s == 'N' ||
-	   *s == 'f' || *s == 'F' ? false : true;
+    const OD::CaseSensitivity cs = OD::CaseInsensitive;
+    if ( str.isEqual("n",cs) || str.isEqual("no",cs) ||
+	 str.isEqual("f",cs) || str.isEqual("false",cs) )
+	return false;
+
+    if ( str.isEqual("y",cs) || str.isEqual("yes",cs) ||
+	 str.isEqual("t",cs) || str.isEqual("true",cs) )
+	return true;
+
+    if ( str.isNumber(true) )
+	return (bool) str.toInt();
+
+    return defaultval;
 }
 
 
