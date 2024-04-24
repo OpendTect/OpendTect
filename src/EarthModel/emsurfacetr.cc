@@ -106,6 +106,13 @@ mDefSimpleTranslatorSelector(EMFaultStickSet)
 mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 
 
+
+EMSurfaceTranslator::EMSurfaceTranslator( const char* nm, const char* unm )
+    : Translator(nm,unm)
+    , sels_(sd_)
+{}
+
+
 EMSurfaceTranslator::~EMSurfaceTranslator()
 {
     delete ioobj_;
@@ -275,9 +282,8 @@ bool EMSurfaceTranslator::getBinarySetting()
 }
 
 
-dgbEMSurfaceTranslator::dgbEMSurfaceTranslator( const char* nm, const char* unm)
+dgbEMSurfaceTranslator::dgbEMSurfaceTranslator( const char* nm, const char* unm )
     : EMSurfaceTranslator(nm,unm)
-    , reader_(0)
 {
 }
 
@@ -290,10 +296,9 @@ dgbEMSurfaceTranslator::~dgbEMSurfaceTranslator()
 
 bool dgbEMSurfaceTranslator::prepRead()
 {
-    if ( reader_ )
-	delete reader_;
+    delete reader_;
 
-    BufferString unm( group() ? group()->groupName().buf() : 0 );
+    const BufferString unm( group() ? group()->groupName().buf() : nullptr );
     reader_ = new EM::dgbSurfaceReader( *ioobj_, unm.buf() );
     if ( !reader_->isOK() )
     {
@@ -393,18 +398,21 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
     return res;
 }
 
+
 Executor* dgbEMSurfaceTranslator::getWriter()
 {
-    BufferString unm( group() ? group()->groupName().buf() : 0 );
-    EM::dgbSurfaceWriter* res =
-	new EM::dgbSurfaceWriter(ioobj_,unm.buf(),
-				 *surface_,getBinarySetting());
+    const BufferString unm( group() ? group()->groupName().buf() : nullptr );
+    auto* res = new EM::dgbSurfaceWriter( ioobj_, unm.buf(),
+				 *surface_,getBinarySetting() );
     res->setWriteOnlyZ( writeOnlyZ() );
 
     if ( hasRangeSelection() && !sels_.rg.isEmpty() )
     {
-	StepInterval<int> rrg, crg; getSels( rrg, crg );
-	res->setRowInterval( rrg ); res->setColInterval( crg );
+	StepInterval<int> rrg;
+	StepInterval<int> crg;
+	getSels( rrg, crg );
+	res->setRowInterval( rrg );
+	res->setColInterval( crg );
     }
 
     if ( !sels_.selvalues.isEmpty() )
@@ -412,6 +420,18 @@ Executor* dgbEMSurfaceTranslator::getWriter()
 
     return res;
 }
+
+
+
+// dgbEMHorizon3DTranslator
+dgbEMHorizon3DTranslator::dgbEMHorizon3DTranslator( const char* nm,
+						    const char* usernm )
+    : dgbEMSurfaceTranslator(nm,usernm)
+{}
+
+
+dgbEMHorizon3DTranslator::~dgbEMHorizon3DTranslator()
+{}
 
 
 static BufferString getFileName( const char* fulluserexp, const char* attrnmptr)
@@ -430,11 +450,14 @@ static BufferString getFileName( const char* fulluserexp, const char* attrnmptr)
 	    return fnm;
     }
 
-    return 0;
+    return "";
 }
 
+
 static BufferString getFileName( const IOObj& ioobj, const char* attrnm )
-{ return getFileName( ioobj.fullUserExpr(true), attrnm ); }
+{
+    return getFileName( ioobj.fullUserExpr(true), attrnm );
+}
 
 
 Executor* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,
@@ -443,7 +466,7 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataReader( EM::Surface& surface,
     if ( selidx >= sels_.sd.valnames.size() )
 	return 0;
 
-    ExecutorGroup* grp = new ExecutorGroup( "Surface attributes reader" );
+    auto* grp = new ExecutorGroup( "Surface attributes reader" );
     for ( int idx=0; idx<sels_.sd.valnames.size(); idx++ )
     {
 	if ( selidx>=0 && selidx != idx )
@@ -494,6 +517,61 @@ Executor* dgbEMHorizon3DTranslator::getAuxdataWriter(
 
     return grp;
 }
+
+
+// dgbEMHorizon2DTranslator
+dgbEMHorizon2DTranslator::dgbEMHorizon2DTranslator( const char* nm,
+						    const char* usernm )
+    : dgbEMSurfaceTranslator(nm,usernm)
+{}
+
+
+dgbEMHorizon2DTranslator::~dgbEMHorizon2DTranslator()
+{}
+
+
+// dgbEMHorizon3DTranslator
+dgbEMFault3DTranslator::dgbEMFault3DTranslator( const char* nm,
+						const char* usernm )
+    : dgbEMSurfaceTranslator(nm,usernm)
+{}
+
+
+dgbEMFault3DTranslator::~dgbEMFault3DTranslator()
+{}
+
+
+// dgbEMFaultStickSet3DTranslator
+dgbEMFaultStickSetTranslator::dgbEMFaultStickSetTranslator( const char* nm,
+							    const char* usernm )
+    : dgbEMSurfaceTranslator(nm,usernm)
+{}
+
+
+dgbEMFaultStickSetTranslator::~dgbEMFaultStickSetTranslator()
+{}
+
+
+// EMFaultSet3DTranslator
+EMFaultSet3DTranslator::EMFaultSet3DTranslator( const char* nm,
+						const char* usernm )
+    : Translator(nm,usernm)
+{}
+
+
+EMFaultSet3DTranslator::~EMFaultSet3DTranslator()
+{}
+
+
+// dgbEMFaultSet3DTranslator
+dgbEMFaultSet3DTranslator::dgbEMFaultSet3DTranslator( const char* nm,
+						      const char* usernm )
+    : EMFaultSet3DTranslator(nm,usernm)
+{}
+
+
+dgbEMFaultSet3DTranslator::~dgbEMFaultSet3DTranslator()
+{}
 
 
 

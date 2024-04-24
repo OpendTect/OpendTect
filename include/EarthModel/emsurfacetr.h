@@ -29,13 +29,6 @@ namespace EM
     class Surface;
 }
 
-typedef EM::Horizon3D		EMHorizon3D;
-typedef EM::Horizon2D		EMHorizon2D;
-typedef EM::Horizon		EMAnyHorizon;
-typedef EM::Fault3D		EMFault3D;
-typedef EM::FaultSet3D		EMFaultSet3D;
-typedef EM::FaultStickSet	EMFaultStickSet;
-
 
 /*!
 \brief TranslatorGroup for EM::Horizon3D. Reads/writes 3D EM::Horizon3D to
@@ -43,7 +36,8 @@ storage.
 */
 
 mExpClass(EarthModel) EMHorizon3DTranslatorGroup : public TranslatorGroup
-{				   isTranslatorGroup(EMHorizon3D)
+{
+isTranslatorGroup(EMHorizon3D)
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon3D)
 
@@ -56,7 +50,8 @@ public:
 */
 
 mExpClass(EarthModel) EMHorizon2DTranslatorGroup : public TranslatorGroup
-{				   isTranslatorGroup(EMHorizon2D)
+{
+isTranslatorGroup(EMHorizon2D)
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon2D)
 
@@ -69,7 +64,8 @@ public:
 */
 
 mExpClass(EarthModel) EMAnyHorizonTranslatorGroup : public TranslatorGroup
-{				    isTranslatorGroup(EMAnyHorizon)
+{
+isTranslatorGroup(EMAnyHorizon)
 public:
 			    mDefEmptyTranslatorGroupConstructor(EMAnyHorizon)
 };
@@ -80,7 +76,8 @@ public:
 */
 
 mExpClass(EarthModel) EMFault3DTranslatorGroup : public TranslatorGroup
-{			    isTranslatorGroup(EMFault3D);
+{
+isTranslatorGroup(EMFault3D)
 public:
 			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
@@ -93,7 +90,8 @@ public:
 */
 
 mExpClass(EarthModel) EMFaultSet3DTranslatorGroup : public TranslatorGroup
-{   isTranslatorGroup(EMFaultSet3D);
+{
+isTranslatorGroup(EMFaultSet3D)
 public:
 			mDefEmptyTranslatorGroupConstructor(EMFaultSet3D)
 };
@@ -104,7 +102,8 @@ public:
 */
 
 mExpClass(EarthModel) EMFaultStickSetTranslatorGroup : public TranslatorGroup
-{			isTranslatorGroup(EMFaultStickSet);
+{
+isTranslatorGroup(EMFaultStickSet)
 public:
 			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
 
@@ -119,14 +118,7 @@ public:
 mExpClass(EarthModel) EMSurfaceTranslator : public Translator
 {
 public:
-				EMSurfaceTranslator(const char* nm,
-						    const char* unm)
-				    : Translator(nm,unm)
-				    , ioobj_(0)
-				    , surface_(0)
-				    , sels_(sd_)	{}
-
-    virtual			~EMSurfaceTranslator();
+				~EMSurfaceTranslator();
 
     bool			startRead(const IOObj&);
     bool			startWrite(const EM::Surface&);
@@ -140,7 +132,7 @@ public:
     virtual Executor*		getAuxdataReader(EM::Surface&,int)
 				{ return nullptr; }
     virtual Executor*		getAuxdataWriter(const EM::Surface&,int,
-							      bool overwt=false)
+						 bool overwt=false)
 				{ return nullptr; }
 
     uiString			errMsg() const		{ return errmsg_; }
@@ -157,9 +149,11 @@ public:
 							{ crfrom_ = src; }
 
 protected:
+				EMSurfaceTranslator(const char* nm,
+						    const char* usernm);
 
-    IOObj*			ioobj_;
-    EM::Surface*		surface_;
+    IOObj*			ioobj_				= nullptr;
+    EM::Surface*		surface_			= nullptr;
     uiString			errmsg_;
     EM::SurfaceIOData		sd_;
     EM::SurfaceIODataSelection	sels_;
@@ -181,12 +175,13 @@ protected:
 mExpClass(EarthModel) dgbEMSurfaceTranslator : public EMSurfaceTranslator
 {
 public:
-				dgbEMSurfaceTranslator(const char*,const char*);
-    virtual			~dgbEMSurfaceTranslator();
+				~dgbEMSurfaceTranslator();
 
     Executor*			reader(EM::Surface&) override;
 
 protected:
+				dgbEMSurfaceTranslator(const char* nm,
+						       const char* usernm);
 
     static BufferString		createHOVName(const char* base,int idx);
     bool			setSurfaceTransform(const IOPar&);
@@ -199,7 +194,7 @@ protected:
     virtual bool		writeOnlyZ() const		{ return true; }
     virtual bool		hasRangeSelection() const	{ return true; }
 
-    EM::dgbSurfaceReader*	reader_;
+    EM::dgbSurfaceReader*	reader_				= nullptr;
 };
 
 
@@ -208,16 +203,16 @@ protected:
 */
 
 mExpClass(EarthModel) dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
-{				 isTranslator(dgb,EMHorizon3D)
+{
+isTranslator(dgb,EMHorizon3D)
 public:
-				dgbEMHorizon3DTranslator(const char* unm,
-						       const char* nm)
-				    : dgbEMSurfaceTranslator(unm,nm)	{}
-    virtual			~dgbEMHorizon3DTranslator()		{}
+				dgbEMHorizon3DTranslator(const char* nm,
+						       const char* usernm);
+				~dgbEMHorizon3DTranslator();
+
     Executor*			getAuxdataReader(EM::Surface&,int) override;
     Executor*			getAuxdataWriter(const EM::Surface&,int,
 						    bool ovwrt=false) override;
-
 
 protected:
     bool			readOnlyZ() const override	{ return true; }
@@ -232,12 +227,12 @@ protected:
 */
 
 mExpClass(EarthModel) dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
-{				 isTranslator(dgb,EMHorizon2D)
+{
+isTranslator(dgb,EMHorizon2D)
 public:
-				dgbEMHorizon2DTranslator(const char* unm,
-						       const char* nm)
-				    : dgbEMSurfaceTranslator(unm,nm)	{}
-    virtual			~dgbEMHorizon2DTranslator()		{}
+				dgbEMHorizon2DTranslator(const char* nm,
+						       const char* usernm);
+    				~dgbEMHorizon2DTranslator();
 
 protected:
     bool			readOnlyZ() const override	{return false;}
@@ -252,18 +247,18 @@ protected:
 */
 
 mExpClass(EarthModel) dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
-{			       isTranslator(dgb,EMFault3D)
+{
+isTranslator(dgb,EMFault3D)
 public:
-				dgbEMFault3DTranslator(const char* unm,
-						       const char* nm)
-				    : dgbEMSurfaceTranslator(unm,nm)	{}
-    virtual			~dgbEMFault3DTranslator()		{}
+				dgbEMFault3DTranslator(const char* nm,
+						       const char* usernm);
+				~dgbEMFault3DTranslator();
 
 protected:
     bool			readOnlyZ() const override	{ return false;}
     bool			writeOnlyZ() const override	{ return false;}
     bool			hasRangeSelection() const override
-				    { return false;}
+				{ return false;}
 };
 
 
@@ -273,18 +268,18 @@ protected:
 
 mExpClass(EarthModel) dgbEMFaultStickSetTranslator :
 				public dgbEMSurfaceTranslator
-{				     isTranslator(dgb,EMFaultStickSet)
+{
+isTranslator(dgb,EMFaultStickSet)
 public:
-				dgbEMFaultStickSetTranslator(const char* unm,
-							     const char* nm)
-				    : dgbEMSurfaceTranslator(unm,nm)	{}
-    virtual			~dgbEMFaultStickSetTranslator()		{}
+				dgbEMFaultStickSetTranslator(const char* nm,
+							     const char* usernm);
+				~dgbEMFaultStickSetTranslator();
 
 protected:
     bool			readOnlyZ() const override	{ return false;}
     bool			writeOnlyZ() const override	{ return false;}
     bool			hasRangeSelection() const override
-				    { return false;}
+				{ return false;}
 };
 
 
@@ -295,23 +290,24 @@ protected:
 mExpClass(EarthModel) EMFaultSet3DTranslator : public Translator
 {
 public:
-				EMFaultSet3DTranslator(const char* unm,
-						       const char* nm)
-				    : Translator(unm,nm)	{}
-    virtual			~EMFaultSet3DTranslator()		{}
+				~EMFaultSet3DTranslator();
 
     virtual Executor*		writer(const EM::FaultSet3D&,const IOObj&) = 0;
     virtual Executor*		reader(EM::FaultSet3D&,const IOObj&)	= 0;
+
+protected:
+				EMFaultSet3DTranslator(const char* nm,
+						       const char* usernm);
 };
 
 
 mExpClass(EarthModel) dgbEMFaultSet3DTranslator : public EMFaultSet3DTranslator
-{			       isTranslator(dgb,EMFaultSet3D)
+{
+isTranslator(dgb,EMFaultSet3D)
 public:
-				dgbEMFaultSet3DTranslator(const char* unm,
-						       const char* nm)
-				    : EMFaultSet3DTranslator(unm,nm)	{}
-    virtual			~dgbEMFaultSet3DTranslator()		{}
+				dgbEMFaultSet3DTranslator(const char* nm,
+						       const char* usernm);
+				~dgbEMFaultSet3DTranslator();
 
     Executor*			writer(const EM::FaultSet3D&,
 				       const IOObj&) override;
