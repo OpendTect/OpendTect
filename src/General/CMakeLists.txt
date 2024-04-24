@@ -9,6 +9,8 @@ set( OD_MODULE_DEPS Algo )
 set( OD_FOLDER "Base" )
 set( OD_USEQT Core ) # for the ziphandler.cc only
 set( OD_USEZLIB TRUE )
+set( OD_USEOPENSSL TRUE )
+set( OD_USECRYPTO TRUE )
 
 set( OD_MODULE_SOURCES
 	array2dbitmap.cc

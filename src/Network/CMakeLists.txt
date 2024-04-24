@@ -8,8 +8,6 @@
 set( OD_MODULE_DEPS General )
 set( OD_FOLDER "Base" )
 set( OD_USEQT Network )
-set( OD_USEOPENSSL TRUE )
-set( OD_USECRYPTO TRUE )
 
 set( OD_MODULE_SOURCES
 	clientservicebase.cc

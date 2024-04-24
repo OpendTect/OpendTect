@@ -72,16 +72,17 @@ public:
     static int		sDefNrIters()		{ return 10000; }
     static bool		sDefUseSalt()		{ return true; }
 
-    static bool		loadOpenSSL(const char* libfnm,bool iscrypto);
-			/* Loads the openssl or crypto libraries,
+    static bool		loadOpenSSL();
+			/* Loads the openssl crypto and ssl libraries,
 			   but not ODOpenSSL */
-
 private:
 
     void			loadPlugin();
 
     const SharedLibAccess* sla_ = nullptr;
     OpenSSLFnSet*		functions_ = nullptr;
+
+    static bool		loadOpenSSL(const char* libnm,bool iscrypto);
 
 };
 

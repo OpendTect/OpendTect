@@ -24,30 +24,6 @@ ________________________________________________________________________
 # include <QByteArray>
 # include <QNetworkProxy>
 
-namespace System
-{
-
-static void loadOpenSSL()
-{
-    mIfNotFirstTime(return);
-    if ( __iswin__ ) // Manual load not required, automatic
-	return;
-
-#ifdef __OpenSSL_Crypto_LIBRARY__
-    const bool cryptook =
-	OD::OpenSSLAccess::loadOpenSSL( __OpenSSL_Crypto_LIBRARY__, true );
-    if ( !cryptook )
-	return;
-
-# ifdef __OpenSSL_SSL_LIBRARY__
-    OD::OpenSSLAccess::loadOpenSSL( __OpenSSL_SSL_LIBRARY__, false );
-# endif
-#endif
-}
-
-} // namespace System
-
-
 
 bool Network::exists( const char* url )
 {
@@ -157,7 +133,7 @@ FileDownloader::FileDownloader( const BufferStringSet& urls,
     , saveaspaths_( outputpaths )
     , urls_( urls )
 {
-    System::loadOpenSSL(); //Keep at the first line
+    OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
     totalnr_ = getDownloadSize();
 }
 
@@ -166,7 +142,7 @@ FileDownloader::FileDownloader( const char* url, DataBuffer& db )
     : SequentialTask("Downloading file")
     , databuffer_(&db)
 {
-    System::loadOpenSSL(); //Keep at the first line
+    OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
     urls_.add(url);
     totalnr_ = getDownloadSize();
 }
@@ -176,7 +152,7 @@ FileDownloader::FileDownloader( const char* url )
     : SequentialTask("Downloading file")
     , osd_(new od_ostream())
 {
-    System::loadOpenSSL(); //Keep at the first line
+    OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
     urls_.add(url);
 }
 
@@ -443,7 +419,7 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
     , url_(url)
     , header_(header)
 {
-    System::loadOpenSSL(); //Keep at the first line
+    OD::OpenSSLAccess::loadOpenSSL(); //Keep at the first line
 }
 
 

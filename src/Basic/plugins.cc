@@ -142,16 +142,17 @@ void* SharedLibAccess::getFunction( const char* fnnm ) const
 static BufferString mkLibName( const char* modnm )
 {
     BufferString ret;
-#ifdef __win__
-    ret.set( modnm ).add( ".dll" );
-#else
-    ret.set( "lib" ).add( modnm );
-# ifdef __mac__
-    ret.add( ".dylib" );
-# else
-    ret.add( ".so" );
-# endif
-#endif
+    if ( !__iswin__ )
+	ret.set( "lib" );
+
+    ret.add( modnm ).add( "." );
+    if ( __iswin__ )
+	ret.add( "dll" );
+    else if ( __ismac__ )
+	ret.add( "dylib" );
+    else if ( __islinux__ )
+	ret.add( "so" );
+
     return ret;
 }
 
@@ -167,12 +168,12 @@ void SharedLibAccess::getLibName( const char* modnm, char* out, int sz )
 }
 
 
+// RuntimeLibLoader
 
 RuntimeLibLoader::RuntimeLibLoader( const char* filenm, const char* subdir )
 {
     const FilePath libfp( filenm );
-    const FilePath relfp( __iswin__ ? GetExecPlfDir()
-				    : GetLibPlfDir(),
+    const FilePath relfp( __iswin__ ? GetExecPlfDir() : GetLibPlfDir(),
 			  subdir, libfp.fileName() );
     if ( relfp.exists() )
 	sha_ = new SharedLibAccess( relfp.fullPath() );
@@ -185,6 +186,7 @@ RuntimeLibLoader::~RuntimeLibLoader()
 {
     if ( sha_ )
 	sha_->close();
+
     delete sha_;
 }
 
@@ -194,8 +196,172 @@ bool RuntimeLibLoader::isOK() const
 }
 
 
+static const char* getFileBaseName( const char* libnm )
+{
+    mDeclStaticString( ret );
+    const FilePath fp( libnm );
+    const BufferString filebasenm = fp.baseName();
+    if ( !__iswin__ && filebasenm.startsWith("lib",OD::CaseInsensitive) )
+	ret.set( filebasenm.str()+3 );
+    else
+	ret.set( filebasenm );
+
+    return ret.buf();
+}
 
 
+// PluginManager::Data
+
+PluginManager::Data::Data( const char* nm )
+    : name_(nm)
+{
+}
+
+
+PluginManager::Data::~Data()
+{
+    delete sla_;
+}
+
+
+BufferString PluginManager::Data::getFileName() const
+{
+    return name_;
+}
+
+
+BufferString PluginManager::Data::getBaseName() const
+{
+    return BufferString( getFileBaseName(getFileName()) );
+}
+
+
+bool PluginManager::Data::isUserDir( AutoSource src )
+{
+    return src != AppDir && src != None;
+}
+
+
+static const char* getFnName( const char* fnbeg, const char* libnm,
+			      const char* fnend )
+{
+    mDeclStaticString( ret );
+    ret.set( fnbeg ).add( getFileBaseName(libnm) ).add( fnend );
+    return ret.buf();
+}
+
+
+static bool isALO( const char* fnm )
+{
+    const char* extptr = lastOcc( fnm, '.' );
+    if ( !extptr || !*extptr ) return false;
+    return caseInsensitiveEqual( extptr+1, "alo", 0 );
+}
+
+
+static PluginInfo* mkEmptyInfo()
+{
+    return new PluginInfo( sKeyNoDispName, sKey::EmptyString(),
+			   sKey::EmptyString(),
+			   sKey::EmptyString(),"No info available");
+}
+
+
+static PluginInfo* getPluginInfo( SharedLibAccess* sla, const char* libnm )
+{
+    PluginInfoRetFn fn = nullptr;
+    if ( sla )
+    {
+	const BufferString funcnm = getFnName( "Get", libnm, "PluginInfo" );
+	fn = (PluginInfoRetFn)sla->getFunction( funcnm );
+    }
+
+    return fn ? (*fn)() : mkEmptyInfo();
+}
+
+
+static int getPluginType( SharedLibAccess* sla, const char* libnm )
+{
+    VoidIntRetFn fn = nullptr;
+    if ( sla )
+    {
+	const BufferString funcnm = getFnName( "Get", libnm, "PluginType" );
+	fn = (VoidIntRetFn)sla->getFunction( funcnm );
+    }
+
+    return fn ? (*fn)() : PI_AUTO_INIT_LATE;
+}
+
+
+using boolFromVoidFn = bool(*)(void);
+static boolFromVoidFn localsslfn_ = nullptr;
+
+mGlobal(Basic) void setGlobal_Basic_OpenSSLFn(boolFromVoidFn);
+void setGlobal_Basic_OpenSSLFn( boolFromVoidFn sslfn )
+{
+    localsslfn_ = sslfn;
+}
+
+static bool loadOpenSSLIfNeeded( const char* libbasenm )
+{
+    static int res = -1;
+    if ( res >=0 )
+	return res == 1;
+
+    if ( !__islinux__ )
+    {
+	res = 1;
+	return res == 1;
+    }
+
+    FilePath opensslfp( GetSetupDataFileName(ODSetupLoc_SWDirOnly,
+					     "OpenSSL", false), libbasenm );
+    opensslfp.setExtension( "txt" );
+    if ( !opensslfp.exists() )
+	return false;
+
+    res = localsslfn_ && (*localsslfn_)() ? 1 : 0;
+    return res == 1;
+}
+
+
+static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
+			const char* libnm, bool mandatory )
+{
+    ArgcArgvCCRetFn fn = nullptr;
+    if ( sla )
+    {
+	const BufferString funcnm = getFnName( "Init", libnm, "Plugin" );
+	fn = (ArgcArgvCCRetFn)sla->getFunction( funcnm );
+    }
+
+    if ( !fn ) // their bad
+    {
+	if ( mandatory )
+	{
+	    const BufferString libnmonly = FilePath(libnm).fileName();
+	    ErrMsg( BufferString( libnmonly,
+			" does not have a InitPlugin function"));
+	}
+
+	return false;
+    }
+
+    const char* ret = (*fn)( argc, argv );
+    if ( ret && *ret )
+    {
+	const BufferString libnmonly = FilePath(libnm).fileName();
+	BufferString msg( "Message from " );
+	msg += libnm; msg += ":\n\t"; msg += ret;
+	UsrMsg( msg );
+	return false;
+    }
+
+    return true;
+}
+
+
+// PluginManager
 
 PluginManager::PluginManager()
 {
@@ -216,33 +382,12 @@ PluginManager::~PluginManager()
 }
 
 
-static const char* getFnName( const char* libnm, const char* fnbeg,
-			      const char* fnend )
-{
-    mDeclStaticString( ret );
-
-    ret = fnbeg;
-
-    if ( (*libnm     == 'l' || *libnm     == 'L')
-      && (*(libnm+1) == 'i' || *(libnm+1) == 'I')
-      && (*(libnm+2) == 'b' || *(libnm+2) == 'B') )
-	libnm += 3;
-    ret += libnm;
-
-    char* ptr = firstOcc( ret.getCStr(), '.' );
-    if ( ptr ) *ptr = '\0';
-    ret += fnend;
-
-    return ret.buf();
-}
-
-
 void PluginManager::getDefDirs()
 {
     BufferString dnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
     if ( dnm.isEmpty() )
     {
-	appdir_ = GetSoftwareDir(0);
+	appdir_ = GetSoftwareDir(false);
 	applibdir_ = GetLibPlfDir();
     }
     else
@@ -279,38 +424,34 @@ void PluginManager::getDefDirs()
 }
 
 
-static bool isALO( const char* fnm )
-{
-    const char* extptr = lastOcc( fnm, '.' );
-    if ( !extptr || !*extptr ) return false;
-    return caseInsensitiveEqual( extptr+1, "alo", 0 );
-}
-
-
 const PluginManager::Data* PluginManager::findDataWithDispName(
-			const char* nm ) const
+						const char* nm ) const
 {
-    if ( !nm || !*nm ) return 0;
+    if ( !nm || !*nm )
+	return nullptr;
+
     for ( auto* data : data_ )
     {
 	const PluginInfo* piinf = data->info_;
-	if ( piinf && piinf->dispname_ && StringView(piinf->dispname_)==nm)
+	if ( piinf && piinf->dispname_ && StringView(piinf->dispname_)==nm )
 	    return data;
     }
-    return 0;
+
+    return nullptr;
 }
 
 
-const char* PluginManager::getFileName( const PluginManager::Data& data ) const
+BufferString PluginManager::getFileName( const PluginManager::Data& data ) const
 {
-    mDeclStaticString( ret );
+    BufferString ret;
     if ( data.autosource_ == Data::None )
-	ret = data.name_;
+	ret = data.getFileName();
     else
 	ret = FilePath(
 		data.autosource_ == Data::AppDir ?  applibdir_ : userlibdir_,
-		data.name_ ).fullPath();
-    return ret.buf();
+		data.getFileName() ).fullPath();
+
+    return ret;
 }
 
 
@@ -321,7 +462,8 @@ PluginManager::Data* PluginManager::fndData( const char* nm ) const
 	if ( data->name_ == nm )
 	    return const_cast<Data*>(data);
     }
-    return 0;
+
+    return nullptr;
 }
 
 
@@ -334,43 +476,11 @@ bool PluginManager::isPresent( const char* nm ) const
 const char* PluginManager::userName( const char* nm ) const
 {
     const Data* data = findData( nm );
-    const PluginInfo* piinf = data ? data->info_ : 0;
+    const PluginInfo* piinf = data ? data->info_ : nullptr;
     if ( !piinf )
-	return moduleName( nm );
+	return getFileBaseName( nm );
 
     return piinf->dispname_;
-}
-
-
-const char* PluginManager::moduleName( const char* nm )
-{
-    return getFnName( nm, "", "" );
-}
-
-
-static PluginInfo* mkEmptyInfo()
-{
-    return new PluginInfo( sKeyNoDispName, sKey::EmptyString(),
-			   sKey::EmptyString(),
-			   sKey::EmptyString(),"No info available");
-}
-
-
-#define mGetFn(typ,sla,nm1,nm2,libnm) \
-	typ fn = sla ? (typ)sla->getFunction( getFnName(libnm,nm1,nm2) ) : 0
-
-
-static PluginInfo* getPluginInfo( SharedLibAccess* sla, const char* libnm )
-{
-    mGetFn(PluginInfoRetFn,sla,"Get","PluginInfo",libnm);
-    return fn ? (*fn)() : mkEmptyInfo();
-}
-
-
-static int getPluginType( SharedLibAccess* sla, const char* libnm )
-{
-    mGetFn(VoidIntRetFn,sla,"Get","PluginType",libnm);
-    return fn ? (*fn)() : PI_AUTO_INIT_LATE;
 }
 
 
@@ -398,6 +508,7 @@ void PluginManager::openALOEntries()
 	if ( data.autosource_ == Data::None )
 	    continue;
 
+	loadOpenSSLIfNeeded( data.getBaseName() );
 	data.sla_ = new SharedLibAccess( getFileName(data) );
 	if ( !data.sla_->isOK() )
 	{
@@ -416,13 +527,13 @@ void PluginManager::openALOEntries()
 	    }
 	}
 
-	if ( !data.sla_ )
-	    OD::ModDeps().ensureLoaded( moduleName( data.name_ ) );
-	else
+	if ( data.sla_ )
 	{
 	    data.autotype_ = getPluginType( data.sla_, data.name_ );
 	    data.info_ = getPluginInfo( data.sla_, data.name_ );
 	}
+	else
+	    OD::ModDeps().ensureLoaded( data.getBaseName() );
     }
 }
 
@@ -460,6 +571,7 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 		    if ( !FilePath(getFileName(*data)).exists() )
 			continue;
 		}
+
 		data_ += data;
 	    }
 	}
@@ -470,42 +582,12 @@ void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 void PluginManager::mkALOList()
 {
     getALOEntries( userdir_, true );
-#ifdef __mac__
-    getALOEntries( FilePath(appdir_,"Resources").fullPath(), false );
-#else
-    getALOEntries( appdir_, false );
-#endif
+    FilePath fp( appdir_ );
+    if ( __ismac__ )
+	fp.add( "Resources" );
+
+    getALOEntries( fp.fullPath(), false );
     openALOEntries();
-}
-
-
-static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
-			const char* libnm, bool mandatory )
-{
-    mGetFn(ArgcArgvCCRetFn,sla,"Init","Plugin",libnm);
-    if ( !fn ) // their bad
-    {
-	if ( mandatory )
-	{
-	    const BufferString libnmonly = FilePath(libnm).fileName();
-	    ErrMsg( BufferString( libnmonly,
-			" does not have a InitPlugin function"));
-	}
-
-	return false;
-    }
-
-    const char* ret = (*fn)( argc, argv );
-    if ( ret && *ret )
-    {
-	const BufferString libnmonly = FilePath(libnm).fileName();
-	BufferString msg( "Message from " );
-	msg += libnm; msg += ":\n\t"; msg += ret;
-	UsrMsg( msg );
-	return false;
-    }
-
-    return true;
 }
 
 
@@ -522,6 +604,7 @@ bool PluginManager::load( const char* libnm, Data::AutoSource src,
     const BufferString libnmonly( fp.fileName() );
 
     Data* data = new Data( libnmonly );
+    loadOpenSSLIfNeeded( data->getBaseName() );
     data->sla_ = new SharedLibAccess( libnm );
     if ( !data->sla_->isOK() )
     {
@@ -636,6 +719,7 @@ bool PluginManager::load( const char* libnm, Data::AutoSource src,
 	    msg = "Successfully loaded plugin '";
 	else
 	    msg = "Failed to load plugin '";
+
 	msg += userName(data->name_); msg += "'";
 	UsrMsg( msg );
     }
@@ -674,7 +758,7 @@ void PluginManager::loadAuto( bool late, bool withfilter )
 	if ( data.autotype_ != pitype )
 	    continue;
 
-	const BufferString modnm = moduleName( data.name_ );
+	const BufferString modnm = data.getBaseName();
 	if ( data.info_ && dontloadlist.isPresent(modnm) )
 	    continue;
 
@@ -696,6 +780,7 @@ void PluginManager::loadAuto( bool late, bool withfilter )
 		msg = "Successfully loaded plugin '";
 	    else
 		msg = "Failed to load plugin '";
+
 	    msg += userName(data.name_); msg += "'";
 	    UsrMsg( msg );
 	}

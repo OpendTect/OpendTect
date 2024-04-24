@@ -96,27 +96,28 @@ public:
 					//!< Explicit unload of a plugin
     void			unLoadAll();
 
-    struct Data
+    mExpClass(Basic) Data
     {
+    public:
 	enum AutoSource		{ None, UserDir, AppDir, Both };
-	static bool		isUserDir( AutoSource src )
-				{ return src != AppDir && src != None; }
 
-				Data( const char* nm )
-				    : name_(nm)
-				    , info_(0)
-				    , autosource_(None)
-				    , autotype_(PI_AUTO_INIT_NONE)
-				    , isloaded_( false )
-				    , sla_(0)	{}
-				~Data()		{ delete sla_; }
+				Data(const char* nm);
+				~Data();
+
+	BufferString		getFileName() const;
+				//!< Always without path
+	BufferString		getBaseName() const;
+				/*!< Without prefix and suffix, for example
+					returns 'Basic' from 'libBasic.so' */
 
 	BufferString		name_;
-	const PluginInfo*	info_;
-	AutoSource		autosource_;
-	int			autotype_;
-	SharedLibAccess*	sla_;
-	bool			isloaded_;
+	const PluginInfo*	info_		= nullptr;
+	AutoSource		autosource_	= None;
+	int			autotype_	= PI_AUTO_INIT_NONE;
+	SharedLibAccess*	sla_		= nullptr;
+	bool			isloaded_	= false;
+
+	static bool		isUserDir(AutoSource);
     };
 
     bool			load(const char* libnm,Data::AutoSource,
@@ -129,12 +130,11 @@ public:
 
     bool		isPresent(const char*) const;
     const char*		userName(const char*) const;
-			/*!<returns name in plugin-info, or moduleName
+			/*!<returns name in plugin-info, or base name
 			    if plugin info is not available. */
 
-    static const char*	moduleName(const char*);
-			//!< returns without path, 'lib' and extension
-    const char*		getFileName(const Data&) const;
+    BufferString	getFileName(const Data&) const;
+			//!< return filename with full path
 
     const char*		getAutoDir( bool usr ) const
 			{ return usr ? userlibdir_ : applibdir_; }

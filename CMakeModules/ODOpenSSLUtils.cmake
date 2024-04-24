@@ -1,7 +1,7 @@
 #________________________________________________________________________
 #
-# Copyright:    (C) 1995-2022 dGB Beheer B.V.
-# License:      https://dgbes.com/licensing
+# Copyright:	(C) 1995-2022 dGB Beheer B.V.
+# License:	https://dgbes.com/licensing
 #________________________________________________________________________
 #
 
@@ -117,7 +117,7 @@ endmacro(OD_CLEANUP_OPENSSL)
 
 macro( OD_SETUP_OPENSSLCOMP COMP )
     list( APPEND OD_MODULE_COMPILE_DEFINITIONS
-	  "__OpenSSL_${COMP}_LIBRARY__=\"$<TARGET_FILE:OpenSSL::${COMP}>\"" )
+	  "__OpenSSL_${COMP}_LIBRARY__=\"$<TARGET_FILE_NAME:OpenSSL::${COMP}>\"" )
 endmacro(OD_SETUP_OPENSSLCOMP)
 
 macro( OD_FIND_OPENSSL )
@@ -169,6 +169,9 @@ macro( OD_SETUP_OPENSSL )
 	if ( EXISTS "${OPENSSL_EXEC}" )
 	    list( APPEND OD_MODULE_COMPILE_DEFINITIONS
 		"__OPENSSL_EXEC__=\"${OPENSSL_EXEC}\"" )
+	endif()
+	if ( UNIX AND NOT APPLE AND (OD_LINKCRYPTO OR OD_LINKOPENSSL) )
+	    OD_INSTALL_DATADIR_MOD( "OpenSSL" )
 	endif()
     else()
 	set( OPENSSL_ROOT_DIR "" CACHE PATH "OpenSSL Location" )
