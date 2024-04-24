@@ -249,6 +249,9 @@ void FlatViewer::updateGridLines( bool x1 )
     if ( mIsUdf(sd.start) || mIsUdf(sd.step) )
 	sd = getDefaultGridSampling( x1 );
 
+    if ( sd.start < range.start )
+	sd.start = sd.atIndex( sd.indexOnOrAfter(range.start) );
+
     float pos = sd.start;
     while ( range.includes( pos, false ) )
     {
