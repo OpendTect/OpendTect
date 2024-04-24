@@ -424,7 +424,7 @@ bool Horizon2DT2DTransformer::do2DHorizon( const
     const Pos::GeomID& geomid = dataholder.getGeomID();
     const TypeSet<MultiID>& inpmids = dataholder.getMIDSet();
     TypeSet<int> horidxs;
-    StepInterval<int> trcrangeenvelop;
+    StepInterval<int> trcrangeenvelop( Interval<int>::udf(), 1 );
     for ( const auto& inpmid : inpmids )
     {
 	const int horidx = preprocessesedinpmid_.indexOf( inpmid );
