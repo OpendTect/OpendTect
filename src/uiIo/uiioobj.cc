@@ -36,7 +36,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	return false;
 
     uiString msg, canceltxt, deepremovetext, shallowremovetxt;
-    bool deepremove = false;
+    bool deepremove = mustrm;
     if ( doconfirm && !silent_ &&
 	    trans->getConfirmRemoveMsg(&ioobj_,msg,canceltxt,deepremovetext,
 				    shallowremovetxt) )
@@ -68,7 +68,8 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 		return false;
 	}
 
-	return false;
+	if ( !rmentry )
+	    return false;
     }
 
     if ( rmentry )
