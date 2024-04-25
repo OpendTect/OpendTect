@@ -142,7 +142,6 @@ public:
 			/*!<returns name in plugin-info, or base name
 			    if plugin info is not available. */
 
-    mDeprecated("Use PluginManager::Data::getBaseName()")
     static const char*	moduleName(const char*);
 			//!< returns without path, 'lib' and extension
     const char*		getFileName(const Data&) const;
