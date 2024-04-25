@@ -40,6 +40,8 @@ mDefModInitFn(General)
 {
     mIfNotFirstTime( return );
 
+    setGlobal_Basic_OpenSSLFn( OD::OpenSSLAccess::loadOpenSSL );
+
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();
     IOObjSelectionTranslatorGroup::initClass();
@@ -80,7 +82,6 @@ mDefModInitFn(General)
 
     ImageDefTranslatorGroup::initClass();
     ODImageDefTranslator::initClass();
-    setGlobal_Basic_OpenSSLFn( OD::OpenSSLAccess::loadOpenSSL );
 
     BufferString libnm; libnm.setMinBufSize( 32 );
     SharedLibAccess::getLibName( "CRS", libnm.getCStr(), libnm.bufSize() );
