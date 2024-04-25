@@ -115,6 +115,12 @@ public:
 				    , sla_(0)	{}
 				~Data()		{ delete sla_; }
 
+	BufferString		getFileName() const;
+				//!< Always without path
+	BufferString		getBaseName() const;
+				/*!< Without prefix and suffix, for example
+					returns 'Basic' from 'libBasic.so' */
+
 	BufferString		name_;
 	const PluginInfo*	info_;
 	AutoSource		autosource_;
@@ -133,12 +139,14 @@ public:
 
     bool		isPresent(const char*) const;
     const char*		userName(const char*) const;
-			/*!<returns name in plugin-info, or moduleName
+			/*!<returns name in plugin-info, or base name
 			    if plugin info is not available. */
 
+    mDeprecated("Use PluginManager::Data::getBaseName()")
     static const char*	moduleName(const char*);
 			//!< returns without path, 'lib' and extension
     const char*		getFileName(const Data&) const;
+			//!< return filename with full path
 
     const char*		getAutoDir( bool usr ) const
 			{ return usr ? userlibdir_ : applibdir_; }

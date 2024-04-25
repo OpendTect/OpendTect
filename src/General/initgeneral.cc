@@ -20,12 +20,15 @@ ________________________________________________________________________
 #include "mathformulatransl.h"
 #include "mathproperty.h"
 #include "oddirs.h"
+#include "opensslaccess.h"
 #include "plugins.h"
 #include "preloads.h"
 #include "rangeposprovider.h"
 #include "simpletimedepthmodel.h"
 #include "survgeometrytransl.h"
 
+using boolFromVoidFn = bool(*)(void);
+mGlobal(Basic) void setGlobal_Basic_OpenSSLFn(boolFromVoidFn);
 
 mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc)
 mDefSimpleTranslators(PosProviders,"Subselection",dgb,Misc)
@@ -77,6 +80,7 @@ mDefModInitFn(General)
 
     ImageDefTranslatorGroup::initClass();
     ODImageDefTranslator::initClass();
+    setGlobal_Basic_OpenSSLFn( OD::OpenSSLAccess::loadOpenSSL );
 
     BufferString libnm; libnm.setMinBufSize( 32 );
     SharedLibAccess::getLibName( "CRS", libnm.getCStr(), libnm.bufSize() );

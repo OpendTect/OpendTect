@@ -161,16 +161,10 @@ bool OD::OpenSSLAccess::decryptFromFile( const char* fnm, BufferString& res,
 namespace System
 {
 
-static bool findLibraryPath( const char* libnm, FilePath& ret )
+static bool findLibraryPath( const char* libnm )
 {
-    if ( __iswin__ )
+    if ( !__islinux__ )
 	return false;
-
-    if ( __ismac__ )
-    {
-	//TODO impl
-	return false;
-    }
 
     OS::MachineCommand mc( "/sbin/ldconfig" );
     mc.addFlag( "p", OS::OldStyle ).addPipe()
@@ -204,55 +198,55 @@ static bool findLibraryPath( const char* libnm, FilePath& ret )
     if ( cmdoutlines_x64.isEmpty() )
 	return false;
 
-    ret.set( cmdoutlines_x64.first()->buf() );
-    return ret.exists();
-}
-
-
-static bool canUseSystemOpenSSL( const char* libfnm, bool iscrypto,
-				 FilePath& syslibfnm )
-{
-    if ( __iswin__ )
-	return false;
-
-    const FilePath libfp( libfnm );
-    const char* libnm = libfp.fileName().buf();
-    if ( !findLibraryPath(libnm,syslibfnm) )
-	return false;
-
-    if ( __ismac__ )
-	return syslibfnm.exists();
-
-    const BufferString funcnm( iscrypto ? "EVP_PKEY_param_check"
-					: "EVP_PKEY_paramgen" );
-
-    OS::MachineCommand mc( "strings" );
-    mc.addArg( syslibfnm.fullPath() ).addPipe()
-      .addArg( "grep" )
-      .addKeyedArg( "m", 1, OS::OldStyle )
-      .addArg( funcnm.str() );
-
-    BufferString cmdoutstr;
-    return mc.execute( cmdoutstr ) && !cmdoutstr.isEmpty();
+    return File::exists( cmdoutlines_x64.first()->buf() );
 }
 
 } // namespace System
 
 
+bool OD::OpenSSLAccess::loadOpenSSL()
+{
+    static int res = -1;
+    if ( res >= 0 )
+	return res == 1;
+
+    if ( __iswin__ )
+    {
+	res = 1;
+	return res == 1;
+    }
+
+#ifdef __OpenSSL_Crypto_LIBRARY__
+    const bool cryptook = loadOpenSSL( __OpenSSL_Crypto_LIBRARY__, true );
+    if ( cryptook )
+    {
+# ifdef __OpenSSL_SSL_LIBRARY__
+	res = loadOpenSSL( __OpenSSL_SSL_LIBRARY__, false ) ? 1 : 0;
+# else
+	res = 0;
+# endif
+    }
+    else
+	res = 0;
+#else
+    res = 0;
+#endif
+
+    return res == 1;
+}
+
+
 bool OD::OpenSSLAccess::loadOpenSSL( const char* libnm, bool iscrypto )
 {
-    static PtrMan<RuntimeLibLoader> libsha;
+    static PtrMan<RuntimeLibLoader> libcryptosha, libsslsha;
     static int rescrypto = -1;
     static int resssl = -1;
     int& res = iscrypto ? rescrypto : resssl;
+    PtrMan<RuntimeLibLoader>& libsha = iscrypto ? libcryptosha : libsslsha;
     if ( res < 0 )
     {
-	FilePath syslibfnm;
-	if ( System::canUseSystemOpenSSL(libnm,iscrypto,syslibfnm) )
-	{
-	    libsha = new RuntimeLibLoader( syslibfnm.fullPath() );
-	    res = libsha && libsha->isOK() ? 1 : 0;
-	}
+	if ( __islinux__ && System::findLibraryPath(libnm) )
+	    res = 1;
 	else
 	{
 	    const BufferString subdir( __islinux__ ? "OpenSSL" : "" );
