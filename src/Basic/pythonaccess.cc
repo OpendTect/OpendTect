@@ -57,16 +57,19 @@ OD::PythonAccess& OD::PythA()
 
 const char* OD::PythonAccess::sPythonExecNm( bool v3, bool v2 )
 {
-#ifdef __win__
-    return "python.exe";
-#else
-    if ( v3 )
-	return "python3";
-    else if ( v2 )
-	return "python2";
+    if ( __iswin__ )
+    {
+	return "python.exe";
+    }
     else
-	return "python";
-#endif
+    {
+	if ( v3 )
+	    return "python3";
+	else if ( v2 )
+	    return "python2";
+	else
+	    return "python";
+    }
 }
 
 
@@ -1206,18 +1209,14 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
     const IOPar& pythonsetts = Settings::fetch( pythonstr );
     PythonSource source;
     if ( !PythonSourceDef().parse(pythonsetts,sKeyPythonSrc(),source) )
-	source = System;
+	source = hasInternalEnvironment() ? Internal : System;
 
     if ( source == Custom )
     {
 	BufferString virtenvloc, virtenvnm;
 	pythonsetts.get( sKeyEnviron(), virtenvloc );
 	pythonsetts.get( sKey::Name(), virtenvnm );
-#ifdef __win__
-	fp = FilePath( virtenvloc, "envs", virtenvnm );
-#else
-	fp = FilePath( "/", virtenvloc, "envs", virtenvnm );
-#endif
+	fp.set( virtenvloc ).add( "envs" ).add( virtenvnm );
 	if ( !fp.exists() )
 	{
 	    BufferStringSet txtenvnms;
@@ -1243,11 +1242,7 @@ void OD::PythonAccess::GetPythonEnvPath( FilePath& fp )
 void OD::PythonAccess::GetPythonEnvBinPath( FilePath& fp )
 {
     GetPythonEnvPath( fp );
-#ifdef __win__
-    fp.add( "Scripts" );
-#else
-    fp.add( "bin" );
-#endif
+    fp.add( __iswin__ ? "Scripts" : "bin" );
 }
 
 
