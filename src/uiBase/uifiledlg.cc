@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "odplatform.h"
 #include "separstr.h"
 
 #include "uiparentbody.h"
@@ -221,6 +222,17 @@ int uiFileDialog::go()
 	{
 	    uiMSG().error( tr("File name has unicode characters.\n"
 			      "OpendTect doesn't support unicode yet.") );
+	    return 0;
+	}
+
+	if ( file0.length() >= File::maxPathLength() )
+	{
+	    uiMSG().error( tr("File path is too long:\n%1\n"
+			      "\n%2 doesn't support file paths longer than "
+			      "%3 characters")
+			   .arg(file0)
+			   .arg(OD::Platform::local().osName())
+			   .arg(File::maxPathLength()) );
 	    return 0;
 	}
 
