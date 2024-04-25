@@ -155,28 +155,6 @@ else
 	endif
     endif
 
-    if ( -e "${bindir}"/libuidGBTools.so ) then
-	# OpenSSL presence check
-	if ( -e ${ldconfig} ) then
-	    set syslibcrypto = `${ldconfig} -p | grep libcrypto.so.1.1 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
-	    set syslibssl = `${ldconfig} -p | grep libssl.so.1.1 | grep 64 | tr ' ' '\n' | grep / | head -n 1`
-	else
-	    set syslibcrypto = "/usr/lib64/libcrypto.so.1.1"
-	    set syslibssl = "/usr/lib64/libssl.so.1.1"
-	endif
-
-	if ( ! -e "${syslibcrypto}" || ! -e "${syslibssl}" ) then
-	    set odopenssllibdir = "${bindir}"/OpenSSL
-	    if ( -d "${odopenssllibdir}" ) then
-		if ( $?LD_LIBRARY_PATH ) then
-		    setenv LD_LIBRARY_PATH "${odopenssllibdir}":${LD_LIBRARY_PATH}
-		else
-		    setenv LD_LIBRARY_PATH "${odopenssllibdir}"
-		endif
-	    endif
-	endif
-    endif
-
     # kludge for Fedora 8
     setenv LIBXCB_ALLOW_SLOPPY_LOCK 1
 

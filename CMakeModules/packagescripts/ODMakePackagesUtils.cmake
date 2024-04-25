@@ -51,6 +51,9 @@ macro ( CREATE_PACKAGE PACKAGE_NAME )
 	file( GLOB FILESEL_PROVS "${COPYFROMDATADIR}/data/FileSelProviders/uidGB*.txt" )
 	file( COPY ${FILESEL_PROVS}
 	      DESTINATION "${COPYTODATADIR}/data/FileSelProviders" )
+	file( GLOBAL OPENSSL_PROVS "${COPYFROMDATADIR}/data/OpenSSL/*.txt" )
+	file( COPY ${OPENSSL_PROVS}
+	      DESTINATION "${COPYTODATADIR}/data/OpenSSL" )
 	file( GLOB SEISTRCTR_PROVS "${COPYFROMDATADIR}/data/SeisTrcTranslators/dGB*.txt" )
 	file( COPY ${SEISTRCTR_PROVS}
 	      DESTINATION "${COPYTODATADIR}/data/SeisTrcTranslators" )
