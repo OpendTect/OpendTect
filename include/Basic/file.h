@@ -121,6 +121,7 @@ mGlobal(Basic) const char*	getHomePath();
 mGlobal(Basic) const char*	getTempPath();
 mGlobal(Basic) const char*	getUserAppDataPath();
 mGlobal(Basic) const char*	getRootPath(const char* path);
+mGlobal(Basic) int		maxPathLength();
 
 mGlobal(Basic) const char*	asciiFilesFilter();
 mGlobal(Basic) const char*	allFilesFilter();

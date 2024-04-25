@@ -1059,6 +1059,12 @@ const char* getRootPath( const char* path )
 }
 
 
+int maxPathLength()
+{
+    return FILENAME_MAX <= 0 ? mUdf(int) : FILENAME_MAX;
+}
+
+
 const char* asciiFilesFilter()
 { return "ASCII Files (*.dat)"; }
 
