@@ -118,7 +118,6 @@ public:
     void			addHorMID(const MultiID&);
     const Pos::GeomID&		getGeomID() const;
     const TypeSet<MultiID>&	getMIDSet() const;
-    const StepInterval<int>	getTrcRangeEnvelop() const;
 protected:
     TypeSet<MultiID>		mids_;
     Pos::GeomID			geomid_;
