@@ -673,7 +673,7 @@ uiString MultiWellWriter::uiMessage() const
 { return msg_; }
 
 uiString MultiWellWriter::uiNrDoneText() const
-{ return tr("Wells read"); }
+{ return tr("Wells written"); }
 
 
 int MultiWellWriter::nextStep()
