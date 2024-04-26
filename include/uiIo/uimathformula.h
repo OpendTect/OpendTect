@@ -40,7 +40,7 @@ public:
     public:
 			Setup( const uiString& lbl=uiString::empty() )
 			    : label_(lbl)
-			    , maxnrinps_(6)
+			    , maxnrinps_(10)
 			    , withsubinps_(false)
 			    , withunits_(true)
 			    , mn_(nullptr)	{}
