@@ -234,6 +234,10 @@ void WellTie::uiTieView::drawTraces()
 {
     trcbuf_.erase();
     const int nrtrcs = nrtrcs_*2 + 4;
+    const ZSampling modelsd = data_.getModelRange();
+    const ZSampling tracesd = data_.getTraceRange();
+    const int normstart = tracesd.getIndex( modelsd.start );
+    const int normstop =  tracesd.getIndex( modelsd.stop );
     for ( int idx=0; idx<nrtrcs; idx++ )
     {
 	const int midtrc = nrtrcs/2-1;
@@ -249,7 +253,10 @@ void WellTie::uiTieView::drawTraces()
 	if ( udf )
 	    setUdfTrc( *trc );
 	else
-	    { SeisTrcPropChg pc( *trc ); pc.normalize( true ); }
+	{
+	    SeisTrcPropChg pc( *trc );
+	    pc.normalize( true, normstart, normstop );
+	}
     }
     setDataPack();
 }
