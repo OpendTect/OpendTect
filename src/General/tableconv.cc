@@ -119,7 +119,7 @@ int Table::Converter::nextStep()
 	if ( imphndlr_.atEnd() )
 	{
 	    atend_ = true;
-	    mFinishReturn( Finished() );
+	    return MoreToDo();
 	}
 
 	if ( impstate == Table::ImportHandler::EndRow )
