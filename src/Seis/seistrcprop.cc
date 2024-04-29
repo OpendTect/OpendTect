@@ -164,14 +164,23 @@ mEndCompLoop
 }
 
 
-void SeisTrcPropChg::normalize( bool aroundzero )
+void SeisTrcPropChg::normalize( bool aroundzero, int start, int stop )
 {
     mChkSize();
+    if ( stop<start )
+    {
+	const int tmp = start;
+	start = stop;
+	stop = tmp;
+    }
+
+    const int normstop = mMIN(sz-1, stop);
+    const int normstart = mMAX(start, 0);
 
 mStartCompLoop
 
     Interval<float> rg( Interval<float>::udf() );
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=normstart; idx<normstop; idx++ )
     {
 	const float val = trc.get( idx, icomp );
 	if ( mIsUdf(val) )
@@ -210,6 +219,12 @@ mStartCompLoop
     }
 
 mEndCompLoop
+}
+
+
+void SeisTrcPropChg::normalize( bool aroundzero )
+{
+    normalize( aroundzero, 0, mtrc().size()-1 );
 }
 
 

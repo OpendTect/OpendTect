@@ -59,6 +59,7 @@ public:
     void	scale(float fac,float shft=0);
     void	scale(const Scaler&);
     void	normalize(bool aroundzero);
+    void	normalize(bool aroundzero,int start,int stop);
     void	corrNormalize();
     void	removeAVG();
     void	mute(float pos,float taperlen)		{topMute(pos,taperlen);}
