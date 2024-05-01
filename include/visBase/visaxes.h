@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "color.h"
+
+#include "viscamera.h"
 #include "visdata.h"
 
 class FontData;
@@ -17,13 +19,12 @@ namespace osgGeo{ class AxesNode; }
 namespace visBase
 {
 
-class Camera;
-
 mExpClass(visBase) Axes : public DataObject
 {
 public:
-    static Axes*		create()
+    static RefMan<Axes>		create();
 				mCreateDataObj(Axes);
+
     void			setRadius(float);
     float			getRadius() const;
     void			setLength(float);
@@ -38,14 +39,15 @@ public:
     void			setPixelDensity(float dpi) override;
 
 protected:
+				Axes( bool /*internal*/ )
+				    : Axes()		{}
 				~Axes();
 
     osgGeo::AxesNode*		axesnode_;
-    // TODO: rename to primarycamera_
-    Camera*			mastercamera_;
+    RefMan<Camera>		primarycamera_;
     bool			ison_;
     float			pixeldensity_;
-    int				annottextsize_;
+    int				annottextsize_	= 18;
 
 public:
     mDeprecated("Use setPrimaryCamera")

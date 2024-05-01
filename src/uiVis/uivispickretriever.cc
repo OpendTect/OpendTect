@@ -20,9 +20,8 @@ ________________________________________________________________________
 
 uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
     : visserv_(ps)
-    , status_( Idle )
-    , pickedgeomid_(Survey::GeometryManager::cUndefGeomID())
-    , finished_( this )
+    , pickedgeomid_(Pos::GeomID::udf())
+    , finished_(this)
 {
     resetPickedPos();
 }
@@ -30,14 +29,14 @@ uiVisPickRetriever::uiVisPickRetriever( uiVisPartServer* ps )
 
 uiVisPickRetriever::~uiVisPickRetriever()
 {
-    while ( scenes_.size() )
-	removeScene( scenes_[0] );
+    detachAllNotifiers();
 }
 
 
-bool uiVisPickRetriever::enable(  const TypeSet<SceneID>* scenes )
+bool uiVisPickRetriever::enable( const TypeSet<SceneID>* scenes )
 {
-    if ( status_ == Waiting ) return false;
+    if ( status_ == Waiting )
+	return false;
 
     status_ = Waiting;
     if ( scenes )
@@ -54,56 +53,55 @@ bool uiVisPickRetriever::enable(  const TypeSet<SceneID>* scenes )
 
 void uiVisPickRetriever::addScene( visSurvey::Scene* scene )
 {
-    scene->eventCatcher().eventhappened.notify(
-	    mCB( this, uiVisPickRetriever, pickCB ) );
-    scenes_ += scene;
+    mAttachCB( scene->eventCatcher().eventhappened, uiVisPickRetriever::pickCB);
 }
 
 
 void uiVisPickRetriever::removeScene( visSurvey::Scene* scene )
 {
-    scene->eventCatcher().eventhappened.remove(
-	    mCB( this, uiVisPickRetriever, pickCB ) );
-    scenes_ -= scene;
+    mDetachCB( scene->eventCatcher().eventhappened, uiVisPickRetriever::pickCB);
 }
 
 
 void uiVisPickRetriever::pickCB( CallBacker* cb )
 {
-    if ( status_!=Waiting )
+    if ( status_!=Waiting || !visserv_ )
 	return;
 
     mCBCapsuleUnpackWithCaller( const visBase::EventInfo&,
-	    			eventinfo, caller, cb );
-    if ( eventinfo.type!=visBase::MouseClick )
+				eventinfo, caller, cb );
+    if ( eventinfo.type != visBase::MouseClick )
 	return;
 
-    visSurvey::Scene* scene = nullptr;
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    RefMan<visSurvey::Scene> curscene;
+    TypeSet<SceneID> sceneids;
+    visserv_->getSceneIds( sceneids );
+    for ( const auto& sceneid : sceneids )
     {
-	if ( &scenes_[idx]->eventCatcher()==caller )
+	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneid );
+	if ( scene && &scene->eventCatcher()==caller )
 	{
-	    scene = scenes_[idx];
+	    curscene = scene;
 	    break;
 	}
     }
 
-    if ( !scene || scene->eventCatcher().isHandled() )
+    if ( !curscene || curscene->eventCatcher().isHandled() )
 	return;
 
-    scene->eventCatcher().setHandled();
+    curscene->eventCatcher().setHandled();
 
     if ( eventinfo.pressed ) //Block other objects from taking action
 	return;
 
     if ( (!allowedscenes_.isEmpty() &&
-	  !allowedscenes_.isPresent( scene->id() ))
-	  || eventinfo.pickedobjids.isEmpty() )
+	  !allowedscenes_.isPresent(curscene->getID())) ||
+	  eventinfo.pickedobjids.isEmpty() )
 	status_ = Failed;
     else
     {
 	pickedpos_ = eventinfo.worldpickedpos;
-	pickedscene_ = scene->id();
+	pickedscene_ = curscene->getID();
 	buttonstate_ = eventinfo.buttonstate_;
 	status_ = Success;
     }
@@ -113,7 +111,8 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     {
 	visBase::DataObject* dataobj =
 		visBase::DM().getObject( pickedobjids_[idx] );
-	if ( !dataobj ) continue;
+	if ( !dataobj )
+	    continue;
 
 	mDynamicCastGet(visSurvey::Seis2DDisplay*,s2dd,dataobj);
 	if ( !s2dd || !s2dd->isOn() )
@@ -159,10 +158,15 @@ void uiVisPickRetriever::resetPickedPos()
 
 const ZAxisTransform* uiVisPickRetriever::getZAxisTransform() const
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    TypeSet<SceneID> sceneids;
+    visserv_->getSceneIds( sceneids );
+    for ( const auto& sceneid : sceneids )
     {
-	if ( scenes_[idx] && scenes_[idx]->id()==pickedscene_ )
-	    return scenes_[idx]->getZAxisTransform();
+	if ( sceneid != pickedscene_ )
+	    continue;
+
+	ConstRefMan<visSurvey::Scene> scene = visserv_->getScene( sceneid );
+	return scene ? scene->getZAxisTransform() : nullptr;
     }
 
     return nullptr;
@@ -171,10 +175,13 @@ const ZAxisTransform* uiVisPickRetriever::getZAxisTransform() const
 
 SceneID uiVisPickRetriever::unTransformedSceneID() const
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    TypeSet<SceneID> sceneids;
+    visserv_->getSceneIds( sceneids );
+    for ( const auto& sceneid : sceneids )
     {
-	if ( scenes_[idx] && !scenes_[idx]->getZAxisTransform() )
-	    return scenes_[idx]->id();
+	ConstRefMan<visSurvey::Scene> scene = visserv_->getScene( sceneid );
+	if ( scene && !scene->getZAxisTransform() )
+	    return scene->getID();
     }
 
     return SceneID::udf();

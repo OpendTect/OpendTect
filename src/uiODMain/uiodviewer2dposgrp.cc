@@ -268,9 +268,9 @@ void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
 IOObj* uiODViewer2DPosGrp::get2DObj()
 {
     const Attrib::DescSet& ads = inp2dfld_->getAttrSet();
-    const Attrib::Desc* desc = ads.getDesc( inp2dfld_->attribID() );
+    ConstRefMan<Attrib::Desc> desc = ads.getDesc( inp2dfld_->attribID() );
     if ( !desc ) desc = ads.getFirstStored();
-    if ( !desc ) return 0;
+    if ( !desc ) return nullptr;
 
     const MultiID stored2did( desc->getStoredID(true).buf() );
     return IOM().get( stored2did );

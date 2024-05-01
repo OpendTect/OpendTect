@@ -103,7 +103,7 @@ void uiMathAttrib::inpSel( CallBacker* cb )
 
     inpfld->setNonSpecSubInputs( BufferStringSet() );
 
-    Desc* inpdesc = ads_->getDescFromUIListEntry( inpfld->getInput() );
+    RefMan<Desc> inpdesc = ads_->getDescFromUIListEntry( inpfld->getInput() );
     if ( !inpdesc || !inpdesc->isStored() )
 	return;
 
@@ -112,7 +112,7 @@ void uiMathAttrib::inpSel( CallBacker* cb )
     if ( !inpobj )
 	return;
 
-    SeisIOObjInfo seisinfo( inpobj );
+    const SeisIOObjInfo seisinfo( inpobj );
     if ( seisinfo.nrComponents() > 1 )
     {
 	BufferStringSet nms;
@@ -320,7 +320,7 @@ bool uiMathAttrib::getInput( Desc& desc )
 	    if ( attrinpidx >= desc.nrInputs() )
 		return false;
 
-	    Attrib::Desc* inpdesc = nullptr;
+	    RefMan<Attrib::Desc> inpdesc;
 	    if ( dpfids_.isEmpty() )
 	    {
 		inpdesc = desc.descSet()->getDescFromUIListEntry(
@@ -338,7 +338,7 @@ bool uiMathAttrib::getInput( Desc& desc )
 		    inpdesc->getValParam( Attrib::StorageProvider::keyStr() );
 		param->setValue( inpdpfid.asMultiID() );
 		if ( desc.descSet() )
-		    desc.descSet()->addDesc( inpdesc );
+		    desc.descSet()->addDesc( inpdesc.ptr() );
 	    }
 
 	    const bool res = desc.setInput( attrinpidx, inpdesc );

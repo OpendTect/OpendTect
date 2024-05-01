@@ -24,13 +24,15 @@ public:
 			uiSlicePos3DDisp(uiParent*,uiVisPartServer*);
 			~uiSlicePos3DDisp();
 
-    void		setDisplay(VisID dispid);
+    bool		isOK() const;
+
+    void		setDisplay(const VisID&);
     VisID		getDisplayID() const;
 
 private:
 
-    RefMan<visSurvey::PlaneDataDisplay> curpdd_;
-    RefMan<visSurvey::VolumeDisplay>	curvol_;
+    WeakPtr<visSurvey::PlaneDataDisplay> curpdd_;
+    WeakPtr<visSurvey::VolumeDisplay>	curvol_;
     uiVisPartServer*		vispartserv_;
 
     uiSlicePos::SliceDir	getOrientation() const override;

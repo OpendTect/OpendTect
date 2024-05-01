@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uivismod.h"
+
 #include "uidialog.h"
 #include "uipolardiagram.h"
+#include "vissurvscene.h"
 
 class uiDialExtra;
 class uiGenInput;
@@ -25,14 +26,15 @@ namespace visBase { class Light; }
 mExpClass(uiVis) uiDirLightDlg : public uiDialog
 { mODTextTranslationClass(uiDirLightDlg);
 public:
-				uiDirLightDlg(uiParent*, uiVisPartServer*);
+				uiDirLightDlg(uiParent*,uiVisPartServer*);
 				~uiDirLightDlg();
 
     void			show() override;
 
 protected:
 
-    visBase::Light*		getDirLight(int) const;
+    RefMan<visSurvey::Scene>	getScene(int infoidx) const;
+    visBase::Light*		getDirLight(int infoidx) const;
     void			setDirLight();
     float			getCameraLightIntensity( int ) const;
     void			setCameraLightIntensity();
@@ -45,7 +47,6 @@ protected:
     void			showWidgets(bool);
     void			validateInput();
     bool			isInSync();
-    void			removeSceneNotifiers();
     float			getDiffuseIntensity() const;
 
     bool			acceptOK(CallBacker*) override;
@@ -73,7 +74,7 @@ protected:
     uiSlider*			cameradirintensityfld_;
     uiSlider*			cameraambintensityfld_;
     uiPushButton*		showpdfld_;
-    uiPolarDiagram*		pd_;
+    uiPolarDiagram*		pd_ = nullptr;
     uiDialog*			pddlg_;
     uiGenInput*			switchfld_;
 

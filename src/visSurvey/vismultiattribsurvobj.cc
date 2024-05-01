@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "vismaterial.h"
 #include "vistexturechannel2rgba.h"
 #include "visrgbatexturechannel2rgba.h"
-#include "vistexturechannels.h"
 
 
 namespace visSurvey {
@@ -35,15 +34,13 @@ const char* MultiTextureSurveyObject::sKeyMapper()	{ return "Mapper"; }
 
 
 MultiTextureSurveyObject::MultiTextureSurveyObject()
-    : VisualObjectImpl(true)
-    , channels_( visBase::TextureChannels::create() )
-    , onoffstatus_( true )
-    , resolution_( 0 )
-    , enabletextureinterp_( true )
+    : visBase::VisualObjectImpl(true)
 {
-    channels_->ref();
-    channels_->setChannels2RGBA( visBase::ColTabTextureChannel2RGBA::create() );
-
+    ref();
+    channels_ = visBase::TextureChannels::create();
+    RefMan<visBase::ColTabTextureChannel2RGBA> channels2rgba =
+				visBase::ColTabTextureChannel2RGBA::create();
+    channels_->setChannels2RGBA( channels2rgba.ptr() );
     channels_->enableTextureInterpolation( enabletextureinterp_ );
 
     getMaterial()->setColor( OD::Color::White() );
@@ -55,15 +52,14 @@ MultiTextureSurveyObject::MultiTextureSurveyObject()
 			    diffuseintensity );
     material_->setAmbience( ambience );
     material_->setDiffIntensity( diffuseintensity );
+    unRefNoDelete();
 }
 
 
 MultiTextureSurveyObject::~MultiTextureSurveyObject()
 {
     deepErase( as_ );
-    setZAxisTransform( 0, 0 );
-    channels_->unRef();
-
+    setZAxisTransform( nullptr, nullptr );
     deepErase( userrefs_ );
 }
 
@@ -103,15 +99,32 @@ bool
 MultiTextureSurveyObject::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 {
     RefMan<visBase::TextureChannel2RGBA> dummy( t );
-    if ( !channels_ ) return true;
+    return channels_ ? channels_->setChannels2RGBA( t ) : true;
+}
 
-    return channels_->setChannels2RGBA(t);
+
+const visBase::TextureChannel2RGBA*
+	MultiTextureSurveyObject::getChannels2RGBA() const
+{
+    return mSelf().getChannels2RGBA();
 }
 
 
 visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannels2RGBA()
 {
-    return channels_ ? channels_->getChannels2RGBA() : 0;
+    return channels_ ? channels_->getChannels2RGBA() : nullptr;
+}
+
+
+const visBase::TextureChannels* MultiTextureSurveyObject::getChannels() const
+{
+    return mSelf().getChannels();
+}
+
+
+visBase::TextureChannels* MultiTextureSurveyObject::getChannels()
+{
+    return channels_.ptr();
 }
 
 
@@ -248,12 +261,12 @@ void MultiTextureSurveyObject::setAttribTransparency( int attrib,
 
 unsigned char MultiTextureSurveyObject::getAttribTransparency(int attrib) const
 {
-    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
+    mDynamicCastGet( const visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
 		     channels_->getChannels2RGBA() );
     if ( cttc2rgba )
 	return cttc2rgba->getTransparency( attrib );
 
-    mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgbatc2rgba,
+    mDynamicCastGet( const visBase::RGBATextureChannel2RGBA*, rgbatc2rgba,
 		     channels_->getChannels2RGBA() );
     if ( rgbatc2rgba )
 	return rgbatc2rgba->getTransparency();
@@ -293,15 +306,13 @@ void MultiTextureSurveyObject::setSelSpecs( int attrib,
 					const TypeSet<Attrib::SelSpec>& as )
 {
     SurveyObject::setSelSpecs( attrib, as );
-
-    if ( !as_.validIdx(attrib) )
+    if ( !as_.validIdx(attrib) || *as_[attrib] == as )
 	return;
 
     *as_[attrib] = as;
-
     emptyCache( attrib );
 
-    BufferStringSet* attrnms = new BufferStringSet();
+    auto* attrnms = new BufferStringSet();
     for ( int idx=0; idx<as.size(); idx++ )
 	attrnms->add( as[idx].userRef() );
     delete userrefs_.replace( attrib, attrnms );
@@ -355,6 +366,12 @@ void MultiTextureSurveyObject::enableAttrib( int attrib, bool yn )
 bool MultiTextureSurveyObject::canDisplayInteractively() const
 {
     return canDisplayInteractively( Pos::GeomID::udf() );
+}
+
+
+bool MultiTextureSurveyObject::canEnableTextureInterpolation() const
+{
+    return channels_.ptr();
 }
 
 
@@ -478,7 +495,7 @@ int MultiTextureSurveyObject::selectedTexture( int attrib ) const
 
 void MultiTextureSurveyObject::fillPar( IOPar& par ) const
 {
-    visSurvey::SurveyObject::fillPar( par );
+    SurveyObject::fillPar( par );
     visBase::VisualObjectImpl::fillPar( par );
     par.set( sKeyResolution(), resolution_ );
     par.setYN( visBase::VisualObjectImpl::sKeyIsOn(), isOn() );
@@ -522,8 +539,8 @@ void MultiTextureSurveyObject::fillPar( IOPar& par ) const
 
 bool MultiTextureSurveyObject::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) ||
-	 !visSurvey::SurveyObject::usePar( par ) )
+    if ( !visBase::VisualObjectImpl::usePar(par) ||
+	 !SurveyObject::usePar(par) )
 	return false;
 
     par.get( sKeyResolution(), resolution_ );
@@ -540,8 +557,8 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 						BufferString& val ) const
 {
     val = "undef";
-    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, ctab,
-	    channels_ ? channels_->getChannels2RGBA() : 0 );
+    mDynamicCastGet( const visBase::ColTabTextureChannel2RGBA*, ctab,
+		     channels_ ? channels_->getChannels2RGBA() : nullptr );
     if ( !ctab || !pos.isDefined() )
 	return;
 

@@ -12,29 +12,23 @@ ________________________________________________________________________
 #include "emfaultstickset.h"
 #include "emmanager.h"
 #include "executor.h"
-#include "faultstickseteditor.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "limits.h"
 #include "mpeengine.h"
 #include "undo.h"
 #include "viscoord.h"
 #include "visevent.h"
 #include "vishorizondisplay.h"
-#include "vislines.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
-#include "vismpeeditor.h"
 #include "visplanedatadisplay.h"
-#include "visrandomtrackdisplay.h"
 #include "vispolygonselection.h"
+#include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
-#include "vistransform.h"
-#include "viscoord.h"
 #include "vissurvobj.h"
+#include "vistransform.h"
 #include "zdomain.h"
-#include "visdrawstyle.h"
-#include "limits.h"
-#include "zaxistransform.h"
 
 namespace visSurvey
 {
@@ -47,30 +41,23 @@ const char* FaultStickSetDisplay::sKeyDisplayOnlyAtSections()
 #define mSceneIdx (scene_ ? scene_->fixedIdx() : -1)
 
 FaultStickSetDisplay::FaultStickSetDisplay()
-    : VisualObjectImpl(true)
-    , StickSetDisplay( true )
+    : visBase::VisualObjectImpl(true)
+    , StickSetDisplay(true)
     , colorchange(this)
     , displaymodechange(this)
-    , viseditor_(nullptr)
-    , fsseditor_(nullptr)
-    , activesticknr_( mUdf(int) )
-    , sticks_(visBase::Lines::create())
-    , activestick_(visBase::Lines::create())
-    , displayonlyatsections_(false)
-    , makenewstick_( false )
-    , activestickid_( EM::PosID::udf() )
 {
-    sticks_->ref();
-    stickdrawstyle_ = sticks_->addNodeState( new visBase::DrawStyle );
-    stickdrawstyle_->ref();
+    ref();
+    sticks_ = visBase::Lines::create();
+    activestick_ = visBase::Lines::create();
+    RefMan<visBase::DrawStyle> drawstyle = visBase::DrawStyle::create();
+    stickdrawstyle_ = sticks_->addNodeState( drawstyle.ptr() );
 
     OD::LineStyle stickls( OD::LineStyle::Solid, 3 );
     stickdrawstyle_->setLineStyle( stickls );
     addChild( sticks_->osgNode() );
 
-    activestick_->ref();
-    activestickdrawstyle_ = activestick_->addNodeState(new visBase::DrawStyle);
-    activestickdrawstyle_->ref();
+    RefMan<visBase::DrawStyle> actdrawstyle = visBase::DrawStyle::create();
+    activestickdrawstyle_ = activestick_->addNodeState( actdrawstyle.ptr() );
 
     stickls.width_ += 2;
     activestickdrawstyle_->setLineStyle( stickls );
@@ -78,8 +65,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 
     for ( int idx=0; idx<3; idx++ )
     {
-	visBase::MarkerSet* markerset = visBase::MarkerSet::create();
-	markerset->ref();
+	RefMan<visBase::MarkerSet> markerset = visBase::MarkerSet::create();
 	addChild( markerset->osgNode() );
 	markerset->setMarkersSingleColor( idx ? OD::Color(0,255,0) :
 						OD::Color(255,0,255) );
@@ -92,6 +78,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     sticks_->setPickable( true );
     sticks_->enableTraversal( visBase::cDraggerIntersecTraversalMask(), false );
     setCurScene( scene_ );
+    unRefNoDelete();
 }
 
 
@@ -100,27 +87,16 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     detachAllNotifiers();
     setSceneEventCatcher( nullptr );
     showManipulator( false );
-
-    if ( viseditor_ )
-	viseditor_->unRef();
-    if ( fsseditor_ )
-	fsseditor_->unRef();
-
     if ( fault_ )
     {
 	MPE::engine().removeEditor( fault_->id() );
-	fault_->change.remove( mCB(this,FaultStickSetDisplay,emChangeCB) );
+	mDetachCB( fault_->change, FaultStickSetDisplay::emChangeCB );
 
     }
+
     fsseditor_ = nullptr;
-
     sticks_->removeNodeState( stickdrawstyle_ );
-    stickdrawstyle_->unRef();
-    sticks_->unRef();
-
     activestick_->removeNodeState( activestickdrawstyle_ );
-    activestickdrawstyle_->unRef();
-    activestick_->unRef();
 }
 
 
@@ -169,20 +145,12 @@ void FaultStickSetDisplay::dataTransformCB( CallBacker* )
 void FaultStickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 {
     if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.remove(
-				    mCB(this,FaultStickSetDisplay,mouseCB) );
-	eventcatcher_->unRef();
-    }
+	mDetachCB( eventcatcher_->eventhappened, FaultStickSetDisplay::mouseCB);
 
     eventcatcher_ = vec;
 
     if ( eventcatcher_ )
-    {
-	eventcatcher_->ref();
-	eventcatcher_->eventhappened.notify(
-				    mCB(this,FaultStickSetDisplay,mouseCB) );
-    }
+	mAttachCB( eventcatcher_->eventhappened, FaultStickSetDisplay::mouseCB);
 
     if ( viseditor_ )
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
@@ -192,8 +160,8 @@ void FaultStickSetDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 void FaultStickSetDisplay::setScene( Scene* scene )
 {
     SurveyObject::setScene( scene );
-
-    if ( fsseditor_ ) fsseditor_->setSceneIdx( mSceneIdx );
+    if ( fsseditor_ )
+	fsseditor_->setSceneIdx( mSceneIdx );
 }
 
 
@@ -211,17 +179,12 @@ EM::ObjectID FaultStickSetDisplay::getEMObjectID() const
 bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 {
     if ( fault_ )
-    {
-	fault_->change.remove( mCB(this,FaultStickSetDisplay,emChangeCB) );
-	fault_->unRef();
-    }
+	mDetachCB( fault_->change, FaultStickSetDisplay::emChangeCB );
 
     fault_ = nullptr;
     if ( fsseditor_ )
-    {
 	fsseditor_->setEditIDs( nullptr );
-	fsseditor_->unRef();
-    }
+
     fsseditor_ = nullptr;
     if ( viseditor_ )
 	viseditor_->setEditor( nullptr );
@@ -232,9 +195,7 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	return false;
 
     fault_ = sCast(EM::Fault*,emfss);
-    fault_->change.notify( mCB(this,FaultStickSetDisplay,emChangeCB) );
-    fault_->ref();
-
+    mAttachCB( fault_->change, FaultStickSetDisplay::emChangeCB );
     if ( !emfss->name().isEmpty() )
     {
 	setName( emfss->name() );
@@ -246,9 +207,8 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
     if ( !viseditor_ )
     {
 	viseditor_ = MPEEditor::create();
-	viseditor_->ref();
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
-	viseditor_->setDisplayTransformation( displaytransform_ );
+	viseditor_->setDisplayTransformation( displaytransform_.ptr() );
 	viseditor_->sower().alternateSowingOrder();
 	viseditor_->sower().setIfDragInvertMask();
 	addChild( viseditor_->osgNode() );
@@ -261,14 +221,13 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
     fsseditor_ = fsseditor;
     if ( fsseditor_ )
     {
-	fsseditor_->ref();
 	fsseditor_->setSceneIdx( mSceneIdx );
 	fsseditor_->setEditIDs( &editpids_ );
     }
 
     viseditor_->setEditor( fsseditor_ );
     mAttachCB( viseditor_->sower().sowingend,
-				    FaultStickSetDisplay::sowingFinishedCB );
+	       FaultStickSetDisplay::sowingFinishedCB );
 
     getMaterial()->setColor( fault_->preferredColor() );
     viseditor_->setMarkerSize( mDefaultMarkerSize );
@@ -352,7 +311,9 @@ void FaultStickSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 
 
 const mVisTrans* FaultStickSetDisplay::getDisplayTransformation() const
-{ return StickSetDisplay::getDisplayTransformation(); }
+{
+    return StickSetDisplay::getDisplayTransformation();
+}
 
 
 void FaultStickSetDisplay::updateEditPids()
@@ -406,12 +367,14 @@ static void addPolyLineCoordIdx( TypeSet<int>& coordidxlist, int idx )
 }
 
 static void addPolyLineCoordBreak( TypeSet<int>& coordidxlist )
-{ addPolyLineCoordIdx( coordidxlist, -1 ); }
+{
+    addPolyLineCoordIdx( coordidxlist, -1 );
+}
 
 
 EM::FaultStickSet* FaultStickSetDisplay::emFaultStickSet()
 {
-    mDynamicCastGet( EM::FaultStickSet*, emfss, fault_ );
+    mDynamicCastGet(EM::FaultStickSet*,emfss,fault_.ptr());
     return emfss;
 }
 
@@ -558,7 +521,7 @@ Coord3 FaultStickSetDisplay::disp2world( const Coord3& displaypos ) const
 }
 
 
-static float zdragoffset = 0;
+static float zdragoffset = 0.f;
 
 #define mZScale() \
     ( scene_ ? scene_->getZScale()*scene_->getFixedZStretch()\
@@ -801,8 +764,10 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 {
     if ( !fault_ || !isOn() || eventcatcher_->isHandled() || !isSelected() )
 	return;
+
     if ( getCurScene() != scene_ )
 	setCurScene( scene_ );
+
     stickSelectionCB( cb, get3DSurvGeom() );
 }
 
@@ -903,7 +868,6 @@ void FaultStickSetDisplay::showManipulator( bool yn )
 void FaultStickSetDisplay::updateManipulator()
 {
     const bool show = showmanipulator_ && !areAllKnotsHidden();
-
     if ( viseditor_ )
 	viseditor_->turnOn( show && !stickselectmode_ );
 }
@@ -934,8 +898,8 @@ bool FaultStickSetDisplay::removeSelections( TaskRunner* taskr )
 
 
 void FaultStickSetDisplay::otherObjectsMoved(
-				const ObjectSet<const SurveyObject>& objs,
-				VisID whichobj )
+				const ObjectSet<const SurveyObject>& /* objs */,
+				const VisID& /* whichobj */ )
 {
     if ( !displayonlyatsections_ )
 	return;
@@ -1013,6 +977,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	    if ( !rdtd || !rdtd->isOn() )
 		continue;
 	}
+
 	Coord3 nmpos = fss.getKnot( RowCol(rc.row(), rc.col()) );
 	if ( displaytransform_ )
 	    displaytransform_->transform( nmpos );
@@ -1098,7 +1063,8 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
     const EM::PosID curdragger = viseditor_->getActiveDragger();
 
     EM::FaultStickSet* emfss = emFaultStickSet();
-    if ( !emfss ) return;
+    if ( !emfss )
+	return;
 
     for ( int sidx=0; sidx<fault_->nrSections(); sidx++ )
     {
@@ -1147,7 +1113,7 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 
 	    for (  int idx=0; idx<intersectpoints.size(); idx++ )
 	    {
-		StickIntersectPoint* sip = new StickIntersectPoint();
+		auto* sip = new StickIntersectPoint();
 		sip->sticknr_ = rc.row();
 		sip->pos_ = intersectpoints[idx];
 		if ( displaytransform_ )
@@ -1162,16 +1128,19 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 
 void FaultStickSetDisplay::setOnlyAtSectionsDisplay( bool yn )
 {
-    if ( displayonlyatsections_ == yn ) return;
-    displayonlyatsections_ = yn;
+    if ( displayonlyatsections_ == yn )
+	return;
 
+    displayonlyatsections_ = yn;
     updateAll();
     displaymodechange.trigger();
 }
 
 
 bool FaultStickSetDisplay::displayedOnlyAtSections() const
-{ return displayonlyatsections_; }
+{
+    return displayonlyatsections_;
+}
 
 
 void FaultStickSetDisplay::setStickSelectMode( bool yn )
@@ -1191,33 +1160,38 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
     {
 	if ( yn )
 	    mAttachCBIfNotAttached(
-	    scene_->getPolySelection()->polygonFinished(),
-	    FaultStickSetDisplay::polygonFinishedCB );
+		scene_->getPolySelection()->polygonFinished(),
+		FaultStickSetDisplay::polygonFinishedCB );
 	else
-	    mDetachCB(
-	    scene_->getPolySelection()->polygonFinished(),
-	    FaultStickSetDisplay::polygonFinishedCB );
+	    mDetachCB( scene_->getPolySelection()->polygonFinished(),
+		       FaultStickSetDisplay::polygonFinishedCB );
     }
 
 }
 
 
 void FaultStickSetDisplay::turnOnSelectionMode( bool yn )
-{  setStickSelectMode( yn ); }
+{
+   setStickSelectMode( yn );
+}
 
 
 void FaultStickSetDisplay::polygonFinishedCB( CallBacker* cb )
 {
     if ( !stickselectmode_ || !fault_ || !scene_ || !isOn() || !isSelected() )
 	return;
+
     if ( getCurScene() != scene_ )
 	setCurScene( scene_ );
+
     polygonSelectionCB();
 }
 
 
 bool FaultStickSetDisplay::isInStickSelectMode() const
-{ return stickselectmode_; }
+{
+    return stickselectmode_;
+}
 
 
 void FaultStickSetDisplay::updateKnotMarkers()
@@ -1227,6 +1201,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 
     if ( getCurScene() != scene_ )
 	setCurScene(scene_);
+
     updateStickMarkerSet();
 }
 
@@ -1251,7 +1226,7 @@ void FaultStickSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 void FaultStickSetDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
-    visSurvey::SurveyObject::fillPar( par );
+    SurveyObject::fillPar( par );
     par.set( sKeyEarthModelID(), getMultiID() );
     par.setYN( sKeyDisplayOnlyAtSections(), displayonlyatsections_ );
     par.set( sKey::Color(), (int) getColor().rgb() );
@@ -1260,8 +1235,8 @@ void FaultStickSetDisplay::fillPar( IOPar& par ) const
 
 bool FaultStickSetDisplay::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) ||
-	 !visSurvey::SurveyObject::usePar( par ) )
+    if ( !visBase::VisualObjectImpl::usePar(par) ||
+	 !SurveyObject::usePar(par) )
 	return false;
 
     MultiID newmid;

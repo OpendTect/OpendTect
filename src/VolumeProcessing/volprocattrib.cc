@@ -36,17 +36,14 @@ void VolProcAttrib::initClass()
 
 VolProcAttrib::VolProcAttrib( Desc& ds )
     : Provider(ds)
-    , chain_(0)
-    , executor_(0)
 {
-    const char* idstr = desc_.getValParam( sKeySetup() )->getStringValue();
+    const char* idstr = getDesc().getValParam( sKeySetup() )->getStringValue();
     setupmid_ = MultiID( idstr );
 }
 
 
 VolProcAttrib::~VolProcAttrib()
 {
-    if ( chain_ ) chain_->unRef();
     delete executor_;
 }
 
@@ -61,15 +58,12 @@ void VolProcAttrib::prepareForComputeData()
     if ( !ioobj )
 	return;
 
-    if ( chain_ ) chain_->unRef();
-    if ( executor_ ) deleteAndNullPtr( executor_ );
+    deleteAndNullPtr( executor_ );
     chain_ = new VolProc::Chain();
-    chain_->ref();
     uiString errmsg;
     if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
     {
-	chain_->unRef();
-	chain_ = 0;
+	chain_ = nullptr;
 	errmsg_ = uiStrings::phrCannotRead(tr("processing setup."));
 	if ( !errmsg.isEmpty() )
 	    errmsg_.append(tr(" Reason given: %1").arg( errmsg ) );
@@ -123,23 +117,21 @@ void ExternalAttribCalculator::initClass()
 Attrib::ExtAttribCalc* ExternalAttribCalculator::create(
 					const Attrib::SelSpec& as )
 {
-    ExternalAttribCalculator* res = new ExternalAttribCalculator;
-    if ( res->setTargetSelSpec( as ) )
+    auto* res = new ExternalAttribCalculator;
+    if ( res->setTargetSelSpec(as) )
 	return res;
 
     delete res;
-    return 0;
+    return nullptr;
 }
 
 
 ExternalAttribCalculator::ExternalAttribCalculator()
-    : chain_( 0 )
 {}
 
 
 ExternalAttribCalculator::~ExternalAttribCalculator()
 {
-    if ( chain_ ) chain_->unRef();
 }
 
 
@@ -177,17 +169,13 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     }
 
     chain_ = new Chain();
-    chain_->ref();
     uiString errmsg;
     if ( !VolProcessingTranslator::retrieve(*chain_,ioobj,errmsg) )
     {
-	chain_->unRef();
-	chain_ = 0;
+	chain_ = nullptr;
 	errmsg_ = uiStrings::phrCannotRead(tr("processing setup.") );
 	if ( !errmsg.isEmpty() )
-	{
 	    errmsg_.append( tr( " Reason given: %1").arg( errmsg ) );
-	}
 
 	return false;
     }
@@ -198,15 +186,15 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 }
 
 
-DataPackID
+ConstRefMan<RegularSeisDataPack>
 ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
-					DataPackID dpid,
+					const RegularSeisDataPack* /*cachedp*/,
 					TaskRunner* taskrunner )
 {
     if ( !chain_ || !chain_->nrSteps() )
     {
 	errmsg_ = tr("There are no steps in the processing chain.");
-	return DataPack::cNoID();
+	return nullptr;
     }
 
     ChainExecutor executor( *chain_ );
@@ -214,7 +202,7 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
     if ( !executor.setCalculationScope(tkzs.hsamp_,tkzs.zsamp_,memusage) )
     {
 	errmsg_ = tr("Cannot calculate at this location");
-	return DataPack::cNoID();
+	return nullptr;
     }
 
     if ( !TaskRunner::execute(taskrunner,executor) )
@@ -222,29 +210,25 @@ ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 	if ( executor.errMsg().isEmpty() )
 	    errmsg_ = tr("Error while calculating.");
 
-	return DataPack::cNoID();
+	return nullptr;
     }
 
     ConstRefMan<RegularSeisDataPack> output = executor.getOutput();
     if ( !output || output->isEmpty() )
     {
 	errmsg_ = tr("No output produced");
-	return DataPack::cNoID();
+	return nullptr;
     }
 
-    //Ensure it survives the chain executor destruction
-    DPM( DataPackMgr::SeisID() ).add( output );
-    DPM( DataPackMgr::SeisID() ).ref( output->id() );
-
-    return output->id();
+    return output;
 }
 
 
-DataPackID
+ConstRefMan<RegularSeisDataPack>
 ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& tkzs,
 					TaskRunner* taskr )
 {
-    return createAttrib( tkzs, DataPackID(-1), taskr );
+    return createAttrib( tkzs, taskr );
 }
 
 } // namespace VolProc

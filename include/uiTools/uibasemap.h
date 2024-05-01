@@ -79,8 +79,8 @@ public:
     void			setView(const uiWorldRect&);
 
     void			addObject(BasemapObject*);
-    BasemapObject*		getObject(BasemapObjectID);
-    uiBasemapObject*		getUiObject(BasemapObjectID);
+    BasemapObject*		getObject(const BasemapObjectID&);
+    uiBasemapObject*		getUiObject(const BasemapObjectID&);
 
     ObjectSet<uiBasemapObject>& getObjects()		{ return objects_; }
 

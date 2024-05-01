@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uivispartserv.h"
 #include "visrgbatexturechannel2rgba.h"
-#include "visseis2ddisplay.h"
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -387,9 +386,8 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 	applMgr()->attrServer()->curDescSet( true );
     const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
-    ZDomain::Info info = scene->zDomainInfo();
-
+    ConstRefMan<visSurvey::Scene> scene = visserv->getScene( sceneID() );
+    const ZDomain::Info& info = scene->zDomainInfo();
     uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, info, curattrnm );
 
     uiTaskRunner uitr( ODMainWin() );
@@ -466,7 +464,7 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 
 
 // Line2DTreeItemFactory
-uiTreeItem* Line2DTreeItemFactory::createForVis( VisID visid,
+uiTreeItem* Line2DTreeItemFactory::createForVis( const VisID& visid,
 						 uiTreeItem* treeitem ) const
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
@@ -477,8 +475,7 @@ uiTreeItem* Line2DTreeItemFactory::createForVis( VisID visid,
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
 		    s2d->getChannels2RGBA())
 
-    uiOD2DLineTreeItem* newsubitm =
-	new uiOD2DLineTreeItem( s2d->getGeomID(), visid, rgba );
+    auto* newsubitm = new uiOD2DLineTreeItem( s2d->getGeomID(), visid, rgba );
 
     if ( newsubitm )
        treeitem->addChild( newsubitm,true );
@@ -487,8 +484,8 @@ uiTreeItem* Line2DTreeItemFactory::createForVis( VisID visid,
 }
 
 
-uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, VisID displayid,
-					bool rgba )
+uiOD2DLineTreeItem::uiOD2DLineTreeItem( const Pos::GeomID& geomid,
+					const VisID& displayid, bool rgba )
     : geomid_(geomid)
     , linenmitm_(tr("Show Linename"))
     , panelitm_(tr("Show 2D Plane"))
@@ -496,8 +493,8 @@ uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, VisID displayid,
     , positionitm_(m3Dots(tr("Position")))
     , rgba_( rgba )
 {
-    name_ = toUiString(Survey::GM().getName( geomid ));
     displayid_ = displayid;
+    name_ = toUiString(Survey::GM().getName( geomid ));
 
     positionitm_.iconfnm = "orientation64";
     linenmitm_.checkable = true;
@@ -508,8 +505,8 @@ uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, VisID displayid,
 
 uiOD2DLineTreeItem::~uiOD2DLineTreeItem()
 {
-    applMgr()->getOtherFormatData.remove(
-	    mCB(this,uiOD2DLineTreeItem,getNewData) );
+    detachAllNotifiers();
+    visserv_->removeObject( displayid_, sceneID() );
 }
 
 
@@ -522,29 +519,28 @@ bool uiOD2DLineTreeItem::init()
     bool newdisplay = false;
     if ( !displayid_.isValid() )
     {
-	mDynamicCastGet(uiODLine2DParentTreeItem*,parentitm,parent_)
-	if ( !parentitm ) return false;
-
-	visSurvey::Seis2DDisplay* s2d = new visSurvey::Seis2DDisplay;
-	s2d->setGeomID( geomid_ );
-	visserv_->addObject( s2d, sceneID(), true );
+	RefMan<visSurvey::Seis2DDisplay> s2d = new visSurvey::Seis2DDisplay;
 	displayid_ = s2d->id();
-
+	s2d->setGeomID( geomid_ );
 	s2d->turnOn( true );
-	newdisplay = true;
-
 	if ( rgba_ )
 	{
-	    s2d->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+	    RefMan<visBase::RGBATextureChannel2RGBA> text2rgba =
+				visBase::RGBATextureChannel2RGBA::create();
+	    s2d->setChannels2RGBA( text2rgba.ptr() );
 	    s2d->addAttrib();
 	    s2d->addAttrib();
 	    s2d->addAttrib();
 	}
+
+	visserv_->addObject( s2d, sceneID(), true );
+	newdisplay = true;
     }
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
-    if ( !s2d ) return false;
+    if ( !s2d )
+	return false;
 
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
@@ -565,7 +561,18 @@ bool uiOD2DLineTreeItem::init()
     }
 
     s2d->setGeometry( geom2d->data() );
-    if ( !newdisplay )
+    if ( newdisplay )
+    {
+	const bool hasworkzrg = SI().zRange(true) != SI().zRange(false);
+	const bool hastransform = s2d->getZAxisTransform();
+	if ( hasworkzrg && !hastransform )
+	{
+	    ZSampling newzrg = geom2d->data().zRange();
+	    newzrg.limitTo( SI().zRange(true) );
+	    s2d->setZRange( newzrg );
+	}
+    }
+    else
     {
 	if ( !oldtrcnrrg.isUdf() )
 	    s2d->setTraceNrRange( oldtrcnrrg );
@@ -573,32 +580,34 @@ bool uiOD2DLineTreeItem::init()
 	if ( !oldzrg.isUdf() )
 	    s2d->setZRange( oldzrg );
     }
-    else
-    {
-	const bool hasworkzrg = SI().zRange(true) != SI().zRange(false);
-	const bool hastransform = s2d->getZAxisTransform();
-	if ( hasworkzrg && !hastransform )
-	{
-	    StepInterval<float> newzrg = geom2d->data().zRange();
-	    newzrg.limitTo( SI().zRange(true) );
-	    s2d->setZRange( newzrg );
-	}
-    }
 
     if ( applMgr() )
-	applMgr()->getOtherFormatData.notify(
-	    mCB(this,uiOD2DLineTreeItem,getNewData) );
+	mAttachCB( applMgr()->getOtherFormatData,
+		   uiOD2DLineTreeItem::getNewData );
 
     if ( rgba_ )
 	selectRGBA( geomid_ );
 
+    seis2ddisplay_ = s2d;
     return uiODDisplayTreeItem::init();
+}
+
+
+ConstRefMan<visSurvey::Seis2DDisplay> uiOD2DLineTreeItem::getDisplay() const
+{
+    return seis2ddisplay_.get();
+}
+
+
+RefMan<visSurvey::Seis2DDisplay> uiOD2DLineTreeItem::getDisplay()
+{
+    return seis2ddisplay_.get();
 }
 
 
 uiString uiOD2DLineTreeItem::createDisplayName() const
 {
-    return visserv_->getUiObjectName(displayid_);
+    return visserv_->getUiObjectName( displayid_ );
 }
 
 
@@ -619,17 +628,16 @@ uiODDataTreeItem* uiOD2DLineTreeItem::createAttribItem(
 void uiOD2DLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject(displayid_))
-    if ( !menu || !isDisplayID(menu->menuID()) || !s2d )
+    ConstRefMan<visSurvey::Seis2DDisplay> seis2ddisplay = getDisplay();
+    if ( !menu || !isDisplayID(menu->menuID()) || !seis2ddisplay )
 	return;
 
     mAddMenuOrTBItem( istb, nullptr, &displaymnuitem_, &linenmitm_,
-		      true, s2d->isLineNameShown() )
+		      true, seis2ddisplay->isLineNameShown() )
     mAddMenuOrTBItem( istb, nullptr, &displaymnuitem_, &panelitm_,
-		      true, s2d->isPanelShown() )
+		      true, seis2ddisplay->isPanelShown() )
     mAddMenuOrTBItem( istb, nullptr, &displaymnuitem_, &polylineitm_,
-		      true, s2d->isPolyLineShown() )
+		      true, seis2ddisplay->isPolyLineShown() )
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &positionitm_, true, false)
 }
 
@@ -642,36 +650,35 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
     if ( !menu || menu->isHandled() || mnuid==-1 )
 	return;
 
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject(displayid_))
-    if ( !s2d || !isDisplayID(menu->menuID()) )
+    RefMan<visSurvey::Seis2DDisplay> seis2ddisplay = getDisplay();
+    if ( !seis2ddisplay || !isDisplayID(menu->menuID()) )
 	return;
 
     if ( mnuid==linenmitm_.id )
     {
 	menu->setIsHandled(true);
-	s2d->showLineName( !s2d->isLineNameShown() );
+	seis2ddisplay->showLineName( !seis2ddisplay->isLineNameShown() );
     }
     else if ( mnuid==panelitm_.id )
     {
 	menu->setIsHandled(true);
-	s2d->showPanel( !s2d->isPanelShown() );
+	seis2ddisplay->showPanel( !seis2ddisplay->isPanelShown() );
     }
     else if ( mnuid==polylineitm_.id )
     {
 	menu->setIsHandled(true);
-	s2d->showPolyLine( !s2d->isPolyLineShown() );
+	seis2ddisplay->showPolyLine( !seis2ddisplay->isPolyLineShown() );
     }
     else if ( mnuid==positionitm_.id )
     {
 	menu->setIsHandled(true);
 
-	const TrcKeyZSampling tkzs( s2d->getTrcKeyZSampling(true) );
+	const TrcKeyZSampling tkzs( seis2ddisplay->getTrcKeyZSampling(true) );
 	TrcKeyZSampling maxcs( tkzs.hsamp_.getGeomID() );
-	maxcs.hsamp_.setTrcRange( s2d->getMaxTraceNrRange() );
-	assign( maxcs.zsamp_, s2d->getMaxZRange(true)  );
+	maxcs.hsamp_.setTrcRange( seis2ddisplay->getMaxTraceNrRange() );
+	assign( maxcs.zsamp_, seis2ddisplay->getMaxZRange(true)  );
 
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	RefMan<visSurvey::Scene> scene = visserv_->getScene(sceneID());
 	CallBack dummy;
 	uiSliceSelDlg positiondlg( getUiParent(), tkzs,
 				   maxcs, dummy, uiSliceSel::TwoD,
@@ -681,34 +688,35 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 
 	const TrcKeyZSampling newcs = positiondlg.getTrcKeyZSampling();
 	const Interval<float> newzrg = newcs.zsamp_;
-	if ( !newzrg.isEqual(s2d->getZRange(true),mDefEpsF) )
+	if ( !newzrg.isEqual(seis2ddisplay->getZRange(true),mDefEpsF) )
 	{
-	    s2d->annotateNextUpdateStage( true );
-	    s2d->setZRange( newzrg );
+	    seis2ddisplay->annotateNextUpdateStage( true );
+	    seis2ddisplay->setZRange( newzrg );
 	}
 
 	const Interval<int> ntrcnrrg = newcs.hsamp_.trcRange();
-	if ( ntrcnrrg != s2d->getTraceNrRange() )
+	if ( ntrcnrrg != seis2ddisplay->getTraceNrRange() )
 	{
-	    if ( !s2d->getUpdateStageNr() )
-		s2d->annotateNextUpdateStage( true );
+	    if ( !seis2ddisplay->getUpdateStageNr() )
+		seis2ddisplay->annotateNextUpdateStage( true );
 
-	    s2d->setTraceNrRange( ntrcnrrg );
+	    seis2ddisplay->setTraceNrRange( ntrcnrrg );
 	}
 
-	if ( s2d->getUpdateStageNr() )
+	if ( seis2ddisplay->getUpdateStageNr() )
 	{
-	    s2d->annotateNextUpdateStage( true );
-	    for ( int idx=0; idx<s2d->nrAttribs(); idx++ )
+	    seis2ddisplay->annotateNextUpdateStage( true );
+	    for ( int idx=0; idx<seis2ddisplay->nrAttribs(); idx++ )
 	    {
-		if ( s2d->getSelSpec(idx)
-		  && s2d->getSelSpec(idx)->id().isValid() )
+		if ( seis2ddisplay->getSelSpec(idx) &&
+		     seis2ddisplay->getSelSpec(idx)->id().isValid() )
 		    visserv_->calculateAttrib( displayid_, idx, false );
 	    }
-	    s2d->annotateNextUpdateStage( false );
+
+	    seis2ddisplay->annotateNextUpdateStage( false );
 	}
 
-	updateColumnText(0);
+	updateColumnText( 0 );
     }
 }
 
@@ -779,15 +787,15 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
 	return;
 
     const int attribnr = applMgr()->otherFormatAttrib();
+    RefMan<visSurvey::Seis2DDisplay> seis2ddisplay = getDisplay();
+    if ( !seis2ddisplay )
+	return;
 
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject(displayid_))
-    if ( !s2d ) return;
+    const TrcKeyZSampling tkzs = seis2ddisplay->getTrcKeyZSampling( false );
+    const TypeSet<Attrib::SelSpec>& as = *seis2ddisplay->getSelSpecs( attribnr);
 
-    const TrcKeyZSampling tkzs = s2d->getTrcKeyZSampling( false );
-    const TypeSet<Attrib::SelSpec>& as = *s2d->getSelSpecs( attribnr );
-
-    DataPackID dpid = DataPack::cNoID();
+    ConstRefMan<RegularSeisDataPack> newdp;
+    uiTaskRunner uitr( ODMainWin() );
     if ( as[0].id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
 	PtrMan<Attrib::ExtAttribCalc> calc =
@@ -798,46 +806,48 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
 	    return;
 	}
 
-	uiTaskRunner uitr( ODMainWin() );
-	dpid = calc->createAttrib( tkzs, &uitr );
+	newdp = calc->createAttrib( tkzs, &uitr );
     }
     else
     {
 	applMgr()->attrServer()->setTargetSelSpecs( as );
-	dpid = applMgr()->attrServer()->createOutput( tkzs, DataPack::cNoID() );
+	newdp = applMgr()->attrServer()->createOutput( tkzs, nullptr );
     }
 
-    if ( dpid == DataPack::cNoID() )
+    if ( !newdp )
 	return;
 
-    s2d->setDataPackID( attribnr, dpid, nullptr );
-    s2d->showPanel( true );
+    ((visSurvey::SurveyObject*) seis2ddisplay)->
+		setSeisDataPack( attribnr, newdp.getNonConstPtr(), &uitr );
+    seis2ddisplay->showPanel( true );
 }
 
 
 void uiOD2DLineTreeItem::showLineName( bool yn )
 {
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject(displayid_))
-    if ( s2d ) s2d->showLineName( yn );
+    RefMan<visSurvey::Seis2DDisplay> seis2ddisplay = getDisplay();
+    if ( seis2ddisplay )
+	seis2ddisplay->showLineName( yn );
 }
 
 
 void uiOD2DLineTreeItem::setZRange( const Interval<float> newzrg )
 {
-    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject(displayid_))
-    if ( !s2d ) return;
+    RefMan<visSurvey::Seis2DDisplay> seis2ddisplay = getDisplay();
+    if ( !seis2ddisplay )
+	return;
 
-    s2d->annotateNextUpdateStage( true );
-    s2d->setZRange( newzrg );
-    s2d->annotateNextUpdateStage( true );
-    for ( int idx=0; idx<s2d->nrAttribs(); idx++ )
+    seis2ddisplay->annotateNextUpdateStage( true );
+    seis2ddisplay->setZRange( newzrg );
+    seis2ddisplay->annotateNextUpdateStage( true );
+    for ( int idx=0; idx<seis2ddisplay->nrAttribs(); idx++ )
     {
-	if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id().isValid() )
+	if ( seis2ddisplay->getSelSpec(idx) &&
+	     seis2ddisplay->getSelSpec(idx)->id().isValid() )
 	    visserv_->calculateAttrib( displayid_, idx, false );
     }
-    s2d->annotateNextUpdateStage( false );
+
+    seis2ddisplay->annotateNextUpdateStage( false );
 }
 
 
@@ -954,9 +964,8 @@ void uiOD2DLineSetAttribItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &selattrmnuitem_, &steeringitm_, true, docheckparent )
 
     zattritm_.removeItems();
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
-
-    if ( scene->getZAxisTransform() )
+    RefMan<visSurvey::Scene> scene = visserv_->getScene(sceneID());
+    if ( scene && scene->getZAxisTransform() )
     {
 	zattritm_.enabled = false;
 	zattritm_.text = toUiString("%1 %2").arg(scene->zDomainKey())
@@ -1044,7 +1053,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject( displayID() ))
-    if ( !s2d ) return false;
+    if ( !s2d )
+	return false;
 
     const Pos::GeomID geomid = s2d->getGeomID();
     const SeisIOObjInfo objinfo( attribnm, Seis::Line );
@@ -1079,9 +1089,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 		visserv->setSelObjectId( displayID(), attribNr() );
 
 	    const bool rescalc = applMgr()->calcMultipleAttribs( mtas );
-
 	    if ( needsetattrid )
-		visserv->setSelObjectId( displayID(), -1 );
+		visserv->setSelObjectId( displayID() );
 
 	    s2d->showPanel( true );
 	    updateColumnText(0);
@@ -1095,7 +1104,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	attribid = attrserv->getStoredID( key, true, component );
     }
 
-    if ( !attribid.isValid() ) return false;
+    if ( !attribid.isValid() )
+	return false;
 
     TypeSet<Attrib::SelSpec> as = *visserv->getSelSpecs( displayID(), 0 );
     for ( int idx=0; idx<as.size(); idx++ )
@@ -1103,10 +1113,13 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	as[idx].set( attribnm, attribid, false, nullptr );
 	as[idx].set2DFlag();
 	const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
-	if ( !ds ) return false;
+	if ( !ds )
+	    return false;
+
 	as[idx].setRefFromID( *ds );
 	const Attrib::Desc* targetdesc = ds->getDesc( attribid );
-	if ( !targetdesc ) return false;
+	if ( !targetdesc )
+	    return false;
 
 	BufferString defstring;
 	targetdesc->getDefStr( defstring );
@@ -1118,12 +1131,12 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     if ( !rsdp )
     {
 	attrserv->setTargetSelSpecs( as );
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+	const RefMan<visSurvey::Scene> scene = visserv->getScene( sceneID() );
 	const StringView zdomainkey = as[0].zDomainKey();
 	const bool alreadytransformed =
-		scene && zdomainkey==scene->zDomainKey();
+				scene && zdomainkey==scene->zDomainKey();
 	const TrcKeyZSampling tkzs =
-		s2d->getTrcKeyZSampling( alreadytransformed );
+				s2d->getTrcKeyZSampling( alreadytransformed );
 	Seis::SequentialReader rdr( *objinfo.ioObj(), &tkzs, &selcomps );
 	if ( !TaskRunner::execute(&taskrunner,rdr) )
 	{
@@ -1132,17 +1145,16 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	}
 
 	rsdp = rdr.getDataPack();
-	DPM( DataPackMgr::SeisID() ).add( rsdp );
     }
 
-    const DataPackID dpid = rsdp ? rsdp->id() : DataPack::cNoID();
-    if ( dpid == DataPack::cNoID() )
+    if ( !rsdp )
 	return false;
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     s2d->setSelSpecs( attribNr(), as );
     applMgr()->useDefColTab( displayID(), attribNr() );
-    s2d->setDataPackID( attribNr(), dpid, &taskrunner );
+    ((visSurvey::SurveyObject*) s2d)->
+	setSeisDataPack( attribNr(), rsdp.getNonConstPtr(), &taskrunner );
     s2d->showPanel( true );
     s2d->enableAttrib( attribNr(), true );
 
@@ -1166,14 +1178,15 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
 	return;
 
     applMgr()->attrServer()->setTargetSelSpec( myas );
-    const DataPackID dpid = applMgr()->attrServer()->createOutput(
-						s2d->getTrcKeyZSampling(false),
-							    DataPack::cNoID() );
-    if ( dpid == DataPack::cNoID() )
+    ConstRefMan<RegularSeisDataPack> regsd =
+	applMgr()->attrServer()->createOutput( s2d->getTrcKeyZSampling(false),
+					       nullptr );
+    if ( !regsd )
 	return;
 
     s2d->setSelSpecs( attribNr(), TypeSet<Attrib::SelSpec>(1,myas) );
-    s2d->setDataPackID( attribNr(), dpid, nullptr );
+    ((visSurvey::SurveyObject*) s2d)->
+	setSeisDataPack( attribNr(), regsd.getNonConstPtr(), nullptr );
     s2d->showPanel( true );
 
     updateColumnText(0);

@@ -10,20 +10,25 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 
-#include "uioddisplaytreeitem.h"
-#include "uistrings.h"
 #include "color.h"
 #include "pickset.h"
+#include "uioddisplaytreeitem.h"
+#include "uistrings.h"
+#include "visarrowdisplay.h"
+#include "visimagedisplay.h"
+#include "visscalebardisplay.h"
+
 
 mExpClass(uiODMain) uiODAnnotParentTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODAnnotParentTreeItem)
 public:
 			uiODAnnotParentTreeItem();
-			~uiODAnnotParentTreeItem();
 
     SceneID		sceneID() const;
 
 protected:
+			~uiODAnnotParentTreeItem();
+
     bool		init() override;
     const char*		parentType() const override;
     bool		rightClick(uiTreeViewItem*) override;
@@ -39,31 +44,25 @@ public:
 
     uiTreeItem*		create() const override
 			{ return new uiODAnnotParentTreeItem; }
-
-    uiTreeItem*		create(VisID,uiTreeItem*) const;
+    uiTreeItem*		create(const VisID&,uiTreeItem*) const;
 };
 
 
 mExpClass(uiODMain) uiODAnnotTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODAnnotTreeItem)
-public:
-				~uiODAnnotTreeItem();
-
 protected:
 				uiODAnnotTreeItem(const uiString&);
+				~uiODAnnotTreeItem();
 
     bool			readPicks(Pick::Set&);
     const char*			parentType() const override;
     bool			init() override;
-    void			prepareForShutdown() override;
     bool			showSubMenu() override;
-    virtual int			defScale() const 		{ return -1; }
+    virtual int			defScale() const		{ return -1; }
 
-    virtual uiTreeItem*		createSubItem(VisID,Pick::Set&)	= 0;
-    virtual const char*		managerName() const		= 0;
-    virtual const char*		oldSelKey() const		= 0;
-
-
+    virtual uiTreeItem*		createSubItem(const VisID&,Pick::Set&)	= 0;
+    virtual const char*		managerName() const			= 0;
+    virtual const char*		oldSelKey() const			= 0;
 
    void				setRemovedCB(CallBacker*);
    void				addPickSet(Pick::Set*);
@@ -84,12 +83,12 @@ public:
 			    \retval 0 name exists and overwrite is not set.
 			    \retval 1 success.
 			*/
-    RefMan<Pick::Set>	getSet() { return set_; }
+    RefMan<Pick::Set>	getSet() const			{ return set_; }
 
 protected:
-			uiODAnnotSubItem(Pick::Set&,VisID displayid);
+			uiODAnnotSubItem(Pick::Set&,const VisID&);
 			//!<Pickset becomes mine, if it's not in the mgr
-    virtual		~uiODAnnotSubItem();
+			~uiODAnnotSubItem();
 
     void		prepareForShutdown() override;
     void		removeStuff();
@@ -125,12 +124,15 @@ protected:
 mExpClass(uiODMain) ScaleBarSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ScaleBarSubItem);
 public:
-			ScaleBarSubItem(Pick::Set&,VisID displayid);
+			ScaleBarSubItem(Pick::Set&,const VisID&);
+
     bool		init() override;
-    static const char*	sKeyManager() 	{ return "ScaleBarAnnotations"; }
+    static const char*	sKeyManager()	{ return "ScaleBarAnnotations"; }
 
 protected:
-			~ScaleBarSubItem()	{ removeStuff(); }
+			~ScaleBarSubItem();
+
+private:
 
     const char*		parentType() const override;
     void		fillStoragePar(IOPar&) const override;
@@ -143,19 +145,27 @@ protected:
 
     MenuItem		propmnuitem_;
 
+    WeakPtr<visSurvey::ScaleBarDisplay> scalebardisp_;
+
+    ConstRefMan<visSurvey::ScaleBarDisplay> getDisplay() const;
+    RefMan<visSurvey::ScaleBarDisplay> getDisplay();
+
 };
 
 mExpClass(uiODMain) ArrowSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ArrowSubItem);
 public:
+			ArrowSubItem(Pick::Set& pck,const VisID&);
 
-			ArrowSubItem(Pick::Set& pck,VisID displayid);
     bool		init() override;
 
-    static const char*	sKeyManager() 	{ return "ArrowAnnotations"; }
+    static const char*	sKeyManager()	{ return "ArrowAnnotations"; }
 
 protected:
-			~ArrowSubItem()	{ removeStuff(); }
+
+			~ArrowSubItem();
+private:
+
     const char*		parentType() const override;
 
     void		fillStoragePar(IOPar&) const override;
@@ -169,6 +179,11 @@ protected:
     bool		hasScale() const override	{ return false; }
     const char*		managerName() const override   { return sKeyManager(); }
 
+    WeakPtr<visSurvey::ArrowDisplay> arrowdisp_;
+
+    ConstRefMan<visSurvey::ArrowDisplay> getDisplay() const;
+    RefMan<visSurvey::ArrowDisplay> getDisplay();
+
     static const char*		sKeyArrowType()	{ return "Arrow Type"; }
     static const char*		sKeyLineWidth()	{ return "Line width"; }
 
@@ -178,12 +193,16 @@ protected:
 mExpClass(uiODMain) ImageSubItem : public uiODAnnotSubItem
 {mODTextTranslationClass(ImageSubItem)
 public:
-			ImageSubItem(Pick::Set&,VisID displayid);
+			ImageSubItem(Pick::Set&,const VisID&);
+
     bool		init() override;
-    static const char*	sKeyManager() 	{ return "ImageAnnotations"; }
+    static const char*	sKeyManager()	{ return "ImageAnnotations"; }
 
 protected:
-			~ImageSubItem()	{ removeStuff(); }
+			~ImageSubItem();
+
+private:
+
     const char*		parentType() const override;
     void		fillStoragePar(IOPar&) const override;
 
@@ -197,9 +216,14 @@ protected:
     bool		hasScale() const override	{ return true; }
     const char*		managerName() const override	{ return sKeyManager();}
 
-    void		selectFileName() const;
+    void		selectFileName();
 
     MenuItem		filemnuitem_;
+
+    WeakPtr<visSurvey::ImageDisplay> imagedisp_;
+
+    ConstRefMan<visSurvey::ImageDisplay> getDisplay() const;
+    RefMan<visSurvey::ImageDisplay> getDisplay();
 };
 
 
@@ -214,8 +238,8 @@ public: \
 		 type##ParentItem::setRemovedCB ); \
 		} \
 protected: \
-    uiTreeItem* createSubItem(VisID di,Pick::Set& pck) override \
-		{ return new type##SubItem(pck,di); } \
+    uiTreeItem* createSubItem( const VisID& di,Pick::Set& pck ) override \
+		{ return new type##SubItem( pck, di ); } \
     const char* managerName() const override \
 		{ return type##SubItem::sKeyManager(); } \
     const char* oldSelKey() const override \
@@ -226,6 +250,6 @@ protected: \
 }; \
 
 
-mDefineParentItem(Arrow,uiStrings::sArrows(), 1000, "tree-arrows");
+mDefineParentItem(Arrow,uiStrings::sArrows(),1000,"tree-arrows");
 mDefineParentItem(Image,uiStrings::sImage(),1000,"tree-image");
 mDefineParentItem(ScaleBar,uiStrings::sScaleBar(),1000,"tree-scalebar");

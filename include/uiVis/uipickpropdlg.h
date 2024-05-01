@@ -9,17 +9,19 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
+
+#include "uicolor.h"
 #include "uimarkerstyledlg.h"
 #include "uisellinest.h"
-#include "uicolor.h"
+#include "visseedpainter.h"
+#include "vispicksetdisplay.h"
 
 class uiCheckBox;
 class uiGenInput;
 class uiSlider;
 
 namespace Pick { class Set; };
-namespace visSurvey
-{ class PickSetDisplay; class LocationDisplay; class SeedPainter; };
+namespace visSurvey { class LocationDisplay; };
 
 
 mExpClass(uiVis) uiPickPropDlg : public uiMarkerStyleDlg
@@ -49,7 +51,7 @@ protected:
     uiColorInput*		fillcolfld_	= nullptr;
 
     RefMan<Pick::Set>		set_;
-    visSurvey::PickSetDisplay*	psd_;
+    RefMan<visSurvey::PickSetDisplay> psd_;
 };
 
 
@@ -67,7 +69,7 @@ protected:
     void			sizeCB(CallBacker*);
     void			densCB(CallBacker*);
 
-    visSurvey::SeedPainter*	seedpainter_;
+    RefMan<visSurvey::SeedPainter> seedpainter_;
 
     uiSlider*			szfld_;
     uiSlider*			densfld_;

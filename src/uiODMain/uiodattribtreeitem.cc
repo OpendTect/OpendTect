@@ -106,8 +106,8 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
 }
 
 
-void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, VisID visid, int attrib,
-					SceneID sceneid )
+void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, const VisID& visid,
+					int attrib, const SceneID& sceneid )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
@@ -118,8 +118,7 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, VisID visid, int attrib,
 	if ( !so ) return;
 
 	OD::Pol2D3D p2d3d = so->getAllowedDataType();
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid));
-
+	ConstRefMan<visSurvey::Scene> scene = visserv->getScene( sceneid );
 	const bool needtransform = !scene->zDomainInfo().def_.isSI();
 	const bool cantransform = !needtransform || scene->getZAxisTransform();
 
@@ -140,24 +139,26 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     bool isonly2d = false;
     const uiVisPartServer* visserv = applMgr()->visServer();
-    mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(sceneID()));
-    if ( so ) isonly2d = so->getAllowedDataType() == OD::Only2D;
+    const VisID displayid = displayID();
+    mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(displayid));
+    if ( so )
+	isonly2d = so->getAllowedDataType() == OD::Only2D;
 
     if ( !istb )
     {
 	selattrmnuitem_.removeItems();
-	createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
+	createSelMenu( selattrmnuitem_, displayid, attribNr(), sceneID() );
     }
 
     if ( selattrmnuitem_.nrItems() || isonly2d )
     {
 	mAddMenuOrTBItem( istb, 0, menu, &selattrmnuitem_,
-		      !visserv->isLocked(displayID()), false );
+			  !visserv->isLocked(displayid), false );
     }
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-    PtrMan<IOObj> ioobj = as ? attrserv->getIOObj(*as) : 0;
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayid, attribNr() );
+    PtrMan<IOObj> ioobj = as ? attrserv->getIOObj(*as) : nullptr;
     if ( as && ioobj )
     {
 	mAddMenuOrTBItem( istb, 0, menu, &colsettingsmnuitem_, true, false );
@@ -198,7 +199,8 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiODAttribTreeItem::handleSelMenu( int mnuid, VisID visid, int attrib )
+bool uiODAttribTreeItem::handleSelMenu( int mnuid, const VisID& visid,
+					int attrib )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( mnuid==-1 || visserv->isLocked(visid) )
@@ -253,7 +255,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, VisID visid, int attrib )
 }
 
 
-uiString uiODAttribTreeItem::createDisplayName( VisID visid, int attrib )
+uiString uiODAttribTreeItem::createDisplayName( const VisID& visid, int attrib )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );

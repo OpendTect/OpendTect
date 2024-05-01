@@ -20,22 +20,15 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "uistring.h"
 #include "uistrings.h"
-#include "zaxistransform.h"
 #include "zdomain.h"
 
-#include "visannot.h"
 #include "visdataman.h"
 #include "visevent.h"
 #include "visfaultdisplay.h"
-#include "vismarkerset.h"
 #include "vismaterial.h"
-#include "vispolygonselection.h"
 #include "visrandomtrackdisplay.h"
-#include "visscenecoltab.h"
 #include "visselman.h"
 #include "vissurvobj.h"
-#include "vistopbotimage.h"
-#include "vistransform.h"
 #include "vistransmgr.h"
 #include "visvolumedisplay.h"
 
@@ -68,29 +61,50 @@ static const char* sKeyZScale()		{ return "Z Scale"; }
 
 
 Scene::Scene()
-    : mouseposchange(this)
+    : visBase::Scene(true)
+    , zscale_( SI().zScale() )
+    , infopar_(*new IOPar)
+    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
+    , mouseposchange(this)
     , mousecursorchange(this)
     , keypressed(this)
     , mouseclicked(this)
     , sceneboundingboxupdated(this)
-    , infopar_(*new IOPar)
-    , zdomaininfo_(new ZDomain::Info(ZDomain::SI()))
-    , zscale_( SI().zScale() )
 {
-    mAttachCB( events_.eventhappened, Scene::mouseCB );
-    mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
-    mAttachCB( events_.eventhappened, Scene::keyPressCB );
-    mAttachCB( events_.nothandled, Scene::mouseCursorCB );
+    ref();
+    mAttachCB( events_->eventhappened, Scene::mouseCB );
+    mAttachCB( events_->eventhappened, Scene::mouseCursorCB );
+    mAttachCB( events_->eventhappened, Scene::keyPressCB );
+    mAttachCB( events_->nothandled, Scene::mouseCursorCB );
     mAttachCB( visBase::DM().selMan().selnotifier, Scene::selChangeCB );
 
     setCameraAmbientLight( 1 );
     setup();
+    unRefNoDelete();
+}
+
+
+Scene::~Scene()
+{
+    detachAllNotifiers();
+    datatransform_ = nullptr;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx));
+	mDynamicCastGet(SurveyObject*,so,getObject(idx));
+	if ( vo ) vo->setSceneEventCatcher( nullptr );
+	if ( so ) so->setScene( nullptr );
+    }
+
+    delete coordselector_;
+    delete zdomaininfo_;
+    delete &infopar_;
 }
 
 
 void Scene::setEventHandled()
 {
-    events_.setHandled();
+    events_->setHandled();
 }
 
 
@@ -167,28 +181,6 @@ void Scene::setup()
 }
 
 
-Scene::~Scene()
-{
-    detachAllNotifiers();
-
-    unRefPtr( datatransform_ );
-
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx));
-	mDynamicCastGet(SurveyObject*,so,getObject(idx));
-	if ( vo ) vo->setSceneEventCatcher( nullptr );
-	if ( so ) so->setScene( nullptr );
-    }
-
-    unRefAndNullPtr( polyselector_ );
-    deleteAndNullPtr( coordselector_ );
-
-    delete zdomaininfo_;
-    delete &infopar_;
-}
-
-
 void Scene::updateTransforms( const TrcKeyZSampling& cs )
 {
     if ( !tempzstretchtrans_ )
@@ -222,7 +214,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
 	for ( int idx=0; idx<oldinlcrlrotation->size(); idx++ )
 	{
 	    RefMan<visBase::DataObject> dobj =
-		oldinlcrlrotation->getObject(idx);
+				oldinlcrlrotation->getObject( idx );
 	    inlcrlrotation_->addObject( dobj );
 	    dobj->setDisplayTransformation( inlcrlscale_ );
 	}
@@ -252,7 +244,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     ObjectSet<visBase::Transformation> utm2display;
     utm2display += utm2disptransform_;
     utm2display += tempzstretchtrans_;
-    events_.setUtm2Display( utm2display );
+    events_->setUtm2Display( utm2display );
 }
 
 
@@ -345,6 +337,13 @@ const TrcKeyZSampling& Scene::getAnnotScale() const
 }
 
 
+SceneID Scene::getID() const
+{
+    const VisID visid = id();
+    return SceneID( visid.asInt() );
+}
+
+
 int Scene::size() const
 {
     return tempzstretchtrans_->size()+inlcrlrotation_->size();
@@ -356,6 +355,19 @@ int Scene::getFirstIdx( const visBase::DataObject* dobj ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( getObject( idx )==dobj )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
+int Scene::getFirstIdx( const VisID& did ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const visBase::DataObject* obj = getObject( idx );
+	if ( obj && obj->id() == did )
 	    return idx;
     }
 
@@ -408,12 +420,12 @@ void Scene::addObject( visBase::DataObject* obj )
 
 	so->setScene( this );
 	STM().setCurrentScene( this );
-	mDynamicCastGet( const visSurvey::VolumeDisplay*, voldisplay, so );
+	mDynamicCastGet( const VolumeDisplay*, voldisplay, so );
 	so->allowShading( SettingsAccess().doesUserWantShading(voldisplay) );
     }
 
     if ( vo )
-	vo->setSceneEventCatcher( &events_ );
+	vo->setSceneEventCatcher( events_.ptr() );
 
     if ( so && so->isInlCrl() )
 	addInlCrlZObject( obj );
@@ -608,12 +620,8 @@ const OD::Color Scene::getAnnotColor() const
 
 const Selector<Coord3>* Scene::getSelector() const
 {
-    if ( !coordselector_ ) return 0;
-
     mDynamicCastGet(const visBase::PolygonCoord3Selector*,sel,coordselector_);
-    if ( !sel ) return 0;
-
-    return coordselector_;
+    return sel ? coordselector_ : nullptr;
 }
 
 
@@ -699,10 +707,12 @@ void Scene::objectMoved( CallBacker* cb )
 			    && !so->isLocked() && dataobj->isOn();
 
 
-void Scene::selChangeCB( CallBacker* cber )
+void Scene::selChangeCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack( VisID, selid, cber );
+    if ( !cb || !cb->isCapsule() )
+	return;
 
+    mCBCapsuleUnpack( VisID, selid, cb );
     for ( int idx=size()-1; idx>=0; idx-- )
     {
 	mGetPosModeManipObjInfo( idx, dataobj, so, canmoveposmodemanip );
@@ -762,7 +772,7 @@ void Scene::togglePosModeManipObjSel()
 }
 
 
-void Scene::selectPosModeManipObj( VisID selid )
+void Scene::selectPosModeManipObj( const VisID& selid )
 {
     const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.isPresent(selid) )
@@ -804,7 +814,7 @@ void Scene::keyPressCB( CallBacker* cb )
 	    togglePosModeManipObjSel();
 
 	spacebarwaspressed_ = eventinfo.pressed;
-	events_.setHandled();
+	events_->setHandled();
 	return;
     }
 
@@ -948,7 +958,7 @@ void Scene::mouseCursorCB( CallBacker* cb )
 	for ( int idx=size()-1; idx>=0; idx-- )
 	{
 	    const visBase::DataObject* dataobj = getObject( idx );
-	    mDynamicCastGet( const visSurvey::SurveyObject*, so, dataobj );
+	    mDynamicCastGet( const SurveyObject*, so, dataobj );
 	    if ( !so || !selectedids.isPresent(dataobj->id()) )
 		continue;
 
@@ -991,9 +1001,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 {
     if ( datatransform_==zat ) return;
 
-    if ( datatransform_ ) datatransform_->unRef();
     datatransform_ = zat;
-    if ( datatransform_ ) datatransform_->ref();
 
     bool usedefaultzstretch = false;
     TrcKeyZSampling cs = SI().sampling( true );
@@ -1039,10 +1047,10 @@ const ZAxisTransform* Scene::getZAxisTransform() const
 { return datatransform_; }
 
 
-void Scene::setMarkerPos( const TrcKeyValue& trkv, SceneID sceneid )
+void Scene::setMarkerPos( const TrcKeyValue& trkv, const SceneID& sceneid )
 {
     Coord3 displaypos( Survey::GM().toCoord( trkv.tk_ ), trkv.val_ );
-    if ( sceneid==id() )
+    if ( sceneid == getID() )
 	displaypos = Coord3::udf();
 
     if ( datatransform_ && !trkv.tk_.isUdf() && !mIsUdf(trkv.val_) )
@@ -1068,14 +1076,12 @@ void Scene::setMarkerPos( const TrcKeyValue& trkv, SceneID sceneid )
 }
 
 
-visBase::MarkerSet* Scene::createMarkerSet() const
+RefMan<visBase::MarkerSet> Scene::createMarkerSet() const
 {
-    visBase::MarkerSet* markerset = visBase::MarkerSet::create();
-    markerset->ref();
+    RefMan<visBase::MarkerSet> markerset = visBase::MarkerSet::create();
     markerset->setType( MarkerStyle3D::Cross );
     markerset->setMarkersSingleColor( cDefaultMarkerColor() );
     markerset->setScreenSize( 6 );
-    markerset->unRefNoDelete();
     return markerset;
 }
 
@@ -1181,7 +1187,7 @@ void Scene::fillPar( IOPar& par ) const
     for ( int idx=0;  idx<size(); idx++ )
     {
 	const BufferString childkey( childfix(), nrchildren );
-	mDynamicCastGet(const visSurvey::SurveyObject*,survobj,getObject(idx))
+	mDynamicCastGet(const SurveyObject*,survobj,getObject(idx))
 	if ( !survobj || survobj->getSaveInSessionsFlag() == false )
 	    continue;
 
@@ -1211,9 +1217,8 @@ void Scene::removeAll()
     annot_ = nullptr;
     markerset_ = nullptr;
 
-    unRefAndNullPtr( polyselector_ );
     deleteAndNullPtr( coordselector_ );
-
+    polyselector_ = nullptr;
     curzstretch_ = -1;
 
     hoveredposmodemanipobjids_.erase();
@@ -1297,32 +1302,23 @@ bool Scene::usePar( const IOPar& par )
 		continue;
 	}
 
-	visSurvey::SurveyObject* survobj =
-	    SurveyObject::factory().create( surobjtype );
-
+	SurveyObject* survobj = SurveyObject::factory().create( surobjtype );
 	if ( !survobj )
 	    continue;
 
-	survobj->doRef();
-
-	RefMan<visBase::VisualObject> dobj = 0;
-	mDynamicCast( visBase::VisualObject*, dobj, survobj );
+	RefMan<visBase::VisualObject> dobj =
+				      dCast( visBase::VisualObject*, survobj );
 	if ( !dobj )
 	{
-	    survobj->doUnRef();
+	    delete survobj;
 	    continue;
 	}
 
 	dobj->setID( visid );
 	if ( !survobj->usePar(*chldpar) )
-	{
-	    survobj->doUnRef();
 	    continue;
-	}
 
 	addObject( dobj );
-
-	survobj->doUnRef();
     }
 
     PtrMan<IOPar> topimgpar = par.subselect( sKeyTopImage() );
@@ -1430,19 +1426,28 @@ visBase::TopBotImage* Scene::getTopBotImage( bool istop )
 }
 
 
+visBase::PolygonSelection* Scene::getPolySelection()
+{
+    return polyselector_.ptr();
+}
+
+
 void Scene::setPolygonSelector( visBase::PolygonSelection* ps )
 {
-    unRefAndNullPtr( polyselector_ );
     deleteAndNullPtr( coordselector_ );
-
+    polyselector_ = nullptr;
     if ( ps )
     {
 	polyselector_ = ps;
-	polyselector_->ref();
 	polyselector_->setUTMCoordinateTransform( utm2disptransform_ );
-	mTryAlloc(coordselector_,
-		  visBase::PolygonCoord3Selector(*polyselector_));
+	coordselector_ = new visBase::PolygonCoord3Selector( *polyselector_ );
     }
+}
+
+
+visBase::SceneColTab* Scene::getSceneColTab()
+{
+    return scenecoltab_.ptr();
 }
 
 

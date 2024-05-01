@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "callback.h"
+
 #include "positionlist.h"
 #include "thread.h"
 #include "visdata.h"
 #include "visosg.h"
+#include "vistransform.h"
 
 
 class UTMPosition;
@@ -25,8 +26,6 @@ namespace osg { class Array; }
 
 namespace visBase
 {
-class Transformation;
-class Normals;
 
 class CoordinatesOsgImpl;
 
@@ -42,17 +41,16 @@ mExpClass(visBase) Coordinates : public DataObject
 {
 public:
 
-    Notifier<Coordinates>change;
-    static Coordinates*	create()
+    static RefMan<Coordinates> create();
 			mCreateDataObj(Coordinates);
+
     friend		class CoordinatesBuilder;
     friend		class CoordListAdapter;
 
     void		setDisplayTransformation(const mVisTrans*) override;
 			/*!<\note All existing
 			     coords will be recalculated back from the old
-			     transformation and transformed by the new one.
-			*/
+			     transformation and transformed by the new one. */
 
     const mVisTrans*	getDisplayTransformation() const override;
 
@@ -83,7 +81,10 @@ public:
     bool		isEmpty() const { return size()==0; }
     void		dirty() const;
 
+    Notifier<Coordinates>change;
+
 protected:
+			~Coordinates();
 
     void		getPositions(TypeSet<Coord3>&) const;
 
@@ -94,39 +95,12 @@ protected:
 			/*!< Object should be locked when calling */
     int			arraySize() const;
 
-			~Coordinates();
-
     TypeSet<int>		unusedcoords_;
     mutable Threads::Mutex	mutex_;
-    const mVisTrans*		transformation_;
-
+    ConstRefMan<mVisTrans>	transformation_;
     osg::Array*			osgcoords_;
-    friend class	 SetOrGetCoordinates;
-};
 
-
-mExpClass(visBase) CoinFloatVertexAttribList : public FloatVertexAttribList
-{
-public:
-			CoinFloatVertexAttribList(Coordinates&,Normals*);
-
-    int			size() const override;
-    bool		setSize(int,bool cpdata) override;
-
-    void		setCoord(int,const float*) override;
-    void		getCoord(int,float*) const override;
-
-    void		setNormal(int,const float*) override;
-    void		getNormal(int,float*) const override;
-
-    void		setTCoord(int,const float*) override;
-    void		getTCoord(int,float*) const override;
-
-protected:
-			~CoinFloatVertexAttribList();
-
-    Normals*		normals_;
-    Coordinates&	coords_;
+    friend class SetOrGetCoordinates;
 };
 
 
@@ -136,23 +110,24 @@ protected:
 mExpClass(visBase) CoordListAdapter : public Coord3List
 {
 public:
-		CoordListAdapter(Coordinates&);
+			CoordListAdapter(Coordinates&);
 
-    int		nextID(int) const override;
-    int		add(const Coord3&) override;
-    Coord3	get(int) const override;
-    void	set(int,const Coord3&) override;
-    void	remove(int) override;
-    bool	isDefined(int) const override;
-    void	addValue(int,const Coord3&) override;
-    int		size() const override		{ return coords_.size(); }
-    void	remove(const TypeSet<int>&) override;
+    int			nextID(int) const override;
+    int			add(const Coord3&) override;
+    Coord3		get(int) const override;
+    void		set(int,const Coord3&) override;
+    void		remove(int) override;
+    bool		isDefined(int) const override;
+    void		addValue(int,const Coord3&) override;
+    int			size() const override	{ return coords_->size(); }
+    void		remove(const TypeSet<int>&) override;
 
-    Coordinates*    getCoordinates() { return &coords_; }
+    Coordinates*	getCoordinates() { return coords_.ptr(); }
 
 protected:
-    virtual		~CoordListAdapter();
-    Coordinates&	coords_;
+			~CoordListAdapter();
+
+    RefMan<Coordinates> coords_;
 
 };
 

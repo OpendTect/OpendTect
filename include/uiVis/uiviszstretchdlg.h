@@ -9,47 +9,35 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uidialog.h"
 
-namespace visSurvey
-{ class Scene; }
+#include "uidialog.h"
+#include "vissurvscene.h"
 
 class uiCheckBox;
 class uiLabeledComboBox;
 class uiSlider;
+class uiVisPartServer;
 
 /*!Dialog to set the z-stretch of a scene. */
 
 mExpClass(uiVis) uiZStretchDlg : public uiDialog
 { mODTextTranslationClass(uiZStretchDlg);
 public:
-			uiZStretchDlg(uiParent*);
+			uiZStretchDlg(uiParent*,uiVisPartServer*);
 			~uiZStretchDlg();
-
-    bool		valueChanged() const	{ return valchgd_; }
 
     CallBack		vwallcb; //!< If not set -> no button
     CallBack		homecb; //!< If not set -> no button
 
 protected:
 
-    uiLabeledComboBox*	scenefld_;
-    uiSlider*		sliderfld_;
-    uiCheckBox*		savefld_;
-    uiButton*		vwallbut_;
-
-    TypeSet<SceneID>	sceneids_;
-    TypeSet<float>	zstretches_;
-    TypeSet<float>	initzstretches_;
-
-
-    static uiString	sZStretch() { return tr( "Z stretch" ); }
     void		setZStretch(visSurvey::Scene*,float,bool permanent);
     void		setOneZStretchToAllScenes(float,bool permanent);
     void		setZStretchesToScenes(TypeSet<float>&,bool permanent);
 
     void		updateSliderValues(int);
-    visSurvey::Scene*	getSelectedScene() const;
+    RefMan<visSurvey::Scene> getSceneByIdx(int) const;
+    RefMan<visSurvey::Scene> getSelectedScene() const;
     float		getSelectedSceneZStretch() const;
     float		getSelectedSceneUiFactor() const;
 
@@ -60,14 +48,15 @@ protected:
     void		butPush(CallBacker*);
     void		sceneSel(CallBacker*);
 
-    float		initslval_;
-			//!< will be removed after 6.0
-    float		uifactor_;
-			//!< will be removed after 6.0
-    bool		valchgd_;
-			//!< will be removed after 6.0
-    void		updateSliderValues();
-			//!< will be removed after 6.0
-    void		setZStretch(float,bool permanent);
-			//!< will be removed after 6.0
+    uiVisPartServer*	vispartserv_;
+    uiLabeledComboBox*	scenefld_	= nullptr;
+    uiSlider*		sliderfld_	= nullptr;
+    uiCheckBox*		savefld_	= nullptr;
+    uiButton*		vwallbut_	= nullptr;
+
+    TypeSet<SceneID>	sceneids_;
+    TypeSet<float>	zstretches_;
+    TypeSet<float>	initzstretches_;
+
+    static uiString	sZStretch() { return tr( "Z stretch" ); }
 };

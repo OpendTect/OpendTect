@@ -12,7 +12,9 @@ ________________________________________________________________________
 
 #include "mousecursor.h"
 #include "refcount.h"
+#include "ui3dviewer.h"
 #include "uieventfilter.h"
+#include "vissurvscene.h"
 
 class QGestureEvent;
 
@@ -20,19 +22,15 @@ namespace visBase
 {
     class Axes;
     class Camera;
+    class DataObjectGroup;
     class PolygonSelection;
-    class Scene;
-    class SceneColTab;
     class Transformation;
     class ThumbWheel;
-    class DataObjectGroup;
 }
 
-
-namespace osgViewer { class CompositeViewer; class View; class GraphicsWindow; }
+namespace osgViewer { class CompositeViewer; class GraphicsWindow; }
 namespace osgGeo { class TrackballManipulator; }
 
-class ui3DViewer;
 class TrackBallManipulatorMessenger;
 class KeyBindMan;
 class uiMouseEventBlockerByGestures;
@@ -56,13 +54,14 @@ mClass(uiOSG) ui3DViewerBody : public uiObjectBody
     friend class TrackBallManipulatorMessenger;
 
 public:
-    virtual			~ui3DViewerBody();
+				~ui3DViewerBody();
 
     void			viewAll(bool animate);
 
-    void			setSceneID(SceneID);
-    visBase::Scene*		getScene()		{ return scene_; }
-    const visBase::Scene*	getScene() const	{ return scene_; }
+    void			setScene(visBase::Scene*);
+    visBase::Scene*		getScene();
+    const visBase::Scene*	getScene() const;
+    SceneID			getSceneID() const;
 
     bool			serializeScene(const char*) const;
 
@@ -192,26 +191,27 @@ protected:
 
     void				thumbWheelRotationCB(CallBacker*);
     void				enableThumbWheelHandling(bool yn,
-					    const visBase::ThumbWheel* tw=0);
+					   const visBase::ThumbWheel* =nullptr);
 
     ui3DViewer&				handle_;
     IOPar&				printpar_;
 
+    WeakPtr<visSurvey::Scene>		scene_;
+    RefMan<visBase::Camera>		vishudcamera_;
     RefMan<visBase::Camera>		camera_;
-    RefMan<visBase::Scene>		scene_;
     RefMan<visBase::ThumbWheel>		horthumbwheel_;
     RefMan<visBase::ThumbWheel>		verthumbwheel_;
     RefMan<visBase::ThumbWheel>		distancethumbwheel_;
-    int					wheeldisplaymode_;
+    ui3DViewer::WheelMode		wheeldisplaymode_ = ui3DViewer::OnHover;
 
     osg::Switch*			offscreenrenderswitch_;
-    osgViewer::CompositeViewer*		compositeviewer_;
-    osgViewer::View*			view_;
+    osgViewer::CompositeViewer*		compositeviewer_	= nullptr;
+    osgViewer::View*			view_			= nullptr;
     osg::Viewport*			viewport_;
-    StereoType				stereotype_;
-    float				stereooffset_;
+    StereoType				stereotype_		= None;
+    float				stereooffset_		= 0.f;
 
-    osgViewer::View*			hudview_;
+    osgViewer::View*			hudview_		= nullptr;
     osg::Switch*			offscreenrenderhudswitch_;
     RefMan<visBase::DataObjectGroup>	hudscene_;
 
@@ -221,12 +221,12 @@ protected:
     RefMan<visBase::PolygonSelection>	polygonselection_;
     TrackBallManipulatorMessenger*	manipmessenger_;
 
-    SwapCallback*			swapcallback_;
+    SwapCallback*			swapcallback_		= nullptr;
 
     IOPar				homepos_;
     RefMan<visBase::SceneColTab>	visscenecoltab_;
 
     KeyBindMan&				keybindman_;
 
-    bool				mapview_;
+    bool				mapview_		= false;
 };

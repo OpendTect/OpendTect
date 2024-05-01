@@ -7,16 +7,17 @@ ________________________________________________________________________
 
 -*/
 
-#include "color.h"
 #include "vismaterial.h"
-#include "visosg.h"
+
+#include "color.h"
 #include "iopar.h"
 #include "paralleltask.h"
 #include "visdata.h"
+#include "visosg.h"
 
-#include <osg/Material>
 #include <osg/Array>
 #include <osg/Geometry>
+#include <osg/Material>
 
 namespace visBase
 {
@@ -36,28 +37,26 @@ const char* Material::sKeyTransparency()	{ return "Transparency"; }
 #define mGetReadLock(nm) \
     Threads::Locker nm( lock_, Threads::Locker::ReadLock )
 
+RefMan<Material> Material::create()
+{
+    RefMan<Material> ret = new Material();
+    return ret;
+}
+
 
 Material::Material()
     : material_( addAttribute(new osg::Material) )
-    , osgcolorarray_( 0 )
-    , ambience_( 0.8 )
-    , specularintensity_( 0 )
-    , emmissiveintensity_( 0 )
-    , shininess_( 0 )
-    , diffuseintensity_( 0.8 )
-    , change( this )
-    , colorbindtype_( 1 )
-    , transparencybendpower_ ( 1.0 )
+    , change(this)
 {
-    material_->ref();
+    refOsgPtr( material_ );
     setColorMode( Off );
 }
 
 
 Material::~Material()
 {
-    material_->unref();
-    if ( osgcolorarray_ ) osgcolorarray_->unref();
+    unRefOsgPtr( material_ );
+    unRefOsgPtr( osgcolorarray_ );
     for ( int idx = 0; idx< attachedgeoms_.size(); idx++ )
 	attachedgeoms_.removeSingle( idx );
 }
@@ -220,7 +219,7 @@ void Material::setAllTransparencies( float n )
     for ( int idx=0; idx<osgcolorarray_->getNumElements(); idx++ )
 	setTransparency( n, idx, true );
 
-    visBase::DataObject::requestSingleRedraw();
+    DataObject::requestSingleRedraw();
 }
 
 
@@ -229,7 +228,7 @@ void Material::setTransparencies( float n, const Interval<int>& range )
     for ( int idx=range.start; idx<=range.stop; idx++ )
 	setTransparency( n, idx, true );
 
-    visBase::DataObject::requestSingleRedraw();
+    DataObject::requestSingleRedraw();
 }
 
 
@@ -334,7 +333,7 @@ void Material::updateOsgMaterial()
 	material_->setDiffuse(osg::Material::FRONT_AND_BACK, diffuse );
     }
 
-    visBase::DataObject::requestSingleRedraw();
+    DataObject::requestSingleRedraw();
 }
 
 
@@ -435,10 +434,9 @@ void Material::fillPar( IOPar& iopar ) const
 
 void Material::createOsgColorArray( int size )
 {
-    if ( osgcolorarray_ )
-	osgcolorarray_->unref();
+    unRefOsgPtr( osgcolorarray_ );
     osgcolorarray_ = new osg::Vec4Array( size );
-    osgcolorarray_->ref();
+    refOsgPtr( osgcolorarray_ );
 }
 
 

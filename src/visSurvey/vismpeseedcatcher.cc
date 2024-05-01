@@ -19,17 +19,16 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "visdataman.h"
 #include "visemobjdisplay.h"
-#include "visevent.h"
 #include "vishorizon2ddisplay.h"
-#include "vismpeeditor.h"
+#include "vismultiattribsurvobj.h"
+#include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "vistexturechannels.h"
 #include "visseis2ddisplay.h"
 #include "visselman.h"
+#include "vissower.h"
 #include "vissurvscene.h"
-#include "vistransform.h"
-#include "visplanedatadisplay.h"
 
 mCreateFactoryEntry( visSurvey::MPEClickCatcher )
 
@@ -38,9 +37,9 @@ namespace visSurvey
 {
 
 MPEClickCatcher::MPEClickCatcher()
-    : visBase::VisualObjectImpl( false )
-    , click( this )
-    , endSowing( this )
+    : visBase::VisualObjectImpl(false)
+    , click(this)
+    , endSowing(this)
     , sowing(this)
 {
 }
@@ -57,34 +56,23 @@ MPEClickCatcher::~MPEClickCatcher()
 void MPEClickCatcher::setSceneEventCatcher( visBase::EventCatcher* nev )
 {
     if ( eventcatcher_ )
-    {
 	eventcatcher_->eventhappened.remove(mCB(this,MPEClickCatcher,clickCB));
-	eventcatcher_->unRef();
-    }
 
     eventcatcher_ = nev;
 
     if ( eventcatcher_ )
-    {
 	eventcatcher_->eventhappened.notify(mCB(this,MPEClickCatcher,clickCB));
-	eventcatcher_->ref();
-    }
 }
 
 
 void MPEClickCatcher::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_ = nt;
-    if ( transformation_ )
-	transformation_->ref();
 }
 
 
 const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
-{ return transformation_; }
+{ return transformation_.ptr(); }
 
 
 #define mCheckTracker( typestr, typekey, legalclick, condition ) \
@@ -98,17 +86,17 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
 #define mCheckPlaneDataDisplay( typ, dataobj, plane, legalclick ) \
     mDynamicCastGet( PlaneDataDisplay*, plane, dataobj ); \
     if ( !plane || !plane->isOn() ) \
-	plane = 0; \
+	plane = nullptr; \
     bool legalclick = !plane; \
     mCheckTracker( typ, Horizon3D, legalclick, \
-		   plane !=0 ? plane->getOrientation()!=OD::SliceType::Z : false ); \
+	   plane !=0 ? plane->getOrientation()!=OD::SliceType::Z : false ); \
     mCheckTracker( typ, Fault3D, legalclick, true ); \
     mCheckTracker( typ, FaultStickSet, legalclick, true );
 
 #define mCheckSeis2DDisplay( typ, dataobj, seis2ddisp, legalclick ) \
     mDynamicCastGet( Seis2DDisplay*, seis2ddisp, dataobj ); \
     if ( !seis2ddisp || !seis2ddisp->isOn() ) \
-	seis2ddisp =  0; \
+	seis2ddisp =  nullptr; \
     bool legalclick = !seis2ddisp; \
     mCheckTracker( typ, Horizon2D, legalclick, true ); \
     mCheckTracker( typ, FaultStickSet, legalclick, true );
@@ -116,12 +104,12 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
 #define mCheckRdlDisplay( typ, dataobj, rdldisp, legalclick ) \
     mDynamicCastGet(RandomTrackDisplay*,rdldisp,dataobj); \
     if ( !rdldisp || !rdldisp->isOn() ) \
-	rdldisp = 0; \
+	rdldisp = nullptr; \
     bool legalclick = !rdldisp; \
     mCheckTracker( typ, Horizon3D, legalclick, true );
 
 
-bool MPEClickCatcher::isClickable( const char* trackertype, VisID visid )
+bool MPEClickCatcher::isClickable( const char* trackertype, const VisID& visid )
 {
     visBase::DataObject* dataobj = visBase::DM().getObject( visid );
     if ( !dataobj )
@@ -206,7 +194,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 
 	info().setObjID( visid );
 
-	mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, dataobj );
+	mDynamicCastGet( Horizon2DDisplay*, hor2ddisp, dataobj );
 	if ( hor2ddisp )
 	{
 	    info().setEMObjID( hor2ddisp->getObjectID() );
@@ -217,7 +205,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    break;
 	}
 
-	mDynamicCastGet( visSurvey::EMObjectDisplay*, emod, dataobj );
+	mDynamicCastGet( EMObjectDisplay*, emod, dataobj );
 	if ( emod )
 	{
 	    info().setEMObjID( emod->getObjectID() );
@@ -359,7 +347,7 @@ int MPEClickCatcher::handleAttribute( const MultiTextureSurveyObject& survobj,
 bool MPEClickCatcher::forceAttribute( const Attrib::SelSpec& as )
 {
     const VisID clickedobjectid = info().getObjID();
-    mDynamicCastGet(const visSurvey::MultiTextureSurveyObject*,survobj,
+    mDynamicCastGet(const MultiTextureSurveyObject*,survobj,
 		    visBase::DM().getObject(clickedobjectid))
     if ( !survobj )
 	return false;
@@ -376,7 +364,7 @@ bool MPEClickCatcher::forceAttribute( const Attrib::SelSpec& as )
 
 
 void MPEClickCatcher::sendUnderlying2DSeis(
-				const visSurvey::EMObjectDisplay* emod,
+				const EMObjectDisplay* emod,
 				const visBase::EventInfo& eventinfo )
 {
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
@@ -392,12 +380,12 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     const TrcKey tk( geomid, nodepid.getRowCol().col() );
     info().setNode( sequentSowing() ? TrcKey::udf() : tk );
 
-    Seis2DDisplay* seis2dclosest = 0;
+    Seis2DDisplay* seis2dclosest = nullptr;
     bool legalclickclosest = false;
     float mindisttoseis2d = mUdf(float);
 
     TypeSet<VisID> seis2dinscene;
-    visBase::DM().getIDs( typeid(visSurvey::Seis2DDisplay), seis2dinscene );
+    visBase::DM().getIDs( typeid(Seis2DDisplay), seis2dinscene );
 
     for ( int idx=0; idx<seis2dinscene.size(); idx++ )
     {
@@ -429,16 +417,16 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 
 	if ( geomid == seis2ddisp->getGeomID() )
 	{
-	    mindisttoseis2d = 0;
+	    mindisttoseis2d = 0.;
 	    seis2dclosest = seis2ddisp;
 	    legalclickclosest = legalclick;
 	    break;
 	}
     }
 
-    const Scene* scene = seis2dclosest ? seis2dclosest->getScene() : 0;
+    const Scene* scene = seis2dclosest ? seis2dclosest->getScene() : nullptr;
     const double zscale = scene ?
-	scene->getZScale()*scene->getFixedZStretch() : 0.0;
+	scene->getZScale()*scene->getFixedZStretch() : 0.;
     const Coord3 onesteptranslation = SI().oneStepTranslation( Coord3(0,0,1) );
     const double onestepdist = Coord3( 1, 1, zscale ).dot( onesteptranslation );
 
@@ -459,7 +447,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 
 
 void MPEClickCatcher::sendUnderlyingPlanes(
-				const visSurvey::EMObjectDisplay* emod,
+				const EMObjectDisplay* emod,
 				const visBase::EventInfo& eventinfo )
 {
     const EM::EMObject* emobj = EM::EMM().getObject( emod->getObjectID() );
@@ -478,7 +466,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     info().setNode( sequentSowing() ? TrcKey::udf() : TrcKey(nodebid) );
 
     TypeSet<VisID> planesinscene;
-    visBase::DM().getIDs( typeid(visSurvey::PlaneDataDisplay), planesinscene );
+    visBase::DM().getIDs( typeid(PlaneDataDisplay), planesinscene );
 
     for ( int idx=0; idx<planesinscene.size(); idx++ )
     {
@@ -519,7 +507,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     }
 
     TypeSet<VisID> rtdids;
-    visBase::DM().getIDs( typeid(visSurvey::RandomTrackDisplay), rtdids );
+    visBase::DM().getIDs( typeid(RandomTrackDisplay), rtdids );
     for ( int idx=0; idx<rtdids.size(); idx++ )
     {
 	visBase::DataObject* dataobj = visBase::DM().getObject( rtdids[idx] );
@@ -556,15 +544,15 @@ void MPEClickCatcher::setEditor( MPEEditor* mpeeditor )
 {
     if ( editor_ )
     {
-	editor_->unRef();
-	editor_ = 0;
+	mDetachCB( editor_->sower().sowing, MPEClickCatcher::sowingCB );
+	mDetachCB( editor_->sower().sowingend, MPEClickCatcher::sowingEnd );
     }
+
     editor_ = mpeeditor;
     if ( editor_ )
     {
-	mAttachCB(editor_->sower().sowing, MPEClickCatcher::sowingCB);
+	mAttachCB( editor_->sower().sowing, MPEClickCatcher::sowingCB );
 	mAttachCB( editor_->sower().sowingend, MPEClickCatcher::sowingEnd );
-	editor_->ref();
     }
 }
 
@@ -577,6 +565,7 @@ bool MPEClickCatcher::activateSower( const OD::Color& color,
 	return editor_->sower().activate( color, *cureventinfo_,
 					  info_.getObjID(), workrange );
     }
+
     return false;
 }
 
@@ -708,6 +697,7 @@ void MPEClickInfo::clear()
     ctrlclicked_ = false;
     shiftclicked_ = false;
     altclicked_ = false;
+    doubleclicked_ = false;
     clickednode_.setUdf();
     clickedpos_ = Coord3::udf();
     clickedobjid_.setUdf();
@@ -716,10 +706,9 @@ void MPEClickInfo::clear()
     attrsel_ = nullptr;
     attrdata_ = nullptr;
     linedata_ = nullptr;
-    linename_ = "";
+    linename_.setEmpty();
     geomid_ = Survey::GM().cUndefGeomID();
-    doubleclicked_ = false;
-    rdltkpath_ = 0;
+    rdltkpath_ = nullptr;
     rdlid_.setUdf();
     emvisids_.setUdf();
 }
@@ -757,7 +746,7 @@ void MPEClickInfo::setPos(const Coord3& pos )
 { clickedpos_ = pos; }
 
 
-void MPEClickInfo::setObjID( VisID visid )
+void MPEClickInfo::setObjID( const VisID& visid )
 { clickedobjid_ = visid; }
 
 
@@ -765,7 +754,7 @@ void MPEClickInfo::setEMObjID( EM::ObjectID emobjid )
 { clickedemobjid_ = emobjid; }
 
 
-void MPEClickInfo::setEMVisID( VisID visid )
+void MPEClickInfo::setEMVisID( const VisID& visid )
 { emvisids_ = visid; }
 
 
@@ -802,7 +791,7 @@ void MPEClickInfo::setObjTKPath( const TrcKeyPath* tkp )
 const TrcKeyPath* MPEClickInfo::getObjTKPath() const
 { return rdltkpath_; }
 
-void MPEClickInfo::setObjRandomLineID( RandomLineID rdlid )
+void MPEClickInfo::setObjRandomLineID( const RandomLineID& rdlid )
 { rdlid_ = rdlid; }
 
 RandomLineID MPEClickInfo::getObjRandomLineID() const

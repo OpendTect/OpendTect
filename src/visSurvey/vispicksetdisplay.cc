@@ -18,17 +18,13 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 
 #include "visemobjdisplay.h"
-#include "vismarkerset.h"
+#include "visevent.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
-#include "vispolyline.h"
-#include "visrandompos2body.h"
+#include "vispolygonselection.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
-#include "visevent.h"
 #include "vistransform.h"
-#include "visdragger.h"
-#include "vispolygonselection.h"
 
 static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
@@ -42,39 +38,27 @@ const char* PickSetDisplay::sKeyDisplayBody()	{ return "Show Body"; }
 
 PickSetDisplay::PickSetDisplay()
     : LocationDisplay()
-    , markerset_(visBase::MarkerSet::create())
-    , needline_(false)
-    , bodydisplay_(nullptr)
-    , shoulddisplaybody_( false )
-    , dragger_(nullptr)
-    , draggeridx_(-1)
-    , showdragger_(false)
     , color_(OD::Color::White())
-    , polylines_(nullptr)
 {
-    markerset_->ref();
+    ref();
+    markerset_ = visBase::MarkerSet::create();
     markerset_->applyRotationToAllMarkers( false );
     addChild( markerset_->osgNode() );
     pickselstatus_.setEmpty();
+    unRefNoDelete();
 }
 
 
 PickSetDisplay::~PickSetDisplay()
 {
-    if ( dragger_ )
-    {
-	dragger_->unRef();
-	dragger_ = nullptr;
-    }
-
-    unRefAndNullPtr( bodydisplay_ );
+    dragger_ = nullptr;
+    bodydisplay_ = nullptr;
     removeChild( markerset_->osgNode() );
-    unRefAndNullPtr( markerset_ );
-
+    markerset_ = nullptr;
     if ( polylines_ )
     {
 	removeChild( polylines_->osgNode() );
-	unRefAndNullPtr( polylines_ );
+	polylines_ = nullptr;
     }
 
     Pick::SetMgr& mgr = Pick::Mgr();
@@ -108,12 +92,12 @@ void PickSetDisplay::setSet( Pick::Set* newset )
     if ( !showall_ && scene_ )
 	scene_->objectMoved( nullptr );
 
+    RefMan<visBase::MarkerSet> marker = createOneMarker();
     dragger_= visBase::Dragger::create();
-    dragger_->ref();
     dragger_->setDisplayTransformation( transformation_ );
     dragger_->setDraggerType( visBase::Dragger::Translate2D );
     dragger_->setSize( (float)markerstyle.size_ );
-    dragger_->setOwnShape( createOneMarker(), false );
+    dragger_->setOwnShape( marker.ptr(), false );
     addChild( dragger_->osgNode() );
     dragger_->turnOn( false );
 
@@ -126,7 +110,7 @@ void PickSetDisplay::updateDragger()
     mCheckReadyOnly( set_ )
 
     if ( dragger_ )
-    dragger_->updateDragger( false );
+	dragger_->updateDragger( false );
 }
 
 
@@ -138,6 +122,7 @@ void PickSetDisplay::setDraggerNormal( const Coord3& normal )
 {
     if ( normal.isUdf() )
 	return;
+
     const Coord3 defnormal( 0, 0, 1 );
     const float dotproduct = (float)defnormal.dot( normal );
     Coord3 rotationaxis(0,0,1);
@@ -177,7 +162,6 @@ void PickSetDisplay::dispChg( CallBacker* cb )
     if ( oldpixsz != set_->disp_.pixsize_ )
     {
 	updateLineStyle();
-
 	markerset_->setScreenSize(  sCast(float,set_->disp_.pixsize_) );
     }
 
@@ -241,6 +225,7 @@ Coord3 PickSetDisplay::getPosition( int loc ) const
     const visBase::Coordinates* markercoords = markerset_->getCoordinates();
     if( markercoords->size() )
 	 return markercoords->getPos( loc );
+
     return Coord3::udf();
 }
 
@@ -357,9 +342,8 @@ void PickSetDisplay::redrawMultiSets()
 	if ( ps.isEmpty() )
 	    continue;
 
-	Geometry::IndexedPrimitiveSet* lineprimitiveset =
-	    Geometry::IndexedPrimitiveSet::create( false );
-	lineprimitiveset->ref();
+	RefMan<Geometry::IndexedPrimitiveSet> lineprimitiveset =
+			    Geometry::IndexedPrimitiveSet::create( false );
 	lineprimitiveset->set( ps.arr(), ps.size() );
 	polylines_->addPrimitiveSet( lineprimitiveset );
     }
@@ -402,7 +386,7 @@ void PickSetDisplay::removeAll()
 	polylines_->removeAllPrimitiveSets();
 	polylines_->getCoordinates()->setEmpty();
 	removeChild( polylines_->osgNode() );
-	unRefAndNullPtr( polylines_ );
+	polylines_ = nullptr;
     }
 }
 
@@ -413,11 +397,11 @@ void PickSetDisplay::createLine()
 	return;
 
     polylines_ = visBase::PolyLine::create();
-    polylines_->ref();
 
     addChild( polylines_->osgNode() );
     polylines_->setDisplayTransformation( transformation_ );
-    polylines_->setMaterial( new visBase::Material() );
+    RefMan<visBase::Material> newmat = visBase::Material::create();
+    polylines_->setMaterial( newmat.ptr() );
 
     updateLineStyle();
 }
@@ -555,13 +539,16 @@ bool PickSetDisplay::setBodyDisplay()
     if ( !bodydisplay_ )
     {
 	bodydisplay_ = visBase::RandomPos2Body::create();
-	bodydisplay_->ref();
 	addChild( bodydisplay_->osgNode() );
 	bodydisplay_->setPixelDensity( getPixelDensity() );
     }
 
     if ( !bodydisplay_->getMaterial() )
-	bodydisplay_->setMaterial( new visBase::Material );
+    {
+	RefMan<visBase::Material> newmat = visBase::Material::create();
+	bodydisplay_->setMaterial( newmat.ptr() );
+    }
+
     bodydisplay_->getMaterial()->setColor( set_->disp_.fillcolor_ );
     bodydisplay_->setDisplayTransformation( transformation_ );
 
@@ -579,14 +566,14 @@ bool PickSetDisplay::setBodyDisplay()
 }
 
 
-visBase::MarkerSet* PickSetDisplay::createOneMarker() const
+RefMan<visBase::MarkerSet> PickSetDisplay::createOneMarker() const
 {
-    visBase::MarkerSet* marker = visBase::MarkerSet::create();
+    RefMan<visBase::MarkerSet> marker = visBase::MarkerSet::create();
     MarkerStyle3D markerstyle;
     markerstyle.size_ = set_->disp_.pixsize_;
     markerstyle.type_ = sCast(MarkerStyle3D::Type,set_->disp_.markertype_);
-    marker->setMaterial(nullptr);
-    marker->setMarkerStyle(markerstyle);
+    marker->setMaterial( nullptr );
+    marker->setMarkerStyle( markerstyle );
     marker->setMarkersSingleColor( OD::Color::NoColor() );
     marker->addPos( Coord3(0,0,0) );
     return marker;
@@ -610,7 +597,7 @@ bool PickSetDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
 
 void PickSetDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs,
-			VisID movedid )
+			const VisID& movedid )
 {
     mCheckReadyOnly(set_)
 
@@ -696,10 +683,12 @@ void PickSetDisplay::otherObjectsMoved(
 
 bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
 {
-    if ( !obj ) return false;
+    if ( !obj )
+	return false;
 
     Coord3 pos = set_->validIdx(idx) ? set_->getPos(idx) : Coord3::udf();
-    if ( !pos.isDefined()) return false;
+    if ( !pos.isDefined() )
+	return false;
 
     if ( datatransform_ )
 	pos.z = datatransform_->transform( pos );
@@ -798,7 +787,10 @@ void PickSetDisplay::setColor( OD::Color nc )
     if ( !bodydisplay_ ) return;
 
     if ( !bodydisplay_->getMaterial() )
-	bodydisplay_->setMaterial( new visBase::Material );
+    {
+	RefMan<visBase::Material> newmat = visBase::Material::create();
+	bodydisplay_->setMaterial( newmat.ptr() );
+    }
 
     bodydisplay_->getMaterial()->setColor( nc );
 }
@@ -823,7 +815,7 @@ float PickSetDisplay::getPixelDensity() const
 
 void PickSetDisplay::setDisplayTransformation( const mVisTrans* newtr )
 {
-    visSurvey::LocationDisplay::setDisplayTransformation( newtr );
+    LocationDisplay::setDisplayTransformation( newtr );
     if ( bodydisplay_ )
 	bodydisplay_->setDisplayTransformation( newtr );
     if ( markerset_ )
@@ -837,7 +829,7 @@ void PickSetDisplay::setDisplayTransformation( const mVisTrans* newtr )
 
 const mVisTrans* PickSetDisplay::getDisplayTransformation() const
 {
-    return transformation_;
+    return transformation_.ptr();
 }
 
 
@@ -850,8 +842,8 @@ void PickSetDisplay::fillPar( IOPar& par ) const
 
 bool PickSetDisplay::usePar( const IOPar& par )
 {
-    if ( !visSurvey::LocationDisplay::usePar( par ) )
-	 return false;
+    if ( !LocationDisplay::usePar(par) )
+	return false;
 
     bool showbody = false;
     par.getYN( sKeyDisplayBody(), showbody );
@@ -867,19 +859,17 @@ void PickSetDisplay::turnOnSelectionMode( bool yn )
 
     if ( scene_ && scene_->getPolySelection() )
     {
+	selectionmodel_ = yn;
 	if ( yn )
 	{
 	    mAttachCBIfNotAttached(
-	    scene_->getPolySelection()->polygonFinished(),
-	    PickSetDisplay::polygonFinishedCB );
-	    selectionmodel_ = true;
+				scene_->getPolySelection()->polygonFinished(),
+				PickSetDisplay::polygonFinishedCB );
 	}
 	else
 	{
-	    mDetachCB(
-	    scene_->getPolySelection()->polygonFinished(),
-	    PickSetDisplay::polygonFinishedCB );
-	    selectionmodel_ = false;
+	    mDetachCB( scene_->getPolySelection()->polygonFinished(),
+		       PickSetDisplay::polygonFinishedCB );
 	}
     }
 }
@@ -900,10 +890,10 @@ void PickSetDisplay::polygonFinishedCB(CallBacker*)
 	pickselstatus_.setAll( false );
     }
 
-    visBase::PolygonSelection* polysel =  scene_->getPolySelection();
+    RefMan<visBase::PolygonSelection> polysel =  scene_->getPolySelection();
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
-    if ( (!polysel->hasPolygon() && !polysel->singleSelection()) )
+    if ( !polysel->hasPolygon() && !polysel->singleSelection() )
     {
 	unSelectAll();
 	return;
@@ -933,8 +923,7 @@ void PickSetDisplay::setPickSelect( int idx, bool yn )
 }
 
 
-void PickSetDisplay::updateSelections(
-    const visBase::PolygonSelection* polysel )
+void PickSetDisplay::updateSelections( const visBase::PolygonSelection* polysel)
 {
     if ( !markerset_ || !polysel || !polysel->hasPolygon() )
 	return;
@@ -948,10 +937,7 @@ void PickSetDisplay::updateSelections(
 	const Coord3 pos = coords->getPos(idx);
 	if ( !ctrldown_ )
 	{
-	    if ( !polysel->isInside(pos) )
-		setPickSelect( idx, false );
-	    else
-		setPickSelect( idx, true );
+	    setPickSelect( idx, polysel->isInside(pos) );
 	}
 	else
 	{
@@ -986,7 +972,7 @@ bool PickSetDisplay::removeSelections( TaskRunner* )
     }
 
     Pick::Mgr().undo().setUserInteractionEnd(
-	    Pick::Mgr().undo().currentEventID() );
+			    Pick::Mgr().undo().currentEventID() );
 
     unSelectAll();
     return changed;

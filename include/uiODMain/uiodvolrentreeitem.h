@@ -9,18 +9,21 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
+#include "visvolumedisplay.h"
 
 mExpClass(uiODMain) uiODVolrenParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODVolrenParentTreeItem)
 public:
 			uiODVolrenParentTreeItem();
-			~uiODVolrenParentTreeItem();
 
     static CNotifier<uiODVolrenParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODVolrenParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
     bool		canAddVolumeToScene();
@@ -34,15 +37,14 @@ public:
     static const char*	getName();
     uiTreeItem*		create() const override
 			{ return new uiODVolrenParentTreeItem; }
-
-    uiTreeItem*		createForVis(VisID,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
 mExpClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODVolrenTreeItem)
 public:
-			uiODVolrenTreeItem(VisID displayid=VisID::udf(),
+			uiODVolrenTreeItem(const VisID& =VisID::udf(),
 					   bool rgba=false);
 
     bool		showSubMenu() override;
@@ -53,7 +55,7 @@ protected:
     bool		init() override;
     uiString		createDisplayName() const override;
     uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const override;
-    void		createMenu(MenuHandler*,bool istb) override;
+    virtual void	createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
 
     bool		isExpandable() const override		{ return true; }
@@ -61,6 +63,11 @@ protected:
 
     MenuItem		positionmnuitem_;
     bool		rgba_;
+
+    ConstRefMan<visSurvey::VolumeDisplay> getDisplay() const;
+    RefMan<visSurvey::VolumeDisplay> getDisplay();
+
+    WeakPtr<visSurvey::VolumeDisplay> volumedisplay_;
 };
 
 
@@ -68,9 +75,9 @@ mExpClass(uiODMain) uiODVolrenAttribTreeItem : public uiODAttribTreeItem
 { mODTextTranslationClass(uiODVolrenAttribTreeItem);
 public:
 			uiODVolrenAttribTreeItem(const char* parenttype);
-			~uiODVolrenAttribTreeItem();
 
 protected:
+			~uiODVolrenAttribTreeItem();
 
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
@@ -85,7 +92,7 @@ protected:
 mExpClass(uiODMain) uiODVolrenSubTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODVolrenSubTreeItem);
 public:
-			uiODVolrenSubTreeItem(VisID displayid);
+			uiODVolrenSubTreeItem(const VisID&);
 
     bool		isIsoSurface() const;
     void		updateColumnText(int col) override;

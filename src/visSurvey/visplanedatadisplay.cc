@@ -18,11 +18,8 @@ ________________________________________________________________________
 #include "settings.h"
 #include "uistrings.h"
 
-#include "visevent.h"
-#include "visgridlines.h"
 #include "vismaterial.h"
 #include "vistexturechannels.h"
-#include "zaxistransform.h"
 #include "zaxistransformutils.h"
 
 
@@ -64,28 +61,27 @@ mDefineEnumUtils(PlaneDataDisplay,SliceType,"Orientation")
 //PlaneDataDisplay
 PlaneDataDisplay::PlaneDataDisplay()
     : MultiTextureSurveyObject()
-    , dragger_(visBase::DepthTabPlaneDragger::create())
-    , gridlines_(visBase::GridLines::create())
     , curicstep_(s3dgeom_->inlStep(),s3dgeom_->crlStep())
     , csfromsession_(false)
     , undo_(*new Undo())
     , moving_(this)
     , movefinished_(this)
-    , datachanged_( this )
+    , datachanged_(this)
 {
+    ref();
     datapacks_.setNullAllowed();
-    transfdatapacks_.setNullAllowed();
+    transformedpacks_.setNullAllowed();
 
     texturerect_ = visBase::TextureRectangle::create();
     addChild( texturerect_->osgNode() );
 
     texturerect_->setTextureChannels( channels_ );
 
+    dragger_ = visBase::DepthTabPlaneDragger::create();
     addChild( dragger_->osgNode() );
 
     rposcache_.setNullAllowed();
 
-    dragger_->ref();
     mAttachCB( dragger_->started, PlaneDataDisplay::draggerStart );
     mAttachCB( dragger_->motion, PlaneDataDisplay::draggerMotion );
     mAttachCB( dragger_->finished, PlaneDataDisplay::draggerFinish );
@@ -98,7 +94,7 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     material_->setColor( OD::Color::White() );
 
-    gridlines_->ref();
+    gridlines_ = visBase::GridLines::create();
     addChild( gridlines_->osgNode() );
 
     updateRanges( true, true );
@@ -114,18 +110,16 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     init();
     showManipulator( dragger_->isOn() );
+    unRefNoDelete();
 }
 
 
 PlaneDataDisplay::~PlaneDataDisplay()
 {
     detachAllNotifiers();
-    setSceneEventCatcher( 0 );
+    setSceneEventCatcher( nullptr );
     deepErase( rposcache_ );
-    setZAxisTransform( 0,0 );
-
-    dragger_->unRef();
-    gridlines_->unRef();
+    setZAxisTransform( nullptr, nullptr );
 
     undo_.removeAll();
     delete &undo_;
@@ -322,15 +316,11 @@ bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat,
 	    datatransform_->removeVolumeOfInterest( voiidx_ );
 	    voiidx_ = -1;
 	}
-
-	datatransform_->unRef();
-	datatransform_ = 0;
     }
 
     datatransform_ = zat;
     if ( datatransform_ )
     {
-	datatransform_->ref();
 	updateRanges( false, !haddatatransform );
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->notify(
@@ -342,7 +332,9 @@ bool PlaneDataDisplay::setZAxisTransform( ZAxisTransform* zat,
 
 
 const ZAxisTransform* PlaneDataDisplay::getZAxisTransform() const
-{ return datatransform_; }
+{
+    return datatransform_.ptr();
+}
 
 
 void PlaneDataDisplay::setTranslationDragKeys( bool depth, int ns )
@@ -359,11 +351,11 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
 	if ( rposcache_[idx] )
-	    setRandomPosDataNoCache( idx, rposcache_[idx], 0 );
+	    setRandomPosDataNoCache( idx, rposcache_[idx], nullptr );
 	else
-	    createTransformedDataPack( idx, 0 );
+	    createTransformedDataPack( idx, nullptr );
 
-	updateChannels( idx, 0 );
+	updateChannels( idx, nullptr );
     }
 }
 
@@ -583,7 +575,7 @@ void PlaneDataDisplay::addCache()
 {
     rposcache_ += nullptr;
     datapacks_ += nullptr;
-    transfdatapacks_ += nullptr;
+    transformedpacks_ += nullptr;
 }
 
 
@@ -591,10 +583,10 @@ void PlaneDataDisplay::removeCache( int attrib )
 {
     delete rposcache_.removeSingle( attrib );
     datapacks_.removeSingle( attrib );
-    transfdatapacks_.removeSingle( attrib );
+    transformedpacks_.removeSingle( attrib );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	updateChannels( idx, 0 );
+	updateChannels( idx, nullptr );
 }
 
 
@@ -602,7 +594,7 @@ void PlaneDataDisplay::swapCache( int a0, int a1 )
 {
     rposcache_.swap( a0, a1 );
     datapacks_.swap( a0, a1 );
-    transfdatapacks_.swap( a0, a1 );
+    transformedpacks_.swap( a0, a1 );
 }
 
 
@@ -610,7 +602,7 @@ void PlaneDataDisplay::emptyCache( int attrib )
 {
     delete rposcache_.replace( attrib, nullptr );
     datapacks_.replace( attrib, nullptr );
-    transfdatapacks_.replace( attrib, nullptr );
+    transformedpacks_.replace( attrib, nullptr );
 
     channels_->setNrVersions( attrib, 1 );
     channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, nullptr );
@@ -658,7 +650,7 @@ Interval<float> PlaneDataDisplay::getDataTraceRange() const
 
 TrcKeyZSampling PlaneDataDisplay::getDataPackSampling( int attrib ) const
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDataPack( attrib );
+    ConstRefMan<RegularSeisDataPack> regsdp = getSeisDataPack( attrib );
     const TrcKeyZSampling tkzs =
 		    regsdp ? regsdp->sampling() : getTrcKeyZSampling( attrib );
     return tkzs;
@@ -667,10 +659,11 @@ TrcKeyZSampling PlaneDataDisplay::getDataPackSampling( int attrib ) const
 
 void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* taskr )const
 {
-    if ( !datatransform_ ) return;
+    if ( !datatransform_ )
+	return;
 
     const TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 ); //attrib?
-    ZAxisTransformPointGenerator generator( *datatransform_ );
+    ZAxisTransformPointGenerator generator( *datatransform_.getNonConstPtr() );
     generator.setInput( cs, taskr );
     generator.setOutputDPS( pos );
     generator.execute();
@@ -688,7 +681,8 @@ void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
     if ( rposcache_[attrib] )
 	delete rposcache_[attrib];
 
-    rposcache_.replace( attrib, data ? new BinIDValueSet(data->bivSet()) : 0 );
+    rposcache_.replace( attrib, data ? new BinIDValueSet(data->bivSet())
+				     : nullptr );
 }
 
 
@@ -782,26 +776,16 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 }
 
 
-bool PlaneDataDisplay::setDataPackID( int attrib, DataPackID dpid,
-				      TaskRunner* taskr )
+bool PlaneDataDisplay::setSeisDataPack( int attrib, RegularSeisDataPack* dp,
+					TaskRunner* taskr )
 {
-    DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
-    RefMan<RegularSeisDataPack> regsdp = dpm.get<RegularSeisDataPack>( dpid );
-    return setDataPack( attrib, regsdp.ptr(), taskr );
-}
-
-
-bool PlaneDataDisplay::setDataPack( int attrib, RegularSeisDataPack* dp,
-				    TaskRunner* taskr )
-{
-    RefMan<RegularSeisDataPack> regsdp = dp;
-    if ( !regsdp || regsdp->isEmpty() )
+    if ( !dp || dp->isEmpty() )
     {
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, nullptr );
 	return false;
     }
 
-    datapacks_.replace( attrib, regsdp );
+    datapacks_.replace( attrib, dp );
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
@@ -810,14 +794,14 @@ bool PlaneDataDisplay::setDataPack( int attrib, RegularSeisDataPack* dp,
 }
 
 
-ConstRefMan<RegularSeisDataPack> PlaneDataDisplay::getDataPack(
+ConstRefMan<RegularSeisDataPack> PlaneDataDisplay::getSeisDataPack(
 							int attrib ) const
 {
-    return mSelf().getDataPack( attrib );
+    return mSelf().getSeisDataPack( attrib );
 }
 
 
-RefMan<RegularSeisDataPack> PlaneDataDisplay::getDataPack( int attrib )
+RefMan<RegularSeisDataPack> PlaneDataDisplay::getSeisDataPack( int attrib )
 {
     if ( !datapacks_.validIdx(attrib) || !datapacks_[attrib] )
 	return nullptr;
@@ -826,37 +810,46 @@ RefMan<RegularSeisDataPack> PlaneDataDisplay::getDataPack( int attrib )
 }
 
 
+bool PlaneDataDisplay::setDataPackID( int attrib, const DataPackID& dpid,
+				      TaskRunner* taskr )
+{
+    pErrMsg("Should not be called" );
+    return SurveyObject::setDataPackID( attrib, dpid, taskr );
+}
+
+
 DataPackID PlaneDataDisplay::getDataPackID( int attrib ) const
 {
-    ConstRefMan<RegularSeisDataPack> dp = getDataPack( attrib );
+    ConstRefMan<RegularSeisDataPack> dp = getSeisDataPack( attrib );
     return dp ? dp->id() : DataPack::cNoID();
 }
 
 
-ConstRefMan<RegularSeisDataPack> PlaneDataDisplay::getDisplayedDataPack(
+ConstRefMan<RegularSeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack(
 							int attrib ) const
 {
-    return mSelf().getDisplayedDataPack( attrib );
+    return mSelf().getDisplayedSeisDataPack( attrib );
 }
 
 
-RefMan<RegularSeisDataPack> PlaneDataDisplay::getDisplayedDataPack( int attrib )
+RefMan<RegularSeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack(
+								int attrib )
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-	if ( !transfdatapacks_.validIdx(attrib) || !transfdatapacks_[attrib] )
+	if ( !transformedpacks_.validIdx(attrib) || !transformedpacks_[attrib] )
 	    return nullptr;
 
-	return transfdatapacks_[attrib];
+	return transformedpacks_[attrib];
     }
 
-    return getDataPack( attrib );
+    return getSeisDataPack( attrib );
 }
 
 
 DataPackID PlaneDataDisplay::getDisplayedDataPackID( int attrib ) const
 {
-    ConstRefMan<RegularSeisDataPack> dp = getDisplayedDataPack( attrib );
+    ConstRefMan<RegularSeisDataPack> dp = getDisplayedSeisDataPack( attrib );
     return dp ? dp->id() : DataPack::cNoID();
 }
 
@@ -871,10 +864,10 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
     const DataPackID dpid = RegularSeisDataPack::createDataPackForZSlice(
 	bivset, tkzs, datatransform_->toZDomainInfo(), userrefs_[attrib] );
 
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    DataPackMgr& dpm = DPM( getDataPackMgrID() );
     RefMan<RegularSeisDataPack> regsdp = dpm.get<RegularSeisDataPack>( dpid );
 
-    transfdatapacks_.replace( attrib, regsdp );
+    transformedpacks_.replace( attrib, regsdp );
 
     updateChannels( attrib, taskr );
 }
@@ -882,7 +875,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 
 void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedDataPack( attrib );
+    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedSeisDataPack( attrib);
     if ( !regsdp )
 	return;
 
@@ -943,7 +936,7 @@ void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDataPack( attrib );
+    ConstRefMan<RegularSeisDataPack> regsdp = getSeisDataPack( attrib );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
@@ -957,6 +950,7 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
 		datatransform_->setVolumeOfInterest( voiidx_, tkzs, true );
+
 	    datatransform_->loadDataIfMissing( voiidx_, taskr );
 	}
 
@@ -969,7 +963,13 @@ void PlaneDataDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr)
 	transformed = transformer.getOutput();
     }
 
-    transfdatapacks_.replace( attrib, transformed );
+    transformedpacks_.replace( attrib, transformed );
+}
+
+
+visBase::GridLines* PlaneDataDisplay::gridlines()
+{
+    return gridlines_.ptr();
 }
 
 
@@ -1022,7 +1022,7 @@ void PlaneDataDisplay::getObjectInfo( uiString& info ) const
 bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 				      const Coord3& pos, float& val ) const
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedDataPack( attrib );
+    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedSeisDataPack( attrib);
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
@@ -1059,14 +1059,12 @@ void PlaneDataDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
     {
 	eventcatcher_->eventhappened.remove(
 		mCB(this,PlaneDataDisplay,updateMouseCursorCB) );
-	eventcatcher_->unRef();
     }
 
     eventcatcher_ = ec;
 
     if ( eventcatcher_ )
     {
-	eventcatcher_->ref();
 	eventcatcher_->eventhappened.notify(
 		mCB(this,PlaneDataDisplay,updateMouseCursorCB) );
     }
@@ -1088,25 +1086,27 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
     auto* pdd = new PlaneDataDisplay();
     pdd->setOrientation( orientation_ );
     pdd->setTrcKeyZSampling( getTrcKeyZSampling(false,true,0) );
-    pdd->setZAxisTransform( datatransform_, taskr );
+    pdd->setZAxisTransform( datatransform_.getNonConstPtr(), taskr );
 
     while ( nrAttribs() > pdd->nrAttribs() )
 	pdd->addAttrib();
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	if ( !getSelSpec(idx) ) continue;
-
 	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
-	if ( selspecs ) pdd->setSelSpecs( idx, *selspecs );
+	if ( !selspecs )
+	    continue;
 
-	ConstRefMan<RegularSeisDataPack> regsdp = getDataPack( idx );
-	pdd->setDataPack( idx, regsdp.getNonConstPtr(), taskr );
-	if ( getColTabMapperSetup( idx ) )
-	    pdd->setColTabMapperSetup( idx, *getColTabMapperSetup( idx ),
-				       taskr );
-	if ( getColTabSequence( idx ) )
-	    pdd->setColTabSequence( idx, *getColTabSequence( idx ), taskr );
+	pdd->setSelSpecs( idx, *selspecs );
+	ConstRefMan<RegularSeisDataPack> regsdp = getSeisDataPack( idx );
+	pdd->setSeisDataPack( idx, regsdp.getNonConstPtr(), taskr );
+	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
+	if ( mappersetup )
+	    pdd->setColTabMapperSetup( idx, *mappersetup, taskr );
+
+	const ColTab::Sequence* colseq = getColTabSequence( idx );
+	if ( colseq )
+	    pdd->setColTabSequence( idx, *colseq, taskr );
     }
 
     return pdd;
@@ -1124,7 +1124,7 @@ void PlaneDataDisplay::fillPar( IOPar& par ) const
 
 bool PlaneDataDisplay::usePar( const IOPar& par )
 {
-    if ( !MultiTextureSurveyObject::usePar( par ) )
+    if ( !MultiTextureSurveyObject::usePar(par) )
 	return false;
 
     SliceType orientation = OD::SliceType::Inline;
@@ -1151,6 +1151,18 @@ void PlaneDataDisplay::setDisplayTransformation( const mVisTrans* t )
     dragger_->setDisplayTransformation( t );
     if ( gridlines_ )
 	gridlines_->setDisplayTransformation( t );
+}
+
+
+const visBase::TextureRectangle* PlaneDataDisplay::getTextureRectangle() const
+{
+    return texturerect_.ptr();
+}
+
+
+const mVisTrans* PlaneDataDisplay::getDisplayTransformation() const
+{
+    return displaytrans_.ptr();
 }
 
 

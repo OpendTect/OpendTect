@@ -9,8 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "sharedobject.h"
 
+#include "sharedobject.h"
 #include "objectset.h"
 #include "visosg.h"
 
@@ -30,7 +30,7 @@ public:
 
 protected:
 				NodeState();
-    virtual			~NodeState();
+				~NodeState();
 
     template <class T> T*	addAttribute(T* a) { doAdd(a); return a; }
     template <class T> void	removeAttribute(T* a) {doRemove(a);}

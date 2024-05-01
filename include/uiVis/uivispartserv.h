@@ -9,36 +9,39 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uiapplserv.h"
 
-#include "trckeyzsampling.h"
+#include "uiapplserv.h"
+#include "uimenuhandler.h"
+#include "uivispickretriever.h"
+
 #include "datapack.h"
 #include "flatview.h"
 #include "keyboardevent.h"
 #include "menuhandler.h"
 #include "mouseevent.h"
 #include "ranges.h"
+#include "seisdatapack.h"
+#include "trckeyzsampling.h"
 #include "thread.h"
+#include "vispolygonselection.h"
+#include "vissurvscene.h"
+
 #include <typeinfo>
 
 class BufferStringSet;
 class DataPointSet;
 class MouseCursorExchange;
 class PickSet;
-class RegularSeisDataPack;
 class SeisTrcBuf;
 class SurfaceInfo;
 class TaskRunner;
 class ZAxisTransform;
-class uiMenuHandler;
 class uiMPEMan;
 class uiMultiMapperRangeEditWin;
 class uiSlicePos3DDisp;
 class uiSurvTopBotImageDlg;
 class uiToolBar;
-class uiTreeItemTBHandler;
 class uiVisModeMgr;
-class uiVisPickRetriever;
 class uiDirLightDlg;
 template <class T> class Selector;
 
@@ -74,46 +77,50 @@ public:
 
     void		setMouseCursorExchange(MouseCursorExchange*);
 
-    visBase::DataObject* getObject(VisID) const;
+    visBase::DataObject* getObject(const VisID&) const;
     VisID		highestID() const;
-    void		addObject(visBase::DataObject*,SceneID,
+    void		addObject(visBase::DataObject*,const SceneID&,
 				  bool saveinsessions);
-    void		shareObject(SceneID,VisID);
-    void		findObject(const std::type_info&,TypeSet<VisID>&);
-    void		findObject(const MultiID&, TypeSet<VisID>& );
-    void		removeObject(visBase::DataObject*,SceneID);
-    void		removeObject(VisID,SceneID);
-    void		setUiObjectName(VisID,const uiString&);
-    void		setObjectName(VisID,const char*);
-    uiString		getUiObjectName(VisID) const;
-    Pos::GeomID		getGeomID(VisID) const;
+    void		shareObject(const SceneID&,const VisID&);
+    void		findObject(const std::type_info&,TypeSet<VisID>&) const;
+    void		findObject(const MultiID&,TypeSet<VisID>&) const;
+    void		removeObject(visBase::DataObject*,const SceneID&);
+    void		removeObject(const VisID&,const SceneID&);
+    void		setSceneName(const SceneID&,const uiString&);
+    void		setUiObjectName(const VisID&,const uiString&);
+    void		setObjectName(const VisID&,const char*);
+    uiString		getSceneName(const SceneID&) const;
+    uiString		getUiObjectName(const VisID&) const;
+    Pos::GeomID		getGeomID(const VisID&) const;
 
     CNotifier<uiVisPartServer,VisID>	objectAdded;
     CNotifier<uiVisPartServer,VisID>	objectRemoved;
 
     void		removeSelection();
 
-    VisID		addScene(visSurvey::Scene* =0);
+    SceneID		addScene(visSurvey::Scene* =nullptr);
 			/*!<Adds a scene. The argument is only used internally.
 			    Don't use the argument when calling from outside.
 			*/
-    void		removeScene(VisID);
+    void		removeScene(const SceneID&);
+    int			nrScenes() const;
     NotifierAccess&	nrScenesChange() { return nrscenesChange; }
+
+    void		getSceneIds(TypeSet<SceneID>&) const;
+    visSurvey::Scene*	getScene(const SceneID&);
+    const visSurvey::Scene* getScene(const SceneID&) const;
+
+    void		getSceneChildIds(const SceneID&,TypeSet<VisID>&) const;
+    void		getVisChildIds(const VisID&,TypeSet<VisID>&) const;
+
     bool		clickablesInScene(const char* trackertype,
-					  SceneID) const;
+					  const SceneID&) const;
     bool		getClickableAttributesInScene(TypeSet<Attrib::SelSpec>&,
 						      BufferStringSet& attrnms,
 						      const char* trackertype,
-						      SceneID) const;
-    const ObjectSet<visSurvey::Scene>& getAllScenes() const { return scenes_; }
-    void		getSceneIds(TypeSet<SceneID>&) const;
+						      const SceneID&) const;
 
-    void		getChildIds(VisID,TypeSet<VisID>&) const;
-			/*!< Gets a scenes' children or a volumes' parts
-			     If id==-1, it will give the ids of the
-			     scenes */
-
-    bool		hasAttrib(VisID) const;
+    bool		hasAttrib(const VisID&) const;
     enum AttribFormat	{ None, Cube, Traces, RandomPos, OtherFormat };
 			/*!\enum AttribFormat
 				 Specifies how the object wants it's
@@ -130,71 +137,75 @@ public:
 			   \var	OtherFormat
 				This object wants data in a different format. */
 
-    AttribFormat	getAttributeFormat(VisID,int attrib) const;
-    bool		canHaveMultipleAttribs(VisID) const;
-    bool		canAddAttrib(VisID,int nrattribstoadd=1) const;
-    bool		canRemoveAttrib(VisID) const;
-    bool		canRemoveDisplay(VisID) const;
-    int			addAttrib(VisID);
-    void		removeAttrib(VisID,int attrib);
-    int			getNrAttribs(VisID) const;
-    void		getAttribPosName(VisID,int attrib,uiString&) const;
+    AttribFormat	getAttributeFormat(const VisID&,int attrib) const;
+    bool		canHaveMultipleAttribs(const VisID&) const;
+    bool		canAddAttrib(const VisID&,int nrattribstoadd=1) const;
+    bool		canRemoveAttrib(const VisID&) const;
+    bool		canRemoveDisplay(const VisID&) const;
+    int			addAttrib(const VisID&);
+    void		removeAttrib(const VisID&,int attrib);
+    int			getNrAttribs(const VisID&) const;
+    void		getAttribPosName(const VisID&,int attrib,
+					 uiString&) const;
 			//!<Gets the name of the attrib position
-    bool		swapAttribs(VisID,int attrib0,int attrib1);
-    void		showAttribTransparencyDlg(VisID,int attrib);
-    unsigned char	getAttribTransparency(VisID,int attrib) const;
-    void		setAttribTransparency(VisID,int attrib,unsigned char);
-    const TypeSet<Attrib::SelSpec>* getSelSpecs(VisID,int attrib) const;
-    const Attrib::SelSpec* getSelSpec(VisID,int attrib) const;
+    bool		swapAttribs(const VisID&,int attrib0,int attrib1);
+    void		showAttribTransparencyDlg(const VisID&,int attrib);
+    unsigned char	getAttribTransparency(const VisID&,int attrib) const;
+    void		setAttribTransparency(const VisID&,int attrib,
+					      unsigned char);
+    const TypeSet<Attrib::SelSpec>* getSelSpecs(const VisID&,int attrib) const;
+    const Attrib::SelSpec* getSelSpec(const VisID&,int attrib) const;
 
-    void		setSelSpec(VisID,int attrib,const Attrib::SelSpec&);
-    void		setSelSpecs(VisID,int attrib,
+    void		setSelSpec(const VisID&,int attrib,
+				   const Attrib::SelSpec&);
+    void		setSelSpecs(const VisID&,int attrib,
 				    const TypeSet<Attrib::SelSpec>&);
     bool		selectAttribForTracking();
-    void		setUserRefs(VisID,int attrib,BufferStringSet*);
-    bool		interpolationEnabled(VisID) const;
+    void		setUserRefs(const VisID&,int attrib,BufferStringSet*);
+    bool		interpolationEnabled(const VisID&) const;
 			/*!<Specifies that the data is integers that should
 			    be interpolated. */
-    void		enableInterpolation(VisID,bool yn);
+    void		enableInterpolation(const VisID&,bool yn);
 			/*!<Specify that the data is integers that should
 			    be interpolated. */
-    bool		isAngle(VisID,int attrib) const;
+    bool		isAngle(const VisID&,int attrib) const;
 			/*!<Specifies that the data is angles, i.e. -PI==PI. */
-    void		setAngleFlag(VisID, int attrib, bool yn);
+    void		setAngleFlag(const VisID&,int attrib,bool yn);
 			/*!<Specify that the data is angles, i.e. -PI==PI. */
-    bool		isAttribEnabled(VisID,int attrib) const;
-    void		enableAttrib(VisID,int attrib,bool yn);
-    bool		hasSingleColorFallback(VisID) const;
-    void		setTranslation(VisID visid,const Coord3& shift);
-    Coord3		getTranslation(VisID visid) const;
+    bool		isAttribEnabled(const VisID&,int attrib) const;
+    void		enableAttrib(const VisID&,int attrib,bool yn);
+    bool		hasSingleColorFallback(const VisID&) const;
+    void		setTranslation(const VisID&,const Coord3& shift);
+    Coord3		getTranslation(const VisID&) const;
 
 			//Volume data stuff
-    TrcKeyZSampling	getTrcKeyZSampling(VisID,int attrib=-1) const;
-    const RegularSeisDataPack* getCachedData(VisID,int attrib) const;
-    bool		setCubeData(VisID,int attrib,
-				    const RegularSeisDataPack*);
-			/*!< data becomes mine */
-    bool		setDataPackID(VisID,int attrib,DataPackID);
-    DataPackID	getDataPackID(VisID,int attrib) const;
-    DataPackID	getDisplayedDataPackID(VisID,int attrib) const;
-    DataPackMgr::MgrID	getDataPackMgrID(VisID) const;
-    int			currentVersion(VisID,int attrib) const;
+    TrcKeyZSampling	getTrcKeyZSampling(const VisID&,int attrib=-1) const;
+    ConstRefMan<RegularSeisDataPack> getSeisDataPack(const VisID&,
+						     int attrib) const;
+    bool		setDataPackID(const VisID&,int attrib,
+				      const DataPackID&);
+    bool		setSeisDataPack(const VisID&,int attrib,
+					RegularSeisDataPack*);
+    DataPackID		getDataPackID(const VisID&,int attrib) const;
+    DataPackID		getDisplayedDataPackID(const VisID&,int attrib) const;
+    DataPackMgr::MgrID	getDataPackMgrID(const VisID&) const;
+    int			currentVersion(const VisID&,int attrib) const;
 
 			//Trace data
-    void		getDataTraceBids(VisID,TypeSet<BinID>&) const;
-    Interval<float>	getDataTraceRange(VisID) const;
+    void		getDataTraceBids(const VisID&,TypeSet<BinID>&) const;
+    Interval<float>	getDataTraceRange(const VisID&) const;
 
 			// See visSurvey::SurfaceDisplay for details
-    void		getRandomPos(VisID visid,DataPointSet&) const;
-    void		getRandomPosCache(VisID visid,int attrib,
-					  DataPointSet& ) const;
-    void		setRandomPosData(VisID visid, int attrib,
+    void		getRandomPos(const VisID&,DataPointSet&) const;
+    void		getRandomPosCache(const VisID&,int attrib,
+					  DataPointSet&) const;
+    void		setRandomPosData(const VisID&,int attrib,
 					 const DataPointSet*);
 
-    bool		hasMaterial(VisID) const;
-    void		setMaterial(VisID);
-    bool		hasColor(VisID) const;
-    void		setColor(VisID,const OD::Color&);
+    bool		hasMaterial(const VisID&) const;
+    void		setMaterial(const VisID&);
+    bool		hasColor(const VisID&) const;
+    void		setColor(const VisID&,const OD::Color&);
 
     bool		blockMouseSelection(bool yn);
 			/*!<\returns Previous status. */
@@ -205,7 +216,8 @@ public:
     bool		disabToolBars(bool yn);
 			/*!<\returns The previous status. */
 
-    bool		showMenu(VisID,int menutype=0,const TypeSet<int>* =0,
+    bool		showMenu(const VisID&,int menutype=0,
+				 const TypeSet<int>* =nullptr,
 				 const Coord3& = Coord3::udf());
 			/*!<
 			  \param menuid
@@ -217,15 +229,15 @@ public:
     MenuHandler*	getMenuHandler();
     MenuHandler*	getToolBarHandler();
 
-    MultiID		getMultiID(VisID) const;
+    MultiID		getMultiID(const VisID&) const;
 
     VisID		getSelObjectId() const;
     int			getSelAttribNr() const;
-    void		setSelObjectId(VisID visid,int attrib=-1);
-    void		setCurInterObjID(VisID visid);
+    void		setSelObjectId(const VisID&,int attrib=-1);
+    void		setCurInterObjID(const VisID&);
     VisID		getCurInterObjID() const;
-    SceneID		getSceneID(VisID visid) const;
-    const ZDomain::Info* zDomainInfo(SceneID) const;
+    SceneID		getSceneID(const VisID&) const;
+    const ZDomain::Info* zDomainInfo(const SceneID&) const;
 			/*!< Returns Z domain info of scene */
 
 			//Events and their functions
@@ -253,24 +265,25 @@ public:
 			/*!< Get selSpec with getSelSpec */
 
     void		calculateAllAttribs();
-    void		calculateAllAttribs(VisID);
-    bool		calculateAttrib(VisID,int attrib,bool newsel,
+    void		calculateAllAttribs(const VisID&);
+    bool		calculateAttrib(const VisID&,int attrib,bool newsel,
 					bool ignorelocked=false);
-    bool		calcManipulatedAttribs(VisID);
+    bool		calcManipulatedAttribs(const VisID&);
 
-    void		movePlaneAndCalcAttribs(VisID,const TrcKeyZSampling&);
+    void		movePlaneAndCalcAttribs(const VisID&,
+						const TrcKeyZSampling&);
 
-    bool		canHaveMultipleTextures(VisID) const;
-    int			nrTextures(VisID,int attrib) const;
-    void		selectTexture(VisID,int attrib,int texture);
-    int			selectedTexture(VisID,int attrib) const;
+    bool		canHaveMultipleTextures(const VisID&) const;
+    int			nrTextures(const VisID&,int attrib) const;
+    void		selectTexture(const VisID&,int attrib,int texture);
+    int			selectedTexture(const VisID&,int attrib) const;
 
     static int		evMouseMove();
     Coord3		getMousePos() const;
     int			zFactor() const			{ return zfactor_; }
     BufferString	getMousePosVal() const;
     BufferString	getMousePosString() const	{ return mouseposstr_; }
-    void		getObjectInfo(VisID,uiString&) const;
+    void		getObjectInfo(const VisID&,uiString&) const;
 
     static int			evKeyboardEvent();
     Notifier<uiVisPartServer>	keyEvent;
@@ -284,7 +297,7 @@ public:
 
     static int			evInteraction();
 				/*<! Get the id with getEventObjId() */
-    uiString			getInteractionMsg(VisID) const;
+    uiString			getInteractionMsg(const VisID&) const;
 				/*!< Returns dragger position or
 				     Nr positions in picksets */
 
@@ -293,30 +306,32 @@ public:
 
 				// ColorTable stuff
     mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
-    void			fillDispPars(VisID,int attrib,
+    void			fillDispPars(const VisID&,int attrib,
 					 FlatView::DataDispPars&,bool) const;
-    void			fillDispPars(VisID,int attrib,
+    void			fillDispPars(const VisID&,int attrib,
 					     FlatView::DataDispPars&,
 					     FlatView::Viewer::VwrDest) const;
-    const ColTab::MapperSetup*	getColTabMapperSetup(VisID,int attrib,
+    const ColTab::MapperSetup*	getColTabMapperSetup(const VisID&,int attrib,
 						 int version=mUdf(int)) const;
-    void			setColTabMapperSetup(VisID,int attrib,
+    void			setColTabMapperSetup(const VisID&,int attrib,
 						    const ColTab::MapperSetup&);
-    const ColTab::Sequence*	getColTabSequence(VisID,int attrib) const;
-    bool			canSetColTabSequence(VisID) const;
-    void			setColTabSequence(VisID,int attrib,
+    const ColTab::Sequence*	getColTabSequence(const VisID&,
+						  int attrib) const;
+    bool			canSetColTabSequence(const VisID&) const;
+    void			setColTabSequence(const VisID&,int attrib,
 						  const ColTab::Sequence&);
-    bool			canHandleColTabSeqTrans(VisID,int attr) const;
+    bool			canHandleColTabSeqTrans(const VisID&,
+							int attr) const;
 
-    const TypeSet<float>*	getHistogram(VisID,int attrib) const;
+    const TypeSet<float>*	getHistogram(const VisID&,int attrib) const;
 
-    void			displayMapperRangeEditForAttrbs(VisID);
-    void			displayMapperRangeEditForAttribs(VisID,
+    void			displayMapperRangeEditForAttrbs(const VisID&);
+    void			displayMapperRangeEditForAttribs(const VisID&,
 								 int attrib);
 
     static int			evColorTableChange();
     void			displaySceneColorbar(bool);
-    void			manageSceneColorbar(VisID);
+    void			manageSceneColorbar(const SceneID&);
     bool			sceneColorbarDisplayed();
 
     OD::Color			getSceneAnnotCol(int);
@@ -327,13 +342,13 @@ public:
     void			setDirectionalLight();
     bool			setWorkingArea();
     bool			setWorkingArea(const TrcKeyZSampling&);
-    bool			setWorkingArea(SceneID);
-    void			setOnlyAtSectionsDisplay(VisID,bool);
-    bool			displayedOnlyAtSections(VisID) const;
+    bool			setWorkingArea(const SceneID&);
+    void			setOnlyAtSectionsDisplay(const VisID&,bool);
+    bool			displayedOnlyAtSections(const VisID&) const;
     static int			evViewModeChange();
     void			setViewMode(bool yn,bool notify=true);
     void			setSoloMode(bool,TypeSet< TypeSet<VisID> >,
-					    VisID);
+					    const VisID&);
     bool			isSoloMode() const;
     bool			isViewMode() const;
     typedef enum		{ View, Interactive, Pick } WorkMode;
@@ -345,21 +360,21 @@ public:
     void			turnSelectionModeOn(bool);
     bool			isSelectionModeOn() const;
     Notifier<uiVisPartServer>	selectionmodeChange;
-    void			setZAxisTransform(SceneID,
+    void			setZAxisTransform(const SceneID&,
 						  ZAxisTransform*,
 						  TaskRunner*);
-    const ZAxisTransform*	getZAxisTransform(SceneID) const;
-    visBase::EventCatcher*	getEventCatcher(SceneID);
+    const ZAxisTransform*	getZAxisTransform(const SceneID&) const;
+    visBase::EventCatcher*	getEventCatcher(const SceneID&);
 
-    const Selector<Coord3>*	getCoordSelector(SceneID) const;
-    void			turnOn(VisID,bool,bool doclean=false);
-    bool			isOn(VisID) const;
-    void			updateDisplay(bool,VisID selid,
-					      VisID refid=VisID::udf());
-    void			setTopBotImg(SceneID);
+    const Selector<Coord3>*	getCoordSelector(const SceneID&) const;
+    void			turnOn(const VisID&,bool,bool doclean=false);
+    bool			isOn(const VisID&) const;
+    void			updateDisplay(bool,const VisID& selid,
+					      const VisID& refid=VisID::udf());
+    void			setTopBotImg(const SceneID&);
 
-    bool			canDuplicate(VisID) const;
-    VisID			duplicateObject(VisID,SceneID);
+    bool			canDuplicate(const VisID&) const;
+    VisID			duplicateObject(const VisID&,const SceneID&);
 				/*!< \returns id of new object */
 
 				// Tracking stuff
@@ -391,21 +406,21 @@ public:
     uiSlicePos3DDisp*		getUiSlicePos() const
 				{ return slicepostools_; }
 
-    bool			writeSceneToFile(VisID,
+    bool			writeSceneToFile(const SceneID&,
 						const uiString& dlgtitle) const;
 
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
 
-    bool			canBDispOn2DViewer(VisID) const;
-    bool			isVerticalDisp(VisID) const;
+    bool			canBDispOn2DViewer(const VisID&) const;
+    bool			isVerticalDisp(const VisID&) const;
 
-    void			lock(VisID,bool yn);
-    bool			isLocked(VisID) const;
+    void			lock(const VisID&,bool yn);
+    bool			isLocked(const VisID&) const;
 
     bool			sendVisEvent(int);
-    void			setMoreObjectsToDoHint(SceneID,bool yn);
-    bool			getMoreObjectsToDoHint(SceneID) const;
+    void			setMoreObjectsToDoHint(const SceneID&,bool yn);
+    bool			getMoreObjectsToDoHint(const SceneID&) const;
     Notifier<uiVisPartServer>	planeMovedEvent;
 
 protected:
@@ -414,61 +429,59 @@ protected:
     void			addToToolBarCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
 
-    visSurvey::Scene*		getScene(VisID);
-    const visSurvey::Scene*	getScene(VisID) const;
-
-    bool			selectAttrib(VisID, int attrib);
+    bool			selectAttrib(const VisID&,int attrib);
     void			updateManipulatorStatus(visBase::DataObject*,
 							bool issel) const;
 
     void			setMarkerPos(const TrcKeyValue&,
-					     VisID dontsetscene);
+					     const SceneID& dontsetscene);
 
-    bool			isManipulated(VisID) const;
-    void			acceptManipulation(VisID);
-    bool			resetManipulation(VisID);
+    bool			isManipulated(const VisID&) const;
+    void			acceptManipulation(const VisID&);
+    bool			resetManipulation(const VisID&);
 
-    void			setUpConnections(VisID);
+    void			setUpConnections(const VisID&);
 				/*!< Should set all cbs for the object */
-    void			removeConnections(VisID);
+    void			removeConnections(const VisID&);
 
     void			updateDraggers();
-    int				getTypeSetIdx(VisID);
+    int				getTypeSetIdx(const VisID&);
 
-    ObjectSet<visSurvey::Scene>	scenes_;
+    RefObjectSet<visSurvey::Scene> scenes_;
 
-    uiMenuHandler&		menu_;
-    uiTreeItemTBHandler*	toolbar_;
+    RefMan<uiMenuHandler>	menu_;
+    RefMan<uiTreeItemTBHandler> toolbar_;
 
     uiMPEMan*			mpetools_			= nullptr;
     uiSlicePos3DDisp*		slicepostools_			= nullptr;
     uiSurvTopBotImageDlg*	topbotdlg_			= nullptr;
 
     uiMultiMapperRangeEditWin*	multirgeditwin_			= nullptr;
-    bool			mapperrgeditinact_;
+    bool			mapperrgeditinact_		= false;
 
-    Coord3			xytmousepos_;
-    int				zfactor_;
+    Coord3			xytmousepos_			= Coord3::udf();
+    int				zfactor_			= 1;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
     KeyboardEvent		kbevent_;
     MouseEvent			mouseevent_;
-    visSurvey::Scene*		sceneeventsrc_;
+    RefMan<visSurvey::Scene>	sceneeventsrc_;
 
-    bool			tracksetupactive_;
-    const char*			topsetupgroupname_;
-    bool			viewmode_;
-    WorkMode			workmode_;
-    bool			issolomode_;
+    bool			tracksetupactive_		= false;
+    const char*			topsetupgroupname_		= nullptr;
+    bool			viewmode_			= false;
+    WorkMode			workmode_	= uiVisPartServer::Interactive;
+    bool			issolomode_			= false;
     Threads::Mutex&		eventmutex_;
-    VisID			eventobjid_;
-    int				eventattrib_;
-    int				selattrib_;
+    VisID			eventobjid_			= VisID::udf();
+    int				eventattrib_			= -1;
+    int				selattrib_			= -1;
     VisID			mapperrgeditordisplayid_;
     VisID			curinterpobjid_;
 
-    int				seltype_;
-    SelectionMode		selectionmode_;
+    visBase::PolygonSelection::SelectionType seltype_
+					= visBase::PolygonSelection::Off;
+    SelectionMode		selectionmode_			= Polygon;
 
     void			mouseCursorCB(CallBacker*);
     void			rightClickCB(CallBacker*);
@@ -496,17 +509,15 @@ protected:
     static const char*		sKeyAppVel();
 
     uiVisModeMgr*		vismgr_;
-    bool			blockmenus_;
-    uiVisPickRetriever*		pickretriever_;
+    bool			blockmenus_		= false;
+    RefMan<uiVisPickRetriever>	pickretriever_;
     Notifier<uiVisPartServer>	nrscenesChange;
 
     MouseCursorExchange*	mousecursorexchange_;
 
-    uiDirLightDlg*		dirlightdlg_;
+    uiDirLightDlg*		dirlightdlg_		= nullptr;
 
-    void			triggerObjectMoved(VisID);
-
-public:
+    void			triggerObjectMoved(const VisID&);
 };
 
 
@@ -514,9 +525,9 @@ mClass(uiVis) uiVisModeMgr
 {
 public:
 				uiVisModeMgr(uiVisPartServer*);
-				~uiVisModeMgr() {}
+				~uiVisModeMgr();
 
-	bool			allowTurnOn(VisID,bool);
+	bool			allowTurnOn(const VisID&,bool);
 
 protected:
 

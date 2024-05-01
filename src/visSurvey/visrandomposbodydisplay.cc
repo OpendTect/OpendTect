@@ -11,66 +11,45 @@ ________________________________________________________________________
 
 #include "color.h"
 #include "emmanager.h"
-#include "emrandomposbody.h"
 #include "executor.h"
 #include "iopar.h"
 #include "randcolor.h"
 #include "vismaterial.h"
-#include "visrandompos2body.h"
-#include "vistransform.h"
 
 
 namespace visSurvey
 {
 
 RandomPosBodyDisplay::RandomPosBodyDisplay()
-    : VisualObjectImpl(true)
-    , embody_( 0 )
-    , displaybody_( 0 )
-    , transform_( 0 )
+    : visBase::VisualObjectImpl(true)
 {
+    ref();
     getMaterial()->setAmbience( 0.5 );
     setColor( OD::getRandomColor(false) );
+    unRefNoDelete();
 }
 
 
 RandomPosBodyDisplay::~RandomPosBodyDisplay()
 {
-    if ( transform_ ) transform_->unRef();
-    if ( embody_ ) embody_->unRef();
     if ( displaybody_ )
-    {
 	removeChild( displaybody_->osgNode() );
-	displaybody_->unRef();
-    }
 }
 
 
 bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
 {
-    if ( !body ) return false;
+    if ( !body )
+	return false;
 
     if ( displaybody_ )
-    {
 	removeChild( displaybody_->osgNode() );
-	displaybody_->unRef();
-	displaybody_ = 0;
-    }
 
-    if ( embody_ )
+    displaybody_ = nullptr;
+    embody_ = new EM::RandomPosBody( EM::EMM() );
+    if ( !embody_ || !embody_->isOK() )
     {
-	embody_->unRef();
-	embody_ = 0;
-    }
-
-    mTryAlloc( embody_, EM::RandomPosBody(EM::EMM()) );
-    if ( !embody_ ) return false;
-
-    embody_->ref();
-    if ( !embody_->isOK() )
-    {
-	embody_->unRef();
-	embody_ = 0;
+	embody_ = nullptr;
 	return false;
     }
 
@@ -78,7 +57,6 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
     EM::EMM().addObject( embody_ );
 
     displaybody_ = body;
-    displaybody_->ref();
     displaybody_->setDisplayTransformation( transform_ );
     displaybody_->setSelectable( false );
     addChild( displaybody_->osgNode() );
@@ -86,7 +64,7 @@ bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
     if ( displaybody_->getMaterial() )
 	getMaterial()->setFrom( *displaybody_->getMaterial() );
 
-    displaybody_->setMaterial( 0 );
+    displaybody_->setMaterial( nullptr );
     embody_->setPreferredColor( getMaterial()->getColor() );
 
     return true;
@@ -101,23 +79,17 @@ EM::ObjectID RandomPosBodyDisplay::getEMID() const
 
 bool RandomPosBodyDisplay::setEMID( const EM::ObjectID& emid )
 {
-    if ( embody_ )
-    {
-	embody_->unRef();
-	embody_ = 0;
-    }
-
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet( EM::RandomPosBody*, embody, emobject.ptr() );
     if ( !embody )
     {
-	if ( displaybody_ ) displaybody_->turnOn( false );
+	if ( displaybody_ )
+	    displaybody_->turnOn( false );
+
 	return false;
     }
 
     embody_ = embody;
-    embody_->ref();
-
     return updateVisFromEM();
 }
 
@@ -134,18 +106,16 @@ bool RandomPosBodyDisplay::updateVisFromEM()
     if ( !displaybody_ )
     {
 	displaybody_ = visBase::RandomPos2Body::create();
-	displaybody_->ref();
 	displaybody_->setDisplayTransformation( transform_ );
-	displaybody_->setMaterial( 0 );
+	displaybody_->setMaterial( nullptr );
 	displaybody_->setSelectable( false );
 	addChild( displaybody_->osgNode() );
     }
 
-    if ( !displaybody_->setPoints( embody_->getPositions() ) )
+    if ( !displaybody_->setPoints(embody_->getPositions()) )
     {
 	removeChild( displaybody_->osgNode() );
-	displaybody_->unRef();
-	displaybody_ = 0;
+	displaybody_ = nullptr;
 	return false;
     }
 
@@ -178,51 +148,51 @@ OD::Color RandomPosBodyDisplay::getColor() const
 void RandomPosBodyDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
-    visSurvey::SurveyObject::fillPar( par );
+    SurveyObject::fillPar( par );
     par.set( sKeyPSEarthModelID(), getMultiID() );
 }
 
 
 bool RandomPosBodyDisplay::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) ||
-	 !visSurvey::SurveyObject::usePar( par ) )
+    if ( !visBase::VisualObjectImpl::usePar(par) || !SurveyObject::usePar(par) )
 	return false;
 
     MultiID newmid;
-    if ( par.get(sKeyPSEarthModelID(),newmid) )
-    {
-	EM::ObjectID emid = EM::EMM().getObjectID( newmid );
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
-	if ( !emobject )
-	{
-	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
-	    if ( loader ) loader->execute();
-	    emid = EM::EMM().getObjectID( newmid );
-	    emobject = EM::EMM().getObject( emid );
-	}
-
-	if ( emobject ) setEMID( emobject->id() );
-    }
-    else
+    if ( !par.get(sKeyPSEarthModelID(),newmid) )
 	return false;
+
+    EM::ObjectID emid = EM::EMM().getObjectID( newmid );
+    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    if ( !emobject )
+    {
+	PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
+	if ( loader )
+	    loader->execute();
+
+	emid = EM::EMM().getObjectID( newmid );
+	emobject = EM::EMM().getObject( emid );
+    }
+
+    if ( emobject )
+	setEMID( emobject->id() );
 
     return true;
 }
 
 
-void RandomPosBodyDisplay::setDisplayTransformation(const mVisTrans* nt)
+void RandomPosBodyDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transform_ ) transform_->unRef();
     transform_ = nt;
-    transform_->ref();
-
-    if ( displaybody_ ) displaybody_->setDisplayTransformation( nt );
+    if ( displaybody_ )
+	displaybody_->setDisplayTransformation( nt );
 }
 
 
 const mVisTrans* RandomPosBodyDisplay::getDisplayTransformation() const
-{ return transform_; }
+{
+    return transform_.ptr();
+}
 
 
 } // namespace visSurvey

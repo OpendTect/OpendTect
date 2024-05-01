@@ -299,15 +299,14 @@ void BoxDraggerCallbackHandler::applyDragControl( Coord3& displacement )
 
 
 BoxDragger::BoxDragger()
-    : VisualObjectImpl( false )
-    , started( this )
-    , motion( this )
-    , changed( this )
-    , finished( this )
-    , osgcallbackhandler_( 0 )
-    , osgboxdragger_( setOsgNode( new osgGeo::TabBoxDragger(12.0) ) )
-    , useindepthtransforresize_( false )
+    : VisualObjectImpl(false)
+    , started(this)
+    , motion(this)
+    , changed(this)
+    , finished(this)
 {
+    ref();
+    osgboxdragger_ = setOsgNode( new osgGeo::TabBoxDragger(12.0) );
     osgboxdragger_->setupDefaultGeometry();
     osgboxdragger_->setHandleEvents( true );
 
@@ -342,7 +341,7 @@ BoxDragger::BoxDragger()
 		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
     geode->getStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     geode->setNodeMask( Math::SetBits( geode->getNodeMask(),
-			    visBase::cDraggerIntersecTraversalMask(), false ) );
+			    cDraggerIntersecTraversalMask(), false ) );
 
     osg::ref_ptr<osg::CullFace> cullface = new osg::CullFace;
     cullface->setMode( osg::CullFace::FRONT );
@@ -358,6 +357,8 @@ BoxDragger::BoxDragger()
 
     for (int dim=0; dim<3; dim++ )
 	dragctrlspacing_[dim].setUdf();
+
+    unRefNoDelete();
 }
 
 

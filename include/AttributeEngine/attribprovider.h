@@ -10,8 +10,9 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 
-#include "ranges.h"
+#include "attribdesc.h"
 #include "posinfo2dsurv.h"
+#include "ranges.h"
 #include "uistring.h"
 
 class BinDataDesc;
@@ -30,7 +31,6 @@ namespace Attrib
 
 class DataHolder;
 class DataHolderLineBuffer;
-class Desc;
 class ProviderTask;
 
 /*!
@@ -46,7 +46,7 @@ mODTextTranslationClass(Attrib::Provider)
 public:
 				mOD_DisableCopy(Provider)
 
-    static Provider*		create(Desc&,uiString& errmsg);
+    static RefMan<Provider>	create(Desc&,uiString& errmsg);
 				/*!< Also creates all inputs, the input's
 				     inputs, and so on */
     virtual bool		isOK() const;
@@ -103,7 +103,7 @@ public:
 				*/
     void			computeNewStartPos(BinID&);
     int				alignInputs(ObjectSet<Provider>&);
-    int 			comparePosAndAlign(Provider*,bool,Provider*,
+    int				comparePosAndAlign(Provider*,bool,Provider*,
 						   bool,bool);
     void			resetMoved();
     void			resetZIntervals();
@@ -143,7 +143,7 @@ public:
     float			getRefZ0() const	{ return refz0_; }
 
     virtual BinID		getStepoutStep() const;
-    ObjectSet<Provider>&	getInputs() 		{ return inputs_; }
+    ObjectSet<Provider>&	getInputs()		{ return inputs_; }
     BinID			getTrcInfoBid() const	{ return trcinfobid_; }
     uiString			errMsg() const;
 
@@ -170,7 +170,7 @@ public:
 				//!<For directional attributes
 
 				//!<Special case for attributes (like PreStack)
-   				//!<which inputs are not treated as normal
+				//!<which inputs are not treated as normal
 				//!<input cubes and thus not delivering
 				//!<adequate cs automaticly
     virtual void		updateCSIfNeeded(TrcKeyZSampling&) const {}
@@ -190,7 +190,7 @@ protected:
 				  use isOK()*/
 
     virtual SeisMSCProvider*	getMSCProvider(bool&) const;
-    static Provider*		internalCreate(Desc&,ObjectSet<Provider>&,
+    static RefMan<Provider>	internalCreate(Desc&,ObjectSet<Provider>&,
 					       bool& issame,uiString&);
 				/*!< Creates the provider needed and all its
 				  input providers*/
@@ -234,7 +234,7 @@ protected:
 				// MultiThreading stuff
     virtual bool		allowParallelComputation() const
 				{ return false; }
-    virtual bool		setNrThreads( int idx ) 	{ return true; }
+    virtual bool		setNrThreads( int idx ) { return true; }
     virtual int			minTaskSize() const		{ return 25; }
     virtual bool		finalizeCalculation(bool scs)	{ return scs; }
 				/*!<Called one all computeData have returned.
@@ -363,16 +363,16 @@ protected:
 						   : mMAXDIPSECUREDEPTH); }
     void			stdPrepSteering(const BinID&);
 
-    ObjectSet<Provider>		inputs_;
-    ObjectSet<Provider>		parents_;
-    Desc&			desc_;
+    RefObjectSet<Provider>	inputs_;
+    RefObjectSet<Provider>	parents_;
+    RefMan<Desc>		desc_;
     TypeSet<int>		outputinterest_;
     BinID			desbufferstepout_;
     BinID			reqbufferstepout_;
     TrcKeyZSampling*		desiredvolume_			= nullptr;
     TrcKeyZSampling*		possiblevolume_			= nullptr;
     TypeSet< Interval<int> >	localcomputezintervals_;
-    ObjectSet<Provider>		allexistingprov_;
+    RefObjectSet<Provider>	allexistingprov_;
     TypeSet<float>		exactz_;
 				// only used for outputs which require
 				// data at exact z values not placed
@@ -392,7 +392,7 @@ protected:
 
     float			refz0_				= 0.f;
     float			refstep_			= 0.f;
-    bool 			alreadymoved_			= false;
+    bool			alreadymoved_			= false;
 
     bool			isusedmulttimes_		= false;
     bool			needinterp_			= false;

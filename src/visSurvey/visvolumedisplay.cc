@@ -9,16 +9,6 @@ ________________________________________________________________________
 
 #include "visvolumedisplay.h"
 
-#include "visboxdragger.h"
-#include "visevent.h"
-#include "vismarchingcubessurface.h"
-#include "vismaterial.h"
-#include "visselman.h"
-#include "visrgbatexturechannel2rgba.h"
-#include "vistransform.h"
-#include "visvolorthoslice.h"
-#include "visvolrenscalarfield.h"
-
 #include "array3dfloodfill.h"
 #include "arrayndimpl.h"
 #include "attribsel.h"
@@ -28,10 +18,10 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "picksettr.h"
 #include "od_ostream.h"
-#include "seisdatapack.h"
 #include "settings.h"
 #include "uistrings.h"
-#include "zaxistransform.h"
+#include "vismaterial.h"
+#include "visselman.h"
 #include "zaxistransformer.h"
 
 /* OSG-TODO: Port VolrenDisplay volren_ and set of OrthogonalSlice slices_
@@ -40,7 +30,6 @@ ________________________________________________________________________
 
 #define mVisMCSurf visBase::MarchingCubesSurface
 #define mDefaultBoxTransparency 0.75
-
 
 
 namespace visSurvey {
@@ -85,8 +74,10 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 }
 
 
+// VolumeDisplay::AttribData
+
 VolumeDisplay::AttribData::AttribData()
-    : as_( *new Attrib::SelSpec )
+    : as_(*new Attrib::SelSpec)
     , selspec_(new TypeSet<Attrib::SelSpec>(1,Attrib::SelSpec()))
 {}
 
@@ -98,23 +89,18 @@ VolumeDisplay::AttribData::~AttribData()
 }
 
 
+// VolumeDisplay
+
 VolumeDisplay::VolumeDisplay()
-    : VisualObjectImpl(true)
-    , boxMoving(this)
-    , boxdragger_(visBase::BoxDragger::create())
-    , scalarfield_(nullptr)
-    , datatransform_(nullptr)
-    , datatransformer_(nullptr)
+    : visBase::VisualObjectImpl(true)
     , csfromsession_(true)
-    , eventcatcher_(nullptr)
-    , isinited_(false)
-    , ismanip_(false)
-    , onoffstatus_(true)
+    , boxMoving(this)
 {
+    ref();
+    boxdragger_ = visBase::BoxDragger::create();
     texturecs_.hsamp_.setGeomID( Survey::default3DGeomID() );
     addChild( boxdragger_->osgNode() );
 
-    boxdragger_->ref();
     boxdragger_->setBoxTransparency( mDefaultBoxTransparency );
     mAttachCB( boxdragger_->started, VolumeDisplay::draggerStartCB );
     mAttachCB( boxdragger_->motion, VolumeDisplay::draggerMoveCB );
@@ -123,7 +109,6 @@ VolumeDisplay::VolumeDisplay()
     updateRanges( true, true );
 
     scalarfield_ = visBase::VolumeRenderScalarField::create();
-    scalarfield_->ref();
     setChannels2RGBA( visBase::ColTabTextureChannel2RGBA::create() );
     addAttrib();
 
@@ -152,6 +137,7 @@ VolumeDisplay::VolumeDisplay()
     boxdragger_->useInDepthTranslationForResize( useindepthtransforresize );
 
     showManipulator( boxdragger_->isOn() );
+    unRefNoDelete();
 }
 
 
@@ -164,29 +150,31 @@ VolumeDisplay::~VolumeDisplay()
 
     TypeSet<VisID> children;
     getChildren( children );
-    for ( int idx=0; idx<children.size(); idx++ )
-	removeChild( children[idx] );
+    for ( const auto& child : children )
+	removeChild( child );
 
-    boxdragger_->unRef();
-    scalarfield_->unRef();
-
+    boxdragger_ = nullptr;
+    scalarfield_ = nullptr;
     setZAxisTransform( nullptr, nullptr );
 }
 
 
-void VolumeDisplay::setMaterial( visBase::Material* nm )
+void VolumeDisplay::setMaterial( visBase::Material* mt )
 {
-    if ( material_ )
-	mDetachCB( material_->change, VolumeDisplay::materialChange );
-    visBase::VisualObjectImpl::setMaterial( nm );
-    if ( nm )
+    if ( getMaterial() )
+	mDetachCB( getMaterial()->change, VolumeDisplay::materialChange );
+
+    visBase::VisualObjectImpl::setMaterial( mt );
+    if ( getMaterial() )
 	mAttachCB( getMaterial()->change, VolumeDisplay::materialChange );
+
     materialChange( nullptr );
 }
 
 #define mSetMaterialProp( prop ) \
     isosurfaces_[idx]->getMaterial()->set##prop( \
 	    getMaterial()->get##prop() )
+
 void VolumeDisplay::materialChange( CallBacker* )
 {
     if ( !getMaterial() )
@@ -241,17 +229,15 @@ bool VolumeDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 	    mDetachCB( *datatransform_->changeNotifier(),
 		       VolumeDisplay::dataTransformCB );
 	}
-	datatransform_->unRef();
+
 	datatransform_ = nullptr;
     }
 
+    deleteAndNullPtr( datatransformer_ );
     datatransform_ = zat;
-    delete datatransformer_;
-    datatransformer_ = nullptr;
 
     if ( datatransform_ )
     {
-	datatransform_->ref();
 	updateRanges( false, !haddatatransform );
 	if ( datatransform_->changeNotifier() )
 	{
@@ -284,7 +270,8 @@ void VolumeDisplay::dataTransformCB( CallBacker* )
     for ( int attrib=0; attrib<attribs_.size(); attrib++ )
     {
 	if ( attribs_[attrib]->cache_ )
-	    setDataVolume( attrib, attribs_[attrib]->cache_, nullptr );
+	    setSeisDataPack( attrib, attribs_[attrib]->cache_.getNonConstPtr(),
+			     nullptr );
     }
 }
 
@@ -292,13 +279,15 @@ void VolumeDisplay::dataTransformCB( CallBacker* )
 void VolumeDisplay::setScene( Scene* sc )
 {
     SurveyObject::setScene( sc );
-    if ( sc ) updateRanges( false, false );
+    if ( sc )
+	updateRanges( false, false );
 }
 
 
 void VolumeDisplay::updateRanges( bool updateic, bool updatez )
 {
-    if ( !datatransform_ ) return;
+    if ( !datatransform_ )
+	return;
 
     const TrcKeyZSampling defcs( true );
     if ( csfromsession_ != defcs )
@@ -388,6 +377,7 @@ void VolumeDisplay::draggerMoveCB( CallBacker* )
 	boxdragger_->setBoxTransparency( 1.0 );
 	boxdragger_->showScaleTabs( false );
     }
+
     boxMoving.trigger();
     ismanip_ = true;
 }
@@ -402,10 +392,9 @@ void VolumeDisplay::draggerFinishCB( CallBacker* )
 
 VisID VolumeDisplay::addSlice( int dim )
 {
-    visBase::OrthogonalSlice* slice = visBase::OrthogonalSlice::create();
-    slice->ref();
-    slice->setMaterial(nullptr);
-    slice->setDim(dim);
+    RefMan<visBase::OrthogonalSlice> slice = visBase::OrthogonalSlice::create();
+    slice->setMaterial( nullptr );
+    slice->setDim( dim );
     mAttachCB( slice->motion, VolumeDisplay::sliceMoving );
     slices_ += slice;
 
@@ -431,14 +420,13 @@ VisID VolumeDisplay::addSlice( int dim )
 }
 
 
-void VolumeDisplay::removeChild( VisID displayid )
+void VolumeDisplay::removeChild( const VisID& displayid )
 {
 /*
     if ( volren_ && displayid==volren_->id() )
     {
 	VisualObjectImpl::removeChild( volren_->osgNode() );
-	volren_->unRef();
-	volren_ = 0;
+	volren_ = nullptr;
 	return;
     }
 */
@@ -449,7 +437,7 @@ void VolumeDisplay::removeChild( VisID displayid )
 	{
 	    VisualObjectImpl::removeChild( slices_[idx]->osgNode() );
 	    mDetachCB( slices_[idx]->motion, VolumeDisplay::sliceMoving );
-	    slices_.removeSingle(idx,false)->unRef();
+	    slices_.removeSingle(idx,false);
 	    return;
 	}
     }
@@ -458,10 +446,8 @@ void VolumeDisplay::removeChild( VisID displayid )
     {
 	if ( isosurfaces_[idx]->id()==displayid )
 	{
-	    VisualObjectImpl::removeChild(
-		    isosurfaces_[idx]->osgNode() );
-
-	    isosurfaces_.removeSingle(idx,false)->unRef();
+	    VisualObjectImpl::removeChild( isosurfaces_[idx]->osgNode() );
+	    isosurfaces_.removeSingle(idx,false);
 	    isosurfsettings_.removeSingle(idx,false);
 	    return;
 	}
@@ -475,8 +461,7 @@ void VolumeDisplay::showVolRen( bool yn )
     if ( yn && !volren_ )
     {
 	volren_ = visBase::VolrenDisplay::create();
-	volren_->ref();
-	volren_->setMaterial(0);
+	volren_->setMaterial( nullptr );
 	addChild( volren_->osgNode() );
 	volren_->setName( sKeyVolRen() );
     }
@@ -503,11 +488,9 @@ float VolumeDisplay::defaultIsoValue() const
 
 VisID VolumeDisplay::addIsoSurface( TaskRunner* taskr, bool updateisosurface )
 {
-    mVisMCSurf* isosurface = mVisMCSurf::create();
-    isosurface->ref();
+    RefMan<mVisMCSurf> isosurface = mVisMCSurf::create();
     isosurface->setRightHandSystem( righthandsystem_ );
-    mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
-			 MarchingCubesSurface() )
+    RefMan<MarchingCubesSurface> surface = new MarchingCubesSurface();
     isosurface->setSurface( *surface, taskr );
     isosurface->setUiName( toUiString("Iso surface") );
 
@@ -746,8 +729,8 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* taskr )
 	return false;
 
     uiString errmsg;
-    RefMan<Pick::Set> seeds =
-	Pick::getSet( isosurfsettings_[idx].seedsid_, errmsg );
+    ConstRefMan<Pick::Set> seeds =
+		    Pick::getSet( isosurfsettings_[idx].seedsid_, errmsg );
     if ( !seeds )
 	return false;
 
@@ -947,15 +930,11 @@ void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
 {
     BufferString formatstr = "%1-%2 / %3-%4 / %5-%6";
     if ( !compact )
-    {
 	formatstr = "Inl: %1-%2, Crl: %3-%4, %7: %5-%6";
-    }
 
     TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
 
-    const int userfactor = scene_
-	? scene_->zDomainInfo().userFactor()
-	: 1;
+    const int userfactor = scene_ ? scene_->zDomainInfo().userFactor() : 1;
 
     info = toUiString( formatstr.buf() )
 	.arg( cs.hsamp_.start_.inl() )
@@ -983,7 +962,8 @@ void VolumeDisplay::getTreeObjectInfo( uiString& info ) const
 void VolumeDisplay::sliceMoving( CallBacker* cb )
 {
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,cb)
-    if ( !slice ) return;
+    if ( !slice )
+	return;
 
     slicename_ = slice->name();
     sliceposition_ = slicePosition( slice );
@@ -992,7 +972,9 @@ void VolumeDisplay::sliceMoving( CallBacker* cb )
 
 float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 {
-    if ( !slice ) return 0;
+    if ( !slice )
+	return 0.f;
+
     const int dim = slice->getDim();
     float slicepos = slice->getPosition();
 
@@ -1042,7 +1024,7 @@ const TypeSet<float>* VolumeDisplay::getHistogram( int attrib ) const
 
 
 SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat( int ) const
-{ return visSurvey::SurveyObject::Cube; }
+{ return SurveyObject::Cube; }
 
 
 const Attrib::SelSpec* VolumeDisplay::getSelSpec(
@@ -1075,7 +1057,6 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 void VolumeDisplay::setSelSpecs( int attrib, const TypeSet<Attrib::SelSpec>& as)
 {
     SurveyObject::setSelSpecs( attrib, as );
-
     if ( !attribs_.validIdx(attrib) || *attribs_[attrib]->selspec_==as )
 	return;
 
@@ -1100,26 +1081,9 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool displayspace,
 }
 
 
-bool VolumeDisplay::setDataPackID( int attrib, DataPackID dpid,
-				   TaskRunner* taskr )
-{
-    if ( !attribs_.validIdx(attrib) )
-	return false;
-
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
-    const bool res = setDataVolume( attrib, regsdp, taskr );
-    if ( !res )
-	return false;
-
-    attribs_[attrib]->cache_ = regsdp;
-    return true;
-}
-
-
-bool VolumeDisplay::setDataVolume( int attrib,
-				   const RegularSeisDataPack* attribdata,
-				   TaskRunner* taskr )
+bool VolumeDisplay::setSeisDataPack( int attrib,
+				     RegularSeisDataPack* attribdata,
+				     TaskRunner* taskr )
 {
     if ( !attribs_.validIdx(attrib) || !attribdata || attribdata->isEmpty() )
 	return false;
@@ -1133,7 +1097,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
     else
     {
 	if ( !datatransformer_ )
-	    mTryAlloc( datatransformer_,ZAxisTransformer(*datatransform_,true));
+	    datatransformer_ = new ZAxisTransformer( *datatransform_, true );
 
 //	datatransformer_->setInterpolate( !isClassification(attrib) );
 	datatransformer_->setInterpolate( true );
@@ -1181,7 +1145,16 @@ bool VolumeDisplay::setDataVolume( int attrib,
 }
 
 
-const RegularSeisDataPack* VolumeDisplay::getCacheVolume( int attrib ) const
+bool VolumeDisplay::setDataPackID( int attrib, const DataPackID& dpid,
+				   TaskRunner* taskr )
+{
+    pErrMsg("Should not be called");
+    return false;
+}
+
+
+ConstRefMan<RegularSeisDataPack> VolumeDisplay::getSeisDataPack(
+							int attrib ) const
 {
     return attribs_.validIdx(attrib) ? attribs_[attrib]->cache_ : nullptr;
 }
@@ -1301,16 +1274,16 @@ bool VolumeDisplay::allowsPicks() const
 }
 
 
-visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* taskr ) const
+SurveyObject* VolumeDisplay::duplicate( TaskRunner* taskr ) const
 {
-    VolumeDisplay* vd = new VolumeDisplay;
+    auto* vd = new VolumeDisplay;
 
     TypeSet<VisID> children;
     vd->getChildren( children );
-    for ( int idx=0; idx<children.size(); idx++ )
-	vd->removeChild( children[idx] );
+    for ( const auto& child : children )
+	vd->removeChild( child );
 
-    vd->setZAxisTransform( const_cast<ZAxisTransform*>(datatransform_), taskr );
+    vd->setZAxisTransform( datatransform_.getNonConstPtr(), taskr );
     for ( int idx=0; idx<slices_.size(); idx++ )
     {
 	const VisID sliceid = vd->addSlice( slices_[idx]->getDim() );
@@ -1336,9 +1309,10 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* taskr ) const
 	    vd->addAttrib();
 
 	vd->setSelSpecs( attrib, *attribs_[attrib]->selspec_ );
-	vd->setDataVolume( attrib, attribs_[attrib]->cache_, taskr );
-	vd->setColTabMapperSetup( attrib,
-			scalarfield_->getColTabMapper(attrib).setup_, taskr );
+	vd->setSeisDataPack( attrib,
+			     attribs_[attrib]->cache_.getNonConstPtr(), taskr );
+	vd->setColTabMapperSetup( attrib, *getColTabMapperSetup( attrib ),
+				  taskr );
 	vd->setColTabSequence( attrib,
 			*getChannels2RGBA()->getSequence(attrib), taskr );
     }
@@ -1353,14 +1327,12 @@ void VolumeDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
     {
 	mDetachCB( eventcatcher_->eventhappened,
 		   VolumeDisplay::updateMouseCursorCB );
-	eventcatcher_->unRef();
     }
 
     eventcatcher_ = ec;
 
     if ( eventcatcher_ )
     {
-	eventcatcher_->ref();
 	mAttachCB( eventcatcher_->eventhappened,
 		   VolumeDisplay::updateMouseCursorCB );
     }
@@ -1449,9 +1421,9 @@ void VolumeDisplay::setColTabMapperSetup( int attrib,
 
 
 const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int attrib,
-							    int version ) const
+						    int /* version */ ) const
 {
-    return &scalarfield_->getColTabMapper(attrib).setup_;
+    return &scalarfield_->getColTabMapper( attrib ).setup_;
 }
 
 
@@ -1471,7 +1443,7 @@ bool VolumeDisplay::isOn() const
 void VolumeDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
-    visSurvey::SurveyObject::fillPar( par );
+    SurveyObject::fillPar( par );
     const TrcKeyZSampling cs = getTrcKeyZSampling(false,true,0);
     cs.fillPar( par );
 }
@@ -1479,8 +1451,8 @@ void VolumeDisplay::fillPar( IOPar& par ) const
 
 bool VolumeDisplay::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) ||
-	 !visSurvey::SurveyObject::usePar( par ) )
+    if ( !visBase::VisualObjectImpl::usePar(par) ||
+	 !SurveyObject::usePar(par) )
 	return false;
 
     PtrMan<IOPar> texturepar = par.subselect( sKeyTexture() );
@@ -1501,7 +1473,8 @@ bool VolumeDisplay::usePar( const IOPar& par )
     if ( par.get(sKeyVolumeID(),volid) )
     {
 	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject( volid );
-	if ( !dataobj ) return false;
+	if ( !dataobj )
+	    return false;
 /*
 	mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj.ptr());
 	if ( !vr ) return -1;
@@ -1509,10 +1482,9 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	{
 	    if ( childIndex(volren_->osgNode())!=-1 )
 		VisualObjectImpl::removeChild(volren_->osgNode());
-	    volren_->unRef();
 	}
+
 	volren_ = vr;
-	volren_->ref();
 	addChild( volren_->osgNode() );
 */
     }
@@ -1531,10 +1503,13 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	VisID sliceid;
 	par.get( str, sliceid );
 	RefMan<visBase::DataObject> dataobj = visBase::DM().getObject(sliceid);
-	if ( !dataobj ) return 0;
+	if ( !dataobj )
+	    return false;
+
 	mDynamicCastGet(visBase::OrthogonalSlice*,os,dataobj.ptr())
-	if ( !os ) return -1;
-	os->ref();
+	if ( !os )
+	    return false;
+
 	mAttachCB( os->motion, VolumeDisplay::sliceMoving );
 	slices_ += os;
 	addChild( os->osgNode() );
@@ -1625,8 +1600,10 @@ visBase::OrthogonalSlice* VolumeDisplay::getSelectedSlice() const
 TrcKeyZSampling
 	VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
 {
-    TrcKeyZSampling cs(false);
-    if ( !slice ) return cs;
+    TrcKeyZSampling cs( false );
+    if ( !slice )
+	return cs;
+
     cs = getTrcKeyZSampling(false,true,0);
     float pos = slicePosition( slice );
     if ( slice->getDim() == cTimeSlice() )
@@ -1838,6 +1815,5 @@ const visBase::TextureChannel2RGBA* VolumeDisplay::getChannels2RGBA() const
 {
     return scalarfield_ ? scalarfield_->getChannels2RGBA() : nullptr;
 }
-
 
 } // namespace visSurvey

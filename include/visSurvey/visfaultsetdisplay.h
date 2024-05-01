@@ -9,25 +9,20 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
+#include "datapointset.h"
+#include "emfaultset3d.h"
+#include "visdrawstyle.h"
+#include "visevent.h"
+#include "visgeomindexedshape.h"
 #include "vismultiattribsurvobj.h"
+#include "vistexturechannels.h"
+#include "zaxistransform.h"
 
 #include "emposid.h"
 #include "explfaultsticksurface.h"
 #include "ranges.h"
 
-class DataPointSet;
-class ZAxisTransform;
-
-namespace visBase
-{
-    class EventCatcher;
-    class GeomIndexedShape;
-    class Transformation;
-    class PolyLine3D;
-    class DrawStyle;
-}
-
-namespace EM { class FaultSet3D; }
 namespace Geometry
 {
     class ExplPlaneIntersection;
@@ -44,10 +39,9 @@ public:
 				FaultSetDisplay();
 
 				mDefaultFactoryInstantiation(
-				visSurvey::SurveyObject,FaultSetDisplay,
+				SurveyObject, FaultSetDisplay,
 				"FaultSetDisplay",
-				toUiString(sFactoryKeyword()));
-
+				::toUiString(sFactoryKeyword()) )
 
     MultiID			getMultiID() const override;
     bool			isInlCrl() const override { return false; }
@@ -117,7 +111,7 @@ public:
 
     const OD::LineStyle*	lineStyle() const override;
     void			setLineStyle(const OD::LineStyle&) override;
-    virtual void		getMousePosInfo( const visBase::EventInfo& ei,
+    void			getMousePosInfo( const visBase::EventInfo& ei,
 						 IOPar& iop ) const override
 				{ return MultiTextureSurveyObject
 					::getMousePosInfo(ei,iop); }
@@ -129,8 +123,8 @@ public:
     bool			isVerticalPlane() const override {return false;}
     bool			canBDispOn2DViewer() const override
 				{ return false; }
-    int				addDataPack(const DataPointSet&) const ;
-    bool			setDataPackID(int attrib,DataPackID,
+    DataPackID			addDataPack(const DataPointSet&) const;
+    bool			setDataPackID(int attrib,const DataPackID&,
 					      TaskRunner*) override;
     DataPackID			getDataPackID(int attrib) const override;
     DataPackID			getDisplayedDataPackID(int attr) const override;
@@ -139,7 +133,7 @@ public:
 
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>& objs,
-				    VisID whichobj)
+				    const VisID& whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
 
     EM::FaultSet3D*		emFaultSet();
@@ -174,12 +168,11 @@ public:
     const visBase::GeomIndexedShape* getFaultDisplayedPlane(int) const;
 
 protected:
-
-    virtual			~FaultSetDisplay();
+				~FaultSetDisplay();
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj) override;
+				    const VisID& whichobj) override;
     EM::FaultID			getFaultID(const visBase::EventInfo&) const;
     void			setRandomPosDataInternal(int attrib,
 							 const DataPointSet*,
@@ -204,50 +197,50 @@ protected:
     void			emChangeCB(CallBacker*);
     void			dataTransformCB(CallBacker*);
 
-    void			updateHorizonIntersections(VisID whichobj,
+    void			updateHorizonIntersections(const VisID& which,
 					const ObjectSet<const SurveyObject>&);
 
     Coord3			disp2world(const Coord3& displaypos) const;
 
     void			setLineRadius(visBase::GeomIndexedShape*);
 
-    ZAxisTransform*			zaxistransform_;
-    int					voiid_;
+    RefMan<ZAxisTransform>		zaxistransform_;
+    int					voiid_ = -1;
 
-    ObjectSet<visBase::GeomIndexedShape>	paneldisplays_;
+    RefObjectSet<visBase::GeomIndexedShape>	paneldisplays_;
     ObjectSet<Geometry::ExplFaultStickSurface>	explicitpanels_;
 
-    ObjectSet<visBase::GeomIndexedShape>	intersectiondisplays_;
+    RefObjectSet<visBase::GeomIndexedShape>	intersectiondisplays_;
     ObjectSet<Geometry::ExplPlaneIntersection>	explicitintersections_;
     ObjectSet<const SurveyObject>	intersectionobjs_;
     TypeSet<int>			planeids_;
 
-    ObjectSet<visBase::GeomIndexedShape> horintersections_;
+    RefObjectSet<visBase::GeomIndexedShape> horintersections_;
     ObjectSet<Geometry::ExplFaultStickSurface>	horshapes_;
 
-    ObjectSet<visBase::TextureChannels> channelset_;
+    RefObjectSet<visBase::TextureChannels> channelset_;
 
     TypeSet<int>			horintersectids_;
-    bool				displayintersections_;
-    bool				displayhorintersections_;
+    bool				displayintersections_ = false;
+    bool				displayhorintersections_ = false;
 
     Coord3				mousepos_;
 
-    TypeSet<DataPackID>		datapackids_;
+    RefObjectSet<DataPointSet>		datapacks_;
 
     OD::Color				nontexturecol_;
 
-    bool				displaypanels_;
+    bool				displaypanels_ = true;
 
-    EM::FaultSet3D*			faultset_;
+    RefMan<EM::FaultSet3D>		faultset_;
 
     ObjectSet<ObjectSet<Array2D<float> > >  texturedataset_;
 
-    visBase::DrawStyle*			drawstyle_;
-    bool				otherobjects_;
+    RefMan<visBase::DrawStyle>		drawstyle_;
+    bool				otherobjects_ = false;
 
-    const mVisTrans*			displaytransform_;
-    visBase::EventCatcher*		eventcatcher_;
+    ConstRefMan<mVisTrans>		displaytransform_;
+    RefMan<visBase::EventCatcher>	eventcatcher_;
 
     static const char*			sKeyTriProjection();
     static const char*			sKeyEarthModelID();

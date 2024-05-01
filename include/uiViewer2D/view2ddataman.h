@@ -34,8 +34,8 @@ public:
     void			getObjects(ObjectSet<DataObject>&) const;
     void			getObjectIDs(TypeSet<Vis2DID>&) const;
 
-    const DataObject*		getObject(Vis2DID) const;
-    DataObject*			getObject(Vis2DID);
+    const DataObject*		getObject(const Vis2DID&) const;
+    DataObject*			getObject(const Vis2DID&);
 
     void			setSelected(DataObject*);
     Vis2DID			selectedID()	{ return selectedid_; }
@@ -53,7 +53,7 @@ public:
 
 protected:
 
-    void			deSelect(Vis2DID);
+    void			deSelect(const Vis2DID&);
 
     ObjectSet<DataObject>	objects_;
     Vis2DID			selectedid_;

@@ -42,14 +42,13 @@ protected:
     void		addAuxDataItems();
 
     void		finishedEditingCB(CallBacker*);
-    void		prepareForShutdown() override;
 
     bool		doSave();
     void		askSaveCB(CallBacker*);
     void		saveCB(CallBacker*);
 
     EM::ObjectID	emid_;
-    uiVisEMObject*	uivisemobj_;
+    uiVisEMObject*	uivisemobj_	= nullptr;
 
     MenuItem		createflatscenemnuitem_;
 
@@ -80,17 +79,18 @@ protected:
 
 
 mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem
-    : public uiODAttribTreeItem
+						: public uiODAttribTreeItem
 { mODTextTranslationClass(uiODEarthModelSurfaceDataTreeItem)
 public:
 			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
 				       uiVisEMObject*,const char* parenttype);
-			~uiODEarthModelSurfaceDataTreeItem();
 
     void		setDataPointSet(const DataPointSet&);
     void		selectAndLoadAuxData();
 
 protected:
+			~uiODEarthModelSurfaceDataTreeItem();
+
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
     uiString		createDisplayName() const override;
@@ -104,7 +104,7 @@ protected:
     MenuItem		horvariogrammnuitem_;
     MenuItem		attr2geommnuitm_;
 
-    bool		changed_;
+    bool		changed_	= false;
     EM::ObjectID	emid_;
     uiVisEMObject*	uivisemobj_;
 };

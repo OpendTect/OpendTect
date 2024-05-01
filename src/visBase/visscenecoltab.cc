@@ -39,19 +39,11 @@ namespace visBase
 {
 
 SceneColTab::SceneColTab()
-    : VisualObjectImpl( false )
-    , osgcolorbar_( new mScalarBarType )
-    , flipseq_( false )
-    , width_( 20 )
-    , height_( 250 )
-    , horizontal_( false )
-    , pos_( Bottom )
-    , aspratio_( 1 )
-    , winx_( 100 )
-    , winy_( 100 )
-    , fontsize_( 18 )
-    , pixeldensity_( getDefaultPixelDensity() )
+    : VisualObjectImpl(false)
+    , osgcolorbar_(new mScalarBarType)
+    , pixeldensity_(getDefaultPixelDensity())
 {
+    ref();
     addChild( osgcolorbar_ );
 
     //Set it to something to avoid osg to look for own font
@@ -63,6 +55,8 @@ SceneColTab::SceneColTab()
 
     setSize( width_, height_ );
     setColTabSequence( ColTab::Sequence("") );
+
+    unRefNoDelete();
 }
 
 

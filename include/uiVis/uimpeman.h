@@ -9,10 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uiparent.h"
-#include "trckeyzsampling.h"
-#include "trckeyvalue.h"
+
 #include "emposid.h"
+#include "trckeyvalue.h"
+#include "trckeyzsampling.h"
+#include "uiparent.h"
+#include "vismpeseedcatcher.h"
 
 namespace EM { class EMObject; class Horizon; class Horizon2D; class Horizon3D;}
 namespace MPE { class EMTracker; }
@@ -21,7 +23,6 @@ namespace visSurvey
     class EMObjectDisplay;
     class Horizon2DDisplay;
     class HorizonDisplay;
-    class MPEClickCatcher;
 }
 
 class uiPropertiesDialog;
@@ -53,7 +54,7 @@ protected:
     uiParent*			parent_;
     uiVisPartServer*		visserv_;
 
-    visSurvey::MPEClickCatcher*	clickcatcher_			= nullptr;
+    RefMan<visSurvey::MPEClickCatcher> clickcatcher_;
     SceneID			clickablesceneid_;
 
     void			mouseEventCB(CallBacker*);

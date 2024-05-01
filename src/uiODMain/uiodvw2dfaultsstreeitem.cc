@@ -222,7 +222,8 @@ uiODView2DFaultSSTreeItem::uiODView2DFaultSSTreeItem( const EM::ObjectID& emid )
 {}
 
 
-uiODView2DFaultSSTreeItem::uiODView2DFaultSSTreeItem( Vis2DID id, bool )
+uiODView2DFaultSSTreeItem::uiODView2DFaultSSTreeItem( const Vis2DID& id,
+						      bool /* dummy */ )
     : uiODView2DTreeItem(uiString::emptyString())
     , fssview_(0)
 {
@@ -473,8 +474,8 @@ void uiODView2DFaultSSTreeItem::emobjAbtToDelCB( CallBacker* cb )
 
 
 uiTreeItem* uiODView2DFaultSSTreeItemFactory::createForVis(
-				const uiODViewer2D& vwr2d, Vis2DID id ) const
+			    const uiODViewer2D& vwr2d, const Vis2DID& id ) const
 {
     mDynamicCastGet(const View2D::FaultSS3D*,obj,vwr2d.getObject(id));
-    return obj ? new uiODView2DFaultSSTreeItem(id,true) : 0;
+    return obj ? new uiODView2DFaultSSTreeItem(id,true) : nullptr;
 }

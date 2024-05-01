@@ -9,15 +9,17 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
+
 #include "uiobjfileman.h"
 #include "bufstringset.h"
+#include "welldata.h"
 
 class uiListBox;
 class uiButton;
 class uiGroup;
 class uiToolButton;
 class uiPushButton;
-namespace Well { class Data; class Reader; class Log; }
+namespace Well { class Log; class Reader; }
 class uiWellLogCalc;
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan

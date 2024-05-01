@@ -21,7 +21,7 @@ namespace visBase
 
 class DrawCallback;
 
-/*!\brief 
+/*!\brief
     keep osg camera status and render info
 */
 
@@ -29,8 +29,8 @@ mExpClass(visBase) Camera : public DataObject
 {
 public:
 
-    static Camera*	create()
-			mCreateDataObj( Camera );
+    static RefMan<Camera> create();
+			mCreateDataObj(Camera);
 
     osg::Camera*	osgCamera() const;
     OD::Color		getBackgroundColor() const;
@@ -48,15 +48,16 @@ public:
 				//!<Only available during pre/post draw cb
 
 private:
+				~Camera();
+
     friend			class DrawCallback;
 
     void			triggerDrawCallBack(const DrawCallback*,
 						    const osg::RenderInfo&);
 
-    virtual			~Camera();
 
     osg::Camera*		camera_;
-    const osg::RenderInfo*	renderinfo_;
+    const osg::RenderInfo*	renderinfo_ = nullptr;
     DrawCallback*		predraw_;
     DrawCallback*		postdraw_;
 

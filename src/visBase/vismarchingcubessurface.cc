@@ -22,33 +22,29 @@ namespace visBase
 {
 
 MarchingCubesSurface::MarchingCubesSurface()
-    : VisualObjectImpl( true )
-    , surface_( new ExplicitMarchingCubesSurface( 0 ) )
-    , shape_( GeomIndexedShape::create() )
-    , displaysection_( -1 )
-    , sectionlocation_( mUdf(float) )    
+    : VisualObjectImpl(true)
+    , surface_(new ExplicitMarchingCubesSurface(0))
+    , sectionlocation_( mUdf(float) )
     , xrg_( mUdf(float), mUdf(float), 0 )
     , yrg_( mUdf(float), mUdf(float), 0 )
     , zrg_( mUdf(float), mUdf(float), 0 )
-    , transform_( 0 )
 {
-
-    shape_->ref();
+    ref();
+    shape_ = GeomIndexedShape::create();
     addChild( shape_->osgNode() );
     shape_->setSelectable( false );
-    shape_->setMaterial( 0 );
+    shape_->setMaterial( nullptr );
     shape_->useOsgNormal( true );
 
     setRenderMode( RenderBothSides );
+    unRefNoDelete();
 }
 
 
 MarchingCubesSurface::~MarchingCubesSurface()
 {
-    shape_->unRef();
     surface_->removeAll( false );
     delete surface_;
-    unRefAndNullPtr( transform_ );
 }
 
 
@@ -94,7 +90,7 @@ void MarchingCubesSurface::setScales(const SamplingData<float>& xrg,
     updateDisplayRange();
 }
 
-void MarchingCubesSurface::enableSection( char sec ) 
+void MarchingCubesSurface::enableSection( char sec )
 {
     if ( displaysection_==sec )
 	return;
@@ -115,7 +111,7 @@ void MarchingCubesSurface::setSectionPosition( float pos )
 
     sectionlocation_ = pos;
     if ( displaysection_>=0 )
-    	updateDisplayRange();
+	updateDisplayRange();
 }
 
 
@@ -133,16 +129,14 @@ void MarchingCubesSurface::setBoxBoundary( float maxx, float maxy, float maxz )
      xrg_.stop = maxx;
      yrg_.stop = maxy;
      zrg_.stop = maxz;
-    if ( displaysection_>=0 )    
+    if ( displaysection_>=0 )
 	updateDisplayRange();
 }
 
 
 void MarchingCubesSurface::setDisplayTransformation( const mVisTrans* trans )
 {
-    if ( transform_ ) transform_->unRef();
-       transform_ = trans;
-    if ( transform_ ) transform_->ref();
+   transform_ = trans;
     shape_->setDisplayTransformation( trans );
 
 }
@@ -167,15 +161,15 @@ void MarchingCubesSurface::getTransformCoord( Coord3& pos )
 void MarchingCubesSurface::updateDisplayRange()
 {
 
-    if ( mIsUdf(sectionlocation_) || mIsUdf(xrg_.start) || 
+    if ( mIsUdf(sectionlocation_) || mIsUdf(xrg_.start) ||
 	 mIsUdf(yrg_.start) || mIsUdf(zrg_.start) || mIsUdf(xrg_.stop) ||
 	 mIsUdf(yrg_.stop) || mIsUdf(zrg_.stop) )
 	return;
-    
+
     if ( !displaysection_ )
     {
 	if ( sectionlocation_>xrg_.stop )
-    	    xrg_.start = xrg_.stop;
+	    xrg_.start = xrg_.stop;
 	else if ( sectionlocation_>xrg_.start )
 	    xrg_.start = sectionlocation_;
 
@@ -184,7 +178,7 @@ void MarchingCubesSurface::updateDisplayRange()
     else if ( displaysection_==1 )
     {
 	if ( sectionlocation_>yrg_.stop )
-    	    yrg_.start = yrg_.stop;
+	    yrg_.start = yrg_.stop;
 	else if ( sectionlocation_>yrg_.start )
 	    yrg_.start = sectionlocation_;
 
@@ -193,7 +187,7 @@ void MarchingCubesSurface::updateDisplayRange()
     else if ( displaysection_==2 )
     {
 	if ( sectionlocation_>zrg_.stop )
-    	    zrg_.start = zrg_.stop;
+	    zrg_.start = zrg_.stop;
 	else if ( sectionlocation_>zrg_.start )
 	    zrg_.start = sectionlocation_;
 

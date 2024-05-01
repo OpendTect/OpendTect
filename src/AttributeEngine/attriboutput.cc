@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
-#include "seisdatapack.h"
 #include "seistrc.h"
 #include "seisselectionimpl.h"
 #include "seistype.h"
@@ -249,7 +248,7 @@ void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 
 // SeisTrcStorOutput
 SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
-				      const Pos::GeomID geomid )
+				      const Pos::GeomID& geomid )
     : storid_(*new MultiID)
     , desiredvolume_(cs)
     , errmsg_(uiString::emptyString())
@@ -572,7 +571,7 @@ bool SeisTrcStorOutput::finishWrite()
 
 // TwoDOutput
 TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
-			Pos::GeomID geomid)
+			const Pos::GeomID& geomid )
 {
     seldata_->setGeomID( geomid );
     setGeometry( trg, zrg );
@@ -583,7 +582,6 @@ TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 
 TwoDOutput::~TwoDOutput()
 {
-    if ( output_ ) output_->unRef();
 }
 
 
@@ -645,9 +643,7 @@ void TwoDOutput::collectData( const DataHolder& data, float refstep,
 
 void TwoDOutput::setOutput( Data2DHolder& no )
 {
-    if ( output_ ) output_->unRef();
     output_ = &no;
-    output_->ref();
 }
 
 
@@ -897,7 +893,7 @@ void TrcSelectionOutput::setTrcsBounds( Interval<float> intv )
 }
 
 
-void TrcSelectionOutput::setGeomID( Pos::GeomID geomid )
+void TrcSelectionOutput::setGeomID( const Pos::GeomID& geomid )
 {
     seldata_->setGeomID( geomid );
 }
@@ -959,7 +955,7 @@ const TrcKeyZSampling Trc2DVarZStorOutput::getCS()
 
 
 // Trc2DVarZStorOutput
-Trc2DVarZStorOutput::Trc2DVarZStorOutput( Pos::GeomID geomid,
+Trc2DVarZStorOutput::Trc2DVarZStorOutput( const Pos::GeomID& geomid,
 					  DataPointSet* poszvalues,
 					  float outval )
     : SeisTrcStorOutput( getCS(), geomid )
@@ -1320,7 +1316,7 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     {
 	if ( dps_->binID(idx) != dpsbid )
 	    break;
-	
+
 	addLocalInterval( sampleinterval, exactz, idx, zstep );
     }
 

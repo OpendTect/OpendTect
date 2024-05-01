@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "valseriesimpl.h"
-#include "visobject.h"
-#include "coltabsequence.h"
+
 #include "coltabmapper.h"
-#include "visshape.h"
+#include "coltabsequence.h"
 #include "draw.h"
+#include "valseriesimpl.h"
+#include "visshape.h"
 
 namespace Geometry { class IndexedGeometry; }
 class TaskRunner;
@@ -22,21 +22,20 @@ class DataPointSet;
 
 namespace visBase
 {
-class DrawStyle;
-class Transformation;
 class Coordinates;
-class Normals;
-class TextureCoords;
+class DrawStyle;
 class ForegroundLifter;
-class VertexShape;
+class Normals;
 class TextureChannels;
+class TextureCoords;
+class Transformation;
 
 /*!Visualization for Geometry::IndexedShape. */
 
 mExpClass(visBase) GeomIndexedShape : public VisualObjectImpl
 {
 public:
-    static GeomIndexedShape*	create()
+    static RefMan<GeomIndexedShape> create();
 				mCreateDataObj(GeomIndexedShape);
 
     void			setDisplayTransformation(
@@ -86,13 +85,14 @@ public:
     void			addNodeState(visBase::NodeState*);
 
     void			setTextureChannels(TextureChannels*);
-    virtual void	        setPixelDensity(float) override;
+    void			setPixelDensity(float) override;
 
-    VertexShape*		getVertexShape() const { return vtexshape_; }
-
+    VertexShape*		getVertexShape();
+    const VertexShape*		getVertexShape() const;
 
 protected:
 				~GeomIndexedShape();
+
     void			reClip();
     void			mapAttributeToColorTableMaterial();
     void			matChangeCB(CallBacker*);
@@ -103,30 +103,31 @@ protected:
     public:
 					ColorHandler();
 					~ColorHandler();
+
 	ColTab::Mapper			mapper_;
 	ColTab::Sequence                sequence_;
-	visBase::Material*		material_;
+	RefMan<visBase::Material>	material_;
 	ArrayValueSeries<float,float>	attributecache_;
     };
 
     static const char*			sKeyCoordIndex() { return "CoordIndex";}
 
-    ColorHandler*				colorhandler_;
+    ColorHandler*			colorhandler_;
+    bool				colortableenabled_ = false;
 
-    Geometry::IndexedShape*			shape_;
-    VertexShape*				vtexshape_;
-    bool					colortableenabled_ ;
-    int						renderside_;
-					    /*!< 0 = visisble from both sides.
-					       1 = visible from positive side
-					      -1 = visible from negative side.*/
-    Material*					singlematerial_;
-    Material*					coltabmaterial_;
-    ColTab::Sequence		                sequence_;
-    GeomShapeType				geomshapetype_;
+    Geometry::IndexedShape*		shape_ = nullptr;
+    RefMan<VertexShape>			vtexshape_;
+    int					renderside_;
+				    /*!< 0 = visisble from both sides.
+				       1 = visible from positive side
+				      -1 = visible from negative side.*/
+    RefMan<Material>			singlematerial_;
+    RefMan<Material>			coltabmaterial_;
+    ColTab::Sequence			sequence_;
+    GeomShapeType			geomshapetype_ =GeomShapeType::Triangle;
 
-    OD::LineStyle				linestyle_;
-    bool					useosgnormal_;
+    OD::LineStyle			linestyle_;
+    bool				useosgnormal_ = false;
 };
 
 } // namespace visBase

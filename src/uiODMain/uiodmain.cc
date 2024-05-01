@@ -377,13 +377,14 @@ static bool hasSceneItems( uiVisPartServer* visserv )
 {
     TypeSet<SceneID> sceneids;
     visserv->getSceneIds( sceneids );
-    if ( sceneids.isEmpty() ) return false;
+    if ( sceneids.isEmpty() )
+	return false;
 
     int nrchildren = 0;
-    TypeSet<VisID> visids;
-    for ( int idx=0; idx<sceneids.size(); idx++ )
+    for ( const auto& sceneid : sceneids )
     {
-	visserv->getChildIds( sceneids[0], visids );
+	TypeSet<VisID> visids;
+	visserv->getSceneChildIds( sceneid, visids );
 	nrchildren += visids.size();
     }
 

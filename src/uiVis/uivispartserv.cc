@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "uimapperrangeeditordlg.h"
 #include "uimaterialdlg.h"
-#include "uimenuhandler.h"
 #include "uimpeman.h"
 #include "uimsg.h"
 #include "uiposprovider.h"
@@ -37,7 +36,6 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uivisdirlightdlg.h"
-#include "uivispickretriever.h"
 #include "uivisslicepos3d.h"
 #include "uiviszstretchdlg.h"
 
@@ -47,11 +45,9 @@ ________________________________________________________________________
 #include "vismpeseedcatcher.h"
 #include "visobject.h"
 #include "visplanedatadisplay.h"
-#include "vispolygonselection.h"
 #include "visscenecoltab.h"
 #include "visselman.h"
 #include "vissurvobj.h"
-#include "vissurvscene.h"
 #include "vistexturechannels.h"
 
 
@@ -97,40 +93,19 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mouseEvent(this)
     , selectionmodeChange(this)
     , planeMovedEvent(this)
-    , menu_(*new uiMenuHandler(appserv().parent(),-1))
-    , toolbar_(0)
-    , multirgeditwin_(0)
-    , mapperrgeditinact_(false)
-    , xytmousepos_(Coord3::udf())
-    , zfactor_(1)
-    , mouseposstr_("")
-    , sceneeventsrc_(0)
-    , tracksetupactive_(false)
-    , topsetupgroupname_( 0 )
-    , viewmode_(false)
-    , workmode_(uiVisPartServer::Interactive)
-    , issolomode_(false)
+    , menu_(new uiMenuHandler(appserv().parent(),-1))
     , eventmutex_(*new Threads::Mutex)
-    , eventobjid_(-1)
-    , eventattrib_(-1)
-    , selattrib_(-1)
-    , seltype_((int)visBase::PolygonSelection::Off)
-    , selectionmode_(Polygon)
     , resetmanipmnuitem_(tr("Reset Manipulation"),cResetManipIdx)
     , changematerialmnuitem_(m3Dots(uiStrings::sProperties()),
 			     cPropertiesIdx)
     , resmnuitem_(tr("Resolution"),cResolutionIdx)
-    , blockmenus_(false)
-    , pickretriever_( new uiVisPickRetriever(this) )
+    , pickretriever_(new uiVisPickRetriever(this))
     , nrscenesChange(this)
-    , mousecursorexchange_(0)
-    , dirlightdlg_(0)
 {
     changematerialmnuitem_.iconfnm = "disppars";
 
-    menu_.ref();
-    menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
-    menu_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
+    mAttachCB( menu_->createnotifier, uiVisPartServer::createMenuCB );
+    mAttachCB( menu_->handlenotifier, uiVisPartServer::handleMenuCB );
 
     mAttachCB( visBase::DM().selMan().selnotifier,
 	       uiVisPartServer::selectObjCB );
@@ -140,8 +115,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 	       uiVisPartServer::updateSelObjCB );
 
     vismgr_ = new uiVisModeMgr(this);
-    pickretriever_->ref();
-    PickRetriever::setInstance( pickretriever_ );
+    PickRetriever::setInstance( pickretriever_.ptr() );
 }
 
 
@@ -166,44 +140,30 @@ uiVisPartServer::~uiVisPartServer()
 
     delete &eventmutex_;
     delete mpetools_;
-
-    menu_.createnotifier.remove( mCB(this,uiVisPartServer,createMenuCB) );
-    menu_.handlenotifier.remove( mCB(this,uiVisPartServer,handleMenuCB) );
-    menu_.unRef();
-
-    if ( toolbar_ )
-    {
-	toolbar_->createnotifier.remove(
-		mCB(this,uiVisPartServer,addToToolBarCB) );
-	toolbar_->handlenotifier.remove(
-		mCB(this,uiVisPartServer,handleMenuCB) );
-	toolbar_->unRef();
-    }
-
-    pickretriever_->unRef();
+    menu_ = nullptr;
+    toolbar_ = nullptr;
+    pickretriever_ = nullptr;
     delete multirgeditwin_;
     delete dirlightdlg_;
-
     delete topbotdlg_;
-    setMouseCursorExchange( 0 );
+    mousecursorexchange_ = nullptr;
 }
 
 
 const char* uiVisPartServer::name() const  { return "Visualization"; }
 
 
-
 void uiVisPartServer::setMouseCursorExchange( MouseCursorExchange* mce )
 {
     if ( mousecursorexchange_ )
-	mousecursorexchange_->notifier.remove(
-		mCB(this,uiVisPartServer, mouseCursorCB ) );
+	mDetachCB( mousecursorexchange_->notifier,
+		   uiVisPartServer::mouseCursorCB );
 
     mousecursorexchange_ = mce;
 
     if ( mousecursorexchange_ )
-	mousecursorexchange_->notifier.notify(
-		mCB(this,uiVisPartServer, mouseCursorCB ) );
+	mAttachCB( mousecursorexchange_->notifier,
+		   uiVisPartServer::mouseCursorCB );
 }
 
 
@@ -214,11 +174,19 @@ void uiVisPartServer::mouseCursorCB( CallBacker* cb )
     if ( caller==this )
 	return;
 
-    setMarkerPos( info.trkv_, VisID::udf() );
+    setMarkerPos( info.trkv_, SceneID::udf() );
 }
 
 
-void uiVisPartServer::setUiObjectName( VisID id, const uiString& nm )
+void uiVisPartServer::setSceneName( const SceneID& id, const uiString& nm )
+{
+    RefMan<visSurvey::Scene> scene = getScene( id );
+    if ( scene )
+	scene->setUiName( nm );
+}
+
+
+void uiVisPartServer::setUiObjectName( const VisID& id, const uiString& nm )
 {
     visBase::DataObject* obj = visBase::DM().getObject( id );
     if ( obj )
@@ -226,7 +194,7 @@ void uiVisPartServer::setUiObjectName( VisID id, const uiString& nm )
 }
 
 
-void uiVisPartServer::setObjectName( VisID id, const char* nm )
+void uiVisPartServer::setObjectName( const VisID& id, const char* nm )
 {
     visBase::DataObject* obj = visBase::DM().getObject( id );
     if ( obj )
@@ -234,67 +202,79 @@ void uiVisPartServer::setObjectName( VisID id, const char* nm )
 }
 
 
-uiString uiVisPartServer::getUiObjectName( VisID id ) const
+uiString uiVisPartServer::getSceneName( const SceneID& id ) const
 {
-    visBase::DataObject* obj = visBase::DM().getObject( id );
-    if ( !obj ) return uiString::emptyString();
-    return obj->uiName();
+    ConstRefMan<visSurvey::Scene> scene = getScene( id );
+    return scene ? scene->uiName() : uiString::empty();
 }
 
 
-Pos::GeomID uiVisPartServer::getGeomID( VisID id ) const
+uiString uiVisPartServer::getUiObjectName( const VisID& id ) const
+{
+    const visBase::DataObject* obj = visBase::DM().getObject( id );
+    return obj ? obj->uiName() : uiString::empty();
+}
+
+
+Pos::GeomID uiVisPartServer::getGeomID( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getGeomID() : Survey::GM().cUndefGeomID();
 }
 
 
-SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene )
+SceneID uiVisPartServer::addScene( visSurvey::Scene* newscene_in )
 {
-    if ( !newscene ) newscene = visSurvey::Scene::create();
-    newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
-    newscene->keypressed.notify( mCB(this,uiVisPartServer,keyEventCB) );
-    newscene->mouseclicked.notify( mCB(this,uiVisPartServer,mouseEventCB) );
-    newscene->ref();
+    RefMan<visSurvey::Scene> newscene = newscene_in;
+    if ( !newscene )
+	newscene = visSurvey::Scene::create();
+
+    mAttachCB( newscene->mouseposchange, uiVisPartServer::mouseMoveCB );
+    mAttachCB( newscene->keypressed, uiVisPartServer::keyEventCB );
+    mAttachCB( newscene->mouseclicked, uiVisPartServer::mouseEventCB );
     scenes_ += newscene;
     pickretriever_->addScene( newscene );
     if ( isSoloMode() )
-    {
-	TypeSet<VisID> dispids;
-	displayids_ += dispids;
-    }
+	displayids_ += TypeSet<VisID>();
 
+    const SceneID sceneid = newscene->getID();
+    newscene = nullptr;
     nrscenesChange.trigger();
-    return newscene->id();
+    return sceneid;
 }
 
 
-void uiVisPartServer::removeScene( SceneID sceneid )
+void uiVisPartServer::removeScene( const SceneID& sceneid )
 {
-    visSurvey::Scene* scene = getScene( sceneid );
-    if ( scene )
-    {
-	const int typesetidx = scenes_.indexOf(scene);
-	if ( displayids_.validIdx(typesetidx) )
-	    displayids_.removeSingle( typesetidx );
-
-	scene->mouseposchange.remove( mCB(this,uiVisPartServer,mouseMoveCB) );
-	scene->keypressed.remove( mCB(this,uiVisPartServer,keyEventCB) );
-	scene->mouseclicked.remove( mCB(this,uiVisPartServer,mouseEventCB) );
-	pickretriever_->removeScene( scene );
-	scene->unRef();
-	scenes_ -= scene;
-	nrscenesChange.trigger();
+    RefMan<visSurvey::Scene> scene = getScene( sceneid );
+    if ( !scene )
 	return;
-    }
+
+    const int typesetidx = scenes_.indexOf( scene.ptr() );
+    if ( displayids_.validIdx(typesetidx) )
+	displayids_.removeSingle( typesetidx );
+
+    mDetachCB( scene->mouseposchange, uiVisPartServer::mouseMoveCB );
+    mDetachCB( scene->keypressed, uiVisPartServer::keyEventCB );
+    mDetachCB( scene->mouseclicked, uiVisPartServer::mouseEventCB );
+    pickretriever_->removeScene( scene.ptr() );
+    scenes_ -= scene.ptr();
+    scene = nullptr;
+    nrscenesChange.trigger();
+}
+
+
+int uiVisPartServer::nrScenes() const
+{
+    return scenes_.size();
 }
 
 
 bool uiVisPartServer::clickablesInScene( const char* trackertype,
-					 SceneID sceneid ) const
+					 const SceneID& sceneid ) const
 {
     TypeSet<VisID> sceneobjids;
-    getChildIds( sceneid, sceneobjids );
+    getSceneChildIds( sceneid, sceneobjids );
     for ( int idx=0; idx<sceneobjids.size(); idx++ )
     {
 	const VisID objid = sceneobjids[idx];
@@ -322,10 +302,10 @@ bool uiVisPartServer::getClickableAttributesInScene(
 					TypeSet<Attrib::SelSpec>& attribspecs,
 					BufferStringSet& attribnames,
 					const char* trackertype,
-					SceneID sceneid ) const
+					const SceneID& sceneid ) const
 {
     TypeSet<VisID> sceneobjids;
-    getChildIds( sceneid, sceneobjids );
+    getSceneChildIds( sceneid, sceneobjids );
     attribnames.setEmpty();
     attribspecs.setEmpty();
     for ( int idx=0; idx<sceneobjids.size(); idx++ )
@@ -379,9 +359,8 @@ void uiVisPartServer::createToolBars()
     mpetools_ = new uiMPEMan( appserv().parent(), this );
 
     toolbar_ = new uiTreeItemTBHandler( appserv().parent() );
-    toolbar_->ref();
-    toolbar_->createnotifier.notify( mCB(this,uiVisPartServer,addToToolBarCB) );
-    toolbar_->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
+    mAttachCB( toolbar_->createnotifier, uiVisPartServer::addToToolBarCB );
+    mAttachCB( toolbar_->handlenotifier, uiVisPartServer::handleMenuCB );
 
     slicepostools_ = new uiSlicePos3DDisp( appserv().parent(), this );
 }
@@ -401,44 +380,45 @@ bool uiVisPartServer::disabToolBars( bool yn )
 
 bool uiVisPartServer::blockMouseSelection( bool yn )
 {
-    if ( scenes_.isEmpty() ) return false;
+    if ( scenes_.isEmpty() )
+	return false;
 
-    const bool res = scenes_[0]->blockMouseSelection( yn );
-    for ( int idx=1; idx<scenes_.size(); idx++ )
+    const bool res = scenes_.first()->blockMouseSelection( yn );
+    for ( int idx=1; idx<nrScenes(); idx++ )
 	scenes_[idx]->blockMouseSelection( yn );
 
     return res;
 }
 
 
-bool uiVisPartServer::showMenu( VisID id, int menutype,
+bool uiVisPartServer::showMenu( const VisID& id, int menutype,
 				const TypeSet<int>* path,
 				const Coord3& pickedpos )
 {
     if ( blockmenus_ )
 	return true;
 
-    menu_.setMenuID( id.asInt() );
-    menu_.setPickedPos( pickedpos );
-    return menu_.executeMenu( menutype, path );
+    menu_->setMenuID( id.asInt() );
+    menu_->setPickedPos( pickedpos );
+    return menu_->executeMenu( menutype, path );
 }
 
 
 MenuHandler* uiVisPartServer::getMenuHandler()
 {
-    return &menu_;
+    return menu_.ptr();
 }
 
 
 MenuHandler* uiVisPartServer::getToolBarHandler()
 {
-    return toolbar_;
+    return toolbar_.ptr();
 }
 
 
-void uiVisPartServer::shareObject( SceneID sceneid, VisID id )
+void uiVisPartServer::shareObject( const SceneID& sceneid, const VisID& id )
 {
-    visSurvey::Scene* scene = getScene( sceneid );
+    RefMan<visSurvey::Scene> scene = getScene( sceneid );
     if ( !scene ) return;
 
     mDynamicCastGet(visBase::DataObject*,dobj,visBase::DM().getObject(id))
@@ -458,15 +438,16 @@ void uiVisPartServer::triggerTreeUpdate()
 }
 
 
-void uiVisPartServer::findObject( const std::type_info& ti, TypeSet<VisID>& res)
+void uiVisPartServer::findObject( const std::type_info& ti,
+				  TypeSet<VisID>& res) const
 {
     visBase::DM().getIDs( ti, res );
 }
 
 
-void uiVisPartServer::findObject( const MultiID& mid, TypeSet<VisID>& res )
+void uiVisPartServer::findObject( const MultiID& mid,
+				  TypeSet<VisID>& res ) const
 {
-    res.erase();
     if ( mid.isUdf() )
 	return;
 
@@ -474,7 +455,6 @@ void uiVisPartServer::findObject( const MultiID& mid, TypeSet<VisID>& res )
     {
 	const visBase::DataObject* datobj = visBase::DM().getIndexedObject(idx);
 	mDynamicCastGet( const visSurvey::SurveyObject*, survobj, datobj );
-
 	if ( survobj && mid==survobj->getMultiID() )
 	    res += datobj->id();
     }
@@ -487,18 +467,18 @@ VisID uiVisPartServer::highestID() const
 }
 
 
-visBase::DataObject* uiVisPartServer::getObject( VisID id ) const
+visBase::DataObject* uiVisPartServer::getObject( const VisID& id ) const
 {
     mDynamicCastGet(visBase::DataObject*,dobj,visBase::DM().getObject(id))
     return dobj;
 }
 
 
-void uiVisPartServer::addObject( visBase::DataObject* dobj, SceneID sceneid,
-				 bool saveinsessions )
+void uiVisPartServer::addObject( visBase::DataObject* dobj,
+				 const SceneID& sceneid, bool saveinsessions )
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid));
-    if ( !scene || !dobj )
+    RefMan<visSurvey::Scene> scene = getScene( sceneid );
+    if ( !scene )
 	return;
 
     scene->addObject( dobj );
@@ -511,7 +491,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, SceneID sceneid,
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
     {
-	const int typesetidx = scenes_.indexOf(scene);
+	const int typesetidx = scenes_.indexOf( scene );
 	if ( displayids_.validIdx(typesetidx) )
 	    displayids_[typesetidx] += dobj->id();
 
@@ -520,7 +500,8 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, SceneID sceneid,
 }
 
 
-void uiVisPartServer::removeObject( visBase::DataObject* dobj, SceneID sceneid )
+void uiVisPartServer::removeObject( visBase::DataObject* dobj,
+				    const SceneID& sceneid )
 {
     if ( !dobj )
 	return;
@@ -536,7 +517,7 @@ NotifierAccess& uiVisPartServer::removeAllNotifier()
 }
 
 
-MultiID uiVisPartServer::getMultiID( VisID id ) const
+MultiID uiVisPartServer::getMultiID( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getMultiID() : MultiID::udf();
@@ -554,7 +535,7 @@ int uiVisPartServer::getSelAttribNr() const
 { return selattrib_; }
 
 
-void uiVisPartServer::setSelObjectId( VisID id, int attrib )
+void uiVisPartServer::setSelObjectId( const VisID& id, int attrib )
 {
     visBase::DM().selMan().select( id );
     if ( !id.isValid() )
@@ -581,63 +562,56 @@ void uiVisPartServer::setSelObjectId( VisID id, int attrib )
 }
 
 
-SceneID uiVisPartServer::getSceneID( VisID visid ) const
+SceneID uiVisPartServer::getSceneID( const VisID& visid ) const
 {
-    TypeSet<SceneID> sceneids;
-    getSceneIds( sceneids );
-    for ( int idx=0; idx<sceneids.size(); idx++ )
+    for ( const auto* scene : scenes_ )
     {
 	TypeSet<VisID> childids;
-	getChildIds( sceneids[idx], childids );
+	getSceneChildIds( scene->getID(), childids );
 	if ( childids.isPresent(visid) )
-	    return sceneids[idx];
+	    return scene->getID();
     }
 
     return SceneID::udf();
 }
 
 
-const ZDomain::Info* uiVisPartServer::zDomainInfo( SceneID sceneid ) const
+const ZDomain::Info* uiVisPartServer::zDomainInfo( const SceneID& sceneid) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? &scene->zDomainInfo() : 0;
+    return scene ? &scene->zDomainInfo() : nullptr;
 }
 
 
 void uiVisPartServer::getSceneIds( TypeSet<SceneID>& sceneids ) const
 {
-    getChildIds( VisID(-1), sceneids );
+    for ( const auto* scene : scenes_ )
+	sceneids += scene->getID();
 }
 
 
-void uiVisPartServer::getChildIds( VisID id, TypeSet<VisID>& childids ) const
+void uiVisPartServer::getSceneChildIds( const SceneID& sceneid,
+					TypeSet<VisID>& childids ) const
 {
-    childids.erase();
-
-    if ( id.asInt()==-1 ) // id==-1 means scene ids are requested
-    {
-	for ( int idx=0; idx<scenes_.size(); idx++ )
-	    childids += scenes_[idx]->id();
-
+    ConstRefMan<visSurvey::Scene> scene = getScene( sceneid );
+    if ( !scene )
 	return;
-    }
 
-    const visSurvey::Scene* scene = getScene( id );
-    if ( scene )
-    {
-	for ( int idx=0; idx<scene->size(); idx++ )
-	    childids += scene->getObject( idx )->id();
+    for ( int idx=0; idx<scene->size(); idx++ )
+	childids += scene->getObject( idx )->id();
+}
 
-	return;
-    }
 
+void uiVisPartServer::getVisChildIds( const VisID& id,
+				      TypeSet<VisID>& childids ) const
+{
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( so ) so->getChildren( childids );
 }
 
 
 uiVisPartServer::AttribFormat
-    uiVisPartServer::getAttributeFormat( VisID id, int attrib ) const
+    uiVisPartServer::getAttributeFormat( const VisID& id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( !so ) return None;
@@ -655,35 +629,35 @@ uiVisPartServer::AttribFormat
 }
 
 
-bool uiVisPartServer::canHaveMultipleAttribs( VisID id ) const
+bool uiVisPartServer::canHaveMultipleAttribs( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->canHaveMultipleAttribs() : false;
 }
 
 
-bool uiVisPartServer::canAddAttrib( VisID id, int nr ) const
+bool uiVisPartServer::canAddAttrib( const VisID& id, int nr ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->canAddAttrib(nr) : false;
 }
 
 
-bool uiVisPartServer::canRemoveAttrib( VisID id ) const
+bool uiVisPartServer::canRemoveAttrib( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->canRemoveAttrib() : false;
 }
 
 
-bool uiVisPartServer::canRemoveDisplay( VisID id ) const
+bool uiVisPartServer::canRemoveDisplay( const VisID& id ) const
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     return so ? so->canBeRemoved() : false;
 }
 
 
-int uiVisPartServer::addAttrib( VisID id )
+int uiVisPartServer::addAttrib( const VisID& id )
 {
     if ( !canHaveMultipleAttribs(id) )
 	return -1;
@@ -695,7 +669,7 @@ int uiVisPartServer::addAttrib( VisID id )
 }
 
 
-void uiVisPartServer::removeAttrib( VisID id, int attrib )
+void uiVisPartServer::removeAttrib( const VisID& id, int attrib )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
@@ -704,7 +678,7 @@ void uiVisPartServer::removeAttrib( VisID id, int attrib )
     selattrib_ = -1;
 }
 
-int uiVisPartServer::getNrAttribs( VisID id ) const
+int uiVisPartServer::getNrAttribs( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return 0;
@@ -713,8 +687,8 @@ int uiVisPartServer::getNrAttribs( VisID id ) const
 }
 
 
-void uiVisPartServer::getAttribPosName(VisID id, int attrib,
-				       uiString& res ) const
+void uiVisPartServer::getAttribPosName( const VisID& id, int attrib,
+					uiString& res ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
@@ -723,7 +697,7 @@ void uiVisPartServer::getAttribPosName(VisID id, int attrib,
 }
 
 
-bool uiVisPartServer::swapAttribs( VisID id, int attrib0, int attrib1 )
+bool uiVisPartServer::swapAttribs( const VisID& id, int attrib0, int attrib1 )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return false;
@@ -732,7 +706,7 @@ bool uiVisPartServer::swapAttribs( VisID id, int attrib0, int attrib1 )
 }
 
 
-void uiVisPartServer::showAttribTransparencyDlg( VisID id, int attrib )
+void uiVisPartServer::showAttribTransparencyDlg( const VisID& id, int attrib )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
@@ -742,7 +716,8 @@ void uiVisPartServer::showAttribTransparencyDlg( VisID id, int attrib )
 }
 
 
-unsigned char uiVisPartServer::getAttribTransparency( VisID id,int attrib) const
+unsigned char uiVisPartServer::getAttribTransparency( const VisID& id,
+						      int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return 0;
@@ -751,7 +726,7 @@ unsigned char uiVisPartServer::getAttribTransparency( VisID id,int attrib) const
 }
 
 
-void uiVisPartServer::setAttribTransparency( VisID id, int attrib,
+void uiVisPartServer::setAttribTransparency( const VisID& id, int attrib,
 					     unsigned char nv )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -760,7 +735,7 @@ void uiVisPartServer::setAttribTransparency( VisID id, int attrib,
 }
 
 
-TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( VisID id,
+TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( const VisID& id,
 						     int attribid ) const
 {
     TrcKeyZSampling res;
@@ -770,14 +745,15 @@ TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( VisID id,
 }
 
 
-DataPackID uiVisPartServer::getDataPackID( VisID id, int attrib ) const
+DataPackID uiVisPartServer::getDataPackID( const VisID& id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getDataPackID( attrib ) : DataPackID::udf();
 }
 
 
-DataPackID uiVisPartServer::getDisplayedDataPackID( VisID id, int attrib)const
+DataPackID uiVisPartServer::getDisplayedDataPackID( const VisID& id,
+						    int attrib )const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getDisplayedDataPackID( attrib ) :
@@ -785,14 +761,14 @@ DataPackID uiVisPartServer::getDisplayedDataPackID( VisID id, int attrib)const
 }
 
 
-DataPackMgr::MgrID uiVisPartServer::getDataPackMgrID( VisID id ) const
+DataPackMgr::MgrID uiVisPartServer::getDataPackMgrID( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getDataPackMgrID() : DataPack::MgrID::udf();
 }
 
 
-int uiVisPartServer::currentVersion( VisID id, int attrib ) const
+int uiVisPartServer::currentVersion( const VisID& id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( !so || !so->getChannels() ) return -1;
@@ -800,7 +776,8 @@ int uiVisPartServer::currentVersion( VisID id, int attrib ) const
 }
 
 
-bool uiVisPartServer::setDataPackID( VisID id, int attrib, DataPackID dpid )
+bool uiVisPartServer::setDataPackID( const VisID& id, int attrib,
+				     const DataPackID& dpid )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so )
@@ -810,34 +787,42 @@ bool uiVisPartServer::setDataPackID( VisID id, int attrib, DataPackID dpid )
     const bool res = so->setDataPackID( attrib, dpid, &taskrunner );
 
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
-	multirgeditwin_->setDataPackID(
-		attrib, dpid, so->selectedTexture(attrib) );
+	multirgeditwin_->setDataPackID( attrib, dpid,
+					so->selectedTexture(attrib) );
 
     return res;
 }
 
 
-const RegularSeisDataPack* uiVisPartServer::getCachedData(
-						    VisID id, int attrib ) const
-{
-    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getCacheVolume( attrib ) : 0;
-}
-
-
-bool uiVisPartServer::setCubeData( VisID id, int attrib,
-				   const RegularSeisDataPack* attribdata )
+bool uiVisPartServer::setSeisDataPack( const VisID& id, int attrib,
+				       RegularSeisDataPack* attribdata )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so )
 	return false;
 
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-    return so->setDataVolume( attrib, attribdata, 0 );
+    uiTaskRunner taskrunner( appserv().parent() );
+    const bool res = so->setSeisDataPack( attrib, attribdata, &taskrunner );
+
+    const DataPackID dpid = attribdata ? attribdata->id() : DataPack::cNoID();
+    //TODO: add to DPM() ?
+    if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
+	multirgeditwin_->setDataPackID( attrib, dpid,
+					so->selectedTexture(attrib) );
+
+    return res;
 }
 
 
-bool uiVisPartServer::canHaveMultipleTextures(VisID id) const
+ConstRefMan<RegularSeisDataPack> uiVisPartServer::getSeisDataPack(
+					    const VisID& id, int attrib ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getSeisDataPack( attrib ) : nullptr;
+}
+
+
+bool uiVisPartServer::canHaveMultipleTextures( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) return so->canHaveMultipleTextures();
@@ -845,7 +830,7 @@ bool uiVisPartServer::canHaveMultipleTextures(VisID id) const
 }
 
 
-int uiVisPartServer::nrTextures( VisID id, int attrib ) const
+int uiVisPartServer::nrTextures( const VisID& id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) return so->nrTextures( attrib );
@@ -853,7 +838,8 @@ int uiVisPartServer::nrTextures( VisID id, int attrib ) const
 }
 
 
-void uiVisPartServer::selectTexture( VisID id, int attrib, int textureidx )
+void uiVisPartServer::selectTexture( const VisID& id, int attrib,
+				     int textureidx )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -862,28 +848,28 @@ void uiVisPartServer::selectTexture( VisID id, int attrib, int textureidx )
 }
 
 
-void uiVisPartServer::setTranslation( VisID id, const Coord3& shift )
+void uiVisPartServer::setTranslation( const VisID& id, const Coord3& shift )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->setTranslation( shift );
 }
 
 
-Coord3 uiVisPartServer::getTranslation( VisID id ) const
+Coord3 uiVisPartServer::getTranslation( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getTranslation() : Coord3(0,0,0);
 }
 
 
-int uiVisPartServer::selectedTexture( VisID id, int attrib ) const
+int uiVisPartServer::selectedTexture( const VisID& id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->selectedTexture( attrib ) : 0;
 }
 
 
-void uiVisPartServer::getRandomPos( VisID id, DataPointSet& dtps ) const
+void uiVisPartServer::getRandomPos( const VisID& id, DataPointSet& dtps ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -894,7 +880,7 @@ void uiVisPartServer::getRandomPos( VisID id, DataPointSet& dtps ) const
 }
 
 
-void uiVisPartServer::getRandomPosCache( VisID id, int attrib,
+void uiVisPartServer::getRandomPosCache( const VisID& id, int attrib,
 					 DataPointSet& dtps ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
@@ -903,7 +889,7 @@ void uiVisPartServer::getRandomPosCache( VisID id, int attrib,
 }
 
 
-void uiVisPartServer::setRandomPosData( VisID id, int attrib,
+void uiVisPartServer::setRandomPosData( const VisID& id, int attrib,
 					const DataPointSet* dtps )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
@@ -915,7 +901,8 @@ void uiVisPartServer::setRandomPosData( VisID id, int attrib,
 }
 
 
-void uiVisPartServer::getDataTraceBids( VisID id, TypeSet<BinID>& bids ) const
+void uiVisPartServer::getDataTraceBids( const VisID& id,
+					TypeSet<BinID>& bids ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
@@ -923,7 +910,7 @@ void uiVisPartServer::getDataTraceBids( VisID id, TypeSet<BinID>& bids ) const
 }
 
 
-Interval<float> uiVisPartServer::getDataTraceRange( VisID id ) const
+Interval<float> uiVisPartServer::getDataTraceRange( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getDataTraceRange() : Interval<float>(0,0);
@@ -938,14 +925,14 @@ BufferString uiVisPartServer::getMousePosVal() const
 { return mouseposval_; }
 
 
-uiString uiVisPartServer::getInteractionMsg( VisID id ) const
+uiString uiVisPartServer::getInteractionMsg( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getManipulationString() : uiString::empty();
 }
 
 
-void uiVisPartServer::getObjectInfo( VisID id, uiString& info ) const
+void uiVisPartServer::getObjectInfo( const VisID& id, uiString& info ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( so )
@@ -954,15 +941,15 @@ void uiVisPartServer::getObjectInfo( VisID id, uiString& info ) const
 
 
 const ColTab::MapperSetup*
-    uiVisPartServer::getColTabMapperSetup( VisID id, int attrib,
+    uiVisPartServer::getColTabMapperSetup( const VisID& id, int attrib,
 					   int version ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getColTabMapperSetup( attrib, version ) : 0;
+    return so ? so->getColTabMapperSetup( attrib, version ) : nullptr;
 }
 
 
-void uiVisPartServer::setColTabMapperSetup( VisID id, int attrib,
+void uiVisPartServer::setColTabMapperSetup( const VisID& id, int attrib,
 					    const ColTab::MapperSetup& ms )
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
@@ -983,28 +970,29 @@ void uiVisPartServer::setColTabMapperSetup( VisID id, int attrib,
 
 
 const ColTab::Sequence*
-    uiVisPartServer::getColTabSequence( VisID id, int attrib ) const
+    uiVisPartServer::getColTabSequence( const VisID& id, int attrib ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
-    return so ? so->getColTabSequence( attrib ) : 0;
+    return so ? so->getColTabSequence( attrib ) : nullptr;
 }
 
 
-bool uiVisPartServer::canHandleColTabSeqTrans( VisID id, int attrib ) const
+bool uiVisPartServer::canHandleColTabSeqTrans( const VisID& id,
+					       int attrib ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
     return so ? so-> canHandleColTabSeqTrans( attrib ) : false;
 }
 
 
-bool uiVisPartServer::canSetColTabSequence( VisID id ) const
+bool uiVisPartServer::canSetColTabSequence( const VisID& id ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->canSetColTabSequence() : false;
 }
 
 
-void uiVisPartServer::setColTabSequence( VisID id, int attrib,
+void uiVisPartServer::setColTabSequence( const VisID& id, int attrib,
 					 const ColTab::Sequence& seq )
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
@@ -1024,7 +1012,7 @@ void uiVisPartServer::setColTabSequence( VisID id, int attrib,
 }
 
 
-void uiVisPartServer::fillDispPars( VisID id, int attrib,
+void uiVisPartServer::fillDispPars( const VisID& id, int attrib,
 				    FlatView::DataDispPars& common,
 				    bool wva ) const
 {
@@ -1033,7 +1021,7 @@ void uiVisPartServer::fillDispPars( VisID id, int attrib,
 }
 
 
-void uiVisPartServer::fillDispPars( VisID id, int attrib,
+void uiVisPartServer::fillDispPars( const VisID& id, int attrib,
 				    FlatView::DataDispPars& common,
 				    FlatView::Viewer::VwrDest dest ) const
 {
@@ -1063,10 +1051,11 @@ void uiVisPartServer::fillDispPars( VisID id, int attrib,
 }
 
 
-const TypeSet<float>* uiVisPartServer::getHistogram( VisID id, int attrib) const
+const TypeSet<float>* uiVisPartServer::getHistogram( const VisID& id,
+						     int attrib) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*, so, getObject(id) );
-    return so ? so->getHistogram( attrib ) : 0;
+    return so ? so->getHistogram( attrib ) : nullptr;
 }
 
 
@@ -1078,29 +1067,30 @@ int uiVisPartServer::getEventAttrib() const
 { return eventattrib_; }
 
 
-const TypeSet<Attrib::SelSpec>* uiVisPartServer::getSelSpecs(
-						VisID id, int attrib ) const
+const TypeSet<Attrib::SelSpec>* uiVisPartServer::getSelSpecs( const VisID& id,
+							      int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getSelSpecs( attrib ) : 0;
+    return so ? so->getSelSpecs( attrib ) : nullptr;
 }
 
 
-const Attrib::SelSpec* uiVisPartServer::getSelSpec( VisID id, int attrib ) const
+const Attrib::SelSpec* uiVisPartServer::getSelSpec( const VisID& id,
+						    int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getSelSpec(attrib,selectedTexture(id,attrib)) : 0;
+    return so ? so->getSelSpec(attrib,selectedTexture(id,attrib)) : nullptr;
 }
 
 
-bool uiVisPartServer::interpolationEnabled( VisID id ) const
+bool uiVisPartServer::interpolationEnabled( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->textureInterpolationEnabled() : true;
 }
 
 
-void uiVisPartServer::enableInterpolation( VisID id, bool yn )
+void uiVisPartServer::enableInterpolation( const VisID& id, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
@@ -1109,14 +1099,14 @@ void uiVisPartServer::enableInterpolation( VisID id, bool yn )
 }
 
 
-bool uiVisPartServer::isAngle( VisID id, int attrib ) const
+bool uiVisPartServer::isAngle( const VisID& id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->isAngle( attrib ) : false;
 }
 
 
-void uiVisPartServer::setAngleFlag( VisID id, int attrib, bool yn )
+void uiVisPartServer::setAngleFlag( const VisID& id, int attrib, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return;
@@ -1125,33 +1115,28 @@ void uiVisPartServer::setAngleFlag( VisID id, int attrib, bool yn )
 }
 
 
-bool uiVisPartServer::isAttribEnabled( VisID id, int attrib ) const
+bool uiVisPartServer::isAttribEnabled( const VisID& id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->isAttribEnabled( attrib ) : false;
 }
 
 
-void uiVisPartServer::triggerObjectMoved( VisID id )
+void uiVisPartServer::triggerObjectMoved( const VisID& id )
 {
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     if ( !dobj )
 	return;
 
-    TypeSet<SceneID> sceneids;
-    getSceneIds( sceneids );
-    for ( int idx=0; idx<sceneids.size(); idx++ )
+    for ( auto* scene : scenes_ )
     {
-	visSurvey::Scene* scene =
-	    (visSurvey::Scene*) visBase::DM().getObject( sceneids[idx] );
-
 	if ( scene )
 	    scene->objectMoved( dobj );
     }
 }
 
 
-void uiVisPartServer::enableAttrib( VisID id, int attrib, bool yn )
+void uiVisPartServer::enableAttrib( const VisID& id, int attrib, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
@@ -1165,7 +1150,7 @@ void uiVisPartServer::enableAttrib( VisID id, int attrib, bool yn )
 }
 
 
-bool uiVisPartServer::hasSingleColorFallback( VisID id ) const
+bool uiVisPartServer::hasSingleColorFallback( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->hasSingleColorFallback() : false;
@@ -1176,8 +1161,9 @@ bool uiVisPartServer::deleteAllObjects()
 {
     mpetools_->deleteVisObjects();
 
-    while ( scenes_.size() )
-	removeScene( scenes_[0]->id() );
+    NotifyStopper ns( nrscenesChange );
+    while ( !scenes_.isEmpty() )
+	removeScene( scenes_.first()->getID() );
 
     objectRemoved.trigger( VisID::udf() );
     if ( multirgeditwin_ )
@@ -1187,8 +1173,7 @@ bool uiVisPartServer::deleteAllObjects()
     }
 
     closeAndNullPtr( topbotdlg_ );
-
-    scenes_.erase();
+    ns.enableNotification();
     nrscenesChange.trigger();
     return true; //visBase::DM().removeAll();
 }
@@ -1196,7 +1181,9 @@ bool uiVisPartServer::deleteAllObjects()
 
 void uiVisPartServer::setViewMode( bool yn, bool notify)
 {
-    if ( yn==viewmode_ ) return;
+    if ( yn==viewmode_ )
+	return;
+
     viewmode_ = yn;
     workmode_ = viewmode_ ? uiVisPartServer::View
 			  : uiVisPartServer::Interactive;
@@ -1236,7 +1223,7 @@ bool uiVisPartServer::isSoloMode() const { return issolomode_; }
 
 
 void uiVisPartServer::setSoloMode( bool yn, TypeSet< TypeSet<VisID> > dispids,
-				   VisID selid )
+				   const VisID& selid )
 {
     issolomode_ = yn;
     displayids_ = dispids;
@@ -1247,18 +1234,15 @@ void uiVisPartServer::setSoloMode( bool yn, TypeSet< TypeSet<VisID> > dispids,
 void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
 {
     if ( isSelectionModeOn() && mode==Polygon )
-	seltype_ = (int) visBase::PolygonSelection::Polygon;
+	seltype_ = visBase::PolygonSelection::Polygon;
     if ( isSelectionModeOn() && mode==Rectangle )
-	seltype_ = (int) visBase::PolygonSelection::Rectangle;
+	seltype_ = visBase::PolygonSelection::Rectangle;
 
-    for ( int sceneidx=0; sceneidx<scenes_.size(); sceneidx++ )
+    for ( int sceneidx=0; sceneidx<nrScenes(); sceneidx++ )
     {
-	visSurvey::Scene* scene = scenes_[sceneidx];
+	RefMan<visSurvey::Scene> scene = scenes_[sceneidx];
 	if ( scene->getPolySelection() )
-	{
-	    scene->getPolySelection()->setSelectionType(
-	    (visBase::PolygonSelection::SelectionType) seltype_ );
-	}
+	    scene->getPolySelection()->setSelectionType( seltype_ );
 
 	if ( getSelObjectId().isValid() )
 	{
@@ -1285,8 +1269,8 @@ void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
 
 void uiVisPartServer::turnSelectionModeOn( bool yn )
 {
-    seltype_ = !yn ? (int) visBase::PolygonSelection::Off
-		   : (int) visBase::PolygonSelection::Rectangle; // Dummy
+    seltype_ = !yn ? visBase::PolygonSelection::Off
+		   : visBase::PolygonSelection::Rectangle; // Dummy
 
     setSelectionMode( selectionmode_ );
     updateDraggers();
@@ -1308,21 +1292,19 @@ uiVisPartServer::SelectionMode uiVisPartServer::getSelectionMode() const
 
 bool uiVisPartServer::isSelectionModeOn() const
 {
-    return seltype_ != (int) visBase::PolygonSelection::Off;
+    return seltype_ != visBase::PolygonSelection::Off;
 }
 
 
 const Selector<Coord3>*
-	uiVisPartServer::getCoordSelector( SceneID sceneid ) const
+	uiVisPartServer::getCoordSelector( const SceneID& sceneid ) const
 {
-    const visSurvey::Scene* scene = getScene( sceneid );
-    if ( !scene ) return 0;
-
-    return scene->getSelector();
+    ConstRefMan<visSurvey::Scene> scene = getScene( sceneid );
+    return scene ? scene->getSelector() : nullptr;
 }
 
 
-int uiVisPartServer::getTypeSetIdx( VisID selid )
+int uiVisPartServer::getTypeSetIdx( const VisID& selid )
 {
     int typesetidx=0;
     bool found = false;
@@ -1345,7 +1327,8 @@ int uiVisPartServer::getTypeSetIdx( VisID selid )
 }
 
 
-void uiVisPartServer::updateDisplay( bool doclean, VisID selid, VisID refid )
+void uiVisPartServer::updateDisplay( bool doclean, const VisID& selid,
+				     const VisID& refid )
 {
     int typesetidx;
     typesetidx = getTypeSetIdx( selid.isValid() ? selid : refid );
@@ -1381,11 +1364,14 @@ void uiVisPartServer::updateDisplay( bool doclean, VisID selid, VisID refid )
 }
 
 
-void uiVisPartServer::setTopBotImg( SceneID sceneid )
+void uiVisPartServer::setTopBotImg( const SceneID& sceneid )
 {
+    RefMan<visSurvey::Scene> scene = getScene( sceneid );
+    if ( !scene )
+	return;
+
     delete topbotdlg_;
-    topbotdlg_ = new uiSurvTopBotImageDlg( appserv().parent(),
-							  getScene(sceneid) );
+    topbotdlg_ = new uiSurvTopBotImageDlg( appserv().parent(), *scene.ptr() );
     topbotdlg_->setModal( false );
     topbotdlg_->show();
 }
@@ -1394,14 +1380,12 @@ void uiVisPartServer::setTopBotImg( SceneID sceneid )
 void uiVisPartServer::updateDraggers()
 {
     const TypeSet<VisID>& selected = visBase::DM().selMan().selected();
-
-    for ( int sceneidx=0; sceneidx<scenes_.size(); sceneidx++ )
+    for ( int sceneidx=0; sceneidx<nrScenes(); sceneidx++ )
     {
-	visSurvey::Scene* scene = scenes_[sceneidx];
-
+	RefMan<visSurvey::Scene> scene = scenes_[sceneidx];
 	scene->enableTraversal( visBase::cDraggerIntersecTraversalMask(),
 				scene->isPickable() &&
-				seltype_==(int)visBase::PolygonSelection::Off );
+				seltype_ == visBase::PolygonSelection::Off );
 
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
@@ -1415,14 +1399,15 @@ void uiVisPartServer::updateDraggers()
 
 void uiVisPartServer::setZStretch()
 {
-    uiZStretchDlg dlg( appserv().parent() );
+    uiZStretchDlg dlg( appserv().parent(), this );
     dlg.vwallcb = mCB(this,uiVisPartServer,vwAll);
     dlg.homecb = mCB(this,uiVisPartServer,toHome);
     dlg.go();
 }
 
 
-void uiVisPartServer::setZAxisTransform( SceneID sceneid, ZAxisTransform* zat,
+void uiVisPartServer::setZAxisTransform( const SceneID& sceneid,
+					 ZAxisTransform* zat,
 					 TaskRunner* taskrunner )
 {
     visSurvey::Scene* scene = getScene( sceneid );
@@ -1431,17 +1416,18 @@ void uiVisPartServer::setZAxisTransform( SceneID sceneid, ZAxisTransform* zat,
 }
 
 
-const ZAxisTransform* uiVisPartServer::getZAxisTransform( SceneID sceneid) const
+const ZAxisTransform* uiVisPartServer::getZAxisTransform(
+						const SceneID& sceneid) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? scene->getZAxisTransform() : 0;
+    return scene ? scene->getZAxisTransform() : nullptr;
 }
 
 
-visBase::EventCatcher* uiVisPartServer::getEventCatcher( SceneID sceneid )
+visBase::EventCatcher* uiVisPartServer::getEventCatcher( const SceneID& sceneid)
 {
     visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? &scene->eventCatcher() : 0;
+    return scene ? &scene->eventCatcher() : nullptr;
 }
 
 // Directional light-related
@@ -1480,14 +1466,8 @@ bool uiVisPartServer::setWorkingArea( const TrcKeyZSampling& newworkarea )
     dlg.getSampling( tkzs );
     const_cast<SurveyInfo&>(SI()).setWorkRange( tkzs );
 
-    TypeSet<SceneID> sceneids;
-    getSceneIds( sceneids );
-
-    for ( int ids=0; ids<sceneids.size(); ids++ )
+    for ( auto* scene : scenes_ )
     {
-	SceneID sceneid = sceneids[ids];
-	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
-	mDynamicCastGet(visSurvey::Scene*,scene,obj)
 	if ( scene && scene->zDomainInfo().def_==ZDomain::SI() )
 	    scene->setTrcKeyZSampling( SI().sampling(true), true );
     }
@@ -1496,10 +1476,9 @@ bool uiVisPartServer::setWorkingArea( const TrcKeyZSampling& newworkarea )
 }
 
 
-bool uiVisPartServer::setWorkingArea( SceneID sceneid )
+bool uiVisPartServer::setWorkingArea( const SceneID& sceneid )
 {
-    visBase::DataObject* obj = visBase::DM().getObject( sceneid );
-    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    RefMan<visSurvey::Scene> scene = getScene( sceneid );
     if ( !scene )
 	return false;
 
@@ -1523,14 +1502,14 @@ bool uiVisPartServer::setWorkingArea( SceneID sceneid )
 }
 
 
-void uiVisPartServer::setOnlyAtSectionsDisplay( VisID id, bool yn )
+void uiVisPartServer::setOnlyAtSectionsDisplay( const VisID& id, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( so ) so->setOnlyAtSectionsDisplay( yn );
 }
 
 
-bool uiVisPartServer::displayedOnlyAtSections( VisID id ) const
+bool uiVisPartServer::displayedOnlyAtSections( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     return so && so->displayedOnlyAtSections();
@@ -1570,27 +1549,27 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	BufferString key( sceneprefix(), idx );
 	SceneID sceneid;
 	BufferString scenekey = sceneidpar.compKey( key.buf(),sKeySceneID() );
-	if ( !par.get( scenekey, sceneid ) )
+	if ( !par.get(scenekey,sceneid) )
 	    continue;
 
-	if ( visBase::DM().getObject( sceneid ) )
+	const VisID scenevisid( sceneid.asInt() );
+	if ( visBase::DM().getObject(scenevisid) )
 	    continue;
 
 	RefMan<visSurvey::Scene> newscene = visSurvey::Scene::create();
-	newscene->setID( sceneid );
+	newscene->setID( VisID( sceneid.asInt() ) );
 	addScene( newscene );
 
-	IOPar* scenepar = par.subselect( key.buf() );
+	PtrMan<IOPar> scenepar = par.subselect( key.buf() );
 	if ( !scenepar )
 	    continue;
-	newscene->usePar( *scenepar );
 
+	newscene->usePar( *scenepar );
 	for ( int objidx=0; objidx<newscene->size(); objidx++ )
 	{
 	    const VisID objid = newscene->getObject(objidx)->id();
 	    setUpConnections( objid );
 	}
-
     }
 
     objectAdded.trigger( VisID::udf() );
@@ -1601,8 +1580,8 @@ bool uiVisPartServer::usePar( const IOPar& par )
 }
 
 
-void uiVisPartServer::movePlaneAndCalcAttribs( VisID id,
-	const TrcKeyZSampling& tkzs )
+void uiVisPartServer::movePlaneAndCalcAttribs( const VisID& id,
+					       const TrcKeyZSampling& tkzs )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,getObject(id))
     if ( !pdd ) return;
@@ -1620,20 +1599,17 @@ void uiVisPartServer::movePlaneAndCalcAttribs( VisID id,
 
 void uiVisPartServer::calculateAllAttribs()
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( const auto* scene : scenes_ )
     {
 	TypeSet<VisID> children;
-	getChildIds( scenes_[idx]->id(), children );
-	for ( int idy=0; idy<children.size(); idy++ )
-	{
-	    const VisID childid = children[idy];
+	getSceneChildIds( scene->getID(), children );
+	for ( const auto& childid : children )
 	    calculateAllAttribs( childid );
-	}
     }
 }
 
 
-void uiVisPartServer::calculateAllAttribs( VisID id )
+void uiVisPartServer::calculateAllAttribs( const VisID& id )
 {
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
@@ -1648,7 +1624,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 {
     visBase::DM().fillPar( par );
 
-    par.set( sKeyNumberScenes(), scenes_.size() );
+    par.set( sKeyNumberScenes(), nrScenes() );
     const TrcKeyZSampling& cs = SI().sampling( true );
     FileMultiString fms;
     fms += cs.hsamp_.start_.inl();
@@ -1664,7 +1640,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 	     sCast(float,slicepostools_->getStep(OD::SliceType::Crossline)),
 	     slicepostools_->getZStep() );
 
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( int idx=0; idx<nrScenes(); idx++ )
     {
 	IOPar scenepar;
 	BufferString key( sceneprefix(), idx );
@@ -1675,7 +1651,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
 }
 
 
-void uiVisPartServer::turnOn( VisID id, bool yn, bool doclean )
+void uiVisPartServer::turnOn( const VisID& id, bool yn, bool doclean )
 {
     if ( !vismgr_->allowTurnOn(id,doclean) )
 	yn = false;
@@ -1689,7 +1665,7 @@ void uiVisPartServer::turnOn( VisID id, bool yn, bool doclean )
 }
 
 
-bool uiVisPartServer::isOn( VisID id ) const
+bool uiVisPartServer::isOn( const VisID& id ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(const visBase::VisualObject*,vo,dobj)
@@ -1697,14 +1673,14 @@ bool uiVisPartServer::isOn( VisID id ) const
 }
 
 
-bool uiVisPartServer::canDuplicate( VisID id ) const
+bool uiVisPartServer::canDuplicate( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so && so->canDuplicate();
 }
 
 
-VisID uiVisPartServer::duplicateObject( VisID id, SceneID sceneid )
+VisID uiVisPartServer::duplicateObject( const VisID& id, const SceneID& sceneid)
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return VisID::udf();
@@ -1776,32 +1752,29 @@ void uiVisPartServer::getPickingMessage( BufferString& str ) const
 }
 
 
-visSurvey::Scene* uiVisPartServer::getScene( SceneID sceneid )
+visSurvey::Scene* uiVisPartServer::getScene( const SceneID& sceneid )
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-    {
-	if ( scenes_[idx]->id()==sceneid )
-	{
-	    return scenes_[idx]; \
-	}
-    }
+    for ( auto* scene : scenes_ )
+	if ( scene->id() == sceneid )
+	    return scene;
 
-    return 0;
+    return nullptr;
 }
 
 
-const visSurvey::Scene* uiVisPartServer::getScene( SceneID sceneid ) const
+const visSurvey::Scene* uiVisPartServer::getScene( const SceneID& sceneid) const
 {
-    return const_cast<uiVisPartServer*>(this)->getScene( sceneid );
+    return mSelf().getScene( sceneid );
 }
 
 
-void uiVisPartServer::removeObject( VisID id, SceneID sceneid )
+void uiVisPartServer::removeObject( const VisID& id, const SceneID& sceneid )
 {
     removeConnections( id );
 
-    visSurvey::Scene* scene = getScene( sceneid );
-    if ( !scene ) return;
+    RefMan<visSurvey::Scene> scene = getScene( sceneid );
+    if ( !scene )
+	return;
 
     const int idx = scene->getFirstIdx( id );
     if ( idx!=-1 )
@@ -1839,14 +1812,14 @@ void uiVisPartServer::removeSelection()
 }
 
 
-bool uiVisPartServer::hasAttrib( VisID id ) const
+bool uiVisPartServer::hasAttrib( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so && so->getAttributeFormat() != visSurvey::SurveyObject::None;
 }
 
 
-bool uiVisPartServer::selectAttrib( VisID id, int attrib )
+bool uiVisPartServer::selectAttrib( const VisID& id, int attrib )
 {
     eventmutex_.lock();
     eventobjid_ = id;
@@ -1855,7 +1828,7 @@ bool uiVisPartServer::selectAttrib( VisID id, int attrib )
 }
 
 
-void uiVisPartServer::setSelSpec( VisID id, int attrib,
+void uiVisPartServer::setSelSpec( const VisID& id, int attrib,
 				  const Attrib::SelSpec& myattribspec )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -1863,7 +1836,7 @@ void uiVisPartServer::setSelSpec( VisID id, int attrib,
 }
 
 
-void uiVisPartServer::setSelSpecs( VisID id, int attrib,
+void uiVisPartServer::setSelSpecs( const VisID& id, int attrib,
 				   const TypeSet<Attrib::SelSpec>& selspecs)
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -1871,7 +1844,7 @@ void uiVisPartServer::setSelSpecs( VisID id, int attrib,
 }
 
 
-void uiVisPartServer::setUserRefs( VisID id, int attrib,
+void uiVisPartServer::setUserRefs( const VisID& id, int attrib,
 				   BufferStringSet* newuserrefs )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -1879,7 +1852,8 @@ void uiVisPartServer::setUserRefs( VisID id, int attrib,
 }
 
 
-bool uiVisPartServer::calculateAttrib( VisID id, int attrib, bool newselect,
+bool uiVisPartServer::calculateAttrib( const VisID& id, int attrib,
+				       bool newselect,
 				       bool ignorelocked )
 {
     if ( !ignorelocked && isLocked(id) )
@@ -1919,7 +1893,7 @@ bool uiVisPartServer::calculateAttrib( VisID id, int attrib, bool newselect,
 }
 
 
-bool uiVisPartServer::calcManipulatedAttribs( VisID id )
+bool uiVisPartServer::calcManipulatedAttribs( const VisID& id )
 {
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( !so || !so->isManipulated() || so->isLocked() )
@@ -1938,14 +1912,14 @@ bool uiVisPartServer::calcManipulatedAttribs( VisID id )
 }
 
 
-bool uiVisPartServer::hasMaterial( VisID id ) const
+bool uiVisPartServer::hasMaterial( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so && so->allowMaterialEdit();
 }
 
 
-void uiVisPartServer::setMaterial( VisID id )
+void uiVisPartServer::setMaterial( const VisID& id )
 {
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
     if ( !hasMaterial(id) || !vo ) return;
@@ -1956,14 +1930,14 @@ void uiVisPartServer::setMaterial( VisID id )
 }
 
 
-bool uiVisPartServer::hasColor( VisID id ) const
+bool uiVisPartServer::hasColor( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     return so && so->hasColor();
 }
 
 
-void uiVisPartServer::setColor( VisID id, const OD::Color& col )
+void uiVisPartServer::setColor( const VisID& id, const OD::Color& col )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     if ( so )
@@ -1971,21 +1945,21 @@ void uiVisPartServer::setColor( VisID id, const OD::Color& col )
 }
 
 
-bool uiVisPartServer::writeSceneToFile( VisID id,
+bool uiVisPartServer::writeSceneToFile( const SceneID& sceneid,
 					const uiString& dlgtitle ) const
 {
-    visBase::DataObject* obj = visBase::DM().getObject( id );
-    if ( !obj )
+    ConstRefMan<visSurvey::Scene> scene = getScene( sceneid );
+    if ( !scene )
 	return false;
 
     uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(),
 			"*.osg", dlgtitle );
     filedlg.setDefaultExtension( "osg" );
 
-    if ( !filedlg.go() )
+    if ( filedlg.go() != uiDialog::Accepted )
 	return false;
 
-    const bool res = obj->serialize( filedlg.fileName() );
+    const bool res = scene.getNonConstPtr()->serialize( filedlg.fileName() );
     if ( !res )
 	uiMSG().error( tr("Could not write scene to file.") );
 
@@ -1993,7 +1967,7 @@ bool uiVisPartServer::writeSceneToFile( VisID id,
 }
 
 
-bool uiVisPartServer::resetManipulation( VisID id )
+bool uiVisPartServer::resetManipulation( const VisID& id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->resetManipulation();
@@ -2008,26 +1982,26 @@ bool uiVisPartServer::resetManipulation( VisID id )
 }
 
 
-bool uiVisPartServer::isManipulated( VisID id ) const
+bool uiVisPartServer::isManipulated( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so && so->isManipulated();
 }
 
 
-void uiVisPartServer::acceptManipulation( VisID id )
+void uiVisPartServer::acceptManipulation( const VisID& id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->acceptManipulation();
 }
 
 
-void uiVisPartServer::setUpConnections( VisID id )
+void uiVisPartServer::setUpConnections( const VisID& id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
+    NotifierAccess* na = so ? so->getManipulationNotifier() : nullptr;
     if ( na ) na->notify( mCB(this,uiVisPartServer,interactionCB) );
-    na = so ? so->getLockNotifier() : 0;
+    na = so ? so->getLockNotifier() : nullptr;
     if ( na ) na->notify( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
@@ -2050,12 +2024,12 @@ void uiVisPartServer::setUpConnections( VisID id )
 }
 
 
-void uiVisPartServer::removeConnections( VisID id )
+void uiVisPartServer::removeConnections( const VisID& id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    NotifierAccess* na = so ? so->getManipulationNotifier() : 0;
+    NotifierAccess* na = so ? so->getManipulationNotifier() : nullptr;
     if ( na ) na->remove( mCB(this,uiVisPartServer,interactionCB) );
-    na = so ? so->getLockNotifier() : 0;
+    na = so ? so->getLockNotifier() : nullptr;
     if ( na ) na->remove( mCB(mpetools_,uiMPEMan,visObjectLockedCB) );
 
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
@@ -2176,22 +2150,23 @@ void uiVisPartServer::interactionCB( CallBacker* cb )
 
 
 void uiVisPartServer::setMarkerPos( const TrcKeyValue& worldpos,
-				    VisID dontsetscene )
+				    const SceneID& dontsetscene )
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
-	scenes_[idx]->setMarkerPos( worldpos, dontsetscene );
+    for ( auto* scene : scenes_ )
+	scene->setMarkerPos( worldpos, dontsetscene );
 }
 
 
 void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 {
     mDynamicCast(visSurvey::Scene*,sceneeventsrc_,cb)
-    if ( !sceneeventsrc_ ) return;
+    if ( !sceneeventsrc_ )
+	return;
 
     const TrcKeyValue worldpos = sceneeventsrc_->getMousePos();
 
     xytmousepos_ = sceneeventsrc_->getMousePos( true );
-    setMarkerPos( worldpos, sceneeventsrc_->id() );
+    setMarkerPos( worldpos, sceneeventsrc_->getID() );
 
     MouseCursorExchange::Info info( worldpos );
     mousecursorexchange_->notifier.trigger( info, this );
@@ -2201,14 +2176,15 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     mouseposstr_ = sceneeventsrc_->getMousePosString();
     zfactor_ = sceneeventsrc_->zDomainUserFactor();
     sendEvent( evMouseMove() );
-    sceneeventsrc_ = 0;
+    sceneeventsrc_ = nullptr;
 }
 
 
 void uiVisPartServer::keyEventCB( CallBacker* cb )
 {
     mDynamicCast(visSurvey::Scene*,sceneeventsrc_,cb)
-    if ( !sceneeventsrc_ ) return;
+    if ( !sceneeventsrc_ )
+	return;
 
     eventmutex_.lock();
     kbevent_ = sceneeventsrc_->getKeyboardEvent();
@@ -2221,20 +2197,21 @@ void uiVisPartServer::keyEventCB( CallBacker* cb )
 
     sendEvent( evKeyboardEvent() );
     keyEvent.trigger();
-    sceneeventsrc_ = 0;
+    sceneeventsrc_ = nullptr;
 }
 
 
 void uiVisPartServer::mouseEventCB( CallBacker* cb )
 {
     mDynamicCast(visSurvey::Scene*,sceneeventsrc_,cb)
-    if ( !sceneeventsrc_ ) return;
+    if ( !sceneeventsrc_ )
+	return;
 
     eventmutex_.lock();
     mouseevent_ = sceneeventsrc_->getMouseEvent();
     sendEvent( evMouseEvent() );
     mouseEvent.trigger();
-    sceneeventsrc_ = 0;
+    sceneeventsrc_ = nullptr;
 }
 
 
@@ -2351,27 +2328,27 @@ void uiVisPartServer::storeEMObject( bool storeas )
 }
 
 
-bool uiVisPartServer::canBDispOn2DViewer( VisID id ) const
+bool uiVisPartServer::canBDispOn2DViewer( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->canBDispOn2DViewer() : false;
 }
 
 
-bool uiVisPartServer::isVerticalDisp( VisID id ) const
+bool uiVisPartServer::isVerticalDisp( const VisID& id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->isVerticalPlane() : true;
 }
 
-void uiVisPartServer::displayMapperRangeEditForAttrbs( VisID visid )
+void uiVisPartServer::displayMapperRangeEditForAttrbs( const VisID& visid )
 {
     displayMapperRangeEditForAttribs( visid, -1 );
 }
 
 
-void uiVisPartServer::displayMapperRangeEditForAttribs(
-					VisID visid, int attribid  )
+void uiVisPartServer::displayMapperRangeEditForAttribs( const VisID& visid,
+							int attribid  )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mapperrgeditordisplayid_ = visid;
@@ -2421,7 +2398,7 @@ void uiVisPartServer::displayMapperRangeEditForAttribs(
 }
 
 
-void uiVisPartServer::lock( VisID id, bool yn )
+void uiVisPartServer::lock( const VisID& id, bool yn )
 {
     visBase::DataObject* dobj = getObject(id);
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
@@ -2434,7 +2411,7 @@ void uiVisPartServer::lock( VisID id, bool yn )
 }
 
 
-bool uiVisPartServer::isLocked( VisID id ) const
+bool uiVisPartServer::isLocked( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return false;
@@ -2451,12 +2428,12 @@ OD::Color uiVisPartServer::getSceneAnnotCol( int sceneidx )
 
 void uiVisPartServer::displaySceneColorbar( bool yn )
 {
-    for ( int idx=0; idx<scenes_.size(); idx++ )
+    for ( auto* scene : scenes_ )
     {
-	visBase::SceneColTab* scenecoltab = scenes_[idx]->getSceneColTab();
+	visBase::SceneColTab* scenecoltab = scene->getSceneColTab();
 	if ( scenecoltab )
 	{
-	    scenecoltab->setLegendColor( scenes_[idx]->getAnnotColor() );
+	    scenecoltab->setLegendColor( scene->getAnnotColor() );
 	    scenecoltab->turnOn( yn );
 	}
     }
@@ -2465,7 +2442,7 @@ void uiVisPartServer::displaySceneColorbar( bool yn )
 
 bool uiVisPartServer::sceneColorbarDisplayed()
 {
-    if ( scenes_.size()>0 && scenes_[0] )
+    if ( !scenes_.isEmpty() )
     {
 	visBase::SceneColTab* scenecoltab = scenes_[0]->getSceneColTab();
 	return scenecoltab ? scenecoltab->isOn() : false;
@@ -2475,10 +2452,11 @@ bool uiVisPartServer::sceneColorbarDisplayed()
 }
 
 
-void uiVisPartServer::manageSceneColorbar( SceneID sceneid )
+void uiVisPartServer::manageSceneColorbar( const SceneID& sceneid )
 {
-    visSurvey::Scene* scene = getScene( sceneid );
-    if ( !scene ) return;
+    RefMan<visSurvey::Scene> scene = getScene( sceneid );
+    if ( !scene )
+	return;
 
     uiSceneColorbarMgr dlg( appserv().parent(), scene->getSceneColTab() );
     dlg.go();
@@ -2514,7 +2492,7 @@ void uiVisPartServer::sequenceEditChanged( CallBacker* cb )
 }
 
 
-void uiVisPartServer::setCurInterObjID( VisID visid )
+void uiVisPartServer::setCurInterObjID( const VisID& visid )
 { curinterpobjid_ = visid; }
 
 
@@ -2522,7 +2500,7 @@ VisID uiVisPartServer::getCurInterObjID() const
 { return curinterpobjid_; }
 
 
-void uiVisPartServer::setMoreObjectsToDoHint( SceneID sceneid, bool yn )
+void uiVisPartServer::setMoreObjectsToDoHint( const SceneID& sceneid, bool yn )
 {
     visSurvey::Scene* scene = getScene( sceneid );
     if ( scene )
@@ -2530,12 +2508,14 @@ void uiVisPartServer::setMoreObjectsToDoHint( SceneID sceneid, bool yn )
 }
 
 
-bool uiVisPartServer::getMoreObjectsToDoHint( SceneID sceneid ) const
+bool uiVisPartServer::getMoreObjectsToDoHint( const SceneID& sceneid ) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
     return scene ? scene->getMoreObjectsToDoHint() : false;
 }
 
+
+// uiVisModeMgr
 
 uiVisModeMgr::uiVisModeMgr( uiVisPartServer* p )
     : visserv(*p)
@@ -2543,7 +2523,12 @@ uiVisModeMgr::uiVisModeMgr( uiVisPartServer* p )
 }
 
 
-bool uiVisModeMgr::allowTurnOn( VisID id, bool doclean )
+uiVisModeMgr::~uiVisModeMgr()
+{
+}
+
+
+bool uiVisModeMgr::allowTurnOn( const VisID& id, bool doclean )
 {
     if ( !visserv.issolomode_ )
 	return !doclean;
@@ -2555,6 +2540,7 @@ bool uiVisModeMgr::allowTurnOn( VisID id, bool doclean )
 	{
 	    if ( doclean )
 		visserv.updateDisplay( doclean, VisID::udf(), id );
+
 	    return true;
 	}
     }

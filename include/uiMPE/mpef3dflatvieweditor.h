@@ -28,7 +28,7 @@ namespace MPE
 mExpClass(uiMPE) Fault3DFlatViewEditor : public EM::FaultStickSetFlatViewEditor
 {
 public:
-    			Fault3DFlatViewEditor(FlatView::AuxDataEditor*,
+			Fault3DFlatViewEditor(FlatView::AuxDataEditor*,
 					      const EM::ObjectID&);
 			~Fault3DFlatViewEditor();
 
@@ -41,14 +41,14 @@ public:
     void		drawFault() override;
     void		enableLine(bool);
     void		enableKnots(bool);
-    void		setRandomLineID(RandomLineID rdlid);
+    void		setRandomLineID(const RandomLineID&);
 
 protected:
 
     void			f3dRepaintATSCB(CallBacker*);
     void			f3dRepaintedCB(CallBacker*);
 
-    void 			seedMovementStartedCB(CallBacker*);
+    void			seedMovementStartedCB(CallBacker*);
     void			seedMovementFinishedCB(CallBacker*);
     void			removeSelectionCB(CallBacker*);
 
@@ -69,11 +69,11 @@ protected:
     int				getStickId(int markerid) const;
 
     bool			getMousePosInfo(
-	    				const Geom::Point2D<int>& mousepos,
+					const Geom::Point2D<int>& mousepos,
 					IndexInfo& ix, IndexInfo& iy,
 					Coord3& worldpos) const;
     Coord3			getScaleVector() const;
-    				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
 
     const TrcKeyPath*		path_;
 

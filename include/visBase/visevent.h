@@ -9,11 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "keyenum.h"
-#include "visdata.h"
-#include "visosg.h"
 #include "position.h"
 #include "trigonometry.h"
+#include "visdata.h"
+#include "visosg.h"
+#include "vistransform.h"
 
 class TabletInfo;
 class Timer;
@@ -39,42 +41,40 @@ enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4,
 mExpClass(visBase) EventInfo
 {
 public:
-    				EventInfo();
+				EventInfo();
 				EventInfo(const EventInfo&);
-
 				~EventInfo();
+
     EventInfo&			operator=(const EventInfo&);
 
-    EventType			type;
-
-    OD::ButtonState		buttonstate_;
-
-    Coord			mousepos;
-
+    EventType			type		= Any;
+    OD::ButtonState		buttonstate_	= OD::NoButton;
+    Coord			mousepos	= Coord::udf();
     Line3			mouseline;
-    				/*!< The line projected from the mouse-position
+				/*!< The line projected from the mouse-position
 				     into the scene. Line is in display coords.
 				*/
-    double			pickdepth;
+    double			pickdepth	= mUdf(double);
 				//!< Mouseline parameter value of picked pos
 
-    bool			pressed;
+    bool			pressed		= false;
 				/*!< Only set if type == MouseClick or Keyboard
 				     If false, the button has been released.
 				*/
-    bool			dragging;
-    				//!< Only set if type == MouseMovement
+    bool			dragging	= false;
+				//!< Only set if type == MouseMovement
 
     OD::KeyboardKey		key_;
-    				//!< Only set if type == Keyboard
+				//!< Only set if type == Keyboard
 
     TypeSet<VisID>		pickedobjids;
 
-    Coord3			displaypickedpos;	// display space
-    Coord3			localpickedpos; 	// object space
-    Coord3			worldpickedpos; 	// world space
+    Coord3			displaypickedpos = Coord3::udf();
+								// display space
+    Coord3			localpickedpos = Coord3::udf(); // object space
+    Coord3			worldpickedpos = Coord3::udf(); // world space
 
-    TabletInfo*			tabletinfo;
+    TabletInfo*			tabletinfo_	= nullptr;
     void			setTabletInfo(const TabletInfo*);
 };
 
@@ -85,13 +85,13 @@ mExpClass(visBase) EventCatcher : public DataObject
 
 public:
 
-    static EventCatcher*	create()
+    static RefMan<EventCatcher> create();
 				mCreateDataObj(EventCatcher);
 
-    void			setEventType( int type );
-    int				eventType() const { return type_; }
+    void			setEventType(EventType);
+    EventType			eventType() const { return type_; }
 
-    void			releaseEventsPostOsg( bool yn );
+    void			releaseEventsPostOsg(bool yn);
 				/*!True by default to enable scene update from
 				   right-click menu dialogs, but only sound
 				   when being last in event handling chain. */
@@ -106,25 +106,25 @@ public:
     void			setUtm2Display(ObjectSet<Transformation>&);
 
 protected:
-    				~EventCatcher();
+				~EventCatcher();
 
     void			releaseEventsCB(CallBacker*);
 
-    int				type_;
-    ObjectSet<Transformation>	utm2display_;
+    EventType			type_ = visBase::Any;
+    RefObjectSet<Transformation> utm2display_;
 
     static const char*		eventtypestr();
 
-    bool			ishandled_;
-    bool			rehandling_;
-    bool			rehandled_;
+    bool			ishandled_	= true;
+    bool			rehandling_	= false;
+    bool			rehandled_	= false;
 
-    osg::Node*			osgnode_;
-    EventCatchHandler*		eventcatchhandler_;
+    osg::Node*			osgnode_	= nullptr;
+    EventCatchHandler*		eventcatchhandler_ = nullptr;
 
     ObjectSet<EventInfo>	eventqueue_;
     Threads::Lock		eventqueuelock_;
-    bool			eventreleasepostosg_;
+    bool			eventreleasepostosg_ = true;
     Timer*			eventreleasetimer_;
 };
 

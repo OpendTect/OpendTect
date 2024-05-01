@@ -9,9 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visobject.h"
-#include "position.h"
 
+#include "position.h"
+#include "visobject.h"
 
 namespace visBase
 {
@@ -26,7 +26,7 @@ Slice that cuts orthogonal through a VolumeData.
 mExpClass(visBase) OrthogonalSlice : public visBase::VisualObjectImpl
 {
 public:
-    static OrthogonalSlice*	create()
+    static RefMan<OrthogonalSlice> create();
 				mCreateDataObj(OrthogonalSlice);
 
     void			setVolumeDataSize(int xsz,int ysz,int zsz);
@@ -39,12 +39,13 @@ public:
     void			setDim(int);
 
     void			getSliceInfo(int&,Interval<float>&) const;
-    int			getSliceNr(int dim=-1) const;	// -1 : curdim_
+    int				getSliceNr(int dim=-1) const;	// -1 : curdim_
     void			setSliceNr(int nr,int dim=-1);	// -1 : curdim_
 
     float			getPosition() const;
 
-    DepthTabPlaneDragger*	getDragger() const;
+    const DepthTabPlaneDragger* getDragger() const;
+    DepthTabPlaneDragger*	getDragger();
     void			enablePicking(bool);
     bool			isPickingEnabled() const;
     void			removeDragger();
@@ -65,12 +66,14 @@ protected:
 
     void			draggerMovementCB(CallBacker*);
 
-    DepthTabPlaneDragger*	dragger_;
-    TextureRectangle*		slice_;
+    RefMan<DepthTabPlaneDragger> dragger_;
+    RefMan<TextureRectangle>	slice_;
 
-    int				xdatasz_, ydatasz_, zdatasz_;
-    int			curdim_;
-    int			slicenr_[3];
+    int				xdatasz_	= 0;
+    int				ydatasz_	= 0;
+    int				zdatasz_	= 0;
+    int				curdim_		= 0;
+    int				slicenr_[3];
 
     static const char*		dimstr();
     static const char*		slicestr();

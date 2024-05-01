@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visdata.h"
+
 #include "odmemory.h"
+#include "visdata.h"
 
 class SbImagei32;
 class TaskRunner;
@@ -19,9 +20,9 @@ namespace ColTab { class Mapper; class MapperSetup; };
 
 namespace visBase
 {
+class ChannelInfo;
 class MappedTextureDataSet;
 class TextureChannel2RGBA;
-class ChannelInfo;
 
 /*!
 Base class to manage the set of interchangeable and overlayable data layers
@@ -47,13 +48,14 @@ mExpClass(visBase) TextureChannels : public DataObject
     class TextureCallbackHandler;
 
 public:
-    static TextureChannels*	create()
+    static RefMan<TextureChannels> create();
 				mCreateDataObj(TextureChannels);
 
     bool			turnOn(bool yn) override;
     bool			isOn() const override;
 
     int				nrChannels() const;
+    bool			validIdx(int) const;
     int				addChannel();
     int				insertChannel(int);
     void			removeChannel(int);
@@ -88,19 +90,21 @@ public:
     bool			isCurrentDataPremapped(int channel) const;
 
     bool			setUnMappedVSData(int channel,int version,
-				    const ValueSeries<float>*, OD::PtrPolicy,
+				    const ValueSeries<float>*,OD::PtrPolicy,
 				    TaskRunner*,bool skipclip=false);
     bool			setUnMappedData(int channel,int version,
-				    const float*, OD::PtrPolicy,
-				    TaskRunner*,bool skipclip=false);
+						const float*,OD::PtrPolicy,
+						TaskRunner*,
+						bool skipclip=false);
     bool			setMappedData(int channel,int version,
-					      unsigned char*, OD::PtrPolicy);
+					      unsigned char*,OD::PtrPolicy);
     void			unfreezeOldData(int channel);
 
     bool			setChannels2RGBA(TextureChannel2RGBA*);
     TextureChannel2RGBA*	getChannels2RGBA();
     const TextureChannel2RGBA*	getChannels2RGBA() const;
 
+    SbImagei32*			getChannels();
     const SbImagei32*		getChannels() const;
     void			touchMappedData();
 
@@ -121,15 +125,16 @@ public:
 
 
 protected:
+				~TextureChannels();
+
     friend			class ChannelInfo;
     void			update(int channel,bool freezeifnodata=true);
     void			update(ChannelInfo*);
-				~TextureChannels();
 
     TextureCallbackHandler*	texturecallbackhandler_;
     ObjectSet<ChannelInfo>	channelinfo_;
 
-    TextureChannel2RGBA*	tc2rgba_ = nullptr;
+    RefMan<TextureChannel2RGBA> tc2rgba_;
     osgGeo::LayeredTexture*	osgtexture_;
     bool			interpolatetexture_ = true;
 

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 
 #include "ascstream.h"
-#include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
 #include "attribdescsettr.h"
@@ -489,22 +488,22 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
 {
     const bool is2d = is2D();
     uiAutoAttrSelDlg dlg( this, is2d );
-    if ( dlg.go() )
+    if ( !dlg.go() )
+	return;
+
+    const bool douse = dlg.useAuto();
+    IOObj* ioobj = dlg.getObj();
+    const MultiID id( ioobj ? ioobj->key() : MultiID("") );
+    Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
+    Settings::common().write();
+    IOPar& par = SI().getPars();
+    is2d ? par.set( uiAttribDescSetEd::sKeyAuto2DAttrSetID, id )
+	 : par.set( uiAttribDescSetEd::sKeyAuto3DAttrSetID, id );
+    SI().savePars();
+    if ( dlg.loadAuto() )
     {
-	const bool douse = dlg.useAuto();
-	IOObj* ioobj = dlg.getObj();
-	const MultiID id( ioobj ? ioobj->key() : MultiID("") );
-	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
-	Settings::common().write();
-	IOPar& par = SI().getPars();
-	is2d ? par.set( uiAttribDescSetEd::sKeyAuto2DAttrSetID, id )
-	     : par.set( uiAttribDescSetEd::sKeyAuto3DAttrSetID, id );
-	SI().savePars();
-	if ( dlg.loadAuto() )
-	{
-	    if ( !offerSetSave() ) return;
-	    openAttribSet( ioobj );
-	}
+	if ( !offerSetSave() ) return;
+	openAttribSet( ioobj );
     }
 }
 
@@ -517,10 +516,12 @@ void uiAttribDescSetEd::revPush( CallBacker* )
 
 void uiAttribDescSetEd::addPush( CallBacker* )
 {
-    Desc* newdesc = createAttribDesc();
-    if ( !newdesc ) return;
+    RefMan<Desc> newdesc = createAttribDesc();
+    if ( !newdesc )
+	return;
+
     if ( !attrset_->addDesc(newdesc).isValid() )
-	{ uiMSG().error( attrset_->errMsg() ); newdesc->unRef(); return; }
+	{ uiMSG().error( attrset_->errMsg() ); return; }
 
     newList( attrdescs_.size() );
     adsman_->setSaved( false );
@@ -528,13 +529,14 @@ void uiAttribDescSetEd::addPush( CallBacker* )
 }
 
 
-Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
+RefMan<Attrib::Desc> uiAttribDescSetEd::createAttribDesc( bool checkuref )
 {
     BufferString newnmbs( attrnmfld_->text() );
     char* newnm = newnmbs.getCStr();
     mSkipBlanks( newnm );
     removeTrailingBlanks( newnm );
-    if ( checkuref && !validName(newnm) ) return 0;
+    if ( checkuref && !validName(newnm) )
+	return nullptr;
 
     uiAttrDescEd* curde = curDescEd();
     if ( !curde )
@@ -544,19 +546,15 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
     if ( attribname.isEmpty() )
 	attribname = uiAF().attrNameOf( attrtypefld_->attr() );
 
-    Desc* newdesc = PF().createDescCopy( attribname );
+    RefMan<Desc> newdesc = PF().createDescCopy( attribname );
     if ( !newdesc )
 	mErrRetNull( toUiString("Cannot create attribdesc") )
 
-    newdesc->ref();
     newdesc->setDescSet( attrset_ );
     newdesc->setUserRef( newnm );
     uiString res = curde->commit( newdesc );
     if ( !res.isEmpty() )
-    {
-	newdesc->unRef();
 	mErrRetNull( res );
-    }
 
     return newdesc;
 }
@@ -722,11 +720,10 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	attribname = uiAF().attrNameOf( attrtypefld_->attr() );
     const bool isrightdesc = desc && attribname == desc->attribName();
 
-    Desc* dummydesc = PF().createDescCopy( attribname );
+    RefMan<Desc> dummydesc = PF().createDescCopy( attribname );
     if ( !dummydesc )
 	dummydesc = new Desc( "Dummy" );
 
-    dummydesc->ref();
     dummydesc->setDescSet( attrset_ );
     for ( int idx=0; idx<desceds_.size(); idx++ )
     {
@@ -737,18 +734,14 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	    de->setNeedInputUpdate();
 
 	if ( curde == de )
-	{
-	    if ( !isrightdesc )
-		dummydesc->ref();
-	    de->setDesc( isrightdesc ? desc : dummydesc, adsman_ );
-	}
+	    de->setDesc( isrightdesc ? desc : dummydesc.ptr(), adsman_ );
 
 	de->setDescSet( attrset_ );
 	const bool dodisp = de == curde;
 	de->display( dodisp );
     }
 
-    dummydesc->unRef();
+    dummydesc = nullptr;
     updating_fields_ = false;
 
     bool hasvideo = false;
@@ -759,6 +752,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	if ( hasvideo )
 	    videobut_->setToolTip( HelpProvider::description(videokey) );
     }
+
     videobut_->display( hasvideo );
 }
 
@@ -820,16 +814,17 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 	    TypeSet<DescID> attribids;
 	    attrset_->getIds( attribids );
 	    int oldattridx = attribids.indexOf( id );
-	    Desc* newdesc = createAttribDesc( checkusrref );
-	    if ( !newdesc ) return false;
+	    RefMan<Desc> newdesc = createAttribDesc( checkusrref );
+	    if ( !newdesc )
+		return false;
 
 	    attrset_->removeDesc( id );
 	    if ( !attrset_->errMsg().isEmpty() )
 	    {
 		uiMSG().error( attrset_->errMsg() );
-		newdesc->unRef();
 		return false;
 	    }
+
 	    attrset_->insertDesc( newdesc, oldattridx, id );
 	    const int curidx = attrdescs_.indexOf( curDesc() );
 	    newList( curidx );
@@ -844,7 +839,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 	}
     }
 
-    if ( checkusrref && !setUserRef( usedesc ) )
+    if ( checkusrref && !setUserRef(usedesc) )
 	return false;
 
     uiAttrDescEd* curdesced = curDescEd();

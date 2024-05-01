@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
 
-#include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
@@ -370,13 +369,13 @@ void uiSpecDecompAttrib::getInputMID( MultiID& mid ) const
 }
 
 
-Desc* uiSpecDecompAttrib::createNewDescFromDP( Attrib::DescSet* dset,
+RefMan<Desc> uiSpecDecompAttrib::createNewDescFromDP( Attrib::DescSet* dset,
 					       const char* attrnm,
 					       const char* userefstr ) const
 {
-    Desc* newdesc = PF().createDescCopy( attrnm );
+    RefMan<Desc> newdesc = PF().createDescCopy( attrnm );
     newdesc->selectOutput( 0 );
-    Desc* inpdesc= getInputDescFromDP( inpfld_ );
+    RefMan<Desc> inpdesc = getInputDescFromDP( inpfld_ );
     inpdesc->setDescSet( dset );
     dset->addDesc( inpdesc );
     newdesc->setInput( 0, inpdesc );
@@ -385,6 +384,7 @@ Desc* uiSpecDecompAttrib::createNewDescFromDP( Attrib::DescSet* dset,
     BufferString usrref = "_"; usrref += inpdesc->userRef();
     if ( userefstr )
 	usrref += userefstr;
+
     newdesc->setUserRef( usrref );
     return newdesc;
 }
@@ -393,7 +393,7 @@ Desc* uiSpecDecompAttrib::createNewDescFromDP( Attrib::DescSet* dset,
 DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
 {
     DescID inpid;
-    Desc* newdesc = 0;
+    RefMan<Desc> newdesc;
     if ( dpfids_.size() )
 	newdesc = createNewDescFromDP( dset, SpecDecomp::attribName(), nullptr);
     else
@@ -403,7 +403,6 @@ DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
 	newdesc = createNewDesc( dset, inpid, SpecDecomp::attribName(),
 				 0, 0, "" );
     }
-
 
     if ( !newdesc )
 	return DescID::undef();
@@ -420,12 +419,12 @@ DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
 }
 
 
-Desc* uiSpecDecompAttrib::createNewDesc( DescSet* descset, DescID inpid,
+RefMan<Desc> uiSpecDecompAttrib::createNewDesc( DescSet* descset, DescID inpid,
 					 const char* attribnm, int seloutidx,
 					 int inpidx, BufferString specref) const
 {
-    Desc* inpdesc = descset->getDesc( inpid );
-    Desc* newdesc = PF().createDescCopy( attribnm );
+    RefMan<Desc> inpdesc = descset->getDesc( inpid );
+    RefMan<Desc> newdesc = PF().createDescCopy( attribnm );
     if ( !newdesc || !inpdesc )
 	return nullptr;
 
@@ -463,10 +462,12 @@ void uiSpecDecompAttrib::fillInSDDescParams( Desc* newdesc ) const
 void uiSpecDecompAttrib::createHilbertDesc( DescSet* descset,
 					    DescID& inputid ) const
 {
-    Desc* hilbertdesc = nullptr;
+    RefMan<Desc> hilbertdesc;
     if ( dpfids_.size() )
+    {
 	hilbertdesc = createNewDescFromDP( descset, Hilbert::attribName(),
 					   "_imag" );
+    }
     else
     {
 	if ( inputid == DescID::undef() )

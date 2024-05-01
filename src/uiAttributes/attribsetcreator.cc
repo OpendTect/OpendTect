@@ -38,11 +38,11 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
     : uiDialog(p,uiDialog::Setup(tr("Specify inputs"),
 		     tr("Network without attributes: definitions"),
 		     mNoHelpKey))
-    , attrset(ads)
-    , nrindir(indirinps.size())
+    , attrset_(ads)
+    , nrindir_(indirinps.size())
 {
-    uiGroup* indirgrp = 0;
-    if ( nrindir )
+    uiGroup* indirgrp = nullptr;
+    if ( nrindir_ )
     {
 	indirgrp = new uiGroup( this, "Indirect attribs" );
 	const uiString txt = indirinps.size() > 1
@@ -51,7 +51,7 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 	mkGrp( indirgrp, txt, indirinps );
     }
 
-    uiSeparator* sep = 0;
+    uiSeparator* sep = nullptr;
     if ( indirgrp && dirinps.size() )
     {
 	sep = new uiSeparator( this, "hor sep" );
@@ -77,10 +77,10 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 
 ~uiSelExternalAttrInps()
 {
-    for ( int idx=0; idx<sels.size(); idx++ )
+    for ( int idx=0; idx<sels_.size(); idx++ )
     {
-	delete sels[idx]->ctxtIOObj().ioobj_;
-	delete &sels[idx]->ctxtIOObj();
+	delete sels_[idx]->ctxtIOObj().ioobj_;
+	delete &sels_[idx]->ctxtIOObj();
     }
 }
 
@@ -118,7 +118,7 @@ void mkGrp( uiGroup* mkgrp, const uiString& lbltxt,
 
 	neednewgrp = !((idx+1) % maxnrselinrow);
 	newsel->selectionDone.notify( mCB(this,uiSelExternalAttrInps,cubeSel) );
-	sels += newsel;
+	sels_ += newsel;
 	prevsel = newsel;
     }
 }
@@ -132,14 +132,15 @@ void cubeSel( CallBacker* cb )
     cursel->commitInput();
     const IOObj* ioobj = cursel->ctxtIOObj().ioobj_;
     if ( !ioobj ) return;
-    int curidx = sels.indexOf( cursel );
-    if ( curidx >= nrindir ) return;
+    int curidx = sels_.indexOf( cursel );
+    if ( curidx >= nrindir_ )
+	return;
 
     IOPar iopar;
     cursel->updateHistory( iopar );
-    for ( int idx=0; idx<nrindir; idx++ )
+    for ( int idx=0; idx<nrindir_; idx++ )
     {
-	uiIOObjSel& sel = *sels[idx];
+	uiIOObjSel& sel = *sels_[idx];
 	if ( &sel == cursel ) continue;
 	sel.getHistory( iopar );
 	if ( !sel.ctxtIOObj().ioobj_ )
@@ -153,9 +154,9 @@ void cubeSel( CallBacker* cb )
 
 bool acceptOK( CallBacker* ) override
 {
-    for ( int isel=0; isel<sels.size(); isel++ )
+    for ( int isel=0; isel<sels_.size(); isel++ )
     {
-	uiIOObjSel& sel = *sels[isel];
+	uiIOObjSel& sel = *sels_[isel];
 	sel.commitInput();
 	const IOObj* ioobj = sel.ctxtIOObj().ioobj_;
 	if ( !ioobj )
@@ -166,7 +167,7 @@ bool acceptOK( CallBacker* ) override
 	}
 
 	const DescID descid =
-		attrset->getID( sel.labelText().getFullString(), true );
+		attrset_->getID( sel.labelText().getFullString(), true );
 	if ( !descid.isValid() )
 	{
 	    const uiString msg =
@@ -177,18 +178,19 @@ bool acceptOK( CallBacker* ) override
 	    uiMSG().error( msg );
 	    return false;
 	}
-	Desc& ad = *attrset->getDesc( descid );
+
+	Desc& ad = *attrset_->getDesc( descid );
 	if ( ad.isStored() )
 	{
 //	    ad.setDefStr( ioobj->key(), false );
 	}
 	else
 	{
-	    const DescID inpid = attrset->getStoredID( ioobj->key(), 0, true );
+	    const DescID inpid = attrset_->getStoredID( ioobj->key(), 0, true );
 	    if ( !inpid.isValid() ) return false;
 
 	    for ( int iinp=0; iinp<ad.nrInputs(); iinp++ )
-		ad.setInput( iinp, attrset->getDesc(inpid) );
+		ad.setInput( iinp, attrset_->getDesc(inpid) );
 	}
     }
 
@@ -198,29 +200,29 @@ bool acceptOK( CallBacker* ) override
 
 protected:
 
-    DescSet*			attrset;
-    ObjectSet<uiIOObjSel>	sels;
-    int				nrindir;
+    DescSet*			attrset_;
+    ObjectSet<uiIOObjSel>	sels_;
+    int				nrindir_;
 };
 
 
 AttributeSetCreator::AttributeSetCreator( uiParent* p_,
 					  const BufferStringSet& inps_,
 					  DescSet* ads )
-    : prnt(p_)
-    , attrset(ads)
+    : prnt_(p_)
+    , attrset_(ads)
 {
     for ( int idx=0; idx<inps_.size(); idx++ )
     {
 	const BufferString& uref = *inps_[idx];
 	Desc* ad = getDesc( uref );
 	if ( !ad )
-	    { attrset->removeAll( false ); attrset = 0; return; }
+	    { attrset_->removeAll( false ); attrset_ = nullptr; return; }
 
 	if ( ad->isStored() )
-	    directs += new BufferString( uref );
+	    directs_ += new BufferString( uref );
 	else
-	    indirects += new BufferString( uref );
+	    indirects_ += new BufferString( uref );
     }
 }
 
@@ -231,17 +233,17 @@ AttributeSetCreator::~AttributeSetCreator()
 
 bool AttributeSetCreator::create()
 {
-    const int nrdescs = attrset ? attrset->size() : 0;
+    const int nrdescs = attrset_ ? attrset_->size() : 0;
     if ( nrdescs < 1 )
     {
 	uiMSG().error(tr("The attributes cannot be converted"));
 	return false;
     }
 
-    const Desc* stored = 0;
+    const Desc* stored = nullptr;
     for ( int idx=0; idx<nrdescs; idx++ )
     {
-	const Desc& desc = *attrset->desc( idx );
+	const Desc& desc = *attrset_->desc( idx );
 	if ( desc.isHidden() )
 	   continue;
 	if ( desc.isStored() )
@@ -253,21 +255,21 @@ bool AttributeSetCreator::create()
 
     if ( !stored && !storhint_.isUdf() )
     {
-	DescID did = attrset->createStoredDesc( storhint_, 0,
+	DescID did = attrset_->createStoredDesc( storhint_, 0,
 						BufferString("") );
-	stored = attrset->getDesc( did );
+	stored = attrset_->getDesc( did );
     }
 
     if ( !stored )
     {
-	uiSelExternalAttrInps dlg( prnt, attrset, indirects, directs );
+	uiSelExternalAttrInps dlg( prnt_, attrset_, indirects_, directs_ );
 	return dlg.go();
     }
     else
     {
 	for ( int idx=0; idx<nrdescs; idx++ )
 	{
-	    Desc& desc = *attrset->desc( idx );
+	    Desc& desc = *attrset_->desc( idx );
 	    if ( desc.isHidden() || desc.isStored() )
 	       continue;
 	    desc.setInput( 0, stored );
@@ -294,7 +296,7 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
 {
     const StringView fsextdesc( extdesc );
     if ( fsextdesc.isEmpty() )
-	return 0;
+	return nullptr;
 
     BufferString defstr;
     if ( fsextdesc.startsWith("Energy",OD::CaseInsensitive) )
@@ -350,25 +352,25 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     if ( !Desc::getAttribName(defstr,attribname) )
     {
 	uiMSG().error(uiStrings::sCantFindAttrName());
-	return 0;
+	return nullptr;
     }
 
     RefMan<Desc> desc = PF().createDescCopy( attribname );
     if ( !desc )
     {
 	uiMSG().error( DescSet::sFactoryEntryNotFound(attribname) );
-	return 0;
+	return nullptr;
     }
 
     if ( !desc->isStored() && !desc->parseDefStr(defstr) )
     {
 	uiString err = tr("Cannot parse: %1").arg(defstr);
 	uiMSG().error( err );
-	return 0;
+	return nullptr;
     }
 
     desc->setUserRef( extdesc );
-    attrset->addDesc( desc );
+    attrset_->addDesc( desc );
     return desc;
 }
 

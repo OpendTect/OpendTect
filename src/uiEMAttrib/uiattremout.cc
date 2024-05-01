@@ -189,8 +189,8 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 	if ( nlamodel_ )
 	    descset.usePar( nlamodel_->pars() );
 
-	const Desc* desc = nlamodel_ ? descset.getFirstStored()
-				     : clonedset->getFirstStored();
+	ConstRefMan<Desc> desc = nlamodel_ ? descset.getFirstStored()
+					   : clonedset->getFirstStored();
 	if (  desc )
 	{
 	    const BufferString storedid( desc->getStoredID() );

@@ -9,10 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "uiattrdesced.h"
 
+#include "attribdesc.h"
 #include "attribdescid.h"
 #include "ranges.h"
+#include "uiattrdesced.h"
 
 class uiAttrSel;
 class uiGenInput;
@@ -65,7 +66,7 @@ protected:
 				     Attrib::DescID);
     bool		passVolStatsCheck(const Attrib::Desc*,BinID,
 					  Interval<float>);
-    Attrib::Desc*	createNewDesc(Attrib::DescSet*,Attrib::DescID,
+    RefMan<Attrib::Desc> createNewDesc(Attrib::DescSet*,Attrib::DescID,
 				      const char*,int,int,BufferString);
     Attrib::DescID	createVolStatsDesc(Attrib::Desc&,int);
     void		createHilbertDesc(Attrib::Desc&,Attrib::DescID&);

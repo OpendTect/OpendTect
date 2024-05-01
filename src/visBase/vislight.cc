@@ -23,26 +23,32 @@ const char* Light::sKeyLightNum() { return "Light num"; }
 const char* Light::sKeyDirection() { return "Direction"; }
 
 
-Light::Light( )
-    : light_( addAttribute( new osg::Light ) )
-    , ison_( true )
-    , diffuse_( 0.8f )
-    , ambient_( 0.2f )
+RefMan<Light> Light::create()
 {
-    light_->ref();
+    RefMan<Light> ret = new Light();
+    return ret;
+}
+
+
+Light::Light( )
+    : light_(addAttribute(new osg::Light))
+{
+    refOsgPtr( light_ );
     initLight();
 }
 
 
 Light::~Light ( )
 {
-    light_->unref();
+    unRefOsgPtr( light_ );
 }
 
 
 void Light::initLight()
 {
-    if ( !light_ ) return;
+    if ( !light_ )
+	return;
+
     light_->setSpotExponent( 0.0f );
     light_->setSpotCutoff( 180.0f );
     light_->setConstantAttenuation( 1.0f );
@@ -85,7 +91,7 @@ void Light::updateLights()
 
     newlight = ison_ ? diffuse_ : 0;
     light_->setDiffuse( osg::Vec4( newlight,newlight,newlight,1.0f ) );
-    visBase::DataObject::requestSingleRedraw();
+    DataObject::requestSingleRedraw();
 }
 
 

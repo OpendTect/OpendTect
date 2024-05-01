@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "attribprocessor.h"
 
 #include "attribdesc.h"
-#include "attriboutput.h"
 #include "attribprovider.h"
 #include "binidvalset.h"
 #include "seisinfo.h"
@@ -40,8 +39,6 @@ Processor::Processor( Desc& desc , const char* lk, uiString& err )
 
 Processor::~Processor()
 {
-    deepUnRef( outputs_ );
-
     delete sd_;
 }
 
@@ -57,7 +54,6 @@ void Processor::addOutput( Output* output )
     if ( !output )
 	return;
 
-    output->ref();
     outputs_ += output;
 }
 
@@ -323,7 +319,6 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 	cs.zsamp_.start = 0;	//cover up for synthetics
 	if ( !outputs_[idx]->getDesiredVolume(cs) )
 	{
-	    outputs_[idx]->unRef();
 	    outputs_.removeSingle(idx);
 	    idx--;
 	    continue;

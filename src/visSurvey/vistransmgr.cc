@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "linsolv.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
-#include "vistransform.h"
 
 
 namespace visSurvey
@@ -34,6 +33,24 @@ SceneTransformManager::SceneTransformManager()
 
 SceneTransformManager::~SceneTransformManager()
 {}
+
+
+void SceneTransformManager::setCurrentScene( Scene* scn )
+{
+    scene_ = scn;
+}
+
+
+ConstRefMan<Scene> SceneTransformManager::currentScene() const
+{
+    return scene_.get();
+}
+
+
+RefMan<Scene> SceneTransformManager::currentScene()
+{
+    return scene_.get();
+}
 
 
 void SceneTransformManager::computeUTM2DisplayTransform(

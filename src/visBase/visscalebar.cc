@@ -27,35 +27,32 @@ namespace visBase
 {
 
 ScaleBar::ScaleBar()
-    : visBase::VisualObjectImpl(true)
-    , displaytrans_(0)
-    , length_(1000)
+    : VisualObjectImpl(true)
     , firstloc_(*new Pick::Location(Coord3::udf()))
-    , oninlcrl_(true)
-    , orientation_(0)
-    , markers_(new visBase::MarkerSet())
-    , lines_(new visBase::Lines())
 {
+    ref();
+    markers_ = MarkerSet::create();
+    lines_ = Lines::create();
     firstloc_.setPos( Coord3::udf() );
 
-    markers_->setMaterial( 0 );
+    markers_->setMaterial( nullptr );
     markers_->setMarkerStyle( MarkerStyle3D::Sphere );
     markers_->setScreenSize( 2.5f );
     markers_->setMarkersSingleColor( getMaterial()->getColor() );
-    markers_->ref();
     addChild( markers_->osgNode() );
 
-    Geometry::RangePrimitiveSet* ps = Geometry::RangePrimitiveSet::create();
+    RefMan<Geometry::RangePrimitiveSet> ps =
+					Geometry::RangePrimitiveSet::create();
     ps->setRange( Interval<int>(0,1) );
 
     lines_->addPrimitiveSet( ps );
-    lines_->setMaterial( 0 );
-    lines_->ref();
+    lines_->setMaterial( nullptr );
     addChild( lines_->osgNode() );
 
-    linestyle_ = lines_->addNodeState( new visBase::DrawStyle );
-    linestyle_->ref();
+    RefMan<DrawStyle> drawstyle = DrawStyle::create();
+    linestyle_ = lines_->addNodeState( drawstyle.ptr() );
     setLineWidth( 2 );
+    unRefNoDelete();
 }
 
 
@@ -63,10 +60,6 @@ ScaleBar::~ScaleBar()
 {
     delete &firstloc_;
     lines_->removeNodeState( linestyle_ );
-    linestyle_->unRef();
-    markers_->unRef();
-    lines_->unRef();
-    if ( displaytrans_ ) displaytrans_->unRef();
 }
 
 
@@ -187,10 +180,7 @@ void ScaleBar::setDisplayTransformation( const mVisTrans* nt )
 
     markers_->setDisplayTransformation( nt );
     lines_->setDisplayTransformation( nt );
-
     displaytrans_ = nt;
-    if ( displaytrans_ )
-	displaytrans_->ref();
 }
 
 } // namespace visBase

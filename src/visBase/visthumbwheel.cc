@@ -24,45 +24,49 @@ public:
 		ThumbWheelMessenger( ThumbWheel* t )
 		    : visthumbwheel_( t )
 		{}
+
     void	operator()(osg::Node* node, osg::NodeVisitor* nv ) override
 		{
-		    if ( visthumbwheel_ && nv )
+		    RefMan<ThumbWheel> visthumbwheel = visthumbwheel_.get();
+		    if ( visthumbwheel && nv )
 		    {
 			osgGeo::ThumbWheelEventNodeVisitor* thnv =
 			    (osgGeo::ThumbWheelEventNodeVisitor*) nv;
 
-			visthumbwheel_->rotation.trigger(
-				    thnv->getDeltaAngle(), visthumbwheel_ );
+			visthumbwheel->rotation.trigger(
+				thnv->getDeltaAngle(), visthumbwheel.ptr() ) ;
 		    }
 		}
+
     void	detach() { visthumbwheel_ = nullptr; }
 
 protected:
 		ThumbWheelMessenger()
 		{}
 
-    ThumbWheel*	visthumbwheel_;
+    WeakPtr<ThumbWheel> visthumbwheel_;
 };
 
 
 
 ThumbWheel::ThumbWheel()
-    : rotation( this )
-    , thumbwheel_( new osgGeo::ThumbWheel )
+    : rotation(this)
+    , thumbwheel_(new osgGeo::ThumbWheel)
 {
+    ref();
+    refOsgPtr( thumbwheel_ );;
     setOsgNode( thumbwheel_ );
-    thumbwheel_->ref();
     messenger_ = new ThumbWheelMessenger( this );
-    messenger_->ref();
+    refOsgPtr( messenger_ );
     thumbwheel_->addRotateCallback( messenger_ );
+    unRefNoDelete();
 }
 
 
 ThumbWheel::~ThumbWheel()
 {
-    messenger_->detach();
-    messenger_->unref();
-    thumbwheel_->unref();
+    unRefOsgPtr( messenger_ );
+    unRefOsgPtr( thumbwheel_ );
 }
 
 

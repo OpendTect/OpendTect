@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
+
 #include "dpsdispmgr.h"
 #include "emposid.h"
 #include "menuhandler.h"
@@ -40,18 +41,18 @@ public:
     bool	hasDisplays() const override
 		{ return displayinfos_.size()>0; }
     DispID	getDisplayID(const DataPointSet&) const override;
-    DispID	getDisplayID(VisID visid) const;
+    DispID	getDisplayID(const VisID&) const;
 
-    DispID	addDisplay(const TypeSet<int>& parents,
+    DispID	addDisplay(const TypeSet<ParentID>&,
 			   const DataPointSet&) override;
-    bool	addDisplays(const TypeSet<int>& parents,
+    bool	addDisplays(const TypeSet<ParentID>&,
 			    const ObjectSet<DataPointSet>&,TypeSet<DispID>&);
-    void	updateDisplay(DispID id, const TypeSet<int>& parents,
+    void	updateDisplay(const DispID&,const TypeSet<ParentID>&,
 			      const DataPointSet&) override;
-    void	turnOn(DispID id,bool);
-    void	updateDisplay(DispID id,const DataPointSet&) override;
-    void	updateColorsOnly(DispID id);
-    void	removeDisplay(DispID) override;
+    void	turnOn(const DispID&,bool);
+    void	updateDisplay(const DispID&,const DataPointSet&) override;
+    void	updateColorsOnly(const DispID&);
+    void	removeDisplay(const DispID&) override;
     void	clearDisplays();
 
     void	getIconInfo(BufferString& fnm,
@@ -61,28 +62,31 @@ public:
     mClass(uiVis) DisplayInfo
     {
     public:
-				DisplayInfo()		{}
-				~DisplayInfo()		{}
+				DisplayInfo(const DispID&);
+				~DisplayInfo();
+
 	TypeSet<SceneID>	sceneids_;
 	TypeSet<VisID>		visids_; //linked with scenes_
+	DispID			dispid_		= DispID::udf();
     };
 
 protected:
 
-    TypeSet<SceneID>		allsceneids_;
+    void			createMenuCB(CallBacker*);
+    void			handleMenuCB(CallBacker*);
+    void			removeDisplay(DisplayInfo&);
+    const DisplayInfo*		getInfo(const DispID&) const;
+    DisplayInfo*		getInfo(const DispID&);
 
     MenuItem			createbodymnuitem_;
     MenuItem			storepsmnuitem_;
     MenuItem			removemnuitem_;
     MenuItem			propmenuitem_;
-    TypeSet<int>		ids_;
-    ObjectSet<DisplayInfo>	displayinfos_; //linked with ids_
+    ObjectSet<DisplayInfo>	displayinfos_;
+    TypeSet<SceneID>		allsceneids_;
 
     uiVisPartServer&		visserv_;
-    MenuHandler*		vismenu_;
+    RefMan<MenuHandler>		vismenu_;
     Threads::Mutex		lock_;
 
-    void	createMenuCB(CallBacker*);
-    void	handleMenuCB(CallBacker*);
-    void	removeDisplayAtIndex(int);
 };

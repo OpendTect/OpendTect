@@ -29,16 +29,14 @@ namespace visBase
 TextureCoords::TextureCoords()
     : lock_( Threads::Lock::MultiRead )
     , osgcoords_( new osg::Vec2Array )
-    , nrfreecoords_( 0 )
-    , lastsearchedidx_( -1 )
 {
-    mGetOsgVec2Arr(osgcoords_)->ref();
+    refOsgPtr( mGetOsgVec2Arr(osgcoords_) );
 }
 
 
 TextureCoords::~TextureCoords()
 {
-    mGetOsgVec2Arr(osgcoords_)->unref();
+    unRefOsgPtr( mGetOsgVec2Arr(osgcoords_) );
 }
 
 
@@ -207,19 +205,21 @@ int TextureCoords::searchFreeIdx()
 
 
 TextureCoordListAdapter::TextureCoordListAdapter( TextureCoords& c )
-    : texturecoords_( c )
-{ texturecoords_.ref(); }
+    : texturecoords_(&c)
+{
+}
 
 
 TextureCoordListAdapter::~TextureCoordListAdapter()
-{ texturecoords_.unRef(); }
+{
+}
 
 int TextureCoordListAdapter::nextID( int previd ) const
-{ return texturecoords_.nextID( previd ); }
+{ return texturecoords_->nextID( previd ); }
 
 
 int TextureCoordListAdapter::add( const Coord3& p )
-{ return texturecoords_.addCoord( p ); }
+{ return texturecoords_->addCoord( p ); }
 
 
 void TextureCoordListAdapter::addValue( int, const Coord3& p )
@@ -229,26 +229,25 @@ void TextureCoordListAdapter::addValue( int, const Coord3& p )
 
 
 Coord3 TextureCoordListAdapter::get( int idx ) const
-{ return texturecoords_.getCoord( idx ); }
+{ return texturecoords_->getCoord( idx ); }
 
 
 bool TextureCoordListAdapter::isDefined( int idx ) const
-{ return texturecoords_.getCoord( idx ).isDefined(); }
+{ return texturecoords_->getCoord( idx ).isDefined(); }
 
 
 void TextureCoordListAdapter::set( int idx, const Coord3& p )
-{ texturecoords_.setCoord( idx, p ); }
+{ texturecoords_->setCoord( idx, p ); }
 
 
 void TextureCoordListAdapter::remove( int idx )
-{ texturecoords_.removeCoord( idx ); }
+{ texturecoords_->removeCoord( idx ); }
 
 
 void TextureCoordListAdapter::remove( const TypeSet<int>& idxs )
 {
     for ( int idx=idxs.size()-1; idx>=0; idx-- )
-	texturecoords_.removeCoord( idxs[idx] );
+	texturecoords_->removeCoord( idxs[idx] );
 }
-
 
 } // namespace visBase

@@ -29,7 +29,9 @@ namespace visBase
 mExpClass(visBase) DrawStyle : public NodeState
 {
 public:
-			DrawStyle();
+
+    static RefMan<DrawStyle> create();
+
     enum Style		{ Filled, Lines, Points, Invisible };
 
     void		setDrawStyle( Style );
@@ -51,17 +53,18 @@ public:
 
 
 protected:
+			DrawStyle();
 			~DrawStyle();
 
     void		updateLineStyle();
 
     OD::LineStyle	linestyle_;
-    float		pointsize_;
+    float		pointsize_	= 0.f;
     float		pixeldensity_;
 
-    osg::Point*		pointsizeattrib_;
-    osg::LineStipple*	linestippleattrib_;
-    osg::LineWidth*	linewidthattrib_;
+    osg::Point*		pointsizeattrib_	= nullptr;
+    osg::LineStipple*	linestippleattrib_	= nullptr;
+    osg::LineWidth*	linewidthattrib_	= nullptr;
 };
 
 } // namespace visBase

@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
+
 #include "visfaultdisplay.h"
 #include "visfaultsetdisplay.h"
 #include "visfaultsticksetdisplay.h"

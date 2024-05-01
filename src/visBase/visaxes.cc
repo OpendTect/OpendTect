@@ -10,23 +10,19 @@ ________________________________________________________________________
 #include "visaxes.h"
 
 #include "color.h"
-#include "viscamera.h"
 #include "vistext.h"
 
 #include <osg/Camera>
 #include <osgGeo/AxesNode>
 
-mCreateFactoryEntry( visBase::Axes );
-
+mCreateFactoryEntry( visBase::Axes )
 
 namespace visBase
 {
 
 Axes::Axes()
     : axesnode_(new osgGeo::AxesNode)
-    , mastercamera_(0)
     , pixeldensity_( getDefaultPixelDensity() )
-    , annottextsize_(18)
 {
     setOsgNode( axesnode_ );
 }
@@ -34,7 +30,6 @@ Axes::Axes()
 
 Axes::~Axes()
 {
-   unRefPtr( mastercamera_ );
 }
 
 
@@ -113,15 +108,14 @@ void Axes::setPixelDensity( float dpi )
 }
 
 
-void Axes::setPrimaryCamera( visBase::Camera* camera )
+void Axes::setPrimaryCamera( Camera* camera )
 {
-    mastercamera_ = camera;
-    mastercamera_->ref();
-    axesnode_->setPrimaryCamera( mastercamera_->osgCamera() );
+    primarycamera_ = camera;
+    axesnode_->setPrimaryCamera( primarycamera_->osgCamera() );
 }
 
 
-void Axes::setMasterCamera( visBase::Camera* camera )
+void Axes::setMasterCamera( Camera* camera )
 { setPrimaryCamera( camera ); }
 
 } // namespace visBase

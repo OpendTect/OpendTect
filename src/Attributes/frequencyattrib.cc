@@ -146,7 +146,7 @@ Frequency::~Frequency()
 		if ( strm.isOK() )
 		{
 		    BufferString bfstr;
-		    desc_.getDefStr(bfstr);
+		    getDesc().getDefStr(bfstr);
 		    strm << bfstr << '\n' << data;
 		}
 	    }

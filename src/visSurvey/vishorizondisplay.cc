@@ -28,22 +28,15 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "thread.h"
 #include "uistrings.h"
-#include "zaxistransform.h"
 
 #include "visevent.h"
-#include "vishorizonsection.h"
 #include "vishorizonsectiondef.h"
-#include "vishorizontexturehandler.h"
-#include "vismarkerset.h"
-#include "vismaterial.h"
 #include "visplanedatadisplay.h"
-#include "vispointset.h"
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vistexturechannel2rgba.h"
 #include "vistexturechannels.h"
-#include "vistransform.h"
 
 
 namespace visSurvey
@@ -125,13 +118,13 @@ public:
 				       const TypeSet<Coord>& crds,
 				       const Interval<float>& zrg,
 				       HorizonDisplay::IntersectionData& res)
-		    : hd_(hd), path_(path), crds_(crds)
-		    , zrg_(zrg), res_(res)
-		    , hor_(0), seedposids_(0), onthesamegrid_(false)
-		    , pathgeom_(0), horgeom_(0)
-		{
-		    positions_ = new Coord3[ path_.size() ];
-		}
+		    : hd_(hd)
+		    , path_(path)
+		    , crds_(crds)
+		    , zrg_(zrg)
+		    , res_(res)
+		    , positions_(new Coord3[path.size()])
+		{}
 
 		~HorizonPathIntersector()	{ delete [] positions_; }
 
@@ -143,19 +136,19 @@ public:
 
 protected:
 
-    static Coord3	skipPos()	{ return Coord3(Coord::udf(),0); }
-    static Coord3	endLine()	{ return Coord3(Coord::udf(),1); }
+    static Coord3	skipPos()	{ return Coord3(Coord::udf(),0.); }
+    static Coord3	endLine()	{ return Coord3(Coord::udf(),1.); }
 
     const HorizonDisplay&		hd_;
     const TrcKeyPath&			path_;
     const TypeSet<Coord>&		crds_;
     const Interval<float>&		zrg_;
     HorizonDisplay::IntersectionData&	res_;
-    const EM::Horizon3D*		hor_;
-    const TypeSet<EM::PosID>*		seedposids_;
-    bool				onthesamegrid_;
-    const Survey::Geometry*		pathgeom_;
-    const Survey::Geometry*		horgeom_;
+    const EM::Horizon3D*		hor_		= nullptr;
+    const TypeSet<EM::PosID>*		seedposids_	= nullptr;
+    bool				onthesamegrid_	= false;
+    const Survey::Geometry*		pathgeom_	= nullptr;
+    const Survey::Geometry*		horgeom_	= nullptr;
 
     Coord3*				positions_;
 };
@@ -163,8 +156,7 @@ protected:
 
 bool HorizonPathIntersector::doPrepare( int nrthreads )
 {
-    mDynamicCast( const EM::Horizon3D*, hor_, hd_.emobject_ );
-
+    mDynamicCast(const EM::Horizon3D*,hor_,hd_.emobject_.ptr());
     if ( !path_.size() )
 	return false;
 
@@ -274,27 +266,16 @@ bool HorizonPathIntersector::doFinish( bool success )
     return success;
 }
 
-//==============================================================================
+
+
+// HorizonDisplay
 
 HorizonDisplay::HorizonDisplay()
-    : allowshading_( true )
-    , translationpos_( Coord3::udf() )
-    , intersectionlinematerial_( 0 )
-    , selections_( 0 )
-    , lockedpts_( 0 )
-    , sectionlockedpts_( 0 )
-    , parentline_( 0 )
-    , parrowrg_( -1, -1, -1 )
-    , parcolrg_( -1, -1, -1 )
-    , enabletextureinterp_( true )
-    , resolution_( 0 )
-    , curtextureidx_( 0 )
-    , displayintersectionlines_( true )
-    , displaysurfacegrid_( false )
-    , showlock_( false )
+    : parrowrg_(-1,-1,-1)
+    , parcolrg_(-1,-1,-1)
 {
+    ref();
     translation_ = visBase::Transformation::create();
-    translation_->ref();
     setGroupNode( translation_ );
 
     setLockable();
@@ -309,17 +290,17 @@ HorizonDisplay::HorizonDisplay()
     TypeSet<float> shift;
     shift += 0.0;
     curshiftidx_ += 0;
-    BufferStringSet* attrnms = new BufferStringSet();
-    attrnms->allowNull();
+    auto* attrnms = new BufferStringSet();
+    attrnms->setNullAllowed();
     userrefs_ += attrnms;
     shifts_ += new TypeSet<float>;
     enabled_ += true;
-    dispdatapackids_ += new TypeSet<DataPackID>;
+    datapacksset_ += new RefObjectSet<MapDataPack>;
 
     material_->setAmbience( 0.8 );
 
-    RefMan<visBase::Material> linemat = new visBase::Material;
-    linemat->setFrom( *material_ );
+    RefMan<visBase::Material> linemat = visBase::Material::create();
+    linemat->setFrom( *material_.ptr() );
     linemat->setColor( nontexturecol_ );
     linemat->setDiffIntensity( 1 );
     linemat->setAmbience( 1 );
@@ -329,49 +310,30 @@ HorizonDisplay::HorizonDisplay()
     Settings::common().get( "dTect.Horizon.Resolution", res );
     resolution_ = (char)res;
     locker_ = new Threads::Mutex;
+    unRefNoDelete();
 }
 
 
 HorizonDisplay::~HorizonDisplay()
 {
-    deepErase(as_);
-    unRefAndNullPtr( intersectionlinematerial_ );
-
+    deepErase( as_ );
     coltabmappersetups_.erase();
     coltabsequences_.erase();
 
-    setSceneEventCatcher( 0 );
+    setSceneEventCatcher( nullptr );
     curshiftidx_.erase();
 
-    if ( translation_ )
-    {
-	translation_->unRef();
-	translation_ = nullptr;
-    }
-
+    translation_ = nullptr;
     removeEMStuff();
-    unRefAndNullPtr( zaxistransform_ );
+    zaxistransform_ = nullptr;
 
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    for ( int idx=0; idx<dispdatapackids_.size(); idx++ )
-    {
-	const TypeSet<DataPackID>& dpids = *dispdatapackids_[idx];
-	for ( int idy=dpids.size()-1; idy>=0; idy-- )
-	    dpm.unRef( dpids[idy] );
-    }
-
-    deepErase( dispdatapackids_ );
+    deepErase( datapacksset_ );
     deepErase( shifts_ );
-
-    if ( selections_ ) selections_->unRef();
-    if ( lockedpts_ ) lockedpts_->unRef();
-
+    selections_ = nullptr;
+    lockedpts_ = nullptr;
     delete locker_;
 
     emchangedata_.clearData();
-
-    if ( sectionlockedpts_ )
-	sectionlockedpts_->unRef();
 }
 
 
@@ -396,11 +358,11 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setDisplayTransformation(transformation_);
+    for ( auto* section : sections_ )
+	section->setDisplayTransformation(transformation_);
 
-    for ( int idx=0; idx<intersectiondata_.size(); idx++ )
-	intersectiondata_[idx]->setDisplayTransformation(transformation_);
+    for ( auto* intersection : intersectiondata_ )
+	intersection->setDisplayTransformation( transformation_ );
 
     if ( translationpos_.isDefined() )
 	setTranslation( translationpos_ );
@@ -418,15 +380,9 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
 
 bool HorizonDisplay::setZAxisTransform( ZAxisTransform* nz, TaskRunner* trans )
 {
-    if ( zaxistransform_ )
-	zaxistransform_->unRef();
-
     zaxistransform_ = nz;
-    if ( zaxistransform_ )
-	zaxistransform_->ref();
-
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setZAxisTransform( nz, trans );
+    for ( auto* section : sections_ )
+	section->setZAxisTransform( nz, trans );
 
     return true;
 }
@@ -434,7 +390,7 @@ bool HorizonDisplay::setZAxisTransform( ZAxisTransform* nz, TaskRunner* trans )
 
 const visBase::VertexShape* HorizonDisplay::getLine( int idx ) const
 {
-    if ( idx >= intersectiondata_.size() )
+    if ( !intersectiondata_.validIdx(idx) )
 	return nullptr;
 
     return intersectiondata_[idx]->line_;
@@ -444,11 +400,11 @@ const visBase::VertexShape* HorizonDisplay::getLine( int idx ) const
 bool HorizonDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 {
     RefMan<visBase::TextureChannel2RGBA> dummy( t );
-    if ( sections_.size()!=1 )
+    if ( sections_.size() != 1 )
 	return EMObjectDisplay::setChannels2RGBA( t );
 
-    EMObjectDisplay::setChannels2RGBA( 0 );
-    sections_[0]->setChannels2RGBA( t );
+    EMObjectDisplay::setChannels2RGBA( nullptr );
+    sections_.first()->setChannels2RGBA( t );
 
     return true;
 }
@@ -456,9 +412,8 @@ bool HorizonDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 
 visBase::TextureChannel2RGBA* HorizonDisplay::getChannels2RGBA()
 {
-    return sections_.size()
-	? sections_[0]->getChannels2RGBA()
-	: EMObjectDisplay::getChannels2RGBA();
+    return sections_.isEmpty() ? EMObjectDisplay::getChannels2RGBA()
+			       : sections_.first()->getChannels2RGBA();
 }
 
 
@@ -469,22 +424,21 @@ const visBase::TextureChannel2RGBA* HorizonDisplay::getChannels2RGBA() const
 void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
 {
     EMObjectDisplay::setSceneEventCatcher( ec );
-
-    for ( int idx=0; idx<sections_.size(); idx++ )
+    for ( auto* section : sections_ )
     {
-	sections_[idx]->setSceneEventCatcher( ec );
+	section->setSceneEventCatcher( ec );
 	if ( ec && scene_ )
-	    sections_[idx]->setRightHandSystem( scene_->isRightHandSystem() );
+	    section->setRightHandSystem( scene_->isRightHandSystem() );
     }
 
-    for ( int idx=0; idx<intersectiondata_.size(); idx++ )
-	intersectiondata_[idx]->setSceneEventCatcher( ec );
+    for ( auto* intersection : intersectiondata_ )
+	intersection->setSceneEventCatcher( ec );
 }
 
 
 EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 {
-    const mVisTrans* ztrans = scene_->getTempZStretchTransform();
+    ConstRefMan<mVisTrans> ztrans = scene_->getTempZStretchTransform();
     Coord3 newpos;
     ztrans->transformBack( pickedpos, newpos );
     if ( transformation_ )
@@ -497,13 +451,14 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
     {
 	if ( !emobject_->isDefined(pickedsubid) )
 	    continue;
+
 	closestnodes += EM::PosID( emobject_->id(), pickedbid );
     }
 
     if ( closestnodes.isEmpty() )
 	return EM::PosID();
 
-    EM::PosID closestnode = closestnodes[0];
+    EM::PosID closestnode = closestnodes.first();
     float mindist = mUdf(float);
     for ( int idx=0; idx<closestnodes.size(); idx++ )
     {
@@ -526,11 +481,8 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 
 void HorizonDisplay::removeEMStuff()
 {
-    for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	removeChild( sections_[idx]->osgNode() );
-	sections_[idx]->unRef();
-    }
+    for ( auto* section : sections_ )
+	removeChild( section->osgNode() );
 
     sections_.erase();
     sids_.erase();
@@ -547,7 +499,7 @@ bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* trnr )
 
 StepInterval<int> HorizonDisplay::geometryRowRange() const
 {
-    mDynamicCastGet(const EM::Horizon3D*, surface, emobject_ );
+    mDynamicCastGet(const EM::Horizon3D*,surface,emobject_.ptr());
     if ( !surface )
 	return parrowrg_;
 
@@ -557,15 +509,16 @@ StepInterval<int> HorizonDisplay::geometryRowRange() const
 
 StepInterval<int> HorizonDisplay::geometryColRange() const
 {
-    mDynamicCastGet(const EM::Horizon3D*,horizon3d,emobject_);
+    mDynamicCastGet(const EM::Horizon3D*,horizon3d,emobject_.ptr());
     return horizon3d ? horizon3d->geometry().colRange() : parcolrg_;
 }
 
 
 bool HorizonDisplay::updateFromEM( TaskRunner* trans )
 {
-    if ( !EMObjectDisplay::updateFromEM( trans ) )
+    if ( !EMObjectDisplay::updateFromEM(trans) )
 	return false;
+
     updateSingleColor();
     return true;
 }
@@ -575,7 +528,15 @@ void HorizonDisplay::updateFromMPE()
 {
     if ( geometryRowRange().nrSteps()<=1 || geometryColRange().nrSteps()<=1 )
 	setResolution( 0, 0 ); //Automatic resolution
+
     EMObjectDisplay::updateFromMPE();
+}
+
+
+void HorizonDisplay::showPosAttrib( int attr, bool yn )
+{
+    EMObjectDisplay::showPosAttrib( attr, yn );
+    setOnlyAtSectionsDisplay( displayedOnlyAtSections() ); // retrigger
 }
 
 
@@ -620,33 +581,33 @@ bool HorizonDisplay::canHaveMultipleAttribs() const
 
 int HorizonDisplay::nrTextures( int channel ) const
 {
-    if ( channel<0 || channel>=nrAttribs() || !sections_.size() )
+    if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty() )
 	return 0;
 
-    return sections_[0]->nrVersions( channel );
+    return sections_.first()->nrVersions( channel );
 }
 
 
 void HorizonDisplay::selectTexture( int channel, int textureidx )
 {
     curtextureidx_ = textureidx;
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->selectActiveVersion( channel, textureidx );
+    for ( auto* section : sections_ )
+	section->selectActiveVersion( channel, textureidx );
 }
 
 
 int HorizonDisplay::selectedTexture( int channel ) const
 {
-    if ( channel<0 || channel>=nrAttribs() || !sections_.size() )
+    if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty() )
 	return 0;
 
-    return sections_[0]->activeVersion( channel );
+    return sections_.first()->activeVersion( channel );
 }
 
 
 SurveyObject::AttribFormat HorizonDisplay::getAttributeFormat( int ) const
 {
-    return sections_.size() ? SurveyObject::RandomPos : SurveyObject::None;
+    return sections_.isEmpty() ? SurveyObject::None : SurveyObject::RandomPos;
 }
 
 
@@ -658,11 +619,12 @@ int HorizonDisplay::nrAttribs() const
 
 bool HorizonDisplay::canAddAttrib( int nr ) const
 {
-    if ( !sections_.size() )
+    if ( sections_.isEmpty() )
 	return false;
 
-    const int maxnr =  sections_[0]->getChannels2RGBA()->maxNrChannels();
-    if ( !maxnr ) return true;
+    const int maxnr = sections_.first()->getChannels2RGBA()->maxNrChannels();
+    if ( !maxnr )
+	return true;
 
     return nrAttribs()+nr<=maxnr;
 }
@@ -699,24 +661,23 @@ bool HorizonDisplay::addAttrib()
     TypeSet<float> shift;
     shift += 0.0;
     curshiftidx_ += 0;
-    BufferStringSet* attrnms = new BufferStringSet();
-    attrnms->allowNull();
+    auto* attrnms = new BufferStringSet();
+    attrnms->setNullAllowed();
     userrefs_ += attrnms;
     enabled_ += true;
     shifts_ += new TypeSet<float>;
-    dispdatapackids_ += new TypeSet<DataPackID>;
+    datapacksset_ += new RefObjectSet<MapDataPack>;
     coltabmappersetups_ += ColTab::MapperSetup();
     coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
 
     const int curchannel = coltabmappersetups_.size()-1;
-    for ( int idx=0; idx<sections_.size(); idx++ )
+    for ( auto* section : sections_ )
     {
-	sections_[idx]->addChannel();
-	sections_[idx]->setColTabSequence( curchannel,
-		coltabsequences_[curchannel] );
+	section->addChannel();
+	section->setColTabSequence( curchannel, coltabsequences_[curchannel] );
 
-	sections_[idx]->setColTabMapperSetup( curchannel,
-		coltabmappersetups_[curchannel], 0 );
+	section->setColTabMapperSetup( curchannel,
+				       coltabmappersetups_[curchannel],nullptr);
     }
 
     return true;
@@ -728,27 +689,22 @@ bool HorizonDisplay::removeAttrib( int channel )
     if ( channel<0 || channel>=nrAttribs() )
        return true;
 
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->removeChannel( channel );
+    for ( auto* section : sections_ )
+	section->removeChannel( channel );
 
     curshiftidx_.removeSingle( channel );
     delete userrefs_.removeSingle( channel );
     enabled_.removeSingle( channel );
     delete shifts_.removeSingle( channel );
-
-    const TypeSet<DataPackID>& dpids = *dispdatapackids_[channel];
-    for ( int idy=dpids.size()-1; idy>=0; idy-- )
-	DPM(DataPackMgr::FlatID()).unRef( dpids[idy] );
-    delete dispdatapackids_.removeSingle( channel );
-
+    delete datapacksset_.removeSingle( channel );
     coltabmappersetups_.removeSingle( channel );
     coltabsequences_.removeSingle( channel );
     delete as_.removeSingle( channel );
 
     for ( int chan=channel; chan<nrAttribs(); chan++ )
     {
-	for ( int idx=0; idx<sections_.size(); idx++ )
-	    sections_[idx]->setColTabSequence( chan, coltabsequences_[chan] );
+	for ( auto* section : sections_ )
+	    section->setColTabSequence( chan, coltabsequences_[chan] );
     }
 
     return true;
@@ -757,18 +713,18 @@ bool HorizonDisplay::removeAttrib( int channel )
 
 bool HorizonDisplay::swapAttribs( int a0, int a1 )
 {
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->swapChannels( a0, a1 );
+    for ( auto* section : sections_ )
+	section->swapChannels( a0, a1 );
 
     coltabmappersetups_.swap( a0, a1 );
     coltabsequences_.swap( a0, a1 );
 
     as_.swap( a0, a1 );
+    datapacksset_.swap( a0, a1 );
     enabled_.swap( a0, a1 );
-    shifts_.swap( a0, a1 );
     curshiftidx_.swap( a0, a1 );
+    shifts_.swap( a0, a1 );
     userrefs_.swap( a0, a1 );
-    dispdatapackids_.swap( a0, a1 );
     return true;
 }
 
@@ -778,8 +734,8 @@ void HorizonDisplay::setAttribTransparency( int channel, unsigned char nt )
     if ( channel<0 || channel>=nrAttribs() )
        return;
 
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setTransparency( channel, nt );
+    for ( auto* section : sections_ )
+	section->setTransparency( channel, nt );
 }
 
 
@@ -798,8 +754,8 @@ void HorizonDisplay::enableAttrib( int channel, bool yn )
 	return;
 
     enabled_[channel] = yn;
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->getChannels2RGBA()->setEnabled( channel, yn );
+    for ( auto* section : sections_ )
+	section->getChannels2RGBA()->setEnabled( channel, yn );
 
     updateSingleColor();
 }
@@ -817,8 +773,8 @@ bool HorizonDisplay::isAttribEnabled( int channel ) const
 void HorizonDisplay::allowShading( bool yn )
 {
     allowshading_ = yn;
-    for ( int idx=sections_.size()-1; idx>=0; idx-- )
-	sections_[idx]->getChannels2RGBA()->allowShading( yn );
+    for ( auto* section : sections_ )
+	section->getChannels2RGBA()->allowShading( yn );
 }
 
 
@@ -859,7 +815,7 @@ void HorizonDisplay::setSelSpecs(
 
     *as_[channel] = as;
 
-    BufferStringSet* attrnms = new BufferStringSet();
+    auto* attrnms = new BufferStringSet();
     for ( int idx=0; idx<as.size(); idx++ )
 	attrnms->add( as[idx].userRef() );
     delete userrefs_.replace( channel, attrnms );
@@ -901,7 +857,7 @@ bool doWork( od_int64 start, od_int64 stop, int thread ) override
 
     BinIDValueSet&	bivs_;
     int			zcol_;
-    ZAxisTransform*	zat_;
+    RefMan<ZAxisTransform> zat_;
     HorSampling		hs_;
 
 };
@@ -940,7 +896,8 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 
     getRandomPos( *positions, 0 );
 
-    if ( !positions->size() ) return;
+    if ( !positions->size() )
+	return;
 
     BinIDValueSet& bivs = positions->bivSet();
     if ( bivs.nrVals()!=3 )
@@ -952,19 +909,23 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     col = positions->dataSet().findColDef( zvalsdef, PosVecDataSet::NameExact );
     if ( col==-1 )
 	col = 2;
-    ZAxisTransform* zatf = isAlreadyTransformed() ? nullptr : zaxistransform_;
-    ZValSetter zvalssetter( bivs, col, zatf );
+
+    RefMan<ZAxisTransform> zatf;
+    if ( !isAlreadyTransformed() )
+	zatf = zaxistransform_.ptr();
+
+    ZValSetter zvalssetter( bivs, col, zatf.ptr() );
     zvalssetter.execute();
 
-    setRandomPosData( channel, positions, 0 );
+    setRandomPosData( channel, positions, nullptr );
 }
 
 
 void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* taskr ) const
 {
     //data.bivSet().allowDuplicateBids(false);
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->getDataPositions( data, getTranslation().z, 0, taskr );
+    for ( auto* section : sections_ )
+	section->getDataPositions( data, getTranslation().z, 0, taskr );
 
     data.dataChanged();
 }
@@ -976,12 +937,13 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
        return;
 
     data.clearData();
-    for ( int idx=0; idx<userrefs_[channel]->size(); idx++ )
-	data.dataSet().add( new DataColDef(userrefs_[channel]->get(idx)) );
+    const BufferStringSet& userrefs = *userrefs_.get( channel );
+    for ( const auto* userref : userrefs )
+	data.dataSet().add( new DataColDef( userref->buf() ) );
 
-    for ( int idx=0; idx<sections_.size(); idx++ )
+    for ( const auto* section : sections_ )
     {
-	const BinIDValueSet* cache = sections_[idx]->getCache( channel );
+	const BinIDValueSet* cache = section->getCache( channel );
 	if ( cache )
 	{
 	    data.bivSet().setNrVals( cache->nrVals(), false );
@@ -1001,10 +963,10 @@ void HorizonDisplay::updateSingleColor()
     if ( intersectionlinematerial_ )
 	intersectionlinematerial_->setColor( nontexturecol_ );
 
-    for ( int idx=0; idx<sections_.size(); idx++ )
+    for ( auto* section : sections_ )
     {
-	sections_[idx]->useChannel( !usesinglecol );
-	sections_[idx]->setWireframeColor( col );
+	section->useChannel( !usesinglecol );
+	section->setWireframeColor( col );
     }
 }
 
@@ -1047,7 +1009,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     validtexture_ = true;
     updateSingleColor();
 
-    BufferStringSet* attrnms = new BufferStringSet();
+    auto* attrnms = new BufferStringSet();
     for ( int idx=0; idx<data->nrCols(); idx++ )
 	attrnms->add( data->colDef(idx).name_ );
     delete userrefs_.replace( channel, attrnms );
@@ -1059,12 +1021,13 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 void HorizonDisplay::createDisplayDataPacks(
 			int channel, const DataPointSet* data )
 {
-    if ( !data || !data->size() || sections_.isEmpty() ) return;
+    if ( !data || !data->size() || sections_.isEmpty() )
+	return;
 
     const StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
     const StepInterval<int> dispcrlrg = sections_[0]->displayedColRange();
     const BinID step( dispinlrg.step, dispcrlrg.step );
-    sections_[0]->setTextureRange( dispinlrg, dispcrlrg );
+    sections_.first()->setTextureRange( dispinlrg, dispcrlrg );
 
     StepInterval<double> inlrg( (double)dispinlrg.start, (double)dispinlrg.stop,
 				(double)dispinlrg.step );
@@ -1077,13 +1040,13 @@ void HorizonDisplay::createDisplayDataPacks(
     const int nrfixedcols = data->nrFixedCols();
     const int shift = data->validColID(sidcol) ? nrfixedcols+1 : nrfixedcols;
     const BinIDValueSet* cache =
-	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
+	sections_.isEmpty() ? nullptr : sections_[0]->getCache( channel );
     if ( !cache )
 	return;
 
     const int nrversions = cache->nrVals()-shift;
 
-    TypeSet<DataPackID> dpids;
+    RefObjectSet<MapDataPack> datapacks;
     const char* catnm = "Horizon Data";
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-line").add("Cross-line");
@@ -1092,21 +1055,22 @@ void HorizonDisplay::createDisplayDataPacks(
     {
 	mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr,
 			    BIDValSetArrAdapter(*cache,idx+shift,step));
-	if ( !bvsarr ) continue;
+	if ( !bvsarr )
+	    continue;
 
-	mDeclareAndTryAlloc(MapDataPack*,mapdp,MapDataPack(catnm,bvsarr));
-	if ( !mapdp ) continue;
+	RefMan<MapDataPack> mapdp = new MapDataPack( catnm, bvsarr );
+	if ( !mapdp )
+	    continue;
 
 	const Attrib::SelSpec* as = getSelSpec( channel, idx );
 	if ( as )
 	    mapdp->setName( as->userRef() );
 
 	mapdp->setProps( inlrg, crlrg, true, &dimnames );
-	DPM(DataPackMgr::FlatID()).add( mapdp );
-	dpids += mapdp->id();
+	datapacks.add( mapdp.ptr() );
     }
 
-    setDisplayDataPackIDs( channel, dpids );
+    setDisplayDataPacks( channel, datapacks );
 }
 
 
@@ -1125,12 +1089,12 @@ bool HorizonDisplay::hasDepth( int channel ) const
 Coord3 HorizonDisplay::getTranslation() const
 {
     if ( !translation_ )
-	return Coord3(0,0,0);
+	return Coord3(0.,0.,0.);
 
     const Coord3 current = translation_->getTranslation();
-    Coord3 origin( 0, 0, 0 );
+    Coord3 origin( 0., 0., 0. );
     Coord3 shift( current );
-    shift  *= -1;
+    shift *= -1.;
 
     mVisTrans::transformBack( transformation_, origin );
     mVisTrans::transformBack( transformation_, shift );
@@ -1145,9 +1109,9 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
      if ( !nt.isDefined() )
 	return;
 
-    Coord3 origin( 0, 0, 0 );
+    Coord3 origin( 0., 0., 0. );
     Coord3 aftershift( nt );
-    aftershift.z *= -1;
+    aftershift.z *= -1.;
 
     mVisTrans::transform( transformation_, origin );
     mVisTrans::transform( transformation_, aftershift );
@@ -1165,18 +1129,19 @@ void HorizonDisplay::setSectionDisplayRestore( bool yn )
     oldsectionids_.erase();
     olddisplayedrowranges_.erase();
     olddisplayedcolranges_.erase();
-    deepUnRef( oldhortexhandlers_ );
+    oldhortexhandlers_.erase();
 
     if ( yn )
     {
 	for ( int idx=0; idx<sids_.size(); idx++ )
 	{
 	    oldsectionids_ += sids_[idx];
-	    if ( !sections_.validIdx(idx) ) continue;
+	    if ( !sections_.validIdx(idx) )
+		continue;
+
 	    olddisplayedrowranges_ += sections_[idx]->displayedRowRange();
 	    olddisplayedcolranges_ += sections_[idx]->displayedColRange();
 	    oldhortexhandlers_ += &sections_[idx]->getTextureHandler();
-	    oldhortexhandlers_.last()->ref();
 	}
     }
 }
@@ -1185,10 +1150,11 @@ void HorizonDisplay::setSectionDisplayRestore( bool yn )
 void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 {
     const int idx = sids_.indexOf( sid );
-    if ( idx<0 ) return;
+    if ( idx<0 )
+	return;
 
     removeChild( sections_[idx]->osgNode() );
-    sections_.removeSingle( idx )->unRef();
+    sections_.removeSingle( idx );
     secnames_.removeSingle( idx );
     sids_.removeSingle( idx );
 }
@@ -1196,13 +1162,12 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 
 bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 {
-    mDynamicCastGet(EM::Horizon3D*,horizon,emobject_)
+    mDynamicCastGet(EM::Horizon3D*,horizon,emobject_.ptr())
     if ( !horizon )
 	return false;
 
     setZDomain( horizon->zDomain() );
     RefMan<visBase::HorizonSection> surf = visBase::HorizonSection::create();
-    surf->ref();
     surf->setDisplayTransformation( transformation_ );
     ZAxisTransform* zatf = isAlreadyTransformed() ? nullptr : zaxistransform_;
     surf->setZAxisTransform( zatf, trans );
@@ -1212,13 +1177,10 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     surf->setSurface( horizon->geometry().geometryElement(), true, trans );
     if ( !emobject_->isEmpty() && trans && !trans->execResult() )
-    {
-	surf->unRef();
 	return false;
-    }
 
     surf->setResolution( resolution_-1, trans );
-    surf->setMaterial( 0 );
+    surf->setMaterial( nullptr );
 
     const int oldsecidx = oldsectionids_.indexOf( sid );
     if ( oldsecidx>=0 )
@@ -1237,7 +1199,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 	if ( sections_.isEmpty() && channel2rgba_ )
 	{
 	    surf->setChannels2RGBA( channel2rgba_ );
-	    EMObjectDisplay::setChannels2RGBA( 0 );
+	    EMObjectDisplay::setChannels2RGBA( nullptr );
 	}
 
 	while ( surf->nrChannels()<nrAttribs() )
@@ -1245,7 +1207,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 
 	for ( int idx=0; idx<nrAttribs(); idx++ )
 	{
-	    surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
+	    surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], nullptr);
 	    surf->setColTabSequence( idx, coltabsequences_[idx] );
 	    surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
 	}
@@ -1285,27 +1247,25 @@ void HorizonDisplay::enableTextureInterpolation( bool yn )
 	return;
 
     enabletextureinterp_ = yn;
-    for ( int idx=0; idx<sections_.size(); idx++ )
+    for ( auto* section : sections_ )
     {
-	if ( !sections_[idx] || !sections_[idx]->getChannels() )
+	if ( !section || !section->getChannels() )
 	    continue;
 
-	sections_[idx]->getChannels()->enableTextureInterpolation( yn );
-
+	section->getChannels()->enableTextureInterpolation( yn );
     }
 }
 
 
 void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 {
-    for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->turnOn(!yn);
+    for ( auto* section : sections_ )
+	section->turnOn( !yn );
 
     EMObjectDisplay::setOnlyAtSectionsDisplay( yn );
-
     displayonlyatsections_ = yn;
 
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_.ptr())
     if ( !hor3d )
 	return;
 
@@ -1321,14 +1281,9 @@ void HorizonDisplay::setOnlyAtSectionsDisplay( bool yn )
 
 void HorizonDisplay::setIntersectLineMaterial( visBase::Material* nm )
 {
-    unRefAndNullPtr( intersectionlinematerial_ );
-
     intersectionlinematerial_ = nm;
-
-    refPtr( intersectionlinematerial_ );
-
-    for ( int idx=0; idx<intersectiondata_.size(); idx++ )
-	intersectiondata_[idx]->setMaterial( intersectionlinematerial_ );
+    for ( auto* intersection : intersectiondata_ )
+	intersection->setMaterial( nm );
 }
 
 
@@ -1348,6 +1303,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 	emchangedata_.getCallBackData( idx );
 	if ( !cbdata )
 	    continue;
+
 	EMObjectDisplay::handleEmChange( *cbdata );
 	handleEmChange( *cbdata );
     }
@@ -1371,7 +1327,7 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
     {
 	nontexturecol_ = emobject_->preferredColor();
 	setLineStyle( emobject_->preferredLineStyle() );
-	mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
+	mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_.ptr())
 	if ( hor3d )
 	{
 	    if ( parentline_ && parentline_->getMaterial() )
@@ -1392,8 +1348,8 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
     {
 	// if it is unlocked, we need set all lockedpts to unlock.
 	// if it is locked, we do nothing
-	mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
-	const bool locked = hor3d ? hor3d->hasLockedNodes() : 0;
+	mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_.ptr() )
+	const bool locked = hor3d ? hor3d->hasLockedNodes() : false;
 	if ( locked && !displayonlyatsections_ )
 	{
 	    updateLockedPointsColor();
@@ -1429,16 +1385,15 @@ void HorizonDisplay::handleEmChange( const EM::EMObjectCallbackData& cbdata )
 
 void HorizonDisplay::updateLockedPointsColor()
 {
-    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
-    if ( !hor3d ) return;
+    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_.ptr() )
+    if ( !hor3d )
+	return;
 
     if ( lockedpts_ && lockedpts_->getMaterial() )
 	lockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
 
     if ( sectionlockedpts_ && sectionlockedpts_->getMaterial() )
-    {
 	sectionlockedpts_->getMaterial()->setColor( hor3d->getLockColor() );
-    }
 }
 
 OD::Color HorizonDisplay::singleColor() const
@@ -1459,7 +1414,7 @@ int HorizonDisplay::getChannelIndex( const char* nm ) const
 
 void HorizonDisplay::updateAuxData()
 {
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_.ptr())
     if ( !hor3d )
 	return;
 
@@ -1467,9 +1422,9 @@ void HorizonDisplay::updateAuxData()
     if ( depthidx != -1 )
 	setDepthAsAttrib( depthidx );
 
-    const ObjectSet<BinIDValueSet>& auxdata =
-	hor3d->auxdata.getData();
-    if ( auxdata.isEmpty() ) return;
+    const ObjectSet<BinIDValueSet>& auxdata = hor3d->auxdata.getData();
+    if ( auxdata.isEmpty() )
+	return;
 
     float auxvals[3];
     auxvals[0] = mUdf(float);
@@ -1478,7 +1433,8 @@ void HorizonDisplay::updateAuxData()
     {
 	const char* auxdatanm = hor3d->auxdata.auxDataName( idx );
 	const int cidx = getChannelIndex( auxdatanm );
-	if ( cidx==-1 ) continue;
+	if ( cidx==-1 )
+	    continue;
 
 	RefMan<DataPointSet> dps = new DataPointSet( false, true );
 	dps->dataSet().add( new DataColDef(sKeySectionID()) );
@@ -1544,9 +1500,8 @@ const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
     if ( channel<0 || channel>=nrAttribs() )
        return nullptr;
 
-    return sections_.size()
-	? sections_[0]->getColTabSequence( channel )
-	: &coltabsequences_[channel];
+    return sections_.size() ? sections_[0]->getColTabSequence( channel )
+			    : &coltabsequences_[channel];
 }
 
 
@@ -1616,12 +1571,13 @@ const TypeSet<float>* HorizonDisplay::getHistogram( int attrib ) const
 
 float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 {
-    if ( !emobject_ ) return mUdf(float);
+    if ( !emobject_ )
+	return mUdf(float);
 
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos;
     utm2display->transformBack( pickpos, xytpos );
-    mDynamicCastGet(const EM::Horizon3D*,hor,emobject_)
+    mDynamicCastGet(const EM::Horizon3D*,hor,emobject_.ptr())
     if ( hor )
     {
 	const BinID bid = SI().transform( xytpos );
@@ -1638,9 +1594,8 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	float mindist = mUdf(float);
 	for ( int idx=0; idx<positions.size(); idx++ )
 	{
-	    const float zfactor = scene_
-		? scene_->getZScale()
-		: s3dgeom_->zScale();
+	    const float zfactor = scene_ ? scene_->getZScale()
+					 : s3dgeom_->zScale();
 	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
 	    const float dist = (float) fabs(xytpos.z-pos.z);
 	    if ( dist < mindist ) mindist = dist;
@@ -1671,7 +1626,7 @@ const visBase::HorizonSection* HorizonDisplay::getHorizonSection() const
 }
 
 
-EM::SectionID HorizonDisplay::getSectionID( VisID visid ) const
+EM::SectionID HorizonDisplay::getSectionID( const VisID& visid ) const
 {
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
@@ -1795,25 +1750,12 @@ void HorizonDisplay::traverseLine( const TrcKeyPath& path,
 }
 
 
-#define mAddLinePrimitiveSet \
-{\
-    if ( idxps.size()>=2 )\
-    {\
-       Geometry::IndexedPrimitiveSet* primitiveset =  \
-	       Geometry::IndexedPrimitiveSet::create( false );\
-       primitiveset->ref();\
-       primitiveset->append( idxps.arr(), idxps.size() );\
-       line->addPrimitiveSet( primitiveset ); \
-       primitiveset->unRef();\
-    }\
-}
-
-
 void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
 			HorizonDisplay::IntersectionData& res ) const
 {
-    mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
-    if ( !horizon ) return;
+    mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_.ptr());
+    if ( !horizon )
+	return;
 
     const float zshift = (float)getTranslation().z;
 
@@ -1821,7 +1763,8 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
 	horizon->geometry().geometryElement();
 
     const Array2D<float>* field = geom->getArray();
-    if ( !field ) return;
+    if ( !field )
+	return;
 
     ConstPtrMan<Array2D<float> > myfield;
     if ( !isAlreadyTransformed() )
@@ -1887,7 +1830,8 @@ HorizonDisplay::IntersectionData*
 { if ( obj && obj->id() == objid ) { objidx = idx; return true;}  }
 
 bool HorizonDisplay::isValidIntersectionObject(
-    const ObjectSet<const SurveyObject>&objs, int& objidx, VisID objid ) const
+		const ObjectSet<const SurveyObject>&objs, int& objidx,
+		const VisID& objid ) const
 {
     for ( int idx=0; idx<objs.size(); idx++ )
     {
@@ -1906,9 +1850,9 @@ bool HorizonDisplay::isValidIntersectionObject(
 
 
 void HorizonDisplay::updateIntersectionLines(
-	    const ObjectSet<const SurveyObject>& objs, VisID whichobj )
+	    const ObjectSet<const SurveyObject>& objs, const VisID& whichobj )
 {
-    mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_);
+    mDynamicCastGet(const EM::Horizon3D*,horizon,emobject_.ptr());
     if ( !horizon )
 	return;
 
@@ -1993,8 +1937,8 @@ void HorizonDisplay::updateIntersectionLines(
 	}
     }
 
-    //These lines were not used, hance remove from scene.
-    for ( const auto* line : lines )
+    //These lines were not used, hence remove from scene.
+    for ( auto* line : lines )
     {
 	removeChild( line->line_->osgNode() );
 	removeChild( line->markerset_->osgNode() );
@@ -2030,7 +1974,7 @@ void HorizonDisplay::setLineStyle( const OD::LineStyle& lst )
 
 
 void HorizonDisplay::updateSectionSeeds(
-	    const ObjectSet<const SurveyObject>& objs, VisID movedobj )
+	    const ObjectSet<const SurveyObject>& objs, const VisID& movedobj )
 {
     if ( !isOn() )
 	return;
@@ -2102,7 +2046,7 @@ void HorizonDisplay::updateSectionSeeds(
     }
 
     // handle locked points on section
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_.ptr())
     if ( !hor3d || !lockedpts_ ||
 	 lockedpts_->size()<=0 || !displayonlyatsections_ )
 	return;
@@ -2110,7 +2054,6 @@ void HorizonDisplay::updateSectionSeeds(
     if ( !sectionlockedpts_ )
     {
 	sectionlockedpts_ = visBase::PointSet::create();
-	sectionlockedpts_->ref();
 	addChild( sectionlockedpts_->osgNode() );
 	sectionlockedpts_->setDisplayTransformation( transformation_ );
     }
@@ -2136,8 +2079,8 @@ void HorizonDisplay::updateSectionSeeds(
     if ( pidxs.isEmpty() )
 	return;
 
-    Geometry::PrimitiveSet* pointsetps =
-	Geometry::IndexedPrimitiveSet::create(true);
+    RefMan<Geometry::PrimitiveSet> pointsetps =
+			Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     sectionlockedpts_->addPrimitiveSet( pointsetps );
@@ -2154,13 +2097,15 @@ void HorizonDisplay::updateSectionSeeds(
 
 void HorizonDisplay::selectParent( const TrcKey& tk )
 {
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
-    if ( !hor3d ) return;
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_.ptr())
+    if ( !hor3d )
+	return;
 
     if ( !parentline_ )
     {
 	parentline_ = visBase::PolyLine3D::create();
-	parentline_->setMaterial( new visBase::Material() );
+	RefMan<visBase::Material> newmat = visBase::Material::create();
+	parentline_->setMaterial( newmat.ptr() );
 	parentline_->getMaterial()->setColor( hor3d->getParentColor() );
 	addChild( parentline_->osgNode() );
 	parentline_->setDisplayTransformation( transformation_ );
@@ -2183,19 +2128,24 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
 	idxps.add( cii++ );
     }
 
-    visBase::VertexShape* line = parentline_;
-    mAddLinePrimitiveSet;
+    if ( idxps.size()>=2 )
+    {
+       RefMan<Geometry::IndexedPrimitiveSet> primitiveset =
+		       Geometry::IndexedPrimitiveSet::create( false );
+       primitiveset->append( idxps.arr(), idxps.size() );
+       parentline_->addPrimitiveSet( primitiveset );
+    }
+
     showParentLine( true );
 }
 
 
 void HorizonDisplay::initSelectionDisplay( bool erase )
 {
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_.ptr())
     if ( !selections_ )
     {
 	selections_ = visBase::PointSet::create();
-	selections_->ref();
 	if ( hor3d && selections_->getMaterial() )
 	    selections_->getMaterial()->setColor( hor3d->getSelectionColor() );
 	addChild( selections_->osgNode() );
@@ -2211,16 +2161,18 @@ void HorizonDisplay::initSelectionDisplay( bool erase )
 
 void HorizonDisplay::selectChildren( const TrcKey& tk )
 {
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_)
-    if ( hor3d ) hor3d->selectChildren( tk );
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject_.ptr())
+    if ( hor3d )
+	hor3d->selectChildren( tk );
 }
 
 
 void HorizonDisplay::selectChildren()
 {
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
-    Array2D<char>* children = hor3d ? hor3d->getChildren() : 0;
-    if ( !children ) return;
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_.ptr())
+    Array2D<char>* children = hor3d ? hor3d->getChildren() : nullptr;
+    if ( !children )
+	return;
 
     initSelectionDisplay( true );
 
@@ -2241,8 +2193,8 @@ void HorizonDisplay::selectChildren()
 	pidxs += pidx;
     }
 
-    Geometry::PrimitiveSet* pointsetps =
-		Geometry::IndexedPrimitiveSet::create( true );
+    RefMan<Geometry::PrimitiveSet> pointsetps =
+			Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
@@ -2269,8 +2221,10 @@ void HorizonDisplay::showLocked( bool yn )
     if ( showlock_ )
 	calculateLockedPoints();
 
-    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_ )
-    if ( !hor3d ) return;
+    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobject_.ptr() )
+    if ( !hor3d )
+	return;
+
     const bool showlock = yn && hor3d->hasLockedNodes();
 
     if ( lockedpts_ )
@@ -2285,14 +2239,14 @@ void HorizonDisplay::showLocked( bool yn )
 
 void HorizonDisplay::calculateLockedPoints()
 {
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
-    const Array2D<char>* locked = hor3d ? hor3d->getLockedNodes() : 0;
-    if ( !locked ) return;
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_.ptr())
+    const Array2D<char>* locked = hor3d ? hor3d->getLockedNodes() : nullptr;
+    if ( !locked )
+	return;
 
     if ( !lockedpts_ )
     {
 	lockedpts_ = visBase::PointSet::create();
-	lockedpts_->ref();
 	addChild( lockedpts_->osgNode() );
 	lockedpts_->setDisplayTransformation( transformation_ );
     }
@@ -2321,8 +2275,8 @@ void HorizonDisplay::calculateLockedPoints()
     if ( pidxs.size()==0 )
 	return;
 
-    Geometry::PrimitiveSet* pointsetps =
-	Geometry::IndexedPrimitiveSet::create( true );
+    RefMan<Geometry::PrimitiveSet> pointsetps =
+			    Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     lockedpts_->addPrimitiveSet( pointsetps );
@@ -2347,9 +2301,9 @@ void HorizonDisplay::updateSelections()
     if ( !sel )
 	return;
 
-
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_)
-    if ( !hor3d || !sel ) return;
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobject_.ptr())
+    if ( !hor3d || !sel )
+	return;
 
     EMObjectDisplay::updateSelections();
 
@@ -2377,7 +2331,7 @@ void HorizonDisplay::updateSelections()
 
     if ( pidxs.isEmpty() ) return;
 
-    Geometry::PrimitiveSet* pointsetps =
+    RefMan<Geometry::PrimitiveSet> pointsetps =
 		Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
@@ -2396,14 +2350,14 @@ void HorizonDisplay::clearSelections()
 
 
 void HorizonDisplay::doOtherObjectsMoved(
-	const ObjectSet<const SurveyObject>& objs, VisID whichobj )
+	const ObjectSet<const SurveyObject>& objs, const VisID& whichobj )
 {
     otherObjectsMoved( objs, whichobj );
 }
 
 
 void HorizonDisplay::otherObjectsMoved(
-	    const ObjectSet<const SurveyObject>& objs, VisID whichobj )
+	    const ObjectSet<const SurveyObject>& objs, const VisID& whichobj )
 {
     updateIntersectionLines( objs, whichobj );
     updateSectionSeeds( objs, whichobj );
@@ -2478,7 +2432,7 @@ bool HorizonDisplay::usePar( const IOPar& par )
     if ( par.get(sKeyIntersectLineMaterialID(),intersectlinematid) )
     {
 	if ( intersectlinematid==-1 )
-	    setIntersectLineMaterial( 0 );
+	    setIntersectLineMaterial( nullptr );
 	else
 	{
 	    auto* mat = visBase::DM().getObject( VisID(intersectlinematid) );
@@ -2496,16 +2450,14 @@ bool HorizonDisplay::usePar( const IOPar& par )
 }
 
 
-void HorizonDisplay::setDisplayDataPackIDs( int attrib,
-				const TypeSet<DataPackID>& newdpids )
+void HorizonDisplay::setDisplayDataPacks( int attrib,
+				const ObjectSet<MapDataPack>& datapacks )
 {
-    TypeSet<DataPackID>& dpids = *dispdatapackids_[attrib];
-    for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID()).unRef( dpids[idx] );
+    if ( !datapacksset_.validIdx(attrib) )
+	return;
 
-    dpids = newdpids;
-    for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID()).ref( dpids[idx] );
+    RefObjectSet<MapDataPack>& dps = *datapacksset_.get( attrib );
+    dps = datapacks;
 }
 
 
@@ -2517,13 +2469,13 @@ DataPackID HorizonDisplay::getDataPackID( int channel ) const
 
 DataPackID HorizonDisplay::getDisplayedDataPackID( int channel ) const
 {
-    if ( sections_.isEmpty() || !dispdatapackids_.validIdx(channel) )
+    if ( sections_.isEmpty() || !datapacksset_.validIdx(channel) )
 	return DataPack::cNoID();
 
-    const TypeSet<DataPackID>& dpids = *dispdatapackids_[channel];
+    const RefObjectSet<MapDataPack>& dps = *datapacksset_.get( channel );
     const int curversion = sections_[0]->activeVersion( channel );
-    return dpids.validIdx(curversion) ? dpids[curversion] :
-						    DataPackID::udf();
+    return dps.validIdx(curversion) ? dps.get(channel)->id()
+				    : DataPackID::udf();
 }
 
 
@@ -2536,11 +2488,11 @@ const visBase::HorizonSection* HorizonDisplay::getSection( int horsecid ) const
 HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
 {
     TypeSet<VisID> ids;
-    visBase::DM().getIDs( typeid(visSurvey::HorizonDisplay), ids );
+    visBase::DM().getIDs( typeid(HorizonDisplay), ids );
 
-    for ( int idx=0; idx<ids.size(); idx++ )
+    for ( const auto& id : ids )
     {
-	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
+	DataObject* dataobj = visBase::DM().getObject( id );
 	mDynamicCastGet( HorizonDisplay*, hordisp, dataobj );
 	if ( hordisp && mid==hordisp->getMultiID() )
 	    return hordisp;
@@ -2553,9 +2505,8 @@ HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
 void HorizonDisplay::setPixelDensity( float dpi )
 {
     EMObjectDisplay::setPixelDensity( dpi );
-
-    for ( int idx=0; idx<intersectiondata_.size(); idx++ )
-	intersectiondata_[idx]->setPixelDensity( dpi );
+    for ( auto* intersection : intersectiondata_ )
+	intersection->setPixelDensity( dpi );
 }
 
 
@@ -2564,14 +2515,9 @@ HorizonDisplay::IntersectionData::IntersectionData( const OD::LineStyle& lst )
 	? (visBase::VertexShape*) visBase::PolyLine3D::create()
 	: (visBase::VertexShape*) visBase::PolyLine::create() )
     , markerset_( visBase::MarkerSet::create() )
-    , zaxistransform_(nullptr)
-    , voiid_(-2)
 {
-    line_->ref();
-    markerset_->ref();
 
     line_->setPrimitiveType( Geometry::PrimitiveSet::LineStrips );
-
     setLineStyle( lst );
 }
 
@@ -2579,14 +2525,10 @@ HorizonDisplay::IntersectionData::IntersectionData( const OD::LineStyle& lst )
 HorizonDisplay::IntersectionData::~IntersectionData()
 {
     if ( zaxistransform_ )
-    {
 	zaxistransform_->removeVolumeOfInterest( voiid_ );
-	unRefAndNullPtr( zaxistransform_ );
-    }
 
+    zaxistransform_ = nullptr;
     clear();
-    unRefAndNullPtr( line_ );
-    unRefAndNullPtr( markerset_ );
 }
 
 
@@ -2606,7 +2548,8 @@ void HorizonDisplay::IntersectionData::addLine( const TypeSet<Coord3>& crds )
 
     line_->getCoordinates()->setPositions( crds.arr(), crds.size(), start );
 
-    Geometry::RangePrimitiveSet* rps = Geometry::RangePrimitiveSet::create();
+    RefMan<Geometry::RangePrimitiveSet> rps =
+					Geometry::RangePrimitiveSet::create();
     rps->setRange( Interval<int>( start, stop ) );
     line_->addPrimitiveSet( rps );
 }
@@ -2629,14 +2572,14 @@ void HorizonDisplay::IntersectionData::setDisplayTransformation(
 
 
 void HorizonDisplay::IntersectionData::updateDataTransform(
-	const TrcKeyZSampling& sampling, ZAxisTransform* trans )
+			const TrcKeyZSampling& sampling, ZAxisTransform* trans )
 {
     if ( zaxistransform_ && zaxistransform_!=trans )
     {
 	zaxistransform_->removeVolumeOfInterest( voiid_ );
-	unRefAndNullPtr( zaxistransform_ );
 	voiid_ = -2;
     }
+
     zaxistransform_ = trans;
     if ( zaxistransform_ )
     {
@@ -2658,10 +2601,13 @@ void HorizonDisplay::IntersectionData::setPixelDensity( float dpi )
 }
 
 
-void HorizonDisplay::IntersectionData::setMaterial( visBase::Material* mat )
+void HorizonDisplay::IntersectionData::setMaterial( visBase::Material* mt )
 {
-    if ( line_ ) line_->setMaterial( mat );
-    if ( markerset_ ) markerset_->setMaterial( mat );
+    if ( line_ )
+	line_->setMaterial( mt );
+
+    if ( markerset_ )
+	markerset_->setMaterial( mt );
 }
 
 
@@ -2676,20 +2622,20 @@ void HorizonDisplay::IntersectionData::setSceneEventCatcher(
 RefMan<visBase::VertexShape>
 HorizonDisplay::IntersectionData::setLineStyle( const OD::LineStyle& lst )
 {
-    RefMan<visBase::VertexShape> oldline = 0;
+    RefMan<visBase::VertexShape> oldline;
     if ( line_ )
     {
-	mDynamicCastGet( visBase::PolyLine3D*,ln3d,line_);
+	mDynamicCastGet( visBase::PolyLine3D*,ln3d,line_.ptr());
 
 	const bool removelines =
 	    (lst.type_==OD::LineStyle::Solid) != ((bool) ln3d );
 
 	if ( removelines )
 	{
-	    visBase::VertexShape* newline = lst.type_==OD::LineStyle::Solid
-		? (visBase::VertexShape*) visBase::PolyLine3D::create()
-		: (visBase::VertexShape*) visBase::PolyLine::create();
-	    newline->ref();
+	    RefMan<visBase::VertexShape> newline =
+		lst.type_==OD::LineStyle::Solid
+		    ? (visBase::VertexShape*) visBase::PolyLine3D::create()
+		    : (visBase::VertexShape*) visBase::PolyLine::create();
 	    newline->setRightHandSystem( line_->isRightHandSystem() );
 	    newline->setDisplayTransformation(
 					line_->getDisplayTransformation());
@@ -2698,14 +2644,12 @@ HorizonDisplay::IntersectionData::setLineStyle( const OD::LineStyle& lst )
 		newline->setMaterial( line_->getMaterial() );
 
 	    oldline = line_;
-	    unRefAndNullPtr( line_ );
 	    line_ = newline;
-	    line_->ref();
 	}
 
 	if ( lst.type_==OD::LineStyle::Solid )
 	{
-	    ((visBase::PolyLine3D* ) line_ )->setLineStyle( lst );
+	    ((visBase::PolyLine3D* ) line_.ptr() )->setLineStyle( lst );
 	}
     }
 

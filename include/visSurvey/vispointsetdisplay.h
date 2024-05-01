@@ -9,30 +9,30 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "visobject.h"
-#include "vissurvobj.h"
 
 #include "datapointset.h"
 #include "dpsdispmgr.h"
+#include "visobject.h"
+#include "vispointset.h"
+#include "vissurvobj.h"
 #include "vistransform.h"
 
 class Executor;
 
-namespace visBase { class PointSet; class Transformation; }
 
 namespace visSurvey
 {
 
-
-mExpClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl,
-			 public visSurvey::SurveyObject
+mExpClass(visSurvey) PointSetDisplay : public visBase::VisualObjectImpl
+				     , public SurveyObject
 { mODTextTranslationClass(PointSetDisplay)
 public:
 				PointSetDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PointSetDisplay,
+				    SurveyObject, PointSetDisplay,
 				    "PointSetDisplay",
-				    toUiString(sFactoryKeyword()) );
+				    ::toUiString(sFactoryKeyword()) )
 
     void			setPointSize(int);
     int				getPointSize() const;
@@ -45,7 +45,9 @@ public:
     Executor*			getUpdater();
     void			updateColors();
     bool			setDataPack(DataPackID);
-    ConstRefMan<DataPointSet>	getDataPack() const	{ return data_; }
+    ConstRefMan<DataPointSet>	getDataPack() const	{ return datapack_; }
+    DataPackMgr::MgrID		getDataPackMgrID() const override
+				{ return DataPackMgr::PointID(); }
     void			setDisplayTransformation(
 						const mVisTrans*) override;
     const mVisTrans*		getDisplayTransformation() const override;
@@ -71,10 +73,11 @@ public:
 
 protected:
 				~PointSetDisplay();
-    DataPointSetDisplayProp*	dpsdispprop_;
-    visBase::PointSet*		pointset_;
-    RefMan<DataPointSet>	data_;
-    const mVisTrans*		transformation_;
+
+    DataPointSetDisplayProp*	dpsdispprop_	= nullptr;
+    RefMan<visBase::PointSet>	pointset_;
+    RefMan<DataPointSet>	datapack_;
+    ConstRefMan<mVisTrans>	transformation_;
 
 };
 

@@ -11,9 +11,9 @@ ________________________________________________________________________
 
 #include "color.h"
 #include "visdatagroup.h"
+#include "visdataman.h"
 #include "visevent.h"
 #include "vismaterial.h"
-#include "vistransform.h"
 #include "visscalebar.h"
 
 
@@ -28,28 +28,26 @@ namespace visSurvey
 {
 // ScaleBarDisplay
 ScaleBarDisplay::ScaleBarDisplay()
-    : orientation_(0)
-    , oninlcrl_(true)
-    , length_(1000)
-    , linewidth_(2)
-    , displaytransform_(0)
-    , group_(new visBase::DataObjectGroup)
 {
+    ref();
+    group_ = visBase::DataObjectGroup::create();
     addChild( group_->osgNode() );
+    unRefNoDelete();
 }
 
 
 ScaleBarDisplay::~ScaleBarDisplay()
-{}
+{
+}
 
 
 
 //
-//void ScaleBarDisplay::setScene( visSurvey::Scene* ns )
+//void ScaleBarDisplay::setScene( Scene* ns )
 //{
 // //   /*if ( scene_ )
 //	//scene_->zstretchchange.remove( mCB(this,ScaleBarDisplay,zScaleCB) );
-// // */  visSurvey::SurveyObject::setScene( ns );
+// // */  SurveyObject::setScene( ns );
 //
 // //  /* if ( scene_ )
 //	//scene_->zstretchchange.notify( mCB(this,ScaleBarDisplay,zScaleCB) );*/
@@ -140,15 +138,15 @@ void ScaleBarDisplay::dispChg( CallBacker* cb )
 }
 
 
-visBase::VisualObject* ScaleBarDisplay::createLocation() const
+RefMan<visBase::VisualObject> ScaleBarDisplay::createLocation() const
 {
-    visBase::ScaleBar* sb = new visBase::ScaleBar;
+    RefMan<visBase::ScaleBar> sb = visBase::ScaleBar::create();
     sb->setOnInlCrl( oninlcrl_ );
     sb->setLineWidth( linewidth_ );
     sb->setLength( length_ );
     sb->setOrientation( orientation_ );
     sb->setColor( getMaterial()->getColor() );
-    sb->setMaterial( 0 );
+    sb->setMaterial( nullptr );
     sb->setDisplayTransformation( displaytransform_ );
     return sb;
 }
@@ -177,8 +175,8 @@ void ScaleBarDisplay::setPosition( int idx, const Pick::Location& loc, bool add)
 	sb->setPick( loc );
     else
     {
-	visBase::ScaleBar* scb =
-	    static_cast<visBase::ScaleBar*>( createLocation() );
+	RefMan<visBase::VisualObject> sbloc = createLocation();
+	auto* scb = sCast( visBase::ScaleBar*, sbloc.ptr() );
 	scb->setPick( loc );
 	group_->addObject( scb );
     }

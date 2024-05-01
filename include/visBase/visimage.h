@@ -26,7 +26,7 @@ namespace visBase
 mExpClass(visBase) Image : public DataObject
 {
 public:
-    static Image*	create()
+    static RefMan<Image> create();
 			mCreateDataObj( Image );
 
     bool		replacesMaterial() const;
@@ -37,7 +37,8 @@ public:
     const char*		getFileName() const;
 
 protected:
-    			~Image();
+			~Image();
+
     SoTexture2*		texture_;
 
     virtual SoNode*	gtInvntrNode();

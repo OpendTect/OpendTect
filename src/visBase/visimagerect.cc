@@ -14,8 +14,6 @@ ________________________________________________________________________
 
 #include "viscoord.h"
 #include "vismaterial.h"
-#include "vispolygonoffset.h"
-#include "vistransform.h"
 
 #include <osgGeo/TexturePlane>
 #include <osgGeo/LayeredTexture>
@@ -30,35 +28,32 @@ namespace visBase
 
 ImageRect::ImageRect()
     : VisualObjectImpl(true)
-    , trans_(0)
     , laytex_(new osgGeo::LayeredTexture)
     , texplane_(new osgGeo::TexturePlaneNode)
-    , polyoffset_(new visBase::PolygonOffset)
 {
-    laytex_->ref();
-    texplane_->ref();
+    ref();
+    refOsgPtr( laytex_ );
+    refOsgPtr( texplane_ );
     layerid_ = laytex_->addDataLayer();
     laytex_->addProcess( new osgGeo::IdentityLayerProcess(*laytex_, layerid_) );
     texplane_->setLayeredTexture( laytex_ );
 
-    polyoffset_->ref();
+    polyoffset_ = PolygonOffset::create();
     polyoffset_->setFactor( -1.0f );
     polyoffset_->setUnits( 1.0f );
 
-    polyoffset_->setMode(
-	visBase::PolygonOffset::Protected | visBase::PolygonOffset::On  );
+    polyoffset_->setMode( PolygonOffset::Protected | PolygonOffset::On	);
     polyoffset_->attachStateSet( texplane_->getOrCreateStateSet() );
     addChild( texplane_ );
     getMaterial()->setTransparency( 0.0 );
+    unRefNoDelete();
 }
 
 
 ImageRect::~ImageRect()
 {
-    if ( trans_ ) trans_->unRef();
-    laytex_->unref();
-    polyoffset_->unRef();
-    texplane_->unref();
+    unRefOsgPtr( laytex_ );
+    unRefOsgPtr( texplane_ );
 }
 
 
@@ -88,9 +83,7 @@ void ImageRect::setCornerPos( const Coord3& tl, const Coord3& br )
 
 void ImageRect::setDisplayTransformation( const mVisTrans* trans )
 {
-    if ( trans_ ) trans_->unRef();
     trans_ = trans;
-    if ( trans_ ) trans_->ref();
 }
 
 

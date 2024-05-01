@@ -10,6 +10,8 @@ ________________________________________________________________________
 
 #include "vislocationdisplay.h"
 
+#include "vistransform.h"
+
 namespace visSurvey
 {
 
@@ -20,9 +22,8 @@ namespace visSurvey
 mExpClass(visSurvey) ScaleBarDisplay : public LocationDisplay
 {
 public:
-    static ScaleBarDisplay*	create()
+    static RefMan<ScaleBarDisplay> create();
 				mCreateDataObj(ScaleBarDisplay);
-				~ScaleBarDisplay();
 
     void			setOnInlCrl(bool);
     bool			isOnInlCrl() const;
@@ -46,8 +47,9 @@ public:
     void			toPar(IOPar&) const;
 
 protected:
+				~ScaleBarDisplay();
 
-    visBase::VisualObject*	createLocation() const;
+    RefMan<visBase::VisualObject> createLocation() const;
 
     virtual void		setPosition(int,const Pick::Location&);
     void			setPosition(int idx,const Pick::Location&,
@@ -61,11 +63,11 @@ protected:
     void			zScaleCB(CallBacker*);
     void			dispChg(CallBacker*) override;
 
-    bool			oninlcrl_;
-    int				orientation_;
-    int				linewidth_;
-    double			length_;
-    const mVisTrans*		displaytransform_;
+    bool			oninlcrl_ = true;
+    int				orientation_ = 0;
+    int				linewidth_ = 2;
+    double			length_ = 1000.;
+    ConstRefMan<mVisTrans>	displaytransform_;
     RefMan<visBase::DataObjectGroup>	group_;
 };
 

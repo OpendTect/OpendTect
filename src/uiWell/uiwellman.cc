@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-#include "welldata.h"
 #include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"

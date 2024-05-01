@@ -11,13 +11,11 @@ ________________________________________________________________________
 
 #include "coltabmapper.h"
 #include "coltabsequence.h"
-#include "visscenecoltab.h"
-#include "visdataman.h"
-#include "visdata.h"
-#include "vissurvobj.h"
-#include "uicolortable.h"
 #include "od_helpids.h"
-
+#include "uicolortable.h"
+#include "visdataman.h"
+#include "visscenecoltab.h"
+#include "vissurvobj.h"
 
 const char* uiVisColTabEd::sKeyColorSeq()	{ return "ColorSeq Name"; }
 const char* uiVisColTabEd::sKeyScaleFactor()	{ return "Scale Factor"; }
@@ -27,8 +25,7 @@ const char* uiVisColTabEd::sKeySymmetry()	{ return "Symmetry"; }
 const char* uiVisColTabEd::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 
 uiVisColTabEd::uiVisColTabEd( uiColorTable& ct )
-    : survobj_( 0 )
-    , uicoltab_(ct)
+    : uicoltab_(ct)
 {
     mAttachCB( visBase::DM().removeallnotify, uiVisColTabEd::removeAllVisCB );
 }
@@ -37,15 +34,12 @@ uiVisColTabEd::uiVisColTabEd( uiColorTable& ct )
 uiVisColTabEd::~uiVisColTabEd()
 {
     detachAllNotifiers();
-    mDynamicCastGet(visBase::DataObject*,dataobj,survobj_)
-    if ( dataobj )
-	dataobj->unRef();
 }
 
 
 void uiVisColTabEd::setColTab( const ColTab::Sequence* seq, bool editseq,
 			       const ColTab::MapperSetup* setup,
-       			       bool enabletrans )
+			       bool enabletrans )
 {
     uicoltab_.setSequence( seq, editseq, true );
     uicoltab_.setMapperSetup( setup, true );
@@ -53,37 +47,40 @@ void uiVisColTabEd::setColTab( const ColTab::Sequence* seq, bool editseq,
 }
 
 
+ConstRefMan<visBase::DataObject> uiVisColTabEd::getDataObj() const
+{
+    return mSelf().getDataObj();
+}
+
+
+RefMan<visBase::DataObject> uiVisColTabEd::getDataObj()
+{
+    return dataobj_.get();
+}
+
+
 void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
 			       int version )
 {
-    mDynamicCastGet(visBase::DataObject*,dataobj,survobj_)
-    if ( dataobj )
-    {
-	dataobj->unRef();
-	const ColTab::MapperSetup* ctmsu =
-		survobj_->getColTabMapperSetup( channel_, version_ );
-	if ( ctmsu )
-	    mDetachCB( ctmsu->rangeChange, uiVisColTabEd::mapperChangeCB );
-    }
+    if ( dataobj_ )
+	removeAllVisCB( nullptr );
 
-    survobj_ = so;
+    dataobj_ = dCast(visBase::DataObject*,so);
     channel_ = channel;
     version_ = version;
 
-    mDynamicCast(visBase::DataObject*,dataobj,survobj_)
-    if ( dataobj )
+    if ( so )
     {
-	dataobj->ref();
 	const ColTab::MapperSetup* ctmsu =
-		survobj_->getColTabMapperSetup( channel_, version_ );
+			    so->getColTabMapperSetup( channel_, version_ );
 	if ( ctmsu )
 	    mAttachCB( ctmsu->rangeChange, uiVisColTabEd::mapperChangeCB );
     }
 
-    uicoltab_.setSequence( so ? so->getColTabSequence(channel_) : 0,
-			    so && so->canSetColTabSequence(), true );
+    uicoltab_.setSequence( so ? so->getColTabSequence(channel_) : nullptr,
+			   so && so->canSetColTabSequence(), true );
     uicoltab_.setMapperSetup(
-	    so ? so->getColTabMapperSetup(channel_,version_) : 0, true );
+	    so ? so->getColTabMapperSetup(channel_,version_) : nullptr, true );
     uicoltab_.enableTransparencyEdit(
 	    so && so->canHandleColTabSeqTrans(channel_) );
 }
@@ -91,31 +88,39 @@ void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
 
 void uiVisColTabEd::mapperChangeCB( CallBacker* )
 {
-    if ( !survobj_ )
+    if ( !dataobj_ )
+	return;
+
+    RefMan<visBase::DataObject> dataobj = dataobj_.get();
+    mDynamicCastGet(visSurvey::SurveyObject*,survobj,dataobj.ptr());
+    if ( !survobj )
 	return;
 
     const ColTab::MapperSetup* ms  =
-			survobj_->getColTabMapperSetup( channel_, version_ );
+			survobj->getColTabMapperSetup( channel_, version_ );
 
     uicoltab_.setMapperSetup( ms, true );
-    if ( survobj_->getScene() && ms )
-	survobj_->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
+    if ( survobj->getScene() && ms )
+	survobj->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
 }
 
 
 void uiVisColTabEd::removeAllVisCB( CallBacker* )
 {
-    mDynamicCastGet(visBase::DataObject*,dataobj,survobj_)
-    if ( dataobj )
+    if ( dataobj_ )
     {
-	dataobj->unRef();
-	const ColTab::MapperSetup* ctmsu =
-		survobj_->getColTabMapperSetup( channel_, version_ );
-	if ( ctmsu )
-	    mDetachCB( ctmsu->rangeChange, uiVisColTabEd::mapperChangeCB );
+	ConstRefMan<visBase::DataObject> dataobj = dataobj_.get();
+	mDynamicCastGet(const visSurvey::SurveyObject*,survobj,dataobj.ptr());
+	if ( survobj )
+	{
+	    const ColTab::MapperSetup* ctmsu =
+		    survobj->getColTabMapperSetup( channel_, version_ );
+	    if ( ctmsu )
+		mDetachCB( ctmsu->rangeChange, uiVisColTabEd::mapperChangeCB );
+	}
     }
 
-    survobj_ = 0;
+    dataobj_ = nullptr;
 }
 
 
@@ -151,8 +156,7 @@ uiColorBarDialog::uiColorBarDialog( uiParent* p, const uiString& title )
     , winClosing( this )
 {
     ColTab::Sequence ctseq( "" );
-    uiColorTableGroup* grp =
-	new uiColorTableGroup( this, ctseq, OD::Vertical, false );
+    auto* grp = new uiColorTableGroup( this, ctseq, OD::Vertical, false );
     coltabed_ = new uiVisColTabEd( *grp );
     setDeleteOnClose( false );
 }

@@ -9,11 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "emposid.h"
-#include "visobject.h"
-#include "vissurvobj.h"
 
-namespace visBase { class RandomPos2Body; class Transformation; }
+#include "emposid.h"
+#include "emrandomposbody.h"
+#include "visobject.h"
+#include "visrandompos2body.h"
+#include "vissurvobj.h"
+#include "vistransform.h"
+
 namespace EM { class RandomPosBody; }
 
 
@@ -23,15 +26,16 @@ class Scene;
 
 /*!\brief used for displaying a set of random picks in xyz coordinate.*/
 
-mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl,
-					    public visSurvey::SurveyObject
+mExpClass(visSurvey) RandomPosBodyDisplay : public visBase::VisualObjectImpl
+					  , public SurveyObject
 { mODTextTranslationClass(RandomPosBodyDisplay);
 public:
 				RandomPosBodyDisplay();
+
 				mDefaultFactoryInstantiation(
-				 visSurvey::SurveyObject,RandomPosBodyDisplay,
-				 "RandomPosBodyDisplay",
-				 toUiString(sFactoryKeyword()));
+				    SurveyObject, RandomPosBodyDisplay,
+				    "RandomPosBodyDisplay",
+				    ::toUiString(sFactoryKeyword()) )
 
     MultiID			getMultiID() const override;
     bool			isInlCrl() const override	{ return false;}
@@ -50,22 +54,22 @@ public:
 				//!<Creates an EMObject for it.
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
-    EM::RandomPosBody*		getEMBody() const	{ return embody_; }
+    const EM::RandomPosBody*	getEMBody() const	{ return embody_.ptr();}
 
     const char*			errMsg() const override { return errmsg_.str();}
 
 protected:
-
-    static const char*		sKeyPSEarthModelID()	{ return "EM ID"; }
-    virtual			~RandomPosBodyDisplay();
+				~RandomPosBodyDisplay();
 
     bool			updateVisFromEM();
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
 
-    const mVisTrans*		transform_;
-    visBase::RandomPos2Body*	displaybody_;
-    EM::RandomPosBody*		embody_;
+    ConstRefMan<mVisTrans>	transform_;
+    RefMan<visBase::RandomPos2Body> displaybody_;
+    RefMan<EM::RandomPosBody>	embody_;
+
+    static const char*		sKeyPSEarthModelID()	{ return "EM ID"; }
 };
 
 } // namespace visSurvey

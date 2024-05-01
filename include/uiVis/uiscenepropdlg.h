@@ -9,12 +9,15 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uidialog.h"
+
 #include "ui3dviewer.h"
+#include "uidialog.h"
 #include "uistring.h"
+
 #include "color.h"
-#include "trckeyzsampling.h"
 #include "fontdata.h"
+#include "trckeyzsampling.h"
+#include "vissurvscene.h"
 
 class uiCheckBox;
 class uiColorInput;
@@ -33,7 +36,8 @@ public:
 					   ObjectSet<ui3DViewer>&,int);
 			~uiScenePropertyDlg();
 
-protected:
+private:
+
     void		updateScene(visSurvey::Scene*);
     void		updateCB(CallBacker*);
     void		setOffsetCB(CallBacker*);
@@ -44,17 +48,17 @@ protected:
 
     const ObjectSet<ui3DViewer>&viewers_;
     int				curvwridx_;
-    visSurvey::Scene*		scene_;
-    bool			hadsurveybox_;
-    bool			hadannot_;
-    bool			hadannotscale_;
-    bool			hadannotgrid_;
-    bool			hadanimation_;
+    WeakPtr<visSurvey::Scene>	scene_;
+    bool			hadsurveybox_	= true;
+    bool			hadannot_	= true;
+    bool			hadannotscale_	= true;
+    bool			hadannotgrid_	= true;
+    bool			hadanimation_	= true;
     ui3DViewer::WheelMode	wheeldisplaymode_;
-    OD::Color			oldbgcolor_;
-    float			oldmarkersize_;
-    OD::Color			oldmarkercolor_;
-    OD::Color			annotcolor_;
+    OD::Color			oldbgcolor_	= OD::Color::Anthracite();
+    float			oldmarkersize_	= 5;
+    OD::Color			oldmarkercolor_ = OD::Color::White();
+    OD::Color			annotcolor_	= OD::Color::White();
     float			oldfactor_;
     float			oldunits_;
     FontData			oldfont_;
@@ -69,7 +73,7 @@ protected:
     uiSlider*			markersizefld_;
     uiColorInput*		markercolfld_;
     uiColorInput*		annotcolfld_;
-    uiGenInputDlg*		separationdlg_;
+    uiGenInputDlg*		separationdlg_	= nullptr;
     uiCheckBox*			animationfld_;
     uiGenInput*			wheelmodefld_;
 };

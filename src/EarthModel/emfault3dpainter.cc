@@ -73,7 +73,7 @@ Fault3DPainter::~Fault3DPainter()
 }
 
 
-void Fault3DPainter::setRandomLineID( RandomLineID rdlid )
+void Fault3DPainter::setRandomLineID( const RandomLineID& rdlid )
 { rdlid_ = rdlid; }
 
 

@@ -216,7 +216,8 @@ uiODView2DFaultTreeItem::uiODView2DFaultTreeItem( const EM::ObjectID& emid )
 {}
 
 
-uiODView2DFaultTreeItem::uiODView2DFaultTreeItem( Vis2DID id, bool )
+uiODView2DFaultTreeItem::uiODView2DFaultTreeItem( const Vis2DID& id,
+						  bool /* dummy */ )
     : uiODView2DTreeItem(uiString::emptyString())
     , faultview_(0)
 {
@@ -464,8 +465,8 @@ void uiODView2DFaultTreeItem::emobjAbtToDelCB( CallBacker* cb )
 
 
 uiTreeItem* uiODView2DFaultTreeItemFactory::createForVis(
-				const uiODViewer2D& vwr2d, Vis2DID id ) const
+			    const uiODViewer2D& vwr2d, const Vis2DID& id ) const
 {
     mDynamicCastGet(const View2D::Fault*,obj,vwr2d.getObject(id));
-    return obj ? new uiODView2DFaultTreeItem(id,true) : 0;
+    return obj ? new uiODView2DFaultTreeItem(id,true) : nullptr;
 }

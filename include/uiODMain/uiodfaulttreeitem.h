@@ -9,10 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodattribtreeitem.h"
-#include "uioddisplaytreeitem.h"
 
 #include "emposid.h"
+#include "uiodattribtreeitem.h"
+#include "uioddisplaytreeitem.h"
+#include "visfaultdisplay.h"
+#include "visfaultsticksetdisplay.h"
 
 class DataPointSet;
 
@@ -24,11 +26,12 @@ mExpClass(uiODMain) uiODFaultParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODFaultParentTreeItem)
 public:
 			uiODFaultParentTreeItem();
-			~uiODFaultParentTreeItem();
 
     static CNotifier<uiODFaultParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODFaultParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
 };
@@ -40,16 +43,15 @@ public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODFaultParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
 mExpClass(uiODMain) uiODFaultTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODFaultTreeItem)
 public:
-			uiODFaultTreeItem(VisID,bool dummy);
+			uiODFaultTreeItem(const VisID&,bool dummy);
 			uiODFaultTreeItem(const EM::ObjectID&);
-			~uiODFaultTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
 
@@ -62,8 +64,9 @@ public:
     static uiString	sOnlyAtHorizons() { return tr( "Only at Horizons" ); }
 
 protected:
+			~uiODFaultTreeItem();
+
     bool		askContinueAndSaveIfNeeded(bool withcancel) override;
-    void		prepareForShutdown() override;
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
     void		askSaveCB(CallBacker*);
@@ -84,7 +87,11 @@ protected:
     MenuItem			displayintersectionmnuitem_;
     MenuItem			displayintersecthorizonmnuitem_;
     MenuItem			singlecolmnuitem_;
-    visSurvey::FaultDisplay*	faultdisplay_;
+
+    ConstRefMan<visSurvey::FaultDisplay> getDisplay() const;
+    RefMan<visSurvey::FaultDisplay> getDisplay();
+
+    WeakPtr<visSurvey::FaultDisplay>	faultdisplay_;
 };
 
 
@@ -110,14 +117,14 @@ public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODFaultStickSetParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
 mExpClass(uiODMain) uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODFaultStickSetTreeItem)
 public:
-			uiODFaultStickSetTreeItem(VisID,bool dummy);
+			uiODFaultStickSetTreeItem(const VisID&,bool dummy);
 			uiODFaultStickSetTreeItem(const EM::ObjectID&);
 			~uiODFaultStickSetTreeItem();
 
@@ -125,7 +132,6 @@ public:
 
 protected:
     bool		askContinueAndSaveIfNeeded( bool withcancel ) override;
-    void		prepareForShutdown() override;
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
     void		colorChCB(CallBacker*);
@@ -141,7 +147,11 @@ protected:
     MenuItem				onlyatsectmnuitem_;
     MenuItem				savemnuitem_;
     MenuItem				saveasmnuitem_;
-    visSurvey::FaultStickSetDisplay*	faultsticksetdisplay_;
+
+    ConstRefMan<visSurvey::FaultStickSetDisplay> getDisplay() const;
+    RefMan<visSurvey::FaultStickSetDisplay> getDisplay();
+
+    WeakPtr<visSurvey::FaultStickSetDisplay>	faultsticksetdisplay_;
 };
 
 

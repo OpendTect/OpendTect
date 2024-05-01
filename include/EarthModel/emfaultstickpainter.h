@@ -32,7 +32,7 @@ namespace EM
 mExpClass(EarthModel) FaultStickPainter : public CallBacker
 {
 public:
-    			FaultStickPainter(FlatView::Viewer&,
+			FaultStickPainter(FlatView::Viewer&,
 					  const EM::ObjectID&);
 			~FaultStickPainter();
 
@@ -40,7 +40,7 @@ public:
     const TrcKeyZSampling& getTrcKeyZSampling() const	{ return tkzs_; }
 
     void		setPath(const TrcKeyPath&);
-    void		setRandomLineID(RandomLineID rdlid);
+    void		setRandomLineID(const RandomLineID&);
     void		setFlatPosData(const FlatPosData*);
     void		enableLine(bool);
     void		enableKnots(bool);
@@ -69,13 +69,13 @@ public:
 
     void		set2D(bool yn)		{ is2d_ = yn; }
     bool		is2D()			{ return is2d_; }
-    const char* 	getLineName() const;
+    const char* getLineName() const;
     void		setGeomID( Pos::GeomID geomid )
 			{ geomid_ = geomid; }
-    Pos::GeomID 	getGeomID() const		{ return geomid_; }
+    Pos::GeomID getGeomID() const		{ return geomid_; }
     Coord		getNormalToTrace( int trcnr ) const;
     Coord		getNormalInRandLine( int idx ) const;
-    			//<! idx of BinID in path_ of RandomLine
+			//<! idx of BinID in path_ of RandomLine
 
     Notifier<FaultStickPainter>	abouttorepaint_;
     Notifier<FaultStickPainter> repaintdone_;
@@ -113,7 +113,7 @@ protected:
     int			activestickid_;
 
     bool		is2d_;
-    Pos::GeomID 	geomid_;
+    Pos::GeomID geomid_;
 
     TypeSet<int>	trcnos_;
     TypeSet<float>	distances_;

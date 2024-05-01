@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
+
+#include "attribdesc.h"
+#include "iopar.h"
 #include "multiid.h"
 #include "uiattrdesced.h"
 #include "uiattribpanel.h"
-#include "iopar.h"
-
-namespace Attrib { class Desc; }
 
 class uiGenInput;
 class uiImagAttrSel;
@@ -62,10 +62,10 @@ protected:
     Attrib::DescID	createSpecDecompDesc(Attrib::DescSet*) const;
     void		createHilbertDesc(Attrib::DescSet*,
 					  Attrib::DescID&) const;
-    Attrib::Desc*	createNewDesc(Attrib::DescSet*,Attrib::DescID,
-				      const char*,int,int,BufferString) const;
-    Attrib::Desc*	createNewDescFromDP(Attrib::DescSet*,const char* atrnm,
-					    const char* userefstr) const;
+    RefMan<Attrib::Desc> createNewDesc(Attrib::DescSet*,Attrib::DescID,
+				       const char*,int,int,BufferString) const;
+    RefMan<Attrib::Desc> createNewDescFromDP(Attrib::DescSet*,const char* atrnm,
+					     const char* userefstr) const;
     void		fillInSDDescParams(Attrib::Desc*) const;
     bool		passStdCheck(const Attrib::Desc*,const char*,
 				     int seloutidx,int inpidx,

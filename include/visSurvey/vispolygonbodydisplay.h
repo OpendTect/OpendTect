@@ -9,45 +9,43 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "vismultiattribsurvobj.h"
 
 #include "emposid.h"
+#include "empolygonbody.h"
+#include "mpeengine.h"
+#include "polygonsurfeditor.h"
 #include "ranges.h"
+#include "visdrawstyle.h"
+#include "visevent.h"
+#include "visgeomindexedshape.h"
+#include "vismpeeditor.h"
+#include "vismultiattribsurvobj.h"
+#include "visobject.h"
+#include "vispolyline.h"
+#include "vistransform.h"
+#include "vistristripset.h"
 
 
-namespace visBase
-{
-    class DrawStyle;
-    class GeomIndexedShape;
-    class PolyLine3D;
-    class Transformation;
-    class TriangleStripSet;
-};
-
-namespace EM { class PolygonBody; }
-namespace MPE { class PolygonBodyEditor; }
-namespace Geometry { class ExplPolygonSurface; class ExplPlaneIntersection; }
 class MarkerStyle3D;
+namespace Geometry { class ExplPolygonSurface; class ExplPlaneIntersection; }
 
 
 namespace visSurvey
 {
-class MPEEditor;
 
 /*!\brief
-
-
 */
 
-mExpClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl,
-			    public SurveyObject
+mExpClass(visSurvey) PolygonBodyDisplay : public visBase::VisualObjectImpl
+					, public SurveyObject
 {
 public:
 				PolygonBodyDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PolygonBodyDisplay,
+				    SurveyObject, PolygonBodyDisplay,
 				    "PolygonBodyDisplay",
-				     toUiString(sFactoryKeyword()));
+				    ::toUiString(sFactoryKeyword()) )
 
     MultiID			getMultiID() const override;
     bool			isInlCrl() const override { return false; }
@@ -80,8 +78,10 @@ public:
     EM::ObjectID		getEMID() const;
 
     void			touchAll(bool,bool updatemarker=false);
-    EM::PolygonBody*		getEMPolygonBody() const
-				{ return empolygonsurf_; }
+    const EM::PolygonBody*	getEMPolygonBody() const
+				{ return empolygonsurf_.ptr(); }
+    EM::PolygonBody*		getEMPolygonBody()
+				{ return empolygonsurf_.ptr(); }
     bool			canRemoveSelection() const override
 				{ return true; }
     bool			removeSelections(TaskRunner*) override;
@@ -101,7 +101,7 @@ protected:
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj) override;
+				    const VisID& whichobj) override;
 
     void			updatePolygonDisplay();
     void			updateSingleColor();
@@ -128,36 +128,36 @@ protected:
     void			matChangeCB(CallBacker*);
 
 
-    visBase::EventCatcher*		eventcatcher_;
-    const mVisTrans*			displaytransform_;
+    RefMan<visBase::EventCatcher>	eventcatcher_;
+    ConstRefMan<mVisTrans>		displaytransform_;
 
-    visBase::GeomIndexedShape*		bodydisplay_;
-    Geometry::ExplPolygonSurface*	explicitbody_;
+    RefMan<visBase::GeomIndexedShape>	bodydisplay_;
+    Geometry::ExplPolygonSurface*	explicitbody_		= nullptr;
 
-    visBase::GeomIndexedShape*		polygondisplay_;
-    Geometry::ExplPolygonSurface*	explicitpolygons_;
+    RefMan<visBase::GeomIndexedShape>	polygondisplay_;
+    Geometry::ExplPolygonSurface*	explicitpolygons_	= nullptr;
 
-    visBase::GeomIndexedShape*		intersectiondisplay_;
-    Geometry::ExplPlaneIntersection*	explicitintersections_;
-    ObjectSet<const SurveyObject>	intersectionobjs_;
+    RefMan<visBase::GeomIndexedShape>	intersectiondisplay_;
+    Geometry::ExplPlaneIntersection*	explicitintersections_	= nullptr;
+    WeakPtrSet<visBase::VisualObject>	intersectionobjs_;
     TypeSet<int>			planeids_;
 
-    visBase::PolyLine3D*		nearestpolygonmarker_;
-    int					nearestpolygon_;
+    RefMan<visBase::PolyLine3D>		nearestpolygonmarker_;
+    int					nearestpolygon_		= mUdf(int);
 
-    EM::PolygonBody*			empolygonsurf_;
-    MPE::PolygonBodyEditor*		polygonsurfeditor_;
-    visSurvey::MPEEditor*		viseditor_;
+    RefMan<EM::PolygonBody>		empolygonsurf_;
+    RefMan<MPE::PolygonBodyEditor>	polygonsurfeditor_;
+    RefMan<MPEEditor>			viseditor_;
 
     Coord3				mousepos_;
 
-    bool				showmanipulator_;
+    bool				showmanipulator_	= false;
 
     OD::Color				nontexturecol_;
 
-    bool				displaypolygons_;
-    visBase::DrawStyle*			drawstyle_;
-    visBase::TriangleStripSet*		intsurf_;
+    bool				displaypolygons_	= false;
+    RefMan<visBase::DrawStyle>		drawstyle_;
+    RefMan<visBase::TriangleStripSet>	intsurf_;
 
 public:
     void			displayIntersections(bool yn)

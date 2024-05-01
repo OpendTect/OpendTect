@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uiodwelltreeitem.h"
 
+#include "ui3dviewer.h"
 #include "uiattribpartserv.h"
 #include "uicreateattriblogdlg.h"
 #include "uimenu.h"
@@ -18,7 +19,6 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uipixmap.h"
 #include "uitreeview.h"
-#include "ui3dviewer.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
@@ -31,8 +31,6 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllog.h"
 #include "wellman.h"
-
-#include "viswelldisplay.h"
 
 
 CNotifier<uiODWellParentTreeItem,uiMenu*>&
@@ -118,9 +116,9 @@ bool uiODWellParentTreeItem::showSubMenu()
 #define mGetWellDisplayFromChild(childidx)\
     mDynamicCastGet(uiODWellTreeItem*,itm,children_[childidx]);\
     if ( !itm ) continue;\
-    mDynamicCastGet(visSurvey::WellDisplay*,wd,\
+    mDynamicCastGet(visSurvey::WellDisplay*,welldisplay,\
 		    visserv->getObject(itm->displayID()));\
-    if ( !wd ) continue;
+    if ( !welldisplay ) continue;
 bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -137,28 +135,25 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	    addChild(new uiODWellTreeItem(emwellids[idx]), false );
 	}
     }
-
     else if ( mnuid == cTieIdx )
     {
 	 MultiID wid;
 	 ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wid );
     }
-
     else if ( mnuid == cNewWellIdx )
     {
-	visSurvey::WellDisplay* wd = new visSurvey::WellDisplay;
-	wd->setupPicking(true);
+	RefMan<visSurvey::WellDisplay> welldisplay = new visSurvey::WellDisplay;
+	welldisplay->setupPicking(true);
 	BufferString wellname;
 	OD::Color color;
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
 
-	wd->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1,color) );
-	wd->setName( wellname );
-	visserv->addObject( wd, sceneID(), true );
-	addChild( new uiODWellTreeItem(wd->id()), false );
+	welldisplay->setLineStyle(OD::LineStyle(OD::LineStyle::Solid,1,color));
+	welldisplay->setName( wellname );
+	visserv->addObject( welldisplay, sceneID(), true );
+	addChild( new uiODWellTreeItem(welldisplay->id()), false );
     }
-
     else if ( mnuid == cAttribIdx )
     {
 	BufferStringSet wellnms;
@@ -176,16 +171,16 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	    mGetWellDisplayFromChild( idx );
 	    switch ( mnuid )
 	    {
-		case 41: wd->showWellTopName( true ); break;
-		case 42: wd->showWellBotName( true ); break;
-		case 43: wd->showMarkers( true ); break;
-		case 44: wd->showMarkerName( true ); break;
-		case 45: wd->showLogs( true ); break;
-		case 51: wd->showWellTopName( false ); break;
-		case 52: wd->showWellBotName( false ); break;
-		case 53: wd->showMarkers( false ); break;
-		case 54: wd->showMarkerName( false ); break;
-		case 55: wd->showLogs( false ); break;
+		case 41: welldisplay->showWellTopName( true ); break;
+		case 42: welldisplay->showWellBotName( true ); break;
+		case 43: welldisplay->showMarkers( true ); break;
+		case 44: welldisplay->showMarkerName( true ); break;
+		case 45: welldisplay->showLogs( true ); break;
+		case 51: welldisplay->showWellTopName( false ); break;
+		case 52: welldisplay->showWellBotName( false ); break;
+		case 53: welldisplay->showMarkers( false ); break;
+		case 54: welldisplay->showMarkerName( false ); break;
+		case 55: welldisplay->showLogs( false ); break;
 	    }
 	}
     }
@@ -196,16 +191,16 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 }
 
 
-uiTreeItem*
-    uiODWellTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
+uiTreeItem* uiODWellTreeItemFactory::createForVis( const VisID& visid,
+						   uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::WellDisplay*,wd,
+    mDynamicCastGet(visSurvey::WellDisplay*,welldisplay,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
-    return wd ? new uiODWellTreeItem(visid) : 0;
+    return welldisplay ? new uiODWellTreeItem(visid) : nullptr;
 }
 
 
-uiODWellTreeItem::uiODWellTreeItem( VisID did )
+uiODWellTreeItem::uiODWellTreeItem( const VisID& did )
 {
     displayid_ = did;
     initMenuItems();
@@ -225,6 +220,7 @@ uiODWellTreeItem::~uiODWellTreeItem()
 	applMgr()->wellServer()->closePropDlg( mid_ );
 
     deepErase( logmnuitems_ );
+    visserv_->removeObject( displayid_, sceneID() );
 }
 
 
@@ -260,37 +256,66 @@ void uiODWellTreeItem::initMenuItems()
 
 bool uiODWellTreeItem::init()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-			visserv_->getObject(sceneID()));
-
     if ( !displayid_.isValid() )
     {
-	auto* wd = new visSurvey::WellDisplay;
-	wd->setScene( scene );
-	displayid_ = wd->id();
-	if ( !wd->setMultiID(mid_) )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( mid_ );
-	    const char* nm = ioobj ? ioobj->name().buf() : 0;
-	    uiMSG().error(tr("Could not load well %1").arg( nm ) );
-	    wd->setScene( nullptr );
-	    return false;
+	RefMan<visSurvey::WellDisplay> vwd = new visSurvey::WellDisplay;
+	displayid_ = vwd->id();
+	{ //TODO: Should not be needed yet
+	    RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
+	    vwd->setScene( scene );
+	    if ( !vwd->setMultiID(mid_) )
+	    {
+		PtrMan<IOObj> ioobj = IOM().get( mid_ );
+		BufferString objnm;
+		if ( ioobj )
+		    objnm = ioobj->name();
+
+		uiMSG().error(tr("Could not load well %1").arg( objnm ) );
+		vwd->setScene( nullptr );
+		return false;
+	    }
 	}
 
-	visserv_->addObject( wd, sceneID(), true );
+	visserv_->addObject( vwd, sceneID(), true );
     }
-    else
+
+    mDynamicCastGet(visSurvey::WellDisplay*,vwd,
+		    visserv_->getObject(displayid_));
+    if ( !vwd )
+	return false;
+
+    ConstRefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
+    if ( !mid_.isUdf() && mid_ != vwd->getMultiID() )
     {
-	mDynamicCastGet(visSurvey::WellDisplay*,wd,
-			visserv_->getObject(displayid_));
-	if ( !wd )
-	    return false;
+	if ( !vwd->setMultiID(mid_) )
+	{
+	    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+	    BufferString objnm;
+	    if ( ioobj )
+		objnm = ioobj->name();
 
-	if ( scene )
-	    wd->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+	    uiMSG().error(tr("Could not load well %1").arg( objnm ) );
+	    return false;
+	}
     }
 
+    if ( scene )
+	vwd->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+
+    welldisplay_ = vwd;
     return uiODDisplayTreeItem::init();
+}
+
+
+ConstRefMan<visSurvey::WellDisplay> uiODWellTreeItem::getDisplay() const
+{
+    return welldisplay_.get();
+}
+
+
+RefMan<visSurvey::WellDisplay> uiODWellTreeItem::getDisplay()
+{
+    return welldisplay_.get();
 }
 
 
@@ -299,13 +324,13 @@ bool uiODWellTreeItem::doubleClick( uiTreeViewItem* item )
     if ( item != uitreeviewitem_ )
 	return uiTreeItem::doubleClick( item );
 
-    mDynamicCastGet(visSurvey::WellDisplay*,viswd,
-		    visserv_->getObject(displayid_));
-    if ( !viswd ) return false;
+    RefMan<visSurvey::WellDisplay> welldisplay = getDisplay();
+    if ( !welldisplay )
+	return false;
 
-    viswd->restoreDispProp();
-    applMgr()->wellServer()->editDisplayProperties( viswd->getMultiID(),
-						viswd->getBackgroundColor() );
+    welldisplay->restoreDispProp();
+    applMgr()->wellServer()->editDisplayProperties( welldisplay->getMultiID(),
+					    welldisplay->getBackgroundColor() );
     return true;
 }
 
@@ -322,8 +347,8 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
 	return;
     }
 
-    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
-    if ( !wd )
+    ConstRefMan<visSurvey::WellDisplay> welldisplay = getDisplay();
+    if ( !welldisplay )
 	return;
 
     const bool islocked = visserv_->isLocked( displayid_ );
@@ -332,21 +357,23 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &displaymnuitem_, &logviewermnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &showmnuitem_, true, false );
     mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,
-						wd->wellTopNameShown() );
+		  welldisplay->wellTopNameShown() );
     mAddMenuItem( &showmnuitem_, &namebotmnuitem_, true,
-						wd->wellBotNameShown() );
-    mAddMenuItem( &showmnuitem_, &markermnuitem_, wd->canShowMarkers(),
-		 wd->markersShown() );
-    mAddMenuItem( &showmnuitem_, &markernamemnuitem_, wd->canShowMarkers(),
-		  wd->canShowMarkers() && wd->markerNameShown() );
+		  welldisplay->wellBotNameShown() );
+    mAddMenuItem( &showmnuitem_, &markermnuitem_, welldisplay->canShowMarkers(),
+		  welldisplay->markersShown() );
+    mAddMenuItem( &showmnuitem_, &markernamemnuitem_,
+		  welldisplay->canShowMarkers(),
+		  welldisplay->canShowMarkers() &&
+		  welldisplay->markerNameShown() );
     mAddMenuItem( &showmnuitem_, &showlogmnuitem_,
-		  applMgr()->wellServer()->hasLogs(wd->getMultiID()),
-		  wd->logsShown() );
+		  applMgr()->wellServer()->hasLogs(welldisplay->getMultiID()),
+		  welldisplay->logsShown() );
 
     deepErase( logmnuitems_ );
     mAddMenuItem( &displaymnuitem_, &amplspectrummnuitem_, true, false );
     BufferStringSet lognms;
-    Well::MGR().getLogNamesByID( wd->getMultiID(), lognms );
+    Well::MGR().getLogNamesByID( welldisplay->getMultiID(), lognms );
     for ( int logidx=0; logidx<lognms.size(); logidx++ )
     {
 	logmnuitems_ += new MenuItem( toUiString(lognms.get(logidx) ));
@@ -358,8 +385,8 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuItem( menu, &attrmnuitem_, true, false );
     mAddMenuItem( menu, &logcubemnuitem_, true, false );
-    mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
-    mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
+    mAddMenuItem( menu, &editmnuitem_, !islocked,welldisplay->isHomeMadeWell());
+    mAddMenuItem( menu, &storemnuitem_, welldisplay->hasChanged(), false );
 }
 
 
@@ -371,8 +398,11 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
-    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_))
-    const MultiID& wellid = wd->getMultiID();
+    RefMan<visSurvey::WellDisplay> welldisplay = getDisplay();
+    if ( !welldisplay )
+	return;
+
+    const MultiID& wellid = welldisplay->getMultiID();
     if ( mnuid == attrmnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -389,9 +419,9 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == propertiesmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	wd->restoreDispProp();
+	welldisplay->restoreDispProp();
 	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid,
-						wd->getBackgroundColor() );
+					welldisplay->getBackgroundColor() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( amplspectrummnuitem_.findItem(mnuid) )
@@ -410,48 +440,49 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == nametopmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	wd->showWellTopName( !wd->wellTopNameShown() );
+	welldisplay->showWellTopName( !welldisplay->wellTopNameShown() );
     }
     else if ( mnuid == namebotmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	wd->showWellBotName( !wd->wellBotNameShown() );
+	welldisplay->showWellBotName( !welldisplay->wellBotNameShown() );
     }
     else if ( mnuid == markermnuitem_.id )
     {
 	menu->setIsHandled( true );
-	wd->showMarkers( !wd->markersShown() );
+	welldisplay->showMarkers( !welldisplay->markersShown() );
     }
     else if ( mnuid == markernamemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	wd->showMarkerName( !wd->markerNameShown() );
+	welldisplay->showMarkerName( !welldisplay->markerNameShown() );
     }
     else if ( mnuid == showlogmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	wd->showLogs( !wd->logsShown() );
+	welldisplay->showLogs( !welldisplay->logsShown() );
     }
     else if ( mnuid == storemnuitem_.id )
     {
 	menu->setIsHandled( true );
 	const bool res = applMgr()->wellServer()->storeWell(
-			 wd->getWellCoords(), wd->name(), mid_ );
+			 welldisplay->getWellCoords(), welldisplay->name(),
+			 mid_ );
 	if ( res )
 	{
-	    wd->setChanged( false );
-	    wd->setMultiID( mid_ );
+	    welldisplay->setChanged( false );
+	    welldisplay->setMultiID( mid_ );
 	}
     }
     else if ( mnuid == editmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	const bool yn = wd->isHomeMadeWell();
-	wd->setupPicking( !yn );
+	const bool yn = welldisplay->isHomeMadeWell();
+	welldisplay->setupPicking( !yn );
 	if ( !yn )
 	{
 	    MouseCursorChanger cursorchgr( MouseCursor::Wait );
-	    wd->showKnownPositions();
+	    welldisplay->showKnownPositions();
 	}
     }
     else if ( mnuid == gend2tmmnuitem_.id )
@@ -464,8 +495,8 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 
 bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
-    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
-    if ( wd && wd->hasChanged() )
+    ConstRefMan<visSurvey::WellDisplay> welldisplay = getDisplay();
+    if ( welldisplay && welldisplay->hasChanged() )
     {
 	uiString warnstr = tr("This well has changed since the last save.\n\n"
 			      "Do you want to save it?");
@@ -475,8 +506,8 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 	else if ( retval == -1 )
 	    return false;
 	else
-	    applMgr()->wellServer()->storeWell( wd->getWellCoords(),
-						wd->name(), mid_ );
+	    applMgr()->wellServer()->storeWell( welldisplay->getWellCoords(),
+						welldisplay->name(), mid_ );
     }
 
     return true;

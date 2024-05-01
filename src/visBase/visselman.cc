@@ -42,7 +42,7 @@ void SelectionManager::setAllowMultiple( bool yn )
 }
 
 
-void SelectionManager::select( VisID newid, bool keepoldsel, bool lock )
+void SelectionManager::select( const VisID& newid, bool keepoldsel, bool lock )
 {
     if ( lock ) mutex_.lock();
 
@@ -65,7 +65,7 @@ void SelectionManager::select( VisID newid, bool keepoldsel, bool lock )
 }
 
 
-void SelectionManager::deSelect( VisID id, bool lock )
+void SelectionManager::deSelect( const VisID& id, bool lock )
 {
     if ( lock ) mutex_.lock();
 
@@ -87,7 +87,7 @@ void SelectionManager::deSelect( VisID id, bool lock )
 }
 
 
-void SelectionManager::deSelectAll(bool lock)
+void SelectionManager::deSelectAll( bool lock )
 {
     if ( lock ) mutex_.lock();
 
@@ -98,7 +98,7 @@ void SelectionManager::deSelectAll(bool lock)
 }
 
 
-void SelectionManager::updateSel( VisID id, bool lock )
+void SelectionManager::updateSel( const VisID& id, bool lock )
 {
     if ( lock ) mutex_.lock();
 

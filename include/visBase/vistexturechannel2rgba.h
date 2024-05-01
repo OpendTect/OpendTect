@@ -9,18 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visdata.h"
 
+#include "visdata.h"
+#include "vistexturechannels.h"
 
 namespace ColTab { class Sequence; }
-namespace osgGeo { class LayeredTexture; class ColorSequence; }
+namespace osgGeo { class ColorSequence; }
 namespace osg { class Image; }
 
 namespace visBase
-{ 
-
-class TextureChannels;
-class MappedTextureDataSet;
+{
 
 /*!
 Interface for classes that can take one or more texture channels in an
@@ -31,7 +29,7 @@ with shaders. There should always be a non-shading way to fall back on.
 mExpClass(visBase) TextureChannel2RGBA : public DataObject
 { mODTextTranslationClass(TextureChannel2RGBA);
 public:
-    virtual MappedTextureDataSet* createMappedDataSet() const;
+    virtual RefMan<MappedTextureDataSet> createMappedDataSet() const;
 
     virtual void		setChannels(TextureChannels*);
     virtual void		notifyChannelChange()			{}
@@ -42,9 +40,9 @@ public:
 				/*!<Fill the image with the output, using
 				    current settings. */
 
-    virtual bool		canSetSequence() const		{ return false;}
-    virtual void		setSequence(int,const ColTab::Sequence&){}
-    virtual const ColTab::Sequence* getSequence(int) const	{ return 0; }
+    virtual bool		canSetSequence() const	{ return false; }
+    virtual void		setSequence(int,const ColTab::Sequence&)      {}
+    virtual const ColTab::Sequence* getSequence(int) const { return nullptr; }
 
     virtual void		swapChannels(int ch0,int ch1)	{}
     virtual void		setEnabled(int ch,bool yn)	{}
@@ -57,7 +55,7 @@ public:
     virtual int			maxNrChannels() const		= 0;
     virtual int			minNrChannels() const		{ return 1; }
     virtual void		getChannelName(int,uiString&) const;
-    
+
     int				getTexturePixelSizeInBits() const;
     const unsigned char*	getTextureData() const;
     int				getTextureWidth() const;
@@ -67,8 +65,8 @@ protected:
 				TextureChannel2RGBA();
 				~TextureChannel2RGBA();
 
-    TextureChannels*		channels_;
-    osgGeo::LayeredTexture*	laytex_;
+    WeakPtr<TextureChannels>	channels_;
+    osgGeo::LayeredTexture*	laytex_ = nullptr;
 };
 
 
@@ -95,7 +93,7 @@ channel and blends it into an RGBA image. */
 mExpClass(visBase) ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
-    static ColTabTextureChannel2RGBA*	create()
+    static RefMan<ColTabTextureChannel2RGBA> create();
 				mCreateDataObj(ColTabTextureChannel2RGBA);
 
     void			swapChannels(int ch0,int ch1) override;
@@ -114,13 +112,14 @@ public:
     int				maxNrChannels() const override;
 
 protected:
+				~ColTabTextureChannel2RGBA();
+
     void			notifyChannelInsert(int ch) override;
     void			notifyChannelRemove(int ch) override;
 
     void			adjustNrChannels();
     void			setChannels(TextureChannels*) override;
 
-				~ColTabTextureChannel2RGBA();
 
     void			update();
     void			getColors(int channel,

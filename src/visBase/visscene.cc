@@ -9,18 +9,18 @@ ________________________________________________________________________
 
 #include "visscene.h"
 
-#include "settings.h"
 #include "iopar.h"
 #include "mouseevent.h"
-#include "visobject.h"
+#include "settings.h"
+#include "threadwork.h"
+#include "viscamera.h"
 #include "visdataman.h"
-#include "visselman.h"
 #include "visevent.h"
+#include "vislight.h"
 #include "vismarkerset.h"
 #include "vispolygonoffset.h"
-#include "vislight.h"
-#include "viscamera.h"
-#include "threadwork.h"
+#include "visobject.h"
+#include "visselman.h"
 
 #include <osg/Group>
 #include <osg/Camera>
@@ -39,22 +39,18 @@ namespace visBase
 static TypeSet<int> sortedfixedidxs_;
 
 Scene::Scene()
-    : polygonoffset_( new PolygonOffset )
-    , light_( new Light )
-    , events_( *EventCatcher::create() )
-    , blockmousesel_( false )
+    : DataObjectGroup(true)
     , nameChanged(this)
-    , contextIsUp( this )
-    , osgsceneroot_( 0 )
-    , camera_( 0 )
+    , contextIsUp(this)
 {
-    light_->ref();
+    ref();
+    events_ = EventCatcher::create();
+    light_ = Light::create();
     light_->turnOn( false );
     light_->setAmbient( 0 );
     light_->setLightNum( 1 );
-    addNodeState( light_ );
-
-    polygonoffset_->ref();
+    addNodeState( light_.ptr() );
+    polygonoffset_ = PolygonOffset::create();
 
     float units = mDefaultUnits;
     float factor = mDefaultFactor;
@@ -69,14 +65,12 @@ Scene::Scene()
     polygonoffset_->setFactor( factor );
     polygonoffset_->setUnits( units );
 
-    events_.ref();
-    events_.nothandled.notify( mCB(this,Scene,mousePickCB) );
-
+    events_->nothandled.notify( mCB(this,Scene,mousePickCB) );
 
     osgsceneroot_ = new osg::Group;
     osgsceneroot_->addChild( osgNode() );
-    osgsceneroot_->addChild( events_.osgNode() );
-    osgsceneroot_->ref();
+    osgsceneroot_->addChild( events_->osgNode() );
+    refOsgPtr( osgsceneroot_ );
     setOsgNode( osgsceneroot_ );
     polygonoffset_->attachStateSet( osgsceneroot_->getOrCreateStateSet() );
 
@@ -88,7 +82,9 @@ Scene::Scene()
 	if ( fixedidx_ != sortedfixedidxs_[fixedidx_] )
 	    break;
     }
+
     sortedfixedidxs_.insert( fixedidx_, fixedidx_ );
+    unRefNoDelete();
 }
 
 
@@ -107,7 +103,7 @@ float Scene::getPolygonOffsetUnits() const
 { return polygonoffset_->getUnits(); }
 
 
-void Scene::setCamera( visBase::Camera* cam )
+void Scene::setCamera( Camera* cam )
 {
     if ( camera_ )
     {
@@ -116,8 +112,6 @@ void Scene::setCamera( visBase::Camera* cam )
     }
 
     camera_ = cam;
-    camera_->ref();
-
     mAttachCB( camera_->postDraw, Scene::runUpdateQueueCB );
 }
 
@@ -127,19 +121,9 @@ Scene::~Scene()
     detachAllNotifiers();
 
     Threads::WorkManager::twm().removeQueue( updatequeueid_, false );
-
-    if ( camera_ )
-	camera_->unRef();
-
-    if ( osgsceneroot_ )
-	osgsceneroot_->unref();
-
+    unRefOsgPtr( osgsceneroot_ );
     removeAll();
-    events_.nothandled.remove( mCB(this,Scene,mousePickCB) );
-    events_.unRef();
-
-    light_->unRef();
-
+    events_->nothandled.remove( mCB(this,Scene,mousePickCB) );
     sortedfixedidxs_.removeSingle( sortedfixedidxs_.indexOf(fixedidx_) );
 }
 
@@ -156,7 +140,7 @@ void Scene::runUpdateQueueCB(CallBacker *)
 void Scene::addObject( DataObject* dataobj )
 {
     mDynamicCastGet( VisualObject*, vo, dataobj );
-    if ( vo ) vo->setSceneEventCatcher( &events_ );
+    if ( vo ) vo->setSceneEventCatcher( events_.ptr() );
     DataObjectGroup::addObject( dataobj );
 }
 
@@ -180,7 +164,7 @@ void Scene::setCameraLightIntensity( float value )
     if ( !camera_ ) return;
     osg::Light* headlight = camera_->osgCamera()->getView()->getLight();
     headlight->setDiffuse( osg::Vec4( value, value, value, 1.0 ) );
-    visBase::DataObject::requestSingleRedraw();
+    DataObject::requestSingleRedraw();
 }
 
 
@@ -196,10 +180,12 @@ float Scene::getCameraLightIntensity() const
 
 void Scene::setCameraAmbientLight( float value )
 {
-    if ( !camera_ ) return;
+    if ( !camera_ )
+	return;
+
     osg::Light* headlight = camera_->osgCamera()->getView()->getLight();
     headlight->setAmbient( osg::Vec4( value, value, value, 1.0 ) );
-    visBase::DataObject::requestSingleRedraw();
+    DataObject::requestSingleRedraw();
 }
 
 
@@ -213,9 +199,27 @@ float Scene::getCameraAmbientLight() const
 }
 
 
-Light* Scene::getDirectionalLight() const
+Light* Scene::getDirectionalLight()
 {
-    return light_;
+    return light_.ptr();
+}
+
+
+const Light* Scene::getDirectionalLight() const
+{
+    return light_.ptr();
+}
+
+
+Camera* Scene::getCamera()
+{
+    return camera_.ptr();
+}
+
+
+const Camera* Scene::getCamera() const
+{
+    return camera_.ptr();
 }
 
 
@@ -234,7 +238,7 @@ bool Scene::blockMouseSelection( bool yn )
 }
 
 
-EventCatcher& Scene::eventCatcher() { return events_; }
+EventCatcher& Scene::eventCatcher() { return *events_.ptr(); }
 
 
 void Scene::mousePickCB( CallBacker* cb )
@@ -246,7 +250,7 @@ void Scene::mousePickCB( CallBacker* cb )
     if ( !isPickable() && eventinfo.pickedobjids.isEmpty() )
 	return;
 
-    if ( events_.isHandled() )
+    if ( events_->isHandled() )
     {
 	if ( eventinfo.type==MouseClick )
 	    mousedownid_.setUdf();
@@ -257,7 +261,7 @@ void Scene::mousePickCB( CallBacker* cb )
     {
 	const TabletInfo* ti = TabletInfo::currentState();
 	if ( ti && ti->maxPostPressDist()<5 )
-	    events_.setHandled();
+	    events_->setHandled();
 	else
 	    mousedownid_.setUdf();
 
@@ -296,7 +300,7 @@ void Scene::mousePickCB( CallBacker* cb )
 		 !OD::altKeyboardButton(eventinfo.buttonstate_) )
 	    {
 		DM().selMan().deSelectAll();
-		events_.setHandled();
+		events_->setHandled();
 	    }
 	}
 
@@ -314,14 +318,14 @@ void Scene::mousePickCB( CallBacker* cb )
 		 OD::rightMouseButton(eventinfo.buttonstate_) &&
 		 dataobj->rightClicked() )
 	    {
-		mDynamicCastGet( visBase::MarkerSet*, emod, dataobj );
+		mDynamicCastGet( MarkerSet*, emod, dataobj );
 		if ( emod )
 		{
 		    markerclicked = true;
 		    continue;
 		}
 		dataobj->triggerRightClick(&eventinfo);
-		events_.setHandled();
+		events_->setHandled();
 	    }
 	    else if ( dataobj->selectable() )
 	    {
@@ -330,14 +334,14 @@ void Scene::mousePickCB( CallBacker* cb )
 		      !OD::altKeyboardButton(eventinfo.buttonstate_) )
 		{
 		    DM().selMan().select( mousedownid_, true );
-		    events_.setHandled();
+		    events_->setHandled();
 		}
 		else if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_)&&
 		      !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 		      !OD::altKeyboardButton(eventinfo.buttonstate_) )
 		{
 		    DM().selMan().select( mousedownid_, false );
-		    events_.setHandled();
+		    events_->setHandled();
 		}
 	    }
 

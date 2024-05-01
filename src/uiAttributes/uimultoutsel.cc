@@ -28,7 +28,8 @@ void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
     uiString errmsg;
     Desc& ds = const_cast<Desc&>(desc);
     RefMan<Provider> tmpprov = Provider::create( ds, errmsg );
-    if ( !tmpprov ) return;
+    if ( !tmpprov )
+	return;
 
     //compute and set refstep, needed to get nr outputs for some attribs
     //( SpecDecomp for ex )
@@ -57,8 +58,7 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc, bool isisnglesel )
 			mODHelpKey(mMultOutSelHelpID) ))
 {
     BufferStringSet outnames;
-    Desc* tmpdesc = new Desc( desc );
-    tmpdesc->ref();
+    RefMan<Desc> tmpdesc = new Desc( desc );
     fillInAvailOutNames( *tmpdesc, outnames );
     const bool dodlg = outnames.size() > 1;
     if ( dodlg )
@@ -68,8 +68,6 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc, bool isisnglesel )
     }
 
     getOutputIDs( *tmpdesc, outputids_ );
-
-    tmpdesc->unRef();
 }
 
 
@@ -179,8 +177,8 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 	const int compidx = selectedcomps[idx];
 	const DescID newinpid = curdescset->getStoredID( mid, compidx,
 					true, true, complist.get(compidx) );
-	Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
-						complist.get(compidx) );
+	RefMan<Desc> newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
+						    complist.get(compidx) );
 	if ( !newdesc )
 	    continue;
 
@@ -273,8 +271,7 @@ void uiMultiAttribSel::fillAttribFld()
 		continue;
 	    }
 
-	    Desc* tmpdesc = new Desc( *desc );
-	    tmpdesc->ref();
+	    RefMan<Desc> tmpdesc = new Desc( *desc );
 	    tmpdesc->selectOutput( idx );
 	    tmpdesc->setUserRef( usrref );
 	    const DescID newid =

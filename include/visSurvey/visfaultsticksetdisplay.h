@@ -9,29 +9,29 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "vissurvobj.h"
-#include "visobject.h"
-#include "visemsticksetdisplay.h"
 
 #include "emposid.h"
+#include "faultstickseteditor.h"
+#include "visdrawstyle.h"
+#include "visemsticksetdisplay.h"
+#include "vislines.h"
+#include "vismpeeditor.h"
+#include "visobject.h"
+#include "vissurvobj.h"
 
 
 namespace visBase
 {
-    class DrawStyle;
-    class Lines;
     class MarkerSet;
     class Transformation;
 }
 
 namespace EM { class FaultStickSet; class FaultStickSetGeometry; }
 namespace Geometry { class FaultStickSet; class IndexedPrimitiveSet; }
-namespace MPE { class FaultStickSetEditor; }
 
 namespace visSurvey
 {
 
-class MPEEditor;
 class Seis2DDisplay;
 
 /*!\brief Display class for FaultStickSets
@@ -45,14 +45,12 @@ public:
 				FaultStickSetDisplay();
 
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,
-				    FaultStickSetDisplay,
+				    SurveyObject, FaultStickSetDisplay,
 				    "FaultStickSetDisplay",
-				    toUiString(sFactoryKeyword()))
-
+				    ::toUiString(sFactoryKeyword()) )
 
     MultiID			getMultiID() const override;
-    bool			isInlCrl() const override { return false; }
+    bool			isInlCrl() const override      { return false; }
 
     bool			hasColor() const override	{ return true; }
     OD::Color			getColor() const override;
@@ -126,17 +124,16 @@ public:
 						    TaskRunner*) override;
     const ZAxisTransform*	getZAxisTransform() const override;
 protected:
-    virtual			~FaultStickSetDisplay();
+				~FaultStickSetDisplay();
 
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					VisID whichobj) override;
+					const VisID& whichobj) override;
 
     void			setActiveStick(const EM::PosID&);
 
     static const char*		sKeyEarthModelID();
     static const char*		sKeyDisplayOnlyAtSections();
-
 
     bool			isPicking() const override;
     void			mouseCB(CallBacker*);
@@ -163,24 +160,24 @@ protected:
     void			updateManipulator();
 
 
-    MPE::FaultStickSetEditor*	fsseditor_;
-    visSurvey::MPEEditor*	viseditor_;
+    RefMan<MPE::FaultStickSetEditor> fsseditor_;
+    RefMan<MPEEditor>		viseditor_;
 
     Coord3			mousepos_;
 
-    int				activesticknr_;
+    int				activesticknr_	= mUdf(int);
 
     TypeSet<EM::PosID>		editpids_;
 
-    visBase::Lines*		sticks_;
-    visBase::Lines*		activestick_;
-    visBase::DrawStyle*		stickdrawstyle_;
-    visBase::DrawStyle*		activestickdrawstyle_;
+    RefMan<visBase::Lines>	sticks_;
+    RefMan<visBase::Lines>	activestick_;
+    RefMan<visBase::DrawStyle>	stickdrawstyle_;
+    RefMan<visBase::DrawStyle>	activestickdrawstyle_;
 
-    bool			displayonlyatsections_;
-    bool			makenewstick_;
-    EM::PosID			activestickid_;
-    int				voiid_				= -1;
+    bool			displayonlyatsections_	= false;
+    bool			makenewstick_		= false;
+    EM::PosID			activestickid_	= EM::PosID::udf();
+    int				voiid_			= -1;
 
 public:
     void			setDisplayOnlyAtSections(bool yn)

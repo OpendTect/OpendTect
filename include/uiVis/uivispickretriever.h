@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
+
 #include "pickretriever.h"
 #include "position.h"
 
@@ -18,7 +19,7 @@ class uiVisPartServer;
 mExpClass(uiVis) uiVisPickRetriever : public PickRetriever
 {
 public:
-    			uiVisPickRetriever(uiVisPartServer*);
+			uiVisPickRetriever(uiVisPartServer*);
     bool		enable(const TypeSet<SceneID>* allowedscenes) override;
     NotifierAccess*	finished() override		{ return &finished_; }
 
@@ -30,7 +31,7 @@ public:
     Pos::GeomID		getGeomID() const override  { return pickedgeomid_; }
     SceneID		getSceneID() const override { return pickedscene_; }
     const TypeSet<VisID>& getPickedObjIDs() const override
-				{ return pickedobjids_; }
+			{ return pickedobjids_; }
 
     void		addScene(visSurvey::Scene*);
     void		removeScene(visSurvey::Scene*);
@@ -43,11 +44,11 @@ protected:
     void			pickCB(CallBacker*);
     void			resetPickedPos();
 
-    ObjectSet<visSurvey::Scene>	scenes_;
     TypeSet<SceneID>		allowedscenes_;
     TypeSet<VisID>		pickedobjids_;
 
-    enum Status			{ Idle, Waiting, Failed, Success } status_;
+    enum Status			{ Idle, Waiting, Failed, Success };
+    Status			status_		= Idle;
     Coord3			pickedpos_;
     int				pickedtrcnr_;
     Pos::GeomID			pickedgeomid_;

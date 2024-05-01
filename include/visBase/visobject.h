@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visdata.h"
+
 #include "thread.h"
+#include "visdata.h"
+#include "vismaterial.h"
 #include "visosg.h"
 
 
@@ -18,9 +20,9 @@ namespace osg { class Group; }
 
 namespace visBase
 {
-class Material;
-class Transformation;
+
 class EventCatcher;
+class Transformation;
 
 /*!
 \brief Base class for all objects that are visual on the scene.
@@ -43,7 +45,7 @@ public:
 				{ return isselectable; }
     NotifierAccess*		selection() override	{ return &selnotifier; }
     NotifierAccess*		deSelection() override	{return &deselnotifier;}
-    NotifierAccess	*	rightClicked() override	{ return &rightClick; }
+    NotifierAccess*		rightClicked() override { return &rightClick; }
     const TypeSet<VisID>*	rightClickedPath() const override;
     const EventInfo*		rightClickedEventInfo() const{return rcevinfo;}
 
@@ -62,7 +64,7 @@ private:
     Notifier<VisualObject>	selnotifier;
     Notifier<VisualObject>	deselnotifier;
     Notifier<VisualObject>	rightClick;
-    const EventInfo*		rcevinfo;
+    const EventInfo*		rcevinfo = nullptr;
 };
 
 
@@ -87,7 +89,7 @@ public:
     bool		tryWriteLock();
 
     void		setMaterial(Material*) override;
-    const Material*	getMaterial() const { return material_; }
+    const Material*	getMaterial() const { return material_.ptr(); }
     Material*		getMaterial() override;
 
     static const char*	sKeyMaterialID(); //Remove
@@ -117,8 +119,8 @@ protected:
 			//!<Must be called during construction.
     void		setGroupNode(DataObject*);
 
-    Material*		material_;
-    bool		righthandsystem_;
+    RefMan<Material>	material_;
+    bool		righthandsystem_ = true;
 
 private:
 

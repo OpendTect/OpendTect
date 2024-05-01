@@ -15,26 +15,25 @@ ________________________________________________________________________
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vislines.h"
-#include "vistransform.h"
 
 mCreateFactoryEntry( visSurvey::ArrowDisplay );
 
 namespace visSurvey
 {
+
 ArrowDisplay::ArrowDisplay()
-    : arrowtype_(Double)
-    , linestyle_(new visBase::DrawStyle)
-    , group_(new visBase::DataObjectGroup)
 {
+    ref();
+    group_ = visBase::DataObjectGroup::create();
+    linestyle_ = visBase::DrawStyle::create();
     addChild( group_->osgNode() );
-    linestyle_->ref();
     setLineWidth( 2 );
+    unRefNoDelete();
 }
 
 
 ArrowDisplay::~ArrowDisplay()
 {
-    linestyle_->unRef();
 }
 
 
@@ -64,9 +63,9 @@ void ArrowDisplay::setType( Type typ )
 }
 
 
-void ArrowDisplay::setScene( visSurvey::Scene* ns )
+void ArrowDisplay::setScene( Scene* ns )
 {
-    visSurvey::SurveyObject::setScene( ns );
+    SurveyObject::setScene( ns );
 }
 
 
@@ -99,20 +98,17 @@ void ArrowDisplay::dispChg( CallBacker* cb )
 }
 
 
-visBase::VisualObject* ArrowDisplay::createLocation() const
+RefMan<visBase::VisualObject> ArrowDisplay::createLocation() const
 {
-    visBase::Lines* lines = visBase::Lines::create();
-    lines->setMaterial( 0 );
-    lines->ref();
+    RefMan<visBase::Lines> lines = visBase::Lines::create();
+    lines->setMaterial( nullptr );
     lines->setSelectable( true );
     lines->setDisplayTransformation( displaytransform_ );
-    lines->addNodeState( linestyle_ );
-    Geometry::IndexedPrimitiveSet* indices =
+    lines->addNodeState( linestyle_.getNonConstPtr() );
+    RefMan<Geometry::IndexedPrimitiveSet> indices =
 				Geometry::IndexedPrimitiveSet::create( false );
-    indices->ref();
     lines->addPrimitiveSet( indices );
     updateLineIndices( lines );
-    lines->unRefNoDelete();
     return lines;
 }
 
@@ -123,7 +119,8 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
 
     if ( !lines )
     {
-	lines = static_cast<visBase::Lines*>( createLocation() );
+	RefMan<visBase::VisualObject> locations = createLocation();
+	lines = static_cast<visBase::Lines*>( locations.ptr() );
 	group_->addObject( lines );
     }
 
@@ -167,7 +164,6 @@ void ArrowDisplay::updateLineIndices( visBase::Lines* lines ) const
     if ( !lines || lines->nrPrimitiveSets()<1 )
 	return;
 
-    lines->ref();
     mDynamicCastGet(Geometry::IndexedPrimitiveSet*,
 		    indices,lines->getPrimitiveSet(0));
     if ( !indices )
@@ -198,7 +194,6 @@ void ArrowDisplay::updateLineIndices( visBase::Lines* lines ) const
     indices->set( indexarray.arr(), indexarray.size() );
     lines->dirtyCoordinates();
     requestSingleRedraw();
-    lines->unRef();
 }
 
 

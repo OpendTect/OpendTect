@@ -9,13 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "color.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "ranges.h"
 #include "trckeyzsampling.h"
 #include "visdata.h"
+#include "vismaterial.h"
 #include "visosg.h"
+#include "visrgbatexturechannel2rgba.h"
 
 class TaskRunner;
 template <class T> class Array3D;
@@ -28,14 +31,12 @@ namespace osgGeo { class RayTracedTechnique; }
 
 namespace visBase
 {
-class Material;
-class TextureChannel2RGBA;
 
 mExpClass(visBase) VolumeRenderScalarField : public DataObject
 {
 public:
-    static VolumeRenderScalarField*	create()
-					mCreateDataObj(VolumeRenderScalarField);
+    static RefMan<VolumeRenderScalarField> create();
+				mCreateDataObj(VolumeRenderScalarField);
 
     void			setScalarField(int attr,const Array3D<float>*,
 					       bool mine,const TrcKeyZSampling&,
@@ -48,7 +49,8 @@ public:
     void			setColTabMapperSetup(int attr,
 						     const ColTab::MapperSetup&,
 						     TaskRunner* tr );
-    const ColTab::Mapper&	getColTabMapper(int attr);
+    const ColTab::Mapper&	getColTabMapper(int attr) const;
+    ColTab::Mapper&		getColTabMapper(int attr);
 
     const TypeSet<float>&	getHistogram(int attr) const;
 
@@ -110,11 +112,11 @@ protected:
 	bool				isInVolumeCache() const;
 
 	ColTab::Mapper			mapper_;
-	unsigned char*			indexcache_;
-	int				indexcachestep_;
-	bool				ownsindexcache_;
-	const ValueSeries<float>*	datacache_;
-	bool				ownsdatacache_;
+	unsigned char*			indexcache_	= nullptr;
+	int				indexcachestep_ = 0;
+	bool				ownsindexcache_ = false;
+	const ValueSeries<float>*	datacache_	= nullptr;
+	bool				ownsdatacache_	= false;
 	TypeSet<float>			histogram_;
 
 	void				clearDataCache();
@@ -122,17 +124,17 @@ protected:
 	void				clearResizeCache();
 
 	TrcKeyZSampling			datatkzs_;
-	const ValueSeries<float>*	resizecache_;
-	bool				ownsresizecache_;
+	const ValueSeries<float>*	resizecache_	= nullptr;
+	bool				ownsresizecache_ = false;
     };
 
     ObjectSet<AttribData>		attribs_;
 
-    TextureChannel2RGBA*		channels2rgba_;
-    bool				isrgba_;
+    RefMan<TextureChannel2RGBA>		channels2rgba_;
+    bool				isrgba_ = false;
 
-    Material*				material_;
-    bool				useshading_;
+    RefMan<Material>			material_;
+    bool				useshading_	= true;
 
     bool				isrighthandsystem_;
 
@@ -143,7 +145,7 @@ protected:
     osg::Image*				osgvoldata_;
     osg::TransferFunction1D*		osgtransfunc_;
     osgVolume::TransparencyProperty*	osgtransprop_;
-    osgGeo::RayTracedTechnique*		raytt_;
+    osgGeo::RayTracedTechnique*		raytt_	= nullptr;
 
     void			updateResizeCache(int attr,TaskRunner*);
 

@@ -10,7 +10,9 @@ ________________________________________________________________________
 
 #include "vislocationdisplay.h"
 
-namespace visBase { class Lines; class DrawStyle; };
+#include "visdrawstyle.h"
+
+namespace visBase { class Lines; };
 
 namespace visSurvey
 {
@@ -19,14 +21,13 @@ namespace visSurvey
   Arrow
 */
 
-mExpClass(visSurvey) ArrowDisplay : public visSurvey::LocationDisplay
+mExpClass(visSurvey) ArrowDisplay : public LocationDisplay
 {
 public:
-    static ArrowDisplay*	create()
+    static RefMan<ArrowDisplay> create();
 				mCreateDataObj(ArrowDisplay);
-				~ArrowDisplay();
 
-    void			setScene(visSurvey::Scene*) override;
+    void			setScene(Scene*) override;
 
     enum Type			{ Top, Bottom, Double };
     void			setType(Type);
@@ -40,10 +41,11 @@ public:
     const mVisTrans*		getDisplayTransformation() const override;
 
 protected:
+				~ArrowDisplay();
 
-    virtual void		setPosition(int,const Pick::Location&,
+    void			setPosition(int,const Pick::Location&,
 					    bool add=false) override;
-    virtual void		removePosition(int) override;
+    void			removePosition(int) override;
 
     int				clickedMarkerIndex(const visBase::EventInfo&)
 								const override;
@@ -51,14 +53,14 @@ protected:
     void			zScaleCB(CallBacker*);
     void			dispChg(CallBacker*) override;
 
-    visBase::VisualObject*	createLocation() const;
+    RefMan<visBase::VisualObject> createLocation() const;
     bool			hasDirection() const override { return true; }
 
     void			updateLineIndices(visBase::Lines*) const;
 
-    Type			arrowtype_;
-    visBase::DrawStyle*		linestyle_;
-    const mVisTrans*		displaytransform_;
+    Type			arrowtype_	= Double;
+    RefMan<visBase::DrawStyle>	linestyle_;
+    ConstRefMan<mVisTrans>	displaytransform_;
     RefMan<visBase::DataObjectGroup>	group_;
 };
 

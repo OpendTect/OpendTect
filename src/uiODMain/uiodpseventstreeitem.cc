@@ -19,15 +19,12 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
-#include "vispseventdisplay.h"
 
 #include "ctxtioobj.h"
 #include "enums.h"
 #include "menuhandler.h"
-#include "prestackevents.h"
 #include "prestackeventtransl.h"
 #include "prestackeventio.h"
-#include "ptrman.h"
 #include "survinfo.h"
 
 
@@ -41,7 +38,6 @@ CNotifier<uiODPSEventsParentTreeItem,uiMenu*>&
 
 uiODPSEventsParentTreeItem::uiODPSEventsParentTreeItem()
     : uiODParentTreeItem( uiStrings::sPreStackEvents() )
-    , child_(0)
 {}
 
 
@@ -98,11 +94,11 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
 
 SceneID uiODPSEventsParentTreeItem::sceneID() const
 {
-    int sceneid;
+    int sceneid = SceneID::udf().asInt();
     if ( !getProperty<int>(uiODTreeTop::sceneidkey(),sceneid) )
 	return SceneID::udf();
 
-    return SceneID(sceneid);
+    return SceneID( sceneid );
 }
 
 
@@ -129,46 +125,29 @@ const char* uiODPSEventsParentTreeItem::parentType() const
 uiODPSEventsTreeItem::uiODPSEventsTreeItem( const MultiID& key,
 					    const char* eventname )
     : key_(key)
-    , psem_(*new PreStack::EventManager)
+    , psem_(new PreStack::EventManager)
     , eventname_(eventname)
-    , eventdisplay_(0)
     , dir_(Coord(1,0))
-    , scalefactor_(1)
     , coloritem_(new MenuItem(uiStrings::sColor(mPlural)))
-    , coloridx_(0)
-    , dispidx_(0)
 {
-    psem_.setStorageID( key, true );
+    psem_->setStorageID( key, true );
 }
 
 
 uiODPSEventsTreeItem::~uiODPSEventsTreeItem()
 {
-    if ( !ODMainWin() )
-	return;
-
-    auto* cseq = const_cast<ColTab::Sequence*>(
-			 &ODMainWin()->colTabEd().getColTabSequence() );
-    if ( cseq )
-    {
-	cseq->colorChanged.remove(
-			mCB(this,uiODPSEventsTreeItem,coltabChangeCB) );
-    }
-
-    if ( eventdisplay_ )
-    {
-	uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-	visserv->removeObject( displayid_, sceneID() );
-	eventdisplay_->unRef();
-	eventdisplay_ = 0;
-    }
+    detachAllNotifiers();
+    visserv_->removeObject( displayid_, sceneID() );
 }
 
 
 bool uiODPSEventsTreeItem::init()
 {
     updateDisplay();
-    eventdisplay_->setDisplayMode( visSurvey::PSEventDisplay::ZeroOffset );
+    RefMan<visSurvey::PSEventDisplay> eventdisplay = getDisplay();
+    if ( eventdisplay )
+	eventdisplay->setDisplayMode( visSurvey::PSEventDisplay::ZeroOffset );
+
     return uiODDisplayTreeItem::init();
 }
 
@@ -176,7 +155,7 @@ bool uiODPSEventsTreeItem::init()
 #define mAddPSMenuItems( mnu, func, midx, enab ) \
     mnu->removeItems(); \
     items.setEmpty(); \
-    items.add( eventdisplay_->func() ); \
+    items.add( eventdisplay->func() ); \
     if ( items.isEmpty() ) return; \
     mnu->createItems( items ); \
     for ( int idx=0; idx<items.size(); idx++ ) \
@@ -189,7 +168,8 @@ bool uiODPSEventsTreeItem::init()
 void uiODPSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( istb || !eventdisplay_ || !menu || !isDisplayID(menu->menuID()) )
+    ConstRefMan<visSurvey::PSEventDisplay> eventdisplay = getDisplay();
+    if ( istb || !eventdisplay || !menu || !isDisplayID(menu->menuID()) )
 	return;
 
     mAddMenuItem( menu, coloritem_, true, false );
@@ -197,7 +177,7 @@ void uiODPSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddPSMenuItems( coloritem_, markerColorNames, coloridx_, true );
     mAddMenuItem( menu, &displaymnuitem_, true, false );
     MenuItem* item = &displaymnuitem_;
-    const bool enabled = eventdisplay_->supportsDisplay();
+    const bool enabled = eventdisplay->supportsDisplay();
     mAddPSMenuItems( item, displayModeNames, dispidx_, enabled )
 }
 
@@ -207,15 +187,16 @@ void uiODPSEventsTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, menuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    if ( !eventdisplay_ || menu->isHandled()
-	|| !isDisplayID(menu->menuID()) || menuid==-1 )
+    RefMan<visSurvey::PSEventDisplay> eventdisplay = getDisplay();
+    if ( !eventdisplay || menu->isHandled() ||
+	 !isDisplayID(menu->menuID()) || menuid==-1 )
 	return;
 
     if ( displaymnuitem_.id != -1 && displaymnuitem_.itemIndex(menuid) != -1 )
     {
 	dispidx_ = displaymnuitem_.itemIndex( menuid );
 	MouseCursorChanger cursorchanger( MouseCursor::Wait );
-	eventdisplay_->setDisplayMode(
+	eventdisplay->setDisplayMode(
 	    (visSurvey::PSEventDisplay::DisplayMode) dispidx_ );
 	menu->setIsHandled( true );
     }
@@ -231,34 +212,52 @@ void uiODPSEventsTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODPSEventsTreeItem::updateColorMode( int mode )
 {
-    eventdisplay_->setMarkerColor(
-	(visSurvey::PSEventDisplay::MarkerColor) mode );
+    RefMan<visSurvey::PSEventDisplay> eventdisplay = getDisplay();
+    if ( !eventdisplay )
+	return;
+
+    eventdisplay->setMarkerColor(
+			(visSurvey::PSEventDisplay::MarkerColor) mode );
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
 void uiODPSEventsTreeItem::updateDisplay()
 {
-    if ( !eventdisplay_ )
+    if ( !displayid_.isValid() )
     {
-	eventdisplay_ = new visSurvey::PSEventDisplay;
-	eventdisplay_->ref();
-        uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-	visserv->addObject( eventdisplay_, sceneID(), false );
-	displayid_ = eventdisplay_->id();
-	eventdisplay_->setName( eventname_ );
-	eventdisplay_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,4) );
-	eventdisplay_->setEventManager( &psem_ );
+	RefMan<visSurvey::PSEventDisplay> eventdisplay =
+						new visSurvey::PSEventDisplay;
+	visserv_->addObject( eventdisplay, sceneID(), false );
+	displayid_ = eventdisplay->id();
+	eventdisplay->setName( eventname_ );
+	eventdisplay->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,4) );
+	eventdisplay->setEventManager( psem_.ptr() );
 
-	ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>(
-	   &ODMainWin()->colTabEd().getColTabSequence() );
+	auto* cseq = const_cast<ColTab::Sequence*>(
+		       &ODMainWin()->colTabEd().getColTabSequence() );
 	if ( cseq )
 	{
-	    cseq->colorChanged.notify(
-			    mCB(this,uiODPSEventsTreeItem,coltabChangeCB) );
-	    eventdisplay_->setColTabSequence( *cseq );
+	    mAttachCB( cseq->colorChanged,uiODPSEventsTreeItem::coltabChangeCB);
+	    eventdisplay->setColTabSequence( *cseq );
 	}
     }
+
+    RefMan<visSurvey::PSEventDisplay> eventdisplay =
+	dCast(visSurvey::PSEventDisplay*,visserv_->getObject(displayid_));
+    eventdisplay_ = eventdisplay;
+}
+
+
+ConstRefMan<visSurvey::PSEventDisplay> uiODPSEventsTreeItem::getDisplay() const
+{
+    return eventdisplay_.get();
+}
+
+
+RefMan<visSurvey::PSEventDisplay> uiODPSEventsTreeItem::getDisplay()
+{
+    return eventdisplay_.get();
 }
 
 
@@ -285,11 +284,16 @@ void uiODPSEventsTreeItem::updateColumnText( int col )
 
 void uiODPSEventsTreeItem::displayMiniColTab()
 {
-    if ( eventdisplay_->getMarkerColor() == visSurvey::PSEventDisplay::Single )
+    ConstRefMan<visSurvey::PSEventDisplay> eventdisplay = getDisplay();
+    if ( !eventdisplay )
 	return;
 
-    const ColTab::Sequence* seq = eventdisplay_->getColTabSequence();
-    if ( !seq ) return;
+    if ( eventdisplay->getMarkerColor() == visSurvey::PSEventDisplay::Single )
+	return;
+
+    const ColTab::Sequence* seq = eventdisplay->getColTabSequence();
+    if ( !seq )
+	return;
 
     uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *seq );
 }

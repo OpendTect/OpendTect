@@ -32,11 +32,11 @@ void Random::initClass()
 Attrib::ExtAttribCalc* Random::create( const Attrib::SelSpec& as )
 {
     Random* res = new Random;
-    if ( res->setTargetSelSpec( as ) )
+    if ( res->setTargetSelSpec(as) )
 	return res;
 
     delete res;
-    return 0;
+    return nullptr;
 }
 
 
@@ -61,15 +61,16 @@ bool Random::setTargetSelSpec( const Attrib::SelSpec& ss )
 }
 
 
-DataPack::ID Random::createAttrib( const CubeSampling& tkzs,
-				   DataPack::ID cacheid,
-				   TaskRunner* tr)
+ConstRefMan<RegularSeisDataPack>
+Random::createAttrib( const TrcKeyZSampling& tkzs,
+		      const RegularSeisDataPack* cachedp, TaskRunner* tr)
 {
-    const Attrib::DataCubes* dc = 0;
+    const Attrib::DataCubes* dc = nullptr;
     const Attrib::DataCubes* output = createAttrib( tkzs, dc );
-    if ( !output || !output->nrCubes() ) return DataPack::cNoID();
+    if ( !output || !output->nrCubes() )
+	return nullptr;
 
-    RegularSeisDataPack* regsdp = new RegularSeisDataPack(
+    RefMan<RegularSeisDataPack> regsdp = new RegularSeisDataPack(
 	    SeisDataPack::categoryStr(tkzs.isFlat() && tkzs.nrZ()!=1,false) );
     regsdp->setSampling( tkzs );
     regsdp->addComponent( uiStrings::sEmptyString() );
@@ -80,45 +81,17 @@ DataPack::ID Random::createAttrib( const CubeSampling& tkzs,
 	{
 	    for ( int zidx=0; zidx<tkzs.nrZ(); zidx++ )
 	    {
-		regsdp->data(0).set( lineidx, trcidx, zidx, Stats::RandGen::get() );
+		regsdp->data(0).set( lineidx, trcidx, zidx,
+				     Stats::RandGen::get() );
 	    }
 	}
     }
 
-    RegularFlatDataPack* regfdp = new RegularFlatDataPack( *regsdp, 0 );
-    DPM(DataPackMgr::FlatID()).add( regfdp );
-    return regfdp->id();
+    return regsdp;
 }
 
 
-const Attrib::DataCubes*
-Random::createAttrib( const CubeSampling& cs, const Attrib::DataCubes* dc )
-{
-    return 0;
-}
-
-
-bool Random::createAttrib(ObjectSet<BinIDValueSet>&,TaskRunner*)
-{
-    return false;
-}
-
-
-bool Random::createAttrib(const BinIDValueSet&, SeisTrcBuf&, TaskRunner*)
-{
-    return false;
-}
-
-
-DataPack::ID Random::createAttrib( const CubeSampling&, const LineKey&,
-				   TaskRunner*)
-{ return DataPack::cNoID(); }
-
-
-bool Random::isIndexes() const
-{ return false; }
-
-
+// RandomManager
 
 RandomManager::RandomManager()
     : addrandomattribmnuitem_( "Add random attribute" )
@@ -185,7 +158,7 @@ void RandomManager::handleMenuCB( CallBacker* cb )
     visserv->calculateAttrib( menu->menuID(), attrib, false );
     visserv->enableAttrib( menu->menuID(), attrib, true );
 
-    uiRandomTreeItem* newitem = new uiRandomTreeItem( typeid(*parent).name() );
+    auto* newitem = new uiRandomTreeItem( typeid(*parent).name() );
     parent->addChild( newitem, false );
 }
 
@@ -212,7 +185,7 @@ uiODDataTreeItem* uiRandomTreeItem::create( const Attrib::SelSpec& as,
 {
     if ( as.id()!=Attrib::SelSpec::cOtherAttrib() ||
 	 strcmp( as.defString(), sKeyDefinition() ) )
-	return 0;
+	return nullptr;
 
     return new uiRandomTreeItem( parenttype );
 }

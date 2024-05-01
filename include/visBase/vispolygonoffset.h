@@ -20,7 +20,8 @@ namespace visBase
 mExpClass(visBase) PolygonOffset : public NodeState
 {
 public:
-				PolygonOffset();
+
+    static RefMan<PolygonOffset> create();
 
     void			setFactor(float);
     float			getFactor() const;
@@ -37,6 +38,7 @@ public:
     unsigned int		getMode() {return mode_; }
 
 protected:
+				PolygonOffset();
 				~PolygonOffset();
 
     osg::PolygonOffset*		offset_;

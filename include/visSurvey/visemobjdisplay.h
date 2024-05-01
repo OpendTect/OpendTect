@@ -9,24 +9,24 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
 #include "bufstringset.h"
 #include "draw.h"
+#include "emobject.h"
 #include "emposid.h"
+#include "mpeengine.h"
+#include "visdrawstyle.h"
+#include "visevent.h"
+#include "vismarkerset.h"
+#include "vismpeeditor.h"
 #include "visobject.h"
 #include "vissurvobj.h"
-#include "emobject.h"
+#include "vistransform.h"
+#include "vistexturechannel2rgba.h"
+#include "zaxistransform.h"
 
-class ZAxisTransform;
-
-namespace EM { class EMManager; class EMObject; }
+namespace EM { class EMManager; }
 namespace Geometry { class Element; }
-namespace visBase
-{
-    class DataObjectGroup;
-    class DrawStyle;
-    class TextureChannel2RGBA;
-    class MarkerSet;
-}
 
 namespace visSurvey
 {
@@ -62,7 +62,7 @@ class EdgeLineSetDisplay;
 
 
 mExpClass(visSurvey) EMObjectDisplay : public visBase::VisualObjectImpl
-				     , public visSurvey::SurveyObject
+				     , public SurveyObject
 { mODTextTranslationClass(EMObjectDisplay)
 public:
     const mVisTrans*		getDisplayTransformation() const override;
@@ -84,10 +84,10 @@ public:
     virtual bool		updateFromEM(TaskRunner*);
     virtual void		updateFromMPE();
 
-    void			showPosAttrib( int attr, bool yn);
+    virtual void		showPosAttrib(int attr,bool yn);
 				/*!<Turns position attributes (as defined in
 				    EM::EMObject) to be marked with a marker. */
-    bool			showsPosAttrib( int attr ) const;
+    bool			showsPosAttrib(int attr) const;
 				/*!<\returns wether a position attribute (as
 				     defined in EM::EMObject) to be marked
 				     with a marker. */
@@ -122,7 +122,7 @@ public:
     void			enableEditing(bool yn);
     bool			isEditingEnabled() const;
 
-    virtual EM::SectionID	getSectionID(VisID visid) const		= 0;
+    virtual EM::SectionID	getSectionID(const VisID&) const	= 0;
     EM::SectionID		getSectionID(const TypeSet<VisID>* path) const;
 
     EM::PosID			getPosAttribPosID(int attrib,
@@ -138,6 +138,7 @@ public:
     bool			setChannels2RGBA(
 					visBase::TextureChannel2RGBA*) override;
     visBase::TextureChannel2RGBA* getChannels2RGBA() override;
+    const visBase::TextureChannel2RGBA* getChannels2RGBA() const override;
 
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
@@ -151,7 +152,7 @@ public:
 				{ return &locknotifier; }
     virtual void		doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj )	=0;
+				    const VisID& whichobj)	=0;
     void			setPixelDensity(float dpi) override;
     const visBase::MarkerSet*	getSeedMarkerSet() const;
     virtual bool		getOnlyAtSectionsDisplay() const
@@ -160,6 +161,7 @@ public:
 protected:
 				EMObjectDisplay();
 				~EMObjectDisplay();
+
     virtual void		removeEMStuff();
 
     virtual void		removeSectionDisplay(const EM::SectionID&) = 0;
@@ -177,31 +179,31 @@ protected:
     Notifier<EMObjectDisplay>	hasmoved;
     Notifier<EMObjectDisplay>	locknotifier;
 
-    const mVisTrans*			transformation_		= nullptr;
-    visBase::EventCatcher*		eventcatcher_		= nullptr;
-    ZAxisTransform*			zaxistransform_		= nullptr;
+    ConstRefMan<mVisTrans>		transformation_;
+    RefMan<visBase::EventCatcher>	eventcatcher_;
+    RefMan<ZAxisTransform>		zaxistransform_;
 
-    ObjectSet<visBase::MarkerSet>	posattribmarkers_;
+    RefObjectSet<visBase::MarkerSet>	posattribmarkers_;
 
     TypeSet<int>			posattribs_;
     TypeSet<int>			parposattrshown_;
 
     EM::EMManager&			em_;
-    EM::EMObject*			emobject_		= nullptr;
+    RefMan<EM::EMObject>		emobject_;
     MultiID				parmid_;
     BufferStringSet			parsections_;
 
-    MPEEditor*				editor_			= nullptr;
-    visBase::TextureChannel2RGBA*	channel2rgba_		= nullptr;
+    RefMan<MPEEditor>			editor_;
+    RefMan<visBase::TextureChannel2RGBA> channel2rgba_;
 					//set in usePar,
-					//should be nil when given
+					//should be nullptr when given
 					//to channels_.
 
     TypeSet<EM::SectionID>		addsectionids_;
 
     mutable OD::Color			nontexturecol_;
     mutable bool			nontexturecolisset_	= false;
-    visBase::DrawStyle*			drawstyle_;
+    RefMan<visBase::DrawStyle>		drawstyle_;
     bool				displayonlyatsections_	= false;
     bool				enableedit_		= false;
     bool				restoresessupdate_	= false;

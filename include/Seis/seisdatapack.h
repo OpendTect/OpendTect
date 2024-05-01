@@ -128,17 +128,17 @@ protected:
 
 public:
     static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
-						   RandomLineID rdmlineid,
+						   const RandomLineID&,
 						   const Interval<float>& zrg);
 
     static RefMan<RandomSeisDataPack> createDataPackFromRM(
 						    const RegularSeisDataPack&,
-						    RandomLineID rdmlineid,
+						    const RandomLineID&,
 						    const Interval<float>& zrg,
 						    const BufferStringSet* nms);
 
     static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
-					       RandomLineID rdmlineid,
+					       const RandomLineID&,
 					       const Interval<float>& zrg,
 					       const BufferStringSet* nms);
 

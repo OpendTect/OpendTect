@@ -9,27 +9,29 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
 #include "visobject.h"
+#include "vispolyline.h"
 #include "vissurvobj.h"
 #include "vistransform.h"
 
-namespace visBase { class PolyLine; }
 
 namespace visSurvey
 {
 
 /*!\brief Used for displaying a polyline, preview for a random line created
-  throught well path*/
+  throught well path */
 
-mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl,
-				    public visSurvey::SurveyObject
+mExpClass(visSurvey) PolyLineDisplay : public visBase::VisualObjectImpl
+				     , public SurveyObject
 { mODTextTranslationClass(PolyLineDisplay);
 public:
 				PolyLineDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PolyLineDisplay,
+				    SurveyObject, PolyLineDisplay,
 				    "PolyLineDisplay",
-				    toUiString(sFactoryKeyword()));
+				    ::toUiString(sFactoryKeyword()) )
 
     void			fillPolyLine(const TypeSet<Coord>&);
     void			fillPolyLine(const Coord3&);
@@ -45,10 +47,9 @@ public:
     OD::Color			getColor() const override;
 
 protected:
-
-protected:
 				~PolyLineDisplay();
-    visBase::PolyLine*		polyline_;
+
+    RefMan<visBase::PolyLine>	polyline_;
 };
 
 } // namespace visSurvey

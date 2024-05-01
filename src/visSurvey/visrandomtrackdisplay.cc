@@ -15,23 +15,15 @@ ________________________________________________________________________
 #include "color.h"
 #include "keystrs.h"
 #include "polylinend.h"
-#include "randomlinegeom.h"
 #include "seisdatapackzaxistransformer.h"
 #include "settings.h"
 #include "uistrings.h"
-#include "zaxistransform.h"
-
 #include "visdragger.h"
-#include "visevent.h"
 #include "vishorizondisplay.h"
-#include "vismarkerset.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
-#include "vispolyline.h"
-#include "visrandomtrackdragger.h"
 #include "visselman.h"
 #include "vistexturechannels.h"
-#include "vistexturepanelstrip.h"
 #include "vistopbotimage.h"
 
 
@@ -48,15 +40,11 @@ const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
     : MultiTextureSurveyObject()
-    , panelstrip_( visBase::TexturePanelStrip::create() )
-    , dragger_( visBase::RandomTrackDragger::create())
-    , polyline_( visBase::PolyLine::create())
-    , markerset_( visBase::MarkerSet::create() )
-    , selnodeidx_(mUdf(int))
     , depthrg_(SI().zRange(true))
     , nodemoving_(this)
     , moving_(this)
 {
+    ref();
     datapacks_.setNullAllowed();
     transfdatapacks_.setNullAllowed();
 
@@ -67,7 +55,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     {
 	mDynamicCastGet( const RandomTrackDisplay*, rtd,
 			 visBase::DM().getObject(randomlines[idx]) );
-	if ( rtd==this ) continue;
+	if ( rtd==this )
+	    continue;
 
 	if ( rtd==0 )
 	{
@@ -88,7 +77,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
 
-    dragger_->ref();
+    dragger_ = visBase::RandomTrackDragger::create();
     addChild( dragger_->osgNode() );
 
     mAttachCB( dragger_->motion, RandomTrackDisplay::nodeMoved );
@@ -105,27 +94,28 @@ RandomTrackDisplay::RandomTrackDisplay()
     mSettUse( get, "dTect.MouseInteraction", sKeyPanelRotateKey(), dragkey );
     dragger_->setTransDragKeys( true, dragkey, 1 );
 
-    panelstrip_->ref();
+    panelstrip_ = visBase::TexturePanelStrip::create();
     addChild( panelstrip_->osgNode() );
     panelstrip_->setTextureChannels( channels_ );
     panelstrip_->swapTextureAxes();
 
-    polyline_->ref();
+    polyline_ = visBase::PolyLine::create();
     addChild( polyline_->osgNode() );
-    polyline_->setMaterial( new visBase::Material );
+    RefMan<visBase::Material> newmat = visBase::Material::create();
+    polyline_->setMaterial( newmat.ptr() );
     polyline_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,1) );
     polyline_->setPickable( false, false );
 
-    markerset_->ref();
+    markerset_ = visBase::MarkerSet::create();
     addChild( markerset_->osgNode() );
     markerset_->setMarkersSingleColor( polyline_->getMaterial()->getColor() );
 
-    const StepInterval<float>& survinterval = SI().zRange(true);
-    const StepInterval<float> inlrange(
+    const ZSampling survinterval = SI().zRange(true);
+    const ZSampling inlrange(
 		    mCast(float,SI().sampling(true).hsamp_.start_.inl()),
 		    mCast(float,SI().sampling(true).hsamp_.stop_.inl()),
 		    mCast(float,SI().inlStep()) );
-    const StepInterval<float> crlrange(
+    const ZSampling crlrange(
 		    mCast(float,SI().sampling(true).hsamp_.start_.crl()),
 		    mCast(float,SI().sampling(true).hsamp_.stop_.crl()),
 		    mCast(float,SI().crlStep()) );
@@ -134,7 +124,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 		       mNINT32(crlrange.start) );
     const BinID stop(start.inl(), mNINT32(crlrange.stop) );
 
-    auto* rl = new Geometry::RandomLine( getName() );
+    RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine( getName() );
     setRandomLineID( rl->ID() );
     rl_->addNode( start );
     rl_->addNode( stop );
@@ -151,6 +141,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     setPanelStripZRange( panelstrip_->getZRange() );
 
     showManipulator( dragger_->isOn() );
+    unRefNoDelete();
 }
 
 
@@ -159,22 +150,17 @@ RandomTrackDisplay::~RandomTrackDisplay()
     detachAllNotifiers();
 
     setPolyLineMode( false );
-    setSceneEventCatcher( 0 );
-    panelstrip_->unRef();
-    dragger_->unRef();
+    setSceneEventCatcher( nullptr );
+    panelstrip_ = nullptr;
+    dragger_ = nullptr;
     removeChild( polyline_->osgNode() );
-    polyline_->unRef();
+    polyline_ = nullptr;
 
     removeChild( markerset_->osgNode() );
-    markerset_->unRef();
+    markerset_ = nullptr;
 
-    if ( rl_ )
-    {
-	rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB) );
-	rl_->unRef();
-    }
-
-    setZAxisTransform( 0, 0 );
+    rl_ = nullptr;
+    setZAxisTransform( nullptr, nullptr );
     delete premovingselids_;
 }
 
@@ -185,20 +171,16 @@ BufferString RandomTrackDisplay::getRandomLineName() const
 }
 
 
-void RandomTrackDisplay::setRandomLineID( RandomLineID rlid )
+void RandomTrackDisplay::setRandomLineID( const RandomLineID& rlid )
 {
     if ( rl_ )
-    {
-	rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB) );
-	rl_->unRef();
-    }
+	mDetachCB( rl_->nodeChanged, RandomTrackDisplay::geomChangeCB );
 
     rl_ = Geometry::RLM().get( rlid );
-    if ( !rl_ ) return;
+    if ( !rl_ )
+	return;
 
-    rl_->ref();
-    rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB) );
-
+    mAttachCB( rl_->nodeChanged, RandomTrackDisplay::geomChangeCB );
     setName( rl_->name() );
     TrcKeyPath nodes;
     rl_->allNodePositions( nodes );
@@ -216,7 +198,9 @@ RandomLineID RandomTrackDisplay::getRandomLineID() const
 
 
 Geometry::RandomLine* RandomTrackDisplay::getRandomLine()
-{ return rl_; }
+{
+    return rl_;
+}
 
 
 void RandomTrackDisplay::setDisplayTransformation( const mVisTrans* t )
@@ -312,9 +296,9 @@ int RandomTrackDisplay::nrNodes() const
 { \
     if ( rl_ && nrgeomchangecbs_==0 ) \
     { \
-	rl_->nodeChanged.remove( mCB(this,RandomTrackDisplay,geomChangeCB)); \
+	mDetachCB( rl_->nodeChanged, RandomTrackDisplay::geomChangeCB ); \
 	rl_->functioncall; \
-	rl_->nodeChanged.notify( mCB(this,RandomTrackDisplay,geomChangeCB)); \
+	mAttachCB( rl_->nodeChanged, RandomTrackDisplay::geomChangeCB ); \
     } \
 }
 
@@ -531,7 +515,8 @@ void RandomTrackDisplay::removeAllNodes()
 void RandomTrackDisplay::getTraceKeyPath( TrcKeyPath& path,
                                           TypeSet<Coord>* crds ) const
 {
-    if ( crds ) crds->erase();
+    if ( crds )
+	crds->erase();
 
     TrcKeyPath nodes;
     getAllNodePos( nodes );
@@ -644,10 +629,10 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 }
 
 
-bool RandomTrackDisplay::setDataPackID( int attrib, DataPackID dpid,
+bool RandomTrackDisplay::setDataPackID( int attrib, const DataPackID& dpid,
 					TaskRunner* taskr )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    DataPackMgr& dpm = DPM( getDataPackMgrID() );
     RefMan<RandomSeisDataPack> randsdp = dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp || randsdp->isEmpty() )
     {
@@ -694,23 +679,21 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     if ( datatransform_ )
     {
 	if ( voiidx_!=-1 )
-	    datatransform_->removeVolumeOfInterest(voiidx_);
+	    datatransform_->removeVolumeOfInterest( voiidx_ );
 
 	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->remove(
-		    mCB(this,RandomTrackDisplay,dataTransformCB) );
-	datatransform_->unRef();
+	    mDetachCB( *datatransform_->changeNotifier(),
+		       RandomTrackDisplay::dataTransformCB );
     }
 
     datatransform_ = zat;
     voiidx_ = -1;
     if ( datatransform_ )
     {
-	datatransform_->ref();
 	updateRanges( false, true );
 	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->notify(
-		    mCB(this,RandomTrackDisplay,dataTransformCB) );
+	    mAttachCB( *datatransform_->changeNotifier(),
+		       RandomTrackDisplay::dataTransformCB );
 
 	dragger_->updateZLimit( datatransform_->getZInterval(false) );
     }
@@ -724,21 +707,21 @@ void RandomTrackDisplay::dataTransformCB( CallBacker* )
     updateRanges( false, true );
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	createTransformedDataPack( idx, 0 );
-	updateChannels( idx, 0 );
+	createTransformedDataPack( idx, nullptr );
+	updateChannels( idx, nullptr );
     }
 }
 
 
-void RandomTrackDisplay::updateRanges(bool resetinlcrl, bool resetz )
+void RandomTrackDisplay::updateRanges( bool resetinlcrl, bool resetz )
 {
-    if ( resetz )
-    {
-	const ZSampling depthrg = datatransform_->getZInterval( false );
-	setPanelStripZRange( depthrg );
-	dragger_->setDepthRange( depthrg );
-	moving_.trigger();
-    }
+    if ( !resetz )
+	return;
+
+    const ZSampling depthrg = datatransform_->getZInterval( false );
+    setPanelStripZRange( depthrg );
+    dragger_->setDepthRange( depthrg );
+    moving_.trigger();
 }
 
 
@@ -763,7 +746,7 @@ bool RandomTrackDisplay::isMappingTraceOfBid( BinID bid, int trcidx,
 
 
 void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
-			const TrcKeyPath& path, const StepInterval<float>& zrg )
+			const TrcKeyPath& path, const ZSampling& zrg )
 {
     if ( path.size()<2 || zrg.isUdf() )
 	return;
@@ -796,9 +779,10 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 
 void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
 {
-    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM( getDataPackMgrID() );
     const DataPackID dpid = getDisplayedDataPackID( attrib );
-    auto randsdp = dpm.get<RandomSeisDataPack>( dpid );
+    ConstRefMan<RandomSeisDataPack> randsdp =
+					dpm.get<RandomSeisDataPack>( dpid );
     if ( !randsdp )
 	return;
 
@@ -850,10 +834,10 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
 }
 
 
-void RandomTrackDisplay::createTransformedDataPack(
-				int attrib, TaskRunner* taskr )
+void RandomTrackDisplay::createTransformedDataPack( int attrib,
+						    TaskRunner* taskr )
 {
-    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM( getDataPackMgrID() );
     const DataPackID dpid = getDataPackID( attrib );
     ConstRefMan<RandomSeisDataPack> randsdp =
 				    dpm.get<RandomSeisDataPack>( dpid );
@@ -929,7 +913,7 @@ void RandomTrackDisplay::updatePanelStripPath()
 
 void RandomTrackDisplay::setPanelStripZRange( const Interval<float>& rg )
 {
-    const StepInterval<float> zrg( rg.start, rg.stop, appliedZRangeStep() );
+    const ZSampling zrg( rg.start, rg.stop, appliedZRangeStep() );
     panelstrip_->setZRange( zrg );
     const Interval<float> mapping( 0.0, zrg.nrfSteps()*(resolution_+1) );
     panelstrip_->setZRange2TextureMapping( mapping );
@@ -1184,8 +1168,7 @@ void RandomTrackDisplay::geomNodeMoveCB( CallBacker* cb )
 	    for ( int idx=0; idx<premovingselids_->size(); idx++ )
 		visBase::DM().selMan().select( (*premovingselids_)[idx], true );
 
-	    delete premovingselids_;
-	    premovingselids_ = 0;
+	    deleteAndNullPtr( premovingselids_ );
 	}
 
 	if ( cd.nodeidx_ < 0 )
@@ -1307,6 +1290,7 @@ int RandomTrackDisplay::getClosestPanelIdx( const Coord& xypos,
 		   binid.crl() + step.crl() * (crladd) );\
 	idx = bids.indexOf( bid ); \
     }
+
 Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
 {
     const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
@@ -1355,7 +1339,7 @@ Coord3 RandomTrackDisplay::getNormal( const Coord3& pos ) const
 
 float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 {
-    const mVisTrans* utm2display = scene_->getUTM2DisplayTransform();
+    ConstRefMan<mVisTrans> utm2display = scene_->getUTM2DisplayTransform();
     Coord3 xytpos;
     utm2display->transformBack( pos, xytpos );
     BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
@@ -1428,7 +1412,7 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
 	positions += getNodePos( idx );
     rtd->setNodePositions( positions, false );
     rtd->lockGeometry( isGeometryLocked() );
-    rtd->setZAxisTransform( datatransform_, taskr );
+    rtd->setZAxisTransform( datatransform_.getNonConstPtr(), taskr );
 
     while ( nrAttribs() > rtd->nrAttribs() )
 	rtd->addAttrib();
@@ -1436,13 +1420,16 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
 	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
-	if ( selspecs ) rtd->setSelSpecs( idx, *selspecs );
+	if ( selspecs )
+	    rtd->setSelSpecs( idx, *selspecs );
+
 	rtd->setDataPackID( idx, getDataPackID(idx), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
 	if ( mappersetup )
 	    rtd->setColTabMapperSetup( idx, *mappersetup, taskr );
 	const ColTab::Sequence* colseq = getColTabSequence( idx );
-	if ( colseq ) rtd->setColTabSequence( idx, *colseq, taskr );
+	if ( colseq )
+	    rtd->setColTabSequence( idx, *colseq, taskr );
     }
 
     return rtd;
@@ -1457,7 +1444,7 @@ MultiID RandomTrackDisplay::getMultiID() const
 
 void RandomTrackDisplay::fillPar( IOPar& par ) const
 {
-    visSurvey::MultiTextureSurveyObject::fillPar( par );
+    MultiTextureSurveyObject::fillPar( par );
 
     par.set( sKey::Name(), name() );
     const Interval<float> depthrg = getDataTraceRange();
@@ -1479,7 +1466,7 @@ void RandomTrackDisplay::fillPar( IOPar& par ) const
 
 bool RandomTrackDisplay::usePar( const IOPar& par )
 {
-    if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
+    if ( !MultiTextureSurveyObject::usePar(par) )
 	return false;
 
     BufferString linename;
@@ -1550,7 +1537,7 @@ bool RandomTrackDisplay::getSelMousePosInfo( const visBase::EventInfo& ei,
 bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 					const Coord3& pos,float& val ) const
 {
-    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    const DataPackMgr& dpm = DPM( getDataPackMgrID() );
     const DataPackID dpid = getDisplayedDataPackID( attrib );
     ConstRefMan<RandomSeisDataPack> randsdp =
 				    dpm.get<RandomSeisDataPack>( dpid );
@@ -1611,23 +1598,32 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
 {
     if ( eventcatcher_ )
     {
-	eventcatcher_->eventhappened.remove(
-			    mCB(this,RandomTrackDisplay,mouseCB) );
-	eventcatcher_->eventhappened.remove(
-			    mCB(this,RandomTrackDisplay,updateMouseCursorCB) );
-	eventcatcher_->unRef();
+	mDetachCB( eventcatcher_->eventhappened, RandomTrackDisplay::mouseCB );
+	mDetachCB( eventcatcher_->eventhappened,
+		   RandomTrackDisplay::updateMouseCursorCB );
     }
 
     eventcatcher_ = evnt;
 
     if ( eventcatcher_ )
     {
-	eventcatcher_->ref();
-	eventcatcher_->eventhappened.notify(
-			    mCB(this,RandomTrackDisplay,mouseCB) );
-	eventcatcher_->eventhappened.notify(
-			    mCB(this,RandomTrackDisplay,updateMouseCursorCB) );
+	mAttachCB( eventcatcher_->eventhappened, RandomTrackDisplay::mouseCB );
+	mAttachCB( eventcatcher_->eventhappened,
+		   RandomTrackDisplay::updateMouseCursorCB );
     }
+}
+
+
+const visBase::TexturePanelStrip*
+RandomTrackDisplay::getTexturePanelStrip() const
+{
+    return panelstrip_.ptr();
+}
+
+
+visBase::TexturePanelStrip* RandomTrackDisplay::getTexturePanelStrip()
+{
+    return panelstrip_.ptr();
 }
 
 
@@ -1635,7 +1631,7 @@ void RandomTrackDisplay::updateMouseCursorCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
 
-    const visBase::Dragger* nodedragger = 0;
+    const visBase::Dragger* nodedragger = nullptr;
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	const VisID visid = eventinfo.pickedobjids[idx];
@@ -1897,7 +1893,7 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
     for ( int idx=0; idx<sz; idx++ )
     {
 	const DataObject* pickedobj =
-	    visBase::DM().getObject( evi.pickedobjids[idx] );
+			    visBase::DM().getObject( evi.pickedobjids[idx] );
 	if ( !eventid.isValid() && pickedobj->isPickable() )
 	{
 	    eventid = evi.pickedobjids[idx];
@@ -1907,7 +1903,6 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
 
 	mDynamicCastGet(const visBase::TopBotImage*,tbi,pickedobj );
 	mDynamicCastGet(const SurveyObject*,so,pickedobj);
-
 	if ( !tbi && (!so || !so->allowsPicks()) )
 	    continue;
 
@@ -2016,8 +2011,8 @@ void RandomTrackDisplay::snapZRange( Interval<float>& zrg )
 {
     if ( !scene_ )
 	return;
-    const StepInterval<float>& scenezrg =
-				    scene_->getTrcKeyZSampling().zsamp_;
+
+    const ZSampling& scenezrg = scene_->getTrcKeyZSampling().zsamp_;
     zrg.limitTo( scenezrg );
     zrg.start = scenezrg.snap( zrg.start );
     zrg.stop = scenezrg.snap( zrg.stop );

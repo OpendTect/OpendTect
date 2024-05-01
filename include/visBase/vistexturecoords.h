@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visdata.h"
+
 #include "positionlist.h"
 #include "threadlock.h"
+#include "visdata.h"
 #include "viscoord.h"
 
 
@@ -21,8 +22,9 @@ namespace visBase
 mExpClass(visBase) TextureCoords : public DataObject
 {
 public:
-    static TextureCoords*	create()
+    static RefMan<TextureCoords> create();
 				mCreateDataObj(TextureCoords);
+
     void			copyFrom(const TextureCoords&);
     int				size(bool includedeleted=false) const;
     void			setCoord(int idx,const Coord3&);
@@ -46,8 +48,8 @@ protected:
     void			setPosWithoutLock(int,const Coord&);
 				/*!< Object should be locked when calling */
 
-    int				lastsearchedidx_;
-    int				nrfreecoords_;
+    int				lastsearchedidx_ = -1;
+    int				nrfreecoords_	= 0;
 
     osg::Array*			osgcoords_;
     mutable Threads::Lock	lock_;
@@ -65,15 +67,15 @@ public:
     void		set(int id,const Coord3&) override;
     int			add(const Coord3&) override;
     void		remove(int id) override;
-    int			size() const override { return texturecoords_.size(); }
+    int			size() const override { return texturecoords_->size(); }
     void		addValue(int,const Coord3&) override;
     void		remove(const TypeSet<int>&) override;
-    TextureCoords*	getTextureCoords() { return &texturecoords_; }
+    TextureCoords*	getTextureCoords() { return texturecoords_.ptr(); }
 
 protected:
 			~TextureCoordListAdapter();
 
-    TextureCoords&	texturecoords_;
+    RefMan<TextureCoords> texturecoords_;
 };
 
 } // namespace visBase

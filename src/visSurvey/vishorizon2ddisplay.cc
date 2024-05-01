@@ -10,73 +10,59 @@ ________________________________________________________________________
 #include "vishorizon2ddisplay.h"
 
 #include "bendpointfinder.h"
+#include "ctxtioobj.h"
 #include "emhorizon2d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
-#include "iopar.h"
-#include "ctxtioobj.h"
+#include "geom2dintersections.h"
 #include "iodir.h"
+#include "iopar.h"
 #include "keystrs.h"
 #include "rowcolsurface.h"
+#include "seisioobjinfo.h"
+#include "selector.h"
 #include "survinfo.h"
+#include "uistrings.h"
+#include "viscoord.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
-#include "vismarkerset.h"
 #include "vismaterial.h"
-#include "vispolyline.h"
-#include "vispointset.h"
 #include "visseis2ddisplay.h"
-#include "viscoord.h"
-#include "vistransform.h"
-#include "zaxistransform.h"
-#include "seisioobjinfo.h"
-#include "geom2dintersections.h"
-#include "selector.h"
-#include "uistrings.h"
 
 namespace visSurvey
 {
 
 Horizon2DDisplay::Horizon2DDisplay()
-    : intersectmkset_(visBase::MarkerSet::create())
-    , updateintsectmarkers_(true)
-    , nr2dlines_(0)
-    , ln2dset_(nullptr)
-    , selections_(nullptr)
 {
+    ref();
+    points_.setNullAllowed();
+
     translation_ = visBase::Transformation::create();
-    translation_->ref();
     setGroupNode( translation_ );
 
-    points_.allowNull(true);
-    EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5) );
-    intersectmkset_->ref();
+    EMObjectDisplay::setLineStyle( OD::LineStyle(OD::LineStyle::Solid,5 ) );
+
+    intersectmkset_ = visBase::MarkerSet::create();
     addChild( intersectmkset_->osgNode() );
-    intersectmkset_->setMaterial( new visBase::Material );
+    RefMan<visBase::Material> newmat = visBase::Material::create();
+    intersectmkset_->setMaterial( newmat.ptr() );
     intersectmkset_->setMarkerStyle( MarkerStyle3D::Sphere );
     intersectmkset_->setScreenSize( 4.0 );
+    unRefNoDelete();
 }
 
 
 Horizon2DDisplay::~Horizon2DDisplay()
 {
-    setZAxisTransform( 0, 0 );
-
-    for ( int idx=0; idx<sids_.size(); idx++ )
-	removeSectionDisplay( sids_[idx] );
+    setZAxisTransform( nullptr, nullptr );
+    for ( const auto& sid : sids_ )
+	removeSectionDisplay( sid );
 
     removeEMStuff();
-    intersectmkset_->unRef();
-
-    if ( ln2dset_ )
-	delete ln2dset_;
-
-    if ( selections_ )
-	selections_->unRef();
-
-    if ( translation_ )
-	translation_->unRef();
-
+    intersectmkset_ = nullptr;
+    delete ln2dset_;
+    selections_ = nullptr;
+    translation_ = nullptr;
     emchangedata_.clearData();
 }
 
@@ -122,7 +108,7 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 	    const Coord3 pos = emobject_->getPos( rc.toInt64() );
 	    if ( pos.sqDistTo(mousepos) < mDefEps )
 	    {
-		mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
+		mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_.ptr() );
 		info.appendPhrase( uiStrings::sLineName(), uiString::Comma,
 					uiString::OnSameLine );
 		info.appendPhrase(
@@ -130,13 +116,12 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 		    uiString::MoreInfo, uiString::OnSameLine );
 		return;
 	    }
-
 	}
     }
 }
 
 
-EM::SectionID Horizon2DDisplay::getSectionID( VisID visid ) const
+EM::SectionID Horizon2DDisplay::getSectionID( const VisID& visid ) const
 {
     for ( int idx=0; idx<lines_.size(); idx++ )
     {
@@ -153,20 +138,23 @@ const visBase::PolyLine3D* Horizon2DDisplay::getLine(
 					const EM::SectionID& sid ) const
 {
     for ( int idx=0; idx<sids_.size(); idx++ )
-	if ( sids_[idx]==sid ) return lines_[idx];
+	if ( sids_[idx]==sid )
+	    return lines_[idx];
 
-    return 0;
+    return nullptr;
 }
 
 
 const visBase::PointSet* Horizon2DDisplay::getPointSet(
-	const EM::SectionID& sid ) const
+					const EM::SectionID& sid ) const
 {
     for ( int idx=0; idx<sids_.size(); idx++ )
-	if ( sids_[idx]==sid ) return points_[idx];
+	if ( sids_[idx]==sid )
+	    return points_[idx];
 
-    return 0;
+    return nullptr;
 }
+
 
 void Horizon2DDisplay::setLineStyle( const OD::LineStyle& lst )
 {
@@ -175,8 +163,8 @@ void Horizon2DDisplay::setLineStyle( const OD::LineStyle& lst )
     //EMObjectDisplay::drawstyle_->setDrawStyle( visBase::DrawStyle::Lines );
 
     EMObjectDisplay::setLineStyle( lst );
-    for ( int idx=0; idx<lines_.size(); idx++ )
-	lines_[idx]->setLineStyle( lst );
+    for ( auto* line : lines_ )
+	line->setLineStyle( lst );
 
     drawstyle_->setLineStyle( lst );
 }
@@ -184,14 +172,13 @@ void Horizon2DDisplay::setLineStyle( const OD::LineStyle& lst )
 
 bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* taskr )
 {
-    visBase::PolyLine3D* pl = visBase::PolyLine3D::create();
-    pl->ref();
+    RefMan<visBase::PolyLine3D> pl = visBase::PolyLine3D::create();
     pl->setDisplayTransformation( transformation_ );
     pl->setUiName( tr("PolyLine3D") );
     pl->setLineStyle( drawstyle_->lineStyle() );
     addChild( pl->osgNode() );
     lines_ += pl;
-    points_ += 0;
+    points_ += nullptr;
     sids_ += sid;
 
     updateSection( sids_.size()-1 );
@@ -203,15 +190,12 @@ bool Horizon2DDisplay::addSection( const EM::SectionID& sid, TaskRunner* taskr )
 void Horizon2DDisplay::removeSectionDisplay( const EM::SectionID& sid )
 {
     const int idx = sids_.indexOf( sid );
-    if ( idx<0 ) return;
+    if ( idx<0 )
+	return;
 
     removeChild( lines_[idx]->osgNode() );
-    lines_[idx]->unRef();
     if ( points_[idx] )
-    {
 	removeChild( points_[idx]->osgNode() );
-	points_[idx]->unRef();
-    }
 
     points_.removeSingle( idx );
     lines_.removeSingle( idx );
@@ -394,12 +378,10 @@ void sendPositions( TypeSet<Coord3>& positions )
 		indices += crdidx_++;
 	    }
 
-	    Geometry::IndexedPrimitiveSet* lineprimitiveset =
+	    RefMan<Geometry::IndexedPrimitiveSet> lineprimitiveset =
 				Geometry::IndexedPrimitiveSet::create( true );
-	    lineprimitiveset->ref();
 	    lineprimitiveset->set( indices.arr(), indices.size() );
 	    lines_->addPrimitiveSet( lineprimitiveset );
-	    lineprimitiveset->unRef();
 	    lock_.unLock();
 	}
     }
@@ -428,20 +410,23 @@ protected:
 
 void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 {
-    if ( !emobject_ ) return;
+    if ( !emobject_ )
+	return;
 
-    visBase::PointSet* ps = points_.validIdx(idx) ? points_[idx] : 0;
+    RefMan<visBase::PointSet> ps;
+    if ( points_.validIdx(idx) )
+	ps = points_[idx];
+
     if ( !ps )
     {
 	ps = visBase::PointSet::create();
-	ps->ref();
 	ps->removeAllPoints();
 	ps->setDisplayTransformation( transformation_ );
 	points_.replace( idx, ps );
 	addChild( ps->osgNode() );
     }
 
-    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
+    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_.ptr());
     if ( !h2d )
 	return;
 
@@ -461,7 +446,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 	    for ( int idy=0; idy<h2d->nrSections(); idy++ )
 	    {
 		const Geometry::Horizon2DLine* ghl =
-		    emgeo.geometryElement();
+					emgeo.geometryElement();
 		if ( ghl )
 		{
 		    linergs.trcrgs += TypeSet<Interval<int> >();
@@ -478,7 +463,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     mDynamicCastGet(const Geometry::RowColSurface*,rcs,
 		    emobject_->geometryElement())
     const LineRanges* lrgs = redo ? &linergs : lineranges;
-    visBase::PolyLine3D* pl = lines_.validIdx(idx) ? lines_[idx] : 0;
+    visBase::PolyLine3D* pl = lines_.validIdx(idx) ? lines_[idx] : nullptr;
 
     if ( volumeofinterestids_.isEmpty() )
 	volumeofinterestids_.setSize( geomids.size(), -1 );
@@ -494,7 +479,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 
 
 bool Horizon2DDisplay::shouldDisplayIntersections(
-    const Seis2DDisplay& seisdisp )
+						const Seis2DDisplay& seisdisp )
 {
     for ( int idx=0; idx<seisdisp.nrAttribs(); idx++ )
     {
@@ -504,6 +489,7 @@ bool Horizon2DDisplay::shouldDisplayIntersections(
 	if ( hasattribenable && dpid.isValid() )
 	    return true;
     }
+
     return false;
 }
 
@@ -522,16 +508,17 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
     for ( int idx=0; idx<emchangedata_.size(); idx++ )
     {
       const EM::EMObjectCallbackData* cbdata=
-	  emchangedata_.getCallBackData( idx );
+				      emchangedata_.getCallBackData( idx );
       if ( !cbdata )
           continue;
+
       EMObjectDisplay::handleEmChange( *cbdata );
       if ( cbdata->event==EM::EMObjectCallbackData::PrefColorChange )
       {
 	  getMaterial()->setColor( emobject_->preferredColor() );
           setLineStyle( emobject_->preferredLineStyle() );
 
-	  mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
+	  mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_.ptr() )
 	  if ( hor2d && selections_ && selections_->getMaterial() )
 	      selections_->getMaterial()->setColor( hor2d->getSelectionColor());
       }
@@ -552,8 +539,9 @@ void Horizon2DDisplay::updateLinesOnSections(
 	return;
     }
 
-    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_)
-    if ( !h2d ) return;
+    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_.ptr())
+    if ( !h2d )
+	return;
 
     LineRanges linergs;
     for ( int lnidx=0; lnidx<h2d->geometry().nrLines(); lnidx++ )
@@ -605,7 +593,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 
 
 void Horizon2DDisplay::updateIntersectionMarkers(
-    const ObjectSet<const Seis2DDisplay>& seis2dlist )
+			    const ObjectSet<const Seis2DDisplay>& seis2dlist )
 {
     intersectmkset_->clearMarkers();
     calcLine2DInterSectionSet();
@@ -613,8 +601,9 @@ void Horizon2DDisplay::updateIntersectionMarkers(
     if ( !ln2dset_ )
 	return;
 
-    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_ )
-    if ( !hor2d ) return;
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobject_.ptr() )
+    if ( !hor2d )
+	return;
 
     TypeSet<Pos::GeomID> geomids;
     const int nrlns = hor2d->geometry().nrLines();
@@ -624,7 +613,8 @@ void Horizon2DDisplay::updateIntersectionMarkers(
     for ( int idx=0; idx<ln2dset_->size(); idx++ )
     {
 	const Line2DInterSection* intsect = (*ln2dset_)[idx];
-	if ( !intsect )  continue;
+	if ( !intsect )
+	    continue;
 
 	for ( int idy=0; idy<seis2dlist.size(); idy++ )
 	{
@@ -632,12 +622,12 @@ void Horizon2DDisplay::updateIntersectionMarkers(
 		continue;
 
 	    if ( intsect->geomID() != seis2dlist[idy]->getGeomID() )
-		    continue;
-	    for ( int idz=0; idz<geomids.size(); idz++ )
-		updateIntersectionPoint(
-		geomids[idz], seis2dlist[idy]->getGeomID(), intsect );
-	}
+		continue;
 
+	    for ( int idz=0; idz<geomids.size(); idz++ )
+		updateIntersectionPoint( geomids[idz],
+					seis2dlist[idy]->getGeomID(), intsect );
+	}
     }
 
     updateintsectmarkers_ = false;
@@ -645,10 +635,11 @@ void Horizon2DDisplay::updateIntersectionMarkers(
 
 
 void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
-    const Pos::GeomID seisgid, const Line2DInterSection* intsect )
+		const Pos::GeomID seisgid, const Line2DInterSection* intsect )
 {
-    mDynamicCastGet(EM::Horizon2D*,hor2d,emobject_)
-    if ( !hor2d ) return;
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobject_.ptr())
+    if ( !hor2d )
+	return;
 
     TypeSet<Coord3> intsectpnts;
     for ( int idx=0; idx<intsect->size(); idx++ )
@@ -666,7 +657,6 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 	    if ( crd.isDefined() )
 		intsectpnts += crd;
 	}
-
     }
 
     if ( intsectpnts.size()==1 )
@@ -682,8 +672,8 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 
 
 bool Horizon2DDisplay::calcLine2DIntersections(
-    const TypeSet<Pos::GeomID>& geom2dids,
-    Line2DInterSectionSet& intsectset )
+					const TypeSet<Pos::GeomID>& geom2dids,
+					Line2DInterSectionSet& intsectset )
 {
     BendPointFinder2DGeomSet bpfinder( geom2dids );
     bpfinder.execute();
@@ -702,17 +692,15 @@ void Horizon2DDisplay::calcLine2DInterSectionSet()
     const bool needcalc = nr2dlines_ != ioobjs.size() ? true : false;
     nr2dlines_ = ioobjs.size();
 
-    if ( needcalc )
-    {
-	BufferStringSet lnms;
-	TypeSet<Pos::GeomID> geom2dids;
-	SeisIOObjInfo::getLinesWithData( lnms, geom2dids );
-	if ( ln2dset_ )
-	    delete ln2dset_;
-	ln2dset_ = new Line2DInterSectionSet;
-	calcLine2DIntersections( geom2dids, *ln2dset_ );
-    }
+    if ( !needcalc )
+	return;
 
+    BufferStringSet lnms;
+    TypeSet<Pos::GeomID> geom2dids;
+    SeisIOObjInfo::getLinesWithData( lnms, geom2dids );
+    delete ln2dset_;
+    ln2dset_ = new Line2DInterSectionSet;
+    calcLine2DIntersections( geom2dids, *ln2dset_ );
 }
 
 
@@ -727,16 +715,13 @@ void Horizon2DDisplay::updateSeedsOnSections(
 	    markerset->turnAllMarkersOn( true );
 	    continue;
 	}
-	else
-	{
-	    markerset->turnAllMarkersOn( false );
-	}
 
+	markerset->turnAllMarkersOn( false );
 	for ( int idy=0; idy<markerset->getCoordinates()->size(); idy++ )
 	{
 	    markerset->turnMarkerOn( idy, !displayonlyatsections_ );
 	    const visBase::Coordinates* markercoords =
-		markerset->getCoordinates();
+					    markerset->getCoordinates();
 	    if ( markercoords->isEmpty() )
 		continue;
 
@@ -764,7 +749,8 @@ void Horizon2DDisplay::updateSeedsOnSections(
 
 
 void Horizon2DDisplay::otherObjectsMoved(
-		const ObjectSet<const SurveyObject>& objs, VisID movedobjid )
+				    const ObjectSet<const SurveyObject>& objs,
+				    const VisID& movedobjid )
 {
     if ( burstalertison_ )
 	return;
@@ -794,7 +780,7 @@ void Horizon2DDisplay::otherObjectsMoved(
 bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid,
 				    TaskRunner* taskr )
 {
-    if ( !EMObjectDisplay::setEMObject( newid, taskr ) )
+    if ( !EMObjectDisplay::setEMObject(newid,taskr) )
 	return false;
 
     getMaterial()->setColor( emobject_->preferredColor() );
@@ -806,23 +792,18 @@ bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid,
 bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat,
 					  TaskRunner* taskr )
 {
-    CallBack cb = mCB(this,Horizon2DDisplay,zAxisTransformChg);
     if ( zaxistransform_ )
     {
 	removeVolumesOfInterest();
-
-	if ( zaxistransform_->changeNotifier() )
-	    zaxistransform_->changeNotifier()->remove( cb );
-	zaxistransform_->unRef();
-	zaxistransform_ = 0;
+	mDetachCB( zaxistransform_->changeNotifier(),
+		   Horizon2DDisplay::zAxisTransformChg );
     }
 
     zaxistransform_ = zat;
     if ( zaxistransform_ )
     {
-	zaxistransform_->ref();
-	if ( zaxistransform_->changeNotifier() )
-	    zaxistransform_->changeNotifier()->notify( cb );
+	mAttachCB( zaxistransform_->changeNotifier(),
+		   Horizon2DDisplay::zAxisTransformChg );
     }
 
     return true;
@@ -838,18 +819,19 @@ void Horizon2DDisplay::zAxisTransformChg( CallBacker* )
 
 void Horizon2DDisplay::fillPar( IOPar& par ) const
 {
-    visSurvey::EMObjectDisplay::fillPar( par );
+    EMObjectDisplay::fillPar( par );
 }
 
 
 bool Horizon2DDisplay::usePar( const IOPar& par )
 {
-    return visSurvey::EMObjectDisplay::usePar( par );
+    return EMObjectDisplay::usePar( par );
 }
 
 
 void Horizon2DDisplay::doOtherObjectsMoved(
-		    const ObjectSet<const SurveyObject>& objs, VisID whichobj )
+				const ObjectSet<const SurveyObject>& objs,
+				const VisID& whichobj )
 {
     otherObjectsMoved( objs, whichobj );
 }
@@ -859,11 +841,11 @@ void Horizon2DDisplay::setPixelDensity( float dpi )
 {
     EMObjectDisplay::setPixelDensity( dpi );
 
-    for ( int idx =0; idx<lines_.size(); idx++ )
-	lines_[idx]->setPixelDensity( dpi );
+    for ( auto* line : lines_ )
+	line->setPixelDensity( dpi );
 
-    for ( int idx=0; idx<points_.size(); idx++ )
-	points_[idx]->setPixelDensity( dpi );
+    for ( auto* point : points_ )
+	point->setPixelDensity( dpi );
 }
 
 
@@ -881,14 +863,13 @@ void Horizon2DDisplay::removeVolumesOfInterest()
 
 void Horizon2DDisplay::initSelectionDisplay( bool erase )
 {
-    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
+    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_.ptr() );
     if ( !selections_ )
     {
-	selections_ = new visBase::PointSet;
-	selections_->ref();
-
+	selections_ = visBase::PointSet::create();
 	if ( h2d && selections_->getMaterial() )
 	    selections_->getMaterial()->setColor( h2d->getSelectionColor() );
+
 	addChild( selections_->osgNode() );
 	selections_->setDisplayTransformation( transformation_ );
     }
@@ -900,19 +881,22 @@ void Horizon2DDisplay::initSelectionDisplay( bool erase )
 }
 
 
-void Horizon2DDisplay::updateSelectionsHor2D()
+void Horizon2DDisplay::updateSelections()
 {
+    EMObjectDisplay::updateSelections();
+
     const Selector<Coord3>* sel = scene_->getSelector();
-    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
-    if ( !sel || !h2d ) return;
+    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_.ptr() );
+    if ( !sel || !h2d )
+	return;
 
     initSelectionDisplay( !ctrldown_ );
-
     if ( !selections_ )
 	return;
 
     const Geometry::Element* ge = h2d->geometry().geometryElement();
-    if ( !ge ) return;
+    if ( !ge )
+	return;
 
     PtrMan<EM::EMObjectIterator> iterator = h2d->createIterator();
     TypeSet<int> pidxs;
@@ -934,8 +918,8 @@ void Horizon2DDisplay::updateSelectionsHor2D()
     if ( pidxs.isEmpty() )
 	return;
 
-    Geometry::PrimitiveSet* pointsetps =
-		Geometry::IndexedPrimitiveSet::create( true );
+    RefMan<Geometry::PrimitiveSet> pointsetps =
+			Geometry::IndexedPrimitiveSet::create( true );
     pointsetps->setPrimitiveType( Geometry::PrimitiveSet::Points );
     pointsetps->append( pidxs.arr(), pidxs.size() );
     selections_->addPrimitiveSet( pointsetps );
@@ -944,13 +928,15 @@ void Horizon2DDisplay::updateSelectionsHor2D()
 }
 
 
-void Horizon2DDisplay::clearSelectionsHor2D()
+void Horizon2DDisplay::clearSelections()
 {
     if ( selections_ )
     {
 	selections_->clear();
 	selectionids_.setEmpty();
     }
+
+    EMObjectDisplay::clearSelections();
 }
 
 
@@ -966,12 +952,12 @@ const OD::Color Horizon2DDisplay::getLineColor() const
 Coord3 Horizon2DDisplay::getTranslation() const
 {
     if ( !translation_ )
-	return Coord3(0,0,0);
+	return Coord3(0.,0.,0.);
 
     const Coord3 current = translation_->getTranslation();
-    Coord3 origin( 0, 0, 0 );
+    Coord3 origin( 0., 0., 0. );
     Coord3 shift( current );
-    shift  *= -1;
+    shift  *= -1.;
 
     mVisTrans::transformBack( transformation_, origin );
     mVisTrans::transformBack( transformation_, shift );
@@ -986,9 +972,9 @@ void Horizon2DDisplay::setTranslation( const Coord3& nt )
      if ( !nt.isDefined() )
 	return;
 
-    Coord3 origin( 0, 0, 0 );
+    Coord3 origin( 0., 0., 0. );
     Coord3 aftershift( nt );
-    aftershift.z *= -1;
+    aftershift.z *= -1.;
 
     mVisTrans::transform( transformation_, origin );
     mVisTrans::transform( transformation_, aftershift );

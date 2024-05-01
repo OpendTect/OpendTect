@@ -29,8 +29,6 @@ DataObjectGroup::DataObjectGroup()
 
 DataObjectGroup::~DataObjectGroup()
 {
-    for ( auto* no : objects_ )
-	no->setParent( nullptr );
 }
 
 
@@ -44,7 +42,6 @@ void DataObjectGroup::handleNewObj( DataObject* no )
 {
     no->setRightHandSystem( isRightHandSystem() );
     no->setPixelDensity( getPixelDensity() );
-    no->setParent( this );
     change.trigger();
     requestSingleRedraw();
 }
@@ -105,7 +102,7 @@ bool DataObjectGroup::isRightHandSystem() const
 }
 
 
-void DataObjectGroup::addObject( VisID nid )
+void DataObjectGroup::addObject( const VisID& nid )
 {
     mDynamicCastGet(DataObject*,no,DM().getObject(nid));
     if ( !no )
@@ -129,7 +126,7 @@ void DataObjectGroup::insertObject( int insertpos, DataObject* no )
 }
 
 
-int DataObjectGroup::getFirstIdx( VisID nid ) const
+int DataObjectGroup::getFirstIdx( const VisID& nid ) const
 {
     const DataObject* sceneobj =
 	(const DataObject*) DM().getObject(nid);
@@ -154,7 +151,6 @@ void DataObjectGroup::removeObject( int idx )
 
     DataObject* sceneobject = objects_[idx];
     osggroup_->removeChild( sceneobject->osgNode() );
-    sceneobject->setParent( nullptr );
     objects_.removeSingle( idx );
 
     change.trigger();
@@ -166,6 +162,18 @@ void DataObjectGroup::removeAll()
 {
     while ( size() )
 	removeObject( 0 );
+}
+
+
+DataObject* DataObjectGroup::getObject( int idx )
+{
+    return objects_.validIdx( idx ) ? objects_.get( idx ) : nullptr;
+}
+
+
+const DataObject* DataObjectGroup::getObject( int idx ) const
+{
+    return mSelf().getObject( idx );
 }
 
 } // namespace visBase

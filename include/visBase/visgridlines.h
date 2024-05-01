@@ -9,8 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visobject.h"
+
 #include "trckeyzsampling.h"
+#include "visdrawstyle.h"
+#include "vismaterial.h"
+#include "vispolyline.h"
+#include "vistransform.h"
 
 namespace OD { class LineStyle; }
 
@@ -20,16 +24,11 @@ namespace visBase
 /*!\brief
 */
 
-class DrawStyle;
-class PolyLine;
-class Transformation;
-
 mExpClass(visBase) GridLines : public VisualObjectImpl
 {
 public:
-    static GridLines*		create()
+    static RefMan<GridLines>	create();
 				mCreateDataObj(GridLines);
-				~GridLines();
 
     void			setDisplayTransformation(
 						const mVisTrans*) override;
@@ -52,25 +51,26 @@ public:
     void			setPixelDensity(float) override;
 
 protected:
+				~GridLines();
 
     TrcKeyZSampling		gridcs_;
     TrcKeyZSampling		planecs_;
-    bool			csinlchanged_;
-    bool			cscrlchanged_;
-    bool			cszchanged_;
+    bool			csinlchanged_ = false;
+    bool			cscrlchanged_ = false;
+    bool			cszchanged_ = false;
 
-    PolyLine*			inlines_;
-    PolyLine*			crosslines_;
-    PolyLine*			zlines_;
-    PolyLine*			trcnrlines_;
+    RefMan<PolyLine>		inlines_;
+    RefMan<PolyLine>		crosslines_;
+    RefMan<PolyLine>		zlines_;
+    RefMan<PolyLine>		trcnrlines_;
 
-    ObjectSet<PolyLine>		polylineset_;
-    DrawStyle*			drawstyle_;
-    const  mVisTrans*		transformation_;
-    Material*			linematerial_;
+    RefObjectSet<PolyLine>	polylineset_;
+    RefMan<DrawStyle>		drawstyle_;
+    ConstRefMan<mVisTrans>	transformation_;
+    RefMan<Material>		linematerial_;
 
     void			emptyLineSet(PolyLine*);
-    PolyLine*			addLineSet();
+    RefMan<PolyLine>		addLineSet();
     void			addLine(PolyLine&,const Coord3& start,
 					const Coord3& stop);
 

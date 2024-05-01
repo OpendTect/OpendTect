@@ -9,10 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visobject.h"
-#include "selector.h"
+
 #include "draw.h"
+#include "selector.h"
 #include "thread.h"
+#include "viscamera.h"
+#include "visdrawstyle.h"
+#include "visobject.h"
+#include "vistransform.h"
 
 
 namespace osgGeo{ class PolygonSelection; }
@@ -35,8 +39,9 @@ inside or outside the polygon.
 mExpClass(visBase) PolygonSelection : public VisualObjectImpl
 {
 public:
-    static PolygonSelection*	create()
+    static RefMan<PolygonSelection> create();
 				mCreateDataObj(PolygonSelection);
+
     enum			SelectionType { Off, Rectangle, Polygon };
     void			setSelectionType(SelectionType);
     SelectionType		getSelectionType() const;
@@ -68,7 +73,7 @@ public:
 				     screen coordinates.
 				*/
 
-    static Notifier<PolygonSelection>* polygonFinished();
+    static Notifier<PolygonSelection>& polygonFinished();
 
     bool			rayPickThrough(const Coord3& worldpos,
 					       TypeSet<int>& pickedobjids,
@@ -85,17 +90,16 @@ protected:
     void			polygonChangeCB(CallBacker*);
 
 
-    const mVisTrans*			utm2disptransform_;
+    ConstRefMan<mVisTrans>		utm2disptransform_;
 
-    DrawStyle*				drawstyle_;
-    mutable ODPolygon<double>*		polygon_;
+    RefMan<DrawStyle>			drawstyle_;
+    mutable ODPolygon<double>*		polygon_ = nullptr;
     mutable Threads::ReadWriteLock	polygonlock_;
 
 
     osgGeo::PolygonSelection*		selector_;
-    // TODO: rename to primarycamera_
-    Camera*				mastercamera_;
-    SelectionCallBack*			selectorcb_;
+    RefMan<Camera>			primarycamera_;
+    SelectionCallBack*			selectorcb_ = nullptr;
 
 public:
     mDeprecated("Use setPrimaryCamera")
@@ -122,7 +126,7 @@ public:
 protected:
     bool			isEq(const Selector<Coord3>&) const override;
 
-    const PolygonSelection&	vissel_;
+    ConstRefMan<PolygonSelection> vissel_;
 };
 
 } // namespace visBase

@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "binidsurface.h"
 #include "datacoldef.h"
-#include "datapointset.h"
 #include "emeditor.h"
 #include "emfault3d.h"
 #include "emfaultauxdata.h"
@@ -20,7 +19,6 @@ ________________________________________________________________________
 #include "executor.h"
 #include "explplaneintersection.h"
 #include "faultsticksurface.h"
-#include "faulteditor.h"
 #include "faulthorintersect.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -29,22 +27,17 @@ ________________________________________________________________________
 #include "settings.h"
 #include "undo.h"
 #include "viscoord.h"
-#include "visdrawstyle.h"
 #include "visevent.h"
-#include "visgeomindexedshape.h"
 #include "vishorizondisplay.h"
 #include "vishorizonsection.h"
 #include "vismaterial.h"
 #include "vismarkerset.h"
-#include "vismpeeditor.h"
 #include "visplanedatadisplay.h"
-#include "visrandomtrackdisplay.h"
-#include "vispolyline.h"
 #include "vispolygonselection.h"
+#include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "vistexturechannels.h"
-#include "zaxistransform.h"
 
 
 namespace visSurvey
@@ -67,19 +60,21 @@ const char* FaultDisplay::sKeyZValues()		{ return "Z values"; }
 
 FaultDisplay::FaultDisplay()
     : MultiTextureSurveyObject()
-    , StickSetDisplay( false )
-    , activestickmarker_( visBase::PolyLine3D::create() )
-    , voiid_(-1)
-    , activestick_(mUdf(int))
+    , StickSetDisplay(false)
     , colorchange(this)
     , displaymodechange(this)
-    , drawstyle_(new visBase::DrawStyle)
 {
-    activestickmarker_->ref();
-    activestickmarker_->setPickable( false, false );
+    ref();
+    datapacks_.setNullAllowed();
+    texuredatas_.setNullAllowed();
 
+    activestickmarker_ = visBase::PolyLine3D::create();
+    activestickmarker_->setPickable( false, false );
     if ( !activestickmarker_->getMaterial() )
-	activestickmarker_->setMaterial( new visBase::Material );
+    {
+	RefMan<visBase::Material> newmat = visBase::Material::create();
+	activestickmarker_->setMaterial( newmat.ptr() );
+    }
 
     addChild( activestickmarker_->osgNode() );
 
@@ -87,23 +82,22 @@ FaultDisplay::FaultDisplay()
 
     for ( int idx=0; idx<3; idx++ )
     {
-	visBase::MarkerSet* markerset =visBase::MarkerSet::create();
-	markerset->ref();
+	RefMan<visBase::MarkerSet> markerset = visBase::MarkerSet::create();
 	addChild( markerset->osgNode() );
 	knotmarkersets_ += markerset;
 	markerset->setMarkersSingleColor(
 	    idx ? OD::Color(0,255,0) : OD::Color(255,0,255) );
     }
 
-    drawstyle_->ref();
-    addNodeState( drawstyle_ );
+    drawstyle_ = visBase::DrawStyle::create();
+    addNodeState( drawstyle_.ptr() );
     drawstyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
-    texuredatas_.allowNull( true );
 
     if ( getMaterial() )
 	mAttachCB( getMaterial()->change, FaultDisplay::matChangeCB );
 
     init();
+    unRefNoDelete();
 }
 
 
@@ -113,30 +107,13 @@ FaultDisplay::~FaultDisplay()
     setSceneEventCatcher( nullptr );
     showManipulator( false );
 
-    unRefPtr( viseditor_ );
-    unRefPtr( faulteditor_ );
     if ( fault_ )
 	MPE::engine().removeEditor( fault_->id() );
 
-    faulteditor_ = nullptr;
-    unRefPtr( paneldisplay_ );
-    unRefPtr( stickdisplay_ );
-    unRefPtr( intersectiondisplay_ );
-    while ( horintersections_.size() )
-	unRefPtr( horintersections_.removeSingle(0) );
-
     deepErase( horshapes_ );
-    horintersectids_.erase();
     delete explicitpanels_;
     delete explicitsticks_;
     delete explicitintersections_;
-
-    unRefPtr( activestickmarker_ );
-    unRefAndNullPtr( drawstyle_ );
-    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
-    for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.unRef( datapackids_[idx] );
-
     deepErase( texuredatas_ );
 }
 
@@ -144,18 +121,12 @@ FaultDisplay::~FaultDisplay()
 void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 {
     if ( eventcatcher_ )
-    {
 	mDetachCB( eventcatcher_->eventhappened,FaultDisplay::mouseCB );
-	unRefPtr( eventcatcher_ );
-    }
 
     eventcatcher_ = vec;
 
     if ( eventcatcher_ )
-    {
-	eventcatcher_->ref();
 	mAttachCB( eventcatcher_->eventhappened,FaultDisplay::mouseCB );
-    }
 
     if ( viseditor_ )
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
@@ -191,7 +162,7 @@ EM::ObjectID FaultDisplay::getEMObjectID() const
 
 EM::Fault3D* FaultDisplay::emFault()
 {
-    mDynamicCastGet(EM::Fault3D*,flt,fault_);
+    mDynamicCastGet(EM::Fault3D*,flt,fault_.ptr());
     return flt;
 }
 
@@ -199,15 +170,12 @@ EM::Fault3D* FaultDisplay::emFault()
 bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 {
     if ( fault_ )
-    {
 	mDetachCB( fault_->change,FaultDisplay::emChangeCB );
-	unRefPtr( fault_ );
-    }
 
     fault_ = nullptr;
-    unRefAndNullPtr( faulteditor_ );
+    faulteditor_ = nullptr;
     if ( viseditor_ )
-	viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
+	viseditor_->setEditor( nullptr );
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emfault,emobject.ptr());
@@ -224,20 +192,17 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 
     fault_ = (EM::Fault*)(emfault);
     mAttachCB( fault_->change,FaultDisplay::emChangeCB );
-    fault_->ref();
-
     if ( !emfault->name().isEmpty() )
 	setName( emfault->name() );
 
     if ( !paneldisplay_ )
     {
 	paneldisplay_ = visBase::GeomIndexedShape::create();
-	paneldisplay_->ref();
 	paneldisplay_->setDisplayTransformation( displaytransform_ );
-	paneldisplay_->setMaterial( 0 );
+	paneldisplay_->setMaterial( nullptr );
 	paneldisplay_->setSelectable( false );
 	paneldisplay_->setGeometryShapeType(
-	    visBase::GeomIndexedShape::Triangle );
+				    visBase::GeomIndexedShape::Triangle );
 	paneldisplay_->useOsgNormal( true );
 	paneldisplay_->setRenderMode( visBase::RenderBothSides );
 	paneldisplay_->setTextureChannels( channels_ );
@@ -248,13 +213,12 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     if ( !intersectiondisplay_ )
     {
 	intersectiondisplay_ = visBase::GeomIndexedShape::create();
-	intersectiondisplay_->ref();
 	intersectiondisplay_->setDisplayTransformation( displaytransform_ );
-	intersectiondisplay_->setMaterial( 0 );
+	intersectiondisplay_->setMaterial( nullptr );
 	intersectiondisplay_->setSelectable( false );
 	intersectiondisplay_->setGeometryShapeType(
-		visBase::GeomIndexedShape::PolyLine3D,
-		Geometry::PrimitiveSet::Lines );
+					visBase::GeomIndexedShape::PolyLine3D,
+					Geometry::PrimitiveSet::Lines );
 	addChild( intersectiondisplay_->osgNode() );
 	intersectiondisplay_->turnOn( false );
     }
@@ -262,14 +226,17 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     if ( !stickdisplay_ )
     {
 	stickdisplay_ = visBase::GeomIndexedShape::create();
-	stickdisplay_->ref();
 	stickdisplay_->setDisplayTransformation( displaytransform_ );
 	if ( !stickdisplay_->getMaterial() )
-	    stickdisplay_->setMaterial( new visBase::Material );
+	{
+	    RefMan<visBase::Material> newmat = visBase::Material::create();
+	    stickdisplay_->setMaterial( newmat.ptr() );
+	}
+
 	stickdisplay_->setSelectable( false );
 	stickdisplay_->setGeometryShapeType(
-	    visBase::GeomIndexedShape::PolyLine3D,
-	    Geometry::PrimitiveSet::LineStrips );
+					visBase::GeomIndexedShape::PolyLine3D,
+					Geometry::PrimitiveSet::LineStrips );
 	addChild( stickdisplay_->osgNode() );
     }
 
@@ -318,8 +285,7 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     {
 	if ( !viseditor_ )
 	{
-	    viseditor_ = visSurvey::MPEEditor::create();
-	    viseditor_->ref();
+	    viseditor_ = MPEEditor::create();
 	    viseditor_->setSceneEventCatcher( eventcatcher_ );
 	    viseditor_->setDisplayTransformation( displaytransform_ );
 	    viseditor_->sower().alternateSowingOrder();
@@ -327,15 +293,11 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 	    addChild( viseditor_->osgNode() );
 	}
 
-	RefMan<MPE::ObjectEditor> editor =
-				    MPE::engine().getEditor( emid, true );
+	RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true);
 	mDynamicCastGet( MPE::FaultEditor*, fe, editor.ptr() );
 	faulteditor_ = fe;
 	if ( faulteditor_ )
-	{
-	    faulteditor_->ref();
 	    faulteditor_->setSceneIdx( mSceneIdx );
-	}
 
 	if ( viseditor_ )
 	{
@@ -460,9 +422,9 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
     setSelSpec( attrib, as );
 
     RefMan<DataPointSet> data = new DataPointSet( false, true );
-    DPM( DataPackMgr::PointID() ).add( data );
-    getRandomPos( *data, 0 );
-    DataColDef* zvalsdef = new DataColDef( sKeyZValues() );
+    DPM( getDataPackMgrID() ).add( data );
+    getRandomPos( *data, nullptr );
+    auto* zvalsdef = new DataColDef( sKeyZValues() );
     data->dataSet().add( zvalsdef );
     BinIDValueSet& bivs = data->bivSet();
     if ( data->size() && bivs.nrVals()==4 )
@@ -654,7 +616,7 @@ void FaultDisplay::hideAllKnots( bool yn )
 
 void FaultDisplay::fillPar( IOPar& par ) const
 {
-    visSurvey::MultiTextureSurveyObject::fillPar( par );
+    MultiTextureSurveyObject::fillPar( par );
 
     par.set( sKeyEarthModelID(), getMultiID() );
     par.set( sKeyTriProjection(), triangulateAlg() );
@@ -677,7 +639,7 @@ void FaultDisplay::fillPar( IOPar& par ) const
 
 bool FaultDisplay::usePar( const IOPar& par )
 {
-    if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
+    if ( !MultiTextureSurveyObject::usePar( par ) )
 	return false;
 
     MultiID newmid;
@@ -754,24 +716,21 @@ bool FaultDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     if ( zaxistransform_ )
     {
 	if ( zaxistransform_->changeNotifier() )
-	    zaxistransform_->changeNotifier()->remove(
-		mCB(this,FaultDisplay,dataTransformCB) );
+	    mDetachCB( *zaxistransform_->changeNotifier(),
+		       FaultDisplay::dataTransformCB );
 	if ( voiid_>0 )
 	{
 	    zaxistransform_->removeVolumeOfInterest( voiid_ );
 	    voiid_ = -1;
 	}
-
-	unRefAndNullPtr( zaxistransform_ );
     }
 
     zaxistransform_ = zat;
     if ( zaxistransform_ )
     {
-	zaxistransform_->ref();
 	if ( zaxistransform_->changeNotifier() )
-	    zaxistransform_->changeNotifier()->notify(
-		    mCB(this,FaultDisplay,dataTransformCB) );
+	    mAttachCB( *zaxistransform_->changeNotifier(),
+		       FaultDisplay::dataTransformCB );
     }
 
     return true;
@@ -780,7 +739,7 @@ bool FaultDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 const ZAxisTransform* FaultDisplay::getZAxisTransform() const
 {
-    return zaxistransform_;
+    return zaxistransform_.ptr();
 }
 
 
@@ -846,7 +805,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	const VisID visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
 
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,plane,dataobj)
+	mDynamicCastGet(PlaneDataDisplay*,plane,dataobj)
 	if ( plane )
 	{
 	    mouseplanecs = plane->getTrcKeyZSampling();
@@ -854,7 +813,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    break;
 	}
 
-	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdl,dataobj)
+	mDynamicCastGet(RandomTrackDisplay*,rdl,dataobj)
 	if ( rdl )
 	{
 	    mouseplanecs = rdl->getTrcKeyZSampling(false,-1);
@@ -1106,10 +1065,8 @@ void FaultDisplay::updateActiveStickMarker()
     }
 
     RowCol rc( activestick_, 0 );
-    Geometry::PrimitiveSet* idxps =
-	Geometry::IndexedPrimitiveSet::create( false );
-    idxps->ref();
-
+    RefMan<Geometry::PrimitiveSet> idxps =
+				Geometry::IndexedPrimitiveSet::create( false );
     for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col() += colrg.step )
     {
 	const Coord3 pos = fss->getKnot( rc );
@@ -1159,7 +1116,7 @@ void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* taskr ) const
     {
 	MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 	explicitpanels_->getTexturePositions( dpset, taskr );
-	paneldisplay_->touch( false, false );
+	paneldisplay_.getNonConstPtr()->touch( false, false );
     }
 }
 
@@ -1169,11 +1126,11 @@ void FaultDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-    DataPackID dpid = getDataPackID( attrib );
-    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
-    auto dps = dpman.get<DataPointSet>( dpid );
+    const DataPackID dpid = getDataPackID( attrib );
+    const DataPackMgr& dpman = DPM( getDataPackMgrID() );
+    ConstRefMan<DataPointSet> dps = dpman.get<DataPointSet>( dpid );
     if ( dps )
-	data  = *dps;
+	data  = *dps.ptr();
 }
 
 
@@ -1206,7 +1163,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 
     mDeclareAndTryAlloc(Array2D<float>*,texturedata,
 			Array2DImpl<float>(sz.col(),sz.row()));
-    float* texturedataptr = texturedata ? texturedata->getData() : 0;
+    float* texturedataptr = texturedata ? texturedata->getData() : nullptr;
     if ( !texturedataptr )
     {
 	validtexture_ = false;
@@ -1279,7 +1236,7 @@ const BufferStringSet* FaultDisplay::selectedSurfaceDataNames()
 {
     EM::Fault3D* fault3d = emFault();
     return fault3d && fault3d->auxData()
-	? &fault3d->auxData()->selectedNames() : 0;
+	? &fault3d->auxData()->selectedNames() : nullptr;
 }
 
 
@@ -1287,7 +1244,7 @@ const Array2D<float>* FaultDisplay::getTextureData( int attrib )
 { return texuredatas_.validIdx(attrib) ? texuredatas_[attrib] : nullptr; }
 
 
-void FaultDisplay::setResolution( int res, TaskRunner* taskr )
+void FaultDisplay::setResolution( int res, TaskRunner* /* taskr */ )
 {
     if ( res==resolution_ )
 	return;
@@ -1305,16 +1262,15 @@ bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 
 void FaultDisplay::addCache()
 {
-    datapackids_ += DataPackID::udf();
+    datapacks_ += nullptr;
 }
 
 void FaultDisplay::removeCache( int attrib )
 {
-    if ( !datapackids_.validIdx(attrib) )
+    if ( !datapacks_.validIdx(attrib) )
 	return;
 
-    DPM( DataPackMgr::SurfID() ).unRef( datapackids_[attrib] );
-    datapackids_.removeSingle( attrib );
+    datapacks_.removeSingle( attrib );
 }
 
 void FaultDisplay::swapCache( int attr0, int attr1 )
@@ -1403,7 +1359,8 @@ bool FaultDisplay::canDisplayHorizonIntersections() const
 
 
 static int getValidIntersectionObjectIdx( bool horizonintersection,
-			const ObjectSet<const SurveyObject>& objs, VisID objid )
+			const ObjectSet<const SurveyObject>& objs,
+			const VisID& objid )
 {
     for ( int idx=0; objid.isValid() && idx<objs.size(); idx++ )
     {
@@ -1428,7 +1385,7 @@ static int getValidIntersectionObjectIdx( bool horizonintersection,
 }
 
 
-void FaultDisplay::updateHorizonIntersections( VisID whichobj,
+void FaultDisplay::updateHorizonIntersections( const VisID& whichobj,
 	const ObjectSet<const SurveyObject>& objs )
 {
     if ( !fault_ )
@@ -1466,7 +1423,7 @@ void FaultDisplay::updateHorizonIntersections( VisID whichobj,
 	    continue;
 
 	horintersections_[idx]->turnOn( false );
-	unRefPtr( horintersections_.removeSingle(idx) );
+	horintersections_.removeSingle( idx );
 	delete horshapes_.removeSingle( idx );
 	horintersectids_.removeSingle( idx );
     }
@@ -1482,19 +1439,22 @@ void FaultDisplay::updateHorizonIntersections( VisID whichobj,
 	Geometry::BinIDSurface* surf =
 	    activehordisps[idx]->getHorizonSection()->getSurface();
 
-	visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();
-	line->ref();
+	RefMan<visBase::GeomIndexedShape> line =
+				visBase::GeomIndexedShape::create();
 	if ( !line->getMaterial() )
-	    line->setMaterial(new visBase::Material);
+	{
+	    RefMan<visBase::Material> newmat = visBase::Material::create();
+	    line->setMaterial( newmat.ptr() );
+	}
 
 	line->getMaterial()->setColor( nontexturecol_ );
 	line->setSelectable( false );
 	line->setGeometryShapeType( visBase::GeomIndexedShape::PolyLine3D,
-	    Geometry::PrimitiveSet::LineStrips );
+				    Geometry::PrimitiveSet::LineStrips );
 	line->setDisplayTransformation( displaytransform_ );
 	addChild( line->osgNode() );
 	line->turnOn( false );
-	Geometry::ExplFaultStickSurface* shape = 0;
+	Geometry::ExplFaultStickSurface* shape = nullptr;
 	mTryAlloc( shape, Geometry::ExplFaultStickSurface(0,mZScale()) );
 	shape->setSceneIdx( mSceneIdx );
 	line->setSurface( shape );
@@ -1517,7 +1477,7 @@ void FaultDisplay::updateHorizonIntersections( VisID whichobj,
 
 
 void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
-				      VisID whichobj )
+				      const VisID& whichobj )
 {
     updateHorizonIntersections( whichobj, objs );
 
@@ -1944,36 +1904,37 @@ void FaultDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 DataPackID FaultDisplay::addDataPack( const DataPointSet& dpset ) const
 {
-    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
-    DataPointSet* newdpset = new DataPointSet( dpset );
+    DataPackMgr& dpman = DPM( getDataPackMgrID() );
+    RefMan<DataPointSet> newdpset = new DataPointSet( dpset );
     newdpset->setName( dpset.name() );
-    dpman.add( newdpset );
-    return newdpset->id();
+    return dpman.add( newdpset.ptr() ) ? newdpset->id() : DataPackID::udf();
 }
 
 
-bool FaultDisplay::setDataPackID( int attrib, DataPackID dpid,
-				  TaskRunner* taskr )
+bool FaultDisplay::setDataPackID( int attrib, const DataPackID& dpid,
+				  TaskRunner* /* taskr */ )
 {
-    if ( !datapackids_.validIdx(attrib) )
+    if ( !datapacks_.validIdx(attrib) )
 	return false;
 
-    DataPackMgr& dpman = DPM( DataPackMgr::SurfID() );
-    auto datapack = dpman.getDP( dpid );
-    if ( !datapack )
+    DataPackMgr& dpman = DPM( getDataPackMgrID() );
+    if ( !dpman.isPresent(dpid) )
 	return false;
 
-    DataPackID oldid = datapackids_[attrib];
-    dpman.unRef( oldid );
-    datapackids_[attrib] = dpid;
-    dpman.ref( dpid );
+    RefMan<DataPointSet> datapack = dpman.get<DataPointSet>( dpid );
+    datapacks_.replace( attrib, datapack.ptr() );
+
     return true;
 }
 
 
 DataPackID FaultDisplay::getDataPackID( int attrib ) const
 {
-    return datapackids_[attrib];
+    if ( !datapacks_.validIdx(attrib) )
+	return DataPackID::udf();
+
+    const DataPointSet* datapack = datapacks_.get( attrib );
+    return datapack ? datapack->id() : DataPackID::udf();
 }
 
 

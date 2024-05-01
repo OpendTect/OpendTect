@@ -9,9 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "ranges.h"
 #include "visobject.h"
-
 
 namespace osgGeo { class TabPlaneDragger; }
 namespace osg { class Switch; }
@@ -33,11 +33,11 @@ mExpClass(visBase) DepthTabPlaneDragger : public VisualObjectImpl
     friend class PlaneDraggerCallbackHandler;
 
 public:
-    static DepthTabPlaneDragger*	create()
-					mCreateDataObj(DepthTabPlaneDragger);
-    void				removeScaleTabs();
-					/*!\note once removed, they cannot be
-					    restored */
+    static RefMan<DepthTabPlaneDragger> create();
+				mCreateDataObj(DepthTabPlaneDragger);
+
+    void			removeScaleTabs();
+				//!\note once removed, they cannot be restored
 
     void			setCenter( const Coord3&, bool alldims = true );
 				/*!< \param alldims if true, it updates the
@@ -113,15 +113,15 @@ protected:
 
     void			initOsgDragger();
 
-    int				dim_;
+    int				dim_	= 2;
     TypeSet<Coord3>		centers_;
     TypeSet<Coord3>		sizes_;
 
     ConstRefMan<mVisTrans>	transform_;
 
-    osgGeo::TabPlaneDragger*	osgdragger_;
-    osg::Switch*			osgdraggerplane_;
-    PlaneDraggerCallbackHandler*	osgcallbackhandler_;
+    osgGeo::TabPlaneDragger*	osgdragger_ = nullptr;
+    osg::Switch*			osgdraggerplane_ = nullptr;
+    PlaneDraggerCallbackHandler*	osgcallbackhandler_ = nullptr;
 
     Interval<float>		widthranges_[3];
     Interval<float>		spaceranges_[3];

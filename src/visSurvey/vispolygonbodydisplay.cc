@@ -11,63 +11,42 @@ ________________________________________________________________________
 
 #include "color.h"
 #include "emmanager.h"
-#include "empolygonbody.h"
 #include "executor.h"
 #include "explplaneintersection.h"
 #include "explpolygonsurface.h"
 #include "iopar.h"
-#include "mpeengine.h"
-#include "polygonsurfeditor.h"
 #include "survinfo.h"
 #include "undo.h"
-
 #include "viscoord.h"
-#include "visdrawstyle.h"
-#include "visevent.h"
-#include "visgeomindexedshape.h"
 #include "vismaterial.h"
-#include "vismpeeditor.h"
 #include "visplanedatadisplay.h"
 #include "vispolygonoffset.h"
-#include "vispolyline.h"
-#include "vistransform.h"
 #include "vistristripset.h"
+
 
 namespace visSurvey
 {
 
 PolygonBodyDisplay::PolygonBodyDisplay()
     : visBase::VisualObjectImpl(true)
-    , empolygonsurf_( 0 )
-    , bodydisplay_( 0 )
-    , explicitbody_( 0 )
-    , polygondisplay_( 0 )
-    , explicitpolygons_( 0 )
-    , intersectiondisplay_( 0 )
-    , explicitintersections_( 0 )
-    , viseditor_( 0 )
-    , polygonsurfeditor_( 0 )
-    , eventcatcher_( 0 )
-    , displaytransform_( 0 )
-    , nearestpolygon_( mUdf(int) )
-    , nearestpolygonmarker_( visBase::PolyLine3D::create() )
-    , showmanipulator_( false )
-    , displaypolygons_( false )
-    , drawstyle_( new visBase::DrawStyle )
-    , intsurf_( visBase::TriangleStripSet::create() )
 {
-    nearestpolygonmarker_->ref();
+    ref();
+    nearestpolygonmarker_ = visBase::PolyLine3D::create();
+    drawstyle_ = visBase::DrawStyle::create();
+    intsurf_ = visBase::TriangleStripSet::create();
     if ( !nearestpolygonmarker_->getMaterial() )
-	nearestpolygonmarker_->setMaterial( new visBase::Material );
+    {
+	RefMan<visBase::Material> newmat = visBase::Material::create();
+	nearestpolygonmarker_->setMaterial( newmat.ptr() );
+    }
+
     addChild( nearestpolygonmarker_->osgNode() );
     getMaterial()->setAmbience( 0.2 );
 
     nearestpolygonmarker_->setPrimitiveType(Geometry::PrimitiveSet::LineStrips);
 
-    drawstyle_->ref();
     drawstyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
 
-    intsurf_->ref();
     intsurf_->turnOn( false );
     intsurf_->setNormalBindType( visBase::VertexShape::BIND_PER_VERTEX );
     intsurf_->setColorBindType( visBase::VertexShape::BIND_OVERALL );
@@ -75,77 +54,47 @@ PolygonBodyDisplay::PolygonBodyDisplay()
 
     addChild( intsurf_->osgNode() );
 
-    visBase::PolygonOffset* polyoffset = new visBase::PolygonOffset;
+    RefMan<visBase::PolygonOffset> polyoffset =
+					      visBase::PolygonOffset::create();
     polyoffset->setFactor( -1.0f );
     polyoffset->setUnits( 1.0f );
-    nearestpolygonmarker_->addNodeState( polyoffset );
-
+    nearestpolygonmarker_->addNodeState( polyoffset.ptr() );
     if ( getMaterial() )
 	  mAttachCB( getMaterial()->change, PolygonBodyDisplay::matChangeCB );
 
+    unRefNoDelete();
 }
 
 
 PolygonBodyDisplay::~PolygonBodyDisplay()
 {
     detachAllNotifiers();
-    setSceneEventCatcher( 0 );
-
-    if ( viseditor_ )
-	viseditor_->unRef();
-
-    if ( polygonsurfeditor_ )
-	polygonsurfeditor_->unRef();
-
-    polygonsurfeditor_ = 0;
-
+    viseditor_ = nullptr;
+    eventcatcher_ = nullptr;
+    polygonsurfeditor_ = nullptr;
     if ( empolygonsurf_ )
     {
 	MPE::engine().removeEditor( empolygonsurf_->id() );
-	empolygonsurf_->change.remove(mCB(this,PolygonBodyDisplay,emChangeCB));
-	empolygonsurf_->unRef();
+	empolygonsurf_ = nullptr;
     }
-
-    if ( bodydisplay_ )
-	bodydisplay_->unRef();
-
-    if ( polygondisplay_ )
-	polygondisplay_->unRef();
-
-    if ( intersectiondisplay_ )
-	intersectiondisplay_->unRef();
-
-    if ( displaytransform_ )
-	displaytransform_->unRef();
 
     delete explicitbody_;
     delete explicitpolygons_;
     delete explicitintersections_;
-
-    nearestpolygonmarker_->unRef();
-    drawstyle_->unRef(); drawstyle_ = 0;
-
     removeChild( intsurf_->osgNode() );
-    intsurf_->unRef();
 }
 
 
 void PolygonBodyDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 {
     if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.remove(
-		mCB(this,PolygonBodyDisplay,mouseCB) );
-	eventcatcher_->unRef();
-    }
+	mDetachCB( eventcatcher_->eventhappened,
+		   PolygonBodyDisplay::mouseCB );
 
     eventcatcher_ = vec;
     if ( eventcatcher_ )
-    {
-	eventcatcher_->ref();
-	eventcatcher_->eventhappened.notify(
-		mCB(this,PolygonBodyDisplay,mouseCB) );
-    }
+	mAttachCB( eventcatcher_->eventhappened,
+		   PolygonBodyDisplay::mouseCB );
 
     if ( viseditor_ )
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
@@ -203,16 +152,13 @@ void PolygonBodyDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 {
     if ( empolygonsurf_ )
-    {
-	empolygonsurf_->change.remove(
-		mCB(this,PolygonBodyDisplay,emChangeCB) );
-	empolygonsurf_->unRef();
-    }
+	mDetachCB( empolygonsurf_->change, PolygonBodyDisplay::emChangeCB );
 
-    if ( polygonsurfeditor_ ) polygonsurfeditor_->unRef();
-    if ( viseditor_ ) viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
-    empolygonsurf_ = 0;
-    polygonsurfeditor_ = 0;
+    if ( viseditor_ )
+	viseditor_->setEditor( (MPE::ObjectEditor*) nullptr );
+
+    empolygonsurf_ = nullptr;
+    polygonsurfeditor_ = nullptr;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet( EM::PolygonBody*, emplys, emobject.ptr() );
@@ -226,8 +172,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     }
 
     empolygonsurf_ = emplys;
-    empolygonsurf_->change.notify( mCB(this,PolygonBodyDisplay,emChangeCB) );
-    empolygonsurf_->ref();
+    mAttachCB( empolygonsurf_->change, PolygonBodyDisplay::emChangeCB );
 
     if ( !empolygonsurf_->name().isEmpty() )
 	setName( empolygonsurf_->name() );
@@ -235,11 +180,10 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     if ( !bodydisplay_ )
     {
 	bodydisplay_ = visBase::GeomIndexedShape::create();
-	bodydisplay_->ref();
 	bodydisplay_->setGeometryShapeType( visBase::GeomIndexedShape::Triangle,
-	    Geometry::PrimitiveSet::Triangles );
+					    Geometry::PrimitiveSet::Triangles );
 	bodydisplay_->setDisplayTransformation( displaytransform_ );
-	bodydisplay_->setMaterial( 0 );
+	bodydisplay_->setMaterial( nullptr );
 	bodydisplay_->setSelectable( false );
 	bodydisplay_->setNormalBindType(visBase::VertexShape::BIND_PER_VERTEX);
 	bodydisplay_->useOsgNormal( true );
@@ -249,14 +193,12 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     if ( !intersectiondisplay_ )
     {
 	intersectiondisplay_ = visBase::GeomIndexedShape::create();
-	intersectiondisplay_->ref();
 	intersectiondisplay_->setDisplayTransformation( displaytransform_ );
-	bodydisplay_->setMaterial( 0 );
+	bodydisplay_->setMaterial( nullptr );
 	intersectiondisplay_->setSelectable( false );
 	intersectiondisplay_->setGeometryShapeType(
-	    visBase::GeomIndexedShape::PolyLine3D,
-	    Geometry::PrimitiveSet::LineStrips );
-
+					visBase::GeomIndexedShape::PolyLine3D,
+					Geometry::PrimitiveSet::LineStrips );
 	addChild( intersectiondisplay_->osgNode() );
 	intersectiondisplay_->turnOn( false );
 	setLineRadius( intersectiondisplay_ );
@@ -265,41 +207,37 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     if ( !polygondisplay_ )
     {
 	polygondisplay_ = visBase::GeomIndexedShape::create();
-	polygondisplay_->ref();
 	polygondisplay_->setDisplayTransformation( displaytransform_ );
-
 	polygondisplay_->setMaterial( getMaterial() );
 	polygondisplay_->setSelectable( false );
 	polygondisplay_->setGeometryShapeType(
-	    visBase::GeomIndexedShape::PolyLine3D,
-	    Geometry::PrimitiveSet::LineStrips );
-
+					visBase::GeomIndexedShape::PolyLine3D,
+					Geometry::PrimitiveSet::LineStrips );
 	addChild( polygondisplay_->osgNode() );
-
 	setLineRadius( polygondisplay_ );
     }
 
     const float zscale = scene_
-	? scene_->getZScale() *scene_->getFixedZStretch()
-	: SI().zScale();
+			? scene_->getZScale() *scene_->getFixedZStretch()
+			: SI().zScale();
 
     if ( !explicitbody_ )
     {
-	mTryAlloc( explicitbody_,Geometry::ExplPolygonSurface(0,zscale));
+	explicitbody_ = new Geometry::ExplPolygonSurface( 0, zscale );
 	explicitbody_->display( false, true );
     }
 
     if ( !explicitpolygons_ )
     {
-	mTryAlloc( explicitpolygons_,Geometry::ExplPolygonSurface(0,zscale) );
+	explicitpolygons_ = new Geometry::ExplPolygonSurface( 0, zscale );
 	explicitpolygons_->display( true, false );
     }
 
     if ( !explicitintersections_ )
-	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
+	explicitintersections_ = new Geometry::ExplPlaneIntersection();
 
     mDynamicCastGet( Geometry::PolygonSurface*, polygonsurface,
-	    empolygonsurf_->geometryElement())
+		     empolygonsurf_->geometryElement())
 
     explicitbody_->setPolygonSurface( polygonsurface );
     bodydisplay_->setSurface( explicitbody_ );
@@ -312,8 +250,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 
     if ( !viseditor_ )
     {
-	viseditor_ = visSurvey::MPEEditor::create();
-	viseditor_->ref();
+	viseditor_ = MPEEditor::create();
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
 	viseditor_->setDisplayTransformation( displaytransform_ );
 	viseditor_->sower().alternateSowingOrder();
@@ -323,7 +260,6 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
     mDynamicCastGet( MPE::PolygonBodyEditor*, pe, editor.ptr() );
     polygonsurfeditor_ =  pe;
-    if ( polygonsurfeditor_ ) polygonsurfeditor_->ref();
 
     viseditor_->setEditor( polygonsurfeditor_ );
     bodydisplay_->turnOn( true );
@@ -358,7 +294,7 @@ void PolygonBodyDisplay::touchAll( bool yn, bool updatemarker )
 
 bool PolygonBodyDisplay::removeSelections( TaskRunner* )
 {
-    const Selector<Coord3>* selector = scene_ ? scene_->getSelector() : 0;
+    const Selector<Coord3>* selector = scene_ ? scene_->getSelector() : nullptr;
     if ( !selector || !polygonsurfeditor_ )
 	return false;
 
@@ -472,33 +408,34 @@ const MarkerStyle3D* PolygonBodyDisplay::markerStyle() const
 void PolygonBodyDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
-    visSurvey::SurveyObject::fillPar( par );
+    SurveyObject::fillPar( par );
     par.set( sKeyEMPolygonSurfID(), getMultiID() );
 }
 
 
 bool PolygonBodyDisplay::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) ||
-	 !visSurvey::SurveyObject::usePar( par ) )
-
-	 return false;
+    if ( !visBase::VisualObjectImpl::usePar(par) || !SurveyObject::usePar(par) )
+	return false;
 
     MultiID newmid;
-    if ( par.get(sKeyEMPolygonSurfID(),newmid) )
-    {
-	EM::ObjectID emid = EM::EMM().getObjectID( newmid );
-	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
-	if ( !emobject )
-	{
-	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
-	    if ( loader ) loader->execute();
-	    emid = EM::EMM().getObjectID( newmid );
-	    emobject = EM::EMM().getObject( emid );
-	}
+    if ( !par.get(sKeyEMPolygonSurfID(),newmid) )
+	return false;
 
-	if ( emobject ) setEMID( emobject->id() );
+    EM::ObjectID emid = EM::EMM().getObjectID( newmid );
+    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    if ( !emobject )
+    {
+	PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
+	if ( loader )
+	    loader->execute();
+
+	emid = EM::EMM().getObjectID( newmid );
+	emobject = EM::EMM().getObject( emid );
     }
+
+    if ( emobject )
+	setEMID( emobject->id() );
 
     return true;
 }
@@ -521,15 +458,14 @@ void PolygonBodyDisplay::setDisplayTransformation(const mVisTrans* nt)
 	viseditor_->setDisplayTransformation( nt );
 
     nearestpolygonmarker_->setDisplayTransformation( nt );
-
-    if ( displaytransform_ ) displaytransform_->unRef();
     displaytransform_ = nt;
-    if ( displaytransform_ ) displaytransform_->ref();
 }
 
 
 const mVisTrans* PolygonBodyDisplay::getDisplayTransformation() const
-{ return displaytransform_; }
+{
+    return displaytransform_.ptr();
+}
 
 
 bool PolygonBodyDisplay::isPicking() const
@@ -574,7 +510,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     {
 	const VisID visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-	mDynamicCastGet(visSurvey::PlaneDataDisplay*,plane,dataobj)
+	mDynamicCastGet(PlaneDataDisplay*,plane,dataobj)
 	if ( plane )
 	{
 	    mouseplanecs = plane->getTrcKeyZSampling();
@@ -589,12 +525,11 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 
     EM::PosID nearestpid0, nearestpid1, insertpid;
     const float zscale = scene_
-	? scene_->getZScale() *scene_->getFixedZStretch()
-	: SI().zScale();
+			    ? scene_->getZScale() *scene_->getFixedZStretch()
+			    : SI().zScale();
 
-    polygonsurfeditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,
-	pos, zscale );
-
+    polygonsurfeditor_->getInteractionInfo( nearestpid0, nearestpid1,
+					    insertpid, pos, zscale );
     const int nearestpolygon =
 	nearestpid0.isUdf() ? mUdf(int) : insertpid.getRowCol().row();
 
@@ -663,11 +598,11 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	Coord3 editnormal(0,0,1);
 
 	if ( mouseplanecs.defaultDir()==TrcKeyZSampling::Inl )
-	    editnormal = Coord3( SI().transform(BinID(1,0))-
-		    SI().transform(BinID(0,0)), 0 );
+	    editnormal = Coord3( SI().transform(BinID(1,0)) -
+				 SI().transform(BinID(0,0)), 0 );
 	else if ( mouseplanecs.defaultDir()==TrcKeyZSampling::Crl )
-	    editnormal = Coord3( SI().transform(BinID(0,1))-
-		    SI().transform(BinID(0,0)), 0 );
+	    editnormal = Coord3( SI().transform(BinID(0,1)) -
+				 SI().transform(BinID(0,0)), 0 );
 
 	if ( empolygonsurf_->geometry().insertPolygon(
 	       insertpid.getRowCol().row(), 0, pos, editnormal, true ) )
@@ -735,7 +670,7 @@ void PolygonBodyDisplay::updateNearestPolygonMarker()
     else
     {
 	mDynamicCastGet( Geometry::PolygonSurface*, plgs,
-	    empolygonsurf_->geometryElement())
+			 empolygonsurf_->geometryElement())
 
 	const StepInterval<int> rowrg = plgs->rowRange();
 	if ( rowrg.isUdf() || !rowrg.includes(nearestpolygon_,false) )
@@ -771,14 +706,11 @@ void PolygonBodyDisplay::updateNearestPolygonMarker()
 	    idxps.add( markeridx++ );
 	}
 
-	Geometry::IndexedPrimitiveSet* primitiveset =
-	    Geometry::IndexedPrimitiveSet::create( false );
-	primitiveset->ref();
+	RefMan<Geometry::IndexedPrimitiveSet> primitiveset =
+			    Geometry::IndexedPrimitiveSet::create( false );
 	idxps.add( idxps[0] );
 	primitiveset->append( idxps.arr(), idxps.size() );
 	nearestpolygonmarker_->addPrimitiveSet( primitiveset );
-	primitiveset->unRef();
-
 	nearestpolygonmarker_->turnOn( true );
     }
 }
@@ -836,14 +768,13 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
 	return;
 
     const TypeSet<Geometry::ExplPlaneIntersection::PlaneIntersection>& pi =
-	explicitintersections_->getPlaneIntersections();
+			    explicitintersections_->getPlaneIntersections();
 
     intsurf_->getCoordinates()->setEmpty();
     intsurf_->removeAllPrimitiveSets();
 
-    Geometry::PrimitiveSet* ps =
-	Geometry::IndexedPrimitiveSet::create( false );
-    ps->ref();
+    RefMan<Geometry::PrimitiveSet> ps =
+				Geometry::IndexedPrimitiveSet::create( false );
 
     int ci = 0;
     for ( int idx=0; idx<pi.size(); idx++ )
@@ -851,7 +782,8 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
 	const TypeSet<Coord3>& crds = pi[idx].knots_;
 	const TypeSet<int>& conns = pi[idx].conns_;
 	const int sz = crds.size();
-	if ( sz<3 ) continue;
+	if ( sz<3 )
+	    continue;
 
 	const int startci = ci;
 	Coord3 center(0,0,0);
@@ -860,6 +792,7 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
 	    intsurf_->getCoordinates()->setPos( ci++, crds[idy] );
 	    center += crds[idy];
 	}
+
 	center /= sz;
 	intsurf_->getCoordinates()->setPos( ci, center );
 	for ( int idy=0; idy<conns.size()/3; idy++ )
@@ -873,8 +806,6 @@ void PolygonBodyDisplay::reMakeIntersectionSurface()
 
     if ( ps->size()> 3)
 	intsurf_->addPrimitiveSet( ps );
-    else
-	ps->unRef();
 }
 
 
@@ -883,16 +814,17 @@ bool PolygonBodyDisplay::displayedOnlyAtSections() const
 
 
 void PolygonBodyDisplay::otherObjectsMoved(
-	const ObjectSet<const SurveyObject>& objs, VisID whichobj )
+	const ObjectSet<const SurveyObject>& objs, const VisID& whichobj )
 {
-    if ( !explicitintersections_ ) return;
+    if ( !explicitintersections_ )
+	return;
 
-    ObjectSet<const SurveyObject> usedobjects;
+    WeakPtrSet<visBase::VisualObject> usedobjects;
     TypeSet<int> planeids;
-
-    for ( int idx=0; idx<objs.size(); idx++ )
+    for ( const auto* obj : objs )
     {
-	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
+	ConstRefMan<PlaneDataDisplay> plane;
+	plane = dCast(const PlaneDataDisplay*,obj);
 	if ( !plane || !plane->isOn() )
 	    continue;
 
@@ -924,28 +856,35 @@ void PolygonBodyDisplay::otherObjectsMoved(
 	positions += c11;
 	positions += c10;
 
-	const int idy = intersectionobjs_.indexOf( objs[idx] );
+	RefMan<visBase::VisualObject> usedobj = plane.getNonConstPtr();
+	const int idy = intersectionobjs_.indexOf( plane );
 	if ( idy==-1 )
 	{
-	    usedobjects += plane;
-	    planeids += explicitintersections_->addPlane(normal,positions);
+	    usedobjects += usedobj;
+	    planeids += explicitintersections_->addPlane( normal, positions );
 	}
 	else
 	{
-	    usedobjects += plane;
+	    usedobjects += usedobj;
 	    explicitintersections_->setPlane(planeids_[idy], normal, positions);
 	    planeids += planeids_[idy];
 
 	    intersectionobjs_.removeSingle( idy );
 	    planeids_.removeSingle( idy );
 	}
+
     }
 
     for ( int idx=planeids_.size()-1; idx>=0; idx-- )
 	explicitintersections_->removePlane( planeids_[idx] );
 
-    intersectionobjs_ = usedobjects;
     planeids_ = planeids;
+    intersectionobjs_.erase();
+    for ( int idx=0; idx<usedobjects.size(); idx++ )
+    {
+	RefMan<visBase::VisualObject> usedobj = usedobjects[idx];
+	intersectionobjs_ += usedobj;
+    }
 
     if ( displayedOnlyAtSections() )
     {

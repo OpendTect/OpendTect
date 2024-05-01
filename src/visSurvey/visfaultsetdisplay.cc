@@ -12,8 +12,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "binidsurface.h"
 #include "datacoldef.h"
-#include "datapointset.h"
-#include "emfaultset3d.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "explplaneintersection.h"
@@ -23,18 +21,12 @@ ________________________________________________________________________
 #include "posvecdataset.h"
 #include "settings.h"
 #include "uistrings.h"
-#include "visdrawstyle.h"
-#include "visevent.h"
-#include "visgeomindexedshape.h"
 #include "vishorizondisplay.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visrgbatexturechannel2rgba.h"
 #include "visseis2ddisplay.h"
-#include "vistransform.h"
-#include "vistexturechannels.h"
-#include "zaxistransform.h"
 
 
 namespace visSurvey
@@ -56,29 +48,21 @@ const char* FaultSetDisplay::sKeyZValues()		{ return "Z values"; }
 
 FaultSetDisplay::FaultSetDisplay()
     : MultiTextureSurveyObject()
-    , zaxistransform_(nullptr)
-    , eventcatcher_(nullptr)
-    , faultset_(nullptr)
-    , displaytransform_(nullptr)
-    , voiid_(-1)
     , colorchange(this)
     , displaymodechange(this)
-    , displaypanels_(true)
-    , displayintersections_(false)
-    , displayhorintersections_(false)
-    , drawstyle_(new visBase::DrawStyle)
-    , otherobjects_(false)
 {
-    getMaterial()->setAmbience( 0.8 );
+    ref();
+    datapacks_.setNullAllowed();
 
-    drawstyle_->ref();
-    addNodeState( drawstyle_ );
+    drawstyle_ = visBase::DrawStyle::create();
+    addNodeState( drawstyle_.ptr() );
     drawstyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
 
-    if ( getMaterial() )
-	mAttachCB( getMaterial()->change, FaultSetDisplay::matChangeCB );
+    getMaterial()->setAmbience( 0.8 );
+    mAttachCB( getMaterial()->change, FaultSetDisplay::matChangeCB );
 
     init();
+    unRefNoDelete();
 }
 
 
@@ -87,59 +71,32 @@ FaultSetDisplay::~FaultSetDisplay()
     detachAllNotifiers();
     setSceneEventCatcher( nullptr );
 
-    deepUnRef( paneldisplays_ );
-    deepUnRef( intersectiondisplays_ );
-    deepUnRef( channelset_ );
-
-    while ( horintersections_.size() )
-    {
-	horintersections_.removeSingle(0)->unRef();
-    }
-
     deepErase( horshapes_ );
-    horintersectids_.erase();
     deepErase( explicitpanels_ );
     deepErase( explicitintersections_ );
-
-    drawstyle_->unRef(); drawstyle_ = 0;
-
-    DataPackMgr& dpman = DPM( DataPackMgr::PointID() );
-    for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.unRef( datapackids_[idx] );
-
-    for ( int idx=0; idx<texturedataset_.size(); idx++ )
-	deepErase( *texturedataset_[idx] );
-
+    for ( auto* texturedataset : texturedataset_ )
+	deepErase( *texturedataset );
     deepErase( texturedataset_ );
-    if ( faultset_ )
-	faultset_->unRef();
 }
 
 
 void FaultSetDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 {
     if ( eventcatcher_ )
-    {
 	mDetachCB( eventcatcher_->eventhappened,FaultSetDisplay::mouseCB );
-	eventcatcher_->unRef();
-    }
 
     eventcatcher_ = vec;
 
     if ( eventcatcher_ )
-    {
-	eventcatcher_->ref();
 	mAttachCB( eventcatcher_->eventhappened,FaultSetDisplay::mouseCB );
-    }
 }
 
 
 void FaultSetDisplay::setScene( Scene* scene )
 {
     SurveyObject::setScene( scene );
-
-    for ( int idx=0; idx<explicitpanels_.size(); idx++ )
-	explicitpanels_[idx]->setSceneIdx( mSceneIdx );
+    for ( auto* explicitpanel : explicitpanels_ )
+	explicitpanel->setSceneIdx( mSceneIdx );
 }
 
 
@@ -151,10 +108,9 @@ EM::ObjectID FaultSetDisplay::getEMObjectID() const
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-
 EM::FaultSet3D* FaultSetDisplay::emFaultSet()
 {
-    mDynamicCastGet(EM::FaultSet3D*,flt,faultset_);
+    mDynamicCastGet(EM::FaultSet3D*,flt,faultset_.ptr());
     return flt;
 }
 
@@ -162,10 +118,7 @@ EM::FaultSet3D* FaultSetDisplay::emFaultSet()
 bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 {
     if ( faultset_ )
-    {
 	mDetachCB( faultset_->change,FaultSetDisplay::emChangeCB );
-	faultset_->unRef();
-    }
 
     faultset_ = nullptr;
 
@@ -179,17 +132,14 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	    intersectiondisplays_[idx]->turnOn( false );
 	}
 
-	for ( int idx=0; idx<horintersections_.size(); idx++ )
-	    horintersections_[idx]->turnOn( false );
+	for ( auto* horintersections : horintersections_ )
+	    horintersections->turnOn( false );
 
 	return false;
     }
 
-    faultset_ = (EM::FaultSet3D*)(emfaultset);
+    faultset_ = emfaultset;
     mAttachCB( faultset_->change,FaultSetDisplay::emChangeCB );
-    faultset_->ref();
-
-
     if ( !emfaultset->name().isEmpty() )
 	setName( emfaultset->name() );
 
@@ -201,29 +151,23 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 
 	for ( int idx=0; idx<faultset_->nrFaults(); idx++ )
 	{
-	    visBase::TextureChannels* channels =
-			visBase::TextureChannels::create();
-	    channels->ref();
-	    channels->setChannels2RGBA(
-			visBase::ColTabTextureChannel2RGBA::create() );
+	    RefMan<visBase::TextureChannels> channels =
+					visBase::TextureChannels::create();
+	    RefMan<visBase::ColTabTextureChannel2RGBA> channelsrgba =
+				visBase::ColTabTextureChannel2RGBA::create();
+	    channels->setChannels2RGBA( channelsrgba.ptr() );
 	    channels->enableTextureInterpolation( true );
 	    channelset_.add( channels );
 	    if ( idx==0 )
-	    {
-		if ( channels_ )
-		    channels_->unRef();
 		channels_ = channels;
-		channels_->ref();
-	    }
 
-	    visBase::GeomIndexedShape* paneldisplay =
-			visBase::GeomIndexedShape::create();
-	    paneldisplay->ref();
+	    RefMan<visBase::GeomIndexedShape> paneldisplay =
+					visBase::GeomIndexedShape::create();
 	    paneldisplay->setDisplayTransformation( displaytransform_ );
-	    paneldisplay->setMaterial( 0 );
+	    paneldisplay->setMaterial( nullptr );
 	    paneldisplay->setSelectable( false );
 	    paneldisplay->setGeometryShapeType(
-		visBase::GeomIndexedShape::Triangle );
+					visBase::GeomIndexedShape::Triangle );
 	    paneldisplay->useOsgNormal( true );
 	    paneldisplay->setRenderMode( visBase::RenderBothSides );
 	    paneldisplay->setTextureChannels( channels );
@@ -231,7 +175,7 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	    addChild( paneldisplay->osgNode() );
 	    paneldisplays_ += paneldisplay;
 
-	    Geometry::ExplFaultStickSurface* explicitpanel = 0;
+	    Geometry::ExplFaultStickSurface* explicitpanel = nullptr;
 	    mTryAlloc( explicitpanel,Geometry::ExplFaultStickSurface(0,zscale));
 	    explicitpanel->setSceneIdx( mSceneIdx );
 	    explicitpanel->display( false, true );
@@ -242,24 +186,23 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 				      s3dgeom_->zStep() ) );
 	    explicitpanels_ += explicitpanel;
 
-	    ObjectSet<Array2D<float> >* arrs = new ObjectSet<Array2D<float> >;
-	    arrs->allowNull( true );
+	    auto* arrs = new ObjectSet<Array2D<float> >;
+	    arrs->setNullAllowed();
 	    texturedataset_ += arrs;
 
-	    visBase::GeomIndexedShape* intersectiondisplay =
-				visBase::GeomIndexedShape::create();
-	    intersectiondisplay->ref();
+	    RefMan<visBase::GeomIndexedShape> intersectiondisplay =
+					visBase::GeomIndexedShape::create();
 	    intersectiondisplay->setDisplayTransformation( displaytransform_ );
-	    intersectiondisplay->setMaterial( 0 );
+	    intersectiondisplay->setMaterial( nullptr );
 	    intersectiondisplay->setSelectable( false );
 	    intersectiondisplay->setGeometryShapeType(
-		    visBase::GeomIndexedShape::PolyLine3D,
-		    Geometry::PrimitiveSet::Lines );
+					visBase::GeomIndexedShape::PolyLine3D,
+					Geometry::PrimitiveSet::Lines );
 	    addChild( intersectiondisplay->osgNode() );
 	    intersectiondisplay->turnOn( false );
 	    intersectiondisplays_ += intersectiondisplay;
 
-	    Geometry::ExplPlaneIntersection* explicitintersection = 0;
+	    Geometry::ExplPlaneIntersection* explicitintersection = nullptr;
 	    mTryAlloc( explicitintersection, Geometry::ExplPlaneIntersection );
 	    explicitintersections_ += explicitintersection;
 	}
@@ -374,11 +317,11 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
 			      false, "" );
     setSelSpec( attrib, as );
 
-    DataPointSet* data = new DataPointSet( false, true );
-    DPM( DataPackMgr::PointID() ).add( data );
-    getRandomPos( *data, 0 );
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    RefMan<DataPointSet> data = new DataPointSet( false, true );
+    getRandomPos( *data, nullptr );
     data->setName( sKeyZValues() );
-    DataColDef* zvalsdef = new DataColDef( sKeyZValues() );
+    auto* zvalsdef = new DataColDef( sKeyZValues() );
     data->dataSet().add( zvalsdef );
     BinIDValueSet& bivs = data->bivSet();
     if ( data->size() && bivs.nrVals()==5 )
@@ -402,8 +345,6 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
 
 	setRandomPosData( attrib, data, 0 );
     }
-
-    DPM( DataPackMgr::PointID() ).unRef( data->id() );
 
     if ( !attribwasdepth )
     {
@@ -528,7 +469,7 @@ bool FaultSetDisplay::arePanelsDisplayedInFull() const
 
 void FaultSetDisplay::fillPar( IOPar& par ) const
 {
-    visSurvey::MultiTextureSurveyObject::fillPar( par );
+    MultiTextureSurveyObject::fillPar( par );
 
     par.set( sKeyEarthModelID(), getMultiID() );
     par.set( sKeyTriProjection(), triangulateAlg() );
@@ -550,7 +491,7 @@ void FaultSetDisplay::fillPar( IOPar& par ) const
 
 bool FaultSetDisplay::usePar( const IOPar& par )
 {
-    if ( !visSurvey::MultiTextureSurveyObject::usePar( par ) )
+    if ( !MultiTextureSurveyObject::usePar(par) )
 	return false;
 
     MultiID newmid;
@@ -608,7 +549,7 @@ void FaultSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 
 const mVisTrans* FaultSetDisplay::getDisplayTransformation() const
 {
-    return paneldisplays_.isEmpty() ? 0
+    return paneldisplays_.isEmpty() ? nullptr
 			: paneldisplays_.first()->getDisplayTransformation();
 }
 
@@ -625,15 +566,11 @@ bool FaultSetDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 	    zaxistransform_->removeVolumeOfInterest( voiid_ );
 	    voiid_ = -1;
 	}
-
-	zaxistransform_->unRef();
-	zaxistransform_ = nullptr;
     }
 
     zaxistransform_ = zat;
     if ( zaxistransform_ )
     {
-	zaxistransform_->ref();
 	if ( zaxistransform_->changeNotifier() )
 	    zaxistransform_->changeNotifier()->notify(
 		    mCB(this,FaultSetDisplay,dataTransformCB) );
@@ -645,7 +582,7 @@ bool FaultSetDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 const ZAxisTransform* FaultSetDisplay::getZAxisTransform() const
 {
-    return zaxistransform_;
+    return zaxistransform_.ptr();
 }
 
 
@@ -762,12 +699,11 @@ void FaultSetDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
 
-    DataPackID dpid = getDataPackID( attrib );
-    DataPackMgr& dpman = DPM( DataPackMgr::PointID() );
-    auto dps = dpman.get<DataPointSet>( dpid );
+    const DataPackID dpid = getDataPackID( attrib );
+    const DataPackMgr& dpman = DPM( getDataPackMgrID() );
+    ConstRefMan<DataPointSet> dps = dpman.get<DataPointSet>( dpid );
     if ( dps )
-	data  = *dps;
-
+	data  = *dps.ptr();
 }
 
 
@@ -868,16 +804,15 @@ bool FaultSetDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
 
 void FaultSetDisplay::addCache()
 {
-    datapackids_ += DataPack::cNoID();
+    datapacks_ += nullptr;
 }
 
 void FaultSetDisplay::removeCache( int attrib )
 {
-    if ( !datapackids_.validIdx(attrib) )
+    if ( !datapacks_.validIdx(attrib) )
 	return;
 
-    DPM( DataPackMgr::PointID() ).unRef( datapackids_[attrib] );
-    datapackids_.removeSingle( attrib );
+    datapacks_.removeSingle( attrib );
 }
 
 void FaultSetDisplay::swapCache( int attr0, int attr1 )
@@ -963,7 +898,8 @@ bool FaultSetDisplay::canDisplayHorizonIntersections() const
 
 
 static int getValidIntersectionObjectIdx( bool horizonintersection,
-			const ObjectSet<const SurveyObject>& objs, VisID objid )
+				    const ObjectSet<const SurveyObject>& objs,
+				    const VisID& objid )
 {
     for ( int idx=0; objid.isValid() && idx<objs.size(); idx++ )
     {
@@ -988,7 +924,7 @@ static int getValidIntersectionObjectIdx( bool horizonintersection,
 }
 
 
-void FaultSetDisplay::updateHorizonIntersections( VisID whichobj,
+void FaultSetDisplay::updateHorizonIntersections( const VisID& whichobj,
 	const ObjectSet<const SurveyObject>& objs )
 {
     if ( !faultset_ )
@@ -1025,7 +961,7 @@ void FaultSetDisplay::updateHorizonIntersections( VisID whichobj,
 	    continue;
 
 	horintersections_[idx]->turnOn( false );
-	horintersections_.removeSingle( idx )->unRef();
+	horintersections_.removeSingle( idx );
 	delete horshapes_.removeSingle( idx );
 	horintersectids_.removeSingle( idx );
     }
@@ -1042,10 +978,13 @@ void FaultSetDisplay::updateHorizonIntersections( VisID whichobj,
 	Geometry::BinIDSurface* surf =
 	    activehordisps[idx]->getHorizonSection(sid)->getSurface();
 
-	visBase::GeomIndexedShape* line = visBase::GeomIndexedShape::create();
-	line->ref();
+	RefMan<visBase::GeomIndexedShape> line =
+					visBase::GeomIndexedShape::create();
 	if ( !line->getMaterial() )
-	    line->setMaterial(new visBase::Material);
+	{
+	    RefMan<visBase::Material> newmat = visBase::Material::create();
+	    line->setMaterial( newmat.ptr() );
+	}
 
 	line->getMaterial()->setColor( nontexturecol_ );
 	line->setSelectable( false );
@@ -1054,7 +993,7 @@ void FaultSetDisplay::updateHorizonIntersections( VisID whichobj,
 	line->setDisplayTransformation( displaytransform_ );
 	addChild( line->osgNode() );
 	line->turnOn( false );
-	Geometry::ExplFaultStickSurface* shape = 0;
+	Geometry::ExplFaultStickSurface* shape = nullptr;
 	mTryAlloc( shape, Geometry::ExplFaultStickSurface(0,mZScale()) );
 	shape->setSceneIdx( mSceneIdx );
 	line->setSurface( shape );
@@ -1077,7 +1016,8 @@ void FaultSetDisplay::updateHorizonIntersections( VisID whichobj,
 
 
 void FaultSetDisplay::otherObjectsMoved(
-		    const ObjectSet<const SurveyObject>& objs, VisID whichobj )
+				    const ObjectSet<const SurveyObject>& objs,
+				    const VisID& whichobj )
 {
     updateHorizonIntersections( whichobj, objs );
 
@@ -1250,34 +1190,36 @@ void FaultSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-int FaultSetDisplay::addDataPack( const DataPointSet& dpset ) const
+DataPackID FaultSetDisplay::addDataPack( const DataPointSet& /* dpset */ ) const
 {
-    return 0;
+    return DataPackID::udf();
 }
 
 
-bool FaultSetDisplay::setDataPackID( int attrib, DataPackID dpid,
-				  TaskRunner* taskr )
+bool FaultSetDisplay::setDataPackID( int attrib, const DataPackID& dpid,
+				     TaskRunner* /* taskr */ )
 {
-    if ( !datapackids_.validIdx(attrib) )
+    if ( !datapacks_.validIdx(attrib) )
 	return false;
 
-    DataPackMgr& dpman = DPM( DataPackMgr::PointID() );
-    ConstRefMan<DataPack> datapack = dpman.getDP( dpid );
-    if ( !datapack )
+    DataPackMgr& dpman = DPM( getDataPackMgrID() );
+    if ( !dpman.isPresent(dpid) )
 	return false;
 
-    DataPackID oldid = datapackids_[attrib];
-    dpman.unRef( oldid );
-    datapackids_[attrib] = dpid;
-    dpman.ref( dpid );
+    RefMan<DataPointSet> datapack = dpman.get<DataPointSet>( dpid );
+    datapacks_.replace( attrib, datapack.ptr() );
+
     return true;
 }
 
 
 DataPackID FaultSetDisplay::getDataPackID( int attrib ) const
 {
-    return datapackids_[attrib];
+    if ( !datapacks_.validIdx(attrib) )
+	return DataPackID::udf();
+
+    const DataPointSet* datapack = datapacks_.get( attrib );
+    return datapack ? datapack->id() : DataPackID::udf();
 }
 
 
@@ -1372,12 +1314,11 @@ bool FaultSetDisplay::swapAttribs( int a0, int a1 )
 const visBase::GeomIndexedShape* FaultSetDisplay::getFaultDisplayedPlane(
 								int idx) const
 {
-    return paneldisplays_.validIdx(idx) ? paneldisplays_[idx] : 0;
+    return paneldisplays_.validIdx(idx) ? paneldisplays_[idx] : nullptr;
 }
 
 
-const TypeSet<float>*
-FaultSetDisplay::getHistogram( int attrib ) const
+const TypeSet<float>* FaultSetDisplay::getHistogram( int attrib ) const
 {
     static TypeSet<float> ret;
     for ( int idx=0; idx<channelset_.size(); idx++ )
@@ -1431,7 +1372,7 @@ const ColTab::MapperSetup*
 FaultSetDisplay::getColTabMapperSetup( int attrib, int version ) const
 {
     if ( attrib<0 || attrib>=nrAttribs() )
-	return 0;
+	return nullptr;
 
     static ColTab::MapperSetup ms;
     if ( mIsUdf(version) || version<0

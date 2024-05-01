@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "visevent.h"
 #include "vismaterial.h"
 #include "visnormals.h"
-#include "vistransform.h"
 #include "vistexturechannels.h"
 #include "vistexturecoords.h"
+#include "vistransform.h"
 
 #include <osg/BlendFunc>
 #include <osg/CullFace>
@@ -45,47 +45,36 @@ const char* Shape::sKeyMaterial()		{ return  "Material";	}
 
 
 Shape::Shape()
-    : material_( 0 )
 {
 }
 
 
 Shape::~Shape()
 {
-    if ( material_ ) material_->unRef();
 }
 
 
+void Shape::setMaterial( Material* newitem )
+{
+    if ( material_ )
+	removeNodeState( material_.ptr() );
 
-#define mDefSetGetItem(ownclass, clssname, variable, osgremove, osgset ) \
-void ownclass::set##clssname( clssname* newitem ) \
-{ \
-    if ( variable ) \
-    { \
-	osgremove; \
-	variable->unRef(); \
-	variable = 0; \
-    } \
- \
-    if ( newitem ) \
-    { \
-	variable = newitem; \
-	variable->ref(); \
-	osgset; \
-    } \
-} \
- \
- \
-clssname* ownclass::gt##clssname() const \
-{ \
-    return const_cast<clssname*>( variable ); \
+    material_ = newitem;
+    if ( newitem )
+	addNodeState( newitem );
 }
 
 
-mDefSetGetItem( Shape, Material, material_,
-    removeNodeState( material_ ),
-    addNodeState( material_ ) )
+Material* Shape::gtMaterial()
+{
+    return material_.ptr();
+}
 
+
+const Material* Shape::gtMaterial() const
+{
+    return material_.ptr();
+}
 
 
 void Shape::setMaterialBinding( int nv )
@@ -276,73 +265,64 @@ void VertexShape::NodeCallbackHandler::updateTexture()
 
 //=============================================================================
 
-
-#define mVertexShapeConstructor( geode ) \
-     normals_( 0 ) \
-    , coords_( 0 ) \
-    , texturecoords_( 0 ) \
-    , geode_( geode ) \
-    , node_( 0 ) \
-    , osggeom_( 0 ) \
-    , primitivetype_( Geometry::PrimitiveSet::Other ) \
-    , useosgsmoothnormal_( false ) \
-    , channels_( 0 ) \
-    , needstextureupdate_( false ) \
-    , nodecallbackhandler_( 0 ) \
-    , texturecallbackhandler_( 0 ) \
-    , isredrawing_( false )
-
-
 VertexShape::VertexShape()
-    : mVertexShapeConstructor( new osg::Geode )
-    , colorbindtype_( BIND_OFF )
-    , normalbindtype_( BIND_PER_VERTEX )
-    , usecoordinateschangedcb_( true )
+    : geode_(new osg::Geode)
+    , primitivetype_(Geometry::PrimitiveSet::Other)
+    , colorbindtype_(BIND_OFF)
+    , normalbindtype_(BIND_PER_VERTEX)
 {
+    ref();
     setupOsgNode();
     if ( coords_ )
 	 mAttachCB( coords_->change, VertexShape::coordinatesChangedCB );
+
+    unRefNoDelete();
 }
 
 
 VertexShape::VertexShape( Geometry::IndexedPrimitiveSet::PrimitiveType tp,
 			  bool creategeode )
-    : mVertexShapeConstructor( creategeode ? new osg::Geode : 0 )
-    , usecoordinateschangedcb_( true )
+    : geode_(creategeode ? new osg::Geode : nullptr)
+    , primitivetype_(Geometry::PrimitiveSet::Other)
 {
+    ref();
     setupOsgNode();
     setPrimitiveType( tp );
     if ( coords_ )
 	mAttachCB( coords_->change, VertexShape::coordinatesChangedCB );
+
+    unRefNoDelete();
 }
 
 
 void VertexShape::setMaterial( Material* mt )
 {
-    if ( !mt ) return;
+    if ( !mt )
+	return;
+
     if ( material_ && osggeom_ )
-	osggeom_->setColorArray( 0 );
+	osggeom_->setColorArray( nullptr );
 
     Shape::setMaterial( mt );
-    materialChangeCB( 0 );
+    materialChangeCB( nullptr );
 }
 
 
 void VertexShape::setupOsgNode()
 {
     node_ = new osg::Group;	// Needed because pushStateSet() applied in
-    node_->ref();		// nodecallbackhandler_ has no effect on geodes
+    refOsgPtr( node_ );		// nodecallbackhandler_ has no effect on geodes
     setOsgNode( node_ );
     nodecallbackhandler_ = new NodeCallbackHandler( *this );
-    nodecallbackhandler_->ref();
+    refOsgPtr( nodecallbackhandler_ );
     node_->setCullCallback( nodecallbackhandler_ );
     texturecallbackhandler_ = new TextureCallbackHandler( *this );
-    texturecallbackhandler_->ref();
+    refOsgPtr( texturecallbackhandler_ );
 
     if ( geode_ )
     {
 	useOsgAutoNormalComputation( false );
-	geode_->ref();
+	refOsgPtr( geode_ );
 	osggeom_ = new osg::Geometry;
 	setNormalBindType( BIND_PER_VERTEX );
 	setColorBindType( BIND_OVERALL );
@@ -351,14 +331,15 @@ void VertexShape::setupOsgNode()
 	node_->asGroup()->addChild( geode_ );
 	useVertexBufferRender( false );
     }
-    setCoordinates( Coordinates::create() );
+
+    RefMan<Coordinates> coords = Coordinates::create();
+    setCoordinates( coords.ptr() );
     if ( geode_ && coords_ && coords_->size() &&
-		   osggeom_ && osggeom_->getNumPrimitiveSets() )
+	 osggeom_ && osggeom_->getNumPrimitiveSets() )
     {
 	osgUtil::Optimizer optimizer;
 	optimizer.optimize( geode_ );
     }
-
 }
 
 
@@ -381,13 +362,11 @@ void VertexShape::setCoordinates( Coordinates* coords )
     {
 	 mDetachCB( coords_->change, VertexShape::coordinatesChangedCB );
 	 if ( osggeom_ ) osggeom_->setVertexArray(0);
-	 unRefAndNullPtr( coords_ );
     }
-    coords_ = coords;
 
+    coords_ = coords;
     if ( coords_ )
     {
-	coords_->ref();
 	mAttachCB( coords_->change, VertexShape::coordinatesChangedCB );
 	if ( osggeom_ )
 	    osggeom_->setVertexArray( mGetOsgVec3Arr( coords_->osgArray() ) );
@@ -429,24 +408,16 @@ VertexShape::~VertexShape()
     if ( getMaterial() )
 	getMaterial()->change.remove( mCB(this,VertexShape,materialChangeCB) );
 
-    setTextureChannels( 0 );
-    if ( texturecallbackhandler_ )
-	texturecallbackhandler_->unref();
-
+    setTextureChannels( nullptr );
+    unRefOsgPtr( texturecallbackhandler_ );
     forceRedraw( false );
     if ( nodecallbackhandler_ )
-    {
-	node_->setCullCallback( 0 );
-	nodecallbackhandler_->unref();
-    }
+	node_->setCullCallback( nullptr );
 
-    setCoordinates( 0 );
-    if ( geode_ ) geode_->unref();
-    if ( node_ ) node_->unref();
-    if ( normals_ ) normals_->unRef();
-    if ( texturecoords_ ) texturecoords_->unRef();
-
-    deepUnRef( primitivesets_ );
+    unRefOsgPtr( nodecallbackhandler_ );
+    setCoordinates( nullptr );
+    unRefOsgPtr( geode_ );
+    unRefOsgPtr( node_ );
 }
 
 
@@ -562,19 +533,54 @@ const mVisTrans* VertexShape::getDisplayTransformation() const
 { return  coords_->getDisplayTransformation(); }
 
 
-mDefSetGetItem( VertexShape, Normals, normals_,
-if ( osggeom_ ) osggeom_->setNormalArray( 0 ),
-if ( osggeom_ )
+void VertexShape::setNormals( Normals* newitem )
 {
-    osggeom_->setNormalArray( mGetOsgVec3Arr(normals_->osgArray()) );
-    osggeom_->setNormalBinding(
-			osg::Geometry::AttributeBinding( normalbindtype_ ) );
-}
-);
+    if ( osggeom_ && normals_.ptr() )
+	osggeom_->setNormalArray( nullptr );
 
-mDefSetGetItem( VertexShape, TextureCoords, texturecoords_,
-		setUpdateVar(needstextureupdate_,true),
-		setUpdateVar(needstextureupdate_,true) );
+    normals_ = newitem;
+    if ( osggeom_ && newitem )
+    {
+	osggeom_->setNormalArray( mGetOsgVec3Arr(normals_->osgArray()) );
+	osggeom_->setNormalBinding(
+		osg::Geometry::AttributeBinding( normalbindtype_ ) );
+    }
+}
+
+
+Normals* VertexShape::gtNormals()
+{
+    return normals_.ptr();
+}
+
+
+const Normals* VertexShape::gtNormals() const
+{
+    return normals_.ptr();
+}
+
+
+void VertexShape::setTextureCoords( TextureCoords* newitem )
+{
+    if ( texturecoords_ )
+	setUpdateVar( needstextureupdate_, true );
+
+    texturecoords_ = newitem;
+    if ( newitem )
+	setUpdateVar( needstextureupdate_, true );
+}
+
+
+TextureCoords* VertexShape::gtTextureCoords()
+{
+    return texturecoords_.ptr();
+}
+
+
+const TextureCoords* VertexShape::gtTextureCoords() const
+{
+    return texturecoords_.ptr();
+}
 
 
 void VertexShape::setTextureChannels( TextureChannels* channels )
@@ -668,13 +674,12 @@ void VertexShape::addPrimitiveSet( Geometry::PrimitiveSet* p )
     if ( !p || primitivesets_.indexOf( p ) != -1 )
 	return;
 
-    p->ref();
     p->setPrimitiveType( primitivetype_ );
 
     mDynamicCastGet(OSGPrimitiveSet*, osgps, p );
     addPrimitiveSetToScene( osgps->getPrimitiveSet() );
 
-    primitivesets_ += p;
+    primitivesets_.add( p );
 }
 
 
@@ -685,8 +690,7 @@ void VertexShape::removePrimitiveSet( const Geometry::PrimitiveSet* p )
     if ( pidx == -1 ) return;
     mDynamicCastGet( OSGPrimitiveSet*, osgps,primitivesets_[pidx] );
     removePrimitiveSetFromScene( osgps->getPrimitiveSet() );
-    primitivesets_.removeSingle( pidx )->unRef();
-
+    primitivesets_.removeSingle( pidx );
 }
 
 

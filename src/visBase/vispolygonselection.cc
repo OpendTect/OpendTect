@@ -10,9 +10,6 @@ ________________________________________________________________________
 #include "vispolygonselection.h"
 
 #include "polygon.h"
-#include "viscamera.h"
-#include "vistransform.h"
-#include "visdrawstyle.h"
 
 #include <osgGeo/PolygonSelection>
 
@@ -23,83 +20,81 @@ mCreateFactoryEntry( visBase::PolygonSelection );
 namespace visBase
 {
 
-Notifier<PolygonSelection>* PolygonSelection::polygonFinished()
+Notifier<PolygonSelection>& PolygonSelection::polygonFinished()
 {
-    mDefineStaticLocalObject( Notifier<PolygonSelection>,
-			      polygonfinished, (0) );
-    return &polygonfinished;
+    static PtrMan<Notifier<PolygonSelection> > thenotif_;
+    if ( !thenotif_ )
+	thenotif_ = new Notifier<PolygonSelection>( nullptr );
+
+    return *thenotif_.ptr();
 }
 
 class SelectionCallBack : public osg::NodeCallback
 {
 public:
 		    SelectionCallBack( PolygonSelection* sel )
-			: polysel_(sel) {}
+			: polysel_(sel)
+		    {}
 
 		    void operator() ( osg::Node* node,
 				      osg::NodeVisitor* nv ) override
 		    {
-			if ( nv )
-			{
-			    if ( polysel_ && polysel_->hasPolygon() )
-				PolygonSelection::polygonFinished()->trigger();
-			}
+			if ( !nv )
+			    return;
+
+			RefMan<PolygonSelection> polysel = polysel_.get();
+			if ( polysel && polysel->hasPolygon() )
+			    PolygonSelection::polygonFinished().trigger();
 		    }
 protected:
 		    ~SelectionCallBack(){}
-		    RefMan<PolygonSelection> polysel_;
+
+    WeakPtr<PolygonSelection> polysel_;
 };
 
+
+// PolygonSelection
+
 PolygonSelection::PolygonSelection()
-    : VisualObjectImpl( false )
-    , utm2disptransform_( 0 )
-    , selector_( new osgGeo::PolygonSelection )
-    , drawstyle_( new DrawStyle )
-    , polygon_( 0 )
-    , mastercamera_( 0 )
-    , selectorcb_( 0 )
+    : VisualObjectImpl(false)
+    , selector_(new osgGeo::PolygonSelection)
 {
-    drawstyle_->ref();
-    selector_->ref();
+    ref();
+    drawstyle_ = DrawStyle::create();
+    refOsgPtr( selector_ );
     addChild( selector_ );
     selectorcb_ = new SelectionCallBack( this );
-    selectorcb_->ref();
+    refOsgPtr( selectorcb_ );
     selector_->addCallBack( selectorcb_ );
-    mAttachCB( *PolygonSelection::polygonFinished(),
-		PolygonSelection::polygonChangeCB );
+    mAttachCB( PolygonSelection::polygonFinished(),
+	       PolygonSelection::polygonChangeCB );
+    unRefNoDelete();
 }
 
 
-PolygonSelection::PolygonSelection( const osgGeo::PolygonSelection* selector)
-    : VisualObjectImpl( false )
-    , utm2disptransform_( 0 )
-    , selector_( new osgGeo::PolygonSelection(*selector) )
-    , drawstyle_( new DrawStyle )
-    , polygon_( 0 )
-    , mastercamera_( 0 )
-    , selectorcb_( 0 )
-
+PolygonSelection::PolygonSelection( const osgGeo::PolygonSelection* selector )
+    : VisualObjectImpl(false)
+    , selector_(new osgGeo::PolygonSelection(*selector))
 {
-    drawstyle_->ref();
-    selector_->ref();
+    ref();
+    drawstyle_ = DrawStyle::create();
+    refOsgPtr( selector_ );
     addChild( selector_ );
     selectorcb_ = new SelectionCallBack( this );
-    selectorcb_->ref();
+    refOsgPtr( selectorcb_ );
     selector_->addCallBack( selectorcb_ );
-    mAttachCB( *PolygonSelection::polygonFinished(),
-		PolygonSelection::polygonChangeCB );
+    mAttachCB( PolygonSelection::polygonFinished(),
+	       PolygonSelection::polygonChangeCB );
+    unRefNoDelete();
 }
 
 
 PolygonSelection::~PolygonSelection()
 {
     detachAllNotifiers();
-    unRefPtr( utm2disptransform_ );
-    unRefPtr( drawstyle_ );
-    unRefPtr( mastercamera_ );
     selector_->removeCallBack( selectorcb_ );
-    selectorcb_->unref();
-    selector_->unref();
+    unRefOsgPtr( selectorcb_ );
+    unRefOsgPtr( selector_ );
     delete polygon_;
 }
 
@@ -107,9 +102,10 @@ PolygonSelection::~PolygonSelection()
 PolygonSelection* PolygonSelection::copy() const
 {
     if ( !selector_ || !hasPolygon() )
-	return 0;
-    PolygonSelection* polsel = new PolygonSelection( selector_ );
-    polsel->setUTMCoordinateTransform( utm2disptransform_ );
+	return nullptr;
+
+    auto* polsel = new PolygonSelection( selector_ );
+    polsel->setUTMCoordinateTransform( utm2disptransform_.ptr() );
     return polsel;
 }
 
@@ -142,13 +138,9 @@ PolygonSelection::SelectionType PolygonSelection::getSelectionType() const
 
 void PolygonSelection::setPrimaryCamera( Camera* maincam )
 {
-    mastercamera_ = maincam;
-    mastercamera_->ref();
-
-    if ( !selector_->setEventHandlerCamera(mastercamera_->osgCamera(),false) )
-    {
-	pErrMsg( "Need access to camera view and scene data" );
-    }
+    primarycamera_ = maincam;
+    if ( !selector_->setEventHandlerCamera(primarycamera_->osgCamera(),false) )
+	{ pErrMsg( "Need access to camera view and scene data" ); }
 }
 
 
@@ -169,7 +161,9 @@ void PolygonSelection::setLineStyle( const OD::LineStyle& lst )
 
 
 const OD::LineStyle& PolygonSelection::getLineStyle() const
-{ return drawstyle_->lineStyle(); }
+{
+    return drawstyle_->lineStyle();
+}
 
 
 void PolygonSelection::clear()
@@ -335,35 +329,33 @@ bool PolygonSelection::rayPickThrough( const Coord3& worldpos,
 void PolygonSelection::polygonChangeCB( CallBacker* )
 {
     polygonlock_.writeLock();
-    delete polygon_;
-    polygon_ = 0;
+    deleteAndNullPtr( polygon_ );
     polygonlock_.writeUnLock();
 }
 
 
 void PolygonSelection::setUTMCoordinateTransform( const mVisTrans* nt )
 {
-    if ( utm2disptransform_ ) utm2disptransform_->unRef();
     utm2disptransform_ = nt;
-    if ( utm2disptransform_ ) utm2disptransform_->ref();
 }
 
 
+// PolygonCoord3Selector
+
 PolygonCoord3Selector::PolygonCoord3Selector( const PolygonSelection& vs )
-    : vissel_( vs )
+    : vissel_(&vs)
 {
-    vissel_.ref();
 }
 
 
 PolygonCoord3Selector::~PolygonCoord3Selector()
-{ vissel_.unRef(); }
+{
+}
 
 
 Selector<Coord3>* PolygonCoord3Selector::clone() const
 {
-    mDeclareAndTryAlloc(Selector<Coord3>*,res,PolygonCoord3Selector(vissel_));
-    return res;
+    return new PolygonCoord3Selector( *vissel_.ptr() );
 }
 
 
@@ -376,17 +368,17 @@ bool PolygonCoord3Selector::isOK() const
 
 
 bool PolygonCoord3Selector::hasPolygon() const
-{ return vissel_.hasPolygon(); }
+{ return vissel_->hasPolygon(); }
 
 
 bool PolygonCoord3Selector::includes( const Coord3& c ) const
-{ return vissel_.isInside( c, false ); }
+{ return vissel_->isInside( c, false ); }
 
 
 char PolygonCoord3Selector::includesRange( const Coord3& start,
 					  const Coord3& stop ) const
 {
-    const char res = vissel_.includesRange( start, stop, false );
+    const char res = vissel_->includesRange( start, stop, false );
     if ( res==3 )
 	return 0;
 
@@ -402,7 +394,7 @@ bool PolygonCoord3Selector::isEq( const Selector<Coord3>& comp ) const
     mDynamicCastGet( const PolygonCoord3Selector*, b, &comp );
     if ( !b ) return false;
 
-    return &b->vissel_ == &vissel_;
+    return b->vissel_.ptr() == vissel_.ptr();
 }
 
 

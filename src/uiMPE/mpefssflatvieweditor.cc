@@ -142,7 +142,7 @@ void FaultStickSetFlatViewEditor::setPath( const TrcKeyPath& path )
 }
 
 
-void FaultStickSetFlatViewEditor::setRandomLineID( RandomLineID rdlid )
+void FaultStickSetFlatViewEditor::setRandomLineID( const RandomLineID& rdlid )
 {
     rdlid_ = rdlid;
     fsspainter_->setRandomLineID( rdlid );

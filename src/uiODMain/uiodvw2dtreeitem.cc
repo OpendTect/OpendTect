@@ -372,14 +372,14 @@ uiODApplMgr* uiODView2DTreeItem::applMgr()
 
 uiODViewer2D* uiODView2DTreeItem::viewer2D()
 {
-    void* res = 0;
+    void* res = nullptr;
     getPropertyPtr( uiODView2DTreeTop::viewer2dptr(), res );
     return reinterpret_cast<uiODViewer2D*>( res );
 }
 
 
-bool uiODView2DTreeItem::create( uiTreeItem* treeitem, VisID visid,
-				Vis2DID vis2did )
+bool uiODView2DTreeItem::create( uiTreeItem* treeitem, const VisID& visid,
+				 const Vis2DID& vis2did )
 {
     uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().find2DViewer( visid );
     if ( !vwr2d ) return false;
@@ -389,8 +389,8 @@ bool uiODView2DTreeItem::create( uiTreeItem* treeitem, VisID visid,
 
 
 bool uiODView2DTreeItem::create( uiTreeItem* treeitem,
-				const uiODViewer2D& vwr2d,
-				Vis2DID vis2did )
+				 const uiODViewer2D& vwr2d,
+				 const Vis2DID& vis2did )
 {
     const uiTreeFactorySet* tfs = vwr2d.uiTreeItemFactorySet();
     if ( !tfs )
@@ -413,7 +413,8 @@ bool uiODView2DTreeItem::create( uiTreeItem* treeitem,
 }
 
 
-const uiODView2DTreeItem* uiODView2DTreeItem::getView2DItem( Vis2DID id ) const
+const uiODView2DTreeItem* uiODView2DTreeItem::getView2DItem(
+						const Vis2DID& id ) const
 {
     if ( displayid_ == id )
 	return this;
@@ -426,11 +427,12 @@ const uiODView2DTreeItem* uiODView2DTreeItem::getView2DItem( Vis2DID id ) const
 	    return chliditem;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-const uiODView2DTreeItem* uiODView2DTreeTop::getView2DItem( Vis2DID id ) const
+const uiODView2DTreeItem* uiODView2DTreeTop::getView2DItem(
+						const Vis2DID& id ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {

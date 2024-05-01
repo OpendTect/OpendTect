@@ -28,22 +28,33 @@ const char* DataManager::sKeySelManPrefix()	{ return "SelMan"; }
 
 DataManager& DM()
 {
-    mDefineStaticLocalObject( DataManager, manager, );
-    return manager;
+    static PtrMan<DataManager> manager = new DataManager();
+    return *manager.ptr();
 }
 
 
 DataManager::DataManager()
-    : freeid_( 0 )
-    , selman_( *new SelectionManager )
-    , removeallnotify( this )
-    , prevobjectidx_(0)
-{ }
+    : selman_(*new SelectionManager)
+    , removeallnotify(this)
+{
+}
 
 
 DataManager::~DataManager()
 {
     delete &selman_;
+#ifdef __debug__
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	ConstRefMan<DataObject> obj = objects_[idx];
+	if ( !obj )
+	    continue;
+
+	std::cerr << "Vis object " << obj->name().buf() << " ("
+		  << obj->id().asInt() << ") is still referenced.\n";
+    }
+#endif
 }
 
 
@@ -55,40 +66,38 @@ VisID DataManager::highestID() const
 {
     int max = 0;
 
-    const int nrobjects = objects_.size();
-    for ( int idx=0; idx<nrobjects; idx++ )
+    const int sz = nrObjects();
+    for ( int idx=0; idx<sz; idx++ )
     {
-	if ( objects_[idx]->id().asInt()>max )
-	    max = objects_[idx]->id().asInt();
+	ConstRefMan<DataObject> dataobj = objects_[idx];
+	if ( !dataobj )
+	    continue;
+
+	const int objid = dataobj->id().asInt();
+	if ( objid > max )
+	    max = objid;
     }
 
-    return VisID(max);
+    return VisID( max );
 }
 
 
-#define mSmartLinearSearch( reversecondition, foundcondition, foundactions ) \
-    const int sz = objects_.size(); \
-    int idx = prevobjectidx_; \
-    const int dir = idx<sz && reversecondition ? -1 : 1; \
-    \
-    for ( int count=0; count<sz; count++, idx+=dir ) \
-    { \
-	if ( idx < 0 )	 idx = sz-1; \
-	if ( idx >= sz ) idx = 0; \
-	\
-	if ( foundcondition ) \
-	{ \
-	    prevobjectidx_ = idx; \
-	    foundactions; \
-	} \
+const DataObject* DataManager::getObject( const VisID& id ) const
+{
+    return mSelf().getObject( id );
+}
+
+
+DataObject* DataManager::getObject( const VisID& id )
+{
+    const int sz = nrObjects();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	RefMan<DataObject> dataobj = objects_[idx];
+	if ( dataobj && dataobj->id() == id )
+	    return dataobj.ptr();
     }
 
-
-DataObject* DataManager::getObject( VisID id )
-{
-    mSmartLinearSearch( id.asInt() < objects_[idx]->id().asInt(),
-			objects_[idx]->id()==id,
-			return objects_[idx] );
     return nullptr;
 }
 
@@ -105,18 +114,17 @@ bool DataManager::usePar( const IOPar& par )
 }
 
 
-
-const DataObject* DataManager::getObject( VisID id ) const
-{ return const_cast<DataManager*>(this)->getObject(id); }
-
-
 VisID DataManager::getID( const osg::Node* node ) const
 {
-    if ( node )
+    if ( !node )
+	return VisID::udf();
+
+    const int sz = nrObjects();
+    for ( int idx=0; idx<sz; idx++ )
     {
-	mSmartLinearSearch( false,
-			    objects_[idx]->osgNode(true)==node,
-			    return objects_[idx]->id() );
+	ConstRefMan<DataObject> dataobj = objects_[idx];
+	if ( dataobj->osgNode(true) == node )
+	    return dataobj->id();
     }
 
     return VisID::udf();
@@ -125,11 +133,13 @@ VisID DataManager::getID( const osg::Node* node ) const
 
 void DataManager::addObject( DataObject* obj )
 {
-    if ( objects_.indexOf(obj)==-1 )
-    {
-	objects_ += obj;
-	obj->setID( VisID(freeid_++) );
-    }
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
+    const int idx = objects_.indexOf( obj );
+    if ( objects_.validIdx(idx) )
+	return;
+
+    objects_ += obj;
+    obj->setID( VisID(freeid_++) );
 }
 
 
@@ -138,32 +148,49 @@ void DataManager::getIDs( const std::type_info& ti, TypeSet<VisID>& res ) const
     res.erase();
 
     const std::size_t tihash = ti.hash_code();
-    for ( const auto* obj : objects_ )
+    const int sz = nrObjects();
+    for ( int idx=0; idx<sz; idx++ )
     {
-	const std::type_info& objinfo = typeid(*obj);
+	ConstRefMan<DataObject> dataobj = objects_[idx];
+	if ( !dataobj )
+	    continue;
+
+	const std::type_info& objinfo = typeid(*dataobj);
 	if ( objinfo.hash_code() == tihash )
-	    res += obj->id();
+	    res += dataobj->id();
     }
 }
 
 
 void DataManager::removeObject( DataObject* dobj )
 {
-    mSmartLinearSearch( dobj->id().asInt() < objects_[idx]->id().asInt(),
-			objects_[idx]==dobj,
-			objects_.removeSingle(idx); return );
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
+    const int idx = objects_.indexOf( dobj );
+    if ( objects_.validIdx(idx) )
+	objects_.removeSingle( idx );
 }
 
 
 int DataManager::nrObjects() const
-{ return objects_.size(); }
-
-
-DataObject* DataManager::getIndexedObject( int idx )
-{ return idx>=0 && idx<nrObjects() ? objects_[idx] : 0; }
+{
+    const RefCount::WeakPtrSetBase::CleanupBlocker cleanupblock( objects_ );
+    return objects_.size();
+}
 
 
 const DataObject* DataManager::getIndexedObject( int idx ) const
-{ return const_cast<DataManager*>(this)->getIndexedObject(idx); }
+{
+    return mSelf().getIndexedObject( idx );
+}
+
+
+DataObject* DataManager::getIndexedObject( int idx )
+{
+    if ( !objects_.validIdx(idx) )
+	return nullptr;
+
+    RefMan<DataObject> dataobj = objects_[idx];
+    return dataobj.ptr();
+}
 
 } // namespace visBase

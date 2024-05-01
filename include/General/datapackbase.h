@@ -257,7 +257,7 @@ public:
 
     float			nrKBytes() const override;
     void			dumpInfo(StringPairSet&) const override;
-    void			setRandomLineID(RandomLineID);
+    void			setRandomLineID(const RandomLineID&);
     RandomLineID		getRandomLineID() const;
 
     int				getComponentIdx(const char* nm,

@@ -50,7 +50,7 @@ void StorageProvider::initClass()
 
 void StorageProvider::updateDesc( Desc& desc )
 {
-    updateDescAndGetCompNms( desc, 0 );
+    updateDescAndGetCompNms( desc, nullptr );
 }
 
 
@@ -221,7 +221,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	mErrRet( mscprov_->errMsg() )
 
     const bool is2d = mscprov_->is2D();
-    desc_.set2D( is2d );
+    getDesc().set2D( is2d );
     if ( !is2d )
 	SeisTrcTranslator::getRanges( mid, storedvolume_ );
     else
@@ -361,7 +361,7 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 
     curtrcinfo_ = 0;
     const SeisTrcInfo& newti = trc->info();
-    currentbid_ = desc_.is2D()? BinID( 0, newti.trcNr() ) : newti.binID();
+    currentbid_ = getDesc().is2D()? BinID( 0, newti.trcNr() ) : newti.binID();
     trcinfobid_ = newti.binID();
     if ( firstcheck || startpos.isUdf() || currentbid_==startpos
 	    || newti.binID() == startpos )
@@ -634,7 +634,7 @@ bool StorageProvider::checkDesiredVolumeOK()
 	return true;
 
     errmsg_ = tr("'%1' contains no data in selected area:\n")
-		.arg( desc_.userRef() );
+		.arg( getDesc().userRef() );
 
     if ( inlwrong )
 	errmsg_.append( tr( "Inline range is: %1-%2 [%3]\n")
@@ -670,7 +670,7 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
     if ( !desiredvolume_ )
     {
 	errmsg_ = tr("internal error, '%1' has no desired volume\n")
-		.arg( desc_.userRef() );
+		.arg( getDesc().userRef() );
 	return false;
     }
 
@@ -686,7 +686,7 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 
     setDataUnavailableFlag( true );
     errmsg_ = tr("'%1' contains no data in selected area:\n")
-		.arg( desc_.userRef() );
+		.arg( getDesc().userRef() );
     if ( trcrgwrong )
 	errmsg_.append( tr( "Trace range is: %1-%2\n")
 		      .arg( trcrg.start ).arg( trcrg.stop ) );
@@ -719,17 +719,17 @@ bool StorageProvider::computeData( const DataHolder& output,
 
 MultiID StorageProvider::getDBKey( const Desc* desc ) const
 {
-    const Desc* usedesc = desc ? desc : &desc_;
+    const Desc& usedesc = desc ? *desc : getDesc();
     const BufferString valstr(
-			    usedesc->getValParam(keyStr())->getStringValue(0) );
+			    usedesc.getValParam(keyStr())->getStringValue(0) );
     return MultiID( valstr.buf() );
 }
 
 
 DataPack::FullID StorageProvider::getDPID( const Desc* desc ) const
 {
-    const Desc* usedesc = desc ? desc : &desc_;
-    const MultiID dbky = getDBKey( usedesc );
+    const Desc& usedesc = desc ? *desc : getDesc();
+    const MultiID dbky = getDBKey( &usedesc );
     return dbky.isInMemoryDPID() ? dbky : DataPack::FullID::udf();
 }
 
@@ -741,7 +741,7 @@ SeisTrc* StorageProvider::getTrcFromPack( const BinID& relpos, int relidx) const
     if ( !stbdtp )
 	return nullptr;
 
-    int trcidx = stbdtp->trcBuf().find(currentbid_+relpos, desc_.is2D());
+    int trcidx = stbdtp->trcBuf().find(currentbid_+relpos, getDesc().is2D());
     if ( trcidx+relidx >= stbdtp->trcBuf().size() || trcidx+relidx<0 )
 	return nullptr;
 
@@ -789,7 +789,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	for ( int sampidx=0; sampidx<data.nrsamples_; sampidx++ )
 	{
 	    const float curt = (float)(z0+sampidx)*refstep_ + extrazfromsamppos;
-	    const int compnr = desc_.is2D() ? idx : compidx;
+	    const int compnr = getDesc().is2D() ? idx : compidx;
 	    const float val = trcrange.includes(curt,false) ?
 		(isclss ? trc->get(trc->nearestSample(curt),compnr)
 		 : trc->getValue(curt,compnr)) : mUdf(float);
@@ -854,7 +854,7 @@ void StorageProvider::adjust2DLineStoredVolume()
 
 Pos::GeomID StorageProvider::getGeomID() const
 {
-    if ( geomid_.isUdf() && desc_.is2D() && mscprov_ )
+    if ( geomid_.isUdf() && getDesc().is2D() && mscprov_ )
 	return mscprov_->reader().geomID();
 
     return geomid_;
@@ -970,7 +970,7 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
 
 void StorageProvider::getCompNames( BufferStringSet& nms ) const
 {
-    updateDescAndGetCompNms( desc_, &nms );
+    updateDescAndGetCompNms( mSelf().getDesc(), &nms );
 }
 
 

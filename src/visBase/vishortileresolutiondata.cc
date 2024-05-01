@@ -61,8 +61,8 @@ TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
     , linecolor_(new osg::Vec4Array)
     , resolution_(resolution)
 {
-    geodes_->ref();
-    osgswitch_->ref();
+    refOsgPtr( geodes_ );
+    refOsgPtr( osgswitch_ );
     const HorizonSection& section = sectile_->hrsection_;
     const int spacing = section.spacing_[resolution_];
     if ( spacing>=0 )
@@ -72,7 +72,7 @@ TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
 	(int)section.nrcoordspertileside_/spacing +1 ;
     }
 
-    HorizonSectionTile* tile = const_cast<HorizonSectionTile*>( sectile_ );
+    auto* tile = const_cast<HorizonSectionTile*>( sectile_ );
     normals_ = tile->getNormals();
     osgvertices_ = tile->getOsgVertexArray();
     buildOsgGeometres();
@@ -82,8 +82,8 @@ TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
 TileResolutionData::~TileResolutionData()
 {
     unRefOsgPrimitiveSets();
-    geodes_->unref();
-    osgswitch_->unref();
+    unRefOsgPtr( geodes_ );
+    unRefOsgPtr( osgswitch_ );
 }
 
 
@@ -299,11 +299,11 @@ static void addClockwiseTriangleIndexes( osg::DrawElementsUShort* geomps,
     {
 	const int lastidx = geomps->index( pssize-1 );
 	if ( lastidx==idx0 && geomps->index(pssize-2)==idx1 )
-    	    geomps->push_back( idx2 );
+	    geomps->push_back( idx2 );
 	else if ( lastidx==idx1 && geomps->index(pssize-2)==idx2 )
-    	    geomps->push_back( idx0 );
+	    geomps->push_back( idx0 );
 	else if ( lastidx==idx2 && geomps->index(pssize-2)==idx0 )
-    	    geomps->push_back( idx1 );
+	    geomps->push_back( idx1 );
 	else
 	{
 	    continuestrip = false;

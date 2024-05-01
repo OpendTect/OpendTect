@@ -9,19 +9,24 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "viscoord.h"
+
 #include "draw.h"
+#include "emfault.h"
+#include "viscoord.h"
+#include "visevent.h"
+#include "vismarkerset.h"
+#include "vissurvscene.h"
+#include "vistransform.h"
+#include "zaxistransform.h"
 
 namespace EM
 {
-    class Fault;
     class FaultStickSet;
 }
 
 namespace visBase
 {
     class MarkerSet;
-    class EventCatcher;
     class Transformation;
     class PolygonSelection;
 }
@@ -29,17 +34,13 @@ namespace visBase
 namespace Geometry { class FaultStickSet; }
 namespace Survey { class Geometry3D; }
 
-class ZAxisTransform;
-
 namespace visSurvey
 {
-class Scene;
 
 mExpClass(visSurvey) StickSetDisplay
 {
 public:
-				StickSetDisplay(bool);
-				~StickSetDisplay();
+
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
     void			polygonSelectionCB();
@@ -57,28 +58,32 @@ public:
 
 
 protected:
+				StickSetDisplay(bool isfss);
+    virtual			~StickSetDisplay();
+
     Geometry::FaultStickSet*	faultStickSetGeometry();
     void			stickSelectionCB(CallBacker*,
 						 const Survey::Geometry3D*);
-    void			setCurScene( visSurvey::Scene* scene )
-					   { ownerscene_ = scene; }
-    const visSurvey::Scene*	getCurScene() { return ownerscene_; }
+    void			setCurScene(Scene*);
+    ConstRefMan<Scene>		getCurScene() const;
+    RefMan<Scene>		getCurScene();
     bool			matchMarker(int,const Coord3,const Coord3,
 					    const Coord3);
-    EM::Fault*			fault_;
-    const mVisTrans*		displaytransform_;
-    bool			ctrldown_;
-    bool			showmanipulator_;
-    bool			stickselectmode_;
-    bool			displaysticks_;
-    bool			hideallknots_;
-    bool			faultstickset_;
-    bool			pickmarker_;
-    visSurvey::Scene*		ownerscene_;
-    visBase::EventCatcher*	eventcatcher_;
-    ZAxisTransform*		zaxistransform_		= nullptr;
 
-    ObjectSet<visBase::MarkerSet>   knotmarkersets_;
+    RefMan<EM::Fault>		fault_;
+    ConstRefMan<mVisTrans>	displaytransform_;
+    bool			faultstickset_;
+    bool			ctrldown_		= false;
+    bool			showmanipulator_	= false;
+    bool			stickselectmode_	= false;
+    bool			displaysticks_		= false;
+    bool			hideallknots_		= true;
+    bool			pickmarker_		= false;
+    WeakPtr<Scene>		ownerscene_;
+    RefMan<visBase::EventCatcher> eventcatcher_;
+    RefMan<ZAxisTransform>	zaxistransform_;
+
+    RefObjectSet<visBase::MarkerSet> knotmarkersets_;
     struct StickIntersectPoint
     {
 	Coord3			pos_;

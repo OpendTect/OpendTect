@@ -9,14 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
 #include "emposid.h"
 #include "keyenum.h"
+#include "visevent.h"
 #include "visobject.h"
+#include "vispolyline.h"
+#include "vistransform.h"
 
 
 class TrcKeySampling;
-
-namespace visBase { class PolyLine; };
 
 namespace visSurvey
 {
@@ -27,8 +29,7 @@ mExpClass(visSurvey) Sower : public visBase::VisualObjectImpl
 {
 
 public:
-			Sower(const visBase::VisualObjectImpl* =nullptr);
-			~Sower();
+			Sower(visBase::VisualObjectImpl* =nullptr);
 
     void		setDisplayTransformation(const mVisTrans*) override;
     void		setEventCatcher(visBase::EventCatcher*);
@@ -36,7 +37,7 @@ public:
     enum		SowingMode { Lasering=-2, Erasing=-1, Idle=0,
 				     Furrowing, FirstSowing, SequentSowing };
 
-    SowingMode		mode()				{ return mode_; }
+    SowingMode		mode() const	{ return mode_; }
 
     void		reInitSettings();
 
@@ -61,12 +62,13 @@ public:
     bool		accept(const visBase::EventInfo&);
 
     bool		activate(const OD::Color&,const visBase::EventInfo&,
-				 VisID underlyingobjid=VisID::udf(),
-				 const TrcKeySampling* workrange=0);
+				 const VisID& underlyingobjid=VisID::udf(),
+				 const TrcKeySampling* workrange=nullptr);
     Notifier<Sower>	sowingend;
     Notifier<Sower>	sowing;
 
 protected:
+			~Sower();
 
     bool		isInWorkRange(const visBase::EventInfo&) const ;
     void		tieToWorkRange(const visBase::EventInfo&);
@@ -81,15 +83,15 @@ protected:
 
     void		reset();
 
-    const visBase::VisualObjectImpl*	editobject_;
-    visBase::EventCatcher*		eventcatcher_;
-    const mVisTrans*			transformation_;
-    visBase::PolyLine*			sowingline_;
-    bool				linelost_;
-    SowingMode				mode_;
+    WeakPtr<visBase::VisualObjectImpl>	editobject_;
+    RefMan<visBase::EventCatcher>	eventcatcher_;
+    ConstRefMan<mVisTrans>		transformation_;
+    RefMan<visBase::PolyLine>		sowingline_;
+    bool				linelost_ = false;
+    SowingMode				mode_			= Idle;
     ObjectSet<visBase::EventInfo>	eventlist_;
     VisID				underlyingobjid_;
-    TrcKeySampling*			workrange_;
+    TrcKeySampling*			workrange_		= nullptr;
     TypeSet<Coord>			mousecoords_;
     TypeSet<int>			bendpoints_;
 
@@ -103,14 +105,12 @@ protected:
     OD::ButtonState			lasermask_;
     OD::ButtonState			erasermask_;
 
-    bool				singleseeded_;
+    bool				singleseeded_ = true;
 
     EM::PosID				curpid_;
-    int					curpidstamp_;
+    int					curpidstamp_		= mUdf(int);
 
     int					furrowstamp_;
 };
-
-
 
 } // namespace visSurvey

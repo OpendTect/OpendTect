@@ -9,31 +9,33 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "visobject.h"
-#include "vissurvobj.h"
 
 #include "attribsel.h"
 #include "datapointset.h"
+#include "emmarchingcubessurface.h"
 #include "emposid.h"
-
+#include "visgeomindexedshape.h"
+#include "vismarchingcubessurface.h"
+#include "visobject.h"
+#include "vissurvobj.h"
+#include "vistransform.h"
 
 namespace Geometry { class ExplicitIndexedShape; }
-namespace EM { class MarchingCubesSurface; class ImplicitBody; }
-namespace visBase { class GeomIndexedShape; class MarchingCubesSurface;
-		    class Transformation; };
+namespace EM { class ImplicitBody; }
 
 namespace visSurvey
 {
 
-mExpClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl,
-			      public visSurvey::SurveyObject
+mExpClass(visSurvey) MarchingCubesDisplay : public visBase::VisualObjectImpl
+					  , public SurveyObject
 { mODTextTranslationClass(MarchingCubesDisplay);
 public:
 			    MarchingCubesDisplay();
+
 			    mDefaultFactoryInstantiation(
-				visSurvey::SurveyObject,MarchingCubesDisplay,
-				 "MarchingCubesDisplay",
-				 ::toUiString(sFactoryKeyword()) );
+				SurveyObject, MarchingCubesDisplay,
+				"MarchingCubesDisplay",
+				::toUiString(sFactoryKeyword()) )
 
     MultiID			getMultiID() const override;
     bool			isInlCrl() const override	{ return true; }
@@ -88,12 +90,11 @@ public:
 
     void			getRandomPos(DataPointSet&,
 					     TaskRunner*) const override;
-    void			setRandomPosData(int attrib,
-						    const DataPointSet*,
-						    TaskRunner*) override;
+    void			setRandomPosData(int attrib,const DataPointSet*,
+						 TaskRunner*) override;
     DataPackID			getDataPackID(int attrib) const override;
     DataPackID			getDisplayedDataPackID(
-						int attrib )const override;
+						int attrib) const override;
     DataPackMgr::MgrID		getDataPackMgrID() const override
 				{ return DataPackMgr::PointID(); }
 
@@ -107,13 +108,13 @@ public:
 				{ return true; }
     void			removeSelection(const Selector<Coord3>&,
 						TaskRunner*);
-    EM::MarchingCubesSurface*	getMCSurface() const { return emsurface_; }
-    visBase::MarchingCubesSurface* getDisplaySurface() const
-						{ return displaysurface_; }
+    const EM::MarchingCubesSurface* getMCSurface() const
+				{ return emsurface_.ptr(); }
+    const visBase::MarchingCubesSurface* getDisplaySurface() const
+				{ return displaysurface_.ptr(); }
 
 protected:
-
-    virtual			~MarchingCubesDisplay();
+				~MarchingCubesDisplay();
 
     bool			updateVisFromEM(bool onlyshape,TaskRunner*);
     void			fillPar(IOPar&) const override;
@@ -127,7 +128,7 @@ protected:
 					uiString& info) const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					VisID whichobj) override;
+					const VisID& whichobj) override;
     void			updateIntersectionDisplay();
     void			updateSingleColor();
 
@@ -137,10 +138,9 @@ protected:
     static const char*	sKeyColTabSequence()	{ return "Coltab sequence"; }
     static const char*	sKeyUseTexture()	{ return "Use texture"; }
 
-    visBase::MarchingCubesSurface*		displaysurface_	= nullptr;
-    EM::MarchingCubesSurface*			emsurface_	= nullptr;
-    Attrib::SelSpec				selspec_; // Not used
-    RefObjectSet<DataPointSet>			cache_;
+    RefMan<visBase::MarchingCubesSurface>	displaysurface_;
+    RefMan<EM::MarchingCubesSurface>		emsurface_;
+    RefObjectSet<DataPointSet>			datapacks_;
     TypeSet<Attrib::SelSpec>			selspecs_;
 
     bool					isattribenabled_ = true;
@@ -153,20 +153,19 @@ protected:
 						PlaneIntersectInfo();
 						~PlaneIntersectInfo();
 
-	visBase::GeomIndexedShape*		visshape_;
+	RefMan<visBase::GeomIndexedShape>	visshape_;
 	Geometry::ExplicitIndexedShape*		shape_;
 
 	VisID					planeid_;
-	char					planeorientation_;
-	float					planepos_;
+	char					planeorientation_ = -1;
+	float					planepos_	= mUdf(float);
 
-	bool					computed_;
+	bool					computed_	= false;
     };
 
     ObjectSet<PlaneIntersectInfo>		intsinfo_;
-    visBase::Transformation*			model2displayspacetransform_
-								= nullptr;
-    const mVisTrans*				intersectiontransform_ =nullptr;
+    RefMan<visBase::Transformation>		model2displayspacetransform_;
+    ConstRefMan<mVisTrans>			intersectiontransform_;
 
 public:
     void			displayIntersections(bool yn)

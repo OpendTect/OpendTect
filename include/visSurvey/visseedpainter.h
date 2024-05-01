@@ -9,15 +9,18 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
 #include "geometry.h"
 #include "keyenum.h"
+#include "visevent.h"
+#include "vispolyline.h"
 #include "visobject.h"
+#include "vistransform.h"
 
 
 class TrcKeyZSampling;
 
 namespace Pick { class Set; class Location; class SetMgr; }
-namespace visBase { class PolyLine; };
 
 namespace visSurvey
 {
@@ -32,11 +35,9 @@ mExpClass(visSurvey) SeedPainter : public visBase::VisualObjectImpl
 
 public:
 			SeedPainter();
-			~SeedPainter();
 
     void		setSet(Pick::Set*);
     void		setSetMgr(Pick::SetMgr*);
-
 
     void		setDisplayTransformation(const mVisTrans*) override;
     void		setEventCatcher( visBase::EventCatcher* );
@@ -52,6 +53,7 @@ public:
     static int		radius();
 
 protected:
+			~SeedPainter();
 
     void		eventCB(CallBacker*);
     void		reset();
@@ -87,10 +89,10 @@ protected:
     void		eraseSeedsOn2DLine(const Seis2DDisplay*,
 					   const visBase::EventInfo& curev);
 
-    visBase::EventCatcher*		eventcatcher_;
-    const mVisTrans*			transformation_;
-    visBase::PolyLine*			circle_;
-    visBase::EventInfo*			prevev_;
+    ConstRefMan<mVisTrans>		transformation_;
+    visBase::EventInfo*			prevev_		= nullptr;
+    RefMan<visBase::EventCatcher>	eventcatcher_;
+    RefMan<visBase::PolyLine>		circle_;
 
     bool				active_ = false;
     bool				isleftbutpressed_ = false;

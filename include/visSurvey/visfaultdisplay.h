@@ -9,26 +9,26 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "vismultiattribsurvobj.h"
-#include "visemsticksetdisplay.h"
 
+#include "datapointset.h"
 #include "emposid.h"
 #include "explfaultsticksurface.h"
+#include "faulteditor.h"
 #include "ranges.h"
-
-class DataPointSet;
-class ZAxisTransform;
+#include "visdrawstyle.h"
+#include "visgeomindexedshape.h"
+#include "visemsticksetdisplay.h"
+#include "vismpeeditor.h"
+#include "vismultiattribsurvobj.h"
+#include "vispolyline.h"
+#include "zaxistransform.h"
 
 namespace visBase
 {
-    class GeomIndexedShape;
     class Transformation;
-    class PolyLine3D;
-    class DrawStyle;
 }
 
 namespace EM { class Fault3D; }
-namespace MPE { class FaultEditor; }
 namespace Geometry
 {
     class ExplPlaneIntersection;
@@ -39,7 +39,6 @@ template <class T > class Array2D;
 
 namespace visSurvey
 {
-class MPEEditor;
 class HorizonDisplay;
 
 /*!\brief
@@ -54,9 +53,9 @@ public:
 				FaultDisplay();
 
 				mDefaultFactoryInstantiation(
-				visSurvey::SurveyObject,FaultDisplay,
+				SurveyObject, FaultDisplay,
 				"FaultDisplay",
-				toUiString(sFactoryKeyword()));
+				::toUiString(sFactoryKeyword()) )
 
     MultiID			getMultiID() const override;
     bool			isInlCrl() const override { return false; }
@@ -157,7 +156,7 @@ public:
     bool			canBDispOn2DViewer() const override
 				{ return false; }
     DataPackID			addDataPack(const DataPointSet&) const;
-    bool			setDataPackID(int attrib,DataPackID,
+    bool			setDataPackID(int attrib,const DataPackID&,
 					      TaskRunner*) override;
     DataPackID			getDataPackID(int attrib) const override;
     DataPackID			getDisplayedDataPackID(int attr) const override;
@@ -166,7 +165,7 @@ public:
 
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>& objs,
-				    VisID whichobj)
+				    const VisID& whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
 
     EM::Fault3D*		emFault();
@@ -196,7 +195,7 @@ protected:
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj) override;
+				    const VisID& whichobj) override;
     void			setRandomPosDataInternal(int attrib,
 							 const DataPointSet*,
 							 int column,
@@ -229,7 +228,7 @@ protected:
 
     void			setActiveStick(const EM::PosID&);
     void			updateActiveStickMarker();
-    void			updateHorizonIntersections(VisID whichobj,
+    void			updateHorizonIntersections(const VisID& which,
 					const ObjectSet<const SurveyObject>&);
     void			updateEditorMarkers();
 
@@ -248,45 +247,45 @@ protected:
     bool			onSection(int sticknr);
     void			showActiveStickMarker();
 
-    int					voiid_;
+    int					voiid_ = -1;
 
-    visBase::GeomIndexedShape*		paneldisplay_		= nullptr;
+    RefMan<visBase::GeomIndexedShape>	paneldisplay_;
     Geometry::ExplFaultStickSurface*	explicitpanels_		= nullptr;
 
-    visBase::GeomIndexedShape*		stickdisplay_		= nullptr;
+    RefMan<visBase::GeomIndexedShape>	stickdisplay_;
     Geometry::ExplFaultStickSurface*	explicitsticks_		= nullptr;
 
-    visBase::GeomIndexedShape*		intersectiondisplay_	= nullptr;
+    RefMan<visBase::GeomIndexedShape>	intersectiondisplay_;
     Geometry::ExplPlaneIntersection*	explicitintersections_	= nullptr;
     ObjectSet<const SurveyObject>	intersectionobjs_;
     TypeSet<int>			planeids_;
 
-    ObjectSet<visBase::GeomIndexedShape> horintersections_;
+    RefObjectSet<visBase::GeomIndexedShape> horintersections_;
     ObjectSet<Geometry::ExplFaultStickSurface>	horshapes_;
     TypeSet<VisID>			horintersectids_;
     bool				displayintersections_	    = false;
     bool				displayhorintersections_    = false;
 
-    visBase::PolyLine3D*		activestickmarker_;
-    int					activestick_;
+    RefMan<visBase::PolyLine3D>		activestickmarker_;
+    int					activestick_	= mUdf(int);
 
-    MPE::FaultEditor*			faulteditor_		    = nullptr;
-    visSurvey::MPEEditor*		viseditor_		    = nullptr;
+    RefMan<MPE::FaultEditor>		faulteditor_;
+    RefMan<MPEEditor>			viseditor_;
 
     Coord3				mousepos_;
 
-    TypeSet<DataPackID>			datapackids_;
+    RefObjectSet<DataPointSet>		datapacks_;
 
     OD::Color				nontexturecol_;
 
-    bool				displaypanels_		    = true;
+    bool				displaypanels_ = true;
 
     ObjectSet<Array2D<float> >		texuredatas_;
 
-    visBase::DrawStyle*			drawstyle_;
-    bool				otherobjects_		    = false;
-    bool				endstick_		    = false;
-    EM::PosID				activestickid_	= EM::PosID::udf();
+    RefMan<visBase::DrawStyle>		drawstyle_;
+    bool				otherobjects_		= false;
+    bool				endstick_		= false;
+    EM::PosID				activestickid_ = EM::PosID::udf();
 
     static const char*			sKeyTriProjection();
     static const char*			sKeyEarthModelID();

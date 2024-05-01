@@ -21,9 +21,9 @@ namespace visBase
 {
 
 Image::Image()
-    : texture_( new SoTexture2 )
+    : texture_(new SoTexture2)
 {
-    texture_->ref();
+    refOsgPtr( texture_ );
 
     texture_->wrapS = SoTexture2::CLAMP;
     texture_->wrapT = SoTexture2::CLAMP;
@@ -33,7 +33,7 @@ Image::Image()
 
 Image::~Image()
 {
-    texture_->unref();
+    unRefOsgPtr( texture_ );
 }
 
 

@@ -532,9 +532,10 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 {
     if ( ads_->is2D() )
     {
-	const Desc* desc = ads_->getDesc( attrfld_->attribID() );
+	ConstRefMan<Desc> desc = ads_->getDesc( attrfld_->attribID() );
 	if ( !desc )
 	    desc = ads_->getFirstStored();
+
 	if ( desc )
 	{
 	    const MultiID key( desc->getStoredID(true).buf() );

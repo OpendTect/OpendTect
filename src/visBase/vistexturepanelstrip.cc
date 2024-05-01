@@ -8,8 +8,9 @@ ________________________________________________________________________
 -*/
 
 #include "vistexturepanelstrip.h"
-#include "vistexturechannels.h"
+
 #include "odversion.h"
+#include "vistexturechannels.h"
 
 #include <osgGeo/LayeredTexture>
 #include <osgGeo/TexturePanelStrip>
@@ -21,24 +22,26 @@ namespace visBase
 {
 
 TexturePanelStrip::TexturePanelStrip()
-    : VisualObjectImpl( false )
-    , osgpanelstrip_( new osgGeo::TexturePanelStripNode )
-    , pathcoords_( new TypeSet<Coord> )
-    , pathtexoffsets_( new TypeSet<float> )
+    : VisualObjectImpl(false)
+    , osgpanelstrip_(new osgGeo::TexturePanelStripNode)
+    , pathcoords_(new TypeSet<Coord>)
+    , pathtexoffsets_(new TypeSet<float>)
 {
-    osgpanelstrip_->ref();
+    ref();
+    refOsgPtr( osgpanelstrip_ );
     addChild( osgpanelstrip_ );
     // osgpanelstrip_->toggleTilingMode();	// for testing purposes only
+    unRefNoDelete();
 }
 
 
 TexturePanelStrip::~TexturePanelStrip()
 {
-    osgpanelstrip_->unref();
+    unRefOsgPtr( osgpanelstrip_ );
 }
 
 
-void TexturePanelStrip::setTextureChannels( visBase::TextureChannels* channels )
+void TexturePanelStrip::setTextureChannels( TextureChannels* channels )
 {
     channels_ = channels;
     osgpanelstrip_->setTexture( channels_->getOsgTexture() );
@@ -48,8 +51,10 @@ void TexturePanelStrip::setTextureChannels( visBase::TextureChannels* channels )
 }
 
 
-visBase::TextureChannels* TexturePanelStrip::getTextureChannels()
-{ return channels_; }
+TextureChannels* TexturePanelStrip::getTextureChannels()
+{
+    return channels_.ptr();
+}
 
 
 void TexturePanelStrip::freezeDisplay( bool yn )
@@ -250,10 +255,12 @@ bool TexturePanelStrip::getTextureDataInfo( int tidx,
 }
 
 
-bool TexturePanelStrip::getTextureInfo( int& width, int& height, int& pixsize )
+bool TexturePanelStrip::getTextureInfo( int& width, int& height,
+					int& pixsize ) const
 {
     const osg::Image* image = osgpanelstrip_->getCompositeTextureImage();
-    if ( !image ) return false;
+    if ( !image )
+	return false;
 
     width = image->s();
     height = image->t();

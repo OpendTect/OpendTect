@@ -9,16 +9,17 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
+
 #include "factory.h"
-#include "datapack.h"
+#include "seisdatapack.h"
 #include "sets.h"
 #include "uistring.h"
 
 class BinIDValueSet;
-class TrcKeyZSampling;
 class LineKey;
 class SeisTrcBuf;
 class TaskRunner;
+class TrcKeyZSampling;
 
 
 namespace Attrib
@@ -40,13 +41,16 @@ public:
 				/*!<\returns if this object can
 				     compute it or not. */
 
-    virtual DataPackID		createAttrib(const TrcKeyZSampling&,
-					     DataPackID, TaskRunner*);
+    virtual ConstRefMan<RegularSeisDataPack>
+				createAttrib(const TrcKeyZSampling&,
+					     const RegularSeisDataPack* prevdp,
+					     TaskRunner*);
+    virtual ConstRefMan<RegularSeisDataPack>
+				createAttrib(const TrcKeyZSampling&,
+					     TaskRunner*);
     virtual bool		createAttrib(ObjectSet<BinIDValueSet>&,
 					     TaskRunner*);
-    virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&,
-					     TaskRunner*);
-    virtual DataPackID		createAttrib(const TrcKeyZSampling&,
+    virtual bool		createAttrib(const BinIDValueSet&,SeisTrcBuf&,
 					     TaskRunner*);
 
     virtual bool		isIndexes() const	{ return false; }

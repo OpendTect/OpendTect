@@ -18,11 +18,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "uistrings.h"
 #include "visdataman.h"
-#include "visevent.h"
-#include "vismarkerset.h"
 #include "vismaterial.h"
-#include "vistransform.h"
-
 #include "welldisp.h"
 #include "wellman.h"
 #include "welllog.h"
@@ -30,7 +26,6 @@ ________________________________________________________________________
 #include "welltrack.h"
 #include "wellmarker.h"
 #include "welld2tmodel.h"
-#include "zaxistransform.h"
 
 #define	mPickSz	3
 #define	mPickType 3
@@ -56,27 +51,25 @@ const char* WellDisplay::sKeyEarthModelID	= "EarthModel ID";
 const char* WellDisplay::sKeyWellID		= "Well ID";
 
 WellDisplay::WellDisplay()
-    : VisualObjectImpl(true)
+    : visBase::VisualObjectImpl(true)
     , changed_(this)
-    , zistime_( SI().zIsTime() )
-    , zinfeet_( SI().zInFeet() )
+    , zistime_(SI().zIsTime())
+    , zinfeet_(SI().zInFeet())
 {
+    ref();
     setMaterial( nullptr );
-    setWell( visBase::Well::create() );
+    RefMan<visBase::Well> viswell = visBase::Well::create();
+    setWell( viswell.ptr() );
+    unRefNoDelete();
 }
 
 
 WellDisplay::~WellDisplay()
 {
     detachAllNotifiers();
-    setZAxisTransform( nullptr, nullptr );
     removeChild( well_->osgNode() );
-    unRefPtr( well_ );
-    setSceneEventCatcher( nullptr );
-    unRefPtr( transformation_ );
-
+    well_ = nullptr;
     delete dispprop_;
-    unRefPtr( markerset_ );
     delete pseudotrack_;
     delete timetrack_;
 }
@@ -88,7 +81,7 @@ RefMan<Well::Data> WellDisplay::getWD( const Well::LoadReqs& reqs ) const
     Well::Man& wllmgr = Well::MGR();
     if ( !wd_ )
     {
-	WellDisplay* self = const_cast<WellDisplay*>( this );
+	auto* self = const_cast<WellDisplay*>( this );
 	lreqs.includes( Well::DispProps3D );
 	const bool isloaded = wllmgr.isLoaded( wellid_ );
 	if ( isloaded )
@@ -106,6 +99,7 @@ RefMan<Well::Data> WellDisplay::getWD( const Well::LoadReqs& reqs ) const
 			   .ensureColorContrastWith( getBackgroundColor() );
 		}
 	    }
+
 	    attachCB( wd_->trackchanged, mCB(self,WellDisplay,fullRedraw) );
 	    attachCB( wd_->reloaded, mCB(self,WellDisplay,fullRedraw) );
 	    attachCB( wd_->markerschanged,mCB(self,WellDisplay,updateMarkers));
@@ -144,13 +138,11 @@ void WellDisplay::restoreDispProp()
 void WellDisplay::setWell( visBase::Well* well )
 {
     if ( well_ )
-    {
 	removeChild( well_->osgNode() );
-	well_->unRef();
-    }
+
     well_ = well;
-    well_->ref();
-    addChild( well_->osgNode() );
+    if ( well_ )
+	addChild( well_->osgNode() );
 }
 
 
@@ -220,11 +212,13 @@ void WellDisplay::fillLogParams(
 void WellDisplay::fullRedraw( CallBacker* )
 {
     mGetWD(return);
-    if ( !well_ ) return;
+    if ( !well_ )
+	return;
 
     TypeSet<Coord3> trackpos;
     getTrackPos( wd, trackpos );
-    if ( trackpos.isEmpty() ) return;
+    if ( trackpos.isEmpty() )
+	return;
 
     visBase::Well::TrackParams tp;
     fillTrackParams( tp );
@@ -434,12 +428,12 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     if ( !wd )
 	return;
 
-    if (wd->track().size() < 2)
+    if ( wd->track().size() < 2 )
 	return;
 
     const Well::Log& curlog = *wd->getLog( lp.name_ );
     const BufferString lognm = curlog.name();
-    StepInterval<float> dahrg = curlog.dahRange();
+    ZSampling dahrg = curlog.dahRange();
     dahrg.step = curlog.dahStep( true );
     const float lognrsamples = dahrg.nrfSteps();
 
@@ -510,7 +504,6 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     lp.valfillrange_ .set( minvalF, maxvalF );
     lp.valrange_.set( minval, maxval );
     well_->setLogData( crdvals,crdvalsF,lp,isfilled );
-
 }
 
 
@@ -528,7 +521,9 @@ void WellDisplay::setLogDisplay( visBase::Well::Side side )
 	return;
 
     const BufferString& logname = mGetLogPar( side, name_ );
-    if ( wd->logs().isEmpty() ) return;
+    if ( wd->logs().isEmpty() )
+	return;
+
     const int logidx = wd->logs().indexOf( logname );
     if ( logidx<0 )
     {
@@ -736,14 +731,7 @@ void WellDisplay::setDisplayTransformation( const mVisTrans* nt )
      if ( transformation_==nt  )
 	return;
 
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_ = nt;
-
-    if ( transformation_ )
-	transformation_->ref();
-
     well_->setDisplayTransformation( transformation_ );
     setDisplayTransformForPicks( transformation_ );
     fullRedraw( nullptr );
@@ -827,7 +815,8 @@ void WellDisplay::removePick( const visBase::EventInfo& evinfo )
 }
 
 
-void WellDisplay::addPick( const visBase::EventInfo& eventinfo, VisID eventid )
+void WellDisplay::addPick( const visBase::EventInfo& eventinfo,
+			   const VisID& eventid )
 {
     const int sz = eventinfo.pickedobjids.size();
     bool validpicksurface = false;
@@ -848,7 +837,9 @@ void WellDisplay::addPick( const visBase::EventInfo& eventinfo, VisID eventid )
 
     Coord3 newpos = eventinfo.worldpickedpos;
     mDynamicCastGet(SurveyObject*,so,visBase::DM().getObject(eventid))
-    if ( so ) so->snapToTracePos( newpos );
+    if ( so )
+	so->snapToTracePos( newpos );
+
     addPick( newpos );
 }
 
@@ -909,18 +900,12 @@ void WellDisplay::setDisplayTransformForPicks( const mVisTrans* newtr )
 void WellDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 {
     if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.remove(mCB(this,WellDisplay,pickCB));
-	eventcatcher_->unRef();
-    }
+	mDetachCB( eventcatcher_->eventhappened, WellDisplay::pickCB );
 
     eventcatcher_ = nevc;
 
     if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.notify(mCB(this,WellDisplay,pickCB));
-	eventcatcher_->ref();
-    }
+	mAttachCB( eventcatcher_->eventhappened, WellDisplay::pickCB );
 }
 
 
@@ -930,10 +915,10 @@ void WellDisplay::setupPicking( bool yn )
     if ( !markerset_ )
     {
 	markerset_ = visBase::MarkerSet::create();
-	refPtr( markerset_ );
 	setDisplayTransformForPicks( transformation_ );
 	addChild( markerset_->osgNode() );
-	markerset_->setMaterial( new visBase::Material );
+	RefMan<visBase::Material> newmat = visBase::Material::create();
+	markerset_->setMaterial( newmat.ptr() );
 	MarkerStyle3D markerstyle;
 	markerstyle.size_ = mPickSz;
 	markerstyle.type_ = (MarkerStyle3D::Type) mPickSz;
@@ -980,23 +965,14 @@ bool WellDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     if ( datatransform_==zat )
 	return true;
 
-    if ( datatransform_ )
-    {
-	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->remove(
-		mCB(this,WellDisplay,dataTransformCB) );
-	datatransform_->unRef();
-    }
+    if ( datatransform_ && datatransform_->changeNotifier() )
+	mDetachCB( *datatransform_->changeNotifier(),
+		   WellDisplay::dataTransformCB );
 
     datatransform_ = zat;
-    if ( datatransform_ )
-    {
-	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->notify(
-		mCB(this,WellDisplay,dataTransformCB) );
-
-	datatransform_->ref();
-    }
+    if ( datatransform_ && datatransform_->changeNotifier() )
+	mAttachCB( *datatransform_->changeNotifier(),
+		   WellDisplay::dataTransformCB );
 
     if ( well_ )
 	well_->setZAxisTransform( zat, tr );
@@ -1008,7 +984,7 @@ bool WellDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 
 const ZAxisTransform* WellDisplay::getZAxisTransform() const
 {
-    return datatransform_;
+    return datatransform_.ptr();
 }
 
 
@@ -1021,7 +997,7 @@ void WellDisplay::dataTransformCB( CallBacker* )
 void WellDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
-    visSurvey::SurveyObject::fillPar( par );
+    SurveyObject::fillPar( par );
 
     par.set( sKeyWellID, wellid_ );
 
@@ -1033,9 +1009,8 @@ void WellDisplay::fillPar( IOPar& par ) const
 
 bool WellDisplay::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) ||
-	  !visSurvey::SurveyObject::usePar( par ) )
-	  return false;
+    if ( !visBase::VisualObjectImpl::usePar(par) || !SurveyObject::usePar(par) )
+	return false;
 
     MultiID newmid;
     if ( !par.get(sKeyWellID,newmid) )
@@ -1059,9 +1034,9 @@ bool WellDisplay::usePar( const IOPar& par )
 void WellDisplay::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
-
     if ( markerset_ )
 	markerset_->setPixelDensity( dpi );
+
     if ( well_ )
 	well_->setPixelDensity( dpi );
 }

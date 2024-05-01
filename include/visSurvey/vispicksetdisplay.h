@@ -9,12 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "trigonometry.h"
-#include "vislocationdisplay.h"
 
-namespace visBase { class MarkerSet; class PolyLine;
-		    class DrawStyle; class RandomPos2Body;
-		    class Dragger; class PolyLine3D; }
+#include "trigonometry.h"
+#include "visdragger.h"
+#include "vislocationdisplay.h"
+#include "vismarkerset.h"
+#include "vispolyline.h"
+#include "visrandompos2body.h"
+
 
 namespace visSurvey
 {
@@ -31,10 +33,11 @@ mExpClass(visSurvey) PickSetDisplay : public LocationDisplay
 public:
 
 				PickSetDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PickSetDisplay,
+				    SurveyObject, PickSetDisplay,
 				    "PickSetDisplay",
-				    toUiString(sFactoryKeyword()))
+				    ::toUiString(sFactoryKeyword()) )
 
     void			setSet(Pick::Set*) override;
     bool			isPolygon() const;
@@ -46,7 +49,8 @@ public:
     bool			isBodyDisplayed() const;
 
     bool			setBodyDisplay();
-    visBase::RandomPos2Body*	getDisplayBody() const	{ return bodydisplay_; }
+    const visBase::RandomPos2Body* getDisplayBody() const
+				{ return bodydisplay_.ptr(); }
 
     void			getPickingMessage(BufferString&) const override;
 
@@ -82,7 +86,6 @@ protected:
     void			removeAll() override;
     void			redrawMultiSets() override;
 
-
     void			setPolylinePos(int,const Coord3&);
     void			removePolylinePos(int);
 
@@ -98,9 +101,8 @@ protected:
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID) override;
+				    const VisID&) override;
     void			updateDragger() override;
-    visBase::MarkerSet*		createOneMarker() const;
 
     void			turnOnSelectionMode(bool) override;
     void			polygonFinishedCB(CallBacker*);
@@ -113,26 +115,29 @@ protected:
     bool			draggerNormal() const override;
     void			setDraggerNormal(const Coord3&) override;
 
-    visBase::MarkerSet*		markerset_;
-    bool			needline_;
+    RefMan<visBase::MarkerSet>	markerset_;
+    bool			needline_	= false;
+
+    RefMan<visBase::RandomPos2Body> bodydisplay_;
+    bool			shoulddisplaybody_	= false;
+    RefMan<visBase::Dragger>	dragger_;
+    int				draggeridx_	= -1;
+    bool			showdragger_	= false;
 
     static const char*		sKeyNrPicks();
     static const char*		sKeyPickPrefix();
     static const char*		sKeyDisplayBody();
 
-    visBase::RandomPos2Body*	bodydisplay_;
-    bool			shoulddisplaybody_;
-    visBase::Dragger*		dragger_;
-    int				draggeridx_;
-    bool			showdragger_;
-
 private:
+
+    RefMan<visBase::MarkerSet>	createOneMarker() const;
     void			setPickSelect(int,bool);
     void			unSelectAll();
     void			updateLineStyle();
-    OD::Color			color_;
+
+    OD::Color			color_;		// White
     BoolTypeSet			pickselstatus_;
-    visBase::PolyLine*		polylines_;
+    RefMan<visBase::PolyLine>	polylines_;
 };
 
 } // namespace visSurvey

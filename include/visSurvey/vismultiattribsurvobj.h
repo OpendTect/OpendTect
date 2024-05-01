@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "vissurvobj.h"
+
 #include "visobject.h"
+#include "vissurvobj.h"
+#include "vistexturechannels.h"
 
 namespace visBase
 {
-    class TextureChannels;
     class TextureChannel2RGBA;
 };
 
@@ -32,6 +33,7 @@ mExpClass(visSurvey) MultiTextureSurveyObject : public visBase::VisualObjectImpl
 					      , public SurveyObject
 {
 public:
+
     bool			turnOn(bool yn) override;
     bool			isOn() const override;
     bool			isShown() const;
@@ -45,7 +47,9 @@ public:
     bool			setChannels2RGBA(visBase::TextureChannel2RGBA*)
 								      override;
     visBase::TextureChannel2RGBA* getChannels2RGBA() override;
-    visBase::TextureChannels*	getChannels() const override {return channels_;}
+    const visBase::TextureChannel2RGBA* getChannels2RGBA() const override;
+    visBase::TextureChannels*	getChannels() override;
+    const visBase::TextureChannels* getChannels() const override;
 
     bool			canHaveMultipleAttribs() const override;
     bool			canAddAttrib(int nrattribstoadd=1)
@@ -109,18 +113,16 @@ public:
     bool			usePar(const IOPar&) override;
     bool			canBDispOn2DViewer() const override
 				{ return true; }
-    bool			canEnableTextureInterpolation() const override
-				{ return channels_; }
-    bool			canDisplayInteractively(
-						Pos::GeomID geomid) const;
+    bool			canEnableTextureInterpolation() const override;
+    bool			canDisplayInteractively(Pos::GeomID) const;
     bool			canDisplayInteractively() const;
 
     const char*			errMsg() const override { return errmsg_.str();}
 
 protected:
-
 				MultiTextureSurveyObject();
 				~MultiTextureSurveyObject();
+
     void			getValueString(const Coord3&,
 					       BufferString&) const;
 				//!<Coord is in ztransformed space
@@ -132,14 +134,14 @@ protected:
     virtual void		emptyCache(int)				= 0;
     virtual bool		init();
 
-    visBase::TextureChannels*	channels_;
+    RefMan<visBase::TextureChannels> channels_;
 
-    int				resolution_;
+    int				resolution_	= 0;
 
 private:
     ObjectSet<TypeSet<Attrib::SelSpec> > as_;
-    bool			enabletextureinterp_;
-    bool			onoffstatus_;
+    bool			enabletextureinterp_ = true;
+    bool			onoffstatus_	= true;
 
     static const char*		sKeySequence();
     static const char*		sKeyMapper();

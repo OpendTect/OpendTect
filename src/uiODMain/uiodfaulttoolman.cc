@@ -22,9 +22,6 @@ ________________________________________________________________________
 #include "thread.h"
 #include "timefun.h"
 #include "undo.h"
-#include "visdataman.h"
-#include "visfaultsticksetdisplay.h"
-#include "visfaultdisplay.h"
 #include "visselman.h"
 
 #include "uicolor.h"
@@ -50,6 +47,21 @@ ________________________________________________________________________
 #include "od_helpids.h"
 
 
+// uiFaultStickTransferDlg::Setup
+
+uiFaultStickTransferDlg::Setup::Setup()
+    : displayifnot_( true )
+    , saveifdisplayed_( true )
+    , colormode_( Inherit )
+{}
+
+
+uiFaultStickTransferDlg::Setup::~Setup()
+{}
+
+
+// uiFaultStickTransferDlg
+
 uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 						  const Setup& su )
     : uiDialog( &appl, uiDialog::Setup(tr("Faultstick transfer"),
@@ -62,7 +74,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 {
     setCtrlStyle( CloseOnly );
 
-    uiLabel* colormodelbl = new uiLabel( this,
+    auto* colormodelbl = new uiLabel( this,
 				uiStrings::phrOutput(tr("color selection") ) );
 
     BufferStringSet serialbss; serialbss.add( "Inherit" );
@@ -419,14 +431,18 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 {
     deseltimer_.stop();
     mCBCapsuleUnpack( VisID, selid, cber );
-    visBase::DataObject* dataobj = visBase::DM().getObject( selid );
-    mDynamicCast( visSurvey::FaultStickSetDisplay*, curfssd_, dataobj );
-    mDynamicCast( visSurvey::FaultDisplay*, curfltd_, dataobj );
-
-    if ( curfssd_ || curfltd_ )
+    visBase::DataObject* dataobj =
+			  appl_.applMgr().visServer()->getObject( selid );
+    RefMan<visSurvey::FaultDisplay> curfltd =
+			    dCast( visSurvey::FaultDisplay*, dataobj );
+    RefMan<visSurvey::FaultStickSetDisplay> curfssd =
+			    dCast( visSurvey::FaultStickSetDisplay*, dataobj );
+    curfltd_ = curfltd;
+    curfssd_ = curfssd;
+    if ( curfssd || curfltd )
     {
-	curemid_ = curfssd_ ? curfssd_->getEMObjectID()
-			    : curfltd_->getEMObjectID();
+	curemid_ = curfssd_ ? curfssd->getEMObjectID()
+			    : curfltd->getEMObjectID();
 
 	const EM::EMObject* emobj = EM::EMM().getObject( curemid_ );
 	if ( !emobj || emobj->isEmpty() )
@@ -442,21 +458,22 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 
 	appl_.applMgr().visServer()->setCurInterObjID( selid );
 	processOutputName();
-	const bool hastransform = curfltd_ ? curfltd_->getZAxisTransform()
-					   : curfssd_->getZAxisTransform();
+	const bool hastransform = curfltd ? curfltd->getZAxisTransform()
+					  : curfssd->getZAxisTransform();
 	enableToolbar( !hastransform );
 
 	mAttachCBIfNotAttached( IOM().surveyChanged,
 				uiODFaultToolMan::surveyChg );
 
-	if ( curfssd_ )
+	if ( curfssd )
 	{
-	    mAttachCB( curfssd_->displaymodechange,
+	    mAttachCB( curfssd->displaymodechange,
 		       uiODFaultToolMan::displayModeChg );
 	}
-	if ( curfltd_ )
+
+	if ( curfltd )
 	{
-	    mAttachCB( curfltd_->displaymodechange,
+	    mAttachCB( curfltd->displaymodechange,
 		       uiODFaultToolMan::displayModeChg );
 	}
     }
@@ -468,19 +485,25 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 void uiODFaultToolMan::treeItemDeselCB( CallBacker* cber )
 {
     mCBCapsuleUnpack( VisID, selid, cber );
-    visBase::DataObject* dataobj = visBase::DM().getObject( selid );
-    mDynamicCastGet( visSurvey::FaultStickSetDisplay*, oldfssd, dataobj );
-    mDynamicCastGet( visSurvey::FaultDisplay*, oldfltd, dataobj );
-    if ( oldfssd==curfssd_ && oldfltd==curfltd_ )
+    visBase::DataObject* dataobj =
+			  appl_.applMgr().visServer()->getObject( selid );
+    RefMan<visSurvey::FaultDisplay> oldfltd =
+			    dCast( visSurvey::FaultDisplay*, dataobj );
+    RefMan<visSurvey::FaultStickSetDisplay> oldfssd =
+			    dCast( visSurvey::FaultStickSetDisplay*, dataobj );
+    RefMan<visSurvey::FaultDisplay> curfltd = curfltd_.get();
+    RefMan<visSurvey::FaultStickSetDisplay> curfssd = curfssd_.get();
+    if ( oldfssd.ptr()==curfssd.ptr() && oldfltd.ptr()==curfltd.ptr() )
     {
-	if ( curfssd_ )
+	if ( curfssd )
 	{
-	    mDetachCB( curfssd_->displaymodechange,
+	    mDetachCB( curfssd->displaymodechange,
 		       uiODFaultToolMan::displayModeChg );
 	}
-	if ( curfltd_ )
+
+	if ( curfltd )
 	{
-	    mDetachCB( curfltd_->displaymodechange,
+	    mDetachCB( curfltd->displaymodechange,
 		       uiODFaultToolMan::displayModeChg );
 	}
 
@@ -563,7 +586,6 @@ void uiODFaultToolMan::showSettings( bool yn )
 {
     if ( !settingsdlg_ )
     {
-
 	if ( yn )
 	{
 	    settingsdlg_ = new uiFaultStickTransferDlg(appl_, settingssetup_ );
@@ -598,11 +620,13 @@ void uiODFaultToolMan::showSettings( bool yn )
 
 bool uiODFaultToolMan::areSticksAccessible() const
 {
-    if ( curfssd_ )
-	return !curfssd_->areAllKnotsHidden();
+    RefMan<visSurvey::FaultStickSetDisplay> curfssd = curfssd_.get();
+    if ( curfssd )
+	return !curfssd->areAllKnotsHidden();
 
-    if ( curfltd_ )
-	return !curfltd_->areAllKnotsHidden();
+    RefMan<visSurvey::FaultDisplay> curfltd = curfltd_.get();
+    if ( curfltd )
+	return !curfltd->areAllKnotsHidden();
 
     return false;
 }
@@ -610,11 +634,13 @@ bool uiODFaultToolMan::areSticksAccessible() const
 
 void uiODFaultToolMan::enableStickAccess( bool yn )
 {
-    if ( curfssd_ && curfssd_->areAllKnotsHidden()==yn )
-	curfssd_->hideAllKnots( !yn );
+    RefMan<visSurvey::FaultStickSetDisplay> curfssd = curfssd_.get();
+    if ( curfssd && curfssd->areAllKnotsHidden()==yn )
+	curfssd->hideAllKnots( !yn );
 
-    if ( curfltd_ && curfltd_->areAllKnotsHidden()==yn )
-	curfltd_->hideAllKnots( !yn );
+    RefMan<visSurvey::FaultDisplay> curfltd = curfltd_.get();
+    if ( curfltd && curfltd->areAllKnotsHidden()==yn )
+	curfltd->hideAllKnots( !yn );
 }
 
 
@@ -644,12 +670,15 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
     if ( cb )
 	appl_.applMgr().visServer()->setViewMode( !areSticksAccessible() );
 
-    if ( curfssd_ )
-	curfssd_->setStickSelectMode( selectmode_ );
-    if ( curfltd_ )
-	curfltd_->setStickSelectMode( selectmode_ );
+    RefMan<visSurvey::FaultStickSetDisplay> curfssd = curfssd_.get();
+    if ( curfssd )
+	curfssd->setStickSelectMode( selectmode_ );
 
-    updateToolbarCB( 0 );
+    RefMan<visSurvey::FaultDisplay> curfltd = curfltd_.get();
+    if ( curfltd )
+	curfltd->setStickSelectMode( selectmode_ );
+
+    updateToolbarCB( nullptr );
 
     const bool selecting = toolbar_->isOn( selbutidx_ );
     showSettings( selecting && toolbar_->isOn(settingsbutidx_) );
@@ -1072,10 +1101,13 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     else
        srcfault->geometry().removeSelectedDoubles(true,&destfault->geometry());
 
-    if ( curfssd_ )
-	curfssd_->updateKnotMarkers();
-    if ( curfltd_ )
-	curfltd_->updateKnotMarkers();
+    RefMan<visSurvey::FaultStickSetDisplay> curfssd = curfssd_.get();
+    if ( curfssd )
+	curfssd->updateKnotMarkers();
+
+    RefMan<visSurvey::FaultDisplay> curfltd = curfltd_.get();
+    if ( curfltd )
+	curfltd->updateKnotMarkers();
 
     const int newnrselected = srcfault->geometry().nrSelectedSticks();
     if ( !copy && oldnrselected!=newnrselected )
@@ -1123,14 +1155,17 @@ void uiODFaultToolMan::afterTransferUpdate()
 \
     MultiID destmid = objsel->validKey(); \
 \
-    const VisID curid = curfltd_ ? curfltd_->id() : \
-				 ( curfssd_ ? curfssd_->id() : VisID::udf() ); \
+    const VisID curid = curfltd ? curfltd->id() : \
+				( curfssd ? curfssd->id() : VisID::udf() ); \
 \
-    const SceneID sceneid = appl_.applMgr().visServer()->getSceneID( curid );
+    const SceneID sceneid = curfltd ? curfltd->getSceneID() : \
+			( curfssd ? curfssd->getSceneID() : SceneID::udf() ); \
 
 
 void uiODFaultToolMan::displayUpdate()
 {
+    RefMan<visSurvey::FaultDisplay> curfltd = curfltd_.get();
+    RefMan<visSurvey::FaultStickSetDisplay> curfssd = curfssd_.get();
     mGetDisplayVars( getObjSel(), destmid, curid, sceneid );
     if ( destmid.isUdf() || isOutputDisplayed() )
 	return;
@@ -1149,6 +1184,8 @@ bool uiODFaultToolMan::isOutputDisplayed( uiSurfaceWrite* uisw ) const
 {
     const uiIOObjSel* objsel = uisw ? uisw->getObjSel() : getObjSel();
 
+    RefMan<visSurvey::FaultDisplay> curfltd = curfltd_.get();
+    RefMan<visSurvey::FaultStickSetDisplay> curfssd = curfssd_.get();
     mGetDisplayVars( objsel, destmid, curid, sceneid );
 
     if ( destmid.isUdf() || !curid.isValid() || !sceneid.isValid() )

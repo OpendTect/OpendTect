@@ -114,7 +114,7 @@ RandomLineID Engine::activeRandomLineID() const
     return rdlid_;
 }
 
-void Engine::setActiveRandomLineID( RandomLineID rdlid )
+void Engine::setActiveRandomLineID( const RandomLineID& rdlid )
 {
     rdlid_ = rdlid;
 }

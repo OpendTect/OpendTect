@@ -9,15 +9,11 @@ ________________________________________________________________________
 
 #include "visgridlines.h"
 
-#include "vispolyline.h"
-#include "viscoord.h"
-#include "visdrawstyle.h"
-#include "vismaterial.h"
-#include "vistransform.h"
-#include "vispolygonoffset.h"
-#include "survinfo.h"
 #include "draw.h"
 #include "iopar.h"
+#include "survinfo.h"
+#include "viscoord.h"
+#include "vispolygonoffset.h"
 
 mCreateFactoryEntry( visBase::GridLines );
 
@@ -31,31 +27,20 @@ const char* GridLines::sKeyZShown()     { return "Zlines shown"; }
 
 GridLines::GridLines()
     : VisualObjectImpl(false)
-    , drawstyle_( new DrawStyle )
-    , transformation_(0)
     , gridcs_(false)
-    , csinlchanged_(false)
-    , cscrlchanged_(false)
-    , cszchanged_(false)
-    , linematerial_( new Material )
 {
-    inlines_ = crosslines_ = zlines_ = trcnrlines_ = 0;
-    drawstyle_->ref();
-    setMaterial( linematerial_ );
-
+    ref();
+    drawstyle_ = DrawStyle::create();
+    linematerial_ = Material::create();
+    setMaterial( linematerial_.ptr() );
+    unRefNoDelete();
 }
 
 
 GridLines::~GridLines()
 {
-    for ( int idx=0; idx<polylineset_.size(); idx++ )
-    {
-	removeChild( polylineset_[idx]->osgNode() );
-	polylineset_[idx]->unRef();
-	polylineset_.removeSingle(idx--);
-    }
-
-    drawstyle_->unRef();
+    for ( auto* line : polylineset_ )
+	removeChild( line->osgNode() );
 }
 
 
@@ -114,7 +99,7 @@ void GridLines::adjustGridCS()
     {
 	while ( phs.start_.inl() > ghs.start_.inl() )
 	    ghs.start_.inl() += ghs.step_.inl();
-	
+
 	while ( phs.start_.inl() < ghs.start_.inl() - ghs.step_.inl() )
 	    ghs.start_.inl() -= ghs.step_.inl();
 
@@ -149,7 +134,7 @@ void GridLines::adjustGridCS()
 
 	while ( planecs_.zsamp_.start<gridcs_.zsamp_.start-gridcs_.zsamp_.step )
 	    gridcs_.zsamp_.start -= gridcs_.zsamp_.step;
-	
+
 	while ( planecs_.zsamp_.stop>gridcs_.zsamp_.stop+gridcs_.zsamp_.step )
 	    gridcs_.zsamp_.stop += gridcs_.zsamp_.step;
 
@@ -183,25 +168,24 @@ void GridLines::addLine( PolyLine& lines, const Coord3& start,
     lines.addPoint( start );
     lines.addPoint( stop );
     const int lastidx = lines.size();
-    Geometry::RangePrimitiveSet* ps =
-	Geometry::RangePrimitiveSet::create();
+    RefMan<Geometry::RangePrimitiveSet> ps =
+				Geometry::RangePrimitiveSet::create();
     Interval<int> range( lastidx-2, lastidx -1);
     ps->setRange( range );
-    ps->ref();
     lines.addPrimitiveSet( ps );
 }
 
 
-PolyLine* GridLines::addLineSet()
+RefMan<PolyLine> GridLines::addLineSet()
 {
-    PolyLine* polyline = PolyLine::create();
+    RefMan<PolyLine> polyline = PolyLine::create();
     polyline->setMaterial( linematerial_ );
-    polyline->ref();
     polyline->removeAllPrimitiveSets();
-    polyline->addNodeState( drawstyle_ );
+    polyline->addNodeState( drawstyle_.ptr() );
     polyline->setDisplayTransformation( transformation_ );
-    polylineset_ += polyline;
+    polylineset_.add( polyline );
     addChild( polyline->osgNode() );
+
     return polyline;
 }
 
@@ -215,16 +199,15 @@ void GridLines::emptyLineSet( PolyLine* line )
 
 void GridLines::drawInlines()
 {
-    if ( !inlines_ ) 
-	inlines_ = addLineSet();
-    else
+    if ( inlines_ )
 	emptyLineSet( inlines_ );
+    else
+	inlines_ = addLineSet();
 
-    
     const TrcKeySampling& ghs = gridcs_.hsamp_;
     for ( int inl=ghs.start_.inl(); inl<=ghs.stop_.inl(); inl+=ghs.step_.inl() )
     {
-	addLine( *inlines_, 
+	addLine( *inlines_,
 		 Coord3(inl,planecs_.hsamp_.start_.crl(),planecs_.zsamp_.start),
 		 Coord3(inl,planecs_.hsamp_.stop_.crl(),planecs_.zsamp_.stop) );
     }
@@ -234,15 +217,15 @@ void GridLines::drawInlines()
 
 void GridLines::drawCrosslines()
 {
-    if ( !crosslines_ ) 
-	crosslines_ = addLineSet();
-    else
+    if ( crosslines_ )
 	emptyLineSet( crosslines_ );
-    
+    else
+	crosslines_ = addLineSet();
+
     const TrcKeySampling& ghs = gridcs_.hsamp_;
     for ( int crl=ghs.start_.crl(); crl<=ghs.stop_.crl(); crl+=ghs.step_.crl() )
     {
-	addLine( *crosslines_, 
+	addLine( *crosslines_,
 		 Coord3(planecs_.hsamp_.start_.inl(),crl,planecs_.zsamp_.start),
 		 Coord3(planecs_.hsamp_.stop_.inl(),crl,planecs_.zsamp_.stop) );
     }
@@ -253,13 +236,13 @@ void GridLines::drawCrosslines()
 }
 
 
-void GridLines::drawZlines() 
+void GridLines::drawZlines()
 {
-    if ( !zlines_ ) 
-	zlines_ = addLineSet();
-    else
+    if ( zlines_ )
 	emptyLineSet( zlines_ );
-    
+    else
+	zlines_ = addLineSet();
+
     const TrcKeySampling& phs = planecs_.hsamp_;
     for ( int zidx=0; zidx<gridcs_.zsamp_.nrSteps()+1; zidx++ )
     {
@@ -318,14 +301,7 @@ bool GridLines::areZlinesShown() const
 
 void GridLines::setDisplayTransformation( const mVisTrans* tf )
 {
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_  = tf;
-
-    if ( transformation_ )
-	transformation_->ref();
-
     for ( int idx=0; idx<polylineset_.size(); idx++ )
     {
 	if ( polylineset_[idx] )
@@ -342,11 +318,10 @@ void GridLines::setPixelDensity( float dpi )
     if ( crosslines_ ) crosslines_->setPixelDensity( dpi );
     if ( zlines_ ) zlines_->setPixelDensity( dpi );
     if ( trcnrlines_ ) trcnrlines_->setPixelDensity( dpi );
-    
+
     for ( int idx =0; idx< polylineset_.size(); idx++ )
 	polylineset_[idx]->setPixelDensity( dpi );
-  
-}
 
+}
 
 } // namespace visBase

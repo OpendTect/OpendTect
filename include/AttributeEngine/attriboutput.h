@@ -9,18 +9,18 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "refcount.h"
 
 #include "bufstringset.h"
 #include "datapointset.h"
 #include "ranges.h"
+#include "refcount.h"
+#include "seisdatapack.h"
 #include "seistype.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
 
 class BinDataDesc;
 class BinIDValueSet;
-class RegularSeisDataPack;
 class SeisTrc;
 class SeisTrcInfo;
 class SeisTrcBuf;
@@ -133,7 +133,7 @@ protected:
 				//(special cases with decimated cubes smaller
 				//than desired display)
     TypeSet< Interval<int> >	sampleinterval_;
-    RegularSeisDataPack*	output_;
+    RefMan<RegularSeisDataPack> output_;
     float			udfval_;
 
     void			init(float refstep,const BinDataDesc* bdd=0);
@@ -148,7 +148,7 @@ mExpClass(AttributeEngine) SeisTrcStorOutput : public Output
 { mODTextTranslationClass(Attrib::SeisTrcStorOutput)
 public:
 				SeisTrcStorOutput(const TrcKeyZSampling&,
-						  const Pos::GeomID);
+						  const Pos::GeomID&);
 
     virtual bool		doInit();
     virtual void		set2D( bool yn = true )		{ is2d_ = yn; }
@@ -222,7 +222,7 @@ public:
 mExpClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
 { mODTextTranslationClass(Attrib::Trc2DVarZStorOutput)
 public:
-				Trc2DVarZStorOutput(Pos::GeomID,
+				Trc2DVarZStorOutput(const Pos::GeomID&,
 						    DataPointSet*,float);
 
     bool			doInit() override;
@@ -262,7 +262,7 @@ mExpClass(AttributeEngine) TwoDOutput : public Output
 public:
 				TwoDOutput(const Interval<int>&,
 					   const Interval<float>&,
-					   Pos::GeomID);
+					   const Pos::GeomID&);
 
     bool			doInit();
     bool			wantsOutput(const BinID&) const override;
@@ -338,7 +338,7 @@ mExpClass(AttributeEngine) TrcSelectionOutput : public Output
 {
 public:
 				TrcSelectionOutput(const BinIDValueSet&,
-						   float outval =0);
+						   float outval =0.f);
 
     bool			getDesiredVolume(
 					TrcKeyZSampling&) const override;
@@ -350,7 +350,7 @@ public:
     void			setTrcsBounds(Interval<float>);
     void			collectData(const DataHolder&,float,
 					    const SeisTrcInfo&) override;
-    void			setGeomID(Pos::GeomID);
+    void			setGeomID(const Pos::GeomID&);
 
 protected:
 				~TrcSelectionOutput();

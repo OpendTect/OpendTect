@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uioddisplaytreeitem.h"
+
 #include "integerid.h"
+#include "uioddisplaytreeitem.h"
+#include "visrandomtrackdisplay.h"
 
 class IOObj;
 class uiRandomLinePolyLineDlg;
@@ -21,11 +23,12 @@ mExpClass(uiODMain) uiODRandomLineParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODRandomLineParentTreeItem)
 public:
 			uiODRandomLineParentTreeItem();
-			~uiODRandomLineParentTreeItem();
 
     static CNotifier<uiODRandomLineParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODRandomLineParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
     bool		load(const IOObj&,int);
@@ -52,8 +55,8 @@ mExpClass(uiODMain) uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
-    			{ return new uiODRandomLineParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+			{ return new uiODRandomLineParentTreeItem; }
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
@@ -62,16 +65,16 @@ mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
 public:
     enum Type		{ Empty, Select, Default, RGBA };
 
-			uiODRandomLineTreeItem(VisID displayid,Type tp=Empty,
-				    RandomLineID id=RandomLineID::udf());
-			~uiODRandomLineTreeItem();
+			uiODRandomLineTreeItem(const VisID&,Type =Empty,
+				    const RandomLineID& =RandomLineID::udf());
 
     bool		init() override;
     bool		displayDefaultData();
     bool		displayData(const Attrib::SelSpec*);
-    void		setRandomLineID(RandomLineID);
+    void		setRandomLineID(const RandomLineID&);
 
 protected:
+			~uiODRandomLineTreeItem();
 
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
@@ -88,6 +91,11 @@ protected:
     MenuItem		saveasmnuitem_;
     MenuItem		saveas2dmnuitem_;
     MenuItem		create2dgridmnuitem_;
+
+    ConstRefMan<visSurvey::RandomTrackDisplay> getDisplay() const;
+    RefMan<visSurvey::RandomTrackDisplay> getDisplay();
+
+    WeakPtr<visSurvey::RandomTrackDisplay> rtd_;
     Type		type_;
     RandomLineID	rlid_;
 };

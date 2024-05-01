@@ -9,12 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visdata.h"
+
 #include "positionlist.h"
 #include "viscoord.h"
+#include "visdata.h"
+#include "vistransform.h"
 
+namespace osg { class Array; }
 namespace Threads { class Mutex; };
-
 
 namespace visBase
 {
@@ -26,7 +28,7 @@ namespace visBase
 mExpClass(visBase) Normals : public DataObject
 {
 public:
-    static Normals*	create()
+    static RefMan<Normals> create();
 			mCreateDataObj(Normals);
 
     void		inverse();
@@ -64,7 +66,7 @@ protected:
     TypeSet<int>		unusednormals_;
     Threads::Mutex&		mutex_;
 
-    const mVisTrans*		transformation_;
+    ConstRefMan<mVisTrans>	transformation_;
 
     osg::Array*			osgnormals_;
     friend  class		DoTransformation;
@@ -74,33 +76,31 @@ protected:
 mExpClass(visBase) NormalListAdapter : public Coord3List
 {
 public:
-		NormalListAdapter(Normals& n )
-		    : normals_( n )
-		{ normals_.ref(); }
+		NormalListAdapter(Normals&);
 
     int		nextID(int previd) const override
-		{ return normals_.nextID(previd); }
+		{ return normals_->nextID(previd); }
 
     int		add( const Coord3& n ) override
-		{ return normals_.addNormal(n); }
+		{ return normals_->addNormal(n); }
     void	set( int idx,const Coord3& n ) override
-		{ normals_.setNormal(idx,n); }
-    void	remove( int idx ) override	{ normals_.removeNormal(idx); }
+		{ normals_->setNormal(idx,n); }
+    void	remove( int idx ) override	{ normals_->removeNormal(idx); }
     Coord3	get( int idx ) const override
-		{ return normals_.getNormal(idx); }
+		{ return normals_->getNormal(idx); }
     void	addValue( int idx, const Coord3& n ) override
-		{ normals_.addNormalValue(idx,n ); }
+		{ normals_->addNormalValue(idx,n ); }
     bool	isDefined( int idx ) const override
-		{ return normals_.getNormal(idx).isDefined(); }
+		{ return normals_->getNormal(idx).isDefined(); }
     void	remove(const TypeSet<int>&) override;
-    int		size() const override		{ return normals_.nrNormals(); }
+    int		size() const override	{ return normals_->nrNormals(); }
 
-    Normals*	getNormals() { return &normals_; }
+    Normals*	getNormals() { return normals_.ptr(); }
 
 protected:
-		~NormalListAdapter()	{ normals_.unRef(); }
+		~NormalListAdapter();
 
-    Normals&	normals_;
+    RefMan<Normals> normals_;
 };
 
 } // namespace visBase

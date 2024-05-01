@@ -429,8 +429,9 @@ void uiStratSynthCrossplot::preparePreStackDescs()
 			    desc.getValParam(Attrib::PSAttrib::useangleStr()))
 	    useangleparam->setValue( true );
 	    uiString errmsg;
-	    Attrib::Provider* attrib = Attrib::Provider::create( desc, errmsg );
-	    mDynamicCastGet(Attrib::PSAttrib*,psattrib,attrib);
+	    RefMan<Attrib::Provider> attrib =
+				     Attrib::Provider::create( desc, errmsg );
+	    mDynamicCastGet(Attrib::PSAttrib*,psattrib,attrib.ptr());
 	    if ( !psattrib )
 		continue;
 

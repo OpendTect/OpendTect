@@ -18,8 +18,8 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
+#include "uivispartserv.h"
 #include "visdataman.h"
-#include "vispicksetdisplay.h"
 #include "visselman.h"
 
 #include "array2dinterpol.h"
@@ -38,9 +38,11 @@ ________________________________________________________________________
 
 
 uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p,
+					      uiVisPartServer* vispartserv,
 					      const SceneID& sceneid )
     : uiDialog(p,Setup(tr("DataPointSet picking"),mNoDlgTitle,
 			mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
+    , vispartserv_(vispartserv)
     , sceneid_(sceneid)
     , dps_(new DataPointSet(false,false))
     , picksetmgr_(Pick::SetMgr::getMgr("DPSPicks"))
@@ -64,14 +66,14 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p,
 	.add( uiStrings::sX() ).add( uiStrings::sY() )
 	.add( uiStrings::sZ() ).add( uiStrings::sValue() );
     table_->setColumnLabels( lbls );
-    table_->valueChanged.notify( mCB(this,uiDataPointSetPickDlg,valChgCB) );
-    table_->rowClicked.notify( mCB(this,uiDataPointSetPickDlg,rowClickCB) );
+    mAttachCB( table_->valueChanged, uiDataPointSetPickDlg::valChgCB );
+    mAttachCB( table_->rowClicked, uiDataPointSetPickDlg::rowClickCB );
 
     dps_->dataSet().add( new DataColDef("Value") );
     initPickSet();
     updateButtons();
 
-    windowClosed.notify( mCB(this,uiDataPointSetPickDlg,winCloseCB) );
+    mAttachCB( windowClosed, uiDataPointSetPickDlg::winCloseCB );
     mAttachCB( visBase::DM().selMan().selnotifier,
 	       uiDataPointSetPickDlg::objSelCB );
 }
@@ -102,19 +104,17 @@ void uiDataPointSetPickDlg::cleanUp()
     table_->clearTable();
     dps_ = nullptr;
 
-    visBase::DataObject* obj = visBase::DM().getObject( sceneid_ );
-    mDynamicCastGet(visSurvey::Scene*,scene,obj)
+    RefMan<visSurvey::Scene> scene = vispartserv_->getScene( sceneid_ );
     if ( scene && psd_ )
     {
 	const int objidx = scene->getFirstIdx( psd_->id() );
 	scene->removeObject( objidx );
-	psd_->unRef();
-	psd_ = 0;
+	psd_ = nullptr;
     }
 
-    picksetmgr_.locationChanged.remove(
-			mCB(this,uiDataPointSetPickDlg,locChgCB) );
-    picksetmgr_.setChanged.remove( mCB(this,uiDataPointSetPickDlg,pickCB) );
+    mDetachCB( picksetmgr_.locationChanged,
+	       uiDataPointSetPickDlg::locChgCB );
+    mDetachCB( picksetmgr_.setChanged, uiDataPointSetPickDlg::pickCB );
 }
 
 
@@ -128,26 +128,26 @@ static MultiID getMultiID( SceneID sceneid )
 void uiDataPointSetPickDlg::initPickSet()
 {
     psd_ = new visSurvey::PickSetDisplay();
-    psd_->ref();
 
     RefMan<Pick::Set> ps = new Pick::Set( "DPS picks" );
     ps->disp_.color_ = OD::Color( 255, 0, 0 );
     psd_->setSet( ps );
     psd_->setSetMgr( &picksetmgr_ );
     picksetmgr_.set( getMultiID(sceneid_), ps );
-    picksetmgr_.locationChanged.notify(
-			mCB(this,uiDataPointSetPickDlg,locChgCB) );
-    picksetmgr_.setChanged.notify( mCB(this,uiDataPointSetPickDlg,pickCB) );
+    mAttachCB( picksetmgr_.locationChanged,
+	       uiDataPointSetPickDlg::locChgCB );
+    mAttachCB( picksetmgr_.setChanged, uiDataPointSetPickDlg::pickCB );
 
-    visBase::DataObject* obj = visBase::DM().getObject( sceneid_ );
-    mDynamicCastGet(visSurvey::Scene*,scene,obj)
-    scene->addObject( psd_ );
+    RefMan<visSurvey::Scene> scene = vispartserv_->getScene( sceneid_ );
+    if ( scene )
+	scene->addObject( psd_ );
 }
 
 
 void uiDataPointSetPickDlg::pickModeCB( CallBacker* )
 {
-    if ( !psd_ ) return;
+    if ( !psd_ )
+	return;
 
     if ( tb_->isOn(pickbutid_) )
 	visBase::DM().selMan().select( psd_->id() );
@@ -249,7 +249,7 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     dps_->setValue( 0, row, val );
     dps_->dataChanged();
 
-    ConstRefMan<Pick::Set> set = psd_ ? psd_->getSet() : 0;
+    ConstRefMan<Pick::Set> set = psd_ ? psd_->getSet() : nullptr;
     if ( !set )
 	return;
 
@@ -324,7 +324,7 @@ void uiDataPointSetPickDlg::updateButtons()
 void uiDataPointSetPickDlg::updateDPS()
 {
     dps_->clearData();
-    ConstRefMan<Pick::Set> set = psd_ ? psd_->getSet() : 0;
+    ConstRefMan<Pick::Set> set = psd_ ? psd_->getSet() : nullptr;
     if ( !set )
     {
 	dps_->dataChanged();
@@ -373,9 +373,10 @@ bool uiDataPointSetPickDlg::acceptOK( CallBacker* )
 
 // uiEMDataPointSetPickDlg
 uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p,
+						  uiVisPartServer* vispartserv,
 						  const SceneID& sceneid,
 						  const EM::ObjectID& emid )
-    : uiDataPointSetPickDlg(p,sceneid)
+    : uiDataPointSetPickDlg(p,vispartserv,sceneid)
     , readyForDisplay(this)
     , emdps_(new DataPointSet(false,true))
     , emid_(emid)
@@ -383,8 +384,7 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p,
     setCaption( toUiString("Surface data picking") );
 
     auto* interpolbut = new uiPushButton( this, tr("Interpolate"), true );
-    interpolbut->activated.notify(
-	mCB(this,uiEMDataPointSetPickDlg,interpolateCB) );
+    mAttachCB( interpolbut->activated, uiEMDataPointSetPickDlg::interpolateCB );
     interpolbut->attach( alignedBelow, table_ );
 
     auto* settbut = new uiToolButton( this, "settings",
@@ -395,14 +395,14 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p,
     emdps_->dataSet().add( new DataColDef("Section ID") );
     emdps_->dataSet().add( new DataColDef("AuxData") );
 
-
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    unRefPtr( emobj );
+    unRefPtr( emobj ); //TODO Wrong!
 }
 
 
 uiEMDataPointSetPickDlg::~uiEMDataPointSetPickDlg()
 {
+    detachAllNotifiers();
 }
 
 
@@ -411,7 +411,7 @@ void uiEMDataPointSetPickDlg::cleanUp()
     uiDataPointSetPickDlg::cleanUp();
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    unRefPtr( emobj );
+    unRefPtr( emobj ); //TODO Wrong!
 
     emdps_ = nullptr;
 }
@@ -446,8 +446,11 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
 
 void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 {
-    if ( !interpol_ ) settCB(0);
-    if ( !interpol_ ) return;
+    if ( !interpol_ )
+	settCB( nullptr );
+
+    if ( !interpol_ )
+	return;
 
     if ( dataidx_ < 0 )
 	dataidx_ = addSurfaceData();
@@ -486,15 +489,17 @@ void uiEMDataPointSetPickDlg::settCB( CallBacker* )
     uiSingleGroupDlg dlg( this,
 		uiDialog::Setup( tr("Interpolate Horizon Data"),
 		mNoDlgTitle,mODHelpKey(muiEMDataPointSetPickDlgHelpID)) );
-    uiArray2DInterpolSel* settings =
+    auto* settings =
 	new uiArray2DInterpolSel( &dlg, false, false, true, interpol_, false );
     settings->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
     dlg.setGroup( settings );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     delete interpol_;
     interpol_ = settings->getResult();
-    if ( !interpol_ ) return;
+    if ( !interpol_ )
+	return;
 
     interpol_->setFillType( Array2DInterpol::Full );
     interpol_->setRowStep( SI().inlDistance() * tks_.step_.inl() );

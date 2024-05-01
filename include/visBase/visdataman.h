@@ -29,15 +29,15 @@ mExpClass(visBase) DataManager : public CallBacker
 {
 public:
 			DataManager();
-    virtual		~DataManager();
+			~DataManager();
 
     const char*		errMsg() const;
 
     void		getIDs(const std::type_info&,TypeSet<VisID>&) const;
     VisID		highestID() const;
 
-    DataObject*		getObject(VisID);
-    const DataObject*	getObject(VisID) const;
+    DataObject*		getObject(const VisID&);
+    const DataObject*	getObject(const VisID&) const;
     VisID		getID(const osg::Node*) const;
 			//!<Returns VisID::udf() if not found
 
@@ -52,20 +52,19 @@ public:
     bool		usePar(const IOPar&);
 			//Only restores freeid_
 
-    Notifier<DataManager>	removeallnotify;
+    Notifier<DataManager> removeallnotify;
 
     mDefineFactoryInClass( DataObject, factory );
 
-protected:
+private:
 
     friend class	DataObject;
-    void		addObject( DataObject* );
-    void		removeObject( DataObject* );
+    void		addObject(DataObject*);
+    void		removeObject(DataObject*);
 
-    ObjectSet<DataObject>	objects_;
-    mutable int			prevobjectidx_;
+    mutable WeakPtrSet<DataObject> objects_;
 
-    int				freeid_;
+    int				freeid_ = 0;
     SelectionManager&		selman_;
     BufferString		errmsg_;
 

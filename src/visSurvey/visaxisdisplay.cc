@@ -8,17 +8,19 @@ ________________________________________________________________________
 -*/
 
 #include "visaxisdisplay.h"
+
 namespace visSurvey
 {
 
 AxisDisplay::AxisDisplay()
-    : Axes()
+    : Axes(true)
 {
 }
 
 
 AxisDisplay::~AxisDisplay()
-{}
+{
+}
 
 }
 // namespace visSurvey

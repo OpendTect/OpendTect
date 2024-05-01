@@ -37,15 +37,15 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    static bool		create(uiTreeItem*,VisID,Vis2DID);
-    static bool		create(uiTreeItem*,const uiODViewer2D&,Vis2DID);
-    const uiODView2DTreeItem* getView2DItem(Vis2DID) const;
+    static bool		create(uiTreeItem*,const VisID&,const Vis2DID&);
+    static bool		create(uiTreeItem*,const uiODViewer2D&,const Vis2DID&);
+    const uiODView2DTreeItem* getView2DItem(const Vis2DID&) const;
     void		addKeyBoardEvent(const EM::ObjectID&);
 
 protected:
 
     bool		init() override;
-    virtual const char*	iconName() const		{ return 0; }
+    virtual const char* iconName() const		{ return nullptr; }
     static uiString	sChangeSetup() { return m3Dots(tr("Change setup")); }
 
     Vis2DID		displayid_;
@@ -86,7 +86,8 @@ private:
 mExpClass(uiODMain) uiODView2DTreeItemFactory : public uiTreeItemFactory
 {
 public:
-    virtual uiTreeItem* createForVis(const uiODViewer2D&,Vis2DID) const = 0;
+    virtual uiTreeItem* createForVis(const uiODViewer2D&,
+				     const Vis2DID&) const = 0;
 };
 
 
@@ -105,14 +106,14 @@ public:
 
     void			updSampling(const TrcKeyZSampling&,bool);
     void			updSelSpec(const Attrib::SelSpec*,bool wva);
-    const uiODView2DTreeItem*	getView2DItem(Vis2DID) const;
+    const uiODView2DTreeItem*	getView2DItem(const Vis2DID&) const;
 
 protected:
 
     void			addFactoryCB(CallBacker*);
     void			removeFactoryCB(CallBacker*);
 
-    const char*			parentType() const override { return 0; }
+    const char*			parentType() const override { return nullptr; }
     uiODApplMgr*		applMgr();
     uiODViewer2D*		viewer2D();
 

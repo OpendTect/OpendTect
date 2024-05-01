@@ -48,9 +48,9 @@ public:
 	bool			isValid() const		{ return auxposidx_>=0;}
     };
 
-    uiODViewer2D*		getParent2DViewer(Vis2DID);
-    uiODViewer2D*		find2DViewer(VisID);
-    uiODViewer2D*		find2DViewer(Viewer2DID);
+    uiODViewer2D*		getParent2DViewer(const Vis2DID&);
+    uiODViewer2D*		find2DViewer(const VisID&);
+    uiODViewer2D*		find2DViewer(const Viewer2DID&);
     uiODViewer2D*		find2DViewer(const MouseEventHandler&);
     uiODViewer2D*		find2DViewer(const Pos::GeomID&);
     uiODViewer2D*		find2DViewer(const TrcKeyZSampling&);
@@ -79,12 +79,12 @@ public:
 					float initialx1pospercm=mUdf(float),
 					float initialx2pospercm=mUdf(float));
     mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
-    void			displayIn2DViewer(VisID visid,int attribid,
+    void			displayIn2DViewer(const VisID&,int attribid,
 						  bool wva);
-    void			displayIn2DViewer(VisID visid,int attribid,
+    void			displayIn2DViewer(const VisID&,int attribid,
 						  FlatView::Viewer::VwrDest);
-    void			remove2DViewer(VisID);
-    void			remove2DViewer(Viewer2DID);
+    void			remove2DViewer(const VisID&);
+    void			remove2DViewer(const Viewer2DID&);
 
     uiTreeFactorySet*		treeItemFactorySet2D()	{ return tifs2d_; }
     uiTreeFactorySet*		treeItemFactorySet3D()	{ return tifs3d_; }
@@ -149,7 +149,7 @@ protected:
 				uiODViewer2DMgr(uiODMain*);
 				~uiODViewer2DMgr();
 
-    uiODViewer2D&		addViewer2D(VisID visid);
+    uiODViewer2D&		addViewer2D(const VisID&);
     void			remove2DViewer(int id,bool byvisid);
 
     ObjectSet<uiODViewer2D>	viewers2d_;
@@ -218,11 +218,16 @@ public:
     void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
 						    TypeSet<Vis2DID>&) const;
 
-    void			addNewTrackingHorizon3D(EM::ObjectID,SceneID);
-    void			addNewTrackingHorizon2D(EM::ObjectID,SceneID);
-    void			addNewTempFault(EM::ObjectID,SceneID);
-    void			addNewTempFaultSS(EM::ObjectID,SceneID);
-    void			addNewTempFaultSS2D(EM::ObjectID,SceneID);
+    void			addNewTrackingHorizon3D(const EM::ObjectID&,
+							const SceneID&);
+    void			addNewTrackingHorizon2D(const EM::ObjectID&,
+							const SceneID&);
+    void			addNewTempFault(const EM::ObjectID&,
+						const SceneID&);
+    void			addNewTempFaultSS(const EM::ObjectID&,
+						  const SceneID&);
+    void			addNewTempFaultSS2D(const EM::ObjectID&,
+						    const SceneID&);
 
     void			getVwr2DObjIDs(TypeSet<Vis2DID>&) const;
 

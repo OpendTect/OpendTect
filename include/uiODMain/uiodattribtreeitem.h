@@ -18,17 +18,17 @@ mExpClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
 { mODTextTranslationClass(mODTextTranslationClass)
 public:
 			uiODAttribTreeItem(const char* parenttype);
-    virtual		~uiODAttribTreeItem();
 
-    static uiString	createDisplayName(VisID visid,int attrib);
-    static void		createSelMenu(MenuItem&,VisID visid,int attrib,
-				      SceneID sceneid);
-    static bool		handleSelMenu(int mnuid,VisID visid,int attrib);
+    static uiString	createDisplayName(const VisID&,int attrib);
+    static void		createSelMenu(MenuItem&,const VisID&,int attrib,
+				      const SceneID&);
+    static bool		handleSelMenu(int mnuid,const VisID&,int attrib);
     static uiString	sKeySelAttribMenuTxt();
     static uiString	sKeyColSettingsMenuTxt();
     static uiString	sKeyUseColSettingsMenuTxt();
 
 protected:
+			~uiODAttribTreeItem();
 
     bool		anyButtonClick(uiTreeViewItem*) override;
 

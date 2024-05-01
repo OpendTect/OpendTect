@@ -111,7 +111,7 @@ protected:
 						    const Coord3&);
     Geometry::ElementEditor*		getEditor();
     const Geometry::ElementEditor*	getEditor() const;
-    virtual Geometry::ElementEditor*	createEditor() = 0;
+    virtual Geometry::ElementEditor*	createEditor()			= 0;
 
     void				editPosChangeTrigger(CallBacker*);
 

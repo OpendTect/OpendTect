@@ -9,29 +9,32 @@ ________________________________________________________________________
 -*/
 
 #include "uioddisplaytreeitem.h"
+
 #include "multiid.h"
+#include "prestackevents.h"
+#include "vispseventdisplay.h"
 
 class uiODPSEventsTreeItem;
-namespace PreStack { class EventManager; }
-namespace visSurvey { class PSEventDisplay; }
 
 mExpClass(uiODMain) uiODPSEventsParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODPSEventsParentTreeItem)
 public:
 				uiODPSEventsParentTreeItem();
-				~uiODPSEventsParentTreeItem();
 
     SceneID			sceneID() const;
 
     static CNotifier<uiODPSEventsParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+				~uiODPSEventsParentTreeItem();
+
     bool			init() override;
     const char*			parentType() const override;
     const char*			iconName() const override;
     bool			showSubMenu() override;
     bool			loadPSEvent(MultiID&,BufferString&);
-    uiODPSEventsTreeItem*	child_;
+
+    uiODPSEventsTreeItem*	child_ = nullptr;
 };
 
 
@@ -41,8 +44,7 @@ public:
     const char*		name() const override	{ return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODPSEventsParentTreeItem;}
-
-    uiTreeItem*		create(VisID visid,uiTreeItem*) const
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override
 			{ return new uiODPSEventsParentTreeItem; }
 };
 
@@ -51,12 +53,14 @@ mExpClass(uiODMain) uiODPSEventsTreeItem : public uiODDisplayTreeItem
 {
 public:
 			uiODPSEventsTreeItem(const MultiID& key,const char*);
-			~uiODPSEventsTreeItem();
 
     void		updateScaleFactor(float);
     void		updateColorMode(int mode);
 
 protected:
+			~uiODPSEventsTreeItem();
+
+private:
     const char*		parentType() const override
 			{ return typeid(uiODPSEventsParentTreeItem).name();}
 
@@ -71,13 +75,17 @@ protected:
     void		updateDisplay();
     void		displayMiniColTab();
 
-    PreStack::EventManager&	psem_;
+    RefMan<PreStack::EventManager> psem_;
     BufferString		eventname_;
-    float			scalefactor_;
+    float			scalefactor_	= 1.f;
     Coord			dir_;
-    visSurvey::PSEventDisplay*	eventdisplay_;
     MenuItem*			coloritem_;
     MultiID			key_;
-    int				coloridx_;
-    int				dispidx_;
+    int				coloridx_	= 0;
+    int				dispidx_	= 0;
+
+    WeakPtr<visSurvey::PSEventDisplay>	eventdisplay_;
+
+    ConstRefMan<visSurvey::PSEventDisplay> getDisplay() const;
+    RefMan<visSurvey::PSEventDisplay> getDisplay();
 };

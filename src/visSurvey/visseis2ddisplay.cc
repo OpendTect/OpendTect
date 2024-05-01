@@ -9,13 +9,9 @@ ________________________________________________________________________
 
 #include "visseis2ddisplay.h"
 
-#include "visdrawstyle.h"
 #include "visevent.h"
 #include "vismaterial.h"
-#include "vispolyline.h"
-#include "vistext.h"
 #include "vistexturechannels.h"
-#include "vistexturepanelstrip.h"
 
 #include "array2dresample.h"
 #include "arrayndimpl.h"
@@ -27,7 +23,6 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "survgeometrytransl.h"
 #include "uistrings.h"
-#include "zaxistransform.h"
 
 //For parsing old pars
 #include "attribsel.h"
@@ -45,41 +40,36 @@ const char* Seis2DDisplay::sKeyShowPanel()	{ return "Show panel"; }
 const char* Seis2DDisplay::sKeyShowPolyLine()	{ return "Show polyline"; }
 
 Seis2DDisplay::Seis2DDisplay()
-    : prevtrcidx_(0)
-    , polyline_(visBase::PolyLine::create())
-    , panelstrip_(visBase::TexturePanelStrip::create())
-    , geometry_(*new PosInfo::Line2DData)
+    : geometry_(*new PosInfo::Line2DData)
     , maxtrcnrrg_(0,mUdf(int),1)
-    , transformation_(0)
-    , linename_(visBase::Text2::create())
+    , pixeldensity_( getDefaultPixelDensity() )
     , geomchanged_(this)
     , geomidchanged_(this)
-    , datatransform_(0)
-    , voiidx_(-1)
-    , pixeldensity_( getDefaultPixelDensity() )
 {
+    ref();
     datapacks_.setNullAllowed();
     transformedpacks_.setNullAllowed();
 
-    geometry_.setZRange( StepInterval<float>(mUdf(float),mUdf(float),1) );
+    geometry_.setZRange( ZSampling(mUdf(float),mUdf(float),1.f) );
 
-    polyline_->ref();
-    polyline_->setMaterial( new visBase::Material );
+    RefMan<visBase::Material> newmat = visBase::Material::create();
+    polyline_ = visBase::PolyLine::create();
+    polyline_->setMaterial( newmat.ptr() );
     addChild( polyline_->osgNode() );
 
-    polylineds_ = polyline_->addNodeState( new visBase::DrawStyle );
+    RefMan<visBase::DrawStyle> newstyle = visBase::DrawStyle::create();
+    polylineds_ = polyline_->addNodeState( newstyle.ptr() );
     polylineds_->setLineStyle(
 		    OD::LineStyle(OD::LineStyle::Solid,3,OD::Color::White()) );
     setColor( OD::Color::White() );
-    polylineds_->ref();
 
-    panelstrip_->ref();
+    panelstrip_ = visBase::TexturePanelStrip::create();
     addChild( panelstrip_->osgNode() );
     panelstrip_->setTextureChannels( channels_ );
     panelstrip_->swapTextureAxes();
     panelstrip_->smoothNormals();
 
-    linename_->ref();
+    linename_ = visBase::Text2::create();
     addChild( linename_->osgNode() );
     linename_->addText();
 
@@ -91,24 +81,22 @@ Seis2DDisplay::Seis2DDisplay()
 
     init();
     showPanel( false );
+    unRefNoDelete();
 }
 
 
 Seis2DDisplay::~Seis2DDisplay()
 {
     removeChild( linename_->osgNode() );
-    linename_->unRef();
-
+    linename_ = nullptr;
     delete &geometry_;
 
-    if ( transformation_ ) transformation_->unRef();
-
+    transformation_ = nullptr;
     polyline_->removeNodeState( polylineds_ );
-    polylineds_->unRef();
-    polyline_->unRef();
-
-    panelstrip_->unRef();
-    setZAxisTransform( 0,0 );
+    polylineds_ = nullptr;
+    polyline_ = nullptr;
+    panelstrip_ = nullptr;
+    setZAxisTransform( nullptr, nullptr );
 }
 
 
@@ -159,7 +147,7 @@ void Seis2DDisplay::enableAttrib( int attrib, bool yn )
 }
 
 
-void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
+void Seis2DDisplay::setGeomID( const Pos::GeomID& geomid )
 {
     geomid_ = geomid;
     BufferString lnm = Survey::GM().getName( geomid_ );
@@ -254,7 +242,7 @@ Interval<float> Seis2DDisplay::getDataTraceRange() const
 }
 
 
-StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
+ZSampling Seis2DDisplay::getMaxZRange( bool displayspace ) const
 {
     if ( !datatransform_ || !displayspace )
 	return geometry_.zRange();
@@ -264,12 +252,12 @@ StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
 }
 
 
-void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
+void Seis2DDisplay::setZRange( const ZSampling& nzrg )
 {
     if ( mIsUdf(geometry_.zRange().start) )
 	return;
 
-    const StepInterval<float> maxzrg = getMaxZRange( true );
+    const ZSampling maxzrg = getMaxZRange( true );
     const Interval<float> zrg( mMAX(maxzrg.start,nzrg.start),
 			       mMIN(maxzrg.stop,nzrg.stop) );
     const bool hasdata = !datapacks_.isEmpty() && datapacks_[0];
@@ -284,8 +272,7 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
 }
 
 
-StepInterval<float> Seis2DDisplay::getZRange( bool displayspace,
-					      int attrib ) const
+ZSampling Seis2DDisplay::getZRange( bool displayspace, int attrib ) const
 {
     const bool alreadytransformed = alreadyTransformed( attrib );
     if ( alreadytransformed )
@@ -300,8 +287,9 @@ StepInterval<float> Seis2DDisplay::getZRange( bool displayspace,
 
 const Interval<int> Seis2DDisplay::getSampleRange() const
 {
-    StepInterval<float> maxzrg = getMaxZRange( true );
-    Interval<int> samplerg( maxzrg.nearestIndex(trcdisplayinfo_.zrg_.start),
+    const ZSampling maxzrg = getMaxZRange( true );
+    const Interval<int> samplerg(
+			    maxzrg.nearestIndex(trcdisplayinfo_.zrg_.start),
 			    maxzrg.nearestIndex(trcdisplayinfo_.zrg_.stop) );
     return samplerg;
 }
@@ -313,7 +301,6 @@ const Interval<int> Seis2DDisplay::getSampleRange() const
 void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 {
     trcdisplayinfo_.rg_.setUdf();
-
     if ( maxtrcnrrg_.isRev() )
 	mRetErrGeo;
 
@@ -361,11 +348,19 @@ const StepInterval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 { return maxtrcnrrg_; }
 
 
-bool Seis2DDisplay::setDataPackID( int attrib, DataPackID dpid,
+bool Seis2DDisplay::setDataPackID( int attrib, const DataPackID& dpid,
 				   TaskRunner* taskr )
 {
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
+    DataPackMgr& dpm = DPM( getDataPackMgrID() );
+    RefMan<RegularSeisDataPack> regsdp = dpm.get<RegularSeisDataPack>( dpid );
+    return setSeisDataPack( attrib, regsdp.ptr(), taskr );
+}
+
+
+bool Seis2DDisplay::setSeisDataPack( int attrib, RegularSeisDataPack* dp,
+				     TaskRunner* taskr )
+{
+    RefMan<RegularSeisDataPack> regsdp = dp;
     if ( !regsdp || regsdp->isEmpty() )
     {
 	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, taskr );
@@ -382,24 +377,54 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPackID dpid,
 }
 
 
+ConstRefMan<RegularSeisDataPack> Seis2DDisplay::getDataPack(
+						int attrib ) const
+{
+    return mSelf().getDataPack( attrib );
+}
+
+
+RefMan<RegularSeisDataPack> Seis2DDisplay::getDataPack( int attrib )
+{
+    if ( !datapacks_.validIdx(attrib) || !datapacks_[attrib] )
+	return nullptr;
+
+    return datapacks_[attrib];
+}
+
+
 DataPackID Seis2DDisplay::getDataPackID( int attrib ) const
 {
-    return datapacks_.validIdx(attrib) && datapacks_[attrib]
-	? datapacks_[attrib]->id()
-        : DataPack::cNoID();
+    ConstRefMan<RegularSeisDataPack> dp = getDataPack( attrib );
+    return dp ? dp->id() : DataPack::cNoID();
+}
+
+
+ConstRefMan<RegularSeisDataPack> Seis2DDisplay::getDisplayedDataPack(
+							int attrib ) const
+{
+    return mSelf().getDisplayedDataPack( attrib );
+}
+
+
+RefMan<RegularSeisDataPack> Seis2DDisplay::getDisplayedDataPack( int attrib )
+{
+    if ( datatransform_ && !alreadyTransformed(attrib) )
+    {
+	if ( !transformedpacks_.validIdx(attrib) || !transformedpacks_[attrib] )
+	    return nullptr;
+
+	return transformedpacks_[attrib];
+    }
+
+    return getDataPack( attrib );
 }
 
 
 DataPackID Seis2DDisplay::getDisplayedDataPackID( int attrib ) const
 {
-    if ( datatransform_ && !alreadyTransformed(attrib) )
-    {
-        return transformedpacks_.validIdx(attrib) && transformedpacks_[attrib]
-            ? transformedpacks_[attrib]->id()
-            : DataPack::cNoID();
-        }
-
-    return getDataPackID( attrib );
+    ConstRefMan<RegularSeisDataPack> dp = getDisplayedDataPack( attrib );
+    return dp ? dp->id() : DataPack::cNoID();
 }
 
 
@@ -424,9 +449,7 @@ void Seis2DDisplay::updateTexOriginAndScale( int attrib,
 
 void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
-    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPackID dpid = getDisplayedDataPackID( attrib );
-    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
+    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedDataPack( attrib );
     if ( !regsdp )
 	return;
 
@@ -496,13 +519,11 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 {
-    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPackID dpid = getDataPackID( attrib );
-    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
+    ConstRefMan<RegularSeisDataPack> regsdp = getDataPack( attrib );
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
-    RefMan<RegularSeisDataPack> output;
+    RefMan<RegularSeisDataPack> transformed;
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
 	const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, attrib );
@@ -521,10 +542,10 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 	transformer.setOutputZRange( tkzs.zsamp_ );
 	transformer.execute();
 
-        output = transformer.getOutput();
+	transformed = transformer.getOutput();
     }
 
-    transformedpacks_.replace( attrib, output );
+    transformedpacks_.replace( attrib, transformed );
 }
 
 
@@ -666,13 +687,13 @@ void Seis2DDisplay::updateLineNamePos()
 
 SurveyObject* Seis2DDisplay::duplicate( TaskRunner* taskr ) const
 {
-    Seis2DDisplay* s2dd = new Seis2DDisplay;
+    auto* s2dd = new Seis2DDisplay;
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( trcdisplayinfo_.zrg_ );
     s2dd->setTraceNrRange( getTraceNrRange() );
     s2dd->setResolution( getResolution(), taskr );
     s2dd->setGeomID( geomid_ );
-    s2dd->setZAxisTransform( datatransform_, taskr );
+    s2dd->setZAxisTransform( datatransform_.getNonConstPtr(), taskr );
     s2dd->showPanel( panelstrip_->isOn() );
 
     while ( nrAttribs() > s2dd->nrAttribs() )
@@ -681,12 +702,19 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* taskr ) const
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
 	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
-	if ( selspecs ) s2dd->setSelSpecs( idx, *selspecs );
-	s2dd->setDataPackID( idx, getDataPackID(idx), taskr );
+	if ( !selspecs )
+	    continue;
+
+	s2dd->setSelSpecs( idx, *selspecs );
+	ConstRefMan<RegularSeisDataPack> regsdp = getDataPack( idx );
+	s2dd->setSeisDataPack( idx, regsdp.getNonConstPtr(), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
-	if ( mappersetup ) s2dd->setColTabMapperSetup( idx,*mappersetup,taskr );
+	if ( mappersetup )
+	    s2dd->setColTabMapperSetup( idx,*mappersetup,taskr );
+
 	const ColTab::Sequence* colseq = getColTabSequence( idx );
-	if ( colseq ) s2dd->setColTabSequence( idx, *colseq, taskr );
+	if ( colseq )
+	    s2dd->setColTabSequence( idx, *colseq, taskr );
     }
 
     return s2dd;
@@ -696,15 +724,15 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* taskr ) const
 float Seis2DDisplay::calcDist( const Coord3& pos ) const
 {
     Coord3 xytpos;
-    mVisTrans::transformBack( scene_ ? scene_->getUTM2DisplayTransform() : 0,
-			      pos, xytpos );
+    mVisTrans::transformBack( scene_ ? scene_->getUTM2DisplayTransform()
+				     : nullptr, pos, xytpos );
 
     int trcidx; float minsqdist;
     getNearestTrace( xytpos, trcidx, minsqdist );
     if ( minsqdist<0 || mIsUdf(minsqdist) )
 	return mUdf(float);
 
-    StepInterval<float> zrg = getZRange( true );
+    ZSampling zrg = getZRange( true );
     float zdif = 0;
     if ( !zrg.includes(xytpos.z,false) )
     {
@@ -721,12 +749,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 
 void Seis2DDisplay::setDisplayTransformation( const mVisTrans* tf )
 {
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_ = tf;
-    transformation_->ref();
-
     polyline_->setDisplayTransformation( transformation_ );
     panelstrip_->setDisplayTransformation( transformation_ );
     linename_->setDisplayTransformation( transformation_ );
@@ -735,7 +758,7 @@ void Seis2DDisplay::setDisplayTransformation( const mVisTrans* tf )
 
 const mVisTrans* Seis2DDisplay::getDisplayTransformation() const
 {
-    return transformation_;
+    return transformation_.ptr();
 }
 
 
@@ -743,7 +766,6 @@ void Seis2DDisplay::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
     pixeldensity_ = dpi;
-
     if ( linename_ )
 	linename_->text()->updateFontSize( dpi );
 }
@@ -868,7 +890,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 			.arg(geometry_.positions()[dataidx].nr_) );
 
 	const Survey::Geometry* geom = Survey::GM().getGeometry(geomid_);
-	const Survey::Geometry2D* geom2d = geom ? geom->as2D() : 0;
+	const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
 	if ( geom2d && geom2d->spnrs().validIdx(dataidx) )
 	    info.append( toUiString(", SP: %1")
 					    .arg(geom2d->spnrs()[dataidx]) );
@@ -887,15 +909,13 @@ void Seis2DDisplay::getObjectInfo( uiString& info ) const
 bool Seis2DDisplay::getCacheValue( int attrib, int version,
 				    const Coord3& pos, float& res ) const
 {
-    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    const DataPackID dpid = getDisplayedDataPackID( attrib );
-    auto regsdp = dpm.get<RegularSeisDataPack>( dpid );
+    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedDataPack( attrib );
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
     int traceidx = -1;
     float minsqdist;
-    if ( !getNearestTrace(pos, traceidx, minsqdist) )
+    if ( !getNearestTrace(pos,traceidx,minsqdist) )
 	return false;
 
     const int trcnr = geometry_.positions()[traceidx].nr_;
@@ -943,7 +963,8 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 {
     float mindist2 = MAXFLOAT;
     Interval<int> trcrg = getTraceNrRange();
-    if ( usemaxrange ) trcrg = getMaxTraceNrRange();
+    if ( usemaxrange )
+	trcrg = getMaxTraceNrRange();
 
     const TypeSet<PosInfo::Line2DPos>& posns = geometry_.positions();
     for ( int aidx=0; aidx<posns.size()-1; aidx++ )
@@ -1010,6 +1031,7 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    frac = Math::Sqrt( dist2a - height2 ) / distc;
 	}
     }
+
     return mindist2!=MAXFLOAT ? Math::Sqrt(mindist2) : -1.0f;
 }
 
@@ -1020,7 +1042,8 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
     float minsqdist;
     getNearestTrace( pos, trcidx, minsqdist );
 
-    if ( trcidx<0 ) return;
+    if ( trcidx<0 )
+	return;
 
     const Coord& crd = geometry_.positions()[trcidx].coord_;
     pos.x = crd.x; pos.y = crd.y;
@@ -1030,11 +1053,13 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 				     int& trcidx, float& minsqdist ) const
 {
-    if ( geometry_.isEmpty() ) return false;
+    if ( geometry_.isEmpty() )
+	return false;
 
     const int nidx = geometry_.nearestIdx( pos, trcdisplayinfo_.rg_ );
     if ( nidx >= 0 )
 	minsqdist = (float) geometry_.positions()[nidx].coord_.sqDistTo( pos );
+
     trcidx = nidx;
     return trcidx >= 0;
 }
@@ -1045,6 +1070,7 @@ Coord Seis2DDisplay::getCoord( int trcnr ) const
     const int sz = geometry_.positions().size();
     if ( !sz )
 	return Coord::udf();
+
     if ( prevtrcidx_ >= sz )
 	prevtrcidx_ = sz-1;
 
@@ -1079,11 +1105,11 @@ bool Seis2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* taskr )
     if ( datatransform_ )
     {
 	if ( voiidx_!=-1 )
-	    datatransform_->removeVolumeOfInterest(voiidx_);
+	    datatransform_->removeVolumeOfInterest( voiidx_ );
+
 	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->remove(
-		    mCB(this,Seis2DDisplay,dataTransformCB) );
-	datatransform_->unRef();
+	    mDetachCB( *datatransform_->changeNotifier(),
+		       Seis2DDisplay::dataTransformCB );
     }
 
     datatransform_ = zat;
@@ -1091,11 +1117,10 @@ bool Seis2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* taskr )
 
     if ( datatransform_ )
     {
-	datatransform_->ref();
 	updateRanges( false, !haddatatransform );
 	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->notify(
-		    mCB(this,Seis2DDisplay,dataTransformCB) );
+	    mAttachCB( *datatransform_->changeNotifier(),
+		       Seis2DDisplay::dataTransformCB );
     }
 
     return true;
@@ -1103,7 +1128,9 @@ bool Seis2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* taskr )
 
 
 const ZAxisTransform* Seis2DDisplay::getZAxisTransform() const
-{ return datatransform_; }
+{
+    return datatransform_.ptr();
+}
 
 
 void Seis2DDisplay::dataTransformCB( CallBacker* )
@@ -1111,8 +1138,8 @@ void Seis2DDisplay::dataTransformCB( CallBacker* )
     updateRanges( false, true );
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	createTransformedDataPack( idx, 0 );
-	updateChannels( idx, 0 );
+	createTransformedDataPack( idx, nullptr );
+	updateChannels( idx, nullptr );
     }
 }
 
@@ -1161,12 +1188,30 @@ OD::Color Seis2DDisplay::getAnnotColor() const
 }
 
 
+const visBase::TexturePanelStrip* Seis2DDisplay::getTexturePanelStrip() const
+{
+    return panelstrip_.ptr();
+}
+
+
+visBase::TexturePanelStrip* Seis2DDisplay::getTexturePanelStrip()
+{
+    return panelstrip_.ptr();
+}
+
+
+const visBase::Text2* Seis2DDisplay::getVisTextLineName() const
+{
+    return linename_.ptr();
+}
+
+
 Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 						const char* linenmptr )
 {
     StringView linenm = linenmptr;
     TypeSet<VisID> ids;
-    visBase::DM().getIDs( typeid(visSurvey::Seis2DDisplay), ids );
+    visBase::DM().getIDs( typeid(Seis2DDisplay), ids );
 
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -1176,14 +1221,14 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 	    return s2dd;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
-Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( Pos::GeomID geomid )
+Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const Pos::GeomID& geomid )
 {
     TypeSet<VisID> ids;
-    visBase::DM().getIDs( typeid(visSurvey::Seis2DDisplay), ids );
+    visBase::DM().getIDs( typeid(Seis2DDisplay), ids );
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
@@ -1192,7 +1237,7 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( Pos::GeomID geomid )
 	    return s2dd;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -1298,9 +1343,9 @@ void Seis2DDisplay::getLineSegmentProjection( const Coord3 pos1,
 
 void Seis2DDisplay::fillPar( IOPar& par ) const
 {
-    visSurvey::MultiTextureSurveyObject::fillPar( par );
+    MultiTextureSurveyObject::fillPar( par );
 
-    par.set( "GeomID", geomid_ );
+    par.set( sKey::GeomID(), geomid_ );
     par.setYN( sKeyShowLineName(), isLineNameShown() );
     par.setYN( sKeyShowPanel(), isPanelShown() );
     par.setYN( sKeyShowPolyLine(), isPolyLineShown() );
@@ -1313,11 +1358,11 @@ void Seis2DDisplay::fillPar( IOPar& par ) const
 
 bool Seis2DDisplay::usePar( const IOPar& par )
 {
-    if ( !MultiTextureSurveyObject::usePar( par ) )
+    if ( !MultiTextureSurveyObject::usePar(par) )
 	return false;
 
     Interval<int> trcnrrg;
-    if ( par.get( sKeyTrcNrRange(), trcnrrg ) )
+    if ( par.get(sKeyTrcNrRange(),trcnrrg) )
 	trcdisplayinfo_.rg_ = trcnrrg;
 
     bool doshow = false;
@@ -1333,7 +1378,7 @@ bool Seis2DDisplay::usePar( const IOPar& par )
     par.get( sKeyZRange(), trcdisplayinfo_.zrg_ );
 
     Pos::GeomID geomid;
-    if ( par.get("GeomID",geomid) )
+    if ( par.get(sKey::GeomID(),geomid) )
 	setGeomID( geomid );
 
     return true;

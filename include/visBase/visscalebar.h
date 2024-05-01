@@ -29,7 +29,7 @@ namespace visBase
 mExpClass(visBase) ScaleBar : public visBase::VisualObjectImpl
 {
 public:
-    static ScaleBar*		create()
+    static RefMan<ScaleBar>	create();
 				mCreateDataObj(ScaleBar);
 
     void			setPick(const Pick::Location&);
@@ -51,14 +51,14 @@ protected:
     Coord3			getSecondPos(const Pick::Location&) const;
     void			updateVis(const Pick::Location&);
 
-    visBase::MarkerSet*		markers_;
-    visBase::Lines*		lines_;
-    visBase::DrawStyle*		linestyle_;
-    const mVisTrans*		displaytrans_;
+    RefMan<visBase::MarkerSet>	markers_;
+    RefMan<visBase::Lines>	lines_;
+    RefMan<visBase::DrawStyle>	linestyle_;
+    ConstRefMan<mVisTrans>	displaytrans_;
 
-    bool			oninlcrl_;
-    double			length_;
-    int				orientation_;
+    bool			oninlcrl_ = true;
+    double			length_ = 1000.;
+    int				orientation_ = 0;
     Coord3			pos_;
     Pick::Location&		firstloc_;
 };

@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "gendefs.h"
-#include "uiattrdesced.h"
+
+#include "attribdesc.h"
 #include "attribdescid.h"
+#include "uiattrdesced.h"
 #include "uiattribpanel.h"
 
 namespace Attrib { class Desc; }
@@ -58,7 +60,7 @@ protected:
     void		viewPanelCB(CallBacker*);
     void		inputSelCB(CallBacker*);
     DescID		createCEEMDDesc(DescSet*) const;
-    Desc*		createNewDesc(DescSet*,DescID,const char*,
+    RefMan<Desc>	createNewDesc(DescSet*,DescID,const char*,
 				      int inpidx,BufferString) const;
     void		fillInCEEMDDescParams(Desc*) const;
 

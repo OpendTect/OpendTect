@@ -513,16 +513,20 @@ bool acceptOK( CallBacker* ) override
 
 void uiScalingAttrib::analyzeCB( CallBacker* )
 {
-    Attrib::Desc* inpdesc = !ads_ ? getInputDescFromDP( inpfld )
-				  : ads_->getDesc( inpfld->attribID() );
-    Attrib::Desc* inpdesccp = new Attrib::Desc( *inpdesc );
-    Attrib::Desc* voldesc = PF().createDescCopy( VolStats::attribName() );
+    RefMan<Attrib::Desc> inpdesc;
+    if ( ads_ )
+	inpdesc = ads_->getDesc( inpfld->attribID() );
+    else
+	inpdesc = getInputDescFromDP( inpfld );
+
+    RefMan<Attrib::Desc> inpdesccp = new Attrib::Desc( *inpdesc );
+    RefMan<Attrib::Desc> voldesc = PF().createDescCopy( VolStats::attribName());
     if ( !inpdesccp || !voldesc )
 	return;
 
-    PtrMan<Attrib::DescSet> descset =
-	ads_ ? ads_->optimizeClone( inpfld->attribID() )
-	     : new DescSet( is2D() );
+    PtrMan<Attrib::DescSet> descset = ads_
+			? ads_->optimizeClone( inpfld->attribID() )
+			: new DescSet( is2D() );
     if ( !descset )
 	return;
 

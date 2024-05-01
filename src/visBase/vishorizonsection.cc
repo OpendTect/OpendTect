@@ -7,20 +7,20 @@ ________________________________________________________________________
 
 -*/
 
-#include "visosg.h"
 #include "vishorizonsection.h"
-#include "vishordatahandler.h"
-#include "vishorizontexturehandler.h"
-#include "vishorizonsectiontile.h"
-#include "vishorthreadworks.h"
-#include "vishortilescreatorandupdator.h"
-#include "vishorizonsectiontileglue.h"
 
 #include "binidsurface.h"
 #include "mousecursor.h"
 #include "survinfo.h"
+#include "vishordatahandler.h"
+#include "vishorizonsectiontile.h"
+#include "vishorizonsectiontileglue.h"
+#include "vishorizontexturehandler.h"
+#include "vishortilescreatorandupdator.h"
+#include "vishorthreadworks.h"
+#include "visosg.h"
 #include "vistransform.h"
-#include "zaxistransform.h"
+
 
 #include <osgGeo/LayeredTexture>
 
@@ -221,54 +221,37 @@ bool HorizonSection::NodeCallbackHandler::eyeChanged( const osg::Vec3 projdir )
 //===========================================================================
 
 HorizonSection::HorizonSection()
-    : VisualObjectImpl( false )
-    , transformation_( 0 )
-    , geometry_( 0 )
-    , origin_( 0, 0 )
-    , displayrrg_( -1, -1, 0 )
-    , displaycrg_( -1, -1, 0 )
-    , texturerowrg_( 0, mUdf(int), 1 )
-    , texturecolrg_( 0, mUdf(int), 1 )
-    , userchangedisplayrg_( false )
-    , tiles_( 0, 0 )
-    , desiredresolution_( cNoneResolution )
-    , tesselationlock_( false )
-    , nrcoordspertileside_( 0 )
-    , tilesidesize_( 0 )
-    , totalnormalsize_( 0 )
-    , lowestresidx_( 0 )
-    , nrhorsectnrres_( 0 )
-    , osghorizon_( new osg::Group )
-    , forceupdate_( false )
-    , wireframedisplayed_( 0 )
-    , hordatahandler_( new HorizonSectionDataHandler( this ) )
-    , hortexturehandler_( new HorizonTextureHandler( this ) )
-    , hortilescreatorandupdator_( new HorTilesCreatorAndUpdator(this) )
-    , nodecallbackhandler_( 0 )
-    , texturecallbackhandler_( 0 )
-    , isredrawing_( false )
-    , zaxistransform_( 0 )
-    , useneighbors_( true )
+    : VisualObjectImpl(false)
+    , origin_(0,0)
+    , displayrrg_(-1,-1,0)
+    , displaycrg_(-1,-1,0)
+    , texturerowrg_(0,mUdf(int),1)
+    , texturecolrg_(0,mUdf(int),1)
+    , tiles_(0,0)
+    , desiredresolution_(cNoneResolution)
+    , tesselationlock_(false)
+    , osghorizon_(new osg::Group)
 {
+    ref();
+    hordatahandler_ = new HorizonSectionDataHandler( this );
+    hortexturehandler_ = new HorizonTextureHandler( this );
+    hortilescreatorandupdator_ = new HorTilesCreatorAndUpdator( this );
     setLockable();
-    osghorizon_->ref();
+    refOsgPtr( osghorizon_ );
 
     nodecallbackhandler_ = new NodeCallbackHandler( this );
-    nodecallbackhandler_->ref();
+    refOsgPtr( nodecallbackhandler_ );
     osghorizon_->setCullCallback( nodecallbackhandler_ );
     texturecallbackhandler_ = new TextureCallbackHandler( *this );
-    texturecallbackhandler_->ref();
+    refOsgPtr( texturecallbackhandler_ );
     hortexturehandler_->getOsgTexture()->addCallback( texturecallbackhandler_ );
 
     addChild( osghorizon_ );
 
-    hortexturehandler_->ref();
     addChild( hortexturehandler_->getOsgNode() );
-    hordatahandler_->ref();
-    hortilescreatorandupdator_->ref();
-
     queueid_ = Threads::WorkManager::twm().addQueue(
-		Threads::WorkManager::Manual, "HorizonSection" );
+	       Threads::WorkManager::Manual, "HorizonSection" );
+    unRefNoDelete();
 }
 
 
@@ -278,15 +261,13 @@ HorizonSection::~HorizonSection()
 
     hortexturehandler_->getOsgTexture()->removeCallback(
 						    texturecallbackhandler_ );
-    texturecallbackhandler_->unref();
+    unRefOsgPtr( texturecallbackhandler_ );
 
     forceRedraw( false );
-    osghorizon_->setCullCallback( 0 );
-    nodecallbackhandler_->unref();
+    osghorizon_->setCullCallback( nullptr );
+    unRefOsgPtr( nodecallbackhandler_ );
 
-    osghorizon_->unref();
-    hortexturehandler_->unRef();
-
+    unRefOsgPtr( osghorizon_ );
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
     {
@@ -298,11 +279,6 @@ HorizonSection::~HorizonSection()
 	delete tileptrs[idx];
 	writeUnLock();
     }
-
-    if ( transformation_ ) transformation_->unRef();
-
-    hordatahandler_->unRef();
-    hortilescreatorandupdator_->unRef();
 
     Threads::WorkManager::twm().removeQueue( queueid_, false );
 }
@@ -352,22 +328,17 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 	    backupdator.execute();
 	    spinlock_.unLock();
 	}
-	transformation_->unRef();
     }
 
     transformation_ = nt;
-
-    if ( transformation_ )
-	transformation_->ref();
-
     if ( (transformation_ && tileptrs) || (tiles_.info().getTotalSz()>0) )
     {
 	for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
 	    if ( tileptrs[idx] ) tileptrs[idx]->bbox_.init();
 	spinlock_.lock();
-        TileCoordinatesUpdator forwardupdator(
-	    this, od_int64(tiles_.info().getTotalSz()),
-	    transformation_,false );
+	TileCoordinatesUpdator forwardupdator( this,
+					od_int64(tiles_.info().getTotalSz()),
+					transformation_,false );
 	forwardupdator.execute();
 	spinlock_.unLock();
     }
@@ -383,15 +354,14 @@ void HorizonSection::setDisplayTransformation( const mVisTrans* nt )
 	    tileptrs[idx]->dirtyGeometry();
 	}
     }
-
 }
 
 
-HorizonSectionTile* HorizonSection::getTile(int idx)
+HorizonSectionTile* HorizonSection::getTile( int idx )
 {
     HorizonSectionTile** tileptrs = tiles_.getData();
     if ( !tileptrs || (idx>=tiles_.info().getTotalSz()) )
-	return 0;
+	return nullptr;
     return tileptrs[idx];
 }
 
@@ -478,7 +448,7 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 	    writeLock();
 	    removeChild( tileptrs[idx]->osgswitchnode_ );
 	    delete tileptrs[idx];
-	    tileptrs[idx] = 0;
+	    tileptrs[idx] = nullptr;
 	    writeUnLock();
 	}
     }
@@ -689,11 +659,19 @@ void HorizonSection::setTextureData( int channel, const DataPointSet* dpset,
 {  hortexturehandler_->setTextureData( channel, sid,  dpset ); }
 
 
-osgGeo::LayeredTexture*	HorizonSection::getOsgTexture() const
+const osgGeo::LayeredTexture* HorizonSection::getOsgTexture() const
 { return hortexturehandler_->getOsgTexture(); }
 
 
-TextureChannels* HorizonSection::getChannels() const
+osgGeo::LayeredTexture* HorizonSection::getOsgTexture()
+{ return hortexturehandler_->getOsgTexture(); }
+
+
+const TextureChannels* HorizonSection::getChannels() const
+{ return hortexturehandler_->getChannels(); }
+
+
+TextureChannels* HorizonSection::getChannels()
 { return hortexturehandler_->getChannels(); }
 
 
@@ -775,9 +753,7 @@ void HorizonSection::setTextureHandler( HorizonTextureHandler& hortexhandler )
 {
     hortexturehandler_->getOsgTexture()->removeCallback(
 						    texturecallbackhandler_ );
-    hortexturehandler_->unRef();
     hortexturehandler_ = &hortexhandler;
-    hortexturehandler_->ref();
     hortexturehandler_->getOsgTexture()->addCallback( texturecallbackhandler_ );
 
     hortexturehandler_->setHorizonSection( *this );
@@ -804,13 +780,13 @@ bool HorizonSection::checkTileIndex( int tidx ) const
 
 
 const unsigned char* HorizonSection::getTextureData(
-    int tileidx, int& width, int& height ) const
+				int tileidx, int& width, int& height ) const
 {
-    osgGeo::LayeredTexture* texture = getOsgTexture();
-    const osg::Image* entireimg = texture->getCompositeTextureImage();
-
+    const osgGeo::LayeredTexture* texture = getOsgTexture();
+    const osg::Image* entireimg =
+			mNonConst( *texture ).getCompositeTextureImage();
     if ( !entireimg )
-	return 0;
+	return nullptr;
 
     width = entireimg->s();
     height = entireimg->t();
@@ -821,9 +797,9 @@ const unsigned char* HorizonSection::getTextureData(
 
 int HorizonSection::getTexturePixelSizeInBits() const
 {
-    osgGeo::LayeredTexture* texture = getOsgTexture();
-    const osg::Image* entireimg = texture->getCompositeTextureImage();
-
+    const osgGeo::LayeredTexture* texture = getOsgTexture();
+    const osg::Image* entireimg =
+			mNonConst( *texture ).getCompositeTextureImage();
     if ( !entireimg )
 	return 0;
 

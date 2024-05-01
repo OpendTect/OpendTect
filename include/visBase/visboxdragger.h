@@ -28,7 +28,7 @@ mExpClass(visBase) BoxDragger : public VisualObjectImpl
 public:
     friend class BoxDraggerCallbackHandler;
 
-    static BoxDragger*		create()
+    static RefMan<BoxDragger>	create();
 				mCreateDataObj(BoxDragger);
 
     void			setCenter(const Coord3&);
@@ -96,7 +96,7 @@ protected:
 
     osgGeo::TabBoxDragger*		osgboxdragger_;
     osg::ShapeDrawable*			osgdraggerbox_;
-    BoxDraggerCallbackHandler*		osgcallbackhandler_;
+    BoxDraggerCallbackHandler*		osgcallbackhandler_ = nullptr;
 
     Interval<float>			widthranges_[3];
     Interval<float>			spaceranges_[3];
@@ -104,7 +104,7 @@ protected:
     StepInterval<float>			dragctrlspacing_[3];
 
     bool				selectable_;
-    bool				useindepthtransforresize_;
+    bool				useindepthtransforresize_ = false;
 };
 
 } // namespace visBase

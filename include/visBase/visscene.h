@@ -35,7 +35,7 @@ namespace visBase
 mExpClass(visBase) Scene : public DataObjectGroup
 {
 public:
-    static Scene*	create()
+    static RefMan<Scene> create();
 			mCreateDataObj(Scene);
 
     void		addObject(DataObject*) override;
@@ -47,7 +47,8 @@ public:
     void		setCameraLightIntensity( float );
     float		getCameraLightIntensity() const;
 
-    Light*		getDirectionalLight() const;
+    Light*		getDirectionalLight();
+    const Light*	getDirectionalLight() const;
 
     PolygonOffset*	getPolygonOffset()	{ return polygonoffset_; }
     bool		saveCurrentOffsetAsDefault() const;
@@ -55,8 +56,8 @@ public:
     bool		blockMouseSelection(bool yn);
 			/*!<\returns previous status. */
 
-    Camera*		getCamera()			{ return camera_; }
-    const Camera*	getCamera() const		{ return camera_; }
+    Camera*		getCamera();
+    const Camera*	getCamera() const;
     virtual void	setCamera(Camera*);
 
     EventCatcher&	eventCatcher();
@@ -79,8 +80,11 @@ public:
     static const char*	sKeyLight()	{ return "Light"; }
 
 protected:
-    virtual		~Scene();
-    EventCatcher&	events_;
+			Scene( bool /*internal*/ )
+			    : Scene()		{}
+			~Scene();
+
+    RefMan<EventCatcher> events_;
 
     virtual void	runUpdateQueueCB(CallBacker*);
 
@@ -94,13 +98,13 @@ private:
 
     void		mousePickCB(CallBacker*);
 
-    PolygonOffset*	polygonoffset_;
-    Light*		light_;
+    RefMan<PolygonOffset> polygonoffset_;
+    RefMan<Light>	light_;
 
-    bool		blockmousesel_;
-    osg::Group*		osgsceneroot_;
+    bool		blockmousesel_ = false;
+    osg::Group*		osgsceneroot_ = nullptr;
 
-    Camera*		camera_;
+    RefMan<Camera>	camera_;
 };
 
 } // namespace visBase

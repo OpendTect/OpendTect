@@ -18,20 +18,19 @@ namespace VolProc
 mExpClass(uiODMain) uiDataTreeItem : public uiODDataTreeItem
 { mODTextTranslationClass(uiDataTreeItem);
 public:
-   static void			initClass();
 				uiDataTreeItem(const char* parenttype,
-					       const MultiID* setupmid=0);
-   				~uiDataTreeItem();
-				
+					       const MultiID* setupmid=nullptr);
+
     bool			selectSetup();
 
     static const char*		sKeyVolumeProcessing()
 				{ return "VolumeProcessing"; }
 
 protected:
-    
+				~uiDataTreeItem();
+
     bool			anyButtonClick(uiTreeViewItem*) override;
-   
+
     static uiODDataTreeItem*	create(const Attrib::SelSpec&,const char*);
     void			createMenu(MenuHandler* menu,
 					   bool istoolbar) override;
@@ -44,6 +43,10 @@ protected:
     MenuItem			editmenuitem_;
 
     MultiID			mid_;
+
+public:
+
+   static void			initClass();
 
 };
 

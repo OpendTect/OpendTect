@@ -281,29 +281,21 @@ int Data2DHolder::getDataHolderIndex( int trcno ) const
 
 
 Data2DArray::Data2DArray( const Data2DHolder& dh )
-    : dataset_( 0 )
 {
-    dh.ref();
-
     const DataHolderArray array3d( dh.dataset_ );
     mTryAlloc( dataset_, Array3DImpl<float>( array3d ) );
 
     if ( !dataset_ || !dataset_->isOK() )
-    {
-	delete dataset_;
-	dataset_ = 0;
-    }
+	deleteAndNullPtr( dataset_ );
 
     for ( int idx=0; idx<dh.trcinfoset_.size(); idx++ )
     {
-	SeisTrcInfo* ni = new SeisTrcInfo( *dh.trcinfoset_[idx] );
+	auto* ni = new SeisTrcInfo( *dh.trcinfoset_[idx] );
 	ni->sampling.start = dh.dataset_[idx]->z0_ * ni->sampling.step;
 	trcinfoset_ += ni;
     }
 
     cubesampling_ = dh.getTrcKeyZSampling();
-
-    dh.unRef();
 }
 
 

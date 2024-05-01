@@ -11,66 +11,64 @@ ________________________________________________________________________
 
 #include "binidvalset.h"
 #include "color.h"
-#include "prestackevents.h"
 #include "survinfo.h"
-
 #include "velocitycalc.h"
 #include "viscoord.h"
-#include "visdatagroup.h"
-#include "visdrawstyle.h"
-#include "vismarkerset.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
-#include "vispolyline.h"
 #include "visprestackdisplay.h"
-#include "vistransform.h"
 
 
 namespace visSurvey
 {
 
 mDefineEnumUtils( PSEventDisplay, MarkerColor, "Marker Color" )
-{ "Single", "Quality", "Velocity", "Velocity fit", 0 };
+{
+    "Single",
+    "Quality",
+    "Velocity",
+    "Velocity fit",
+    nullptr
+};
 
 mDefineEnumUtils( PSEventDisplay, DisplayMode, "Display Mode" )
-{ "Zero offset", "Sticks from sections", "Zero offset on sections",
-  "Sticks to gathers", 0 };
+{
+    "Zero offset",
+    "Sticks from sections",
+    "Zero offset on sections",
+    "Sticks to gathers",
+    nullptr
+};
+
 
 PSEventDisplay::PSEventDisplay()
-    : VisualObjectImpl(false)
-    , displaymode_(ZeroOffsetOnSections)
-    , eventman_(nullptr)
+    : visBase::VisualObjectImpl(false)
     , qualityrange_(0,1)
-    , displaytransform_(nullptr)
-    , linestyle_(new visBase::DrawStyle)
-    , horid_(-1)
-    , offsetscale_(1)
-    , markercolor_(Single)
-    , eventmarkerset_(visBase::MarkerSet::create())
 {
+    ref();
+    linestyle_ = visBase::DrawStyle::create();
+    eventmarkerset_ = visBase::MarkerSet::create();
     setLockable();
-    linestyle_->ref();
-    addNodeState( linestyle_ );
-    eventmarkerset_->ref();
+    addNodeState( linestyle_.ptr() );
     eventmarkerset_->setMarkerStyle( markerstyle_ );
     eventmarkerset_->setMaterial( getMaterial() );
 
     addChild( eventmarkerset_->osgNode() );
     ctabmapper_.setup_.type( ColTab::MapperSetup::Auto );
-
+    unRefNoDelete();
 }
 
 
 PSEventDisplay::~PSEventDisplay()
 {
+    detachAllNotifiers();
     clearAll();
 
-    setDisplayTransformation( 0 );
-    setEventManager( 0 );
-    linestyle_->unRef();
+    setDisplayTransformation( nullptr );
+    eventman_ = nullptr;
+    linestyle_ = nullptr;
 
     removeChild( eventmarkerset_->osgNode() );
-    eventmarkerset_->unRef();
 }
 
 
@@ -113,20 +111,16 @@ void PSEventDisplay::setEventManager( PreStack::EventManager* em )
 
     if ( eventman_ )
     {
-	eventman_->change.remove( mCB(this,PSEventDisplay,eventChangeCB) );
-	eventman_->forceReload.remove(
-		mCB(this,PSEventDisplay,eventForceReloadCB) );
-	eventman_->unRef();
+	mDetachCB( eventman_->change, PSEventDisplay::eventChangeCB );
+	mDetachCB( eventman_->forceReload, PSEventDisplay::eventForceReloadCB );
     }
 
     eventman_ = em;
 
     if ( eventman_ )
     {
-	eventman_->ref();
-	eventman_->change.notify( mCB(this,PSEventDisplay,eventChangeCB) );
-	eventman_->forceReload.notify(
-		mCB(this,PSEventDisplay,eventForceReloadCB) );
+	mAttachCB( eventman_->change, PSEventDisplay::eventChangeCB );
+	mAttachCB( eventman_->forceReload, PSEventDisplay::eventForceReloadCB );
 	getMaterial()->setColor( eventman_->getColor() );
 	updateDisplay();
     }
@@ -237,11 +231,8 @@ void PSEventDisplay::setMarkerStyle( const MarkerStyle3D& st )
 
     markerstyle_ = st;
 
-    for ( int idx=0; idx<parentattached_.size(); idx++ )
-    {
-	ParentAttachedObject* pao = parentattached_[idx];
-	    pao->markerset_->setMarkerStyle( st );
-    }
+    for ( auto* pao : parentattached_ )
+	pao->markerset_->setMarkerStyle( st );
 }
 
 
@@ -269,13 +260,13 @@ void PSEventDisplay::updateDisplay()
 
     if ( displaymode_==ZeroOffset )
     {
-	eventChangeCB( 0 );
-	updateDisplay( 0 );
+	eventChangeCB( nullptr );
+	updateDisplay( nullptr );
 	return;
     }
 
-    for ( int idx=0; idx<parentattached_.size(); idx++ )
-	updateDisplay( parentattached_[idx] );
+    for ( auto* pao : parentattached_ )
+	updateDisplay( pao );
 }
 
 
@@ -286,18 +277,18 @@ void PSEventDisplay::updateDisplay()
 
 
 void PSEventDisplay::otherObjectsMoved(
-	const ObjectSet<const SurveyObject>& objs, VisID whichid )
+	const ObjectSet<const SurveyObject>& objs, const VisID& whichid )
 {
     TypeSet<VisID> newparentsid;
     for ( int idx=objs.size()-1; idx>=0; idx-- )
     {
 	VisID objid;
-	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,objs[idx]);
+	mDynamicCastGet(const PreStackDisplay*,gather,objs[idx]);
 	if ( gather )
 	    objid = gather->id();
 	else
 	{
-	    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,objs[idx]);
+	    mDynamicCastGet(const PlaneDataDisplay*,pdd,objs[idx]);
 	    if ( pdd && pdd->getOrientation() != OD::SliceType::Z )
 		objid = pdd->id();
 	}
@@ -325,7 +316,7 @@ void PSEventDisplay::otherObjectsMoved(
 
     for ( int idx=0; idx<newparentsid.size(); idx++ )
     {
-	ParentAttachedObject* pao = 0;
+	ParentAttachedObject* pao = nullptr;
 	for ( int idy=0; idy<toremove.size(); idy++ )
 	{
 	    if ( toremove[idy]->parentid_!=newparentsid[idx] )
@@ -393,9 +384,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
     if ( displaymode_==ZeroOffset )
     {
-	for ( int idx=0; idx<parentattached_.size(); idx++ )
-	    clearDisplay( parentattached_[idx] );
-
+	for ( auto* apao : parentattached_ )
+	    clearDisplay( apao );
 
 	eventmarkerset_->clearMarkers();
 	TypeSet<float> vals;
@@ -413,6 +403,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		const PreStack::Event* psevent = eventset->events_[idx];
 		if ( !psevent->sz_ )
 		    continue;
+
 		Coord3 pos( bid.inl(), bid.crl(), psevent->pick_[0] );
 		eventmarkerset_->addPos( pos, false );
 
@@ -428,7 +419,6 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		vals += (markercolor_==Quality ? psevent->quality_
 					       : getMoveoutComp(offsets,picks));
 	    }
-
 	}
 
 	if (  markercolor_ == Single )
@@ -459,7 +449,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     if ( displaymode_==FullOnGathers )
     {
 	fullevent = true;
-	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,
+	mDynamicCastGet(const PreStackDisplay*,gather,
 		visBase::DM().getObject(pao->parentid_) );
 	if ( !gather )
 	{
@@ -488,7 +478,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     }
     else
     {
-	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,
+	mDynamicCastGet(const PlaneDataDisplay*,pdd,
 			visBase::DM().getObject( pao->parentid_ ) );
 	if ( !pdd )
 	    return;
@@ -514,11 +504,9 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     if ( fullevent && !pao->lines_ )
     {
 	pao->lines_ = visBase::PolyLine3D::create();
-	pao->lines_->ref();
 	pao->lines_->setLineStyle( linestyle_->lineStyle() );
 	pao->objectgroup_->addObject( pao->lines_ );
 	pao->lines_->setDisplayTransformation( displaytransform_ );
-
     }
 
     int cii = 0;
@@ -528,12 +516,11 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     BinID bid;
     do
     {
-	PreStack::EventSet* eventset = eventman_ ?
-	    eventman_->getEvents( bid, true, false) : 0;
+	RefMan<PreStack::EventSet> eventset = eventman_ ?
+			    eventman_->getEvents( bid, true, false) : nullptr;
 	if ( !eventset )
 	    continue;
 
-	eventset->ref();
 	Interval<int> eventrg( 0, eventset->events_.size()-1 );
 	if ( horid_!=-1 )
 	{
@@ -545,15 +532,15 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	}
 
 	pao->eventsets_ += eventset;
-
-
 	if ( markercolor_==Single )
 	    pao->markerset_->setMarkersSingleColor( eventman_->getColor() );
 	else
 	{
 	    if ( !pao->markerset_->getMaterial() )
-		pao->markerset_->setMaterial(
-		new visBase::Material );
+	    {
+		RefMan<visBase::Material> newmat = visBase::Material::create();
+		pao->markerset_->setMaterial( newmat.ptr() );
+	    }
 	}
 
 	for ( int idx=eventrg.start; idx<=eventrg.stop; idx++ )
@@ -606,11 +593,10 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 					 : 0;
 	    if ( doline && size > 0 )
 	    {
-		Geometry::RangePrimitiveSet* ps =
-		    Geometry::RangePrimitiveSet::create();
+		RefMan<Geometry::RangePrimitiveSet> ps =
+				    Geometry::RangePrimitiveSet::create();
 		Interval<int> range( cii,size-1 );
 		ps->setRange( range );
-		ps->ref();
 		pao->lines_->addPrimitiveSet( ps );
 		cii = pao->lines_->getCoordinates()->size();
 	    }
@@ -629,7 +615,6 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 			      ctabmapper_.position(values[idx]) );
 	    pao->markerset_->getMaterial()->setColor(color, idx );
 	}
-
     }
 
     for ( int idx=pao->markerset_->getCoordinates()->size()-1;
@@ -640,15 +625,14 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 
 void PSEventDisplay::clearDisplay( ParentAttachedObject* pao )
 {
-
-    if( eventmarkerset_ )
+    if ( eventmarkerset_ )
 	eventmarkerset_->clearMarkers();
 
     if ( !pao )
 	return;
 
     pao->markerset_->clearMarkers();
-    pao->lines_ = 0;
+    pao->lines_ = nullptr;
 
     if ( pao->objectgroup_ )
 	pao->objectgroup_->removeAll();
@@ -658,26 +642,18 @@ void PSEventDisplay::clearDisplay( ParentAttachedObject* pao )
 
 void PSEventDisplay::setDisplayTransformation(const mVisTrans* nt)
 {
-    for ( int idx=0; idx<parentattached_.size(); idx++ )
-    {
-	ParentAttachedObject* pao = parentattached_[idx];
+    for ( auto* pao : parentattached_ )
 	pao->objectgroup_->setDisplayTransformation( nt );
-    }
 
     eventmarkerset_->setDisplayTransformation( nt );
-
-    if ( displaytransform_ )
-	displaytransform_->unRef();
-
     displaytransform_ = nt;
-
-    if ( displaytransform_ )
-	displaytransform_->ref();
 }
 
 
 const mVisTrans* PSEventDisplay::getDisplayTransformation() const
-{ return displaytransform_; }
+{
+    return displaytransform_.ptr();
+}
 
 
 void PSEventDisplay::eventChangeCB(CallBacker*)
@@ -711,18 +687,15 @@ void PSEventDisplay::eventForceReloadCB(CallBacker*)
     for ( int idx=parentattached_.size()-1; idx>=0; idx-- )
     {
 	ParentAttachedObject* pao = parentattached_[idx];
-	deepUnRef( pao->eventsets_ );
+	pao->eventsets_.erase();
 	TrcKeySamplingIterator iter( pao->tks_ );
 
 	BinID bid;
 	while( iter.next( bid ))
-	{
 	    eventman_->addReloadPosition( bid );
-	}
     }
 
     deepErase( parentattached_ );
-
 }
 
 
@@ -746,7 +719,7 @@ bool PSEventDisplay::supportsDisplay() const
     for ( int idx=0; idx<parentattached_.size(); idx++ )
     {
 	const ParentAttachedObject* pao = parentattached_[idx];
-	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,
+	mDynamicCastGet(const PlaneDataDisplay*,pdd,
 			visBase::DM().getObject(pao->parentid_))
 	if ( !pdd )
 	    continue;
@@ -765,8 +738,7 @@ void PSEventDisplay::retriveParents()
 	return;
 
 #define mCreatPao \
-    ParentAttachedObject* pao = \
-	new ParentAttachedObject( parentid ); \
+    auto* pao = new ParentAttachedObject( parentid ); \
     addChild( pao->objectgroup_->osgNode() ); \
     parentattached_ += pao; \
     pao->objectgroup_->setDisplayTransformation( displaytransform_); \
@@ -774,11 +746,11 @@ void PSEventDisplay::retriveParents()
 
     for ( int idx=0; idx<scene_->size(); idx++ )
     {
-	mDynamicCastGet( visSurvey::SurveyObject*, so, scene_->getObject(idx));
+	mDynamicCastGet(SurveyObject*,so,scene_->getObject(idx));
 	if ( !so ) continue;
 
-	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,so);
-	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,so);
+	mDynamicCastGet(const PreStackDisplay*,gather,so);
+	mDynamicCastGet(const PlaneDataDisplay*,pdd,so);
 	if ( gather || (pdd && pdd->isOn() &&
 	     pdd->getOrientation()!=OD::SliceType::Z) )
 	{
@@ -802,31 +774,25 @@ void PSEventDisplay::retriveParents()
 }
 
 
-PSEventDisplay::ParentAttachedObject::ParentAttachedObject( VisID parent )
-    : parentid_( parent )
-    , objectgroup_( visBase::DataObjectGroup::create() )
-    , lines_( 0 )
-    , markerset_( visBase::MarkerSet::create() )
+// PSEventDisplay::ParentAttachedObject
+
+PSEventDisplay::ParentAttachedObject::ParentAttachedObject( const VisID& parent)
+    : parentid_(parent)
+    , objectgroup_(visBase::DataObjectGroup::create())
+    , markerset_(visBase::MarkerSet::create())
 {
-    objectgroup_->ref();
-    markerset_->ref();
     objectgroup_->addObject( markerset_ );
 }
 
 
 PSEventDisplay::ParentAttachedObject::~ParentAttachedObject()
 {
-    unRefPtr( objectgroup_ );
-    unRefPtr( markerset_ );
-    unRefPtr( lines_ );
-    deepUnRef( eventsets_ );
 }
 
 
 void PSEventDisplay::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
-
     if ( eventmarkerset_ )
         eventmarkerset_->setPixelDensity( dpi );
 

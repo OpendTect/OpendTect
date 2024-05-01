@@ -376,7 +376,7 @@ RefMan<SeisFlatDataPack> uiODView2DVariableDensityTreeItem::createDataPackRM(
 
 
 uiTreeItem* uiODView2DVariableDensityTreeItemFactory::createForVis(
-					const uiODViewer2D&, Vis2DID) const
+				    const uiODViewer2D&, const Vis2DID& ) const
 {
     return nullptr;
 }

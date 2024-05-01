@@ -182,10 +182,10 @@ public:
 			~RandomLineManager();
 
     RandomLine*		get(const MultiID&);
-    RandomLine*		get(RandomLineID);
-    const RandomLine*	get(RandomLineID) const;
+    RandomLine*		get(const RandomLineID&);
+    const RandomLine*	get(const RandomLineID&) const;
     bool		isLoaded(const MultiID&) const;
-    bool		isLoaded(RandomLineID) const;
+    bool		isLoaded(const RandomLineID&) const;
 
     RandomLineID	add(RandomLine*);
     void		remove(RandomLine*);

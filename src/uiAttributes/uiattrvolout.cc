@@ -216,7 +216,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	mSetObjFld("")
 	if ( is2d )	//it could be 2D neural network
 	{
-	    Attrib::Desc* firststoreddsc = ads_->getFirstStored();
+	    RefMan<Attrib::Desc> firststoreddsc = ads_->getFirstStored();
 	    if ( firststoreddsc )
 	    {
 		const Attrib::ValParam* param = firststoreddsc->getValParam(
@@ -240,7 +240,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    uiString errmsg;
 	    RefMan<Attrib::Provider> prov =
 		    Attrib::Provider::create( *desc, errmsg );
-	    PtrMan<IOObj> ioobj = 0;
+	    PtrMan<IOObj> ioobj;
 	    if ( prov )
 	    {
 		MultiID mid( desc->getStoredID(true).buf() );
@@ -518,8 +518,9 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	if ( nlamodel_ )
 	    descset.usePar( nlamodel_->pars() );
 
-	Attrib::Desc* desc = nlamodel_ ? descset.getFirstStored()
-			      : ads_->getDesc( todofld_->attribID() );
+	RefMan<Attrib::Desc> desc = nlamodel_
+				  ? descset.getFirstStored()
+				  : ads_->getDesc( todofld_->attribID() );
 	if ( desc )
 	{
 	    const BufferString storedid( desc->getStoredID().buf() );

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "visosg.h"
+
 #include "visdata.h"
 
 namespace osg { class Group; class MatrixTransform; }
@@ -24,12 +25,12 @@ class ThumbWheelMessenger;
 mExpClass(visBase) ThumbWheel : public DataObject
 {
 public:
-    static ThumbWheel*		create()
+    static RefMan<ThumbWheel>	create();
 				mCreateDataObj(ThumbWheel);
 
     void			setPosition(bool horizontal,
-                                    float center_x, float center_y, float len,
-                                    float width,float zval = 0);
+				    float center_x,float center_y,float len,
+				    float width,float zval =0.f);
 
     void			setAnnotationColor(const OD::Color&);
 

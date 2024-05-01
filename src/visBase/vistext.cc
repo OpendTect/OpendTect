@@ -9,16 +9,14 @@ ________________________________________________________________________
 
 #include "vistext.h"
 
-#include "iopar.h"
-#include "vistransform.h"
-#include "vismaterial.h"
-#include "visosg.h"
-#include "separstr.h"
-#include "keystrs.h"
 #include "dirlist.h"
-#include "oddirs.h"
+#include "iopar.h"
 #include "filepath.h"
+#include "keystrs.h"
+#include "oddirs.h"
+#include "separstr.h"
 #include "texttranslator.h"
+#include "vismaterial.h"
 
 
 #include <osgGeo/Text>
@@ -33,9 +31,8 @@ namespace visBase
 
 Text::Text()
     : osgtext_( new osgGeo::Text )
-    , displaytrans_( 0 )
 {
-    osgtext_->ref();
+    refOsgPtr( osgtext_ );
     osgtext_->setAxisAlignment( osgText::TextBase::SCREEN );
     osgtext_->setCharacterSizeMode(osgText::TextBase::SCREEN_COORDS );
     osgtext_->setDataVariance( osg::Object::DYNAMIC );
@@ -47,8 +44,7 @@ Text::Text()
 
 Text::~Text()
 {
-    if ( displaytrans_ ) displaytrans_->unRef();
-    osgtext_->unref();
+    unRefOsgPtr( osgtext_ );
 }
 
 
@@ -69,10 +65,10 @@ void Text::setPosition( const osg::Vec3f& pos )
 void Text::setPosition( const Coord3& pos, bool scenespace )
 {
     osg::Vec3 osgpos;
-    if( !scenespace )
-	mVisTrans::transform( displaytrans_, pos, osgpos );
-    else
+    if( scenespace )
 	osgpos = Conv::to<osg::Vec3>(pos);
+    else
+	mVisTrans::transform( displaytrans_.ptr(), pos, osgpos );
 
     setPosition( osgpos );
 }
@@ -81,7 +77,8 @@ void Text::setPosition( const Coord3& pos, bool scenespace )
 Coord3 Text::getPosition() const
 {
     Coord3 pos;
-    Transformation::transformBack( displaytrans_, osgtext_->getPosition(), pos);
+    Transformation::transformBack( displaytrans_.ptr(), osgtext_->getPosition(),
+				   pos );
     return pos;
 }
 
@@ -94,6 +91,7 @@ void Text::setFontData( const FontData& fd, float pixeldensity )
 	fontdata_.setPointSize(
 	    fontdata_.pointSize()*cObjectSizeToScreenSizeFactor );
     }
+
     osg::ref_ptr<osgText::Font> osgfont = OsgFontCreator::create( fontdata_ );
     if ( osgfont )
 	osgtext_->setFont( osgfont );
@@ -115,10 +113,10 @@ void Text::setText( const uiString& newtext )
 {
     ArrPtrMan<wchar_t> wcharbuf = newtext.createWCharString();
 
-    if ( !wcharbuf )
-	osgtext_->setText( emptystring );
-    else
+    if ( wcharbuf )
 	osgtext_->setText( wcharbuf );
+    else
+	osgtext_->setText( emptystring );
 
     text_ = newtext;
 }
@@ -180,10 +178,10 @@ int Text::getJustification() const
 
 void Text::setCharacterSizeMode( CharacterSizeMode mode )
 {
-    const osgText::TextBase::CharacterSizeMode osgmode =  
+    const osgText::TextBase::CharacterSizeMode osgmode =
 	( osgText::TextBase::CharacterSizeMode ) mode;
 
-    const osgText::TextBase::CharacterSizeMode oldosgmode =  
+    const osgText::TextBase::CharacterSizeMode oldosgmode =
 	osgtext_->getCharacterSizeMode();
 
     osgtext_->setCharacterSizeMode( osgmode );
@@ -191,10 +189,10 @@ void Text::setCharacterSizeMode( CharacterSizeMode mode )
     if ( osgmode == oldosgmode )
 	return;
 
-    if ( osgmode == osgText::TextBase::OBJECT_COORDS && 
+    if ( osgmode == osgText::TextBase::OBJECT_COORDS &&
 	oldosgmode == osgText::TextBase::SCREEN_COORDS )
     {
-	osgtext_->setCharacterSize( 
+	osgtext_->setCharacterSize(
 	    osgtext_->getCharacterHeight()*cObjectSizeToScreenSizeFactor );
     }
     else if( osgmode == osgText::TextBase::SCREEN_COORDS &&
@@ -231,43 +229,39 @@ OD::Color Text::getColor() const
 void Text::setDisplayTransformation( const mVisTrans* newtrans )
 {
     const Coord3 oldpos = getPosition();
-
-    if ( displaytrans_ ) displaytrans_->unRef();
     displaytrans_ = newtrans;
-    if ( displaytrans_ ) displaytrans_->ref();
-
     setPosition( oldpos );
 }
 
 
 
 Text2::Text2()
-    : VisualObjectImpl( false )
-    , geode_( new osg::Geode )
-    , displaytransform_( 0 )
-    , pixeldensity_( getDefaultPixelDensity() )
+    : VisualObjectImpl(false)
+    , geode_(new osg::Geode)
+    , pixeldensity_(getDefaultPixelDensity())
 {
+    ref();
     mAttachCB( TrMgr().languageChange, Text2::translationChangeCB );
-    geode_->ref();
-    geode_->setNodeMask( ~visBase::cBBoxTraversalMask() );
+    refOsgPtr( geode_ );
+    geode_->setNodeMask( ~cBBoxTraversalMask() );
     addChild( geode_ );
     geode_->setCullingActive( false );
     setPickable( false, false );
+    unRefNoDelete();
 }
 
 
 Text2::~Text2()
 {
     detachAllNotifiers();
-    if ( displaytransform_ ) displaytransform_->unRef();
-    geode_->unref();
+    unRefOsgPtr( geode_ );
 }
 
 
 int Text2::addText()
 {
-    Text* newtext = new Text;
-    newtext->setDisplayTransformation( displaytransform_ );
+    auto* newtext = new Text;
+    newtext->setDisplayTransformation( displaytransform_.ptr() );
     texts_ += newtext;
     geode_->addDrawable( &newtext->getDrawable() );
     return texts_.size()-1;
@@ -294,7 +288,7 @@ void Text2::removeAll()
 
 const Text* Text2::text( int idx ) const
 {
-    return texts_.validIdx( idx ) ? texts_[idx] : 0;
+    return texts_.validIdx( idx ) ? texts_[idx] : nullptr;
 }
 
 
@@ -303,7 +297,7 @@ Text* Text2::text( int idx )
     if ( !idx && !texts_.size() )
 	addText();
 
-    return texts_.validIdx( idx ) ? texts_[idx] : 0;
+    return texts_.validIdx( idx ) ? texts_[idx] : nullptr;
 }
 
 
@@ -316,10 +310,7 @@ void Text2::setFontData( const FontData& fd )
 
 void Text2::setDisplayTransformation( const mVisTrans* newtr )
 {
-    if ( displaytransform_ ) displaytransform_->unRef();
     displaytransform_ = newtr;
-    if ( displaytransform_ ) displaytransform_->ref();
-
     for ( int idx=0; idx<texts_.size(); idx++ )
 	texts_[idx]->setDisplayTransformation( newtr );
 }
@@ -336,7 +327,7 @@ void Text2::setPixelDensity( float dpi )
 	texts_[idx]->updateFontSize( pixeldensity_ );
 }
 
-    
+
 void Text2::translationChangeCB(CallBacker *)
 {
     for ( int idx=0; idx<texts_.size(); idx++ )
@@ -344,12 +335,12 @@ void Text2::translationChangeCB(CallBacker *)
 }
 
 
-PtrMan<OsgFontCreator> creator = 0;
+PtrMan<OsgFontCreator> creator;
 
 
-osgText::Font* OsgFontCreator::create(const FontData& fd)
+osgText::Font* OsgFontCreator::create( const FontData& fd )
 {
-    return creator ? creator->createFont(fd) : 0;
+    return creator ? creator->createFont(fd) : nullptr;
 }
 
 

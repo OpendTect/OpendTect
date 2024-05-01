@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uisellinest.h"
 #include "uivispartserv.h"
-#include "visscalebardisplay.h"
 #include "od_helpids.h"
 
 
@@ -150,11 +149,12 @@ void changeCB( CallBacker* )
 
 
 // ScaleBarSubItem
+
 const char* ScaleBarSubItem::parentType() const
 { return typeid(ScaleBarParentItem).name(); }
 
 
-ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, VisID displayid )
+ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, const VisID& displayid )
     : uiODAnnotSubItem(pck,displayid)
     , propmnuitem_(m3Dots(uiStrings::sProperties()))
 {
@@ -162,37 +162,62 @@ ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, VisID displayid )
 }
 
 
+ScaleBarSubItem::~ScaleBarSubItem()
+{
+    detachAllNotifiers();
+    removeStuff();
+    visserv_->removeObject( displayid_, sceneID() );
+}
+
+
 bool ScaleBarSubItem::init()
 {
     if ( !displayid_.isValid() )
     {
-	visSurvey::ScaleBarDisplay* ad = visSurvey::ScaleBarDisplay::create();
-	visserv_->addObject( ad, sceneID(), true );
+	RefMan<visSurvey::ScaleBarDisplay> sbdisp =
+				visSurvey::ScaleBarDisplay::create();
+	visserv_->addObject( sbdisp.ptr(), sceneID(), true );
 	visserv_->setViewMode( false );
-	displayid_ = ad->id();
-	ad->setUiName( name_ );
+	displayid_ = sbdisp->id();
+	sbdisp->setUiName( name_ );
     }
 
-    mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,
-		    visserv_->getObject(displayid_))
-    if ( !ad ) return false;
+    RefMan<visSurvey::ScaleBarDisplay> sbdisp =
+	dCast(visSurvey::ScaleBarDisplay*,visserv_->getObject(displayid_) );
+    if ( !sbdisp )
+	return false;
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
     PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
-    ad->fromPar( set_->pars_ );
+    sbdisp->fromPar( set_->pars_ );
+
+    scalebardisp_ = sbdisp;
     return uiODAnnotSubItem::init();
+}
+
+
+ConstRefMan<visSurvey::ScaleBarDisplay> ScaleBarSubItem::getDisplay() const
+{
+    return scalebardisp_.get();
+}
+
+
+RefMan<visSurvey::ScaleBarDisplay> ScaleBarSubItem::getDisplay()
+{
+    return scalebardisp_.get();
 }
 
 
 void ScaleBarSubItem::fillStoragePar( IOPar& par ) const
 {
     uiODAnnotSubItem::fillStoragePar( par );
-    mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,
-		    visserv_->getObject(displayid_))
-    ad->toPar( par );
+    ConstRefMan<visSurvey::ScaleBarDisplay> sbdisp = getDisplay();
+    if ( sbdisp )
+	sbdisp->toPar( par );
 }
 
 
@@ -214,19 +239,21 @@ void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || menu->menuID()!=displayID().asInt() )
 	return;
 
+    RefMan<visSurvey::ScaleBarDisplay> sbdisp = getDisplay();
+    if ( !sbdisp )
+	return;
+
     if ( mnuid==propmnuitem_.id )
     {
 	menu->setIsHandled(true);
 
-	mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,
-					       visserv_->getObject(displayid_));
 	ScaleBarPars pars;
-	pars.oninlcrl_ = ad->isOnInlCrl();
-	pars.orientation_ = ad->getOrientation();
-	pars.length_ = ad->getLength();
-	pars.ls_ = OD::LineStyle(OD::LineStyle::Solid,ad->getLineWidth(),
+	pars.oninlcrl_ = sbdisp->isOnInlCrl();
+	pars.orientation_ = sbdisp->getOrientation();
+	pars.length_ = sbdisp->getLength();
+	pars.ls_ = OD::LineStyle(OD::LineStyle::Solid,sbdisp->getLineWidth(),
 			     set_->disp_.color_);
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
 	uiScaleBarDialog dlg( getUiParent(), scene->zDomainInfo() );
 	dlg.setPars( pars );
 	dlg.propertyChange.notify( mCB(this,ScaleBarSubItem,propertyChange) );
@@ -239,18 +266,21 @@ void ScaleBarSubItem::handleMenuCB( CallBacker* cb )
 void ScaleBarSubItem::propertyChange( CallBacker* cb )
 {
     mDynamicCastGet(uiScaleBarDialog*,dlg,cb)
-    if ( !dlg ) return;
+    if ( !dlg )
+	return;
 
     ScaleBarPars pars;
     dlg->fillPars( pars );
     setColor( pars.ls_.color_ );
 
-    mDynamicCastGet(visSurvey::ScaleBarDisplay*,ad,
-		    visserv_->getObject(displayid_));
-    ad->setOnInlCrl( pars.oninlcrl_ );
-    ad->setOrientation( pars.orientation_ );
-    ad->setLineWidth( pars.ls_.width_ );
-    ad->setLength( pars.length_ );
+    RefMan<visSurvey::ScaleBarDisplay> sbdisp = getDisplay();
+    if ( !sbdisp )
+	return;
+
+    sbdisp->setOnInlCrl( pars.oninlcrl_ );
+    sbdisp->setOrientation( pars.orientation_ );
+    sbdisp->setLineWidth( pars.ls_.width_ );
+    sbdisp->setLength( pars.length_ );
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );

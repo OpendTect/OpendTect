@@ -10,15 +10,12 @@ ________________________________________________________________________
 #include "visrandomtrackdragger.h"
 
 #include "dragcontroller.h"
-#include "visdragger.h"
+#include "linerectangleclipper.h"
+#include "mouseevent.h"
+#include "survinfo.h"
 #include "visevent.h"
-#include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
-#include "vistransform.h"
-#include "survinfo.h"
-#include "mouseevent.h"
-#include "linerectangleclipper.h"
 
 #include <osg/Switch>
 #include <osg/PolygonOffset>
@@ -596,36 +593,31 @@ int PlaneDragCBHandler::getTransModKeyMask( bool trans1d, int groupidx ) const
 
 
 RandomTrackDragger::RandomTrackDragger()
-    : VisualObjectImpl( true )
-    , horborder_( -mUdf(double), -mUdf(double), mUdf(double), mUdf(double) )
-    , zborder_( -mUdf(float), mUdf(float) )
-    , motion( this )
-    , movefinished( this )
-    , rightclicknotifier_( this )
-    , rightclickeventinfo_( 0 )
-    , displaytrans_( 0 )
-    , panels_( new osg::Switch )
-    , planedraggers_( new osg::Switch )
-    , rotationaxis_( new osg::Switch )
-    , showplanedraggers_( true )
-    , planedraggerminsizeinsteps_( 1 )
-    , zrange_( SI().zRange(true) )
-    , showallpanels_( false )
-    , postponepanelupdate_( false )
+    : VisualObjectImpl(true)
+    , horborder_(-mUdf(double),-mUdf(double),mUdf(double),mUdf(double))
+    , zborder_(-mUdf(float),mUdf(float))
+    , motion(this)
+    , movefinished(this)
+    , rightclicknotifier_(this)
+    , panels_(new osg::Switch)
+    , planedraggers_(new osg::Switch)
+    , rotationaxis_(new osg::Switch)
+    , zrange_(SI().zRange(true))
 {
+    ref();
     for ( int dim=0; dim<3; dim++ )
 	limits_[dim].setUdf();
 
-    setMaterial( 0 );
+    setMaterial( nullptr );
 
-    panels_->ref();
+    refOsgPtr( panels_ );
     panels_->getOrCreateStateSet()->setMode(GL_BLEND, osg::StateAttribute::ON);
     panels_->getStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     panels_->getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     addChild( panels_ );
     setPanelsPolygonOffset( true );
 
-    planedraggers_->ref();
+    refOsgPtr( planedraggers_ );
     planedraggers_->getOrCreateStateSet()->setRenderingHint(
 					    osg::StateSet::TRANSPARENT_BIN );
     planedraggers_->getStateSet()->setAttributeAndModes(
@@ -636,7 +628,7 @@ RandomTrackDragger::RandomTrackDragger()
 		osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
     addChild( planedraggers_ );
 
-    rotationaxis_->ref();
+    refOsgPtr( rotationaxis_ );
     rotationaxis_->getOrCreateStateSet()->setMode( GL_LIGHTING,
 						   osg::StateAttribute::OFF );
     rotationaxis_->getStateSet()->setAttributeAndModes(
@@ -648,6 +640,7 @@ RandomTrackDragger::RandomTrackDragger()
     addChild( rotationaxis_ );
 
     setTransDragKeys( true, OD::ControlButton, 1 );
+    unRefNoDelete();
 }
 
 
@@ -655,33 +648,18 @@ RandomTrackDragger::~RandomTrackDragger()
 {
     detachAllNotifiers();
     deepErase( dragcontrols_ );
-
-    panels_->unref();
-    planedraggers_->unref();
-    rotationaxis_->unref();
-
-    deepUnRef( draggers_ );
+    unRefOsgPtr( panels_ );
+    unRefOsgPtr( planedraggers_ );
+    unRefOsgPtr( rotationaxis_ );
 
     while ( !planedraghandlers_.isEmpty() )
 	removePlaneDraggerCBHandler( 0 );
-
-    if ( displaytrans_ ) displaytrans_->unRef();
 }
 
 
 void RandomTrackDragger::setDisplayTransformation( const mVisTrans* trans )
 {
-    if ( displaytrans_ )
-    {
-	displaytrans_->unRef();
-	displaytrans_ = 0;
-    }
-
     displaytrans_ = trans;
-
-    if ( displaytrans_ )
-	displaytrans_->ref();
-
     for ( int idx=0; idx<draggers_.size(); idx++ )
 	draggers_[idx]->setDisplayTransformation( trans );
 
@@ -867,8 +845,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 
     for ( int idx=4*knotidx; idx<=4*knotidx+3; idx++ )
     {
-	Dragger* dragger = visBase::Dragger::create();
-	dragger->ref();
+	RefMan<Dragger> dragger = Dragger::create();
 	dragger->setSize( 20 );
 	dragger->setDisplayTransformation( displaytrans_ );
 	dragger->setSpaceLimits( limits_[0], limits_[1], limits_[2] );
@@ -877,11 +854,11 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	mAttachCB( dragger->motion, RandomTrackDragger::moveCB );
 	mAttachCB( dragger->finished, RandomTrackDragger::finishCB );
 
-	visBase::MarkerSet* marker = visBase::MarkerSet::create();
+	RefMan<MarkerSet> marker = MarkerSet::create();
 	MarkerStyle3D markerstyle;
 
 	marker->setMinimumScale( 0 );
-	marker->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
+	marker->setAutoRotateMode( MarkerSet::NO_ROTATION );
 	marker->addPos( Coord3( 0, 0, 0 ) );
 	marker->setMarkerResolution( 0.8f );
 
@@ -930,7 +907,6 @@ void RandomTrackDragger::removeKnot( int knotidx )
 	mDetachCB( draggers_[idx]->started, RandomTrackDragger::startCB );
 	mDetachCB( draggers_[idx]->motion, RandomTrackDragger::moveCB );
 	mDetachCB( draggers_[idx]->finished, RandomTrackDragger::finishCB );
-	draggers_[idx]->unRef();
 	draggers_.removeSingle( idx );
 	draggermarkers_.removeSingle( idx );
     }
@@ -1178,8 +1154,8 @@ void RandomTrackDragger::showPlaneDraggers( bool yn, int minsteps )
 
 void RandomTrackDragger::addPlaneDraggerCBHandler()
 {
-    PlaneDragCBHandler* pdcbh = new PlaneDragCBHandler( *this );
-    pdcbh->ref();
+    auto* pdcbh = new PlaneDragCBHandler( *this );
+    refOsgPtr( pdcbh );
     pdcbh->osgDragger().addDraggerCallback( pdcbh );
     planedraghandlers_ += pdcbh;
     planedraggers_->addChild( &pdcbh->osgDragger(), true );
@@ -1191,9 +1167,9 @@ void RandomTrackDragger::removePlaneDraggerCBHandler( int idx )
     if ( planedraghandlers_.validIdx(idx) )
     {
 	planedraggers_->removeChild( idx, 1 );
-	PlaneDragCBHandler* pdcbh = planedraghandlers_.removeSingle( idx );
+	auto* pdcbh = planedraghandlers_.removeSingle( idx );
 	pdcbh->osgDragger().removeDraggerCallback( pdcbh );
-	pdcbh->unref();
+	unRefOsgPtr( pdcbh );
     }
 }
 

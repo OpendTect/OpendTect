@@ -15,7 +15,8 @@ ________________________________________________________________________
 #include "color.h"
 #include "emposid.h"
 #include "timer.h"
-
+#include "visfaultsticksetdisplay.h"
+#include "visfaultdisplay.h"
 
 class uiCheckBox;
 class uiComboBox;
@@ -30,14 +31,6 @@ class uiToolButton;
 class uiColorInput;
 
 
-namespace EM { class FaultStickSet; }
-namespace visSurvey
-{
-    class FaultDisplay;
-    class FaultStickSetDisplay;
-}
-
-
 mExpClass(uiODMain) uiFaultStickTransferDlg : public uiDialog
 { mODTextTranslationClass(uiFaultStickTransferDlg);
 public:
@@ -47,17 +40,12 @@ public:
 				  SingleUserDef };
     mExpClass(uiODMain) Setup
     { mODTextTranslationClass(Setup);
-    public:			Setup()
-				    : displayifnot_( true )
-				    , saveifdisplayed_( true )
-				    , colormode_( Inherit )
-				{}
-				~Setup()
-				{}
+    public:			Setup();
+				~Setup();
 
-	mDefSetupMemb(bool,displayifnot)
-	mDefSetupMemb(bool,saveifdisplayed)
-	mDefSetupMemb(ColorMode,colormode)
+	mDefSetupMemb(bool,displayifnot)	// True
+	mDefSetupMemb(bool,saveifdisplayed)	// True
+	mDefSetupMemb(ColorMode,colormode)	// Inherit
     };
 
 				uiFaultStickTransferDlg(uiODMain&,const Setup&);
@@ -92,7 +80,7 @@ protected:
 mExpClass(uiODMain) uiODFaultToolMan : public CallBacker
 { mODTextTranslationClass(uiODFaultToolMan);
 public:
-    				uiODFaultToolMan(uiODMain&);
+				uiODFaultToolMan(uiODMain&);
 				~uiODFaultToolMan();
 
     uiToolBar*			getToolBar();
@@ -161,7 +149,7 @@ protected:
     void			publishOutputItems();
 
     void			flashOutputName(bool error,
-	    					const char* newname=0);
+						const char* newname=0);
     void			flashOutputTimerCB(CallBacker*);
     void			flashReset();
 
@@ -199,8 +187,8 @@ protected:
     uiSurfaceWrite*		auxfaultwrite_;
     uiSurfaceWrite*		auxfsswrite_;
 
-    visSurvey::FaultDisplay*	curfltd_;
-    visSurvey::FaultStickSetDisplay* curfssd_;
+    WeakPtr<visSurvey::FaultDisplay> curfltd_;
+    WeakPtr<visSurvey::FaultStickSetDisplay> curfssd_;
     EM::ObjectID		curemid_;
 
     Timer			deseltimer_;

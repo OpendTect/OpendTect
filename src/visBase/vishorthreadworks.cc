@@ -283,20 +283,17 @@ HorizonSectionTilePosSetup::HorizonSectionTilePosSetup(
 {
     if ( horsection_ )
     {
-	zaxistransform_ = horsection_->getZAxisTransform();
 	nrcrdspertileside_ = horsection_->nrcoordspertileside_;
 	resolution_ = horsection_->lowestresidx_;
 	geo_ = horsection_->geometry_;
     }
 
-    if ( zaxistransform_ ) zaxistransform_->ref();
     setName( BufferString( "Creating horizon surface..." ) );
 }
 
 
 HorizonSectionTilePosSetup::~HorizonSectionTilePosSetup()
 {
-    if ( zaxistransform_ ) zaxistransform_->unRef();
 }
 
 
@@ -355,7 +352,7 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop, int )
 	    }
 	}
 
-	HorizonSectionTile* tile = 0;
+	HorizonSectionTile* tile = nullptr;
 	if ( hasdata )
 	{
 	    Threads::Locker locker( lock_ );

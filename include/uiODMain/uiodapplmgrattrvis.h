@@ -36,17 +36,17 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     void		doXPlot();
     void		crossPlot();
     void		setZStretch();
-    bool		selectAttrib(VisID,int);
-    void		setHistogram(VisID,int);
+    bool		selectAttrib(const VisID&,int);
+    void		setHistogram(const VisID&,int);
     void		colMapperChg();
-    void		setRandomPosData(VisID visid,int attrib,
+    void		setRandomPosData(const VisID&,int attrib,
 					const DataPointSet&);
     void		pageUpDownPressed(bool);
-    void		updateColorTable(VisID,int);
+    void		updateColorTable(const VisID&,int);
     void		colSeqChg();
     NotifierAccess*	colorTableSeqChange();
-    void		useDefColTab(VisID,int);
-    void		saveDefColTab(VisID,int);
+    void		useDefColTab(const VisID&,int);
+    void		saveDefColTab(const VisID&,int);
 
     uiODApplMgr&	am_;
     uiParent*		par_;

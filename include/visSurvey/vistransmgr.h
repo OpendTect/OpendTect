@@ -9,16 +9,17 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
 #include "gendefs.h"
+#include "vissurvscene.h"
 #include "vistransform.h"
 
 class TrcKeySampling;
 namespace Survey { class Geometry3D; }
 
+
 namespace visSurvey
 {
-
-class Scene;
 
 mExpClass(visSurvey) SceneTransformManager : public CallBacker
 {
@@ -28,21 +29,22 @@ public:
 
     static void		computeUTM2DisplayTransform(const Survey::Geometry3D&,
 				    float zfactor,float zmidpt,mVisTrans* res);
-    			//!<Given to all objects in XY-space
+			//!<Given to all objects in XY-space
 
     static void		computeICRotationTransform(const Survey::Geometry3D&,
 						   float zfactor,float zmidpt,
-					      	   mVisTrans* rotation,
+						   mVisTrans* rotation,
 						   mVisTrans* disptrans);
 
-    void		setCurrentScene( Scene* scn )	{ scene_ = scn; }
-    Scene*		currentScene() const		{ return scene_; }
+    void		setCurrentScene(Scene*);
+    RefMan<Scene>	currentScene();
+    ConstRefMan<Scene>	currentScene() const;
 
     Notifier<SceneTransformManager> mouseCursorCall;
 
-protected:
+private:
 
-    Scene*		scene_				= nullptr;
+    WeakPtr<Scene>	scene_;
 };
 
 mGlobal(visSurvey) SceneTransformManager& STM();

@@ -24,6 +24,9 @@ ________________________________________________________________________
 #include "od_ostream.h"
 #include "polygon.h"
 #include "survinfo.h"
+#include "viscoord.h"
+#include "vishorizondisplay.h"
+#include "vistransform.h"
 #include "zaxistransform.h"
 
 #include "uibutton.h"
@@ -49,13 +52,6 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
-#include "viscoord.h"
-#include "visdrawstyle.h"
-#include "vishorizondisplay.h"
-#include "vismaterial.h"
-#include "vispolyline.h"
-#include "vistext.h"
-#include "vistransform.h"
 
 static const int cMinNrNodesForLbl = 25;
 static const int cMaxNrDiplayedLabels = 1000;
@@ -124,19 +120,17 @@ class uiContourTreeItemContourGenerator : public ParallelTask
 public:
 
 				uiContourTreeItemContourGenerator(
-					uiContourTreeItem* p,
+					uiContourTreeItem*,
 					const Array2D<float>* field);
 				~uiContourTreeItemContourGenerator()
-				{
-				    if ( labels_ )
-					labels_->unRef();
-				}
+				{}
 
     visBase::Text2*		getLabels() { return labels_; }
     const TypeSet<double>&	getAreas() const { return areas_; }
     uiString			uiNrDoneText() const override;
 
-protected:
+private:
+
     bool	doPrepare(int) override;
     bool	doWork(od_int64 start, od_int64 stop, int) override;
     bool	doFinish(bool success) override;
@@ -165,17 +159,17 @@ private:
 				// from construction source
     const Array2D<float>*	field_;
 
-    visBase::Text2*		labels_;
+    RefMan<visBase::Text2>	labels_;
 
     StepInterval<int>		rowrg_;
     StepInterval<int>		colrg_;
-    float			zfactor_;
-    const EM::Horizon3D*	hor3d_;
-    const ZAxisTransform*	ztransform_;
-    const mVisTrans*		displaytrans_;
+    float			zfactor_ = 0.f;
+    ConstRefMan<EM::Horizon3D>	hor3d_;
+    ConstRefMan<ZAxisTransform> ztransform_;
+    ConstRefMan<mVisTrans>	displaytrans_;
     TypeSet<double>		areas_;
 
-    bool			isfinishing_;
+    bool			isfinishing_ = false;
 };
 
 
@@ -184,9 +178,6 @@ uiContourTreeItemContourGenerator::uiContourTreeItemContourGenerator(
     : nrcontours_(p->getNrContours())
     , uicitem_(p)
     , field_(field)
-    , zfactor_(0)
-    , labels_(nullptr)
-    , isfinishing_(false)
 {
     totalnrshapes_ = nrcontours_;
     areas_.setSize( nrcontours_ );
@@ -235,13 +226,13 @@ bool uiContourTreeItemContourGenerator::prepForContourGenerator()
     uiVisPartServer* visserv = uicitem_->applMgr()->visServer();
     EM::ObjectID emid = uicitem_->getHorDisp()->getObjectID();
     mDynamicCastGet(EM::Horizon3D*,hor,EM::EMM().getObject(emid));
-    if( !hor )
+    if ( !hor )
 	return false;
 
     hor3d_ = hor;
-    mDynamicCastGet(
-	    visSurvey::Scene*,scene,visserv->getObject(uicitem_->sceneID()) );
-    ztransform_ = scene ? scene->getZAxisTransform() : 0;
+    ConstRefMan<visSurvey::Scene> scene =
+				  visserv->getScene( uicitem_->sceneID() );
+    ztransform_ = scene ? scene->getZAxisTransform() : nullptr;
     zfactor_ = mCast( float, scene->zDomainInfo().userFactor() );
     displaytrans_ =
 	uicitem_->lines_->getCoordinates()->getDisplayTransformation();
@@ -295,7 +286,8 @@ void uiContourTreeItemContourGenerator::addContourData(
 
     for ( int idx=0; idx<newcontourdata.contourcoordrgs_.size(); idx++ )
     {
-	Geometry::RangePrimitiveSet* ps = Geometry::RangePrimitiveSet::create();
+	RefMan<Geometry::RangePrimitiveSet> ps =
+				Geometry::RangePrimitiveSet::create();
 	if ( !ps )
 	    continue;
 
@@ -459,11 +451,7 @@ bool uiContourTreeItemContourGenerator::doFinish( bool success )
     if ( !success )
 	return false;
 
-    if ( labels_ )
-	labels_->unRef();
-
     labels_ = visBase::Text2::create();
-    labels_->ref();
     labels_->setDisplayTransformation( displaytrans_ );
     labels_->setPickable( false, false );
 
@@ -543,7 +531,7 @@ static const int defelevval = 0;
 public:
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
 		  const StepInterval<float>& intv, const OD::LineStyle& ls,
-		  SceneID sceneid )
+		  const SceneID& sceneid )
     : uiDialog(p,Setup(tr("Contour Display Options"),mNoDlgTitle,
 			mODHelpKey(mContourParsDlgHelpID) )
 		.modal(false).nrstatusflds(1))
@@ -556,8 +544,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid))
-
+    ConstRefMan<visSurvey::Scene> scene = visserv->getScene( sceneid );
     if ( iszval_ )
     {
 	zfac_ = mCast( float, scene->zDomainInfo().userFactor() );
@@ -1002,11 +989,11 @@ void uiContourTreeItem::removeAll()
     if ( lines_ )
     {
 	applMgr()->visServer()->removeObject( lines_, sceneID() );
-	unRefAndNullPtr( lines_ );
+	lines_ = nullptr;
     }
 
-    unRefAndNullPtr( drawstyle_ );
-    unRefAndNullPtr( material_ );
+    drawstyle_ = nullptr;
+    material_ = nullptr;
     removeLabels();
 }
 
@@ -1017,7 +1004,7 @@ void uiContourTreeItem::removeLabels()
     if ( labels_ )
     {
 	visserv->removeObject( labels_, sceneID() );
-	unRefAndNullPtr( labels_ );
+	labels_ = nullptr;
     }
 }
 
@@ -1063,9 +1050,8 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
 						   mNoDlgTitle,mNoHelpKey ) );
 	dlg.setCancelText( uiString::emptyString() );
 
-	RefMan<visSurvey::Scene> mDynamicCast( visSurvey::Scene*, scene,
-			applMgr()->visServer()->getObject(sceneID()) );
-
+	RefMan<visSurvey::Scene> scene =
+			applMgr()->visServer()->getScene( sceneID() );
 	if ( !scene )
 	{
 	    pErrMsg("No scene");
@@ -1118,9 +1104,8 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
 	return;
 
     od_ostream stream( dlg.fileName() );
-    RefMan<visSurvey::Scene> mDynamicCast( visSurvey::Scene*, scene,
-	    applMgr()->visServer()->getObject(sceneID()) );
-
+    RefMan<visSurvey::Scene> scene =
+			    applMgr()->visServer()->getScene( sceneID() );
     if ( !scene )
     {
 	pErrMsg("No scene");
@@ -1337,31 +1322,24 @@ bool uiContourTreeItem::createPolyLines()
 	return true;
     }
 
-    if ( (lines_ = visBase::PolyLine::create()) == 0 )
+    lines_ = visBase::PolyLine::create();
+    if ( !lines_ )
 	return false;
 
-    lines_->ref();
     lines_->setPickable( false, false );
-
-    applMgr()->visServer()->addObject( lines_, sceneID(), false );
-
-#define mCreateAndRef(var,postfix)\
-    {\
-    var = new visBase::postfix;\
-    var->ref();\
-    }
+    applMgr()->visServer()->addObject( lines_.ptr(), sceneID(), false );
 
     if ( !drawstyle_ )
     {
-	mCreateAndRef( drawstyle_,DrawStyle );
-	lines_->addNodeState( drawstyle_ );
+	drawstyle_ = visBase::DrawStyle::create();
+	lines_->addNodeState( drawstyle_.ptr() );
     }
 
     if ( !material_ )
     {
-	mCreateAndRef( material_,Material );
+	material_ = visBase::Material::create();
 	material_->setColor( color_ );
-	lines_->setMaterial( material_ );
+	lines_->setMaterial( material_.ptr() );
     }
 
     return true;
@@ -1378,8 +1356,7 @@ bool uiContourTreeItem::setLabels( visBase::Text2* newlabels )
     if ( !labels_ )
 	return false;
 
-    labels_->ref();
-    applMgr()->visServer()->addObject( labels_, sceneID(), false );
+    applMgr()->visServer()->addObject( labels_.ptr(), sceneID(), false );
     labels_->setMaterial( material_ );
 
     for ( int idx=0; idx<labels_->nrTexts(); idx++ )

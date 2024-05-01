@@ -499,7 +499,7 @@ void uiBasemap::addObject( BasemapObject* obj )
 }
 
 
-BasemapObject* uiBasemap::getObject( BasemapObjectID id )
+BasemapObject* uiBasemap::getObject( const BasemapObjectID& id )
 {
     if ( !id.isValid() )
 	return nullptr;
@@ -515,7 +515,7 @@ BasemapObject* uiBasemap::getObject( BasemapObjectID id )
 }
 
 
-uiBasemapObject* uiBasemap::getUiObject( BasemapObjectID id )
+uiBasemapObject* uiBasemap::getUiObject( const BasemapObjectID& id )
 {
     if ( !id.isValid() )
 	return nullptr;

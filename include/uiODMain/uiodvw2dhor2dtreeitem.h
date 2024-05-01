@@ -50,7 +50,7 @@ public:
     uiTreeItem*		create() const override
 			{ return new uiODView2DHor2DParentTreeItem(); }
     uiTreeItem*		createForVis(const uiODViewer2D&,
-				     Vis2DID) const override;
+				     const Vis2DID&) const override;
 };
 
 
@@ -58,7 +58,7 @@ mExpClass(uiODMain) uiODView2DHor2DTreeItem : public uiODView2DTreeItem
 { mODTextTranslationClass(uiODView2DHor2DTreeItem)
 public:
 			uiODView2DHor2DTreeItem(const EM::ObjectID&);
-			uiODView2DHor2DTreeItem(Vis2DID,bool dummy);
+			uiODView2DHor2DTreeItem(const Vis2DID&,bool dummy);
 			~uiODView2DHor2DTreeItem();
 
     bool			showSubMenu() override;

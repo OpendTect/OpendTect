@@ -10,13 +10,16 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
-#include "odcommonenums.h"
+
 #include "datapack.h"
 #include "flatview.h"
+#include "odcommonenums.h"
 
 class uiSliceSelDlg;
+class RegularSeisDataPack;
 class TrcKeyZSampling;
 namespace Attrib { class DescID; }
+namespace visSurvey { class PlaneDataDisplay; }
 namespace Well { class Data; }
 
 
@@ -26,18 +29,16 @@ public:
 
     enum Type		{ Empty, Select, Default, RGBA };
 
-    virtual		~uiODPlaneDataTreeItem();
-
     bool		init() override;
     void		setAtWellLocation(const Well::Data&);
     void		setTrcKeyZSampling(const TrcKeyZSampling&);
     bool		displayDefaultData();
     bool		displayGuidance();
     bool		displayDataFromDesc(const Attrib::DescID&,bool stored);
-    bool		displayDataFromDataPack(DataPackID,
+    bool		displayDataFromDataPack(RegularSeisDataPack&,
 					    const Attrib::SelSpec&,
 					    const FlatView::DataDispPars::VD&);
-    bool		displayDataFromOther(VisID visid);
+    bool		displayDataFromOther(const VisID&);
 
     static uiString	sAddEmptyPlane();
     static uiString	sAddAndSelectData();
@@ -46,8 +47,8 @@ public:
     static uiString	sAddAtWellLocation();
 
 protected:
-			uiODPlaneDataTreeItem(VisID displayid,
-					      OD::SliceType,Type);
+			uiODPlaneDataTreeItem(const VisID&,OD::SliceType,Type);
+			~uiODPlaneDataTreeItem();
 
     uiString		createDisplayName() const override;
 
@@ -73,7 +74,12 @@ protected:
     MenuItem		addcrlitem_;
     MenuItem		addzitem_;
 
-    uiSliceSelDlg*	positiondlg_;
+    ConstRefMan<visSurvey::PlaneDataDisplay> getDisplay() const;
+    RefMan<visSurvey::PlaneDataDisplay> getDisplay();
+
+    WeakPtr<visSurvey::PlaneDataDisplay> pdd_;
+
+    uiSliceSelDlg*	positiondlg_ = nullptr;
 };
 
 
@@ -82,11 +88,12 @@ mExpClass(uiODMain) uiODInlineParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODInlineParentTreeItem);
 public:
 			uiODInlineParentTreeItem();
-			~uiODInlineParentTreeItem();
 
     static CNotifier<uiODInlineParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODInlineParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
 };
@@ -98,17 +105,18 @@ public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODInlineParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
 mExpClass(uiODMain) uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODInlineTreeItem(VisID displayid,Type);
-			~uiODInlineTreeItem();
+			uiODInlineTreeItem(const VisID&,Type);
 
 protected:
+			~uiODInlineTreeItem();
+
     const char*		parentType() const override
 			{ return typeid(uiODInlineParentTreeItem).name(); }
 };
@@ -119,11 +127,12 @@ mExpClass(uiODMain) uiODCrosslineParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODCrosslineParentTreeItem);
 public:
 			uiODCrosslineParentTreeItem();
-			~uiODCrosslineParentTreeItem();
 
     static CNotifier<uiODCrosslineParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODCrosslineParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
 };
@@ -135,17 +144,18 @@ public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODCrosslineParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
 mExpClass(uiODMain) uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODCrosslineTreeItem(VisID displayid,Type);
-			~uiODCrosslineTreeItem();
+			uiODCrosslineTreeItem(const VisID&,Type);
 
 protected:
+			~uiODCrosslineTreeItem();
+
     const char*		parentType() const override
 			{ return typeid(uiODCrosslineParentTreeItem).name(); }
 };
@@ -156,11 +166,12 @@ mExpClass(uiODMain) uiODZsliceParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODZsliceParentTreeItem);
 public:
 			uiODZsliceParentTreeItem();
-			~uiODZsliceParentTreeItem();
 
     static CNotifier<uiODZsliceParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODZsliceParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
 };
@@ -172,17 +183,18 @@ public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODZsliceParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
 mExpClass(uiODMain) uiODZsliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-			uiODZsliceTreeItem(VisID displayid,Type);
-			~uiODZsliceTreeItem();
+			uiODZsliceTreeItem(const VisID&,Type);
 
 protected:
+			~uiODZsliceTreeItem();
+
     const char*		parentType() const override
 			{ return typeid(uiODZsliceParentTreeItem).name(); }
 };

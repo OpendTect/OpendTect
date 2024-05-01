@@ -9,7 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "visobject.h"
+#include "vispolygonoffset.h"
+#include "vistransform.h"
 
 namespace OD { class RGBImage; }
 namespace Pick { class Location; }
@@ -18,14 +21,12 @@ namespace osgGeo { class LayeredTexture; class TexturePlaneNode; }
 namespace visBase
 {
 
-class PolygonOffset;
-
 /*!Displays an image that either is read from disk or in memory. */
 
 mExpClass(visBase) ImageRect : public VisualObjectImpl
 {
 public:
-    static ImageRect*	create()
+    static RefMan<ImageRect> create();
 			mCreateDataObj( ImageRect );
 
     void		setPick(const Pick::Location&);
@@ -39,11 +40,11 @@ public:
 protected:
 			    ~ImageRect();
 
-    const mVisTrans*		trans_;
+    ConstRefMan<mVisTrans>	trans_;
     int				layerid_;
     osgGeo::LayeredTexture*	laytex_;
     osgGeo::TexturePlaneNode*	texplane_;
-    visBase::PolygonOffset*	polyoffset_;
+    RefMan<PolygonOffset>	polyoffset_;
 };
 
 

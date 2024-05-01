@@ -18,6 +18,11 @@ ________________________________________________________________________
 #include "polygon.h"
 #include "trckeyzsampling.h"
 #include "visdata.h"
+#include "visdrawstyle.h"
+#include "vismaterial.h"
+#include "vispolyline.h"
+#include "vistext.h"
+
 
 class visContourLabels;
 
@@ -103,12 +108,13 @@ private:
     float			zshift_;
     bool			showlabels_;
     int				linewidth_;
+
 				// objects for contours
-    visBase::PolyLine*		lines_;
-    visBase::DrawStyle*		drawstyle_;
-    visBase::Material*		material_;
-    visBase::Text2*		labels_;
-				//
+    RefMan<visBase::PolyLine>	lines_;
+    RefMan<visBase::DrawStyle>	drawstyle_;
+    RefMan<visBase::Material>	material_;
+    RefMan<visBase::Text2>	labels_;
+
     Interval<float>		contoursteprange_;
     TypeSet<double>		areas_; //empty if no non-udf
     StepInterval<float>		contourintv_;

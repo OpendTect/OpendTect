@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
+#include "vispicksetdisplay.h"
 
 namespace Pick		{ class Set; }
 class uiSeedPainterDlg;
@@ -19,11 +20,12 @@ mExpClass(uiODMain) uiODPickSetParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODPickSetParentTreeItem)
 public:
 			uiODPickSetParentTreeItem();
-			~uiODPickSetParentTreeItem();
 
     static CNotifier<uiODPickSetParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODPickSetParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
     void		addPickSet(Pick::Set*);
@@ -38,8 +40,7 @@ public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODPickSetParentTreeItem; }
-
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 
 };
 
@@ -47,8 +48,7 @@ public:
 mExpClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODPickSetTreeItem)
 public:
-			uiODPickSetTreeItem(VisID dispid,Pick::Set&);
-    virtual		~uiODPickSetTreeItem();
+			uiODPickSetTreeItem(const VisID&,Pick::Set&);
 
     bool		actModeWhenSelected() const override;
     void		showAllPicks(bool yn);
@@ -56,16 +56,22 @@ public:
     ConstRefMan<Pick::Set>	getSet() const		{ return set_; }
 
 protected:
+			~uiODPickSetTreeItem();
 
     bool		init() override;
-    void		prepareForShutdown() override;
     bool		askContinueAndSaveIfNeeded(bool withcancel) override;
     void		setChg(CallBacker*);
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
     bool		doubleClick(uiTreeViewItem*) override;
     const char*		parentType() const override
-    			{ return typeid(uiODPickSetParentTreeItem).name(); }
+			{ return typeid(uiODPickSetParentTreeItem).name(); }
+
+    void		selChangedCB(CallBacker*);
+    void		paintDlgClosedCB(CallBacker*);
+    void		enablePainting(bool);
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
 
     RefMan<Pick::Set>	set_;
     MenuItem		storemnuitem_;
@@ -79,11 +85,11 @@ protected:
     uiSeedPainterDlg*	paintdlg_ = nullptr;
     bool		paintingenabled_ = false;
 
-    void		selChangedCB(CallBacker*);
-    void		paintDlgClosedCB(CallBacker*);
-    void		enablePainting(bool);
-    void		askSaveCB(CallBacker*);
-    void		saveCB(CallBacker*);
+    ConstRefMan<visSurvey::PickSetDisplay> getDisplay() const;
+    RefMan<visSurvey::PickSetDisplay> getDisplay();
+
+    WeakPtr<visSurvey::PickSetDisplay> pointsetdisplay_;
+
 };
 
 
@@ -91,11 +97,12 @@ mExpClass(uiODMain) uiODPolygonParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODPolygonParentTreeItem)
 public:
 			uiODPolygonParentTreeItem();
-			~uiODPolygonParentTreeItem();
 
     static CNotifier<uiODPolygonParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODPolygonParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
     void		addPolygon(Pick::Set*);
@@ -111,8 +118,7 @@ public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODPolygonParentTreeItem; }
-
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 
 };
 
@@ -120,8 +126,7 @@ public:
 mExpClass(uiODMain) uiODPolygonTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODPolygonTreeItem)
 public:
-			uiODPolygonTreeItem(VisID dispid,Pick::Set&);
-    virtual		~uiODPolygonTreeItem();
+			uiODPolygonTreeItem(const VisID&,Pick::Set&);
 
     bool		actModeWhenSelected() const override;
     void		showAllPicks(bool yn);
@@ -129,9 +134,9 @@ public:
     ConstRefMan<Pick::Set> getSet() const		{ return set_; }
 
 protected:
+			~uiODPolygonTreeItem();
 
     bool		init() override;
-    void		prepareForShutdown() override;
     bool		askContinueAndSaveIfNeeded(bool withcancel) override;
     void		setChg(CallBacker*);
     void		createMenu(MenuHandler*,bool istb) override;
@@ -139,6 +144,9 @@ protected:
     bool		doubleClick(uiTreeViewItem*) override;
     const char*		parentType() const override
 			{ return typeid(uiODPolygonParentTreeItem).name(); }
+    void		selChangedCB(CallBacker*);
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
 
     RefMan<Pick::Set>	set_;
 
@@ -151,7 +159,8 @@ protected:
     MenuItem		workareaitem_;
     MenuItem		calcvolmnuitem_;
 
-    void		selChangedCB(CallBacker*);
-    void		askSaveCB(CallBacker*);
-    void		saveCB(CallBacker*);
+    ConstRefMan<visSurvey::PickSetDisplay> getPGD() const;
+    RefMan<visSurvey::PickSetDisplay> getPGD();
+
+    WeakPtr<visSurvey::PickSetDisplay> polygondisplay_;
 };

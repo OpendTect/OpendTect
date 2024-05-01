@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "color.h"
 #include "fontdata.h"
 #include "ranges.h"
@@ -26,13 +27,13 @@ namespace osgGeo { class WellLog; }
 namespace visBase
 {
 
-class PolyLine3D;
-class PolyLine;
-class PolyLineBase;
-class Text2;
-class Text;
-class Transformation;
 class MarkerSet;
+class PolyLine;
+class PolyLine3D;
+class PolyLineBase;
+class Text;
+class Text2;
+class Transformation;
 
 
 /*! \brief Base class for well display */
@@ -43,7 +44,7 @@ public:
 
     typedef std::pair<Coord3,float> Coord3Value;
 
-    static Well*		create()
+    static RefMan<Well>		create();
 				mCreateDataObj(Well);
 
     enum			Side { Left=0, Right, Center };
@@ -218,29 +219,28 @@ public:
     const Text2*		getWellTopText() const { return welltoptxt_; }
     const Text2*		getWellBottomText() const{ return wellbottxt_; }
 
-
 protected:
+				~Well();
 
     void			transformZIfNeeded(Coord3&) const;
 
-				~Well();
-    PolyLine*			track_;
-    MarkerSet*			markerset_;
+    RefMan<PolyLine>		track_;
+    RefMan<MarkerSet>		markerset_;
     osgGeo::WellLog*		leftlogdisplay_;
     osgGeo::WellLog*		rightlogdisplay_;
     osgGeo::WellLog*		centerlogdisplay_;
 
-    Text2*			welltoptxt_;
-    Text2*			wellbottxt_;
-    Text2*			markernames_;
-    const mVisTrans*		transformation_;
+    RefMan<Text2>		welltoptxt_;
+    RefMan<Text2>		wellbottxt_;
+    RefMan<Text2>		markernames_;
+    ConstRefMan<mVisTrans>	transformation_;
 
-    bool			showmarkers_;
-    bool			showlogs_;
+    bool			showmarkers_ = true;
+    bool			showlogs_ = true;
 
     float			pixeldensity_;
-    ZAxisTransform*		zaxistransform_;
-    int				voiidx_;
+    RefMan<ZAxisTransform>	zaxistransform_;
+    int				voiidx_ = -1;
     bool			displaytube_[3];
     bool			displaylog_[3];
     BufferStringSet		lognames_;
@@ -254,7 +254,7 @@ private:
 
     void			getLinScale(const LogParams&,
 					    LinScaler&,
-					    bool isFill = true);
+					    bool isFill =true);
     void			getLinScaleRange( const LinScaler&,
 				    Interval<float>&, float&, float&, bool);
     void			updateMakerSize(float sizefactor);

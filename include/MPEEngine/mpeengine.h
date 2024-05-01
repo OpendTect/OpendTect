@@ -157,7 +157,7 @@ public:
     const TrcKeyPath*		activePath() const;
     void			setActivePath(const TrcKeyPath*);
     RandomLineID		activeRandomLineID() const;
-    void			setActiveRandomLineID(RandomLineID);
+    void			setActiveRandomLineID(const RandomLineID&);
     void			refTracker(EM::ObjectID);
     void			unRefTracker(EM::ObjectID,bool nodel=false);
     bool			hasTracker(EM::ObjectID) const;

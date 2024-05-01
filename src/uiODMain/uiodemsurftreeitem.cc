@@ -45,9 +45,12 @@ uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
-	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
-    if ( !res ) res = new uiODEarthModelSurfaceDataTreeItem( emid_, uivisemobj_,
-							     parenttype );
+	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false)
+	: nullptr;
+
+    if ( !res )
+	res = new uiODEarthModelSurfaceDataTreeItem( emid_, uivisemobj_,
+						     parenttype );
     return res;
 }
 
@@ -56,7 +59,6 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 						const EM::ObjectID& nemid )
     : uiODDisplayTreeItem()
     , emid_(nemid)
-    , uivisemobj_(0)
     , createflatscenemnuitem_(tr("Create Flattened Scene"))
     , istrackingallowed_(true)
     , savemnuitem_(uiStrings::sSave(),-800)
@@ -89,7 +91,7 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 }
 
 
-#define mDelRet { delete uivisemobj_; uivisemobj_ = 0; return false; }
+#define mDelRet { deleteAndNullPtr( uivisemobj_ ); return false; }
 
 
 bool uiODEarthModelSurfaceTreeItem::init()
@@ -125,8 +127,8 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
     }
     else
     {
-	uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_, sceneID(),
-					visserv_ );
+	uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_,
+					 sceneID(), visserv_ );
 	displayid_ = uivisemobj_->id();
 	if ( !uivisemobj_->isOK() )
 	    mDelRet;
@@ -202,20 +204,14 @@ void uiODEarthModelSurfaceTreeItem::updateTrackingState()
 }
 
 
-void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
-{
-    uiODDisplayTreeItem::prepareForShutdown();
-}
-
-
 void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
     if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    RefMan<visSurvey::Scene> scene =
+		    ODMainWin()->applMgr().visServer()->getScene( sceneID() );
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMPEPartServer* mps = applMgr()->mpeServer();
@@ -275,7 +271,7 @@ VisID uiODEarthModelSurfaceTreeItem::reloadEMObject()
 
     const bool wasonlyatsections = uivisemobj_->isOnlyAtSections();
     applMgr()->visServer()->removeObject( displayid_, sceneID() );
-    delete uivisemobj_; uivisemobj_ = 0;
+    deleteAndNullPtr( uivisemobj_ );
 
     if ( !ems->loadSurface(mid) )
 	return VisID::udf();
@@ -507,6 +503,7 @@ void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
 
 
 // uiODEarthModelSurfaceDataTreeItem
+
 uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 							EM::ObjectID objid,
 							uiVisEMObject* uv,
@@ -520,7 +517,6 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , filtermnuitem_(m3Dots(uiStrings::sFiltering()))
     , horvariogrammnuitem_(m3Dots(tr("Variogram")))
     , attr2geommnuitm_(m3Dots(tr("Set Z values")))
-    , changed_(false)
     , emid_(objid)
     , uivisemobj_(uv)
 {
@@ -536,7 +532,8 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 						    bool istb )
 {
     uiODAttribTreeItem::createMenu( menu, istb );
-    if ( istb ) return;
+    if ( istb )
+	return;
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
@@ -558,8 +555,8 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 	mResetMenuItem( &depthattribmnuitem_ );
     }
 
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    RefMan<visSurvey::Scene> scene =
+		    ODMainWin()->applMgr().visServer()->getScene( sceneID() );
     bool isdttransform = false;
     if ( scene && scene->getZAxisTransform() )
     {
@@ -601,7 +598,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	RefMan<DataPointSet> vals = new DataPointSet( false, true );
 	vals->bivSet().setNrVals( 3 );
 	visserv->getRandomPosCache( visid, attribnr, *vals );
-	mDynamicCastGet(visSurvey::Scene*,scene, visserv->getObject(sceneID()));
+	RefMan<visSurvey::Scene> scene = visserv->getScene( sceneID() );
 	bool isdttransform = false;
 	BufferString zaxstrstr;
 	if ( scene && scene->getZAxisTransform() )

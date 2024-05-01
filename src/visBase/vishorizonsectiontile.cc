@@ -54,8 +54,8 @@ HorizonSectionTile::HorizonSectionTile( const HorizonSection& section,
     , cosanglexinl_( cos(SI().angleXInl()) )
     , sinanglexinl_( sin(SI().angleXInl()) )
 {
-    normals_->ref();
-    osgvertices_->ref();
+    refOsgPtr( normals_ );
+    refOsgPtr( osgvertices_ );
     refOsgPtr( stateset_ );
     refOsgPtr( osgswitchnode_ );
     tileresolutiondata_.allowNull();
@@ -113,8 +113,8 @@ HorizonSectionTile::~HorizonSectionTile()
 
     Threads::WorkManager::twm().removeQueue( tesselationqueueid_, false );
     deepErase( tileresolutiondata_ );
-    normals_->unref();
-    osgvertices_->unref();
+    unRefOsgPtr( normals_ );
+    unRefOsgPtr( osgvertices_ );
     setNrTexCoordLayers( 0 );
 }
 
@@ -575,11 +575,12 @@ void HorizonSectionTile::setNrTexCoordLayers( int nrlayers )
     while ( nrlayers > txcoords_.size() )
     {
 	txcoords_.push_back( new osg::Vec2Array );
-	txcoords_.back()->ref();
+	refOsgPtr( txcoords_.back() );
     }
+
     while ( nrlayers < txcoords_.size() )
     {
-	txcoords_.back()->unref();
+	unRefOsgPtr( txcoords_.back() );
 	txcoords_.pop_back();
     }
 
@@ -734,14 +735,15 @@ bool HorizonSectionTile::getResolutionNormals(TypeSet<Coord3>& coords) const
 
 
 bool HorizonSectionTile::getResolutionTextureCoordinates(
-    TypeSet<Coord>& coords) const
+					    TypeSet<Coord>& coords) const
 {
 //    if ( txunits_.size()==0 ) return false;
 
     coords.setEmpty();
 
-    osgGeo::LayeredTexture* entiretxture = hrsection_.getOsgTexture();
-    const osg::Image*	entireimg = entiretxture->getCompositeTextureImage();
+    const osgGeo::LayeredTexture* entiretxture = hrsection_.getOsgTexture();
+    const osg::Image* entireimg =
+			mNonConst( *entiretxture ).getCompositeTextureImage();
 
     const Coord entireorigin = Coord( 0.5/entireimg->s(), 0.5/entireimg->t() );
     const int nrcoords = hrsection_.nrcoordspertileside_;

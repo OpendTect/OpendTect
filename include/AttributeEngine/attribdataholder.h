@@ -81,10 +81,10 @@ public:
     TrcKeyZSampling		getTrcKeyZSampling() const;
     int				getDataHolderIndex(int) const;
     ObjectSet<DataHolder>	dataset_;
-    				/*!<\note that z0 on the dataholder refers
-				 	  to samples in trcinfoset_.sampling. */
+				/*!<\note that z0 on the dataholder refers
+					  to samples in trcinfoset_.sampling. */
     ObjectSet<SeisTrcInfo>	trcinfoset_;
-    				/*!<\note that the sampling is the same
+				/*!<\note that the sampling is the same
 					  for all traces. */
 
     inline bool			isEmpty() const	{ return size() == 0; }
@@ -101,7 +101,7 @@ protected:
 mExpClass(AttributeEngine) Data2DArray : public ReferencedObject
 {
 public:
-    				Data2DArray(const Data2DHolder&);
+				Data2DArray(const Data2DHolder&);
 
     bool			isOK() const;
 
@@ -110,7 +110,7 @@ public:
     int				nrTraces() const;
     bool			isEmpty() const { return !nrTraces(); }
 
-    Array3DImpl<float>*		dataset_;
+    Array3DImpl<float>*		dataset_ = nullptr;
     ObjectSet<SeisTrcInfo>	trcinfoset_;
     TrcKeyZSampling		cubesampling_;
 

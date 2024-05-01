@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visobject.h"
-#include "indexedshape.h"
+
 #include "draw.h"
+#include "indexedshape.h"
+#include "visobject.h"
 
 namespace osg
 {
@@ -60,24 +61,16 @@ protected:
 				Shape();
 				~Shape();
 
-    Material*			material_;
+    RefMan<Material>		material_;
 
-    Material*			gtMaterial() const;
+    Material*			gtMaterial();
+    const Material*		gtMaterial() const;
 
     static const char*		sKeyOnOff();
     static const char*		sKeyTexture();
     static const char*		sKeyMaterial();
 };
 
-
-#undef mDeclSetGetItem
-#define mDeclSetGetItem( ownclass, clssname, variable ) \
-protected: \
-    clssname*		   gt##clssname() const; \
-public: \
-    inline clssname*	   get##clssname()	 { return gt##clssname(); } \
-    inline const clssname* get##clssname() const { return gt##clssname(); } \
-    void		   set##clssname(clssname*)
 
 mExpClass(visBase) VertexShape : public Shape
 {
@@ -86,16 +79,20 @@ mExpClass(visBase) VertexShape : public Shape
 
 public:
 
-    static VertexShape* create()
+    static RefMan<VertexShape> create();
 			mCreateDataObj(VertexShape);
 
     void		setPrimitiveType(Geometry::PrimitiveSet::PrimitiveType);
 			//!<Should be called before adding statesets
+    void		setNormals(Normals*);
+    void		setTextureCoords(TextureCoords*);
 
-    mDeclSetGetItem( VertexShape, Normals, normals_ );
-    mDeclSetGetItem( VertexShape, TextureCoords, texturecoords_ );
+    Normals*		getNormals()		{ return gtNormals(); }
+    const Normals*	getNormals() const	{ return gtNormals(); }
+    TextureCoords*	getTextureCoords()	{ return gtTextureCoords(); }
+    const TextureCoords* getTextureCoords() const { return gtTextureCoords(); }
 
-    virtual  void	  setCoordinates(Coordinates* coords);
+    virtual  void	  setCoordinates(Coordinates*);
     virtual  Coordinates* getCoordinates() { return coords_; }
     virtual  const Coordinates*   getCoordinates() const { return coords_; }
     virtual  void	  setLineStyle(const OD::LineStyle&){};
@@ -106,7 +103,7 @@ public:
 			 SoNode with getInventorNode() to take
 			 effect. */
 
-    virtual void	setDisplayTransformation( const mVisTrans* ) override;
+    void		setDisplayTransformation(const mVisTrans*) override;
 			/*!<\note The transformation is forwarded to the
 			     the coordinates, if you change coordinates,
 			     you will have to setTransformation again.	*/
@@ -122,9 +119,9 @@ public:
     virtual void	touchPrimitiveSet(int)			{}
     Geometry::PrimitiveSet*	getPrimitiveSet(int);
     const Geometry::PrimitiveSet* getPrimitiveSet(int) const;
-    void		setMaterial( Material* mt ) override;
-    void		materialChangeCB( CallBacker*  );
-    void		coordinatesChangedCB( CallBacker* );
+    void		setMaterial(Material*) override;
+    void		materialChangeCB(CallBacker*);
+    void		coordinatesChangedCB(CallBacker*);
     void		enableCoordinatesChangedCB(bool yn)
 			{ usecoordinateschangedcb_ = yn; }
     void		useOsgAutoNormalComputation(bool);
@@ -150,8 +147,8 @@ public:
     void		setAttribAndMode(osg::StateAttribute*);
 
 protected:
-			VertexShape( Geometry::PrimitiveSet::PrimitiveType,
-				     bool creategeode );
+			VertexShape(Geometry::PrimitiveSet::PrimitiveType,
+				    bool creategeode);
 			~VertexShape();
 
     void		setupOsgNode();
@@ -159,42 +156,45 @@ protected:
     virtual void	addPrimitiveSetToScene(osg::PrimitiveSet*);
     virtual void	removePrimitiveSetFromScene(const osg::PrimitiveSet*);
 
+    Normals*		gtNormals();
+    const Normals*	gtNormals() const;
+    TextureCoords*	gtTextureCoords();
+    const TextureCoords* gtTextureCoords() const;
+
     void		setUpdateVar(bool& var,bool yn);
 			//!<Will trigger redraw request if necessary
 
-    bool		needstextureupdate_;	// Only set via setUpdateVar(.)
+    bool		needstextureupdate_ = false;
+			// Only set via setUpdateVar(.)
 
-    Normals*		normals_;
-    Coordinates*	coords_;
-    TextureCoords*	texturecoords_;
+    RefMan<Normals>	normals_;
+    RefMan<Coordinates> coords_;
+    RefMan<TextureCoords> texturecoords_;
 
-    osg::Node*		node_;
-
+    osg::Node*		node_ = nullptr;
     osg::Geode*		geode_;
-    osg::Geometry*	osggeom_;
+    osg::Geometry*	osggeom_ = nullptr;
 
-    bool		useosgsmoothnormal_;
-    bool		usecoordinateschangedcb_;
+    bool		useosgsmoothnormal_ = false;
+    bool		usecoordinateschangedcb_ = true;
 
     BindType		colorbindtype_;
     BindType		normalbindtype_;
 
     RefMan<TextureChannels>	channels_;
-    NodeCallbackHandler*	nodecallbackhandler_;
-    TextureCallbackHandler*	texturecallbackhandler_;
+    NodeCallbackHandler*	nodecallbackhandler_ = nullptr;
+    TextureCallbackHandler*	texturecallbackhandler_ = nullptr;
     Threads::Lock		redrawlock_;
-    bool			isredrawing_;
+    bool			isredrawing_ = false;
 
     Geometry::PrimitiveSet::PrimitiveType	primitivetype_;
 
     Threads::Lock				lock_;
 						/*!<lock protects primitiveset
 						and osg color array*/
-    ObjectSet<Geometry::PrimitiveSet>		primitivesets_;
+    RefObjectSet<Geometry::PrimitiveSet>	primitivesets_;
 
 };
-
-#undef mDeclSetGetItem
 
 
 
@@ -202,7 +202,5 @@ class PrimitiveSetCreator : public Geometry::PrimitiveSetCreator
 {
     Geometry::PrimitiveSet* doCreate(bool,bool) override;
 };
-
-
 
 } // namespace visBase

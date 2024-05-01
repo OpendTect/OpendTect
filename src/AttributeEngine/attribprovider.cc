@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "attribdataholder.h"
-#include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attriblinebuffer.h"
@@ -82,20 +81,25 @@ protected:
 };
 
 
-Provider* Provider::create( Desc& desc, uiString& errstr )
+RefMan<Provider> Provider::create( Desc& desc, uiString& errstr )
 {
-    ObjectSet<Provider> existing;
+    RefObjectSet<Provider> existing;
     bool issame = false;
-    Provider* prov = internalCreate( desc, existing, issame, errstr );
-    if ( !prov ) return 0;
+    RefMan<Provider> prov = internalCreate( desc, existing, issame, errstr );
+    if ( !prov )
+	return nullptr;
 
-    prov->allexistingprov_ = existing;
+    prov->allexistingprov_.erase();
+    for ( auto* exist : existing )
+	prov->allexistingprov_.add( exist );
+
     return prov;
 }
 
 
-Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
-				    bool& issame, uiString& errstr )
+RefMan<Provider> Provider::internalCreate( Desc& desc,
+					   ObjectSet<Provider>& existing,
+					   bool& issame, uiString& errstr )
 {
     for ( int idx=0; idx<existing.size(); idx++ )
     {
@@ -104,6 +108,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    const int selout = desc.selectedOutput();
 	    if ( existing[idx]->getDesc().selectedOutput() != selout )
 		existing[idx]->enableOutput( selout );
+
 	    issame = true;
 	    existing[idx]->setUsedMultTimes();
 	    return existing[idx];
@@ -113,10 +118,10 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     if ( desc.nrInputs() && !desc.descSet() )
     {
 	errstr = tr("No attribute set specified");
-	return 0;
+	return nullptr;
     }
 
-    Provider* newprov = PF().create( desc );
+    RefMan<Provider> newprov = PF().create( desc );
     if ( !newprov )
     {
 	const BufferString errmsg = desc.errMsg().getString();
@@ -133,11 +138,10 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    }
 	    else
 	    {
-
-		BufferString usrref = desc.userRef();
-		if ( usrref.startsWith("CentralSteering")
-		    || usrref.startsWith("FullSteering") )
-		    return 0;
+		const BufferString usrref = desc.userRef();
+		if ( usrref.startsWith("CentralSteering") ||
+		     usrref.startsWith("FullSteering") )
+		    return nullptr;
 
 		errstr = tr( "Attribute '%1'\n\n%2")
 			 .arg(desc.userRef()).arg(errmsg);
@@ -148,37 +152,35 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    errstr = tr( "Error in definition of %1 attribute." )
 		     .arg( desc.attribName() );
 	}
-	return 0;
-    }
 
-    newprov->ref();
+	return nullptr;
+    }
 
     if ( desc.selectedOutput()!=-1 && existing.isEmpty() )
 	newprov->enableOutput( desc.selectedOutput(), true );
 
-    existing += newprov;
+    existing.add( newprov );
 
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
-	Desc* inputdesc = desc.getInput(idx);
-	if ( !inputdesc ) continue;
+	RefMan<Desc> inputdesc = desc.getInput(idx);
+	if ( !inputdesc )
+	    continue;
 
-	Provider* inputprovider =
+	RefMan<Provider> inputprovider =
 			internalCreate( *inputdesc, existing, issame, errstr );
 	if ( !inputprovider )
 	{
 	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
-	    newprov->unRef();
-	    return 0;
+	    return nullptr;
 	}
 
-	if ( newprov == inputprovider )
+	if ( newprov.ptr() == inputprovider.ptr() )
 	{
 	    existing.removeRange( existing.indexOf(newprov),existing.size()-1 );
-	    newprov->unRef();
 	    errstr =
 		tr("Input is not correct. One of the inputs depends on itself");
-	    return 0;
+	    return nullptr;
 	}
 
 	newprov->setInput( idx, inputprovider );
@@ -189,57 +191,45 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     if ( !newprov->checkInpAndParsAtStart() )
     {
 	existing.removeRange( existing.indexOf(newprov), existing.size()-1 );
-	BufferString attribnm = newprov->desc_.attribName();
+	const Desc& newdesc = newprov->getDesc();
+	BufferString attribnm = newdesc.attribName();
 	if ( attribnm == StorageProvider::attribName() )
 	{
 	    errstr = tr("Cannot load Stored Cube '%1'.")
-		     .arg( newprov->desc_.userRef() );
+		     .arg( newdesc.userRef() );
 	}
 	else
 	{
 	    errstr = tr("Attribute \"%1\" of type \"%2\" cannot be initialized")
-		     .arg( newprov->desc_.userRef() ).arg( attribnm );
+		     .arg( newdesc.userRef() ).arg( attribnm );
 	}
-	newprov->unRef();
-	return 0;
+
+	return nullptr;
     }
 
-    newprov->unRefNoDelete();
     return newprov;
 }
 
 
 Provider::Provider( Desc& nd )
-    : desc_( nd )
+    : desc_( &nd )
     , outputinterest_( nd.nrOutputs(), 0 )
     , desbufferstepout_( 0, 0 )
     , reqbufferstepout_( 0, 0 )
-    , geomid_(Survey::GM().cUndefGeomID())
     , extraz_( 0, 0 )
 {
-    desc_.ref();
-    inputs_.allowNull( true );
-    for ( int idx=0; idx<desc_.nrInputs(); idx++ )
-	inputs_ += 0;
+    inputs_.setNullAllowed();
+    for ( int idx=0; idx<getDesc().nrInputs(); idx++ )
+	inputs_ += nullptr;
 
-
-    if ( !desc_.descSet() )
+    if ( !getDesc().descSet() )
 	errmsg_ = tr("No attribute set specified");
 }
 
 
 Provider::~Provider()
 {
-    for ( int idx=0; idx<inputs_.size(); idx++ )
-	if ( inputs_[idx] ) inputs_[idx]->unRef();
-
-    inputs_.erase();
-    allexistingprov_.erase();
-
-    desc_.unRef();
-
     delete providertask_;
-
     delete linebuffer_;
     delete possiblevolume_;
     delete desiredvolume_;
@@ -258,19 +248,19 @@ bool Provider::isOK() const
 
 bool Provider::isSingleTrace() const
 {
-    return desc_.locality() == Desc::SingleTrace;
+    return getDesc().locality() == Desc::SingleTrace;
 }
 
 
 bool Provider::usesTracePosition() const
 {
-    return desc_.usesTracePosition();
+    return getDesc().usesTracePosition();
 }
 
 
 Desc& Provider::getDesc()
 {
-    return desc_;
+    return *desc_.ptr();
 }
 
 
@@ -371,12 +361,15 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
     TrcKeyZSampling inputcs;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] ) continue;
+	if ( !inputs_[idx] )
+	    continue;
+
 	for ( int idy=0; idy<outputinterest_.size(); idy++ )
 	{
-	    if ( outputinterest_[idy]<1 || !inputs_[idx] ) continue;
+	    if ( outputinterest_[idy]<1 || !inputs_[idx] )
+		continue;
 
-	    bool isstored = inputs_[idx]->desc_.isStored();
+	    bool isstored = inputs_[idx]->getDesc().isStored();
 	    computeDesInputCube( idx, idy, inputcs, !isstored );
 	    inputs_[idx]->setDesiredVolume( inputcs );
 	}
@@ -591,7 +584,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 
     if ( movinginputs.isEmpty() && needmove )
     {
-	if ( inputs_.isEmpty() && !desc_.isStored() )
+	if ( inputs_.isEmpty() && !getDesc().isStored() )
 	{
 	    if ( currentbid_.isUdf() )
 		currentbid_ = desiredvolume_->hsamp_.start_;
@@ -837,7 +830,7 @@ bool Provider::setCurrentPosition( const BinID& bid )
 	currentbid_ = bid;
     else if ( bid != currentbid_ )
     {
-	if ( inputs_.isEmpty() && !desc_.isStored())
+	if ( inputs_.isEmpty() && !getDesc().isStored())
 	    currentbid_ = bid;
 	else
 	    return false;
@@ -993,9 +986,12 @@ BinID Provider::getStepoutStep() const
 
     for ( int idx=0; idx<parents_.size(); idx++ )
     {
-	if ( !parents_[idx] ) continue;
+	if ( !parents_[idx] )
+	    continue;
+
 	BinID bid = parents_[idx]->getStepoutStep();
-	if ( bid.inl()!=0 && bid.crl()!=0 ) return bid;
+	if ( bid.inl()!=0 && bid.crl()!=0 )
+	    return bid;
     }
 
     return BinID( SI().inlStep(), SI().crlStep() );
@@ -1149,21 +1145,23 @@ uiString Provider::prepare( Desc& desc )
 
 void Provider::setOutputInterestSize( bool preserve )
 {
+    const Desc& desc = getDesc();
     if ( preserve )
     {
-	int outintsz = outputinterest_.size();
-	if ( outintsz == desc_.nrOutputs() ) return;
+	const int outintsz = outputinterest_.size();
+	if ( outintsz == desc.nrOutputs() )
+	    return;
 
-	if ( outintsz < desc_.nrOutputs() )
+	if ( outintsz < desc.nrOutputs() )
 	{
-	    TypeSet<int> addon(desc_.nrOutputs()-outputinterest_.size(),0);
+	    TypeSet<int> addon( desc.nrOutputs()-outputinterest_.size(), 0 );
 	    outputinterest_.append( addon );
 	}
 	else
-	    outputinterest_.removeRange( desc_.nrOutputs()-1, outintsz-1 );
+	    outputinterest_.removeRange( desc.nrOutputs()-1, outintsz-1 );
     }
     else
-	outputinterest_ = TypeSet<int>(desc_.nrOutputs(),0);
+	outputinterest_ = TypeSet<int>( desc.nrOutputs(), 0 );
 }
 
 
@@ -1176,7 +1174,8 @@ void Provider::enableAllOutputs( bool yn )
 
 int Provider::getDataIndex( int input ) const
 {
-    return desc_.getInput(input) ? desc_.getInput(input)->selectedOutput() : -1;
+    const Desc& desc = getDesc();
+    return desc.getInput(input) ? desc.getInput(input)->selectedOutput() : -1;
 }
 
 
@@ -1190,8 +1189,9 @@ bool Provider::getInputOutput( int input, TypeSet<int>& res ) const
 {
     res.erase();
 
-    Desc* inputdesc = desc_.getInput(input);
-    if ( !inputdesc ) return false;
+    RefMan<Desc> inputdesc = mSelf().getDesc().getInput( input );
+    if ( !inputdesc )
+	return false;
 
     res += inputdesc->selectedOutput();
     return true;
@@ -1202,7 +1202,7 @@ void Provider::setInput( int inp, Provider* np )
 {
     if ( inputs_[inp] )
     {
-	if ( inputs_[inp]->desc_.isSteering() )
+	if ( inputs_[inp]->getDesc().isSteering() )
 	    initSteering();
 
 	TypeSet<int> inputoutputs;
@@ -1211,15 +1211,14 @@ void Provider::setInput( int inp, Provider* np )
 	    for ( int idx=0; idx<inputoutputs.size(); idx++ )
 		inputs_[inp]->enableOutput( inputoutputs[idx], false );
 	}
-	inputs_[inp]->unRef();
     }
 
     inputs_.replace( inp, np );
     if ( !inputs_[inp] )
 	return;
 
-    inputs_[inp]->ref();
-    if ( inputs_[inp]->desc_.isSteering() )
+    const Desc& inpdesc = inputs_[inp]->getDesc();
+    if ( inpdesc.isSteering() )
 	initSteering();
 
     TypeSet<int> inputoutputs;
@@ -1232,7 +1231,7 @@ void Provider::setInput( int inp, Provider* np )
 
     updateInputReqs(inp);
     inputs_[inp]->updateStorageReqs();
-    if ( inputs_[inp]->desc_.isSteering() )
+    if ( inpdesc.isSteering() )
     {
 	inputs_[inp]->updateInputReqs(-1);
 	inputs_[inp]->updateStorageReqs( true );
@@ -1689,7 +1688,7 @@ void Provider::setExactZ( const TypeSet<float>& exactz )
 void Provider::getCompNames( BufferStringSet& nms ) const
 {
     nms.erase();
-    nms.add( desc_.attribName() );
+    nms.add( getDesc().attribName() );
 }
 
 void Provider::getCompOutputIDs( TypeSet<int>& ids ) const

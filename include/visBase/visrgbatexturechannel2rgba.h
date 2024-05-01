@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "vistexturechannel2rgba.h"
 
 namespace osgGeo { class RGBALayerProcess; }
@@ -24,7 +25,7 @@ Does also handle enable/disable of the channels. */
 mExpClass(visBase) RGBATextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
-    static RGBATextureChannel2RGBA*	create()
+    static RefMan<RGBATextureChannel2RGBA> create();
 				mCreateDataObj(RGBATextureChannel2RGBA);
 
     const ColTab::Sequence*	getSequence(int ch) const override;
@@ -45,17 +46,16 @@ public:
     int				minNrChannels() const override	{ return 4; }
 
 protected:
-
 				~RGBATextureChannel2RGBA();
 
     void			notifyChannelInsert(int ch) override;
 
     BoolTypeSet			enabled_;
-    unsigned char		proctransparency_;
+    unsigned char		proctransparency_ = 0;
 
     static ArrPtrMan<ColTab::Sequence>	sequences_;
 
-    osgGeo::RGBALayerProcess*	proc_;
+    osgGeo::RGBALayerProcess*	proc_ = nullptr;
 };
 
 } // namespace visBase

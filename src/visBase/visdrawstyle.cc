@@ -18,12 +18,16 @@ ________________________________________________________________________
 namespace visBase
 {
 
+
+RefMan<DrawStyle> DrawStyle::create()
+{
+    RefMan<DrawStyle> ret = new DrawStyle();
+    return ret;
+}
+
+
 DrawStyle::DrawStyle()
-    : pointsizeattrib_(0)
-    , pointsize_( 0.0f )
-    , linestippleattrib_(0)
-    , linewidthattrib_(0)
-    , pixeldensity_( DataObject::getDefaultPixelDensity() )
+    : pixeldensity_(DataObject::getDefaultPixelDensity())
 {}
 
 
@@ -79,7 +83,7 @@ void DrawStyle::setLineWidth( int width )
 
     linestyle_.width_ = width;
     updateLineStyle();
-}    
+}
 
 
 

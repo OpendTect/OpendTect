@@ -73,7 +73,7 @@ Horizon::Horizon( Desc& dsc )
     , horizon2dlineid_( mUdf(int) )
     , relz_(false)
 {
-    BufferString idstr = desc_.getValParam( sKeyHorID() )->getStringValue();
+    BufferString idstr = getDesc().getValParam( sKeyHorID() )->getStringValue();
     horid_ = MultiID( idstr.buf() );
 
     mGetEnum( outtype_, sKeyType() );
@@ -157,10 +157,10 @@ void Horizon::prepareForComputeData()
 
     horizon_ = hor;
     horizon_->ref();
-    if ( desc_.is2D() )
+    if ( getDesc().is2D() )
 	fillLineID();
 
-    if ( outtype_ == mOutTypeZ || desc_.is2D() )
+    if ( outtype_ == mOutTypeZ || getDesc().is2D() )
 	mRet
 
     mDynamicCastGet(EM::Horizon3D*,hor3d,hor)
@@ -195,7 +195,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
     if ( !horizon_ ) return false;
 
     RowCol rc = currentbid_ + relpos;
-    if ( desc_.is2D() )
+    if ( getDesc().is2D() )
     {
 	if ( mIsUdf(horizon2dlineid_) )
 	    return false;
@@ -220,7 +220,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 	float outputvalue = mUdf(float);
 	if ( isz )
 	    outputvalue = zval;
-	else if ( !desc_.is2D() )
+	else if ( !getDesc().is2D() )
 	{
 	    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
 	    if ( hor3d )

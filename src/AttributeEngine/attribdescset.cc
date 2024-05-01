@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "attribdescset.h"
 
-#include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsel.h"
@@ -58,6 +57,12 @@ DescSet::DescSet( const DescSet& ds )
     , descToBeRemoved(this)
 {
     *this = ds;
+}
+
+
+DescSet::~DescSet()
+{
+    removeAll( false );
 }
 
 
@@ -154,9 +159,11 @@ void DescSet::updateInputs()
 	Desc& dsc = *descs_[idx];
 	for ( int inpidx=0; inpidx<dsc.nrInputs(); inpidx++ )
 	{
-	    const Desc* oldinpdesc = dsc.getInput( inpidx );
-	    if ( !oldinpdesc ) continue;
-	    Desc* newinpdesc = getDesc( oldinpdesc->id() );
+	    ConstRefMan<Desc> oldinpdesc = dsc.getInput( inpidx );
+	    if ( !oldinpdesc )
+		continue;
+
+	    RefMan<Desc> newinpdesc = getDesc( oldinpdesc->id() );
 	    dsc.setInput( inpidx, newinpdesc );
 	}
     }
@@ -165,7 +172,7 @@ void DescSet::updateInputs()
 
 DescID DescSet::addDesc( Desc* nd, DescID id )
 {
-    nd->setDescSet( this ); nd->ref();
+    nd->setDescSet( this );
     descs_ += nd;
     const DescID newid = id.isValid() ? id : getFreeID();
     ids_ += newid;
@@ -175,7 +182,7 @@ DescID DescSet::addDesc( Desc* nd, DescID id )
 
 DescID DescSet::insertDesc( Desc* nd, int idx, DescID id )
 {
-    nd->setDescSet( this ); nd->ref();
+    nd->setDescSet( this );
     descs_.insertAt( nd, idx );
     const DescID newid = id.isValid() ? id : getFreeID();
     ids_.insert( idx, newid );
@@ -183,11 +190,11 @@ DescID DescSet::insertDesc( Desc* nd, int idx, DescID id )
 }
 
 
-Desc* DescSet::gtDesc( const DescID& id ) const
+RefMan<Desc> DescSet::gtDesc( const DescID& id ) const
 {
     const int idx = ids_.indexOf( id );
     if ( !descs_.validIdx(idx) )
-	return 0;
+	return nullptr;
 
     return const_cast<Desc*>( descs_[idx] );
 }
@@ -272,13 +279,14 @@ DescID DescSet::getID( const char* str, bool isusrref, bool isdescstored,
 void DescSet::removeDesc( const DescID& id )
 {
     const int idx = ids_.indexOf(id);
-    if ( idx==-1 ) return;
+    if ( idx==-1 )
+	return;
 
     descToBeRemoved.trigger( id );
     if ( descs_[idx]->descSet()==this )
-	descs_[idx]->setDescSet(0);
+	descs_[idx]->setDescSet( nullptr );
 
-    descs_.removeSingle(idx)->unRef();
+    descs_.removeSingle(idx);
     ids_.removeSingle(idx);
 }
 
@@ -442,12 +450,17 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 				       int odversion ) const
 {
     RefMan<Desc> tmpdesc = PF().createDescCopy("Math");
-    if ( !tmpdesc || !tmpdesc->parseDefStr(defstring.buf()) ) return;
+    if ( !tmpdesc || !tmpdesc->parseDefStr(defstring.buf()) )
+	return;
+
     ValParam* expr = tmpdesc->getValParam( "expression" );
-    if ( !expr ) return;
+    if ( !expr )
+	return;
+
     Math::ExpressionParser mep( expr->getStringValue() );
     PtrMan<Math::Expression> formula = mep.parse();
-    if ( !formula ) return;
+    if ( !formula )
+	return;
 
     if ( odversion<340 )
     {
@@ -521,18 +534,19 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 #define mHandleDescErr( str ) \
 { \
     if ( !errmsgs ) \
-	return 0; \
+	return nullptr; \
 \
     (*errmsgs) += str; \
-    return 0;\
+    return nullptr;\
 }
 
 
-Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
-			   const BufferString& defstring,
-			   uiStringSet* errmsgs )
+RefMan<Desc> DescSet::createDesc( const BufferString& attrname,
+				  const IOPar& descpar,
+				  const BufferString& defstring,
+				  uiStringSet* errmsgs )
 {
-    Desc* dsc = PF().createDescCopy( attrname );
+    RefMan<Desc> dsc = PF().createDescCopy( attrname );
     if ( !dsc )
 	mHandleDescErr( sFactoryEntryNotFound(attrname) );
 
@@ -571,6 +585,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 	    }
 	}
     }
+
     dsc->setUserRef( userref );
 
     bool ishidden = false;
@@ -594,12 +609,13 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 }
 
 
-Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
-			   const BufferString& defstring )
+RefMan<Desc> DescSet::createDesc( const BufferString& attrname,
+				  const IOPar& descpar,
+				  const BufferString& defstring )
 {
     errmsg_.setEmpty();
     PtrMan<uiStringSet > errmsgs = new uiStringSet;
-    Desc* newdesc = createDesc( attrname , descpar, defstring, errmsgs );
+    RefMan<Desc> newdesc = createDesc( attrname , descpar, defstring, errmsgs );
     if ( errmsgs && !errmsgs->isEmpty() )
 	errmsg_ = (*errmsgs)[0];
 
@@ -611,8 +627,9 @@ void DescSet::handleReferenceInput( Desc* dsc )
 {
     if ( dsc->isSatisfied() == Desc::Error )
     {
-	Desc* inpdesc = getFirstStored( false );
-	if ( !inpdesc ) return;
+	RefMan<Desc> inpdesc = getFirstStored( false );
+	if ( !inpdesc )
+	    return;
 
 	dsc->setInput( 0, inpdesc );
     }
@@ -802,14 +819,14 @@ bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
     }
 
     // sort_coupled();
-    ObjectSet<Desc> newsteeringdescs;
-    useOldSteeringPar(copypar, newsteeringdescs, errmsgs);
+    RefObjectSet<Desc> newsteeringdescs;
+    useOldSteeringPar( copypar, newsteeringdescs, errmsgs );
 
     for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
 	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1, false ) );
 
     int nrdescsnosteer = ids_.size()-newsteeringdescs.size();
-    if ( !setAllInputDescs( nrdescsnosteer, copypar, errmsgs ) )
+    if ( !setAllInputDescs(nrdescsnosteer,copypar,errmsgs) )
 	res = false;
 
     return res;
@@ -898,7 +915,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     if ( !Desc::getAttribName(steeringdef,attribname) )
 	mHandleSteeringParseErr(uiStrings::sCantFindAttrName());
 
-    RefMan<Desc> stdesc = PF().createDescCopy(attribname);
+    RefMan<Desc> stdesc = PF().createDescCopy( attribname );
     if ( !stdesc )
 	mHandleSteeringParseErr( sFactoryEntryNotFound(attribname) );
 
@@ -937,8 +954,8 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 	    return true;
 	}
     }
-    stdesc->ref();
-    newsteeringdescs += stdesc;
+
+    newsteeringdescs.add( stdesc );
     id = newsteeringdescs.size()-1;
 
     return true;
@@ -1058,7 +1075,7 @@ DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
     else
 	return DescID::undef();
 
-    Desc* newdesc = PF().createDescCopy( StorageProvider::attribName() );
+    RefMan<Desc> newdesc = PF().createDescCopy( StorageProvider::attribName() );
     if ( !newdesc )
 	return DescID::undef(); // "Cannot create desc"
 
@@ -1103,7 +1120,7 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 
 	for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	{
-	    const Desc* inpdesc = dsc->getInput(idx);
+	    ConstRefMan<Desc> inpdesc = dsc->getInput(idx);
 	    const DescID inputid = inpdesc ? inpdesc->id() : DescID::undef();
 	    if ( inputid!=DescID::undef() && !res->getDesc(inputid) )
 		needednodes += inputid;
@@ -1204,15 +1221,17 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 }
 
 
-Desc* DescSet::getFirstStored( bool usesteering ) const
+RefMan<Desc> DescSet::getFirstStored( bool usesteering ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Desc& dsc = *descs_[idx];
-	if ( !dsc.isStored() ) continue;
+	if ( !dsc.isStored() )
+	    continue;
 
 	BufferString storedid = dsc.getStoredID();
-	if ( storedid.isEmpty() ) continue;
+	if ( storedid.isEmpty() )
+	    continue;
 
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
 	BufferString res;
@@ -1231,7 +1250,7 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	    return const_cast<Desc*>( &dsc );
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -1326,7 +1345,8 @@ void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 }
 
 
-Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
+RefMan<Attrib::Desc> DescSet::getDescFromUIListEntry(
+						const FileMultiString& inpstr )
 {
     BufferString stornm = inpstr[0];
     if ( stornm.startsWith("[") )
@@ -1348,7 +1368,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 	}
 
 	if ( mid.isUdf() )
-	    return 0;
+	    return nullptr;
 
 	int compnr = 0;
 	if ( !inpstr[1].isEmpty() )
@@ -1374,7 +1394,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 		 BufferString(stornm)==BufferString(descs_[dscidx]->userRef()) )
 		return descs_[dscidx];
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -1497,8 +1517,9 @@ bool DescSet::exportToDot( const char* nm, const char* fnm ) const
 	const int nrinputs = curdesc->nrInputs();
 	for ( int inpidx=0; inpidx<nrinputs; inpidx++ )
 	{
-	    const Desc* inpdesc = curdesc->getInput( inpidx );
-	    if ( !inpdesc ) continue;
+	    ConstRefMan<Desc> inpdesc = curdesc->getInput( inpidx );
+	    if ( !inpdesc )
+		continue;
 
 	    strm << "\"" << inpdesc->userRef() << "\" -> \""
 		 << curdesc->userRef() << "\";\n";

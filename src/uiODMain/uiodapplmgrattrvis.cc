@@ -136,7 +136,7 @@ void uiODApplMgrAttrVisHandler::setZStretch()
 }
 
 
-bool uiODApplMgrAttrVisHandler::selectAttrib( VisID id, int attrib )
+bool uiODApplMgrAttrVisHandler::selectAttrib( const VisID& id, int attrib )
 {
     if ( am_.appl_.isRestoringSession() ) return false;
 
@@ -167,15 +167,15 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( VisID id, int attrib )
 }
 
 
-void uiODApplMgrAttrVisHandler::setHistogram( VisID visid, int attrib )
+void uiODApplMgrAttrVisHandler::setHistogram( const VisID& visid, int attrib )
 {
     am_.appl_.colTabEd().setHistogram(
-	    	am_.visserv_->getHistogram(visid,attrib) );
+		am_.visserv_->getHistogram(visid,attrib) );
 }
 
 
-void uiODApplMgrAttrVisHandler::setRandomPosData( VisID visid, int attrib,
-						 const DataPointSet& data )
+void uiODApplMgrAttrVisHandler::setRandomPosData( const VisID& visid,
+					int attrib, const DataPointSet& data )
 {
     DataPackID cacheid = am_.visserv_->getDataPackID( visid, attrib );
     if ( !cacheid.isValid() )
@@ -203,7 +203,8 @@ void uiODApplMgrAttrVisHandler::pageUpDownPressed( bool pageup )
 }
 
 
-void uiODApplMgrAttrVisHandler::updateColorTable( VisID visid, int attrib  )
+void uiODApplMgrAttrVisHandler::updateColorTable( const VisID& visid,
+						  int attrib  )
 {
     if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
     {
@@ -217,7 +218,7 @@ void uiODApplMgrAttrVisHandler::updateColorTable( VisID visid, int attrib  )
 	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
     else
     {
- 	am_.appl_.colTabEd().setColTab(
+	am_.appl_.colTabEd().setColTab(
 	    am_.visserv_->getColTabSequence( visid, attrib ),
 	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
 	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
@@ -229,26 +230,27 @@ void uiODApplMgrAttrVisHandler::updateColorTable( VisID visid, int attrib  )
 
 void uiODApplMgrAttrVisHandler::colMapperChg()
 {
-    mDynamicCastGet(const visBase::DataObject*,dataobj,
-		    am_.appl_.colTabEd().getSurvObj())
-    const VisID visid =
-		dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
-    int attrib = dataobj
-	? am_.appl_.colTabEd().getChannel() : am_.visserv_->getSelAttribNr();
-    if ( attrib == -1 ) attrib = 0;
+    ConstRefMan<visBase::DataObject> dataobj =
+					     am_.appl_.colTabEd().getDataObj();
+    const VisID visid = dataobj ? dataobj->id()
+				: am_.visserv_->getSelObjectId();
+    int attrib = dataobj ? am_.appl_.colTabEd().getChannel()
+			 : am_.visserv_->getSelAttribNr();
+    if ( attrib == -1 )
+	attrib = 0;
 
     am_.visserv_->setColTabMapperSetup( visid, attrib,
-	    am_.appl_.colTabEd().getColTabMapperSetup() );
+				am_.appl_.colTabEd().getColTabMapperSetup() );
     setHistogram( visid, attrib );
 
     //Autoscale may have changed ranges, so update.
     mDynamicCastGet( visSurvey::SurveyObject*, so,
-	am_.visserv_->getObject( visid ) );
+		     am_.visserv_->getObject(visid) );
     if ( so )
 	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
     else
     {
- 	am_.appl_.colTabEd().setColTab(
+	am_.appl_.colTabEd().setColTab(
 	    am_.visserv_->getColTabSequence( visid, attrib ),
 	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
 	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
@@ -258,19 +260,19 @@ void uiODApplMgrAttrVisHandler::colMapperChg()
 
 void uiODApplMgrAttrVisHandler::colSeqChg()
 {
-    mDynamicCastGet(const visBase::DataObject*,dataobj,
-		    am_.appl_.colTabEd().getSurvObj())
+    ConstRefMan<visBase::DataObject> dataobj =
+					     am_.appl_.colTabEd().getDataObj();
     const VisID visid =
 		dataobj ? dataobj->id() : am_.visserv_->getSelObjectId();
-    int attrib = dataobj
-	? am_.appl_.colTabEd().getChannel()
-	: am_.visserv_->getSelAttribNr();
+    int attrib = dataobj ? am_.appl_.colTabEd().getChannel()
+			 : am_.visserv_->getSelAttribNr();
 
-    if ( attrib == -1 ) attrib = 0;
+    if ( attrib == -1 )
+	attrib = 0;
+
     setHistogram( visid, attrib );
-
     am_.visserv_->setColTabSequence( visid, attrib,
-	    am_.appl_.colTabEd().getColTabSequence() );
+				     am_.appl_.colTabEd().getColTabSequence() );
 }
 
 
@@ -280,42 +282,46 @@ NotifierAccess* uiODApplMgrAttrVisHandler::colorTableSeqChange()
 }
 
 
-void uiODApplMgrAttrVisHandler::useDefColTab( VisID visid, int attrib )
+void uiODApplMgrAttrVisHandler::useDefColTab( const VisID& visid, int attrib )
 {
-    if ( am_.appl_.isRestoringSession() ) return;
+    if ( am_.appl_.isRestoringSession() )
+	return;
 
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( visid, attrib );
-    if ( !as || as->id().asInt() < 0 ) return;
+    if ( !as || as->id().asInt() < 0 )
+	return;
 
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );
 
-    ColTab::Sequence seq( 0 );
+    ColTab::Sequence seq;
     const ColTab::Sequence* ctseq =
 		am_.visserv_->getColTabSequence( visid, attrib );
-    if ( ctseq ) seq = *ctseq;
+    if ( ctseq )
+	seq = *ctseq;
 
     ColTab::MapperSetup mapper;
     const ColTab::MapperSetup* ctmap =
 		am_.visserv_->getColTabMapperSetup( visid, attrib );
-    if ( ctmap ) mapper = *ctmap;
+    if ( ctmap )
+	mapper = *ctmap;
 
     if ( ioobj )
     {
-	SeisIOObjInfo seisobj( ioobj );
+	const SeisIOObjInfo seisobj( ioobj );
 	IOPar iop;
-	if ( seisobj.getDisplayPars( iop ) )
-    	{
+	if ( seisobj.isOK() && seisobj.getDisplayPars(iop) )
+	{
 	    const BufferString ctname = iop.find( sKey::Name() );
-    	    seq = ColTab::Sequence( ctname );
-    	    mapper.usePar( iop );
+	    seq = ColTab::Sequence( ctname );
+	    mapper.usePar( iop );
 	}
 	else if ( !seisobj.is2D() && seisobj.nrComponents() == 1 )
 	{
 	    uiMSG().message( tr("No saved color settings found for the selected"
 			" cube. Default settings will be loaded. For changing "
-	  		"these settings, click on \"Save Color Settings\" "
+			"these settings, click on \"Save Color Settings\" "
 			"option in tree."), uiString::emptyString(),
-		    	uiString::emptyString(), true );
+			uiString::emptyString(), true );
 	    saveDefColTab( visid, attrib );
 	}
     }
@@ -328,7 +334,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( VisID visid, int attrib )
 }
 
 
-void uiODApplMgrAttrVisHandler::saveDefColTab( VisID visid, int attrib )
+void uiODApplMgrAttrVisHandler::saveDefColTab( const VisID& visid, int attrib )
 {
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec(visid,attrib);
     PtrMan<IOObj> ioobj = am_.attrserv_->getIOObj( *as );

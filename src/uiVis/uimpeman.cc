@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
-#include "vismpeseedcatcher.h"
 #include "visselman.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
@@ -43,17 +42,14 @@ class LockedDisplayTimer : public CallBacker
 public:
 LockedDisplayTimer()
     : timer_(new Timer("Display Locked Nodes"))
-    , hd_(nullptr)
 {
-    timer_->tick.notify( mCB(this,LockedDisplayTimer,hideCB) );
+    mAttachCB( timer_->tick, LockedDisplayTimer::hideCB );
 }
 
 
 ~LockedDisplayTimer()
 {
-    if ( hd_ )
-	hd_->unRef();
-
+    detachAllNotifiers();
     delete timer_;
 }
 
@@ -61,13 +57,7 @@ LockedDisplayTimer()
 #define cLockWaitTime 2000
 void start( visSurvey::HorizonDisplay* hd )
 {
-    if ( hd_ )
-	hd_->unRef();
-
     hd_ = hd;
-    if ( hd_ )
-	hd_->ref();
-
     timer_->start( cLockWaitTime, true );
 }
 
@@ -75,16 +65,14 @@ void start( visSurvey::HorizonDisplay* hd )
 protected:
 void hideCB( CallBacker* )
 {
-    if ( !hd_ ) return;
-
-    if ( hd_->lockedShown() )
+    if ( hd_ && hd_->lockedShown() )
 	hd_->showLocked( false );
-    hd_->unRef();
-    hd_ = 0;
+
+    hd_ = nullptr;
 }
 
     Timer*			timer_;
-    visSurvey::HorizonDisplay*	hd_;
+    RefMan<visSurvey::HorizonDisplay>	hd_;
 
 };
 
@@ -121,8 +109,9 @@ uiMPEMan::~uiMPEMan()
 void uiMPEMan::mpeActionCalledCB( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiMPEMan::mpeActionCalledCB );
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
-    if ( !hd ) return;
+    RefMan<visSurvey::HorizonDisplay> hd = getSelectedDisplay();
+    if ( !hd )
+	return;
 
     if ( engine().getState() == Engine::Started )
     {
@@ -135,10 +124,9 @@ void uiMPEMan::mpeActionCalledCB( CallBacker* )
 void uiMPEMan::mpeActionFinishedCB( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiMPEMan::mpeActionFinishedCB );
-    visSurvey::HorizonDisplay* hd = getSelectedDisplay();
-    if ( !hd ) return;
-
-    hd->updateAuxData();
+    RefMan<visSurvey::HorizonDisplay> hd = getSelectedDisplay();
+    if ( hd )
+	hd->updateAuxData();
 }
 
 
@@ -242,9 +230,10 @@ void uiMPEMan::mouseEventCB( CallBacker* )
 static void addAction( uiMenu& mnu, uiString txt, const char* sc, int id,
 			const char* icon, bool enab, bool doadd )
 {
-    if ( !doadd ) return;
+    if ( !doadd )
+	return;
 
-    uiAction* action = new uiAction( txt );
+    auto* action = new uiAction( txt );
     mnu.insertAction( action, id );
     action->setEnabled( enab );
     action->setIcon( icon );
@@ -259,8 +248,9 @@ int uiMPEMan::popupMenu()
     if ( !hor2d && !hor3d ) return -1;
 
     visSurvey::EMObjectDisplay* emod = getSelectedEMDisplay();
-    visSurvey::Scene* scene = emod ? emod->getScene() : 0;
-    if ( !scene ) return -1;
+    visSurvey::Scene* scene = emod ? emod->getScene() : nullptr;
+    if ( !scene )
+	return -1;
 
     uiMenu mnu( tr("Tracking Menu") );
     const bool istracking = MPE::engine().trackingInProgress();
@@ -423,10 +413,9 @@ void uiMPEMan::deleteVisObjects()
 	if ( clickablesceneid_.isValid() )
 	    visserv_->removeObject( clickcatcher_->id(), clickablesceneid_ );
 
-	clickcatcher_->click.remove( mCB(this,uiMPEMan,seedClick) );
-	clickcatcher_->setEditor( 0 );
-	clickcatcher_->unRef();
-	clickcatcher_ = 0;
+	mDetachCB( clickcatcher_->click, uiMPEMan::seedClick );
+	clickcatcher_->setEditor( nullptr );
+	clickcatcher_ = nullptr;
 	clickablesceneid_.setUdf();
     }
 }
@@ -434,8 +423,7 @@ void uiMPEMan::deleteVisObjects()
 
 void uiMPEMan::mouseCursorCallCB( CallBacker* )
 {
-    visSurvey::Scene* scene = visSurvey::STM().currentScene();
-
+    RefMan<visSurvey::Scene> scene = visSurvey::STM().currentScene();
     if ( !scene || scene->id()!=clickablesceneid_ ||
 	 !isSeedPickingOn() || !clickcatcher_ || !clickcatcher_->getEditor() ||
 	 MPE::engine().trackingInProgress() )
@@ -602,7 +590,7 @@ void uiMPEMan::seedClick( CallBacker* )
     Coord3 seedcrd;
     if ( !clickedonhorizon )
     {
-	visSurvey::Scene* scene = visSurvey::STM().currentScene();
+	RefMan<visSurvey::Scene> scene = visSurvey::STM().currentScene();
 	seedcrd = clickcatcher_->info().getPos();
 	scene->getTempZStretchTransform()->transformBack( seedcrd );
 	scene->getUTM2DisplayTransform()->transformBack( seedcrd );
@@ -914,7 +902,7 @@ bool uiMPEMan::isPickingWhileSetupUp() const
 void uiMPEMan::turnSeedPickingOn( bool yn )
 {
     if ( !yn && clickcatcher_ )
-	clickcatcher_->setEditor( 0 );
+	clickcatcher_->setEditor( nullptr );
 
     MPE::EMTracker* tracker = getSelectedTracker();
 
@@ -929,14 +917,14 @@ void uiMPEMan::turnSeedPickingOn( bool yn )
 	    clickcatcher_->turnOn( true );
 
 	const EM::EMObject* emobj =
-			tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+		tracker ? EM::EMM().getObject(tracker->objectID()) : nullptr;
 	if ( clickcatcher_ && emobj )
 	    clickcatcher_->setTrackerType( emobj->getTypeStr() );
     }
     else
     {
 	MPE::EMSeedPicker* seedpicker =
-		tracker ? tracker->getSeedPicker( false ) : 0;
+		tracker ? tracker->getSeedPicker( false ) : nullptr;
 	if ( seedpicker )
 	    seedpicker->stopSeedPick();
 
@@ -967,8 +955,8 @@ void uiMPEMan::updateClickCatcher( bool create )
 	{
 	    clickcatcher_ = visSurvey::MPEClickCatcher::create();
 	}
-	clickcatcher_->ref();
-	clickcatcher_->click.notify(mCB(this,uiMPEMan,seedClick));
+
+	mAttachCB( clickcatcher_->click, uiMPEMan::seedClick );
 	clickcatcher_->turnOn( false );
 	mAttachCB( clickcatcher_->endSowing, uiMPEMan::sowingFinishedCB );
 	mAttachCB( clickcatcher_->sowing, uiMPEMan::sowingModeCB );
@@ -980,7 +968,7 @@ void uiMPEMan::updateClickCatcher( bool create )
 
     mDynamicCastGet(visSurvey::EMObjectDisplay*,
 		    surface,visserv_->getObject(selectedids[0]));
-    clickcatcher_->setEditor( surface ? surface->getEditor() : 0 );
+    clickcatcher_->setEditor( surface ? surface->getEditor() : nullptr );
 
     const SceneID newsceneid = visserv_->getSceneID( selectedids[0] );
     if ( !newsceneid.isValid() || newsceneid == clickablesceneid_ )

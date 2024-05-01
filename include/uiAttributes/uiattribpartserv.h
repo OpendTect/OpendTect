@@ -93,10 +93,11 @@ public:
     void		setAttrsNeedUpdt()		{ attrsneedupdt_ =true;}
 
     bool		selectAttrib(Attrib::SelSpec&,const ZDomain::Info*,
-				     Pos::GeomID geomid,
+				     const Pos::GeomID&,
 				     const uiString& seltxt=tr("View Data")) ;
     bool		selectRGBAttribs(TypeSet<Attrib::SelSpec>&,
-					 const ZDomain::Info*,Pos::GeomID);
+					 const ZDomain::Info*,
+					 const Pos::GeomID&);
     bool		setPickSetDirs(Pick::Set&,const NLAModel*,float vel);
     void		outputVol(const MultiID&,bool is2d,bool multioutput);
     void		updateMultiIdFromNLA(uiAttrVolOut*,const MultiID&,
@@ -115,12 +116,12 @@ public:
     const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const
 			    { return targetspecs_; }
 
-    DataPackID	createOutput(const TrcKeyZSampling&,DataPackID);
+    DataPackID	createOutput(const TrcKeyZSampling&,const DataPackID&);
     ConstRefMan<RegularSeisDataPack> createOutput(const TrcKeyZSampling&,
 				 const RegularSeisDataPack* prevslcs=nullptr);
     RefMan<RegularSeisDataPack> createOutputRM(const TrcKeyZSampling&,
 				 const RegularSeisDataPack* prevslcs=nullptr);
-    bool		createOutput(DataPointSet&,int firstcol =0,
+    bool		createOutput(DataPointSet&,int firstcol=0,
 				     bool showprogress=true);
     bool		createOutput(ObjectSet<DataPointSet>&,
 				     int firstcol =0);
@@ -130,7 +131,7 @@ public:
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
 				     const TypeSet<BinID>& trueknotspos,
 				     const TypeSet<BinID>& snappedpos);
-    DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
+    DataPackID		createRdmTrcsOutput(const Interval<float>& zrg,
 					    TrcKeyPath& path,
 					    TrcKeyPath& trueknotspos);
     static RefMan<RegularSeisDataPack> createDataPackFor2DRM(
@@ -240,7 +241,7 @@ protected:
     uiAttrVolOut*	dataattrdlg_			= nullptr;
 
     Attrib::EngineMan*	createEngMan(const TrcKeyZSampling* cs=nullptr,
-			const Pos::GeomID& geomid=Survey::GM().cUndefGeomID());
+				     const Pos::GeomID& =Pos::GeomID::udf());
 
     void		directShowAttr(CallBacker*);
 
@@ -284,18 +285,19 @@ private:
     static uiAttribPartServer*	theinst_;
 
     DataPackID		create2DOutput(const TrcKeyZSampling&,
-					       const Pos::GeomID&,TaskRunner&);
+				       const Pos::GeomID&,TaskRunner&);
 				//!< Use createOutput() instead.
 public:
 
     static uiAttribPartServer*	getInst();
 
     RefMan<RandomSeisDataPack>	createRdmTrcsOutputRM(
-			    const Interval<float>& zrg, RandomLineID rdlid);
-    DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
-					    RandomLineID rdlid);
+					    const Interval<float>& zrg,
+					    const RandomLineID&);
+    DataPackID		createRdmTrcsOutput(const Interval<float>& zrg,
+					    const RandomLineID&);
     void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
-					  const Pos::GeomID& geomid,
+					  const Pos::GeomID&,
 					  bool isstored,int steerpol);
 protected:
     void		snapToValidRandomTraces(TrcKeyPath& path,
@@ -304,6 +306,6 @@ protected:
 public:
     mDeprecated("Use TrcKeyPath")
     DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
-					    TypeSet<BinID>& path,
-					    TypeSet<BinID>& trueknotspos);
+				    TypeSet<BinID>& path,
+				    TypeSet<BinID>& trueknotspos);
 };

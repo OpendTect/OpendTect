@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "visobject.h"
 #include "vistransform.h"
 
@@ -28,7 +29,7 @@ class TextureChannels;
 mExpClass(visBase) TexturePanelStrip : public VisualObjectImpl
 {
 public:
-    static TexturePanelStrip*	create()
+    static RefMan<TexturePanelStrip> create();
 				mCreateDataObj(TexturePanelStrip);
 
     void			setTextureChannels(visBase::TextureChannels*);
@@ -98,11 +99,12 @@ public:
     };
 
     bool			getTextureDataInfo(int tidx,
-				    TextureDataInfo& texinfo) const;
+						   TextureDataInfo&) const;
     bool			getTextureInfo(int& width,int& height,
-				    int& pixsize);
+					       int& pixsize) const;
 protected:
 					~TexturePanelStrip();
+
     void				updatePath();
 
     ConstRefMan<mVisTrans>		displaytrans_;

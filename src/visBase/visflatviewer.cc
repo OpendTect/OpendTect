@@ -11,11 +11,13 @@ ________________________________________________________________________
 
 #include "array2dresample.h"
 #include "arraynd.h"
+#include "axislayout.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "dataclipper.h"
+#include "envvars.h"
 #include "flatposdata.h"
-#include "axislayout.h"
+#include "settingsaccess.h"
 #include "simpnumer.h"
 #include "survinfo.h"
 #include "viscoord.h"
@@ -24,8 +26,6 @@ ________________________________________________________________________
 #include "vistexturechannels.h"
 #include "vistexturerect.h"
 #include "vistexturechannel2rgba.h"
-#include "envvars.h"
-#include "settingsaccess.h"
 
 
 mCreateFactoryEntry( visBase::FlatViewer );
@@ -37,53 +37,45 @@ FlatViewer::FlatViewer()
     : VisualObjectImpl(false)
     , dataChanged(this)
     , dispParsChanged(this)
-    , channels_(TextureChannels::create())
-    , channel2rgba_(ColTabTextureChannel2RGBA::create())
-    , rectangle_(TextureRectangle::create())
-    , x1gridlines_(PolyLine::create())
-    , x2gridlines_(PolyLine::create())
-    , gridlinematerial_(new Material)
 {
+    ref();
+    channels_ = TextureChannels::create();
+    channel2rgba_ = ColTabTextureChannel2RGBA::create();
+    rectangle_ = TextureRectangle::create();
+    x1gridlines_ = PolyLine::create();
+    x2gridlines_ = PolyLine::create();
     resolution_ = SettingsAccess().getDefaultTexResFactor( nrResolutions() );
 
-    channel2rgba_->ref();
     channel2rgba_->allowShading( true );
-
-    channels_->ref();
     channels_->setChannels2RGBA( channel2rgba_ );
-
     if ( channels_->nrChannels()<1 )
     {
 	channels_->addChannel();
 	channel2rgba_->setEnabled( 0, true );
     }
 
-    rectangle_->setMaterial( 0 );
+    rectangle_->setMaterial( nullptr );
     rectangle_->setTextureChannels( channels_ );
     addChild( rectangle_->osgNode() );
 
-    gridlinematerial_->setColor( OD::Color(0,0,0) );
+    RefMan<Material> gridlinematerial = Material::create();
+    gridlinematerial->setColor( OD::Color(0,0,0) );
 
-    x1gridlines_->ref();
-    x1gridlines_->setMaterial( gridlinematerial_ );
+    x1gridlines_->setMaterial( gridlinematerial.ptr() );
     addChild( x1gridlines_->osgNode() );
 
-    x2gridlines_->ref();
-    x2gridlines_->setMaterial( gridlinematerial_ );
+    x2gridlines_->setMaterial( gridlinematerial.ptr() );
     addChild( x2gridlines_->osgNode() );
+    unRefNoDelete();
 }
 
 
 FlatViewer::~FlatViewer()
 {
-    channels_->unRef();
-    channel2rgba_->unRef();
-    x2gridlines_->unRef();
-    x1gridlines_->unRef();
 }
 
 
-void FlatViewer::handleChange( unsigned int dt)
+void FlatViewer::handleChange( unsigned int dt )
 {
     switch ( dt )
     {
@@ -267,11 +259,10 @@ void FlatViewer::updateGridLines( bool x1 )
 	gridlines->addPoint( startpos );
 	gridlines->addPoint( stoppos );
 	const int lastidx = gridlines->size();
-	Geometry::RangePrimitiveSet* ps =
-	    Geometry::RangePrimitiveSet::create();
+	RefMan<Geometry::RangePrimitiveSet> ps =
+				Geometry::RangePrimitiveSet::create();
 	Interval<int> psrange( lastidx-2, lastidx -1);
 	ps->setRange( psrange );
-	ps->ref();
 	gridlines->addPrimitiveSet( ps );
 	pos += sd.step;
     }
@@ -293,13 +284,9 @@ void FlatViewer::replaceChannels( TextureChannels* nt )
 	return;
 
     if ( channels_ )
-    {
 	removeChild( channels_->osgNode() );
-	channels_->unRef();
-    }
 
     channels_ = nt;
-    channels_->ref();
 }
 
 

@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "sharedobject.h"
 
 #include "attribdescid.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "seistype.h"
+#include "sharedobject.h"
 #include "typeset.h"
 
 
@@ -61,7 +61,7 @@ public:
 				InputSpec(const char* desc,bool enabled);
 				~InputSpec();
 
-    const char*			getDesc() const { return desc_; }
+    const char*			getDesc() const { return desc_.buf(); }
 
     BufferString		desc_;
     TypeSet<Seis::DataType>	forbiddenDts_;
@@ -143,8 +143,8 @@ public:
     InputSpec&			inputSpec(int);
     const InputSpec&		inputSpec(int) const;
     bool			setInput(int,const Desc*);
-    Desc*			getInput(int);
-    const Desc*			getInput(int) const;
+    RefMan<Desc>		getInput(int);
+    ConstRefMan<Desc>		getInput(int) const;
     void			getInputs(TypeSet<Attrib::DescID>&) const;
     void			getDependencies(TypeSet<Attrib::DescID>&) const;
 				/*!<Generates list of attributes this attribute
@@ -195,12 +195,12 @@ public:
     static bool			getParamString(const char* defstr,
 					       const char* key,BufferString&);
 
-    Desc*			getStoredInput() const;
+    RefMan<Desc>		getStoredInput() const;
     DescID			getMultiOutputInputID() const;
 
     //Used to clone an attribute chain and apply it on multiple components
     //of the same input cube (different offsets for instance)
-    Desc*			cloneDescAndPropagateInput(const DescID&,
+    RefMan<Desc>		cloneDescAndPropagateInput(const DescID&,
 							   BufferString);
     //6.0 only, next versions will see the protected member
     //become public instead
@@ -242,7 +242,7 @@ protected:
     bool			usestrcpos_		= false;
 
     TypeSet<InputSpec>		inputspecs_;
-    ObjectSet<Desc>		inputs_;
+    RefObjectSet<Desc>		inputs_;
 
     BufferString		attribname_;
     ObjectSet<Param>		params_;
@@ -355,22 +355,22 @@ protected:
 }
 
 #define mGetFloat( var, varstring ) \
-    mGetFloatFromDesc( desc_, var, varstring )
+    mGetFloatFromDesc( getDesc(), var, varstring )
 #define mGetInt( var, varstring ) \
-    mGetIntFromDesc( desc_, var, varstring )
+    mGetIntFromDesc( getDesc(), var, varstring )
 #define mGetBool( var, varstring ) \
-    mGetBoolFromDesc( desc_, var, varstring )
+    mGetBoolFromDesc( getDesc(), var, varstring )
 #define mGetEnum( var, varstring ) \
-    mGetEnumFromDesc( desc_, var, varstring )
+    mGetEnumFromDesc( getDesc(), var, varstring )
 #define mGetString( var, varstring ) \
-    mGetStringFromDesc( desc_, var, varstring )
+    mGetStringFromDesc( getDesc(), var, varstring )
 #define mGetMultiID( var, varstring ) \
-    mGetMultiIDFromDesc( desc_, var, varstring )
+    mGetMultiIDFromDesc( getDesc(), var, varstring )
 #define mGetDataPackID( var, varstring ) \
-    mGetDataPackIDFromDesc( desc_, var, varstring )
+    mGetDataPackIDFromDesc( getDesc(), var, varstring )
 #define mGetBinID( var, varstring ) \
-    mGetBinIDFromDesc( desc_, var, varstring )
+    mGetBinIDFromDesc( getDesc(), var, varstring )
 #define mGetFloatInterval( var, varstring ) \
-    mGetFloatIntervalFromDesc( desc_, var, varstring )
+    mGetFloatIntervalFromDesc( getDesc(), var, varstring )
 #define mGetDouble( var, varstring ) \
-    mGetDoubleFromDesc( desc_, var, varstring )
+    mGetDoubleFromDesc( getDesc(), var, varstring )

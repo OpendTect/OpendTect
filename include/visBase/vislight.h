@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "visdata.h"
 #include "visnodestate.h"
 #include "visosg.h"
@@ -27,7 +28,8 @@ Class for all lights. More options are available in osg, but only what we
 mExpClass(visBase) Light : public NodeState
 {
 public:
-			Light();
+
+    static RefMan<Light> create();
 
     void		setLightNum(int);
     int			getLightNum() const;
@@ -51,15 +53,15 @@ public:
     void		fillPar( IOPar& ) const;
     bool		usePar( const IOPar& );
 
-
 protected:
+			Light();
 			~Light();
 
     void		updateLights();
     void		initLight();
-    bool		ison_;
-    float		ambient_;
-    float		diffuse_;
+    bool		ison_		= true;
+    float		ambient_	= 0.2f;
+    float		diffuse_	= 0.8f;
     osg::Light*		light_;
 
     static const char*	sKeyIsOn();

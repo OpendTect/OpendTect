@@ -15,18 +15,24 @@ ________________________________________________________________________
 namespace visBase
 {
 
+RefMan<PolygonOffset> PolygonOffset::create()
+{
+    RefMan<PolygonOffset> ret = new PolygonOffset();
+    return ret;
+}
+
 
 PolygonOffset::PolygonOffset()
-    : offset_( addAttribute( new osg::PolygonOffset ) )
+    : offset_(addAttribute(new osg::PolygonOffset))
 {
-    offset_->ref();
+    refOsgPtr( offset_ );
     mode_ = (unsigned int) ( On );
 }
 
 
 PolygonOffset::~PolygonOffset()
 {
-    offset_->unref();
+    unRefOsgPtr( offset_ );
 }
 
 

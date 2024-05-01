@@ -11,39 +11,33 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "executor.h"
 #include "selector.h"
-
 #include "viscoord.h"
 #include "visevent.h"
 #include "vismaterial.h"
 #include "vispointsetdisplay.h"
-#include "vispointset.h"
 
 
 namespace visSurvey {
 
 
 PointSetDisplay::PointSetDisplay()
-    : VisualObjectImpl( true )
-    , transformation_(nullptr)
-    , dpsdispprop_(nullptr)
-    , pointset_( visBase::PointSet::create() )
+    : visBase::VisualObjectImpl(true)
 {
-   refPtr( pointset_ );
-   Geometry::RangePrimitiveSet* range =
-	    Geometry::RangePrimitiveSet::create();
-   pointset_->addPrimitiveSet( range );
-   addChild( pointset_->osgNode());
+    ref();
+    pointset_ = visBase::PointSet::create();
+    RefMan<Geometry::RangePrimitiveSet> range =
+					Geometry::RangePrimitiveSet::create();
+    pointset_->addPrimitiveSet( range.ptr() );
+    addChild( pointset_->osgNode());
+    unRefNoDelete();
 }
 
 
 PointSetDisplay::~PointSetDisplay()
 {
-    setSceneEventCatcher( 0 );
-    setDisplayTransformation( 0 );
+    setSceneEventCatcher( nullptr );
+    transformation_ = nullptr;
     delete dpsdispprop_;
-
-    unRefAndNullPtr( pointset_ );
-
 }
 
 
@@ -66,12 +60,13 @@ int PointSetDisplay::getPointSize() const
 
 bool PointSetDisplay::setDataPack( DataPackID dpsid )
 {
-    auto data = DPM( DataPackMgr::PointID() ).get<DataPointSet>( dpsid );
-    if ( !data ) return false;
+    DataPackMgr& dpm = DPM( getDataPackMgrID() );
+    RefMan<DataPointSet> dps = dpm.get<DataPointSet>( dpsid );
+    if ( !dps )
+	return false;
 
-    data_ = data;
-
-    setName( data_ ? data_->name() : BufferString::empty() );
+    datapack_ = dps;
+    setName( datapack_ ? datapack_->name() : BufferString::empty() );
 
     return true;
 }
@@ -85,7 +80,7 @@ PointSetDisplayUpdater( visBase::PointSet& pointset, DataPointSet& dps,
 			DataPointSetDisplayProp& dpsdispprop )
     : Executor("Creating Point Display in 3D Scene")
     , pointset_(pointset)
-    , data_(&dps)
+    , dps_(&dps)
     , dpsdispprop_(dpsdispprop)
     , nrdone_(0)
     , colid_(dpsdispprop.dpsColID())
@@ -100,7 +95,7 @@ od_int64 nrDone() const override
 { return nrdone_; }
 
 od_int64 totalNr() const override
-{ return data_->size(); }
+{ return dps_->size(); }
 
 uiString uiNrDoneText() const override
 { return tr("Points done"); }
@@ -109,9 +104,9 @@ protected :
 
 int nextStep() override
 {
-    if ( nrdone_ >= data_->size() )
+    if ( nrdone_ >= dps_->size() )
     {
-	Geometry::RangePrimitiveSet* range =
+	RefMan<Geometry::RangePrimitiveSet> range =
 	    (Geometry::RangePrimitiveSet*) pointset_.getPrimitiveSet(0);
 
 	if ( range )
@@ -119,25 +114,26 @@ int nextStep() override
 	    Interval<int> rg( 0, nrpoints_-1 );
 	    range->setRange( rg );
 	}
-	pointset_.materialChangeCB( 0 );
+
+	pointset_.materialChangeCB( nullptr );
 	pointset_.requestSingleRedraw();
 	return Finished();
     }
 
     DataPointSet::RowID rowid = mCast(DataPointSet::RowID,nrdone_);
     nrdone_++;
-    if ( showselected_ && !data_->isSelected(rowid) )
+    if ( showselected_ && !dps_->isSelected(rowid) )
 	return MoreToDo();
 
     OD::Color col;
     if ( showselected_ )
     {
-	int selgrp = data_->selGroup( rowid );
+	int selgrp = dps_->selGroup( rowid );
 	col = dpsdispprop_.getColor( (float)selgrp );
     }
     else
     {
-	const float val = data_->value( colid_, rowid );
+	const float val = dps_->value( colid_, rowid );
 	if ( mIsUdf(val) )
 	    return MoreToDo();
 
@@ -145,14 +141,14 @@ int nextStep() override
     }
 
     const int ptidx = pointset_.addPoint(
-			    Coord3(data_->coord(rowid),data_->z(rowid)) );
+			    Coord3(dps_->coord(rowid),dps_->z(rowid)) );
     pointset_.getMaterial()->setColor( col, ptidx );
     nrpoints_++;
     return MoreToDo();
 }
 
     visBase::PointSet&		pointset_;
-    RefMan<DataPointSet>	data_;
+    RefMan<DataPointSet>	dps_;
     const int			colid_;
     const bool			showselected_;
     DataPointSetDisplayProp&	dpsdispprop_;
@@ -163,18 +159,19 @@ int nextStep() override
 
 Executor* PointSetDisplay::getUpdater()
 {
-    if ( !pointset_ ) return 0;
+    if ( !pointset_ )
+	return nullptr;
 
-    PointSetDisplayUpdater* ret = new PointSetDisplayUpdater( *pointset_,
-							*data_, *dpsdispprop_ );
-    return ret;
+    return new PointSetDisplayUpdater( *pointset_, *datapack_.ptr(),
+				       *dpsdispprop_ );
 }
 
 
 void PointSetDisplay::update( TaskRunner* tskr )
 {
     PtrMan<Executor> updater = getUpdater();
-    if ( !updater ) return;
+    if ( !updater )
+	return;
 
     TaskRunner::execute( tskr, *updater );
 }
@@ -187,17 +184,17 @@ PointSetColorUpdater( visBase::PointSet& ps, DataPointSet& dps,
 		      DataPointSetDisplayProp& dispprop )
     : ParallelTask("Updating Colors")
     , pointset_(ps)
-    , data_(&dps)
+    , dps_(&dps)
     , dpsdispprop_(dispprop)
 {}
 
-od_int64 nrIterations() const override { return data_->size(); }
+od_int64 nrIterations() const override { return dps_->size(); }
 
 bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
-	const float val = data_->value( dpsdispprop_.dpsColID(), idx );
+	const float val = dps_->value( dpsdispprop_.dpsColID(), idx );
 	const OD::Color col = dpsdispprop_.getColor( val );
 	pointset_.getMaterial()->setColor( col, idx );
     }
@@ -208,25 +205,26 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 protected:
 
     visBase::PointSet&		pointset_;
-    RefMan<DataPointSet>	data_;
+    RefMan<DataPointSet>	dps_;
     DataPointSetDisplayProp&	dpsdispprop_;
 
 };
 
 void PointSetDisplay::updateColors()
 {
-    if ( !pointset_ || pointset_->size() != data_->size() ) return;
+    if ( !pointset_ || pointset_->size() != datapack_->size() )
+	return;
 
-    PointSetColorUpdater updater( *pointset_, *data_, *dpsdispprop_ );
+    PointSetColorUpdater updater( *pointset_, *datapack_, *dpsdispprop_ );
     updater.execute();
-    pointset_->materialChangeCB( 0 );
+    pointset_->materialChangeCB( nullptr );
     requestSingleRedraw();
 }
 
 
 bool PointSetDisplay::removeSelections( TaskRunner* taskr )
 {
-    const Selector<Coord3>* selector = scene_ ? scene_->getSelector() : 0;
+    const Selector<Coord3>* selector = scene_ ? scene_->getSelector() : nullptr;
     if ( !selector || !selector->isOK() )
 	return false;
 
@@ -236,14 +234,15 @@ bool PointSetDisplay::removeSelections( TaskRunner* taskr )
 	Coord3 pos = pointset_->getCoordinates()->getPos( idy );
 	if ( selector->includes(pos) )
 	{
-	    DataPointSet::RowID rid = data_->find( DataPointSet::Pos(pos) );
+	    const DataPointSet::RowID rid =
+				datapack_->find( DataPointSet::Pos(pos) );
 	    if ( rid < 0 )
 		continue;
 
 	    if ( dpsdispprop_->showSelected() )
-		data_->setSelected( rid, -1 );
+		datapack_->setSelected( rid, -1 );
 	    else
-		data_->setValue( dpsdispprop_->dpsColID(), rid, mUdf(float) );
+		datapack_->setValue( dpsdispprop_->dpsColID(), rid,mUdf(float));
 
 	    changed = true;
 	}
@@ -259,26 +258,21 @@ void PointSetDisplay::setDisplayTransformation( const mVisTrans* nt )
     if ( transformation_ == nt )
 	return;
 
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_ = nt;
-    if ( transformation_ )
-	transformation_->ref();
-
     if ( pointset_ )
         pointset_->setDisplayTransformation( transformation_ );
 }
 
 
 const mVisTrans* PointSetDisplay::getDisplayTransformation() const
-{ return transformation_; }
+{
+    return transformation_.ptr();
+}
 
 
 void PointSetDisplay::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
-
     if ( pointset_ )
 	pointset_->setPixelDensity( dpi );
 }
@@ -290,11 +284,10 @@ void PointSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       uiString& info ) const
 {
     info.setEmpty(); val.setEmpty();
-    if ( !data_ )
+    if ( !datapack_ )
 	return;
 
-    info = toUiString( data_->name() );
-
+    info = toUiString( datapack_->name() );
     if ( !dpsdispprop_ )
 	return;
 
@@ -302,18 +295,20 @@ void PointSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	info = info.appendPhrase(tr("Selection Group"), uiString::MoreInfo,
 	    uiString::OnSameLine );
     else
-	info = info.appendPhrase(toUiString(data_->name()), uiString::MoreInfo,
+	info = info.appendPhrase(
+		toUiString(datapack_->colName( dpsdispprop_->dpsColID() )),
+			uiString::MoreInfo,
 	    uiString::OnSameLine );
 
-    BinID binid = SI().transform( pos );
-    DataPointSet::RowID rid = data_->findFirst( binid );
+    const BinID binid = SI().transform( pos );
+    const DataPointSet::RowID rid = datapack_->findFirst( binid );
     if ( rid < 0 )
 	return;
 
     if ( dpsdispprop_->showSelected() )
-	val.add( data_->selGroup(rid) );
+	val.add( datapack_->selGroup(rid) );
     else
-	val.add( data_->value(dpsdispprop_->dpsColID(),rid) );
+	val.add( datapack_->value(dpsdispprop_->dpsColID(),rid) );
 }
 
 } // namespace visSurvey

@@ -12,18 +12,19 @@ ________________________________________________________________________
 // don't include it in somewhere else !!!
 
 #include "visbasemod.h"
-#include "vishorizonsectiondef.h"
-#include "threadwork.h"
+
 #include "paralleltask.h"
+#include "ranges.h"
 #include "rowcol.h"
 #include "thread.h"
-#include "ranges.h"
+#include "threadwork.h"
+#include "vishorizonsectiondef.h"
+#include "zaxistransform.h"
 
 namespace osg { class CullStack; }
 namespace Geometry { class BinIDSurface; }
 
 class BinIDSurface;
-class ZAxisTransform;
 
 
 namespace visBase
@@ -138,7 +139,7 @@ protected:
     char				resolution_;
     const Geometry::BinIDSurface*	geo_;
     StepInterval<int>			rrg_, crg_;
-    ZAxisTransform*			zaxistransform_;
+    RefMan<ZAxisTransform>		zaxistransform_;
     HorizonSection*			horsection_;
     Threads::Lock			lock_;
     TypeSet<RowCol>&			hortiles_;

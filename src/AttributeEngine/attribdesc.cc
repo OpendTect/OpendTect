@@ -111,7 +111,7 @@ Desc::Desc( const char* attribname, DescStatusUpdater updater,
     , defaultsupdater_( defupdater )
 {
     attribname_.replace( ' ', '_' );
-    inputs_.allowNull(true);
+    inputs_.setNullAllowed();
 }
 
 
@@ -129,7 +129,7 @@ Desc::Desc( const Desc& a )
     , descset_( a.descset_ )
     , statusupdater_( a.statusupdater_ )
 {
-    inputs_.allowNull(true);
+    inputs_.setNullAllowed();
 
     for ( int idx=0; idx<a.params_.size(); idx++ )
 	addParam( a.params_[idx]->clone() );
@@ -149,7 +149,6 @@ Desc::Desc( const Desc& a )
 Desc::~Desc()
 {
     deepErase( params_ );
-    deepUnRef( inputs_ );
 }
 
 
@@ -391,25 +390,21 @@ bool Desc::setInput_( int input, Desc* nd )
     if ( nd == this )
 	return false;
 
-    if ( inputs_[input] )
-	inputs_[input]->unRef();
     inputs_.replace( input, nd );
-    if ( inputs_[input] )
-	inputs_[input]->ref();
 
     return true;
 }
 
 
-const Desc* Desc::getInput( int input ) const
+ConstRefMan<Desc> Desc::getInput( int idx ) const
 {
-    return input>=0 && input<inputs_.size() ? inputs_[input] : nullptr;
+    return mSelf().getInput( idx );
 }
 
 
-Desc* Desc::getInput( int input )
+RefMan<Desc> Desc::getInput( int idx )
 {
-    return input>=0 && input<inputs_.size() ? inputs_[input] : nullptr;
+    return inputs_.validIdx(idx) ? inputs_[idx] : nullptr;
 }
 
 
@@ -589,7 +584,7 @@ void Desc::updateParams()
 
     for ( int idx=0; idx<nrInputs(); idx++ )
     {
-	Desc* dsc = getInput(idx);
+	RefMan<Desc> dsc = getInput(idx);
 	if ( dsc && dsc->isHidden() )
 	    dsc->updateParams();
     }
@@ -605,7 +600,7 @@ void Desc::updateDefaultParams()
 void Desc::addInput( const InputSpec& is )
 {
     inputspecs_ += is;
-    inputs_ += 0;
+    inputs_ += nullptr;
 }
 
 
@@ -719,9 +714,10 @@ BufferString Desc::getStoredID( bool recursive ) const
     {
 	for ( int idx=0; idx<nrInputs(); idx++ )
 	{
-	    const Desc* tmpdesc = getInput( idx );
+	    ConstRefMan<Desc> tmpdesc = getInput( idx );
 	    if ( tmpdesc )
 		str = tmpdesc->getStoredID( true );
+
 	    if ( !str.isEmpty() )
 		break;
 	}
@@ -828,12 +824,13 @@ void Desc::changeStoredID( const char* newid )
 }
 
 
-Desc* Desc::getStoredInput() const
+RefMan<Desc> Desc::getStoredInput() const
 {
-    Desc* desc = 0;
+    RefMan<Desc> desc;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] ) continue;
+	if ( !inputs_[idx] )
+	    continue;
 
 	if ( inputs_[idx]->isStored() )
 	    return const_cast<Desc*>( inputs_[idx] );
@@ -849,7 +846,8 @@ DescID Desc::getMultiOutputInputID() const
 {
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] ) continue;
+	if ( !inputs_[idx] )
+	    continue;
 
 	if ( inputs_[idx]->isStored() )
 	{
@@ -880,33 +878,31 @@ bool Desc::isStoredInMem() const
 }
 
 
-Desc* Desc::cloneDescAndPropagateInput( const DescID& newinputid,
-					BufferString sufix )
+RefMan<Desc> Desc::cloneDescAndPropagateInput( const DescID& newinputid,
+					       BufferString sufix )
 {
     if ( seloutput_ == -1 )
 	return descset_->getDesc( newinputid );
 
-    Desc* myclone = new Desc(*this);
-
+    RefMan<Desc> myclone = new Desc(*this);
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
-	if ( !inputs_[idx] ) continue;
+	if ( !inputs_[idx] )
+	    continue;
 
-	Desc* newinpdesc =
+	RefMan<Desc> newinpdesc =
 		inputs_[idx]->cloneDescAndPropagateInput( newinputid, sufix );
 	if ( !newinpdesc )
-	    return 0;
+	    return nullptr;
 
-	myclone->setInput( idx, newinpdesc );
+	myclone->setInput( idx, newinpdesc.ptr() );
     }
 
-    myclone->ref();
     myclone->setHidden( true );
     BufferString newuserref( userref_, "_", sufix );
     myclone->setUserRef( newuserref.buf() );
     descset_->addDesc( myclone );
     return myclone;
 }
-
 
 } // namespace Attrib

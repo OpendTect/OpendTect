@@ -7,10 +7,10 @@ ________________________________________________________________________
 
 -*/
 
+#include "vispointset.h"
+
 #include "datapointset.h"
 #include "viscoord.h"
-#include "vispointset.h"
-#include "visdrawstyle.h"
 #include "vismaterial.h"
 
 mCreateFactoryEntry( visBase::PointSet );
@@ -19,23 +19,24 @@ namespace visBase
 {
 
 PointSet::PointSet()
-    : VertexShape( Geometry::PrimitiveSet::Points, true )
+    : VertexShape(Geometry::PrimitiveSet::Points,true)
 {
-    drawstyle_ = addNodeState( new DrawStyle );
-    refPtr( drawstyle_ );
-    // drawstyle_->setDrawStyle( visBase::DrawStyle::Points ); Gives pErrMsg
+    ref();
+    RefMan<DrawStyle> drawstyle = DrawStyle::create();
+    drawstyle_ = addNodeState( drawstyle.ptr() );
+    // drawstyle_->setDrawStyle( DrawStyle::Points ); Gives pErrMsg
     drawstyle_->setPointSize( 5.0 );
 
-    setMaterial( new Material );
+    RefMan<Material> newmat = Material::create();
+    setMaterial( newmat.ptr() );
     getMaterial()->setColorMode( Material::Diffuse );
     setColorBindType( VertexShape::BIND_PER_VERTEX );
-
+    unRefNoDelete();
 }
 
 
 PointSet::~PointSet()
 {
-    unRefAndNullPtr( drawstyle_ );
 }
 
 

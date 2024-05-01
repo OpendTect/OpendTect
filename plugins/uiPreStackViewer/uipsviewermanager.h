@@ -13,12 +13,12 @@ ________________________________________________________________________
 #include "menuhandler.h"
 #include "multiid.h"
 #include "uistring.h"
+#include "visprestackdisplay.h"
 
 class uiFlatViewer;
 class uiMainWin;
 class uiMenuHandler;
 class uiVisPartServer;
-namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
@@ -57,15 +57,15 @@ protected:
 
     uiMainWin*		createMultiGather2DViewer(
 					const visSurvey::PreStackDisplay&);
-    uiMainWin*		create2DViewer(const uiString&,DataPackID dpid);
+    uiMainWin*		create2DViewer(const uiString&,const DataPackID&);
     const uiFlatViewer*	getViewer(int idx) const;
 
-    SceneID		getSceneID(VisID) const;
+    SceneID		getSceneID(const VisID&) const;
     static void		getSeis2DTitle(int trnr,const char*,uiString&);
     static void		getSeis3DTitle(const BinID&,const char*,uiString&);
-    bool		add3DViewer(const uiMenuHandler*,VisID scnid,
+    bool		add3DViewer(const uiMenuHandler*,const SceneID&,
 				    int mnuidx);
-    void		removeViewWin(DataPackID dpid);
+    void		removeViewWin(const DataPackID&);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     uiViewer3DPositionDlg* mkNewPosDialog(const uiMenuHandler*,
@@ -90,7 +90,7 @@ protected:
     MenuItem		removemenuitem_;
 
     uiVisPartServer*			visserv_;
-    ObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
+    RefObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
     ObjectSet<uiMainWin>		viewers2d_;
     ObjectSet<uiViewer3DSettingDlg>	settingdlgs_;

@@ -88,7 +88,10 @@ const char* uiAttribPartServer::sKeyUserSettingAttrErrMsg()
 uiAttribPartServer* uiAttribPartServer::theinst_ = nullptr;
 
 uiAttribPartServer* uiAttribPartServer::getInst()
-{ return theinst_; }
+{
+    return theinst_;
+}
+
 
 uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -369,7 +372,7 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 
 bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 				       const ZDomain::Info* zdominfo,
-				       Pos::GeomID geomid,
+				       const Pos::GeomID& geomid,
 				       const uiString& seltxt )
 {
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
@@ -464,7 +467,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 
 bool uiAttribPartServer::selectRGBAttribs( TypeSet<SelSpec>& rgbaspecs,
 					   const ZDomain::Info* zinf,
-					   Pos::GeomID geomid )
+					   const Pos::GeomID& geomid )
 {
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
     const bool is2d = geom && geom->is2D();
@@ -739,7 +742,7 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 
 
 DataPackID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
-					       DataPackID cacheid )
+					     const DataPackID& cacheid )
 {
     if ( tkzs.is2D() )
     {
@@ -748,7 +751,7 @@ DataPackID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
 	return create2DOutput( tkzs, geomid, taskrunner );
     }
 
-    DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
     ConstRefMan<RegularSeisDataPack> cache =
 					dpm.get<RegularSeisDataPack>( cacheid );
     ConstRefMan<RegularSeisDataPack> newpack = createOutput(tkzs, cache.ptr() );
@@ -788,7 +791,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 {
     uiMsgMainWinSetter mwsetter( sCast(uiMainWin*,parent()) );
 
-    PtrMan<EngineMan> aem = createEngMan( &tkzs, Pos::GeomID::udf() );
+    PtrMan<EngineMan> aem = createEngMan( &tkzs, tkzs.hsamp_.getGeomID() );
     if ( !aem || targetspecs_.isEmpty() )
 	return nullptr;
 
@@ -1112,7 +1115,8 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 
 
 RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
-				const Interval<float>& zrg, RandomLineID rdlid )
+						const Interval<float>& zrg,
+						const RandomLineID& rdlid )
 {
     RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
     if ( !rdmline )
@@ -1189,8 +1193,8 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 }
 
 
-DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
-						      RandomLineID rdlid )
+DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
+						    const RandomLineID& rdlid )
 {
     RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
     if ( !rdmline )

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "ui3dviewer.h"
 #include "uimain.h"
 #include "uimenu.h"
-#include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -52,9 +51,11 @@ uiODTreeTop::~uiODTreeTop()
 
 SceneID uiODTreeTop::sceneID() const
 {
-    int sceneid = -1;
-    getProperty<int>( sceneidkey(), sceneid );
-    return SceneID(sceneid);
+    int sceneid = SceneID::udf().asInt();
+    if ( !getProperty<int>(sceneidkey(),sceneid) )
+	return SceneID::udf();
+
+    return SceneID( sceneid );
 }
 
 
@@ -68,7 +69,7 @@ bool uiODTreeTop::selectWithKey( int selkey )
 
 uiODApplMgr* uiODTreeTop::applMgr()
 {
-    void* res = 0;
+    void* res = nullptr;
     getPropertyPtr( applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
@@ -83,7 +84,7 @@ TypeSet<VisID> uiODTreeTop::getDisplayIds( VisID& selectedid, bool usechecked )
 
 
 void uiODTreeTop::loopOverChildrenIds( TypeSet<VisID>& dispids,
-				VisID& selectedid, bool usechecked,
+				    VisID& selectedid, bool usechecked,
 				    const ObjectSet<uiTreeItem>& childrenlist )
 {
     for ( int idx=0; idx<childrenlist.size(); idx++ )
@@ -141,7 +142,7 @@ bool uiODTreeItem::init()
 
 uiODApplMgr* uiODTreeItem::applMgr()
 {
-    void* res = 0;
+    void* res = nullptr;
     getPropertyPtr( uiODTreeTop::applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
@@ -149,7 +150,7 @@ uiODApplMgr* uiODTreeItem::applMgr()
 
 ui3DViewer* uiODTreeItem::viewer()
 {
-    void* res = 0;
+    void* res = nullptr;
     getPropertyPtr( uiODTreeTop::viewerptr(), res );
     return reinterpret_cast<ui3DViewer*>( res );
 }
@@ -157,9 +158,11 @@ ui3DViewer* uiODTreeItem::viewer()
 
 SceneID uiODTreeItem::sceneID() const
 {
-    int sceneid = -1;
-    getProperty<int>( uiODTreeTop::sceneidkey(), sceneid );
-    return SceneID(sceneid);
+    int sceneid = SceneID::udf().asInt();
+    if ( !getProperty<int>(uiODTreeTop::sceneidkey(),sceneid) )
+	return SceneID::udf();
+
+    return SceneID( sceneid );
 }
 
 
@@ -354,11 +357,11 @@ void uiODParentTreeItem::checkCB( CallBacker* )
 
 
 // uiODSceneTreeItem
-uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, VisID id )
+
+uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, const SceneID& id )
     : uiODTreeItem(nm)
     , displayid_(id)
-    , menu_(0)
-    , propitem_( m3Dots(uiStrings::sProperties() ) )
+    , propitem_(m3Dots(uiStrings::sProperties()))
     , imageitem_(m3Dots(tr("Top/Bottom Image")))
     , coltabitem_(m3Dots(tr("Scene Color Bar")))
     , dumpivitem_( m3Dots( uiStrings::phrExport( uiStrings::sScene() )) )
@@ -370,15 +373,16 @@ uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, VisID id )
 
 uiODSceneTreeItem::~uiODSceneTreeItem()
 {
+    detachAllNotifiers();
     if ( menu_ )
     {
 	menu_->createnotifier.remove(
 		mCB(this,uiODSceneTreeItem,createMenuCB) );
 	menu_->handlenotifier.remove(
 		mCB(this,uiODSceneTreeItem,handleMenuCB) );
-	menu_->unRef();
     }
 
+    menu_ = nullptr;
     MenuHandler* tb = applMgr()->visServer()->getToolBarHandler();
     if ( tb )
     {
@@ -393,7 +397,6 @@ bool uiODSceneTreeItem::init()
     if ( !menu_ )
     {
 	menu_ = new uiMenuHandler( getUiParent(), -1 );
-	menu_->ref();
 	menu_->createnotifier.notify(
 		mCB(this,uiODSceneTreeItem,createMenuCB) );
 	menu_->handlenotifier.notify(
@@ -421,7 +424,7 @@ void uiODSceneTreeItem::createMenuCB( CallBacker* cb )
 void uiODSceneTreeItem::addToToolBarCB( CallBacker* cb )
 {
     mDynamicCastGet(uiTreeItemTBHandler*,tb,cb);
-    if ( !tb || tb->menuID() != displayid_.asInt() || !isSelected() )
+    if ( !tb || tb->menuID() != selectionKey() || !isSelected() )
 	return;
 
     createMenu( tb, true );
@@ -474,7 +477,7 @@ void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
 void uiODSceneTreeItem::updateColumnText( int col )
 {
     if ( col==uiODSceneMgr::cNameColumn() )
-	name_ = applMgr()->visServer()->getUiObjectName( displayid_ );
+	name_ = applMgr()->visServer()->getSceneName( displayid_ );
 
     uiTreeItem::updateColumnText( col );
 }

@@ -31,8 +31,8 @@ protected:
     bool				apply();
 
     visSurvey::PolygonBodyDisplay*	plg_;
-    Geometry::PolygonSurface*		surf_;
+    Geometry::PolygonSurface*		surf_ = nullptr;
 
-    uiGenInput*		bezierfld_;
-    uiPushButton*			applybut_;
+    uiGenInput*				bezierfld_ = nullptr;
+    uiPushButton*			applybut_ = nullptr;
 };

@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 
 #include "visemobjdisplay.h"
+#include "vishorizon2ddisplay.h"
 #include "vishorizondisplay.h"
 #include "vishorizonsection.h"
 #include "visrgbatexturechannel2rgba.h"
@@ -100,15 +101,15 @@ void uiODHorizonParentTreeItem::removeChild( uiTreeItem* itm )
 }
 
 
-static void setSectionDisplayRestoreForAllHors( bool yn )
+static void setSectionDisplayRestoreForAllHors( const uiVisPartServer& visserv,
+						bool yn )
 {
     TypeSet<VisID> ids;
-    visBase::DM().getIDs( typeid(visSurvey::HorizonDisplay), ids );
-
-    for ( int idx=0; idx<ids.size(); idx++ )
+    visserv.findObject( typeid(visSurvey::HorizonDisplay), ids );
+    for ( const auto& id : ids )
     {
-	mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
-			 visBase::DM().getObject(ids[idx]) );
+	RefMan<visSurvey::HorizonDisplay> hd =
+	    dCast( visSurvey::HorizonDisplay*, visserv.getObject(id) );
 	if ( hd )
 	    hd->setSectionDisplayRestore( yn );
     }
@@ -117,10 +118,8 @@ static void setSectionDisplayRestoreForAllHors( bool yn )
 
 bool uiODHorizonParentTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-
-    const bool hastransform = scene && scene->getZAxisTransform();
+    const uiVisPartServer* visserv = applMgr()->visServer();
+    const bool hastransform = visserv->getZAxisTransform( sceneID() );
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddIdx );
@@ -128,7 +127,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 		    mAddAtSectIdx);
     mnu.insertAction( new uiAction(m3Dots(tr("Add Color Blended"))), mAddCBIdx);
 
-    uiMenu* newmenu = new uiMenu( newmenu_ );
+    auto* newmenu = new uiMenu( newmenu_ );
     mnu.addMenu( newmenu );
     newmenu->setEnabled( !hastransform );
     showMenuNotifier().trigger( &mnu, this );
@@ -137,8 +136,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     {
 	mnu.insertAction( new uiAction(m3Dots(tr("Sort"))), mSortIdx );
 	mnu.insertSeparator();
-	uiMenu* displaymnu =
-		new uiMenu( getUiParent(), tr("Display All") );
+	auto* displaymnu = new uiMenu( getUiParent(), tr("Display All") );
 	displaymnu->insertAction( new uiAction(tr("Only at Sections")),
 				mSectIdx );
 	displaymnu->insertAction( new uiAction(tr("In Full")), mFullIdx );
@@ -153,7 +151,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     handleMenu.trigger( mnuid );
     if ( mnuid == mAddIdx || mnuid==mAddAtSectIdx || mnuid==mAddCBIdx )
     {
-	setSectionDisplayRestoreForAllHors( true );
+	setSectionDisplayRestoreForAllHors( *visserv, true );
 
 	RefObjectSet<EM::EMObject> objs;
 	const ZDomain::Info* zinfo = nullptr;
@@ -165,20 +163,18 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );
-
 	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
 	    {
 		MPE::engine().addTracker( objs[idx] );
 		applMgr()->visServer()->turnSeedPickingOn( true );
 	    }
-	    uiODHorizonTreeItem* itm =
-		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mAddCBIdx,
-					 mnuid==mAddAtSectIdx );
 
+	    auto* itm = new uiODHorizonTreeItem( objs[idx]->id(),
+				    mnuid==mAddCBIdx, mnuid==mAddAtSectIdx );
 	    addChld( itm, false, false );
 	}
 
-	setSectionDisplayRestoreForAllHors( false );
+	setSectionDisplayRestoreForAllHors( *visserv, false );
     }
     else if ( mnuid == mSortIdx )
     {
@@ -206,9 +202,11 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 		continue;
 
 	    const VisID displayid = itm->visEMObject()->id();
-	    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
-			    applMgr()->visServer()->getObject(displayid))
-	    if ( !hd ) continue;
+	    RefMan<visSurvey::HorizonDisplay> hd =
+				    dCast( visSurvey::HorizonDisplay*,
+					   visserv->getObject(displayid) );
+	    if ( !hd )
+		continue;
 
 	    hd->displayIntersectionLines( both );
 	    hd->setOnlyAtSectionsDisplay( onlyatsection );
@@ -284,18 +282,15 @@ bool uiODHorizonParentTreeItem::addChld( uiTreeItem* child, bool below,
 }
 
 
-uiTreeItem*
-    uiODHorizonTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
+uiTreeItem* uiODHorizonTreeItemFactory::createForVis( const VisID& visid,
+						      uiTreeItem* ) const
 {
-    const StringView objtype = uiVisEMObject::getObjectType( visid );
-    if ( objtype.isEmpty() )
-	return nullptr;
-
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
-	ODMainWin()->applMgr().visServer()->getObject(visid));
+    ConstRefMan<visSurvey::HorizonDisplay> hd =
+	dCast( visSurvey::HorizonDisplay*,
+	       ODMainWin()->applMgr().visServer()->getObject(visid) );
     if ( hd )
     {
-	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
+	mDynamicCastGet( const visBase::RGBATextureChannel2RGBA*, rgba,
 			 hd->getChannels2RGBA() );
 	const bool atsection = hd->displayedOnlyAtSections();
 	return new uiODHorizonTreeItem( visid, rgba, atsection, true );
@@ -317,8 +312,8 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba,
 }
 
 
-uiODHorizonTreeItem::uiODHorizonTreeItem( VisID visid, bool rgba, bool atsect,
-					  bool dummy )
+uiODHorizonTreeItem::uiODHorizonTreeItem( const VisID& visid, bool rgba,
+					  bool atsect, bool /* dummy */ )
     : uiODEarthModelSurfaceTreeItem(EM::ObjectID::udf())
     , rgba_(rgba)
     , atsections_(atsect)
@@ -369,19 +364,33 @@ void uiODHorizonTreeItem::initMenuItems()
 }
 
 
+ConstRefMan<visSurvey::HorizonDisplay> uiODHorizonTreeItem::getDisplay() const
+{
+    return mSelf().getDisplay();
+}
+
+
+RefMan<visSurvey::HorizonDisplay> uiODHorizonTreeItem::getDisplay()
+{
+    if ( !visEMObject() || !visEMObject()->isOK() )
+	return nullptr;
+
+    return visEMObject()->getHorizon3DDisplay();
+}
+
+
 void uiODHorizonTreeItem::initNotify()
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,
-		    emd,visserv_->getObject(displayid_));
-    if ( emd )
-	mAttachCB( emd->changedisplay, uiODHorizonTreeItem::dispChangeCB );
+    ConstRefMan<visSurvey::HorizonDisplay> hd = getDisplay();
+    if ( hd )
+	mAttachCB( hd->changedisplay, uiODHorizonTreeItem::dispChangeCB );
 }
 
 
 uiString uiODHorizonTreeItem::createDisplayName() const
 {
     const uiVisPartServer* cvisserv =
-	const_cast<uiODHorizonTreeItem*>(this)->visserv_;
+		    const_cast<uiODHorizonTreeItem*>(this)->visserv_;
 
     uiString res = cvisserv->getUiObjectName( displayid_ );
     if ( res.isEmpty() )
@@ -405,18 +414,19 @@ bool uiODHorizonTreeItem::init()
     if ( !createUiVisObj() )
 	return false;
 
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
-		    visserv_->getObject(displayid_));
+    RefMan<visSurvey::HorizonDisplay> hd = getDisplay();
     if ( rgba_ )
     {
-	if ( !hd ) return false;
+	if ( !hd )
+	    return false;
 
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
-			hd->getChannels2RGBA() );
+			 hd->getChannels2RGBA() );
 	if ( !rgba )
 	{
-	    if ( !hd->setChannels2RGBA(
-			visBase::RGBATextureChannel2RGBA::create()) )
+	    RefMan<visBase::RGBATextureChannel2RGBA> txt2rgba =
+				visBase::RGBATextureChannel2RGBA::create();
+	    if ( !hd->setChannels2RGBA(txt2rgba.ptr()) )
 		return false;
 
 	    hd->addAttrib();
@@ -425,9 +435,12 @@ bool uiODHorizonTreeItem::init()
 	}
     }
 
-    if ( hd ) hd->setOnlyAtSectionsDisplay( atsections_ );
+    if ( hd )
+	hd->setOnlyAtSectionsDisplay( atsections_ );
+
     const bool res = uiODEarthModelSurfaceTreeItem::init();
-    if ( !res ) return res;
+    if ( !res )
+	return res;
 
     mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
     if ( hor3d )
@@ -493,11 +506,11 @@ bool uiODHorizonTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODEarthModelSurfaceTreeItem::createMenu( menu, istb );
-    if ( istb ) return;
+    if ( istb )
+	return;
 
     mDynamicCastGet(uiMenuHandler*,uimenu,menu)
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
-    const bool hastransform = scene && scene->getZAxisTransform();
+    const bool hastransform = visserv_->getZAxisTransform( sceneID() );
 
     if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
@@ -619,17 +632,20 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
      if ( mnuid == fillholesmnuitem_.id || mnuid == snapeventmnuitem_.id ||
-	 mnuid == filterhormnuitem_.id || mnuid == geom2attrmnuitem_.id )
+	  mnuid == filterhormnuitem_.id || mnuid == geom2attrmnuitem_.id )
      {
 	if ( !askSave() )
 	    return;
      }
 
+     if ( !uivisemobj_ || !uivisemobj_->isOK() )
+	 return;
+
     const VisID visid = displayID();
-    mDynamicCastGet( visSurvey::HorizonDisplay*, hd,
-		     visserv_->getObject(visid) );
+    RefMan<visSurvey::HorizonDisplay> hd = getDisplay();
     mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
-    if ( !hd || !hor3d ) return;
+    if ( !hd || !hor3d )
+	return;
 
     uiEMPartServer* emserv = applMgr()->EMServer();
     uiEMAttribPartServer* emattrserv = applMgr()->EMAttribServer();
@@ -671,7 +687,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==pickdatamnuitem_.id )
     {
 	delete dpspickdlg_;
-	dpspickdlg_ = new uiEMDataPointSetPickDlg( getUiParent(),
+	dpspickdlg_ = new uiEMDataPointSetPickDlg( getUiParent(), visserv_,
 						   hd->getSceneID(), emid_ );
 	mAttachCB( dpspickdlg_->readyForDisplay,
 		   uiODHorizonTreeItem::dataReadyCB );
@@ -691,7 +707,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	TrcKeyZSampling maxcs = SI().sampling(true);;
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	ConstRefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
 	if ( scene && scene->getZAxisTransform() )
 	{
 	    const ZSampling zintv =
@@ -858,18 +874,15 @@ VisID uiODHorizonTreeItem::reloadEMObject()
     const MultiID mid = ems->getStorageID( emid_ );
 
     removeAllChildren();
-    applMgr()->visServer()->removeObject( displayid_, sceneID() );
     deleteAndNullPtr( uivisemobj_ );
-
-    if ( !ems->loadSurface(mid, true) )
+    if ( !ems->loadSurface(mid,true) )
 	return VisID::udf();
 
     emid_ = applMgr()->EMServer()->getObjectID(mid);
     uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_, sceneID(), visserv_ );
     displayid_ = uivisemobj_->id();
 
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
-		    visserv_->getObject(displayid_));
+    RefMan<visSurvey::HorizonDisplay> hd = getDisplay();
     if ( hd )
     {
 	hd->setDepthAsAttrib( 0 );
@@ -900,8 +913,8 @@ void uiODHorizonTreeItem::dataReadyCB( CallBacker* )
 }
 
 
-
 // uiODHorizon2DParentTreeItem
+
 CNotifier<uiODHorizon2DParentTreeItem,uiMenu*>&
 	uiODHorizon2DParentTreeItem::showMenuNotifier()
 {
@@ -931,12 +944,12 @@ void uiODHorizon2DParentTreeItem::removeChild( uiTreeItem* itm )
 
 bool uiODHorizon2DParentTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    RefMan<visSurvey::Scene> scene =
+		    ODMainWin()->applMgr().visServer()->getScene( sceneID() );
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction( m3Dots(uiStrings::sAdd()) ), 0 );
-    uiAction* newmenu = new uiAction( m3Dots(tr("Track New")) );
+    auto* newmenu = new uiAction( m3Dots(tr("Track New")) );
     mnu.insertAction( newmenu, 1 );
     mnu.insertAction( new uiAction(m3Dots(tr("Create from 3D"))), 2 );
     newmenu->setEnabled( !hastransform );
@@ -949,6 +962,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	mnu.insertAction( new uiAction(tr("Display All Only at Sections")), 3 );
 	mnu.insertAction( new uiAction(tr("Show All in Full")), 4 );
     }
+
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -1034,7 +1048,7 @@ void uiODHorizon2DParentTreeItem::sort()
     }
 
     EM::IOObjInfo::sortHorizonsOnZValues( mids, sortedmids );
-    uiTreeItem* previtm = 0;
+    uiTreeItem* previtm = nullptr;
     for ( int idx=sortedmids.size()-1; idx>=0; idx-- )
     {
 	uiTreeItem* itm = gtItm( sortedmids[idx], children_ );
@@ -1061,12 +1075,13 @@ bool uiODHorizon2DParentTreeItem::addChld( uiTreeItem* child, bool below,
 }
 
 
-uiTreeItem*
-    uiODHorizon2DTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
+uiTreeItem* uiODHorizon2DTreeItemFactory::createForVis( const VisID& visid,
+							uiTreeItem* ) const
 {
-    StringView objtype = uiVisEMObject::getObjectType(visid);
-    return objtype==EM::Horizon2D::typeStr()
-	? new uiODHorizon2DTreeItem(visid,true) : 0;
+    ConstRefMan<visSurvey::Horizon2DDisplay> hd =
+	dCast( visSurvey::Horizon2DDisplay*,
+	       ODMainWin()->applMgr().visServer()->getObject(visid) );
+    return hd ? new uiODHorizon2DTreeItem( visid, true ) : nullptr;
 }
 
 
@@ -1079,11 +1094,11 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const EM::ObjectID& objid )
 }
 
 
-uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( VisID id, bool )
+uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const VisID& id, bool /*dummy */ )
     : uiODEarthModelSurfaceTreeItem( EM::ObjectID::udf() )
 {
     initMenuItems();
-    displayid_=id;
+    displayid_ = id;
 }
 
 
@@ -1104,12 +1119,27 @@ void uiODHorizon2DTreeItem::initMenuItems()
 }
 
 
+ConstRefMan<visSurvey::Horizon2DDisplay>
+uiODHorizon2DTreeItem::getDisplay() const
+{
+    return mSelf().getDisplay();
+}
+
+
+RefMan<visSurvey::Horizon2DDisplay> uiODHorizon2DTreeItem::getDisplay()
+{
+    if ( !visEMObject() || !visEMObject()->isOK() )
+	return nullptr;
+
+    return visEMObject()->getHorizon2DDisplay();
+}
+
+
 void uiODHorizon2DTreeItem::initNotify()
 {
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,
-		    emd,visserv_->getObject(displayid_));
-    if ( emd )
-	mAttachCB( emd->changedisplay, uiODHorizon2DTreeItem::dispChangeCB );
+    ConstRefMan<visSurvey::Horizon2DDisplay> hd = getDisplay();
+    if ( hd )
+	mAttachCB( hd->changedisplay, uiODHorizon2DTreeItem::dispChangeCB );
 }
 
 
@@ -1150,7 +1180,7 @@ void uiODHorizon2DTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiODEarthModelSurfaceTreeItem::createMenu( menu, istb );
     if ( istb ) return;
 
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
+    ConstRefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
     const bool hastransform = scene && scene->getZAxisTransform();
 
     if ( hastransform || !menu || !isDisplayID(menu->menuID()) )
@@ -1190,16 +1220,8 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     bool handled = true;
     if ( mnuid==interpolatemnuitem_.id )
     {
-	if ( !askSave() )
-	    return;
-
-	const bool isoverwrite = applMgr()->EMServer()->fillHoles( emid_, true);
-	mDynamicCastGet(visSurvey::HorizonDisplay*,hd,
-			visserv_->getObject(visid));
-	if ( hd && isoverwrite )
-	{
-	    mUpdateTexture();
-	}
+	if ( askSave() )
+	    applMgr()->EMServer()->fillHoles( emid_, true );
     }
     else if ( mnuid==derive3dhormnuitem_.id )
 	applMgr()->EMServer()->deriveHor3DFrom2D( emid_ );

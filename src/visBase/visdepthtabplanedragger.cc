@@ -250,16 +250,13 @@ void PlaneDraggerCallbackHandler::applyDragControl( Coord3& newcenter )
 
 
 DepthTabPlaneDragger::DepthTabPlaneDragger()
-    : VisualObjectImpl( false )
-    , dim_( 2 )
+    : VisualObjectImpl(false)
     , started( this )
     , motion( this )
     , changed( this )
     , finished( this )
-    , osgdragger_( 0 )
-    , osgdraggerplane_( 0 )
-    , osgcallbackhandler_( 0 )
 {
+    ref();
     initOsgDragger();
 
     centers_ += center(); centers_ += center(); centers_ += center();
@@ -269,14 +266,15 @@ DepthTabPlaneDragger::DepthTabPlaneDragger()
 
     for ( int dim=0; dim<3; dim++ )
 	dragctrlspacing_[dim].setUdf();
+
+    unRefNoDelete();
 }
 
 
 DepthTabPlaneDragger::~DepthTabPlaneDragger()
 {
     osgdragger_->removeDraggerCallback( osgcallbackhandler_ );
-    if ( osgcallbackhandler_ )
-	osgcallbackhandler_->unref();
+    unRefOsgPtr( osgcallbackhandler_ );
 }
 
 
@@ -301,7 +299,7 @@ void DepthTabPlaneDragger::initOsgDragger()
     osgdragger_->setHandleEvents( true );
 
     osgcallbackhandler_ = new PlaneDraggerCallbackHandler( *this );
-    osgcallbackhandler_->ref();
+    refOsgPtr( osgcallbackhandler_ );
     osgdragger_->addDraggerCallback( osgcallbackhandler_ );
 
     osgdragger_->getOrCreateStateSet()->setAttributeAndModes(
@@ -359,7 +357,7 @@ void DepthTabPlaneDragger::initOsgDragger()
 		    new osg::Material,
 		    osg::StateAttribute::PROTECTED | osg::StateAttribute::ON );
     geode->setNodeMask( Math::SetBits( geode->getNodeMask(),
-			    visBase::cDraggerIntersecTraversalMask(), false) );
+			    cDraggerIntersecTraversalMask(), false) );
 
     osgdraggerplane_ = new osg::Switch();
     osgdraggerplane_->addChild( geode.get() );

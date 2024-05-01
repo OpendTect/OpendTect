@@ -305,7 +305,7 @@ RefMan<SeisFlatDataPack> uiODView2DWiggleVarAreaTreeItem::createDataPackRM(
 
 
 uiTreeItem* uiODView2DWiggleVarAreaTreeItemFactory::createForVis(
-					const uiODViewer2D&, Vis2DID id ) const
+				const uiODViewer2D&, const Vis2DID& id ) const
 {
     return nullptr;
 }

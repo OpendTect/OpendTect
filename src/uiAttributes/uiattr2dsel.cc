@@ -65,7 +65,7 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 				const TypeSet<Pos::GeomID>& geomids,
-				const NLAModel* nla, ZDomain::Info& info,
+				const NLAModel* nla, const ZDomain::Info& info,
 				const char* curnm )
     : uiDialog(p,Setup( uiStrings::phrSelect( tr("Dataset") ),
 			mNoDlgTitle,mNoHelpKey))
@@ -179,7 +179,7 @@ void uiAttr2DSelDlg::createSelectionFields()
 }
 
 
-void uiAttr2DSelDlg::createSelectionButtons( ZDomain::Info& info )
+void uiAttr2DSelDlg::createSelectionButtons( const ZDomain::Info& info )
 {
     selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
 
@@ -215,7 +215,7 @@ void uiAttr2DSelDlg::createSelectionButtons( ZDomain::Info& info )
 }
 
 
-void uiAttr2DSelDlg::createSelectionFields( ZDomain::Info& info )
+void uiAttr2DSelDlg::createSelectionFields( const ZDomain::Info& info )
 {
     SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
     o2d.zdomky_ = info.key();

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-// this header file only be used in the classes related to Horizonsection . 
+// this header file only be used in the classes related to Horizonsection .
 // don't include it in somewhere else !!!
 
 #include "typeset.h"
@@ -29,29 +29,30 @@ namespace visBase
 {
     class HorizonSectionTile;
     class Coordinates;
- 
+
 class HorizonSectionTileGlue
 {
 public:
-    HorizonSectionTileGlue();
-    ~HorizonSectionTileGlue();
+				HorizonSectionTileGlue();
+				~HorizonSectionTileGlue();
+
     void			buildGlue(HorizonSectionTile*,
 					  HorizonSectionTile*,bool);
     osg::Geode*			getGeode() { return gluegeode_; }
     void			setDisplayTransformation(const mVisTrans*);
 
 protected:
-    visBase::Coordinates*	gluevtexarr_;
-    visBase::Coordinates*	gluenormalarr_;
+    RefMan<visBase::Coordinates> gluevtexarr_;
+    RefMan<visBase::Coordinates> gluenormalarr_;
     std::vector<osg::Array*>	gluetxcoords_;
     osg::Geode*			gluegeode_;
     osg::Geometry*		gluegeom_;
     osg::DrawElementsUShort*	glueps_;
-    osg::DrawElementsUShort*	glueosgps_;
+    osg::DrawElementsUShort*	glueosgps_ = nullptr;
 
     Threads::Mutex		datalock_;
 
-    const mVisTrans*		transformation_;
+    ConstRefMan<mVisTrans>	transformation_;
 
     void			buildOsgGeometry();
     void			addGlueTrianglePrimitiveSet(TypeSet<int>&);

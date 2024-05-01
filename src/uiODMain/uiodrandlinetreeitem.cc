@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "survinfo.h"
 #include "trigonometry.h"
+#include "visrgbatexturechannel2rgba.h"
+#include "visselman.h"
 
 #include "uibutton.h"
 #include "uicolor.h"
@@ -45,9 +47,6 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellrdmlinedlg.h"
-#include "visrandomtrackdisplay.h"
-#include "visrgbatexturechannel2rgba.h"
-#include "visselman.h"
 
 
 class uiRandomLinePolyLineDlg : public uiDialog
@@ -118,8 +117,9 @@ const Attrib::SelSpec*	getSelSpec() const
 }
 
 
-protected:
-    visSurvey::RandomTrackDisplay* rtd_;
+private:
+
+    RefMan<visSurvey::RandomTrackDisplay> rtd_;
     uiLabel*		label_;
     uiColorInput*	colsel_;
 };
@@ -138,12 +138,12 @@ static uiODRandomLineTreeItem::Type getType( int mnuid )
 
 
 // Tree Items
-uiTreeItem* uiODRandomLineTreeItemFactory::createForVis( VisID visid,
+uiTreeItem* uiODRandomLineTreeItemFactory::createForVis( const VisID& visid,
 							 uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
-    return rtd ? new uiODRandomLineTreeItem(visid) : 0;
+    return rtd ? new uiODRandomLineTreeItem(visid) : nullptr;
 }
 
 
@@ -251,7 +251,6 @@ bool uiODRandomLineParentTreeItem::addStored( int mnuid )
 bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
 {
     RefMan<Geometry::RandomLine> rl = Geometry::RLM().get( ioobj.key() );
-
     if ( !rl )
 	return false;
 
@@ -304,14 +303,14 @@ void uiODRandomLineParentTreeItem::genFromTable()
 		  uiDialog::Setup(tr("Random lines"),
 				  tr("Specify node positions"),
 				  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
-    uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
+    auto* table = new uiPositionTable( &dlg, true, true, true );
     Interval<float> zrg = SI().zRange(true);
     zrg.scale( mCast(float,SI().zDomain().userFactor()) );
     table->setZRange( zrg );
 
     if ( dlg.go() )
     {
-	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( VisID::udf());
+	auto* itm = new uiODRandomLineTreeItem( VisID::udf());
 	addChild( itm, false );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
@@ -339,7 +338,7 @@ void uiODRandomLineParentTreeItem::removeChild( uiTreeItem* item )
 	mDynamicCastGet(uiODDisplayTreeItem*,dispitem,item)
 	if ( dispitem &&
 	     (dispitem->displayID() == rdlpolylinedlg_->getDisplayID()) )
-	{ delete rdlpolylinedlg_; rdlpolylinedlg_ = 0; }
+	    deleteAndNullPtr( rdlpolylinedlg_ );
     }
 
     uiTreeItem::removeChild( item );
@@ -352,12 +351,13 @@ void uiODRandomLineParentTreeItem::genFromPicks()
 	return;
 
     ODMainWin()->applMgr().visServer()->setViewMode( false );
-    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( VisID::udf() );
+    auto* itm = new uiODRandomLineTreeItem( VisID::udf() );
     addChild( itm, false );
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
 
+    delete rdlpolylinedlg_;
     rdlpolylinedlg_ = new uiRandomLinePolyLineDlg( getUiParent(), rtd );
     rdlpolylinedlg_->windowClosed.notify(
 	mCB(this,uiODRandomLineParentTreeItem,rdlPolyLineDlgCloseCB) );
@@ -380,7 +380,7 @@ void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
 	itm->displayData( selspec );
     }
 
-    rdlpolylinedlg_ = 0;
+    rdlpolylinedlg_ = nullptr;
 }
 
 
@@ -396,69 +396,83 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 }
 
 
-uiODRandomLineTreeItem::uiODRandomLineTreeItem( VisID id, Type tp,
-						RandomLineID rlid )
+uiODRandomLineTreeItem::uiODRandomLineTreeItem( const VisID& id, Type tp,
+						const RandomLineID& rid )
     : type_(tp)
-    , rlid_(rlid)
+    , rlid_(rid)
     , editnodesmnuitem_(m3Dots(tr("Position")))
     , insertnodemnuitem_(tr("Insert Node"))
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()))
     , saveas2dmnuitem_(m3Dots(tr("Save as 2D")))
     , create2dgridmnuitem_(m3Dots(tr("Create 2D Grid")))
 {
+    displayid_ = id;
     editnodesmnuitem_.iconfnm = "orientation64";
     saveasmnuitem_.iconfnm = "saveas";
-    displayid_ = id;
 }
 
 
 uiODRandomLineTreeItem::~uiODRandomLineTreeItem()
-{}
+{
+    detachAllNotifiers();
+    visserv_->removeObject( displayid_, sceneID() );
+}
 
 
 bool uiODRandomLineTreeItem::init()
 {
-    visSurvey::RandomTrackDisplay* rtd = 0;
     if ( !displayid_.isValid() )
     {
-	rtd = new visSurvey::RandomTrackDisplay;
+	RefMan<visSurvey::RandomTrackDisplay> rtd =
+					new visSurvey::RandomTrackDisplay;
+	displayid_ = rtd->id();
 	if ( type_ == RGBA )
 	{
-	    rtd->setChannels2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+	    RefMan<visBase::RGBATextureChannel2RGBA> text2rgba =
+				visBase::RGBATextureChannel2RGBA::create();
+	    rtd->setChannels2RGBA( text2rgba.ptr() );
 	    rtd->addAttrib();
 	    rtd->addAttrib();
 	    rtd->addAttrib();
 	}
 
-	displayid_ = rtd->id();
-	if ( rlid_.isValid() )
-	    setRandomLineID( rlid_ );
 	visserv_->addObject( rtd, sceneID(), true );
     }
-    else
-    {
-	mDynamicCastGet(visSurvey::RandomTrackDisplay*,disp,
-			visserv_->getObject(displayid_));
-	if ( !disp ) return false;
-	rtd = disp;
-    }
 
-    if ( rtd )
-    {
-	rtd->getMovementNotifier()->notify(
-		mCB(this,uiODRandomLineTreeItem,remove2DViewerCB) );
-	rtd->getManipulationNotifier()->notify(
-		mCB(this,uiODRandomLineTreeItem,remove2DViewerCB) );
-    }
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
+		    visserv_->getObject(displayid_));
+    if ( !rtd )
+	return false;
 
+    if ( rlid_.isValid() && rlid_ != rtd->getRandomLineID() )
+	rtd->setRandomLineID( rlid_ );
+
+    mAttachCB( *rtd->getMovementNotifier(),
+	       uiODRandomLineTreeItem::remove2DViewerCB );
+    mAttachCB( *rtd->getManipulationNotifier(),
+	       uiODRandomLineTreeItem::remove2DViewerCB );
+
+    rtd_ = rtd;
     return uiODDisplayTreeItem::init();
 }
 
 
-void uiODRandomLineTreeItem::setRandomLineID( RandomLineID id )
+ConstRefMan<visSurvey::RandomTrackDisplay>
+	uiODRandomLineTreeItem::getDisplay() const
 {
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    visserv_->getObject(displayid_))
+    return rtd_.get();
+}
+
+
+RefMan<visSurvey::RandomTrackDisplay> uiODRandomLineTreeItem::getDisplay()
+{
+    return rtd_.get();
+}
+
+
+void uiODRandomLineTreeItem::setRandomLineID( const RandomLineID& id )
+{
+    RefMan<visSurvey::RandomTrackDisplay> rtd = getDisplay();
     if ( !rtd )
 	return;
 
@@ -472,8 +486,7 @@ bool uiODRandomLineTreeItem::displayDefaultData()
     if ( !applMgr()->getDefaultDescID(descid) )
 	return false;
 
-    const Attrib::DescSet* ads =
-	Attrib::DSHolder().getDescSet( false, true );
+    const Attrib::DescSet* ads = Attrib::DSHolder().getDescSet( false, true );
     Attrib::SelSpec as( 0, descid, false, "" );
     as.setRefFromID( *ads );
     return displayData( &as );
@@ -516,8 +529,7 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     mAddMenuOrTBItem( istb, 0, menu, &create2dgridmnuitem_, true, false );
 
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    visserv_->getObject(displayid_));
+    ConstRefMan<visSurvey::RandomTrackDisplay> rtd = getDisplay();
     if ( !rtd || rtd->nrNodes() <= 0 )
 	return;
 
@@ -571,9 +583,9 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    visserv_->getObject(displayid_));
-    if ( !rtd ) return;
+    RefMan<visSurvey::RandomTrackDisplay> rtd = getDisplay();
+    if ( !rtd )
+	return;
 
     mGetPickedPanelIdx( menu, rtd, panelidx );
 
@@ -584,7 +596,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==insertnodemnuitem_.id )
     {
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
 	if ( scene ) scene->selectPosModeManipObj( displayid_ );
 
 	rtd->addNode( panelidx+1 );
@@ -596,7 +608,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	if ( panelidx >= 0 )
 	    nodeidx += panelidx==0 ? panelidx : panelidx+1;
 
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
 	if ( scene ) scene->selectPosModeManipObj( displayid_ );
 
 	rtd->addNode( nodeidx );
@@ -604,7 +616,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     }
     else
     {
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
 	const bool hasztf = scene && scene->getZAxisTransform();
 
 	TrcKeyPath nodes; rtd->getAllNodePos( nodes );
@@ -657,8 +669,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODRandomLineTreeItem::editNodes()
 {
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    visserv_->getObject(displayid_));
+    RefMan<visSurvey::RandomTrackDisplay> rtd = getDisplay();
     if ( !rtd || !rtd->getRandomLine() )
 	return;
 
@@ -672,7 +683,7 @@ void uiODRandomLineTreeItem::editNodes()
 	  uiDialog::Setup(uiStrings::sRandomLine(mPlural),
 	      tr("Specify node positions"),
 	      mODHelpKey(mODRandomLineTreeItemHelpID) ) );
-    uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
+    auto* table = new uiPositionTable( &dlg, true, true, true );
     table->setBinIDs( bids );
 
     Interval<float> zrg = rtd->getDataTraceRange();

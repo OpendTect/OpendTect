@@ -35,7 +35,6 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "visflatviewer.h"
 #include "visplanedatadisplay.h"
-#include "visprestackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "uiamplspectrum.h"
@@ -78,7 +77,7 @@ uiViewer3DMgr::uiViewer3DMgr()
 uiViewer3DMgr::~uiViewer3DMgr()
 {
     detachAllNotifiers();
-    removeAllCB( 0 );
+    removeAllCB( nullptr );
 }
 
 
@@ -192,7 +191,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     if ( mnuidx>=0 )
     {
 	menu->setIsHandled( true );
-	if ( !add3DViewer( menu, sceneid, mnuidx ) )
+	if ( !add3DViewer(menu,sceneid,mnuidx) )
 	    return;
     }
     else if ( mnuid==removemenuitem_.id )
@@ -201,7 +200,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	visserv_->removeObject( psv, sceneid );
 	const int idx = viewers3d_.indexOf( psv );
 	delete posdialogs_.removeSingle( idx );
-	viewers3d_.removeSingle( idx )->unRef();
+	viewers3d_.removeSingle( idx );
 	delete settingdlgs_.removeSingle( idx );
     }
     else if ( mnuid==proptymenuitem_.id )
@@ -270,30 +269,26 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 }
 
 
-SceneID uiViewer3DMgr::getSceneID( VisID visid ) const
+SceneID uiViewer3DMgr::getSceneID( const VisID& visid ) const
 {
-    SceneID sceneid;
     TypeSet<SceneID> sceneids;
     visserv_->getSceneIds( sceneids );
-    for ( int idx=0; idx<sceneids.size(); idx++ )
+    for ( const auto& sceneid : sceneids )
     {
 	TypeSet<VisID> scenechildren;
-	visserv_->getChildIds( sceneids[idx], scenechildren );
+	visserv_->getSceneChildIds( sceneid, scenechildren );
 	if ( scenechildren.isPresent(visid) )
-	{
-	    sceneid = sceneids[idx];
-	    break;
-	}
+	    return sceneid;
     }
 
-    return sceneid;
+    return SceneID::udf();
 }
 
 
 #define mErrReturn(msg) { uiMSG().error(msg); return false; }
 
 bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
-				 SceneID sceneid, int mnuidx )
+				 const SceneID& sceneid, int mnuidx )
 {
     if ( !menu )
 	return false;
@@ -312,8 +307,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     if ( !pdd && !s2d )
 	mErrReturn( tr("Display panel is not set.") )
 
-    visSurvey::PreStackDisplay* viewer = new visSurvey::PreStackDisplay;
-    viewer->ref();
+    RefMan<visSurvey::PreStackDisplay> viewer = new visSurvey::PreStackDisplay;
     viewer->setMultiID( ioobj->key() );
     visserv_->addObject( viewer, sceneid, true );
 
@@ -349,7 +343,6 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     if ( !settingok )
     {
 	visserv_->removeObject( viewer, sceneid );
-	viewer->unRef();
 	return false;
     }
 
@@ -399,9 +392,9 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 		mCB( this, uiViewer3DMgr, sceneChangeCB ) );
 
     viewers3d_ += viewer;
-    posdialogs_ += 0;
+    posdialogs_ += nullptr;
     mkNewPosDialog( menu, *viewer );
-    settingdlgs_ += 0;
+    settingdlgs_ += nullptr;
     return true;
 }
 
@@ -427,7 +420,7 @@ uiViewer3DPositionDlg*
 #define mErrRes(msg) { uiMSG().error(msg); return nullptr; }
 
 uiMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
-					  DataPackID dpid )
+					  const DataPackID& dpid )
 {
     auto* viewwin = new uiFlatViewMainWin( ODMainWin(),
 					   uiFlatViewMainWin::Setup(title) );
@@ -573,7 +566,7 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
     for ( int idx=0; idx<viewers3d_.size(); idx++ )
     {
 	visSurvey::PreStackDisplay* psv = viewers3d_[idx];
-	visBase::Scene* scene = psv->getScene();
+	const visSurvey::Scene* scene = psv->getScene();
 
 	DataPackID dpid = psv->getDataPackID();
 	const visSurvey::PlaneDataDisplay* pdd = psv->getSectionDisplay();
@@ -585,9 +578,8 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 	    delete posdialogs_.removeSingle( idx );
 	    delete settingdlgs_.removeSingle( idx );
 	    if ( scene )
-		visserv_->removeObject( psv, scene->id() );
+		visserv_->removeObject( psv, psv->getSceneID() );
 
-	    psv->unRef();
 	    idx--;
 	}
 
@@ -598,16 +590,15 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 	    delete posdialogs_.removeSingle( idx );
 	    delete settingdlgs_.removeSingle( idx );
 	    if ( scene )
-		visserv_->removeObject( psv, scene->id() );
+		visserv_->removeObject( psv, psv->getSceneID() );
 
-	    psv->unRef();
 	    idx--;
 	}
     }
 }
 
 
-void uiViewer3DMgr::removeViewWin( DataPackID dpid )
+void uiViewer3DMgr::removeViewWin( const DataPackID& dpid )
 {
     for ( int idx=viewers2d_.size()-1; idx >=0; idx-- )
     {
@@ -638,7 +629,6 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	viewers3d_ += psv;
 	posdialogs_ += nullptr;
 	settingdlgs_ += nullptr;
-	psv->ref();
     }
 
     PtrMan<IOPar> allwindowspar = ODMainWin()->sessionPars().subselect(
@@ -775,10 +765,10 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
 
 void uiViewer3DMgr::removeAllCB( CallBacker* )
 {
+    viewers3d_.erase();
     deepErase( posdialogs_ );
     deepErase( settingdlgs_ );
     deepErase( viewers2d_ );
-    deepUnRef( viewers3d_ );
 }
 
 

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "mousecursor.h"
-#include "survinfo.h"
 #include "visevent.h"
 #include "visobject.h"
 #include "vistexturechannel2rgba.h"
@@ -32,22 +31,7 @@ SurveyObject::SurveyObject()
 
 SurveyObject::~SurveyObject()
 {
-    deepErase(userrefs_);
-    set3DSurvGeom( 0 );
-}
-
-
-void SurveyObject::doRef()
-{
-    mDynamicCastGet( visBase::DataObject*, dobj, this );
-    dobj->ref();
-}
-
-
-void SurveyObject::doUnRef()
-{
-    mDynamicCastGet( visBase::DataObject*, dobj, this );
-    dobj->unRef();
+    deepErase( userrefs_ );
 }
 
 
@@ -86,7 +70,7 @@ bool SurveyObject::canHandleColTabSeqTrans(int) const
 
 
 const ColTab::MapperSetup* SurveyObject::getColTabMapperSetup( int, int ) const
-{ return 0; }
+{ return nullptr; }
 
 
 void SurveyObject::setColTabSequence( int, const ColTab::Sequence&, TaskRunner*)
@@ -103,7 +87,16 @@ BufferString SurveyObject::getResolutionName( int res ) const
 
 
 void SurveyObject::setScene( Scene* sc )
-{ scene_ = sc; }
+{
+    scene_ = sc;
+}
+
+
+SceneID SurveyObject::getSceneID() const
+{
+    const Scene* scene = getScene();
+    return scene ? scene->getID() : SceneID::udf();
+}
 
 
 OD::Color SurveyObject::getBackgroundColor() const
@@ -129,11 +122,7 @@ void SurveyObject::getLineWidthBounds( int& min, int& max )
 
 void SurveyObject::set3DSurvGeom( const Survey::Geometry3D* sg )
 {
-    if ( s3dgeom_ )
-	s3dgeom_->unRef();
     s3dgeom_ = sg;
-    if ( s3dgeom_ )
-	s3dgeom_->ref();
 }
 
 
@@ -331,10 +320,9 @@ bool SurveyObject::usePar( const IOPar& par )
 }
 
 
-const visBase::TextureChannel2RGBA*
-	visSurvey::SurveyObject::getChannels2RGBA() const
+const visBase::TextureChannel2RGBA* SurveyObject::getChannels2RGBA() const
 {
-    return const_cast<visSurvey::SurveyObject*>(this)->getChannels2RGBA();
+    return const_cast<SurveyObject*>(this)->getChannels2RGBA();
 }
 
 
@@ -361,7 +349,8 @@ bool SurveyObject::isAnyAttribEnabled() const
 
 
 void SurveyObject::initAdaptiveMouseCursor( CallBacker* eventcb,
-					    VisID objid, int inplanedragkeys,
+					    const VisID& objid,
+					    int inplanedragkeys,
 					    MouseCursor& mousecursor )
 {
     mousecursor.shape_ = MouseCursor::NotSet;

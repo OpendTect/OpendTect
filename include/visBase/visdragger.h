@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visobject.h"
+
 #include "position.h"
+#include "visobject.h"
 #include "visosg.h"
+#include "vistransform.h"
 
 namespace osgManipulator { class Dragger; }
 namespace osg
@@ -27,7 +29,6 @@ namespace visBase
 */
 
 class DraggerCallbackHandler;
-class Transformation;
 
 mExpClass(visBase) DraggerBase : public DataObject
 {
@@ -46,16 +47,17 @@ public:
 					       const Interval<float>& z);
 
 protected:
-    friend			class DraggerCallbackHandler;
 				DraggerBase();
 				~DraggerBase();
+
+    friend class DraggerCallbackHandler;
 
     virtual  void		notifyStart() = 0;
     virtual  void		notifyStop() = 0;
     virtual  void		notifyMove() = 0;
 
-    const mVisTrans*		displaytrans_;
-    osgManipulator::Dragger*	osgdragger_;
+    ConstRefMan<mVisTrans>	displaytrans_;
+    osgManipulator::Dragger*	osgdragger_ = nullptr;
     osg::Group*			osgroot_;
 
     void			initDragger(osgManipulator::Dragger*);
@@ -63,7 +65,7 @@ protected:
     Interval<float>		spaceranges_[3];
 
 private:
-    DraggerCallbackHandler*	cbhandler_;
+    DraggerCallbackHandler*	cbhandler_ = nullptr;
 
 public:
     void			handleEvents(bool yn);
@@ -74,7 +76,7 @@ public:
 mExpClass(visBase) Dragger : public DraggerBase
 {
 public:
-    static Dragger*		create()
+    static RefMan<Dragger>	create();
 				mCreateDataObj(Dragger);
 
     enum Type			{ Translate1D, Translate2D, Translate3D,
@@ -108,6 +110,7 @@ public:
 
 protected:
 				~Dragger();
+
     void			triggerRightClick(
 					const EventInfo* eventinfo) override;
     void			notifyStart() override;
@@ -117,19 +120,18 @@ protected:
     osg::MatrixTransform*	createTranslateDefaultGeometry();
     void			setScaleAndTranslation(bool move=false);
 
-
     Notifier<Dragger>		rightclicknotifier_;
-    const EventInfo*		rightclickeventinfo_;
+    const EventInfo*		rightclickeventinfo_ = nullptr;
 
-    DataObject*			inactiveshape_;
-    bool			ismarkershape_;
+    RefMan<DataObject>		inactiveshape_;
+    bool			ismarkershape_	= true;
     bool			is2dtranslate_;
     Coord3			markerpos_;
-    float			draggersizescale_;
-    float			defaultdraggergeomsize_;
+    float			draggersizescale_	= 100.f;
+    float			defaultdraggergeomsize_ = 0.025f;
 
     Coord3			rotation_;
-    float			rotangle_;
+    float			rotangle_	= 0.f;
     OD::Color			arrowcolor_;
 
 public:

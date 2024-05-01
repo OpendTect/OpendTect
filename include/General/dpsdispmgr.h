@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "callback.h"
 
 #include "bufstringset.h"
+#include "callback.h"
 #include "color.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
+#include "integerid.h"
 
 class DataPointSet;
 
@@ -71,7 +72,20 @@ mExpClass(General) DataPointSetDisplayMgr : public CallBacker
 {
 public:
 
-    typedef int			DispID;
+    mExpClass(General) DispID : public IntegerID<od_int32>
+    {
+    public:
+	using IntegerID::IntegerID;
+	static inline DispID	udf()		{ return DispID(); }
+    };
+
+    mExpClass(General) ParentID : public IntegerID<od_int32>
+    {
+    public:
+	using IntegerID::IntegerID;
+	static inline ParentID	udf()		{ return ParentID(); }
+    };
+
     virtual			~DataPointSetDisplayMgr();
 
     virtual void		lock()					= 0;
@@ -82,14 +96,15 @@ public:
     virtual int			getNrViewers() const			= 0;
     virtual const char*		getViewerName(int) const		= 0;
 
-    virtual DispID		addDisplay(const TypeSet<int>& parents,
+    virtual DispID		addDisplay(const TypeSet<ParentID>& parents,
 					   const DataPointSet&)		= 0;
-    virtual void		updateDisplay(DispID id,
-				    const TypeSet<int>& parents,
+    virtual void		updateDisplay(const DispID&,
+				    const TypeSet<ParentID>& parents,
 				    const DataPointSet&)		= 0;
-    virtual void		updateDisplay(DispID id,const DataPointSet&) =0;
-    virtual void		removeDisplay(DispID)			= 0;
-    const TypeSet<int>&		availableViewers() const
+    virtual void		updateDisplay(const DispID&,
+					      const DataPointSet&)	= 0;
+    virtual void		removeDisplay(const DispID&)		= 0;
+    const TypeSet<ParentID>&	availableViewers() const
 				{ return availableviewers_; }
 
     virtual void		getIconInfo(BufferString& fnm,
@@ -101,12 +116,12 @@ public:
 				{ delete dispprop_; dispprop_ = prop; }
 
     void			clearDispProp()
-				{ delete dispprop_; dispprop_ = 0; }
+				{ delete dispprop_; dispprop_ = nullptr; }
 
 protected:
 
 				DataPointSetDisplayMgr();
 
-    TypeSet<int>		availableviewers_;
+    TypeSet<ParentID>		availableviewers_;
     DataPointSetDisplayProp*	dispprop_	= nullptr;
 };

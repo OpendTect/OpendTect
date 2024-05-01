@@ -14,9 +14,11 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "menuhandler.h"
 #include "uisettings.h"
+#include "visemobjdisplay.h"
+#include "vishorizondisplay.h"
+#include "vishorizon2ddisplay.h"
 
 namespace EM { class EdgeLineSet; class EdgeLineSegment; class Horizon3D;}
-namespace visSurvey { class EMObjectDisplay; }
 
 class uiColorTableGroup;
 class uiMenuHandler;
@@ -27,17 +29,21 @@ class uiVisPartServer;
 mExpClass(uiVis) uiVisEMObject : public CallBacker
 { mODTextTranslationClass(uiVisEMObject)
 public:
-			uiVisEMObject(uiParent*,VisID displayid,
-				      uiVisPartServer* );
 			uiVisEMObject(uiParent*,const EM::ObjectID&,
-				      SceneID sceneid,
+				      const SceneID&,uiVisPartServer*);
+			uiVisEMObject(uiParent*,const VisID&,
 				      uiVisPartServer*);
 			~uiVisEMObject();
+
     bool		isOK() const;
 
-    static const char*	getObjectType(VisID displayid);
     VisID		id() const { return displayid_; }
     EM::ObjectID	getObjectID() const;
+
+    ConstRefMan<visSurvey::HorizonDisplay> getHorizon3DDisplay() const;
+    ConstRefMan<visSurvey::Horizon2DDisplay> getHorizon2DDisplay() const;
+    RefMan<visSurvey::HorizonDisplay> getHorizon3DDisplay();
+    RefMan<visSurvey::Horizon2DDisplay> getHorizon2DDisplay();
 
     float		getShift() const;
     void		setDepthAsAttrib(int attrib);
@@ -61,14 +67,15 @@ protected:
     void		keyEventCB(CallBacker*);
     void		checkHorizonSize(const EM::Horizon3D*);
 
-    visSurvey::EMObjectDisplay*		getDisplay();
-    const visSurvey::EMObjectDisplay*	getDisplay() const;
-
+    ConstRefMan<visSurvey::EMObjectDisplay> getDisplay() const;
+    RefMan<visSurvey::EMObjectDisplay> getDisplay();
 
     uiParent*		uiparent_;
     uiVisPartServer*	visserv_;
 
     VisID		displayid_;
+    SceneID		sceneid_;
+    WeakPtr<visSurvey::EMObjectDisplay> emobjdisplay_;
 
     MenuItem		singlecolmnuitem_;
     MenuItem		seedsmenuitem_;

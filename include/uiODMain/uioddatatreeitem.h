@@ -26,7 +26,6 @@ namespace ColTab { class Sequence; }
 mExpClass(uiODMain) uiODDataTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODDataTreeItem)
 public:
-				~uiODDataTreeItem();
 
     virtual void		show(bool yn)		{}
     bool			select() override;
@@ -47,6 +46,7 @@ public:
 
 protected:
 				uiODDataTreeItem(const char* parenttype);
+				~uiODDataTreeItem();
 
     int				uiTreeViewItemType() const override;
     bool			init() override;

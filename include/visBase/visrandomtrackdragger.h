@@ -9,11 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visobject.h"
+
 #include "objectset.h"
 #include "position.h"
 #include "ranges.h"
-
+#include "visdragger.h"
+#include "vismarkerset.h"
+#include "vistransform.h"
 
 namespace osg { class Switch; }
 
@@ -24,10 +26,7 @@ namespace visBase
 */
 
 class Transformation;
-class Dragger;
-class MarkerSet;
 class PlaneDragCBHandler;
-class PolyLine;
 
 
 mExpClass(visBase) RandomTrackDragger : public VisualObjectImpl
@@ -35,7 +34,7 @@ mExpClass(visBase) RandomTrackDragger : public VisualObjectImpl
     friend class PlaneDragCBHandler;
 
 public:
-    static RandomTrackDragger*	create()
+    static RefMan<RandomTrackDragger> create();
 				mCreateDataObj(RandomTrackDragger);
 
     int				nrKnots() const;
@@ -116,27 +115,27 @@ protected:
     int				getDragControlIdx(bool trans1d,
 						  int groupidx) const;
 
-    ObjectSet<Dragger>		draggers_;
+    RefObjectSet<Dragger>	draggers_;
 				/* Contains four coupled draggers per knot:
 				idx%4==0: 2D horizontal dragger at start depth
 				idx%4==1: 1D vertical dragger at start depth
 				idx%4==2: 2D horizontal dragger at stop depth
 				idx%4==3: 1D vertical dragger at stop depth */
-    ObjectSet<MarkerSet>	draggermarkers_;
+    RefObjectSet<MarkerSet>	draggermarkers_;
 
-    ObjectSet<PlaneDragCBHandler>	planedraghandlers_;
+    ObjectSet<PlaneDragCBHandler> planedraghandlers_;
 
     osg::Switch*		panels_;
     osg::Switch*		planedraggers_;
     osg::Switch*		rotationaxis_;
 
     BoolTypeSet			showadjacents_;
-    bool			showallpanels_;
+    bool			showallpanels_ = false;
 
-    bool			showplanedraggers_;
-    int				planedraggerminsizeinsteps_;
+    bool			showplanedraggers_ = true;
+    int				planedraggerminsizeinsteps_ = 1;
 
-    bool			postponepanelupdate_;
+    bool			postponepanelupdate_ = false;
 
     Interval<float>		zrange_;
     StepInterval<float>		limits_[3];
@@ -145,9 +144,9 @@ protected:
     Interval<float>		zborder_;
 
     Notifier<RandomTrackDragger> rightclicknotifier_;
-    const EventInfo*		rightclickeventinfo_;
+    const EventInfo*		rightclickeventinfo_ = nullptr;
 
-    const mVisTrans*		displaytrans_;
+    ConstRefMan<mVisTrans>	displaytrans_;
 
     struct DragControl
     {

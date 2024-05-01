@@ -93,7 +93,6 @@ using UInt32ID = IntegerID<od_uint32>;
 using UInt64ID = IntegerID<od_uint64>;
 
 // Specific usage
-using RandomLineID	= UInt16ID;
 
 mExpClass(Basic) SynthID : public IntegerID<od_int32>
 {
@@ -111,10 +110,24 @@ mExpClass(Basic) VisID : public IntegerID<od_int32>
 {
 public:
     using IntegerID::IntegerID;
-    static inline VisID		udf()			{ return VisID(); }
+    static inline VisID		udf()		{ return VisID(); }
 };
 
-using SceneID = VisID;
+
+mExpClass(Basic) SceneID : public IntegerID<od_int32>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline SceneID	udf()		{ return SceneID(); }
+};
+
+
+mExpClass(Basic) RandomLineID : public IntegerID<od_uint16>
+{
+public:
+    using IntegerID::IntegerID;
+    static inline RandomLineID	udf()		{ return RandomLineID(); }
+};
 
 
 mExpClass(Basic) Viewer2DID : public IntegerID<od_int32>

@@ -163,7 +163,7 @@ public:
     void			selectFault(MultiID&);
     void			selectPolygonSurface(MultiID&);
     void			selectStickSet(MultiID&);
-    bool			selectAttrib(VisID id,int attrib);
+    bool			selectAttrib(const VisID&,int attrib);
 
     // PickSets
     bool			storePickSets();
@@ -179,18 +179,18 @@ public:
     uiVisDataPointSetDisplayMgr* visDPSDispMgr()
 				{ return visdpsdispmgr_; }
     inline uiODViewer2DMgr&	viewer2DMgr()	{ return appl_.viewer2DMgr(); }
-    bool			getNewData(VisID visid,int attrib);
-    bool			evaluateAttribute(VisID visid,int attrib);
-    bool			evaluate2DAttribute(VisID visid, int attrib);
+    bool			getNewData(const VisID&,int attrib);
+    bool			evaluateAttribute(const VisID&,int attrib);
+    bool			evaluate2DAttribute(const VisID&,int attrib);
     void			pageUpDownPressed(bool up);
     void			resetServers();
-    void			updateColorTable(VisID visid,int attrib);
-    void			saveDefColTab(VisID visid,int attrib);
+    void			updateColorTable(const VisID&,int attrib);
+    void			saveDefColTab(const VisID&,int attrib);
     bool			getDefaultDescID(Attrib::DescID&,
 						 bool is2d=false) const;
     void			calcShiftAttribute(int attrib,
 						   const Attrib::SelSpec&);
-    bool			calcRandomPosAttrib(VisID visid,int attrib);
+    bool			calcRandomPosAttrib(const VisID&,int attrib);
     bool			calcMultipleAttribs(Attrib::SelSpec&);
     NotifierAccess*		colorTableSeqChange();
     void			addVisDPSChild(CallBacker*);
@@ -213,7 +213,7 @@ public:
     void			doLayerModeling(CallBacker*);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
-    void			addMPEParentPath(VisID visid,const TrcKey&);
+    void			addMPEParentPath(const VisID&,const TrcKey&);
 
     void			enableMenusAndToolBars(bool);
     void			enableTree(bool);
@@ -235,7 +235,7 @@ public:
 				    { return otherformatvisid_; }
     int				otherFormatAttrib() const
 				    { return otherformatattrib_; }
-    void			useDefColTab(VisID visid,int attrib);
+    void			useDefColTab(const VisID&,int attrib);
     bool			isRestoringSession() const;
     static void			showReleaseNotes(bool isonline);
 
@@ -297,12 +297,12 @@ protected:
     void			surveyChanged(CallBacker*);
     void			colSeqChg(CallBacker*);
     void			colMapperChg(CallBacker*);
-    void			setHistogram(VisID visid,int attrib);
+    void			setHistogram(const VisID&,int attrib);
     void			storeEMObject();
 
     void			manStrat();
 
-    void			setRandomPosData(VisID visid,int attrib,
+    void			setRandomPosData(const VisID&,int attrib,
 						const DataPointSet&);
     void			process2D3D(int opt); /*!<opt=0: create 2D grid,
 							  1:3D->2D, 2:2D->3D */

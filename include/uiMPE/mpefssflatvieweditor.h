@@ -26,10 +26,10 @@ namespace MPE
 {
 
 mExpClass(uiMPE) FaultStickSetFlatViewEditor
-    			: public EM::FaultStickSetFlatViewEditor
+			: public EM::FaultStickSetFlatViewEditor
 {
 public:
-    			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*,
+			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*,
 						    const EM::ObjectID&);
 			~FaultStickSetFlatViewEditor();
 
@@ -49,14 +49,14 @@ public:
     TypeSet<int>&	getTrcNos();
     TypeSet<float>&	getDistances();
     TypeSet<Coord>&	getCoords();
-    void		setRandomLineID(RandomLineID rdlid);
+    void		setRandomLineID(const RandomLineID&);
 
 protected:
 
     void			fssRepaintATSCB(CallBacker*);
     void			fssRepaintedCB(CallBacker*);
 
-    void 			seedMovementStartedCB(CallBacker*);
+    void			seedMovementStartedCB(CallBacker*);
     void			seedMovementFinishedCB(CallBacker*);
     void			removeSelectionCB(CallBacker*);
 
@@ -85,7 +85,7 @@ protected:
 
     const TrcKeyPath*		path_;
 
-    EM::FaultStickPainter*  	fsspainter_;
+    EM::FaultStickPainter*	fsspainter_;
     bool			seedhasmoved_;
     bool			makenewstick_;
     bool			doubleclicked_;

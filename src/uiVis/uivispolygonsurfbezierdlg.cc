@@ -17,26 +17,29 @@ ________________________________________________________________________
 
 
 uiVisPolygonSurfBezierDlg::uiVisPolygonSurfBezierDlg( uiParent* p,
-	visSurvey::PolygonBodyDisplay* plg )
+				visSurvey::PolygonBodyDisplay* plg )
     : uiDlgGroup( p, tr("Shape smoothness") )
-    , plg_( plg )
-    , surf_( 0 )
+    , plg_(plg)
 {
-    if ( !plg ) return;
+    if ( !plg )
+	return;
 
     bezierfld_ = new uiGenInput( this, tr("Number of inserts") );
     if ( plg->getEMPolygonBody() )
 	surf_ = plg->getEMPolygonBody()->geometry().geometryElement();
+
     bezierfld_->setValue( surf_ ? surf_->getBezierCurveSmoothness() : 0 );
 
     applybut_ = new uiPushButton( this, tr("Update Now"), true );
     applybut_->attach( centeredBelow, bezierfld_ );
-    applybut_->activated.notify( mCB(this,uiVisPolygonSurfBezierDlg,applyCB) );
+    mAttachCB( applybut_->activated, uiVisPolygonSurfBezierDlg::applyCB );
 }
 
 
 uiVisPolygonSurfBezierDlg::~uiVisPolygonSurfBezierDlg()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 bool uiVisPolygonSurfBezierDlg::acceptOK()
@@ -51,7 +54,8 @@ void uiVisPolygonSurfBezierDlg::applyCB( CallBacker* )
 
 bool uiVisPolygonSurfBezierDlg::apply()
 {
-    if ( !surf_ ) return false;
+    if ( !surf_ )
+	return false;
 
     if ( bezierfld_->getIntValue()<0 )
     {

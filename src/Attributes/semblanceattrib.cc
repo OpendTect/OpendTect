@@ -170,7 +170,7 @@ bool Semblance::getTrcPos()
     {
 	trcpos_ += BinID::noStepout();
 
-	const bool is2d = desc_.is2D();
+	const bool is2d = getDesc().is2D();
 	if ( extension_==mExtensionCross )
 	{
 	    trcpos_ += BinID(0,stepout_.crl());

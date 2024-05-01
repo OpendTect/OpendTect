@@ -8,13 +8,11 @@ ________________________________________________________________________
 -*/
 
 #include "uigapdeconattrib.h"
-#include "uigdexamacorr.h"
-#include "gapdeconattrib.h"
 
-#include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "gapdeconattrib.h"
 #include "hilbertattrib.h"
 #include "od_helpids.h"
 #include "seisioobjinfo.h"
@@ -25,6 +23,7 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
+#include "uigdexamacorr.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -404,8 +403,9 @@ DescID uiGapDeconAttrib::createVolStatsDesc( Desc& desc, int stepout )
 	return attribids[idx];
     }
 
-    Desc* newdesc = createNewDesc( descset, inpid, VolStats::attribName(), 0, 0,
-				   "_mixingavg" );
+    RefMan<Desc> newdesc = createNewDesc( descset, inpid,
+					  VolStats::attribName(), 0, 0,
+					  "_mixingavg" );
     if ( !newdesc )
 	return DescID::undef();
 
@@ -463,14 +463,14 @@ bool uiGapDeconAttrib::passVolStatsCheck( const Desc* dsc, BinID userbid,
 }
 
 
-Desc* uiGapDeconAttrib::createNewDesc( DescSet* descset, DescID inpid,
+RefMan<Desc> uiGapDeconAttrib::createNewDesc( DescSet* descset, DescID inpid,
 				       const char* attribnm, int seloutidx,
 				       int inpidx, BufferString specref )
 {
-    Desc* inpdesc = descset->getDesc( inpid );
-    Desc* newdesc = PF().createDescCopy( attribnm );
+    RefMan<Desc> inpdesc = descset->getDesc( inpid );
+    RefMan<Desc> newdesc = PF().createDescCopy( attribnm );
     if ( !newdesc || !inpdesc )
-	return 0;
+	return nullptr;
 
     newdesc->selectOutput( seloutidx );
     newdesc->setInput( inpidx, inpdesc );
@@ -632,27 +632,24 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 void uiGapDeconAttrib::prepareInputDescs( DescID& inp0id, DescID& inp1id,
 					  DescSet* dset )
 {
-    Desc* newdesc = PF().createDescCopy( GapDecon::attribName() );
+    RefMan<Desc> newdesc = PF().createDescCopy( GapDecon::attribName() );
     if ( !newdesc )
 	return;
 
-    newdesc->ref();
     newdesc->setDescSet( dset );
     getInput( *newdesc );
 
     inp0id = newdesc->inputId(0);
     inp1id = newdesc->inputId(1);
-
-    newdesc->unRef();
 }
 
 
 void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
 {
-    if ( !is2D() )
+    if ( !is2D() || !ads_ )
 	return;
 
-    Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : 0;
+    RefMan<Desc> tmpdesc = ads_->getDesc( inpfld_->attribID() );
     if ( !tmpdesc )
 	return;
 

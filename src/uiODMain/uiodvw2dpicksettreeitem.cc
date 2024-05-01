@@ -184,7 +184,8 @@ uiODView2DPickSetTreeItem::uiODView2DPickSetTreeItem( int picksetid )
 }
 
 
-uiODView2DPickSetTreeItem::uiODView2DPickSetTreeItem( Vis2DID id, bool )
+uiODView2DPickSetTreeItem::uiODView2DPickSetTreeItem( const Vis2DID& id,
+						      bool /* dummy */ )
     : uiODView2DTreeItem(uiString::emptyString())
     , picksetmgr_(Pick::Mgr())
 {
@@ -386,7 +387,7 @@ void uiODView2DPickSetTreeItem::keyPressedCB( CallBacker* cb )
 
 
 uiTreeItem* uiODView2DPickSetTreeItemFactory::createForVis(
-				const uiODViewer2D& vwr2d, Vis2DID id ) const
+			    const uiODViewer2D& vwr2d, const Vis2DID& id ) const
 {
     mDynamicCastGet(const View2D::PickSet*,obj,vwr2d.getObject(id));
     return obj ? new uiODView2DPickSetTreeItem(id,false) : nullptr;

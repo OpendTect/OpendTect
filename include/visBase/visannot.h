@@ -9,12 +9,15 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visosg.h"
-#include "visobject.h"
+
 #include "color.h"
-#include "trckeyzsampling.h"
 #include "position.h"
 #include "sets.h"
+#include "trckeyzsampling.h"
+#include "visosg.h"
+#include "visobject.h"
+#include "visscene.h"
+#include "vistransform.h"
 
 class AxisInfo;
 class FontData;
@@ -36,8 +39,8 @@ namespace osgGeo
 
 namespace visBase
 {
-class Text2;
 class DataObjectGroup;
+class Text2;
 
 /*!\brief
     Annotation is a simple wireframe box with text on its
@@ -47,7 +50,7 @@ class DataObjectGroup;
 mExpClass(visBase) Annotation : public VisualObjectImpl
 {
 public:
-    static Annotation*	create()
+    static RefMan<Annotation> create();
 			mCreateDataObj(Annotation);
 
     void		showText(bool yn);
@@ -78,15 +81,16 @@ public:
 
     void		setDisplayTransformation(const mVisTrans*) override;
     const mVisTrans*	getDisplayTransformation() const override
-			{ return displaytrans_; }
-    virtual void	setPixelDensity(float) override;
+			{ return displaytrans_.ptr(); }
+    void		setPixelDensity(float) override;
     const Text2*	getAnnotTexts() const { return axisannot_; }
-
 
     void		setScene(Scene*);
     void		allowShading(bool yn) { allowshading_=yn; }
+
 private:
 			~Annotation();
+
     void		firstTraversal(CallBacker*);
     void		initGridLines();
     void		updateGridLines();
@@ -106,12 +110,12 @@ private:
     osgGeo::OneSideRender*	gridlines_;
     RefMan<Text2>		axisnames_;
     RefMan<Text2>		axisannot_;
-    visBase::Scene*		scene_;
+    WeakPtr<Scene>		scene_;
 
-    const mVisTrans*		displaytrans_;
+    ConstRefMan<mVisTrans>	displaytrans_;
 
     OD::Color			annotcolor_;
-    bool			allowshading_;
+    bool			allowshading_	= true;
 
     static const char*		textprefixstr();
     static const char*		cornerprefixstr();

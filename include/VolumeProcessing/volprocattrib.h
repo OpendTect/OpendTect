@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "externalattrib.h"
 #include "multiid.h"
 #include "uistring.h"
+#include "volprocchain.h"
 
-namespace VolProc { class Chain; class ChainExecutor; }
+namespace VolProc { class ChainExecutor; }
 
 mExpClass(VolumeProcessing) VolProcAttrib : public Attrib::Provider
 { mODTextTranslationClass(VolProcAttrib);
@@ -29,6 +30,7 @@ public:
 protected:
 			VolProcAttrib(Attrib::Desc&);
 			~VolProcAttrib();
+
     static Attrib::Provider*	createInstance(Attrib::Desc&);
 
     bool		allowParallelComputation() const override;
@@ -38,9 +40,9 @@ protected:
 
     void		prepareForComputeData() override;
 
-    VolProc::Chain*	chain_;
+    RefMan<VolProc::Chain> chain_;
     MultiID		setupmid_;
-    VolProc::ChainExecutor* executor_;
+    VolProc::ChainExecutor* executor_ = nullptr;
 };
 
 
@@ -56,19 +58,23 @@ mExpClass(VolumeProcessing) ExternalAttribCalculator
 					: public Attrib::ExtAttribCalc
 { mODTextTranslationClass(ExternalAttribCalculator);
 public:
-    static void		initClass();
-			ExternalAttribCalculator();
-			~ExternalAttribCalculator();
+
+    static BufferString createDefinition(const MultiID& setup);
 
     static const char*	sAttribName()	{ return "Volume_Processing"; }
     static const char*	sKeySetup()	{ return "volprocsetup"; }
 
-    static BufferString	createDefinition(const MultiID& setup);
+private:
+			ExternalAttribCalculator();
+			~ExternalAttribCalculator();
 
     bool		setTargetSelSpec(const Attrib::SelSpec&) override;
 
-    DataPackID	createAttrib(const TrcKeyZSampling&,DataPackID,
-				     TaskRunner*) override;
+    ConstRefMan<RegularSeisDataPack> createAttrib(const TrcKeyZSampling&,
+					const RegularSeisDataPack*,
+					TaskRunner*) override;
+    ConstRefMan<RegularSeisDataPack> createAttrib(const TrcKeyZSampling&,
+						  TaskRunner*) override;
     bool		createAttrib( ObjectSet<BinIDValueSet>& o,
 				      TaskRunner* trans ) override
 			{ return Attrib::ExtAttribCalc::createAttrib(o,trans); }
@@ -76,14 +82,15 @@ public:
 				      TaskRunner* trans ) override
 			{ return Attrib::ExtAttribCalc::createAttrib(b,
 								tb,trans); }
-    DataPackID	createAttrib(const TrcKeyZSampling&,TaskRunner*) override;
-
-protected:
 
     static Attrib::ExtAttribCalc* create(const Attrib::SelSpec&);
 
-    Chain*			chain_;
+    RefMan<Chain>		chain_;
     MultiID			rendermid_;
+
+public:
+
+    static void		initClass();
 
 };
 

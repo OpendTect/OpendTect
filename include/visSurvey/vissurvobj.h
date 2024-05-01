@@ -17,19 +17,17 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "position.h"
 #include "ranges.h"
+#include "seisdatapack.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
 #include "vissurvscene.h"
 
-
-
 class DataPointSet;
 class NotifierAccess;
-class RegularSeisDataPack;
 class SeisTrcBuf;
-class ZAxisTransform;
 class TaskRunner;
 class uiString;
+class ZAxisTransform;
 
 namespace ColTab  { class MapperSetup; class Sequence; }
 namespace OD { class LineStyle; }
@@ -37,14 +35,13 @@ class MarkerStyle3D;
 
 namespace visBase
 {
-    class Transformation;
     class EventInfo;
+    class Transformation;
     class TextureChannels;
     class TextureChannel2RGBA;
 }
 
 namespace Attrib { class SelSpec; }
-namespace Survey { class Geometry3D; }
 
 namespace visSurvey
 {
@@ -56,9 +53,6 @@ namespace visSurvey
 mExpClass(visSurvey) SurveyObject
 {
 public:
-    void			doRef();
-    void			doUnRef();
-
 				mDefineFactoryInClass(SurveyObject,factory)
 
     virtual void		set3DSurvGeom(const Survey::Geometry3D*);
@@ -104,7 +98,7 @@ public:
 
     virtual void		otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj) {}
+				    const VisID& whichobj) {}
 				/*!< If other objects are moved, removed or
 				     added in the scene, this function is
 				     called. \note that it only notifies on
@@ -177,9 +171,11 @@ public:
     virtual int			getResolution() const		{ return 0; }
     virtual void		setResolution(int,TaskRunner*)	{}
 
-    virtual visBase::TextureChannels* getChannels() const	{ return 0; }
-    virtual visBase::TextureChannel2RGBA* getChannels2RGBA()	{ return 0; }
-    const visBase::TextureChannel2RGBA*   getChannels2RGBA() const;
+    virtual visBase::TextureChannels* getChannels()	     { return nullptr; }
+    virtual const visBase::TextureChannels* getChannels() const
+							     { return nullptr; }
+    virtual visBase::TextureChannel2RGBA* getChannels2RGBA() { return nullptr; }
+    virtual const visBase::TextureChannel2RGBA*   getChannels2RGBA() const;
     virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*)
 				{ return false; }
 
@@ -253,10 +249,9 @@ public:
 				   //!< version=-1 gives current version
 
     virtual const TypeSet<Attrib::SelSpec>* getSelSpecs( int attrib ) const
-					    { return 0; }
+					    { return nullptr; }
     bool			hasSelSpec(const Attrib::SelSpec&,int& attrib,
 					   int& version) const;
-
 
     virtual bool		canHaveMultipleTextures() const { return false;}
     virtual int			nrTextures(int attrib) const	{ return 0; }
@@ -270,7 +265,7 @@ public:
 				{ val = mUdf(float); info.setEmpty(); }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 						IOPar&) const;
-    virtual const MouseCursor*	getMouseCursor() const		{ return 0; }
+    virtual const MouseCursor*	getMouseCursor() const	{ return nullptr; }
 
 				/*!<Returns a mouse cursor that will
 				    be used if this object under the
@@ -280,12 +275,12 @@ public:
     virtual void		getObjectInfo(uiString&) const	{}
 
 				// Data via DataPacks
-    virtual bool		setDataPackID(int attrib,DataPackID,
+    virtual bool		setDataPackID(int attrib,const DataPackID&,
 					      TaskRunner*)
 				{ return false; }
-    virtual DataPackID	getDataPackID(int attrib) const
+    virtual DataPackID		getDataPackID(int attrib) const
 				{ return DataPackID::udf(); }
-    virtual DataPackID	getDisplayedDataPackID(int attrib) const
+    virtual DataPackID		getDisplayedDataPackID(int attrib) const
 				{ return DataPackID::udf(); }
     virtual DataPackMgr::MgrID	getDataPackMgrID() const
 				{ return DataPack::MgrID::udf(); }
@@ -295,11 +290,10 @@ public:
 						int attrib=-1) const;
 				/*!<\returns the volume in world survey
 				     coordinates. */
-    virtual bool		setDataVolume(int attrib,
-					      const RegularSeisDataPack*,
-					      TaskRunner*)
+    virtual bool		setSeisDataPack(int attrib,RegularSeisDataPack*,
+						TaskRunner*)
 				{ return false; }
-    virtual const RegularSeisDataPack* getCacheVolume(int attr) const
+    virtual ConstRefMan<RegularSeisDataPack> getSeisDataPack(int attr) const
 				{ return nullptr; }
 
 				//Trace-data
@@ -311,7 +305,7 @@ public:
 				    TypeSet<Coord>* */
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
-				{ return Interval<float>(0,0); }
+				{ return Interval<float>(0.f,0.f); }
 
 				/*! Random pos: Every position is put in the
 				  DataPointSet no matter which original patch
@@ -319,19 +313,19 @@ public:
     virtual void		getRandomPos(DataPointSet&,TaskRunner*) const {}
     virtual void		getRandomPosCache(int attrib,
 						  DataPointSet&) const	{}
-    virtual void		setRandomPosData( int attrib,
-						  const DataPointSet*,
-						  TaskRunner*)          {}
+    virtual void		setRandomPosData(int attrib,const DataPointSet*,
+						 TaskRunner*)	       {}
     virtual void		readAuxData()				{}
 
-    virtual void		setScene(Scene* scn);
+    virtual void		setScene(Scene*);
     virtual const Scene*	getScene() const	{ return scene_; }
     virtual Scene*		getScene()		{ return scene_; }
-    virtual SceneID		getSceneID() const	{ return scene_->id(); }
+    SceneID			getSceneID() const;
 
     virtual bool		setZAxisTransform(ZAxisTransform*,TaskRunner*)
-				{return false;}
-    virtual const ZAxisTransform* getZAxisTransform() const	 {return 0;}
+				{ return false; }
+    virtual const ZAxisTransform* getZAxisTransform() const
+				{ return nullptr; }
     virtual bool		alreadyTransformed(int attrib) const;
 
     virtual void		annotateNextUpdateStage(bool yn);
@@ -353,7 +347,7 @@ public:
 
     virtual void		lock( bool yn )		{ locked_ = yn; }
     virtual bool		isLocked() const	{ return locked_; }
-    virtual NotifierAccess*	getLockNotifier()	{ return 0; }
+    virtual NotifierAccess*	getLockNotifier()	{ return nullptr; }
     virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
@@ -395,7 +389,8 @@ protected:
 				~SurveyObject();
 
     void			initAdaptiveMouseCursor(CallBacker* eventcb,
-						VisID objid,int inplanedragkeys,
+						const VisID&,
+						int inplanedragkeys,
 						MouseCursor&);
 
     static int			cValNameOffset()	{ return 12; }
@@ -406,12 +401,14 @@ protected:
     bool			locked_			= false;
     ObjectSet<BufferStringSet>	userrefs_;
 
-    const Survey::Geometry3D*	s3dgeom_		= nullptr;
+    ConstRefMan<Survey::Geometry3D> s3dgeom_;
     BufferString		survname_; //Only from IOPar
     bool			saveinsessionsflag_	= true;
 
     bool			usestexture_		= true;
     bool			validtexture_		= false;
+
+    friend class Scene;
 
 };
 

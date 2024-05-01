@@ -18,14 +18,11 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
-#include "visevent.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
-#include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vissurvscene.h"
-#include "vistransform.h"
 #include "vistransmgr.h"
 
 
@@ -88,24 +85,23 @@ void SeedPainter::mkCircle()
 
 SeedPainter::SeedPainter()
     : visBase::VisualObjectImpl(false)
-    , eventcatcher_(0)
-    , transformation_(0)
-    , circle_(visBase::PolyLine::create())
-    , prevev_(nullptr)
 {
-    circle_->ref();
-    circle_->setMaterial( new visBase::Material );
+    ref();
+    circle_ = visBase::PolyLine::create();
+    RefMan<visBase::Material> newmat = visBase::Material::create();
+    circle_->setMaterial( newmat.ptr() );
     circle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,3) );
     circle_->setPickable( false, false );
     addChild( circle_->osgNode() );
+    unRefNoDelete();
 }
 
 
 SeedPainter::~SeedPainter()
 {
+    detachAllNotifiers();
     removeChild( circle_->osgNode() );
-    circle_->unRef();
-    deleteAndNullPtr( prevev_ );
+    delete prevev_;
 }
 
 
@@ -123,13 +119,7 @@ void SeedPainter::setSetMgr( Pick::SetMgr* mgr )
 
 void SeedPainter::setDisplayTransformation( const mVisTrans* transformation )
 {
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_ = transformation;
-    if ( transformation_ )
-	transformation_->ref();
-
     circle_->setDisplayTransformation( transformation );
 }
 
@@ -137,24 +127,19 @@ void SeedPainter::setDisplayTransformation( const mVisTrans* transformation )
 void SeedPainter::setEventCatcher( visBase::EventCatcher* eventcatcher )
 {
     if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.remove(mCB(this,SeedPainter,eventCB));
-	eventcatcher_->unRef();
-    }
+	mDetachCB( eventcatcher_->eventhappened, SeedPainter::eventCB );
 
     eventcatcher_ = eventcatcher;
 
     if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.notify(mCB(this,SeedPainter,eventCB));
-	eventcatcher_->ref();
-    }
+	mAttachCB( eventcatcher_->eventhappened, SeedPainter::eventCB );
 }
 
 
 #define mReturnHandled( yn ) \
 { \
-    if ( yn && eventcatcher_ ) eventcatcher_->setHandled(); \
+    if ( yn && eventcatcher_ ) \
+	eventcatcher_->setHandled(); \
     return yn; \
 }
 
@@ -189,12 +174,11 @@ void SeedPainter::eventCB( CallBacker* cb )
 
 bool SeedPainter::accept( const visBase::EventInfo& ei )
 {
-    PtrMan<visBase::EventInfo> eventinfo = new visBase::EventInfo( ei );
+    const visBase::EventInfo eventinfo( ei );
+    if ( eventinfo.tabletinfo_ )
+	return acceptTablet( eventinfo );
 
-    if ( eventinfo->tabletinfo )
-	return acceptTablet( *eventinfo );
-
-    return acceptMouse( *eventinfo );
+    return acceptMouse( eventinfo );
 }
 
 
@@ -211,6 +195,7 @@ bool SeedPainter::acceptMouse( const visBase::EventInfo& eventinfo )
     {
 	if ( eventinfo.pressed )
 	{
+	    delete prevev_;
 	    prevev_ = new visBase::EventInfo( eventinfo );
 	    isleftbutpressed_ = eventinfo.buttonstate_ & OD::LeftButton;
 	    mReturnHandled( true );
@@ -248,6 +233,7 @@ bool SeedPainter::acceptMouse( const visBase::EventInfo& eventinfo )
 	else
 	    paintSeeds( eventinfo, *prevev_ );
 
+	delete prevev_;
 	prevev_ = new visBase::EventInfo( eventinfo );
 	mReturnHandled( true );
     }
@@ -317,7 +303,7 @@ void SeedPainter::paintSeedsOnInlCrl( const visBase::EventInfo& curev,
 				      const visBase::EventInfo& prevev,
 				      const TrcKeyZSampling& tkzs, bool isinl )
 {
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
     if ( !scene )
 	return;
 
@@ -401,7 +387,7 @@ void SeedPainter::paintSeedsOnZSlice( const visBase::EventInfo& curev,
 				      const visBase::EventInfo& prevev,
 				      const TrcKeyZSampling& tkzs )
 {
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
     if ( !scene )
 	return;
 
@@ -481,27 +467,28 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 					const visBase::EventInfo& curev,
 					const visBase::EventInfo& prevev )
 {
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
     if ( !scene )
 	return;
 
+    const TrcKeyPath* path = rtd->getTrcKeyPath();
+
     const Coord3 curpos = curev.worldpickedpos;
-    const BinID curbid = SI().transform( curpos );
-    const TypeSet<BinID>* path = rtd->getPath();
-    const int bididx = path->indexOf( curbid );
+    const TrcKey curtk( SI().transform(curpos) );
+    const int bididx = path->indexOf( curtk );
     if ( bididx < 1 || bididx > path->size()-2 )
 	return;
 
-    const Coord posm = SI().transform( path->get(bididx-1) );
-    const Coord posp = SI().transform( path->get(bididx+1) );
+    const Coord posm = SI().transform( path->get(bididx-1).position() );
+    const Coord posp = SI().transform( path->get(bididx+1).position() );
     const float trcdist = 0.5 * ( curpos.coord().distTo(posm) +
 				  curpos.coord().distTo(posp) );
     const float fac = getTrcNrStretchPerZSample( *scene, trcdist );
 
     const Coord3 prevpos = prevev.worldpickedpos;
-    const BinID prevbid = SI().transform( prevpos );
+    const TrcKey prevtk( SI().transform(prevpos) );
     const bool fillprev = prevev.type == visBase::MouseClick;
-    const int prevbididx = path->indexOf( prevbid );
+    const int prevbididx = path->indexOf( prevtk );
     if ( prevbididx < 1 || prevbididx > path->size()-2 )
 	return;
 
@@ -519,12 +506,12 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 
 #define mAddPosOnRandLine(bidx,sampidx) \
     { \
-	const BinID bid = path->get( bidx ); \
+	const TrcKey& tk = path->get( bidx ); \
 	const float z = SI().zRange().atIndex( sampidx ); \
 	if ( zrg.includes(z,false) ) \
 	{ \
-	    const Coord mypos = SI().transform( bid ); \
-	    Pick::Location myloc( mypos, z ); \
+	    const Coord mypos = tk.getCoord(); \
+	    const Pick::Location myloc( mypos, z, Coord3::udf(), tk.geomID()); \
 	    mylocs.add( myloc ); \
 	    indexes += locidx++; \
 	} \
@@ -574,7 +561,7 @@ void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 					const visBase::EventInfo& curev,
 					const visBase::EventInfo& prevev )
 {
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
     if ( !scene )
 	return;
 
@@ -586,7 +573,7 @@ void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 
     const Coord3 curpos = curev.worldpickedpos;
     const int curtrcnr = s2d->getNearestTraceNr( curpos );
-    const StepInterval<float> zrg = s2d->getZRange( false );
+    const ZSampling zrg = s2d->getZRange( false );
     StepInterval<int> trcrg = s2d->getMaxTraceNrRange();
     trcrg.limitTo( s2d->getTraceNrRange() );
     const int nrtrcs = trcrg.nrSteps() + 1;
@@ -671,7 +658,7 @@ void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 
 void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
 {
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
     const MultiTextureSurveyObject* cursec = getSectionDisplay( curev );
     if ( !scene || !cursec )
 	return;
@@ -734,18 +721,18 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
 void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
 					const visBase::EventInfo& curev )
 {
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
 
+    const TypeSet<TrcKey>* path = rtd->getTrcKeyPath();
     const Coord3 curpos = curev.worldpickedpos;
-    const BinID curbid = SI().transform( curpos );
-    const TypeSet<BinID>* path = rtd->getPath();
+    const TrcKey curtk( SI().transform(curpos) );
     const Interval<float> zrg = rtd->getDepthInterval();
-    const int bididx = path->indexOf( curbid );
+    const int bididx = path->indexOf( curtk );
     if ( bididx < 1 || bididx > path->size()-2 )
 	return;
 
-    const Coord posm = SI().transform( path->get(bididx-1) );
-    const Coord posp = SI().transform( path->get(bididx+1) );
+    const Coord posm = SI().transform( path->get(bididx-1).position() );
+    const Coord posp = SI().transform( path->get(bididx+1).position() );
     const float trcdist = 0.5 * ( curpos.coord().distTo(posm) +
 				  curpos.coord().distTo(posp) );
     const float fac = getTrcNrStretchPerZSample( *scene, trcdist );
@@ -756,13 +743,12 @@ void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
     for ( int idx=0; idx<set_->size(); idx++ )
     {
 	const Pick::Location& loc = set_->get( idx );
-	const BinID bid = SI().transform( loc.pos() );
-	const int bidx = path->indexOf( bid );
-	if ( bidx < 0 || !zrg.includes(loc.pos().z,false) )
+	const int bidx = path->indexOf( loc.trcKey() );
+	if ( bidx < 0 || !zrg.includes(loc.z(),false) )
 	    continue;
 
 	const int xdiff = Math::Abs( (bidx - bididx) / fac );
-	const int ydiff = Math::Abs( loc.pos().z - curpos.z ) / SI().zStep();
+	const int ydiff = Math::Abs( loc.z() - curpos.z ) / SI().zStep();
 	float distsq = xdiff*xdiff + ydiff*ydiff;
 	if ( distsq > radius_*radius_ )
 	    continue;
@@ -784,7 +770,7 @@ void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
 void SeedPainter::eraseSeedsOn2DLine( const Seis2DDisplay* s2d,
 				      const visBase::EventInfo& curev )
 {
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
     const Pos::GeomID geomid = s2d->getGeomID();
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
     const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
@@ -793,7 +779,7 @@ void SeedPainter::eraseSeedsOn2DLine( const Seis2DDisplay* s2d,
 
     const Coord3 curpos = curev.worldpickedpos;
     const int curtrcnr = s2d->getNearestTraceNr( curpos );
-    const StepInterval<float> zrg = s2d->getZRange( false );
+    const ZSampling zrg = s2d->getZRange( false );
     StepInterval<int> trcrg = s2d->getMaxTraceNrRange();
     trcrg.limitTo( s2d->getTraceNrRange() );
     const int trcidx = trcrg.getIndex( curtrcnr );
@@ -841,7 +827,7 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
 	circle_->removePoint( idx );
 
     circle_->dirtyCoordinates();
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
     const MultiTextureSurveyObject* so = getSectionDisplay( eventinfo );
     if ( !so || !scene )
 	return;
@@ -888,19 +874,20 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
 void SeedPainter::drawLineOnRandLine( const RandomTrackDisplay* rtd,
 				      const visBase::EventInfo& eventinfo )
 {
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
+    const TypeSet<TrcKey>* path = rtd->getTrcKeyPath();
+
     const Coord3 pickedpos = eventinfo.worldpickedpos;
-    const BinID pickedbid = SI().transform( pickedpos );
-    const TypeSet<BinID>* path = rtd->getPath();
-    const int bididx = path->indexOf( pickedbid );
+    const TrcKey pickedtk( SI().transform(pickedpos) );
+    const int bididx = path->indexOf( pickedtk );
     if ( bididx < 1 || bididx > path->size()-2 )
 	return;
 
     if ( circlecoords_.isEmpty() )
 	mkCircle();
 
-    const Coord posm = SI().transform( path->get(bididx-1) );
-    const Coord posp = SI().transform( path->get(bididx+1) );
+    const Coord posm = SI().transform( path->get(bididx-1).position() );
+    const Coord posp = SI().transform( path->get(bididx+1).position() );
     const float trcdist = 0.5 * ( pickedpos.coord().distTo(posm) +
 				  pickedpos.coord().distTo(posp) );
     const float fac = getTrcNrStretchPerZSample( *scene, trcdist );
@@ -910,8 +897,7 @@ void SeedPainter::drawLineOnRandLine( const RandomTrackDisplay* rtd,
 	if ( !path->validIdx(posidx) )
 	    continue;
 
-	const BinID bid = path->get( posidx );
-	const Coord pt = SI().transform( bid );
+	const Coord pt = path->get( posidx ).getCoord();
 	circle_->addPoint( Coord3(pt,
 			pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
     }
@@ -923,7 +909,7 @@ void SeedPainter::drawLineOnRandLine( const RandomTrackDisplay* rtd,
 void SeedPainter::drawLineOn2DLine( const Seis2DDisplay* s2d,
 				    const visBase::EventInfo& eventinfo )
 {
-    Scene* scene = STM().currentScene();
+    RefMan<Scene> scene = STM().currentScene();
     const Pos::GeomID geomid = s2d->getGeomID();
     const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
     const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
@@ -977,7 +963,7 @@ void SeedPainter::reset()
 
 bool SeedPainter::acceptTablet( const visBase::EventInfo& eventinfo )
 {
-    if ( !eventinfo.tabletinfo )
+    if ( !eventinfo.tabletinfo_ )
 	mReturnHandled( false );
 
     return acceptMouse( eventinfo );

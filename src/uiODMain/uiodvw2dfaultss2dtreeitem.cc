@@ -242,7 +242,8 @@ uiODView2DFaultSS2DTreeItem::uiODView2DFaultSS2DTreeItem(
 }
 
 
-uiODView2DFaultSS2DTreeItem::uiODView2DFaultSS2DTreeItem( Vis2DID id, bool )
+uiODView2DFaultSS2DTreeItem::uiODView2DFaultSS2DTreeItem( const Vis2DID& id,
+							  bool /* dummy */ )
     : uiODView2DTreeItem(uiString::emptyString())
     , emid_(-1)
     , fssview_(0)
@@ -492,8 +493,8 @@ const char* uiODView2DFaultSS2DTreeItem::parentType() const
 
 
 uiTreeItem* uiODView2DFaultSS2DTreeItemFactory::createForVis(
-				const uiODViewer2D& vwr2d, Vis2DID id ) const
+			    const uiODViewer2D& vwr2d, const Vis2DID& id ) const
 {
     mDynamicCastGet(const View2D::FaultSS2D*,obj,vwr2d.getObject(id));
-    return obj ? new uiODView2DFaultSS2DTreeItem(id,true) : 0;
+    return obj ? new uiODView2DFaultSS2DTreeItem(id,true) : nullptr;
 }

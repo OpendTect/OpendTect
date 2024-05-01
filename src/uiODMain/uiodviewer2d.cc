@@ -64,7 +64,7 @@ static void initSelSpec( Attrib::SelSpec& as )
 
 mDefineInstanceCreatedNotifierAccess( uiODViewer2D )
 
-uiODViewer2D::uiODViewer2D( uiODMain& appl, VisID visid )
+uiODViewer2D::uiODViewer2D( uiODMain& appl, const VisID& visid )
     : viewWinAvailable(this)
     , viewWinClosed(this)
     , dataChanged(this)
@@ -146,13 +146,13 @@ uiODViewer2D::~uiODViewer2D()
 }
 
 
-const View2D::DataObject* uiODViewer2D::getObject( Vis2DID id ) const
+const View2D::DataObject* uiODViewer2D::getObject( const Vis2DID& id ) const
 {
     return datamgr_ ? datamgr_->getObject( id ) : nullptr;
 }
 
 
-View2D::DataObject* uiODViewer2D::getObject( Vis2DID id )
+View2D::DataObject* uiODViewer2D::getObject( const Vis2DID& id )
 {
     return datamgr_ ? datamgr_->getObject( id ) : nullptr;
 }

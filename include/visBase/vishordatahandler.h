@@ -12,10 +12,10 @@ ________________________________________________________________________
 // don't include it in somewhere else !!!
 
 #include "visbasemod.h"
-#include "refcount.h"
+
+#include "zaxistransform.h"
 
 class DataPointSet;
-class ZAxisTransform;
 
 namespace visBase
 {
@@ -35,13 +35,13 @@ public:
 					     int sectionid ) const;
 
 protected:
-    virtual		~HorizonSectionDataHandler();
+			~HorizonSectionDataHandler();
 
 private:
     void		removeZTransform();
 
-    ZAxisTransform*	zaxistransform_;
-    int			zaxistransformvoi_;
+    RefMan<ZAxisTransform> zaxistransform_;
+    int			zaxistransformvoi_ = -2;
     //-1 not needed by zaxistransform, -2 not set
     const HorizonSection*	horsection_;
 

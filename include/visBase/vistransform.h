@@ -70,13 +70,13 @@ x' = x''/m; y' = y''/m; z'=z''/m;
 mExpClass(visBase) Transformation : public DataObjectGroup
 {
 public:
-    static Transformation*	create()
-				mCreateDataObj(Transformation);
+    static RefMan<Transformation> create();
+			mCreateDataObj(Transformation);
 
     void		reset();
 
     void		setA(double a11,double a12,double a13,double a14,
-	    		     double a21,double a22,double a23,double a24,
+			     double a21,double a22,double a23,double a24,
 			     double a31,double a32,double a33,double a34,
 			     double a41,double a42,double a43,double a44 );
 
@@ -100,21 +100,20 @@ public:
 			mDefTrans( Coord3 );
 			mDefTrans( osg::Vec3d );
 			mDefTrans( osg::Vec3f );
-    			mDefConvTrans( Coord3, osg::Vec3d );
-    			mDefConvTrans( Coord3, osg::Vec3f );
-    			mDefConvTrans( osg::Vec3d, Coord3 );
-    			mDefConvTrans( osg::Vec3f, Coord3 );
+			mDefConvTrans( Coord3, osg::Vec3d );
+			mDefConvTrans( Coord3, osg::Vec3f );
+			mDefConvTrans( osg::Vec3d, Coord3 );
+			mDefConvTrans( osg::Vec3f, Coord3 );
 
     Transformation&     operator*=(const Transformation&);
-    
-private:
 
-    virtual		~Transformation();
+private:
+			~Transformation();
 
     void		updateMatrix();
     void		updateNormalizationMode();
 
-    osg::MatrixTransform* node_;
+    osg::MatrixTransform* node_ = nullptr;
 
     osg::Vec3d&		curscale_;
     osg::Vec3d&		curtrans_;

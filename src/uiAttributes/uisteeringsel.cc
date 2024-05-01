@@ -210,12 +210,14 @@ DescID uiSteeringSel::descID()
 		return descid;
 	}
 
-	Desc* desc = PF().createDescCopy( attribnm );
-	if ( !desc ) return DescID::undef();
+	RefMan<Desc> desc = PF().createDescCopy( attribnm );
+	if ( !desc )
+	    return DescID::undef();
+
 	desc->getValParam("dip")->setValue( dipfld_->getFValue() );
 	desc->getValParam("azi")->setValue( dirfld_->getFValue() );
 
-	DescSet* ads = const_cast<DescSet*>(descset_);
+	DescSet* ads = const_cast<DescSet*>( descset_ );
 	BufferString userref = attribnm;
 	desc->setUserRef( userref );
 	desc->setHidden(true);
@@ -243,8 +245,9 @@ DescID uiSteeringSel::descID()
 	    return descid;
     }
 
-    Desc* desc = PF().createDescCopy( attribnm );
-    if ( !desc ) return DescID::undef();
+    RefMan<Desc> desc = PF().createDescCopy( attribnm );
+    if ( !desc )
+	return DescID::undef();
 
     DescSet* ads = const_cast<DescSet*>(descset_);
     desc->setInput( 0, ads->getDesc(inldipid) );
@@ -319,7 +322,7 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
 	    return descid;
     }
 
-    Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
+    RefMan<Desc> desc = PF().createDescCopy( StorageProvider::attribName() );
     desc->setHidden( true );
     desc->selectOutput( dipnr );
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );

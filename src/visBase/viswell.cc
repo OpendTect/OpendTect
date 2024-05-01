@@ -9,8 +9,8 @@ ________________________________________________________________________
 
 #include "viswell.h"
 
-#include "visdrawstyle.h"
 #include "viscoord.h"
+#include "visdrawstyle.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
@@ -18,12 +18,12 @@ ________________________________________________________________________
 #include "vistransform.h"
 
 #include "coltabsequence.h"
-#include "trckeyzsampling.h"
-#include "iopar.h"
 #include "indexedshape.h"
-#include "ranges.h"
+#include "iopar.h"
 #include "scaler.h"
 #include "survinfo.h"
+#include "ranges.h"
+#include "trckeyzsampling.h"
 #include "uistrings.h"
 #include "zaxistransform.h"
 
@@ -51,35 +51,29 @@ const char* Well::showlognmstr()	{ return "Show logname"; }
 const char* Well::logwidthstr()		{ return "Screen width"; }
 
 Well::Well()
-    : VisualObjectImpl( false )
-    , showmarkers_(true)
-    , showlogs_(true)
-    , transformation_(0)
-    , zaxistransform_(0)
-    , voiidx_(-1)
-    , leftlogdisplay_( new osgGeo::PlaneWellLog )
-    , rightlogdisplay_( new osgGeo::PlaneWellLog )
-    , centerlogdisplay_( new osgGeo::PlaneWellLog )
-    , pixeldensity_( getDefaultPixelDensity() )
+    : VisualObjectImpl(false)
+    , leftlogdisplay_(new osgGeo::PlaneWellLog)
+    , rightlogdisplay_(new osgGeo::PlaneWellLog)
+    , centerlogdisplay_(new osgGeo::PlaneWellLog)
+    , pixeldensity_(getDefaultPixelDensity())
 {
+    ref();
     markerset_ = MarkerSet::create();
-    markerset_->ref();
     addChild( markerset_->osgNode() );
-    markerset_->setMaterial( new Material );
+    RefMan<Material> newmat1 = Material::create();
+    markerset_->setMaterial( newmat1.ptr() );
 
     track_ = PolyLine::create();
     track_->setColorBindType( VertexShape::BIND_OVERALL );
-    track_->ref();
 
     track_->addPrimitiveSet( Geometry::RangePrimitiveSet::create() );
     addChild( track_->osgNode() );
 
-    track_->setMaterial( new Material );
+    RefMan<Material> newmat2 = Material::create();
+    track_->setMaterial( newmat2.ptr() );
 
     welltoptxt_ =  Text2::create();
     wellbottxt_ =  Text2::create();
-    welltoptxt_->ref();
-    wellbottxt_->ref();
     welltoptxt_->setMaterial( track_->getMaterial() );
     wellbottxt_->setMaterial( track_->getMaterial() );
 
@@ -87,56 +81,37 @@ Well::Well()
     addChild( wellbottxt_->osgNode() );
 
     markernames_ = Text2::create();
-    markernames_->ref();
     addChild( markernames_->osgNode() );
 
-    leftlogdisplay_->ref();
+    refOsgPtr( leftlogdisplay_ );
     addChild( leftlogdisplay_ );
 
-    rightlogdisplay_->ref();
-    addChild( rightlogdisplay_ );
-
-    centerlogdisplay_->ref();
+    refOsgPtr( centerlogdisplay_ );
     addChild( centerlogdisplay_ );
+
+    refOsgPtr( rightlogdisplay_ );
+    addChild( rightlogdisplay_ );
 
     for ( int idx=0; idx<3; idx++ )
     {
-	displaytube_[idx]= false;
+	displaytube_[idx] = false;
 	displaylog_[idx] = false;
 	lognames_.add( "" );
     }
+
     markerset_->addPolygonOffsetNodeState();
+    unRefNoDelete();
 }
 
 
 Well::~Well()
 {
-    if ( transformation_ ) transformation_->unRef();
-
     removeChild( track_->osgNode() );
-    track_->unRef();
-
-    markerset_->unRef();
-
-    welltoptxt_->unRef();
-    wellbottxt_->unRef();
-    markernames_->unRef();
-
     removeLogs();
-    leftlogdisplay_->unref();
-    rightlogdisplay_->unref();
-    centerlogdisplay_->unref();
+    unRefOsgPtr( leftlogdisplay_ );
+    unRefOsgPtr( rightlogdisplay_ );
+    unRefOsgPtr( centerlogdisplay_ );
 }
-
-
-#define mRefDisplay( obj )\
-{\
-    if ( obj )\
-    {\
-	obj->ref();\
-	addChild( obj );\
-    }\
-}\
 
 
 osgGeo::WellLog*& Well::getLogDisplay( Side side )
@@ -164,7 +139,7 @@ void Well::setLogTubeDisplay( Side side, bool yn )
     if ( log )
     {
 	removeChild( log );
-	log->unref();
+	unRefAndNullOsgPtr( log );
     }
 
     if ( yn )
@@ -178,7 +153,8 @@ void Well::setLogTubeDisplay( Side side, bool yn )
 	logdisplay = new osgGeo::PlaneWellLog;
     }
 
-    mRefDisplay( getLogDisplay( side ) );
+    if ( getLogDisplay(side) )
+	addChild( getLogDisplay(side) );
 }
 
 
@@ -187,16 +163,7 @@ void Well::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     if ( zaxistransform_==zat )
 	return;
 
-    if ( zaxistransform_ )
-    {
-	zaxistransform_->unRef();
-    }
-
     zaxistransform_ = zat;
-    if ( zaxistransform_ )
-    {
-	zaxistransform_->ref();
-    }
 }
 
 
@@ -396,7 +363,7 @@ void Well::setMarkerSetParams( const MarkerParams& mp )
     markerset_->setMinimumScale( 1.0f );
     markerset_->setMaximumScale( 25.5f );
 
-    markerset_->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
+    markerset_->setAutoRotateMode( MarkerSet::NO_ROTATION );
 }
 
 
@@ -904,12 +871,7 @@ bool Well::logNameShown() const
 
 void Well::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transformation_ )
-	transformation_->unRef();
     transformation_ = nt;
-    if ( transformation_ )
-	transformation_->ref();
-
     track_->setDisplayTransformation( transformation_ );
 
     wellbottxt_->setDisplayTransformation( transformation_ );
@@ -988,7 +950,7 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
     if ( !logdisplay )
 	return false;
 
-    osg::ref_ptr<osg::Geometry>  geom = 0;
+    osg::ref_ptr<osg::Geometry>  geom = nullptr;
 
     if ( style == Welllog || style== Seismic)
     {

@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
+
 #include "uidialog.h"
 #include "uistring.h"
+#include "visdata.h"
 
 namespace visSurvey { class SurveyObject; }
 namespace ColTab { class Sequence; class MapperSetup; }
@@ -20,24 +22,25 @@ class uiColorTable;
 mExpClass(uiVis) uiVisColTabEd : public CallBacker
 { mODTextTranslationClass(uiVisColTabEd);
 public:
-    				uiVisColTabEd(uiColorTable&);
+				uiVisColTabEd(uiColorTable&);
 				~uiVisColTabEd();
 
     void			setColTab(const ColTab::Sequence*,
-	    				  bool editseq,
-	    				  const ColTab::MapperSetup*,
+					  bool editseq,
+					  const ColTab::MapperSetup*,
 					  bool edittrans);
     void			setColTab(visSurvey::SurveyObject*,int ch,
-	    				  int version);
+					  int version);
     const ColTab::Sequence&	getColTabSequence() const;
     const ColTab::MapperSetup&	getColTabMapperSetup() const;
 
     int				getChannel() const { return channel_; }
-    const visSurvey::SurveyObject* getSurvObj() const { return survobj_; }
+    ConstRefMan<visBase::DataObject> getDataObj() const;
+    RefMan<visBase::DataObject> getDataObj();
 
     NotifierAccess&		seqChange();
     NotifierAccess&		mapperChange();
-    
+
     void			setHistogram(const TypeSet<float>*);
     uiColorTable&		colTab()	{ return uicoltab_; }
 
@@ -64,7 +67,7 @@ protected:
     uiColorTable&		uicoltab_;
     int				channel_;
     int				version_;
-    visSurvey::SurveyObject*	survobj_;
+    WeakPtr<visBase::DataObject> dataobj_;
 };
 
 

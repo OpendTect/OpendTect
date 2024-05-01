@@ -34,10 +34,10 @@ public:
 protected:
 
     Attrib::Desc*	getDesc(const char*);
-    
-    uiParent*		prnt;
-    Attrib::DescSet*	attrset;
-    BufferStringSet	indirects;
-    BufferStringSet	directs;
+
+    uiParent*		prnt_;
+    Attrib::DescSet*	attrset_;
+    BufferStringSet	indirects_;
+    BufferStringSet	directs_;
 
 };

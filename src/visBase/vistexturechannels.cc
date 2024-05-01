@@ -185,7 +185,6 @@ void ChannelInfo::setColTabMapperSetup( const ColTab::MapperSetup& setup )
 	else
 	    mappers_[idx]->setup_.triggerRangeChange();
     }
-
 }
 
 
@@ -194,13 +193,14 @@ const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int channel) const
     if ( channel < mappers_.size() )
 	return mappers_[channel]->setup_;
 
-	pErrMsg( "channel >= mappers_.size()" );
-	if ( mappers_.isEmpty() )
-	{
-	    mDefineStaticLocalObject( ColTab::MapperSetup, ctms, );
-	    return ctms;
-	}
-	return mappers_[mappers_.size()-1]->setup_;
+    pErrMsg( "channel >= mappers_.size()" );
+    if ( mappers_.isEmpty() )
+    {
+	mDefineStaticLocalObject( ColTab::MapperSetup, ctms, );
+	return ctms;
+    }
+
+    return mappers_[mappers_.size()-1]->setup_;
 }
 
 
@@ -241,7 +241,7 @@ void ChannelInfo::removeImages()
     for ( int idx=0; idx<osgimages_.size(); idx++ )
     {
 	if ( osgimages_.get(idx) )
-	    osgimages_.get(idx)->unref();
+	    unRefOsgPtr( osgimages_.get(idx) );
 	osgimages_.replace( idx, nullptr );
     }
 }
@@ -322,11 +322,7 @@ void ChannelInfo::setOsgIDs( const TypeSet<int>& osgids )
 	osgimages_ += nullptr;
 
     while ( osgimages_.size()>nr )
-    {
-	osg::Image* image = osgimages_.removeSingle( nr );
-	if ( image )
-	    image->unref();
-    }
+	unRefOsgPtr( osgimages_.removeSingle(nr) );
 }
 
 
@@ -528,8 +524,8 @@ void ChannelInfo::updateOsgImages()
     {
 	if ( !osgimages_[idx] )
 	{
-	    osg::Image* image = new osg::Image;
-	    image->ref();
+	    auto* image = new osg::Image;
+	    refOsgPtr( image );
 	    osgimages_.replace( idx, image );
 	}
 
@@ -588,8 +584,8 @@ TextureChannels::TextureChannels()
 			    anisotropicpower );
     osgtexture_->setAnisotropicPower( anisotropicpower );
 
-    osgtexture_->ref();
-    texturecallbackhandler_->ref();
+    refOsgPtr( osgtexture_ );
+    refOsgPtr( texturecallbackhandler_ );
     osgtexture_->addCallback( texturecallbackhandler_ );
 
     addChannel();
@@ -602,8 +598,8 @@ TextureChannels::~TextureChannels()
     setChannels2RGBA( nullptr );
 
     osgtexture_->removeCallback( texturecallbackhandler_ );
-    texturecallbackhandler_->unref();
-    osgtexture_->unref();
+    unRefOsgPtr( texturecallbackhandler_ );
+    unRefOsgPtr( osgtexture_ );
 }
 
 
@@ -689,7 +685,15 @@ bool TextureChannels::isOn() const
 
 
 int TextureChannels::nrChannels() const
-{ return channelinfo_.size(); }
+{
+    return channelinfo_.size();
+}
+
+
+bool TextureChannels::validIdx( int idx ) const
+{
+    return channelinfo_.validIdx( idx );
+}
 
 
 int TextureChannels::addChannel()
@@ -944,7 +948,7 @@ bool TextureChannels::setMappedData( int channel, int version,
 				     unsigned char* data,
 				     OD::PtrPolicy cp )
 {
-    setUnMappedData( channel, version, 0, OD::UsePtr, nullptr );
+    setUnMappedData( channel, version, nullptr, OD::UsePtr, nullptr );
 
     if ( channel<0 || channel>=channelinfo_.size() )
     {
@@ -961,22 +965,17 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
     const int oldnrtexturebands = nrTextureBands();
 
     if ( tc2rgba_ )
-    {
-	tc2rgba_->setChannels( 0 );
-	tc2rgba_->unRef();
-    }
+	tc2rgba_->setChannels( nullptr );
 
     tc2rgba_ = nt;
 
     if ( tc2rgba_ )
     {
 	tc2rgba_->setChannels( this );
-	tc2rgba_->ref();
-
 	for ( int channel=0; channel<nrChannels(); channel++ )
 	{
 	    if ( oldnrtexturebands != nrTextureBands() )
-		reMapData( channel, true, 0 );
+		reMapData( channel, true, nullptr );
 
 	    update( channel );
 	}
@@ -987,17 +986,18 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
 
 
 const TextureChannel2RGBA* TextureChannels::getChannels2RGBA() const
-{ return tc2rgba_; }
+{ return tc2rgba_.ptr(); }
 
 
 TextureChannel2RGBA* TextureChannels::getChannels2RGBA()
-{ return tc2rgba_; }
+{ return tc2rgba_.ptr(); }
 
 
 const SbImagei32* TextureChannels::getChannels() const
-{
-    return nullptr;
-}
+{ return nullptr; }
+
+SbImagei32* TextureChannels::getChannels()
+{ return nullptr; }
 
 
 void TextureChannels::update( ChannelInfo* ti )
@@ -1115,6 +1115,5 @@ void TextureChannels::unfreezeOldData( int channel )
     if ( channelinfo_.validIdx(channel) )
 	update( channel, false );
 }
-
 
 } // namespace visBase

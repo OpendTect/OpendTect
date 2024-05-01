@@ -9,12 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
 #include "emposid.h"
 #include "multiid.h"
-#include "visemobjdisplay.h"
 #include "geom2dintersections.h"
+#include "visemobjdisplay.h"
+#include "vismarkerset.h"
+#include "vispolyline.h"
+#include "vispointset.h"
+#include "vistransform.h"
 
-namespace visBase { class PolyLine3D; class PointSet;  class MarkerSet; }
 namespace EM { class Horizon2D; }
 class ZAxisTransform;
 class Line2DInterSection;
@@ -29,10 +33,11 @@ mExpClass(visSurvey) Horizon2DDisplay : public EMObjectDisplay
 { mODTextTranslationClass(Horizon2DDisplay);
 public:
 				Horizon2DDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,Horizon2DDisplay,
+				    SurveyObject, Horizon2DDisplay,
 				    "Horizon2DDisplay",
-				    toUiString(sFactoryKeyword()));
+				    ::toUiString(sFactoryKeyword()) )
 
     void			setDisplayTransformation(
 						const mVisTrans*) override;
@@ -47,7 +52,7 @@ public:
 
     bool			setEMObject(const EM::ObjectID&,
 					    TaskRunner*) override;
-    EM::SectionID		getSectionID(VisID visid) const override;
+    EM::SectionID		getSectionID(const VisID&) const override;
     TypeSet<EM::SectionID>	getSectionIDs() const	{ return sids_; }
 
     bool			setZAxisTransform(ZAxisTransform*,
@@ -58,11 +63,11 @@ public:
     const visBase::PolyLine3D*	getLine(const EM::SectionID&) const;
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj) override;
+				    const VisID& whichobj) override;
     void			setPixelDensity(float) override;
     void			initSelectionDisplay(bool erase);
-    void			updateSelectionsHor2D();
-    void			clearSelectionsHor2D();
+    void			updateSelections() override;
+    void			clearSelections() override;
 
     Coord3			getTranslation() const override;
     void			setTranslation(const Coord3&) override;
@@ -84,13 +89,14 @@ protected:
 
     static bool			withinRanges(const RowCol&,float z,
 					     const LineRanges& );
-    void			updateSection(int idx,const LineRanges* lr=0);
+    void			updateSection(int idx,
+					      const LineRanges* =nullptr);
 
     void			emChangeCB(CallBacker*) override;
 
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj) override;
+				    const VisID& whichobj) override;
     void			updateLinesOnSections(
 					const ObjectSet<const Seis2DDisplay>&);
     void			updateSeedsOnSections(
@@ -116,17 +122,17 @@ protected:
     bool			shouldDisplayIntersections(
 							const Seis2DDisplay&);
 
-    ObjectSet<visBase::PolyLine3D>	lines_;
-    ObjectSet<visBase::PointSet>	points_;
+    RefObjectSet<visBase::PolyLine3D>	lines_;
+    RefObjectSet<visBase::PointSet>	points_;
     TypeSet<EM::SectionID>		sids_;
     TypeSet<int>			volumeofinterestids_;
-    visBase::MarkerSet*			intersectmkset_;
-    bool				updateintsectmarkers_;
-    int					nr2dlines_;
-    Line2DInterSectionSet*		ln2dset_;
-    visBase::PointSet*			selections_;
+    RefMan<visBase::MarkerSet>		intersectmkset_;
+    bool				updateintsectmarkers_	= true;
+    int					nr2dlines_		= 0;
+    Line2DInterSectionSet*		ln2dset_		= nullptr;
+    RefMan<visBase::PointSet>		selections_;
 
-    mVisTrans*				translation_;
+    RefMan<mVisTrans>			translation_;
     Coord3				translationpos_		= Coord3::udf();
 };
 

@@ -9,9 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "sets.h"
-#include "visshape.h"
+
 #include "position.h"
+#include "sets.h"
+#include "visdrawstyle.h"
+#include "visshape.h"
 
 namespace visBase
 {
@@ -21,7 +23,7 @@ class DrawStyle;
 mExpClass(visBase) PointSet : public VertexShape
 {
 public:
-    static PointSet*	create()
+    static RefMan<PointSet> create();
 			mCreateDataObj(PointSet);
 
     void		setPointSize(int);
@@ -41,10 +43,11 @@ public:
 			    the coordinates, if you change coordinates,
 			    you will have to setTransformation again.  */
     void		clear();
+
 protected:
 			~PointSet();
 
-    DrawStyle*		drawstyle_;
+    RefMan<DrawStyle>	drawstyle_;
 };
 
 } // namespace visBase

@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "vistransform.h"
 #include "visosg.h"
 #include "vismaterial.h"
-#include "vispolygonoffset.h"
 
 #include <osgGeo/MarkerSet>
 #include <osgGeo/MarkerShape>
@@ -32,16 +31,15 @@ namespace visBase
 MarkerSet::MarkerSet()
     : VisualObjectImpl(true)
     , markerset_(new osgGeo::MarkerSet)
-    , displaytrans_(nullptr)
-    , coords_(Coordinates::create())
     , pixeldensity_(getDefaultPixelDensity())
     , rotationvec_(1.0,0.0,0.0)
     , rotationangle_(mUdf(float))
-    , offset_(nullptr)
-    , onoffarr_( new osg::ByteArray() )
+    , onoffarr_(new osg::ByteArray())
 {
-    markerset_->ref();
-    onoffarr_->ref();
+    ref();
+    coords_ = Coordinates::create();
+    refOsgPtr( markerset_ );
+    refOsgPtr( onoffarr_ );
     addChild( markerset_ );
     markerset_->setVertexArray( mGetOsgVec3Arr(coords_->osgArray()) );
     markerset_->setOnOffArray((osg::ByteArray*)onoffarr_ );
@@ -55,7 +53,8 @@ MarkerSet::MarkerSet()
     setAutoRotateMode( NO_ROTATION );
     setType( MarkerStyle3D::Cube );
     setScreenSize( cDefaultScreenSize() );
-    setMaterial( 0 ); //Triggers update of markerset's color array
+    setMaterial( nullptr ); //Triggers update of markerset's color array
+    unRefNoDelete();
 }
 
 
@@ -63,9 +62,9 @@ MarkerSet::~MarkerSet()
 {
     removeChild( markerset_ );
     clearMarkers();
-    markerset_->unref();
+    unRefOsgPtr( markerset_ );
     removePolygonOffsetNodeState();
-    onoffarr_->unref();
+    unRefOsgPtr( onoffarr_ );
 }
 
 
@@ -87,17 +86,17 @@ Normals* MarkerSet::getNormals()
 }
 
 
-void MarkerSet::setMaterial( visBase::Material* mat )
+void MarkerSet::setMaterial( Material* mt )
 {
-   if ( mat && material_==mat ) return;
+   if ( mt && material_ == mt )
+       return;
 
    if ( material_ )
-       markerset_->setColorArray( 0 );
+       markerset_->setColorArray( nullptr );
 
-   visBase::VisualObjectImpl::setMaterial( mat );
+   VisualObjectImpl::setMaterial( mt );
 
-   materialChangeCB( 0 );
-
+   materialChangeCB( nullptr );
 }
 
 
@@ -379,14 +378,14 @@ bool MarkerSet::markerOn( unsigned int idx )
 
 
 int MarkerSet::findClosestMarker( const Coord3& tofindpos,
-				 const bool scenespace )
+				  const bool scenespace ) const
 {
     double minsqdist = mUdf(double);
     int minidx = -1;
     for ( int idx=0; idx<coords_->size(); idx++ )
     {
 	const double sqdist = tofindpos.sqDistTo(
-	    coords_->getPos( idx,scenespace ) );
+				    coords_->getPos( idx,scenespace ) );
 	if ( sqdist<minsqdist )
 	{
 	    minsqdist = sqdist;
@@ -398,16 +397,16 @@ int MarkerSet::findClosestMarker( const Coord3& tofindpos,
 
 
 int MarkerSet::findMarker( const Coord3& tofindpos, const Coord3& eps,
-				 const bool scenespace )
+			   const bool scenespace ) const
 {
     int minidx = findClosestMarker( tofindpos, scenespace );
     if( minidx == -1 )
 	return minidx;
 
     const Coord3 findedpos = coords_->getPos( minidx, scenespace );
-
-    if ( findedpos.isSameAs( tofindpos,eps ) )
+    if ( findedpos.isSameAs(tofindpos,eps) )
 	return minidx;
+
     return -1;
 }
 
@@ -470,15 +469,14 @@ int MarkerSet::size() const
 
 void MarkerSet::addPolygonOffsetNodeState()
 {
-    if ( !offset_ )
-    {
-        offset_ = new visBase::PolygonOffset;
-	offset_->setFactor( -1.0f );
-	offset_->setUnits( 1.0f );
-	offset_->setMode( visBase::PolygonOffset::Protected |
-		visBase::PolygonOffset::On );
-	addNodeState( offset_ );
-    }
+    if ( offset_ )
+	return;
+
+    offset_ = PolygonOffset::create();
+    offset_->setFactor( -1.0f );
+    offset_->setUnits( 1.0f );
+    offset_->setMode( PolygonOffset::Protected | PolygonOffset::On );
+    addNodeState( offset_.ptr() );
 }
 
 
@@ -486,8 +484,8 @@ void MarkerSet::removePolygonOffsetNodeState()
 {
     if ( offset_ )
 	removeNodeState( offset_ );
-    offset_ = 0;
 
+    offset_ = nullptr;
 }
 
 } // namespace visBase

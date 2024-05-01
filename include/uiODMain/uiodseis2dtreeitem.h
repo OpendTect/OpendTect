@@ -9,8 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
+#include "visseis2ddisplay.h"
 
 class uiMenu;
 class uiTaskRunner;
@@ -19,7 +21,6 @@ mExpClass(uiODMain) uiODLine2DParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODLine2DParentTreeItem)
 public:
 			uiODLine2DParentTreeItem();
-			~uiODLine2DParentTreeItem();
 
     static const char*	sKeyRightClick();
     static const char*	sKeyUnselected();
@@ -27,6 +28,8 @@ public:
     static CNotifier<uiODLine2DParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODLine2DParentTreeItem();
+
     bool		loadDefaultData();
     bool		selectLoadAttribute(const TypeSet<Pos::GeomID>&,
 			    const char* attrnm=sKeyRightClick(),int attridx=-1);
@@ -50,15 +53,15 @@ public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODLine2DParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiOD2DLineTreeItem)
 public:
-			uiOD2DLineTreeItem(Pos::GeomID,
-					   VisID displayid=VisID::udf(),
+			uiOD2DLineTreeItem(const Pos::GeomID&,
+					   const VisID& =VisID::udf(),
 					   bool rgba=false);
 
     bool		displayDefaultData();
@@ -72,6 +75,7 @@ public:
 
 protected:
 			~uiOD2DLineTreeItem();
+
     bool		init() override;
     const char*		parentType() const override;
     uiString		createDisplayName() const override;
@@ -90,6 +94,11 @@ private:
     MenuItem		polylineitm_;
     MenuItem		positionitm_;
     bool		rgba_;
+
+    ConstRefMan<visSurvey::Seis2DDisplay> getDisplay() const;
+    RefMan<visSurvey::Seis2DDisplay> getDisplay();
+
+    WeakPtr<visSurvey::Seis2DDisplay> seis2ddisplay_;
 };
 
 
@@ -97,7 +106,6 @@ mExpClass(uiODMain) uiOD2DLineSetAttribItem : public uiODAttribTreeItem
 { mODTextTranslationClass(uiOD2DLineSetAttribItem)
 public:
 			uiOD2DLineSetAttribItem(const char* parenttype);
-			~uiOD2DLineSetAttribItem();
 
     bool		displayStoredData(const char*,int component,
 					  uiTaskRunner&);
@@ -106,6 +114,8 @@ public:
     void		clearAttrib();
 
 protected:
+			~uiOD2DLineSetAttribItem();
+
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
 

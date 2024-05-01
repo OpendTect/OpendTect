@@ -76,5 +76,5 @@ public:
     uiTreeItem*		create() const override
 			{ return new uiODView2DVariableDensityTreeItem(); }
     uiTreeItem*		createForVis(const uiODViewer2D&,
-				     Vis2DID) const override;
+				     const Vis2DID&) const override;
 };

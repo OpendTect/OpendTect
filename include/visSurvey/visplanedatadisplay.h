@@ -12,14 +12,15 @@ ________________________________________________________________________
 
 #include "mousecursor.h"
 #include "odcommonenums.h"
-#include "seisdatapack.h"
 #include "undo.h"
 #include "visdepthtabplanedragger.h"
+#include "visevent.h"
+#include "visgridlines.h"
 #include "vistexturerect.h"
+#include "zaxistransform.h"
 
 
 template <class T> class Array2D;
-namespace visBase{ class GridLines; }
 
 class BinIDValueSet;
 
@@ -35,8 +36,7 @@ class Scene;
     requested orientation of the slice.
 */
 
-mExpClass(visSurvey) PlaneDataDisplay :
-				public visSurvey::MultiTextureSurveyObject
+mExpClass(visSurvey) PlaneDataDisplay : public MultiTextureSurveyObject
 { mODTextTranslationClass(PlaneDataDisplay);
 public:
 
@@ -46,9 +46,9 @@ public:
 				PlaneDataDisplay();
 
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,
-				    PlaneDataDisplay, "PlaneDataDisplay",
-				     ::toUiString(sFactoryKeyword()));
+				    SurveyObject, PlaneDataDisplay,
+				    "PlaneDataDisplay",
+				     ::toUiString(sFactoryKeyword()) )
 
     bool			isInlCrl() const override	{ return true; }
 
@@ -96,15 +96,13 @@ public:
 						 TaskRunner*) override;
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
-    bool			setDataPackID(int attrib,DataPackID,
-					      TaskRunner*) override;
     DataPackID			getDataPackID(int attrib) const override;
     DataPackID			getDisplayedDataPackID(
 					      int attrib) const override;
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
-				{ return DataPackMgr::SeisID(); }
+    ConstRefMan<RegularSeisDataPack> getDisplayedSeisDataPack(int attrib) const;
+    RefMan<RegularSeisDataPack> getDisplayedSeisDataPack(int attrib);
 
-    visBase::GridLines*		gridlines()		{ return gridlines_; }
+    visBase::GridLines*		gridlines();
 
     const MouseCursor*		getMouseCursor() const override
 				{ return &mousecursor_; }
@@ -154,11 +152,9 @@ public:
 
     void			setDisplayTransformation(
 						const mVisTrans*) override;
-    const visBase::TextureRectangle* getTextureRectangle() const
-				{ return texturerect_;  }
+    const visBase::TextureRectangle* getTextureRectangle() const;
     float			getZScale() const;
-    const mVisTrans*		getDisplayTransformation() const override
-				{ return displaytrans_; }
+    const mVisTrans*		getDisplayTransformation() const override;
     bool			updatePlanePos(const TrcKeyZSampling&);
     Undo&			undo();
     const Undo&			undo() const;
@@ -174,13 +170,17 @@ protected:
 							TaskRunner*);
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
-							  TaskRunner* =0);
-    ConstRefMan<RegularSeisDataPack> getDataPack(int attrib) const;
-    RefMan<RegularSeisDataPack> getDataPack(int attrib);
-    ConstRefMan<RegularSeisDataPack> getDisplayedDataPack(int attrib) const;
-    RefMan<RegularSeisDataPack> getDisplayedDataPack(int attrib);
-    bool			setDataPack(int attrib,RegularSeisDataPack*,
-					    TaskRunner*);
+							  TaskRunner* =nullptr);
+
+    bool			setSeisDataPack(int attrib,RegularSeisDataPack*,
+						TaskRunner*) override;
+    ConstRefMan<RegularSeisDataPack> getSeisDataPack(int attrib) const override;
+    RefMan<RegularSeisDataPack> getSeisDataPack(int attrib);
+    DataPackMgr::MgrID		getDataPackMgrID() const override
+				{ return DataPackMgr::SeisID(); }
+    bool			setDataPackID(int attrib,const DataPackID&,
+					  TaskRunner*) override; //deprecated
+
     void			updateMainSwitch();
     void			setScene(Scene*) override;
     void			setSceneEventCatcher(
@@ -211,18 +211,16 @@ protected:
 					     bool onlyic=false) const;
     void			updateTexShiftAndGrowth();
 
-    visBase::EventCatcher*		eventcatcher_ = nullptr;
+    RefMan<visBase::EventCatcher>	eventcatcher_;
     MouseCursor				mousecursor_;
     RefMan<visBase::DepthTabPlaneDragger> dragger_;
     bool				ineditmode_	= false;
 
-    visBase::GridLines*			gridlines_;
+    RefMan<visBase::GridLines>		gridlines_;
     SliceType				orientation_ = OD::SliceType::Inline;
 
     RefObjectSet<RegularSeisDataPack>	datapacks_;
-    RefObjectSet<RegularSeisDataPack>	transfdatapacks_;
-
-    ObjectSet< TypeSet<DataPackID> >	displaycache_;
+    RefObjectSet<RegularSeisDataPack>	transformedpacks_;
     ObjectSet<BinIDValueSet>		rposcache_;
 
     TrcKeyZSampling			csfromsession_;
@@ -231,7 +229,7 @@ protected:
     Notifier<PlaneDataDisplay>		movefinished_;
     Notifier<PlaneDataDisplay>		datachanged_;
 
-    ZAxisTransform*			datatransform_ = nullptr;
+    RefMan<ZAxisTransform>		datatransform_;
     int					voiidx_ = -1;
 
     ConstRefMan<mVisTrans>		displaytrans_;

@@ -54,7 +54,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 	attachobj = fillcolfld_->attachObj();
     }
 
-    uiSeparator* sep = new uiSeparator( this );
+    auto* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, attachobj );
 
     bool usethreshold = true;
@@ -175,7 +175,6 @@ uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
     , seedpainter_(psd->getPainter())
 {
     setCtrlStyle( CloseOnly );
-    seedpainter_->ref();
 
     int maxbrushsize = SI().zRange().nrSteps() / 5;
     if ( maxbrushsize > 1000 ) maxbrushsize = 1000;
@@ -190,20 +189,22 @@ uiSeedPainterDlg::uiSeedPainterDlg( uiParent* p,
 				 .withedit(true), "brushsize" );
     szfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
     szfld_->setValue( seedpainter_->radius() );
-    szfld_->valueChanged.notify( mCB(this,uiSeedPainterDlg,sizeCB) );
+    mAttachCB( szfld_->valueChanged, uiSeedPainterDlg::sizeCB );
     lbl->attach( centeredAbove, szfld_ );
 
     densfld_ = new uiSlider( this, uiSlider::Setup(tr("Density %"))
 				   .withedit(true), "density" );
     densfld_->setInterval( StepInterval<int>(1,maxbrushsize,1) );
     densfld_->setValue( seedpainter_->density() );
-    densfld_->valueChanged.notify( mCB(this,uiSeedPainterDlg,densCB) );
+    mAttachCB( densfld_->valueChanged, uiSeedPainterDlg::densCB );
     densfld_->attach( alignedBelow, szfld_ );
 }
 
 
 uiSeedPainterDlg::~uiSeedPainterDlg()
-{ seedpainter_->unRef(); }
+{
+    detachAllNotifiers();
+}
 
 void uiSeedPainterDlg::sizeCB( CallBacker* )
 {

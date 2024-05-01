@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uipixmap.h"
 #include "uislider.h"
+#include "uivispartserv.h"
 
 #include "iopar.h"
 #include "mousecursor.h"
@@ -21,37 +22,26 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "zdomain.h"
 
-#include "visdataman.h"
-#include "vissurvscene.h"
 
-#include <typeinfo>
-
-uiZStretchDlg::uiZStretchDlg( uiParent* p )
+uiZStretchDlg::uiZStretchDlg( uiParent* p, uiVisPartServer* vispartserv )
     : uiDialog(p,uiDialog::Setup(tr("Z Scaling"),tr("Set Z scaling factor"),
 				 mODHelpKey(mZScaleDlgHelpID) )
 	      .canceltext(uiString::emptyString()))
-    , vwallbut_(nullptr)
-    , scenefld_(nullptr)
-    , sliderfld_(nullptr)
-    , savefld_(nullptr)
-    , initslval_(0)
-    , uifactor_(0)
-    , valchgd_(false)
+    , vispartserv_(vispartserv)
 {
-    visBase::DM().getIDs( typeid(visSurvey::Scene), sceneids_ );
-    if ( sceneids_.size() == 0 )
+    vispartserv->getSceneIds( sceneids_ );
+    if ( sceneids_.isEmpty() )
     {
 	new uiLabel( this, tr("No scenes available") );
 	return;
     }
 
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	    visBase::DM().getObject(sceneids_[0]) );
-    if ( !scene ) return;
+    RefMan<visSurvey::Scene> scene = getSceneByIdx( 0 );
+    if ( !scene )
+	return;
 
     const float initslval =
-	scene->getFixedZStretch()*scene->getTempZStretch();
-
+			scene->getFixedZStretch()*scene->getTempZStretch();
     zstretches_ += initslval;
 
     if ( sceneids_.size()>1 )
@@ -60,8 +50,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	scenenms.add( uiStrings::sAll() );
 	for ( int idx=0; idx<sceneids_.size(); idx++ )
 	{
-	    mDynamicCastGet(visSurvey::Scene*,thescene,
-			    visBase::DM().getObject(sceneids_[idx]))
+	    ConstRefMan<visSurvey::Scene> thescene = getSceneByIdx( idx );
 	    scenenms.add( thescene->uiName() );
 	    if ( idx>0 )
 	    {
@@ -102,7 +91,7 @@ void uiZStretchDlg::doFinalize( CallBacker* )
     if ( !vwallcb.willCall() && !homecb.willCall() )
 	return;
 
-    uiGroup* grp = new uiGroup( this, "icons" );
+    auto* grp = new uiGroup( this, "icons" );
     if ( vwallcb.willCall() )
     {
 	uiPixmap vwallpm( "view_all" );
@@ -112,8 +101,7 @@ void uiZStretchDlg::doFinalize( CallBacker* )
     if ( homecb.willCall() )
     {
 	uiPixmap homepm( "home" );
-	uiButton* homebut =
-		new uiPushButton( grp, tr("To Home"), homepm, true );
+	auto* homebut = new uiPushButton( grp, tr("To Home"), homepm, true );
 	mAttachCB( homebut->activated, uiZStretchDlg::butPush );
 	if ( vwallbut_ )
 	    homebut->attach( rightOf, vwallbut_ );
@@ -136,14 +124,6 @@ void uiZStretchDlg::sceneSel( CallBacker* )
 }
 
 
-void uiZStretchDlg::updateSliderValues()
-{
-    // this function will be removed after 6.0
-    // the here it just does a default calling
-    updateSliderValues( 0 );
-}
-
-
 void uiZStretchDlg::updateSliderValues( int sceneidx )
 {
     if ( sceneidx>=sceneids_.size() )
@@ -157,8 +137,8 @@ void uiZStretchDlg::updateSliderValues( int sceneidx )
     {
 	if ( sceneidx < 0 )
 	    sceneidx = 0;
-	mDynamicCastGet(visSurvey::Scene*,scene,
-			visBase::DM().getObject(sceneids_[sceneidx]))
+
+	ConstRefMan<visSurvey::Scene> scene = getSceneByIdx( sceneidx );
 	if ( !scene )
 	    return;
 
@@ -181,15 +161,6 @@ void uiZStretchDlg::updateSliderValues( int sceneidx )
     sliderfld_->setValue( initslval*uifactor );
     sliderfld_->setNrDecimalsEditFld( nrdec );
 }
-
-
-void uiZStretchDlg::setZStretch( float zstretch, bool permanent )
-{
-    // this function will be removed after 6.0
-    // here it just does a default calling
-    setZStretch( getSelectedScene(), zstretch, permanent );
-}
-
 
 
 bool uiZStretchDlg::acceptOK( CallBacker* )
@@ -219,12 +190,10 @@ void uiZStretchDlg::setOneZStretchToAllScenes( float zstretch, bool permanent )
 {
     for ( int idx=0; idx<sceneids_.size(); idx++ )
     {
-	mDynamicCastGet(visSurvey::Scene*,scene,
-			visBase::DM().getObject(sceneids_[idx]))
+	RefMan<visSurvey::Scene> scene = getSceneByIdx( idx );
 	if ( scene )
 	    setZStretch( scene, zstretch, permanent );
     }
-
 }
 
 
@@ -234,10 +203,9 @@ void uiZStretchDlg::setZStretchesToScenes( TypeSet<float>& zstretches,
     if ( zstretches.size() != sceneids_.size() )
 	return;
 
-    for ( int idx = 0; idx<zstretches.size(); idx++ )
+    for ( int idx=0; idx<zstretches.size(); idx++ )
     {
-	mDynamicCastGet(visSurvey::Scene*,scene,
-			visBase::DM().getObject(sceneids_[idx]))
+	RefMan<visSurvey::Scene> scene = getSceneByIdx( idx );
 	if ( scene )
 	    setZStretch( scene, zstretches[idx], permanent );
     }
@@ -265,8 +233,9 @@ void uiZStretchDlg::setZStretch( visSurvey::Scene* scene, float zstretch,
 	SI().getPars().set(
 	    IOPar::compKey("Z Scale",scene->zDomainInfo().key()), zstretch );
 
-    const int idx = sceneids_.indexOf( scene->id() );
-    zstretches_[idx] = zstretch;
+    const int idx = sceneids_.indexOf( scene->getID() );
+    if ( zstretches_.validIdx(idx) )
+	zstretches_[idx] = zstretch;
 }
 
 
@@ -283,9 +252,9 @@ void uiZStretchDlg::sliderMove( CallBacker* )
     const float uifactor = getSelectedSceneUiFactor();
     const float slval = sliderfld_->getFValue()/uifactor;
 
-    visSurvey::Scene* scene =  getSelectedScene();
-    const int idx = sceneids_.indexOf( scene->id() );
-    if ( scene )
+    RefMan<visSurvey::Scene> scene = getSelectedScene();
+    const int idx = scene ? sceneids_.indexOf( scene->getID() ) : -1;
+    if ( scene && zstretches_.validIdx(idx) )
 	zstretches_[idx] = slval;
 
     if ( stretchall )
@@ -296,21 +265,28 @@ void uiZStretchDlg::sliderMove( CallBacker* )
 }
 
 
-visSurvey::Scene* uiZStretchDlg::getSelectedScene() const
+RefMan<visSurvey::Scene> uiZStretchDlg::getSceneByIdx( int idx ) const
+{
+    if ( !vispartserv_ || !sceneids_.validIdx(idx) )
+	return nullptr;
+
+    return vispartserv_->getScene( sceneids_[idx] );
+}
+
+
+RefMan<visSurvey::Scene> uiZStretchDlg::getSelectedScene() const
 {
     int sceneidx = scenefld_ ? scenefld_->box()->currentItem()-1 : 0;
     if ( sceneidx<0 )
 	sceneidx = 0;
 
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    visBase::DM().getObject(sceneids_[sceneidx]))
-    return scene;
+    return getSceneByIdx( sceneidx );
 }
 
 
 float uiZStretchDlg::getSelectedSceneZStretch() const
 {
-    const visSurvey::Scene* scene = getSelectedScene();
+    ConstRefMan<visSurvey::Scene> scene = getSelectedScene();
     if ( !scene )
 	return -1.0f;
 
@@ -320,7 +296,7 @@ float uiZStretchDlg::getSelectedSceneZStretch() const
 
 float uiZStretchDlg::getSelectedSceneUiFactor() const
 {
-    const visSurvey::Scene* scene = getSelectedScene();
+    ConstRefMan<visSurvey::Scene> scene = getSelectedScene();
     if ( !scene )
 	return -1.0f;
 

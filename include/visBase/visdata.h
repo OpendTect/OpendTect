@@ -10,9 +10,9 @@ ________________________________________________________________________
 
 #include "visbasemod.h"
 
-#include "visdataman.h"
-#include "sharedobject.h"
 #include "uistring.h"
+#include "visdataman.h"
+#include "visnodestate.h"
 
 class SoNode;
 class BufferString;
@@ -27,10 +27,7 @@ namespace visBase
 {
 
 class DataManager;
-class DataObject;
-class DataObjectGroup;
 class EventInfo;
-class NodeState;
 class Scene;
 class SelectionManager;
 class Transformation;
@@ -66,7 +63,7 @@ public:
 
     VisID			id() const		{ return id_; }
 
-    void			setID(VisID newid);
+    void			setID(const VisID&);
     static VisID		getID(const osg::Node*);
 
     BufferString		getName() const override;
@@ -148,8 +145,6 @@ public:
     bool			serialize(const char* filename,
 					  bool binary=false);
 
-    void			setParent(DataObjectGroup* g) { parent_ = g; }
-
     template <class T> T*	addNodeState( T* ns )
 				{ doAddNodeState(ns); return ns; }
     NodeState*			removeNodeState(NodeState*);
@@ -165,10 +160,11 @@ public:
     static osgViewer::CompositeViewer* getCommonViewer();
 
 protected:
-    virtual			~DataObject();
+				DataObject();
+				~DataObject();
 
     virtual osg::StateSet*	getStateSet();
-    void			doAddNodeState(NodeState* ns);
+    void			doAddNodeState(NodeState*);
 
     friend class		SelectionManager;
     friend class		Scene;
@@ -178,10 +174,6 @@ protected:
 				/*!<Is called everytime object is deselected.*/
     virtual void		triggerRightClick(const EventInfo* =nullptr)
 				{}
-
-				DataObject();
-
-    DataObjectGroup*		parent_;
 
     template <class T>
     T*				setOsgNode( T* t )
@@ -197,11 +189,11 @@ private:
     void			setOsgNodeInternal(osg::Node*);
     void			updateOsgNodeData();
 
-    ObjectSet<NodeState>		nodestates_;
-    osg::Node*				osgnode_;
-    osg::Switch*			osgoffswitch_;
+    RefObjectSet<NodeState>		nodestates_;
+    osg::Node*				osgnode_ = nullptr;
+    osg::Switch*			osgoffswitch_ = nullptr;
     VisID				id_;
-    bool				ison_;
+    bool				ison_	= true;
     uiString				uiname_;
     unsigned int			enabledmask_;
     static const void*			visualizationthread_;
@@ -210,25 +202,28 @@ private:
 
 } // namespace visBase
 
-#define mCreateDataObj(clss)					\
+#define mCreateDataObjImpl(clss)				\
+RefMan<clss> clss::create()					\
 {								\
-    return new clss;						\
+    RefMan<clss> ret = new clss;				\
+    return ret;							\
 }								\
-								\
+
+#define mCreateDataObj(clss)					\
 private:							\
+				clss();				\
+				mOD_DisableCopy(clss);		\
     static visBase::DataObject* createInternal()		\
 				{ return new clss; }		\
-    clss&			operator =(const clss&);	\
-				clss(const clss&);		\
 public:								\
-	clss();	\
     static void			initClass();			\
     static const char*		getStaticClassName();		\
     static const char*		sFactoryKeyword();		\
-    virtual const char*		getClassName() const override
+    const char*			getClassName() const override
 
 
 #define mCreateFactoryEntry( clss )				\
+mCreateDataObjImpl( clss )					\
 const char* clss::getStaticClassName() { return #clss; }	\
 const char* clss::getClassName() const				\
 { return clss::getStaticClassName(); }				\

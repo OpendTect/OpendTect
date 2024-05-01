@@ -14,11 +14,9 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "genc.h"
 #include "iopar.h"
-#include "vismaterial.h"
+#include "od_ostream.h"
 #include "valseriesimpl.h"
 #include "visdataman.h"
-#include "visrgbatexturechannel2rgba.h"
-#include "od_ostream.h"
 
 #include "ostream"
 
@@ -46,14 +44,7 @@ namespace visBase
 
 
 VolumeRenderScalarField::AttribData::AttribData()
-    : indexcache_( 0 )
-    , indexcachestep_( 0 )
-    , ownsindexcache_( false )
-    , datacache_( 0 )
-    , ownsdatacache_( false )
-    , datatkzs_( false )
-    , resizecache_( 0 )
-    , ownsresizecache_( false )
+    : datatkzs_(false)
 {}
 
 
@@ -76,7 +67,7 @@ void VolumeRenderScalarField::AttribData::clearDataCache()
     if ( ownsdatacache_ && datacache_ )
 	delete datacache_;
 
-    datacache_ = 0;
+    datacache_ = nullptr;
     ownsdatacache_ = false;
 }
 
@@ -86,7 +77,7 @@ void VolumeRenderScalarField::AttribData::clearResizeCache()
     if ( ownsresizecache_ && resizecache_ )
 	delete resizecache_;
 
-    resizecache_ = 0;
+    resizecache_ = nullptr;
     ownsresizecache_ = false;
 }
 
@@ -96,7 +87,7 @@ void VolumeRenderScalarField::AttribData::clearIndexCache()
     if ( ownsindexcache_ && indexcache_ )
 	delete [] indexcache_;
 
-    indexcache_ = 0;
+    indexcache_ = nullptr;
     indexcachestep_ = 0;
     ownsindexcache_ = false;
 }
@@ -110,12 +101,7 @@ void VolumeRenderScalarField::AttribData::clearIndexCache()
 
 
 VolumeRenderScalarField::VolumeRenderScalarField()
-    : material_( 0 )
-    , channels2rgba_( 0 )
-    , isrgba_( false )
-    , useshading_( true )
-    , isrighthandsystem_( DataObject::isRightHandSystem() )
-    , raytt_( 0 )
+    : isrighthandsystem_(DataObject::isRightHandSystem())
     , osgvoltile_( new osgVolume::VolumeTile() )
     , osgvolume_( new osgVolume::Volume() )
     , osgvolroot_( new osg::Switch() )
@@ -127,32 +113,29 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     attribs_ += new AttribData();	// Need at least one for dummy returns
 
     setOsgNode( osgvolroot_ );
-    osgvolroot_->ref();
-    osgvoltile_->ref();
-    osgvolume_->ref();
-    osgimagelayer_->ref();
-    osgvoldata_->ref();
-    osgtransfunc_->ref();
+    refOsgPtr( osgvolroot_ );
+    refOsgPtr( osgvoltile_ );
+    refOsgPtr( osgvolume_ );
+    refOsgPtr( osgimagelayer_ );
+    refOsgPtr( osgvoldata_ );
+    refOsgPtr( osgtransfunc_ );
 
     osgimagelayer_->setImage( osgvoldata_ );
     osgvolume_->addChild( osgvoltile_ );
     osgvoltile_->setLayer( osgimagelayer_ );
     osgvolroot_->addChild( osgvolume_ );
 
-    osgVolume::AlphaFuncProperty* alpha =
-			new osgVolume::AlphaFuncProperty( 0.0 );
-    osgVolume::SampleDensityProperty* sampledensity =
-			new osgVolume::SampleDensityProperty( 0.005 );
-    osgVolume::SampleDensityWhenMovingProperty* movingsampledensity =
+    auto* alpha = new osgVolume::AlphaFuncProperty( 0.0 );
+    auto* sampledensity = new osgVolume::SampleDensityProperty( 0.005 );
+    auto* movingsampledensity =
 			new osgVolume::SampleDensityWhenMovingProperty( 0.005 );
-//    osgVolume::IsoSurfaceProperty* isosurface =
-//			new osgVolume::IsoSurfaceProperty( 0.99 );
+//    auto* isosurface = new osgVolume::IsoSurfaceProperty( 0.99 );
 
     osgtransfunc_->allocate( mNrColors );
     osg::ref_ptr<osgVolume::TransferFunctionProperty> transferfunction =
 		    new osgVolume::TransferFunctionProperty( osgtransfunc_ );
 
-    osgVolume::CompositeProperty* compprop = new osgVolume::CompositeProperty;
+    auto* compprop = new osgVolume::CompositeProperty;
     compprop->addProperty( alpha );
     compprop->addProperty( sampledensity );
     compprop->addProperty( movingsampledensity );
@@ -172,15 +155,12 @@ VolumeRenderScalarField::~VolumeRenderScalarField()
 {
     deepErase( attribs_ );
 
-    osgvolroot_->unref();
-    osgvoltile_->unref();
-    osgvolume_->unref();
-    osgimagelayer_->unref();
-    osgvoldata_->unref();
-    osgtransfunc_->unref();
-
-    setMaterial( 0 );
-    setChannels2RGBA( 0 );
+    unRefOsgPtr( osgvolroot_ );
+    unRefOsgPtr( osgvoltile_ );
+    unRefOsgPtr( osgvolume_ );
+    unRefOsgPtr( osgimagelayer_ );
+    unRefOsgPtr( osgvoldata_ );
+    unRefOsgPtr( osgtransfunc_ );
 }
 
 
@@ -192,31 +172,23 @@ bool VolumeRenderScalarField::isRightHandSystem() const
 { return isrighthandsystem_; }
 
 
-void VolumeRenderScalarField::setChannels2RGBA(
-					visBase::TextureChannel2RGBA* tc2rgba )
+void VolumeRenderScalarField::setChannels2RGBA( TextureChannel2RGBA* tc2rgba )
 {
-    if ( channels2rgba_ )
-	channels2rgba_->unRef();
-
     channels2rgba_ = tc2rgba;
-
-    if ( channels2rgba_ )
-	channels2rgba_->ref();
-
-    mDynamicCast( visBase::RGBATextureChannel2RGBA*, isrgba_, channels2rgba_ );
+    mDynamicCast( RGBATextureChannel2RGBA*, isrgba_, channels2rgba_.ptr() );
     updateFragShaderType();
 }
 
 
 TextureChannel2RGBA* VolumeRenderScalarField::getChannels2RGBA()
 {
-    return channels2rgba_;
+    return channels2rgba_.ptr();
 }
 
 
 const TextureChannel2RGBA* VolumeRenderScalarField::getChannels2RGBA() const
 {
-    return channels2rgba_;
+    return channels2rgba_.ptr();
 }
 
 
@@ -585,7 +557,13 @@ TrcKeyZSampling VolumeRenderScalarField::getMultiAttribTrcKeyZSampling() const
 }
 
 
-const ColTab::Mapper& VolumeRenderScalarField::getColTabMapper( int attr )
+const ColTab::Mapper& VolumeRenderScalarField::getColTabMapper( int attr ) const
+{
+    return mSelf().getColTabMapper( attr );
+}
+
+
+ColTab::Mapper& VolumeRenderScalarField::getColTabMapper( int attr )
 {
     return attribs_[attribs_.validIdx(attr) ? attr : 0]->mapper_;
 }
@@ -639,7 +617,7 @@ void VolumeRenderScalarField::makeColorTables( int attr )
     mCheckAttribStore( attr );
 
     const ColTab::Sequence* sequence =
-		getChannels2RGBA() ? getChannels2RGBA()->getSequence(attr) : 0;
+	getChannels2RGBA() ? getChannels2RGBA()->getSequence(attr) : nullptr;
 
     if ( !sequence || isrgba_ )
 	return;
@@ -930,17 +908,13 @@ void VolumeRenderScalarField::setMaterial( Material* newmat )
 	return;
 
     if ( material_ )
-    {
 	material_->detachStateSet( osgvolume_->getOrCreateStateSet() );
-	material_->unRef();
-    }
 
     if ( !newmat )
 	return;
 
-    newmat->ref();
-    newmat->attachStateSet( osgvolume_->getOrCreateStateSet() );
     material_ = newmat;
+    material_->attachStateSet( osgvolume_->getOrCreateStateSet() );
 
     osg::StateAttribute* attr = osgvolume_->getStateSet()->getAttribute(
 					    osg::StateAttribute::MATERIAL );

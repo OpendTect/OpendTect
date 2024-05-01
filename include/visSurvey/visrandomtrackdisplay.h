@@ -11,25 +11,16 @@ ________________________________________________________________________
 #include "vismultiattribsurvobj.h"
 
 #include "mousecursor.h"
+#include "randomlinegeom.h"
 #include "ranges.h"
-#include "seisdatapack.h"
-
+#include "visevent.h"
+#include "vismarkerset.h"
+#include "vispolyline.h"
+#include "visrandomtrackdragger.h"
+#include "vistexturepanelstrip.h"
+#include "zaxistransform.h"
 
 class TrcKeyZSampling;
-
-namespace visBase
-{
-    class EventCatcher;
-    class PolyLine;
-    class RandomTrackDragger;
-    class MarkerSet;
-    class TexturePanelStrip;
-}
-
-namespace Geometry
-{
-    class RandomLine;
-}
 
 
 namespace visSurvey
@@ -47,16 +38,16 @@ class Scene;
 */
 
 mExpClass(visSurvey) RandomTrackDisplay : public MultiTextureSurveyObject
-
 { mODTextTranslationClass(RandomTrackDisplay);
 public:
 				RandomTrackDisplay();
-				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,RandomTrackDisplay,
-				    "RandomTrackDisplay",
-				    toUiString(sFactoryKeyword()));
 
-    void			setRandomLineID(RandomLineID id);
+				mDefaultFactoryInstantiation(
+				    SurveyObject,RandomTrackDisplay,
+				    "RandomTrackDisplay",
+				    ::toUiString(sFactoryKeyword()) )
+
+    void			setRandomLineID(const RandomLineID&);
     RandomLineID		getRandomLineID() const;
     Geometry::RandomLine*	getRandomLine();
 
@@ -101,12 +92,12 @@ public:
     Interval<float>		getDataTraceRange() const override;
     TypeSet<Coord>		getTrueCoords() const;
 
-    bool			setDataPackID(int attrib,DataPackID,
-						TaskRunner*) override;
-    DataPackID		getDataPackID(int attrib) const override;
-    DataPackID		getDisplayedDataPackID(
+    bool			setDataPackID(int attrib,const DataPackID&,
+					      TaskRunner*) override;
+    DataPackID			getDataPackID(int attrib) const override;
+    DataPackID			getDisplayedDataPackID(
 						int attrib) const override;
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
+    DataPackMgr::MgrID		getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
 
     bool			canAddNode(int nodenr) const;
@@ -150,7 +141,7 @@ public:
     int				getSelNodeIdx() const	{ return selnodeidx_; }
 				//!<knotidx>=0, panelidx<0
 
-    virtual NotifierAccess*	getMovementNotifier() override
+    NotifierAccess*		getMovementNotifier() override
 				{ return &moving_; }
     NotifierAccess*		getManipulationNotifier() override
 				{ return &nodemoving_; }
@@ -168,10 +159,9 @@ public:
 				{ return true; }
     void			setSceneEventCatcher(
 					visBase::EventCatcher*) override;
-    visBase::TexturePanelStrip* getTexturePanelStrip() const
-				{ return panelstrip_; }
+    const visBase::TexturePanelStrip* getTexturePanelStrip() const;
+    visBase::TexturePanelStrip* getTexturePanelStrip();
     BufferString		getRandomLineName() const;
-
 
     Notifier<RandomTrackDisplay> moving_;
     Notifier<RandomTrackDisplay> nodemoving_;
@@ -191,8 +181,7 @@ public:
 
     void			annotateNextUpdateStage(bool yn) override;
     void			setPixelDensity(float) override;
-    const TrcKeyPath*		getTrcKeyPath()
-				{ return &trckeypath_; }
+    const TrcKeyPath*		getTrcKeyPath() const { return &trckeypath_; }
 
     static const char*		sKeyPanelDepthKey()  { return "PanelDepthKey"; }
     static const char*		sKeyPanelPlaneKey()  { return "PanelPlaneKey"; }
@@ -216,7 +205,7 @@ protected:
     BinID			proposeNewPos(int node) const;
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
-							  TaskRunner* =0);
+							  TaskRunner* =nullptr);
     void			setNodePos(int,const BinID&,bool check);
 
     BinID			snapPosition(const BinID&) const;
@@ -244,25 +233,25 @@ protected:
     TypeSet<VisID>*		premovingselids_ = nullptr;
     bool			geomnodejustmoved_ = false;
 
-    Geometry::RandomLine*	rl_ = nullptr;
-    visBase::TexturePanelStrip*	panelstrip_;
+    RefMan<Geometry::RandomLine> rl_;
+    RefMan<visBase::TexturePanelStrip>	panelstrip_;
 
-    visBase::RandomTrackDragger* dragger_;
+    RefMan<visBase::RandomTrackDragger> dragger_;
 
-    visBase::PolyLine*		polyline_;
-    visBase::MarkerSet*		markerset_;
+    RefMan<visBase::PolyLine>	polyline_;
+    RefMan<visBase::MarkerSet>	markerset_;
 
-    visBase::EventCatcher*	eventcatcher_ = nullptr;
+    RefMan<visBase::EventCatcher> eventcatcher_;
     MouseCursor			mousecursor_;
 
-    int				selnodeidx_;
+    int				selnodeidx_	= mUdf(int);
     RefObjectSet<RandomSeisDataPack>	datapacks_;
     RefObjectSet<RandomSeisDataPack>	transfdatapacks_;
 
     TypeSet<BinID>		trcspath_;
     TypeSet<BinID>		nodes_;
 
-    ZAxisTransform*		datatransform_ = nullptr;
+    RefMan<ZAxisTransform>	datatransform_;
     Interval<float>		depthrg_;
     int				voiidx_ = -1;
 
@@ -292,12 +281,13 @@ protected:
 
     void			updateTexOriginAndScale(
 					    int attrib,const TrcKeyPath&,
-					    const StepInterval<float>& zrg);
+					    const ZSampling&);
 public:
 
     bool			getSelMousePosInfo(const visBase::EventInfo&,
 						   Coord3&, BufferString&,
 						   uiString&) const;
+    mDeprecated("Use TrcKey")
     const TypeSet<BinID>*	getPath() const		{ return &trcspath_; }
     mDeprecated("Use TrcKey")
     void			getAllNodePos(TypeSet<BinID>&) const;

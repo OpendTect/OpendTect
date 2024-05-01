@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visshape.h"
-#include "position.h"
-#include "draw.h"
 
+#include "draw.h"
+#include "position.h"
+#include "visshape.h"
 
 namespace osgGeo {
     class PolyLineNode;
@@ -31,7 +31,7 @@ class DrawStyle;
 mExpClass(visBase) PolyLine : public VertexShape
 {
 public:
-    static PolyLine*	create()
+    static RefMan<PolyLine> create();
 			mCreateDataObj(PolyLine);
 
     int			size() const;
@@ -51,8 +51,8 @@ public:
 protected:
 					~PolyLine();
 
-    DrawStyle*				drawstyle_;
-    Geometry::RangePrimitiveSet*	coordrange_;
+    RefMan<DrawStyle>			drawstyle_;
+    RefMan<Geometry::RangePrimitiveSet> coordrange_;
 };
 
 
@@ -60,7 +60,7 @@ protected:
 mExpClass(visBase) PolyLine3D : public VertexShape
 {
 public:
-    static PolyLine3D*	create()
+    static RefMan<PolyLine3D>	create();
 			mCreateDataObj(PolyLine3D);
 
     void		setLineStyle(const OD::LineStyle&) override;

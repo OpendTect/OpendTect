@@ -9,29 +9,25 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodattribtreeitem.h"
-#include "uioddisplaytreeitem.h"
 
 #include "emposid.h"
-
-
-namespace visSurvey
-{
-class MarchingCubesDisplay;
-class PolygonBodyDisplay;
-class RandomPosBodyDisplay;
-}
+#include "uiodattribtreeitem.h"
+#include "uioddisplaytreeitem.h"
+#include "vismarchingcubessurfacedisplay.h"
+#include "vispolygonbodydisplay.h"
+#include "visrandomposbodydisplay.h"
 
 
 mExpClass(uiODMain) uiODBodyDisplayParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODBodyDisplayParentTreeItem)
 public:
 			uiODBodyDisplayParentTreeItem();
-			~uiODBodyDisplayParentTreeItem();
 
     static CNotifier<uiODBodyDisplayParentTreeItem,uiMenu*>& showMenuNotifier();
 
 protected:
+			~uiODBodyDisplayParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
     void		loadBodies();
@@ -43,27 +39,31 @@ mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
 public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
-    			{ return new uiODBodyDisplayParentTreeItem; }
-
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+			{ return new uiODBodyDisplayParentTreeItem; }
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
 mExpClass(uiODMain) uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODBodyDisplayTreeItem)
 public:
-			uiODBodyDisplayTreeItem(VisID,bool dummy);
+			uiODBodyDisplayTreeItem(const VisID&,bool dummy);
 			uiODBodyDisplayTreeItem(const EM::ObjectID&);
-			~uiODBodyDisplayTreeItem();
 
+    bool		isOK() const;
     EM::ObjectID	emObjectID() const	{ return emid_; }
+
     void		setOnlyAtSectionsDisplay(bool) override;
 
 protected:
+			~uiODBodyDisplayTreeItem();
+
+private:
+			uiODBodyDisplayTreeItem();
+
     static uiString	sCalcVolume() { return tr("Calculate Volume"); }
     static uiString	sPickedPolygons() { return tr("Picked Polygons"); }
 
-    void		prepareForShutdown() override;
     bool		askContinueAndSaveIfNeeded(bool withcancel) override;
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
@@ -78,9 +78,9 @@ protected:
 			{return typeid(uiODBodyDisplayParentTreeItem).name();}
 
     EM::ObjectID			emid_;
-    visSurvey::MarchingCubesDisplay*	mcd_			= nullptr;
-    visSurvey::PolygonBodyDisplay*	plg_			= nullptr;
-    visSurvey::RandomPosBodyDisplay*	rpb_			= nullptr;
+    WeakPtr<visSurvey::PolygonBodyDisplay>	plg_;
+    WeakPtr<visSurvey::MarchingCubesDisplay>	mcd_;
+    WeakPtr<visSurvey::RandomPosBodyDisplay>	rpb_;
 
     MenuItem				savemnuitem_;
     MenuItem				saveasmnuitem_;
@@ -89,6 +89,13 @@ protected:
     MenuItem				displayintersectionmnuitem_;
     MenuItem				singlecolormnuitem_;
     MenuItem				volcalmnuitem_;
+
+    ConstRefMan<visSurvey::PolygonBodyDisplay> getPBDisplay() const;
+    ConstRefMan<visSurvey::MarchingCubesDisplay> getMCDisplay() const;
+    ConstRefMan<visSurvey::RandomPosBodyDisplay> getRPBDisplay() const;
+    RefMan<visSurvey::PolygonBodyDisplay> getPBDisplay();
+    RefMan<visSurvey::MarchingCubesDisplay> getMCDisplay();
+    RefMan<visSurvey::RandomPosBodyDisplay> getRPBDisplay();
 
 public:
     void		displayAtSections(bool yn)
@@ -100,9 +107,10 @@ mExpClass(uiODMain) uiODBodyDisplayDataTreeItem : public uiODAttribTreeItem
 { mODTextTranslationClass(uiODBodyDisplayDataTreeItem)
 public:
 			uiODBodyDisplayDataTreeItem(const char* parenttype);
-			~uiODBodyDisplayDataTreeItem();
 
 protected:
+			~uiODBodyDisplayDataTreeItem();
+
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
     uiString		createDisplayName() const override;

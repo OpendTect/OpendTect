@@ -11,8 +11,8 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "visdepthtabplanedragger.h"
-#include "vistexturerect.h"
 #include "vistexturechannels.h"
+#include "vistexturerect.h"
 
 #include <osgGeo/LayeredTexture>
 
@@ -22,17 +22,15 @@ namespace visBase
 {
 
 OrthogonalSlice::OrthogonalSlice()
-    : VisualObjectImpl( false )
-    , slice_( TextureRectangle::create() )
-    , dragger_( DepthTabPlaneDragger::create() )
+    : VisualObjectImpl(false)
     , motion(this)
-    , xdatasz_(0), ydatasz_(0), zdatasz_(0)
-    , curdim_( 0 )
 {
-    dragger_->ref();
-    dragger_->setMaterial(0);
+    ref();
+    slice_ = TextureRectangle::create();
+    dragger_ = DepthTabPlaneDragger::create();
+    dragger_->setMaterial( nullptr );
     dragger_->removeScaleTabs();
-    dragger_->motion.notify( mCB(this,OrthogonalSlice,draggerMovementCB) );
+    mAttachCB( dragger_->motion, OrthogonalSlice::draggerMovementCB );
     addChild( dragger_->osgNode() );
     addChild( slice_->osgNode() );
 
@@ -41,14 +39,14 @@ OrthogonalSlice::OrthogonalSlice()
 
     for ( int dim=0; dim<3; dim++ )
 	slicenr_[dim] = 0;
-    
+
+    unRefNoDelete();
 }
 
 
 OrthogonalSlice::~OrthogonalSlice()
 {
-    dragger_->motion.remove( mCB(this, OrthogonalSlice, draggerMovementCB ));
-    dragger_->unRef();
+    detachAllNotifiers();
 }
 
 
@@ -77,9 +75,15 @@ void OrthogonalSlice::setCenter( const Coord3& newcenter, bool alldims )
 }
 
 
-visBase::DepthTabPlaneDragger* OrthogonalSlice::getDragger() const
+DepthTabPlaneDragger* OrthogonalSlice::getDragger()
 {
-    return dragger_;
+    return dragger_.ptr();
+}
+
+
+const DepthTabPlaneDragger* OrthogonalSlice::getDragger() const
+{
+    return dragger_.ptr();
 }
 
 
@@ -216,10 +220,9 @@ void OrthogonalSlice::removeDragger()
 {
     if ( dragger_ )
     {
-	dragger_->motion.remove(mCB(this, OrthogonalSlice, draggerMovementCB));
+	mDetachCB( dragger_->motion, OrthogonalSlice::draggerMovementCB );
 	removeChild( dragger_->osgNode() );
-	dragger_->unRef();
-	dragger_ = 0;
+	dragger_ = nullptr;
     }
 }
 
@@ -234,7 +237,7 @@ bool OrthogonalSlice::isPickingEnabled() const
 { return slice_->isPickable(); }
 
 
-void OrthogonalSlice::setTextureChannels( visBase::TextureChannels* channels )
+void OrthogonalSlice::setTextureChannels( TextureChannels* channels )
 {
     slice_->setTextureChannels( channels );
     setDim( curdim_ );
@@ -242,7 +245,7 @@ void OrthogonalSlice::setTextureChannels( visBase::TextureChannels* channels )
 }
 
 
-visBase::TextureChannels* OrthogonalSlice::getTextureChannels()
+TextureChannels* OrthogonalSlice::getTextureChannels()
 {
     return slice_->getTextureChannels();
 }

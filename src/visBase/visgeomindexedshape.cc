@@ -17,11 +17,9 @@ ________________________________________________________________________
 
 #include "viscoord.h"
 #include "visdrawstyle.h"
-#include "vismaterial.h"
 #include "visnormals.h"
 #include "vispolygonoffset.h"
 #include "vispolyline.h"
-#include "vistexturechannels.h"
 #include "vistexturecoords.h"
 
 #include <osg/Geometry>
@@ -41,57 +39,47 @@ namespace visBase
 {
 
 GeomIndexedShape::GeomIndexedShape()
-    : VisualObjectImpl( true )
-    , shape_( 0 )
-    , vtexshape_( VertexShape::create() )
-    , colorhandler_( new ColorHandler )
-    , colortableenabled_( false )
-    , singlematerial_( new Material )
-    , coltabmaterial_( new Material )
-    , geomshapetype_( Triangle )
-    , linestyle_( OD::LineStyle::Solid,2,OD::Color(0,255,0) )
-    , useosgnormal_( false )
+    : VisualObjectImpl(true)
+    , colorhandler_(new ColorHandler)
+    , linestyle_(OD::LineStyle::Solid,2,OD::Color(0,255,0))
 {
-    singlematerial_->ref();
-    coltabmaterial_->ref();
-    vtexshape_->ref();
+    ref();
+    singlematerial_ = Material::create();
+    coltabmaterial_ = Material::create();
+    vtexshape_ = VertexShape::create();
     addChild( vtexshape_->osgNode() );
 
     vtexshape_->setMaterial( singlematerial_ );
-    singlematerial_->setColorMode( visBase::Material::Off );
-    coltabmaterial_->setColorMode( visBase::Material::Diffuse );
+    singlematerial_->setColorMode( Material::Off );
+    coltabmaterial_->setColorMode( Material::Diffuse );
     vtexshape_->setPrimitiveType( Geometry::PrimitiveSet::Triangles );
     vtexshape_->enableCoordinatesChangedCB( false );
 
     setRenderMode( RenderBothSides );
 
-    setMaterial( new Material );
+    RefMan<Material> newmat = Material::create();
+    setMaterial( newmat.ptr() );
     setDataSequence( ColTab::Sequence(ColTab::defSeqName()) );
+    unRefNoDelete();
 }
 
 
 GeomIndexedShape::~GeomIndexedShape()
 {
     detachAllNotifiers();
-    unRefAndNullPtr( singlematerial_ );
-    unRefAndNullPtr( coltabmaterial_ );
-
     delete colorhandler_;
-    unRefAndNullPtr( vtexshape_ );
 }
 
 
 GeomIndexedShape::ColorHandler::ColorHandler()
-    : material_( new visBase::Material )
-    , attributecache_( 0 )
+    : attributecache_(0)
 {
-    material_->ref();
+    material_ = Material::create();
 }
 
 
 GeomIndexedShape::ColorHandler::~ColorHandler()
 {
-    material_->unRef();
 }
 
 
@@ -166,11 +154,10 @@ void GeomIndexedShape::setColorBindType( VertexShape::BindType type )
 }
 
 
-void GeomIndexedShape::addNodeState( visBase::NodeState* ns )
+void GeomIndexedShape::addNodeState( NodeState* ns )
 {
     if ( vtexshape_ )
 	vtexshape_->addNodeState( ns );
-
 }
 
 
@@ -191,7 +178,7 @@ void GeomIndexedShape::enableColTab( bool yn )
 	vtexshape_->setMaterial( singlematerial_ );
     }
 
-    VisualObjectImpl::materialChangeCB( 0 );
+    VisualObjectImpl::materialChangeCB( nullptr );
     colortableenabled_  = yn;
 }
 
@@ -283,10 +270,9 @@ bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tr )
     if ( !shape_->needsUpdate() && createnew )
 	return true;
 
-    Coordinates* coords = 0;
-    Normals* normals = 0;
-    TextureCoords* texturecoords = 0;
-
+    RefMan<Coordinates> coords;
+    RefMan<Normals> normals;
+    RefMan<TextureCoords> texturecoords;
     if ( createnew )
     {
 	coords = Coordinates::create();
@@ -299,14 +285,12 @@ bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tr )
     }
     else
     {
-	CoordListAdapter* coordlist =
-	    dynamic_cast<CoordListAdapter*>( shape_->coordList() );
+	auto* coordlist = dCast( CoordListAdapter*, shape_->coordList() );
 	coords = coordlist->getCoordinates();
-	NormalListAdapter* normallist =
-	    dynamic_cast<NormalListAdapter*>( shape_->normalCoordList() );
+	auto* normallist = dCast( NormalListAdapter*,shape_->normalCoordList());
 	normals = normallist->getNormals();
-	TextureCoordListAdapter* texturelist =
-	    dynamic_cast<TextureCoordListAdapter*>( shape_->textureCoordList());
+	auto* texturelist = dCast( TextureCoordListAdapter*,
+				   shape_->textureCoordList() );
 	texturecoords = texturelist->getTextureCoords();
     }
 
@@ -371,7 +355,7 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
     const int col =
 	set.dataSet().findColDef(coordindex,PosVecDataSet::NameExact);
 
-    Coordinates* vtxcoords = vtexshape_->getCoordinates();
+    const Coordinates* vtxcoords = vtexshape_->getCoordinates();
     if ( !vtxcoords || !vtxcoords->size() )
 	return;
 
@@ -499,28 +483,26 @@ void GeomIndexedShape::setGeometryShapeType( GeomShapeType shapetype,
 	return;
 
     removeChild( vtexshape_->osgNode() );
-    unRefAndNullPtr( vtexshape_ );
-
     if ( shapetype == PolyLine )
-	vtexshape_ = visBase::PolyLine::create();
+	vtexshape_ = PolyLine::create();
     else if ( shapetype == PolyLine3D )
-	vtexshape_ = visBase::PolyLine3D::create();
+	vtexshape_ = PolyLine3D::create();
     else
-	vtexshape_ = visBase::VertexShape::create();
+	vtexshape_ = VertexShape::create();
 
-    vtexshape_->ref();
     vtexshape_->setMaterial( singlematerial_ );
     vtexshape_->setPrimitiveType( pstype );
-    if( shapetype==PolyLine || shapetype==PolyLine3D )
+    if ( shapetype==PolyLine || shapetype==PolyLine3D )
     {
-	visBase::PolygonOffset* offset = new visBase::PolygonOffset;
+	RefMan<PolygonOffset> offset = PolygonOffset::create();
 	offset->setFactor( -1.0f );
 	offset->setUnits( 1.0f );
 
 	offset->setMode(
-	    visBase::PolygonOffset::Protected | visBase::PolygonOffset::On );
-	vtexshape_->addNodeState( offset );
+	    PolygonOffset::Protected | PolygonOffset::On );
+	vtexshape_->addNodeState( offset.ptr() );
     }
+
     addChild( vtexshape_->osgNode() );
 
     geomshapetype_ = shapetype;
@@ -546,6 +528,18 @@ void GeomIndexedShape::setPixelDensity( float dpi )
     if ( vtexshape_ )
 	vtexshape_->setPixelDensity( dpi );
 
+}
+
+
+VertexShape* GeomIndexedShape::getVertexShape()
+{
+    return vtexshape_.ptr();
+}
+
+
+const VertexShape* GeomIndexedShape::getVertexShape() const
+{
+    return vtexshape_.ptr();
 }
 
 } // namespace visBase

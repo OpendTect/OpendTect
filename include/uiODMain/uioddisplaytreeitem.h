@@ -20,12 +20,9 @@ mExpClass(uiODMain) uiODDisplayTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODDisplayTreeItem)
 public:
 
-    static bool		create(uiTreeItem*,uiODApplMgr*,VisID displayid);
+    static bool		create(uiTreeItem*,uiODApplMgr*,const VisID&);
 			//!< Creates an instance (if possible)
 			//!< and adds it to the tree
-
-			uiODDisplayTreeItem();
-    virtual		~uiODDisplayTreeItem();
 
     void		updateColumnText(int) override;
     bool		showSubMenu() override;
@@ -44,6 +41,8 @@ public:
     virtual bool	displayedOnlyAtSections() const;
 
 protected:
+			uiODDisplayTreeItem();
+			~uiODDisplayTreeItem();
 
     virtual uiODDataTreeItem* createAttribItem(const Attrib::SelSpec*) const;
 

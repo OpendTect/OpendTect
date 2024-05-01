@@ -42,7 +42,7 @@ public:
 
     void		setPath(const TrcKeyPath&);
     void		setFlatPosData(const FlatPosData*);
-    void		setRandomLineID(RandomLineID);
+    void		setRandomLineID(const RandomLineID&);
 
     void		enableLine(bool);
     void		enableKnots(bool);
@@ -55,8 +55,8 @@ public:
 
 	mStruct(EarthModel) StkMarkerInfo
 	{
-	    			StkMarkerInfo()		{}
-	    			~StkMarkerInfo()	{}
+				StkMarkerInfo()		{}
+				~StkMarkerInfo()	{}
 
 	    FlatView::AuxData*	marker_;
 	    int			stickid_;
@@ -85,17 +85,17 @@ protected:
 
     bool		paintSticks(EM::Fault3D&,Fault3DMarker*);
     bool		paintStickOnPlane(const Geometry::FaultStickSurface&,
-	    				  RowCol&,const StepInterval<int>&,
+					  RowCol&,const StepInterval<int>&,
 					  const Coord3&, FlatView::AuxData&);
     bool		paintStickOnRLine(const Geometry::FaultStickSurface&,
-	    				  RowCol&,const StepInterval<int>&,
+					  RowCol&,const StepInterval<int>&,
 					  const Coord3&, FlatView::AuxData&);
     bool		paintIntersection(EM::Fault3D&,Fault3DMarker*);
     bool		paintPlaneIntxn(EM::Fault3D&,Fault3DMarker*,
-	    				Geometry::ExplPlaneIntersection*,
+					Geometry::ExplPlaneIntersection*,
 					TypeSet<Coord3>&);
     void		genIntersectionAuxData(EM::Fault3D&,Fault3DMarker*,
-	    				  const Geometry::PrimitiveSet* coordps,
+					  const Geometry::PrimitiveSet* coordps,
 					  TypeSet<Coord3>& intxnposs);
     void		removePolyLine();
     void		repaintFault3D();

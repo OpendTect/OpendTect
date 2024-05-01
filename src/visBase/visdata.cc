@@ -13,8 +13,8 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "thread.h"
 #include "visdataman.h"
-#include "visselman.h"
 #include "vismaterial.h"
+#include "visselman.h"
 
 #include <osg/Switch>
 #include <osg/ValueObject>
@@ -50,7 +50,7 @@ bool DataObject::isTraversalEnabled( unsigned int tt ) const
 }
 
 
-const OD::String& visBase::DataObject::name() const
+const OD::String& DataObject::name() const
 {
     mDeclStaticString( ret );
     ret = getName();
@@ -58,21 +58,21 @@ const OD::String& visBase::DataObject::name() const
 }
 
 
-BufferString visBase::DataObject::getName() const
+BufferString DataObject::getName() const
 {
     return uiname_.isEmpty() ? NamedCallBacker::getName()
 			     : BufferString( uiname_.getFullString() );
 }
 
 
-uiString visBase::DataObject::uiName() const
+uiString DataObject::uiName() const
 {
     return uiname_.isEmpty() ? toUiString( NamedCallBacker::getName() )
 			     : uiname_;
 }
 
 
-void visBase::DataObject::setUiName( const uiString& uinm )
+void DataObject::setUiName( const uiString& uinm )
 {
     NamedCallBacker::setName( BufferString::empty() );
     uiname_ = uinm;
@@ -81,7 +81,7 @@ void visBase::DataObject::setUiName( const uiString& uinm )
 }
 
 
-void visBase::DataObject::setName( const char* nm )
+void DataObject::setName( const char* nm )
 {
     uiname_.setEmpty();
     NamedCallBacker::setName( nm );
@@ -91,47 +91,48 @@ void visBase::DataObject::setName( const char* nm )
 
 
 DataObject::DataObject()
-    : enabledmask_( cAllTraversalMask() )
-    , osgnode_( 0 )
-    , osgoffswitch_( 0 )
-    , ison_( true )
+    : enabledmask_(cAllTraversalMask())
 {
+    ref();
     DM().addObject( this );
+    unRefNoDelete();
 }
 
 
 DataObject::~DataObject()
 {
     DM().removeObject( this );
-    while ( nodestates_.size() )
-	removeNodeState( nodestates_[0] );
+    osg::ref_ptr<osg::StateSet> stateset = getStateSet();
+    for ( auto* nodestate : nodestates_ )
+	nodestate->detachStateSet( stateset );
 
-    if ( osgnode_ ) osgnode_->unref();
-    if ( osgoffswitch_ ) osgoffswitch_->unref();
+    stateset = nullptr;
+    unRefOsgPtr( osgnode_ );
+    unRefOsgPtr( osgoffswitch_ );
 }
 
 
-void DataObject::doAddNodeState(visBase::NodeState* ns)
+void DataObject::doAddNodeState( NodeState* ns )
 {
-    ns->ref();
     nodestates_ += ns;
     osg::ref_ptr<osg::StateSet> stateset = getStateSet();
     if ( !stateset )
     {
 	pErrMsg("Setting nodestate on class without stateset.");
+	return;
     }
-    else
-	ns->attachStateSet( stateset );
+
+    ns->attachStateSet( stateset );
 }
 
 
-visBase::NodeState* DataObject::removeNodeState( visBase::NodeState* ns )
+NodeState* DataObject::removeNodeState( NodeState* ns )
 {
     const int idx = nodestates_.indexOf( ns );
     if ( nodestates_.validIdx(idx) )
     {
 	ns->detachStateSet( getStateSet() );
-	nodestates_.removeSingle( idx )->unRef();
+	nodestates_ -= ns;
     }
 
     return ns;
@@ -158,17 +159,17 @@ float DataObject::getPixelDensity() const
 
 NodeState* DataObject::getNodeState( int idx )
 {
-    return nodestates_.validIdx( idx ) ? nodestates_[idx] : 0;
+    return nodestates_.validIdx( idx ) ? nodestates_[idx] : nullptr;
 }
 
 
 osg::StateSet* DataObject::getStateSet()
 {
-    return osgnode_ ? osgnode_->getOrCreateStateSet() : 0;
+    return osgnode_ ? osgnode_->getOrCreateStateSet() : nullptr;
 }
 
 
-void DataObject::setID( VisID newid )
+void DataObject::setID( const VisID& newid )
 {
     id_ = newid;
     updateOsgNodeData();
@@ -201,7 +202,7 @@ bool DataObject::turnOn( bool yn )
     if ( !osgoffswitch_ )
     {
 	osgoffswitch_ = new osg::Switch;
-	osgoffswitch_->ref();
+	refOsgPtr( osgoffswitch_ );
 	osgoffswitch_->setAllChildrenOff();
     }
 
@@ -276,8 +277,8 @@ const osg::Node* DataObject::osgNode( bool skipswitch ) const
 void DataObject::setOsgNodeInternal( osg::Node* osgnode )
 {
     //Do this reverse order as osgnode may be a child of osgnode_
-    if ( osgnode ) osgnode->ref();
-    if ( osgnode_ ) osgnode_->unref();
+    refOsgPtr( osgnode );
+    unRefOsgPtr( osgnode_ );
     osgnode_ = osgnode;
     updateOsgNodeData();
 
@@ -376,9 +377,7 @@ osgViewer::CompositeViewer* DataObject::getCommonViewer()
 void DataObject::requestSingleRedraw()
 {
     if ( commonviewer_ && commonviewer_->getNumViews() )
-    {
         commonviewer_->getView(0)->requestRedraw();
-    }
 }
 
 } // namespace visBase

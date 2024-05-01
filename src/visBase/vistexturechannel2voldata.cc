@@ -34,11 +34,11 @@ public:
 
 VolumeDataSet() : voldata_( new SoVolumeData )
 		, dummytexture_( 255 )
-{ 
-    voldata_->ref();
+{
+    refOsgPtr( voldata_ );
     setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
- 		   Interval<float>(-0.5,0.5) );
-    voldata_->setVolumeData( SbVec3s(1,1,1), &dummytexture_, 
+		   Interval<float>(-0.5,0.5) );
+    voldata_->setVolumeData( SbVec3s(1,1,1), &dummytexture_,
 		    SoVolumeData::UNSIGNED_BYTE );
     if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	voldata_->usePalettedTexture = FALSE;
@@ -67,13 +67,13 @@ protected:
 
 ~VolumeDataSet()
 {
-    voldata_->unref();
+     unRefOsgPtr( voldata_ );
 }
 
 	SoVolumeData*		voldata_;
-	unsigned char* 		datacache_;
+	unsigned char*		datacache_;
 	unsigned char		dummytexture_;
-    
+
 };
 
 
@@ -94,7 +94,7 @@ void setNrChannels( int nr )
 
 
 bool addChannel()
-{ return true;  // to do: check 
+{ return true;	// to do: check
 }
 
 
@@ -137,7 +137,7 @@ const SbImagei32* getChannelData() const
     SbVec3i32 tmpsize;
     void* ptr;
     SoVolumeData::DataType dt;
-    
+
     if ( voldata_->getVolumeData(size,ptr,dt) )
     {
         int bpp = 0;
@@ -146,7 +146,7 @@ const SbImagei32* getChannelData() const
 	    bpp = 1;
 	else if ( dt == SoVolumeData::UNSIGNED_SHORT )
 	    bpp = 2;
-		
+
 	if ( bpp )
 	{
 	    tmpsize[0] = size[0];
@@ -155,7 +155,7 @@ const SbImagei32* getChannelData() const
 	    return new SbImagei32( (unsigned char*) ptr, tmpsize, bpp );
 	}
     }
-    
+
     return 0;
 }
 
@@ -169,7 +169,7 @@ SoNode* gtInvntrNode()
 	setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
 		       Interval<float>(-0.5,0.5) );
 	voldata_->setVolumeData( SbVec3s(1,1,1),
-	    		    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
+			    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
 	if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
 	    voldata_->usePalettedTexture = FALSE;
     }
@@ -180,9 +180,9 @@ SoNode* gtInvntrNode()
 protected:
 
 ~VolumeDataSetImpl()
-{ 
+{
 }
-	
+
 };
 
 
@@ -203,14 +203,13 @@ TextureChannel2VolData::TextureChannel2VolData()
 
 TextureChannel2VolData::~TextureChannel2VolData()
 {
-//    if ( transferfunc_ )
-//	transferfunc_->unref();
+//    unRefOsgPtr( transferfunc_ );
 }
 
 
-MappedTextureDataSet* TextureChannel2VolData::createMappedDataSet() const
+RefMan<MappedTextureDataSet> TextureChannel2VolData::createMappedDataSet() const
 {
-    return 0;
+    return nullptr;
 //    return VolumeDataSetImpl::create();
 }
 
@@ -220,7 +219,7 @@ SoNode* TextureChannel2VolData::gtInvntrNode()
 {
     enabled_ = true;
     transferfunc_ = new SoTransferFunction;
-    transferfunc_->ref();
+    refOsgPtr( transferfunc_ );
     makeColorTables();
     return transferfunc_;
 }
@@ -241,7 +240,7 @@ void TextureChannel2VolData::setSequence( int channel,
 
     if ( sequence_ == seq )
 	return;
-    
+
     sequence_ = seq;
     update();
 }
@@ -291,7 +290,7 @@ void TextureChannel2VolData::makeColorTables()
     const bool didnotify = transferfunc_->colorMap.enableNotify( false );
 
     transferfunc_->predefColorMap = SoTransferFunction::NONE;
-    
+
     const float redfactor = 1.0/255;
     const float greenfactor = 1.0/255;
     const float bluefactor = 1.0/255;
@@ -307,13 +306,13 @@ void TextureChannel2VolData::makeColorTables()
 	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
 	transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
     }
-    
+
     const ::Color col = sequence_.undefColor();
     transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
     transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
     transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
     transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
-    
+
     transferfunc_->colorMap.enableNotify(didnotify);
     transferfunc_->colorMap.touch();
 */

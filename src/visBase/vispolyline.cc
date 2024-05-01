@@ -24,18 +24,18 @@ namespace visBase
 {
 
 PolyLine::PolyLine()
-    : VertexShape( Geometry::PrimitiveSet::LineStrips, true )
-    , coordrange_( Geometry::RangePrimitiveSet::create() )
-    , drawstyle_( 0 )
+    : VertexShape(Geometry::PrimitiveSet::LineStrips,true)
 {
+    ref();
+    coordrange_ = Geometry::RangePrimitiveSet::create();
     addPrimitiveSet( coordrange_ );
-    if ( coordrange_ )
-	coordrange_->ref();
+    unRefNoDelete();
 }
 
 
 PolyLine::~PolyLine()
-{ if ( coordrange_ ) coordrange_->unRef(); }
+{
+}
 
 
 int PolyLine::size() const { return coords_->size(); }
@@ -83,14 +83,17 @@ void PolyLine::removeAllPoints()
 void PolyLine::setLineStyle( const OD::LineStyle& lst )
 {
     if ( !drawstyle_ )
-	drawstyle_ = addNodeState( new DrawStyle );
+    {
+	RefMan<DrawStyle> drawstyle = DrawStyle::create();
+	drawstyle_ = addNodeState( drawstyle.ptr() );
+    }
 
     drawstyle_->setLineStyle( lst );
     if ( getMaterial() )
 	getMaterial()->setColor( lst.color_ );
 
     setAttribAndMode( drawstyle_->getLineStipple() );
-    
+
     if ( lst.width_ == 0 )
 	turnOn( false );
     else
@@ -120,7 +123,7 @@ PolyLine3D::PolyLine3D()
     , pixeldensity_( getDefaultPixelDensity() )
 {
     node_ = osgpoly_ = new osgGeo::PolyLineNode;
-    osgpoly_->ref();
+    refOsgPtr( osgpoly_ );
     setOsgNode( node_ );
     osgpoly_->setVertexArray( coords_->osgArray() );
 }
@@ -128,6 +131,7 @@ PolyLine3D::PolyLine3D()
 
 PolyLine3D::~PolyLine3D()
 {
+    unRefOsgPtr( osgpoly_ );
 }
 
 

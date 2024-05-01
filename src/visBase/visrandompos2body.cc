@@ -13,12 +13,11 @@ ________________________________________________________________________
 #include "delaunay3d.h"
 #include "survinfo.h"
 #include "viscoord.h"
-#include "vistransform.h"
-#include "vistristripset.h"
-#include "visshape.h"
 #include "visnormals.h"
 #include "vispolygonoffset.h"
-
+#include "visshape.h"
+#include "vistransform.h"
+#include "vistristripset.h"
 
 mCreateFactoryEntry( visBase::RandomPos2Body );
 
@@ -26,27 +25,23 @@ namespace visBase
 {
 
 RandomPos2Body::RandomPos2Body()
-    : VisualObjectImpl( false )
-    , transformation_( 0 )
-    , vtxshape_( VertexShape::create() )
+    : VisualObjectImpl(false)
 {
-    vtxshape_->ref();
+    ref();
+    vtxshape_ = VertexShape::create();
     addChild( vtxshape_->osgNode() );
     vtxshape_->setPrimitiveType( Geometry::PrimitiveSet::Triangles );
     vtxshape_->setNormalBindType( VertexShape::BIND_PER_VERTEX );
     vtxshape_->useOsgAutoNormalComputation( true );
 
     setRenderMode( RenderBothSides );
+    unRefNoDelete();
 }
 
 
 RandomPos2Body::~RandomPos2Body()
 {
-    if ( transformation_ )
-	transformation_->unRef();
-    if ( vtxshape_ )
-	vtxshape_->unRef();
- }
+}
 
 
 void RandomPos2Body::setRenderMode( RenderMode mode )
@@ -152,13 +147,11 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts, bool ispoly )
 	PolygonTriangulate( knots, result );
     }
 
-    Geometry::IndexedPrimitiveSet* primitiveset =
-	Geometry::IndexedPrimitiveSet::create( false );
-    primitiveset->ref();
-
+    RefMan<Geometry::IndexedPrimitiveSet> primitiveset =
+			    Geometry::IndexedPrimitiveSet::create( false );
     primitiveset->append( result.arr(), result.size() );
     vtxshape_->addPrimitiveSet( primitiveset );
-    primitiveset->unRef();
+    primitiveset = nullptr;
 
     vtxshape_->dirtyCoordinates();
 
@@ -169,12 +162,9 @@ bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts, bool ispoly )
 
 void RandomPos2Body::setDisplayTransformation( const mVisTrans*  nt )
 {
-    if ( transformation_ ) transformation_->unRef();
-
     transformation_ = nt;
     if ( transformation_ )
     {
-	transformation_->ref();
 	if ( vtxshape_ )
 	    vtxshape_->setDisplayTransformation( transformation_ );
 

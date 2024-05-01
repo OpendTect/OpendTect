@@ -9,7 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
+#include "visevent.h"
+#include "vismpeeditor.h"
 #include "visobject.h"
+#include "vistransform.h"
 
 #include "attribdataholder.h"
 #include "attribsel.h"
@@ -22,9 +26,7 @@ ________________________________________________________________________
 
 
 namespace Geometry { class ElementEditor; }
-namespace MPE { class ObjectEditor; }
 namespace Attrib { class SelSpec; }
-namespace visBase { class Dragger; }
 
 class RegularSeisDataPack;
 
@@ -32,7 +34,6 @@ namespace visSurvey
 {
 
 class EMObjectDisplay;
-class MPEEditor;
 class MultiTextureSurveyObject;
 class Seis2DDisplay;
 
@@ -81,8 +82,8 @@ protected:
     void			setNode(const TrcKey&);
     void			setPos(const Coord3&);
     void			setEMObjID(EM::ObjectID);
-    void			setEMVisID(VisID);
-    void			setObjID(VisID);
+    void			setEMVisID(const VisID&);
+    void			setObjID(const VisID&);
     void			setObjCS(const TrcKeyZSampling&);
     void			setObjDataPackID(DataPackID);
     void			setObjData(const RegularSeisDataPack*);
@@ -117,7 +118,7 @@ protected:
     DataPackID			datapackid_;
 
     void			setObjTKPath(const TrcKeyPath*);
-    void			setObjRandomLineID(RandomLineID);
+    void			setObjRandomLineID(const RandomLineID&);
 
 public:
     const TrcKeyPath*		getObjTKPath() const;
@@ -128,7 +129,7 @@ public:
 mExpClass(visSurvey) MPEClickCatcher : public visBase::VisualObjectImpl
 {
 public:
-    static MPEClickCatcher*	create()
+    static RefMan<MPEClickCatcher> create();
 				mCreateDataObj(MPEClickCatcher);
 
     void			setSceneEventCatcher(
@@ -147,12 +148,13 @@ public:
     const visBase::EventInfo*	visInfo() const { return cureventinfo_; }
 
     void			setTrackerType(const char*);
-    static bool			isClickable(const char* trackertype,VisID);
+    static bool			isClickable(const char* trackertype,
+					    const VisID&);
 
     void			setEditor(MPEEditor*);
     const MPEEditor*		getEditor() const	{ return editor_; }
     bool			activateSower(const OD::Color&,
-					      const TrcKeySampling* =0);
+					      const TrcKeySampling* =nullptr);
     bool			sequentSowing() const;
     bool			moreToSow() const;
     void			stopSowing();
@@ -178,9 +180,9 @@ protected:
     void			sowingEnd(CallBacker*);
     void			sowingCB(CallBacker*);
 
-    visBase::EventCatcher*	eventcatcher_		= nullptr;
-    const mVisTrans*		transformation_		= nullptr;
-    MPEEditor*			editor_			= nullptr;
+    RefMan<visBase::EventCatcher> eventcatcher_;
+    ConstRefMan<mVisTrans>	transformation_;
+    RefMan<MPEEditor>		editor_;
     const visBase::EventInfo*	cureventinfo_		= nullptr;
 
     MPEClickInfo		info_;

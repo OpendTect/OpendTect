@@ -18,34 +18,29 @@ ________________________________________________________________________
 namespace ExternalAttrib
 {
 
-
 //Class that calculates the random values
+
 mClass(ExternalAttrib) Random : public Attrib::ExtAttribCalc
 {
 public:
-    static void			initClass();
-    				Random();
-    				~Random();
 
     static const char*		sAttribName()	{ return "Random"; }
 
-    bool			setTargetSelSpec(const Attrib::SelSpec&);
-    DataPackID		createAttrib(const CubeSampling&,DataPackID,
-	    				     TaskRunner*);
-    const Attrib::DataCubes*	createAttrib(const CubeSampling&,
-	    				     const Attrib::DataCubes*);
-    bool			createAttrib(ObjectSet<BinIDValueSet>&,
-	    				     TaskRunner*);
-    bool			createAttrib(const BinIDValueSet&, SeisTrcBuf&,
-	    				     TaskRunner*);
-    DataPackID		createAttrib(const CubeSampling&,
-	    				     const LineKey&,TaskRunner*);
+private:
+				Random();
+				~Random();
 
-    bool			isIndexes() const;
-
-protected:
+    bool			setTargetSelSpec(
+					const Attrib::SelSpec&) override;
+    ConstRefMan<RegularSeisDataPack> createAttrib(const TrcKeyZSampling&,
+						  const RegularSeisDataPack*,
+						  TaskRunner*) override;
 
     static Attrib::ExtAttribCalc* create(const Attrib::SelSpec&);
+
+public:
+
+    static void			initClass();
 };
 
 
@@ -57,7 +52,7 @@ protected:
 mClass(ExternalAttrib) RandomManager : public CallBacker
 {
 public:
-    		RandomManager();
+		RandomManager();
 		~RandomManager();
 
 protected:
@@ -76,7 +71,7 @@ mClass(ExternalAttrib) uiRandomTreeItem : public uiODDataTreeItem
 {
 public:
     static void		initClass();
-    			uiRandomTreeItem(const char* parenttype);
+			uiRandomTreeItem(const char* parenttype);
 
     static const char*	sKeyDefinition() { return "Random"; }
 
@@ -89,8 +84,8 @@ protected:
     void		createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
 
-    static uiODDataTreeItem*	create( const Attrib::SelSpec& as,
-				        const char* parenttype );
+    static uiODDataTreeItem*	create(const Attrib::SelSpec&,
+				       const char* parenttype);
 };
 
 } // namespace ExternalAttrib

@@ -12,6 +12,8 @@ ________________________________________________________________________
 
 #include "attribdescid.h"
 #include "attribsel.h"
+#include "attriboutput.h"
+#include "bufstring.h"
 #include "posgeomid.h"
 #include "ranges.h"
 #include "seisdatapack.h"
@@ -27,7 +29,6 @@ class SeisTrcBuf;
 
 namespace Attrib
 {
-class SeisTrcStorOutput;
 class Desc;
 class DescSet;
 class Processor;
@@ -54,7 +55,8 @@ public:
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
 
-    SeisTrcStorOutput*	createOutput(const IOPar&,const Pos::GeomID&,uiString&);
+    RefMan<SeisTrcStorOutput> createOutput(const IOPar&,const Pos::GeomID&,
+					   uiString&);
 
     const DescSet*	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }

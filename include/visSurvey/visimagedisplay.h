@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "vislocationdisplay.h"
 #include "visimagerect.h"
+#include "vistransform.h"
 
 namespace OD { class RGBImage; }
 namespace visSurvey
@@ -19,10 +20,10 @@ namespace visSurvey
   Image display, owns the RGBImage and distributes it to the child objects
 */
 
-mExpClass(visSurvey) ImageDisplay : public visSurvey::LocationDisplay
+mExpClass(visSurvey) ImageDisplay : public LocationDisplay
 {
 public:
-    static ImageDisplay*	create()
+    static RefMan<ImageDisplay> create();
 				mCreateDataObj(ImageDisplay);
 
     bool			setFileName(const char*);
@@ -39,8 +40,9 @@ public:
 				//!< Will become mine
 
 protected:
+				~ImageDisplay();
 
-     visBase::VisualObject*	createLocation() const ;
+     RefMan<visBase::VisualObject> createLocation() const;
      void			setPosition(int,const Pick::Location&,
 					    bool add=false) override;
      void			removePosition(int idx) override;
@@ -50,15 +52,14 @@ protected:
 
      bool			hasDirection() const override { return false; }
 
-				~ImageDisplay();
-    void			setScene(visSurvey::Scene*) override;
+    void			setScene(Scene*) override;
     void			updateCoords(CallBacker* =nullptr);
     virtual int			clickedMarkerIndex(
 				    const visBase::EventInfo&) const override;
 
-    const mVisTrans*			displaytransform_;
+    ConstRefMan<mVisTrans>		displaytransform_;
     BufferString			imagefnm_;
-    const OD::RGBImage*			rgbimage_;
+    const OD::RGBImage*			rgbimage_ = nullptr;
     RefMan<visBase::DataObjectGroup>	group_;
 };
 

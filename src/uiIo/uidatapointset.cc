@@ -341,7 +341,7 @@ void uiDataPointSet::mkToolBars()
 			     tr("Toggle show Z column"), true );
 
     showbidsfld_ = new uiCheckBox( disptb_,
-	    		is2D() ? tr("Show Line/Trace") : tr("Show Inl/Crl") );
+			is2D() ? tr("Show Line/Trace") : tr("Show Inl/Crl") );
     showbidsfld_->activated.notify(mCB(this,uiDataPointSet,chgPosDispType));
     showbidsfld_->setChecked( showbids_ );
     disptb_->addObject( showbidsfld_ );
@@ -518,7 +518,7 @@ void uiDataPointSet::fillPos( TRowID tid )
 	tbl_->setText( rc, Survey::GM().getName(dps_->geomID(drid)) );
     else
 	tbl_->setValue( rc, mGetHPosVal(-nrPosCols(),drid), 2 );
-    
+
     rc.col()++;
     tbl_->setValue( rc, mGetHPosVal(-nrPosCols()+1,drid), 2 );
     rc.col()++;
@@ -1063,9 +1063,9 @@ void uiDataPointSet::statsClose( CallBacker* )
 
 #define mGetHPosName( dcid ) ( did == -nrPosCols() ) ? \
 	( showbids_ ? (dps_->is2D() ? sKey::LineName() : sKey::Inline()) \
-	  	    : sKey::XCoord() ) : \
+		    : sKey::XCoord() ) : \
 	( showbids_ ? (dps_->is2D() ? sKey::TraceNr() : sKey::Crossline()) \
-	  	    : sKey::YCoord() )
+		    : sKey::YCoord() )
 
 #define mIsZ( dcid ) dcid == -1
 
@@ -1509,11 +1509,12 @@ void uiDataPointSet::setDisp( DataPointSetDisplayProp* dispprop )
     dpsdispmgr_->clearDispProp();
     dpsdispmgr_->setDispProp( dispprop );
 
-    int dpsid = dpsdispmgr_->getDisplayID(*dps_);
-    if ( dpsid < 0 )
-	dpsid = dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(),*dps_);
+    const DataPointSetDisplayMgr::DispID dpsid =
+					dpsdispmgr_->getDisplayID( *dps_ );
+    if ( dpsid.isUdf() )
+	dpsdispmgr_->addDisplay( dpsdispmgr_->availableViewers(), *dps_ );
     else
-	dpsdispmgr_->updateDisplay( dpsdispmgr_->getDisplayID(*dps_), *dps_ );
+	dpsdispmgr_->updateDisplay( dpsid, *dps_ );
 
     dpsdispmgr_->unLock();
 }
@@ -1521,12 +1522,13 @@ void uiDataPointSet::setDisp( DataPointSetDisplayProp* dispprop )
 
 void uiDataPointSet::removeSelPts( CallBacker* )
 {
-    if ( !dpsdispmgr_ ) return;
+    if ( !dpsdispmgr_ )
+	return;
 
-    const int dpsid = dpsdispmgr_->getDisplayID( *dps_ );
-    if ( dpsid < 0 ) return;
-
-    dpsdispmgr_->removeDisplay( dpsid );
+    const DataPointSetDisplayMgr::DispID dpsid =
+					dpsdispmgr_->getDisplayID( *dps_ );
+    if ( !dpsid.isUdf() )
+	dpsdispmgr_->removeDisplay( dpsid );
 }
 
 

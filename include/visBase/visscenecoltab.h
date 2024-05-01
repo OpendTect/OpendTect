@@ -26,7 +26,7 @@ class VisColorTab;
 mExpClass(visBase) SceneColTab : public VisualObjectImpl
 { mODTextTranslationClass(SceneColTab);
 public:
-    static SceneColTab* create()
+    static RefMan<SceneColTab> create();
 			mCreateDataObj(SceneColTab);
 
     enum Pos		{ Left, Right, Top, Bottom };
@@ -62,16 +62,16 @@ protected:
     osg::Geode*		osgcolorbar_;
     ColTab::Sequence	sequence_;
     Interval<float>	rg_;
-    Pos			pos_;
-    bool		flipseq_;
-    bool		horizontal_;
-    int			width_;
-    int			height_;
-    float		aspratio_;
-    int			winx_;
-    int			winy_;
+    Pos			pos_		= Pos::Bottom;
+    bool		flipseq_	= false;
+    bool		horizontal_	= false;
+    int			width_		= 20;
+    int			height_		= 250;
+    float		aspratio_	= 1.f;
+    int			winx_		= 100;
+    int			winy_		= 100;
     float		pixeldensity_;
-    int			fontsize_;
+    int			fontsize_	= 18;
 };
 
 } // namespace visBase

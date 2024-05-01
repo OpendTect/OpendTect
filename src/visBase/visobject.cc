@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "visevent.h"
 #include "vismaterial.h"
+#include "vistransform.h"
 
 #include <osg/Group>
 #include <osg/BlendFunc>
@@ -25,23 +26,26 @@ const char* VisualObjectImpl::sKeyMaterial()    { return "Material"; }
 const char* VisualObjectImpl::sKeyIsOn()	{ return "Is on"; }
 
 
+// VisualObject
+
 VisualObject::VisualObject( bool issel )
     : isselectable(issel)
     , selnotifier(this)
     , deselnotifier(this)
     , rightClick(this)
-    , rcevinfo(0)
 {}
 
 
 VisualObject::~VisualObject()
-{}
+{
+    detachAllNotifiers();
+}
 
+
+// VisualObjectImpl
 
 VisualObjectImpl::VisualObjectImpl( bool issel )
     : VisualObject( issel )
-    , material_( 0 )
-    , righthandsystem_( true )
     , osgroot_( new osg::Group )
 {
     setOsgNode( osgroot_ );
@@ -51,8 +55,6 @@ VisualObjectImpl::VisualObjectImpl( bool issel )
 VisualObjectImpl::~VisualObjectImpl()
 {
     detachAllNotifiers();
-    if ( material_ )
-	material_->unRef();
 }
 
 
@@ -93,25 +95,22 @@ bool VisualObjectImpl::tryWriteLock()
 }
 
 
-void VisualObjectImpl::setMaterial( Material* nm )
+void VisualObjectImpl::setMaterial( Material* mt )
 {
     osg::StateSet* ss = osgroot_->getOrCreateStateSet();
-
     if ( material_ )
     {
 	removeNodeState( material_ );
 	mDetachCB( material_->change, VisualObjectImpl::materialChangeCB );
-	material_->unRef();
     }
 
-    material_ = nm;
+    material_ = mt;
 
     if ( material_ )
     {
-	material_->ref();
 	mAttachCB( material_->change, VisualObjectImpl::materialChangeCB );
 	ss->setDataVariance( osg::Object::DYNAMIC );
-	addNodeState( material_ );
+	addNodeState( material_.ptr() );
     }
 }
 
@@ -141,7 +140,10 @@ void VisualObjectImpl::materialChangeCB( CallBacker* )
 Material* VisualObjectImpl::getMaterial()
 {
     if ( !material_ )
-	setMaterial( new visBase::Material );
+    {
+	RefMan<Material> newmt = Material::create();
+	setMaterial( newmt.ptr() );
+    }
 
     return material_;
 }
@@ -299,7 +301,7 @@ bool VisualObject::getBoundingBox( Coord3& minpos, Coord3& maxpos ) const
 
 const TypeSet<VisID>* VisualObject::rightClickedPath() const
 {
-    return rcevinfo ? &rcevinfo->pickedobjids : 0;
+    return rcevinfo ? &rcevinfo->pickedobjids : nullptr;
 }
 
 } // namespace visBase

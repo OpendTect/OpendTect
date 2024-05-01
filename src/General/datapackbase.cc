@@ -441,7 +441,6 @@ SeisDataPack::SeisDataPack( const char* cat, const BinDataDesc* bdd )
     : DataPack(cat)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
     , desc_( bdd ? *bdd : BinDataDesc(false,true,sizeof(float)) )
-    , rdlid_(RandomLineID::udf())
 {
 }
 
@@ -779,7 +778,7 @@ const Array3DImpl<float>& SeisDataPack::data( int component ) const
 Array3DImpl<float>& SeisDataPack::data( int component )
 { return *arrays_[component]; }
 
-void SeisDataPack::setRandomLineID( RandomLineID rdlid )
+void SeisDataPack::setRandomLineID( const RandomLineID& rdlid )
 { rdlid_ = rdlid; }
 
 RandomLineID SeisDataPack::getRandomLineID() const

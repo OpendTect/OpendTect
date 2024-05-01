@@ -8,13 +8,11 @@ ________________________________________________________________________
 -*/
 
 #include "uisurvtopbotimg.h"
-#include "vistopbotimage.h"
 
 #include "uiimagesel.h"
 #include "uilabel.h"
 #include "uiseparator.h"
 #include "uislider.h"
-#include "vissurvscene.h"
 
 #include "od_helpids.h"
 #include "survinfo.h"
@@ -26,11 +24,11 @@ class uiSurvTopBotImageGrp : public uiGroup
 public:
 
 uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
-			const StepInterval<float>& zrng )
+		      const ZSampling& zrng )
     : uiGroup(p, istop ? "Top img grp" : "Bot img grp")
     , istop_(istop)
     , dlg_(p)
-    , img_(p->scene_->getTopBotImage(istop))
+    , img_(p->getImage(istop))
     , zrng_(zrng)
 {
     uiImageSel::Setup su( istop_ ? tr("Top image") : tr("Bottom image" ) );
@@ -93,15 +91,19 @@ void onOff( CallBacker* )
     const bool ison = imagefld_->isChecked();
     if ( !img_ && ison )
     {
-	dlg_->scene_->createTopBotImage( istop_ );
-	img_ = dlg_->scene_->getTopBotImage( istop_ );
+	RefMan<visSurvey::Scene> scene	= dlg_->scene_.get();
+	if ( scene )
+	{
+	    scene->createTopBotImage( istop_ );
+	    img_ = scene->getTopBotImage( istop_ );
 
-	const Coord mincrd = SI().minCoord(true);
-	const Coord maxcrd = SI().maxCoord(true);
-	const double zval = zposfld_->getFValue();
-	const Coord3 tlcrd( mincrd.x, maxcrd.y, zval );
-	const Coord3 brcrd( maxcrd.x, mincrd.y, zval );
-	img_->setPos( tlcrd, brcrd );
+	    const Coord mincrd = SI().minCoord(true);
+	    const Coord maxcrd = SI().maxCoord(true);
+	    const double zval = zposfld_->getFValue();
+	    const Coord3 tlcrd( mincrd.x, maxcrd.y, zval );
+	    const Coord3 brcrd( maxcrd.x, mincrd.y, zval );
+	    img_->setPos( tlcrd, brcrd );
+	}
     }
 
     dlg_->setOn( istop_, ison );
@@ -123,20 +125,20 @@ void transpChg( CallBacker* )
     const bool		istop_;
 
     uiSurvTopBotImageDlg* dlg_;
-    visBase::TopBotImage* img_;
+    RefMan<visBase::TopBotImage> img_;
 
     uiImageSel*		imagefld_;
     uiSlider*		transpfld_;
     uiSlider*		zposfld_;
-    const StepInterval<float>&	 zrng_;
+    const ZSampling&	zrng_;
 };
 
 
 uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
-					    visSurvey::Scene* scene )
+					    visSurvey::Scene& scene )
     : uiDialog(p,uiDialog::Setup(tr("Set Top/Bottom Images"),
 			mNoDlgTitle,mODHelpKey(mSurvTopBotImageDlgHelpID)))
-    , scene_( scene )
+    , scene_(&scene)
 {
     setCtrlStyle( CloseOnly );
 
@@ -152,45 +154,50 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
     }
 
     topfld_ = new uiSurvTopBotImageGrp( this, true,
-					scene_->getTrcKeyZSampling().zsamp_ );
+					scene.getTrcKeyZSampling().zsamp_ );
     if ( lbl )
 	topfld_->attach( ensureBelow, lbl );
-    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+
+    auto* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, topfld_ );
     botfld_ = new uiSurvTopBotImageGrp( this, false,
-					scene_->getTrcKeyZSampling().zsamp_ );
+					scene.getTrcKeyZSampling().zsamp_ );
     botfld_->attach( alignedBelow, topfld_ );
     botfld_->attach( ensureBelow, sep );
 }
 
 
 uiSurvTopBotImageDlg::~uiSurvTopBotImageDlg()
-{}
-
-
-visBase::TopBotImage* uiSurvTopBotImageDlg::getImage( bool istop )
 {
-    return scene_->getTopBotImage( istop );
+}
+
+
+RefMan<visBase::TopBotImage> uiSurvTopBotImageDlg::getImage( bool istop )
+{
+    RefMan<visSurvey::Scene> scene = scene_.get();
+    return scene->getTopBotImage( istop );
 }
 
 
 void uiSurvTopBotImageDlg::newImage( bool istop, const MultiID& mid )
 {
-    if ( getImage(istop) )
-	getImage(istop)->setImageID( mid );
+    RefMan<visBase::TopBotImage> image = getImage( istop );
+    if ( image )
+	image->setImageID( mid );
 }
 
 
 void uiSurvTopBotImageDlg::setOn( bool istop, bool ison )
 {
-    if ( getImage(istop) )
-	getImage(istop)->turnOn( ison );
+    RefMan<visBase::TopBotImage> image = getImage( istop );
+    if ( image )
+	image->turnOn( ison );
 }
 
 
 void uiSurvTopBotImageDlg::setZ( bool istop, float zval )
 {
-    auto* image = getImage( istop );
+    RefMan<visBase::TopBotImage> image = getImage( istop );
     if ( !image )
 	return;
 
@@ -203,6 +210,7 @@ void uiSurvTopBotImageDlg::setZ( bool istop, float zval )
 
 void uiSurvTopBotImageDlg::setTransparency( bool istop, float val )
 {
-    if ( getImage(istop) )
-	getImage(istop)->setTransparency( val );
+    RefMan<visBase::TopBotImage> image = getImage( istop );
+    if ( image )
+	image->setTransparency( val );
 }

@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "vistexturechannel2rgba.h"
+
 #include "coltabsequence.h"
+#include "vistexturechannel2rgba.h"
 
 
 namespace visBase
@@ -23,7 +24,7 @@ namespace visBase
 mExpClass(visBase) TextureChannel2VolData : public TextureChannel2RGBA
 {
 public:
-    static TextureChannel2VolData*	create()
+    static RefMan<TextureChannel2VolData> create();
 			mCreateDataObj(TextureChannel2VolData);
 
     const osg::Image*	createRGBA() const override	{ return nullptr; }
@@ -40,7 +41,7 @@ public:
     int			maxNrChannels() const override	{ return 1; }
     int			minNrChannels() const override	{ return 1; }
 
-    MappedTextureDataSet* createMappedDataSet() const override;
+    RefMan<MappedTextureDataSet> createMappedDataSet() const override;
 
 protected:
 			~TextureChannel2VolData();

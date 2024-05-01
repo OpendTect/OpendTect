@@ -26,9 +26,15 @@ ExtAttribCalc::~ExtAttribCalc()
 {}
 
 
-DataPackID ExtAttribCalc::createAttrib( const TrcKeyZSampling&, DataPackID,
-					  TaskRunner* )
-{ return DataPack::cNoID(); }
+ConstRefMan<RegularSeisDataPack>
+ExtAttribCalc::createAttrib( const TrcKeyZSampling&, const RegularSeisDataPack*,
+			     TaskRunner* )
+{ return nullptr; }
+
+
+ConstRefMan<RegularSeisDataPack>
+ExtAttribCalc::createAttrib( const TrcKeyZSampling&, TaskRunner* )
+{ return nullptr; }
 
 
 bool ExtAttribCalc::createAttrib( ObjectSet<BinIDValueSet>&, TaskRunner* )
@@ -38,10 +44,5 @@ bool ExtAttribCalc::createAttrib( ObjectSet<BinIDValueSet>&, TaskRunner* )
 bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf,
 				  TaskRunner* )
 { return false; }
-
-
-DataPackID ExtAttribCalc::createAttrib( const TrcKeyZSampling&, TaskRunner* )
-{ return DataPack::cNoID(); }
-
 
 } // namespace Attrib

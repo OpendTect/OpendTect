@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visobject.h"
+
 #include "samplingdata.h"
+#include "visobject.h"
 
 template <class T> class SamplingData;
 class MarchingCubesSurface;
@@ -27,8 +28,8 @@ class GeomIndexedShape;
 mExpClass(visBase) MarchingCubesSurface : public VisualObjectImpl
 {
 public:
-    static MarchingCubesSurface*	create()
-					mCreateDataObj(MarchingCubesSurface);
+    static RefMan<MarchingCubesSurface> create();
+				mCreateDataObj(MarchingCubesSurface);
 
     bool				setSurface(::MarchingCubesSurface&,
 						   TaskRunner*);
@@ -57,29 +58,29 @@ public:
     void			setBoxBoundary(float x,float y,float z);
 
     GeomIndexedShape*		getShape()		{ return shape_; }
+    const GeomIndexedShape*	getShape() const	{ return shape_; }
     virtual void		setDisplayTransformation(
 						const mVisTrans*) override;
     const mVisTrans*		getDisplayTransformation() const override;
     void			getTransformCoord(Coord3&);
 
-
-
 protected:
 					~MarchingCubesSurface();
+
     void				updateHints();
     void				updateDisplayRange();
     static const char*			sKeyCoordIndex() { return "CoordIndex";}
 
-    char				displaysection_;
+    char				displaysection_ = -1;
     float				sectionlocation_;
     StepInterval<float>			xrg_;
     StepInterval<float>			yrg_;
     StepInterval<float>			zrg_;
 
-    GeomIndexedShape*			shape_;
+    RefMan<GeomIndexedShape>		shape_;
 
     ExplicitMarchingCubesSurface*	surface_;
-    const mVisTrans*			transform_;
+    ConstRefMan<mVisTrans>		transform_;
 };
 
 } // namespace visBase

@@ -23,12 +23,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "visdataman.h"
-#include "visdepthtabplanedragger.h"
-#include "visevent.h"
-#include "visflatviewer.h"
 #include "vismaterial.h"
-#include "visplanedatadisplay.h"
-#include "visseis2ddisplay.h"
 
 #include <math.h>
 
@@ -41,20 +36,20 @@ namespace visSurvey
 {
 
 PreStackDisplay::PreStackDisplay()
-    : VisualObjectImpl( true )
-    , draggermoving( this )
-    , bid_( -1, -1 )
-    , draggerpos_( -1, -1 )
-    , planedragger_(visBase::DepthTabPlaneDragger::create())
-    , flatviewer_(visBase::FlatViewer::create())
-    , width_( mDefaultWidth )
-    , offsetrange_( 0, mDefaultWidth )
-    , zrg_( SI().zRange(true) )
+    : visBase::VisualObjectImpl(true)
+    , draggermoving(this)
+    , bid_(-1,-1)
+    , draggerpos_(-1,-1)
+    , width_(mDefaultWidth)
+    , offsetrange_(0,mDefaultWidth)
+    , zrg_(SI().zRange(true))
     , movefinished_(this)
 {
+    ref();
+    planedragger_ = visBase::DepthTabPlaneDragger::create();
+    flatviewer_ = visBase::FlatViewer::create();
     setMaterial( nullptr );
 
-    flatviewer_->ref();
     flatviewer_->enableTraversal( visBase::cDraggerIntersecTraversalMask(),
 				  false);
     flatviewer_->setSelectable( false );
@@ -65,24 +60,17 @@ PreStackDisplay::PreStackDisplay()
     mAttachCB( flatviewer_->dataChanged, PreStackDisplay::dataChangedCB );
     addChild( flatviewer_->osgNode() );
 
-    planedragger_->ref();
     planedragger_->removeScaleTabs();
     mAttachCB( planedragger_->motion, PreStackDisplay::draggerMotion );
     mAttachCB( planedragger_->finished, PreStackDisplay::finishedCB );
     addChild( planedragger_->osgNode() );
+    unRefNoDelete();
 }
 
 
 PreStackDisplay::~PreStackDisplay()
 {
     detachAllNotifiers();
-    setSceneEventCatcher( nullptr );
-
-    unRefPtr( flatviewer_ );
-    unRefPtr( planedragger_ );
-    unRefPtr( section_ );
-    unRefPtr( seis2d_ );
-
     delete reader_;
     delete ioobj_;
     delete preprocmgr_;
@@ -92,20 +80,14 @@ PreStackDisplay::~PreStackDisplay()
 void PreStackDisplay::setSceneEventCatcher( visBase::EventCatcher* evcatcher )
 {
     if ( eventcatcher_ )
-    {
 	mDetachCB( eventcatcher_->eventhappened,
 		   PreStackDisplay::updateMouseCursorCB );
-	eventcatcher_->unRef();
-    }
 
     eventcatcher_ = evcatcher;
 
     if ( eventcatcher_ )
-    {
-	eventcatcher_->ref();
 	mAttachCB( eventcatcher_->eventhappened,
 		   PreStackDisplay::updateMouseCursorCB );
-    }
 }
 
 
@@ -224,6 +206,7 @@ bool PreStackDisplay::setPosition( const BinID& nb )
 
 void PreStackDisplay::setProcMgr( OD::GeomSystem gs )
 {
+    delete preprocmgr_;
     preprocmgr_ = new PreStack::ProcessManager( gs );
     if ( !preprociop_.isEmpty() )
 	preprocmgr_->usePar( preprociop_ );
@@ -473,7 +456,7 @@ void PreStackDisplay::displaysAutoWidth( bool yn )
 	return;
 
     autowidth_ = yn;
-    dataChangedCB( 0 );
+    dataChangedCB( nullptr );
 }
 
 
@@ -483,17 +466,17 @@ void PreStackDisplay::displaysOnPositiveSide( bool yn )
 	return;
 
     posside_ = yn;
-    dataChangedCB( 0 );
+    dataChangedCB( nullptr );
 }
 
 
 void PreStackDisplay::setFactor( float scale )
 {
-    if (  factor_ == scale )
+    if ( factor_ == scale )
 	return;
 
     factor_ = scale;
-    dataChangedCB( 0 );
+    dataChangedCB( nullptr );
 }
 
 void PreStackDisplay::setWidth( float width )
@@ -502,7 +485,7 @@ void PreStackDisplay::setWidth( float width )
 	return;
 
     width_ = width;
-    dataChangedCB( 0 );
+    dataChangedCB( nullptr );
 }
 
 
@@ -638,15 +621,15 @@ bool PreStackDisplay::isOrientationInline() const
 }
 
 
-const visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay() const
+const PlaneDataDisplay* PreStackDisplay::getSectionDisplay() const
 {
-    return section_;
+    return section_.ptr();
 }
 
 
-visSurvey::PlaneDataDisplay* PreStackDisplay::getSectionDisplay()
+PlaneDataDisplay* PreStackDisplay::getSectionDisplay()
 {
-    return section_;
+    return section_.ptr();
 }
 
 
@@ -662,15 +645,12 @@ void PreStackDisplay::setDisplayTransformation(
 void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
 {
     if ( section_ )
-    {
 	mDetachCB( section_->getMovementNotifier(),
 		   PreStackDisplay::sectionMovedCB );
-	section_->unRef();
-    }
 
     section_ = pdd;
-    if ( !section_ ) return;
-    section_->ref();
+    if ( !section_ )
+	return;
 
     if ( section_->id().asInt() > id().asInt() )
     {
@@ -722,9 +702,9 @@ void PreStackDisplay::sectionMovedCB( CallBacker* )
 }
 
 
-const visSurvey::Seis2DDisplay* PreStackDisplay::getSeis2DDisplay() const
+const Seis2DDisplay* PreStackDisplay::getSeis2DDisplay() const
 {
-    return seis2d_;
+    return seis2d_.ptr();
 }
 
 
@@ -787,14 +767,10 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
 	return false;
 
     if ( seis2d_ )
-    {
 	mDetachCB( seis2d_->getMovementNotifier(),
 		   PreStackDisplay::seis2DMovedCB );
-	seis2d_->unRef();
-    }
 
     seis2d_ = s2d;
-    seis2d_->ref();
 
     if ( seis2d_->id().asInt() > id().asInt() )
     {
@@ -853,8 +829,8 @@ BufferString PreStackDisplay::lineName() const
 }
 
 
-void PreStackDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>&
-					 , VisID whichobj )
+void PreStackDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>&,
+					 const VisID& whichobj )
 {
     if ( !section_ && ! seis2d_ )
 	return;
@@ -1067,23 +1043,23 @@ void PreStackDisplay::fillPar( IOPar& par ) const
 
 bool PreStackDisplay::usePar( const IOPar& par )
 {
-    if ( !VisualObjectImpl::usePar( par ) ||
-	 !visSurvey::SurveyObject::usePar( par ) )
+    if ( !VisualObjectImpl::usePar(par) || !SurveyObject::usePar(par) )
 	 return false;
 
     int parentid = -1;
-    if ( !par.get( sKeyParent(), parentid ) )
+    if ( !par.get(sKeyParent(),parentid) )
     {
-	if ( !par.get( "Seis2D ID", parentid ) )
-	    if ( !par.get( "Section ID", parentid ) )
+	if ( !par.get("Seis2D ID",parentid) )
+	    if ( !par.get("Section ID",parentid) )
 		return false;
     }
 
     visBase::DataObject* parent = visBase::DM().getObject( VisID(parentid) );
-    if ( !parent ) return false;
+    if ( !parent )
+	return false;
 
     MultiID mid;
-    if ( !par.get( sKeyMultiID(), mid ) )
+    if ( !par.get(sKeyMultiID(),mid) )
     {
 	if ( !par.get("PreStack MultiID",mid) )
 	{
@@ -1102,22 +1078,22 @@ bool PreStackDisplay::usePar( const IOPar& par )
     {
 	setSectionDisplay( pdd );
 	BinID bid;
-	if ( !par.get( sKey::Position(), bid ) )
+	if ( !par.get(sKey::Position(),bid) )
 	{
 	    if ( !par.get("PreStack BinID",bid) )
 		return false;
 	}
 
-	if ( !setPosition( TrcKey(bid) ) )
+	if ( !setPosition(TrcKey(bid)) )
 	    return false;
     }
 
     if ( s2d )
     {
 	int tnr;
-	if ( !par.get( sKeyTraceNr(), tnr ) )
+	if ( !par.get(sKeyTraceNr(),tnr) )
 	{
-	    if ( !par.get( "Seis2D TraceNumber", tnr ) )
+	    if ( !par.get("Seis2D TraceNumber",tnr) )
 		return false;
 	}
 
@@ -1125,17 +1101,17 @@ bool PreStackDisplay::usePar( const IOPar& par )
     }
 
     float factor, width;
-    if ( par.get(sKeyFactor(), factor) )
+    if ( par.get(sKeyFactor(),factor) )
 	setFactor( factor );
 
-    if ( par.get(sKeyWidth(), width) )
+    if ( par.get(sKeyWidth(),width) )
 	setWidth( width );
 
     bool autowidth, side;
-    if ( par.getYN(sKeyAutoWidth(), autowidth) )
+    if ( par.getYN(sKeyAutoWidth(),autowidth) )
 	 displaysAutoWidth( autowidth );
 
-    if ( par.getYN(sKeySide(), side) )
+    if ( par.getYN(sKeySide(),side) )
 	displaysOnPositiveSide( side );
 
     if ( flatviewer_ )
@@ -1146,6 +1122,5 @@ bool PreStackDisplay::usePar( const IOPar& par )
 
     return true;
 }
-
 
 } // namespace visSurvey

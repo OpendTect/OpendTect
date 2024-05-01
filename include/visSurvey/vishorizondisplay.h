@@ -9,22 +9,23 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "visemobjdisplay.h"
+
 #include "coltabmapper.h"
 #include "coltabsequence.h"
+#include "datapackbase.h"
 #include "factory.h"
 #include "uistring.h"
+#include "visemobjdisplay.h"
+#include "vishorizonsection.h"
+#include "vishorizontexturehandler.h"
+#include "vismarkerset.h"
+#include "vispointset.h"
+#include "vistransform.h"
 
 namespace ColTab{ class Sequence; class MapperSetup; }
 namespace visBase
 {
-    class HorizonSection;
-    class HorizonTextureHandler;
-    class MarkerSet;
-    class PointSet;
     class TextureChannel2RGBA;
-    class VertexShape;
-    class PolyLine;
 }
 
 namespace visSurvey
@@ -37,10 +38,11 @@ mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
     struct IntersectionData;
 public:
 				HorizonDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,HorizonDisplay,
+				    SurveyObject, HorizonDisplay,
 				    "HorizonDisplay",
-				    toUiString(sFactoryKeyword()))
+				    ::toUiString(sFactoryKeyword()) )
 
     void			setDisplayTransformation(
 					    const mVisTrans*) override;
@@ -62,6 +64,7 @@ public:
 					    TaskRunner*) override;
     bool			updateFromEM(TaskRunner*) override;
     void			updateFromMPE() override;
+    void			showPosAttrib(int attr,bool yn) override;
 
     StepInterval<int>		geometryRowRange() const;
     StepInterval<int>		geometryColRange() const;
@@ -112,12 +115,10 @@ public:
     void			setSelSpecs(int attrib,
 				    const TypeSet<Attrib::SelSpec>&) override;
     void			setDepthAsAttrib(int);
-    void			setDisplayDataPackIDs(int attrib,
-					const TypeSet<DataPackID>&);
     DataPackID			getDataPackID(int attrib) const override;
     DataPackID			getDisplayedDataPackID(
-						int attrib )const override;
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
+						int attrib) const override;
+    DataPackMgr::MgrID		getDataPackMgrID() const override
 				{ return DataPackMgr::FlatID(); }
 
     bool			allowMaterialEdit() const override
@@ -125,7 +126,7 @@ public:
     bool			hasColor() const override	{ return true; }
     bool			usesColor() const override;
 
-    EM::SectionID		getSectionID(VisID visid) const override;
+    EM::SectionID		getSectionID(const VisID&) const override;
 
     void			getRandomPos(DataPointSet&,
 						TaskRunner*) const override;
@@ -176,7 +177,7 @@ public:
     bool			setChannels2RGBA(
 					visBase::TextureChannel2RGBA*) override;
     visBase::TextureChannel2RGBA* getChannels2RGBA() override;
-    const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
+    const visBase::TextureChannel2RGBA* getChannels2RGBA() const override;
 
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
@@ -198,13 +199,13 @@ public:
     const visBase::VertexShape* getLine(int) const;
     void			displayIntersectionLines(bool);
     bool			displaysIntersectionLines() const;
-    const visBase::HorizonSection*	getSection(int id) const;
+    const visBase::HorizonSection* getSection(int id) const;
 
     static HorizonDisplay*	getHorizonDisplay(const MultiID&);
 
     void			doOtherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					VisID whichobj) override;
+					const VisID& whichobj) override;
     void			setPixelDensity(float) override;
 
     void			setSectionDisplayRestore(bool);
@@ -221,7 +222,6 @@ public:
     void			updateAuxData() override;
     bool			canBeRemoved() const override;
 
-// Deprecated public functions
     mDeprecated("Use without SectionID")
     visBase::HorizonSection*	getHorizonSection(const EM::SectionID&)
 				{ return getHorizonSection(); }
@@ -242,19 +242,21 @@ private:
     void			removeSectionDisplay(
 						const EM::SectionID&) override;
     visBase::VisualObject*	createSection(const EM::SectionID&) const;
+    void			setDisplayDataPacks(int attrib,
+					const ObjectSet<MapDataPack>&);
     bool			addSection(const EM::SectionID&,
 					   TaskRunner*) override;
     void			emChangeCB(CallBacker*) override;
     int				getChannelIndex(const char* nm) const;
     void			updateIntersectionLines(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj );
+				    const VisID& whichobj );
     void			updateSectionSeeds(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj );
+				    const VisID& whichobj );
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
-				    VisID whichobj) override;
+				    const VisID& whichobj) override;
     void			updateSingleColor();
 
     void			calculateLockedPoints();
@@ -263,11 +265,11 @@ private:
     void			handleEmChange(const EM::EMObjectCallbackData&);
     void			updateLockedPointsColor();
 
-    bool				allowshading_;
-    mVisTrans*				translation_;
-    Coord3				translationpos_;
+    bool			allowshading_ = true;
+    RefMan<mVisTrans>		translation_;
+    Coord3			translationpos_ = Coord3::udf();
 
-    ObjectSet<visBase::HorizonSection>  sections_;
+    RefObjectSet<visBase::HorizonSection>  sections_;
     TypeSet<BufferString>		secnames_;
     TypeSet<EM::SectionID>		sids_;
 
@@ -275,6 +277,7 @@ private:
     {
 				IntersectionData(const OD::LineStyle&);
 				~IntersectionData();
+
 	void			addLine(const TypeSet<Coord3>&);
 	void			clear();
 
@@ -287,11 +290,10 @@ private:
 	RefMan<visBase::VertexShape> setLineStyle(const OD::LineStyle&);
 				//Returns old line if replaced
 
-
-	visBase::VertexShape*		line_;
-	visBase::MarkerSet*		markerset_;
-	ZAxisTransform*			zaxistransform_;
-	int				voiid_;
+	RefMan<visBase::VertexShape>	line_;
+	RefMan<visBase::MarkerSet>	markerset_;
+	RefMan<ZAxisTransform>		zaxistransform_;
+	int				voiid_ = -2;
 	VisID				objid_;
     };
 
@@ -310,7 +312,7 @@ private:
 
     bool			isValidIntersectionObject(
 				   const ObjectSet<const SurveyObject>&,
-				   int& objidx,VisID objid) const;
+				   int& objidx,const VisID& objid) const;
 				/*!<Check if the active object is one of
 				planedata, z-slice, 2dline,..., if it is
 				get the the idx in the stored object
@@ -319,39 +321,39 @@ private:
 					//One per object we intersect with
 
     float				maxintersectionlinethickness_;
-    visBase::Material*			intersectionlinematerial_;
+    RefMan<visBase::Material>		intersectionlinematerial_;
 
-    visBase::PointSet*			selections_;
-    visBase::PointSet*			lockedpts_;
-    visBase::PointSet*			sectionlockedpts_;
-    visBase::VertexShape*		parentline_;
+    RefMan<visBase::PointSet>		selections_;
+    RefMan<visBase::PointSet>		lockedpts_;
+    RefMan<visBase::PointSet>		sectionlockedpts_;
+    RefMan<visBase::VertexShape>	parentline_;
 
     StepInterval<int>			parrowrg_;
     StepInterval<int>			parcolrg_;
 
     TypeSet<ColTab::MapperSetup>	coltabmappersetups_;//for each channel
     TypeSet<ColTab::Sequence>		coltabsequences_;  //for each channel
-    bool				enabletextureinterp_;
+    bool				enabletextureinterp_	= true;
 
-    char				resolution_;
-    int					curtextureidx_;
+    char				resolution_	= 0;
+    int					curtextureidx_	= 0;
 
-    bool				displayintersectionlines_;
+    bool				displayintersectionlines_ = true;
 
     ObjectSet<TypeSet<Attrib::SelSpec> > as_;
-    ObjectSet<TypeSet<DataPackID> >	dispdatapackids_;
+    ObjectSet<RefObjectSet<MapDataPack> > datapacksset_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;
     ObjectSet< TypeSet<float> >		shifts_;
-    bool				displaysurfacegrid_;
+    bool				displaysurfacegrid_	= false;
 
     TypeSet<EM::SectionID>		oldsectionids_;
     TypeSet<StepInterval<int> >		olddisplayedrowranges_;
     TypeSet<StepInterval<int> >		olddisplayedcolranges_;
 
-    ObjectSet<visBase::HorizonTextureHandler> oldhortexhandlers_;
+    RefObjectSet<visBase::HorizonTextureHandler> oldhortexhandlers_;
     Threads::Mutex*			locker_;
-    bool				showlock_;
+    bool				showlock_	= false;
 
     static const char*			sKeyTexture();
     static const char*			sKeyShift();

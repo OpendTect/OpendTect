@@ -12,31 +12,28 @@ ________________________________________________________________________
 // don't include it in somewhere else !!!
 
 #include "visbasemod.h"
-#include "refcount.h"
 
 #include "rowcol.h"
+#include "vishorizonsection.h"
+#include "vistexturechannel2rgba.h"
 
 class DataPointSet;
 class BinIDValueSet;
 class TaskRunner;
 
 namespace osg { class Node; }
-namespace osgGeo { class LayeredTexture; }
-namespace ColTab { class Sequence; class MapperSetup; }
 
 namespace visBase
 {
-class HorizonSection;
-class TextureChannel2RGBA;
-class TextureChannels;
 
 class HorizonTextureHandler : public ReferencedObject
 {
 public:
-				HorizonTextureHandler(const HorizonSection*);
+				HorizonTextureHandler(HorizonSection*);
 
     osg::Node*			getOsgNode();
     osgGeo::LayeredTexture*	getOsgTexture();
+    const osgGeo::LayeredTexture* getOsgTexture() const;
     int				nrChannels() const;
     void			useChannel(bool);
     void			addChannel();
@@ -55,19 +52,20 @@ public:
 					    TaskRunner* tr);
     const ColTab::MapperSetup*  getColTabMapperSetup(int ch) const;
     const TypeSet<float>*	getHistogram(int ch) const;
-    void			setTransparency(int ch, unsigned char yn);
+    void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;
 
     TextureChannel2RGBA*	getChannels2RGBA();
     const TextureChannel2RGBA*	getChannels2RGBA() const;
-    TextureChannels*		getChannels() const { return channels_; }
+    TextureChannels*		getChannels();
+    const TextureChannels*	getChannels() const;
     int				nrVersions(int channel) const;
     void			setNrVersions(int channel,int);
     int				activeVersion(int channel) const;
     void			selectActiveVersion(int channel,int);
 
-    void			setTextureData(int channel, int sectionid,
-					       const DataPointSet* dtpntset);
+    void			setTextureData(int channel,int sectionid,
+					       const DataPointSet*);
     void			updateTexture(int channel,int sectionid,
 					      const DataPointSet*);
     void			updateTileTextureOrigin();
@@ -76,13 +74,13 @@ public:
 
 
 protected:
-    virtual			~HorizonTextureHandler();
+				~HorizonTextureHandler();
 
-    const HorizonSection*	horsection_;
+    WeakPtr<HorizonSection>	horsection_;
     ObjectSet<BinIDValueSet>	cache_;
 
-    TextureChannels*		channels_;
-    TextureChannel2RGBA*	channel2rgba_;
+    RefMan<TextureChannels>	channels_;
+    RefMan<TextureChannel2RGBA> channel2rgba_;
 };
 
 } // namespace visBase

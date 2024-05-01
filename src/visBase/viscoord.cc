@@ -9,8 +9,6 @@ ________________________________________________________________________
 
 #include "viscoord.h"
 
-#include "vistransform.h"
-#include "visnormals.h"
 #include "paralleltask.h"
 
 #include <osg/Array>
@@ -23,13 +21,14 @@ namespace visBase
 class SetOrGetCoordinates: public ParallelTask
 {
 public:
-    SetOrGetCoordinates(Coordinates* p, const od_int64 size,
-			const Coord3* inpositions = 0,
-			TypeSet<Coord3>* outpositions= 0,int startidx=0,
-			bool scenespace = false);
+		SetOrGetCoordinates(Coordinates*,const od_int64 size,
+			const Coord3* inpositions =nullptr,
+			TypeSet<Coord3>* outpositions =nullptr,int startidx=0,
+			bool scenespace =false);
+
     od_int64	totalNr() const override { return totalnrcoords_; }
-    void	setWithSingleCoord(const Coord3 coord)
-		{singlecoord_ = coord;setwithsinglecoord_ = true;}
+    void	setWithSingleCoord( const Coord3 coord )
+		{ singlecoord_ = coord; setwithsinglecoord_ = true; }
 
 protected:
     bool	doWork(od_int64 start,od_int64 stop,int) override;
@@ -92,20 +91,16 @@ bool SetOrGetCoordinates::doWork(od_int64 start,od_int64 stop,int)
 
 
 Coordinates::Coordinates()
-    : transformation_( 0 )
-    , osgcoords_( new osg::Vec3Array )
-    , change( this )
+    : osgcoords_(new osg::Vec3Array)
+    , change(this)
 {
-    mGetOsgVec3Arr(osgcoords_)->ref();
+    refOsgPtr( mGetOsgVec3Arr(osgcoords_) );
 }
 
 
 Coordinates::~Coordinates()
 {
-
-    mGetOsgVec3Arr(osgcoords_)->unref();
-
-    if ( transformation_ ) transformation_->unRef();
+    unRefOsgPtr( mGetOsgVec3Arr(osgcoords_) );
 }
 
 
@@ -128,19 +123,14 @@ int Coordinates::arraySize() const
 
 void Coordinates::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( nt==transformation_ ) return;
+    if ( nt==transformation_ )
+	return;
 
     TypeSet<Coord3> worldpos;
     worldpos.setSize( arraySize() );
     getPositions(worldpos);
 
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_ = nt;
-
-    if ( transformation_ )
-	transformation_->ref();
 
     setPositions(worldpos);
 
@@ -150,7 +140,7 @@ void Coordinates::setDisplayTransformation( const mVisTrans* nt )
 
 const mVisTrans*  Coordinates::getDisplayTransformation() const
 {
-    return transformation_;
+    return transformation_.ptr();
 }
 
 
@@ -384,6 +374,7 @@ void Coordinates::setAllZ( const float* vals, int sz, bool dotransf )
 	    transformation_->getTranslation().z;
 	else
 	    *zvals = *vals;
+
 	zvals += 3;
 	vals++;
     }
@@ -439,110 +430,26 @@ void Coordinates::dirty() const
 	osgcoords_->dirty();
 }
 
-CoinFloatVertexAttribList::CoinFloatVertexAttribList(Coordinates& c, Normals* n)
-    : coords_( c )
-    , normals_( n )
-{
-    coords_.ref();
-    if ( normals_ ) normals_->ref();
-}
 
-
-CoinFloatVertexAttribList::~CoinFloatVertexAttribList()
-{
-    coords_.unRef();
-    if ( normals_ ) normals_->unRef();
-}
-
-
-int CoinFloatVertexAttribList::size() const
-{
-    return coords_.size();
-}
-
-
-bool CoinFloatVertexAttribList::setSize(int sz,bool cpdata)
-{
-    if ( sz>size() )
-    {
-	coords_.setPos( sz-1, Coord3::udf() );
-	if ( normals_ ) normals_->setNormal(sz-1, Coord3::udf() );
-    }
-    else if ( sz>size() )
-    {
-	coords_.removeAfter( sz-1 );
-    }
-
-    return true;
-}
-
-
- void	CoinFloatVertexAttribList::setCoord(int idx,const float* pos)
-{
-    const Coord3 coord( pos[0], pos[1], pos[2] );
-    coords_.setPos( idx, coord );
-}
-
-
-void	CoinFloatVertexAttribList::getCoord( int idx, float* res ) const
-{
-    const Coord3 coord = coords_.getPos( idx );
-    res[0] = (float) coord.x;
-    res[1] = (float) coord.y;
-    res[2] = (float) coord.z;
-}
-
-
-void CoinFloatVertexAttribList::setNormal( int idx, const float* pos )
-{
-    if ( !normals_ )
-	return;
-
-    const Coord3 coord( pos[0], pos[1], pos[2] );
-    normals_->setNormal( idx, coord );
-}
-
-
-void	CoinFloatVertexAttribList::getNormal( int idx, float* res ) const
-{
-    if ( !normals_ )
-	return;
-
-    const Coord3 coord = normals_->getNormal( idx );
-    res[0] = (float) coord.x;
-    res[1] = (float) coord.y;
-    res[2] = (float) coord.z;
-}
-
-
-void CoinFloatVertexAttribList::setTCoord(int,const float*)
-{}
-
-
-void CoinFloatVertexAttribList::getTCoord(int,float*) const
-{}
-
-
+// CoordListAdapter
 
 CoordListAdapter::CoordListAdapter( Coordinates& c )
-    : coords_( c )
+    : coords_(&c)
 {
-    coords_.ref();
 }
 
 
 CoordListAdapter::~CoordListAdapter()
 {
-    coords_.unRef();
 }
 
 
 int CoordListAdapter::nextID( int previd ) const
-{ return coords_.nextID( previd ); }
+{ return coords_->nextID( previd ); }
 
 
 int CoordListAdapter::add( const Coord3& p )
-{ return coords_.addPos( p ); }
+{ return coords_->addPos( p ); }
 
 
 void CoordListAdapter::addValue( int idx, const Coord3& p )
@@ -552,27 +459,26 @@ void CoordListAdapter::addValue( int idx, const Coord3& p )
 
 
 Coord3 CoordListAdapter::get( int idx ) const
-{ return coords_.getPos( idx, false ); }
+{ return coords_->getPos( idx, false ); }
 
 
 bool CoordListAdapter::isDefined( int idx ) const
-{ return coords_.isDefined( idx ); }
+{ return coords_->isDefined( idx ); }
 
 
 void CoordListAdapter::set( int idx, const Coord3& p )
-{ coords_.setPos( idx, p ); }
+{ coords_->setPos( idx, p ); }
 
 
 void CoordListAdapter::remove( int idx )
 {
-    coords_.removePos( idx, true );
+    coords_->removePos( idx, true );
 }
 
 void CoordListAdapter::remove(const TypeSet<int>& idxs)
 {
     for ( int idx = idxs.size()-1; idx>=0; idx-- )
-	coords_.removePos( idxs[idx], true );
-
+	coords_->removePos( idxs[idx], true );
 }
 
 } // namespace visBase

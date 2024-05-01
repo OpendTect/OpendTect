@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "viscamera.h"
+
 #include "iopar.h"
 #include "keystrs.h"
 #include "visosg.h"
@@ -23,7 +24,7 @@ namespace visBase
 class DrawCallback : public osg::Camera::DrawCallback
 {
 public:
-    DrawCallback( visBase::Camera& cam )
+    DrawCallback( Camera& cam )
         : camera_( cam )
     {}
 
@@ -37,20 +38,19 @@ public:
     {}
 
 private:
-    visBase::Camera&	camera_;
+    Camera&	camera_;
 };
 
 
 Camera::Camera()
-    : camera_( new osg::Camera )
-    , preDraw( this )
-    , postDraw( this )
-    , renderinfo_( 0 )
-    , postdraw_( new DrawCallback( *this ) )
-    , predraw_( new DrawCallback( *this ) )
+    : camera_(new osg::Camera)
+    , preDraw(this)
+    , postDraw(this)
+    , postdraw_(new DrawCallback(*this))
+    , predraw_(new DrawCallback(*this))
 {
-    postdraw_->ref();
-    predraw_->ref();
+    refOsgPtr( predraw_ );
+    refOsgPtr( postdraw_ );
 
     camera_->getOrCreateStateSet()->setGlobalDefaults();
     camera_->setProjectionResizePolicy( osg::Camera::FIXED );
@@ -63,8 +63,8 @@ Camera::Camera()
 
 Camera::~Camera()
 {
-    postdraw_->unref();
-    predraw_->unref();
+    unRefOsgPtr( predraw_ );
+    unRefOsgPtr( postdraw_ );
 }
 
 
@@ -87,7 +87,7 @@ void Camera::triggerDrawCallBack( const DrawCallback* src,
         postDraw.trigger();
     }
 
-    renderinfo_ = 0;
+    renderinfo_ = nullptr;
 }
 
 

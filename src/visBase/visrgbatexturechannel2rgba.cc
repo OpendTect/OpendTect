@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "visrgbatexturechannel2rgba.h"
 
-#include "vistexturechannels.h"
 #include "coltabsequence.h"
 #include "uistrings.h"
 
@@ -20,11 +19,9 @@ mCreateFactoryEntry( visBase::RGBATextureChannel2RGBA );
 namespace visBase
 {
 
-ArrPtrMan<ColTab::Sequence> RGBATextureChannel2RGBA::sequences_ = 0;
+ArrPtrMan<ColTab::Sequence> RGBATextureChannel2RGBA::sequences_;
 
 RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
-    : proc_(0)
-    , proctransparency_(0)
 {
     if ( !sequences_ )
     {
@@ -59,7 +56,7 @@ RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
 
 const ColTab::Sequence* RGBATextureChannel2RGBA::getSequence( int ch ) const
 {
-    return (sequences_ && ch>=0 && ch<=3) ? &sequences_[ch] : 0;
+    return (sequences_ && ch>=0 && ch<=3) ? &sequences_[ch] : nullptr;
 }
 
 
@@ -92,7 +89,7 @@ void RGBATextureChannel2RGBA::getChannelName( int channel,
 
 RGBATextureChannel2RGBA::~RGBATextureChannel2RGBA()
 {
-    if ( proc_ ) proc_->unref();
+    unRefOsgPtr( proc_ );
 }
 
 
@@ -102,16 +99,20 @@ void RGBATextureChannel2RGBA::notifyChannelInsert( int channel )
 	return;
 
     proc_ = new osgGeo::RGBALayerProcess( *laytex_ );
-    proc_->ref();
+    refOsgPtr( proc_ );
     proc_->applyUndefPerChannel( true );
 
     laytex_->addProcess( proc_ );
 
-    for ( int idx=0; idx<=3; idx++ )
+    RefMan<TextureChannels> channels = channels_.get();
+    if ( channels )
     {
-	const int layerid = (*channels_->getOsgIDs(idx))[0];
-	proc_->setDataLayerID( idx, layerid );
-	setEnabled( idx, enabled_[idx] );
+	for ( int idx=0; idx<=3; idx++ )
+	{
+	    const int layerid = (*channels->getOsgIDs(idx))[0];
+	    proc_->setDataLayerID( idx, layerid );
+	    setEnabled( idx, enabled_[idx] );
+	}
     }
 
     setTransparency( proctransparency_ );

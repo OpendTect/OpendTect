@@ -8,41 +8,40 @@ ________________________________________________________________________
 -*/
 
 #include "vishordatahandler.h"
-#include "vishorizonsectiondef.h"
-#include "visdata.h"
 
-#include "vishorizonsection.h"
-#include "zaxistransform.h"
-#include "trckeyzsampling.h"
-#include "binidvalue.h"
+
 #include "binidsurface.h"
+#include "binidvalue.h"
 #include "datacoldef.h"
-#include "posvecdataset.h"
 #include "datapointset.h"
+#include "posvecdataset.h"
+#include "trckeyzsampling.h"
+#include "visdata.h"
+#include "vishorizonsection.h"
+#include "vishorizonsectiondef.h"
 
 
 namespace visBase
 {
 
 HorizonSectionDataHandler::HorizonSectionDataHandler(
-    const HorizonSection* hrsection )
+					    const HorizonSection* hrsection )
     : horsection_( hrsection )
-    , zaxistransformvoi_( -2 )
-    , zaxistransform_( 0 )
 {
-
 }
 
 
 HorizonSectionDataHandler::~HorizonSectionDataHandler()
 {
-    removeZTransform();
+    if ( zaxistransform_ && zaxistransformvoi_ != -2 )
+	zaxistransform_->removeVolumeOfInterest( zaxistransformvoi_ );
 }
 
 
 void HorizonSectionDataHandler::updateZAxisVOI()
 {
-    if( !horsection_ ) return;
+    if ( !horsection_ )
+	return;
 
     Geometry::BinIDSurface* geometry = horsection_->geometry_;
 
@@ -83,7 +82,6 @@ void HorizonSectionDataHandler::updateZAxisVOI()
 	zaxistransformvoi_ = zaxistransform_->addVolumeOfInterest( cs, false );
     else
 	zaxistransform_->setVolumeOfInterest( zaxistransformvoi_, cs, false );
-
 }
 
 
@@ -97,8 +95,6 @@ void HorizonSectionDataHandler::setZAxisTransform( ZAxisTransform* zt )
 	return ;
 
     zaxistransform_ = zt;
-    zaxistransform_->ref();
-
     if ( horsection_->geometry_ )
 	updateZAxisVOI();
 }
@@ -109,13 +105,11 @@ void HorizonSectionDataHandler::removeZTransform()
     if ( !zaxistransform_ )
 	return;
 
-    if ( zaxistransformvoi_!=-2 )
+    if ( zaxistransformvoi_ != -2 )
 	zaxistransform_->removeVolumeOfInterest( zaxistransformvoi_ );
 
     zaxistransformvoi_ = -2;
-
-    zaxistransform_->unRef();
-    zaxistransform_ = 0;
+    zaxistransform_ = nullptr;
 }
 
 
@@ -200,13 +194,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
 
 
 void HorizonSectionDataHandler::generatePositionData( DataPointSet& dtpntset,
-	double zshift, int sectionid ) const
+					double zshift, int sectionid ) const
 {
     if ( !horsection_ || !horsection_->geometry_ ) return;
 
     if ( zaxistransform_ && zaxistransformvoi_>=0 )
     {
-	if ( !zaxistransform_->loadDataIfMissing(zaxistransformvoi_) )
+	if ( !zaxistransform_.getNonConstPtr()->loadDataIfMissing(
+							zaxistransformvoi_) )
 	    return;
     }
 

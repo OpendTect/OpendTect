@@ -141,7 +141,8 @@ void uiAttribDescSetBuild::fillAvailable()
 void uiAttribDescSetBuild::editReq( bool isadd )
 {
     const char* attrnm = isadd ? curAvSel() : curDefSel();
-    if ( !attrnm || !*attrnm ) return;
+    if ( !attrnm || !*attrnm )
+	return;
 
     Attrib::DescID did;
     if ( !isadd )
@@ -149,8 +150,10 @@ void uiAttribDescSetBuild::editReq( bool isadd )
     else
     {
 	attrnm = uiAF().attrNameOf( attrnm );
-	Attrib::Desc* desc = PF().createDescCopy( attrnm );
-	if ( !desc ) { pErrMsg("Huh"); return; }
+	RefMan<Attrib::Desc> desc = PF().createDescCopy( attrnm );
+	if ( !desc )
+	    { pErrMsg("Huh"); return; }
+
 	desc->setUserRef( "" );
 	desc->setDescSet( &descset_ );
 	descset_.addDesc( desc );

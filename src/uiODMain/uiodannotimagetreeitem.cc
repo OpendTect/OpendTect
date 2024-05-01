@@ -15,11 +15,10 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "uivispartserv.h"
 #include "uifiledlg.h"
-#include "visimagedisplay.h"
 #include "uistrings.h"
 
 
-ImageSubItem::ImageSubItem( Pick::Set& pck, VisID displayid )
+ImageSubItem::ImageSubItem( Pick::Set& pck, const VisID& displayid )
     : uiODAnnotSubItem( pck, displayid )
     , filemnuitem_( m3Dots(tr("Select image")) )
 {
@@ -27,24 +26,28 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, VisID displayid )
 }
 
 
+ImageSubItem::~ImageSubItem()
+{
+    detachAllNotifiers();
+    removeStuff();
+    visserv_->removeObject( displayid_, sceneID() );
+}
+
 
 bool ImageSubItem::init()
 {
-    visSurvey::ImageDisplay* id = 0;
     if (  !displayid_.isValid() )
     {
-	id = visSurvey::ImageDisplay::create();
-	visserv_->addObject( id, sceneID(), true );
+	RefMan<visSurvey::ImageDisplay> id = visSurvey::ImageDisplay::create();
+	visserv_->addObject( id.ptr(), sceneID(), true );
 	displayid_ = id->id();
 	id->setUiName( name_ );
     }
-    else
-    {
-	mDynamicCast(visSurvey::ImageDisplay*,id,
-			visserv_->getObject(displayid_))
-    }
 
-    if ( !id ) return false;
+    RefMan<visSurvey::ImageDisplay> id =
+	dCast(visSurvey::ImageDisplay*,visserv_->getObject(displayid_) );
+    if ( !id )
+	return false;
 
     id->needFileName.notifyIfNotNotified(
 			mCB(this,ImageSubItem,retrieveFileName) );
@@ -63,9 +66,21 @@ bool ImageSubItem::init()
     if ( !filename.isEmpty() )
 	id->setFileName( filename.buf() );
 
+    imagedisp_ = id;
     return uiODAnnotSubItem::init();
 }
 
+
+ConstRefMan<visSurvey::ImageDisplay> ImageSubItem::getDisplay() const
+{
+    return imagedisp_.get();
+}
+
+
+RefMan<visSurvey::ImageDisplay> ImageSubItem::getDisplay()
+{
+    return imagedisp_.get();
+}
 
 
 const char* ImageSubItem::parentType() const
@@ -75,7 +90,10 @@ const char* ImageSubItem::parentType() const
 void ImageSubItem::fillStoragePar( IOPar& par ) const
 {
     uiODAnnotSubItem::fillStoragePar( par );
-    mDynamicCastGet(visSurvey::ImageDisplay*,id,visserv_->getObject(displayid_))
+    ConstRefMan<visSurvey::ImageDisplay> id = getDisplay();
+    if ( !id )
+	return;
+
     par.set( sKey::FileName(), id->getFileName() );
 }
 
@@ -119,16 +137,17 @@ void ImageSubItem::updateColumnText(int col)
 }
 
 
-void ImageSubItem::selectFileName() const
+void ImageSubItem::selectFileName()
 {
-    mDynamicCastGet(visSurvey::ImageDisplay*,id,
-		    visserv_->getObject(displayid_))
-    if ( !id ) return;
+    RefMan<visSurvey::ImageDisplay> id = getDisplay();
+    if ( !id )
+	return;
 
     BufferString filename = id->getFileName();
     BufferString filter = "JPEG (*.jpg *.jpeg);;PNG (*.png)";
     uiFileDialog dlg( getUiParent(), true, filename, filter );
-    if ( !dlg.go() ) return;
+    if ( !dlg.go() )
+	return;
 
     filename = dlg.fileName();
 

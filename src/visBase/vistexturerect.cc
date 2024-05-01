@@ -8,11 +8,11 @@ ________________________________________________________________________
 -*/
 
 #include "vistexturerect.h"
+
 #include "coord.h"
-#include "coord.h"
+#include "odversion.h"
 #include "vistexturechannels.h"
 #include "vistexturechannel2rgba.h"
-#include "odversion.h"
 
 #include <osgGeo/LayeredTexture>
 #include <osgGeo/TexturePlane>
@@ -25,25 +25,26 @@ namespace visBase
 {
 
 TextureRectangle::TextureRectangle()
-    : VisualObjectImpl( false )
-    , textureplane_( new osgGeo::TexturePlaneNode )
-    , displaytrans_( 0 )
+    : VisualObjectImpl(false)
+    , textureplane_(new osgGeo::TexturePlaneNode)
     , spanvec0_( 0.0, 0.0, 0.0 )
     , spanvec1_( 0.0, 0.0, 0.0 )
 {
-    textureplane_->ref();
+    ref();
+    refOsgPtr( textureplane_ );
     addChild( textureplane_ );
     setWidth( Coord3(0.0,0.0,0.0) );
+    unRefNoDelete();
 }
 
 
 TextureRectangle::~TextureRectangle()
 {
-    textureplane_->unref();
+    unRefOsgPtr( textureplane_ );
 }
 
 
-void TextureRectangle::setTextureChannels( visBase::TextureChannels* channels )
+void TextureRectangle::setTextureChannels( TextureChannels* channels )
 {
     channels_ = channels;
     textureplane_->setLayeredTexture( channels_->getOsgTexture() );
@@ -53,8 +54,10 @@ void TextureRectangle::setTextureChannels( visBase::TextureChannels* channels )
 }
 
 
-visBase::TextureChannels* TextureRectangle::getTextureChannels()
-{ return channels_; }
+TextureChannels* TextureRectangle::getTextureChannels()
+{
+    return channels_.ptr();
+}
 
 
 void TextureRectangle::freezeDisplay( bool yn )
@@ -192,7 +195,9 @@ void TextureRectangle::setDisplayTransformation( const mVisTrans* tr )
 
 
 const mVisTrans* TextureRectangle::getDisplayTransformation() const
-{ return displaytrans_; }
+{
+    return displaytrans_.ptr();
+}
 
 
 void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const

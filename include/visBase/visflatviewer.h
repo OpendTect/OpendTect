@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "flatview.h"
 #include "visobject.h"
 
@@ -25,8 +26,8 @@ class TextureRectangle;
 mExpClass(visBase) FlatViewer : public FlatView::Viewer, public VisualObjectImpl
 {
 public:
-    static FlatViewer*	       create()
-			       mCreateDataObj(FlatViewer);
+    static RefMan<FlatViewer>	create();
+				mCreateDataObj(FlatViewer);
 
     Notifier<FlatViewer>       dataChanged;
     Notifier<FlatViewer>       dispParsChanged;
@@ -68,12 +69,11 @@ protected:
 			       ~FlatViewer();
 
     void		       updateGridLines(bool x1);
-    TextureChannels*	       channels_;
-    ColTabTextureChannel2RGBA* channel2rgba_;
+    RefMan<TextureChannels>	  channels_;
+    RefMan<ColTabTextureChannel2RGBA> channel2rgba_;
     RefMan<TextureRectangle>   rectangle_;
-    PolyLine*		       x1gridlines_;
-    PolyLine*		       x2gridlines_;
-    Material*		       gridlinematerial_;
+    RefMan<PolyLine>	       x1gridlines_;
+    RefMan<PolyLine>	       x2gridlines_;
 
     int			       resolution_;
     Coord3		       c00_, c01_, c10_, c11_;

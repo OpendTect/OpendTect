@@ -485,14 +485,14 @@ int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 
 DataPackID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
-					RandomLineID rdmlineid,
+					const RandomLineID& rdmlineid,
 					const Interval<float>& zrange )
 { return createDataPackFrom( regsdp, rdmlineid, zrange, 0 ); }
 
 
 RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
 					const RegularSeisDataPack& regsdp,
-					RandomLineID rdmlineid,
+					const RandomLineID& rdmlineid,
 					const Interval<float>& zrange,
 					const BufferStringSet* compnames )
 {
@@ -561,7 +561,7 @@ RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
 
 DataPackID RandomSeisDataPack::createDataPackFrom(
 					const RegularSeisDataPack& regsdp,
-					RandomLineID rdmlineid,
+					const RandomLineID& rdmlineid,
 					const Interval<float>& zrange,
 					const BufferStringSet* compnames )
 {

@@ -48,7 +48,7 @@ namespace ZDomain	{ class Def; }
 mExpClass(uiODMain) uiODViewer2D : public CallBacker
 { mODTextTranslationClass(uiODViewer2D);
 public:
-				uiODViewer2D(uiODMain&,VisID);
+				uiODViewer2D(uiODMain&,const VisID&);
 				~uiODViewer2D();
 
     mDeclInstanceCreatedNotifierAccess(uiODViewer2D);
@@ -68,8 +68,8 @@ public:
     View2D::DataManager*	dataMgr()		{ return datamgr_; }
     const View2D::DataManager*	dataMgr() const		{ return datamgr_; }
 
-    const View2D::DataObject*	getObject(Vis2DID) const;
-    View2D::DataObject*		getObject(Vis2DID);
+    const View2D::DataObject*	getObject(const Vis2DID&) const;
+    View2D::DataObject*		getObject(const Vis2DID&);
     void			getObjects(ObjectSet<View2D::DataObject>&)const;
 
     uiODView2DTreeTop*		treeTop()		{ return treetp_; }
@@ -123,7 +123,7 @@ public:
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
     virtual void		setPos(const TrcKeyZSampling&);
-    void			setRandomLineID( RandomLineID id )
+    void			setRandomLineID( const RandomLineID& id )
 				{ rdmlineid_ = id; }
     RandomLineID		getRandomLineID() const
 				{ return rdmlineid_; }

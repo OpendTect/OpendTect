@@ -15,16 +15,11 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "selector.h"
 #include "survgeom2d.h"
-#include "zaxistransform.h"
-
-#include "visevent.h"
 #include "vismaterial.h"
-#include "visseedpainter.h"
-#include "vissower.h"
-#include "vistransform.h"
 #include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
+#include "vissower.h"
 
 
 namespace visSurvey {
@@ -55,18 +50,18 @@ static float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 
 
 LocationDisplay::LocationDisplay()
-    : VisualObjectImpl( true )
-    , manip_( this )
+    : visBase::VisualObjectImpl(true)
+    , manip_(this)
 {
+    ref();
     sower_ = new Sower( this );
-    sower_->ref();
     addChild( sower_->osgNode() );
 
     painter_ = new SeedPainter;
-    painter_->ref();
     addChild( painter_->osgNode() );
 
     setSetMgr( &Pick::Mgr() );
+    unRefNoDelete();
 }
 
 
@@ -75,20 +70,10 @@ LocationDisplay::~LocationDisplay()
     detachAllNotifiers();
     setSceneEventCatcher( nullptr );
     setSetMgr( nullptr );
-    unRefPtr( transformation_ );
-
-    if ( datatransform_ )
-    {
-	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->remove(
-		mCB( this, LocationDisplay, fullRedraw) );
-	datatransform_->unRef();
-    }
+    transformation_ = nullptr;
 
     removeChild( sower_->osgNode() );
-    unRefAndNullPtr( sower_ );
     removeChild( painter_->osgNode() );
-    unRefAndNullPtr( painter_ );
 }
 
 
@@ -292,7 +277,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	if ( set_ && set_->disp_.connect_!=Pick::Set::Disp::None )
 	{
 	    set_->disp_.connect_ = Pick::Set::Disp::Close;
-	    dispChg( 0 );
+	    dispChg( nullptr );
 	    return;
 	}
     }
@@ -863,7 +848,8 @@ void LocationDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 
 void LocationDisplay::otherObjectsMoved(
-			const ObjectSet<const SurveyObject>& objs, VisID )
+			const ObjectSet<const SurveyObject>& /* objs */,
+			const VisID& /* whichobj */ )
 {
 }
 
@@ -891,13 +877,7 @@ void LocationDisplay::setDisplayTransformation( const mVisTrans* newtr )
     if ( transformation_==newtr )
 	return;
 
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_ = newtr;
-
-    if ( transformation_ )
-	transformation_->ref();
 
     sower_->setDisplayTransformation( newtr );
     painter_->setDisplayTransformation( newtr );
@@ -919,21 +899,14 @@ void LocationDisplay::setRightHandSystem( bool yn )
 void LocationDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 {
     if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.remove(mCB(this,LocationDisplay,pickCB));
-	eventcatcher_->unRef();
-    }
+	mDetachCB( eventcatcher_->eventhappened, LocationDisplay::pickCB );
 
     eventcatcher_ = nevc;
     sower_->setEventCatcher( nevc );
     painter_->setEventCatcher( nevc );
 
     if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.notify(mCB(this,LocationDisplay,pickCB));
-	eventcatcher_->ref();
-    }
-
+	mAttachCB( eventcatcher_->eventhappened, LocationDisplay::pickCB );
 }
 
 
@@ -948,25 +921,15 @@ bool LocationDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     if ( datatransform_==zat )
 	return true;
 
-    if ( datatransform_ )
-    {
-	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->remove(
-		mCB( this, LocationDisplay, fullRedraw) );
-	datatransform_->unRef();
-    }
+    if ( datatransform_ && datatransform_->changeNotifier() )
+	mDetachCB( *datatransform_->changeNotifier(),
+		   LocationDisplay::fullRedraw );
 
     datatransform_ = zat;
 
-    if ( datatransform_ )
-    {
-	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->notify(
-		mCB( this, LocationDisplay, fullRedraw) );
-
-	datatransform_->ref();
-    }
-
+    if ( datatransform_ && datatransform_->changeNotifier() )
+	mAttachCB( *datatransform_->changeNotifier(),
+		   LocationDisplay::fullRedraw );
 
     fullRedraw();
     showAll( datatransform_ && datatransform_->needsVolumeOfInterest() );
@@ -1019,7 +982,8 @@ bool LocationDisplay::removeSelections( TaskRunner* )
 	return false;
 
     bool changed = false;
-    const Selector< Coord3>* selector = scene_ ? scene_->getSelector() : 0;
+    const Selector< Coord3>* selector = scene_ ? scene_->getSelector()
+					       : nullptr;
     if ( selector && selector->isOK() )
     {
 	for ( int idx=set_->size()-1; idx>=0; idx-- )
@@ -1035,7 +999,8 @@ bool LocationDisplay::removeSelections( TaskRunner* )
 
     if ( changed )
 	Pick::Mgr().undo().setUserInteractionEnd(
-	    Pick::Mgr().undo().currentEventID() );
+				Pick::Mgr().undo().currentEventID() );
+
     return changed;
 }
 
@@ -1043,9 +1008,10 @@ bool LocationDisplay::removeSelections( TaskRunner* )
 void LocationDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
-    visSurvey::SurveyObject::fillPar( par );
+    SurveyObject::fillPar( par );
 
-    if ( !set_ ) return;
+    if ( !set_ )
+	return;
 
     if ( picksetmgr_ )
     {
@@ -1058,14 +1024,12 @@ void LocationDisplay::fillPar( IOPar& par ) const
     par.setYN( sKeyShowAll(), showall_ );
     par.set( sKeyMarkerType(), set_->disp_.markertype_ );
     par.set( sKeyMarkerSize(), set_->disp_.pixsize_ );
-
 }
 
 
 bool LocationDisplay::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) ||
-	 !visSurvey::SurveyObject::usePar( par ) )
+    if ( !visBase::VisualObjectImpl::usePar(par) || !SurveyObject::usePar(par) )
 	 return false;
 
     int markertype = 0;
@@ -1112,14 +1076,16 @@ bool LocationDisplay::usePar( const IOPar& par )
 
 
 const Coord3 LocationDisplay::getActivePlaneNormal(
-    const visBase::EventInfo& eventinfo ) const
+				    const visBase::EventInfo& eventinfo ) const
 {
     Coord3 normal = Coord3::udf();
-    for ( int idx = 0; idx<eventinfo.pickedobjids.size(); idx++ )
+    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
-	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
-	if ( !dataobj ) continue;
+		visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+	if ( !dataobj )
+	    continue;
+
 	mDynamicCastGet( PlaneDataDisplay*, plane, dataobj );
 	mDynamicCastGet( RandomTrackDisplay*, sdtd, dataobj );
 	if ( plane && plane->isOn() )

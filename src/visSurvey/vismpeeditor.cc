@@ -10,17 +10,8 @@ ________________________________________________________________________
 #include "vismpeeditor.h"
 
 #include "color.h"
-#include "emeditor.h"
 #include "emsurfacegeometry.h"
 #include "math2.h"
-
-#include "visdragger.h"
-#include "visevent.h"
-#include "vismarkerset.h"
-#include "vismaterial.h"
-#include "vispolyline.h"
-#include "vissower.h"
-#include "vistransform.h"
 
 mCreateFactoryEntry( visSurvey::MPEEditor )
 
@@ -30,52 +21,33 @@ namespace visSurvey
 MPEEditor::MPEEditor()
     : visBase::VisualObjectImpl(false)
     , nodeRightClick(this)
-    , emeditor_(nullptr)
-    , eventcatcher_(nullptr)
-    , transformation_(nullptr)
-    , markersize_(3)
     , activedragger_(EM::PosID::udf())
-    , activenodematerial_(nullptr)
-    , nodematerial_(nullptr)
-    , isdragging_(false)
-    , draggerinmotion_(false)
     , draggingStarted(this)
-    , patchmarkers_(nullptr)
-    , patchline_(nullptr)
-    , patch_(nullptr)
 {
-    nodematerial_ = new visBase::Material;
-    nodematerial_->ref();
+    ref();
+    nodematerial_ = visBase::Material::create();
     nodematerial_->setColor( OD::Color(255,255,0) );
 
-    activenodematerial_ = new visBase::Material;
-    activenodematerial_->ref();
+    activenodematerial_ = visBase::Material::create();
     activenodematerial_->setColor( OD::Color(255,0,0) );
 
     sower_ = new Sower( this );
     addChild( sower_->osgNode() );
     markerstyle_ = MarkerStyle3D::Cube;
     markerstyle_.size_ = (int)markersize_;
+    unRefNoDelete();
 }
 
 
 MPEEditor::~MPEEditor()
 {
-    setEditor( (MPE::ObjectEditor*) 0 );
-    setSceneEventCatcher( 0 );
-    setDisplayTransformation( 0 );
-
-    while ( draggers_.size() )
+    setEditor( nullptr );
+    setSceneEventCatcher( nullptr );
+    setDisplayTransformation( nullptr );
+    while ( !draggers_.isEmpty() )
 	removeDragger( 0 );
 
-    if ( activenodematerial_ ) activenodematerial_->unRef();
-    if ( nodematerial_ ) nodematerial_->unRef();
-
     removeChild( sower_->osgNode() );
-    delete sower_;
-
-    unRefAndNullPtr( patchmarkers_ );
-    unRefAndNullPtr( patchline_ );
 }
 
 
@@ -90,24 +62,25 @@ void MPEEditor::setupPatchDisplay()
 	if ( Math::Abs(mkclr.g()-OD::Color::Green().g())<30 )
 	    lineclr = OD::Color::Red();
     }
+
     if ( !patchmarkers_ )
     {
 	patchmarkers_ = visBase::MarkerSet::create();
-	patchmarkers_->ref();
 	patchmarkers_->setScreenSize(markersize_);
 	addChild(patchmarkers_->osgNode());
 	patchmarkers_->setDisplayTransformation( transformation_ );
     }
+
     if ( !patchline_ )
     {
 	patchline_ = visBase::PolyLine::create();
-	patchline_->ref();
-	patchline_->setMaterial(new visBase::Material);
-	addChild(patchline_->osgNode());
+	RefMan<visBase::Material> newmat = visBase::Material::create();
+	patchline_->setMaterial( newmat.ptr() );
+	addChild( patchline_->osgNode() );
 	patchline_->setDisplayTransformation( transformation_ );
     }
 
-    OD::LineStyle lsty( OD::LineStyle::Solid, 4, lineclr );
+    const OD::LineStyle lsty( OD::LineStyle::Solid, 4, lineclr );
     patchline_->setLineStyle( lsty );
     patchmarkers_->setMarkersSingleColor( mkclr );
 }
@@ -115,54 +88,47 @@ void MPEEditor::setupPatchDisplay()
 
 void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 {
-    CallBack movementcb( mCB(this,MPEEditor,nodeMovement) );
-    CallBack numnodescb( mCB(this,MPEEditor,changeNumNodes) );
-
     if ( emeditor_ )
     {
 	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
-	emobj.change.remove( movementcb );
-	emobj.unRef();
-	emeditor_->editpositionchange.remove( numnodescb );
-	emeditor_->unRef();
+	mDetachCB( emobj.change, MPEEditor::nodeMovement );
+	mDetachCB( emeditor_->editpositionchange, MPEEditor::changeNumNodes );
     }
 
     emeditor_ = eme;
 
     if ( emeditor_ )
     {
-	emeditor_->ref();
 	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
-	emobj.ref();
-	emobj.change.notify( movementcb );
-	emeditor_->editpositionchange.notify( numnodescb );
-	changeNumNodes(0);
+	mAttachCB( emobj.change, MPEEditor::nodeMovement );
+	mAttachCB( emeditor_->editpositionchange, MPEEditor::changeNumNodes );
+	changeNumNodes( nullptr );
     }
+}
+
+
+void MPEEditor::setPatch( MPE::Patch* patch )
+{
+    patch_ = patch;
+}
+
+
+MPE::ObjectEditor* MPEEditor::getMPEEditor()
+{
+    return emeditor_.ptr();
 }
 
 
 void MPEEditor::setSceneEventCatcher( visBase::EventCatcher* nev )
 {
-    if ( eventcatcher_ )
-	eventcatcher_->unRef();
-
     eventcatcher_ = nev;
     sower_->setEventCatcher( nev );
-
-    if ( eventcatcher_ )
-	eventcatcher_->ref();
 }
 
 
 void MPEEditor::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_ = nt;
-    if ( transformation_ )
-	transformation_->ref();
-
     for ( int idx=0; idx<draggers_.size(); idx++ )
 	draggers_[idx]->setDisplayTransformation( transformation_ );
 
@@ -171,6 +137,12 @@ void MPEEditor::setDisplayTransformation( const mVisTrans* nt )
 	patchmarkers_->setDisplayTransformation( nt );
     if ( patchline_ )
 	patchline_->setDisplayTransformation( nt );
+}
+
+
+const mVisTrans* MPEEditor::getDisplayTransformation() const
+{
+    return transformation_.ptr();
 }
 
 
@@ -286,7 +258,7 @@ void MPEEditor::removeDragger( int idx )
     draggers_[idx]->finished.remove(mCB(this,MPEEditor,dragStop));
     removeChild( draggers_[idx]->osgNode() );
 
-    draggers_.removeSingle(idx,false)->unRef();
+    draggers_.removeSingle(idx,false);
     posids_.removeSingle(idx,false);
     draggermarkers_.removeSingle(idx,false);
 }
@@ -307,9 +279,8 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     if ( !translate1D && !translate2D && !translate3D )
 	return;
 
-    visBase::Dragger* dragger = visBase::Dragger::create();
-    dragger->ref();
-    dragger->setDisplayTransformation( transformation_ );
+    RefMan<visBase::Dragger> dragger = visBase::Dragger::create();
+    dragger->setDisplayTransformation( transformation_.ptr() );
 
     dragger->started.notify(mCB(this,MPEEditor,dragStart));
     dragger->motion.notify(mCB(this,MPEEditor,dragMotion));
@@ -352,10 +323,8 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	dragger->setRotation( axis, angle );
     }
 
-    visBase::MarkerSet* marker = visBase::MarkerSet::create();
+    RefMan<visBase::MarkerSet> marker = visBase::MarkerSet::create();
     marker->setMarkersSingleColor( nodematerial_->getColor() );
-
-
     marker->setMarkerHeightRatio( 1.0f );
     marker->setMarkerStyle( markerstyle_ );
     marker->setMarkersSingleColor( markerstyle_.color_ );
@@ -444,6 +413,18 @@ bool MPEEditor::clickCB( CallBacker* cb )
 	return true;
 
     return false;
+}
+
+
+Sower& MPEEditor::sower()
+{
+    return *sower_.ptr();
+}
+
+
+const Sower& MPEEditor::sower() const
+{
+    return *sower_.ptr();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "ui3dviewer.h"
+#include "ui3dviewerbody.h"
 
 #include "filepath.h"
 #include "iopar.h"
@@ -21,9 +21,9 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "swapbuffercallback.h"
 #include "timer.h"
+#include "visosg.h"
 
 #include "ui3dindirectviewer.h"
-#include "ui3dviewerbody.h"
 #include "uicursor.h"
 #include "uimain.h"
 #include "uimouseeventblockerbygesture.h"
@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "vispolygonselection.h"
 #include "visscenecoltab.h"
-#include "vissurvscene.h"
 #include "visthumbwheel.h"
 
 #include <QGesture>
@@ -68,10 +67,10 @@ StringView ui3DViewer::sKeyBindingSettingsKey()
 }
 
 mDefineEnumUtils(ui3DViewer,StereoType,"StereoType")
-{ sKey::None().str(), "RedCyan", "QuadBuffer", 0 };
+{ sKey::None().str(), "RedCyan", "QuadBuffer", nullptr };
 
 mDefineEnumUtils(ui3DViewer,WheelMode,"WheelMode")
-{ "Never", "Always", "On Hover", 0 };
+{ "Never", "Always", "On Hover", nullptr };
 
 
 class TrackBallManipulatorMessenger : public osg::NodeCallback
@@ -86,10 +85,8 @@ public:
     void	detach() { viewerbody_ = nullptr; }
 
 protected:
-    TrackBallManipulatorMessenger()
-    {
+			TrackBallManipulatorMessenger()    {}
 
-    }
     ui3DViewerBody*	viewerbody_;
 };
 
@@ -99,9 +96,7 @@ void TrackBallManipulatorMessenger::operator()( osg::Node* node,
 {
     if ( nv && viewerbody_ )
     {
-	osgGeo::TrackballEventNodeVisitor* tnv =
-				    (osgGeo::TrackballEventNodeVisitor*) nv;
-
+	auto* tnv = (osgGeo::TrackballEventNodeVisitor*) nv;
 	if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::RotateStart )
 	    viewerbody_->setViewModeCursor( ui3DViewerBody::RotateCursor );
 	if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::PanStart )
@@ -127,11 +122,10 @@ class uiDirectViewBody : public ui3DViewerBody
 {
 public:
 				uiDirectViewBody(ui3DViewer&,uiParent*);
+				~uiDirectViewBody();
 
     const mQtclass(QWidget)*	qwidget_() const override;
-
-
-    virtual uiSize		minimumSize() const override
+    uiSize			minimumSize() const override
 				{ return uiSize(200,200); }
 
 protected:
@@ -148,7 +142,7 @@ protected:
 uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     : ui3DViewerBody( hndl, parnt )
 {
-    ODGLWidget* glw = new ODGLWidget( parnt->pbody()->managewidg() );
+    auto* glw = new ODGLWidget( parnt->pbody()->managewidg() );
 
     mouseeventblocker_.attachToQObj( glw );
     eventfilter_.attachToQObj( glw );
@@ -156,7 +150,7 @@ uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     graphicswin_ = new ODGraphicsWindow( glw );
 
     swapcallback_ = new SwapCallback( this );
-    swapcallback_->ref();
+    visBase::refOsgPtr( swapcallback_ );
     graphicswin_->setSwapCallback( swapcallback_ );
 
     setStretch(2,2);
@@ -164,6 +158,12 @@ uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     setupHUD();
     setupView();
     setupTouch();
+}
+
+
+uiDirectViewBody::~uiDirectViewBody()
+{
+    visBase::unRefOsgPtr( swapcallback_ );
 }
 
 
@@ -179,29 +179,17 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , viewalltimer_(new Timer)
     , handle_(h)
     , printpar_(*new IOPar)
-    , wheeldisplaymode_((int)ui3DViewer::OnHover)
     , offscreenrenderswitch_(new osg::Switch)
-    , compositeviewer_(nullptr)
-    , view_(nullptr)
     , viewport_(new osg::Viewport)
-    , stereotype_(None)
-    , stereooffset_(0)
-    , hudview_(0)
     , offscreenrenderhudswitch_(new osg::Switch)
-    , hudscene_(0)
     , mouseeventblocker_(*new uiMouseEventBlockerByGestures(500))
-    , axes_(0)
-    , polygonselection_(0)
     , manipmessenger_(new TrackBallManipulatorMessenger(this))
-    , swapcallback_( 0 )
-    , visscenecoltab_(0)
     , keybindman_(*new KeyBindMan)
-    , mapview_(false)
 {
-    manipmessenger_->ref();
-    offscreenrenderswitch_->ref();
-    offscreenrenderhudswitch_->ref();
-    viewport_->ref();
+    visBase::refOsgPtr( manipmessenger_ );
+    visBase::refOsgPtr( offscreenrenderswitch_ );
+    visBase::refOsgPtr( offscreenrenderhudswitch_ );
+    visBase::refOsgPtr( viewport_ );
     eventfilter_.addEventType( uiEventFilter::KeyPress );
     eventfilter_.addEventType( uiEventFilter::Resize );
     eventfilter_.addEventType( uiEventFilter::Show );
@@ -223,34 +211,29 @@ ui3DViewerBody::~ui3DViewerBody()
     delete viewalltimer_;
 
     manipmessenger_->detach();
-    manipmessenger_->unref();
+    visBase::unRefOsgPtr( manipmessenger_ );
 
-    handle_.destroyed.trigger(handle_);
+    handle_.destroyed.trigger( handle_ );
     delete &printpar_;
     if ( compositeviewer_ )
     {
 	compositeviewer_->removeView( view_ );
 	compositeviewer_->removeView( hudview_ );
-	compositeviewer_->unref();
     }
 
-    viewport_->unref();
-    offscreenrenderswitch_->unref();
-    offscreenrenderhudswitch_->unref();
-
-    if ( swapcallback_ )
-	swapcallback_->unref();
+    visBase::unRefOsgPtr( compositeviewer_ );
+    visBase::unRefOsgPtr( viewport_ );
+    visBase::unRefOsgPtr( offscreenrenderswitch_ );
+    visBase::unRefOsgPtr( offscreenrenderhudswitch_ );
 }
 
 
 void ui3DViewerBody::removeSwapCallback( CallBacker* )
 {
     if ( swapcallback_ )
-    {
-	getGraphicsContext()->setSwapCallback( 0 );
-	swapcallback_->unref();
-	swapcallback_ = 0;
-    }
+	getGraphicsContext()->setSwapCallback( nullptr );
+
+    visBase::unRefAndNullOsgPtr( swapcallback_ );
 }
 
 
@@ -268,10 +251,10 @@ void ui3DViewerBody::setupHUD()
     if ( hudview_ )
 	return;
 
-    visBase::Camera* vishudcam = visBase::Camera::create();
-    osg::ref_ptr<osg::Camera> hudcamera = vishudcam->osgCamera();
+    vishudcamera_ = visBase::Camera::create();
+    osg::ref_ptr<osg::Camera> hudcamera = vishudcamera_->osgCamera();
     hudcamera->setGraphicsContext( getGraphicsContext() );
-    hudcamera->setName("HUD Camera");
+    hudcamera->setName( "HUD Camera" );
     hudcamera->setProjectionMatrix( osg::Matrix::ortho2D(0,1024,0,768) );
     hudcamera->setViewport( viewport_ );
     hudcamera->setClearMask(GL_DEPTH_BUFFER_BIT);
@@ -280,7 +263,7 @@ void ui3DViewerBody::setupHUD()
     hudcamera->setProjectionResizePolicy( osg::Camera::FIXED );
 
     //draw subgraph after main camera view.
-    hudcamera->setRenderOrder(osg::Camera::POST_RENDER, mHudCameraOrder );
+    hudcamera->setRenderOrder( osg::Camera::POST_RENDER, mHudCameraOrder );
 
     //we don't want the camera to grab event focus from the viewers main cam(s).
     hudcamera->setAllowEventFocus(false);
@@ -290,14 +273,14 @@ void ui3DViewerBody::setupHUD()
     hudview_ = new osgViewer::View;
     hudview_->setCamera( hudcamera );
     offscreenrenderhudswitch_->removeChild(
-	0, offscreenrenderhudswitch_->getNumChildren() );
+			0, offscreenrenderhudswitch_->getNumChildren() );
     offscreenrenderhudswitch_->addChild( hudscene_->osgNode() );
     hudview_->setSceneData( offscreenrenderhudswitch_ );
 
     if ( !compositeviewer_ )
     {
 	compositeviewer_ = getCompositeViewer();
-	compositeviewer_->ref();
+	visBase::refOsgPtr( compositeviewer_ );
     }
 
     compositeviewer_->addView( hudview_ );
@@ -333,7 +316,7 @@ void ui3DViewerBody::setupHUD()
     {
 	polygonselection_ = visBase::PolygonSelection::create();
 	hudscene_->addObject( polygonselection_ );
-	polygonselection_->setHUDCamera( vishudcam );
+	polygonselection_->setHUDCamera( vishudcamera_.ptr() );
     }
 
     if ( !visscenecoltab_ )
@@ -417,8 +400,9 @@ void ui3DViewerBody::setupView()
     if ( axes_ )
 	axes_->setPrimaryCamera( camera_ );
 
-    if ( scene_ )
-        scene_->setCamera( camera_ );
+    RefMan<visBase::Scene> scene = getScene();
+    if ( scene )
+	scene->setCamera( camera_ );
 
     mDynamicCastGet(osg::Camera*, osgcamera, camera_->osgNode(true) );
     osgcamera->setGraphicsContext( getGraphicsContext() );
@@ -461,7 +445,7 @@ void ui3DViewerBody::setupView()
     if ( !compositeviewer_ )
     {
 	compositeviewer_ = getCompositeViewer();
-	compositeviewer_->ref();
+	visBase::refOsgPtr( compositeviewer_ );
     }
 
     compositeviewer_->addView( view_ );
@@ -482,7 +466,19 @@ void ui3DViewerBody::setupView()
     setReversedMouseWheelDirection( reversezoom );
 
     // Camera projection must be initialized before computing home position
-    reSizeEvent( 0 );
+    reSizeEvent( nullptr );
+}
+
+
+visBase::Scene* ui3DViewerBody::getScene()
+{
+    return scene_.get().ptr();
+}
+
+
+const visBase::Scene* ui3DViewerBody::getScene() const
+{
+    return mSelf().getScene();
 }
 
 
@@ -529,7 +525,7 @@ osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
     mDefineStaticLocalObject( Threads::Lock, lock, (true) );
     Threads::Locker locker ( lock );
     mDefineStaticLocalObject( osg::ref_ptr<osgViewer::CompositeViewer>,
-	viewer, = 0 );
+	viewer, = nullptr );
 
     if ( !viewer || viewer->done() )
     {
@@ -551,7 +547,6 @@ osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
 	    setViewer( viewer.get() );
 	    visBase::DataObject::setCommonViewer( viewer );
 	}
-
     }
 
     return viewer.get();
@@ -560,13 +555,13 @@ osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
 
 osg::Camera* ui3DViewerBody::getOsgCamera()
 {
-    return view_ ? view_->getCamera() : 0;
+    return view_ ? view_->getCamera() : nullptr;
 }
 
 
 const osg::Camera* ui3DViewerBody::getOsgCamera() const
 {
-    return const_cast<ui3DViewerBody*>( this )->getOsgCamera();
+    return mSelf().getOsgCamera();
 }
 
 #if OSG_VERSION_LESS_THAN(3,3,0)
@@ -844,7 +839,8 @@ void ui3DViewerBody::setFocusCB( CallBacker* )
 
 bool ui3DViewerBody::isViewMode() const
 {
-    return scene_ && !scene_->isPickable();
+    ConstRefMan<visBase::Scene> scene = getScene();
+    return scene && !scene->isPickable();
 }
 
 
@@ -852,8 +848,9 @@ void ui3DViewerBody::setViewMode( bool yn, bool trigger )
 {
     enableDragging( yn );
 
-    if ( scene_ )
-	scene_->setPickable( !yn );
+    RefMan<visBase::Scene> scene = getScene();
+    if ( scene )
+	scene->setPickable( !yn );
 
     setViewModeCursor( HoverCursor );
 
@@ -898,38 +895,45 @@ Coord3 ui3DViewerBody::getCameraPosition() const
 }
 
 
-void ui3DViewerBody::setSceneID( SceneID sceneid )
+void ui3DViewerBody::setScene( visBase::Scene* newscene )
 {
-    if ( scene_ )
+    RefMan<visSurvey::Scene> survscene = scene_.get();
+    if ( survscene )
     {
-	mDynamicCastGet( visSurvey::Scene*, survscene, scene_.ptr() );
-	mDetachCB(survscene->mousecursorchange, ui3DViewerBody::mouseCursorChg);
+	mDetachCB( survscene->mousecursorchange,
+		   ui3DViewerBody::mouseCursorChg );
     }
-
-    visBase::DataObject* obj = visBase::DM().getObject( sceneid );
-    mDynamicCastGet(visBase::Scene*,newscene,obj)
-    if ( !newscene ) return;
 
     offscreenrenderswitch_->removeChildren(0,
 			    offscreenrenderswitch_->getNumChildren());
-    offscreenrenderswitch_->addChild( newscene->osgNode() );
 
-    scene_ = newscene;
-    mDynamicCastGet( visSurvey::Scene*, survscene, scene_.ptr() );
+    survscene = dCast(visSurvey::Scene*,newscene);
+    scene_ = survscene;
+    if ( !survscene )
+	return;
+
+    offscreenrenderswitch_->addChild( survscene->osgNode() );
     mAttachCB( survscene->mousecursorchange, ui3DViewerBody::mouseCursorChg );
-
-    if ( survscene )
-	setAnnotColor( survscene->getAnnotColor() );
-
+    setAnnotColor( survscene->getAnnotColor() );
     if ( camera_ )
-	newscene->setCamera( camera_ );
+	survscene->setCamera( camera_ );
 
     OD::Color bgcol = OD::Color::Anthracite();
     Settings::common().get(
 	BufferString(sKeydTectScene(),ui3DViewer::sKeyBGColor()), bgcol );
     setBackgroundColor( bgcol );
     if ( swapcallback_ )
-	swapcallback_->scene_ = scene_;
+	swapcallback_->scene_ = survscene.ptr();
+}
+
+
+SceneID ui3DViewerBody::getSceneID() const
+{
+    ConstRefMan<visBase::Scene> scene = getScene();
+    if ( !scene || scene->id().isUdf() )
+	return SceneID::udf();
+
+    return SceneID( scene->id().asInt() );
 }
 
 
@@ -944,7 +948,7 @@ void ui3DViewerBody::updateActModeCursor()
     if ( isViewMode() )
 	return;
 
-    mDynamicCastGet( const visSurvey::Scene*, survscene, scene_.ptr() );
+    ConstRefMan<visSurvey::Scene> survscene = scene_.get();
     if ( survscene )
     {
 	MouseCursor newcursor;
@@ -1024,7 +1028,7 @@ void ui3DViewerBody::requestRedraw()
 
 void ui3DViewerBody::setBackgroundColor( const OD::Color& col )
 {
-    visBase::Scene* scene = getScene();
+    RefMan<visBase::Scene> scene = getScene();
     if ( scene )
 	scene->setBackgroundColor( col );
 }
@@ -1032,7 +1036,7 @@ void ui3DViewerBody::setBackgroundColor( const OD::Color& col )
 
 OD::Color ui3DViewerBody::getBackgroundColor() const
 {
-    const visBase::Scene* scene = getScene();
+    ConstRefMan<visBase::Scene> scene = getScene();
     return scene ? scene->getBackgroundColor() : OD::Color::NoColor();
 }
 
@@ -1462,12 +1466,13 @@ void ui3DViewerBody::setStartupView()
 void ui3DViewerBody::setScenesPixelDensity( float dpi )
 {
     bool updated = false;
-    if ( scene_ )
+    RefMan<visBase::Scene> scene = getScene();
+    if ( scene )
     {
-	const float scenedpi = scene_->getPixelDensity();
+	const float scenedpi = scene->getPixelDensity();
 	if ( !mIsEqual(scenedpi,dpi,0.1f) )
 	{
-	    scene_->setPixelDensity( dpi );
+	    scene->setPixelDensity( dpi );
 	    updated = true;
 	}
     }
@@ -1553,8 +1558,10 @@ void ui3DViewerBody::setMapView( bool yn )
     viewPlaneYZ();
     setBackgroundColor( OD::Color::White() );
     setAnnotColor( OD::Color::Black() );
-    mDynamicCastGet(visSurvey::Scene*,survscene,scene_.ptr())
-    if ( survscene ) survscene->setAnnotColor( OD::Color::Black() );
+    RefMan<visSurvey::Scene> survscene = scene_.get();
+    if ( survscene )
+	survscene->setAnnotColor( OD::Color::Black() );
+
     requestRedraw();
 }
 
@@ -1803,15 +1810,15 @@ bool ui3DViewer::getReversedMouseWheelDirection() const
 { return osgbody_->getReversedMouseWheelDirection(); }
 
 
-void ui3DViewer::setSceneID( SceneID sceneid )
+void ui3DViewer::setScene( visBase::Scene* scene )
 {
-    osgbody_->setSceneID( sceneid );
+    osgbody_->setScene( scene );
 }
 
 
 SceneID ui3DViewer::sceneID() const
 {
-    return osgbody_->getScene() ? osgbody_->getScene()->id() : SceneID::udf();
+    return osgbody_->getScene() ? osgbody_->getSceneID() : SceneID::udf();
 }
 
 
@@ -1916,8 +1923,14 @@ bool ui3DViewer::usePar( const IOPar& par )
     if ( !par.get(sKeySceneID(),sceneid) )
 	return false;
 
-    setSceneID( sceneid );
-    visBase::Scene* scene = getScene();
+    const VisID scenevisid( sceneid.asInt() );
+    visBase::DataObject* obj = visBase::DM().getObject( scenevisid );
+    RefMan<visBase::Scene> scene = dCast(visBase::Scene*,obj);
+    if ( !scene )
+	return false;
+
+    setScene( scene.ptr() );
+    scene = getScene();
     if ( !scene )
 	return false;
 

@@ -9,30 +9,31 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "visscene.h"
+
 #include "bufstring.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
-#include "trckeyzsampling.h"
-#include "trckeyvalue.h"
 #include "position.h"
+#include "trckeyvalue.h"
+#include "trckeyzsampling.h"
+#include "visannot.h"
+#include "vismarkerset.h"
+#include "vispolygonselection.h"
+#include "visscene.h"
+#include "visscenecoltab.h"
+#include "vistopbotimage.h"
+#include "vistransform.h"
+#include "zaxistransform.h"
 
+class FontData;
 class MouseCursor;
 class TaskRunner;
-class FontData;
-class ZAxisTransform;
 template <class T> class Selector;
 
 namespace ZDomain { class Info; }
 
 namespace visBase
 {
-    class Annotation;
-    class MarkerSet;
-    class PolygonSelection;
-    class SceneColTab;
-    class TopBotImage;
-    class Transformation;
     class VisualObject;
 }
 
@@ -71,7 +72,7 @@ inl/crl/t to display coords, so the objects does not need any own transform.
 mExpClass(visSurvey) Scene : public visBase::Scene
 {
 public:
-    static Scene*		create()
+    static RefMan<Scene>	create();
 				mCreateDataObj(Scene);
 
     void			removeAll() override;
@@ -83,10 +84,10 @@ public:
 				     displaydomain
 				*/
 
+    SceneID			getID() const;
     int				size() const override;
     int				getFirstIdx(const DataObject*) const override;
-    int				getFirstIdx( VisID did ) const override
-				{ return visBase::Scene::getFirstIdx(did); }
+    int				getFirstIdx(const VisID&) const override;
     visBase::DataObject*	getObject(int) override;
     const visBase::DataObject*	getObject(int) const;
 
@@ -112,13 +113,13 @@ public:
     void			setAnnotFont(const FontData&);
     const FontData&		getAnnotFont() const;
     void			setAnnotScale(const TrcKeyZSampling&);
-    const TrcKeyZSampling&		getAnnotScale() const;
+    const TrcKeyZSampling&	getAnnotScale() const;
     void			savePropertySettings();
 
-    visBase::PolygonSelection*	getPolySelection() { return polyselector_; }
+    visBase::PolygonSelection*	getPolySelection();
     void			setPolygonSelector(visBase::PolygonSelection*);
     const Selector<Coord3>*	getSelector() const;	/*! May be NULL */
-    visBase::SceneColTab*	getSceneColTab()	{ return scenecoltab_; }
+    visBase::SceneColTab*	getSceneColTab();
     void			setSceneColTab(visBase::SceneColTab*);
 
     Notifier<Scene>		mouseposchange;
@@ -184,8 +185,7 @@ public:
 
     void			setAnnotColor(const OD::Color&);
     const OD::Color		getAnnotColor() const;
-    void			setMarkerPos(const TrcKeyValue&,
-					     SceneID sceneid);
+    void			setMarkerPos(const TrcKeyValue&,const SceneID&);
     void			setMarkerSize(float );
     float			getMarkerSize() const;
     const OD::Color&		getMarkerColor() const;
@@ -207,7 +207,7 @@ protected:
     void			updateTransforms(const TrcKeyZSampling&);
     void			mouseCB(CallBacker*);
     void			keyPressCB(CallBacker*);
-    visBase::MarkerSet*		createMarkerSet() const;
+    RefMan<visBase::MarkerSet>	createMarkerSet() const;
     void			mouseCursorCB(CallBacker*);
     static const OD::Color&	cDefaultMarkerColor();
 
@@ -224,16 +224,16 @@ protected:
     RefMan<visBase::Transformation>	inlcrlscale_;
     RefMan<visBase::Transformation>	utm2disptransform_;
 
-    ZAxisTransform*			datatransform_ = nullptr;
+    RefMan<ZAxisTransform>	datatransform_;
 
-    visBase::Annotation*	annot_		= nullptr;
-    visBase::MarkerSet*		markerset_	= nullptr;
-    visBase::PolygonSelection*	polyselector_	= nullptr;
-    Selector<Coord3>*		coordselector_	= nullptr;
-    visBase::SceneColTab*	scenecoltab_	= nullptr;
+    RefMan<visBase::Annotation> annot_;
+    RefMan<visBase::MarkerSet>	markerset_;
+    RefMan<visBase::PolygonSelection> polyselector_;
+    Selector<Coord3>*		coordselector_ = nullptr;
+    RefMan<visBase::SceneColTab> scenecoltab_;
 
-    visBase::TopBotImage*	topimg_ = nullptr;
-    visBase::TopBotImage*	botimg_ = nullptr;
+    RefMan<visBase::TopBotImage> topimg_;
+    RefMan<visBase::TopBotImage> botimg_;
     int				getImageFromPar(const IOPar&,const char*,
 						visBase::TopBotImage*&);
 
@@ -282,7 +282,7 @@ public:
 
     void			setMoreObjectsToDoHint(bool yn);
     bool			getMoreObjectsToDoHint() const;
-    void			selectPosModeManipObj(VisID selid);
+    void			selectPosModeManipObj(const VisID& selid);
 };
 
 } // namespace visSurvey

@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 
 #include "attribdesc.h"
+#include "attriboutput.h"
 #include "executor.h"
 #include "binid.h"
 
@@ -23,7 +24,6 @@ namespace Attrib
 {
 class DataHolder;
 class Desc;
-class Output;
 class Provider;
 
 /*!
@@ -63,7 +63,7 @@ public:
     const char*			getAttribName() const;
     const char*			getAttribUserRef() const;
     Provider*			getProvider()		{ return provider_; }
-    ObjectSet<Output>		outputs_;
+    RefObjectSet<Output>	outputs_;
 
     void			setRdmPaths(const TypeSet<BinID>& truepath,
 					    const TypeSet<BinID>& snappedpath);

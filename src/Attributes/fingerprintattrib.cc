@@ -25,7 +25,7 @@ namespace Attrib
 
 static void scaleVector( const TypeSet<float>& rawvalues,
 			 const TypeSet< Interval<float> >& ranges,
-       			 TypeSet<float>& scaledvalues )
+			 TypeSet<float>& scaledvalues )
 {
     if ( rawvalues.size() != ranges.size() ) return;
 
@@ -135,21 +135,21 @@ FingerPrint::FingerPrint( Desc& dsc )
 
     inputdata_.allowNull(true);
 
-    mDescGetParamGroup(FloatParam,valueset,desc_,valStr())
+    mDescGetParamGroup(FloatParam,valueset,getDesc(),valStr())
     for ( int idx=0; idx<valueset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*valueset)[idx];
 	refvector_ += param.getFValue(0);
     }
 
-    mDescGetParamGroup(FloatGateParam,rangeset,desc_,rangeStr())
+    mDescGetParamGroup(FloatGateParam,rangeset,getDesc(),rangeStr())
     for ( int idx=0; idx<rangeset->size(); idx++ )
     {
 	const FloatGateParam& param = (FloatGateParam&)(*rangeset)[idx];
 	ranges_ += param.getValue();
     }
 
-    mDescGetParamGroup(IntParam,weightset,desc_,weightStr())
+    mDescGetParamGroup(IntParam,weightset,getDesc(),weightStr())
     for ( int idx=0; idx<weightset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*weightset)[idx];
@@ -194,7 +194,7 @@ bool FingerPrint::getInputData( const BinID& relpos, int zintv )
 
 bool FingerPrint::usesTracePosition() const
 {
-    const int type = desc_.getValParam(valreftypeStr())->getIntValue();
+    const int type = getDesc().getValParam(valreftypeStr())->getIntValue();
     return type == 1;
 }
 

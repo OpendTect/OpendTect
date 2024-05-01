@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
 #include "visaxes.h"
 #include "vissurvobj.h"
 
@@ -17,16 +18,18 @@ namespace visSurvey
 {
 
 mExpClass(visSurvey) AxisDisplay : public visBase::Axes
-				    , public visSurvey::SurveyObject
+				 , public SurveyObject
 { mODTextTranslationClass(AxisDisplay)
 public:
 				AxisDisplay();
-				~AxisDisplay();
 
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject, AxisDisplay,
+				    SurveyObject, AxisDisplay,
 				    "AxisDisplay",
-				    toUiString(sFactoryKeyword()))
+				    ::toUiString(sFactoryKeyword()) )
+
+protected:
+				~AxisDisplay();
 };
 
 } // namespace visSurvey

@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uiceemdattrib.h"
 
-#include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
@@ -368,8 +367,8 @@ DescID uiCEEMDAttrib::createCEEMDDesc( DescSet* dset ) const
     inpfld_->processInput();
     DescID inpid = inpfld_->attribID();
 
-    Desc* newdesc = createNewDesc( dset, inpid,
-				   CEEMD::attribName(), 0, "" );
+    RefMan<Desc> newdesc = createNewDesc( dset, inpid,
+					  CEEMD::attribName(), 0, "" );
     if ( !newdesc )
 	return DescID::undef();
 
@@ -380,12 +379,12 @@ DescID uiCEEMDAttrib::createCEEMDDesc( DescSet* dset ) const
 }
 
 
-Desc* uiCEEMDAttrib::createNewDesc( DescSet* descset, DescID inpid,
+RefMan<Desc> uiCEEMDAttrib::createNewDesc( DescSet* descset, DescID inpid,
 					 const char* attribnm,
 					 int inpidx, BufferString specref) const
 {
-    Desc* inpdesc = descset->getDesc( inpid );
-    Desc* newdesc = PF().createDescCopy( attribnm );
+    RefMan<Desc> inpdesc = descset->getDesc( inpid );
+    RefMan<Desc> newdesc = PF().createDescCopy( attribnm );
     if ( !newdesc || !inpdesc )
 	return nullptr;
 

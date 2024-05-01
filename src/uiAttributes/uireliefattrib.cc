@@ -8,7 +8,6 @@ ________________________________________________________________________
 -*/
 
 #include "uireliefattrib.h"
-#include "reliefattrib.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -16,6 +15,7 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "energyattrib.h"
 #include "hilbertattrib.h"
+#include "reliefattrib.h"
 #include "instantattrib.h"
 #include "od_helpids.h"
 
@@ -128,19 +128,23 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
 			       const Interval<float>& zgate, const char* ref )
 {
     const Desc* inpdesc = ds.getDesc( inpid );
-    if ( !inpdesc ) return DescID::undef();
+    if ( !inpdesc )
+	return DescID::undef();
 
     const char* attribnm = Energy::attribName();
     const BufferString usrref = createUserRef( ref, attribnm );
     DescID descid = hasDesc( attribnm, usrref, ds, inpid );
 
-    bool newdesc = false; Desc* energydesc = 0;
+    bool newdesc = false;
+    RefMan<Desc> energydesc;
     if ( descid.isValid() )
 	energydesc = ds.getDesc( descid );
     else
     {
 	energydesc = PF().createDescCopy( attribnm );
-	if ( !energydesc ) return DescID::undef();
+	if ( !energydesc )
+	    return DescID::undef();
+
 	newdesc = true;
     }
 
@@ -149,7 +153,9 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
     energydesc->setHidden( true );
 
     mDynamicCastGet(ZGateParam*,param,energydesc->getParam(Energy::gateStr()))
-    if ( param ) param->setValue( zgate );
+    if ( param )
+	param->setValue( zgate );
+
     energydesc->setUserRef( usrref );
     if ( newdesc )
 	descid = ds.addDesc( energydesc );
@@ -160,8 +166,9 @@ static DescID addEnergyAttrib( DescSet& ds, const DescID& inpid,
 
 static DescID addHilbertAttrib( DescSet& ds, const DescID& inpid )
 {
-    const Desc* inpdesc = ds.getDesc( inpid );
-    if ( !inpdesc ) return DescID::undef();
+    ConstRefMan<Desc> inpdesc = ds.getDesc( inpid );
+    if ( !inpdesc )
+	return DescID::undef();
 
     const char* attribnm = Hilbert::attribName();
     const BufferString usrref = createUserRef( inpdesc->userRef(), attribnm );
@@ -169,8 +176,9 @@ static DescID addHilbertAttrib( DescSet& ds, const DescID& inpid )
     if ( descid.isValid() )
 	return descid;
 
-    Desc* newdesc = PF().createDescCopy( attribnm );
-    if ( !newdesc ) return DescID::undef();
+    RefMan<Desc> newdesc = PF().createDescCopy( attribnm );
+    if ( !newdesc )
+	return DescID::undef();
 
     newdesc->setInput( 0, inpdesc );
     newdesc->selectOutput( 0 );
@@ -183,9 +191,10 @@ static DescID addHilbertAttrib( DescSet& ds, const DescID& inpid )
 static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
 				      const DescID& imagid )
 {
-    const Desc* realdesc = ds.getDesc( realid );
-    const Desc* imagdesc = ds.getDesc( imagid );
-    if ( !realdesc || !imagdesc ) return DescID::undef();
+    ConstRefMan<Desc> realdesc = ds.getDesc( realid );
+    ConstRefMan<Desc> imagdesc = ds.getDesc( imagid );
+    if ( !realdesc || !imagdesc )
+	return DescID::undef();
 
     const char* attribnm = Instantaneous::attribName();
     const BufferString usrref = createUserRef( realdesc->userRef(), attribnm );
@@ -193,8 +202,9 @@ static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
     if ( descid.isValid() )
 	return descid;
 
-    Desc* newdesc = PF().createDescCopy( attribnm );
-    if ( !newdesc ) return DescID::undef();
+    RefMan<Desc> newdesc = PF().createDescCopy( attribnm );
+    if ( !newdesc )
+	return DescID::undef();
 
     newdesc->setInput( 0, realdesc );
     newdesc->setInput( 1, imagdesc );
@@ -202,7 +212,9 @@ static DescID addInstantaneousAttrib( DescSet& ds, const DescID& realid,
     newdesc->setHidden( true );
     mDynamicCastGet(FloatParam*,param,
 		    newdesc->getParam(Instantaneous::rotateAngle()))
-    if ( param ) param->setValue( 90.f );
+    if ( param )
+	param->setValue( 90.f );
+
     newdesc->setUserRef( usrref );
     return ds.addDesc( newdesc );
 }

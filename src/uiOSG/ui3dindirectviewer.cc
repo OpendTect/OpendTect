@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "ui3dindirectviewer.h"
 
 #include "swapbuffercallback.h"
+#include "visosg.h"
 
 #include <QWidget>
 #include <QPainter>
@@ -200,7 +201,7 @@ public:
 		{}
 
 		~OsgIndirectViewWidget();
-    void	setGraphicsWindow(GraphicsWindowIndirect* w) { gw_=w; }
+    void	setGraphicsWindow( GraphicsWindowIndirect* w ) { gw_=w; }
 
     int		getNumDeferredEvents();
     void	enqueueDeferredEvent(QEvent::Type eventType,
@@ -492,7 +493,7 @@ GraphicsWindowIndirect::GraphicsWindowIndirect(
 GraphicsWindowIndirect::~GraphicsWindowIndirect()
 {
     close();
-    qwidget_->setGraphicsWindow( 0 );
+    qwidget_->setGraphicsWindow( nullptr );
 }
 
 
@@ -670,22 +671,22 @@ void GraphicsWindowIndirect::closeImplementation()
 {
     if ( qwidget_ )
         qwidget_->close();
+
     realized_ = false;
 }
 
 
-ui3DIndirectViewBody::ui3DIndirectViewBody( ui3DViewer& hndl,
-	uiParent* parnt )
+ui3DIndirectViewBody::ui3DIndirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     : ui3DViewerBody( hndl, parnt )
 {
-    OsgIndirectViewWidget<QWidget>* widget =
+    auto* widget =
 	new OsgIndirectViewWidget<QWidget>( parnt->pbody()->managewidg() );
     graphicswin_ = new GraphicsWindowIndirect( widget );
-    graphicswin_->ref();
+    visBase::refOsgPtr( graphicswin_ );
     setStretch(2,2);
 
     swapcallback_ = new SwapCallback( this );
-    swapcallback_->ref();
+    visBase::refOsgPtr( swapcallback_ );
     graphicswin_->setSwapCallback( swapcallback_ );
 
     setupHUD();
@@ -696,7 +697,8 @@ ui3DIndirectViewBody::ui3DIndirectViewBody( ui3DViewer& hndl,
 
 ui3DIndirectViewBody::~ui3DIndirectViewBody()
 {
-    graphicswin_->unref();
+    visBase::unRefOsgPtr( graphicswin_ );
+    visBase::unRefOsgPtr( swapcallback_ );
 }
 
 

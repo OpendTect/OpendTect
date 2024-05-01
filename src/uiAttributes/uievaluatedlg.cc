@@ -209,8 +209,10 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
     else if ( bidpar )
     {
 	BinID bid;
-	bid.inl() = initfld_->getBinID().inl() + idx * incrfld_->getBinID().inl();
-	bid.crl() = initfld_->getBinID().crl() + idx * incrfld_->getBinID().crl();
+	bid.inl() = initfld_->getBinID().inl() +
+			idx * incrfld_->getBinID().inl();
+	bid.crl() = initfld_->getBinID().crl() +
+			idx * incrfld_->getBinID().crl();
 
 	if ( desc.is2D() )
 	    { mCreateLabel1(bid.crl()) }
@@ -391,7 +393,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
     if ( sel >= grps_.size() ) return;
     AttribParamGroup* pargrp = grps_[sel];
 
-    Attrib::Desc* desc = attrset_->getDesc( srcid_ );
+    RefMan<Attrib::Desc> desc = attrset_->getDesc( srcid_ );
     if ( !desc )
 	return;
 
@@ -399,8 +401,10 @@ void uiEvaluateDlg::calcPush( CallBacker* )
     const int nrsteps = nrstepsfld_->box()->getIntValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
-	Desc* newad = idx ? new Desc(*desc) : desc;
-	if ( !newad ) return;
+	RefMan<Desc> newad = idx ? new Desc(*desc) : desc.ptr();
+	if ( !newad )
+	    return;
+
 	pargrp->updatePars( *newad, idx );
 	pargrp->updateDesc( *newad, idx );
 
@@ -410,16 +414,14 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 	const BufferString usrref( userchosenref.buf(), " - ", lbl );
 	newad->setUserRef( usrref );
 	if ( newad->selectedOutput()>=newad->nrOutputs() )
-	{
-	    newad->ref(); newad->unRef();
 	    continue;
-	}
 
 	if ( idx )
 	    attrset_->addDesc( newad );
 
 	lbls_ += new BufferString( lbl );
-	SelSpec as; as.set( *newad );
+	SelSpec as;
+	as.set( *newad );
 
 	// trick : use as -> objectRef to store the userref;
 	// possible since objref_ is only used for NN which cannot be evaluated

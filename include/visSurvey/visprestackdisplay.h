@@ -9,7 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+
+#include "visdepthtabplanedragger.h"
+#include "visevent.h"
+#include "visflatviewer.h"
 #include "visobject.h"
+#include "visplanedatadisplay.h"
+#include "visseis2ddisplay.h"
 #include "vissurvobj.h"
 
 #include "iopar.h"
@@ -22,7 +28,6 @@ class SeisPSReader;
 namespace PreStack { class ProcessManager; }
 namespace visBase
 {
-    class DepthTabPlaneDragger;
     class FaceSet;
     class FlatViewer;
 }
@@ -30,20 +35,16 @@ namespace visBase
 namespace visSurvey
 {
 
-class PlaneDataDisplay;
-class Seis2DDisplay;
-
-
-mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl,
-		 public visSurvey::SurveyObject
+mExpClass(visSurvey) PreStackDisplay : public visBase::VisualObjectImpl
+				     , public SurveyObject
 { mODTextTranslationClass(PreStackDisplay)
 public:
-
 				PreStackDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PreStackDisplay,
+				    SurveyObject, PreStackDisplay,
 				    "PreStackDisplay",
-				    toUiString(sFactoryKeyword()) );
+				    ::toUiString(sFactoryKeyword()) )
 
     void			allowShading(bool yn) override;
     void			setMultiID(const MultiID&);
@@ -113,8 +114,7 @@ public:
 					    uiString& info) const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					VisID whichobj ) override;
-
+					const VisID& whichobj) override;
 
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
@@ -148,16 +148,16 @@ protected:
 
     BinID			bid_;
     BinID			draggerpos_;
-    visBase::EventCatcher*	eventcatcher_			= nullptr;
+    RefMan<visBase::EventCatcher> eventcatcher_;
     MouseCursor			mousecursor_;
-    visBase::DepthTabPlaneDragger*	planedragger_;
-    visBase::FlatViewer*	flatviewer_;
+    RefMan<visBase::DepthTabPlaneDragger> planedragger_;
+    RefMan<visBase::FlatViewer> flatviewer_;
     PreStack::ProcessManager*	preprocmgr_			= nullptr;
     IOPar			preprociop_;
 
     MultiID			mid_;
-    PlaneDataDisplay*		section_			= nullptr;
-    Seis2DDisplay*		seis2d_				= nullptr;
+    RefMan<PlaneDataDisplay>	section_;
+    RefMan<Seis2DDisplay>	seis2d_;
     int				trcnr_				= -1;
     Coord			basedirection_			= Coord::udf();
     Coord			seis2dpos_			= Coord::udf();

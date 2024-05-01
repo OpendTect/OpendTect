@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visobject.h"
+
 #include "position.h"
+#include "visobject.h"
 
 namespace visBase
 {
@@ -21,8 +22,7 @@ class VertexShape;
 /*!This class displays the triangulated body based on a set of given points.
    For example
 
-   visBase::RandomPos2Body* nb = visBase::RandomPos2Body::create();
-   nb->ref();
+   RefMan<visBase::RandomPos2Body> nb = visBase::RandomPos2Body::create();
    nb->setPoints( known_points );
 
    will do the display work after add nb to your scene!
@@ -31,7 +31,7 @@ class VertexShape;
 mExpClass(visBase) RandomPos2Body : public VisualObjectImpl
 {
 public:
-    static RandomPos2Body*	create()
+    static RefMan<RandomPos2Body> create();
 				mCreateDataObj(RandomPos2Body);
 
     bool			setPoints(const TypeSet<Coord3>& pts,
@@ -49,8 +49,8 @@ protected:
 				~RandomPos2Body();
 
     TypeSet<Coord3>		picks_;
-    VertexShape*		vtxshape_;
-    const mVisTrans*		transformation_;
+    RefMan<VertexShape>		vtxshape_;
+    ConstRefMan<mVisTrans>	transformation_;
 };
 
 

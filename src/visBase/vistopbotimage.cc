@@ -8,8 +8,6 @@ ________________________________________________________________________
 -*/
 
 #include "vistopbotimage.h"
-#include "vismaterial.h"
-#include "vistransform.h"
 
 #include "filespec.h"
 #include "imagedeftr.h"
@@ -18,6 +16,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "odimage.h"
 #include "settingsaccess.h"
+#include "vismaterial.h"
 
 #include <osgGeo/TexturePlane>
 #include <osgGeo/LayeredTexture>
@@ -35,12 +34,12 @@ const char*	TopBotImage::sKeyBottomRightCoord()	{ return "BotRight"; }
 
 TopBotImage::TopBotImage()
     : VisualObjectImpl(true)
-    , trans_(nullptr)
-    , laytex_( new osgGeo::LayeredTexture )
-    , texplane_( new osgGeo::TexturePlaneNode )
+    , laytex_(new osgGeo::LayeredTexture)
+    , texplane_(new osgGeo::TexturePlaneNode)
 {
-    laytex_->ref();
-    texplane_->ref();
+    ref();
+    refOsgPtr( laytex_ );
+    refOsgPtr( texplane_ );
     layerid_ = laytex_->addDataLayer();
     laytex_->addProcess( new osgGeo::IdentityLayerProcess(*laytex_, layerid_) );
     laytex_->allowShaders( SettingsAccess().doesUserWantShading(false) );
@@ -48,14 +47,14 @@ TopBotImage::TopBotImage()
     addChild( texplane_ );
 
     setTransparency( 0.0 );
+    unRefNoDelete();
 }
 
 
 TopBotImage::~TopBotImage()
 {
-    if ( trans_ ) trans_->unRef();
-    laytex_->unref();
-    texplane_->unref();
+    unRefOsgPtr( laytex_ );
+    unRefOsgPtr( texplane_ );
 }
 
 
@@ -99,16 +98,14 @@ void TopBotImage::updateCoords()
 
 void TopBotImage::setDisplayTransformation( const mVisTrans* trans )
 {
-    if ( trans_ ) trans_->unRef();
     trans_ = trans;
-    if ( trans_ ) trans_->ref();
     updateCoords();
 }
 
 
 const mVisTrans* TopBotImage::getDisplayTransformation() const
 {
-    return trans_;
+    return trans_.ptr();
 }
 
 

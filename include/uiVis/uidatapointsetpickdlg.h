@@ -9,26 +9,28 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
-#include "uidialog.h"
 
 #include "datapointset.h"
 #include "emposid.h"
+#include "uidialog.h"
+#include "vispicksetdisplay.h"
 
 class uiTable;
 class uiToolBar;
 class Array2DInterpol;
+class uiVisPartServer;
 
 namespace Pick { class SetMgr; }
-namespace visSurvey { class PickSetDisplay; }
 
 mExpClass(uiVis) uiDataPointSetPickDlg : public uiDialog
 {
 mODTextTranslationClass(uiDataPointSetPickDlg)
 public:
-    virtual		~uiDataPointSetPickDlg();
+			~uiDataPointSetPickDlg();
 
 protected:
-			uiDataPointSetPickDlg(uiParent*,const SceneID&);
+			uiDataPointSetPickDlg(uiParent*,uiVisPartServer*,
+					      const SceneID&);
 
     void		initPickSet();
     void		updateDPS();
@@ -49,16 +51,17 @@ protected:
     void		winCloseCB(CallBacker*);
     void		objSelCB(CallBacker*);
 
-    VisID		sceneid_;
+    uiVisPartServer*	vispartserv_;
+    SceneID		sceneid_;
     uiTable*		table_;
     uiToolBar*		tb_;
     RefMan<DataPointSet> dps_;
     TypeSet<float>	values_;
-    visSurvey::PickSetDisplay* psd_				= nullptr;
+    RefMan<visSurvey::PickSetDisplay> psd_;
     Pick::SetMgr&	picksetmgr_;
     int			pickbutid_;
     int			savebutid_;
-    bool		changed_				= false;
+    bool		changed_	= false;
 };
 
 
@@ -66,7 +69,8 @@ mExpClass(uiVis) uiEMDataPointSetPickDlg : public uiDataPointSetPickDlg
 {
 mODTextTranslationClass(uiEMDataPointSetPickDlg)
 public:
-			uiEMDataPointSetPickDlg(uiParent*,const SceneID&,
+			uiEMDataPointSetPickDlg(uiParent*,uiVisPartServer*,
+						const SceneID&,
 						const EM::ObjectID&);
 			~uiEMDataPointSetPickDlg();
 
@@ -86,5 +90,5 @@ protected:
     void		interpolateCB(CallBacker*);
     void		settCB(CallBacker*);
 
-    TrcKeySampling		tks_;
+    TrcKeySampling	tks_;
 };

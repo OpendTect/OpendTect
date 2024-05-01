@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "pickset.h"
 
 #include "visevent.h"
-#include "vistransform.h"
 
 namespace visSurvey
 {
@@ -22,11 +21,12 @@ mCreateFactoryEntry( ImageDisplay );
 
 // ImageDisplay
 ImageDisplay::ImageDisplay()
-    : group_(new visBase::DataObjectGroup)
-    , needFileName(this)
-    , rgbimage_(nullptr)
+    : needFileName(this)
 {
+    ref();
+    group_ = visBase::DataObjectGroup::create();
     addChild( group_->osgNode() );
+    unRefNoDelete();
 }
 
 
@@ -93,20 +93,20 @@ void ImageDisplay::setSet( Pick::Set* set )
 }
 
 
-void ImageDisplay::setScene( visSurvey::Scene* scene )
+void ImageDisplay::setScene( Scene* scene )
 {
-    visSurvey::SurveyObject::setScene( scene );
+    SurveyObject::setScene( scene );
     updateCoords();
 }
 
 
-visBase::VisualObject* ImageDisplay::createLocation() const
+RefMan<visBase::VisualObject> ImageDisplay::createLocation() const
 {
     const StringView fnm = getFileName();
     if ( fnm.isEmpty() )
-	const_cast<ImageDisplay*>(this)->needFileName.trigger();
+	mSelf().needFileName.trigger();
 
-    visBase::ImageRect* imagerct = visBase::ImageRect::create();
+    RefMan<visBase::ImageRect> imagerct = visBase::ImageRect::create();
     imagerct->setDisplayTransformation( displaytransform_ );
     return imagerct;
 }
@@ -119,7 +119,7 @@ void ImageDisplay::dispChg( CallBacker* cb )
 }
 
 
-int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
+int ImageDisplay::clickedMarkerIndex( const visBase::EventInfo& evi )const
 {
     for ( int idx=0; idx<group_->size(); idx++ )
     {
@@ -149,12 +149,11 @@ void ImageDisplay::setPosition( int idx, const Pick::Location& pick, bool add )
     }
     else
     {
-	visBase::ImageRect* imgrect =
-	    static_cast<visBase::ImageRect*>( createLocation() );
-
 	if ( !rgbimage_ )
 	    return;
 
+	RefMan<visBase::VisualObject> imgloc = createLocation();
+	auto* imgrect = sCast( visBase::ImageRect*, imgloc.ptr() );
 	imgrect->setRGBImage( *rgbimage_ );
 	imgrect->setPick( pick );
 	imgrect->setCornerPos( topleft, bottomright );

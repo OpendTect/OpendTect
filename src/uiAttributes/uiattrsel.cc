@@ -969,9 +969,10 @@ DescID uiImagAttrSel::imagID() const
     }
 
     DescSet& descset = const_cast<DescSet&>(attrdata_.attrSet());
-    Desc* inpdesc = descset.getDesc( selattrid );
-    Desc* newdesc = PF().createDescCopy( Hilbert::attribName() );
-    if ( !newdesc || !inpdesc ) return DescID::undef();
+    RefMan<Desc> inpdesc = descset.getDesc( selattrid );
+    RefMan<Desc> newdesc = PF().createDescCopy( Hilbert::attribName() );
+    if ( !newdesc || !inpdesc )
+	return DescID::undef();
 
     newdesc->selectOutput( 0 );
     newdesc->setInput( 0, inpdesc );

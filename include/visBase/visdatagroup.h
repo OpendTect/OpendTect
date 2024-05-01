@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "sets.h"
 #include "visdata.h"
 
@@ -24,7 +25,7 @@ mExpClass(visBase) DataObjectGroup : public DataObject
 {
 public:
 
-    static DataObjectGroup*	create()
+    static RefMan<DataObjectGroup> create();
 				mCreateDataObj(DataObjectGroup);
 
     void			setSeparate( bool yn=true ) { separate_=yn; }
@@ -33,12 +34,12 @@ public:
 
     virtual int			size() const;
     virtual void		addObject(DataObject*);
-    void			addObject(VisID);
+    void			addObject(const VisID&);
 				/*!< Calls addObject( DataObject* ) */
 
     virtual void		insertObject(int idx,DataObject*);
 
-    virtual int			getFirstIdx(VisID) const;
+    virtual int			getFirstIdx(const VisID&) const;
 				/*!<\returns	the first index (there might be
 						many instances) of the id in
 						the group, or -1 if not found
@@ -51,11 +52,8 @@ public:
 
     virtual void		removeObject(int idx);
     virtual void		removeAll();
-    virtual DataObject*		getObject( int idx )
-				{return objects_.size()>idx ? objects_[idx] :0;}
-    const DataObject*		getObject( int idx ) const
-				{ return const_cast<DataObjectGroup*>(this)->
-				    getObject( idx ); }
+    virtual DataObject*		getObject(int idx);
+    const DataObject*		getObject(int idx) const;
 
     void			setDisplayTransformation(const mVisTrans*)
 								 override;
@@ -73,8 +71,9 @@ public:
     Notifier<DataObjectGroup>	change; //triggers on add/insert/remove
 
 protected:
-
-    virtual			~DataObjectGroup();
+				DataObjectGroup( bool /* internal */ )
+				    : DataObjectGroup() {}
+				~DataObjectGroup();
 
     osg::Group*			osggroup_;
 

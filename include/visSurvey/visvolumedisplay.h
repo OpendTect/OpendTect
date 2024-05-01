@@ -12,15 +12,20 @@ ________________________________________________________________________
 
 #include "mousecursor.h"
 #include "ranges.h"
+#include "visboxdragger.h"
+#include "visevent.h"
+#include "vismarchingcubessurface.h"
 #include "visobject.h"
+#include "visvolorthoslice.h"
+#include "visrgbatexturechannel2rgba.h"
 #include "vissurvobj.h"
-
+#include "vistransform.h"
+#include "visvolrenscalarfield.h"
+#include "zaxistransform.h"
 
 class MarchingCubesSurface;
-class RegularSeisDataPack;
 class TaskRunner;
 class TrcKeyZSampling;
-class ZAxisTransform;
 class ZAxisTransformer;
 template <class T> class Array3D;
 
@@ -28,12 +33,7 @@ namespace Attrib { class SelSpec; }
 
 namespace visBase
 {
-    class MarchingCubesSurface;
     class Material;
-    class BoxDragger;
-    class VolumeRenderScalarField;
-    class OrthogonalSlice;
-    class TextureChannel2RGBA;
 }
 
 
@@ -42,15 +42,16 @@ namespace visSurvey
 
 class Scene;
 
-mExpClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
-				     public SurveyObject
+mExpClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl
+				   , public SurveyObject
 {
 public:
 				VolumeDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,VolumeDisplay,
+				    SurveyObject, VolumeDisplay,
 				    "VolumeDisplay",
-				    toUiString(sFactoryKeyword()));
+				    ::toUiString(sFactoryKeyword()) )
 
     bool			isInlCrl() const override { return true; }
 
@@ -67,7 +68,7 @@ public:
     VisID			addIsoSurface(TaskRunner* =nullptr,
 					      bool updateisosurface=true);
 				/*!\note return with removeChild(displayid). */
-    void			removeChild(VisID displayid);
+    void			removeChild(const VisID&);
 
     visBase::MarchingCubesSurface* getIsoSurface(int idx);
     void			updateIsoSurface(int,TaskRunner* =nullptr);
@@ -148,7 +149,7 @@ public:
 								override;
 
     visBase::TextureChannel2RGBA*	getChannels2RGBA() override;
-    const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
+    const visBase::TextureChannel2RGBA* getChannels2RGBA() const override;
 
     float			slicePosition(visBase::OrthogonalSlice*) const;
     void			setSlicePosition(visBase::OrthogonalSlice*,
@@ -165,17 +166,10 @@ public:
 						   int attrib) const;
     void			setTrcKeyZSampling(const TrcKeyZSampling&,
 						bool dragmode=false);
-    bool			setDataVolume(int attrib,
-					      const RegularSeisDataPack*,
-					      TaskRunner*) override;
-    const RegularSeisDataPack*	getCacheVolume(int attrib) const override;
-    bool			setDataPackID(int attrib,DataPackID,
-					      TaskRunner*) override;
+
     DataPackID			getDataPackID(int attrib) const override;
     DataPackID			getDisplayedDataPackID(
 					      int attrib) const override;
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
-				{ return DataPackMgr::SeisID(); }
 
     void			getMousePosInfo( const visBase::EventInfo& ei,
 						 IOPar& iop ) const override
@@ -203,7 +197,7 @@ public:
     bool			allowsPicks() const override;
     bool			canDuplicate() const override
 				{ return usesShading();}
-    visSurvey::SurveyObject*	duplicate(TaskRunner*) const override;
+    SurveyObject*		duplicate(TaskRunner*) const override;
 
     static bool			canUseVolRenShading();
     void			allowShading(bool yn) override;
@@ -239,9 +233,17 @@ public:
 protected:
 				~VolumeDisplay();
 
-    Notifier<VolumeDisplay>	boxMoving;
+    bool			setSeisDataPack(int attrib,
+						RegularSeisDataPack*,
+						TaskRunner*) override;
+    ConstRefMan<RegularSeisDataPack> getSeisDataPack(int attrib) const override;
+    DataPackMgr::MgrID		getDataPackMgrID() const override
+				{ return DataPackMgr::SeisID(); }
+    bool			setDataPackID(int attrib,const DataPackID&,
+					  TaskRunner*) override; //deprecated
 
-    bool			updateSeedBasedSurface(int,TaskRunner* = 0);
+    bool			updateSeedBasedSurface(int,
+						       TaskRunner* =nullptr);
     void			materialChange(CallBacker*);
     void			updateIsoSurfColor();
     bool			pickable() const { return true; }
@@ -255,14 +257,16 @@ protected:
     void			getObjectInfoText(uiString& info,
 						  bool compact) const;
 
-    visBase::BoxDragger*			boxdragger_;
-    visBase::VolumeRenderScalarField*		scalarfield_;
-    visBase::TextureChannel2RGBA*		texchannel2rgba_;
+    Notifier<VolumeDisplay>	boxMoving;
+
+    RefMan<visBase::BoxDragger>			boxdragger_;
+    RefMan<visBase::VolumeRenderScalarField>	scalarfield_;
+    RefMan<visBase::TextureChannel2RGBA>	texchannel2rgba_;
 /* OSG_TODO: Replace VolrenDisplay with OSG equivalent
-    visBase::VolrenDisplay*			volren_;
+    RefMan<visBase::VolrenDisplay>		volren_;
 */
-    ObjectSet<visBase::OrthogonalSlice>		slices_;
-    ObjectSet<visBase::MarchingCubesSurface>	isosurfaces_;
+    RefObjectSet<visBase::OrthogonalSlice>	slices_;
+    RefObjectSet<visBase::MarchingCubesSurface> isosurfaces_;
     struct IsosurfaceSetting
     {
 				IsosurfaceSetting();
@@ -296,8 +300,8 @@ protected:
     void			setSceneEventCatcher(
 					visBase::EventCatcher*) override;
 
-    ZAxisTransform*		datatransform_;
-    ZAxisTransformer*		datatransformer_;
+    RefMan<ZAxisTransform>	datatransform_;
+    ZAxisTransformer*		datatransformer_	= nullptr;
 
     struct AttribData
     {
@@ -316,11 +320,11 @@ protected:
     TrcKeyZSampling		csfromsession_;
 
     MouseCursor			mousecursor_;
-    visBase::EventCatcher*	eventcatcher_;
+    RefMan<visBase::EventCatcher> eventcatcher_;
 
-    bool			isinited_;
-    bool			ismanip_;
-    bool			onoffstatus_;
+    bool			isinited_	= false;
+    bool			ismanip_	= false;
+    bool			onoffstatus_	= true;
 
     ConstRefMan<mVisTrans>	displaytrans_;
 

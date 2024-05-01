@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "viscoord.h"
 #include "visnormals.h"
+#include "vispolygonoffset.h"
 
 namespace osgGeo { class MarkerSet; }
 
@@ -43,7 +44,7 @@ public:
 	ROTATE_TO_AXIS
     };
 
-    static MarkerSet*	create()
+    static RefMan<MarkerSet> create();
 			mCreateDataObj(MarkerSet);
 
     Coordinates*	getCoordinates()         { return coords_; }
@@ -113,9 +114,10 @@ public:
     void		turnAllMarkersOn(bool);
     bool		markerOn(unsigned int);
 
-    int			findClosestMarker(const Coord3&, bool scenespace=false);
-    int			findMarker(const Coord3&, const Coord3& eps,
-				   bool scenespace = false);
+    int			findClosestMarker(const Coord3&,
+					  bool scenespace=false) const;
+    int			findMarker(const Coord3&,const Coord3& eps,
+				   bool scenespace =false) const;
 
     void		setMarkerResolution(float res);
 			/*!< The res value is between 0 and 1. It indicates the
@@ -143,7 +145,7 @@ protected:
 
     float			rotationangle_;
     Coord3			rotationvec_;
-    PolygonOffset*		offset_;
+    RefMan<PolygonOffset>	offset_;
     osg::Array*			onoffarr_;
 };
 

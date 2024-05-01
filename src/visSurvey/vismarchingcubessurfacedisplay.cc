@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "emmanager.h"
-#include "emmarchingcubessurface.h"
 #include "executor.h"
 #include "indexedshape.h"
 #include "impbodyplaneintersect.h"
@@ -26,11 +25,8 @@ ________________________________________________________________________
 #include "settings.h"
 #include "survinfo.h"
 
-#include "visgeomindexedshape.h"
-#include "vismarchingcubessurface.h"
 #include "visplanedatadisplay.h"
 #include "vismaterial.h"
-#include "vistransform.h"
 #include "vispolygonoffset.h"
 
 
@@ -38,35 +34,23 @@ namespace visSurvey
 {
 
 MarchingCubesDisplay::MarchingCubesDisplay()
-    : VisualObjectImpl(true)
+    : visBase::VisualObjectImpl(true)
     , selspecs_(1,Attrib::SelSpec())
 {
-    cache_.allowNull( true );
+    ref();
+    datapacks_.setNullAllowed();
     setColor( OD::getRandomColor(false) );
     getMaterial()->setAmbience( 0.4 );
-    getMaterial()->change.notify(
-	    mCB(this,MarchingCubesDisplay,materialChangeCB));
+    mAttachCB( getMaterial()->change, MarchingCubesDisplay::materialChangeCB );
+    unRefNoDelete();
 }
 
 
 MarchingCubesDisplay::~MarchingCubesDisplay()
 {
-    if ( emsurface_ ) emsurface_->unRef();
-
+    detachAllNotifiers();
     delete impbody_;
     deepErase( intsinfo_ );
-
-    if ( displaysurface_ )
-	displaysurface_->unRef();
-
-    getMaterial()->change.remove(
-	    mCB(this,MarchingCubesDisplay,materialChangeCB));
-
-    if ( model2displayspacetransform_ )
-	model2displayspacetransform_->unRef();
-
-    if ( intersectiontransform_ )
-	intersectiontransform_->unRef();
 }
 
 
@@ -102,34 +86,27 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
     if ( displaysurface_ )
     {
 	removeChild( displaysurface_->osgNode() );
-	displaysurface_->unRef();
-	displaysurface_ = 0;
+	displaysurface_ = nullptr;
     }
 
-    if ( emsurface_ ) emsurface_->unRef();
-    emsurface_ = 0;
-
-    delete impbody_; impbody_ = 0;
-
+    emsurface_ = nullptr;
+    deleteAndNullPtr( impbody_ );
     if ( !surface || !surface->getSurface() )
 	return false;
 
-    mTryAlloc( emsurface_, EM::MarchingCubesSurface( EM::EMM() ) );
-
+    emsurface_ = new EM::MarchingCubesSurface( EM::EMM() );
     if ( !emsurface_ )
     {
-	for ( int idx=0; idx<intsinfo_.size(); idx++ )
-	    intsinfo_[idx]->visshape_->turnOn( false );
+	for ( auto* intsinfo : intsinfo_ )
+	    intsinfo->visshape_->turnOn( false );
+
 	return false;
     }
-
-    emsurface_->ref();
 
     if ( !emsurface_->isOK() ||
 	 !emsurface_->setSurface( surface->getSurface() ) )
     {
-	emsurface_->unRef();
-	emsurface_ = 0;
+	emsurface_ = nullptr;
 	return false;
     }
 
@@ -146,20 +123,18 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
     EM::EMM().addObject( emsurface_ );
 
     displaysurface_ = surface;
-    displaysurface_->ref();
     displaysurface_->setSelectable( false );
     addChild( displaysurface_->osgNode() );
 
     if ( displaysurface_->getMaterial() )
 	getMaterial()->setFrom( *displaysurface_->getMaterial() );
 
-    displaysurface_->setMaterial( 0 );
-    getMaterial()->change.notify(
-	    mCB(this,MarchingCubesDisplay,materialChangeCB));
+    displaysurface_->setMaterial( nullptr );
+    mDetachCB( getMaterial()->change, MarchingCubesDisplay::materialChangeCB );
     emsurface_->setPreferredColor( getColor() );
     emsurface_->setName( name() );
 
-    materialChangeCB( 0 );
+    materialChangeCB( nullptr );
     return true;
 }
 
@@ -194,8 +169,7 @@ const ColTab::MapperSetup*
 MarchingCubesDisplay::getColTabMapperSetup( int attrib, int version ) const
 {
     return !attrib && (!version || mIsUdf(version)) && displaysurface_
-	? displaysurface_->getShape()->getDataMapper()
-	: 0;
+		? displaysurface_->getShape()->getDataMapper() : nullptr;
 }
 
 
@@ -211,8 +185,7 @@ const ColTab::Sequence*
 MarchingCubesDisplay::getColTabSequence( int attrib ) const
 {
     return !attrib && displaysurface_
-	? displaysurface_->getShape()->getDataSequence()
-	: 0;
+		? displaysurface_->getShape()->getDataSequence() : nullptr;
 }
 
 
@@ -231,9 +204,8 @@ bool MarchingCubesDisplay::canSetColTabSequence() const
 void MarchingCubesDisplay::setSelSpec( int attrib, const Attrib::SelSpec& spec )
 {
     SurveyObject::setSelSpec( attrib, spec );
-
     if ( !attrib )
-		selspecs_.first() = spec;
+	selspecs_.first() = spec;
 }
 
 
@@ -241,9 +213,8 @@ void MarchingCubesDisplay::setSelSpecs(
 		int attrib, const TypeSet<Attrib::SelSpec>& spec )
 {
     SurveyObject::setSelSpecs( attrib, spec );
-
     if ( !attrib )
-		selspecs_.first() = spec[0];
+	selspecs_.first() = spec.first();
 }
 
 
@@ -266,15 +237,14 @@ const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
 		StringView(selspecs_.first().userRef())!=nm; \
     selspecs_.first().set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
     RefMan<DataPointSet> data = new DataPointSet(false,true); \
-    DPM( DataPackMgr::PointID() ).add( data ); \
-    getRandomPos( *data, 0 ); \
-    DataColDef* isovdef = new DataColDef(nm); \
+    getRandomPos( *data, nullptr ); \
+    auto* isovdef = new DataColDef(nm); \
     data->dataSet().add( isovdef ); \
     BinIDValueSet& bivs = data->bivSet();  \
     if ( !data->size() || bivs.nrVals()!=3 ) \
 	return; \
     int valcol = data->dataSet().findColDef( *isovdef, \
-	    PosVecDataSet::NameExact ); \
+					     PosVecDataSet::NameExact ); \
     if ( valcol==-1 ) valcol = 1
 
 
@@ -334,15 +304,15 @@ void MarchingCubesDisplay::setIsopach( int attrib )
 	vals[valcol] = maxz-minz;
     }
 
-    setRandomPosData( attrib, data, 0 );
+    setRandomPosData( attrib, data, nullptr );
 
     if ( attribselchange )
     {
 	BufferString seqnm;
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ColTab::Sequence seq( seqnm );
-	setColTabSequence( attrib, seq, 0 );
-	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+	setColTabSequence( attrib, seq, nullptr );
+	setColTabMapperSetup( attrib, ColTab::MapperSetup(), nullptr );
     }
 }
 
@@ -357,15 +327,15 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 	vals[valcol] = vals[0];
     }
 
-    setRandomPosData( attrib, data, 0 );
+    setRandomPosData( attrib, data, nullptr );
 
     if ( attribselchange )
     {
 	BufferString seqnm;
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ColTab::Sequence seq( seqnm );
-	setColTabSequence( attrib, seq, 0 );
-	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+	setColTabSequence( attrib, seq, nullptr );
+	setColTabMapperSetup( attrib, ColTab::MapperSetup(), nullptr );
     }
 }
 
@@ -380,8 +350,8 @@ void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
     SamplingData<float> crlinesampling = emsurface_->crlSampling();
     SamplingData<float> zsampling = emsurface_->zSampling();
 
-    visBase::Transformation* toincrltransf = visBase::Transformation::create();
-    toincrltransf->ref();
+    RefMan<visBase::Transformation> toincrltransf =
+					visBase::Transformation::create();
     toincrltransf->setScale(
 	Coord3(inlinesampling.step, crlinesampling.step, zsampling.step));
     toincrltransf->setTranslation(
@@ -389,31 +359,30 @@ void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
 
     displaysurface_->getShape()->getAttribPositions( dps, toincrltransf,
 						     runner);
-    toincrltransf->unRef();
 }
 
 
 void MarchingCubesDisplay::setRandomPosData( int attrib,
-				 const DataPointSet* dps, TaskRunner* runner )
+					     const DataPointSet* dps,
+					     TaskRunner* runner )
 {
     if ( attrib<0 )
 	return;
 
-    RefMan<DataPointSet> ndps = cCast(DataPointSet*,dps);
     if ( !attrib && dps && displaysurface_ )
     {
-	displaysurface_->getShape()->setAttribData( *ndps, runner );
-	materialChangeCB( 0 );
+	displaysurface_->getShape()->setAttribData( *dps, runner );
+	materialChangeCB( nullptr );
     }
 
-    if ( cache_.validIdx(attrib) )
-	cache_.replace( attrib, ndps );
+    if ( datapacks_.validIdx(attrib) )
+	datapacks_.replace( attrib, (DataPointSet*) dps );
     else
     {
-	while ( attrib>cache_.size() )
-	    cache_ += nullptr;
+	while ( attrib>datapacks_.size() )
+	    datapacks_ += nullptr;
 
-	cache_ += ndps;
+	datapacks_ += (DataPointSet*) dps;
     }
 
     validtexture_ = true;
@@ -424,7 +393,8 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 
 DataPackID MarchingCubesDisplay::getDataPackID( int attrib ) const
 {
-    return cache_.validIdx(attrib) ? cache_[attrib]->id() : DataPackID::udf();
+    return datapacks_.validIdx(attrib) ? datapacks_[attrib]->id()
+				       : DataPackID::udf();
 }
 
 
@@ -436,7 +406,9 @@ DataPackID MarchingCubesDisplay::getDisplayedDataPackID( int attrib ) const
 
 void MarchingCubesDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 					    IOPar& iop ) const
-{ SurveyObject::getMousePosInfo(ei,iop); }
+{
+    SurveyObject::getMousePosInfo(ei,iop);
+}
 
 
 void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
@@ -447,9 +419,9 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
     info = tr("Geobody: %1").arg(name());
 
     int valididx = -1;
-    for ( int idx=0; idx<cache_.size(); idx++ )
+    for ( int idx=0; idx<datapacks_.size(); idx++ )
     {
-	if ( !cache_[idx] )
+	if ( !datapacks_[idx] )
 	    continue;
 
 	valididx = idx;
@@ -459,7 +431,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
     if ( valididx==-1 )
 	return;
 
-    const BinIDValueSet& bivset = cache_[valididx]->bivSet();
+    const BinIDValueSet& bivset = datapacks_[valididx]->bivSet();
     const BinID bid = SI().transform( xyzpos );
 
     TypeSet<float> zdist;
@@ -497,13 +469,10 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
-       TaskRunner* runner )
+				    TaskRunner* runner )
 {
-    if ( emsurface_ )
-	emsurface_->unRef();
-
-    emsurface_ = 0;
-    delete impbody_; impbody_ = 0;
+    emsurface_ = nullptr;
+    deleteAndNullPtr( impbody_ );
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet( EM::MarchingCubesSurface*, emmcsurf, emobject.ptr() );
@@ -511,11 +480,11 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid,
     {
 	if ( displaysurface_ )
 	    displaysurface_->turnOn( false );
+
 	return false;
     }
 
     emsurface_ = emmcsurf;
-    emsurface_->ref();
 
     return updateVisFromEM( false, runner );
 }
@@ -526,32 +495,30 @@ bool MarchingCubesDisplay::updateVisFromEM( bool onlyshape, TaskRunner* runner )
     if ( emsurface_ && (!onlyshape || !displaysurface_) )
     {
 	getMaterial()->setColor( emsurface_->preferredColor() );
-	if ( !emsurface_->name().isEmpty() )
-	    setName( emsurface_->name() );
-	else
+	if ( emsurface_->name().isEmpty() )
 	    setName( "<New Geobody>" );
+	else
+	    setName( emsurface_->name() );
 
 	if ( !displaysurface_ )
 	{
 	    displaysurface_ = visBase::MarchingCubesSurface::create();
-	    displaysurface_->ref();
-	    displaysurface_->setMaterial( 0 );
+	    displaysurface_->setMaterial( nullptr );
 	    displaysurface_->setSelectable( false );
 	    displaysurface_->setRightHandSystem( righthandsystem_ );
 	    addChild( displaysurface_->osgNode() );
-	    materialChangeCB( 0 );
+	    materialChangeCB( nullptr );
 	}
 
 	displaysurface_->setScales(
-	    SamplingData<float>(emsurface_->inlSampling()),
-	    SamplingData<float>(emsurface_->crlSampling()),
-	    emsurface_->zSampling() );
+			    SamplingData<float>(emsurface_->inlSampling()),
+			    SamplingData<float>(emsurface_->crlSampling()),
+			    emsurface_->zSampling() );
 
 	if ( !displaysurface_->setSurface(emsurface_->surface(),runner) )
 	{
 	    removeChild( displaysurface_->osgNode() );
-	    displaysurface_->unRef();
-	    displaysurface_ = 0;
+	    displaysurface_ = nullptr;
 	    return false;
 	}
 	else
@@ -586,7 +553,7 @@ OD::Color MarchingCubesDisplay::getColor() const
 void MarchingCubesDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
-    visSurvey::SurveyObject::fillPar( par );
+    SurveyObject::fillPar( par );
     par.set( sKeyEarthModelID(), getMultiID() );
     par.setYN( sKeyUseTexture(), usestexture_ );
 
@@ -594,7 +561,7 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
 	selspecs_.first().fillPar( attribpar );
 	//Right now only one attribute for the body
 
-    if ( canSetColTabSequence() && getColTabSequence( 0 ) )
+    if ( canSetColTabSequence() && getColTabSequence(0) )
     {
 	IOPar seqpar;
 	const ColTab::Sequence* seq = getColTabSequence( 0 );
@@ -606,10 +573,10 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
 	attribpar.mergeComp( seqpar, sKeyColTabSequence() );
     }
 
-    if ( getColTabMapperSetup( 0, 0 ) )
+    if ( getColTabMapperSetup(0,0) )
     {
 	IOPar mapperpar;
-	getColTabMapperSetup( 0, 0 )->fillPar( mapperpar );
+	getColTabMapperSetup(0,0)->fillPar( mapperpar );
 	attribpar.mergeComp( mapperpar, sKeyColTabMapper() );
     }
 
@@ -619,8 +586,7 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
 
 bool MarchingCubesDisplay::usePar( const IOPar& par )
 {
-    if ( !visBase::VisualObjectImpl::usePar( par ) ||
-	 !visSurvey::SurveyObject::usePar( par ) )
+    if ( !visBase::VisualObjectImpl::usePar(par) || !SurveyObject::usePar(par) )
 	 return false;
 
     MultiID newmid;
@@ -631,12 +597,15 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
 	if ( !emobject )
 	{
 	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
-	    if ( loader ) loader->execute();
+	    if ( loader )
+		loader->execute();
+
 	    emid = EM::EMM().getObjectID( newmid );
 	    emobject = EM::EMM().getObject( emid );
 	}
 
-	if ( emobject ) setEMID( emobject->id(), 0 );
+	if ( emobject )
+	    setEMID( emobject->id(), nullptr );
     }
 
     par.getYN( sKeyUseTexture(), usestexture_ );
@@ -658,7 +627,7 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
 		    ColTab::SM().get( seqname.buf(), seq );
 	    }
 
-	    setColTabSequence( 0, seq, 0 );
+	    setColTabSequence( 0, seq, nullptr );
 	}
 
 	PtrMan<IOPar> mappar = attribpar->subselect( sKeyColTabMapper() );
@@ -666,7 +635,7 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
 	{
 	    ColTab::MapperSetup mapper;
 	    mapper.usePar( *mappar );
-	    setColTabMapperSetup( 0, mapper, 0 );
+	    setColTabMapperSetup( 0, mapper, nullptr );
 	}
     }
 
@@ -676,14 +645,7 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
 
 void MarchingCubesDisplay::setDisplayTransformation( const mVisTrans* nt)
 {
-    if ( intersectiontransform_ )
-	intersectiontransform_->unRef();
-
     intersectiontransform_ = nt;
-
-    if ( intersectiontransform_ )
-	intersectiontransform_->ref();
-
     if ( emsurface_ )
     {
 	SamplingData<float> inlinesampling = emsurface_->inlSampling();
@@ -691,14 +653,12 @@ void MarchingCubesDisplay::setDisplayTransformation( const mVisTrans* nt)
 	SamplingData<float> zsampling = emsurface_->zSampling();
 
 	model2displayspacetransform_ = visBase::Transformation::create();
-	model2displayspacetransform_->ref();
 	model2displayspacetransform_->setScale(
 	    Coord3(inlinesampling.step, crlinesampling.step, zsampling.step));
 	model2displayspacetransform_->setTranslation(
 	    Coord3(inlinesampling.start,crlinesampling.start, zsampling.start));
 
 	*model2displayspacetransform_ *= *nt;
-
     }
 
     if ( displaysurface_ )
@@ -709,7 +669,8 @@ void MarchingCubesDisplay::setDisplayTransformation( const mVisTrans* nt)
 
 const mVisTrans* MarchingCubesDisplay::getDisplayTransformation() const
 {
-    return displaysurface_ ? displaysurface_->getDisplayTransformation() : 0;
+    return displaysurface_ ? displaysurface_->getDisplayTransformation()
+			   : nullptr;
 }
 
 
@@ -724,7 +685,7 @@ void MarchingCubesDisplay::materialChangeCB( CallBacker* )
 
 
 void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
-	TaskRunner* runner )
+					    TaskRunner* runner )
 {
     return; //TODO
     /*
@@ -793,14 +754,14 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 
 
 void MarchingCubesDisplay::otherObjectsMoved(
-	const ObjectSet<const SurveyObject>& objs, VisID whichobj )
+				const ObjectSet<const SurveyObject>& objs,
+				const VisID& whichobj )
 {
     if ( !emsurface_ || !displaysurface_ )
 	return;
 
     ObjectSet<const PlaneDataDisplay> activeplanes;
     TypeSet<VisID> activepids;
-
     for ( int idx=0; idx<objs.size(); idx++ )
     {
 	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
@@ -905,7 +866,7 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
 	if ( displayintersections_ )
 	{
 	    intsinfo_[idx]->visshape_->setDisplayTransformation(
-		intersectiontransform_ );
+						intersectiontransform_ );
 	    intsinfo_[idx]->visshape_->touch( false, false );
 	}
 
@@ -933,25 +894,22 @@ bool MarchingCubesDisplay::isAttribEnabled( int attrib ) const
 }
 
 
+// MarchingCubesDisplay::PlaneIntersectInfo
+
 MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
 {
     planeid_.setUdf();
-    planeorientation_ = -1;
-    planepos_ = mUdf(float);
-    computed_ = false;
-
-    auto* offset = new visBase::PolygonOffset;
+    RefMan<visBase::PolygonOffset> offset = visBase::PolygonOffset::create();
     offset->setFactor( -1.0f );
     offset->setUnits( 1.0f );
     offset->setMode(
 	visBase::PolygonOffset::Protected | visBase::PolygonOffset::On  );
 
     visshape_ = visBase::GeomIndexedShape::create();
-    visshape_->ref();
     visshape_->setSelectable( false );
     shape_ = new Geometry::ExplicitIndexedShape();
 
-    visshape_->addNodeState( offset );
+    visshape_->addNodeState( offset.ptr() );
     visshape_->setSurface( shape_ );
     visshape_->setGeometryShapeType( visBase::GeomIndexedShape::Triangle );
     visshape_->setNormalBindType( visBase::VertexShape::BIND_OVERALL );
@@ -967,7 +925,6 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
 
 MarchingCubesDisplay::PlaneIntersectInfo::~PlaneIntersectInfo()
 {
-    visshape_->unRef();
     delete shape_;
 }
 

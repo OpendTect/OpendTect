@@ -88,20 +88,19 @@ void DataManager::removeAll()
 }
 
 
-DataObject* DataManager::getObject( Vis2DID id )
+DataObject* DataManager::getObject( const Vis2DID& id )
 {
     for ( int idx=0; idx<objects_.size(); idx++ )
-    {
-	if ( objects_[idx]->id()==id ) return objects_[idx];
-    }
+	if ( objects_[idx]->id()==id )
+	    return objects_[idx];
 
-    return 0;
+    return nullptr;
 }
 
 
-const DataObject* DataManager::getObject( Vis2DID id ) const
+const DataObject* DataManager::getObject( const Vis2DID& id ) const
 {
-    return const_cast<DataManager*>(this)->getObject(id);
+    return mSelf().getObject( id );
 }
 
 
@@ -128,7 +127,7 @@ void DataManager::setSelected( DataObject* sobj )
 }
 
 
-void DataManager::deSelect( Vis2DID id )
+void DataManager::deSelect( const Vis2DID& id )
 {
     DataObject* dataobj = getObject( id );
     if( dataobj )

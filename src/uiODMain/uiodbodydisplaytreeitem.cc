@@ -36,12 +36,6 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uivispartserv.h"
 
-#include "vismarchingcubessurfacedisplay.h"
-#include "vispolygonbodydisplay.h"
-#include "visrandomposbodydisplay.h"
-
-
-
 
 CNotifier<uiODBodyDisplayParentTreeItem,uiMenu*>&
 	uiODBodyDisplayParentTreeItem::showMenuNotifier()
@@ -66,8 +60,8 @@ const char* uiODBodyDisplayParentTreeItem::iconName() const
 
 bool uiODBodyDisplayParentTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    RefMan<visSurvey::Scene> scene =
+		    ODMainWin()->applMgr().visServer()->getScene( sceneID() );
     if ( scene && scene->getZAxisTransform() )
     {
 	uiMSG().message( tr("Cannot add Geobodies to this scene") );
@@ -82,8 +76,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	uiMenu* displaymnu =
-		new uiMenu( getUiParent(), tr("Display All") );
+	auto* displaymnu = new uiMenu( getUiParent(), tr("Display All") );
 	displaymnu->insertAction( new uiAction(tr("Only at Sections")), 2 );
 	displaymnu->insertAction( new uiAction(tr("In Full")), 3 );
 	mnu.addMenu( displaymnu );
@@ -181,81 +174,87 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
     deepUnRef( objs );
 }
 
-uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( VisID visid,
+
+uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( const VisID& visid,
 							  uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,
-	    ODMainWin()->applMgr().visServer()->getObject(visid));
+    const visBase::DataObject* visobj =
+		ODMainWin()->applMgr().visServer()->getObject(visid);
+    if ( !visobj )
+	return nullptr;
+
+    mDynamicCastGet(const visSurvey::PolygonBodyDisplay*,plg,visobj);
     if ( plg )
 	return new uiODBodyDisplayTreeItem( visid, true );
 
-    mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
-	    ODMainWin()->applMgr().visServer()->getObject(visid));
+    mDynamicCastGet(const visSurvey::MarchingCubesDisplay*,mcd,visobj);
     if ( mcd )
 	return new uiODBodyDisplayTreeItem( visid, true );
 
-    return 0;
+    mDynamicCastGet(const visSurvey::RandomPosBodyDisplay*,rpbd,visobj);
+    if ( rpbd )
+	return new uiODBodyDisplayTreeItem( visid, true );
+
+    return nullptr;
 }
 
 
-#define mCommonInit \
-    , savemnuitem_(uiStrings::sSave()) \
-    , saveasmnuitem_(uiStrings::sSaveAs()) \
-    , displaybodymnuitem_(uiStrings::sGeobody()) \
-    , displaypolygonmnuitem_(uiODBodyDisplayTreeItem::sPickedPolygons()) \
-    , displayintersectionmnuitem_(uiStrings::sOnlyAtSections()) \
-    , singlecolormnuitem_(uiStrings::sUseSingleColor()) \
+uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem()
+    : uiODDisplayTreeItem()
+    , savemnuitem_(uiStrings::sSave())
+    , saveasmnuitem_(uiStrings::sSaveAs())
+    , displaybodymnuitem_(uiStrings::sGeobody())
+    , displaypolygonmnuitem_(uiODBodyDisplayTreeItem::sPickedPolygons())
+    , displayintersectionmnuitem_(uiStrings::sOnlyAtSections())
+    , singlecolormnuitem_(uiStrings::sUseSingleColor())
     , volcalmnuitem_(m3Dots(uiODBodyDisplayTreeItem::sCalcVolume()))
-
-#define mCommonInit2 \
-    displaybodymnuitem_.checkable = true; \
-    displaypolygonmnuitem_.checkable = true; \
-    displayintersectionmnuitem_.checkable = true; \
-    singlecolormnuitem_.checkable = true; \
-    savemnuitem_.iconfnm = "save"; \
+{
+    displaybodymnuitem_.checkable = true;
+    displaypolygonmnuitem_.checkable = true;
+    displayintersectionmnuitem_.checkable = true;
+    singlecolormnuitem_.checkable = true;
+    savemnuitem_.iconfnm = "save";
     saveasmnuitem_.iconfnm = "saveas";
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODBodyDisplayTreeItem::askSaveCB );
+}
 
 
 uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
-    : uiODDisplayTreeItem()
-    , emid_(oid)
-    mCommonInit
+    : uiODBodyDisplayTreeItem()
 {
-    mCommonInit2
-
-    mAttachCB( NotSavedPrompter::NSP().promptSaving,
-	       uiODBodyDisplayTreeItem::askSaveCB );
+    emid_ = oid;
 }
 
 
-uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( VisID id, bool dummy )
-    : uiODDisplayTreeItem()
-    mCommonInit
+uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const VisID& id, bool dummy )
+    : uiODBodyDisplayTreeItem()
 {
     displayid_ = id;
-    mCommonInit2
-
-    mAttachCB( NotSavedPrompter::NSP().promptSaving,
-	       uiODBodyDisplayTreeItem::askSaveCB );
 }
 
 
 uiODBodyDisplayTreeItem::~uiODBodyDisplayTreeItem()
 {
     detachAllNotifiers();
-    unRefAndNullPtr( mcd_ );
-    unRefAndNullPtr( plg_ );
-    unRefAndNullPtr( rpb_ );
+    visserv_->removeObject( displayid_, sceneID() );
+}
 
+
+bool uiODBodyDisplayTreeItem::isOK() const
+{
+    return plg_ || mcd_ || rpb_;
 }
 
 
 uiODDataTreeItem* uiODBodyDisplayTreeItem::createAttribItem(
-	const Attrib::SelSpec* as ) const
+					const Attrib::SelSpec* as ) const
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
-	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
+	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false)
+	: nullptr;
+
     if ( !res )
 	res = new uiODBodyDisplayDataTreeItem( parenttype );
 
@@ -273,104 +272,116 @@ bool uiODBodyDisplayTreeItem::init()
 	mDynamicCastGet( EM::RandomPosBody*, emrpb, object );
 	if ( emplg )
 	{
-	    visSurvey::PolygonBodyDisplay* plg =
-		new visSurvey::PolygonBodyDisplay;
-	    plg_ = plg;
-	    plg_->ref();
-	    if ( !plg_->setEMID( emid_ ) )
-	    {
-		plg_->unRef();
-		plg_ = 0;
+	    RefMan<visSurvey::PolygonBodyDisplay> plg =
+					    new visSurvey::PolygonBodyDisplay;
+	    if ( !plg->setEMID(emid_) )
 		return false;
-	    }
 
 	    displayid_ = plg->id();
 	    visserv_->addObject( plg, sceneID(), true );
 	}
 	else if ( emmcs )
 	{
-	    visSurvey::MarchingCubesDisplay* mcd =
-		new visSurvey::MarchingCubesDisplay;
-	    mcd_ = mcd;
-	    mcd_->ref();
+	    RefMan<visSurvey::MarchingCubesDisplay> mcd =
+					new visSurvey::MarchingCubesDisplay;
 	    uiTaskRunner taskrunner( getUiParent() );
-	    if ( !mcd_->setEMID( emid_, &taskrunner ) )
-	    {
-		mcd_->unRef();
-		mcd_ = 0;
+	    if ( !mcd->setEMID(emid_,&taskrunner) )
 		return false;
-	    }
 
 	    displayid_ = mcd->id();
 	    visserv_->addObject( mcd, sceneID(), true );
 	}
 	else if ( emrpb )
 	{
-	    visSurvey::RandomPosBodyDisplay* rpb =
-		new visSurvey::RandomPosBodyDisplay;
-	    rpb_ = rpb;
-	    rpb_->ref();
-	    if ( !rpb_->setEMID( emid_ ) )
-	    {
-		rpb_->unRef();
-		rpb_ = 0;
+	    RefMan<visSurvey::RandomPosBodyDisplay> rpb =
+					new visSurvey::RandomPosBodyDisplay;
+	    if ( !rpb->setEMID(emid_) )
 		return false;
-	    }
 
 	    displayid_ = rpb->id();
 	    visserv_->addObject( rpb, sceneID(), true );
 	}
     }
-    else
+
+    visBase::DataObject* visobj = visserv_->getObject( displayid_ );
+    RefMan<visSurvey::PolygonBodyDisplay> plg =
+			    dCast( visSurvey::PolygonBodyDisplay*, visobj );
+    RefMan<visSurvey::MarchingCubesDisplay> mcd =
+			    dCast( visSurvey::MarchingCubesDisplay*, visobj );
+    RefMan<visSurvey::RandomPosBodyDisplay> rpb =
+			    dCast( visSurvey::RandomPosBodyDisplay*, visobj );
+    if ( plg )
     {
-	mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,
-			visserv_->getObject(displayid_));
-	mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
-			visserv_->getObject(displayid_));
-	mDynamicCastGet(visSurvey::RandomPosBodyDisplay*,rpb,
-			visserv_->getObject(displayid_));
-	if ( plg )
-	{
-	    plg_ = plg;
-	    plg_->ref();
-	    emid_ = plg->getEMID();
-	}
-	else if ( mcd )
-	{
-	    mcd_ = mcd;
-	    mcd_->ref();
-	    emid_ = mcd->getEMID();
-	}
-	else if ( rpb )
-	{
-	    rpb_ = rpb;
-	    rpb_->ref();
-	    emid_ = rpb->getEMID();
-	}
+	//emid_ = plg->getEMID();
+	mAttachCB( plg->materialChange(),uiODBodyDisplayTreeItem::colorChgCB );
+	plg_ = plg;
     }
-
-   if ( plg_ )
-	mAttachCB( plg_->materialChange(),uiODBodyDisplayTreeItem::colorChgCB );
-
-    if ( mcd_ )
-	mAttachCB( mcd_->materialChange(),uiODBodyDisplayTreeItem::colorChgCB );
-
-    if ( rpb_ )
-	mAttachCB( rpb_->materialChange(),uiODBodyDisplayTreeItem::colorChgCB );
+    else if ( mcd )
+    {
+	//emid_ = mcd->getEMID();
+	mAttachCB( mcd->materialChange(),uiODBodyDisplayTreeItem::colorChgCB );
+	mcd_ = mcd;
+    }
+    else if ( rpb )
+    {
+	//emid_ = rpb->getEMID();
+	mAttachCB( rpb->materialChange(),uiODBodyDisplayTreeItem::colorChgCB );
+	rpb_ = rpb;
+    }
+    else
+	return false;
 
     mAttachCB( uiMain::keyboardEventHandler().keyPressed,
-	uiODBodyDisplayTreeItem::keyPressedCB );
+	       uiODBodyDisplayTreeItem::keyPressedCB );
+
     return uiODDisplayTreeItem::init();
 }
 
 
+ConstRefMan<visSurvey::PolygonBodyDisplay>
+				uiODBodyDisplayTreeItem::getPBDisplay() const
+{
+    return plg_.get();
+}
+
+
+ConstRefMan<visSurvey::MarchingCubesDisplay>
+				uiODBodyDisplayTreeItem::getMCDisplay() const
+{
+    return mcd_.get();
+}
+
+
+ConstRefMan<visSurvey::RandomPosBodyDisplay>
+				uiODBodyDisplayTreeItem::getRPBDisplay() const
+{
+    return rpb_.get();
+}
+
+
+RefMan<visSurvey::PolygonBodyDisplay> uiODBodyDisplayTreeItem::getPBDisplay()
+{
+    return plg_.get();
+}
+
+
+RefMan<visSurvey::MarchingCubesDisplay> uiODBodyDisplayTreeItem::getMCDisplay()
+{
+    return mcd_.get();
+}
+
+
+RefMan<visSurvey::RandomPosBodyDisplay> uiODBodyDisplayTreeItem::getRPBDisplay()
+{
+    return rpb_.get();
+}
+
 
 void uiODBodyDisplayTreeItem::keyPressedCB( CallBacker* )
 {
-    mDynamicCastGet( visSurvey::PolygonBodyDisplay*,pbd,
-	visserv_->getObject(displayid_) )
+    RefMan<visSurvey::PolygonBodyDisplay> pbd = getPBDisplay();
     if ( !pbd || !pbd->isSelected() )
-	    return;
+	return;
 
     mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emObjectID()) );
     if ( !emundo || !uiMain::keyboardEventHandler().hasEvent() )
@@ -441,50 +452,41 @@ bool uiODBodyDisplayTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 }
 
 
-void uiODBodyDisplayTreeItem::prepareForShutdown()
-{
-    detachAllNotifiers();
-    unRefAndNullPtr( mcd_ );
-    unRefAndNullPtr( plg_ );
-    unRefAndNullPtr( rpb_ );
-
-
-    uiODDisplayTreeItem::prepareForShutdown();
-}
-
-
 void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
     if ( !menu || menu->menuID()!=displayID().asInt() || istb )
 	return;
 
-    if ( !mcd_ && !plg_ && !rpb_ )
+    if ( !isOK() )
 	return;
 
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
-    if ( mcd_ )
+
+    ConstRefMan<visSurvey::PolygonBodyDisplay> plg = getPBDisplay();
+    if ( plg )
     {
-	const bool intersectdisplay = mcd_->displayedOnlyAtSections();
+	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
+		      plg->isBodyDisplayed() );
+	mAddMenuItem( &displaymnuitem_, &displaypolygonmnuitem_, true,
+		      plg->arePolygonsDisplayed() );
+	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
+		      plg->displayedOnlyAtSections() );
+	mAddMenuItem( menu, &displaymnuitem_, true, true );
+    }
+
+    ConstRefMan<visSurvey::MarchingCubesDisplay> mcd = getMCDisplay();
+    if ( mcd )
+    {
+	const bool intersectdisplay = mcd->displayedOnlyAtSections();
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
 	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
 		!intersectdisplay );
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		intersectdisplay );
 	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_,
-		      mcd_->canShowTexture(), !mcd_->showsTexture() );
-    }
-
-    if ( plg_ )
-    {
-	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
-		      plg_->isBodyDisplayed() );
-	mAddMenuItem( &displaymnuitem_, &displaypolygonmnuitem_, true,
-		      plg_->arePolygonsDisplayed() );
-	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
-		      plg_->displayedOnlyAtSections() );
-	mAddMenuItem( menu, &displaymnuitem_, true, true );
+		      mcd->canShowTexture(), !mcd->showsTexture() );
     }
 
     mAddMenuItem( menu, &volcalmnuitem_, true, true );
@@ -500,6 +502,13 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID().asInt() || mnuid==-1 )
 	return;
+
+    if ( !isOK() )
+	return;
+
+    RefMan<visSurvey::PolygonBodyDisplay> plg = getPBDisplay();
+    RefMan<visSurvey::MarchingCubesDisplay> mcd = getMCDisplay();
+    RefMan<visSurvey::RandomPosBodyDisplay> rpb = getRPBDisplay();
 
     if ( mnuid==saveasmnuitem_.id || mnuid==savemnuitem_.id )
     {
@@ -517,54 +526,54 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	    !applMgr()->EMServer()->getUiName(emid_).isEmpty();
 	if ( saveas && notempty )
 	{
-	    if ( plg_ )
-		plg_->setName( applMgr()->EMServer()->getName(emid_) );
+	    if ( plg )
+		plg->setName( applMgr()->EMServer()->getName(emid_) );
 
-	    if ( rpb_ )
-		rpb_->setName( applMgr()->EMServer()->getName(emid_) );
+	    if ( mcd )
+		mcd->setName( applMgr()->EMServer()->getName(emid_) );
 
-	    if ( mcd_ )
-		mcd_->setName( applMgr()->EMServer()->getName(emid_) );
+	    if ( rpb )
+		rpb->setName( applMgr()->EMServer()->getName(emid_) );
 
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }
     else if ( mnuid==volcalmnuitem_.id )
     {
-	if ( mcd_ && mcd_->getMCSurface() )
+	if ( plg && plg->getEMPolygonBody() )
 	{
-	    uiImplBodyCalDlg dlg(ODMainWin(),*mcd_->getMCSurface());
+	    uiImplBodyCalDlg dlg(ODMainWin(),*plg->getEMPolygonBody());
 	    dlg.go();
 	}
-	else if ( plg_ && plg_->getEMPolygonBody() )
+	else if ( mcd && mcd->getMCSurface() )
 	{
-	    uiImplBodyCalDlg dlg(ODMainWin(),*plg_->getEMPolygonBody());
+	    uiImplBodyCalDlg dlg( ODMainWin(), *mcd->getMCSurface() );
 	    dlg.go();
 	}
-	else if ( rpb_ && rpb_->getEMBody() )
+	else if ( rpb && rpb->getEMBody() )
 	{
-	    uiImplBodyCalDlg dlg(ODMainWin(),*rpb_->getEMBody());
+	    uiImplBodyCalDlg dlg( ODMainWin(), *rpb->getEMBody() );
 	    dlg.go();
 	}
     }
     else if ( mnuid==displaybodymnuitem_.id )
     {
 	const bool bodydisplay = !displaybodymnuitem_.checked;
-	if ( plg_ )
+	if ( plg )
 	{
 	    const bool polygondisplayed = displaypolygonmnuitem_.checked;
-	    plg_->display( polygondisplayed, bodydisplay );
-	    plg_->setOnlyAtSectionsDisplay( !polygondisplayed && !bodydisplay );
+	    plg->display( polygondisplayed, bodydisplay );
+	    plg->setOnlyAtSectionsDisplay( !polygondisplayed && !bodydisplay );
 	}
-	else if ( mcd_ )
-	    mcd_->setOnlyAtSectionsDisplay( !bodydisplay );
+	else if ( mcd )
+	    mcd->setOnlyAtSectionsDisplay( !bodydisplay );
     }
     else if ( mnuid==displaypolygonmnuitem_.id )
     {
 	const bool polygondisplay = !displaypolygonmnuitem_.checked;
 	const bool bodydisplayed = displaybodymnuitem_.checked;
-	plg_->display( polygondisplay, bodydisplayed );
-	plg_->setOnlyAtSectionsDisplay( !polygondisplay && !bodydisplayed );
+	plg->display( polygondisplay, bodydisplayed );
+	plg->setOnlyAtSectionsDisplay( !polygondisplay && !bodydisplayed );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
@@ -573,7 +582,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==singlecolormnuitem_.id )
     {
-	mcd_->useTexture( !mcd_->showsTexture(), true );
+	mcd->useTexture( !mcd->showsTexture(), true );
     }
     else
 	return;
@@ -584,18 +593,20 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODBodyDisplayTreeItem::setOnlyAtSectionsDisplay( bool yn )
 {
-    if ( plg_ )
+    RefMan<visSurvey::PolygonBodyDisplay> plg = getPBDisplay();
+    RefMan<visSurvey::MarchingCubesDisplay> mcd = getMCDisplay();
+    if ( plg )
     {
-	plg_->display( false, !yn );
-	plg_->setOnlyAtSectionsDisplay( yn );
+	plg->display( false, !yn );
+	plg->setOnlyAtSectionsDisplay( yn );
     }
-    else if ( mcd_ )
-	mcd_->setOnlyAtSectionsDisplay( yn );
+    else if ( mcd )
+	mcd->setOnlyAtSectionsDisplay( yn );
 }
 
 
-
 // uiODBodyDisplayDataTreeItem
+
 uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , depthattribmnuitem_(tr("Z values"))
@@ -610,7 +621,8 @@ uiODBodyDisplayDataTreeItem::~uiODBodyDisplayDataTreeItem()
 void uiODBodyDisplayDataTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODAttribTreeItem::createMenu( menu, istb );
-    if ( istb ) return;
+    if ( istb )
+	return;
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
@@ -631,8 +643,9 @@ void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
-	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
+    RefMan<visSurvey::MarchingCubesDisplay> mcd =
+	dCast( visSurvey::MarchingCubesDisplay*,
+	       ODMainWin()->applMgr().visServer()->getObject(displayID()) );
     if ( !mcd )
 	return;
 

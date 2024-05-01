@@ -12,18 +12,13 @@ ________________________________________________________________________
 
 #include "multiid.h"
 #include "posinfo2dsurv.h"
-#include "seisdatapack.h"
+#include "visdrawstyle.h"
+#include "vispolyline.h"
+#include "vistext.h"
+#include "vistexturepanelstrip.h"
+#include "vistransform.h"
+#include "zaxistransform.h"
 
-
-class ZAxisTransform;
-
-namespace visBase
-{
-    class DrawStyle;
-    class PolyLine;
-    class Text2;
-    class TexturePanelStrip;
-}
 
 namespace visSurvey
 {
@@ -36,12 +31,13 @@ mExpClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject
 { mODTextTranslationClass(Seis2DDisplay);
 public:
 				Seis2DDisplay();
-				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,Seis2DDisplay,
-				    "Seis2DDisplay",
-				    toUiString(sFactoryKeyword()))
 
-    void			setGeomID(Pos::GeomID geomid);
+				mDefaultFactoryInstantiation(
+				    SurveyObject, Seis2DDisplay,
+				    "Seis2DDisplay",
+				    ::toUiString(sFactoryKeyword()) )
+
+    void			setGeomID(const Pos::GeomID&);
     BufferString		getLineName() const;
     Pos::GeomID			getGeomID() const override   { return geomid_; }
     MultiID			getMultiID() const override;
@@ -49,9 +45,9 @@ public:
     void			setGeometry(const PosInfo::Line2DData&);
     const PosInfo::Line2DData&	getGeometry() const { return geometry_; }
 
-    StepInterval<float>		getMaxZRange(bool displayspace) const;
-    void			setZRange(const StepInterval<float>&);
-    StepInterval<float>		getZRange(bool displayspace,int att=-1) const;
+    ZSampling			getMaxZRange(bool displayspace) const;
+    void			setZRange(const ZSampling&);
+    ZSampling			getZRange(bool displayspace,int att=-1) const;
 
     void			getTraceKeyPath(TrcKeyPath&,
 						TypeSet<Coord>*) const override;
@@ -61,12 +57,12 @@ public:
     Interval<int>		getTraceNrRange() const;
     const StepInterval<int>&	getMaxTraceNrRange() const;
 
-    bool			setDataPackID(int attrib,DataPackID,
+    bool			setDataPackID(int attrib,const DataPackID&,
 					      TaskRunner*) override;
-    DataPackID		getDataPackID(int attrib) const override;
-    DataPackID		getDisplayedDataPackID(
+    DataPackID			getDataPackID(int attrib) const override;
+    DataPackID			getDisplayedDataPackID(
 						int attrib) const override;
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const override
+    DataPackMgr::MgrID		getDataPackMgrID() const override
 				{ return DataPackMgr::SeisID(); }
 
     bool			allowsPicks() const override	{ return true; }
@@ -123,10 +119,10 @@ public:
 						 bool usemaxrange) const;
     float			getNearestSegment(const Coord3& pos,
 					    bool usemaxrange,int& trcnr1st,
-					    int& trcnr2nd,float& frac ) const;
+					    int& trcnr2nd,float& frac) const;
 
     Coord3			projectOnNearestPanel(const Coord3& pos,
-						      int* nearestpanelidx=0);
+						  int* nearestpanelidx=nullptr);
     void			getLineSegmentProjection(
 					const Coord3 pos1,const Coord3 pos2,
 					TypeSet<Coord3>& projectedcoords);
@@ -145,23 +141,22 @@ public:
     void			setAnnotColor(OD::Color) override;
     OD::Color			getAnnotColor() const override;
 
+    visBase::TexturePanelStrip* getTexturePanelStrip();
+    const visBase::TexturePanelStrip* getTexturePanelStrip() const;
+    const visBase::Text2*	getVisTextLineName() const;
+
     NotifierAccess*		getMovementNotifier() override
 				{ return &geomchanged_; }
     NotifierAccess*		getManipulationNotifier() override
 				{ return &geomidchanged_; }
 
     static Seis2DDisplay*	getSeis2DDisplay(const MultiID&,const char*);
-    static Seis2DDisplay*	getSeis2DDisplay(Pos::GeomID);
+    static Seis2DDisplay*	getSeis2DDisplay(const Pos::GeomID&);
 
     void			annotateNextUpdateStage(bool yn) override;
 
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
-    visBase::TexturePanelStrip* getTexturePanelStrip() const
-				{ return panelstrip_; }
-
-    const visBase::Text2*	getVisTextLineName() const
-							{ return linename_; }
 
 protected:
 				~Seis2DDisplay();
@@ -188,17 +183,24 @@ protected:
 							const TrcKeyZSampling&);
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
-							  TaskRunner* =0);
+							  TaskRunner* =nullptr);
+    ConstRefMan<RegularSeisDataPack> getDataPack(int attrib) const;
+    RefMan<RegularSeisDataPack> getDataPack(int attrib);
+    ConstRefMan<RegularSeisDataPack> getDisplayedDataPack(int attrib) const;
+    RefMan<RegularSeisDataPack> getDisplayedDataPack(int attrib);
+    bool			setSeisDataPack(int attrib,RegularSeisDataPack*,
+						TaskRunner*) override;
+
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
     void			dataTransformCB(CallBacker*);
     void			updateRanges(bool trc,bool z);
 
-    mutable int			prevtrcidx_;
+    mutable int			prevtrcidx_	= 0;
 
-    visBase::PolyLine*		polyline_;
-    visBase::DrawStyle*		polylineds_;
-    visBase::TexturePanelStrip* panelstrip_;
+    RefMan<visBase::PolyLine>	polyline_;
+    RefMan<visBase::DrawStyle>	polylineds_;
+    RefMan<visBase::TexturePanelStrip> panelstrip_;
 
     RefObjectSet<RegularSeisDataPack>	datapacks_;
     RefObjectSet<RegularSeisDataPack>	transformedpacks_;
@@ -212,20 +214,20 @@ protected:
 	TypeSet<int>		alljoints_;
 	Interval<int>		rg_;
 	int			size_;
-	StepInterval<float>	zrg_;
+	ZSampling		zrg_;
     };
 
     TraceDisplayInfo		trcdisplayinfo_;
     StepInterval<int>		maxtrcnrrg_;
 
-    const mVisTrans*		transformation_;
-    visBase::Text2*		linename_;
+    ConstRefMan<mVisTrans>	transformation_;
+    RefMan<visBase::Text2>	linename_;
     Notifier<Seis2DDisplay>	geomchanged_;
     Notifier<Seis2DDisplay>	geomidchanged_;
 
     Pos::GeomID			geomid_;
-    ZAxisTransform*		datatransform_;
-    int				voiidx_;
+    RefMan<ZAxisTransform>	datatransform_;
+    int				voiidx_ = -1;
     float			pixeldensity_;
 
     struct UpdateStageInfo

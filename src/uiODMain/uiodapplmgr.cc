@@ -441,7 +441,7 @@ void uiODApplMgr::addTimeDepthScene( bool is2d )
     if ( sceneid.isValid() )
     {
 	const float zscale = ztrans->zScale();
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
+	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneid );
 	TrcKeyZSampling cs = SI().sampling( true );
 	cs.zsamp_ = zsampling;
 	scene->setTrcKeyZSampling( cs );
@@ -495,7 +495,7 @@ bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
 bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 {
     const SceneID sceneid = sceneMgr().askSelectScene();
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
+    RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneid );
     const float velocity =
 	scene ? scene->getFixedZStretch() * scene->getZScale() : 0;
     return attrserv_->setPickSetDirs( ps, nlaserv_ ? &nlaserv_->getModel() : 0,
@@ -506,7 +506,7 @@ bool uiODApplMgr::pickSetsStored() const
 { return pickserv_->pickSetsStored(); }
 
 
-bool uiODApplMgr::getNewData( VisID visid, int attrib )
+bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 {
     if ( !visid.isValid() )
 	return false;
@@ -551,7 +551,8 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
     if ( selspecchanged )
 	visserv_->setSelSpecs( visid, attrib, myas );
 
-    const DataPackID cacheid = visserv_->getDataPackID( visid, attrib );
+    ConstRefMan<RegularSeisDataPack> seisdp =
+				visserv_->getSeisDataPack( visid, attrib );
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid,attrib) )
     {
@@ -562,10 +563,11 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 	    if ( !tkzs.isDefined() )
 		return false;
 
+	    ConstRefMan<RegularSeisDataPack> newdp;
 	    if ( myas[0].id().asInt()==Attrib::SelSpec::cOtherAttrib().asInt() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
-		Attrib::ExtAttribCalc* calc =
+		PtrMan<Attrib::ExtAttribCalc> calc =
 			Attrib::ExtAttrFact().create( nullptr, myas[0], false );
 		if ( !calc )
 		{
@@ -580,34 +582,29 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 		}
 
 		uiTaskRunner progm( &appl_ );
-		const DataPackID dpid =
-				 calc->createAttrib( tkzs, cacheid, &progm );
-		if ( dpid==DataPack::cNoID() && !calc->errmsg_.isEmpty() )
+		newdp = calc->createAttrib( tkzs, seisdp.ptr(), &progm );
+		if ( !newdp && !calc->errmsg_.isEmpty() )
 		{
 		    if ( ODMainWin()->isRestoringSession() )
 			ODMainWin()->restoreMsgs().add( calc->errmsg_ );
 		    else
 			uiMSG().error( calc->errmsg_ );
-
-		    delete calc;
-		    return false;
 		}
-
-		res = dpid != DataPack::cNoID();
-		visserv_->setDataPackID( visid, attrib, dpid );
-		DPM( DataPackMgr::SeisID() ).unRef( dpid );
-		delete calc;
-		break;
+	    }
+	    else
+	    {
+		attrserv_->setTargetSelSpecs( myas );
+		newdp = attrserv_->createOutput( tkzs, seisdp.ptr() );
 	    }
 
 	    attrserv_->setTargetSelSpecs( myas );
-	    const DataPackID newid = attrserv_->createOutput( tkzs, cacheid );
+	    newdp = attrserv_->createOutput( tkzs, seisdp.ptr() );
 	    const TypeSet<Attrib::SelSpec>& tmpset =
 						attrserv_->getTargetSelSpecs();
 	    if ( tmpset.size() != myas.size() && !tmpset.isEmpty() )
 		visserv_->setSelSpecs( visid, attrib, tmpset );
 
-	    if ( newid == DataPack::cNoID() )
+	    if ( !newdp )
 	    {
 		// clearing texture and set back original selspec
 		const bool isattribenabled =
@@ -617,8 +614,8 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 		return false;
 	    }
 
-	    visserv_->setDataPackID(visid,attrib,newid);
-	    res = true;
+	    res = visserv_->setSeisDataPack( visid, attrib,
+					     newdp.getNonConstPtr() );
 	    break;
 	}
 	case uiVisPartServer::Traces :
@@ -638,12 +635,14 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 		break;
 	    }
 
+	    //TODO: update
 	    const DataPackID newid = attrserv_->createRdmTrcsOutput(
-		    zrg, rdmtdisp->getRandomLineID() );
+					zrg, rdmtdisp->getRandomLineID() );
 	    res = true;
 	    if ( !newid.isValid() )
 		res = false;
-	    if ( visserv_->setDataPackID(visid, attrib, newid) )
+
+	    if ( visserv_->setDataPackID(visid,attrib,newid) )
 		DPM( DataPackMgr::SeisID() ).unRef( newid );
 	    break;
 	}
@@ -753,7 +752,7 @@ void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
 }
 
 
-bool uiODApplMgr::calcRandomPosAttrib( VisID visid, int attrib )
+bool uiODApplMgr::calcRandomPosAttrib( const VisID& visid, int attrib )
 {
     const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
     if ( !as )
@@ -824,7 +823,7 @@ bool uiODApplMgr::calcRandomPosAttrib( VisID visid, int attrib )
 }
 
 
-bool uiODApplMgr::evaluateAttribute( VisID visid, int attrib )
+bool uiODApplMgr::evaluateAttribute( const VisID& visid, int attrib )
 {
     uiVisPartServer::AttribFormat format =
 				visserv_->getAttributeFormat( visid, attrib );
@@ -862,7 +861,7 @@ bool uiODApplMgr::evaluateAttribute( VisID visid, int attrib )
 }
 
 
-bool uiODApplMgr::evaluate2DAttribute( VisID visid, int attrib )
+bool uiODApplMgr::evaluate2DAttribute( const VisID& visid, int attrib )
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(visid))
@@ -1452,7 +1451,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 }
 
 
-void uiODApplMgr::addMPEParentPath( VisID visid, const TrcKey& tk )
+void uiODApplMgr::addMPEParentPath( const VisID& visid, const TrcKey& tk )
 {
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv_->getObject(visid))
     if ( !hd ) return;
@@ -1802,7 +1801,7 @@ void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
 
     for ( const auto& sceneid : sceneids )
     {
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) )
+	RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneid );
 	auto* pl = new visSurvey::PolyLineDisplay;
 	pl->fillPolyLine( coords );
 	pl->setColor( scene->getAnnotColor() );
@@ -1920,26 +1919,26 @@ void uiODApplMgr::openCrossPlot( CallBacker* )
 { dispatcher_.openXPlot(); }
 void uiODApplMgr::setZStretch()
 { attrvishandler_.setZStretch(); }
-bool uiODApplMgr::selectAttrib( VisID id, int attrib )
+bool uiODApplMgr::selectAttrib( const VisID& id, int attrib )
 { return attrvishandler_.selectAttrib( id, attrib ); }
-void uiODApplMgr::setHistogram( VisID visid, int attrib )
+void uiODApplMgr::setHistogram( const VisID& visid, int attrib )
 { attrvishandler_.setHistogram(visid,attrib); }
 void uiODApplMgr::colMapperChg( CallBacker* )
 { attrvishandler_.colMapperChg(); }
-void uiODApplMgr::setRandomPosData( VisID visid, int attrib,
-				const DataPointSet& data )
+void uiODApplMgr::setRandomPosData( const VisID& visid, int attrib,
+				    const DataPointSet& data )
 { attrvishandler_.setRandomPosData(visid,attrib,data); }
 void uiODApplMgr::pageUpDownPressed( bool pageup )
 { attrvishandler_.pageUpDownPressed(pageup); sceneMgr().updateTrees(); }
-void uiODApplMgr::updateColorTable( VisID visid, int attrib )
+void uiODApplMgr::updateColorTable( const VisID& visid, int attrib )
 { attrvishandler_.updateColorTable( visid, attrib ); }
 void uiODApplMgr::colSeqChg( CallBacker* )
 { attrvishandler_.colSeqChg(); sceneMgr().updateSelectedTreeItem(); }
 NotifierAccess* uiODApplMgr::colorTableSeqChange()
 { return attrvishandler_.colorTableSeqChange(); }
-void uiODApplMgr::useDefColTab( VisID visid, int attrib )
+void uiODApplMgr::useDefColTab( const VisID& visid, int attrib )
 { attrvishandler_.useDefColTab(visid,attrib); }
-void uiODApplMgr::saveDefColTab( VisID visid, int attrib )
+void uiODApplMgr::saveDefColTab( const VisID& visid, int attrib )
 { attrvishandler_.saveDefColTab(visid,attrib); }
 
 void uiODApplMgr::processPreStack( bool is2d )

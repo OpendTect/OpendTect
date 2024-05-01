@@ -9,34 +9,35 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "vissurvobj.h"
 
-#include "draw.h"
-#include "visobject.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
-
-namespace visBase
-{
-    class PolyLine3D;
-    class DrawStyle;
-    class DataObjectGroup;
-};
+#include "draw.h"
+#include "prestackevents.h"
+#include "visdatagroup.h"
+#include "visdrawstyle.h"
+#include "vismarkerset.h"
+#include "visobject.h"
+#include "vispolyline.h"
+#include "vissurvobj.h"
+#include "vistransform.h"
 
 namespace PreStack { class EventManager; class EventSet; }
+
 
 namespace visSurvey
 {
 
-mExpClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl,
-				      public SurveyObject
+mExpClass(visSurvey) PSEventDisplay : public visBase::VisualObjectImpl
+				    , public SurveyObject
 {
 public:
 				PSEventDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,PSEventDisplay,
+				    SurveyObject, PSEventDisplay,
 				    "PSEventDisplay",
-				     ::toUiString(sFactoryKeyword()) );
+				    ::toUiString(sFactoryKeyword()) )
 
     bool			isInlCrl() const override { return true; }
 
@@ -81,12 +82,12 @@ public:
     bool			supportsDisplay() const;
 
 protected:
-    void			clearAll();
 				~PSEventDisplay();
 
+    void			clearAll();
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					VisID whichobj) override;
+					const VisID& whichobj) override;
 
     void			setDisplayTransformation(
 						const mVisTrans*) override;
@@ -96,8 +97,7 @@ protected:
 				/*!<\returns true if the binid should not be
 				     viewed. */
 
-
-    //visBase::PickStyle*		pickstyle_;
+    //RefMan<visBase::PickStyle> pickstyle_;
     void			eventChangeCB(CallBacker*);
     void			eventForceReloadCB(CallBacker*);
 
@@ -105,13 +105,14 @@ protected:
     //TypeSet<TrcKeySampling>	sectionranges_;
     struct ParentAttachedObject
     {
-					ParentAttachedObject(VisID);
+					ParentAttachedObject(const VisID&);
 					~ParentAttachedObject();
-	visBase::DataObjectGroup*	objectgroup_;
-	visBase::PolyLine3D*		lines_;
 
-	visBase::MarkerSet*		markerset_;
-	ObjectSet<PreStack::EventSet>	eventsets_;
+	RefMan<visBase::DataObjectGroup> objectgroup_;
+	RefMan<visBase::PolyLine3D>	lines_;
+
+	RefMan<visBase::MarkerSet>	markerset_;
+	RefObjectSet<PreStack::EventSet> eventsets_;
 	TrcKeySampling			tks_;
 
 	const VisID			parentid_;
@@ -124,22 +125,22 @@ protected:
     float				getMoveoutComp(const TypeSet<float>&,
 					const TypeSet<float>&) const;
 
-    visBase::DrawStyle*			linestyle_;
-    const mVisTrans*			displaytransform_;
+    RefMan<visBase::DrawStyle>		linestyle_;
+    ConstRefMan<mVisTrans>		displaytransform_;
     ObjectSet<ParentAttachedObject>	parentattached_;
 
-    DisplayMode				displaymode_;
+    DisplayMode				displaymode_	= ZeroOffsetOnSections;
 
-    PreStack::EventManager*		eventman_;
-    int					horid_;
+    PreStack::EventManager*		eventman_	= nullptr;
+    int					horid_		= -1;
     Interval<float>			qualityrange_;
-    float				offsetscale_;
+    float				offsetscale_	= 1.f;
 
-    MarkerColor				markercolor_;
+    MarkerColor				markercolor_	= Single;
     ColTab::Mapper			ctabmapper_;
     ColTab::Sequence			ctabsequence_;
     MarkerStyle3D			markerstyle_;
-    visBase::MarkerSet*			eventmarkerset_;
+    RefMan<visBase::MarkerSet>		eventmarkerset_;
     mutable Threads::Lock		lock_;
 };
 

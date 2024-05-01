@@ -47,15 +47,16 @@ const QWidget* OD3DViewer::qwidget_() const
 }
 
 
-void OD3DViewer::setSceneID( SceneID sceneid )
+void OD3DViewer::setScene( visBase::Scene* newscene )
 {
+    scene_ = newscene;
 }
 
 
 
 visBase::Scene* OD3DViewer::getScene()
 {
-    return scene_;
+    return scene_.get().ptr();
 }
 
 

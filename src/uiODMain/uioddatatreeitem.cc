@@ -156,9 +156,11 @@ bool uiODDataTreeItem::shouldSelect( int selid ) const
 
 SceneID uiODDataTreeItem::sceneID() const
 {
-    int sceneid=-1;
-    getProperty<int>( uiODTreeTop::sceneidkey(), sceneid );
-    return SceneID(sceneid);
+    int sceneid = SceneID::udf().asInt();
+    if ( !getProperty<int>(uiODTreeTop::sceneidkey(),sceneid) )
+	return SceneID::udf();
+
+    return SceneID( sceneid );
 }
 
 
@@ -252,7 +254,7 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     else
 	mResetMenuItem( &statisticsitem_ )
 
-    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
+    RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneID() );
     const bool hastransform = scene && scene->getZAxisTransform();
     if ( hasdatapack && isvert )
     {

@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "trigonometry.h"
 #include "thread.h"
-#include "vistransform.h"
 #include "paralleltask.h"
 
 #include <osg/Array>
@@ -61,11 +60,11 @@ bool DoTransformation::doWork(od_int64 start,od_int64 stop,int)
     for ( int idx = mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
 	osg::Vec3f normal;
-	visBase::Transformation::transformBackNormal( oldtrans_,
-	    (*osgnormals)[idx], normal );
-	visBase::Transformation::transformNormal( newtrans_, normal );
+	Transformation::transformBackNormal( oldtrans_, (*osgnormals)[idx],
+					     normal );
+	Transformation::transformNormal( newtrans_, normal );
 	normal.normalize();
-	    (*osgnormals)[idx] =  normal;
+	(*osgnormals)[idx] =  normal;
     }
     return true;
 }
@@ -73,29 +72,27 @@ bool DoTransformation::doWork(od_int64 start,od_int64 stop,int)
 
 
 Normals::Normals()
-    : osgnormals_( new osg::Vec3Array )
-    , mutex_( *new Threads::Mutex )
-    , transformation_( 0 )
+    : osgnormals_(new osg::Vec3Array)
+    , mutex_(*new Threads::Mutex)
 {
-    osgnormals_->ref();
+    refOsgPtr( osgnormals_ );
 }
 
 
 Normals::~Normals()
 {
     delete &mutex_;
-    if ( transformation_ ) transformation_->unRef();
-
-    osgnormals_->unref();
+    unRefOsgPtr( osgnormals_ );
 }
 
 
 void Normals::setNormal( int idx, const Vector3& n )
 {
     osg::Vec3f osgnormal;
-    visBase::Transformation::transformNormal( transformation_, n, osgnormal );
+    Transformation::transformNormal( transformation_, n, osgnormal );
     if ( transformation_ )
 	osgnormal.normalize();
+
     Threads::MutexLocker lock( mutex_ );
     osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
     for ( int idy=osgnormals->size(); idy<=idx; idy++ )
@@ -185,7 +182,7 @@ int Normals::addNormal( const Vector3& n )
 {
 
     osg::Vec3f osgnormal;
-    visBase::Transformation::transformNormal( transformation_, n, osgnormal );
+    Transformation::transformNormal( transformation_, n, osgnormal );
 
     Threads::MutexLocker lock( mutex_ );
 
@@ -199,7 +196,7 @@ int Normals::addNormal( const Vector3& n )
 void Normals::addNormalValue( int idx, const Vector3& n )
 {
     osg::Vec3f osgnormal;
-    visBase::Transformation::transformNormal( transformation_, n, osgnormal );
+    Transformation::transformNormal( transformation_, n, osgnormal );
 
     Threads::MutexLocker lock( mutex_ );
     osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
@@ -281,19 +278,25 @@ Coord3 Normals::getNormal( int idx ) const
 
 void Normals::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( nt==transformation_ ) return;
+    if ( nt==transformation_ )
+	return;
 
     DoTransformation dotf( this, nrNormals(), transformation_, nt );
     TaskRunner taskrunner;
     TaskRunner::execute( &taskrunner,dotf );
 
-    if ( transformation_ )
-	transformation_->unRef();
-
     transformation_ = nt;
+}
 
-    if ( transformation_ )
-	transformation_->ref();
+
+NormalListAdapter::NormalListAdapter( Normals& n )
+    : normals_(&n)
+{
+}
+
+
+NormalListAdapter::~NormalListAdapter()
+{
 }
 
 
@@ -301,10 +304,9 @@ void NormalListAdapter::remove( const TypeSet<int>& idxs )
 {
     for ( int idx=idxs.size()-1; idx>=0; idx-- )
     {
-	if ( idxs[idx]<normals_.nrNormals() )
-	    normals_.removeNormal( idxs[idx] );
+	if ( idxs[idx]<normals_->nrNormals() )
+	    normals_->removeNormal( idxs[idx] );
     }
 }
-
 
 } // namespace visBase

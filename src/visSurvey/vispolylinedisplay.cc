@@ -11,17 +11,18 @@ ________________________________________________________________________
 
 #include "survinfo.h"
 #include "vismaterial.h"
-#include "vispolyline.h"
 
 
 namespace visSurvey
 {
 
 PolyLineDisplay::PolyLineDisplay()
-    : VisualObjectImpl(true)
+    : visBase::VisualObjectImpl(true)
 {
+    ref();
     polyline_ = visBase::PolyLine::create();
     addChild( polyline_->osgNode() );
+    unRefNoDelete();
 }
 
 
@@ -53,7 +54,6 @@ const mVisTrans* PolyLineDisplay::getDisplayTransformation() const
 void PolyLineDisplay::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
-
     if ( polyline_ )
 	polyline_->setPixelDensity( dpi );
 

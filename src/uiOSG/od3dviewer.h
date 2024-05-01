@@ -35,7 +35,7 @@ public:
 				OD3DViewer(ui3DViewer&,uiParent*);
 				~OD3DViewer();
 
-    void			setSceneID(VisID);
+    void			setScene(visBase::Scene*);
     visBase::Scene*		getScene();
     const visBase::Scene*	getScene() const;
 
@@ -71,12 +71,12 @@ protected:
     osg::ref_ptr<osg::Switch>	offscreenrenderswitch_;
     osg::ref_ptr<osg::Switch>	offscreenrenderhudswitch_;
 
-    RefMan<visBase::Axes>		axes_			= nullptr;
-    RefMan<visBase::Camera>		camera_			= nullptr;
-    RefMan<visBase::Scene>		scene_			= nullptr;
-    RefMan<visBase::ThumbWheel>		horthumbwheel_		= nullptr;
-    RefMan<visBase::ThumbWheel>		verthumbwheel_		= nullptr;
-    RefMan<visBase::ThumbWheel>		zoomthumbwheel_		= nullptr;
+    WeakPtr<visBase::Scene>		scene_;
+    RefMan<visBase::Axes>		axes_;
+    RefMan<visBase::Camera>		camera_;
+    RefMan<visBase::ThumbWheel>		horthumbwheel_;
+    RefMan<visBase::ThumbWheel>		verthumbwheel_;
+    RefMan<visBase::ThumbWheel>		zoomthumbwheel_;
 
     ui3DViewer&				ui3dviewer_;
     bool				ismapview_		= false;

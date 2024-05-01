@@ -17,8 +17,8 @@ namespace visBase
 mExpClass(visBase) TriangleStripSet : public VertexShape
 {
 public:
-    static TriangleStripSet*	create()
-				mCreateDataObj( TriangleStripSet );
+    static RefMan<TriangleStripSet> create();
+				mCreateDataObj(TriangleStripSet);
 
 protected:
 				~TriangleStripSet();

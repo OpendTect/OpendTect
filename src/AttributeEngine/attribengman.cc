@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribfactory.h"
-#include "attriboutput.h"
 #include "attribprocessor.h"
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -42,7 +41,7 @@ namespace Attrib
 
 EngineMan::EngineMan()
     : tkzs_(*new TrcKeyZSampling)
-    , geomid_(Survey::GM().cUndefGeomID())
+    , geomid_(Pos::GeomID::udf())
     , dpm_(DPM(DataPackMgr::SeisID()))
 {
 }
@@ -54,8 +53,6 @@ EngineMan::~EngineMan()
     delete inpattrset_;
     delete nlamodel_;
     delete &tkzs_;
-    if ( cache_ )
-	dpm_.unRef( cache_->id() );
 }
 
 
@@ -184,15 +181,17 @@ Processor* EngineMan::createProcessor( const DescSet& attribset,
 				       const char* linename,const DescID& outid,
 				       uiString& errmsg )
 {
-    Desc* targetdesc = const_cast<Desc*>(attribset.getDesc(outid));
-    if ( !targetdesc ) return 0;
+    ConstRefMan<Desc> tdesc = attribset.getDesc( outid );
+    Desc* targetdesc = tdesc.getNonConstPtr();
+    if ( !targetdesc )
+	return nullptr;
 
     targetdesc->updateParams();
-    Processor* processor = new Processor( *targetdesc, linename, errmsg );
+    auto* processor = new Processor( *targetdesc, linename, errmsg );
     if ( !processor->isOK() )
     {
 	delete processor;
-	return 0;
+	return nullptr;
     }
 
     processor->addOutputInterest( targetdesc->selectedOutput() );
@@ -222,7 +221,7 @@ void EngineMan::setExecutorName( Executor* ex )
     }
     else
     {
-	const Desc* desc = inpattrset_->getDesc( ss.id() );
+	ConstRefMan<Desc> desc = inpattrset_->getDesc( ss.id() );
 	if ( desc && desc->isStored() )
 	    nm = "Reading from";
     }
@@ -235,42 +234,41 @@ void EngineMan::setExecutorName( Executor* ex )
 }
 
 
-SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars,
-					    const Pos::GeomID& geomid,
-					    uiString& errmsg )
+RefMan<SeisTrcStorOutput> EngineMan::createOutput( const IOPar& pars,
+						   const Pos::GeomID& geomid,
+						   uiString& errmsg )
 {
     const BufferString typestr =
 		pars.find( IOPar::compKey(sKey::Output(),sKey::Type()) );
-    if ( typestr.isEqual(sKey::Cube()) )
+    if ( !typestr.isEqual(sKey::Cube()) )
+	return nullptr;
+
+    RefMan<SeisTrcStorOutput> outp = new SeisTrcStorOutput( tkzs_, geomid );
+    outp->setGeometry( tkzs_ );
+    const bool res = outp->doUsePar( pars );
+    if ( !res )
     {
-	auto* outp = new SeisTrcStorOutput( tkzs_, geomid );
-	outp->ref();
-	outp->setGeometry(tkzs_);
-	const bool res = outp->doUsePar( pars );
-	if ( !res )
-	{
-	    errmsg = outp->errMsg();
-	    outp->unRef();
-	    outp = nullptr;
-	}
-	return outp;
+	errmsg = outp->errMsg();
+	return nullptr;
     }
 
-    return 0;
+    return outp;
 }
 
 
-void EngineMan::setNLAModel( const NLAModel* m )
+void EngineMan::setNLAModel( const NLAModel* model )
 {
-    delete nlamodel_;
-    nlamodel_ = m ? m->clone() : 0;
+    deleteAndNullPtr( nlamodel_ );
+    if ( model )
+	nlamodel_ = model->clone();
 }
 
 
 void EngineMan::setAttribSet( const DescSet* ads )
 {
-    delete inpattrset_;
-    inpattrset_ = ads ? new DescSet( *ads ) : 0;
+    deleteAndNullPtr( inpattrset_ );
+    if ( ads )
+	inpattrset_ = new DescSet( *ads );
 }
 
 
@@ -315,7 +313,7 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(const Processor& proc)
 	return output;
     }
 
-    ObjectSet<const RegularSeisDataPack> packset;
+    RefObjectSet<const RegularSeisDataPack> packset;
     for ( int idx=0; idx<proc.outputs_.size(); idx++ )
     {
 	ConstRefMan<RegularSeisDataPack> dp = proc.outputs_[idx] ?
@@ -324,25 +322,23 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(const Processor& proc)
 	if ( !dp || !dp->sampling().isDefined() )
 	    continue;
 
-	dpm_.add( const_cast<RegularSeisDataPack*>(dp.ptr()) );
+	dpm_.add( dp.ptr() );
 	if ( packset.size() && packset[0]->nrComponents()!=dp->nrComponents() )
 	    continue;
 
-	dp->ref();
 	packset += dp;
     }
 
     if ( cache_ )
     {
 	packset += cache_;
-	dpm_.ref( cache_->id() );
+	if ( !dpm_.isPresent(cache_->id()) )
+	    dpm_.add( cache_.ptr() );
     }
 
     if ( !packset.isEmpty() )
 	output = const_cast<RegularSeisDataPack*>(
 					    getDataPackOutput(packset).ptr() );
-
-    deepUnRef( packset );
 
     return output;
 }
@@ -717,13 +713,13 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 {
     RefMan<Desc> desc = PF().createDescCopy( "NN" );
     desc->setDescSet( &descset );
-
     if ( !desc->parseDefStr(specstr) )
     {
 	errmsg = tr("Invalid definition string for NLA model:\n%1")
 		    .arg( specstr );
 	return;
     }
+
     desc->setHidden( true );
 
     // Need to make a Provider because the inputs and outputs may
@@ -762,7 +758,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		}
 		if ( ioobj )
 		{
-		    Desc* stordesc =
+		    RefMan<Desc> stordesc =
 			PF().createDescCopy( StorageProvider::attribName() );
 		    stordesc->setDescSet( &descset );
 		    ValParam* idpar =
@@ -806,8 +802,9 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     if ( outids.isEmpty() ) return DescID::undef();
     if ( outids.size() == 1 ) return outids[0];
 
-    Desc* desc = PF().createDescCopy( "Evaluate" );
-    if ( !desc ) return DescID::undef();
+    RefMan<Desc> desc = PF().createDescCopy( "Evaluate" );
+    if ( !desc )
+	return DescID::undef();
 
     desc->setDescSet( &descset );
     desc->setNrOutputs( Seis::UnknowData, outids.size() );
@@ -818,8 +815,9 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     for ( int idx=0; idx<nrinputs; idx++ )
     {
 	desc->addInput( InputSpec("Data",true) );
-	Desc* inpdesc = descset.getDesc( outids[idx] );
-	if ( !inpdesc ) continue;
+	RefMan<Desc> inpdesc = descset.getDesc( outids[idx] );
+	if ( !inpdesc )
+	    continue;
 
 	desc->setInput( idx, inpdesc );
     }
@@ -827,12 +825,9 @@ DescID EngineMan::createEvaluateADS( DescSet& descset,
     desc->setUserRef( "evaluate attributes" );
     desc->selectOutput(0);
 
-    DescID evaldescid = descset.addDesc( desc );
+    const DescID evaldescid = descset.addDesc( desc );
     if ( evaldescid == DescID::undef() )
-    {
 	errmsg = descset.errMsg();
-	desc->unRef();
-    }
 
     return evaldescid;
 }
@@ -863,19 +858,12 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
 Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 					    const RegularSeisDataPack* prev )
 {
-    if ( cache_ )
-    {
-	dpm_.unRef( cache_->id() );
-	cache_ = nullptr;
-    }
-
-
+    cache_ = nullptr;
     if ( tkzs_.isEmpty() )
-	prev = 0;
+	prev = nullptr;
     else if ( prev )
     {
 	cache_ = prev;
-	dpm_.ref( cache_->id() );
 	const TrcKeyZSampling cachecs = cache_->sampling();
 	if ( mRg(h).step_ != tkzs_.hsamp_.step_
 	  || (mRg(h).start_.inl() - tkzs_.hsamp_.start_.inl()) %
@@ -889,10 +877,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	  || mRg(z).start > tkzs_.zsamp_.stop + mStepEps*tkzs_.zsamp_.step
 	  || mRg(z).stop < tkzs_.zsamp_.start - mStepEps*tkzs_.zsamp_.step )
 	    // No overlap, gotta crunch all the numbers ...
-	{
-	    dpm_.unRef( cache_->id() );
-	    cache_ = 0;
-	}
+	    cache_ = nullptr;
     }
 
 #define mAddAttrOut(todocs) \
@@ -905,7 +890,7 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 
     Processor* proc = getProcessor(errmsg);
     if ( !proc )
-	return 0;
+	return nullptr;
 
     if ( !cache_ )
 	mAddAttrOut( tkzs_ )
@@ -1076,19 +1061,21 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     if ( !procattrset_->is2D() )
 	return;
 
-    Desc* storeddesc = 0;
+    RefMan<Desc> storeddesc;
     for ( int idx=0; idx<attrspecs_.size(); idx++ )
     {
-	const Desc* desc = procattrset_->getDesc( attrspecs_[idx].id() );
-	if ( !desc ) continue;
+	ConstRefMan<Desc> desc = procattrset_->getDesc( attrspecs_[idx].id() );
+	if ( !desc )
+	    continue;
+
 	if ( desc->isStored() )
 	{
-	    storeddesc = const_cast<Desc*>(desc);
+	    storeddesc = desc.getNonConstPtr();
 	    break;
 	}
 	else
 	{
-	    Desc* candidate = desc->getStoredInput();
+	    RefMan<Desc> candidate = desc->getStoredInput();
 	    if ( candidate )
 	    {
 		storeddesc = candidate;

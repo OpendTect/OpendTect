@@ -87,7 +87,7 @@ const char* uiODAnnotParentTreeItem::parentType() const
 
 // TreeItemFactory +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-uiTreeItem* uiODAnnotTreeItemFactory::create( VisID visid,
+uiTreeItem* uiODAnnotTreeItemFactory::create( const VisID& visid,
 					      uiTreeItem* treeitem ) const
 {
     visBase::DataObject* dataobj =
@@ -147,14 +147,8 @@ bool uiODAnnotTreeItem::init()
 	return false;
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mAttachCB(mgr.setToBeRemoved,uiODAnnotTreeItem::setRemovedCB);
+    mAttachCB( mgr.setToBeRemoved, uiODAnnotTreeItem::setRemovedCB );
     return true;
-}
-
-
-void uiODAnnotTreeItem::prepareForShutdown()
-{
-    Pick::SetMgr::getMgr( managerName() ).removeCBs( this );
 }
 
 
@@ -214,8 +208,8 @@ void uiODAnnotTreeItem::setRemovedCB( CallBacker* cb )
 
 bool uiODAnnotTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    applMgr()->visServer()->getObject(sceneID()));
+    RefMan<visSurvey::Scene> scene =
+				applMgr()->visServer()->getScene( sceneID() );
     if ( scene && scene->getZAxisTransform() )
     {
 	uiMSG().message( tr("Cannot add Annotations to this scene (yet)") );
@@ -317,7 +311,7 @@ bool uiODAnnotTreeItem::readPicks( Pick::Set& ps )
 
 // SubItem ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, VisID displayid )
+uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, const VisID& displayid )
     : set_( &set )
     , defscale_(mCast(float,set.disp_.pixsize_))
     , scalemnuitem_(m3Dots(uiStrings::sSize()))
@@ -562,8 +556,7 @@ void uiODAnnotSubItem::removeStuff()
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
     if ( setidx >= 0 )
-    {
 	mgr.set( mgr.id(setidx), 0 );
-    }
+
     mgr.removeCBs( this );
 }

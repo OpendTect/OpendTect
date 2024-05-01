@@ -7,11 +7,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "commondefs.h"
 #include "visdragger.h"
 
 #include "visevent.h"
-#include "vistransform.h"
 
 #include <osg/Switch>
 #include <osgGeo/Draggers>
@@ -104,9 +102,6 @@ DraggerBase::DraggerBase()
     , motion(this)
     , finished(this)
     , changed(this)
-    , displaytrans_(nullptr)
-    , cbhandler_(nullptr)
-    , osgdragger_(nullptr)
     , osgroot_(new osg::Group)
 {
     setOsgNode( osgroot_ );
@@ -119,33 +114,21 @@ DraggerBase::DraggerBase()
 
 DraggerBase::~DraggerBase()
 {
-    if ( displaytrans_ ) displaytrans_->unRef();
-
-    if( cbhandler_ )
-	cbhandler_->unref();
-
+    unRefOsgPtr( cbhandler_ );
     osgdragger_->removeDraggerCallback( cbhandler_ );
-
-    if ( osgdragger_ )
-	osgdragger_->unref();
-
+    unRefOsgPtr( osgdragger_ );
 }
 
 
 void DraggerBase::initDragger( osgManipulator::Dragger* d )
 {
-    if ( osgdragger_ )
-    {
-	if ( cbhandler_ )
-	    osgdragger_->removeDraggerCallback( cbhandler_ );
-	osgdragger_->unref();
-    }
+    if ( osgdragger_ && cbhandler_ )
+	osgdragger_->removeDraggerCallback( cbhandler_ );
 
-    if ( cbhandler_ )
-	cbhandler_->unref();
-
+    unRefOsgPtr( osgdragger_ );
+    unRefAndNullOsgPtr( cbhandler_ );
     osgdragger_ = d;
-    osgdragger_->ref();
+    refOsgPtr( osgdragger_ );
 
     if ( osgdragger_ )
     {
@@ -153,7 +136,7 @@ void DraggerBase::initDragger( osgManipulator::Dragger* d )
 	osgroot_->addChild( osgdragger_ );
 
 	cbhandler_ = new DraggerCallbackHandler( *this );
-	cbhandler_->ref();
+	refOsgPtr( cbhandler_ );
 	osgdragger_->setHandleEvents(true);
 	osgdragger_->addDraggerCallback( cbhandler_ );
 	osgdragger_->setIntersectionMask( cDraggerIntersecTraversalMask() );
@@ -163,23 +146,13 @@ void DraggerBase::initDragger( osgManipulator::Dragger* d )
 
 void DraggerBase::setDisplayTransformation( const mVisTrans* nt )
 {
-    if ( displaytrans_ )
-    {
-	displaytrans_->unRef();
-	displaytrans_ = 0;
-    }
-
     displaytrans_ = nt;
-    if ( displaytrans_ )
-    {
-	displaytrans_->ref();
-    }
 }
 
 
 const mVisTrans* DraggerBase::getDisplayTransformation() const
 {
-    return displaytrans_;
+    return displaytrans_.ptr();
 }
 
 
@@ -205,17 +178,16 @@ bool DraggerBase::isHandlingEvents() const
 
 Dragger::Dragger()
     : rightclicknotifier_(this)
-    , rightclickeventinfo_(nullptr)
-    , inactiveshape_(nullptr)
-    , ismarkershape_(true)
-    , draggersizescale_(100)
-    , defaultdraggergeomsize_(0.025)
     , rotation_(0,0,0)
-    , rotangle_(0.0)
     , arrowcolor_(OD::Color(255,255,0))
 {
     setDefaultRotation();
     turnOn( true );
+}
+
+
+Dragger::~Dragger()
+{
 }
 
 
@@ -228,12 +200,6 @@ void Dragger::setDefaultRotation()
 bool Dragger::defaultRotation() const
 {
     return rotation_== Coord3(0,1,0) && mIsEqual(rotangle_,-M_PI_2,1e-5);
-}
-
-
-Dragger::~Dragger()
-{
-    unRefAndNullPtr( inactiveshape_ );
 }
 
 
@@ -298,8 +264,6 @@ void Dragger::notifyMove()
 
 void Dragger::setOwnShape( DataObject* newshape, bool activeshape )
 {
-    newshape->ref();
-    unRefAndNullPtr( inactiveshape_ );
     inactiveshape_ = newshape;
 }
 
@@ -325,11 +289,15 @@ void Dragger::triggerRightClick( const EventInfo* eventinfo )
 
 
 const TypeSet<VisID>* Dragger::rightClickedPath() const
-{ return rightclickeventinfo_ ? &rightclickeventinfo_->pickedobjids : 0; }
+{
+    return rightclickeventinfo_ ? &rightclickeventinfo_->pickedobjids : nullptr;
+}
 
 
 const EventInfo* Dragger::rightClickedEventInfo() const
-{ return rightclickeventinfo_; }
+{
+    return rightclickeventinfo_;
+}
 
 
 float Dragger::getSize() const
@@ -514,7 +482,7 @@ void Dragger::setDisplayTransformation( const mVisTrans* nt )
 	return;
 
     Coord3 crd = getPos();
-    visBase::DraggerBase::setDisplayTransformation( nt );
+    DraggerBase::setDisplayTransformation( nt );
     setPos( crd );
 }
 

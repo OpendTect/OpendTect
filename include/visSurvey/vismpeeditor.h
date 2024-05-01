@@ -9,26 +9,23 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "emposid.h"
+
+#include "draw.h"
+#include "emeditor.h"
+#include "emseedpicker.h"
+#include "visdragger.h"
+#include "visevent.h"
+#include "vismarkerset.h"
+#include "vismaterial.h"
+#include "vispolyline.h"
 #include "visobject.h"
 #include "vissower.h"
-#include "emseedpicker.h"
-#include "draw.h"
-
-namespace MPE { class ObjectEditor; }
-namespace visBase
-{
-
-class DataObjectGroup;
-class MarkerSet;
-class Dragger;
-class EventInfo;
-class PolyLine;
-};
+#include "vistransform.h"
 
 
 namespace visSurvey
 {
+
 class Sower;
 
 /*!\brief
@@ -38,20 +35,19 @@ class Sower;
 mExpClass(visSurvey) MPEEditor : public visBase::VisualObjectImpl
 {
 public:
-    static MPEEditor*	create()
-			mCreateDataObj( MPEEditor );
+    static RefMan<MPEEditor> create();
+			mCreateDataObj(MPEEditor);
 
-    void		setEditor( MPE::ObjectEditor* );
-    void		setPatch(MPE::Patch* patch) { patch_ = patch; }
-    MPE::ObjectEditor*	getMPEEditor() { return emeditor_; }
+    void		setEditor(MPE::ObjectEditor*);
+    void		setPatch(MPE::Patch*);
+    MPE::ObjectEditor*	getMPEEditor();
     void		setSceneEventCatcher(visBase::EventCatcher*) override;
 
     void		setDisplayTransformation(const mVisTrans*) override;
-    const mVisTrans*	getDisplayTransformation() const override
-			{ return transformation_;}
+    const mVisTrans*	getDisplayTransformation() const override;
 
     void		setMarkerSize(float);
-    void		turnOnMarker(EM::PosID,bool on);
+    void		turnOnMarker(EM::PosID,bool yn);
     bool		allMarkersDisplayed() const;
 
     Notifier<MPEEditor>		nodeRightClick;
@@ -82,7 +78,8 @@ public:
     EM::PosID			getActiveDragger() const;
     Notifier<MPEEditor>		draggingStarted;
 
-    Sower&			sower()			{ return *sower_; }
+    Sower&			sower();
+    const Sower&		sower() const;
     void			displayPatch(const MPE::Patch*);
     void			cleanPatch();
     const ObjectSet<visBase::MarkerSet>& getDraggerMarkers() const;
@@ -105,26 +102,26 @@ protected:
 
     int				rightclicknode_;
 
-    MPE::ObjectEditor*		emeditor_;
-    MPE::Patch*			patch_;
+    RefMan<MPE::ObjectEditor>	emeditor_;
+    RefMan<MPE::Patch>		patch_;
 
-    visBase::Material*		nodematerial_;
-    visBase::Material*		activenodematerial_;
+    RefMan<visBase::Material>	nodematerial_;
+    RefMan<visBase::Material>	activenodematerial_;
 
-    ObjectSet<visBase::Dragger>	draggers_;
-    ObjectSet<visBase::MarkerSet> draggermarkers_;
+    RefObjectSet<visBase::Dragger> draggers_;
+    RefObjectSet<visBase::MarkerSet> draggermarkers_;
     TypeSet<EM::PosID>		posids_;
-    float			markersize_;
-    visBase::MarkerSet*		patchmarkers_;
-    visBase::PolyLine*		patchline_;
-    visBase::EventCatcher*	eventcatcher_;
-    const mVisTrans*		transformation_;
+    float			markersize_ = 3.f;
+    RefMan<visBase::MarkerSet>	patchmarkers_;
+    RefMan<visBase::PolyLine>	patchline_;
+    RefMan<visBase::EventCatcher> eventcatcher_;
+    ConstRefMan<mVisTrans>	transformation_;
     EM::PosID			activedragger_;
 
-    bool			draggerinmotion_;
-    bool			isdragging_;
+    bool			draggerinmotion_ = false;
+    bool			isdragging_ = false;
 
-    Sower*			sower_;
+    RefMan<Sower>		sower_;
     MarkerStyle3D		markerstyle_;
 };
 

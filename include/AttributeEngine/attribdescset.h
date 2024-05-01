@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 
+#include "attribdesc.h"
 #include "attribdescid.h"
 #include "callback.h"
 #include "multiid.h"
@@ -21,7 +22,8 @@ class DataPointSet;
 
 namespace Attrib
 {
-class Desc; class DescSetup; class SelSpec;
+
+class SelSpec;
 
 /*!
 \brief Set of attribute descriptions.
@@ -32,7 +34,7 @@ mExpClass(AttributeEngine) DescSet : public CallBacker
 public:
 			DescSet(bool is2d);
 			DescSet(const DescSet&);
-			~DescSet()		{ removeAll( false ); }
+			~DescSet();
 
     DescSet&		operator =(const DescSet&);
     bool		isEmpty() const	{ return descs_.isEmpty(); }
@@ -68,12 +70,12 @@ public:
     const Desc&		operator[]( int idx ) const { return *desc(idx); }
     int			nrDescs(bool inclstored,bool inclhidden) const;
 			//!< use size() if you just want all
-    Desc*		desc( int idx )		{ return descs_[idx]; }
-    const Desc*		desc( int idx ) const	{ return descs_[idx]; }
+    RefMan<Desc>	desc( int idx )		{ return descs_[idx]; }
+    ConstRefMan<Desc>	desc( int idx ) const	{ return descs_[idx]; }
 
-    Desc*		getDesc( const DescID& id )
+    RefMan<Desc>	getDesc( const DescID& id )
 						{ return gtDesc(id); }
-    const Desc*		getDesc( const DescID& id ) const
+    ConstRefMan<Desc>	getDesc( const DescID& id ) const
 						{ return gtDesc(id); }
     DescID		getID(const Desc&) const;
     DescID		getID(int) const;
@@ -86,7 +88,7 @@ public:
     DescID		getStoredID(const MultiID&,int selout,
 				    bool create,bool blindcomp=false,
 				    const char* blindcompnm=0);
-    Desc*		getFirstStored(bool usesteering=true) const;
+    RefMan<Desc>	getFirstStored(bool usesteering=true) const;
     MultiID		getStoredKey(const DescID&) const;
     void		getStoredNames(BufferStringSet&) const;
     void		getAttribNames(BufferStringSet&,bool inclhidden) const;
@@ -107,9 +109,9 @@ public:
     bool		createSteeringDesc(const IOPar&,BufferString,
 					   ObjectSet<Desc>&, int& id,
 					   uiStringSet* errmsgs=0);
-    static Desc*	createDesc(const BufferString&, const IOPar&,
+    static RefMan<Desc> createDesc(const BufferString&,const IOPar&,
 				   const BufferString&,uiStringSet*);
-    Desc*		createDesc(const BufferString&, const IOPar&,
+    RefMan<Desc>	createDesc(const BufferString&,const IOPar&,
 				   const BufferString& );
     DescID		createStoredDesc(const MultiID&,int selout,
 					 const BufferString& compnm);
@@ -129,7 +131,7 @@ public:
     void		fillInUIInputList(BufferStringSet&) const;
 			//!<Counterpart: will decode the UI string
 			//!<and return the corresponding Desc*
-    Desc*		getDescFromUIListEntry(FileMultiString);
+    RefMan<Desc>	getDescFromUIListEntry(const FileMultiString&);
 
 			//!<will create an empty DataPointSet
     DataPointSet*	createDataPointSet(Attrib::DescSetup,
@@ -169,7 +171,7 @@ protected:
 
     DescID		getFreeID() const;
 
-    ObjectSet<Desc>	descs_;
+    RefObjectSet<Desc>	descs_;
     TypeSet<DescID>	ids_;
     bool		is2d_;
     bool		storedattronly_;
@@ -180,7 +182,7 @@ protected:
 
 private:
 
-    Desc*		gtDesc(const DescID&) const;
+    RefMan<Desc>	gtDesc(const DescID&) const;
 
 public:
 

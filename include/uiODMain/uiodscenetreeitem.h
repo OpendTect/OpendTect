@@ -9,6 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+
+#include "uimenuhandler.h"
 #include "uiodtreeitem.h"
 
 class uiMenuHandler;
@@ -16,14 +18,14 @@ class uiMenuHandler;
 mExpClass(uiODMain) uiODSceneTreeItem : public uiODTreeItem
 { mODTextTranslationClass(uiODSceneTreeItem);
 public:
-			uiODSceneTreeItem(const uiString&,VisID);
-			~uiODSceneTreeItem();
+			uiODSceneTreeItem(const uiString&,const SceneID&);
 
     void		updateColumnText(int) override;
 
 protected:
+			~uiODSceneTreeItem();
 
-    virtual bool	init() override;
+    bool		init() override;
     void		createMenu(MenuHandler*,bool istb);
     bool		showSubMenu() override;
 
@@ -38,9 +40,9 @@ protected:
     void		addToToolBarCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
 
-    VisID		displayid_;
+    SceneID		displayid_;
 
-    uiMenuHandler*	menu_;
+    RefMan<uiMenuHandler> menu_;
     MenuItem		propitem_;
     MenuItem		imageitem_;
     MenuItem		coltabitem_;

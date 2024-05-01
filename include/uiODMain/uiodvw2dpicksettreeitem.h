@@ -54,7 +54,7 @@ public:
     uiTreeItem*		create() const override
 			{ return new uiODView2DPickSetParentTreeItem(); }
     uiTreeItem*		createForVis(const uiODViewer2D&,
-				     Vis2DID) const override;
+				     const Vis2DID&) const override;
 };
 
 
@@ -62,7 +62,7 @@ mExpClass(uiODMain) uiODView2DPickSetTreeItem : public uiODView2DTreeItem
 { mODTextTranslationClass(uiODView2DPickSetTreeItem)
 public:
 			uiODView2DPickSetTreeItem(int picksetid);
-			uiODView2DPickSetTreeItem(Vis2DID id,bool dummy);
+			uiODView2DPickSetTreeItem(const Vis2DID&,bool dummy);
 			~uiODView2DPickSetTreeItem();
 
     bool			showSubMenu() override;

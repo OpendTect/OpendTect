@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiosgmod.h"
-#include "uiobj.h"
+
 #include "color.h"
 #include "enums.h"
+#include "uiobj.h"
 
 class BufferStringSet;
 class FontData;
@@ -25,15 +26,14 @@ mExpClass(uiOSG) ui3DViewer : public uiObject
 friend class		ui3DViewerBody;
 
 public:
-			ui3DViewer(uiParent*,
-				bool direct,
-				const char* nm="ui3DViewer");
+			ui3DViewer(uiParent*,bool direct,
+				   const char* nm="ui3DViewer");
 			~ui3DViewer();
 
     void		setMapView(bool yn);
     bool		isMapView() const;
 
-    void		setSceneID(SceneID);
+    void		setScene(visBase::Scene*);
     visBase::Scene*	getScene();
     const visBase::Scene* getScene() const;
     SceneID		sceneID() const;

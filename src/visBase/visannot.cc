@@ -8,19 +8,18 @@ ________________________________________________________________________
 -*/
 
 #include "visannot.h"
+
+#include "axislayout.h"
+#include "iopar.h"
+#include "ranges.h"
+#include "samplingdata.h"
+#include "survinfo.h"
+#include "threadwork.h"
+#include "uistring.h"
 #include "vistext.h"
 #include "visdatagroup.h"
 #include "vismaterial.h"
-#include "ranges.h"
 #include "visosg.h"
-#include "samplingdata.h"
-#include "axislayout.h"
-#include "iopar.h"
-#include "survinfo.h"
-#include "uistring.h"
-#include "vistransform.h"
-#include "threadwork.h"
-#include "visscene.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -78,19 +77,17 @@ static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
 Annotation::Annotation()
     : VisualObjectImpl(false )
     , geode_(new osg::Geode)
-    , axisnames_(Text2::create())
-    , axisannot_(Text2::create())
     , gridlines_(new osgGeo::OneSideRender)
-    , displaytrans_(0)
     , scale_(false)
     , tkzs_(true)
-    , scene_( 0 )
-    , allowshading_( true )
 {
+    ref();
+    axisnames_ = Text2::create();
+    axisannot_ = Text2::create();
     tkzsdefaultscale_ = getDefaultScale( tkzs_ );
 
     getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    geode_->ref();
+    refOsgPtr( geode_ );
     addChild( geode_ );
 
     scalefactor_[0] = scalefactor_[1] = scalefactor_[2] = 1;
@@ -112,7 +109,7 @@ Annotation::Annotation()
 
     osg::ref_ptr<osg::Vec3Array> coords = new osg::Vec3Array( 8, ptr );
     box_ = new osg::Geometry;
-    box_->ref();
+    refOsgPtr( box_ );
     box_->setName( "Box" );
 
     box_->setVertexArray( coords );
@@ -136,43 +133,51 @@ Annotation::Annotation()
 	text->setJustification( Text::Right ); \
     }
 
-    Text* text = 0; mAddText mAddText mAddText
+    Text* text = nullptr;
+    mAddText mAddText mAddText
 
-    gridlines_->ref();
+    refOsgPtr( gridlines_ );
     gridlinecoords_ = new osg::Vec3Array;
-    gridlinecoords_->ref();
+    refOsgPtr( gridlinecoords_ );
     updateTextPos();
 
     mAttachCB( getMaterial()->change, Annotation::updateTextColor );
     getMaterial()->setColor( annotcolor_ );
+    unRefNoDelete();
 }
 
 
 Annotation::~Annotation()
 {
     detachAllNotifiers();
-    box_->unref();
-    gridlinecoords_->unref();
-    geode_->unref();
-    gridlines_->unref();
-
-    if ( displaytrans_ ) displaytrans_->unRef();
+    unRefOsgPtr( box_ );
+    unRefOsgPtr( gridlinecoords_ );
+    unRefOsgPtr( geode_ );
+    unRefOsgPtr( gridlines_ );
 }
 
 
-void Annotation::setScene( visBase::Scene* scene )
+void Annotation::setScene( Scene* newscene )
 {
+    RefMan<Scene> scene = scene_.get();
+    if ( scene )
+	mDetachCB( scene->contextIsUp, Annotation::firstTraversal );
+
+    scene = newscene;
+    scene_ = scene;
+    if ( scene )
+	mAttachCB( scene->contextIsUp, Annotation::firstTraversal );
+}
+
+
+void Annotation::firstTraversal( CallBacker* )
+{
+    RefMan<Scene> scene = scene_.get();
     if ( !scene )
 	return;
 
-    scene_ = scene;
-
-    mAttachCB( scene_->contextIsUp, Annotation::firstTraversal );
-}
-
-
-void Annotation::firstTraversal(CallBacker*)
-{
+    //Only once per scene, hence detaching
+    mDetachCB( scene->contextIsUp, Annotation::firstTraversal );
     if ( allowshading_ && osgGeo::RayTracedTechnique::isShadingSupported() )
     {
 	osg::ref_ptr<osg::Program> program = new osg::Program;
@@ -207,17 +212,12 @@ void Annotation::firstTraversal(CallBacker*)
 
 	gridlines_->getOrCreateStateSet()->setAttributeAndModes(program.get());
     }
-
-    scene_->contextIsUp.remove( mCB(this,Annotation,firstTraversal) );
 }
 
 
-void Annotation::setDisplayTransformation(const visBase::Transformation* tr)
+void Annotation::setDisplayTransformation( const Transformation* tr )
 {
-    if ( displaytrans_ ) displaytrans_->unRef();
     displaytrans_ = tr;
-    if ( displaytrans_ ) displaytrans_->ref();
-
     setTrcKeyZSampling( tkzs_ );
 }
 

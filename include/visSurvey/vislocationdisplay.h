@@ -9,20 +9,23 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
-#include "visobject.h"
-#include "vissurvobj.h"
+
 #include "pickset.h"
+#include "visevent.h"
+#include "visobject.h"
+#include "visseedpainter.h"
+#include "vissower.h"
+#include "vissurvobj.h"
+#include "vistransform.h"
+#include "zaxistransform.h"
 
 class Sphere;
-namespace Pick { class Set; class Location; class SetMgr; }
+namespace Pick { class SetMgr; }
 template <class T> class Selector;
 
 
 namespace visSurvey
 {
-
-class Sower;
-class SeedPainter;
 
 /*!\brief Used for displaying picksets of varying types.
   The class is not intended for standalone usage, but is a common ground for
@@ -31,7 +34,7 @@ class SeedPainter;
 */
 
 mExpClass(visSurvey) LocationDisplay : public visBase::VisualObjectImpl
-				     , public visSurvey::SurveyObject
+				     , public SurveyObject
 { mODTextTranslationClass(LocationDisplay)
     friend class Sower;
 
@@ -72,7 +75,7 @@ public:
     bool			isPicking() const override;
     void			otherObjectsMoved(
 					const ObjectSet<const SurveyObject>&,
-					VisID) override;
+					const VisID&) override;
     NotifierAccess*		getManipulationNotifier() override
 				{ return &manip_; }
     void			setDisplayTransformation(
@@ -158,9 +161,9 @@ protected:
     int				voiidx_			= -1;
     bool			ctrldown_		= false;
 
-    visBase::EventCatcher*	eventcatcher_		= nullptr;
-    const mVisTrans*		transformation_		= nullptr;
-    ZAxisTransform*		datatransform_		= nullptr;
+    RefMan<visBase::EventCatcher> eventcatcher_;
+    ConstRefMan<mVisTrans>	transformation_;
+    RefMan<ZAxisTransform>	datatransform_;
 
     MultiID			storedmid_;
 
@@ -170,8 +173,8 @@ protected:
     static const char*		sKeyMarkerType();
     static const char*		sKeyMarkerSize();
 
-    Sower*			sower_;
-    SeedPainter*		painter_;
+    RefMan<Sower>		sower_;
+    RefMan<SeedPainter>		painter_;
     Coord3			undoloccoord_		= Coord3::udf();
     bool			undomove_		= false;
     bool			selectionmodel_		= false;

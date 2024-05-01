@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "arrayndimpl.h"
-#include "rowcol.h"
-#include "visobject.h"
 #include "geomelement.h"
+#include "rowcol.h"
 #include "vishorizonsectiondef.h"
+#include "visobject.h"
 
 class BinIDValueSet;
 class DataPointSet;
@@ -49,7 +50,8 @@ mExpClass(visBase) HorizonSection : public VisualObjectImpl
     class NodeCallbackHandler;
 
 public:
-    static HorizonSection*	create() mCreateDataObj(HorizonSection);
+    static RefMan<HorizonSection> create();
+				mCreateDataObj(HorizonSection);
 
     void			setDisplayTransformation(
 						const mVisTrans*) override;
@@ -93,7 +95,8 @@ public:
 				//!Don't share texture processes among sections
     TextureChannel2RGBA*	getChannels2RGBA();
     const TextureChannel2RGBA*	getChannels2RGBA() const;
-    TextureChannels*		getChannels() const;
+    TextureChannels*		getChannels();
+    const TextureChannels*	getChannels() const;
 
     void			setTextureHandler(HorizonTextureHandler&);
 				//!Don't share texture handlers among sections
@@ -115,7 +118,8 @@ public:
     void			setResolution(char,TaskRunner*);
 
     void			setWireframeColor(OD::Color col);
-    osgGeo::LayeredTexture*	getOsgTexture() const;
+    osgGeo::LayeredTexture*	getOsgTexture();
+    const osgGeo::LayeredTexture* getOsgTexture() const;
     void			updatePrimitiveSets();
     void			turnOsgOn( bool );
     void			enableGeometryTypeDisplay(GeometryType type,
@@ -168,13 +172,13 @@ protected:
     void			setUpdateVar(bool& var,bool yn);
 				//! Will trigger redraw request if necessary
 
-    bool			forceupdate_;	// Only set via setUpdateVar(.)
+    bool			forceupdate_ = false;
+				// Only set via setUpdateVar(.)
 
-
-    Geometry::BinIDSurface*	geometry_;
+    Geometry::BinIDSurface*	geometry_ = nullptr;
     RowCol			origin_;
 
-    bool			userchangedisplayrg_;
+    bool			userchangedisplayrg_ = false;
     int				linewidths_ = 1;
     StepInterval<int>		displayrrg_;
     StepInterval<int>		displaycrg_;
@@ -183,31 +187,30 @@ protected:
     Threads::Mutex		updatelock_;
     Threads::SpinLock		spinlock_;
 
-    HorizonSectionDataHandler*	hordatahandler_;
-    HorizonTextureHandler*	hortexturehandler_;
-    HorTilesCreatorAndUpdator*	hortilescreatorandupdator_;
+    RefMan<HorizonSectionDataHandler> hordatahandler_;
+    RefMan<HorizonTextureHandler> hortexturehandler_;
+    RefMan<HorTilesCreatorAndUpdator> hortilescreatorandupdator_;
 
-    NodeCallbackHandler*	nodecallbackhandler_;
-    TextureCallbackHandler*	texturecallbackhandler_;
+    NodeCallbackHandler*	nodecallbackhandler_ = nullptr;
+    TextureCallbackHandler*	texturecallbackhandler_ = nullptr;
     Threads::Lock		redrawlock_;
-    bool			isredrawing_;
-
+    bool			isredrawing_ = false;
 
     Array2DImpl<HorizonSectionTile*> tiles_;
 
-    const mVisTrans*		transformation_;
+    ConstRefMan<mVisTrans>	transformation_;
 
-    char			lowestresidx_;
+    char			lowestresidx_ = 0;
     char			desiredresolution_;
-    char			nrhorsectnrres_;
+    char			nrhorsectnrres_ = 0;
 
     float			rowdistance_;
     float			coldistance_;
     bool			tesselationlock_;
 
-    int				nrcoordspertileside_;
-    int				tilesidesize_;
-    int				totalnormalsize_;
+    int				nrcoordspertileside_ = 0;
+    int				tilesidesize_ = 0;
+    int				totalnormalsize_ = 0;
 
     int				queueid_;
 
@@ -217,12 +220,12 @@ protected:
     TypeSet<int>		normalsidesize_;
 
     osg::Group*			osghorizon_;
-    ZAxisTransform*		zaxistransform_;
+    RefMan<ZAxisTransform>	zaxistransform_;
 
     ObjectSet<HorizonSectionTile> updatedtiles_;
     TypeSet<int>		updatedtileresolutions_;
-    bool			wireframedisplayed_;
-    bool			useneighbors_;
+    bool			wireframedisplayed_ = false;
+    bool			useneighbors_ = true;
 };
 
 } // namespace visBase

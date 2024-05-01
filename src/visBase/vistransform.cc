@@ -23,21 +23,22 @@ namespace visBase
 {
 
 Transformation::Transformation()
-    : node_( 0 )
-    , curtrans_( *new osg::Vec3d )
-    , currot_( *new osg::Quat )
-    , curscale_( *new osg::Vec3d )
-    , curso_( *new osg::Quat )
+    : DataObjectGroup(true)
+    , curtrans_(*new osg::Vec3d)
+    , currot_(*new osg::Quat)
+    , curscale_(*new osg::Vec3d)
+    , curso_(*new osg::Quat)
 {
+    ref();
     osggroup_ = node_ = setOsgNode( new osg::MatrixTransform );
-
     reset();
+    unRefNoDelete();
 }
 
 
 Transformation::~Transformation()
 {
-    //node is unreffed in visBase::DataObjectGroup
+    //node is unreffed in DataObjectGroup
     delete &curtrans_;
     delete &currot_;
     delete &curscale_;

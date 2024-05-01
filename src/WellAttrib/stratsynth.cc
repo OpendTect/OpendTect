@@ -2648,7 +2648,7 @@ bool createInstAttributeSet()
     if ( !inpdesc )
 	return false;
 
-    Attrib::Desc* imagdesc = Attrib::PF().createDescCopy(
+    RefMan<Attrib::Desc> imagdesc = Attrib::PF().createDescCopy(
 						Attrib::Hilbert::attribName() );
     imagdesc->selectOutput( 0 );
     imagdesc->setInput(0, inpdesc );
@@ -2659,7 +2659,7 @@ bool createInstAttributeSet()
     if ( !descset_->getDesc(hilbid) )
 	return false;
 
-    Attrib::Desc* psdesc = Attrib::PF().createDescCopy(
+    RefMan<Attrib::Desc> psdesc = Attrib::PF().createDescCopy(
 					 Attrib::Instantaneous::attribName());
     psdesc->setInput( 0, inpdesc );
     psdesc->setInput( 1, imagdesc );

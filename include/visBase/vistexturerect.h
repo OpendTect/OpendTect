@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
+
 #include "visobject.h"
 #include "vistransform.h"
 
@@ -29,7 +30,7 @@ class TextureChannels;
 mExpClass(visBase) TextureRectangle : public VisualObjectImpl
 {
 public:
-    static TextureRectangle*	create()
+    static RefMan<TextureRectangle> create();
 				mCreateDataObj(TextureRectangle);
 
     void			setTextureChannels(visBase::TextureChannels*);

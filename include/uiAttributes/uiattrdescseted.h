@@ -9,13 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "uidialog.h"
+
+#include "attribdesc.h"
 #include "multiid.h"
+#include "uidialog.h"
 
 
 namespace Attrib
 {
-    class Desc;
     class DescID;
     class DescSet;
     class DescSetMan;
@@ -174,7 +175,7 @@ protected:
     bool			setUserRef(Attrib::Desc*);
     void			updateAttrName();
     bool			doSetIO(bool);
-    Attrib::Desc*		createAttribDesc(bool checkuref=true);
+    RefMan<Attrib::Desc>	createAttribDesc(bool checkuref=true);
 
     void			createMenuBar();
     void			createToolBar();

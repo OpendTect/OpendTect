@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "attribfactory.h"
 
-#include "attribdesc.h"
 #include "attribparam.h"
 
 namespace Attrib
@@ -21,21 +20,15 @@ ProviderFactory::ProviderFactory()
 
 ProviderFactory::~ProviderFactory()
 {
-    for ( int idx=0; idx<descs_.size(); idx++ )
-	descs_[idx]->unRef();
-
-    descs_.erase();
-    creaters_.erase();
 }
 
 
 void ProviderFactory::addDesc( Desc* nps, ProviderCreater pc )
 {
-    const int idx = indexOf(nps->attribName());
-    if ( idx!=-1 )
+    const int idx = indexOf( nps->attribName() );
+    if ( descs_.validIdx(idx) )
 	return;
 
-    nps->ref();
     descs_ += nps;
     creaters_ += pc;
 }
@@ -47,21 +40,19 @@ void ProviderFactory::remove( const char* attrnm )
     if ( !creaters_.validIdx(idx) )
 	return;
 
-    Desc* desc = descs_.removeSingle( idx );
-    if ( desc )
-	desc->unRef();
-
+    descs_.removeSingle( idx );
     creaters_.removeSingle( idx );
 }
 
 
-Provider* ProviderFactory::create( Desc& desc ) const
+RefMan<Provider> ProviderFactory::create( Desc& desc ) const
 {
     if ( desc.isSatisfied()>=2 )
-	return 0;
+	return nullptr;
 
     const int idx = indexOf(desc.attribName());
-    if ( idx==-1 ) return 0;
+    if ( idx==-1 )
+	return nullptr;
 
     return creaters_[idx]( desc );
 }
@@ -70,14 +61,14 @@ Provider* ProviderFactory::create( Desc& desc ) const
 const Desc* ProviderFactory::getDesc( const char* nm ) const
 {
     const int idx = indexOf( nm );
-    return idx < 0 ? 0 : descs_[idx];
+    return idx < 0 ? nullptr : descs_[idx];
 }
 
 
-Desc* ProviderFactory::createDescCopy( const char* nm ) const
+RefMan<Desc> ProviderFactory::createDescCopy( const char* nm ) const
 {
     const int idx = indexOf( nm );
-    return idx < 0 ? 0 : new Desc( *descs_[idx] );
+    return idx < 0 ? nullptr : new Desc( *descs_[idx] );
 }
 
 

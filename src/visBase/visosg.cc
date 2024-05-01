@@ -15,13 +15,18 @@ ________________________________________________________________________
 #include <osg/Referenced>
 #include <osg/Version>
 
-void visBase::unRefAndNullOsgPtr( osg::Referenced* ptr )
-{
-    if ( !ptr )
-	return;
 
-    ptr->unref();
-    ptr = nullptr;
+void visBase::refOsgPtr( const osg::Referenced* ptr )
+{
+    if ( ptr )
+	ptr->ref();
+}
+
+
+void visBase::unRefOsgPtr( osg::Referenced* ptr )
+{
+    if ( ptr )
+	ptr->unref();
 }
 
 
@@ -31,25 +36,9 @@ void visBase::unRefAndZeroOsgPtr( osg::Referenced* ptr )
 }
 
 
-void visBase::unRefOsgPtr( osg::Referenced* ptr )
-{
-    if ( !ptr )
-	return;
-
-    ptr->unref();
-}
-
-
-void visBase::refOsgPtr( const osg::Referenced* ptr )
-{
-    if ( !ptr )
-	return;
-
-    ptr->ref();
-}
-
 
 // OneFrameCullDisabler
+
 OneFrameCullDisabler::OneFrameCullDisabler( osg::Node* node )
 {
     node->setCullingActive( false );

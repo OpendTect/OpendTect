@@ -20,13 +20,11 @@ ________________________________________________________________________
 
 #include "draw.h"
 #include "ioman.h"
-#include "pickset.h"
 
 
 MeasureToolMan::MeasureToolMan( uiODMain& appl )
     : appl_(appl)
     , picksetmgr_(Pick::SetMgr::getMgr("MeasureTool"))
-    , measuredlg_(0)
 {
     butidx_ = appl.menuMgr().viewTB()->addButton( "measure",
 	tr("Display Distance"), mCB(this,MeasureToolMan,buttonClicked), true );
@@ -53,32 +51,33 @@ MeasureToolMan::~MeasureToolMan()
     if ( !appl_.applMgr().visServer() )
 	return;
 
-    for ( int idx=0; idx<displayobjs_.size(); idx++ )
+    for ( int idx=0; idx<displayids_.size(); idx++ )
     {
 	const SceneID sceneid = sceneids_[idx];
-	appl_.applMgr().visServer()->removeObject( displayobjs_[idx], sceneid );
-	displayobjs_[idx]->unRef();
+	appl_.applMgr().visServer()->removeObject( displayids_[idx], sceneid );
     }
 }
 
 
 void MeasureToolMan::objSelected( CallBacker* cb )
 {
+    if ( !cb || !cb->isCapsule() )
+	return;
+
     mCBCapsuleUnpack(VisID,sel,cb);
     bool isownsel = false;
-    for ( int idx=0; idx<displayobjs_.size(); idx++ )
-	if ( displayobjs_[idx]->id() == sel )
+    for ( const auto& displayid : displayids_ )
+	if ( displayid == sel )
 	    isownsel = true;
 
     appl_.menuMgr().viewTB()->turnOn( butidx_, isownsel );
     if ( measuredlg_ && !isownsel )
     {
 	if ( measuredlg_->doClear() )
-	    clearCB( 0 );
+	    clearCB( nullptr );
 
-	measuredlg_->windowClosed.remove( mCB(this,MeasureToolMan,dlgClosed) );
-	measuredlg_->close();
-	measuredlg_ = 0;
+	mDetachCB( measuredlg_->windowClosed, MeasureToolMan::dlgClosed );
+	closeAndNullPtr( measuredlg_ );
     }
 }
 
@@ -86,13 +85,13 @@ void MeasureToolMan::objSelected( CallBacker* cb )
 void MeasureToolMan::dlgClosed( CallBacker* )
 {
     if ( measuredlg_->doClear() )
-	clearCB( 0 );
+	clearCB( nullptr );
 
     appl_.menuMgr().viewTB()->turnOn( butidx_, false );
-    for ( int idx=0; idx<displayobjs_.size(); idx++ )
-	visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
+    for ( const auto& displayid : displayids_ )
+	visBase::DM().selMan().deSelect( displayid );
 
-    measuredlg_ = 0;
+    measuredlg_ = nullptr;
 }
 
 
@@ -103,16 +102,15 @@ void MeasureToolMan::manageDlg( bool show )
 	if ( !measuredlg_ )
 	{
 	    measuredlg_ = new uiMeasureDlg( &appl_ );
-	    measuredlg_->lineStyleChange.notify(
-				mCB(this,MeasureToolMan,lineStyleChangeCB) );
-	    measuredlg_->velocityChange.notify(
-				mCB(this,MeasureToolMan,velocityChangeCB) );
-	    measuredlg_->dipUnitChange.notify(
-				mCB(this,MeasureToolMan,velocityChangeCB) );
-	    measuredlg_->clearPressed.notify( mCB(this,MeasureToolMan,clearCB));
-	    measuredlg_->windowClosed.notify(
-				mCB(this,MeasureToolMan,dlgClosed) );
-	    lineStyleChangeCB(0);
+	    mAttachCB( measuredlg_->lineStyleChange,
+		       MeasureToolMan::lineStyleChangeCB );
+	    mAttachCB( measuredlg_->velocityChange,
+		       MeasureToolMan::velocityChangeCB );
+	    mAttachCB( measuredlg_->dipUnitChange,
+		       MeasureToolMan::velocityChangeCB );
+	    mAttachCB( measuredlg_->clearPressed, MeasureToolMan::clearCB );
+	    mAttachCB( measuredlg_->windowClosed, MeasureToolMan::dlgClosed );
+	    lineStyleChangeCB( nullptr );
 	}
 
 	measuredlg_->show();
@@ -121,15 +119,15 @@ void MeasureToolMan::manageDlg( bool show )
     else if ( measuredlg_ )
 	measuredlg_->close();
 
-    for ( int idx=0; idx<displayobjs_.size(); idx++ )
+    for ( int idx=0; idx<displayids_.size(); idx++ )
     {
-	if ( sceneids_[idx] == getActiveSceneID() )
-	{
-	    if ( show )
-		visBase::DM().selMan().select( displayobjs_[idx]->id() );
-	    else
-		visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
-	}
+	if ( sceneids_[idx] != getActiveSceneID() )
+	    continue;
+
+	if ( show )
+	    visBase::DM().selMan().select( displayids_[idx] );
+	else
+	    visBase::DM().selMan().deSelect( displayids_[idx] );
     }
 
     update();
@@ -143,7 +141,7 @@ void MeasureToolMan::buttonClicked( CallBacker* cb )
 }
 
 
-static MultiID getMultiID( SceneID sceneid )
+static MultiID getMultiID( const SceneID& sceneid )
 {
     // Create dummy multiid, I don't want to save these picks
     return MultiID( 9999, sceneid.asInt() );
@@ -157,11 +155,10 @@ void MeasureToolMan::sceneAdded( CallBacker* cb )
 }
 
 
-void MeasureToolMan::addScene( SceneID sceneid )
+void MeasureToolMan::addScene( const SceneID& sceneid )
 {
-    visSurvey::PickSetDisplay* psd = new visSurvey::PickSetDisplay();
+    RefMan<visSurvey::PickSetDisplay> psd = new visSurvey::PickSetDisplay();
     psd->allowDoubleClick( false );
-    psd->ref();
 
     RefMan<Pick::Set> ps = new Pick::Set( "Measure picks" );
     ps->disp_.connect_ = Pick::Set::Disp::Open;
@@ -172,7 +169,7 @@ void MeasureToolMan::addScene( SceneID sceneid )
 
     appl_.applMgr().visServer()->addObject( psd, sceneid, false );
     sceneids_ += sceneid;
-    displayobjs_ += psd;
+    displayids_ += psd->id();
 }
 
 
@@ -180,11 +177,11 @@ void MeasureToolMan::sceneClosed( CallBacker* cb )
 {
     mCBCapsuleUnpack(SceneID,sceneid,cb);
     const int sceneidx = sceneids_.indexOf( sceneid );
-    if ( sceneidx<0 || sceneidx>=displayobjs_.size() )
+    if ( !displayids_.validIdx(sceneidx) )
 	return;
 
-    appl_.applMgr().visServer()->removeObject( displayobjs_[sceneidx], sceneid);
-    displayobjs_.removeSingle( sceneidx )->unRef();
+    appl_.applMgr().visServer()->removeObject( displayids_[sceneidx], sceneid );
+    displayids_.removeSingle( sceneidx );
     sceneids_.removeSingle( sceneidx );
 }
 
@@ -197,7 +194,7 @@ SceneID MeasureToolMan::getActiveSceneID() const
 	return sceneid;
 
     if ( sceneids_.size() == 1 )
-	return sceneids_[0];
+	return sceneids_.first();
 
     return SceneID::udf();
 }
@@ -211,14 +208,53 @@ static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
 }
 
 
+RefMan<visSurvey::PickSetDisplay> MeasureToolMan::getDisplayObj(
+							const VisID& visid )
+{
+    if ( !appl_.applMgr().visServer() )
+	return nullptr;
+
+    visBase::DataObject* dataobj =
+				appl_.applMgr().visServer()->getObject( visid );
+    RefMan<visSurvey::PickSetDisplay> displayobj =
+				dCast(visSurvey::PickSetDisplay*,dataobj);
+    return displayobj;
+}
+
+
+ConstRefMan<visSurvey::PickSetDisplay> MeasureToolMan::getDisplayObj(
+						const VisID& visid ) const
+{
+    return mSelf().getDisplayObj( visid );
+}
+
+
+RefMan<Pick::Set> MeasureToolMan::getSet( const VisID& visid )
+{
+    RefMan<visSurvey::PickSetDisplay> displayobj = getDisplayObj( visid );
+    if ( !displayobj )
+	return nullptr;
+
+    return displayobj->getSet();
+}
+
+
+ConstRefMan<Pick::Set> MeasureToolMan::getSet( const VisID& visid ) const
+{
+    return mSelf().getSet( visid );
+}
+
+
 void MeasureToolMan::update()
 {
     const SceneID sceneid = getActiveSceneID();
     const int sceneidx = sceneids_.indexOf( sceneid );
-    if ( !displayobjs_.validIdx(sceneidx) ) return;
+    if ( !displayids_.validIdx(sceneidx) )
+	return;
 
-    if ( displayobjs_[sceneidx]->getSet() && measuredlg_ )
-	giveCoordsToDialog( *displayobjs_[sceneidx]->getSet(), *measuredlg_ );
+    ConstRefMan<Pick::Set> ps = getSet( displayids_[sceneidx] );
+    if ( ps && measuredlg_ )
+	giveCoordsToDialog( *ps.ptr(), *measuredlg_ );
 }
 
 
@@ -229,12 +265,14 @@ void MeasureToolMan::sceneChanged( CallBacker* )
 
     const SceneID sceneid = getActiveSceneID();
     const int sceneidx = sceneids_.indexOf( sceneid );
-    if ( !displayobjs_.validIdx(sceneidx) ) return;
+    if ( !displayids_.validIdx(sceneidx) )
+	return;
 
-    visBase::DM().selMan().select( displayobjs_[sceneidx]->id() );
-
-    if ( displayobjs_[sceneidx]->getSet() && measuredlg_ )
-	giveCoordsToDialog( *displayobjs_[sceneidx]->getSet(), *measuredlg_ );
+    const VisID& displayid = displayids_[sceneidx];
+    visBase::DM().selMan().select( displayid );
+    RefMan<Pick::Set> ps = getSet( displayid );
+    if ( ps && measuredlg_ )
+	giveCoordsToDialog( *ps.ptr(), *measuredlg_ );
 
 }
 
@@ -242,7 +280,8 @@ void MeasureToolMan::sceneChanged( CallBacker* )
 void MeasureToolMan::changeCB( CallBacker* cb )
 {
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb);
-    if ( !cd || !cd->set_ ) return;
+    if ( !cd || !cd->set_ )
+	return;
 
     if ( measuredlg_ )
 	giveCoordsToDialog( *cd->set_, *measuredlg_ );
@@ -257,9 +296,9 @@ void MeasureToolMan::velocityChangeCB( CallBacker* )
 
 void MeasureToolMan::clearCB( CallBacker* )
 {
-    for ( int idx=0; idx<displayobjs_.size(); idx++ )
+    for ( const auto& displayid : displayids_ )
     {
-	RefMan<Pick::Set> ps = displayobjs_[idx]->getSet();
+	RefMan<Pick::Set> ps = getSet( displayid );
 	if ( !ps )
 	    continue;
 
@@ -274,11 +313,12 @@ void MeasureToolMan::clearCB( CallBacker* )
 
 void MeasureToolMan::lineStyleChangeCB( CallBacker* )
 {
-    if ( !measuredlg_ ) return;
+    if ( !measuredlg_ )
+	return;
 
-    for ( int idx=0; idx<displayobjs_.size(); idx++ )
+    for ( const auto& displayid : displayids_ )
     {
-	RefMan<Pick::Set> ps = displayobjs_[idx]->getSet();
+	RefMan<Pick::Set> ps = getSet( displayid );
 	if ( !ps )
 	    continue;
 

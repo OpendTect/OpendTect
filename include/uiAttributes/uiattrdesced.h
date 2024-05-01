@@ -9,14 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
+
 #include "uigroup.h"
 #include "uiattribfactory.h"
+#include "attribdesc.h"
 #include "changetracker.h"
 #include "paramsetget.h"
 #include "datapack.h"
 #include "helpview.h"
 
-namespace Attrib { class Desc; class DescSet; class DescSetMan; };
+namespace Attrib { class DescSet; class DescSetMan; };
 namespace ZDomain { class Info; }
 
 class uiAttrDescEd;
@@ -174,7 +176,7 @@ protected:
 				    const uiString& txt=uiString::empty());
     uiImagAttrSel*	createImagInpFld(bool is2d);
     bool		getInputDPID(uiAttrSel*,DataPack::FullID&) const;
-    Desc*		getInputDescFromDP(uiAttrSel*) const;
+    RefMan<Desc>	getInputDescFromDP(uiAttrSel*) const;
 
     HelpKey		helpkey_;
     HelpKey		videokey_;

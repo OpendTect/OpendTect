@@ -159,9 +159,8 @@ bool uiODView2DHor3DParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( isAddItem(mnuid,true) || isAddItem(mnuid,false) )
     {
-	mDynamicCastGet(visSurvey::Scene*,scene,
-	    ODMainWin()->applMgr().visServer()->getObject(
-					viewer2D()->getSyncSceneID()));
+	ConstRefMan<visSurvey::Scene> scene =
+	    applMgr()->visServer()->getScene( viewer2D()->getSyncSceneID() );
 	const bool hastransform = scene && scene->getZAxisTransform();
 	const ZDomain::Info* zinfo = nullptr;
 	if ( !hastransform )
@@ -336,7 +335,8 @@ uiODView2DHor3DTreeItem::uiODView2DHor3DTreeItem( const EM::ObjectID& emid )
 }
 
 
-uiODView2DHor3DTreeItem::uiODView2DHor3DTreeItem( Vis2DID id, bool )
+uiODView2DHor3DTreeItem::uiODView2DHor3DTreeItem( const Vis2DID& id,
+						  bool /* dummy */ )
     : uiODView2DTreeItem(uiString::emptyString())
     , horview_(0)
     , oldactivevolupdated_(false)
@@ -670,8 +670,8 @@ void uiODView2DHor3DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 
 
 uiTreeItem* uiODView2DHor3DTreeItemFactory::createForVis(
-				const uiODViewer2D& vwr2d, Vis2DID id ) const
+			    const uiODViewer2D& vwr2d, const Vis2DID& id ) const
 {
     mDynamicCastGet(const View2D::Horizon3D*,obj,vwr2d.getObject(id));
-    return obj ? new uiODView2DHor3DTreeItem(id,true) : 0;
+    return obj ? new uiODView2DHor3DTreeItem(id,true) : nullptr;
 }

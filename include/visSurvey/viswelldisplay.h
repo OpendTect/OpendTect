@@ -13,20 +13,16 @@ ________________________________________________________________________
 #include "factory.h"
 #include "multiid.h"
 #include "ranges.h"
+#include "visevent.h"
+#include "vismarkerset.h"
 #include "visobject.h"
 #include "vissurvobj.h"
+#include "vistransform.h"
 #include "viswell.h"
 #include "welldata.h"
 #include "welllogdisp.h"
+#include "zaxistransform.h"
 
-
-namespace visBase
-{
-    class MarkerSet;
-    class EventCatcher;
-    class EventInfo;
-    class Transformation;
-}
 
 namespace Well
 {
@@ -39,22 +35,21 @@ namespace Well
 
 namespace visSurvey
 {
+
 class Scene;
 
-/*!\brief Used for displaying welltracks, markers and logs
-
-
-*/
+/*!\brief Used for displaying welltracks, markers and logs */
 
 mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
-		   , public visSurvey::SurveyObject
+				 , public SurveyObject
 { mODTextTranslationClass(WellDisplay)
 public:
 				WellDisplay();
+
 				mDefaultFactoryInstantiation(
-				    visSurvey::SurveyObject,WellDisplay,
+				    SurveyObject, WellDisplay,
 				    "WellDisplay",
-				    toUiString(sFactoryKeyword()) )
+				    ::toUiString(sFactoryKeyword()) )
 
     bool			setMultiID(const MultiID&);
     MultiID			getMultiID() const override { return wellid_; }
@@ -160,26 +155,26 @@ protected:
     void			getTrackPos(const Well::Data*,TypeSet<Coord3>&);
     void			displayLog(Well::LogDisplayPars*,int);
     void			setLogProperties(visBase::Well::LogParams&);
-    void			pickCB(CallBacker* cb=0);
-    void			saveDispProp( const Well::Data* wd );
+    void			pickCB(CallBacker* =nullptr);
+    void			saveDispProp(const Well::Data*);
     void			setLogInfo(uiString&,BufferString&,
 					   float,visBase::Well::Side) const;
     void			removePick(const visBase::EventInfo&);
-    void			addPick(const visBase::EventInfo&,VisID);
+    void			addPick(const visBase::EventInfo&,const VisID&);
 
     Well::DisplayProperties*	dispprop_		= nullptr;
 
     Coord3			mousepressposition_;
-    const mVisTrans*		transformation_		= nullptr;
-    MultiID			wellid_			= MultiID::udf();
-    visBase::EventCatcher*	eventcatcher_		= nullptr;
-    visBase::MarkerSet*		markerset_		= nullptr;
-    visBase::Well*		well_			= nullptr;
+    ConstRefMan<mVisTrans>	transformation_;
+    MultiID			wellid_;
+    RefMan<visBase::EventCatcher> eventcatcher_;
+    RefMan<visBase::MarkerSet>	markerset_;
+    RefMan<visBase::Well>	well_;
     Well::Track*		pseudotrack_		= nullptr;
     Well::Track*		timetrack_		= nullptr;
     RefMan<Well::Data>		wd_;
 
-    ZAxisTransform*		datatransform_		= nullptr;
+    RefMan<ZAxisTransform>	datatransform_;
     void			dataTransformCB(CallBacker*);
 
     Notifier<WellDisplay>	changed_;
@@ -192,6 +187,7 @@ protected:
     int				logresolution_ = 2; // 1/4 of full resolution
     const bool			zistime_;
     const bool			zinfeet_;
+
     static const char*		sKeyEarthModelID;
     static const char*		sKeyWellID;
 };

@@ -29,7 +29,7 @@ RandomLine::RandomLine( const char* nm )
 {
     assign( zrange_, SI().zRange(true) );
 
-    mDefineStaticLocalObject( Threads::Atomic<od_int16>, oid, (0) );
+    mDefineStaticLocalObject( Threads::Atomic<od_uint16>, oid, (0) );
     id_.set( oid++ );
 
     RLM().add( this );
@@ -767,20 +767,20 @@ RandomLine* RandomLineManager::get( const MultiID& mid )
 }
 
 
-RandomLine* RandomLineManager::get( RandomLineID id )
+RandomLine* RandomLineManager::get( const RandomLineID& id )
 {
-    for ( int idx=0; idx<lines_.size(); idx++ )
+    for ( auto* line : lines_ )
     {
-	if ( lines_[idx]->ID() == id )
-	    return lines_[idx];
+	if ( line->ID() == id )
+	    return line;
     }
 
     return nullptr;
 }
 
 
-const RandomLine* RandomLineManager::get( RandomLineID id ) const
-{ return const_cast<RandomLineManager*>(this)->get( id ); }
+const RandomLine* RandomLineManager::get( const RandomLineID& id ) const
+{ return mSelf().get( id ); }
 
 
 bool RandomLineManager::isLoaded( const MultiID& mid ) const
@@ -790,7 +790,7 @@ bool RandomLineManager::isLoaded( const MultiID& mid ) const
 }
 
 
-bool RandomLineManager::isLoaded( RandomLineID id ) const
+bool RandomLineManager::isLoaded( const RandomLineID& id ) const
 { return (bool)get( id ); }
 
 

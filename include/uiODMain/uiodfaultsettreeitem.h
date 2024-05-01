@@ -10,10 +10,10 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 
+#include "emposid.h"
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
-
-#include "emposid.h"
+#include "visfaultsetdisplay.h"
 
 class DataPointSet;
 
@@ -24,9 +24,10 @@ mExpClass(uiODMain) uiODFaultSetParentTreeItem : public uiODParentTreeItem
 { mODTextTranslationClass(uiODFaultSetParentTreeItem)
 public:
 			uiODFaultSetParentTreeItem();
-			~uiODFaultSetParentTreeItem();
 
 protected:
+			~uiODFaultSetParentTreeItem();
+
     const char*		iconName() const override;
     bool		showSubMenu() override;
 };
@@ -38,16 +39,15 @@ public:
     const char*		name() const override { return typeid(*this).name(); }
     uiTreeItem*		create() const override
 			{ return new uiODFaultSetParentTreeItem; }
-    uiTreeItem*		createForVis(VisID visid,uiTreeItem*) const override;
+    uiTreeItem*		createForVis(const VisID&,uiTreeItem*) const override;
 };
 
 
 mExpClass(uiODMain) uiODFaultSetTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODFaultSetTreeItem)
 public:
-			uiODFaultSetTreeItem(VisID,bool dummy);
+			uiODFaultSetTreeItem(const VisID&,bool dummy);
 			uiODFaultSetTreeItem(const EM::ObjectID&);
-			~uiODFaultSetTreeItem();
 
     EM::ObjectID	emObjectID() const	{ return emid_; }
 
@@ -59,8 +59,9 @@ public:
     static uiString	sOnlyAtHorizons() { return tr( "Only at Horizons" ); }
 
 protected:
+			~uiODFaultSetTreeItem();
+
     bool		askContinueAndSaveIfNeeded(bool withcancel) override;
-    void		prepareForShutdown() override;
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
     void		colorChCB(CallBacker*);
@@ -79,7 +80,11 @@ protected:
     MenuItem			displayintersectionmnuitem_;
     MenuItem			displayintersecthorizonmnuitem_;
     MenuItem			singlecolmnuitem_;
-    visSurvey::FaultSetDisplay*	faultsetdisplay_	= nullptr;
+
+    ConstRefMan<visSurvey::FaultSetDisplay> getDisplay() const;
+    RefMan<visSurvey::FaultSetDisplay> getDisplay();
+
+    WeakPtr<visSurvey::FaultSetDisplay> faultsetdisplay_;
 
 private:
 			uiODFaultSetTreeItem();
@@ -91,11 +96,11 @@ mExpClass(uiODMain) uiODFaultSetDataTreeItem : public uiODAttribTreeItem
 public:
 			uiODFaultSetDataTreeItem(EM::ObjectID,
 				const char* parenttype);
-			~uiODFaultSetDataTreeItem();
 
     void		setDataPointSet(const DataPointSet&);
 
 protected:
+			~uiODFaultSetDataTreeItem();
 
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;
@@ -103,6 +108,6 @@ protected:
 
     MenuItem		depthattribmnuitem_;
 
-    bool		changed_;
+    bool		changed_ = false;
     EM::ObjectID	emid_;
 };

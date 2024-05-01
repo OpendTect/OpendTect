@@ -8,12 +8,11 @@ ________________________________________________________________________
 -*/
 
 #include "visevent.h"
-//#include "visdetail.h"
-#include "visdataman.h"
-#include "vistransform.h"
+
 #include "iopar.h"
 #include "mouseevent.h"
 #include "timer.h"
+#include "visdataman.h"
 
 #include <osgGA/GUIEventHandler>
 #include <osgUtil/LineSegmentIntersector>
@@ -25,8 +24,6 @@ mCreateFactoryEntry( visBase::EventCatcher );
 namespace visBase
 {
 
-
-
 const char* EventCatcher::eventtypestr()  { return "EventType"; }
 //const char EventInfo::leftMouseButton() { return 0; }
 //const char EventInfo::middleMouseButton() { return 1; }
@@ -34,69 +31,52 @@ const char* EventCatcher::eventtypestr()  { return "EventType"; }
 
 
 EventInfo::EventInfo()
-    : worldpickedpos( Coord3::udf() )
-    , localpickedpos( Coord3::udf() )
-    , displaypickedpos( Coord3::udf() )
-    , pickdepth( mUdf(double) )
-    , mousepos( Coord::udf() )
-    , buttonstate_( OD::NoButton )
-    , tabletinfo( 0 )
-    , type( Any )
-    , pressed( false )
-    , dragging( false )
 {}
 
 
-EventInfo::EventInfo(const EventInfo& eventinfo )
-    : tabletinfo( 0 )
+EventInfo::EventInfo( const EventInfo& oth )
 {
-    *this = eventinfo;
+    *this = oth;
 }
 
 
 EventInfo::~EventInfo()
 {
-    setTabletInfo( 0 );
+    delete tabletinfo_;
 }
 
 
-EventInfo& EventInfo::operator=( const EventInfo& eventinfo )
+EventInfo& EventInfo::operator=( const EventInfo& oth )
 {
-    if ( &eventinfo == this )
+    if ( &oth == this )
 	return *this;
 
-    type = eventinfo.type;
-    buttonstate_ = eventinfo.buttonstate_;
-    mouseline = eventinfo.mouseline;
-    pressed = eventinfo.pressed;
-    dragging = eventinfo.dragging;
-    pickedobjids = eventinfo.pickedobjids;
-    displaypickedpos = eventinfo.displaypickedpos;
-    localpickedpos = eventinfo.localpickedpos;
-    worldpickedpos = eventinfo.worldpickedpos;
-    pickdepth = eventinfo.pickdepth;
-    key_ = eventinfo.key_;
-    mousepos = eventinfo.mousepos;
+    type = oth.type;
+    buttonstate_ = oth.buttonstate_;
+    mouseline = oth.mouseline;
+    pressed = oth.pressed;
+    dragging = oth.dragging;
+    pickedobjids = oth.pickedobjids;
+    displaypickedpos = oth.displaypickedpos;
+    localpickedpos = oth.localpickedpos;
+    worldpickedpos = oth.worldpickedpos;
+    pickdepth = oth.pickdepth;
+    key_ = oth.key_;
+    mousepos = oth.mousepos;
 
-    setTabletInfo( eventinfo.tabletinfo );
+    setTabletInfo( oth.tabletinfo_ );
     return *this;
 }
 
 
 void EventInfo::setTabletInfo( const TabletInfo* newtabinf )
 {
-    if ( newtabinf )
-    {
-	if ( !tabletinfo )
-	    tabletinfo = new TabletInfo();
+    if ( newtabinf == tabletinfo_ )
+	return;
 
-	*tabletinfo = *newtabinf;
-    }
-    else if ( tabletinfo )
-    {
-	delete tabletinfo;
-	tabletinfo = 0;
-    }
+    deleteAndNullPtr( tabletinfo_ );
+    if ( newtabinf )
+	tabletinfo_ = new TabletInfo( *newtabinf );
 }
 
 
@@ -586,47 +566,38 @@ void EventCatchHandler::initKeyMap()
 EventCatcher::EventCatcher()
     : eventhappened( this )
     , nothandled( this )
-    , type_( Any )
-    , ishandled_( true )
-    , rehandling_( false )
-    , rehandled_( false )
-    , osgnode_( 0 )
-    , eventcatchhandler_( 0 )
-    , eventreleasepostosg_( true )
     , eventreleasetimer_( new Timer() )
 {
     osgnode_ = setOsgNode( new osg::Node );
     eventcatchhandler_ = new EventCatchHandler( *this );
-    eventcatchhandler_->ref();
+    refOsgPtr( eventcatchhandler_ );
     osgnode_->setEventCallback( eventcatchhandler_ );
     mAttachCB( eventreleasetimer_->tick, EventCatcher::releaseEventsCB );
 }
 
 
-void EventCatcher::setEventType( int type )
+EventCatcher::~EventCatcher()
+{
+    osgnode_->removeEventCallback( eventcatchhandler_ );
+    unRefOsgPtr( eventcatchhandler_ );
+    delete eventreleasetimer_;
+}
+
+
+void EventCatcher::setEventType( EventType type )
 {
     type_ = type;
 }
 
 void EventCatcher::releaseEventsPostOsg( bool yn )
-{ eventreleasepostosg_ = yn; }
+{
+    eventreleasepostosg_ = yn;
+}
 
 
 void EventCatcher::setUtm2Display( ObjectSet<Transformation>& nt )
 {
-    deepUnRef( utm2display_ );
     utm2display_ = nt;
-    deepRef( utm2display_ );
-}
-
-
-EventCatcher::~EventCatcher()
-{
-    deepUnRef( utm2display_ );
-
-    osgnode_->removeEventCallback( eventcatchhandler_ );
-    eventcatchhandler_->unref();
-    delete eventreleasetimer_;
 }
 
 

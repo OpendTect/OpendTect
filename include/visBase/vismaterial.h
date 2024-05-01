@@ -32,7 +32,8 @@ namespace visBase
 mExpClass(visBase) Material : public NodeState
 { mODTextTranslationClass(Material);
 public:
-			Material();
+
+    static RefMan<Material> create();
 
     Notifier<Material>	change;
 
@@ -101,11 +102,13 @@ public:
     void		detachGeometry(osg::Geometry*);
 
     void		setColorBindType(unsigned int);
-    
+
     const TypeSet<OD::Color> getColors();
 
 private:
+			Material();
 			~Material();
+
 			//!Used when no array is present
    void			updateOsgMaterial();
 
@@ -128,19 +131,19 @@ private:
     osg::Material*	material_;
 
     OD::Color		color_;
-    float		ambience_;
-    float		specularintensity_;
-    float		emmissiveintensity_;
-    float		shininess_;
-    float		diffuseintensity_;
+    float		ambience_		= 0.8f;
+    float		specularintensity_	= 0.f;
+    float		emmissiveintensity_	= 0.f;
+    float		shininess_		= 0.f;
+    float		diffuseintensity_	= 0.8f;
 
-    unsigned int	colorbindtype_;
+    unsigned int	colorbindtype_		= 1;
 
     mutable Threads::Lock lock_;
     /*!< the lock will protect below variables */
-    osg::Array*			osgcolorarray_;
+    osg::Array*			osgcolorarray_ = nullptr;
     ObjectSet<osg::Geometry>	attachedgeoms_;
-    float			transparencybendpower_;
+    float			transparencybendpower_	= 1.f;
 };
 
 } // namespace visBase

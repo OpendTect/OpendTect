@@ -34,7 +34,7 @@ ________________________________________________________________________
 
 
 bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
-				  VisID displayid )
+				  const VisID& displayid )
 {
     const uiTreeFactorySet* tfs = ODMainWin()->sceneMgr().treeItemFactorySet();
     if ( !tfs )
@@ -572,10 +572,11 @@ void uiODDisplayTreeItem::handleAddAttrib()
 void uiODDisplayTreeItem::prepareForShutdown()
 {
     uiTreeItem::prepareForShutdown();
-    mDynamicCastGet( const visSurvey::SurveyObject*, so,
-		     visserv_->getObject(displayid_) );
-    if ( ODMainWin() && ODMainWin()->colTabEd().getSurvObj() == so )
-	ODMainWin()->colTabEd().setColTab( 0, mUdf(int), mUdf(int) );
+    ConstRefMan<visBase::DataObject> dataobj =
+					ODMainWin()->colTabEd().getDataObj();
+    const visBase::DataObject* dispobj = visserv_->getObject( displayid_ );
+    if ( ODMainWin() && dispobj == dataobj.ptr() )
+	ODMainWin()->colTabEd().setColTab( nullptr, mUdf(int), mUdf(int) );
 
     visserv_->removeObject( displayid_, sceneID() );
 }

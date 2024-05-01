@@ -9,11 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "visbasemod.h"
-#include "visosg.h"
+
 #include "fontdata.h"
-#include "visobject.h"
 #include "position.h"
 #include "uistring.h"
+#include "visobject.h"
+#include "visosg.h"
+#include "vistransform.h"
 
 
 namespace osgText { class Font; }
@@ -25,10 +27,12 @@ namespace osg { class Drawable; class Vec3f; class Geode; }
 namespace visBase
 {
 
+class Text2;
+
 mExpClass(visBase) Text
 {
 public:
-				Text();
+    friend class Text2;
 				~Text();
 
     enum Justification		{ Left, Right, Center, Top, Bottom,
@@ -68,7 +72,9 @@ public:
     void			setAxisAlignment( AxisAlignment );
 
 protected:
-    const mVisTrans*		displaytrans_;
+				Text();
+
+    ConstRefMan<mVisTrans>	displaytrans_;
     osgGeo::Text*		osgtext_;
     uiString			text_;
 
@@ -90,7 +96,7 @@ protected:
 mExpClass(visBase) Text2 : public VisualObjectImpl
 {
 public:
-    static Text2*		create()
+    static RefMan<Text2>	create();
 				mCreateDataObj(Text2);
 
     int				nrTexts() const		{return texts_.size();}
@@ -110,12 +116,14 @@ public:
 				{ return pixeldensity_;}
 
 protected:
-    void			translationChangeCB(CallBacker*);
 				~Text2();
+
+    void			translationChangeCB(CallBacker*);
+
     osg::Geode*			geode_;
     ManagedObjectSet<Text>	texts_;
     float			pixeldensity_;
-    const mVisTrans*		displaytransform_;
+    ConstRefMan<mVisTrans>	displaytransform_;
 };
 
 } // namespace visBase

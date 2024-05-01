@@ -37,9 +37,6 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
-#include "visfaultdisplay.h"
-#include "visfaultsticksetdisplay.h"
-
 
 CNotifier<uiODFaultParentTreeItem,uiMenu*>&
 	uiODFaultParentTreeItem::showMenuNotifier()
@@ -85,8 +82,8 @@ const char* uiODFaultParentTreeItem::iconName() const
 
 bool uiODFaultParentTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    RefMan<visSurvey::Scene> scene =
+		    ODMainWin()->applMgr().visServer()->getScene( sceneID() );
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction(m3Dots(uiStrings::sAdd())), mAddMnuID );
@@ -205,12 +202,12 @@ bool uiODFaultParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODFaultTreeItemFactory::createForVis(
-					VisID visid, uiTreeItem*) const
+uiTreeItem* uiODFaultTreeItemFactory::createForVis( const VisID& visid,
+						    uiTreeItem*) const
 {
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
-    return fd ? new uiODFaultTreeItem( visid, true ) : 0;
+    return fd ? new uiODFaultTreeItem( visid, true ) : nullptr;
 }
 
 
@@ -248,9 +245,8 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
 }
 
 
-uiODFaultTreeItem::uiODFaultTreeItem( VisID id, bool dummy )
+uiODFaultTreeItem::uiODFaultTreeItem( const VisID& id, bool dummy )
     : uiODDisplayTreeItem()
-    , faultdisplay_(0)
     mCommonInit
 {
     displayid_ = id;
@@ -264,8 +260,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( VisID id, bool dummy )
 uiODFaultTreeItem::~uiODFaultTreeItem()
 {
     detachAllNotifiers();
-    if ( faultdisplay_ )
-	faultdisplay_->unRef();
+    visserv_->removeObject( displayid_, sceneID() );
 }
 
 
@@ -300,10 +295,11 @@ void uiODFaultTreeItem::saveCB( CallBacker* cb )
     }
 
     const bool issaved = applMgr()->EMServer()->storeObject( emid_, dosaveas );
-    if ( issaved && faultdisplay_ &&
+    RefMan<visSurvey::FaultDisplay> faultdisplay = getDisplay();
+    if ( issaved && faultdisplay &&
 	 !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
     {
-	faultdisplay_->setName( applMgr()->EMServer()->getName(emid_) );
+	faultdisplay->setName( applMgr()->EMServer()->getName(emid_) );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
 
@@ -313,59 +309,69 @@ void uiODFaultTreeItem::saveCB( CallBacker* cb )
 
 
 uiODDataTreeItem* uiODFaultTreeItem::createAttribItem(
-	const Attrib::SelSpec* as ) const
+					const Attrib::SelSpec* as ) const
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
-	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
+	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false)
+	: nullptr;
     if ( !res )
 	res = new uiODFaultSurfaceDataTreeItem( emid_, parenttype );
+
     return res;
 }
 
 
 bool uiODFaultTreeItem::init()
 {
-    RefMan<ZAxisTransform> transform = nullptr;
     if ( !displayid_.isValid() )
     {
-	visSurvey::FaultDisplay* fd = new visSurvey::FaultDisplay;
-	mDynamicCastGet(visSurvey::Scene*,scene,
-	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-	if ( scene )
-	{
-	    transform = scene->getZAxisTransform();
-	    fd->setZAxisTransform( transform, nullptr );
+	RefMan<visSurvey::FaultDisplay> fd = new visSurvey::FaultDisplay;
+	displayid_ = fd->id();
+	{ // TODO Should not be needed yet
+	    ConstRefMan<visSurvey::Scene> scene =
+		ODMainWin()->applMgr().visServer()->getScene( sceneID() );
+	    if ( scene )
+	    {
+		ConstRefMan<ZAxisTransform> transform =
+						scene->getZAxisTransform();
+		fd->setZAxisTransform( transform.getNonConstPtr(), nullptr );
+	    }
+
+	    fd->setEMObjectID( emid_ );
 	}
 
-	displayid_ = fd->id();
-	faultdisplay_ = fd;
-	faultdisplay_->ref();
-
-	fd->setEMObjectID( emid_ );
 	visserv_->addObject( fd, sceneID(), true );
     }
-    else
-    {
-	mDynamicCastGet( visSurvey::FaultDisplay*, fltdisp,
-			 visserv_->getObject(displayid_) );
-	if ( !fltdisp )
-	    return false;
 
-	transform = const_cast<ZAxisTransform*>(
-						fltdisp->getZAxisTransform() );
-	faultdisplay_ = fltdisp;
-	faultdisplay_->ref();
-	emid_ = fltdisp->getEMObjectID();
-    }
+    mDynamicCastGet(visSurvey::FaultDisplay*,fd,
+		    visserv_->getObject(displayid_));
+    if ( !fd )
+	return false;
 
+    if ( emid_.isValid() && fd->getEMObjectID() != emid_ )
+	fd->setEMObjectID( emid_ );
+
+    ConstRefMan<ZAxisTransform> transform = fd->getZAxisTransform();
     if ( !transform )
 	ODMainWin()->menuMgr().createFaultToolMan();
 
-    mAttachCB( faultdisplay_->materialChange(),
-					    uiODFaultTreeItem::colorChgCB );
+    mAttachCB( fd->materialChange(), uiODFaultTreeItem::colorChgCB );
 
+    faultdisplay_ = fd;
     return uiODDisplayTreeItem::init();
+}
+
+
+ConstRefMan<visSurvey::FaultDisplay> uiODFaultTreeItem::getDisplay() const
+{
+    return faultdisplay_.get();
+}
+
+
+RefMan<visSurvey::FaultDisplay> uiODFaultTreeItem::getDisplay()
+{
+    return faultdisplay_.get();
 }
 
 
@@ -375,49 +381,34 @@ bool uiODFaultTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 }
 
 
-void uiODFaultTreeItem::prepareForShutdown()
-{
-    if ( faultdisplay_ )
-    {
-	mDetachCB( faultdisplay_->materialChange(),
-		   uiODFaultTreeItem::colorChgCB );
-	faultdisplay_->unRef();
-    }
-
-    faultdisplay_ = nullptr;
-    uiODDisplayTreeItem::prepareForShutdown();
-}
-
-
 void uiODFaultTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
     if ( !menu || !isDisplayID(menu->menuID()) )
 	return;
 
-    mDynamicCastGet(visSurvey::FaultDisplay*,fd,
-	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
-    if ( !fd )
+    ConstRefMan<visSurvey::FaultDisplay> faultdisplay = getDisplay();
+    if ( !faultdisplay )
 	return;
 
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &displayplanemnuitem_,
-		      true, faultdisplay_->arePanelsDisplayed() );
+		      true, faultdisplay->arePanelsDisplayed() );
     mAddMenuOrTBItem( istb, menu, &displaymnuitem_, &displaystickmnuitem_,
-		      true, faultdisplay_->areSticksDisplayed() );
+		      true, faultdisplay->areSticksDisplayed() );
 
     if ( !istb )
     {
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_,
-		      faultdisplay_->canDisplayIntersections(),
-		      faultdisplay_->areIntersectionsDisplayed() );
+		      faultdisplay->canDisplayIntersections(),
+		      faultdisplay->areIntersectionsDisplayed() );
 	mAddMenuItem( &displaymnuitem_, &displayintersecthorizonmnuitem_,
-		      faultdisplay_->canDisplayHorizonIntersections(),
-		      faultdisplay_->areHorizonIntersectionsDisplayed() );
+		      faultdisplay->canDisplayHorizonIntersections(),
+		      faultdisplay->areHorizonIntersectionsDisplayed() );
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
 
 	mAddMenuItem( &displaymnuitem_, &singlecolmnuitem_,
-		      faultdisplay_->canShowTexture(),
-		      !faultdisplay_->showsTexture() );
+		      faultdisplay->canShowTexture(),
+		      !faultdisplay->showsTexture() );
     }
 
     const MultiID mid = EM::EMM().getMultiID( emid_ );
@@ -438,6 +429,10 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
+    RefMan<visSurvey::FaultDisplay> faultdisplay = getDisplay();
+    if ( !faultdisplay )
+	return;
+
     if ( mnuid==saveasmnuitem_.id ||  mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled(true);
@@ -452,10 +447,10 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-	if ( saveas && faultdisplay_ &&
+	if ( saveas && faultdisplay &&
 	     !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
 	{
-	    faultdisplay_->setName( applMgr()->EMServer()->getName(emid_));
+	    faultdisplay->setName( applMgr()->EMServer()->getName(emid_));
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }
@@ -464,7 +459,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	const bool stickchecked = displaystickmnuitem_.checked;
 	const bool planechecked = displayplanemnuitem_.checked;
-	faultdisplay_->display( stickchecked || planechecked, !planechecked );
+	faultdisplay->display( stickchecked || planechecked, !planechecked );
 	select();
     }
     else if ( mnuid==displaystickmnuitem_.id )
@@ -472,25 +467,25 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	const bool stickchecked = displaystickmnuitem_.checked;
 	const bool planechecked = displayplanemnuitem_.checked;
-	faultdisplay_->display( !stickchecked, stickchecked || planechecked );
+	faultdisplay->display( !stickchecked, stickchecked || planechecked );
 	select();
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	const bool interchecked = displayintersectionmnuitem_.checked;
-	faultdisplay_->displayIntersections( !interchecked );
+	faultdisplay->displayIntersections( !interchecked );
     }
     else if ( mnuid==displayintersecthorizonmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	const bool interchecked = displayintersecthorizonmnuitem_.checked;
-	faultdisplay_->displayHorizonIntersections( !interchecked );
+	faultdisplay->displayHorizonIntersections( !interchecked );
     }
     else if ( mnuid==singlecolmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	faultdisplay_->useTexture( !faultdisplay_->showsTexture(), true );
+	faultdisplay->useTexture( !faultdisplay->showsTexture(), true );
 	visserv_->triggerTreeUpdate();
     }
 }
@@ -506,6 +501,7 @@ bool uiODFaultTreeItem::isOnlyAtSections() const
 
 
 // uiODFaultStickSetParentTreeItem
+
 CNotifier<uiODFaultStickSetParentTreeItem,uiMenu*>&
 	uiODFaultStickSetParentTreeItem::showMenuNotifier()
 {
@@ -529,8 +525,8 @@ const char* uiODFaultStickSetParentTreeItem::iconName() const
 
 bool uiODFaultStickSetParentTreeItem::showSubMenu()
 {
-    mDynamicCastGet(visSurvey::Scene*,scene,
-		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    RefMan<visSurvey::Scene> scene =
+		    ODMainWin()->applMgr().visServer()->getScene( sceneID() );
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
@@ -605,18 +601,18 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 
 
 uiTreeItem*
-uiODFaultStickSetTreeItemFactory::createForVis( VisID visid, uiTreeItem* ) const
+uiODFaultStickSetTreeItemFactory::createForVis( const VisID& visid,
+						uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
-    return fd ? new uiODFaultStickSetTreeItem( visid, true ) : 0;
+    return fd ? new uiODFaultStickSetTreeItem( visid, true ) : nullptr;
 }
 
 
 #undef mCommonInit
 #undef mCommonInit2
 #define mCommonInit \
-    , faultsticksetdisplay_(0) \
     , savemnuitem_(uiStrings::sSave()) \
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs())) \
     , onlyatsectmnuitem_( uiODFaultTreeItem::sOnlyAtSections() )
@@ -639,7 +635,8 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
 }
 
 
-uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( VisID id, bool dummy )
+uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const VisID& id,
+						      bool /* dummy */ )
     : uiODDisplayTreeItem()
     mCommonInit
 {
@@ -654,53 +651,62 @@ uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( VisID id, bool dummy )
 uiODFaultStickSetTreeItem::~uiODFaultStickSetTreeItem()
 {
     detachAllNotifiers();
-    if ( faultsticksetdisplay_ )
-	faultsticksetdisplay_->unRef();
+    visserv_->removeObject( displayid_, sceneID() );
 }
 
 
 bool uiODFaultStickSetTreeItem::init()
 {
-    RefMan<ZAxisTransform> transform = nullptr;
     if ( !displayid_.isValid() )
     {
-	visSurvey::FaultStickSetDisplay* fd =
+	RefMan<visSurvey::FaultStickSetDisplay> fsd =
 				    new visSurvey::FaultStickSetDisplay;
-	displayid_ = fd->id();
-	mDynamicCastGet(visSurvey::Scene*,scene,
-	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
-	if ( scene )
-	{
-	    transform = scene->getZAxisTransform();
-	    fd->setZAxisTransform( transform, nullptr );
+	displayid_ = fsd->id();
+	{ // TODO Should not be needed yet
+	    ConstRefMan<visSurvey::Scene> scene =
+		ODMainWin()->applMgr().visServer()->getScene( sceneID() );
+	    if ( scene )
+	    {
+		ConstRefMan<ZAxisTransform> transform =
+						scene->getZAxisTransform();
+		fsd->setZAxisTransform( transform.getNonConstPtr(), nullptr );
+	    }
+
+	    fsd->setEMObjectID( emid_ );
 	}
 
-	faultsticksetdisplay_ = fd;
-	faultsticksetdisplay_->ref();
-
-	fd->setEMObjectID( emid_ );
-	visserv_->addObject( fd, sceneID(), true );
-    }
-    else
-    {
-	mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
-			visserv_->getObject(displayid_));
-	if ( !fd )
-	    return false;
-
-	transform = const_cast<ZAxisTransform*>( fd->getZAxisTransform() );
-	faultsticksetdisplay_ = fd;
-	faultsticksetdisplay_->ref();
-	emid_ = fd->getEMObjectID();
+	visserv_->addObject( fsd, sceneID(), true );
     }
 
+    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fsd,
+		    visserv_->getObject(displayid_));
+    if ( !fsd )
+	return false;
+
+    if ( emid_.isValid() && fsd->getEMObjectID() != emid_ )
+	fsd->setEMObjectID( emid_ );
+
+    ConstRefMan<ZAxisTransform> transform = fsd->getZAxisTransform();
     if ( !transform )
 	ODMainWin()->menuMgr().createFaultToolMan();
 
-    mAttachCB( faultsticksetdisplay_->materialChange(),
-	       uiODFaultStickSetTreeItem::colorChCB );
+    mAttachCB( fsd->materialChange(), uiODFaultStickSetTreeItem::colorChCB );
 
+    faultsticksetdisplay_ = fsd;
     return uiODDisplayTreeItem::init();
+}
+
+
+ConstRefMan<visSurvey::FaultStickSetDisplay>
+uiODFaultStickSetTreeItem::getDisplay() const
+{
+    return faultsticksetdisplay_.get();
+}
+
+
+RefMan<visSurvey::FaultStickSetDisplay> uiODFaultStickSetTreeItem::getDisplay()
+{
+    return faultsticksetdisplay_.get();
 }
 
 
@@ -735,10 +741,11 @@ void uiODFaultStickSetTreeItem::askSaveCB( CallBacker* )
 void uiODFaultStickSetTreeItem::saveCB( CallBacker* cb )
 {
     const bool issaved = applMgr()->EMServer()->storeObject( emid_, true );
-    if ( issaved && faultsticksetdisplay_ &&
+    RefMan<visSurvey::FaultStickSetDisplay> faultsticksetdisplay = getDisplay();
+    if ( issaved && faultsticksetdisplay &&
 	 !applMgr()->EMServer()->getUiName(emid_).isEmpty() )
     {
-	faultsticksetdisplay_->setName( applMgr()->EMServer()->getName(emid_) );
+	faultsticksetdisplay->setName( applMgr()->EMServer()->getName(emid_) );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
 
@@ -753,34 +760,20 @@ bool uiODFaultStickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 }
 
 
-void uiODFaultStickSetTreeItem::prepareForShutdown()
-{
-    if ( faultsticksetdisplay_ )
-    {
-	faultsticksetdisplay_->materialChange()->remove(
-	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
-	faultsticksetdisplay_->unRef();
-    }
-
-    faultsticksetdisplay_ = 0;
-    uiODDisplayTreeItem::prepareForShutdown();
-}
-
-
 void uiODFaultStickSetTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
     if ( !menu || !isDisplayID(menu->menuID()) || istb )
 	return;
 
-    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
-	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
-    if ( !fd )
+    ConstRefMan<visSurvey::FaultStickSetDisplay> faultsticksetdisplay =
+								getDisplay();
+    if ( !faultsticksetdisplay )
 	return;
 
     mAddMenuItem( menu, &displaymnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &onlyatsectmnuitem_,
-		  true, fd->displayedOnlyAtSections() );
+		  true, faultsticksetdisplay->displayedOnlyAtSections() );
 
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
@@ -797,18 +790,19 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
-    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
-	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
+    RefMan<visSurvey::FaultStickSetDisplay> faultsticksetdisplay = getDisplay();
+    if ( !faultsticksetdisplay )
+	return;
 
     if ( mnuid==onlyatsectmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	if ( fd )
-	    fd->setOnlyAtSectionsDisplay( !fd->displayedOnlyAtSections() );
+	faultsticksetdisplay->setOnlyAtSectionsDisplay(
+			!faultsticksetdisplay->displayedOnlyAtSections() );
     }
     else if ( mnuid==saveasmnuitem_.id ||  mnuid==savemnuitem_.id )
     {
-	menu->setIsHandled(true);
+	menu->setIsHandled( true );
 	bool saveas = mnuid==saveasmnuitem_.id ||
 		      applMgr()->EMServer()->getStorageID(emid_).isUdf();
 	if ( !saveas )
@@ -821,17 +815,17 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
 	const BufferString emname = applMgr()->EMServer()->getName(emid_);
-	if ( saveas && faultsticksetdisplay_ && !emname.isEmpty() )
+	if ( saveas && faultsticksetdisplay && !emname.isEmpty() )
 	{
-	    faultsticksetdisplay_->setName( emname );
+	    faultsticksetdisplay->setName( emname );
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }
 }
 
 
-
 // uiODFaultSurfaceDataTreeItem
+
 uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
 	const char* parenttype )
     : uiODAttribTreeItem(parenttype)

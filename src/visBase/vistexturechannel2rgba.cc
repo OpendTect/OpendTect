@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "vistexturechannel2rgba.h"
 
-#include "vistexturechannels.h"
 #include "color.h"
 #include "coltabsequence.h"
 #include "coltab.h"
@@ -31,7 +30,7 @@ class MappedTextureDataSetImpl : public MappedTextureDataSet
 {
 public:
 
-static MappedTextureDataSetImpl* create()
+static RefMan<MappedTextureDataSetImpl> create();
 mCreateDataObj( MappedTextureDataSetImpl );
 
 int nrChannels() const override
@@ -69,7 +68,7 @@ void touch() override
 protected:
 
 ~MappedTextureDataSetImpl()
-{} //{ tc_->unref(); }
+{} //{ unRefOsgPtr( tc_ ); }
 
 //    SoTextureChannelSet*	tc_;
 };
@@ -77,7 +76,7 @@ protected:
 
 MappedTextureDataSetImpl::MappedTextureDataSetImpl()
 //    : tc_( new SoTextureChannelSet )
-{} //{ tc_->ref(); }
+{} //{ refOsgPtr( tc_ ); }
 
 
 mCreateFactoryEntry( MappedTextureDataSetImpl );
@@ -87,8 +86,6 @@ mCreateFactoryEntry( MappedTextureDataSetImpl );
 
 
 TextureChannel2RGBA::TextureChannel2RGBA()
-    : channels_( 0 )
-    , laytex_( 0 )
 {}
 
 
@@ -96,21 +93,24 @@ TextureChannel2RGBA::~TextureChannel2RGBA()
 {}
 
 
-MappedTextureDataSet* TextureChannel2RGBA::createMappedDataSet() const
-{ return MappedTextureDataSetImpl::create(); }
+RefMan<MappedTextureDataSet> TextureChannel2RGBA::createMappedDataSet() const
+{
+    return MappedTextureDataSetImpl::create();
+}
 
 
 void TextureChannel2RGBA::setChannels( TextureChannels* ch )
 {
-    if ( ch!=channels_ && laytex_ )
+    RefMan<TextureChannels> channels = channels_.get();
+    if ( ch!=channels && laytex_ )
     {
 	for ( int idx=laytex_->nrProcesses()-1; idx>=0; idx-- )
 	    laytex_->removeProcess( laytex_->getProcess(idx) );
-
     }
 
+    channels = ch;
     channels_ = ch;
-    laytex_ = channels_ ? channels_->getOsgTexture() : 0;
+    laytex_ = channels ? channels->getOsgTexture() : nullptr;
 }
 
 
@@ -191,7 +191,8 @@ ColTabTextureChannel2RGBA::~ColTabTextureChannel2RGBA()
 {
     deepErase( coltabs_ );
     for ( int idx=0; idx<osgcolsequences_.size(); idx++ )
-	osgcolsequences_[idx]->unref();
+	unRefOsgPtr( osgcolsequences_[idx] );
+
     osgcolsequences_.erase();
     deepErase( osgcolseqarrays_ );
 }
@@ -220,7 +221,7 @@ void ColTabTextureChannel2RGBA::update()
 	    {
 		const osgGeo::ColorSequence* colseq = proc->getColorSequence();
 		const int colseqidx = osgcolsequences_.indexOf( colseq );
-		osgcolsequences_.removeSingle(colseqidx)->unref();
+		unRefOsgPtr( osgcolsequences_.removeSingle(colseqidx) );
 		delete osgcolseqarrays_.removeSingle( colseqidx );
 		laytex_->removeProcess( proc );
 	    }
@@ -228,9 +229,13 @@ void ColTabTextureChannel2RGBA::update()
 		layerids.insert( 0, layerid );
 	}
 
-	for ( int channel=0; channel<channels_->nrChannels(); channel++ )
+	RefMan<TextureChannels> channels = channels_.get();
+	if ( !channels )
+	    return;
+
+	for ( int channel=0; channel<channels->nrChannels(); channel++ )
 	{
-	    const int layerid = (*channels_->getOsgIDs(channel))[0];
+	    const int layerid = (*channels->getOsgIDs(channel))[0];
 	    int procidx = layerids.indexOf(layerid);
 
 	    mDynamicCastGet( osgGeo::ColTabLayerProcess*, proc,
@@ -243,15 +248,14 @@ void ColTabTextureChannel2RGBA::update()
 		    procidx = laytex_->nrProcesses();
 		    proc = new osgGeo::ColTabLayerProcess( *laytex_ );
 		    laytex_->addProcess( proc );
-		    for ( int idx=channels_->nrDataBands()-1; idx>=0; idx-- )
+		    for ( int idx=channels->nrDataBands()-1; idx>=0; idx-- )
 			proc->setDataLayerID( idx, layerid, idx );
 
 		    TypeSet<unsigned char>* ts = new TypeSet<unsigned char>();
 		    getColors( channel, *ts );
 		    osgcolseqarrays_ += ts;
-		    osgGeo::ColorSequence* colseq =
-					new osgGeo::ColorSequence( ts->arr() );
-		    colseq->ref();
+		    auto* colseq = new osgGeo::ColorSequence( ts->arr() );
+		    refOsgPtr( colseq );
 		    osgcolsequences_ += colseq;
 
 		    proc->setColorSequence( osgcolsequences_[procidx] );
@@ -274,10 +278,10 @@ void ColTabTextureChannel2RGBA::update()
 	    }
 	    else
 	    {
-		for ( int idx=channels_->nrDataBands()-1; idx>=0; idx-- )
+		for ( int idx=channels->nrDataBands()-1; idx>=0; idx-- )
 		{
 		    int newid = layerid;
-		    if ( idx && channels_->isCurrentDataPremapped(channel) )
+		    if ( idx && channels->isCurrentDataPremapped(channel) )
 			newid = -1;
 
 		    proc->setDataLayerID( idx, newid, idx );
@@ -290,7 +294,8 @@ void ColTabTextureChannel2RGBA::update()
 
 void ColTabTextureChannel2RGBA::adjustNrChannels()
 {
-    const int nr = channels_ ? channels_->nrChannels() : 0;
+    RefMan<TextureChannels> channels = channels_.get();
+    const int nr = channels ? channels->nrChannels() : 0;
 
     while ( coltabs_.size() < nr )
     {
@@ -372,7 +377,7 @@ void ColTabTextureChannel2RGBA::setSequence( int ch,
 
 const ColTab::Sequence* ColTabTextureChannel2RGBA::getSequence( int ch ) const
 {
-    return coltabs_.validIdx(ch) ? coltabs_[ch] : 0;
+    return coltabs_.validIdx(ch) ? coltabs_[ch] : nullptr;
 }
 
 

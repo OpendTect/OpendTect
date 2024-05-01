@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "pickset.h"
-#include "visarrowdisplay.h"
 #include "uiarrowdlg.h"
 #include "uivispartserv.h"
 #include "uiodapplmgr.h"
@@ -47,7 +46,7 @@ const char* ArrowSubItem::parentType() const
 { return typeid(ArrowParentItem).name(); }
 
 
-ArrowSubItem::ArrowSubItem( Pick::Set& pck, VisID displayid )
+ArrowSubItem::ArrowSubItem( Pick::Set& pck, const VisID& displayid )
     : uiODAnnotSubItem( pck, displayid )
     , propmnuitem_( m3Dots(uiStrings::sProperties()) )
     , arrowtype_( 2 )
@@ -57,18 +56,28 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, VisID displayid )
 }
 
 
+ArrowSubItem::~ArrowSubItem()
+{
+    detachAllNotifiers();
+    removeStuff();
+    visserv_->removeObject( displayid_, sceneID() );
+}
+
+
 bool ArrowSubItem::init()
 {
     if ( !displayid_.isValid() )
     {
-	visSurvey::ArrowDisplay* ad = visSurvey::ArrowDisplay::create();
+	RefMan<visSurvey::ArrowDisplay> ad = visSurvey::ArrowDisplay::create();
 	visserv_->addObject( ad, sceneID(), true );
 	displayid_ = ad->id();
 	ad->setUiName( name_ );
     }
 
-    mDynamicCastGet(visSurvey::ArrowDisplay*,ad,visserv_->getObject(displayid_))
-    if ( !ad ) return false;
+    RefMan<visSurvey::ArrowDisplay> ad =
+	dCast(visSurvey::ArrowDisplay*,visserv_->getObject(displayid_) );
+    if ( !ad )
+	return false;
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
@@ -116,14 +125,30 @@ bool ArrowSubItem::init()
 	set_->set( idx, newloc );
     }
 
+    arrowdisp_ = ad;
     return uiODAnnotSubItem::init();
+}
+
+
+ConstRefMan<visSurvey::ArrowDisplay> ArrowSubItem::getDisplay() const
+{
+    return arrowdisp_.get();
+}
+
+
+RefMan<visSurvey::ArrowDisplay> ArrowSubItem::getDisplay()
+{
+    return arrowdisp_.get();
 }
 
 
 void ArrowSubItem::fillStoragePar( IOPar& par ) const
 {
     uiODAnnotSubItem::fillStoragePar( par );
-    mDynamicCastGet(visSurvey::ArrowDisplay*,ad,visserv_->getObject(displayid_))
+    ConstRefMan<visSurvey::ArrowDisplay> ad = getDisplay();
+    if ( !ad )
+	return;
+
     par.set( sKeyArrowType(), (int) ad->getType() );
     par.set( sKeyLineWidth(), ad->getLineWidth() );
 }
@@ -147,6 +172,10 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || menu->menuID()!=displayID().asInt() )
 	return;
 
+    RefMan<visSurvey::ArrowDisplay> ad = getDisplay();
+    if ( !ad )
+	return;
+
     if ( mnuid==propmnuitem_.id )
     {
 	menu->setIsHandled(true);
@@ -154,8 +183,6 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
 	uiArrowDialog dlg( getUiParent() );
 	dlg.setColor( set_->disp_.color_ );
 	dlg.setArrowType( arrowtype_ );
-	mDynamicCastGet(visSurvey::ArrowDisplay*,
-			ad,visserv_->getObject(displayid_));
 	dlg.setLineWidth( ad->getLineWidth() );
 	dlg.propertyChange.notify( mCB(this,ArrowSubItem,propertyChange) );
 	dlg.setScale( mCast(float,set_->disp_.pixsize_/defscale_) );
@@ -182,8 +209,10 @@ void ArrowSubItem::propertyChange( CallBacker* cb )
     setScale( defscale_*dlg->getScale() );
     setColor( dlg->getColor() );
 
-    mDynamicCastGet(visSurvey::ArrowDisplay*,
-	ad,visserv_->getObject(displayid_));
+    RefMan<visSurvey::ArrowDisplay> ad = getDisplay();
+    if ( !ad )
+	return;
+
     ad->setType( (visSurvey::ArrowDisplay::Type) arrowtype );
     ad->setLineWidth( dlg->getLineWidth() );
 

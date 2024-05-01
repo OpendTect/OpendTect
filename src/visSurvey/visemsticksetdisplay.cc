@@ -8,56 +8,30 @@ ________________________________________________________________________
 -*/
 
 #include "visemsticksetdisplay.h"
-#include "vistransform.h"
-#include "vismarkerset.h"
-#include "vissurvscene.h"
-#include "vispolygonselection.h"
-#include "visevent.h"
-#include "visfaultdisplay.h"
-#include "visfaultsticksetdisplay.h"
-#include "emfaultstickset.h"
-#include "zaxistransform.h"
 
+#include "emfaultstickset.h"
 #include "keyenum.h"
-#include "emfault.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "uistrings.h"
+#include "visfaultdisplay.h"
+#include "visfaultsticksetdisplay.h"
+#include "vispolygonselection.h"
+
 
 namespace visSurvey
 {
 
 #define mDefaultMarkerSize 3
-#define mSceneIdx (ownerscene_ ? ownerscene_->fixedIdx() : -1)
+#define mSceneIdx (ownerscene ? ownerscene->fixedIdx() : -1)
 
-StickSetDisplay::StickSetDisplay( bool faultstick )
-    : fault_( 0 )
-    , displaytransform_( 0 )
-    , ctrldown_( false )
-    , showmanipulator_( false )
-    , stickselectmode_( false )
-    , faultstickset_( faultstick )
-    , hideallknots_( true )
-    , displaysticks_( false )
-    , eventcatcher_( 0 )
-    , pickmarker_( false )
-    , ownerscene_( 0 )
+StickSetDisplay::StickSetDisplay( bool faultstickset )
+    : faultstickset_( faultstickset )
 {}
 
 
 StickSetDisplay::~StickSetDisplay()
 {
-    if ( displaytransform_ ) displaytransform_->unRef();
-
-    if ( fault_ )
-    {
-	fault_->unRef();
-	fault_ = 0;
-    }
-
-    for ( int idx=0; idx<knotmarkersets_.size(); idx++ )
-	knotmarkersets_[idx]->unRef();
-
     deepErase( stickintersectpoints_ );
 }
 
@@ -75,18 +49,17 @@ bool StickSetDisplay::isAlreadyTransformed() const
 
 void StickSetDisplay::setDisplayTransformation( const mVisTrans* nt )
 {
-    for ( int idx = 0; idx<knotmarkersets_.size(); idx++ )
-	knotmarkersets_[idx]->setDisplayTransformation( nt );
+    for ( auto* knotmarkerset : knotmarkersets_ )
+	knotmarkerset->setDisplayTransformation( nt );
 
-    if ( displaytransform_ ) displaytransform_->unRef();
-	displaytransform_ = nt;
-    if ( displaytransform_ ) displaytransform_->ref();
-
+    displaytransform_ = nt;
 }
 
 
 const mVisTrans* StickSetDisplay::getDisplayTransformation() const
-{  return displaytransform_; }
+{
+    return displaytransform_.ptr();
+}
 
 
 Geometry::FaultStickSet* StickSetDisplay::faultStickSetGeometry()
@@ -122,10 +95,12 @@ else \
 
 void StickSetDisplay::polygonSelectionCB()
 {
-    if ( !ownerscene_ || ! ownerscene_->getPolySelection() )
+    RefMan<Scene> ownerscene = getCurScene();
+    if ( !ownerscene || ! ownerscene->getPolySelection() )
 	return;
 
-    visBase::PolygonSelection* selection =  ownerscene_->getPolySelection();
+    RefMan<visBase::PolygonSelection> selection =
+				ownerscene->getPolySelection();
     MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 
     if ( !selection->hasPolygon() && !selection->singleSelection()  )
@@ -136,7 +111,8 @@ void StickSetDisplay::polygonSelectionCB()
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
 	Geometry::FaultStickSet* fss = faultStickSetGeometry();
-	if ( !fss ) continue;
+	if ( !fss )
+	    continue;
 
 	if ( !donenr.isPresent(sip->sticknr_) )
 	    donenr += sip->sticknr_;
@@ -170,10 +146,10 @@ void StickSetDisplay::polygonSelectionCB()
 
 
 #define mForceDrawMarkerSet()\
-for ( int idx = 0; idx<knotmarkersets_.size(); idx++ )\
+for ( auto* knotmarkerset : knotmarkersets_ ) \
 {\
-    knotmarkersets_[idx]->turnAllMarkersOn( true );\
-    knotmarkersets_[idx]->forceRedraw( true );\
+    knotmarkerset->turnAllMarkersOn( true );\
+    knotmarkerset->forceRedraw( true );\
 }\
 
 
@@ -183,11 +159,11 @@ void StickSetDisplay::updateStickMarkerSet()
 
     for ( int idx=0; idx<knotmarkersets_.size(); idx++ )
     {
-	visBase::MarkerSet* markerset = knotmarkersets_[idx];
+	RefMan<visBase::MarkerSet> markerset = knotmarkersets_[idx];
 	markerset->clearMarkers();
 	markerset->setMarkerStyle( MarkerStyle3D::Sphere );
-	markerset->setMaterial(0);
-	markerset->setDisplayTransformation( displaytransform_ );
+	markerset->setMaterial( nullptr );
+	markerset->setDisplayTransformation( displaytransform_.ptr() );
 	markerset->setScreenSize( mDefaultMarkerSize );
     }
 
@@ -200,7 +176,8 @@ void StickSetDisplay::updateStickMarkerSet()
     {
 	const StickIntersectPoint* sip = stickintersectpoints_[idx];
 	Geometry::FaultStickSet* fss = faultStickSetGeometry();
-	if ( !fss ) continue;
+	if ( !fss )
+	    continue;
 
 	int groupidx = 0;
 	if ( faultstickset_ )
@@ -221,6 +198,7 @@ void StickSetDisplay::updateStickMarkerSet()
 	return;
 
     PtrMan<EM::EMObjectIterator> iter = fault_->createIterator();
+    ConstRefMan<Scene> ownerscene = getCurScene();
     while ( true )
     {
 	const EM::PosID pid = iter->next();
@@ -243,10 +221,10 @@ void StickSetDisplay::updateStickMarkerSet()
 
 
 void StickSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
-			Coord3& pos,BufferString& val, uiString& info ) const
+			Coord3& pos, BufferString& val, uiString& info ) const
 {
     info.setEmpty();
-    val = "";
+    val.setEmpty();
     if ( !fault_ )
 	return;
 
@@ -280,17 +258,18 @@ bool StickSetDisplay::matchMarker( int sticknr, const Coord3 mousepos,
 
 
 void StickSetDisplay::stickSelectionCB( CallBacker* cb,
-    const Survey::Geometry3D* s3dgeom )
+					const Survey::Geometry3D* s3dgeom )
 {
-    if ( !s3dgeom ) return;
+    if ( !s3dgeom )
+	return;
 
     mCBCapsuleUnpack( const visBase::EventInfo&,eventinfo, cb );
 
     bool leftmousebutton = OD::leftMouseButton( eventinfo.buttonstate_ );
     ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
-    if ( eventinfo.tabletinfo &&
-	 eventinfo.tabletinfo->pointertype_==TabletInfo::Eraser )
+    if ( eventinfo.tabletinfo_ &&
+	 eventinfo.tabletinfo_->pointertype_==TabletInfo::Eraser )
     {
 	leftmousebutton = true;
 	ctrldown_ = true;
@@ -314,7 +293,8 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 	{
 	    pickmarker_ = true;
 	    const int markeridx = markerset->findClosestMarker( selectpos );
-	    if( markeridx ==  -1 ) continue;
+	    if ( markeridx ==  -1 )
+		continue;
 
 	    const Coord3 markerpos =
 		markerset->getCoordinates()->getPos( markeridx );
@@ -340,46 +320,67 @@ void StickSetDisplay::stickSelectionCB( CallBacker* cb,
 }
 
 
+void StickSetDisplay::setCurScene( Scene* scene )
+{
+    ownerscene_ = scene;
+}
+
+
+ConstRefMan<Scene> StickSetDisplay::getCurScene() const
+{
+    return ownerscene_.get();
+}
+
+
+RefMan<Scene> StickSetDisplay::getCurScene()
+{
+    return ownerscene_.get();
+}
+
+
 const MarkerStyle3D* StickSetDisplay::markerStyle() const
 {
-    mDynamicCastGet( EM::FaultStickSet*, emfss, fault_ );
+    mDynamicCastGet(const EM::FaultStickSet*,emfss,fault_.ptr());
     if ( emfss )
     {
-	FaultStickSetDisplay* ftssdspl = (FaultStickSetDisplay*)( this );
-	return ftssdspl->getPreferedMarkerStyle();
+	mDynamicCastGet(const FaultStickSetDisplay*,ftssdspl,this);
+	if ( ftssdspl )
+	    return ftssdspl->getPreferedMarkerStyle();
     }
     else
     {
-	FaultDisplay* ftdspl = (FaultDisplay*)( this );
-	return ftdspl->getPreferedMarkerStyle();
+	mDynamicCastGet(const FaultDisplay*,ftdspl,this);
+	if ( ftdspl )
+	    return ftdspl->getPreferedMarkerStyle();
     }
 
+    return nullptr;
 }
 
 
 void StickSetDisplay::setMarkerStyle( const MarkerStyle3D& mkstyle )
 {
-    mDynamicCastGet( EM::FaultStickSet*, emfss, fault_ );
+    mDynamicCastGet(EM::FaultStickSet*,emfss,fault_.ptr());
     if ( emfss )
     {
-	FaultStickSetDisplay* ftssdspl = (FaultStickSetDisplay*)( this );
-	ftssdspl->setPreferedMarkerStyle( mkstyle );
+	mDynamicCastGet(FaultStickSetDisplay*,ftssdspl,this);
+	if ( ftssdspl )
+	    ftssdspl->setPreferedMarkerStyle( mkstyle );
     }
     else
     {
-	FaultDisplay* ftdspl = (FaultDisplay*)( this );
-	ftdspl->setPreferedMarkerStyle(mkstyle);
+	mDynamicCastGet(FaultDisplay*,ftdspl,this);
+	if ( ftdspl )
+	    ftdspl->setPreferedMarkerStyle(mkstyle);
     }
 }
 
 
 void StickSetDisplay::setStickMarkerStyle( const MarkerStyle3D& mkstyle )
 {
-    for( int idx=0; idx<knotmarkersets_.size(); idx++ )
-    {
-	visBase::MarkerSet* markerset = knotmarkersets_[idx];
-	markerset->setMarkerStyle(mkstyle);
-    }
+    for ( auto* markerset : knotmarkersets_ )
+	markerset->setMarkerStyle( mkstyle );
+
     mForceDrawMarkerSet();
 }
 

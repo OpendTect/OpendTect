@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "uisteeringsel.h"
 
-#include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
 #include "attribfactory.h"
@@ -376,7 +375,7 @@ bool uiAttrDescEd::getInputDPID( uiAttrSel* inpfld,
 }
 
 
-Desc* uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
+RefMan<Desc> uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
 {
     if ( !dpfids_.size() )
     {
@@ -388,7 +387,8 @@ Desc* uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
     if ( !getInputDPID(inpfld,inpdpfid) )
 	return nullptr;
 
-    Desc* inpdesc = Attrib::PF().createDescCopy( StorageProvider::attribName());
+    RefMan<Desc> inpdesc =
+		Attrib::PF().createDescCopy( StorageProvider::attribName());
     Attrib::ValParam* param =
 	inpdesc->getValParam( Attrib::StorageProvider::keyStr() );
     param->setValue( inpdpfid.asMultiID() );

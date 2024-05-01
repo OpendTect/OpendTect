@@ -32,7 +32,7 @@ ObjectEditor::ObjectEditor( EM::EMObject& emobj )
 
 ObjectEditor::~ObjectEditor()
 {
-    CallBack::removeFromThreadCalls( this );
+    detachAllNotifiers();
     deepErase( geeditors );
 }
 
