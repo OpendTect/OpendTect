@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "od_iosfwd.h"
 #include "typeset.h"
 #include "uistringset.h"
+#include "arraynd.h"
 
 class DBKeySet;
 class DBKey;
@@ -328,6 +329,10 @@ public:
     bool		getGeomID(const char*,Pos::GeomID&) const;
     template <class T>
     bool		get(const char*,Interval<T>&) const;
+    template <class T>
+    bool		get(const char*,Array1D<T>&) const;
+    template <class T>
+    bool		get(const char*,Array2D<T>&) const;
 
     bool		getBoolValue( const OD::String& str ) const
 			{ return getBoolValue( str.buf() ); }
@@ -360,6 +365,10 @@ public:
     void		set(const char* ky,const uiString&);
     template <class T>
     void		set(const char* ky,const Interval<T>&);
+    template <class T>
+    void		set(const char* ky,const Array1D<T>&);
+    template <class T>
+    void		set(const char* ky,const Array2D<T>&);
 
     void		remove(const char*);
 
@@ -391,10 +400,11 @@ inline Object& ValueSet::asObject()
 inline const Object& ValueSet::asObject() const
 { return *static_cast<const Object*>( this ); }
 
+
 template <class T>
 inline bool OD::JSON::Object::get( const char* key, Interval<T>& intrvl ) const
 {
-    const Array* arr = getArray( key );
+    const auto* arr = getArray( key );
     if ( !arr )
 	return false;
     const TypeSet<NumberType> intrvals = arr->valArr().vals();
@@ -414,7 +424,7 @@ inline bool OD::JSON::Object::get( const char* key, Interval<T>& intrvl ) const
 template <class T>
 inline void OD::JSON::Object::set( const char* key, const Interval<T>& intrvl )
 {
-    Array* arr = new Array(DataType::Number);
+    auto* arr = new Array(DataType::Number);
     TypeSet<NumberType> intrvals;
     intrvals.add( intrvl.start ).add( intrvl.stop );
 
@@ -426,6 +436,99 @@ inline void OD::JSON::Object::set( const char* key, const Interval<T>& intrvl )
 
     arr->set( intrvals );
     set( key, arr );
+}
+
+
+template <class T>
+inline bool OD::JSON::Object::get( const char* key, Array1D<T>& arr ) const
+{
+    const auto* jsarr = getArray( key );
+    if ( !jsarr || !jsarr->isData() )
+	return false;
+
+    const Array1DInfoImpl info( jsarr->size() );
+    if ( arr.info() != info && !arr.setInfo(info) )
+	return false;
+
+    const TypeSet<NumberType>& vals = jsarr->valArr().vals();
+    for ( int idx=0; idx<vals.size(); idx++ )
+	arr.set( idx, vals[idx] );
+
+    return true;
+}
+
+template <class T>
+inline void OD::JSON::Object::set( const char* key, const Array1D<T>& arr )
+{
+    auto* jsarr = new Array( DataType::Number );
+    if ( arr.getData() && typeid(T)==typeid(NumberType) )
+	jsarr->set( arr.getData(), arr.size() );
+    else
+    {
+	TypeSet<NumberType> vals;
+	for ( int idx=0; idx<arr.size(); idx++ )
+	    vals.add( arr[idx] );
+
+	jsarr->set( vals );
+    }
+
+    set( key, jsarr );
+}
+
+
+template <class T>
+inline bool OD::JSON::Object::get( const char* key, Array2D<T>& arr ) const
+{
+    const auto* jsarr = getArray( key );
+    if ( !jsarr )
+	return false;
+
+    const int nrows = jsarr->size();
+    int ncols = 0;
+    for ( int irow=0; irow<nrows; irow++ )
+    {
+	if ( !jsarr->isArrayChild(irow) || !jsarr->array(irow).isData() )
+	    return false;
+
+	ncols = mMAX( ncols, jsarr->array(irow).size() );
+    }
+
+    const Array2DInfoImpl info( nrows, ncols );
+    if ( arr.info() != info && !arr.setInfo(info) )
+	return false;
+
+    for ( int irow=0; irow<nrows; irow++ )
+    {
+	const TypeSet<NumberType>& vals = jsarr->array(irow).valArr().vals();
+	for ( int icol=0; icol<vals.size(); icol++ )
+	    arr.set( irow, icol, vals[icol] );
+    }
+
+    return true;
+}
+
+
+template <class T>
+inline void OD::JSON::Object::set( const char* key, const Array2D<T>& arr )
+{
+    auto* jsarr = new Array( true );
+    for ( int irow=0; irow<arr.getSize(0); irow++ )
+    {
+	auto* col = new Array( DataType::Number );
+	if ( arr.get2DData()[irow] && typeid(T)==typeid(NumberType) )
+	    col->set( arr.get2DData()[irow], arr.getSize(1) );
+	else
+	{
+	    TypeSet<NumberType> vals;
+	    for ( int icol=0; icol<arr.getSize(1); icol++ )
+		vals.add( arr.get(irow, icol) );
+
+	    col->set( vals );
+	}
+	jsarr->add( col );
+    }
+
+    set( key, jsarr );
 }
 
 } // namespace JSON

@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "testprog.h"
 
+#include "arrayndimpl.h"
 #include "coord.h"
 #include "geometry.h"
 #include "odjson.h"
@@ -238,6 +239,169 @@ bool testInterval()
 }
 
 
+bool testArray1D()
+{
+    OD::JSON::Object jsobj_out;
+    const int nrows = 4;
+    Array1DImpl<int> arrout_int( nrows );
+    for ( int idx=0; idx<arrout_int.size(); idx++ )
+	arrout_int.set( idx, idx*2 );
+
+    jsobj_out.set( "array1d_int", arrout_int );
+
+    Array1DImpl<double> arrout_double( nrows );
+    for ( int idx=0; idx<arrout_double.size(); idx++ )
+	arrout_double.set( idx, idx*2 );
+
+    jsobj_out.set( "array1d_double", arrout_double );
+
+    BufferString jsStr = jsobj_out.dumpJSon();
+
+    logStream() << "\ndump 1D array json:\n" << jsStr << '\n' << od_endl;
+
+    OD::JSON::Object jsobj_in;
+    jsobj_in.parseJSon( jsStr.getCStr(), jsStr.size() );
+
+    Array1DImpl<int> arrin_int(1);
+    if ( jsobj_in.get("array1d_int", arrin_int) )
+    {
+	const int sz = arrin_int.size();
+	mRunStandardTestWithError( sz==arrout_int.size(), "Array1Dint size",
+				   BufferString("sz=",sz) );
+	BufferString str;
+	bool allequal = true;
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    if ( arrin_int[idx]!=arrout_int[idx] )
+	    {
+		allequal = false;
+		str.add("idx: ").add(idx).add(" arrin_int: ")
+		    .add(arrin_int[idx]).add(" arrout_int: ")
+		    .add(arrout_int[idx]).addNewLine();
+	    }
+	}
+	mRunStandardTestWithError( allequal, "Array1Dint values", str );
+    }
+    else
+	mRunStandardTestWithError( false, "Array1Dint values", "not recovered" );
+
+
+    Array1DImpl<double> arrin_double(1);
+    if ( jsobj_in.get("array1d_double", arrin_double) )
+    {
+	const int sz = arrin_double.size();
+	mRunStandardTestWithError( sz==arrout_double.size(),
+				   "Array1Ddouble size",
+				   BufferString("sz=",sz) );
+	BufferString str;
+	bool allequal = true;
+	for ( int idx=0; idx<sz; idx++ )
+	{
+	    if ( arrin_double[idx]!=arrout_double[idx] )
+	    {
+		allequal = false;
+		str.add("idx: ").add(idx).add(" arrin_double: ")
+		    .add(arrin_double[idx]).add(" arrout_double: ")
+		    .add(arrout_double[idx]).addNewLine();
+	    }
+	}
+	mRunStandardTestWithError( allequal, "Array1Ddouble values", str );
+    }
+    else
+	mRunStandardTestWithError( false, "Array1Ddouble values", "not recovered" );
+
+    return true;
+}
+
+
+bool testArray2D()
+{
+    OD::JSON::Object jsobj_out;
+    const int nrows = 4;
+    const int ncols = 5;
+    Array2DImpl<int> arrout_int( nrows, ncols );
+    for ( int idx=0; idx<arrout_int.totalSize(); idx++ )
+	arrout_int.getData()[idx] = idx*2;
+
+    jsobj_out.set( "array2d_int", arrout_int );
+
+    Array2DImpl<double> arrout_double( nrows, ncols );
+    for ( int idx=0; idx<arrout_double.totalSize(); idx++ )
+	arrout_double.getData()[idx] = idx*2;
+
+    jsobj_out.set( "array2d_double", arrout_double );
+
+    BufferString jsStr = jsobj_out.dumpJSon();
+
+    logStream() << "\ndump 2D array:\n\n" << jsStr << '\n' << od_endl;
+
+    OD::JSON::Object jsobj_in;
+    jsobj_in.parseJSon( jsStr.getCStr(), jsStr.size() );
+
+    Array2DImpl<int> arrin_int(1,1);
+    if ( jsobj_in.get("array2d_int", arrin_int) )
+    {
+	const int szrows = arrin_int.getSize(0);
+	const int szcols = arrin_int.getSize(1);
+	BufferString str( "sz= ", szrows, " " );
+	str.add(szcols);
+	mRunStandardTestWithError( szrows==nrows&&szcols==ncols,
+				   "Array2Dint size", str );
+	str.setEmpty();
+	bool allequal = true;
+	for ( int irow=0; irow<szrows; irow++ )
+	{
+	    for ( int icol=0; icol<szcols; icol++ )
+	    {
+		if ( arrin_int.get(irow,icol)!=arrout_int.get(irow,icol) )
+		{
+		    allequal = false;
+		    str.add("row: ").add(irow).add(" col: ").add(icol)
+			.add(" arrin_int: ").add(arrin_int.get(irow,icol))
+			.add(" arrout_int: ").add(arrout_int.get(irow,icol))
+			.addNewLine();
+		}
+	    }
+	}
+	mRunStandardTestWithError( allequal, "Array2Dint values", str );
+    }
+    else
+	mRunStandardTestWithError( false, "Array2Dint values", "not recovered" );
+
+    Array2DImpl<double> arrin_double(1,1);
+    if ( jsobj_in.get("array2d_double", arrin_double) )
+    {
+	const int szrows = arrin_double.getSize(0);
+	const int szcols = arrin_double.getSize(1);
+	BufferString str( "sz= ", szrows, " " );
+	str.add(szcols);
+	mRunStandardTestWithError( szrows==nrows&&szcols==ncols,
+				   "Array2Ddouble size", str );
+	str.setEmpty();
+	bool allequal = true;
+	for ( int irow=0; irow<szrows; irow++ )
+	{
+	    for ( int icol=0; icol<szcols; icol++ )
+	    {
+		if ( arrin_double.get(irow,icol)!=arrout_double.get(irow,icol) )
+		{
+		    allequal = false;
+		    str.add("row: ").add(irow).add(" col: ").add(icol)
+			.add(" arrin_double: ").add(arrin_double.get(irow,icol))
+			.add(" arrout_double: ").add(arrout_double.get(irow,icol))
+			.addNewLine();
+		}
+	    }
+	}
+	mRunStandardTestWithError( allequal, "Array2Ddouble values", str );
+    }
+    else
+	mRunStandardTestWithError( false, "Array2Ddouble values", "not recovered" );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -247,7 +411,10 @@ int mTestMainFnName( int argc, char** argv )
       || !testCreateJSON()
       || !testUseJSON(true)
       || !testDumpJSON()
-      || !testInterval() )
+      || !testInterval()
+      || !testArray1D()
+      || !testArray2D()
+    )
 	return 1;
 
     return 0;
