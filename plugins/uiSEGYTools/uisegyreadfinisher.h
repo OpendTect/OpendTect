@@ -18,6 +18,7 @@ class uiComboBox;
 class uiGenInput;
 class uiFileInput;
 class uiIOObjSel;
+class uiProgressBar;
 class uiSeisSel;
 class uiSeisTransfer;
 class uiSeis2DLineNameSel;
@@ -69,6 +70,7 @@ private:
     uiGenInput*		coordsstepfld_		= nullptr;
     uiFileInput*	coordfilefld_		= nullptr;
     uiBatchJobDispatcherSel* batchfld_		= nullptr;
+    uiProgressBar*	progressfld_		= nullptr;
 
     void		crVSPFields();
     void		crSeisFields();
@@ -92,6 +94,7 @@ private:
     bool		handleWarnings(bool,SEGY::FileIndexer*,SeisImporter*);
     bool		putCoordChoiceInSpec();
 
+    void		batchChgCB(CallBacker*);
     void		initDlgCB(CallBacker*);
     void		wllSel(CallBacker*);
     void		inpDomChg(CallBacker*);
