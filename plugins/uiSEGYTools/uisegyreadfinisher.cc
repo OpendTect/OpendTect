@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uifileinput.h"
 #include "uimsg.h"
+#include "uiprogressbar.h"
 #include "uiseisioobjinfo.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
@@ -165,6 +166,13 @@ void uiSEGYReadFinisher::crSeisFields()
 					     Batch::JobSpec::SEGY );
     batchfld_->setJobName( "Read SEG-Y" );
     batchfld_->attach( alignedBelow, outimpfld_ );
+    mAttachCB( batchfld_->checked, uiSEGYReadFinisher::batchChgCB );
+    if ( is2d )
+    {
+	progressfld_ = new uiProgressBar( this );
+	progressfld_->attach( stretchedBelow, batchfld_ );
+	batchChgCB( nullptr );
+    }
 }
 
 
@@ -239,6 +247,16 @@ void uiSEGYReadFinisher::crVSPFields()
 uiSEGYReadFinisher::~uiSEGYReadFinisher()
 {
     detachAllNotifiers();
+}
+
+
+void uiSEGYReadFinisher::batchChgCB( CallBacker* )
+{
+    if ( progressfld_ )
+    {
+	const bool ismulti = fs_.spec_.nrFiles() > 1;
+	progressfld_->display( !batchfld_->wantBatch() && ismulti );
+    }
 }
 
 
@@ -503,6 +521,12 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
     const int nrlines = fs_.spec_.nrFiles();
     bool overwr_warn = true, overwr = false, needupdate = false;
     TypeSet<Pos::GeomID> geomids;
+    if ( progressfld_ )
+    {
+	progressfld_->setTotalSteps( nrlines );
+	progressfld_->setProgress( 0 );
+    }
+
     for ( int iln=0; iln<nrlines; iln++ )
     {
 	BufferString lnm( inplnm );
@@ -530,6 +554,10 @@ bool uiSEGYReadFinisher::do2D( const IOObj& inioobj, const IOObj& outioobj,
 	geomids += geomid;
 	if ( isnew || overwr )
 	    needupdate = true;
+
+	if ( progressfld_ )
+	    progressfld_->setProgress( iln+1 );
+
     }
 
     if ( needupdate )
@@ -661,8 +689,7 @@ bool uiSEGYReadFinisher::exec2Dimp( const IOObj& inioobj, const IOObj& outioobj,
 	exec = indexer.ptr();
     }
 
-    uiTaskRunner dlg( this );
-    if ( !dlg.execute(*exec) )
+    if ( !exec->execute() )
 	return false;
 
     wrr.erase(); // closes output
