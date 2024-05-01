@@ -875,7 +875,7 @@ void OD::JSON::Array::addVS( ValueSet* vset )
 {
     if ( isData() )
 	{ pErrMsg("add child to value Array"); }
-    else if ( (valtype_==SubArray) != vset->isArray() )
+    else if ( valtype_==SubArray && !vset->isArray() )
 	{ pErrMsg("add wrong child type to Array"); }
     else
     {
