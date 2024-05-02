@@ -59,9 +59,21 @@ void LatLong::setFromCoord( const Coord& coord )
 }
 
 
+Coord LatLong::asCoord() const
+{
+    return Coord( lat_, lng_ );
+}
+
+
 LatLong LatLong::fromCoord( const Coord& coord )
 {
     return LatLong( coord.x, coord.y );
+}
+
+
+Coord LatLong::toCoord( const LatLong& ll )
+{
+    return ll.asCoord();
 }
 
 

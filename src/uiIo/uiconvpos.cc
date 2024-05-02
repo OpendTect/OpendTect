@@ -325,7 +325,7 @@ void uiManualConvGroup::convFromLL()
     if ( !ll.isDefined() )
 	return;
 
-    const Coord llascrd( ll.lng_, ll.lat_ );
+    const Coord llascrd = ll.asCoord();
     const Coord incrd = survinfo_.getCoordSystem()->convertFrom( llascrd,
 					*inpllsysselfld_->getCoordSystem() );
     Coord outcrd;

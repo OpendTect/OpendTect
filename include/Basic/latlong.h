@@ -35,8 +35,17 @@ public:
     static LatLong	udf() { return LatLong(mUdf(double),mUdf(double)); }
 
     void		setFromCoord(const Coord&);
+			/*!<Coord should have x=Latitude, y=Longitude
+			 * as stipulated by the ISO 6709 standard. */
+    Coord		asCoord() const;
+			/*!<Returned Coord has x=Latitude, y=Longitude
+			 * as stipulated by the ISO 6709 standard. */
+
     static LatLong	fromCoord(const Coord&);
 			/*!<Coord should have x=Latitude, y=Longitude
+			 * as stipulated by the ISO 6709 standard. */
+    static Coord	toCoord(const LatLong&);
+			/*!<Returned Coord has x=Latitude, y=Longitude
 			 * as stipulated by the ISO 6709 standard. */
 
     static Coord	transform(const LatLong&,bool towgs84=false,
