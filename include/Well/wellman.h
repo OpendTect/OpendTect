@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "refcount.h"
 #include "sets.h"
+#include "uistring.h"
 
 class BufferStringSet;
 class DBKey;
