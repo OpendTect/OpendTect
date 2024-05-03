@@ -167,7 +167,7 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	{
 	    mInsertAttrBasedItem( replaceattritm_, "Replace Attribute" )
 	    if ( displayedattribs.size()>1 )
-	    { mInsertAttrBasedItem( removeattritm_, "Remove Attribute" ) }
+		{ mInsertAttrBasedItem( removeattritm_, "Remove Attribute" ) }
 
 	    const int emptyidx = displayedattribs.indexOf( sKeyUnselected() );
 	    if ( emptyidx >= 0 ) displayedattribs.removeSingle( emptyidx );
@@ -180,7 +180,7 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	}
 
 	mnu.insertSeparator();
-	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display All") );
+	auto* dispmnu = new uiMenu( getUiParent(), tr("Display All") );
 	mInsertItm( dispmnu, uiStrings::sLineName(mPlural), mDispNames, true )
 	mInsertItm( dispmnu, tr("2D Planes"), mDispPanels, true )
 	mInsertItm( dispmnu, tr("Line Geometry"), mDispPolyLines, true )
@@ -261,8 +261,9 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx])
-	    const StringView topattrnm = itm->nrChildren()<=0 ? "" :
-		itm->getChild(itm->nrChildren()-1)->name().getString().buf();
+	    const BufferString topattrnm = itm->nrChildren()<=0
+		     ? BufferString::empty()
+		     : itm->getChild(itm->nrChildren()-1)->name().getString();
 	    if ( topattrnm != sKeyRightClick() )
 		itm->addAttribItem();
 	}
@@ -274,14 +275,14 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     else if ( replaceattritm_ && replaceattritm_->findAction(mnuid) )
     {
 	const uiAction* itm = replaceattritm_->findAction( mnuid );
-	StringView attrnm = itm->text().getString().buf();
+	BufferString attrnm = itm->text().getString();
 	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
 	selectLoadAttribute( displayedgeomids, attrnm );
     }
     else if ( removeattritm_ && removeattritm_->findAction(mnuid) )
     {
 	const uiAction* itm = removeattritm_->findAction( mnuid );
-	StringView attrnm = itm->text().getString().buf();
+	BufferString attrnm = itm->text().getString();
 	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -295,7 +296,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	const uiAction* itm = dispattritm_->findAction( mnuid );
 	const bool disp = itm;
 	if ( !itm ) itm = hideattritm_->findAction( mnuid );
-	const StringView attrnm = itm->text().getString().buf();
+	const BufferString attrnm = itm->text().getString();
 	ObjectSet<uiTreeItem> set;
 	findChildren( attrnm, set );
 	for ( int idx=0; idx<set.size(); idx++ )
@@ -304,7 +305,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     else if ( editcoltabitm_ && editcoltabitm_->findAction(mnuid) )
     {
 	const uiAction* itm = editcoltabitm_->findAction( mnuid );
-	const StringView attrnm = itm->text().getString().buf();
+	const BufferString attrnm = itm->text().getString();
 	ObjectSet<uiTreeItem> set;
 	findChildren( attrnm, set );
 	if ( set.size() )
