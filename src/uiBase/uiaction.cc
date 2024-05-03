@@ -523,7 +523,8 @@ const uiAction* uiActionContainer::findAction( const char* itmtxt ) const
 
 const uiAction* uiActionContainer::findAction( const uiString& itmtxt ) const
 {
-    return findAction( itmtxt.getString().buf() );
+    const BufferString actstr = itmtxt.getString();
+    return findAction( actstr.buf() );
 }
 
 
