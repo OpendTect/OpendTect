@@ -142,7 +142,7 @@ bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
     }
 
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
-    if ( !IOM().commitChanges(*ioobj) );
+    if ( !IOM().commitChanges(*ioobj) )
     {
 	errmsg = uiStrings::phrCannotWriteDBEntry(toUiString(ioobj->name()));
 	return false;

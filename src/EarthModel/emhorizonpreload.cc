@@ -48,7 +48,7 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids,
     if ( newmids.isEmpty() )
 	return false;
 
-    uiString msg1;( tr("The selected horizon(s):") );
+    uiString msg1 = tr("The selected horizon(s):");
     uiString msg2;
     int nralreadyloaded = 0;
     int nrproblems = 0;

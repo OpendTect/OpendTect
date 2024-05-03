@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "typeset.h"
+#include "uistring.h"
 
 class TaskRunner;
 
