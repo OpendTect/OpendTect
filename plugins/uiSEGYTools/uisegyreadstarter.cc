@@ -1060,7 +1060,9 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
     SEGY::ScanInfo& si = scaninfos_->add( fnm );
     ConstRefMan<Coords::CoordSystem> usercoordsystem =
 				coordsysselfld_->getCoordSystem();
-    loaddef_.setUserCoordSys( usercoordsystem.getNonConstPtr() );
+    if ( !forsurvsetup_ && SI().hasProjection() )
+	loaddef_.setUserCoordSys( usercoordsystem.getNonConstPtr() );
+
     SEGY::BasicFileInfo& bfi = si.basicInfo();
     bool zinft = false;
     const uiString errmsg = bfi.getFrom( strm, zinft,
@@ -1085,8 +1087,9 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	if ( segycoordsystem && segycoordsystem->isOK() &&
 	     segycoordsystem != usercoordsystem )
 	{
-	    loaddef_.setUserCoordSys( segycoordsystem.getNonConstPtr() );
 	    coordsysselfld_->setCoordSystem( segycoordsystem.getNonConstPtr() );
+	    if ( !forsurvsetup_ && SI().hasProjection() )
+		loaddef_.setUserCoordSys( segycoordsystem.getNonConstPtr() );
 	}
     }
 
