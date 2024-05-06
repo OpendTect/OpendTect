@@ -92,17 +92,26 @@ bool Horizon2DSeedPicker::startSeedPick()
 	    return true;
     }
 
-    const TypeSet<EM::PosID>* pids =
-			hor->getPosAttribList( EM::EMObject::sSeedNode() );
-    const int oldnrlines = geom.nrLines();
-    if ( pids && geom.includeLine(geomid_) && oldnrlines==geom.nrLines() )
-    {
-	for ( const auto& posid : *pids )
-	{
-	    if ( Coord( hor->getPos(posid) ).isDefined() )
-		continue;
+    const int prevnrlines = geom.nrLines();
+    if ( !geom.includeLine(geomid_) )
+	return true;
 
-	    hor->setPosAttrib( posid, EM::EMObject::sSeedNode(), false, false );
+    // Remove seeds outside the line geometry if an existing line in the
+    // 2D Horizon was reassigned to this geomid.
+    if ( prevnrlines==geom.nrLines() )
+    {
+	const TypeSet<EM::PosID>* pids =
+			    hor->getPosAttribList( EM::EMObject::sSeedNode() );
+	if ( pids )
+	{
+	    for ( const auto& posid : *pids )
+	    {
+		if ( Coord(hor->getPos(posid)).isDefined() )
+		    continue;
+
+		hor->setPosAttrib( posid, EM::EMObject::sSeedNode(),
+				   false, false );
+	    }
 	}
     }
 
