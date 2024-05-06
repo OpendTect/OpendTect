@@ -788,7 +788,11 @@ int Well::LogDataExtracter::nextStep()
     DataPointSet& dps = *dpss_[curid_];
     if ( dps.isEmpty() ) mRetNext()
 
-    RefMan<Data> wd = MGR().get( ids_.get(curid_), LoadReqs(Trck, LogInfos) );
+    LoadReqs lreqs( Trck, LogInfos );
+    if ( zistime_ )
+	lreqs.add( D2T );
+
+    RefMan<Data> wd = MGR().get( ids_.get(curid_), lreqs );
     Track* track = nullptr;
     if ( !wd )
     {
