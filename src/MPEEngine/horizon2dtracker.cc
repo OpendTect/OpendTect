@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "horizon2dseedpicker.h"
 #include "horizon2dselector.h"
 #include "sectiontracker.h"
-#include "survinfo.h"
 
 
 #include <math.h>

@@ -9,8 +9,6 @@ ________________________________________________________________________
 
 #include "autotracker.h"
 
-#include "arraynd.h"
-#include "binidvalue.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emtracker.h"
@@ -18,11 +16,9 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "horizonadjuster.h"
 #include "mpeengine.h"
-#include "progressmeter.h"
 #include "sectionadjuster.h"
 #include "sectionextender.h"
 #include "sectiontracker.h"
-#include "survinfo.h"
 #include "thread.h"
 #include "threadwork.h"
 #include "trckeyvalue.h"

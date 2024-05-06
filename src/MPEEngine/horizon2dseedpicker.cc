@@ -9,22 +9,14 @@ ________________________________________________________________________
 
 #include "horizon2dseedpicker.h"
 
-#include "attribdataholder.h"
-#include "attribstorprovider.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emtracker.h"
-#include "ioman.h"
-#include "ioobj.h"
-#include "ptrman.h"
-#include "seisinfo.h"
 #include "horizon2dextender.h"
 #include "horizonadjuster.h"
-#include "sectiontracker.h"
-#include "executor.h"
 #include "mpeengine.h"
+#include "sectiontracker.h"
 #include "sorting.h"
-#include "posinfo2dsurv.h"
 #include "survgeom2d.h"
 
 

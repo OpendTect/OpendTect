@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "horizon3dtracker.h"
 
-#include "cubicbeziercurve.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
@@ -19,10 +18,7 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "sectionselectorimpl.h"
 #include "sectiontracker.h"
-#include "survinfo.h"
 
-
-#include <math.h>
 
 namespace MPE
 {

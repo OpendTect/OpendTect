@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 #include "emseedpicker.h"
 
-#include "attribsel.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
 

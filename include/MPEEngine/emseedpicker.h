@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "emposid.h"
 #include "position.h"
-#include "sets.h"
 #include "trckeysampling.h"
 #include "trckeyvalue.h"
 #include "uistring.h"

@@ -9,16 +9,15 @@ ________________________________________________________________________
 
 #include "emseedpicker.h"
 
-#include "emobject.h"
 #include "emhorizon2d.h"
+#include "emobject.h"
 #include "emtracker.h"
 #include "horizonadjuster.h"
+#include "mpeengine.h"
 #include "randomlinegeom.h"
 #include "sectiontracker.h"
-#include "mpeengine.h"
 #include "undo.h"
-#include "survinfo.h"
-#include "trigonometry.h"
+
 
 namespace MPE {
 

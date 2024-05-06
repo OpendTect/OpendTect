@@ -14,18 +14,13 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "emseedpicker.h"
-#include "executor.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "mpeengine.h"
 #include "mpesetup.h"
 #include "sectionadjuster.h"
-#include "sectionextender.h"
-#include "sectionselector.h"
 #include "sectiontracker.h"
-#include "survinfo.h"
-#include "undo.h"
 
 
 namespace MPE

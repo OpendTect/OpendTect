@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "sectionextender.h"
 
 #include "coord.h"
-#include "posinfo2dsurv.h"
 #include "trckeyvalue.h"
 
 

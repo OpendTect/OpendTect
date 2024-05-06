@@ -12,12 +12,10 @@ ________________________________________________________________________
 #include "undo.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
-#include "emsurfacegeometry.h"
 #include "emtracker.h"
 #include "geeditor.h"
 #include "mpeengine.h"
 #include "survinfo.h"
-#include "rcollinebuilder.h"
 
 namespace MPE
 {

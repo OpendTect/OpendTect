@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emtracker.h"
-#include "executor.h"
 #include "faulttrace.h"
 #include "mpeengine.h"
 #include "horizonadjuster.h"

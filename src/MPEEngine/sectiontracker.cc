@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "mpeengine.h"
 #include "ptrman.h"
-#include "parametricsurface.h"
 #include "sectionadjuster.h"
 #include "sectionextender.h"
 #include "sectionselector.h"
@@ -32,12 +31,12 @@ SectionTracker::SectionTracker( EM::EMObject& emobj,
 				SectionExtender* ext,
 				SectionAdjuster* adj )
     : emobject_( emobj )
+    , useadjuster_(true)
+    , displayas_(*new Attrib::SelSpec)
+    , seedonlypropagation_(false)
     , selector_(sel)
     , extender_(ext)
     , adjuster_(adj)
-    , useadjuster_(true)
-    , seedonlypropagation_(false)
-    , displayas_(*new Attrib::SelSpec)
 {
     emobject_.ref();
     init();

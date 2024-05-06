@@ -10,11 +10,9 @@ ________________________________________________________________________
 #include "horizon3dextender.h"
 
 #include "binidsurface.h"
-#include "emfault.h"
 #include "emhorizon3d.h"
 #include "horizon3dtracker.h"
 #include "mpeengine.h"
-#include "survinfo.h"
 
 namespace MPE
 {

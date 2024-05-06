@@ -8,11 +8,12 @@ ________________________________________________________________________
 -*/
 
 #include "mpesetup.h"
-#include "mpefact.h"
-#include "ptrman.h"
+
+#include "ascstream.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "ascstream.h"
+#include "mpefact.h"
+#include "ptrman.h"
 
 
 namespace MPE {

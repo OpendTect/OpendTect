@@ -9,8 +9,6 @@ ________________________________________________________________________
 
 #include "horizon2dselector.h"
 
-#include "ptrman.h"
-#include "survinfo.h"
 #include "emhorizon2d.h"
 
 namespace MPE

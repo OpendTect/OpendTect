@@ -9,17 +9,14 @@ ________________________________________________________________________
 
 #include "horizonadjuster.h"
 
-#include "arrayndimpl.h"
 #include "attribsel.h"
 #include "emhorizon.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
-#include "genericnumer.h"
 #include "iopar.h"
 #include "mpeengine.h"
 #include "samplingdata.h"
-#include "seisdatapack.h"
 #include "survinfo.h"
 
 namespace MPE
@@ -27,11 +24,11 @@ namespace MPE
 
 HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor )
     : SectionAdjuster()
-    , horizon_(hor)
     , attribsel_(0)
-    , datapackid_(DataPack::cNoID())
-    , dpm_(DPM(DataPackMgr::SeisID()))
+    , horizon_(hor)
     , evtracker_(*new EventTracker)
+    , dpm_(DPM(DataPackMgr::SeisID()))
+    , datapackid_(DataPack::cNoID())
 {
     evtracker_.setSimilarityWindow(
 	    Interval<float>(-10*SI().zStep(), 10*SI().zStep() ) );

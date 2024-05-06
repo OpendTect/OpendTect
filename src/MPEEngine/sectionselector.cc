@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "sectionselectorimpl.h"
+#include "sectionselector.h"
 
 namespace MPE
 {
