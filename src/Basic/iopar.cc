@@ -1063,6 +1063,24 @@ bool IOPar::get( const char* keyw, BufferString& bs1, BufferString& bs2,
 }
 
 
+bool IOPar::get( const char* keyw, std::string& str ) const
+{
+    mGetStartAllowEmpty(pval);
+    str = pval ? pval : "";
+    return true;
+}
+
+
+bool IOPar::get( const char* keyw, std::string& str1, std::string& str2 ) const
+{
+    mGetStartAllowEmpty(pval);
+    FileMultiString fms( pval );
+    str1 = fms[0].buf();
+    str2 = fms[1].buf();
+    return true;
+}
+
+
 bool IOPar::get( const char* keyw, BufferStringSet& bss ) const
 {
     mGetStartAllowEmpty(pval);

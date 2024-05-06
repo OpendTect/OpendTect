@@ -191,6 +191,8 @@ public:
     bool		get(const char*,BufferString&,BufferString&,
 					BufferString&) const;
     bool		get(const char*,BufferStringSet&) const;
+    bool		get(const char*,std::string&) const;
+    bool		get(const char*,std::string&,std::string&) const;
     template <class T>
     bool		get(const char*,Interval<T>&) const;
     template <class T>
