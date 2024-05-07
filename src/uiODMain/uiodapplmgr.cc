@@ -617,9 +617,7 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 		return false;
 	    }
 
-	    if ( visserv_->setDataPackID(visid,attrib,newid) )
-		DPM( DataPackMgr::SeisID() ).unRef( newid );
-
+	    visserv_->setDataPackID(visid,attrib,newid);
 	    res = true;
 	    break;
 	}
