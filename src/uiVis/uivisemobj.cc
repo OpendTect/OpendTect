@@ -320,6 +320,8 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     visSurvey::EMObjectDisplay* emod = getDisplay();
     const EM::ObjectID emid = emod->getObjectID();
     const EM::EMObject* emobj = EM::EMM().getObject(emid);
+    if ( !emobj )
+	return;
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, getDisplay() );
