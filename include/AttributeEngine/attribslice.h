@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "sets.h"
+
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"
 #include "refcount.h"

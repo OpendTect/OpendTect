@@ -17,17 +17,17 @@ namespace Attrib
 
 Param::Param( const char* key )
     : key_( key )
+    , isgroup_( false )
     , enabled_( true )
     , required_( true )
-    , isgroup_( false )
 {}
 
 
 Param::Param( const Param& b )
     : key_( b.key_ )
+    , isgroup_( b.isgroup_ )
     , enabled_( b.enabled_ )
     , required_( b.required_ )
-    , isgroup_( b.isgroup_ )
 {}
 
 

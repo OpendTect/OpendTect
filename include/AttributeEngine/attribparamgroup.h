@@ -8,8 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "attribparam.h"
-#include "datainpspec.h"
+#include "attribparambase.h"
 #include "bufstringset.h"
 
 namespace Attrib

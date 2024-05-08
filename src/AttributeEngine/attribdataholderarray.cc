@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "attribdataholderarray.h"
 #include "attribdataholder.h"
-#include "seisinfo.h"
 
 namespace Attrib
 {
@@ -38,8 +37,8 @@ DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh )
 DataHolderArray::DataHolderArray( const ObjectSet<DataHolder>& dh, int sidx,
 				  int dim0sz, int dim1sz )
     : dh_(dh)
-    , seriesidx_(sidx)
     , type_(1)
+    , seriesidx_(sidx)
 {
     info_.setSize( 0, dim0sz );
     info_.setSize( 1, dim1sz );

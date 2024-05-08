@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "externalattrib.h"
 
-#include "attribdesc.h"
 #include "attribsel.h"
 
 

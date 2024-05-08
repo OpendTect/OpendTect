@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "seispreload.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
-#include "survinfo.h"
 #include "zdomain.h"
 
 namespace Attrib

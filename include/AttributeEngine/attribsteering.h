@@ -10,8 +10,8 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "binid.h"
-#include "seistype.h"
-//#include "commondefs.h"
+
+
 namespace Attrib
 {
 

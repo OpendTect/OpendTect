@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "attribparam.h"
 
-#include "attribparamgroup.h"
 #include "attribstorprovider.h"
 
 #include "uistrings.h"
@@ -17,7 +16,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
-#include "position.h"
 
 namespace Attrib
 {

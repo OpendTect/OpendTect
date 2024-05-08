@@ -12,8 +12,6 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "trckeyzsampling.h"
 #include "refcount.h"
-#include "samplingdata.h"
-#include "sets.h"
 #include "valseries.h"
 
 class SeisTrcInfo;

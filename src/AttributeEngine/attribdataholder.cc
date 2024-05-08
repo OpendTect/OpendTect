@@ -10,10 +10,7 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 
 #include "attribdataholderarray.h"
-#include "arraynd.h"
-#include "arrayndslice.h"
 #include "trckeyzsampling.h"
-#include "genericnumer.h"
 #include "interpol1d.h"
 #include "seisinfo.h"
 #include "simpnumer.h"

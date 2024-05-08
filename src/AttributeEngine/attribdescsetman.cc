@@ -17,13 +17,13 @@ namespace Attrib
 {
 
 DescSetMan::DescSetMan( bool is2d, DescSet* ads, bool destr )
-    : inpselhist_(*new IOPar( "Input Attribute history" ))
-    , steerselhist_(*new IOPar( "Steering selection history" ))
-    , unsaved_(false)
+    : attrsetid_("")
     , ads_(ads)
     , is2d_(is2d)
-    , attrsetid_("")
+    , unsaved_(false)
     , destrondel_(destr)
+    , inpselhist_(*new IOPar( "Input Attribute history" ))
+    , steerselhist_(*new IOPar( "Steering selection history" ))
 {
     if ( !ads_ )
 	ads_ = new DescSet(is2d_);

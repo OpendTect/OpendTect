@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "callback.h"
 #include "multiid.h"
 #include "separstr.h"
-#include "sets.h"
 #include "uistring.h"
 
 class BufferStringSet;

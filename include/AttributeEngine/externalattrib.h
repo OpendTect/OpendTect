@@ -33,8 +33,8 @@ class SelSpec;
 mExpClass(AttributeEngine) ExtAttribCalc
 {
 public:
-				ExtAttribCalc();
     virtual			~ExtAttribCalc();
+				mOD_DisableCopy(ExtAttribCalc)
 
     virtual bool		setTargetSelSpec(const SelSpec&)	= 0;
 				/*!<\returns if this object can
@@ -52,6 +52,9 @@ public:
     virtual bool		isIndexes() const	{ return false; }
 
     uiString			errmsg_;
+
+protected:
+				ExtAttribCalc();
 };
 
 

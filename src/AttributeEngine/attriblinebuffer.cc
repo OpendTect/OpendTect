@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "attriblinebuffer.h"
 
 #include "attribdataholder.h"
-#include "position.h"
 
 namespace Attrib
 {

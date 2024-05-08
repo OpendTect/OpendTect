@@ -12,11 +12,9 @@ ________________________________________________________________________
 
 #include "attribdescid.h"
 #include "attribsel.h"
-#include "bufstring.h"
 #include "posgeomid.h"
 #include "ranges.h"
 #include "seisdatapack.h"
-#include "sets.h"
 #include "uistring.h"
 
 class BinIDValueSet;
@@ -44,6 +42,7 @@ mExpClass(AttributeEngine) EngineMan
 public:
 			EngineMan();
     virtual		~EngineMan();
+			mOD_DisableCopy(EngineMan)
 
     Processor*		usePar(const IOPar&,DescSet&,
 			       const char* linename,uiString&);

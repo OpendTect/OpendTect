@@ -9,10 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "ranges.h"
-#include "multiid.h"
-#include "bufstringset.h"
+
 #include "attribdescid.h"
+#include "bufstringset.h"
+#include "multiid.h"
+#include "ranges.h"
 #include "typeset.h"
 
 class NLAModel;

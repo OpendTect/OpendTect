@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "attribdescsetsholder.h"
 #include "attribdescset.h"
 #include "attribdescsetman.h"
-#include "survinfo.h"
 
 namespace Attrib
 {

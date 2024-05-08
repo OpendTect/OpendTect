@@ -11,7 +11,6 @@ ________________________________________________________________________
 
 #include "attribdesc.h"
 #include "attribparam.h"
-#include "msgh.h"
 
 namespace Attrib
 {
