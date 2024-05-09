@@ -161,3 +161,5 @@ private:
 };
 
 mGlobal(Basic) PluginManager& PIM();
+
+mGlobal(Basic) void initPluginClasses(const char* datadir,const char* funcnm);

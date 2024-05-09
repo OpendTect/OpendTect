@@ -358,5 +358,5 @@ public:
 
 namespace Seis
 {
-    void			addPluginSeisTrcTranslators();
+    void		addPluginTranslators();
 } // namespace Seis

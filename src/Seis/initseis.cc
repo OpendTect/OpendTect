@@ -146,5 +146,5 @@ mDefModInitFn(Seis)
     Seis2DTo3DInterPolImpl::initClass();
     Pos::SeisProvider3D::initClass();
 
-    Seis::addPluginSeisTrcTranslators();
+    Seis::addPluginTranslators();
 }

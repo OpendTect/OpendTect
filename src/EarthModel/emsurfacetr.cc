@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "plugins.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "settings.h"
@@ -282,7 +283,7 @@ bool EMSurfaceTranslator::getBinarySetting()
 }
 
 
-dgbEMSurfaceTranslator::dgbEMSurfaceTranslator( const char* nm, const char* unm )
+dgbEMSurfaceTranslator::dgbEMSurfaceTranslator( const char* nm, const char* unm)
     : EMSurfaceTranslator(nm,unm)
 {
 }
@@ -735,4 +736,10 @@ Executor* dgbEMFaultSet3DTranslator::writer( const EM::FaultSet3D& fltset,
 					     const IOObj& ioobj )
 {
     return new dGBFaultSet3DWriter( ioobj, fltset );
+}
+
+
+void EM::addPluginTranslators()
+{
+    initPluginClasses( "EMTranslators", "InitEMTrl" );
 }

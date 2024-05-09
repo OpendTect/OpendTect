@@ -132,7 +132,7 @@ public:
     virtual Executor*		getAuxdataReader(EM::Surface&,int)
 				{ return nullptr; }
     virtual Executor*		getAuxdataWriter(const EM::Surface&,int,
-						 bool overwt=false)
+						 bool dooverwrite=false)
 				{ return nullptr; }
 
     uiString			errMsg() const		{ return errmsg_; }
@@ -272,7 +272,7 @@ mExpClass(EarthModel) dgbEMFaultStickSetTranslator :
 isTranslator(dgb,EMFaultStickSet)
 public:
 				dgbEMFaultStickSetTranslator(const char* nm,
-							     const char* usernm);
+							    const char* usernm);
 				~dgbEMFaultStickSetTranslator();
 
 protected:
@@ -312,5 +312,10 @@ public:
     Executor*			writer(const EM::FaultSet3D&,
 				       const IOObj&) override;
     Executor*			reader(EM::FaultSet3D&,const IOObj&) override;
-
 };
+
+
+namespace EM
+{
+    void			addPluginTranslators();
+} // namespace EM

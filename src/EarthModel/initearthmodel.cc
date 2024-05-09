@@ -102,4 +102,6 @@ mDefModInitFn(EarthModel)
 	setConvBody_General_Fns( EM::Get_Body_Conversion_Status,
 				 EM::Convert_Body_To_OD5 );
     }
+
+    EM::addPluginTranslators();
 }

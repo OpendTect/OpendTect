@@ -807,3 +807,41 @@ PluginManager& PIM()
     mDefineStaticLocalObject(PtrMan<PluginManager>,inst,= new PluginManager);
     return *inst;
 }
+
+
+
+void initPluginClasses( const char* datadir, const char* func )
+{
+    const FilePath datafp( mGetSWDirDataDir(), datadir );
+    if ( !datafp.exists() )
+	return;
+
+    using VoidVoidFn = void(*)(void);
+    const DirList dl( datafp.fullPath(), File::FilesInDir, "*.txt" );
+    BufferString libname;
+    libname.setBufSize( 256 );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const FilePath dirname( dl.get( idx ).buf() );
+	const BufferString piname = dirname.baseName();
+	if ( piname.isEmpty() )
+	    continue;
+
+	libname.setEmpty();
+	SharedLibAccess::getLibName( piname.buf(), libname.getCStr(),
+				     libname.bufSize() );
+	const FilePath fp( GetLibPlfDir(), libname );
+	if ( !fp.exists() )
+	    continue;
+
+	const SharedLibAccess pisha( fp.fullPath() );
+	if ( !pisha.isOK() )
+	    return;
+
+	const BufferString funcnm( piname.str(), func );
+	VoidVoidFn initfn = (VoidVoidFn)pisha.getFunction( funcnm.str() );
+	if ( initfn )
+	    (*initfn)();
+	//Do NOT close the handle, as the plugin must remain loaded
+    }
+}
