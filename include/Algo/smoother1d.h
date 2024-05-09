@@ -34,7 +34,7 @@ public:
     void			setOutput(T*);
 				/*!Must be at least the size of input.*/
     bool			setWindow(const char* nm,float param,
-					  int lenght );
+					  int length );
     int				getWindowLength() const {return window_.size();}
     const char*			getWindowName() const{return windowname_.buf();}
     float			getWindowParam() const{return windowparam_;}
