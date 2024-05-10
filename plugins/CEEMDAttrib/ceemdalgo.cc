@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "gridder2d.h"
 #include "hilberttransform.h"
+#include "smoother1d.h"
 #include "statrand.h"
 #include "statruncalc.h"
 #include "survinfo.h"
@@ -150,10 +151,10 @@ bool DecompInput::doDecompMethod( int nrsamples, float refstep,
     float stdev;
     float epsilon = setup_.noisepercentage_ / mCast(float,100.0);
 
-    MyPointBasedMathFunction maxima( PointBasedMathFunction::Poly,
-				     PointBasedMathFunction::ExtraPolGradient );
-    MyPointBasedMathFunction minima( PointBasedMathFunction::Poly,
-				     PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction maxima( PointBasedMathFunction::Poly,
+				   PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction minima( PointBasedMathFunction::Poly,
+				   PointBasedMathFunction::ExtraPolGradient );
 
     // remove average from input data and store in orgminusaverage
     computeStats( average, stdev );
@@ -171,7 +172,7 @@ bool DecompInput::doDecompMethod( int nrsamples, float refstep,
     // Comment out setup_.method_ = 3;. Only used to test the software
     // post-decomposition.Components were created from the test trace
     // using CEEMD with default parameters in June 2014.
-//    setup_.method_ = 3;
+    // setup_.method_ = 3;
 
     //defined and set but not used: TODO review Paul
     bool mUnusedVar enddecomp = false;
@@ -219,7 +220,6 @@ bool DecompInput::doDecompMethod( int nrsamples, float refstep,
 	    noisearray.createNoise( stdev ); // w_i
 	    DecompInput copynoisearray( setup_, nrsamples, gen_ );
 	    copynoisearray.replaceDecompInputs( noisearray );
-
 	    ObjectSet<IMFComponent>* noisecomponents =
 				     new ManagedObjectSet<IMFComponent>;
 	    enddecomp = noisearray.decompositionLoop( *noisecomponents,
@@ -299,9 +299,12 @@ bool DecompInput::doDecompMethod( int nrsamples, float refstep,
 	doHilbert( realizations, *imagcomponents );
 	realizations.add( imagcomponents );
 
+	ManagedObjectSet<IMFComponent> phasecomponents;
+	calcPhase( realizations, *imagcomponents, phasecomponents, refstep );
+
 	ObjectSet<IMFComponent>* frequencycomponents =
 				 new ManagedObjectSet<IMFComponent>();
-	calcFrequencies( realizations, *imagcomponents, *frequencycomponents,
+	calcFrequencies( realizations, phasecomponents, *frequencycomponents,
 			 refstep );
 	realizations.add( frequencycomponents );
 
@@ -327,10 +330,10 @@ bool DecompInput::doDecompMethod( int nrsamples, float refstep,
 bool DecompInput::decompositionLoop( ObjectSet<IMFComponent>& components,
 				     int maxnrimf, float stdevinput ) const
 {
-    MyPointBasedMathFunction maxima( PointBasedMathFunction::Poly,
-				     PointBasedMathFunction::ExtraPolGradient );
-    MyPointBasedMathFunction minima( PointBasedMathFunction::Poly,
-				     PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction maxima( PointBasedMathFunction::Poly,
+				   PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction minima( PointBasedMathFunction::Poly,
+				   PointBasedMathFunction::ExtraPolGradient );
 
     int nrimf=0, nriter=0;
     bool isresidual = false;
@@ -420,10 +423,10 @@ void DecompInput::stackCeemdComponents(
 	    const ObjectSet<ObjectSet<IMFComponent> >& currentrealizations,
 	    ObjectSet<IMFComponent>& currentstackedcomponents, int nrimf ) const
 {
-    MyPointBasedMathFunction minima( PointBasedMathFunction::Poly,
-				     PointBasedMathFunction::ExtraPolGradient );
-    MyPointBasedMathFunction maxima( PointBasedMathFunction::Poly,
-				     PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction minima( PointBasedMathFunction::Poly,
+				   PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction maxima( PointBasedMathFunction::Poly,
+				   PointBasedMathFunction::ExtraPolGradient );
 
     DecompInput imf( setup_, size_, gen_ );
     int stackcount = setup_.maxnoiseloop_;
@@ -478,10 +481,10 @@ void DecompInput::stackEemdComponents(
 		    const ObjectSet<ObjectSet<IMFComponent> >& realizations,
 		    ObjectSet<IMFComponent>& stackedcomponents ) const
 {
-    MyPointBasedMathFunction minima( PointBasedMathFunction::Poly,
-				     PointBasedMathFunction::ExtraPolGradient );
-    MyPointBasedMathFunction maxima( PointBasedMathFunction::Poly,
-				     PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction minima( PointBasedMathFunction::Poly,
+				   PointBasedMathFunction::ExtraPolGradient );
+    PointBasedMathFunction maxima( PointBasedMathFunction::Poly,
+				   PointBasedMathFunction::ExtraPolGradient );
 
     DecompInput imf( setup_, size_, gen_ );
     int stackcount = setup_.maxnoiseloop_;
@@ -592,9 +595,18 @@ void DecompInput::computeStats( float& average, float& stdev ) const
 }
 
 
+static void replace( PointBasedMathFunction& pbmf, int idx, float x, float y )
+{
+    TypeSet<float>& xvals = const_cast<TypeSet<float>&>( pbmf.xVals() );
+    TypeSet<float>& yvals = const_cast<TypeSet<float>&>( pbmf.yVals() );
+    xvals[idx] = x;
+    yvals[idx] = y;
+}
+
+
 void DecompInput::findExtrema( int& nrmax, int& nrmin, int& nrzeros,
-		bool symmetricboundary, MyPointBasedMathFunction& maxima,
-		MyPointBasedMathFunction& minima ) const
+		bool symmetricboundary, PointBasedMathFunction& maxima,
+		PointBasedMathFunction& minima ) const
 {
     nrmax=0; nrmin=0; nrzeros=0;
     maxima.setEmpty();
@@ -643,10 +655,10 @@ void DecompInput::findExtrema( int& nrmax, int& nrmin, int& nrzeros,
 
     if ( symmetricboundary == true ) // symmetric extension
     {
-	minima.replace( 0, -minima.xVals()[3], minima.yVals()[3] );
-	minima.replace( 1, -minima.xVals()[2], minima.yVals()[2] );
-	maxima.replace( 0, -maxima.xVals()[3], maxima.yVals()[3] );
-	maxima.replace( 1, -maxima.xVals()[2], maxima.yVals()[2] );
+	replace( minima, 0, -minima.xVals()[3], minima.yVals()[3] );
+	replace( minima, 1, -minima.xVals()[2], minima.yVals()[2] );
+	replace( maxima, 0, -maxima.xVals()[3], maxima.yVals()[3] );
+	replace( maxima, 1, -maxima.xVals()[2], maxima.yVals()[2] );
 
 	float lastx, lasty;
 	lastx = minima.xVals()[nrmin+1];
@@ -669,10 +681,10 @@ void DecompInput::findExtrema( int& nrmax, int& nrmin, int& nrzeros,
     }
     else // periodic extension
     {
-	minima.replace( 1, -minima.xVals()[3], minima.yVals()[3] );
-	minima.replace( 0, -minima.xVals()[2], minima.yVals()[2] );
-	maxima.replace( 1, -maxima.xVals()[3], maxima.yVals()[3] );
-	maxima.replace( 0, -maxima.xVals()[2], maxima.yVals()[2] );
+	replace( minima, 1, -minima.xVals()[3], minima.yVals()[3] );
+	replace( minima, 0, -minima.xVals()[2], minima.yVals()[2] );
+	replace( maxima, 1, -maxima.xVals()[3], maxima.yVals()[3] );
+	replace( maxima, 0, -maxima.xVals()[2], maxima.yVals()[2] );
 
 	float lastx, lasty;
 	lastx = maxima.xVals()[nrmax+1];
@@ -793,10 +805,11 @@ bool DecompInput::doHilbert(
 #define mCheckRetUdf(val1,val2) \
     if ( mIsUdf(val1) || mIsUdf(val2) ) continue;
 
-bool DecompInput::calcFrequencies(
-		    const ObjectSet<ObjectSet<IMFComponent> >& realcomponents,
+
+bool DecompInput::calcPhase(
+		    const ObjectSet<ObjectSet<IMFComponent>>& realcomponents,
 		    const ObjectSet<IMFComponent>& imagcomponents,
-		    ObjectSet<IMFComponent>& frequencycomponents,
+		    ObjectSet<IMFComponent>& phasecomponents,
 		    const float refstep ) const
 {
     if ( realcomponents.isEmpty() )
@@ -805,30 +818,60 @@ bool DecompInput::calcFrequencies(
     const ObjectSet<IMFComponent>& firstrealcomponents= *realcomponents.first();
     for ( int comp=0; comp<firstrealcomponents.size(); comp++ )
     {
-	auto* freqcomp = new IMFComponent( size_ );
+	auto* phasecomp = new IMFComponent( size_ );
 
+	IMFComponent truepc( size_ );
+	IMFComponent smoothpc( size_ );
+	float* tpcvals = truepc.values_;
+	float* spcvals = smoothpc.values_;
 	const float* realvals = firstrealcomponents.get( comp )->values_;
 	const float* imagvals = imagcomponents.get( comp )->values_;
-	float* freqvals = freqcomp->values_;
+	float* phasevals = phasecomp->values_;
 	for ( int idx=1; idx<size_-1; idx++ )
 	{
-	    const float realval = realvals[idx];
-	    const float prevreal = realvals[idx-1];
-	    const float nextreal = realvals[idx+1];
-	    mCheckRetUdf( prevreal, nextreal );
-	    const float dreal_dt = (nextreal - prevreal) / (2*refstep);
+	    float val = Math::Atan2( imagvals[idx], realvals[idx] );
+	    tpcvals[idx] = val;
+	}
 
-	    const float imagval = imagvals[idx];
-	    const float previmag = imagvals[idx-1];
-	    const float nextimag = imagvals[idx+1];
-	    mCheckRetUdf( previmag, nextimag );
-	    const float dimag_dt = (nextimag-previmag) / (2*refstep);
+	Smoother1D<float> sm;
+	sm.setInput( tpcvals, size_ );
+	sm.setOutput( spcvals );
+	if ( sm.execute() )
+	    OD::sysMemCopy( phasevals, spcvals, size_*sizeof(float) );
+	else
+	    OD::sysMemCopy( phasevals, tpcvals, size_*sizeof(float) );
 
-	    float denom = (realval*realval + imagval*imagval) * M_2PIf;
-	    if ( mIsZero(denom,1e-6f) )
-		denom = 1e-6f;
+	phasecomponents.add( phasecomp );
+    }
 
-	    freqvals[idx] = ( realval*dimag_dt-dreal_dt*imagval ) / denom;
+    return true;
+}
+
+
+bool DecompInput::calcFrequencies(
+		    const ObjectSet<ObjectSet<IMFComponent>>& realcomponents,
+		    const ObjectSet<IMFComponent>& phasecomponents,
+		    ObjectSet<IMFComponent>& frequencycomponents,
+		    const float refstep ) const
+{
+    if ( realcomponents.isEmpty() )
+	return false;
+
+    const float dt = 2 * refstep;
+    const ObjectSet<IMFComponent>& firstrealcomponents= *realcomponents.first();
+    for (int comp = 0; comp < firstrealcomponents.size(); comp++)
+    {
+	auto* freqcomp = new IMFComponent( size_ );
+	const float* phasevals = phasecomponents.get( comp )->values_;
+	float* freqvals = freqcomp->values_;
+	for (int idx = 1; idx < size_ - 1; idx++)
+	{
+	    float phasediff = phasevals[idx+1] - phasevals[idx-1];
+	    if ( phasediff < 0.f )
+		phasediff += M_2PIf;
+
+	    const float freqval = phasediff / ( M_2PIf * dt );
+	    freqvals[idx] = freqval;
 	}
 
 	if ( size_ > 2 )
@@ -1060,7 +1103,7 @@ bool DecompInput::useGridding(
 
 
 bool DecompInput::usePolynomial(
-		    const ObjectSet<ObjectSet<IMFComponent> >& realizations,
+		    const ObjectSet<ObjectSet<IMFComponent>>& realizations,
 		    Array2D<float>& output, float startfreq, float endfreq,
 		    float stepoutfreq ) const
 {
@@ -1070,27 +1113,28 @@ bool DecompInput::usePolynomial(
     const int fsize = realizations.first()->size();
     float* unsortedamplitudes = new float[fsize+2];
     float* unsortedfrequencies = new float[fsize+2];
-    MyPointBasedMathFunction sortedampspectrum(
-				PointBasedMathFunction::Poly,
+    PointBasedMathFunction sortedampspectrum(
+				PointBasedMathFunction::Linear,
 				PointBasedMathFunction::ExtraPolGradient );
     const int convfac = SI().zIsTime() ? 1 : 1000;
 
     const float stepout = stepoutfreq*convfac;
-    const ObjectSet<IMFComponent>& realization2 = *realizations.get(2);
-    const ObjectSet<IMFComponent>& realization3 = *realizations.get(3);
+    const ObjectSet<IMFComponent>& freqrealization = *realizations.get(2);
+    const ObjectSet<IMFComponent>& amprealization = *realizations.get(3);
     for ( int idt=0; idt<size_; idt++ )
     {
 	float maxf = 0.f;
 	float minf = 0.f;
 	for ( int f=0; f<fsize; f++ )
 	{
-	    unsortedfrequencies[f] = realization2.get(f)->values_[idt];
-	    unsortedamplitudes[f] = realization3.get(f)->values_[idt];
+	    unsortedfrequencies[f] = freqrealization.get(f)->values_[idt];
+	    unsortedamplitudes[f] = amprealization.get(f)->values_[idt];
 	    maxf = mMAX( maxf, unsortedfrequencies[f] );
 	    minf = mMIN( minf, unsortedfrequencies[f] );
 	}
 	// add zeros either end
-	unsortedfrequencies[fsize] = minf-mCast(float, stepoutfreq);
+	float f_lowerbound = minf - mCast( float, stepoutfreq );
+	unsortedfrequencies[fsize] = f_lowerbound < 0.f ? 0.f : f_lowerbound;
 	unsortedamplitudes[fsize] = 0.f;
 	unsortedfrequencies[fsize+1] = maxf+mCast(float, stepoutfreq);
 	unsortedamplitudes[fsize+1] = 0.f;
@@ -1139,9 +1183,10 @@ bool DecompInput::usePolynomial(
     return true;
 }
 
+
 bool DecompInput::sortSpectrum( const float* unsortedamplitudes, int size,
 				float* unsortedfrequencies,
-			    MyPointBasedMathFunction& sortedampspectrum ) const
+			    PointBasedMathFunction& sortedampspectrum ) const
 {
     int* indexsortedamplitudes = new int[size];
     sortedampspectrum.setEmpty();
@@ -1166,8 +1211,8 @@ bool DecompInput::sortSpectrum( const float* unsortedamplitudes, int size,
 
 
 void DecompInput::testFunction( int& nrmax, int& nrmin, int& nrzeros,
-				MyPointBasedMathFunction& maxima,
-				MyPointBasedMathFunction& minima ) const
+				PointBasedMathFunction& maxima,
+				PointBasedMathFunction& minima ) const
 {
     // function dumps the contents of input trace and
     // derived min and max envelops
