@@ -764,25 +764,26 @@ void Horizon2DDisplay::updateSeedsOnSections(
 
 
 void Horizon2DDisplay::otherObjectsMoved(
-		    const ObjectSet<const SurveyObject>& objs, VisID movedobj )
+		const ObjectSet<const SurveyObject>& objs, VisID movedobjid )
 {
-    if ( burstalertison_ ) return;
+    if ( burstalertison_ )
+	return;
 
-    bool refresh = !movedobj.isValid() || movedobj==id();
+    if ( movedobjid.isValid() && movedobjid!=id() )
+    {
+	mDynamicCastGet(const Seis2DDisplay*,seis2d,
+			visBase::DM().getObject(movedobjid));
+	if ( !seis2d )
+	    return;
+    }
+
     ObjectSet<const Seis2DDisplay> seis2dlist;
-
     for ( int idx=0; idx<objs.size(); idx++ )
     {
 	mDynamicCastGet(const Seis2DDisplay*,seis2d,objs[idx]);
 	if ( seis2d )
-	{
 	    seis2dlist += seis2d;
-	    if ( movedobj==seis2d->id() )
-		refresh = true;
-	}
     }
-
-    if ( !refresh ) return;
 
     updateintsectmarkers_ = true;
     updateLinesOnSections( seis2dlist );

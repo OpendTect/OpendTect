@@ -423,7 +423,7 @@ void Scene::addObject( visBase::DataObject* obj )
     if ( so && datatransform_ )
 	so->setZAxisTransform( datatransform_,0 );
 
-    if ( so )
+    if ( so && !getMoreObjectsToDoHint() )
 	objectMoved( obj );
 
     sceneboundingboxupdated.trigger();
@@ -447,7 +447,7 @@ void Scene::removeObject( int idx )
 	inlcrlrotation_->removeObject( idx-tempzstretchtrans_->size() );
 
     if ( so && !getMoreObjectsToDoHint() )
-	objectMoved(0);
+	objectMoved( nullptr );
 }
 
 
@@ -644,8 +644,18 @@ uiString Scene::getMousePosString() const
 void Scene::objectMoved( CallBacker* cb )
 {
     Threads::Locker locker( updatelock_ );
+    bool notifyselfonly = false;
+    mDynamicCastGet(SurveyObject*,movedso,cb)
+    if ( movedso && (!movedso->getMovementNotifier() ||
+		     !movedso->isAnyAttribEnabled()) )
+	notifyselfonly = true;	// Other objects do not care about this move
+
     ObjectSet<const SurveyObject> activeobjects;
     VisID movedid;
+    mDynamicCastGet(visBase::VisualObject*,movedvo,cb)
+    if ( movedvo )
+	movedid = movedvo->id();
+
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx))
@@ -659,19 +669,23 @@ void Scene::objectMoved( CallBacker* cb )
 	    continue;
 
 	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx))
-	if ( !vo ) continue;
-	if ( !vo->isOn() ) continue;
-
-	if ( cb==vo ) movedid = vo->id();
+	if ( !vo || !vo->isOn() )
+	    continue;
 
 	activeobjects += so;
+    }
+
+    if ( notifyselfonly )
+    {
+	movedso->otherObjectsMoved( activeobjects, movedid );
+	return;
     }
 
     for ( int idx=0; idx<size(); idx++ )
     {
 	mDynamicCastGet(SurveyObject*,so,getObject(idx));
-
-	if ( so ) so->otherObjectsMoved( activeobjects, movedid );
+	if ( so )
+	    so->otherObjectsMoved( activeobjects, movedid );
     }
 }
 
