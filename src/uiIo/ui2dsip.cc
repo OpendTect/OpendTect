@@ -43,9 +43,9 @@ ui2DSurvInfoProvider::~ui2DSurvInfoProvider()
 {}
 
 
-const char* ui2DSurvInfoProvider::usrText() const
+uiString ui2DSurvInfoProvider::usrText() const
 {
-    return "Enter X/Y ranges";
+    return tr("Enter X/Y ranges");
 }
 
 
@@ -339,8 +339,10 @@ uiNavSurvInfoProvider::~uiNavSurvInfoProvider()
 }
 
 
-const char* uiNavSurvInfoProvider::usrText() const
-{ return "Scan Navigation Data"; }
+uiString uiNavSurvInfoProvider::usrText() const
+{
+    return tr("Scan Navigation Data");
+}
 
 const char* uiNavSurvInfoProvider::iconName() const
 { return "tree-geom2d"; }

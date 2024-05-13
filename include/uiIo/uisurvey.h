@@ -166,7 +166,7 @@ private:
     uiGenInput*		zinfeetfld_;
     uiListBox*		sipfld_;
 
-    BufferString	sipName() const;
+    uiString		sipName() const;
     BufferString	survName() const;
     bool		isDepth() const;
     bool		isTime() const;

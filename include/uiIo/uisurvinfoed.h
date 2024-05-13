@@ -148,13 +148,13 @@ protected:
 
 
 mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
-{
+{ mODTextTranslationClass(uiCopySurveySIP)
 public:
 			uiCopySurveySIP();
 			~uiCopySurveySIP();
 
-    const char*		usrText() const override
-			    { return "Copy from other survey"; }
+    uiString		usrText() const override
+			    { return tr("Copy from other survey"); }
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;
@@ -186,7 +186,7 @@ public:
 			uiSurveyFileSIP();
 			~uiSurveyFileSIP();
 
-    const char*		usrText() const override;
+    uiString		usrText() const override;
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,
 				TrcKeyZSampling&,Coord crd[3]) override;

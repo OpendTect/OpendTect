@@ -24,7 +24,7 @@ public:
 
 				mOD_DisableCopy(uiLASSurvInfoProvider);
 
-    const char*			usrText() const override;
+    uiString			usrText() const override;
     uiDialog*			dialog(uiParent*) override;
     bool			getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3]) override;

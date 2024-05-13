@@ -182,7 +182,7 @@ protected:
     bool		survdatatypeknown_		= false;
 
     BufferString	comment_;
-    BufferString	sipnm_;
+    uiString		sipnm_;
 
     void		handleTransformData(const BufferString&,const char*);
     bool		wrapUpRead();
@@ -284,8 +284,8 @@ public:
 
 			// Auxiliary info
     const char*		comment() const		{ return comment_.buf(); }
-    BufferString	sipName() const		{ return sipnm_; }
-    void		setSipName( BufferString sipnm )     { sipnm_ = sipnm; }
+    uiString		sipName() const		{ return sipnm_; }
+    void		setSipName( const uiString& sipnm ) { sipnm_ = sipnm; }
     void		setComment( const char* s )	{ comment_ = s; }
 
 	// Following fns are used by specialist classes. Don't use casually.

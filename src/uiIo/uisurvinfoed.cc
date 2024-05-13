@@ -259,9 +259,9 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
 
     if ( !si_.sipName().isEmpty() )
     {
-	const BufferString sipnm = si_.sipName();
+	const BufferString sipnm = si_.sipName().getString();
 	const int sipidx = sipfld_->indexOf( sipnm );
-	if (sipidx >= 0)
+	if ( sipidx >= 0 )
 	    sipfld_->setCurrentItem(sipidx);
 	else
 	    uiMSG().error( tr("The survey setup method is not available.\n"
@@ -1415,9 +1415,9 @@ uiSurveyFileSIP::~uiSurveyFileSIP()
 {}
 
 
-const char* uiSurveyFileSIP::usrText() const
+uiString uiSurveyFileSIP::usrText() const
 {
-    return "Read from Survey Setup file";
+    return tr("Read from Survey Setup file");
 }
 
 

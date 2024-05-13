@@ -123,8 +123,10 @@ uiLASSurvInfoProvider::~uiLASSurvInfoProvider()
 }
 
 
-const char* uiLASSurvInfoProvider::usrText() const
-{ return "Scan LAS Well Data"; }
+uiString uiLASSurvInfoProvider::usrText() const
+{
+    return tr("Scan LAS Well Data");
+}
 
 const char* uiLASSurvInfoProvider::iconName() const
 { return "welllog.small"; }

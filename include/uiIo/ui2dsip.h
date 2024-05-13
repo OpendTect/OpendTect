@@ -20,7 +20,7 @@ public:
 			ui2DSurvInfoProvider();
 			~ui2DSurvInfoProvider();
 
-    const char*		usrText() const override;
+    uiString		usrText() const override;
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,TrcKeyZSampling&,
 				Coord crd[3]) override;
@@ -41,7 +41,7 @@ public:
 			uiNavSurvInfoProvider();
     virtual		~uiNavSurvInfoProvider();
 
-    const char*		usrText() const override;
+    uiString		usrText() const override;
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,TrcKeyZSampling&,
 				Coord crd[3]) override;

@@ -292,10 +292,11 @@ bool uiStartNewSurveySetup::acceptOK( CallBacker* )
 }
 
 
-BufferString uiStartNewSurveySetup::sipName() const
+uiString uiStartNewSurveySetup::sipName() const
 {
     const int sipidx = sipfld_->currentItem();
-    return sips_.validIdx(sipidx) ? sips_[sipidx]->usrText() : "";
+    return sips_.validIdx(sipidx) ? sips_[sipidx]->usrText()
+				  : uiString::empty();
 }
 
 
@@ -322,7 +323,7 @@ void uiStartNewSurveySetup::fillSipsFld()
 	uiSurvInfoProvider& sip = *sips_[idx];
 	if ( preferredsel < 0 )
 	{
-	    if ( StringView(sip.usrText()).contains("etrel") )
+	    if ( sip.usrText().getString().contains("etrel") )
 		preferredsel = idx;
 	}
 

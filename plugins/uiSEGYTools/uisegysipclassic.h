@@ -23,8 +23,8 @@ public:
 			uiSEGYClassicSurvInfoProvider()
 			    : xyinft_(false)	{}
 
-    const char*		usrText() const override
-			{ return "Classic SEG-Y scanner"; }
+    uiString		usrText() const override
+			{ return tr("Classic SEG-Y scanner"); }
 
     uiDialog*		dialog(uiParent*) override;
     bool		getInfo(uiDialog*,

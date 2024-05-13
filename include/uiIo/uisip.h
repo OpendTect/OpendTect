@@ -50,7 +50,7 @@ public:
     virtual			~uiSurvInfoProvider();
 				mOD_DisableCopy(uiSurvInfoProvider)
 
-    virtual const char*		usrText() const		= 0;
+    virtual uiString		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
     virtual uiDialog*		launchSurveyImportDlg(uiParent*)
 						     { return nullptr;}
