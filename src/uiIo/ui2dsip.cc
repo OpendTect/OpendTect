@@ -293,7 +293,10 @@ void uiSurvInfoProvider::addPluginsInfoProviders()
 
 	const SharedLibAccess pisha( fp.fullPath() );
 	if ( !pisha.isOK() )
-	    return;
+	{
+	    ErrMsg( pisha.errMsg() );
+	    continue;
+	}
 
 	const BufferString sipfuncnm( piname.str(), "InitSIP" );
 	VoidVoidFn sipinitfn = (VoidVoidFn)pisha.getFunction( sipfuncnm.str() );

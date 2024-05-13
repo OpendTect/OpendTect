@@ -312,7 +312,10 @@ void uiFileSelToolProvider::addPluginFileSelProviders()
 
 	const SharedLibAccess pisha( fp.fullPath() );
 	if ( !pisha.isOK() )
-	    return;
+	{
+	    ErrMsg( pisha.errMsg() );
+	    continue;
+	}
 
 	const BufferString fsafuncnm( piname.str(), "InitFileSel" );
 	VoidVoidFn fsainitfn = (VoidVoidFn)pisha.getFunction( fsafuncnm.str() );
