@@ -1056,12 +1056,21 @@ const Well::DisplayProperties::LogCouple&
 
 void Well::DisplayProperties::ensureNrPanels( int nrpanels )
 {
-    if ( getNrLogPanels() >= nrpanels )
+    if ( getNrLogPanels() == nrpanels )
 	return;
+    else if ( nrpanels < getNrLogPanels() )
+    {
+	while ( nrpanels < getNrLogPanels() )
+	    delete( logs_.removeSingle(getNrLogPanels()-1) );
+    }
+    else
+    {
+	for ( int idx=getNrLogPanels(); idx<nrpanels; idx++ )
+	    logs_ += new LogCouple();
+    }
 
     setModified( true );
-    for ( int idx=getNrLogPanels(); idx<nrpanels; idx++ )
-	logs_ += new LogCouple();
+    return;
 }
 
 
