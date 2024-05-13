@@ -836,7 +836,10 @@ void initPluginClasses( const char* datadir, const char* func )
 
 	const SharedLibAccess pisha( fp.fullPath() );
 	if ( !pisha.isOK() )
-	    return;
+	{
+	    ErrMsg( pisha.errMsg() );
+	    continue;
+	}
 
 	const BufferString funcnm( piname.str(), func );
 	VoidVoidFn initfn = (VoidVoidFn)pisha.getFunction( funcnm.str() );
