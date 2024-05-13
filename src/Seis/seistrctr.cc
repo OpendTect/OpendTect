@@ -827,7 +827,10 @@ void Seis::addPluginSeisTrcTranslators()
 
 	const SharedLibAccess pisha( fp.fullPath() );
 	if ( !pisha.isOK() )
-	    return;
+	{
+	    ErrMsg( pisha.errMsg() );
+	    continue;
+	}
 
 	const BufferString funcnm( piname.str(), "InitSeisTrcTrl" );
 	VoidVoidFn initfn = (VoidVoidFn)pisha.getFunction( funcnm.str() );
