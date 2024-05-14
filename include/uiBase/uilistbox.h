@@ -272,6 +272,7 @@ private:
     void		setItemChecked(int,bool);
     void		setItemChecked(const char*,bool);
     bool		isItemChecked(const char*) const;
+    bool		hasCheckedItems() const;
     int			nrChecked() const;
     void		setCheckedItems(const BufferStringSet&);
     void		setCheckedItems(const TypeSet<int>&);
