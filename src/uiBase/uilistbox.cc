@@ -1580,10 +1580,9 @@ bool uiListBox::isChosen( int lidx ) const
 
     if ( isItemChecked(lidx) )
 	return true;
-    if ( choicemode_ == OD::ChooseZeroOrMore || nrChecked() > 0 )
-	return false;
 
-    return lidx == currentItem();
+    return choicemode_==OD::ChooseAtLeastOne &&
+	   lidx==currentItem() && !hasCheckedItems();
 }
 
 
@@ -1776,6 +1775,16 @@ bool uiListBox::isItemChecked( const char* nm ) const
 
     const int idxof = indexOf( nm );
     return idxof < 0 ? false : isItemChecked( idxof );
+}
+
+
+bool uiListBox::hasCheckedItems() const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	if ( lb_->body().item(idx)->checkState() == Qt::Checked )
+	    return true;
+
+    return false;
 }
 
 
