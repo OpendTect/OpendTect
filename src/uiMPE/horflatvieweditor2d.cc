@@ -684,7 +684,7 @@ bool HorizonFlatViewEditor2D::prepareTracking( bool picinvd,
 	h2dsp->setSelSpec( as );
 
     if ( dp.id().isValid() && dp.id()!=DataPack::cNoID() )
-	MPE::engine().setAttribData( *as, dp.id() );
+	MPE::engine().setAttribData( *as, dp );
 
     if ( !h2dsp || !h2dsp->canAddSeed(*as) )
 	return false;
