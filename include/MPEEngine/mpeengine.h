@@ -119,6 +119,8 @@ public:
     DataPackID		getAttribCacheID(const Attrib::SelSpec&) const;
     bool			hasAttribCache(const Attrib::SelSpec&) const;
     bool			setAttribData( const Attrib::SelSpec&,
+					       const FlatDataPack&);
+    bool			setAttribData( const Attrib::SelSpec&,
 					       DataPackID);
     bool			cacheIncludes(const Attrib::SelSpec&,
 					      const TrcKeyZSampling&);

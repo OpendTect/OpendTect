@@ -687,7 +687,7 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
     seedpicker.setSelSpec( as );
 
     if ( dp.id().isValid() && dp.id()!=DataPack::cNoID() )
-	MPE::engine().setAttribData( *as, dp.id() );
+	MPE::engine().setAttribData( *as, dp );
 
     MPE::engine().activevolumechange.trigger();
 

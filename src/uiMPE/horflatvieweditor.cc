@@ -242,7 +242,7 @@ bool HorizonFlatViewEditor::prepareTracking( bool picinvd,
 	    h2dsp->setSelSpec( as );
 
 	if ( dp.id() > DataPack::cNoID() )
-	    MPE::engine().setAttribData( *as, dp.id() );
+	    MPE::engine().setAttribData( *as, dp );
 
 	if ( !h2dsp || !h2dsp->canAddSeed(*as) )
 	    return false;
@@ -266,7 +266,7 @@ bool HorizonFlatViewEditor::prepareTracking( bool picinvd,
 	MPE::engine().setOneActiveTracker( &trker );
 	if ( !MPE::engine().cacheIncludes(*as,curcs_) )
 	    if ( dp.id() > DataPack::cNoID() )
-		MPE::engine().setAttribData( *as, dp.id() );
+		MPE::engine().setAttribData( *as, dp );
 
 	MPE::engine().activevolumechange.trigger();
     }
