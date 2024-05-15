@@ -209,8 +209,8 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     ctrldown_ = OD::ctrlKeyboardButton( eventinfo.buttonstate_ );
 
-    bool onobject = !eventinfo.pickedobjids.isEmpty();
-
+    const EM::SectionID sectionid = getSectionID( &eventinfo.pickedobjids );
+    bool onobject = sectionid.isValid();
     if ( !onobject && editor_ )
 	onobject = eventinfo.pickedobjids.isPresent( editor_->id() );
 
@@ -524,17 +524,27 @@ void EMObjectDisplay::enableEditing( bool yn )
 	addChild( editor_->osgNode() );
     }
 
-    if ( editor_ ) editor_->turnOn(yn);
+    if ( editor_ )
+	editor_->turnOn(yn);
 }
 
 
 bool EMObjectDisplay::isEditingEnabled() const
-{ return editor_ && editor_->isOn(); }
+{
+    return editor_ && editor_->isOn();
+}
 
 
 EM::SectionID EMObjectDisplay::getSectionID( const TypeSet<VisID>* path ) const
 {
-    return EM::SectionID::def();
+    for ( int idx=0; path && idx<path->size(); idx++ )
+    {
+	const EM::SectionID sectionid = getSectionID( (*path)[idx] );
+	if ( sectionid.isValid() )
+	    return sectionid;
+    }
+
+    return EM::SectionID::udf();
 }
 
 
@@ -554,8 +564,10 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	    emchangedata_.getCallBackData(idx);
 	if ( !cbdata )
 	    continue;
+
 	handleEmChange( *cbdata );
     }
+
     emchangedata_.clearData();
  }
 

@@ -1670,7 +1670,13 @@ const visBase::HorizonSection* HorizonDisplay::getHorizonSection() const
 
 EM::SectionID HorizonDisplay::getSectionID( VisID visid ) const
 {
-    return EM::SectionID::def();
+    for ( int idx=0; idx<sections_.size(); idx++ )
+    {
+	if ( sections_[idx]->id()==visid )
+		return sids_[idx];
+    }
+
+    return EM::SectionID::udf();
 }
 
 
@@ -2492,16 +2498,12 @@ bool HorizonDisplay::usePar( const IOPar& par )
     if ( par.get(sKeyIntersectLineMaterialID(),intersectlinematid) )
     {
 	if ( intersectlinematid==-1 )
-	    setIntersectLineMaterial( 0 );
+	    setIntersectLineMaterial( nullptr );
 	else
 	{
 	    auto* mat = visBase::DM().getObject( VisID(intersectlinematid) );
-	    if ( !mat )
-		return 0;
-
-	    if ( typeid(*mat) != typeid(visBase::Material) ) return -1;
-
-	    setIntersectLineMaterial( (visBase::Material*)mat );
+	    if ( mat && typeid(*mat)==typeid(visBase::Material) )
+		setIntersectLineMaterial( (visBase::Material*)mat );
 	}
     }
 
