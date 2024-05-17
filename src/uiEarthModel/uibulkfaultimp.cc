@@ -252,8 +252,8 @@ uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type, bool is2d )
 				mGetHelpKey(type)).modal(false))
     , fd_(BulkFaultAscIO::getDesc(mGetType(type),is2d,SI().zDomain()))
     , isfss_(mGet(type,true,false,false))
-    , isfltset_(mGet(type,false,false,true))
     , is2dfss_(is2d)
+    , isfltset_(mGet(type,false,false,true))
 {
     bfi_hpmgr_.setParam( this, new uiBulkFaultImportHP );
     init();
@@ -276,9 +276,10 @@ void uiBulkFaultImport::init()
 
     bfi_hpmgr_.getParam(this)->setZDomSelFld( new uiGenInput( this, zdomlbl,
 	BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth())) );
+    zdomselfld_()->setValue( SI().zIsTime() );
     zdomselfld_()->attach( alignedBelow, inpfld_ );
     mAttachCB( zdomselfld_()->valuechanged,
-					uiBulkFaultImport::zDomTypeChnagedCB );
+	       uiBulkFaultImport::zDomTypeChnagedCB );
 
     BufferStringSet stickselopt;
     stickselopt.add( sKeyAutoStickSel() )
