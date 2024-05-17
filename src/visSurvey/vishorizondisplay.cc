@@ -1542,7 +1542,7 @@ void HorizonDisplay::displaysSurfaceGrid( bool yn )
 const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
 {
     if ( channel<0 || channel>=nrAttribs() )
-       return 0;
+       return nullptr;
 
     return sections_.size()
 	? sections_[0]->getColTabSequence( channel )
@@ -1599,7 +1599,7 @@ const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch,
 								 int ) const
 {
     if ( ch<0 || ch>=nrAttribs() )
-       return 0;
+       return nullptr;
 
     return &coltabmappersetups_[ch];
 }
@@ -1608,7 +1608,7 @@ const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch,
 const TypeSet<float>* HorizonDisplay::getHistogram( int attrib ) const
 {
     if ( !sections_.size() )
-	return 0;
+	return nullptr;
 
     return sections_[0]->getHistogram( attrib );
 }
@@ -1673,7 +1673,13 @@ const visBase::HorizonSection* HorizonDisplay::getHorizonSection() const
 
 EM::SectionID HorizonDisplay::getSectionID( VisID visid ) const
 {
-    return EM::SectionID::def();
+    for ( int idx=0; idx<sections_.size(); idx++ )
+    {
+	if ( sections_[idx]->id()==visid )
+		return sids_[idx];
+    }
+
+    return EM::SectionID::udf();
 }
 
 
@@ -2477,9 +2483,10 @@ bool HorizonDisplay::usePar( const IOPar& par )
 	{
 	    auto* mat = visBase::DM().getObject( VisID(intersectlinematid) );
 	    if ( !mat )
-		return 0;
+		return false;
 
-	    if ( typeid(*mat) != typeid(visBase::Material) ) return -1;
+	    if ( typeid(*mat) != typeid(visBase::Material) )
+		return false;
 
 	    setIntersectLineMaterial( (visBase::Material*)mat );
 	}
@@ -2522,7 +2529,7 @@ DataPackID HorizonDisplay::getDisplayedDataPackID( int channel ) const
 
 const visBase::HorizonSection* HorizonDisplay::getSection( int horsecid ) const
 {
-    return sections_.validIdx( horsecid ) ? sections_[horsecid] : 0;
+    return sections_.validIdx( horsecid ) ? sections_[horsecid] : nullptr;
 }
 
 
@@ -2538,7 +2545,8 @@ HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
 	if ( hordisp && mid==hordisp->getMultiID() )
 	    return hordisp;
     }
-    return 0;
+
+    return nullptr;
 }
 
 
