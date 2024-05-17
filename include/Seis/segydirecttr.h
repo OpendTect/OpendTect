@@ -156,6 +156,7 @@ public:
 			SEGYDirectSeisTrcTranslator(const char*,const char*);
 			~SEGYDirectSeisTrcTranslator();
 
+    uiString		displayName() const override;
     const char*		defExtension() const override	{ return "sgydef"; }
 
     int			estimatedNrTraces() const override;

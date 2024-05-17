@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "perthreadrepos.h"
-#include "preloads.h"
 #include "streamconn.h"
 #include "strmprov.h"
 #include "uistrings.h"
@@ -314,6 +313,9 @@ const char* TranslatorGroup::translationApplication() const
 }
 
 
+
+// Translator
+
 extern "C" void od_Basic_initStdClasses();
 
 Translator::Translator( const char* nm, const char* unm )
@@ -326,6 +328,16 @@ Translator::Translator( const char* nm, const char* unm )
 	od_Basic_initStdClasses();
 	init_done = true;
     }
+}
+
+
+Translator::~Translator()
+{}
+
+
+uiString Translator::displayName() const
+{
+    return toUiString( usrname_.buf() );
 }
 
 

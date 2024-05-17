@@ -125,11 +125,12 @@ protected:
 mExpClass(General) Translator : public CallBacker
 { mODTextTranslationClass(Translator)
 public:
-				Translator(const char* nm,const char* usr_nm);
-    virtual			~Translator()		{}
+    virtual			~Translator();
+				mOD_DisableCopy(Translator)
 
     const OD::String&		typeName() const	{ return typname_; }
     const OD::String&		userName() const	{ return usrname_; }
+    virtual uiString		displayName() const;
     const TranslatorGroup*	group() const		{ return group_; }
 
     virtual Translator*		getNew() const		= 0;
@@ -166,6 +167,7 @@ public:
     static const Translator*	getTemplateInstance(const char* displayname);
 
 protected:
+				Translator(const char* nm,const char* usr_nm);
 
     BufferString		typname_;
     BufferString		usrname_;
@@ -272,7 +274,7 @@ mImplTranslatorGroupTheInst( clss )
 //! In the source file of a Translator class
 #define defineTranslator(spec,clss,usrnm) \
 spec##clss##Translator* spec##clss##Translator::getInstance() \
-{ return new spec##clss##Translator(#clss,usrnm); } \
+{ return new spec##clss##Translator(#spec,usrnm); } \
 const char* spec##clss##Translator::translKey() { return usrnm; } \
 void spec##clss##Translator::initClass() \
 mImplTranslatorInitClass( spec, clss, usrnm )

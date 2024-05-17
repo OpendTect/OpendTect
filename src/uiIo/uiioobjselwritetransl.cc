@@ -118,9 +118,9 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
 		    (!deftransl.isEmpty() && trnm == deftransl) )
 	    cur = idx;
 
-	selfld_->addItem( toUiString(trnm) );
+	selfld_->addItem( trl.displayName() );
 
-	BufferString icnm( trl.iconName() );
+	const StringView icnm = trl.iconName();
 	if ( !icnm.isEmpty() )
 	    selfld_->setIcon( idx, icnm );
     }
@@ -174,9 +174,8 @@ void uiIOObjSelWriteTranslator::updateTransFld(
     for ( int idx=0; idx<trs_.size(); idx++ )
     {
 	const Translator& trl = *trs_[idx];
-	const BufferString trnm( trl.userName() );
-	selfld_->addItem( toUiString(trnm) );
-	BufferString icnm( trl.iconName() );
+	selfld_->addItem( trl.displayName() );
+	const StringView icnm = trl.iconName();
 	if ( !icnm.isEmpty() )
 	    selfld_->setIcon( idx, icnm );
     }

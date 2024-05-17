@@ -322,6 +322,12 @@ SEGYDirectSeisTrcTranslator::~SEGYDirectSeisTrcTranslator()
 }
 
 
+uiString SEGYDirectSeisTrcTranslator::displayName() const
+{
+    return uiStrings::sSEGY();
+}
+
+
 bool SEGYDirectSeisTrcTranslator::close()
 {
     bool wrstatus = true;
