@@ -156,6 +156,8 @@ public:
     void		manageBodies();
     bool		loadSurface(const MultiID&,
 			    const EM::SurfaceIODataSelection* s=nullptr) const;
+    bool		loadSurface(const MultiID&,bool force,
+			    const EM::SurfaceIODataSelection* s=nullptr) const;
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&) const;
     static void		getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool is2d,
 					    const ZDomain::Info* =nullptr);

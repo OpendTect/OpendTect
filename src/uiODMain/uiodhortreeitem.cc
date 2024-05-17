@@ -859,9 +859,9 @@ VisID uiODHorizonTreeItem::reloadEMObject()
 
     removeAllChildren();
     applMgr()->visServer()->removeObject( displayid_, sceneID() );
-    delete uivisemobj_; uivisemobj_ = 0;
+    deleteAndNullPtr( uivisemobj_ );
 
-    if ( !ems->loadSurface(mid) )
+    if ( !ems->loadSurface(mid, true) )
 	return VisID::udf();
 
     emid_ = applMgr()->EMServer()->getObjectID(mid);
@@ -882,6 +882,7 @@ VisID uiODHorizonTreeItem::reloadEMObject()
     const EM::IOObjInfo eminfo( mid );
     timelastmodified_ = eminfo.timeLastModified( true );
     uivisemobj_->setOnlyAtSectionsDisplay( wasonlyatsections );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
     return displayid_;
 }
 
