@@ -336,7 +336,8 @@ void uiWellPartServer::saveAllWellDispProps()
     for ( int idx=0; idx<wds.size(); idx++ )
     {
 	ConstRefMan<Well::Data> curwd = wds[idx];
-	saveWellDispProps( *curwd.ptr() );
+	if ( curwd )
+	    saveWellDispProps( *curwd.ptr() );
     }
 
     for ( auto* wellpropdlgs : wellpropdlgs_ )
