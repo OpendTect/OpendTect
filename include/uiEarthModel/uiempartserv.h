@@ -160,7 +160,9 @@ public:
     void		manageFaultSets();
     void		manageBodies();
     bool		loadSurface(const MultiID&,
-				    const EM::SurfaceIODataSelection* s=0);
+				const EM::SurfaceIODataSelection* s=nullptr);
+    bool		loadSurface(const MultiID&,bool force,
+				const EM::SurfaceIODataSelection* s=nullptr);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
     mDeprecated("Use getAllSurfaceInfo_")
     static void		getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
