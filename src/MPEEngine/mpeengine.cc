@@ -783,11 +783,25 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    const FlatDataPack& cachedp )
 {
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,&cachedp);
-    if ( !seisfdp )
-	return false;
+    DataPackID cacheid = cachedp.id();
+    if ( seisfdp )
+    {
+	dpm_.add<SeisDataPack>( seisfdp->getSource() );
+	cacheid = seisfdp->getSourceID();
+    }
 
-    dpm_.add<SeisDataPack>( seisfdp->getSource() );
-    DataPackID cacheid = seisfdp->getSourceID();
+    return setAttribData( as, cacheid );
+}
+
+bool Engine::setAttribData( const Attrib::SelSpec& as,
+			    DataPackID cacheid )
+{
+    auto regfdp = DPM(DataPackMgr::FlatID()).get<SeisFlatDataPack>( cacheid );
+    if ( regfdp )
+    {
+	dpm_.add<SeisDataPack>( regfdp->getSource() );
+	cacheid = regfdp->getSourceID();
+    }
 
     const int idx = getCacheIndexOf(as);
     if ( attribcachedatapackids_.validIdx(idx) )
@@ -824,16 +838,6 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
 
     return true;
-}
-
-bool Engine::setAttribData( const Attrib::SelSpec& as,
-			    DataPackID cacheid )
-{
-    auto regfdp = DPM(DataPackMgr::FlatID()).get<SeisFlatDataPack>( cacheid );
-    if ( regfdp )
-	return setAttribData( as, *regfdp );
-
-    return false;
 }
 
 
