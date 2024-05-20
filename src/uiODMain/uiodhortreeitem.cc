@@ -861,10 +861,9 @@ VisID uiODHorizonTreeItem::reloadEMObject()
 
     removeAllChildren();
     applMgr()->visServer()->removeObject( displayid_, sceneID() );
-    EM::EMM().removeObject( EM::EMM().getObject(emid_) );
     deleteAndNullPtr( uivisemobj_ );
 
-    if ( !ems->loadSurface(mid) )
+    if ( !ems->loadSurface(mid, true) )
 	return VisID::udf();
 
     emid_ = applMgr()->EMServer()->getObjectID(mid);

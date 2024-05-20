@@ -1603,10 +1603,10 @@ void uiEMPartServer::removeUndo()
 }
 
 
-bool uiEMPartServer::loadSurface( const MultiID& mid,
+bool uiEMPartServer::loadSurface( const MultiID& mid, bool force,
 				  const EM::SurfaceIODataSelection* newsel )
 {
-    if ( em_.getObject(em_.getObjectID(mid)) )
+    if ( !force && em_.getObject(em_.getObjectID(mid)) )
 	return true;
 
     Executor* exec = em_.objectLoader( mid, newsel );
@@ -1632,6 +1632,13 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
     delete exec;
     obj->unRefNoDelete();
     return true;
+}
+
+
+bool uiEMPartServer::loadSurface( const MultiID& mid,
+				  const EM::SurfaceIODataSelection* newsel )
+{
+    return loadSurface( mid, false, newsel );
 }
 
 
