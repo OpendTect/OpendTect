@@ -71,6 +71,7 @@ public:
     Seis::SelData*	getSelData() const;
     SeisResampler*	getResampler() const; //!< may return null
     Scaler*		getScaler() const;
+    void		setNull(bool);
     bool		removeNull() const;
     bool		extendTrcsToSI() const;
     bool		fillNull() const;
@@ -82,8 +83,10 @@ public:
 
     void		fillPar(IOPar&) const;
     void		fillSelPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
     Notifier<uiSeisTransfer> selChange;
+    Notifier<uiSeisTransfer> nullValChange;
 
     static const char*	sKeyNullTrcPol()	{ return "Null trace policy"; }
 
@@ -101,12 +104,13 @@ private:
     void		initGrpCB(CallBacker*);
     void		selChangeCB(CallBacker*);
     void		updSteerCB(CallBacker*);
+    void		removeNullValChangeCB(CallBacker*);
     Pos::GeomID		curGeomID() const;
 
     uiSeisSubSel*	selfld_ = nullptr;
     uiMultiZSeisSubSel* multizselfld_ = nullptr;
     uiScaler*		scalefld_;
-    uiGenInput*		remnullfld;
+    uiGenInput*		remnullfld_;
     uiGenInput*		trcgrowfld_ = nullptr;
 
     Setup		setup_;

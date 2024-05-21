@@ -64,6 +64,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& ss )
     : uiGroup(p,"Seis transfer pars")
     , setup_(ss)
     , selChange(this)
+    , nullValChange(this)
 {
     if ( setup_.withmultiz_ )
     {
@@ -81,18 +82,20 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& ss )
     choices += uiStrings::sPass();
     choices += uiStrings::sAdd();
     if ( !setup_.is2d_ && !setup_.isps_ && setup_.withnullfill_ )
-	remnullfld = new uiGenInput( this, tr("Null traces"),
+	remnullfld_ = new uiGenInput( this, tr("Null traces"),
 				     StringListInpSpec(choices) );
     else
-	remnullfld = new uiGenInput( this, tr("Null traces"),
+	remnullfld_ = new uiGenInput( this, tr("Null traces"),
 				     BoolInpSpec(true,choices[0],choices[1]) );
+    mAttachCB( remnullfld_->valueChanged,
+				    uiSeisTransfer::removeNullValChangeCB );
     if ( multizselfld_ )
-	remnullfld->attach( alignedBelow, multizselfld_->attachObj() );
+	remnullfld_->attach( alignedBelow, multizselfld_->attachObj() );
     else
-	remnullfld->attach( alignedBelow, selfld_ );
+	remnullfld_->attach( alignedBelow, selfld_ );
 
     scalefld_ = new uiScaler( this, uiString::empty(), true );
-    scalefld_->attach( alignedBelow, remnullfld );
+    scalefld_->attach( alignedBelow, remnullfld_ );
 
     if ( !setup_.fornewentry_ )
     {
@@ -101,7 +104,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& ss )
 	trcgrowfld_->attach( alignedBelow, scalefld_ );
     }
 
-    setHAlignObj( remnullfld );
+    setHAlignObj( remnullfld_ );
     mAttachCB( postFinalize(), uiSeisTransfer::initGrpCB );
 }
 
@@ -252,16 +255,22 @@ Scaler* uiSeisTransfer::getScaler() const
 }
 
 
+void uiSeisTransfer::setNull( bool val )
+{
+    remnullfld_->setValue( val );
+}
+
+
 bool uiSeisTransfer::removeNull() const
 {
-    return setup_.withnullfill_ ? remnullfld->getIntValue() == 0
-				: remnullfld->getBoolValue();
+    return setup_.withnullfill_ ? remnullfld_->getIntValue() == 0
+				: remnullfld_->getBoolValue();
 }
 
 
 bool uiSeisTransfer::fillNull() const
 {
-    return remnullfld->getIntValue() == 2;
+    return remnullfld_->getIntValue() == 2;
 }
 
 
@@ -297,6 +306,12 @@ void uiSeisTransfer::setSteering( bool yn )
 void uiSeisTransfer::selChangeCB( CallBacker* )
 {
     selChange.trigger();
+}
+
+
+void uiSeisTransfer::removeNullValChangeCB( CallBacker* )
+{
+    nullValChange.trigger();
 }
 
 
@@ -444,6 +459,25 @@ void uiSeisTransfer::fillSelPar( IOPar& iop ) const
     selFld()->fillPar( iop );
 }
 
+
+void uiSeisTransfer::usePar( const IOPar& par )
+{
+    selfld_->usePar( par );
+    scalefld_->usePar( par );
+    ConstRefMan<Coords::CoordSystem> outcrs =
+				    Coords::CoordSystem::createSystem( par );
+    if ( outcrs && outcrs.ptr() != outpcrs_.ptr() )
+	setCoordSystem( *outcrs.ptr(), true);
+
+    bool extendtrctosi = false;
+    par.getYN( SeisTrc::sKeyExtTrcToSI(), extendtrctosi );
+    if ( trcgrowfld_ )
+	trcgrowfld_->setValue( extendtrctosi );
+
+    int nulltrcpol = mUdf(int);
+    par.get( sKeyNullTrcPol(), nulltrcpol );
+    remnullfld_->setValue( nulltrcpol );
+}
 
 void uiSeisTransfer::fillPar( IOPar& iop ) const
 {
