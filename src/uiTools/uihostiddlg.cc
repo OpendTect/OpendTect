@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uihostiddlg.h"
 
 #include "bufstring.h"
+#include "filepath.h"
 #include "generalinfo.h"
 #include "oddirs.h"
 #include "odplatform.h"
@@ -102,8 +103,8 @@ uiHostIDDlg::uiHostIDDlg( uiParent* p )
     osfld_->setText( OD::Platform().longName() );
     productnmfld_->setText( System::productName() );
     usernmfld_->setText( GetUserNm() );
-    settingsfld->setText( GetSettingsDir() );
-    odinstfld->setText( GetSoftwareDir(true) );
+    settingsfld->setText( FilePath::getLongPath(GetSettingsDir()) );
+    odinstfld->setText( FilePath::getLongPath(GetSoftwareDir(true)) );
 
     mAttachCB( postFinalize(), uiHostIDDlg::finalizeCB );
 }
