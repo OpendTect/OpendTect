@@ -571,7 +571,7 @@ public:
     static uiString sSaveBodyFail()	{ return tr("Save body failed"); }
     static uiString sSavingChanges()	{ return tr("Saving changes"); }
     static uiString sScale()		{ return tr("Scale"); }
-    static uiString sScaleBar()		{ return tr("Sacle Bar"); }
+    static uiString sScaleBar()		{ return tr("Scale Bar"); }
     static uiString sScaling()		{ return tr("Scaling"); }
     static uiString sScanning()		{ return tr("Scanning"); }
     static uiString sScene(int n=1)	{ return tr("Scene",0,n); }
