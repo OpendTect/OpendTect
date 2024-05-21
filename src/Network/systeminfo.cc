@@ -431,7 +431,11 @@ int getFreeMBOnDisk( const IOObj& ioobj )
     if ( !iostrm )
 	dir = GetDataDir();
     else
+    {
 	dir = FilePath( iostrm->fullUserExpr() ).pathOnly();
+	if ( !File::exists(dir) )
+	    dir = GetDataDir();
+    }
 
     return getFreeMBOnDisk( dir );
 }
