@@ -583,7 +583,7 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
 	return false;
 
     const auto& fsa = OD::FileSystemAccess::get( newname );
-    return fsa.rename( oldname, newname );
+    return fsa.rename( oldname, newname, errmsg );
 }
 
 
