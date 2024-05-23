@@ -251,9 +251,9 @@ void A2DBitMapGenerator::fill()
     dim0perpix_ = 1.f / setup_.getPixPerDim(0);
     dim1perpix_ = 1.f / setup_.getPixPerDim(1);
 
-    scalerg_ = pars_.autoscale_ && pars_.scale_.isUdf()
-		    ? data_.scale( pars_.clipratio_, pars_.midvalue_ )
-		    : pars_.scale_;
+    if ( pars_.autoscale_ )
+	scalerg_ = data_.scale( pars_.clipratio_, pars_.midvalue_ );
+
     pars_.scale_ = scalerg_;
     scalewidth_ = scalerg_.stop - scalerg_.start;
     if ( mIsZero(scalewidth_,1e-8) )
