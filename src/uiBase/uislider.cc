@@ -147,14 +147,20 @@ void uiSlider::init( const uiSlider::Setup& setup, const char* nm )
     {
 	slider_->setPrefHeight( setup.sldrsize_ );
 	slider_->setPrefWidth( 10 );
-	if ( lbl_ ) slider_->attach( centeredBelow, lbl_ );
-	if ( editfld_ ) editfld_->attach( centeredBelow, slider_ );
+	if ( lbl_ )
+	    slider_->attach( centeredBelow, lbl_ );
+
+	if ( editfld_ )
+	    editfld_->attach( centeredBelow, slider_ );
     }
     else
     {
 	slider_->setPrefWidth( setup.sldrsize_ );
-	if ( lbl_ ) slider_->attach( rightOf, lbl_ );
-	if ( editfld_ ) editfld_->attach( rightOf, slider_ );
+	if ( lbl_ )
+	    slider_->attach( centeredRightOf, lbl_ );
+
+	if ( editfld_ )
+	    editfld_->attach( centeredRightOf, slider_ );
     }
 
     setInverted( setup.isinverted_ );
