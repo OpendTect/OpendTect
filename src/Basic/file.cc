@@ -576,11 +576,23 @@ bool listDir( const char* dirnm, DirListType dlt, BufferStringSet& fnames,
 bool rename( const char* oldname, const char* newname, uiString* errmsg )
 {
     if ( !isSane(oldname) || !isSane(newname) )
+    {
+	if ( errmsg )
+	    errmsg->appendPhrase( od_static_tr("rename",
+		"Irregular name found.") );
+
 	return false;
+    }
 
     if ( OD::FileSystemAccess::getProtocol(oldname) !=
 	 OD::FileSystemAccess::getProtocol(newname) )
+    {
+	if ( errmsg )
+	    errmsg->appendPhrase( od_static_tr("rename",
+		"Incompatible target and destination protocols") );
+
 	return false;
+    }
 
     const auto& fsa = OD::FileSystemAccess::get( newname );
     return fsa.rename( oldname, newname, errmsg );

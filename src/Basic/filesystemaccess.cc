@@ -267,7 +267,17 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
     const BufferString from = withoutProtocol( fromuri );
     const BufferString to = withoutProtocol( touri );
     if ( from.isEmpty() || to.isEmpty() )
+    {
+	if ( errmsg )
+	{
+	    if ( from.isEmpty() )
+		errmsg->appendPhrase( tr("Empty target path found") );
+	    else
+		errmsg->appendPhrase( tr("Empty destination path found") );
+	}
+
 	return false;
+    }
 
     const char* oldname = from.buf();
     const char* newname = to.buf();
@@ -275,7 +285,8 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
     if ( !exists(oldname) )
     {
 	if ( errmsg )
-	    errmsg->append(uiStrings::phrDoesntExist(::toUiString(oldname)));
+	    errmsg->append( uiStrings::phrDoesntExist(::toUiString(oldname)) );
+
 	return false;
     }
 
@@ -290,6 +301,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 		.add("Please remove or rename manually.");
 	    errmsg->append(errstr);
 	}
+
 	return false;
     }
 
@@ -302,6 +314,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 	    if ( errmsg )
 		errmsg->append(uiStrings::phrCannotCreateDirectory(
 		    toUiString(targetbasedir)));
+
 	    return false;
 	}
     }
@@ -311,6 +324,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 	if ( errmsg )
 	    errmsg->append(uiStrings::phrCannotWrite(
 		toUiString(targetbasedir)));
+
 	return false;
     }
 #endif
