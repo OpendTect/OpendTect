@@ -43,8 +43,8 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, SceneID sceneid )
 			mODHelpKey(mDataPointSetPickDlgHelpID)).modal(false))
     , sceneid_(sceneid)
     , dps_(*new DataPointSet(false,false))
-    , picksetmgr_(Pick::SetMgr::getMgr("DPSPicks"))
     , psd_(0)
+    , picksetmgr_(Pick::SetMgr::getMgr("DPSPicks"))
     , changed_(false)
 {
     setCtrlStyle( CloseOnly );
@@ -69,6 +69,7 @@ uiDataPointSetPickDlg::uiDataPointSetPickDlg( uiParent* p, SceneID sceneid )
     table_->valueChanged.notify( mCB(this,uiDataPointSetPickDlg,valChgCB) );
     table_->rowClicked.notify( mCB(this,uiDataPointSetPickDlg,rowClickCB) );
 
+    dps_.ref();
     dps_.dataSet().add( new DataColDef("Value") );
     initPickSet();
     updateButtons();
@@ -102,7 +103,7 @@ void uiDataPointSetPickDlg::objSelCB( CallBacker* )
 void uiDataPointSetPickDlg::cleanUp()
 {
     table_->clearTable();
-    delete &dps_;
+    dps_.unRef();
 
     visBase::DataObject* obj = visBase::DM().getObject( sceneid_ );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
@@ -369,9 +370,9 @@ bool uiDataPointSetPickDlg::acceptOK( CallBacker* )
 uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, SceneID sceneid,
 						  EM::ObjectID emid )
     : uiDataPointSetPickDlg(p,sceneid)
-    , emid_(emid)
-    , emdps_(*new DataPointSet(false,true))
     , readyForDisplay(this)
+    , emdps_(*new DataPointSet(false,true))
+    , emid_(emid)
     , interpol_(0)
     , dataidx_(-1)
 {
@@ -387,12 +388,13 @@ uiEMDataPointSetPickDlg::uiEMDataPointSetPickDlg( uiParent* p, SceneID sceneid,
 				mCB(this,uiEMDataPointSetPickDlg,settCB) );
     settbut->attach( rightOf, interpolbut );
 
+    emdps_.ref();
     emdps_.dataSet().add( new DataColDef("Section ID") );
     emdps_.dataSet().add( new DataColDef("AuxData") );
 
-
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( emobj ) emobj->ref();
+    if ( emobj )
+	emobj->ref();
 }
 
 
@@ -406,9 +408,10 @@ void uiEMDataPointSetPickDlg::cleanUp()
     uiDataPointSetPickDlg::cleanUp();
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( emobj ) emobj->unRef();
+    if ( emobj )
+	emobj->unRef();
 
-    delete &emdps_;
+    emdps_.unRef();
 }
 
 
