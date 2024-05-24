@@ -230,6 +230,7 @@ void WellTie::uiWavelet::drawWavelet()
     const bool canupdate = viewer_->enableChange( false );
     viewer_->clearAllPacks();
     viewer_->setPack( FlatView::Viewer::WVA, dp, false );
+    viewer_->appearance().ddpars_.wva_.mappersetup_.setAutoScale( true );
     StepInterval<double> posns; posns.setFrom( wvlt.samplePositions() );
     if ( SI().zIsTime() ) posns.scale( SI().zDomain().userFactor() );
     dp->posData().setRange( false, posns );
