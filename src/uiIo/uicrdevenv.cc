@@ -168,7 +168,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     const char* scriptfnm = __iswin__ ? "od_cr_dev_env.bat"
 				      : "od_cr_dev_env.csh";
-    const FilePath fp( swdir, "bin", scriptfnm );
+    const FilePath fp( swdir, __ismac__ ? "Resources" : "bin", scriptfnm );
     OS::MachineCommand mc( fp.fullPath() );
     mc.addArg( swdir );
     mc.addArg( workdirnm );
