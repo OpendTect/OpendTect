@@ -1022,9 +1022,9 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	info.addSpace();
     }
 
-    info.append( tr("Offset: ").arg(offset) ).addSpace();
+    info.append( tr("Offset: %1").arg(offset) ).addSpace();
     if ( !mIsUdf(azimuth) )
-	info.append( tr("Azimuth: ").arg(mNINT32(azimuth*360/M_PI)) );
+	info.append( tr("Azimuth: %1").arg(mNINT32(azimuth*360/M_PI)) );
 
     const int zsample = posdata.range(false).nearestIndex( pos.z );
     val = fdp->data().get( trcidx, zsample );
