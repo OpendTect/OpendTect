@@ -421,7 +421,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 	{
 	    const Well::Log& inplog = *ld.inpLogs().get( idlog );
 	    Well::Log& outplog = *ld.outpLogs().get( idlog );
-
+	    outplog = inplog;
 	    const int sz = inplog.size();
 	    if ( sz< 2 )
 		continue;
