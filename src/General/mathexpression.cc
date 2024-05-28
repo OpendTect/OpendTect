@@ -1404,7 +1404,7 @@ Math::Expression* Math::ExpressionParser::parse( const char* inpstr ) const
 
     if ( errmsg_.isEmpty() )
     {
-	errmsg_ = tr("Cannot parse this" ).arg( inpstr );
+	errmsg_ = tr("Cannot parse this");
 	uiString argument( toUiString(inpstr) );
 	argument.quote( true );
 	errmsg_.appendPhrase( argument, uiString::SeparType::MoreInfo );

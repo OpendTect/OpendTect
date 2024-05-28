@@ -31,9 +31,9 @@ ________________________________________________________________________
 
 
 uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
-    : uiDialog(p,Setup(uiStrings::phrCreate(tr("flattened %2")
+    : uiDialog(p,Setup(uiStrings::phrCreate(tr("flattened %1")
 		       .arg(uiStrings::sSeismic().toLower())),
-		       uiStrings::phrCreate(tr("Seismic flattened on '%2'")
+		       uiStrings::phrCreate(tr("Seismic flattened on '%1'")
 		       .arg(toUiString(getHorNm(horid))))
 		      , mODHelpKey(mFlattenedCubeHelpID) ))
     , seisselin_(0)
