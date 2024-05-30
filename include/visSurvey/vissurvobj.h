@@ -386,7 +386,7 @@ public:
 
 protected:
 				SurveyObject();
-				~SurveyObject();
+    virtual			~SurveyObject();
 
     void			initAdaptiveMouseCursor(CallBacker* eventcb,
 						const VisID&,
