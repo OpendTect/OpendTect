@@ -352,13 +352,15 @@ void uiWellTrackDlg::setY( int row, double y )
 
 void uiWellTrackDlg::setZ( int row, double z )
 {
-    tbl_->setValue( RowCol(row,cZCol), mConvertVal(z,true), 2 );
+    tbl_->setValue( RowCol(row,cZCol), mConvertVal(z,true),
+		    Well::nrDepthDecimals() );
 }
 
 
 void uiWellTrackDlg::setMD( int row, float md )
 {
-    tbl_->setValue( RowCol(row,cMDTrackCol), mConvertVal(md,true), 2 );
+    tbl_->setValue( RowCol(row,cMDTrackCol), mConvertVal(md,true),
+		    Well::nrDepthDecimals() );
 }
 
 
@@ -700,7 +702,7 @@ void uiWellTrackDlg::updatePos( bool isx )
 	if ( mIsUdf(tblpos) )
 	    continue;
 
-	tbl_->setValue( RowCol(irow,icol), tblpos+shift, 2 );
+	tbl_->setValue( RowCol(irow,icol), tblpos+shift, SI().nrXYDecimals() );
     }
 
     updNow(0); //write the new table data back to the track
@@ -1093,7 +1095,8 @@ void uiD2TModelDlg::setDepthValue( int irow, int icol, float val )
     if ( icol != getVintCol() && !mIsUdf(mdval) )
 	mdvalsd2tdlgmgr_.getParam( this )->get( irow ) = mdval;
 
-    tbl_->setValue( RowCol(irow,icol), mConvertVal(val,true), 2 );
+    tbl_->setValue( RowCol(irow,icol), mConvertVal(val,true),
+		    Well::nrDepthDecimals() );
 }
 
 
@@ -1115,7 +1118,7 @@ void uiD2TModelDlg::setTimeValue( int irow, float val )
 	tvalsd2tdlgmgr_.getParam( this )->get( irow ) = val;
 
     const double twtval = mConvertTimeVal(val,true);
-    tbl_->setValue( RowCol(irow,getTimeCol()), twtval, 2 );
+    tbl_->setValue( RowCol(irow,getTimeCol()), twtval, Well::nrTimeDecimals() );
 }
 
 

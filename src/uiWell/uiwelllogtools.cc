@@ -752,7 +752,7 @@ void uiWellLogEditor::fillTable()
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float md = uom ? uom->userValue( log_.dah(idx) ) : log_.dah(idx);
-	table_->setValue( RowCol(idx,0), md, 4 );
+	table_->setValue( RowCol(idx,0), md, Well::nrDepthDecimals() );
 	table_->setValue( RowCol(idx,1), log_.value(idx) );
     }
 }

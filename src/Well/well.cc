@@ -667,3 +667,29 @@ float Well::getDefaultVelocity()
 	return SI().depthsInFeet() ? replvelft * mFromFeetFactorF : replvelm;
     }
 }
+
+
+int Well::nrDepthDecimals()
+{
+    int ret = 2;
+    if ( SI().getPars().get("Nr Depth decimals",ret) )
+	return ret;
+
+    if ( !SI().zIsTime() )
+	return mMAX( ret, SI().nrZDecimals() );
+
+    return ret;
+}
+
+
+int Well::nrTimeDecimals()
+{
+    int ret = 2;
+    if ( SI().getPars().get("Nr Time decimals",ret) )
+	return ret;
+
+    if ( SI().zIsTime() )
+	return mMAX( ret, SI().nrZDecimals() );
+
+    return ret;
+}
