@@ -204,4 +204,8 @@ protected:
     mutable BufferStringSet	lognms_;
 };
 
+
+mGlobal(Well) int nrDepthDecimals();
+mGlobal(Well) int nrTimeDecimals();
+
 } // namespace Well

@@ -284,11 +284,13 @@ bool uiMarkerDlg::getFromScreen()
 
 void uiMarkerDlg::markerAddedCB( CallBacker* )
 {
+    NotifyStopper ns( table_->valueChanged );
     auto* levelsel = new uiStratLevelSel( 0, true, uiStrings::sEmptyString() );
     mAttachCB( levelsel->selChange, uiMarkerDlg::stratLvlChg );
     const int currentrow = table_->currentRow();
     const OD::Color defgreycol( 128, 128, 128 );
     table_->setCellGroup( RowCol(currentrow,cLevelCol), levelsel );
+    table_->setCellChecked( RowCol(currentrow,cNameCol), false );
     table_->setColor( RowCol(currentrow,cColorCol), defgreycol );
     table_->setCellReadOnly( RowCol(currentrow,cColorCol), true );
     levelsel->setSensitive( true );
@@ -350,6 +352,7 @@ void uiMarkerDlg::unitChangedCB( CallBacker* )
     depthcols += cDepthCol;
     depthcols += cTVDCol;
     depthcols += cTVDSSCol;
+    const int nrdec = Well::nrDepthDecimals();
     for ( int rowidx=0; rowidx<table_->nrRows(); rowidx++ )
     {
 	for ( int idx=0; idx<depthcols.size(); idx++ )
@@ -359,7 +362,7 @@ void uiMarkerDlg::unitChangedCB( CallBacker* )
 	    if ( mIsUdf(val) )
 		continue;
 
-	    table_->setValue( rc, val*zfac, 2 );
+	    table_->setValue( rc, val*zfac, nrdec );
 	}
     }
 }
@@ -434,6 +437,8 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     table_->setNrRows( nrrows );
     const float zfac = zFactor();
     const float kbelev = track_.getKbElev();
+    const int nrdecdepth = Well::nrDepthDecimals();
+    const int nrdectime = Well::nrTimeDecimals();
     for ( int idx=0; idx<nrnew; idx++ )
     {
 	const int irow = startrow + idx;
@@ -456,15 +461,16 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 
 	    levelsel->setID( marker->levelID() );
 	    const float dah = marker->dah();
-	    table_->setValue( RowCol(irow,cDepthCol), dah*zfac, 2 );
+	    table_->setValue( RowCol(irow,cDepthCol), dah*zfac, nrdecdepth );
 	    const float tvdss = sCast(float,track_.getPos(dah).z);
-	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 2 );
-	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 2 );
+	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac,
+			      nrdecdepth );
+	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, nrdecdepth );
 	    if ( SI().zIsTime() && d2tmodel_ )
 	    {
 		const float twt = d2tmodel_->getTime( dah, track_ );
 		table_->setValue( RowCol(irow,cTWTCol),
-					 twt * SI().zDomain().userFactor(),2  );
+				  twt*SI().zDomain().userFactor(), nrdectime );
 	    }
 
 	    table_->setText( RowCol(irow,cNameCol), marker->name() );
@@ -886,8 +892,10 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     const float zfac = zFactor();
 
     float inval = table_->getFValue( rcin ) / zfac;
-    if ( istvd ) inval -= kbelev;
+    if ( istvd )
+	inval -= kbelev;
 
+    const int nrdecdepth = Well::nrDepthDecimals();
     Interval<float> trckrg( md2tvdss ? track_.dahRange() : track_.zRange() );
     if ( !trckrg.includes(inval,true) )
     {
@@ -901,7 +909,7 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
 	Well::Marker* marker = getMarker( row, true );
 	uiMSG().error( errmsg );
 	if ( marker )
-	    table_->setValue( rcin, getOldMarkerVal(marker) );
+	    table_->setValue( rcin, getOldMarkerVal(marker), nrdecdepth );
 	else
 	    table_->setText(rcin, uiStrings::sEmptyString());
 
@@ -912,19 +920,20 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     const float tvdss = md2tvdss ? mCast(float,track_.getPos(inval).z) : inval;
     const float tvd = tvdss + kbelev;
     if ( !md2tvdss )
-	table_->setValue( RowCol(row,cDepthCol), dah * zfac );
+	table_->setValue( RowCol(row,cDepthCol), dah * zfac, nrdecdepth );
 
     if ( md2tvdss || istvd )
-	table_->setValue( RowCol(row,cTVDSSCol), tvdss * zfac );
+	table_->setValue( RowCol(row,cTVDSSCol), tvdss * zfac, nrdecdepth );
 
     if ( md2tvdss || !istvd )
-	table_->setValue( RowCol(row,cTVDCol), tvd * zfac );
+	table_->setValue( RowCol(row,cTVDCol), tvd * zfac, nrdecdepth );
 
     if ( SI().zIsTime() && d2tmodel_ )
     {
 	const float twt = d2tmodel_->getTime( dah, track_ );
 	table_->setValue( RowCol(row,cTWTCol),
-			  twt * SI().zDomain().userFactor(), 2 );
+			  twt * SI().zDomain().userFactor(),
+			  Well::nrTimeDecimals() );
     }
 
     return true;
@@ -999,6 +1008,7 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
     const Well::Track& trck = wd_->track();
     const float kbelev = trck.getKbElev();
 
+    const int nrdec = Well::nrDepthDecimals();
     for ( int irow=0; irow<nrmrks; irow++ )
     {
 	const Well::Marker& mrkr = *mset[irow];
@@ -1006,10 +1016,10 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
 	table_->setColor( RowCol(irow,cColorCol), mrkr.color() );
 
 	const float dah = mrkr.dah();
-	table_->setValue( RowCol(irow,cDepthCol), dah*zfac, 2 );
+	table_->setValue( RowCol(irow,cDepthCol), dah*zfac, nrdec );
 	const float tvdss = (float)trck.getPos(dah).z;
-	table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 2 );
-	table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 2 );
+	table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, nrdec );
+	table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, nrdec );
     }
 
 
