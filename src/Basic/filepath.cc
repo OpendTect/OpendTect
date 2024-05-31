@@ -234,10 +234,10 @@ FilePath& FilePath::insert( const char* fnm )
     if ( !fnm || !*fnm )
 	return *this;
 
-    BufferStringSet oldlvls( lvls_ );
-    lvls_.setEmpty();
-    set( fnm );
-    lvls_.append( oldlvls );
+    const FilePath fp( fnm );
+    for ( int idx=fp.nrLevels()-1; idx>=0; idx-- )
+	lvls_.insertAt( new BufferString(fp.dir(idx)), 0 );
+
     return *this;
 }
 
@@ -408,7 +408,13 @@ BufferString FilePath::fullPath( Style f, bool cleanup ) const
 	res.add( dirSep(Windows) );
 
     if ( !postfix_.isEmpty() )
+    {
+	if ( isURI() )
+	    res.add( "?" );
+
 	res.add( postfix_ );
+    }
+
     return res;
 }
 
@@ -460,7 +466,7 @@ const OD::String& FilePath::fileName() const
 BufferString FilePath::baseName() const
 {
     FilePath selfcopy( *this );
-    selfcopy.setExtension( 0 );
+    selfcopy.setExtension( nullptr );
     return selfcopy.fileName();
 }
 
@@ -482,6 +488,8 @@ BufferString FilePath::getTimeStampFileName( const char* ext )
 BufferString FilePath::pathOnly( Style f ) const
 {
     BufferString res = dirUpTo( lvls_.size()-2 );
+    res = mkCleanPath( res, f );
+
     if ( isabs_ && ((__iswin__ && f==Local) || f==Windows) && nrLevels() < 2 )
 	res.add( dirSep(Windows) );
 
@@ -538,6 +546,24 @@ BufferString FilePath::fileFrom( int lvl ) const
 	ret.add( lvls_.get( ilvl ) );
 	if ( ilvl != sz-1 )
 	    ret.add( dirSep() );
+    }
+
+    return ret;
+}
+
+
+BufferString FilePath::fileFrom( int lvl, Style st ) const
+{
+    BufferString ret;
+    if ( isURI() )
+	st = Unix;
+
+    const int sz = lvls_.size();
+    for ( int ilvl=lvl; ilvl<sz; ilvl++ )
+    {
+	ret.add( lvls_.get( ilvl ) );
+	if ( ilvl != sz-1 )
+	    ret.add( dirSep(st) );
     }
 
     return ret;

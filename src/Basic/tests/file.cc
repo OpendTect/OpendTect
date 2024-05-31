@@ -86,32 +86,65 @@ bool testIStream( const char* file )
 
 
 bool testFilePath( const char* inputpath,
+		   const char* prefix, const char* domain,
+		   const char* expfullpath,
+		   const char* pathonly,
+		   const char* localpath,
+		   const char* basename,
 		   const char* filename,
-		   const char* domain,
 		   const char* extension,
 		   const char* postfix,
-		   int nrlevels,
-		   bool absolute )
+		   const char* modifiedfullpath,
+		   int nrlevels, bool absolute, bool isuri )
 {
     const FilePath path( inputpath );
+    const StringView expfp( expfullpath ? expfullpath : inputpath );
+    const FilePath::Style st = path.isURI()
+			     ? FilePath::Local
+			     : ( StringView(path.prefix()) == "C"
+				? FilePath::Windows : FilePath::Unix );
 
     mRunStandardTest( path.isAbsolute()==absolute,
 	    BufferString( inputpath, " detects absolute status" ) );
 
-    mRunStandardTest( path.fileName()==filename,
-	    BufferString( inputpath, " detects filename" ) );
+    mRunStandardTest( path.isURI()==isuri,
+	BufferString( inputpath, " detects URI status" ) );
+
+    mRunStandardTest( StringView(path.prefix())==prefix,
+	BufferString( inputpath, " prefix: ", path.prefix() ) );
 
     mRunStandardTest( StringView(path.domain())==domain,
-	    BufferString( inputpath, " detects domain" ) );
+	BufferString( inputpath, " domain: ", path.domain() ) );
+
+    mRunStandardTest( path.fullPath(st)==expfp,
+	BufferString( inputpath, " fullpath: ", path.fullPath(st) ) );
+
+    mRunStandardTest( path.pathOnly(st)==pathonly,
+	BufferString( inputpath, " path: ", path.pathOnly(st) ) );
+
+    mRunStandardTest( path.fileFrom(0,st)==localpath,
+	BufferString( inputpath, " local path: ", path.fileFrom(0,st) ) );
+
+    mRunStandardTest( path.baseName() == basename,
+	BufferString( inputpath, " basename: ", path.baseName() ) );
+
+    mRunStandardTest( path.fileName()==filename,
+	    BufferString( inputpath, " filename: ", path.fileName() ) );
 
     mRunStandardTest( StringView(path.extension())==extension,
-	    BufferString( inputpath, " detects extension" ) );
+	    BufferString( inputpath, " extension: ", path.extension() ) );
 
     mRunStandardTest( StringView(path.postfix())==postfix,
-	    BufferString( inputpath, " detects postfix" ) );
+	    BufferString( inputpath, " postfix: ", path.postfix() ) );
 
     mRunStandardTest( path.nrLevels()==nrlevels,
-	    BufferString( inputpath, " detects nrLevels" ) );
+	    BufferString( inputpath, " nrLevels: ", toString(path.nrLevels())));
+
+    FilePath newpath( path );
+    newpath.insert( "inserted/folder" );
+    mRunStandardTest( newpath.fullPath( st )==modifiedfullpath,
+	BufferString( modifiedfullpath, " extended path: ",
+		      newpath.fullPath(st) ) );
 
     return true;
 }
@@ -120,57 +153,100 @@ bool testFilePath( const char* inputpath,
 bool testFilePathParsing()
 {
     if ( !testFilePath( "C:\\path\\to\\me.txt",
+			"C", "",	//prefix/domain
+			nullptr,	//same fullpath
+			"C:\\path\\to", //path
+			"path\\to\\me.txt", //local
+			"me",		//basename
 			"me.txt",	//filename
-			"",		//domain
 			"txt",		//extension
 			"",		//postfix
+			"C:\\inserted\\folder\\path\\to\\me.txt",
 			3,		//nrlevels
-			true ))	//absolute
+			true,false) )	//absolute/uri
     {
 	return false;
     }
 
     if ( !testFilePath( "/data/apps/OpendTect 5.0.0/file.txt",
+			"", "",		//prefix/domain
+			nullptr,	//same fullpath
+			"/data/apps/OpendTect 5.0.0", //path
+			"data/apps/OpendTect 5.0.0/file.txt", //local
+			"file",		//basename
 			"file.txt",	//filename
-			"",		//domain
 			"txt",		//extension
 			"",		//postfix
+			"/inserted/folder/data/apps/OpendTect 5.0.0/file.txt",
 			4,		//nrlevels
-			true ))	//absolute
+			true,false) )	//absolute/uri
     {
 	return false;
     }
 
     if ( !testFilePath( "C:\\Program Files/OpendTect\\5.0.0/file.txt",
+			"C", "",	//prefix/domain
+			"C:\\Program Files\\OpendTect\\5.0.0\\file.txt", //full
+			"C:\\Program Files\\OpendTect\\5.0.0", //path
+			"Program Files\\OpendTect\\5.0.0\\file.txt", //local
+			"file",		//basename
 			"file.txt",	//filename
-			"",		//domain
 			"txt",		//extension
 			"",		//postfix
+	"C:\\inserted\\folder\\Program Files\\OpendTect\\5.0.0\\file.txt",
 			4,		//nrlevels
-			true ))	//absolute
+			true,false) )	//absolute/uri
     {
 	return false;
     }
 
     if ( !testFilePath( "https://dgbes.com/surveys/aap/noot?x=y&&a=b",
+			"https", "dgbes.com", //prefix/domain
+			nullptr,	//same fullpath
+			"https://dgbes.com/surveys/aap", //path
+			"surveys/aap/noot", //local
+			"noot",		//basename
 			"noot",		//filename
-			"dgbes.com",	//domain
 			"",		//extension
 			"x=y&&a=b",	//postfix
+		"https://dgbes.com/inserted/folder/surveys/aap/noot?x=y&&a=b",
 			3,		//nrlevels
-			true ))	//absolute
+			true,true) )	//absolute/uri
     {
 	return false;
     }
 
     if ( !testFilePath(
        "https://dgbes.amazon.com/surveys/F3 Demo/Seismics/median_filtered.cbvs",
+			"https", "dgbes.amazon.com", //prefix/domain
+			nullptr,		//same fullpath
+       "https://dgbes.amazon.com/surveys/F3 Demo/Seismics", //path
+			"surveys/F3 Demo/Seismics/median_filtered.cbvs",//local
+			"median_filtered",	//basename
 			"median_filtered.cbvs",	//filename
-			"dgbes.amazon.com",	//domain
 			"cbvs",		//extension
 			"",		//postfix
+			"https://dgbes.amazon.com/inserted/folder/"
+			"surveys/F3 Demo/Seismics/median_filtered.cbvs",
 			4,		//nrlevels
-			true ))		//absolute
+			true,true) )	//absolute/uri
+    {
+	return false;
+    }
+
+    if ( !testFilePath( "s3://dgb-test-bucket/seismics/median_filtered.cbvs",
+			"s3", "dgb-test-bucket", //prefix/domain
+			nullptr,	//same fullpath
+			"s3://dgb-test-bucket/seismics", //path
+			"seismics/median_filtered.cbvs", //local
+			"median_filtered", //basename
+			"median_filtered.cbvs", //filename
+			"cbvs",		//extension
+			"",		//postfix
+			"s3://dgb-test-bucket/inserted/folder/"
+			"seismics/median_filtered.cbvs",
+			2,		//nrlevels
+			true,true) )	//absolute/uri
     {
 	return false;
     }

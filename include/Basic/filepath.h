@@ -84,6 +84,7 @@ public:
     BufferString	dirUpTo(int) const;
 			//!< nr < 0 returns last dir, including prefix
     BufferString	fileFrom(int level) const;
+    BufferString	fileFrom(int level,Style =Local) const;
     BufferString	partitionName() const;
     BufferString	rootPath() const;
 
