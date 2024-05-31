@@ -75,16 +75,16 @@ public:
     int			nrLevels() const;
     const char*		extension() const;	//!< may return null
 
+    BufferString	pathOnly(Style s=Local,bool cleanup=true) const;
     const OD::String&	fileName() const;
     BufferString	baseName() const; //!<return name of file w/o path & ext
-    BufferString	pathOnly(Style s=Local) const;
     BufferString	winDrive() const;
 
     const OD::String&	dir(int nr=-1) const;
 			//!< nr < 0 returns last dir name
     BufferString	dirUpTo(int) const;
 			//!< nr < 0 returns last dir, including prefix
-    BufferString	fileFrom(int level) const;
+    BufferString	fileFrom(int level,Style s=Local) const;
     BufferString	partitionName() const;
     BufferString	rootPath() const;
 
