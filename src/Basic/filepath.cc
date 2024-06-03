@@ -238,6 +238,8 @@ FilePath& FilePath::insert( const char* fnm )
     for ( int idx=fp.nrLevels()-1; idx>=0; idx-- )
 	lvls_.insertAt( new BufferString(fp.dir(idx)), 0 );
 
+    isabs_ = isAbsolute() || fp.isAbsolute();
+    compress();
     return *this;
 }
 
@@ -323,7 +325,6 @@ bool FilePath::isURI() const
 #endif
 
 }
-
 
 
 bool FilePath::isSubDirOf( const FilePath& oth, FilePath* relpath ) const

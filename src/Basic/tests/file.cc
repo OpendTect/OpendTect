@@ -145,6 +145,9 @@ bool testFilePath( const char* inputpath,
     mRunStandardTest( newpath.fullPath( st )==modifiedfullpath,
 	BufferString( modifiedfullpath, " extended path: ",
 		      newpath.fullPath(st) ) );
+    mRunStandardTest( newpath.isURI() == path.isURI() &&
+		      newpath.isAbsolute() == path.isAbsolute(),
+		      BufferString(inputpath,": Paths types remain identical"));
 
     return true;
 }
