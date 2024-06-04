@@ -155,7 +155,8 @@ void DataManager::getIDs( const std::type_info& ti, TypeSet<VisID>& res ) const
 	if ( !dataobj )
 	    continue;
 
-	const std::type_info& objinfo = typeid(*dataobj.ptr());
+	const DataObject* cdataobj = dataobj.ptr();
+	const std::type_info& objinfo = typeid( *cdataobj );
 	if ( objinfo.hash_code() == tihash )
 	    res += dataobj->id();
     }
