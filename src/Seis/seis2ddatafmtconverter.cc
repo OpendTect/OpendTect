@@ -113,7 +113,7 @@ class OD_FileListCopier : public Executor
 { mODTextTranslationClass(OD_FileListCopier);
 public:
 OD_FileListCopier( const BufferStringSet& fromlist,
-		   const BufferStringSet& tolist, BufferString& errmsg )
+		   const BufferStringSet& tolist, uiString& errmsg )
     : Executor( "2D data conversion" )
     , fromlist_(fromlist), tolist_(tolist)
     , errmsg_(errmsg),curidx_(0)
@@ -162,7 +162,7 @@ int nextStep() override
 
     const BufferStringSet&	fromlist_;
     const BufferStringSet&	tolist_;
-    BufferString&		errmsg_;
+    uiString&			errmsg_;
     int				curidx_;
 };
 
@@ -217,7 +217,7 @@ mGlobal(Seis) int Seis_Get_2D_Data_Conversion_Status()
     }
 
     const FilePath old2dgeomfp( IOM().rootDir().fullPath(), "2DGeom",
-	    			"idx.txt" );
+				"idx.txt" );
     if ( !islegacy && !File::exists(old2dgeomfp.fullPath()) )
        return 0; // All required conversions have already been done.
 
@@ -486,7 +486,7 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
     if ( srclist.isEmpty() )
 	return true;
 
-    BufferString msg;
+    uiString msg;
     OD_FileListCopier exec( srclist, destlist, msg );
     const bool res = TaskRunner::execute( taskrnr, exec );
     if ( !res )

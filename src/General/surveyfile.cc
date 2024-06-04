@@ -404,7 +404,7 @@ EmptyTempSurvey::~EmptyTempSurvey()
 }
 
 
-bool EmptyTempSurvey::createSurvey( TaskRunner* /* trun */ )
+bool EmptyTempSurvey::createSurvey( TaskRunner* taskrun )
 {
     const BufferString basicsurv =
 			mGetSetupFileName( SurveyInfo::sKeyBasicSurveyName() );
@@ -415,13 +415,14 @@ bool EmptyTempSurvey::createSurvey( TaskRunner* /* trun */ )
     }
 
     const BufferString newsurv = surveyloc_->fullPath();
-    BufferString emsg;
-    const bool isok = File::copy( basicsurv.buf(), newsurv.buf(), &emsg );
+    uiString emsg;
+    const bool isok = File::copy( basicsurv.buf(), newsurv.buf(),
+				  &emsg, taskrun );
     if ( !isok || !File::exists(newsurv.buf()) )
     {
 	lasterrs_ = tr("Failed to mount temporary survey at '%1' with error %2")
 						    .arg( newsurv.buf() )
-						    .arg( emsg.buf() );
+						    .arg( emsg );
 	return false;
     }
 

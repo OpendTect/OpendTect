@@ -624,29 +624,32 @@ bool saveCopy( const char* from, const char* to )
 }
 
 
-bool copy( const char* from, const char* to, BufferString* errmsg )
+bool copy( const char* from, const char* to, uiString* errmsg,
+	   TaskRunner* taskrun )
 {
     if ( !isSane(from) || !isSane(to) )
 	return false;
 
-    if ( OD::FileSystemAccess::getProtocol(from) !=
-	 OD::FileSystemAccess::getProtocol(to) )
+    const auto& fromfsa = OD::FileSystemAccess::get( from );
+    const auto& tofsa = OD::FileSystemAccess::get( to );
+    if ( fromfsa.isDirectory(from) || tofsa.isDirectory(to) )
+	return copyDir( from, to, errmsg, taskrun );
+
+    if ( !fromfsa.isLocal() && !tofsa.isLocal() && &fromfsa != &tofsa )
+    {
+	// probably never supported?
 	return false;
+    }
 
-    const auto& fsa = OD::FileSystemAccess::get( from );
+    const auto& cpfsa = !fromfsa.isLocal() ? fromfsa : tofsa;
+    const bool res = cpfsa.copy( from, to, errmsg );
 
-    if ( fsa.isDirectory(from) || fsa.isDirectory(to) )
-	return copyDir( from, to, errmsg );
-
-    uiString uimsg;
-    const bool res = fsa.copy( from, to, errmsg ? &uimsg : nullptr );
-    if ( errmsg )
-	errmsg->set( uimsg );
     return res;
 }
 
 
-bool copyDir( const char* from, const char* to, BufferString* errmsg )
+bool copyDir( const char* from, const char* to, uiString* errmsg,
+	      TaskRunner* taskrun )
 {
     if ( !isLocal(from) || !isLocal(to) )
 	return false;
@@ -654,18 +657,16 @@ bool copyDir( const char* from, const char* to, BufferString* errmsg )
     if ( !exists(from) || exists(to) )
 	return false;
 
-    uiString errmsgloc;
-    if ( !checkDir(from,true,&errmsgloc) || !checkDir(to,false,&errmsgloc) )
-    {
-	if ( errmsg && !errmsgloc.isEmpty() )
-	    errmsg->add( errmsgloc.getFullString() );
+    if ( !checkDir(from,true,errmsg) || !checkDir(to,false,errmsg) )
 	return false;
-    }
 
     PtrMan<Executor> copier = getRecursiveCopier( from, to );
-    const bool res = copier->execute();
+    if ( !copier )
+	return false;
+
+    const bool res = TaskRunner::execute( taskrun, *copier.ptr() );
     if ( !res && errmsg )
-	errmsg->add( copier->uiMessage().getFullString() );
+	*errmsg = copier->uiMessage();
 
     return res;
 }
@@ -720,7 +721,11 @@ bool checkDir( const char* fnm, bool forread, uiString* errmsg )
     if ( !isSane(fnm) )
     {
 	if ( errmsg )
-	    *errmsg = ::toUiString( "Please specify a folder name" );
+	{
+	    *errmsg = od_static_tr( "File::checkDir",
+				    "Please specify a folder name" );
+	}
+
 	return false;
     }
 
@@ -733,9 +738,11 @@ bool checkDir( const char* fnm, bool forread, uiString* errmsg )
 				 : fsa.isWritable( dirnm );
     if ( !success && errmsg )
     {
-	errmsg->set( forread ? "Cannot read in folder: "
-			     : "Cannot write in folder: " );
-	errmsg->append( dirnm );
+	*errmsg = forread ? od_static_tr( "File::checkDir",
+					  "Cannot read in folder: %1" )
+			  : od_static_tr( "File::checkDir",
+					  "Cannot write in folder: %1" );
+	errmsg->arg( dirnm );
 	errmsg->appendPhrase( uiStrings::phrCheckPermissions() );
     }
 

@@ -530,30 +530,30 @@ webostream( webostreambuf* sb )
 class HttpFileSystemAccess : public OD::FileSystemAccess
 { mODTextTranslationClass(HttpFileSystemAccess)
 public:
+			~HttpFileSystemAccess()		{}
 
-    static const char*	sFactoryKeyword() { return "http"; }
-    static uiString	sFactoryUserName() { return uiStrings::sWeb(); }
+private:
+			HttpFileSystemAccess() = default;
 
     const char*		protocol() const override { return sFactoryKeyword(); }
     uiString		userName() const override { return sFactoryUserName(); }
     bool		readingSupported() const override	{ return true; }
-    bool		writingSupported() const override
-			    { return false; }
-    bool		queriesSupported() const override
-			    { return false; }
-    bool		operationsSupported() const override
-			    { return false; }
 
     bool		isReadable(const char*) const override;
     od_int64		getFileSize(const char*,bool) const override;
     StreamData		createIStream(const char*,bool) const override;
     StreamData		createOStream(const char*,bool,bool) const override;
 
-    static void		initClass();
     static OD::FileSystemAccess* createInstance()
 			    { return new HttpFileSystemAccess; }
 
     mutable std::map<std::string,int>	existcache_;
+
+public:
+
+    static void		initClass();
+    static const char*	sFactoryKeyword() { return "http"; }
+    static uiString	sFactoryUserName() { return uiStrings::sWeb(); }
 
 };
 
@@ -604,7 +604,7 @@ StreamData Network::HttpFileSystemAccess::createIStream( const char* fnm,
 							 bool binary ) const
 {
     StreamData sd;
-    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
+    auto* impl = new StreamData::StreamDataImpl;
     impl->fname_ = fnm;
     impl->istrm_ = new Network::webistream( new Network::webistreambuf( fnm ) );
     if ( !impl->istrm_->good() )
@@ -622,7 +622,7 @@ StreamData Network::HttpFileSystemAccess::createOStream( const char* fnm,
     if ( editmode )
 	return sd;
 
-    StreamData::StreamDataImpl* impl = new StreamData::StreamDataImpl;
+    auto* impl = new StreamData::StreamDataImpl;
     impl->fname_ = fnm;
     impl->ostrm_ = new Network::webostream( new Network::webostreambuf( fnm ) );
     if ( !impl->ostrm_->good() )

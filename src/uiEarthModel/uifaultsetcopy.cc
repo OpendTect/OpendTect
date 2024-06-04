@@ -186,7 +186,7 @@ bool uiCopyFaultSet::acceptOK( CallBacker* )
     if ( !File::isDirectory(outdirnm) )
 	File::createDir( outdirnm );
 
-    BufferString errmsg;
+    uiString errmsg;
     for ( int idx=0; idx<selflts.size(); idx++ )
     {
 	FilePath inpfp( inpdirnm, selflts.get(idx) );
@@ -197,7 +197,7 @@ bool uiCopyFaultSet::acceptOK( CallBacker* )
 	{
 	    uiMSG().error( toUiString("%1: %2")
 		    .arg(uiStrings::phrCannotCopy(uiStrings::sFault()))
-		    .arg(toUiString(errmsg)) );
+		    .arg(errmsg) );
 	    return false;
 	}
     }

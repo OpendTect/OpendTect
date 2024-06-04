@@ -281,14 +281,12 @@ uiRetVal uiCrDevEnv::copyEnv( const char* swdir, const char* envdir )
     const FilePath progfp( swdir, "doc", "Programmer", "pluginexample" );
     const FilePath cmakelistsfpin( progfp, "CMakeLists.txt" );
     const FilePath cmakelistsfpout( envdir, "CMakeLists.txt" );
-    BufferString copymsg;
-    if (!File::copy(cmakelistsfpin.fullPath(),cmakelistsfpout.fullPath(),
-		    &copymsg) )
+    if ( !File::copy(cmakelistsfpin.fullPath(),cmakelistsfpout.fullPath()) )
 	return uiStrings::phrCannotCopy(toUiString(cmakelistsfpin.fullPath()) );
 
     const FilePath versionsfpin( progfp, "version.h.in" );
     const FilePath versionsfpout( cmakemodfpout, "version.h.in" );
-    if ( !File::copy(versionsfpin.fullPath(),versionsfpout.fullPath(),&copymsg))
+    if ( !File::copy(versionsfpin.fullPath(),versionsfpout.fullPath()) )
 	return uiStrings::phrCannotCopy(toUiString(versionsfpin.fullPath()) );
 
     FilePath pluginsfpin;

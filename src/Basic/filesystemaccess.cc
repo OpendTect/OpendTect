@@ -95,12 +95,17 @@ static ObjectSet<const OD::FileSystemAccess> systemaccesses_;
 class LocalFileSystemAccess : public OD::FileSystemAccess
 { mODTextTranslationClass(LocalFileSystemAccess);
 public:
+			~LocalFileSystemAccess()	{}
+
+private:
 			LocalFileSystemAccess() = default;
 
-    static const char*	sFactoryKeyword() { return "file"; }
-    static uiString	sFactoryUserName() { return tr("Local"); }
     const char*		protocol() const override { return sFactoryKeyword(); }
     uiString		userName() const override { return sFactoryUserName(); }
+    bool		readingSupported() const override { return true; }
+    bool		writingSupported() const override { return true; }
+    bool		queriesSupported() const override { return true; }
+    bool		operationsSupported() const override { return true; }
 
     bool		exists(const char*) const override;
     bool		isReadable(const char*) const override;
@@ -115,7 +120,7 @@ public:
     bool	rename(const char* from,const char* to,
 		       uiString* errmsg=nullptr) const override;
     bool	copy(const char* from,const char* to,
-		     uiString* errmsg=nullptr) const override;
+		     uiString* errmsg,TaskRunner*) const override;
     od_int64	getFileSize(const char*, bool followlink) const override;
     bool	createDirectory(const char*) const override;
     bool	listDirectory(const char*,File::DirListType,
@@ -127,12 +132,14 @@ public:
 
     StreamData	createIStream(const char*,bool binary) const override;
 
-    static void		initClass();
-
-private:
-
     static OD::FileSystemAccess*	createInstance()
 					{ return new LocalFileSystemAccess(); }
+public:
+
+    static void		initClass();
+    static const char*	sFactoryKeyword() { return "file"; }
+    static uiString	sFactoryUserName() { return tr("Local"); }
+
 };
 
 // Set up a mechanism to run initClass once. Since this will likely be done
@@ -336,11 +343,10 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
     {
 	if ( errmsg )
 	{
-	    BufferString errstr( "Destination '" );
-	    errstr.add( destpath.fullPath() )
-		.add( "' already exists." )
-		.add( "Please remove or rename manually." );
-	    errmsg->append(errstr);
+	    uiString msg = tr( "Destination '%1' already exists" )
+					.arg( destpath.fullPath() );
+	    msg.appendPhrase( tr("Please remove or rename manually") );
+	    errmsg->appendPhrase( msg );
 	}
 
 	return false;
@@ -354,7 +360,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 	{
 	    if ( errmsg )
 		errmsg->append( uiStrings::phrCannotCreateDirectory(
-		    toUiString(targetbasedir)) );
+						toUiString(targetbasedir)) );
 
 	    return false;
 	}
@@ -364,7 +370,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
     {
 	if ( errmsg )
 	    errmsg->append(uiStrings::phrCannotWrite(
-		toUiString(targetbasedir)));
+						toUiString(targetbasedir)));
 
 	return false;
     }
@@ -424,15 +430,9 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 	const BufferString sourcedrive = sourcefp.rootPath();
 	if ( destdrive != sourcedrive )
 	{
-	    BufferString msgstr;
-	    res = File::copyDir( oldname, newname, &msgstr );
+	    res = File::copyDir( oldname, newname, errmsg );
 	    if ( !res )
-	    {
-		if ( errmsg && !msgstr.isEmpty() )
-		    errmsg->append( msgstr );
-
 		return false;
-	    }
 
 	    res = File::removeDir( oldname );
 	    return res;
@@ -447,12 +447,12 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
     if ( !res && errmsg )
     {
 	if ( !stderror.isEmpty() )
-	    errmsg->append( stderror, true );
+	    errmsg->appendPhrase( toUiString(stderror) );
 
 	if ( !stdoutput.isEmpty() )
-	    errmsg->append( stdoutput, true );
+	    errmsg->appendPhrase( toUiString(stdoutput) );
 
-	errmsg->append("Failed to rename using system command.");
+	errmsg->appendPhrase( tr("Failed to rename using system command.") );
     }
 
     return res;
@@ -460,7 +460,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 
 
 bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
-				  uiString* errmsg ) const
+				  uiString* errmsg, TaskRunner* taskrun ) const
 {
     const BufferString from = withoutProtocol( fromuri );
     const BufferString to = withoutProtocol( touri );
@@ -468,13 +468,7 @@ bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
 	return false;
 
     if ( isDirectory(from) || isDirectory(to) )
-    {
-	BufferString errstr;
-	const bool res = File::copyDir( from, to, &errstr );
-	if ( errmsg && !errstr.isEmpty() )
-	    errmsg->set( errstr );
-	return res;
-    }
+	return File::copyDir( from, to, errmsg, taskrun );
 
     if ( !File::checkDir(from,true,errmsg) || !File::checkDir(to,false,errmsg) )
 	return false;
@@ -746,6 +740,12 @@ const FileSystemAccess& FileSystemAccess::getLocal()
 }
 
 
+bool FileSystemAccess::isLocal() const
+{
+    return this == &getLocal();
+}
+
+
 const FileSystemAccess& FileSystemAccess::gtByProt( BufferString& protocol )
 {
     if ( lfsinitstate_ != mLocalFileSystemInited )
@@ -792,7 +792,5 @@ const FileSystemAccess& FileSystemAccess::gtByProt( BufferString& protocol )
     systemaccesses_ += res;
     return *res;
 }
-
-
 
 } // namespace OD
