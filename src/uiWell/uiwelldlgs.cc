@@ -2651,6 +2651,7 @@ bool uiWellDefMnemLogDlg::acceptOK( CallBacker* )
 	    const BufferString deflognm = currgen->text();
 	    if ( deflognm == sNone() )
 	    {
+		wd->logs().removeDefault( *mn );
 		row++;
 		continue;
 	    }
