@@ -186,18 +186,18 @@ bool uiCopyFaultSet::acceptOK( CallBacker* )
     if ( !File::isDirectory(outdirnm) )
 	File::createDir( outdirnm );
 
-    BufferString errmsg;
+    uiString errmsg;
     for ( int idx=0; idx<selflts.size(); idx++ )
     {
 	FilePath inpfp( inpdirnm, selflts.get(idx) );
 	inpfp.setExtension( ".flt" );
 	FilePath outfp( outdirnm, toString(idx+1) );
 	outfp.setExtension( ".flt" );
-	if ( !File::copy(inpfp.fullPath(),outfp.fullPath(),&errmsg) )
+	if ( !File::copy(inpfp.fullPath(),outfp.fullPath(),&errmsg,nullptr) )
 	{
 	    uiMSG().error( toUiString("%1: %2")
 		    .arg(uiStrings::phrCannotCopy(uiStrings::sFault()))
-		    .arg(toUiString(errmsg)) );
+		    .arg(errmsg) );
 	    return false;
 	}
     }

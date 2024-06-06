@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class Executor;
+class TaskRunner;
 namespace Crypto { enum class Algorithm; }
 
 
@@ -30,6 +31,7 @@ mGlobal(Basic) bool		isEmpty(const char*);
 mGlobal(Basic) bool		isDirEmpty(const char*);
 mGlobal(Basic) bool		isFile(const char*);
 mGlobal(Basic) bool		isDirectory(const char*);
+mGlobal(Basic) bool		isLocal(const char*);
 mGlobal(Basic) bool		isURI(const char*);
 
 mGlobal(Basic) BufferString	findExecutable(const char* exenm,
@@ -80,6 +82,9 @@ mGlobal(Basic) bool		rename(const char* oldname,const char* newname,
 				       uiString* errmsg=nullptr);
 mGlobal(Basic) bool		copy(const char* from,const char* to,
 					BufferString* errmsg=0);
+mGlobal(Basic) bool		copy(const char* from,const char* to,
+				     uiString* errmsg,
+				     TaskRunner*);
 mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
 					       const char* to);
 mGlobal(Basic) Executor*	getRecursiveDeleter(const char* dirnm,
@@ -90,6 +95,9 @@ mGlobal(Basic) bool		remove(const char*);
 mGlobal(Basic) bool		saveCopy(const char* from,const char* to);
 mGlobal(Basic) bool		copyDir(const char* from,const char* to,
 					BufferString* errmsg=0);
+mGlobal(Basic) bool		copyDir(const char* from,const char* to,
+					uiString* errmsg,
+					TaskRunner*);
 mGlobal(Basic) bool		removeDir(const char*);
 mGlobal(Basic) bool		changeDir(const char* path);
 mGlobal(Basic) bool		checkDir(const char* fnm,bool forread,

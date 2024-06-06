@@ -655,13 +655,14 @@ bool EmptyTempSurvey::createTempSurveySetup( bool /* hasomf */ )
 
     const SurveyDiskLocation* surveyloc_ = emptysurveysdlmgr_.getParam( this );
     const BufferString newsurv = surveyloc_->fullPath();
-    BufferString emsg;
-    const bool isok = File::copy( basicsurv.buf(), newsurv.buf(), &emsg );
+    uiString emsg;
+    const bool isok = File::copy( basicsurv.buf(), newsurv.buf(),
+				  &emsg, nullptr );
     if ( !isok || !File::exists(newsurv.buf()) )
     {
 	lasterrs_ = tr("Failed to mount temporary survey at '%1' with error %2")
 						    .arg( newsurv.buf() )
-						    .arg( emsg.buf() );
+						    .arg( emsg );
 	return false;
     }
 
@@ -765,5 +766,3 @@ void EmptyTempSurvey::setSaveLocation( const char* saveloc )
     savefp.add( savenm.buf() );
     zipfileloc_.set( savefp.fullPath() );
 }
-
-

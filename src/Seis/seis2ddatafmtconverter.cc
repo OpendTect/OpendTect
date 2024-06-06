@@ -114,7 +114,7 @@ class OD_FileListCopier : public Executor
 { mODTextTranslationClass(OD_FileListCopier);
 public:
 OD_FileListCopier( const BufferStringSet& fromlist,
-		   const BufferStringSet& tolist, BufferString& errmsg )
+		   const BufferStringSet& tolist, uiString& errmsg )
     : Executor( "2D data conversion" )
     , fromlist_(fromlist), tolist_(tolist)
     , errmsg_(errmsg),curidx_(0)
@@ -143,7 +143,7 @@ int nextStep() override
     const BufferString& dest = tolist_.get( curidx_ );
     if ( File::exists(src) && !File::exists(dest) )
     {
-	if ( !File::copy(src,dest,&errmsg_) )
+	if ( !File::copy(src,dest,&errmsg_,nullptr) )
 	    return ErrorOccurred();
     }
 
@@ -153,7 +153,7 @@ int nextStep() override
     destfp.setExtension( "par" );
     if ( File::exists(srcfp.fullPath()) && !File::exists(destfp.fullPath()) )
     {
-	if ( !File::copy(srcfp.fullPath(),destfp.fullPath(),&errmsg_) )
+	if ( !File::copy(srcfp.fullPath(),destfp.fullPath(),&errmsg_,nullptr) )
 	    return ErrorOccurred();
     }
 
@@ -163,7 +163,7 @@ int nextStep() override
 
     const BufferStringSet&	fromlist_;
     const BufferStringSet&	tolist_;
-    BufferString&		errmsg_;
+    uiString&			errmsg_;
     int				curidx_;
 };
 
@@ -486,7 +486,7 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
     if ( srclist.isEmpty() )
 	return true;
 
-    BufferString msg;
+    uiString msg;
     OD_FileListCopier exec( srclist, destlist, msg );
     const bool res = TaskRunner::execute( taskrnr, exec );
     if ( !res )
