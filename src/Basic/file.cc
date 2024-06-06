@@ -44,16 +44,14 @@ ________________________________________________________________________
 #define mMBFactor (1024*1024)
 const char* not_implemented_str = "Not implemented";
 
-
 mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 {
 	"text",
 	"table",
 	"log",
 	"bin",
-	0
+	nullptr
 };
-
 
 namespace File
 {
@@ -93,12 +91,6 @@ static bool fnmIsURI( const char*& fnm )
     }
 
     return false;
-}
-
-
-static inline bool isLocal( const char* fnm )
-{
-    return isSane(fnm) && !fnmIsURI(fnm);
 }
 
 
@@ -177,7 +169,7 @@ int RecursiveCopier::nextStep()
 
 
 class RecursiveDeleter : public Executor
-{
+{ mODTextTranslationClass(RecursiveDeleter)
 public:
 			RecursiveDeleter(const char* dirnm,
 					 const BufferStringSet* externallist=0,
@@ -201,7 +193,7 @@ public:
     od_int64		totalNr() const override	{ return totalnr_; }
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override
-			{ return mToUiStringTodo( "Files removed" ); }
+			{ return tr( "Files removed" ); }
 
     int			nextStep() override;
 
@@ -240,7 +232,7 @@ int RecursiveDeleter::nextStep()
 
     if ( !res )
     {
-	uiString msg( mToUiStringTodo("Failed to remove ") );
+	uiString msg( tr("Failed to remove ") );
 	msg.append( filename );
 	msg_ = msg;
     }
@@ -353,6 +345,12 @@ bool isDirectory( const char* fnm )
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.isDirectory( fnm );
+}
+
+
+bool isLocal( const char* fnm )
+{
+    return isSane(fnm) && !fnmIsURI(fnm);
 }
 
 
@@ -579,7 +577,7 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
     {
 	if ( errmsg )
 	    errmsg->appendPhrase( od_static_tr("rename",
-		"Irregular name found.") );
+						"Irregular name found.") );
 
 	return false;
     }
@@ -589,7 +587,7 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
     {
 	if ( errmsg )
 	    errmsg->appendPhrase( od_static_tr("rename",
-		"Incompatible target and destination protocols") );
+			    "Incompatible target and destination protocols") );
 
 	return false;
     }
@@ -637,27 +635,57 @@ bool saveCopy( const char* from, const char* to )
 
 bool copy( const char* from, const char* to, BufferString* errmsg )
 {
+    uiString msg; TaskRunner* taskrun = nullptr;
+    const bool res = copy( from, to, &msg, taskrun );
+    if ( errmsg )
+	*errmsg = msg.getString();
+
+    return res;
+}
+
+
+bool copy( const char* from, const char* to, uiString* errmsg,
+	   TaskRunner* taskrun )
+{
     if ( !isSane(from) || !isSane(to) )
 	return false;
 
-    if ( OD::FileSystemAccess::getProtocol(from) !=
-	 OD::FileSystemAccess::getProtocol(to) )
+    const auto& fromfsa = OD::FileSystemAccess::get( from );
+    const auto& tofsa = OD::FileSystemAccess::get( to );
+    if ( fromfsa.isDirectory(from) || tofsa.isDirectory(to) )
+	return copyDir( from, to, errmsg, taskrun );
+
+    if ( !fromfsa.isLocal() && !tofsa.isLocal() && &fromfsa != &tofsa )
+    {
+	// probably never supported?
 	return false;
+    }
 
-    const auto& fsa = OD::FileSystemAccess::get( from );
+    const auto& cpfsa = !fromfsa.isLocal() ? fromfsa : tofsa;
+    if ( taskrun )
+	cpfsa.setTaskRunner( taskrun );
 
-    if ( fsa.isDirectory(from) || fsa.isDirectory(to) )
-	return copyDir( from, to, errmsg );
+    const bool res = cpfsa.copy( from, to, errmsg );
+    if ( taskrun )
+	cpfsa.setTaskRunner( nullptr );
 
-    uiString uimsg;
-    const bool res = fsa.copy( from, to, errmsg ? &uimsg : nullptr );
-    if ( errmsg )
-	errmsg->set( uimsg );
     return res;
 }
 
 
 bool copyDir( const char* from, const char* to, BufferString* errmsg )
+{
+    uiString msg; TaskRunner* taskrun = nullptr;
+    const bool res = copyDir( from, to, &msg, taskrun );
+    if ( errmsg )
+	*errmsg = msg.getString();
+
+    return res;
+}
+
+
+bool copyDir( const char* from, const char* to, uiString* errmsg,
+	      TaskRunner* taskrun )
 {
     if ( !isLocal(from) || !isLocal(to) )
 	return false;
@@ -665,18 +693,16 @@ bool copyDir( const char* from, const char* to, BufferString* errmsg )
     if ( !exists(from) || exists(to) )
 	return false;
 
-    uiString errmsgloc;
-    if ( !checkDir(from,true,&errmsgloc) || !checkDir(to,false,&errmsgloc) )
-    {
-	if ( errmsg && !errmsgloc.isEmpty() )
-	    errmsg->add( errmsgloc.getFullString() );
+    if ( !checkDir(from,true,errmsg) || !checkDir(to,false,errmsg) )
 	return false;
-    }
 
     PtrMan<Executor> copier = getRecursiveCopier( from, to );
-    const bool res = copier->execute();
+    if ( !copier )
+	return false;
+
+    const bool res = TaskRunner::execute( taskrun, *copier.ptr() );
     if ( !res && errmsg )
-	errmsg->add( copier->uiMessage().getFullString() );
+	*errmsg = copier->uiMessage();
 
     return res;
 }
@@ -731,7 +757,11 @@ bool checkDir( const char* fnm, bool forread, uiString* errmsg )
     if ( !isSane(fnm) )
     {
 	if ( errmsg )
-	    *errmsg = ::toUiString( "Please specify a folder name" );
+	{
+	    *errmsg = od_static_tr( "File::checkDir",
+				    "Please specify a folder name" );
+	}
+
 	return false;
     }
 
@@ -744,9 +774,11 @@ bool checkDir( const char* fnm, bool forread, uiString* errmsg )
 				 : fsa.isWritable( dirnm );
     if ( !success && errmsg )
     {
-	errmsg->set( forread ? "Cannot read in folder: "
-			     : "Cannot write in folder: " );
-	errmsg->append( dirnm );
+	*errmsg = forread ? od_static_tr( "File::checkDir",
+					  "Cannot read in folder: %1" )
+			  : od_static_tr( "File::checkDir",
+					  "Cannot write in folder: %1" );
+	errmsg->arg( dirnm );
 	errmsg->appendPhrase( uiStrings::phrCheckPermissions() );
     }
 

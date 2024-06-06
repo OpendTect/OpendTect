@@ -61,6 +61,8 @@ public:
     virtual bool	copy(const char* from,const char* to,
 			     uiString* errmsg=nullptr) const
 			{ return false; }
+    bool		copy(const char* from,const char* to,
+			     uiString* errmsg,TaskRunner*) const;
     virtual bool	createDirectory(const char*) const
 			{ return false; }
     virtual bool	listDirectory(const char*,File::DirListType,
@@ -83,24 +85,34 @@ public:
     static BufferString	iconForProtocol(const char*);
     static BufferString	withProtocol(const char* fnm,const char* prot);
 
+    bool		isLocal() const;
     virtual const char*	protocol() const		= 0;
     virtual uiString	userName() const		= 0;
     virtual BufferString iconName() const
 			{ return iconForProtocol(protocol()); }
 
-    virtual bool	readingSupported() const	{ return true; }
-    virtual bool	writingSupported() const	{ return true; }
-    virtual bool	queriesSupported() const	{ return true; }
-    virtual bool	operationsSupported() const	{ return true; }
+    virtual bool	readingSupported() const	{ return false; }
+    virtual bool	writingSupported() const	{ return false; }
+    virtual bool	queriesSupported() const	{ return false; }
+    virtual bool	operationsSupported() const	{ return false; }
 
     const BufferString& errMsg() const			{ return errmsg_; }
 
 protected:
 
     virtual				~FileSystemAccess() {}
+
     static const FileSystemAccess&	gtByProt(BufferString&);
+    TaskRunner*		getTaskRunner() const;
 
     mutable BufferString	errmsg_;
+
+private:
+
+    TaskRunner*		getTaskRunner(TaskRunner* newtrun,bool set) const;
+
+public:
+    void		setTaskRunner(TaskRunner*) const;
 };
 
 } // namespace OD
