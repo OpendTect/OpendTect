@@ -105,6 +105,8 @@ protected:
     bool			acceptOK(CallBacker*) override;
 
     void			resetProps(int,int);
+    void			resetProps(Well::Data*, int);
+    void			resetPropsCB(CallBacker*);
     virtual void		wellSelChg(CallBacker*);
     void			saveWellDispProps(const Well::Data*);
     void			saveAllWellDispProps();
