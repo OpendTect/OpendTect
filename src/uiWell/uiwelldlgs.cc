@@ -2462,7 +2462,10 @@ void uiWellDefMnemLogDlg::Tables::defLogChangedCB( CallBacker* cb )
     changedmn_ = const_cast<Mnemonic*>( availmnems_.get(currow) );
     const int curritem = deflogfld->currentItem();
     const BufferString lognm( deflogfld->textOfItem(curritem) );
-    changedlog_ = wd_->logs().getLog( lognm.buf() );
+    if ( lognm == sNone() )
+	changedlog_ = nullptr;
+    else
+	changedlog_ = wd_->logs().getLog( lognm.buf() );
 }
 
 
@@ -2487,7 +2490,8 @@ void uiWellDefMnemLogDlg::Tables::setSavedDefaults()
 void uiWellDefMnemLogDlg::Tables::setDefLog( const int idx,
 					      const Well::Log* log )
 {
-    const int cbidx = deflogsflds_.get(idx)->indexOf( log->name() );
+    const StringView lognm = log ? log->name().buf() : sNone();
+    const int cbidx = deflogsflds_.get(idx)->indexOf( lognm );
     deflogsflds_.get(idx)->setCurrentItem( cbidx );
 }
 
@@ -2667,6 +2671,7 @@ bool uiWellDefMnemLogDlg::acceptOK( CallBacker* )
 	    const BufferString deflognm = currgen->text();
 	    if ( deflognm == sNone() )
 	    {
+		wd->logs().removeDefault( *mn );
 		row++;
 		continue;
 	    }
