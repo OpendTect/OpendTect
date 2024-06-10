@@ -158,7 +158,6 @@ void uiWellDispPropDlg::initDlg( OD::Color bkCol )
     ts_->setCurrentPage( curtab );
     mAttachCB( ts_->selChange(), uiWellDispPropDlg::tabSel );
 
-    setWDNotifiers( true );
     mAttachCB( applyPushed, uiWellDispPropDlg::resetCB );
     mAttachCB( postFinalize(), uiWellDispPropDlg::postFinalizeCB );
 }
@@ -174,6 +173,7 @@ uiWellDispPropDlg::~uiWellDispPropDlg()
 void uiWellDispPropDlg::postFinalizeCB( CallBacker* )
 {
     mAttachCB( button(SAVE)->activated, uiWellDispPropDlg::saveAsDefaultCB );
+    setWDNotifiers( true );
 
     tabSel( nullptr );
     wdChg( nullptr );
@@ -413,6 +413,13 @@ void uiMultiWellDispPropDlg::resetProps( int wellidx, int logidx )
 {
     if ( !wds_.validIdx( wellidx ) ) return;
     RefMan<Well::Data> wd = wds_[wellidx];
+    resetProps( wd, logidx );
+}
+
+
+void uiMultiWellDispPropDlg::resetProps( Well::Data* wd, int logidx )
+{
+    NotifyStopper ns( mDispNot );
     Well::DisplayProperties& prop = wd->displayProperties( is2ddisplay_ );
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {
@@ -435,11 +442,22 @@ void uiMultiWellDispPropDlg::resetProps( int wellidx, int logidx )
 	}
 	else if ( logfld )
 	{
-	    if ( prop.isValidLogPanel(logidx) )
+	    if ( logidx!=-1 && !prop.isValidLogPanel(logidx) )
+		continue;
+
+	    int pidxstart = 0;
+	    int pidxstop = prop.getNrLogPanels();
+	    if ( logidx!=-1 )
+	    {
+		pidxstart = logidx;
+		pidxstop = logidx+1;
+	    }
+
+	    for ( int pidx=pidxstart; pidx<pidxstop; pidx++ )
 	    {
 		Well::DisplayProperties::LogCouple& logs =
 		    const_cast<Well::DisplayProperties::LogCouple&>(
-						    prop.getLogs(logidx) );
+						    prop.getLogs(pidx) );
 		if ( idx==LeftLog )
 		    logfld->resetProps( logs.left_ );
 		else if ( idx==CenterLog )
@@ -449,7 +467,18 @@ void uiMultiWellDispPropDlg::resetProps( int wellidx, int logidx )
 	    }
 	}
     }
+
     putToScreen();
+}
+
+
+void uiMultiWellDispPropDlg::resetPropsCB( CallBacker* cb )
+{
+    mDynamicCastGet(Well::Data*, wd, cb);
+    if ( !wd || !wds_.isPresent(wd) )
+	return;
+
+    resetProps( wd, -1 );
 }
 
 
@@ -472,9 +501,9 @@ void uiMultiWellDispPropDlg::setWDNotifiers( bool yn )
     {
 	wd_ = wds_[idx];
 	if ( yn )
-	    mAttachCB( mDispNot, uiMultiWellDispPropDlg::wdChg );
+	    mAttachCB( mDispNot, uiMultiWellDispPropDlg::resetPropsCB );
 	else
-	    mDetachCB( mDispNot, uiMultiWellDispPropDlg::wdChg );
+	    mDetachCB( mDispNot, uiMultiWellDispPropDlg::resetPropsCB );
     }
 
     wd_ = curwd;
