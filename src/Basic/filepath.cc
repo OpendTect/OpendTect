@@ -238,6 +238,12 @@ FilePath& FilePath::insert( const char* fnm )
     for ( int idx=fp.nrLevels()-1; idx>=0; idx-- )
 	lvls_.insertAt( new BufferString(fp.dir(idx)), 0 );
 
+    if ( fp.isAbsolute() )
+	prefix_ = fp.prefix();
+
+    if ( fp.isURI() )
+	domain_ = fp.domain_;
+
     isabs_ = isAbsolute() || fp.isAbsolute();
     compress();
     return *this;
