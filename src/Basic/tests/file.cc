@@ -173,6 +173,16 @@ bool testFilePath( const char* inputpath,
 		      newpath.isAbsolute() == path.isAbsolute(),
 		      BufferString(inputpath,": Paths types remain identical"));
 
+    newpath = StringView(postfix).isEmpty() ? FilePath(filename)
+			    : FilePath(BufferString(filename, "?", postfix));
+    newpath.insert( pathonly );
+    mRunStandardTest( newpath.fullPath(st)==expfp, BufferString(
+				"Expected: ", expfp,
+				" got: " ).add(newpath.fullPath(st)) );
+    mRunStandardTest( newpath.isURI() == path.isURI() &&
+		      newpath.isAbsolute() == path.isAbsolute(),
+		      BufferString(inputpath,": Paths types remain identical"));
+
     return true;
 }
 
