@@ -22,6 +22,8 @@ mExpClass(General) ZipUtils
 { mODTextTranslationClass(zipUtils);
 public:
 
+    static const char*		getZLibVersion();
+
     static bool			makeFileList(const char* zipfilenm,
 					     BufferStringSet& list,
 					     uiString& errmsg);
