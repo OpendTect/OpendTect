@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "odver.h"
 #include "oscommand.h"
 #include "osgver.h"
+#include "ziputils.h"
 
 
 #define mInsertItem(mnu,txt,id,icn,sc) \
@@ -170,6 +171,7 @@ uiString uiODHelpMenuMgr::getAboutString()
 
     str.add( "Based on Qt " ).add( GetQtVersion() )
        .add( ", OSG " ).add( GetOSGVersion() ).add( ",<br>" )
+       .add( "zlib " ).add( ZipUtils::getZLibVersion() ).add( ",<br>" )
        .add( "OpenSSL " ).add( mOPENSSL_VERSION ).add( ",<br>" )
        .add( "SQLite3 " ).add( mSQLITE_VERSION ).add( ",<br>" )
        .add( GetCompilerVersionStr() ).add( "<br><br>" );
