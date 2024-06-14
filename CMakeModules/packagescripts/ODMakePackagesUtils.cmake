@@ -211,6 +211,11 @@ macro( COPY_QTWEBENGINE )
 	unset( WEBENGINE_RESOURCES_FILES )
     endif()
 
+    if ( EXISTS "${COPYFROMEXEDIR}/../resources/v8_context_snapshot.bin" )
+	file( COPY "${COPYFROMEXEDIR}/../resources/v8_context_snapshot.bin"
+	      DESTINATION "${COPYTOEXEDIR}/../resources" )
+    endif()
+
     if ( WIN32 )
 	file( COPY "${COPYFROMEXEDIR}/QtWebEngineProcess.exe"
 	      DESTINATION "${COPYTOEXEDIR}" )
