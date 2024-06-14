@@ -23,8 +23,22 @@ ________________________________________________________________________
 
 #include <stdlib.h>
 
+#ifdef HAS_ZLIB
+# include "zlib.h"
+#endif
 
 #define mBytesToMBFactor 1048576
+
+
+
+const char* ZipUtils::getZLibVersion()
+{
+#ifdef HAS_ZLIB
+    return ZLIB_VERSION;
+#else
+    return nullptr;
+#endif
+}
 
 #define mDirCheck( dir ) \
     if ( !File::exists(dir) ) \
