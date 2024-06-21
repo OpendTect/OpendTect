@@ -266,7 +266,8 @@ uiConvertGeographicPos::uiConvertGeographicPos( uiParent* p,
 				ConstRefMan<Coords::CoordSystem> coordsystem,
 				const Coord& initialpos )
 	: uiDialog(p, uiDialog::Setup(tr("Convert Geographical Positions"),
-		   mNoDlgTitle, mODHelpKey(mConvertPosHelpID)).modal(false))
+		   mNoDlgTitle,
+		   mODHelpKey(mLatLong2CoordFileTransDlgHelpID)).modal(false))
 	, coordsystem_(coordsystem)
 {
     dirfld_ = new uiGenInput( this, tr("Direction"),
