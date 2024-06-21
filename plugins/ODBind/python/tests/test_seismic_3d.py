@@ -88,7 +88,7 @@ def test_Seismic3D_class(survey):
     assert test.bin(niln*ncrl-1) == (inlrg[1],crlrg[1])
     assert test.trace_index(inlrg[1], crlrg[1]) == niln*ncrl-1
     rgs = test.ranges
-    assert rgs.inlrg == inlrg and rgs.crlrg == crlrg and rgs.zrg == zrg
+    assert rgs.inlrg == inlrg and rgs.crlrg == crlrg and rgs.zrg == pytest.approx(zrg)
 #
 # Read as a subvolume
     Seismic3D.use_dataframe = False
