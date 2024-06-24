@@ -66,6 +66,7 @@ protected:
     void			handleAction(int);
 
     void			startTracking();
+    void			startTrackingFromEdges();
     void			startRetrack();
     void			stopTracking();
     void			undo();

@@ -153,6 +153,7 @@ static const int sSett = 19;
 static const int sAutoMode = 20;
 static const int sManMode = 21;
 static const int sSnapMode = 22;
+static const int sStartEdge = 23;
 
 
 void uiMPEMan::keyEventCB( CallBacker* )
@@ -263,8 +264,10 @@ int uiMPEMan::popupMenu()
 
     const Coord3& clickedpos = scene->getMousePos( true );
     const bool haspos = !clickedpos.isUdf();
-    addAction( mnu, tr("Start Auto Tracking"), "k", sStart, "autotrack",
-	       true, hor3d );
+    addAction( mnu, tr("Start Auto Tracking (from seeds)"), "k", sStart,
+	       "autotrack", true, hor3d );
+    addAction( mnu, tr("Start Auto Tracking (from edges)"), "e", sStartEdge,
+	       "", true, hor3d );
     addAction( mnu, tr("Retrack From Seeds"), "ctrl+k", sRetrack,
 		"retrackhorizon", true, hor3d );
     addAction( mnu, tr("Select With Polygon"), "y", sPoly,
@@ -329,6 +332,7 @@ void uiMPEMan::handleAction( int res )
     switch ( res )
     {
     case sStart: startTracking(); break;
+    case sStartEdge: startTrackingFromEdges(); break;
     case sRetrack: startRetrack(); break;
     case sStop: stopTracking(); break;
     case sPoly: changePolySelectionMode(); break;
@@ -361,6 +365,14 @@ void uiMPEMan::startTracking()
 {
     uiString errmsg;
     if ( !MPE::engine().startTracking(errmsg) && !errmsg.isEmpty() )
+	uiMSG().error( errmsg );
+}
+
+
+void uiMPEMan::startTrackingFromEdges()
+{
+    uiString errmsg;
+    if ( !MPE::engine().startFromEdges(errmsg) && !errmsg.isEmpty() )
 	uiMSG().error( errmsg );
 }
 
