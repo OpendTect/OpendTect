@@ -232,6 +232,9 @@ uiSurfaceMan::~uiSurfaceMan()
 void uiSurfaceMan::ownSelChg()
 {
     setToolButtonProperties();
+
+    if ( selgrp_->isEmpty() )
+	attribfld_->setEmpty();
 }
 
 
