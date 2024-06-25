@@ -137,6 +137,7 @@ private:
     void		sessTimerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
     void		newSurvInitTimerCB(CallBacker*);
+    void		autoloadSessionCB(CallBacker*);
 
     void		updateCaptionCB(CallBacker*);
 
