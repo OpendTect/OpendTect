@@ -142,7 +142,7 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
     }
 
     uiTaskRunner taskrunner( par, false ); uiString emsg;
-    if ( !ZipUtils::makeZip(zipfnm,inpdir,emsg,&taskrunner) )
+    if ( !ZipUtils::makeZip(inpdir,nullptr,zipfnm,emsg,&taskrunner) )
     {
 	uiStringSet detailedmsg;
 	detailedmsg += uiStrings::phrCannotZip( uiStrings::sSurvey() );

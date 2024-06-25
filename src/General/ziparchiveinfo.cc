@@ -10,24 +10,32 @@ ________________________________________________________________________
 #include "ziparchiveinfo.h"
 
 #include "bufstringset.h"
+#include "uistrings.h"
 #include "ziphandler.h"
 
 #include <iostream>
 
 
 ZipArchiveInfo::ZipArchiveInfo( const char* fnm )
-{ isok_ = readZipArchive( fnm ); }
+    : srcfnm_(fnm)
+{
+    isok_ = readZipArchive();
+}
+
 
 ZipArchiveInfo::~ZipArchiveInfo()
-{ deepErase( fileinfo_ ); }
+{
+    deepErase( fileinfo_ );
+}
 
-bool ZipArchiveInfo::readZipArchive( const char* srcfnm )
+
+bool ZipArchiveInfo::readZipArchive()
 {
     ZipHandler ziphd;
-    if ( ziphd.getArchiveInfo(srcfnm,fileinfo_) )
+    if ( ziphd.getArchiveInfo(srcfnm_.buf(),fileinfo_) )
 	return true;
 
-    errormsg_ = ziphd.errorMsg();
+    errormsg_ = ziphd.errMsg();
     return false;
 }
 
@@ -37,8 +45,8 @@ bool ZipArchiveInfo::getAllFnms( BufferStringSet& fnms ) const
     if ( !isok_ )
 	return false;
 
-    for( int idx=0; idx<fileinfo_.size(); idx++ )
-	fnms.add( fileinfo_[idx]->fnm_ );
+    for ( const auto* fileinfo : fileinfo_ )
+	fnms.add( fileinfo->getFileName() );
 
     return true;
 }
@@ -57,18 +65,24 @@ od_int64 ZipArchiveInfo::getTotalSize( bool uncomp ) const
 }
 
 
+void ZipArchiveInfo::setFileNotPresentError( const char* fnm )
+{
+    errormsg_ = tr("File '%1' is not present in the archive '%2'")
+		.arg( fnm ).arg( srcfnm_ );
+}
+
+
 od_int64 ZipArchiveInfo::getFileCompSize( const char* fnm ) const
 {
     if ( !isok_ )
 	return -1;
 
-    BufferString filenm = fnm;
-    for( int idx=0; idx<fileinfo_.size(); idx++ )
-	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
-	    return fileinfo_[idx]->compsize_;
+    const StringView filenm( fnm );
+    for ( const auto* fileinfo : fileinfo_ )
+	if ( filenm.matches(fileinfo->getFileName()) )
+	    return fileinfo->compsize_;
 
-    errormsg_ = fnm;
-    errormsg_ += ": File not found";
+    mSelf().setFileNotPresentError( fnm );
     return -1;
 }
 
@@ -80,7 +94,7 @@ od_int64 ZipArchiveInfo::getFileCompSize( int idx ) const
 
     if ( !fileinfo_.validIdx(idx) )
     {
-	errormsg_ = "Index is out of range";
+	errormsg_ = tr("Index is out of range");
 	return -1;
     }
 
@@ -93,13 +107,12 @@ od_int64 ZipArchiveInfo::getFileUnCompSize( const char* fnm ) const
     if ( !isok_ )
 	return -1;
 
-    BufferString filenm = fnm;
-    for( int idx=0; idx<fileinfo_.size(); idx++ )
-	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
-	    return fileinfo_[idx]->uncompsize_;
+    const StringView filenm( fnm );
+    for ( const auto* fileinfo : fileinfo_ )
+	if ( filenm.matches(fileinfo->getFileName()) )
+	    return fileinfo->uncompsize_;
 
-    errormsg_ = fnm;
-    errormsg_ += ": File not found";
+    mSelf().setFileNotPresentError( fnm );
     return -1;
 }
 
@@ -111,7 +124,7 @@ od_int64 ZipArchiveInfo::getFileUnCompSize( int idx ) const
 
     if ( !fileinfo_.validIdx(idx) )
     {
-	errormsg_ = "Index is out of range";
+	errormsg_ = tr("Index is out of range");
 	return -1;
     }
 
@@ -119,38 +132,35 @@ od_int64 ZipArchiveInfo::getFileUnCompSize( int idx ) const
 }
 
 
-od_int64 ZipArchiveInfo::getLocalHeaderOffset( const char* fnm ) const
+const ZipFileInfo* ZipArchiveInfo::getInfo( const char* fnm ) const
 {
     if ( !isok_ )
-	return -1;
+	return nullptr;
 
-    BufferString filenm = fnm;
-    for( int idx=0; idx<fileinfo_.size(); idx++ )
+    const StringView filenm( fnm );
+    for ( const auto* fileinfo : fileinfo_ )
     {
-	if ( filenm.matches( fileinfo_[idx]->fnm_ ) )
-	    return fileinfo_[idx]->localheaderoffset_;
+	if ( filenm.matches(fileinfo->getFileName()) )
+	    return fileinfo;
     }
 
-    errormsg_ = fnm;
-    errormsg_ += ": File not found";
-    return -1;
+    mSelf().setFileNotPresentError( fnm );
+    return nullptr;
 }
 
 
-od_int64 ZipArchiveInfo::getLocalHeaderOffset( int idx ) const
+bool ZipArchiveInfo::get( const char* fnm, ZipFileInfo& retinfo ) const
 {
-    if ( !isok_ )
-	return -1;
+    const ZipFileInfo* info = getInfo( fnm );
+    if ( !info )
+	return false;
 
-    if ( !fileinfo_.validIdx(idx) )
-    {
-	errormsg_ = "Index is out of range";
-	return -1;
-    }
-
-    return fileinfo_[idx]->localheaderoffset_;
+    retinfo = *info;
+    return true;
 }
 
 
-const char* ZipArchiveInfo::errorMsg() const
-{ return errormsg_.buf(); }
+uiString ZipArchiveInfo::errMsg() const
+{
+    return errormsg_;
+}

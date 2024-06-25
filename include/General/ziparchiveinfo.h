@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "objectset.h"
-#include "bufstring.h"
+#include "uistring.h"
 
 class BufferStringSet;
 class ZipFileInfo;
@@ -21,14 +22,14 @@ class ZipFileInfo;
 */
 
 mExpClass(General) ZipArchiveInfo
-{
+{ mODTextTranslationClass(ZipArchiveInfo)
 public:
 
 				ZipArchiveInfo(const char* fnm);
 				~ZipArchiveInfo();
 
     bool			isOK() const { return isok_; }
-    const char*			errorMsg() const;
+    uiString			errMsg() const;
 
     bool			getAllFnms(BufferStringSet&) const;
     od_int64			getTotalSize(bool uncomp=true) const;
@@ -39,15 +40,17 @@ public:
     od_int64			getFileUnCompSize(const char* fnm) const;
     od_int64			getFileUnCompSize(int) const;
 
-    od_int64			getLocalHeaderOffset(const char* fnm) const;
-    od_int64			getLocalHeaderOffset(int) const;
+    bool			get(const char* fnm,ZipFileInfo&) const;
+    const ZipFileInfo*		getInfo(const char* fnm) const;
 
-protected:
+private:
 
-    bool			readZipArchive(const char* fnm);
+    bool			readZipArchive();
+    void			setFileNotPresentError(const char* fnm);
 
+    BufferString		srcfnm_;
     ObjectSet<ZipFileInfo>	fileinfo_;
-    mutable BufferString	errormsg_;
+    mutable uiString		errormsg_;
     bool			isok_;
 
 };

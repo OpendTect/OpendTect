@@ -867,7 +867,10 @@ bool LocalFileSystemAccess::setTimes( const char* uri,
 	filetimes[0].tv_sec = UTIME_OMIT;
 
     if ( hasmodtime )
+    {
 	filetimes[1] = times.getModificationTime();
+	filetimes[0] = filetimes[1];
+    }
     else
 	filetimes[1].tv_sec = UTIME_OMIT;
 

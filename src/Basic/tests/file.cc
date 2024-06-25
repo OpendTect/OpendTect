@@ -579,6 +579,21 @@ static bool testPerms( const char* fnm, const File::Permissions& expperms )
 
 static bool testFilePermissions()
 {
+    const auto unixfileperms = File::Permissions::getDefault( true, false );
+    const auto unixdirperms = File::Permissions::getDefault( false, false );
+    const auto winfileperms = File::Permissions::getDefault( true, true );
+    const auto windirperms = File::Permissions::getDefault( false, true );
+    mRunStandardTest( unixfileperms.asInt() == 26214 ||
+		      unixfileperms.asInt() == 26212 ,
+		      "default Unix file permissions" );
+    mRunStandardTest( unixdirperms.asInt() == 30583 ||
+		      unixdirperms.asInt() == 30581 ,
+		      "default Unix directory permissions" );
+    mRunStandardTest( winfileperms.asInt() == 32,
+		      "default Windows file permissions" );
+    mRunStandardTest( windirperms.asInt() == 16,
+		      "default Windows directory permissions" );
+
     const BufferString filename =
 		FilePath::getTempFullPath( "test_file", "txt" );
     const char* fnm = filename.str();

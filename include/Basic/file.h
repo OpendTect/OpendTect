@@ -58,28 +58,42 @@ enum class Permission
 mExpClass(Basic) Permissions : public ::IntegerID<od_int32>
 {
 public:
+				Permissions(int perms);
+				Permissions(const Permissions&);
+
+    Permissions&		operator =(const Permissions&);
+
     using IntegerID::IntegerID;
     static inline Permissions	udf()		{ return Permissions(); }
 
     bool	testFlag(const Permission&) const;
+    bool	isReadOnly() const		{ return !isWritable(); }
+    bool	isWritable() const;
     bool	isHidden() const;
     bool	isSystem() const;
     int		get_st_mode(const Type&) const;
+    bool	isWindowsAttr() const		{ return iswindowsattr_; }
+
 
     Permissions& setFlag(const Permission&,bool on);
+    Permissions& setReadOnly(bool yn);
     Permissions& setHidden(bool yn);
     Permissions& setSystem(bool yn);
 
     static Permissions getDefault(bool forfile);
+    static Permissions getDefault(bool forfile,bool forwindows);
     static Permissions getFrom(int st_mode,int uid);
     static int	get_st_mode(const char* fnm);
 
 private:
+
+    bool	iswindowsattr_;
     bool	isuid_ = false;
     bool	isgid_ = false;
     bool	sticky_ = false;
 
 public:
+			Permissions(int perms,bool iswindowsattr);
 			Permissions(int perms,bool isuid,
 				    bool isgid,bool sticky);
 };

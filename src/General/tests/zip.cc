@@ -42,8 +42,8 @@ else \
     dest.add( "F3_Test_Survey" ); \
     dest.add( relpart1 ); \
     dest.add( relpart2 ); \
-    if ( File::getFileSize(dest.fullPath()) \
-	    != File::getFileSize(src.fullPath()) ) \
+    if ( File::getFileSize(dest.fullPath()) != \
+					  File::getFileSize(src.fullPath()) ) \
     { \
 	errStream() << "Data integrety check failed!\n" \
 			       << dest.fullPath(); \
@@ -63,7 +63,6 @@ int mTestMainFnName( int argc, char** argv )
     clParser().getVal("datadir", basedir );
     FilePath tozip( basedir );
     tozip.add( "F3_Test_Survey" );
-    uiString err;
     const FilePath zipfilename(
 		FilePath::getTempFullPath("zip_test","zip") );
     const FilePath zipfilename2(
@@ -76,10 +75,11 @@ int mTestMainFnName( int argc, char** argv )
     if ( !quiet_ )
 	taskrun = new TextTaskRunner( logStream() );
 
-    mRunTest("Zipping", ZipUtils::makeZip(zipfilename.fullPath(),
-					  tozip.fullPath(),err,taskrun) );
-    mRunTest("Zipping (copy)", ZipUtils::makeZip(zipfilename2.fullPath(),
-					  tozip.fullPath(),err,taskrun) );
+    uiString err;
+    mRunTest("Zipping", ZipUtils::makeZip(tozip.fullPath(),nullptr,
+					 zipfilename.fullPath(),err,taskrun) );
+    mRunTest("Zipping (copy)", ZipUtils::makeZip(tozip.fullPath(),nullptr,
+					 zipfilename2.fullPath(),err,taskrun) );
     mRunTest("Unzipping", ZipUtils::unZipArchive(zipfilename.fullPath(),
 					 outputdir.pathOnly(),err,taskrun) );
     mRunTest("Unzipping (copy)", ZipUtils::unZipArchive(zipfilename2.fullPath(),

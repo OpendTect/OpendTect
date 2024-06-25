@@ -231,8 +231,9 @@ uiRetVal SurveyCreator::save( TaskRunner* trun )
     }
 
     uiString errmsg;
-    if ( !ZipUtils::makeZip(targetzipfnm.buf(),surveyloc_->fullPath(),
-			    errmsg,trun) )
+    const BufferString surveydirnm( surveyloc_->fullPath() );
+    if ( !ZipUtils::makeZip(surveydirnm.buf(),nullptr,
+			    targetzipfnm.buf(),errmsg,trun) )
     {
 	lasterrs_.set( errmsg );
 	if ( File::exists(backupfile.buf()) &&

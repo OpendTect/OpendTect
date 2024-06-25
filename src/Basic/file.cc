@@ -1195,12 +1195,49 @@ bool initTempDir()
 
 // Permissions
 
+Permissions::Permissions( const Permissions& oth )
+    : IntegerID(oth)
+{
+    *this = oth;
+}
+
+
+Permissions::Permissions( int perms )
+    : IntegerID(perms)
+    , iswindowsattr_(__iswin__)
+{
+}
+
+
+Permissions::Permissions( int perms, bool iswindowsattr )
+    : IntegerID(perms)
+    , iswindowsattr_(iswindowsattr)
+{
+}
+
+
 Permissions::Permissions( int perms, bool isuid, bool isgid, bool sticky )
     : IntegerID(perms)
+    , iswindowsattr_(false)
     , isuid_(isuid)
     , isgid_(isgid)
     , sticky_(sticky)
 {
+}
+
+
+Permissions& Permissions::operator =( const Permissions& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    IntegerID::operator =( oth );
+    iswindowsattr_ = oth.iswindowsattr_;
+    isuid_ = oth.isuid_;
+    isgid_ = oth.isgid_;
+    sticky_ = oth.sticky_;
+
+    return *this;
 }
 
 
@@ -1232,25 +1269,41 @@ bool Permissions::testFlag( const Permission& perm ) const
 }
 
 
+#ifdef __unix__
+# define FILE_ATTRIBUTE_READONLY 0x00000001
+# define FILE_ATTRIBUTE_HIDDEN 0x00000002
+# define FILE_ATTRIBUTE_SYSTEM 0x00000004
+# define FILE_ATTRIBUTE_DIRECTORY 0x00000010
+# define FILE_ATTRIBUTE_ARCHIVE 0x00000020
+#endif
+
+bool Permissions::isWritable() const
+{
+    const int attr = asInt();
+    if ( iswindowsattr_ )
+	return !(attr & FILE_ATTRIBUTE_READONLY);
+    else
+	return testFlag( Permission::WriteUser );
+}
+
+
 bool Permissions::isHidden() const
 {
-#ifdef __win__
     const int attr = asInt();
-    return attr & FILE_ATTRIBUTE_HIDDEN;
-#else
-    return false;
-#endif
+    if ( iswindowsattr_ )
+	return attr & FILE_ATTRIBUTE_HIDDEN;
+    else
+	return false;
 }
 
 
 bool Permissions::isSystem() const
 {
-#ifdef __win__
     const int attr = asInt();
-    return attr & FILE_ATTRIBUTE_SYSTEM;
-#else
-    return false;
-#endif
+    if ( iswindowsattr_ )
+	return attr & FILE_ATTRIBUTE_SYSTEM;
+    else
+	return false;
 }
 
 
@@ -1264,17 +1317,35 @@ Permissions& Permissions::setFlag( const Permission& perm, bool on )
 }
 
 
+Permissions& Permissions::setReadOnly( bool yn )
+{
+    if ( isWindowsAttr() )
+    {
+	int attr = asInt();
+	if ( yn )
+	    attr |= FILE_ATTRIBUTE_READONLY;
+	else
+	    attr &= ~FILE_ATTRIBUTE_READONLY;
+
+	set( attr );
+    }
+
+    return *this;
+}
+
+
 Permissions& Permissions::setHidden( bool yn )
 {
-#ifdef __win__
-    int attr = asInt();
-    if ( yn )
-	attr |= FILE_ATTRIBUTE_HIDDEN;
-    else
-	attr &= ~FILE_ATTRIBUTE_HIDDEN;
+    if ( isWindowsAttr() )
+    {
+	int attr = asInt();
+	if ( yn )
+	    attr |= FILE_ATTRIBUTE_HIDDEN;
+	else
+	    attr &= ~FILE_ATTRIBUTE_HIDDEN;
 
-    set( attr );
-#endif
+	set( attr );
+    }
 
     return *this;
 }
@@ -1282,33 +1353,55 @@ Permissions& Permissions::setHidden( bool yn )
 
 Permissions& Permissions::setSystem( bool yn )
 {
-#ifdef __win__
-    int attr = asInt();
-    if ( yn )
-	attr |= FILE_ATTRIBUTE_SYSTEM;
-    else
-	attr &= ~FILE_ATTRIBUTE_SYSTEM;
+    if ( isWindowsAttr() )
+    {
+	int attr = asInt();
+	if ( yn )
+	    attr |= FILE_ATTRIBUTE_SYSTEM;
+	else
+	    attr &= ~FILE_ATTRIBUTE_SYSTEM;
 
-    set( attr );
-#endif
+	set( attr );
+    }
 
     return *this;
 }
 
+#ifdef __win__
+# define S_IFSOCK 0xC000
+# define S_IFLNK 0xA000
+# define S_IFBLK 0x6000
+# define S_IFIFO _S_IFIFO
+# define S_ISUID 0x0800
+# define S_ISGID 0x0400
+# define S_ISVTX 0x0200
+# define ACCESSPERMS 0x01FF
+# define S_IRUSR S_IREAD
+# define S_IWUSR S_IWRITE
+# define S_IXUSR S_IEXEC
+# define S_IRGRP (S_IRUSR >> 3)
+# define S_IWGRP (S_IWUSR >> 3)
+# define S_IXGRP (S_IXUSR >> 3)
+# define S_IROTH (S_IRGRP >> 3)
+# define S_IWOTH (S_IWGRP >> 3)
+# define S_IXOTH (S_IXGRP >> 3)
+#endif
+
 
 Permissions Permissions::getFrom( int st_mode, int uid )
 {
-#ifdef __win__
-    return udf();
-#else
+#ifdef __unix__
 # ifdef __debug__
     const bool mUnusedVar isfile = S_ISREG( st_mode );
     const bool mUnusedVar isdir = S_ISDIR( st_mode );
     const bool mUnusedVar islink = S_ISLNK( st_mode );
 # endif
-    const int mode = st_mode - (st_mode & S_IFMT);
     const int procuid = getuid();
+#else
+    const int procuid = mUdf(int);
+#endif
     const bool isowned = mIsUdf(uid) || uid < 0 || uid == procuid;
+    const int mode = st_mode - (st_mode & S_IFMT);
     const bool canreaduser = mode & S_IRUSR;
     const bool canwriteuser = mode & S_IWUSR;
     int ret = 0;
@@ -1347,60 +1440,65 @@ Permissions Permissions::getFrom( int st_mode, int uid )
 	ret += int (File::Permission::ExeOther);
 
     return Permissions( ret );
-#endif
 }
 
 
 Permissions Permissions::getDefault( bool forfile )
 {
-#ifdef __win__
-    static Permissions fileperms( FILE_ATTRIBUTE_ARCHIVE );
-    static Permissions dirperms( FILE_ATTRIBUTE_DIRECTORY );
-#else
-    static Permissions fileperms( 26214 );
-    static Permissions dirperms( 30583 );
+    return getDefault( forfile, __iswin__ );
+}
+
+
+Permissions Permissions::getDefault( bool forfile, bool forwindows )
+{
+    static Permissions winfileperms( FILE_ATTRIBUTE_ARCHIVE );
+    static Permissions windirperms( FILE_ATTRIBUTE_DIRECTORY );
+    static Permissions unixfileperms( 26214 );
+    static Permissions unixdirperms( 30583 );
+#ifdef __unix__
     static bool retmask = false;
     if ( !retmask )
     {
 	const mode_t procmask = umask( 002 ); //get
 	umask( procmask ); //restore
-	const Permissions maskperms = Permissions::getFrom( procmask, getuid());
-	fileperms.setFlag( File::Permission::ReadOwner, true );
-	fileperms.setFlag( File::Permission::WriteOwner, true );
-	fileperms.setFlag( File::Permission::ReadUser,
+	const int uid = getuid();
+	const Permissions maskperms = Permissions::getFrom( procmask, uid );
+	unixfileperms.setFlag( File::Permission::ReadOwner, true );
+	unixfileperms.setFlag( File::Permission::WriteOwner, true );
+	unixfileperms.setFlag( File::Permission::ReadUser,
 			   !maskperms.testFlag(File::Permission::ReadUser) );
-	fileperms.setFlag( File::Permission::WriteUser,
+	unixfileperms.setFlag( File::Permission::WriteUser,
 			   !maskperms.testFlag(File::Permission::WriteUser) );
-	fileperms.setFlag( File::Permission::ReadGroup,
+	unixfileperms.setFlag( File::Permission::ReadGroup,
 			   !maskperms.testFlag(File::Permission::ReadGroup) );
-	fileperms.setFlag( File::Permission::WriteGroup,
+	unixfileperms.setFlag( File::Permission::WriteGroup,
 			   !maskperms.testFlag(File::Permission::WriteGroup) );
-	fileperms.setFlag( File::Permission::ReadOther,
+	unixfileperms.setFlag( File::Permission::ReadOther,
 			   !maskperms.testFlag(File::Permission::ReadOther) );
-	fileperms.setFlag( File::Permission::WriteOther,
+	unixfileperms.setFlag( File::Permission::WriteOther,
 			   !maskperms.testFlag(File::Permission::WriteOther) );
-	dirperms = fileperms;
-	dirperms.setFlag( File::Permission::ExeOwner,
+	unixdirperms = unixfileperms;
+	unixdirperms.setFlag( File::Permission::ExeOwner,
 			  !maskperms.testFlag(File::Permission::ExeOwner) );
-	dirperms.setFlag( File::Permission::ExeUser,
+	unixdirperms.setFlag( File::Permission::ExeUser,
 			  !maskperms.testFlag(File::Permission::ExeUser) );
-	dirperms.setFlag( File::Permission::ExeGroup,
+	unixdirperms.setFlag( File::Permission::ExeGroup,
 			  !maskperms.testFlag(File::Permission::ExeGroup) );
-	dirperms.setFlag( File::Permission::ExeOther,
+	unixdirperms.setFlag( File::Permission::ExeOther,
 			  !maskperms.testFlag(File::Permission::ExeOther) );
 	retmask = true;
     }
 #endif
 
-    return forfile ? fileperms : dirperms;
+    if ( forwindows )
+	return forfile ? winfileperms : windirperms;
+    else
+	return forfile ? unixfileperms : unixdirperms;
 }
 
 
 int Permissions::get_st_mode( const Type& typ ) const
 {
-#ifdef __win__
-    return mUdf(int);
-#else
     int ret = 0;
     if ( typ == Type::File )
 	ret += S_IFREG;
@@ -1449,7 +1547,6 @@ int Permissions::get_st_mode( const Type& typ ) const
     }
 
     return ret;
-#endif
 }
 
 
