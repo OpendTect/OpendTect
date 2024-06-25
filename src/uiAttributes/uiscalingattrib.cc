@@ -509,6 +509,13 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 {
     Attrib::Desc* inpdesc = !ads_ ? getInputDescFromDP( inpfld )
 				  : ads_->getDesc( inpfld->attribID() );
+
+    if ( !inpdesc )
+    {
+	uiMSG().error( tr("Please select (valid) Input Data") );
+	return;
+    }
+
     Attrib::Desc* inpdesccp = new Attrib::Desc( *inpdesc );
     Attrib::Desc* voldesc = PF().createDescCopy( VolStats::attribName() );
     if ( !inpdesccp || !voldesc )
