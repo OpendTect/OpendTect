@@ -248,7 +248,14 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 		      false );
 	}
 
-	if ( action==0 || geomids.isEmpty() ) return true;
+	if ( action==0 || geomids.isEmpty() )
+	{
+	    const int nrchildren = children_.size();
+	    if ( nrchildren>10 )
+		collapseAllChildren();
+
+	    return true;
+	}
 
 	if ( action==1 )
 	    loadDefaultData();
