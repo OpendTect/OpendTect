@@ -241,8 +241,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool isshifted =
 		!mIsZero( visserv_->getTranslation(displayID()).z, 1e-5 );
     const MultiID mid = EM::EMM().getMultiID( emid_ );
-    const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked()
-			&& EM::canOverwrite( mid );
+    const bool enab = trackmenuitem_.nrItems() && !isshifted && isChecked();
     mAddMenuOrTBItem( istb, 0, menu, &trackmenuitem_, enab, false );
 
     const EM::IOObjInfo eminfo( mid );
@@ -327,6 +326,19 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==starttrackmnuitem_.id )
     {
 	menu->setIsHandled(true);
+	ConstRefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj )
+	    return;
+
+	const MultiID mid = emobj->multiID();
+	if ( !EM::canOverwrite(mid) )
+	{
+	    uiMSG().error( tr("The %1 '%2' is read-only. To start tracking, "
+			"either remove the read-only flag in the Manage window"
+			" or save it as a new %1." )
+		    .arg(emobj->getTypeStr()).arg(emobj->name()) );
+	    return;
+	}
 
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );

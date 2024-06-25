@@ -76,12 +76,7 @@ EM::EMManager& EM::EMM()
 bool EM::canOverwrite( const MultiID& mid )
 {
     const PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj )
-	return true;
-
-    mDynamicCastGet(const IOStream*,iostream,ioobj.ptr())
-    const bool res = bool(iostream);
-    return res;
+    return !ioobj || !ioobj->implReadOnly();
 }
 
 
