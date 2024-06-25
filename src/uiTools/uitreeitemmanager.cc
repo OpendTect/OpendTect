@@ -217,6 +217,20 @@ bool uiTreeItem::allChildrenCollapsed() const
 }
 
 
+void uiTreeItem::collapseAllChildren()
+{
+    for ( auto* child : children_ )
+	child->collapse();
+}
+
+
+void uiTreeItem::expandAllChildren()
+{
+    for ( auto* child : children_ )
+	child->expand();
+}
+
+
 bool uiTreeItem::allChildrenChecked() const
 {
     for ( int idx=0; idx<children_.size(); idx++ )
