@@ -190,12 +190,21 @@ bool LASWriter::writeCurveInfoSection( od_ostream& strm )
 bool LASWriter::writeParameterInfoSection( od_ostream& strm )
 {
 // optional
+    const UnitOfMeasure* zunit =
+		UnitOfMeasure::getGuessed( zinfeet_ ? "ft" : "m" );
+    float kb = wd_->track().getKbElev();
+    kb = zunit->userValue( kb );
+    float gl = wd_->info().groundelev_;
+
     BufferString kbstr, glstr;
-    kbstr.set( wd_->track().getKbElev(), cNrMDDecimals );
-    if ( mIsUdf(wd_->info().groundelev_) )
+    kbstr.set( kb, cNrMDDecimals );
+    if ( mIsUdf(gl) )
 	glstr.set( nullvalue_ );
     else
-	glstr.set( wd_->info().groundelev_, cNrMDDecimals );
+    {
+	gl = zunit->userValue( gl );
+	glstr.set( gl, cNrMDDecimals );
+    }
 
     const char* depthunit = zinfeet_ ? "F" : "M";
     strm << "~Parameter Information Section\n";
