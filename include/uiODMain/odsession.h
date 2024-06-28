@@ -40,6 +40,8 @@ public:
 
     static void		getStartupData(bool& douse,MultiID&);
     static void		setStartupData(bool,const MultiID&);
+    static void		setAutoloadOn(bool);
+    static void		setAutoloadKey(const MultiID&);
 
 protected:
 
