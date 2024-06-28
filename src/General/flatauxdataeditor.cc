@@ -738,7 +738,7 @@ Sower::Sower( AuxDataEditor& ade, MouseEventHandler& meh )
     , mode_( Idle )
     , singleseeded_( true )
     , curknotid_( -1 )
-    , curknotstamp_( mUdf(int) )
+    , curknotstamp_( mUdf(od_int64) )
     , sowingEnd( this )
     , sowing(this)
 {
@@ -1040,7 +1040,7 @@ bool Sower::acceptTablet( const MouseEvent& mouseevent, bool released )
 	 knotid>=0 && !mIsUdf(curknotstamp_) &&
 	 Time::passedSince(curknotstamp_) > 300 )
     {
-	curknotstamp_ = mUdf(int);
+	curknotstamp_ = mUdf(od_int64);
 
 	// Dirty but effective
 	const bool enablelaser = knotid<editor_.allowmove_.size() &&

@@ -46,8 +46,18 @@ public:
     virtual bool	isDirectory(const char*) const	{ return false; }
     virtual od_int64	getFileSize(const char*,bool followlink) const;
 			//!< 0 for non-existing, -1 for unknown
-    virtual BufferString timeCreated(const char*) const		{ return ""; }
-    virtual BufferString timeLastModified(const char*) const	{ return ""; }
+    virtual BufferString timeCreated(const char*,bool followlink) const
+			{ return BufferString::empty(); }
+    virtual BufferString timeLastModified(const char*,bool followlink) const
+			{ return BufferString::empty(); }
+    virtual od_int64	getTimeInMilliSeconds(const char*,bool lastmodif,
+					  bool followlink) const { return -1; }
+			//!< since epoch (POSIX)
+    virtual bool	getTimes(const char*,Time::FileTimeSet&,
+				 bool followlink) const { return false; }
+    virtual bool	setTimes(const char*,const Time::FileTimeSet&,
+				 bool followlink) const
+			{ return false; }
 
     virtual bool	remove(const char*,bool recursive=true) const
 			{ return false; }
@@ -59,7 +69,7 @@ public:
     virtual bool	rename(const char* from,const char* to,
 				uiString* errmsg=nullptr) const
 			{ return false; }
-    virtual bool	copy(const char* from,const char* to,
+    virtual bool	copy(const char* from,const char* to,bool preserve,
 			     uiString* errmsg=nullptr,
 			     TaskRunner* =nullptr) const
 			{ return false; }

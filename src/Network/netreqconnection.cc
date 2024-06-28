@@ -407,11 +407,12 @@ RefMan<RequestPacket> RequestConnection::pickupPacket( od_int32 reqid,
     RefMan<RequestPacket> pkt = getNextAlreadyRead( reqid );
     if ( !pkt )
     {
-	const int starttm = Time::getMilliSeconds();
+	const od_int64 starttm = Time::getMilliSeconds();
 	bool isok = false;
 	do
 	{
-	    const int remaining = timeout - Time::getMilliSeconds() + starttm;
+	    const od_int64 remaining = od_int64 (timeout)
+				     - Time::getMilliSeconds() + starttm;
 	    if ( remaining<=0 )
 		break;
 

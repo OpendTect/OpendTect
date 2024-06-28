@@ -34,8 +34,8 @@ public:
     const HostData&	hostdata_;
     int			nrfailures_ = 0; //!< Reset to 0 at every success
     int			nrsucces_  = 0;
-    int			starttime_ = 0;  //!< Set whenever host added.
-    int			lastsuccess_ = 0; //!< timestamp
+    od_int64		starttime_ = 0;  //!< Set whenever host added.
+    od_int64		lastsuccess_ = 0; //!< timestamp
     bool		inuse_ = false;
 };
 
@@ -103,7 +103,7 @@ public:
     const JobInfo&		curJobInfo() const	{ return *curjobinfo_; }
     IOPar&			curJobIOPar()		{ return curjobiop_; }
     const FilePath&		curJobFilePath()	{ return curjobfp_; }
-    int				getLastReceivedTime(JobInfo&);
+    od_int64			getLastReceivedTime(JobInfo&);
 
     const char*			procDir() const	{ return procdir_.buf(); }
 				// processing directory on local machine

@@ -19,6 +19,8 @@ mUseQtnamespace
 namespace Time
 {
 
+//Counter
+
 Counter::Counter()
     : qelapstimer_(new QElapsedTimer)
 {}
@@ -44,19 +46,89 @@ int Counter::elapsed() const
 }
 
 
-int getMilliSeconds()
+// FileTimeSet
+
+FileTimeSet::FileTimeSet()
 {
-    QTime daystart(0,0,0,0);
-    return daystart.msecsTo( QTime::currentTime() );
+    modtime_.tv_sec = mUdf(std::time_t);
+    acctime_.tv_sec = mUdf(std::time_t);
+    crtime_.tv_sec = mUdf(std::time_t);
 }
 
 
-int passedSince( int timestamp )
+FileTimeSet::~FileTimeSet()
 {
-    int elapsed = timestamp > 0 ? getMilliSeconds() - timestamp : -1;
-    if ( elapsed < 0 && timestamp > 0 && (elapsed + 86486400 < 86400000) )
-	elapsed += 86486400;
+}
 
+
+bool FileTimeSet::hasModificationTime() const
+{
+    return !mIsUdf(modtime_.tv_sec);
+}
+
+
+bool FileTimeSet::hasAccessTime() const
+{
+    return !mIsUdf(acctime_.tv_sec);
+}
+
+
+bool FileTimeSet::hasCreationTime() const
+{
+    return !mIsUdf(crtime_.tv_sec);
+}
+
+
+std::timespec FileTimeSet::getModificationTime() const
+{
+    return modtime_;
+}
+
+
+std::timespec FileTimeSet::getAccessTime() const
+{
+    return acctime_;
+}
+
+
+std::timespec FileTimeSet::getCreationTime() const
+{
+    return crtime_;
+}
+
+
+FileTimeSet& FileTimeSet::setModificationTime( const std::timespec& t )
+{
+    modtime_  = t;
+    return *this;
+}
+
+
+FileTimeSet& FileTimeSet::setAccessTime( const std::timespec& t )
+{
+    acctime_ = t;
+    return *this;
+}
+
+
+FileTimeSet& FileTimeSet::setCreationTime( const std::timespec& t )
+{
+    crtime_ = t;
+    return *this;
+}
+
+
+// Global functions
+
+od_int64 getMilliSeconds()
+{
+    return QDateTime::currentMSecsSinceEpoch();
+}
+
+
+od_int64 passedSince( od_int64 timestamp )
+{
+    const od_int64 elapsed = timestamp > 0 ? getMilliSeconds() - timestamp : -1;
     return elapsed;
 }
 
@@ -67,12 +139,26 @@ const char* defDateFmt()	{ return "ddd dd MMM yyyy"; }
 const char* defTimeFmt()	{ return "hh:mm:ss"; }
 
 
+static const char* getDateTimeString( const QDateTime& qdtin, const char* fmt,
+				      bool local )
+{
+    mDeclStaticString( ret );
+    const QDateTime qdt = local ? qdtin : qdtin.toUTC();
+    if ( !fmt || !*fmt )
+	ret = qdt.toString( Qt::ISODate );
+    else
+	ret = qdt.toString( fmt );
+
+    return ret.buf();
+
+}
+
+
 const char* getISODateTimeString( bool local )
 {
     mDeclStaticString( ret );
-    const QDateTime qdt = local ? QDateTime::currentDateTime()
-				: QDateTime::currentDateTimeUtc();
-    ret = qdt.toString( Qt::ISODate );
+    const QDateTime qdt = QDateTime::currentDateTime();
+    ret.set( getDateTimeString( qdt, nullptr, local ) );
     return ret.buf();
 }
 
@@ -81,15 +167,30 @@ const char* getDateTimeString( const char* fmt, bool local )
 {
     mDeclStaticString( ret );
 
-    QDateTime qdt = QDateTime::currentDateTime();
-    if ( !local )
-	qdt = qdt.toUTC();
+    const QDateTime qdt = QDateTime::currentDateTime();
+    ret.set( getDateTimeString( qdt, fmt, local ) );
+    return ret.buf();
+}
 
-    if ( !fmt || !*fmt )
-	ret = qdt.toString( Qt::ISODate );
-    else
-	ret = qdt.toString( fmt );
 
+const char* getDateTimeString( od_int64 timems, const char* fmt, bool local )
+{
+    mDeclStaticString( ret );
+
+    const QDateTime qdt = QDateTime::fromMSecsSinceEpoch( timems );
+    ret.set( getDateTimeString( qdt, fmt, local ) );
+    return ret.buf();
+}
+
+
+const char* getDateTimeString( const std::timespec& time,
+			       const char* fmt, bool local )
+{
+    mDeclStaticString( ret );
+
+    const od_int64 timems = od_int64 (od_int64 (time.tv_sec) * 1000 +
+				      (od_int64)time.tv_nsec / 1e6 );
+    ret.set( getDateTimeString( timems, fmt, local ) );
     return ret.buf();
 }
 
@@ -158,7 +259,7 @@ bool isEarlier(const char* first, const char* second, const char* fmt )
 }
 
 
-const char* getTimeString( od_int64 sec, int precision )
+const char* getTimeDiffString( od_int64 deltasec, int precision )
 {
     if ( precision<1 || precision>4 )
 	precision = 4;
@@ -167,36 +268,36 @@ const char* getTimeString( od_int64 sec, int precision )
     ret.setEmpty();
     int usedprec = 0;
     const int daysec = 86400, hoursec = 3600, minsec = 60;
-    const bool adddays = sec>daysec;
+    const bool adddays = deltasec>daysec;
     if ( adddays )
     {
-	const int days = sCast(int,sec/daysec);
-	ret.add(days).add("d:");
-	sec = sec%daysec;
+	const int days = sCast(int,deltasec/daysec);
+	ret.add( days ).add( "d:" );
+	deltasec = deltasec%daysec;
 	usedprec++;
     }
 
-    const bool addhours = (adddays || sec>hoursec) && usedprec<precision;
+    const bool addhours = (adddays || deltasec>hoursec) && usedprec<precision;
     if ( addhours )
     {
-	const int hours = sCast(int,sec/hoursec);
-	ret.add(hours).add("h:");
-	sec = sec%hoursec;
+	const int hours = sCast(int,deltasec/hoursec);
+	ret.add( hours ).add( "h:" );
+	deltasec = deltasec%hoursec;
 	usedprec++;
     }
 
-    const bool addmin = (addhours || sec>minsec) && usedprec<precision;
+    const bool addmin = (addhours || deltasec>minsec) && usedprec<precision;
     if ( addmin )
     {
-	const int mins = sCast(int,sec/minsec);
-	ret.add(mins).add("m:");
-	sec = sec%minsec;
+	const int mins = sCast(int,deltasec/minsec);
+	ret.add( mins ).add( "m:" );
+	deltasec = deltasec%minsec;
 	usedprec++;
     }
 
     const bool addsec = usedprec < precision;
     if ( addsec )
-	ret.add(sec).add("s");
+	ret.add( deltasec ).add( "s" );
 
     return ret;
 }

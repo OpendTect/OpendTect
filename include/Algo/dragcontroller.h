@@ -78,7 +78,7 @@ protected:
 
     Coord		initmousepos_;
     Coord3		dragdir_;
-    int			prevdragtime_;
+    od_int64		prevdragtime_;
 
     bool		screendragmode_;
     float		screendragfactor_;

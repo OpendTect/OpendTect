@@ -220,12 +220,12 @@ double DragController::absTransform( double dragval, const Coord& mousepos,
     if ( mousepos==prevmousepos_ || dragval==prevdragval_ )
 	return prevtransval_;
 
-    float delay = (float) Time::passedSince( prevdragtime_ );
+    double delay = (double) Time::passedSince( prevdragtime_ );
     if ( delay <= 0.0 )
 	delay = 0.5;
 
     const double deltamouse = mousepos.distTo( prevmousepos_ );
-    const double mousespeed = deltamouse * 1000.0 / delay;
+    const double mousespeed = deltamouse * 1000. / delay;
 
     double frac = 0.0;
     if ( mousespeed >= fastmousespeed_ )
@@ -288,7 +288,8 @@ void DragController::transform( double& realdragval, const Coord& mousepos,
     if ( dragval*dragsign_ < 0.0 )
     {
 	const double frac = prevdragval_ / (fabs(dragval)+prevdragval_);
-	prevdragtime_ += (int) floor( frac * Time::passedSince(prevdragtime_) );
+	prevdragtime_ +=
+		    (od_int64) floor( frac * Time::passedSince(prevdragtime_) );
 	reInit( prevmousepos_*(1.0-frac) + mousepos*frac );
     }
 

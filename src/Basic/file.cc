@@ -30,9 +30,7 @@ ________________________________________________________________________
 # include "winutils.h"
 # include <direct.h>
 #else
-# include "sys/stat.h"
 # include <unistd.h>
-# include <utime.h>
 #endif
 
 #include <QDateTime>
@@ -97,10 +95,12 @@ static bool fnmIsURI( const char*& fnm )
 class RecursiveCopier : public Executor
 { mODTextTranslationClass(RecursiveCopier);
 public:
-			RecursiveCopier(const char* from,const char* to)
+			RecursiveCopier( const char* from, const char* to,
+					 bool preserve )
 			    : Executor("Copying Folder")
 			    , src_(from)
 			    , dest_(to)
+			    , preserve_(preserve)
 			    , msg_(tr("Copying files"))
 			{
 			    makeRecursiveFileList(src_,filelist_,false);
@@ -123,6 +123,7 @@ protected:
     od_int64		totalnr_	= 0;
     od_int64		nrdone_		= 0;
     BufferStringSet	filelist_;
+    bool		preserve_;
     BufferString	src_;
     BufferString	dest_;
     uiString		msg_;
@@ -160,7 +161,7 @@ int RecursiveCopier::nextStep()
 	if ( !File::createDir(destfile) )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(destfile)) )
     }
-    else if ( !File::copy(srcfile,destfile) )
+    else if ( !File::copy(srcfile,destfile,preserve_) )
 	mErrRet( uiStrings::phrCannotCreate( tr("file %1").arg(destfile)) )
 
     fileidx_++;
@@ -243,10 +244,10 @@ int RecursiveDeleter::nextStep()
 }
 
 
-Executor* getRecursiveCopier( const char* from, const char* to )
+Executor* getRecursiveCopier( const char* from, const char* to, bool preserve )
 {
     return !isSane(from) || !isSane(to) ? nullptr
-	: new File::RecursiveCopier( from, to );
+	: new File::RecursiveCopier( from, to, preserve );
 }
 
 
@@ -604,7 +605,7 @@ bool createLink( const char* fnm, const char* linknm )
 }
 
 
-bool saveCopy( const char* from, const char* to )
+bool saveCopy( const char* from, const char* to, bool preserve )
 {
     if ( !isLocal(from) || !isLocal(to) )
 	return false;
@@ -612,20 +613,20 @@ bool saveCopy( const char* from, const char* to )
     if ( isDirectory(from) )
 	return false;
     if ( !exists(to) )
-	return File::copy( from, to );
+	return File::copy( from, to, preserve );
 
     const BufferString tmpfnm( to, ".tmp" );
     if ( !File::rename(to,tmpfnm) )
 	return false;
 
-    const bool res = File::copy( from, to );
+    const bool res = File::copy( from, to, preserve );
     res ? File::remove( tmpfnm ) : File::rename( tmpfnm, to );
     return res;
 }
 
 
-bool copy( const char* from, const char* to, uiString* errmsg,
-	   TaskRunner* taskrun )
+bool copy( const char* from, const char* to, bool preserve,
+	   uiString* errmsg, TaskRunner* taskrun )
 {
     if ( !isSane(from) || !isSane(to) )
 	return false;
@@ -633,7 +634,7 @@ bool copy( const char* from, const char* to, uiString* errmsg,
     const auto& fromfsa = OD::FileSystemAccess::get( from );
     const auto& tofsa = OD::FileSystemAccess::get( to );
     if ( fromfsa.isDirectory(from) || tofsa.isDirectory(to) )
-	return copyDir( from, to, errmsg, taskrun );
+	return copyDir( from, to, preserve, errmsg, taskrun );
 
     if ( !fromfsa.isLocal() && !tofsa.isLocal() && &fromfsa != &tofsa )
     {
@@ -642,14 +643,14 @@ bool copy( const char* from, const char* to, uiString* errmsg,
     }
 
     const auto& cpfsa = !fromfsa.isLocal() ? fromfsa : tofsa;
-    const bool res = cpfsa.copy( from, to, errmsg );
+    const bool res = cpfsa.copy( from, to, preserve, errmsg );
 
     return res;
 }
 
 
-bool copyDir( const char* from, const char* to, uiString* errmsg,
-	      TaskRunner* taskrun )
+bool copyDir( const char* from, const char* to, bool preserve,
+	      uiString* errmsg, TaskRunner* taskrun )
 {
     if ( !isLocal(from) || !isLocal(to) )
 	return false;
@@ -660,7 +661,7 @@ bool copyDir( const char* from, const char* to, uiString* errmsg,
     if ( !checkDir(from,true,errmsg) || !checkDir(to,false,errmsg) )
 	return false;
 
-    PtrMan<Executor> copier = getRecursiveCopier( from, to );
+    PtrMan<Executor> copier = getRecursiveCopier( from, to, preserve );
     if ( !copier )
 	return false;
 
@@ -859,11 +860,11 @@ BufferString getFileSizeString( const char* fnm, File::SizeUnit fsu )
 }
 
 
-const char* timeCreated( const char* fnm, const char* fmt )
+const char* timeCreated( const char* fnm, const char* fmt, bool followlink )
 {
     mDeclStaticString( ret );
     const auto& fsa = OD::FileSystemAccess::get( fnm );
-    ret = fsa.timeCreated( fnm );
+    ret = fsa.timeCreated( fnm, followlink );
 
     const StringView fmtstr = fmt;
     if ( !fmtstr.isEmpty() )
@@ -880,11 +881,11 @@ const char* timeCreated( const char* fnm, const char* fmt )
 }
 
 
-const char* timeLastModified( const char* fnm, const char* fmt )
+const char* timeLastModified( const char* fnm, const char* fmt, bool followlink)
 {
     mDeclStaticString( ret );
     const auto& fsa = OD::FileSystemAccess::get( fnm );
-    ret = fsa.timeLastModified( fnm );
+    ret = fsa.timeLastModified( fnm, followlink );
 
     const StringView fmtstr = fmt;
     if ( !fmtstr.isEmpty() )
@@ -898,6 +899,34 @@ const char* timeLastModified( const char* fnm, const char* fmt )
 	ret.set( "-" );
 
     return ret.buf();
+}
+
+
+od_int64 getTimeInSeconds( const char* fnm, bool lastmodif, bool followlink )
+{
+    const od_int64 ret = getTimeInMilliSeconds( fnm, lastmodif, followlink );
+    return ret < 0 ? -1 : od_int64 (ret / 1000);
+}
+
+
+od_int64 getTimeInMilliSeconds( const char* fnm, bool lastmodif,bool followlink)
+{
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.getTimeInMilliSeconds( fnm, lastmodif, followlink );
+}
+
+
+bool getTimes( const char* fnm, Time::FileTimeSet& times, bool followlink )
+{
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.getTimes( fnm, times, followlink );
+}
+
+
+bool setTimes( const char* fnm, const Time::FileTimeSet& times, bool followlink)
+{
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.setTimes( fnm, times, followlink );
 }
 
 
@@ -905,11 +934,11 @@ bool waitUntilExists( const char* fnm, double maxwaittm,
 			    double* actualwaited )
 {
     if ( actualwaited )
-	*actualwaited = 0;
+	*actualwaited = 0.;
     if ( exists(fnm) )
 	return true;
 
-    const int msecsstart = Time::getMilliSeconds();
+    const od_int64 msecsstart = Time::getMilliSeconds();
     const double checkincr = 0.1;
     double waittm = 0;
     bool appeared = true;

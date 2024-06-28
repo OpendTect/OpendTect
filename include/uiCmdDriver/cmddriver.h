@@ -275,7 +275,7 @@ protected:
 
     bool		waitForTimers();
     bool		waitForProcessing();
-    int			wildmodalclosedstamp_;
+    od_int64		wildmodalclosedstamp_;
 
     void		getModalStatus(ModalStatus&);
     void		storeModalStatus();

@@ -108,9 +108,9 @@ protected:
     bool				singleseeded_ = true;
 
     EM::PosID				curpid_;
-    int					curpidstamp_		= mUdf(int);
+    od_int64				curpidstamp_	= mUdf(od_int64);
 
-    int					furrowstamp_;
+    od_int64				furrowstamp_;
 };
 
 } // namespace visSurvey

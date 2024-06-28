@@ -38,7 +38,7 @@ protected:
     uiProgressBar*	progbar_;
 
     Timer&		tim_;
-    int         prevtime_ = 0;
+    od_int64		prevtime_ = 0;
     BufferString	execnm_;
 
     Task*		task_;

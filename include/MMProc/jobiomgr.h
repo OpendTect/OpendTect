@@ -36,16 +36,16 @@ mExpClass(MMProc) StatusInfo
 public:
 			StatusInfo(char tg,int desc,int stat,int pid,
 				   const char* mg,const char* hostname,
-				   int time);
+				   od_int64 timestamp);
 			~StatusInfo();
 
-    char		tag;
-    int			descnr;
-    int			status;
-    int			timestamp;
-    int			procid;
-    BufferString	hostnm;
-    BufferString	msg;
+    char		tag_;
+    int			descnr_;
+    int			status_;
+    od_int64		timestamp_;
+    int			procid_;
+    BufferString	hostnm_;
+    BufferString	msg_;
 };
 
 

@@ -482,7 +482,7 @@ bool Sower::acceptTablet( const visBase::EventInfo& eventinfo )
 	 !pid.isUdf() && !mIsUdf(curpidstamp_) &&
 	 Time::passedSince(curpidstamp_) > 300 )
     {
-	curpidstamp_ = mUdf(int);
+	curpidstamp_ = mUdf(od_int64);
 	return acceptLaser( eventinfo );
     }
 

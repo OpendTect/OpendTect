@@ -8,11 +8,11 @@ ________________________________________________________________________
 -*/
 
 #include "file.h"
-#include "testprog.h"
-#include "oddirs.h"
 #include "filepath.h"
-#include "od_istream.h"
-#include "od_ostream.h"
+#include "od_iostream.h"
+#include "oddirs.h"
+#include "testprog.h"
+#include "timefun.h"
 
 #define mTest( testname, test ) \
 if ( !(test) ) \
@@ -292,6 +292,44 @@ bool testFilePathParsing()
 }
 
 
+static bool testFileTime( const char* fnm )
+{
+    const od_int64 timesec = File::getTimeInSeconds( fnm );
+    mRunStandardTest( !mIsUdf(timesec) && timesec > 0,
+		      "File time in seconds from path" );
+    const od_int64 timeinms = File::getTimeInMilliSeconds( fnm );
+    mRunStandardTest( !mIsUdf(timeinms) && timeinms > 0,
+		      "File time in milliseconds from path");
+    BufferString crtimestr = File::timeCreated( fnm );
+    mRunStandardTest( !crtimestr.isEmpty() && crtimestr != "-",
+		      "File time created string from path" );
+    BufferString modtimestr = File::timeLastModified( fnm );
+    mRunStandardTest( !modtimestr.isEmpty() && modtimestr != "-",
+		      "File time last modified string from path" );
+
+    Time::FileTimeSet times;
+    mRunStandardTest( File::getTimes( fnm, times ),
+		      "Get all file timestamps from path" );
+
+    modtimestr.set( Time::getDateTimeString(timeinms) );
+    mRunStandardTest( !modtimestr.isEmpty() && modtimestr != "-",
+		      "File time last modified string from od_int64" );
+
+    modtimestr.set( Time::getDateTimeString(times.getModificationTime()) );
+    mRunStandardTest( !modtimestr.isEmpty() && modtimestr != "-",
+		      "File time last modified string from std::timespec" );
+    const BufferString acctimestr(
+		Time::getDateTimeString(times.getAccessTime()) );
+    mRunStandardTest( !acctimestr.isEmpty() && acctimestr != "-",
+		      "File time access string from std::timespec" );
+    crtimestr.set( Time::getDateTimeString(times.getCreationTime()) );
+    mRunStandardTest( !crtimestr.isEmpty() && crtimestr != "-",
+		      "File time creation string from std::timespec" );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -309,10 +347,12 @@ int mTestMainFnName( int argc, char** argv )
     }
 
     const BufferString parfile( fp.fullPath() );
-    if ( !testReadContent() || !testIStream( parfile.buf() ) )
-	return 1;
-
-    if ( !testFilePathParsing() )
+    const BufferString pardir( fp.pathOnly() );
+    if ( !testReadContent() ||
+	 !testIStream(parfile.buf()) ||
+	 !testFilePathParsing() ||
+	 !testFileTime(parfile.buf()) ||
+	 !testFileTime(pardir.buf()) )
 	return 1;
 
     return 0;

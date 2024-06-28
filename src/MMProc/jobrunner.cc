@@ -213,12 +213,16 @@ bool JobRunner::addHost( const HostData& hd )
 
 JobRunner::AssignStat JobRunner::assignJob( HostNFailInfo& hfi )
 {
-    if ( hfi.inuse_ ) return NotReady;
+    if ( hfi.inuse_ )
+	return NotReady;
 
-    mDefineStaticLocalObject( int, timestamp, = -1 );
-    const int elapsed = Time::passedSince( timestamp );
-    if ( elapsed < 0 ) timestamp = Time::getMilliSeconds();
-    if ( elapsed < startwaittime_ ) return NotReady;
+    mDefineStaticLocalObject( od_int64, timestamp, = -1 );
+    const od_int64 elapsed = Time::passedSince( timestamp );
+    if ( elapsed < 0 )
+	timestamp = Time::getMilliSeconds();
+
+    if ( elapsed < startwaittime_ )
+	return NotReady;
 
     timestamp = Time::getMilliSeconds();
 
@@ -369,7 +373,8 @@ void JobRunner::failedJob( JobInfo& ji, JobInfo::State reason )
 	{
 	    msg += "\n Host failed "; msg += hfi->nrfailures_; msg += " times ";
 	    msg += "\n Host started ";
-	    msg += Time::passedSince(hfi->starttime_)/1000;
+	    msg += Time::getTimeDiffString( Time::passedSince(hfi->starttime_)
+					    / 1000, 2 );
 	    msg += " seconds ago.";
 	}
 	mAddDebugMsg( ji )
@@ -484,7 +489,8 @@ bool JobRunner::hostFailed( int hnr ) const
 
 JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 {
-    if ( !hfi ) return HostFailed;
+    if ( !hfi )
+	return HostFailed;
 
     if ( hfi->starttime_ <= 0 )
     {
@@ -492,24 +498,26 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	if ( mDebugOn )
 	{
 	    BufferString msg( "Start time (" );
-	    msg += hfi->starttime_; msg += ") <= 0 for ";
-
+	    msg += Time::getDateTimeString( hfi->starttime_ );
+	    msg += ") <= 0 for ";
 	    msg += hfi->hostdata_.getHostName(false);
 	    msg += "\n nrfail: "; msg += hfi->nrfailures_;
 	    msg += "\n nrsucc: "; msg += hfi->nrsucces_;
-	    msg += "\n last succes time: "; msg += hfi->lastsuccess_;
+	    msg += "\n last succes time: ";
+	    msg += Time::getDateTimeString( hfi->lastsuccess_ );
 
 	    DBG::message(msg);
 	}
 	const_cast<HostNFailInfo*>(hfi)->starttime_ = Time::getMilliSeconds();
     }
 
-    if ( !hfi->nrfailures_ ) return OK;
+    if ( !hfi->nrfailures_ )
+	return OK;
 
-    if ( hfi->nrfailures_ <= maxhostfailures_ ) return SomeFailed;
+    if ( hfi->nrfailures_ <= maxhostfailures_ )
+	return SomeFailed;
 
-    int totltim = Time::passedSince( hfi->starttime_ );
-
+    od_int64 totltim = Time::passedSince( hfi->starttime_ );
     if ( totltim > 0 && totltim <= hosttimeout_ ) // default: 10 mins.
 	return SomeFailed;
 
@@ -521,15 +529,18 @@ JobRunner::HostStat JobRunner::hostStatus( const HostNFailInfo* hfi ) const
 	msg += hfi->hostdata_.getHostName(false);
 	msg += "\n nrfail: "; msg += hfi->nrfailures_;
 	msg += "\n nrsucc: "; msg += hfi->nrsucces_;
-	msg += "\n startime: "; msg += hfi->starttime_;
-	msg += "\n last succes time: "; msg += hfi->lastsuccess_;
+	msg += "\n startime: ";
+	msg += Time::getDateTimeString( hfi->starttime_ );
+	msg += "\n last succes time: ";
+	msg += Time::getDateTimeString( hfi->lastsuccess_ );
 
 	DBG::message(msg);
 	return HostFailed;
     }
 
-    const int lastsuctim = Time::passedSince( hfi->lastsuccess_ );
-    if ( lastsuctim < 0 )  return HostFailed;
+    const od_int64 lastsuctim = Time::passedSince( hfi->lastsuccess_ );
+    if ( lastsuctim < 0 )
+	return HostFailed;
 
     if ( hfi->nrsucces_ > 0 && lastsuctim < hosttimeout_ ) return SomeFailed;
 
@@ -570,7 +581,8 @@ uiString JobRunner::nrDoneMessage() const
 void JobRunner::setNiceNess( int n )
 {
     niceval_ = n;
-    if ( iomgr_ ) iomgr_->setNiceNess(n);
+    if ( iomgr_ )
+	iomgr_->setNiceNess(n);
 }
 
 
@@ -620,7 +632,7 @@ int JobRunner::doCycle()
 }
 
 
-int JobRunner::getLastReceivedTime( JobInfo& ji )
+od_int64 JobRunner::getLastReceivedTime( JobInfo& ji )
 {
 
     FilePath logfp = getBaseFilePath( ji, *ji.hostdata_ );
@@ -629,7 +641,7 @@ int JobRunner::getLastReceivedTime( JobInfo& ji )
     if ( !File::exists(logfp.fullPath()) )
 	return ji.recvtime_ ? ji.recvtime_ : ji.starttime_;
 
-    int logfiletime = mCast(int,File::getTimeInMilliSeconds(logfp.fullPath()));
+    const od_int64 logfiletime = File::getTimeInMilliSeconds(logfp.fullPath());
     return logfiletime > ji.recvtime_ ? logfiletime : ji.recvtime_;
 }
 
@@ -648,13 +660,14 @@ void JobRunner::updateJobInfo()
 	JobInfo& ji = *jobinfos_[ijob];
 	if ( isAssigned(ji)  )
 	{
-	    if ( !ji.starttime_ ) { pErrMsg("huh?"); Time::getMilliSeconds(); }
+	    if ( !ji.starttime_ )
+		{ pErrMsg("huh?"); Time::getMilliSeconds(); }
 
-	    int since_lst_chk = Time::passedSince( ji.starttime_ );
+	    od_int64 since_lst_chk = Time::passedSince( ji.starttime_ );
 	    if ( since_lst_chk > starttimeout_ )
 	    {
-		const int lastrecvdtime = getLastReceivedTime( ji );
-		int since_lst_recv = Time::passedSince(lastrecvdtime);
+		const od_int64 lastrecvdtime = getLastReceivedTime( ji );
+		od_int64 since_lst_recv = Time::passedSince( lastrecvdtime );
 		if ( since_lst_recv < 0 )
 		    since_lst_recv = 0;
 		// Negative value means difference in Time Settings on machines
@@ -699,35 +712,37 @@ void JobRunner::showMachStatus( BufferStringSet& res ) const
 
 void JobRunner::handleStatusInfo( StatusInfo& si )
 {
-    JobInfo* ji = gtJob( si.descnr );
-    if ( !ji ) return;
+    JobInfo* ji = gtJob( si.descnr_ );
+    if ( !ji )
+	return;
 
     curjobinfo_ = ji;
     ji->infomsg_ = "";
-    ji->recvtime_ = si.timestamp;
+    ji->recvtime_ = si.timestamp_;
 
-    if ( si.msg.size() ) ji->infomsg_ = si.msg;
+    if ( si.msg_.size() )
+	ji->infomsg_ = si.msg_;
 
-    switch( si.tag )
+    switch( si.tag_ )
     {
     case mPID_TAG :
-	ji->osprocid_ = si.status;
+	ji->osprocid_ = si.status_;
 	ji->state_ = JobInfo::Working;
 	ji->statusmsg_ = " initializing";
     break;
     case mPROC_STATUS :
-	ji->nrdone_ = si.status;
+	ji->nrdone_ = si.status_;
 
 	ji->statusmsg_ = " active; ";
 	ji->statusmsg_ += ji->nrdone_;
 	ji->statusmsg_ += " % done.";
 
-	if ( si.procid > 0 && ji->osprocid_ > 0  && si.procid != ji->osprocid_ )
+	if ( si.procid_ > 0 && ji->osprocid_ > 0 && si.procid_ != ji->osprocid_)
 	    failedJob( *ji, JobInfo::JobFailed );
 
     break;
     case mCTRL_STATUS :
-        switch( si.status )
+	switch( si.status_ )
 	{
 	case mSTAT_WORKING:
 	    ji->state_ = JobInfo::Working;
@@ -754,7 +769,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	}
     break;
     case mEXIT_STATUS :
-        switch( si.status )
+	switch( si.status_ )
 	{
 	case mSTAT_ALLDONE:
 	    handleExitStatus( *ji );
@@ -774,7 +789,7 @@ void JobRunner::handleStatusInfo( StatusInfo& si )
 	    failedJob( *ji, JobInfo::HostFailed );
 	break;
 	}
-	iomgr().removeJob( si.hostnm , si.descnr );
+	iomgr().removeJob( si.hostnm_ , si.descnr_ );
     break;
     }
 

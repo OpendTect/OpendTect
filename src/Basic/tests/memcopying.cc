@@ -36,7 +36,7 @@ static bool testSpeed()
 	const od_int64 nrruns = cTotNrOpers / arrsz;
 	od_cout() << "Arrsz=" << arrsz << " (" << nrruns << " runs)" << od_endl;
 
-	int prevms = Time::getMilliSeconds();
+	od_int64 prevms = Time::getMilliSeconds();
 
 	for ( od_int64 irun=0; irun<nrruns; irun++ )
 	{

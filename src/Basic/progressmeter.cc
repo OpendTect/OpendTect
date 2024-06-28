@@ -279,20 +279,20 @@ void TextStreamProgressMeter::annotate( bool withrate )
 
 
     // Show rate
-    int newtime = Time::getMilliSeconds();
-    int tdiff = newtime - oldtime_;
+    const od_int64 newtime = Time::getMilliSeconds();
+    const od_int64 tdiff = newtime - oldtime_;
     if ( withrate && tdiff > 0 )
     {
-	od_int64 nrdone = nrdone_ - lastannotatednrdone_;
-	od_int64 permsec = (od_int64)(1.e6 * nrdone / tdiff + .5);
+	const od_int64 nrdone = nrdone_ - lastannotatednrdone_;
+	const od_int64 permsec = (od_int64)(1.e6 * nrdone / tdiff + .5);
 	strm_ << " (" << permsec * .001 << "/s)";
     }
     if ( withrate && tdiff>0 && totalnr_>0 )
     {
-	const float nrdone = (float) nrdone_ - lastannotatednrdone_;
-	const float todo = (float) totalnr_ - nrdone_;
-	od_int64 etasec = mNINT64(tdiff * (todo/nrdone) / 1000.f);
-	const BufferString eta = Time::getTimeString( etasec, 2 );
+	const double nrdone = (double) nrdone_ - lastannotatednrdone_;
+	const double todo = (double) totalnr_ - nrdone_;
+	const od_int64 etasec = mNINT64(tdiff * (todo/nrdone) / 1000.);
+	const BufferString eta = Time::getTimeDiffString( etasec, 2 );
 	strm_ << " (" << eta << ")";
     }
     strm_ << od_endl;

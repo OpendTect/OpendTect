@@ -1204,7 +1204,7 @@ bool CmdDriver::prepareActivate( Activator* activator )
     activatorlist_ += activator;
     lckr.unlockNow();
 
-    wildmodalclosedstamp_ = mUdf(int);
+    wildmodalclosedstamp_ = mUdf(od_int64);
 
     uiMainWin::programActiveWindow( const_cast<uiMainWin*>(curWin()) );
     return true;

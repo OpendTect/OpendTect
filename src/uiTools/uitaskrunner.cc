@@ -145,7 +145,7 @@ void uiTaskRunner::updateFields()
     Threads::Locker lckr( dispinfolock_ );
     const int totalnr = mCast( int, task_->totalNr() );
     const int nrdone = mCast( int, task_->nrDone() );
-    const int newtime = Time::getMilliSeconds();
+    const od_int64 newtime = Time::getMilliSeconds();
     const uiString nrdonetext = task_->uiNrDoneText();
     const uiString message = task_->uiMessage();
 
@@ -200,10 +200,10 @@ void uiTaskRunner::updateFields()
 
 	if ( curnrdone > 0 )
 	{
-	    const int tdiff = newtime - prevtime_;
+	    const od_int64 tdiff = newtime - prevtime_;
 	    const float curtodo = sCast(float,totalnr-nrdone);
-	    od_int64 etasec = mNINT64(tdiff * (curtodo/curnrdone) / 1000.f);
-	    const BufferString eta = Time::getTimeString( etasec, 2 );
+	    const od_int64 etasec = mNINT64(tdiff * (curtodo/curnrdone)/1000.f);
+	    const BufferString eta = Time::getTimeDiffString( etasec, 2 );
 	    sb.message( toUiString(eta), 3 );
 	}
     }

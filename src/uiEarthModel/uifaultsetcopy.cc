@@ -193,7 +193,7 @@ bool uiCopyFaultSet::acceptOK( CallBacker* )
 	inpfp.setExtension( ".flt" );
 	FilePath outfp( outdirnm, toString(idx+1) );
 	outfp.setExtension( ".flt" );
-	if ( !File::copy(inpfp.fullPath(),outfp.fullPath(),&errmsg) )
+	if ( !File::copy(inpfp.fullPath(),outfp.fullPath(),true,&errmsg) )
 	{
 	    uiMSG().error( toUiString("%1: %2")
 		    .arg(uiStrings::phrCannotCopy(uiStrings::sFault()))

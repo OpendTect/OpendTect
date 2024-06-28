@@ -152,7 +152,7 @@ int nextStep() override
     destfp.setExtension( "par" );
     if ( File::exists(srcfp.fullPath()) && !File::exists(destfp.fullPath()) )
     {
-	if ( !File::copy(srcfp.fullPath(),destfp.fullPath(),&errmsg_) )
+	if ( !File::copy(srcfp.fullPath(),destfp.fullPath(),true,&errmsg_) )
 	    return ErrorOccurred();
     }
 

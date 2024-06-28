@@ -106,7 +106,7 @@ protected:
 private:
 
     ProgressMeter*	progressmeter_ = nullptr;
-    int			lastupdate_;
+    od_int64		lastupdate_;
 };
 
 

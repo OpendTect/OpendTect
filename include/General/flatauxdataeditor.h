@@ -101,8 +101,8 @@ protected:
 
     bool			singleseeded_;
     int				curknotid_;
-    int				curknotstamp_;
-    int				furrowstamp_;
+    od_int64			curknotstamp_;
+    od_int64			furrowstamp_;
 };
 
 

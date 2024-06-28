@@ -223,8 +223,8 @@ bool JobCommunic::sendPID( PID_Type pid )
 
 bool JobCommunic::updateMsg( char tag , int status, const char* msg )
 {
-    const int elapsed_succ = Time::passedSince( lastsucces_ );
-    const int elapsed_atmpt = Time::passedSince( timestamp_ );
+    const od_int64 elapsed_succ = Time::passedSince( lastsucces_ );
+    const od_int64 elapsed_atmpt = Time::passedSince( timestamp_ );
 
     if ( elapsed_succ < 0 || elapsed_atmpt < 0 )
         UsrMsg( "System clock skew detected (Ignored)." );
@@ -342,7 +342,7 @@ Network::Authority& JobCommunic::primaryAuthority()
 
 void JobCommunic::checkPrimaryHostTimeout()
 {
-    const int elapsed = Time::passedSince( lastsucces_ );
+    const od_int64 elapsed = Time::passedSince( lastsucces_ );
 
     if ( elapsed>0 && elapsed>failtimeout_ )
     {

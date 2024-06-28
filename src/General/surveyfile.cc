@@ -416,7 +416,7 @@ bool EmptyTempSurvey::createSurvey( TaskRunner* taskrun )
 
     const BufferString newsurv = surveyloc_->fullPath();
     uiString emsg;
-    const bool isok = File::copy( basicsurv.buf(), newsurv.buf(),
+    const bool isok = File::copy( basicsurv.buf(), newsurv.buf(), true,
 				  &emsg, taskrun );
     if ( !isok || !File::exists(newsurv.buf()) )
     {

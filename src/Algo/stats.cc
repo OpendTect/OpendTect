@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "settings.h"
 #include "timefun.h"
 
+#include <QDateTime>
+
 
 Threads::Atomic<int> partsortglobalseed( 0 );
 
@@ -94,7 +96,7 @@ bool initSeed( int seed, Threads::Atomic<int>& seedval )
 	if ( seedval != 0 && !mIsUdf(seedval.load()) )
 	    return false;
 
-	seed = Time::getMilliSeconds();
+	seed = QDateTime::currentDateTime().time().msecsSinceStartOfDay();
     }
 
     seedval = seed;

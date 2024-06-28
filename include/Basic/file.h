@@ -68,7 +68,7 @@ mGlobal(Basic) const char*	linkEnd(const char* linkname);
 				//!< 'Final' destination of link
 				//!< protected against circular links
 mGlobal(Basic) const char*	linkValue(const char* linkname);
-				//!< not sure why and when to use - used by zip
+				//!< content of a symbolic link
 
 mGlobal(Basic) void		hide(const char*,bool yn); //!<only Windows
 mGlobal(Basic) bool		isHidden(const char*);
@@ -92,17 +92,21 @@ mGlobal(Basic) bool		createDir(const char*);
 mGlobal(Basic) bool		rename(const char* oldname,const char* newname,
 				       uiString* errmsg=nullptr);
 mGlobal(Basic) bool		copy(const char* from,const char* to,
+				     bool preserve=true,
 				     uiString* errmsg=nullptr,
 				     TaskRunner* =nullptr);
 mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
-					       const char* to);
+					       const char* to,
+					       bool preserve=true);
 mGlobal(Basic) Executor*	getRecursiveDeleter(const char* dirnm,
 				    const BufferStringSet* externallist=nullptr,
 				    bool filesonly=false);
 mGlobal(Basic) bool		resize(const char*,od_int64);
 mGlobal(Basic) bool		remove(const char*);
-mGlobal(Basic) bool		saveCopy(const char* from,const char* to);
+mGlobal(Basic) bool		saveCopy(const char* from,const char* to,
+					 bool preserve=true);
 mGlobal(Basic) bool		copyDir(const char* from,const char* to,
+					bool preserve=true,
 					uiString* errmsg=nullptr,
 					TaskRunner* =nullptr);
 mGlobal(Basic) bool		removeDir(const char*);
@@ -124,12 +128,27 @@ mGlobal(Basic) BufferString	getFileSizeString(const char* fnm,
 					File::SizeUnit=File::SizeUnit::Auto);
 
 mGlobal(Basic) const char*	timeCreated(const char* filenm,
-					const char* fmt=Time::defDateTimeFmt());
+					const char* fmt=Time::defDateTimeFmt(),
+					bool followlink=true);
 mGlobal(Basic) const char*	timeLastModified(const char* filenm,
-					const char* fmt=Time::defDateTimeFmt());
-mGlobal(Basic) od_int64		getTimeInSeconds(const char*,bool modif=true);
-mGlobal(Basic) od_int64		getTimeInMilliSeconds( const char* fnm,
-					 bool lastmodif=true );//since day start
+					const char* fmt=Time::defDateTimeFmt(),
+					bool followlink=true);
+mGlobal(Basic) od_int64		getTimeInSeconds(const char*filenm,
+						 bool modif=true,
+						 bool followlink=true);
+				//since epoch (POSIX time)
+mGlobal(Basic) od_int64		getTimeInMilliSeconds(const char* filenm,
+						      bool modif=true,
+						      bool followlink=true);
+				//since epoch (POSIX time)
+mGlobal(Basic) bool		getTimes(const char* filenm,
+					 Time::FileTimeSet&,
+					 bool followlink=true);
+				//!< Retrieve file timestamps
+mGlobal(Basic) bool		setTimes(const char* filenm,
+					 const Time::FileTimeSet&,
+					 bool followlink=true);
+				//!< Set file timestamps (if supported by OS)
 mGlobal(Basic) bool		waitUntilExists(const char* fnm,
 						double maxwaittm,
 						double* actualwaited);

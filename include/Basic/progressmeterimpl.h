@@ -115,7 +115,7 @@ protected:
     od_int64		nrdone_;
     od_int64		lastannotatednrdone_;
     od_int64		totalnr_;
-    int			oldtime_;
+    od_int64		oldtime_;
     int			nrdotsonline_;
     bool		inited_;
     bool		finished_;

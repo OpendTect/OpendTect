@@ -8,11 +8,12 @@ ________________________________________________________________________
 -*/
 
 #include "dateinfo.h"
-#include "timefun.h"
+
 #include "keystrs.h"
 #include "separstr.h"
 #include "perthreadrepos.h"
-#include <time.h>
+
+#include <QTime>
 
 	//  0   1   2   3    4    5    6    7    8    9   10   11   12
 static const int normdaycount[]
@@ -29,7 +30,7 @@ mDefineEnumUtils(DateInfo,DayOfWeek,"Week day") {
 	"Thursday",
 	"Friday",
 	"Saturday",
-	0
+	nullptr
 };
 
 template <>
@@ -535,10 +536,10 @@ void DateInfo::getUsrDisp( BufferString& disp, bool withcurtime ) const
 
     if ( withcurtime )
     {
-	const int cursecs = Time::getMilliSeconds() / 1000;
-	const int hrs = cursecs / 3600;
-	const int mins = (cursecs - hrs * 3600) / 60;
-	const int secs = cursecs - hrs * 3600 - mins * 60;
+	const QTime curtime = QTime::currentTime();
+	const int hrs = curtime.hour();
+	const int mins = curtime.minute();
+	const int secs = curtime.second();
 
 	if ( hrs < 10 ) disp += "0";  disp += hrs; disp += ":";
 	if ( mins < 10 ) disp += "0"; disp += mins; disp += ":";

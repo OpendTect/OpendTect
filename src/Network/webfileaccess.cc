@@ -547,7 +547,7 @@ private:
     static OD::FileSystemAccess* createInstance()
 			    { return new HttpFileSystemAccess; }
 
-    mutable std::map<std::string,int>	existcache_;
+    mutable std::map<std::string,od_int64>	existcache_;
 
 public:
 
@@ -567,11 +567,11 @@ bool Network::HttpFileSystemAccess::isReadable( const char* uri ) const
 
     // Find entry and clean up old entries in one go
     const std::string uristr( uri );
-    const int curmsecs = Time::getMilliSeconds();
+    const od_int64 curmsecs = Time::getMilliSeconds();
     bool okfromcache = false;
     for ( auto it=existcache_.cbegin(); it!=existcache_.cend(); )
     {
-	const int tdiff = curmsecs - it->second;
+	const od_int64 tdiff = curmsecs - it->second;
 	if ( tdiff > remote_file_exist_cache_time )
 	    it = existcache_.erase( it );
 	else

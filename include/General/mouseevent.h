@@ -57,7 +57,7 @@ public:
 
 protected:
 
-    int			presstimestamp_;
+    od_int64		presstimestamp_;
     float		maxpostpressdist_;
     Geom::Point2D<int>	globalpresspos_;
 

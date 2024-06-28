@@ -43,6 +43,6 @@ public:
 
 protected:
 
-    int			starttime_ = 0;
-    int			recvtime_ = 0;
+    od_int64		starttime_ = 0;
+    od_int64		recvtime_ = 0;
 };

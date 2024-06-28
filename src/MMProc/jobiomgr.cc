@@ -64,14 +64,14 @@ JobInfo::~JobInfo()
 // StatusInfo
 
 StatusInfo::StatusInfo( char tg, int desc, int stat, int pid,
-			const char* mg, const char* hostname, int time )
-    : tag(tg)
-    , descnr(desc)
-    , status(stat)
-    , msg(mg)
-    , hostnm(hostname)
-    , timestamp(time)
-    , procid(pid)
+			const char* mg, const char* hostname, od_int64 time )
+    : tag_(tg)
+    , descnr_(desc)
+    , status_(stat)
+    , timestamp_(time)
+    , procid_(pid)
+    , hostnm_(hostname)
+    , msg_(mg)
 {
 }
 

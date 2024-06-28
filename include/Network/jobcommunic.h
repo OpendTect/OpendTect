@@ -103,15 +103,15 @@ private:
     Network::Authority& primaryAuthority();
     void		checkPrimaryHostTimeout();
 
-    int			timestamp_;
+    od_int64		timestamp_;
     int			nrattempts_ = 0;
     int			maxtries_;
     int			socktimeout_;
     int			failtimeout_;
     int			min_time_between_update_;
-    int			lastsucces_;
+    od_int64		lastsucces_;
     int			min_time_between_msgupdates_;
-    int			lastupdate_;
+    od_int64		lastupdate_;
 
     void		logMsg(bool stat,const char* msg,const char* details);
     bool		sendret_ = false;

@@ -28,7 +28,7 @@ TabletInfo::TabletInfo()
     , xtilt_( 0 )
     , ytilt_( 0 )
     , z_( 0 )
-    , presstimestamp_( mUdf(int) )
+    , presstimestamp_( mUdf(od_int64) )
     , maxpostpressdist_( mUdf(float) )
     , globalpresspos_( Geom::Point2D<int>::udf() )
 {}
