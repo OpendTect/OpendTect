@@ -94,6 +94,7 @@ uiWellPartServer::~uiWellPartServer()
 
 void uiWellPartServer::survChangedCB( CallBacker* )
 {
+    Well::MGR().cleanup();
     cleanup();
 }
 
