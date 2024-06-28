@@ -153,6 +153,7 @@ protected:
     void		fillSceneMenu();
     void		fillViewMenu();
     void		fillUtilMenu();
+    void		addSurveyAction(uiODApplMgr*);
     void		fillDtectTB(uiODApplMgr*);
     void		fillCoinTB(uiODSceneMgr*);
     void		fillManTB();
