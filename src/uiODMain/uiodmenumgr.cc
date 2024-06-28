@@ -42,6 +42,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "measuretoolman.h"
 #include "oddirs.h"
@@ -56,6 +57,8 @@ ________________________________________________________________________
 static const char* sKeyIconSetNm = "Icon set name";
 static const char* ascic = "ascii";
 static KeyboardEvent kbevent;
+
+static HiddenParam<uiODMenuMgr,int> hp_surveyactionid( -1 );
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     : dTectTBChanged(this)
@@ -82,6 +85,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     insertAction( tnmnu, tr("Download Free Projects"), mFreeProjects );
     insertAction( tnmnu, tr("Download Commercial Projects"), mCommProjects );
 
+    hp_surveyactionid.setParam( this, -1 );
     dtecttb_ = new uiToolBar( &appl_, tr("OpendTect Tools"), uiToolBar::Top );
     viewtb_ = new uiToolBar( &appl_, tr("Graphical Tools"), uiToolBar::Left );
     mantb_ = new uiToolBar( &appl_, uiStrings::phrManage(uiStrings::sData()),
@@ -116,6 +120,8 @@ uiODMenuMgr::~uiODMenuMgr()
     delete langmnumgr_;
     delete faulttoolman_;
     delete measuretoolman_;
+
+    hp_surveyactionid.removeParam( this );
 }
 
 
@@ -1141,9 +1147,11 @@ void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( fnm, txt, mCB(appman,uiODApplMgr,fn), togg )
 
-void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
+
+void uiODMenuMgr::addSurveyAction( uiODApplMgr* appman )
 {
     const int surveyid = dtecttb_->addButton( "survey", tr("Survey Setup") );
+    hp_surveyactionid.setParam( this, surveyid );
     auto* surveymenu = new uiMenu();
     surveymenu->insertAction(
 	new uiAction(m3Dots(tr("Select/Manage Surveys")),
@@ -1152,6 +1160,13 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	new uiAction(m3Dots(tr("Edit Survey Parameters")),
 			mCB(appman,uiODApplMgr,editSurvCB),"editcurrsurv") );
     dtecttb_->setButtonMenu( surveyid, surveymenu, uiToolButton::InstantPopup );
+}
+
+
+void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
+{
+    if ( hp_surveyactionid.getParam(this) < 0 )
+	addSurveyAction( appman );
 
     ::add2D3DToolButton( *dtecttb_, "attributes", tr("Edit Attributes"),
 			 mCB(appman,uiODApplMgr,editAttr2DCB),
@@ -1896,7 +1911,10 @@ uiToolBar* uiODMenuMgr::customTB( const char* nm )
 
 void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 {
-    dtecttb_->clear();
+    TypeSet<int> tbids = dtecttb_->ids();
+    tbids -= hp_surveyactionid.getParam( this );
+    dtecttb_->removeActions( tbids );
+
     mantb_->clear();
     if ( plugintb_ )
 	plugintb_->clear();
