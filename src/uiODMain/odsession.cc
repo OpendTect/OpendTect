@@ -217,6 +217,33 @@ void ODSession::setStartupData( bool douse, const MultiID& id )
     }
 }
 
+void ODSession::setAutoloadOn( bool yn )
+{
+    bool curon = false;
+    MultiID curid;
+    getStartupData( curon, curid );
+    if ( curon != yn )
+    {
+	Settings::common().setYN( sKeyUseStartup(), yn );
+	Settings::common().write();
+    }
+}
+
+
+void ODSession::setAutoloadKey( const MultiID& id )
+{
+    bool curon = false;
+    MultiID curid;
+    getStartupData( curon, curid );
+
+    if ( curid != id )
+    {
+	SI().getPars().set( sKeyStartupID(), id );
+	SI().savePars();
+    }
+}
+
+
 mDefSimpleTranslatorSelector(ODSession);
 mDefSimpleTranslatorioContext(ODSession,Misc)
 
