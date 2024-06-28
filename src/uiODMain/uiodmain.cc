@@ -528,7 +528,7 @@ uiODMainAutoSessionDlg( uiParent* p )
 
     IOObjContext ctxt = mIOObjContext( ODSession );
     ctxt.forread_ = true;
-    sessionfld_ = new uiIOObjSel( this, ctxt );
+    sessionfld_ = new uiIOObjSel( this, ctxt, uiStrings::sSession() );
     sessionfld_->setInput( id );
     sessionfld_->attach( alignedBelow, doselfld_ );
 
@@ -561,8 +561,9 @@ void useChg( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
+    loadnow_ = false;
     const bool douse = usefld_->getBoolValue();
-    const bool dosel = douse ? doselfld_->getBoolValue() : false;
+    const bool dosel = doselfld_->getBoolValue();
     if ( !dosel )
     {
 	ODSession::setStartupData( douse, MultiID::udf() );
@@ -570,9 +571,11 @@ bool acceptOK( CallBacker* )
     }
 
     const IOObj* ioobj = sessionfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     ODSession::setStartupData( douse, sessionfld_->key() );
+    loadnow_ = douse && loadnowfld_->getBoolValue();
     return true;
 }
 
@@ -580,17 +583,15 @@ bool acceptOK( CallBacker* )
     uiGenInput*		doselfld_;
     uiIOObjSel*		sessionfld_;
     uiGenInput*		loadnowfld_;
+    bool		loadnow_		= false;
 };
 
 
 void uiODMain::autoSession()
 {
     uiODMainAutoSessionDlg dlg( this );
-    if ( dlg.go() )
-    {
-	if ( dlg.loadnowfld_->getBoolValue() )
-	    restoreSession( dlg.sessionfld_->ioobj() );
-    }
+    if ( dlg.go() && dlg.loadnow_ )
+	restoreSession( dlg.sessionfld_->ioobj() );
 }
 
 
@@ -712,7 +713,10 @@ void uiODMain::handleStartupSession()
 		      "Restore session '%1' now?").arg( ioobj->name() );
     const bool res = uiMSG().askGoOn( msg, true );
     if ( !res )
+    {
+	sceneMgr().addScene( true );
 	return;
+    }
 
     cursessid_ = id;
     restoreSession( ioobj );
