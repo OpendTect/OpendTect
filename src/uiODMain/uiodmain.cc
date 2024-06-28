@@ -107,7 +107,6 @@ uiStringSet& uiODMain::restoremsgs_() const
     return uiodmain_hpmgr_.getParam( this )->restoremsgs_;
 }
 
->>>>>>> e39802b0d5 (Added message when auto-loading session)
 
 extern "C" {
 
@@ -307,6 +306,8 @@ uiODMain::uiODMain( uiMain& a )
     , memtimer_(*new Timer("Memory display timer"))
     , newsurvinittimer_(*new Timer("New survey init timer"))
 {
+    uiodmain_hpmgr_.setParam( this, new uiODMainHP );
+
     setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
 
@@ -362,6 +363,7 @@ uiODMain::~uiODMain()
     delete scenemgr_;
     delete viewer2dmgr_;
     delete applmgr_;
+    uiodmain_hpmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -644,9 +646,9 @@ void uiODMain::doRestoreSession()
     sceneMgr().cleanUp( false );
     applMgr().resetServers();
     restoringsess_ = true;
+    restoremsgs_().setEmpty();
 
     sessionRestoreEarly.trigger();
-    uiStringSet errmsgs;
     applMgr().EMServer()->usePar( cursession_->empars() );
     applMgr().seisServer()->usePar( cursession_->seispars() );
     if ( applMgr().nlaServer() )
@@ -654,16 +656,16 @@ void uiODMain::doRestoreSession()
     if ( SI().has2D() )
     {
 	applMgr().attrServer()->usePar( cursession_->attrpars(true,false),
-					true, false, errmsgs );
+					true, false, restoremsgs_() );
 	applMgr().attrServer()->usePar( cursession_->attrpars(true,true),
-					true, true, errmsgs );
+					true, true, restoremsgs_() );
     }
     if ( SI().has3D() )
     {
 	applMgr().attrServer()->usePar( cursession_->attrpars(false,false),
-					false, false, errmsgs );
+					false, false, restoremsgs_() );
 	applMgr().attrServer()->usePar( cursession_->attrpars(false,true),
-					false, true, errmsgs );
+					false, true, restoremsgs_() );
     }
     applMgr().mpeServer()->usePar( cursession_->mpepars() );
     const bool visok = applMgr().visServer()->usePar( cursession_->vispars() );
@@ -686,10 +688,10 @@ void uiODMain::doRestoreSession()
 
     restoringsess_ = false;
     MouseCursorManager::restoreOverride();
-    if ( !errmsgs.isEmpty() )
+    if ( !restoremsgs_().isEmpty() )
     {
 	uiString basemsg = tr("Errors during session restore");
-	uiMSG().errorWithDetails( errmsgs, basemsg );
+	uiMSG().errorWithDetails( restoremsgs_(), basemsg );
     }
 }
 
