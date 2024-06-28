@@ -157,6 +157,7 @@ public:
 
     int				nrActions() const;
     const ObjectSet<uiAction>&	actions() const;
+    const TypeSet<int>&		ids() const;
     bool			isEmpty() const;
 
     const uiAction*		findAction(const uiActionSeparString&) const;
@@ -191,6 +192,7 @@ public:
     void			removeAction(int id);
     bool			removeMenu(uiMenu&);
     void			removeAllActions();
+    void			removeActions(const TypeSet<int>& ids);
     void			reloadIcons();
 
     void			shareActionsFrom(const uiActionContainer*);
