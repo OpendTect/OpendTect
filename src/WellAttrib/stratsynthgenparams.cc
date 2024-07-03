@@ -32,8 +32,8 @@ const char* SynthGenParams::sKeySynthPar()
 
 mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
 {
-    "Zero Offset Trace",
-    "Extended Elastic Trace",
+    "Zero Offset Stack",
+    "Extended Elastic Stack",
     "Elastic Gather",
     "Pre Stack",
     "Strat Property",
@@ -44,6 +44,22 @@ mDefineEnumUtils(SynthGenParams,SynthType,"Synthetic Type")
     "Filtered Strat Property",
     nullptr
 };
+
+
+template<>
+void EnumDefImpl<SynthGenParams::SynthType>::init()
+{
+    uistrings_ += tr("Zero Offset Trace");
+    uistrings_ += tr("Extended Elastic Trace");
+    uistrings_ += tr("Elastic Gather");
+    uistrings_ += tr("Pre Stack");
+    uistrings_ += tr("Strat Property");
+    uistrings_ += tr("Angle Stack");
+    uistrings_ += tr("AVO Gradient");
+    uistrings_ += uiStrings::sAttribute();
+    uistrings_ += tr("Filtered Synthetic");
+    uistrings_ += tr("Filtered Strat Property");
+}
 
 
 SynthGenParams::SynthGenParams( SynthType tp )
@@ -100,31 +116,64 @@ bool SynthGenParams::operator== ( const SynthGenParams& oth ) const
 
 bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
 {
+    if ( synthtype_ != oth.synthtype_ )
+	return false;
+
+    bool hassamereflpars = true;
+    bool hassameraypars = true;
+    bool hassamesynthpars = true;
     bool hassameanglerg = true;
     bool hassameinput = true;
     bool hassameattrib = true;
     bool hassamefilter = true;
-    if ( oth.isPSBased() )
+    if ( isRawOutput() )
+    {
+	uiString msg;
+	hassamereflpars = reflpars_.isEmpty() && oth.reflpars_.isEmpty();
+	if ( !hassamereflpars )
+	{
+	    PtrMan<ReflCalc1D> reflcalc =
+			ReflCalc1D::createInstance( reflpars_, msg );
+	    PtrMan<ReflCalc1D> othreflcalc =
+			ReflCalc1D::createInstance( oth.reflpars_, msg );
+	    hassamereflpars = reflcalc && othreflcalc &&
+			      othreflcalc->hasSameParams( *reflcalc.ptr() );
+	}
+
+	hassameraypars = raypars_.isEmpty() && oth.raypars_.isEmpty();
+	if ( !hassameraypars )
+	{
+	    PtrMan<RayTracer1D> raycalc =
+			RayTracer1D::createInstance( raypars_, msg );
+	    PtrMan<RayTracer1D> othraycalc =
+			RayTracer1D::createInstance( oth.raypars_, msg );
+	    hassameraypars = raycalc && othraycalc &&
+			     othraycalc->hasSameParams( *raycalc.ptr() );
+	}
+
+	hassamesynthpars =
+	    Seis::SynthGenerator::areEquivalent( synthpars_, oth.synthpars_ );
+    }
+    else if ( isPSBased() )
     {
 	hassameanglerg = anglerg_ == oth.anglerg_;
 	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
     }
-    else if ( oth.isAttribute() )
+    else if ( isAttribute() )
     {
 	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
 	hassameattrib = attribtype_ == oth.attribtype_;
     }
-    else if ( oth.isFiltered() )
+    else if ( isFiltered() )
     {
 	hassameinput = inpsynthnm_ == oth.inpsynthnm_;
-	hassamefilter = filtertype_==oth.filtertype_ &&
+	hassamefilter = filtertype_ == oth.filtertype_ &&
 			windowsz_ == oth.windowsz_ &&
-			freqrg_==oth.freqrg_;
+			freqrg_ == oth.freqrg_;
     }
 
-    return synthtype_ == oth.synthtype_ && wvltnm_ == oth.wvltnm_ &&
-	   raypars_ == oth.raypars_ && reflpars_ == oth.reflpars_ &&
-	   synthpars_ == oth.synthpars_ &&
+    return wvltnm_ == oth.wvltnm_ && hassamereflpars && hassameraypars &&
+	   hassamesynthpars &&
 	   hassameanglerg && hassameinput && hassameattrib && hassamefilter;
 }
 
@@ -260,12 +309,17 @@ void SynthGenParams::setDefaultValues()
     else
 	anglerg_ = Interval<float>::udf();
 
+    if ( isAttribute() )
+	attribtype_ = Attrib::Instantaneous::Amplitude;
+    else
+	attribtype_ = Attrib::Instantaneous::OutType (mUdf(int));
+
     if ( isFiltered() )
     {
 	filtertype_ = FFTFilter::toString( FFTFilter::LowPass );
 	windowsz_ = 101;
 	freqrg_.setEmpty();
-	freqrg_.add(10).add(15);;
+	freqrg_.add(10).add(15);
     }
 
     createName( name_ );
@@ -388,8 +442,7 @@ void SynthGenParams::fillPar( IOPar& par ) const
     }
     else if ( needsInput() )
     {
-	BufferString synnm( inpsynthnm_ );
-	par.set( sKeyInput(), synnm );
+	par.set( sKeyInput(), inpsynthnm_ );
 	if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
 	    par.set( sKeyAngleRange(), anglerg_ );
 	else if ( synthtype_ == InstAttrib )
@@ -487,9 +540,9 @@ void SynthGenParams::usePar( const IOPar& par )
 	if ( needsInput() )
 	{
 	    par.get( sKeyInput(), inpsynthnm_ );
-	    if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
+	    if ( isPSBased() )
 		par.get( sKeyAngleRange(), anglerg_ );
-	    else if ( synthtype_ == InstAttrib )
+	    else if ( isAttribute() )
 	    {
 		BufferString attribstr;
 		par.get( sKey::Attribute(), attribstr );
