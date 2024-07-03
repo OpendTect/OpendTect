@@ -8,94 +8,120 @@ ________________________________________________________________________
 -*/
 
 #include "file.h"
-#include "testprog.h"
-#include "oddirs.h"
 #include "filepath.h"
-#include "od_istream.h"
-#include "od_ostream.h"
+#include "od_iostream.h"
+#include "oddirs.h"
+#include "testprog.h"
+#include "timefun.h"
 
-#define mTest( testname, test ) \
-if ( !(test) ) \
-{ \
-    handleTestResult( false, testname ); \
-    return false; \
-} \
-else\
-{ \
-    handleTestResult( true, testname ); \
+
+class FileDisposer
+{
+public:
+
+FileDisposer( const char* fnm )
+    : fnm_(fnm)
+{}
+
+~FileDisposer()
+{
+    File::remove( fnm_ );
 }
 
-#define mRunTest( test ) \
-mTest( #test, test )
+private:
+    BufferString fnm_;
+};
 
-bool testReadContent()
+
+static bool testEmptyReadContent( const BufferString& tempfile )
 {
-    BufferString basedir = GetSoftwareDir( 0 );
-
+    od_ostream stream( tempfile );
+    stream.close();
     BufferString buf;
+    mRunStandardTest(File::getContent(tempfile,buf),"Empty file read")
+    mRunStandardTest(buf.isEmpty(),"empty file: No data to be read");
+    return true;
+}
 
+
+static bool testNonEmptyReadContent( const BufferString& tempfile )
+{
+    BufferString buf;
+    od_ostream stream( tempfile );
+    stream << "test text";
+    stream.close();
+    mRunStandardTest(File::getContent(tempfile,buf),"Non-empty file read")
+    mRunStandardTest(buf.size(),"Valid data read");
+    return true;
+}
+
+
+static bool testReadContent()
+{
     //Read non existent file - should fail.
-    buf.setEmpty();
-    FilePath nofile( basedir.buf(), "src", "Basic", "tests","NonExistingFile");
-    mRunTest(!File::getContent(nofile.fullPath(),buf) && buf.isEmpty());
+    const BufferString tempfile = FilePath::getTempFullPath( "test", "txt" );
+    mRunStandardTest(!tempfile.isEmpty(),"Temp filepath created")
+    BufferString buf;
+    mRunStandardTest((!File::getContent(tempfile,buf) && buf.isEmpty()),
+		      "Non-existent file read");
 
     //Create empty file
-
     //Read empty file - should work fine.
-    buf.setEmpty();
-    FilePath emptyfile( basedir.buf(), "emptyfile.txt");
-    od_ostream stream(emptyfile.fullPath());
-    stream.close();
-    mRunTest(File::getContent(emptyfile.fullPath(),buf) && buf.isEmpty());
-
-    File::remove( emptyfile.fullPath() );
+    if ( !testEmptyReadContent(tempfile) )
+    {
+	File::remove( tempfile );
+	return false;
+    }
 
     //Read non empty file - should work fine.
-    buf.setEmpty();
-    FilePath nonempty( basedir.buf(), "CMakeCache.txt" );
-    mRunTest(File::getContent(nonempty.fullPath(),buf) && buf.size());
+    if ( !testNonEmptyReadContent(tempfile) )
+    {
+	File::remove( tempfile );
+	return false;
+    }
+
+    mRunStandardTest(File::remove(tempfile),"Remove temporary file")
+    mRunStandardTest(!File::exists(tempfile),"Temp file removed");
 
     return true;
 }
 
 
-bool testIStream( const char* file )
+static bool testIStream( const char* file )
 {
     od_istream invalidstream( "IUOIUOUOF");
-    mTest( "isOK on open non-existing file", !invalidstream.isOK() );
+    mRunStandardTest( !invalidstream.isOK(), "isOK on open non-existing file" );
 
     od_istream stream( file );
-    mTest( "isOK on open existing file", stream.isOK() );
-
+    mRunStandardTest( stream.isOK(), "isOK on open existing file" );
 
     int i;
     stream.get(i);
-    mTest( "Reading positive integer to int",
-            i==1 && stream.isOK() );
+    mRunStandardTest( i==1 && stream.isOK(),
+		      "Reading positive integer to int" );
 
     stream.get(i);
-    mTest( "Reading negative integer to int",
-           i==-1 && stream.isOK() );
+    mRunStandardTest( i==-1 && stream.isOK(),
+		      "Reading negative integer to int" );
 
     stream.get(i);
-    mTest( "Reading float into integer",
-           stream.isOK() );
+    mRunStandardTest( stream.isOK(), "Reading float into integer" );
 
     return true;
 }
 
 
-bool testFilePath( const char* inputpath,
-		   const char* prefix, const char* domain,
-		   const char* expfullpath,
-		   const char* pathonly,
-		   const char* localpath,
-		   const char* basename,
-		   const char* filename,
-		   const char* extension,
-		   const char* postfix,
-		   const char* modifiedfullpath,
-		   int nrlevels, bool absolute, bool isuri )
+static bool testFilePath( const char* inputpath,
+			  const char* prefix, const char* domain,
+			  const char* expfullpath,
+			  const char* pathonly,
+			  const char* localpath,
+			  const char* basename,
+			  const char* filename,
+			  const char* extension,
+			  const char* postfix,
+			  const char* modifiedfullpath,
+			  int nrlevels, bool absolute, bool isuri )
 {
     const FilePath path( inputpath );
     const StringView expfp( expfullpath ? expfullpath : inputpath );
@@ -163,7 +189,7 @@ bool testFilePath( const char* inputpath,
 }
 
 
-bool testFilePathParsing()
+static bool testFilePathParsing()
 {
     if ( !testFilePath( "C:\\path\\to\\me.txt",
 			"C", "",	//prefix/domain
@@ -268,6 +294,183 @@ bool testFilePathParsing()
 }
 
 
+static bool isEqual( std::timespec a, std::timespec b )
+{
+    return a.tv_sec == b.tv_sec && a.tv_nsec == b.tv_nsec;
+}
+
+
+static bool isLarger( std::timespec a, std::timespec b )
+{
+    if ( a.tv_sec > b.tv_sec )
+	return true;
+
+    if ( a.tv_sec < b.tv_sec )
+	return false;
+
+    return a.tv_nsec > b.tv_nsec;
+}
+
+
+static bool isEqual( const Time::FileTimeSet& a,
+		     const Time::FileTimeSet& b )
+{
+    return isEqual( a.getModificationTime(), b.getModificationTime() ) &&
+	   isEqual( a.getAccessTime(), b.getAccessTime() ) &&
+	   isEqual( a.getCreationTime(), b.getCreationTime() );
+}
+
+
+static bool testFileTime( const char* fnm )
+{
+    const od_int64 timesec = File::getTimeInSeconds( fnm );
+    mRunStandardTest( !mIsUdf(timesec) && timesec > 0,
+		      "File time in seconds from path" );
+    const od_int64 timeinms = File::getTimeInMilliSeconds_( fnm );
+    mRunStandardTest( !mIsUdf(timeinms) && timeinms > 0,
+		      "File time in milliseconds from path");
+    BufferString crtimestr = File::timeCreated( fnm );
+    mRunStandardTest( !crtimestr.isEmpty() && crtimestr != "-",
+		      "File time created string from path" );
+    BufferString modtimestr = File::timeLastModified( fnm );
+    mRunStandardTest( !modtimestr.isEmpty() && modtimestr != "-",
+		      "File time last modified string from path" );
+
+    Time::FileTimeSet times;
+    mRunStandardTest( File::getTimes( fnm, times ),
+		      "Get all file timestamps from path" );
+
+    modtimestr.set( Time::getDateTimeString(timeinms) );
+    mRunStandardTest( !modtimestr.isEmpty() && modtimestr != "-",
+		      "File time last modified string from od_int64" );
+
+    modtimestr.set( Time::getDateTimeString(times.getModificationTime()) );
+    mRunStandardTest( !modtimestr.isEmpty() && modtimestr != "-",
+		      "File time last modified string from std::timespec" );
+    const BufferString acctimestr(
+		Time::getDateTimeString(times.getAccessTime()) );
+    mRunStandardTest( !acctimestr.isEmpty() && acctimestr != "-",
+		      "File time access string from std::timespec" );
+    crtimestr.set( Time::getDateTimeString(times.getCreationTime()) );
+    mRunStandardTest( !crtimestr.isEmpty() && crtimestr != "-",
+		      "File time creation string from std::timespec" );
+
+    if ( __iswin__ )
+	return true;
+
+    const FilePath fp( fnm );
+    const BufferString linknm =
+		FilePath::getTempFullPath( "test_file", fp.extension() );
+    FileDisposer disposer1( linknm.buf() );
+    mRunStandardTest( File::createLink(fnm,linknm.buf()),
+		      "Created symbolic link" );
+    const BufferString linktarget = File::linkTarget( linknm.buf() );
+    const BufferString linkend = File::linkEnd( linknm.buf() );
+    mRunStandardTest( linktarget == fnm && linkend == fnm,
+		      "Retrieve target/end of symbolic link" );
+    const BufferString linkcontent = File::linkValue( linknm.buf() );
+    mRunStandardTest( linkcontent == fnm, "Read a symbolic link" );
+
+    const od_int64 filesz = File::getFileSize( fnm );
+    mRunStandardTest( File::getFileSize(linknm.buf()) == filesz,
+		      "File size by following a link" );
+    const StringView filenm( fnm );
+    mRunStandardTest( File::getFileSize(linknm.buf(),false) == filenm.size(),
+		      "File size of a symbolic link" );
+    Time::FileTimeSet filetimes, linktimes;
+    mRunStandardTest( File::getTimes( linknm.buf(), filetimes ),
+		      "Get all file timestamps from a link target" );
+    mRunStandardTest( File::getTimes( linknm.buf(), linktimes, false ),
+		      "Get all file timestamps from a symbolic link" );
+    mRunStandardTest( isEqual( filetimes, times ),
+		      "File timestamps by following a link" );
+    mRunStandardTest( !isEqual( linktimes, times ) &&
+	isLarger( linktimes.getCreationTime(), times.getCreationTime() ) &&
+	isLarger( linktimes.getModificationTime(),
+		  times.getModificationTime() ) &&
+	isLarger( linktimes.getAccessTime(), times.getAccessTime() ),
+		      "File timestamps of a symbolic link" );
+    std::timespec modtime = linktimes.getModificationTime();
+    od_int64 timens = modtime.tv_nsec + 5e7; //50ms
+    if ( timens > 999999999ULL )
+    {
+	modtime.tv_sec += 1;
+	modtime.tv_nsec = long (timens) - 1e9;
+    }
+    else
+	modtime.tv_nsec = long (timens);
+
+    Time::FileTimeSet linktimesedit( linktimes );
+    linktimesedit.setModificationTime( modtime );
+    Threads::sleep( 0.1 ); //100ms
+    mRunStandardTest( File::setTimes( linknm.buf(), linktimesedit, false ),
+		      "Set the modification time of a symbolic link" );
+    Threads::sleep( 0.1 ); //100ms
+    Time::FileTimeSet linktimesret;
+    mRunStandardTest( File::getTimes( linknm.buf(), linktimesret, false ),
+		      "Get all file timestamps from a symbolic link" );
+    mRunStandardTest( isEqual( linktimesret.getModificationTime(),
+			       linktimesedit.getModificationTime() ) &&
+		      !isEqual( linktimesret.getModificationTime(),
+				linktimes.getModificationTime() ) &&
+	isLarger( linktimesret.getModificationTime(),
+		  linktimes.getModificationTime() ),
+		      "File timestamps of a modified symbolic link" );
+
+    uiString msg;
+    const BufferString linkcpnm =
+		FilePath::getTempFullPath( "test_file", fp.extension() );
+    FileDisposer disposer2( linkcpnm );
+    mRunStandardTestWithError(
+	    File::copy( linknm.buf(), linkcpnm.buf(), &msg, nullptr ) &&
+	    File::exists(linkcpnm.buf()) && File::isLink(linkcpnm),
+	    "Copying a link as a link", msg.getString().buf() );
+
+    msg.setEmpty();
+    const BufferString linkdeepcpnm =
+		FilePath::getTempFullPath( "test_file", fp.extension() );
+    FileDisposer disposer3( linkdeepcpnm );
+    mRunStandardTestWithError(
+	    File::copy( linknm.buf(), linkdeepcpnm.buf(), &msg, nullptr, false )
+		 && File::exists(linkdeepcpnm.buf()) &&
+		      !File::isLink(linkdeepcpnm),
+		      "Deep copy from a link", msg.getString().buf() );
+    const bool isdir = File::isDirectory( fnm );
+    if ( File::isDirectory(fnm) )
+    {
+	mRunStandardTest( File::isDirectory(linkdeepcpnm.buf()),
+			  "Deep copied link of a directory" );
+    }
+    else
+    {
+	mRunStandardTest( File::isFile(linkdeepcpnm.buf()),
+			  "Deep copied link of a file" );
+    }
+
+    if ( !isdir )
+	return true;
+
+    mRunStandardTest( File::remove( linkcpnm ) && File::remove( linkdeepcpnm ),
+		      "Removed temporary files" );
+    msg.setEmpty();
+    mRunStandardTestWithError(
+	    File::copyDir( linknm.buf(), linkcpnm.buf(), &msg, nullptr ) &&
+	    File::exists(linkcpnm.buf()) && File::isLink(linkcpnm),
+	    "Copying a link to a directory as a link", msg.getString().buf() );
+
+    msg.setEmpty();
+    mRunStandardTestWithError(
+	    File::copyDir( linknm.buf(), linkdeepcpnm.buf(), &msg,
+			   nullptr, false ) &&
+	    File::exists( linkdeepcpnm.buf() ) &&
+	    !File::isLink( linkdeepcpnm ) &&
+	    File::isDirectory( linkdeepcpnm.buf() ),
+	      "Deep copy from a link to a directory", msg.getString().buf() );
+
+    return true;
+}
+
+
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -285,10 +488,12 @@ int mTestMainFnName( int argc, char** argv )
     }
 
     const BufferString parfile( fp.fullPath() );
-    if ( !testReadContent() || !testIStream( parfile.buf() ) )
-	return 1;
-
-    if ( !testFilePathParsing() )
+    const BufferString pardir( fp.pathOnly() );
+    if ( !testReadContent() ||
+	 !testIStream(parfile.buf()) ||
+	 !testFilePathParsing() ||
+	 !testFileTime(parfile.buf()) ||
+	 !testFileTime(pardir.buf()) )
 	return 1;
 
     return 0;

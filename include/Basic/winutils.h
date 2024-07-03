@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #ifdef __win__
 # include "shlobj.h"
+# include <ctime>
 #endif
 
 extern "C"
@@ -45,6 +46,9 @@ mGlobal(Basic) bool		serviceIsRunning(const char* nm);
 				/* See SERVICE_STATUS_PROCESS.dwCurrentState
 				    for possible values*/
 mGlobal(Basic) int		getServiceStatus(const char* nm);
+mGlobal(Basic) void		TimespecToFileTime(const std::timespec&,
+						   FILETIME&);
+mGlobal(Basic) void		FileTimeToTimet(const FILETIME&,std::timespec&);
 
 }
 

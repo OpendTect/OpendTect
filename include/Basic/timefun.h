@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "gendefs.h"
 
+#include <ctime>
+
 mFDQtclass(QElapsedTimer)
 
 namespace Time
@@ -32,6 +34,29 @@ namespace Time
 
     };
 
+    mExpClass(Basic) FileTimeSet
+    {
+    public:
+				FileTimeSet();
+				~FileTimeSet();
+
+	std::timespec		getModificationTime() const;
+	std::timespec		getAccessTime() const;
+	std::timespec		getCreationTime() const;
+	bool			hasModificationTime() const;
+	bool			hasAccessTime() const;
+	bool			hasCreationTime() const;
+
+	FileTimeSet&		setModificationTime(const std::timespec&);
+	FileTimeSet&		setAccessTime(const std::timespec&);
+	FileTimeSet&		setCreationTime(const std::timespec&);
+
+    private:
+	std::timespec	modtime_;
+	std::timespec	acctime_;
+	std::timespec	crtime_;
+    };
+
 
     mGlobal(Basic) int getMilliSeconds();		//!< From day start
     mGlobal(Basic) int passedSince(int);
@@ -45,6 +70,13 @@ namespace Time
     mGlobal(Basic) const char*	getISODateTimeString(bool local=false);
     mGlobal(Basic) const char*	getDateTimeString(const char* fmt
 					    =defDateTimeFmt(),bool local=true);
+    mGlobal(Basic) const char*	getDateTimeString(od_int64 timeinms,
+					    const char* fmt=defDateTimeFmt(),
+					    bool local=true);
+				//!< Provide time in milliseconds since epoch
+    mGlobal(Basic) const char*	getDateTimeString(const std::timespec&,
+					    const char* fmt=defDateTimeFmt(),
+					    bool local=true);
     mGlobal(Basic) const char*	getDateString(const char* fmt=defDateFmt(),
 					      bool local=true);
     mGlobal(Basic) const char*	getTimeString(const char* fmt=defTimeFmt(),
@@ -55,6 +87,10 @@ namespace Time
 			   const char* fmt=defDateTimeFmt());
 			/*! returns true if the first DateTime string is
 			  earlier than the second */
+    mGlobal(Basic) const char*	getTimeDiffString(od_int64 deltatimeins,
+						  int precision);
+			/*! returns time as 1d:2h:35m:15s */
+    mDeprecated("Use getTimeDiffString")
     mGlobal(Basic) const char*	getTimeString(od_int64 timeins,int precision);
 			/*! returns time as 1d:2h:35m:15s */
 

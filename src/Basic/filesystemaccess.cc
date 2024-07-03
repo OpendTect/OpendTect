@@ -26,17 +26,52 @@ ________________________________________________________________________
 #  include "winstreambuf.h"
 # endif
 #else
+# include <fcntl.h>
 # include <fstream>
 # include "sys/stat.h"
 # include <unistd.h>
-# include <utime.h>
 #endif
-
 
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+
+#ifdef __mac__
+#define st_atim st_atimespec
+#define st_ctim st_ctimespec
+#define st_mtim st_mtimespec
+#endif
+
+
+namespace File
+{
+
+// 0=modification, 1=access, 2=creation
+
+static QDateTime getDateTime( const char* fnm, bool followlink, int state )
+{
+    if ( state < 0 || state > 2 )
+	return QDateTime();
+
+    static const auto& fsa = OD::FileSystemAccess::getLocal();
+    Time::FileTimeSet times;
+    if ( !fsa.getTimes(fnm,times,followlink) )
+	return QDateTime();
+
+    const std::timespec time = state == 0
+			? times.getModificationTime()
+			: (state == 1 ? times.getAccessTime()
+				      : times.getCreationTime());
+    if ( mIsUdf(time.tv_sec) )
+	return QDateTime();
+
+    const od_int64 nrmsec = time.tv_sec * 1000 + time.tv_nsec / 1e6;
+    return QDateTime::fromMSecsSinceEpoch( nrmsec );
+}
+
+} // namespace File
+
 
 
 mImplFactory( OD::FileSystemAccess, OD::FileSystemAccess::factory );
@@ -99,6 +134,18 @@ public:
     static void		initClass();
     static const char*	sFactoryKeyword() { return "file"; }
     static uiString	sFactoryUserName() { return tr("Local"); }
+
+public:
+    bool		copy_(const char* from,const char* to,
+			     uiString* errmsg,bool preserve) const;
+    BufferString	timeCreated_(const char*,bool followlink) const;
+    BufferString	timeLastModified_(const char*,bool followlink) const;
+    od_int64		getTimeInMilliSeconds_(const char*,bool lastmodif,
+					       bool followlink) const;
+    bool		getTimes_(const char*,Time::FileTimeSet&,
+				  bool followlink) const;
+    bool		setTimes_(const char*,const Time::FileTimeSet&,
+				  bool followlink) const;
 
 };
 
@@ -390,7 +437,7 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 	const BufferString sourcedrive = sourcefp.rootPath();
 	if ( destdrive != sourcedrive )
 	{
-	    res = File::copyDir( oldname, newname, errmsg, nullptr );
+	    res = File::copyDir( oldname, newname, errmsg, nullptr, true );
 	    if ( !res )
 		return false;
 
@@ -422,14 +469,22 @@ bool LocalFileSystemAccess::rename( const char* fromuri,
 bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
 				  uiString* errmsg ) const
 {
+    return copy_( fromuri, touri, errmsg, true );
+}
+
+
+bool LocalFileSystemAccess::copy_( const char* fromuri, const char* touri,
+				  uiString* errmsg, bool preserve ) const
+{
     const BufferString from = withoutProtocol( fromuri );
     const BufferString to = withoutProtocol( touri );
     if ( from.isEmpty() || to.isEmpty() )
 	return false;
 
     TaskRunner* taskrun = getTaskRunner();
-    if ( isDirectory(from) || isDirectory(to) )
-	return File::copyDir( from, to, errmsg, taskrun );
+    if ( (isDirectory(from) || isDirectory(to)) &&
+	  !File::isLink(from) )
+	return File::copyDir( from, to, errmsg, taskrun, preserve );
 
     if ( !File::checkDir(from,true,errmsg) || !File::checkDir(to,false,errmsg) )
 	return false;
@@ -437,18 +492,26 @@ bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
     if ( exists(to) && !isDirectory(to) )
 	remove( to );
 
-    QFile qfile( from.buf() );
-    bool ret = qfile.copy( to.buf() );
-    if ( !ret && errmsg )
-	errmsg->setFrom( qfile.errorString() );
+    bool ret = true;
+    if ( preserve && !__iswin__ && File::isLink(from.buf()) )
+    {
+	const BufferString linkval( File::linkValue(from.buf()) );
+	ret = File::createLink( linkval.buf(), to.buf() );
+    }
+    else
+    {
+	QFile qfile( from.buf() );
+	ret = qfile.copy( to.buf() );
+	if ( !ret && errmsg )
+	    errmsg->setFrom( qfile.errorString() );
+    }
 
-#ifdef __unix__
-    const QFileInfo qfi( qfile );
-    utimbuf timestamp;
-    timestamp.actime = qfi.lastRead().toSecsSinceEpoch();
-    timestamp.modtime = qfi.lastModified().toSecsSinceEpoch();
-    utime( to.buf(), &timestamp );
-#endif
+    if ( ret && preserve && !__iswin__ ) //Not required on Windows
+    {
+	Time::FileTimeSet times;
+	if ( getTimes(from.buf(),times,false) )
+	    setTimes( to.buf(), times, false );
+    }
 
     return ret;
 }
@@ -482,32 +545,169 @@ od_int64 LocalFileSystemAccess::getFileSize( const char* uri,
 }
 
 
-static QDateTime getDateTime( const char* fnm, bool lastmodif )
+BufferString LocalFileSystemAccess::timeCreated( const char* uri ) const
 {
-    const QFileInfo qfi( fnm );
-    if ( lastmodif )
-	return qfi.lastModified();
-
-#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
-    const QDateTime dt = qfi.birthTime();
-    return dt.isValid() ? dt : qfi.metadataChangeTime();
-#else
-    return qfi.created();
-#endif
+    return timeCreated_( uri, true );
 }
 
 
-BufferString LocalFileSystemAccess::timeCreated( const char* uri ) const
+BufferString LocalFileSystemAccess::timeCreated_( const char* uri,
+						  bool followlink ) const
 {
-    const QDateTime dt = getDateTime( uri, false );
+    const BufferString fnm = withoutProtocol( uri );
+    if ( fnm.isEmpty() )
+	return BufferString::empty();
+
+    const QDateTime dt = File::getDateTime( fnm.buf(), followlink, 2 );
     return dt.toString( Qt::ISODate );
 }
 
 
 BufferString LocalFileSystemAccess::timeLastModified( const char* uri ) const
 {
-    const QDateTime dt = getDateTime( uri, true );
+    return timeLastModified_( uri, true );
+}
+
+
+BufferString LocalFileSystemAccess::timeLastModified_( const char* uri,
+						       bool followlink ) const
+{
+    const BufferString fnm = withoutProtocol( uri );
+    if ( fnm.isEmpty() )
+	return BufferString::empty();
+
+    const QDateTime dt = File::getDateTime( fnm.buf(), followlink, 0 );
     return dt.toString( Qt::ISODate );
+}
+
+
+od_int64 LocalFileSystemAccess::getTimeInMilliSeconds_( const char* uri,
+				bool lastmodif, bool followlink ) const
+{
+    const BufferString fnm = withoutProtocol( uri );
+    if ( fnm.isEmpty() )
+	return -1;
+
+    Time::FileTimeSet times;
+    if ( !getTimes(fnm.buf(),times,followlink) )
+	return -1;
+
+    const std::timespec time = lastmodif ? times.getModificationTime()
+					 : times.getCreationTime();
+    if ( mIsUdf(time.tv_sec) )
+	return -1;
+
+    return time.tv_sec * 1000 + time.tv_nsec / 1e6;
+}
+
+
+bool LocalFileSystemAccess::getTimes_( const char* uri,Time::FileTimeSet& times,
+				       bool followlink ) const
+{
+    const BufferString fnm = withoutProtocol( uri );
+    if ( fnm.isEmpty() )
+	return false;
+
+    std::timespec modtime, acctime, crtime;
+#ifdef __win__
+    HANDLE hfile = CreateFile( fnm, GENERIC_READ,
+			       FILE_SHARE_READ, NULL,
+			       OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    if ( hfile == INVALID_HANDLE_VALUE )
+	return false;
+
+    FILETIME ftmodtime, ftacctime, ftcrtime;
+    if ( !GetFileTime(hfile,&ftcrtime,&ftacctime,&ftmodtime) )
+    {
+	CloseHandle( hfile );
+	return false;
+    }
+
+    CloseHandle( hfile );
+    WinUtils::FileTimeToTimet( ftmodtime, modtime );
+    WinUtils::FileTimeToTimet( ftacctime, acctime );
+    WinUtils::FileTimeToTimet( ftcrtime, crtime );
+#else
+    struct stat filestat;
+    if ( followlink )
+    {
+	if ( stat(fnm,&filestat) != 0 )
+	    return false;
+    }
+    else
+    {
+	if ( lstat(fnm,&filestat) != 0 )
+	    return false;
+    }
+
+    modtime = filestat.st_mtim;
+    acctime = filestat.st_atim;
+    crtime = filestat.st_ctim;
+#endif
+    times.setModificationTime( modtime ).setAccessTime( acctime )
+	 .setCreationTime( crtime );
+
+    return true;
+}
+
+
+bool LocalFileSystemAccess::setTimes_( const char* uri,
+				       const Time::FileTimeSet& times,
+				       bool followlink ) const
+{
+    const BufferString fnm = withoutProtocol( uri );
+    if ( fnm.isEmpty() )
+	return false;
+
+    const bool hasmodtime = times.hasModificationTime();
+    bool hasacctime = times.hasAccessTime();
+#ifdef __win__
+    FILETIME ftmodtime, ftacctime, ftcrtime;
+    const bool hascrtime = times.hasCreationTime();
+    if ( hasmodtime )
+	WinUtils::TimespecToFileTime( times.getModificationTime(), ftmodtime );
+
+    if ( hasacctime )
+	WinUtils::TimespecToFileTime( times.getAccessTime(), ftacctime );
+    else
+    {
+	ftacctime.dwLowDateTime = 0XFFFFFFFF;
+	ftacctime.dwHighDateTime = 0XFFFFFFFF;
+	hasacctime = true;
+    }
+
+    if ( hascrtime )
+	WinUtils::TimespecToFileTime( times.getCreationTime(), ftcrtime );
+
+    HANDLE hfile = CreateFile( fnm.buf(), GENERIC_WRITE,
+			       FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+			       OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    bool res = false;
+    if ( hfile != INVALID_HANDLE_VALUE )
+    {
+	res = SetFileTime( hfile,
+	    hascrtime ? &ftcrtime : NULL,
+	    hasacctime ? &ftacctime : NULL,
+	    hasmodtime ? &ftmodtime : NULL );
+	CloseHandle( hfile );
+    }
+
+    return res;
+#else
+    std::timespec filetimes[2];
+    if ( hasacctime )
+	filetimes[0] = times.getAccessTime();
+    else
+	filetimes[0].tv_sec = UTIME_OMIT;
+
+    if ( hasmodtime )
+	filetimes[1] = times.getModificationTime();
+    else
+	filetimes[1].tv_sec = UTIME_OMIT;
+
+    const int flag = followlink ? 0 : AT_SYMLINK_NOFOLLOW;
+    return utimensat( 0, fnm.buf(), filetimes, flag ) == 0;
+#endif
 }
 
 
@@ -767,6 +967,54 @@ const FileSystemAccess& FileSystemAccess::gtByProt( BufferString& protocol )
 
     systemaccesses_ += res;
     return *res;
+}
+
+
+bool FileSystemAccess::copy( const char* fromuri, const char* touri,
+			     uiString* errmsg, bool preserve ) const
+{
+    const auto& locfsa = sCast( const LocalFileSystemAccess&, getLocal() );
+    return locfsa.copy_( fromuri, touri, errmsg, preserve );
+}
+
+
+BufferString FileSystemAccess::timeCreated( const char* uri,
+					    bool followlink ) const
+{
+    const auto& locfsa = sCast( const LocalFileSystemAccess&, getLocal() );
+    return locfsa.timeCreated_( uri, followlink );
+}
+
+
+BufferString FileSystemAccess::timeLastModified( const char* uri,
+						 bool followlink ) const
+{
+    const auto& locfsa = sCast( const LocalFileSystemAccess&, getLocal() );
+    return locfsa.timeLastModified_( uri, followlink );
+}
+
+
+od_int64 FileSystemAccess::getTimeInMilliSeconds( const char* fromuri,
+					bool lastmodif, bool followlink ) const
+{
+    const auto& locfsa = sCast( const LocalFileSystemAccess&, getLocal() );
+    return locfsa.getTimeInMilliSeconds_( fromuri, lastmodif, followlink );
+}
+
+
+bool FileSystemAccess::getTimes( const char* uri, Time::FileTimeSet& times,
+				 bool followlink ) const
+{
+    const auto& locfsa = sCast( const LocalFileSystemAccess&, getLocal() );
+    return locfsa.getTimes_( uri, times, followlink );
+}
+
+
+bool FileSystemAccess::setTimes( const char* uri,const Time::FileTimeSet& times,
+				 bool followlink ) const
+{
+    const auto& locfsa = sCast( const LocalFileSystemAccess&, getLocal() );
+    return locfsa.setTimes_( uri, times, followlink );
 }
 
 
