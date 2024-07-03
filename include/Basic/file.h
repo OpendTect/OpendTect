@@ -55,7 +55,7 @@ mGlobal(Basic) const char*	linkEnd(const char* linkname);
 				//!< 'Final' destination of link
 				//!< protected against circular links
 mGlobal(Basic) const char*	linkValue(const char* linkname);
-				//!< not sure why and when to use - used by zip
+				//!< content of a symbolic link
 
 mGlobal(Basic) void		hide(const char*,bool yn); //!<only Windows
 mGlobal(Basic) bool		isHidden(const char*);
@@ -81,23 +81,43 @@ mGlobal(Basic) bool		createDir(const char*);
 mGlobal(Basic) bool		rename(const char* oldname,const char* newname,
 				       uiString* errmsg=nullptr);
 mGlobal(Basic) bool		copy(const char* from,const char* to,
-					BufferString* errmsg=0);
+					BufferString* errmsg=nullptr);
+				//!< standard copy preserves file attributes
 mGlobal(Basic) bool		copy(const char* from,const char* to,
 				     uiString* errmsg,
 				     TaskRunner*);
+				//!< standard copy preserves file attributes
+mGlobal(Basic) bool		copy(const char* from,const char* to,
+				     uiString* errmsg,
+				     TaskRunner*);
+				//!< standard copy preserves file attributes
+mGlobal(Basic) bool		copy(const char* from,const char* to,
+				     uiString* errmsg,
+				     TaskRunner*,bool preserve);
 mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
 					       const char* to);
+				//!< standard copy preserves file attributes
+mGlobal(Basic) Executor*	getRecursiveCopier(const char* from,
+					       const char* to,bool preserve);
 mGlobal(Basic) Executor*	getRecursiveDeleter(const char* dirnm,
 					const BufferStringSet* externallist=0,
 					bool filesonly=false);
 mGlobal(Basic) bool		resize(const char*,od_int64);
 mGlobal(Basic) bool		remove(const char*);
 mGlobal(Basic) bool		saveCopy(const char* from,const char* to);
+				//!< standard copy preserves file attributes
+mGlobal(Basic) bool		saveCopy(const char* from,const char* to,
+					 bool preserve);
 mGlobal(Basic) bool		copyDir(const char* from,const char* to,
-					BufferString* errmsg=0);
+					BufferString* errmsg=nullptr);
+				//!< standard copy preserves file attributes
 mGlobal(Basic) bool		copyDir(const char* from,const char* to,
 					uiString* errmsg,
 					TaskRunner*);
+				//!< standard copy preserves file attributes
+mGlobal(Basic) bool		copyDir(const char* from,const char* to,
+					uiString* errmsg,
+					TaskRunner*,bool preserve);
 mGlobal(Basic) bool		removeDir(const char*);
 mGlobal(Basic) bool		changeDir(const char* path);
 mGlobal(Basic) bool		checkDir(const char* fnm,bool forread,
@@ -115,11 +135,33 @@ mGlobal(Basic) BufferString	getFileSizeString(const char* fnm);
 
 mGlobal(Basic) const char*	timeCreated(const char* filenm,
 					const char* fmt=Time::defDateTimeFmt());
+				//!<always following links
+mGlobal(Basic) const char*	timeCreated(const char* filenm,
+					const char* fmt,bool followlink);
 mGlobal(Basic) const char*	timeLastModified(const char* filenm,
 					const char* fmt=Time::defDateTimeFmt());
+				//!<always following links
+mGlobal(Basic) const char*	timeLastModified(const char* filenm,
+					const char* fmt,bool followlink);
 mGlobal(Basic) od_int64		getTimeInSeconds(const char*,bool modif=true);
-mGlobal(Basic) od_int64		getTimeInMilliSeconds( const char* fnm,
-					 bool lastmodif=true );//since day start
+				//!<since epoch (POSIX time), followlink=true
+mGlobal(Basic) od_int64		getTimeInSeconds(const char*,bool modif,
+						 bool followlink);
+				mDeprecated("Use getTimeInMilliSeconds_")
+mGlobal(Basic) od_int64		getTimeInMilliSeconds(const char* fnm,
+					 bool lastmodif=true);
+				//!<since day start
+mGlobal(Basic) od_int64		getTimeInMilliSeconds_(const char* fnm,
+					 bool lastmodif=true,
+					 bool followlink=true);
+				//!<since epoch (POSIX time)
+mGlobal(Basic) bool		getTimes(const char* filenm,Time::FileTimeSet&,
+					 bool followlink=true);
+				//!< Retrieve file timestamps
+mGlobal(Basic) bool		setTimes(const char* filenm,
+					 const Time::FileTimeSet&,
+					 bool followlink=true);
+				//!< Set file timestamps (if supported by OS)
 mGlobal(Basic) bool		waitUntilExists(const char* fnm,
 						double maxwaittm,
 						double* actualwaited);

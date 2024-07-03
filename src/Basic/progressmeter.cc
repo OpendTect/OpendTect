@@ -291,8 +291,8 @@ void TextStreamProgressMeter::annotate( bool withrate )
     {
 	const float nrdone = (float) nrdone_ - lastannotatednrdone_;
 	const float todo = (float) totalnr_ - nrdone_;
-	od_int64 etasec = mNINT64(tdiff * (todo/nrdone) / 1000.f);
-	const BufferString eta = Time::getTimeString( etasec, 2 );
+	const od_int64 etasec = mNINT64(tdiff * (todo/nrdone) / 1000.f);
+	const BufferString eta = Time::getTimeDiffString( etasec, 2 );
 	strm_ << " (" << eta << ")";
     }
     strm_ << od_endl;

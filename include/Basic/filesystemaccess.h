@@ -61,8 +61,6 @@ public:
     virtual bool	copy(const char* from,const char* to,
 			     uiString* errmsg=nullptr) const
 			{ return false; }
-    bool		copy(const char* from,const char* to,
-			     uiString* errmsg,TaskRunner*) const;
     virtual bool	createDirectory(const char*) const
 			{ return false; }
     virtual bool	listDirectory(const char*,File::DirListType,
@@ -113,6 +111,20 @@ private:
 
 public:
     void		setTaskRunner(TaskRunner*) const;
+
+public:
+		// Will become virtual
+    bool		copy(const char* from,const char* to,
+			     uiString* errmsg,bool preserve) const;
+    BufferString	timeCreated(const char*,bool followlink) const;
+    BufferString	timeLastModified(const char*,bool followlink) const;
+    od_int64		getTimeInMilliSeconds(const char*,bool lastmodif,
+					      bool followlink) const;
+			//!< since epoch (POSIX)
+    bool		getTimes(const char*,Time::FileTimeSet&,
+				 bool followlink) const;
+    bool		setTimes(const char*,const Time::FileTimeSet&,
+				 bool followlink) const;
 };
 
 } // namespace OD

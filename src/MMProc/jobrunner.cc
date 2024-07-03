@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "winutils.h"
 
 #include <iostream>
+#include <QDateTime>
 
 #define mDebugOn        (DBG::isOn(DBG_MM))
 
@@ -629,7 +630,14 @@ int JobRunner::getLastReceivedTime( JobInfo& ji )
     if ( !File::exists(logfp.fullPath()) )
 	return ji.recvtime_ ? ji.recvtime_ : ji.starttime_;
 
-    int logfiletime = mCast(int,File::getTimeInMilliSeconds(logfp.fullPath()));
+    const od_int64 timems = File::getTimeInMilliSeconds_( logfp.fullPath() );
+    int logfiletime = -1;
+    if ( timems > 0 )
+    {
+	const QDateTime qdt = QDateTime::fromMSecsSinceEpoch( timems );
+	logfiletime = qdt.time().msecsSinceStartOfDay();
+    }
+
     return logfiletime > ji.recvtime_ ? logfiletime : ji.recvtime_;
 }
 

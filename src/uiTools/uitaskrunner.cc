@@ -203,8 +203,9 @@ void uiTaskRunner::updateFields()
 	{
 	    const int tdiff = newtime - prevtime_;
 	    const float curtodo = sCast(float,totalnr-nrdone);
-	    od_int64 etasec = mNINT64(tdiff * (curtodo/curnrdone) / 1000.f);
-	    const BufferString eta = Time::getTimeString( etasec, 2 );
+	    const od_int64 etasec =
+				mNINT64(tdiff * (curtodo/curnrdone) / 1000.f);
+	    const BufferString eta = Time::getTimeDiffString( etasec, 2 );
 	    sb.message( toUiString(eta), 3 );
 	}
     }
