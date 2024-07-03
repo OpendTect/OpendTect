@@ -142,7 +142,7 @@ int nextStep() override
     const BufferString& dest = tolist_.get( curidx_ );
     if ( File::exists(src) && !File::exists(dest) )
     {
-	if ( !File::copy(src,dest,&errmsg_) )
+	if ( !File::copy(src,dest,true,&errmsg_) )
 	    return ErrorOccurred();
     }
 
