@@ -337,11 +337,11 @@ void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
 	for ( int icomp=0; icomp<nrcomp; icomp++ )
 	{
 	    const float* compdata = data[icomp];
-	    const int idxstart = idx*tkz.nrZ();
+	    const od_int64 idxstart = idx*tkz.nrZ();
 	    trc->setAll( mUdf(float), icomp);
 	    for ( int iz=0; iz<tkz_.nrZ(); iz++ )
 	    {
-		const int altiz = mNINT32( tkz.zsamp_.getfIndex(
+		const od_int64 altiz = mNINT32( tkz.zsamp_.getfIndex(
 							tkz_.zAtIndex(iz)) );
 		float val = mUdf(float);
 		if ( altiz>=0 && altiz<tkz.nrZ() )
