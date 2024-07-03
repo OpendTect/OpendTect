@@ -666,12 +666,12 @@ bool LocalFileSystemAccess::setTimes( const char* uri,
 #else
     std::timespec filetimes[2];
     if ( hasacctime )
-	filetimes[0] = *times.getAccessTime();
+	filetimes[0] = times.getAccessTime();
     else
 	filetimes[0].tv_sec = UTIME_OMIT;
 
     if ( hasmodtime )
-	filetimes[1] = *times.getModificationTime();
+	filetimes[1] = times.getModificationTime();
     else
 	filetimes[1].tv_sec = UTIME_OMIT;
 
