@@ -14,22 +14,26 @@ ________________________________________________________________________
 #include "testprog.h"
 #include "timefun.h"
 
-#define mTest( testname, test ) \
-if ( !(test) ) \
-{ \
-    handleTestResult( false, testname ); \
-    return false; \
-} \
-else\
-{ \
-    handleTestResult( true, testname ); \
+
+class FileDisposer
+{
+public:
+
+FileDisposer( const char* fnm )
+    : fnm_(fnm)
+{}
+
+~FileDisposer()
+{
+    File::remove( fnm_ );
 }
 
-#define mRunTest( test ) \
-mTest( #test, test )
+private:
+    BufferString fnm_;
+};
 
 
-bool testEmptyReadContent( const BufferString& tempfile )
+static bool testEmptyReadContent( const BufferString& tempfile )
 {
     od_ostream stream( tempfile );
     stream.close();
@@ -40,7 +44,7 @@ bool testEmptyReadContent( const BufferString& tempfile )
 }
 
 
-bool testNonEmptyReadContent( const BufferString& tempfile )
+static bool testNonEmptyReadContent( const BufferString& tempfile )
 {
     BufferString buf;
     od_ostream stream( tempfile );
@@ -52,7 +56,7 @@ bool testNonEmptyReadContent( const BufferString& tempfile )
 }
 
 
-bool testReadContent()
+static bool testReadContent()
 {
     //Read non existent file - should fail.
     const BufferString tempfile = FilePath::getTempFullPath( "test", "txt" );
@@ -83,43 +87,41 @@ bool testReadContent()
 }
 
 
-bool testIStream( const char* file )
+static bool testIStream( const char* file )
 {
     od_istream invalidstream( "IUOIUOUOF");
-    mTest( "isOK on open non-existing file", !invalidstream.isOK() );
+    mRunStandardTest( !invalidstream.isOK(), "isOK on open non-existing file" );
 
     od_istream stream( file );
-    mTest( "isOK on open existing file", stream.isOK() );
-
+    mRunStandardTest( stream.isOK(), "isOK on open existing file" );
 
     int i;
     stream.get(i);
-    mTest( "Reading positive integer to int",
-            i==1 && stream.isOK() );
+    mRunStandardTest( i==1 && stream.isOK(),
+		      "Reading positive integer to int" );
 
     stream.get(i);
-    mTest( "Reading negative integer to int",
-           i==-1 && stream.isOK() );
+    mRunStandardTest( i==-1 && stream.isOK(),
+		      "Reading negative integer to int" );
 
     stream.get(i);
-    mTest( "Reading float into integer",
-           stream.isOK() );
+    mRunStandardTest( stream.isOK(), "Reading float into integer" );
 
     return true;
 }
 
 
-bool testFilePath( const char* inputpath,
-		   const char* prefix, const char* domain,
-		   const char* expfullpath,
-		   const char* pathonly,
-		   const char* localpath,
-		   const char* basename,
-		   const char* filename,
-		   const char* extension,
-		   const char* postfix,
-		   const char* modifiedfullpath,
-		   int nrlevels, bool absolute, bool isuri )
+static bool testFilePath( const char* inputpath,
+			  const char* prefix, const char* domain,
+			  const char* expfullpath,
+			  const char* pathonly,
+			  const char* localpath,
+			  const char* basename,
+			  const char* filename,
+			  const char* extension,
+			  const char* postfix,
+			  const char* modifiedfullpath,
+			  int nrlevels, bool absolute, bool isuri )
 {
     const FilePath path( inputpath );
     const StringView expfp( expfullpath ? expfullpath : inputpath );
@@ -187,7 +189,7 @@ bool testFilePath( const char* inputpath,
 }
 
 
-bool testFilePathParsing()
+static bool testFilePathParsing()
 {
     if ( !testFilePath( "C:\\path\\to\\me.txt",
 			"C", "",	//prefix/domain
@@ -292,6 +294,33 @@ bool testFilePathParsing()
 }
 
 
+static bool isEqual( std::timespec a, std::timespec b )
+{
+    return a.tv_sec == b.tv_sec && a.tv_nsec == b.tv_nsec;
+}
+
+
+static bool isLarger( std::timespec a, std::timespec b )
+{
+    if ( a.tv_sec > b.tv_sec )
+	return true;
+
+    if ( a.tv_sec < b.tv_sec )
+	return false;
+
+    return a.tv_nsec > b.tv_nsec;
+}
+
+
+static bool isEqual( const Time::FileTimeSet& a,
+		     const Time::FileTimeSet& b )
+{
+    return isEqual( a.getModificationTime(), b.getModificationTime() ) &&
+	   isEqual( a.getAccessTime(), b.getAccessTime() ) &&
+	   isEqual( a.getCreationTime(), b.getCreationTime() );
+}
+
+
 static bool testFileTime( const char* fnm )
 {
     const od_int64 timesec = File::getTimeInSeconds( fnm );
@@ -325,6 +354,67 @@ static bool testFileTime( const char* fnm )
     crtimestr.set( Time::getDateTimeString(times.getCreationTime()) );
     mRunStandardTest( !crtimestr.isEmpty() && crtimestr != "-",
 		      "File time creation string from std::timespec" );
+
+    if ( __iswin__ )
+	return true;
+
+    const StringView filenm( fnm );
+    const od_int64 filesz = File::getFileSize( fnm );
+
+    const FilePath fp( fnm );
+    const BufferString linknm =
+		FilePath::getTempFullPath( "test_file", fp.extension() );
+    FileDisposer disposer( linknm.buf() );
+    mRunStandardTest( File::createLink(fnm,linknm.buf()),
+		      "Created symbolic link" );
+    const BufferString linktarget = File::linkTarget( linknm.buf() );
+    const BufferString linkend = File::linkEnd( linknm.buf() );
+    mRunStandardTest( linktarget == fnm && linkend == fnm,
+		      "Retrieve target/end of symbolic link" );
+    const BufferString linkcontent = File::linkValue( linknm.buf() );
+    mRunStandardTest( linkcontent == fnm, "Read a symbolic link" );
+
+    mRunStandardTest( File::getFileSize(linknm.buf()) == filesz,
+		      "File size by following a link" );
+    mRunStandardTest( File::getFileSize(linknm.buf(),false) == filenm.size(),
+		      "File size of a symbolic link" );
+    Time::FileTimeSet filetimes, linktimes;
+    mRunStandardTest( File::getTimes( linknm.buf(), filetimes ),
+		      "Get all file timestamps from a link target" );
+    mRunStandardTest( File::getTimes( linknm.buf(), linktimes, false ),
+		      "Get all file timestamps from a symbolic link" );
+    mRunStandardTest( isEqual( filetimes, times ),
+		      "File timestamps by following a link" );
+    mRunStandardTest( !isEqual( linktimes, times ) &&
+	isLarger( linktimes.getCreationTime(), times.getCreationTime() ) &&
+	isLarger( linktimes.getModificationTime(), times.getModificationTime() ) &&
+	isLarger( linktimes.getAccessTime(), times.getAccessTime() ),
+		      "File timestamps of a symbolic link" );
+    std::timespec modtime = linktimes.getModificationTime();
+    od_int64 timens = modtime.tv_nsec + 5e7; //50ms
+    if ( timens > 999999999ULL )
+    {
+	modtime.tv_sec += 1;
+	modtime.tv_nsec = long (timens) - 1e9;
+    }
+    else
+	modtime.tv_nsec = long (timens);
+
+    Time::FileTimeSet linktimesedit( linktimes );
+    linktimesedit.setModificationTime( modtime );
+    Threads::sleep( 0.1 ); //100ms
+    mRunStandardTest( File::setTimes( linknm.buf(), linktimesedit, false ),
+		      "Set the modification time of a symbolic link" );
+    Threads::sleep( 0.1 ); //100ms
+    Time::FileTimeSet linktimesret;
+    mRunStandardTest( File::getTimes( linknm.buf(), linktimesret, false ),
+		      "Get all file timestamps from a symbolic link" );
+    mRunStandardTest( isEqual( linktimesret.getModificationTime(),
+			       linktimesedit.getModificationTime() ) &&
+		      !isEqual( linktimesret.getModificationTime(),
+				linktimes.getModificationTime() ) &&
+	isLarger( linktimesret.getModificationTime(), linktimes.getModificationTime() ),
+		      "File timestamps of a modified symbolic link" );
 
     return true;
 }
