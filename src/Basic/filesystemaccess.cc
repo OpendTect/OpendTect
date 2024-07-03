@@ -37,6 +37,12 @@ ________________________________________________________________________
 #include <QFile>
 #include <QFileInfo>
 
+#ifdef __mac__
+#define st_atim st_atimespec
+#define st_ctim st_ctimespec
+#define st_mtim st_mtimespec
+#endif
+
 
 namespace File
 {
