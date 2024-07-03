@@ -55,20 +55,8 @@ void SignalHandling::startNotify( SignalHandling::EvType et, const CallBack& cb)
 {
 
     CallBackSet& cbs = SH().getCBL( et );
-    if ( !cbs.isPresent(cb) ) cbs += cb;
-#ifdef __unix__
-    if ( et == SignalHandling::Alarm )
-    {
-	/* tell OS not to restart system calls if a signal is received */
-	/* see: http://www.cs.ucsb.edu/~rich/class/cs290I-grid/notes/Sockets/ */
-	if ( siginterrupt(SIGALRM, 1) < 0 )
-	{
-	    // setting of siginterrupt failed
-	    // System operations might not be interuptable using alarm signals.
-	}
-    }
-#endif
-
+    if ( !cbs.isPresent(cb) )
+	cbs += cb;
 }
 
 
