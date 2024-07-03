@@ -470,7 +470,8 @@ bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
     if ( from.isEmpty() || to.isEmpty() )
 	return false;
 
-    if ( isDirectory(from) || isDirectory(to) )
+    if ( (isDirectory(from) || isDirectory(to)) &&
+	  !File::isLink(from) )
 	return File::copyDir( from, to, preserve, errmsg, taskrun );
 
     if ( !File::checkDir(from,true,errmsg) || !File::checkDir(to,false,errmsg) )
@@ -480,7 +481,7 @@ bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
 	remove( to );
 
     bool ret = true;
-    if ( preserve && __iswin__ && File::isLink(from.buf()) )
+    if ( preserve && !__iswin__ && File::isLink(from.buf()) )
     {
 	const BufferString linkval( File::linkValue(from.buf()) );
 	ret = File::createLink( linkval.buf(), to.buf() );
@@ -576,8 +577,7 @@ od_int64 LocalFileSystemAccess::getTimeInMilliSeconds( const char* uri,
 }
 
 
-bool LocalFileSystemAccess::getTimes( const char* uri,
-				      Time::FileTimeSet& times,
+bool LocalFileSystemAccess::getTimes( const char* uri, Time::FileTimeSet& times,
 				      bool followlink ) const
 {
     const BufferString fnm = withoutProtocol( uri );

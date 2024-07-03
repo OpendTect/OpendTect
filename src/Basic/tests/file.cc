@@ -358,13 +358,10 @@ static bool testFileTime( const char* fnm )
     if ( __iswin__ )
 	return true;
 
-    const StringView filenm( fnm );
-    const od_int64 filesz = File::getFileSize( fnm );
-
     const FilePath fp( fnm );
     const BufferString linknm =
 		FilePath::getTempFullPath( "test_file", fp.extension() );
-    FileDisposer disposer( linknm.buf() );
+    FileDisposer disposer1( linknm.buf() );
     mRunStandardTest( File::createLink(fnm,linknm.buf()),
 		      "Created symbolic link" );
     const BufferString linktarget = File::linkTarget( linknm.buf() );
@@ -374,8 +371,10 @@ static bool testFileTime( const char* fnm )
     const BufferString linkcontent = File::linkValue( linknm.buf() );
     mRunStandardTest( linkcontent == fnm, "Read a symbolic link" );
 
+    const od_int64 filesz = File::getFileSize( fnm );
     mRunStandardTest( File::getFileSize(linknm.buf()) == filesz,
 		      "File size by following a link" );
+    const StringView filenm( fnm );
     mRunStandardTest( File::getFileSize(linknm.buf(),false) == filenm.size(),
 		      "File size of a symbolic link" );
     Time::FileTimeSet filetimes, linktimes;
@@ -387,7 +386,8 @@ static bool testFileTime( const char* fnm )
 		      "File timestamps by following a link" );
     mRunStandardTest( !isEqual( linktimes, times ) &&
 	isLarger( linktimes.getCreationTime(), times.getCreationTime() ) &&
-	isLarger( linktimes.getModificationTime(), times.getModificationTime() ) &&
+	isLarger( linktimes.getModificationTime(),
+		  times.getModificationTime() ) &&
 	isLarger( linktimes.getAccessTime(), times.getAccessTime() ),
 		      "File timestamps of a symbolic link" );
     std::timespec modtime = linktimes.getModificationTime();
@@ -413,8 +413,58 @@ static bool testFileTime( const char* fnm )
 			       linktimesedit.getModificationTime() ) &&
 		      !isEqual( linktimesret.getModificationTime(),
 				linktimes.getModificationTime() ) &&
-	isLarger( linktimesret.getModificationTime(), linktimes.getModificationTime() ),
+	isLarger( linktimesret.getModificationTime(),
+		  linktimes.getModificationTime() ),
 		      "File timestamps of a modified symbolic link" );
+
+    uiString msg;
+    const BufferString linkcpnm =
+		FilePath::getTempFullPath( "test_file", fp.extension() );
+    FileDisposer disposer2( linkcpnm );
+    mRunStandardTestWithError(
+	    File::copy( linknm.buf(), linkcpnm.buf(), true, &msg ) &&
+	    File::exists(linkcpnm.buf()) && File::isLink(linkcpnm),
+	    "Copying a link as a link", msg.getString().buf() );
+
+    msg.setEmpty();
+    const BufferString linkdeepcpnm =
+		FilePath::getTempFullPath( "test_file", fp.extension() );
+    FileDisposer disposer3( linkdeepcpnm );
+    mRunStandardTestWithError(
+	    File::copy( linknm.buf(), linkdeepcpnm.buf(), false, &msg )
+		 && File::exists(linkdeepcpnm.buf()) &&
+		      !File::isLink(linkdeepcpnm),
+		      "Deep copy from a link", msg.getString().buf() );
+    const bool isdir = File::isDirectory( fnm );
+    if ( File::isDirectory(fnm) )
+    {
+	mRunStandardTest( File::isDirectory(linkdeepcpnm.buf()),
+			  "Deep copied link of a directory" );
+    }
+    else
+    {
+	mRunStandardTest( File::isFile(linkdeepcpnm.buf()),
+			  "Deep copied link of a file" );
+    }
+
+    if ( !isdir )
+	return true;
+
+    mRunStandardTest( File::remove( linkcpnm ) && File::remove( linkdeepcpnm ),
+		      "Removed temporary files" );
+    msg.setEmpty();
+    mRunStandardTestWithError(
+	    File::copyDir( linknm.buf(), linkcpnm.buf(), true, &msg ) &&
+	    File::exists(linkcpnm.buf()) && File::isLink(linkcpnm),
+	    "Copying a link to a directory as a link", msg.getString().buf() );
+
+    msg.setEmpty();
+    mRunStandardTestWithError(
+	    File::copyDir( linknm.buf(), linkdeepcpnm.buf(), false, &msg ) &&
+	    File::exists( linkdeepcpnm.buf() ) &&
+	    !File::isLink( linkdeepcpnm ) &&
+	    File::isDirectory( linkdeepcpnm.buf() ),
+	      "Deep copy from a link to a directory", msg.getString().buf() );
 
     return true;
 }

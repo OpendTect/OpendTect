@@ -105,8 +105,7 @@ public:
 			{
 			    makeRecursiveFileList(src_,filelist_,false);
 			    for ( int idx=0; idx<filelist_.size(); idx++ )
-				totalnr_
-				    += getFileSize( filelist_.get(idx) );
+				totalnr_ += getFileSize( filelist_.get(idx) );
 			}
 
     od_int64		nrDone() const override	{ return nrdone_ / mMBFactor; }
@@ -151,7 +150,7 @@ int RecursiveCopier::nextStep()
     const BufferString destfile = FilePath(dest_,relpath).fullPath();
     if ( File::isLink(srcfile) )
     {
-	BufferString linkval = linkValue( srcfile );
+	const BufferString linkval = linkValue( srcfile );
 	if ( !createLink(linkval,destfile) )
 	    mErrRet(
 	       uiStrings::phrCannotCreate(tr("symbolic link %1").arg(destfile)))
@@ -633,8 +632,16 @@ bool copy( const char* from, const char* to, bool preserve,
 
     const auto& fromfsa = OD::FileSystemAccess::get( from );
     const auto& tofsa = OD::FileSystemAccess::get( to );
-    if ( fromfsa.isDirectory(from) || tofsa.isDirectory(to) )
-	return copyDir( from, to, preserve, errmsg, taskrun );
+    const bool islink = isLink( from );
+    BufferString fromfnm( from );
+    if ( islink && !preserve )
+    {
+	fromfnm = linkEnd( from );
+	preserve = true;
+    }
+
+    if ( (fromfsa.isDirectory(fromfnm) || tofsa.isDirectory(to)) && !islink )
+	return copyDir( fromfnm, to, preserve, errmsg, taskrun );
 
     if ( !fromfsa.isLocal() && !tofsa.isLocal() && &fromfsa != &tofsa )
     {
@@ -643,7 +650,7 @@ bool copy( const char* from, const char* to, bool preserve,
     }
 
     const auto& cpfsa = !fromfsa.isLocal() ? fromfsa : tofsa;
-    const bool res = cpfsa.copy( from, to, preserve, errmsg );
+    const bool res = cpfsa.copy( fromfnm, to, preserve, errmsg );
 
     return res;
 }
@@ -661,7 +668,18 @@ bool copyDir( const char* from, const char* to, bool preserve,
     if ( !checkDir(from,true,errmsg) || !checkDir(to,false,errmsg) )
 	return false;
 
-    PtrMan<Executor> copier = getRecursiveCopier( from, to, preserve );
+    const bool islink = isLink( from );
+    BufferString fromfnm( from );
+    if ( islink )
+    {
+	if ( preserve )
+	    return copy( from, to, preserve, errmsg, taskrun );
+
+	fromfnm = linkEnd( from );
+	preserve = true;
+    }
+
+    PtrMan<Executor> copier = getRecursiveCopier( fromfnm, to, preserve );
     if ( !copier )
 	return false;
 
