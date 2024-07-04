@@ -204,6 +204,8 @@ public:
 				     statusbars and similar */
     Notifier<uiIOObjSelGrp> listUpdated;
 
+    Notifier<uiIOObjSelGrp>&	zDomainChanged();
+
     CNotifier<uiIOObjSelGrp,const MultiID&> itemAdded;
     CNotifier<uiIOObjSelGrp,const MultiID&> itemRemoved;
     CNotifier<uiIOObjSelGrp,const BufferStringSet&> itemChanged;
