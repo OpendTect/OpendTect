@@ -40,6 +40,20 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitoolbutton.h"
 
+#include "hiddenparam.h"
+class uiIOObjSelGrpHP
+{
+public:
+    uiIOObjSelGrpHP( uiIOObjSelGrp* grp )
+	: zDomainChanged_(new Notifier<uiIOObjSelGrp>(grp))
+    {}
+    ~uiIOObjSelGrpHP()
+    { delete zDomainChanged_; }
+
+    Notifier<uiIOObjSelGrp>*	zDomainChanged_;
+};
+
+static HiddenParam<uiIOObjSelGrp, uiIOObjSelGrpHP*> hpmgr_(nullptr);
 
 static const char* NoIconNm = "empty";
 
@@ -430,6 +444,9 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
 void uiIOObjSelGrp::init( const uiString& seltxt )
 {
+    auto* hpfld = new uiIOObjSelGrpHP( this );
+    hpmgr_.setParam( this, hpfld );
+
     ctio_.ctxt_.fillTrGroup();
     if ( !ctio_.ctxt_.forread_ )
 	setup_.choicemode( OD::ChooseOnlyOne );
@@ -467,7 +484,9 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     const FileMultiString withctxtfilters( setup_.withctxtfilter_ );
     for ( int ifilt=0; ifilt<withctxtfilters.size(); ifilt++ )
     {
-	const StringView withctxtfilter = withctxtfilters[ifilt];
+	const bool noall = withctxtfilters[ifilt] == ZDomain::sKeyNoAll();
+	const BufferString withctxtfilter = noall ? ZDomain::sKey() :
+					(const char*) withctxtfilters[ifilt];
 	if ( withctxtfilter.isEmpty() )
 	    continue;
 
@@ -500,11 +519,16 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 
 	    valstrs.sort();
 	    auto* firstline = new BufferString( sKey::All() );
-	    valstrs.insertAt( firstline, 0 );
+	    if ( !noall )
+		valstrs.insertAt( firstline, 0 );
+
 	    auto* ctxtfiltfld = new uiLabeledComboBox( topgrp_, valstrs,
 						       lblstr, fms.str() );
 	    uiComboBox* box = ctxtfiltfld->box();
 	    box->setHSzPol( uiObject::SmallVar );
+	    if ( noall )
+		box->setCurrentItem( SI().zDomain().key() );
+
 	    if ( lastuilcb )
 		ctxtfiltfld->attach( rightOf, lastuilcb );
 	    else
@@ -517,8 +541,11 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 		mAttachCB( box->selectionChanged,
 			   uiIOObjSelGrp::ctxtFileTypeChgCB );
 	    else if ( iszdomain )
+	    {
 		mAttachCB( box->selectionChanged,
 			   uiIOObjSelGrp::ctxtZDomainChgCB );
+		ctxtZDomainChgCB( box );
+	    }
 	    else
 		mAttachCB( box->selectionChanged,
 		       uiIOObjSelGrp::ctxtTypeChgCB );
@@ -610,6 +637,7 @@ void uiIOObjSelGrp::mkManipulators()
 uiIOObjSelGrp::~uiIOObjSelGrp()
 {
     detachAllNotifiers();
+    hpmgr_.removeAndDeleteParam( this );
     deepErase( inserters_ );
     if ( manipgrpsubj_ )
 	delete manipgrpsubj_->manipgrp_;
@@ -618,6 +646,12 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
     delete ctio_.ioobj_;
     delete &ctio_;
     delete lbchoiceio_;
+}
+
+
+Notifier<uiIOObjSelGrp>& uiIOObjSelGrp::zDomainChanged()
+{
+    return *hpmgr_.getParam( this )->zDomainChanged_;
 }
 
 
@@ -1424,7 +1458,7 @@ void uiIOObjSelGrp::ctxtZDomainChgCB( CallBacker* cb )
 	filterval.set( fms[1] );
 
     const int curitm = ctxtfiltfld->currentItem();
-    if ( curitm <= 0 )
+    if ( curitm <= 0 && sKey::All()==ctxtfiltfld->textOfItem(0) )
     {
 	if ( filterval.isEmpty() )
 	    ctio_.ctxt_.toselect_.require_.removeWithKey( withctxtfilter );
@@ -1444,6 +1478,7 @@ void uiIOObjSelGrp::ctxtZDomainChgCB( CallBacker* cb )
     }
 
     fullUpdate( -2 );
+    zDomainChanged().trigger();
 }
 
 
