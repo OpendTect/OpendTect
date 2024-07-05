@@ -157,7 +157,7 @@ bool WellTie::uiSaveDataDlg::saveLogs()
 	    mAppMsg( localmsg, continue )
 	}
 
-	Well::Log* newlog = new Well::Log( log );
+	auto* newlog = new Well::Log( log );
 	newlog->setName( lognm );
 	logset.add( newlog );
 	lognms.add( lognm );
