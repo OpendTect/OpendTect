@@ -565,12 +565,20 @@ bool StratSynth::DataMgr::addPropertySynthetics( TypeSet<SynthID>* retids,
     SynthGenParams sgp( SynthGenParams::StratProp );
     TypeSet<SynthID> synthids;
     const PropertyRefSelection& prs = layerModel().propertyRefs();
+    BufferStringSet propnms;
     for ( const auto* pr : prs )
     {
 	if ( pr->isThickness() ||
 	    (filterprops && !proplistfilter.isPresent(pr->name())) )
 	    continue;
 
+	propnms.add( pr->name() );
+    }
+
+    propnms.sort();
+    for ( const auto* propnm : propnms )
+    {
+	const PropertyRef* pr = prs.getByName( propnm->str(), false );
 	sgp.name_ = pr->name();
 	sgp.name_.embed( '[', ']' );
 	const int idx = genparams_.indexOf( sgp );
