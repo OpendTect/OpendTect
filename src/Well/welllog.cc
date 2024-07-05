@@ -36,13 +36,14 @@ Well::LogSet::LogSet()
     : logAdded(this)
     , logRemoved(this)
 {
+    mAttachCB( MNC().customMnemonicRemoved, Well::LogSet::mnemonicRemovedCB );
     init();
 }
 
 
 Well::LogSet::~LogSet()
 {
-    NotifyStopper ns( logRemoved );
+    detachAllNotifiers();
     setEmpty( true );
 }
 
@@ -199,6 +200,19 @@ void Well::LogSet::removeTopBottomUdfs()
 {
     for ( auto* log : logs_ )
 	log->removeTopBottomUdfs();
+}
+
+
+void Well::LogSet::mnemonicRemovedCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( const Mnemonic*, mn, cb );
+    if ( !mn )
+	return;
+
+    removeDefault( *mn );
 }
 
 
@@ -430,18 +444,23 @@ const Mnemonic* Well::LogSet::getMnemonicOfLog( const char* nm ) const
 Well::Log::Log( const char* nm )
     : DahObj(nm)
     , range_(mUdf(float),-mUdf(float))
-{}
+{
+    mAttachCB( MNC().customMnemonicRemoved, Log::setMnemonicNullCB );
+}
 
 
 Well::Log::Log( const Log& oth )
     : DahObj("")
 {
     *this = oth;
+    mAttachCB( MNC().customMnemonicRemoved, Log::setMnemonicNullCB );
 }
 
 
 Well::Log::~Log()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 Well::Log& Well::Log::operator =( const Well::Log& oth )
@@ -753,6 +772,20 @@ void Well::Log::setMnemonic( const Mnemonic& mn )
 {
     mn_ = &mn;
     mnemlbl_ = mn_->name();
+}
+
+
+void Well::Log::setMnemonicNullCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( const Mnemonic*, mn, cb );
+    if ( !mn )
+	return;
+
+    if ( mn_ == mn )
+	mn_ = nullptr;
 }
 
 

@@ -190,6 +190,7 @@ public:
 
 
 mExpClass(General) MnemonicSet : public ManagedObjectSet<Mnemonic>
+			       , public CallBacker
 {
 public:
 
@@ -203,6 +204,8 @@ public:
     Mnemonic*		replace(int,Mnemonic*) override;
     Mnemonic*		removeAndTake(int,bool keep_order) override;
     ManagedObjectSetBase<Mnemonic>&	operator -=(Mnemonic*) override;
+
+    CNotifier<MnemonicSet,const Mnemonic*>    customMnemonicRemoved;
 
 private:
 			MnemonicSet();

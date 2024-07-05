@@ -154,8 +154,7 @@ Mnemonic::Mnemonic( const Mnemonic& mnc )
 
 
 Mnemonic::~Mnemonic()
-{
-}
+{}
 
 
 Mnemonic& Mnemonic::operator =( const Mnemonic& oth )
@@ -651,6 +650,7 @@ const MnemonicSet& MNC()
 
 MnemonicSet::MnemonicSet()
     : ManagedObjectSet<Mnemonic>()
+    , customMnemonicRemoved(this)
 {
 }
 
@@ -674,7 +674,14 @@ Mnemonic* MnemonicSet::pop()
 
 Mnemonic* MnemonicSet::removeSingle( int idx, bool keep_order )
 {
-    removeCache( get(idx) );
+    const Mnemonic* mn = get( idx );
+    if ( !mn )
+	return nullptr;
+
+    if ( !mn->isTemplate() )
+	customMnemonicRemoved.trigger( mn );
+
+    removeCache( mn );
     return ManagedObjectSet<Mnemonic>::removeSingle( idx, keep_order );
 }
 
@@ -682,7 +689,16 @@ Mnemonic* MnemonicSet::removeSingle( int idx, bool keep_order )
 void MnemonicSet::removeRange( int from, int to )
 {
     for ( int idx=from; idx<=to; idx++ )
+    {
+	const Mnemonic* mn = get( idx );
+	if ( !mn )
+	    continue;
+
+	if ( !mn->isTemplate() )
+	    customMnemonicRemoved.trigger( mn );
+
 	removeCache( get(idx) );
+    }
 
     return ManagedObjectSet<Mnemonic>::removeRange( from, to );
 }
@@ -690,6 +706,13 @@ void MnemonicSet::removeRange( int from, int to )
 
 Mnemonic* MnemonicSet::replace( int idx, Mnemonic* oth )
 {
+    const Mnemonic* mn = get( idx );
+    if ( !mn )
+	return nullptr;
+
+    if ( !mn->isTemplate() )
+	customMnemonicRemoved.trigger( mn );
+
     removeCache( get(idx) );
     return ManagedObjectSet<Mnemonic>::replace( idx, oth );
 }
@@ -697,6 +720,13 @@ Mnemonic* MnemonicSet::replace( int idx, Mnemonic* oth )
 
 Mnemonic* MnemonicSet::removeAndTake( int idx, bool keep_order )
 {
+    const Mnemonic* mn = get( idx );
+    if ( !mn )
+	return nullptr;
+
+    if ( !mn->isTemplate() )
+	customMnemonicRemoved.trigger( mn );
+
     removeCache( get(idx) );
     return ManagedObjectSet<Mnemonic>::removeAndTake( idx, keep_order );
 }
@@ -704,6 +734,12 @@ Mnemonic* MnemonicSet::removeAndTake( int idx, bool keep_order )
 
 ManagedObjectSetBase<Mnemonic>& MnemonicSet::operator -=( Mnemonic* mn )
 {
+    if ( !mn )
+	return ManagedObjectSet<Mnemonic>::operator-=( nullptr );
+
+    if ( !mn->isTemplate() )
+	customMnemonicRemoved.trigger( mn );
+
     removeCache( mn );
     return ManagedObjectSet<Mnemonic>::operator -=( mn );
 }

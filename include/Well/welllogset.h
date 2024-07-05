@@ -106,6 +106,8 @@ protected:
     void		init()
 			{ dahintv_.start = mSetUdf(dahintv_.stop); }
 
+    void		mnemonicRemovedCB(CallBacker*);
+
     void		updateDahIntv(const Well::Log&);
 
     Log*		gtLog( const char* nm ) const

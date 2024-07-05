@@ -196,9 +196,13 @@ class uiMnSelFlds : public NamedCallBacker
 {
 public:
 
+    enum class EditType   { StdType, Mnemonic, NameOnly, None };
+
 uiMnSelFlds( uiTable& tbl, int rowidx, const Mnemonic* mn )
     : NamedCallBacker(mn ? mn->name().str() : nullptr)
     , tbl_(tbl)
+    , iscustom_(mn)
+    , editstate_(mn ? EditType::None : EditType::StdType)
 {
     lastusedmns_.setNullAllowed();
     const BufferStringSet alltypnms( Mnemonic::StdTypeNames() );
@@ -264,31 +268,9 @@ uiMnSelFlds( uiTable& tbl, int rowidx, const Mnemonic* mn )
 }
 
 
-void setFrom( const Mnemonic& mn )
+bool isCustom() const
 {
-    if ( mn.isTemplate() )
-	return;
-
-    const Mnemonic::StdType typ = Mnemonic::parseEnumStdType( typfld_->text() );
-    if ( mn.stdType() != typ )
-    {
-	typfld_->setCurrentItem( Mnemonic::toString(mn.stdType()) );
-	typeChgCB( nullptr );
-    }
-
-    const int curidx = typfld_->currentItem();
-    const MnemonicSelection& mnsel = *mnsels_.get( curidx );
-    if ( mnselfld_ && mnsel.size() > 1 && mn.getOrigin() &&
-	 mn.getOrigin() != mnselfld_->mnemonic() )
-    {
-	mnselfld_->setMnemonic( *mn.getOrigin() );
-	mnChgCB( nullptr );
-    }
-
-    setName( mn.name() );
-    const RowCol typrc = tbl_.getCell( typfld_ );
-    NotifyStopper ns( tbl_.valueChanged );
-    tbl_.setText( RowCol(typrc.row(),sMnemonicNmCol), mn.name().str() );
+    return iscustom_;
 }
 
 
@@ -298,6 +280,21 @@ Mnemonic* getMnemonic( Repos::Source src ) const
 	    : Mnemonic::getFromTemplate( getTemplateMn(), name().str(), src );
 }
 
+
+EditType editState() const
+{
+    return editstate_;
+}
+
+
+void setName( const char* nm ) override
+{
+    NamedCallBacker::setName( nm );
+    const bool srcchanged = editstate_ == EditType::StdType ||
+			    editstate_ == EditType::Mnemonic;
+    if ( !srcchanged )
+	editstate_ = EditType::NameOnly;
+}
 
 private:
 
@@ -317,7 +314,10 @@ void typeChgCB( CallBacker* )
     const MnemonicSelection& mnsel = *mnsels_.get( curidx );
     tbl_.setCellReadOnly( rc, isother || mnsel.size() < 2 );
     if ( isother )
+    {
+	editstate_ = EditType::StdType;
 	return;
+    }
 
     const uiMnemonicsSel::Setup uimnsu( &mnsel, uiString::empty() );
     mnselfld_ = new uiMnemonicsSel( nullptr, uimnsu );
@@ -328,6 +328,7 @@ void typeChgCB( CallBacker* )
 
     mAttachCB( mnselfld_->box()->selectionChanged, uiMnSelFlds::mnChgCB );
     tbl_.setCellObject( rc, mnselfld_->box() );
+    editstate_ = EditType::StdType;
 }
 
 
@@ -335,6 +336,7 @@ void mnChgCB( CallBacker* )
 {
     const int curidx = typfld_->currentItem();
     lastusedmns_.replace( curidx, mnselfld_->mnemonic() );
+    editstate_ = EditType::Mnemonic;
 }
 
 
@@ -344,12 +346,15 @@ const Mnemonic& getTemplateMn() const
     return templatemn ? *templatemn : Mnemonic::undef();
 }
 
-   uiTable&	tbl_;
-   uiComboBox*	typfld_;
-   uiMnemonicsSel*	mnselfld_;
-   ObjectSet<MnemonicSelection> mnsels_;
-   MnemonicSelection	lastusedmns_;
+   uiTable&			    tbl_;
+   uiComboBox*			    typfld_;
+   uiMnemonicsSel*		    mnselfld_;
 
+   ObjectSet<MnemonicSelection>     mnsels_;
+   MnemonicSelection		    lastusedmns_;
+   EditType			    editstate_;
+
+   const bool			    iscustom_;
 };
 
 
@@ -363,12 +368,37 @@ uiCustomMnemonicsSel::uiCustomMnemonicsSel( uiParent* p )
     setOkText( uiStrings::sSave() );
 
     for ( int imn=originalcustommns_.size()-1; imn>=0; imn-- )
+    {
 	if ( originalcustommns_.get(imn)->isTemplate() )
 	    originalcustommns_.removeSingle( imn );
+    }
 
+    createTable();
+
+    bgrp_ = new uiButtonGroup( this, "Operations buttons", OD::Vertical );
+    new uiToolButton( bgrp_, "add", uiStrings::phrAdd(uiStrings::sRow()),
+		      mCB(this,uiCustomMnemonicsSel,addRowButCB) );
+    new uiToolButton( bgrp_, "remove", uiStrings::sRemoveSelected(),
+		      mCB(this,uiCustomMnemonicsSel,removeButCB) );
+    new uiToolButton( bgrp_, "save", uiStrings::sSave(),
+		      mCB(this,uiCustomMnemonicsSel,saveButCB) );
+    bgrp_->attach( rightOf, tbl_ );
+
+    mAttachCB( postFinalize(), uiCustomMnemonicsSel::initDlg );
+}
+
+
+uiCustomMnemonicsSel::~uiCustomMnemonicsSel()
+{
+    detachAllNotifiers();
+    deepErase( selflds_ );
+}
+
+
+void uiCustomMnemonicsSel::createTable()
+{
     uiTable::Setup tblsu( sDefNrRows, sMnemonicNmCol+1 );
     tblsu.rowgrow( true ).fillcol( true ).selmode( uiTable::Multi );
-
     tbl_ = new uiTable( this, tblsu, "Custom Mnemonics Table" );
     tbl_->setPrefWidth( 600 );
     tbl_->setSelectionBehavior( uiTable::SelectRows );
@@ -388,24 +418,6 @@ uiCustomMnemonicsSel::uiCustomMnemonicsSel( uiParent* p )
     mAttachCB( tbl_->rowInserted, uiCustomMnemonicsSel::addRowTblRowCB );
     mAttachCB( tbl_->rowDeleted, uiCustomMnemonicsSel::removeTblRowCB );
     mAttachCB( tbl_->selectionDeleted, uiCustomMnemonicsSel::removeTblSelCB );
-
-    bgrp_ = new uiButtonGroup( this, "Operations buttons", OD::Vertical );
-    new uiToolButton( bgrp_, "add", uiStrings::phrAdd(uiStrings::sRow()),
-		      mCB(this,uiCustomMnemonicsSel,addRowButCB) );
-    new uiToolButton( bgrp_, "remove", uiStrings::sRemoveSelected(),
-		      mCB(this,uiCustomMnemonicsSel,removeButCB) );
-    new uiToolButton( bgrp_, "save", uiStrings::sSave(),
-		      mCB(this,uiCustomMnemonicsSel,saveButCB) );
-    bgrp_->attach( rightOf, tbl_ );
-
-    mAttachCB( postFinalize(), uiCustomMnemonicsSel::initDlg );
-}
-
-
-uiCustomMnemonicsSel::~uiCustomMnemonicsSel()
-{
-    detachAllNotifiers();
-    deepErase( selflds_ );
 }
 
 
@@ -484,12 +496,21 @@ void uiCustomMnemonicsSel::removeTblSelCB( CallBacker* cb )
 }
 
 
-void uiCustomMnemonicsSel::removeEntries( const TypeSet<int>& rows )
+void uiCustomMnemonicsSel::removeEntries( const TypeSet<int>& rows,
+					  bool forreset )
 {
     for ( int irow=rows.size()-1; irow>=0; irow-- )
     {
-	if ( selflds_.validIdx(rows[irow]) )
+	const int idx = rows[irow];
+	if ( selflds_.validIdx(idx) )
+	{
+	    const auto* selfld = selflds_[idx];
+	    if ( selfld->isCustom() && !forreset )
+		origentriesremoved_.addIfNew(
+					originalcustommns_.get(rows[irow]) );
+
 	    delete selflds_.removeSingle( rows[irow] );
+	}
     }
 
     const int nrrows = tbl_->nrRows();
@@ -541,7 +562,11 @@ void uiCustomMnemonicsSel::cellEditCB( CallBacker* )
 	}
     }
     else if ( selfld )
+    {
 	selfld->setName( mnnm.buf() );
+	if ( originalcustommns_.validIdx(curidx) )
+	    newnames_ += new std::pair<int,const BufferString>(curidx,mnnm);
+    }
 }
 
 
@@ -549,8 +574,32 @@ void uiCustomMnemonicsSel::saveButCB( CallBacker* )
 {
     ManagedObjectSet<Mnemonic> custommns;
     getEntries( custommns );
-    commitEntries( custommns );
-    doSave( custommns );
+    const bool srcchgd = !custommns.isEmpty() || !origentriesremoved_.isEmpty();
+    const bool nochange = !srcchgd && newnames_.isEmpty();
+    if ( nochange )
+	return;
+
+    if ( srcchgd )
+	commitEntries( custommns );
+
+    if ( !newnames_.isEmpty() )
+	commitNameChanges();
+
+    doSave();
+    resetTable();
+    origentriesremoved_.setEmpty();
+}
+
+
+void uiCustomMnemonicsSel::resetTable()
+{
+    TypeSet<int> rows;
+    for ( int row=0; row<tbl_->nrRows(); row++ )
+	rows += row;
+
+    tbl_->removeRows( rows );
+    removeEntries( rows, true );
+    doRead();
 }
 
 
@@ -575,40 +624,53 @@ void uiCustomMnemonicsSel::doRead()
 }
 
 
-void uiCustomMnemonicsSel::getEntries( ObjectSet<Mnemonic>& mns,
-				       bool forrestore ) const
+void uiCustomMnemonicsSel::getEntries( ObjectSet<Mnemonic>& mns ) const
 {
-    if ( forrestore )
+    for ( const auto* selfld : selflds_ )
     {
-	for ( const auto* mn : originalcustommns_ )
-	    mns.add( new Mnemonic(*mn) );
-    }
-    else
-    {
-	for ( const auto* selfld : selflds_ )
+	const bool srcchanged
+		    = selfld->editState() == uiMnSelFlds::EditType::StdType ||
+		      selfld->editState() == uiMnSelFlds::EditType::Mnemonic;
+	if ( srcchanged )
 	    mns.add( selfld->getMnemonic( Repos::Survey ) );
     }
 }
 
 
-bool uiCustomMnemonicsSel::commitEntries( ObjectSet<Mnemonic>& mns,
-					  bool forrestore )
+bool uiCustomMnemonicsSel::commitEntries( ObjectSet<Mnemonic>& mns )
 {
     MnemonicSet& eMNC = mNonConst( MNC() );
     for ( int idx=eMNC.size()-1; idx>=0; idx-- )
     {
-	if ( !eMNC.get(idx)->isTemplate() )
+	const Mnemonic* mn = eMNC.get(idx);
+	if ( mn->isTemplate() )
+	    continue;
+
+	bool isinset = false;
+	for ( const auto* custommn : mns )
+	{
+	    if ( mn->name() == custommn->name() )
+	    {
+		isinset = true;
+		break;
+	    }
+	}
+
+	const bool doremove = isinset || origentriesremoved_.isPresent( mn );
+	if ( doremove )
+	{
+	    const int origidx = originalcustommns_.indexOf( mn );
+	    originalcustommns_.removeSingle( origidx );
 	    eMNC.removeSingle( idx );
+	}
     }
-    if ( forrestore )
-	originalcustommns_.setEmpty();
 
     for ( const auto* mn : mns )
     {
 	const int sz = eMNC.size();
 	eMNC.add( new Mnemonic(*mn) );
 	if ( eMNC.size() <= sz )
-	    { pErrMsg("Failed to add a custom mnemonic"); }
+	    pErrMsg("Failed to add a custom mnemonic");
 	else
 	    originalcustommns_.add( eMNC.last() );
     }
@@ -617,35 +679,44 @@ bool uiCustomMnemonicsSel::commitEntries( ObjectSet<Mnemonic>& mns,
 }
 
 
-bool uiCustomMnemonicsSel::doSave( ObjectSet<Mnemonic>& custommns,
-				   bool restore )
+void uiCustomMnemonicsSel::commitNameChanges()
+{
+    if ( newnames_.isEmpty() )
+	return;
+
+    for ( const auto* idxnmpair : newnames_ )
+    {
+	const int idx = idxnmpair->first;
+	const BufferString& newnm = idxnmpair->second;
+	if ( !originalcustommns_.validIdx(idx) || newnm.isEmpty() )
+	    continue;
+
+	const Mnemonic* mn = originalcustommns_.get( idx );
+	const_cast<Mnemonic*>( mn )->setName( newnm );
+    }
+}
+
+
+bool uiCustomMnemonicsSel::doSave()
 {
     IOPar& sidefs = SI().getPars();
-    if ( originalcustommns_.isEmpty() && custommns.isEmpty() &&
+    if ( originalcustommns_.isEmpty() &&
 	 !sidefs.hasKey(IOPar::compKey(sKey::Mnemonics(),0)) )
 	return true;
 
     sidefs.removeSubSelection( sKey::Mnemonics() );
     IOPar iop;
-    for ( int imn=0; imn<custommns.size(); imn++ )
+    for ( int imn=0; imn<originalcustommns_.size(); imn++ )
     {
-	const Mnemonic& mn = *custommns.get( imn );
+	const Mnemonic& mn = *originalcustommns_.get( imn );
 	FileMultiString fms;
 	fms.add( mn.name().str() ).add( mn.getOrigin()->name().str() );
 	iop.set( toString(imn), fms.str()  );
     }
-    sidefs.mergeComp( iop, sKey::Mnemonics() );
 
+    sidefs.mergeComp( iop, sKey::Mnemonics() );
     SI().savePars();
     return true;
-}
-
-
-bool uiCustomMnemonicsSel::rejectOK( CallBacker* )
-{
-    ManagedObjectSet<Mnemonic> custommns;
-    getEntries( custommns, true );
-    return commitEntries( custommns, true ) && doSave( custommns, true );
 }
 
 
@@ -653,5 +724,18 @@ bool uiCustomMnemonicsSel::acceptOK( CallBacker* )
 {
     ManagedObjectSet<Mnemonic> custommns;
     getEntries( custommns );
-    return commitEntries( custommns ) && doSave( custommns );
+    const bool srcchgd = !custommns.isEmpty() || !origentriesremoved_.isEmpty();
+    const bool nochange = !srcchgd && newnames_.isEmpty();
+    if ( nochange )
+	return true;
+
+    if ( srcchgd )
+	commitEntries( custommns );
+
+    if ( !newnames_.isEmpty() )
+	commitNameChanges();
+
+    doSave();
+    origentriesremoved_.setEmpty();
+    return true;
 }

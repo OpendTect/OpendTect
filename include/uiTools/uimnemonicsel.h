@@ -110,6 +110,8 @@ public:
 
 private:
 
+    void			createTable();
+
     void			initDlg(CallBacker*);
     void			addRowButCB(CallBacker*);
     void			addRowTblRowCB(CallBacker*);
@@ -119,21 +121,23 @@ private:
     void			cellEditCB(CallBacker*);
     void			saveButCB(CallBacker*);
 
-    void			removeEntries(const TypeSet<int>& rows);
-    void			getEntries(ObjectSet<Mnemonic>&,
-					   bool forrestore=false) const;
-    bool			commitEntries(ObjectSet<Mnemonic>&,
-					      bool forrestore=false);
+    void			resetTable();
+    void			removeEntries(const TypeSet<int>& rows,
+					      bool forreset=false);
+    void			getEntries(ObjectSet<Mnemonic>&) const;
+    bool			commitEntries(ObjectSet<Mnemonic>&);
+    void			commitNameChanges();
     void			doRead();
-    bool			doSave(ObjectSet<Mnemonic>&,bool restore=false);
+    bool			doSave();
 
-    bool			rejectOK(CallBacker*) override;
     bool			acceptOK(CallBacker*) override;
 
     ObjectSet<uiMnSelFlds>	selflds_;
     uiTable*			tbl_;
     uiButtonGroup*		bgrp_;
 
-    bool			dontshowmgr_ = false;
+    bool			dontshowmgr_			= false;
     MnemonicSelection		originalcustommns_;
+    MnemonicSelection		origentriesremoved_;
+    ManagedObjectSet<std::pair<int,const BufferString>> newnames_;
 };
