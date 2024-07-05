@@ -9,12 +9,15 @@ ________________________________________________________________________
 -*/
 
 #include "wellattribmod.h"
+
 #include "ailayer.h"
 #include "bufstringset.h"
 #include "ranges.h"
 #include "reflectivitymodel.h"
 #include "uistring.h"
 
+class Mnemonic;
+class UnitOfMeasure;
 class Wavelet;
 namespace Well { class Data; class Log; }
 
@@ -54,7 +57,11 @@ protected:
     bool		doFullSynthetics(const Wavelet&);
     bool		copyDataToLogSet();
     bool		processLog(const Well::Log*,Well::Log&,const char*);
+			mDeprecated("Provide mnemonic and unit")
     void		createLog(const char*nm,float* dah,float* vals,int sz);
+    void		createLog(const char* nm,const Mnemonic*,
+				  const UnitOfMeasure*,float* dah,float* vals,
+				  int sz);
     bool		checkCrossCorrInps();
 			//!< check input synt/seis and zrg
     bool		extractWvf(bool issynt);

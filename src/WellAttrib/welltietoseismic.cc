@@ -609,9 +609,17 @@ bool WellTie::DataPlayer::copyDataToLogSet()
 	ai += layer.getAI();
     }
 
-    createLog( data.sKeySonic(), dahlog.arr(), son.arr(), son.size() );
-    createLog( data.sKeyDensity(), dahlog.arr(), den.arr(), den.size() );
-    createLog( data.sKeyAI(), dahlog.arr(), ai.arr(), ai.size() );
+    const Mnemonic& pvelmn = Mnemonic::defPVEL();
+    const Mnemonic& denmn = Mnemonic::defDEN();
+    const Mnemonic& aimn = Mnemonic::defAI();
+    const UnitOfMeasure* veluom = UoMR().getInternalFor( pvelmn.stdType() );
+    const UnitOfMeasure* denuom = UoMR().getInternalFor( denmn.stdType() );
+    const UnitOfMeasure* aiuom = UoMR().getInternalFor( aimn.stdType() );
+    createLog( data.sKeySonic(), &pvelmn, veluom,
+	       dahlog.arr(), son.arr(), son.size() );
+    createLog( data.sKeyDensity(), &denmn, denuom, dahlog.arr(),
+	       den.arr(), den.size());
+    createLog( data.sKeyAI(), &aimn, aiuom, dahlog.arr(), ai.arr(), ai.size() );
 
     TypeSet<float> dahref, refs;
     const ReflectivityModelBase* refmodel = data.getRefModel();
@@ -644,7 +652,9 @@ bool WellTie::DataPlayer::copyDataToLogSet()
 	refs += refval;
     }
 
-    createLog( data.sKeyReflectivity(), dahref.arr(), refs.arr(), refs.size() );
+    const Mnemonic* raimn = MNC().getByName( "REFL" );
+    createLog( data.sKeyReflectivity(), raimn, nullptr,
+	       dahref.arr(), refs.arr(), refs.size() );
 
     const SeisTrc* synthtrc = data.getSynthTrc();
     if ( !synthtrc )
@@ -664,12 +674,14 @@ bool WellTie::DataPlayer::copyDataToLogSet()
 	synth += synthtrc->get( idx, 0 );
     }
 
-    createLog( data.sKeySynthetic(), dahsynth.arr(), synth.arr(),synth.size());
+    const Mnemonic* synthmn = MNC().getByName( "SYNTH" );
+    createLog( data.sKeySynthetic(), synthmn, nullptr,
+	       dahsynth.arr(), synth.arr(),synth.size());
 
     const Well::Log* sonlog = data.wd_->logs().getLog( data.sKeySonic() );
-    const UnitOfMeasure* sonuom = sonlog ? sonlog->unitOfMeasure() : 0;
+    const UnitOfMeasure* sonuom = sonlog ? sonlog->unitOfMeasure() : nullptr;
     Well::Log* vellogfrommodel = data.logset_.getLog( data.sKeySonic() );
-    if ( vellogfrommodel && sonlog )
+    if ( vellogfrommodel )
     {
 	if ( data.isSonic() )
 	    WellTie::GeoCalculator::son2Vel( *vellogfrommodel );
@@ -678,46 +690,14 @@ bool WellTie::DataPlayer::copyDataToLogSet()
     }
 
     const Well::Log* denlog = data.wd_->logs().getLog( data.sKeyDensity());
-    const UnitOfMeasure* denuom = denlog ? denlog->unitOfMeasure() : 0;
+    const UnitOfMeasure* denloguom = denlog ? denlog->unitOfMeasure() : nullptr;
     Well::Log* denlogfrommodel = data.logset_.getLog( data.sKeyDensity() );
-    if ( denlogfrommodel && denlog )
-    {
-	const UnitOfMeasure* denuomfrommodel =
-				UoMR().getInternalFor(Mnemonic::Den);
-	if ( denuomfrommodel )
-	{
-	    denlogfrommodel->setUnitMeasLabel( denuomfrommodel->symbol() );
-	    denlogfrommodel->setMnemonic( Mnemonic::defDEN() );
-	}
-
-	denlogfrommodel->convertTo( denuom );
-    }
+    if ( denlogfrommodel )
+	denlogfrommodel->convertTo( denloguom );
 
     Well::Log* ailogfrommodel = data.logset_.getLog( data.sKeyAI() );
-    if ( ailogfrommodel && sonuom && denuom )
-    {
-	const Mnemonic::StdType& impprop = Mnemonic::Imp;
-	const UnitOfMeasure* aiuomfrommodel = UoMR().getInternalFor( impprop );
-	ailogfrommodel->setUnitMeasLabel( aiuomfrommodel->symbol() );
-	ailogfrommodel->setMnemonic( Mnemonic::defAI() );
-	float fact = mCast( float, denuom->scaler().factor );
-	if ( sonuom->isImperial() )
-	    fact *= mFromFeetFactorF;
-
-	ObjectSet<const UnitOfMeasure> relevantunits;
-	UoMR().getRelevant( impprop, relevantunits );
-	const UnitOfMeasure* aiuom = 0;
-	for ( int idx=0; idx<relevantunits.size(); idx++ )
-	{
-	    const float curfactor = (float)relevantunits[idx]->scaler().factor;
-	    const float eps = curfactor / 100.f;
-	    if ( mIsEqual(curfactor,fact,eps) )
-		aiuom = relevantunits[idx];
-	}
-
-	if ( aiuom )
-	    ailogfrommodel->convertTo( aiuom );
-    }
+    if ( ailogfrommodel )
+	ailogfrommodel->convertTo( aimn.unit() );
 
     return true;
 }
@@ -760,14 +740,28 @@ bool WellTie::DataPlayer::processLog( const Well::Log* log,
 void WellTie::DataPlayer::createLog( const char* nm, float* dah,
 				     float* vals, int sz )
 {
-    Well::Log* log = 0;
-    if ( data_.logset_.indexOf( nm ) < 0 )
+    createLog( nm, nullptr, nullptr, dah, vals, sz );
+}
+
+
+void WellTie::DataPlayer::createLog( const char* nm, const Mnemonic* mn,
+				     const UnitOfMeasure* uom,
+				     float* dah, float* vals, int sz )
+{
+    Well::Log* log = nullptr;
+    if ( data_.logset_.isPresent(nm) )
+	log = data_.logset_.getLog( nm );
+    else
     {
 	log = new Well::Log( nm );
+	if ( mn )
+	    log->setMnemonic( *mn );
+
+	if ( uom )
+	    log->setUnitOfMeasure( uom );
+
 	data_.logset_.add( log );
     }
-    else
-	log = data_.logset_.getLog( nm );
 
     log->setEmpty();
     for( int idx=0; idx<sz; idx ++)

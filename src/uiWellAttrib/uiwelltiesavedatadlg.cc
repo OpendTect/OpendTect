@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "waveletio.h"
 #include "wellextractdata.h"
 #include "welltiedata.h"
-#include "welltiesetup.h"
 #include "welllog.h"
 #include "welldata.h"
 #include "welllogset.h"
@@ -27,7 +26,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
-#include "uitable.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -62,7 +60,7 @@ WellTie::uiSaveDataDlg::uiSaveDataDlg( uiParent* p, Server& wdserv )
     saveasfld_ = new uiGenInput( loggrp, uiStrings::sSaveAs(),
 			BoolInpSpec(true,tr("Log"),tr("Seismic cube")) );
     saveasfld_->attach( alignedBelow, logsfld_ );
-    mAttachCB( saveasfld_->valuechanged, uiSaveDataDlg::changeLogUIOutput );
+    mAttachCB( saveasfld_->valueChanged, uiSaveDataDlg::changeLogUIOutput );
 
     outputgrp_ = new uiCreateLogCubeOutputSel( loggrp, true );
     outputgrp_->attach( leftAlignedBelow, saveasfld_ );
@@ -159,7 +157,7 @@ bool WellTie::uiSaveDataDlg::saveLogs()
 	    mAppMsg( localmsg, continue )
 	}
 
-	Well::Log* newlog = new Well::Log( log );
+	auto* newlog = new Well::Log( log );
 	newlog->setName( lognm );
 	logset.add( newlog );
 	lognms.add( lognm );
