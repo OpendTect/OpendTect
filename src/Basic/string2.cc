@@ -1329,19 +1329,32 @@ BufferString toUserString( const Interval<int>& intv )
 }
 
 
-BufferString toUserString( const Interval<float>& intv, int precision )
+static BufferString toUserString( const Interval<float>& intv, char format,
+				  int precision )
 {
     BufferString ret;
-    ret = toString(intv.start,'g',precision);
-    ret.add( " - " ).add( toString(intv.stop,'g',precision) );
+    ret = toString(intv.start,format,precision);
+    ret.add( " - " ).add( toString(intv.stop,format,precision) );
     if ( intv.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<float>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " [" ).add( toString(sintv->step,'g',precision) ).add("]");
+	    ret.add( " [" ).add( toString(sintv->step,format,precision) )
+	       .add("]");
     }
 
     return ret;
+}
+
+BufferString toUserString( const Interval<float>& intv, int precision )
+{
+    return toUserString( intv, 'g', precision );
+}
+
+
+BufferString toUserStringF( const Interval<float>& intv, int nrdec )
+{
+    return toUserString( intv, 'f', nrdec );
 }
 
 
