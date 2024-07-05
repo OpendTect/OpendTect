@@ -37,8 +37,11 @@ VSVP: Vs/Vp`Elastic Ratio`Lin`0.1`0.67`0.1`0.5``200`150`200`VelocityRatioVSVP
 VPVS: Vp/Vs`Elastic Ratio`Lin`1.5`10`2`10``200`150`150`VelocityRatioVpVs
 IMP: Impedance`Impedance`Lin`2e3`2.3e4`2.2e3`2.2e4`m/s x g/cc`255`150`0`AIMP
 AI: Acoustic Impedance`Impedance`Lin`2e3`2.3e4`2.2e3`2.2e4`m/s x g/cc`255`150`0`P Imp`ImpedanceP
+RAI: Relative Acoustic Impedance`Impedance`Lin`-2e3`2e3`-2.2e3`2.2e3`m/s x g/cc`255`150`0`
 EI: Elastic Impedance`Impedance`Lin`2e3`2.3e4`2.2e3`2.2e4`m/s x g/cc`200`255`100`EEI`ExtendedElasticImpedance
+REI: Relative Elastic Impedance`Impedance`Lin`-2e3`2e3`-2.2e3`2.2e3`m/s x g/cc`200`255`100`
 SI: Shear Impedance`Impedance`Lin`1e3`1.2e4`1.1e3`1.1e4`m/s x g/cc`100`255`100`S Imp`ImpedanceS
+RSI: Relative Shear Impedance`Impedance`Lin`-1e3`1e3`-1.1e3`1.1e3`m/s x g/cc`100`255`100`
 VEL: Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`Vint`Vrms`Vavg
 PVEL: Pwave Velocity`Velocity`Lin`500`7500`1500`6500`m/s`0`200`0`P wave`Vp`VelocityP
 SVEL: Swave Velocity`Velocity`Lin`250`3800`800`3800`m/s`0`200`0`S wave`Vs`VelocityS
@@ -48,6 +51,7 @@ TEMP: Temperature`Temperature`Lin`5`300`10`150`deg.C`0`0`0`GTEM
 LITHO: Lithology`Classification`Lin`````Unitless`0`255`255`LITHOF1_FACIES
 NET_FLAG: Net Flag`Classification`Lin`0`1`0`1``255`255`0`NETF`RSV`Reservoir
 NET_PAY_FLAG: Net Pay Flag`Classification`Lin`0`1`0`1``255`255`0`NETP`NetPay
+SEGMENT: Segment`Classification`Lin`````Unitless`0`255`255`
 NMR: Nuclear Magnetic Resonance`Time`Lin`0.1`10000`0.3`3000`ms`0`0`0`CMR`MRIL`MREX`NuclearMagRes
 CAL: Caliper`Distance/Depth`Lin`0`25`0`25`in`0`0`0`CALI`CAL1
 BS: Bit Size`Distance/Depth`Lin`-5`20`-5`20`in`0`0`0`BIT`WellBoreRadius
@@ -78,6 +82,9 @@ TENS: Cable Tension`Force`Lin`````N````
 BI: Brittleness index`Elastic Ratio`lin`````Ratio`72`209`204`
 TOC: Total Organic Carbon`Elastic Ratio`lin`````Ratio`255`215`0`
 PEF: Photoelectric Factor`Other`0`10`0`10``0`0`0`PE`PEFZ
+REFL: Reflectivity`Other`Lin`-0.1`0.1`-0.1`0.1``0`0`0`
+SYNTH: Synthetic`Other`Lin``````0`0`255`
+SEIS: Seismic`Other`Lin``````255`0`0`
 VALB: Volume Fraction of Albite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Valbite
 VANH: Volume of Anhydrite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vanhydrite
 VBIO: Volume of Biotite Relative to Total Volume`Volumetrics`Lin`0`100`0`100`%`100`200`100`Vbiotite
