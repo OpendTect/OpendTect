@@ -13,10 +13,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "enums.h"
 
-#ifdef __have_qsql__
-# define mQSqlQuery QSqlQuery
-#else
+#ifdef OD_NO_QSQL
 # define mQSqlQuery dummyQSqlQuery
+#else
+# define mQSqlQuery QSqlQuery
 #endif
 
 class mQSqlQuery;

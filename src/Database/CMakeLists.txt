@@ -14,11 +14,11 @@ set( OD_MODULE_SOURCES
 	databaseobject.cc
 )
 
-if( USESQL )
-    set( OD_USEQT Sql )
-    set( OD_MODULE_COMPILE_DEFINITIONS "__have_qsql__" )
-else()
+if ( OD_NO_QSQL )
     set( OD_USEQT Core )
+    set( OD_MODULE_COMPILE_DEFINITIONS "OD_NO_QSQL" )
+else()
+    set( OD_USEQT Sql )
 endif()
 
 OD_INIT_MODULE()

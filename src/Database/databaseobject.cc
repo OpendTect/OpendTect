@@ -21,9 +21,9 @@ namespace SqlDB
 
 DatabaseColumnBase::DatabaseColumnBase( DatabaseTable& dobj,
 	const char* columnname,const char* columntype )
-    : columnname_( columnname )
+    : table_( dobj )
+    , columnname_( columnname )
     , columntype_( columntype )
-    , table_( dobj )
 {
     dobj.columns_ += this;
 }
@@ -163,8 +163,7 @@ const char* CreatedTimeStampDatabaseColumn::selectString() const
 
 
 DatabaseTable::DatabaseTable( const char* tablename )
-    : rowidcolumn_( 0 )
-    , tablename_( tablename )
+    : tablename_( tablename )
 {
     rowidcolumn_ = new IDDatabaseColumn( *this );
     timestampcolumn_ = new CreatedTimeStampDatabaseColumn( *this );

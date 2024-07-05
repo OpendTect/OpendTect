@@ -8,13 +8,15 @@ ________________________________________________________________________
 -*/
 
 #include "sqldatabase.h"
+
+#include "keystrs.h"
 #include "settings.h"
 #include <QString>
 
-#ifdef __have_qsql__
+#ifndef OD_NO_QSQL
 
-#include <QSqlDatabase>
-#include <QSqlError>
+# include <QSqlDatabase>
+# include <QSqlError>
 
 #else
 
@@ -53,22 +55,20 @@ SqlDB::ConnectionData::ConnectionData( const char* dbtype )
 
 void SqlDB::ConnectionData::fillPar( IOPar& iop ) const
 {
-#   define mSetInPar(memb,ky) iop.update( sKey##ky(), memb##_ )
-    mSetInPar(hostname,HostName);
-    mSetInPar(username,UserName);
-    mSetInPar(pwd,Password);
-    mSetInPar(dbname,DBName);
+    iop.update( sKey::Hostname(), hostname_ );
+    iop.update( sKeyUserName(), username_ );
+    iop.update( sKeyPassword(), pwd_ );
+    iop.update( sKeyDBName(), dbname_ );
     iop.set( sKeyPort(), port_ );
 }
 
 
 bool SqlDB::ConnectionData::usePar( const IOPar& iop )
 {
-#   define mGetFromPar(memb,ky) memb##_ = iop.find( sKey##ky() )
-    mGetFromPar(hostname,HostName);
-    mGetFromPar(username,UserName);
-    mGetFromPar(pwd,Password);
-    mGetFromPar(dbname,DBName);
+    hostname_ = iop.find( sKey::Hostname() );
+    username_ = iop.find( sKeyUserName() );
+    pwd_ = iop.find( sKeyPassword() );
+    dbname_ = iop.find( sKeyDBName() );
     iop.get( sKeyPort(), port_ );
 
     return isOK();
@@ -76,8 +76,8 @@ bool SqlDB::ConnectionData::usePar( const IOPar& iop )
 
 
 SqlDB::Access::Access( const char* qtyp, const char* dbtyp )
-    : dbtype_(dbtyp)
-    , cd_(dbtyp)
+    : cd_(dbtyp)
+    , dbtype_(dbtyp)
 {
     qdb_ = new mQSqlDatabase( mQSqlDatabase::addDatabase(qtyp) );
 }

@@ -62,6 +62,7 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 set( OD_SUBSYSTEM "od" )
 
 option ( OD_NO_QT "Turn off all QT" OFF )
+option ( OD_NO_QSQL "Do not use Qt's SQL module" ON )
 option ( OD_NO_OSG "Do not build anything with 3D visualisation" OFF )
 option ( OD_NO_PROJ "Do not use proj library for CRS" OFF )
 option ( OD_ENABLE_BREAKPAD "Use breakpad" OFF )
@@ -71,7 +72,7 @@ include( OD_SetupOD )
 # Note: the order of these modules *IS* important!
 # Make sure dependent modules are *after* the ones that they depend upon.
 set( OD_MODULES
-	Basic Algo General
+	Basic Algo General Database
 	Strat Network Batch
 	Geometry EarthModel Well MMProc Seis
 	NLA AttributeEngine Velocity

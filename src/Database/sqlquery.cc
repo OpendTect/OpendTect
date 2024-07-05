@@ -23,7 +23,7 @@ DefineEnumNames(SqlDB::ValueCondition,Operator,0,"Operators" )
 
 
 
-#ifdef __have_qsql__
+#ifndef OD_NO_QSQL
 
 #include <QSqlDatabase>
 #include <QSqlError>

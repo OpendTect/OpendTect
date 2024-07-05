@@ -11,10 +11,10 @@ ________________________________________________________________________
 #include "databasemod.h"
 #include "bufstring.h"
 
-#ifdef __have_qsql__
-# define mQSqlDatabase QSqlDatabase
-#else
+#ifdef OD_NO_QSQL
 # define mQSqlDatabase dummyQSqlDatabase
+#else
+# define mQSqlDatabase QSqlDatabase
 #endif
 
 class mQSqlDatabase;
