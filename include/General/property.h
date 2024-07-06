@@ -103,6 +103,11 @@ private:
 
     void		unitChangedCB(CallBacker*);
 
+public:
+    // This will go into MnemonicSet class in the next branch. Done so because
+    // couldn't have been done any other way.
+    static CNotifier<Property,const Mnemonic&>&   customMnemonicRemoved();
+
 };
 
 
