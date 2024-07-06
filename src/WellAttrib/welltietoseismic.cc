@@ -675,7 +675,7 @@ bool WellTie::DataPlayer::copyDataToLogSet()
     }
 
     const Mnemonic* synthmn = MNC().getByName( "SYNTH" );
-    createLog( data.sKeySynthetic(), synthmn, nullptr,
+    createLog( sKey::Synthetic(), synthmn, nullptr,
 	       dahsynth.arr(), synth.arr(),synth.size());
 
     const Well::Log* sonlog = data.wd_->logs().getLog( data.sKeySonic() );
