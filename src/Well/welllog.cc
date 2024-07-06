@@ -208,11 +208,8 @@ void Well::LogSet::mnemonicRemovedCB( CallBacker* cb )
     if ( !cb || !cb->isCapsule() )
 	return;
 
-    mCBCapsuleUnpack( const Mnemonic*, mn, cb );
-    if ( !mn )
-	return;
-
-    removeDefault( *mn );
+    mCBCapsuleUnpack( const Mnemonic&, mn, cb );
+    removeDefault( mn );
 }
 
 
@@ -780,11 +777,8 @@ void Well::Log::setMnemonicNullCB( CallBacker* cb )
     if ( !cb || !cb->isCapsule() )
 	return;
 
-    mCBCapsuleUnpack( const Mnemonic*, mn, cb );
-    if ( !mn )
-	return;
-
-    if ( mn_ == mn )
+    mCBCapsuleUnpack( const Mnemonic&, mn, cb );
+    if ( mn_ == &mn )
 	mn_ = nullptr;
 }
 

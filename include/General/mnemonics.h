@@ -205,7 +205,7 @@ public:
     Mnemonic*		removeAndTake(int,bool keep_order) override;
     ManagedObjectSetBase<Mnemonic>&	operator -=(Mnemonic*) override;
 
-    CNotifier<MnemonicSet,const Mnemonic*>    customMnemonicRemoved;
+    CNotifier<MnemonicSet,const Mnemonic&>    customMnemonicRemoved;
 
 private:
 			MnemonicSet();

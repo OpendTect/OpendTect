@@ -679,7 +679,7 @@ Mnemonic* MnemonicSet::removeSingle( int idx, bool keep_order )
 	return nullptr;
 
     if ( !mn->isTemplate() )
-	customMnemonicRemoved.trigger( mn );
+	customMnemonicRemoved.trigger( *mn );
 
     removeCache( mn );
     return ManagedObjectSet<Mnemonic>::removeSingle( idx, keep_order );
@@ -695,7 +695,7 @@ void MnemonicSet::removeRange( int from, int to )
 	    continue;
 
 	if ( !mn->isTemplate() )
-	    customMnemonicRemoved.trigger( mn );
+	    customMnemonicRemoved.trigger( *mn );
 
 	removeCache( get(idx) );
     }
@@ -711,7 +711,7 @@ Mnemonic* MnemonicSet::replace( int idx, Mnemonic* oth )
 	return nullptr;
 
     if ( !mn->isTemplate() )
-	customMnemonicRemoved.trigger( mn );
+	customMnemonicRemoved.trigger( *mn );
 
     removeCache( get(idx) );
     return ManagedObjectSet<Mnemonic>::replace( idx, oth );
@@ -725,7 +725,7 @@ Mnemonic* MnemonicSet::removeAndTake( int idx, bool keep_order )
 	return nullptr;
 
     if ( !mn->isTemplate() )
-	customMnemonicRemoved.trigger( mn );
+	customMnemonicRemoved.trigger( *mn );
 
     removeCache( get(idx) );
     return ManagedObjectSet<Mnemonic>::removeAndTake( idx, keep_order );
@@ -738,7 +738,7 @@ ManagedObjectSetBase<Mnemonic>& MnemonicSet::operator -=( Mnemonic* mn )
 	return ManagedObjectSet<Mnemonic>::operator-=( nullptr );
 
     if ( !mn->isTemplate() )
-	customMnemonicRemoved.trigger( mn );
+	customMnemonicRemoved.trigger( *mn );
 
     removeCache( mn );
     return ManagedObjectSet<Mnemonic>::operator -=( mn );
