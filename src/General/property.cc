@@ -38,6 +38,16 @@ Property::~Property()
 }
 
 
+CNotifier<Property,const Mnemonic&>& Property::customMnemonicRemoved()
+{
+    static PtrMan<CNotifier<Property,const Mnemonic&>> thenotif_;
+    if ( !thenotif_ )
+	thenotif_ = new CNotifier<Property,const Mnemonic&>( nullptr );
+
+    return *thenotif_.ptr();
+}
+
+
 const char* Property::name() const
 {
     return ref_.name().buf();

@@ -206,6 +206,12 @@ public:
     void		getNames(BufferStringSet&) const;
 
     void		removeSingleWithCache(int);
+    Mnemonic*		pop() override;
+    Mnemonic*		removeSingle(int,bool keep_order=true) override;
+    void		removeRange(int,int) override;
+    Mnemonic*		replace(int,Mnemonic*) override;
+    Mnemonic*		removeAndTake(int,bool keep_order) override;
+    ManagedObjectSetBase<Mnemonic>&	operator -=(Mnemonic*) override;
 
 private:
 			MnemonicSet();

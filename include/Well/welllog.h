@@ -119,6 +119,8 @@ protected:
     bool		iscode_ = false;
     IOPar		pars_;
 
+    void		setMnemonicNullCB(CallBacker*);
+
     const Mnemonic*	getGuessedMnemonic();
 
     void		removeAux( int idx ) override
