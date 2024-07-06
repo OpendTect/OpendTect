@@ -392,7 +392,7 @@ uiCustomMnemonicsSel( uiParent* p )
 }
 
 
-uiCustomMnemonicsSel::~uiCustomMnemonicsSel()
+~uiCustomMnemonicsSel()
 {
     detachAllNotifiers();
     deepErase( selflds_ );
