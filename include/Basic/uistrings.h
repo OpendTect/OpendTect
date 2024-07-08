@@ -452,12 +452,14 @@ public:
     static uiString sManual()		{ return tr("Manual"); }
     static uiString sManWav()		{ return tr("Manage Wavelets"); }
     static uiString sMarker(int n=1)	{ return tr("Marker",0,n); }
+    static uiString sMaximum()		{ return tr("Maximum"); }
     static uiString sMD()		{ return tr("MD","Measured Depth"); }
     static uiString sMedian()		{ return tr("Median"); }
     static uiString sMemSizeString(od_int64);
     static uiString sMenu()		{ return tr("Menu"); }
     static uiString sMerge()		{ return tr("Merge"); }
     static uiString sMeter()		{ return tr("Meter"); }
+    static uiString sMinimum()		{ return tr("Minimum"); }
     static uiString sMnemonic()		{ return tr("Mnemonic"); }
     static uiString sMnemonics()	{ return tr("Mnemonics"); }
     static uiString sMode()		{ return tr("Mode"); }
