@@ -430,7 +430,7 @@ bool uiExport2DHorizon::doExport()
     int nrzdec = SI().nrZDecimals();
     nrzdec += 3; // extra precision
 
-    const UnitOfMeasure* uom = unitsel_->getUnit();
+    const UnitOfMeasure* zunitout_ = unitsel_->getUnit();
     EM::EMManager& em = EM::EMM();
     for ( int horidx=0; horidx<horinfos.size(); horidx++ )
     {
@@ -452,7 +452,8 @@ bool uiExport2DHorizon::doExport()
 	    mErrRet(uiStrings::sCantReadHor())
 
 	const Geometry::Horizon2DLine* geom = hor->geometry().geometryElement();
-	if ( !geom ) mErrRet(tr("Error Reading Horizon"))
+	if ( !geom )
+	    mErrRet(tr("Error Reading Horizon"))
 
 	BufferString horname = hor->name();
 	horname.quote('\"');
@@ -462,6 +463,7 @@ bool uiExport2DHorizon::doExport()
 	if ( !strm.isOK() )
 	    mErrRet( uiStrings::sCannotWrite() );
 
+	const UnitOfMeasure* horzunit = hor->zUnit();
 	for ( int lidx=0; lidx<hi->linenames_.size(); lidx++ )
 	{
 	    const BufferString linename = hi->linenames_.get( lidx );
@@ -490,8 +492,8 @@ bool uiExport2DHorizon::doExport()
 		else
 		{
 		    float newz = z;
-		    if ( uom )
-			newz = uom->userValue( newz );
+		    if ( zunitout_ )
+			convValue( newz, horzunit, zunitout_ );
 
 		    zstr = toString( newz, nrzdec );
 		}
