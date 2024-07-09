@@ -596,6 +596,7 @@ const char* Well::LASImporter::getLogs( od_istream& strm, const FileInfo& lfi,
 	{
 	    if ( useconvs_ )
 		unlbl = "Converted to SI from ";
+
 	    unlbl += unitmeasstrs_.get( colnr );
 	}
 
@@ -701,9 +702,13 @@ const char* Well::LASImporter::getLogData( od_istream& strm,
 
     for ( int idx=0; idx<lfi.size(); idx++ )
     {
-	Well::Log& newlog = logs.getLog( addstartidx+idx );
-	if ( !newlog.haveMnemonic() )
-	    newlog.setMnemonicLabel( nullptr, true );
+	const int logidx = addstartidx + idx;
+	if ( logs.validIdx(logidx) )
+	{
+	    Well::Log& newlog = logs.getLog( logidx );
+	    if ( !newlog.haveMnemonic() )
+		newlog.setMnemonicLabel( nullptr, true );
+	}
     }
 
     logs.updateDahIntvs();
