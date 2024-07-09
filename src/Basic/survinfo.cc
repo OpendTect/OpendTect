@@ -1463,7 +1463,9 @@ void SurveyInfo::putZDomain( IOPar& iop ) const
 
 
 const ZDomain::Def& SurveyInfo::zDomain() const
-{ return zdef_; }
+{
+    return zdef_;
+}
 
 
 const ZDomain::Info& SurveyInfo::zDomainInfo() const
