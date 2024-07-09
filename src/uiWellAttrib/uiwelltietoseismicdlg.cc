@@ -365,10 +365,10 @@ void WellTie::uiTieWin::applyPushed( CallBacker* cb )
     stretcher_.setTrack( &wd->track() );
     stretcher_.doWork( cb );
     server_.updateExtractionRange();
+    doWork( cb );
     if ( infodlg_ )
 	infodlg_->dtmodelChanged( nullptr );
 
-    doWork( cb );
     clearPicks( cb );
 
     applybut_->setSensitive( false );
