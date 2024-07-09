@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "idxable.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
+#include "welllog.h"
 #include "welltiedata.h"
 #include "welltiegeocalculator.h"
 #include "welltiesetup.h"
@@ -76,9 +77,47 @@ WellTie::D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr,
     if ( mIsUnvalidD2TM( wd_ ) )
 	{ emptyoninit_ = true; wd_->setD2TModel( new Well::D2TModel ); }
 
-    Well::D2TModel* d2t = wts.useexistingd2tm_
-	    ? wd_->d2TModel()
-	    : WellTie::GeoCalculator::getModelFromVelLog( *wd_, wts.vellognm_ );
+    Well::D2TModel* d2t;
+    if ( wts.useexistingd2tm_ && wd_->d2TModel() )
+    {
+	d2t = wd_->d2TModel();
+	// Insert points into the time/depth model at the start and stop of
+	// the log range - primarily so bulk shifting works as expected
+	//
+	const Well::Log* vp = wd_->getLog( wts.vellognm_ );
+	const Well::Log* den = wd_->getLog( wts.denlognm_ );
+	float mindah = d2t->dahRange().start;
+	float maxdah = d2t->dahRange().stop;
+	if ( vp )
+	{
+	    mindah = vp->dahRange().start;
+	    maxdah = vp->dahRange().stop;
+	}
+
+	if ( den )
+	{
+	    if ( vp )
+	    {
+		mindah = mMIN( mindah, den->dahRange().start );
+		maxdah = mMAX( maxdah, vp->dahRange().stop );
+	    }
+	    else
+	    {
+		mindah = den->dahRange().start;
+		maxdah = den->dahRange().stop;
+	    }
+	}
+
+	const Well::Track& track = wd.track();
+	if ( d2t->dahRange().includes(mindah, false) )
+	    d2t->insertAtDah( mindah, d2t->getTime(mindah, track) );
+
+	if ( d2t->dahRange().includes(maxdah, false) )
+	    d2t->insertAtDah( maxdah, d2t->getTime(maxdah, track) );
+    }
+    else
+	d2t = WellTie::GeoCalculator::getModelFromVelLog( *wd_, wts.vellognm_ );
+
     if ( !d2t )
     {
 	errmsg_ = tr("Cannot generate depth/time model. Check your "
