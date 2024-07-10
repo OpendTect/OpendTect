@@ -21,10 +21,7 @@ ________________________________________________________________________________
 
 #include "odsurvey.h"
 
-#include "ascstream.h"
 #include "coordsystem.h"
-#include "dirlist.h"
-#include "file.h"
 #include "filepath.h"
 #include "genc.h"
 #include "iodir.h"
@@ -32,14 +29,7 @@ ________________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "latlong.h"
-#include "moddepmgr.h"
-#include "oddirs.h"
 #include "odjson.h"
-#include "odruncontext.h"
-#include "oscommand.h"
-#include "plugins.h"
-#include "safefileio.h"
-#include "serverprogtool.h"
 #include "settings.h"
 #include "surveyfile.h"
 #include "survinfo.h"
@@ -250,7 +240,8 @@ void odSurvey::getObjInfoByID( const MultiID& mid,
     jsobj.set( sKey::Name(), ioobj->name() );
     jsobj.set( sKey::Format(), ioobj->translator() );
     jsobj.set( TranslatorGroup::sKeyTransGrp(), ioobj->group() );
-    jsobj.set( sKey::FileName(), ioobj->mainFileName() );
+    const FilePath fp( ioobj->mainFileName() );
+    jsobj.set( sKey::FileName(), fp );
     BufferString typ;
     if ( ioobj->pars().get(sKey::Type(),typ) && !typ.isEmpty() )
 	jsobj.set( sKey::Type(), typ );
