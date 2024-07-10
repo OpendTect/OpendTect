@@ -21,10 +21,12 @@ ________________________________________________________________________________
 
 #include "bufstring.h"
 #include "bufstringset.h"
+#include "file.h"
 #include "filepath.h"
 #include "genc.h"
 #include "ioman.h"
 #include "oddirs.h"
+#include "pythonaccess.h"
 #include "settings.h"
 #include "sharedlibs.h"
 
@@ -88,5 +90,20 @@ const char* stringset_get( hStringSet self, int idx )
 {
     const auto* p = static_cast<BufferStringSet*>(self);
     return p ? strdup( p->get( idx ).buf() ) : nullptr;
+}
+
+
+void ODBind::initDeveloperPythonPath()
+{
+#ifdef __odbind_dir__
+    if ( !isDeveloperBuild() ) //Installed project: do not add build dir
+	return;
+
+    const FilePath odbindfp( __odbind_dir__ );
+    if ( !odbindfp.exists() || !File::isDirectory( odbindfp.fullPath() ) )
+	return;
+
+    OD::PythA().addBasePath( odbindfp );
+#endif
 }
 
