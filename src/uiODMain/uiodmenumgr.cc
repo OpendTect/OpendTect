@@ -1132,9 +1132,10 @@ void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( fnm, txt, mCB(appman,uiODApplMgr,fn), togg )
 
-void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
+
+void uiODMenuMgr::addSurveyAction( uiODApplMgr* appman )
 {
-    const int surveyid = dtecttb_->addButton( "survey", tr("Survey Setup") );
+    surveyactionid_ = dtecttb_->addButton( "survey", tr("Survey Setup") );
     auto* surveymenu = new uiMenu();
     surveymenu->insertAction(
 	new uiAction(m3Dots(tr("Select/Manage Surveys")),
@@ -1142,7 +1143,15 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     surveymenu->insertAction(
 	new uiAction(m3Dots(tr("Edit Survey Parameters")),
 			mCB(appman,uiODApplMgr,editSurvCB),"editcurrsurv") );
-    dtecttb_->setButtonMenu( surveyid, surveymenu, uiToolButton::InstantPopup );
+    dtecttb_->setButtonMenu( surveyactionid_, surveymenu,
+			     uiToolButton::InstantPopup );
+}
+
+
+void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
+{
+    if ( surveyactionid_ < 0 )
+	addSurveyAction( appman );
 
     ::add2D3DToolButton( *dtecttb_, "attributes", tr("Edit Attributes"),
 			 mCB(appman,uiODApplMgr,editAttr2DCB),
@@ -1888,7 +1897,10 @@ uiToolBar* uiODMenuMgr::customTB( const char* nm )
 
 void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 {
-    dtecttb_->clear();
+    TypeSet<int> tbids = dtecttb_->ids();
+    tbids -= surveyactionid_;
+    dtecttb_->removeActions( tbids );
+
     mantb_->clear();
     if ( plugintb_ )
 	plugintb_->clear();

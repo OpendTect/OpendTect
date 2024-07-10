@@ -436,15 +436,27 @@ bool uiActionContainer::hasSharedActions() const
 
 
 int uiActionContainer::nrActions() const
-{ return actions_.size(); }
+{
+    return actions_.size();
+}
 
 
 const ObjectSet<uiAction>& uiActionContainer::actions() const
-{ return actions_; }
+{
+    return actions_;
+}
+
+
+const TypeSet<int>& uiActionContainer::ids() const
+{
+    return ids_;
+}
 
 
 bool uiActionContainer::isEmpty() const
-{ return actions_.isEmpty(); }
+{
+    return actions_.isEmpty();
+}
 
 
 const uiAction* uiActionContainer::findAction( int mnuid ) const
@@ -756,6 +768,13 @@ void uiActionContainer::removeAction( int id )
     const int idx = ids_.indexOf(id);
     if ( actions_.validIdx(idx) )
 	removeItem( actions_[idx] );
+}
+
+
+void uiActionContainer::removeActions( const TypeSet<int>& ids )
+{
+    for ( const auto& id : ids )
+	removeAction( id );
 }
 
 

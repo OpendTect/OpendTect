@@ -141,6 +141,7 @@ protected:
     void		fillSceneMenu();
     void		fillViewMenu();
     void		fillUtilMenu();
+    void		addSurveyAction(uiODApplMgr*);
     void		fillDtectTB(uiODApplMgr*);
     void		fillCoinTB(uiODSceneMgr*);
     void		fillManTB();
@@ -180,6 +181,7 @@ protected:
     uiAction*		stereooffsetitm_;
     uiAction*		lastsceneitm_;
     uiAction*		showtreeitm_				= nullptr;
+    int			surveyactionid_				= -1;
     int			axisid_, actviewid_, cameraid_, soloid_;
     int			coltabid_, polyselectid_,viewselectid_,curviewmode_ ;
     int			viewinlid_, viewcrlid_, viewzid_, viewnid_, viewnzid_;
