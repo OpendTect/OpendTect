@@ -123,6 +123,9 @@ qtcsettings.cmake
 *~
 .directory
 
+#Python files
+.ipynb_checkpoints
+
 #Other
 data/DemoSurveys/
 relinfo/ver.*

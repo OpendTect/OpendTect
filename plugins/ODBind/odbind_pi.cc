@@ -23,5 +23,6 @@ mDefODPluginInfo(ODBind)
 
 mDefODInitPlugin(ODBind)
 {
+    ODBind::initDeveloperPythonPath();
     return nullptr;
 }
