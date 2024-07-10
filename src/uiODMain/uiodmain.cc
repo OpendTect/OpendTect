@@ -13,15 +13,14 @@ ________________________________________________________________________
 
 #include "uiactiverunningproc.h"
 #include "uiattribpartserv.h"
-#include "uimain.h"
 #include "uicolortable.h"
 #include "uidockwin.h"
 #include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
-#include "uistatusbar.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uinlapartserv.h"
@@ -32,18 +31,14 @@ ________________________________________________________________________
 #include "uiodviewer2dmgr.h"
 #include "uipixmap.h"
 #include "uiseispartserv.h"
-#include "uisetdatadir.h"
+#include "uiserviceclientmgr.h"
 #include "uisplashscreen.h"
-#include "uistrattreewin.h"
+#include "uistatusbar.h"
 #include "uisurvey.h"
 #include "uisurvinfoed.h"
-#include "uitoolbar.h"
-#include "ui2dsip.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
-#include "uiserviceclientmgr.h"
 
-#include "coltabsequence.h"
 #include "commandlaunchmgr.h"
 #include "commandlineparser.h"
 #include "ctxtioobj.h"
@@ -56,6 +51,7 @@ ________________________________________________________________________
 #include "moddepmgr.h"
 #include "mousecursor.h"
 #include "nrbytes2string.h"
+#include "od_helpids.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odplatform.h"
@@ -64,21 +60,16 @@ ________________________________________________________________________
 #include "odver.h"
 #include "plugins.h"
 #include "ptrman.h"
-#include "settingsaccess.h"
+#include "settings.h"
 #include "survgeom.h"
 #include "survinfo.h"
-#include "threadwork.h"
 #include "timer.h"
 #include "visdata.h"
-#include "od_helpids.h"
-
-#include <iostream>
 
 
-extern "C" {
-
+extern "C"
+{
     mGlobal(uiTools) bool doProductSelection(bool&,uiRetVal&);
-
 }
 
 
@@ -263,14 +254,15 @@ uiODMain::uiODMain( uiMain& a )
     , sessionSave(this)
     , sessionRestoreEarly(this)
     , sessionRestore(this)
-    , justBeforeGo(this)
     , beforeExit(this)
+    , justBeforeGo(this)
     , uiapp_(a)
     , lastsession_(*new ODSession)
     , programname_( "OpendTect" )
     , sesstimer_(*new Timer("Session restore timer"))
     , memtimer_(*new Timer("Memory display timer"))
     , newsurvinittimer_(*new Timer("New survey init timer"))
+    , autoloadsessiontimer_(*new Timer("Auto-load Session"))
 {
     setIconText( getProgramString() );
     uiapp_.setTopLevel( this );
@@ -296,6 +288,7 @@ uiODMain::uiODMain( uiMain& a )
 	mAttachCB( newsurvinittimer_.tick, uiODMain::newSurvInitTimerCB );
     }
 
+    mAttachCB( autoloadsessiontimer_.tick, uiODMain::autoloadSessionCB );
     mAttachCB( postFinalize(), uiODMain::afterStartupCB );
 }
 
@@ -311,6 +304,7 @@ uiODMain::~uiODMain()
     delete &sesstimer_;
     delete &memtimer_;
     delete &newsurvinittimer_;
+    delete &autoloadsessiontimer_;
 
     delete menumgr_;
     delete scenemgr_;
@@ -361,10 +355,14 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
     uiIOObjSelDlg dlg( this, *ctio );
     dlg.setHelpKey( mODHelpKey(mSessionSaveRestoreHelpID) );
     if ( !dlg.go() )
-	{ delete ctio->ioobj_; deleteAndNullPtr( ctio ); }
+    {
+	delete ctio->ioobj_;
+	deleteAndNullPtr( ctio );
+    }
     else
     {
-	delete ctio->ioobj_; ctio->ioobj_ = dlg.ioObj()->clone();
+	delete ctio->ioobj_;
+	ctio->ioobj_ = dlg.ioObj()->clone();
 	const MultiID id( ctio->ioobj_ ? ctio->ioobj_->key() : MultiID("") );
 	cursessid_ = id;
     }
@@ -410,14 +408,23 @@ bool uiODMain::hasSessionChanged()
 void uiODMain::saveSession()
 {
     CtxtIOObj* ctio = getUserSessionIOData( false );
-    if ( !ctio ) { delete ctio; return; }
-    ODSession sess; cursession_ = &sess;
-    if ( !updateSession() ) mDelCtioRet()
+    if ( !ctio )
+	return;
+
+    ODSession sess;
+    cursession_ = &sess;
+    if ( !updateSession() )
+	mDelCtioRet()
+
     uiString bs;
     if ( !ODSessionTranslator::store(sess,ctio->ioobj_,bs) )
-	{ uiMSG().error( bs ); mDelCtioRet() }
+    {
+	uiMSG().error( bs );
+	mDelCtioRet()
+    }
 
-    lastsession_ = sess; cursession_ = &lastsession_;
+    lastsession_ = sess;
+    cursession_ = &lastsession_;
     mDelCtioRet()
 }
 
@@ -425,7 +432,9 @@ void uiODMain::saveSession()
 void uiODMain::restoreSession()
 {
     CtxtIOObj* ctio = getUserSessionIOData( true );
-    if ( !ctio ) { delete ctio; return; }
+    if ( !ctio )
+	return;
+
     restoreSession( ctio->ioobj_ );
     mDelCtioRet()
 }
@@ -436,10 +445,11 @@ class uiODMainAutoSessionDlg : public uiDialog
 public:
 
 uiODMainAutoSessionDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Auto-load session"),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Auto-load Session"),mNoDlgTitle,
 				 mODHelpKey(mODMainAutoSessionDlgHelpID) ))
 {
-    bool douse = false; MultiID id;
+    bool douse = false;
+    MultiID id;
     ODSession::getStartupData( douse, id );
 
     usefld_ = new uiGenInput( this, tr("Auto-load session mode"),
@@ -452,7 +462,7 @@ uiODMainAutoSessionDlg( uiParent* p )
 
     IOObjContext ctxt = mIOObjContext( ODSession );
     ctxt.forread_ = true;
-    sessionfld_ = new uiIOObjSel( this, ctxt );
+    sessionfld_ = new uiIOObjSel( this, ctxt, uiStrings::sSession() );
     sessionfld_->setInput( id );
     sessionfld_->attach( alignedBelow, doselfld_ );
 
@@ -485,8 +495,9 @@ void useChg( CallBacker* )
 
 bool acceptOK( CallBacker* ) override
 {
+    loadnow_ = false;
     const bool douse = usefld_->getBoolValue();
-    const bool dosel = douse ? doselfld_->getBoolValue() : false;
+    const bool dosel = doselfld_->getBoolValue();
     if ( !dosel )
     {
 	ODSession::setStartupData( douse, MultiID::udf() );
@@ -494,9 +505,11 @@ bool acceptOK( CallBacker* ) override
     }
 
     const IOObj* ioobj = sessionfld_->ioobj();
-    if ( !ioobj ) return false;
+    if ( !ioobj )
+	return false;
 
     ODSession::setStartupData( douse, sessionfld_->key() );
+    loadnow_ = douse && loadnowfld_->getBoolValue();
     return true;
 }
 
@@ -504,29 +517,32 @@ bool acceptOK( CallBacker* ) override
     uiGenInput*		doselfld_;
     uiIOObjSel*		sessionfld_;
     uiGenInput*		loadnowfld_;
+    bool		loadnow_		= false;
 };
 
 
 void uiODMain::autoSession()
 {
     uiODMainAutoSessionDlg dlg( this );
-    if ( dlg.go() )
-    {
-	if ( dlg.loadnowfld_->getBoolValue() )
-	    handleStartupSession();
-    }
+    if ( dlg.go() && dlg.loadnow_ )
+	restoreSession( dlg.sessionfld_->ioobj() );
 }
 
 
 void uiODMain::restoreSession( const IOObj* ioobj )
 {
-    ODSession sess; uiString bs;
+    ODSession sess;
+    uiString bs;
     if ( !ODSessionTranslator::retrieve(sess,ioobj,bs) )
-	{ uiMSG().error( bs ); return; }
+    {
+	uiMSG().error( bs );
+	return;
+    }
 
     cursession_ = &sess;
     doRestoreSession();
-    cursession_ = &lastsession_; lastsession_.clear();
+    cursession_ = &lastsession_;
+    lastsession_.clear();
     sesstimer_.start( 200, true );
     sceneMgr().setToViewMode( true );
     sceneMgr().updateTrees();
@@ -624,7 +640,19 @@ void uiODMain::handleStartupSession()
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
+
+    uiString msg = tr("This survey has a session selected for auto-load.\n"
+		      "Restore session '%1' now?").arg( ioobj->name() );
+    const bool res = uiMSG().askGoOn( msg, true );
+    if ( !res )
+    {
+	if ( sceneMgr().nrScenes()==0 )
+	    sceneMgr().addScene( true );
+	return;
+    }
+
     cursessid_ = id;
     restoreSession( ioobj );
 }
@@ -633,6 +661,12 @@ void uiODMain::handleStartupSession()
 void uiODMain::sessTimerCB( CallBacker* )
 {
     sceneMgr().layoutScenes();
+}
+
+
+void uiODMain::autoloadSessionCB( CallBacker* )
+{
+    handleStartupSession();
 }
 
 
@@ -714,7 +748,10 @@ void uiODMain::setProgInfo( const char* info )
 
 bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 {
-    if ( !applmgr_->attrServer() ) return false;
+    if ( !applmgr_->attrServer() )
+	return false;
+
+
 
     if ( !NotSavedPrompter::NSP().doTrigger( uiMainWin::activeWindow(), true,
 					     actiontype ) )
@@ -764,7 +801,7 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 void uiODMain::afterSurveyChgCB( CallBacker* )
 {
     updateCaption();
-    handleStartupSession();
+    autoloadsessiontimer_.start( 500, true );
 }
 
 

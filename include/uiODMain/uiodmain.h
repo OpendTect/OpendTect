@@ -128,10 +128,13 @@ private:
     Timer&		sesstimer_;
     Timer&		memtimer_;
     Timer&		newsurvinittimer_;
+    Timer&		autoloadsessiontimer_;
+
     bool		neednewsurvinit_	= false;
     void		sessTimerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
     void		newSurvInitTimerCB(CallBacker*);
+    void		autoloadSessionCB(CallBacker*);
 
     void		updateCaptionCB(CallBacker*);
 
