@@ -38,6 +38,11 @@ mExternC(ODBind) int		stringset_size(hStringSet);
 mExternC(ODBind) hStringSet	stringset_add(hStringSet, const char*);
 mExternC(ODBind) const char*	stringset_get(hStringSet, int idx);
 
+namespace ODBind
+{
+    mGlobal(ODBind) void initDeveloperPythonPath();
+}
+
 
 struct intStepInterval
 {
