@@ -433,10 +433,16 @@ void PropertyRef::usePar( const IOPar& iop )
     sz = fms.size();
     if ( sz == 1 && fms[0].isNumber() )
     {
-	const float defval = getConvertedValue( fms[0].toFloat(),
-						intuom, unit() );
-	delete disp_.defval_;
-	disp_.defval_ = new ValueProperty( *this, defval );
+	float defval = fms[0].toFloat();
+	if ( !mIsUdf(defval) )
+	{
+	    convValue( defval, intuom, unit() );
+	    if ( disp_.defRange().includes(defval,true) )
+	    {
+		delete disp_.defval_;
+		disp_.defval_ = new ValueProperty( *this, defval );
+	    }
+	}
     }
     else if ( sz > 0 )
     {
@@ -458,7 +464,7 @@ void PropertyRef::usePar( const IOPar& iop )
 	    else
 		convValue( defval, intuom, unit() );
 
-	    if ( !mIsUdf(defval) )
+	    if ( !mIsUdf(defval) && disp_.defRange().includes(defval,true) )
 	    {
 		delete disp_.defval_;
 		disp_.defval_ = new ValueProperty( *this, defval );
@@ -607,16 +613,23 @@ const Mnemonic* PropertyRef::getFromLegacy( const Mnemonic* mn,
 
     //First try to volumetrics
     const MnemonicSelection mns( Mnemonic::Volum );
+    const OD::CaseSensitivity cis = OD::CaseInsensitive;
     for ( const auto* volmn : mns )
     {
-	if ( volmn->aliases().isPresent(propstr,OD::CaseInsensitive) )
+	if ( StringView(volmn->description()).isEqual(propstr,cis) )
+	    return volmn;
+
+	if ( volmn->aliases().isPresent(propstr,cis) )
 	    return volmn;
     }
 
     //then try them all
     for ( const auto* anymn : MNC() )
     {
-	if ( anymn->aliases().isPresent(propstr,OD::CaseInsensitive) )
+	if ( StringView(anymn->description()).isEqual(propstr,cis) )
+	    return anymn;
+
+	if ( anymn->aliases().isPresent(propstr,cis) )
 	    return anymn;
     }
 
