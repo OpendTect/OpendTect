@@ -62,6 +62,8 @@ public:
     bool			allChildrenCollapsed() const;
     bool			allChildrenChecked() const;
     bool			allChildrenUnchecked() const;
+    void			collapseAllChildren();
+    void			expandAllChildren();
 
     virtual int			siblingIndex() const;
 				/*\returns the index of this item among
