@@ -152,7 +152,8 @@ bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
 	}
 
 	hassamesynthpars =
-	    Seis::SynthGenerator::areEquivalent( synthpars_, oth.synthpars_ );
+	    Seis::SynthGenerator::areEquivalent( synthpars_, oth.synthpars_ ) &&
+	    wvltnm_ == oth.wvltnm_;
     }
     else if ( isPSBased() )
     {
@@ -172,8 +173,7 @@ bool SynthGenParams::hasSamePars( const SynthGenParams& oth ) const
 			freqrg_ == oth.freqrg_;
     }
 
-    return wvltnm_ == oth.wvltnm_ && hassamereflpars && hassameraypars &&
-	   hassamesynthpars &&
+    return hassamereflpars && hassameraypars && hassamesynthpars &&
 	   hassameanglerg && hassameinput && hassameattrib && hassamefilter;
 }
 
@@ -536,6 +536,7 @@ void SynthGenParams::usePar( const IOPar& par )
 	raypars_.setEmpty();
 	reflpars_.setEmpty();
 	synthpars_.setEmpty();
+	wvltnm_.setEmpty();
 	deleteAndNullPtr( reqtype_ );
 	if ( needsInput() )
 	{
