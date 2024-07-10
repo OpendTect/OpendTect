@@ -240,7 +240,8 @@ void odSurvey::getObjInfoByID( const MultiID& mid,
     jsobj.set( sKey::Name(), ioobj->name() );
     jsobj.set( sKey::Format(), ioobj->translator() );
     jsobj.set( TranslatorGroup::sKeyTransGrp(), ioobj->group() );
-    jsobj.set( sKey::FileName(), ioobj->mainFileName() );
+    const FilePath fp( ioobj->mainFileName() );
+    jsobj.set( sKey::FileName(), fp );
     BufferString typ;
     if ( ioobj->pars().get(sKey::Type(),typ) && !typ.isEmpty() )
 	jsobj.set( sKey::Type(), typ );
