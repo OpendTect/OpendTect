@@ -120,6 +120,8 @@ public:
 			  OnlyEIGather, NoEIGather, OnlyPS, NoPS,
 			  OnlyPSBased, NoPSBased,
 			  OnlyAttrib, NoAttrib, OnlyFilter, NoFilter,
+			  OnlyFilteredSynth, NoFilteredSynth,
+			  OnlyFilteredProp, NoFilteredProp,
 			  OnlyRaw, NoRaw, OnlyInput, OnlyWithInput, NoWithInput,
 			  OnlyProps, NoProps };
     void		getNames(BufferStringSet&,SubSelType t=NoSubSel,
@@ -213,6 +215,7 @@ private:
     void		setElasticPropSel(const ElasticPropSelection&);
     bool		ensureAdequatePropSelection(int lmsidx,
 						    RefLayer::Type) const;
+    bool		ensureAdequatePropertySynthetics(const SynthGenParams&);
     bool		ensureElasticModels(int lmsidx,RefLayer::Type,
 					    bool& changed,TaskRunner*) const;
     bool		adjustElasticModel(const Strat::LayerModel&,
