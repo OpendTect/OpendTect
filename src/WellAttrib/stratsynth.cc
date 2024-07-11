@@ -549,10 +549,40 @@ bool StratSynth::DataMgr::checkNeedsInput( const SynthGenParams& sgp ) const
 
 SynthID StratSynth::DataMgr::addSynthetic( const SynthGenParams& sgp )
 {
-    if ( !checkNeedsInput(sgp) )
+    if ( !ensureAdequatePropertySynthetics(sgp) || !checkNeedsInput(sgp) )
 	return SynthID::udf();
 
     return addEntry( SyntheticData::getNewID(), sgp );
+}
+
+
+bool StratSynth::DataMgr::ensureAdequatePropertySynthetics(
+						const SynthGenParams& sgp )
+{
+    if ( !sgp.isFilteredStratProp() )
+	return true;
+
+    const PropertyRef* pr = sgp.getRef( lms_.getCurrent().propertyRefs() );
+    if ( !pr )
+    {
+	const PropertyRefSelection allprs( false, nullptr );
+	pr = sgp.getRef( allprs );
+	if ( pr )
+	{
+	    auto& lms =
+		const_cast<Strat::LayerModelSuite&>( layerModelSuite() );
+	    lms.getCurrent().propertyRefs().add( pr );
+	}
+	else
+	    return false;
+    }
+
+    const SynthID sid = find( *pr );
+    if ( !sid.isUdf() )
+	return true;
+
+    const BufferStringSet propnms( pr->name().str() );
+    return addPropertySynthetics( nullptr, &propnms );
 }
 
 
@@ -1102,6 +1132,10 @@ void StratSynth::DataMgr::gtIdxs( TypeSet<int>& idxs, SubSelType ss,
 	    mHandleCase( NoAttrib,	!sgp.isAttribute() );
 	    mHandleCase( OnlyFilter,	sgp.isFiltered() );
 	    mHandleCase( NoFilter,	!sgp.isFiltered() );
+	    mHandleCase( OnlyFilteredSynth, sgp.isFilteredSynthetic() );
+	    mHandleCase( NoFilteredSynth, !sgp.isFilteredSynthetic() );
+	    mHandleCase( OnlyFilteredProp, sgp.isFilteredStratProp() );
+	    mHandleCase( NoFilteredProp, !sgp.isFilteredStratProp() );
 	    mHandleCase( OnlyRaw,	sgp.isRawOutput_() );
 	    mHandleCase( NoRaw,		!sgp.isRawOutput_() );
 	    mHandleCase( OnlyInput,	sgp.canBeAttributeInput() );
@@ -2205,7 +2239,10 @@ PropertyDataSetsCreator( DataMgr& dm, int lmsidx,
     const PropertyRefSelection& prs =
 			datamgr_.layerModel( lmsidx_ ).propertyRefs();
     for ( const auto& sgp : propsgps )
-	prs_.addIfNew( sgp.getRef( prs ) );
+    {
+	if ( sgp.isStratProp() )
+	    prs_.addIfNew( sgp.getRef(prs) );
+    }
 
     msg_ = tr("Converting depth layer model to time traces");
 }

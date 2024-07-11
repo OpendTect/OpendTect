@@ -120,7 +120,9 @@ public:
 			  OnlyPSBased, NoPSBased,
 			  OnlyAttrib, NoAttrib, OnlyRaw, NoRaw,
 			  OnlyInput, OnlyWithInput, NoWithInput,
-			  OnlyProps, NoProps, OnlyFilter, NoFilter };
+			  OnlyProps, NoProps, OnlyFilter, NoFilter,
+			  OnlyFilteredSynth, NoFilteredSynth,
+			  OnlyFilteredProp, NoFilteredProp };
     void		getNames(BufferStringSet&,SubSelType t=NoSubSel,
 				 bool omitempty=false,int lmsidx=-1) const;
     void		getNames(const MultiID& wvltid,BufferStringSet&,
@@ -215,6 +217,7 @@ private:
     void		setElasticPropSel(const ElasticPropSelection&);
     bool		ensureAdequatePropSelection(int lmsidx,
 						    RefLayer::Type) const;
+    bool		ensureAdequatePropertySynthetics(const SynthGenParams&);
     mDeprecatedObs
     bool		ensureElasticModels(int lmsidx,RefLayer::Type,
 					    TaskRunner*) const;
