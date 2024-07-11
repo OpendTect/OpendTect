@@ -474,10 +474,10 @@ const IOPar* SynthGenParams::reflPars() const
 
 const PropertyRef* SynthGenParams::getRef(const PropertyRefSelection& prs) const
 {
-    if ( !isStratProp() )
+    if ( !isStratProp() && !isFilteredStratProp() )
 	return nullptr;
 
-    BufferString propnm( name_ );
+    BufferString propnm( isStratProp() ? name_ : inpsynthnm_ );
     propnm.unEmbed( '[', ']' );
     return prs.getByName( propnm.buf(), false );
 }
