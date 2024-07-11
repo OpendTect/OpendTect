@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 
 const char* ZDomain::sKey()		{ return "ZDomain"; }
+const char* ZDomain::sKeyNoAll()	{ return "ZDomainNoAll"; }
 const char* ZDomain::sKeyTime()		{ return "TWT"; }
 const char* ZDomain::sKeyDepth()	{ return "Depth"; }
 const char* ZDomain::sKeyUnit()		{ return "ZDomain.Unit"; }
@@ -681,7 +682,9 @@ bool ZDomain::Info::isCompatibleWith( const IOPar& iop ) const
 Interval<float> ZDomain::Info::getReasonableZRange( bool foruser ) const
 {
     Interval<float> validrg;
-    if ( isDepthFeet() )
+    if ( def_.isSI() )
+	validrg = ::SI().zRange();
+    else if ( isDepthFeet() )
     {
 	validrg.start = -50000.f;
 	validrg.stop = 50000.f;
@@ -706,4 +709,25 @@ Interval<float> ZDomain::Info::getReasonableZRange( bool foruser ) const
 	validrg.scale( userFactor() );
 
     return validrg;
+}
+
+
+ZSampling ZDomain::Info::getReasonableZSampling( bool work, bool foruser ) const
+{
+    ZSampling zrg = getReasonableZRange( false );
+    if ( def_.isSI() )
+	zrg = ::SI().zRange( work );
+    else if ( isDepthFeet() )
+	zrg.step = 10;
+    else if ( isDepthMeter() )
+	zrg.step = 4;
+    else if ( isTime() )
+	zrg.step = 0.004;
+    else
+	zrg.setUdf();
+
+    if ( foruser )
+	zrg.scale( userFactor() );
+
+    return zrg;
 }

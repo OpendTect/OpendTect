@@ -356,6 +356,7 @@ void relocStart( const char* msg ) override
     , itemAdded(this) \
     , itemRemoved(this) \
     , itemChanged(this) \
+    , zDomainChanged(this) \
     , ctio_(*new CtxtIOObj(c))
 
 
@@ -448,7 +449,9 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     const FileMultiString withctxtfilters( setup_.withctxtfilter_ );
     for ( int ifilt=0; ifilt<withctxtfilters.size(); ifilt++ )
     {
-	const StringView withctxtfilter = withctxtfilters[ifilt];
+	const bool noall = withctxtfilters[ifilt] == ZDomain::sKeyNoAll();
+	const BufferString withctxtfilter = noall ? ZDomain::sKey() :
+					(const char*) withctxtfilters[ifilt];
 	if ( withctxtfilter.isEmpty() )
 	    continue;
 
@@ -481,11 +484,16 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 
 	    valstrs.sort();
 	    auto* firstline = new BufferString( sKey::All() );
-	    valstrs.insertAt( firstline, 0 );
+	    if ( !noall )
+		valstrs.insertAt( firstline, 0 );
+
 	    auto* ctxtfiltfld = new uiLabeledComboBox( topgrp_, valstrs,
 						       lblstr, fms.str() );
 	    uiComboBox* box = ctxtfiltfld->box();
 	    box->setHSzPol( uiObject::SmallVar );
+	    if ( noall )
+		box->setCurrentItem( SI().zDomain().key() );
+
 	    if ( lastuilcb )
 		ctxtfiltfld->attach( rightOf, lastuilcb );
 	    else
@@ -498,8 +506,11 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
 		mAttachCB( box->selectionChanged,
 			   uiIOObjSelGrp::ctxtFileTypeChgCB );
 	    else if ( iszdomain )
+	    {
 		mAttachCB( box->selectionChanged,
 			   uiIOObjSelGrp::ctxtZDomainChgCB );
+		ctxtZDomainChgCB( box );
+	    }
 	    else
 		mAttachCB( box->selectionChanged,
 		       uiIOObjSelGrp::ctxtTypeChgCB );
@@ -1383,7 +1394,7 @@ void uiIOObjSelGrp::ctxtZDomainChgCB( CallBacker* cb )
 	filterval.set( fms[1] );
 
     const int curitm = ctxtfiltfld->currentItem();
-    if ( curitm <= 0 )
+    if ( curitm <= 0 && sKey::All()==ctxtfiltfld->textOfItem(0) )
     {
 	if ( filterval.isEmpty() )
 	    ctio_.ctxt_.toselect_.require_.removeWithKey( withctxtfilter );
@@ -1403,6 +1414,7 @@ void uiIOObjSelGrp::ctxtZDomainChgCB( CallBacker* cb )
     }
 
     fullUpdate( -2 );
+    zDomainChanged.trigger();
 }
 
 

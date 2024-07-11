@@ -198,6 +198,7 @@ public:
 				/*!< Triggers when there is a new message for
 				     statusbars and similar */
     Notifier<uiIOObjSelGrp> listUpdated;
+    Notifier<uiIOObjSelGrp> zDomainChanged;
 
     CNotifier<uiIOObjSelGrp,const MultiID&> itemAdded;
     CNotifier<uiIOObjSelGrp,const MultiID&> itemRemoved;

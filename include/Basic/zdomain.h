@@ -126,6 +126,8 @@ public:
     bool		isCompatibleWith(const Info&) const;
     bool		isCompatibleWith(const IOPar&) const;
     Interval<float>	getReasonableZRange(bool foruser=false) const;
+    ZSampling		getReasonableZSampling(bool work,
+					       bool foruser=false) const;
 
     // Convenience
     const char*		key() const		{ return def_.key(); }
@@ -154,6 +156,7 @@ private:
 };
 
 mGlobal(Basic) const char*	sKey();
+mGlobal(Basic) const char*	sKeyNoAll();
 mGlobal(Basic) const char*	sKeyTime();
 mGlobal(Basic) const char*	sKeyDepth();
 mGlobal(Basic) const char*	sKeyUnit();
