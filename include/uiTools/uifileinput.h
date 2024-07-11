@@ -116,13 +116,14 @@ protected:
     uiFileDialog::Mode  selmode_;
     uiFileDialog::Type  filedlgtype_;
 
-    uiButton*		examinebut_;
+    uiButton*		examinebut_				= nullptr;
 
     void		doSelect(CallBacker*) override;
     void		inputChg(CallBacker*);
     void		examineFile(CallBacker*);
     void		isFinalized(CallBacker*);
     void		fnmEntered(CallBacker*);
+    void		checkCB(CallBacker*);
     void		ensureAbsolutePath(BufferString&) const;
 };
 

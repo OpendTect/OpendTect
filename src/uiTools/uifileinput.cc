@@ -11,15 +11,11 @@ ________________________________________________________________________
 
 #include "filepath.h"
 #include "oddirs.h"
-#include "oscommand.h"
 #include "perthreadrepos.h"
-#include "settings.h"
 
 #include "uibutton.h"
 #include "uifiledlg.h"
 #include "uigeninput.h"
-#include "uilabel.h"
-#include "uilineedit.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uistrings.h"
@@ -69,16 +65,16 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     , filter_(setup.filter_)
     , defseldir_(setup.defseldir_)
     , displaylocalpath_(setup.displaylocalpath_)
-    , selmodset_(false)
-    , selmode_(uiFileDialog::AnyFile)
-    , filedlgtype_(setup.filedlgtype_)
-    , examinebut_(0)
     , addallexts_(setup.allowallextensions_)
     , examstyle_(setup.examstyle_)
     , exameditable_(setup.exameditable_)
     , confirmoverwrite_(setup.confirmoverwrite_)
-    , objtype_(setup.objtype_)
     , defaultext_("dat")
+    , objtype_(setup.objtype_)
+    , selmodset_(false)
+    , selmode_(uiFileDialog::AnyFile)
+    , filedlgtype_(setup.filedlgtype_)
+    , examinebut_(0)
 {
     setStretch( 2, 0 );
     setFileName( setup.fnm );
@@ -99,9 +95,10 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
 	defaultext_.setEmpty();
     }
 
-    valueChanging.notify( mCB(this,uiFileInput,inputChg) );
-    postFinalize().notify( mCB(this,uiFileInput,isFinalized) );
-    valueChanged.notify( mCB(this,uiFileInput,fnmEntered) );
+    mAttachCB( valueChanging, uiFileInput::inputChg );
+    mAttachCB( postFinalize(), uiFileInput::isFinalized );
+    mAttachCB( valueChanged, uiFileInput::fnmEntered );
+    mAttachCB( checked, uiFileInput::checkCB );
 }
 
 
@@ -109,25 +106,27 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     : uiGenInput( p, txt, FileNameInpSpec(fnm) )
     , forread_(true)
     , filter_("")
-    , filedlgtype_(uiFileDialog::Gen)
-    , selmodset_(false)
-    , selmode_(uiFileDialog::AnyFile)
-    , examinebut_(0)
-    , addallexts_(true)
-    , confirmoverwrite_(true)
     , defseldir_(GetDataDir())
     , displaylocalpath_(false)
+    , addallexts_(true)
+    , confirmoverwrite_(true)
     , defaultext_("dat")
+    , selmodset_(false)
+    , selmode_(uiFileDialog::AnyFile)
+    , filedlgtype_(uiFileDialog::Gen)
+    , examinebut_(0)
 {
     setStretch( 2, 0 );
     setFileName( fnm );
     setWithSelect( true );
-    valueChanged.notify( mCB(this,uiFileInput,fnmEntered) );
+    mAttachCB( valueChanged, uiFileInput::fnmEntered );
+    mAttachCB( checked, uiFileInput::checkCB );
 }
 
 
 uiFileInput::~uiFileInput()
 {
+    detachAllNotifiers();
 }
 
 
@@ -211,6 +210,14 @@ void uiFileInput::fnmEntered( CallBacker* )
 
     fp.setExtension( defaultext_ );
     setFileName( fp.fullPath() );
+}
+
+
+void uiFileInput::checkCB( CallBacker* )
+{
+    const bool ischecked = isChecked();
+    if ( examinebut_ )
+	examinebut_->setSensitive( ischecked );
 }
 
 
