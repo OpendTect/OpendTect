@@ -871,8 +871,8 @@ bool useNativeDialog()
     {
     const BufferString xdgsessiondesktop = GetEnvVar( "XDG_SESSION_DESKTOP" );
     const BufferString xdgcurrentdesktop = GetEnvVar( "XDG_CURRENT_DESKTOP" );
-    if ( xdgsessiondesktop.isEqual("gnome",OD::CaseInsensitive) ||
-	 xdgcurrentdesktop.isEqual("gnome",OD::CaseInsensitive) )
+    if ( xdgsessiondesktop.startsWith("gnome",OD::CaseInsensitive) ||
+	 xdgcurrentdesktop.startsWith("gnome",OD::CaseInsensitive) )
 	native = 0;
     }
 
