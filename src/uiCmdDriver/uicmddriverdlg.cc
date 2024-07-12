@@ -763,7 +763,7 @@ void cleanLogFiles()
 
 uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
     : uiDialog(p,Setup(tr("Run Command Driver Script"),
-		       mNoDlgTitle,mTODOHelpKey))
+		       mNoDlgTitle,mODHelpKey(mCmdDriverScriptRunnerHelpID)))
     , drv_(driver)
 {
     setCtrlStyle( CloseOnly );
