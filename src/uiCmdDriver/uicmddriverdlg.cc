@@ -596,7 +596,7 @@ uiScriptRunnerSettings( uiParent* p )
 {}
 
 
-bool acceptOK( CallBacker* )
+bool acceptOK( CallBacker* ) override
 {
     FilePath fp = scriptsdirfld_->fileName();
     if ( !fp.exists() )
@@ -763,7 +763,7 @@ void cleanLogFiles()
 
 uiScriptRunnerDlg::uiScriptRunnerDlg( uiParent* p, CmdDriver& driver )
     : uiDialog(p,Setup(tr("Run Command Driver Script"),
-		       mNoDlgTitle,mTODOHelpKey))
+		       mNoDlgTitle,mODHelpKey(mCmdDriverScriptRunnerHelpID)))
     , drv_(driver)
 {
     setCtrlStyle( CloseOnly );
