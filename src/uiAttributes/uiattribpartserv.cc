@@ -2208,13 +2208,21 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 {
     targetspecs_.erase();
     DescSet* ads = eDSHolder().getDescSet( is2d, true );
+    BufferStringSet compnames;
+    SeisIOObjInfo::getCompNames( multiid, compnames );
     for ( int idx=0; idx<selectedcomps.size(); idx++ )
     {
-	DescID did = ads->getStoredID( multiid, selectedcomps[idx], true );
+	const int selout = selectedcomps[idx];
+	const BufferString compname =
+		compnames.validIdx(selout) ? compnames.get(selout).buf()
+					   : toString(selout);
+	const DescID did = ads->getStoredID( multiid, selout, true,
+					     true, compname.buf() );
 	SelSpec as( nullptr, did );
 	BufferString bfs;
 	Desc* desc = ads->getDesc(did);
-	if ( !desc ) return false;
+	if ( !desc )
+	    return false;
 
 	desc->getDefStr(bfs);
 	as.setDefString(bfs.buf());
