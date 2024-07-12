@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uilineedit.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimainwin.h"
 #include "uistrings.h"
 
@@ -343,6 +344,7 @@ ODQFileDialog( const QString& dirname, const QString& fltr,
     : QFileDialog(p,caption,dirname,fltr)
 {
     setModal( true );
+    setOption( QFileDialog::DontUseNativeDialog, !useNativeDialog() );
 }
 
 };
