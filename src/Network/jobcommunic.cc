@@ -13,13 +13,13 @@ ________________________________________________________________________
 #include "debug.h"
 #include "envvars.h"
 #include "hostdata.h"
+#include "msgh.h"
+#include "netsocket.h"
 #include "oddirs.h"
 #include "separstr.h"
 #include "strmdata.h"
 #include "systeminfo.h"
-#include "netsocket.h"
 #include "timefun.h"
-#include "msgh.h"
 
 #include <iostream>
 #include "mmcommunicdefs.h"
@@ -83,10 +83,10 @@ JobCommunic::JobCommunic( const char* host, PortNr_Type port, int jid )
     socket_->setTimeout( socktimeout_ );
 
     const bool ret = socket_->connectToHost( primaryAuthority() );
-    BufferString logmsg( "Connection to", primaryAuthority().getHost(),
+    BufferString logmsg( "Connection to ", primaryAuthority().getHost(),
 			 " port " );
-    logmsg.add( primaryAuthority().getPort() ).add( " : " );
-    logMsg( ret, logmsg, !ret ? "" :socket_->errMsg().getFullString() );
+    logmsg.add( primaryAuthority().getPort() );
+    logMsg( ret, logmsg, ret ? "" : socket_->errMsg().getFullString() );
 }
 
 
@@ -398,12 +398,23 @@ od_ostream* JobCommunic::createLogStream()
 
 void JobCommunic::logMsg( bool stat, const char* msg, const char* details )
 {
-    if ( !logstream_ )
-	return;
+    od_ostream* strm = logstream_;
+    if ( !logstream_ || stat || DBG::isOn() )
+    {
+	if ( stat && !DBG::isOn(DBG_MM) )
+	    return;
+
+	strm = &od_cerr();
+    }
 
     BufferString finalmsg = stat ? "Success: " : "Failure: ";
-    finalmsg.add( msg ).add( " : " ).add( details );
-    *logstream_ << finalmsg << od_endl;
+    if ( msg && *msg )
+	finalmsg.add( msg );
+
+    if ( details && *details )
+	finalmsg.add( ": " ).add( details );
+
+    *strm << finalmsg << od_endl;
 }
 
 
