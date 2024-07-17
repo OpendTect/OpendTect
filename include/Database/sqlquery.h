@@ -118,7 +118,7 @@ public:
 			ValueCondition(const char* col = 0,
 				Operator op = Equals,const char* val = 0 );
 
-    BufferString	getStr() const;
+    BufferString	getStr() const override;
 
 protected:
     BufferString	col_;
@@ -141,7 +141,7 @@ public:
     void		addStatement( const char* stmnt )
 			{ statements_.add( stmnt ); }
 
-    BufferString	getStr() const;
+    BufferString	getStr() const override;
 protected:
     BufferStringSet	statements_;
     bool		isand_;
@@ -158,7 +158,7 @@ public:
     			StringCondition( const char* col,
 					 const char* searchstr,
 					 bool exact );
-    BufferString	getStr() const;
+    BufferString	getStr() const override;
 protected:
 
     BufferString	col_;
@@ -177,7 +177,7 @@ public:
 			FullTextCondition( BufferStringSet& cols,
 					   const char* searchstr );
 			FullTextCondition( const char* searchstr );
-    BufferString	getStr() const;
+    BufferString	getStr() const override;
     FullTextCondition&	addColumn(const char*);
 
 protected:
