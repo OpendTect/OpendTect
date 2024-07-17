@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "datainterp.h"
 #include "netreqpacket.h"
+#include "odnetworkaccess.h"
 #include "systeminfo.h"
 
 #include <limits.h>
@@ -42,6 +43,7 @@ Network::Socket::Socket( bool islocal, bool haveevloop )
     }
     else
     {
+	Network::setHttpProxyFromSettings();
 	qtcpsocket_ = new QTcpSocket();
 	socketcomm_ = new QTcpSocketComm(qtcpsocket_, this);
     }
