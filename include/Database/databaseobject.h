@@ -29,9 +29,7 @@ class Access;
 mExpClass(Database) DatabaseColumnBase
 {
 public:
-			DatabaseColumnBase( DatabaseTable& dobj,
-			    const char* columnname,const char* columntype );
-    virtual		~DatabaseColumnBase()	{}
+    virtual		~DatabaseColumnBase();
 
     virtual const char*	columnName() const	{ return columnname_; }
     virtual const char*	selectString() const;
@@ -42,6 +40,8 @@ public:
     virtual const char* createColumnQuery() const;
 
 protected:
+			DatabaseColumnBase( DatabaseTable& dobj,
+			    const char* columnname,const char* columntype );
 
     DatabaseTable&	table_;
 
@@ -101,7 +101,7 @@ public:
 
     static const char*	sKey()	{ return "id"; }
 
-    const char*	dataString(const int&) const { return 0; }
+    const char*	dataString(const int&) const override { return 0; }
 		//The id should be automatically inserted
 };
 
@@ -126,7 +126,7 @@ mExpClass(Database) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
 {
 public:
 		CreatedTimeStampDatabaseColumn( DatabaseTable& dobj );
-    const char*	selectString() const;
+    const char*	selectString() const override;
     bool	parse(const Query&,int column,time_t&) const;
     const char*	dataString(const time_t&) const { return 0; }
 };

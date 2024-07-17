@@ -29,6 +29,10 @@ DatabaseColumnBase::DatabaseColumnBase( DatabaseTable& dobj,
 }
 
 
+DatabaseColumnBase::~DatabaseColumnBase()
+{}
+
+
 bool DatabaseColumnBase::isDBTypeOK( const char* dbtype ) const
 {
     if ( !columnType() )
