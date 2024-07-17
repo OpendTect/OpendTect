@@ -44,10 +44,11 @@ public:
     bool		isActive() const;
     BufferString	errMsg() const;
     void		finish() const;
-    BufferString        getCurrentDateTime();
+    BufferString	getCurrentDateTime();
 
     bool		getAllRows(IOPar&) const;
 
+    int			size() const;
     BufferString	data(int) const;
     int			iValue(int) const;
     unsigned int	uiValue(int) const;
@@ -58,28 +59,30 @@ public:
     bool		isTrue(int) const;
 
     static BufferString	getInsertString(const BufferStringSet& colnms,
-	    				const BufferStringSet& values,
+					const BufferStringSet& values,
 					const BufferString& tablenm);
     bool		insert(const BufferStringSet& colnms,
-	    		       const BufferStringSet& values,
-	    		       const BufferString& tablenm);
+			       const BufferStringSet& values,
+			       const BufferString& tablenm);
     static int		addToColList(BufferStringSet& columns,const char*);
-    			//!<Returns the column index in the list
+			//!<Returns the column index in the list
     static BufferString	select(const BufferStringSet& colnms,
 				const BufferString& tablenm,
 				const char* condstr);
     BufferString	getUpdateString(const BufferStringSet& colnms,
-	    				const BufferStringSet& values,
+					const BufferStringSet& values,
 					const BufferString& tablenm,
 					int bugid) const;
     bool		update(const BufferStringSet& colnms,
-	    		       const BufferStringSet& values,
+			       const BufferStringSet& values,
 			       const BufferString& tablenm,int bugid);
     bool		deleteInfo(const char* tablenm,const char* fldnm,
-	    			   int id);
-    bool		starttratsaction();
+				   int id);
+
+    bool		startTransaction();
     bool		commit();
     bool		rollback();
+
 protected:
 
     mQSqlQuery*		qsqlquery_;
