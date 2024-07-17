@@ -151,6 +151,10 @@ public:
 
     virtual bool		isUserSelectable( bool forread=true ) const
 				{ return true; }
+    virtual bool		supportsReadFromCloud() const
+				{ return false; }
+    virtual bool		supportsWriteToCloud() const
+				{ return false; }
     virtual bool		getConfirmRemoveMsg(const IOObj*,uiString& msg,
 					uiString& canceltxt,
 					uiString& deepremovetxt,
