@@ -11,12 +11,8 @@ ________________________________________________________________________
 
 #include "file.h"
 #include "filepath.h"
-#include "multiid.h"
 #include "perthreadrepos.h"
-
-#ifdef __win__
-# include "winutils.h"
-#endif
+#include "winutils.h"
 
 
 bool testPointerCast()
@@ -110,7 +106,7 @@ static BufferString getTestFileName()
 }
 
 
-bool testFilePermissions( const char* fnm)
+bool testFilePermissions( const char* fnm )
 {
     mRunStandardTest( !File::exists(fnm), "Temporary file does not exist" );
     od_ostream strm( fnm );
@@ -167,7 +163,37 @@ bool testFilePermissions( const char* fnm)
 }
 
 
-bool testRemoveFile(const char* fnm)
+bool testCleanPath()
+{
+    const BufferString uri = "s3://od-awsplugin/vdsdata/VDS_small";
+    const BufferString uriunix = getCleanUnixPath( uri.buf() );
+    const BufferString uriwin = getCleanWinPath( uri.buf() );
+    mRunStandardTest( uriunix==uri, "getCleanUnixPath" );
+    mRunStandardTest( uriwin==uri, "getCleanWinPath" );
+
+    const BufferString unixpath = "RawData/file.vds";
+    const BufferString winpath = "RawData\\file.vds";
+    const BufferString unixpath2win = getCleanWinPath( unixpath.buf() );
+    const BufferString winpath2unix = getCleanUnixPath( winpath.buf() );
+    mRunStandardTest( unixpath==winpath2unix, "Windows style path to Unix" );
+    mRunStandardTest( winpath==unixpath2win, "Unix style path to Windows" );
+
+    const BufferString cwinpath =
+		"C:\\Program Files\\OpendTect\\7.0.0\\INSTALL.txt";
+    const BufferString cunixpath =
+		FilePath(cwinpath.buf()).fullPath( FilePath::Unix );
+    const BufferString cunixpathres =
+		"C:/Program Files/OpendTect/7.0.0/INSTALL.txt";
+    mRunStandardTest( cunixpath==cunixpathres, "Windows path with Unix delim" );
+
+    FilePath fp( cunixpathres );
+    mRunStandardTest( cwinpath==fp.fullPath(FilePath::Windows),
+		"From Windows path with Unix delim back to Windows delim" );
+    return true;
+}
+
+
+bool testRemoveFile( const char* fnm )
 {
     if ( !File::exists(fnm) )
 	return true;
@@ -199,7 +225,8 @@ int mTestMainFnName( int argc, char** argv )
 	|| !testOSVersion()
         || !testPointerAlignment()
 	|| !testFuncName()
-	|| !test64BitDetection() )
+	|| !test64BitDetection()
+	|| !testCleanPath() )
 	return 1;
 
     const BufferString fnm = getTestFileName();

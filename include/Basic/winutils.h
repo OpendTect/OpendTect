@@ -18,8 +18,8 @@ ________________________________________________________________________
 
 extern "C"
 {
-    mGlobal(Basic) const char*	getCleanUnxPath( const char* path );
-    mGlobal(Basic) const char*	getCleanWinPath( const char* path );
+    mGlobal(Basic) const char*	getCleanUnixPath(const char* path);
+    mGlobal(Basic) const char*	getCleanWinPath(const char* path);
     mGlobal(Basic) const char*	GetSpecialFolderLocation(int csidl);
 }
 
@@ -66,19 +66,18 @@ mDeprecatedMachCmd mGlobal(Basic) bool execProc(const char* comm,bool inconsole,
 mGlobal(Basic) const char*	getWinVersion();
 mGlobal(Basic) const char*	getWinMinorVersion();
 mGlobal(Basic) const char*	getFullWinVersion();
-mGlobal(Basic) const char*      getWinBuildNumber();
-mGlobal(Basic) const char*      getWinDisplayName();
+mGlobal(Basic) const char*	getWinBuildNumber();
+mGlobal(Basic) const char*	getWinDisplayName();
 mGlobal(Basic) const char*	getWinEdition();
 mGlobal(Basic) const char*	getWinProductName();
 mGlobal(Basic) bool		IsWindowsServer();
 
 mGlobal(Basic) bool		canHaveAppLocker();
 mGlobal(Basic) bool		hasAppLocker();
-mGlobal(Basic) const char*	getCygDir();
 mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
 						  BufferString& errmsg);
 mGlobal(Basic) bool		getDefaultApplication( const char* scheme,
-                                        BufferString& cmd,
+					BufferString& cmd,
 					BufferString& errmsg);
 
 mGlobal(Basic)	bool		setRegKeyVal(const char* ky, const char* vanrnm,

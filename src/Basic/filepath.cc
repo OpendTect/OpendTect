@@ -612,7 +612,7 @@ BufferString FilePath::mkCleanPath( const char* path, Style stl )
     if ( stl == Windows && !__iswin__ )
 	ret = getCleanWinPath( path );
     if ( stl == Unix && __iswin__ )
-	ret = getCleanUnxPath( path );
+	ret = getCleanUnixPath( path );
 
     return ret;
 }

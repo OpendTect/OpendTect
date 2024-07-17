@@ -11,18 +11,19 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "debug.h"
-#include "dirlist.h"
 #include "envvars.h"
-#include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "oscommand.h"
 #include "perthreadrepos.h"
-#include "ptrman.h"
-#include "separstr.h"
 #include "string2.h"
 
 #ifdef __win__
+#include "dirlist.h"
+#include "file.h"
+#include "oscommand.h"
+#include "ptrman.h"
+#include "separstr.h"
+
 # include <windows.h>
 # include <process.h>
 # include <aclapi.h>
@@ -35,9 +36,6 @@ ________________________________________________________________________
 # include <QSettings>
 #endif
 
-
-static const char* cygdrvstr="/cygdrive/";
-static const int cygdrvstrlen=10;
 
 
 void DisableAutoSleep()
@@ -62,9 +60,11 @@ void EnableAutoSleep()
 }
 
 
-const char* getCleanUnxPath( const char* path )
+const char* getCleanUnixPath( const char* path )
 {
-    if ( !path || !*path ) return 0;
+    const StringView pathstr = path;
+    if ( pathstr.isEmpty() )
+	return nullptr;
 
     mDeclStaticString( ret );
 
@@ -73,129 +73,31 @@ const char* getCleanUnxPath( const char* path )
     buf.replace( '\\' , '/' );
     buf.replace( ';', ':' );
 
-    char* drivesep = buf.find( ':' );
-    if ( !drivesep )
-	{ ret = buf; return ret.buf(); }
-
-    *drivesep = '\0';
-
-    ret = cygdrvstr;
-    char* ptr = buf.getCStr();
-    *ptr = (char)tolower(*ptr);
-    ret += ptr;
-    ret += ++drivesep;
-
-    return ret;
+    ret = buf;
+    return ret.buf();
 }
 
-#define mRet(ret) \
-    ret.replace( '/', '\\' ); \
-    if ( __do_debug_cleanpath ) \
-    { \
-        BufferString msg("getCleanWinPath for: ",path," : "); \
-	msg += ret; \
-        od_debug_message( msg ); \
-    } \
-    return ret;
 
 const char* getCleanWinPath( const char* path )
 {
-    if ( !path || !*path ) return 0;
+    const StringView pathstr = path;
+    if ( pathstr.isEmpty() )
+	return nullptr;
 
     mDeclStaticString( ret );
     ret = path;
     ret.replace( ';', ':' );
+    ret.trimBlanks();
 
-    BufferString buf( ret );
-    char* ptr = buf.getCStr();
+    if ( FilePath(ret).isURI() )
+	return ret;
 
-    mTrimBlanks( ptr );
-
-    mDefineStaticLocalObject( bool, __do_debug_cleanpath,
-			      = GetEnvVarYN("DTECT_DEBUG_WINPATH") );
-
-    if ( *(ptr+1) == ':' ) // already in windows style.
-	{ ret = ptr;  mRet( ret ); }
-
-    bool isabs = *ptr == '/';
-
-    char* cygdrv = firstOcc( ptr, cygdrvstr );
-    if ( cygdrv )
-    {
-	char* buffer = ret.getCStr();
-	char* drv = cygdrv + cygdrvstrlen;
-	*buffer = *drv; *(buffer+1) = ':'; *(buffer+2) = '\0';
-	ret += ++drv;
-    }
-
-    char* drivesep = ret.find( ":" );
-    if ( isabs && !drivesep )
-    {
-	const char* cygdir =
-#ifdef __win__
-				getCygDir();
-#else
-				0;
-#endif
-	if ( !cygdir || !*cygdir )
-	{
-	    if ( GetEnvVar("CYGWIN_DIR") ) // anyone got a better idea?
-		cygdir = GetEnvVar("CYGWIN_DIR");
-	    else
-		cygdir = "c:\\cygwin";
-	}
-
-	ret = cygdir;
-
-	ret += ptr;
-    }
-
-    mRet( ret );
+    ret.replace( '/', '\\' );
+    return ret;
 }
 
 
 #ifdef __win__
-
-const char* getCygDir()
-{
-    mDeclStaticString( answer );
-    if ( !answer.isEmpty() )
-	return answer;
-
-    HKEY hKeyRoot = HKEY_CURRENT_USER;
-    const BufferString subkey(
-		    "Software\\Cygnus Solutions\\Cygwin\\mounts v2\\/" );
-    const BufferString Value( "native" );
-
-    BYTE Value_data[256];
-    DWORD Value_size = sizeof(Value_data);
-
-    HKEY hKeyNew = nullptr;
-    DWORD retcode = 0;
-    DWORD Value_type = 0;
-
-    retcode = RegOpenKeyEx ( hKeyRoot, subkey.str(), 0, KEY_QUERY_VALUE,
-			     &hKeyNew );
-
-    if ( retcode != ERROR_SUCCESS )
-    {
-	hKeyRoot = HKEY_LOCAL_MACHINE;
-	retcode = RegOpenKeyEx( hKeyRoot, subkey.buf(), 0, KEY_QUERY_VALUE,
-				&hKeyNew );
-	if (retcode != ERROR_SUCCESS)
-	    return nullptr;
-    }
-
-    retcode = RegQueryValueEx( hKeyNew, Value.buf(), NULL, &Value_type,
-			       Value_data, &Value_size );
-
-    if ( retcode != ERROR_SUCCESS )
-	return nullptr;
-
-    answer = (const char*) Value_data;
-    return answer;
-}
-
 
 const char* GetSpecialFolderLocation( int nFolder )
 {
@@ -303,8 +205,7 @@ private:
 
 const SecurityID& getAdminSID()
 {
-    mDefineStaticLocalObject(PtrMan<SecurityID>, ret,
-			     = new SecurityID(true) );
+    mDefineStaticLocalObject(PtrMan<SecurityID>, ret, = new SecurityID(true) );
     if ( !ret->isOK() )
     {
 	PSID sid = NULL;
@@ -320,8 +221,7 @@ const SecurityID& getAdminSID()
 
 const SecurityID& getTrustedInstallerSID()
 {
-    mDefineStaticLocalObject(PtrMan<SecurityID>, ret,
-			     = new SecurityID(true) );
+    mDefineStaticLocalObject(PtrMan<SecurityID>, ret, = new SecurityID(true) );
     if ( !ret->isOK() )
     {
 	PSID sid = NULL;
