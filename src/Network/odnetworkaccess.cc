@@ -576,7 +576,7 @@ void Network::setHttpProxy( const char* hostname, int port, bool auth,
 			    const char* username, const char* password )
 {
     QNetworkProxy proxy;
-    proxy.setType( QNetworkProxy::HttpProxy );
+    proxy.setType( QNetworkProxy::DefaultProxy );
     proxy.setHostName( hostname );
     proxy.setPort( port );
     if ( auth )
