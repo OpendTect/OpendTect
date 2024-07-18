@@ -16,7 +16,7 @@ set( OD_MODULE_SOURCES
 
 if ( OD_NO_QSQL )
     set( OD_USEQT Core )
-    add_definitions( -DOD_NO_QSQL )
+    list( APPEND OD_MODULE_COMPILE_DEFINITIONS "OD_NO_QSQL" )
 else()
     set( OD_USEQT Sql )
 endif()
