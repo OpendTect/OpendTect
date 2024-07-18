@@ -179,37 +179,50 @@ bool HDF5::Access::isHDF5File( const char* fnm )
 
 HDF5::AccessProvider* HDF5::AccessProvider::mkProv( int idx )
 {
-    if ( idx<0 || idx>=factory().size() )
-	idx = factory().size()-1;
-    if ( idx<0 )
-	return 0;
+    const FactoryBase& hdf5fact = factory();
+    if ( hdf5fact.isEmpty() )
+	return nullptr;
 
-    return factory().create( factory().getNames().get(idx) );
+    if ( idx<0 || idx>=hdf5fact.size() )
+	idx = hdf5fact.getNames().indexOf( hdf5fact.getDefaultName() );
+
+    if ( idx<0 )
+	return nullptr;
+
+    return factory().create( hdf5fact.getNames().get(idx) );
 }
 
 
-HDF5::Reader* HDF5::AccessProvider::mkReader( int idx )
+namespace HDF5
 {
-    AccessProvider* prov = mkProv( idx );
-    Reader* rdr = 0;
-    if ( prov )
+    static Threads::Lock& getLock()
     {
-	rdr = prov->getReader();
-	delete prov;
+	static PtrMan<Threads::Lock> lock = new Threads::Lock( false );
+	return *lock.ptr();
     }
+}
+
+
+PtrMan<HDF5::Reader> HDF5::AccessProvider::mkReader( int idx )
+{
+    Threads::Locker locker( getLock() );
+    PtrMan<AccessProvider> prov = mkProv( idx );
+    PtrMan<Reader> rdr;
+    if ( prov )
+	rdr = prov->getReader();
+
     return rdr;
 }
 
 
-HDF5::Writer* HDF5::AccessProvider::mkWriter( int idx )
+PtrMan<HDF5::Writer> HDF5::AccessProvider::mkWriter( int idx )
 {
-    AccessProvider* prov = mkProv( idx );
-    Writer* wrr = 0;
+    Threads::Locker locker( getLock() );
+    PtrMan<AccessProvider> prov = mkProv( idx );
+    PtrMan<Writer> wrr;
     if ( prov )
-    {
 	wrr = prov->getWriter();
-	delete prov;
-    }
+
     return wrr;
 }
 

@@ -240,8 +240,8 @@ public:
     virtual Reader*		getReader() const			= 0;
     virtual Writer*		getWriter() const			= 0;
 
-    static Reader*		mkReader(int n=-1);
-    static Writer*		mkWriter(int n=-1);
+    static PtrMan<Reader>	mkReader(int n=-1);
+    static PtrMan<Writer>	mkWriter(int n=-1);
 
 protected:
 
@@ -249,8 +249,8 @@ protected:
 
 };
 
-inline Reader* mkReader() { return AccessProvider::mkReader(); }
-inline Writer* mkWriter() { return AccessProvider::mkWriter(); }
+inline PtrMan<Reader> mkReader() { return AccessProvider::mkReader(); }
+inline PtrMan<Writer> mkWriter() { return AccessProvider::mkWriter(); }
 inline const char* sFileExtension() { return Access::sFileExtension(); }
 
 inline bool isAvailable()
