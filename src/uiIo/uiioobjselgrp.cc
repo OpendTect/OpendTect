@@ -424,7 +424,8 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 
 void uiIOObjSelGrp::omfChgCB( CallBacker* )
 {
-    fullUpdate( -1 );
+    if ( grpobj_->visible() )
+	fullUpdate( -1 );
 }
 
 
