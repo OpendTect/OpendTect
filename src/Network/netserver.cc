@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "genc.h"
 #include "hostdata.h"
 #include "netsocket.h"
+#include "odnetworkaccess.h"
 #include "oscommand.h"
 #include "separstr.h"
 #include "systeminfo.h"
@@ -534,6 +535,7 @@ Network::Server::Server( bool islocal )
     }
     else
     {
+	Network::setHttpProxyFromSettings();
 	qtcpserver_ = new QTcpServer();
 	comm_ = new QTcpServerComm( qtcpserver_, this );
     }
