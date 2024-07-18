@@ -33,6 +33,8 @@ static bool errprint_ = false;
 void HDF5::AccessProviderImpl::initHDF5()
 {
     initClass();
+    const int defidx = factory().getNames().indexOf( sFactoryKeyword() );
+    factory().setDefaultName( defidx );
 
     H5::Exception::getAutoPrint( hdf_err_print_fn, &hdf_err_client_data );
 #ifdef __debug__
