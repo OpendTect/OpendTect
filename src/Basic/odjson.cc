@@ -189,6 +189,15 @@ mDefSimpleKeyedConstr( ValueSet* )
 
 };
 
+static BufferString getPathStr( const FilePath& fp )
+{
+    BufferString ret = fp.fullPath();
+    if ( __iswin__ && !fp.isURI() )
+	ret.replace( "\\", "/" );
+
+    return ret;
+}
+
 } // namespace JSON
 
 } // namespace OD
@@ -203,8 +212,8 @@ OD::JSON::ValArr::ValArr( DataType typ )
     {
 	case Boolean:	set_ = new BSet;	break;
 	case Number:	set_ = new NSet;	break;
-	default:	{ pErrMsg("Unknown type"); type_ = String; }
 	case String:	set_ = new SSet;	break;
+	default:	{ pErrMsg("Unknown type"); type_ = String; }
     }
 }
 
@@ -277,29 +286,20 @@ void OD::JSON::ValArr::setFilePath( const FilePath& fp, idx_type idx )
 	return;
     }
 
-    BufferString& bs = strings().get( idx );
-    bs.set( fp.fullPath() );
-    if ( __iswin__ )
-	bs.replace( "\\", "/" );
-
+    strings().get( idx ) = getPathStr( fp );
 }
 
 
 FilePath OD::JSON::ValArr::getFilePath( idx_type idx ) const
 {
-    BufferString ret;
-    if ( !strings().validIdx( idx ) )
-	return FilePath( ret );
+    if ( !strings().validIdx(idx) )
+	return FilePath();
 
+    FilePath ret;
     if ( type_ == String )
-    {
 	ret.set( strings().get(idx) );
-#ifdef __win__
-	ret.replace( "/", "\\" );
-#endif
-    }
 
-    return FilePath( ret );
+    return ret;
 }
 
 
@@ -431,8 +431,8 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
     {
 	case Boolean:	ret.set( val->boolVal() ? "true" : "false" );  break;
 	case Number:	ret.set( val->val() );  break;
-	default:	{ pErrMsg("Huh"); }
 	case String:	ret.set( val->str() ); break;
+	default:	{ pErrMsg("Huh"); }
     }
 
     return ret;
@@ -441,24 +441,21 @@ BufferString OD::JSON::ValueSet::getStringValue( idx_type idx ) const
 
 FilePath OD::JSON::ValueSet::getFilePath( idx_type idx ) const
 {
-    BufferString ret;
-    if ( !values_.validIdx( idx ) )
-        return FilePath(ret);
+    if ( !values_.validIdx(idx) )
+	return FilePath();
 
     const Value* val = values_[idx];
     if ( val->isValSet() )
     {
-        pErrMsg( gtvalnotplaindatastr ); return FilePath(ret);
-    }
-    if ( DataType(val->type_) == String )
-    {
-        ret.set( val->str() );
-#ifdef __win__
-        ret.replace( "/", "\\" );
-#endif
+	pErrMsg( gtvalnotplaindatastr );
+	return FilePath();
     }
 
-    return FilePath( ret );
+    FilePath ret;
+    if ( DataType(val->type_) == String )
+	ret.set( val->str() );
+
+    return ret;
 }
 
 
@@ -476,8 +473,8 @@ od_int64 OD::JSON::ValueSet::getIntValue( idx_type idx ) const
     {
 	case Boolean:	ret = val->boolVal() ? 0 : 1;  break;
 	case Number:	ret = mNINT64( val->val() );  break;
-	default:	{ pErrMsg("Huh"); }
 	case String:	ret = toInt64( val->str() );  break;
+	default:	{ pErrMsg("Huh"); }
     }
 
     return ret;
@@ -498,8 +495,8 @@ double OD::JSON::ValueSet::getDoubleValue( idx_type idx ) const
     {
 	case Boolean:	ret = val->boolVal() ? 0 : 1;  break;
 	case Number:	ret = val->val();  break;
-	default:	{ pErrMsg("Huh"); }
 	case String:	ret = toDouble( val->str() );  break;
+	default:	{ pErrMsg("Huh"); }
     }
 
     return ret;
@@ -1003,10 +1000,7 @@ OD::JSON::Array& OD::JSON::Array::add( const OD::String& odstr )
 
 OD::JSON::Array& OD::JSON::Array::add( const FilePath& fp )
 {
-    BufferString bs( fp.fullPath() );
-#ifdef __win__
-    bs.replace( "\\", "/" );
-#endif
+    const BufferString bs = getPathStr( fp );
     return add( bs.buf() );
 }
 
@@ -1073,10 +1067,7 @@ OD::JSON::Array& OD::JSON::Array::set( const OD::String& val )
 
 OD::JSON::Array& OD::JSON::Array::set( const FilePath& fp )
 {
-    BufferString val( fp.fullPath() );
-#ifdef __win__
-    val.replace( "\\", "/" );
-#endif
+    const BufferString val = getPathStr( fp );
     return set( BufferStringSet(val.buf()) );
 }
 
@@ -1272,7 +1263,7 @@ double OD::JSON::Object::getDoubleValue( const char* ky ) const
 
 BufferString OD::JSON::Object::getStringValue( const char* ky ) const
 {
-    BufferString ret = ValueSet::getStringValue( indexOf(ky) );
+    const BufferString ret = ValueSet::getStringValue( indexOf(ky) );
 #ifdef __win__
     const FilePath fp( ret );
     if ( !fp.isURI() && fp.exists() && fp.isAbsolute() )
@@ -1381,10 +1372,7 @@ mDefObjectSetVal( const char* )
 
 void OD::JSON::Object::set( const char* ky, const FilePath& fp )
 {
-    BufferString fnm( fp.fullPath() );
-#ifdef __win__
-    fnm.replace( "\\", "/" );
-#endif
+    const BufferString fnm = getPathStr( fp );
     setVal( ky, fnm.buf() );
 }
 
