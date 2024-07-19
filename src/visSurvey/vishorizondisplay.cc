@@ -1882,28 +1882,42 @@ HorizonDisplay::IntersectionData*
 }
 
 
-#define mHandleIndex(obj)\
-{ if ( obj && obj->id() == objid ) { objidx = idx; return true;}  }
+static VisID getValidIntersectionObjectID( const SurveyObject* so )
+{
+    mDynamicCastGet( const PlaneDataDisplay*, plane, so );
+    if ( plane )
+	return plane->id();
+
+    mDynamicCastGet( const MPEDisplay*, mped, so );
+    if ( mped )
+	return mped->id();
+
+    mDynamicCastGet( const RandomTrackDisplay*, rtdisplay, so );
+    if ( rtdisplay )
+	return rtdisplay->id();
+
+    mDynamicCastGet( const Seis2DDisplay*, seis2ddisplay, so );
+    if ( seis2ddisplay )
+	return seis2ddisplay->id();
+
+    return VisID::udf();
+}
 
 bool HorizonDisplay::isValidIntersectionObject(
     const ObjectSet<const SurveyObject>&objs, int& objidx, VisID objid ) const
 {
     for ( int idx=0; idx<objs.size(); idx++ )
     {
-	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
-	mHandleIndex( plane )
-
-	mDynamicCastGet( const MPEDisplay*, mped, objs[idx] );
-	mHandleIndex( mped )
-
-	mDynamicCastGet( const RandomTrackDisplay*, rtdisplay, objs[idx] );
-	mHandleIndex( rtdisplay )
-
-	mDynamicCastGet( const Seis2DDisplay*, seis2ddisplay, objs[idx] );
-	mHandleIndex( seis2ddisplay )
+	if ( getValidIntersectionObjectID(objs[idx]) == objid )
+	{
+	    objidx = idx;
+	    return true;
+	}
     }
 
-    return false;
+    // When objid is not active anymore and hence not in objs list
+    mDynamicCastGet(const SurveyObject*,so,visBase::DM().getObject(objid))
+    return so && getValidIntersectionObjectID(so)==objid;
 }
 
 
@@ -1937,6 +1951,9 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	}
     }
+
+    if ( !doall && objidx < 0 )
+	return;
 
     if ( isOn() && (displayonlyatsections_ || displayintersectionlines_) )
     {
