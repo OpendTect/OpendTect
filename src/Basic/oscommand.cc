@@ -381,7 +381,7 @@ static BufferString getUsableWinCmd( const char* fnm, BufferStringSet& args )
 	interp = "awk.exe";
     else if ( execnm.contains(".sed") || execnm.contains(".SED") )
 	interp = "sed.exe";
-    else if ( File::exists( execnm ) )
+    else if ( File::exists(execnm) )
     {
 	// We have a full path to a file with no known extension,
 	// but it exists. Let's peek inside.
@@ -408,23 +408,9 @@ static BufferString getUsableWinCmd( const char* fnm, BufferStringSet& args )
     if ( !interp )
 	return ret;
 
-    FilePath interpfp;
-    const char* cygdir = getCygDir();
-    if ( cygdir && *cygdir )
-    {
-	interpfp.set( cygdir );
-	interpfp.add( "bin" ).add( interp );
-    }
-
-    if ( !File::exists( interpfp.fullPath() ) )
-    {
-	interpfp.set( GetSoftwareDir(true) );
-	interpfp.add("bin").add("win").add("sys").add(interp);
-    }
-
-    ret.set( interpfp.fullPath() );
     if ( argsptr && *argsptr )
 	args.unCat( argsptr, " " );
+
     args.insertAt( new BufferString(
 		FilePath(execnm).fullPath(FilePath::Unix)), 0 );
 
