@@ -12,14 +12,12 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "iopar.h"
 #include "file.h"
-#include "filepath.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odnetworkaccess.h"
 #include "od_istream.h"
 #include "odplatform.h"
 #include "odsysmem.h"
-#include "separstr.h"
 #include "thread.h"
 #include "uistrings.h"
 #include "winutils.h"
@@ -30,7 +28,7 @@ ________________________________________________________________________
 namespace System
 {
     static const char* sKeyReportHost()
-    { return "http://backend.opendtect.org"; }
+    { return "https://backend.opendtect.org"; }
 
     static const char* sKeyReportScript()
     { return "/backendscripts/crashreport.php"; }

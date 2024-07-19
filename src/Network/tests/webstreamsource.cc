@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 
 static const char* smallfname = "http://oldintranet.dgbes.com/testing/ctest/test_file";
-static const char* bigfname = "http://opendtect.org/tmp/f3_fake_2d_ps_seis.zip";
+static const char* bigfname = "https://opendtect.org/tmp/f3_fake_2d_ps_seis.zip";
 static od_stream::Count bigsz = 10556039;
 
 static bool testReadSmallFile()
@@ -92,7 +92,7 @@ bool testIsLocalFlag()
     od_istream dnstrm( "/dev/null" );
     mRunStandardTest( dnstrm.isLocal(), "Stream should be local" );
 
-    od_istream wbstrm( "http://opendtect.org/dlsites.txt" );
+    od_istream wbstrm( "https://opendtect.org/dlsites.txt" );
     mRunStandardTest( !wbstrm.isLocal(), "Stream should not be local" );
 
     return true;

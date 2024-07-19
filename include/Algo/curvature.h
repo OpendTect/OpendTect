@@ -16,7 +16,8 @@ ________________________________________________________________________
 
   Equations are derived from "Wood, J.D. (1996) The geomorphological
   characterization of digital elevation models PhD Thesis, University of
-  Leicester, UK, http://www.soi.city.ac.uk/~jwo/phd"
+  Leicester, UK,
+  https://figshare.le.ac.uk/articles/thesis/The_geomorphological_characterisation_of_Digital_Elevation_Models_/10152368
 */
 
 mExpClass(Algo) Curvature

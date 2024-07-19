@@ -16,8 +16,9 @@ ________________________________________________________________________
 
 /*!\brief A simple HelpProvider that can be extended to create a HelpProvider
     for third party plug-ins. You need a urlbase string which can refer
-    to a web URL (starting with "http://") or a local file path (starting with
-    "file:///"). For linking the individual HelpKeys, you can either add links
+    to a web URL (starting with "https://" or "http://")
+    or a local file path (starting with "file:///").
+    For linking the individual HelpKeys, you can either add links
     for specific keys using the function:
 
 	addKeyLink( const char* key, const char* link );

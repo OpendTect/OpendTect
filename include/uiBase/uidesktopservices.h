@@ -15,10 +15,10 @@ mExpClass(uiBase) uiDesktopServices
 {
 public:
     static bool		openUrl(const char* url);
-    			//!< url has to start with http://, file://,
+			//!< url has to start with https://, http://, file://,
 			//!< ftp:// or mailto:
-    			//!< ftp://user:passwd@ftp.example.com
-    			//!< mailto:user@foo.com?subject=Test&body=Just a test
+			//!< ftp://user:passwd@ftp.example.com
+			//!< mailto:user@foo.com?subject=Test&body=Just a test
     static bool		showInFolder(const char* file);
 			//!< Open the file explorer window and highlight
 			//!< the given file

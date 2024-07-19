@@ -99,7 +99,7 @@ HelpProvider* FlareHelpProvider::createInstance()
 }
 
 #define mHtmlFileName	"Default.htm"
-#define mBaseUrl	"http://backend.opendtect.org/"
+#define mBaseUrl	"https://backend.opendtect.org/"
 
 static const char* fileprot = "file:///";
 
@@ -264,7 +264,7 @@ bool VideoProvider::hasHelp( const char* arg ) const
 }
 
 
-static const char* sVideoBaseUrl = "http://videos.opendtect.org/?id=";
+static const char* sVideoBaseUrl = "https://videos.opendtect.org/?id=";
 
 void VideoProvider::provideHelp( const char* arg ) const
 {
