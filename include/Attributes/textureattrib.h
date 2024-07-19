@@ -16,8 +16,6 @@ namespace Attrib
 
 /*!
 \brief %Texture Attribute
-Texture Attribute definitions from
-http://www.fp.ucalgary.ca/mhallbey/equations.htm
 
 <pre>
 Input:

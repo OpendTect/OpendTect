@@ -41,7 +41,7 @@ mUseQtnamespace
 
 
 /* Idea from:
-http://www.qtforum.org/article/34125/disable-qtablewidget-selection-color.html
+   https://forum.qt.io/topic/57394/solved-question-about-qt-table-widget-item-appearence-when-selected
 */
 
 class BackgroundDelegate : public QStyledItemDelegate
@@ -398,7 +398,7 @@ void uiTableBody::setPrefWidthInChars( int nrchars, int maxwidth )
 
     QHeaderView* hhdr = horizontalHeader();
     const QSize qsz = hhdr->sizeHint();
-    const float lookgoodfactor = 1.5;	// emperical
+    const float lookgoodfactor = 1.5;	// empirical
     const int charw = mCast( int, fontWidth() * lookgoodfactor );
     const int prefw = charw*nrchars + qsz.width();
     setPrefWidth( mMIN(prefw,maxwidth) );

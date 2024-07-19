@@ -17,7 +17,7 @@ ________________________________________________________________________
 static bool testMultiply()
 {
     // example from:
-    // http://www.mathsisfun.com/algebra/matrix-multiplying.html
+    // https://www.mathsisfun.com/algebra/matrix-multiplying.html
     Array2DMatrix<float> mat( 1, 3 );
     Array2DMatrix<float> mat2( 3, 4 );
     mat.get(0,0) = 3; mat.get(0,1) = 4; mat.get(0,2) = 2;
@@ -59,8 +59,6 @@ static bool testCholesky()
     if ( !out.isEq(exp.a2d_,0.0001) )
 	{ od_cout() << "Failed: Cholesky decomp (1)" << od_endl; return false; }
 
-    // example cov matrix from:
-    // http://www.sitmo.com/article/generating-correlated-random-numbers
     mat.get(0,0) = mat.get(1,1) = mat.get(2,2) = 1;
     mat.get(0,1) = mat.get(1,0) = 0.6f;
     mat.get(0,2) = mat.get(2,0) = 0.3f;

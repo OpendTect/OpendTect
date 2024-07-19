@@ -1427,7 +1427,7 @@ uiWhereIsDotDlg( uiParent* p )
 {
     uiString txt = tr("To display the attribute graph an installation of "
 	"Graphviz is required.\nGraphviz can be downloaded from: "
-	"http://www.graphviz.org\n\n"
+	"https://www.graphviz.org\n\n"
 	"Once installed, please select here '%1' from your Graphviz "
 	"installation.\ne.g.: %2\n")
 	.arg(__iswin__?"dot.exe":"dot")

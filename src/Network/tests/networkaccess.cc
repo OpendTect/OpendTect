@@ -54,7 +54,7 @@ bool testPing()
 				BufferString( prefix_, "Ping existing URL"),
 				toString(err) );
 
-    url.set( "http://nonexistingurl.www" ).add( "/thisfiledoesnotexist" );
+    url.set( "https://nonexistingurl.www" ).add( "/thisfiledoesnotexist" );
     mRunStandardTestWithError( Network::ping(url.str(),err)==false,
 	BufferString( prefix_, "Ping non-existing URL"), toString(err) );
 
