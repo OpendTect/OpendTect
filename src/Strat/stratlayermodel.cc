@@ -183,8 +183,9 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 	newls->layers() += newlay;
     }
 
-    newls->setStartDepth( inpls.startDepth() );
+    newls->setStartDepth( inpls.startDepth(), true );
     newls->setOverburdenVelocity( inpls.overburdenVelocity() );
+    newls->prepareUse();
     seqs_ += newls;
     return *newls;
 }
@@ -354,7 +355,7 @@ int nextStep() override
 	    return ErrorOccurred();
 	}
 
-	FileMultiString fms( word );
+	const FileMultiString fms( word );
 	const BufferString unitname = fms[0];
 	const Strat::UnitRef* ur = rt.find( unitname );
 	mDynamicCastGet(const Strat::LeafUnitRef*,lur,ur)
@@ -362,7 +363,7 @@ int nextStep() override
 	    missinglayerunits_.addIfNew( unitname );
 
 	auto* newlay = new Strat::Layer( lur ? *lur : rt.undefLeaf() );
-	if ( fms.size() > 1 )
+	if ( !fms.isEmpty() )
 	{
 	    const Content* c = rt.contents().getByName(fms[1]);
 	    newlay->setContent( c ? *c : Content::unspecified() );
@@ -370,17 +371,7 @@ int nextStep() override
 
 	float val; strm_ >> val;
 	newlay->setThickness( val );
-	if ( !mathpreserve_ )
-	{
-	    for ( int iprop=1; iprop<nrprops; iprop++ )
-	    {
-		strm_ >> val;
-		newlay->setValue( iprop, val );
-	    }
-
-	    strm_.skipLine();
-	}
-	else
+	if ( mathpreserve_ )
 	{
 	    BufferString txt;
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
@@ -395,16 +386,27 @@ int nextStep() override
 		}
 	    }
 	}
+	else
+	{
+	    for ( int iprop=1; iprop<nrprops; iprop++ )
+	    {
+		strm_ >> val;
+		newlay->setValue( iprop, val );
+	    }
+
+	    strm_.skipLine();
+	}
 
 	seq->layers() += newlay;
     }
 
     if ( !mIsUdf(startdepth) )
-	seq->setStartDepth( startdepth );
+	seq->setStartDepth( startdepth, true );
 
     if ( !mIsUdf(ovvel) )
 	seq->setOverburdenVelocity( ovvel );
 
+    seq->prepareUse();
     lm_.seqs_ += seq;
     curidx_++;
     nextreadidx_ += readrg_.step;
@@ -453,7 +455,7 @@ bool Strat::LayerModel::read( od_istream& strm, int start, int step,
 
 
 bool Strat::LayerModel::write( od_ostream& strm, int modnr,
-					bool mathpreserve ) const
+			       bool mathpreserve ) const
 {
     const int nrseqs = seqs_.size();
     const int nrprops = proprefs_.size();
