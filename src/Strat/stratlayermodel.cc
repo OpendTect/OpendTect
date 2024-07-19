@@ -354,7 +354,7 @@ int nextStep()
 	    return ErrorOccurred();
 	}
 
-	FileMultiString fms( word );
+	const FileMultiString fms( word );
 	const BufferString unitname = fms[0];
 	const Strat::UnitRef* ur = rt.find( unitname );
 	mDynamicCastGet(const Strat::LeafUnitRef*,lur,ur)
@@ -362,7 +362,7 @@ int nextStep()
 	    missinglayerunits_.addIfNew( unitname );
 
 	auto* newlay = new Strat::Layer( lur ? *lur : rt.undefLeaf() );
-	if ( fms.size() > 1 )
+	if ( !fms.isEmpty() )
 	{
 	    const Content* c = rt.contents().getByName(fms[1]);
 	    newlay->setContent( c ? *c : Content::unspecified() );
@@ -370,17 +370,7 @@ int nextStep()
 
 	float val; strm_ >> val;
 	newlay->setThickness( val );
-	if ( !mathpreserve_ )
-	{
-	    for ( int iprop=1; iprop<nrprops; iprop++ )
-	    {
-		strm_ >> val;
-		newlay->setValue( iprop, val );
-	    }
-
-	    strm_.skipLine();
-	}
-	else
+	if ( mathpreserve_ )
 	{
 	    BufferString txt;
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
@@ -394,6 +384,16 @@ int nextStep()
 		    newlay->setValue( iprop, iop, lm_.proprefs_ );
 		}
 	    }
+	}
+	else
+	{
+	    for ( int iprop=1; iprop<nrprops; iprop++ )
+	    {
+		strm_ >> val;
+		newlay->setValue( iprop, val );
+	    }
+
+	    strm_.skipLine();
 	}
 
 	seq->layers() += newlay;
@@ -469,7 +469,7 @@ bool Strat::LayerModel::read( od_istream& strm )
 
 
 bool Strat::LayerModel::write( od_ostream& strm, int modnr,
-					bool mathpreserve ) const
+			       bool mathpreserve ) const
 {
     const int nrseqs = seqs_.size();
     const int nrprops = proprefs_.size();

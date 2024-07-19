@@ -577,7 +577,7 @@ bool acceptOK( CallBacker* ) override
 	}
 
 	sDoReplace = doreplacefld_->getBoolValue();
-	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
+	auto& lm = const_cast<Strat::LayerModel&>( lm_ );
 	if ( sDoReplace )
 	{
 	    lm.setEmpty();
@@ -1116,8 +1116,10 @@ Interval<float> uiStratLayerModelDisp::getModelRange( int propidx ) const
 	const Strat::LayerModel& laymod = layerModel();
 	for ( int iseq=0; iseq<nrseqs; iseq++ )
 	{
-	    const Interval<float> vrg =
-				  laymod.sequence(iseq).propRange( propidx );
+	    const Strat::LayerSequence& seq = laymod.sequence( iseq );
+	    const Interval<float> vrg = propidx < 0
+				      ? seq.zRange()
+				      : seq.propRange( propidx );
 	    if ( mIsUdf(rg.start) )
 		rg = vrg;
 	    else
