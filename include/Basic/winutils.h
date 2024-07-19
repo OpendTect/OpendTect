@@ -94,8 +94,7 @@ mGlobal(Basic) void		enableAutoSleep();
 /*
 For documentation of the CSIDL values, see:
 
-http://msdn.microsoft.com/library/default.asp?
-    url=/library/en-us/shellcc/platform/shell/reference/enums/csidl.asp
+https://learn.microsoft.com/en-us/windows/win32/shell/csidl
 
 
 				CSIDL

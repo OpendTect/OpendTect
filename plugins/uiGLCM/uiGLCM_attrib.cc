@@ -1,7 +1,7 @@
 
 /*+
- * (C) JOANNEUM RESEARCH; http://www.joanneum.at
- * AUTHOR   : Christoph Eichkitz;
+ * (C) JOANNEUM RESEARCH; https://www.joanneum.at
+ * AUTHOR   : Christoph Eichkitz
  * DATE     : November 2013
 -*/
 

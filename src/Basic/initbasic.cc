@@ -35,7 +35,7 @@ static uiString* qtLegalText()
 	    "The Qt GUI Toolkit ("
 	    QT_VERSION_STR
 	    ") is Copyright (C) The Qt Company Ltd.\n"
-	    "Contact: http://www.qt.io/licensing\n\n"
+	    "Contact: https://www.qt.io/qt-licensing\n\n"
 	    "Qt is available under the LGPL\n\n%1" ).arg( lgplV3Text() ) );
 }
 #endif

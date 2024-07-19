@@ -15,7 +15,7 @@ ________________________________________________________________________________
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <https://www.gnu.org/licenses/>.
 ________________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     virtual void	getPoints(OD::JSON::Array&, bool towgs) const = 0;
 
     const odSurvey&	survey() const	{ return survey_; }
-    bool		isReadOnly() const 	{ return readonly_; }
+    bool		isReadOnly() const	{ return readonly_; }
     bool		canRead() const;
     bool		canWrite() const;
     bool		zIsTime() const		{ return zistime_; }
@@ -131,7 +131,7 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
     BufferStringSet nms;
     PtrMan<BufferStringSet> allnms = getNames<T>( survey );
     if ( fornames.isEmpty() )
- 	nms = *allnms;
+	nms = *allnms;
     else
 	nms = odSurvey::getCommonItems( *allnms, fornames );
 
@@ -142,10 +142,10 @@ void odSurveyObject::getFeatures( OD::JSON::Object& jsobj,
         T obj( survey,  *nm );
 	OD::JSON::Object info;
 	obj.getFeature( info );
- 	if ( info.isEmpty() )
- 	    continue;
+	if ( info.isEmpty() )
+	    continue;
 
- 	features->add( info.clone() );
+	features->add( info.clone() );
      }
 
     jsobj.set( "type", "FeatureCollection" );

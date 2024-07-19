@@ -31,7 +31,7 @@ DirectionalSurvey::~DirectionalSurvey()
 
 
 // Minimum Curvature Method
-// From: http://www.drillingformulas.com/tag/directional-drilling-calculations/
+// From: https://www.drillingformulas.com/tag/directional-drilling-calculations/
 static void getDevMinCurv( double md1, double md2,
 			   double incl1, double incl2,
 			   double azi1, double azi2, Coord3& delta )

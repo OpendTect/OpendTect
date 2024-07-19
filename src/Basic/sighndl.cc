@@ -336,7 +336,8 @@ void SignalHandling::handleAlarm()
 
 #ifdef __win__
 
- /* SOURCE   : http://support.microsoft.com/kb/178893 -*/
+ /* SOURCE:
+https://www.betaarchive.com/wiki/index.php?title=Microsoft_KB_Archive/178893 -*/
 
 static BOOL CALLBACK TerminateAppEnum( HWND hwnd, LPARAM lParam )
 {

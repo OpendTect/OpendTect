@@ -29,7 +29,7 @@ ________________________________________________________________________
 namespace System
 {
     static const char* sKeyReportHost()
-    { return "http://backend.opendtect.org"; }
+    { return "https://backend.opendtect.org"; }
 
     static const char* sKeyReportScript()
     { return "/backendscripts/crashreport.php"; }

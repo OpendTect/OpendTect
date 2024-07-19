@@ -17,8 +17,8 @@ class TaskRunner;
 class DataBuffer;
 
 
-/*!\brief Access to an http site to get the contents of files.
- 
+/*!\brief Access to an http(s) site to get the contents of files.
+
   The URL defaults to opendtect.org. The subdir is going to be the current
   work directory on the site. You can change it at any time (unlike the host).
 
@@ -31,10 +31,8 @@ class DataBuffer;
   you need the version with the TaskRunner.
 
   You can ask for a plain file on a local disk; pass 'DIR=the_file_name'.
-  Then, no HTTP connection is made. If the site needs secure access, pass the
-  full URL (i.e. https://xx.yy). At the time I'm making this comment, it is
-  not implemented. For normal HTTP access, you can pass the host name or
-  http://hostname .
+  Then, no HTTP connection is made. Otherwise pass the full URL
+  (i.e. https://xx.yy), using a secure connection whenever possible
 
  */
 
@@ -56,16 +54,16 @@ public:
 
     bool		getFile(const char* fnm,const char* outfnm=0,
 				 TaskRunner* tr=0, const char* nicename=0);
-    			//!< Without a file name, get the DataBuffer
+			//!< Without a file name, get the DataBuffer
     DataBuffer*		obtainResultBuf();
-    			//!< the returned databuf becomes yours
+			//!< the returned databuf becomes yours
 
     bool		getFiles(const BufferStringSet& fnms,
 				  const char* outputdir,TaskRunner&);
     od_int64		getFileSize(const char* relfilenm);
     bool		haveErrMsg() const
-    			{ return !errmsg_.isEmpty(); }
-    			//!< if haveErrMsg(), then failure - otherwise user stop
+			{ return !errmsg_.isEmpty(); }
+			//!< if haveErrMsg(), then failure - otherwise user stop
 
     BufferString	fullURL(const char*) const;
 

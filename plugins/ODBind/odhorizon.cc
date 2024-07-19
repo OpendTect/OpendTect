@@ -14,7 +14,7 @@ ________________________________________________________________________________
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.
+    along with this program. If not, see <https://www.gnu.org/licenses/>.
 ________________________________________________________________________________
 
 -*/
@@ -507,21 +507,21 @@ odHorizon2D::~odHorizon2D()
 //     survey_.activate();
 //     if ( array_ && writecount_ )
 //     {
-// 	RefMan<EM::Horizon3D> hor3d = EM::Horizon3D::create( name_ );
-// 	if ( !hor3d )
-// 	    throw( pybind11::value_error("cannot create horizon") );
+//	RefMan<EM::Horizon3D> hor3d = EM::Horizon3D::create( name_ );
+//	if ( !hor3d )
+//	    throw( pybind11::value_error("cannot create horizon") );
 //
-// 	hor3d->setMultiID( ioobj_->key() );
-// 	if ( hor3d->setArray2D(array_, tk_.start_, tk_.step_) )
-// 	{
-// 	    PtrMan<Executor> saver = hor3d->saver();
-// 	    if (!saver || !TaskRunner::execute(nullptr, *saver.ptr()) )
-// 		throw( pybind11::value_error("failed during horizon save") );
-// 	}
+//	hor3d->setMultiID( ioobj_->key() );
+//	if ( hor3d->setArray2D(array_, tk_.start_, tk_.step_) )
+//	{
+//	    PtrMan<Executor> saver = hor3d->saver();
+//	    if (!saver || !TaskRunner::execute(nullptr, *saver.ptr()) )
+//		throw( pybind11::value_error("failed during horizon save") );
+//	}
 //     }
 //
 //     if ( writecount_==0 )
-// 	IOM().implRemove( *ioobj_ );
+//	IOM().implRemove( *ioobj_ );
 //
 //     delete array_;
 //     array_ = nullptr;

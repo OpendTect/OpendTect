@@ -55,8 +55,7 @@ uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
 void uiGMTInfoDlg::gmtPushCB( CallBacker* )
 {
     uiDesktopServices::openUrl(
-	    __islinux__ ? "https://dgbes.com/index.php/download"
-		: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
+	    "https://www.generic-mapping-tools.org/download/" );
 }
 
 

@@ -77,9 +77,8 @@ protected:
 
 void gmtPush( CallBacker* )
 {
-    uiDesktopServices::openUrl( __islinux__
-	? "https://dgbes.com/index.php/download"
-	: "http://gmt.soest.hawaii.edu/projects/gmt/wiki/Download" );
+    uiDesktopServices::openUrl(
+	    "https://www.generic-mapping-tools.org/download/" );
 }
 
 bool acceptOK( CallBacker* ) override
