@@ -336,7 +336,7 @@ bool ArrayImplBase<T>::updateStorageSize()
 	    new MultiArrayValueSeries<T,T>(getStorageSize()));
     }
 
-    if ( !stor_ || !stor_->setSize( getStorageSize() ) )
+    if ( !stor_ || !stor_->setSize(getStorageSize()) )
     {
 	ptr_ = nullptr;
 	delete stor_;
