@@ -530,7 +530,7 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     if ( cursize_==sz )
 	return true;
 
-    if ( sz < 1 )
+    if ( sz < 0 )
     {
 #ifdef __debug__
 	pErrMsg("Trying to allocate an array with no size");
