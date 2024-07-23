@@ -123,6 +123,71 @@ static float uiMarkerDlgzFactor( uiCheckBox* cb=0 )
 					      : mToFeetFactorF;
 }
 
+// -> uiMarkerList class
+uiRegionalMarkersFromWellMarkersDlg::uiRegionalMarkersFromWellMarkersDlg(
+					    uiParent* p, Well::MarkerSet& mset )
+    : uiDialog(p,uiDialog::Setup(tr("Select Regional Markers"),
+				 mNoDlgTitle,mTODOHelpKey))
+    , mset_(mset)
+{
+    list_ = new uiListBox( this, "Markers", OD::ChooseAtLeastOne );
+    list_->setHSzPol( uiObject::Wide );
+    for ( int idx=0; idx<mset.size(); idx++ )
+	list_->addItem( toUiString(mset[idx]->name()), mset[idx]->color() );
+}
+
+
+bool uiRegionalMarkersFromWellMarkersDlg::acceptOK( CallBacker* )
+{
+    TypeSet<int> selitems;
+    list_->getChosen( selitems );
+    if ( !selitems.size() )
+    {
+	uiMSG().message( tr("No markers selected.") );
+	return false;
+    }
+
+    Strat::LevelSet& lvls = Strat::eLVLS();
+    uiString msg;
+    int mid = 0;
+    for ( int idx=0; idx<selitems.size(); idx++ )
+    {
+	const int selidx = selitems[idx];
+	if ( lvls.isPresent(mset_[selidx]->name()) )
+	{
+	    msg = tr( "'%1' %2" ).arg( mset_[selidx]->name() );
+	    mid++;
+	}
+    }
+
+    if ( !msg.isEmpty() )
+    {
+	msg.arg(tr("%1already set as regional marker(s)."
+		   "Press Continue to update properties.")
+	      .arg(mid > 1 ? tr("are ") : tr("is ")));
+	const bool res = uiMSG().askContinue( msg );
+	if ( !res )
+	    return false;
+    }
+
+    const int inpsz = mset_.size();
+    for ( int idx=inpsz-1; idx>=0; idx-- )
+    {
+	if ( !selitems.isPresent(idx) )
+	{
+	    mset_.removeSingle( idx );
+	    continue;
+	}
+
+	const Strat::LevelID lvlid = lvls.add( mset_[idx]->name(),
+						 mset_[idx]->color() );
+	mset_[idx]->setLevelID( lvlid );
+    }
+
+    lvls.write();
+    return true;
+}
+
 
 void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
 			const Well::Track& trck, const Well::D2TModel* d2t,
@@ -395,6 +460,84 @@ int uiMarkerDlg::rowNrFor( uiStratLevelSel* lvlsel ) const
 }
 
 
+void uiMarkerDlg::resetEntries( const Well::MarkerSet& markers )
+{
+    MultiID mid;
+    if ( !getKey(mid) )
+	return;
+
+    ConstRefMan<Well::Data> wd = Well::MGR().get( mid, Well::Mrkrs );
+    if ( !wd )
+    {
+	uiMSG().error( Well::MGR().errMsg() );
+	return;
+    }
+
+    for ( int idx=0; idx<table_->nrRows(); idx++ )
+    {
+	const BufferString markernm = table_->text( RowCol(idx,cNameCol) );
+	if ( markernm.isEmpty() )
+	    continue;
+
+	const Well::Marker* marker = markers.getByName( markernm );
+	if ( !marker )
+	    continue;
+
+	fillMarkerRow( idx, *marker, wd );
+    }
+}
+
+
+uiStratLevelSel* uiMarkerDlg::getLevelSelFld( int row )
+{
+    uiGroup* grp = table_->getCellGroup( RowCol(row,cLevelCol) );
+    mDynamicCastGet(uiStratLevelSel*,levelsel,grp);
+    if ( !levelsel )
+    {
+	levelsel = new uiStratLevelSel( nullptr, true, uiString::empty() );
+	mAttachCB( levelsel->selChange, uiMarkerDlg::stratLvlChg );
+	table_->setCellGroup( RowCol(row,cLevelCol), levelsel );
+    }
+
+    return levelsel;
+}
+
+
+void uiMarkerDlg::fillMarkerRow( int row, const Well::Marker& marker,
+				 const Well::Data* wd )
+{
+    const float zfac = zFactor();
+    const float kbelev = track_.getKbElev();
+    uiStratLevelSel* levelsel = getLevelSelFld( row );
+    if ( !Strat::LVLS().isPresent( marker.levelID() ) )
+	const_cast<Well::Marker&>(marker).setLevelID( Strat::LevelID::udf() );
+
+    levelsel->setID( marker.levelID() );
+    const float dah = marker.dah();
+    table_->setValue( RowCol(row,cDepthCol), dah*zfac, 2 );
+    const float tvdss = sCast(float,track_.getPos(dah).z);
+    table_->setValue( RowCol(row,cTVDCol), (tvdss+kbelev)*zfac, 2 );
+    table_->setValue( RowCol(row,cTVDSSCol), tvdss*zfac, 2 );
+    if ( SI().zIsTime() && d2tmodel_ )
+    {
+	const float twt = d2tmodel_->getTime( dah, track_ );
+	table_->setValue( RowCol(row,cTWTCol),
+				 twt * SI().zDomain().userFactor(),2  );
+    }
+
+    table_->setText( RowCol(row,cNameCol), marker.name() );
+    if ( wd->displayProperties().getMarkers()
+				.isSelected( marker.name()) )
+	table_->setCellChecked( RowCol(row,cNameCol), true );
+    else
+	table_->setCellChecked( RowCol(row,cNameCol), false );
+
+    table_->setColor( RowCol(row,cColorCol), marker.color() );
+    if ( marker.levelID().isValid() )
+	updateFromLevel( row, levelsel );
+}
+
+
 void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 {
     MultiID mid;
@@ -425,51 +568,16 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
     for ( int idx=0; idx<nrnew; idx++ )
     {
 	const int irow = startrow + idx;
-	uiGroup* grp = table_->getCellGroup( RowCol(irow,cLevelCol) );
-	mDynamicCastGet(uiStratLevelSel*,levelsel,grp);
-	if ( !levelsel )
-	{
-	    levelsel = new uiStratLevelSel( nullptr, true, uiString::empty() );
-	    mAttachCB( levelsel->selChange, uiMarkerDlg::stratLvlChg );
-	    table_->setCellGroup( RowCol(irow,cLevelCol), levelsel );
-	}
-
 	const Well::Marker* marker = markers.validIdx(idx) ? markers[idx]
 							   : nullptr;
 	if ( marker )
 	{
-	    if ( !Strat::LVLS().isPresent( marker->levelID() ) )
-		const_cast<Well::Marker*>(markers[idx])->setLevelID(
-							Strat::LevelID::udf() );
-
-	    levelsel->setID( marker->levelID() );
-	    const float dah = marker->dah();
-	    table_->setValue( RowCol(irow,cDepthCol), dah*zfac, 2 );
-	    const float tvdss = sCast(float,track_.getPos(dah).z);
-	    table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 2 );
-	    table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 2 );
-	    if ( SI().zIsTime() && d2tmodel_ )
-	    {
-		const float twt = d2tmodel_->getTime( dah, track_ );
-		table_->setValue( RowCol(irow,cTWTCol),
-					 twt * SI().zDomain().userFactor(),2  );
-	    }
-
-	    table_->setText( RowCol(irow,cNameCol), marker->name() );
-	    if ( wd->displayProperties().getMarkers()
-					.isSelected( marker->name()) )
-		table_->setCellChecked( RowCol(irow,cNameCol), true );
-	    else
-		table_->setCellChecked( RowCol(irow,cNameCol), false );
-
-	    table_->setColor( RowCol(irow,cColorCol), marker->color() );
-	    if ( marker->levelID().isValid() )
-		updateFromLevel( irow, levelsel );
-
+	    fillMarkerRow( irow, *marker, wd );
 	    continue;
 	}
 
 	Well::Marker mrk;
+	uiStratLevelSel* levelsel = getLevelSelFld( irow );
 	levelsel->setSensitive( true );
 	table_->setText( RowCol(irow,cDepthCol), "" );
 	table_->setText( RowCol(irow,cTVDCol), "" );
@@ -688,32 +796,12 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
 }
 
 
-class uiMarkersList : public uiDialog
-{ mODTextTranslationClass(uiMarkersList);
-public:
-
-uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
-    : uiDialog(p,uiDialog::Setup(tr("Select Regional Markers"),
-				 mNoDlgTitle,mNoHelpKey))
-{
-    list_ = new uiListBox( this, "Markers", OD::ChooseZeroOrMore );
-    list_->setHSzPol( uiObject::Wide );
-    for ( int idx=0; idx<mset.size(); idx++ )
-	list_->addItem( toUiString(mset[idx]->name()), mset[idx]->color() );
-}
-
-void getSelIDs( TypeSet<int>& items )
-{ list_->getChosen( items ); }
-
-protected:
-	uiListBox*	list_;
-};
-
 
 void uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 {
     Well::MarkerSet mset;
-    if ( !getMarkerSet( mset ) ) return;
+    if ( !getMarkerSet(mset) )
+	return;
 
     if ( !mset.size() )
     {
@@ -721,49 +809,14 @@ void uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 	return;
     }
 
-    uiMarkersList dlg( this, mset );
-    if ( !dlg.go() ) return;
-
-    TypeSet<int> selitems;
-    dlg.getSelIDs( selitems );
-    if ( !selitems.size() )
-    {
-	uiMSG().message( tr("No markers selected.") );
+    uiRegionalMarkersFromWellMarkersDlg dlg( this, mset );
+    if ( !dlg.go() )
 	return;
-    }
 
-    Strat::LevelSet& lvls = Strat::eLVLS();
-    uiString msg;
-    int mid = 0;
-    for ( int idx=0; idx<selitems.size(); idx++ )
-    {
-	const int selidx = selitems[idx];
-	if ( lvls.isPresent(mset[selidx]->name()) )
-	{
-	    msg = tr( "'%1' %2" ).arg( mset[selidx]->name() );
-	    mid++;
-	}
-    }
+    if ( mset.isEmpty() )
+	return;
 
-    if ( !msg.isEmpty() )
-    {
-	msg.arg(tr("%1already set as regional marker(s)."
-		   "Press Continue to update properties.")
-	      .arg(mid > 1 ? tr("are ") : tr("is ")));
-	const bool res = uiMSG().askContinue( msg );
-	if ( !res ) return;
-    }
-
-    for ( int idx=0; idx<selitems.size(); idx++ )
-    {
-	const int selidx = selitems[idx];
-	const Strat::LevelID lvlid = lvls.add( mset[selidx]->name(),
-						 mset[selidx]->color() );
-	lvls.write();
-	mset[selidx]->setLevelID( lvlid );
-    }
-
-    setMarkerSet( mset, false );
+    resetEntries( mset );
 }
 
 

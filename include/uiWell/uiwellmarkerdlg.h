@@ -14,10 +14,13 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "wellmarker.h"
 
-class uiCheckBox;
 class DisplayProperties;
+
+class uiCheckBox;
+class uiListBox;
 class uiStratLevelSel;
 class uiTable;
+
 namespace Well { class Reader; }
 
 /*! \brief Dialog for marker specifications */
@@ -32,6 +35,7 @@ public:
     void			setMarkerSet(const Well::MarkerSet&,
 					     bool addtoexisting=false);
     bool			getMarkerSet(Well::MarkerSet&) const;
+    void			resetEntries(const Well::MarkerSet&);
     static void			exportMarkerSet(uiParent* p,
 						const Well::MarkerSet& mset,
 						const Well::Track& trck,
@@ -48,6 +52,9 @@ private:
 
     //TODO will go with the Strat level Sel
 
+    void			fillMarkerRow(int row,const Well::Marker&,
+					      const Well::Data*);
+    uiStratLevelSel*		getLevelSelFld(int row);
     void			getColLabels(uiStringSet&) const;
     int				getNrRows() const;
     int				rowNrFor(uiStratLevelSel*) const;
@@ -76,6 +83,24 @@ private:
 
     void			assignRandomColorsCB(CallBacker*);
     void			assignRandomColors(Well::MarkerSet&);
+
+};
+
+
+/*! \brief Dialog for Regional marker selction */
+mExpClass(uiWell) uiRegionalMarkersFromWellMarkersDlg : public uiDialog
+{ mODTextTranslationClass(uiMarkersList)
+public:
+
+				uiRegionalMarkersFromWellMarkersDlg(uiParent*,
+							     Well::MarkerSet&);
+
+protected:
+
+    uiListBox*			list_;
+    Well::MarkerSet&		mset_;
+
+    bool			acceptOK(CallBacker*) override;
 
 };
 
