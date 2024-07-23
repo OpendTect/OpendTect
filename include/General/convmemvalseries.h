@@ -25,8 +25,8 @@ mClass(General) ConvMemValueSeries : public ValueSeries<T>
 {
 public:
 
-    inline	    	ConvMemValueSeries(od_int64 sz,
-	    				   const BinDataDesc& stortype,
+    inline		ConvMemValueSeries(od_int64 sz,
+					   const BinDataDesc& stortype,
 					   bool doundef=true,
 					   const Scaler* scaler=0);
 
@@ -43,6 +43,7 @@ public:
     inline bool		selfSufficient() const override { return true; }
     inline bool		reSizeable() const override	{ return true; }
     inline bool		setSize(od_int64) override;
+    inline void		setEmpty() override;
 
     inline const T*	arr() const override;
     inline T*		arr() override;
@@ -136,6 +137,14 @@ bool ConvMemValueSeries<T>::setSize( od_int64 sz )
     delete [] ptr_;
     mTryAlloc( ptr_, char[sz*interpreter_.nrBytes()] );
     return ptr_;
+}
+
+
+template <class T> inline
+void ConvMemValueSeries<T>::setEmpty()
+{
+    deleteAndNullArrPtr( ptr_ );
+    size_ = -1;
 }
 
 

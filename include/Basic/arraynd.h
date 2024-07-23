@@ -64,6 +64,7 @@ public:
 					{ return false; }
     virtual bool			setInfo( const ArrayNDInfo& )
 					{ return false; }
+    virtual void			setEmpty()	{}
 
     virtual void			setAll(T);
     virtual void			getAll(T* ptr) const;

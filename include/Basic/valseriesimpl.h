@@ -40,6 +40,7 @@ public:
     inline od_int64	getOffset() const;
     inline void		setOffset(od_int64 no);
     inline bool		setSize(od_int64 sz) override;
+    inline void		setEmpty() override;
 
     const ValueSeries<T>&	source() const { return src_; }
 
@@ -93,6 +94,7 @@ public:
 
     bool	reSizeable() const override		{ return mine_; }
     inline bool	setSize(od_int64) override;
+    inline void setEmpty() override;
     od_int64	size() const override			{ return cursize_; }
     char	bytesPerItem() const override		{ return sizeof(AT); }
 
@@ -140,6 +142,7 @@ public:
     bool	selfSufficient() const override		{ return true; }
     bool	reSizeable() const override		{ return true; }
     inline bool	setSize(od_int64) override;
+    inline void setEmpty() override;
     od_int64	size() const override			{ return cursize_; }
     char	bytesPerItem() const override		{ return sizeof(AT); }
 
@@ -176,6 +179,7 @@ public:
     T				value(od_int64) const override;
     bool			reSizeable() const override { return true; }
     bool			setSize(od_int64) override;
+    void			setEmpty() override;
     void			setSampling(const SamplingData<T>&,
 					    od_int64 sz=-1);
     void			setSampling(const StepInterval<T>&);
@@ -240,6 +244,7 @@ void OffsetValueSeries<T>::setAll( T v )
         od_int64 lastidx = off_+cursize_-1;
         if ( lastidx >= src_.size() )
             lastidx = size()-1;
+
         od_int64 nrsamps = lastidx - off_ + 1;
         T* arrvals = arr();
         if ( arrvals )
@@ -264,12 +269,12 @@ bool OffsetValueSeries<T>::canSetAll() const
 
 template <class T> inline
 T* OffsetValueSeries<T>::arr()
-{ T* p = src_.arr(); return p ? p+off_ : 0; }
+{ T* p = src_.arr(); return p ? p+off_ : nullptr; }
 
 
 template <class T> inline
 const T* OffsetValueSeries<T>::arr() const
-{ T* p = src_.arr(); return p ? p+off_ : 0; }
+{ T* p = src_.arr(); return p ? p+off_ : nullptr; }
 
 
 template <class T> inline
@@ -287,7 +292,16 @@ bool OffsetValueSeries<T>::setSize( od_int64 sz )
 {
     if ( off_+sz >= src_.size() )
         return false;
-    cursize_ = sz; return true;
+
+    cursize_ = sz;
+    return true;
+}
+
+
+template <class T> inline
+void OffsetValueSeries<T>::setEmpty()
+{
+    cursize_ = -1;
 }
 
 
@@ -404,7 +418,7 @@ bool ArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 	mTryAlloc( ptr_, AT[sz] );
     }
     else
-	ptr_ = 0;
+	ptr_ = nullptr;
 
     const od_int64 copysize = mMIN(sz,cursize_);
     cursize_ = ptr_ ? sz : -1;
@@ -414,6 +428,18 @@ bool ArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     delete [] oldptr;
     return ptr_;
 }
+
+
+template <class RT,class AT> inline
+void ArrayValueSeries<RT,AT>::setEmpty()
+{
+    if ( !mine_ )
+	return;
+
+    deleteAndNullArrPtr( ptr_ );
+    cursize_ = -1;
+}
+
 
 
 template <class RT, class AT> inline
@@ -445,6 +471,7 @@ MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries(
 		od_int64 diff = nextstart-cursize_;
 		curchunksize -= diff;
 	    }
+
 	    OD::memCopy( ptrs_[idx], mavs.ptrs_[idx], curchunksize*sizeof(AT) );
 	}
     }
@@ -526,7 +553,7 @@ template <class RT, class AT> inline
 RT* MultiArrayValueSeries<RT,AT>::arr()
 {
     return cursize_>0 && cursize_<=chunksize_ && typeid(RT)==typeid(AT)
-	? (RT*) ptrs_[0] : (RT*) 0;
+	? (RT*) ptrs_[0] : (RT*) nullptr;
 }
 
 
@@ -580,6 +607,15 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 }
 
 #undef mChunkSize
+
+
+template <class RT, class AT> inline
+void MultiArrayValueSeries<RT,AT>::setEmpty()
+{
+    deepEraseArr( ptrs_ );
+    cursize_ = -1;
+}
+
 
 
 template <class T> inline
@@ -663,6 +699,13 @@ bool SamplingValues<T>::setSize( od_int64 sz )
 {
     sz_ = sz;
     return true;
+}
+
+
+template <class T> inline
+void SamplingValues<T>::setEmpty()
+{
+    sz_ = -1;
 }
 
 

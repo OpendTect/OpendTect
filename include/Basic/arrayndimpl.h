@@ -76,6 +76,7 @@ public:
     bool		setSize(int);
     bool		setSize( od_int64 sz ) override
 			    { return setSize( ((int)sz) ); }
+    void		setEmpty() override;
 
 			// ValueSeries interface
     T*			arr() override		{ return base::ptr_; }
@@ -124,6 +125,7 @@ public:
 
     bool		setInfo(const ArrayNDInfo&) override;
     bool		setSize(int,int);
+    void		setEmpty() override;
 
     T**			get2DData() override		{ return ptr2d_; }
     const T**		get2DData() const override { return (const T**) ptr2d_;}
@@ -172,6 +174,7 @@ public:
     bool		canSetInfo() const override	{ return true; }
     bool		setInfo(const ArrayNDInfo&) override;
     bool		setSize(int,int,int);
+    void		setEmpty() override;
 
     T***		get3DData() override		{ return ptr3d_; }
     const T***		get3DData() const override
@@ -221,6 +224,7 @@ public:
     bool		canSetInfo() const override	{ return true; }
     bool		setInfo(const ArrayNDInfo&) override;
     bool		setSize(int,int,int,int);
+    void		setEmpty() override;
 
     T****		get4DData() override	{ return arr4d_; }
     const T****		get4DData() const override
@@ -279,6 +283,7 @@ public:
     bool		canSetInfo() const override	{ return true; }
     bool		canChangeNrDims() const override { return true; }
     bool		setInfo(const ArrayNDInfo&) override;
+    void		setEmpty() override;
 
     bool		setSize(const int*);
     void		copyFrom(const ArrayND<T>&);
@@ -304,9 +309,7 @@ bool ArrayImplBase<T>::setStorageNoResize( ValueSeries<T>* s )
 {
     ptr_ = nullptr;
     delete stor_;
-
     stor_ = s;
-
     ptr_ = stor_->arr();
 
     return true;
@@ -330,13 +333,24 @@ bool ArrayImplBase<T>::setStorageInternal( ValueSeries<T>* s )
 template <class T> inline
 bool ArrayImplBase<T>::updateStorageSize()
 {
+    const od_int64 storsz = getStorageSize();
     if ( !stor_ )
     {
 	setStorageNoResize(
-	    new MultiArrayValueSeries<T,T>(getStorageSize()));
+	    new MultiArrayValueSeries<T,T>(storsz) );
     }
 
-    if ( !stor_ || !stor_->setSize(getStorageSize()) )
+    if ( !stor_ )
+    {
+	ptr_ = nullptr;
+	delete stor_;
+	stor_ = nullptr;
+	return false;
+    }
+
+    if ( storsz == 0 )
+	stor_->setEmpty();
+    else if ( !stor_->setSize(storsz) )
     {
 	ptr_ = nullptr;
 	delete stor_;
@@ -459,6 +473,13 @@ bool Array1DImpl<T>::setSize( int s )
 
 
 template <class T> inline
+void Array1DImpl<T>::setEmpty()
+{
+    setSize( 0 );
+}
+
+
+template <class T> inline
 Array2DImpl<T>::Array2DImpl( int sz0, int sz1 )
     : in_(sz0,sz1)
 {
@@ -563,9 +584,17 @@ bool Array2DImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool Array2DImpl<T>::setSize( int d0, int d1 )
 {
-    in_.setSize( 0, d0 ); in_.setSize( 1, d1 );
+    in_.setSize( 0, d0 );
+    in_.setSize( 1, d1 );
     updateStorage();
     return true;
+}
+
+
+template <class T> inline
+void Array2DImpl<T>::setEmpty()
+{
+    setSize( 0, 0 );
 }
 
 
@@ -694,9 +723,18 @@ bool Array3DImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool Array3DImpl<T>::setSize( int d0, int d1, int d2 )
 {
-    in_.setSize( 0, d0 ); in_.setSize( 1, d1 ); in_.setSize( 2, d2 );
+    in_.setSize( 0, d0 );
+    in_.setSize( 1, d1 );
+    in_.setSize( 2, d2 );
     updateStorage();
     return true;
+}
+
+
+template <class T> inline
+void Array3DImpl<T>::setEmpty()
+{
+    setSize( 0, 0, 0 );
 }
 
 
@@ -838,8 +876,7 @@ bool Array4DImpl<T>::setStorage( ValueSeries<T>* vs )
 template <class T> inline
 bool Array4DImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.nrDims() != 4 )
-	return false;
+    if ( ni.nrDims() != 4 ) return false;
     return setSize( ni.getSize(0), ni.getSize(1), ni.getSize(2), ni.getSize(3));
 }
 
@@ -848,10 +885,19 @@ template <class T> inline
 bool Array4DImpl<T>::setSize( int d0, int d1, int d2,
 			      int d3 )
 {
-    inf_.setSize( 0, d0 ); inf_.setSize( 1, d1 );
-    inf_.setSize( 2, d2 ); inf_.setSize( 3, d3 );
+    inf_.setSize( 0, d0 );
+    inf_.setSize( 1, d1 );
+    inf_.setSize( 2, d2 );
+    inf_.setSize( 3, d3 );
     updateStorage();
     return true;
+}
+
+
+template <class T> inline
+void Array4DImpl<T>::setEmpty()
+{
+    setSize( 0, 0, 0, 0 );
 }
 
 
@@ -1010,6 +1056,17 @@ bool ArrayNDImpl<T>::setSize( const int* d )
 
     base::updateStorageSize();
     return true;
+}
+
+
+template <class T> inline
+void ArrayNDImpl<T>::setEmpty()
+{
+    const int ndim = in_->getNDim();
+    for ( int idx=0; idx<ndim; idx++ )
+	in_->setSize( idx, 0 );
+
+    base::updateStorageSize();
 }
 
 

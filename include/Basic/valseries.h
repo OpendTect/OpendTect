@@ -43,6 +43,7 @@ public:
 			/*!<\returns true if not depending on other objects */
     virtual bool	reSizeable() const		{ return false; }
     virtual bool	setSize(od_int64)		{ return false; }
+    virtual void	setEmpty()			{}
 
     virtual T*		arr()				{ return nullptr; }
     virtual const T*	arr() const			{ return nullptr; }
