@@ -146,25 +146,15 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     }
     else
     {
-	BufferString storagedir = FilePath(orgstorepath_).add(orgdirname_)
-							 .fullPath();
-	int linkcount = 0;
-	while ( linkcount++ < 20 && File::isLink(storagedir) )
+	BufferString storagedir =
+		    FilePath(orgstorepath_).add(orgdirname_).fullPath();
+	if ( File::isSymLink(storagedir) )
 	{
-	    BufferString newstoragedir = File::linkTarget(storagedir);
+	    BufferString newstoragedir = File::linkEnd( storagedir );
 	    FilePath fp( newstoragedir );
-	    if ( !fp.isAbsolute() )
-	    {
-		fp.setPath( FilePath(storagedir).pathOnly() );
-		newstoragedir = fp.fullPath();
-	    }
-	    storagedir = newstoragedir;
-	}
-	if ( linkcount < 20 )
-	{
-	    FilePath fp( storagedir );
 	    orgstorepath_ = fp.pathOnly();
 	    orgdirname_ = fp.fileName();
+	    storagedir = newstoragedir;
 	}
 
 	fulldirpath = storagedir;
@@ -698,7 +688,7 @@ bool uiSurveyInfoEditor::rejectOK( CallBacker* )
 	const BufferString dirnm = FilePath(orgstorepath_).add(orgdirname_)
 							  .fullPath();
 	if ( File::exists(dirnm) )
-	    File::remove( dirnm );
+	    File::removeDir( dirnm );
     }
 
     return true;
@@ -824,11 +814,8 @@ bool uiSurveyInfoEditor::handleCurrentSurvey()
 	return false;
 
     BufferString linkpos = FilePath(rootdir_).add(newdirnm).fullPath();
-    if ( File::exists(linkpos) )
-    {
-	if ( File::isLink(linkpos) )
-	    File::remove( linkpos );
-    }
+    if ( File::exists(linkpos) && File::isSymLink(linkpos) )
+	File::remove( linkpos );
 
     if ( !File::exists(linkpos) )
     {
@@ -931,18 +918,15 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 			    newstorepath,newdirnm) )
 	    return false;
 	else if ( !uiMSG().askGoOn(tr("Keep the survey at the old location?")) )
-	    File::remove( olddir );
+	    File::removeDir( olddir );
     }
     else if ( dirnamechanged && !renameSurv(orgstorepath_,orgdirname_,
 								newdirnm) )
 	    return false;
 
     BufferString linkpos = FilePath(rootdir_).add(newdirnm).fullPath();
-    if ( File::exists(linkpos) )
-    {
-       if ( File::isLink(linkpos) )
-	   File::remove( linkpos );
-    }
+    if ( File::exists(linkpos) && File::isSymLink(linkpos) )
+       File::remove( linkpos );
 
     if ( !File::exists(linkpos) )
     {

@@ -88,26 +88,6 @@ static ObjectSet<uiSurvey::Util>& getUtils()
 }
 
 
-static BufferString getTrueDir( const char* dn )
-{
-    BufferString dirnm = dn;
-    FilePath fp;
-    while ( File::isLink(dirnm) )
-    {
-	BufferString newdirnm = File::linkTarget(dirnm);
-	fp.set( newdirnm );
-	if ( !fp.isAbsolute() )
-	{
-	    FilePath dirnmfp( dirnm );
-	    dirnmfp.setFileName( 0 );
-	    fp.setPath( dirnmfp.fullPath() );
-	}
-	dirnm = fp.fullPath();
-    }
-    return dirnm;
-}
-
-
 //--- uiNewSurveyByCopy
 
 
@@ -165,12 +145,12 @@ bool copySurv()
     }
 
     uiTaskRunner taskrunner( this );
-    const BufferString fromdir = getTrueDir( inpdirnm_ );
+    const BufferString fromdir = File::linkEnd( inpdirnm_ );
     PtrMan<Executor> copier = File::getRecursiveCopier( fromdir, newdirnm_ );
     if ( !taskrunner.execute(*copier) )
 	{ uiMSG().error(tr("Cannot copy the survey data")); return false; }
 
-    File::makeWritable( newdirnm_, true, true );
+    File::setWritable( newdirnm_, true, true );
     return true;
 }
 
@@ -565,8 +545,8 @@ static void copyFolderIconIfMissing( const char* basedir, const char* survdir )
 	    File::copy( src.fullPath(), dest.fullPath() );
     }
 
-    if ( dest.exists() )
-	File::hide( dest.fullPath(), true );
+    if ( __iswin__ && dest.exists() )
+	File::setHiddenFileAttrib( dest.fullPath(), true );
 
     dest.set( survfp.fullPath() ).add( "OD.ico" );
     if ( !dest.exists() )
@@ -576,7 +556,8 @@ static void copyFolderIconIfMissing( const char* basedir, const char* survdir )
 	    File::copy( src.fullPath(), dest.fullPath() );
     }
 
-    File::setSystemFileAttrib( survfp.fullPath(), true );
+    if ( __iswin__ )
+	File::setSystemFileAttrib( survfp.fullPath(), true );
 }
 
 
@@ -814,7 +795,7 @@ void uiSurvey::newButPushed( CallBacker* )
     setCurrentSurvInfo( newsurvinfo.release(), false );
     cursurvinfo_->disklocation_.setBasePath( dataroot_ );
     File::setSystemFileAttrib( storagedir, true );
-    if ( !File::makeWritable(storagedir,true,true) )
+    if ( !File::setWritable(storagedir,true,true) )
 	mRetRollBackNewSurvey( tr("Cannot set the permissions "
 				  "for the new survey") )
 
@@ -841,21 +822,21 @@ void uiSurvey::rmButPushed( CallBacker* )
 {
     const BufferString selnm( selectedSurveyName() );
     const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
-    const BufferString truedirnm = getTrueDir( seldirnm );
+    const BufferString truedirnm = File::linkEnd( seldirnm );
 
     uiString msg = tr("This will delete the entire survey folder:\n\n%1"
 		      "\n\nFull path: %2").arg(selnm).arg(truedirnm);
-    if ( !uiMSG().askDelete(msg) ) return;
+    if ( !uiMSG().askDelete(msg) )
+	return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    const bool rmisok = File::remove( truedirnm );
+    const bool rmisok = File::removeDir( truedirnm );
     MouseCursorManager::restoreOverride();
     if ( !rmisok )
-	uiMSG().error(tr("%1\nnot removed properly").arg(truedirnm));
+	uiMSG().error( tr("%1\nnot removed properly").arg(truedirnm) );
 
-    if ( seldirnm != truedirnm ) // must have been a link
-	if ( !File::remove(seldirnm) )
-	    uiMSG().error( tr("Could not remove link to the removed survey") );
+    if ( File::isSymLink(seldirnm) && !File::remove(seldirnm) )
+	uiMSG().error( tr("Could not remove link to the removed survey") );
 
     updateSurvList();
     const char* ptr = GetSurveyName();

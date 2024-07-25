@@ -9,11 +9,6 @@ ________________________________________________________________________
 
 #include "testprog.h"
 
-#include "file.h"
-#include "filepath.h"
-#include "perthreadrepos.h"
-#include "winutils.h"
-
 
 bool testPointerCast()
 {
@@ -97,123 +92,6 @@ bool testFuncName()
 }
 
 
-static BufferString getTestFileName()
-{
-    mDeclStaticString( ret );
-    if ( ret.isEmpty() )
-	ret = FilePath::getTempFullPath( "test with space", "txt" );
-    return ret;
-}
-
-
-bool testFilePermissions( const char* fnm )
-{
-    mRunStandardTest( !File::exists(fnm), "Temporary file does not exist" );
-    od_ostream strm( fnm );
-    strm << "some content";
-#ifdef __win__
-    mRunStandardTest( File::isInUse(fnm), "Temporary file is being used" );
-#endif
-    strm.close();
-
-#ifdef __win__
-    mRunStandardTest( !File::isInUse(fnm), "Temporary file is not used" );
-#endif
-
-    mRunStandardTest( File::exists(fnm), "Temporary file is created" );
-    mRunStandardTest( File::isReadable(fnm), "Temporary file is readable" );
-    mRunStandardTest( File::makeReadOnly(fnm,true),
-	"Temporary file set read-only" );
-    mRunStandardTest( !File::isWritable(fnm),
-	"Temporary file is read-only" );
-    mRunStandardTest( File::makeWritable(fnm,true,false),
-	"Temporary file set writable" );
-    mRunStandardTest( File::isWritable(fnm),
-	"Temporary file is writable" );
-#ifdef __unix__
-    mRunStandardTest( File::makeExecutable(fnm,true),
-	"Temporary file set executable" );
-    mRunStandardTest( File::isExecutable(fnm),
-	"Temporary file is executable" );
-    mRunStandardTest( File::makeExecutable(fnm,false),
-	"Temporary file set not executable" );
-    mRunStandardTest( !File::isExecutable(fnm),
-	"Temporary file is not executable" );
-#else
-    File::hide( fnm, true );
-    mRunStandardTest( File::isHidden(fnm),
-	"Temporary file is hidden" );
-    File::hide( fnm, false );
-    mRunStandardTest( !File::isHidden(fnm),
-	"Temporary file is not hidden" );
-
-    bool res = File::isWritable("C:\\temp");
-    res = File::isWritable("C:\\Program Files");
-    res = File::isWritable("C:\\Program Files\\OpendTect");
-    res = File::isWritable("C:\\Program Files\\OpendTect\\6.6.0");
-    res = File::isWritable("C:\\Program Files\\OpendTect\\6.6.0\\bla");
-    res = File::isWritable(
-	"C:\\Program Files\\OpendTect\\6.6.0\\relinfo\\ver.base_win64.txt");
-    res = File::isWritable("D:\\ODData");
-    res = File::isWritable("E:\\surveys");
-    res = File::isWritable("F:");
-#endif
-
-    return true;
-}
-
-
-bool testCleanPath()
-{
-    const BufferString uri = "s3://od-awsplugin/vdsdata/VDS_small";
-    const BufferString uriunix = getCleanUnixPath( uri.buf() );
-    const BufferString uriwin = getCleanWinPath( uri.buf() );
-    mRunStandardTest( uriunix==uri, "getCleanUnixPath" );
-    mRunStandardTest( uriwin==uri, "getCleanWinPath" );
-
-    const BufferString unixpath = "RawData/file.vds";
-    const BufferString winpath = "RawData\\file.vds";
-    const BufferString unixpath2win = getCleanWinPath( unixpath.buf() );
-    const BufferString winpath2unix = getCleanUnixPath( winpath.buf() );
-    mRunStandardTest( unixpath==winpath2unix, "Windows style path to Unix" );
-    mRunStandardTest( winpath==unixpath2win, "Unix style path to Windows" );
-
-    const BufferString cwinpath =
-		"C:\\Program Files\\OpendTect\\7.0.0\\INSTALL.txt";
-    const BufferString cunixpath =
-		FilePath(cwinpath.buf()).fullPath( FilePath::Unix );
-    const BufferString cunixpathres =
-		"C:/Program Files/OpendTect/7.0.0/INSTALL.txt";
-    mRunStandardTest( cunixpath==cunixpathres, "Windows path with Unix delim" );
-
-    FilePath fp( cunixpathres );
-    mRunStandardTest( cwinpath==fp.fullPath(FilePath::Windows),
-		"From Windows path with Unix delim back to Windows delim" );
-    return true;
-}
-
-
-bool testRemoveFile( const char* fnm )
-{
-    if ( !File::exists(fnm) )
-	return true;
-
-#ifdef __win__
-    //Will fail if run with elevated privileges (should not be tried anyway)
-    mRunStandardTest(WinUtils::belongsToStdUser(fnm),
-		    "WinUtils test ownership" );
-    mRunStandardTest( File::makeReadOnly(fnm,false) && !File::remove(fnm),
-	"Temporary file is read-only and cannot be deleted" );
-#else
-    // Linux allows removing read-only files, if the parent folder is writable
-#endif
-    mRunStandardTest( File::makeWritable(fnm,true,false) && File::remove(fnm),
-	"Temporary file is writable and can be deleted" );
-
-    return true;
-}
-
-
 int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
@@ -225,14 +103,8 @@ int mTestMainFnName( int argc, char** argv )
 	|| !testOSVersion()
         || !testPointerAlignment()
 	|| !testFuncName()
-	|| !test64BitDetection()
-	|| !testCleanPath() )
+	|| !test64BitDetection() )
 	return 1;
 
-    const BufferString fnm = getTestFileName();
-    const bool success = testFilePermissions( fnm );
-    if ( !testRemoveFile(fnm) )
-	return 1;
-
-    return success ? 0 : 1;
+    return 0;
 }

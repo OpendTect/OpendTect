@@ -42,10 +42,9 @@ int mProgMainFnName( int argc, char** argv )
     }
 
     BufferString& fnm = args.get( 0 );
-#ifdef __win__
-    if ( File::isLink(fnm) )
-	fnm = File::linkTarget( fnm );
-#endif
+    if ( File::isShortcut(fnm) )
+	fnm = File::linkEnd( fnm );
+
     if ( !File::exists(fnm.buf()) )
     {
 	od_cerr() << "File name does not exist." << od_endl;

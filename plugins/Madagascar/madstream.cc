@@ -135,7 +135,12 @@ static bool getScriptForScons( BufferString& str )
     ostrm << "popd" << od_endl;
 #endif
     ostrm.close();
-    File::setPermissions( scriptfile, "744", 0 );
+    File::Permissions perms = File::Permissions::getDefault( false );
+    perms.setFlag( File::Permission::WriteGroup, false )
+	 .setFlag( File::Permission::ExeGroup, false )
+	 .setFlag( File::Permission::WriteOther, false )
+	 .setFlag( File::Permission::ExeOther, false );
+    File::setPermissions( scriptfile, perms );
 
     str = "@";
     str += scriptfile;

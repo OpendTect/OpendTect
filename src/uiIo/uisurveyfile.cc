@@ -94,7 +94,7 @@ bool uiSurveyFile::newFile()
 								.fullPath();
 
     File::setSystemFileAttrib( storagedir, true );
-    if ( !File::makeWritable( storagedir, true, true ) )
+    if ( !File::setWritable(storagedir,true,true) )
     {
 	uiMSG().error( tr("Cannot set the permissions for the new survey") );
 	return false;

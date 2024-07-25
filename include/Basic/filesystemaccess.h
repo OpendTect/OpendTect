@@ -41,11 +41,17 @@ public:
     static void		getProtocolNames(BufferStringSet&,bool forread);
 
     virtual bool	exists(const char*) const;
+    virtual File::Permissions getPermissions(const char*) const
+			{ return File::Permissions::udf(); }
     virtual bool	isReadable(const char*) const			= 0;
-    virtual bool	isFile(const char*) const;
-    virtual bool	isDirectory(const char*) const	{ return false; }
+    virtual bool	isWritable(const char*) const	{ return false; }
+    virtual bool	isExecutable(const char*) const { return false; }
+    virtual File::Type	getType(const char*,bool followlinks) const	= 0;
+    virtual bool	isInUse(const char*) const	{ return false; }
     virtual od_int64	getFileSize(const char*,bool followlink) const;
 			//!< 0 for non-existing, -1 for unknown
+    virtual BufferString linkEnd(const char* linknm) const
+			{ return BufferString::empty(); }
     virtual BufferString timeCreated(const char*,bool followlink) const
 			{ return BufferString::empty(); }
     virtual BufferString timeLastModified(const char*,bool followlink) const
@@ -59,12 +65,18 @@ public:
 				 bool followlink) const
 			{ return false; }
 
-    virtual bool	remove(const char*,bool recursive=true) const
+    virtual bool	setPermissions(const char*,
+				       const File::Permissions&) const
 			{ return false; }
     virtual bool	setWritable(const char*,bool yn,
-				    bool recursive=true) const
+				    bool recursive) const
 			{ return false; }
-    virtual bool	isWritable(const char*) const
+    virtual bool	setExecutable(const char*,bool yn,
+				      bool recursive) const
+			{ return false; }
+    virtual bool	setHidden(const char*,bool yn) const
+			{ return false; }
+    virtual bool	setSystemAttrib(const char*,bool yn) const
 			{ return false; }
     virtual bool	rename(const char* from,const char* to,
 				uiString* errmsg=nullptr) const
@@ -73,7 +85,11 @@ public:
 			     uiString* errmsg=nullptr,
 			     TaskRunner* =nullptr) const
 			{ return false; }
+    virtual bool	remove(const char*,bool recursive) const
+			{ return false; }
     virtual bool	createDirectory(const char*) const
+			{ return false; }
+    virtual bool	createLink(const char* srcfnm,const char* lnkfnm) const
 			{ return false; }
     virtual bool	listDirectory(const char*,File::DirListType,
 				      BufferStringSet&,
@@ -116,8 +132,12 @@ public:
     uiString		errMsg() const			{ return errmsg_; }
 
 protected:
-					FileSystemAccess() = default;
-    virtual				~FileSystemAccess() {}
+			FileSystemAccess() = default;
+    virtual		~FileSystemAccess() {}
+
+    bool		isFile(const char*) const;
+    bool		isDirectory(const char*) const;
+    bool		isSymLink(const char*) const;
 
     static const FileSystemAccess&	gtByProt(BufferString&);
 

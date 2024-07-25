@@ -184,7 +184,7 @@ bool IOStream::implDoAll( bool dorem, bool yn ) const
 		ret = File::remove( fnm ) && ret;
 	}
 	else
-	    ret = File::makeWritable( fnm, !yn, true ) && ret;
+	    ret = File::setWritable( fnm, !yn, true ) && ret;
     }
 
     return ret;

@@ -791,8 +791,8 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
     const BufferString fnm( applsetup
 	    ? GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"ColTabs",0)
 	    : GetSetupDataFileName(ODSetupLoc_SWDirOnly,"ColTabs",0) );
-    if ( File::exists(fnm) && !File::isWritable(fnm)
-		&& !File::makeWritable(fnm,true,false) )
+    if ( File::exists(fnm) && !File::isWritable(fnm) &&
+	 !File::setWritable(fnm,true) )
     {
 	BufferString msg( "Cannot make:\n" ); msg += fnm; msg += "\nwritable.";
 	ErrMsg( msg ); return false;

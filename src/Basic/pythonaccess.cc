@@ -809,7 +809,7 @@ FilePath* OD::PythonAccess::getCommand( OS::MachineCommand& cmd,
 
     strm.close();
 #ifdef __unix__
-    File::makeExecutable( ret->fullPath(), true );
+    File::setExecutable( ret->fullPath(), true );
 #endif
     cmd = OS::MachineCommand( ret->fullPath(), true );
 
@@ -1159,7 +1159,7 @@ bool OD::PythonAccess::validInternalEnvironment( const FilePath& fp )
 
     const BufferString fpstr( fp.fullPath() );
     FilePath pythfp( fp );
-    const bool islink = File::isLink( fpstr );
+    const bool islink = File::isSymLink( fpstr );
     if ( islink )
     {
 	pythfp.set( File::linkEnd( fpstr ) );

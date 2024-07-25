@@ -119,11 +119,13 @@ protected:
 
     void		addPart(const char*);
     void		compress(int sl=0);
-    void		trueDirIfLink();
 
 public:
     mDeprecated("Use getLongPath")
     static BufferString getFullLongPath(const FilePath&);
+
+    mDeprecatedDef
+    void		trueDirIfLink();
 };
 
 

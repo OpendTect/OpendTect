@@ -67,11 +67,6 @@ void uiSEGYExamine::Setup::usePar( const IOPar& iop )
 
 void uiSEGYExamine::Setup::setFileName( const char* fnm )
 {
-    BufferString filenm( fnm );
-#ifdef __win__
-    if ( File::isLink(filenm) )
-	filenm = File::linkTarget( filenm.str() );
-#endif
     fs_.setFileName( fnm );
 }
 

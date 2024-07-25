@@ -64,10 +64,8 @@ int mProgMainFnName( int argc, char** argv )
     if ( fnm.isEmpty() )
 	mErrRet()
 
-#ifdef __win__
-    if ( File::isLink(fnm) )
-	fnm = const_cast<char*>(File::linkTarget(fnm));
-#endif
+    if ( File::isShortcut(fnm) )
+	fnm = const_cast<char*>(File::linkEnd(fnm));
 
     od_ostream& strm = od_ostream::logStream();
     if ( !File::exists(fnm.str()) )

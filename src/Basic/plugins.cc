@@ -62,7 +62,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 #ifdef __win__
 
     BufferString targetlibnm( lnm );
-    if ( File::isLink(lnm) )
+    if ( File::isSymLink(lnm) )
 	targetlibnm = File::linkEnd(lnm);
 
     if ( File::exists(targetlibnm) )

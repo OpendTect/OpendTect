@@ -39,52 +39,6 @@ const char* StreamProvider::sStdIO()	{ return "Std-IO"; }
 const char* StreamProvider::sStdErr()	{ return "Std-Err"; }
 #define mCmdBufSz 8000
 
-#ifndef __win__
-
-#define mkUnLinked(fnm) fnm
-
-#else
-
-static const char* mkUnLinked( const char* fnm )
-{
-    if ( !fnm || !*fnm )
-	return fnm;
-
-    // Maybe the file itself is a link
-    mDeclStaticString( ret );
-    ret = File::linkTarget(fnm);
-    if ( File::exists(ret) )
-	return ret.buf();
-
-    // Maybe there are links in the directories
-    FilePath fp( fnm );
-    int nrlvls = fp.nrLevels();
-    for ( int idx=0; idx<nrlvls; idx++ )
-    {
-	BufferString dirnm = fp.dirUpTo( idx );
-	const bool islink = File::isLink(dirnm);
-	if ( islink )
-	    dirnm = File::linkTarget( fp.dirUpTo(idx) );
-	if ( !File::exists(dirnm) )
-	    return fnm;
-
-	if ( islink )
-	{
-	    FilePath fp2( dirnm );
-	    for ( int ilvl=idx+1; ilvl<nrlvls; ilvl++ )
-		fp2.add( fp.dir(ilvl) );
-
-	    fp = fp2;
-	    nrlvls = fp.nrLevels();
-	}
-    }
-
-    ret = fp.fullPath();
-    return ret.buf();
-}
-
-#endif
-
 
 StreamProvider::StreamProvider( const char* fnm )
 {
@@ -363,7 +317,7 @@ bool StreamProvider::setReadOnly( bool yn ) const
 	return false;
 
     return fname_ == sStdIO() || fname_ == sStdErr() ? false :
-	   File::makeWritable( fname_, !yn, false );
+	   File::setWritable( fname_, !yn );
 }
 
 

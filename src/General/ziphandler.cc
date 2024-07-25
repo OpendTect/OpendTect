@@ -314,7 +314,7 @@ bool ZipHandler::compressNextFile()
 int ZipHandler::openStrmToRead( const char* src )
 {
     srcfile_ = src;
-    if ( File::isLink(src) )
+    if ( File::isSymLink(src) )
         return mIsLink;
 
     if ( File::isDirectory(src) )
@@ -576,8 +576,9 @@ bool ZipHandler::setLocalFileHeaderForLink()
 	    (LPDWORD)&bytesread, NULL);
     CloseHandle( filehandle );
 #else
-    BufferString linkvalue = File::linkValue( srcfile_ );
-    od_uint32 linksize = linkvalue.size();
+    const QFileInfo qfi( srcfile_.buf() );
+    const BufferString linkvalue( qfi.symLinkTarget() );
+    const od_uint32 linksize = linkvalue.size();
 #endif
 
     od_uint32 crc = 0;
@@ -1412,8 +1413,9 @@ bool ZipHandler::openStreamToWrite()
     if ( File::exists(destfile_) )
     {
 	if ( !File::isWritable(destfile_) )
-	    File::makeWritable( destfile_, true, false );
-	if ( File::isLink(destfile_) && !File::remove(destfile_) )
+	    File::setWritable( destfile_, true );
+
+	if ( File::isSymLink(destfile_) && !File::remove(destfile_) )
 	    return reportWriteError();
     }
 

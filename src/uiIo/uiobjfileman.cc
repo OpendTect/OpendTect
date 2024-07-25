@@ -260,27 +260,19 @@ void uiObjFileMan::selChg( CallBacker* )
 
 od_int64 uiObjFileMan::getFileSize( const char* filenm ) const
 {
-    BufferString actualfilenm = File::isLink(filenm) ? File::linkTarget(filenm)
-						     : filenm;
-    if ( !File::exists(actualfilenm.buf()) )
+    if ( !File::exists(filenm) )
 	return 0;
 
-    // File exists ...
-    od_int64 ret = File::getFileSize( actualfilenm.buf() );
-    if ( !File::isDirectory(actualfilenm) )
-    {
-	FilePath dirnm( actualfilenm );
-	dirnm.setExtension( "" );
-	if ( !File::isDirectory(dirnm.fullPath()) )
-	    return ret;
+    if ( File::isFile(filenm) )
+	return File::getFileSize( filenm );
 
-	actualfilenm = dirnm.fullPath();
-    }
+    if ( !File::isDirectory(filenm) )
+	return 0;
 
-    // It's a directory ...
     BufferStringSet filelist;
-    File::makeRecursiveFileList( actualfilenm.buf(), filelist, true );
+    File::makeRecursiveFileList( filenm, filelist, true );
     const int nrfiles = filelist.size();
+    od_int64 ret = 0;
     for ( int idx=0; idx<nrfiles; idx++ )
 	ret += File::getFileSize( filelist.get(idx) );
 
@@ -291,21 +283,15 @@ od_int64 uiObjFileMan::getFileSize( const char* filenm ) const
 int uiObjFileMan::getNrFiles( const char* filenm ) const
 {
     int nrfiles = 0;
-    BufferString actualfilenm = File::isLink(filenm) ? File::linkTarget(filenm)
-						     : filenm;
-    if ( !File::exists(actualfilenm.buf()) )
+    if ( !File::exists(filenm) )
 	return nrfiles;
 
-    // file exists
-    nrfiles = 1;
-    if ( !File::isDirectory(actualfilenm) )
-	return nrfiles;
+    if ( File::isFile(filenm) || !File::isDirectory(filenm) )
+	return 1;
 
-    // It's a directory ...
     BufferStringSet filelist;
-    File::makeRecursiveFileList( actualfilenm.buf(), filelist, true );
-    nrfiles = filelist.size();
-    return nrfiles;
+    File::makeRecursiveFileList( filenm, filelist, true );
+    return filelist.size();
 }
 
 

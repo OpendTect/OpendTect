@@ -88,9 +88,9 @@ bool StratTreeTranslator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
     mainfp.setExtension( ".bak", false );
     assocfp.setExtension( ".bak", false );
     if ( mainfp.exists() )
-	File::makeWritable( mainfp.fullPath(), !yn, false );
+	File::setWritable( mainfp.fullPath(), !yn );
     if ( assocfp.exists() )
-	File::makeWritable( assocfp.fullPath(), !yn, false );
+	File::setWritable( assocfp.fullPath(), !yn );
 
     return true;
 }

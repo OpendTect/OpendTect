@@ -541,6 +541,7 @@ private:
 
     bool		isReadable(const char*) const override;
     od_int64		getFileSize(const char*,bool) const override;
+    File::Type		getType(const char*,bool followlinks) const override;
     StreamData		createIStream(const char*,bool) const override;
     StreamData		createOStream(const char*,bool,bool) const override;
 
@@ -590,6 +591,13 @@ bool Network::HttpFileSystemAccess::isReadable( const char* uri ) const
 
     existcache_[uristr] = curmsecs;
     return true;
+}
+
+
+File::Type Network::HttpFileSystemAccess::getType( const char* uri,
+						 bool /* followlink */ ) const
+{
+    return File::isURI( uri ) ? File::Type::URI : File::Type::Unknown;
 }
 
 

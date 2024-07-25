@@ -154,7 +154,12 @@ bool writeScriptFile( const char* scrfnm, const char* desc )
     strm << getClusterPath(fp.fullPath().buf()) << od_endl;
     strm << "exit ${exitcode}" << od_endl;
     strm.close();
-    File::setPermissions( scrfnm, "711", 0 );
+    File::Permissions perms = File::Permissions::getDefault( false );
+    perms.setFlag( File::Permission::ReadGroup, false )
+	 .setFlag( File::Permission::WriteGroup, false )
+	 .setFlag( File::Permission::ReadOther, false )
+	 .setFlag( File::Permission::WriteOther, false );
+    File::setPermissions( scrfnm, perms );
     return true;
 }
 

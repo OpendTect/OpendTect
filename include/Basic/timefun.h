@@ -38,7 +38,10 @@ namespace Time
     {
     public:
 				FileTimeSet();
+				FileTimeSet(const FileTimeSet&);
 				~FileTimeSet();
+
+	FileTimeSet&		operator =(const FileTimeSet&);
 
 	std::timespec		getModificationTime() const;
 	std::timespec		getAccessTime() const;
@@ -60,7 +63,8 @@ namespace Time
 
     mGlobal(Basic) od_int64 getMilliSeconds();		//!< From epoch (POSIX)
     mGlobal(Basic) od_int64 passedSince(od_int64);
-
+    mGlobal(Basic) od_int64 toMSecs(const std::timespec&);
+    mGlobal(Basic) std::timespec fromMSecs(od_int64 msecs);
 
     mGlobal(Basic) const char*	defDateTimeFmt();
     mGlobal(Basic) const char*	defDateTimeTzFmt();	//!< With time zone

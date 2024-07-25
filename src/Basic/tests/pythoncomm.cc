@@ -108,11 +108,11 @@ int mTestMainFnName( int argc, char** argv )
     }
 
     const BufferString path = createTestDir();
-    File::makeReadOnly( path, true );
+    File::setReadOnly( path, true );
     if ( testRemoveDir(path,false) )
 	return 1;
 
-    File::makeWritable( path, true, true );
+    File::setWritable( path, true, true );
     if ( !testRemoveDir(path,true) )
 	return 1;
 

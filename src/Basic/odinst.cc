@@ -176,8 +176,8 @@ const char* ODInst::sKeyHasNoUpdate()
 BufferString ODInst::GetInstallerDir()
 {
     BufferString appldir( GetSoftwareDir(false) );
-    if ( File::isLink(appldir) )
-	appldir = File::linkTarget( appldir );
+    if ( File::isSymLink(appldir) )
+	appldir = File::linkEnd( appldir );
 
 #ifdef __mac__
     FilePath macpath( appldir );

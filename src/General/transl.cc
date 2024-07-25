@@ -546,5 +546,5 @@ bool Translator::setPermAssociatedFile( const char* fnm, const char* ext,
     if ( !File::exists(assosfnm) )
 	return true;
 
-    return File::makeWritable( assosfnm, setwritable, false );
+    return File::setWritable( assosfnm, setwritable );
 }

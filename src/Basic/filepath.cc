@@ -697,8 +697,6 @@ void FilePath::addPart( const char* fnm )
 		postfix_ = postfixptr;
 	}
     }
-
-    trueDirIfLink();
 }
 
 
@@ -719,31 +717,6 @@ void FilePath::compress( int startlvl )
 	    idx -= remoffs + 1;
 	}
     }
-}
-
-
-void FilePath::trueDirIfLink()
-{
-#ifdef __win__
-    //TODO Launching OpendTect is taking too much time on windows platform.
-    // Hence added a temporary fix. Need to find solution.
-    static bool supportwinlinks = AreProgramArgsSet()
-		   ? GetEnvVarYN("OD_ALLOW_WINDOWS_LINKS")
-		   : false;
-    if ( !supportwinlinks )
-	return;
-
-    BufferString dirnm = dirUpTo( -1 );
-    if ( File::exists(dirnm) )
-	return;
-
-    dirnm += ".lnk";
-    if ( File::exists(dirnm) && File::isLink(dirnm) )
-    {
-	const char* newdirnm = File::linkTarget( dirnm );
-	set( newdirnm );
-    }
-#endif
 }
 
 
@@ -773,4 +746,27 @@ BufferString FilePath::rootPath() const
     const QStorageInfo qsi( fullPath().buf() );
     const QString qstrrootpath( qsi.rootPath() );
     return BufferString( qstrrootpath );
+}
+
+
+void FilePath::trueDirIfLink()
+{
+#ifdef __win__
+    //TODO Launching OpendTect is taking too much time on windows platform.
+    // Hence added a temporary fix. Need to find solution.
+    static bool supportwinlinks = GetEnvVarYN( "OD_ALLOW_WINDOWS_LINKS" );
+    if ( !supportwinlinks )
+	return;
+
+    BufferString dirnm = dirUpTo( -1 );
+    if ( File::exists(dirnm) )
+	return;
+
+    dirnm += ".lnk";
+    if ( File::exists(dirnm) && File::isLink(dirnm) )
+    {
+	const char* newdirnm = File::linkEnd( dirnm );
+	set( newdirnm );
+    }
+#endif
 }

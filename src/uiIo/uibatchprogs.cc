@@ -307,7 +307,7 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     if ( !File::exists(targetex) )
     {
 	File::copy( sourceex, targetex );
-	File::makeWritable( targetex, true, false );
+	File::setWritable( targetex, true );
     }
 
     if ( browser_ )

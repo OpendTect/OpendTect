@@ -30,6 +30,7 @@ ________________________________________________________________________
 # include "winutils.h"
 # include <direct.h>
 #else
+# include "sys/stat.h"
 # include <unistd.h>
 #endif
 
@@ -135,9 +136,18 @@ int RecursiveCopier::nextStep()
 {
     if ( !fileidx_ )
     {
-	if ( File::exists(dest_) && !File::remove(dest_) )
-	    mErrRet(tr("Cannot overwrite %1").arg(dest_) )
-	if( !File::createDir(dest_) )
+	if ( File::exists(dest_) )
+	{
+	    if ( File::isDirectory(dest_) && !File::isSymLink(dest_) )
+	    {
+		if ( !File::removeDir(dest_) )
+		    mErrRet(tr("Cannot overwrite %1").arg(dest_) )
+	    }
+	    else if ( !File::remove(dest_) )
+		mErrRet(tr("Cannot overwrite %1").arg(dest_) )
+	}
+
+	if ( !File::createDir(dest_) )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(dest_)) )
     }
 
@@ -145,12 +155,13 @@ int RecursiveCopier::nextStep()
 	return Finished();
 
     const BufferString& srcfile = *filelist_[fileidx_];
-    QDir srcdir( src_.buf() );
+    const QDir srcdir( src_.buf() );
     BufferString relpath( srcdir.relativeFilePath(srcfile.buf()) );
     const BufferString destfile = FilePath(dest_,relpath).fullPath();
-    if ( File::isLink(srcfile) )
+    if ( File::isSymLink(srcfile) )
     {
-	const BufferString linkval = linkValue( srcfile );
+	const QFileInfo qfi( srcfile.buf() );
+	const BufferString linkval( qfi.symLinkTarget() );
 	if ( !createLink(linkval,destfile) )
 	    mErrRet(
 	       uiStrings::phrCannotCreate(tr("symbolic link %1").arg(destfile)))
@@ -222,7 +233,9 @@ int RecursiveDeleter::nextStep()
     {
 	if ( filesonly_ )
 	{
-	    if ( isDirEmpty(filename) )
+	    const QDir qdir( filename.buf() );
+	    if ( qdir.entryInfoList(QDir::NoDotAndDotDot |
+				    QDir::AllEntries).count() == 0 )
 		res = File::removeDir( filename );
 	}
 	else
@@ -283,22 +296,15 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 	else if ( !filelist.addIfNew(curdir) )
 	    continue;
 
-	if ( !isLink(curdir) )
+	if ( !isSymLink(curdir) )
 	    makeRecursiveFileList( curdir, filelist, followlinks );
 	else if ( followlinks )
 	{
-	    curdir = linkTarget( curdir );
+	    curdir = linkEnd( curdir );
 	    if ( !filelist.isPresent(curdir) )
 		makeRecursiveFileList( curdir, filelist, followlinks );
 	}
     }
-}
-
-
-od_int64 getFileSize( const char* fnm, bool followlink )
-{
-    const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.getFileSize( fnm, followlink );
 }
 
 
@@ -312,40 +318,57 @@ bool exists( const char* fnm )
 }
 
 
-bool isEmpty( const char* fnm )
+Permissions getPermissions( const char* fnm )
 {
-    return getFileSize( fnm ) < 1;
+    if ( !isSane(fnm) || !exists(fnm) )
+	return Permissions::udf();
+
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.getPermissions( fnm );
 }
 
 
-bool isDirEmpty( const char* dirnm )
-{
-    if ( !isLocal(dirnm) )
-	return true;
-
-    const QDir qdir( dirnm );
-    return qdir.entryInfoList(QDir::NoDotAndDotDot|
-			      QDir::AllEntries).count() == 0;
-}
-
-
-bool isFile( const char* fnm )
+bool isReadable( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.isFile( fnm );
+    return fsa.isReadable( fnm );
 }
 
 
-bool isDirectory( const char* fnm )
+bool isWritable( const char* fnm )
 {
     if ( !isSane(fnm) )
 	return false;
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.isDirectory( fnm );
+    return fsa.isWritable( fnm );
+}
+
+
+bool isExecutable( const char* fnm )
+{
+    if ( !isSane(fnm) )
+	return false;
+
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.isExecutable( fnm );
+}
+
+
+bool isHidden( const char* fnm )
+{
+    const Permissions perms = getPermissions( fnm );
+    return perms.isUdf() ? false : perms.isHidden();
+}
+
+
+bool isSystem( const char* fnm )
+{
+    const Permissions perms = getPermissions( fnm );
+    return perms.isUdf() ? false : perms.isSystem();
 }
 
 
@@ -358,6 +381,66 @@ bool isLocal( const char* fnm )
 bool isURI( const char* fnm )
 {
     return isSane(fnm) && fnmIsURI(fnm);
+}
+
+
+Type getType( const char* fnm, bool followlinks )
+{
+    if ( !isSane(fnm) )
+	return Type::Unknown;
+
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.getType( fnm, followlinks );
+}
+
+
+bool isFile( const char* fnm )
+{
+    const Type typ = getType( fnm, true );
+    return typ == Type::File;
+}
+
+
+bool isDirectory( const char* fnm )
+{
+    const Type typ = getType( fnm, true );
+    return typ == Type::Directory;
+}
+
+
+bool isSymLink( const char* fnm )
+{
+    const Type typ = getType( fnm, false );
+    return typ == Type::SymLink || typ == Type::Alias || typ == Type::Shortcut;
+}
+
+
+bool isSymbolicLink( const char* fnm )
+{
+    const Type typ = getType( fnm, false );
+    return typ == Type::SymLink;
+}
+
+
+bool isShortcut( const char* fnm )
+{
+    if ( __iswin__ )
+    {
+	const Type typ = getType( fnm, false );
+	return typ == Type::Shortcut;
+    }
+
+    return false;
+}
+
+
+bool isInUse( const char* fnm )
+{
+    if ( !isSane(fnm) )
+	return false;
+
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.isInUse( fnm );
 }
 
 
@@ -411,132 +494,6 @@ const char* getRelativePath( const char* reltodir, const char* fnm )
 }
 
 
-bool isLink( const char* fnm )
-{
-    if ( !isLocal(fnm) )
-	return false;
-
-    QFileInfo qfi( fnm );
-    return qfi.isSymLink();
-}
-
-
-void hide( const char* fnm, bool yn )
-{
-    if ( !isLocal(fnm) || !exists(fnm) )
-	return;
-
-#ifdef __win__
-    const int attr = GetFileAttributes( fnm );
-    if ( yn )
-    {
-	if ( (attr & FILE_ATTRIBUTE_HIDDEN) == 0 )
-	    SetFileAttributes( fnm, attr | FILE_ATTRIBUTE_HIDDEN );
-    }
-    else
-    {
-	if ( (attr & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN )
-	    SetFileAttributes( fnm, attr & ~FILE_ATTRIBUTE_HIDDEN );
-    }
-#else
-    (void)yn;
-#endif
-}
-
-
-bool isHidden( const char* fnm )
-{
-    if ( !isLocal(fnm) )
-	return false;
-
-    QFileInfo qfi( fnm );
-    return qfi.isHidden();
-}
-
-
-bool isReadable( const char* fnm )
-{
-    if ( !isSane(fnm) )
-	return false;
-
-    const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.isReadable( fnm );
-}
-
-
-bool isWritable( const char* fnm )
-{
-    if ( !isSane(fnm) )
-	return false;
-
-    const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.isWritable( fnm );
-}
-
-
-bool isExecutable( const char* fnm )
-{
-    if ( !isLocal(fnm) )
-	return false;
-
-    QFileInfo qfi( fnm );
-    return qfi.isReadable() && qfi.isExecutable();
-}
-
-
-void setSystemFileAttrib( const char* fnm, bool yn )
-{
-    if ( !File::exists(fnm) )
-	return;
-
-#ifdef __win__
-    DWORD attr = GetFileAttributes( fnm );
-    if ( yn )
-	SetFileAttributes( fnm, attr | FILE_ATTRIBUTE_SYSTEM );
-    else
-	SetFileAttributes( fnm, attr & ~FILE_ATTRIBUTE_SYSTEM );
-#else
-    (void)yn;
-#endif
-}
-
-
-bool hasSystemFileAttrib( const char* fnm )
-{
-    if ( !File::exists(fnm) )
-	return false;
-
-#ifdef __win__
-    DWORD attr = GetFileAttributes( fnm );
-    return attr & FILE_ATTRIBUTE_SYSTEM;
-#else
-    return false;
-#endif
-}
-
-
-bool isFileInUse( const char* fnm )
-{
-    return isInUse( fnm );
-}
-
-
-bool isInUse( const char* fnm )
-{
-    if ( !exists(fnm) )
-	return false;
-
-#ifdef __win__
-    if ( isURI(fnm) )
-	return false;
-
-    return WinUtils::isFileInUse( fnm );
-#else
-    return false;
-#endif
-}
-
-
 bool createDir( const char* fnm )
 {
     if ( !isSane(fnm) )
@@ -544,6 +501,16 @@ bool createDir( const char* fnm )
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.createDirectory( fnm );
+}
+
+
+bool createLink( const char* fnm, const char* linknm )
+{
+    if ( !isSane(fnm) )
+	return false;
+
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.createLink( fnm, linknm );
 }
 
 
@@ -588,42 +555,6 @@ bool rename( const char* oldname, const char* newname, uiString* errmsg )
 }
 
 
-bool createLink( const char* fnm, const char* linknm )
-{
-    if ( !isLocal(fnm) )
-	return false;
-
-    BufferString fulllinknm( linknm );
-    if ( __iswin__ )
-    {
-	if ( !firstOcc(linknm,".lnk")  )
-	    fulllinknm += ".lnk";
-    }
-
-    return QFile::link( fnm, fulllinknm.buf() );
-}
-
-
-bool saveCopy( const char* from, const char* to, bool preserve )
-{
-    if ( !isLocal(from) || !isLocal(to) )
-	return false;
-
-    if ( isDirectory(from) )
-	return false;
-    if ( !exists(to) )
-	return File::copy( from, to, preserve );
-
-    const BufferString tmpfnm( to, ".tmp" );
-    if ( !File::rename(to,tmpfnm) )
-	return false;
-
-    const bool res = File::copy( from, to, preserve );
-    res ? File::remove( tmpfnm ) : File::rename( tmpfnm, to );
-    return res;
-}
-
-
 bool copy( const char* from, const char* to, bool preserve,
 	   uiString* errmsg, TaskRunner* taskrun )
 {
@@ -632,7 +563,7 @@ bool copy( const char* from, const char* to, bool preserve,
 
     const auto& fromfsa = OD::FileSystemAccess::get( from );
     const auto& tofsa = OD::FileSystemAccess::get( to );
-    const bool islink = isLink( from );
+    const bool islink = isSymLink( from );
     BufferString fromfnm( from );
     if ( islink && !preserve )
     {
@@ -640,7 +571,7 @@ bool copy( const char* from, const char* to, bool preserve,
 	preserve = true;
     }
 
-    if ( (fromfsa.isDirectory(fromfnm) || tofsa.isDirectory(to)) && !islink )
+    if ( (isDirectory(fromfnm) || isDirectory(to)) && !islink )
 	return copyDir( fromfnm, to, preserve, errmsg, taskrun );
 
     if ( !fromfsa.isLocal() && !tofsa.isLocal() && &fromfsa != &tofsa )
@@ -668,7 +599,7 @@ bool copyDir( const char* from, const char* to, bool preserve,
     if ( !checkDir(from,true,errmsg) || !checkDir(to,false,errmsg) )
 	return false;
 
-    const bool islink = isLink( from );
+    const bool islink = isSymLink( from );
     BufferString fromfnm( from );
     if ( islink )
     {
@@ -708,7 +639,20 @@ bool remove( const char* fnm )
 	return true;
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
-    return fsa.remove( fnm );
+    bool recursive = false;
+    const File::Type typ = getType( fnm );
+    if ( typ == File::Type::Directory )
+    {
+	const bool isempty = isEmpty( fnm );
+	if ( !isempty )
+	{
+	    recursive = true;
+	    pFreeFnErrMsg( "Use File::removeDir to recursively remove a "
+			   "non-empty directory" );
+	}
+    }
+
+    return fsa.remove( fnm, recursive );
 }
 
 
@@ -769,53 +713,70 @@ bool checkDir( const char* fnm, bool forread, uiString* errmsg )
 }
 
 
-bool makeWritable( const char* fnm, bool yn, bool recursive )
+bool setPermissions( const char* fnm, const Permissions& perms )
 {
     if ( !isSane(fnm) || !exists(fnm) )
 	return false;
-    else if ( fnmIsURI(fnm) )
-	return true;
+
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.setPermissions( fnm, perms );
+}
+
+
+bool setReadOnly( const char* fnm, bool recursive )
+{
+    return setWritable( fnm, false, recursive );
+}
+
+
+bool setWritable( const char* fnm, bool yn, bool recursive )
+{
+    if ( !isSane(fnm) || !exists(fnm) )
+	return false;
 
     const auto& fsa = OD::FileSystemAccess::get( fnm );
     return fsa.setWritable( fnm, yn, recursive );
 }
 
 
-bool makeReadOnly(const char* fnm, bool recursive)
-{
-    return File::makeWritable( fnm, false, recursive );
-}
-
-
-bool makeExecutable( const char* fnm, bool yn )
-{
-    if ( __iswin__ )
-	return true;
-
-    if ( !isSane(fnm) )
-	return false;
-    else if ( fnmIsURI(fnm) )
-	return !yn;
-
-    OS::MachineCommand mc( "chmod" );
-    mc.addArg( yn ? "+r+x" : "-x" ).addArg( fnm );
-    return mc.execute();
-}
-
-
-bool setPermissions( const char* fnm, const char* perms, bool recursive )
+bool setExecutable( const char* fnm, bool yn, bool recursive )
 {
     if ( __iswin__ )
 	return false;
 
-    if ( !isLocal(fnm) )
+    if ( !isSane(fnm) || !exists(fnm) )
 	return false;
 
-    OS::MachineCommand mc( "chmod" );
-    if ( recursive && isDirectory(fnm) )
-	mc.addArg( "-R" );
-    mc.addArg( perms ).addArg( fnm );
-    return mc.execute();
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.setExecutable( fnm, yn, recursive );
+}
+
+
+bool setHiddenFileAttrib( const char* fnm, bool yn )
+{
+    if ( !__iswin__ || !isLocal(fnm) )
+	return false;
+
+    Permissions perms = getPermissions( fnm );
+    if ( perms.isUdf() )
+	return false;
+
+    perms.setHidden( yn );
+    return setPermissions( fnm, perms );
+}
+
+
+bool setSystemFileAttrib( const char* fnm, bool yn )
+{
+    if ( !__iswin__ || !isSane(fnm) || !isLocal(fnm) )
+	return false;
+
+    Permissions perms = getPermissions( fnm );
+    if ( perms.isUdf() )
+	return false;
+
+    perms.setSystem( yn );
+    return setPermissions( fnm, perms );
 }
 
 
@@ -832,6 +793,28 @@ bool getContent( const char* fnm, BufferString& bs )
 	return false;
 
     return !stream.isOK() ? true : stream.getAll( bs );
+}
+
+
+bool isEmpty( const char* fnm )
+{
+    if ( isDirectory(fnm) )
+    {
+	BufferStringSet fnames;
+	if ( !listDir(fnm,AllEntriesInDir,fnames) )
+	    return false;
+
+	return fnames.isEmpty();
+    }
+
+    return getFileSize( fnm ) < 1;
+}
+
+
+od_int64 getFileSize( const char* fnm, bool followlink )
+{
+    const auto& fsa = OD::FileSystemAccess::get( fnm );
+    return fsa.getFileSize( fnm, followlink );
 }
 
 
@@ -875,6 +858,15 @@ BufferString getFileSizeString( const char* fnm, File::SizeUnit fsu )
     }
 
     return getFileSizeString( getFileSize(fnm), fsu );
+}
+
+
+const char* linkEnd( const char* linknm )
+{
+    mDeclStaticString( ret );
+    const auto& fsa = OD::FileSystemAccess::get( linknm );
+    ret = fsa.linkEnd( linknm );
+    return ret.buf();
 }
 
 
@@ -972,52 +964,6 @@ bool waitUntilExists( const char* fnm, double maxwaittm,
 	*actualwaited = 1000. * (Time::getMilliSeconds() - msecsstart);
 
     return appeared;
-}
-
-
-const char* linkValue( const char* linknm )
-{
-    if ( !isSane(linknm) )
-	return "";
-    else if ( fnmIsURI(linknm) )
-	return linknm;
-
-#ifdef __win__
-    return linkTarget( linknm );
-#else
-    mDeclStaticString( ret );
-    ret.setMinBufSize( 1024 );
-    const int len = readlink( linknm, ret.getCStr(), 1024 );
-    if ( len < 0 )
-	return linknm;
-
-    ret[len] = '\0';
-    return ret.buf();
-#endif
-}
-
-
-const char* linkTarget( const char* linknm )
-{
-    if ( !isSane(linknm) )
-	return "";
-    else if ( fnmIsURI(linknm) )
-	return linknm;
-
-    mDeclStaticString( ret );
-    const QFileInfo qfi( linknm );
-    ret = qfi.isSymLink() ? qfi.symLinkTarget()
-			  : linknm;
-    return ret.buf();
-}
-
-
-const char* linkEnd( const char* linknm )
-{
-    mDeclStaticString( ret );
-    const QFileInfo qfi( linknm );
-    ret.set( qfi.canonicalFilePath() );
-    return ret.buf();
 }
 
 
@@ -1184,7 +1130,7 @@ bool initTempDir()
     bool logfpcreated = logfpexists || (!logfpexists && createDir(targetpath) );
     bool logfwritable = isWritable( targetpath );
     bool logfpmadewritable = logfwritable || (!logfwritable &&
-			     makeWritable( targetpath, true, false) );
+			     setWritable( targetpath, true ) );
     if ( !logfpcreated || !logfpmadewritable )
     {
 	errmsgs.insertAt(
@@ -1202,7 +1148,7 @@ bool initTempDir()
     logfpcreated = logfpexists || (!logfpexists && createDir(targetpath));
     logfwritable = isWritable( targetpath );
     logfpmadewritable = logfwritable || (!logfwritable &&
-			makeWritable( targetpath, true, false ));
+			setWritable( targetpath, true ) );
     if ( !logfpcreated || !logfpmadewritable )
     {
 	errmsgs.insertAt(
@@ -1243,6 +1189,347 @@ bool initTempDir()
 	return false;
     }
 
+    return res;
+}
+
+
+// Permissions
+
+Permissions::Permissions( int perms, bool isuid, bool isgid, bool sticky )
+    : IntegerID(perms)
+    , isuid_(isuid)
+    , isgid_(isgid)
+    , sticky_(sticky)
+{
+}
+
+
+static QFileDevice::Permission getQPerm( const Permission& perm )
+{
+    switch ( perm ) {
+	case Permission::ReadOwner: return QFileDevice::ReadOwner;
+	case Permission::WriteOwner: return QFileDevice::WriteOwner;
+	case Permission::ExeOwner: return QFileDevice::ExeOwner;
+	case Permission::ReadUser: return QFileDevice::ReadUser;
+	case Permission::WriteUser: return QFileDevice::WriteUser;
+	case Permission::ExeUser: return QFileDevice::ExeUser;
+	case Permission::ReadGroup: return QFileDevice::ReadGroup;
+	case Permission::WriteGroup: return QFileDevice::WriteGroup;
+	case Permission::ExeGroup: return QFileDevice::ExeGroup;
+	case Permission::ReadOther: return QFileDevice::ReadOther;
+	case Permission::WriteOther: return QFileDevice::WriteOther;
+	case Permission::ExeOther: return QFileDevice::ExeOther;
+	default: return QFileDevice::ReadOwner;
+    }
+}
+
+
+bool Permissions::testFlag( const Permission& perm ) const
+{
+    const QFile::Permission qperm = getQPerm( perm );
+    const QFile::Permissions qperms( asInt() );
+    return qperms.testFlag( qperm );
+}
+
+
+bool Permissions::isHidden() const
+{
+#ifdef __win__
+    const int attr = asInt();
+    return attr & FILE_ATTRIBUTE_HIDDEN;
+#else
+    return false;
+#endif
+}
+
+
+bool Permissions::isSystem() const
+{
+#ifdef __win__
+    const int attr = asInt();
+    return attr & FILE_ATTRIBUTE_SYSTEM;
+#else
+    return false;
+#endif
+}
+
+
+Permissions& Permissions::setFlag( const Permission& perm, bool on )
+{
+    const QFile::Permission qperm = getQPerm( perm );
+    QFile::Permissions qperms( asInt() );
+    qperms.setFlag( qperm, on );
+    this->set( qperms );
+    return *this;
+}
+
+
+Permissions& Permissions::setHidden( bool yn )
+{
+#ifdef __win__
+    int attr = asInt();
+    if ( yn )
+	attr |= FILE_ATTRIBUTE_HIDDEN;
+    else
+	attr &= ~FILE_ATTRIBUTE_HIDDEN;
+
+    set( attr );
+#endif
+
+    return *this;
+}
+
+
+Permissions& Permissions::setSystem( bool yn )
+{
+#ifdef __win__
+    int attr = asInt();
+    if ( yn )
+	attr |= FILE_ATTRIBUTE_SYSTEM;
+    else
+	attr &= ~FILE_ATTRIBUTE_SYSTEM;
+
+    set( attr );
+#endif
+
+    return *this;
+}
+
+
+Permissions Permissions::getFrom( int st_mode, int uid )
+{
+#ifdef __win__
+    return udf();
+#else
+# ifdef __debug__
+    const bool mUnusedVar isfile = S_ISREG( st_mode );
+    const bool mUnusedVar isdir = S_ISDIR( st_mode );
+    const bool mUnusedVar islink = S_ISLNK( st_mode );
+# endif
+    const int mode = st_mode - (st_mode & S_IFMT);
+    const int procuid = getuid();
+    const bool isowned = mIsUdf(uid) || uid < 0 || uid == procuid;
+    const bool canreaduser = mode & S_IRUSR;
+    const bool canwriteuser = mode & S_IWUSR;
+    int ret = 0;
+    if ( canreaduser )
+    {
+	ret += int (File::Permission::ReadUser);
+	if ( isowned )
+	    ret += int (File::Permission::ReadOwner);
+    }
+
+    if ( canwriteuser )
+    {
+	ret += int (File::Permission::WriteUser);
+	if ( isowned )
+	    ret += int (File::Permission::WriteOwner);
+    }
+
+    if ( mode & S_IXUSR )
+    {
+	ret += int (File::Permission::ExeUser);
+	if ( isowned )
+	    ret += int (File::Permission::ExeOwner);
+    }
+
+    if ( mode & S_IRGRP )
+	ret += int (File::Permission::ReadGroup);
+    if ( mode & S_IWGRP )
+	ret += int (File::Permission::WriteGroup);
+    if ( mode & S_IXGRP )
+	ret += int (File::Permission::ExeGroup);
+    if ( mode & S_IROTH )
+	ret += int (File::Permission::ReadOther);
+    if ( mode & S_IWOTH )
+	ret += int (File::Permission::WriteOther);
+    if ( mode & S_IXOTH )
+	ret += int (File::Permission::ExeOther);
+
+    return Permissions( ret );
+#endif
+}
+
+
+Permissions Permissions::getDefault( bool forfile )
+{
+#ifdef __win__
+    static Permissions fileperms( FILE_ATTRIBUTE_ARCHIVE );
+    static Permissions dirperms( FILE_ATTRIBUTE_DIRECTORY );
+#else
+    static Permissions fileperms( 26214 );
+    static Permissions dirperms( 30583 );
+    static bool retmask = false;
+    if ( !retmask )
+    {
+	const mode_t procmask = umask( 002 ); //get
+	umask( procmask ); //restore
+	const Permissions maskperms = Permissions::getFrom( procmask, getuid());
+	fileperms.setFlag( File::Permission::ReadOwner, true );
+	fileperms.setFlag( File::Permission::WriteOwner, true );
+	fileperms.setFlag( File::Permission::ReadUser,
+			   !maskperms.testFlag(File::Permission::ReadUser) );
+	fileperms.setFlag( File::Permission::WriteUser,
+			   !maskperms.testFlag(File::Permission::WriteUser) );
+	fileperms.setFlag( File::Permission::ReadGroup,
+			   !maskperms.testFlag(File::Permission::ReadGroup) );
+	fileperms.setFlag( File::Permission::WriteGroup,
+			   !maskperms.testFlag(File::Permission::WriteGroup) );
+	fileperms.setFlag( File::Permission::ReadOther,
+			   !maskperms.testFlag(File::Permission::ReadOther) );
+	fileperms.setFlag( File::Permission::WriteOther,
+			   !maskperms.testFlag(File::Permission::WriteOther) );
+	dirperms = fileperms;
+	dirperms.setFlag( File::Permission::ExeOwner,
+			  !maskperms.testFlag(File::Permission::ExeOwner) );
+	dirperms.setFlag( File::Permission::ExeUser,
+			  !maskperms.testFlag(File::Permission::ExeUser) );
+	dirperms.setFlag( File::Permission::ExeGroup,
+			  !maskperms.testFlag(File::Permission::ExeGroup) );
+	dirperms.setFlag( File::Permission::ExeOther,
+			  !maskperms.testFlag(File::Permission::ExeOther) );
+	retmask = true;
+    }
+#endif
+
+    return forfile ? fileperms : dirperms;
+}
+
+
+int Permissions::get_st_mode( const Type& typ ) const
+{
+#ifdef __win__
+    return mUdf(int);
+#else
+    int ret = 0;
+    if ( typ == Type::File )
+	ret += S_IFREG;
+    else if ( typ == Type::Directory )
+	ret += S_IFDIR;
+    else if ( typ == Type::SymLink )
+    {
+	ret += S_IFLNK + ACCESSPERMS;
+    }
+    else if ( typ == Type::Character )
+	ret += S_IFCHR;
+    else if ( typ == Type::Block )
+	ret += S_IFBLK;
+    else if ( typ == Type::Fifo )
+	ret += S_IFIFO;
+    else if ( typ == Type::Socket )
+	ret += S_IFSOCK + ACCESSPERMS;
+
+    if ( typ == Type::File || typ == Type::Directory )
+    {
+	const QFile::Permissions qperms( asInt() );
+	if ( qperms.testFlag(QFileDevice::ReadUser) )
+	    ret += S_IRUSR;
+	if ( qperms.testFlag(QFileDevice::WriteUser) )
+	    ret += S_IWUSR;
+	if ( qperms.testFlag(QFileDevice::ExeUser) )
+	    ret += S_IXUSR;
+	if ( qperms.testFlag(QFileDevice::ReadGroup) )
+	    ret += S_IRGRP;
+	if ( qperms.testFlag(QFileDevice::WriteGroup) )
+	    ret += S_IWGRP;
+	if ( qperms.testFlag(QFileDevice::ExeGroup) )
+	    ret += S_IXGRP;
+	if ( qperms.testFlag(QFileDevice::ReadOther) )
+	    ret += S_IROTH;
+	if ( qperms.testFlag(QFileDevice::WriteOther) )
+	    ret += S_IWOTH;
+	if ( qperms.testFlag(QFileDevice::ExeOther) )
+	    ret += S_IXOTH;
+	if ( isuid_ )
+	    ret += S_ISUID;
+	if ( isgid_ )
+	    ret += S_ISGID;
+	if ( sticky_ )
+	    ret += S_ISVTX;
+    }
+
+    return ret;
+#endif
+}
+
+
+int Permissions::get_st_mode( const char* fnm )
+{
+    if ( __iswin__ )
+	return mUdf(int);
+
+    const Permissions perms = getPermissions( fnm );
+    const Type typ = getType( fnm );
+    return perms.get_st_mode( typ );
+}
+
+
+// Deprecated implementations
+
+const char* linkTarget( const char* linknm )
+{
+	if ( !isSane(linknm) )
+	return "";
+    else if ( fnmIsURI(linknm) )
+	return linknm;
+
+    mDeclStaticString( ret );
+    const QFileInfo qfi( linknm );
+    ret = qfi.isSymLink() ? qfi.symLinkTarget()
+			  : linknm;
+    return ret.buf();
+}
+
+
+const char* linkValue( const char* linknm )
+{
+    if ( !isSane(linknm) )
+	return "";
+    else if ( fnmIsURI(linknm) )
+	return linknm;
+
+#ifdef __win__
+    return linkTarget( linknm );
+#else
+    mDeclStaticString( ret );
+    ret.setMinBufSize( 1024 );
+    const int len = readlink( linknm, ret.getCStr(), 1024 );
+    if ( len < 0 )
+	return linknm;
+
+    ret[len] = '\0';
+    return ret.buf();
+#endif
+}
+
+
+bool isDirEmpty( const char* dirnm )
+{
+    if ( !isLocal(dirnm) )
+	return true;
+
+    const QDir qdir( dirnm );
+    return qdir.entryInfoList(QDir::NoDotAndDotDot|
+			      QDir::AllEntries).count() == 0;
+}
+
+
+bool saveCopy( const char* from, const char* to, bool preserve )
+{
+    if ( !isLocal(from) || !isLocal(to) )
+	return false;
+
+    if ( isDirectory(from) )
+	return false;
+    if ( !exists(to) )
+	return File::copy( from, to, preserve );
+
+    const BufferString tmpfnm( to, ".tmp" );
+    if ( !File::rename(to,tmpfnm) )
+	return false;
+
+    const bool res = copy( from, to, preserve );
+    res ? File::remove( tmpfnm ) : File::rename( tmpfnm, to );
     return res;
 }
 

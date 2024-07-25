@@ -56,8 +56,30 @@ FileTimeSet::FileTimeSet()
 }
 
 
+FileTimeSet::FileTimeSet( const FileTimeSet& oth )
+{
+    *this = oth;
+}
+
+
 FileTimeSet::~FileTimeSet()
 {
+}
+
+
+FileTimeSet& FileTimeSet::operator =( const FileTimeSet& oth )
+{
+    if ( &oth == this )
+	return *this;
+
+    modtime_.tv_sec = oth.modtime_.tv_sec;
+    modtime_.tv_nsec = oth.modtime_.tv_nsec;
+    acctime_.tv_sec = oth.acctime_.tv_sec;
+    acctime_.tv_nsec = oth.acctime_.tv_nsec;
+    crtime_.tv_sec = oth.crtime_.tv_sec;
+    crtime_.tv_nsec = oth.crtime_.tv_nsec;
+
+    return *this;
 }
 
 
@@ -130,6 +152,28 @@ od_int64 passedSince( od_int64 timestamp )
 {
     const od_int64 elapsed = timestamp > 0 ? getMilliSeconds() - timestamp : -1;
     return elapsed;
+}
+
+
+od_int64 toMSecs( const std::timespec& t )
+{
+    if ( mIsUdf(t.tv_sec) )
+	return mUdf(od_int64);
+
+    od_int64 ret = od_int64 (t.tv_sec) * 1e3;
+    if ( t.tv_nsec >=0 && t.tv_nsec < 1e9 )
+	ret += od_int64 (t.tv_nsec) / 1e6;
+
+    return ret;
+}
+
+
+std::timespec fromMSecs( od_int64 msecs )
+{
+    std::timespec ret;
+    ret.tv_sec = std::time_t (msecs % 1000);
+    ret.tv_nsec = long ((msecs-ret.tv_sec*1000) * 1e6 );
+    return ret;
 }
 
 

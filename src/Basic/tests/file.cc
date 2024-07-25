@@ -13,6 +13,11 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "testprog.h"
 #include "timefun.h"
+#include "winutils.h"
+
+#ifdef __unix__
+# include <sys/stat.h>
+#endif
 
 
 class FileDisposer
@@ -25,7 +30,11 @@ FileDisposer( const char* fnm )
 
 ~FileDisposer()
 {
-    File::remove( fnm_ );
+    const char* fnm = fnm_.buf();
+    if ( File::isDirectory(fnm) && !File::isSymLink(fnm) )
+	File::removeDir( fnm );
+    else
+	File::remove( fnm );
 }
 
 private:
@@ -294,6 +303,83 @@ static bool testFilePathParsing()
 }
 
 
+static bool testCleanPath()
+{
+    const BufferString uri = "s3://od-awsplugin/vdsdata/VDS_small";
+    const BufferString uriunix = getCleanUnixPath( uri.buf() );
+    const BufferString uriwin = getCleanWinPath( uri.buf() );
+    mRunStandardTest( uriunix==uri, "getCleanUnixPath" );
+    mRunStandardTest( uriwin==uri, "getCleanWinPath" );
+
+    const BufferString unixpath = "RawData/file.vds";
+    const BufferString winpath = "RawData\\file.vds";
+    const BufferString unixpath2win = getCleanWinPath( unixpath.buf() );
+    const BufferString winpath2unix = getCleanUnixPath( winpath.buf() );
+    mRunStandardTest( unixpath==winpath2unix, "Windows style path to Unix" );
+    mRunStandardTest( winpath==unixpath2win, "Unix style path to Windows" );
+
+    const BufferString cwinpath =
+		"C:\\Program Files\\OpendTect\\7.0.0\\INSTALL.txt";
+    const BufferString cunixpath =
+		FilePath(cwinpath.buf()).fullPath( FilePath::Unix );
+    const BufferString cunixpathres =
+		"C:/Program Files/OpendTect/7.0.0/INSTALL.txt";
+    mRunStandardTest( cunixpath==cunixpathres, "Windows path with Unix delim" );
+
+    FilePath fp( cunixpathres );
+    mRunStandardTest( cwinpath==fp.fullPath(FilePath::Windows),
+		"From Windows path with Unix delim back to Windows delim" );
+    return true;
+}
+
+
+static bool testFileReadWrite()
+{
+    const BufferString filenm =
+		FilePath::getTempFullPath( "test with space", "txt" );
+    const char* fnm = filenm.str();
+    mRunStandardTest( !File::exists(fnm), "Temporary file does not exist" );
+    od_ostream strm( fnm );
+    strm << "some content";
+    mRunStandardTestWithError( strm.isOK(), "test file is created",
+			       strm.errMsg().getString() );
+    if ( __iswin__ )
+	mRunStandardTest( File::isInUse(fnm), "File is being used" );
+
+    strm.close();
+    FileDisposer disposer( fnm );
+
+    if ( __iswin__ )
+	mRunStandardTest( !File::isInUse(fnm), "File is not being used" );
+
+    mRunStandardTest( File::exists(fnm), "File exists" );
+    mRunStandardTest( File::isReadable(fnm), "File is readable" );
+    mRunStandardTest( File::setReadOnly(fnm), "File set read-only" );
+    mRunStandardTest( !File::isWritable(fnm), "File is read-only" );
+    mRunStandardTest( File::setWritable(fnm,true), "File set writable" );
+    mRunStandardTest( File::isWritable(fnm), "File is writable" );
+
+    if ( __iswin__ )
+    {
+	bool mUnusedVar res = File::isWritable( "C:\\temp" );
+	res = File::isWritable("C:\\Program Files");
+	res = File::isWritable("C:\\Program Files\\OpendTect");
+	res = File::isWritable("C:\\Program Files\\OpendTect\\7.0.0");
+	res = File::isWritable("C:\\Program Files\\OpendTect\\7.0.0\\bla");
+	res = File::isWritable(
+	    "C:\\Program Files\\OpendTect\\7.0.0\\relinfo\\ver.base_win64.txt");
+	res = File::isWritable("D:\\ODData");
+	res = File::isWritable("E:\\surveys");
+	res = File::isWritable("F:");
+    }
+
+    mRunStandardTest( File::remove(fnm), "Remove file" );
+    mRunStandardTest( !File::exists(fnm), "File is removed" );
+
+    return true;
+}
+
+
 static bool isEqual( std::timespec a, std::timespec b )
 {
     return a.tv_sec == b.tv_sec && a.tv_nsec == b.tv_nsec;
@@ -315,9 +401,12 @@ static bool isLarger( std::timespec a, std::timespec b )
 static bool isEqual( const Time::FileTimeSet& a,
 		     const Time::FileTimeSet& b )
 {
-    return isEqual( a.getModificationTime(), b.getModificationTime() ) &&
-	   isEqual( a.getAccessTime(), b.getAccessTime() ) &&
-	   isEqual( a.getCreationTime(), b.getCreationTime() );
+    if ( !isEqual(a.getModificationTime(),b.getModificationTime()) ||
+	 !isEqual(a.getCreationTime(),b.getCreationTime()) )
+	return false;
+
+    return __iswin__ ? true
+		     : isEqual( a.getAccessTime(), b.getAccessTime() );
 }
 
 
@@ -355,28 +444,27 @@ static bool testFileTime( const char* fnm )
     mRunStandardTest( !crtimestr.isEmpty() && crtimestr != "-",
 		      "File time creation string from std::timespec" );
 
-    if ( __iswin__ )
-	return true;
-
     const FilePath fp( fnm );
     const BufferString linknm =
-		FilePath::getTempFullPath( "test_file", fp.extension() );
+		FilePath::getTempFullPath( "test_file",
+			__iswin__ ? "lnk" : fp.extension() );
     FileDisposer disposer1( linknm.buf() );
     mRunStandardTest( File::createLink(fnm,linknm.buf()),
 		      "Created symbolic link" );
-    const BufferString linktarget = File::linkTarget( linknm.buf() );
     const BufferString linkend = File::linkEnd( linknm.buf() );
-    mRunStandardTest( linktarget == fnm && linkend == fnm,
-		      "Retrieve target/end of symbolic link" );
-    const BufferString linkcontent = File::linkValue( linknm.buf() );
-    mRunStandardTest( linkcontent == fnm, "Read a symbolic link" );
+    mRunStandardTest( linkend == fnm,
+		      "Retrieve absolule path to a symbolic link" );
 
     const od_int64 filesz = File::getFileSize( fnm );
     mRunStandardTest( File::getFileSize(linknm.buf()) == filesz,
 		      "File size by following a link" );
     const StringView filenm( fnm );
-    mRunStandardTest( File::getFileSize(linknm.buf(),false) == filenm.size(),
-		      "File size of a symbolic link" );
+    if ( !__iswin__ )
+    {
+	mRunStandardTest(File::getFileSize(linknm.buf(),false) == filenm.size(),
+			 "File size of a symbolic link" );
+    }
+
     Time::FileTimeSet filetimes, linktimes;
     mRunStandardTest( File::getTimes( linknm.buf(), filetimes ),
 		      "Get all file timestamps from a link target" );
@@ -419,11 +507,12 @@ static bool testFileTime( const char* fnm )
 
     uiString msg;
     const BufferString linkcpnm =
-		FilePath::getTempFullPath( "test_file", fp.extension() );
+		FilePath::getTempFullPath( "test_file",
+				    __iswin__ ? "lnk" : fp.extension() );
     FileDisposer disposer2( linkcpnm );
     mRunStandardTestWithError(
 	    File::copy( linknm.buf(), linkcpnm.buf(), true, &msg ) &&
-	    File::exists(linkcpnm.buf()) && File::isLink(linkcpnm),
+	    File::exists(linkcpnm.buf()) && File::isSymLink(linkcpnm),
 	    "Copying a link as a link", msg.getString().buf() );
 
     msg.setEmpty();
@@ -433,10 +522,10 @@ static bool testFileTime( const char* fnm )
     mRunStandardTestWithError(
 	    File::copy( linknm.buf(), linkdeepcpnm.buf(), false, &msg )
 		 && File::exists(linkdeepcpnm.buf()) &&
-		      !File::isLink(linkdeepcpnm),
+		      !File::isSymLink(linkdeepcpnm),
 		      "Deep copy from a link", msg.getString().buf() );
     const bool isdir = File::isDirectory( fnm );
-    if ( File::isDirectory(fnm) )
+    if ( isdir )
     {
 	mRunStandardTest( File::isDirectory(linkdeepcpnm.buf()),
 			  "Deep copied link of a directory" );
@@ -450,23 +539,190 @@ static bool testFileTime( const char* fnm )
     if ( !isdir )
 	return true;
 
-    mRunStandardTest( File::remove( linkcpnm ) && File::remove( linkdeepcpnm ),
+    mRunStandardTest( File::remove( linkcpnm ) &&
+		      File::removeDir( linkdeepcpnm ),
 		      "Removed temporary files" );
     msg.setEmpty();
     mRunStandardTestWithError(
 	    File::copyDir( linknm.buf(), linkcpnm.buf(), true, &msg ) &&
-	    File::exists(linkcpnm.buf()) && File::isLink(linkcpnm),
+	    File::exists(linkcpnm.buf()) && File::isSymLink(linkcpnm),
 	    "Copying a link to a directory as a link", msg.getString().buf() );
 
     msg.setEmpty();
     mRunStandardTestWithError(
 	    File::copyDir( linknm.buf(), linkdeepcpnm.buf(), false, &msg ) &&
 	    File::exists( linkdeepcpnm.buf() ) &&
-	    !File::isLink( linkdeepcpnm ) &&
+	    !File::isSymLink( linkdeepcpnm ) &&
 	    File::isDirectory( linkdeepcpnm.buf() ),
 	      "Deep copy from a link to a directory", msg.getString().buf() );
 
     return true;
+}
+
+
+static bool testPerms( const char* fnm, const File::Permissions& expperms )
+{
+    const File::Permissions perms = File::getPermissions( fnm );
+    if ( perms != expperms )
+	return false;
+
+#ifdef __win__
+    return true;
+#else
+    struct stat filestat;
+    lstat( fnm, &filestat );
+    const int res = File::Permissions::get_st_mode( fnm );
+    return res == filestat.st_mode;
+#endif
+}
+
+
+static bool testFilePermissions()
+{
+    const BufferString filename =
+		FilePath::getTempFullPath( "test_file", "txt" );
+    const char* fnm = filename.str();
+    FileDisposer disposer( fnm );
+    od_ostream strm( fnm );
+    strm.add( "some text" );
+    mRunStandardTestWithError( strm.isOK(), "test file is created",
+			       strm.errMsg().getString() );
+    strm.close();
+
+#ifdef __win__
+    const File::Permissions perms = File::Permissions::getDefault( true );
+    if ( !(perms.asInt() & FILE_ATTRIBUTE_ARCHIVE) )
+	return false;
+
+    mRunStandardTest( testPerms(fnm,perms), "Standard file permissions" );
+
+    File::Permissions permstest( perms );
+    permstest.setHidden( true );
+    mRunStandardTest( File::setHiddenFileAttrib(fnm,true) &&
+		      File::isHidden(fnm) &&
+		      permstest.isHidden() &&
+		      testPerms(fnm,permstest),
+		      "Hidden file permissions (set)" );
+
+    permstest.setHidden( false );
+    mRunStandardTest( File::setHiddenFileAttrib(fnm,false) &&
+		      !File::isHidden(fnm) &&
+		      !permstest.isHidden() &&
+		      testPerms(fnm,permstest),
+		      "Hidden file permissions (unset)" );
+
+    permstest.setSystem( true );
+    mRunStandardTest( File::setSystemFileAttrib(fnm,true) &&
+		      File::isSystem(fnm) &&
+		      permstest.isSystem() &&
+		      testPerms(fnm,permstest),
+		      "System file permissions (set)" );
+
+    permstest.setSystem( false );
+    mRunStandardTest( File::setSystemFileAttrib(fnm,false) &&
+		      !File::isSystem(fnm) &&
+		      !permstest.isSystem() &&
+		      testPerms(fnm,permstest),
+		      "System file permissions (unset)" );
+
+    return true;
+#else
+    struct stat filestat;
+    lstat( fnm, &filestat );
+    const File::Permissions stdperms =
+		File::Permissions::getFrom( filestat.st_mode, filestat.st_uid );
+    const File::Permissions perms = File::getPermissions( fnm );
+    mRunStandardTest( perms == stdperms, "Retrieve default file permissions" );
+    const bool hasgroupmask = perms.testFlag( File::Permission::WriteGroup );
+    const bool hasothermask = perms.testFlag( File::Permission::WriteOther );
+
+    File::Permissions permstest = File::Permissions::getDefault( true );
+    permstest.setFlag( File::Permission::WriteOwner, false )
+	     .setFlag( File::Permission::WriteUser, false )
+	     .setFlag( File::Permission::WriteGroup, false )
+	     .setFlag( File::Permission::WriteOther, false );
+    mRunStandardTest( File::setReadOnly(fnm) && testPerms(fnm,permstest),
+		      "Read-only file permissions" );
+    permstest.setFlag( File::Permission::WriteOwner, true )
+	     .setFlag( File::Permission::WriteUser, true );
+    if ( hasgroupmask )
+	permstest.setFlag( File::Permission::WriteGroup, true );
+    if ( hasothermask )
+	permstest.setFlag( File::Permission::WriteOther, true );
+
+    mRunStandardTest( File::setWritable(fnm,true) && testPerms(fnm,permstest),
+		      "Writable file permissions" );
+
+    permstest.setFlag( File::Permission::ExeOwner, true )
+	     .setFlag( File::Permission::ExeUser, true )
+	     .setFlag( File::Permission::ExeGroup, true )
+	     .setFlag( File::Permission::ExeOther, true );
+
+    mRunStandardTest( File::setExecutable(fnm,true) &&
+		      File::isExecutable(fnm) &&
+		      testPerms(fnm,permstest),
+		      "Executable file permissions (set)" );
+
+    permstest.setFlag( File::Permission::ExeOwner, false )
+	     .setFlag( File::Permission::ExeUser, false )
+	     .setFlag( File::Permission::ExeGroup, false )
+	     .setFlag( File::Permission::ExeOther, false );
+
+    mRunStandardTest( File::setExecutable(fnm,false) &&
+		      !File::isExecutable(fnm) &&
+		      testPerms(fnm,permstest),
+		      "Executable file permissions (unset)" );
+    return true;
+#endif
+}
+
+
+static bool testDirPermissions()
+{
+#ifdef __win__
+    const BufferString dirname = FilePath::getTempFullPath( "test_dir",nullptr);
+    mRunStandardTest( File::createDir(dirname.buf()),
+		      "Create new directory" );
+    const char* dirnm = dirname.str();
+    FileDisposer disposer( dirnm );
+
+    const File::Permissions perms = File::Permissions::getDefault( false );
+    if ( !(perms.asInt() & FILE_ATTRIBUTE_DIRECTORY) )
+	return false;
+
+    mRunStandardTest( testPerms(dirnm,perms), "Standard directory permissions");
+
+    File::Permissions permstest( perms );
+    permstest.setHidden( true );
+    mRunStandardTest( File::setHiddenFileAttrib(dirnm,true) &&
+		      File::isHidden(dirnm) &&
+		      permstest.isHidden() &&
+		      testPerms(dirnm,permstest),
+		      "Hidden directory permissions (set)" );
+
+    permstest.setHidden( false );
+    mRunStandardTest( File::setHiddenFileAttrib(dirnm,false) &&
+		      !File::isHidden(dirnm) &&
+		      !permstest.isHidden() &&
+		      testPerms(dirnm,permstest),
+		      "Hidden directory permissions (unset)" );
+
+    permstest.setSystem( true );
+    mRunStandardTest( File::setSystemFileAttrib(dirnm,true) &&
+		      File::isSystem(dirnm) &&
+		      permstest.isSystem() &&
+		      testPerms(dirnm,permstest),
+		      "System directory permissions (set)" );
+
+    permstest.setSystem( false );
+    mRunStandardTest( File::setSystemFileAttrib(dirnm,false) &&
+		      !File::isSystem(dirnm) &&
+		      !permstest.isSystem() &&
+		      testPerms(dirnm,permstest),
+		      "System directory permissions (unset)" );
+#endif
+    return true;
+
 }
 
 
@@ -491,8 +747,12 @@ int mTestMainFnName( int argc, char** argv )
     if ( !testReadContent() ||
 	 !testIStream(parfile.buf()) ||
 	 !testFilePathParsing() ||
+	 !testCleanPath() ||
+	 !testFileReadWrite() ||
 	 !testFileTime(parfile.buf()) ||
-	 !testFileTime(pardir.buf()) )
+	 !testFileTime(pardir.buf()) ||
+	 !testFilePermissions() ||
+	 !testDirPermissions() )
 	return 1;
 
     return 0;
