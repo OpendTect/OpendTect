@@ -108,7 +108,8 @@ void uiStratTreeToDisp::setTree()
     mAttachCB( tree_->unitAdded, uiStratTreeToDisp::triggerDataChange );
     mAttachCB( tree_->unitChanged, uiStratTreeToDisp::triggerDataChange );
     mAttachCB( tree_->unitToBeDeleted, uiStratTreeToDisp::triggerDataChange );
-    mAttachCB( Strat::eLVLS().changed, uiStratTreeToDisp::triggerDataChange );
+    mAttachCB( Strat::eLVLS().setChanged,
+	       uiStratTreeToDisp::triggerDataChange );
     mAttachCB( Strat::eLVLS().levelAdded,
 	       uiStratTreeToDisp::triggerDataChange );
     mAttachCB( Strat::eLVLS().levelToBeRemoved,

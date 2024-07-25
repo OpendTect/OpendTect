@@ -11,6 +11,8 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uilistbox.h"
 
+namespace Strat { class Level; }
+
 mExpClass(uiStrat) uiStratLvlList : public uiListBox
 { mODTextTranslationClass(uiStratLvlList)
 public:
@@ -34,6 +36,8 @@ protected:
     bool	checkLocked() const;
 
     void	lvlSetChgCB(CallBacker*);
+    void	levelAddedCB(CallBacker*);
+    void	levelRemovedCB(CallBacker*);
     void	removeLvl(CallBacker*);
     void	selLvlChgCB(CallBacker*);
 
@@ -41,6 +45,9 @@ protected:
     void	editCB(CallBacker*);
     void	removeCB(CallBacker*);
     void	removeAllCB(CallBacker*);
+
+    void	addLevel(const Strat::Level&);
+    void	removeLevel(const Strat::Level&);
 
 private:
 

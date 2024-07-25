@@ -330,7 +330,7 @@ void Strat::Level::usePar( const IOPar& iop )
 
 Strat::LevelSet::LevelSet( int idnr )
     : NamedCallBacker("")
-    , changed(this)
+    , setChanged(this)
     , levelAdded(this)
     , levelToBeRemoved(this)
     , curlevelid_(idnr)
@@ -340,7 +340,7 @@ Strat::LevelSet::LevelSet( int idnr )
 
 Strat::LevelSet::LevelSet( const LevelSet& oth )
     : NamedCallBacker(oth.name())
-    , changed(this)
+    , setChanged(this)
     , levelAdded(this)
     , levelToBeRemoved(this)
 {
@@ -361,7 +361,7 @@ Strat::LevelSet& Strat::LevelSet::operator =( const LevelSet& oth )
 	NamedObject::operator =( oth );
 	deepCopy( lvls_, oth.lvls_ );
 	curlevelid_ = oth.curlevelid_;
-	changed.trigger( Level::cEntireChange() );
+	setChanged.trigger();
     }
 
     return *this;
@@ -402,7 +402,7 @@ void Strat::LevelSet::setEmpty()
 	return;
 
     doSetEmpty();
-    changed.trigger( Level::cEntireChange() );
+    setChanged.trigger();
 }
 
 
@@ -526,15 +526,26 @@ Strat::LevelID Strat::LevelSet::doSet( const Strat::Level& lvl,
     Level* chglvl;
     if ( lvls_.validIdx(idx) )
     {
-	if ( isnew ) *isnew = false;
+	if ( isnew )
+	    *isnew = false;
+
 	chglvl = lvls_.get( idx );
 	*chglvl = lvl;
     }
     else
     {
-	if ( isnew ) *isnew = true;
+	if ( isnew )
+	    *isnew = true;
+
 	if ( lvl.id().isUdf() || lvl.id().asInt() < curlevelid_ )
 	    const_cast<Level&>( lvl ).setID( LevelID(++curlevelid_) );
+
+	const LevelID id = lvl.id();
+	if ( isPresent(id) )
+	{
+	    remove( id );
+	    levelToBeRemoved.trigger( id );
+	}
 
 	chglvl = new Level( lvl );
 	lvls_.add( chglvl );
@@ -622,7 +633,7 @@ bool Strat::LevelSet::readFrom( const char* fnm )
     doSetEmpty();
     getFromStream( astrm, false );
     sfio.closeSuccess();
-    changed.trigger( Level::cEntireChange() );
+    setChanged.trigger();
     return true;
 }
 

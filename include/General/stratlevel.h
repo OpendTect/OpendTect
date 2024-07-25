@@ -111,7 +111,7 @@ public:
     LevelSet&		operator =(const LevelSet&);
     bool		operator ==(const LevelSet&) const;
 
-    bool		isEmpty() const		{ return size() < 1; }
+    bool		isEmpty() const			{ return size() < 1; }
     int			size() const;
     void		setEmpty();
 
@@ -135,12 +135,12 @@ public:
     void		remove(LevelID);
 
     LevelID		set(const Level&); //!< copy stuff, but new ID/name
-    LevelID		add(  const Level& lvl )	{ return set( lvl ); }
+    LevelID		add(const Level& lvl)		{ return set( lvl ); }
     void		add(const BufferStringSet&,const TypeSet<OD::Color>&);
 
-    CNotifier<LevelSet,ChangeType>	changed;
-    CNotifier<LevelSet,LevelID> levelAdded;
-    CNotifier<LevelSet,LevelID> levelToBeRemoved;
+    Notifier<LevelSet>			setChanged;
+    CNotifier<LevelSet,LevelID>		levelAdded;
+    CNotifier<LevelSet,LevelID>		levelToBeRemoved;
 
     bool		readFrom(const char*);
     bool		writeTo(const char*) const;

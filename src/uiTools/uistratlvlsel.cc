@@ -34,7 +34,7 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool withudf,
 
     mAttachCB( fld_->selectionChanged, uiStratLevelSel::selCB );
     mAttachCB( Strat::lvlSetMgr().curChanged, uiStratLevelSel::curSetChgCB );
-    mAttachCB( Strat::eLVLS().changed, uiStratLevelSel::extChgCB );
+    mAttachCB( Strat::eLVLS().setChanged, uiStratLevelSel::extChgCB );
     mAttachCB( Strat::eLVLS().levelAdded, uiStratLevelSel::extChgCB );
     mAttachCB( Strat::eLVLS().levelToBeRemoved, uiStratLevelSel::extChgCB );
     setStretch( 1, 0 );
@@ -131,7 +131,8 @@ void uiStratLevelSel::fill()
 
 void uiStratLevelSel::curSetChgCB( CallBacker* cb )
 {
-    mAttachCBIfNotAttached( Strat::eLVLS().changed, uiStratLevelSel::extChgCB );
+    mAttachCBIfNotAttached( Strat::eLVLS().setChanged,
+			    uiStratLevelSel::extChgCB );
     mAttachCBIfNotAttached( Strat::eLVLS().levelAdded,
 			    uiStratLevelSel::extChgCB );
     mAttachCBIfNotAttached( Strat::eLVLS().levelToBeRemoved,

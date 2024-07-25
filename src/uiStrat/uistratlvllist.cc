@@ -55,14 +55,16 @@ uiStratLvlList::~uiStratLvlList()
 void uiStratLvlList::setLevels()
 {
     Strat::LevelSet& levelset = Strat::eLVLS();
-    mAttachCB( levelset.changed, uiStratLvlList::lvlSetChgCB );
-    mAttachCB( levelset.levelAdded, uiStratLvlList::lvlSetChgCB );
-    mAttachCB( levelset.levelToBeRemoved, uiStratLvlList::lvlSetChgCB );
+    mAttachCB( levelset.setChanged, uiStratLvlList::lvlSetChgCB );
+    mAttachCB( levelset.levelAdded, uiStratLvlList::levelAddedCB );
+    mAttachCB( levelset.levelToBeRemoved, uiStratLvlList::levelRemovedCB );
     fill();
 }
 
 
-#define mCheckLocked            if ( checkLocked() ) return;
+#define mCheckLocked \
+    if ( checkLocked() ) \
+	return;
 
 #define mCheckEmptyList \
     if ( isPresent(sNoLevelTxt()) ) \
@@ -82,15 +84,23 @@ bool uiStratLvlList::checkLocked() const
 
 
 void uiStratLvlList::editCB( CallBacker* )
-{ mCheckLocked; mCheckEmptyList; editLevel( false );  }
+{
+    mCheckLocked;
+    mCheckEmptyList;
+    editLevel( false );
+}
 
 void uiStratLvlList::addCB( CallBacker* )
-{ mCheckLocked; editLevel( true ); }
+{
+    mCheckLocked;
+    editLevel( true );
+}
 
 
 void uiStratLvlList::removeCB( CallBacker* )
 {
-    mCheckLocked; mCheckEmptyList;
+    mCheckLocked;
+    mCheckEmptyList;
     uiString msg = tr("This will remove the selected Level.");
     if ( !uiMSG().askRemove(msg) )
 	return;
@@ -101,14 +111,15 @@ void uiStratLvlList::removeCB( CallBacker* )
 	return;
 
     const Strat::Level lvl = levelset.getByName( lvlnm );
-    levelset.remove( lvl.id() ) ;
+    levelset.remove( lvl.id() );
     anychange_ = true;
 }
 
 
 void uiStratLvlList::removeAllCB( CallBacker* )
 {
-    mCheckLocked; mCheckEmptyList;
+    mCheckLocked;
+    mCheckEmptyList;
     uiString msg = tr("This will remove all the levels present in the list,"
 		      " do you want to continue ?");
     if ( !uiMSG().askRemove(msg) )
@@ -122,7 +133,87 @@ void uiStratLvlList::removeAllCB( CallBacker* )
 void uiStratLvlList::lvlSetChgCB( CallBacker* )
 {
     //TODO merge edits with new situation
-    fill();
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    if ( lvls.isEmpty() )
+    {
+	addItem( toUiString("--- %1 ---").arg(uiStrings::sNone()) );
+	return;
+    }
+
+    const int lvlsz = lvls.size();
+    const int listsz = size();
+    for ( int idx=0; idx<listsz; idx++ )
+    {
+	Strat::LevelID currid( getItemID(idx) );
+	if ( !lvls.isPresent(currid) )
+	{
+	    removeItem( idx );
+	    continue;
+	}
+
+	const Strat::Level currlvl = lvls.get( currid );
+	const BufferString lvlnm = currlvl.name();
+	const BufferString listlvlnm = textOfItem( idx );
+	const OD::Color lvlcol = currlvl.color();
+	const OD::Color listlvlcol = getColor( idx );
+	if ( listlvlnm != lvlnm )
+	    setItemText( idx, toUiString(lvlnm) );
+
+	if ( listlvlcol != lvlcol )
+	    setColor( idx, lvlcol );
+    }
+
+    for ( int idx=0; idx<lvlsz; idx++ )
+    {
+	const Strat::Level lvl = lvls.getByIdx( idx );
+	const int id = lvl.id().asInt();
+	const int listidx = getItemIdx( id );
+	if ( !validIdx(listidx) )
+	    addItem( toUiString(lvl.name()), lvl.color(), id );
+    }
+
+    // -> To be restored once listbox sort is handled
+    //sortItems();
+}
+
+
+void uiStratLvlList::levelAddedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( Strat::LevelID, lvlid, cb );
+    if ( !lvlid.isValid() )
+	return;
+
+    const Strat::Level& level = Strat::LVLS().get( lvlid );
+    addLevel( level );
+}
+
+
+void uiStratLvlList::addLevel( const Strat::Level& level )
+{
+    const BufferString levelnm = level.name();
+    if ( levelnm.isEmpty() )
+	return;
+
+    const OD::Color lvlclr = level.color();
+    addItem( toUiString(levelnm), lvlclr, level.id().asInt() );
+}
+
+
+void uiStratLvlList::levelRemovedCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( Strat::LevelID, lvlid, cb );
+    if ( !lvlid.isValid() )
+	return;
+
+    const Strat::Level& level = Strat::LVLS().get( lvlid );
+    removeLevel( level );
+}
+
+
+void uiStratLvlList::removeLevel( const Strat::Level& level )
+{
+    const int idx = indexOf( level.name() );
+    removeItem( idx );
 }
 
 
@@ -133,18 +224,24 @@ void uiStratLvlList::fill()
     const Strat::LevelSet& lvls = Strat::LVLS();
     BufferStringSet lvlnms;
     TypeSet<OD::Color> lvlcolors;
+    TypeSet<Strat::LevelID> lvlids;
     for ( int idx=0; idx<lvls.size(); idx++ )
     {
 	const Strat::Level lvl = lvls.getByIdx( idx );
 	lvlnms.add( lvl.name() );
 	lvlcolors += lvl.color();
+	lvlids += lvl.id();
     }
 
     for ( int idx=0; idx<lvlnms.size(); idx++ )
-	addItem( toUiString(lvlnms[idx]->buf()), lvlcolors[idx] );
+	addItem( toUiString( lvlnms[idx]->buf()),
+			     lvlcolors[idx], lvlids[idx].asInt() );
 
     if ( isEmpty() )
 	addItem( toUiString("--- %1 ---").arg(uiStrings::sNone()) );
+
+    // -> To be restored once listbox sort is handled
+    //sortItems();
 }
 
 
