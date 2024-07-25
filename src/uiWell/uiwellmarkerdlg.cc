@@ -563,8 +563,6 @@ void uiMarkerDlg::setMarkerSet( const Well::MarkerSet& markers, bool add )
 	table_->clearTable();
 
     table_->setNrRows( nrrows );
-    const float zfac = zFactor();
-    const float kbelev = track_.getKbElev();
     for ( int idx=0; idx<nrnew; idx++ )
     {
 	const int irow = startrow + idx;
