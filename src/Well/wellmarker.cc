@@ -66,8 +66,9 @@ Well::Marker& Well::Marker::operator =( const Well::Marker& oth )
 
 OD::Color Well::Marker::color() const
 {
-    if ( levelid_.isValid() )
-	return Strat::LVLS().colorOf( levelid_ );
+    const Strat::LevelSet& lvls = Strat::LVLS();
+    if ( levelid_.isValid() && lvls.isPresent(levelid_) )
+	return lvls.colorOf( levelid_ );
 
     return color_;
 }
