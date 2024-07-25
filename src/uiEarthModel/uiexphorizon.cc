@@ -121,7 +121,7 @@ protected:
     int				maxsize_;
     const EM::Horizon3D*	hor_;
     EM::EMObjectIterator*	it_;
-    const UnitOfMeasure*	unit_;
+    const UnitOfMeasure*	zunitout_;
     BufferString		msg_;
     int				counter_;
     ConstRefMan<Coords::CoordSystem>  coordsys_;
@@ -136,7 +136,7 @@ Write3DHorASCII::Write3DHorASCII( od_ostream& stream, const int sectionidx,
     , stream_(stream)
     , sidx_(sidx)
     , hor_(hor)
-    , unit_(unit)
+    , zunitout_(unit)
     , counter_(0)
     , coordsys_(crs)
     , setup_(su)
@@ -196,8 +196,10 @@ int Write3DHorASCII::nextStep()
 
     Coord3 crd = hor_->getPos( posid );
     const BinID bid = SI().transform( crd.coord() );
-    const UnitOfMeasure* fromuom = hor_->zUnit();
-    convValue( crd.z, fromuom, unit_ );
+    const UnitOfMeasure* horzunit = hor_->zUnit();
+    if ( !mIsUdf(crd.z) && zunitout_ )
+	convValue( crd.z, horzunit, zunitout_ );
+
     if ( coordsys_ && !(*coordsys_ == *SI().getCoordSystem()) )
     {
 	const Coord crdxy =

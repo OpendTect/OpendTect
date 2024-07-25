@@ -591,33 +591,26 @@ void uiSurfaceMan::fillAttribList()
 }
 
 
-static void addZRangeTxt( BufferString& txt, const Interval<float>& zrange,
-			  const UnitOfMeasure* zuom )
+static void addZRangeTxt( const ZDomain::Info& zinfo, ZSampling zrange,
+			  BufferString& txt )
 {
     if ( zrange.isUdf() )
 	return;
 
-    const UnitOfMeasure* uom2use = zuom;
-    BufferString zunitsym;
-    if ( !zuom )
-	zunitsym = SI().getZUnitString();
-    else
-    {
-	zunitsym = zuom->symbol();
-	if ( zunitsym == UnitOfMeasure::surveyDefTimeStorageUnit()->symbol() )
-	{
-	    uom2use = UnitOfMeasure::surveyDefTimeUnit();
-	    zunitsym = uom2use->symbol();
-	}
-	zunitsym.embed( '(', ')' );
-    }
+    BufferString zrngtext;
+    const int nrdec = zrange.step;
+    const float zuserfac = zinfo.userFactor();
+    zrange.scale( zuserfac );
+    const uiString unitstr = zinfo.uiUnitStr();
+    uiString keystr = zinfo.def_.getRange();
+    if ( !unitstr.isEmpty() )
+	keystr.withUnit( unitstr );
+    zrngtext.add( keystr.getString() ).add(": ")
+	    .add( toUiString("%1 - %2")
+		  .arg(toString(zrange.start,nrdec))
+		  .arg(toString(zrange.stop,nrdec)).getString() );
 
-    const int nrdec = SI().nrZDecimals();
-    txt.add( "Z range " ).add( zunitsym ).add( ": " )
-	.add( uom2use ? uom2use->userValue(zrange.start) : zrange.start, nrdec )
-	.add( " - " )
-	.add( uom2use ? uom2use->userValue(zrange.stop) : zrange.stop, nrdec )
-	.addNewLine();
+    txt.add( zrngtext ).addNewLine();
 }
 
 
@@ -688,9 +681,7 @@ void uiSurfaceMan::mkFileInfo()
 	    range = cs.hsamp_.trcRange();
 	    txt += "Cross-line range: ";
 	    addInlCrlRangeTxt( txt, range );
-
-	    const Interval<float>& zrange = cs.zsamp_;
-	    addZRangeTxt( txt, zrange, nullptr );
+	    addZRangeTxt( eminfo.zDomain(), cs.zsamp_, txt );
 	}
     }
     else
@@ -701,10 +692,9 @@ void uiSurfaceMan::mkFileInfo()
 	range = eminfo.getCrlRange();
 	txt += "Cross-line range: ";
 	addInlCrlRangeTxt( txt, range );
-
-	const Interval<float>& zrange = eminfo.getZRange();
-	const UnitOfMeasure* zunit = UoMR().get(eminfo.getZUnitLabel());
-	    addZRangeTxt( txt, zrange, zunit );
+	const ZSampling zrg( eminfo.getZRange(),
+		 eminfo.zDomain().getReasonableZSampling(false,false).step );
+	addZRangeTxt( eminfo.zDomain(), eminfo.getZRange(), txt);
     }
 
     txt += getFileInfo();

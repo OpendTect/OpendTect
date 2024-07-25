@@ -262,7 +262,7 @@ bool uiExportFault::writeAscii()
     if ( objloader && !TaskRunner::execute(&taskrunner, *objloader) )
 	return false;
 
-    const UnitOfMeasure* unit = zunitsel_->getUnit();
+    const UnitOfMeasure* zunitout = zunitsel_->getUnit();
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickidsfld_->isChecked( 0 );
     const bool inclknotidx = stickidsfld_->isChecked( 1 );
@@ -287,6 +287,7 @@ bool uiExportFault::writeAscii()
 	{
 	    RefMan<EM::EMObject> fltobj = emobj;
 	    BufferString objnm = fltobj->name();
+	    const UnitOfMeasure* objzunit = fltobj->zUnit();
 
 	    if ( fset )
 	    {
@@ -334,8 +335,8 @@ bool uiExportFault::writeAscii()
 			ostrm << str;
 		    }
 
-		    if ( !mIsUdf(crd.z) && unit )
-			crd.z = unit->userValue( crd.z );
+		    if ( !mIsUdf(crd.z) )
+			convValue( crd.z, objzunit, zunitout );
 
 		    ostrm << '\t' << crd.z;
 
