@@ -172,8 +172,7 @@ void uiStratLvlList::lvlSetChgCB( CallBacker* )
 	    addItem( toUiString(lvl.name()), lvl.color(), id );
     }
 
-    // -> To be restored once listbox sort is handled
-    //sortItems();
+    sortItems();
 }
 
 
@@ -196,6 +195,7 @@ void uiStratLvlList::addLevel( const Strat::Level& level )
 
     const OD::Color lvlclr = level.color();
     addItem( toUiString(levelnm), lvlclr, level.id().asInt() );
+    sortItems();
 }
 
 
@@ -240,8 +240,7 @@ void uiStratLvlList::fill()
     if ( isEmpty() )
 	addItem( toUiString("--- %1 ---").arg(uiStrings::sNone()) );
 
-    // -> To be restored once listbox sort is handled
-    //sortItems();
+    sortItems();
 }
 
 
