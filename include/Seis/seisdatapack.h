@@ -32,6 +32,10 @@ public:
     RegularSeisDataPack*	clone() const;
     RegularSeisDataPack*	getSimilar() const;
     bool			copyFrom(const RegularSeisDataPack&);
+    bool			takeOver(RegularSeisDataPack& other);
+    				/*!< Take over data array from other and
+				 * add as component(s) to this;
+				 * should have the same sampling */
 
     void			setSampling( const TrcKeyZSampling& tkzs )
 				{ sampling_ = tkzs; }
