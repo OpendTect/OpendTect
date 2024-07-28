@@ -237,6 +237,23 @@ bool RegularSeisDataPack::copyFrom( const RegularSeisDataPack& oth )
 }
 
 
+bool RegularSeisDataPack::takeOver( RegularSeisDataPack& oth )
+{
+    if ( !sampling().isEqual(oth.sampling()) )
+	return false;
+
+    for ( int idx=0; idx<oth.nrComponents(); idx++ )
+    {
+	componentnames_.add( oth.getComponentName(idx) );
+	arrays_.add( oth.arrays_.get(idx) );
+    }
+
+    oth.componentnames_.setEmpty();
+    oth.arrays_.setEmpty();
+    return true;
+}
+
+
 void RegularSeisDataPack::setTrcsSampling( PosInfo::CubeData* newposdata )
 {
     delete rgldpckposinfo_;
