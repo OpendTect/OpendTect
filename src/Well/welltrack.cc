@@ -105,6 +105,7 @@ void Well::Track::addPoint( const Coord3& c, float dahval )
     }
 
     dah_ += dahval;
+    updateDahRange();
 }
 
 
