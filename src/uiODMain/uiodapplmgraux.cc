@@ -391,13 +391,21 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	}
 	else if ( at == uiODApplMgr::Imp )
 	{
-	    if ( !imp2dgeomdlg_ )
+	    if ( opt==0 )
 	    {
-		imp2dgeomdlg_ = new uiImp2DGeom( par_ );
-		imp2dgeomdlg_->setModal( false );
-	    }
+		if ( !imp2dgeomdlg_ )
+		{
+		    imp2dgeomdlg_ = new uiImp2DGeom( par_ );
+		    imp2dgeomdlg_->setModal( false );
+		}
 
-	    imp2dgeomdlg_->show();
+		imp2dgeomdlg_->show();
+	    }
+	    else if ( opt==1 )
+	    {
+		uiSEGP1ImpDlg dlg( par_ );
+		dlg.go();
+	    }
 	}
     break;
     case uiODApplMgr::PVDS:

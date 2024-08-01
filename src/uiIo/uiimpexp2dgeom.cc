@@ -329,3 +329,54 @@ bool uiExp2DGeom::acceptOK( CallBacker* )
     const bool res = uiMSG().askGoOn( msg );
     return !res;
 }
+
+
+
+uiSEGP1ImpDlg::uiSEGP1ImpDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup(tr("Import New Line Geometry"),
+				 mNoDlgTitle,
+				 mODHelpKey(mGeom2DImpDlgHelpID)))
+{
+    fnmfld_ = new uiASCIIFileInput( this, tr("Input SEG P1 File"), true );
+}
+
+
+uiSEGP1ImpDlg::~uiSEGP1ImpDlg()
+{}
+
+
+bool uiSEGP1ImpDlg::acceptOK( CallBacker* )
+{
+    const StringView inpfnm = fnmfld_->fileName();
+    if ( File::isEmpty(inpfnm) )
+    {
+	uiMSG().error( uiStrings::sInvInpFile() );
+	return false;
+    }
+
+    SEGP1Importer importer( inpfnm );
+    if ( !importer.execute() )
+    {
+	uiMSG().error( importer.errorWithDetails() );
+	return false;
+    }
+
+    const auto& entries = importer.entries();
+    uiStringSet errors;
+    for ( const auto* entry : entries )
+    {
+	uiString errmsg;
+	if ( !Survey::GMAdmin().write(*entry->geom_,errmsg) )
+	    errors.add( errmsg );
+    }
+
+    if ( !errors.isEmpty() )
+    {
+	uiMSG().errorWithDetails( errors, tr("Error during import:") );
+	return false;
+    }
+
+    uiMSG().message( tr("Lines successfully imported.") );
+
+    return true;
+}

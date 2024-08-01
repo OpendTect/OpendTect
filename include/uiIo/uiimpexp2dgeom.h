@@ -63,3 +63,17 @@ protected:
     uiFileInput*		outfld_;
     TypeSet<Pos::GeomID>	geomidset_;
 };
+
+
+mExpClass(uiIo) uiSEGP1ImpDlg : public uiDialog
+{ mODTextTranslationClass(uiSEGP1ImpDlg)
+public:
+				uiSEGP1ImpDlg(uiParent*);
+				~uiSEGP1ImpDlg();
+
+protected:
+
+    bool			acceptOK(CallBacker*) override;
+
+    uiFileInput*		fnmfld_;
+};
