@@ -756,6 +756,17 @@ void ColTab::SeqMgr::remove( int idx )
 }
 
 
+bool ColTab::SeqMgr::rename( const char* oldnm, const char* newnm )
+{
+    const int idx = indexOf( oldnm );
+    if ( idx < 0 )
+	return false;
+
+    seqs_[idx]->setName( newnm );
+    return true;
+}
+
+
 bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 {
     if ( !sys )

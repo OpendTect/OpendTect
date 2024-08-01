@@ -157,6 +157,7 @@ public:
 
     void		set(const Sequence&); //!< if name not yet present, adds
     void		remove(int);
+    bool		rename(const char* oldnm,const char* newnm);
 
     bool		write(bool sys=false,bool applsetup=true);
 
