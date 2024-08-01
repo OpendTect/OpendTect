@@ -67,8 +67,8 @@ public:
 				TrackParams()	{}
 				~TrackParams()	{}
 
-	const Coord3*		toppos_;
-	const Coord3*		botpos_;
+	const Coord3*		toppos_			= nullptr;
+	const Coord3*		botpos_			= nullptr;
 	bool			isdispabove_;
 	bool			isdispbelow_;
 	FontData		font_;
