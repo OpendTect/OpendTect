@@ -43,6 +43,7 @@ uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const Mnemonic& mn )
     }
 
     setHAlignObj( lognmfld_->box() );
+    mAttachCB( postFinalize(), uiWellSinglePropSel::updateSelCB );
 }
 
 
@@ -63,6 +64,7 @@ uiWellSinglePropSel::uiWellSinglePropSel( uiParent* p, const PropertyRef& pr )
     }
 
     setHAlignObj( lognmfld_->box() );
+    mAttachCB( postFinalize(), uiWellSinglePropSel::updateSelCB );
 }
 
 
