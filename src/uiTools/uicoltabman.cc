@@ -662,25 +662,24 @@ void uiColorTableMan::exportColTab( CallBacker* )
 class uiColTabRenameDlg : public uiGenInputDlg
 { mODTextTranslationClass(uiColTabRenameDlg)
 public:
-uiColTabRenameDlg( uiParent* p, ColTab::Sequence& seq )
+uiColTabRenameDlg( uiParent* p, const char* oldnm )
     : uiGenInputDlg(p,tr("Rename Color Table"),tr("New name"),
-		    new StringInpSpec(seq.name()))
-    , seq_(seq)
+		    new StringInpSpec(oldnm))
+    , oldnm_(oldnm)
 {
-    setTitleText( toUiString("%1 '%2'").arg(uiStrings::sRename())
-				       .arg(seq.name()));
+    setTitleText( toUiString("%1 '%2'").arg(uiStrings::sRename()).arg(oldnm));
 }
 
 
 bool acceptOK( CallBacker* ) override
 {
     const BufferString newnm = text();
-    if ( newnm==seq_.name() )
+    if ( newnm==oldnm_ )
 	return true;
 
     if ( ColTab::SM().indexOf(newnm.buf()) < 0 )
     {
-	seq_.setName( newnm.buf() );
+	newnm_ = newnm.buf();
     }
     else
     {
@@ -699,13 +698,16 @@ bool acceptOK( CallBacker* ) override
 	if ( !res )
 	    return false;
 
-	seq_.setName( altnm.buf() );
+	newnm_ = altnm.buf();
     }
 
     return true;
 }
 
-ColTab::Sequence& seq_;
+
+BufferString oldnm_;
+BufferString newnm_;
+
 
 };
 
@@ -721,10 +723,12 @@ void uiColorTableMan::renameColTab( CallBacker* )
 	return;
     }
 
-    uiColTabRenameDlg dlg( this, ctab_ );
+    const BufferString oldnm = ctab_.name();
+    uiColTabRenameDlg dlg( this, oldnm );
     if ( !dlg.go() )
 	return;
 
+    ColTab::SM().rename( oldnm, dlg.newnm_ );
     ColTab::SM().write();
-    refreshColTabList( ctab_.name() );
+    refreshColTabList( dlg.newnm_ );
 }
