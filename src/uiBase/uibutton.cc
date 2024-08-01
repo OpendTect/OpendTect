@@ -756,6 +756,16 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 }
 
 
+uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
+			    const uiString& tt )
+    : uiButton(parnt,tt,nullptr,mkbody(parnt,fnm,tt))
+    , mInitTBList
+{
+    mSetDefPrefSzs();
+    setToolTip( tt );
+}
+
+
 uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
