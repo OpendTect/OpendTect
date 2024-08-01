@@ -19,7 +19,7 @@ class uiColTabMarkerCanvas;
 class uiFunctionDisplay;
 class uiGenInput;
 class uiTreeView;
-class uiPushButton;
+class uiToolButton;
 class uiSpinBox;
 class uiWorld2Ui;
 class uiColTabImport;
@@ -47,8 +47,9 @@ protected:
     uiColorTableCanvas*		ctabcanvas_;
     uiColTabMarkerCanvas*	markercanvas_;
     uiTreeView*			coltablistfld_;
-    uiPushButton*       	removebut_;
-    uiPushButton*       	importbut_;
+    uiToolButton*       	removebut_;
+    uiToolButton*       	importbut_;
+    uiToolButton*       	exportbut_;
     uiColorInput*       	undefcolfld_;
     uiColorInput*       	markercolfld_;
     uiGenInput*			segmentfld_;
@@ -57,10 +58,10 @@ protected:
 
     BufferString		selstatus_;
     ColTab::Sequence&         	ctab_;
-    ColTab::Sequence*         	orgctab_;
+    ColTab::Sequence*         	orgctab_		= nullptr;
 
-    bool			issaved_;
-    int				selidx_;
+    bool			issaved_		= true;
+    int				selidx_			= -1;
 
     bool			enabletrans_;
 
@@ -70,7 +71,9 @@ protected:
     void			selChg(CallBacker*);
     void			removeCB(CallBacker*);
     void			saveCB(CallBacker*);
+    void			saveAsCB(CallBacker*);
     void			flipCB(CallBacker*);
+    void			itemRenamedCB(CallBacker*);
     bool			acceptOK(CallBacker*) override;
     bool			rejectOK(CallBacker*) override;
     void			reDraw( bool deep ) override	{ reDrawCB(0); }
@@ -90,6 +93,8 @@ protected:
     void			rightClick(CallBacker*);
     void			doSegmentize();
     void			importColTab(CallBacker*);
+    void			exportColTab(CallBacker*);
+    void			renameColTab(CallBacker*);
     void			transptSel(CallBacker*);
     void			transptChg(CallBacker*);
     void			sequenceChange(CallBacker*);
