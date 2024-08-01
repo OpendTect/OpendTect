@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "tabledef.h"
 
+#include <string.h>
+
+
 Geom2dAscIO::Geom2dAscIO( const Table::FormatDesc& fd, od_istream& strm )
     : Table::AscIO( fd )
     , strm_( strm )
