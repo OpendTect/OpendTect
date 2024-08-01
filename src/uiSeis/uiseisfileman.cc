@@ -176,7 +176,7 @@ void uiSeisFileMan::checkAllEntriesOK()
     for ( const auto& id : allids )
     {
 	const int idx = allids.indexOf( id );
-	const IOObj* obj = IOM().get( id );
+	ConstPtrMan<IOObj> obj = IOM().get( id );
 	if ( !obj )
 	{
 	    selgrp_->setIsBad( idx );

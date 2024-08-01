@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uimsg.h"
 #include "uisplitter.h"
 #include "uitextedit.h"
 #include "uitoolbutton.h"
@@ -120,10 +121,12 @@ void uiObjFileMan::finalizeStartCB( CallBacker* )
 
 void uiObjFileMan::finalizeDoneCB( CallBacker* )
 {
+    uiUserShowWait usw( parent(), tr("Launching manager") );
     mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
     mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
     initDlg();
     selChg( nullptr );
+    checkAllEntriesOK();
 }
 
 
@@ -236,7 +239,6 @@ void uiObjFileMan::readNotes()
 
 void uiObjFileMan::selChg( CallBacker* )
 {
-    checkAllEntriesOK();
     saveNotes( nullptr );
     delete curioobj_;
     curioobj_ = selgrp_->nrChosen() > 0 ? IOM().get(selgrp_->currentID()) : 0;
@@ -459,6 +461,7 @@ void uiObjFileMan::updateCB( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiObjFileMan::updateCB );
 
+    uiUserShowWait usw( this, tr("Reloading the list of Seismic data") );
     const MultiID curmid = selgrp_->currentID();
     selgrp_->fullUpdate( curmid );
     updateList();
