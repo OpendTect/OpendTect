@@ -134,6 +134,8 @@ public:
     const char*		unixDataRoot() const;
     void		setWinDataRoot(const char*);
     const char*		winDataRoot() const;
+    void		setPrefixLength(int);
+    int			prefixLength() const;
 
     bool		refresh(bool foredit=false);
 
@@ -164,6 +166,8 @@ protected:
     BufferString	unx_appl_pr_;
     BufferString	win_data_pr_;
     BufferString	unx_data_pr_;
+    int&		prefixlength_();
+    int&		prefixlength_() const;
 
     void		handleLocal();
     void		initDataRoot();

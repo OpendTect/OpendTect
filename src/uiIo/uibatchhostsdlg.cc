@@ -62,6 +62,13 @@ static const char* sIconNames[] =
 };
 
 
+static int& getBatchHostsDlgPrefix()
+{
+    static int prefixlength = -1;
+    return prefixlength;
+}
+
+
 template<>
 void EnumDefImpl<uiBatchHostsDlg::Status>::init()
 {
@@ -89,6 +96,9 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	hostdatalist_.setUnixDataRoot( GetBaseDataDir() );
     else if ( __iswin__ && BufferString(hostdatalist_.winDataRoot()).isEmpty() )
 	hostdatalist_.setWinDataRoot( GetBaseDataDir() );
+
+    int& prefixlen_ = getBatchHostsDlgPrefix();
+    prefixlen_ = hostdatalist_.prefixLength();
 
     const char* bhfnm = hostdatalist_.getBatchHostsFilename();
     const FilePath bhfp = bhfnm;
@@ -229,9 +239,18 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     auto* portnrfld = new uiGenInput( &dlg, tr("First Port"),
 				      IntInpSpec(portnr,portrg) );
     portnrfld->attach( ensureBelow, albl );
+    int& prefixlen_ = getBatchHostsDlgPrefix();
+    prefixlen_ = hostdatalist_.prefixLength();
+    const StepInterval<int> prefixrg( 0, 24, 8 );
+    BufferStringSet mask( "0.0.0.0", "255.0.0.0", "255.255.0.0" );
+    mask.add( "255.255.255.0" );
+    auto* subnetfld = new uiGenInput( &dlg, tr("Subnet Mask"),
+						      StringListInpSpec(mask) );
+    subnetfld->attach( alignedBelow, portnrfld );
+    subnetfld->setValue( prefixlen_/8 );
 
     auto* sep = new uiSeparator( &dlg );
-    sep->attach( stretchedBelow, portnrfld );
+    sep->attach( stretchedBelow, subnetfld );
 
     auto* ulbl = new uiLabel( &dlg, tr("Settings for UNIX only:") );
     ulbl->attach( leftBorder );
@@ -283,6 +302,8 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     hostdatalist_.setFirstPort( PortNr_Type(portnrfld->getIntValue()) );
     hostdatalist_.setUnixDataRoot( unixdrfld->text() );
     hostdatalist_.setWinDataRoot( windrfld->text() );
+    prefixlen_ = subnetfld->getIntValue() * 8;
+    hostdatalist_.setPrefixLength( prefixlen_ );
 }
 
 
@@ -512,13 +533,6 @@ static BufferString& getBatchHostsDlgLocalAddr()
 {
     static BufferString localaddr;
     return localaddr;
-}
-
-
-static int& getBatchHostsDlgPrefix()
-{
-    static int prefixlength = -1;
-    return prefixlength;
 }
 
 
