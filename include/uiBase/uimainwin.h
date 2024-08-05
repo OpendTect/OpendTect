@@ -166,6 +166,7 @@ public:
     void		setGeometry(const uiRect&);
     void		setSizeRelativeToScreen(float width,float height);
 			//!< width=.75 means 75% of screenwidth
+    void		adjustSize();
 
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet

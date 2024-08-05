@@ -1867,9 +1867,6 @@ static int sMaxHeight = 400;
 
 void uiListBox::resizeWidthToContents( int minw, int maxw )
 {
-    if ( finalized() )
-	return;
-
     const int nritems = size();
     if ( nritems==0 )
 	return;
@@ -1896,6 +1893,9 @@ void uiListBox::resizeWidthToContents( int minw, int maxw )
     if ( prefwidth > maxw )
 	prefwidth = maxw;
     lb_->setPrefWidth( prefwidth );
+
+    lb_->body().adjustSize();
+    adjustSize();
 }
 
 

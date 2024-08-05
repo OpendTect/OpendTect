@@ -75,6 +75,7 @@ public:
 			{ setHSpacing(s); setVSpacing(s); }
     void		setBorder(int);
     void		setBorder(int l,int t,int r,int b);
+    void		adjustSize();
 
     void		setFrame(bool yn=true);
     void		setNoBackGround();

@@ -325,6 +325,12 @@ void uiMainWin::setGeometry( const uiRect& rect )
 }
 
 
+void uiMainWin::adjustSize()
+{
+    body_->adjustSize();
+}
+
+
 void uiMainWin::setSizeRelativeToScreen( float width, float height )
 {
     if ( width<0.05 || width>1 )
