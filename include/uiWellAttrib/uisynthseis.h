@@ -21,8 +21,8 @@ class SynthGenParams;
 class uiFreqFilter;
 class uiGenInput;
 class uiLabeledComboBox;
-class uiLabeledListBox;
 class uiLabeledSpinBox;
+class uiListBox;
 class uiSynthSeisSel;
 
 
@@ -160,7 +160,7 @@ private:
     uiLabeledComboBox*		psselfld_;
     uiLabeledComboBox*		inpselfld_;
     uiGenInput*			angleinpfld_;
-    uiLabeledListBox*		instattribfld_;
+    uiListBox*			instattribfld_;
     uiGenInput*			namefld_;
     uiGenInput*			filtertypefld_;
     uiFreqFilter*		freqfld_;

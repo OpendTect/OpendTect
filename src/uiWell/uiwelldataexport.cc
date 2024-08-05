@@ -125,7 +125,7 @@ uiWellExportFacility::uiWellExportFacility( uiParent* p,
     loggrp_ = new uiGroup( this, "LogGroup" );
     loggrp_->attach( ensureBelow, botsep );
 
-    loglist_ = new uiLabeledListBox( loggrp_, uiStrings::sLogs(),
+    loglist_ = new uiListBox( loggrp_, uiStrings::sLogs(),
 				    OD::ChoiceMode::ChooseZeroOrMore );
     loglist_->attach( leftBorder );
     loggrp_->setHAlignObj( loglist_ );

@@ -510,6 +510,21 @@ uiListBox::uiListBox( uiParent* p, const Setup& setup, const char* nm )
 }
 
 
+uiListBox::uiListBox( uiParent* p, const uiString& lbl, OD::ChoiceMode cm,
+		      uiListBox::LblPos lp, const char* nm )
+    : uiGroup(p,nm)
+    mStdInit(cm)
+{
+    lb_ = new uiListBoxObj( this, nm, choicemode_ );
+
+    mkCheckGroup();
+    mkLabel( lbl, lp );
+    setHAlignObj( lb_ );
+
+    mStdConstrEnd;
+}
+
+
 uiListBox::~uiListBox()
 {
     delete &rightclickmnu_;

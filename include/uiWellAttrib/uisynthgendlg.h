@@ -22,7 +22,6 @@ class uiFullSynthSeisSel;
 class uiGenInput;
 class uiListBox;
 class uiLabeledComboBox;
-class uiLabeledListBox;
 class uiPushButton;
 
 mExpClass(uiWellAttrib) uiSynthParsGrp : public uiGroup

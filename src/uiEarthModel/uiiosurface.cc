@@ -934,10 +934,10 @@ uiFaultParSel::uiFaultParSel( uiParent* p, EM::ObjectType typ,
 			      bool useoptions )
     : uiCompoundParSel(p,toUiString("***************"))
       //Hack So that textfld_ label is correctly updated
+    , selChange(this)
     , objtype_(typ)
     , useoptions_(useoptions)
     , defaultoptidx_(0)
-    , selChange(this)
 {
     mAttachCB( butPush, uiFaultParSel::doDlg );
     setSelText( typ == EM::ObjectType::Flt3D
@@ -1112,8 +1112,7 @@ uiAuxDataGrp::uiAuxDataGrp( uiParent* p, bool forread )
     : uiGroup(p,"AuxData Group")
     , inpfld_(nullptr)
 {
-    auto* llb = new uiLabeledListBox( this, uiStrings::sHorizonData() );
-    listfld_ = llb->box();
+    listfld_ = new uiListBox( this, uiStrings::sHorizonData() );
     listfld_->setHSzPol( uiObject::Wide );
 
     if ( !forread )

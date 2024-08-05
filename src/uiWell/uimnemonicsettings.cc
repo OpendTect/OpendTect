@@ -27,9 +27,9 @@ ________________________________________________________________________
 uiMnemonicSettings::uiMnemonicSettings( uiParent* p, Settings& setts )
     : uiSettingsGroup(p, uiStrings::sMnemonic(), setts)
 {
-    auto* lb = new uiLabeledListBox( this, uiStrings::sMnemonic(),
-			       OD::ChooseOnlyOne, uiLabeledListBox::AboveLeft );
-    mnemonicsfld_ = lb->box();
+    uiListBox::Setup su( OD::ChooseOnlyOne, uiStrings::sMnemonic(),
+			 uiListBox::AboveLeft );
+    mnemonicsfld_ = new uiListBox( this, su );
 
     auto* rightgrp = new uiGroup( this );
     mnempropsfld_ = new uiMnemonicProperties( rightgrp );

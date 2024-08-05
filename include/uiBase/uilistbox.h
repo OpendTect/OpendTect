@@ -108,6 +108,10 @@ public:
 			uiListBox(uiParent*,const char* nm,
 				  OD::ChoiceMode cm=OD::ChooseOnlyOne);
 			uiListBox(uiParent*,const Setup&,const char* nm);
+			uiListBox(uiParent*,const uiString& lbl,
+				  OD::ChoiceMode cm=OD::ChooseOnlyOne,
+				  uiListBox::LblPos lp=uiListBox::LeftTop,
+				  const char* nm="listbox");
     virtual		~uiListBox();
 			mOD_DisableCopy(uiListBox)
 
@@ -329,9 +333,12 @@ public:
 			  AboveLeft, AboveMid, AboveRight,
 			  BelowLeft, BelowMid, BelowRight };
 
+mDeprecated("Use uiListBox")
 			uiLabeledListBox(uiParent*,const uiString& lbltxt);
+mDeprecated("Use uiListBox")
 			uiLabeledListBox(uiParent*,const uiString& lbltxt,
 				     OD::ChoiceMode,LblPos p=LeftMid);
+mDeprecated("Use uiListBox")
 			uiLabeledListBox(uiParent*,const BufferStringSet&,
 				     const uiString& lbltxt,
 				     OD::ChoiceMode,LblPos p=LeftMid);

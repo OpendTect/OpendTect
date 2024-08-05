@@ -528,12 +528,12 @@ uiFullSynthSeisSel::uiFullSynthSeisSel( uiParent* p, const Setup& su )
 
     EnumDef attribs = Attrib::Instantaneous::OutTypeDef();
     attribs.remove( attribs.getKeyForIndex(Attrib::Instantaneous::RotatePhase));
-    instattribfld_ = new uiLabeledListBox( topgrp, uiStrings::sAttribute(),
+    instattribfld_ = new uiListBox( topgrp, uiStrings::sAttribute(),
 					   OD::ChooseAtLeastOne );
 
-    instattribfld_->box()->addItems( attribs.strings() );
+    instattribfld_->addItems( attribs.strings() );
     instattribfld_->attach( alignedBelow, inpselfld_ );
-    mAttachCB( instattribfld_->box()->selectionChanged,
+    mAttachCB( instattribfld_->selectionChanged,
 	       uiFullSynthSeisSel::parsChangedCB );
 
     filtertypefld_ = new uiGenInput( topgrp, uiStrings::sType(),
@@ -743,7 +743,7 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
     else if ( genparams.isAttribute() )
     {
 	NotifyStopper ns_inpsel( inpselfld_->box()->selectionChanged );
-	NotifyStopper ns_instattrib( instattribfld_->box()->selectionChanged );
+	NotifyStopper ns_instattrib( instattribfld_->selectionChanged );
 	uiComboBox* inpbox = inpselfld_->box();
 	if ( inpbox->isPresent(genparams.inpsynthnm_) )
 	{
@@ -763,8 +763,8 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 				  inpbox->size() > 1 );
 	}
 
-	instattribfld_->box()->chooseAll( false );
-	instattribfld_->box()->setChosen( genparams.attribtype_ );
+	instattribfld_->chooseAll( false );
+	instattribfld_->setChosen( genparams.attribtype_ );
     }
     else if ( genparams.isFiltered() )
     {
@@ -820,7 +820,7 @@ bool uiFullSynthSeisSel::usePar( const IOPar& par )
 
 void uiFullSynthSeisSel::getChosenInstantAttribs( BufferStringSet& nms ) const
 {
-    instattribfld_->box()->getChosen( nms );
+    instattribfld_->getChosen( nms );
 }
 
 
@@ -901,7 +901,7 @@ void uiFullSynthSeisSel::fillPar( IOPar& iop ) const
     else if ( sgp.isAttribute() )
     {
 	const Attrib::Instantaneous::OutType attribtype =
-	  (Attrib::Instantaneous::OutType) instattribfld_->box()->firstChosen();
+	  (Attrib::Instantaneous::OutType) instattribfld_->firstChosen();
 	iop.set( SynthGenParams::sKeyInput(), inpselfld_->box()->text() );
 	iop.set( sKey::Attribute(),Attrib::Instantaneous::toString(attribtype));
     }

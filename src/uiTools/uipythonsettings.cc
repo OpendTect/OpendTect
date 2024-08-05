@@ -589,7 +589,7 @@ void uiPythonSettings::testPythonModules()
     pythfld->setText( OD::PythA().pyVersion() );
     pythfld->setReadOnly();
     pythfld->setElemSzPol( uiObject::Wide );
-    auto* modfld = new uiLabeledListBox( &dlg, tr("Detected modules") );
+    auto* modfld = new uiListBox( &dlg, tr("Detected modules") );
     modfld->addItems( modstrs );
     modfld->attach( alignedBelow, pythfld );
     dlg.go();

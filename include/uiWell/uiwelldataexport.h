@@ -15,7 +15,7 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
-class uiLabeledListBox;
+class uiListBox;
 class uiRadioButton;
 class uiToolButton;
 class uiWellMan;
@@ -46,7 +46,7 @@ protected :
     uiWellSel*			wellselfld_;
     uiGenInput*			ztypefld_;
     uiGenInput*			traveltymfld_;
-    uiLabeledListBox*		loglist_;
+    uiListBox*			loglist_;
     uiGenInput*			basenmfld_;
     uiFileInput*		outfilefld_;
     uiToolButton*		wellmanbut_;
