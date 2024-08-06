@@ -90,6 +90,8 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     else if ( __iswin__ && BufferString(hostdatalist_.winDataRoot()).isEmpty() )
 	hostdatalist_.setWinDataRoot( GetBaseDataDir() );
 
+    prefixlength_ = hostdatalist_.prefixLength();
+
     const char* bhfnm = hostdatalist_.getBatchHostsFilename();
     const FilePath bhfp = bhfnm;
     const BufferString datadir = bhfp.pathOnly();
@@ -229,9 +231,15 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     auto* portnrfld = new uiGenInput( &dlg, tr("First Port"),
 				      IntInpSpec(portnr,portrg) );
     portnrfld->attach( ensureBelow, albl );
+    BufferStringSet mask( "0.0.0.0", "255.0.0.0", "255.255.0.0" );
+    mask.add( "255.255.255.0" );
+    auto* subnetfld = new uiGenInput( &dlg, tr("Subnet Mask"),
+						      StringListInpSpec(mask) );
+    subnetfld->attach( alignedBelow, portnrfld );
+    subnetfld->setValue( prefixlength_/8 );
 
     auto* sep = new uiSeparator( &dlg );
-    sep->attach( stretchedBelow, portnrfld );
+    sep->attach( stretchedBelow, subnetfld );
 
     auto* ulbl = new uiLabel( &dlg, tr("Settings for UNIX only:") );
     ulbl->attach( leftBorder );
@@ -283,6 +291,8 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
     hostdatalist_.setFirstPort( PortNr_Type(portnrfld->getIntValue()) );
     hostdatalist_.setUnixDataRoot( unixdrfld->text() );
     hostdatalist_.setWinDataRoot( windrfld->text() );
+    prefixlength_ = subnetfld->getIntValue() * 8;
+    hostdatalist_.setPrefixLength( prefixlength_ );
 }
 
 

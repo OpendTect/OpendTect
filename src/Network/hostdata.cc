@@ -351,8 +351,6 @@ bool HostData::isOK( uiString& errmsg, const char* defaultdataroot,
 {
     const BufferString nodenm( connAddress() );
     uiString endmsg;
-    if ( staticip_ && BufferString(getHostName()).isEmpty() )
-	endmsg = tr( "IP address lookup failed" );
     if ( !staticip_ && BufferString(getIPAddress()).isEmpty() )
 	endmsg = tr( "Hostname lookup failed" );
 
@@ -455,6 +453,7 @@ static const char* sKeyNiceLevel()	{ return "Nice level"; }
 static const char* sKeyFirstPort()	{ return "First port"; }
 static const char* sKeyUnixDataRoot()	{ return "Default Unix Data Root"; }
 static const char* sKeyWinDataRoot()	{ return "Default Windows Data Root"; }
+static const char* sKeyPrefixLength()	{ return "Subnet prefix length"; }
 
 // HostDataList
 
@@ -538,6 +537,8 @@ void HostDataList::setFirstPort( PortNr_Type port )	{ firstport_ = port; }
 PortNr_Type HostDataList::firstPort() const		{ return firstport_; }
 void HostDataList::setLoginCmd( const char* cmd )	{ logincmd_ = cmd; }
 const char* HostDataList::loginCmd() const		{ return logincmd_; }
+void HostDataList::setPrefixLength( int len )	{ prefixlength_ = len; }
+int HostDataList::prefixLength() const		{ return prefixlength_; }
 
 void HostDataList::setUnixDataRoot( const char* dr )
 { unx_data_pr_.set( dr ); }
@@ -572,6 +573,7 @@ bool HostDataList::readHostFile( const char* fnm )
     par.get( sKeyNiceLevel(), nicelvl_ );
     par.get( sKeyFirstPort(), firstport_ );
     OS::MachineCommand::setDefaultRemExec( logincmd_ );
+    par.get( sKeyPrefixLength(), prefixlength_ );
 
     BufferString dataroot;
     par.get( sKeyUnixDataRoot(), dataroot );
@@ -706,6 +708,7 @@ bool HostDataList::writeHostFile( const char* fnm )
     par.set( sKeyUnixDataRoot(), unx_data_pr_ );
     win_data_pr_.replace( ":", ";" );
     par.set( sKeyWinDataRoot(), win_data_pr_ );
+    par.set( sKeyPrefixLength(), prefixLength() );
 
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -742,6 +745,7 @@ void HostDataList::dump( od_ostream& strm ) const
     mPrMemb(this,unx_appl_pr_)
     mPrMemb(this,win_data_pr_)
     mPrMemb(this,unx_data_pr_)
+    mPrMemb(this,prefixlength_)
 
     strm << "--\n-- -- Host data:\n--\n";
     for ( int idx=0; idx<size(); idx++ )
@@ -927,8 +931,11 @@ bool HostDataList::isOK( uiStringSet& errors, bool testall,
 	const bool hasprefix =
 	    System::getLocalNetMask( localaddr.str(), qnetmask, prefixlength )
 	    && prefixlength != -1;
-	if ( prefixlengthret )
+	if ( prefixlengthret && *prefixlengthret==-1 )
+	{
 	    *prefixlengthret = prefixlength;
+	    prefixlength_ = prefixlength;
+	}
 
 	if ( !hasprefix )
 	{
@@ -962,7 +969,7 @@ bool HostDataList::isOK( uiStringSet& errors, bool testall,
 	const char* defaultdataroot = hd->isWindows() ? win_data_pr_.buf()
 						      : unx_data_pr_.buf();
 	uiString msg;
-	if ( !hd->isOK(msg,defaultdataroot,localaddr.str(),prefixlength) )
+	if ( !hd->isOK(msg,defaultdataroot,localaddr.str(),prefixlength_) )
 	    errors.add( msg );
     }
 
