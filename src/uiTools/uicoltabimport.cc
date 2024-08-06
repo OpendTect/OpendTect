@@ -238,7 +238,10 @@ void uiColTabImport::getFromSettingsPar( const IOPar& par )
 		   (uiStrings::sColorTable(), tr("from Selected"),
 		    uiStrings::sFile())));
     else
+    {
+	listfld_->sortItems();
 	showList();
+    }
 }
 
 

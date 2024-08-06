@@ -10,47 +10,33 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
-#include "uistring.h"
 
-namespace ColTab { class Sequence; class SeqMgr; }
+namespace ColTab { class Sequence; }
 
 class uiFileInput;
 class uiGenInput;
-class uiLabel;
 class uiListBox;
 
 
 mExpClass(uiTools) uiColTabExport : public uiDialog
-{ mODTextTranslationClass(uiColTabExport)
+{
+mODTextTranslationClass(uiColTabExport)
 public:
-    enum ExportType	{ OtherUser, ODTColTab, PetrelAlut };
-    mDeclareEnumUtils(ExportType)
 
 				uiColTabExport(uiParent*);
 				~uiColTabExport();
-
-    const char*			getCurrentSelColTab() const;
 
 protected:
 
     uiGenInput*			choicefld_;
     uiFileInput*		dirfld_;
-    uiGenInput*			dtectusrfld_;
     uiListBox*			listfld_;
-    uiLabel*			messagelbl_;
 
-    ObjectSet<ColTab::Sequence> seqs_;
-
-    void			choiceSel(CallBacker*);
-    void			usrSel(CallBacker*);
     bool			acceptOK(CallBacker*) override;
+    void			fillList();
 
-    void			showMessage(const uiString&);
-    void			showList();
-
-    void			getFromSettingsPar(const IOPar&);
-    void			getFromAlutFiles(const BufferStringSet&);
-
-private :
-    static uiString		getLabel(ExportType);
+    void			writeAlutFile(const ColTab::Sequence&,
+					      od_ostream&);
+    void			writeODFile(const ColTab::Sequence&,
+					    od_ostream&);
 };
