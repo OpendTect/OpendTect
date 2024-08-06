@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uigoogleexpdlg.h"
+
 class uiMultiWellSel;
 class uiColorInput;
 
@@ -18,6 +19,7 @@ public:
 
 			uiGISExportWells(uiParent*,
 					    const MultiID& mid=MultiID::udf());
+			uiGISExportWells(uiParent*,const TypeSet<MultiID>&);
 			~uiGISExportWells();
 
 protected:
@@ -29,9 +31,11 @@ protected:
 
     // might require icon name or color
     uiGISExpStdFld*	expfld_;
+
+    void		createFields();
+
     bool		acceptOK(CallBacker*) override;
     void		putSel(CallBacker*);
 
-    MultiID		multiid_;
-    bool		ismultisel_;
+    TypeSet<MultiID>	wellids_;
 };
