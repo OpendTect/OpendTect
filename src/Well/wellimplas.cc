@@ -93,7 +93,7 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
     char section = '-';
     lfi.depthcolnr_ = -1;
     int colnr = 0;
-    LatLong ll;
+    LatLong ll = LatLong::udf();
 
     while ( strm.isOK() )
     {
@@ -291,7 +291,7 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 		BufferString locy = val2 && *val2 ? val2 : val1;
 		lfi.loc_.y = toDouble( locy, mUdf(double) );
 	    }
-	    if ( mIsKey("LATI") || mIsKey("LAT") )
+	    if ( mIsKey("LATI") || mIsKey("LAT") || mIsKey("SLAT") )
 	    {
 		BufferString lat = val2 && *val2 ? val2 : val1;
 		if ( LatLong::isDMSString(lat) )
@@ -299,7 +299,7 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 
 		ll.setFromString( lat, true );
 	    }
-	    if ( mIsKey("LONG") || mIsKey("LON") )
+	    if ( mIsKey("LONG") || mIsKey("LON") || mIsKey("SLON") )
 	    {
 		BufferString lon = val2 && *val2 ? val2 : val1;
 		if ( LatLong::isDMSString(lon) )
