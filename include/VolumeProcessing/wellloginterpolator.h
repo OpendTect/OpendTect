@@ -60,7 +60,7 @@ public:
 
     void			fillPar(IOPar&) const override;
     bool			usePar(const IOPar&) override;
-    uiString		errMsg() const override { return errmsg_; }
+    uiString			errMsg() const override { return errmsg_; }
 
     bool			canInputAndOutputBeSame() const override
 				{ return true; }
@@ -81,14 +81,15 @@ protected:
     bool			prepareComp(int) override;
     bool			computeBinID(const BinID&,int) override;
 
-    InterpolationLayerModel*	layermodel_;
-    Gridder2D*			gridder_;
+    InterpolationLayerModel*	layermodel_			= nullptr;
+    Gridder2D*			gridder_			= nullptr;
     InverseDistanceGridder2D*	invdistgridder_;
     PolyTrend::Order		trendorder_;
     ObjectSet<WellLogInfo>	infos_;
     TypeSet<MultiID>		wellmids_;
     BufferString		logname_;
-    bool			doinverse_;
+    bool			doinverse_			= false;
+    int				workareastepout_		= mUdf(int);
 
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;

@@ -224,26 +224,23 @@ bool createInterpolationFunctions( const InterpolationLayerModel& layermodel )
 }
 
 
-Well::Track*		track_ = nullptr;
-TrcKeyZSampling		bbox_;
-MultiID			mid_;
-BufferString		logname_;
-const Well::Log*	log_ = nullptr;
-bool			logisvelocity_ = false;
-Well::ExtractParams	params_;
-PointBasedMathFunction	logfunc_;
-PointBasedMathFunction	mdfunc_;
+    Well::Track*		track_			= nullptr;
+    TrcKeyZSampling		bbox_;
+    MultiID			mid_;
+    BufferString		logname_;
+    const Well::Log*		log_			= nullptr;
+    bool			logisvelocity_		= false;
+    Well::ExtractParams		params_;
+    PointBasedMathFunction	logfunc_;
+    PointBasedMathFunction	mdfunc_;
 
 };
 
 
 
 WellLogInterpolator::WellLogInterpolator()
-    : gridder_(0)
-    , layermodel_(0)
-    , invdistgridder_(new InverseDistanceGridder2D())
+    : invdistgridder_(new InverseDistanceGridder2D())
     , trendorder_(PolyTrend::None)
-    , doinverse_(false)
 {}
 
 
@@ -423,15 +420,28 @@ bool WellLogInterpolator::prepareComp( int )
     return true;
 }
 
+static TrcKeySampling getWorkArea( const BinID& bid, int so )
+{
+    const TrcKeySampling sitks( true );
+    if ( mIsUdf(so) )
+	return sitks;
 
-static void getCornerPoints( const BinID& bid, TypeSet<Coord>& corners )
+    TrcKeySampling tks( true );
+    tks.start_ = BinID(bid.inl()-so,bid.crl()-so);
+    tks.stop_ = BinID(bid.inl()+so,bid.crl()+so);
+    tks.limitTo( sitks );
+    return tks;
+}
+
+
+static void getCornerPoints( const BinID& bid, int so, TypeSet<Coord>& corners )
 {
     corners.setEmpty();
-    const TrcKeyZSampling tkzs( SI().sampling( false ) );
-    const TrcKeySampling& tks = tkzs.hsamp_;
-
     TypeSet<BinID> cornerbids;
     cornerbids.add( bid );
+
+    const TrcKeyZSampling tkzs( SI().sampling(false) );
+    const TrcKeySampling tks = getWorkArea( bid, so );
 
     cornerbids.addIfNew( BinID( tks.start_.inl(), tks.start_.crl() ) );
     cornerbids.addIfNew( BinID( tks.start_.inl(), tks.stop_.crl() ) );
@@ -482,13 +492,23 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	 (bid.crl()-outputcrlrg_.start)%outputcrlrg_.step )
 	return true;
 
+    const TrcKeySampling tks = getWorkArea( bid, workareastepout_ );
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     Array3D<float>& outputarray = output->data(0);
     const int nrz = output->sampling().nrZ();
     const int nrwells = infos_.size();
+    TypeSet<int> wells2use;
+    for ( int iwell=0; iwell<nrwells; iwell++ )
+    {
+	const Coord pos = infos_[iwell]->track_->pos(0);
+	if ( !tks.includes(SI().transform(pos),true) )
+	    continue;
+
+	wells2use += iwell;
+    }
 
     TypeSet<Coord> corners;
-    getCornerPoints( bid, corners );
+    getCornerPoints( bid, workareastepout_, corners );
 
     const TrcKeySampling& hs = output->sampling().hsamp_;
     const int outputinlidx = outputinlrg_.nearestIndex( bid.inl() );
@@ -512,8 +532,9 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 
 	points.setEmpty();
 	logvals.setEmpty();
-	for ( int iwell=0; iwell<nrwells; iwell++ )
+	for ( int idw=0; idw<wells2use.size(); idw++ )
 	{
+	    const int iwell = wells2use[idw];
 	    const float md = infos_[iwell]->mdfunc_.getValue( layeridx );
 	    const Coord pos = infos_[iwell]->track_->getPos( md ).coord();
 	    const float logval = infos_[iwell]->logfunc_.getValue( layeridx );
@@ -590,6 +611,9 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
 	params_.samppol_ = samppol;
 
     pars.get( sKeyLogName(), logname_ );
+
+    workareastepout_ = mUdf(int);
+    pars.get( "Stepout", workareastepout_ );
 
     wellmids_.erase();
     int nrwells = 0;
