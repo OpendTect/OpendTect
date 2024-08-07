@@ -328,7 +328,7 @@ void uiAttrSelDlg::createSelectionFields()
     storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     storoutfld_->attach( rightOf, selgrp_ );
     setPreloadIcon( storoutfld_, attrinf_->ioobjids_ );
-    storoutfld_->resizeWidthToContents();
+    storoutfld_->resizeToContents();
 
     steeroutfld_ = new uiListBox( this, "Steered output" );
     steeroutfld_->addItems( attrinf_->steernms_ );
@@ -407,9 +407,15 @@ void uiAttrSelDlg::selDone( CallBacker* )
     if ( storoutfld_ || steeroutfld_ )
     {
 	if ( storoutfld_ )
+	{
 	    storoutfld_->display( seltyp==0 );
+	    storoutfld_->adjustSize();
+	}
 	if ( steeroutfld_ )
+	{
 	    steeroutfld_->display( seltyp==1 );
+	    steeroutfld_->adjustSize();
+	}
     }
 
     const bool isstoreddata = seltyp==0 || seltyp==1;
