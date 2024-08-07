@@ -16,13 +16,12 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "paralleltask.h"
-#include "progressmeter.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
 #include "task.h"
+#include "uistrings.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"
-#include "uistrings.h"
 
 
 namespace VolProc
@@ -94,12 +93,12 @@ public:
     uiString			uiNrDoneText() const override
 						{ return tr("CDPs gridded"); }
 
-    VelocityGridder&		getStep()	      { return step_; }
+    VelocityGridder&		getStep()	{ return step_; }
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }
     const BinIDValueSet&	definedBids() const   { return definedbids_; }
     const TypeSet<Coord>&	definedPts() const    { return definedpts_; }
     const TypeSet<BinIDValueSet::SPos>& definedPos() const
-							{ return definedpos_;}
+						{ return definedpos_; }
 
 protected:
     int				nrdone_;
@@ -328,8 +327,8 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 
 // VelGriddingFromVolumeTask
 VelGriddingFromVolumeTask::VelGriddingFromVolumeTask(VelGriddingTask& task )
-    : task_( task )
-    , completedbids_( 0, false )
+    : completedbids_(0,false)
+    , task_(task)
 {}
 
 
@@ -340,7 +339,9 @@ VelGriddingFromVolumeTask::~VelGriddingFromVolumeTask()
 
 
 od_int64 VelGriddingFromVolumeTask::nrIterations() const
-{ return task_.remainingBids().totalSize(); }
+{
+    return task_.remainingBids().totalSize();
+}
 
 
 bool VelGriddingFromVolumeTask::doPrepare( int nrthreads )
@@ -454,8 +455,8 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 static const char* sKeyLayerModel()	{ return "Layer Model"; }
 
 VelocityGridder::VelocityGridder()
-    : gridder_(0)
-    , layermodel_(0)
+    : layermodel_(0)
+    , gridder_(0)
 {}
 
 

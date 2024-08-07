@@ -57,7 +57,9 @@ Seis2DTo3D::~Seis2DTo3D()
 
 
 bool Seis2DTo3D::init( const IOPar& pars )
-{ return usePar(pars); }
+{
+    return usePar(pars);
+}
 
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
@@ -100,7 +102,8 @@ bool Seis2DTo3D::setIO( const IOPar& pars )
 	mErrRet( tr("Output cube entry not found") )
 
     PtrMan<IOPar> subsel = pars.subselect( sKey::Output() );
-    if ( !subsel ) return false;
+    if ( !subsel )
+	return false;
 
     PtrMan<IOPar> sampling = subsel->subselect( sKey::Subsel() );
     if ( !sampling )
@@ -216,7 +219,10 @@ int Seis2DTo3D::nextStep()
 	return ErrorOccurred();
 
     if ( !hsit_.next(curbid_) )
-	{ writeTmpTrcs(); return Finished(); }
+    {
+	writeTmpTrcs();
+	return Finished();
+    }
 
     if ( !SI().sampling(false).hsamp_.includes(curbid_) )
 	return MoreToDo();
@@ -227,14 +233,16 @@ int Seis2DTo3D::nextStep()
     if ( curbid_.inl() != prevbid_.inl() )
     {
 	if ( !writeTmpTrcs() )
-	    { errmsg_ = tr( "Can not write trace" ); return ErrorOccurred(); }
+	{
+	    errmsg_ = tr( "Can not write trace" );
+	    return ErrorOccurred();
+	}
+
 	prevbid_ = curbid_;
     }
 
     if ( nearesttrace_ )
-    {
 	doWorkNearest();
-    }
     else
     {
 	if ( !doWorkFFT() )
@@ -262,17 +270,21 @@ void Seis2DTo3D::doWorkNearest()
 	    break;
 	}
 
-	int xx0 = bid.inl()-curbid_.inl();     xx0 *= xx0;
-	int yy0 = bid.crl()-curbid_.crl();     yy0 *= yy0;
+	int xx0 = bid.inl()-curbid_.inl();
+	xx0 *= xx0;
+	int yy0 = bid.crl()-curbid_.crl();
+	yy0 *= yy0;
 
-	if ( (	xx0 + yy0  ) < mindist || mIsUdf(mindist) )
+	if ( (xx0 + yy0)<mindist || mIsUdf(mindist) )
 	{
 	    nearesttrc = trc;
 	    mindist = xx0 + yy0;
 	}
     }
 
-    if ( !nearesttrc ) return;
+    if ( !nearesttrc )
+	return;
+
     auto* newtrc = new SeisTrc( *nearesttrc );
     newtrc->info().setPos( curbid_ );
     tmpseisbuf_.add( newtrc );
