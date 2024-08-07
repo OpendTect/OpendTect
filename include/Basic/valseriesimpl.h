@@ -568,10 +568,17 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     if ( cursize_==sz )
 	return true;
 
-    if ( sz < 1 )
+    #ifdef __debug__
+    if ( sz==0 )
+    {
+	pErrMsg("Trying to allocate an array with size=0");
+    }
+#endif
+
+    if ( sz < 0 )
     {
 #ifdef __debug__
-	pErrMsg("Trying to allocate an array with no size");
+	pErrMsg("Trying to allocate an array with size<0");
 	DBG::forceCrash(true);
 #endif
 	return false;
