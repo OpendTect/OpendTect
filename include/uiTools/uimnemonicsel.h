@@ -119,6 +119,7 @@ private:
     void			removeTblRowCB(CallBacker*);
     void			removeTblSelCB(CallBacker*);
     void			cellEditCB(CallBacker*);
+    void			changeColCB(CallBacker*);
     void			saveButCB(CallBacker*);
 
     void			resetTable();
@@ -127,6 +128,7 @@ private:
     void			getEntries(ObjectSet<Mnemonic>&) const;
     bool			commitEntries(ObjectSet<Mnemonic>&);
     void			commitNameChanges();
+    void			commitColorChanges();
     void			doRead();
     bool			doSave();
 
@@ -140,4 +142,5 @@ private:
     MnemonicSelection		originalcustommns_;
     MnemonicSelection		origentriesremoved_;
     ManagedObjectSet<std::pair<int,const BufferString>> newnames_;
+    ManagedObjectSet<std::pair<int,const OD::Color>> newcolors_;
 };
