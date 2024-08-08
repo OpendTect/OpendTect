@@ -650,8 +650,7 @@ void Scene::objectMoved( CallBacker* cb )
     Threads::Locker locker( updatelock_ );
     bool notifyselfonly = false;
     mDynamicCastGet(SurveyObject*,movedso,cb)
-    if ( movedso && (!movedso->getMovementNotifier() ||
-		     !movedso->isAnyAttribEnabled()) )
+    if ( movedso && !movedso->getMovementNotifier() )
 	notifyselfonly = true;	// Other objects do not care about this move
 
     ObjectSet<const SurveyObject> activeobjects;
