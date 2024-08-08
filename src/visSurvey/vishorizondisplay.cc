@@ -1921,7 +1921,8 @@ void HorizonDisplay::updateIntersectionLines(
 	    {
 		if ( trckeypath.isEmpty() )
 		{
-		    if ( mIsZero(trzs.zsamp_.width(),1e-5) )
+		    // Check if it is a ZSlice
+		    if ( !trzs.is2D() && mIsZero(trzs.zsamp_.width(),1e-5) )
 		    {
 			data = getOrCreateIntersectionData( lines );
 			if ( !data )
