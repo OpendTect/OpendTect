@@ -273,99 +273,99 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    }
 
 	    strm << " of '" << ioobj->name() << "'.\n" << od_endl;
-    }
-
-    PtrMan<IOPar> paramspar = pars().subselect( sKey::Pars() );
-    if ( !paramspar )
-	mRetJobErr("Cannot find necessary information in parameter file")
-
-    TextStreamProgressMeter progressmeter(strm);
-    TextTaskRunner taskr( strm );
-
-    BufferString type;
-    if (!paramspar->get(Seis2DTo3DInterPol::sKeyType(), type) ||
-							    type.isEmpty())
-	    mRetJobErr("Cannot determine type of seismic"
-				    "interpolator from parameter file")
-
-
-
-    proc = Seis2DTo3DInterPol::factory().create(type);
-
-    if (!proc)
-	    mRetJobErr("Cannot create seismic interpolator"
-		",perhaps not all plugins are loaded?")
-
-    proc->setStream(strm);
-    proc->setTaskRunner(&taskr);
-
-    if ( !proc->init(pars()) )
-	mRetJobErr("Invalid set of input parameters")
-
-    strm << od_newline << "Reading Data";
-
-    mSetCommState(Working);
-
-    double startup_wait = 0;
-    pars().get( "Startup delay time", startup_wait );
-    sleepSeconds( startup_wait );
-
-    const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
-    int nriter = 0, nrdone = 0;
-
-    while ( true )
-    {
-	bool paused = false;
-
-	if ( pauseRequested() )
-	{
-	    paused = true;
-	    mSetCommState(Paused);
-	    Threads::sleep( pause_sleep_time );
 	}
-	else
+
+	PtrMan<IOPar> paramspar = pars().subselect( sKey::Pars() );
+	if ( !paramspar )
+	    mRetJobErr("Cannot find necessary information in parameter file")
+
+	TextStreamProgressMeter progressmeter(strm);
+	TextTaskRunner taskr( strm );
+
+	BufferString type;
+	if (!paramspar->get(Seis2DTo3DInterPol::sKeyType(), type) ||
+								type.isEmpty())
+		mRetJobErr("Cannot determine type of seismic"
+					"interpolator from parameter file")
+
+
+
+	proc = Seis2DTo3DInterPol::factory().create(type);
+
+	if (!proc)
+		mRetJobErr("Cannot create seismic interpolator"
+		    ",perhaps not all plugins are loaded?")
+
+	proc->setStream(strm);
+	proc->setTaskRunner(&taskr);
+
+	if ( !proc->init(pars()) )
+	    mRetJobErr("Invalid set of input parameters")
+
+	strm << od_newline << "Reading Data";
+
+	mSetCommState(Working);
+
+	double startup_wait = 0;
+	pars().get( "Startup delay time", startup_wait );
+	sleepSeconds( startup_wait );
+
+	const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
+	int nriter = 0, nrdone = 0;
+
+	while ( true )
 	{
-	    if ( paused )
+	    bool paused = false;
+
+	    if ( pauseRequested() )
 	    {
-		paused = false;
-		mSetCommState(Working);
-		setResumed();
-	    }
-
-	    if ( nriter == 0 )
-	    {
-		strm << od_newline << "Number of components";
-		strm << " to be processed: " << proc->totalNr() << od_newline;
-		strm << "Calculating results ..." << od_endl;
-		progressmeter.setTotalNr( proc->totalNr() );
-	    }
-
-	    const int res = proc->nextStep();
-
-	    if ( res > 0 )
-	    {
-		strm << "Moving to next component" << od_endl;
-		if ( comm_ && !comm_->updateProgress(nriter+1) )
-		    mRetHostErr( comm_->errMsg() )
-
-		if ( proc->nrDone()>nrdone )
-		{
-		    nrdone++;
-		    ++progressmeter;
-		}
+		paused = true;
+		mSetCommState(Paused);
+		Threads::sleep( pause_sleep_time );
 	    }
 	    else
 	    {
-		if ( res == -1 )
-		    mRetJobErr( BufferString("Cannot reach next position",
-				":\n",proc->message()) )
-		break;
-	    }
+		if ( paused )
+		{
+		    paused = false;
+		    mSetCommState(Working);
+		    setResumed();
+		}
 
-	    if ( res >= 0 )
-		nriter++;
+		if ( nriter == 0 )
+		{
+		    strm << od_newline << "Number of components";
+		    strm << " to be processed: " << proc->totalNr() << od_newline;
+		    strm << "Calculating results ..." << od_endl;
+		    progressmeter.setTotalNr( proc->totalNr() );
+		}
+
+		const int res = proc->nextStep();
+
+		if ( res > 0 )
+		{
+		    strm << "Moving to next component" << od_endl;
+		    if ( comm_ && !comm_->updateProgress(nriter+1) )
+			mRetHostErr( comm_->errMsg() )
+
+		    if ( proc->nrDone()>nrdone )
+		    {
+			nrdone++;
+			++progressmeter;
+		    }
+		}
+		else
+		{
+		    if ( res == -1 )
+			mRetJobErr( BufferString("Cannot reach next position",
+				    ":\n",proc->message()) )
+		    break;
+		}
+
+		if ( res >= 0 )
+		    nriter++;
+	    }
 	}
-    }
 
 	mDestroyWorkers
 
@@ -383,9 +383,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     mMessage( "Threads closed; Writing finish status" );
 
-
-
-    if ( !comm_ ) return true;
+    if ( !comm_ )
+	return true;
 
     comm_->setState( JobCommunic::Finished );
     bool ret = comm_->sendState();
