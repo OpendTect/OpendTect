@@ -349,8 +349,8 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
     if ( !ioobjs.size() )
 	return false;
 
-    uiString info = tr("Delete the following objects"
-		       " from the database permanently?\n%1");
+    uiString info = tr("Permanently delete the following objects"
+		       " from the database?\n\n%1");
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     uiStringSet selnms;
