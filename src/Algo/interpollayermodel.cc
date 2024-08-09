@@ -36,6 +36,12 @@ InterpolationLayerModel::~InterpolationLayerModel()
 }
 
 
+bool InterpolationLayerModel::hasLayers() const
+{
+    return nrLayers() > 0;
+}
+
+
 bool InterpolationLayerModel::isOK( const TrcKey* tk ) const
 {
     if ( !tk )

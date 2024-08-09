@@ -23,6 +23,7 @@ public:
 
     virtual InterpolationLayerModel* clone() const			= 0;
 
+    bool		hasLayers() const;
     virtual bool	isOK(const TrcKey* tk=0) const;
 
     virtual bool	prepare(const TrcKeyZSampling&,TaskRunner* =0);
