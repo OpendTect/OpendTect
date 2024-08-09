@@ -97,6 +97,7 @@ TimeDepthDataLoaderNew::TimeDepthDataLoaderNew( const TrcKeySampling& tks,
     msg_ = tr("Reading velocity model");
     seisdatapack_ = Seis::PLDM().get<RegularSeisDataPack>(
 						reader.ioObj()->key() );
+    arr_.setAll( mUdf(float) );
 }
 
 
@@ -108,14 +109,8 @@ TimeDepthDataLoaderNew::~TimeDepthDataLoaderNew()
 int TimeDepthDataLoaderNew::nextStep()
 {
     TrcKey tk;
-    if ( !hiter_.next(tk) )
-	return Finished();
-
     const int nrz = arr_.info().getSize( 2 );
     const int icomp = 0;
-    const od_int64 offset = arr_.info().getOffset( tks_.inlIdx(tk.inl()),
-						   tks_.crlIdx(tk.crl()), 0 );
-    OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset, nrz );
 
     /*TODOVEL: The velocity stretcher should provide an array of t0
       if the velocity is of type RMS and statics are defined in veldesc_.
@@ -128,6 +123,9 @@ int TimeDepthDataLoaderNew::nextStep()
     PtrMan<ValueSeries<float> > trcvs;
     if ( seisdatapack_ )
     {
+	if ( !hiter_.next(tk) )
+	    return Finished();
+
 	const int globidx = seisdatapack_->getGlobalIdx( tk );
 	const OffsetValueSeries<float> dptrcvs =
 				seisdatapack_->getTrcStorage( icomp, globidx );
@@ -137,22 +135,17 @@ int TimeDepthDataLoaderNew::nextStep()
     }
     else
     {
-	mDynamicCastGet( SeisTrcTranslator*, veltranslator,
-			 reader_.translator() );
-
 	veltrace = new SeisTrc();
-	bool res = true;
-	if ( veltranslator->supportsGoTo() )
-	    res = veltranslator->goTo( tk.position() );
-
-	if ( res )
-	    res = reader_.get( *veltrace );
-
-	if ( !res )
+	switch ( reader_.get(veltrace->info()) )
 	{
-	    arrvs.setAll( mUdf(float) );
-	    return MoreToDo();
+	    case -1 : return ErrorOccurred();
+	    case 0 : return Finished();
+	    case 1 : tk = veltrace->info().trcKey(); break;
+	    default: return MoreToDo();
 	}
+
+	if ( !reader_.get(*veltrace) )
+	    return ErrorOccurred();
 
 	trcvs = new SeisTrcValueSeries( *veltrace, icomp );
 	zvals_in = new RegularZValues( veltrace->info().sampling,
@@ -162,6 +155,9 @@ int TimeDepthDataLoaderNew::nextStep()
     Vin = ScaledValueSeries<double,float>::getFrom( *trcvs );
     PtrMan<ValueSeries<float> > zsrc;
     PtrMan<ArrayZValues<float> > zout;
+    const od_int64 offset = arr_.info().getOffset( tks_.inlIdx(tk.inl()),
+						   tks_.crlIdx(tk.crl()), 0 );
+    OffsetValueSeries<float> arrvs( *arr_.getStorage(), offset, nrz );
     if ( arrvs.arr() )
     {
 	zout = new ArrayZValues<float>( arrvs.arr(), arrvs.size(),
@@ -379,14 +375,22 @@ bool VelocityStretcherNew::loadDataIfMissing( int id, TaskRunner* taskr )
     }
 
     const TrcKeySampling& tks = voi.hsamp_;
+    PtrMan<IOObj> ioobj = velreader_->ioObj()->clone();
     if ( velreader_->is2D() ) // Now geomid is known. Have to recreate reader.
     {
 	const Seis::GeomType gt = Seis::Line;
-	PtrMan<IOObj> ioobj = velreader_->ioObj()->clone();
 	delete velreader_;
 	velreader_ = new SeisTrcReader( *ioobj, tks.getGeomID(), &gt );
 	velreader_->prepareWork();
 	velzinfo_ = &velreader_->zDomain();
+    }
+    else
+    {
+	delete velreader_;
+	velreader_ = new SeisTrcReader( *ioobj );
+	PtrMan<Seis::SelData> sd = new Seis::RangeSelData( voi );
+	if ( !sd->isAll() )
+	    velreader_->setSelData( sd.release() );
     }
 
     if ( !velzinfo_ )
