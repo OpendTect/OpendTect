@@ -113,6 +113,7 @@ public:
     void		setItemID(int idx,int id);
     int			getItemID(int idx) const;
     int			getItemIdx(int id) const;
+    void		sortItems();
 
     void		setPixmap(int idx,const uiPixmap&,
 				  bool placeright=false);
@@ -210,6 +211,21 @@ void uiListBoxBody::insertItem( int idx, const uiString& txt, bool mark, int id)
     itemstrings_.insert( idx, txt );
     itemmarked_.insert( idx, mark );
     QListWidget::insertItem( idx, itm );
+}
+
+
+void uiListBoxBody::sortItems()
+{
+    ConstArrPtrMan<int> sortidxs = itemstrings_.getSortIndexes( true, true );
+    // setting qListWidget empty, but not deleting uiListBoxItem(s)
+    while ( count()>0 )
+	takeItem( 0 );
+
+    items_.useIndexes( sortidxs );
+    itemstrings_.useIndexes( sortidxs );
+    itemmarked_.useIndexes( sortidxs );
+    for ( auto* item : items_ )
+	QListWidget::addItem( item );
 }
 
 
@@ -1163,32 +1179,13 @@ void uiListBox::setEmpty()
 void uiListBox::sortItems( bool asc )
 {
     const int sz = size();
-    if ( sz < 2 ) return;
+    if ( sz < 2 )
+	return;
 
     NotifyStopper nss( selectionChanged );
     NotifyStopper nsc( itemChosen );
-    BoolTypeSet mrkd, chosen;
     const BufferString cur( getText() );
-    BufferStringSet nms;
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	mrkd += isMarked( idx );
-	chosen += isChosen( idx );
-	nms.add( textOfItem(idx) );
-    }
-
-    int* sortidxs = nms.getSortIndexes(true,asc);
-    nms.useIndexes( sortidxs );
-    setEmpty();
-    addItems( nms );
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	const int newidx = sortidxs[idx];
-	setMarked( newidx, mrkd[idx] );
-	setChosen( newidx, chosen[idx] );
-    }
-
-    delete [] sortidxs;
+    lb_->body().sortItems();
     if ( !cur.isEmpty() )
 	setCurrentItem( cur.buf() );
 }
