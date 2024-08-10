@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uimnemonicsel.h"
 
 #include "uibuttongroup.h"
+#include "uicolor.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -191,12 +192,13 @@ static const int sDefNrRows = 5;
 static const int sStdTypeCol = 0;
 static const int sTemplateNmCol = 1;
 static const int sMnemonicNmCol = 2;
+static const int sMnemonicColorCol = 3;
 
 class uiMnSelFlds : public NamedCallBacker
 {
 public:
 
-    enum class EditType   { StdType, Mnemonic, NameOnly, None };
+    enum class EditType   { StdType, Mnemonic, NameOnly, Color, None };
 
 uiMnSelFlds( uiTable& tbl, int rowidx, const Mnemonic* mn )
     : NamedCallBacker(mn ? mn->name().str() : nullptr)
@@ -255,6 +257,11 @@ uiMnSelFlds( uiTable& tbl, int rowidx, const Mnemonic* mn )
 	tbl_.setText( RowCol(rowidx,sMnemonicNmCol), name().str() );
     }
 
+    const OD::Color color = mn ? mn->disp_.color_
+			     : mnselfld_->mnemonic()->disp_.color_;
+    NotifyStopper ns( tbl_.valueChanged );
+    tbl_.setColor( RowCol(rowidx,sMnemonicColorCol), color );
+
     tbl_.hideRow( rowidx, false );
     tbl_.resizeColumnToContents( sStdTypeCol );
     tbl_.resizeColumnToContents( sTemplateNmCol );
@@ -281,9 +288,25 @@ Mnemonic* getMnemonic( Repos::Source src ) const
 }
 
 
+const OD::Color getColor() const
+{
+    const int currrow = tbl_.getCell( typfld_ ).row();
+    return tbl_.getColor( RowCol(currrow,sMnemonicColorCol) );
+}
+
+
 EditType editState() const
 {
     return editstate_;
+}
+
+
+void colorChanged()
+{
+    const bool srcchanged = editstate_ == EditType::StdType ||
+			    editstate_ == EditType::Mnemonic;
+    if ( !srcchanged )
+	editstate_ = EditType::Color;
 }
 
 
@@ -326,6 +349,7 @@ void typeChgCB( CallBacker* )
     else
 	lastusedmns_.replace( curidx, mnselfld_->mnemonic() );
 
+    updateColor();
     mAttachCB( mnselfld_->box()->selectionChanged, uiMnSelFlds::mnChgCB );
     tbl_.setCellObject( rc, mnselfld_->box() );
     editstate_ = EditType::StdType;
@@ -336,7 +360,21 @@ void mnChgCB( CallBacker* )
 {
     const int curidx = typfld_->currentItem();
     lastusedmns_.replace( curidx, mnselfld_->mnemonic() );
+    updateColor();
     editstate_ = EditType::Mnemonic;
+}
+
+
+void updateColor()
+{
+    const int currrow = tbl_.getCell( typfld_ ).row();
+    const BufferString newname = tbl_.text( RowCol(currrow,sMnemonicNmCol) );
+    if ( newname.isEmpty() && mnselfld_ )
+    {
+	tbl_.setColor( RowCol(currrow,sMnemonicColorCol),
+		       mnselfld_->mnemonic()->disp_.color_ );
+	colorChanged();
+    }
 }
 
 
@@ -401,7 +439,7 @@ uiCustomMnemonicsSel( uiParent* p )
 
 void createTable()
 {
-    uiTable::Setup tblsu( sDefNrRows, sMnemonicNmCol+1 );
+    uiTable::Setup tblsu( sDefNrRows, sMnemonicColorCol+1 );
     tblsu.rowgrow( true ).fillcol( true ).selmode( uiTable::Multi );
     tbl_ = new uiTable( this, tblsu, "Custom Mnemonics Table" );
     tbl_->setPrefWidth( 600 );
@@ -409,16 +447,22 @@ void createTable()
     tbl_->setLeftHeaderHidden( true );
     tbl_->setColumnReadOnly( sStdTypeCol, true );
     tbl_->setColumnReadOnly( sTemplateNmCol, true );
+    tbl_->setColumnReadOnly( sMnemonicColorCol, true );
     tbl_->setColumnStretchable( sStdTypeCol, false );
     tbl_->setColumnStretchable( sTemplateNmCol, false );
+    tbl_->setColumnStretchable( sMnemonicColorCol, true );
     tbl_->setColumnLabel( sStdTypeCol, uiStrings::sProperty() );
     tbl_->setColumnLabel( sTemplateNmCol,
 			  tr("Existing %1").arg(uiStrings::sMnemonic()) );
     tbl_->setColumnLabel( sMnemonicNmCol,
 			  tr("Extra %1").arg(uiStrings::sMnemonic()) );
+    tbl_->setColumnLabel( sMnemonicColorCol,
+			  tr("Extra %1 %2").arg(uiStrings::sMnemonic())
+					   .arg(uiStrings::sColor()) );
     tbl_->showGrid( false );
     tbl_->setTableReadOnly( true );
     mAttachCB( tbl_->valueChanged, uiCustomMnemonicsSel::cellEditCB );
+    mAttachCB( tbl_->doubleClicked, uiCustomMnemonicsSel::changeColCB );
     mAttachCB( tbl_->rowInserted, uiCustomMnemonicsSel::addRowTblRowCB );
     mAttachCB( tbl_->rowDeleted, uiCustomMnemonicsSel::removeTblRowCB );
     mAttachCB( tbl_->selectionDeleted, uiCustomMnemonicsSel::removeTblSelCB );
@@ -529,6 +573,29 @@ void removeEntries( const TypeSet<int>& rows, bool forreset )
 }
 
 
+void changeColCB( CallBacker* )
+{
+    const RowCol rc = tbl_->notifiedCell();
+    const int currrow = rc.row();
+    if ( rc.col() != sMnemonicColorCol )
+	return;
+
+    const OD::Color oldcol = tbl_->getColor( rc );
+    OD::Color newcol = oldcol;
+    if ( selectColor(newcol, this, tr("Marker color")) )
+    {
+	if ( newcol != oldcol )
+	{
+	    tbl_->setColor( rc, newcol );
+	    selflds_[rc.row()]->colorChanged();
+	    if ( originalcustommns_.validIdx(currrow) )
+		newcolors_ += new std::pair<int,const OD::Color>( currrow,
+								  newcol );
+	}
+    }
+}
+
+
 void cellEditCB( CallBacker* )
 {
     const RowCol& rc = tbl_->notifiedCell();
@@ -579,7 +646,8 @@ void saveButCB( CallBacker* )
     ManagedObjectSet<Mnemonic> custommns;
     getEntries( custommns );
     const bool srcchgd = !custommns.isEmpty() || !origentriesremoved_.isEmpty();
-    const bool nochange = !srcchgd && newnames_.isEmpty();
+    const bool nochange = !srcchgd && newnames_.isEmpty()
+				   && newcolors_.isEmpty();
     if ( nochange )
 	return;
 
@@ -588,6 +656,9 @@ void saveButCB( CallBacker* )
 
     if ( !newnames_.isEmpty() )
 	commitNameChanges();
+
+    if ( !newcolors_.isEmpty() )
+	commitColorChanges();
 
     doSave();
     resetTable();
@@ -636,7 +707,14 @@ void getEntries( ObjectSet<Mnemonic>& mns ) const
 		    = selfld->editState() == uiMnSelFlds::EditType::StdType ||
 		      selfld->editState() == uiMnSelFlds::EditType::Mnemonic;
 	if ( srcchanged )
-	    mns.add( selfld->getMnemonic( Repos::Survey ) );
+	{
+	    Mnemonic* mn = selfld->getMnemonic( Repos::Survey );
+	    const OD::Color newcol = selfld->getColor();
+	    if ( newcol != mn->disp_.color_ )
+		mn->disp_.color_ = newcol;
+
+	    mns.add( mn );
+	}
     }
 }
 
@@ -701,6 +779,24 @@ void commitNameChanges()
 }
 
 
+void commitColorChanges()
+{
+    if ( newcolors_.isEmpty() )
+	return;
+
+    for ( const auto* idxcolpair : newcolors_ )
+    {
+	const int idx = idxcolpair->first;
+	const OD::Color newcol = idxcolpair->second;
+	if ( !originalcustommns_.validIdx(idx) )
+	    continue;
+
+	const Mnemonic* mn = originalcustommns_.get( idx );
+	const_cast<Mnemonic*>( mn )->disp_.color_ = newcol;
+    }
+}
+
+
 bool doSave()
 {
     IOPar& sidefs = SI().getPars();
@@ -714,7 +810,11 @@ bool doSave()
     {
 	const Mnemonic& mn = *originalcustommns_.get( imn );
 	FileMultiString fms;
-	fms.add( mn.name().str() ).add( mn.getOrigin()->name().str() );
+	fms.add( mn.name().str() )
+	   .add( mn.getOrigin()->name().str() )
+	   .add( mn.disp_.color_.r() )
+	   .add( mn.disp_.color_.g() )
+	   .add( mn.disp_.color_.b() );
 	iop.set( toString(imn), fms.str()  );
     }
 
@@ -729,7 +829,8 @@ bool acceptOK( CallBacker* )
     ManagedObjectSet<Mnemonic> custommns;
     getEntries( custommns );
     const bool srcchgd = !custommns.isEmpty() || !origentriesremoved_.isEmpty();
-    const bool nochange = !srcchgd && newnames_.isEmpty();
+    const bool nochange = !srcchgd && newnames_.isEmpty()
+				   && newcolors_.isEmpty();
     if ( nochange )
 	return true;
 
@@ -738,6 +839,9 @@ bool acceptOK( CallBacker* )
 
     if ( !newnames_.isEmpty() )
 	commitNameChanges();
+
+    if ( !newcolors_.isEmpty() )
+	commitColorChanges();
 
     doSave();
     origentriesremoved_.setEmpty();
@@ -748,10 +852,11 @@ bool acceptOK( CallBacker* )
     uiTable*			tbl_;
     uiButtonGroup*		bgrp_;
 
-    bool			dontshowmgr_ = false;
+    bool			dontshowmgr_			= false;
     MnemonicSelection		originalcustommns_;
     MnemonicSelection		origentriesremoved_;
     ManagedObjectSet<std::pair<int,const BufferString>> newnames_;
+    ManagedObjectSet<std::pair<int,const OD::Color>>	newcolors_;
 
 };
 
