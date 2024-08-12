@@ -8,6 +8,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "uiosgmod.h"
 #include "uiobjbody.h"
 
 #include "mousecursor.h"
@@ -24,22 +25,23 @@ namespace visBase
     class Camera;
     class DataObjectGroup;
     class PolygonSelection;
-    class Transformation;
     class ThumbWheel;
+    class Transformation;
 }
 
 namespace osgViewer { class CompositeViewer; class GraphicsWindow; }
 namespace osgGeo { class TrackballManipulator; }
 
-class TrackBallManipulatorMessenger;
 class KeyBindMan;
-class uiMouseEventBlockerByGestures;
+class ODGraphicsWindow;
 class SwapCallback;
+class TrackBallManipulatorMessenger;
+class uiMouseEventBlockerByGestures;
 
 namespace osg
 {
-    class GraphicsContext;
     class Camera;
+    class GraphicsContext;
     class Switch;
     class Vec3f;
     class Viewport;
@@ -54,6 +56,7 @@ mClass(uiOSG) ui3DViewerBody : public uiObjectBody
     friend class TrackBallManipulatorMessenger;
 
 public:
+				ui3DViewerBody(ui3DViewer&,uiParent*);
 				~ui3DViewerBody();
 
     void			viewAll(bool animate);
@@ -68,6 +71,8 @@ public:
     void			setBackgroundColor(const OD::Color&);
     OD::Color			getBackgroundColor() const;
     Geom::Size2D<int>		getViewportSizePixels() const;
+    uiSize			minimumSize() const override
+				{ return uiSize(200,200); }
 
     float			getMouseWheelZoomFactor() const;
 				/*!<Always positive. Direction is set by
@@ -148,7 +153,6 @@ public:
     void			removeSwapCallback(CallBacker*);
 
 protected:
-					ui3DViewerBody(ui3DViewer&,uiParent*);
 
     void				enableDragging( bool yn );
 
@@ -172,8 +176,9 @@ protected:
     osgGeo::TrackballManipulator*	getCameraManipulator() const;
 
 
-    virtual osgViewer::GraphicsWindow&	getGraphicsWindow()	= 0;
-    virtual osg::GraphicsContext*	getGraphicsContext()	= 0;
+    osgViewer::GraphicsWindow&		getGraphicsWindow();
+    osg::GraphicsContext*		getGraphicsContext();
+    const QWidget*			qwidget_() const override;
 
     uiObject&				uiObjHandle() override;
 
@@ -204,6 +209,7 @@ protected:
     RefMan<visBase::ThumbWheel>		distancethumbwheel_;
     ui3DViewer::WheelMode		wheeldisplaymode_ = ui3DViewer::OnHover;
 
+    osg::ref_ptr<ODGraphicsWindow>	graphicswin_;
     osg::Switch*			offscreenrenderswitch_;
     osgViewer::CompositeViewer*		compositeviewer_	= nullptr;
     osgViewer::View*			view_			= nullptr;

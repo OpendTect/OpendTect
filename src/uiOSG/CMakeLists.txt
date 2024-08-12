@@ -17,12 +17,13 @@ set( OD_MODULE_SOURCES
 	odfontimplementation.cc
 	odgraphicswindow.cc
 	odopenglwidget.cc
-	ui3dindirectviewer.cc
+	odosgviewer.cc
 	ui3dviewer.cc
+	ui3dviewerbody.cc
 	uiglinfo.cc
 	uiosgfont.cc
 	uiprintscenedlg.cc
-	uistereodlg.cc 
+	uistereodlg.cc
 )
 
 set( OD_MODULE_PROGS od_osgfileviewer.cc )

@@ -26,7 +26,7 @@ mExpClass(uiOSG) ui3DViewer : public uiObject
 friend class		ui3DViewerBody;
 
 public:
-			ui3DViewer(uiParent*,bool direct,
+			ui3DViewer(uiParent*,bool direct=true,
 				   const char* nm="ui3DViewer");
 			~ui3DViewer();
 

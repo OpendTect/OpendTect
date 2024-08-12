@@ -25,8 +25,8 @@ public:
     const QWidget*              qwidget_() const override;
 
 protected:
-    osgViewer::GraphicsWindow&	getGraphicsWindow() override;
-    osg::GraphicsContext*       getGraphicsContext() override;
+    osgViewer::GraphicsWindow&	getGraphicsWindow();
+    osg::GraphicsContext*       getGraphicsContext();
 
 
     GraphicsWindowIndirect*	graphicswin_;
