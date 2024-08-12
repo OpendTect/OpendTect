@@ -38,6 +38,7 @@ public:
     void			resetHorizontalHeader();
 
     void			setNrFrozenColumns(int nrcols);
+    void			setContextMenuEnabled(bool);
 
     void			setSectionsMovable(bool);
     void			moveColumn(int from,int to);
@@ -81,19 +82,25 @@ public:
 						bool mapfromsource=true);
     bool			isCellSelected(const RowCol&,
 					       bool mapfromsource=true) const;
+    void			selectColumn(int col);
+    void			selectRow(int row);
     void			removeSelection(const TypeSet<RowCol>&);
-    const RowCol&		currentCell() const;
-    void			setCurrentCell(const RowCol&);
 
-    void			setColumnValueType(int col,TableModel::CellType);
+    void			setCurrentCell(const RowCol&,
+					       bool noselection=false);
+    const RowCol&		currentCell() const;
+
+    void			setColumnValueType(int col,
+						   TableModel::CellType);
     void			setColumnWidth(int col,int width );
 
     TableModel::CellType	getCellType(int col) const;
 
-    Notifier<uiTableView>	doubleClicked;
-    Notifier<uiTableView>	selectionChanged;
-    CNotifier<uiTableView,int>	rowClicked;
-    CNotifier<uiTableView,int>	columnClicked;
+    Notifier<uiTableView>			doubleClicked;
+    Notifier<uiTableView>			rightClicked;
+    Notifier<uiTableView>			selectionChanged;
+    CNotifier<uiTableView,int>			columnClicked;
+    CNotifier<uiTableView,int>			rowClicked;
 
 protected:
 
@@ -109,6 +116,4 @@ protected:
 
     virtual ODStyledItemDelegate* createColumnDelegate(int col,
 						       TableModel::CellType);
-
-    void			doubleClickedCB(CallBacker*);
 };

@@ -36,7 +36,11 @@ FrozenColumnsHelper( QTableView* mainview, QTableView* frozenview )
 	     this, &FrozenColumnsHelper::columnResized );
     connect( mainview_->verticalHeader(), &QHeaderView::sectionResized,
 	     this, &FrozenColumnsHelper::rowResized );
-
+    connect( frozenview_, &QTableView::customContextMenuRequested,
+	     this, &FrozenColumnsHelper::cellContextMenuRequested );
+    connect( frozenview_->horizontalHeader(),
+	     &QHeaderView::customContextMenuRequested,
+	     this, &FrozenColumnsHelper::horHeaderContextMenuRequested );
     connect( frozenview_->verticalScrollBar(), &QAbstractSlider::valueChanged,
 	     mainview_->verticalScrollBar(), &QAbstractSlider::setValue );
     connect( mainview_->verticalScrollBar(), &QAbstractSlider::valueChanged,
@@ -51,6 +55,19 @@ FrozenColumnsHelper( QTableView* mainview, QTableView* frozenview )
 void setNrColumns( int nrcol )
 {
     nrcols_ = nrcol;
+}
+
+
+void cellContextMenuRequested( const QPoint& pos )
+{
+    const QModelIndex index = frozenview_->indexAt( pos );
+    emit mainview_->customContextMenuRequested( pos );
+}
+
+void horHeaderContextMenuRequested( const QPoint& pos )
+{
+    const QModelIndex index = frozenview_->indexAt( pos );
+    emit mainview_->horizontalHeader()->customContextMenuRequested( pos );
 }
 
 
@@ -104,6 +121,12 @@ i_tableViewMessenger( QTableView* sndr, uiTableView* rcvr )
     connect( sndr, &QAbstractItemView::doubleClicked,
 	     this, &i_tableViewMessenger::doubleClicked,
 	     Qt::QueuedConnection );
+    connect( sndr, &QTableView::customContextMenuRequested,
+	     this, &i_tableViewMessenger::cellContextMenuRequested );
+    connect( sndr->horizontalHeader(), &QHeaderView::customContextMenuRequested,
+	    this, &i_tableViewMessenger::horHeaderContextMenuRequested );
+    connect( sndr->verticalHeader(), &QHeaderView::customContextMenuRequested,
+	    this, &i_tableViewMessenger::vertHeaderContextMenuRequested );
     connect( sndr->verticalHeader(), &QHeaderView::sectionClicked,
 	    this, &i_tableViewMessenger::rowClicked );
     connect( sndr->horizontalHeader(), &QHeaderView::sectionClicked,
@@ -144,6 +167,45 @@ void doubleClicked( const QModelIndex& index )
     const int col = index.column();
     receiver_->setCurrentCell( RowCol(row,col) );
     handleSlot( "doubleClicked", row, col, &receiver_->doubleClicked );
+}
+
+
+void cellContextMenuRequested( const QPoint& pos )
+{
+    const QModelIndex index = sender_->indexAt( pos );
+    const int row = index.row();
+    const int col = index.column();
+    if ( row<0 || col<0 )
+	return;
+
+    receiver_->setCurrentCell( RowCol(row,col), true );
+    handleSlot( "cellRightClicked", row, col, &receiver_->rightClicked );
+}
+
+
+void horHeaderContextMenuRequested( const QPoint& pos )
+{
+    const QModelIndex index = sender_->indexAt( pos );
+    const int col = index.column();
+    if ( col<0 )
+	return;
+
+    receiver_->setCurrentCell( RowCol(-1,col) );
+    receiver_->selectColumn( col );
+    handleSlot( "cellRightClicked", -1, col, &receiver_->rightClicked );
+}
+
+
+void vertHeaderContextMenuRequested( const QPoint& pos )
+{
+    const QModelIndex index = sender_->indexAt( pos );
+    const int row = index.row();
+    if ( row<0 )
+	return;
+
+    receiver_->setCurrentCell( RowCol(row,-1) );
+    receiver_->selectRow( row );
+    handleSlot( "cellRightClicked", row, -1, &receiver_->rightClicked );
 }
 
 

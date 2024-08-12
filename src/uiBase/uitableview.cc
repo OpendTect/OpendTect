@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include <QCheckBox>
 #include <QComboBox>
 #include <QHeaderView>
+#include <QItemSelectionModel>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QMargins>
@@ -394,10 +395,21 @@ void setSortEnabled( bool yn )
 }
 
 
-void setCurrentCell( const RowCol& rc )
+void setContextMenuEnabled( bool yn )
+{
+    yn ? enableCustomContextMenu() : setContextMenuPolicyToDefault();
+}
+
+
+void setCurrentCell( const RowCol& rc, bool noselection )
 {
     notifcell_ = rc;
-    setCurrentIndex( QModelIndex(model()->index(rc.row(), rc.col())) );
+    const QModelIndex index( model()->index(rc.row(),rc.col()) );
+    if ( noselection )
+	selectionModel()->setCurrentIndex( index,
+					   QItemSelectionModel::NoUpdate );
+    else
+	setCurrentIndex( index );
 }
 
     RowCol		notifcell_;
@@ -468,6 +480,34 @@ QModelIndex moveCursor( CursorAction act, Qt::KeyboardModifiers modif ) override
     return current;
 }
 
+
+void enableCustomContextMenu()
+{
+    if ( contextMenuPolicy() == Qt::CustomContextMenu )
+	return;
+
+    setContextMenuPolicy( Qt::CustomContextMenu );
+    horizontalHeader()->setContextMenuPolicy( Qt::CustomContextMenu );
+    verticalHeader()->setContextMenuPolicy( Qt::CustomContextMenu );
+    frozenview_->setContextMenuPolicy( Qt::CustomContextMenu );
+    frozenview_->horizontalHeader()
+	       ->setContextMenuPolicy( Qt::CustomContextMenu );
+}
+
+
+void setContextMenuPolicyToDefault()
+{
+    if ( contextMenuPolicy() == Qt::DefaultContextMenu )
+	return;
+
+    setContextMenuPolicy( Qt::DefaultContextMenu );
+    horizontalHeader()->setContextMenuPolicy( Qt::DefaultContextMenu );
+    verticalHeader()->setContextMenuPolicy( Qt::DefaultContextMenu );
+    frozenview_->setContextMenuPolicy( Qt::DefaultContextMenu );
+    frozenview_->horizontalHeader()
+	       ->setContextMenuPolicy( Qt::DefaultContextMenu );
+}
+
     QTableView*			frozenview_;
     int				nrfrozencols_	= 1;
     FrozenColumnsHelper*	helper_;
@@ -479,12 +519,12 @@ QModelIndex moveCursor( CursorAction act, Qt::KeyboardModifiers modif ) override
 uiTableView::uiTableView( uiParent* p, const char* nm )
     : uiObject(p,nm,mkView(p,nm))
     , doubleClicked(this)
+    , rightClicked(this)
     , selectionChanged(this)
-    , rowClicked(this)
     , columnClicked(this)
+    , rowClicked(this)
 {
     columndelegates_.setNullAllowed( true );
-    mAttachCB( this->doubleClicked, uiTableView::doubleClickedCB );
 }
 
 
@@ -522,6 +562,12 @@ void uiTableView::setModel( TableModel* mdl )
 void uiTableView::setNrFrozenColumns( int nrcols )
 {
     odtableview_->setNrFrozenColumns( nrcols );
+}
+
+
+void uiTableView::setContextMenuEnabled( bool yn )
+{
+    odtableview_->setContextMenuEnabled( yn );
 }
 
 
@@ -833,6 +879,18 @@ bool uiTableView::isCellSelected( const RowCol& rc, bool mapfromsource ) const
 }
 
 
+void uiTableView::selectColumn( int col )
+{
+    odtableview_->selectColumn( col );
+}
+
+
+void uiTableView::selectRow( int row )
+{
+    odtableview_->selectRow( row );
+}
+
+
 void uiTableView::removeSelection( const TypeSet<RowCol>& rcs )
 {
     QItemSelectionModel* selmdl = odtableview_->selectionModel();
@@ -907,9 +965,9 @@ const RowCol& uiTableView::currentCell() const
 }
 
 
-void uiTableView::setCurrentCell( const RowCol& rc )
+void uiTableView::setCurrentCell( const RowCol& rc, bool noselection )
 {
-    return odtableview_->setCurrentCell( rc );
+    return odtableview_->setCurrentCell( rc, noselection );
 }
 
 
@@ -919,11 +977,6 @@ TableModel::CellType uiTableView::getCellType( int col ) const
 	return columndelegates_[col]->cellType();
 
     return TableModel::Other;
-}
-
-
-void uiTableView::doubleClickedCB( CallBacker* cb )
-{
 }
 
 
