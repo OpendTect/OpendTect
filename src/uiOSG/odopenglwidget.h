@@ -23,7 +23,7 @@ class QInputEvent;
 
 
 mClass(uiOSG) ODOpenGLWidget : public QOpenGLWidget
-{
+{ Q_OBJECT
 public:
 			ODOpenGLWidget(QWidget* parent=nullptr,
 				       Qt::WindowFlags f=Qt::WindowFlags());
@@ -64,7 +64,7 @@ private:
 
 
 mClass(uiOSG) ODOpenGLWindow : public QOpenGLWindow
-{
+{ Q_OBJECT
 public:
 			ODOpenGLWindow(QWidget* parent=nullptr);
     virtual		~ODOpenGLWindow();

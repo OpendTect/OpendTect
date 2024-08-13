@@ -133,7 +133,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     wheelmodefld_ = new uiGenInput( this, tr("Zoom/Rotate Wheels Display"),
 				    StringListInpSpec(modes) );
     mAttachCB( wheelmodefld_->valueChanged, uiScenePropertyDlg::updateCB );
-    wheelmodefld_->setValue( wheeldisplaymode_ );
+    wheelmodefld_->setValue( sCast(int,wheeldisplaymode_) );
     wheelmodefld_->attach( alignedBelow, animationfld_ );
 }
 
@@ -212,7 +212,7 @@ void uiScenePropertyDlg::updateCB( CallBacker* )
 	vwr->setAnnotationColor( annotcolfld_->color() );
 	vwr->enableAnimation( animationfld_->isChecked() );
 	vwr->setWheelDisplayMode(
-		(ui3DViewer::WheelMode)wheelmodefld_->getIntValue() );
+		(OD::WheelMode)wheelmodefld_->getIntValue() );
     }
 
     annotfld_->setSensitive( survboxfld_->isChecked() );
@@ -353,7 +353,7 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 	    vwr->setAnnotationFont( scene->getAnnotFont() );
 
 	vwr->setWheelDisplayMode(
-		    (ui3DViewer::WheelMode)wheelmodefld_->getIntValue() );
+		    (OD::WheelMode)wheelmodefld_->getIntValue() );
     }
 
     return true;

@@ -161,11 +161,11 @@ uiMenu* uiODMenuMgr::getMnu( bool imp, uiODApplMgr::ObjType ot )
 
 void uiODMenuMgr::updateStereoMenu()
 {
-    auto type = sCast(ui3DViewer::StereoType,sceneMgr().getStereoType());
-    stereooffitm_->setChecked( type == ui3DViewer::None );
-    stereoredcyanitm_->setChecked( type == ui3DViewer::RedCyan );
-    stereoquadbufitm_->setChecked( type == ui3DViewer::QuadBuffer );
-    stereooffsetitm_->setEnabled( type != ui3DViewer::None );
+    auto type = sCast(OD::StereoType,sceneMgr().getStereoType());
+    stereooffitm_->setChecked( type == OD::StereoType::None );
+    stereoredcyanitm_->setChecked( type == OD::StereoType::RedCyan );
+    stereoquadbufitm_->setChecked( type == OD::StereoType::QuadBuffer );
+    stereooffsetitm_->setEnabled( type != OD::StereoType::None );
 }
 
 

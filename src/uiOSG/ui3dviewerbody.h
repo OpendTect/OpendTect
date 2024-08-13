@@ -13,8 +13,8 @@ ________________________________________________________________________
 
 #include "mousecursor.h"
 #include "refcount.h"
-#include "ui3dviewer.h"
 #include "uieventfilter.h"
+#include "uiosgutil.h"
 #include "vissurvscene.h"
 
 class QGestureEvent;
@@ -37,6 +37,8 @@ class ODGraphicsWindow;
 class SwapCallback;
 class TrackBallManipulatorMessenger;
 class uiMouseEventBlockerByGestures;
+class ui3DViewer;
+
 
 namespace osg
 {
@@ -111,9 +113,8 @@ public:
     virtual void		reSizeEvent(CallBacker*);
     void			toggleViewMode(CallBacker*);
 
-    enum WheelMode		{ Never, Always, OnHover };
-    void			setWheelDisplayMode(WheelMode);
-    WheelMode			getWheelDisplayMode() const;
+    void			setWheelDisplayMode(OD::WheelMode);
+    OD::WheelMode		getWheelDisplayMode() const;
 
     void			setAnimationEnabled(bool);
     bool			isAnimationEnabled() const;
@@ -138,10 +139,8 @@ public:
     const osgViewer::View*	getOsgViewerHudView() const { return hudview_; }
     void			setScenesPixelDensity(float dpi);
 
-    enum StereoType		{ None, RedCyan, QuadBuffer };
-
-    bool			setStereoType(StereoType);
-    StereoType			getStereoType() const;
+    bool			setStereoType(OD::StereoType);
+    OD::StereoType		getStereoType() const;
     void			setStereoOffset(float);
     float			getStereoOffset() const;
 
@@ -207,14 +206,15 @@ protected:
     RefMan<visBase::ThumbWheel>		horthumbwheel_;
     RefMan<visBase::ThumbWheel>		verthumbwheel_;
     RefMan<visBase::ThumbWheel>		distancethumbwheel_;
-    ui3DViewer::WheelMode		wheeldisplaymode_ = ui3DViewer::OnHover;
+    OD::WheelMode			wheeldisplaymode_
+						= OD::WheelMode::OnHover;
 
     osg::ref_ptr<ODGraphicsWindow>	graphicswin_;
     osg::Switch*			offscreenrenderswitch_;
     osgViewer::CompositeViewer*		compositeviewer_	= nullptr;
     osgViewer::View*			view_			= nullptr;
     osg::Viewport*			viewport_;
-    StereoType				stereotype_		= None;
+    OD::StereoType			stereotype_	= OD::StereoType::None;
     float				stereooffset_		= 0.f;
 
     osgViewer::View*			hudview_		= nullptr;

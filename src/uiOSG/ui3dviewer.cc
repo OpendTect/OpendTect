@@ -8,11 +8,16 @@ ________________________________________________________________________
 -*/
 
 #include "ui3dviewer.h"
-#include "ui3dviewerbody.h"
+#ifdef OD_USE_QOPENGL
+# include "od3dviewer.h"
+#else
+# include "ui3dviewerbody.h"
+#endif
 
 #include "iopar.h"
 #include "keybindings.h"
 #include "keystrs.h"
+#include "mouseevent.h"
 #include "ptrman.h"
 #include "settingsaccess.h"
 #include "survinfo.h"
@@ -24,21 +29,7 @@ ________________________________________________________________________
 #include "visdataman.h"
 #include "vispolygonselection.h"
 #include "visscenecoltab.h"
-
-#include <QGesture>
-#include <QGestureEvent>
-#include <QPainter>
-#include <QTabletEvent>
-
-#include <osg/MatrixTransform>
-#include <osg/Version>
-#include <osgGeo/ThumbWheel>
-#include <osgGeo/TrackballManipulator>
-#include <osgViewer/CompositeViewer>
-#include <osgViewer/View>
-#include <osgViewer/ViewerEventHandlers>
-
-#include <math.h>
+#include "vissurvscene.h"
 
 
 static const char* sKeydTectScene()	{ return "dTect.Scene."; }
@@ -50,10 +41,10 @@ StringView ui3DViewer::sKeyBindingSettingsKey()
     return KeyBindings::sSettingsKey();
 }
 
-mDefineEnumUtils(ui3DViewer,StereoType,"StereoType")
+mDefineNameSpaceEnumUtils(OD,StereoType,"StereoType")
 { sKey::None().str(), "RedCyan", "QuadBuffer", nullptr };
 
-mDefineEnumUtils(ui3DViewer,WheelMode,"WheelMode")
+mDefineNameSpaceEnumUtils(OD,WheelMode,"WheelMode")
 { "Never", "Always", "On Hover", nullptr };
 
 
@@ -72,18 +63,19 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
 
     setViewMode( false );  // switches between view & interact mode
 
-    bool yn = false;
+    bool enabanimate = false;
     bool res = Settings::common().getYN(
-	BufferString(sKeydTectScene(),sKeyAnimate()), yn );
+	BufferString(sKeydTectScene(),sKeyAnimate()), enabanimate );
     if ( res )
-	enableAnimation( yn );
+	enableAnimation( enabanimate );
 
     BufferString modestr;
     res = Settings::common().get(
 	BufferString(sKeydTectScene(),sKeyWheelDisplayMode()), modestr );
     if ( res )
     {
-	WheelMode mode; parseEnum( modestr, mode );
+	OD::WheelMode mode;
+	OD::parseEnum( modestr, mode );
 	setWheelDisplayMode( mode );
     }
 
@@ -111,16 +103,27 @@ uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
     initQtWindowingSystem();
 #endif
 
+#ifdef OD_USE_QOPENGL
+    osgbody_ = new OD3DViewer( *this, parnt );
+#else
     osgbody_ = new ui3DViewerBody( *this, parnt );
+#endif
+
+    osgbody_->setName( nm );
     return *osgbody_;
 }
 
 
 void ui3DViewer::setMapView( bool yn )
-{ osgbody_->setMapView( yn ); }
+{
+    osgbody_->setMapView( yn );
+}
+
 
 bool ui3DViewer::isMapView() const
-{ return osgbody_->isMapView(); }
+{
+    return osgbody_->isMapView();
+}
 
 
 void ui3DViewer::viewAll( bool animate )
@@ -240,15 +243,15 @@ void ui3DViewer::setCameraPerspective( bool yn )
 }
 
 
-bool ui3DViewer::setStereoType( StereoType type )
+bool ui3DViewer::setStereoType( OD::StereoType type )
 {
-    return osgbody_->setStereoType( (ui3DViewerBody::StereoType)type );
+    return osgbody_->setStereoType( type );
 }
 
 
-ui3DViewer::StereoType ui3DViewer::getStereoType() const
+OD::StereoType ui3DViewer::getStereoType() const
 {
-    return (ui3DViewer::StereoType) osgbody_->getStereoType();
+    return osgbody_->getStereoType();
 }
 
 
@@ -342,11 +345,11 @@ void ui3DViewer::resetHomePos()
 void ui3DViewer::showRotAxis( bool yn )
 { osgbody_->showRotAxis( yn ); }
 
-void ui3DViewer::setWheelDisplayMode( WheelMode mode )
-{ osgbody_->setWheelDisplayMode( (ui3DViewerBody::WheelMode)mode ); }
+void ui3DViewer::setWheelDisplayMode( OD::WheelMode mode )
+{ osgbody_->setWheelDisplayMode( mode ); }
 
-ui3DViewer::WheelMode ui3DViewer::getWheelDisplayMode() const
-{ return (ui3DViewer::WheelMode)osgbody_->getWheelDisplayMode(); }
+OD::WheelMode ui3DViewer::getWheelDisplayMode() const
+{ return osgbody_->getWheelDisplayMode(); }
 
 bool ui3DViewer::rotAxisShown() const
 { return osgbody_->isAxisShown(); }
@@ -421,8 +424,8 @@ bool ui3DViewer::usePar( const IOPar& par )
 	setBackgroundColor( newcol );
     }
 
-    StereoType stereotype;
-    if ( parseEnum( par, sKeyStereo(), stereotype ) )
+    OD::StereoType stereotype;
+    if ( OD::parseEnum( par, sKeyStereo(), stereotype ) )
 	setStereoType( stereotype );
 
     float offset;

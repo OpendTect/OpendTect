@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "odosgviewer.h"
 #include "odopenglwidget.h"
 
+#include "notify.h"
 #include <QThread>
 
 /*
@@ -199,4 +200,11 @@ void ODOSGViewer::timerEvent( QTimerEvent* )
     {
 	update();
     }
+}
+
+
+// Here for compatibility. Not sure if needed.
+// odgraphicswindow.cc has implementation for Qt5 with QGL classes.
+void setOSGTimerCallbacks( const NotifierAccess&, const NotifierAccess& )
+{
 }

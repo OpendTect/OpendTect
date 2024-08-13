@@ -83,8 +83,8 @@ bool ui3DViewer2Image::create()
     osgViewer::View* hudview =
 	const_cast<osgViewer::View*>( vwr_.getOsgViewerHudView() );
 
-    ui3DViewer::WheelMode curmode = vwr_.getWheelDisplayMode();
-    vwr_.setWheelDisplayMode( ui3DViewer::Never );
+    OD::WheelMode curmode = vwr_.getWheelDisplayMode();
+    vwr_.setWheelDisplayMode( OD::WheelMode::Never );
     osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage(
 	hudview, FOREGROUND_TRANSPARENCY );
     vwr_.setWheelDisplayMode( curmode );
@@ -374,8 +374,8 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     osgViewer::View* hudview =
 	const_cast<osgViewer::View*>( vwr->getOsgViewerHudView() );
 
-    ui3DViewer::WheelMode curmode = vwr->getWheelDisplayMode();
-    vwr->setWheelDisplayMode( ui3DViewer::Never );
+    OD::WheelMode curmode = vwr->getWheelDisplayMode();
+    vwr->setWheelDisplayMode( OD::WheelMode::Never );
     osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage(
 	hudview, FOREGROUND_TRANSPARENCY );
     vwr->setWheelDisplayMode( curmode );

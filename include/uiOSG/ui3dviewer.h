@@ -11,19 +11,19 @@ ________________________________________________________________________
 #include "uiosgmod.h"
 
 #include "color.h"
-#include "enums.h"
 #include "uiobj.h"
+#include "uiosgutil.h"
 
 class BufferStringSet;
 class FontData;
 class ui3DViewerBody;
+class OD3DViewer;
 
 namespace visBase { class Scene; class PolygonSelection; class SceneColTab; }
 namespace osgViewer { class View; }
 
 mExpClass(uiOSG) ui3DViewer : public uiObject
 {
-friend class		ui3DViewerBody;
 
 public:
 			ui3DViewer(uiParent*,bool direct=true,
@@ -55,10 +55,8 @@ public:
     void		viewPlane(PlaneType);
     void		align();
 
-    enum StereoType	{ None, RedCyan, QuadBuffer };
-			mDeclareEnumUtils(StereoType)
-    bool		setStereoType(StereoType);
-    StereoType		getStereoType() const;
+    bool		setStereoType(OD::StereoType);
+    OD::StereoType	getStereoType() const;
     void		setStereoOffset(float);
     float		getStereoOffset() const;
 
@@ -86,10 +84,8 @@ public:
     bool		isCameraPerspective() const;
     void		setCameraPerspective(bool yn);
 
-    enum WheelMode	{ Never, Always, OnHover };
-			mDeclareEnumUtils(WheelMode)
-    void		setWheelDisplayMode(WheelMode);
-    WheelMode		getWheelDisplayMode() const;
+    void		setWheelDisplayMode(OD::WheelMode);
+    OD::WheelMode	getWheelDisplayMode() const;
 
     void		setBackgroundColor(const OD::Color&) override;
     OD::Color		getBackgroundColor() const;
@@ -130,7 +126,13 @@ private:
     static const char* sKeyPersCamera()	{ return "Perspective camera"; }
     static const char* sKeyMapView()	{ return "MapView"; }
 
-    ui3DViewerBody*	osgbody_;
-
     uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
+
+#ifdef OD_USE_QOPENGL
+    friend class	OD3DViewer;
+    OD3DViewer*		osgbody_;
+#else
+    friend class	ui3DViewerBody;
+    ui3DViewerBody*	osgbody_;
+#endif
 };

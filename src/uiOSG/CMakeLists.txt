@@ -13,11 +13,9 @@ set( OD_USEOSG TRUE )
 set( OD_MODULE_SOURCES
 	inituiosg.cc
 	keybindings.cc
-	od3dviewer.cc
 	odfontimplementation.cc
-	odgraphicswindow.cc
+	odopenglwidget.cc
 	ui3dviewer.cc
-	ui3dviewerbody.cc
 	uiglinfo.cc
 	uiosgfont.cc
 	uiprintscenedlg.cc
@@ -26,11 +24,17 @@ set( OD_MODULE_SOURCES
 
 if ( OD_USE_QOPENGL )
     list( APPEND OD_MODULE_SOURCES
-	odopenglwidget.cc
 	odosgviewer.cc
+	od3dviewer.cc
     )
-endif()
+    list( APPEND OD_MODULE_COMPILE_DEFINITIONS "OD_USE_QOPENGL" )
+else()
+    list( APPEND OD_MODULE_SOURCES
+	odgraphicswindow.cc
+	ui3dviewerbody.cc
+    )
 
-set( OD_MODULE_PROGS od_osgfileviewer.cc )
+    set( OD_MODULE_PROGS od_osgfileviewer.cc )
+endif()
 
 OD_INIT_MODULE()

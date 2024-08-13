@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "ui3dviewerbody.h"
+#include "ui3dviewer.h"
 
 #include "filepath.h"
 #include "iopar.h"
@@ -698,30 +699,30 @@ bool ui3DViewerBody::isAxisShown() const
 }
 
 
-void ui3DViewerBody::setWheelDisplayMode( WheelMode mode )
+void ui3DViewerBody::setWheelDisplayMode( OD::WheelMode mode )
 {
-    const bool doshow = mode != Never;
+    const bool doshow = mode != OD::WheelMode::Never;
     horthumbwheel_->turnOn( doshow );
     verthumbwheel_->turnOn( doshow );
     distancethumbwheel_->turnOn( doshow );
     enableThumbWheelHandling( doshow );
 
-    const bool enablefadeinout = mode==OnHover;
+    const bool enablefadeinout = mode==OD::WheelMode::OnHover;
     horthumbwheel_->enableFadeInOut( enablefadeinout );
     verthumbwheel_->enableFadeInOut( enablefadeinout );
     distancethumbwheel_->enableFadeInOut( enablefadeinout );
 }
 
 
-ui3DViewerBody::WheelMode ui3DViewerBody::getWheelDisplayMode() const
+OD::WheelMode ui3DViewerBody::getWheelDisplayMode() const
 {
     if ( !horthumbwheel_->isOn() )
-	return Never;
+	return OD::WheelMode::Never;
 
     if ( horthumbwheel_->isFadeInOutEnabled() )
-	return OnHover;
+	return OD::WheelMode::OnHover;
 
-    return Always;
+    return OD::WheelMode::Always;
 }
 
 
@@ -1458,20 +1459,20 @@ void ui3DViewerBody::setScenesPixelDensity( float dpi )
 }
 
 
-bool ui3DViewerBody::setStereoType( ui3DViewerBody::StereoType st )
+bool ui3DViewerBody::setStereoType( OD::StereoType st )
 {
     stereotype_ = st;
     osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
     switch( st )
     {
-    case ui3DViewerBody::None:
+    case OD::StereoType::None:
 	ds->setStereo( false );
 	break;
-    case ui3DViewerBody::RedCyan:
+    case OD::StereoType::RedCyan:
 	ds->setStereo( true );
 	ds->setStereoMode( osg::DisplaySettings::ANAGLYPHIC );
 	break;
-    case ui3DViewerBody::QuadBuffer:
+    case OD::StereoType::QuadBuffer:
 	ds->setStereo( true );
 	ds->setStereoMode( osg::DisplaySettings::QUAD_BUFFER );
 	break;
@@ -1483,7 +1484,7 @@ bool ui3DViewerBody::setStereoType( ui3DViewerBody::StereoType st )
 }
 
 
-ui3DViewerBody::StereoType ui3DViewerBody::getStereoType() const
+OD::StereoType ui3DViewerBody::getStereoType() const
 { return stereotype_; }
 
 

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "ui3dviewer.h"
 #include "uidialog.h"
+#include "uiosgutil.h"
 #include "uistring.h"
 
 #include "color.h"
@@ -54,7 +55,7 @@ private:
     bool			hadannotscale_	= true;
     bool			hadannotgrid_	= true;
     bool			hadanimation_	= true;
-    ui3DViewer::WheelMode	wheeldisplaymode_;
+    OD::WheelMode		wheeldisplaymode_;
     OD::Color			oldbgcolor_	= OD::Color::Anthracite();
     float			oldmarkersize_	= 5;
     OD::Color			oldmarkercolor_ = OD::Color::White();

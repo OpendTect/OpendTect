@@ -620,7 +620,7 @@ void uiODSceneMgr::setStereoType( int type )
 	}
     }
 
-    ui3DViewer::StereoType stereotype = (ui3DViewer::StereoType)type;
+    OD::StereoType stereotype = (OD::StereoType)type;
     const float stereooffset = scenes_[0]->vwr3d_->getStereoOffset();
     for ( int ids=0; ids<scenes_.size(); ids++ )
     {
