@@ -16,8 +16,6 @@ set( OD_MODULE_SOURCES
 	od3dviewer.cc
 	odfontimplementation.cc
 	odgraphicswindow.cc
-	odopenglwidget.cc
-	odosgviewer.cc
 	ui3dviewer.cc
 	ui3dviewerbody.cc
 	uiglinfo.cc
@@ -25,6 +23,13 @@ set( OD_MODULE_SOURCES
 	uiprintscenedlg.cc
 	uistereodlg.cc
 )
+
+if ( OD_USE_QOPENGL )
+    list( APPEND OD_MODULE_SOURCES
+	odopenglwidget.cc
+	odosgviewer.cc
+    )
+endif()
 
 set( OD_MODULE_PROGS od_osgfileviewer.cc )
 
