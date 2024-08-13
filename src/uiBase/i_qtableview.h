@@ -60,13 +60,11 @@ void setNrColumns( int nrcol )
 
 void cellContextMenuRequested( const QPoint& pos )
 {
-    const QModelIndex index = frozenview_->indexAt( pos );
     emit mainview_->customContextMenuRequested( pos );
 }
 
 void horHeaderContextMenuRequested( const QPoint& pos )
 {
-    const QModelIndex index = frozenview_->indexAt( pos );
     emit mainview_->horizontalHeader()->customContextMenuRequested( pos );
 }
 
