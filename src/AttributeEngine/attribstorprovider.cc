@@ -786,13 +786,22 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	const bool isclss = isclass[idx];
 	compidx++;
 
+	const int compnr = getDesc().is2D() ? idx : compidx;
+	if ( compnr >= trc->nrComponents() )
+	{
+	    series->setAll( mUdf(float) );
+	    continue;
+	}
+
 	for ( int sampidx=0; sampidx<data.nrsamples_; sampidx++ )
 	{
 	    const float curt = (float)(z0+sampidx)*refstep_ + extrazfromsamppos;
-	    const int compnr = getDesc().is2D() ? idx : compidx;
-	    const float val = trcrange.includes(curt,false) ?
-		(isclss ? trc->get(trc->nearestSample(curt),compnr)
-		 : trc->getValue(curt,compnr)) : mUdf(float);
+	    float val;
+	    if ( !trcrange.includes(curt,false) )
+		val = mUdf(float);
+	    else
+		val = isclss ? trc->get(trc->nearestSample(curt),compnr)
+			     : trc->getValue(curt,compnr);
 
 	    series->setValue( sampidx, val );
 	}
