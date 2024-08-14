@@ -178,7 +178,7 @@ public:
 					TypeSet<int>&);
     void		info2DAttribSubMenu(int mnuid,BufferString& attbnm,
 					    bool& steering,bool& stored);
-    bool		prepMultCompSpecs(TypeSet<int>,const MultiID&,
+    bool		prepMultCompSpecs(const TypeSet<int>&,const MultiID&,
 					  bool,bool);
 
     void		setEvaluateInfo(bool ae,bool as)

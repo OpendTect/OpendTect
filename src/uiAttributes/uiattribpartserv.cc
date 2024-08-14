@@ -2205,10 +2205,13 @@ bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
 }
 
 
-bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
+bool uiAttribPartServer::prepMultCompSpecs( const TypeSet<int>& selectedcomps,
 					    const MultiID& multiid, bool is2d,
 					    bool issteering )
 {
+    BufferStringSet complist;
+    SeisIOObjInfo::getCompNames( multiid, complist );
+
     targetspecs_.erase();
     DescSet* ads = eDSHolder().getDescSet( is2d, true );
     for ( int idx=0; idx<selectedcomps.size(); idx++ )
@@ -2231,10 +2234,8 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	//Trick for PreStack offsets displayed on the fly
 	if ( desc->isStored() && desc->userRef()[0] == '{' )
 	{
-	    StringPair userref( desc->userRef() );
-	    BufferString newnm = "offset index ";
-	    newnm += selectedcomps[idx];
-	    userref.second() = newnm;
+	    const StringPair userref( desc->userRef(),
+				      complist.get(idx).buf() );
 	    desc->setUserRef( userref.buf() );
 	}
 
