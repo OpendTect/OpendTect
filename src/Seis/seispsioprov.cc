@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "iox.h"
+#include "keystrs.h"
 #include "posinfo.h"
 #include "seisbuf.h"
 #include "seiscbvsps.h"
@@ -559,10 +560,10 @@ bool CBVSSeisPS2DTranslator::implRemove( const IOObj* ioobj, bool ) const
 SeisPSCubeSeisTrcTranslator::SeisPSCubeSeisTrcTranslator( const char* nm,
 							  const char* unm )
 	: SeisTrcTranslator(nm,unm)
-	, trc_(*new SeisTrc)
 	, psrdr_(nullptr)
-	, inforead_(false)
+	, trc_(*new SeisTrc)
 	, posdata_(*new PosInfo::CubeData)
+	, inforead_(false)
 {
 }
 
@@ -625,15 +626,32 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     curbinid_.inl() = pinfo_.inlrg.snappedCenter();
     curbinid_.crl() = pinfo_.crlrg.snappedCenter() - pinfo_.crlrg.step;
 
-    TypeSet<float> offss;
-    if ( !doRead(trc_,&offss) )
-	return false;
+    BufferStringSet offsetnames;
+    if ( psrdr_->getSampleNames(offsetnames) && ioobj )
+    {
+	const StepInterval<float> zrg = psrdr_->getZRange();
+	insd_.set( zrg );
+	innrsamples_ = zrg.nrSteps() + 1;
 
-    insd_ = trc_.info().sampling;
-    innrsamples_ = trc_.size();
-    for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
-	addComp( trc_.data().getInterpreter(icomp)->dataChar(),
-		 BufferString("O=",offss[icomp]) );
+	DataCharacteristics::UserType dt = DataCharacteristics::Auto;
+	DataCharacteristics::parseEnumUserType(
+	    ioobj->pars().find(sKey::DataStorage()), dt );
+	const DataCharacteristics dc( dt );
+	for ( int icomp=0; icomp<offsetnames.size(); icomp++ )
+	    addComp( dc, BufferString("Offset: ",offsetnames.get(icomp)) );
+    }
+    else
+    {
+	TypeSet<float> offss;
+	if ( !doRead(trc_,&offss) )
+	    return false;
+
+	insd_ = trc_.info().sampling;
+	innrsamples_ = trc_.size();
+	for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
+	    addComp( trc_.data().getInterpreter(icomp)->dataChar(),
+		     BufferString("Offset: ",offss[icomp]) );
+    }
 
     curbinid_.inl() = pinfo_.inlrg.start;
     curbinid_.crl() = pinfo_.crlrg.start - pinfo_.crlrg.step;
@@ -697,51 +715,46 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 	return false;
 
     SeisTrc* newtrc = nullptr;
-    if ( !trcnrs_.isEmpty() )
+    if ( trcnrs_.size()==1 )
     {
 	newtrc = psrdr_->getTrace( curbinid_, trcnrs_[0] );
-	const int nrtrcnrs = trcnrs_.size();
-	if ( nrtrcnrs > 1 )
-	{
-	    const int trcsz = newtrc->size();
-	    const DataCharacteristics dc(
-		    newtrc->data().getInterpreter(0)->dataChar() );
-	    for ( int itrc=1; itrc<nrtrcnrs; itrc++ )
-	    {
-		PtrMan<SeisTrc> rdtrc =
-		    psrdr_->getTrace( curbinid_, trcnrs_[itrc] );
-		newtrc->data().addComponent( trcsz, dc, !rdtrc );
-		if ( rdtrc )
-		{
-		    for ( int idx=0; idx<trcsz; idx++ )
-			newtrc->set( idx, rdtrc->get(idx,0), itrc );
-		}
-	    }
-	}
     }
     else
     {
 	SeisTrcBuf tbuf( true );
-	if ( psrdr_->getGather(curbinid_,tbuf) && !tbuf.isEmpty() )
+	if ( !psrdr_->getGather(curbinid_,tbuf) || tbuf.isEmpty() )
+	    return false;
+
+	TypeSet<int> trcnrs = trcnrs_;
+	if ( trcnrs.isEmpty() )
 	{
-	    newtrc = new SeisTrc( *tbuf.get(0) );
-	    const int trcsz = newtrc->size();
-	    const DataCharacteristics trcdc(
-		    newtrc->data().getInterpreter(0)->dataChar() );
-	    if ( offss )
-		*offss += newtrc->info().offset;
-
-	    for ( int icomp=1; icomp<tbuf.size(); icomp++ )
-	    {
-		const SeisTrc& btrc = *tbuf.get(icomp);
-		newtrc->data().addComponent( trcsz, trcdc );
-		for ( int isamp=0; isamp<trcsz; isamp++ )
-		    newtrc->set( isamp, btrc.get(isamp,0), icomp );
-
-		if ( offss )
-		    *offss += btrc.info().offset;
-	    }
+	    for ( int idx=0; idx<tbuf.size(); idx++ )
+		trcnrs.add( idx );
 	}
+
+	const int trcidx0 = trcnrs.first();
+	newtrc = new SeisTrc( *tbuf.get(trcidx0) );
+	const int trcsz = newtrc->size();
+	const DataCharacteristics trcdc(
+		newtrc->data().getInterpreter(0)->dataChar() );
+	if ( offss )
+	    *offss += newtrc->info().offset;
+
+	for ( int idx=1; idx<trcnrs.size(); idx++ )
+	{
+	    const int trcidx = trcnrs[idx];
+	    if ( !tbuf.validIdx(trcidx) )
+		break;
+
+	    const SeisTrc& btrc = *tbuf.get( trcidx );
+	    newtrc->data().addComponent( trcsz, trcdc );
+	    for ( int isamp=0; isamp<trcsz; isamp++ )
+		newtrc->set( isamp, btrc.get(isamp,0), idx );
+
+	    if ( offss )
+		*offss += btrc.info().offset;
+	}
+
     }
 
     if ( !newtrc )
