@@ -14,7 +14,6 @@ set( OD_MODULE_SOURCES
 	inituiosg.cc
 	keybindings.cc
 	odfontimplementation.cc
-	odopenglwidget.cc
 	ui3dviewer.cc
 	uiglinfo.cc
 	uiosgfont.cc
@@ -24,6 +23,7 @@ set( OD_MODULE_SOURCES
 
 if ( OD_USE_QOPENGL )
     list( APPEND OD_MODULE_SOURCES
+	odopenglwidget.cc
 	odosgviewer.cc
 	od3dviewer.cc
     )
