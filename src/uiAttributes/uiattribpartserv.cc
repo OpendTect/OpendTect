@@ -88,7 +88,10 @@ const char* uiAttribPartServer::sKeyUserSettingAttrErrMsg()
 uiAttribPartServer* uiAttribPartServer::theinst_ = nullptr;
 
 uiAttribPartServer* uiAttribPartServer::getInst()
-{ return theinst_; }
+{
+    return theinst_;
+}
+
 
 uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -724,7 +727,7 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 	}
     }
 
-    EngineMan* aem = new EngineMan;
+    auto* aem = new EngineMan;
     aem->setAttribSet( curdescset );
     aem->setNLAModel( getNLAModel(is2d) );
     aem->setAttribSpecs( targetspecs_ );
@@ -1937,7 +1940,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	{
 	    if ( attribnms.isPresent(childnm) )
 	    {
-		MenuItem* item = new MenuItem( mToUiStringTodo(childnm) );
+		auto* item = new MenuItem( toUiString(childnm) );
 		const bool docheck = childnm==as.userRef();
 		mAddMenuItem(&subitem,item,true,docheck);
 	    }
@@ -2237,8 +2240,7 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	if ( desc->isStored() && desc->userRef()[0] == '{' )
 	{
 	    LineKey lkey( desc->userRef() );
-	    BufferString newnm = "offset index "; newnm += selectedcomps[idx];
-	    lkey.setAttrName( newnm );
+	    lkey.setAttrName( compname );
 	    desc->setUserRef( lkey.buf() );
 	}
 
