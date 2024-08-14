@@ -450,7 +450,7 @@ void convertLegacyTypes()
 	if ( newiop == curiop )
 	    continue;
 
-	mNonConst(seisobj)->pars() = newiop;
+	getNonConst(seisobj)->pars() = newiop;
 	seisdir->commitChanges( seisobj );
     }
 

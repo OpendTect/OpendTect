@@ -717,7 +717,7 @@ void uiCustomMnemonicsSel::getEntries( ObjectSet<Mnemonic>& mns ) const
 
 bool uiCustomMnemonicsSel::commitEntries( ObjectSet<Mnemonic>& mns )
 {
-    MnemonicSet& eMNC = mNonConst( MNC() );
+    MnemonicSet& eMNC = getNonConst( MNC() );
     for ( int idx=eMNC.size()-1; idx>=0; idx-- )
     {
 	const Mnemonic* mn = eMNC.get(idx);

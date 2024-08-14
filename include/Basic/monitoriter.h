@@ -114,7 +114,7 @@ public:
     inline		MonitorableIter4Write(const MonitorableIter4Write&);
 
     inline MonitoredObject&	edited()
-			{ return mNonConst( mSelf().monitored() ); }
+			{ return getNonConst( mSelf().monitored() ); }
 
 protected:
 
@@ -137,9 +137,9 @@ MonitorableIterBase<ITyp>::MonitorableIterBase( const MonitoredObject& obj,
     if ( startidx_ < 0 || stopidx_ < 0 )
     {
 	// empty. make this a standard situation:
-	mNonConst( startidx_ ) = 0;
-	mNonConst( stopidx_ ) = -1;
-	mNonConst( dir_ ) = Forward;
+	getNonConst( startidx_ ) = 0;
+	getNonConst( stopidx_ ) = -1;
+	getNonConst( dir_ ) = Forward;
     }
     reInit();
 }
@@ -243,10 +243,10 @@ template <class ITyp> inline
 void MonitorableIter4Write<ITyp>::insertedAtCurrent()
 {
     if ( this->dir_ == MonitorableIterBase<ITyp>::Backward )
-	mNonConst(this->startidx_)++;
+	getNonConst(this->startidx_)++;
     else
     {
-	mNonConst(this->stopidx_)++;
+	getNonConst(this->stopidx_)++;
 	this->curidx_++;
     }
 }
@@ -256,10 +256,10 @@ template <class ITyp> inline
 void MonitorableIter4Write<ITyp>::currentRemoved()
 {
     if ( this->dir_ == MonitorableIterBase<ITyp>::Backward )
-	mNonConst(this->startidx_)--;
+	getNonConst(this->startidx_)--;
     else
     {
-	mNonConst(this->stopidx_)--;
+	getNonConst(this->stopidx_)--;
 	this->curidx_--;
     }
 }

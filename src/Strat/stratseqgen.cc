@@ -498,7 +498,7 @@ Strat::SingleLayerGenerator& Strat::SingleLayerGenerator::operator =(
     if ( &oth == this )
 	return *this;
 
-    setGenDesc( mNonConst(oth.gendesc_) );
+    setGenDesc( getNonConst(oth.gendesc_) );
     unit_ = oth.unit_;
     props_ = oth.props_;
     content_ = oth.content_;

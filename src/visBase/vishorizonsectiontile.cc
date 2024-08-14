@@ -743,7 +743,7 @@ bool HorizonSectionTile::getResolutionTextureCoordinates(
 
     const osgGeo::LayeredTexture* entiretxture = hrsection_.getOsgTexture();
     const osg::Image* entireimg =
-			mNonConst( *entiretxture ).getCompositeTextureImage();
+			getNonConst( *entiretxture ).getCompositeTextureImage();
 
     const Coord entireorigin = Coord( 0.5/entireimg->s(), 0.5/entireimg->t() );
     const int nrcoords = hrsection_.nrcoordspertileside_;

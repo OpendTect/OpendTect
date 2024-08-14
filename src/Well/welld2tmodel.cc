@@ -791,7 +791,7 @@ bool Well::D2TModel::getTVDD2TModel( Well::D2TModel& d2t, const Well::Data& wll,
 
     const double zwllhead = track.getPos( 0.f ).z;
     const double vreplfile = getVreplFromFile( zvals, tvals, zwllhead );
-    Well::Info& wllinfo = mNonConst( wll.info() );
+    Well::Info& wllinfo = getNonConst( wll.info() );
     checkReplacementVelocity( wllinfo, vreplfile, warnmsg );
 
     const double srddepth = -1. * SI().seismicReferenceDatum();

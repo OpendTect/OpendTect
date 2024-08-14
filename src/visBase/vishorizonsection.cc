@@ -784,7 +784,7 @@ const unsigned char* HorizonSection::getTextureData(
 {
     const osgGeo::LayeredTexture* texture = getOsgTexture();
     const osg::Image* entireimg =
-			mNonConst( *texture ).getCompositeTextureImage();
+			getNonConst( *texture ).getCompositeTextureImage();
     if ( !entireimg )
 	return nullptr;
 
@@ -799,7 +799,7 @@ int HorizonSection::getTexturePixelSizeInBits() const
 {
     const osgGeo::LayeredTexture* texture = getOsgTexture();
     const osg::Image* entireimg =
-			mNonConst( *texture ).getCompositeTextureImage();
+			getNonConst( *texture ).getCompositeTextureImage();
     if ( !entireimg )
 	return 0;
 
