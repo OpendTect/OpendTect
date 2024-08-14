@@ -157,6 +157,8 @@ mExpClass(uiODMain) uiPluginInitMgr : public CallBacker
 {
 public:
     virtual		~uiPluginInitMgr();
+			mOD_DisableCopy(uiPluginInitMgr)
+
     uiODMain&		appl()				{ return appl_; }
 
 protected:
