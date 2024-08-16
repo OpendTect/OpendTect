@@ -162,8 +162,6 @@ protected:
     uiString			errmsg_;
     TypeSet<MultiID>		dbaddedwellsids_;
     bool			isreloading_		= false;
-    WellFileList*		wfl_			= nullptr;
-    Timer*			fswtimer_		= nullptr;
 
     void		checkForUndeletedRef(CallBacker*);
     int			gtByKey(const MultiID&) const;
@@ -171,13 +169,6 @@ protected:
     bool		readReqData(const MultiID&,Data&,LoadReqs);
     void		reloadAll();
 
-    void		addFSWOnFileCB(CallBacker*);
-    void		addFSWOnDirCB(CallBacker*);
-    void		addFSWTimerCB(CallBacker*);
-    void		wellUpdateNeededCB(CallBacker*);
-    void		wellDirChangedCB(CallBacker*);
-    void		wellFileChangedCB(CallBacker*);
-    void		databaseUpdateCB(CallBacker*);
     void		wellAddedToDB(CallBacker*);
     void		wellEntryRemovedCB(CallBacker*);
 
