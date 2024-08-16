@@ -697,10 +697,22 @@ bool Well::Man::getWellKeys( TypeSet<MultiID>& ids, bool onlyloaded )
 
 bool Well::Man::getWellNames( BufferStringSet& wellnms, bool onlyloaded )
 {
-    TypeSet<MultiID> ids;
-    getWellKeys( ids );
-    for ( int idx=0; idx<ids.size(); idx++ )
-	wellnms.add( IOM().nameOf(ids[idx]) );
+    if ( onlyloaded )
+    {
+	const auto& wells = MGR().wells();
+	for ( int idx=0; idx<wells.size(); idx++ )
+	{
+	    if ( wells[idx] )
+		wellnms.add( wells[idx]->name() );
+	}
+    }
+    else
+    {
+	const IOObjContext ctxt = mIOObjContext( Well );
+	const IODir iodir( ctxt.getSelKey() );
+	const IODirEntryList entries( iodir, ctxt );
+	entries.getIOObjNames( wellnms );
+    }
 
     return !wellnms.isEmpty();
 }
