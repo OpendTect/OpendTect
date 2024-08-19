@@ -10,7 +10,9 @@ ________________________________________________________________________
 #include "ui2dgeomman.h"
 
 #include "bufstringset.h"
+#include "interpol1d.h"
 #include "ioman.h"
+#include "latlong.h"
 #include "linear.h"
 #include "mousecursor.h"
 #include "od_helpids.h"
@@ -18,14 +20,17 @@ ________________________________________________________________________
 #include "survgeom2d.h"
 #include "survgeometrytransl.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
 #include "uiimpexp2dgeom.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uistrings.h"
 #include "uitable.h"
+#include "uitoolbutton.h"
 
 
 
@@ -63,14 +68,14 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
     if ( !transl )
 	return;
 
+    BoolTypeSet geomisro;
+    TypeSet<Pos::GeomID> geomidset;
     TypeSet<MultiID> selids;
     getChosen( selids );
-    TypeSet<Pos::GeomID> geomidset;
-
     for ( int idx=0; idx<selids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( selids[idx] );
-	if ( !ioobj || ioobj->implReadOnly() )
+	if ( !ioobj )
 	    continue;
 
 	const BufferString linenm( ioobj->name() );
@@ -79,10 +84,17 @@ void ui2DGeomManageDlg::manLineGeom( CallBacker* )
 	    continue;
 
 	geomidset += geomid;
+	geomisro += ioobj->implReadOnly();
     }
 
-    uiManageLineGeomDlg dlg( this, geomidset,
-			     !transl->isUserSelectable(false) );
+    if ( geomidset.isEmpty() )
+    {
+	uiMSG().error( tr("No valid geometry objects selected") );
+	return;
+    }
+
+    const bool readonly = geomidset.size()>1 || geomisro.first();
+    uiManageLineGeomDlg dlg( this, geomidset, readonly );
     dlg.go();
 }
 
@@ -120,8 +132,9 @@ void ui2DGeomManageDlg::mkFileInfo()
 	if ( !zrg.isUdf() )
 	    zrg.scale( zinfo.userFactor() );
 
+	const float linelength = geom2d->lineLength();
 	const BufferString diststr = toString(geom2d->averageTrcDist(),2);
-	const BufferString lengthstr = toString(geom2d->lineLength(),0);
+	const BufferString lengthstr = toString(linelength,0);
 	const BufferString unitstr = SI().getXYUnitString();
 	txt.add( "Number of traces: " ).add( trcrg.nrSteps()+1 )
 	   .add( "\nTrace range: " ).add( trcrg.start ).add( " - " )
@@ -138,8 +151,21 @@ void ui2DGeomManageDlg::mkFileInfo()
 	       .add( " [" ).add( zrg.step, nrzdec ).add( "]" );
 	}
 
+	const UnitOfMeasure* uomfrom = UoMR().get(SI().getXYUnitString(false));
+	const UnitOfMeasure* uomto = nullptr;
+	if ( SI().xyInFeet() )
+	    uomto = UoMR().get( "mile" );
+	else
+	    uomto = UoMR().get( "kilometer" );
+
+	const float length2 = getConvertedValue( linelength, uomfrom, uomto );
+	const BufferString length2str = toString(length2,2);
+	const BufferString unit2str = uomto->symbol();
+
 	txt.add( "\nAverage distance: " ).add( diststr ).addSpace().add(unitstr)
 	   .add( "\nLine length: " ).add( lengthstr ).addSpace().add( unitstr )
+	   .add( " / " ).add( length2str ).addSpace()
+			.add("(").add(unit2str ).add(")")
 	   .addNewLine();
     }
 
@@ -190,30 +216,145 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 
 
 
+// uiInterpolateGeomDlg
+class uiInterpolateGeomDlg : public uiDialog
+{
+mODTextTranslationClass(uiInterpolateGeomDlg)
+public:
+uiInterpolateGeomDlg( uiParent* p, const Survey::Geometry2D& geom2d )
+    : uiDialog(p,Setup(tr("Interpolate Geometry" ),
+		       mNoDlgTitle,mODHelpKey(mTrc2SPHelpID)))
+    , geom2d_(geom2d)
+{
+    const Interval<int> trcrg = geom2d.data().trcNrRange();
+    trcnrfld_ = new uiGenInput( this, tr("Trace range"),
+		IntInpIntervalSpec(trcrg).setLimits(trcrg) );
+    auto* lbl = new uiLabel( this, tr("Traces outside this range will "
+				      "be removed.") );
+    lbl->attach( alignedBelow, trcnrfld_ );
+}
+
+
+~uiInterpolateGeomDlg()
+{}
+
+
+bool acceptOK( CallBacker* ) override
+{
+    const Interval<int> trcnrrg = trcnrfld_->getIInterval();
+
+    newgeom_ = new Survey::Geometry2D( geom2d_.getName() );
+    const TypeSet<float>& spnrs = geom2d_.spnrs();
+    const TypeSet<PosInfo::Line2DPos>& linepos = geom2d_.data().positions();
+    const bool usesp = linepos.size() == spnrs.size();
+    const int nrtrcs = geom2d_.size();
+    for ( int idx=0; idx<nrtrcs-1; idx++ )
+    {
+	const int t0 = linepos[idx].nr_;
+	if ( !trcnrrg.includes(t0,false) )
+	    continue;
+
+	const float sp0 = usesp ? spnrs[idx] : t0;
+	const Coord& crd0 = linepos[idx].coord_;
+	newgeom_->add( crd0, t0, sp0 );
+
+	const int t1 = linepos[idx+1].nr_;
+	const float sp1 = usesp ? spnrs[idx+1] : t1;
+	const Coord& crd1 = linepos[idx+1].coord_;
+	if ( t1-t0 == 1 )
+	{
+	    newgeom_->add( crd1, t1, sp1 );
+	    continue;
+	}
+
+	for ( int trcnr=t0+1; trcnr<t1; trcnr++ )
+	{
+	    const double newx =
+		Interpolate::linear1D( t0, crd0.x, t1, crd1.x, trcnr );
+	    const double newy =
+		Interpolate::linear1D( t0, crd0.y, t1, crd1.y, trcnr );
+	    const float newsp = !usesp ? float(trcnr) :
+		Interpolate::linear1D( t0, sp0, t1, sp1, trcnr );
+	    newgeom_->add( newx, newy, trcnr, newsp );
+	}
+
+	if ( idx == nrtrcs-2 )
+	    newgeom_->add( crd1, t1, sp1 );
+    }
+
+    return true;
+}
+
+    uiGenInput*				trcnrfld_;
+    const Survey::Geometry2D&		geom2d_;
+    RefMan<Survey::Geometry2D>		newgeom_;
+
+
+}; // class uiInterpolateGeomDlg
+
+
+static LinePars getRelation( int t0, float sp0, int t1, float sp1, bool forsp )
+{
+    const int dtrc = t1 - t0;
+    const float dsp = sp1 - sp0;
+    if ( dtrc==0 || mIsZero(dsp,mDefEpsF) )
+	return LinePars(0,0);
+
+    LinePars lp;
+    if ( forsp )
+    {
+	lp.ax = dsp / float(dtrc);
+	lp.a0 = sp0 - lp.ax * t0;
+    }
+    else
+    {
+	lp.ax = float(dtrc) / dsp;
+	lp.a0 = t0 - lp.ax * sp0;
+    }
+
+    return lp;
+}
+
+
 // uiTrc2SPDlg
 class uiTrc2SPDlg : public uiDialog
 { mODTextTranslationClass(uiTrc2SPDlg)
 public:
-uiTrc2SPDlg( uiParent* p )
-	: uiDialog(p,Setup(tr("Set Trace Number vs SP Number Relationship" ),
-			   mNoDlgTitle,mODHelpKey(mTrc2SPHelpID)))
+uiTrc2SPDlg( uiParent* p, const Survey::Geometry2D& geom2d )
+    : uiDialog(p,Setup(tr("Set Trace Number vs SP Number Relationship" ),
+		       mNoDlgTitle,mODHelpKey(mTrc2SPHelpID)))
+    , geom2d_(geom2d)
 {
     dirfld_ = new uiGenInput( this, tr("Calculate"),
 	BoolInpSpec(true,uiStrings::sSPNumber(),uiStrings::sTraceNumber()) );
     dirfld_->valueChanged.notify( mCB(this,uiTrc2SPDlg,dirChg) );
 
+    auto* tb = new uiToolButton( this, "math", tr("Calculate from 2 points") );
+    tb->attach( rightOf, dirfld_ );
+    mAttachCB( tb->activated, uiTrc2SPDlg::mathCB );
+
+    LinePars lp = getRelation( geom2d.data().positions().first().nr_,
+			       geom2d.spnrs().first(),
+			       geom2d.data().positions().last().nr_,
+			       geom2d.spnrs().last(), true );
+
     uiString splbl = toUiString( "%1 =" ).arg( uiStrings::sSPNumber() );
-    spincrfld_ = new uiGenInput( this, splbl, FloatInpSpec(1) );
+    spincrfld_ = new uiGenInput( this, splbl, FloatInpSpec(lp.ax) );
     spincrfld_->attach( alignedBelow, dirfld_ );
     spstartfld_ = new uiGenInput( this, toUiString("x TrcNr +"),
-				  FloatInpSpec(0) );
+				  FloatInpSpec(lp.a0) );
     spstartfld_->attach( rightTo, spincrfld_ );
 
+   lp = getRelation( geom2d.data().positions().first().nr_,
+		     geom2d.spnrs().first(),
+		     geom2d.data().positions().last().nr_,
+		     geom2d.spnrs().last(), false );
+
     uiString trclbl = toUiString( "%1 =" ).arg( uiStrings::sTraceNumber() );
-    trcincrfld_ = new uiGenInput( this, trclbl, FloatInpSpec(1) );
+    trcincrfld_ = new uiGenInput( this, trclbl, FloatInpSpec(lp.ax) );
     trcincrfld_->attach( alignedBelow, dirfld_ );
     trcstartfld_ = new uiGenInput( this, toUiString("x SP +"),
-				   FloatInpSpec(0) );
+				   FloatInpSpec(lp.a0) );
     trcstartfld_->attach( rightTo, trcincrfld_ );
 
     dirChg( 0 );
@@ -246,6 +387,59 @@ void dirChg( CallBacker* )
 }
 
 
+class uiRelDlg : public uiDialog
+{
+mODTextTranslationClass(uiRelDlg)
+public:
+uiRelDlg( uiParent* p, const Survey::Geometry2D& geom2d )
+    : uiDialog(p,Setup(tr("Linear Relation Calculator"),
+		       mNoDlgTitle,mTODOHelpKey))
+{
+    pt1fld_ = new uiGenInput( this, tr("First trace (TrcNr/SP)"),
+			      IntInpSpec(), FloatInpSpec() );
+    pt2fld_ = new uiGenInput( this, tr("Second trace (TrcNr/SP)"),
+			      IntInpSpec(), FloatInpSpec() );
+    pt2fld_->attach( alignedBelow, pt1fld_ );
+
+    pt1fld_->setValue( geom2d.data().positions().first().nr_, 0 );
+    pt2fld_->setValue( geom2d.data().positions().last().nr_, 0 );
+
+    if ( !geom2d.spnrs().isEmpty() )
+    {
+	pt1fld_->setValue( geom2d.spnrs().first(), 1 );
+	pt2fld_->setValue( geom2d.spnrs().last(), 1 );
+    }
+}
+
+
+LinePars getRelationship( bool forsp )
+{
+    return getRelation( pt1fld_->getIntValue(0), pt1fld_->getFValue(1),
+			pt2fld_->getIntValue(0), pt2fld_->getFValue(1), forsp );
+}
+
+
+    uiGenInput*		pt1fld_;
+    uiGenInput*		pt2fld_;
+
+};
+
+void mathCB( CallBacker* )
+{
+    uiRelDlg dlg( this, geom2d_ );
+    if ( !dlg.go() )
+	return;
+
+    LinePars lp = dlg.getRelationship( true );
+    spstartfld_->setValue( lp.a0 );
+    spincrfld_->setValue( lp.ax );
+
+    lp = dlg.getRelationship( false );
+    trcstartfld_->setValue( lp.a0 );
+    trcincrfld_->setValue( lp.ax );
+}
+
+
 bool acceptOK( CallBacker* ) override
 {
     bool isudf = false;
@@ -263,12 +457,15 @@ bool acceptOK( CallBacker* ) override
     return true;
 }
 
+    const Survey::Geometry2D&	geom2d_;
+
     uiGenInput*		dirfld_;
     uiGenInput*		trcstartfld_;
     uiGenInput*		trcincrfld_;
     uiGenInput*		spstartfld_;
     uiGenInput*		spincrfld_;
-};
+
+}; // class uiTrc2SPDlg
 
 
 
@@ -287,10 +484,10 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p,
     }
 
     BufferStringSet linenms;
-    for ( int idx=0; idx<geomidset.size(); idx++ )
+    for ( const auto& geomid : geomidset )
     {
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-			Survey::GM().getGeometry(geomidset[idx]));
+			Survey::GM().getGeometry(geomid))
 	if ( geom2d )
 	    linenms.add( geom2d->getName() );
     }
@@ -300,51 +497,59 @@ uiManageLineGeomDlg::uiManageLineGeomDlg( uiParent* p,
     mAttachCB( linefld_->valueChanged, uiManageLineGeomDlg::lineSel );
     linefld_->attach( hCentered );
 
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomidset[0]);
-    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
-
-    const TypeSet<PosInfo::Line2DPos>& positions = geom2d->data().positions();
-    table_ = new uiTable( this, uiTable::Setup(positions.size(),3), "2DGeom" );
+    table_ = new uiTable( this, uiTable::Setup(20,4), "2DGeom" );
+    table_->setPrefWidth( 600 );
+    table_->setStretch( 2, 2 );
     table_->attach( ensureBelow, linefld_ );
-    table_->setPrefWidth( 400 );
     uiStringSet collbls;
-    collbls.add( uiStrings::sTraceNumber() ).add( uiStrings::sSPNumber() )
-           .add( uiStrings::sX() ).add( uiStrings::sY() );
+    collbls.add( uiStrings::sTraceNumber() ).add( tr("SP") )
+	   .add( uiStrings::sX() ).add( uiStrings::sY() );
+
+    if ( SI().hasProjection() )
+	collbls.add( uiStrings::sLat() ).add( uiStrings::sLongitude() );
+
     table_->setColumnLabels( collbls );
-    if ( readonly )
-	table_->setTableReadOnly( true );
+    table_->setTableReadOnly( readonly );
 
     FloatInpIntervalSpec spec( true );
-    uiString zlbl = toUiString( "%1 %2" ).arg( uiStrings::sZRange() )
+    uiString zlbl = toUiString( "Default %1 %2" ).arg( uiStrings::sZRange() )
 					 .arg( SI().getUiZUnitString());
     rgfld_ = new uiGenInput( this, zlbl, spec );
     rgfld_->attach( centeredBelow, table_ );
-    StepInterval<float> zrg = geom2d->data().zRange();
-    zrg.scale( sCast(float,SI().zDomain().userFactor()) );
-    rgfld_->setValue( zrg );
     rgfld_->setReadOnly( readonly );
 
+    auto* grp = new uiButtonGroup( this, "buttons", OD::Horizontal );
     if ( !readonly )
     {
-	uiButtonGroup* grp =
-		new uiButtonGroup( this, "buttons", OD::Horizontal );
 	new uiPushButton( grp, tr("Set new Geometry"),
 			  mCB(this,uiManageLineGeomDlg,impGeomCB), false );
 	new uiPushButton( grp, tr("Set Trace/SP Number"),
 			  mCB(this,uiManageLineGeomDlg,setTrcSPNrCB), false );
-	new uiPushButton( grp, tr("Export Geometry"),
-			  mCB(this,uiManageLineGeomDlg,expGeomCB), false );
-	grp->attach( centeredBelow, table_ );
-	grp->attach( ensureBelow, rgfld_ );
+	new uiPushButton( grp, tr("Interpolate"),
+			  mCB(this,uiManageLineGeomDlg,interpolGeomCB), false );
     }
 
-    fillTable( *geom2d );
+    new uiPushButton( grp, tr("Export Geometry"),
+		      mCB(this,uiManageLineGeomDlg,expGeomCB), false );
+    grp->attach( centeredBelow, table_ );
+    grp->attach( ensureBelow, rgfld_ );
+
+    lineSel( nullptr );
 }
 
 
 uiManageLineGeomDlg::~uiManageLineGeomDlg()
 {
     detachAllNotifiers();
+}
+
+
+const Survey::Geometry2D* uiManageLineGeomDlg::selectedGeom() const
+{
+    const int lineidx = linefld_->getIntValue();
+    const Survey::Geometry* geom = geomidset_.validIdx(lineidx) ?
+	Survey::GM().getGeometry(geomidset_[lineidx]) : nullptr;
+    return geom ? geom->as2D() : nullptr;
 }
 
 
@@ -373,30 +578,59 @@ void uiManageLineGeomDlg::impGeomCB( CallBacker* )
 
 void uiManageLineGeomDlg::expGeomCB( CallBacker* )
 {
-    if ( readonly_ )
-	return;
-
     uiExp2DGeom dlg( this, &geomidset_, true );
     dlg.go();
 }
 
 
+void uiManageLineGeomDlg::interpolGeomCB( CallBacker* )
+{
+    if ( readonly_ )
+	return;
+
+    const auto* geom2d = selectedGeom();
+    if ( !geom2d )
+	return;
+
+    if ( geom2d->data().trcNrRange().step == 1 )
+    {
+	const bool res = uiMSG().askGoOn(
+		tr("Trace numbers already have an increment of 1.\n"
+		   "Do you want to continue interpolating the geometry?") );
+	if ( !res )
+	    return;
+    }
+
+    uiInterpolateGeomDlg dlg( this, *geom2d );
+    if ( !dlg.go() )
+	return;
+
+    if ( dlg.newgeom_ )
+	fillTable( *dlg.newgeom_ );
+}
+
+
 void uiManageLineGeomDlg::lineSel( CallBacker* )
 {
-    const int lineidx = linefld_->getIntValue();
-    const Survey::Geometry* geom = geomidset_.validIdx(lineidx) ?
-	Survey::GM().getGeometry(geomidset_[lineidx]) : nullptr;
-    if ( geom && geom->as2D() )
-	fillTable( *geom->as2D() );
+    const Survey::Geometry2D* geom2d = selectedGeom();
+    if ( !geom2d )
+	return;
+
+    fillTable( *geom2d );
+
+    StepInterval<float> zrg = geom2d->data().zRange();
+    zrg.scale( sCast(float,SI().zDomain().userFactor()) );
+    rgfld_->setValue( zrg );
 }
 
 
 void uiManageLineGeomDlg::setTrcSPNrCB( CallBacker* )
 {
-    if ( readonly_ )
+    const Survey::Geometry2D* geom2d = selectedGeom();
+    if ( readonly_ || !geom2d )
 	return;
 
-    uiTrc2SPDlg dlg( this );
+    uiTrc2SPDlg dlg( this, *geom2d );
     if ( !dlg.go() )
 	return;
 
@@ -422,25 +656,30 @@ void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
     const int nrspdec = 3;
     for ( int idx=0; idx<positions.size(); idx++ )
     {
+	const Coord& crd = positions[idx].coord_;
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
 	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx] : -1,
 			  nrspdec );
-	table_->setValue( RowCol(idx,2), positions[idx].coord_.x, nrdec );
-	table_->setValue( RowCol(idx,3), positions[idx].coord_.y, nrdec );
+	table_->setValue( RowCol(idx,2), crd.x, nrdec );
+	table_->setValue( RowCol(idx,3), crd.y, nrdec );
+
+	if ( SI().hasProjection() )
+	{
+	    const LatLong ll = LatLong::transform( crd );
+	    table_->setValue( RowCol(idx,4), ll.lat_, 5 );
+	    table_->setValue( RowCol(idx,5), ll.lng_, 5 );
+	}
     }
 }
 
 
 bool uiManageLineGeomDlg::acceptOK( CallBacker* )
 {
-    if (!uiMSG().askGoOn(tr("Do you really want to change the geometry?\n"
-			    "This will affect all associated data.")))
+    if ( !uiMSG().askGoOn(tr("Do you really want to change the geometry?\n"
+			     "This will affect all associated data.")) )
 	return false;
 
-    const int lineidx = linefld_->getIntValue();
-    Survey::Geometry* geom = geomidset_.validIdx(lineidx) ?
-	Survey::GMAdmin().getGeometry(geomidset_[lineidx]) : nullptr;
-    Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
+    Survey::Geometry2D* geom2d = getNonConst( selectedGeom() );
     if ( !geom2d )
 	return true;
 

@@ -72,6 +72,8 @@ public:
 
     void		setOrigin(const Coord&);
     void		setUseLatLong(bool);
+    void		setFalseEasting(float);
+    void		setFalseNorthing(float);
 
     od_int64		nrDone() const override		{ return nrdone_; }
     od_int64		totalNr() const override	{ return totalnr_; }
@@ -94,4 +96,6 @@ private:
     ObjectSet<SEGP1Entry>	entries_;
     Coord			origin_				= Coord(0,0);
     bool			uselatlong_			= false;
+    float			falseeasting_			= 0.f;
+    float			falsenorthing_			= 0.f;
 };

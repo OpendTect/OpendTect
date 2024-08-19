@@ -242,6 +242,18 @@ void SEGP1Importer::setUseLatLong( bool yn )
 }
 
 
+void SEGP1Importer::setFalseEasting( float val )
+{
+    falseeasting_ = val;
+}
+
+
+void SEGP1Importer::setFalseNorthing( float val )
+{
+    falsenorthing_ = val;
+}
+
+
 bool SEGP1Importer::readHeader()
 {
     return true;
@@ -271,6 +283,14 @@ bool SEGP1Importer::readRecord( const BufferString& record )
 //  parse( record.buf(), 1, 1, part ); // Data record identifier
 
     parse( record.buf(), 2, 17, part ); // Line name
+    if ( entry->geom_ && part != entry->geom_->getName() )
+    {
+	auto* newentry = new SEGP1Entry;
+	entries_ += newentry;
+	newentry->header_ = entry->header_;
+	entry = newentry;
+    }
+
     entry->setLineName( part.buf() );
     Survey::Geometry2D* geom = entry->geom_;
     if ( !geom )

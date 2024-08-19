@@ -52,10 +52,13 @@ protected:
 
     void		impGeomCB(CallBacker*);
     void		expGeomCB(CallBacker*);
+    void		interpolGeomCB(CallBacker*);
     void		lineSel(CallBacker*);
     void		setTrcSPNrCB(CallBacker*);
     void		fillTable(const Survey::Geometry2D&);
     bool		acceptOK(CallBacker*) override;
+
+    const Survey::Geometry2D*	selectedGeom() const;
 
     uiTable*		table_;
     uiGenInput*		rgfld_;

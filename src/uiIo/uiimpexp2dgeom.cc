@@ -338,6 +338,16 @@ uiSEGP1ImpDlg::uiSEGP1ImpDlg( uiParent* p )
 				 mODHelpKey(mGeom2DImpDlgHelpID)))
 {
     fnmfld_ = new uiASCIIFileInput( this, tr("Input SEG P1 File"), true );
+
+    posfld_ = new uiGenInput( this, tr("Load positions using"),
+			      BoolInpSpec(true,tr("X/Y"),tr("Lat/Long")) );
+    posfld_->attach( alignedBelow, fnmfld_ );
+
+    falseEfld_ = new uiGenInput( this, tr("False Easting"), FloatInpSpec(0) );
+    falseEfld_->attach( alignedBelow, posfld_ );
+
+    falseNfld_ = new uiGenInput( this, tr("False Northing"), FloatInpSpec(0) );
+    falseNfld_->attach( alignedBelow, falseEfld_ );
 }
 
 
@@ -355,6 +365,7 @@ bool uiSEGP1ImpDlg::acceptOK( CallBacker* )
     }
 
     SEGP1Importer importer( inpfnm );
+    importer.setUseLatLong( !posfld_->getBoolValue() );
     if ( !importer.execute() )
     {
 	uiMSG().error( importer.errorWithDetails() );

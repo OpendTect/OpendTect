@@ -71,9 +71,12 @@ public:
 				uiSEGP1ImpDlg(uiParent*);
 				~uiSEGP1ImpDlg();
 
-protected:
+private:
 
     bool			acceptOK(CallBacker*) override;
 
     uiFileInput*		fnmfld_;
+    uiGenInput*			posfld_;
+    uiGenInput*			falseNfld_;
+    uiGenInput*			falseEfld_;
 };

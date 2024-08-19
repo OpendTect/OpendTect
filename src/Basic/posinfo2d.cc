@@ -274,7 +274,7 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 	    strm >> trcnr;
 	else
 	    strm.getBin( trcnr );
-	if ( trcnr<0 || !strm.isOK() )
+	if ( !strm.isOK() )
 	    return false;
 
 	PosInfo::Line2DPos pos( trcnr );
