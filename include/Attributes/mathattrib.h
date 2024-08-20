@@ -50,6 +50,9 @@ protected:
     const Interval<float>*	desZMargin(int input,int) const override;
     const Interval<int>*	reqZSampMargin(int input,int) const override;
 
+    int				getInl() const;
+    int				getCrl() const;
+
 private:
     ObjectSet<const DataHolder>	inputdata_;
     TypeSet<int>		inputidxs_;
@@ -57,7 +60,6 @@ private:
     ::Math::Formula*		formula_;
     Interval<float>		desintv_;
     Interval<int>		reqintv_;
-
 };
 
 } // namespace Attrib
