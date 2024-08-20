@@ -58,7 +58,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     typefld_ = new uiGenInput( this, tr("Transform type"),
 			      BoolInpSpec(true,tr("FFT"),tr("CWT")) );
     typefld_->attach( alignedBelow, inpfld_ );
-    typefld_->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
+    typefld_->valueChanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
 			      DoubleInpIntervalSpec().setName("Z start",0)
@@ -308,12 +308,7 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
     DescSet* dset = ads_ ? new DescSet( *ads_ ) : new DescSet( is2D() );
     DescID specdecompid = createSpecDecompDesc( dset );
     const TrcKeyZSampling cs( positiondlg_->getTrcKeyZSampling() );
-
-    LineKey lk;
-    if ( dset->is2D() )
-	lk = LineKey( positiondlg_->getLineKey() );
-    panelview_->compAndDispAttrib(
-	    dset,specdecompid,cs,Survey::GM().getGeomID(lk.lineName().buf()));
+    panelview_->compAndDispAttrib( dset, specdecompid, cs );
 }
 
 
@@ -398,6 +393,7 @@ Desc* uiSpecDecompAttrib::createNewDescFromDP( Attrib::DescSet* dset,
     BufferString usrref = "_"; usrref += inpdesc->userRef();
     if ( userefstr )
 	usrref += userefstr;
+
     newdesc->setUserRef( usrref );
     return newdesc;
 }
@@ -416,7 +412,6 @@ DescID uiSpecDecompAttrib::createSpecDecompDesc( DescSet* dset ) const
 	newdesc = createNewDesc( dset, inpid, SpecDecomp::attribName(),
 				 0, 0, "" );
     }
-
 
     if ( !newdesc )
 	return DescID::undef();

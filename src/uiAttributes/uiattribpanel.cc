@@ -176,7 +176,9 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
 {
     attribid_ = mpid;
     tkzs_ = cs;
-    geomid_ = geomid;
+    geomid_ = cs.hsamp_.getGeomID();
+    if ( !geomid_.isValid() )
+	geomid_ = geomid;
 
     delete dset_;
     dset_ = dset;
@@ -187,4 +189,11 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
 	createAndDisplay2DViewer( fdpack );
     else
 	{ pErrMsg("Error during attribute computation"); }
+}
+
+
+void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
+				       const TrcKeyZSampling& cs )
+{
+    compAndDispAttrib( dset, mpid, cs, cs.hsamp_.getGeomID() );
 }
