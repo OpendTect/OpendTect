@@ -597,8 +597,6 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 		newdp = attrserv_->createOutput( tkzs, seisdp.ptr() );
 	    }
 
-	    attrserv_->setTargetSelSpecs( myas );
-	    newdp = attrserv_->createOutput( tkzs, seisdp.ptr() );
 	    const TypeSet<Attrib::SelSpec>& tmpset =
 						attrserv_->getTargetSelSpecs();
 	    if ( tmpset.size() != myas.size() && !tmpset.isEmpty() )
