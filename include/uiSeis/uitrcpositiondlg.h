@@ -51,11 +51,13 @@ public:
 						 const DataPack::FullID&);
 				uiTrcPositionDlg(uiParent*,
 						 const TrcKeyZSampling&,
-			      			 bool,const MultiID&);
+						 bool,const MultiID&);
 				~uiTrcPositionDlg();
 
     TrcKeyZSampling		getTrcKeyZSampling() const;
+    Pos::GeomID			getGeomID() const;
     LineKey			getLineKey() const;
+
     uiLabeledSpinBox*		trcnrfld_;
     uiLabeledSpinBox*		inlfld_;
     uiSpinBox*			crlfld_;
