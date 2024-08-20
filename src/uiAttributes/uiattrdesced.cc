@@ -22,10 +22,11 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-const char* uiAttrDescEd::timegatestr()	        { return "Time gate"; }
-const char* uiAttrDescEd::stepoutstr()	        { return "Stepout"; }
-const char* uiAttrDescEd::frequencystr()        { return "Frequency"; }
-const char* uiAttrDescEd::filterszstr()	        { return "Filter size"; }
+const char* uiAttrDescEd::depthgatestr()	{ return "Depth gate"; }
+const char* uiAttrDescEd::timegatestr()		{ return "Time gate"; }
+const char* uiAttrDescEd::stepoutstr()		{ return "Stepout"; }
+const char* uiAttrDescEd::frequencystr()	{ return "Frequency"; }
+const char* uiAttrDescEd::filterszstr()		{ return "Filter size"; }
 
 const char* uiAttrDescEd::sKeyOtherGrp()	{ return "Other"; }
 const char* uiAttrDescEd::sKeyBasicGrp()	{ return "Basic"; }
@@ -261,6 +262,12 @@ void uiAttrDescEd::putInp( uiSteeringSel* inpfld, const Attrib::Desc& ad,
 	inpfld->setDescSet( ad.descSet() );
     else
 	inpfld->setDesc( inpdesc );
+}
+
+
+const char* uiAttrDescEd::zGateLabel() const
+{
+    return SI().zIsTime() ? timegatestr() : depthgatestr();
 }
 
 
