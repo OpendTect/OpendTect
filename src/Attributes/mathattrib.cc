@@ -35,6 +35,8 @@ const Math::SpecVarSet& Mathematics::getSpecVars()
 	svs.add( "XCoord", "X Coordinate" );
 	svs.add( "YCoord", "Y Coordinate" );
 	svs.add( "Z", "Z" );
+	svs.add( "LineNr", "Line number" );
+	svs.add( "TrcNr", "Trace number" );
     }
 
     return svs;
@@ -99,17 +101,19 @@ void Mathematics::updateDesc( Desc& desc )
 
 Mathematics::Mathematics( Desc& dsc )
     : Provider( dsc )
+    , formula_(0)
     , desintv_( Interval<float>(0,0) )
     , reqintv_( Interval<int>(0,0) )
-    , formula_(0)
 {
-    if ( !isOK() ) return;
+    if ( !isOK() )
+	return;
 
     inputdata_.allowNull(true);
 
     //Called expression for backward compatibility, it is now a Math::Formula
     ValParam* form = dsc.getValParam( expressionStr() );
-    if ( !form ) return;
+    if ( !form )
+	return;
 
     formula_ = new Math::Formula( true, Mathematics::getSpecVars() );
     formula_->setText( form->getStringValue() );
@@ -218,12 +222,14 @@ bool Mathematics::computeData( const DataHolder& output,
 	    switch ( formula_->specIdx( inpidx ) )
 	    {
 		case 0 :   inpvals += mCast( double, refstep_ ); break;
-		case 1 :   inpvals += mCast( double, currentbid_.inl() ); break;
-		case 2 :   inpvals += mCast( double, currentbid_.crl() ); break;
+		case 1 :   inpvals += mCast( double, getInl() ); break;
+		case 2 :   inpvals += mCast( double, getCrl() ); break;
 		case 3 :   inpvals += mCast( double, (z0+idx) ); break;
 		case 4 :   inpvals += getCurrentCoord().x; break;
 		case 5 :   inpvals += getCurrentCoord().y; break;
 		case 6 :   inpvals += mCast( double,(z0+idx)*refstep_ ); break;
+		case 7 :   inpvals += mCast( double, currentbid_.inl() ); break;
+		case 8 :   inpvals += mCast( double, currentbid_.crl() ); break;
 	    }
 	    if ( specidx >=0 )
 	    {
@@ -251,6 +257,20 @@ bool Mathematics::computeData( const DataHolder& output,
     }
 
     return true;
+}
+
+
+int Mathematics::getInl() const
+{
+    return is2D() ? SI().transform( getCurrentCoord() ).inl()
+		  : currentbid_.inl();
+}
+
+
+int Mathematics::getCrl() const
+{
+    return is2D() ? SI().transform( getCurrentCoord() ).crl()
+		  : currentbid_.crl();
 }
 
 
