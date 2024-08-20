@@ -34,6 +34,11 @@ public:
 						const Pos::GeomID&);
 				//<! descset becomes mine!
 
+    void			compAndDispAttrib(Attrib::DescSet*,
+						const Attrib::DescID&,
+						const TrcKeyZSampling&);
+				//<! descset becomes mine!
+
 protected:
 
     mDeprecated("Use computeAttribute()")

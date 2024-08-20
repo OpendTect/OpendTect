@@ -283,22 +283,34 @@ LineKey uiTrcPositionDlg::getLineKey() const
 }
 
 
+Pos::GeomID uiTrcPositionDlg::getGeomID() const
+{
+    if ( fdpposfld_ )
+	return Pos::GeomID( OD::GeomSynth );
+
+    if ( !linesfld_ )
+	return Pos::GeomID( OD::Geom3D );
+
+    const char* linename = linesfld_->box()->text();
+    return Survey::GM().getGeomID( linename );
+}
+
+
 TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
 {
     TrcKeyZSampling cs;
     if ( trcnrfld_ || fdpposfld_ )
     {
-	int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )
-			       : trcnrfld_->box()->getIntValue();
-	cs.hsamp_.set( cs.hsamp_.inlRange(),
-		       StepInterval<int>( trcnr, trcnr, 1 ) );
+	const int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )
+				     : trcnrfld_->box()->getIntValue();
+	cs.hsamp_.set( getGeomID(), StepInterval<int>(trcnr,trcnr,1) );
     }
     else
     {
-	int inlnr = inlfld_->box()->getIntValue();
-	int crlnr = crlfld_->getIntValue();
-	cs.hsamp_.set( StepInterval<int>( inlnr, inlnr, 1 ),
-		    StepInterval<int>( crlnr, crlnr, 1 ) );
+	BinID bid;
+	bid.inl() = inlfld_->box()->getIntValue();
+	bid.crl() = crlfld_->getIntValue();
+	cs.hsamp_.set( TrcKey(bid) );
     }
 
     cs.zsamp_ = zrg_;
