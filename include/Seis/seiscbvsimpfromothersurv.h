@@ -97,4 +97,6 @@ protected:
     float		getInlXlnDist(const Pos::IdxPair2Coord&,bool,int) const;
     SeisTrc*		readTrc(const BinID&) const;
     void		sincInterpol(ObjectSet<SeisTrc>&) const;
+
+    bool		doFinish();
 };
