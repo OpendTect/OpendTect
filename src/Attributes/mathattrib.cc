@@ -222,17 +222,17 @@ bool Mathematics::computeData( const DataHolder& output,
 	    }
 
 	    const int specidx = formula_->specIdx( inpidx );
-	    switch ( formula_->specIdx( inpidx ) )
+	    switch ( formula_->specIdx(inpidx) )
 	    {
-		case 0 :   inpvals += mCast( double, refstep_ ); break;
-		case 1 :   inpvals += mCast( double, getInl() ); break;
-		case 2 :   inpvals += mCast( double, getCrl() ); break;
-		case 3 :   inpvals += mCast( double, (z0+idx) ); break;
-		case 4 :   inpvals += getCurrentCoord().x; break;
-		case 5 :   inpvals += getCurrentCoord().y; break;
-		case 6 :   inpvals += mCast( double,(z0+idx)*refstep_ ); break;
-		case 7 :   inpvals += mCast( double, currentbid_.inl() ); break;
-		case 8 :   inpvals += mCast( double, currentbid_.crl() ); break;
+		case 0: inpvals += mCast( double, refstep_ ); break;
+		case 1: inpvals += mCast( double, getInl() ); break;
+		case 2: inpvals += mCast( double, getCrl() ); break;
+		case 3: inpvals += mCast( double, (z0+idx) ); break;
+		case 4: inpvals += getCurrentCoord().x; break;
+		case 5: inpvals += getCurrentCoord().y; break;
+		case 6: inpvals += mCast( double,(z0+idx)*refstep_ ); break;
+		case 7: inpvals += mCast( double, currentbid_.lineNr() ); break;
+		case 8: inpvals += mCast( double, currentbid_.trcNr() ); break;
 	    }
 	    if ( specidx >=0 )
 	    {
