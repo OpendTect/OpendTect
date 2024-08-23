@@ -11,10 +11,10 @@ ________________________________________________________________________
 #include "databasemod.h"
 #include "bufstring.h"
 
-#ifdef __have_qsql__
-# define mQSqlDatabase QSqlDatabase
-#else
+#ifdef OD_NO_QSQL
 # define mQSqlDatabase dummyQSqlDatabase
+#else
+# define mQSqlDatabase QSqlDatabase
 #endif
 
 class mQSqlDatabase;
@@ -31,7 +31,7 @@ mExpClass(Database) ConnectionData
 {
 public:
 
-    			ConnectionData(const char* dbtype=0);
+			ConnectionData(const char* key=nullptr);
 
     bool		isOK() const
     			{ return !dbname_.isEmpty()
@@ -41,7 +41,7 @@ public:
     bool		usePar(const IOPar&);	//!< returns isOK()
 
     BufferString	hostname_;
-    int			port_;
+    PortNr_Type		port_			= mUdf(PortNr_Type);
     BufferString	username_;
     BufferString	pwd_;
     BufferString	dbname_;
@@ -63,11 +63,12 @@ mExpClass(Database) Access
 public:
 
     virtual		~Access();
+			mOD_DisableCopy(Access);
 
     ConnectionData&	connectionData()		{ return cd_; }
     const ConnectionData& connectionData() const	{ return cd_; }
 
-    bool		open();
+    virtual bool	open();
     bool		commit();
     BufferString	errMsg() const;
 
@@ -97,8 +98,24 @@ public:
 mExpClass(Database) MySqlAccess : public Access
 {
 public:
-    			MySqlAccess( const char* dbtype )
-			    : Access("QMYSQL",dbtype)	{}
+			MySqlAccess(const char* dbtype);
+			~MySqlAccess();
+};
+
+
+/*!
+\brief Access to a connected ODBC Database.
+
+Open Database Connectivity (ODBC)
+*/
+
+mExpClass(Database) ODBCAccess : public Access
+{
+public:
+			ODBCAccess(const char* dbtype);
+			~ODBCAccess();
+
+    bool		open() override;
 };
 
 } // namespace SqlDB
