@@ -23,7 +23,7 @@ DefineEnumNames(SqlDB::ValueCondition,Operator,0,"Operators" )
 
 
 
-#ifdef __have_qsql__
+#ifndef OD_NO_QSQL
 
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -63,6 +63,7 @@ public:
     ErrStruct	lastError()				{ return ErrStruct(); }
     bool	isActive() const			{ return false; }
     void	finish() const				{}
+    int		size() const				{ return 0; }
 
     static od_int64	retidx_;
     static od_int64	idx()				{ return retidx_++; }
@@ -95,6 +96,12 @@ bool SqlDB::Query::execute( const char* querystr )
 bool SqlDB::Query::next() const
 {
     return qsqlquery_->next();
+}
+
+
+int SqlDB::Query::size() const
+{
+    return qsqlquery_->size();
 }
 
 
@@ -149,7 +156,7 @@ BufferString SqlDB::Query::getCurrentDateTime()
 }
 
 
-bool SqlDB::Query::starttratsaction()
+bool SqlDB::Query::startTransaction()
 {
     return execute( "START TRANSACTION" );
 }

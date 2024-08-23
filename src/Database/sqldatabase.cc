@@ -8,13 +8,17 @@ ________________________________________________________________________
 -*/
 
 #include "sqldatabase.h"
+
+#include "ascstream.h"
+#include "keystrs.h"
+#include "oddirs.h"
 #include "settings.h"
 #include <QString>
 
-#ifdef __have_qsql__
+#ifndef OD_NO_QSQL
 
-#include <QSqlDatabase>
-#include <QSqlError>
+# include <QSqlDatabase>
+# include <QSqlError>
 
 #else
 
@@ -23,11 +27,11 @@ class mQSqlDatabase
 public:
 
 		mQSqlDatabase(int)		{}
-    static int	addDatabase(const char*)	{ return 0; }
-    void	setHostName(const char*)	{}
-    void	setDatabaseName(const char*)	{}
-    void	setUserName(const char*)	{}
-    void	setPassword(const char*)		{}
+    static int	addDatabase(const QString&)	{ return 0; }
+    void	setHostName(const QString&)	{}
+    void	setDatabaseName(const QString&)	{}
+    void	setUserName(const QString&)	{}
+    void	setPassword(const QString&)	{}
     void	setPort(int)			{}
     bool	open() const			{ return false; }
     struct ErrStruct { QString text() const	{ return "Dummy database"; } };
@@ -41,11 +45,27 @@ public:
 #endif
 
 
-SqlDB::ConnectionData::ConnectionData( const char* dbtype )
+SqlDB::ConnectionData::ConnectionData( const char* key )
 {
-    if ( !dbtype || !*dbtype ) return;
+    if ( StringView(key).isEmpty() )
+	return;
 
-    IOPar* iop = Settings::fetch("DB").subselect( dbtype );
+    const BufferString fnm = mGetSetupFileName( "SqlDB" );
+    od_istream strm( fnm );
+    if ( strm.isOK() )
+    {
+	IOPar dbiopar;
+	ascistream astrm( strm );
+	dbiopar.getFrom( astrm );
+
+	ConstPtrMan<IOPar> iop = dbiopar.subselect( key );
+	if ( iop && usePar(*iop) )
+	    return;
+    }
+
+    Settings& settings = Settings::fetch( "sqldb" );
+    settings.reRead();
+    ConstPtrMan<IOPar> iop = settings.subselect( key );
     if ( iop )
 	usePar( *iop );
 }
@@ -53,22 +73,20 @@ SqlDB::ConnectionData::ConnectionData( const char* dbtype )
 
 void SqlDB::ConnectionData::fillPar( IOPar& iop ) const
 {
-#   define mSetInPar(memb,ky) iop.update( sKey##ky(), memb##_ )
-    mSetInPar(hostname,HostName);
-    mSetInPar(username,UserName);
-    mSetInPar(pwd,Password);
-    mSetInPar(dbname,DBName);
+    iop.update( sKey::Hostname(), hostname_ );
+    iop.update( sKeyUserName(), username_ );
+    iop.update( sKeyPassword(), pwd_ );
+    iop.update( sKeyDBName(), dbname_ );
     iop.set( sKeyPort(), port_ );
 }
 
 
 bool SqlDB::ConnectionData::usePar( const IOPar& iop )
 {
-#   define mGetFromPar(memb,ky) memb##_ = iop.find( sKey##ky() )
-    mGetFromPar(hostname,HostName);
-    mGetFromPar(username,UserName);
-    mGetFromPar(pwd,Password);
-    mGetFromPar(dbname,DBName);
+    hostname_ = iop.find( sKey::Hostname() );
+    username_ = iop.find( sKeyUserName() );
+    pwd_ = iop.find( sKeyPassword() );
+    dbname_ = iop.find( sKeyDBName() );
     iop.get( sKeyPort(), port_ );
 
     return isOK();
@@ -76,8 +94,8 @@ bool SqlDB::ConnectionData::usePar( const IOPar& iop )
 
 
 SqlDB::Access::Access( const char* qtyp, const char* dbtyp )
-    : dbtype_(dbtyp)
-    , cd_(dbtyp)
+    : cd_(dbtyp)
+    , dbtype_(dbtyp)
 {
     qdb_ = new mQSqlDatabase( mQSqlDatabase::addDatabase(qtyp) );
 }
@@ -95,7 +113,9 @@ bool SqlDB::Access::open()
     qdb_->setDatabaseName( cd_.dbname_.buf() );
     qdb_->setUserName( cd_.username_.buf() );
     qdb_->setPassword( cd_.pwd_.buf() );
-    qdb_->setPort( cd_.port_ );
+    if ( !mIsUdf(cd_.port_) )
+	qdb_->setPort( cd_.port_ );
+
     return qdb_->open();
 }
 
@@ -108,7 +128,7 @@ bool SqlDB::Access::isOpen() const
 
 BufferString SqlDB::Access::errMsg() const
 {
-    BufferString err( qdb_->lastError().text().toLatin1().data() );
+    BufferString err( qdb_->lastError().text() );
     err.trimBlanks();
     return err;
 }
@@ -123,4 +143,46 @@ bool SqlDB::Access::commit()
 void SqlDB::Access::close()
 {
     qdb_->close();
+}
+
+
+
+// SqlDB::MySqlAccess
+SqlDB::MySqlAccess::MySqlAccess( const char* key )
+    : Access("QMYSQL",key)
+{}
+
+
+SqlDB::MySqlAccess::~MySqlAccess()
+{}
+
+
+// SqlDB::ODBCAccess
+SqlDB::ODBCAccess::ODBCAccess( const char* key )
+    : Access("QODBC",key)
+{}
+
+
+SqlDB::ODBCAccess::~ODBCAccess()
+{}
+
+
+bool SqlDB::ODBCAccess::open()
+{
+    QString str = QStringLiteral(
+	"DRIVER={SQL Server};"
+	"SERVER={%1};"
+	"DATABASE={%2};"
+	"UID={%3};"
+	"PWD={%4};"
+    ).arg( cd_.hostname_.buf() )
+     .arg( cd_.dbname_.buf() )
+     .arg( cd_.username_.buf() )
+     .arg( cd_.pwd_.buf() );
+
+    qdb_->setDatabaseName( str );
+    if ( !mIsUdf(cd_.port_) )
+	qdb_->setPort( cd_.port_ );
+
+    return qdb_->open();
 }
