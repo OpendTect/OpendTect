@@ -97,12 +97,12 @@ public:
 	  packetString( prefix_, "Sending", packet2 ),
 	  toString(conn.errMsg()) );
 
-	RefMan<Network::RequestPacket> receivedpacket = 0;
+	RefMan<Network::RequestPacket> receivedpacket;
 
-	mRunStandardTestWithError(
-	    receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
-	    packetString( prefix_, "Receiving", packet ),
-	    toString(conn.errMsg()) );
+	receivedpacket = conn.pickupPacket( packet->requestID(), 20000 );
+	mRunStandardTestWithError( receivedpacket.ptr(),
+				   packetString( prefix_, "Receiving", packet ),
+				   toString(conn.errMsg()) );
 
 	BufferString receivedmessage1;
 	receivedpacket->getStringPayload( receivedmessage1 );
@@ -111,10 +111,10 @@ public:
 			 receivedpacket->subID()==packet->subID(),
 			 packetString( prefix_, "Received content", packet ) );
 
-	mRunStandardTestWithError(
-		 receivedpacket=conn.pickupPacket( packet->requestID(), 20000 ),
-		 packetString( prefix_, "Receiving", packet2 ),
-		 toString(conn.errMsg()) );
+	receivedpacket = conn.pickupPacket( packet->requestID(), 20000 );
+	mRunStandardTestWithError( receivedpacket.ptr(),
+			       packetString( prefix_, "Receiving", packet2 ),
+			       toString(conn.errMsg()) );
 
 	BufferString receivedmessage2;
 	receivedpacket->getStringPayload( receivedmessage2 );
@@ -123,10 +123,10 @@ public:
 			 receivedpacket->subID()==packet2->subID(),
 			 packetString( prefix_, "Received content", packet2 ) );
 
-	mRunStandardTestWithError(
-	    receivedpacket=conn.pickupPacket( largepacket->requestID(), 20000 ),
-	    packetString( prefix_, "Receiving large", largepacket ),
-	    toString(conn.errMsg()) );
+	receivedpacket = conn.pickupPacket( largepacket->requestID(), 20000 );
+	mRunStandardTestWithError( receivedpacket.ptr(),
+		       packetString( prefix_, "Receiving large", largepacket ),
+		       toString(conn.errMsg()) );
 
 	BufferString receivedlongmessage;
 	receivedpacket->getStringPayload( receivedlongmessage );
