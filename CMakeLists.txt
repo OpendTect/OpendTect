@@ -75,7 +75,7 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 set( OD_SUBSYSTEM "od" )
 
 option ( OD_NO_QT "Turn off all QT" OFF )
-option ( OD_NO_QSQL "Do not use Qt's SQL module" ON )
+option ( OD_NO_QSQL "Do not use Qt's SQL module" OFF )
 option ( OD_NO_OSG "Do not build anything with 3D visualisation" OFF )
 option ( OD_NO_PROJ "Do not use proj library for CRS" OFF )
 option ( BUILD_PROJ "Checkout and build proj in external" OFF )
