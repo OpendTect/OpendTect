@@ -24,14 +24,14 @@ public:
     typedef int		size_type;
     typedef T		object_type;
 
-    			SortedTable();
+			SortedTable();
 
-    size_type 		size() const { return vals_.size(); }
+    size_type		size() const { return vals_.size(); }
     void		set( IDT id, T val );
-    			/*<! If id is set twice, it the old value will
+			/*<! If id is set twice, it the old value will
 			     be replaced by the new one */
     bool		get( IDT id, T& val ) const;
-    			/*!< If id is not found, val is unchanged and
+			/*!< If id is not found, val is unchanged and
 			     false is returned. If id is found, val is set
 			     and true is returned.
 			*/
@@ -113,10 +113,10 @@ public:
     typedef int		size_type;
     typedef int		id_type;
 
-    			SortedPointers() : ids_(false)	{}
+			SortedPointers() : ids_(false)	{}
 			~SortedPointers()		{}
 
-    size_type 		size() const			{ return vals_.size(); }
+    size_type		size() const			{ return vals_.size(); }
     void		set(id_type,T*);
 			    /*<! If id is set twice, it the old value will
 				 be replaced by the new one */
@@ -145,12 +145,10 @@ private:
 template <class T> inline
 void SortedPointers<T>::set( id_type iid, T* val )
 {
-    const size_type newpos = ids_.indexOf( iid );
-
+    size_type newpos = ids_.indexOf( iid );
     if ( newpos==-1 )
     {
 	ids_ += iid;
-
 	newpos = ids_.indexOf( iid );
 	vals_.insertAt( val, newpos );
     }
