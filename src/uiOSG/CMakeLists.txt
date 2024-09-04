@@ -22,6 +22,10 @@ set( OD_MODULE_SOURCES
 )
 
 if ( OD_USE_QOPENGL )
+    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core)
+    if ( Qt6_FOUND )
+	list( APPEND OD_USEQT OpenGLWidgets )
+    endif()
     list( APPEND OD_MODULE_SOURCES
 	odopenglwidget.cc
 	odosgviewer.cc

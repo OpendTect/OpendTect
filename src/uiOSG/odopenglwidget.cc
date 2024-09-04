@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include <osgViewer/Viewer>
 #include <osgGA/TrackballManipulator>
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QInputEvent>
 #include <QMouseEvent>
 #include <QWheelEvent>
@@ -110,7 +109,7 @@ ODOpenGLWidget::ODOpenGLWidget( QWidget* parent, Qt::WindowFlags flags )
 
     graphicswindow_->setWindowRectangle( x(), y(), width(), height() );
     getEventQueue()->syncWindowRectangleWithGraphicsContext();
-    scalex_ = scaley_ = QApplication::desktop()->devicePixelRatio();
+    scalex_ = scaley_ = devicePixelRatio();
 }
 
 
@@ -203,6 +202,18 @@ void ODOpenGLWidget::keyReleaseEvent( QKeyEvent* event )
 }
 
 
+static double getX( QMouseEvent* ev )
+{
+    return ev->position().x();
+}
+
+
+static double getY( QMouseEvent* ev )
+{
+    return ev->position().y();
+}
+
+
 void ODOpenGLWidget::mousePressEvent( QMouseEvent* ev  )
 {
     unsigned int button = 0;
@@ -216,7 +227,7 @@ void ODOpenGLWidget::mousePressEvent( QMouseEvent* ev  )
     }
 
     setKeyboardModifiers( ev  );
-    getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
+    getEventQueue()->mouseButtonPress( getX(ev)*scalex_, getY(ev)*scaley_,
 				       button );
 }
 
@@ -235,7 +246,7 @@ void ODOpenGLWidget::mouseReleaseEvent( QMouseEvent* ev  )
 
     setKeyboardModifiers( ev  );
     getEventQueue()->mouseButtonRelease(
-			ev->x()*scalex_, ev->y()*scaley_, button );
+			getX(ev)*scalex_, getY(ev)*scaley_, button );
 }
 
 
@@ -252,7 +263,7 @@ void ODOpenGLWidget::mouseDoubleClickEvent( QMouseEvent* ev  )
     }
 
     setKeyboardModifiers( ev  );
-    getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
+    getEventQueue()->mouseButtonPress( getX(ev)*scalex_, getY(ev)*scaley_,
 				       button );
 }
 
@@ -260,7 +271,7 @@ void ODOpenGLWidget::mouseDoubleClickEvent( QMouseEvent* ev  )
 void ODOpenGLWidget::mouseMoveEvent( QMouseEvent* ev  )
 {
     setKeyboardModifiers( ev  );
-    getEventQueue()->mouseMotion( ev->x()*scalex_, ev->y()*scaley_ );
+    getEventQueue()->mouseMotion( getX(ev)*scalex_, getY(ev)*scaley_ );
 }
 
 
@@ -303,7 +314,7 @@ ODOpenGLWindow::ODOpenGLWindow( QWidget* )
 
     graphicswindow_->setWindowRectangle( x(), y(), width(), height() );
     getEventQueue()->syncWindowRectangleWithGraphicsContext();
-    scalex_ = scaley_ = QApplication::desktop()->devicePixelRatio();
+    scalex_ = scaley_ = devicePixelRatio();
 }
 
 
@@ -404,7 +415,7 @@ void ODOpenGLWindow::mousePressEvent( QMouseEvent* ev  )
     }
 
     setKeyboardModifiers( ev  );
-    getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
+    getEventQueue()->mouseButtonPress( getX(ev)*scalex_, getY(ev)*scaley_,
 	    			       button );
 }
 
@@ -423,7 +434,7 @@ void ODOpenGLWindow::mouseReleaseEvent( QMouseEvent* ev  )
 
     setKeyboardModifiers( ev  );
     getEventQueue()->mouseButtonRelease(
-			ev->x()*scalex_, ev->y()*scaley_, button );
+			getX(ev)*scalex_, getY(ev)*scaley_, button );
 }
 
 
@@ -440,7 +451,7 @@ void ODOpenGLWindow::mouseDoubleClickEvent( QMouseEvent* ev  )
     }
 
     setKeyboardModifiers( ev  );
-    getEventQueue()->mouseButtonPress( ev->x()*scalex_, ev->y()*scaley_,
+    getEventQueue()->mouseButtonPress( getX(ev)*scalex_, getY(ev)*scaley_,
 				       button );
 }
 
@@ -448,7 +459,7 @@ void ODOpenGLWindow::mouseDoubleClickEvent( QMouseEvent* ev  )
 void ODOpenGLWindow::mouseMoveEvent( QMouseEvent* ev  )
 {
     setKeyboardModifiers( ev  );
-    getEventQueue()->mouseMotion( ev->x()*scalex_, ev->y()*scaley_ );
+    getEventQueue()->mouseMotion( getX(ev)*scalex_, getY(ev)*scaley_ );
 }
 
 
