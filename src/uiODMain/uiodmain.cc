@@ -716,7 +716,8 @@ void uiODMain::handleStartupSession()
     const bool res = uiMSG().askGoOn( msg, true );
     if ( !res )
     {
-	sceneMgr().addScene( true );
+	if ( sceneMgr().nrScenes() == 0 )
+	    sceneMgr().addScene( true );
 	return;
     }
 
