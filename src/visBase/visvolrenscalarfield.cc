@@ -747,9 +747,14 @@ void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
 	attribs_[attr]->indexcachestep_ = usevolcache ? 4 :
 					  hasundefchannel ? 2 : 1;
 	const od_int64 nrbytes = totalsz * attribs_[attr]->indexcachestep_;
-	attribs_[attr]->indexcache_ = usevolcache ? osgvoldata_->data()+offset
-						  : new unsigned char[nrbytes];
+	if ( usevolcache )
+	    attribs_[attr]->indexcache_ = osgvoldata_->data()+offset;
+	else
+	    mTryAlloc( attribs_[attr]->indexcache_, unsigned char[nrbytes] );
+
 	attribs_[attr]->ownsindexcache_ = !usevolcache;
+	if ( !attribs_[attr]->indexcache_ )
+	    return;
     }
 
     if ( usevolcache && !attribenabled )
