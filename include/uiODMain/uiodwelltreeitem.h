@@ -53,6 +53,8 @@ public:
 protected:
     void		initMenuItems();
     bool		init();
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
     bool		askContinueAndSaveIfNeeded(bool withcancel);
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
