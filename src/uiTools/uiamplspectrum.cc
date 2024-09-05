@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 #include "uiamplspectrum.h"
 
-#include "uiaxishandler.h"
+#include "uiaxishandlerbase.h"
 #include "uibutton.h"
 #include "uifiledlg.h"
 #include "uifuncdispbase.h"
@@ -19,15 +19,14 @@ ________________________________________________________________________
 #include "uispinbox.h"
 
 #include "arrayndimpl.h"
-#include "arrayndalgo.h"
 #include "arrayndwrapper.h"
 #include "bufstring.h"
 #include "datapackbase.h"
+#include "filepath.h"
 #include "flatposdata.h"
 #include "fourier.h"
-#include "mouseevent.h"
 #include "od_ostream.h"
-#include "trckeyzsampling.h"
+#include "oddirs.h"
 
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
@@ -327,11 +326,16 @@ void uiAmplSpectrum::dispRangeChgd( CallBacker* )
 
 void uiAmplSpectrum::exportCB( CallBacker* )
 {
-    uiFileDialog dlg( this, false );
-    if ( !dlg.go() ) return;
+    BufferString caption = this->caption().getFullString();
+    cleanupString( caption.getCStr(), false, false, true );
+    FilePath outfnm( GetExportToDir(), caption );
+    outfnm.setExtension( "dat" );
+    uiFileDialog dlg( this, false, outfnm.fullPath() );
+    if ( !dlg.go() )
+	return;
 
-    od_ostream strm( dlg.fileName() );
-    uiString fnm = toUiString(dlg.fileName());
+    const BufferString fnm = dlg.fileName();
+    od_ostream strm( fnm.buf() );
     if ( strm.isBad() )
     {
 	uiMSG().error( uiStrings::phrCannotOpen(uiStrings::phrOutput(
@@ -355,7 +359,8 @@ void uiAmplSpectrum::exportCB( CallBacker* )
 
 void uiAmplSpectrum::valChgd( CallBacker* cb )
 {
-    if ( !specvals_ ) return;
+    if ( !specvals_ )
+	return;
 
     mCBCapsuleUnpack(const Geom::PointF&,mousepos,cb);
     const Geom::PointF pos = disp_->mapToValue( mousepos );
