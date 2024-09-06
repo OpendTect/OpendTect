@@ -56,25 +56,25 @@ public:
 			: size_(nrrows,nrcols)
 			, rowdesc_(uiStrings::sRow())
 			, coldesc_(uiStrings::sColumn())
-			, insertrowallowed_(true)
+			, rowgrow_(false)
+			, colgrow_(false)
+			, insertrowallowed_(true) //!< can extra rows be added by user?
 			, removerowallowed_(true)
-			, rowgrow_(false) //!< can extra rows be added by user?
 			, insertcolallowed_(true)
-			, removecolallowed_(true)
-			, colgrow_(false) //!< can extra cols be added by user?
+			, removecolallowed_(true) //!< can extra cols be added by user?
 			, fillrow_(false) //!< adjust cell height to avail space
 			, fillcol_(false) //!< adjust cell width to avail space
-			, minrowhgt_(1.f) //!< units of font height
 			, maxrowhgt_(3.f) //!< units of font height
-			, mincolwdt_(1.f*uiObject::baseFldSize())
-					  //!< units of font
+			, minrowhgt_(1.f) //!< units of font height
 			, maxcolwdt_(2.3f*uiObject::baseFldSize())
+					  //!< units of font
+			, mincolwdt_(1.f*uiObject::baseFldSize())
 					  //!< units of font
 			, selmode_(NoSelection)
 			, removeselallowed_(true)
 			, snglclkedit_(true)
-			, defcollbl_(false)
 			, defrowlbl_(false)
+			, defcollbl_(false)
 			, manualresize_(false)
 					//!< if not, adapt size of cells auto
 			, defrowstartidx_(1)

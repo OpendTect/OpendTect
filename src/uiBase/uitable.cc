@@ -525,22 +525,22 @@ int uiTableBody::maxNrOfSelections() const
 
 uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     : uiObject(p,nm,mkbody(p,nm,s.size_.row(),s.size_.col()))
-    , setup_(s)
-    , buttonstate_(OD::NoButton)
     , valueChanged(this)
-    , rightClicked(this)
     , leftClicked(this)
+    , rightClicked(this)
     , doubleClicked(this)
-    , rowInserted(this)
-    , colInserted(this)
-    , rowDeleted(this)
-    , colDeleted(this)
     , selectionChanged(this)
+    , rowInserted(this)
+    , rowDeleted(this)
     , selectionDeleted(this)
+    , colInserted(this)
+    , colDeleted(this)
     , rowClicked(this)
     , columnClicked(this)
-    , istablereadonly_(false)
     , seliscols_(false)
+    , setup_(s)
+    , buttonstate_(OD::NoButton)
+    , istablereadonly_(false)
 {
     setStretch( 2, 2 );
 
@@ -609,10 +609,12 @@ void uiTable::setDefaultColLabels()
 
 void uiTable::update( bool row, int rc )
 {
-    if ( row && setup_.defrowlbl_ ) setDefaultRowLabels();
-    else if ( !row && setup_.defcollbl_ ) setDefaultColLabels();
+    if ( row && setup_.defrowlbl_ )
+	setDefaultRowLabels();
+    else if ( !row && setup_.defcollbl_ )
+	setDefaultColLabels();
 
-    int max = row ? nrRows() : nrCols();
+    const int max = row ? nrRows() : nrCols();
 
     if ( rc > max ) rc = max;
     if ( rc < 0 ) rc = 0;
@@ -712,11 +714,35 @@ void uiTable::insertColumns( int col, int cnt )
 }
 
 
-void uiTable::removeRCs( const TypeSet<int>& idxs, bool col )
+void uiTable::removeRCs( const TypeSet<int>& idxs, bool rmcol )
 {
-    if ( idxs.size() < 1 ) return;
-    for ( int idx=idxs.size()-1; idx>=0; idx-- )
-	col ? removeColumn( idxs[idx] ) : removeRow( idxs[idx] );
+    if ( idxs.isEmpty() )
+	return;
+
+    if ( rmcol )
+    {
+	for ( int idx=idxs.size()-1; idx>=0; idx-- )
+	{
+	    const int& col = idxs[idx];
+	    for ( int row=0; row<nrRows(); row++ )
+		clearCellObject( RowCol(row,col) );
+	    body_->removeColumn( col );
+	}
+
+	updateCol( 0 );
+    }
+    else
+    {
+	for ( int idx=idxs.size()-1; idx>=0; idx-- )
+	{
+	    const int& row = idxs[idx];
+	    for ( int col=0; col<nrCols(); col++ )
+		clearCellObject( RowCol(row,col) );
+	    body_->removeRow( row );
+	}
+
+	updateRow( 0 );
+    }
 }
 
 
