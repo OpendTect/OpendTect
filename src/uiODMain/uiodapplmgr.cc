@@ -211,7 +211,7 @@ int uiODApplMgr::manSurv( uiParent* p )
 
 void uiODApplMgr::exportSurveySetup()
 {
-    const FilePath outfnm( GetPersonalDir(), "surveysetup.txt" );
+    const FilePath outfnm( GetExportToDir(), "surveysetup.txt" );
     uiFileDialog dlg( &appl_, false, outfnm.fullPath() );
     if ( !dlg.go() ) return;
 
