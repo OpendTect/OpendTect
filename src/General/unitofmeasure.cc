@@ -537,6 +537,8 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	    return "us/ft";
 	else if ( fsnm.startsWith("USEC/M",OD::CaseInsensitive) )
 	    return "us/m";
+	else if ( fsnm.startsWith("USEC",OD::CaseInsensitive))
+	    return "us";
     break;
     case 'M': case 'm':
 	if (caseInsensitiveEqual(nm, "M", 0)
@@ -545,6 +547,12 @@ const char* UnitOfMeasureRepository::guessedStdName( const char* nm )
 	    return "m";
 	if ( caseInsensitiveEqual(nm,"m3/m3",0) ) // Petrel special
 	    return "";
+	if ( fsnm.startsWith("MSEC",OD::CaseInsensitive) )
+	    return "ms";
+    break;
+    case 'S': case 's':
+	if ( fsnm.startsWith("SEC",OD::CaseInsensitive) )
+	    return "s";
     break;
     }
 
