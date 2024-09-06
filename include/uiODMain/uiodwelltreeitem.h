@@ -57,6 +57,8 @@ protected:
 
     void		initMenuItems();
     bool		init() override;
+    void		askSaveCB(CallBacker*);
+    void		saveCB(CallBacker*);
     bool		askContinueAndSaveIfNeeded(bool withcancel) override;
     void		createMenu(MenuHandler*,bool istb) override;
     void		handleMenuCB(CallBacker*) override;

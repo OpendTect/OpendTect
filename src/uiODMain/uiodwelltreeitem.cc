@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
+#include "uinotsaveddlg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uipixmap.h"
@@ -28,6 +29,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "mousecursor.h"
 #include "survinfo.h"
+#include "threadwork.h"
 #include "welldata.h"
 #include "welllog.h"
 #include "wellman.h"
@@ -149,7 +151,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
 	    return false;
 
-	welldisplay->setLineStyle(OD::LineStyle(OD::LineStyle::Solid,1,color));
+	welldisplay->setLineStyle(OD::LineStyle(OD::LineStyle::Solid,3,color));
 	welldisplay->setName( wellname );
 	visserv->addObject( welldisplay, sceneID(), true );
 	addChild( new uiODWellTreeItem(welldisplay->id()), false );
@@ -204,6 +206,9 @@ uiODWellTreeItem::uiODWellTreeItem( const VisID& did )
 {
     displayid_ = did;
     initMenuItems();
+
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODWellTreeItem::askSaveCB );
 }
 
 
@@ -211,11 +216,15 @@ uiODWellTreeItem::uiODWellTreeItem( const MultiID& mid )
 {
     mid_ = mid;
     initMenuItems();
+
+    mAttachCB( NotSavedPrompter::NSP().promptSaving,
+	       uiODWellTreeItem::askSaveCB );
 }
 
 
 uiODWellTreeItem::~uiODWellTreeItem()
 {
+    detachAllNotifiers();
     if ( applMgr()->wellServer() )
 	applMgr()->wellServer()->closePropDlg( mid_ );
 
@@ -465,14 +474,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == storemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	const bool res = applMgr()->wellServer()->storeWell(
-			 welldisplay->getWellCoords(), welldisplay->name(),
-			 mid_ );
-	if ( res )
-	{
-	    welldisplay->setChanged( false );
-	    welldisplay->setMultiID( mid_ );
-	}
+	saveCB( nullptr );
     }
     else if ( mnuid == editmnuitem_.id )
     {
@@ -493,6 +495,38 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 }
 
 
+void uiODWellTreeItem::askSaveCB( CallBacker* )
+{
+    ConstRefMan<visSurvey::WellDisplay> welldisplay = getDisplay();
+    if ( !welldisplay || !welldisplay->hasChanged() )
+	return;
+
+    const uiString obj = toUiString("Well \"%2\"").arg( welldisplay->name() );
+    NotSavedPrompter::NSP().addObject( obj, mCB(this,uiODWellTreeItem,saveCB),
+				       true, 0 );
+
+    Threads::WorkManager::twm().addWork(
+	    Threads::Work( *new uiTreeItemRemover(parent_, this), true ), 0,
+	    NotSavedPrompter::NSP().queueID(), false );
+}
+
+
+void uiODWellTreeItem::saveCB( CallBacker* )
+{
+    if ( !applMgr() || !applMgr()->wellServer() )
+	return;
+
+    RefMan<visSurvey::WellDisplay> welldisplay = getDisplay();
+    const bool res = applMgr()->wellServer()->storeWell(
+		welldisplay->getWellCoords(), welldisplay->name(), mid_ );
+    if ( !res )
+	return;
+
+    welldisplay->setChanged( false );
+    welldisplay->setMultiID( mid_ );
+}
+
+
 bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
     ConstRefMan<visSurvey::WellDisplay> welldisplay = getDisplay();
@@ -506,8 +540,7 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 	else if ( retval == -1 )
 	    return false;
 	else
-	    applMgr()->wellServer()->storeWell( welldisplay->getWellCoords(),
-						welldisplay->name(), mid_ );
+	    saveCB( nullptr );
     }
 
     return true;
