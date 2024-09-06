@@ -33,6 +33,7 @@ protected:
     uiTableImpDataSel*	dataselfld_;
     uiGenInput*		zdomselfld_;
     uiGenInput*		udftreatfld_;
+    uiGenInput*		overwritefld_;
     Table::FormatDesc*	fd_;
 
 };

@@ -399,6 +399,20 @@ void IOObjInfo::getIDs( EM::ObjectType reqtyp, TypeSet<MultiID>& ids )
 }
 
 
+void IOObjInfo::getObjectNames( EM::ObjectType reqtyp,
+				BufferStringSet& names )
+{
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id_ );
+    const IODir iodir( mid );
+    for ( int idx=0; idx<iodir.size(); idx++ )
+    {
+	const IOObj* ioobj = iodir.get( idx );
+	if ( objectTypeOfIOObjGroup(ioobj->group()) == reqtyp )
+	    names.add( ioobj->name() );
+    }
+}
+
+
 Strat::LevelID IOObjInfo::levelID() const
 {
     mGetReader

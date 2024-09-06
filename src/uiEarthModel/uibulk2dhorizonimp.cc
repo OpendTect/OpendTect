@@ -9,24 +9,27 @@ ________________________________________________________________________
 
 #include "uibulk2dhorizonimp.h"
 
+
 #include "binidvalset.h"
+#include "emhorizon2d.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
+#include "emsurfacetr.h"
 #include "executor.h"
+#include "ioman.h"
+#include "mousecursor.h"
+#include "od_helpids.h"
 #include "od_istream.h"
+#include "randcolor.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 #include "tableascio.h"
 #include "tabledef.h"
 
+#include "uifileinput.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
-#include "od_helpids.h"
-#include "uifileinput.h"
-#include "emhorizon2d.h"
-#include "survgeom2d.h"
-#include "ioman.h"
-#include "emsurfacetr.h"
-#include "randcolor.h"
 
 class Horizon2DBulkImporter : public Executor
 { mODTextTranslationClass(Horizon2DBulkImporter);
@@ -34,19 +37,13 @@ public:
 
     enum UndefTreat		{ Skip, Adopt, Interpolate };
 
-Horizon2DBulkImporter( const BufferStringSet& lnms,
-		       ObjectSet<EM::Horizon2D>& hors,
+Horizon2DBulkImporter( EM::Horizon2D& hor,
 		       const BinIDValueSet* valset, UndefTreat udftreat )
     : Executor("2D Horizon Importer")
-    , curlinegeom_(0)
-    , hors_(hors)
+    , hor2d_(hor)
     , bvalset_(valset)
-    , prevlineidx_(-1)
-    , nrdone_(0)
     , udftreat_(udftreat)
 {
-    for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
-	geomids_ += Survey::GM().getGeomID( lnms.get(lineidx).buf() );
 }
 
 
@@ -64,8 +61,11 @@ od_int64 nrDone() const override
 
 int nextStep() override
 {
-    if ( !bvalset_ ) return Executor::ErrorOccurred();
-    if ( !bvalset_->next(pos_) ) return Executor::Finished();
+    if ( !bvalset_ )
+	return Executor::ErrorOccurred();
+
+    if ( !bvalset_->next(pos_) )
+	return Executor::Finished();
 
     BinID bid;
     const int nrvals = bvalset_->nrVals();
@@ -81,52 +81,43 @@ int nextStep() override
     if ( bid.inl() != prevlineidx_ )
     {
 	prevlineidx_ = bid.inl();
-	prevtrcnrs_ = TypeSet<int>( nrvals, -1);
-	prevtrcvals_ = TypeSet<float>( nrvals, mUdf(float) );
+	prevtrcnr_ =  -1;
+	prevtrcval_ = mUdf(float);
 
 	mDynamicCast( const Survey::Geometry2D*, curlinegeom_,
 		      Survey::GM().getGeometry(geomid) );
 	if ( !curlinegeom_ )
 	    return Executor::ErrorOccurred();
 
-	for ( int hdx=0; hdx<hors_.size(); hdx++ )
-	    hors_[hdx]->geometry().addLine( geomid );
+	hor2d_.geometry().addLine( geomid );
     }
 
     const int curtrcnr = bid.crl();
-    for ( int validx=0; validx<nrvals; validx++ )
+
+    const float curval = vals[0];
+    if ( mIsUdf(curval) && udftreat_==Skip )
+	return MoreToDo();
+
+    hor2d_.setPos( geomid, curtrcnr, curval, false );
+
+    const int prevtrcnr = prevtrcnr_;
+
+    if ( udftreat_==Interpolate && prevtrcnr>=0
+				&& abs(curtrcnr-prevtrcnr)>1 )
     {
-	if ( validx>=hors_.size() )
-	    break;
-
-	if ( !hors_[validx] )
-	    continue;
-
-	const float curval = vals[validx];
-	if ( mIsUdf(curval) && udftreat_==Skip )
-	    continue;
-
-	hors_[validx]->setPos( geomid, curtrcnr, curval, false );
-
-	const int prevtrcnr = prevtrcnrs_[validx];
-
-	if ( udftreat_==Interpolate && prevtrcnr>=0
-				    && abs(curtrcnr-prevtrcnr)>1 )
-	{
-	    interpolateAndSetVals( validx, geomid, curtrcnr, prevtrcnr,
-				   curval, prevtrcvals_[validx] );
-	}
-
-	prevtrcnrs_[validx] = curtrcnr;
-	prevtrcvals_[validx] = curval;
+	interpolateAndSetVals( geomid, curtrcnr, prevtrcnr,
+			       curval, prevtrcval_ );
     }
+
+    prevtrcnr_ = curtrcnr;
+    prevtrcval_ = curval;
 
     nrdone_++;
     return Executor::MoreToDo();
 }
 
 
-void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
+void interpolateAndSetVals( const Pos::GeomID& geomid, int curtrcnr,
 			    int prevtrcnr, float curval, float prevval )
 {
     if ( !curlinegeom_ )
@@ -152,20 +143,20 @@ void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
 	const float prod = mCast(float,vec.dot(newvec));
 	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
 	const float val = prevval + factor * ( curval - prevval );
-	hors_[hidx]->setPos( geomid, trcnr, val, false );
+	hor2d_.setPos( geomid, trcnr, val, false );
     }
 }
 
 protected:
 
-    ObjectSet<EM::Horizon2D>&	hors_;
+    EM::Horizon2D&		hor2d_;
     const BinIDValueSet*	bvalset_;
     TypeSet<Pos::GeomID>	geomids_;
-    const Survey::Geometry2D*	curlinegeom_;
-    int				nrdone_;
-    TypeSet<int>		prevtrcnrs_;
-    TypeSet<float>		prevtrcvals_;
-    int				prevlineidx_;
+    const Survey::Geometry2D*	curlinegeom_		= nullptr;
+    int				nrdone_			= 0;
+    int				prevtrcnr_		= -1;
+    float			prevtrcval_		= mUdf(float);
+    int				prevlineidx_		= -1;
     BinIDValueSet::SPos		pos_;
     UndefTreat			udftreat_;
 };
@@ -209,7 +200,6 @@ static void createDescBody( Table::FormatDesc* fd, const ZDomain::Def& def )
     const Mnemonic::StdType type = def.isTime() ? Mnemonic::Time
 						: Mnemonic::Dist;
     zti->setPropertyType( type );
-
     fd->bodyinfos_ += zti;
 }
 
@@ -277,9 +267,13 @@ uiBulk2DHorizonImport::uiBulk2DHorizonImport( uiParent* p )
     dataselfld_->attach( alignedBelow, zdomselfld_ );
     BufferStringSet udftreatments;
     udftreatments.add( "Skip" ).add( "Adopt" ).add( "Interpolate" );
-    udftreatfld_ = new uiGenInput( this, tr("Undefined values"),
+    udftreatfld_ = new uiGenInput( this, tr("Undefined Z values"),
 				   StringListInpSpec(udftreatments) );
     udftreatfld_->attach( alignedBelow, dataselfld_ );
+
+    overwritefld_ = new uiGenInput( this, tr("When horizon exists"),
+				BoolInpSpec(true,tr("Skip"),tr("Overwrite")) );
+    overwritefld_->attach( alignedBelow, udftreatfld_ );
 }
 
 
@@ -289,7 +283,7 @@ uiBulk2DHorizonImport::~uiBulk2DHorizonImport()
 }
 
 
-void uiBulk2DHorizonImport::zDomainCB( CallBacker* cb )
+void uiBulk2DHorizonImport::zDomainCB( CallBacker* )
 {
     BufferStringSet attrnms;
     BulkHorizon2DAscIO::updateDesc( *fd_, zdomselfld_->getBoolValue() ?
@@ -300,23 +294,12 @@ void uiBulk2DHorizonImport::zDomainCB( CallBacker* cb )
 #define mErrRet(s) { if ( !s.isEmpty() ) uiMSG().error(s); return false; }
 
 
-#define mDeburstRet( retval, unreffn ) \
-{ \
-    for ( int horidx=0; horidx<hor2ds.size(); horidx++ ) \
-    { \
-	if ( hor2ds[horidx]->hasBurstAlert() ) \
-	    hor2ds[horidx]->setBurstAlert( false ); \
-\
-	hor2ds[horidx]->unreffn(); \
-    } \
-    return retval; \
- } \
-
 bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet( uiStrings::phrEnter(tr("the input file name")) )
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
 	mErrRet(uiStrings::phrCannotOpen(uiStrings::sInputFile().toLower()))
@@ -324,15 +307,6 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     if ( !dataselfld_->commit() )
 	return false;
 
-    ObjectSet<BinIDValueSet> data;
-    BulkHorizon2DAscIO aio( *fd_, strm );
-    BufferString hornm; Coord3 crd;
-    BufferString linenm;
-    BufferStringSet hornmset; BufferStringSet linenmset;
-    BinIDValueSet* bidvs = 0;
-    TypeSet<int> trnrset;
-    int trnr=0;
-    BufferString prevhornm;
     uiRetVal ret;
     const ZDomain::Info& zdominfo = Table::AscIO::zDomain( *fd_, 4, ret );
     if ( ret.isError() )
@@ -341,107 +315,111 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	return false;
     }
 
+    const bool doskip = overwritefld_->getBoolValue();
+    BufferStringSet existinghorizons;
+    EM::IOObjInfo::getObjectNames( EM::ObjectType::Hor2D, existinghorizons );
+
+    ObjectSet<BinIDValueSet> alldata;
+    BufferStringSet horizonstoimport;
+    BufferStringSet skippedhorizons;
+
+    BulkHorizon2DAscIO aio( *fd_, strm );
+    BufferString hornm;
+    BufferString linenm;
+    Coord3 crd;
+    int trnr=0;
+
+    MouseCursorChanger mcc( MouseCursor::Wait );
     while ( aio.getData(hornm,linenm,crd,trnr) )
     {
-	if ( prevhornm.isEmpty() )
-	    prevhornm = hornm;
-
-	if ( !crd.isDefined() || hornm.isEmpty() )
+	const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	if ( mIsUdf(geomid) || mIsUdf(crd.z) || hornm.isEmpty() )
 	    continue;
+
+	if ( existinghorizons.isPresent(hornm) && doskip )
+	{
+	    skippedhorizons.addIfNew( hornm );
+	    continue;
+	}
+
+	BinIDValueSet* hordata;
+	const int horidx = horizonstoimport.indexOf( hornm );
+	if ( horidx < 0 )
+	{
+	    horizonstoimport.add( hornm );
+	    hordata = new BinIDValueSet( 1, true );
+	    alldata += hordata;
+	}
 	else
-	    hornmset.addIfNew(hornm);
+	    hordata = alldata[horidx];
 
-	if ( !linenm.isEmpty() )
-	    linenmset.addIfNew(linenm);
-
-	trnrset.add(trnr);
-	if ( !bidvs || (prevhornm != hornm) )
-	    bidvs = new BinIDValueSet( 1, true );
-
-	Pos::GeomID geomid = Survey::GM().getGeomID(linenm);
 	int nr = 0;
-	const Survey::Geometry2D* curlinegeom(0);
-
 	if ( aio.isTrNr() )
 	    nr = trnr;
 	else if ( crd.isDefined() )
 	{
-	    mDynamicCast( const Survey::Geometry2D*, curlinegeom,
-					Survey::GM().getGeometry(geomid) );
+	    mDynamicCastGet(const Survey::Geometry2D*,curlinegeom,
+			    Survey::GM().getGeometry(geomid) );
 	    if ( !curlinegeom )
-		return Executor::ErrorOccurred();
+		continue;
+
 	    PosInfo::Line2DPos pos;
 	    if ( !curlinegeom->data().getPos(crd.coord(),pos,
-							SI().inlDistance()) )
+					     SI().inlDistance()) )
 		continue;
+
 	    nr = pos.nr_;
 	}
 
 	const BinID bid( geomid.asInt(), nr );
-	bidvs->add( bid, crd.z );
-
-	if ( (prevhornm != hornm) || data.isEmpty() )
-	{
-	    prevhornm = hornm;
-	    data += bidvs;
-	}
+	hordata->add( bid, crd.z );
     }
 
-    // TODO: Check if name exists, ask user to overwrite or give new name
-    BufferStringSet errors;
-    uiTaskRunner dlg( this );
-    RefObjectSet<EM::Horizon2D> hor2ds;
-    EM::EMManager& em = EM::EMM();
-    PtrMan<IOObj> existioobj(0);
-    BufferStringSet existinghornms;
-    for ( int idx=0; idx<hornmset.size(); idx++ )
-    {
-	IOM().to( IOObjContext::Surf );
-	if ( IOM().getLocal(hornm,0) )
-	    existinghornms.add(hornmset.get(idx));
-    }
+    mcc.restore();
 
-    if ( !existinghornms.isEmpty() )
+    uiTaskRunner impdlg( this );
+    uiStringSet errors;
+    for ( int idx=0; idx<horizonstoimport.size(); idx++ )
     {
-	const bool retval = uiMSG().askGoOn(tr("Horizons %1 already exist. "
-	    "Do You want to overwrite them.")
-	    .arg(toUiString(existinghornms.getDispString(5))));
-	if ( !retval )
-	    return false;
-    }
-
-    for ( int idx=0; idx<hornmset.size(); idx++ )
-    {
-	hor2ds.setEmpty();
-	BufferString nm = hornmset.get( idx );
+	const BufferString& nm = horizonstoimport.get( idx );
 	PtrMan<IOObj> ioobj = IOM().getLocal( nm,
 				EMHorizon2DTranslatorGroup::sGroupName() );
-	EM::ObjectID id = ioobj ? em.getObjectID( ioobj->key() )
+	EM::ObjectID id = ioobj ? EM::EMM().getObjectID( ioobj->key() )
 				: EM::ObjectID::udf();
-	EM::EMObject* emobj = em.getObject(id);
+	RefMan<EM::EMObject> emobj = EM::EMM().getObject( id );
 	if ( emobj )
 	    emobj->setBurstAlert( true );
+	else
+	{
+	    id = EM::EMM().createObject( EM::Horizon2D::typeStr(), nm );
+	    emobj = EM::EMM().getObject( id );
+	}
 
-	id = em.createObject( EM::Horizon2D::typeStr(), nm );
-	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
+	mDynamicCastGet(EM::Horizon2D*,hor,emobj.ptr())
 	if ( ioobj )
 	    hor->setMultiID( ioobj->key() );
 
 	hor->setPreferredColor( OD::getRandomColor() );
 	hor->setZDomain( zdominfo );
 	hor->setBurstAlert( true );
-	hor2ds += hor;
 
-	PtrMan<Horizon2DBulkImporter> importr = new Horizon2DBulkImporter(
-						linenmset, hor2ds, data[idx],
-	    (Horizon2DBulkImporter::UndefTreat) udftreatfld_->getIntValue() );
-	uiTaskRunner impdlg( this );
-	if ( !TaskRunner::execute(&impdlg,*importr) )
-	    mDeburstRet( false, unRef );
+	const auto udftype = sCast(Horizon2DBulkImporter::UndefTreat,
+				   udftreatfld_->getIntValue());
+	PtrMan<Horizon2DBulkImporter> importer =
+		new Horizon2DBulkImporter( *hor, alldata[idx], udftype );
+	if ( !TaskRunner::execute(&impdlg,*importer) )
+	{
+	    errors.add( tr("Could not import %1. %2.")
+			.arg(nm).arg(importer->uiMessage()) );
+	    continue;
+	}
 
-	PtrMan<Executor> saver = hor2ds[0]->saver();
+	PtrMan<Executor> saver = hor->saver();
 	if ( !saver->execute() )
-	    mErrRet( uiStrings::phrCannotSave(toUiString(hornm)) )
+	{
+	    errors.add( uiStrings::phrCannotSave(toUiString(hornm)) );
+	    continue;
+	}
 
 	const MultiID& mid = hor->multiID();
 	PtrMan<IOObj> horobj = IOM().get( mid );
@@ -452,9 +430,19 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	}
     }
 
-    const uiString msg = tr( "2D Horizons successfully imported.\n\n"
-		    "Do you want to import more 2D Horizons?" );
-    const bool retval = uiMSG().askGoOn( msg, uiStrings::sYes(),
-				tr("No, close window") );
+    const uiString msg = tr("Import finished. Press 'Show Details' "
+			    "for information.\n\n"
+			    "Do you want to import more 2D Horizons?" );
+    uiStringSet details;
+    details.add( tr("The following horizons were imported:") );
+    for ( const auto* nm : horizonstoimport )
+	details.add( toUiString(nm->buf()) );
+    details.add( toUiString("\n") );
+
+    details.add( tr("The following horizons were skipped:") );
+    for ( const auto* nm : skippedhorizons )
+	details.add( toUiString(nm->buf()) );
+
+    const bool retval = uiMSG().askGoOnWithDetails( msg, details );
     return !retval;
 }
