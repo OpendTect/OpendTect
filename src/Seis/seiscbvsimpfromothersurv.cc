@@ -11,32 +11,25 @@ ________________________________________________________________________
 
 #include "arrayndalgo.h"
 #include "cbvsreadmgr.h"
-#include "seistrc.h"
+#include "ioman.h"
+#include "odcomplex.h"
 #include "seiscbvs.h"
+#include "seistrc.h"
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "survinfo.h"
-#include "odcomplex.h"
 
 
 SeisImpCBVSFromOtherSurvey::SeisImpCBVSFromOtherSurvey( const IOObj& inp )
     : Executor("Importing CBVS")
-    , inioobj_(inp)
-    , wrr_(0)
-    , outioobj_(0)
-    , nrdone_(0)
-    , tr_(0)
-    , fullusrexp_(0)
-    , fft_(0)
-    , arr_(0)
-    , fftarr_(0)
-    , taper_(0)
+    , inioobj_(inp.clone())
 {
 }
 
 
 SeisImpCBVSFromOtherSurvey::~SeisImpCBVSFromOtherSurvey()
 {
+    delete inioobj_;
     deepErase( trcsset_ );
     delete tr_;
     delete wrr_;
@@ -55,6 +48,7 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     if ( !createTranslators( fulluserexp ) )
 	mErrRet( tr("Can not read cube") )
 
+    nrcomponents_ = tr_->componentInfo().size();
     const CBVSInfo& info = tr_->readMgr()->info();
     const Pos::IdxPair2Coord& b2c = tr_->getTransform();
     const CBVSInfo::SurvGeom& geom = info.geom_;
@@ -133,11 +127,11 @@ float SeisImpCBVSFromOtherSurvey::getInlXlnDist( const Pos::IdxPair2Coord& b2c,
 
 bool SeisImpCBVSFromOtherSurvey::createTranslators( const char* fulluserexp )
 {
-    BufferString fnm( fulluserexp ? fulluserexp : inioobj_.fullUserExpr(true) );
+    const BufferString fnm(
+		fulluserexp ? fulluserexp : inioobj_->fullUserExpr(true) );
     tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, 0, true );
     return tr_ ? true : false;
 }
-
 
 
 int SeisImpCBVSFromOtherSurvey::nextStep()
@@ -159,6 +153,13 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 	if ( !outtrc )
 	{
 	    outtrc = new SeisTrc( data_.tkzs_.zsamp_.nrSteps() );
+	    for ( int idx=1; idx<nrcomponents_; idx++ )
+	    {
+		const DataCharacteristics dc =
+			outtrc->data().getInterpreter(0)->dataChar();
+		outtrc->data().addComponent( outtrc->size(), dc );
+	    }
+
 	    outtrc->zero();
 	}
 
@@ -199,6 +200,10 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 
 	const Seis::GeomType gt = Seis::Vol;
 	wrr_ = new SeisTrcWriter(*outioobj_,&gt);
+
+	BufferStringSet componentnames;
+	tr_->getComponentNames( componentnames );
+	wrr_->setComponentNames( componentnames );
     }
 
     if ( !wrr_->put(*outtrc) )
@@ -354,9 +359,22 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 }
 
 
+bool SeisImpCBVSFromOtherSurvey::doFinish( bool success, od_ostream* strm )
+{
+    if ( outioobj_ )
+    {
+	IOPar& outpars = outioobj_->pars();
+	outpars.addFrom( inioobj_->pars() );
+	IOM().commitChanges( *outioobj_ );
+    }
+
+    return Executor::doFinish( success, strm );
+}
+
+
 SeisImpCBVSFromOtherSurvey::PosData::PosData()
-    : hsit_(nullptr)
-    , tkzs_(Survey::default3DGeomID())
+    : tkzs_(Survey::default3DGeomID())
+    , hsit_(nullptr)
 {
 }
 

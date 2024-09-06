@@ -54,40 +54,44 @@ public:
 
 protected:
 
-    const IOObj&	inioobj_;
-    IOObj*		outioobj_;
-    SeisTrcWriter*	wrr_;
-    CBVSSeisTrcTranslator* tr_;
+    IOObj*		inioobj_;
+    IOObj*		outioobj_			= nullptr;
+    SeisTrcWriter*	wrr_				= nullptr;
+    CBVSSeisTrcTranslator* tr_				= nullptr;
 
-    od_int64		nrdone_;
-    mutable od_int64	totnr_;
+    od_int64		nrdone_				= 0;
+    mutable od_int64	totnr_				= 0;
     uiString		errmsg_;
-    const char*		fullusrexp_;
+    const char*		fullusrexp_			= nullptr;
 
     Interpol		interpol_;
 
-	mStruct(Seis)	PosData
+	mStruct(Seis) PosData
 	{
-			    PosData();
-			    ~PosData();
+					PosData();
+					~PosData();
 
-	    BinID		curbid_;
-	    TrcKeyZSampling tkzs_;
-	    TrcKeySamplingIterator* hsit_;
+	    BinID			curbid_;
+	    TrcKeyZSampling		tkzs_;
+	    TrcKeySamplingIterator* 	hsit_;
 	};
 
-    PosData		data_, olddata_;
+    PosData		data_;
+    PosData		olddata_;
 
     int			padfac_;
     int			sz_;
     int			newsz_;
     int			szz_;
+    int			nrcomponents_;
 
-    Fourier::CC*	fft_;
+    Fourier::CC*	fft_				= nullptr;
     ObjectSet<SeisTrc>	trcsset_;
-    Array3DImpl<float_complex>* arr_;
-    Array3DImpl<float_complex>* fftarr_;
-    ArrayNDWindow*	taper_;
+    Array3DImpl<float_complex>* arr_			= nullptr;
+    Array3DImpl<float_complex>* fftarr_			= nullptr;
+    ArrayNDWindow*	taper_				= nullptr;
+
+    bool		doFinish(bool success,od_ostream* =nullptr) override;
 
     bool		createTranslators(const char*);
     bool		createWriter();
