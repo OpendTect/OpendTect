@@ -47,6 +47,8 @@ public:
 
     static void		getIDs(ObjectType,TypeSet<MultiID>&);
 			//!< Does not erase the IDs at start
+    static void		getObjectNames(ObjectType,BufferStringSet&);
+			//!< Does not erase the names at start
 
     bool		isOK() const;
     inline const IOObj*	ioObj() const		{ return ioobj_; }
