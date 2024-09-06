@@ -24,7 +24,7 @@ elseif( NOT IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}" )
     message( FATAL_ERROR "${CMAKE_INSTALL_PREFIX} does not exist. Project may not be installed" )
 endif()
 
-find_program( ZIP_EXEC "7z" NAMES "7za"
+find_program( ZIP_EXEC "7z" NAMES "7za" "7zz"
 	HINTS "C:/Program Files/7-Zip" "/usr/local/bin" 
 	NO_CACHE )
 if ( NOT ZIP_EXEC OR NOT EXISTS "${ZIP_EXEC}" )
