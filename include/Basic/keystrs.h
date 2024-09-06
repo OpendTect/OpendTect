@@ -156,6 +156,7 @@ namespace sKey
     inline StringView RandomLine()	{ return "RandomLine"; }
     inline StringView Range()		{ return "Range"; }
     inline StringView Region()		{ return "Region"; }
+    inline StringView RevZ()		{ return "Reverse Z"; }
     inline StringView Sampling()	{ return "Sampling"; }
     inline StringView Scale()		{ return "Scale"; }
     inline StringView Scaling()		{ return "Scaling"; }
