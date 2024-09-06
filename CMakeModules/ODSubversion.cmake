@@ -86,7 +86,7 @@ macro( OD_SETUP_EXTERNALS )
 	    message( FATAL_ERROR "${ERROUTPUT}" )
 	elseif ( ERROUTPUT MATCHES "Warning" AND NOT ERROUTPUT MATCHES "Ignoring empty string" )
 	    message( WARNING "${ERROUTPUT}" )
-	elseif ( NOT ERROUTPUT STREQUAL "" )
+	elseif ( NOT ERROUTPUT STREQUAL "" AND NOT ERROUTPUT MATCHES "Ignoring empty string" )
 	    message( STATUS "${ERROUTPUT}" )
 	endif()
 
@@ -106,7 +106,7 @@ macro( OD_SETUP_EXTERNALS )
 	set( CMAKE_FOLDER "Other" )
 	add_custom_target( update
 		      ${UPDATE_CMD} ${EXTERNALCMD}
-		      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}	
+		      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 		      COMMENT "Updating from repositories" )
 	unset( CMAKE_FOLDER )
 
