@@ -256,7 +256,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 	return propval;
     }
 
-    auto* newseq = new LayerSequence( &seq.propertyRefs() );
+    PtrMan<LayerSequence> newseq = new LayerSequenceOv( &seq.propertyRefs() );
     seq.getSequencePart( zrg, true, *newseq );
     if ( !newseq || newseq->isEmpty() )
 	mRetUdfVal;
