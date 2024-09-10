@@ -15,8 +15,12 @@ set( OD_MODULE_SOURCES
 )
 
 set( OD_MODULE_COMPILE_DEFINITIONS "_CONSOLE" )
-if ( APPLE )
-    set( OD_MODULE_LINK_OPTIONS "-flat_namespace" "-undefined" "suppress" )
+if ( APPLE AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
+    if ( CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15 )
+	set( OD_MODULE_LINK_OPTIONS "-undefined" "dynamic_lookup" )
+    else()
+	set( OD_MODULE_LINK_OPTIONS "-flat_namespace" "-undefined" "suppress" )
+    endif()
 endif()
 
 OD_INIT_MODULE()

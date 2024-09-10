@@ -54,7 +54,6 @@ if( UNIX )
         find_library( APP_SERVICES_LIBRARY ApplicationServices
 		      PATH ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks )
 	set ( EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
-	set ( OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
 
     else() # Not Apple
 
