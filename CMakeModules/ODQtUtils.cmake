@@ -90,7 +90,10 @@ endmacro(QT_SETUP_CORE_INTERNALS)
 macro( QT_SETUP_GUI_INTERNALS )
 
     list( APPEND QT_REQ_PLUGINS
-	    iconengines;imageformats;platforms;printsupport )
+	    iconengines;imageformats;platforms )
+    if ( QT_VERSION VERSION_LESS 6 OR NOT APPLE )
+	list( APPEND QT_REQ_PLUGINS printsupport )
+    endif()
     if ( WIN32 )
 	list( APPEND QT_REQ_PLUGINS styles )
     elseif ( NOT APPLE )
