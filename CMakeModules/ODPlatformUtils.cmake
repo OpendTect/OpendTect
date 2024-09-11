@@ -81,7 +81,13 @@ if( UNIX ) #Apple and Linux
         find_library( APP_SERVICES_LIBRARY ApplicationServices
 		      PATH ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks )
         set (EXTRA_LIBS ${APP_SERVICES_LIBRARY} )
-	set (OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
+	if ( APPLE AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" )
+	    if ( CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15 )
+		set (OD_SUPPRESS_UNDEF_FLAGS "-undefined dynamic_lookup" )
+	    else()
+		set (OD_SUPPRESS_UNDEF_FLAGS "-flat_namespace -undefined suppress" )
+	    endif()
+	endif()
 	#set ( OD_GUI_SYSTEM "MACOSX_BUNDLE" )
 
 	set ( OD_PLFSUBDIR mac )
