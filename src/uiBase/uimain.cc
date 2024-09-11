@@ -495,13 +495,14 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     qInstallMsgHandler( qtMessageOutput );
 #endif
 
-#ifndef __win__
-    BufferString stylestr = getStyleFromSettings();
-    if ( stylestr.isEmpty() )
-	stylestr = __ismac__ ? "macintosh" : "cleanlooks";
+    if ( !__iswin__ )
+    {
+	BufferString stylestr = getStyleFromSettings();
+	if ( stylestr.isEmpty() )
+	    stylestr = __ismac__ ? "macos" : "cleanlooks";
 
-    QApplication::setStyle( QStyleFactory::create(stylestr.buf()) );
-#endif
+	QApplication::setStyle( QStyleFactory::create(stylestr.buf()) );
+    }
 
     BufferString qssfnm = Settings::common().find( "dTect.StyleSheet" );
     if ( qssfnm.isEmpty() )
