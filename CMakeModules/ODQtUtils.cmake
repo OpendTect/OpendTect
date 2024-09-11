@@ -105,6 +105,27 @@ macro( QT_SETUP_GUI_INTERNALS )
 
 endmacro(QT_SETUP_GUI_INTERNALS )
 
+macro( QT_SETUP_PRINTSUPPORT_INTERNALS )
+
+    if ( APPLE AND QT_VERSION VERSION_GREATER_EQUAL 6 )
+	find_package( Cups QUIET GLOBAL )
+	if ( TARGET Cups::Cups )
+	    get_filename_component( CUPS_LOCATION "${CUPS_LIBRARIES}" REALPATH )
+	    get_filename_component( CUPS_SONAME "${CUPS_LOCATION}" NAME )
+	    set_target_properties( Cups::Cups PROPERTIES
+		IMPORTED_CONFIGURATIONS "RELEASE"
+		IMPORTED_LOCATION_RELEASE "${CUPS_LOCATION}"
+		IMPORTED_SONAME_RELEASE "${CUPS_SONAME}" )
+	    set_target_properties( Qt${QT_VERSION_MAJOR}::PrintSupport PROPERTIES
+			IMPORTED_LINK_DEPENDENT_LIBRARIES Cups::Cups )
+	    od_map_configurations( Cups::Cups )
+	else()
+	    message( SEND_ERROR "Cannot use the Qt installation: Qt::PrintSupport requires cups to be installed\nPlease set Cups_ROOT to the location of the cups installation\cups may be installed with brew" )
+	endif()
+    endif()
+
+endmacro(QT_SETUP_PRINTSUPPORT_INTERNALS)
+
 macro( QT_SETUP_WEBENGINE_INTERNALS )
 
     OD_FIND_QTDIR()
@@ -201,6 +222,17 @@ macro( QT_SETUP_GUI_EXTERNALS )
     endif()
     unset( QT_GUI_IMPORTED_OBJECTS )
 endmacro(QT_SETUP_GUI_EXTERNALS)
+
+macro( QT_SETUP_PRINTSUPPORT_EXTERNALS )
+    OD_FIND_QTDIR()
+    if ( APPLE AND QT_VERSION VERSION_GREATER_EQUAL 6 )
+	if ( TARGET Cups::Cups )
+	    list( APPEND INSTMODS Cups::Cups )
+	else()
+	    message( SEND_ERROR "Cups not added as runtime dependency" )
+	endif()
+    endif()
+endmacro(QT_SETUP_PRINTSUPPORT_EXTERNALS)
 
 macro( OD_ADD_QT )
 
@@ -311,6 +343,9 @@ macro( OD_ADD_QTMODS )
 	    OD_ADD_QTGUIMOD()
 	    QT_SETUP_GUI_INTERNALS()
 	endif()
+	if ( Qt${QT_VERSION_MAJOR}::PrintSupport IN_LIST LINKMODS )
+	    QT_SETUP_PRINTSUPPORT_INTERNALS()
+	endif()
 	if ( Qt${QT_VERSION_MAJOR}::Quick IN_LIST LINKMODS )
 	    OD_ADD_QTQUICKMOD()
 	endif()
@@ -385,6 +420,9 @@ macro( OD_SETUP_QT )
 	endif()
 	if ( Qt${QT_VERSION_MAJOR}::Gui IN_LIST LINKMODS )
 	    QT_SETUP_GUI_EXTERNALS()
+	endif()
+	if ( Qt${QT_VERSION_MAJOR}::PrintSupport IN_LIST LINKMODS )
+	    QT_SETUP_PRINTSUPPORT_EXTERNALS()
 	endif()
 	if ( INSTMODS )
 	    list( APPEND OD_MODULE_EXTERNAL_RUNTIME_LIBS ${INSTMODS} )
