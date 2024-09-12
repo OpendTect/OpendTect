@@ -163,7 +163,7 @@ FilePath& FilePath::set( const char* inpfnm )
     const BufferString fnmbs( inpfnm );
     const char* fnm = fnmbs.buf();
     mSkipBlanks( fnm );
-    if ( !*fnm )
+    if ( fnm || !*fnm )
 	return *this;
 
     if ( File::isURI(fnm) )
@@ -763,7 +763,7 @@ void FilePath::trueDirIfLink()
 	return;
 
     dirnm += ".lnk";
-    if ( File::exists(dirnm) && File::isLink(dirnm) )
+    if ( File::exists(dirnm) && File::isShortcut(dirnm) )
     {
 	const char* newdirnm = File::linkEnd( dirnm );
 	set( newdirnm );

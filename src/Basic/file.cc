@@ -1466,6 +1466,8 @@ int Permissions::get_st_mode( const char* fnm )
 
 // Deprecated implementations
 
+mStartAllowDeprecatedSection
+
 const char* linkTarget( const char* linknm )
 {
 	if ( !isSane(linknm) )
@@ -1532,5 +1534,7 @@ bool saveCopy( const char* from, const char* to, bool preserve )
     res ? File::remove( tmpfnm ) : File::rename( tmpfnm, to );
     return res;
 }
+
+mStopAllowDeprecatedSection
 
 } // namespace File
