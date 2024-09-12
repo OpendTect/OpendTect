@@ -77,6 +77,4 @@ private:
 
     uiFileInput*		fnmfld_;
     uiGenInput*			posfld_;
-    uiGenInput*			falseNfld_;
-    uiGenInput*			falseEfld_;
 };

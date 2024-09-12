@@ -342,12 +342,6 @@ uiSEGP1ImpDlg::uiSEGP1ImpDlg( uiParent* p )
     posfld_ = new uiGenInput( this, tr("Load positions using"),
 			      BoolInpSpec(true,tr("X/Y"),tr("Lat/Long")) );
     posfld_->attach( alignedBelow, fnmfld_ );
-
-    falseEfld_ = new uiGenInput( this, tr("False Easting"), FloatInpSpec(0) );
-    falseEfld_->attach( alignedBelow, posfld_ );
-
-    falseNfld_ = new uiGenInput( this, tr("False Northing"), FloatInpSpec(0) );
-    falseNfld_->attach( alignedBelow, falseEfld_ );
 }
 
 
