@@ -163,7 +163,7 @@ FilePath& FilePath::set( const char* inpfnm )
     const BufferString fnmbs( inpfnm );
     const char* fnm = fnmbs.buf();
     mSkipBlanks( fnm );
-    if ( fnm || !*fnm )
+    if ( !fnm || !*fnm )
 	return *this;
 
     if ( File::isURI(fnm) )
