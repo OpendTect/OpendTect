@@ -718,6 +718,13 @@ void uiGroup::reSizeChildren( const uiObject* obj, float wfac, float hfac )
 }
 
 
+void uiGroup::adjustSize()
+{
+    if ( grpobj_ && grpobj_->body_ )
+	grpobj_->body_->adjustSize();
+}
+
+
 uiGroup* uiGroup::gtDynamicCastToGrp( QWidget* widg )
 {
     auto* body = dCast(uiGroupObjBody*,widg);
