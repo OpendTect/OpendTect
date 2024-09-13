@@ -687,10 +687,13 @@ void ModelBasedAngleComputer::ModelTool::splitModelIfNeeded( float maxthickness)
 
     const TimeDepthModel& tdmodel = refmodel_->getDefaultModel();
     const float* depths = tdmodel.getDepths();
+    const UnitOfMeasure* emdepthsuom = UnitOfMeasure::meterUnit();
+    const UnitOfMeasure* refldepthsuom = UnitOfMeasure::surveyDefDepthUnit();
     bool dosplit = false;
     for ( int idx=1; idx<tdmodel.size(); idx++ )
     {
-	const float thickness = depths[idx] - depths[idx-1];
+	const float thickness = getConvertedValue( depths[idx] - depths[idx-1],
+						   refldepthsuom, emdepthsuom );
 	if ( thickness > maxthickness )
 	{
 	    dosplit = true;
@@ -709,7 +712,8 @@ void ModelBasedAngleComputer::ModelTool::splitModelIfNeeded( float maxthickness)
     const float* times = tdmodel.getTimes();
     for ( int idx=1; idx<tdmodel.size(); idx++ )
     {
-	const double thickness = depths[idx] - depths[idx-1];
+	const double thickness = getConvertedValue( depths[idx] - depths[idx-1],
+						    refldepthsuom, emdepthsuom);
 	const double pvel = 2. * thickness / (times[idx] - times[idx-1]);
 	em_->add( new AILayer( float(thickness), float(pvel), mUdf(float) ) );
     }
