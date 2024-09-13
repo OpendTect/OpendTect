@@ -68,7 +68,7 @@ KeyBindMan::KeyBindMan()
         astrm.next();
     }
 
-    for ( int idx=0; !atEndOfSection(astrm); idx++ )
+    do
     {
         IOPar iopar( astrm );
         KeyBindings keybind;
@@ -87,7 +87,7 @@ KeyBindMan::KeyBindMan()
         while ( !atEndOfSection(astrm) ) astrm.next();
         astrm.next();
 	keyset_ += new KeyBindings( keybind );
-    }
+    } while( !atEndOfSection(astrm) );
 
     Settings::common().get( KeyBindings::sSettingsKey(), curkeybinding_ );
     setKeyBindings( curkeybinding_ );
