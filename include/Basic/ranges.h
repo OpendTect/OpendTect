@@ -994,4 +994,6 @@ StepInterval<T> StepInterval<T>::niceInterval( int maxsteps, bool canrev ) const
 
 mGlobal(Basic) BufferString toUserString(const Interval<int>&);
 mGlobal(Basic) BufferString toUserString(const Interval<float>&,int precision);
+mGlobal(Basic) BufferString toUserStringF(const Interval<float>&,int nrdec);
 mGlobal(Basic) BufferString toUserString(const Interval<double>&,int precision);
+mGlobal(Basic) BufferString toUserStringF(const Interval<double>&,int nrdec);
