@@ -448,7 +448,10 @@ MultiArrayValueSeries<RT,AT>::MultiArrayValueSeries( od_int64 sz )
     , chunksize_( mChunkSize/sizeof(AT) )
 {
     ptrs_.setNullAllowed();
-    setSize( sz );
+    if ( sz == 0 )
+	cursize_ = 0;
+    else
+	setSize( sz );
 }
 
 
@@ -568,7 +571,7 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     if ( cursize_==sz )
 	return true;
 
-    #ifdef __debug__
+#ifdef __debug__
     if ( sz==0 )
     {
 	pErrMsg("Trying to allocate an array with size=0");
