@@ -392,7 +392,6 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 
     bool errocc = false;
     IOPar pars;
-    int nrprocsprocessed = 0;
     BufferStringSet failedprocnms;
 
     for ( int idx=0; idx<PDE::TypeDef().size(); idx++ )
@@ -425,7 +424,6 @@ bool uiFirewallProcSetter::acceptOK( CallBacker* )
 	else
 	{
 	    pars.set( PDE::TypeDef().getKeyForIndex(idx), procnmsset );
-	    nrprocsprocessed++;
 	}
     }
 
