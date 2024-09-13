@@ -325,6 +325,12 @@ void uiMainWin::setGeometry( const uiRect& rect )
 }
 
 
+void uiMainWin::adjustSize()
+{
+    body_->adjustSize();
+}
+
+
 bool uiMainWin::doSetWindowFlags( od_uint32 todoflagi, bool setyn )
 {
     const Qt::WindowFlags todoflag( todoflagi );
