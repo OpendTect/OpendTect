@@ -1282,7 +1282,25 @@ BufferString toUserString( const Interval<int>& intv )
     {
 	mDynamicCastGet(const StepInterval<int>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " - " ).add( sintv->step );
+	    ret.add( " [" ).add( sintv->step ).add("]");
+    }
+
+    return ret;
+}
+
+template<class T>
+static BufferString toUserString( const Interval<T>& intv, char format,
+				  int precision )
+{
+    BufferString ret;
+    ret = toString(intv.start,format,precision);
+    ret.add( " - " ).add( toString(intv.stop,format,precision) );
+    if ( intv.hasStep() )
+    {
+	mDynamicCastGet(const StepInterval<T>*,sintv,&intv);
+	if ( sintv )
+	    ret.add( " [" ).add( toString(sintv->step,format,precision) )
+	       .add("]");
     }
 
     return ret;
@@ -1291,33 +1309,25 @@ BufferString toUserString( const Interval<int>& intv )
 
 BufferString toUserString( const Interval<float>& intv, int precision )
 {
-    BufferString ret;
-    ret = toString(intv.start,'g',precision);
-    ret.add( " - " ).add( toString(intv.stop,'g',precision) );
-    if ( intv.hasStep() )
-    {
-	mDynamicCastGet(const StepInterval<float>*,sintv,&intv);
-	if ( sintv )
-	    ret.add( " - " ).add( toString(sintv->step,'g',precision) );
-    }
+    return toUserString<float>( intv, 'g', precision );
+}
 
-    return ret;
+
+BufferString toUserStringF( const Interval<float>& intv, int nrdec )
+{
+    return toUserString<float>( intv, 'f', nrdec );
 }
 
 
 BufferString toUserString( const Interval<double>& intv, int precision )
 {
-    BufferString ret;
-    ret = toString(intv.start,'g',precision);
-    ret.add( " - " ).add( toString(intv.stop,'g',precision) );
-    if ( intv.hasStep() )
-    {
-	mDynamicCastGet(const StepInterval<double>*,sintv,&intv);
-	if ( sintv )
-	    ret.add( " - " ).add( toString(sintv->step,'g',precision) );
-    }
+    return toUserString<double>( intv, 'g', precision );
+}
 
-    return ret;
+
+BufferString toUserStringF( const Interval<double>& intv, int nrdec )
+{
+    return toUserString<double>( intv, 'f', nrdec );
 }
 
 
@@ -1325,9 +1335,9 @@ const char* getDimensionString( int sz1, int sz2, int sz3 )
 {
     mDeclStaticString( ret );
     ret = sz1; 
-    ret.add( " X " ).add( sz2 );
+    ret.add( " x " ).add( sz2 );
     if ( sz3 > 0 )
-	ret.add( " X " ).add( sz3 );
+	ret.add( " x " ).add( sz3 );
 
     return ret;
 }
