@@ -129,7 +129,10 @@ endmacro(QT_SETUP_PRINTSUPPORT_INTERNALS)
 macro( QT_SETUP_WEBENGINE_INTERNALS )
 
     OD_FIND_QTDIR()
-    list( APPEND QT_REQ_PLUGINS bearer;position )
+    list( APPEND QT_REQ_PLUGINS position )
+    if ( QT_VERSION VERSION_LESS 6 )
+	list( APPEND QT_REQ_PLUGINS bearer )
+    endif()
     QT_INSTALL_PLUGINS()
 
     file( GLOB WEBENGINE_TRANSLATION_FILES "${QTDIR}/translations/qtwebengine_*.qm" )
