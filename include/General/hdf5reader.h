@@ -37,6 +37,8 @@ public:
 
     virtual void	getGroups(BufferStringSet&) const		= 0;
 				//!< All groups with full names (recursive)
+    virtual void	getSubGroups(const char* grpnm,
+				     BufferStringSet&) const		= 0;
     virtual void	getDataSets(const char* fullgrpnm,
 				    BufferStringSet&) const		= 0;
 				//!< Pass a full group name

@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "od_iostream.h"
 #include "od_helpids.h"
 #include "unitofmeasure.h"
+#include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
 #include "wellman.h"

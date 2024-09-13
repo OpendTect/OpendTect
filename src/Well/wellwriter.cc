@@ -60,14 +60,11 @@ Well::Writer::Writer( const MultiID& ky, const Well::Data& wd )
 {
     nsfile_ = new NotifyStopper( FSW().fileChanged );
     nsdir_ = new NotifyStopper( FSW().directoryChanged );
-    IOObj* ioobj = IOM().get( ky );
+    ConstPtrMan<IOObj> ioobj = IOM().get( ky );
     if ( !ioobj )
 	errmsg_.appendPhrase( uiStrings::phrCannotFindDBEntry(ky) );
     else
-    {
 	init( *ioobj, wd );
-	delete ioobj;
-    }
 }
 
 

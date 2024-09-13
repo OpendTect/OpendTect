@@ -108,13 +108,14 @@ private:
     should be OK.
 */
 
-#define	DBG_DBG		0x0001	// general, low frequency stuff
-#define	DBG_MT		0x0002	// multi-threaded stuff
-#define	DBG_UI		0x0004	// ui-related stuff
-#define	DBG_IO		0x0008	// general I/O stuff
-#define	DBG_SOCKIO	0x0010	// socket I/O
-#define	DBG_MM		0x0020	// Multi-machine batch processing
-#define	DBG_SETTINGS	0x0040	// User settings
-#define	DBG_PROGSTART	0x0080	// Program start and stop
-#define	DBG_FILEPATH	0x0100	// File name handling, conversion, etc.
-#define	DGB_SERVICES	0x0200	// Network service managers
+#define DBG_DBG		0x0001	// general, low frequency stuff
+#define DBG_MT		0x0002	// multi-threaded stuff
+#define DBG_UI		0x0004	// ui-related stuff
+#define DBG_IO		0x0008	// general I/O stuff
+#define DBG_SOCKIO	0x0010	// socket I/O
+#define DBG_MM		0x0020	// Multi-machine batch processing
+#define DBG_SETTINGS	0x0040	// User settings
+#define DBG_PROGSTART	0x0080	// Program start and stop
+#define DBG_FILEPATH	0x0100	// File name handling, conversion, etc.
+#define DGB_SERVICES	0x0200	// Network service managers
+#define DGB_HDF5	0x0400	// HDF5 stuff

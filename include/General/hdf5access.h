@@ -43,6 +43,7 @@ mExpClass(General) DataSetKey
 public:
 			DataSetKey(const char* grpnm=nullptr,
 				   const char* dsnm=nullptr);
+			~DataSetKey();
 
     inline const char*	groupName() const	{ return grpnm_; }
     inline DataSetKey&	setGroupName( const char* nm )

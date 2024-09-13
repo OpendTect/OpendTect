@@ -11,11 +11,11 @@ ________________________________________________________________________
 
 #include "idxable.h"
 #include "survinfo.h"
-#include "unitofmeasure.h"
-#include "velocitycalc.h"
 #include "timedepthmodel.h"
-#include "welldata.h"
 #include "trigonometry.h"
+#include "unitofmeasure.h"
+#include "welldata.h"
+#include "welld2tmodel.h"
 
 
 Well::Track::Track( const char* nm )
@@ -756,4 +756,24 @@ void Well::Track::eraseAux()
 {
     pos_.erase();
     deleteAndNullPtr( zpos_ );
+}
+
+
+
+// Well::TrackIter
+Well::TrackIter::TrackIter( const Track& trck, bool atend )
+    : DahObjIter(trck,atend)
+{
+}
+
+
+const Well::Track& Well::TrackIter::track() const
+{
+    return static_cast<const Track&>( dahObj() );
+}
+
+
+Coord3 Well::TrackIter::pos() const
+{
+    return isValid() ? track().pos(curidx_) : Coord3::udf();
 }

@@ -51,6 +51,8 @@ private:
 						{ return stDSScope( dsky ); }
 
     void		getGroups(BufferStringSet&) const override;
+    void		getSubGroups(const char* grpnm,
+				     BufferStringSet&) const override;
     void		getDataSets(const char* grpnm,
 				    BufferStringSet&) const override;
     void		gtComment(const H5::H5Location&,const char* name,

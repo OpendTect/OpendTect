@@ -50,7 +50,7 @@ public:
     bool		renameLog(const char* oldnm,
 				  const char* newnm) override;
 
-    const uiString& errMsg() const override { return odIO::errMsg(); }
+    const uiString&	errMsg() const override { return odIO::errMsg(); }
 
     bool		putInfoAndTrack(od_ostream&) const;
     bool		putMarkers(od_ostream&) const;

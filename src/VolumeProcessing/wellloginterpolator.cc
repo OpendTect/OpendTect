@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "interpollayermodel.h"
 #include "seisdatapack.h"
 #include "survinfo.h"
+#include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllog.h"

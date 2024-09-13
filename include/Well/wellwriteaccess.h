@@ -25,6 +25,7 @@ mExpClass(Well) WriteAccess
 public:
 
     virtual		~WriteAccess();
+			mOD_DisableCopy(WriteAccess)
 
     virtual bool	put() const			= 0; //!< Just write all
 

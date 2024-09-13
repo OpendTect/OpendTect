@@ -49,7 +49,7 @@ public:
     void		getLogInfo(BufferStringSet& lognms) const override;
     bool		getDefLogs() const override;
 
-    const uiString& errMsg() const override	{ return odIO::errMsg(); }
+    const uiString&	errMsg() const override { return odIO::errMsg(); }
 
     bool		getInfo(od_istream&) const;
     bool		addLog(od_istream&, bool needjustinfo=false) const;

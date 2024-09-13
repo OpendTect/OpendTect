@@ -45,6 +45,7 @@ public:
 			~Log();
 
     Log&		operator =(const Log&);
+    Log*		clone() const;
 
     bool		isLoaded() const;
 
@@ -136,5 +137,16 @@ public:
 
 };
 
+
+/*!\brief Well Log iterator. */
+
+mExpClass(Well) LogIter : public DahObjIter
+{
+public:
+			LogIter(const Log&,bool start_at_end=false);
+			~LogIter();
+
+    const Log&		log() const;
+};
 
 } // namespace Well

@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "sets.h"
+
 #include "namedobj.h"
 #include "ranges.h"
 
@@ -94,5 +94,40 @@ protected:
 }
 
 
+
+mExpClass(Well) DahObjIter
+{
+public:
+    virtual		~DahObjIter();
+			mOD_DisableCopy(DahObjIter)
+
+    enum Direction	{ Forward, Backward };
+    bool		next();
+    int			size() const;
+    inline bool		isEmpty() const		{ return size() < 1; }
+
+    inline bool		isForward() const	{ return dir_ == Forward; }
+    inline bool		isValid() const		{ return isPresent(curidx_); }
+    inline bool		atFirst() const		{ return curidx_ == startidx_; }
+    inline bool		atLast() const		{ return curidx_ == stopidx_; }
+    inline int		curIdx() const		{ return curidx_; }
+    bool		isPresent(int) const;
+    virtual void	reInit();
+    void		retire();
+
+    const DahObj&	dahObj() const		{ return obj_; }
+    float		dah() const;
+    float		value() const;
+
+protected:
+			DahObjIter(const DahObj&,bool start_at_end=false);
+
+    const DahObj&	obj_;
+    const Direction	dir_;
+    const int		startidx_;
+    const int		stopidx_;
+
+    int			curidx_;
+};
 
 } // namespace Well

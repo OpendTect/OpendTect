@@ -67,6 +67,7 @@ public:
     virtual void			setEmpty()	{}
 
     virtual void			setAll(T);
+    virtual void			setData(const T*);
     virtual void			getAll(T* ptr) const;
 					/*!<Fills ptr with values from array.
 					    ptr is assumed to be allocated
@@ -576,5 +577,85 @@ void ArrayND<T>::getAll( T* ptr ) const
 	    ArrayNDDataExtracter<T> extr( ptr, *this );
 	    extr.execute();
 	}
+    }
+}
+
+/*!\brief Sets ArrayND data from a one dimensional array.  */
+
+template <class T>
+mClass(Basic) ArrayNDDataSetter : public ParallelTask
+{
+public:
+
+    mTypeDefArrNDTypes;
+
+ArrayNDDataSetter( ArrayND<T>& arr, const T* ptr )
+    : ptr_( ptr )
+    , arr_( arr )
+    , totalnr_( arr.totalSize() )
+    , pos_(0)
+{
+    const nr_dims_type nrdims = arr_.nrDims();
+    if ( nrdims > 0 )
+	pos_ = new idx_type [nrdims];
+    else
+	totalnr_ = 0;
+}
+
+~ArrayNDDataSetter()
+{
+    delete [] pos_;
+}
+
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    if ( !arr_.info().getArrayPos( start, pos_ ) )
+	return false;
+
+    ArrayNDIter iterator( arr_.info() );
+    iterator.setPos( pos_ );
+
+    const T* res = ptr_ + start;
+    for ( od_int64 idx=start; idx<=stop; idx++, res++ )
+    {
+	arr_.setND( iterator.getPos(), *res );
+	if ( idx==stop )
+	    break;
+	else if ( !iterator.next() )
+	    return false;
+    }
+
+    return true;
+}
+
+od_int64 nrIterations() const
+{
+    return totalnr_;
+}
+
+protected:
+
+    od_int64		totalnr_;
+    ArrayND<T>&		arr_;
+    const T*		ptr_;
+    idx_type*		pos_;
+
+};
+
+
+template <class T> inline
+void ArrayND<T>::setData( const T* ptr )
+{
+    const od_int64 totalsz = totalSize();
+    if ( totalsz < 1 )
+	return;
+
+    T* tdata = getData();
+    if ( tdata )
+	OD::memCopy( tdata, ptr, totalsz * sizeof(T) );
+    else
+    {
+	ArrayNDDataSetter<T> setter( *this, ptr );
+	setter.execute();
     }
 }

@@ -733,7 +733,7 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
     const bool addedok = addToLogSet( newlog, needjustinfo );
     Log* wl = const_cast<LogSet&>(data().logs()).
 						getLog( newlog->name().buf() );
-    if (addedok && udfranges)
+    if ( addedok && udfranges )
     {
 	Writer wrr( data().multiID(), data() );
 	wrr.putLog( *wl );
@@ -756,7 +756,6 @@ bool Well::odReader::addLog( od_istream& strm, bool needjustinfo ) const
 
 void Well::odReader::readLogData( Log& wl, od_istream& strm, int bintype ) const
 {
-
     float v[2];
     while ( strm.isOK() )
     {

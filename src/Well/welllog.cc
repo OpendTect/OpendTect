@@ -477,6 +477,12 @@ Well::Log& Well::Log::operator =( const Well::Log& oth )
 }
 
 
+Well::Log* Well::Log::clone() const
+{
+    return new Log( *this );
+}
+
+
 bool Well::Log::isLoaded() const
 {
 // no values
@@ -1019,4 +1025,23 @@ Well::LogDisplayParSet::~LogDisplayParSet()
 {
     delete leftlogpar_;
     delete rightlogpar_;
+}
+
+
+
+// Well::LogIter
+Well::LogIter::LogIter( const Log& trck, bool atend )
+    : DahObjIter(trck,atend)
+{
+}
+
+
+Well::LogIter::~LogIter()
+{
+}
+
+
+const Well::Log& Well::LogIter::log() const
+{
+    return static_cast<const Log&>( dahObj() );
 }

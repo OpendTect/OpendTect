@@ -28,20 +28,18 @@ const char* WellProvider3D::sKeySurfaceCoords() { return "Only surface coords";}
 
 
 WellProvider3D::WellProvider3D()
-    : hs_(*new TrcKeySampling(true))
+    : onlysurfacecoords_(true)
+    , hs_(*new TrcKeySampling(true))
     , zrg_(SI().zRange(false))
-    , onlysurfacecoords_(true)
-    , curwellidx_(0)
 {
 }
 
 
 WellProvider3D::WellProvider3D( const WellProvider3D& pp )
     : welldata_(pp.welldata_)
+    , onlysurfacecoords_(pp.onlysurfacecoords_)
     , hs_(pp.hs_)
     , zrg_(pp.zrg_)
-    , onlysurfacecoords_(pp.onlysurfacecoords_)
-    , curwellidx_(0)
 {
 }
 

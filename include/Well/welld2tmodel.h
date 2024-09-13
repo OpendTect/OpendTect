@@ -82,6 +82,9 @@ public:
 			//!< Returns corrected model if necessary
 			//!< May eventually also correct info().replvel
 
+    void		fillHeaderPar(IOPar&) const;
+    void		useHeaderPar(const IOPar&);
+
 protected:
 
     TypeSet<float>	t_;
@@ -132,5 +135,17 @@ mGlobal(Well) float	getDefaultVelocity();
 			//!< where we may need such functionality
 			//!< ( eg. replacement velocity for wells ).
 
+
+/*!\brief Well D2T Model iterator. */
+
+mExpClass(Well) D2TModelIter : public DahObjIter
+{
+public:
+			D2TModelIter(const D2TModel&,bool start_at_end=false);
+			~D2TModelIter();
+
+    const D2TModel&	model() const;
+    float		t() const;
+};
 
 } // namespace Well

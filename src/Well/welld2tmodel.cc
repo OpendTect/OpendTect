@@ -860,3 +860,43 @@ bool Well::D2TModel::ensureValid( const Well::Data& wll, uiString& msg,
 
     return isok;
 }
+
+
+void Well::D2TModel::fillHeaderPar( IOPar& par ) const
+{
+    putNameInPar( par );
+    par.set( sKey::Desc(), desc );
+    par.set( sKeyDataSrc(), datasource );
+}
+
+
+void Well::D2TModel::useHeaderPar( const IOPar& par )
+{
+    getNameFromPar( par );
+    par.get( sKey::Desc(), desc );
+    par.get( sKeyDataSrc(), datasource );
+}
+
+
+
+// Well::D2TModelIter
+Well::D2TModelIter::D2TModelIter( const D2TModel& mdl, bool atend )
+    : DahObjIter(mdl,atend)
+{
+}
+
+
+Well::D2TModelIter::~D2TModelIter()
+{}
+
+
+const Well::D2TModel& Well::D2TModelIter::model() const
+{
+    return static_cast<const D2TModel&>( dahObj() );
+}
+
+
+float Well::D2TModelIter::t() const
+{
+    return isValid() ? model().t(curidx_) : mUdf(float);
+}

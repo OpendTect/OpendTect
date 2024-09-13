@@ -278,6 +278,79 @@ void Well::DahObj::updateDahRange()
 }
 
 
+
+// Well::DahObjIter
+Well::DahObjIter::DahObjIter( const DahObj& dahobj, bool atend )
+    : obj_(dahobj)
+    , dir_(atend ? Backward : Forward)
+    , startidx_(atend?dahobj.size()-1:0)
+    , stopidx_(atend?0:dahobj.size()-1)
+{
+    reInit();
+}
+
+
+Well::DahObjIter::~DahObjIter()
+{}
+
+
+float Well::DahObjIter::dah() const
+{
+    return isValid() ? dahObj().dah( curidx_ ) : mUdf(float);
+}
+
+
+float Well::DahObjIter::value() const
+{
+    return isValid() ? dahObj().value( curidx_ ) : mUdf(float);
+}
+
+
+void Well::DahObjIter::reInit()
+{
+    curidx_ = dir_ == Forward ? startidx_ - 1 : startidx_ + 1;
+}
+
+
+void Well::DahObjIter::retire()
+{
+    // unlock
+}
+
+
+bool Well::DahObjIter::next()
+{
+    if ( dir_ == Forward )
+    {
+	curidx_++;
+	return curidx_ <= stopidx_;
+    }
+    else
+    {
+	curidx_--;
+	return curidx_ >= stopidx_;
+    }
+}
+
+
+bool Well::DahObjIter::isPresent( int idx ) const
+{
+    if ( dir_ == Forward )
+	return idx >= startidx_ && idx <= stopidx_;
+    else
+	return idx <= startidx_ && idx >= stopidx_;
+}
+
+
+int Well::DahObjIter::size() const
+{
+    return dir_ == Forward ? stopidx_-startidx_+1 : startidx_-stopidx_+1;
+}
+
+
+
+// Well::Data
+
 Well::Data::Data( const char* nm )
     : d2tchanged(this)
     , csmdlchanged(this)

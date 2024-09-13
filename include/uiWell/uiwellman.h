@@ -14,13 +14,14 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "welldata.h"
 
-class uiListBox;
 class uiButton;
 class uiGroup;
-class uiToolButton;
+class uiListBox;
 class uiPushButton;
-namespace Well { class Log; class Reader; }
+class uiToolButton;
 class uiWellLogCalc;
+
+namespace Well { class Log; class Reader; }
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
 { mODTextTranslationClass(uiWellMan)
@@ -43,9 +44,8 @@ protected:
     uiListBox*			logsfld_;
     uiGroup*			logsgrp_;
 
-    bool			iswritable_ = true;
+    bool			iswritable_			= true;
     RefObjectSet<Well::Data>	curwds_;
-    ObjectSet<Well::Reader>	currdrs_;
     TypeSet<MultiID>		curmultiids_;
     BufferStringSet		curfnms_;
     BufferStringSet		availablelognms_;
@@ -60,17 +60,15 @@ protected:
     uiToolButton*		logmnembut_;
     uiToolButton*		defmnemlogbut_;
     uiToolButton*		logedbut_;
-    uiToolButton*		logupbut_;
-    uiToolButton*		logdownbut_;
     uiToolButton*		custommnsbut_;
     uiPushButton*		addlogsbut_;
     uiPushButton*		calclogsbut_;
     uiToolButton*		welltrackbut_;
-    uiToolButton*		d2tbut_ = nullptr;
-    uiToolButton*		csbut_ = nullptr;
+    uiToolButton*		d2tbut_				= nullptr;
+    uiToolButton*		csbut_				= nullptr;
     uiToolButton*		markerbut_;
 
-    uiWellLogCalc*		welllogcalcdlg_ = nullptr;
+    uiWellLogCalc*		welllogcalcdlg_			= nullptr;
     void			updateLogsFld(CallBacker*);
     void			calcClosedCB(CallBacker*);
 
@@ -92,7 +90,6 @@ protected:
     void			removeLogPush(CallBacker*);
     void			copyLogPush(CallBacker*);
     void			editLogPush(CallBacker*);
-    void			moveLogsPush(CallBacker*);
     void			logSel(CallBacker*);
     void			logUOMPush(CallBacker*);
     void			logMnemPush(CallBacker*);

@@ -28,6 +28,7 @@ mExpClass(Well) ReadAccess
 public:
 
     virtual		~ReadAccess();
+			mOD_DisableCopy(ReadAccess)
 
     virtual bool	getInfo() const			= 0;
     virtual bool	getTrack() const		= 0;

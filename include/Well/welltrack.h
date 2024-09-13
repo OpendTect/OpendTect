@@ -25,7 +25,6 @@ namespace Well
 mExpClass(Well) Track : public DahObj
 {
 public:
-
 			Track(const char* nm=nullptr);
 			Track(const Track&);
 			~Track();
@@ -111,5 +110,20 @@ public:
 			//!< return if changed
 
 };
+
+
+/*!\brief Well track iterator. */
+
+mExpClass(Well) TrackIter : public DahObjIter
+{
+public:
+			TrackIter(const Track&,bool start_at_end=false);
+			TrackIter(const TrackIter&);
+
+    const Track&	track() const;
+    Coord3		pos() const;
+
+};
+
 
 } // namespace Well

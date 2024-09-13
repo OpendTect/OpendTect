@@ -7,12 +7,14 @@ ________________________________________________________________________
 
 -*/
 
-#include "arrayndimpl.h"
+#include "hdf5access.h"
+#include "hdf5reader.h"
+#include "hdf5writer.h"
+
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "hdf5arraynd.h"
 #include "iopar.h"
 #include "od_istream.h"
 #include "settings.h"
@@ -37,6 +39,10 @@ HDF5::DataSetKey::DataSetKey( const char* grpnm, const char* dsnm )
 {
     setGroupName( grpnm );
 }
+
+
+HDF5::DataSetKey::~DataSetKey()
+{}
 
 
 BufferString HDF5::DataSetKey::fullDataSetName() const
@@ -169,7 +175,7 @@ bool HDF5::Access::isHDF5File( const char* fnm )
 	return false;
 
     od_istream strm( fnm );
-    od_int64 magicnumb = 0;
+    od_uint64 magicnumb = 0;
     strm.getBin( magicnumb );
     if ( __islittle__ )
 	SwapBytes( &magicnumb, sizeof(magicnumb) );
@@ -648,7 +654,9 @@ uiRetVal HDF5::Writer::createTextDataSet( const DataSetKey& dsky )
     if ( !file_ )
 	mRetNoFileInUiRv()
 
-    crTxtDS( dsky, uirv );
+    if ( !hasDataSet(dsky) )
+	crTxtDS( dsky, uirv );
+
     return uirv;
 }
 
