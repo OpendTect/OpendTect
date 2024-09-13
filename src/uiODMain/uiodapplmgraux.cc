@@ -401,11 +401,6 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 
 		imp2dgeomdlg_->show();
 	    }
-	    else if ( opt==1 )
-	    {
-		uiSEGP1ImpDlg dlg( par_ );
-		dlg.go();
-	    }
 	}
     break;
     case uiODApplMgr::PVDS:

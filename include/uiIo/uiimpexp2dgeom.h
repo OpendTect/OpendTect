@@ -20,7 +20,8 @@ namespace Survey { class Geometry2D; }
 namespace Table { class FormatDesc; }
 
 mExpClass(uiIo) uiImp2DGeom : public uiDialog
-{ mODTextTranslationClass(uiImp2DGeom)
+{
+mODTextTranslationClass(uiImp2DGeom)
 public:
 				uiImp2DGeom(uiParent*,const char* lnm="",
 					    bool forsurveysetup=false);
@@ -46,7 +47,8 @@ protected:
 
 
 mExpClass(uiIo) uiExp2DGeom : public uiDialog
-{ mODTextTranslationClass(uiExp2DGeom)
+{
+mODTextTranslationClass(uiExp2DGeom)
 public:
 				uiExp2DGeom(uiParent*,
 					const TypeSet<Pos::GeomID>* =0,
@@ -62,19 +64,4 @@ protected:
     uiIOObjSelGrp*		geomfld_;
     uiFileInput*		outfld_;
     TypeSet<Pos::GeomID>	geomidset_;
-};
-
-
-mExpClass(uiIo) uiSEGP1ImpDlg : public uiDialog
-{ mODTextTranslationClass(uiSEGP1ImpDlg)
-public:
-				uiSEGP1ImpDlg(uiParent*);
-				~uiSEGP1ImpDlg();
-
-private:
-
-    bool			acceptOK(CallBacker*) override;
-
-    uiFileInput*		fnmfld_;
-    uiGenInput*			posfld_;
 };

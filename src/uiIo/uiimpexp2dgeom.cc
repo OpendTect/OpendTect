@@ -14,17 +14,19 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uigeom2dsel.h"
 #include "uiioobjselgrp.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uitblimpexpdatasel.h"
-#include "uilistbox.h"
 
 #include "filepath.h"
 #include "geom2dascio.h"
+#include "ioobj.h"
 #include "oddirs.h"
-#include "od_iostream.h"
+#include "od_istream.h"
+#include "od_ostream.h"
 #include "posinfo2d.h"
-#include "survgeometrytransl.h"
 #include "survgeom2d.h"
+#include "survgeometrytransl.h"
 #include "tabledef.h"
 
 // uiImp2DGeom
@@ -328,60 +330,4 @@ bool uiExp2DGeom::acceptOK( CallBacker* )
 			    "Do you want to export more?");
     const bool res = uiMSG().askGoOn( msg );
     return !res;
-}
-
-
-
-uiSEGP1ImpDlg::uiSEGP1ImpDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup(tr("Import New Line Geometry"),
-				 mNoDlgTitle,
-				 mODHelpKey(mGeom2DImpDlgHelpID)))
-{
-    fnmfld_ = new uiASCIIFileInput( this, tr("Input SEG P1 File"), true );
-
-    posfld_ = new uiGenInput( this, tr("Load positions using"),
-			      BoolInpSpec(true,tr("X/Y"),tr("Lat/Long")) );
-    posfld_->attach( alignedBelow, fnmfld_ );
-}
-
-
-uiSEGP1ImpDlg::~uiSEGP1ImpDlg()
-{}
-
-
-bool uiSEGP1ImpDlg::acceptOK( CallBacker* )
-{
-    const StringView inpfnm = fnmfld_->fileName();
-    if ( File::isEmpty(inpfnm) )
-    {
-	uiMSG().error( uiStrings::sInvInpFile() );
-	return false;
-    }
-
-    SEGP1Importer importer( inpfnm );
-    importer.setUseLatLong( !posfld_->getBoolValue() );
-    if ( !importer.execute() )
-    {
-	uiMSG().error( importer.errorWithDetails() );
-	return false;
-    }
-
-    const auto& entries = importer.entries();
-    uiStringSet errors;
-    for ( const auto* entry : entries )
-    {
-	uiString errmsg;
-	if ( !Survey::GMAdmin().write(*entry->geom_,errmsg) )
-	    errors.add( errmsg );
-    }
-
-    if ( !errors.isEmpty() )
-    {
-	uiMSG().errorWithDetails( errors, tr("Error during import:") );
-	return false;
-    }
-
-    uiMSG().message( tr("Lines successfully imported.") );
-
-    return true;
 }

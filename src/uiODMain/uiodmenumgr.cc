@@ -421,9 +421,6 @@ void uiODMenuMgr::fillImportMenu()
     impwell->addMenu( impwellbulk );
 
     insertAction( impgeom2d, ascii, mImpGeom2DAsciiMnuItm );
-#ifdef __debug__
-    insertAction( impgeom2d, m3Dots(tr("SEG P1")), mImpGeom2DSEGP1MnuItm );
-#endif
 
 // Fill impmenus_
     impmnus_.erase();
@@ -437,6 +434,7 @@ void uiODMenuMgr::fillImportMenu()
     mAddImpMnu( Flt, impfault );
     mAddImpMnu( Fltss, impfaultstick );
     mAddImpMnu( FltSet, impfltset );
+    mAddImpMnu( Geom,  impgeom2d );
     mAddImpMnu( Wll, impwell );
     mAddImpMnu( Attr, impattr );
     mAddImpMnu( Pick, imppick );
@@ -1624,7 +1622,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
     case mExpLogLAS:			mDoOp(Exp,Wll,1); break;
     case mImpGeom2DAsciiMnuItm:		mDoOp(Imp,Geom,0); break;
-    case mImpGeom2DSEGP1MnuItm:		mDoOp(Imp,Geom,1); break;
     case mExpGeom2DMnuItm:		mDoOp(Exp,Geom,0); break;
     case mExpSurveySetupItm:		applMgr().exportSurveySetup(); break;
     case mManColTabMnuItm:		mDoOp(Man,ColTab,0); break;
