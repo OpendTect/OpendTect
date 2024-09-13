@@ -89,6 +89,7 @@ CMakeDoxy*
 
 #CMake stuff
 *.ninja
+.ninja_lock
 .ninja_log
 .ninja_deps
 develdefs.cmake
