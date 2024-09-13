@@ -412,12 +412,10 @@ void Well::LogSet::defaultLogUsePar( const IOPar& iop )
 
 void Well::LogSet::defaultLogFillPar( IOPar& iop ) const
 {
-    int idx = 0;
     for ( const auto* deflog : defaultlogs_ )
     {
 	iop.set( IOPar::compKey(sKeyDefMnem(),deflog->first.name()),
 		 deflog->second );
-	idx++;
 	// To-Do: need to be made more robust
     }
 }

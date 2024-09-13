@@ -142,9 +142,9 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 
     if ( astrm.hasKeyword("Ref") ) // Keep support for pre v3.2 format
     {
-	// In old format we can find mulitple pick sets. Just gather them all
+	// In old format we can find multiple pick sets. Just gather them all
 	// in the pick set
-	for ( int ips=0; !atEndOfSection(astrm); ips++ )
+	do
 	{
 	    astrm.next();
 	    if ( astrm.hasKeyword(sKey::Color()) )
@@ -174,7 +174,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
 	    }
 	    while ( !atEndOfSection(astrm) ) astrm.next();
 	    astrm.next();
-	}
+	} while( !atEndOfSection(astrm) );
     }
     else // New format
     {

@@ -148,7 +148,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     while ( md.size() ) md.remove( 0 );
     md.setName( IOM().nameOf(conn.linkedTo()) );
 
-    for ( int ifn=0; !atEndOfSection(astrm); ifn++ )
+    do
     {
 	if ( astrm.hasKeyword(PreStack::MuteDef::sKeyRefHor()) )
 	{
@@ -220,7 +220,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	    md.add( fn, bid );
 
 	astrm.next();
-    }
+    } while( !atEndOfSection(astrm) );
 
     if ( md.size() )
     {
