@@ -607,7 +607,7 @@ ArrayNDDataSetter( ArrayND<T>& arr, const T* ptr )
     delete [] pos_;
 }
 
-bool doWork( od_int64 start, od_int64 stop, int )
+bool doWork( od_int64 start, od_int64 stop, int ) override
 {
     if ( !arr_.info().getArrayPos( start, pos_ ) )
 	return false;
@@ -628,7 +628,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
     return true;
 }
 
-od_int64 nrIterations() const
+od_int64 nrIterations() const override
 {
     return totalnr_;
 }
