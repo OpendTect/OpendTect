@@ -198,6 +198,10 @@ int add2D3DToolButton( uiToolBar& tb, const char* iconnm, const uiString& tt,
 					  retitmid3d ? *retitmid3d : -1 );
 	if ( retitmid3d )
 	    *retitmid3d = itmid3d;
+
+	if ( retitmid2d )
+	    *retitmid2d = -1;
+
 	return itmid3d;
     }
 
@@ -207,6 +211,10 @@ int add2D3DToolButton( uiToolBar& tb, const char* iconnm, const uiString& tt,
 					  retitmid2d ? *retitmid2d : -1 );
 	if ( retitmid2d )
 	    *retitmid2d = itmid2d;
+
+	if ( retitmid3d )
+	    *retitmid3d = -1;
+
 	return itmid2d;
     }
 

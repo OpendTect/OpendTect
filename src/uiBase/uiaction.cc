@@ -628,22 +628,19 @@ int uiActionContainer::insertAction( uiAction* action, int id,
     if ( action->getMenu() )
 	doInsertMenu( action->getMenu()->getQMenu(), beforeaction );
     else
-    {
 	doInsertAction( action->qaction(), beforeaction );
-	if ( id<0 )
+
+    if ( id < 0 )
+	id = getFreeID();
+    else
+    {
+	const uiAction* prevaction = findAction( id );
+	if ( prevaction )
 	{
-	    id = getFreeID();
-	}
-	else
-	{
-	    const uiAction* prevaction = findAction( id );
-	    if ( prevaction )
-	    {
-		uiString txt = toUiString( "Duplicate menu id found. "
-					   "'%1' and '%2'" )
-			.arg(action->text()).arg(prevaction->text());
-		pErrMsg( txt.getFullString() );
-	    }
+	    uiString txt = toUiString( "Duplicate menu id found. "
+				       "'%1' and '%2'" )
+		    .arg(action->text()).arg(prevaction->text());
+	    pErrMsg( txt.getFullString() );
 	}
     }
 
