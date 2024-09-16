@@ -66,55 +66,45 @@ endif()
 macro( OD_SETUP_EXTERNALS )
 
     if ( EXISTS "${CMAKE_SOURCE_DIR}/external/Externals.cmake" )
-	if ( APPLE )
-	    set( EXTPLFARCH "-DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}" )
-	endif()
-	execute_process(
-	    COMMAND ${CMAKE_COMMAND}
-		"-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
-		"-DOpendTect_DIR=${OpendTect_DIR}"
-		"-DOD_BINARY_BASEDIR=${OD_BINARY_BASEDIR}"
-		"${EXTPLFARCH}"
-		"-DEXTERNAL_BINARY_DIR=${CMAKE_BINARY_DIR}"
-		"-DPLUGIN_DIR=${PLUGIN_DIR}"
-		-DOD_NO_OSG=${OD_NO_OSG}
-		-DPROJ_DIR=${PROJ_DIR}
-		-DOD_NO_PROJ=${OD_NO_PROJ}
-		-DBUILD_PROJ=${BUILD_PROJ}
-		-DUPDATE=No
-		-P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
-	    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	    ERROR_VARIABLE ERROUTPUT
-	    RESULT_VARIABLE STATUS )
-	if ( NOT ${STATUS} EQUAL 0 )
-	    message( FATAL_ERROR "${ERROUTPUT}" )
-	elseif ( ERROUTPUT MATCHES "Warning" AND NOT ERROUTPUT MATCHES "Ignoring empty string" )
-	    message( WARNING "${ERROUTPUT}" )
-	elseif ( NOT ERROUTPUT STREQUAL "" AND NOT ERROUTPUT MATCHES "Ignoring empty string" )
-	    message( STATUS "${ERROUTPUT}" )
-	endif()
-
-	set ( EXTERNALCMD COMMAND ${CMAKE_COMMAND}
+	set ( EXTERNALCMDARGS
+		    "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
 		    "-DOpendTect_DIR=${OpendTect_DIR}"
 		    "-DOD_BINARY_BASEDIR=${OD_BINARY_BASEDIR}"
-		    "${EXTPLFARCH}"
                     "-DEXTERNAL_BINARY_DIR=${CMAKE_BINARY_DIR}"
 		    "-DPLUGIN_DIR=${PLUGIN_DIR}"
 		    -DOD_NO_OSG=${OD_NO_OSG}
 		    -DPROJ_DIR=${PROJ_DIR}
 		    -DOD_NO_PROJ=${OD_NO_PROJ}
-		    -DBUILD_PROJ=${BUILD_PROJ}
-		    -DUPDATE=Yes
-		    -P external/Externals.cmake )
+		    -DBUILD_PROJ=${BUILD_PROJ} )
+	if ( APPLE )
+	    list( APPEND EXTERNALCMDARGS
+			"-DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}" )
+	endif()
+
+	execute_process( COMMAND ${CMAKE_COMMAND}
+		    ${EXTERNALCMDARGS} -DUPDATE=No
+		    -P "${CMAKE_SOURCE_DIR}/external/Externals.cmake"
+	    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	    ERROR_VARIABLE ERROUTPUT
+	    RESULT_VARIABLE STATUS )
+	if ( NOT ${STATUS} EQUAL 0 )
+	    message( FATAL_ERROR "${ERROUTPUT}" )
+	elseif ( ERROUTPUT MATCHES "Warning" )
+	    message( WARNING "${ERROUTPUT}" )
+	elseif ( NOT ERROUTPUT STREQUAL "" )
+	    message( STATUS "${ERROUTPUT}" )
+	endif()
     endif()
 
     if ( NOT UPDATE_CMD STREQUAL "" )
 
 	set( CMAKE_FOLDER "Other" )
-	add_custom_target( update
-		      ${UPDATE_CMD} ${EXTERNALCMD}
-		      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-		      COMMENT "Updating from repositories" )
+	add_custom_target( update ${UPDATE_CMD} 
+		COMMAND ${CMAKE_COMMAND}
+		${EXTERNALCMDARGS} -DUPDATE=Yes
+		-P external/Externals.cmake
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		COMMENT "Updating from repositories" )
 	unset( CMAKE_FOLDER )
 
     endif()
