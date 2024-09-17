@@ -90,7 +90,8 @@ public:
 
     void			addButtons();
     bool			executeMenu() override
-				    { addButtons(); return true; }
+				{ addButtons(); return true; }
+    uiToolBar*			toolBar()	{ return tb_; }
 
 protected:
 
