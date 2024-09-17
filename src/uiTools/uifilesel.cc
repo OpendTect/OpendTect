@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "filepath.h"
 #include "filesystemaccess.h"
+#include "settings.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -19,6 +20,9 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uimsg.h"
 #include "uistrings.h"
+
+
+static const char* sKeyDefProt()	{ return "dTect.Default protocol"; }
 
 
 uiFileSel::Setup::Setup( const char* filenm )
@@ -165,6 +169,21 @@ void uiFileSel::finalizeCB( CallBacker* )
 {
     setButtonStates();
     checkCB( nullptr );
+
+    if ( protfld_ )
+    {
+	BufferString defprotocol;
+	if ( Settings::common().get(sKeyDefProt(),defprotocol) )
+	{
+	    int idx = defprotocol.isEmpty() ?
+			0 : factnms_.indexOf( defprotocol.buf() );
+	    if ( idx<0 )
+		idx = 0;
+
+	    protfld_->setCurrentItem( idx );
+	    protChgCB( nullptr );
+	}
+    }
 }
 
 
@@ -434,6 +453,12 @@ void uiFileSel::doSelCB( CallBacker* )
 	filepars_.merge( *pars );
 
     setFileNames( newselection );
+
+    if ( protfld_ )
+    {
+	Settings::common().set( sKeyDefProt(), protocol() );
+	Settings::common().write();
+    }
 }
 
 
