@@ -123,6 +123,7 @@ protected:
     BufferString	transl_;
     BufferString	group_;
 
+			mDeprecated("Use a MultiID object")
 			IOObj(const char* nm=0,const char* ky=0);
 			IOObj(const char* nm,const MultiID&);
 			IOObj(const IOObj&);
