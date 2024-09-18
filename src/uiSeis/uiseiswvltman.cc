@@ -266,7 +266,7 @@ void uiSeisWvltMan::mkFileInfo()
 	if ( Wavelet::isScaled(curioobj_->key(),orgid,horid,seisid,lvlnm) )
 	{
 	    msg = "Scaled: ";
-	    if ( orgid == MultiID("0") )
+	    if ( orgid == MultiID(0,-1) )
 		msg.add( "Outside OpendTect" );
 	    else
 	    {

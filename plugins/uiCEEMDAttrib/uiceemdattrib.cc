@@ -290,7 +290,7 @@ void uiCEEMDAttrib::getInputMID( MultiID& mid ) const
     if ( !tmpdesc )
 	return;
 
-    mid = MultiID( tmpdesc->getStoredID().buf() );
+    mid = tmpdesc->getStoredID();
 }
 
 void uiCEEMDAttrib::setPrevSel()

@@ -57,17 +57,6 @@ int uiMPEPartServer::evSelectAttribForTracking(){ return 15; }
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , attrset3d_(nullptr)
-    , attrset2d_(nullptr)
-    , activetrackerid_(-1)
-    , eventattrselspec_(nullptr)
-    , temptrackerid_(-1)
-    , trackercurrentobject_(-1)
-    , initialundoid_(mUdf(int))
-    , seedhasbeenpicked_(false)
-    , setupbeingupdated_(false)
-    , seedswithoutattribsel_(false)
-    , setupgrp_(nullptr)
 {
     MPE::engine().setValidator( new MPE::uiTrackSettingsValidator() );
 
@@ -827,7 +816,9 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 					Attrib::Desc::sKeyOutput(),compstr) )
 		    getFromString( compnr, compstr, 0 );
 
-		storedads->getStoredID( MultiID(idstr.buf()), compnr, true );
+		MultiID key;
+		key.fromString( idstr.buf() );
+		storedads->getStoredID( key, compnr, true );
 			// will try to add if fail
 
 		Attrib::SelSpec newas( *as );

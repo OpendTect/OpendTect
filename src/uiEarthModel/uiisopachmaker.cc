@@ -44,7 +44,7 @@ uiIsochronMakerGrp::uiIsochronMakerGrp( uiParent* p, EM::ObjectID horid )
     horsel_->selectionDone.notify( mCB(this,uiIsochronMakerGrp,toHorSel) );
     if ( !baseemobj_ )
     {
-	horsel_->setInput( MultiID("") );
+	horsel_->setInput( MultiID::udf() );
 	horsel_->attach( alignedBelow, basesel_ );
     }
 

@@ -299,8 +299,8 @@ int mTestMainFnName( int argc, char** argv )
 
     const int* velids = velids_direct;
 
-    const MultiID tablet2did_m( "100090.6" );
-    const MultiID tablet2did_ft( "100090.7" );
+    const MultiID tablet2did_m( 100090,6 );
+    const MultiID tablet2did_ft( 100090,7 );
     SurveyDiskLocation sdl( IOM().rootDir() );
     int isurv = 0;
     for ( const auto* survdirnm : survdirnms )

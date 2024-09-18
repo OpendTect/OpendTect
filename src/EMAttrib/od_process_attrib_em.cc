@@ -72,9 +72,8 @@ static bool attribSetQuery( od_ostream& strm, const IOPar& iopar, bool stepout )
 
 
 static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
-			 BufferString& errmsg, BufferString& objidstr )
+			 BufferString& errmsg, MultiID& objid )
 {
-    MultiID objid;
     iopar.get( str, objid );
     if ( objid.isUdf() && claimmissing )
     {
@@ -82,20 +81,17 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 	errmsg += " defined in parameter file";
 	return false;
     }
-    else if ( !objid.isUdf() )
+
+    if ( !objid.isUdf() )
     {
-	PtrMan<IOObj> ioobj = IOM().get( objid );
+	ConstPtrMan<IOObj> ioobj = IOM().get( objid );
 	if ( !ioobj )
 	{
 	    errmsg = "Cannot find object for '"; errmsg += objid.toString();
 	    errmsg += "' ...";
 	    return false;
 	}
-
-	objidstr = objid;
     }
-    else
-	objidstr = "";
 
     return true;
 }
@@ -109,42 +105,39 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
     BufferString lpartstr = IOPar::compKey( sKey::Output(), 0 );
     BufferString outstr( IOPar::compKey( lpartstr.buf(), idstr ) );
 
-    BufferString objidstr;
-    if( !getObjectID( iopar, outstr, true, errmsg, objidstr ) ) return false;
+    MultiID objid;
+    if( !getObjectID(iopar,outstr,true,errmsg,objid) )
+	return false;
 
     if ( !iscubeoutp )
     {
-	MultiID* mid = new MultiID(objidstr.buf());
-	midset += mid;
+	midset += new MultiID( objid );
 	BufferString newattrnm;
 	iopar.get( sKey::Target(), newattrnm );
 	strm << "Calculating Horizon Data '" << newattrnm << "'." << od_endl;
     }
     else
     {
-	outpid.fromString( objidstr.buf() );
-	PtrMan<IOObj> ioobj = IOM().get( outpid ); //check already done
-	if ( !ioobj ) return false;
+	outpid = objid;
+	ConstPtrMan<IOObj> ioobj = IOM().get( outpid ); //check already done
+	if ( !ioobj )
+	    return false;
 
 	strm << "Calculating '" << ioobj->name() << "'." << od_endl;
-	BufferString basehorstr(
+	const BufferString basehorstr(
 	    IOPar::compKey(sKey::Geometry(),LocationOutput::surfidkey()) );
-	BufferString hor1str = IOPar::compKey(basehorstr,0);
-	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) )
+	const BufferString hor1str = IOPar::compKey(basehorstr,0);
+	if( !getObjectID(iopar,hor1str,true,errmsg,objid) )
 	    return false;
 
-	MultiID* mid = new MultiID( objidstr.buf() );
-	midset += mid;
+	midset += new MultiID( objid );
 
-	BufferString hor2str = IOPar::compKey(basehorstr,1);
-	if( !getObjectID( iopar, hor2str, false, errmsg, objidstr ) )
+	const BufferString hor2str = IOPar::compKey(basehorstr,1);
+	if( !getObjectID(iopar,hor2str,false,errmsg,objid) )
 	    return false;
 
-	if ( objidstr.size() )
-	{
-	    MultiID* mid2 = new MultiID( objidstr.buf() );
-	    midset += mid2;
-	}
+	if ( !objid.isUdf() )
+	    midset += new MultiID( objid );
     }
     return true;
 }

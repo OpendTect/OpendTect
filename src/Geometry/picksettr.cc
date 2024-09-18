@@ -232,7 +232,7 @@ uiString dgbPickSetTranslator::write( const Pick::Set& ps, Conn& conn )
 
 
 void PickSetTranslator::createBinIDValueSets(
-			const BufferStringSet& ioobjids,
+			const TypeSet<MultiID>& ioobjids,
 			ObjectSet<BinIDValueSet>& bivsets )
 {
     for ( int idx=0; idx<ioobjids.size(); idx++ )
@@ -253,13 +253,13 @@ void PickSetTranslator::createBinIDValueSets(
 }
 
 
-void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
+void PickSetTranslator::createDataPointSets( const TypeSet<MultiID>& ioobjids,
 					     RefObjectSet<DataPointSet>& dpss,
 					     bool is2d, bool mini )
 {
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
-	const MultiID key( ioobjids.get(idx).buf() );
+	const MultiID key = ioobjids.get( idx );
 	const int setidx = Pick::Mgr().indexOf( key );
 	ConstRefMan<Pick::Set> ps = setidx < 0 ? 0 : Pick::Mgr().get( setidx );
 	RefMan<Pick::Set> createdps = nullptr;
@@ -294,17 +294,16 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 }
 
 
-bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds )
+bool PickSetTranslator::getCoordSet( const MultiID& id, TypeSet<Coord3>& crds )
 {
     TypeSet<TrcKey> tks;
     return getCoordSet( id, crds, tks );
 }
 
 
-bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
+bool PickSetTranslator::getCoordSet( const MultiID& key, TypeSet<Coord3>& crds,
 				     TypeSet<TrcKey>& tks )
 {
-    const MultiID key( id );
     const int setidx = Pick::Mgr().indexOf( key );
     ConstRefMan<Pick::Set> ps = setidx < 0 ? 0 : Pick::Mgr().get( setidx );
     RefMan<Pick::Set> createdps = nullptr;
@@ -336,6 +335,56 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds,
     }
 
     return true;
+}
+
+
+void PickSetTranslator::createBinIDValueSets( const BufferStringSet& ioobjids,
+					 ObjectSet<BinIDValueSet>& set )
+{
+    TypeSet<MultiID> keys;
+    for ( const auto* id : ioobjids )
+    {
+	MultiID key;
+	key.fromString( id->buf() );
+	keys.add( key );
+    }
+
+    createBinIDValueSets( keys, set );
+}
+
+
+void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
+					     RefObjectSet<DataPointSet>& set,
+					     bool is2d, bool mini )
+{
+    TypeSet<MultiID> keys;
+    for ( const auto* id : ioobjids )
+    {
+	MultiID key;
+	key.fromString( id->buf() );
+	keys.add( key );
+    }
+
+    createDataPointSets( keys, set, is2d, mini );
+}
+
+
+bool PickSetTranslator::getCoordSet( const char* ioobjkey,
+				     TypeSet<Coord3>& crds )
+{
+    MultiID key;
+    key.fromString( ioobjkey );
+    return getCoordSet( key, crds );
+}
+
+
+bool PickSetTranslator::getCoordSet( const char* ioobjkey,
+				     TypeSet<Coord3>& crds,
+				     TypeSet<TrcKey>& tks )
+{
+    MultiID key;
+    key.fromString( ioobjkey );
+    return getCoordSet( key, crds, tks );
 }
 
 

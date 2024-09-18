@@ -44,9 +44,10 @@ bool uiVolProcAttrib::setParameters( const Attrib::Desc& desc )
 	return false;
 
     const ValParam* par = desc.getValParam( VolProcAttrib::sKeySetup() );
-    if ( !par ) return false;
+    if ( !par )
+	return false;
 
-    const MultiID mid( par->getStringValue(0) );
+    const MultiID mid = par->getMultiID();
     setupfld_->setInput( mid );
 
     return true;

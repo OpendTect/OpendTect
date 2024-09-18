@@ -1296,6 +1296,17 @@ bool OD::JSON::Object::getGeomID( const char* ky, Pos::GeomID& gid ) const
 }
 
 
+MultiID OD::JSON::Object::getMultiID( const char* ky ) const
+{
+    if ( !isPresent(ky) )
+	return MultiID::udf();
+
+    MultiID key;
+    key.fromString( getStringValue(ky).buf() );
+    return key;
+}
+
+
 bool OD::JSON::Object::getStrings( const char* ky, BufferStringSet& bss ) const
 {
     const Array* stringsarr = getArray( ky );

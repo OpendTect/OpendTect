@@ -335,8 +335,8 @@ mParamClone( SeisStorageRefParam );
 
 bool SeisStorageRefParam::isOK() const
 {
-    const BufferString valstr( spec_->text(0) );
-    const MultiID dbky( valstr.buf() );
+    MultiID dbky;
+    dbky.fromString( spec_->text(0) );
     if ( dbky.isInMemoryDPID() )
     {
 	const DataPack::FullID fid( dbky );

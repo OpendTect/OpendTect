@@ -21,9 +21,15 @@ class StreamProvider;
 mExpClass(General) IOStream : public IOObj
 {
 public:
-			IOStream(const char* nm=0,const char* id=0,
+			mDeprecated("Use with MultiID")
+			IOStream(const char* nm=nullptr,const char* id=nullptr,
+				 bool =false);
+			IOStream();
+			IOStream(const char* nm,const MultiID&,
 				 bool =false);
 			IOStream(const IOStream&);
+			~IOStream();
+
     bool		isBad() const override;
 
     void		copyFrom(const IOObj*) override;

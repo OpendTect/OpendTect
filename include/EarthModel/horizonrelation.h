@@ -40,7 +40,7 @@ public:
 	bool			hasChild(const Node* descendant) const;
 
 	void			fillPar(IOPar&) const;
-	void			fillChildren(const FileMultiString&,
+	void			fillChildren(const TypeSet<MultiID>&,
 						 const RelationTree&);
 
 	static const char*	sKeyChildIDs();

@@ -248,7 +248,7 @@ bool AttributeSetCreator::create()
 	   continue;
 	if ( desc.isStored() )
 	{
-	    if ( desc.getStoredID() == storhint_.toString() )
+	    if ( desc.getStoredID() == storhint_ )
 	       stored = &desc;
 	}
     }

@@ -101,10 +101,14 @@ void uiNLAPartServer::getDataPointSets( RefObjectSet<DataPointSet>& dpss ) const
 
     TypeSet<MultiID> mids;
     for ( int idx=0; idx<crdesc.outids.size(); idx++ )
-	mids.add( MultiID(crdesc.outids.get(idx).buf()) );
+    {
+	MultiID key;
+	key.fromString( crdesc.outids.get(idx).buf() );
+	mids.add( key );
+    }
 
     if ( !crdesc.isdirect )
-	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, is2d_ );
+	PickSetTranslator::createDataPointSets( mids, dpss, is2d_ );
     else
     {
 	auto* ts = new Well::TrackSampler( mids, dpss, SI().zIsTime() );
@@ -274,7 +278,11 @@ bool uiNLAPartServer::extractDirectData( RefObjectSet<DataPointSet>& dpss )
 
     TypeSet<MultiID> mids;
     for ( int idx=0; idx<crdesc.outids.size(); idx++ )
-	mids.add( MultiID(crdesc.outids.get(idx).buf()) );
+    {
+	MultiID key;
+	key.fromString( crdesc.outids.get(idx).buf() );
+	mids.add( key );
+    }
 
     Well::LogDataExtracter lde( mids, dpss, SI().zIsTime() );
     lde.usePar( crdesc.pars );

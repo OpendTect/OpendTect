@@ -34,12 +34,6 @@ MultiID::MultiID( const MultiID& mid )
 }
 
 
-MultiID::MultiID( const char* idstr )
-{
-    this->fromString( idstr );
-}
-
-
 MultiID::MultiID( int grpid, int objid, int subgrpid, int subobjid )
     : MultiID(grpid,objid)
 {

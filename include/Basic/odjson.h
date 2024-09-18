@@ -327,6 +327,7 @@ public:
     FilePath		getFilePath(const char*) const;
     bool		getStrings(const char*,BufferStringSet&) const;
     bool		getGeomID(const char*,Pos::GeomID&) const;
+    MultiID		getMultiID(const char*) const;
     template <class T>
     bool		get(const char*,Interval<T>&) const;
     template <class T>

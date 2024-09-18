@@ -149,14 +149,16 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 	    {
 		const BufferString storedref = descpar->find(
 						Attrib::DescSet::userRefStr() );
-		storedids_ += StoredEntry( DescID(idx,false),
-					   MultiID(storagestr), storedref );
+		MultiID key;
+		key.fromString( storagestr );
+		storedids_ += StoredEntry( DescID(idx,false), key, storedref );
 	    }
 	    else
 	    {
 		for ( int idy=0; idy<storedids_.size(); idy++ )
 		{
-		    const MultiID key( storagestr );
+		    MultiID key;
+		    key.fromString( storagestr );
 		    if ( key == storedids_[idy].key_ )
 		    {
 			int outprevlisted =
@@ -659,10 +661,10 @@ void uiStoredAttribReplacer::getStoredIds()
     {
 	const DescID descid = attrset_->getID( idx );
 	Desc* ad = attrset_->getDesc( descid );
-	if ( !ad || !ad->isStored() ) continue;
+	if ( !ad || !ad->isStored() )
+	    continue;
 
-	const ValParam* keypar = ad->getValParam( StorageProvider::keyStr() );
-	const MultiID key( keypar->getStringValue() );
+	const MultiID key = ad->getStoredID();
 	if ( !keys.addIfNew(key) )
 	{
 	    for ( int idy=0; idy<storedids_.size(); idy++ )

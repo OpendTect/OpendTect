@@ -221,8 +221,15 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 
 bool uiAttribPartServer::addToDescSet( const char* keystr, bool is2d )
 {
+    MultiID key;
+    key.fromString( keystr );
+    return addToDescSet( key, is2d );
+}
+
+
+bool uiAttribPartServer::addToDescSet( const MultiID& key, bool is2d )
+{
     //TODO: think of it: stored data can  be at 2 places: also in attrib set...
-    const MultiID key( keystr );
     return eDSHolder().getDescSet(is2d,true)->getStoredID(key,-1,true)
 								.isValid();
 }
@@ -808,7 +815,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
     {
 	if ( targetdesc->isStored() && !isnla )
 	{
-	    const MultiID mid( targetdesc->getStoredID().buf() );
+	    const MultiID mid = targetdesc->getStoredID();
 	    preloadeddatapack = Seis::PLDM().get<RegularSeisDataPack>( mid );
 	}
 
@@ -822,7 +829,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 	{
 	    if ( targetdesc->isStored() )
 	    {
-		const MultiID mid( targetdesc->getStoredID().buf() );
+		const MultiID mid = targetdesc->getStoredID();
 		RefMan<RegularSeisDataPack> sdp = new RegularSeisDataPack(
 				SeisDataPack::categoryStr(false,false) );
 
@@ -999,7 +1006,7 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol,
     const Desc* targetdesc = getTargetDesc( targetspecs_ );
     if ( targetdesc && targetdesc->isStored() )
     {
-	const MultiID mid( targetdesc->getStoredID().buf() );
+	const MultiID mid = targetdesc->getStoredID();
 	ConstRefMan<RegularSeisDataPack> sdp =
 				Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
@@ -1130,7 +1137,7 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 
     if ( targetdesc )
     {
-	const MultiID mid( targetdesc->getStoredID().buf() );
+	const MultiID mid = targetdesc->getStoredID();
 	ConstRefMan<RegularSeisDataPack> sdp =
 			Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
@@ -1207,7 +1214,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
 
     if ( targetdesc )
     {
-	const MultiID mid( targetdesc->getStoredID().buf() );
+	const MultiID mid = targetdesc->getStoredID();
 	ConstRefMan<RegularSeisDataPack> sdp =
 			Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
@@ -1328,7 +1335,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
     const Desc* targetdesc = !attrds || attrds->isEmpty() ? nullptr
 			   : attrds->getDesc(targetspecs_[0].id());
 
-    const MultiID mid( targetdesc->getStoredID().buf() );
+    const MultiID mid = targetdesc->getStoredID();
     ConstRefMan<RegularSeisDataPack> sdp =
 				Seis::PLDM().get<RegularSeisDataPack>( mid );
     if ( sdp )
@@ -1556,7 +1563,7 @@ DataPackID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
 	const Desc* targetdesc = curds->getDesc( targetID(true) );
 	if ( targetdesc )
 	{
-	    const MultiID mid( targetdesc->getStoredID().buf() );
+	    const MultiID mid = targetdesc->getStoredID();
 	    ConstRefMan<RegularSeisDataPack> regsdp =
 			Seis::PLDM().get<RegularSeisDataPack>( mid, geomid );
 	    if ( regsdp )
@@ -1966,7 +1973,7 @@ void uiAttribPartServer::filter2DMenuItems(
 	    if ( !desc )
 		continue;
 
-	    MultiID mid( desc->getStoredID(true).buf() );
+	    const MultiID mid = desc->getStoredID( true );
 	    PtrMan<IOObj> seisobj = IOM().get( mid );
 	    if ( !seisobj || attribnms.isPresent(seisobj->name()) )
 	    {
@@ -2262,10 +2269,11 @@ IOObj* uiAttribPartServer::getIOObj( const SelSpec& as ) const
 	    return nullptr;
     }
 
-    BufferString storedid = desc->getStoredID();
-    if ( !desc->isStored() || storedid.isEmpty() ) return nullptr;
+    const MultiID storedid = desc->getStoredID();
+    if ( !desc->isStored() || storedid.isUdf() )
+	return nullptr;
 
-    return IOM().get( MultiID(storedid.buf()) );
+    return IOM().get( storedid );
 }
 
 

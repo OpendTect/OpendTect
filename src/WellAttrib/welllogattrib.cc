@@ -48,7 +48,7 @@ Attrib::WellLog::WellLog( Desc& ds )
 	return;
 
     logname_ = getDesc().getValParam(logName())->getStringValue( 0 );
-    wellid_ = MultiID( getDesc().getValParam(keyStr())->getStringValue(0) );
+    wellid_ = getDesc().getValParam(keyStr())->getMultiID();
     mGetEnum( upscaletype_, upscaleType() );
 }
 

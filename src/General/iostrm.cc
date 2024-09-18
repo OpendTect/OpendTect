@@ -61,7 +61,7 @@ class IOStreamProducer : public IOObjProducer
 		{ return StringView(typ)==StreamConn::sType(); }
     IOObj*	make( const char* nm,
 		      const MultiID& ky, bool fd ) const override
-		{ return new IOStream(nm,ky.toString(),fd); }
+		{ return new IOStream(nm,ky,fd); }
 
     static int	factoryid_;
 };
@@ -69,9 +69,25 @@ class IOStreamProducer : public IOObjProducer
 int IOStreamProducer::factoryid_ = IOObj::addProducer( new IOStreamProducer );
 
 
+mStartAllowDeprecatedSection
 IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
-	: IOObj(nm,uid)
-	, curfidx_(0)
+    : IOObj(nm,uid)
+    , curfidx_(0)
+{
+    if ( mkdef )
+	genFileName();
+}
+mStopAllowDeprecatedSection
+
+
+IOStream::IOStream()
+    : IOObj(nullptr,MultiID::udf())
+{}
+
+
+IOStream::IOStream( const char* nm, const MultiID& uid, bool mkdef )
+    : IOObj(nm,uid)
+    , curfidx_(0)
 {
     if ( mkdef )
 	genFileName();
@@ -79,9 +95,14 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 
 
 IOStream::IOStream( const IOStream& oth )
+    : IOObj(nullptr,MultiID::udf())
 {
     copyFrom( &oth );
 }
+
+
+IOStream::~IOStream()
+{}
 
 
 void IOStream::setDirName( const char* dirnm )

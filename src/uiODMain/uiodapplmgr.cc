@@ -1530,10 +1530,10 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     }
     else if ( evid == uiNLAPartServer::evGetStoredInput() )
     {
-	BufferStringSet linekeys;
-	nlaserv_->getNeededStoredInputs( linekeys );
-	for ( int idx=0; idx<linekeys.size(); idx++ )
-	    attrserv_->addToDescSet( linekeys.get(idx), nlaserv_->is2DEvent() );
+	TypeSet<MultiID> keys;
+	nlaserv_->getNeededStoredInputs( keys );
+	for ( const auto& key : keys )
+	    attrserv_->addToDescSet( key, nlaserv_->is2DEvent() );
     }
     else if ( evid == uiNLAPartServer::evGetData() )
     {

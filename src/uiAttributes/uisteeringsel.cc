@@ -317,8 +317,8 @@ DescID uiSteerAttrSel::getDipID( int dipnr ) const
 	if ( !desc->isStored() || desc->selectedOutput()!=dipnr )
 	    continue;
 
-	const BufferString keystr = desc->getStoredID( false );
-	if ( keystr == key.toString() )
+	const MultiID storedid = desc->getStoredID( false );
+	if ( storedid == key )
 	    return descid;
     }
 

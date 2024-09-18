@@ -380,7 +380,7 @@ bool BatchProgram::doWork( od_ostream& strm )
     const int zids [] = { 233, 193, 211 };
 
     const TrcKey tk( BinID(426,800) );
-    const MultiID muteid( "100070.5" );
+    const MultiID muteid( 100070, 5 );
 
     SurveyDiskLocation sdl( IOM().rootDir() );
     int isurv = 0;

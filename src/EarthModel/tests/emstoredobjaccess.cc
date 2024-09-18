@@ -24,17 +24,17 @@ ________________________________________________________________________
 
 static bool initLoader( EM::StoredObjAccess& soa )
 {
-    if ( !soa.add( MultiID("100020.2") ) ) // Hor3D: 1-Top
+    if ( !soa.add( MultiID(100020,2) ) ) // Hor3D: 1-Top
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( MultiID("100020.4") ) ) // Body: Slumps-2b
+    if ( !soa.add( MultiID(100020,4) ) ) // Body: Slumps-2b
 	mErrRet( soa.getError(0) );
-    if ( !soa.add( MultiID("100020.5") ) ) // SSIS-Grid-Faultsticks
+    if ( !soa.add( MultiID(100020,5) ) ) // SSIS-Grid-Faultsticks
 	mErrRet( soa.getError(0) );
 
-    if ( soa.add( MultiID("100020.99795") ) )
+    if ( soa.add( MultiID(100020,99795) ) )
 	mErrRet( "ID 100020.99795 should give error" );
 
-    soa.dismiss( MultiID("100020.99795") );
+    soa.dismiss( MultiID(100020,99795) );
 
     return true;
 }

@@ -147,11 +147,13 @@ bool SeisBayesClass::getPDFs()
 	prescales_ += scl;
 
 	aptrcs_.add( new SeisTrc );
-	res = pars_.find( mGetSeisBayesAPProbIDKey(ipdf) );
+
+	MultiID key;
+	pars_.get( mGetSeisBayesAPProbIDKey(ipdf), key );
 	SeisTrcReader* rdr = nullptr;
-	if ( !res.isEmpty() )
+	if ( !key.isUdf() )
 	{
-	    rdr = getReader( res, false, ipdf );
+	    rdr = getReader( key, false, ipdf );
 	    if ( !rdr )
 		return false;
 	}
@@ -188,7 +190,18 @@ void SeisBayesClass::preScalePDFs()
 
 SeisTrcReader* SeisBayesClass::getReader( const char* id, bool isdim, int idx )
 {
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
+    MultiID key;
+    if ( !key.fromString(id) )
+	return nullptr;
+
+    return getReader( key, isdim, idx );
+}
+
+
+SeisTrcReader* SeisBayesClass::getReader( const MultiID& id, bool isdim,
+					  int idx )
+{
+    PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj )
     {
 	const ProbDenFunc& pdf0 = *inppdfs_[0];
@@ -223,15 +236,16 @@ bool SeisBayesClass::getReaders()
     {
 	inptrcs_.add( new SeisTrc );
 
-	const BufferString id = pars_.find( mGetSeisBayesSeisInpIDKey(idim) );
-	if ( id.isEmpty() )
+	MultiID key;
+	pars_.get( mGetSeisBayesSeisInpIDKey(idim), key );
+	if ( key.isUdf() )
 	{
 	    msg_ = tr("Cannot find %1  input cube (for %2) in parameters")
 		 .arg(idim).arg( pdf0.dimName(idim) );
 	    return false;
 	}
 
-	SeisTrcReader* rdr = getReader( id, true, idim );
+	SeisTrcReader* rdr = getReader( key, true, idim );
 	if ( !rdr ) return false;
 	rdrs_ += rdr;
     }

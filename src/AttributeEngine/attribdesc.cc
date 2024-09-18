@@ -701,14 +701,14 @@ bool Desc::isStored() const
 }
 
 
-BufferString Desc::getStoredID( bool recursive ) const
+MultiID Desc::getStoredID( bool recursive ) const
 {
-    BufferString str;
+    MultiID key;
     if ( isStored() )
     {
 	const ValParam* keypar = getValParam( StorageProvider::keyStr() );
 	if ( keypar )
-	    str = keypar->getStringValue();
+	    key = keypar->getMultiID();
     }
     else if ( recursive )
     {
@@ -716,21 +716,21 @@ BufferString Desc::getStoredID( bool recursive ) const
 	{
 	    ConstRefMan<Desc> tmpdesc = getInput( idx );
 	    if ( tmpdesc )
-		str = tmpdesc->getStoredID( true );
+		key = tmpdesc->getStoredID( true );
 
-	    if ( !str.isEmpty() )
+	    if ( !key.isUdf() )
 		break;
 	}
     }
 
-    return str;
+    return key;
 }
 
 
 BufferString Desc::getStoredType( bool recursive ) const
 {
     BufferString typestr;
-    const MultiID key( getStoredID(recursive).buf() );
+    const MultiID key = getStoredID( recursive );
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( ioobj )
 	ioobj->pars().get( sKey::Type(), typestr );
@@ -871,9 +871,7 @@ bool Desc::isStoredInMem() const
     if ( !isStored() )
 	return false;
 
-    const BufferString idstr( getValParam(
-			      StorageProvider::keyStr())->getStringValue(0) );
-    const MultiID dbky( idstr.buf() );
+    const MultiID dbky = getStoredID();
     return dbky.isInMemoryDPID();
 }
 

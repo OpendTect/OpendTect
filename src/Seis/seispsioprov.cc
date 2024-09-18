@@ -320,7 +320,7 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
 
     IODir iodir( ioobj.key() );
     BufferString nm( "{" ); nm += ioobj.name(); nm += "}";
-    auto* iox = new IOX( nm );
+    auto* iox = new IOX( nm, MultiID::udf() );
     iox->setTranslator( mTranslKey(SeisTrc,SeisPSCube) );
     iox->setGroup( mTranslGroupName(SeisTrc) );
     iox->acquireNewKeyIn( iodir.key() );

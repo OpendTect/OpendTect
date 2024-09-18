@@ -22,11 +22,19 @@ namespace OD
 
 Color::Color( unsigned char r_, unsigned char g_,
 	      unsigned char b_, unsigned char t_ )
-{ set( r_, g_, b_, t_ ); }
+{
+    set( r_, g_, b_, t_ );
+}
 
 
 Color::Color( unsigned int rgbval )
-{ col_ = rgbval; }
+{
+    col_ = rgbval;
+}
+
+
+Color::~Color()
+{}
 
 bool Color::operator ==( const Color& c ) const
 { return col_ == c.col_; }

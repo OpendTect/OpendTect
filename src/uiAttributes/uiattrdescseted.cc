@@ -493,7 +493,7 @@ void uiAttribDescSetEd::autoSet( CallBacker* )
 
     const bool douse = dlg.useAuto();
     IOObj* ioobj = dlg.getObj();
-    const MultiID id( ioobj ? ioobj->key() : MultiID("") );
+    const MultiID id = ioobj ? ioobj->key() : MultiID::udf();
     Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
     Settings::common().write();
     IOPar& par = SI().getPars();

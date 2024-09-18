@@ -123,7 +123,8 @@ protected:
     BufferString	transl_;
     BufferString	group_;
 
-			IOObj(const char* nm=0,const char* ky=0);
+			mDeprecated("Use with MultiID")
+			IOObj(const char* nm=nullptr,const char* ky=nullptr);
 			IOObj(const char* nm,const MultiID&);
 			IOObj(const IOObj&);
     static IOObj*	get(ascistream&,const char*,int);

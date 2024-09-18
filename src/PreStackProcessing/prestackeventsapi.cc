@@ -159,9 +159,11 @@ float PreStack::EventsAPIMgr::crlDistance() const
 
 int PreStack::EventsAPIMgr::openReader( const char* reference )
 {
-    const MultiID mid( reference );
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return -1;
+    MultiID mid;
+    mid.fromString( reference );
+    ConstPtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+	return -1;
 
     int res = 0;
     while ( ids_.isPresent(res) ) res++;

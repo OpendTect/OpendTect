@@ -41,22 +41,28 @@ static const uiString sKeyBayesClss()
 #define mOutput		13
 
 
-static ProbDenFunc* getPDF( const char* id, uiString& emsg )
+static ProbDenFunc* getPDF( const MultiID& id, uiString& emsg )
 {
-    if ( !id || !*id ) { emsg = od_static_tr("getPDF","No ID"); return 0; }
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
-    if ( !ioobj ) { emsg = od_static_tr("getPDF","No IOObj"); return 0; }
-    return ProbDenFuncTranslator::read(*ioobj,&emsg);
+    if ( id.isUdf() )
+    {
+	emsg = od_static_tr("getPDF","No ID");
+	return nullptr;
+    }
+
+    ConstPtrMan<IOObj> ioobj = IOM().get( id );
+    if ( !ioobj )
+    {
+	emsg = od_static_tr("getPDF","No IOObj");
+	return nullptr;
+    }
+
+    return ProbDenFuncTranslator::read( *ioobj, &emsg );
 }
 
 
 uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
     : uiVarWizard(p)
     , is2d_(is2d)
-    , inppdfdlg_(0)
-    , normdlg_(0)
-    , inpseisdlg_(0)
-    , outdlg_(0)
 {
     pars_.set( sKey::Type(), is2d_ ? "2D" : "3D" );
 
@@ -250,8 +256,8 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
 			 ,tr("- Scaling")), tr("[2] Normalization/Scaling"),
 			 mODHelpKey(mSeisBayesNormHelpID) ), pars, Middle )
     , is2d_(pars[sKey::Type()].firstChar() == '2')
-    , prenormfld_(nullptr)
     , nrpdfs_(0)
+    , prenormfld_(nullptr)
 {
     const CallBack dispcb( mCB(this,uiSeisBayesNorm,updDisp) );
 
@@ -424,13 +430,17 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
 					tr("[3] Specify Seismic input"),
 					mODHelpKey(mSeisBayesSeisInpHelpID) ),
 					pars,Middle)
-    , lsfld_(nullptr)
     , is2d_(pars[sKey::Type()].firstChar() == '2')
 {
     uiString emsg;
-    PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
-					emsg );
-    if ( !pdf ) { new uiLabel(this,emsg); return; }
+    MultiID key;
+    pars_.get( mGetSeisBayesPDFIDKey(0), key );
+    PtrMan<ProbDenFunc> pdf = getPDF( key, emsg );
+    if ( !pdf )
+    {
+	new uiLabel( this, emsg );
+	return;
+    }
 
     const int nrvars = pdf->nrDims();
     const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
@@ -488,7 +498,7 @@ bool getFromScreen( bool permissive )
 
     const bool			is2d_;
 
-    uiSeisSel*			lsfld_;
+    uiSeisSel*			lsfld_				= nullptr;
     ObjectSet<uiSeisSel>	flds3d_;
 
 };
@@ -524,9 +534,14 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
     if ( is2d_ ) { new uiLabel( this, tr("2D not implemented") ); return; }
 
     uiString emsg;
-    PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
-					emsg );
-    if ( !pdf ) { new uiLabel(this,emsg); return; }
+    MultiID key;
+    pars_.get( mGetSeisBayesPDFIDKey(0), key );
+    PtrMan<ProbDenFunc> pdf = getPDF( key, emsg );
+    if ( !pdf )
+    {
+	new uiLabel(this,emsg);
+	return;
+    }
 
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
@@ -536,6 +551,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 
 	addOut( IOM().nameOf(id.buf()), true );
     }
+
     if ( flds3d_.size() < 2 )
 	haveclass_ = false;
     else

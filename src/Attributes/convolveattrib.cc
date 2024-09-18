@@ -292,10 +292,12 @@ Convolve::Convolve( Desc& ds )
     }
     else if ( kerneltype_ == mKernelFunctionWavelet )
     {
-	BufferString wavidstr;
-	mGetString( wavidstr, waveletStr() );
-	const MultiID wvltid( wavidstr.buf() );
-	PtrMan<IOObj> ioobj = IOM().get( wvltid );
+	MultiID wvltid;
+	mGetMultiID( wvltid, waveletStr() );
+	ConstPtrMan<IOObj> ioobj = IOM().get( wvltid );
+	if ( !ioobj )
+	    return;
+
 	wavelet_ = Wavelet::get( ioobj );
 	if ( !wavelet_ )
 	    return;

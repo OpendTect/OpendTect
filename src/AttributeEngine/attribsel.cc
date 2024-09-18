@@ -105,10 +105,11 @@ void SelSpec::setZDomainKey( const Desc& desc )
 {
     zdomainkey_.setEmpty();
     zunitstr_.setEmpty();
-    BufferString storedid = desc.getStoredID();
-    if ( storedid.isEmpty() ) return;
+    const MultiID storedid = desc.getStoredID();
+    if ( storedid.isUdf() )
+	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
+    PtrMan<IOObj> ioobj = IOM().get( storedid );
     if ( !ioobj )
 	return;
 
@@ -194,7 +195,9 @@ void SelSpec::setIDFromRef( const DescSet& ds )
 	    if ( Desc::getParamString(defstring_,Desc::sKeyOutput(),compstr) )
 		getFromString( compnr, compstr, 0 );
 
-	    id_ = ds.getStoredID( MultiID(midstr.buf()), compnr );
+	    MultiID mid;
+	    mid.fromString( midstr.buf() );
+	    id_ = ds.getStoredID( mid, compnr );
 	    if ( id_ != DescID::undef() )
 		setRefFromID( ds );
 	}
@@ -229,7 +232,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
     {
 	if ( desc->isStored() )
 	{
-	    const MultiID mid( desc->getStoredID(false).buf() );
+	    const MultiID mid = desc->getStoredID( false );
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( ioobj )
 	    {
@@ -248,6 +251,7 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	desc->getDefStr( defstring_ );
 	setZDomainKey( *desc );
     }
+
     setDiscr( ds );
 }
 
@@ -301,7 +305,7 @@ const BinDataDesc* SelSpec::getPreloadDataDesc( Pos::GeomID geomid ) const
     if ( !desc )
 	return 0;
 
-    const MultiID mid( desc->getStoredID().buf() );
+    const MultiID mid = desc->getStoredID();
     auto sdp = Seis::PLDM().get<SeisDataPack>( mid, geomid );
 
     return sdp ? &sdp->getDataDesc() : 0;

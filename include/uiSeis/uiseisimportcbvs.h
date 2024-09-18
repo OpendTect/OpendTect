@@ -33,7 +33,7 @@ public:
 protected:
 
     IOObj*		outioobj_;
-    const BufferString	tmpid_;
+    const MultiID	tmpid_;
 
     uiGenInput*		typefld_;
     uiGenInput*		modefld_;

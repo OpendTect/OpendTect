@@ -104,6 +104,7 @@ public:
     virtual double		getDValue(int idx=0) const;
     bool			getBoolValue(int idx=0) const;
     const char*			getStringValue(int idx=0) const;
+    MultiID			getMultiID(int idx=0) const;
 
     void			setValue(int,int idx=0);
     void			setValue(float,int idx=0);

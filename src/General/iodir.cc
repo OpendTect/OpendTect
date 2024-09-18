@@ -211,12 +211,12 @@ IOObj* IODir::getObj( const MultiID& ky )
 }
 
 
-const IOObj* IODir::get( const char* ky, const char* trgrpnm ) const
+const IOObj* IODir::get( const char* objnm, const char* trgrpnm ) const
 {
     for ( int idx=0; idx<objs_.size(); idx++ )
     {
 	const IOObj* ioobj = objs_[idx];
-	if ( ioobj->name() == ky )
+	if ( ioobj->name() == objnm )
 	{
 	    if ( !trgrpnm || ioobj->group() == trgrpnm )
 		return ioobj;

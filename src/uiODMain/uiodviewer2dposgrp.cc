@@ -272,16 +272,19 @@ IOObj* uiODViewer2DPosGrp::get2DObj()
     if ( !desc ) desc = ads.getFirstStored();
     if ( !desc ) return nullptr;
 
-    const MultiID stored2did( desc->getStoredID(true).buf() );
+    const MultiID stored2did = desc->getStoredID( true );
     return IOM().get( stored2did );
 }
 
 
 void uiODViewer2DPosGrp::attr2DSelected( CallBacker* )
 {
-    if ( !is2D() || !inp2dfld_ ) return;
-    PtrMan<IOObj> ioobj = get2DObj();
-    if ( !ioobj ) return;
+    if ( !is2D() || !inp2dfld_ )
+	return;
+
+    ConstPtrMan<IOObj> ioobj = get2DObj();
+    if ( !ioobj )
+	return;
 
     subsel2dfld_->setInput( *ioobj );
 }

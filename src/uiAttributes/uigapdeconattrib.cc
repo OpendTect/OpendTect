@@ -653,7 +653,7 @@ void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
     if ( !tmpdesc )
 	return;
 
-    mid = MultiID( tmpdesc->getStoredID().buf() );
+    mid = tmpdesc->getStoredID();
 }
 
 //-----------------------------------------------------------------------------

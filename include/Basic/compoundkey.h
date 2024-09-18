@@ -19,9 +19,10 @@ mExpClass(Basic) CompoundKey
 {
 public:
 
-    inline		CompoundKey( const char* s=0 )	{ if ( s ) impl_ = s; }
-    inline		CompoundKey( const CompoundKey& ck )
-			: impl_(ck.impl_)	{}
+			CompoundKey(const char* s=nullptr);
+			CompoundKey(const CompoundKey&);
+    virtual		~CompoundKey();
+
     inline CompoundKey&	operator=( const char* s )
 						{ impl_ = s; return *this;}
     inline CompoundKey&	operator+=( const char* );

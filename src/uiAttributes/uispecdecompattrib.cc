@@ -368,9 +368,10 @@ void uiSpecDecompAttrib::getInputMID( MultiID& mid ) const
     if ( !is2D() ) return;
 
     Desc* tmpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : nullptr;
-    if ( !tmpdesc ) return;
+    if ( !tmpdesc )
+	return;
 
-    mid = MultiID( tmpdesc->getStoredID().buf() );
+    mid = tmpdesc->getStoredID();
 }
 
 

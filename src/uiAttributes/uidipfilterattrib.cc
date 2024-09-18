@@ -128,7 +128,7 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     const Desc* inpdesc = ads_ ? ads_->getDesc( inpfld_->attribID() ) : nullptr;
     if ( !inpdesc ) return;
 
-    const MultiID mid( inpdesc->getStoredID().buf() );
+    const MultiID mid = inpdesc->getStoredID();
     const SeisIOObjInfo seisinfo( mid );
     SeisTrcReader rdr( mid, seisinfo.geomType() );
     rdr.setSelData( new Seis::RangeSelData(dlg->getTrcKeyZSampling()) );

@@ -50,8 +50,9 @@ class IOXProducer : public IOObjProducer
 		{ return StringView(typ)==XConn::sType(); }
     IOObj*	make( const char* nm,
 		      const MultiID& ky, bool fd ) const override
-		{ return new IOX(nm,ky.toString(),fd); }
+		{ return new IOX(nm,ky,fd); }
 };
+
 
 int IOX::prodid = IOObj::addProducer( new IOXProducer );
 
@@ -68,9 +69,9 @@ int IOObj::addProducer( IOObjProducer* prod )
 
 IOObj::IOObj( const char* nm, const char* ky )
     : NamedObject(nm)
-    , key_(ky)
     , pars_(*new IOPar)
 {
+    key_.fromString( ky );
 }
 
 
@@ -390,7 +391,7 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 
 
 IOSubDir::IOSubDir( const char* subdirnm )
-    : IOObj(subdirnm)
+    : IOObj(subdirnm,MultiID::udf())
     , isbad_(false)
 {
 }
@@ -431,9 +432,15 @@ bool IOSubDir::putTo( ascostream& stream ) const
 }
 
 
+mStartAllowDeprecatedSection
 IOX::IOX( const char* nm, const char* ky, bool )
-	: IOObj(nm,ky)
-	, ownkey_("")
+    : IOObj(nm,ky)
+{
+}
+mStopAllowDeprecatedSection
+
+IOX::IOX( const char* nm, const MultiID& ky, bool )
+    : IOObj(nm,ky)
 {
 }
 

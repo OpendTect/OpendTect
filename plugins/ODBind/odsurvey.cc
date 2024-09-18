@@ -659,7 +659,8 @@ const char* survey_getobjinfobyid( hSurvey self, const char* id )
 {
     const auto* p = static_cast<odSurvey*>(self);
     OD::JSON::Object jsobj;
-    const MultiID mid( id );
+    MultiID mid;
+    mid.fromString( id );
     p->getObjInfoByID( mid, jsobj );
     return strdup( jsobj.dumpJSon().buf() );
 }
@@ -681,7 +682,8 @@ void survey_removeobj( hSurvey self, const char* objname, const char* trgrpnm )
 void survey_removeobjbyid( hSurvey self, const char* id )
 {
     const auto* p = static_cast<odSurvey*>(self);
-    const MultiID mid( id );
+    MultiID mid;
+    mid.fromString( id );
     p->removeObjByID( mid );
 }
 

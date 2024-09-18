@@ -174,10 +174,9 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 		Desc* tmpdesc = descset_.desc(idx);
 		if ( tmpdesc->isStoredInMem() )
 		{
-		    const char* idval;
-		    mGetStringFromDesc( (*tmpdesc), idval,
+		    MultiID mid;
+		    mGetMultiIDFromDesc( (*tmpdesc), mid,
 					Attrib::StorageProvider::keyStr() )
-		    const MultiID mid( idval );
 		    if ( psdpfids_.isPresent( mid ) )
 			descset_.removeDesc( tmpdesc->id() );
 		}

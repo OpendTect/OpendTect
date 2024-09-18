@@ -72,13 +72,12 @@ void RelationTree::Node::fillPar( IOPar& par ) const
 }
 
 
-void RelationTree::Node::fillChildren( const FileMultiString& fms,
+void RelationTree::Node::fillChildren( const TypeSet<MultiID>& ids,
 				 const RelationTree& tree )
 {
     children_.erase();
-    for ( int idx=0; idx<fms.size(); idx++ )
+    for ( const auto& id : ids )
     {
-	MultiID id( fms[idx].buf() );
 	const RelationTree::Node* node = tree.getNode( id );
 	if ( !node )
 	    continue;
@@ -296,13 +295,14 @@ bool RelationTree::read( bool removeoutdated )
     const IODir surfiodir( ctxt.getSelKey() );
     for ( int idx=0; idx<nodes_.size(); idx++ )
     {
-	FileMultiString fms;
+	TypeSet<MultiID> childids;
 	PtrMan<IOPar> nodepar = subpar->subselect( idx );
-	if ( !nodepar || !nodepar->get(RelationTree::Node::sKeyChildIDs(),fms) )
+	if ( !nodepar || !nodepar->get(RelationTree::Node::sKeyChildIDs(),
+				       childids) )
 	    continue;
 
 	RelationTree::Node* node = nodes_[idx];
-	node->fillChildren( fms, *this );
+	node->fillChildren( childids, *this );
 	if ( !nodepar->get(RelationTree::Node::sKeyLastModified(),
 			   node->datestamp_) )
 	    continue;

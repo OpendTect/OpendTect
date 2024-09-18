@@ -33,10 +33,10 @@ protected:
 
     bool		is2d_;
 
-    uiSeisBayesPDFInp*	inppdfdlg_;
-    uiSeisBayesNorm*	normdlg_;
-    uiSeisBayesSeisInp*	inpseisdlg_;
-    uiSeisBayesOut*	outdlg_;
+    uiSeisBayesPDFInp*	inppdfdlg_			= nullptr;
+    uiSeisBayesNorm*	normdlg_			= nullptr;
+    uiSeisBayesSeisInp* inpseisdlg_			= nullptr;
+    uiSeisBayesOut*	outdlg_				= nullptr;
 
     void		doPart() override;
     void		closeDown() override;

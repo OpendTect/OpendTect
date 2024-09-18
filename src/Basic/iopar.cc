@@ -1112,7 +1112,12 @@ bool IOPar::get( const char* keyw, TypeSet<MultiID>& keys ) const
 	return false;
 
     for ( auto str : strs )
-	keys.add( MultiID(str->str()) );
+    {
+	MultiID key;
+	if ( key.fromString(str->str()) )
+	    keys.add( key );
+    }
+
     return true;
 }
 

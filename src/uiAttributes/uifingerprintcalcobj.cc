@@ -120,8 +120,8 @@ BinIDValueSet* calcFingParsObject::createRangesBinIDSet() const
     if ( rgreftype_ == 1 )
     {
 	ObjectSet<BinIDValueSet> values;
-	BufferStringSet ioobjids;
-	ioobjids.add( getRgRefPick().toString() );
+	TypeSet<MultiID> ioobjids;
+	ioobjids.add( getRgRefPick() );
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
 	BinIDValueSet* rgset = new BinIDValueSet( *(values[0]) );
 	deepErase( values );
@@ -154,20 +154,17 @@ void calcFingParsObject::findDataSetID( MultiID& linesetid ) const
 	if ( firstinp == attrset_->desc(idxdesc)->userRef() )
 	{
 	    Desc* dsc = attrset_->desc(idxdesc);
-	    const char* key = StorageProvider::keyStr();
 	    if ( dsc->isStored() )
-		linesetid = MultiID( dsc->getValParam(key)->getStringValue() );
+		linesetid = dsc->getStoredID();
 	    else
 	    {
 		bool foundstored = false;
-
 		while ( !foundstored )
 		{
 		    Desc* inpdsc = dsc->getInput(0);
 		    if ( inpdsc->isStored() )
 		    {
-			linesetid = MultiID( inpdsc->getValParam(key)
-							 ->getStringValue() );
+			linesetid = inpdsc->getStoredID();
 			foundstored = true;
 		    }
 		    else

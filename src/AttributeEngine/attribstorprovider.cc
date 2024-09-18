@@ -57,8 +57,7 @@ void StorageProvider::updateDesc( Desc& desc )
 void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 					       BufferStringSet* compnms )
 {
-    const BufferString valstr( desc.getValParam(keyStr())->getStringValue(0) );
-    const MultiID dbky( valstr.buf() );
+    const MultiID dbky = desc.getStoredID();
     if ( dbky.isInMemoryDPID() )
     {
 	const DataPack::FullID fid( dbky );
@@ -720,9 +719,7 @@ bool StorageProvider::computeData( const DataHolder& output,
 MultiID StorageProvider::getDBKey( const Desc* desc ) const
 {
     const Desc& usedesc = desc ? *desc : getDesc();
-    const BufferString valstr(
-			    usedesc.getValParam(keyStr())->getStringValue(0) );
-    return MultiID( valstr.buf() );
+    return usedesc.getStoredID();
 }
 
 

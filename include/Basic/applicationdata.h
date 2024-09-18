@@ -31,6 +31,7 @@ public:
 			    QCoreApplication (or inheriting classes
 			    are instantiated.) */
 			~ApplicationData();
+			mOD_DisableCopy(ApplicationData)
 
     static bool		hasInstance();
 

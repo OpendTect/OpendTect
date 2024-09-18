@@ -454,18 +454,18 @@ void uiAttrSelDlg::cubeSel( CallBacker* )
     if ( seltyp==2 || seltyp==3 )
 	return;
 
-    BufferString ioobjkey;
+    MultiID key;
     if ( seltyp==0 )
     {
 	const int curitem = storoutfld_->currentItem();
 	if ( attrinf_->ioobjids_.validIdx(curitem) )
-	    ioobjkey = attrinf_->ioobjids_.get( curitem );
+	    key = attrinf_->ioobjids_.get( curitem );
     }
     else if ( seltyp==1 )
     {
 	const int curitem = steeroutfld_->currentItem();
 	if ( attrinf_->steerids_.validIdx(curitem) )
-	    ioobjkey = attrinf_->steerids_.get( curitem );
+	    key = attrinf_->steerids_.get( curitem );
     }
     else if ( seltyp==4 )
     {
@@ -477,12 +477,11 @@ void uiAttrSelDlg::cubeSel( CallBacker* )
 	    IOM().to( IOObjContext::Seis );
 	    ConstPtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
 	    if ( ioobj )
-		ioobjkey = ioobj->key();
+		key = ioobj->key();
 	}
     }
 
-    const MultiID key( ioobjkey.buf() );
-    const bool is2d = ioobjkey.isEmpty() ? false : SelInfo::is2D( key );
+    const bool is2d = key.isUdf() ? false : SelInfo::is2D( key );
     const bool isstoreddata = seltyp==0 || seltyp==1;
     filtfld_->display( !is2d && isstoreddata );
 
@@ -756,7 +755,8 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     SeparString bs( txt, ':' );
     if ( bs.size() == 1 )
     {
-	const MultiID dbky( txt );
+	MultiID dbky;
+	dbky.fromString( txt );
 	if ( !dbky.isUdf() && dbky.isInMemoryDPID() )
 	    return DataPackMgr::nameOf( dbky );
 
@@ -810,7 +810,7 @@ bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
     if ( desc->is2D() )
 	cs.hsamp_.setGeomID( Survey::GM().getGeomID(getInput()) );
 
-    const MultiID mid( desc->getStoredID(true).buf() );
+    const MultiID mid = desc->getStoredID( true );
     return SeisTrcTranslator::getRanges( mid, cs );
 }
 
@@ -924,8 +924,7 @@ void uiAttrSel::setPossibleDataPacks( const TypeSet<DataPack::FullID>& ids )
     dpfids_ = ids;
 
     //make sure the default stored data is not used
-    const BufferString str( toString(attribID().asInt()) );
-    const MultiID dbky( str.buf() );
+    const MultiID dbky( attribID().asInt(), -1 );
     if ( dbky.isInMemoryDPID() )
 	return;
 

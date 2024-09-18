@@ -343,8 +343,9 @@ bool WellFileList::getAddedWells( const WellFileList& oth )
 	if ( allidsnmpair_.contains(iter.key()) )
 	    continue;
 
-	BufferString idstr( iter.key() );
-	WellUpdateQueue::WUQ().enqueueWellsAdded( MultiID(idstr.str()) );
+	MultiID key;
+	if ( key.fromString(BufferString(iter.key())) )
+	    WellUpdateQueue::WUQ().enqueueWellsAdded( key );
     }
 
     return true;
@@ -363,8 +364,9 @@ bool WellFileList::getDeletedWells( const WellFileList& oth )
 	if ( oth.allIdsNamePairs().contains(iter.key()) )
 	    continue;
 
-	BufferString idstr( iter.key() );
-	WellUpdateQueue::WUQ().enqueueWellsToBeDeleted( MultiID(idstr.str()) );
+	MultiID key;
+	if ( key.fromString(BufferString(iter.key())) )
+	    WellUpdateQueue::WUQ().enqueueWellsToBeDeleted( key );
     }
 
     return true;
@@ -389,12 +391,15 @@ bool WellFileList::getRenamedWells( const WellFileList& oth )
 	    continue;
 
 	BufferString idstr( iter.key() );
-	const MultiID id( idstr.str() );
-	Well::LoadReqs req = Well::MGR().loadState( id );
+	MultiID key;
+	if ( !key.fromString(BufferString(iter.key())) )
+	    continue;
+
+	Well::LoadReqs req = Well::MGR().loadState( key );
 	if ( req.isEmpty() )
 	    continue;
 
-	std::pair<MultiID, Well::LoadReqs> idreqpair( id, req );
+	std::pair<MultiID, Well::LoadReqs> idreqpair( key, req );
 	WellUpdateQueue::WUQ().enqueue( idreqpair );
     }
 
@@ -492,8 +497,11 @@ void WellFileList::updateWellQueue( const QString& fnm, bool reqall )
 	return;
 
     const BufferString idstr( loadednmidpair_.value(wellnm) );
-    const MultiID id( idstr.str() );
-    std::pair<MultiID, Well::LoadReqs> idreqpair( id, inclreq );
+    MultiID key;
+    if ( !key.fromString(idstr.str()) )
+	return;
+
+    std::pair<MultiID, Well::LoadReqs> idreqpair( key, inclreq );
     fname = File::getAbsolutePath( Well::Man::wellDirPath(), fname );
     if ( !File::isInUse(fname) )
 	WellUpdateQueue::WUQ().enqueue( idreqpair );

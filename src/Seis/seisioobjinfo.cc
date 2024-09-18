@@ -945,9 +945,8 @@ void SeisIOObjInfo::initDefault( const char* typ )
 
 const MultiID& SeisIOObjInfo::getDefault( const char* typ )
 {
-    mDefineStaticLocalObject( const MultiID, noid, ("") );
     const int typidx = getTypes().indexOf( typ );
-    return typidx < 0 ? noid : getIDs()[typidx];
+    return typidx < 0 ? MultiID::udf() : getIDs()[typidx];
 }
 
 

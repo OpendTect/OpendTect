@@ -27,13 +27,11 @@ mExpClass(Basic) BinIDValue : public BinIDValueIdxPair
 {
 public:
 
-    inline		BinIDValue( BinID::IdxType i=0, BinID::IdxType c=0,
-				float v=mUdf(float) )
-			    : BinIDValueIdxPair(i,c,v)	{}
-    inline		BinIDValue( const BinID& b, float v=mUdf(float) )
-			    : BinIDValueIdxPair(b,v)	{}
+			BinIDValue(BinID::IdxType inl=0,BinID::IdxType crl=0,
+				   float v=mUdf(float));
+			BinIDValue(const BinID&,float v=mUdf(float));
 			BinIDValue(const BinIDValues&,int idx);
-
+			~BinIDValue();
 
     inline bool		operator==( const BinIDValueIdxPair& oth ) const
 			{ return BinIDValueIdxPair::operator==(oth); }
@@ -57,13 +55,11 @@ mExpClass(Basic) BinIDValues : public BinIDIdxPairValues
 {
 public:
 
-    inline		BinIDValues( BinID::IdxType i=0, BinID::IdxType c=0,
-	    				int n=2 )
-			    : BinIDIdxPairValues(i,c,n)	{}
-    inline		BinIDValues( const BinID& b, int n=2 )
-			    : BinIDIdxPairValues(b,n)	{}
-    inline		BinIDValues( const BinIDValue& biv )
-			    : BinIDIdxPairValues(biv)	{}
+			BinIDValues(BinID::IdxType inl=0,BinID::IdxType crl=0,
+				    int n=2);
+			BinIDValues(const BinID&,int n=2);
+			BinIDValues(const BinIDValue&);
+			~BinIDValues();
 
     inline bool		operator==( const BinIDIdxPairValues& oth ) const
 			{ return BinIDIdxPairValues::operator==(oth); }

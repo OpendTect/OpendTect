@@ -36,7 +36,7 @@ uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube"),mNoDlgTitle,
 		       mODHelpKey(mSeisImpCBVSHelpID)).modal(false))
     , outioobj_(0)
-    , tmpid_("100010.",IOObj::tmpID())
+    , tmpid_(100010,IOObj::tmpID())
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
@@ -129,8 +129,6 @@ void uiSeisImportCBVS::inpSel( CallBacker* )
 }
 
 
-#define rmTmpIOObj() IOM().permRemove( MultiID(tmpid_.buf()) );
-
 bool uiSeisImportCBVS::acceptOK( CallBacker* )
 {
     const IOObj* selioobj = outfld_->ioobj();
@@ -202,7 +200,7 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
     uiSeisIOObjInfo ioobjinfo( *outioobj_, true );
     if ( !ioobjinfo.checkSpaceLeft(transffld_->spaceInfo()) )
     {
-	rmTmpIOObj();
+	IOM().permRemove( tmpid_ );
 	return false;
     }
 
@@ -210,7 +208,7 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
 		    "Importing CBVS seismic cube", tr("Loading data") );
     if ( !exec )
     {
-	rmTmpIOObj();
+	IOM().permRemove( tmpid_ );
 	return false;
     }
 
@@ -219,6 +217,6 @@ bool uiSeisImportCBVS::acceptOK( CallBacker* )
     if ( allok && !ioobjinfo.is2D() )
 	ioobjinfo.provideUserInfo();
 
-    rmTmpIOObj();
+    IOM().permRemove( tmpid_ );
     return allok;
 }

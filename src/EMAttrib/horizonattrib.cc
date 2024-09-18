@@ -68,13 +68,11 @@ void Horizon::updateDesc( Desc& desc )
 
 Horizon::Horizon( Desc& dsc )
     : Provider(dsc)
-    , inputdata_(0)
-    , horizon_(0)
-    , horizon2dlineid_( mUdf(int) )
     , relz_(false)
+    , inputdata_(0)
+    , horizon2dlineid_( mUdf(int) )
 {
-    BufferString idstr = getDesc().getValParam( sKeyHorID() )->getStringValue();
-    horid_ = MultiID( idstr.buf() );
+    horid_ = getDesc().getValParam( sKeyHorID() )->getMultiID();
 
     mGetEnum( outtype_, sKeyType() );
     if ( outtype_ == mOutTypeSurfData )
@@ -92,7 +90,6 @@ Horizon::Horizon( Desc& dsc )
 
 Horizon::~Horizon()
 {
-    if ( horizon_ ) horizon_->unRef();
 }
 
 
@@ -156,7 +153,6 @@ void Horizon::prepareForComputeData()
     if ( !hor ) mRet
 
     horizon_ = hor;
-    horizon_->ref();
     if ( getDesc().is2D() )
 	fillLineID();
 
@@ -173,7 +169,6 @@ void Horizon::prepareForComputeData()
 	uiString msg = tr("Loading Horizon Data %1 failed.")
 	             .arg(surfdatanm_);
 	errmsg_ =  msg;
-	horizon_->unRef();
 	mRet
     }
 
@@ -183,7 +178,7 @@ void Horizon::prepareForComputeData()
 
 void Horizon::fillLineID()
 {
-    mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_);
+    mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_.ptr());
     const int lineidx = hor2d->geometry().lineIndex( geomid_ );
     horizon2dlineid_ = lineidx==-1 ? mUdf(int) : lineidx;
 }
@@ -222,7 +217,7 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 	    outputvalue = zval;
 	else if ( !getDesc().is2D() )
 	{
-	    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
+	    mDynamicCastGet(const EM::Horizon3D*,hor3d,horizon_.ptr())
 	    if ( hor3d )
 	    {
 		int auxindex = hor3d->auxdata.auxDataIndex( surfdatanm_ );

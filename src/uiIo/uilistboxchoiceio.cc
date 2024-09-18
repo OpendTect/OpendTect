@@ -84,7 +84,9 @@ void uiListBoxChoiceIO::readReqCB( CallBacker* )
     while ( !atEndOfSection(astrm.next()) )
     {
 	chosennames_.add( astrm.keyWord() );
-	keys_.add( MultiID(astrm.value()) );
+	MultiID key;
+	key.fromString( astrm.value() );
+	keys_.add( key );
     }
 
     readDone.trigger();

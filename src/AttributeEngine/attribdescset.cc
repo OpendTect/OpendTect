@@ -41,20 +41,20 @@ uiString DescSet::sFactoryEntryNotFound(const char* attrnm)
 
 
 DescSet::DescSet( bool is2d )
-    : is2d_(is2d)
+    : descToBeRemoved(this)
+    , is2d_(is2d)
     , storedattronly_(false)
     , couldbeanydim_(false)
-    , descToBeRemoved(this)
 {
     ensureDefStoredPresent();
 }
 
 
 DescSet::DescSet( const DescSet& ds )
-    : is2d_(ds.is2d_)
+    : descToBeRemoved(this)
+    , is2d_(ds.is2d_)
     , storedattronly_(ds.storedattronly_)
     , couldbeanydim_(ds.couldbeanydim_)
-    , descToBeRemoved(this)
 {
     *this = ds;
 }
@@ -95,26 +95,23 @@ bool DescSet::hasStoredInMem() const
 }
 
 
-#define mGetPar(key) \
-    defpars->find(SeisTrcTranslatorGroup::key())
-
 DescID DescSet::ensureDefStoredPresent() const
 {
-    BufferString idstr; DescID retid;
-
+    DescID retid;
+    MultiID key;
     PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
     if ( defpars )
     {
 	if ( is2d_ )
-	    idstr = mGetPar( sKeyDefault2D );
+	    defpars->get( SeisTrcTranslatorGroup::sKeyDefault2D(), key );
 	else
-	    idstr = mGetPar( sKeyDefault3D );
+	    defpars->get( SeisTrcTranslatorGroup::sKeyDefault3D(), key );
     }
 
-    if ( defidstr_ == idstr && defattribid_ != DescID::undef() )
+    if ( defid_ == key && defattribid_ != DescID::undef() )
 	return defattribid_;
 
-    if ( !idstr.isEmpty() )
+    if ( !key.isUdf() )
     {
 	// Hack to get rid of 'old' IDs
 	bool allstored = true;
@@ -126,11 +123,10 @@ DescID DescSet::ensureDefStoredPresent() const
 	if ( allstored )
 	    const_cast<DescSet*>(this)->removeAll( false );
 
-	const MultiID key( idstr.buf() );
 	retid = const_cast<DescSet*>(this)->getStoredID( key, 0, true, true );
     }
 
-    defidstr_ = idstr;
+    defid_ = key;
     defattribid_ = retid;
     return retid;
 }
@@ -354,7 +350,7 @@ void DescSet::fillPar( IOPar& par ) const
 
 	if ( dsc.isStored() || dsc.nrInputs()>0 )
 	{
-	    const MultiID storeid( dsc.getStoredID(true).buf() );
+	    const MultiID storeid = dsc.getStoredID( true );
 	    if ( storeid.isDatabaseID() )
 	    {
 		PtrMan<IOObj> ioobj = IOM().get( storeid );
@@ -563,7 +559,7 @@ RefMan<Desc> DescSet::createDesc( const BufferString& attrname,
     BufferString userref = descpar.find( userRefStr() );
     if ( dsc->isStored() )
     {
-	const MultiID key( dsc->getStoredID().buf() );
+	const MultiID key = dsc->getStoredID();
 	PtrMan<IOObj> ioobj = IOM().get( key );
 	if ( ioobj )
 	{
@@ -1193,9 +1189,7 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    bool iscandidate = false;
 	    if ( dsc.isStored() )
 	    {
-		const ValParam* keypar =
-			dsc.getValParam( StorageProvider::keyStr() );
-		const MultiID key( keypar->getStringValue() );
+		const MultiID key = dsc.getStoredID();
 		PtrMan<IOObj> ioobj = IOM().get( key );
 		if ( remstored || !ioobj || !ioobj->implExists(true) )
 		    iscandidate = true;
@@ -1210,7 +1204,8 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    }
 	}
 
-	if ( count == 0 ) break;
+	if ( count == 0 )
+	    break;
     }
 
     const int sz = torem.size();
@@ -1229,11 +1224,11 @@ RefMan<Desc> DescSet::getFirstStored( bool usesteering ) const
 	if ( !dsc.isStored() )
 	    continue;
 
-	BufferString storedid = dsc.getStoredID();
-	if ( storedid.isEmpty() )
+	const MultiID storedid = dsc.getStoredID();
+	if ( storedid.isUdf() )
 	    continue;
 
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
+	PtrMan<IOObj> ioobj = IOM().get( storedid );
 	BufferString res;
 	if ( ioobj )
 	    res = ioobj->pars().find( "Type" );
@@ -1260,7 +1255,7 @@ MultiID DescSet::getStoredKey( const DescID& did ) const
     if ( !dsc || !dsc->isStored() )
 	return MultiID::udf();
 
-    return MultiID(dsc->getStoredID().buf());
+    return dsc->getStoredID();
 }
 
 
@@ -1272,7 +1267,7 @@ void DescSet::getStoredNames( BufferStringSet& nms ) const
 	if ( !dsc->isStored() )
 	    continue;
 
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(dsc->getStoredID().buf()) );
+	PtrMan<IOObj> ioobj = IOM().get( dsc->getStoredID() );
 	if ( !ioobj )
 	{
 	    BufferString usrref = dsc->userRef();

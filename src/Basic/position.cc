@@ -126,10 +126,46 @@ bool clss::operator!=( const BinID& bid ) const \
 mImplBinIDValueEqOpers(BinIDValue)
 mImplBinIDValueEqOpers(BinIDValues)
 
+
+// BinIDValue
+BinIDValue::BinIDValue( BinID::IdxType i, BinID::IdxType c, float v )
+    : BinIDValueIdxPair(i,c,v)
+{}
+
+
+BinIDValue::BinIDValue( const BinID& b, float v )
+    : BinIDValueIdxPair(b,v)
+{}
+
+
 BinIDValue::BinIDValue( const BinIDValues& bvs, int nr )
 {
     set( bvs, nr );
 }
+
+
+BinIDValue::~BinIDValue()
+{}
+
+
+// BinIDValues
+BinIDValues::BinIDValues( BinID::IdxType i, BinID::IdxType c, int n )
+    : BinIDIdxPairValues(i,c,n)
+{}
+
+
+BinIDValues::BinIDValues( const BinID& b, int n )
+    : BinIDIdxPairValues(b,n)
+{}
+
+
+BinIDValues::BinIDValues( const BinIDValue& biv )
+    : BinIDIdxPairValues(biv)
+{}
+
+
+BinIDValues::~BinIDValues()
+{}
 
 
 Coord::DistType Coord::sqHorDistTo( const Coord& oth ) const

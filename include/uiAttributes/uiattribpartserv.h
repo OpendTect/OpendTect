@@ -104,7 +104,9 @@ public:
 					bool is2d,const Attrib::DescSet*);
     void		updateNLAInput(const MultiID&,bool is2d);
     bool		replaceSet(const IOPar&,bool is2d);
+    mDeprecated("Use with MultiID")
     bool		addToDescSet(const char*,bool is2d);
+    bool		addToDescSet(const MultiID&,bool is2d);
     int			getSliceIdx() const		{ return sliceidx_; }
     void		getPossibleOutputs(bool is2d,BufferStringSet&) const;
 

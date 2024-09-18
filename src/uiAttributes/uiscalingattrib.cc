@@ -566,8 +566,8 @@ void uiScalingAttrib::analyzeCB( CallBacker* )
     int nrtrcs = 0;
     if ( !isinpindp )
     {
-	const StringPair key( inpdesccp->getStoredID(true) );
-	PtrMan<IOObj> ioobj = IOM().get( MultiID(key.first().buf()) );
+	const MultiID key = inpdesccp->getStoredID( true );
+	ConstPtrMan<IOObj> ioobj = IOM().get( key );
 	if ( !ioobj )
 	    return uiMSG().error( tr("Select a valid input") );
 

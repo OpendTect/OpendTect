@@ -363,7 +363,7 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
     {
 	delete ctio->ioobj_;
 	ctio->ioobj_ = dlg.ioObj()->clone();
-	const MultiID id( ctio->ioobj_ ? ctio->ioobj_->key() : MultiID("") );
+	const MultiID id = ctio->ioobj_ ? ctio->ioobj_->key() : MultiID::udf();
 	cursessid_ = id;
     }
 

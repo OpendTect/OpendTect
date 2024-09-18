@@ -39,8 +39,10 @@ public:
     virtual MultiID	modelId() const			= 0;
     virtual void	reset()				= 0;
     virtual bool	isClassification() const	= 0;
+    mDeprecated("Use with MultiID")
+    void		getNeededStoredInputs(BufferStringSet&) const;
     virtual void	getNeededStoredInputs(
-	    			BufferStringSet& linekeys) const = 0;
+				TypeSet<MultiID>& keys) const = 0;
     virtual bool	go()				= 0;
     			//!< returns whether manageNN should be called again
     virtual bool	doUVQ()				= 0;

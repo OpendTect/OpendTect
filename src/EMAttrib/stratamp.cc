@@ -131,11 +131,8 @@ int StratAmpCalc::init( const IOPar& pars )
     usesstored_ = storstr.isStartOf( defstring );
     if ( usesstored_)
     {
-	const Attrib::ValParam* param =
-		targetdesc->getValParam( Attrib::StorageProvider::keyStr() );
-	const StringPair userref = param->getStringValue();
-	const MultiID key( userref.first().buf() );
-	PtrMan<IOObj> seisobj = IOM().get( key );
+	const MultiID key = targetdesc->getStoredID();
+	ConstPtrMan<IOObj> seisobj = IOM().get( key );
 	if ( !seisobj )
 	    return -1;
 

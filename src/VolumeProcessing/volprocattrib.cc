@@ -37,8 +37,7 @@ void VolProcAttrib::initClass()
 VolProcAttrib::VolProcAttrib( Desc& ds )
     : Provider(ds)
 {
-    const char* idstr = getDesc().getValParam( sKeySetup() )->getStringValue();
-    setupmid_ = MultiID( idstr );
+    setupmid_ = getDesc().getValParam( sKeySetup() )->getMultiID();
 }
 
 
@@ -160,7 +159,8 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     if ( !Attrib::Desc::getParamString( definition, sKeySetup(), midstring ) )
 	return false;
 
-    const MultiID mid( midstring.buf() );
+    MultiID mid;
+    mid.fromString( midstring.buf() );
     PtrMan<IOObj>  ioobj = IOM().get( mid );
     if ( !ioobj )
     {

@@ -173,8 +173,8 @@ uiBulkFaultImport::uiBulkFaultImport(uiParent* p)
 	    .modal(false))
     , fd_(BulkFaultAscIO::getDesc(EM::ObjectType::Flt3D,false,SI().zDomain()))
     , isfss_(false)
-    , isfltset_(false)
     , is2dfss_(false)
+    , isfltset_(false)
 {
     init();
 }
@@ -190,8 +190,8 @@ uiBulkFaultImport::uiBulkFaultImport( uiParent* p, const char* type,
 				mGetHelpKey(type)).modal(false))
     , fd_(BulkFaultAscIO::getDesc(mGetType(type),is2d,SI().zDomain()))
     , isfss_(mGet(type,true,false,false))
-    , isfltset_(mGet(type,false,false,true))
     , is2dfss_(is2d)
+    , isfltset_(mGet(type,false,false,true))
 {
     init();
 }
@@ -460,13 +460,14 @@ static void updateFaultStickSet( EM::Fault* flt,
 
 void uiBulkFaultImport::inpChangedCB( CallBacker* )
 {
-    if ( isfltset_ )
-    {
-	if ( isASCIIFileInTime() )
-	    fltsettimefld_->setInput( MultiID(inpfld_->baseName()) );
-	else
-	    fltsetdepthfld_->setInput( MultiID(inpfld_->baseName()) );
-    }
+    if ( !isfltset_ )
+	return;
+
+    if ( isASCIIFileInTime() )
+	fltsettimefld_->setInputText( inpfld_->baseName() );
+    else
+	fltsetdepthfld_->setInputText( inpfld_->baseName() );
+
 }
 
 

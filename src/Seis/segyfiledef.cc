@@ -73,11 +73,11 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     {
 	MultiID idstr( seisdirky );
 	idstr.setObjectID( IOObj::tmpID() );
-	iostrm = new IOStream( usrStr(), idstr.toString() );
+	iostrm = new IOStream( usrStr(), idstr );
     }
     else
     {
-	iostrm = new IOStream( usrStr() );
+	iostrm = new IOStream( usrStr(), MultiID::udf() );
 	iostrm->acquireNewKeyIn( seisdirky );
     }
 

@@ -74,7 +74,7 @@ bool uiWellLogAttrib::setParameters( const Desc& desc )
 
     const ValParam* par = desc.getValParam( WellLog::keyStr() );
     if ( par )
-	wellfld_->setInput( MultiID(par->getStringValue(0)) );
+	wellfld_->setInput( par->getMultiID() );
 
     selDone( 0 );
     par = desc.getValParam( WellLog::logName() );

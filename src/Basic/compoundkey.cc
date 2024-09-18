@@ -11,6 +11,22 @@ ________________________________________________________________________
 #include "perthreadrepos.h"
 
 
+CompoundKey::CompoundKey( const char* s )
+{
+    if ( s )
+	impl_ = s;
+}
+
+
+CompoundKey::CompoundKey( const CompoundKey& ck )
+    : impl_(ck.impl_)
+{}
+
+
+CompoundKey::~CompoundKey()
+{}
+
+
 char* CompoundKey::fromKey( int keynr ) const
 {
     return fetchKeyPart( keynr, false );

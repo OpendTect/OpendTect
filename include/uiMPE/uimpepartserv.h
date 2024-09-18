@@ -136,13 +136,13 @@ protected:
 					     MPE::EMTracker*& tracker,
 					     bool freshdlg=false);
 
-    const Attrib::DescSet*	attrset3d_;
-    const Attrib::DescSet*	attrset2d_;
+    const Attrib::DescSet*	attrset3d_			= nullptr;
+    const Attrib::DescSet*	attrset2d_			= nullptr;
 
 				//Interaction variables
-    const Attrib::SelSpec*	eventattrselspec_;
-    int				activetrackerid_;
-    int				temptrackerid_;
+    const Attrib::SelSpec*	eventattrselspec_		= nullptr;
+    int				activetrackerid_		= -1;
+    int				temptrackerid_			= -1;
     SceneID			cursceneid_;
 
 				//2D interaction
@@ -154,10 +154,10 @@ protected:
     EM::ObjectID		trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
 
-    int				initialundoid_;
-    bool			seedhasbeenpicked_;
-    bool			setupbeingupdated_;
-    bool			seedswithoutattribsel_;
+    int				initialundoid_			= mUdf(int);
+    bool			seedhasbeenpicked_		= false;
+    bool			setupbeingupdated_		= false;
+    bool			seedswithoutattribsel_		= false;
 
     void			modeChangedCB(CallBacker*);
     void			eventChangedCB(CallBacker*);
@@ -170,7 +170,7 @@ protected:
     void			noTrackingRemoval();
     void			cleanSetupDependents();
 
-    MPE::uiSetupGroup*		setupgrp_;
+    MPE::uiSetupGroup*		setupgrp_			= nullptr;
 
 private:
     static uiString		sYesAskGoOnStr();

@@ -251,7 +251,7 @@ SeisStoreAccess::SeisStoreAccess( const Setup& ssasu )
 IOObj& SeisStoreAccess::getTmp( const char* fnm, bool isps, bool is2d )
 {
     static PtrMan<IOStream> iostrm =
-	   new IOStream( "_tmp_SeisStoreAccess", toString(IOObj::tmpID()) );
+	   new IOStream( "_tmp_SeisStoreAccess", MultiID(10000,IOObj::tmpID()));
     iostrm->setGroup( !isps ?
 	   ( is2d ? mTranslGroupName(SeisTrc2D) : mTranslGroupName(SeisTrc) )
 	 : ( is2d ? mTranslGroupName(SeisPS2D) : mTranslGroupName(SeisPS3D)) );

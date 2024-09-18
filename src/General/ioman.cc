@@ -90,9 +90,6 @@ void applicationClosing()
 }
 
 
-static const MultiID emptykey( "-1.-1" );
-
-
 IOMan& IOM( const FilePath& rootdir, uiRetVal& uirv )
 {
     Threads::Locker locker( IOMManager::lock_ );
@@ -147,16 +144,16 @@ IOMan::IOMan( const FilePath& rootdir )
     , entryRemoved(this)
     , entryAdded(this)
     , entryChanged(this)
+    , implUpdated(this)
     , newIODir(this)
     , prepareSurveyChange(this)
     , surveyToBeChanged(this)
     , surveyChanged(this)
     , afterSurveyChange(this)
     , applicationClosing(this)
-    , implUpdated(this)
     , rootdir_(rootdir)
-    , lock_(false)
     , curlvl_(-1)
+    , lock_(false)
 {
     SetCurBaseDataDir( rootdir.pathOnly().buf() );
     SurveyInfo::deleteInstance();
@@ -176,7 +173,7 @@ uiRetVal IOMan::init( SurveyInfo* nwsi )
 	return tr("Survey Data Root does not exist or is not a folder:\n%1")
 		.arg(rootdirnm.str());
 
-    if ( !to(emptykey,true) )
+    if ( !to(MultiID::udf(),true) )
     {
 	FilePath surveyfp( rootdirnm.str(), ".omf" );
 	if ( surveyfp.exists() )
@@ -186,7 +183,7 @@ uiRetVal IOMan::init( SurveyInfo* nwsi )
         FilePath basicfp( mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),
 			  ".omf" );
         File::copy( basicfp.fullPath(),surveyfp.fullPath() );
-	if ( !to(emptykey,true) )
+	if ( !to(MultiID::udf(),true) )
 	    return tr("Warning: Invalid or no '.omf' found in:\n%1.\n"
 		      "This survey is corrupt.").arg( rootdirnm.str() );
     }
@@ -267,7 +264,7 @@ uiRetVal IOMan::init( SurveyInfo* nwsi )
     if ( needwrite )
     {
 	dirptr_->doWrite();
-	to( emptykey, true );
+	to( MultiID::udf(), true );
     }
 
     Survey::GMAdmin().fillGeometries( nullptr );
@@ -544,7 +541,7 @@ bool IOMan::to( const IOSubDir* sd, bool forcereread )
 {
     if ( isBad() )
     {
-	if ( !to(MultiID("0"),true) || isBad() )
+	if ( !to(MultiID(0,-1),true) || isBad() )
 	    return false;
 
 	return to( sd, true );
@@ -695,8 +692,12 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
     {
 	BufferString oky( objname+4 );
 	char* ptr = oky.find( '>' );
-	if ( ptr ) *ptr = '\0';
-	return get( MultiID(oky.buf()) );
+	if ( ptr )
+	    *ptr = '\0';
+
+	MultiID key;
+	key.fromString( oky.buf() );
+	return get( key );
     }
 
     if ( dirptr_ )
@@ -706,7 +707,10 @@ IOObj* IOMan::getLocal( const char* objname, const char* trgrpnm ) const
     }
 
     if ( IOObj::isKey(objname) )
-	return get( MultiID(objname) );
+    {
+	MultiID key;
+	return key.fromString(objname) ? get(key) : nullptr;
+    }
 
     return nullptr;
 }
@@ -750,7 +754,9 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 {
     Threads::Locker lock( lock_ );
     BufferString basekey( bky );
-    if ( !basekey.isEmpty() ) basekey.add( "." );
+    if ( !basekey.isEmpty() )
+	basekey.add( "." );
+
     BufferString iopkey( basekey );
     iopkey.add( sKey::ID() );
     BufferString res = par.find( iopkey );
@@ -785,7 +791,9 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 	}
     }
 
-    IOObj* ioobj = get( MultiID(res.buf()) );
+    MultiID key;
+    key.fromString( res.buf() );
+    IOObj* ioobj = get( key );
     if ( !ioobj )
 	errmsg = BufferString( "Value for ", iopkey, " is invalid." );
 
@@ -826,8 +834,8 @@ const char* IOMan::nameOf( const char* id ) const
     if ( !id || !*id || !IOObj::isKey(id) )
 	return id;
 
-    MultiID ky( id );
-    IOObj* ioobj = get( ky );
+    MultiID ky;
+    IOObj* ioobj = ky.fromString(id) ? get( ky ) : nullptr;
     ret.setEmpty();
     if ( !ioobj )
 	ret.set( "ID=<" ).add( id ).add( ">" );
@@ -867,7 +875,7 @@ BufferString IOMan::curDirName() const
 
 const MultiID& IOMan::key() const
 {
-    return dirptr_ ? dirptr_->key() : emptykey;
+    return dirptr_ ? dirptr_->key() : MultiID::udf();
 }
 
 
@@ -1114,8 +1122,7 @@ bool IOMan::implRename( const MultiID& key, const char* newname )
 	return IOM().commitChanges( *ioobj );
     }
 
-    IOStream chiostrm;
-    chiostrm.copyFrom( iostrm );
+    IOStream chiostrm( *iostrm );
     FilePath fp( iostrm->fileSpec().fileName() );
     if ( trans )
 	chiostrm.setExt( trans->defExtension() );
@@ -1165,8 +1172,7 @@ bool IOMan::implReloc( const MultiID& key, const char* newdir )
     PtrMan<Translator> trans = ioobj->createTranslator();
     mDynamicCastGet(IOStream*,iostrm,ioobj.ptr())
     BufferString oldfnm( iostrm->fullUserExpr() );
-    IOStream chiostrm;
-    chiostrm.copyFrom( iostrm );
+    IOStream chiostrm( *iostrm );
     if ( !File::isDirectory(newdir) )
 	return false;
 
@@ -1464,8 +1470,8 @@ const MultiID& IOMan::addCustomDataDir( const IOMan::CustomDirData& dd )
     if ( !sdtp.prepDirData() )
     {
 	ErrMsg( sdtp.errmsg_ );
-	mDefineStaticLocalObject( MultiID, none, ("") );
-	return none;
+	static MultiID noid;
+	return noid;
     }
 
     TypeSet<IOMan::CustomDirData>& cdds = getCDDs();

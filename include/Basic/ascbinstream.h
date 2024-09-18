@@ -26,16 +26,17 @@ ________________________________________________________________________
 mExpClass(Basic) ascbinostream
 {
 public:
-
 			ascbinostream(od_ostream&,bool binary);
 			ascbinostream(od_ostream*,bool binary);
     virtual		~ascbinostream();
+			mOD_DisableCopy(ascbinostream)
+
     bool		isOK() const;
     bool		isBad() const;
 
 #   define		mDeclascbinostreamAddFns(typ) \
-    ascbinostream&      add(typ,char post=od_tab); \
-    ascbinostream&      add(typ,const char* post)
+    ascbinostream&	add(typ,char post=od_tab); \
+    ascbinostream&	add(typ,const char* post)
 
 			mDeclascbinostreamAddFns(char);
 			mDeclascbinostreamAddFns(unsigned char);
@@ -49,7 +50,7 @@ public:
 			mDeclascbinostreamAddFns(double);
 
     template <class T>
-    ascbinostream&      addEOL( T t )		{ return add( t, od_newline ); }
+    ascbinostream&	addEOL( T t )		{ return add( t, od_newline ); }
 
     template <class T,class IT>
     inline ascbinostream& addArr(const T*,IT sz,const char* between="\t",
@@ -77,10 +78,11 @@ protected:
 mExpClass(Basic) ascbinistream
 {
 public:
-
 			ascbinistream(od_istream&,bool binary);
 			ascbinistream(od_istream*,bool binary);
     virtual		~ascbinistream();
+			mOD_DisableCopy(ascbinistream)
+
     bool		isOK() const;
     bool		isBad() const;
 

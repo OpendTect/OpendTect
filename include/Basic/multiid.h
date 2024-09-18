@@ -23,7 +23,6 @@ public:
 			MultiID();
 			MultiID(int grpid, int objid);
 			MultiID(const MultiID&);
-    explicit		MultiID(const char* idstr);
 			MultiID(int grpid,int objid,int subgrpid,int subobjid);
     virtual		~MultiID();
 
@@ -75,6 +74,9 @@ private:
 
 public:
 // Obsolete stuff
+    mDeprecated("Initialize with integers, or use fromString")
+    explicit		MultiID( const char* idstr )
+			{ fromString(idstr); }
 			MultiID(int id)				= delete;
 			MultiID(const OD::String&)		= delete;
 

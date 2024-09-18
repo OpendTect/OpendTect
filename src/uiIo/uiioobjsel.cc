@@ -441,7 +441,7 @@ void uiIOObjSel::setInput( const IOObj& ioobj )
 
 void uiIOObjSel::updateInput()
 {
-    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID("") );
+    setInput( workctio_.ioobj_ ? workctio_.ioobj_->key() : MultiID::udf() );
 }
 
 
@@ -673,7 +673,8 @@ void uiIOObjSel::objInserted( CallBacker* cb )
 
 void uiIOObjSel::objSel()
 {
-    const MultiID ky( getKey() );
+    MultiID ky;
+    ky.fromString( getKey() );
     if ( ky.isUdf() )
 	workctio_.setObj( nullptr );
     else

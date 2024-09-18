@@ -29,10 +29,10 @@ mExpClass(Basic) ascostream
 {
 
 public:
-
 		ascostream(od_ostream&);
 		ascostream(od_ostream*); // becomes mine
     virtual	~ascostream();
+		mOD_DisableCopy(ascostream)
 
     bool	isOK() const;
 
@@ -84,6 +84,7 @@ public:
 			ascistream(od_istream&,bool rdhead=true);
 			ascistream(od_istream*,bool rdhead=true);
     virtual		~ascistream();
+			mOD_DisableCopy(ascistream)
 
     ascistream&		next();
     bool		isOK() const;

@@ -130,6 +130,14 @@ mSetGetDefault(const char*,getDefaultStringValue,getDefaultStringValue)
 const char* ValParam::getStringValue( int idx ) const
 { return spec_->text(idx); }
 
+
+MultiID ValParam::getMultiID( int idx ) const
+{
+    MultiID key;
+    return key.fromString( spec_->text(idx) ) ? key : MultiID::udf();
+}
+
+
 void ValParam::setValue( const char* str, int idx )
 { spec_->setText( str, idx ); }
 

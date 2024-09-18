@@ -158,25 +158,22 @@ MultiID uiAttribCrossPlot::getSelectedID() const
 
 	return MultiID();
     }
-    else
+
+    TypeSet<DescID>& descids = attrinfo_->attrids_;
+    Attrib::DescID descid = descids.validIdx(curitem) ? descids[curitem]
+						      : Attrib::DescID();
+    const Attrib::Desc* desc = ads_.getDesc( descid );
+    if ( !desc )
+	return MultiID();
+
+    if ( desc->isPS() )
     {
-	TypeSet<DescID>& descids = attrinfo_->attrids_;
-	Attrib::DescID descid = descids.validIdx(curitem) ? descids[curitem]
-							  : Attrib::DescID();
-	const Attrib::Desc* desc = ads_.getDesc( descid );
-	if ( !desc )
-	    return MultiID();
-
-	if ( desc->isPS() )
-	{
-	    MultiID psid;
-	    mGetMultiIDFromDesc( (*desc), psid, "id" );
-	    return psid;
-	}
-
-	MultiID mid( desc->getStoredID(true).buf() );
-	return mid;
+	MultiID psid;
+	mGetMultiIDFromDesc( (*desc), psid, "id" );
+	return psid;
     }
+
+    return desc->getStoredID( true );
 }
 
 

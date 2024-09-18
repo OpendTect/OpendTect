@@ -219,9 +219,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    RefMan<Attrib::Desc> firststoreddsc = ads_->getFirstStored();
 	    if ( firststoreddsc )
 	    {
-		const Attrib::ValParam* param = firststoreddsc->getValParam(
-					Attrib::StorageProvider::keyStr() );
-		const MultiID key( param->getStringValue() );
+		const MultiID key = firststoreddsc->getStoredID();
 		if ( key.isDatabaseID() )
 		    mSetObjFld( StringPair(IOM().nameOf(key),
 					   todofld_->getInput()).buf() )
@@ -243,7 +241,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 	    PtrMan<IOObj> ioobj;
 	    if ( prov )
 	    {
-		MultiID mid( desc->getStoredID(true).buf() );
+		const MultiID mid = desc->getStoredID( true );
 		ioobj = IOM().get( mid );
 	    }
 
@@ -523,8 +521,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 				  : ads_->getDesc( todofld_->attribID() );
 	if ( desc )
 	{
-	    const BufferString storedid( desc->getStoredID().buf() );
-	    if ( !storedid.isEmpty() )
+	    const MultiID storedid = desc->getStoredID();
+	    if ( !storedid.isUdf() )
 		iop.set( "Input Line Set", storedid );
 	}
     }

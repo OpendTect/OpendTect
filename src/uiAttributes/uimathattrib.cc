@@ -107,7 +107,7 @@ void uiMathAttrib::inpSel( CallBacker* cb )
     if ( !inpdesc || !inpdesc->isStored() )
 	return;
 
-    const MultiID mid( inpdesc->getStoredID( false ).buf() );
+    const MultiID mid = inpdesc->getStoredID( false );
     ConstPtrMan<IOObj> inpobj = IOM().get( mid );
     if ( !inpobj )
 	return;
@@ -224,9 +224,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 				: BufferString( inpdsc->userRef() );
 	    if ( inpdsc->isStoredInMem() )
 	    {
-		const BufferString dpidstr = inpdsc->getValParam(
-			Attrib::StorageProvider::keyStr() )->getStringValue(0);
-		const MultiID dbky( dpidstr.buf() );
+		const MultiID dbky = inpdsc->getStoredID();
 		const DataPack::FullID dpfid( dbky );
 		refstr = DataPackMgr::nameOf( dpfid );
 	    }
@@ -240,7 +238,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		    formfld_->inpFld(varinpidx)->use( form_ );
 		    varinplastidx = varinpidx+1;
 
-		    const MultiID mid( inpdsc->getStoredID( false ).buf() );
+		    const MultiID mid = inpdsc->getStoredID( false );
 		    ConstPtrMan<IOObj> inpobj = IOM().get( mid );
 		    if ( !inpobj )
 			break;

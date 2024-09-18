@@ -115,7 +115,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
 
     su.seltxt( tr("and bottom Horizon") );
     obj2fld_ = new uiHorizonSel( pargrp_, is2d_, true, su );
-    obj2fld_->setInput( MultiID("") );
+    obj2fld_->setInput( MultiID::udf() );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
@@ -372,8 +372,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     const Desc* desc = ads_->getDesc( attrfld_->attribID() );
     if ( desc && desc->isStored() )
     {
-	PtrMan<IOObj> inioobj = IOM().get(
-					MultiID(desc->getStoredID().buf()) );
+	PtrMan<IOObj> inioobj = IOM().get( desc->getStoredID() );
 	if ( inioobj )
 	{
 	    const IOPar& pars = inioobj->pars();
@@ -538,7 +537,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 
 	if ( desc )
 	{
-	    const MultiID key( desc->getStoredID(true).buf() );
+	    const MultiID key = desc->getStoredID( true );
 	    if ( key.isDatabaseID() )
 	    {
 		PtrMan<IOObj> ioobj = IOM().get( key );

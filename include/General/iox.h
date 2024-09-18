@@ -17,7 +17,11 @@ ________________________________________________________________________
 mExpClass(General) IOX : public IOObj
 {
 public:
-			IOX(const char* nm=0,const char* ky=0,bool =0);
+			mDeprecated("Use with MultiID")
+			IOX(const char* nm=nullptr,const char* ky=nullptr,
+			    bool =false);
+			IOX(const char* nm,const MultiID&,bool =false);
+
     virtual		~IOX();
     bool		isBad() const override;
 

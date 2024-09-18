@@ -131,7 +131,7 @@ public:
 
     bool			isStored() const;
     bool			isStoredInMem() const;
-    BufferString		getStoredID(bool recursive=false) const;
+    MultiID			getStoredID(bool recursive=false) const;
     BufferString		getStoredType(bool recursive=false) const;
 
     void			setNeedProvInit( bool yn=true )

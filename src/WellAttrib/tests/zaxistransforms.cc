@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emfault3d.h"
-#include "emfaultstickset.h"
 #include "emstoredobjaccess.h"
 #include "emsurfaceiodata.h"
 #include "emsurft2dtransformer.h"
@@ -33,8 +32,8 @@ ________________________________________________________________________
 static const int velids_direct[] = { 8, 16, 9, 9, 14, 14, 16 };
 
 //Simple Time-Depth Parameters
-static const MultiID tablet2did_m = MultiID( "100090.6" );
-static const MultiID tablet2did_ft = MultiID( "100090.7" );
+static const MultiID tablet2did_m = MultiID( 100090, 6 );
+static const MultiID tablet2did_ft = MultiID( 100090, 7 );
 
 //Linear Vel Paramenters
 static double v0()

@@ -98,7 +98,8 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 #   define mErrCont(s) { errmsg_ = s; continue; }
     while ( !atEndOfSection(astrm.next()) )
     {
-	MultiID mid( astrm.keyWord() );
+	MultiID mid;
+	mid.fromString( astrm.keyWord() );
 
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
@@ -175,10 +176,12 @@ bool MultiCubeSeisPSReader::readData( const char* fnm, ObjectSet<MultiID>& keys,
 
     while ( !atEndOfSection(astrm.next()) )
     {
-	const MultiID ky( astrm.keyWord() );
+	MultiID ky;
+	ky.fromString( astrm.keyWord() );
 	const FileMultiString fms( astrm.value() );
 	if ( ky.isUdf() || fms.size() < 1 )
 	    continue;
+
 	PtrMan<IOObj> ioobj = IOM().get( ky );
 	if ( !ioobj || ioobj->isBad() )
 	    continue;

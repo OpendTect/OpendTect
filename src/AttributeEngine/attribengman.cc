@@ -741,7 +741,11 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		// It could be 'storage', but it's not yet in the set ...
 		PtrMan<IOObj> ioobj;
 		if ( IOObj::isKey(inpname) )
-		    ioobj = IOM().get( MultiID(inpname) );
+		{
+		    MultiID key;
+		    key.fromString( inpname );
+		    ioobj = IOM().get( key );
+		}
 		else
 		{
 		    BufferString rawnmbufstr;
@@ -1091,9 +1095,8 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
     if ( !param )
 	return;
 
-    const StringPair sp( param->getStringValue() );
-    const MultiID key( sp.first().buf() );
-    PtrMan<IOObj> ioobj = IOM().get( key );
+    const MultiID key = param->getMultiID();
+    ConstPtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
 	return;
 
@@ -1400,7 +1403,8 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 	    if ( refidx > -1 )
 	    {
 		const FileMultiString fms( attrrefs.get(refidx) );
-		const MultiID key( fms[1].buf() );
+		MultiID key;
+		key.fromString( fms[1].buf() );
 		descid = cCast(DescSet&,descset).getStoredID( key, 0, true );
 	    }
 

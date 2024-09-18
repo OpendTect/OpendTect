@@ -9,11 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "emattribmod.h"
+
 #include "attribprovider.h"
 #include "bufstring.h"
+#include "emhorizon.h"
 #include "multiid.h"
 
-namespace EM { class Horizon; }
 
 namespace Attrib
 {
@@ -39,8 +40,8 @@ public:
     bool		isOK() const override;
 
 protected:
-    static Provider*	createInstance( Desc& );
-    static void         updateDesc( Desc& );
+    static Provider*	createInstance(Desc&);
+    static void		updateDesc(Desc&);
 
     bool		getInputData(const BinID&,int intv) override;
     bool		computeData(const DataHolder&,const BinID& relpos,
@@ -56,7 +57,7 @@ protected:
     int			outtype_;
     bool		relz_;
 
-    EM::Horizon*	horizon_;
+    RefMan<EM::Horizon> horizon_;
     const DataHolder*	inputdata_;
     int			dataidx_;
     int			horizon2dlineid_;

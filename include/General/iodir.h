@@ -52,7 +52,8 @@ public:
     bool		isPresent(const MultiID&) const;
     int			indexOf(const MultiID&) const;
     const IOObj*	get(const MultiID&) const;
-    const IOObj*	get(const char* nm,const char* trgrpnm=0) const;
+    const IOObj*	get(const char* objnm,
+			    const char* trgrpnm=nullptr) const;
 			// Without trgrpnm, just returns first
 
     bool		addObj(IOObj*,bool immediate_store=true);

@@ -455,7 +455,7 @@ IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
 {
     fillTrGroup();
 
-    IOStream* iostrm = new IOStream( name(), ky.toString(), false );
+    auto* iostrm = new IOStream( name(), ky, false );
     iostrm->setGroup( trgroup_->groupName() );
     iostrm->setTranslator( transl.userName() );
 

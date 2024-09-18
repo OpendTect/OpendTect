@@ -262,7 +262,7 @@ void uiTextureAttrib::analyzeCB( CallBacker* )
     if ( !inpdesc )
 	return;
 
-    const MultiID key( inpdesc->getStoredID(true).buf() );
+    const MultiID key = inpdesc->getStoredID(true);
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
     {

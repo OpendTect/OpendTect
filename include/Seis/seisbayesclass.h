@@ -88,7 +88,9 @@ protected:
     bool			getReaders();
     bool			getWriters();
 
+				mDeprecated("Use with MultiID")
     SeisTrcReader*		getReader(const char*,bool,int);
+    SeisTrcReader*		getReader(const MultiID&,bool,int);
     int				readInpTrcs();
     int				createOutput();
     int				closeDown();

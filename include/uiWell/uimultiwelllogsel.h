@@ -123,10 +123,10 @@ protected:
     bool		singlelog_;
     BufferString	prefpropnm_;
 
-    uiGenInput*		depthstepfld_;
-    uiGenInput*		timestepfld_;
-    uiCheckBox*		zistimefld_;
-    uiGenInput*		sampfld_;
+    uiGenInput*		depthstepfld_			= nullptr;
+    uiGenInput*		timestepfld_			= nullptr;
+    uiCheckBox*		zistimefld_			= nullptr;
+    uiGenInput*		sampfld_			= nullptr;
 
     void	updateDisplayFlds() override;
     void	putToScreen() override;

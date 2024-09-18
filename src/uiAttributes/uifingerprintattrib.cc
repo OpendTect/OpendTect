@@ -579,8 +579,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	    return 0;
 	}
 
-	BufferStringSet ioobjids;
-	ioobjids.add( ioobj->key().toString() );
+	TypeSet<MultiID> ioobjids;
+	ioobjids.add( ioobj->key() );
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
 	if ( values.isEmpty() )
 	{

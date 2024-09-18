@@ -177,7 +177,7 @@ protected:
     bool		storedattronly_;
     bool		couldbeanydim_;
     uiString		errmsg_;
-    mutable BufferString defidstr_;
+    mutable MultiID	defid_;
     mutable DescID	defattribid_;
 
 private:

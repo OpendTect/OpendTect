@@ -17,8 +17,7 @@ namespace Attrib
 {
 
 DescSetMan::DescSetMan( bool is2d, DescSet* ads, bool destr )
-    : attrsetid_("")
-    , ads_(ads)
+    : ads_(ads)
     , is2d_(is2d)
     , unsaved_(false)
     , destrondel_(destr)

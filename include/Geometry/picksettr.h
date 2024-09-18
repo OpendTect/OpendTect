@@ -42,15 +42,15 @@ public:
 				 uiString&);
     static bool		store(const Pick::Set&,const IOObj*,uiString&);
 
-    static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&);
+    static bool		getCoordSet(const MultiID& ioobjkey,TypeSet<Coord3>&);
 			//!< Do not use, will be removed after 6.0
-    static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&,
+    static bool		getCoordSet(const MultiID& ioobjkey,TypeSet<Coord3>&,
 				    TypeSet<TrcKey>&);
 			//!< Utility function
-    static void		createBinIDValueSets(const BufferStringSet& ioobjids,
+    static void		createBinIDValueSets(const TypeSet<MultiID>& ioobjids,
 					     ObjectSet<BinIDValueSet>&);
 			//!< Utility function
-    static void		createDataPointSets(const BufferStringSet&,
+    static void		createDataPointSets(const TypeSet<MultiID>&,
 					     RefObjectSet<DataPointSet>&,
 					     bool is2d,bool mini=false);
 			//!< Utility function
@@ -62,6 +62,24 @@ public:
 
     bool		implRemove(const IOObj*,bool) const override;
     bool		implRename(const IOObj*,const char*) const override;
+
+			mDeprecated("Use with MultiID")
+    static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&);
+			//!< Do not use, will be removed after 6.0
+			mDeprecated("Use with MultiID")
+    static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&,
+				    TypeSet<TrcKey>&);
+
+			//!< Utility function
+			mDeprecated("Use with MultiID")
+    static void		createBinIDValueSets(const BufferStringSet& ioobjids,
+					     ObjectSet<BinIDValueSet>&);
+			//!< Utility function
+			mDeprecated("Use with MultiID")
+    static void		createDataPointSets(const BufferStringSet&,
+					     RefObjectSet<DataPointSet>&,
+					     bool is2d,bool mini=false);
+
 };
 
 

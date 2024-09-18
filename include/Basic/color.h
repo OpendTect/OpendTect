@@ -21,10 +21,10 @@ namespace OD
 mExpClass(Basic) Color
 {
 public:
-
-			Color( unsigned char r_=255, unsigned char g_=255,
-				unsigned char b_=255, unsigned char t_=0 );
-			Color( unsigned int rgbval );
+			Color(unsigned char r_=255,unsigned char g_=255,
+				unsigned char b_=255,unsigned char t_=0);
+			Color(unsigned int rgbval);
+			~Color();
 
     bool		operator ==( const Color& c ) const;
     bool		operator !=( const Color& c ) const;

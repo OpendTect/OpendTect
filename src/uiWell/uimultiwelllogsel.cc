@@ -239,10 +239,6 @@ void uiWellZRangeSelector::setRange( Interval<float> zrg, bool istime )
 
 uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
     : uiWellZRangeSelector( p, s )
-    , depthstepfld_(0)
-    , timestepfld_(0)
-    , sampfld_(0)
-    , zistimefld_(0)
     , dostep_(s.withzstep_)
     , singlelog_(s.singlelog_)
     , prefpropnm_(s.prefpropnm_)
@@ -584,7 +580,11 @@ void uiMultiWellLogSel::setSelWellIDs( const BufferStringSet& idstrs )
 {
     TypeSet<MultiID> mids;
     for ( int idx=0; idx<idstrs.size(); idx++ )
-	mids += MultiID( idstrs.get(idx).buf() );
+    {
+	MultiID key;
+	key.fromString( idstrs.get(idx).buf() );
+	mids += key;
+    }
 
     setSelWellIDs( mids );
 }
