@@ -70,8 +70,8 @@ int IOStreamProducer::factoryid_ = IOObj::addProducer( new IOStreamProducer );
 
 
 IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
-	: IOObj(nm,uid)
-	, curfidx_(0)
+    : IOObj(nm,MultiID(uid))
+    , curfidx_(0)
 {
     if ( mkdef )
 	genFileName();
@@ -79,6 +79,7 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 
 
 IOStream::IOStream( const IOStream& oth )
+    : IOObj(nullptr,MultiID::udf())
 {
     copyFrom( &oth );
 }

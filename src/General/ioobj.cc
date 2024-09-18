@@ -67,10 +67,10 @@ int IOObj::addProducer( IOObjProducer* prod )
 
 
 IOObj::IOObj( const char* nm, const char* ky )
-	: NamedObject(nm)
-	, key_(ky)
-	, dirnm_("")
-	, pars_(*new IOPar)
+    : NamedObject(nm)
+    , key_(ky)
+    , dirnm_("")
+    , pars_(*new IOPar)
 {
 }
 
@@ -85,8 +85,8 @@ IOObj::IOObj( const char* nm, const MultiID& ky )
 
 
 IOObj::IOObj( const IOObj& oth )
-	: key_(oth.key_)
-	, pars_(*new IOPar)
+    : key_(oth.key_)
+    , pars_(*new IOPar)
 {
     copyStuffFrom( oth );
 }
@@ -230,11 +230,12 @@ IOObj* IOObj::clone() const
 	return new IOSubDir( *((IOSubDir*)this) );
 
     if ( key().isUdf() )
-	return 0;
+	return nullptr;
 
     IOObj* ret = produce( connType(), name(), key(), false );
     if ( !ret )
-	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return 0; }
+	{ pErrMsg("Cannot 'produce' IOObj of my own type"); return nullptr; }
+
     ret->copyFrom( this );
     return ret;
 }
@@ -400,7 +401,7 @@ bool equalIOObj( const MultiID& ky1, const MultiID& ky2 )
 
 
 IOSubDir::IOSubDir( const char* subdirnm )
-    : IOObj(subdirnm)
+    : IOObj(subdirnm,MultiID::udf())
     , isbad_(false)
 {
 }
@@ -442,8 +443,8 @@ bool IOSubDir::putTo( ascostream& stream ) const
 
 
 IOX::IOX( const char* nm, const char* ky, bool )
-	: IOObj(nm,ky)
-	, ownkey_("")
+    : IOObj(nm,MultiID(ky))
+    , ownkey_("")
 {
 }
 
