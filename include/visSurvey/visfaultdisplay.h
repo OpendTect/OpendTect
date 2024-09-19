@@ -233,6 +233,8 @@ protected:
     void			updateActiveStickMarker();
     void			updateHorizonIntersections(const VisID& which,
 					const ObjectSet<const SurveyObject>&);
+    void			removeIntersectionObject(const SurveyObject*,
+	    						 bool);
     void			updateEditorMarkers();
 
     Coord3			disp2world(const Coord3& displaypos) const;
