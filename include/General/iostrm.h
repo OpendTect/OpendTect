@@ -22,7 +22,7 @@ mExpClass(General) IOStream : public IOObj
 {
 public:
 			mDeprecated("Use with MultiID")
-			IOStream(const char* nm=nullptr,const char* id=nullptr,
+			IOStream(const char* nm,const char* id=nullptr,
 				 bool =false);
 			IOStream();
 			IOStream(const char* nm,const MultiID&,
