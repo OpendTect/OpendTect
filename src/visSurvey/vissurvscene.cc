@@ -668,7 +668,7 @@ void Scene::objectMoved( CallBacker* cb )
 	const bool shouldhavemovementnotifier = fd;
 
 	if ( !so || (!so->getMovementNotifier() && !shouldhavemovementnotifier)
-		 || !so->isAnyAttribEnabled() )
+	       || (!so->isAnyAttribEnabled() && !so->hasSingleColorFallback()) )
 	    continue;
 
 	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx))
