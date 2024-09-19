@@ -302,6 +302,8 @@ protected:
     static const char*			sKeyZValues();
 
     bool				isDisplayingSticksUseful() const;
+    void				removeIntersectionObject(
+						const SurveyObject*,bool);
 public:
     const ObjectSet<visBase::MarkerSet>* getFaultDisplayedSticks_() const;
 
