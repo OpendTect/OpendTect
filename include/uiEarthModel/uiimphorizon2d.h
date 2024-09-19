@@ -42,32 +42,31 @@ public:
 
 protected:
 
-    uiFileInput*	inpfld_;
-    uiPushButton*       scanbut_;
-    uiTableImpDataSel*  dataselfld_;
-    uiGenInput*		udftreatfld_;
-    uiGenInput*		zdomselfld_;
-    uiIOObjSel*		timeoutputfld_;
-    uiIOObjSel*		depthoutputfld_;
+    uiFileInput*		inpfld_;
+    uiPushButton*		scanbut_;
+    uiTableImpDataSel*		dataselfld_;
+    uiGenInput*			udftreatfld_;
+    uiGenInput*			zdomselfld_;
+    uiIOObjSel*			timeoutputfld_;
+    uiIOObjSel*			depthoutputfld_;
 
-    bool		acceptOK(CallBacker*) override;
-    void                descChg(CallBacker*);
-    void		formatSel(CallBacker*);
-    void		scanPush(CallBacker*);
-    void		zDomainCB(CallBacker*);
+    bool			acceptOK(CallBacker*) override;
+    void			descChgCB(CallBacker*);
+    void			inpChgCB(CallBacker*);
+    void			scanPushCB(CallBacker*);
+    void			zDomainCB(CallBacker*);
 
-    bool		getFileNames(BufferStringSet&) const;
-    bool		checkInpFlds();
-    bool		doImport();
-    bool		isASCIIFileInTime() const;
+    bool			getFileNames(BufferStringSet&) const;
+    bool			checkInpFlds();
+    bool			doImport();
+    bool			isASCIIFileInTime() const;
 
-    uiIOObjSel*		getWorkingOutFld() const;
+    uiIOObjSel*			getWorkingOutFld() const;
 
-    const ZDomain::Info& zDomain() const;
+    const ZDomain::Info&	zDomain() const;
 
-    Table::FormatDesc&	    fd_;
-    Horizon2DScanner*	    scanner_;
-    BufferStringSet&	    linesetnms_;
-    TypeSet<MultiID>	    setids_;
-    RefMan<EM::EMObject>    emobj_;
+    Table::FormatDesc&		fd_;
+    Horizon2DScanner*		scanner_			= nullptr;
+    TypeSet<MultiID>		setids_;
+    RefMan<EM::EMObject>	emobj_;
 };

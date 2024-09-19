@@ -9,6 +9,21 @@ ________________________________________________________________________
 
 #include "uiimphorizon2d.h"
 
+#include "binidvalset.h"
+#include "emhorizon2d.h"
+#include "emhorizonascio.h"
+#include "emmanager.h"
+#include "emobject.h"
+#include "emsurfacetr.h"
+#include "file.h"
+#include "horizon2dscanner.h"
+#include "ioman.h"
+#include "od_helpids.h"
+#include "strmprov.h"
+#include "survgeom2d.h"
+#include "survinfo.h"
+#include "tabledef.h"
+
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uiempartserv.h"
@@ -22,24 +37,6 @@ ________________________________________________________________________
 #include "uistrings.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
-
-#include "binidvalset.h"
-#include "emmanager.h"
-#include "emobject.h"
-#include "emsurfacetr.h"
-#include "horizon2dscanner.h"
-#include "ioman.h"
-#include "randcolor.h"
-#include "strmprov.h"
-#include "surfaceinfo.h"
-#include "survinfo.h"
-#include "survgeom2d.h"
-#include "tabledef.h"
-#include "file.h"
-#include "emhorizon2d.h"
-#include "emhorizonascio.h"
-#include "od_helpids.h"
-#include "randcolor.h"
 
 #include <math.h>
 
@@ -189,10 +186,8 @@ protected:
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import 2D Horizon"),mNoDlgTitle,
 		mODHelpKey(mImportHorizon2DHelpID) ).modal(false))
-    , scanner_(nullptr)
-    , linesetnms_(*new BufferStringSet)
-    , fd_(*EM::Horizon2DAscIO::getDesc(SI().zDomain()))
     , readyForDisplay(this)
+    , fd_(*EM::Horizon2DAscIO::getDesc(SI().zDomain()))
 {
     enableSaveButton( tr("Display after import") );
     setCtrlStyle( RunAndClose );
@@ -200,7 +195,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 
     inpfld_ = new uiASCIIFileInput( this, true );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    mAttachCB(inpfld_->valueChanged,uiImportHorizon2D::formatSel);
+    mAttachCB( inpfld_->valueChanged, uiImportHorizon2D::inpChgCB );
 
     zdomselfld_ = new uiGenInput( this, tr("Horizon is in"),
 	BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
@@ -211,10 +206,10 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     dataselfld_ = new uiTableImpDataSel( this, fd_,
 			mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
     dataselfld_->attach( alignedBelow, zdomselfld_ );
-    mAttachCB(dataselfld_->descChanged,uiImportHorizon2D::descChg);
+    mAttachCB(dataselfld_->descChanged,uiImportHorizon2D::descChgCB);
 
     scanbut_ = new uiPushButton( this, tr("Scan Input Files"),
-				 mCB(this,uiImportHorizon2D,scanPush), false );
+				 mCB(this,uiImportHorizon2D,scanPushCB), false);
     scanbut_->attach( alignedBelow, dataselfld_ );
 
     uiSeparator* sep = new uiSeparator( this );
@@ -243,11 +238,10 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 uiImportHorizon2D::~uiImportHorizon2D()
 {
     detachAllNotifiers();
-    delete &linesetnms_;
 }
 
 
-void uiImportHorizon2D::zDomainCB( CallBacker* cb )
+void uiImportHorizon2D::zDomainCB( CallBacker* )
 {
     NotifyStopper ns1( inpfld_->valueChanged );
     const bool istime = isASCIIFileInTime();
@@ -261,21 +255,25 @@ void uiImportHorizon2D::zDomainCB( CallBacker* cb )
 }
 
 
-void uiImportHorizon2D::descChg( CallBacker* )
+void uiImportHorizon2D::descChgCB( CallBacker* )
 {
     delete scanner_;
     scanner_ = nullptr;
 }
 
 
-void uiImportHorizon2D::formatSel( CallBacker* )
+void uiImportHorizon2D::inpChgCB( CallBacker* cb )
 {
     BufferStringSet hornms;
-    dataselfld_->updateSummary();
     dataselfld_->setSensitive( true );
     scanbut_->setSensitive( *inpfld_->fileName() );
-    EM::Horizon2DAscIO::updateDesc( fd_, isASCIIFileInTime() ? ZDomain::Time()
-							: ZDomain::Depth() );
+    const bool keepdef = cb==inpfld_ && fd_.isGood();
+    if ( !keepdef )
+    {
+	EM::Horizon2DAscIO::updateDesc( fd_,
+		isASCIIFileInTime() ? ZDomain::Time() : ZDomain::Depth() );
+	dataselfld_->updateSummary();
+    }
 }
 
 
@@ -286,7 +284,7 @@ const ZDomain::Info& uiImportHorizon2D::zDomain() const
 }
 
 
-void uiImportHorizon2D::scanPush( CallBacker* cb )
+void uiImportHorizon2D::scanPushCB( CallBacker* cb )
 {
     if ( !dataselfld_->commit() )
 	return;
@@ -332,7 +330,7 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
 
 bool uiImportHorizon2D::doImport()
 {
-    scanPush( nullptr );
+    scanPushCB( nullptr );
     if ( !scanner_ )
 	return false;
 
