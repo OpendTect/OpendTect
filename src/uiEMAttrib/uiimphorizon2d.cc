@@ -178,7 +178,7 @@ void descChg( CallBacker* )
 }
 
 
-void inputChgCB( CallBacker* )
+void inputChgCB( CallBacker* cb )
 {
     const StringView fnmstr = inpfld_->fileName();
     const FilePath fnmfp( fnmstr );
@@ -186,11 +186,15 @@ void inputChgCB( CallBacker* )
     depthoutputfld_->setInputText( fnmfp.baseName() );
 
     BufferStringSet hornms;
-    dataselfld_->updateSummary();
     dataselfld_->setSensitive( true );
     scanbut_->setSensitive( !fnmstr.isEmpty() );
-    EM::Horizon2DAscIO::updateDesc_( fd_,
+    const bool keepdef = cb==inpfld_ && fd_.isGood();
+    if ( !keepdef )
+    {
+	EM::Horizon2DAscIO::updateDesc_( fd_,
 		isASCIIFileInTime() ? ZDomain::Time() : ZDomain::Depth() );
+	dataselfld_->updateSummary();
+    }
 }
 
 
