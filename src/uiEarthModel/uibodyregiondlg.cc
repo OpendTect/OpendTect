@@ -644,7 +644,7 @@ Array2D<unsigned char>*				bidinplg_;
 
 
 uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
-    : uiDialog(p,Setup(tr("Region constructor"),mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Build Geobody Region"),mNoDlgTitle,
 		       mODHelpKey(mBodyRegionDlgHelpID) ) )
     , singlehoradded_(false)
 {
