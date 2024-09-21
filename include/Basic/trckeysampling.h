@@ -25,6 +25,7 @@ namespace OD
 class StringPairSet;
 
 typedef TypeSet<TrcKey> TrcKeyPath;
+using TrcKeySet = TypeSet<TrcKey>;
 
 /*!
 \brief Horizontal sampling (inline and crossline range and steps).
