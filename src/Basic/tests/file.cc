@@ -358,24 +358,25 @@ static bool testFileTime( const char* fnm )
     if ( __iswin__ )
 	return true;
 
-    const FilePath fp( fnm );
+    FilePath fp( fnm );
+    fp.makeCanonical();
+    const BufferString realfnm = fp.fullPath();
     const BufferString linknm =
 		FilePath::getTempFullPath( "test_file", fp.extension() );
     FileDisposer disposer1( linknm.buf() );
-    mRunStandardTest( File::createLink(fnm,linknm.buf()),
+    mRunStandardTest( File::createLink(realfnm,linknm.buf()),
 		      "Created symbolic link" );
     const BufferString linktarget = File::linkTarget( linknm.buf() );
     const BufferString linkend = File::linkEnd( linknm.buf() );
-    mRunStandardTest( linktarget == fnm && linkend == fnm,
+    mRunStandardTest( linktarget == realfnm && linkend == realfnm,
 		      "Retrieve target/end of symbolic link" );
     const BufferString linkcontent = File::linkValue( linknm.buf() );
-    mRunStandardTest( linkcontent == fnm, "Read a symbolic link" );
+    mRunStandardTest( linkcontent == realfnm, "Read a symbolic link" );
 
-    const od_int64 filesz = File::getFileSize( fnm );
+    const od_int64 filesz = File::getFileSize( realfnm );
     mRunStandardTest( File::getFileSize(linknm.buf()) == filesz,
 		      "File size by following a link" );
-    const StringView filenm( fnm );
-    mRunStandardTest( File::getFileSize(linknm.buf(),false) == filenm.size(),
+    mRunStandardTest( File::getFileSize(linknm.buf(),false) == realfnm.size(),
 		      "File size of a symbolic link" );
     Time::FileTimeSet filetimes, linktimes;
     mRunStandardTest( File::getTimes( linknm.buf(), filetimes ),
