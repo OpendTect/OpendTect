@@ -65,6 +65,10 @@ namespace Time
     mGlobal(Basic) od_int64 passedSince(od_int64);
     mGlobal(Basic) od_int64 toMSecs(const std::timespec&);
     mGlobal(Basic) std::timespec fromMSecs(od_int64 msecs);
+    mGlobal(Basic) std::timespec getPosixFromNTFS(od_uint64);
+    mGlobal(Basic) od_uint64 getNTFSFromPosix(const std::timespec&);
+			/*!< NTFS time origin:; January 1, 1600, 0:00
+			     returned value is in 100th of nanosecond */
 
     mGlobal(Basic) const char*	defDateTimeFmt();
     mGlobal(Basic) const char*	defDateTimeTzFmt();	//!< With time zone

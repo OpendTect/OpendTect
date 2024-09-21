@@ -367,9 +367,7 @@ int getServiceStatus( const char* nm )
 void TimespecToFileTime( const std::timespec& t, FILETIME& pft )
 {
     ULARGE_INTEGER ull;
-    ull.QuadPart = od_uint64 ( (od_uint64(t.tv_sec) * 10000000ULL)
-			     + (od_uint64(t.tv_nsec) / 100ULL)
-			       + 116444736000000000LL );
+    ull.QuadPart = Time::getNTFSFromPosix( t );
     pft.dwLowDateTime = ull.LowPart;
     pft.dwHighDateTime = ull.HighPart;
 }
@@ -380,9 +378,7 @@ void FileTimeToTimet( const FILETIME& ft, std::timespec& t )
     ULARGE_INTEGER ull;
     ull.LowPart = ft.dwLowDateTime;
     ull.HighPart = ft.dwHighDateTime;
-    const od_uint64 timeinsec = od_uint64 (ull.QuadPart / 10000000ULL);
-    t.tv_sec = std::time_t (timeinsec - 11644473600ULL);
-    t.tv_nsec = long ((ull.QuadPart - (timeinsec*10000000ULL)) * 100ULL);
+    t = Time::getPosixFromNTFS( ull.QuadPart );
 }
 
 

@@ -1280,18 +1280,9 @@ bool ZipHandler::setXtraNTFSFld( const ZipFileInfo& fileinfo )
     const std::timespec modtime = fileinfo.times_.getModificationTime();
     const std::timespec acctime = fileinfo.times_.getAccessTime();
     const std::timespec crtime = fileinfo.times_.getCreationTime();
-    const od_uint64 ntfsmodtime =
-			od_uint64 ( (od_uint64(modtime.tv_sec) * 10000000ULL)
-				  + (od_uint64(modtime.tv_nsec) / 100ULL)
-				    + 116444736000000000LL );
-    const od_uint64 ntfsacctime =
-			od_uint64 ( (od_uint64(acctime.tv_sec) * 10000000ULL)
-				  + (od_uint64(acctime.tv_nsec) / 100ULL)
-				    + 116444736000000000LL );
-    const od_uint64 ntfscrtime =
-			od_uint64 ( (od_uint64(crtime.tv_sec) * 10000000ULL)
-				  + (od_uint64(crtime.tv_nsec) / 100ULL)
-				    + 116444736000000000LL );
+    const od_uint64 ntfsmodtime = Time::getNTFSFromPosix( modtime );
+    const od_uint64 ntfsacctime = Time::getNTFSFromPosix( acctime );
+    const od_uint64 ntfscrtime = Time::getNTFSFromPosix( crtime );
 
     mInsertToCharBuff( headerbuff, ntfsmodtime, off, mSizeEightBytes );
     off += mSizeEightBytes;
@@ -1973,14 +1964,9 @@ bool ZipHandler::readNTFSExtrField( const unsigned char* xtrafld,
     off += mSizeEightBytes;
     const od_uint64 ntfsatime = *mCast(od_uint64*, xtrafld + off);
     off += mSizeEightBytes;
-    const od_uint64 ntfsmtimesec = ntfsmtime / 10000000ULL;
-    const od_uint64 ntfsatimesec = ntfsatime / 10000000ULL;
 
-    std::timespec modtime, acctime;
-    modtime.tv_sec = std::time_t (ntfsmtimesec - 11644473600ULL);
-    modtime.tv_nsec = long ((ntfsmtime - (ntfsmtimesec*10000000ULL)) * 100ULL);
-    acctime.tv_sec = std::time_t (ntfsatimesec - 11644473600ULL);
-    acctime.tv_nsec = long ((ntfsatime - ntfsatimesec*10000000ULL) * 100ULL);
+    const std::timespec modtime = Time::getPosixFromNTFS( ntfsmtime );
+    const std::timespec acctime = Time::getPosixFromNTFS( ntfsatime );
     fileinfo.times_.setModificationTime( modtime ).setAccessTime( acctime );
     fileinfo.hasutcheader_ = true;
 

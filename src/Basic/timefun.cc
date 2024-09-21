@@ -177,6 +177,25 @@ std::timespec fromMSecs( od_int64 msecs )
 }
 
 
+std::timespec getPosixFromNTFS( od_uint64 t )
+{
+    std::timespec ret;
+    const od_uint64 timeinsec = od_uint64 (t / 10000000ULL);
+    ret.tv_sec = std::time_t (timeinsec - 11644473600ULL);
+    ret.tv_nsec = long ((t - (timeinsec*10000000ULL)) * 100ULL);
+    return ret;
+}
+
+
+od_uint64 getNTFSFromPosix( const std::timespec&t )
+{
+    od_uint64 ret = od_uint64 ( (od_uint64(t.tv_sec) * 10000000ULL)
+		  + (od_uint64(t.tv_nsec) / 100ULL)
+		  + 116444736000000000LL );
+    return ret;
+}
+
+
 const char* defDateTimeFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss"; }
 const char* defDateTimeTzFmt()	{ return "ddd dd MMM yyyy, hh:mm:ss, t"; }
 const char* defDateFmt()	{ return "ddd dd MMM yyyy"; }
