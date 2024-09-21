@@ -73,7 +73,7 @@ macro( OD_SETUP_EXTERNALS )
                     "-DEXTERNAL_BINARY_DIR=${CMAKE_BINARY_DIR}"
 		    "-DPLUGIN_DIR=${PLUGIN_DIR}"
 		    -DOD_NO_OSG=${OD_NO_OSG}
-		    -DPROJ_DIR=${PROJ_DIR}
+		    "-DPROJ_DIR=${PROJ_DIR}"
 		    -DOD_NO_PROJ=${OD_NO_PROJ}
 		    -DBUILD_PROJ=${BUILD_PROJ} )
 	if ( APPLE )
