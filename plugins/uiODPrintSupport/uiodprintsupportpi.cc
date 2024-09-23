@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uiodprintsupportmod.h"
 
 #include "odplugin.h"
+#include "uibasemod.h"
 #include "uiodprinterutils.h"
 
 using boolFromQWidgetWithGeomFnm = bool(*)(QWidget&,const char*,int,int,int);
