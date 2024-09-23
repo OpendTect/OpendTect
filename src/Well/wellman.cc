@@ -518,7 +518,7 @@ bool Well::Man::reloadLogs( const MultiID& key )
 
 bool Well::Man::validID( const MultiID& mid ) const
 {
-    const IOObj* ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
     return ioobj ? ioobj->group()==mTranslGroupName(Well) : false;
 }
 
