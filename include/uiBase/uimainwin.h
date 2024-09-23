@@ -219,6 +219,9 @@ public:
     mDeprecatedObs
     void		saveAsPS(const char* fnm,int w,int h,int res)
 			{ saveAsPDF( fnm, w, h, res ); }
+
+    static bool		hasPrintSupport();
+
     Notifier<uiMainWin> activatedone;
     Notifier<uiMainWin> ctrlCPressed;
     Notifier<uiMainWin> afterPopup;
@@ -275,6 +278,8 @@ public:
     static uiMainWin*	programmedActiveWindow();
     static void		setActivateBehavior(OD::WindowActivationBehavior);
     static OD::WindowActivationBehavior getActivateBehavior();
+    static bool		saveAsPDF(QWidget&,const char* fnm,
+				  int width,int height,int res);
 
 };
 

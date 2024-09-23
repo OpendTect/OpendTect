@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include <QPainter>
 #include <QPdfWriter>
 #include <QPoint>
-#include <QPrinter>
 #include <QString>
 
 mUseQtnamespace

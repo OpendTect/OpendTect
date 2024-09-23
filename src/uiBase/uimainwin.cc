@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QPainter>
-#include <QPrinter>
 #include <QScreen>
 #ifdef __win__
 # if QT_VERSION >= QT_VERSION_CHECK(5,7,0) && \
@@ -879,22 +878,7 @@ void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
 
 void uiMainWin::saveAsPDF( const char* filename, int w, int h, int res )
 {
-    QString fileName( filename );
-    auto* pdfprinter = new QPrinter();
-    pdfprinter->setOutputFormat( QPrinter::PdfFormat );
-    const QPageSize pgsz( QSizeF(w,h), QPageSize::Point );
-    pdfprinter->setPageSize( pgsz );
-    pdfprinter->setFullPage( false );
-    pdfprinter->setOutputFileName( filename );
-    pdfprinter->setResolution( res );
-
-    auto* pdfpainter = new QPainter();
-    pdfpainter->begin( pdfprinter );
     QWidget* qwin = qWidget();
-    const QRect qrec =
-	pdfprinter->pageLayout().paintRectPixels( pdfprinter->resolution() );
-    qwin->render( pdfpainter, qrec.topLeft(), qwin->rect() );
-    pdfpainter->end();
-    delete pdfpainter;
-    delete pdfprinter;
+    if ( qwin )
+	saveAsPDF( *qwin, filename, w, h, res );
 }

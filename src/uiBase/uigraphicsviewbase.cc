@@ -22,8 +22,6 @@ ________________________________________________________________________
 #include <QGesture>
 #include <QGraphicsItem>
 #include <QGraphicsView>
-#include <QPrinter>
-#include <QPrintDialog>
 #include <QScrollBar>
 #include <QTouchEvent>
 #include <QWheelEvent>
@@ -824,15 +822,8 @@ void uiGraphicsViewBase::translateText()
 
 bool uiGraphicsViewBase::print()
 {
-    QPrinter printer;
-    QPrintDialog printdlg( &printer );
-    if ( printdlg.exec() == QDialog::Rejected )
-	return false;
-
-    QPainter painter( &printer );
-    painter.setRenderHint( QPainter::Antialiasing );
-    body_->render( &painter );
-    return true;
+    QGraphicsScene* qscene = (QGraphicsScene*)(body_);
+    return qscene ? doPrintDialog( *qscene ) : false;
 }
 
 

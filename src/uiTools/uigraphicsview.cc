@@ -153,5 +153,6 @@ void uiGraphicsView::saveImageCB( CallBacker* )
 
 void uiGraphicsView::printImageCB( CallBacker* )
 {
+    mEnsureExecutedInMainThread( uiGraphicsView::printImageCB );
     print();
 }

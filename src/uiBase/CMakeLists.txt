@@ -7,7 +7,7 @@
 
 set( OD_MODULE_DEPS General )
 set( OD_FOLDER "Base (GUI)" )
-set( OD_USEQT PrintSupport )
+set( OD_USEQT Widgets )
 
 set( OD_MODULE_SOURCES
 	i_layout.cc

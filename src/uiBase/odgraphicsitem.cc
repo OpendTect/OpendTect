@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include <QPdfWriter>
 #include <QPen>
 #include <QPoint>
-#include <QPrinter>
 #include <QRectF>
 #include <QRgb>
 #include <QStyleOption>
@@ -993,16 +992,16 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 			      const QStyleOptionGraphicsItem* option,
 			      QWidget* widget )
 {
-    if ( updateResolution( painter ) )
+    if ( updateResolution(painter) )
     {
 	auto* qdevice = painter->device();
 	mDynamicCastGet(QImage*,qimage,qdevice)
 	mDynamicCastGet(QPdfWriter*,qpdfwriter,qdevice)
-	mDynamicCastGet(QPrinter*,qprinter,qdevice)
+	const bool isqprinter = isQPrinter( qdevice );
 
 	imagelock_.lock();
 
-	issnapshot_ = qimage || qpdfwriter || qprinter;
+	issnapshot_ = qimage || qpdfwriter || isqprinter;
 	wantsData.trigger();
 
 	if ( issnapshot_ )

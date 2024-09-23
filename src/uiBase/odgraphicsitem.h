@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "fontdata.h"
 
 class uiPixmap;
+mFDQtclass(QPaintDevice);
 
 static int ODGraphicsType = 100000;
 
@@ -336,6 +337,8 @@ public:
 						   trigger, the delivered image
 						   must be of same size as
 						   requested image. */
+
+    static bool			isQPrinter(QPaintDevice*);
 
 protected:
     void			mouseMoveEvent(

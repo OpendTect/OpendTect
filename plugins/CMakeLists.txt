@@ -28,6 +28,10 @@ set( OD_PLUGINS
 	ODBind
 )
 
+if ( NOT OD_NO_QPRINTSUPPORT )
+    list( APPEND OD_PLUGINS uiODPrintSupport )
+endif()
+
 if ( NOT OD_NO_OSG )
     list( APPEND OD_PLUGINS
 	uiCmdDriverMgr

@@ -525,14 +525,16 @@ void uiSaveImageDlg::setSizeInPix( int width, int height )
 
 void uiSaveImageDlg::addPrintFmtFilters( BufferString& filters )
 {
+    if ( !uiMainWin::hasPrintSupport() )
+	return;
+
     filters += ";;";
     filters += imageformatdescs[sPDFfmtIdx];
 }
 
 
-
-
 // uiSaveWinImageDlg
+
 uiSaveWinImageDlg::uiSaveWinImageDlg( uiParent* p )
     : uiSaveImageDlg(p,true,false)
 {
@@ -580,13 +582,15 @@ void uiSaveWinImageDlg::getSupportedFormats( const char** imagefrmt,
     {
 	if ( supportedformats.isPresent(imagefrmt[idy]) )
 	{
-	    if ( !filters.isEmpty() ) filters += ";;";
+	    if ( !filters.isEmpty() )
+		filters += ";;";
+
 	    filters += frmtdesc[idy];
 	}
 	idy++;
     }
 
-    uiSaveImageDlg::addPrintFmtFilters( filters );
+    addPrintFmtFilters( filters );
 }
 
 

@@ -21,6 +21,8 @@ class GestureEventHandler;
 class KeyboardEventHandler;
 class MouseEventHandler;
 class uiRect;
+mFDQtclass(QGraphicsScene);
+mFDQtclass(QWidget);
 
 
 mExpClass(uiBase) uiGraphicsViewBase : public uiObject
@@ -116,6 +118,7 @@ public:
 
 
     static const ObjectSet<uiGraphicsViewBase>& allInstances();
+    static bool			doPrintDialog(QGraphicsScene&);
 
 protected:
 
