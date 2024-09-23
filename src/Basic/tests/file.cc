@@ -585,10 +585,10 @@ static bool testFilePermissions()
     const auto unixdirperms = File::Permissions::getDefault( false, false );
     const auto winfileperms = File::Permissions::getDefault( true, true );
     const auto windirperms = File::Permissions::getDefault( false, true );
-    mRunStandardTest( unixfileperms.asInt() == 26214 ||
+    mRunStandardTest( unixfileperms.asInt() == 26180 ||
 		      unixfileperms.asInt() == 26212 ,
 		      "default Unix file permissions" );
-    mRunStandardTest( unixdirperms.asInt() == 30583 ||
+    mRunStandardTest( unixdirperms.asInt() == 30549 ||
 		      unixdirperms.asInt() == 30581 ,
 		      "default Unix directory permissions" );
     mRunStandardTest( winfileperms.asInt() == 32,

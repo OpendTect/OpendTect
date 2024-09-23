@@ -1453,8 +1453,8 @@ Permissions Permissions::getDefault( bool forfile, bool forwindows )
 {
     static Permissions winfileperms( FILE_ATTRIBUTE_ARCHIVE );
     static Permissions windirperms( FILE_ATTRIBUTE_DIRECTORY );
-    static Permissions unixfileperms( 26214 );
-    static Permissions unixdirperms( 30583 );
+    static Permissions unixfileperms( 26180 );
+    static Permissions unixdirperms( 30549 );
 #ifdef __unix__
     static bool retmask = false;
     if ( !retmask )
