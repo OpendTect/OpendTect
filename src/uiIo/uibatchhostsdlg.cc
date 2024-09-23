@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "hostdata.h"
 #include "mmpserverclient.h"
 #include "oddirs.h"
+#include "odplatform.h"
 #include "od_helpids.h"
 #include "remjobexec.h"
 #include "systeminfo.h"
@@ -357,7 +358,8 @@ static void setPlatform( uiTable& tbl, int row, const HostData& hd, bool ro )
 	tbl.setCellObject( RowCol(row,sPlfCol), cb );
     }
 
-    cb->setValue( hd.getPlatform().type() );
+    const BufferString plfnm( hd.getPlatform().osName() );
+    cb->setValue( plfnm.buf() );
 }
 
 

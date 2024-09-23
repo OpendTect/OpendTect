@@ -212,8 +212,8 @@ const OD::Platform& OD::Platform::local()
 
 
 OD::Platform::Platform()
-    : type_(__ismac__ ? (__isarm__ ? MacARM : MacIntel)
-		      : (__iswin__ ? Windows : Linux) )
+    : type_( __iswin__ ? Type::Windows
+		       : (__islinux__ ? Type::Linux : Type::MacOS) )
 {
 }
 
@@ -224,16 +224,20 @@ OD::Platform::Platform( Type typ )
 }
 
 
+OD::Platform::~Platform()
+{
+}
+
+
 const char* OD::Platform::shortName() const
 {
-    return isMac() ? (type_ == MacARM ? "macarm" : "macintel")
-		   : (isWindows() ? "win64" : "lux64" );
+    return isWindows() ? "win64" : ( isLinux() ? "lux64" : "mac" );
 }
 
 
 const char* OD::Platform::osName() const
 {
-    return isLinux() ? "Linux" : (isWindows() ? "Windows" : "macOS");
+    return isWindows() ? "Windows" : ( isLinux() ? "Linux" : "macOS" );
 }
 
 
@@ -242,36 +246,36 @@ void OD::Platform::set( const char* s, bool isshort )
     if ( !s || !*s )
 	{ pErrMsg("null or empty platform set"); return; }
 
-    if ( !isshort )
-	parseEnumType( s, type_ );
-    else
+    if ( isshort )
     {
 	const bool ismac = *s == 'm';
 	if ( ismac )
 	{
-	    const StringView str( s );
-	    if ( str == "macintel" )
-		type_ = MacIntel;
-	    else
-		type_ = MacARM;
-
-	    return;
+	    type_ = Type::MacOS;
 	}
-
-	const bool islin = *s == 'l';
-	type_ = islin ? Linux : Windows;
+	else
+	{
+	    const bool islin = *s == 'l';
+	    type_ = islin ? Type::Linux : Type::Windows;
+	}
+    }
+    else
+    {
+	parseEnumType( s, type_ );
     }
 }
 
 
 bool OD::Platform::isValidName( const char* s, bool isshort )
 {
-    if ( !s || !*s )	return false;
-    if ( !isshort )	return TypeDef().isValidName( s );
+    if ( !s || !*s )
+	return false;
+
+    if ( !isshort )
+	return TypeDef().isValidName( s );
 
     const StringView cmp( s );
-    return cmp == "lux64" || cmp == "win64" ||
-	   cmp == "macarm" || cmp == "macintel";
+    return cmp == "win64" || cmp == "lux64" || cmp == "mac";
 }
 
 

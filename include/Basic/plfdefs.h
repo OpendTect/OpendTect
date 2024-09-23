@@ -13,31 +13,31 @@ ________________________________________________________________________
 
 For every platform, the following variables get set:
 
-	__lux64__			Linux
-	__win64__			Windows
-	__macarm__, __macintel__	macOS
+	__win64__	Windows
+	__lux64__	Linux
+	__mac__		macOS
 
 Together with:
 OS type:
 
+	__win__		Windows
 	__unix__	Unix
 	__lux__		Linux
-	__win__		Windows
 	__mac__		macOS
 
 Platform:
 
 	__win64__	Windows (x64)
 	__lux64__	Linux (x86_64)
-	__macarm__	macOS ARM (arm64)
+	__macarm__	macOS Aarch64 (arm64)
 	__macintel__	macOS Intel (x86_64)
 
 	__plfsubdir__	String like "win64", "lux64" etc.
 
 Compiler type:
 
-	__gnuc__	GNU gcc
 	__msvc__	MS Visual C++
+	__gnuc__	GNU gcc
 	__clang__	Apple clang
 
 Language:
@@ -51,10 +51,9 @@ Byte order:
 Always defined:
 
 	__islittle__	'true' if little endian machine, false otherwise
-	__islinux__	'true' on Linux, 'false' otherwise
 	__iswin__	'true' on Windows, 'false' otherwise
+	__islinux__	'true' on Linux, 'false' otherwise
 	__ismac__	'true' on macOS, 'false' otherwise
-	__isarm__	'true' on macOS ARM (arm64), 'false' otherwise
 
 */
 
@@ -86,10 +85,10 @@ Always defined:
 #if defined( __APPLE__ )
 # define __unix__ 1
 # define __mac__ 1
-# if defined( __x86_64__ )
-# define __macintel__ 1
-# elif defined( __aarch64__ )
+# if defined( __aarch64__ )
 # define __macarm__ 1
+# elif defined( __x86_64__ )
+# define __macintel__ 1
 # else
 #  error "APPLE platform not detected"
 # endif
@@ -115,19 +114,12 @@ Always defined:
 
 #ifdef __win64__
 # define __plfsubdir__	"win64"
-# define __isarm__	false
 #endif
 #ifdef __lux64__
 # define __plfsubdir__	"lux64"
-# define __isarm__	false
 #endif
-#ifdef __macarm__
-# define __plfsubdir__	"macarm"
-# define __isarm__	true
-#endif
-#ifdef __macintel__
-# define __plfsubdir__	"macintel"
-# define __isarm__	false
+#ifdef __mac__
+# define __plfsubdir__	"mac"
 #endif
 /*____________________________________________________________________________*/
 /* Language type */
@@ -221,5 +213,3 @@ Always defined:
 #ifndef _ANSI_C_SOURCE
 # define _ANSI_C_SOURCE 1
 #endif
-
-

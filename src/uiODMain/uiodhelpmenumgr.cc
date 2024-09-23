@@ -31,7 +31,7 @@ ________________________________________________________________________
 
 #define mInsertItem(mnu,txt,id,icn,sc) \
 { \
-    uiAction* itm = new uiAction(txt,mCB(mnumgr_,uiODMenuMgr,handleClick));\
+    auto* itm = new uiAction(txt,mCB(mnumgr_,uiODMenuMgr,handleClick));\
     mnu->insertAction( itm, id ); \
     itm->setShortcut( sc ); \
     itm->setIcon( icn ); \
@@ -174,7 +174,18 @@ uiString uiODHelpMenuMgr::getAboutString()
        .add( "zlib " ).add( ZipUtils::getZLibVersion() ).add( ",<br>" )
        .add( "OpenSSL " ).add( mOPENSSL_VERSION ).add( ",<br>" )
        .add( "SQLite3 " ).add( mSQLITE_VERSION ).add( ",<br>" )
-       .add( GetCompilerVersionStr() ).add( "<br><br>" );
+       .add( GetCompilerVersionStr() ).add( "<br>" );
+#ifdef __mac__
+    BufferString compstr.add( "Running " );
+# ifdef __macarm__
+    compstr.add( "arm64" );
+# else
+    compstr.add( "intel" );
+# endif
+    compstr.add( " binaries" );
+    str.add( compstr.str() ).add( "<br>" );
+#endif
+    str.add( "<br>" );
 
     str.add( mCOPYRIGHT_STRING ).add( "<br>" )
        .add( "OpendTect is released under a triple licensing scheme. "

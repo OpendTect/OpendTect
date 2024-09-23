@@ -37,11 +37,7 @@ if( UNIX )
     if( APPLE )
 
 	set ( SHLIB_EXTENSION dylib )
-	if ( ${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "arm64" )
-	    set ( OD_PLFSUBDIR macarm )
-	else()
-	    set ( OD_PLFSUBDIR macintel )
-	endif()
+	set ( OD_PLFSUBDIR mac )
 
 	if ( CMAKE_GENERATOR STREQUAL "Xcode" )
 	    set( OD_SUPPRESS_WARNINGS_NOT_ON_WINDOWS yes )

@@ -654,8 +654,12 @@ bool HostDataList::readOldHostFile( const char* fname )
 		newhd->aliases_.add( vstr );
 
 	    mGetVStr(1);
-	    newhd->platform_.setType( vstr == "win" ? OD::Platform::Windows
-						    : OD::Platform::Linux );
+	    const bool iswin = !vstr.isEmpty() && vstr[0] == 'w';
+	    const bool islux = !vstr.isEmpty() && vstr[0] == 'l';
+	    newhd->platform_.setType( iswin
+			? OD::Platform::Type::Windows
+			: (islux ? OD::Platform::Type::Linux
+				 : OD::Platform::Type::MacOS) );
 
 	    mGetVStr(2);
 	    if ( !vstr.isEmpty() )
