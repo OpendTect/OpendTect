@@ -176,7 +176,7 @@ uiString uiODHelpMenuMgr::getAboutString()
        .add( "SQLite3 " ).add( mSQLITE_VERSION ).add( ",<br>" )
        .add( GetCompilerVersionStr() ).add( "<br>" );
 #ifdef __mac__
-    BufferString compstr.add( "Running " );
+    BufferString compstr( "Running " );
 # ifdef __macarm__
     compstr.add( "arm64" );
 # else
