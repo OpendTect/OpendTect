@@ -31,7 +31,9 @@ uiGenInputInputFld::~uiGenInputInputFld()
 
 
 const UserInputObj* uiGenInputInputFld::element( int idx ) const
-{ return const_cast<uiGenInputInputFld*>(this)->element(idx); }
+{
+    return const_cast<uiGenInputInputFld*>(this)->element( idx );
+}
 
 
 uiObject* uiGenInputInputFld::elemObj( int idx )
@@ -195,7 +197,10 @@ void uiGenInputInputFld::setSensitive( bool yn, int elemidx )
 bool uiGenInputInputFld::update( const DataInpSpec& nw )
 {
     if ( spec_.type() == nw.type() && update_(nw) )
-	{ spec_ = nw; return true; }
+    {
+	spec_ = nw;
+	return true;
+    }
 
     return false;
 }
@@ -270,47 +275,55 @@ void uiGenInputInputFld::init()
 }
 
 
-
+// uiGenInputBoolFld
 uiGenInputBoolFld::uiGenInputBoolFld( uiParent* p, const uiString& truetext,
 		    const uiString& falsetext, bool initval, const char* nm)
-    : uiGroup( p, nm )
-    , UserInputObjImpl<bool>()
-    , butgrp_( 0 ), checkbox_( 0 ), rb1_( 0 ), rb2_( 0 ), yn_( initval )
-    , valueChanged( this )
+    : UserInputObjImpl<bool>()
+    , uiGroup(p,nm)
+    , valueChanged(this)
 {
     init( p, truetext, falsetext, initval );
 }
 
 uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec,
 				     const char* nm)
-    : uiGroup( p, nm )
-    , UserInputObjImpl<bool>()
-    , butgrp_( 0 ), checkbox_( 0 ), rb1_( 0 ), rb2_( 0 ), yn_( false )
-    , valueChanged( this )
+    : UserInputObjImpl<bool>()
+    , uiGroup(p,nm)
+    , valueChanged(this)
 {
     const BoolInpSpec* spc = dynamic_cast<const BoolInpSpec*>(&spec);
     if ( !spc )
-	{ pErrMsg("huh?"); init( p, tr("Y"), tr("N"), true ); }
+    {
+	pErrMsg("huh?");
+	init( p, tr("Y"), tr("N"), true );
+    }
     else
     {
-	init( p, spc->trueFalseTxt(true),
-		spc->trueFalseTxt(false), spc->getBoolValue() );
-	if ( rb1_ && spec.name(0) ) rb1_->setName( spec.name(0) );
-	if ( rb2_ && spec.name(1) ) rb2_->setName( spec.name(1) );
+	init( p, spc->trueFalseTxt(true), spc->trueFalseTxt(false),
+	      spc->getBoolValue() );
+	if ( rb1_ && spec.name(0) )
+	    rb1_->setName( spec.name(0) );
+	if ( rb2_ && spec.name(1) )
+	    rb2_->setName( spec.name(1) );
     }
 }
 
 
 const char* uiGenInputBoolFld::text() const
-{ return yn_ ? truetxt_.getFullString() : falsetxt_.getFullString(); }
+{
+    return yn_ ? truetxt_.getFullString() : falsetxt_.getFullString();
+}
 
 
 void uiGenInputBoolFld::setText( const char* t )
 {
     bool newval;
-    if ( truetxt_.getFullString() == t ) newval = true;
-    else if ( falsetxt_.getFullString()==t ) newval = false;
-    else newval = toBool(t);
+    if ( truetxt_.getFullString() == t )
+	newval = true;
+    else if ( falsetxt_.getFullString()==t )
+	newval = false;
+    else
+	newval = toBool(t);
 
     setvalue_(newval);
 }
@@ -333,7 +346,7 @@ void uiGenInputBoolFld::init( uiParent* p, const uiString& truetext,
     }
 
     // we have two labelTxt()'s, so we'll make radio buttons
-    uiGroup* grp_ = new uiGroup( p, name() );
+    auto* grp_ = new uiGroup( p, name() );
     butgrp_ = grp_->mainObject();
 
     rb1_ = new uiRadioButton( grp_, truetxt_ );
@@ -371,10 +384,14 @@ void uiGenInputBoolFld::selected(CallBacker* cber)
 {
     bool newyn = false;
 
-    if ( cber == rb1_ )		{ newyn = rb1_->isChecked(); }
-    else if( cber == rb2_ )	{ newyn = !rb2_->isChecked(); }
-    else if( cber == checkbox_ ){ newyn = checkbox_->isChecked(); }
-    else return;
+    if ( cber == rb1_ )
+	newyn = rb1_->isChecked();
+    else if( cber == rb2_ )
+	newyn = !rb2_->isChecked();
+    else if( cber == checkbox_ )
+	newyn = checkbox_->isChecked();
+    else
+	return;
 
     if ( newyn != yn_ )
     {
@@ -387,10 +404,17 @@ void uiGenInputBoolFld::selected(CallBacker* cber)
 void uiGenInputBoolFld::setvalue_( bool b )
 {
     yn_ = b;
-    if ( checkbox_ ) { checkbox_->setChecked( yn_ ); return; }
+    if ( checkbox_ )
+    {
+	checkbox_->setChecked( yn_ );
+	return;
+    }
 
     if ( !rb1_ || !rb2_ )
-	{ pErrMsg("Huh?"); return; }
+    {
+	pErrMsg("Huh?");
+	return;
+    }
 
     rb1_->setChecked( yn_ );
     rb2_->setChecked( !yn_ );
@@ -399,10 +423,17 @@ void uiGenInputBoolFld::setvalue_( bool b )
 
 void uiGenInputBoolFld::setReadOnly( bool ro )
 {
-    if ( checkbox_ ) { checkbox_->setSensitive( !ro ); return; }
+    if ( checkbox_ )
+    {
+	checkbox_->setSensitive( !ro );
+	return;
+    }
 
     if ( !rb1_ || !rb2_ )
-	{ pErrMsg("Huh?"); return; }
+    {
+	pErrMsg("Huh?");
+	return;
+    }
 
     rb1_->setSensitive(!ro);
     rb2_->setSensitive(!ro);
@@ -445,8 +476,8 @@ bool uiGenInputBoolFld::update_( const DataInpSpec& spec )
 
 // uiGenInputIntFld
 uiGenInputIntFld::uiGenInputIntFld( uiParent* p, int val, const char* nm )
-    : uiSpinBox(p,0,nm)
-    , UserInputObjImpl<int>()
+    : UserInputObjImpl<int>()
+    , uiSpinBox(p,0,nm)
 {
     setvalue_( val );
 }
@@ -454,8 +485,8 @@ uiGenInputIntFld::uiGenInputIntFld( uiParent* p, int val, const char* nm )
 
 uiGenInputIntFld::uiGenInputIntFld( uiParent* p, const DataInpSpec& spec,
 				    const char* nm )
-    : uiSpinBox(p,0,nm)
-    , UserInputObjImpl<int>()
+    : UserInputObjImpl<int>()
+    , uiSpinBox(p,0,nm)
 {
     mDynamicCastGet(const IntInpSpec*,ispec,&spec)
     if ( spec.hasLimits() && ispec )
@@ -466,38 +497,72 @@ uiGenInputIntFld::uiGenInputIntFld( uiParent* p, const DataInpSpec& spec,
 
 
 void uiGenInputIntFld::setReadOnly( bool yn )
-{ uiSpinBox::setSensitive( !yn ); }
+{
+    uiSpinBox::setSensitive( !yn );
+}
+
 
 bool uiGenInputIntFld::isReadOnly() const
-{ return !uiSpinBox::sensitive(); }
+{
+    return !uiSpinBox::sensitive();
+}
+
 
 bool uiGenInputIntFld::update_( const DataInpSpec& spec )
-{ setvalue_( spec.getIntValue() ); return true; }
+{
+    mDynamicCastGet(const IntInpSpec*,ispec,&spec)
+    if ( spec.hasLimits() && ispec )
+	uiSpinBox::setInterval( *ispec->limits() );
+
+    setvalue_( spec.getIntValue() );
+    return true;
+}
+
 
 void uiGenInputIntFld::setToolTip( const uiString& tt )
-{ uiSpinBox::setToolTip( tt ); }
+{
+    uiSpinBox::setToolTip( tt );
+}
+
 
 int uiGenInputIntFld::getvalue_() const
-{ return uiSpinBox::getIntValue(); }
+{
+    return uiSpinBox::getIntValue();
+}
+
 
 void uiGenInputIntFld::setvalue_( int val )
-{ uiSpinBox::setValue( val ); }
+{
+    uiSpinBox::setValue( val );
+}
+
 
 bool uiGenInputIntFld::notifyValueChanging_( const CallBack& cb )
-{ uiSpinBox::valueChanging.notify( cb ); return true; }
+{
+    uiSpinBox::valueChanging.notify( cb );
+    return true;
+}
+
 
 bool uiGenInputIntFld::notifyValueChanged_( const CallBack& cb )
-{ uiSpinBox::valueChanged.notify( cb ); return true; }
+{
+    uiSpinBox::valueChanged.notify( cb );
+    return true;
+}
+
 
 bool uiGenInputIntFld::notifyUpdateRequested_( const CallBack& cb )
-{ uiSpinBox::valueChanged.notify( cb ); return true; }
+{
+    uiSpinBox::valueChanged.notify( cb );
+    return true;
+}
 
 
 // uiGenInputInt64Fld
 uiGenInputInt64Fld::uiGenInputInt64Fld( uiParent* p, od_int64 val,
 					const char* nm )
-    : uiSpinBox(p,0,nm)
-    , UserInputObjImpl<od_int64>()
+    : UserInputObjImpl<od_int64>()
+    , uiSpinBox(p,0,nm)
 {
     setvalue_( val );
 }
@@ -505,8 +570,8 @@ uiGenInputInt64Fld::uiGenInputInt64Fld( uiParent* p, od_int64 val,
 
 uiGenInputInt64Fld::uiGenInputInt64Fld( uiParent* p, const DataInpSpec& spec,
 				    const char* nm )
-    : uiSpinBox(p,0,nm)
-    , UserInputObjImpl<od_int64>()
+    : UserInputObjImpl<od_int64>()
+    , uiSpinBox(p,0,nm)
 {
     mDynamicCastGet(const IntInpSpec*,ispec,&spec)
     if ( spec.hasLimits() && ispec )
@@ -517,28 +582,62 @@ uiGenInputInt64Fld::uiGenInputInt64Fld( uiParent* p, const DataInpSpec& spec,
 
 
 void uiGenInputInt64Fld::setReadOnly( bool yn )
-{ uiSpinBox::setSensitive( !yn ); }
+{
+    uiSpinBox::setSensitive( !yn );
+}
+
 
 bool uiGenInputInt64Fld::isReadOnly() const
-{ return !uiSpinBox::sensitive(); }
+{
+    return !uiSpinBox::sensitive();
+}
+
 
 bool uiGenInputInt64Fld::update_( const DataInpSpec& spec )
-{ setvalue_( spec.getIntValue() ); return true; }
+{
+    mDynamicCastGet(const IntInpSpec*,ispec,&spec)
+    if ( spec.hasLimits() && ispec )
+	uiSpinBox::setInterval( *ispec->limits() );
+
+    setvalue_( spec.getIntValue() );
+    return true;
+}
+
 
 void uiGenInputInt64Fld::setToolTip( const uiString& tt )
-{ uiSpinBox::setToolTip( tt ); }
+{
+    uiSpinBox::setToolTip( tt );
+}
+
 
 od_int64 uiGenInputInt64Fld::getvalue_() const
-{ return uiSpinBox::getInt64Value(); }
+{
+    return uiSpinBox::getInt64Value();
+}
+
 
 void uiGenInputInt64Fld::setvalue_( od_int64 val )
-{ uiSpinBox::setValue( val ); }
+{
+    uiSpinBox::setValue( val );
+}
+
 
 bool uiGenInputInt64Fld::notifyValueChanging_( const CallBack& cb )
-{ uiSpinBox::valueChanging.notify( cb ); return true; }
+{
+    uiSpinBox::valueChanging.notify( cb );
+    return true;
+}
+
 
 bool uiGenInputInt64Fld::notifyValueChanged_( const CallBack& cb )
-{ uiSpinBox::valueChanged.notify( cb ); return true; }
+{
+    uiSpinBox::valueChanged.notify( cb );
+    return true;
+}
+
 
 bool uiGenInputInt64Fld::notifyUpdateRequested_( const CallBack& cb )
-{ uiSpinBox::valueChanged.notify( cb ); return true; }
+{
+    uiSpinBox::valueChanged.notify( cb );
+    return true;
+}

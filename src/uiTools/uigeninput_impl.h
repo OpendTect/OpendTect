@@ -8,11 +8,14 @@ ________________________________________________________________________
 
 -*/
 
+#include "callback.h"
+
 #include "uigroup.h"
 #include "uispinbox.h"
 #include "userinputobj.h"
 
 class uiCheckBox;
+class uiGenInput;
 class uiRadioButton;
 
 /*! \brief Generalized data input field.
@@ -28,7 +31,6 @@ class uiRadioButton;
 class uiGenInputInputFld : public CallBacker
 {
 public:
-			uiGenInputInputFld(uiGenInput*,const DataInpSpec&) ;
     virtual		~uiGenInputInputFld();
     virtual int		nElems() const			{ return 1; }
 
@@ -83,6 +85,7 @@ public:
     void		updateReqNotify(CallBacker*);
 
 protected:
+			uiGenInputInputFld(uiGenInput*,const DataInpSpec&) ;
 
     DataInpSpec&	spec_;
     uiGenInput*		p_;
@@ -146,11 +149,11 @@ protected:
 
     uiString		truetxt_;
     uiString		falsetxt_;
-    bool		yn_;
-    uiObject*		butgrp_;
-    uiCheckBox*		checkbox_;
-    uiRadioButton*	rb1_;
-    uiRadioButton*	rb2_;
+    bool		yn_					= false;
+    uiObject*		butgrp_					= nullptr;
+    uiCheckBox*		checkbox_				= nullptr;
+    uiRadioButton*	rb1_					= nullptr;
+    uiRadioButton*	rb2_					= nullptr;
 };
 
 
