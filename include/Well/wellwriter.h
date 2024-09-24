@@ -32,6 +32,7 @@ class WriteAccess;
 mExpClass(Well) Writer
 { mODTextTranslationClass(Well::Writer);
 public:
+    using StoreReqs = Well::LoadReqs;
 
 			Writer(const MultiID&,const Data&);
 			Writer(const IOObj&,const Data&);
@@ -39,9 +40,12 @@ public:
     bool		isUsable() const	{ return wa_; }
 
     bool		put() const;		//!< Just write all
+    bool		put(const StoreReqs&) const;
 
-    bool		putInfoAndTrack() const;//!< Write Info and track
-    bool		putLogs() const;	//!< Write logs only
+    bool		putInfoAndTrack() const;//!< Write Info and Track
+    bool		putInfo() const;	//!< Write Info only
+    bool		putTrack() const;	//!< Write Track only
+    bool		putLogs() const;	//!< Write Logs only
     bool		putMarkers() const;	//!< Write Markers only
     bool		putD2T() const;		//!< Write D2T model only
     bool		putCSMdl() const;	//!< Write Check shot model only
@@ -66,8 +70,6 @@ protected:
     NotifyStopper*	nsfile_		= nullptr;
     NotifyStopper*	nsdir_		= nullptr;
 
-    bool		putTrack() const;
-
 private:
 
     void		init(const IOObj&,const Data&);
@@ -84,7 +86,7 @@ public:
     typedef Well::LoadReqs	StoreReqs;
 
 			MultiWellWriter(const ObjectSet<Well::Data>&,
-					const ObjectSet<StoreReqs>& reqs);
+					const TypeSet<StoreReqs>& reqs);
 			~MultiWellWriter();
 
     int			nextStep() override;
@@ -97,7 +99,7 @@ public:
 
 protected:
     const ObjectSet<Well::Data>&	wds_;
-    const ObjectSet<StoreReqs>&		reqs_;
+    const TypeSet<StoreReqs>&		reqs_;
     od_int64				nrwells_;
     od_int64				nrdone_;
     uiString				msg_;

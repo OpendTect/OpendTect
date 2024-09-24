@@ -1613,8 +1613,8 @@ public:
 uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
 	: uiDialog(p,uiDialog::Setup( mTDOpName(uiStrings::sImport(),cksh),
 		     mNoDlgTitle, mODHelpKey(mD2TModelReadDlgHelpID) ))
-	, cksh_(cksh)
 	, wd_(wd)
+	, cksh_(cksh)
 {
     setOkText( uiStrings::sImport() );
     uiD2TModelGroup::Setup su( false );
@@ -2809,7 +2809,8 @@ bool uiSetD2TFromOtherWell::acceptOK( CallBacker* )
 
 	Well::Writer wtr( selkey, *wd );
 	if ( chgreplvel )
-	    wtr.putInfoAndTrack();
+	    wtr.putInfo();
+
 	wtr.putD2T();
     }
 

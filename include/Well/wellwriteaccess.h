@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "gendefs.h"
+#include "commondefs.h"
 
 class BufferStringSet;
+class uiString;
 
 namespace Well
 {
@@ -29,7 +30,9 @@ public:
 
     virtual bool	put() const			= 0; //!< Just write all
 
-    virtual bool	putInfoAndTrack() const		= 0;
+    virtual bool	needsInfoAndTrackCombined() const	= 0;
+    virtual bool	putInfo() const			= 0;
+    virtual bool	putTrack() const		= 0;
     virtual bool	putLogs() const			= 0;
     virtual bool	putMarkers() const		= 0;
     virtual bool	putD2T() const			= 0;

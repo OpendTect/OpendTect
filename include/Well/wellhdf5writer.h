@@ -30,7 +30,16 @@ public:
 			HDF5Writer(const char* fnm,const Data&,uiString&);
 			~HDF5Writer();
 
-    bool		putInfoAndTrack() const override;
+    HDF5::Reader*	createCoupledHDFReader() const;
+    static bool		useHDF5(const IOObj&,uiString&);
+
+private:
+    bool		needsInfoAndTrackCombined() const override
+			{ return false; }
+
+    bool		put() const override;
+    bool		putInfo() const override;
+    bool		putTrack() const override;
     bool		putLogs() const override;
     bool		putMarkers() const override;
     bool		putD2T() const override;
@@ -38,13 +47,6 @@ public:
     bool		putDispProps() const override;
 
     const uiString&	errMsg() const override		{ return errmsg_; }
-
-    bool		put() const override;
-
-    HDF5::Reader*	createCoupledHDFReader() const;
-    static bool		useHDF5(const IOObj&,uiString&);
-
-protected:
 
     PtrMan<HDF5::Writer> wrr_				= nullptr;
     BufferString	filename_;

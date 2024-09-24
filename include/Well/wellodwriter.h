@@ -9,13 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
+
+#include "uistring.h"
 #include "wellwriteaccess.h"
 #include "wellio.h"
 
 #include "od_iosfwd.h"
 
-class IOObj;
 class DataBuffer;
+class IOObj;
+class uiString;
 class ascostream;
 
 
@@ -28,17 +31,23 @@ class Log;
 
 mExpClass(Well) odWriter : public odIO
 			 , public WriteAccess
-{ mODTextTranslationClass(Well::odWriter);
+{
+mODTextTranslationClass(Well::odWriter)
 public:
-
 			odWriter(const IOObj&,const Data&,uiString& errmsg);
 			odWriter(const char* fnm,const Data&,uiString& errmsg);
-    virtual		~odWriter();
+			~odWriter();
+
+    static const char*	sKeyLogStorage()		{ return "Log storage";}
+
+private:
+
+    bool		needsInfoAndTrackCombined() const override
+			{ return true; }
 
     bool		put() const override;
-
-    bool		putInfoAndTrack() const override;
-    bool		putTrack() const;
+    bool		putInfo() const override;
+    bool		putTrack() const override;
     bool		putLogs() const override;
     bool		putMarkers() const override;
     bool		putD2T() const override;
@@ -52,7 +61,8 @@ public:
 
     const uiString&	errMsg() const override { return odIO::errMsg(); }
 
-    bool		putInfoAndTrack(od_ostream&) const;
+    bool		putInfo(od_ostream&) const;
+    bool		putTrack(od_ostream&) const;
     bool		putMarkers(od_ostream&) const;
     bool		putDefLogs(od_ostream&) const;
     bool		putD2T(od_ostream&) const;
@@ -60,10 +70,6 @@ public:
     bool		putDispProps(od_ostream&) const;
 
     void		setBinaryWriteLogs( bool yn )	{ binwrlogs_ = yn; }
-
-    static const char*	sKeyLogStorage()		{ return "Log storage";}
-
-protected:
 
     bool		binwrlogs_;
 
@@ -77,11 +83,8 @@ protected:
 				  const DataBuffer* databuf = nullptr) const;
     DataBuffer*		getLogBuffer(od_istream&) const;
     bool		wrHdr(od_ostream&,const char*) const;
-    bool		putTrack(od_ostream&) const;
     bool		doPutD2T(bool) const;
     bool		doPutD2T(od_ostream&,bool) const;
-
-private:
 
     void		init();
 

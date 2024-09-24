@@ -176,7 +176,8 @@ bool Well::HDF5Writer::ensureFileOpen() const
 
 bool Well::HDF5Writer::put() const
 {
-    return putInfoAndTrack()
+    return putInfo()
+	&& putTrack()
 	&& putD2T()
 	&& putLogs()
 	&& putMarkers()
@@ -207,7 +208,7 @@ void Well::HDF5Writer::ensureCorrectDSSize( const HDF5::DataSetKey& dsky,
 }
 
 
-bool Well::HDF5Writer::putInfoAndTrack() const
+bool Well::HDF5Writer::putInfo() const
 {
     if ( !ensureFileOpen() )
 	return false;
@@ -219,6 +220,17 @@ bool Well::HDF5Writer::putInfoAndTrack() const
     putDepthUnit( iop );
     uiRetVal uirv = wrr.set( iop );
     mErrRetIfUiRvNotOK( HDF5::DataSetKey() );
+
+    return true;
+}
+
+
+bool Well::HDF5Writer::putTrack() const
+{
+    if ( !ensureFileOpen() )
+	return false;
+
+    auto& wrr = cCast(HDF5::Writer&,*wrr_);
 
     const int sz = wd_.track().size();
     Array2DImpl<double> crdarr( sz, 3 );
@@ -240,6 +252,7 @@ bool Well::HDF5Writer::putInfoAndTrack() const
     dsky.setDataSetName( sCoordsDSName() );
     const Array1DInfoImpl changedir( 1 );
 
+    uiRetVal uirv;
     wrr.createDataSetIfMissing( dsky, OD::F64, crdarr.info(), changedir );
     ensureCorrectDSSize( dsky, iter.size(), 3, uirv );
     mErrRetIfUiRvNotOK( trackdsky );

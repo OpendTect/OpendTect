@@ -97,7 +97,8 @@ rettyp Well::Writer::fnnm( typ arg ) const \
 bool Well::Writer::fnnm() const { return wa_ ? wa_->fnnm() : false; }
 
 mImplSimpleWWFn(put)
-mImplSimpleWWFn(putInfoAndTrack)
+mImplSimpleWWFn(putInfo)
+mImplSimpleWWFn(putTrack)
 mImplSimpleWWFn(putLogs)
 mImplSimpleWWFn(putMarkers)
 mImplSimpleWWFn(putD2T)
@@ -107,6 +108,41 @@ mImplSimpleWWFn(isFunctional)
 
 mImplWWFn(bool,putLog,const Log&,wl,false)
 
+
+bool Well::Writer::putInfoAndTrack() const
+{
+    return put( StoreReqs(Well::Inf,Well::Trck) );
+}
+
+
+bool Well::Writer::put( const StoreReqs& reqs ) const
+{
+    if ( wa_->needsInfoAndTrackCombined() &&
+	(reqs.includes(Well::Inf) || reqs.includes(Well::Trck)) )
+	 putTrack();
+    else
+    {
+	if ( reqs.includes(Well::Inf) )
+	    putInfo();
+	if ( reqs.includes(Well::Trck) )
+	    putTrack();
+    }
+
+    if ( reqs.includes(Well::D2T) )
+	putD2T();
+    if ( reqs.includes(Well::Mrkrs) )
+	putMarkers();
+    if ( reqs.includes(Well::Logs) )
+	putLogs();
+    if ( reqs.includes(Well::LogInfos) )
+	putLogs();
+    if ( reqs.includes(Well::CSMdl) )
+	putCSMdl();
+    if ( reqs.includes(Well::DispProps2D) || reqs.includes(Well::DispProps3D) )
+	putDispProps();
+
+    return true;
+}
 
 bool Well::Writer::putDefLogs() const
 {
@@ -196,7 +232,7 @@ bool Well::odWriter::wrHdr( od_ostream& strm, const char* fileky ) const
 
 bool Well::odWriter::put() const
 {
-    return putInfoAndTrack()
+    return putTrack()
 	&& putLogs()
 	&& putMarkers()
 	&& putD2T()
@@ -205,14 +241,20 @@ bool Well::odWriter::put() const
 }
 
 
-bool Well::odWriter::putInfoAndTrack() const
+bool Well::odWriter::putInfo() const
 {
-    mGetOutStream( sExtWell(), 0, return false )
-    return putInfoAndTrack( strm );
+    return putTrack();
 }
 
 
-bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
+bool Well::odWriter::putTrack() const
+{
+    mGetOutStream( sExtWell(), 0, return false )
+    return putInfo( strm ) && putTrack( strm );
+}
+
+
+bool Well::odWriter::putInfo( od_ostream& strm ) const
 {
     if ( !wrHdr(strm,sKeyWell()) )
 	mErrRetStrmOper(tr("write header (info/track)"))
@@ -234,7 +276,7 @@ bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
     astrm.put( Well::Info::sKeyGroundElev(), wd_.info().groundelev_ );
     astrm.newParagraph();
 
-    return putTrack( strm );
+    return true;
 }
 
 
@@ -253,13 +295,6 @@ bool Well::odWriter::putTrack( od_ostream& strm ) const
     if ( !strm.isOK() )
 	mErrRetStrmOper(tr("write track data"))
     return true;
-}
-
-
-bool Well::odWriter::putTrack() const
-{
-    mGetOutStream( sExtTrack(), 0, return false )
-    return putTrack( strm );
 }
 
 
@@ -651,7 +686,7 @@ bool Well::odWriter::putDispProps( od_ostream& strm ) const
 
 
 MultiWellWriter::MultiWellWriter( const ObjectSet<Well::Data>& wds,
-				  const ObjectSet<StoreReqs>& reqs )
+				  const TypeSet<StoreReqs>& reqs )
     : Executor("Saving Wells")
     , wds_(wds)
     , reqs_(reqs)
@@ -700,7 +735,7 @@ int MultiWellWriter::nextStep()
 	return MoreToDo();
     }
 
-    if ( !store(wd->multiID(),*wd,*reqs_[nrdone_]) )
+    if ( !store(wd->multiID(),*wd,reqs_[nrdone_]) )
 	allwellswritten_ = false;
 
     nrdone_++;
@@ -712,22 +747,7 @@ bool MultiWellWriter::store( const MultiID& key, const Well::Data& wd,
 						 const StoreReqs& reqs )
 {
     Well::Writer wrtr( key, wd );
-    if ( reqs.includes(Well::Inf) || reqs.includes(Well::Trck) )
-	wrtr.putInfoAndTrack();
-    if ( reqs.includes(Well::D2T) )
-	wrtr.putD2T();
-    if ( reqs.includes(Well::Mrkrs) )
-	wrtr.putMarkers();
-    if ( reqs.includes(Well::Logs) )
-	wrtr.putLogs();
-    if ( reqs.includes(Well::LogInfos) )
-	wrtr.putLogs();
-    if ( reqs.includes(Well::CSMdl) )
-	wrtr.putCSMdl();
-    if ( reqs.includes(Well::DispProps2D) || reqs.includes(Well::DispProps3D) )
-	wrtr.putDispProps();
-
-    return true;
+    return wrtr.put( reqs );
 }
 
 

@@ -477,7 +477,7 @@ void uiWellMan::edWellTrack( CallBacker* )
 	return;
 
     Well::Writer wtr( curmid, *wd );
-    if ( !wtr.putInfoAndTrack( ) )
+    if ( !wtr.putInfoAndTrack() )
     {
 	uiMSG().error( tr("Cannot write new track to disk") );
 	wd->track() = origtrck;
@@ -553,7 +553,7 @@ void uiWellMan::defD2T( bool chkshot )
 	}
     }
     else if ( !mIsEqual(oldreplvel,wd->info().replvel_,1e-2f) &&
-	      !wtr.putInfoAndTrack() )
+	      !wtr.putInfo() )
     {
 	if ( !errmsg.isEmpty() )
 	errmsg.append( tr("Cannot write new %1 to disk")
