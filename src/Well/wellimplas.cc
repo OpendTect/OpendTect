@@ -158,6 +158,8 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	char* val2;
 	char* info;
 	parseHeader( keyw, val1, val2, info );
+	const bool hasval1 = val1 && *val1;
+	const bool hasval2 = val2 && *val2;
 
 	switch ( section )
 	{
@@ -225,13 +227,13 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	    if ( mIsKey("COMP") )
 	    {
 		lfi.comp_ = val1;
-		if ( val2 && *val2 )
+		if ( hasval2 )
 		    lfi.comp_.addSpace().add( val2 );
 	    }
 	    if ( mIsKey("WELL") )
 	    {
 		lfi.wellnm_ = val1;
-		if ( val2 && *val2 )
+		if ( hasval2 )
 		    lfi.wellnm_.addSpace().add( val2 );
 	    }
 	    if ( (mIsKey("EKB") || mIsKey("EDF")) && mIsUdf(lfi.kbelev_))
@@ -239,28 +241,28 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	    if ( mIsKey("EGL") )
 		lfi.glelev_ = toDouble(val2);
 	    // TODO: Country and State are two different things. Need to split
-	    if ( mIsKey("CTRY") && lfi.country_.isEmpty() && (val1 && *val1) )
+	    if ( mIsKey("CTRY") && lfi.country_.isEmpty() && hasval1 )
 	    {
 		lfi.country_ = val1;
-		if ( val2 && *val2 )
+		if ( hasval2 )
 		    lfi.country_.addSpace().add( val2 );
 	    }
-	    if ( mIsKey("STAT") && lfi.state_.isEmpty() && (val1 && *val1) )
+	    if ( mIsKey("STAT") && lfi.state_.isEmpty() && hasval1 )
 	    {
 		lfi.state_ = val1;
-		if ( val2 && *val2 )
+		if ( hasval2 )
 		    lfi.state_.addSpace().add( val2 );
 	    }
-	    if ( mIsKey("PROV") && lfi.province_.isEmpty() && (val1 && *val1) )
+	    if ( mIsKey("PROV") && lfi.province_.isEmpty() && hasval1 )
 	    {
 		lfi.province_ = val1;
-		if ( val2 && *val2 )
+		if ( hasval2 )
 		    lfi.province_.addSpace().add( val2 );
 	    }
-	    if ( mIsKey("CNTY") && lfi.county_.isEmpty() && (val1 && *val1) )
+	    if ( mIsKey("CNTY") && lfi.county_.isEmpty() && hasval1 )
 	    {
 		lfi.county_ = val1;
-		if ( val2 && *val2 )
+		if ( hasval2 )
 		    lfi.county_.addSpace().add( val2 );
 	    }
 	    if ( mIsKey("LOC") )
@@ -268,7 +270,7 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	    if ( mIsKey("UWI") )
 	    {
 		lfi.uwi_ = val1;
-		if ( val2 && *val2 )
+		if ( hasval2 )
 		    lfi.uwi_.addSpace().add( val2 );
 	    }
 	    if ( mIsKey("API") && lfi.uwi_.isEmpty() )
@@ -276,24 +278,24 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	    if ( mIsKey("SRVC") )
 	    {
 		lfi.srvc_ = val1;
-		if ( val2 && *val2 )
+		if ( hasval2 )
 		    lfi.srvc_.addSpace().add( val2 );
 	    }
 	    if ( mIsKey("XCOORD") || mIsKey("XWELL") || mIsKey("X") )
 	    {
 		// TODO: use UOM
-		BufferString locx = val2 && *val2 ? val2 : val1;
+		BufferString locx = hasval2 ? val2 : val1;
 		lfi.loc_.x = toDouble( locx, mUdf(double) );
 	    }
 	    if ( mIsKey("YCOORD") || mIsKey("YWELL") || mIsKey("Y") )
 	    {
 		// TODO: use UOM
-		BufferString locy = val2 && *val2 ? val2 : val1;
+		BufferString locy = hasval2 ? val2 : val1;
 		lfi.loc_.y = toDouble( locy, mUdf(double) );
 	    }
 	    if ( mIsKey("LATI") || mIsKey("LAT") || mIsKey("SLAT") )
 	    {
-		BufferString lat = val2 && *val2 ? val2 : val1;
+		BufferString lat = hasval2 ? val2 : val1;
 		if ( LatLong::isDMSString(lat) )
 		    lat = BufferString( val1, " ", val2 );
 
@@ -301,7 +303,7 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	    }
 	    if ( mIsKey("LONG") || mIsKey("LON") || mIsKey("SLON") )
 	    {
-		BufferString lon = val2 && *val2 ? val2 : val1;
+		BufferString lon = hasval2 ? val2 : val1;
 		if ( LatLong::isDMSString(lon) )
 		    lon = BufferString( val1, " ", val2 );
 
@@ -409,6 +411,7 @@ void Well::LASImporter::parseLocation( const char* startptr1,
 	return;
 
     Coord pos;
+    pos.setUdf();
     LatLong ll;
     bool islatlong = locstr.contains('N') || locstr.contains('S') ||
 		     locstr.contains('E') || locstr.contains('W');
@@ -452,7 +455,7 @@ void Well::LASImporter::parseLocation( const char* startptr1,
     else if ( islatlong )
 	ll.setFromString( wordbuf, false );
 
-    if ( islatlong )
+    if ( islatlong && ll.isDefined() && !ll.isNull() )
     {
 	pos = LatLong::transform( ll );
 	if ( !pos.isDefined() )

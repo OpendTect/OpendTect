@@ -87,6 +87,9 @@ public:
     inline const char*	findLast(char) const;
     inline const char*	findLast(const char*) const;
 
+    int			indexOf(char,int from=0) const;
+    int			indexOf(const char*,int from=0) const;
+
     BufferString&	setEmpty();
     BufferString&	set(const char*);
     BufferString&	set( const OD::String& s )	{ return set(s.str()); }

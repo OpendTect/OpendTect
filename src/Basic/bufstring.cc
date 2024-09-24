@@ -100,6 +100,18 @@ char* BufferString::findLast( const char* s )
 { return lastOcc( getCStr(), s ); }
 
 
+int BufferString::indexOf( char c, int from ) const
+{
+    return QString(buf()).indexOf( c, from );
+}
+
+
+int BufferString::indexOf( const char* s, int from ) const
+{
+    return QString(buf()).indexOf( s, from );
+}
+
+
 BufferString& BufferString::setEmpty()
 {
     if ( len_ != minlen_ )

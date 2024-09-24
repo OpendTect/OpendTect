@@ -56,6 +56,7 @@ public:
 
     static const Coord& udf();
     inline bool isUdf() const		{ return !isDefined(); }
+    inline void setUdf()		{ *this = udf(); }
 };
 
 

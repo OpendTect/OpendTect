@@ -80,6 +80,9 @@ Coord LatLong::toCoord( const LatLong& ll )
 Coord LatLong::transform( const LatLong& ll, bool towgs84,
 			  const Coords::CoordSystem* coordsys )
 {
+    if ( !ll.isDefined() )
+	return Coord::udf();
+
     if ( !coordsys )
 	coordsys = SI().getCoordSystem();
 
@@ -147,14 +150,40 @@ void LatLong::setDMS( bool lat, int d, int m, float s )
 
 bool LatLong::isDMSString( const BufferString& llstr )
 {
+    if ( llstr.isEmpty() )
+	return false;
+
     const bool hasmin = llstr.contains( '\'' );
     const bool hassec = llstr.contains( '\"' ) || llstr.contains( "''" );
-    return hasmin && hassec;
+    const bool hasminsecsymbols = hasmin && hassec;
+    if ( hasminsecsymbols )
+	return true;
+
+    if ( isDigit(llstr.firstChar()) && isAlpha(llstr.lastChar()) )
+	return true;
+
+    return false;
 }
 
 
-bool LatLong::parseDMSString( const BufferString& llstr, bool lat )
+bool LatLong::parseDMSString( const BufferString& llstrin, bool lat )
 {
+    BufferString llstr = llstrin;
+    llstr.trimBlanks();
+    char degreesymbol = -80;
+    const bool hasdegreesymbol = llstr.contains( degreesymbol );
+    if ( hasdegreesymbol )
+    {
+	// Lat-Long string as in: DDD°MM'SS.SS"X
+	llstr.replace( degreesymbol, ' ' );
+	const int minpos = llstr.indexOf( '\'' );
+	const bool validpos = minpos>0 && minpos<(llstr.size()-1);
+	if ( validpos && llstr[minpos+1] != ' ' )
+	    llstr.insertAt( minpos+1, " " );
+    }
+
+    llstr.replace( "  ", " " );
+
     // Lat-Long string as in: DDD MM' SS.SSSS'' (or SS.SSSS")
     const SeparString ss( llstr.buf(), ' ' );
     if ( ss.size() < 4 )

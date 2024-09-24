@@ -89,6 +89,9 @@ inline bool toBool( const char* s, bool defval=true )
     { mSkipBlanks(ptr); removeTrailingBlanks(ptr); }
 
 
+mGlobal(Basic) bool isAlpha(char);
+mGlobal(Basic) bool isDigit(char);
+
 mGlobal(Basic) bool caseInsensitiveEqual(const char*,const char*,
 					 int match_nrchars=-1);
 	/*!< stricmp with option to compare part, default is all */

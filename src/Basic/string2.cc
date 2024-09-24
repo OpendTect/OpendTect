@@ -504,6 +504,18 @@ bool isAlphaNumString( const char* str, bool allowspace )
 }
 
 
+bool isAlpha( char c )
+{
+    return std::isalpha( c );
+}
+
+
+bool isDigit( char c )
+{
+    return std::isdigit( c );
+}
+
+
 void cleanupString( char* str, bool spaceallow, bool fsepallow, bool dotallow )
 {
     if ( !str )
