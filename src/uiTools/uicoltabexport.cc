@@ -37,7 +37,7 @@ uiColTabExport::uiColTabExport( uiParent* p )
 
     uiListBox::Setup su( OD::ChooseZeroOrMore, tr("Color table(s) to export") );
     su.lblpos( uiListBox::LeftTop );
-    listfld_ = new uiListBox( this, su );
+    listfld_ = new uiListBox( this, su, "colortables" );
     listfld_->attach( alignedBelow, choicefld_ );
     fillList();
 
