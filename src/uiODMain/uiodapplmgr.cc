@@ -597,18 +597,21 @@ bool uiODApplMgr::getNewData( VisID visid, int attrib )
 		}
 
 		uiTaskRunner progm( &appl_ );
+		uiTreeItem* treeitem = sceneMgr().findItem( visid, attrib );
 		const DataPackID dpid =
 				 calc->createAttrib( tkzs, cacheid, &progm );
 		if ( dpid==DataPack::cNoID() && !calc->errmsg_.isEmpty() )
 		{
 		    if ( ODMainWin()->isRestoringSession() )
 			ODMainWin()->restoremsgs_().add( calc->errmsg_ );
-		    else
-			uiMSG().error( calc->errmsg_ );
 
-		    delete calc;
-		    return false;
+		    if ( treeitem )
+			treeitem->setToolTip( uiODSceneMgr::cColorColumn(),
+					      calc->errmsg_ );
 		}
+		else if ( treeitem )
+		    treeitem->setToolTip( uiODSceneMgr::cColorColumn(),
+					  uiString::empty() );
 
 		res = dpid != DataPack::cNoID();
 		visserv_->setDataPackID( visid, attrib, dpid );

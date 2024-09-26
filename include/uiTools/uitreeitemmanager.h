@@ -41,6 +41,7 @@ public:
     virtual bool		askContinueAndSaveIfNeeded(bool withcancel);
     void			setName( const uiString& nm )	{ name_ = nm; }
     uiString			name() const;
+    void			setToolTip(int column,const uiString&);
 
     bool			areAllParentsChecked();
 

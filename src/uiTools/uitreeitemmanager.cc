@@ -45,7 +45,16 @@ uiTreeItem::~uiTreeItem()
 
 
 uiString uiTreeItem::name() const
-{ return name_; }
+{
+    return name_;
+}
+
+
+void uiTreeItem::setToolTip( int column, const uiString& text )
+{
+    if ( uitreeviewitem_ )
+	uitreeviewitem_->setToolTip( column, text );
+}
 
 
 bool uiTreeItem::areAllParentsChecked()

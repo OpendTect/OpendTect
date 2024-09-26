@@ -173,6 +173,7 @@ public:
 
     void			removeTreeItem(VisID displayid);
     uiTreeItem*			findItem(VisID displayid);
+    uiTreeItem*			findItem(VisID displayid,int attrib);
     void			findItems(const char*,ObjectSet<uiTreeItem>&);
     void			findItems(const char*,ObjectSet<uiTreeItem>&,
 					  SceneID sceneid);

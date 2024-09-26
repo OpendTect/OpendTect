@@ -794,13 +794,12 @@ bool PlaneDataDisplay::setDataPack( int attrib, RegularSeisDataPack* dp,
 				    TaskRunner* taskr )
 {
     RefMan<RegularSeisDataPack> regsdp = dp;
+    datapacks_.replace( attrib, regsdp );
     if ( !regsdp || regsdp->isEmpty() )
     {
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, nullptr );
 	return false;
     }
-
-    datapacks_.replace( attrib, regsdp );
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
