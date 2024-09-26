@@ -28,6 +28,10 @@ set( OD_PLUGINS
 	ODBind
 )
 
+if ( NOT OD_NO_QSQL )
+    list( APPEND OD_PLUGINS ODQSql )
+endif()
+
 if ( NOT OD_NO_QPRINTSUPPORT )
     list( APPEND OD_PLUGINS uiODPrintSupport )
 endif()

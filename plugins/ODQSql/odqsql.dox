@@ -11,6 +11,9 @@ ________________________________________________________________________
 
 
 /*!
-\defgroup Database Database
+\defgroup ODQSql ODQSql
+\brief Implementation of the Qt SQL module
 
+\namespace SqlDB
+For classed dealing with Sql databases and requests
 */

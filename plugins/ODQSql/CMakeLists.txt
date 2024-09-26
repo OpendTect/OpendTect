@@ -6,19 +6,14 @@
 #
 
 set( OD_MODULE_DEPS General )
-set( OD_FOLDER "Base" )
+set( OD_FOLDER "OD Free Plugins" )
+set( OD_IS_PLUGIN yes )
+set( OD_USEQT Sql )
 
 set( OD_MODULE_SOURCES 
+	odqsqlpi.cc
 	sqldatabase.cc
 	sqlquery.cc
-	databaseobject.cc
 )
-
-if ( OD_NO_QSQL )
-    set( OD_USEQT Core )
-    list( APPEND OD_MODULE_COMPILE_DEFINITIONS "OD_NO_QSQL" )
-else()
-    set( OD_USEQT Sql )
-endif()
 
 OD_INIT_MODULE()

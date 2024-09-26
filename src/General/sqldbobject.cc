@@ -7,20 +7,66 @@ ________________________________________________________________________
 
 -*/
 
-#include "databaseobject.h"
+#include "sqldbobject.h"
 
 #include "dateinfo.h"
+#include "keystrs.h"
 #include "separstr.h"
+#include "settings.h"
 #include "perthreadrepos.h"
-#include "sqlquery.h"
 
 #define mCrBackQuoteString(nm,str) BufferString nm( str ); nm.quote( '`' );
 
-namespace SqlDB
-{
+// SqlDB::ConnectionData
 
-DatabaseColumnBase::DatabaseColumnBase( DatabaseTable& dobj,
-	const char* columnname,const char* columntype )
+SqlDB::ConnectionData::ConnectionData( const char* dbtype )
+{
+    if ( !dbtype || !*dbtype )
+	return;
+
+    IOPar* iop = Settings::fetch("DB").subselect( dbtype );
+    if ( iop )
+	usePar( *iop );
+}
+
+
+SqlDB::ConnectionData::~ConnectionData()
+{
+}
+
+
+bool SqlDB::ConnectionData::isOK() const
+{
+    return !dbname_.isEmpty() && !pwd_.isEmpty() && !username_.isEmpty();
+}
+
+
+void SqlDB::ConnectionData::fillPar( IOPar& iop ) const
+{
+    iop.update( sKey::Hostname(), hostname_ );
+    iop.update( sKeyUserName(), username_ );
+    iop.update( sKeyPassword(), pwd_ );
+    iop.update( sKeyDBName(), dbname_ );
+    iop.set( sKeyPort(), port_ );
+}
+
+
+bool SqlDB::ConnectionData::usePar( const IOPar& iop )
+{
+    hostname_ = iop.find( sKey::Hostname() );
+    username_ = iop.find( sKeyUserName() );
+    pwd_ = iop.find( sKeyPassword() );
+    dbname_ = iop.find( sKeyDBName() );
+    iop.get( sKeyPort(), port_ );
+
+    return isOK();
+}
+
+
+// SqlDB::DatabaseColumnbase
+
+SqlDB::DatabaseColumnBase::DatabaseColumnBase( DatabaseTable& dobj,
+				const char* columnname,const char* columntype )
     : table_( dobj )
     , columnname_( columnname )
     , columntype_( columntype )
@@ -29,11 +75,11 @@ DatabaseColumnBase::DatabaseColumnBase( DatabaseTable& dobj,
 }
 
 
-DatabaseColumnBase::~DatabaseColumnBase()
+SqlDB::DatabaseColumnBase::~DatabaseColumnBase()
 {}
 
 
-bool DatabaseColumnBase::isDBTypeOK( const char* dbtype ) const
+bool SqlDB::DatabaseColumnBase::isDBTypeOK( const char* dbtype ) const
 {
     if ( !columnType() )
     {
@@ -46,7 +92,7 @@ bool DatabaseColumnBase::isDBTypeOK( const char* dbtype ) const
 }
 
 
-const char* DatabaseColumnBase::createColumnQuery() const
+const char* SqlDB::DatabaseColumnBase::createColumnQuery() const
 {
     if ( !columnType() )
     {
@@ -67,7 +113,7 @@ const char* DatabaseColumnBase::createColumnQuery() const
 }
 
 
-const char* DatabaseColumnBase::selectString() const
+const char* SqlDB::DatabaseColumnBase::selectString() const
 {
     mCrBackQuoteString( bqtblnm, table_.tableName() );
     mCrBackQuoteString( bqcolnm, columnName() );
@@ -78,9 +124,11 @@ const char* DatabaseColumnBase::selectString() const
 }
 
 
-StringDatabaseColumn::StringDatabaseColumn( DatabaseTable& dobj,
-    const char* columnname, int maxsize )
-    : DatabaseColumn<BufferString>( dobj, columnname, 0 )
+// SqlDB::StringDatabaseColumn
+
+SqlDB::StringDatabaseColumn::StringDatabaseColumn( DatabaseTable& dobj,
+					  const char* columnname, int maxsize )
+    : DatabaseColumn<BufferString>( dobj, columnname, nullptr )
 {
     if ( maxsize==-1 )
     {
@@ -95,24 +143,34 @@ StringDatabaseColumn::StringDatabaseColumn( DatabaseTable& dobj,
 }
 
 
-DateDatabaseColumn::DateDatabaseColumn( DatabaseTable& dobj,
-					const char* columnname )
-    : DatabaseColumnBase( dobj, columnname, "DATE" )
+SqlDB::StringDatabaseColumn::~StringDatabaseColumn()
 {}
 
 
-bool DateDatabaseColumn::parse( const Query& query, int column,
-				DateInfo& di ) const
-{
+// SqlDB::DateDatabaseColumn
 
-    SeparString datestr( query.data( column ), '-' );
+SqlDB::DateDatabaseColumn::DateDatabaseColumn( DatabaseTable& dobj,
+					       const char* columnname )
+    : DatabaseColumnBase( dobj, columnname, "DATE" )
+{
+}
+
+
+SqlDB::DateDatabaseColumn::~DateDatabaseColumn()
+{}
+
+
+bool SqlDB::DateDatabaseColumn::parse( const QueryAccess& query, int column,
+				       DateInfo& di ) const
+{
+    const SeparString datestr( query.data( column ), '-' );
     if ( datestr.size()!=3 )
 	return false;
 
     int year=0, month=0, day=0;
-    if ( !getFromString( year, datestr[0], mUdf(int) )  ||
-	 !getFromString( month, datestr[1], mUdf(int) ) ||
-	 !getFromString( day, datestr[2], mUdf(int) ) )
+    if ( !getFromString(year,datestr[0],mUdf(int))  ||
+	 !getFromString(month,datestr[1],mUdf(int)) ||
+	 !getFromString(day,datestr[2],mUdf(int)) )
 	return false;
 
     di.setDay( day );
@@ -122,7 +180,8 @@ bool DateDatabaseColumn::parse( const Query& query, int column,
     return true;
 }
 
-const char* DateDatabaseColumn::dataString(const DateInfo& di) const
+
+const char* SqlDB::DateDatabaseColumn::dataString( const DateInfo& di ) const
 {
     SeparString datestr( toString( di.year() ), '-' );
     datestr.add( toString( di.usrMonth() ) );
@@ -134,15 +193,22 @@ const char* DateDatabaseColumn::dataString(const DateInfo& di) const
 }
 
 
-CreatedTimeStampDatabaseColumn::CreatedTimeStampDatabaseColumn(
-	DatabaseTable& dobj )
+// SqlDB::CreatedTimeStampDataseColumn
+
+SqlDB::CreatedTimeStampDatabaseColumn::CreatedTimeStampDatabaseColumn(
+							DatabaseTable& dobj )
     : DatabaseColumnBase( dobj, "created", "timestamp" )
 {
     columnoptions_ = "DEFAULT CURRENT_TIMESTAMP";
 }
 
 
-bool CreatedTimeStampDatabaseColumn::parse( const Query& query,
+SqlDB::CreatedTimeStampDatabaseColumn::~CreatedTimeStampDatabaseColumn()
+{
+}
+
+
+bool SqlDB::CreatedTimeStampDatabaseColumn::parse( const QueryAccess& query,
 					    int column, time_t& time ) const
 {
     time = query.i64Value( column );
@@ -150,7 +216,7 @@ bool CreatedTimeStampDatabaseColumn::parse( const Query& query,
 }
 
 
-const char* CreatedTimeStampDatabaseColumn::selectString() const
+const char* SqlDB::CreatedTimeStampDatabaseColumn::selectString() const
 {
     mDeclStaticString( ret );
 
@@ -165,8 +231,9 @@ const char* CreatedTimeStampDatabaseColumn::selectString() const
 }
 
 
+// SqlDB::DatabaseTable
 
-DatabaseTable::DatabaseTable( const char* tablename )
+SqlDB::DatabaseTable::DatabaseTable( const char* tablename )
     : tablename_( tablename )
 {
     rowidcolumn_ = new IDDatabaseColumn( *this );
@@ -175,7 +242,7 @@ DatabaseTable::DatabaseTable( const char* tablename )
 }
 
 
-DatabaseTable::~DatabaseTable()
+SqlDB::DatabaseTable::~DatabaseTable()
 {
     delete rowidcolumn_;
     delete timestampcolumn_;
@@ -183,24 +250,28 @@ DatabaseTable::~DatabaseTable()
 }
 
 
-DatabaseTable::TableStatus DatabaseTable::getTableStatus( SqlDB::Access& access,
-						BufferString& errmsg ) const
+SqlDB::DatabaseTable::TableStatus
+SqlDB::DatabaseTable::getTableStatus( Access& access,
+				      BufferString& errmsg ) const
 {
     return checkTable( false, access, errmsg );
 }
 
 
-bool DatabaseTable::fixTable( SqlDB::Access& access, BufferString& errmsg) const
+bool SqlDB::DatabaseTable::fixTable( Access& access, BufferString& errmsg) const
 {
     return checkTable( true, access, errmsg );
 }
 
 
-DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
-	SqlDB::Access& access, BufferString& errmsg ) const
+SqlDB::DatabaseTable::TableStatus SqlDB::DatabaseTable::checkTable( bool fix,
+				Access& access, BufferString& errmsg ) const
 {
-    Query query( access );
+    PtrMan<QueryAccess> queryobj = QueryProvider::mkQuery( access );
+    if ( !queryobj )
+	return AccessError;
 
+    QueryAccess& query = *queryobj.ptr();
     if ( !query.execute("SHOW TABLES") )
     {
 	errmsg = query.errMsg();
@@ -226,7 +297,7 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
 		   .add( " , PRIMARY KEY(" ).add( bqcolnm )
 		   .add( ") )" );
 
-	if ( !query.execute( querystring.buf() ) )
+	if ( !query.execute(querystring.buf()) )
 	{
 	    errmsg = query.errMsg();
 	    return AccessError;
@@ -235,7 +306,7 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
 
     BufferString querystring( "SHOW COLUMNS IN ", bqtblnm );
 
-    if ( !query.execute( querystring ) )
+    if ( !query.execute(querystring) )
 	{ errmsg = query.errMsg(); return AccessError; }
 
     BufferStringSet columns;
@@ -260,7 +331,7 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
 
 	    querystring.set( "ALTER TABLE " ).add( bqtblnm ).add( " ADD " );
 	    querystring += columns_[idx]->createColumnQuery();
-	    if ( !query.execute( querystring ) )
+	    if ( !query.execute(querystring) )
 		{ errmsg = query.errMsg(); return AccessError; }
 
 	    continue;
@@ -279,45 +350,62 @@ DatabaseTable::TableStatus DatabaseTable::checkTable( bool fix,
 }
 
 
-const char* DatabaseTable::rowIDSelectString() const
-{ return rowidcolumn_->selectString(); }
+const char* SqlDB::DatabaseTable::rowIDSelectString() const
+{
+    return rowidcolumn_->selectString();
+}
 
 
-bool DatabaseTable::parseRowID(const Query& q,int col, int& id) const
-{ return rowidcolumn_->parse( q, col, id ); }
+bool SqlDB::DatabaseTable::parseRowID( const QueryAccess& q,
+				       int col, int& id ) const
+{
+    return rowidcolumn_->parse( q, col, id );
+}
 
 
-
-const char* DatabaseTable::entryIDSelectString() const
-{ return entryidcolumn_->selectString(); }
-
-
-bool DatabaseTable::parseEntryID(const Query& q,int col, int& id) const
-{ return entryidcolumn_->parse( q, col, id ); }
+const char* SqlDB::DatabaseTable::entryIDSelectString() const
+{
+    return entryidcolumn_->selectString();
+}
 
 
-const char* DatabaseTable::timeStampSelectString() const
-{ return timestampcolumn_->selectString(); }
+bool SqlDB::DatabaseTable::parseEntryID( const QueryAccess& q,
+					 int col, int& id ) const
+{
+    return entryidcolumn_->parse( q, col, id );
+}
 
 
-bool DatabaseTable::parseTimeStamp(const Query& q,int col, time_t& ts) const
-{ return timestampcolumn_->parse( q, col, ts ); }
+const char* SqlDB::DatabaseTable::timeStampSelectString() const
+{
+    return timestampcolumn_->selectString();
+}
 
 
+bool SqlDB::DatabaseTable::parseTimeStamp( const QueryAccess& q,
+					   int col, time_t& ts ) const
+{
+    return timestampcolumn_->parse( q, col, ts );
+}
 
-bool DatabaseTable::searchTable( Access& access,int entryid, bool onlylatest,
-				 TypeSet<int>& rowids, BufferString& errmsg )
+
+bool SqlDB::DatabaseTable::searchTable( Access& access, int entryid,
+					bool onlylatest, TypeSet<int>& rowids,
+					BufferString& errmsg )
 {
     //Either replacesid or id can be identical to entryid
     ValueCondition idcond( rowIDSelectString(),
-            ValueCondition::Equals, toString(entryid) );
+	    ValueCondition::Operator::Equals, toString(entryid) );
     ValueCondition entryidcond( entryidcolumn_->selectString(),
-            ValueCondition::Equals, toString(entryid) );
+	    ValueCondition::Operator::Equals, toString(entryid) );
     ValueCondition cond( idcond.getStr(),
-            ValueCondition::Or, entryidcond.getStr() );
+	    ValueCondition::Operator::Or, entryidcond.getStr() );
 
-    SqlDB::Query query( access );
+    PtrMan<QueryAccess> queryobj = QueryProvider::mkQuery( access );
+    if ( !queryobj )
+	return false;
 
+    QueryAccess& query = *queryobj.ptr();
 
     BufferString condstring;
     if ( onlylatest )
@@ -329,11 +417,11 @@ bool DatabaseTable::searchTable( Access& access,int entryid, bool onlylatest,
             query.select(subcolumns, tableName(), cond.getStr() ),
             ")" );
 
-        SqlDB::ValueCondition latestcond( timestampcolumn_->selectString(),
-                SqlDB::ValueCondition::Equals, subquery );
+	ValueCondition latestcond( timestampcolumn_->selectString(),
+		ValueCondition::Operator::Equals, subquery );
 
-	SqlDB::ValueCondition combinedcomb ( latestcond.getStr(),
-		ValueCondition::And, cond.getStr() );
+	ValueCondition combinedcomb ( latestcond.getStr(),
+		ValueCondition::Operator::And, cond.getStr() );
 
 
         condstring = combinedcomb.getStr();
@@ -345,7 +433,7 @@ bool DatabaseTable::searchTable( Access& access,int entryid, bool onlylatest,
     const int idcolidx
         = query.addToColList( columns, rowIDSelectString() );
 
-    if ( !query.execute( query.select( columns, tableName(), condstring ) ) )
+    if ( !query.execute(query.select(columns,tableName(),condstring)) )
     {
         errmsg = query.errMsg();
         return false;
@@ -354,22 +442,26 @@ bool DatabaseTable::searchTable( Access& access,int entryid, bool onlylatest,
     while ( query.next() )
     {
         int rowid;
-        if ( !parseRowID( query, idcolidx, rowid ) )
+	if ( !parseRowID(query,idcolidx,rowid) )
             continue;
 
         rowids += rowid;
     }
 
     return true;
-
 }
 
 
-bool DatabaseTable::insertRow( Access& access,const BufferStringSet& cols,
-			       const BufferStringSet& vals, int entryid,
-			       int& rowid, BufferString& errmsg )
+bool SqlDB::DatabaseTable::insertRow( Access& access,
+				const BufferStringSet& cols,
+				const BufferStringSet& vals, int entryid,
+				int& rowid, BufferString& errmsg )
 {
-    SqlDB::Query query( access );
+    PtrMan<QueryAccess> queryobj = QueryProvider::mkQuery( access );
+    if ( !queryobj )
+	return false;
+
+    QueryAccess& query = *queryobj.ptr();
     BufferStringSet usedvals( vals );
     BufferStringSet usedcols( cols );
 
@@ -400,5 +492,3 @@ bool DatabaseTable::insertRow( Access& access,const BufferStringSet& cols,
 
     return false;
 }
-
-} // namespace SqlDB

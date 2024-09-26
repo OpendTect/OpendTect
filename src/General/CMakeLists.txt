@@ -85,6 +85,8 @@ set( OD_MODULE_SOURCES
 	reflcalcrunner.cc
 	rockphysics.cc
 	simpletimedepthmodel.cc
+	sqldbaccess.cc
+	sqldbobject.cc
 	staticsdesc.cc
 	stratlevel.cc
 	surveyfile.cc

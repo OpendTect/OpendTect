@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "mathproperty.h"
 #include "oddirs.h"
 #include "opensslaccess.h"
+#include "odruncontext.h"
 #include "plugins.h"
 #include "preloads.h"
 #include "rangeposprovider.h"
@@ -83,10 +84,22 @@ mDefModInitFn(General)
     ImageDefTranslatorGroup::initClass();
     ODImageDefTranslator::initClass();
 
-    BufferString libnm; libnm.setMinBufSize( 32 );
-    SharedLibAccess::getLibName( "CRS", libnm.getCStr(), libnm.bufSize() );
-    const FilePath libfp( GetLibPlfDir(), libnm );
-    if ( libfp.exists() )
-	PIM().load( libfp.fullPath(), PluginManager::Data::AppDir,
-		    PI_AUTO_INIT_EARLY );
+    {
+	BufferString libnm; libnm.setMinBufSize( 32 );
+	SharedLibAccess::getLibName( "CRS", libnm.getCStr(), libnm.bufSize() );
+	const FilePath libfp( GetLibPlfDir(), libnm );
+	if ( libfp.exists() )
+	    PIM().load( libfp.fullPath(), PluginManager::Data::AppDir,
+			PI_AUTO_INIT_EARLY );
+    }
+
+    if ( OD::InNormalRunContext() )
+    {
+	BufferString libnm; libnm.setMinBufSize( 32 );
+	SharedLibAccess::getLibName( "ODQSql", libnm.getCStr(),libnm.bufSize());
+	const FilePath libfp( GetLibPlfDir(), libnm );
+	if ( libfp.exists() )
+	    PIM().load( libfp.fullPath(), PluginManager::Data::AppDir,
+			PI_AUTO_INIT_EARLY );
+    }
 }

@@ -8,25 +8,56 @@ ________________________________________________________________________
 
 -*/
 
-#include "databasemod.h"
-#include "sets.h"
-#include "stringview.h"
-#include "sqlquery.h"
+#include "generalmod.h"
+
 #include "convert.h"
+#include "sets.h"
+#include "sqldbaccess.h"
+#include "stringview.h"
 
 class DateInfo;
 
 namespace SqlDB
 {
 
-class DatabaseTable;
 class Access;
+class DatabaseTable;
+
+/*!
+\brief Credentials to connect to a Database.
+*/
+
+mExpClass(General) ConnectionData
+{
+public:
+
+			ConnectionData(const char* dbtype=nullptr);
+			~ConnectionData();
+
+    bool		isOK() const;
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);	//!< returns isOK()
+
+    BufferString	hostname_;
+    PortNr_Type		port_			= mUdf(PortNr_Type);
+    BufferString	username_;
+    BufferString	pwd_;
+    BufferString	dbname_;
+
+    static const char*	sKeyUserName()		{ return "Username"; }
+    static const char*	sKeyPassword()		{ return "Password"; }
+    static const char*	sKeyPort()		{ return "Port"; }
+    static const char*	sKeyDBName()		{ return "Database"; }
+
+};
+
 
 /*!
 \brief Base class for SQL Database columns.
 */
 
-mExpClass(Database) DatabaseColumnBase
+mExpClass(General) DatabaseColumnBase
 {
 public:
     virtual		~DatabaseColumnBase();
@@ -40,8 +71,8 @@ public:
     virtual const char* createColumnQuery() const;
 
 protected:
-			DatabaseColumnBase( DatabaseTable& dobj,
-			    const char* columnname,const char* columntype );
+			DatabaseColumnBase(DatabaseTable&,
+				const char* columnname,const char* columntype);
 
     DatabaseTable&	table_;
 
@@ -52,38 +83,18 @@ protected:
 
 
 /*!
-\brief SQL Database column
-*/
-
-#define mEnumDatabaseColumn( mod, clssnm, enmcls, enm )			\
-mExpClass(mod) clssnm : public ::SqlDB::DatabaseColumnBase		\
-{									\
-public:									\
-		clssnm( ::SqlDB::DatabaseTable& dobj,	\
-				    const char* columnname )		\
-		    : ::SqlDB::DatabaseColumnBase( dobj, columnname,	\
-					  "VARCHAR(50)" )		\
-		{}							\
-									\
-    bool	parse(const ::SqlDB::Query& q,int column,enmcls::enm& e) const \
-		{ return enmcls::parseEnum( q.data(column).buf(), e ); }\
-    const char*	dataString(const enmcls::enm& e) const			\
-		{ return enmcls::toString( e ); }			\
-}
-
-
-/*!
 \brief Template class for SQL Database column.
 */
 
 template<class T>
-mExpClass(Database) DatabaseColumn : public DatabaseColumnBase
+mExpClass(General) DatabaseColumn : public DatabaseColumnBase
 {
 public:
-    inline		DatabaseColumn( DatabaseTable& dobj,
-			    const char* columnname,const char* columntype );
+    inline		DatabaseColumn(DatabaseTable&,const char* columnname,
+				       const char* columntype);
+    inline		~DatabaseColumn();
 
-    virtual inline bool	parse(const Query&,int column,T&) const;
+    virtual inline bool parse(const QueryAccess&,int column,T&) const;
     virtual inline const char*	dataString(const T&) const;
 };
 
@@ -92,7 +103,7 @@ public:
 \brief SQL DatabaseColumn of IDs.
 */
 
-mExpClass(Database) IDDatabaseColumn : public DatabaseColumn<int>
+mExpClass(General) IDDatabaseColumn : public DatabaseColumn<int>
 {
 public:
 		IDDatabaseColumn(DatabaseTable& dobj)
@@ -101,7 +112,7 @@ public:
 
     static const char*	sKey()	{ return "id"; }
 
-    const char*	dataString(const int&) const override { return 0; }
+    const char* dataString(const int&) const override { return nullptr; }
 		//The id should be automatically inserted
 };
 
@@ -110,11 +121,12 @@ public:
 \brief SQL DatabaseColumn of strings.
 */
 
-mExpClass(Database) StringDatabaseColumn : public DatabaseColumn<BufferString>
+mExpClass(General) StringDatabaseColumn : public DatabaseColumn<BufferString>
 {
 public:
-		StringDatabaseColumn( DatabaseTable& dobj,
-			const char* columnname, int maxsize=-1);
+		StringDatabaseColumn(DatabaseTable&,const char* columnname,
+				     int maxsize=-1);
+		~StringDatabaseColumn();
 };
 
 
@@ -122,13 +134,15 @@ public:
 \brief SQL DatabaseColumn of date and time.
 */
 
-mExpClass(Database) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
+mExpClass(General) CreatedTimeStampDatabaseColumn : public DatabaseColumnBase
 {
 public:
-		CreatedTimeStampDatabaseColumn( DatabaseTable& dobj );
+		CreatedTimeStampDatabaseColumn(DatabaseTable&);
+		~CreatedTimeStampDatabaseColumn();
+
     const char*	selectString() const override;
-    bool	parse(const Query&,int column,time_t&) const;
-    const char*	dataString(const time_t&) const { return 0; }
+    bool	parse(const QueryAccess&,int column,time_t&) const;
+    const char* dataString(const time_t&) const { return nullptr; }
 };
 
 
@@ -136,12 +150,13 @@ public:
 \brief A DatabaseColumn of DateInfo objects.
 */
 
-mExpClass(Database) DateDatabaseColumn : public DatabaseColumnBase
+mExpClass(General) DateDatabaseColumn : public DatabaseColumnBase
 {
 public:
-		DateDatabaseColumn( DatabaseTable& dobj,
-				    const char* columnname );
-    bool	parse( const Query&, int column, DateInfo& ) const;
+		DateDatabaseColumn(DatabaseTable&,const char* columnname);
+		~DateDatabaseColumn();
+
+    bool	parse(const QueryAccess&,int column,DateInfo&) const;
     const char*	dataString(const DateInfo&) const;
 };
 
@@ -152,35 +167,36 @@ new row is added where entryidcol is set to the id of the row it is replacing,
 and a timestamp will tell which row that is the current.
 */
 
-mExpClass(Database) DatabaseTable
+mExpClass(General) DatabaseTable
 {
 public:
 			DatabaseTable(const char* tablename);
 			~DatabaseTable();
 
     enum TableStatus	{ OK, MinorError, MajorError, AccessError };
-    TableStatus		getTableStatus(Access&, BufferString& errmsg) const;
+    TableStatus		getTableStatus(Access&,BufferString& errmsg) const;
 			//!<Checks that all columns exist and are of right type
-    bool		fixTable(Access&, BufferString& errmsg) const;
+    bool		fixTable(Access&,BufferString& errmsg) const;
 
     virtual const char*	tableName() const { return tablename_; }
 
     const char*		rowIDSelectString() const;
-    bool		parseRowID(const Query& q,int col, int& id) const;
+    bool		parseRowID(const QueryAccess&,int col,int& id) const;
 
     const char*		entryIDSelectString() const;
-    bool		parseEntryID(const Query& q,int col, int& id) const;
+    bool		parseEntryID(const QueryAccess&,int col,int& id) const;
 
     const char*		timeStampSelectString() const;
-    bool		parseTimeStamp(const Query& q,int col, time_t&) const;
+    bool		parseTimeStamp(const QueryAccess&,int col,
+				       time_t&) const;
 
-    bool		searchTable( Access&,int entryid, bool onlylatest,
-				     TypeSet<int>& rowids,
-				     BufferString& errmsg );
+    bool		searchTable(Access&,int entryid,bool onlylatest,
+				    TypeSet<int>& rowids,
+				    BufferString& errmsg);
 
-    bool		insertRow( Access&,const BufferStringSet& cols,
-				const BufferStringSet& vals, int entryid,
-				int& rowid, BufferString& errmsg );
+    bool		insertRow(Access&,const BufferStringSet& cols,
+				const BufferStringSet& vals,int entryid,
+				int& rowid,BufferString& errmsg );
 
 protected:
     TableStatus		checkTable(bool fix,Access&,BufferString& errmsg) const;
@@ -199,14 +215,20 @@ protected:
 
 template <class T> inline
 DatabaseColumn<T>::DatabaseColumn( DatabaseTable& dobj,
-    const char* columnname,const char* columntype )
+				const char* columnname,const char* columntype )
     : DatabaseColumnBase( dobj, columnname, columntype )
-{ }
+{}
+
+
+template <class T> inline
+DatabaseColumn<T>::~DatabaseColumn()
+{}
+
 
 #define mImplColumnSpecialization( type, func ) \
 template <> inline \
-bool DatabaseColumn<type>::parse( const Query& query, int column, \
-					  type& val ) const  \
+bool DatabaseColumn<type>::parse( const QueryAccess& query, int column, \
+				  type& val ) const  \
 { val = query.func( column ); return true; }
 
 
@@ -220,8 +242,12 @@ mImplColumnSpecialization( double, dValue )
 mImplColumnSpecialization( bool, isTrue )
 
 template <class T> inline
-bool DatabaseColumn<T>::parse( const Query& query, int column, T& val ) const
-{ Conv::set( val, query.data( column ) ); return !mIsUdf(val); }
+bool DatabaseColumn<T>::parse( const QueryAccess& query, int column,
+			       T& val ) const
+{
+    Conv::set( val, query.data(column) );
+    return !mIsUdf(val);
+}
 
 
 template <class T> inline
