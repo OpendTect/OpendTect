@@ -66,6 +66,10 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& tkzs,
     const SEGY::FullSpec fullspec( rdst->fullSpec() );
     fullspec.fillPar( imppars_ );
     userfilename_ = rdst->userFileName();
+    const auto& zdomaininfo = rdst->selectedZDomain();
+    tdinfo_ = zdomaininfo.isTime()
+			? Time
+			: (zdomaininfo.isDepth() ? DepthMeter : DepthFeet);
     return true;
 }
 

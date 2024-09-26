@@ -288,7 +288,10 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     trchead_.geomtype_ = Seis::geomTypeOf( is_2d, is_prestack );
     trchead_.fill( info, fileopts_.coordscale_ );
     if ( othdomain_ )
+    {
+	info.sampling.start *= SI().zIsTime() ? 1000 : 0.001f;
 	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
+    }
 
     insd_.start = info.sampling.start;
     insd_.step = pinfo_.zrg.step;
@@ -332,7 +335,10 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     trchead_.geomtype_ = Seis::geomTypeOf( is_2d, is_prestack );
     trchead_.fill( ti, fileopts_.coordscale_ );
     if ( othdomain_ )
+    {
+	ti.sampling.start *= SI().zIsTime() ? 1000 : 0.001f;
 	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
+    }
 
     const UnitOfMeasure* dispunit =
 	SI().xyInFeet() ? UoMR().get( "Feet" ) : UoMR().get( "Meter" );

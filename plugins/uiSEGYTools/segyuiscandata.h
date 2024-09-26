@@ -54,7 +54,7 @@ public:
     int			ns_;		// nr samples binary header
     int			thdrns_;	// nr samples trace header
     short		format_;
-    SamplingData<float>	sampling_;
+    SamplingData<float> sampling_;	// in ms, m, or ft
     bool		hdrsswapped_;
     bool		dataswapped_;
     bool		is2d_;

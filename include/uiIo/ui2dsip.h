@@ -25,11 +25,13 @@ public:
     bool		getInfo(uiDialog*,TrcKeyZSampling&,
 				Coord crd[3]) override;
     const char*		iconName() const override;
+    TDInfo		tdInfo() const override;
 
     void		fillLogPars(IOPar&) const override;
     IOPar*		getCoordSystemPars() const override;
 
 protected:
+    TDInfo				tdinfo_			= Unknown;
     RefMan<Coords::CoordSystem>		coordsystem_;
 };
 
@@ -46,6 +48,7 @@ public:
     bool		getInfo(uiDialog*,TrcKeyZSampling&,
 				Coord crd[3]) override;
     const char*		iconName() const override;
+    TDInfo		tdInfo() const override;
 
     void		fillLogPars(IOPar&) const override;
     IOPar*		getImportPars() const override;
@@ -55,6 +58,7 @@ public:
     IOPar*		getCoordSystemPars() const override;
 
 protected:
+    TDInfo				tdinfo_			= Unknown;
     RefMan<Coords::CoordSystem>		coordsystem_;
     ObjectSet<Survey::Geometry2D>	geoms_;
     BufferString			filename_;

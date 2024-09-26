@@ -59,6 +59,7 @@ public:
     bool		getInfo4SI(TrcKeyZSampling&,Coord crd[3]) const;
     bool		zInFeet() const
 			{ return scaninfos_ && scaninfos_->inFeet(); }
+    const ZDomain::Info& selectedZDomain() const;
 
     const SEGY::ImpType& impType() const;
     void		setImpTypIdx(int);
@@ -80,6 +81,7 @@ protected:
     uiGroup*		topgrp_;
     uiGroup*		midgrp_;
     uiGroup*		botgrp_;
+    uiGenInput*		zdomfld_		= nullptr;
     uiSEGYImpType*	typfld_			= nullptr;
     uiFileInput*	inpfld_;
     uiPushButton*	multilinebut_		= nullptr;
@@ -145,6 +147,7 @@ protected:
 
     void		initDlg(CallBacker*);
     void		firstSel(CallBacker*);
+    void		zDomChg(CallBacker*);
     void		typChg(CallBacker*);
     void		inpChg(CallBacker*);
     void		editFile(CallBacker*);

@@ -78,16 +78,24 @@ uiString uiSEGYReadFinisher::getDlgTitle( const char* usrspec )
 
 
 uiSEGYReadFinisher::uiSEGYReadFinisher( uiParent* p, const FullSpec& fs,
-					const char* usrspec )
-    : uiDialog(p,uiDialog::Setup(getWinTile(fs),getDlgTitle(usrspec),
+					const char* usrspec,
+					const ZDomain::Info* zdomaininfo )
+    : uiDialog(p,uiDialog::Setup(getWinTile(fs),mNoDlgTitle,
 				 mODHelpKey(mSEGYReadFinisherHelpID)))
     , fs_(fs)
 {
     setOkText( uiStrings::sImport() );
     objname_ = FilePath( usrspec ).baseName();
+    setTitleText( getDlgTitle(objname_.buf()) );
+
     const bool is2d = Seis::is2D( fs_.geomType() );
     if ( !is2d )
 	objname_.replace( '*', 'x' );
+
+    if ( zdomaininfo )
+	zdomain_ = new ZDomain::Info( *zdomaininfo );
+    else
+	zdomain_ = new ZDomain::Info( ZDomain::SI() );
 
     if ( fs_.isVSP() )
 	crVSPFields();
@@ -104,15 +112,17 @@ void uiSEGYReadFinisher::crSeisFields()
     const bool is2d = Seis::is2D( gt );
     const bool ismulti = fs_.spec_.nrFiles() > 1;
 
-    docopyfld_ = new uiGenInput( this, tr("Import as"),
-		BoolInpSpec(true,tr("OpendTect CBVS (copy&&import)"),
-				 tr("SEGYDirect (scan&&link)")) );
+    docopyfld_ = new uiGenInput( this, tr("Copy data"),
+	BoolInpSpec(true,uiStrings::sYes(),
+			 tr("%1, use SEGYDirect (scan&&link)")
+				.arg(uiStrings::sNo())) );
     mAttachCB( docopyfld_->valueChanged, uiSEGYReadFinisher::doScanChg );
 
     uiSeisTransfer::Setup trsu( gt );
-    trsu.withnullfill( false ).fornewentry( true );
+    trsu.withnullfill( false ).fornewentry( true ).zdomkey(zdomain_->key());
     transffld_ = new uiSeisTransfer( this, trsu );
     transffld_->attach( alignedBelow, docopyfld_ );
+    transffld_->display( zdomain_->def_.isSI() );
 
     remnullfld_ = new uiGenInput( this, tr("Null traces"),
 		BoolInpSpec(true,uiStrings::sDiscard(),uiStrings::sPass()) );
@@ -145,19 +155,20 @@ void uiSEGYReadFinisher::crSeisFields()
 
     const BufferStringSet trnotallowed( "SEGYDirect" );
     uiSeisSel::Setup copysu( gt );
-    copysu.enabotherdomain( true ).withwriteopts(true)
-	  .trsnotallwed(trnotallowed);
+    copysu.withwriteopts(true).trsnotallwed(trnotallowed);
     IOObjContext ctxt( uiSeisSel::ioContext( gt, false ) );
     outimpfld_ = new uiSeisSel( this, ctxt, copysu );
+    outimpfld_->requireZDomain( *zdomain_ );
     outimpfld_->attach( alignedBelow, attgrp );
     if ( !is2d )
 	outimpfld_->setInputText( objname_ );
 
     uiSeisSel::Setup scansu( gt );
-    scansu.enabotherdomain( true ).withwriteopts( false );
+    scansu.withwriteopts( false );
     ctxt.toselect_.allownonuserselectable_ = true;
     ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
     outscanfld_ = new uiSeisSel( this, ctxt, scansu );
+    outscanfld_->setZDomain( *zdomain_ );
     outscanfld_->attach( alignedBelow, attgrp );
     if ( !is2d )
 	outscanfld_->setInputText( objname_ );
@@ -241,12 +252,14 @@ void uiSEGYReadFinisher::crVSPFields()
     lognmfld_ = lcb->box();
     lognmfld_->setReadOnly( false );
     lognmfld_->setText( objname_ );
+    lognmfld_->setHSzPol( uiObject::Wide );
 }
 
 
 uiSEGYReadFinisher::~uiSEGYReadFinisher()
 {
     detachAllNotifiers();
+    delete zdomain_;
 }
 
 
@@ -312,20 +325,12 @@ void uiSEGYReadFinisher::coordsFromChg( CallBacker* )
 void uiSEGYReadFinisher::doScanChg( CallBacker* )
 {
     const bool copy = docopyfld_ ? docopyfld_->getBoolValue() : true;
-    if ( outimpfld_ && outscanfld_ )
-    {
-	const uiSeisSel* outfldsrc = copy ? outscanfld_ : outimpfld_;
-	uiSeisSel* outflddest = copy ? outimpfld_ : outscanfld_;
-	const ZDomain::Info& zinfo = outfldsrc->getZDomain();
-	outflddest->setZDomain( zinfo );
-    }
-
     if ( outimpfld_ )
 	outimpfld_->display( copy );
     if ( outscanfld_ )
 	outscanfld_->display( !copy );
     if ( transffld_ )
-	transffld_->display( copy );
+	transffld_->display( copy && zdomain_->def_.isSI() );
     if ( remnullfld_ )
 	remnullfld_->display( !copy );
     if ( lnmfld_ )

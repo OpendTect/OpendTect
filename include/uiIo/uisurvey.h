@@ -71,6 +71,7 @@ public:
     SurveyInfo*		curSurvInfo()		{ return cursurvinfo_; }
     const SurveyInfo*	curSurvInfo() const	{ return cursurvinfo_; }
 
+    const char*		selectedSurveyDir() const;
     const char*		selectedSurveyName() const;
     bool		freshSurveySelected() const
 			{ return freshsurveyselected_; }
@@ -162,19 +163,13 @@ private:
     const BufferString	dataroot_;
     SurveyInfo&		survinfo_;
     uiGenInput*		survnmfld_;
-    uiButtonGroup*	zistimefld_;
-    uiGenInput*		zinfeetfld_;
     uiListBox*		sipfld_;
 
     uiString		sipName() const;
     BufferString	survName() const;
-    bool		isDepth() const;
-    bool		isTime() const;
-    bool		isInFeet() const;
     void		fillSipsFld();
-    void		zdomainChg(CallBacker*);
-
 };
+
 
 #define mIfIOMNotOK( act ) \
     if ( !uiSurvey::ensureGoodSurveySetup(uirv) ) \

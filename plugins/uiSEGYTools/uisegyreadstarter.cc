@@ -94,13 +94,29 @@ uiSEGYReadStarter::uiSEGYReadStarter( uiParent* p, bool forsurvsetup,
 
     uiObject* attachobj = inpfld_->attachObj();
 
+    BufferStringSet options;
+    options.add( "Time (ms)" ).add( "Depth (m)" ).add( "Depth (ft)" );
+    StringListInpSpec list( options );
+    list.setValue( forsurvsetup || SI().zIsTime() ?
+					0 : (SI().depthsInFeet() ? 2 : 1) );
+    zdomfld_ = new uiGenInput( topgrp_, tr("Z domain"), list );
+    mAttachCB( zdomfld_->valueChanged, uiSEGYReadStarter::zDomChg );
+
     if ( imptyp )
+    {
 	fixedimptype_ = *imptyp;
+	if ( zdomfld_ )
+	{
+	    zdomfld_->attach( alignedBelow, inpfld_ );
+	    attachobj = zdomfld_->attachObj();
+	}
+    }
     else
     {
 	typfld_ = new uiSEGYImpType( topgrp_, !forsurvsetup );
 	mAttachCB( typfld_->typeChanged, uiSEGYReadStarter::typChg );
 	typfld_->attach( alignedBelow, inpfld_ );
+	zdomfld_->attach( rightTo, typfld_ );
 	attachobj = typfld_->attachObj();
     }
 
@@ -510,6 +526,26 @@ void uiSEGYReadStarter::firstSel( CallBacker* )
 }
 
 
+const ZDomain::Info& uiSEGYReadStarter::selectedZDomain() const
+{
+    const int idx = zdomfld_->getIntValue();
+    return idx==0 ? ZDomain::TWT()
+		  : idx==1 ? ZDomain::DepthMeter() : ZDomain::DepthFeet();
+}
+
+
+void uiSEGYReadStarter::zDomChg( CallBacker* )
+{
+    if ( !scaninfos_ )
+	return;
+
+    const auto& zdominfo = selectedZDomain();
+    const SEGY::BasicFileInfo& fi = scaninfos_->basicInfo();
+    infofld_->updateZRange( fi.sampling_, fi.ns_, zdominfo );
+    updateSurvMap();
+}
+
+
 void uiSEGYReadStarter::typChg( CallBacker* )
 {
     const SEGY::ImpType& imptyp = impType();
@@ -550,7 +586,7 @@ void uiSEGYReadStarter::inpChg( CallBacker* )
 }
 
 
-void uiSEGYReadStarter::fullScanReq( CallBacker* cb )
+void uiSEGYReadStarter::fullScanReq( CallBacker* )
 {
     forceRescan( KeepAll, true );
 }
@@ -926,6 +962,7 @@ void uiSEGYReadStarter::updateSurvMap()
 	if ( stbarmsg.isEmpty() )
 	{
 	    cs.zsamp_ = loaddef_.getZRange();
+	    cs.zsamp_.scale( 1.f / sCast(float,selectedZDomain().userFactor()));
 	    survinfo_->setRange( cs, false );
 	    BinID bid[2];
 	    bid[0].inl() = cs.hsamp_.start_.inl();
@@ -1104,7 +1141,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
     return false; }
 
 bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
-				      SEGY::BasicFileInfo& bfi, bool isfirst )
+				SEGY::BasicFileInfo& bfi, bool /*isfirst*/ )
 {
     const od_stream::Pos firsttrcpos = strm.position();
 
@@ -1142,6 +1179,8 @@ void uiSEGYReadStarter::displayScanResults()
 	updateAmplDisplay( nullptr );
 
     infofld_->setScanInfo( *scaninfos_, filespec_.nrFiles() );
+    zDomChg( nullptr );
+
     if ( forsurvsetup_ )
 	updateSurvMap();
 }
@@ -1235,8 +1274,9 @@ bool uiSEGYReadStarter::acceptOK( CallBacker* )
 	}
     }
 
+    const auto& zdomaininfo = selectedZDomain();
     const FullSpec fullspec = fullSpec();
-    uiSEGYReadFinisher dlg( this, fullspec, userfilename_ );
+    uiSEGYReadFinisher dlg( this, fullspec, userfilename_, &zdomaininfo );
     dlg.setCoordSystem( crssystem.getNonConstPtr() );
     dlg.go();
 

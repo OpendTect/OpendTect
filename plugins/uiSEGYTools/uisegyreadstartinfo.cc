@@ -848,12 +848,11 @@ void uiSEGYReadStartInfo::setScanInfoTexts( const SEGY::ScanInfoSet& sis )
 	txt = uiString::empty();
     else
     {
-	txt.set( "%1 - %2 - %3 (s or %4)" );
+	txt.set( "%1 - %2 - %3" );
 	const float endz = bi.sampling_.start
 			 + (bi.ns_-1) * bi.sampling_.step;
 	txt.arg( bi.sampling_.start ).arg( endz )
-	   .arg( bi.sampling_.step )
-	   .arg( sis.inFeet() ? tr("ft") : tr("m") );
+	   .arg( bi.sampling_.step );
     }
     setCellTxt( mQSResCol, mZRangeRow, txt );
 
@@ -1057,4 +1056,30 @@ void uiSEGYReadStartInfo::fillLoadDef()
 
 	loaddef_.hdrdef_->azim_ = azimuthbytefld_->hdrEntry();
     }
+}
+
+
+void uiSEGYReadStartInfo::updateZRange( const SamplingData<float>& sd,
+					int nrsamples,
+					const ZDomain::Info& zdominfo )
+{
+    const char* unit = zdominfo.unitStr();
+    uiString zrglbl = toUiString( "%1 (%2)").arg(uiStrings::sZRange())
+					    .arg( unit );
+    setCellTxt( mItemCol, mZRangeRow, zrglbl );
+
+    uiString txt;
+    if ( mIsUdf(sd.step) )
+	txt = uiString::empty();
+    else
+    {
+	txt.set( "%1 - %2 [%3]" );
+	const float start = sd.start;
+	const float step = sd.step;
+	const int nrdec = Math::NrSignificantDecimals( step );
+	const float endz = start + (nrsamples-1) * step;
+	txt.arg( start, nrdec ).arg( endz, nrdec ).arg( step );
+    }
+
+    setCellTxt( mQSResCol, mZRangeRow, txt );
 }

@@ -20,9 +20,13 @@ class uiFileInput;
 class uiSEGYByteNr;
 class uiSEGYImpType;
 class uiHistogramDisplay;
+
 namespace SEGY
 {
-    class ImpType; class ScanInfoSet; class LoadDef; class HdrEntryKeyData;
+    class HdrEntryKeyData;
+    class ImpType;
+    class LoadDef;
+    class ScanInfoSet;
 }
 
 
@@ -45,6 +49,9 @@ public:
     void		setLoadDefCache(const SEGY::LoadDef&);
     void		useLoadDef(); //!< when you have changed the loaddef
     void		fillLoadDef();
+
+    void		updateZRange(const SamplingData<float>&,
+				     int nrsamples,const ZDomain::Info&);
 
     Notifier<uiSEGYReadStartInfo> loaddefChanged;
     Notifier<uiSEGYReadStartInfo> revChanged; //!< implies loaddefChanged
@@ -87,6 +94,7 @@ protected:
     bool		parsbeingset_			= false;
     short		nrunswappedfmts_		= 5;
     const uiString	sBytePos;
+
     uiString		xinfotxt_;
     uiString		yinfotxt_;
     uiString		inlinfotxt_;

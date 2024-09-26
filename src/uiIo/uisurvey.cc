@@ -172,6 +172,23 @@ bool acceptOK( CallBacker* ) override
 };
 
 
+static BufferString getInitialSurveyName( const char* dataroot )
+{
+    const BufferString prefix = "New_Survey";
+    BufferString survnm = prefix;
+    FilePath survfp( dataroot, survnm.buf() );
+
+    int nr = 1;
+    while ( survfp.exists() )
+    {
+	nr++;
+	survnm.set( prefix ).add( " (" ).add( nr ).add( ")" );
+	survfp.set(dataroot).add( survnm.buf() );
+    }
+
+    return survnm;
+}
+
 
 // uiStartNewSurveySetup
 uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
@@ -185,7 +202,8 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 {
     setOkText( uiStrings::sNext() );
 
-    survnmfld_ = new uiGenInput( this, tr("Survey name") );
+    survnmfld_ = new uiGenInput( this, tr("Survey name"),
+				 getInitialSurveyName(dataroot) );
     survnmfld_->setElemSzPol( uiObject::Wide );
     survnmfld_->setDefaultTextValidator();
 
@@ -201,20 +219,6 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     uiListBox::Setup su( OD::ChooseOnlyOne, tr("Initial setup") );
     sipfld_ = new uiListBox( this, su, "surveyproviders" );
     sipfld_->attach( alignedBelow, survnmfld_ );
-
-    zistimefld_ = new uiButtonGroup( this, "Z Domain", OD::Horizontal );
-    new uiLabel( this, tr("Z Domain"), zistimefld_ );
-    new uiRadioButton( zistimefld_, uiStrings::sTime() );
-    new uiRadioButton( zistimefld_, uiStrings::sDepth() );
-//    new uiRadioButton( zistimefld_, tr("I don't know yet") );
-    zistimefld_->selectButton( 0 );
-    mAttachCB( zistimefld_->valueChanged, uiStartNewSurveySetup::zdomainChg );
-    zistimefld_->attach( alignedBelow, sipfld_ );
-
-    zinfeetfld_ = new uiGenInput( this, tr("Depth unit"),
-				BoolInpSpec(true,tr("Meter"),tr("Feet")) );
-    zinfeetfld_->attach( alignedBelow, zistimefld_ );
-    zinfeetfld_->display( !isTime() );
 
     fillSipsFld();
 }
@@ -265,7 +269,6 @@ bool uiStartNewSurveySetup::acceptOK( CallBacker* )
     const BufferString survnm = survName();
     survinfo_.setName( survnm );
     survinfo_.updateDirName();
-    survinfo_.setZUnit( isTime(), isInFeet() );
     survinfo_.setSipName( sipName() );
 
     return true;
@@ -326,29 +329,6 @@ BufferString uiStartNewSurveySetup::survName() const
     return survnmfld_->text();
 }
 
-
-bool uiStartNewSurveySetup::isTime() const
-{
-    return zistimefld_->selectedId() == 0;
-}
-
-
-bool uiStartNewSurveySetup::isDepth() const
-{
-    return zistimefld_->selectedId() == 1;
-}
-
-
-bool uiStartNewSurveySetup::isInFeet() const
-{
-    return !zinfeetfld_->getBoolValue();
-}
-
-
-void uiStartNewSurveySetup::zdomainChg( CallBacker* )
-{
-    zinfeetfld_->display( isDepth() );
-}
 
 
 //--- uiSurvey
@@ -513,9 +493,19 @@ void uiSurvey::add( const uiSurvey::Util& util )
 }
 
 
+const char* uiSurvey::selectedSurveyDir() const
+{
+    const int selidx = dirfld_->currentItem();
+    return surveydirs_.validIdx(selidx) ? surveydirs_.get( selidx ).buf()
+					: dirfld_->getText();
+}
+
+
 const char* uiSurvey::selectedSurveyName() const
 {
-    return dirfld_->getText();
+    const int selidx = dirfld_->currentItem();
+    return surveynames_.validIdx(selidx) ? surveynames_.get( selidx ).buf()
+					 : nullptr;
 }
 
 
@@ -565,7 +555,8 @@ static void copyFolderIconIfMissing( const char* basedir, const char* survdir )
 
 void uiSurvey::updateSurveyNames()
 {
-    surveynames_.erase(); surveydirs_.erase();
+    surveynames_.erase();
+    surveydirs_.erase();
 
     BufferString basedir = dataroot_;
     if ( basedir.isEmpty() )
@@ -579,8 +570,10 @@ void uiSurvey::updateSurveyNames()
 	if ( !File::exists(fp.fullPath()) )
 	    continue;
 
-	IOPar survpar; survpar.read( fp.fullPath(), "Survey Info", true );
-	BufferString survname; survpar.get( sKey::Name(), survname );
+	IOPar survpar;
+	survpar.read( fp.fullPath(), "Survey Info", true );
+	BufferString survname;
+	survpar.get( sKey::Name(), survname );
 	if ( !survname.isEmpty() )
 	{
 	    surveynames_.add( survname );
@@ -609,7 +602,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 		   "Note that public domain surveys can be downloaded"
 		   " from TerraNubis."))
 
-    const BufferString selsurv( selectedSurveyName() );
+    const BufferString selsurv( selectedSurveyDir() );
     const bool samedataroot = dataroot_ == orgdataroot_;
     const bool samesurvey = samedataroot && initialsurveyname_ == selsurv;
 
@@ -630,7 +623,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     // Step 2: write default/current survey file and record data root preference
     uiRetVal uirv;
-    const SurveyDiskLocation sdl( selectedSurveyName(), dataroot_ );
+    const SurveyDiskLocation sdl( selectedSurveyDir(), dataroot_ );
     if ( !IOMan::recordDataSource(sdl,uirv) )
     {
 	if ( !uirv.isOK() )
@@ -784,6 +777,7 @@ void uiSurvey::newButPushed( CallBacker* )
     if ( !dlg.go() )
 	return;
 
+    newsurvinfo->setZUnit( false, false ); // ensure zscale factor is 1.
     const BufferString orgdirname = newsurvinfo->getDirName().buf();
     const BufferString storagedir = FilePath( dataroot_ ).add( orgdirname )
 							    .fullPath();
@@ -820,9 +814,11 @@ void uiSurvey::newButPushed( CallBacker* )
 
 void uiSurvey::rmButPushed( CallBacker* )
 {
-    const BufferString selnm( selectedSurveyName() );
+    const BufferString selnm( selectedSurveyDir() );
     const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
     const BufferString truedirnm = File::linkEnd( seldirnm );
+    if ( selnm.isEmpty() || truedirnm.isEmpty() )
+	return;
 
     uiString msg = tr("This will delete the entire survey folder:\n\n%1"
 		      "\n\nFull path: %2").arg(selnm).arg(truedirnm);
@@ -859,7 +855,7 @@ void uiSurvey::editButPushed( CallBacker* )
     if ( !cursurvinfo_ )
 	return; // defensive
 
-    const BufferString selsurv( selectedSurveyName() );
+    const BufferString selsurv( selectedSurveyDir() );
     const bool samedataroot = dataroot_ == orgdataroot_;
     const bool samesurvey = samedataroot && initialsurveyname_ == selsurv;
     if ( samesurvey )
@@ -879,7 +875,7 @@ void uiSurvey::copyButPushed( CallBacker* )
 {
     if ( !rootDirWritable() ) return;
 
-    uiNewSurveyByCopy dlg( this, dataroot_, selectedSurveyName() );
+    uiNewSurveyByCopy dlg( this, dataroot_, selectedSurveyDir() );
     if ( !dlg.go() )
 	return;
 
@@ -916,7 +912,7 @@ void uiSurvey::importButPushed( CallBacker* )
 
 void uiSurvey::exportButPushed( CallBacker* )
 {
-    const char* survnm( selectedSurveyName() );
+    const char* survnm( selectedSurveyDir() );
     const uiString title = tr("Compress %1 survey as zip archive")
 						.arg(survnm);
     uiDialog dlg( this,
@@ -1045,10 +1041,11 @@ void uiSurvey::updateSurvList()
     int newselidx = dirfld_->currentItem();
     const BufferString prevsel( dirfld_->getText() );
     dirfld_->setEmpty();
-    BufferStringSet dirlist; getSurveyList( dirlist, dataroot_ );
+    BufferStringSet dirlist;
+    getSurveyList( dirlist, dataroot_ );
     dirfld_->addItems( dirlist );
-//    updateSurveyNames();
-//    dirfld_->addItems( surveynames_ );
+    if ( !finalized() )
+	dirfld_->resizeWidthToContents();
 
     if ( dirfld_->isEmpty() )
 	return;
@@ -1075,7 +1072,7 @@ bool uiSurvey::checkSurveyName()
     if ( dirfld_->isEmpty() )
 	{ pErrMsg( "No survey in the list" ); return false; }
 
-    const BufferString seltxt( selectedSurveyName() );
+    const BufferString seltxt( selectedSurveyDir() );
     if ( seltxt.isEmpty() )
 	mErrRet(tr("Survey folder name cannot be empty"))
 
@@ -1088,12 +1085,12 @@ bool uiSurvey::checkSurveyName()
 
 void uiSurvey::readSurvInfoFromFile()
 {
-    const BufferString survnm( selectedSurveyName() );
+    const BufferString survnm( selectedSurveyDir() );
     PtrMan<SurveyInfo> newsi;
     if ( !survnm.isEmpty() )
     {
 	const BufferString fname = FilePath( dataroot_ )
-			    .add( selectedSurveyName() ).fullPath();
+			    .add( selectedSurveyDir() ).fullPath();
 	newsi = SurveyInfo::readDirectory( fname );
 	if ( !newsi )
 	    uiMSG().warning(
@@ -1125,7 +1122,7 @@ bool uiSurvey::doSurvInfoDialog( bool isnew )
 	return false;
     }
 
-    if ( initialsurveyname_ == selectedSurveyName() )
+    if ( initialsurveyname_ == selectedSurveyDir() )
 	parschanged_ = true;
 
     updateSurvList();

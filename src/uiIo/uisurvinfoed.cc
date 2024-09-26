@@ -225,8 +225,12 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     for ( int idx=0; idx<sips_.size(); idx++ )
     {
 	if ( !sips_[idx]->isAvailable() )
-	    { sips_.removeSingle(idx); idx--; }
+	{
+	    sips_.removeSingle(idx);
+	    idx--;
+	}
     }
+
     const int nrprovs = sips_.size();
     if ( nrprovs < 1 ) return;
 
@@ -914,10 +918,11 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     {
 	if ( !uiMSG().askGoOn(tr("Copy your survey to another location?")) )
 	    return false;
-	else if ( !copySurv(orgstorepath_,orgdirname_,
-			    newstorepath,newdirnm) )
+
+	if ( !copySurv(orgstorepath_,orgdirname_,newstorepath,newdirnm) )
 	    return false;
-	else if ( !uiMSG().askGoOn(tr("Keep the survey at the old location?")) )
+
+	if ( !uiMSG().askGoOn(tr("Keep the survey at the old location?")) )
 	    File::removeDir( olddir );
     }
     else if ( dirnamechanged && !renameSurv(orgstorepath_,orgdirname_,
@@ -1097,20 +1102,9 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 
     if ( !coordsys )
     {
-	Coord llcrd; LatLong llll;
-	if ( sip->getLatLongAnchor(llcrd,llll) )
-	{
-	    RefMan<Coords::AnchorBasedXY> anchoredsystem =
-				new Coords::AnchorBasedXY( llll, llcrd );
-	    anchoredsystem->setIsFeet( sip->xyInFeet() );
-	    coordsys = anchoredsystem;
-	}
-	else
-	{
-	    RefMan<Coords::UnlocatedXY> crs = new Coords::UnlocatedXY();
-	    crs->setIsFeet( sip->xyInFeet() );
-	    coordsys = crs;
-	}
+	RefMan<Coords::UnlocatedXY> crs = new Coords::UnlocatedXY();
+	crs->setIsFeet( sip->xyInFeet() );
+	coordsys = crs;
     }
 
     if ( coordsys )
@@ -1120,7 +1114,8 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	crssel_->fillFrom( *coordsys.ptr() );
     }
 
-    const bool xyinfeet = si_.getCoordSystem()->isFeet();
+    const bool xyinfeet =
+	si_.getCoordSystem() ? si_.getCoordSystem()->isFeet() : false;
     uiSurvInfoProvider::TDInfo tdinfo = sip->tdInfo();
     bool zistime = si_.zIsTime();
     if ( tdinfo != uiSurvInfoProvider::Unknown )

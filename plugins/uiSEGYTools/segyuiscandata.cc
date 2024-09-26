@@ -210,7 +210,8 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 	thdr->geomtype_ = is2d_ ? Seis::Line : Seis::Vol;
 
     thdr->fill( ti, 1.0f );
-    sampling_ = ti.sampling;
+    sampling_.start = ti.sampling.start * SI().zDomain().userFactor();
+    sampling_.step = ti.sampling.step * SI().zDomain().userFactor();
     if ( mIsZero(sampling_.step,1.e-8) )
 	sampling_.step = binhdr.sampleRate( false );
 

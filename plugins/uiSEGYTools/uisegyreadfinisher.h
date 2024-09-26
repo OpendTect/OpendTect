@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uisegycommon.h"
+
 #include "uidialog.h"
 #include "multiid.h"
 
@@ -36,7 +37,8 @@ mExpClass(uiSEGYTools) uiSEGYReadFinisher : public uiDialog
 public:
 
 			uiSEGYReadFinisher(uiParent*,const FullSpec&,
-					   const char* usrspec);
+					   const char* usrspec,
+					   const ZDomain::Info* =nullptr);
 			~uiSEGYReadFinisher();
 
     FullSpec&		fullSpec()		{ return fs_; }
@@ -52,6 +54,7 @@ private:
     BufferString	objname_;
     MultiID		outputid_;
     Coords::CoordSystem* coordsys_		= nullptr;
+    ZDomain::Info*	zdomain_;
 
     uiIOObjSel*		outwllfld_		= nullptr;
     uiComboBox*		lognmfld_		= nullptr;

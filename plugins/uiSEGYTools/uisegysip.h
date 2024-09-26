@@ -21,7 +21,6 @@ public:
 
 			uiSEGYSurvInfoProvider();
 			~uiSEGYSurvInfoProvider();
-
 			mOD_DisableCopy(uiSEGYSurvInfoProvider);
 
     uiString		usrText() const override
@@ -31,6 +30,7 @@ public:
 				Coord crd[3]) override;
     bool		xyInFeet() const override	{ return xyinft_; }
     const char*		iconName() const override	{ return "segy"; }
+    TDInfo		tdInfo() const override		{ return tdinfo_; }
 
     void		fillLogPars(IOPar&) const override;
     IOPar*		getCoordSystemPars() const override;
@@ -41,9 +41,10 @@ public:
 
 private:
 
+    TDInfo		tdinfo_				= Unknown;
     IOPar		imppars_;
     BufferString	userfilename_;
-    bool		xyinft_			= false;
+    bool		xyinft_				= false;
     RefMan<Coords::CoordSystem> coordsystem_;
 
 };

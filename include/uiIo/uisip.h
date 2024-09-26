@@ -57,6 +57,7 @@ public:
     virtual bool		hasSurveyImportDlg() { return false; }
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
+    mDeprecatedObs
     virtual bool		getLatLongAnchor(Coord&,LatLong&)
 							{ return false; }
     virtual bool		getSRD(float&)		{ return false; }
