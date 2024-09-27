@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "sharedobject.h"
 
 #include "coord.h"
-#include "odcommonenums.h"
 #include "multiid.h"
 #include "namedobj.h"
+#include "odcommonenums.h"
+#include "sharedobject.h"
 #include "uistring.h"
 #include "wellman.h"
 
@@ -24,13 +24,13 @@ class Mnemonic;
 namespace Well
 {
 
-class Track;
+class D2TModel;
+class DisplayProperties;
 class Log;
 class LogSet;
 class Marker;
 class MarkerSet;
-class D2TModel;
-class DisplayProperties;
+class Track;
 
 
 /*!
@@ -131,7 +131,7 @@ public:
 mExpClass(Well) Data : public SharedObject
 {
 public:
-				Data(const char* nm=0);
+				Data(const char* nm=nullptr);
 
     const MultiID&		multiID() const		{ return mid_; }
     void			setMultiID( const MultiID& mid ) const
@@ -148,12 +148,32 @@ public:
     LogSet&			logs()			{ return logs_; }
     const MarkerSet&		markers() const		{ return markers_; }
     MarkerSet&			markers()		{ return markers_; }
-    const D2TModel*		d2TModel() const	{ return d2tmodel_; }
-    D2TModel*			d2TModel()		{ return d2tmodel_; }
-    const D2TModel*		checkShotModel() const	{ return csmodel_; }
-    D2TModel*			checkShotModel()	{ return csmodel_; }
-    void			setD2TModel(D2TModel*);	//!< becomes mine
-    void			setCheckShotModel(D2TModel*); //!< mine, too
+    int				nrD2TModels() const;
+    void			getD2TModelNames(BufferStringSet&) const;
+    int				nrCheckShotModels() const;
+    void			getCheckShotModelNames(BufferStringSet&) const;
+    const D2TModel*		d2TModel() const;
+				//!< Active time-depth model
+    const D2TModel*		d2TModelByName(const char*) const;
+    const D2TModel*		d2TModelByIndex(int) const;
+    D2TModel*			d2TModel();
+    D2TModel*			d2TModelByName(const char*);
+    D2TModel*			d2TModelByIndex(int);
+    const D2TModel*		checkShotModel() const;
+				//!< Active check-shot model
+    const D2TModel*		checkShotModelByName(const char*) const;
+    const D2TModel*		checkShotModelByIndex(int) const;
+    D2TModel*			checkShotModel();
+    D2TModel*			checkShotModelByName(const char*);
+    D2TModel*			checkShotModelByIndex(int);
+    bool			setD2TModel(D2TModel*);
+				//!< becomes mine, replaces the active model
+    bool			setCheckShotModel(D2TModel*);
+				//!< mine, too, replaces the active model
+    void			addD2TModel(D2TModel*,bool setasactive);
+    void			addCheckShotModel(D2TModel*,bool setasactive);
+    bool			setActiveD2TModel(D2TModel*);
+    bool			setActiveCheckShotModel(D2TModel*);
     DisplayProperties&		displayProperties( bool for2d=false )
 				    { return for2d ? disp2d_ : disp3d_; }
     const DisplayProperties&	displayProperties( bool for2d=false ) const
@@ -173,8 +193,8 @@ public:
 
     bool			haveLogs() const;
     bool			haveMarkers() const;
-    bool			haveD2TModel() const	{ return d2tmodel_; }
-    bool			haveCheckShotModel() const { return csmodel_; }
+    bool			haveD2TModel() const	{ return actd2tmodel_; }
+    bool			haveCheckShotModel() const {return actcsmodel_;}
     Well::LoadReqs		loadState() const;
     void			reloadLogInfos() const;
 
@@ -196,8 +216,10 @@ protected:
     mutable MultiID		mid_;
     Track&			track_;
     LogSet&			logs_;
-    D2TModel*			d2tmodel_;
-    D2TModel*			csmodel_;
+    D2TModel*			actd2tmodel_	= nullptr;
+    D2TModel*			actcsmodel_	= nullptr;
+    ObjectSet<D2TModel>		d2tmodels_;
+    ObjectSet<D2TModel>		csmodels_;
     MarkerSet&			markers_;
     DisplayProperties&		disp2d_;
     DisplayProperties&		disp3d_;

@@ -8,20 +8,22 @@ ________________________________________________________________________
 -*/
 
 #include "welldata.h"
-#include "welltrack.h"
-#include "welllog.h"
-#include "welllogset.h"
-#include "welldisp.h"
-#include "welld2tmodel.h"
-#include "wellmarker.h"
+
 #include "bendpointfinder.h"
 #include "idxable.h"
 #include "iopar.h"
 #include "mnemonics.h"
 #include "stratlevel.h"
 #include "uistrings.h"
+
+#include "welld2tmodel.h"
+#include "welldisp.h"
+#include "welllog.h"
+#include "welllogset.h"
 #include "wellman.h"
+#include "wellmarker.h"
 #include "wellreader.h"
+#include "welltrack.h"
 
 // Keys for IOPars
 const char* Well::Info::sKeyDepthUnit() { return sKey::DepthUnit(); }
@@ -363,8 +365,6 @@ Well::Data::Data( const char* nm )
     , info_(nm)
     , track_(*new Well::Track)
     , logs_(*new Well::LogSet)
-    , d2tmodel_(nullptr)
-    , csmodel_(nullptr)
     , markers_(*new MarkerSet)
     , disp2d_(*new Well::DisplayProperties(sKey2DDispProp()))
     , disp3d_(*new Well::DisplayProperties(sKey3DDispProp()))
@@ -380,11 +380,11 @@ Well::Data::~Data()
 
     delete &track_;
     delete &logs_;
+    deepErase( d2tmodels_ );
+    deepErase( csmodels_ );
+    delete &markers_;
     delete &disp2d_;
     delete &disp3d_;
-    delete d2tmodel_;
-    delete csmodel_;
-    delete &markers_;
 }
 
 
@@ -406,21 +406,241 @@ bool Well::Data::haveLogs() const
 }
 
 
-void Well::Data::setD2TModel( D2TModel* d )
+int Well::Data::nrD2TModels() const
 {
-    if ( d2tmodel_ == d )
-	return;
-    delete d2tmodel_;
-    d2tmodel_ = d;
+    return d2tmodels_.size();
 }
 
 
-void Well::Data::setCheckShotModel( D2TModel* d )
+void Well::Data::getD2TModelNames( BufferStringSet& names ) const
 {
-    if ( csmodel_ == d )
-	return;
-    delete csmodel_;
-    csmodel_ = d;
+    for ( const auto* d2tmodel : d2tmodels_ )
+	names.add( d2tmodel->name().buf() );
+}
+
+
+int Well::Data::nrCheckShotModels() const
+{
+    return csmodels_.size();
+}
+
+
+void Well::Data::getCheckShotModelNames( BufferStringSet& names ) const
+{
+    for ( const auto* d2tmodel : csmodels_ )
+	names.add( d2tmodel->name().buf() );
+}
+
+
+const Well::D2TModel* Well::Data::d2TModel() const
+{
+    return mSelf().d2TModel();
+}
+
+
+const Well::D2TModel* Well::Data::d2TModelByName( const char* nm ) const
+{
+    return mSelf().d2TModelByName( nm );
+}
+
+
+const Well::D2TModel* Well::Data::d2TModelByIndex( int idx ) const
+{
+    return mSelf().d2TModelByIndex( idx );
+}
+
+
+Well::D2TModel* Well::Data::d2TModel()
+{
+    return actd2tmodel_;
+}
+
+
+Well::D2TModel* Well::Data::d2TModelByName( const char* nm )
+{
+    for ( auto* d2tmodel : d2tmodels_ )
+	if ( d2tmodel->name() == nm )
+	    return d2tmodel;
+
+    return nullptr;
+}
+
+
+Well::D2TModel* Well::Data::d2TModelByIndex( int idx )
+{
+    return d2tmodels_.validIdx( idx ) ? d2tmodels_.get( idx ) : nullptr;
+}
+
+
+const Well::D2TModel* Well::Data::checkShotModel() const
+{
+    return mSelf().checkShotModel();
+}
+
+
+const Well::D2TModel* Well::Data::checkShotModelByName( const char* nm ) const
+{
+    return mSelf().checkShotModelByName( nm );
+}
+
+
+const Well::D2TModel* Well::Data::checkShotModelByIndex( int idx ) const
+{
+    return mSelf().checkShotModelByIndex( idx );
+}
+
+
+Well::D2TModel* Well::Data::checkShotModel()
+{
+    return actcsmodel_;
+}
+
+
+Well::D2TModel* Well::Data::checkShotModelByName( const char* nm )
+{
+    for ( auto* d2tmodel : csmodels_ )
+	if ( d2tmodel->name() == nm )
+	    return d2tmodel;
+
+    return nullptr;
+}
+
+
+Well::D2TModel* Well::Data::checkShotModelByIndex( int idx )
+{
+    return csmodels_.validIdx( idx ) ? csmodels_.get( idx ) : nullptr;
+}
+
+
+bool Well::Data::setD2TModel( D2TModel* d2tmodel )
+{
+    if ( d2tmodel == actd2tmodel_ )
+	return true;
+
+    if ( d2tmodels_.isEmpty() )
+    {
+	d2tmodels_.add( d2tmodel );
+	actd2tmodel_ = d2tmodel;
+	return true;
+    }
+
+#ifdef __debug__
+    if ( d2tmodels_.isPresent(d2tmodel) )
+    {
+	pErrMsg("Invalid way of setting the current Well::D2TModel");
+	actd2tmodel_ = d2tmodel;
+	return false;
+    }
+
+    if ( !actd2tmodel_ )
+    {
+	pErrMsg("There is no active time-depth model but the set is not empty");
+	d2tmodels_.add( d2tmodel );
+	actd2tmodel_ = d2tmodel;
+	return false;
+    }
+#endif
+
+    const int idx = d2tmodels_.indexOf( actd2tmodel_ );
+#ifdef __debug__
+    if ( !d2tmodels_.validIdx(idx) )
+    {
+	pErrMsg("Cannot find the active time-depth model in the set");
+	d2tmodels_.add( d2tmodel );
+	actd2tmodel_ = d2tmodel;
+	return false;
+    }
+
+#endif
+    delete d2tmodels_.replace( idx, d2tmodel );
+    actd2tmodel_ = d2tmodel;
+    return true;
+}
+
+
+bool Well::Data::setCheckShotModel( D2TModel* d2tmodel )
+{
+    if ( d2tmodel == actcsmodel_ )
+	return true;
+
+    if ( csmodels_.isEmpty() )
+    {
+	csmodels_.add( d2tmodel );
+	actcsmodel_ = d2tmodel;
+	return true;
+    }
+
+#ifdef __debug__
+    if ( csmodels_.isPresent(d2tmodel) )
+    {
+	pErrMsg("Invalid way of setting the current Well::D2TModel");
+	actcsmodel_ = d2tmodel;
+	return false;
+    }
+
+    if ( !actcsmodel_ )
+    {
+	pErrMsg("There is no active time-depth model but the set is not empty");
+	csmodels_.add( d2tmodel );
+	actcsmodel_ = d2tmodel;
+	return false;
+    }
+#endif
+
+    const int idx = csmodels_.indexOf( actcsmodel_ );
+#ifdef __debug__
+    if ( !csmodels_.validIdx(idx) )
+    {
+	pErrMsg("Cannot find the active time-depth model in the set");
+	csmodels_.add( d2tmodel );
+	actcsmodel_ = d2tmodel;
+	return false;
+    }
+#endif
+
+    delete csmodels_.replace( idx, d2tmodel );
+    actcsmodel_ = d2tmodel;
+    return true;
+}
+
+
+void Well::Data::addD2TModel( D2TModel* d2tmodel, bool setasactive )
+{
+    if ( !d2tmodels_.isPresent(d2tmodel) )
+	d2tmodels_.add( d2tmodel );
+
+    if ( setasactive )
+	actd2tmodel_ = d2tmodel;
+}
+
+
+void Well::Data::addCheckShotModel( D2TModel* d2tmodel, bool setasactive )
+{
+    if ( !csmodels_.isPresent(d2tmodel) )
+	csmodels_.add( d2tmodel );
+
+    if ( setasactive )
+	actcsmodel_ = d2tmodel;
+}
+
+
+bool Well::Data::setActiveD2TModel( D2TModel* d2tmodel )
+{
+    if ( !d2tmodels_.isPresent(d2tmodel) )
+	return false;
+
+    actd2tmodel_ = d2tmodel;
+    return true;
+}
+
+
+bool Well::Data::setActiveCheckShotModel( D2TModel* d2tmodel )
+{
+    if ( !csmodels_.isPresent(d2tmodel) )
+	return false;
+
+    actcsmodel_ = d2tmodel;
+    return true;
 }
 
 
