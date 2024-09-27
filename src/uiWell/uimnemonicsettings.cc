@@ -9,11 +9,11 @@ ________________________________________________________________________
 
 #include "uimnemonicsettings.h"
 
-#include "filepath.h"
 #include "mnemonics.h"
-#include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
+#include "unitofmeasure.h"
+
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uifiledlg.h"
@@ -21,7 +21,6 @@ ________________________________________________________________________
 #include "uimnemonicprops.h"
 #include "uimsg.h"
 #include "uistrings.h"
-#include "unitofmeasure.h"
 
 
 uiMnemonicSettings::uiMnemonicSettings( uiParent* p, Settings& setts )
@@ -29,7 +28,7 @@ uiMnemonicSettings::uiMnemonicSettings( uiParent* p, Settings& setts )
 {
     uiListBox::Setup su( OD::ChooseOnlyOne, uiStrings::sMnemonic(),
 			 uiListBox::AboveLeft );
-    mnemonicsfld_ = new uiListBox( this, su );
+    mnemonicsfld_ = new uiListBox( this, su, "mnemonics" );
 
     auto* rightgrp = new uiGroup( this );
     mnempropsfld_ = new uiMnemonicProperties( rightgrp );
