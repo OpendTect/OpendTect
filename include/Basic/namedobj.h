@@ -68,7 +68,8 @@ mExpClass(Basic) NamedCallBacker : public CallBacker
 				 , public NamedObject
 {
 public:
-			NamedCallBacker(const char* nm=0);
+			NamedCallBacker(const char* nm=nullptr);
+			~NamedCallBacker();
 			mOD_DisableCopy(NamedCallBacker)
 
     inline bool		operator ==( const NamedCallBacker& oth ) const

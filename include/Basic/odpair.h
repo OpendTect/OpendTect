@@ -9,7 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
-#include "commanddefs.h"
+#include "commondefs.h"
+#include "plftypes.h"
+#include "undefval.h"
 #include <utility>
 
 namespace OD
@@ -21,6 +23,7 @@ mClass(Basic) Pair
 public:
 			Pair() {}
 			Pair(const T1&,const T2&);
+    virtual		~Pair();
 
     bool		operator==(const Pair<T1,T2>&) const;
 
@@ -44,6 +47,11 @@ Pair<T1,T2>::Pair( const T1& v1, const T2& v2 )
     pair_.first = v1;
     pair_.second = v2;
 }
+
+
+template <class T1,class T2>
+Pair<T1,T2>::~Pair()
+{}
 
 
 template <class T1,class T2>

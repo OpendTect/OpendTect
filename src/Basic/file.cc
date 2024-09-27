@@ -10,10 +10,8 @@ ________________________________________________________________________
 #include "file.h"
 
 #include "bufstringset.h"
-#include "commandlineparser.h"
 #include "dirlist.h"
 #include "envvars.h"
-#include "errmsg.h"
 #include "executor.h"
 #include "filepath.h"
 #include "filesystemaccess.h"

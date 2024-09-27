@@ -8,12 +8,10 @@ ________________________________________________________________________
 -*/
 
 #include "odver.h"
-#include "oddirs.h"
+
 #include "odinst.h"
 #include "odplatform.h"
 #include "genc.h"
-#include "file.h"
-#include "filepath.h"
 #include "keystrs.h"
 #include "perthreadrepos.h"
 #ifndef OD_NO_QT

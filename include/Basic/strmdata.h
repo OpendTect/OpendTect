@@ -22,9 +22,9 @@ ________________________________________________________________________
 mExpClass(Basic) StreamData
 {
 public:
-
 			StreamData();
 			StreamData(StreamData&&);
+    virtual		~StreamData();
 
     StreamData&		operator=(StreamData&&);
 

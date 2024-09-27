@@ -9,13 +9,11 @@ ________________________________________________________________________
 
 #include "surveydisklocation.h"
 
-#include "ascstream.h"
-#include "dirlist.h"
+#include "file.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "oddirs.h"
-#include "od_istream.h"
 #include "survgeom.h"
 #include "survinfo.h"
 
@@ -24,6 +22,10 @@ const SurveyDiskLocation& SurveyDiskLocation::currentSurvey()
     static SurveyDiskLocation empty;
     return empty;
 }
+
+
+SurveyDiskLocation::SurveyDiskLocation()
+{}
 
 
 SurveyDiskLocation::SurveyDiskLocation( const char* dirnm, const char* bp )

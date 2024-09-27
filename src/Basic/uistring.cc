@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "envvars.h"
 #include "geometry.h"
-#include "od_iostream.h"
+#include "od_ostream.h"
 #include "odmemory.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
@@ -36,21 +36,21 @@ ________________________________________________________________________
 
 #else
 
-static char* getNewDebugStr( char* strvar, const BufferString& newstr )
+static char* getNewDebugStr( const BufferString& newstr )
 {
-    delete [] strvar;
     const od_int64 newsz = newstr.size();
     if ( newsz==0 )
 	return nullptr;
 
-    strvar = new char [ newsz + 1 ];
+    auto* strvar = new char [ newsz + 1 ];
     OD::sysMemCopy( strvar, newstr.str(), newsz );
     strvar[newsz] = '\0';
     return strvar;
 }
 
 # define mSetDBGStr { \
-    debugstr_ = getNewDebugStr( debugstr_, getString() ); }
+    delete [] debugstr_; \
+    debugstr_ = getNewDebugStr( getString() ); }
 
 #endif
 
@@ -58,7 +58,7 @@ static char* getNewDebugStr( char* strvar, const BufferString& newstr )
 const uiString uiString::emptystring_( toUiString("") );
 uiString uiString::dummystring_;
 #ifndef OD_NO_QT
-static const QString emptyqstring;
+Q_GLOBAL_STATIC( QString, emptyqstring );
 #endif
 
 
@@ -1081,7 +1081,7 @@ const QString& uiString::getQString() const
     if ( !data_ )
     {
 #ifndef OD_NO_QT
-	return emptyqstring;
+	return *emptyqstring;
 #else
 	QString* ptr = 0;
 	return *ptr;

@@ -89,6 +89,27 @@ bool IdxPair::parseUsrStr( const char* str, const char* prefx,
 }
 
 
+// Pos::IdxPair
+Pos::IdxPair::IdxPair()
+    : ::IdxPair(0,0)
+{}
+
+
+Pos::IdxPair::IdxPair( IdxType f, IdxType s )
+    : ::IdxPair(f,s)
+{}
+
+
+Pos::IdxPair::IdxPair( const Pos::IdxPair& oth )
+    : ::IdxPair(oth.first,oth.second)
+{
+}
+
+
+Pos::IdxPair::~IdxPair()
+{}
+
+
 const Pos::IdxPair& Pos::IdxPair::udf()
 {
    return udfposidxpair;

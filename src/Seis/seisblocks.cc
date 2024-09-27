@@ -27,16 +27,9 @@ Seis::Blocks::SzType Seis::Blocks::IOClass::columnHeaderSize( SzType ver )
 						{ return 32; }
 
 
-Seis::Blocks::HGeom::HGeom( const Survey::Geometry3D& sg )
-    : Survey::Geometry3D(sg)
-{
-}
-
-
-Seis::Blocks::HGeom::HGeom( const HGeom& oth )
-    : Survey::Geometry3D(oth)
-{
-}
+Seis::Blocks::HGeom::HGeom( const char* nm, const ZDomain::Def& def )
+    : Survey::Geometry3D(nm,def)
+{}
 
 
 Seis::Blocks::HGeom::~HGeom()
@@ -82,6 +75,9 @@ Seis::Blocks::IOClass::IOClass()
     , version_(cVersion)
     , scaler_(0)
     , fprep_(DataCharacteristics::F32)
+    , hgeom_(new HGeom("",ZDomain::SI()))
+    , columns_(*new Pos::IdxPairDataSet(sizeof(Block*),false,false))
+    , needreset_(true)
     , datatype_(UnknowData)
     , needreset_(true)
 {
@@ -94,13 +90,12 @@ Seis::Blocks::IOClass::~IOClass()
     delete scaler_;
     clearColumns();
     delete &columns_;
-    delete &hgeom_;
 }
 
 
 const ZDomain::Def& Seis::Blocks::IOClass::zDomain() const
 {
-    return hgeom_.zDomain();
+    return hgeom_->zDomain();
 }
 
 

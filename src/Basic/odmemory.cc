@@ -14,11 +14,9 @@ ________________________________________________________________________
 #include "odmemory.h"
 #include "nrbytes2string.h"
 #include "thread.h"
-#include "threadwork.h"
 
 #ifdef __lux__
 # include "od_istream.h"
-# include "strmoper.h"
 # include <fstream>
 static od_int64 swapfree;
 #endif

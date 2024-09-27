@@ -361,7 +361,14 @@ const Survey::Geometry3D* Survey::Geometry::as3D() const
 Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
     : name_( nm )
     , zdomain_( zd )
-{ sampling_.hsamp_.survid_ = OD::Geom3D; }
+{
+    sampling_.hsamp_.survid_ = OD::Geom3D;
+}
+
+
+
+Survey::Geometry3D::~Geometry3D()
+{}
 
 
 StepInterval<int> Survey::Geometry3D::inlRange() const

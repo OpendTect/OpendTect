@@ -26,12 +26,8 @@ underlying string. It is comparable to std::string_view (C++17).
 mExpClass(Basic) StringView : public OD::String
 {
 public:
-
-    inline		StringView( const char* p = nullptr )
-			    : str_(p)		{}
-    inline		StringView( const StringView& oth )
-					 : str_(oth.str_)	{}
-			 ~StringView()				{}
+			StringView(const char* =nullptr);
+			~StringView();
 
     inline StringView&	operator=( const StringView& fs )
 						{ str_ = fs.str_; return *this;}

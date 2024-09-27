@@ -12,6 +12,16 @@ ________________________________________________________________________
 namespace OD
 {
 // RGBImageLoader
+PtrMan<RGBImageLoader> RGBImageLoader::imageloader_;
+
+
+RGBImageLoader::RGBImageLoader()
+{}
+
+
+RGBImageLoader::~RGBImageLoader()
+{}
+
 
 RGBImage* RGBImageLoader::loadRGBImage( const char* fnm, uiString& errmsg )
 { 
@@ -25,15 +35,15 @@ void RGBImageLoader::setImageLoader( RGBImageLoader* il )
 }
 
 
-RGBImageLoader::~RGBImageLoader()
+//RGBImage
+RGBImage::RGBImage()
 {}
 
 
-PtrMan<RGBImageLoader>  RGBImageLoader::imageloader_;
+RGBImage::~RGBImage()
+{}
 
 
-
-//RGBImage
 bool RGBImage::hasAlpha() const
 {
     const char nc = nrComponents();
@@ -225,5 +235,4 @@ int RGBImage::bufferSize() const
     return nrComponents()*getSize(true)*getSize(false);
 }
 
-
-};
+} // namespace OD

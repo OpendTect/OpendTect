@@ -157,7 +157,7 @@ mClass(Basic) Undef<Coord3>
 public:
     static Coord3	val()			{ return Coord3::udf(); }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( Coord3 crd )	{ return !crd.isDefined(); }
+    static bool		isUdf( const Coord3& crd )  { return !crd.isDefined(); }
     static void		setUdf( Coord3& crd )	{ crd = Coord3::udf(); }
 };
 

@@ -24,7 +24,7 @@ namespace OD
 mExpClass(Basic) RGBImage
 {
 public:
-    virtual		~RGBImage()			{}
+    virtual		~RGBImage();
 
     virtual char	nrComponents() const		= 0;
 			/*!<\retval 1 grayscale
@@ -76,6 +76,10 @@ public:
 
     virtual const unsigned char*	getData() const		{ return 0; }
     virtual unsigned char*		getData() 		{ return 0; }
+
+protected:
+			RGBImage();
+			mOD_DisableCopy(RGBImage)
 };
 
 /*!
@@ -102,6 +106,10 @@ public:
 			 //!<subsequent images.
 
     virtual		 ~RGBImageLoader();
+
+protected:
+			RGBImageLoader();
+			mOD_DisableCopy(RGBImageLoader)
 
 };
 

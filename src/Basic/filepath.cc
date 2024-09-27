@@ -9,16 +9,14 @@ ________________________________________________________________________
 
 #include "filepath.h"
 
-#include "envvars.h"
 #include "file.h"
 #include "stringview.h"
 #include "genc.h"
 #include "msgh.h"
-#include "oddirs.h"
-#include "perthreadrepos.h"
 #include "winutils.h"
-#include <time.h>
+
 #include <string.h>
+#include <time.h>
 
 #include <QStorageInfo>
 

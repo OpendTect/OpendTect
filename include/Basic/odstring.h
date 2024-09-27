@@ -30,8 +30,7 @@ namespace OD
 mExpClass(Basic) String
 {
 public:
-
-    virtual		~String()		{}
+    virtual		~String();
 
     inline bool		operator==(const String&) const;
     inline bool		operator!=(const String&) const;
@@ -95,6 +94,7 @@ public:
     static const String& empty();
 
 protected:
+			String();
 
     virtual const char*	gtBuf() const			= 0;
 			//!<\return empty even if underlying is null

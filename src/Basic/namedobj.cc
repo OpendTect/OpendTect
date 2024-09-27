@@ -38,12 +38,17 @@ bool NamedObject::getNameFromPar( const IOPar& iop )
 }
 
 
+// NamedCallBacker
 NamedCallBacker::NamedCallBacker( const char* nm )
     : NamedObject(nm)
     , delnotif_(this)
     , delalreadytriggered_(false)
 {
 }
+
+
+NamedCallBacker::~NamedCallBacker()
+{}
 
 
 void NamedCallBacker::sendDelNotif() const

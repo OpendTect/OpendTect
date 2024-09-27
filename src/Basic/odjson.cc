@@ -9,12 +9,10 @@ ________________________________________________________________________
 
 #include "odjson.h"
 
-#include "arraynd.h"
 #include "dbkey.h"
 #include "gason.h"
 #include "od_iostream.h"
 #include "posgeomid.h"
-#include "separstr.h"
 #include "stringbuilder.h"
 #include "uistrings.h"
 

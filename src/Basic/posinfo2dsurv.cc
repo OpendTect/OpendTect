@@ -12,14 +12,12 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
-#include "keystrs.h"
 #include "oddirs.h"
 #include "safefileio.h"
 #include "settings.h"
 #include "perthreadrepos.h"
 #include "oscommand.h"
 #include "survinfo.h"
-#include "survgeom2d.h"
 #include "timefun.h"
 
 #define mIdxTyp PosInfo::Survey2D::IdxType

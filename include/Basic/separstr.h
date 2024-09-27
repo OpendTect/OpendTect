@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "stringbuilder.h"
 #include "stringview.h"
-#include "convert.h"
 
 class BufferStringSet;
 class DBKey;
@@ -29,12 +28,10 @@ class DBKey;
 mExpClass(Basic) SeparString
 {
 public:
-
-			SeparString( const char* escapedstr=nullptr,
-				     char separ=',' )
-			{ initSep( separ ); initRep( escapedstr ); }
-			SeparString( const SeparString& ss )
-			: rep_(ss.rep_) { initSep( ss.sep_[0] ); }
+			SeparString(const char* escapedstr=nullptr,
+				    char separ=',');
+			SeparString(const SeparString&);
+			~SeparString();
 
     SeparString&	operator=(const SeparString&);
     SeparString&	operator=(const char* escapedstr);
@@ -134,14 +131,13 @@ private:
 mExpClass(Basic) FileMultiString : public SeparString
 {
 public:
-
-			FileMultiString(const char* escapedstr=nullptr)
-			    : SeparString(escapedstr, separator() )	{}
+			FileMultiString(const char* escapedstr=nullptr);
 			FileMultiString(const char* s1,const char* s2,
 					const char* s3=nullptr,
 					const char*s4=nullptr);
     template <class T>	FileMultiString( const T& t )
 			    : SeparString(t,separator())		{}
+			~FileMultiString();
 
     static char		separator() { return '`'; }
 

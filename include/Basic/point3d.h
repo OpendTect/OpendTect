@@ -8,18 +8,19 @@ ________________________________________________________________________
 
 -*/
 
-#include "gendefs.h"
+#include "basicmod.h"
 #include "geometry.h"
 
 namespace Geom
 {
 
 template <class T>
-mClass(Basic) Point3D
+mExpClass(Basic) Point3D
 {
 public:
 				Point3D(const Point2D<T>&,T);
-				Point3D(T xx=0,T yy=0, T zz=0);
+				Point3D(T xx=0,T yy=0,T zz=0);
+    virtual			~Point3D();
 
     template <class TT>
     Point3D<T>&			setFrom(const Point3D<TT>&);
@@ -113,6 +114,11 @@ Point3D<T>::Point3D( T x, T y, T z)
     : x_( x )
     , y_( y )
     , z_( z )
+{}
+
+
+template <class T> inline
+Point3D<T>::~Point3D()
 {}
 
 

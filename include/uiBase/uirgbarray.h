@@ -17,7 +17,6 @@ mFDQtclass(QImage)
 mExpClass(uiBase) uiRGBArray : public OD::RGBImage
 { mODTextTranslationClass(uiRGBArray)
 public:
-
 			uiRGBArray(bool withalpha);
 			uiRGBArray(const OD::RGBImage&);
 			uiRGBArray(const char* filename);
@@ -27,8 +26,8 @@ public:
     OD::Color		get(int,int) const override;
     bool		set(int,int,const OD::Color&) override;
 
-    unsigned char*		getData() override;
-    const unsigned char*	getData() const override;
+    unsigned char*	getData() override;
+    const unsigned char* getData() const override;
 
     char		nrComponents() const override
 			{ return withalpha_ ? 4 : 3; }

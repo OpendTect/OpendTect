@@ -51,10 +51,8 @@ namespace Repos
 mExpClass(Basic) FileProvider
 {
 public:
-
-			FileProvider( const char* base_name, bool rev=false )
-			: basenm_(base_name)
-			, rev_(rev)		{ reset(); }
+			FileProvider(const char* base_name,bool rev=false);
+    virtual		~FileProvider();
 
     bool		next()			{ return next(cursource_,rev_);}
     void		reset()			{ cursource_ = Temp; }

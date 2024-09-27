@@ -10,9 +10,29 @@ ________________________________________________________________________
 #include "separstr.h"
 
 #include "bufstringset.h"
+#include "convert.h"
 #include "dbkey.h"
 #include "keystrs.h"
+
 #include <string.h>
+
+
+SeparString::SeparString( const char* escapedstr, char separ )
+{
+    initSep( separ );
+    initRep( escapedstr );
+}
+
+
+SeparString::SeparString( const SeparString& ss )
+    : rep_(ss.rep_)
+{
+    initSep( ss.sep_[0] );
+}
+
+
+SeparString::~SeparString()
+{}
 
 
 SeparString& SeparString::operator =( const SeparString& ss )
@@ -296,9 +316,15 @@ void SeparString::setSepChar( char newchar )
 }
 
 
+// FileMultiString
+FileMultiString::FileMultiString( const char* escapedstr )
+    : SeparString(escapedstr,separator())
+{}
+
+
 FileMultiString::FileMultiString( const char* s1, const char* s2,
 				  const char* s3, const char* s4 )
-    : SeparString(s1, separator() )
+    : SeparString(s1,separator())
 {
     if ( s2 )
 	*this += s2;
@@ -307,3 +333,7 @@ FileMultiString::FileMultiString( const char* s1, const char* s2,
     if ( s4 )
 	*this += s4;
 }
+
+
+FileMultiString::~FileMultiString()
+{}

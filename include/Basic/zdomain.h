@@ -115,6 +115,8 @@ public:
    // No usePar(const IOPar&), use ZDomain::get(const IOPar&) or the constructor
    // Returns true if changed
 
+    Info&		operator=(const Info&)	= delete;
+
     const Def&		def_;
     IOPar&		pars_;
 

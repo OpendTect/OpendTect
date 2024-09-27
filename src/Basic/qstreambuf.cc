@@ -10,8 +10,7 @@ ________________________________________________________________________
 #ifndef OD_NO_QT
 
 #include "qstreambuf.h"
-#include "ptrman.h"
-# include <QProcess>
+#include <QProcess>
 
 #define mPUSH_BACK	100
 #define mBUFFER_SIZE	1000

@@ -21,6 +21,7 @@ mExpClass(Basic) SettingsAccess
 public:
 			SettingsAccess();	// accesses Settings::common()
 			SettingsAccess(Settings&);
+			~SettingsAccess();
 
     bool		doesUserWantShading(bool forvolumes=false) const;
 

@@ -500,6 +500,10 @@ StreamData::StreamData( StreamData&& n )
 mStopAllowDeprecatedSection
 
 
+StreamData::~StreamData()
+{}
+
+
 StreamData& StreamData::operator=( StreamData&& n )
 {
     setImpl( n.impl_.set( 0, false ) );

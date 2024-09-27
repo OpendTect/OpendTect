@@ -45,9 +45,8 @@ namespace Blocks
     mExpClass(Seis) HGeom : public Survey::Geometry3D
     {
     public:
-			HGeom(const Survey::Geometry3D&);
-			HGeom(const HGeom&);
-			~HGeom();
+			HGeom(const char* nm,const ZDomain::Def&);
+
 	inline int	idx4Inl(int) const;
 	inline int	idx4Crl(int) const;
 	inline int	idx4Z(float) const;
@@ -57,6 +56,9 @@ namespace Blocks
 	void		getMapInfo(const IOPar&);
 	void		putMapInfo(IOPar&) const;
 	bool		isCompatibleWith(const Survey::Geometry&) const;
+
+    protected:
+			~HGeom();
     };
 
 #define mDefSeisBlockPairClass(clss,typ) \
@@ -179,7 +181,7 @@ public:
 
     virtual		~IOClass();
 
-    virtual const HGeom& hGeom() const		{ return hgeom_; }
+    virtual const HGeom* hGeom() const		{ return hgeom_; }
     const ZGeom&	zGeom() const		{ return zgeom_; }
     const ZDomain::Def&	zDomain() const;
 
@@ -226,7 +228,7 @@ protected:
     Pos::IdxPairDataSet& columns_;
 
     FilePath		basepath_;
-    HGeom&		hgeom_;
+    RefMan<HGeom>	hgeom_;
     ZGeom		zgeom_;
     Dimensions		dims_;
     SzType		version_;

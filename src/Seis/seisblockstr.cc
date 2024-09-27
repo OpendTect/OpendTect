@@ -9,15 +9,11 @@ ________________________________________________________________________
 
 #include "seisblockstr.h"
 
+#include "posinfo.h"
 #include "seisblocksreader.h"
-#include "seistrc.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
-#include "survgeom3d.h"
-#include "ioman.h"
-#include "strmprov.h"
-#include "posinfo.h"
-#include "file.h"
+#include "seistrc.h"
 #include "uistrings.h"
 
 
@@ -73,7 +69,7 @@ bool BlocksSeisTrcTranslator::initRead_()
 	return false;
     }
     else if ( read_mode == Seis::Prod
-	  && !rdr_->hGeom().isCompatibleWith( Survey::Geometry::default3D() ) )
+	  && !rdr_->hGeom()->isCompatibleWith( Survey::Geometry::default3D() ) )
     {
 	errmsg_ = tr("The cube is not compatible with the survey setup");
 	return false;
@@ -84,8 +80,8 @@ bool BlocksSeisTrcTranslator::initRead_()
     pinfo_.cubedata = &rdr_->positions();
     pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
     rdr_->positions().getRanges( pinfo_.inlrg, pinfo_.crlrg );
-    pinfo_.inlrg.step = rdr_->hGeom().sampling().hsamp_.step_.inl();
-    pinfo_.crlrg.step = rdr_->hGeom().sampling().hsamp_.step_.crl();
+    pinfo_.inlrg.step = rdr_->hGeom()->sampling().hsamp_.step_.inl();
+    pinfo_.crlrg.step = rdr_->hGeom()->sampling().hsamp_.step_.crl();
     insd_.start = rdr_->zGeom().start;
     insd_.step = rdr_->zGeom().step;
     innrsamples_ = rdr_->zGeom().nrSteps() + 1;

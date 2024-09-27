@@ -114,6 +114,10 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 }
 
 
+SharedLibAccess::~SharedLibAccess()
+{}
+
+
 void SharedLibAccess::close()
 {
     if ( !handle_ ) return;

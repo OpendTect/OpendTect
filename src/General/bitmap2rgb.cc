@@ -10,10 +10,8 @@ ________________________________________________________________________
 #include "bitmap2rgb.h"
 
 #include "array2dbitmapimpl.h"
-#include "arrayndimpl.h"
 #include "coltabindex.h"
 #include "coltabsequence.h"
-#include "flatposdata.h"
 #include "flatview.h"
 #include "histequalizer.h"
 #include "odimage.h"
@@ -36,13 +34,15 @@ BitMap2RGB::~BitMap2RGB()
 
 
 OD::RGBImage& BitMap2RGB::rgbArray()
-{ return array_; }
+{
+    return array_;
+}
 
-void BitMap2RGB::setRGBArray( const OD::RGBImage& arr )
-{ array_ = arr; }
 
 void BitMap2RGB::setClipperData( const TypeSet<float>& clipdata )
-{ clipperdata_ = clipdata; }
+{
+    clipperdata_ = clipdata;
+}
 
 
 void BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,

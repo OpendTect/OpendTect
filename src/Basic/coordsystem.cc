@@ -11,12 +11,18 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "separstr.h"
-#include "keystrs.h"
 
-static const BufferString coordsysfactorynm_( "System name" );
-static const BufferString coordsysusrnm_( "Description" );
-const char* Coords::CoordSystem::sKeyFactoryName() { return coordsysfactorynm_;}
-const char* Coords::CoordSystem::sKeyUiName() { return coordsysusrnm_; }
+
+const char* Coords::CoordSystem::sKeyFactoryName()
+{
+    return "System name";
+}
+
+const char* Coords::CoordSystem::sKeyUiName()
+{
+    return "Description";
+}
+
 
 static const double cAvgEarthRadius = 6367450;
 static const double latdist = cAvgEarthRadius*mDeg2RadD;
@@ -175,16 +181,14 @@ Coord CoordSystem::convert( const Coord& in, const CoordSystem& from,
 }
 
 
-Coord CoordSystem::convertFrom( const Coord& in,
-				   const CoordSystem& from ) const
+Coord CoordSystem::convertFrom( const Coord& in, const CoordSystem& from ) const
 {
     const LatLong wgs84ll = LatLong::transform( in, true, &from );
     return LatLong::transform( wgs84ll, true, this );
 }
 
 
-Coord CoordSystem::convertTo( const Coord& in,
-				   const CoordSystem& to ) const
+Coord CoordSystem::convertTo( const Coord& in, const CoordSystem& to ) const
 {
     const LatLong wgs84ll = LatLong::transform( in, true, this );
     return LatLong::transform( wgs84ll, true, &to );

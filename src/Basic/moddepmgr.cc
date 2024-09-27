@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "envvars.h"
 #include "sharedlibs.h"
 #include "od_istream.h"
 

@@ -8,12 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "settingsaccess.h"
-#include "commanddefs.h"
 #include "envvars.h"
-#include "filepath.h"
-#include "keystrs.h"
-#include "oddirs.h"
-#include "oscommand.h"
 
 const char* SettingsAccess::sKeyIcons()
 { return "dTect.Icons"; }
@@ -68,6 +63,10 @@ SettingsAccess::SettingsAccess()
 
 SettingsAccess::SettingsAccess( Settings& settings )
     : settings_( settings )
+{}
+
+
+SettingsAccess::~SettingsAccess()
 {}
 
 

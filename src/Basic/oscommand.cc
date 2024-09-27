@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "pythonaccess.h"
 #include "separstr.h"
-#include "settingsaccess.h"
 #include "uistrings.h"
 
 #ifndef OD_NO_QT

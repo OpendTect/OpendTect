@@ -37,10 +37,10 @@ singlethread or manual.
 mExpClass(Basic) WorkManager : public CallBacker
 { mODTextTranslationClass(WorkManager)
 public:
-
 				//Interface from outside world
 				WorkManager(int nrthreads=-1);
 				~WorkManager();
+				mOD_DisableCopy(WorkManager)
 
     enum QueueType		{ MultiThread, SingleThread, Manual };
     int				addQueue(QueueType type,const char* name);
@@ -49,8 +49,8 @@ public:
 				    \returns queid
 				    \param type See QueueType
 				    \param name is for debugging
-                                */
-    void                        setQueueName(int queueid,const char*);
+				*/
+    void			setQueueName(int queueid,const char*);
     int				queueSize(int queueid) const;
     void			emptyQueue(int queueid,bool finishall);
     void			removeQueue(int queueid,bool finishall);
@@ -144,7 +144,7 @@ protected:
     TypeSet<int>		queueids_;
     TypeSet<int>		queueworkload_; //Nr threads working on it
     TypeSet<QueueType>		queuetypes_;
-    BufferStringSet             queuenames_;
+    BufferStringSet		queuenames_;
     BoolTypeSet			queueisclosing_;
 
     ConditionVar&		workloadcond_;

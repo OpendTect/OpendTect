@@ -17,14 +17,10 @@ ________________________________________________________________________
 mExpClass(Basic) StringBuilder
 {
 public:
-
-    typedef int		size_type;
-
-			StringBuilder()		    {}
-			StringBuilder( const StringBuilder& oth )
-						    { *this = oth; }
+			StringBuilder();
+			StringBuilder(const StringBuilder&);
 			StringBuilder(const char*);
-    virtual		~StringBuilder()	    { delete [] buf_; }
+    virtual		~StringBuilder();
 
     StringBuilder&	operator=(const StringBuilder&);
     StringBuilder&	operator=( const char* s )  { return set( s ); }
@@ -43,21 +39,21 @@ public:
     StringBuilder&	set(const T&);
 
     StringBuilder&	add(const char*);
-    StringBuilder&	add(char,size_type nr=1);
+    StringBuilder&	add(char,int nr=1);
     StringBuilder&	add(const QString&);
     template <class T>	inline
     StringBuilder&	add( const T& t )	{ return add( toString(t) ); }
 
-    StringBuilder&	addSpace( size_type nr=1 )	{ return add(' ',nr); }
-    StringBuilder&	addTab( size_type nr=1 )	{ return add('\t',nr); }
-    StringBuilder&	addNewLine( size_type nr=1 )	{ return add('\n',nr); }
+    StringBuilder&	addSpace( int nr=1 )	{ return add(' ',nr); }
+    StringBuilder&	addTab( int nr=1 )	{ return add('\t',nr); }
+    StringBuilder&	addNewLine( int nr=1 )	{ return add('\n',nr); }
 
 protected:
 
     char*		buf_		= nullptr;
-    size_type		bufsz_		= 0;
-    size_type		curpos_		= 0;
+    int			bufsz_		= 0;
+    int			curpos_		= 0;
 
-    bool		setBufSz(size_type,bool cp_old);
+    bool		setBufSz(int,bool cp_old);
 
 };

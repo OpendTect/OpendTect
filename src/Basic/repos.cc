@@ -40,6 +40,18 @@ uiString Repos::descriptionOf( Repos::Source src )
 }
 
 
+Repos::FileProvider::FileProvider( const char* base_name, bool rev )
+    : basenm_(base_name)
+    , rev_(rev)
+{
+    reset();
+}
+
+
+Repos::FileProvider::~FileProvider()
+{}
+
+
 bool Repos::FileProvider::next( Repos::Source& src, bool rev )
 {
     if ( rev )

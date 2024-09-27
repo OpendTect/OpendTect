@@ -10,10 +10,6 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "posidxpair.h"
-class RowCol;
-
-
-typedef RowCol RowColDelta;
 
 
 /*!\brief IdxPair used for its row() and col().  */
@@ -21,11 +17,13 @@ typedef RowCol RowColDelta;
 mExpClass(Basic) RowCol : public Pos::IdxPair
 {
 public:
+				RowCol();
+				RowCol(int r,int c);
+				RowCol(const RowCol&);
+				RowCol(Pos::IdxPair);
+				~RowCol();
 
-    inline			RowCol()			{}
-    inline			RowCol(int r,int c);
-				RowCol(const Pos::IdxPair&);
-
+    inline RowCol&		operator=(const RowCol&);
     inline RowCol		operator+(const RowCol&) const;
     inline RowCol		operator-(const RowCol&) const;
     inline RowCol		operator+() const;
@@ -70,25 +68,18 @@ public:
 };
 
 
-inline RowCol::RowCol( int i, int c )
-    : Pos::IdxPair(i,c)
-{
-}
-
-
-inline RowCol::RowCol( const Pos::IdxPair& p )
-    : Pos::IdxPair(p)
-{
-}
-
-
 inline RowCol RowCol::fromInt64( od_int64 i64 )
 {
     Pos::IdxPair p( Pos::IdxPair::fromInt64(i64) );
     return RowCol( p.first, p.second );
 }
 
-
+inline RowCol& RowCol::operator=( const RowCol& rc )
+{
+    row() = rc.row();
+    col() = rc.col();
+    return *this;
+}
 
 inline RowCol RowCol::operator+( const RowCol& rc ) const
 	{ return RowCol( row()+rc.row(), col()+rc.col() ); }

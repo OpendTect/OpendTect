@@ -14,9 +14,25 @@ ________________________________________________________________________
 #endif
 
 
+StringBuilder::StringBuilder()
+{}
+
+
 StringBuilder::StringBuilder( const char* inpstr )
 {
     add( inpstr );
+}
+
+
+StringBuilder::StringBuilder( const StringBuilder& oth )
+{
+    *this = oth;
+}
+
+
+StringBuilder::~StringBuilder()
+{
+    delete [] buf_;
 }
 
 
@@ -73,7 +89,7 @@ StringBuilder& StringBuilder::set( const char* inpstr )
 }
 
 
-StringBuilder& StringBuilder::add( char ch, size_type nr )
+StringBuilder& StringBuilder::add( char ch, int nr )
 {
     const char chstr[] = { ch, '\0' };
     for ( int idx=0; idx<nr; idx++ )
@@ -82,7 +98,7 @@ StringBuilder& StringBuilder::add( char ch, size_type nr )
 }
 
 
-bool StringBuilder::setBufSz( size_type newsz, bool cp_old )
+bool StringBuilder::setBufSz( int newsz, bool cp_old )
 {
     char* newbuf;
     mTryAlloc( newbuf, char [newsz] );

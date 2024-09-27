@@ -21,9 +21,10 @@ namespace Time
     mExpClass(Basic) Counter
     {
     public:
-
 			Counter();
 			~Counter();
+			mOD_DisableCopy(Counter)
+
 	void		start();
 	int		restart();		//!< Returns elapsed time in ms
 	int		elapsed() const;	//!< Returns elapsed time in ms

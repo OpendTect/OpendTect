@@ -32,7 +32,7 @@ namespace Survey { class GeometryManager; }
 mExpClass(Basic) SurveyDiskLocation
 {
 public:
-			SurveyDiskLocation()	{} //!< current
+			SurveyDiskLocation(); //!< current
 			SurveyDiskLocation(const char* dirnm,const char* bp=0);
 			SurveyDiskLocation(const FilePath& fulldir);
 			SurveyDiskLocation(const SurveyDiskLocation&);

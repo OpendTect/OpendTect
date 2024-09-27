@@ -26,16 +26,44 @@ ________________________________________________________________________
 
 static StringView emptyfixedstring( "" );
 
-const OD::String& OD::String::empty()
-{ return emptyfixedstring; }
+StringView::StringView( const char* p )
+    : str_(p)
+{}
+
+
+StringView::~StringView()
+{}
+
+
 const StringView& StringView::empty()
-{ return emptyfixedstring; }
+{
+    return emptyfixedstring;
+}
 
 
 bool StringView::operator==( const BufferString& s ) const
-{ return isEqual(s.str()); }
+{
+    return isEqual(s.str());
+}
+
+
 bool StringView::operator!=( const BufferString& s ) const
-{ return !isEqual(s.str()); }
+{
+    return !isEqual(s.str());
+}
+
+
+// OD::String
+OD::String::String()
+{}
+
+
+OD::String::~String()
+{}
+
+
+const OD::String& OD::String::empty()
+{ return emptyfixedstring; }
 
 
 unsigned int OD::String::size() const

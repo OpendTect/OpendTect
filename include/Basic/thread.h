@@ -295,6 +295,7 @@ public:
 				Thread(void (*)(void*),const char* nm=nullptr);
 				Thread(const CallBack&,const char* nm=nullptr);
     virtual			~Thread();
+				mOD_DisableCopy(Thread)
 
     ThreadID			threadID() const;
 

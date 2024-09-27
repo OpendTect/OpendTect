@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "callback.h"
 #include "uistring.h"
-#include "threadlock.h"
 #include "objectset.h"
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -31,6 +30,7 @@ mExpClass(Basic) TextTranslateMgr : public CallBacker
 public:
 				TextTranslateMgr();
 				~TextTranslateMgr();
+				mOD_DisableCopy(TextTranslateMgr)
 
     int				nrSupportedLanguages() const;
     uiString			getLanguageUserName(int) const;

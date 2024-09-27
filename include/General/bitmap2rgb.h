@@ -33,7 +33,6 @@ public:
 			     bool clearexisting=true);
 
     OD::RGBImage&	rgbArray();
-    void		setRGBArray(const OD::RGBImage&);
     void		setClipperData(const TypeSet<float>& clipdata);
 
 protected:

@@ -78,7 +78,9 @@ public:
 			//!< see snap() for direction
     void		snapZ(float&,int direction=0) const;
 			//!< see snap() for direction
+
 protected:
+			~Geometry3D();
 
     BufferString	name_;
     ZDomain::Def	zdomain_;

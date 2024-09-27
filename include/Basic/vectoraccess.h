@@ -58,6 +58,8 @@ public:
 				: v_(n,t)		{}
     inline		VectorAccess( const VectorAccess& v2 )
 				: v_(v2.v_)		{}
+    virtual		~VectorAccess()			{}
+
     inline impl_type&	 vec()			{ return v_; }
     inline const impl_type& vec() const		{ return v_; }
 

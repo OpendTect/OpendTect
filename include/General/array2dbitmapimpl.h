@@ -46,10 +46,10 @@ mStruct(General) WVAA2DBitMapGenPars : public A2DBitMapGenPars
 mExpClass(General) WVAA2DBitMapGenerator : public A2DBitMapGenerator
 {
 public:
-
 			WVAA2DBitMapGenerator(const A2DBitMapInpData&,
 					      const A2DBitMapPosSetup&);
 			~WVAA2DBitMapGenerator();
+			mOD_DisableCopy(WVAA2DBitMapGenerator)
 
     WVAA2DBitMapGenPars&	wvapars()		{ return gtPars(); }
     const WVAA2DBitMapGenPars&	wvapars() const		{ return gtPars(); }
@@ -59,12 +59,7 @@ protected:
     inline WVAA2DBitMapGenPars& gtPars() const
 				{ return (WVAA2DBitMapGenPars&)pars_; }
 
-    float			stripwidth_;
-
-				WVAA2DBitMapGenerator(
-					const WVAA2DBitMapGenerator&);
-				//!< Not implemented to prevent usage
-				//!< Copy the pars instead
+    float			stripwidth_	= 1.f;
 
     Interval<int>		getDispTrcIdxs() const;
     float			getDim0Offset(float val) const;
@@ -104,13 +99,10 @@ mExpClass(General) VDA2DBitMapGenerator :
 			public A2DBitMapGenerator, ParallelTask
 {
 public:
-
 			VDA2DBitMapGenerator(const A2DBitMapInpData&,
 					     const A2DBitMapPosSetup&);
-			VDA2DBitMapGenerator(
-					const VDA2DBitMapGenerator&) = delete;
-			//!< Copy the pars instead
 			~VDA2DBitMapGenerator();
+			mOD_DisableCopy(VDA2DBitMapGenerator)
 
     VDA2DBitMapGenPars&		vdpars()	{ return gtPars(); }
     const VDA2DBitMapGenPars&	vdpars() const	{ return gtPars(); }

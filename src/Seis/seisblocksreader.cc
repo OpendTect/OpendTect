@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "seistrc.h"
 #include "uistrings.h"
-#include "posidxpairdataset.h"
 #include "scaler.h"
 #include "datachar.h"
 #include "file.h"
@@ -23,7 +22,6 @@ ________________________________________________________________________
 #include "od_istream.h"
 #include "ascstream.h"
 #include "zdomain.h"
-#include "genc.h"
 #include <map>
 
 
@@ -47,7 +45,7 @@ public:
     void		fillTrace(const BinID&,SeisTrc&,uiRetVal&) const;
 
     const Reader&	rdr_;
-    const HGeom&	hgeom_;
+    ConstRefMan<HGeom>	hgeom_;
     od_istream&		strm_;
 
     od_stream_Pos	startoffsinfile_;
@@ -195,8 +193,8 @@ void Seis::Blocks::FileColumn::fillTrace( const BinID& bid, SeisTrc& trc,
 					  uiRetVal& uirv ) const
 {
     const HLocIdx locidx(
-	Block::locIdx4Inl(hgeom_,bid.inl(),rdr_.dims_.inl()) - start_.inl(),
-	Block::locIdx4Crl(hgeom_,bid.crl(),rdr_.dims_.crl()) - start_.crl() );
+	Block::locIdx4Inl(*hgeom_,bid.inl(),rdr_.dims_.inl()) - start_.inl(),
+	Block::locIdx4Crl(*hgeom_,bid.crl(),rdr_.dims_.crl()) - start_.crl() );
     if ( locidx.inl() < 0 || locidx.crl() < 0
       || locidx.inl() >= dims_.inl() || locidx.crl() >= dims_.crl() )
     {
@@ -403,9 +401,9 @@ bool Seis::Blocks::Reader::getGeneralSectionData( const IOPar& iop )
 	cubename_ = basepath_.fileName();
     iop.get( sKeySurveyName(), survname_ );
 
-    hgeom_.getMapInfo( iop );
-    hgeom_.setName( cubename_ );
-    hgeom_.setZDomain( ZDomain::Def::get(iop) );
+    hgeom_->getMapInfo( iop );
+    hgeom_->setName( cubename_ );
+    hgeom_->setZDomain( ZDomain::Def::get(iop) );
     iop.get( sKey::ZRange(), zgeom_ );
     iop.getYN( sKeyDepthInFeet(), depthinfeet_ );
 
@@ -640,7 +638,7 @@ bool Seis::Blocks::Reader::doGoTo( const BinID& bid, uiRetVal& uirv ) const
 
 void Seis::Blocks::Reader::fillInfo( const BinID& bid, SeisTrcInfo& ti ) const
 {
-    ti.setGeomID( hgeom_.getID() ).setPos( bid ).calcCoord();
+    ti.setGeomID( hgeom_->getID() ).setPos( bid ).calcCoord();
     ti.sampling.start = zrgintrace_.start;
     ti.sampling.step = zgeom_.step;
 }
@@ -683,8 +681,8 @@ Seis::Blocks::FileColumn* Seis::Blocks::Reader::getColumn(
 void Seis::Blocks::Reader::readTrace( SeisTrc& trc, uiRetVal& uirv ) const
 {
     const BinID bid = cubedata_.binID( curcdpos_ );
-    const HGlobIdx globidx( Block::globIdx4Inl(hgeom_,bid.inl(),dims_.inl()),
-			    Block::globIdx4Crl(hgeom_,bid.crl(),dims_.crl()) );
+    const HGlobIdx globidx( Block::globIdx4Inl(*hgeom_,bid.inl(),dims_.inl()),
+			    Block::globIdx4Crl(*hgeom_,bid.crl(),dims_.crl()) );
 
     FileColumn* column = getColumn( globidx, uirv );
     if ( column )

@@ -103,6 +103,7 @@ public:
 
 				Data(const char* nm);
 				~Data();
+				mOD_DisableCopy(Data)
 
 	BufferString		getFileName() const;
 				//!< Always without path

@@ -8,14 +8,37 @@ ________________________________________________________________________
 -*/
 
 #include "rowcol.h"
-#include "bufstring.h"
+
+#include "math2.h"
 #include "ptrman.h"
 #include "typeset.h"
-#include "position.h"
-#include "perthreadrepos.h"
 
 #include <math.h>
 
+
+RowCol::RowCol()
+{}
+
+
+RowCol::RowCol( int i, int c )
+    : Pos::IdxPair(i,c)
+{
+}
+
+
+RowCol::RowCol( const RowCol& rc )
+    : Pos::IdxPair(rc.row(),rc.col())
+{}
+
+
+RowCol::RowCol( Pos::IdxPair p )
+    : Pos::IdxPair(p)
+{
+}
+
+
+RowCol::~RowCol()
+{}
 
 
 float RowCol::clockwiseAngleTo(const RowCol& rc) const
