@@ -31,21 +31,21 @@ public:
 
     bool		isOK() const override;
 
-    bool		execute(const char*);
-    bool		next() const;
-    bool		isActive() const;
-    BufferString	errMsg() const;
-    void		finish() const;
+    bool		execute(const char*) override;
+    bool		next() const override;
+    bool		isActive() const override;
+    BufferString	errMsg() const override;
+    void		finish() const override;
 
-    int			size() const;
-    BufferString	data(int) const;
-    int			iValue(int) const;
-    unsigned int	uiValue(int) const;
-    od_int64		i64Value(int) const;
-    od_uint64		ui64Value(int) const;
-    float		fValue(int) const;
-    double		dValue(int) const;
-    bool		isTrue(int) const;
+    int			size() const override;
+    BufferString	data(int) const override;
+    int			iValue(int) const override;
+    unsigned int	uiValue(int) const override;
+    od_int64		i64Value(int) const override;
+    od_uint64		ui64Value(int) const override;
+    float		fValue(int) const override;
+    double		dValue(int) const override;
+    bool		isTrue(int) const override;
 
 private:
 
