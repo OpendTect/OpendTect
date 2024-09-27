@@ -388,6 +388,7 @@ bool RayTracer1D::setModel( const ElasticModel& lys )
 
     int firsterror = -1;
     model_.checkAndClean( firsterror, setup().doreflectivity_,
+			  setup().doreflectivity_ &&
 			  reqtyp >= RefLayer::Elastic );
 
     if ( model_.isEmpty() )
