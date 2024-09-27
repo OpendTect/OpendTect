@@ -502,6 +502,8 @@ RefMan<Gather> AngleComputer::computeAngleData()
 	if ( !raytracer || !errmsg_.isEmpty() )
 	    return nullptr;
 
+	raytracer->setup().doreflectivity( false );
+
 	TypeSet<float> offsets;
 	outputsampling_.getPositions( true, offsets );
 	raytracer->setOffsets( offsets, gather->offsetType() );
