@@ -11,7 +11,6 @@ set( PLUGINS
 
 set( OD_PLUGINS
         CEEMDAttrib
-	CRS
         ExpAttribs
         GLCM
         GMT
@@ -22,7 +21,6 @@ set( OD_PLUGINS
         MATLABLink
         Tut
         uiCEEMDAttrib
-	uiCRS
         uiSEGYTools
         uiMadagascarAttribs
 	ODBind
@@ -30,6 +28,10 @@ set( OD_PLUGINS
 
 if ( NOT OD_NO_QSQL )
     list( APPEND OD_PLUGINS ODQSql )
+endif()
+
+if ( NOT OD_NO_PROJ )
+    list( APPEND OD_PLUGINS CRS uiCRS )
 endif()
 
 if ( NOT OD_NO_QPRINTSUPPORT )

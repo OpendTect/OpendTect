@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "unitofmeasure.h"
 
+#include "proj.h"
+
 
 Coords::AuthorityCode Coords::AuthorityCode::sWGS84AuthCode()
 { return AuthorityCode(sKeyEPSG(),4326); }
@@ -159,9 +161,6 @@ BufferString Coords::Projection::sWGS84ProjDispString()
 		     : AuthorityCode::sWGS84AuthCode().toString();
 }
 
-#ifndef OD_NO_PROJ
-
-#include "proj.h"
 
 namespace Coords
 {
@@ -728,56 +727,6 @@ BufferString Coords::getEPSGDBStr()
 
     return dbstr;
 }
-
-#else
-
-Coord Coords::Projection::convert( const Coord& /* pos */,
-				   const Projection& /* from */,
-				   const Projection& /* to */ )
-{
-    return Coord::udf();
-}
-
-
-Coords::Projection* Coords::Projection::getByAuthCode(
-					    const AuthorityCode& /* code */ )
-{
-    return nullptr;
-}
-
-
-Coords::Projection* Coords::Projection::fromString( const char* /* str */,
-						    BufferString& /* msg */ )
-{
-    return nullptr;
-}
-
-
-const char* Coords::initCRSDatabase()
-{
-    return nullptr;
-}
-
-
-Coords::CRSInfoList* Coords::getCRSInfoList( bool /* orthogonal */ )
-{
-    return nullptr;
-}
-
-
-BufferString Coords::getProjVersion()
-{
-    return "PROJ not found";
-}
-
-
-BufferString Coords::getEPSGDBStr()
-{
-    return "EPSG database not found";
-}
-
-
-#endif // OD_NO_PROJ
 
 
 // CRSInfoList

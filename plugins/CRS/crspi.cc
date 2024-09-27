@@ -19,12 +19,8 @@ mDefODPluginInfo(CRS)
     static BufferString infostr;
     infostr.set( "Plugin to add Coordinate Reference System support" )
 	   .addNewLine(2)
-#ifdef OD_NO_PROJ
-	   .add("Built without proj support");
-#else
 	   .add("Using PROJ version: ").add( Coords::getProjVersion() )
 	   .addNewLine().add( Coords::getEPSGDBStr() );
-#endif
 
     static PluginInfo retpi( "Coordinate Reference System (base)",
 			     infostr.buf() );
@@ -48,9 +44,6 @@ namespace Coords
 
 const char* initCRSPlugin()
 {
-#ifdef OD_NO_PROJ
-    return "proj dependency is disabled";
-#else
     const StringView msg = Coords::initCRSDatabase();
     if ( !msg.isEmpty() )
 	return msg.buf();
@@ -60,7 +53,6 @@ const char* initCRSPlugin()
     SetWGS84( Coords::Projection::sWGS84ProjDispString(),
 	      Coords::ProjectionBasedSystem::getWGS84LLSystem() );
     return nullptr;
-#endif
 }
 
 
@@ -69,10 +61,8 @@ mDefODInitPlugin(CRS)
     if ( !NeedDataBase() )
 	return nullptr;
 
-#ifndef OD_NO_PROJ
     legalInformation().addCreator( projLegalText, "PROJ" );
     legalInformation().addCreator( sqliteLegalText, "SQLite" );
-#endif
 
     return initCRSPlugin();
 }
