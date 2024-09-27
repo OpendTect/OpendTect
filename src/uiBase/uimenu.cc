@@ -200,7 +200,7 @@ void uiMenu::addItems( const ObjectSet<MenuItem>& subitms )
 	}
 	else
 	{
-	    uiAction* mnuitem = new uiAction(subitm.text);
+	    uiAction* mnuitem = new uiAction( subitm.text, subitm.cb );
 	    insertAction( mnuitem, subitm.id );
 	    mnuitem->setEnabled( subitm.enabled );
 	    mnuitem->setCheckable( subitm.checkable );
