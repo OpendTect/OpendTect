@@ -62,7 +62,7 @@ list( APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMakeModules" )
 set( OD_SUBSYSTEM "od" )
 
 option ( OD_NO_QT "Turn off all QT" OFF )
-option ( OD_USE_QOPENGL "Use QOpenGL classes instead of QGL" OFF )
+option ( OD_USE_QOPENGL "Use QOpenGL classes instead of QGL" ON )
 option ( OD_NO_QPRINTSUPPORT "Do not use Qt's PrintSupport module" OFF )
 option ( OD_NO_QSQL "Do not use Qt's SQL module" ON )
 option ( OD_NO_OSG "Do not build anything with 3D visualisation" OFF )
