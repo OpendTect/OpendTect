@@ -40,7 +40,6 @@ namespace osg
 
 namespace osgViewer
 {
-    class CompositeViewer;
     class GraphicsWindow;
     class View;
     class Viewer;
@@ -176,7 +175,6 @@ protected:
     void				qtEventCB(CallBacker*);
     void				setFocusCB(CallBacker*);
     void				handleGestureEvent(QGestureEvent*);
-    static osgViewer::CompositeViewer*	getCompositeViewer();
     osgGeo::TrackballManipulator*	getCameraManipulator() const;
 
     osgViewer::GraphicsWindow&		getGraphicsWindow();
@@ -215,7 +213,6 @@ protected:
 						= OD::WheelMode::OnHover;
 
     osg::Switch*			offscreenrenderswitch_;
-    osgViewer::CompositeViewer*		compositeviewer_;
     ODOSGViewer*			view_			= nullptr;
     osg::Viewport*			viewport_;
     OD::StereoType			stereotype_	= OD::StereoType::None;

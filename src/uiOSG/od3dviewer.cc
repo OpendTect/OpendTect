@@ -41,7 +41,6 @@ ________________________________________________________________________
 #include <osg/Switch>
 #include <osgGeo/ThumbWheel>
 #include <osgGeo/TrackballManipulator>
-#include <osgViewer/CompositeViewer>
 #include <osgViewer/ViewerEventHandlers>
 
 
@@ -134,10 +133,6 @@ OD3DViewer::OD3DViewer( ui3DViewer& h, uiParent* parnt )
     swapcallback_->ref();
     glwidget_->getGraphicsWindow()->setSwapCallback( swapcallback_ );
 
-    compositeviewer_ = getCompositeViewer();
-    compositeviewer_->ref();
-    glwidget_->setViewer( compositeviewer_ );
-
     setupHUD();
     setupView();
     setupTouch();
@@ -166,13 +161,7 @@ OD3DViewer::~OD3DViewer()
 
     handle_.destroyed.trigger( handle_ );
     delete &printpar_;
-    if ( compositeviewer_ )
-    {
-	compositeviewer_->removeView( view_ );
-	compositeviewer_->removeView( hudview_ );
-    }
 
-    visBase::unRefOsgPtr( compositeviewer_ );
     visBase::unRefOsgPtr( viewport_ );
     visBase::unRefOsgPtr( offscreenrenderswitch_ );
     visBase::unRefOsgPtr( offscreenrenderhudswitch_ );
@@ -229,8 +218,6 @@ void OD3DViewer::setupHUD()
 	0, offscreenrenderhudswitch_->getNumChildren() );
     offscreenrenderhudswitch_->addChild( hudscene_->osgNode() );
     hudview_->setSceneData( offscreenrenderhudswitch_ );
-
-    compositeviewer_->addView( hudview_ );
 
     horthumbwheel_ = visBase::ThumbWheel::create();
     hudscene_->addObject( horthumbwheel_ );
@@ -365,6 +352,8 @@ void OD3DViewer::setupView()
     view_->doInit();
     view_->setSceneData( offscreenrenderswitch_ );
 
+    glwidget_->setViewer( view_ );
+
     auto* statshandler = new osgViewer::StatsHandler;
     statshandler->setKeyEventTogglesOnScreenStats( 'g' );
     statshandler->setKeyEventPrintsOutStats( 'G' );
@@ -392,8 +381,6 @@ void OD3DViewer::setupView()
     view_->setCameraManipulator( manip.get() );
 
     enableDragging( isViewMode() );
-
-    compositeviewer_->addView( view_ );
 
     // To put exaggerated bounding sphere radius offside
     manip->setMinimumDistance( 0 );
@@ -485,39 +472,6 @@ osgViewer::GraphicsWindow& OD3DViewer::getGraphicsWindow()
 osg::GraphicsContext* OD3DViewer::getGraphicsContext()
 {
     return glwidget_->getGraphicsWindow();
-}
-
-
-osgViewer::CompositeViewer* OD3DViewer::getCompositeViewer()
-{
-    mDefineStaticLocalObject( Threads::Lock, lock, (true) );
-    Threads::Locker locker ( lock );
-    mDefineStaticLocalObject( osg::ref_ptr<osgViewer::CompositeViewer>,
-	viewer, = nullptr );
-
-    if ( !viewer || viewer->done() )
-    {
-	osg::ref_ptr<osgViewer::CompositeViewer> updatedviewer = viewer;
-	if ( !updatedviewer )
-	    updatedviewer = new osgViewer::CompositeViewer;
-	else
-	    updatedviewer->setDone( false );
-
-	updatedviewer->setThreadingModel(
-				osgViewer::ViewerBase::SingleThreaded );
-	updatedviewer->getEventVisitor()->setTraversalMask(
-				visBase::cEventTraversalMask() );
-	updatedviewer->setRunFrameScheme( osgViewer::ViewerBase::ON_DEMAND );
-	updatedviewer->setKeyEventSetsDone( 0 );
-
-	if ( !viewer )
-	{
-	    viewer = updatedviewer;
-	    visBase::DataObject::setCommonViewer( viewer );
-	}
-    }
-
-    return viewer.get();
 }
 
 
