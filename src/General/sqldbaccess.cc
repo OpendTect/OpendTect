@@ -177,7 +177,7 @@ BufferString SqlDB::QueryAccess::select( const BufferStringSet& colnms,
     for ( int idx=0; idx<nrvals; idx++ )
     {
 	querystr.add( colnms[idx]->buf() );
-	querystr.add( idx != nrvals-1 ? "," : sKey::SpaceString() );
+	querystr.add( idx != nrvals-1 ? "," : sKey::SpaceString().buf() );
     }
 
     querystr.add( "FROM " ).add( tablenm );
