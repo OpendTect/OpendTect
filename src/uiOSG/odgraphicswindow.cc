@@ -1100,8 +1100,14 @@ void setViewer( osgViewer::ViewerBase *viewer )
 }
 
 
-void setOSGTimerCallbacks( const NotifierAccess& start,
-			   const NotifierAccess& stop )
+bool OD::useQOpenGL()
+{
+    return false;
+}
+
+
+void OD::setOSGTimerCallbacks( const NotifierAccess& start,
+			       const NotifierAccess& stop )
 {
     HeartBeat::instance()->initCallbacks( start, stop );
 }

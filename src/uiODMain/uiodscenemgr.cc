@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
 #include "uiodviewer2dmgr.h"
+#include "uiosgutil.h"
 #include "uipickpartserv.h"
 #include "uiprintscenedlg.h"
 #include "uiscenepropdlg.h"
@@ -147,7 +148,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 
     mAttachCB( appl_.windowShown, uiODSceneMgr::showIfMinimized );
     mAttachCB( appl_.windowShown, uiODSceneMgr::mdiAreaChanged );
-    setOSGTimerCallbacks( scenesShown, scenesHidden );
+    if ( !OD::useQOpenGL() )
+	OD::setOSGTimerCallbacks( scenesShown, scenesHidden );
 }
 
 

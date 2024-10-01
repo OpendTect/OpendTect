@@ -14,11 +14,12 @@ ________________________________________________________________________
 
 class NotifierAccess;
 
-void mGlobal(uiOSG) setOSGTimerCallbacks( const NotifierAccess&,
-					  const NotifierAccess&  );
-
 namespace OD
 {
+    mGlobal(uiOSG) bool useQOpenGL();
+    mGlobal(uiOSG) void setOSGTimerCallbacks(const NotifierAccess&,
+					     const NotifierAccess&);
+
     enum class WheelMode : std::int8_t { Never=0, Always=1, OnHover=2 };
 				mDeclareNameSpaceEnumUtils(uiOSG,WheelMode)
     enum class StereoType : std::int8_t { None, RedCyan, QuadBuffer };
