@@ -12,10 +12,11 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "atomic.h"
 #include "debug.h"
+#include "envvars.h"
 #include "file.h"
 #include "keystrs.h"
+#include "msgh.h" // only used in release builds
 #include "od_ostream.h"
-#include "envvars.h"
 
 #include <iostream>
 
