@@ -21,11 +21,8 @@ set( OD_MODULE_SOURCES
 	uistereodlg.cc
 )
 
-if ( OD_USE_QOPENGL )
-    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core)
-    if ( Qt6_FOUND )
-	list( APPEND OD_USEQT OpenGLWidgets )
-    endif()
+if ( OD_USE_QOPENGL AND QT_VERSION VERSION_GREATER_EQUAL 6 )
+    list( APPEND OD_USEQT OpenGLWidgets )
     list( APPEND OD_MODULE_SOURCES
 	odopenglwidget.cc
 	odosgviewer.cc
