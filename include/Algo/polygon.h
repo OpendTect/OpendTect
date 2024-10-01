@@ -261,15 +261,15 @@ Interval<T> ODPolygon<T>::getRange( bool forx ) const
     if ( poly_.isEmpty() ) return Interval<T>( udf_.x, udf_.y );
     Geom::Point2D<T> vtx0 = poly_[0];
     Interval<T> ret = forx ? xrg_ : yrg_;
-    if ( !mIsUdf(ret.start) && !mIsUdf(ret.stop) )
+    if ( !mIsUdf(ret.start_) && !mIsUdf(ret.stop_) )
 	return ret;
-    ret.start = ret.stop = forx ? vtx0.x : vtx0.y;
+    ret.start_ = ret.stop_ = forx ? vtx0.x : vtx0.y;
     for ( int idx=1; idx<size(); idx++ )
     {
 	const Geom::Point2D<T>& vtx = poly_[idx];
 	const T val = forx ? vtx.x : vtx.y;
-	if ( val < ret.start )		ret.start = val;
-	else if ( val > ret.stop )	ret.stop = val;
+	if ( val < ret.start_ )		ret.start_ = val;
+	else if ( val > ret.stop_ )	ret.stop_ = val;
     }
     if ( forx )
 	xrg_ = ret;
@@ -284,10 +284,10 @@ bool ODPolygon<T>::isInside( const Geom::Point2D<T>& point,
 			     bool inclborder, T eps ) const
 {
     const T abseps = eps<0 ? -eps : eps;
-    if ( (!mIsUdf(xrg_.start) && !mIsUdf(xrg_.stop) &&
-	  (xrg_.start>point.x+abseps || xrg_.stop<point.x-abseps)) ||
-	 (!mIsUdf(yrg_.start) && !mIsUdf(yrg_.stop) &&
-	  (yrg_.start>point.y+abseps || yrg_.stop<point.y-abseps)) )
+    if ( (!mIsUdf(xrg_.start_) && !mIsUdf(xrg_.stop_) &&
+	  (xrg_.start_>point.x+abseps || xrg_.stop_<point.x-abseps)) ||
+	 (!mIsUdf(yrg_.start_) && !mIsUdf(yrg_.stop_) &&
+	  (yrg_.start_>point.y+abseps || yrg_.stop_<point.y-abseps)) )
 	return false;
 
     const Geom::Point2D<T> arbitrarydir( 1, 0 );
@@ -332,10 +332,10 @@ bool ODPolygon<T>::windowOverlaps( const Interval<T>& xrange,
 				   T eps ) const
 {
     ODPolygon window;
-    window.add( Geom::Point2D<T>(xrange.start, yrange.start) );
-    window.add( Geom::Point2D<T>(xrange.stop, yrange.start) );
-    window.add( Geom::Point2D<T>(xrange.stop,  yrange.stop) );
-    window.add( Geom::Point2D<T>( xrange.start, yrange.stop) );
+    window.add( Geom::Point2D<T>(xrange.start_, yrange.start_) );
+    window.add( Geom::Point2D<T>(xrange.stop_, yrange.start_) );
+    window.add( Geom::Point2D<T>(xrange.stop_,	yrange.stop_) );
+    window.add( Geom::Point2D<T>( xrange.start_, yrange.stop_) );
 
     return isInside( window, eps );
 }

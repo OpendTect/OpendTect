@@ -175,8 +175,8 @@ bool AGC<T>::doWork( od_int64 start, od_int64 stop, int threadidx )
     {
 	int nrenergies = 0;
 	float energysum = 0;
-	for ( int energyidx=idx+samplerg_.start;
-		  energyidx<=idx+samplerg_.stop;
+	for ( int energyidx=idx+samplerg_.start_;
+	      energyidx<=idx+samplerg_.stop_;
 		  energyidx++ )
 	{
 	    if ( energyidx<0 || energyidx>=size_ )

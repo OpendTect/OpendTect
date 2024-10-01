@@ -181,12 +181,12 @@ bool DataDistributionInfoExtracter<VT>::isRoughlySymmetrical(
     VT diff = medpos - distrib_.sampling_.atIndex( maxidx );
     if ( diff < VT(0) )
 	diff = -diff;
-    if ( diff < distrib_.sampling_.step )
+    if ( diff < distrib_.sampling_.step_ )
     {
 	if ( !onlyaround0 )
 	    return true;
-	if ( medpos > -distrib_.sampling_.step
-	  && medpos < distrib_.sampling_.step )
+	if ( medpos > -distrib_.sampling_.step_
+	  && medpos < distrib_.sampling_.step_ )
 	    return true;
     }
 
@@ -225,24 +225,24 @@ void DataDistributionInfoExtracter<VT>::getRanges( Interval<VT>& xrg,
 				      Interval<VT>& yrg ) const
 {
     mLockMonitorable4Read( distrib_ );
-    xrg.start = distrib_.sampling_.start;
+    xrg.start_ = distrib_.sampling_.start;
     const int sz = distrib_.data_.size();
     if ( sz < 1 )
     {
-	xrg.stop = xrg.start;
-	yrg.start = yrg.stop = 0;
+	xrg.stop_ = xrg.start_;
+	yrg.start_ = yrg.stop_ = 0;
     }
     else
     {
-	xrg.stop = distrib_.sampling_.atIndex( sz-1 );
-	yrg.start = yrg.stop = distrib_.data_[0];
+	xrg.stop_ = distrib_.sampling_.atIndex( sz-1 );
+	yrg.start_ = yrg.stop_ = distrib_.data_[0];
 	for ( int idx=1; idx<sz; idx++ )
 	{
 	    const VT val = distrib_.data_[idx];
-	    if ( val > yrg.stop )
-		yrg.stop = val;
-	    else if ( val < yrg.start )
-		yrg.start = val;
+	    if ( val > yrg.stop_ )
+		yrg.stop_ = val;
+	    else if ( val < yrg.start_ )
+		yrg.start_ = val;
 	}
     }
 }

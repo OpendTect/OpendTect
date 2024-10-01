@@ -45,7 +45,7 @@ BinID PosInfo::CubeDataIndex::binID( od_int64 trcnum ) const
     const auto it = std::lower_bound( cdidx_.begin(), cdidx_.end(), trcnum,
 				[]( const Segment& seg, od_int64 val )
 				{
-				    return seg.trcnumber_.stop < val;
+	return seg.trcnumber_.stop_ < val;
 				} );
     if ( it==cdidx_.end() )
 	return BinID::udf();
@@ -74,9 +74,9 @@ od_int64 PosInfo::CubeDataIndex::trcNumber( const BinID& bid ) const
     const auto it = std::lower_bound( start, stop, bid.crl(),
 				     []( const Segment& seg, int val )
 				     {
-					 return seg.crlseg_.step>=0 ?
-						     seg.crlseg_.stop<val :
-						     seg.crlseg_.start<val;
+	return seg.crlseg_.step_>=0 ?
+						     seg.crlseg_.stop_<val :
+						     seg.crlseg_.start_<val;
 				    } );
     if ( it!=stop )
     {
@@ -90,7 +90,7 @@ od_int64 PosInfo::CubeDataIndex::trcNumber( const BinID& bid ) const
 
 od_int64 PosInfo::CubeDataIndex::lastTrc() const
 {
-    return cdidx_.back().trcnumber_.stop;
+    return cdidx_.back().trcnumber_.stop_;
 }
 
 void PosInfo::CubeDataIndex::buildIndex( const PosInfo::CubeData& cd )
@@ -103,8 +103,8 @@ void PosInfo::CubeDataIndex::buildIndex( const PosInfo::CubeData& cd )
 	    cdidx_.emplace_back( next_start_trc, cd[idx]->linenr_, seg );
 	    const int ndx = cdidx_.size()-1;
 	    inlidx_.emplace_back( cd[idx]->linenr_, ndx );
-	    next_start_trc = cdidx_.back().trcnumber_.stop +
-						cdidx_.back().trcnumber_.step;
+	    next_start_trc = cdidx_.back().trcnumber_.stop_ +
+			     cdidx_.back().trcnumber_.step_;
 	}
     }
     std::sort( inlidx_.begin(), inlidx_.end() );

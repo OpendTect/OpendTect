@@ -95,8 +95,8 @@ void Muter::muteIntervalsPos( const TypeSet< Interval<float> >& itvs,
     for ( int idx=0; idx<itvs.size(); idx++ )
     {
 	muteitvs += itvs[idx];
-	muteitvs[idx].start = mutePos( itvs[idx].start, sd );
-	muteitvs[idx].stop = mutePos( itvs[idx].stop, sd );
+	muteitvs[idx].start_ = mutePos( itvs[idx].start_, sd );
+	muteitvs[idx].stop_ = mutePos( itvs[idx].stop_, sd );
     }
 }
 
@@ -110,8 +110,8 @@ void Muter::muteIntervals( ValueSeries<float>& arr, int sz,
     {
 	const Interval<float> itv = muteitvs[idx];
 
-	float pos0 = itv.start;
-	float pos1 = itv.stop;
+	float pos0 = itv.start_;
+	float pos1 = itv.stop_;
 
 	if ( mIsUdf( pos0 ) &&  mIsUdf( pos1 ) )
 	    continue;
@@ -133,8 +133,8 @@ void Muter::itvMute(ValueSeries<float>& arr, int sz, Interval<float> itv ) const
 {
     itv.sort( true );
 
-    const float pos0 = itv.start;
-    const float pos1 = itv.stop;
+    const float pos0 = itv.start_;
+    const float pos1 = itv.stop_;
 
     if ( mIsUdf( pos0 ) ||  mIsUdf( pos1 ) )
 	return;

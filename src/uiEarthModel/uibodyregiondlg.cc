@@ -367,8 +367,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	    if ( mIsUdf(minz) && mIsUdf(maxz) )
 		continue;
 
-	    if ( mIsUdf(minz) ) minz = tkzs_.zsamp_.start;
-	    if ( mIsUdf(maxz) ) maxz = tkzs_.zsamp_.stop;
+	    if ( mIsUdf(minz) ) minz = tkzs_.zsamp_.start_;
+	    if ( mIsUdf(maxz) ) maxz = tkzs_.zsamp_.stop_;
 	    if ( minz>=maxz )
 		continue;
 
@@ -549,7 +549,7 @@ void computeHorOuterRange()
 
 	    if ( !defined )
 	    {
-		zrg.start = zrg.stop = data[idz];
+		zrg.start_ = zrg.stop_ = data[idz];
 		defined = true;
 	    }
 	    else
@@ -562,22 +562,22 @@ void computeHorOuterRange()
 	if ( hsides_[idx]==mBelow )
 	{
 	    if ( hortopoutrg.isUdf() )
-		hortopoutrg.set(tkzs_.zsamp_.start,zrg.start);
-	    else if ( hortopoutrg.stop>zrg.start )
-		hortopoutrg.stop = zrg.start;
+		hortopoutrg.set(tkzs_.zsamp_.start_,zrg.start_);
+	    else if ( hortopoutrg.stop_>zrg.start_ )
+		hortopoutrg.stop_ = zrg.start_;
 	}
 	else
 	{
 	    if ( horbotoutrg.isUdf() )
-		horbotoutrg.set(zrg.stop,tkzs_.zsamp_.stop);
-	    else if ( horbotoutrg.start<zrg.stop )
-		hortopoutrg.start = zrg.stop;
+		horbotoutrg.set(zrg.stop_,tkzs_.zsamp_.stop_);
+	    else if ( horbotoutrg.start_<zrg.stop_ )
+		hortopoutrg.start_ = zrg.stop_;
 	}
     }
 
-    if ( !hortopoutrg.isUdf() && hortopoutrg.start<hortopoutrg.stop )
+    if ( !hortopoutrg.isUdf() && hortopoutrg.start_<hortopoutrg.stop_ )
 	horoutrgs_ += hortopoutrg;
-    if ( !horbotoutrg.isUdf() && horbotoutrg.start<horbotoutrg.stop )
+    if ( !horbotoutrg.isUdf() && horbotoutrg.start_<horbotoutrg.stop_ )
 	horoutrgs_ += horbotoutrg;
 }
 
@@ -951,7 +951,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 	surfacelist_.insert( duplicatehoridx, surfacelist_[duplicatehoridx] );
 
     TrcKeyZSampling cs = subvolfld_->envelope();
-    cs.zsamp_.start -= cs.zsamp_.step; cs.zsamp_.stop += cs.zsamp_.step;
+    cs.zsamp_.start_ -= cs.zsamp_.step_; cs.zsamp_.stop_ += cs.zsamp_.step_;
     cs.hsamp_.start_.inl() -= cs.hsamp_.step_.inl();
     cs.hsamp_.stop_.inl() += cs.hsamp_.step_.inl();
     cs.hsamp_.start_.crl() -= cs.hsamp_.step_.crl();
@@ -990,7 +990,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 	    SamplingData<int>(cs.hsamp_.start_.inl(),cs.hsamp_.step_.inl()));
     emcs->setCrlSampling(
 	    SamplingData<int>(cs.hsamp_.start_.crl(),cs.hsamp_.step_.crl()));
-    emcs->setZSampling(SamplingData<float>(cs.zsamp_.start,cs.zsamp_.step));
+    emcs->setZSampling(SamplingData<float>(cs.zsamp_.start_,cs.zsamp_.step_));
 
     emcs->setMultiID( outputfld_->key() );
     emcs->setName( outputfld_->getInput() );

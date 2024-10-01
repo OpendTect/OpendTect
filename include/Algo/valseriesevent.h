@@ -106,7 +106,7 @@ protected:
 #undef mIncSampIdx
 #define mIncSampIdx(idx) { \
 	idx += inc; \
-       	if ( idx == sg.stop+inc ) \
+	if ( idx == sg.stop_+inc ) \
 	    return ValueSeriesEvent<VT,PT>( 0, mUdf(PT) ); }
 #undef mDecrOccAtZero
 #define mDecrOccAtZero(idx) { \
@@ -119,9 +119,9 @@ template <class VT,class PT>
 inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getZC(
 	const Interval<int>& sg, int occ, VSEvent::Type evtype ) const
 {
-    const int inc = sg.start < sg.stop ? 1 : -1;
+    const int inc = sg.start_ < sg.stop_ ? 1 : -1;
 
-    int idx = sg.start;
+    int idx = sg.start_;
     VT v0 = vs_.value( idx );
     while ( v0 == 0 )
     {
@@ -133,7 +133,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getZC(
     int frompositive = v0 > 0;
     const bool needtopos = evtype != VSEvent::ZCPosNeg;
     const bool needtoneg = evtype != VSEvent::ZCNegPos;
-    for ( ; idx!=sg.stop+inc; idx+=inc )
+    for ( ; idx!=sg.stop_+inc; idx+=inc )
     {
 	VT v1 = vs_.value( idx );
 	while ( v1 == 0 )
@@ -164,7 +164,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getZC(
 		lastfound_ = istopos ? VSEvent::ZCNegPos
 		    		     : VSEvent::ZCPosNeg;
 		PT pos = idx - inc * (v1 / ( v1 - v0 ));
-		return ValueSeriesEvent<VT,PT>( 0, sd_.start + pos * sd_.step );
+		return ValueSeriesEvent<VT,PT>( 0, sd_.start_ + pos*sd_.step_ );
 	    }
 	}
 	v0 = v1;
@@ -199,7 +199,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::exactExtreme(
 
     ValueSeriesEvent<VT,PT> ret;
     ret.val = (VT)(v0 + a * relpos * relpos + b * relpos);
-    ret.pos = sd.start + sd.step * (idx0 + relpos);
+    ret.pos = sd.start_ + sd.step_ * (idx0 + relpos);
     return ret;
 }
 
@@ -213,14 +213,14 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getGateExtr(
 
     // skip undefs at start
     int curidx;
-    int extridx = sg.start; VT extrval = vs_.value( extridx );
-    for ( curidx=sg.start+1; mIsUdf(extrval) && curidx<=sg.stop; curidx++ )
+    int extridx = sg.start_; VT extrval = vs_.value( extridx );
+    for ( curidx=sg.start_+1; mIsUdf(extrval) && curidx<=sg.stop_; curidx++ )
 	{ extridx = curidx; extrval = vs_.value( curidx ); }
     if ( mIsUdf(extrval) )
 	return ValueSeriesEvent<VT,PT>();
 
     // find min/max
-    for ( ; curidx<=sg.stop; curidx++ )
+    for ( ; curidx<=sg.stop_; curidx++ )
     {
 	const VT val = vs_.value( curidx );
 	if ( mIsUdf(val) ) continue;
@@ -231,9 +231,9 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getGateExtr(
 
     // collect the data points around the extreme sample
     VT v0 = extrval;
-    VT vm1 = extridx > sg.start ? vs_.value(extridx-1) : v0;
+    VT vm1 = extridx > sg.start_ ? vs_.value(extridx-1) : v0;
     if ( mIsUdf(vm1) ) vm1 = v0;
-    VT v1 = extridx < sg.stop-1 ? vs_.value(extridx+1) : v0;
+    VT v1 = extridx < sg.stop_-1 ? vs_.value(extridx+1) : v0;
     if ( mIsUdf(v1) ) v1 = v0;
 
     return exactExtreme( needmax ? VSEvent::Max : VSEvent::Min,
@@ -245,11 +245,12 @@ template <class VT,class PT>
 inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getExtreme(
 	const Interval<int>& sg, int occ, VSEvent::Type evtype ) const
 {
-    const int inc = sg.start < sg.stop ? 1 : -1;
-    int idx0 = sg.start;
+    const int inc = sg.start_ < sg.stop_ ? 1 : -1;
+    int idx0 = sg.start_;
     VT v0 = vs_.value( idx0 );
-    bool havevm1 = (inc > 0 && sg.start > 0) || (inc < 0 && sg.start < maxidx_);
-    VT vm1 = havevm1 ? vs_.value( sg.start - inc ) : v0;
+    bool havevm1 = (inc > 0 && sg.start_ > 0) ||
+		   (inc < 0 && sg.start_ < maxidx_);
+    VT vm1 = havevm1 ? vs_.value( sg.start_ - inc ) : v0;
     if ( mIsUdf(vm1) ) vm1 = v0;
     bool upw0 = v0 > vm1;
     int idx1 = idx0;
@@ -305,28 +306,28 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
     if ( evtype == VSEvent::None )
 	return ev;
 
-    const int inc = pg.start < pg.stop ? 1 : -1;
-    if ( pg.start < sd_.start )
-	{ if ( inc < 0 ) return ev; pg.start = sd_.start; }
-    if ( pg.stop < sd_.start )
-	{ if ( inc > 0 ) return ev; pg.stop = sd_.start; }
+    const int inc = pg.start_ < pg.stop_ ? 1 : -1;
+    if ( pg.start_ < sd_.start_ )
+	{ if ( inc < 0 ) return ev; pg.start_ = sd_.start_; }
+    if ( pg.stop_ < sd_.start_ )
+	{ if ( inc > 0 ) return ev; pg.stop_ = sd_.start_; }
 
     const PT endpos = sd_.atIndex( maxidx_ );
-    if ( pg.start > endpos )
-	{ if ( inc > 0 ) return ev; pg.start = endpos; }
-    if ( pg.stop > endpos )
-	{ if ( inc < 0 ) return ev; pg.stop = endpos; }
+    if ( pg.start_ > endpos )
+	{ if ( inc > 0 ) return ev; pg.start_ = endpos; }
+    if ( pg.stop_ > endpos )
+	{ if ( inc < 0 ) return ev; pg.stop_ = endpos; }
 
     SampleGate sg;
     if ( inc > 0 )
     {
-	sg.start = (int)Math::Floor((pg.start-sd_.start)/sd_.step);
-	sg.stop = (int)Math::Ceil((pg.stop-sd_.start)/sd_.step);
+	sg.start_ = (int)Math::Floor((pg.start_-sd_.start_)/sd_.step_);
+	sg.stop_ = (int)Math::Ceil((pg.stop_-sd_.start_)/sd_.step_);
     }
     else
     {
-	sg.start = (int)Math::Ceil((pg.start-sd_.start)/sd_.step);
-	sg.stop = (int)Math::Floor((pg.stop-sd_.start)/sd_.step);
+	sg.start_ = (int)Math::Ceil((pg.start_-sd_.start_)/sd_.step_);
+	sg.stop_ = (int)Math::Floor((pg.stop_-sd_.start_)/sd_.step_);
 	if ( evtype == VSEvent::ZCNegPos )
 	    evtype = VSEvent::ZCPosNeg;
 	else if ( evtype == VSEvent::ZCPosNeg )
@@ -336,7 +337,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
     bool iszc = false;
     if ( evtype==VSEvent::GateMax || evtype==VSEvent::GateMin )
 	return getGateExtr( sg, evtype == VSEvent::GateMax );
-    else if ( sg.start == sg.stop )
+    else if ( sg.start_ == sg.stop_ )
 	return ev;
     else if ( evtype >= VSEvent::ZC && evtype <= VSEvent::ZCPosNeg )
 	iszc = true;
@@ -355,8 +356,8 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 	if ( mIsUdf(ev.pos) )
 	    break;
 
-	if ( ( inc > 0 && ev.pos < pg.start ) || 
-	     ( inc < 0 && ev.pos > pg.start ) )
+	if ( ( inc > 0 && ev.pos < pg.start_ ) ||
+	     ( inc < 0 && ev.pos > pg.start_ ) )
 	    occ++;
 	else
 	    break;
@@ -383,19 +384,19 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
     else if ( evtype == VSEvent::ZCPosNeg )
 	revtype = VSEvent::ZCNegPos;
 
-    const bool isascending = pg.stop > pg.start;
+    const bool isascending = pg.stop_ > pg.start_;
     posset.erase();
-    while ( isascending == (curg.stop>curg.start) )
+    while ( isascending == (curg.stop_>curg.start_) )
     {
 	ValueSeriesEvent<VT,PT> reqev = find( evtype, curg, 1 );
 	if ( mIsUdf(reqev.pos) ) break;
 
 	posset += reqev.pos;
-	curg.start = reqev.pos + mCast(PT,1e-5);
+	curg.start_ = reqev.pos + mCast(PT,1e-5);
 	ValueSeriesEvent<VT,PT> revev = find( revtype, curg, 1 );
 	if ( mIsUdf(revev.pos) ) break;
 
-	curg.start = revev.pos + mCast(PT,1e-5);
+	curg.start_ = revev.pos + mCast(PT,1e-5);
     }
 
     if ( !posset.size() ) return false;

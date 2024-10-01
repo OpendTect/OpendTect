@@ -1011,7 +1011,7 @@ void uiWellMan::mkFileInfo()
 		txt.addNewLine();
 	    }
 
-	    const float td = track.dahRange().stop;
+	    const float td = track.dahRange().stop_;
 	    if ( !mIsZero(td,1e-3f) && !mIsUdf(td) )
 	    {
 		txt.add(Well::Info::sKeyTD()).add( colonstr );

@@ -375,16 +375,16 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    mErrRetNoProc( errstr.buf() );
 	}
 
-	if ( mIsUdf( sd.zrg.start ) )
+        if ( mIsUdf( sd.zrg.start_ ) )
 	    zbounds4mmproc = SI().zRange( true );
 	else
 	{
 	    if ( idx )
 	    {
-		zbounds4mmproc.start = sd.zrg.start < zbounds4mmproc.start ?
-					sd.zrg.start : zbounds4mmproc.start;
-		zbounds4mmproc.stop = sd.zrg.stop > zbounds4mmproc.stop ?
-					sd.zrg.stop : zbounds4mmproc.stop;
+                zbounds4mmproc.start_ = sd.zrg.start_ < zbounds4mmproc.start_ ?
+                                            sd.zrg.start_ : zbounds4mmproc.start_;
+                zbounds4mmproc.stop_ = sd.zrg.stop_ > zbounds4mmproc.stop_ ?
+                                           sd.zrg.stop_ : zbounds4mmproc.stop_;
 	    }
 	    else
 		zbounds4mmproc = sd.zrg;
@@ -469,7 +469,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 	geompar->get( "Outside Value", outval );
 
 	Interval<float> extraz;
-	geompar->get( "ExtraZInterval", extraz.start, extraz.stop );
+        geompar->get( "ExtraZInterval", extraz.start_, extraz.stop_ );
 	extraz.scale(1.f/SI().zDomain().userFactor());
 
 	int nrinterpsamp = 0;
@@ -484,7 +484,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
 	bool zboundsset = false;
 	Interval<float> zbounds;
-	if ( geompar->get("Z Boundaries",zbounds.start,zbounds.stop) )
+        if ( geompar->get("Z Boundaries",zbounds.start_,zbounds.stop_) )
 	{
 	    zboundsset = true;
 	    zbounds.scale( 1.f/SI().zDomain().userFactor() );

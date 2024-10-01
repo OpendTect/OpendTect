@@ -334,7 +334,7 @@ bool uiPickPartServer::mkRandLocs2DBetweenHors( Pick::Set& ps,
     {
 	const int posidx = gen.getIndex( nrpos );
 	const Interval<float>& zrg = hor2dzrgs_[posidx];
-	float val = float( zrg.start + gen.get() * zrg.width(false) );
+	float val = float( zrg.start_ + gen.get() * zrg.width(false) );
 	Pick::Location loc( coords2d_[posidx], val );
 	const BinID& trcpos = trcpos2d_[posidx];
 	const Pos::GeomID gid( trcpos.lineNr() );
@@ -405,7 +405,7 @@ bool uiPickPartServer::mkRandLocs2D( Pick::Set& ps, const RandLocGenPars& rp )
 	if ( !l2dpos )
 	    continue;
 
-	const float val = float( rp.zrg_.start + gen.get() * zwidth );
+	const float val = float( rp.zrg_.start_ + gen.get() * zwidth );
 	Pick::Location loc( l2dpos->coord_, val );
 	loc.setTrcKey( TrcKey(geomid,l2dpos->nr_) );
 	ps.add( loc );

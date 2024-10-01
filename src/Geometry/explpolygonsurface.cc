@@ -83,7 +83,7 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
     samples_.erase();
     TypeSet<int> plgcrdindices; 
     int prevnrknots = 0;
-    for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
+    for ( int plg=rrg.start_; plg<=rrg.stop_; plg += rrg.step_ )
     {
 	prevnrknots = samples_.size();
 	surface_->getCubicBezierCurve( plg, samples_, (float)scalefacs_.z );
@@ -265,7 +265,7 @@ bool ExplPolygonSurface::prepareBodyDAGTree()
 	return false;
 
     TypeSet<Coord3> pts;
-    for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
+    for ( int plg=rrg.start_; plg<=rrg.stop_; plg += rrg.step_ )
 	surface_->getCubicBezierCurve( plg, pts, (float)scalefacs_.z );
    
     for ( int idx=0; idx<pts.size(); idx++ )

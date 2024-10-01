@@ -169,7 +169,7 @@ void PosInfo::Line2DData::limitTo( Interval<int> trcrg )
 {
     trcrg.sort();
     for ( int idx=0; idx<posns_.size(); idx++ )
-	if ( posns_[idx].nr_ < trcrg.start || posns_[idx].nr_ > trcrg.stop )
+	if ( posns_[idx].nr_ < trcrg.start_ || posns_[idx].nr_ > trcrg.stop_ )
 	    posns_.removeSingle( idx-- );
 }
 
@@ -191,8 +191,8 @@ int PosInfo::Line2DData::nearestIdx( const Coord& pos,
     if ( nrrg.includes(posns_[posidx].nr_,true) )
 	return posidx;
 
-    const int posstartidx = posns_.indexOf( nrrg.start );
-    const int posstopidx = posns_.indexOf( nrrg.stop );
+    const int posstartidx = posns_.indexOf( nrrg.start_ );
+    const int posstopidx = posns_.indexOf( nrrg.stop_ );
     double sqd0 = pos.sqDistTo(posns_[posstartidx].coord_);
     double sqd1 = pos.sqDistTo(posns_[posstopidx].coord_);
     return sqd0 < sqd1 ? posstartidx : posstopidx;
@@ -233,20 +233,20 @@ bool PosInfo::Line2DData::getPos( int nr, PosInfo::Line2DPos& pos ) const
 void PosInfo::Line2DData::dump( od_ostream& strm, bool pretty ) const
 {
     if ( !pretty )
-	strm << zrg_.start << '\t' << zrg_.stop << '\t' << zrg_.step << '\n';
+	strm << zrg_.start_ << '\t' << zrg_.stop_ << '\t' << zrg_.step_ << '\n';
     else
     {
 	strm << lnm_ << '\n';
 	const int fac = SI().zDomain().userFactor();
-	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
-	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
+	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start_
+	     << '\t' << fac*zrg_.stop_ << "\t" << fac*zrg_.step_;
 	strm << "\n\nTrcNr\tX-coord\tY-coord" << od_newline;
     }
 
     for ( int idx=0; idx<posns_.size(); idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
-	strm << pos.nr_ << '\t' << pos.coord_.x << '\t' << pos.coord_.y << '\n';
+	strm << pos.nr_ << '\t' << pos.coord_.x_ << '\t' << pos.coord_.y_ << '\n';
     }
     strm.flush();
 }
@@ -256,9 +256,9 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 {
     int linesz = -1;
     if ( asc )
-	strm >> zrg_.start >> zrg_.stop >> zrg_.step >> linesz;
+	strm >> zrg_.start_ >> zrg_.stop_ >> zrg_.step_ >> linesz;
     else
-	strm.getBin( zrg_.start ).getBin( zrg_.stop ).getBin( zrg_.step )
+	strm.getBin( zrg_.start_ ).getBin( zrg_.stop_ ).getBin( zrg_.step_ )
 	    .getBin( linesz );
 
 
@@ -297,11 +297,11 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 {
     const int linesz = posns_.size();
     if ( !asc )
-	strm.addBin( zrg_.start ).addBin( zrg_.stop ).addBin( zrg_.step )
+	strm.addBin( zrg_.start_ ).addBin( zrg_.stop_ ).addBin( zrg_.step_ )
 	    .addBin( linesz );
     else
     {
-	strm << zrg_.start << ' ' << zrg_.stop << ' ' << zrg_.step
+	strm << zrg_.start_ << ' ' << zrg_.stop_ << ' ' << zrg_.step_
 	     << ' ' << linesz;
 	if ( withnls && linesz ) strm << od_newline;
     }
@@ -310,12 +310,12 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
     {
 	const PosInfo::Line2DPos& pos = posns_[idx];
 	if ( !asc )
-	    strm.addBin(pos.nr_).addBin(pos.coord_.x).addBin(pos.coord_.y);
+	    strm.addBin(pos.nr_).addBin(pos.coord_.x_).addBin(pos.coord_.y_);
 	else
 	{
-	    BufferString str; str.set( pos.coord_.x );
+	    BufferString str; str.set( pos.coord_.x_ );
 	    strm << '\t' << pos.nr_ << '\t' << str;
-	    str.set( pos.coord_.y );
+	    str.set( pos.coord_.y_ );
 	    strm << '\t' << str;
 	    if ( withnls && idx < linesz-1 ) strm << od_newline;
 	}
@@ -351,18 +351,18 @@ StepInterval<Pos::TraceID> PosInfo::Line2DData::trcNrRange() const
     const int sz = posns_.size();
     StepInterval<int> res( -1, -1, 1 );
     if ( sz < 1 ) return res;
-    res.start = posns_[0].nr_;
-    res.stop = posns_[sz-1].nr_;
+    res.start_ = posns_[0].nr_;
+    res.stop_ = posns_[sz-1].nr_;
     if ( sz == 1 ) return res;
 
-    res.step = 0;
+    res.step_ = 0;
     for ( int idx=1; idx<sz; idx++ )
     {
 	const int diff = posns_[idx].nr_ - posns_[idx-1].nr_;
 	if ( diff < 1 ) continue;
-	if ( res.step < 1 || diff < res.step )
-	    res.step = diff;
-	if ( res.step == 1 )
+	if ( res.step_ < 1 || diff < res.step_ )
+	    res.step_ = diff;
+	if ( res.step_ == 1 )
 	    break;
     }
     return res;

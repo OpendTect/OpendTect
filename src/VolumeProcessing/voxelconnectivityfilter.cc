@@ -210,10 +210,10 @@ bool VoxelConnectivityFilterTask::doPrepare( int nrthreads )
 bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 {
     Interval<float> range = step_.getAcceptRange();
-    if ( mIsUdf(range.start) )
-	range.start = -FLT_MAX;
-    else if ( mIsUdf(range.stop) )
-	range.stop = FLT_MAX;
+    if ( mIsUdf(range.start_) )
+	range.start_ = -FLT_MAX;
+    else if ( mIsUdf(range.stop_) )
+	range.stop_ = FLT_MAX;
 
     const bool doextremes = range.isRev();
 
@@ -257,15 +257,15 @@ bool VoxelConnectivityFilterTask::doWork( od_int64 start, od_int64 stop, int )
 		else
 		{
 		    iskept = true;
-		    if ( curval<currange.start )
+		    if ( curval<currange.start_ )
 		    {
-			currange.start = -FLT_MAX;
-			currange.stop = range.stop;
+			currange.start_ = -FLT_MAX;
+			currange.stop_ = range.stop_;
 		    }
 		    else
 		    {
-			currange.start = range.start;
-			currange.stop = FLT_MAX;
+			currange.start_ = range.start_;
+			currange.stop_ = FLT_MAX;
 		    }
 		}
 	    }

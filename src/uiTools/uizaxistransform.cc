@@ -315,7 +315,7 @@ bool uiZAxisTransformSel::acceptOK()
 	return false;
     }
 
-    if ( zrg.step<=0 )
+    if ( zrg.step_<=0 )
     {
 	uiMSG().error(tr("Sampling step is zero or negative"));
 	return false;

@@ -43,7 +43,7 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     uicoltablbl_ = new uiLabel( this, uiStrings::sColorTable(), uicoltab_ );
 
     const SamplingData<float> curzsmp = vwr_->appearance().annot_.x2_.sampling_;
-    const bool zudf = mIsUdf( curzsmp.start ) || mIsUdf(curzsmp.step);
+    const bool zudf = mIsUdf( curzsmp.start_ ) || mIsUdf(curzsmp.step_);
 
     zgridfld_ = new uiGenInput( this, tr("Z grid lines"),
 	    BoolInpSpec( vwr_->appearance().annot_.x2_.showgridlines_ ) );
@@ -66,7 +66,7 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     zgridrangelbl_->attach( rightOf, zgridrangefld_ );
 
     SamplingData<float> curoffssmp = vwr_->appearance().annot_.x1_.sampling_;
-    const bool offsudf = mIsUdf(curoffssmp.start) || mIsUdf(curoffssmp.step);
+    const bool offsudf = mIsUdf(curoffssmp.start_) || mIsUdf(curoffssmp.step_);
 
     offsgridfld_ = new uiGenInput( this, tr("Offset grid lines"),
 	    BoolInpSpec( vwr_->appearance().annot_.x1_.showgridlines_ ) );
@@ -93,9 +93,9 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
 		mCB(this,uiViewer3DAppearanceTab,applyButPushedCB), true );
     applybut_->attach( alignedBelow, offsgridrangefld_ );
 
-    if ( mIsUdf(manuzsampl_.start) || mIsUdf(manuzsampl_.step) )
+    if ( mIsUdf(manuzsampl_.start_) || mIsUdf(manuzsampl_.step_) )
 	manuzsampl_ = vwr_->getDefaultGridSampling( false );
-    if ( mIsUdf(manuoffssampl_.start) || mIsUdf(manuoffssampl_.step) )
+    if ( mIsUdf(manuoffssampl_.start_) || mIsUdf(manuoffssampl_.step_) )
 	manuoffssampl_ = vwr_->getDefaultGridSampling( true );
 
     mAttachCB( vwr_->dispParsChanged, uiViewer3DAppearanceTab::updateColTab );
@@ -163,11 +163,11 @@ void uiViewer3DAppearanceTab::updateFlds( uiGenInput* gridfld,
 				     : (x1 ? manuoffssampl_ : manuzsampl_);
     if ( !x1 )
     {
-	sd.start *= SI().zDomain().userFactor();
-	sd.step *= SI().zDomain().userFactor();
+	sd.start_ *= SI().zDomain().userFactor();
+	sd.step_ *= SI().zDomain().userFactor();
     }
 
-    rgfld->setValues( sd.start, sd.step );
+    rgfld->setValues( sd.start_, sd.step_ );
 }
 
 
@@ -214,11 +214,11 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
     {
 	if ( !zgridautofld_->getBoolValue() )
 	{
-	    zsmp.start = zgridrangefld_->getFValue( 0 );
-	    zsmp.step = zgridrangefld_->getFValue( 1 );
-	    if ( mIsUdf(zsmp.start) || mIsUdf(zsmp.step) )
+	    zsmp.start_ = zgridrangefld_->getFValue( 0 );
+	    zsmp.step_ = zgridrangefld_->getFValue( 1 );
+	    if ( mIsUdf(zsmp.start_) || mIsUdf(zsmp.step_) )
 	    {
-		if ( mIsUdf(zsmp.start) )
+		if ( mIsUdf(zsmp.start_) )
 		    uiMSG().error(tr("Z sampling start is not defined."));
 		else
 		    uiMSG().error(tr("Z sampling step is not defined."));
@@ -226,8 +226,8 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	    }
 
 	    const float zfac = mCast( float, SI().zDomain().userFactor() );
-	    zsmp.start /= zfac;
-	    zsmp.step /= zfac;
+	    zsmp.start_ /= zfac;
+	    zsmp.step_ /= zfac;
 	    manuzsampl_ = zsmp;
 	}
 
@@ -242,11 +242,11 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
     {
 	if ( !offsgridautofld_->getBoolValue() )
 	{
-	    offssmp.start = offsgridrangefld_->getFValue( 0 );
-	    offssmp.step = offsgridrangefld_->getFValue( 1 );
-	    if ( mIsUdf(offssmp.start) || mIsUdf(offssmp.step) )
+	    offssmp.start_ = offsgridrangefld_->getFValue( 0 );
+	    offssmp.step_ = offsgridrangefld_->getFValue( 1 );
+	    if ( mIsUdf(offssmp.start_) || mIsUdf(offssmp.step_) )
 	    {
-		if ( mIsUdf(offssmp.start) )
+		if ( mIsUdf(offssmp.start_) )
 		    uiMSG().error(tr("Offset sampling start is not defined."));
 		else
 		    uiMSG().error(tr("Offset sampling step is not defined."));

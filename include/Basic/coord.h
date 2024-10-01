@@ -20,15 +20,13 @@ ________________________________________________________________________
 mExpClass(Basic) Coord : public Geom::Point2D<Pos::Ordinate_Type>
 {
 public:
+using OrdType = Pos::Ordinate_Type;
+using DistType = Pos::Distance_Type;
 
-    typedef Pos::Ordinate_Type	OrdType;
-    typedef Pos::Distance_Type	DistType;
-
-		Coord( const Geom::Point2D<OrdType>& p )
-		    :  Geom::Point2D<OrdType>( p )			{}
-		Coord() :  Geom::Point2D<OrdType>( 0, 0 )		{}
-		Coord( OrdType cx, OrdType cy )
-		    :  Geom::Point2D<OrdType>( cx, cy )			{}
+		Coord();
+		Coord(const Geom::Point2D<OrdType>&);
+		Coord(OrdType cx,OrdType cy);
+		~Coord();
 
     bool	operator==( const Coord& crd ) const
 		{ return mIsEqual(x,crd.x,mDefEps)
@@ -68,15 +66,11 @@ public:
 mExpClass(Basic) Coord3 : public Coord
 {
 public:
-
-			Coord3() : z(0)					{}
-			Coord3(const Coord& a, OrdType z_ )
-			    : Coord(a), z(z_)				{}
-			Coord3(const Coord3& xyz )
-			    : Coord( xyz.x, xyz.y )
-			    , z( xyz.z )				{}
-			Coord3( OrdType x_, OrdType y_, OrdType z_ )
-			    : Coord(x_,y_), z(z_)			{}
+			Coord3();
+			Coord3(const Coord&,OrdType);
+			Coord3(const Coord3& xyz );
+			Coord3( OrdType _x, OrdType _y, OrdType _z );
+			~Coord3();
 
     OrdType&		operator[]( int idx )
 			{ return idx ? (idx==1 ? y : z) : x; }
@@ -121,7 +115,8 @@ public:
     const char*		toString() const;
     bool		fromString(const char*);
 
-    OrdType		z;
+    OrdType		z_;
+    OrdType&		z;
 
 };
 
@@ -166,7 +161,8 @@ public:
 
 inline bool Coord3::operator==( const Coord3& b ) const
 {
-    const DistType dx = x-b.x; const DistType dy = y-b.y;
+    const DistType dx = x-b.x;
+    const DistType dy = y-b.y;
     const DistType dz = z-b.z;
     return mIsZero(dx,mDefEps) && mIsZero(dy,mDefEps) && mIsZero(dz,mDefEps);
 }

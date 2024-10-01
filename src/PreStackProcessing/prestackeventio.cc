@@ -195,10 +195,10 @@ bool EventReader::getBoundingBox( Interval<int>& inlrg,
 	const TrcKeySampling& hrg = reader->getRange();
 	if ( !idx )
 	{
-	    inlrg.start = hrg.start_.inl();
-	    inlrg.stop = hrg.stop_.inl();
-	    crlrg.start = hrg.start_.crl();
-	    crlrg.stop = hrg.stop_.crl();
+            inlrg.start_ = hrg.start_.inl();
+            inlrg.stop_ = hrg.stop_.inl();
+            crlrg.start_ = hrg.start_.crl();
+            crlrg.stop_ = hrg.stop_.crl();
 	}
 	else
 	{
@@ -305,15 +305,15 @@ bool EventReader::readSamplingData( const IOObj& ioobj,
     if ( par.read( horidfnm.fullPath().buf(),
 		   EventReader::sHorizonFileType(), true ) )
     {
-	if ( par.get( sKeyISamp(), inlsampling.start, inlsampling.step ) &&
-	     par.get( sKeyCSamp(), crlsampling.start, crlsampling.step ) )
+        if ( par.get( sKeyISamp(), inlsampling.start_, inlsampling.step_ ) &&
+             par.get( sKeyCSamp(), crlsampling.start_, crlsampling.step_ ) )
 	return true;
     }
 
     IOPar& pars = ioobj.pars();
 
-    return pars.get(sKeyISamp(), inlsampling.start, inlsampling.step ) &&
-	   pars.get(sKeyCSamp(), crlsampling.start, crlsampling.step );
+    return pars.get(sKeyISamp(), inlsampling.start_, inlsampling.step_ ) &&
+            pars.get(sKeyCSamp(), crlsampling.start_, crlsampling.step_ );
 }
 
 
@@ -547,14 +547,14 @@ int EventWriter::nextStep()
 	{
 	    const StepInterval<int> inlrg = SI().inlRange(false);
 	    const StepInterval<int> crlrg = SI().crlRange(false);
-	    inlsampling.start = inlrg.start; inlsampling.step = inlrg.step*25;
-	    crlsampling.start = crlrg.start; crlsampling.step = crlrg.step*25;
+            inlsampling.start_ = inlrg.start_; inlsampling.step_ = inlrg.step_*25;
+            crlsampling.start_ = crlrg.start_; crlsampling.step_ = crlrg.step_*25;
 	}
 
-	auxinfo_.set( EventReader::sKeyISamp(), inlsampling.start,
-		      inlsampling.step );
-	auxinfo_.set( EventReader::sKeyCSamp(), crlsampling.start,
-		      crlsampling.step );
+        auxinfo_.set( EventReader::sKeyISamp(), inlsampling.start_,
+                      inlsampling.step_ );
+        auxinfo_.set( EventReader::sKeyCSamp(), crlsampling.start_,
+                      crlsampling.step_ );
 
 	const BufferString fnm( ioobj_->fullUserExpr(true) );
 	if ( !File::exists( fnm.buf() ) || !File::isDirectory( fnm.buf() ) )
@@ -592,8 +592,8 @@ int EventWriter::nextStep()
 	    if ( !ge->ischanged_ )
 		continue;
 
-	    const RowCol rc( (bid.inl()-inlsampling.start)/inlsampling.step,
-			     (bid.crl()-crlsampling.start)/crlsampling.step );
+            const RowCol rc( (bid.inl()-inlsampling.start_)/inlsampling.step_,
+                             (bid.crl()-crlsampling.start_)/crlsampling.step_ );
 
 	    if ( !rcols.isPresent( rc ) )
 		rcols += rc;

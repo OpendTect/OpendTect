@@ -69,7 +69,7 @@ void HorizonSectionDataHandler::updateZAxisVOI()
 
 	if ( first )
 	{
-	    cs.zsamp_.start = cs.zsamp_.stop = depth;
+	    cs.zsamp_.start_ = cs.zsamp_.stop_ = depth;
 	    first = false;
 	}
 	else
@@ -149,8 +149,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
 	if ( section_.userchangedisplayrg_ &&
 	    ( !displayrrg.includes(bid.inl(), false) ||
 	      !displaycrg.includes(bid.crl(), false) ||
-	    ((bid.inl()-displayrrg.start)%displayrrg.step) ||
-	    ((bid.crl()-displaycrg.start)%displaycrg.step) ) )
+	      ((bid.inl()-displayrrg.start_)%displayrrg.step_) ||
+	      ((bid.crl()-displaycrg.start_)%displaycrg.step_) ) )
 	    continue;
 
 	const int inlidx = inlrg.getIndex( bid.inl() );

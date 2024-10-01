@@ -85,7 +85,7 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
 
     if ( iszvalreq_ )
     {
-	float zval = SI().zRange(true).start;
+        float zval = SI().zRange(true).start_;
 	zval *= SI().zDomain().userFactor();
 	const uiString lbl(
 		tr("Z value for Points %1").arg(SI().getUiZUnitString()) );
@@ -189,7 +189,7 @@ bool uiCreatePicks::calcZValAccToSurvDepth()
 
     uiMSG().error( tr("Input Z Value lies outside the survey range.\n"
 		      "Survey range is: %1-%2 %3")
-	.arg(zrg.start).arg(zrg.stop).arg(SI().zDomain().uiUnitStr()));
+                   .arg(zrg.start_).arg(zrg.stop_).arg(SI().zDomain().uiUnitStr()));
 
     return false;
 }
@@ -349,7 +349,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     uiString zlbl = uiStrings::phrJoinStrings(uiStrings::sZRange(),
 						       SI().getUiZUnitString());
     StepInterval<float> survzrg = SI().zRange(false);
-    Interval<float> inpzrg( survzrg.start, survzrg.stop );
+    Interval<float> inpzrg( survzrg.start_, survzrg.stop_ );
     inpzrg.scale( sCast(float,SI().zDomain().userFactor()) );
     zfld_ = new uiGenInput( this, zlbl, FloatInpIntervalSpec(inpzrg) );
     if ( geomfld_ ) zfld_->attach( alignedBelow, geomfld_ );
@@ -443,8 +443,8 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* )
 	Interval<float> zrg = zfld_->getFInterval();
 	StepInterval<float> survzrg = SI().zRange(false);
 	survzrg.scale( sCast(float,SI().zDomain().userFactor()) );
-	if ( !survzrg.includes(zrg.start,false) ||
-		!survzrg.includes(zrg.stop,false) )
+        if ( !survzrg.includes(zrg.start_,false) ||
+             !survzrg.includes(zrg.stop_,false) )
 	    mErrRet(uiStrings::phrEnter(tr("a valid Z Range")));
     }
 

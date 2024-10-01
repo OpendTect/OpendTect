@@ -669,8 +669,8 @@ void uiFlatViewStdControl::updateZoomLevel( float x1start, float x2start,
 				* sInchToCMFac;
     const float cmheight = ((float)viewrect.height()/screendpi.second())
 				* sInchToCMFac;
-    const double hwdth = vwr_.posRange(true).step * cmwidth * x1pospercm / 2;
-    const double hhght = vwr_.posRange(false).step * cmheight * x2pospercm / 2;
+    const double hwdth = vwr_.posRange(true).step_ * cmwidth * x1pospercm / 2;
+    const double hhght = vwr_.posRange(false).step_ * cmheight * x2pospercm / 2;
 
     const uiWorldRect bb = vwr_.boundingBox();
     uiWorldRect newwr;

@@ -269,11 +269,11 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* )
 	if ( itmatlistpos )
 	{
 	    Interval<float> vwrxrg;
-	    vwrxrg.start = sCast(float,curview.topLeft().x);
-	    vwrxrg.stop = sCast(float,curview.bottomRight().x);
+	    vwrxrg.start_ = sCast(float,curview.topLeft().x);
+	    vwrxrg.stop_ = sCast(float,curview.bottomRight().x);
 	    Interval<float> vwryrg;
-	    vwryrg.start = sCast(float,curview.topLeft().y);
-	    vwryrg.stop = sCast(float,curview.bottomRight().y);
+	    vwryrg.start_ = sCast(float,curview.topLeft().y);
+	    vwryrg.stop_ = sCast(float,curview.bottomRight().y);
 
 	    Geom::Point2D<float> pt = itmatlistpos->getPos();
 	    const bool isitminxview = vwrxrg.includes(pt.x,true);
@@ -290,12 +290,12 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* )
 	if ( x1rg_ )
 	{
 	    xscale = curview.width()/x1rg_->width();
-	    xpos = curview.left()-xscale*x1rg_->start;
+	    xpos = curview.left()-xscale*x1rg_->start_;
 	}
 	if( x2rg_ )
 	{
 	    yscale = curview.height()/x2rg_->width();
-	    ypos = curview.top()-yscale*x2rg_->start;
+	    ypos = curview.top()-yscale*x2rg_->start_;
 	}
 	display_->setPos( (float) xpos, (float) ypos );
 	display_->setScale( (float) xscale, (float) yscale );

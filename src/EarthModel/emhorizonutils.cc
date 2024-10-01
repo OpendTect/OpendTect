@@ -277,8 +277,8 @@ void HorizonUtils::getWantedPositions( od_ostream& strm,
 		    continue;
 	    }
 
-	    vals[0] = ( horizon2 && botz<topz ? botz : topz ) + extraz.start;
-	    vals[1] = ( horizon2 && botz>topz ? botz : topz ) + extraz.stop;
+	    vals[0] = ( horizon2 && botz<topz ? botz : topz ) + extraz.start_;
+	    vals[1] = ( horizon2 && botz>topz ? botz : topz ) + extraz.stop_;
 	    wantedposbivs.add( bid, vals );
 	    nrpos = mCast( int, wantedposbivs.totalSize() );
 	    meanzinter = ( meanzinter*( nrpos -1 ) + lastzinter) / nrpos;
@@ -428,8 +428,8 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
 		    {
 			const float z0 = possurf0[secsurf0]->z( ptsurf0 );
 			const float z1 = possurf1[secsurf1]->z( rid );
-			const float ztop = (z0>z1 ? z1 : z0) + extraz.start;
-			const float zbot = (z0>z1 ? z0 : z1) + extraz.stop;
+			const float ztop = (z0>z1 ? z1 : z0) + extraz.start_;
+			const float zbot = (z0>z1 ? z0 : z1) + extraz.stop_;
 			DataPointSet::Pos pos( coordsurf0, ztop );
 			DataPointSet::DataRow dtrow( pos );
 			dtrow.data_ += zbot;
@@ -441,8 +441,8 @@ void HorizonUtils::getWantedPos2D( od_ostream& strm,
 	    else
 	    {
 		const float z0 = possurf0[secsurf0]->z( ptsurf0 );
-		const float ztop = z0 + extraz.start;
-		const float zbot = z0 + extraz.stop;
+		const float ztop = z0 + extraz.start_;
+		const float zbot = z0 + extraz.stop_;
 		DataPointSet::Pos pos( coordsurf0, ztop );
 		DataPointSet::DataRow dtrow( pos );
 		dtrow.data_ += zbot;

@@ -250,7 +250,7 @@ RefMan<DataPointSet> uiStratSynthCrossplot::getData(
 	    timerg.shift( twt );
 	}
 	else
-	    timerg.start = twt;
+	    timerg.start_ = twt;
 
 	float maxdepth = mUdf(float); float maxtwt = mUdf(float);
 	if ( stoplvl )
@@ -262,15 +262,15 @@ RefMan<DataPointSet> uiStratSynthCrossplot::getData(
 	if ( evfld_->layerBased() )
 	{
 	    ZGate depthrg( dpth, mUdf(float) );
-	    depthrg.stop = extrwin.isUdf() ? maxdepth
-			 : tdmodel->getDepth( timerg.stop );
+	    depthrg.stop_ = extrwin.isUdf() ? maxdepth
+					    : tdmodel->getDepth( timerg.stop_ );
 	    fillPosFromLayerSampling( *dps, hasintegrated, *tdmodel,
 				      trc.info(), depthrg, imod );
 	}
 	else
 	{
 	    if ( stoplvl && extrwin.isUdf() )
-		timerg.stop = twt + zstep *
+		timerg.stop_ = twt + zstep *
 			mCast(float, mNINT32((maxtwt-twt)/zstep) );
 
 	    fillPosFromZSampling( *dps, *tdmodel, trc.info(),
@@ -308,7 +308,7 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
     const float halfstep = step / 2.f;
     const int depthidx = dps.indexOf( sKey::Depth() );
     const int nrcols = dps.nrCols();
-    const ZSampling win( extrwin.start, extrwin.stop, step );
+    const ZSampling win( extrwin.start_, extrwin.stop_, step );
 
     auto* extrgate = new TypeSet<ZGate>;
     for ( int iextr=0; iextr<win.nrSteps()+1; iextr++ )
@@ -333,8 +333,8 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 
 	Interval<float> timerg( twt - halfstep, twt + halfstep );
 	Interval<float> depthrg;
-	depthrg.start = d2tmodel.getDepth( timerg.start );
-	depthrg.stop = d2tmodel.getDepth( timerg.stop );
+	depthrg.start_ = d2tmodel.getDepth( timerg.start_ );
+	depthrg.stop_ = d2tmodel.getDepth( timerg.stop_ );
 	*extrgate += depthrg;
     }
 
@@ -494,17 +494,17 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 					     const Strat::Level* stoplvl,
 					     const ZGate& extrwin, float zstep )
 {
-    ZSampling winms( extrwin.start, extrwin.stop, zstep );
+    ZSampling winms( extrwin.start_, extrwin.stop_, zstep );
     winms.scale( 1000.f );
     const bool layerbased = mIsUdf( zstep );
     const bool multiz = ( !extrwin.isUdf() && winms.nrSteps() > 1 )
 			|| stoplvl || layerbased;
     const bool shiftedsingez = !extrwin.isUdf() && !layerbased &&
-			       !mIsZero(extrwin.start,1e-6f);
+			       !mIsZero(extrwin.start_,1e-6f);
 
     uiString wintitl = uiStrings::sAttribute(mPlural);
-    uiString timegate = tr("[%1-%2]ms").arg(toUiString(winms.start,0))
-				       .arg(toUiString(winms.stop,0));
+    uiString timegate = tr("[%1-%2]ms").arg(toUiString(winms.start_,0))
+			.arg(toUiString(winms.stop_,0));
 
     if ( !multiz )
     {
@@ -513,8 +513,8 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 	else
 	{
 	    wintitl = tr("%1 %2ms %3").arg(wintitl)
-				      .arg(toUiString(fabs( winms.start )))
-				      .arg(winms.start < 0 ?
+		      .arg(toUiString(fabs( winms.start_ )))
+		      .arg(winms.start_ < 0 ?
 				      uiStrings::sAbove().toLower() :
 				      uiStrings::sBelow().toLower());
 	}
@@ -541,7 +541,7 @@ void uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
 
     if ( multiz && !layerbased )
     {
-	wintitl = tr( "%1 each %2ms").arg(wintitl).arg(winms.step);
+	wintitl = tr( "%1 each %2ms").arg(wintitl).arg(winms.step_);
     }
     else if ( layerbased && !extrwin.isUdf() )
     {

@@ -624,7 +624,7 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     posdata_.getCrlRange( pinfo_.crlrg );
     pinfo_.inlrg.sort(); pinfo_.crlrg.sort();
     curbinid_.inl() = pinfo_.inlrg.snappedCenter();
-    curbinid_.crl() = pinfo_.crlrg.snappedCenter() - pinfo_.crlrg.step;
+    curbinid_.crl() = pinfo_.crlrg.snappedCenter() - pinfo_.crlrg.step_;
 
     BufferStringSet offsetnames;
     if ( psrdr_->getSampleNames(offsetnames) && ioobj )
@@ -653,8 +653,8 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 		     BufferString("Offset: ",offss[icomp]) );
     }
 
-    curbinid_.inl() = pinfo_.inlrg.start;
-    curbinid_.crl() = pinfo_.crlrg.start - pinfo_.crlrg.step;
+    curbinid_.inl() = pinfo_.inlrg.start_;
+    curbinid_.crl() = pinfo_.crlrg.start_ - pinfo_.crlrg.step_;
     return true;
 }
 
@@ -664,15 +664,15 @@ bool SeisPSCubeSeisTrcTranslator::goTo( const BinID& bid )
     if ( !posdata_.includes(bid.inl(),bid.crl()) )
 	return false;
 
-    curbinid_ = bid; curbinid_.crl() -= pinfo_.crlrg.step;
+    curbinid_ = bid; curbinid_.crl() -= pinfo_.crlrg.step_;
     return true;
 }
 
 
 bool SeisPSCubeSeisTrcTranslator::toNext()
 {
-    for ( int crl=curbinid_.crl()+pinfo_.crlrg.step; crl<=pinfo_.crlrg.stop;
-	    crl+=pinfo_.crlrg.step )
+    for ( int crl=curbinid_.crl()+pinfo_.crlrg.step_; crl<=pinfo_.crlrg.stop_;
+	  crl+=pinfo_.crlrg.step_ )
     {
 	if ( posdata_.includes(curbinid_.inl(),crl) )
 	{
@@ -685,11 +685,11 @@ bool SeisPSCubeSeisTrcTranslator::toNext()
 	}
     }
 
-    curbinid_.inl() += pinfo_.inlrg.step;
-    if ( curbinid_.inl() > pinfo_.inlrg.stop )
+    curbinid_.inl() += pinfo_.inlrg.step_;
+    if ( curbinid_.inl() > pinfo_.inlrg.stop_ )
 	return false;
 
-    curbinid_.crl() = pinfo_.crlrg.start - pinfo_.crlrg.step;
+    curbinid_.crl() = pinfo_.crlrg.start_ - pinfo_.crlrg.step_;
     return toNext();
 }
 
@@ -765,13 +765,13 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
     {
 	trc.info() = newtrc->info();
 	const Interval<float> zrg( seldata_->zRange() );
-	trc.info().sampling.start = zrg.start;
-	const float sr = trc.info().sampling.step;
+	trc.info().sampling.start_ = zrg.start_;
+	const float sr = trc.info().sampling.step_;
 	const int nrsamps = (int)(zrg.width() / sr + 1.5);
 	trc.reSize( nrsamps, false );
 	for ( int icomp=0; icomp<trc.nrComponents(); icomp++ )
 	    for ( int idx=0; idx<nrsamps; idx++ )
-		trc.set( idx, newtrc->getValue( zrg.start + idx * sr, icomp ),
+		trc.set( idx, newtrc->getValue( zrg.start_ + idx * sr, icomp ),
 			 icomp );
     }
 

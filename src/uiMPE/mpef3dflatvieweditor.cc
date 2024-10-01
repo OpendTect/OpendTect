@@ -244,7 +244,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
     Coord3 realpos = editor_->viewer().getCoord( pos );
-    realpos.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+    realpos.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start_
 						      : pos.y;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
@@ -262,7 +262,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
 	return;
 
     StepInterval<int> colrg = emfss->colRange( f3dpainter_->getActiveStickId());
-    const int knotid = colrg.start + displayedknotid*colrg.step;
+    const int knotid = colrg.start_ + displayedknotid*colrg.step_;
 
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
@@ -297,7 +297,7 @@ bool Fault3DFlatViewEditor::getMousePosInfo(
     iy = pd.indexInfo( false, wp.y );
 
     worldpos = editor_->viewer().getCoord( wp );
-    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start_
 							 : wp.y;
     return true;
 }
@@ -478,7 +478,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     int knotid = mUdf(int);
 
     StepInterval<int> colrg = fss->colRange( rc.row() );
-    knotid = colrg.start + displayedknotid*colrg.step;
+    knotid = colrg.start_ + displayedknotid*colrg.step_;
 
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet(MPE::FaultEditor*,f3deditor,editor.ptr())
@@ -713,7 +713,7 @@ void Fault3DFlatViewEditor::removeSelectionCB( CallBacker* cb )
     {
 	rc.row() = getStickId( selectedids[ids] );
 	const StepInterval<int> colrg = fss->colRange( rc.row() );
-	rc.col() = colrg.start + selectedidxs[ids]*colrg.step;
+	rc.col() = colrg.start_ + selectedidxs[ids]*colrg.step_;
 	emf3d->geometry().removeKnot( rc.toInt64(), false );
 	if ( !emf3d->geometry().nrKnots(rc.row()) )
 	    emf3d->geometry().removeStick( rc.row(), false );

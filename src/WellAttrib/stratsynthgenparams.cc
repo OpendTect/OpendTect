@@ -303,8 +303,8 @@ void SynthGenParams::setDefaultValues()
     if ( synthtype_ == AngleStack || synthtype_ == AVOGradient )
     {
 	const PreStack::AngleCompParams anglepars;
-	anglerg_.start = anglepars.anglerange_.start;
-	anglerg_.stop = anglepars.anglerange_.stop;
+	anglerg_.start_ = anglepars.anglerange_.start_;
+	anglerg_.stop_ = anglepars.anglerange_.stop_;
     }
     else
 	anglerg_ = Interval<float>::udf();
@@ -569,8 +569,8 @@ void SynthGenParams::createName( BufferString& nm ) const
     if ( isPSBased() )
     {
 	nm = toString( synthtype_ );
-	nm += " ["; nm += anglerg_.start; nm += ",";
-	nm += anglerg_.stop; nm += "] degrees";
+	nm += " ["; nm += anglerg_.start_; nm += ",";
+	nm += anglerg_.stop_; nm += "] degrees";
 	return;
     }
     else if ( isAttribute() )

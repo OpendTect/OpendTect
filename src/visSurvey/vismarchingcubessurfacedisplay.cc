@@ -112,11 +112,11 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 
     SamplingData<float> sd = surface->getScale( 0 );
     emsurface_->setInlSampling(
-	    SamplingData<int>( mNINT32(sd.start), mNINT32(sd.step) ) );
+                SamplingData<int>( mNINT32(sd.start_), mNINT32(sd.step_) ) );
 
     sd = surface->getScale( 1 );
     emsurface_->setCrlSampling(
-	    SamplingData<int>( mNINT32(sd.start), mNINT32(sd.step) ) );
+                SamplingData<int>( mNINT32(sd.start_), mNINT32(sd.step_) ) );
 
     emsurface_->setZSampling( surface->getScale( 2 ) );
 
@@ -353,9 +353,9 @@ void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
     RefMan<visBase::Transformation> toincrltransf =
 					visBase::Transformation::create();
     toincrltransf->setScale(
-	Coord3(inlinesampling.step, crlinesampling.step, zsampling.step));
+                Coord3(inlinesampling.step_, crlinesampling.step_, zsampling.step_));
     toincrltransf->setTranslation(
-	Coord3(inlinesampling.start,crlinesampling.start, zsampling.start));
+                Coord3(inlinesampling.start_,crlinesampling.start_, zsampling.start_));
 
     displaysurface_->getShape()->getAttribPositions( dps, toincrltransf,
 						     runner);
@@ -459,7 +459,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 
     sort_coupled( zdist.arr(), vals.arr(), zdist.size() );
 
-    if ( zdist[0]>SI().zRange(true).step )
+    if ( zdist[0]>SI().zRange(true).step_ )
 	return;
 
     val = vals[0];
@@ -654,9 +654,9 @@ void MarchingCubesDisplay::setDisplayTransformation( const mVisTrans* nt)
 
 	model2displayspacetransform_ = visBase::Transformation::create();
 	model2displayspacetransform_->setScale(
-	    Coord3(inlinesampling.step, crlinesampling.step, zsampling.step));
+                    Coord3(inlinesampling.step_, crlinesampling.step_, zsampling.step_));
 	model2displayspacetransform_->setTranslation(
-	    Coord3(inlinesampling.start,crlinesampling.start, zsampling.start));
+                    Coord3(inlinesampling.start_,crlinesampling.start_, zsampling.start_));
 
 	*model2displayspacetransform_ *= *nt;
     }
@@ -807,7 +807,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 
 	OD::SliceType ori = activeplanes[idx]->getOrientation();
 	const float pos = ori==OD::SliceType::Z
-	    ? cs.zsamp_.start
+                          ? cs.zsamp_.start_
 	    : (ori==OD::SliceType::Inline
 		? cs.hsamp_.start_.inl()
 		: cs.hsamp_.start_.crl());

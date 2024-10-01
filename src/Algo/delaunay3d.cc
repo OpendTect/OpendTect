@@ -129,9 +129,9 @@ bool DAGTetrahedraTree::computeCoordRanges( const TypeSet<Coord3>& coordlist,
     if ( !coordlist.size() )
 	return false;
 
-    xrg.start = xrg.stop = coordlist[0].x;
-    yrg.start = yrg.stop = coordlist[0].y;
-    zrg.start = zrg.stop = coordlist[0].z;
+    xrg.start_ = xrg.stop_ = coordlist[0].x;
+    yrg.start_ = yrg.stop_ = coordlist[0].y;
+    zrg.start_ = zrg.stop_ = coordlist[0].z;
 
     for ( int idx=1; idx<coordlist.size(); idx++ )
     {

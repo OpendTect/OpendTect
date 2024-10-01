@@ -252,7 +252,7 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 	for ( int iseg=0; iseg<ii.segments_.size(); iseg++ )
 	{
 	    const PosInfo::LineData::Segment& seg = ii.segments_[iseg];
-	    if ( !seg.start && !seg.stop )
+	    if ( !seg.start_ && !seg.stop_ )
 	    {
 #ifdef __debug__
 		std::cerr << "CBVSInfo - Empty segment: " << ii.linenr_
@@ -263,11 +263,11 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 
 	    if ( firstpos )
 	    {
-		hs.start_ = hs.stop_ = BinID( ii.linenr_, seg.start );
+		hs.start_ = hs.stop_ = BinID( ii.linenr_, seg.start_ );
 		firstpos = false;
 	    }
-	    hs.include( BinID(ii.linenr_,seg.start) );
-	    hs.include( BinID(ii.linenr_,seg.stop) );
+	    hs.include( BinID(ii.linenr_,seg.start_) );
+	    hs.include( BinID(ii.linenr_,seg.stop_) );
 	}
     }
 
@@ -284,8 +284,8 @@ bool CBVSInfo::contributesTo( const TrcKeyZSampling& cs ) const
 	 cs.hsamp_.stop_.crl() < geom_.start.crl() )
 	return false;
 
-    float zend = sd_.start + (nrsamples_-1) * sd_.step;
-    if ( sd_.start > cs.zsamp_.stop+1e-7 || zend < cs.zsamp_.start-1e-7 )
+    float zend = sd_.start_ + (nrsamples_-1) * sd_.step_;
+    if ( sd_.start_ > cs.zsamp_.stop_+1e-7 || zend < cs.zsamp_.start_-1e-7 )
 	return false;
 
     return true;

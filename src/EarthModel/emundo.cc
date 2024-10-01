@@ -120,8 +120,8 @@ SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( Horizon3D* hor,
     : horizon_( hor )
     , oldarr_( oldarr )
     , newarr_( 0 )
-    , oldorigin_( hor->geometry().geometryElement()->rowRange().start,
-		  hor->geometry().geometryElement()->colRange().start )
+    , oldorigin_( hor->geometry().geometryElement()->rowRange().start_,
+                  hor->geometry().geometryElement()->colRange().start_ )
 {}
 
 
@@ -155,9 +155,9 @@ bool SetAllHor3DPosUndoEvent::unDo()
     {
 	newarr_ = horizon_->createArray2D( nullptr );
 	neworigin_.row() =
-		horizon_->geometry().geometryElement()->rowRange().start;
+                horizon_->geometry().geometryElement()->rowRange().start_;
 	neworigin_.col() =
-		horizon_->geometry().geometryElement()->colRange().start;
+                horizon_->geometry().geometryElement()->colRange().start_;
     }
 
     if ( !newarr_ )
@@ -190,38 +190,38 @@ bool SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 
     StepInterval<int> curcolrg = surf->colRange();
     const StepInterval<int> targetcolrg( origin.col(),
-	origin.col()+curcolrg.step*(arr.info().getSize(1)-1), curcolrg.step );
+                                         origin.col()+curcolrg.step_*(arr.info().getSize(1)-1), curcolrg.step_ );
 
-    while ( curcolrg.start-curcolrg.step>=targetcolrg.start )
+    while ( curcolrg.start_-curcolrg.step_>=targetcolrg.start_ )
     {
-	const int newcol = curcolrg.start-curcolrg.step;
+        const int newcol = curcolrg.start_-curcolrg.step_;
 	surf->insertCol( newcol );
-	curcolrg.start = newcol;
+        curcolrg.start_ = newcol;
     }
 
-    while ( curcolrg.stop+curcolrg.step<=targetcolrg.stop )
+    while ( curcolrg.stop_+curcolrg.step_<=targetcolrg.stop_ )
     {
-	const int newcol = curcolrg.stop+curcolrg.step;
+        const int newcol = curcolrg.stop_+curcolrg.step_;
 	surf->insertCol( newcol );
-	curcolrg.stop = newcol;
+        curcolrg.stop_ = newcol;
     }
 
     StepInterval<int> currowrg = surf->rowRange();
     const StepInterval<int> targetrowrg( origin.row(),
-	origin.row()+currowrg.step*(arr.info().getSize(0)-1), currowrg.step );
+                                         origin.row()+currowrg.step_*(arr.info().getSize(0)-1), currowrg.step_ );
 
-    while ( currowrg.start-currowrg.step>=targetrowrg.start )
+    while ( currowrg.start_-currowrg.step_>=targetrowrg.start_ )
     {
-	const int newrow = currowrg.start-currowrg.step;
+        const int newrow = currowrg.start_-currowrg.step_;
 	surf->insertCol( newrow );
-	currowrg.start = newrow;
+        currowrg.start_ = newrow;
     }
 
-    while ( currowrg.stop+currowrg.step<=targetrowrg.stop )
+    while ( currowrg.stop_+currowrg.step_<=targetrowrg.stop_ )
     {
-	const int newrow = currowrg.stop+currowrg.step;
+        const int newrow = currowrg.stop_+currowrg.step_;
 	surf->insertCol( newrow );
-	currowrg.stop = newrow;
+        currowrg.stop_ = newrow;
     }
 
     if ( currowrg!=targetrowrg || curcolrg!=targetcolrg )
@@ -231,14 +231,14 @@ bool SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
 	    return false;
 
 	tmparr.setAll( mUdf(float) );
-	Array2DPaste( tmparr, arr, currowrg.nearestIndex( targetrowrg.start ),
-		      curcolrg.nearestIndex( targetcolrg.start ), false );
+        Array2DPaste( tmparr, arr, currowrg.nearestIndex( targetrowrg.start_ ),
+                      curcolrg.nearestIndex( targetcolrg.start_ ), false );
 
 	return horizon_->setArray2D( tmparr, false, 0, true );
     }
 
-    const RowCol start( targetrowrg.start, targetcolrg.start );
-    const RowCol stop( targetrowrg.stop, targetcolrg.stop );
+    const RowCol start( targetrowrg.start_, targetcolrg.start_ );
+    const RowCol stop( targetrowrg.stop_, targetcolrg.stop_ );
     horizon_->geometry().geometryElement()->expandWithUdf( start, stop );
 
     return horizon_->setArray2D( arr, false, 0, false );

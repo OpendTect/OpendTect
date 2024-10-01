@@ -270,8 +270,8 @@ void uiSaveImageDlg::sizeChg( CallBacker* cb )
     }
     else
     {
-	fldranges_.start = heightfld_->box()->getFValue();
-	fldranges_.stop = widthfld_->box()->getFValue();
+	fldranges_.start_ = heightfld_->box()->getFValue();
+	fldranges_.stop_ = widthfld_->box()->getFValue();
 	updateSizes();
     }
 
@@ -287,10 +287,10 @@ void uiSaveImageDlg::unitChg( CallBacker* )
     Geom::Size2D<float> size = !sel ? sizecm_ : sizeinch_;
 
     widthfld_->box()->setValue( size.width() );
-    fldranges_.stop = size.width();
+    fldranges_.stop_ = size.width();
 
     heightfld_->box()->setValue( size.height() );
-    fldranges_.start = size.height();
+    fldranges_.start_ = size.height();
 
     updateSizes();
     setNotifiers( true );
@@ -303,7 +303,7 @@ void uiSaveImageDlg::lockChg( CallBacker* )
 
     const float width = widthfld_->box()->getFValue();
     heightfld_->box()->setValue( width / aspectratio_ );
-    fldranges_.start = (float) ( width / aspectratio_ );
+    fldranges_.start_ = (float) ( width / aspectratio_ );
     updateSizes();
 }
 
@@ -318,8 +318,8 @@ void uiSaveImageDlg::dpiChg( CallBacker* )
 
 void uiSaveImageDlg::updateSizes()
 {
-    const float width = fldranges_.stop;
-    const float height = fldranges_.start;
+    const float width = fldranges_.stop_;
+    const float height = fldranges_.start_;
     if ( mIsZero(width,mDefEps) || mIsZero(height,mDefEps) )
 	return;
 
@@ -473,12 +473,12 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
     if ( par.get(sKeyHeight(),val) )
     {
 	(ispixel ? pixheightfld_ : heightfld_)->box()->setValue( val );
-	if ( !ispixel ) fldranges_.start = val;
+	if ( !ispixel ) fldranges_.start_ = val;
     }
     if ( par.get(sKeyWidth(),val) )
     {
 	(ispixel ? pixwidthfld_ : widthfld_)->box()->setValue( val );
-	if ( !ispixel ) fldranges_.stop = val;
+	if ( !ispixel ) fldranges_.stop_ = val;
     }
 
     int dpi;

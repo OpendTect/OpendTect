@@ -390,14 +390,14 @@ bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
 	allchanged_ = true;
     else
     {
-	changepos_[mX].start = xorigin;
-	changepos_[mX].stop = xorigin+arr.info().getSize(mX)-1;
+	changepos_[mX].start_ = xorigin;
+	changepos_[mX].stop_ = xorigin+arr.info().getSize(mX)-1;
 
-	changepos_[mY].start = yorigin;
-	changepos_[mY].stop = yorigin+arr.info().getSize(mY)-1;
+	changepos_[mY].start_ = yorigin;
+	changepos_[mY].stop_ = yorigin+arr.info().getSize(mY)-1;
 
-	changepos_[mZ].start = zorigin;
-	changepos_[mZ].stop = zorigin+arr.info().getSize(mZ)-1;
+	changepos_[mZ].start_ = zorigin;
+	changepos_[mZ].stop_ = zorigin+arr.info().getSize(mZ)-1;
 	allchanged_ = false;
     }
 
@@ -539,12 +539,12 @@ protected:
 	    return false;
 
 	Interval<int> dimranges[3];
-	dimranges[0].start = mc2i_.originx_;
-	dimranges[0].stop = mc2i_.originx_ + mc2i_.size_[mX]-1;
-	dimranges[1].start = mc2i_.originy_;
-	dimranges[1].stop = mc2i_.originy_ + mc2i_.size_[mY]-1;
-	dimranges[2].start = mc2i_.originz_;
-	dimranges[2].stop = mc2i_.originz_ + mc2i_.size_[mZ]-1;
+	dimranges[0].start_ = mc2i_.originx_;
+	dimranges[0].stop_ = mc2i_.originx_ + mc2i_.size_[mX]-1;
+	dimranges[1].start_ = mc2i_.originy_;
+	dimranges[1].stop_ = mc2i_.originy_ + mc2i_.size_[mY]-1;
+	dimranges[2].start_ = mc2i_.originz_;
+	dimranges[2].stop_ = mc2i_.originz_ + mc2i_.size_[mZ]-1;
 
 	TypeSet<od_int64> offsets;
 	TypeSet<int> vals;

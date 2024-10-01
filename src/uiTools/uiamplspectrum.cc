@@ -133,7 +133,7 @@ void uiAmplSpectrum::setDataPackID(
 	mDynamicCastGet(const FlatDataPack*,dp,datapack.ptr());
 	if ( dp )
 	{
-	    setup_.nyqvistspspace_ = (float) (dp->posData().range(false).step);
+	    setup_.nyqvistspspace_ = (float) (dp->posData().range(false).step_);
 	    setData( dp->data() );
 	}
     }
@@ -281,8 +281,8 @@ void uiAmplSpectrum::putDispData( CallBacker* cb )
     const float maxfreq = fft_->getNyqvist( setup_.nyqvistspspace_ ) * freqfact;
     posrange_.set( 0, maxfreq );
     rangefld_->setValue( posrange_ );
-    const float step = (posrange_.stop-posrange_.start)/25.f;
-    stepfld_->box()->setInterval( posrange_.start, posrange_.stop, step );
+    const float step = (posrange_.stop_-posrange_.start_)/25.f;
+    stepfld_->box()->setInterval( posrange_.start_, posrange_.stop_, step );
     stepfld_->box()->setValue( maxfreq/5 );
     disp_->yAxis(false)->setCaption( dbscale ? tr("Power (dB)")
 					     : tr("Amplitude") );
@@ -304,18 +304,18 @@ void uiAmplSpectrum::getSpectrumData(Array1DImpl<float>& data, bool normalized)
 void uiAmplSpectrum::dispRangeChgd( CallBacker* )
 {
     StepInterval<float> rg = rangefld_->getFInterval();
-    rg.step = stepfld_->box()->getFValue();
-    if ( mIsZero(rg.step,mDefEpsF) || rg.step<0 )
-	rg.step = ( rg.stop - rg.start )/5;
+    rg.step_ = stepfld_->box()->getFValue();
+    if ( mIsZero(rg.step_,mDefEpsF) || rg.step_<0 )
+	rg.step_ = ( rg.stop_ - rg.start_ )/5;
 
-    const float dstart = rg.start - posrange_.start;
-    const float dstop = rg.stop - posrange_.stop;
+    const float dstart = rg.start_ - posrange_.start_;
+    const float dstop = rg.stop_ - posrange_.stop_;
     const bool startok = mIsZero(dstart,1e-5) || dstart > 0;
     const bool stopok = mIsZero(dstop,1e-5) || dstop < 0;
     if ( !startok || !stopok || rg.isRev() )
     {
 	rg.setInterval( posrange_ );
-	rg.step = ( rg.stop - rg.start )/5;
+	rg.step_ = ( rg.stop_ - rg.start_ )/5;
 	rangefld_->setValue( posrange_ );
     }
 
@@ -371,7 +371,7 @@ void uiAmplSpectrum::valChgd( CallBacker* cb )
     if ( !disp )
 	return;
 
-    const float ratio = (xpos-posrange_.start)/posrange_.width();
+    const float ratio = (xpos-posrange_.start_)/posrange_.width();
     const float specsize = mCast( float, specvals_->info().getSize(0) );
     const int specidx = mNINT32( ratio * specsize );
     const TypeSet<float>& specvals = disp_->yVals();

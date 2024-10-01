@@ -150,17 +150,17 @@ int uiDial::step() const
 
 void uiDial::setInterval( const StepInterval<int>& intv )
 {
-    setMinValue( intv.start );
-    setMaxValue( intv.stop );
-    setStep( intv.step );
+    setMinValue( intv.start_ );
+    setMaxValue( intv.stop_ );
+    setStep( intv.step_ );
 }
 
 
 void uiDial::getInterval( StepInterval<int>& intv ) const
 {
-    intv.start = minValue();
-    intv.stop = maxValue();
-    intv.step = step();
+    intv.start_ = minValue();
+    intv.stop_ = maxValue();
+    intv.step_ = step();
 }
 
 

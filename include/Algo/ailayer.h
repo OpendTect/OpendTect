@@ -444,6 +444,6 @@ inline const Interval<float> validVelocityRange()
 inline const Interval<float> validImpRange()
 {
     return Interval<float> (
-	    validDensityRange().start*validVelocityRange().start,
-	    validDensityRange().stop*validVelocityRange().stop );
+	    validDensityRange().start_*validVelocityRange().start_,
+	    validDensityRange().stop_*validVelocityRange().stop_ );
 }

@@ -933,8 +933,8 @@ DataPointSet* DataPointSet::getSubselected( int maxsz,
 		    const Interval<float>* rg = (*rgs)[icol];
 		    if ( rg )
 		    {
-			if ( (!mIsUdf(rg->start) && val < rg->start)
-			   || (!mIsUdf(rg->stop) && val > rg->stop) )
+			if ( (!mIsUdf(rg->start_) && val < rg->start_)
+			     || (!mIsUdf(rg->stop_) && val > rg->stop_) )
 			    { canuse = false; break; }
 		    }
 		}
@@ -1141,7 +1141,7 @@ bool DPSFromVolumeFiller::doWork( od_int64 start, od_int64 stop, int thridx )
     const ZSampling zsamp = sdp_.zRange();
     const int nrz = zsamp.nrSteps() + 1;
     const int nrtrcs = sdp_.nrTrcs();
-    const SamplingData<float> sd( zsamp.start, zsamp.step );
+    const SamplingData<float> sd( zsamp.start_, zsamp.step_ );
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	const DataPointSet::RowID rid = mCast(int,idx);

@@ -245,7 +245,7 @@ float Strat::LaySeqAttribCalc::getLocalValue( const LayerSequence& seq,
 	mRetUdfVal;
 
     const ObjectSet<Layer>& lays = seq.layers();
-    if ( statupscl_ == Stats::TakeNearest || zrg.stop < zrg.start )
+    if ( statupscl_ == Stats::TakeNearest || zrg.stop_ < zrg.start_ )
     {
 	const float depth = zrg.center();
 	const int ilay = seq.layerIdxAtZ( depth );
@@ -501,10 +501,10 @@ int Strat::LayModAttribCalc::nextStep()
 	bool paststop = false;
 	if ( !mIsUdf(stoplvldpth) )
 	{
-	    if ( zrg.start > stoplvldpth )
+	    if ( zrg.start_ > stoplvldpth )
 		paststop = true;
-	    else if ( zrg.stop > stoplvldpth )
-		zrg.stop = stoplvldpth;
+	    else if ( zrg.stop_ > stoplvldpth )
+		zrg.stop_ = stoplvldpth;
 	}
 
 	if ( paststop )

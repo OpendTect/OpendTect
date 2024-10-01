@@ -28,19 +28,19 @@ public:
     {
 	if ( curpos_.row()==-1 )
 	{
-	    curpos_.row() = rowrg_.start;
-	    curpos_.col() = colrg_.start;
+	    curpos_.row() = rowrg_.start_;
+	    curpos_.col() = colrg_.start_;
 	}
 	else
 	{
-	    curpos_.col() += colrg_.step;
+	    curpos_.col() += colrg_.step_;
 	    if ( !colrg_.includes( curpos_.col(), false ) )
 	    {
-		curpos_.row() += rowrg_.step;
+		curpos_.row() += rowrg_.step_;
 		if ( !rowrg_.includes( curpos_.row(), false ) )
 		    return -1;
 
-		curpos_.col() = colrg_.start;
+		curpos_.col() = colrg_.start_;
 	    }
 	}
 
@@ -75,7 +75,7 @@ void RowColSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 {
     pids.erase();
     const StepInterval<int> rowrg = rowRange();
-    if ( rowrg.start>rowrg.stop )
+    if ( rowrg.start_>rowrg.stop_ )
 	return;
 
     const int nrrows = rowrg.nrSteps()+1;
@@ -85,7 +85,7 @@ void RowColSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
     {
 	rc.row() = rowrg.atIndex( rowidx );
 	const StepInterval<int> colrg = colRange( rc.row() );
-	if ( colrg.start>colrg.stop )
+	if ( colrg.start_>colrg.stop_ )
 	    continue;
 
 	const int nrcols = colrg.nrSteps()+1;
@@ -107,7 +107,7 @@ StepInterval<int> RowColSurface::colRange() const
     StepInterval<int> res( INT_MAX, INT_MIN, 1 );
 
     const StepInterval<int> rowrg = rowRange();
-    if ( rowrg.start>rowrg.stop )
+    if ( rowrg.start_>rowrg.stop_ )
 	return res;
 
     const int nrrows = rowrg.nrSteps()+1;
@@ -116,12 +116,12 @@ StepInterval<int> RowColSurface::colRange() const
     {
 	const int row = rowrg.atIndex( rowidx );
 	const StepInterval<int> colrg = colRange( row );
-	if ( colrg.start>colrg.stop )
+	if ( colrg.start_>colrg.stop_ )
 	    continue;
 
-	res.include( colrg.start, false );
-	res.include( colrg.stop, false );
-	res.step = mMAX( res.step, colrg.step );
+	res.include( colrg.start_, false );
+	res.include( colrg.stop_, false );
+	res.step_ = mMAX( res.step_, colrg.step_ );
     }
 
     return res;

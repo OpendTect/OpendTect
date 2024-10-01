@@ -76,10 +76,10 @@ static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
 
     const Interval<float> xrg( poly.getRange(true) );
     const Interval<float> yrg( poly.getRange(false) );
-    hs.start_.inl() = (int)Math::Floor( xrg.start + 0.5 );
-    hs.start_.crl() = (int)Math::Floor( yrg.start + 0.5 );
-    hs.stop_.inl() = (int)Math::Ceil( xrg.stop - 0.5 );
-    hs.stop_.crl() = (int)Math::Ceil( yrg.stop - 0.5 );
+    hs.start_.inl() = (int)Math::Floor( xrg.start_ + 0.5 );
+    hs.start_.crl() = (int)Math::Floor( yrg.start_ + 0.5 );
+    hs.stop_.inl() = (int)Math::Ceil( xrg.stop_ - 0.5 );
+    hs.stop_.crl() = (int)Math::Ceil( yrg.stop_ - 0.5 );
     SI().snap( hs.start_, BinID(1,1) );
     SI().snap( hs.stop_, BinID(-1,-1) );
 }
@@ -98,7 +98,7 @@ bool Pos::PolyProvider3D::initialize( TaskRunner* )
 	return false;
 
     curbid_.crl() -= hs_.step_.crl();
-    curz_ = zrg_.stop;
+    curz_ = zrg_.stop_;
     return true;
 }
 
@@ -106,7 +106,7 @@ bool Pos::PolyProvider3D::initialize( TaskRunner* )
 bool Pos::PolyProvider3D::toNextPos()
 {
     curbid_.crl() += hs_.step_.crl();
-    curz_ = zrg_.start;
+    curz_ = zrg_.start_;
 
     while ( true )
     {
@@ -129,8 +129,8 @@ bool Pos::PolyProvider3D::toNextPos()
 
 bool Pos::PolyProvider3D::toNextZ()
 {
-    curz_ += zrg_.step;
-    return curz_ > zrg_.stop + (1e-6*zrg_.step) ? toNextPos() : true;
+    curz_ += zrg_.step_;
+    return curz_ > zrg_.stop_ + (1e-6*zrg_.step_) ? toNextPos() : true;
 }
 
 
@@ -143,8 +143,8 @@ bool Pos::PolyProvider3D::includes( const BinID& bid, float z ) const
 
     if ( mIsUdf(z) ) return true;
 
-    const float zeps = zrg_.step * 1e-6f;
-    return z > zrg_.start - zeps && z < zrg_.stop + zeps;
+    const float zeps = zrg_.step_ * 1e-6f;
+    return z > zrg_.start_ - zeps && z < zrg_.stop_ + zeps;
 }
 
 
@@ -247,7 +247,7 @@ void Pos::PolyProvider3D::getZRange( Interval<float>& zrg ) const
     assign( zrg, zrg_ );
     mDynamicCastGet(StepInterval<float>*,szrg,&zrg)
     if ( szrg )
-	szrg->step = zrg_.step;
+	    szrg->step_ = zrg_.step_;
 }
 
 

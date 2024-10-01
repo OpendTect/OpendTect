@@ -113,8 +113,8 @@ void HorizonSorter::calcBoundingBox()
 	    continue;
 	}
 
-	tks_.include( BinID(rrg.start,crg.start) );
-	tks_.include( BinID(rrg.stop,crg.stop) );
+	tks_.include( BinID(rrg.start_,crg.start_) );
+	tks_.include( BinID(rrg.stop_,crg.stop_) );
     }
 }
 
@@ -274,8 +274,8 @@ int HorizonSorter::nextStep()
     {
 	if ( is2d_ )
 	{
-	    binid_.crl() += trcrgs_[previnl].step;
-	    if ( binid_.crl() > trcrgs_[previnl].stop )
+	    binid_.crl() += trcrgs_[previnl].step_;
+	    if ( binid_.crl() > trcrgs_[previnl].stop_ )
 		binid_.inl()++;
 	}
 
@@ -287,7 +287,7 @@ int HorizonSorter::nextStep()
 	}
 
 	if ( is2d_ && binid_.inl() != previnl )
-	    binid_.crl() = trcrgs_[binid_.inl()].start;
+	    binid_.crl() = trcrgs_[binid_.inl()].start_;
 
 	const int nrhors = horizons_.size();
 	mAllocLargeVarLenArr( float, depths, nrhors );

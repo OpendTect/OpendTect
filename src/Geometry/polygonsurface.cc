@@ -329,11 +329,11 @@ void PolygonSurface::getPolygonConcaveTriangles( int polygon,
 
     const Coord3 dir = getPolygonConcaveDir( polygon );
 
-    for ( int idx=colrg.start; idx<=colrg.stop; idx += colrg.step )
+    for ( int idx=colrg.start_; idx<=colrg.stop_; idx += colrg.step_ )
     {
-    	for ( int idy=idx+colrg.step; idy<=colrg.stop; idy += colrg.step )
+        for ( int idy=idx+colrg.step_; idy<=colrg.stop_; idy += colrg.step_ )
     	{
-	    for ( int idz=idy+colrg.step; idz<=colrg.stop; idz += colrg.step )
+            for ( int idz=idy+colrg.step_; idz<=colrg.stop_; idz += colrg.step_ )
 	    {
 		const Coord3 v0 = getKnot( RowCol(polygon,idx) );
 		const Coord3 v1 = getKnot( RowCol(polygon,idy) );
@@ -392,10 +392,10 @@ void PolygonSurface::getExceptionEdges( int plg, TypeSet<int>& edges ) const
     }
 
     const StepInterval<int> colrg = colRange( plg );
-    for ( int idx=colrg.start; idx<colrg.stop-colrg.step; idx += colrg.step )
+    for ( int idx=colrg.start_; idx<colrg.stop_-colrg.step_; idx += colrg.step_ )
     {
 	const Coord3 v0 = getKnot( RowCol(plg,idx) );
-	for ( int idy=idx+2*colrg.step; idy<=colrg.stop; idy += colrg.step )
+        for ( int idy=idx+2*colrg.step_; idy<=colrg.stop_; idy += colrg.step_ )
 	{
 	    if ( includesEdge(edges,idx,idy) )
 	       	continue;
@@ -403,10 +403,10 @@ void PolygonSurface::getExceptionEdges( int plg, TypeSet<int>& edges ) const
 	    const Coord3 v1 = getKnot( RowCol(plg,idy) );	    
 	    bool intersecting = false;
 
-	    for ( int idz=colrg.start; idz<colrg.stop; idz += colrg.step )
+            for ( int idz=colrg.start_; idz<colrg.stop_; idz += colrg.step_ )
 	    {
 		const Coord3 p0 = getKnot( RowCol(plg,idz) );
-		const Coord3 p1 = getKnot( RowCol(plg,idz+colrg.step) );
+                const Coord3 p1 = getKnot( RowCol(plg,idz+colrg.step_) );
 		if ( linesegmentsIntersecting( v0, v1, p0, p1 ) )
 		{
 		    intersecting = true;
@@ -416,8 +416,8 @@ void PolygonSurface::getExceptionEdges( int plg, TypeSet<int>& edges ) const
 
 	    if ( !intersecting ) 
 		intersecting = linesegmentsIntersecting( v0, v1,
-			getKnot( RowCol(plg,colrg.start) ), 
-			getKnot( RowCol(plg,colrg.stop) ) );
+                                                         getKnot( RowCol(plg,colrg.start_) ),
+                                                         getKnot( RowCol(plg,colrg.stop_) ) );
 
 	    if ( intersecting )
 	    {

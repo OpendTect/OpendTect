@@ -15,8 +15,7 @@ ________________________________________________________________________
 #endif
 #include <utility>
 
-
-typedef std::pair<Index_Type,Index_Type> Index_Type_Pair;
+using Index_Type_Pair = std::pair<Index_Type,Index_Type>;
 
 
 /*!\brief A pair of numbers; base class for BinID et al. */
@@ -24,12 +23,12 @@ typedef std::pair<Index_Type,Index_Type> Index_Type_Pair;
 mExpClass(Basic) IdxPair : public Index_Type_Pair
 {
 public:
+using IdxType = Index_Type;
 
-    typedef Index_Type		IdxType;
+				IdxPair();
+				IdxPair(IdxType,IdxType);
+				~IdxPair();
 
-    				IdxPair() : Index_Type_Pair(0,0)	{}
-    				IdxPair( IdxType f, IdxType s )
-				    : Index_Type_Pair(f,s)		{}
     inline bool			operator ==(const IdxPair&) const;
     inline bool			operator !=( const IdxPair& oth ) const
 						{ return !(*this == oth); }
@@ -38,9 +37,9 @@ public:
     void			setUdf()	{ *this = udf(); }
     static const IdxPair&	udf();
 
-    inline IdxType&		operator[]( int idx )
+    inline od_int32&		operator[]( int idx )
 				{ return idx ? second : first; }
-    inline IdxType		operator[]( int idx ) const
+    inline od_int32		operator[]( int idx ) const
 				{ return idx ? second : first; }
 
     const char*			getUsrStr(const char* prefx,const char* sep,

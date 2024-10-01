@@ -166,10 +166,10 @@ GapDecon::GapDecon( Desc& desc )
 
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1.f/zFactor() );
-    if ( !SI().zRange(true).includes(gate_.start,false) )
-	gate_.start = SI().zRange(true).start;
-    if ( !SI().zRange(true).includes(gate_.stop,false) )
-	gate_.stop = SI().zRange(true).stop;
+    if ( !SI().zRange(true).includes(gate_.start_,false) )
+	gate_.start_ = SI().zRange(true).start_;
+    if ( !SI().zRange(true).includes(gate_.stop_,false) )
+	gate_.stop_ = SI().zRange(true).stop_;
 
     mGetBool( useonlyacorr_, onlyacorrStr() );
     if ( !useonlyacorr_ )
@@ -258,7 +258,7 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
     float* crosscorr = autocorr + nlag_;//first sample of gap is at
 					//maxlag_+1 = nlag_ because minlag = 0
 
-    int absstartsampidx = mNINT32( gate_.start / refstep_ );
+    int absstartsampidx = mNINT32( gate_.start_ / refstep_ );
     int startcorr = absstartsampidx - inputdata_->z0_;
     bool usedmixed = inputdatamixed_ && inputdatamixed_->series(dataidxmixed_);
     int safestartcorr = usedmixed ? absstartsampidx-inputdatamixed_->z0_

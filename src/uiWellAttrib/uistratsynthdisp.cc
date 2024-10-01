@@ -1309,7 +1309,7 @@ void uiStratSynthDisp::handlePSViewDisp( FlatView::Viewer::VwrDest dest )
 
     mDynamicCastGet(const PreStackSyntheticData*,psds,sds.ptr());
     StepInterval<float> offsdef( psds->offsetRange() );
-    offsdef.step = psds->offsetRangeStep();
+    offsdef.step_ = psds->offsetRangeStep();
 
     offsslider_->setInterval( offsdef );
     const int idx = offsdef.nearestIndex( curoffs_ );
@@ -1362,10 +1362,10 @@ void uiStratSynthDisp::curModEdChgCB( CallBacker* )
     Interval<double> dispzrg( curvw.top(), curvw.bottom() );
     dispzrg.sort();
     const ZSampling synthzrg = sd->zRange();
-    if ( synthzrg.start < dispzrg.start || synthzrg.stop > dispzrg.stop )
+    if ( synthzrg.start_ < dispzrg.start_ || synthzrg.stop_ > dispzrg.stop_ )
     {
-	initialboundingbox_.setTop( synthzrg.start );
-	initialboundingbox_.setBottom( synthzrg.stop );
+	initialboundingbox_.setTop( synthzrg.start_ );
+	initialboundingbox_.setBottom( synthzrg.stop_ );
     }
 
     /*TODO: Find a way to set the cancel zoom icon active (except in the rare

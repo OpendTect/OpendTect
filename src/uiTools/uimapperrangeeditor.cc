@@ -56,8 +56,8 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 
     StepInterval<float> axrange = axhndler->range();
 
-    if ( !ms.range_.includes(axrange.start,true) ||
-	 !ms.range_.includes(axrange.stop,true) )
+    if ( !ms.range_.includes(axrange.start_,true) ||
+	 !ms.range_.includes(axrange.stop_,true) )
     {
 	axrange.include( ms.range_ );
 	histogramdisp_->setup().xrg( axrange );
@@ -68,8 +68,8 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
     *ctmapper_ = ms;
     ctmapper_->type_ = ColTab::MapperSetup::Fixed;
     const Interval<float> rg = ctmapper_->range_;
-    cliprg_.start = rg.isRev() ? rg.stop : rg.start;
-    cliprg_.stop = rg.isRev() ? rg.start : rg.stop;
+    cliprg_.start_ = rg.isRev() ? rg.stop_ : rg.start_;
+    cliprg_.stop_ = rg.isRev() ? rg.start_ : rg.stop_;
     setDefaultSelRange( cliprg_ );
     drawAgain();
 }
@@ -116,8 +116,8 @@ void uiMapperRangeEditor::drawPixmaps()
 
     const int disph = histogramdisp_->viewHeight();
     const int pmh = 20;
-    const int datastartpix = xax_->getPix( datarg_.start );
-    const int datastoppix = xax_->getPix( datarg_.stop );
+    const int datastartpix = xax_->getPix( datarg_.start_ );
+    const int datastoppix = xax_->getPix( datarg_.stop_ );
 
     ColTab::Sequence ctseq( *ctseq_ );
     if ( ctmapper_->flipseq_ || ctmapper_->range_.width() < 0 )
@@ -163,19 +163,19 @@ void uiMapperRangeEditor::makeSymmetricalIfNeeded( bool isstartfixed )
 	     !mIsUdf(ctmapper_->symmidval_) )
     {
 	if ( isstartfixed )
-	    cliprg_.stop = 2*ctmapper_->symmidval_ - cliprg_.start;
+	    cliprg_.stop_ = 2*ctmapper_->symmidval_ - cliprg_.start_;
 	else
-	    cliprg_.start = 2*ctmapper_->symmidval_ - cliprg_.stop;
+	    cliprg_.start_ = 2*ctmapper_->symmidval_ - cliprg_.stop_;
     }
 }
 
 
 void uiMapperRangeEditor::useClipRange()
 {
-    ctmapper_->range_.start =
-	ctmapper_->range_.isRev() ? cliprg_.stop : cliprg_.start;
-    ctmapper_->range_.stop =
-	ctmapper_->range_.isRev() ? cliprg_.start : cliprg_.stop;
+    ctmapper_->range_.start_ =
+	    ctmapper_->range_.isRev() ? cliprg_.stop_ : cliprg_.start_;
+    ctmapper_->range_.stop_ =
+	    ctmapper_->range_.isRev() ? cliprg_.start_ : cliprg_.stop_;
     rangeChanged.trigger();
 }
 

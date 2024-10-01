@@ -371,7 +371,7 @@ void VolumeRenderScalarField::setScalarField( int attr,
     const int nrtrcsdiff = sc->info().getSize(1) - dummy.nrTrcs();
     dummy.hsamp_.stop_.trcNr() += nrtrcsdiff * dummy.hsamp_.step_.trcNr();
     const int nrzdiff = sc->info().getSize(2) - dummy.nrZ();
-    dummy.zsamp_.stop += nrzdiff * dummy.zsamp_.step;
+    dummy.zsamp_.stop_ += nrzdiff * dummy.zsamp_.step_;
 
     setScalarField( attr, sc, mine, dummy, tr );
 }

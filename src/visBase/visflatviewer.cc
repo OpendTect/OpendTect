@@ -238,16 +238,16 @@ void FlatViewer::updateGridLines( bool x1 )
     const float rgwidth = !range.width() ? 1 : range.width();
     SamplingData<float> sd = x1 ? appearance().annot_.x1_.sampling_
 				: appearance().annot_.x2_.sampling_;
-    if ( mIsUdf(sd.start) || mIsUdf(sd.step) )
+    if ( mIsUdf(sd.start_) || mIsUdf(sd.step_) )
 	sd = getDefaultGridSampling( x1 );
 
-    if ( sd.start < range.start )
-	sd.start = sd.atIndex( sd.indexOnOrAfter(range.start) );
+    if ( sd.start_ < range.start_ )
+        sd.start_ = sd.atIndex( sd.indexOnOrAfter(range.start_) );
 
-    float pos = sd.start;
+    float pos = sd.start_;
     while ( range.includes( pos, false ) )
     {
-	const float relpos = (pos-range.start)/rgwidth;
+        const float relpos = (pos-range.start_)/rgwidth;
 
 	const Coord3 startpos = x1
 	    ? c00_*(1-relpos)+c10_*relpos
@@ -264,7 +264,7 @@ void FlatViewer::updateGridLines( bool x1 )
 	Interval<int> psrange( lastidx-2, lastidx -1);
 	ps->setRange( psrange );
 	gridlines->addPrimitiveSet( ps );
-	pos += sd.step;
+        pos += sd.step_;
     }
 
     gridlines->dirtyCoordinates();
@@ -306,9 +306,9 @@ Interval<float> FlatViewer::getDataRange( bool wva ) const
 
     Interval<float> res;
     if ( mIsUdf(mapper.symmidval_) )
-	clipper.getRange( mapper.cliprate_.start, mapper.cliprate_.stop, res );
+        clipper.getRange( mapper.cliprate_.start_, mapper.cliprate_.stop_, res );
     else
-	clipper.getSymmetricRange( mapper.cliprate_.start, mapper.symmidval_,
+        clipper.getSymmetricRange( mapper.cliprate_.start_, mapper.symmidval_,
 				   res );
 
     return res;

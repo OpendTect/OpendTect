@@ -66,7 +66,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 	RowCol rc = absrc - horsection_->origin_;
 	const int tilesidesize = horsection_->tilesidesize_;
 
-	rc.row() /= rrg.step; rc.col() /= crg.step;
+	rc.row() /= rrg.step_; rc.col() /= crg.step_;
 	int tilerowidx = rc.row()/tilesidesize;
 	int tilerow = rc.row()%tilesidesize;
 	if ( tilerowidx==nrrowsz && !tilerow )
@@ -98,7 +98,7 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 						    tilerowidx, tilecolidx );
 	if ( !tile )
 	{
-	    const RowCol step( rrg.step, crg.step );
+	    const RowCol step( rrg.step_, crg.step_ );
 	    const RowCol tileorigin( horsection_->origin_.row() +
 		tilerowidx*horsection_->tilesidesize_*step.row(),
 		horsection_->origin_.col() +
@@ -199,8 +199,8 @@ void HorTilesCreatorAndUpdator::updateTiles( const TypeSet<GeomPosID>* gpids,
 void HorTilesCreatorAndUpdator::updateTileArray( const StepInterval<int>& rrg,
 				      const StepInterval<int>& crg )
 {
-    const int rowsteps = horsection_->tilesidesize_ * rrg.step;
-    const int colsteps = horsection_->tilesidesize_ * crg.step;
+    const int rowsteps = horsection_->tilesidesize_ * rrg.step_;
+    const int colsteps = horsection_->tilesidesize_ * crg.step_;
     const int oldrowsize = horsection_->tiles_.info().getSize(0);
     const int oldcolsize = horsection_->tiles_.info().getSize(1);
     int newrowsize = oldrowsize;
@@ -208,24 +208,24 @@ void HorTilesCreatorAndUpdator::updateTileArray( const StepInterval<int>& rrg,
     int nrnewrowsbefore = 0;
     int nrnewcolsbefore = 0;
 
-    int diff = horsection_->origin_.row() - rrg.start;
+    int diff = horsection_->origin_.row() - rrg.start_;
     if ( diff>0 )
     {
 	nrnewrowsbefore = diff/rowsteps + ( diff%rowsteps ? 1 : 0 );
 	newrowsize += nrnewrowsbefore;
     }
 
-    diff = rrg.stop - ( horsection_->origin_.row()+oldrowsize*rowsteps );
+    diff = rrg.stop_ - ( horsection_->origin_.row()+oldrowsize*rowsteps );
     if ( diff>0 ) newrowsize += diff/rowsteps + ( diff%rowsteps ? 1 : 0 );
 
-    diff = horsection_->origin_.col() - crg.start;
+    diff = horsection_->origin_.col() - crg.start_;
     if ( diff>0 )
     {
 	nrnewcolsbefore = diff/colsteps + ( diff%colsteps ? 1 : 0 );
 	newcolsize += nrnewcolsbefore;
     }
 
-    diff = crg.stop - ( horsection_->origin_.col()+oldcolsize*colsteps );
+    diff = crg.stop_ - ( horsection_->origin_.col()+oldcolsize*colsteps );
     if ( diff>0 ) newcolsize += diff/colsteps + ( diff%colsteps ? 1 : 0 );
 
     if ( newrowsize==oldrowsize && newcolsize==oldcolsize )
@@ -261,7 +261,7 @@ HorizonSectionTile* HorTilesCreatorAndUpdator::createOneTile( int tilerowidx,
 
     const StepInterval<int> rrg = horsection_->displayedRowRange();
     const StepInterval<int> crg = horsection_->displayedColRange();
-    const RowCol step( rrg.step, crg.step );
+    const RowCol step( rrg.step_, crg.step_ );
     const RowCol tileorigin( horsection_->origin_.row() +
 		 tilerowidx*horsection_->tilesidesize_*step.row(),
 		 horsection_->origin_.col() +
@@ -344,7 +344,7 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
 	return;
 
     horsection_->tesselationlock_ = true;
-    horsection_->origin_ = RowCol( rrg.start, crg.start );
+    horsection_->origin_ = RowCol( rrg.start_, crg.start_ );
     const int nrrows = nrBlocks( rrg.nrSteps()+1,
 				 horsection_->nrcoordspertileside_, 1 );
     const int nrcols = nrBlocks( crg.nrSteps()+1,
@@ -369,7 +369,7 @@ void HorTilesCreatorAndUpdator::createAllTiles( TaskRunner* tr )
     {
 	for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
 	{
-	    const RowCol step(rrg.step,crg.step);
+	    const RowCol step(rrg.step_,crg.step_);
 	    const RowCol tileorigin(horsection_->origin_.row() +
 		tilerowidx*horsection_->tilesidesize_*step.row(),
 		horsection_->origin_.col() +

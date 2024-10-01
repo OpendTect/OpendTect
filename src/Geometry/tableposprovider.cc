@@ -134,12 +134,12 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 		else if ( bvs.nrVals() > 0 )
 		{
 		    const Interval<float> zrg( bvs.valRange(0) );
-		    if ( !mIsUdf(zrg.start) )
+		    if ( !mIsUdf(zrg.start_) )
 		    {
 			const Interval<float> sizrg( SI().zRange(false) );
 			const float siwdth = sizrg.width();
-			if ( zrg.start < sizrg.start - 10 * siwdth
-			  || zrg.stop > sizrg.stop + 10 * siwdth )
+			if ( zrg.start_ < sizrg.start_ - 10 * siwdth
+			     || zrg.stop_ > sizrg.stop_ + 10 * siwdth )
 			    zfac = 0.001;
 		    }
 		}
@@ -221,18 +221,18 @@ void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
 {
     BinIDValueSet::SPos p; bvs_.next(p);
     if ( !p.isValid() )
-	{ zrg.start = zrg.stop = 0; return; }
+    { zrg.start_ = zrg.stop_ = 0; return; }
 
     const float* val = bvs_.getVals( p );
     if ( !val )
 	{ zrg = SI().zRange(false); return; }
 
-    zrg.start = zrg.stop = *val;
+    zrg.start_ = zrg.stop_ = *val;
     while ( bvs_.next(p) )
     {
 	const float z = *bvs_.getVals(p);
-	if ( zrg.start > z ) zrg.start = z;
-	if ( zrg.stop < z ) zrg.stop = z;
+	if ( zrg.start_ > z ) zrg.start_ = z;
+	if ( zrg.stop_ < z ) zrg.stop_ = z;
     }
 }
 

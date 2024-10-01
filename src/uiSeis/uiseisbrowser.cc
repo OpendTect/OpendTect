@@ -263,7 +263,7 @@ const BinID& uiSeisBrowser::curBinID() const
 
 float uiSeisBrowser::curZ() const
 {
-    return sd_.start + tbl_->currentRow() * sd_.step;
+    return sd_.start_ + tbl_->currentRow() * sd_.step_;
 }
 
 
@@ -272,7 +272,7 @@ void uiSeisBrowser::setZ( float z )
     if ( mIsUdf(z) )
 	return;
 
-    int newrow = (int)((int)z - (int)sd_.start) / (int)sd_.step;
+    int newrow = (int)((int)z - (int)sd_.start_) / (int)sd_.step_;
     tbl_->setCurrentCell( RowCol(tbl_->currentCol(),newrow) );
 }
 
@@ -522,7 +522,7 @@ void uiSeisBrowser::fillTable()
     const CBVSInfo& info = tr_->readMgr()->info();
     const int zfac = zdomdef_->userFactor();
     const char* zunstr = zdomdef_->unitStr(false);
-    const int nrdec = Math::NrSignificantDecimals( info.sd_.step*zfac );
+    const int nrdec = Math::NrSignificantDecimals( info.sd_.step_*zfac );
 
     BufferString zvalstr;
     for ( int idx=0; idx<info.nrsamples_; idx++ )
@@ -1007,32 +1007,32 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 	    continue;
 
 	vals += v;
-	if ( v < amplrg.start )
+	if ( v < amplrg.start_ )
 	{
-	    amplrg.start = v;
-	    peakzs.start = trc.info().samplePos( isamp );
+	    amplrg.start_ = v;
+	    peakzs.start_ = trc.info().samplePos( isamp );
 	}
 
-	if ( v > amplrg.stop )
+	if ( v > amplrg.stop_ )
 	{
-	    amplrg.stop = v;
-	    peakzs.stop = trc.info().samplePos( isamp );
+	    amplrg.stop_ = v;
+	    peakzs.stop_ = trc.info().samplePos( isamp );
 	}
     }
 
-    minamplfld_->setValue( amplrg.start );
-    maxamplfld_->setValue( amplrg.stop );
+    minamplfld_->setValue( amplrg.start_ );
+    maxamplfld_->setValue( amplrg.stop_ );
 
     const int zfac = zdomdef_.userFactor();
     const int nrdec =
-		Math::NrSignificantDecimals( trc.info().sampling.step*zfac );
+	    Math::NrSignificantDecimals( trc.info().sampling.step_*zfac );
     BufferString zvalstr;
-    zvalstr.set( peakzs.start*zfac, nrdec );
+    zvalstr.set( peakzs.start_*zfac, nrdec );
     minamplatfld_->setText( zvalstr );
-    zvalstr.set( peakzs.stop*zfac, nrdec );
+    zvalstr.set( peakzs.stop_*zfac, nrdec );
     maxamplatfld_->setText( zvalstr );
 
-    setup_.nyqvistspspace_ = trc.info().sampling.step;
+    setup_.nyqvistspspace_ = trc.info().sampling.step_;
     Array1DImpl<float> a1d( vals.size() );
     for ( int idx=0; idx<vals.size(); idx++ )
 	a1d.set( idx, vals[idx] );

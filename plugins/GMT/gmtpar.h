@@ -91,15 +91,15 @@ mGlobal(GMT) GMTParFactory& GMTPF();
     Interval<float> xrg, yrg, mapdim; \
     get( ODGMT::sKeyXRange(), xrg ); \
     get( ODGMT::sKeyYRange(), yrg ); \
-    str = "-R"; str += xrg.start; str += "/"; \
-    str += xrg.stop; str += "/"; \
-    str += yrg.start; str += "/"; str += yrg.stop;
+    str = "-R"; str += xrg.start_; str += "/"; \
+    str += xrg.stop_; str += "/"; \
+    str += yrg.start_; str += "/"; str += yrg.stop_;
 
 #define mGetProjString( str, projkey ) \
     Interval<float> dim; \
     get( ODGMT::sKeyMapDim(), dim ); \
-    str += "-J"; str += projkey; str += dim.start; str += "c/"; \
-    str += dim.stop; str += "c";
+    str += "-J"; str += projkey; str += dim.start_; str += "c/"; \
+    str += dim.stop_; str += "c";
 
 #define mGetColorString( col, str ) \
     str = (int) col.r(); \

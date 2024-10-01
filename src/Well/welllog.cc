@@ -101,18 +101,18 @@ void Well::LogSet::updateDahIntv( const Well::Log& wl )
     if ( wl.isEmpty() )
 	return;
 
-    if ( mIsUdf(dahintv_.start) )
+    if ( mIsUdf(dahintv_.start_) )
     {
-	dahintv_.start = wl.dah(0);
-	dahintv_.stop = wl.dah(wl.size()-1);
+        dahintv_.start_ = wl.dah(0);
+        dahintv_.stop_ = wl.dah(wl.size()-1);
     }
     else
     {
-	if ( dahintv_.start > wl.dah(0) )
-	    dahintv_.start = wl.dah(0);
+        if ( dahintv_.start_ > wl.dah(0) )
+            dahintv_.start_ = wl.dah(0);
 
-	if ( dahintv_.stop < wl.dah(wl.size()-1) )
-	    dahintv_.stop = wl.dah(wl.size()-1);
+        if ( dahintv_.stop_ < wl.dah(wl.size()-1) )
+            dahintv_.stop_ = wl.dah(wl.size()-1);
     }
 }
 
@@ -628,7 +628,7 @@ void Well::Log::setValueRange( const Interval<float>& valrg )
     if ( range_.isUdf() || isLoaded() )
 	return;
 
-    iscode_ = valIsCode(range_.start,1e-3f) && valIsCode(range_.stop,1e-3f);
+    iscode_ = valIsCode(range_.start_,1e-3f) && valIsCode(range_.stop_,1e-3f);
 }
 
 #define mDefZStep 0.1524f
@@ -638,7 +638,7 @@ void Well::Log::prepareForDisplay()
     const float zfacmtofeet = SI().zIsTime() && SI().depthsInFeet()
 							? mToFeetFactorF
 							: 1.f;
-    const float startdah = dahRange().start;
+    const float startdah = dahRange().start_;
     const int startidx = indexOf( startdah );
     for ( int idx=startidx+1; idx<size(); idx++ )
     {
@@ -685,10 +685,10 @@ void Well::Log::removeTopBottomUdfs()
     {
 	if ( !mIsUdf(vals_[idx]) )
 	    break;
-	defrg.start++;
+        defrg.start_++;
     }
 
-    for ( int idx=sz-1; idx>=defrg.start; idx-- )
+    for ( int idx=sz-1; idx>=defrg.start_; idx-- )
     {
 	if ( !mIsUdf(vals_[idx]) )
 	    break;
@@ -697,14 +697,14 @@ void Well::Log::removeTopBottomUdfs()
 	vals_.removeSingle( idx );
     }
 
-    if ( defrg.start == 0 )
+    if ( defrg.start_ == 0 )
     {
 	updateDahRange();
 	return;
     }
 
     TypeSet<float> newval, newdah;
-    for ( int idx=defrg.start; idx<size(); idx++ )
+    for ( int idx=defrg.start_; idx<size(); idx++ )
     {
 	newdah += dah_[idx];
 	newval += vals_[idx];
@@ -934,7 +934,7 @@ mDefParallelCalc5Pars(LogUpScaler, od_static_tr("LogUpScaler", "Upscale a log"),
     const bool, logisvel)
 mDefParallelCalcBody( ,
 const float dah =  logout_.dah(idx);
-const float val = Well::LogDataExtracter::calcVal(login_, dah, dahrg_.step,
+const float val = Well::LogDataExtracter::calcVal(login_, dah, dahrg_.step_,
 						    uptype_, logisvel_);
 logout_.setValue(idx, val);
 ,
@@ -987,9 +987,9 @@ Well::Log* Well::Log::createSampledLog( const StepInterval<float>& dahrg,
     Well::Log* wl = new Well::Log;
     StepInterval<float> outdahrg( dahrg );
     outdahrg.sort();
-    outdahrg.stop = Math::Floor( outdahrg.stop/outdahrg.step ) * outdahrg.step;
-    outdahrg.start =
-		Math::Floor( outdahrg.start/outdahrg.step ) * outdahrg.step;
+    outdahrg.stop_ = Math::Floor( outdahrg.stop_/outdahrg.step_ ) * outdahrg.step_;
+    outdahrg.start_ =
+            Math::Floor( outdahrg.start_/outdahrg.step_ ) * outdahrg.step_;
     const int nr = outdahrg.nrSteps() + 1;
     for (int idx=0; idx<nr; idx++ )
     {

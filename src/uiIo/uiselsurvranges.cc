@@ -84,7 +84,7 @@ bool uiSelZRange::isSIDomain() const
 bool uiSelZRange::canSnap() const
 {
     return isSIDomain() &&
-	SI().zRange(false).step > cMaxUnsnappedZStep / zDomain().userFactor();
+            SI().zRange(false).step_ > cMaxUnsnappedZStep / zDomain().userFactor();
 }
 
 
@@ -127,9 +127,9 @@ void uiSelZRange::makeInpFields( bool wstep )
 
     const bool cansnap = canSnap();
     const int nrdecimals = cansnap ? 0
-			 : zDomain().def_.nrZDecimals( limitrg.step );
-    const StepInterval<int> izrg( mNINT32(limitrg.start),
-				  mNINT32(limitrg.stop), mNINT32(limitrg.step));
+                                   : zDomain().def_.nrZDecimals( limitrg.step_ );
+    const StepInterval<int> izrg( mNINT32(limitrg.start_),
+                                  mNINT32(limitrg.stop_), mNINT32(limitrg.step_));
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
     startfld_->attach( rightOf, lblfld_ );
@@ -156,10 +156,10 @@ void uiSelZRange::makeInpFields( bool wstep )
 					 "Z step" );
 	if ( nrdecimals==0 )
 	    stepfld_->box()->setInterval(
-		StepInterval<int>(izrg.step,izrg.width(),izrg.step) );
+                        StepInterval<int>(izrg.step_,izrg.width(),izrg.step_) );
 	else
 	    stepfld_->box()->setInterval(
-		StepInterval<float>(limitrg.step,limitrg.width(),limitrg.step));
+                        StepInterval<float>(limitrg.step_,limitrg.width(),limitrg.step_));
 	stepfld_->box()->doSnap( cansnap );
 	stepfld_->attach( rightOf, stopfld_ );
     }
@@ -167,10 +167,10 @@ void uiSelZRange::makeInpFields( bool wstep )
     if ( isSIDomain() )
     {
 	const ZSampling workzrg = SI().zRange( true );
-	startfld_->setValue( workzrg.start );
-	stopfld_->setValue( workzrg.stop );
+        startfld_->setValue( workzrg.start_ );
+        stopfld_->setValue( workzrg.stop_ );
 	if ( wstep )
-	    stepfld_->box()->setValue( workzrg.step );
+            stepfld_->box()->setValue( workzrg.step_ );
     }
 
     const CallBack cb( mCB(this,uiSelZRange,valChg) );
@@ -186,7 +186,7 @@ ZSampling uiSelZRange::getRange() const
 		   stepfld_ ? stepfld_->box()->getFValue() : 1.f );
     zrg.scale( 1.f / zDomain().userFactor() );
     if ( !stepfld_ && isSIDomain() )
-	zrg.step = SI().zRange(true).step;
+        zrg.step_ = SI().zRange(true).step_;
     return zrg;
 }
 
@@ -196,19 +196,19 @@ static void adaptRangeToLimits( const StepInterval<T>& rg,
 				StepInterval<T>& limit,
 				StepInterval<T>& newrg )
 {
-    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+    if ( mIsUdf(rg.start_) || mIsUdf(rg.stop_) )
     {
 	newrg = rg;
 	return;
     }
 
     const double eps = 1e-4;
-    if ( mIsZero(limit.step,eps) || mIsUdf(limit.step) )
-	limit.step = 1;
+    if ( mIsZero(limit.step_,eps) || mIsUdf(limit.step_) )
+        limit.step_ = 1;
 
-    const double realstartdif = double(rg.start) - double(limit.start);
-    const double realstartidx = realstartdif / double(limit.step);
-    const double realstepfac = double(rg.step) / double(limit.step);
+    const double realstartdif = double(rg.start_) - double(limit.start_);
+    const double realstartidx = realstartdif / double(limit.step_);
+    const double realstepfac = double(rg.step_) / double(limit.step_);
     const bool useoldstep = !mIsZero(realstartidx-mNINT32(realstartidx),eps) ||
 			    !mIsZero(realstepfac-mNINT32(realstepfac),eps);
     int stepfac = useoldstep ? 1 : mNINT32(realstepfac);
@@ -219,16 +219,16 @@ static void adaptRangeToLimits( const StepInterval<T>& rg,
     if ( startidx < 0 )
 	startidx = (startidx*(1-stepfac)) % stepfac;
 
-    const double width = mMIN(rg.stop,limit.stop) - limit.atIndex(startidx);
-    const double realnrsteps = width / (stepfac*limit.step);
+    const double width = mMIN(rg.stop_,limit.stop_) - limit.atIndex(startidx);
+    const double realnrsteps = width / (stepfac*limit.step_);
     const int stopidx = startidx
 			+ stepfac * mNINT32( Math::Floor(realnrsteps+eps) );
 
     if ( startidx <= stopidx )
     {
-	newrg.start = limit.atIndex( startidx );
-	newrg.stop = limit.atIndex( stopidx );
-	newrg.step = stepfac * limit.step;
+        newrg.start_ = limit.atIndex( startidx );
+        newrg.stop_ = limit.atIndex( stopidx );
+        newrg.step_ = stepfac * limit.step_;
     }
     else
 	newrg = limit;
@@ -245,20 +245,20 @@ void uiSelZRange::setRange( const ZSampling& inpzrg )
     adaptRangeToLimits<float>( zrg, limitrg, newzrg );
 
     const int nrdecimals = canSnap() ? 0
-			 : zDomain().def_.nrZDecimals( limitrg.step );
+                                     : zDomain().def_.nrZDecimals( limitrg.step_ );
     if ( nrdecimals==0 )
     {
-	startfld_->setValue( mNINT32(newzrg.start) );
-	stopfld_->setValue( mNINT32(newzrg.stop) );
+        startfld_->setValue( mNINT32(newzrg.start_) );
+        stopfld_->setValue( mNINT32(newzrg.stop_) );
 	if ( stepfld_ )
-	    stepfld_->box()->setValue( mNINT32(newzrg.step) );
+            stepfld_->box()->setValue( mNINT32(newzrg.step_) );
     }
     else
     {
-	startfld_->setValue( newzrg.start );
-	stopfld_->setValue( newzrg.stop );
+        startfld_->setValue( newzrg.start_ );
+        stopfld_->setValue( newzrg.stop_ );
 	if ( stepfld_ )
-	    stepfld_->box()->setValue( newzrg.step );
+            stepfld_->box()->setValue( newzrg.step_ );
     }
 }
 
@@ -271,9 +271,9 @@ void uiSelZRange::setRangeLimits( const ZSampling& zlimits )
     stopfld_->setInterval( zrg );
     if ( stepfld_ )
     {
-	stepfld_->box()->setMinValue( zrg.step );
-	stepfld_->box()->setMaxValue( mMAX(zrg.step, zrg.stop-zrg.start) );
-	stepfld_->box()->setStep( zrg.step );
+        stepfld_->box()->setMinValue( zrg.step_ );
+        stepfld_->box()->setMaxValue( mMAX(zrg.step_, zrg.stop_-zrg.start_) );
+        stepfld_->box()->setStep( zrg.step_ );
     }
 }
 
@@ -327,7 +327,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, bool wstep, const uiString& lbltxt,
 			    const StepInterval<int>* limitrg )
     : uiGroup(p,BufferString(toString(lbltxt)," range selection"))
     , lbltxt_(lbltxt)
-    , defstep_(limitrg ? limitrg->step : 1)
+    , defstep_(limitrg ? limitrg->step_ : 1)
     , checked(this)
     , rangeChanged(this)
 {
@@ -391,9 +391,9 @@ void uiSelNrRange::makeInpFields( StepInterval<int> limitrg, bool wstep,
     {
 	stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 0,
 					 BufferString(lbltxt," step") );
-	stepfld_->box()->setInterval( StepInterval<int>(limitrg.step,
-			    limitrg.width() ? limitrg.width() : limitrg.step,
-			    limitrg.step) );
+        stepfld_->box()->setInterval( StepInterval<int>(limitrg.step_,
+                                                        limitrg.width() ? limitrg.width() : limitrg.step_,
+                                                        limitrg.step_) );
 	stepfld_->box()->doSnap( true );
 	stepfld_->box()->valueChanging.notify( cb );
 	if ( stopfld )
@@ -479,10 +479,10 @@ void uiSelNrRange::setRange( const StepInterval<int>& rg )
     StepInterval<int> newrg;
     adaptRangeToLimits<int>( rg, limitrg, newrg );
 
-    startfld_->setValue( newrg.start );
-    setStopVal( newrg.stop );
+    startfld_->setValue( newrg.start_ );
+    setStopVal( newrg.stop_ );
     if ( stepfld_ )
-	stepfld_->box()->setValue( newrg.step );
+        stepfld_->box()->setValue( newrg.step_ );
 }
 
 
@@ -493,10 +493,10 @@ void uiSelNrRange::setLimitRange( const StepInterval<int>& limitrg )
 	icstopfld_->setInterval( limitrg );
     if ( stepfld_ )
     {
-	stepfld_->box()->setMinValue( limitrg.step );
-	stepfld_->box()->setMaxValue( mMAX(limitrg.step,
-					   limitrg.stop-limitrg.start) );
-	stepfld_->box()->setStep( limitrg.step );
+        stepfld_->box()->setMinValue( limitrg.step_ );
+        stepfld_->box()->setMaxValue( mMAX(limitrg.step_,
+                                           limitrg.stop_-limitrg.start_) );
+        stepfld_->box()->setStep( limitrg.step_ );
     }
 }
 

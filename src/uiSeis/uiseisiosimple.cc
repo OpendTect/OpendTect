@@ -170,16 +170,16 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	{
 	    inldeffld_ = new uiGenInput( this,
 					 tr("In-line definition: start, step"),
-				IntInpSpec(data().inldef_.start)
+                                         IntInpSpec(data().inldef_.start_)
 						.setName("Inl def start"),
-				IntInpSpec(data().inldef_.step)
+                                         IntInpSpec(data().inldef_.step_)
 						.setName("Inl def step") );
 	    inldeffld_->attach( alignedBelow, haveposfld_ );
 	    crldeffld_ = new uiGenInput( this,
 			tr("Cross-line definition: start, step, # per inline"),
-			   IntInpSpec(data().crldef_.start)
+                                         IntInpSpec(data().crldef_.start_)
 						.setName("Crl def start"),
-			   IntInpSpec(data().crldef_.step)
+                                         IntInpSpec(data().crldef_.step_)
 						.setName("Crl def step"),
 			   IntInpSpec(data().nrcrlperinl_)
 						.setName("per inl") );
@@ -191,8 +191,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    nrdeffld_ = new uiGenInput( this,
 		    tr("%1 definition: start, step")
 			.arg( uiStrings::sTraceNumber() ),
-		    IntInpSpec(data().nrdef_.start).setName("Trc def start"),
-		    IntInpSpec(data().nrdef_.step).setName("Trc def step") );
+                                        IntInpSpec(data().nrdef_.start_).setName("Trc def start"),
+                                        IntInpSpec(data().nrdef_.step_).setName("Trc def step") );
 	    nrdeffld_->attach( alignedBelow, havenrfld_ );
 	    startposfld_ = new uiGenInput( this,
 				tr("Start position (X, Y, Trace number)"),
@@ -203,11 +203,11 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 				PositionInpSpec(data().steppos_) );
 	    stepposfld_->attach( alignedBelow, startposfld_ );
 	    startnrfld_ = new uiGenInput( this, uiString::emptyString(),
-					 IntInpSpec(data().nrdef_.start) );
+                                          IntInpSpec(data().nrdef_.start_) );
 	    startnrfld_->setElemSzPol( uiObject::Small );
 	    startnrfld_->attach( rightOf, startposfld_ );
 	    stepnrfld_ = new uiGenInput( this, uiString::emptyString(),
-					IntInpSpec(data().nrdef_.step) );
+                                         IntInpSpec(data().nrdef_.step_) );
 	    stepnrfld_->setElemSzPol( uiObject::Small );
 	    stepnrfld_->attach( rightOf, stepposfld_ );
 	    attachobj = stepposfld_->attachObj();
@@ -228,9 +228,9 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			data().offsdef_.atIndex(data().nroffsperpos_-1);
 	    offsdeffld_ = new uiGenInput( this,
 			   tr("Offset definition: start, stop, step"),
-			   FloatInpSpec(data().offsdef_.start).setName("Start"),
+                                          FloatInpSpec(data().offsdef_.start_).setName("Start"),
 			   FloatInpSpec(stopoffs).setName("Stop"),
-			   FloatInpSpec(data().offsdef_.step).setName("Step") );
+                                          FloatInpSpec(data().offsdef_.step_).setName("Step") );
 	    offsdeffld_->attach( alignedBelow, haveoffsbut_ );
 	    attachobj = offsdeffld_->attachObj();
 	}
@@ -252,10 +252,10 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 		       arg(SI().getUiZUnitString(true));
 	SamplingData<float> sd( data().sd_ );
 	if ( SI().zIsTime() )
-	    { sd.start *= 1000; sd.step *= 1000; }
+        { sd.start_ *= 1000; sd.step_ *= 1000; }
 	sdfld_ = new uiGenInput( this, txt,
-			DoubleInpSpec(sd.start).setName("SampInfo start"),
-			DoubleInpSpec(sd.step).setName("SampInfo step"),
+                                 DoubleInpSpec(sd.start_).setName("SampInfo start"),
+                                 DoubleInpSpec(sd.step_).setName("SampInfo step"),
 			IntInpSpec(data().nrsamples_).setName("Nr samples") );
 	sdfld_->attach( alignedBelow, havesdfld_ );
 	sep = mkDataManipFlds();
@@ -556,12 +556,12 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     data().havesd_ = havesdfld_->getBoolValue();
     if ( sdfld_ && !data().havesd_ )
     {
-	data().sd_.start = sdfld_->getFValue(0);
-	data().sd_.step = sdfld_->getFValue(1);
+        data().sd_.start_ = sdfld_->getFValue(0);
+        data().sd_.step_ = sdfld_->getFValue(1);
 	const LinScaler& scaler =
 	    UnitOfMeasure::zUnit( seisfld_->getZDomain(), false )->scaler();
-	data().sd_.start = scaler.scale( data().sd_.start );
-	data().sd_.step = scaler.scale( data().sd_.step );
+        data().sd_.start_ = scaler.scale( data().sd_.start_ );
+        data().sd_.step_ = scaler.scale( data().sd_.step_ );
 	data().nrsamples_ = sdfld_->getIntValue(2);
     }
 
@@ -577,8 +577,8 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	data().haverefnr_ = data().havenr_ && haverefnrfld_->getBoolValue();
 	if ( isimp_ && nrdeffld_ && !data().havenr_ )
 	{
-	    data().nrdef_.start = nrdeffld_->getIntValue(0);
-	    data().nrdef_.step = nrdeffld_->getIntValue(1);
+            data().nrdef_.start_ = nrdeffld_->getIntValue(0);
+            data().nrdef_.step_ = nrdeffld_->getIntValue(1);
 	}
 	if ( isPS() )
 	{
@@ -593,17 +593,17 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	{
 	    data().startpos_ = startposfld_->getCoord();
 	    data().steppos_ = stepposfld_->getCoord();
-	    data().nrdef_.start = startnrfld_->getIntValue();
-	    data().nrdef_.step = stepnrfld_->getIntValue();
+            data().nrdef_.start_ = startnrfld_->getIntValue();
+            data().nrdef_.step_ = stepnrfld_->getIntValue();
 	}
 	else
 	{
-	    data().inldef_.start = inldeffld_->getIntValue(0);
-	    data().inldef_.step = inldeffld_->getIntValue(1);
-	    if ( data().inldef_.step == 0 ) data().inldef_.step = 1;
-	    data().crldef_.start = crldeffld_->getIntValue(0);
-	    data().crldef_.step = crldeffld_->getIntValue(1);
-	    if ( data().crldef_.step == 0 ) data().crldef_.step = 1;
+            data().inldef_.start_ = inldeffld_->getIntValue(0);
+            data().inldef_.step_ = inldeffld_->getIntValue(1);
+            if ( data().inldef_.step_ == 0 ) data().inldef_.step_ = 1;
+            data().crldef_.start_ = crldeffld_->getIntValue(0);
+            data().crldef_.step_ = crldeffld_->getIntValue(1);
+            if ( data().crldef_.step_ == 0 ) data().crldef_.step_ = 1;
 	    int nrcpi = crldeffld_->getIntValue(2);
 	    if ( nrcpi == 0 || crldeffld_->isUndef(2) )
 	    {
@@ -617,8 +617,8 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     if ( isPS() && !data().haveoffs_ && offsdeffld_ )
     {
-	data().offsdef_.start = offsdeffld_->getFValue( 0 );
-	data().offsdef_.step = offsdeffld_->getFValue( 2 );
+        data().offsdef_.start_ = offsdeffld_->getFValue( 0 );
+        data().offsdef_.step_ = offsdeffld_->getFValue( 2 );
 	const float offsstop = offsdeffld_->getFValue( 1 );
 	data().nroffsperpos_ = data().offsdef_.nearestIndex( offsstop ) + 1;
     }

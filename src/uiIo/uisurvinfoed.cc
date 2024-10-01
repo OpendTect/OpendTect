@@ -460,9 +460,9 @@ void uiSurveyInfoEditor::setValues()
 
     const StepInterval<float>& zrg = si_.zRange( false );
     const float zfac = sCast( float, si_.zDomain().userFactor() );
-    setZValFld( zfld_, 0, zrg.start*zfac, si_.nrZDecimals() );
-    setZValFld( zfld_, 1, zrg.stop*zfac, si_.nrZDecimals() );
-    setZValFld( zfld_, 2, zrg.step*zfac, si_.nrZDecimals() );
+    setZValFld( zfld_, 0, zrg.start_*zfac, si_.nrZDecimals() );
+    setZValFld( zfld_, 1, zrg.stop_*zfac, si_.nrZDecimals() );
+    setZValFld( zfld_, 2, zrg.step_*zfac, si_.nrZDecimals() );
 
     int nrdec = 4;
     x0fld_->setValue( si_.b2c_.getTransform(true).a );
@@ -990,10 +990,10 @@ bool uiSurveyInfoEditor::setRanges()
     if ( crg.isUdf() ) mErrRet(tr("Please enter a valid range for crosslines"))
     TrcKeyZSampling cs( si_.sampling(false) );
     TrcKeySampling& hs = cs.hsamp_;
-    hs.start_.inl() = irg.start; hs.start_.crl() = crg.start;
-    hs.stop_.inl() = irg.atIndex( irg.getIndex(irg.stop) );
-    hs.stop_.crl() = crg.atIndex( crg.getIndex(crg.stop) );
-    hs.step_.inl() = irg.step;	 hs.step_.crl() = crg.step;
+    hs.start_.inl() = irg.start_; hs.start_.crl() = crg.start_;
+    hs.stop_.inl() = irg.atIndex( irg.getIndex(irg.stop_) );
+    hs.stop_.crl() = crg.atIndex( crg.getIndex(crg.stop_) );
+    hs.step_.inl() = irg.step_;	 hs.step_.crl() = crg.step_;
     if ( hs.step_.inl() < 1 ) hs.step_.inl() = 1;
     if ( hs.step_.crl() < 1 ) hs.step_.crl() = 1;
 
@@ -1010,15 +1010,15 @@ bool uiSurveyInfoEditor::setRanges()
     si_.setSeismicReferenceDatum( getConvertedValue(srd,displayuom,datauom) );
 
     cs.zsamp_ = zfld_->getFStepInterval();
-    if (mIsUdf(cs.zsamp_.start) || mIsUdf(cs.zsamp_.stop)
-				|| mIsUdf(cs.zsamp_.step))
+    if (mIsUdf(cs.zsamp_.start_) || mIsUdf(cs.zsamp_.stop_)
+        || mIsUdf(cs.zsamp_.step_))
 	mErrRet(tr("Please enter the Z Range"))
     const float zfac = 1.f / si_.zDomain().userFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
 	cs.zsamp_.scale( zfac );
 
-    if ( mIsZero(cs.zsamp_.step,1e-8) )
-	cs.zsamp_.step = si_.zDomain().isTime() ? 0.004f : 1;
+    if ( mIsZero(cs.zsamp_.step_,1e-8) )
+        cs.zsamp_.step_ = si_.zDomain().isTime() ? 0.004f : 1;
     cs.normalize();
     if ( !hs.totalNr() )
 	mErrRet(tr("Please specify in-line/cross-line ranges"))
@@ -1142,7 +1142,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
 	si_.setSeismicReferenceDatum( srd );
     }
 
-    const bool havez = !mIsUdf(cs.zsamp_.start);
+    const bool havez = !mIsUdf(cs.zsamp_.start_);
     if ( !havez )
 	cs.zsamp_ = si_.zRange(false);
 
@@ -1212,27 +1212,27 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     if ( cb == inlfld_ )
     {
 	StepInterval<int> irg = inlfld_->getIStepInterval();
-	if ( mIsUdf(irg.step) || !irg.step || irg.step>irg.width() )irg.step=1;
+        if ( mIsUdf(irg.step_) || !irg.step_ || irg.step_>irg.width() )irg.step_=1;
 	if ( irg.isUdf() ) return;
 
-	irg.stop = irg.atIndex( irg.getIndex(irg.stop) );
+        irg.stop_ = irg.atIndex( irg.getIndex(irg.stop_) );
 	inlfld_->setValue( irg );
     }
     else if ( cb == crlfld_ )
     {
 	StepInterval<int> crg = crlfld_->getIStepInterval();
-	if ( mIsUdf(crg.step) || !crg.step || crg.step>crg.width() )crg.step=1;
+        if ( mIsUdf(crg.step_) || !crg.step_ || crg.step_>crg.width() )crg.step_=1;
 	if ( crg.isUdf() ) return;
 
-	crg.stop = crg.atIndex( crg.getIndex(crg.stop) );
+        crg.stop_ = crg.atIndex( crg.getIndex(crg.stop_) );
 	crlfld_->setValue( crg );
     }
     else if ( cb == zfld_ )
     {
 	StepInterval<double> zrg = zfld_->getDStepInterval();
-	if ( mIsUdf(zrg.step) || mIsZero(zrg.step,1e-6) ) return;
+        if ( mIsUdf(zrg.step_) || mIsZero(zrg.step_,1e-6) ) return;
 
-	zrg.stop = zrg.atIndex( zrg.getIndex(zrg.stop) );
+        zrg.stop_ = zrg.atIndex( zrg.getIndex(zrg.stop_) );
 	zfld_->setValue( zrg );
     }
 

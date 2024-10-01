@@ -52,9 +52,9 @@ void PosInfo::Detector::reInit()
     allstd_ = true;
     curline_ = curseg_ = -1;
     nrpos_ = nruniquepos_ = nroffsperpos_ = 0;
-    offsrg_.start = offsrg_.stop = 0;
+    offsrg_.start_ = offsrg_.stop_ = 0;
     firstduppos_.binid_.inl() = firstaltnroffs_.binid_.inl() = mUdf(int);
-    mSetUdf(distrg_.start); avgdist_ = 0;
+    mSetUdf(distrg_.start_); avgdist_ = 0;
     step_.inl() = step_.crl() = 1;
     azimuthrg_.set( 0, 0 );
 }
@@ -153,7 +153,7 @@ bool PosInfo::Detector::finish()
 	LineData& ld = *lds_[iln];
 	for ( int iseg=0; iseg<ld.segments_.size(); iseg++ )
 	{
-	    int& curstep = ld.segments_[iseg].step;
+            int& curstep = ld.segments_[iseg].step_;
 	    if ( curstep < 1 ) curstep = nrstep;
 	}
     }
@@ -169,12 +169,12 @@ void PosInfo::Detector::mergeResults( const PosInfo::Detector& oth )
     for ( int idx=oth.lds_.size()-1; idx>=0; idx-- )
     {
 	const LineData& othld = *(oth.lds_[idx]);
-	if ( othld.linenr_ < inlrg.start )
+        if ( othld.linenr_ < inlrg.start_ )
 	{
 	    lds_.insertAt( new LineData(othld), 0 );
 	    nrnewpos += othld.size(); continue;
 	}
-	else if ( othld.linenr_ > inlrg.stop )
+        else if ( othld.linenr_ > inlrg.stop_ )
 	{
 	    lds_.add( new LineData(othld) );
 	    nrnewpos += othld.size(); continue;
@@ -215,11 +215,11 @@ void PosInfo::Detector::mergeResults( const PosInfo::Detector& oth )
 #   define mChkMax(memb) if ( memb < oth.memb ) memb = oth.memb
     mChkMin(mincoord_.x); mChkMin(mincoord_.y);
     mChkMax(maxcoord_.x); mChkMax(maxcoord_.y);
-    mChkMin(offsrg_.start); mChkMax(offsrg_.stop);
-    mChkMin(azimuthrg_.start); mChkMax(azimuthrg_.stop);
+    mChkMin(offsrg_.start_); mChkMax(offsrg_.stop_);
+    mChkMin(azimuthrg_.start_); mChkMax(azimuthrg_.stop_);
     mChkMin(start_.inl()); mChkMin(start_.crl());
     mChkMax(stop_.inl()); mChkMax(stop_.crl());
-    mChkMin(distrg_.start); mChkMax(distrg_.stop);
+    mChkMin(distrg_.start_); mChkMax(distrg_.stop_);
 
     const int mylen = llnstop_.binid_.inl() - llnstart_.binid_.inl();
     const int othlen = oth.llnstop_.binid_.inl() - oth.llnstart_.binid_.inl();
@@ -254,11 +254,11 @@ void PosInfo::Detector::appendResults( const PosInfo::Detector& oth )
 #   define mChkMax(memb) if ( memb < oth.memb ) memb = oth.memb
     mChkMin(mincoord_.x); mChkMin(mincoord_.y);
     mChkMax(maxcoord_.x); mChkMax(maxcoord_.y);
-    mChkMin(offsrg_.start); mChkMax(offsrg_.stop);
-    mChkMin(azimuthrg_.start); mChkMax(azimuthrg_.stop);
+    mChkMin(offsrg_.start_); mChkMax(offsrg_.stop_);
+    mChkMin(azimuthrg_.start_); mChkMax(azimuthrg_.stop_);
     mChkMin(start_.inl()); mChkMin(start_.crl());
     mChkMax(stop_.inl()); mChkMax(stop_.crl());
-    mChkMin(distrg_.start); mChkMax(distrg_.stop);
+    mChkMin(distrg_.start_); mChkMax(distrg_.stop_);
 
     const int mylen = llnstop_.binid_.inl() - llnstart_.binid_.inl();
     const int othlen = oth.llnstop_.binid_.inl() - oth.llnstart_.binid_.inl();
@@ -321,8 +321,8 @@ void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 	    if ( !revnr )
 		newld->segments_ += seg;
 	    else
-		newld->segments_ += LineData::Segment( -seg.stop, -seg.start,
-							-seg.step );
+                newld->segments_ += LineData::Segment( -seg.stop_, -seg.start_,
+                                                       -seg.step_ );
 	}
 	cd += newld;
     }
@@ -463,8 +463,8 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
     mincoord_.y = maxcoord_.y = curcbo_.coord_.y;
     if ( setup_.isps_ )
     {
-	offsrg_.start = offsrg_.stop = cbo.offset_;
-	azimuthrg_.start = azimuthrg_.stop = cbo.azimuth_;
+        offsrg_.start_ = offsrg_.stop_ = cbo.offset_;
+        azimuthrg_.start_ = azimuthrg_.stop_ = cbo.azimuth_;
     }
 
     nrpos_ = nruniquepos_ = nroffsthispos_ = 1;
@@ -567,7 +567,7 @@ void PosInfo::Detector::addPos()
 		firstaltnroffs_ = curcbo_;
 	    nroffsthispos_ = 1;
 	}
-	if ( curseg.step && stp != curseg.step )
+        if ( curseg.step_ && stp != curseg.step_ )
 	{
 	    curline.segments_ += PosInfo::LineData::Segment(
 				curcbo_.binid_.crl(), curcbo_.binid_.crl(), 0 );
@@ -575,15 +575,15 @@ void PosInfo::Detector::addPos()
 	}
 	else
 	{
-	    curseg.stop = curcbo_.binid_.crl();
-	    if ( curseg.step == 0 )
-		curseg.step = curseg.stop - curseg.start;
+            curseg.stop_ = curcbo_.binid_.crl();
+            if ( curseg.step_ == 0 )
+                curseg.step_ = curseg.stop_ - curseg.start_;
 	}
 	if ( setup_.is2d_ )
 	{
 	    const float dist = (float)curcbo_.coord_.distTo( prevcbo_.coord_ );
-	    if ( mIsUdf(distrg_.start) )
-		distrg_.start = distrg_.stop = dist;
+            if ( mIsUdf(distrg_.start_) )
+                distrg_.start_ = distrg_.stop_ = dist;
 	    else
 		distrg_.include( dist );
 	    avgdist_ += dist;
@@ -611,16 +611,16 @@ void PosInfo::Detector::getBinIDRanges()
 	const LineData& ld = *lds_[iln];
 	inlrg.include( ld.linenr_ );
 	if ( iln == 0 )
-	    trcstep = ld.segments_[0].step;
+            trcstep = ld.segments_[0].step_;
 
 	const int nrseg = ld.segments_.size();
 	if ( nrseg > 1 ) crlirreg_ = true;
 	for ( int iseg=0; iseg<nrseg; iseg++ )
 	{
 	    const LineData::Segment& seg = ld.segments_[iseg];
-	    crlrg.include( seg.start );
-	    crlrg.include( seg.stop );
-	    if ( seg.step != trcstep )
+            crlrg.include( seg.start_ );
+            crlrg.include( seg.stop_ );
+            if ( seg.step_ != trcstep )
 		crlirreg_ = true;
 	}
 
@@ -637,17 +637,17 @@ void PosInfo::Detector::getBinIDRanges()
     }
     if ( !sorting_.inlUpward() )
     {
-	inlrg.start = -inlrg.start; inlrg.stop = -inlrg.stop;
-	Swap( inlrg.start, inlrg.stop );
+        inlrg.start_ = -inlrg.start_; inlrg.stop_ = -inlrg.stop_;
+        Swap( inlrg.start_, inlrg.stop_ );
     }
     if ( !sorting_.crlUpward() )
     {
-	crlrg.start = -crlrg.start; crlrg.stop = -crlrg.stop;
-	Swap( crlrg.start, crlrg.stop );
+        crlrg.start_ = -crlrg.start_; crlrg.stop_ = -crlrg.stop_;
+        Swap( crlrg.start_, crlrg.stop_ );
     }
 
-    start_.inl() = inlrg.start; start_.crl() = crlrg.start;
-    stop_.inl() = inlrg.stop; stop_.crl() = crlrg.stop;
+    start_.inl() = inlrg.start_; start_.crl() = crlrg.start_;
+    stop_.inl() = inlrg.stop_; stop_.crl() = crlrg.stop_;
 }
 
 
@@ -669,7 +669,7 @@ int PosInfo::Detector::getRawStep( bool inldir, bool retpositive ) const
 	{
 	    for ( int iseg=0; iseg<ld.segments_.size(); iseg++ )
 	    {
-		const int curstep = ld.segments_[iseg].step;
+                const int curstep = ld.segments_[iseg].step_;
 		if ( curstep && curstep < stp )
 		    stp = mIsUdf(stp) ? curstep : Math::HCFOf(stp,curstep);
 	    }
@@ -824,8 +824,8 @@ void PosInfo::Detector::report( IOPar& iop ) const
     }
     if ( setup_.isps_ )
     {
-	iop.set( "Offsets", getRangeStr(offsrg_.start,offsrg_.stop,2) );
-	iop.set( "Azimuths", getRangeStr(azimuthrg_.start,azimuthrg_.stop,2) );
+        iop.set( "Offsets", getRangeStr(offsrg_.start_,offsrg_.stop_,2) );
+        iop.set( "Azimuths", getRangeStr(azimuthrg_.start_,azimuthrg_.stop_,2) );
 	if ( mIsUdf(firstaltnroffs_.binid_.inl()) )
 	    iop.set( "Number of traces per gather", nroffsperpos_ );
 	else

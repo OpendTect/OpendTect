@@ -155,16 +155,16 @@ void PropCalc::init()
 
     if ( useangle )
     {
-	axisvalsrg_.start = setup_.anglerg_.start;
-	axisvalsrg_.stop  = setup_.anglerg_.stop;
+	axisvalsrg_.start_ = setup_.anglerg_.start_;
+	axisvalsrg_.stop_  = setup_.anglerg_.stop_;
     }
     else
 	axisvalsrg_ = setup_.offsrg_;
     axisvalsrg_.sort();
-    if ( axisvalsrg_.start < 0.f )
-	axisvalsrg_.start = 0.f;
-    if ( axisvalsrg_.stop < 0.f )
-	axisvalsrg_.start = mUdf(float);
+    if ( axisvalsrg_.start_ < 0.f )
+	axisvalsrg_.start_ = 0.f;
+    if ( axisvalsrg_.stop_ < 0.f )
+	axisvalsrg_.start_ = mUdf(float);
 
     float eps;
     if ( useangle )
@@ -194,10 +194,10 @@ void PropCalc::init()
     else
 	eps = 1e-1f;
 
-    if ( axisvalsrg_.start > eps )
-	axisvalsrg_.start -= eps;
-    if ( !mIsUdf(axisvalsrg_.stop) )
-	axisvalsrg_.stop += eps;
+    if ( axisvalsrg_.start_ > eps )
+	axisvalsrg_.start_ -= eps;
+    if ( !mIsUdf(axisvalsrg_.stop_) )
+	axisvalsrg_.stop_ += eps;
 }
 
 

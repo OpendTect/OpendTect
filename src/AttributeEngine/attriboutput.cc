@@ -138,8 +138,8 @@ TypeSet<Interval<int> > DataPackOutput::getLocalZRanges( const BinID&,
 {
     if ( sampleinterval_.size() ==0 )
     {
-	Interval<int> interval( mNINT32( desiredvolume_.zsamp_.start / zstep ),
-				mNINT32( desiredvolume_.zsamp_.stop / zstep ) );
+        Interval<int> interval( mNINT32( desiredvolume_.zsamp_.start_ / zstep ),
+                                mNINT32( desiredvolume_.zsamp_.stop_ / zstep ) );
 	const_cast<DataPackOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
@@ -192,14 +192,14 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
     // This tests pretty nicely
 
     const Interval<int> inputrg( data.z0_, data.z0_+data.nrsamples_ - 1 );
-    const float z0 = tkzs.zsamp_.start / tkzs.zsamp_.step;
+    const float z0 = tkzs.zsamp_.start_ / tkzs.zsamp_.step_;
     const int outz0samp = mNINT32( z0 );
     const Interval<int> outrg( outz0samp, outz0samp+tkzs.zsamp_.nrSteps() );
     if ( !inputrg.overlaps(outrg,false) )
 	return;
 
-    const Interval<int> transrg( mMAX(inputrg.start, outrg.start),
-				 mMIN(inputrg.stop, outrg.stop ) );
+    const Interval<int> transrg( mMAX(inputrg.start_, outrg.start_),
+                                 mMIN(inputrg.stop_, outrg.stop_ ) );
     const int lineidx = tkzs.hsamp_.lineRange().nearestIndex( info.inl());
     const int trcidx = tkzs.hsamp_.trcRange().nearestIndex( info.crl() );
 
@@ -212,11 +212,11 @@ void DataPackOutput::collectData( const DataHolder& data, float refstep,
 	Array3D<float>& outarr3d = output_->data( desout );
 	const int zarrsz = outarr3d.info().getSize( 2 );
 
-	for ( int idx=transrg.start; idx<=transrg.stop; idx++)
+        for ( int idx=transrg.start_; idx<=transrg.stop_; idx++)
 	{
 	    const float val = vals->value( idx-data.z0_ );
 
-	    int zoutidx = idx - outrg.start;
+            int zoutidx = idx - outrg.start_;
 	    if ( zoutidx >= 0 && zoutidx < zarrsz )
 		outarr3d.set( lineidx, trcidx, zoutidx, val );
 	}
@@ -241,7 +241,7 @@ void DataPackOutput::init( float refstep, const BinDataDesc* bdd )
 {
     output_ = new RegularSeisDataPack( sKey::EmptyString(), bdd );
     output_->setSampling( dcsampling_ );
-    const_cast<StepInterval<float>& >(output_->sampling().zsamp_).step=refstep;
+    const_cast<StepInterval<float>& >(output_->sampling().zsamp_).step_=refstep;
 }
 
 
@@ -416,8 +416,8 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
     {
 	trc_ = new SeisTrc( sz, dc );
 	trc_->info() = info;
-	trc_->info().sampling.step = refstep;
-	trc_->info().sampling.start = data.z0_*refstep;
+        trc_->info().sampling.step_ = refstep;
+        trc_->info().sampling.start_ = data.z0_*refstep;
 	for ( int idx=1; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( sz, dc, false );
     }
@@ -455,19 +455,19 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 	}
     }
 
-    if ( !mIsEqual(desiredvolume_.zsamp_.step,trc_->info().sampling.step,1e-6) )
+    if ( !mIsEqual(desiredvolume_.zsamp_.step_,trc_->info().sampling.step_,1e-6) )
     {
 	StepInterval<float> reqzrg = desiredvolume_.zsamp_;
 	reqzrg.limitTo( trc_->zRange() );
 	const int nrsamps = mCast( int, reqzrg.nrfSteps() + 1 );
 	SeisTrc temptrc( *trc_ );
-	trc_->info().sampling.step = desiredvolume_.zsamp_.step;
+        trc_->info().sampling.step_ = desiredvolume_.zsamp_.step_;
 	trc_->reSize( nrsamps, false );
 	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
 	{
 	    for ( int isamp=0; isamp<nrsamps; isamp++ )
 	    {
-		float t = reqzrg.start + isamp * reqzrg.step;
+                float t = reqzrg.start_ + isamp * reqzrg.step_;
 		trc_->set( isamp, temptrc.getValue(t,icomp), icomp );
 	    }
 	}
@@ -542,8 +542,8 @@ TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges(
 {
     if ( sampleinterval_.size() == 0 )
     {
-	Interval<int> interval( mNINT32(desiredvolume_.zsamp_.start/zstep),
-				mNINT32(desiredvolume_.zsamp_.stop/zstep) );
+        Interval<int> interval( mNINT32(desiredvolume_.zsamp_.start_/zstep),
+                                mNINT32(desiredvolume_.zsamp_.stop_/zstep) );
 	const_cast<SeisTrcStorOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
@@ -575,7 +575,7 @@ TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 {
     seldata_->setGeomID( geomid );
     setGeometry( trg, zrg );
-    const bool undeftrg = trg.start<=0 && Values::isUdf(trg.stop);
+    const bool undeftrg = trg.start_<=0 && Values::isUdf(trg.stop_);
     seldata_->setIsAll( undeftrg );
 }
 
@@ -606,8 +606,8 @@ bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
     tkzs.hsamp_.setTrcRange( seldata_->crlRange() );
     const Interval<float> zrg( seldata_->zRange() );
     mDynamicCastGet(Seis::RangeSelData*,rsd,seldata_);
-    const float zstep = rsd ? rsd->cubeSampling().zsamp_.step : SI().zStep();
-    tkzs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, zstep );
+    const float zstep = rsd ? rsd->cubeSampling().zsamp_.step_ : SI().zStep();
+    tkzs.zsamp_ = StepInterval<float>( zrg.start_, zrg.stop_, zstep );
     return true;
 }
 
@@ -615,7 +615,7 @@ bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& tkzs ) const
 bool TwoDOutput::doInit()
 {
     const Interval<int> rg( seldata_->crlRange() );
-    if ( rg.start <= 0 && Values::isUdf(rg.stop) )
+    if ( rg.start_ <= 0 && Values::isUdf(rg.stop_) )
 	seldata_->setIsAll( true );
 
     return true;
@@ -635,7 +635,7 @@ void TwoDOutput::collectData( const DataHolder& data, float refstep,
     output_->dataset_ += data.clone();
 
     SeisTrcInfo* trcinfo = new SeisTrcInfo(info);
-    trcinfo->sampling.step = refstep;
+    trcinfo->sampling.step_ = refstep;
     //trcinfo->sampling.start = 0;
     output_->trcinfoset_ += trcinfo;
 }
@@ -654,8 +654,8 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
     if ( sampleinterval_.size() == 0 )
     {
 	Interval<float> zrg( seldata_->zRange() );
-	Interval<int> interval( mNINT32(zrg.start/zstep),
-				mNINT32(zrg.stop/zstep) );
+        Interval<int> interval( mNINT32(zrg.start_/zstep),
+                                mNINT32(zrg.stop_/zstep) );
 	const_cast<TwoDOutput*>(this)->sampleinterval_ += interval;
     }
 
@@ -754,8 +754,8 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
 	Interval<int> interval( zidx, zidx );
 	if ( arebiddupl_ )
 	{
-	    interval.start = zidx - 1;
-	    interval.stop =  zidx + 2;
+            interval.start_ = zidx - 1;
+            interval.stop_ =  zidx + 2;
 	}
 	bool intvadded = sampleinterval.addIfNew( interval );
 	if ( intvadded )
@@ -799,9 +799,9 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
     float zmax = -mUdf(float);
     for ( int idx=0; idx<nrinterv; idx+=2 )
     {
-	float val = bidvalset.valRange(idx).start;
+        float val = bidvalset.valRange(idx).start_;
 	if ( val < zmin ) zmin = val;
-	val = bidvalset.valRange(idx+1).stop;
+        val = bidvalset.valRange(idx+1).stop_;
 	if ( val > zmax ) zmax = val;
     }
 
@@ -844,8 +844,8 @@ void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
 	    trc->data().addComponent( trcsz, dc, false );
 
 	trc->info() = info;
-	trc->info().sampling.start = trcstarttime;
-	trc->info().sampling.step = refstep;
+        trc->info().sampling.start_ = trcstarttime;
+        trc->info().sampling.step_ = refstep;
     }
     else
 	trc = outpbuf_->get( index );
@@ -887,8 +887,8 @@ void TrcSelectionOutput::setOutput( SeisTrcBuf* outp_ )
 
 void TrcSelectionOutput::setTrcsBounds( Interval<float> intv )
 {
-    stdstarttime_ = intv.start;
-    stdtrcsz_ = intv.stop - intv.start;
+    stdstarttime_ = intv.start_;
+    stdtrcsz_ = intv.stop_ - intv.start_;
     seldata_->setZRange( intv );
 }
 
@@ -936,8 +936,8 @@ bool TrcSelectionOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
     Interval<float> zrg =
 	Interval<float>( stdstarttime_, stdstarttime_ + stdtrcsz_ );
     TrcKeyZSampling trcselsampling( false );
-    trcselsampling.include ( BinID( inlrg.start, crlrg.start), zrg.start);
-    trcselsampling.include ( BinID( inlrg.stop, crlrg.stop), zrg.stop);
+    trcselsampling.include ( BinID( inlrg.start_, crlrg.start_), zrg.start_);
+    trcselsampling.include ( BinID( inlrg.stop_, crlrg.stop_), zrg.stop_);
     if ( !cs.includes( trcselsampling ) )
 	cs = trcselsampling;
     return true;
@@ -970,9 +970,9 @@ Trc2DVarZStorOutput::Trc2DVarZStorOutput( const Pos::GeomID& geomid,
     {
 	int z1colidx = idx==0 ? idx : idx+poszvalues_->nrFixedCols();
 	int z2colidx = idx==0 ? poszvalues_->nrFixedCols() : z1colidx+1;
-	float val = poszvalues_->bivSet().valRange( z1colidx ).start;
+        float val = poszvalues_->bivSet().valRange( z1colidx ).start_;
 	if ( val < zmin ) zmin = val;
-	val = poszvalues_->bivSet().valRange( z2colidx ).stop;
+        val = poszvalues_->bivSet().valRange( z2colidx ).stop_;
 	if ( val > zmax ) zmax = val;
     }
 
@@ -989,8 +989,8 @@ Trc2DVarZStorOutput::~Trc2DVarZStorOutput()
 
 void Trc2DVarZStorOutput::setTrcsBounds( Interval<float> intv )
 {
-    stdstarttime_ = intv.start;
-    stdtrcsz_ = intv.stop - intv.start;
+    stdstarttime_ = intv.start_;
+    stdtrcsz_ = intv.stop_ - intv.start_;
 }
 
 
@@ -1042,8 +1042,8 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
     {
 	trc_ = new SeisTrc( trcsz, dc );
 	trc_->info() = info;
-	trc_->info().sampling.step = refstep;
-	trc_->info().sampling.start = trcstarttime;
+        trc_->info().sampling.step_ = refstep;
+        trc_->info().sampling.start_ = trcstarttime;
 	for ( int idx=1; idx<desoutputs_.size(); idx++)
 	    trc_->data().addComponent( trcsz, dc, false );
     }
@@ -1334,8 +1334,8 @@ void TableOutput::addLocalInterval( TypeSet< Interval<int> >& sampintv,
     Interval<int> interval( zidx, zidx );
 
     //Necessary if bid are duplicated and for a chain of attribs with stepout
-    interval.start = zidx - 1;
-    interval.stop =  zidx + 2;
+    interval.start_ = zidx - 1;
+    interval.stop_ =  zidx + 2;
 
     bool intvadded = sampintv.addIfNew( interval );
     if ( intvadded )

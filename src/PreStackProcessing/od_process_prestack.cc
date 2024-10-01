@@ -170,7 +170,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 		for ( int idx=0; idx<posdata.positions().size(); idx++ )
 		{
 		    if ( !idx )
-			cdprange.start = cdprange.stop
+			cdprange.start_ = cdprange.stop_
 				       = posdata.positions()[idx].nr_;
 		    else
 			cdprange.include( posdata.positions()[idx].nr_ );
@@ -207,7 +207,7 @@ bool BatchProgram::doWork( od_ostream& strm )
 
     if ( geomtype==Seis::LinePS )
     {
-	curbid.crl() = cdprange.start;
+	curbid.crl() = cdprange.start_;
 	step.crl() = 1;
     }
     else
@@ -217,8 +217,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 	    mRetError("\nNo CDP's to process");
 	}
 
-	step.inl() = SI().inlRange(true).step;
-	step.crl() = SI().crlRange(true).step;
+	step.inl() = SI().inlRange(true).step_;
+	step.crl() = SI().crlRange(true).step_;
     }
 
     mSetCommState(Working);
@@ -336,8 +336,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 		const StepInterval<double> zrg =
 		    gather->posData().range( Gather::offsetDim() );
 		SeisTrc trc( nrsamples );
-		trc.info().sampling.start = (float) zrg.start;
-		trc.info().sampling.step = (float) zrg.step;
+		trc.info().sampling.start_ = (float) zrg.start_;
+		trc.info().sampling.step_ = (float) zrg.step_;
 
 		if ( reader2d )
 		{
@@ -390,11 +390,11 @@ bool BatchProgram::doWork( od_ostream& strm )
 	}
 	else
 	{
-	    curbid.crl() += cdprange.step;
+	    curbid.crl() += cdprange.step_;
 	    if ( !cdprange.includes( curbid.crl(), true ) )
 		break;
 	    const int obsoletetrace =
-		curbid.crl() -(stepout.crl()+1)*cdprange.step;
+		    curbid.crl() -(stepout.crl()+1)*cdprange.step_;
 	    for ( int idx=bids.size()-1; idx>=0; idx-- )
 	    {
 		if ( bids[idx].crl()<=obsoletetrace )

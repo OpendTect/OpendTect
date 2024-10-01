@@ -151,8 +151,8 @@ void uiImportLogsDlg::lasSel( CallBacker* )
     Interval<float> usrzrg = lfi.zrg_;
     if ( uom )
     {
-	usrzrg.start = uom->userValue( usrzrg.start );
-	usrzrg.stop = uom->userValue( usrzrg.stop );
+	usrzrg.start_ = uom->userValue( usrzrg.start_ );
+	usrzrg.stop_ = uom->userValue( usrzrg.stop_ );
     }
 
     intvfld_->setValue( usrzrg );
@@ -187,8 +187,8 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     const Interval<float> usrzrg = intvfld_->getFInterval();
     if ( uom )
     {
-	lfi.zrg_.start = uom->internalValue( usrzrg.start );
-	lfi.zrg_.stop = uom->internalValue( usrzrg.stop );
+	lfi.zrg_.start_ = uom->internalValue( usrzrg.start_ );
+	lfi.zrg_.stop_ = uom->internalValue( usrzrg.stop_ );
     }
 
     const bool usecurvenms = lognmfld_ ? lognmfld_->getBoolValue() : false;
@@ -396,7 +396,7 @@ void uiExportLogs::setDefaultRange( bool zinft )
 
 	    dahintv.include( wd.logs().dahInterval() );
 	    const float width = log.dah(logsz-1) - log.dah(0);
-	    dahintv.step = width / (logsz-1);
+	    dahintv.step_ = width / (logsz-1);
 	    break;
 	}
     }
@@ -404,9 +404,9 @@ void uiExportLogs::setDefaultRange( bool zinft )
     StepInterval<float> disprg = dahintv;
     const UnitOfMeasure* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
     const UnitOfMeasure* outunit = UnitOfMeasure::surveyDefDepthUnit();
-    disprg.start = getConvertedValue( dahintv.start, storunit, outunit );
-    disprg.stop = getConvertedValue( dahintv.stop, storunit, outunit );
-    disprg.step = getConvertedValue( dahintv.step, storunit, outunit );
+    disprg.start_ = getConvertedValue( dahintv.start_, storunit, outunit );
+    disprg.stop_ = getConvertedValue( dahintv.stop_, storunit, outunit );
+    disprg.step_ = getConvertedValue( dahintv.step_, storunit, outunit );
 
     zrangefld_->setValue( disprg );
 }

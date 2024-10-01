@@ -194,8 +194,8 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	    { endsamp++; extrasamps--; }
 	if ( endsamp >= totsamps ) endsamp = totsamps-1;
 
-	inf.sd_.start = info_.sd_.start + startsamp * info_.sd_.step;
-	inf.sd_.start = info_.sd_.start + startsamp * info_.sd_.step;
+	inf.sd_.start_ = info_.sd_.start_ + startsamp * info_.sd_.step_;
+	inf.sd_.start_ = info_.sd_.start_ + startsamp * info_.sd_.step_;
 	inf.nrsamples_ = endsamp - startsamp + 1;
 
 	od_ostream* strm = mkStrm();

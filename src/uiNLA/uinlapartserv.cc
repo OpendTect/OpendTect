@@ -177,8 +177,8 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
 				   FloatInpSpec(bsetup_.noiselvl*100) );
     percnoisefld->attach( alignedBelow, nrptspclssfld );
 
-    rg_.start = datavals[0];
-    rg_.stop = datavals[datavals.size()-1];
+    rg_.start_ = datavals[0];
+    rg_.stop_ = datavals[datavals.size()-1];
     valrgfld = new uiGenInput( datagrp, uiStrings::phrData(tr("range to use")),
 				FloatInpIntervalSpec(rg_) );
     valrgfld->attach( alignedBelow, percnoisefld );

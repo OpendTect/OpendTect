@@ -310,8 +310,8 @@ float PSAttrib::getXscaler( bool isoffset, bool isindegrees ) const
 bool PSAttrib::getInputOutput( int input, TypeSet<int>& res ) const
 {
     Interval<float>& rg = const_cast<Interval<float>&>(setup_.offsrg_);
-    if ( rg.start > 1e28 ) rg.start = 0;
-    if ( rg.stop > 1e28 ) rg.stop = mUdf(float);
+    if ( rg.start_ > 1e28 ) rg.start_ = 0;
+    if ( rg.stop_ > 1e28 ) rg.stop_ = mUdf(float);
 
     return Provider::getInputOutput( input, res );
 }
@@ -433,7 +433,7 @@ DataPackID PSAttrib::getPreProcessedID( const BinID& relpos )
     const BinID stepout = preprocessor_->getInputStepout();
     BinID relbid;
     TypeSet<DataPackID> gatheridstoberemoved;
-    const BinID sistep( SI().inlRange(true).step, SI().crlRange(true).step );
+    const BinID sistep( SI().inlRange(true).step_, SI().crlRange(true).step_ );
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 	  relbid.inl()++ )
     {

@@ -311,8 +311,8 @@ int MultiDimStorage<T>::getPos( int idx ) const
 template <class T> inline
 bool MultiDimStorage<T>::getRange( int dim, Interval<int>& rg ) const
 {
-    rg.stop = INT_MIN;
-    rg.start = INT_MAX;
+    rg.stop_ = INT_MIN;
+    rg.start_ = INT_MAX;
 
     if ( !size() )
 	return false;

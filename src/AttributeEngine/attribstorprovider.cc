@@ -194,7 +194,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 
     if ( !isondisc_ )
     {
-	storedvolume_.zsamp_.start = 0;	//cover up for synthetics
+        storedvolume_.zsamp_.start_ = 0;	//cover up for synthetics
 	const DataPack::FullID fid = getDPID();
 	auto stbdtp = DPM(fid).get<SeisTrcBufDataPack>( DataPack::getID(fid) );
 	if ( !stbdtp )
@@ -246,8 +246,8 @@ bool StorageProvider::checkInpAndParsAtStart()
 	    if ( foundone )
 	    {
 		const int linenr = geomid.asInt();
-		storedvolume_.hsamp_.include( BinID(linenr,trcrg.start) );
-		storedvolume_.hsamp_.include( BinID(linenr,trcrg.stop) );
+                storedvolume_.hsamp_.include( BinID(linenr,trcrg.start_) );
+                storedvolume_.hsamp_.include( BinID(linenr,trcrg.stop_) );
 		storedvolume_.zsamp_.include( zrg );
 	    }
 	    else
@@ -519,10 +519,10 @@ bool StorageProvider::setMSCProvSelData()
     cs.hsamp_.start_.crl() =
 	desiredvolume_->hsamp_.start_.crl()<storedvolume_.hsamp_.start_.crl() ?
 	storedvolume_.hsamp_.start_.crl() : desiredvolume_->hsamp_.start_.crl();
-    cs.zsamp_.start = desiredvolume_->zsamp_.start < storedvolume_.zsamp_.start
-		? storedvolume_.zsamp_.start : desiredvolume_->zsamp_.start;
-    cs.zsamp_.stop = desiredvolume_->zsamp_.stop > storedvolume_.zsamp_.stop ?
-		     storedvolume_.zsamp_.stop : desiredvolume_->zsamp_.stop;
+    cs.zsamp_.start_ = desiredvolume_->zsamp_.start_ < storedvolume_.zsamp_.start_
+                       ? storedvolume_.zsamp_.start_ : desiredvolume_->zsamp_.start_;
+    cs.zsamp_.stop_ = desiredvolume_->zsamp_.stop_ > storedvolume_.zsamp_.stop_ ?
+                          storedvolume_.zsamp_.stop_ : desiredvolume_->zsamp_.stop_;
 
     reader.setSelData( haveseldata ? seldata_->clone()
 				   : new Seis::RangeSelData(cs) );
@@ -587,18 +587,18 @@ bool StorageProvider::set2DRangeSelData()
 		return false;
 
 	    StepInterval<int> rg;
-	    rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
-			trcrg.start : desiredvolume_->hsamp_.start_.crl();
-	    rg.stop = desiredvolume_->hsamp_.stop_.crl() > trcrg.stop ?
-			trcrg.stop : desiredvolume_->hsamp_.stop_.crl();
-	    rg.step = desiredvolume_->hsamp_.step_.crl() > trcrg.step ?
-			desiredvolume_->hsamp_.step_.crl() : trcrg.step;
+            rg.start_ = desiredvolume_->hsamp_.start_.crl() < trcrg.start_?
+                            trcrg.start_ : desiredvolume_->hsamp_.start_.crl();
+            rg.stop_ = desiredvolume_->hsamp_.stop_.crl() > trcrg.stop_ ?
+                           trcrg.stop_ : desiredvolume_->hsamp_.stop_.crl();
+            rg.step_ = desiredvolume_->hsamp_.step_.crl() > trcrg.step_ ?
+                           desiredvolume_->hsamp_.step_.crl() : trcrg.step_;
 	    seldata->setCrlRange( rg );
 	    Interval<float> zrg;
-	    zrg.start = desiredvolume_->zsamp_.start < dszrg.start ?
-			dszrg.start : desiredvolume_->zsamp_.start;
-	    zrg.stop = desiredvolume_->zsamp_.stop > dszrg.stop ?
-			dszrg.stop : desiredvolume_->zsamp_.stop;
+            zrg.start_ = desiredvolume_->zsamp_.start_ < dszrg.start_ ?
+                             dszrg.start_ : desiredvolume_->zsamp_.start_;
+            zrg.stop_ = desiredvolume_->zsamp_.stop_ > dszrg.stop_ ?
+                            dszrg.stop_ : desiredvolume_->zsamp_.stop_;
 	    seldata->setZRange( zrg );
 	}
 	reader.setSelData( seldata );
@@ -623,10 +623,10 @@ bool StorageProvider::checkDesiredVolumeOK()
      || desiredvolume_->hsamp_.stop_.crl() < storedvolume_.hsamp_.start_.crl();
     const float zepsilon = 1e-06f;
     const bool zwrong =
-	desiredvolume_->zsamp_.start > storedvolume_.zsamp_.stop+zepsilon ||
-	desiredvolume_->zsamp_.stop < storedvolume_.zsamp_.start-zepsilon;
+            desiredvolume_->zsamp_.start_ > storedvolume_.zsamp_.stop_+zepsilon ||
+            desiredvolume_->zsamp_.stop_ < storedvolume_.zsamp_.start_-zepsilon;
     const float zstepratio =
-		desiredvolume_->zsamp_.step / storedvolume_.zsamp_.step;
+            desiredvolume_->zsamp_.step_ / storedvolume_.zsamp_.step_;
     const bool zstepwrong = zstepratio > 100 || zstepratio < 0.01;
 
     if ( !inlwrong && !crlwrong && !zwrong && !zstepwrong )
@@ -647,8 +647,8 @@ bool StorageProvider::checkDesiredVolumeOK()
 		      .arg( storedvolume_.hsamp_.step_.crl() ) );
     if ( zwrong )
 	errmsg_.append( tr( "Z range is: %1-%2\n")
-		      .arg( storedvolume_.zsamp_.start )
-		      .arg( storedvolume_.zsamp_.stop ) );
+                        .arg( storedvolume_.zsamp_.start_ )
+                        .arg( storedvolume_.zsamp_.stop_ ) );
     if ( inlwrong || crlwrong || zwrong )
     {
 	setDataUnavailableFlag( true );
@@ -674,11 +674,11 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
     }
 
     const bool trcrgwrong =
-	desiredvolume_->hsamp_.start_.crl() > trcrg.stop
-     || desiredvolume_->hsamp_.stop_.crl() < trcrg.start;
+            desiredvolume_->hsamp_.start_.crl() > trcrg.stop_
+            || desiredvolume_->hsamp_.stop_.crl() < trcrg.start_;
     const bool zwrong =
-	desiredvolume_->zsamp_.start > zrg.stop
-     || desiredvolume_->zsamp_.stop < zrg.start;
+            desiredvolume_->zsamp_.start_ > zrg.stop_
+            || desiredvolume_->zsamp_.stop_ < zrg.start_;
 
     if ( !trcrgwrong && !zwrong )
 	return true;
@@ -688,10 +688,10 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 		.arg( getDesc().userRef() );
     if ( trcrgwrong )
 	errmsg_.append( tr( "Trace range is: %1-%2\n")
-		      .arg( trcrg.start ).arg( trcrg.stop ) );
+                        .arg( trcrg.start_ ).arg( trcrg.stop_ ) );
     if ( zwrong )
 	errmsg_.append( tr( "Z range is: %1-%2\n")
-		      .arg( zrg.start ).arg( zrg.stop ) );
+                        .arg( zrg.start_ ).arg( zrg.stop_ ) );
     return false;
 }
 
@@ -772,7 +772,7 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     }
 
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step );
+    trcrange.widen( 0.001f * trc->info().sampling.step_ );
     int compidx = -1;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
@@ -874,7 +874,7 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
     if ( !trc ) return;
 
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step );
+    trcrange.widen( 0.001f * trc->info().sampling.step_ );
     const BinID bid = trc->info().binID();
     if ( !dc->sampling().hsamp_.includes(bid) )
 	return;

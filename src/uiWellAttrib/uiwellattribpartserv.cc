@@ -288,9 +288,9 @@ bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
     if ( SI().zIsTime() && wd->haveD2TModel() )
     {
 	const Well::D2TModel& d2t = *wd->d2TModel();
-	resamprg.set(d2t.getTime(resamprg.start, wd->track()),
-		     d2t.getTime(resamprg.stop, wd->track()),1);
-	resamprg.step /= SI().zDomain().userFactor();
+	resamprg.set(d2t.getTime(resamprg.start_, wd->track()),
+		     d2t.getTime(resamprg.stop_, wd->track()),1);
+	resamprg.step_ /= SI().zDomain().userFactor();
 	resampsz = resamprg.nrSteps();
 	for ( int idx=0; idx<resampsz; idx++ )
 	{
@@ -302,12 +302,12 @@ bool uiWellAttribPartServer::showAmplSpectrum( const MultiID& mid,
     else
     {
 	resampsz = resamprg.nrSteps();
-	resamprg.step = resamprg.width() / (float)log->size();
+	resamprg.step_ = resamprg.width() / (float)log->size();
 	for ( int idx=0; idx<resampsz; idx++ )
 	    resamplvals += log->getValue( resamprg.atIndex( idx ) );
     }
 
-    uiAmplSpectrum::Setup su( toUiString(lognm), false,  resamprg.step );
+    uiAmplSpectrum::Setup su( toUiString(lognm), false,  resamprg.step_ );
     auto* asd = new uiAmplSpectrum( parent(), su );
     asd->setData( resamplvals.arr(), resampsz );
     asd->show();

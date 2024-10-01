@@ -84,7 +84,7 @@ bool FourierInterpol1D::doWork( od_int64 start ,od_int64 stop, int thread )
     if ( !sz_ )
 	return false;
 
-    const float df = Fourier::CC::getDf( sampling_.step, sz_ );
+    const float df = Fourier::CC::getDf( sampling_.step_, sz_ );
 
     Array1D<float_complex>& interpvals = *arrs_[thread];
 
@@ -169,8 +169,8 @@ bool FourierInterpol2D::doWork( od_int64 start ,od_int64 stop, int thread )
     if ( !szx_  || !szy_ )
 	return false;
 
-    const float dfx = Fourier::CC::getDf( xsampling_.step, szx_ );
-    const float dfy = Fourier::CC::getDf( ysampling_.step, szy_ );
+    const float dfx = Fourier::CC::getDf( xsampling_.step_, szx_ );
+    const float dfy = Fourier::CC::getDf( ysampling_.step_, szy_ );
 
     Array2D<float_complex>& interpvals = *arrs_[thread];
 
@@ -271,9 +271,9 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
     if ( !szx_  || !szy_ || !szz_ )
 	return false;
 
-    const float dfx = Fourier::CC::getDf( xsampling_.step, szx_ );
-    const float dfy = Fourier::CC::getDf( ysampling_.step, szy_ );
-    const float dfz = Fourier::CC::getDf( zsampling_.step, szz_ );
+    const float dfx = Fourier::CC::getDf( xsampling_.step_, szx_ );
+    const float dfy = Fourier::CC::getDf( ysampling_.step_, szy_ );
+    const float dfz = Fourier::CC::getDf( zsampling_.step_, szz_ );
 
     Array3DImpl<float_complex>& interpvals = *arrs_[thread];
 
@@ -283,9 +283,9 @@ bool FourierInterpol3D::doWork( od_int64 start ,od_int64 stop, int thread )
 	if ( mIsUdf( cplxval ) ) 
 	    cplxval = float_complex( 0, 0 );
 
-	const float timex = pts_[idpt].xpos_-xsampling_.start; 
-	const float timey = pts_[idpt].ypos_-ysampling_.start; 
-	const float timez = pts_[idpt].zpos_-zsampling_.start;
+	const float timex = pts_[idpt].xpos_-xsampling_.start_;
+	const float timey = pts_[idpt].ypos_-ysampling_.start_;
+	const float timez = pts_[idpt].zpos_-zsampling_.start_;
 
 	const float xanglesampling = -timex * dfx;
 	const float yanglesampling = -timey * dfy;

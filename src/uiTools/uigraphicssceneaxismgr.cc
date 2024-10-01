@@ -132,10 +132,10 @@ int uiGraphicsSceneAxis::getNrAnnotChars() const
 {
     const int widthlogval = mIsZero(rg_.width(),mDefEps)
 				? 0 : mNINT32( Math::Log10(fabs(rg_.width())) );
-    const int startlogval = mIsZero(rg_.start,mDefEps)
-				? 0 : mNINT32( Math::Log10(fabs(rg_.start)) );
-    const int stoplogval = mIsZero(rg_.stop,mDefEps)
-				? 0 : mNINT32( Math::Log10(fabs(rg_.stop)) );
+    const int startlogval = mIsZero(rg_.start_,mDefEps)
+                            ? 0 : mNINT32( Math::Log10(fabs(rg_.start_)) );
+    const int stoplogval = mIsZero(rg_.stop_,mDefEps)
+                           ? 0 : mNINT32( Math::Log10(fabs(rg_.stop_)) );
     int nrofpredecimalchars = mMAX(stoplogval,startlogval) + 1;
     if ( nrofpredecimalchars < 1 )
 	nrofpredecimalchars = 1;
@@ -154,7 +154,7 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
     Interval<int> datarg( isx_ ? viewrect_.top() : viewrect_.left(),
 			  isx_ ? viewrect_.bottom() : viewrect_.right() );
     const int ticklen = fontdata_.pointSize();
-    const int baseline = istop_ ? datarg.start : datarg.stop;
+    const int baseline = istop_ ? datarg.start_ : datarg.stop_;
     const int bias = inside_==istop_ ? ticklen : -ticklen;
     const int ticklinestart = baseline + bias;
     const int ticklinestop = baseline;
@@ -162,7 +162,7 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
     uiString txt = mToUiStringTodo( toStringLim(worldpos * txtfactor_,
 							   getNrAnnotChars()) );
     const double worldrelpos = fabs(rg_.getfIndex( worldpos, rg_.width() ));
-    float axispos = (float) ( axisrg.start + worldrelpos*axisrg.width() );
+    float axispos = (float) ( axisrg.start_ + worldrelpos*axisrg.width() );
 
     mGetItem( uiLineItem, line, tickline );
 
@@ -181,8 +181,8 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
     if ( drawgridlines_ && drawgrid )
     {
 	mGetItem( uiLineItem, line, gridline );
-	Geom::Point2D<float> gridstart(axispos, mCast(float,datarg.start));
-	Geom::Point2D<float> gridstop( axispos, mCast(float,datarg.stop) );
+        Geom::Point2D<float> gridstart(axispos, mCast(float,datarg.start_));
+        Geom::Point2D<float> gridstop( axispos, mCast(float,datarg.stop_) );
 
 	if ( !isx_ )
 	{
@@ -217,21 +217,21 @@ void uiGraphicsSceneAxis::drawAtPos( float worldpos, bool drawgrid,
 
 void uiGraphicsSceneAxis::reDraw()
 {
-    AxisLayout<double> al( Interval<double>(rg_.start ,rg_.stop), annotinint_ );
+    AxisLayout<double> al( Interval<double>(rg_.start_ ,rg_.stop_), annotinint_ );
     SamplingData<double> axis = al.sd_;
     Interval<int> axisrg( isx_ ? viewrect_.left() : viewrect_.top(),
 				isx_ ? viewrect_.right() : viewrect_.bottom() );
     Interval<int> datarg( isx_ ? viewrect_.top() : viewrect_.left(),
 			       isx_ ? viewrect_.bottom() : viewrect_.right() );
-    const int baseline = istop_ ? datarg.start : datarg.stop;
+    const int baseline = istop_ ? datarg.start_ : datarg.stop_;
     int curtextitm = 0;
     int curlineitm = 0;
     if ( drawaxisline_ )
     {
 	mGetItem( uiLineItem, line, line );
 
-	uiPoint start( axisrg.start, baseline );
-	uiPoint stop( axisrg.stop, baseline );
+        uiPoint start( axisrg.start_, baseline );
+        uiPoint stop( axisrg.stop_, baseline );
 	if ( !isx_ )
 	{
 	    start.swapXY();
@@ -242,11 +242,11 @@ void uiGraphicsSceneAxis::reDraw()
 	line->setPenStyle( ls_ );
     }
 
-    const float fnrsteps = (float) ( rg_.width(false)/axis.step );
+    const float fnrsteps = (float) ( rg_.width(false)/axis.step_ );
     const int nrsteps = mNINT32( fnrsteps )+2;
-    if ( !mIsEqual(rg_.start,axis.start,axis.step/100.f) &&
-	 (!annotinint_ || mIsEqual(rg_.start,mNINT32(rg_.start),1e-4)) )
-	drawAtPos( mCast(float,rg_.start), false, curtextitm, curlineitm );
+    if ( !mIsEqual(rg_.start_,axis.start_,axis.step_/100.f) &&
+         (!annotinint_ || mIsEqual(rg_.start_,mNINT32(rg_.start_),1e-4)) )
+        drawAtPos( mCast(float,rg_.start_), false, curtextitm, curlineitm );
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	const double worldpos = axis.atIndex(idx);
@@ -255,9 +255,9 @@ void uiGraphicsSceneAxis::reDraw()
 	drawAtPos( mCast(float,worldpos), true, curtextitm, curlineitm );
     }
 
-    if ( !mIsEqual(rg_.stop,axis.atIndex(nrsteps-1),axis.step/100.f) &&
-	 (!annotinint_ || mIsEqual(rg_.stop,mNINT32(rg_.stop),1e-4)) )
-	drawAtPos( mCast(float,rg_.stop), false, curtextitm, curlineitm );
+    if ( !mIsEqual(rg_.stop_,axis.atIndex(nrsteps-1),axis.step_/100.f) &&
+         (!annotinint_ || mIsEqual(rg_.stop_,mNINT32(rg_.stop_),1e-4)) )
+        drawAtPos( mCast(float,rg_.stop_), false, curtextitm, curlineitm );
     while ( curlineitm<lines_.size() )
 	itmgrp_->remove( lines_.pop(), true );
 

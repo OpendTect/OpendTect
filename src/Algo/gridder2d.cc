@@ -486,10 +486,10 @@ bool TriangulatedGridder2D::pointsChangedCB( CallBacker* )
 	return false;
     }
 
-    if ( !mIsUdf(xrg_.start) ) xrg.include( xrg_.start );
-    if ( !mIsUdf(xrg_.stop) ) xrg.include( xrg_.stop );
-    if ( !mIsUdf(yrg_.start) ) yrg.include( yrg_.start );
-    if ( !mIsUdf(yrg_.stop) ) yrg.include( yrg_.stop );
+    if ( !mIsUdf(xrg_.start_) ) xrg.include( xrg_.start_ );
+    if ( !mIsUdf(xrg_.stop_) ) xrg.include( xrg_.stop_ );
+    if ( !mIsUdf(yrg_.start_) ) yrg.include( yrg_.start_ );
+    if ( !mIsUdf(yrg_.stop_) ) yrg.include( yrg_.stop_ );
 
     TypeSet<Coord>* translatedpoints =
 	new TypeSet<Coord>( points_->size(), Coord::udf() );

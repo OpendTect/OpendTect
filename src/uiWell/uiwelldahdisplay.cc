@@ -253,7 +253,7 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
     const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
     if ( sz < 2 ) return;
 
-    if ( mIsUdf( ld.valrg_.start ) )
+    if ( mIsUdf( ld.valrg_.start_ ) )
     {
 	DataClipSampler dcs( sz );
 	for ( int idx=0; idx<sz; idx++ )
@@ -275,8 +275,8 @@ void uiWellDahDisplay::gatherDataInfo( bool first )
 	stoppos = (float) track()->getPos( stoppos ).z;
     }
 
-    ld.zrg_.start = startpos;
-    ld.zrg_.stop = stoppos;
+    ld.zrg_.start_ = startpos;
+    ld.zrg_.stop_ = stoppos;
 }
 
 
@@ -286,42 +286,42 @@ void uiWellDahDisplay::setAxisRanges( bool first )
     uiWellDahDisplay::DahObjData& otherld = first ? *ld2_ : *ld1_;
 
     Interval<float> dispvalrg( ld.valrg_ );
-    if ( mIsUdf( dispvalrg.start ) )
+    if ( mIsUdf( dispvalrg.start_ ) )
 	dispvalrg = otherld.valrg_ ;
 
-    if ( setup_.samexaxisrange_ && !mIsUdf( otherld.valrg_.start ) )
+    if ( setup_.samexaxisrange_ && !mIsUdf( otherld.valrg_.start_ ) )
 	dispvalrg.include( otherld.valrg_ );
 
     if ( setup_.symetricalxaxis_ )
     {
-	const float max = mMAX(fabs(dispvalrg.start),fabs(dispvalrg.stop));
-	dispvalrg.start = -max;
-	dispvalrg.stop  =  max;
+	const float max = mMAX(fabs(dispvalrg.start_),fabs(dispvalrg.stop_));
+	dispvalrg.start_ = -max;
+	dispvalrg.stop_  =  max;
     }
 
     if ( ld.xrev_ )
-	Swap( dispvalrg.start, dispvalrg.stop );
+	Swap( dispvalrg.start_, dispvalrg.stop_ );
 
     ld.xax_.setBounds( dispvalrg );
 
-    Interval<float> dispzrg( zdata_.zrg_.stop, zdata_.zrg_.start );
-    if ( mIsUdf(zdata_.zrg_.start) )
+    Interval<float> dispzrg( zdata_.zrg_.stop_, zdata_.zrg_.start_ );
+    if ( mIsUdf(zdata_.zrg_.start_) )
     {
 	dispzrg = ld1_->zrg_;
-	if ( mIsUdf( dispzrg.start ) )
+	if ( mIsUdf( dispzrg.start_ ) )
 	    dispzrg = ld2_->zrg_;
-	if ( !mIsUdf( ld2_->zrg_.start ) )
+	if ( !mIsUdf( ld2_->zrg_.start_ ) )
 	    dispzrg.include( ld2_->zrg_ );
     }
-    if ( dispzrg.start < dispzrg.stop )
+    if ( dispzrg.start_ < dispzrg.stop_ )
 	dispzrg.sort( false );
 
     if ( !zdata_.zistime_ )
     {
 	const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
 	const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
-	dispzrg.start = getConvertedValue( dispzrg.start, zsuom, zduom );
-	dispzrg.stop = getConvertedValue( dispzrg.stop, zsuom, zduom );
+	dispzrg.start_ = getConvertedValue( dispzrg.start_, zsuom, zduom );
+	dispzrg.stop_ = getConvertedValue( dispzrg.stop_, zsuom, zduom );
     }
 
     ld.yax_.setBounds( dispzrg );

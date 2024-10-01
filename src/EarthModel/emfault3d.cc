@@ -90,13 +90,13 @@ void Fault3D::apply( const Pos::Filter& pf )
 	if ( rowrg.isUdf() ) continue;
 
 	RowCol rc;
-	for ( rc.row()=rowrg.stop; rc.row()>=rowrg.start; rc.row()-=rowrg.step )
+        for ( rc.row()=rowrg.stop_; rc.row()>=rowrg.start_; rc.row()-=rowrg.step_ )
 	{
 	    const StepInterval<int> colrg = fssg->colRange( rc.row() );
 	    if ( colrg.isUdf() ) continue;
 
-	    for ( rc.col()=colrg.stop; rc.col()>=colrg.start;
-		  rc.col()-=colrg.step )
+            for ( rc.col()=colrg.stop_; rc.col()>=colrg.start_;
+                  rc.col()-=colrg.step_ )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
 		if ( !pf.includes( (Coord) pos, (float) pos.z) )
@@ -201,7 +201,7 @@ bool Fault3DGeometry::removeStick( int sticknr, bool addtohistory )
     if ( colrg.isUdf() || colrg.width() )
 	return false;
 
-    const RowCol rc( sticknr, colrg.start );
+    const RowCol rc( sticknr, colrg.start_ );
 
     const Coord3 pos = fss->getKnot( rc );
     const Coord3 normal = getEditPlaneNormal( sticknr );
@@ -269,7 +269,7 @@ bool Fault3DGeometry::areEditPlanesMostlyCrossline() const
 	return false;
 
     StepInterval<int> stickrg = fss->rowRange();
-    for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
+    for ( int sticknr=stickrg.start_; sticknr<=stickrg.stop_; sticknr++ )
     {
 	const Coord3& normal = fss->getEditPlaneNormal( sticknr );
 	if ( fabs(normal.z) < 0.5 && mIsEqual(normal.x,crldir.x,mEps)
@@ -321,7 +321,7 @@ void Fault3DGeometry::fillPar( IOPar& par ) const
 	return;
 
     StepInterval<int> stickrg = fss->rowRange();
-    for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
+    for ( int sticknr=stickrg.start_; sticknr<=stickrg.stop_; sticknr++ )
     {
 	mDefEditNormalStr( editnormstr, 0, sticknr );
 	par.set( editnormstr.buf(), fss->getEditPlaneNormal(sticknr) );
@@ -336,7 +336,7 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 	return false;
 
     StepInterval<int> stickrg = fss->rowRange();
-    for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
+    for ( int sticknr=stickrg.start_; sticknr<=stickrg.stop_; sticknr++ )
     {
 	fss->setSticksVertical( false );
 	mDefEditNormalStr( editnormstr, 0, sticknr );

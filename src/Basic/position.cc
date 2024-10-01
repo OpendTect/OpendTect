@@ -32,6 +32,20 @@ static const char* sKeyXTransf = "Coord-X-BinID";
 static const char* sKeyYTransf = "Coord-Y-BinID";
 
 
+IdxPair::IdxPair()
+    : std::pair<od_int32,od_int32>(0,0)
+{}
+
+
+IdxPair::IdxPair( od_int32 f, od_int32 s )
+    : std::pair<od_int32,od_int32>(f,s)
+{}
+
+
+IdxPair::~IdxPair()
+{}
+
+
 const IdxPair& IdxPair::udf()
 {
    return udfidxpair;
@@ -189,6 +203,26 @@ BinIDValues::~BinIDValues()
 {}
 
 
+// Coord
+Coord::Coord( const Geom::Point2D<OrdType>& p )
+    :  Geom::Point2D<OrdType>( p )
+{}
+
+
+Coord::Coord()
+    :  Geom::Point2D<OrdType>(0,0)
+{}
+
+
+Coord::Coord( OrdType cx, OrdType cy )
+    :  Geom::Point2D<OrdType>( cx, cy )
+{}
+
+
+Coord::~Coord()
+{}
+
+
 Coord::DistType Coord::sqHorDistTo( const Coord& oth ) const
 {
     const DistType dx = x-oth.x, dy = y-oth.y;
@@ -299,6 +333,39 @@ bool Coord::fromString( const char* s )
     y = toDouble( ptry );
     return true;
 }
+
+
+// Coord3
+Coord3::Coord3()
+    : Coord()
+    , z_(0)
+    , z(z_)
+{}
+
+
+Coord3::Coord3( const Coord& a, OrdType _z )
+    : Coord(a)
+    , z_(_z)
+    , z(z_)
+{}
+
+
+Coord3::Coord3(const Coord3& xyz )
+    : Coord( xyz.x, xyz.y )
+    , z_( xyz.z )
+    , z(z_)
+{}
+
+
+Coord3::Coord3( OrdType _x, OrdType _y, OrdType _z )
+    : Coord(_x,_y)
+    , z_(_z)
+    , z(z_)
+{}
+
+
+Coord3::~Coord3()
+{}
 
 
 Coord::DistType Coord3::abs() const
@@ -536,8 +603,8 @@ TrcKey& TrcKey::setFrom( const Coord& crd )
 	if ( Survey::GM().getGeometry(Survey::default3DGeomID()) )
 	{
 	    const BinID bid = geometry().as3D()->transform( crd );
-	    setTrcNr( (bid.trcNr() - SI().crlRange().stop) /
-		       SI().crlRange().step );
+	    setTrcNr( (bid.trcNr() - SI().crlRange().stop_) /
+		       SI().crlRange().step_ );
 	}
 	else
 	{
@@ -570,9 +637,9 @@ Coord TrcKey::getCoord() const
     {
 	if ( Survey::GM().getGeometry(Survey::default3DGeomID()) )
 	{ //To ensure it never falls within SI()
-	    const BinID pos( SI().inlRange().stop + SI().inlRange().step,
-			     SI().crlRange().stop +
-			     SI().crlRange().step * trcNr() );
+	    const BinID pos( SI().inlRange().stop_ + SI().inlRange().step_,
+			     SI().crlRange().stop_ +
+			     SI().crlRange().step_ * trcNr() );
 	    return geometry().as3D()->transform( pos );
 	}
 	else

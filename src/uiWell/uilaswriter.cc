@@ -143,8 +143,8 @@ void uiLASWriter::logSelCB( CallBacker* )
 	mdrg.include( rg );
     }
 
-    mdrg.start = Well::storageToDisplayDepth( mdrg.start );
-    mdrg.stop = Well::storageToDisplayDepth( mdrg.stop );
+    mdrg.start_ = Well::storageToDisplayDepth( mdrg.start_ );
+    mdrg.stop_ = Well::storageToDisplayDepth( mdrg.stop_ );
     mdrangefld_->setValue( mdrg );
 }
 

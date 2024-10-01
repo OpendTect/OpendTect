@@ -222,7 +222,7 @@ void ui2DGridLinesFromInlCrl::updateRange()
     inlrgfld_->setLimitRange( inlrg );
     crlrgfld_->setLimitRange( crlrg );
 
-    inlrg.step = 100; crlrg.step = 100;
+    inlrg.step_ = 100; crlrg.step_ = 100;
     inlrgfld_->setRange( inlrg );
     crlrgfld_->setRange( crlrg );
 
@@ -367,8 +367,8 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     const float maxdim = (float) mMAX( maxcoord.x-mincoord.x,
 				       maxcoord.y-mincoord.y );
     AxisLayout<float> axl( Interval<float>(0,maxdim) );
-    pardistfld_->setValue( mNINT32(axl.sd_.step/2) );
-    perdistfld_->setValue( mNINT32(axl.sd_.step/2) );
+    pardistfld_->setValue( mNINT32(axl.sd_.step_/2) );
+    perdistfld_->setValue( mNINT32(axl.sd_.step_/2) );
 
     inlprefixfld_->attach( alignedBelow, perdistfld_ );
     inlprefixfld_->setText( "PAR" );

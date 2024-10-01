@@ -225,10 +225,10 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 	if ( !idx )
 	{
 	    gid = trcinfoset_[idx]->geomID();
-	    trcrange.start = trcrange.stop = curtrcnr;
-	    zrange.start = start;
-	    zrange.stop = stop;
-	    zstep = trcinfoset_[idx]->sampling.step;
+	    trcrange.start_ = trcrange.stop_ = curtrcnr;
+	    zrange.start_ = start;
+	    zrange.stop_ = stop;
+	    zstep = trcinfoset_[idx]->sampling.step_;
 	}
 	else
 	{
@@ -237,9 +237,9 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 		step = -step;
 
 	    if ( idx==1 )
-		trcrange.step = step;
-	    else if ( trcrange.step!=step )
-		trcrange.step = greatestCommonDivisor( step, trcrange.step );
+		trcrange.step_ = step;
+	    else if ( trcrange.step_!=step )
+		trcrange.step_ = greatestCommonDivisor( step, trcrange.step_ );
 
 	    trcrange.include( curtrcnr );
 	    zrange.include( start );
@@ -252,9 +252,9 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
     res.hsamp_.init( gid );
     res.hsamp_.setTrcRange( trcrange );
 
-    res.zsamp_.start = zrange.start*zstep;
-    res.zsamp_.stop = zrange.stop*zstep;
-    res.zsamp_.step = zstep;
+    res.zsamp_.start_ = zrange.start_*zstep;
+    res.zsamp_.stop_ = zrange.stop_*zstep;
+    res.zsamp_.step_ = zstep;
 
     return res;
 }
@@ -291,7 +291,7 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
     for ( int idx=0; idx<dh.trcinfoset_.size(); idx++ )
     {
 	auto* ni = new SeisTrcInfo( *dh.trcinfoset_[idx] );
-	ni->sampling.start = dh.dataset_[idx]->z0_ * ni->sampling.step;
+	ni->sampling.start_ = dh.dataset_[idx]->z0_ * ni->sampling.step_;
 	trcinfoset_ += ni;
     }
 

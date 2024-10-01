@@ -50,30 +50,30 @@ bool EventFreq::getInputData( const BinID& relpos, int zintv )
     if ( !inpdata_ ) return false;
 
     inpseries_ = inpdata_->series( getDataIndex(0) );
-    cubeintv_.start = inpdata_->z0_;
-    cubeintv_.stop = inpdata_->z0_ + inpdata_->nrsamples_ - 1;
+    cubeintv_.start_ = inpdata_->z0_;
+    cubeintv_.stop_ = inpdata_->z0_ + inpdata_->nrsamples_ - 1;
     return inpseries_;
 }
 
 
 void EventFreq::findEvents( int z0, int nrsamples ) const
 {
-    Interval<int> worksamps( z0 + dessamps_.start,
-			     z0 + dessamps_.stop + nrsamples - 1 );
+    Interval<int> worksamps( z0 + dessamps_.start_,
+			     z0 + dessamps_.stop_ + nrsamples - 1 );
     worksamps.limitTo( cubeintv_ );
 
-    SamplingData<float> sd( mCast(float,cubeintv_.start), 1 );
+    SamplingData<float> sd( mCast(float,cubeintv_.start_), 1 );
     ValueSeriesEvFinder<float,float> evf( *inpseries_,
 					  inpdata_->nrsamples_-1, sd );
-    ValueSeriesEvent<float,float> curev( 0, mCast(float,worksamps.start - 2) );
-    Interval<float> sampsleft( 0, mCast(float,worksamps.stop) );
+    ValueSeriesEvent<float,float> curev( 0, mCast(float,worksamps.start_ - 2) );
+    Interval<float> sampsleft( 0, mCast(float,worksamps.stop_) );
 
     VSEvent::Type prevtype = VSEvent::None;
     float prevpos = -999;
     while ( true )
     {
-	sampsleft.start = curev.pos + 2;
-	if ( sampsleft.start > sampsleft.stop )
+	sampsleft.start_ = curev.pos + 2;
+	if ( sampsleft.start_ > sampsleft.stop_ )
 	    break;
 
 	curev = evf.find( VSEvent::Extr, sampsleft );
@@ -121,7 +121,7 @@ void EventFreq::fillFreqOutput( const DataHolder& output,
     if ( evposns_.size() < 3 )
     {
 	const float val = evposns_.size() < 2 ? mUdf(float)
-			: 1.0f / (2.0f * refstep_ * (evposns_[1] - evposns_[0]));
+		: 1.0f / (2.0f * refstep_ * (evposns_[1] - evposns_[0]));
 	for ( int idx=0; idx<nrsamples; idx++ )
 	    setOutputValue( output, 0, idx, z0, val );
 	return;

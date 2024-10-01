@@ -120,12 +120,12 @@ uiImpPVDSAscio( const Table::FormatDesc& fd, od_istream& strm )
 {
     needfullline_ = true;
     atend_ = !getHdrVals( strm_ );
-    inlgen_.start = SI().inlRange(true).start;
-    inlgen_.step = SI().inlRange(true).stop - inlgen_.start;
-    crlgen_.start = SI().crlRange(true).start;
-    crlgen_.step = SI().crlRange(true).stop - crlgen_.start;
-    zgen_.start = SI().zRange(true).start;
-    zgen_.step = SI().zRange(true).stop - zgen_.start;
+    inlgen_.start_ = SI().inlRange(true).start_;
+    inlgen_.step_ = SI().inlRange(true).stop_ - inlgen_.start_;
+    crlgen_.start_ = SI().crlRange(true).start_;
+    crlgen_.step_ = SI().crlRange(true).stop_ - crlgen_.start_;
+    zgen_.start_ = SI().zRange(true).start_;
+    zgen_.step_ = SI().zRange(true).stop_ - zgen_.start_;
 }
 
 bool isXY() const
@@ -174,15 +174,15 @@ bool getLine()
     }
     else
     {
-	double finl = double(inlgen_.start) + gen_.get() * inlgen_.step;
-	double fcrl = double(inlgen_.start) + gen_.get() * inlgen_.step;
+	double finl = double(inlgen_.start_) + gen_.get() * inlgen_.step_;
+	double fcrl = double(inlgen_.start_) + gen_.get() * inlgen_.step_;
 	coord_ = SI().binID2Coord().transform( Coord(finl,fcrl) );
     }
 
     if ( fd_.bodyinfos_[1]->selection_.isInFile() )
 	z_ = getFValue( 2 );
     else
-	z_ = (float) ( zgen_.start + gen_.get() * zgen_.step );
+	z_ = (float) ( zgen_.start_ + gen_.get() * zgen_.step_ );
 
     if ( is2d_ && fd_.bodyinfos_[2]->selection_.isInFile() )
 	trcnr_ = getIntValue( 3 );

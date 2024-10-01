@@ -38,7 +38,7 @@ public:
     virtual		~SeisPSMerger();
 
     void		setOffsetRange( float r0, float r1 )
-			{ offsrg_.start = r0; offsrg_.stop = r1; }
+    { offsrg_.start_ = r0; offsrg_.stop_ = r1; }
 
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override

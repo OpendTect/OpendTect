@@ -828,7 +828,7 @@ public:
 
     void		setRange( const Interval<int>& rg ) override
     {
-	element_->setFirst( rg.start );
+	element_->setFirst( rg.start_ );
 	element_->setCount( rg.width(false)+1 );
     }
 

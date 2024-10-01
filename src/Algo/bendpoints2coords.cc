@@ -90,23 +90,24 @@ Coord BendPoints2Coords::coordAt( float pos ) const
 	return coords_[0];
 
     Interval<int> idxs; getIndexes( pos, idxs );
-    const Coord c0( coords_[idxs.start] ); const Coord c1( coords_[idxs.stop] );
-    const float frac = (pos-nrs_[idxs.start])
-		     / (nrs_[idxs.stop]-nrs_[idxs.start]);
+    const Coord c0( coords_[idxs.start_] ); const Coord c1( coords_[idxs.stop_] );
+    const float frac = (pos-nrs_[idxs.start_])
+		     / (nrs_[idxs.stop_]-nrs_[idxs.start_]);
     return Coord( c0.x + frac * (c1.x - c0.x), c0.y + frac * (c1.y - c0.y) );
 }
 
 
 void BendPoints2Coords::getIndexes( float pos, Interval<int>& idxs ) const
 {
-    idxs.start = 0; idxs.stop = nrs_.size()-1;
+    idxs.start_ = 0;
+    idxs.stop_ = nrs_.size()-1;
 
-    while ( idxs.stop-idxs.start > 1 )
+    while ( idxs.stop_-idxs.start_ > 1 )
     {
-	const int mididx = (idxs.stop+idxs.start) / 2;
+	const int mididx = (idxs.stop_+idxs.start_) / 2;
 	if ( nrs_[mididx] > pos )
-	    idxs.stop = mididx;
+	    idxs.stop_ = mididx;
 	else
-	    idxs.start = mididx;
+	    idxs.start_ = mididx;
     }
 }

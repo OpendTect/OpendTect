@@ -181,19 +181,19 @@ const char* Scaling::scalingTypeNamesStr( int type )
 
 #define mGetSqueezeRgs( var, varstring ) \
 {\
-    var.start = getDesc().getValParam(varstring)->getFValue(0); \
-    var.stop = getDesc().getValParam(varstring)->getFValue(1); \
-    if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
+    var.start_ = getDesc().getValParam(varstring)->getFValue(0); \
+    var.stop_ = getDesc().getValParam(varstring)->getFValue(1); \
+    if ( mIsUdf(var.start_) || mIsUdf(var.stop_) )\
     {\
 	Attrib::ValParam* valparam##var = \
 	      const_cast<Attrib::ValParam*>(getDesc().getValParam(varstring));\
 	mDynamicCastGet(Attrib::ZGateParam*,gateparam##var,valparam##var);\
 	if ( gateparam##var ) \
 	{ \
-	    if ( mIsUdf(var.start) ) \
-	        var.start = gateparam##var->getDefaultGateValue().start;\
-	    if ( mIsUdf(var.stop) ) \
-	        var.stop = gateparam##var->getDefaultGateValue().stop;\
+	    if ( mIsUdf(var.start_) ) \
+		var.start_ = gateparam##var->getDefaultGateValue().start_;\
+	    if ( mIsUdf(var.stop_) ) \
+		var.stop_ = gateparam##var->getDefaultGateValue().stop_;\
 	}\
     }\
 }
@@ -273,13 +273,13 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
     for ( int sgidx=0; sgidx<gates_.size(); sgidx++ )
     {
 	const Interval<int>& sg = sgates[sgidx];
-	if ( !sg.start && !sg.stop )
+	if ( !sg.start_ && !sg.stop_ )
 	{
 	    scalefactors += 1;
 	    continue;
 	}
 
-	for ( int idx=sg.start; idx<=sg.stop; idx++ )
+	for ( int idx=sg.start_; idx<=sg.stop_; idx++ )
 	    stats += getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
 
 	float val = (float)stats.getValue( statstype );
@@ -300,7 +300,7 @@ void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
     for ( int sgidx=0; sgidx<gates_.size(); sgidx++ )
     {
 	const Interval<int>& sg = sgates[sgidx];
-	if ( !sg.start && !sg.stop )
+	if ( !sg.start_ && !sg.stop_ )
 	{
 	    trends_ += Trend(1,0);
 	    continue;
@@ -308,7 +308,7 @@ void Scaling::getTrendsFromStats( const TypeSet<Interval<int> >& sgates,
 
 	float crosssum = 0;
 	int nrindexes = 0;
-	for ( int idx=sg.start; idx<=sg.stop; idx++ )
+	for ( int idx=sg.start_; idx<=sg.stop_; idx++ )
 	{
 	    float val = getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
 	    stats += val;
@@ -392,8 +392,8 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 
 		    scalefactor = interpolator( scalefactors[sgidx],
 					scalefactors[sgidx+1],
-					mCast(float,samplegates[sgidx+1].start),
-					mCast(float,samplegates[sgidx].stop),
+			    mCast(float,samplegates[sgidx+1].start_),
+			    mCast(float,samplegates[sgidx].stop_),
 					mCast(float,csamp) );
 		}
 		else
@@ -447,14 +447,14 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
     int curgateidx = 0;
     TypeSet< Interval<int> > gates;
     for ( int idx=0; idx<gates_.size(); idx++ )
-	gates += Interval<int>( (int)gates_[idx].start*1000,
-				(int)gates_[idx].stop*1000 );
+	gates += Interval<int>( (int)gates_[idx].start_*1000,
+				(int)gates_[idx].stop_*1000 );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const float curt = (idx+z0)*refstep_;
 
-	if ( curt>gates_[curgateidx].stop && curgateidx<gates_.size()-1 )
+	if ( curt>gates_[curgateidx].stop_ && curgateidx<gates_.size()-1 )
 	    curgateidx++;
 	if ( !gates_.validIdx(curgateidx) )
 	    break;
@@ -464,9 +464,9 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
 	Interval<float> curgate = gates_[curgateidx];
 	const float val = getInputValue( *inputdata_, dataidx_, idx, z0);
 	const float factor =
-	    (curt<gates_[0].start || curt>gates_[gates_.size()-1].stop) ?
+		(curt<gates_[0].start_ || curt>gates_[gates_.size()-1].stop_) ?
 	    1.0f : interpolator( scalefacstart, scalefacstop,
-			         curgate.start, curgate.stop, curt );
+				 curgate.start_, curgate.stop_, curt );
 	const float result = val*factor;
 	setOutputValue( output, 0, idx, z0, result );
     }
@@ -476,8 +476,8 @@ void Scaling::scaleGain( const DataHolder& output, int z0, int nrsamples ) const
 void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
 {
     Interval<int> samplewindow;
-    samplewindow.start = mNINT32( window_.start/refstep_ );
-    samplewindow.stop = mNINT32( window_.stop/refstep_ );
+    samplewindow.start_ = mNINT32( window_.start_/refstep_ );
+    samplewindow.stop_ = mNINT32( window_.stop_/refstep_ );
 
     if ( inputdata_->nrsamples_ <= samplewindow.width() )
     {
@@ -509,17 +509,17 @@ void Scaling::getSampleGates( const TypeSet< Interval<float> >& oldtgs,
 {
     for( int idx=0; idx<oldtgs.size(); idx++ )
     {
-	Interval<int> sg( mNINT32(oldtgs[idx].start/refstep_),
-			  mNINT32(oldtgs[idx].stop/refstep_) );
-	if ( sg.start>nrsamples+z0 || sg.stop<z0 )
+	Interval<int> sg( mNINT32(oldtgs[idx].start_/refstep_),
+			  mNINT32(oldtgs[idx].stop_/refstep_) );
+	if ( sg.start_>nrsamples+z0 || sg.stop_<z0 )
 	{
 	    newsampgates += Interval<int>(0,0);
 	    continue;
 	}
 
-	if ( sg.start < inputdata_->z0_ ) sg.start = inputdata_->z0_;
-	if ( sg.stop >= inputdata_->z0_ + inputdata_->nrsamples_ )
-	    sg.stop = inputdata_->z0_ + inputdata_->nrsamples_ -1;
+	if ( sg.start_ < inputdata_->z0_ ) sg.start_ = inputdata_->z0_;
+	if ( sg.stop_ >= inputdata_->z0_ + inputdata_->nrsamples_ )
+	    sg.stop_ = inputdata_->z0_ + inputdata_->nrsamples_ -1;
 	newsampgates += sg;
     }
 }

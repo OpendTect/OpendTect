@@ -598,7 +598,7 @@ static void addZRangeTxt( const ZDomain::Info& zinfo, ZSampling zrange,
 	return;
 
     BufferString zrngtext;
-    const int nrdec = zrange.step;
+    const int nrdec = zrange.step_;
     const float zuserfac = zinfo.userFactor();
     zrange.scale( zuserfac );
     const uiString unitstr = zinfo.uiUnitStr();
@@ -607,8 +607,8 @@ static void addZRangeTxt( const ZDomain::Info& zinfo, ZSampling zrange,
 	keystr.withUnit( unitstr );
     zrngtext.add( keystr.getString() ).add(": ")
 	    .add( toUiString("%1 - %2")
-		  .arg(toString(zrange.start,nrdec))
-		  .arg(toString(zrange.stop,nrdec)).getString() );
+                  .arg(toString(zrange.start_,nrdec))
+                  .arg(toString(zrange.stop_,nrdec)).getString() );
 
     txt.add( zrngtext ).addNewLine();
 }
@@ -620,8 +620,8 @@ static void addInlCrlRangeTxt( BufferString& txt,
     if ( range.isUdf() )
 	txt.add( "-" ).addNewLine();
     else
-	txt.add( range.start ).add( " - " ).add( range.stop )
-	   .add( " [" ).add( range.step ).add( "]" ).addNewLine();
+        txt.add( range.start_ ).add( " - " ).add( range.stop_ )
+                .add( " [" ).add( range.step_ ).add( "]" ).addNewLine();
 }
 
 
@@ -693,7 +693,7 @@ void uiSurfaceMan::mkFileInfo()
 	txt += "Cross-line range: ";
 	addInlCrlRangeTxt( txt, range );
 	const ZSampling zrg( eminfo.getZRange(),
-		 eminfo.zDomain().getReasonableZSampling(false,false).step );
+                             eminfo.zDomain().getReasonableZSampling(false,false).step_ );
 	addZRangeTxt( eminfo.zDomain(), eminfo.getZRange(), txt);
     }
 
@@ -927,11 +927,11 @@ void lineSel( CallBacker* )
     if ( trcranges.validIdx(curitm) )
     {
 	StepInterval<int> trcrg = trcranges[ curitm ];
-	txt += BufferString( sKey::FirstTrc(), ": " ); txt += trcrg.start;
+        txt += BufferString( sKey::FirstTrc(), ": " ); txt += trcrg.start_;
 	txt += "\n";
-	txt += BufferString( sKey::LastTrc(), ": " ); txt += trcrg.stop;
+        txt += BufferString( sKey::LastTrc(), ": " ); txt += trcrg.stop_;
 	txt += "\n";
-	txt += BufferString( "Trace Step: " ); txt += trcrg.step;
+        txt += BufferString( "Trace Step: " ); txt += trcrg.step_;
     }
 
     infofld_->setText( txt );

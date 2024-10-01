@@ -125,14 +125,14 @@ void Horizon2DLine::syncRow( Pos::GeomID geomid,
 	if ( !rows_[rowidx]->size() )
 	{
 	    *rows_[rowidx] += Coord3::udf();
-	    colsampling_[rowidx].start = posns[tridx].nr_;
+            colsampling_[rowidx].start_ = posns[tridx].nr_;
 	    colidx = 0;
 	}
 
 	while ( colidx<0 )
 	{
 	    rows_[rowidx]->insert( 0, Coord3::udf() );
-	    colsampling_[rowidx].start -= colsampling_[rowidx].step;
+            colsampling_[rowidx].start_ -= colsampling_[rowidx].step_;
 	    colidx++;
 	}
 
@@ -158,7 +158,7 @@ void Horizon2DLine::syncRow( Pos::GeomID geomid,
     while ( rows_[rowidx]->size() && !Coord((*rows_[rowidx])[0]).isDefined() )
     {
 	rows_[rowidx]->removeSingle( 0 );
-	colsampling_[rowidx].start += colsampling_[rowidx].step;
+        colsampling_[rowidx].start_ += colsampling_[rowidx].step_;
     }
 
     triggerNrPosCh();
@@ -187,12 +187,12 @@ void Horizon2DLine::removeCols( Pos::GeomID geomid, int col1, int col2 )
     const int startidx = colrg.getIndex( col1 );
     const int stopidx = colrg.getIndex( col2 );
 
-    if ( colrg.start == col1 )
+    if ( colrg.start_ == col1 )
     {
 	rows_[rowidx]->removeRange( startidx, stopidx );
-	colsampling_[rowidx].start = col2 + colrg.step;
+        colsampling_[rowidx].start_ = col2 + colrg.step_;
     }
-    else if ( colrg.stop == col2 )
+    else if ( colrg.stop_ == col2 )
     {
 	rows_[rowidx]->removeRange( startidx, stopidx );
     }
@@ -234,7 +234,7 @@ void Horizon2DLine::setRow( Pos::GeomID geomid, const TypeSet<Coord>& path,
 
     const bool samedimensions =
 	path.size()==rows_[rowidx]->size() &&
-	start==colsampling_[rowidx].start && step==colsampling_[rowidx].step;
+            start==colsampling_[rowidx].start_ && step==colsampling_[rowidx].step_;
 
     rows_[rowidx]->setSize( path.size(), Coord3::udf() );
 
@@ -245,8 +245,8 @@ void Horizon2DLine::setRow( Pos::GeomID geomid, const TypeSet<Coord>& path,
 	triggerMovement();
     else
     {
-	colsampling_[rowidx].start = start;
-	colsampling_[rowidx].step = step;
+        colsampling_[rowidx].start_ = start;
+        colsampling_[rowidx].step_ = step;
 	triggerNrPosCh();
     }
 }
@@ -262,8 +262,8 @@ StepInterval<int> Horizon2DLine::colRange( int rowidx ) const
 	return StepInterval<int>( INT_MAX, INT_MIN, 1 );
 
     const SamplingData<int>& sd = colsampling_[rowidx];
-    return StepInterval<int>( sd.start, sd.atIndex(rows_[rowidx]->size()-1),
-			      sd.step );
+    return StepInterval<int>( sd.start_, sd.atIndex(rows_[rowidx]->size()-1),
+                              sd.step_ );
 }
 
 
@@ -277,7 +277,7 @@ Interval<float> Horizon2DLine::zRange( Pos::GeomID geomid ) const
 {
     Interval<float> zrange( mUdf(float), -mUdf(float) );
     StepInterval<int> colrg = colRange( getRowIndex(geomid) );
-    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+    for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
     {
 	const int rowidx = getRowIndex( geomid );
 	const float z = (float) getKnot( RowCol(rowidx,col) ).z;
@@ -298,7 +298,7 @@ void Horizon2DLine::geometry( Pos::GeomID geomid,
 	return;
 
     const Interval<float> myzrg( zRange(geomid) );
-    const StepInterval<float> zrg( myzrg.start, myzrg.stop, ld.zRange().step );
+    const StepInterval<float> zrg( myzrg.start_, myzrg.stop_, ld.zRange().step_ );
     ld.setZRange( zrg );
     for ( int idx=0; idx<rows_[rowidx]->size(); idx++ )
     {
@@ -448,11 +448,11 @@ int Horizon2DLine::colIndex( int rowidx, int colid ) const
     if ( rowidx<0 || rowidx>=rows_.size() || rowidx>=colsampling_.size() )
 	return -1;
     const SamplingData<int>& sd = colsampling_[rowidx];
-    int idx = colid-sd.start;
-    if ( idx<0 || !sd.step || idx%sd.step )
+    int idx = colid-sd.start_;
+    if ( idx<0 || !sd.step_ || idx%sd.step_ )
 	return -1;
 
-    idx /= sd.step;
+    idx /= sd.step_;
     if ( idx>=rows_[rowidx]->size() )
 	return -1;
 
@@ -463,8 +463,8 @@ int Horizon2DLine::colIndex( int rowidx, int colid ) const
 bool Horizon2DLine::hasSupport( const RowCol& rc ) const
 {
     StepInterval<int> colrg = colRange( rc.row() );
-    const RowCol prev( rc.row(), rc.col()-colrg.step );
-    const RowCol next( rc.row(), rc.col()+colrg.step );
+    const RowCol prev( rc.row(), rc.col()-colrg.step_ );
+    const RowCol next( rc.row(), rc.col()+colrg.step_ );
     return isKnotDefined(prev) || isKnotDefined(next);
 }
 
@@ -477,29 +477,29 @@ void Horizon2DLine::trimUndefParts()
 	Pos::GeomID geomid = geomids_[idx];
 	StepInterval<int> colrg = colRangeForGeomID( geomid );
 	bool founddefknot = false;
-	for ( int col=colrg.start; col<colrg.stop; col+=colrg.step )
+        for ( int col=colrg.start_; col<colrg.stop_; col+=colrg.step_ )
 	{
 	    if ( isKnotDefined(RowCol(idx,col)) )
 		founddefknot = true;
 	    else
 		continue;
 
-	    if ( founddefknot && col!=colrg.start )
-		removeCols( geomid, colrg.start, col-colrg.step );
+            if ( founddefknot && col!=colrg.start_ )
+                removeCols( geomid, colrg.start_, col-colrg.step_ );
 
 	    break;
 	}
 
 	founddefknot = false;
-	for ( int col=colrg.stop; col>=colrg.start; col-=colrg.step )
+        for ( int col=colrg.stop_; col>=colrg.start_; col-=colrg.step_ )
 	{
 	    if ( isKnotDefined(RowCol(idx,col)) )
 		founddefknot = true;
 	    else
 		continue;
 
-	    if ( founddefknot && col!=colrg.stop )
-		removeCols( geomid, col+colrg.step, colrg.stop );
+            if ( founddefknot && col!=colrg.stop_ )
+                removeCols( geomid, col+colrg.step_, colrg.stop_ );
 
 	    break;
 	}

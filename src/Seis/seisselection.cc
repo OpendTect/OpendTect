@@ -274,11 +274,11 @@ void Seis::RangeSelData::copyFrom( const Seis::SelData& sd )
     else
     {
 	Interval<int> rg( sd.inlRange() );
-	tkzs_.hsamp_.start_.inl() = rg.start;
-	tkzs_.hsamp_.stop_.inl() = rg.stop;
+        tkzs_.hsamp_.start_.inl() = rg.start_;
+        tkzs_.hsamp_.stop_.inl() = rg.stop_;
 	rg = sd.crlRange();
-	tkzs_.hsamp_.start_.crl() = rg.start;
-	tkzs_.hsamp_.stop_.crl() = rg.stop;
+        tkzs_.hsamp_.start_.crl() = rg.start_;
+        tkzs_.hsamp_.stop_.crl() = rg.stop_;
 	assign( tkzs_.zsamp_, sd.zRange() );
     }
 }
@@ -310,13 +310,13 @@ bool Seis::RangeSelData::setInlRange( const Interval<int>& rg )
     if ( tkzs_.is2D() )
 	{ pErrMsg("Should not be called for 2D. Use setGeomID"); }
 
-    tkzs_.hsamp_.start_.inl() = rg.start;
-    tkzs_.hsamp_.stop_.inl() = rg.stop;
+    tkzs_.hsamp_.start_.inl() = rg.start_;
+    tkzs_.hsamp_.stop_.inl() = rg.stop_;
     if ( rg.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<int>*,inlrg,&rg);
 	if ( inlrg )
-	    tkzs_.hsamp_.step_.inl() = inlrg->step;
+            tkzs_.hsamp_.step_.inl() = inlrg->step_;
     }
 
     return true;
@@ -325,13 +325,13 @@ bool Seis::RangeSelData::setInlRange( const Interval<int>& rg )
 
 bool Seis::RangeSelData::setCrlRange( const Interval<int>& rg )
 {
-    tkzs_.hsamp_.start_.crl() = rg.start;
-    tkzs_.hsamp_.stop_.crl() = rg.stop;
+    tkzs_.hsamp_.start_.crl() = rg.start_;
+    tkzs_.hsamp_.stop_.crl() = rg.stop_;
     if ( rg.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<int>*,crlrg,&rg);
 	if ( crlrg )
-	    tkzs_.hsamp_.step_.crl() = crlrg->step;
+            tkzs_.hsamp_.step_.crl() = crlrg->step_;
     }
 
     testIsAll2D();
@@ -341,13 +341,13 @@ bool Seis::RangeSelData::setCrlRange( const Interval<int>& rg )
 
 bool Seis::RangeSelData::setZRange( const Interval<float>& rg )
 {
-    tkzs_.zsamp_.start = rg.start;
-    tkzs_.zsamp_.stop = rg.stop;
+    tkzs_.zsamp_.start_ = rg.start_;
+    tkzs_.zsamp_.stop_ = rg.stop_;
     if ( rg.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<int>*,zrg,&rg);
 	if ( zrg )
-	    tkzs_.zsamp_.step = zrg->step;
+            tkzs_.zsamp_.step_ = zrg->step_;
     }
 
     testIsAll2D();
@@ -392,8 +392,8 @@ void Seis::RangeSelData::usePar( const IOPar& iop )
 
 void Seis::RangeSelData::extendZ( const Interval<float>& zrg )
 {
-    tkzs_.zsamp_.start += zrg.start;
-    tkzs_.zsamp_.stop += zrg.stop;
+    tkzs_.zsamp_.start_ += zrg.start_;
+    tkzs_.zsamp_.stop_ += zrg.stop_;
 }
 
 
@@ -421,20 +421,20 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
     }
 
     Interval<int> rg( sd.inlRange() );
-    if ( tkzs_.hsamp_.start_.inl() > rg.start )
-	tkzs_.hsamp_.start_.inl() = rg.start;
-    if ( tkzs_.hsamp_.stop_.inl() < rg.stop )
-	tkzs_.hsamp_.stop_.inl() = rg.stop;
+    if ( tkzs_.hsamp_.start_.inl() > rg.start_ )
+        tkzs_.hsamp_.start_.inl() = rg.start_;
+    if ( tkzs_.hsamp_.stop_.inl() < rg.stop_ )
+        tkzs_.hsamp_.stop_.inl() = rg.stop_;
     rg = sd.crlRange();
-    if ( tkzs_.hsamp_.start_.crl() > rg.start )
-	tkzs_.hsamp_.start_.crl() = rg.start;
-    if ( tkzs_.hsamp_.stop_.crl() < rg.stop )
-	tkzs_.hsamp_.stop_.crl() = rg.stop;
+    if ( tkzs_.hsamp_.start_.crl() > rg.start_ )
+        tkzs_.hsamp_.start_.crl() = rg.start_;
+    if ( tkzs_.hsamp_.stop_.crl() < rg.stop_ )
+        tkzs_.hsamp_.stop_.crl() = rg.stop_;
     const Interval<float> zrg( sd.zRange() );
-    if ( tkzs_.zsamp_.start > rg.start )
-	tkzs_.zsamp_.start = mCast(float,rg.start);
-    if ( tkzs_.zsamp_.stop < rg.stop )
-	tkzs_.zsamp_.stop = mCast(float,rg.stop);
+    if ( tkzs_.zsamp_.start_ > rg.start_ )
+        tkzs_.zsamp_.start_ = mCast(float,rg.start_);
+    if ( tkzs_.zsamp_.stop_ < rg.stop_ )
+        tkzs_.zsamp_.stop_ = mCast(float,rg.stop_);
 }
 
 
@@ -632,8 +632,8 @@ void Seis::TableSelData::usePar( const IOPar& iop )
 
 void Seis::TableSelData::extendZ( const Interval<float>& zrg )
 {
-    extraz_.start += zrg.start;
-    extraz_.stop += zrg.stop;
+    extraz_.start_ += zrg.start_;
+    extraz_.stop_ += zrg.stop_;
 }
 
 
@@ -654,10 +654,10 @@ void Seis::TableSelData::include( const Seis::SelData& sd )
     {
 	mDynamicCastGet(const Seis::TableSelData&,tsd,sd)
 	bvs_.append( tsd.bvs_ );
-	if ( extraz_.start < tsd.extraz_.start )
-	    extraz_.start = tsd.extraz_.start;
-	if ( extraz_.stop > tsd.extraz_.stop )
-	    extraz_.stop = tsd.extraz_.stop;
+        if ( extraz_.start_ < tsd.extraz_.start_ )
+            extraz_.start_ = tsd.extraz_.start_;
+        if ( extraz_.stop_ > tsd.extraz_.stop_ )
+            extraz_.stop_ = tsd.extraz_.stop_;
     }
     else
     {
@@ -798,7 +798,7 @@ Interval<int> Seis::PolySelData::inlRange() const
     for ( int idx=1; idx<polys_.size(); idx++ )
 	floatrg.include( polys_[idx]->getRange(true) );
 
-    Interval<int> intrg( mNINT32(floatrg.start), mNINT32(floatrg.stop) );
+    Interval<int> intrg( mNINT32(floatrg.start_), mNINT32(floatrg.stop_) );
     intrg.widen( stepoutreach_.inl() );
     intrg.limitTo( Seis::SelData::inlRange() );
 
@@ -817,7 +817,7 @@ Interval<int> Seis::PolySelData::crlRange() const
     for ( int idx=1; idx<polys_.size(); idx++ )
 	floatrg.include( polys_[idx]->getRange(false) );
 
-    Interval<int> intrg( mNINT32(floatrg.start), mNINT32(floatrg.stop) );
+    Interval<int> intrg( mNINT32(floatrg.start_), mNINT32(floatrg.stop_) );
     intrg.widen( stepoutreach_.crl() );
     intrg.limitTo( Seis::SelData::crlRange() );
 
@@ -886,8 +886,8 @@ void Seis::PolySelData::usePar( const IOPar& iop )
 
 void Seis::PolySelData::extendZ( const Interval<float>& zrg )
 {
-    zrg_.start += zrg.start;
-    zrg_.stop += zrg.stop;
+    zrg_.start_ += zrg.start_;
+    zrg_.stop_ += zrg.stop_;
 }
 
 
@@ -905,10 +905,10 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
     if ( sd.type() == type() )
     {
 	mDynamicCastGet(const Seis::PolySelData&,psd,sd)
-	if ( zrg_.start < psd.zrg_.start )
-	    zrg_.start = psd.zrg_.start;
-	if ( zrg_.stop > psd.zrg_.stop )
-	    zrg_.stop = psd.zrg_.stop;
+                if ( zrg_.start_ < psd.zrg_.start_ )
+                zrg_.start_ = psd.zrg_.start_;
+        if ( zrg_.stop_ > psd.zrg_.stop_ )
+            zrg_.stop_ = psd.zrg_.stop_;
 
 	for ( int idx=0; idx<psd.polys_.size(); idx++ )
 	    polys_ += new ODPolygon<float>( *psd.polys_[idx] );
@@ -927,22 +927,22 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 
 	    ODPolygon<float>* rect = new ODPolygon<float>();
 	    Geom::Point2D<float> point(
-			mCast(float,inlrg.start + stepoutreach_.inl()),
-			mCast(float,crlrg.start + stepoutreach_.crl()) );
+                        mCast(float,inlrg.start_ + stepoutreach_.inl()),
+                        mCast(float,crlrg.start_ + stepoutreach_.crl()) );
 	    rect->add( point );
-	    point.y = mCast( float, crlrg.stop - stepoutreach_.crl() );
+            point.y = mCast( float, crlrg.stop_ - stepoutreach_.crl() );
 	    rect->add( point );
-	    point.x = mCast( float, inlrg.stop - stepoutreach_.inl() );
+            point.x = mCast( float, inlrg.stop_ - stepoutreach_.inl() );
 	    rect->add( point );
-	    point.y = mCast( float, crlrg.start + stepoutreach_.crl() );
+            point.y = mCast( float, crlrg.start_ + stepoutreach_.crl() );
 	    rect->add( point );
 
 	    polys_ += rect;
 
-	    if ( zrg_.start < zrg.start )
-		zrg_.start = zrg.start;
-	    if ( zrg_.stop > zrg.stop )
-		zrg_.stop = zrg.stop;
+            if ( zrg_.start_ < zrg.start_ )
+                zrg_.start_ = zrg.start_;
+            if ( zrg_.stop_ > zrg.stop_ )
+                zrg_.stop_ = zrg.stop_;
 	}
 	else
 	{
@@ -988,9 +988,9 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	    ? (float) polys_[idx]->area()/rectarea
 	    : 1.0f;
 
-	Interval<int> inlrg( mNINT32(polyinlrg.start), mNINT32(polyinlrg.stop));
+        Interval<int> inlrg( mNINT32(polyinlrg.start_), mNINT32(polyinlrg.stop_));
 	inlrg.widen( stepoutreach_.inl() );
-	Interval<int> crlrg( mNINT32(polycrlrg.start), mNINT32(polycrlrg.stop));
+        Interval<int> crlrg( mNINT32(polycrlrg.start_), mNINT32(polycrlrg.stop_));
 	crlrg.widen( stepoutreach_.crl() );
 
 	TrcKeySampling hs;

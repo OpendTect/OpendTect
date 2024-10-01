@@ -41,10 +41,10 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     uiSlider::Setup slsu( tr("Vertical position (Z)") );
     slsu.sldrsize(150).withedit( true );
     zposfld_ = new uiSlider( this, slsu, "Z slider" );
-    zposfld_->setScale( zrng_.step, zrng_.start );
+    zposfld_->setScale( zrng_.step_, zrng_.start_ );
     zposfld_->setInterval( zrng_ );
     zposfld_->attach( alignedBelow, imagefld_ );
-    zposfld_->setValue( istop_ ? zrng_.start : zrng_.stop );
+    zposfld_->setValue( istop_ ? zrng_.start_ : zrng_.stop_ );
     mAttachCB( zposfld_->valueChanged, uiSurvTopBotImageGrp::coordChg );
 
     slsu.lbl_ = uiStrings::sTransparency();

@@ -233,8 +233,8 @@ bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 
     const StepInterval<float> zsamp = sdp->zRange();
     const int nrz = zsamp.nrSteps() + 1;
-    const SamplingData<float> sd( zsamp.start, zsamp.step );
-    evtracker_.setRangeStep( sd.step );
+    const SamplingData<float> sd( zsamp.start_, zsamp.step_ );
+    evtracker_.setRangeStep( sd.step_ );
     evtracker_.setTarget( &tovs, nrz, sd.getfIndex(startz) );
 
     if ( !mIsUdf(from.lineNr()) && !mIsUdf(from.trcNr()) )
@@ -314,12 +314,12 @@ TrcKeyZSampling
 
     TrcKeyZSampling res = engine().activeVolume();
 
-    res.zsamp_.start += evtracker_.permittedRange().start;
-    res.zsamp_.stop += evtracker_.permittedRange().stop;
+    res.zsamp_.start_ += evtracker_.permittedRange().start_;
+    res.zsamp_.stop_ += evtracker_.permittedRange().stop_;
     if ( !trackByValue() )
     {
-	res.zsamp_.start += evtracker_.similarityWindow().start;
-	res.zsamp_.stop += evtracker_.similarityWindow().stop;
+	res.zsamp_.start_ += evtracker_.similarityWindow().start_;
+	res.zsamp_.stop_ += evtracker_.similarityWindow().stop_;
     }
 
     res.snapToSurvey();

@@ -182,9 +182,9 @@ Sampled1DProbDenFunc* get1DPDF()
 	if ( astrm.hasKeyword(sKeyXLogType) )
 	    varnm = astrm.value();
 	else if ( astrm.hasKeyword(sKeyXBinMin) )
-	    sd.start = astrm.getFValue();
+	    sd.start_ = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyXBinWidth) )
-	    sd.step = astrm.getFValue();
+	    sd.step_ = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyXNoBins) )
 	    nr = astrm.getIValue();
 	else if ( StringView(astrm.keyWord()).startsWith(sKeyFirstXBin) )
@@ -238,17 +238,17 @@ Sampled2DProbDenFunc* get2DPDF()
 	if ( astrm.hasKeyword(sKeyXLogType) )
 	    dim0nm = astrm.value();
 	else if ( astrm.hasKeyword(sKeyXBinMin) )
-	    sd0.start = astrm.getFValue();
+	    sd0.start_ = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyXBinWidth) )
-	    sd0.step = astrm.getFValue();
+	    sd0.step_ = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyXNoBins) )
 	    nr0 = astrm.getIValue();
 	else if ( astrm.hasKeyword(sKeyYLogType) )
 	    dim1nm = astrm.value();
 	else if ( astrm.hasKeyword(sKeyYBinMin) )
-	    sd1.start = astrm.getFValue();
+	    sd1.start_ = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyYBinWidth) )
-	    sd1.step = astrm.getFValue();
+	    sd1.step_ = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyYNoBins) )
 	    nr1 = astrm.getIValue();
 	else if ( StringView(astrm.keyWord()).startsWith(sKeyFirstXBin) )
@@ -339,8 +339,8 @@ void uiImpRokDocPDF::selChg( CallBacker* )
 
     varnmsfld_->setText( pdf1d ? pdf1d->dimName( 0 ) : pdf2d->dimName( 0 ) );
     const Interval<float> xrg = pdf->getRange( 0 );
-    xrgfld_->setValue( xrg.start, 0 );
-    xrgfld_->setValue( xrg.stop, 1 );
+    xrgfld_->setValue( xrg.start_, 0 );
+    xrgfld_->setValue( xrg.stop_, 1 );
     xnrbinfld_->setValue( pdf->size(0) );
     const UnitOfMeasure* uom = UoMR().get( pdf1d ? pdf1d->getUOMSymbol(0)
 						 : pdf2d->getUOMSymbol(0) );
@@ -351,8 +351,8 @@ void uiImpRokDocPDF::selChg( CallBacker* )
     {
 	varnmsfld_->setText( pdf2d->dimName( 1 ), 1 );
 	const Interval<float> yrg = pdf->getRange( 1 );
-	yrgfld_->setValue( yrg.start, 0 );
-	yrgfld_->setValue( yrg.stop, 1 );
+	yrgfld_->setValue( yrg.start_, 0 );
+	yrgfld_->setValue( yrg.stop_, 1 );
 	ynrbinfld_->setValue( pdf->size(1) );
 	uom = UoMR().get( pdf2d->getUOMSymbol(1) );
 	if ( uom )
@@ -375,11 +375,11 @@ static bool getPDFFldRes( uiGenInput* rgfld, uiGenInput* szfld,
     if ( mIsUdf(sz) )
 	return false;
 
-    rg.step = sz < 1 ? mUdf(float) : rg.width() / sz;
+    rg.step_ = sz < 1 ? mUdf(float) : rg.width() / sz;
     if ( !forgui )
     {
-	rg.start += rg.step / 2.f;
-	rg.stop -= rg.step / 2.f;
+	rg.start_ += rg.step_ / 2.f;
+	rg.stop_ -= rg.step_ / 2.f;
     }
 
     return !rg.isUdf() || sz == 1;
@@ -392,10 +392,10 @@ static void extPDFFlds( uiGenInput* rgfld, uiGenInput* szfld )
     if ( !getPDFFldRes(rgfld,szfld,rg,true) )
 	return;
 
-    if ( mIsUdf(rg.step) ) return;
+    if ( mIsUdf(rg.step_) ) return;
 
-    rg.start -= rg.step;
-    rg.stop += rg.step;
+    rg.start_ -= rg.step_;
+    rg.stop_ += rg.step_;
 
     rgfld->setValue( rg );
     szfld->setValue( rg.nrSteps() );
@@ -558,8 +558,8 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf, bool withunits )
 	varnm.add( " (" ).add( pdf.getUOMSymbol(0) ).add( ")" );
 
     strm_ << "X Log Type	: " << varnm << '\n';
-    strm_ << "X Mid Bin Minimum : " << pdf.sampling().start << '\n';
-    strm_ << "X Bin Width	: " << pdf.sampling().step << '\n';
+    strm_ << "X Mid Bin Minimum : " << pdf.sampling().start_ << '\n';
+    strm_ << "X Bin Width	: " << pdf.sampling().step_ << '\n';
     strm_ << "X No of Bins      : " << nrx << "\n\n";
 
     static const char* twentyspaces = "                    ";
@@ -595,15 +595,15 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf, bool withunits )
 
     const int nrx = pdf.size( 0 );
     const int nry = pdf.size( 1 );
-    const float xwidth = nrx == 1 ? 0.f : pdf.sampling(0).step;
-    const float ywidth = nry == 1 ? 0.f : pdf.sampling(1).step;
+    const float xwidth = nrx == 1 ? 0.f : pdf.sampling(0).step_;
+    const float ywidth = nry == 1 ? 0.f : pdf.sampling(1).step_;
 
     BufferString varnm( pdf.dimName(0) );
     if ( withunits )
 	varnm.add( " (" ).add( pdf.getUOMSymbol(0) ).add( ")" );
 
     strm_ << "X Log Type	: " << varnm << '\n';
-    strm_ << "X Mid Bin Minimum : " << pdf.sampling(0).start << '\n';
+    strm_ << "X Mid Bin Minimum : " << pdf.sampling(0).start_ << '\n';
     strm_ << "X Bin Width       : " << xwidth << '\n';
     strm_ << "X No of Bins      : " << nrx << "\n\n";
 
@@ -612,7 +612,7 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf, bool withunits )
 	varnm.add( " (" ).add( pdf.getUOMSymbol(1) ).add( ")" );
 
     strm_ << "Y Log Type	: " << varnm << '\n';
-    strm_ << "Y Mid Bin Minimum : " << pdf.sampling(1).start << '\n';
+    strm_ << "Y Mid Bin Minimum : " << pdf.sampling(1).start_ << '\n';
     strm_ << "Y Bin Width       : " << ywidth << '\n';
     strm_ << "Y No of Bins      : " << nry << "\n\n";
 

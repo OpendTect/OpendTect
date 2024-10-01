@@ -40,7 +40,7 @@ const char* EMSurfaceProvider::extraZKey()	{ return "Extra Z"; }
 
 
 EMSurfaceProvider::EMSurfaceProvider()
-    : zstep_(SI().zRange(true).step)
+    : zstep_(SI().zRange(true).step_)
     , extraz_(0,0)
     , hs_(SI().sampling(false).hsamp_)
     , zrg1_(0,0)
@@ -106,12 +106,12 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 	    {
 		veryfirst = false;
 		hs.start_ = hs.stop_ = bid;
-		zrg.start = zrg.stop = (float) coord.z;
+                zrg.start_ = zrg.stop_ = (float) coord.z;
 	    }
 	    else
 	    {
-		if ( coord.z < zrg.start ) zrg.start = (float) coord.z;
-		if ( coord.z > zrg.stop ) zrg.stop = (float) coord.z;
+                if ( coord.z < zrg.start_ ) zrg.start_ = (float) coord.z;
+                if ( coord.z > zrg.stop_ ) zrg.stop_ = (float) coord.z;
 		hs.include( bid );
 	    }
 	    estnrpos++;
@@ -191,16 +191,16 @@ bool EMSurfaceProvider::toNextPos()
 	    if ( !curpos_.isValid() )
 		return false;
 
-	    curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z;
+            curzrg_.start_ = curzrg_.stop_ = (float) surf1_->getPos( curpos_ ).z;
 
 	    if ( surf2_ )
 	    {
 		const float stop = (float) surf2_->getPos( curpos_.subID() ).z;
 		if ( !mIsUdf(stop) )
 		{
-		    curzrg_.stop = stop;
-		    if ( mIsUdf(curzrg_.start) )
-			curzrg_.start = stop;
+                    curzrg_.stop_ = stop;
+                    if ( mIsUdf(curzrg_.start_) )
+                        curzrg_.start_ = stop;
 		}
 	    }
 
@@ -210,20 +210,20 @@ bool EMSurfaceProvider::toNextPos()
 	    curzrg_.sort();
 	    curzrg_ += extraz_;
 
-	    if ( mIsEqual(curzrg_.start,curzrg_.stop,mDefEps) )
-		SI().snapZ( curzrg_.start, 0 );
+            if ( mIsEqual(curzrg_.start_,curzrg_.stop_,mDefEps) )
+                SI().snapZ( curzrg_.start_, 0 );
 	    else
 	    {
-		SI().snapZ( curzrg_.start, 1 );
-		SI().snapZ( curzrg_.stop, -1 );
+                SI().snapZ( curzrg_.start_, 1 );
+                SI().snapZ( curzrg_.stop_, -1 );
 		curzrg_.sort();
 	    }
 
 	    const StepInterval<float>& zsamp = SI().zRange();
-	    const int zidx = mIsEqual(curzrg_.start,curzrg_.stop,mDefEps) ?
-				zsamp.nearestIndex( curzrg_.start ) :
-				gen_.getInt( zsamp.nearestIndex(curzrg_.start),
-					     zsamp.nearestIndex(curzrg_.stop) );
+            const int zidx = mIsEqual(curzrg_.start_,curzrg_.stop_,mDefEps) ?
+                                 zsamp.nearestIndex( curzrg_.start_ ) :
+                                 gen_.getInt( zsamp.nearestIndex(curzrg_.start_),
+                                              zsamp.nearestIndex(curzrg_.stop_) );
 	    curz_ = zsamp.atIndex( zidx );
 	    pos = postuple( idx, zidx );
 	} while ( mIsUdf(curz_) ? false : posindexlst_.isPresent(pos) );
@@ -238,13 +238,13 @@ bool EMSurfaceProvider::toNextPos()
 	if ( !curpos_.isValid() )
 	    return false;
 
-	curzrg_.start = curzrg_.stop = (float) surf1_->getPos( curpos_ ).z;
+        curzrg_.start_ = curzrg_.stop_ = (float) surf1_->getPos( curpos_ ).z;
 	if ( surf2_ )
 	{
 	    const float stop =
 	    (float) surf2_->getPos( curpos_.subID()).z;
 	    if ( !mIsUdf(stop) )
-		curzrg_.stop = stop;
+                curzrg_.stop_ = stop;
 	}
 
 	curzrg_.sort();
@@ -253,16 +253,16 @@ bool EMSurfaceProvider::toNextPos()
 	Interval<float> unsnappedzrg = curzrg_;
 	if ( surf2_ )
 	{
-	    SI().snapZ( curzrg_.start, 1 );
-	    SI().snapZ( curzrg_.stop, -1 );
-	    if ( !unsnappedzrg.includes(curzrg_.start, false) )
+            SI().snapZ( curzrg_.start_, 1 );
+            SI().snapZ( curzrg_.stop_, -1 );
+            if ( !unsnappedzrg.includes(curzrg_.start_, false) )
 	    {
 		curz_ = mUdf(float);
 		return true;
 	    }
 	}
 
-	curz_ = curzrg_.start;
+        curz_ = curzrg_.start_;
     }
     return true;
 }
@@ -278,7 +278,7 @@ bool EMSurfaceProvider::toNextZ()
 	    return toNextPos();
 
 	curz_ += zstep_;
-	if ( curz_ > (curzrg_.stop+mDefEps) )
+        if ( curz_ > (curzrg_.stop_+mDefEps) )
 	    return toNextPos();
     }
 
@@ -388,8 +388,8 @@ bool EMSurfaceProvider::getZRange( const TrcKey& tk,
     }
     else
     {
-	zrg.start = z1 - SI().zStep()/2;
-	zrg.stop = z1 + SI().zStep()/2;
+        zrg.start_ = z1 - SI().zStep()/2;
+        zrg.stop_ = z1 + SI().zStep()/2;
     }
 
     zrg += extraz_;
@@ -405,8 +405,8 @@ void EMSurfaceProvider::getZRange( Interval<float>& zrg ) const
 
     if ( surf2_ )
     {
-	if ( zrg2_.start < zrg.start ) zrg.start = zrg2_.start;
-	if ( zrg2_.stop > zrg.stop ) zrg.stop = zrg2_.stop;
+        if ( zrg2_.start_ < zrg.start_ ) zrg.start_ = zrg2_.start_;
+        if ( zrg2_.stop_ > zrg.stop_ ) zrg.stop_ = zrg2_.stop_;
     }
 }
 
@@ -415,9 +415,9 @@ int EMSurfaceProvider::estNrZPerPos() const
 {
     if ( !dorandom_ ) {
 	if ( !surf2_ ) return 1;
-	Interval<float> avgzrg( (zrg1_.start + zrg2_.start)*.5f,
-				(zrg1_.stop + zrg2_.stop)*.5f );
-	return (int)((avgzrg.stop-avgzrg.start) / zstep_ + .5);
+        Interval<float> avgzrg( (zrg1_.start_ + zrg2_.start_)*.5f,
+                                (zrg1_.stop_ + zrg2_.stop_)*.5f );
+        return (int)((avgzrg.stop_-avgzrg.start_) / zstep_ + .5);
     }
     else
 	return 1;
@@ -574,7 +574,7 @@ bool EMSurfaceProvider2D::includes( int trcnr, float z, int lidx ) const
 
 
 void EMSurfaceProvider2D::getExtent( Interval<int>& intv, int lidx ) const
-{ intv.start = intv.stop = 0; }
+{ intv.start_ = intv.stop_ = 0; }
 
 
 void EMSurfaceProvider2D::initClass()
@@ -671,7 +671,7 @@ bool EMSurface2DProvider3D::includes( const BinID& bid, float z ) const
     }
 
     Interval<float> zrg( dpssurf1_->z(rid1), 0 );
-    zrg.stop = zrg.start;
+    zrg.stop_ = zrg.start_;
     if ( rid2 >= 0 )
 	zrg.include( dpssurf2_->z(rid2), false );
 
@@ -860,8 +860,8 @@ void EMImplicitBodyProvider::getSummary( BufferString& txt ) const
 	txt += bbox_.hsamp_.stop_.inl(); txt += " ), Crossline( ";
 	txt += bbox_.hsamp_.start_.crl(); txt += ", ";
 	txt += bbox_.hsamp_.stop_.crl(); txt += " ), Z( ";
-	txt += bbox_.zsamp_.start; txt += ", ";
-	txt += bbox_.zsamp_.stop; txt += " ).";
+        txt += bbox_.zsamp_.start_; txt += ", ";
+        txt += bbox_.zsamp_.stop_; txt += " ).";
     }
 }
 
@@ -929,7 +929,7 @@ bool EMImplicitBodyProvider::toNextPos()
 	curbid_.crl() = cs.hsamp_.start_.crl();
     }
 
-    curz_ = cs.zsamp_.start;
+    curz_ = cs.zsamp_.start_;
     return curbid_.inl()<=cs.hsamp_.stop_.inl();
 }
 
@@ -938,8 +938,8 @@ bool EMImplicitBodyProvider::toNextZ()
 {
     const TrcKeyZSampling& bb = useinside_ ? tkzs_ : bbox_;
     if ( !mIsUdf(curz_) )
-	curz_ += bb.zsamp_.step;
-    if ( mIsUdf(curz_) || curz_ > bb.zsamp_.stop )
+        curz_ += bb.zsamp_.step_;
+    if ( mIsUdf(curz_) || curz_ > bb.zsamp_.stop_ )
     {
 	if ( !toNextPos() )
 	    return false;
@@ -947,8 +947,8 @@ bool EMImplicitBodyProvider::toNextZ()
 
     while ( !includes(curbid_,curz_) )
     {
-	curz_ += bb.zsamp_.step;
-	if ( curz_ > bb.zsamp_.stop && !toNextPos() )
+        curz_ += bb.zsamp_.step_;
+        if ( curz_ > bb.zsamp_.stop_ && !toNextPos() )
 	    return false;
     }
 

@@ -153,7 +153,7 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 	si.getRanges( cs );
 	cs.hsamp_.step_.inl() = cs.hsamp_.step_.crl() = 10;
 	subselfld3d_->uiSeisSubSel::setInput( cs );
-	datastep_ = cs.zsamp_.step;
+	datastep_ = cs.zsamp_.step_;
     }
 
     if ( zextraction_->getBoolValue() )
@@ -183,11 +183,11 @@ void uiWaveletExtraction::lineSelCB( CallBacker* )
 	if ( idx==0 )
 	{
 	    commonzrg = zrg;
-	    datastep_ = zrg.step;
+	    datastep_ = zrg.step_;
 	}
 	else
 	{
-	    if ( datastep_ != zrg.step )
+	    if ( datastep_ != zrg.step_ )
 	    {
 		uiMSG().message( tr("Selected lines having different sample"
 				    " intervals\n Please change selection") );
@@ -283,7 +283,7 @@ bool uiWaveletExtraction::checkWaveletSize()
     if ( zextraction_->getBoolValue() )
     {
 	StepInterval<float> zrg = zrangefld_->getRange();
-	const int range = 1 + mNINT32( (zrg.stop - zrg.start) / datastep_ );
+	const int range = 1 + mNINT32( (zrg.stop_ - zrg.start_) / datastep_ );
 	if ( range < wvltsize_ )
 	{
 	    uiMSG().message( tr("Selection window size should be more"
@@ -395,7 +395,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 
     if ( !betweenhors )
     {
-	const int size = int ( 1+(extz.stop-extz.start)/datastep_ );
+	const int size = int ( 1+(extz.stop_-extz.start_)/datastep_ );
 	if ( size < wvltsize_ )
 	{
 	    uiMSG().error( tr("Selection window size should be"

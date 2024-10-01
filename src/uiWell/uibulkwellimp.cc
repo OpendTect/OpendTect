@@ -208,8 +208,8 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	bool adjusted = false;
 	const Interval<float>& origmdrg = mdrgs_[widx];
 	Interval<float> mdrg( 0, track.td() );
-	if ( !origmdrg.isUdf() && track.td()-mDefEpsZ < origmdrg.stop )
-	    mdrg.stop = origmdrg.stop;
+	if ( !origmdrg.isUdf() && track.td()-mDefEpsZ < origmdrg.stop_ )
+	    mdrg.stop_ = origmdrg.stop_;
 	lasimp.adjustTrack( mdrg, false, adjusted );
     }
 }
@@ -488,10 +488,10 @@ static bool createNewWell( const Well::LASImporter::FileInfo& info,
     if ( !mIsUdf(info.kbelev_) )
 	wellhead.z = -1. * info.kbelev_;
     Coord3 welltd( wellhead );
-    welltd.z = double(info.zrg_.stop) - welltd.z;
+    welltd.z = double(info.zrg_.stop_) - welltd.z;
 
     track.addPoint( wellhead, 0.f );
-    track.addPoint( welltd, info.zrg_.stop );
+    track.addPoint( welltd, info.zrg_.stop_ );
     wd->info().uwid_ = info.uwi_;
 
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );

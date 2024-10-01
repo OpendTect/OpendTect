@@ -150,8 +150,8 @@ void SelSpec::setDiscr( const NLAModel& nlamod )
 	discrspec_ = StepInterval<int>(0,0,0);
     else
     {
-	discrspec_.start = discrspec_.step = 1;
-	discrspec_.stop = nlamod.design().hiddensz_.first();
+	discrspec_.start_ = discrspec_.step_ = 1;
+	discrspec_.stop_ = nlamod.design().hiddensz_.first();
     }
 }
 

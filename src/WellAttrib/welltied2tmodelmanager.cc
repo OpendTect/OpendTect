@@ -86,25 +86,25 @@ WellTie::D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr,
 	//
 	const Well::Log* vp = wd_->getLog( wts.vellognm_ );
 	const Well::Log* den = wd_->getLog( wts.denlognm_ );
-	float mindah = d2t->dahRange().start;
-	float maxdah = d2t->dahRange().stop;
+	float mindah = d2t->dahRange().start_;
+	float maxdah = d2t->dahRange().stop_;
 	if ( vp )
 	{
-	    mindah = vp->dahRange().start;
-	    maxdah = vp->dahRange().stop;
+	    mindah = vp->dahRange().start_;
+	    maxdah = vp->dahRange().stop_;
 	}
 
 	if ( den )
 	{
 	    if ( vp )
 	    {
-		mindah = mMIN( mindah, den->dahRange().start );
-		maxdah = mMAX( maxdah, vp->dahRange().stop );
+		mindah = mMIN( mindah, den->dahRange().start_ );
+		maxdah = mMAX( maxdah, vp->dahRange().stop_ );
 	    }
 	    else
 	    {
-		mindah = den->dahRange().start;
-		maxdah = den->dahRange().stop;
+		mindah = den->dahRange().start_;
+		maxdah = den->dahRange().stop_;
 	    }
 	}
 

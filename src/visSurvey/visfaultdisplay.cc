@@ -251,8 +251,8 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 	explicitpanels_->display( false, true );
 	explicitpanels_->setTexturePowerOfTwo( true );
 	explicitpanels_->setTextureSampling(
-		BinIDValue( BinID(s3dgeom_->inlRange().step,
-				  s3dgeom_->crlRange().step),
+                    BinIDValue( BinID(s3dgeom_->inlRange().step_,
+                                      s3dgeom_->crlRange().step_),
 				  s3dgeom_->zStep() ) );
 
 	mTryAlloc( explicitsticks_,Geometry::ExplFaultStickSurface(0,zscale) );
@@ -260,8 +260,8 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 	explicitsticks_->display( true, false );
 	explicitsticks_->setTexturePowerOfTwo( true );
 	explicitsticks_->setTextureSampling(
-		BinIDValue( BinID(s3dgeom_->inlRange().step,
-				  s3dgeom_->crlRange().step),
+                    BinIDValue( BinID(s3dgeom_->inlRange().step_,
+                                      s3dgeom_->crlRange().step_),
 				  s3dgeom_->zStep() ) );
 
 	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
@@ -1058,7 +1058,7 @@ void FaultDisplay::updateActiveStickMarker()
     }
 
     const StepInterval<int> colrg = fss->colRange( activestick_ );
-    if ( colrg.isUdf() || colrg.start==colrg.stop )
+    if ( colrg.isUdf() || colrg.start_==colrg.stop_ )
     {
 	activestickmarker_->turnOn( false );
 	return;
@@ -1067,7 +1067,7 @@ void FaultDisplay::updateActiveStickMarker()
     RowCol rc( activestick_, 0 );
     RefMan<Geometry::PrimitiveSet> idxps =
 				Geometry::IndexedPrimitiveSet::create( false );
-    for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col() += colrg.step )
+    for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col() += colrg.step_ )
     {
 	const Coord3 pos = fss->getKnot( rc );
 	const int psidx = activestickmarker_->getCoordinates()->addPos( pos );
@@ -1525,10 +1525,10 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	    b10 = b11;
 	}
 
-	const Coord3 c00( s3dgeom_->transform(b00),cs.zsamp_.start );
-	const Coord3 c01( s3dgeom_->transform(b01),cs.zsamp_.stop );
-	const Coord3 c11( s3dgeom_->transform(b11),cs.zsamp_.stop );
-	const Coord3 c10( s3dgeom_->transform(b10),cs.zsamp_.start );
+        const Coord3 c00( s3dgeom_->transform(b00),cs.zsamp_.start_ );
+        const Coord3 c01( s3dgeom_->transform(b01),cs.zsamp_.stop_ );
+        const Coord3 c11( s3dgeom_->transform(b11),cs.zsamp_.stop_ );
+        const Coord3 c10( s3dgeom_->transform(b10),cs.zsamp_.start_ );
 
 	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
 
@@ -1684,7 +1684,7 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 		    s3dgeom_->oneStepTranslation(Coord3(0,0,1)) ) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
-	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
 	{
 	    Coord3 pos = fss.getKnot(rc);
 	    if ( displaytransform_ )
@@ -1741,7 +1741,7 @@ bool FaultDisplay::coincidesWithPlane(
 	Coord3 prevpos;
 
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
-	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
 	{
 	    Coord3 curpos = fss.getKnot(rc);
 	    if ( displaytransform_ )
@@ -1755,7 +1755,7 @@ bool FaultDisplay::coincidesWithPlane(
 		res = res || coincidemode;
 		intersectpoints += curpos;
 	    }
-	    else if ( rc.col() != colrg.start )
+            else if ( rc.col() != colrg.start_ )
 	    {
 		const float frac = prevdist / (prevdist+curdist);
 		Coord3 interpos = (1-frac)*prevpos + frac*curpos;
@@ -1797,7 +1797,7 @@ void FaultDisplay::updateStickHiding()
 
 	RowCol rc;
 	const StepInterval<int> rowrg = fss->rowRange();
-	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
+        for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
 	{
 	    TypeSet<Coord3> intersectpoints;
 	    fss->hideStick( rc.row(), true, mSceneIdx );

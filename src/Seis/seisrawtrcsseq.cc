@@ -188,7 +188,7 @@ float Seis::RawTrcsSequence::getValue( float z, int pos, int comp ) const
     if ( sampidx < 0 || sampidx >= sz )
 	return interpolator().udfval_;
 
-    const float samppos = ( z - info_.zsamp_.start ) / info_.zsamp_.step;
+    const float samppos = ( z - info_.zsamp_.start_ ) / info_.zsamp_.step_;
     if ( sampidx-samppos > -cDefSampleSnapDist() &&
 	 sampidx-samppos <  cDefSampleSnapDist() )
 	return get( sampidx, pos, comp );

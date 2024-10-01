@@ -193,8 +193,8 @@ ZSampling HorizonZTransform::getWorkZSampling( const ZSampling& zsamp,
 
     if ( to.def_ == getZDom() )
     {
-	ret.start -= depthrange_.stop;
-	ret.stop -= depthrange_.start;
+	ret.start_ -= depthrange_.stop_;
+	ret.stop_ -= depthrange_.start_;
 	ret.shift( flatzval_ );
     }
 
@@ -229,7 +229,7 @@ void HorizonZTransform::calculateHorizonRange()
 	if ( !mIsUdf( depth ) )
 	{
 	    if ( isset ) depthrange_.include( depth, false );
-	    else { depthrange_.start = depthrange_.stop = depth; isset=true; }
+	    else { depthrange_.start_ = depthrange_.stop_ = depth; isset=true; }
 	}
 
 	pid = iterator->next();

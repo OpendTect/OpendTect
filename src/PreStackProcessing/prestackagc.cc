@@ -46,11 +46,11 @@ bool AGC::prepareWork()
     {
 	if ( !inputs_[idx] ) continue;
 
-	float zstep = (float) inputs_[idx]->posData().range(false).step;
+	float zstep = (float) inputs_[idx]->posData().range(false).step_;
 	zstep *= SI().zIsTime() ? 1000 : 1;
 
-	samplewindow_.start = mNINT32( window_.start/zstep );
-	samplewindow_.stop = mNINT32( window_.stop/zstep );
+	samplewindow_.start_ = mNINT32( window_.start_/zstep );
+	samplewindow_.stop_ = mNINT32( window_.stop_/zstep );
 	return true;
     }
 

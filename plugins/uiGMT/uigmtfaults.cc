@@ -119,12 +119,12 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
     StepInterval<float> zrg = SI().zRange( true );
     if ( onzslice )
     {
-	const bool isbetween = zrg.start<=zvalue && zvalue<=zrg.stop;
+	const bool isbetween = zrg.start_<=zvalue && zvalue<=zrg.stop_;
 	if ( !isbetween )
 	{
 	    uiString msg = tr("Z value is out of survey range(%1, %2)")
-	                 .arg( mNINT32(zrg.start*SI().zDomain().userFactor()) )
-	                 .arg( mNINT32(zrg.stop*SI().zDomain().userFactor()) );
+			.arg( mNINT32(zrg.start_*SI().zDomain().userFactor()) )
+			.arg( mNINT32(zrg.stop_*SI().zDomain().userFactor()) );
 	    uiMSG().message( msg );
 	    return false;
 	}

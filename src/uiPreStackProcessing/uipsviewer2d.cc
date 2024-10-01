@@ -73,10 +73,10 @@ void uiGatherDisplay::setVDGather( const PreStack::Gather* vddp )
 	return;
 
     const FlatPosData& pd = dp->posData();
-    offsetrange_.set( (float)pd.range(true).start,
-		      (float)pd.range(true).stop );
-    zdatarange_.set( (float)pd.range(false).start,
-		     (float)pd.range(false).stop );
+    offsetrange_.set( (float)pd.range(true).start_,
+		      (float)pd.range(true).stop_ );
+    zdatarange_.set( (float)pd.range(false).start_,
+		     (float)pd.range(false).stop_ );
 }
 
 
@@ -88,10 +88,10 @@ void uiGatherDisplay::setWVAGather( const PreStack::Gather* wvadp )
 	return;
 
     const FlatPosData& pd = dp->posData();
-    offsetrange_.set( (float)pd.range(true).start,
-		      (float)pd.range(true).stop );
-    zdatarange_.set( (float)pd.range(false).start,
-		     (float)pd.range(false).stop );
+    offsetrange_.set( (float)pd.range(true).start_,
+		      (float)pd.range(true).stop_ );
+    zdatarange_.set( (float)pd.range(false).start_,
+		     (float)pd.range(false).stop_ );
 }
 
 
@@ -135,8 +135,8 @@ bool uiGatherDisplay::displaysAnnotation() const
 void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
 {
     if ( yn==fixedoffset_ &&
-	mIsEqual(offsetrange_.start,rg.start,1e-3) &&
-	mIsEqual(offsetrange_.stop,rg.stop,1e-3) )
+	 mIsEqual(offsetrange_.start_,rg.start_,1e-3) &&
+	 mIsEqual(offsetrange_.stop_,rg.stop_,1e-3) )
 	return;
 
     fixedoffset_ = yn;
@@ -184,15 +184,15 @@ void uiGatherDisplay::updateViewRange( const uiWorldRect& cur )
     uiWorldRect view = cur;
     if ( zrg_ )
     {
-	view.setTop( zrg_->start );
-	view.setBottom( zrg_->stop );
+	view.setTop( zrg_->start_ );
+	view.setBottom( zrg_->stop_ );
     }
 
-    if ( viewer_ && fixedoffset_ && !mIsUdf(offsetrange_.start) &&
-	 !mIsUdf(offsetrange_.stop) )
+    if ( viewer_ && fixedoffset_ && !mIsUdf(offsetrange_.start_) &&
+	 !mIsUdf(offsetrange_.stop_) )
     {
-	view.setLeft( offsetrange_.start );
-	view.setRight( offsetrange_.stop );
+	view.setLeft( offsetrange_.start_ );
+	view.setRight( offsetrange_.stop_ );
     }
     viewer_->setView( view );
 }

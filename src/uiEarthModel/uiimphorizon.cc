@@ -313,8 +313,8 @@ void uiImportHorizon::scanPush( CallBacker* )
 
 
     #define mNotCompatibleRet(ic) \
-    const int df = n##ic##lnrg.start - ic##rg.start; \
-    if ( df%2 && !(ic##rg.step%2) && !(n##ic##lnrg.step%2) ) \
+    const int df = n##ic##lnrg.start_ - ic##rg.start_; \
+    if ( df%2 && !(ic##rg.step_%2) && !(n##ic##lnrg.step_%2) ) \
     { \
 	uiString msg = goOnMsg();  \
 	if ( !uiMSG().askGoOn(msg) ) \
@@ -355,19 +355,19 @@ bool uiImportHorizon::doScan()
     TrcKeyZSampling cs( true );
     const StepInterval<int> irg = cs.hsamp_.inlRange();
     const StepInterval<int> crg = cs.hsamp_.crlRange();
-    if ( irg.start>nilnrg.stop || crg.start>nclnrg.stop ||
-	 irg.stop<nilnrg.start || crg.stop<nclnrg.start )
+    if ( irg.start_>nilnrg.stop_ || crg.start_>nclnrg.stop_ ||
+	 irg.stop_<nilnrg.start_ || crg.stop_<nclnrg.start_ )
 	uiMSG().warning( tr("Your horizon is out of the survey range.") );
-    else if ( irg.step > 1 )
+    else if ( irg.step_ > 1 )
     {
 	mNotCompatibleRet(i);
     }
-    else if ( crg.step > 1 )
+    else if ( crg.step_ > 1 )
     {
 	mNotCompatibleRet(c);
     }
 
-    if ( nilnrg.step==0 || nclnrg.step==0 )
+    if ( nilnrg.step_==0 || nclnrg.step_==0 )
     {
 	uiMSG().error( tr("Cannot have '0' as a step value") );
 	return false;
@@ -478,7 +478,7 @@ bool uiImportHorizon::doImport()
     }
 
     TrcKeySampling hs = subselfld_->envelope().hsamp_;
-    if ( hs.lineRange().step==0 || hs.trcRange().step==0 )
+    if ( hs.lineRange().step_==0 || hs.trcRange().step_==0 )
 	mErrRetUnRef( tr("Cannot have '0' as a step value") )
 
     ExecutorGroup importer( "Importing horizon" );

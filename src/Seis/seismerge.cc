@@ -77,9 +77,9 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 	rdrs_ += newrdr;
     }
 
-    if ( !mIsUdf(zrg.start) && !mIsUdf(zrg.start) )
+    if ( !mIsUdf(zrg.start_) && !mIsUdf(zrg.start_) )
     {
-	sd_.start = zrg.start; sd_.step = zrg.step;
+	sd_.start_ = zrg.start_; sd_.step_ = zrg.step_;
 	nrsamps_ = zrg.nrSteps() + 1;
     }
 
@@ -145,9 +145,9 @@ SeisMerger::SeisMerger( const IOPar& iop )
 	rdrs_ += newrdr;
     }
 
-    if ( !mIsUdf(zrg.start) && !mIsUdf(zrg.start) )
+    if ( !mIsUdf(zrg.start_) && !mIsUdf(zrg.start_) )
     {
-	sd_.start = zrg.start; sd_.step = zrg.step;
+	sd_.start_ = zrg.start_; sd_.step_ = zrg.step_;
 	nrsamps_ = zrg.nrSteps() + 1;
     }
 

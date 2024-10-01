@@ -194,9 +194,9 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
 	return false;
     }
 
-    pinfo_.zrg.start = insd_.start;
-    pinfo_.zrg.step = insd_.step;
-    pinfo_.zrg.stop = insd_.start + insd_.step * (innrsamples_-1);
+    pinfo_.zrg.start_ = insd_.start_;
+    pinfo_.zrg.step_ = insd_.step_;
+    pinfo_.zrg.stop_ = insd_.start_ + insd_.step_ * (innrsamples_-1);
     return true;
 }
 
@@ -239,15 +239,15 @@ bool SeisTrcTranslator::commitSelections()
 
     outsd_ = insd_;
     outnrsamples_ = innrsamples_;
-    if ( seldata_ && !mIsUdf(seldata_->zRange().start) )
+    if ( seldata_ && !mIsUdf(seldata_->zRange().start_) )
     {
 	Interval<float> selzrg( seldata_->zRange() );
 	const Interval<float> sizrg( SI().sampling(false).zsamp_ );
-	if ( !mIsEqual(selzrg.start,sizrg.start,1e-8)
-	  || !mIsEqual(selzrg.stop,sizrg.stop,1e-8) )
+	if ( !mIsEqual(selzrg.start_,sizrg.start_,1e-8)
+	     || !mIsEqual(selzrg.stop_,sizrg.stop_,1e-8) )
 	{
-	    outsd_.start = selzrg.start;
-	    const float fnrsteps = (selzrg.stop-selzrg.start) / outsd_.step;
+	    outsd_.start_ = selzrg.start_;
+	    const float fnrsteps = (selzrg.stop_-selzrg.start_) / outsd_.step_;
 	    outnrsamples_ = mNINT32(fnrsteps) + 1;
 	}
     }
@@ -291,9 +291,9 @@ bool SeisTrcTranslator::commitSelections()
     errmsg_.setEmpty();
     enforceBounds();
 
-    float fsampnr = (outsd_.start - insd_.start) / insd_.step;
-    samprg_.start = mNINT32( fsampnr );
-    samprg_.stop = samprg_.start + outnrsamples_ - 1;
+    float fsampnr = (outsd_.start_ - insd_.start_) / insd_.step_;
+    samprg_.start_ = mNINT32( fsampnr );
+    samprg_.stop_ = samprg_.start_ + outnrsamples_ - 1;
 
     const bool forread = forRead();
     const int nrcomps = nrSelComps();
@@ -319,25 +319,25 @@ bool SeisTrcTranslator::commitSelections()
 void SeisTrcTranslator::enforceBounds()
 {
     // Ranges
-    outsd_.step = insd_.step;
-    float outstop = outsd_.start + (outnrsamples_ - 1) * outsd_.step;
-    if ( outsd_.start < insd_.start )
-	outsd_.start = insd_.start;
-    const float instop = insd_.start + (innrsamples_ - 1) * insd_.step;
+    outsd_.step_ = insd_.step_;
+    float outstop = outsd_.start_ + (outnrsamples_ - 1) * outsd_.step_;
+    if ( outsd_.start_ < insd_.start_ )
+	outsd_.start_ = insd_.start_;
+    const float instop = insd_.start_ + (innrsamples_ - 1) * insd_.step_;
     if ( outstop > instop )
 	outstop = instop;
 
     // Snap to samples
-    float sampdist = (outsd_.start - insd_.start) / insd_.step;
+    float sampdist = (outsd_.start_ - insd_.start_) / insd_.step_;
     int startsamp = (int)(sampdist + 0.0001);
     if ( startsamp < 0 ) startsamp = 0;
     if ( startsamp > innrsamples_-1 ) startsamp = innrsamples_-1;
-    sampdist = (outstop - insd_.start) / insd_.step;
+    sampdist = (outstop - insd_.start_) / insd_.step_;
     int endsamp = (int)(sampdist + 0.9999);
     if ( endsamp < startsamp ) endsamp = startsamp;
     if ( endsamp > innrsamples_-1 ) endsamp = innrsamples_-1;
 
-    outsd_.start = insd_.start + startsamp * insd_.step;
+    outsd_.start_ = insd_.start_ + startsamp * insd_.step_;
     outnrsamples_ = endsamp - startsamp + 1;
 }
 
@@ -416,11 +416,11 @@ bool SeisTrcTranslator::writeBlock()
 
     StepInterval<int> inlrg, crlrg;
     SI().sampling(true).hsamp_.get( inlrg, crlrg );
-    const int firstafter = crlrg.stop + crlrg.step;
-    int stp = crlrg.step;
+    const int firstafter = crlrg.stop_ + crlrg.step_;
+    int stp = crlrg.step_;
     int bufidx = 0;
     SeisTrc* trc = bufidx < sz ? trcblock_.get(bufidx) : nullptr;
-    BinID binid( lastinlwritten_, crlrg.start );
+    BinID binid( lastinlwritten_, crlrg.start_ );
     SeisTrc* filltrc = nullptr;
     int nrwritten = 0;
     for ( ; binid.crl() != firstafter; binid.crl() += stp )

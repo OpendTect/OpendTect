@@ -773,19 +773,19 @@ bool ExplFaultStickSurface::updateTextureSize()
 	TypeSet<int>& segmentsizes = *new TypeSet<int>;
 	sticksegments += &segmentsizes;
 
-	if ( colrg.start==colrg.stop )
+        if ( colrg.start_==colrg.stop_ )
 	{
 	    sticktexturerowsz = 1;
 	    segmentsizes += 1;
 	}
 	else
 	{
-	    for ( int knotnr=colrg.start; knotnr<=colrg.stop-colrg.step;
-		  knotnr += colrg.step )
+            for ( int knotnr=colrg.start_; knotnr<=colrg.stop_-colrg.step_;
+                  knotnr += colrg.step_ )
 	    {
 		const Coord3 pos0 = surface_->getKnot( RowCol(sticknr,knotnr) );
 		const Coord3 pos1 =
-		    surface_->getKnot( RowCol(sticknr,knotnr+colrg.step));
+                        surface_->getKnot( RowCol(sticknr,knotnr+colrg.step_));
 
 		const BinIDValue bid0(
 			SI().transform(pos0.coord()), (float)pos0.z );
@@ -1018,9 +1018,9 @@ Coord3 ExplFaultStickSurface::getCoord( int stickidx, int texturerow ) const
     const TypeSet<int>& knotpos = *textureknotcoords_[stickidx];
 
     if ( texturerow<=knotpos[0] )
-	return surface_->getKnot( RowCol(sticknr, colrg.start) );
+        return surface_->getKnot( RowCol(sticknr, colrg.start_) );
     if ( texturerow>knotpos[knotpos.size()-1] )
-	return surface_->getKnot( RowCol(sticknr, colrg.stop) );
+        return surface_->getKnot( RowCol(sticknr, colrg.stop_) );
     else
     {
 	for ( int knot=0; knot<knotpos.size()-1; knot++ )
@@ -1030,9 +1030,9 @@ Coord3 ExplFaultStickSurface::getCoord( int stickidx, int texturerow ) const
 	    if ( texturerow>=knotpos[knot] && texturerow<=knotpos[knot+1] )
 	    {
 		const Coord3 p0 = surface_->getKnot(
-			RowCol(sticknr,colrg.start+knot*colrg.step) );
+                                      RowCol(sticknr,colrg.start_+knot*colrg.step_) );
 		const Coord3 p1 = surface_->getKnot(
-			RowCol(sticknr,colrg.start+(knot+1)*colrg.step) );
+                                      RowCol(sticknr,colrg.start_+(knot+1)*colrg.step_) );
 		return p0+(p1-p0)*t;
 	    }
 	}
@@ -1209,9 +1209,9 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps,
 	knotids += curid;
 	if ( !found )
 	{
-	    inlrg.start = inlrg.stop = bid.inl();
-	    crlrg.start = crlrg.stop = bid.crl();
-	    zrg.start = zrg.stop = (float) pos.z;
+            inlrg.start_ = inlrg.stop_ = bid.inl();
+            crlrg.start_ = crlrg.stop_ = bid.crl();
+            zrg.start_ = zrg.stop_ = (float) pos.z;
 	    found = true;
 	}
 	else
@@ -1250,16 +1250,16 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps,
     for ( int row=0; row<texturesize_.row(); row++ )
     {
 	BinID bid( trialg_==ExplFaultStickSurface::Inline ? -1 :
-		texturesampling_.inl()*row+inlrg.start,
+                                                            texturesampling_.inl()*row+inlrg.start_,
 		trialg_!=ExplFaultStickSurface::Inline ? -1 :
-		texturesampling_.crl()*row+crlrg.start );
+                                                         texturesampling_.crl()*row+crlrg.start_ );
 	for ( int col=0; col<texturesize_.col(); col++ )
 	{
 	    float z = -1;
 	    if ( trialg_==ExplFaultStickSurface::ZSlice )
-		bid.crl() = texturesampling_.crl()*col+crlrg.start;
+                bid.crl() = texturesampling_.crl()*col+crlrg.start_;
 	    else
-		z = texturesampling_.val()*col+zrg.start;
+                z = texturesampling_.val()*col+zrg.start_;
 	    const Coord pt( trialg_==ExplFaultStickSurface::Inline ? bid.crl()
 								   : bid.inl(),
 			    trialg_==ExplFaultStickSurface::ZSlice ? bid.crl()
@@ -1349,7 +1349,7 @@ void ExplFaultStickSurface::fillStick( int stickidx )
     const int sticknr = surface_->rowRange().atIndex( stickidx );
     const StepInterval<int> colrg = surface_->colRange( sticknr );
 
-    for ( int knotnr=colrg.start; knotnr<=colrg.stop; knotnr+=colrg.step )
+    for ( int knotnr=colrg.start_; knotnr<=colrg.stop_; knotnr+=colrg.step_ )
     {
 	const Coord3 pos = surface_->getKnot( RowCol(sticknr,knotnr) );
 	int idx = coordlist_->add( pos );

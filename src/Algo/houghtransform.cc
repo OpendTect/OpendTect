@@ -269,7 +269,7 @@ LineFrom2DSpaceHoughTransform::~LineFrom2DSpaceHoughTransform()
 
 
 void LineFrom2DSpaceHoughTransform::setLineAngleRange( Interval<float> rg )
-{ anglerg_ = Interval<float>( mMAX(rg.start,0), mMIN(rg.stop,(float) M_PI) ); }
+{ anglerg_ = Interval<float>( mMAX(rg.start_,0), mMIN(rg.stop_,(float) M_PI) ); }
 
 
 void LineFrom2DSpaceHoughTransform::setThreshold( float val, bool above )
@@ -404,7 +404,7 @@ bool LineFrom2DSpaceHoughTransform::compute()
     sort_coupled( tops.arr(), topids.arr(), localmaxsz );
 
     int nrdone = 0;
-    const bool angledefined = !mIsUdf(anglerg_.start);
+    const bool angledefined = !mIsUdf(anglerg_.start_);
     for ( int idx=localmaxsz-1; idx>=0 && nrdone<toplistnr_; idx-- )
     {
        int tidx = tis[topids[idx]];

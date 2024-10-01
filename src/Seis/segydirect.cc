@@ -519,7 +519,7 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld,
 
     Interval<int> nrrg( indexer_->trcNrRange() );
     nrrg.sort();
-    for ( int nr=nrrg.start; nr<=nrrg.stop; nr++ )
+    for ( int nr=nrrg.start_; nr<=nrrg.stop_; nr++ )
     {
 	const od_int64 tidx = indexer_->findFirst( Seis::PosKey(nr), false );
 	if ( tidx<0 )

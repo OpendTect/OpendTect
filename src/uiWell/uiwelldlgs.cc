@@ -1371,9 +1371,9 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     Interval<float> tblrg;
     const int prevrow = getPreviousCompleteRowIdx( row );
     const int nextrow = getNextCompleteRowIdx( row );
-    tblrg.start = row == 0 || mIsUdf(prevrow) ? zrange.start
+    tblrg.start_ = row == 0 || mIsUdf(prevrow) ? zrange.start_
 	       : getDepthValue( prevrow, incol );
-    tblrg.stop = d2t->size() < row || mIsUdf(nextrow) ? zrange.stop
+    tblrg.stop_ = d2t->size() < row || mIsUdf(nextrow) ? zrange.stop_
 	       : getDepthValue( nextrow, incol );
 
     BufferString lbl;
@@ -1389,8 +1389,8 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
 	errmsg.arg(tr("%1 value %2 is outside of track range\n[%3, %4]%5 %6")
 	      .arg( lbl )
 	      .arg( mConvertVal(inval,true) )
-	      .arg( mConvertVal(zrange.start,true) )
-	      .arg( mConvertVal(zrange.stop,true) )
+		   .arg( mConvertVal(zrange.start_,true) )
+		   .arg( mConvertVal(zrange.stop_,true) )
 	      .arg(getDistUnitString(zinftfld_->isChecked(),true)).arg(lbl));
 	setDepthValue( row, incol, !newrow ? oldval : mUdf(float) );
 	mErrRet(errmsg)
@@ -1476,14 +1476,14 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
 
     Interval<float> dahrg = track.dahRange();
     Interval<float> timerg;
-    timerg.start = d2t->getTime( dahrg.start, track );
-    timerg.stop = d2t->getTime( dahrg.stop, track );
+    timerg.start_ = d2t->getTime( dahrg.start_, track );
+    timerg.stop_ = d2t->getTime( dahrg.stop_, track );
     Interval<float> tblrg;
     const int prevrow = getPreviousCompleteRowIdx( row );
     const int nextrow = getNextCompleteRowIdx( row );
-    tblrg.start = row == 0 || mIsUdf(prevrow) ? timerg.start
+    tblrg.start_ = row == 0 || mIsUdf(prevrow) ? timerg.start_
 	       : getTimeValue( prevrow );
-    tblrg.stop = d2t->size() < row || mIsUdf(nextrow) ? timerg.stop
+    tblrg.stop_ = d2t->size() < row || mIsUdf(nextrow) ? timerg.stop_
 	       : getTimeValue( nextrow );
 
     if ( !tblrg.includes(inval,true) &&
@@ -1734,7 +1734,7 @@ bool uiD2TModelDlg::getFromScreen()
     Well::D2TModel* d2t = mD2TModel;
     getModel( *d2t );
 
-    if ( wd_.track().zRange().stop < SI().seismicReferenceDatum() && !d2t )
+    if ( wd_.track().zRange().stop_ < SI().seismicReferenceDatum() && !d2t )
 	return true;
 
     if ( !d2t || d2t->size() < 2 )
@@ -1770,7 +1770,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 
     Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
-    if ( track.zRange().stop < SI().seismicReferenceDatum() &&
+    if ( track.zRange().stop_ < SI().seismicReferenceDatum() &&
 	 ( !d2t || d2t->size() < 2 ) )
     { //Whole well track is above SRD: The entire model is controlled by replvel
 	wd_.info().replvel_ = replvel;

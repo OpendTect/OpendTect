@@ -93,8 +93,8 @@ void odWell::getLogInfo( OD::JSON::Array& jsarr,
 
 	const auto dahstored = log->dahRange();
 	const auto dahrange = Interval<float>(
-			    getConvertedValue(dahstored.start, zsuom, zduom),
-			    getConvertedValue(dahstored.stop, zsuom, zduom) );
+			getConvertedValue(dahstored.start_, zsuom, zduom),
+			getConvertedValue(dahstored.stop_, zsuom, zduom) );
 	OD::JSON::Object loginfo;
 	loginfo.set( "name", log->name() );
 	loginfo.set( "mnemonic", log->mnemonicLabel() );
@@ -207,7 +207,7 @@ void odWell::getLogs( hAllocator allocator, const BufferStringSet& lognms,
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
     StepInterval<float> dahrg;
     dahrg.setUdf();
-    dahrg.step = getConvertedValue( zstep, zduom, zsuom );
+    dahrg.step_ = getConvertedValue( zstep, zduom, zsuom );
     for ( const auto* lognm : nms )
     {
 	auto* log = wd_->logs().getLog( lognm->buf() );

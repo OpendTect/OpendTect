@@ -255,20 +255,20 @@ public:
 			    if ( !isUndef(idx) )
 				return limits_->includes( value(), true );;
 
-			    const bool startudf = mIsUdf(limits_->start);
-			    const bool stopudf = mIsUdf(limits_->stop);
+			    const bool startudf = mIsUdf(limits_->start_);
+			    const bool stopudf = mIsUdf(limits_->stop_);
 			    if ( startudf && stopudf ) return true;
 			    if ( startudf )
-				return value() < limits_->stop;
+				return value() < limits_->stop_;
 			    if ( stopudf )
-				return value() > limits_->start;
+				return value() > limits_->start_;
 			    return false;
 			}
 
     const StepInterval<T>* limits() const		{ return limits_; }
     NumInpSpec<T>&	setLimits( const Interval<T>& intv )
 			{ return setLimits(
-				StepInterval<T>(intv.start,intv.stop,1) ); }
+		    StepInterval<T>(intv.start_,intv.stop_,1) ); }
     NumInpSpec<T>&	setLimits( const StepInterval<T>& r )
 			{
 			    delete limits_;
@@ -456,13 +456,13 @@ public:
 			    if ( !isUndef(idx) )
 				return lims->includes( value(idx), true );
 
-			    const bool startudf = mIsUdf(lims->start);
-			    const bool stopudf = mIsUdf(lims->stop);
+			    const bool startudf = mIsUdf(lims->start_);
+			    const bool stopudf = mIsUdf(lims->stop_);
 			    if ( startudf && stopudf ) return true;
 			    if ( startudf )
-				return value(idx) < lims->stop;
+				return value(idx) < lims->stop_;
 			    if ( stopudf )
-				return value(idx) > lims->start;
+				return value(idx) > lims->start_;
 			    return false;
 			}
 
@@ -517,7 +517,7 @@ public:
     NumInpIntervalSpec& setLimits( const Interval<T>& r, int idx=-1 )
 			{
 			    return setLimits(
-				StepInterval<T>(r.start,r.stop,1), idx );
+      StepInterval<T>(r.start_,r.stop_,1), idx );
 			}
 
     void		setSymmetric( bool yn )
@@ -557,16 +557,19 @@ protected:
 			    if ( defval )
 			    {
 				if ( !defaultinterval_) return 0;
-				if ( idx == 0 ) return &defaultinterval_->start;
-				if ( idx == 1 )  return &defaultinterval_->stop;
-				if ( hasStep() ) return &stpi(defval)->step;
+				if ( idx == 0 )
+				    return &defaultinterval_->start_;
+				if ( idx == 1 )
+				    return &defaultinterval_->stop_;
+				if ( hasStep() )
+				    return &stpi(defval)->step_;
 			    }
 			    else
 			    {
 				if ( !interval_) return 0;
-				if ( idx == 0 )  return &interval_->start;
-				if ( idx == 1 )  return &interval_->stop;
-				if ( hasStep() ) return &stpi()->step;
+				if ( idx == 0 )  return &interval_->start_;
+				if ( idx == 1 )  return &interval_->stop_;
+				if ( hasStep() ) return &stpi()->step_;
 			    }
 			    return 0;
 			}

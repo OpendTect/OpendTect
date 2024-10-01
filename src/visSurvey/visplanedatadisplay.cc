@@ -159,7 +159,7 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
     dragger_->setWidthLimits(
       Interval<float>( mCast(float,4*survey.hsamp_.step_.inl()), mUdf(float) ),
       Interval<float>( mCast(float,4*survey.hsamp_.step_.crl()), mUdf(float) ),
-      Interval<float>( 4*survey.zsamp_.step, mUdf(float) ) );
+                Interval<float>( 4*survey.zsamp_.step_, mUdf(float) ) );
 
     dragger_->setDragCtrlSpacing( inlrg, crlrg, survey.zsamp_ );
 
@@ -180,7 +180,7 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	{
 	    const float center = survey.zsamp_.snappedCenter();
 	    if ( !mIsUdf(center) )
-		newpos.zsamp_.start = newpos.zsamp_.stop = center;
+                newpos.zsamp_.start_ = newpos.zsamp_.stop_ = center;
 	}
     }
 
@@ -217,12 +217,12 @@ TrcKeyZSampling PlaneDataDisplay::snapPosition( const TrcKeyZSampling& cs,
 	const Interval<float> zrg( res.zsamp_ );
 	const ZSampling& scenezrg = scene_->getTrcKeyZSampling().zsamp_;
 	res.zsamp_.limitTo( scenezrg );
-	res.zsamp_.start = scenezrg.snap( res.zsamp_.start );
-	res.zsamp_.stop = scenezrg.snap( res.zsamp_.stop );
+        res.zsamp_.start_ = scenezrg.snap( res.zsamp_.start_ );
+        res.zsamp_.stop_ = scenezrg.snap( res.zsamp_.stop_ );
 
 	if ( orientation_!=OD::SliceType::Inline &&
 			    orientation_!=OD::SliceType::Crossline )
-	    res.zsamp_.start = res.zsamp_.stop = scenezrg.snap(zrg.center());
+            res.zsamp_.start_ = res.zsamp_.stop_ = scenezrg.snap(zrg.center());
     }
 
     return res;
@@ -269,8 +269,8 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     float zdiff = 0.f;
     if ( !cs.zsamp_.includes(xytpos.z,false) )
     {
-	zdiff = (float)(mMIN(fabs(xytpos.z - cs.zsamp_.start),
-			     fabs(xytpos.z - cs.zsamp_.stop) ));
+        zdiff = (float)(mMIN(fabs(xytpos.z - cs.zsamp_.start_),
+                             fabs(xytpos.z - cs.zsamp_.stop_) ));
 	zdiff *= getZScale() * scene_->getFixedZStretch();
     }
 
@@ -379,7 +379,7 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 	      dragcs.hsamp_.start_.crl()!=oldcs.hsamp_.start_.crl() )
 	showplane = true;
     else if ( orientation_==OD::SliceType::Z &&
-	      dragcs.zsamp_.start!=oldcs.zsamp_.start )
+              dragcs.zsamp_.start_!=oldcs.zsamp_.start_ )
 	showplane = true;
 
     dragger_->showPlane( showplane );
@@ -453,7 +453,7 @@ void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
 		  thecs.zsamp_.width() ); \
     if ( width.x < 1 ) width.x = 1; \
     if ( width.y < 1 ) width.y = 1; \
-    if ( width.z < thecs.zsamp_.step * 0.5 ) width.z = 1; \
+    if ( width.z < thecs.zsamp_.step_ * 0.5 ) width.z = 1; \
  \
     const Coord3 oldwidth = dragger_->size(); \
     width[(int)orientation_] = oldwidth[(int)orientation_]
@@ -743,7 +743,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     res.hsamp_.init( s3dgeom_->getID() );
     res.hsamp_.start_ = res.hsamp_.stop_ = BinID(mNINT32(c0.x),mNINT32(c0.y) );
     res.hsamp_.include( BinID(mNINT32(c1.x),mNINT32(c1.y)) );
-    res.zsamp_.start = res.zsamp_.stop = (float) c0.z;
+    res.zsamp_.start_ = res.zsamp_.stop_ = (float) c0.z;
     res.zsamp_.include( (float) c1.z );
 
     if ( manippos )
@@ -753,9 +753,9 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     if ( alreadytf )
     {
 	if ( scene_ )
-	    res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
+            res.zsamp_.step_ = scene_->getTrcKeyZSampling().zsamp_.step_;
 	else if ( datatransform_ )
-	    res.zsamp_.step = datatransform_->getZInterval( false ).step;
+            res.zsamp_.step_ = datatransform_->getZInterval( false ).step_;
 	return res;
     }
 
@@ -764,9 +764,9 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 	if ( displayspace )
 	{
 	    if ( scene_ )
-		res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
+                res.zsamp_.step_ = scene_->getTrcKeyZSampling().zsamp_.step_;
 	    else
-		res.zsamp_.step = datatransform_->getZInterval( false ).step;
+                res.zsamp_.step_ = datatransform_->getZInterval( false ).step_;
 	}
 	else
 	    res.zsamp_ = datatransform_->getZInterval( true );
@@ -1000,7 +1000,7 @@ void PlaneDataDisplay::getObjectInfo( uiString& info ) const
     }
     else
     {
-	const float val = tkzs.zsamp_.start;
+        const float val = tkzs.zsamp_.start_;
 	if ( !scene_ )
 	{
 	    info = ::toUiString(val);
@@ -1010,7 +1010,7 @@ void PlaneDataDisplay::getObjectInfo( uiString& info ) const
 	const ZDomain::Info& zdinf = scene_->zDomainInfo();
 	info = zdinf.userName();
 
-	const float userval = tkzs.zsamp_.step * zdinf.userFactor();
+        const float userval = tkzs.zsamp_.step_ * zdinf.userFactor();
 	const int nrdec = Math::NrSignificantDecimals( userval );
 	const BufferString zstr( val*zdinf.userFactor(), nrdec );
 	info.appendPhrase( ::toUiString(zstr), uiString::MoreInfo,
@@ -1208,10 +1208,10 @@ void PlaneDataDisplay::updateTexShiftAndGrowth()
     const int crldif = tkzs.hsamp_.start_.crl() - si.hsamp_.start_.crl();
     const float crlfactor = resolutionfactor / si.hsamp_.step_.crl();
 
-    const float zdif = tkzs.zsamp_.start - si.zsamp_.start;
-    const float zfactor = resolutionfactor / si.zsamp_.step;
+    const float zdif = tkzs.zsamp_.start_ - si.zsamp_.start_;
+    const float zfactor = resolutionfactor / si.zsamp_.step_;
 
-    Coord startdif( zdif*zfactor - erg0.start, inldif*inlfactor - erg1.start );
+    Coord startdif( zdif*zfactor - erg0.start_, inldif*inlfactor - erg1.start_ );
     Coord growth( tkzs.zsamp_.width()*zfactor - erg0.width(),
 		  tkzs.hsamp_.lineRange().width()*inlfactor - erg1.width() );
 
@@ -1219,16 +1219,16 @@ void PlaneDataDisplay::updateTexShiftAndGrowth()
 
     if ( orientation_ == OD::SliceType::Inline )
     {
-	startdif.y = crldif * crlfactor - erg1.start;
+        startdif.y = crldif * crlfactor - erg1.start_;
 	growth.y = tkzs.hsamp_.trcRange().width()*crlfactor - erg1.width();
 	refreeze = tkzs.hsamp_.start_.inl()==oldtkzs.hsamp_.start_.inl();
     }
 
     if ( orientation_ == OD::SliceType::Z )
     {
-	startdif.x = crldif * crlfactor - erg0.start;
+        startdif.x = crldif * crlfactor - erg0.start_;
 	growth.x = tkzs.hsamp_.trcRange().width()*crlfactor - erg0.width();
-	refreeze = tkzs.zsamp_.start==oldtkzs.zsamp_.start;
+        refreeze = tkzs.zsamp_.start_==oldtkzs.zsamp_.start_;
     }
 
     if ( getUpdateStageNr() == 1 )
@@ -1263,12 +1263,12 @@ void PlaneDataDisplay::updateTexOriginAndScale( int attrib,
     const int crldif = tkzs.hsamp_.start_.crl() - si.hsamp_.start_.crl();
     const float crlfactor = resolutionfactor / si.hsamp_.step_.crl();
 
-    const float zdif = tkzs.zsamp_.start - si.zsamp_.start;
-    const float zfactor = resolutionfactor / si.zsamp_.step;
+    const float zdif = tkzs.zsamp_.start_ - si.zsamp_.start_;
+    const float zfactor = resolutionfactor / si.zsamp_.step_;
 
     Coord origin( zdif * zfactor, inldif * inlfactor );
 
-    Coord scale( tkzs.zsamp_.step / si.zsamp_.step,
+    Coord scale( tkzs.zsamp_.step_ / si.zsamp_.step_,
 		 tkzs.hsamp_.step_.inl() / si.hsamp_.step_.inl() );
 
     if ( orientation_ == OD::SliceType::Inline )

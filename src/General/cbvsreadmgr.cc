@@ -184,8 +184,8 @@ int CBVSReadMgr::pruneReaders( const TrcKeyZSampling& cs )
     {
 	// Readers may have been pruned.
 	SamplingData<float> sd0 = readers_[0]->info().sd_;
-	float start1 = readers_[1]->info().sd_.start;
-	rdr1firstsampnr_ = (int)((start1 - sd0.start) / sd0.step + .5);
+        float start1 = readers_[1]->info().sd_.start_;
+        rdr1firstsampnr_ = (int)((start1 - sd0.start_) / sd0.step_ + .5);
     }
 
     return readers_.size();
@@ -244,9 +244,9 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 	mErrRet("In-line number step")
     if ( rdrinfo.geom_.step.crl() != info_.geom_.step.crl() )
 	mErrRet("Cross-line number step")
-    if ( !mIsEqual(rdrinfo.sd_.step,info_.sd_.step,mDefEps) )
+                if ( !mIsEqual(rdrinfo.sd_.step_,info_.sd_.step_,mDefEps) )
 	mErrRet("Sample interval")
-    if ( mIsEqual(rdrinfo.sd_.start,info_.sd_.start,mDefEps) )
+                if ( mIsEqual(rdrinfo.sd_.start_,info_.sd_.start_,mDefEps) )
     {
 	// Normal, horizontal (=vertical optimised)  storage
 	if ( rdrinfo.nrsamples_ != info_.nrsamples_ )
@@ -255,15 +255,15 @@ bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
     else
     {
 	StepInterval<float> intv = info_.sd_.interval(info_.nrsamples_);
-	intv.stop += info_.sd_.step;
-	float diff = rdrinfo.sd_.start - intv.stop;
+        intv.stop_ += info_.sd_.step_;
+        float diff = rdrinfo.sd_.start_ - intv.stop_;
 	if ( diff < 0 ) diff = -diff;
-	if ( diff > info_.sd_.step / 10  )
+        if ( diff > info_.sd_.step_ / 10  )
 	{
 	    mErrMsgMk("Time range")
 	    errmsg_ += "\nis unexpected.\nExpected: ";
-	    errmsg_ += intv.stop; errmsg_ += " s.\nFound: ";
-	    errmsg_ += rdrinfo.sd_.start; errmsg_ += ".";
+            errmsg_ += intv.stop_; errmsg_ += " s.\nFound: ";
+            errmsg_ += rdrinfo.sd_.start_; errmsg_ += ".";
 	    return false;
 	}
 	vertical_ = true;
@@ -416,17 +416,17 @@ void CBVSReadMgr::getPositions( TypeSet<BinID>& posns ) const
 	    for ( int iseg=0; iseg<inlinf.segments_.size(); iseg++ )
 	    {
 		const PosInfo::LineData::Segment seg = inlinf.segments_[iseg];
-		if ( seg.step > 0 )
-		    for ( bid.crl()=seg.start; bid.crl()<=seg.stop;
-			  bid.crl()+=seg.step )
+                if ( seg.step_ > 0 )
+                    for ( bid.crl()=seg.start_; bid.crl()<=seg.stop_;
+                          bid.crl()+=seg.step_ )
 			posns += bid;
 		else
 		{
 		    StepInterval<int> lseg( seg );
-		    if ( lseg.start < lseg.stop )
-			Swap( lseg.start, lseg.stop );
-		    for ( bid.crl()=lseg.stop; bid.crl()<=seg.start;
-			  bid.crl()-=seg.step )
+                    if ( lseg.start_ < lseg.stop_ )
+                        Swap( lseg.start_, lseg.stop_ );
+                    for ( bid.crl()=lseg.stop_; bid.crl()<=seg.start_;
+                          bid.crl()-=seg.step_ )
 			posns += bid;
 		}
 	    }
@@ -482,14 +482,14 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
     // The code looks simple, but that's how it got after many cycles
     // of compression.
 
-    Interval<int> selsamps( ss ? ss->start : 0, ss ? ss->stop : mUdf(int) );
+    Interval<int> selsamps( ss ? ss->start_ : 0, ss ? ss->stop_ : mUdf(int) );
     selsamps.sort();
 
     const int rdr0nrsamps = readers_[0]->info().nrsamples_;
-    if ( selsamps.start < rdr0nrsamps )
+    if ( selsamps.start_ < rdr0nrsamps )
     {
 	Interval<int> rdrsamps = selsamps;
-	if ( selsamps.stop >= rdr0nrsamps ) rdrsamps.stop = rdr0nrsamps-1;
+        if ( selsamps.stop_ >= rdr0nrsamps ) rdrsamps.stop_ = rdr0nrsamps-1;
 
 	if ( !readers_[0]->fetch(d,c,&rdrsamps,0) )
 	    return false;
@@ -499,22 +499,22 @@ bool CBVSReadMgr::fetch( void** d, const bool* c,
 
     for ( int idx=1; idx<readers_.size(); idx++ )
     {
-	cursamps.stop += readers_[idx]->info().nrsamples_;
+        cursamps.stop_ += readers_[idx]->info().nrsamples_;
 
-	const bool islast = cursamps.stop >= selsamps.stop;
-	if ( islast ) cursamps.stop = selsamps.stop;
-	if ( cursamps.stop >= selsamps.start )
+        const bool islast = cursamps.stop_ >= selsamps.stop_;
+        if ( islast ) cursamps.stop_ = selsamps.stop_;
+        if ( cursamps.stop_ >= selsamps.start_ )
 	{
-	    const int sampoffs = selsamps.start - cursamps.start;
+            const int sampoffs = selsamps.start_ - cursamps.start_;
 	    Interval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
-				   cursamps.stop - cursamps.start );
+                                    cursamps.stop_ - cursamps.start_ );
 	    if ( !readers_[idx]->fetch( d, c, &rdrsamps,
 					sampoffs > 0 ? 0 : -sampoffs ) )
 		return false;
 	}
 
 	if ( islast ) break;
-	cursamps.start = cursamps.stop + 1;
+        cursamps.start_ = cursamps.stop_ + 1;
     }
 
     return true;
@@ -544,40 +544,40 @@ bool CBVSReadMgr::fetch( TraceData& bufs, const bool* c,
     // The code looks simple, but that's how it got after many cycles
     // of compression.
 
-    Interval<int> selsamps( ss ? ss->start : 0, ss ? ss->stop : mUdf(int) );
+    Interval<int> selsamps( ss ? ss->start_ : 0, ss ? ss->stop_ : mUdf(int) );
     selsamps.sort();
 
     const int rdr0nrsamps = readers_[0]->info().nrsamples_;
-    if ( selsamps.start < rdr0nrsamps )
+    if ( selsamps.start_ < rdr0nrsamps )
     {
 	StepInterval<int> rdrsamps = selsamps;
-	if ( selsamps.stop >= rdr0nrsamps ) rdrsamps.stop = rdr0nrsamps-1;
+        if ( selsamps.stop_ >= rdr0nrsamps ) rdrsamps.stop_ = rdr0nrsamps-1;
 
 	if ( !readers_[0]->fetch(bufs,c,&rdrsamps,0) )
 	    return false;
     }
 
     StepInterval<int> cursamps( rdr1firstsampnr_, rdr1firstsampnr_-1,
-				ss ? ss->step : 1 );
+                                ss ? ss->step_ : 1 );
 
     for ( int idx=1; idx<readers_.size(); idx++ )
     {
-	cursamps.stop += readers_[idx]->info().nrsamples_;
+        cursamps.stop_ += readers_[idx]->info().nrsamples_;
 
-	const bool islast = cursamps.stop >= selsamps.stop;
-	if ( islast ) cursamps.stop = selsamps.stop;
-	if ( cursamps.stop >= selsamps.start )
+        const bool islast = cursamps.stop_ >= selsamps.stop_;
+        if ( islast ) cursamps.stop_ = selsamps.stop_;
+        if ( cursamps.stop_ >= selsamps.start_ )
 	{
-	    const int sampoffs = selsamps.start - cursamps.start;
+            const int sampoffs = selsamps.start_ - cursamps.start_;
 	    StepInterval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
-				cursamps.stop - cursamps.start, cursamps.step );
+                                        cursamps.stop_ - cursamps.start_, cursamps.step_ );
 	    if ( !readers_[idx]->fetch( bufs, c, &rdrsamps,
 					sampoffs > 0 ? 0 : -sampoffs ) )
 		return false;
 	}
 
 	if ( islast ) break;
-	cursamps.start = cursamps.stop + cursamps.step;
+        cursamps.start_ = cursamps.stop_ + cursamps.step_;
     }
 
     return true;
@@ -641,11 +641,11 @@ static void putComps( od_ostream& strm,
 
 static void handleInlGap( od_ostream& strm, Interval<int>& inlgap )
 {
-    if ( inlgap.start == inlgap.stop )
-	strm << "\nInline " << inlgap.start << " not present.";
+    if ( inlgap.start_ == inlgap.stop_ )
+        strm << "\nInline " << inlgap.start_ << " not present.";
     else
-	strm << "\nInlines " << inlgap.start
-		      << '-' << inlgap.stop << " not present.";
+        strm << "\nInlines " << inlgap.start_
+             << '-' << inlgap.stop_ << " not present.";
 
     strm.flush();
 }
@@ -691,9 +691,9 @@ void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
     }
     strm << info().geom_.start.crl() << " - " << info().geom_.stop.crl()
 	 << " (step " << info().geom_.step.crl() << ").\n";
-    strm << "\nZ range: " << info().sd_.start << " - "
+    strm << "\nZ range: " << info().sd_.start_ << " - "
 	 << info().sd_.atIndex(info().nrsamples_-1)
-	 << " step: " << info().sd_.step;
+         << " step: " << info().sd_.step_;
     if ( SI().zIsTime() )
 	 strm << " (s)\n";
     else if ( SI().zInFeet() )
@@ -711,7 +711,7 @@ void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
 	int inlstep = info().geom_.step.inl();
 	if ( inlstep < 0 ) inlstep = -inlstep;
 	Interval<int> inlgap;
-	inlgap.start = mUdf(int);
+        inlgap.start_ = mUdf(int);
 	for ( int inl=info().geom_.start.inl(); inl<=info().geom_.stop.inl();
 		inl += inlstep )
 	{
@@ -719,10 +719,10 @@ void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
 	    if ( inlinfidx < 0 )
 	    {
 		inlgaps = true;
-		if ( mIsUdf(inlgap.start) )
-		    inlgap.start = inlgap.stop = inl;
+                if ( mIsUdf(inlgap.start_) )
+                    inlgap.start_ = inlgap.stop_ = inl;
 		else
-		    inlgap.stop = inl;
+                    inlgap.stop_ = inl;
 	    }
 	    else
 	    {
@@ -730,10 +730,10 @@ void CBVSReadMgr::dumpInfo( od_ostream& strm, bool inclcompinfo ) const
 			*info().geom_.cubedata[inlinfidx];
 		if ( inlinf.segments_.size() > 1 )
 		    crlgaps = true;
-		if ( !mIsUdf(inlgap.start) )
+                if ( !mIsUdf(inlgap.start_) )
 		{
 		    handleInlGap( strm, inlgap );
-		    mSetUdf(inlgap.start);
+                    mSetUdf(inlgap.start_);
 		}
 	    }
 	}

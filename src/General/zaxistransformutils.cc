@@ -63,7 +63,7 @@ bool ZAxisTransformPointGenerator::doWork(
 {
     if ( !dps_ ) return false;
     BinIDValue curpos;
-    curpos.val() = tkzs_.zsamp_.start;
+    curpos.val() = tkzs_.zsamp_.start_;
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
 	iter_.next(curpos);

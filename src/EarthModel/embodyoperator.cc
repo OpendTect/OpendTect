@@ -266,7 +266,7 @@ od_int64 Expl2ImplBodyExtracter::nrIterations() const
 
 #define mSetSegment() \
 if ( !nrintersections ) \
-    segment.start = segment.stop = (float) pos.z; \
+    segment.start_ = segment.stop_ = (float) pos.z; \
 else \
     segment.include( (float) pos.z ); \
 nrintersections++
@@ -353,10 +353,10 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    for ( int zidx=0; zidx<zsz; zidx++ )
 	    {
 		const float curz = zrg_.atIndex( zidx );
-		const float val = curz<segment.start ? curz-segment.start :
-		    ( curz>segment.stop ? segment.stop-curz :
+                const float val = curz<segment.start_ ? curz-segment.start_ :
+                                                        ( curz>segment.stop_ ? segment.stop_-curz :
 		      (nrintersections>2 ? 0.f :
-		      mMIN(curz-segment.start, segment.stop-curz)) );
+                                           mMIN(curz-segment.start_, segment.stop_-curz)) );
 		arr_.set( inlidx, crlidx, zidx, val );
 	    }
 	}
@@ -661,49 +661,49 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     const StepInterval<float>& zrg1 = b1->tkzs_.zsamp_;
 
     //If action is Minus, make the new cube the same size as body0.
-    StepInterval<int> newinlrg( inlrg0.start, inlrg0.stop,
-				mMIN( inlrg0.step, inlrg1.step ) );
-    StepInterval<int> newcrlrg( crlrg0.start, crlrg0.stop,
-				mMIN( crlrg0.step, crlrg1.step ) );
-    StepInterval<float> newzrg(zrg0.start,zrg0.stop,mMIN(zrg0.step,zrg1.step));
+    StepInterval<int> newinlrg( inlrg0.start_, inlrg0.stop_,
+                                mMIN( inlrg0.step_, inlrg1.step_ ) );
+    StepInterval<int> newcrlrg( crlrg0.start_, crlrg0.stop_,
+                                mMIN( crlrg0.step_, crlrg1.step_ ) );
+    StepInterval<float> newzrg(zrg0.start_,zrg0.stop_,mMIN(zrg0.step_,zrg1.step_));
     if ( action_==Union )
     {
-	newinlrg.start = mMIN( inlrg0.start, inlrg1.start );
-	newinlrg.stop = mMAX( inlrg0.stop, inlrg1.stop );
+        newinlrg.start_ = mMIN( inlrg0.start_, inlrg1.start_ );
+        newinlrg.stop_ = mMAX( inlrg0.stop_, inlrg1.stop_ );
 
-	newcrlrg.start = mMIN( crlrg0.start, crlrg1.start );
-	newcrlrg.stop = mMAX( crlrg0.stop, crlrg1.stop );
+        newcrlrg.start_ = mMIN( crlrg0.start_, crlrg1.start_ );
+        newcrlrg.stop_ = mMAX( crlrg0.stop_, crlrg1.stop_ );
 
-	newzrg.start = mMIN( zrg0.start, zrg1.start );
-	newzrg.stop = mMAX( zrg0.stop, zrg1.stop );
+        newzrg.start_ = mMIN( zrg0.start_, zrg1.start_ );
+        newzrg.stop_ = mMAX( zrg0.stop_, zrg1.stop_ );
     }
     else if ( action_==IntSect )
     {
-	newinlrg.start = mMAX( inlrg0.start, inlrg1.start );
-	newinlrg.stop = mMIN( inlrg0.stop, inlrg1.stop );
+        newinlrg.start_ = mMAX( inlrg0.start_, inlrg1.start_ );
+        newinlrg.stop_ = mMIN( inlrg0.stop_, inlrg1.stop_ );
 
-	newcrlrg.start = mMAX( crlrg0.start, crlrg1.start );
-	newcrlrg.stop = mMIN( crlrg0.stop, crlrg1.stop );
+        newcrlrg.start_ = mMAX( crlrg0.start_, crlrg1.start_ );
+        newcrlrg.stop_ = mMIN( crlrg0.stop_, crlrg1.stop_ );
 
-	newzrg.start = mMAX( zrg0.start, zrg1.start );
-	newzrg.stop = mMIN( zrg0.stop, zrg1.stop );
+        newzrg.start_ = mMAX( zrg0.start_, zrg1.start_ );
+        newzrg.stop_ = mMIN( zrg0.stop_, zrg1.stop_ );
     }
 
-    if ( newinlrg.start>newinlrg.stop || newcrlrg.start>newcrlrg.stop ||
-	 newzrg.start>newzrg.stop )
+    if ( newinlrg.start_>newinlrg.stop_ || newcrlrg.start_>newcrlrg.stop_ ||
+         newzrg.start_>newzrg.stop_ )
     {
 	res = 0;
 	return true;
     }
 
     //Add one layer to the cube to make MarchingCubes display boundary nicely.
-    if ( newinlrg.start-newinlrg.step>=0 ) newinlrg.start -= newinlrg.step;
-    if ( newcrlrg.start-newcrlrg.step>=0 ) newcrlrg.start -= newcrlrg.step;
-    if ( newzrg.start-newzrg.step>=0 ) newzrg.start -= newzrg.step;
+    if ( newinlrg.start_-newinlrg.step_>=0 ) newinlrg.start_ -= newinlrg.step_;
+    if ( newcrlrg.start_-newcrlrg.step_>=0 ) newcrlrg.start_ -= newcrlrg.step_;
+    if ( newzrg.start_-newzrg.step_>=0 ) newzrg.start_ -= newzrg.step_;
 
-    newinlrg.stop += newinlrg.step;
-    newcrlrg.stop += newcrlrg.step;
-    newzrg.stop += newzrg.step;
+    newinlrg.stop_ += newinlrg.step_;
+    newcrlrg.stop_ += newcrlrg.step_;
+    newzrg.stop_ += newzrg.step_;
 
     mTryAlloc(res,ImplicitBody);
     if ( !res )
@@ -729,9 +729,9 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 
     res->arr_ = arr;
     res->threshold_ = arrfiller.getThreshold();
-    res->tkzs_.hsamp_.start_ = BinID(newinlrg.start, newcrlrg.start);
-    res->tkzs_.hsamp_.stop_ = BinID(newinlrg.stop, newcrlrg.stop);
-    res->tkzs_.hsamp_.step_ = BinID(newinlrg.step, newcrlrg.step);
+    res->tkzs_.hsamp_.start_ = BinID(newinlrg.start_, newcrlrg.start_);
+    res->tkzs_.hsamp_.stop_ = BinID(newinlrg.stop_, newcrlrg.stop_);
+    res->tkzs_.hsamp_.step_ = BinID(newinlrg.step_, newcrlrg.step_);
     res->tkzs_.zsamp_ = newzrg;
 
     return true;
@@ -754,9 +754,9 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 
 	if ( !idx )
 	{
-	    inlrg.start = inlrg.stop = bid.inl();
-	    crlrg.start = crlrg.stop = bid.crl();
-	    zrg.start = zrg.stop = (float) bodypts[idx].z;
+            inlrg.start_ = inlrg.stop_ = bid.inl();
+            crlrg.start_ = crlrg.stop_ = bid.crl();
+            zrg.start_ = zrg.stop_ = (float) bodypts[idx].z;
 	}
 	else
 	{
@@ -766,17 +766,17 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	}
     }
 
-    if ( inlrg.start-inlrg.step>=0 ) inlrg.start -= inlrg.step;
-    if ( crlrg.start-crlrg.step>=0 ) crlrg.start -= crlrg.step;
-    if ( zrg.start-zrg.step>=0 ) zrg.start -= zrg.step;
-    if ( inlrg.stop+inlrg.step<=SI().inlRange(true).stop )
-	inlrg.stop += inlrg.step;
+    if ( inlrg.start_-inlrg.step_>=0 ) inlrg.start_ -= inlrg.step_;
+    if ( crlrg.start_-crlrg.step_>=0 ) crlrg.start_ -= crlrg.step_;
+    if ( zrg.start_-zrg.step_>=0 ) zrg.start_ -= zrg.step_;
+    if ( inlrg.stop_+inlrg.step_<=SI().inlRange(true).stop_ )
+        inlrg.stop_ += inlrg.step_;
 
-    if ( crlrg.stop+crlrg.step<=SI().crlRange(true).stop )
-	crlrg.stop += crlrg.step;
+    if ( crlrg.stop_+crlrg.step_<=SI().crlRange(true).stop_ )
+        crlrg.stop_ += crlrg.step_;
 
-    if ( zrg.stop+zrg.step<=SI().zRange(true).stop )
-	zrg.stop += zrg.step;
+    if ( zrg.stop_+zrg.step_<=SI().zRange(true).stop_ )
+        zrg.stop_ += zrg.step_;
 
     mDeclareAndTryAlloc( Array3D<float>*, arr, Array3DImpl<float>(
 		inlrg.nrSteps()+1, crlrg.nrSteps()+1, zrg.nrSteps()+1 ) );
@@ -811,9 +811,9 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;
-	    res->tkzs_.hsamp_.start_ = BinID(inlrg.start, crlrg.start);
-	    res->tkzs_.hsamp_.stop_ = BinID(inlrg.stop, crlrg.stop);
-	    res->tkzs_.hsamp_.step_ = BinID(inlrg.step, crlrg.step);
+            res->tkzs_.hsamp_.start_ = BinID(inlrg.start_, crlrg.start_);
+            res->tkzs_.hsamp_.stop_ = BinID(inlrg.stop_, crlrg.stop_);
+            res->tkzs_.hsamp_.step_ = BinID(inlrg.step_, crlrg.step_);
 	    res->tkzs_.zsamp_ = zrg;
 	    return res;
 	}

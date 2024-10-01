@@ -150,17 +150,17 @@ ZSampling WellT2DTransform::getWorkZSampling( const ZSampling& zsamp,
     ZSampling ret = zsamp;
     if ( from.isTime() && to.isDepth() )
     {
-	ret.start = tdmodel_.getDepth( ret.start );
-	ret.stop = tdmodel_.getDepth( ret.stop );
+	ret.start_ = tdmodel_.getDepth( ret.start_ );
+	ret.stop_ = tdmodel_.getDepth( ret.stop_ );
     }
     else if ( from.isDepth() && to.isTime() )
     {
-	ret.start = tdmodel_.getTime( ret.start );
-	ret.stop = tdmodel_.getTime( ret.stop );
+	ret.start_ = tdmodel_.getTime( ret.start_ );
+	ret.stop_ = tdmodel_.getTime( ret.stop_ );
     }
 
     if ( to != from )
-	ret.step = (ret.width()) / (nrsamples==0 ? 1 : nrsamples);
+	ret.step_ = (ret.width()) / (nrsamples==0 ? 1 : nrsamples);
 
     return ret;
 }

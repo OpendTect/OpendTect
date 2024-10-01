@@ -70,8 +70,8 @@ void BitMapMgr::setup()
 	return;
 
     pos_ = new A2DBitMapPosSetup( arr.info(), pd.getPositions(true) );
-    pos_->setDim1Positions( mCast(float,pd.range(false).start),
-			    mCast(float,pd.range(false).stop) );
+    pos_->setDim1Positions( mCast(float,pd.range(false).start_),
+			    mCast(float,pd.range(false).stop_) );
     data_ = new A2DBitMapInpData( arr );
 
     if ( !wva_ )

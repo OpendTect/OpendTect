@@ -230,8 +230,8 @@ GLCM_attrib::GLCM_attrib( Desc& desc )
     if ( !isOK() ) return;
 
     mGetInt( samprange_, sampStr() );
-    gate_.start = mCast( float, -2*samprange_);
-    gate_.stop = mCast( float, 2*samprange_);
+    gate_.start_ = mCast( float, -2*samprange_);
+    gate_.stop_ = mCast( float, 2*samprange_);
 
     mGetFloat( minlimit_, minlimitStr() );
     mGetFloat( maxlimit_, maxlimitStr() );
@@ -249,8 +249,8 @@ GLCM_attrib::GLCM_attrib( Desc& desc )
     mGetEnum( direction_, directionStr() );
     mGetBool( dosteer_, steeringStr() );
 
-    sampgate_.start = -samprange_;
-    sampgate_.stop = samprange_;
+    sampgate_.start_ = -samprange_;
+    sampgate_.stop_ = samprange_;
 
     int posidx = 0;
     for ( int ildx=-stepout_.inl(); ildx<=stepout_.inl(); ildx++ )
@@ -265,7 +265,7 @@ GLCM_attrib::GLCM_attrib( Desc& desc )
 	}
     }
 
-    desgate_ = Interval<float>( gate_.start, gate_.stop );
+    desgate_ = Interval<float>( gate_.start_, gate_.stop_ );
     inpdata_.allowNull( true );
 
 }
@@ -375,7 +375,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 	if ( direction_==0 || direction_==13 || direction_==15 ||
 	     direction_==16 )
 	{
-	    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
+            for ( int isamp=sampgate_.start_; isamp<=sampgate_.stop_; isamp++ )
 	    {
 		for ( int posidx=0; posidx<(inpdata_.size()-1); posidx++ )
 		{
@@ -451,7 +451,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_==1 || direction_==13 || direction_==16 )
 	{
-	    for ( int isamp=sampgate_.start; isamp<=(sampgate_.stop-1); isamp++)
+            for ( int isamp=sampgate_.start_; isamp<=(sampgate_.stop_-1); isamp++)
 	    {
 		for ( int posidx=0; posidx<(inpdata_.size()-1); posidx++ )
 		{
@@ -528,7 +528,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 	if ( direction_==2 || direction_==13 || direction_==14
 	  || direction_==16 )
 	{
-	    for ( int isamp=sampgate_.start; isamp<=(sampgate_.stop-1); ++isamp)
+            for ( int isamp=sampgate_.start_; isamp<=(sampgate_.stop_-1); ++isamp)
 	    {
 		for ( int posidx=0; posidx<inpdata_.size(); posidx++ )
 		{
@@ -590,7 +590,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_==3 || direction_==13 || direction_==16 )
 	{
-	    for ( int isamp=(sampgate_.start+1); isamp<=sampgate_.stop; isamp++)
+            for ( int isamp=(sampgate_.start_+1); isamp<=sampgate_.stop_; isamp++)
 	    {
 		for ( int posidx=0; posidx<(inpdata_.size()-1); posidx++ )
 		{
@@ -665,7 +665,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_==4 || direction_==15 || direction_==16 )
 	{
-	    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++)
+            for ( int isamp=sampgate_.start_; isamp<=sampgate_.stop_; isamp++)
 	    {
 		for ( int posidx=0;
 		      posidx<(inpdata_.size()-(2*stepout_.inl()+1) ); posidx++ )
@@ -741,7 +741,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_==5 || direction_==16 )
 	{
-	    for ( int isamp=sampgate_.start; isamp<=(sampgate_.stop-1); isamp++)
+            for ( int isamp=sampgate_.start_; isamp<=(sampgate_.stop_-1); isamp++)
 	    {
 		for ( int posidx=0;
 		      posidx<(inpdata_.size()-(2*stepout_.inl()+1) ); posidx++ )
@@ -819,7 +819,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_==6 || direction_==16 )
 	{
-	    for ( int isamp=(sampgate_.start+1); isamp<=sampgate_.stop; isamp++)
+            for ( int isamp=(sampgate_.start_+1); isamp<=sampgate_.stop_; isamp++)
 	    {
 		for ( int posidx=0;
 		      posidx<(inpdata_.size()-(2*stepout_.inl()+1) ); posidx++ )
@@ -898,7 +898,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 	if ( direction_==7 || direction_==14 || direction_==15
 	  || direction_==16 )
 	{
-	    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++)
+            for ( int isamp=sampgate_.start_; isamp<=sampgate_.stop_; isamp++)
 	    {
 		for ( int posidx=0;
 		      posidx<(inpdata_.size()-(stepout_.inl()*2+1)); posidx++ )
@@ -969,7 +969,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_ == 8 || direction_ == 14 || direction_ == 16 )
 	{
-	    for ( int isamp=sampgate_.start; isamp<=(sampgate_.stop-1); isamp++)
+            for ( int isamp=sampgate_.start_; isamp<=(sampgate_.stop_-1); isamp++)
 	    {
 		for ( int posidx=0;
 		      posidx<(inpdata_.size()-(stepout_.inl()*2+1)); posidx++ )
@@ -1040,7 +1040,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_==9 || direction_==14 || direction_==16 )
 	{
-	    for ( int isamp=(sampgate_.start+1); isamp<=sampgate_.stop; isamp++)
+            for ( int isamp=(sampgate_.start_+1); isamp<=sampgate_.stop_; isamp++)
 	    {
 		for ( int posidx=0;
 		      posidx<(inpdata_.size()-(stepout_.inl()*2+1)); posidx++ )
@@ -1111,7 +1111,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_ == 10 || direction_ == 15 || direction_ == 16 )
 	{
-	    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++)
+            for ( int isamp=sampgate_.start_; isamp<=sampgate_.stop_; isamp++)
 	    {
 		for ( int posidx=0;
 		      posidx<(inpdata_.size()-(2*stepout_.inl()+1) ); posidx++ )
@@ -1188,7 +1188,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_==11 || direction_==16 )
 	{
-	    for ( int isamp=sampgate_.start; isamp<=(sampgate_.stop-1); isamp++)
+            for ( int isamp=sampgate_.start_; isamp<=(sampgate_.stop_-1); isamp++)
 	    {
 		for ( int posidx=0;
 		      posidx<(inpdata_.size()-(2*stepout_.inl()+1) ); posidx++ )
@@ -1267,7 +1267,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( direction_==12 || direction_==16 )
 	{
-	    for ( int isamp=(sampgate_.start+1); isamp<=sampgate_.stop; isamp++)
+            for ( int isamp=(sampgate_.start_+1); isamp<=sampgate_.stop_; isamp++)
 	    {
 		for ( int posidx=0;
 		      posidx<(inpdata_.size()-(2*stepout_.inl()+1) ); posidx++ )

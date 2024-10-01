@@ -101,8 +101,8 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata_ || inputdata_->isEmpty() || output.isEmpty() )
 	return false;
 
-    Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-			      mNINT32(gate_.stop/refstep_) );
+    Interval<int> samplegate( mNINT32(gate_.start_/refstep_),
+                              mNINT32(gate_.stop_/refstep_) );
     const int sz = samplegate.width() + 1;
     Stats::WindowedCalc<float> wcalc(
 	    Stats::CalcSetup().require(Stats::SqSum), sz );
@@ -110,7 +110,7 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
     const int stopidx = sz + nrsamples - 1;
     for ( int idx=0; idx<stopidx; idx++ )
     {
-	wcalc += getInputValue( *inputdata_, dataidx_, samplegate.start+idx,z0);
+        wcalc += getInputValue( *inputdata_, dataidx_, samplegate.start_+idx,z0);
 	const int outidx = idx - sz + 1;
 	if ( outidx >= 0 )
 	{
@@ -140,14 +140,14 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 		float gradval;
 		if ( mIsUdf(prevval) && mIsUdf(nextval) )
 		{
-		    const bool xtratops = inputdata_->z0_<(z0+samplegate.start);
+                    const bool xtratops = inputdata_->z0_<(z0+samplegate.start_);
 		    const bool xtrabots = inputdata_->z0_+inputdata_->nrsamples_
-					    >(z0+nrsamples+samplegate.stop);
+                                          >(z0+nrsamples+samplegate.stop_);
 		    if ( nrsamples == 1 && ( xtratops || xtrabots) )
 		    {
 			wcalc.clear();
-			const int startidx = xtratops ? samplegate.start-1
-						      : samplegate.start;
+                        const int startidx = xtratops ? samplegate.start_-1
+                                                      : samplegate.start_;
 			const int lastidx = sz + (xtratops ? 1 : 0)
 			    		       + (xtrabots ? 1 : 0);
 			for ( int idx=0; idx<lastidx; idx++ )

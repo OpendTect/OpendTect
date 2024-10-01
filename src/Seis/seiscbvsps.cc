@@ -470,20 +470,20 @@ void SeisCBVSPS3DReader::addInl( int inl )
 	PosInfo::LineData::Segment seg( cd[0]->linenr_, cd[0]->linenr_, 1 );
 	if ( cd.size() > 1 )
 	{
-	    seg.stop = cd[1]->linenr_;
-	    seg.step = seg.stop - seg.start;
+	    seg.stop_ = cd[1]->linenr_;
+	    seg.step_ = seg.stop_ - seg.start_;
 	    for ( int idx=2; idx<cd.size(); idx++ )
 	    {
 		const PosInfo::LineData& id = *cd[idx];
-		if ( seg.stop == seg.start )
-		    { seg.stop = id.linenr_; seg.step = seg.stop - seg.start; }
-		else if ( id.linenr_ != cd[idx-1]->linenr_ + seg.step )
+		if ( seg.stop_ == seg.start_ )
+		{ seg.stop_ = id.linenr_; seg.step_ = seg.stop_ - seg.start_; }
+		else if ( id.linenr_ != cd[idx-1]->linenr_ + seg.step_ )
 		{
 		    newid->segments_ += seg;
-		    seg.start = seg.stop = id.linenr_;
+		    seg.start_ = seg.stop_ = id.linenr_;
 		}
 		else
-		    seg.stop = id.linenr_;
+		    seg.stop_ = id.linenr_;
 	    }
 	    newid->segments_ += seg;
 	}
@@ -572,7 +572,7 @@ StepInterval<float> SeisCBVSPS3DReader::getZRange() const
 	return ret;
 
     const PosInfo::LineData& ld = *posdata_[0];
-    SeisTrc* trc = getTrace( BinID(ld.linenr_,ld.segments_[0].start), 0 );
+    SeisTrc* trc = getTrace( BinID(ld.linenr_,ld.segments_[0].start_), 0 );
     if ( trc )
     {
 	ret = trc->zRange();

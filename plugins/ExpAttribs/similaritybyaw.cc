@@ -86,11 +86,11 @@ SimilaritybyAW::SimilaritybyAW( Desc& desc )
     horgate_.crl() = crlstep_;
 
     const float zinterval = SI().zStep() * 1000;
-    verstep0_ = int((reftimegate_.stop - reftimegate_.start)/(2*zinterval));
-    verstep1_ = int((searchrange_.stop - searchrange_.start)/(2*zinterval));
+    verstep0_ = int((reftimegate_.stop_ - reftimegate_.start_)/(2*zinterval));
+    verstep1_ = int((searchrange_.stop_ - searchrange_.start_)/(2*zinterval));
     verstep_ = verstep0_ + verstep1_;
-    vergate_.start = - verstep_;
-    vergate_.stop  =   verstep_;
+    vergate_.start_ = - verstep_;
+    vergate_.stop_  =	verstep_;
     float maxso = mMAX(inlstep_*inlDist(), crlstep_*crlDist());
     const float maxsecdip = maxSecureDip() * 1000;
     desstep_ = int(maxso*maxsecdip);

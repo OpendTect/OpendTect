@@ -167,13 +167,13 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
 	StepInterval<int> trg = h2dl->colRange( lineidx );
 	trg.limitTo( trcrg );
 
-	const Coord cur0 = h2dl->getKnot( RowCol(lineidx,trg.start) );
-	const Coord cur1 = h2dl->getKnot( RowCol(lineidx,trg.stop) );
+	const Coord cur0 = h2dl->getKnot( RowCol(lineidx,trg.start_) );
+	const Coord cur1 = h2dl->getKnot( RowCol(lineidx,trg.stop_) );
 	if ( !trg.width() || !cur0.isDefined() || !cur1.isDefined() )
 	    continue;
 
-	PosInfo::Line2DPos new0; geom2d->data().getPos( trg.start, new0 );
-	PosInfo::Line2DPos new1; geom2d->data().getPos( trg.stop, new1 );
+	PosInfo::Line2DPos new0; geom2d->data().getPos( trg.start_, new0 );
+	PosInfo::Line2DPos new1; geom2d->data().getPos( trg.stop_, new1 );
 	if ( !new0.coord_.isDefined() || !new1.coord_.isDefined() )
 	    continue;
 
@@ -186,7 +186,7 @@ bool Horizon2DGeometry::doAddLine( Pos::GeomID geomid,
     }
 
     if ( oldlineidx < 0 )
-	h2dl->addUdfRow( geomid, trcrg.start, trcrg.stop, trcrg.step );
+	h2dl->addUdfRow( geomid, trcrg.start_, trcrg.stop_, trcrg.step_ );
     else
 	h2dl->reassignRow( geomID(oldlineidx), geomid );
 
@@ -215,7 +215,7 @@ PosID Horizon2DGeometry::getNeighbor( const PosID& pid, bool nextcol,
     {
 	const RowCol ownrc = aliases[idx].getRowCol();
 	const Pos::GeomID geomid( ownrc.row() );
-	const int colstep = colRange( geomid ).step;
+	const int colstep = colRange( geomid ).step_;
 	const RowCol neighborrc( ownrc.row(),
 		nextcol ? ownrc.col()+colstep : ownrc.col()-colstep );
 
@@ -509,8 +509,8 @@ float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 	StepInterval<int> colrg = line->colRange( rowidx );
 	RowCol rowcol( rowrg.atIndex( rowidx ), 0 );
 
-	for ( rowcol.col()=colrg.start; rowcol.col()<=colrg.stop;
-	      rowcol.col()+= colrg.step )
+	for ( rowcol.col()=colrg.start_; rowcol.col()<=colrg.stop_;
+	      rowcol.col()+= colrg.step_ )
 	{
 	    const Coord3 knot = line->getKnot( rowcol );
 	    if ( !knot.isDefined() )
@@ -692,7 +692,7 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 
     setBurstAlert( true );
     const StepInterval<int> colrg = geom->colRange( lineidx );
-    for ( int col=trcrg.start; col<=trcrg.stop; col+=trcrg.step )
+    for ( int col=trcrg.start_; col<=trcrg.stop_; col+=trcrg.step_ )
     {
 	if ( !colrg.includes(col,false) )
 	    continue;
@@ -732,7 +732,7 @@ Array1D<float>* Horizon2D::createArray1D( Pos::GeomID geomid,
 	return 0;
 
     const StepInterval<int> colrg = geom->colRange( lineidx );
-    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+    for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
     {
 	Coord3 pos = geom->getKnot( RowCol(lineidx,col) );
 	float val = (float)pos.z;

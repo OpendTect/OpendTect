@@ -78,7 +78,7 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     const BinID pbid = bid;
     spi.inlrg.set( mUdf(int), -mUdf(int), 1 );
     spi.crlrg.set( mUdf(int), -mUdf(int), 1 );
-    spi.zrg.set( mUdf(float), -mUdf(float), trc->info().sampling.step );
+    spi.zrg.set( mUdf(float), -mUdf(float), trc->info().sampling.step_ );
 
     bool doneinl = false, donecrl = false;
     for ( int idx=0; idx<sz; idx++ )
@@ -87,22 +87,22 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
 	spi.inlrg.include( bid.inl(), false );
 	spi.crlrg.include( bid.crl(), false);
 	const SamplingData<float> trcsd = trc->info().sampling;
-	if ( !mIsUdf(trcsd.start) && !mIsUdf(trcsd.step) &&
-	     !mIsZero(trcsd.step,mDefEps) )
+	if ( !mIsUdf(trcsd.start_) && !mIsUdf(trcsd.step_) &&
+	     !mIsZero(trcsd.step_,mDefEps) )
 	{
-	    StepInterval<float> zrg(trcsd.start, trcsd.atIndex(trc->size()-1),
-				    trcsd.step );
+	    StepInterval<float> zrg(trcsd.start_, trcsd.atIndex(trc->size()-1),
+				    trcsd.step_ );
 	    spi.zrg.include( zrg, false );
 	}
 
 	if ( !doneinl && bid.inl() != pbid.inl() )
-	    { spi.inlrg.step = bid.inl() - pbid.inl(); doneinl = true; }
+	{ spi.inlrg.step_ = bid.inl() - pbid.inl(); doneinl = true; }
 	if ( !donecrl && bid.crl() != pbid.crl() )
-	    { spi.crlrg.step = bid.crl() - pbid.crl(); donecrl = true; }
+	{ spi.crlrg.step_ = bid.crl() - pbid.crl(); donecrl = true; }
     }
 
-    if ( spi.inlrg.step < 0 ) spi.inlrg.step = -spi.inlrg.step;
-    if ( spi.crlrg.step < 0 ) spi.crlrg.step = -spi.crlrg.step;
+    if ( spi.inlrg.step_ < 0 ) spi.inlrg.step_ = -spi.inlrg.step_;
+    if ( spi.crlrg.step_ < 0 ) spi.crlrg.step_ = -spi.crlrg.step_;
 }
 
 
@@ -134,7 +134,7 @@ Interval<float> SeisTrcBuf::getZRange4Shifts( const TypeSet<float>& zvals,
 					       bool upw ) const
 {
     const Interval<float> myzrg = zRange();
-    if ( mIsUdf(myzrg.start) )
+    if ( mIsUdf(myzrg.start_) )
 	return myzrg;
 
     Interval<float> zrg( mUdf(float), mUdf(float) );
@@ -145,13 +145,13 @@ Interval<float> SeisTrcBuf::getZRange4Shifts( const TypeSet<float>& zvals,
 
 	const float dz = upw ? -zval : zval;
 
-	const Interval<float> curzrg( myzrg.start + dz, myzrg.stop + dz );
-	if ( mIsUdf(zrg.start) )
+	const Interval<float> curzrg( myzrg.start_ + dz, myzrg.stop_ + dz );
+	if ( mIsUdf(zrg.start_) )
 	    zrg = curzrg;
 	else
 	{
-	    zrg.include( curzrg.start, false );
-	    zrg.include( curzrg.stop, false );
+	    zrg.include( curzrg.start_, false );
+	    zrg.include( curzrg.stop_, false );
 	}
     }
 
@@ -164,14 +164,14 @@ void SeisTrcBuf::getShifted( const Interval<float>& zrg,
 			     bool upward, float udfval, SeisTrcBuf& out ) const
 {
     const int nrtrcs = size();
-    if ( nrtrcs < 1 || mIsUdf(zrg.start) || mIsUdf(zrg.stop) )
+    if ( nrtrcs < 1 || mIsUdf(zrg.start_) || mIsUdf(zrg.stop_) )
 	return;
 
     ZSampling newzrg( zrg );
-    newzrg.step = first()->info().sampling.step;
+    newzrg.step_ = first()->info().sampling.step_;
     const int newnrsamps = newzrg.nrSteps() + 1;
-    const float zrest = newnrsamps*newzrg.step - zrg.width();
-    newzrg.start -= zrest * 0.5f;
+    const float zrest = newnrsamps*newzrg.step_ - zrg.width();
+    newzrg.start_ -= zrest * 0.5f;
 
     for ( int itrc=0; itrc<nrtrcs; itrc++ )
     {
@@ -448,8 +448,8 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
         return false;
 
     const SeisTrc& trc0 = *first();
-    strm << trc0.info().sampling.start
-	 << ' ' << trc0.info().sampling.step * SI().zDomain().userFactor()
+    strm << trc0.info().sampling.start_
+	 << ' ' << trc0.info().sampling.step_ * SI().zDomain().userFactor()
 	 << ' ' << trc0.size();
 
     for ( int itrc=0; itrc<size(); itrc++ )

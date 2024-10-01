@@ -220,9 +220,9 @@ void uiWellImportSEGYVSP::wllSel( CallBacker* )
 
 static void setInpSamp( uiGenInput* fld, SamplingData<float>& sd, float fac )
 {
-    sd.start *= fac; sd.step *= fac;
-    fld->setValue( sd.start, 0 );
-    fld->setValue( sd.step, 1 );
+    sd.start_ *= fac; sd.step_ *= fac;
+    fld->setValue( sd.start_, 0 );
+    fld->setValue( sd.step_, 1 );
 }
 
 
@@ -232,7 +232,7 @@ void uiWellImportSEGYVSP::use( const SeisTrc& trc )
     setInpSamp( inpsampfld_, dispinpsamp_, mCast(float,isdpth_ ? 1 : 1000) );
     if ( isdpth_ )
     {
-	outzrgfld_->setValue( dispinpsamp_.start, 0 );
+	outzrgfld_->setValue( dispinpsamp_.start_, 0 );
 	outzrgfld_->setValue( trc.endPos(), 1 );
     }
 }
@@ -275,28 +275,28 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
     Interval<float> outzrg( mUdf(float), mUdf(float) );
     if ( inpsampfld_->isChecked() )
     {
-	inpsamp.start = inpsampfld_->getFValue( 0 );
-	inpsamp.step = inpsampfld_->getFValue( 1 );
+	inpsamp.start_ = inpsampfld_->getFValue( 0 );
+	inpsamp.step_ = inpsampfld_->getFValue( 1 );
 	if ( !isdpth_ )
-	    { mScaleVal(inpsamp.start,0.001); mScaleVal(inpsamp.step,0.001); }
+	{ mScaleVal(inpsamp.start_,0.001); mScaleVal(inpsamp.step_,0.001); }
 	else if ( inpinftfld_->isChecked() )
-	    { mScaleVal(inpsamp.start,mFromFeetFactorF);
-		mScaleVal(inpsamp.step,mFromFeetFactorF); }
+	{ mScaleVal(inpsamp.start_,mFromFeetFactorF);
+	    mScaleVal(inpsamp.step_,mFromFeetFactorF); }
     }
     if ( outzrgfld_->isChecked() )
     {
 	outzrg = outzrgfld_->getFInterval();
 	if ( outinftfld_->isChecked() )
-	    { mScaleVal(outzrg.start,mFromFeetFactorF);
-		mScaleVal(outzrg.stop,mFromFeetFactorF); }
+	{ mScaleVal(outzrg.start_,mFromFeetFactorF);
+	    mScaleVal(outzrg.stop_,mFromFeetFactorF); }
     }
 
     SeisTrc trc;
     if ( !fetchTrc(trc) )
 	return false;
 
-    if ( !mIsUdf(inpsamp.start) ) trc.info().sampling.start = inpsamp.start;
-    if ( !mIsUdf(inpsamp.step) ) trc.info().sampling.step = inpsamp.step;
+    if ( !mIsUdf(inpsamp.start_) ) trc.info().sampling.start_ = inpsamp.start_;
+    if ( !mIsUdf(inpsamp.step_) ) trc.info().sampling.step_ = inpsamp.step_;
 
     if ( createLog(trc,outzrg,lognm) )
 	uiMSG().message(tr("%1 created and saved").arg(lognm.buf()));
@@ -342,14 +342,14 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     wl->pars().set( sKey::FileName(), sgypars_.find(sKey::FileName()) );
 
     Interval<float> outzrg( ozr ); outzrg.sort();
-    const bool havestartout = !mIsUdf(outzrg.start);
-    const bool havestopout = !mIsUdf(outzrg.stop);
+    const bool havestartout = !mIsUdf(outzrg.start_);
+    const bool havestopout = !mIsUdf(outzrg.stop_);
     if ( outistvdfld_->isChecked() )
     {
 	if ( havestartout )
-	    outzrg.start = track.getDahForTVD( outzrg.start );
+	    outzrg.start_ = track.getDahForTVD( outzrg.start_ );
 	if ( havestopout )
-	    outzrg.start = track.getDahForTVD( outzrg.stop );
+	    outzrg.start_ = track.getDahForTVD( outzrg.stop_ );
     }
 
     const bool inptvd = inpistvdfld_->isChecked();
@@ -363,9 +363,9 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 	else if ( inptvd )
 	    prevdah = z = track.getDahForTVD( z, prevdah );
 
-	if ( havestartout && z>outzrg.start-zeps )
+	if ( havestartout && z>outzrg.start_-zeps )
 	    continue;
-	if ( havestopout && z>outzrg.stop+zeps )
+	if ( havestopout && z>outzrg.stop_+zeps )
 	    break;
 
 	wl->addValue( z, trc.get(isamp,0) );

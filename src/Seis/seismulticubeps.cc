@@ -241,9 +241,9 @@ void MultiCubeSeisPSReader::getCubeData( const SeisTrcReader& rdr,
     if ( pi.cubedata )
 	cd = *pi.cubedata;
     else
-	cd.generate( BinID(pi.inlrg.start,pi.crlrg.start),
-		     BinID(pi.inlrg.stop,pi.crlrg.stop),
-		     BinID(pi.inlrg.step,pi.crlrg.step) );
+	cd.generate( BinID(pi.inlrg.start_,pi.crlrg.start_),
+		     BinID(pi.inlrg.stop_,pi.crlrg.stop_),
+		     BinID(pi.inlrg.step_,pi.crlrg.step_) );
 }
 
 

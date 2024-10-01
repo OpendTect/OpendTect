@@ -390,12 +390,12 @@ uiString uiODPlaneDataTreeItem::createDisplayName() const
 	{
 	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
 	    const int nrdec =
-		Math::NrSignificantDecimals( cs.zsamp_.step*zdef.userFactor() );
-	    const float zval = cs.zsamp_.start * zdef.userFactor();
+                    Math::NrSignificantDecimals( cs.zsamp_.step_*zdef.userFactor() );
+            const float zval = cs.zsamp_.start_ * zdef.userFactor();
 	    res = toUiString( zval, nrdec );
 	}
 	else
-	    res = toUiString(cs.zsamp_.start);
+            res = toUiString(cs.zsamp_.start_);
     }
 
     return res;
@@ -530,7 +530,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == addzitem_.id )
     {
 	itm = new uiODZsliceTreeItem( VisID::udf(), Empty );
-	newtkzs.zsamp_.start = newtkzs.zsamp_.stop = zpos;
+        newtkzs.zsamp_.start_ = newtkzs.zsamp_.stop_ = zpos;
     }
 
     if ( itm )
@@ -649,8 +649,8 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
     }
     else if ( pdd->getOrientation() == OD::SliceType::Z )
     {
-	cs.zsamp_.start += cs.zsamp_.step * dir;
-	cs.zsamp_.stop = cs.zsamp_.start;
+        cs.zsamp_.start_ += cs.zsamp_.step_ * dir;
+        cs.zsamp_.stop_ = cs.zsamp_.start_;
     }
     else
 	return;

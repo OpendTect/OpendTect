@@ -31,8 +31,8 @@ DelaunayTriangulator::~DelaunayTriangulator()
 
 void DelaunayTriangulator::setCalcScope( const Interval<int>& rg )
 {
-    calcscope_.start =  mMAX( 0, rg.start );
-    calcscope_.stop =  mMIN( tree_.coordList().size()-1, rg.stop );
+    calcscope_.start_ =  mMAX( 0, rg.start_ );
+    calcscope_.stop_ =	mMIN( tree_.coordList().size()-1, rg.stop_ );
 }
 
 
@@ -154,8 +154,8 @@ bool DAGTriangleTree::computeCoordRanges( const TypeSet<Coord>& coordlist,
 
 	if ( !rangesaredefined )
 	{
-	    xrg.start = xrg.stop = coordlist[idx].x;
-	    yrg.start = yrg.stop = coordlist[idx].y;
+	    xrg.start_ = xrg.stop_ = coordlist[idx].x;
+	    yrg.start_ = yrg.stop_ = coordlist[idx].y;
 	    rangesaredefined = true;
 	}
 

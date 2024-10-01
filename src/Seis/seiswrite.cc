@@ -220,8 +220,8 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    return false;
 
 	SamplingData<float> sd = trc.info().sampling;
-	StepInterval<float> zrg( sd.start, 0, sd.step );
-	zrg.stop = sd.start + sd.step * (trc.size()-1);
+	StepInterval<float> zrg( sd.start_, 0, sd.step_ );
+	zrg.stop_ = sd.start_ + sd.step_ * (trc.size()-1);
 	linedata_->setZRange( zrg );
     }
     else if ( psioprov_ )
@@ -234,7 +234,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    const char* lnm = is2d_ ? Survey::GM().getName(geomid) : nullptr;
 	    pswriter_ = SPSIOPF().get2DWriter( *ioobj_, lnm );
 	    SamplingData<float> sd = trc.info().sampling;
-	    StepInterval<float> zrg( sd.start, 0, sd.step );
+	    StepInterval<float> zrg( sd.start_, 0, sd.step_ );
 	    if ( linedata_ )
 		linedata_->setZRange( zrg );
 	}

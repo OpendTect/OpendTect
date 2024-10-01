@@ -142,8 +142,8 @@ bool uiViewer3DScalingTab::settingCheck()
     const int clip = useclipfld_->getIntValue();
     if ( !clip )
     {
-	if ( mIsUdf(rgfld_->getFInterval().start) ||
-	     mIsUdf(rgfld_->getFInterval().stop) )
+	if ( mIsUdf(rgfld_->getFInterval().start_) ||
+	     mIsUdf(rgfld_->getFInterval().stop_) )
 	{
 	    uiMSG().error( tr("Range is not set") );
 	    return false;
@@ -174,23 +174,23 @@ bool uiViewer3DScalingTab::settingCheck()
     else
     {
 	const Interval<float> asymv = assymclipratiofld_->getFInterval();
-	if ( !mIsUdf(asymv.start) && !mIsUdf(asymv.stop) )
+	if ( !mIsUdf(asymv.start_) && !mIsUdf(asymv.stop_) )
 	{
-	    if ( asymv.start>100 || asymv.start<0 ||
-		 asymv.stop>100 || asymv.stop<0 )
+	    if ( asymv.start_>100 || asymv.start_<0 ||
+		 asymv.stop_>100 || asymv.stop_<0 )
 	    {
 		uiMSG().error( tr("Clip percentage should between 0 and 100") );
 		return false;
 	    }
 
-	    if ( asymv.start+asymv.stop>100 )
+	    if ( asymv.start_+asymv.stop_>100 )
 	    {
 		uiMSG().error( tr("Clip percentage sum is between 0 and 100") );
 		return false;
 	    }
 	}
 
-	if ( mIsUdf(asymv.start) || mIsUdf(asymv.stop) )
+	if ( mIsUdf(asymv.start_) || mIsUdf(asymv.stop_) )
 	{
 	    uiMSG().error( tr("Clipping rate is not set") );
 	    return false;

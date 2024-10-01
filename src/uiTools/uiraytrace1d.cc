@@ -289,13 +289,13 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& su )
 	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
 	offsetfld_->setElemSzPol( uiObject::Small );
 	offsetfld_->setValue(
-			Interval<float>( offsetrg.start, offsetrg.stop ) );
+                    Interval<float>( offsetrg.start_, offsetrg.stop_ ) );
 	mAttachCB( offsetfld_->valueChanged, uiRayTracer1D::parsChangedCB );
 
 	offsetstepfld_ = new uiGenInput( this, uiStrings::sStep() );
 	offsetstepfld_->attach( rightOf, offsetfld_ );
 	offsetstepfld_->setElemSzPol( uiObject::Small );
-	offsetstepfld_->setValue( offsetrg.step );
+        offsetstepfld_->setValue( offsetrg.step_ );
 	mAttachCB( offsetstepfld_->valueChanged, uiRayTracer1D::parsChangedCB );
     }
 
@@ -430,7 +430,7 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	offsetfld_->setValue( offsetrg );
 	const float step = offsets.size() > 1
 	     ? offsets[1]-offsets[0]
-	     : RayTracer1D::sDefOffsetRange( defOffsetType() ).step;
+                           : RayTracer1D::sDefOffsetRange( defOffsetType() ).step_;
 	offsetstepfld_->setValue( step );
     }
 
@@ -456,9 +456,9 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
     if ( offsetfld_ && offsetstepfld_ )
     {
 	StepInterval<float> offsetrg;
-	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
-	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
-	offsetrg.step = offsetstepfld_->getFValue();
+        offsetrg.start_ = mCast( float, offsetfld_->getIInterval().start_ );
+        offsetrg.stop_ = mCast( float, offsetfld_->getIInterval().stop_ );
+        offsetrg.step_ = offsetstepfld_->getFValue();
 	TypeSet<float> offsets;
 	for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
 	    offsets += offsetrg.atIndex( idx );

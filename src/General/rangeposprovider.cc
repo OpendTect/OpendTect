@@ -122,7 +122,7 @@ void Pos::RangeProvider3D::setSampling( const TrcKeyZSampling& tkzs )
 	// For random sampling use the survey steps/sampling
 	const TrcKeyZSampling& sitkzs = SI().sampling( false );
 	tkzs_.hsamp_.step_ = sitkzs.hsamp_.step_;
-	tkzs_.zsamp_.step = sitkzs.zsamp_.step;
+	tkzs_.zsamp_.step_ = sitkzs.zsamp_.step_;
     }
     zsampsz_ = tkzs.zsamp_.nrSteps()+1;
 }
@@ -141,7 +141,7 @@ bool Pos::RangeProvider3D::initialize( TaskRunner* )
 	// For random sampling use the survey steps/sampling
 	const TrcKeyZSampling& sitkzs = SI().sampling( false );
 	tkzs_.hsamp_.step_ = sitkzs.hsamp_.step_;
-	tkzs_.zsamp_.step = sitkzs.zsamp_.step;
+	tkzs_.zsamp_.step_ = sitkzs.zsamp_.step_;
 	// Check the number of samples doesn't exceed the number available
 	enoughsamples_ = nrsamples_<tkzs_.totalNr();
 
@@ -196,7 +196,7 @@ bool Pos::RangeProvider3D::toNextPos()
 }
 
 
-#define mZrgEps (1e-6*tkzs_.zsamp_.step)
+#define mZrgEps (1e-6*tkzs_.zsamp_.step_)
 
 bool Pos::RangeProvider3D::toNextZ()
 {
@@ -228,7 +228,7 @@ bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
     if ( !issel ) return false;
     if ( mIsUdf(z) ) return true;
 
-    return z < tkzs_.zsamp_.stop+mZrgEps && z > tkzs_.zsamp_.start - mZrgEps;
+    return z < tkzs_.zsamp_.stop_+mZrgEps && z > tkzs_.zsamp_.start_ - mZrgEps;
 }
 
 
@@ -274,7 +274,7 @@ void Pos::RangeProvider3D::getZRange( Interval<float>& zrg ) const
     assign( zrg, tkzs_.zsamp_ );
     mDynamicCastGet(StepInterval<float>*,szrg,&zrg)
     if ( szrg )
-	szrg->step = tkzs_.zsamp_.step;
+	    szrg->step_ = tkzs_.zsamp_.step_;
 }
 
 
@@ -445,8 +445,8 @@ void Pos::RangeProvider2D::getCurRanges() const
     const StepInterval<int> geomtrcrg = curgeom_->data().trcNrRange();
     curtrcrg_.limitTo( geomtrcrg );
     const int firstvalidgeomidx =
-	geomtrcrg.indexOnOrAfter( curtrcrg_.start, mDefEps );
-    curtrcrg_.start = geomtrcrg.atIndex( firstvalidgeomidx );
+	    geomtrcrg.indexOnOrAfter( curtrcrg_.start_, mDefEps );
+    curtrcrg_.start_ = geomtrcrg.atIndex( firstvalidgeomidx );
     curzrg_ = zrgs_.validIdx(curlineidx_) ? zrgs_[curlineidx_]
 					  : zrgs_[0];
     curzrg_.limitTo( curgeom_->data().zRange() );
@@ -776,10 +776,10 @@ void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
 	    txt += "[all]";
 	else
 	{
-	    txt += rg.start; txt += "-";
-	    txt += rg.stop;
-	    if ( rg.step != 1 )
-	    { txt += " step "; txt += rg.step; }
+	    txt += rg.start_; txt += "-";
+	    txt += rg.stop_;
+	    if ( rg.step_ != 1 )
+	    { txt += " step "; txt += rg.step_; }
 	}
 
 	txt += " ("; txt += zrg.nrSteps() + 1; txt += " samples)";

@@ -191,9 +191,9 @@ int Horizon2DSeedPicker::nrLineNeighbors( int colnr ) const
     for ( int idx=-1; idx<=1; idx+=2 )
     {
 	col = colnr;
-	while ( col>colrg.start && col<colrg.stop )
+	while ( col>colrg.start_ && col<colrg.stop_ )
 	{
-	    col += idx*colrg.step;
+	    col += idx*colrg.step_;
 	    const Coord3 pos = hor->getPos( geomid_, col );
 	    if ( Coord(pos).isDefined() )
 	    {
@@ -333,8 +333,8 @@ TrcKey Horizon2DSeedPicker::replaceSeed( const TrcKey& oldseed,
     hor2d->setBurstAlert( true );
     int prevseedpos = mUdf(int);
     int nextseedpos = mUdf(int);
-    getNextSeedPos( oldseed.trcNr(), -colrg.step, prevseedpos );
-    getNextSeedPos( oldseed.trcNr(), colrg.step, nextseedpos );
+    getNextSeedPos( oldseed.trcNr(), -colrg.step_, prevseedpos );
+    getNextSeedPos( oldseed.trcNr(), colrg.step_, nextseedpos );
     if ( mIsUdf(prevseedpos) && mIsUdf(nextseedpos) )
     {
 	hor2d->setBurstAlert( false );
@@ -345,9 +345,9 @@ TrcKey Horizon2DSeedPicker::replaceSeed( const TrcKey& oldseed,
     TrcKey& newtk = newseed.tk_;
     const TrcKey& cstnewtk = const_cast<TrcKey&>( newtk );
     if ( !mIsUdf(prevseedpos) && cstnewtk.trcNr() <= prevseedpos )
-	newtk.setTrcNr( prevseedpos + colrg.step );
+	newtk.setTrcNr( prevseedpos + colrg.step_ );
     else if ( !mIsUdf(nextseedpos) && cstnewtk.trcNr() >= nextseedpos )
-	newtk.setTrcNr( nextseedpos - colrg.step );
+	newtk.setTrcNr( nextseedpos - colrg.step_ );
 
     removeSeed( oldseed, true, false );
     addSeed( newseed, false, newseed );
@@ -368,16 +368,16 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
     if ( colrg.includes(startcol,false) )
     {
 	extendSeedListEraseInBetween( false, startcol, startwasdefined,
-				      -colrg.step );
+				      -colrg.step_ );
 	extendSeedListEraseInBetween( false, startcol, startwasdefined,
-				      colrg.step );
+				      colrg.step_ );
     }
     else
     {
 	// traverse whole active line
-	extendSeedListEraseInBetween( true, colrg.start, false, -colrg.step );
-	extendSeedListEraseInBetween( true, colrg.start-colrg.step, false,
-				      colrg.step );
+	extendSeedListEraseInBetween( true, colrg.start_, false, -colrg.step_ );
+	extendSeedListEraseInBetween( true, colrg.start_-colrg.step_, false,
+				      colrg.step_ );
 
 	if ( trackmode_ != DrawBetweenSeeds )
 	    tracker_.snapPositions( seedlist_ );
@@ -578,7 +578,7 @@ bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 	tk.setTrcNr( sortval[vtx] );
 	while ( csttk.trcNr()<sortval[vtx+1] )
 	{
-	    tk.setTrcNr( csttk.trcNr() + colrg.step );
+	    tk.setTrcNr( csttk.trcNr() + colrg.step_ );
 	    const Coord curpos = hor->getCoord( csttk );
 	    if ( !curpos.isDefined() )
 		continue;
@@ -589,8 +589,8 @@ bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 
 	double arclen = 0.0;
 	prevpos = startpos;
-	for ( TrcKey::IdxType tnr=sortval[vtx] + colrg.step;
-		tnr<sortval[vtx+1]; tnr += colrg.step  )
+	for ( TrcKey::IdxType tnr=sortval[vtx] + colrg.step_;
+	      tnr<sortval[vtx+1]; tnr += colrg.step_  )
 	{
 	    tk.setTrcNr( tnr );
 	    const Coord curpos = hor->getCoord( csttk );

@@ -244,13 +244,13 @@ void Well::MarkerSet::moveBlock( int fromidx, int toidxblockstart,
     for ( int idx=fromidx+1; idx<idxs.size(); idx++ )
     {
 	if ( idxs[idx] < 0 )
-	    fromrg.stop = idx;
+	    fromrg.stop_ = idx;
 	else
 	    break;
     }
 
     ObjectSet<Marker> tomove;
-    for ( int idx=fromrg.start; idx<=fromrg.stop; idx++ )
+    for ( int idx=fromrg.start_; idx<=fromrg.stop_; idx++ )
     {
 	Marker& oldmrk = *(*this)[idx];
 	tomove += new Marker( oldmrk );
@@ -268,8 +268,8 @@ void Well::MarkerSet::moveBlock( int fromidx, int toidxblockstart,
 
     insertNewAfter( toidx, tomove );
 
-    for ( int idx=fromrg.start; idx<=fromrg.stop; idx++ )
-	removeSingle( fromrg.start );
+    for ( int idx=fromrg.start_; idx<=fromrg.stop_; idx++ )
+	removeSingle( fromrg.start_ );
 }
 
 
@@ -299,25 +299,25 @@ void Well::MarkerSet::insertNewAfter( int aftidx,
     }
     mrkrs.erase();
 
-    if ( idxs.start > 0 )
-	dahbounds.start = (*this)[idxs.start-1]->dah();
-    else if ( idxs.stop < size()-1 )
-	dahbounds.stop = (*this)[idxs.stop+1]->dah();
+    if ( idxs.start_ > 0 )
+	dahbounds.start_ = (*this)[idxs.start_-1]->dah();
+    else if ( idxs.stop_ < size()-1 )
+	dahbounds.stop_ = (*this)[idxs.stop_+1]->dah();
 
-    if ( (*this)[idxs.start]->dah() > dahbounds.start
-	&& (*this)[idxs.stop]->dah() < dahbounds.stop )
+    if ( (*this)[idxs.start_]->dah() > dahbounds.start_
+	 && (*this)[idxs.stop_]->dah() < dahbounds.stop_ )
 	return;
 
-    const float gapwdht = dahbounds.stop - dahbounds.start;
+    const float gapwdht = dahbounds.stop_ - dahbounds.start_;
     if ( gapwdht == 0 )
-	for ( int idx=idxs.start; idx<=idxs.stop; idx++ )
-	    (*this)[idx]->setDah( dahbounds.start );
+	for ( int idx=idxs.start_; idx<=idxs.stop_; idx++ )
+	    (*this)[idx]->setDah( dahbounds.start_ );
     else
     {
 	const float dahstep = gapwdht / (idxs.width() + 2);
-	for ( int idx=idxs.start; idx<=idxs.stop; idx++ )
-	    (*this)[idx]->setDah( dahbounds.start
-				  + dahstep * (idx-idxs.start+1) );
+	for ( int idx=idxs.start_; idx<=idxs.stop_; idx++ )
+	    (*this)[idx]->setDah( dahbounds.start_
+				  + dahstep * (idx-idxs.start_+1) );
     }
 }
 
@@ -554,14 +554,14 @@ void Well::MarkerRange::init( const Interval<int>& rg )
 
     const int inpsz = markers_.size();
     if ( inpsz < 1 )
-	rg_.start = rg_.stop = -1;
+	rg_.start_ = rg_.stop_ = -1;
     else
     {
-	if ( rg_.start < 0 ) rg_.start = 0;
-	if ( rg_.stop < 0 ) rg_.stop = inpsz - 1;
+	if ( rg_.start_ < 0 ) rg_.start_ = 0;
+	if ( rg_.stop_ < 0 ) rg_.stop_ = inpsz - 1;
 	rg_.sort();
-	if ( rg_.start >= inpsz ) rg_.start = inpsz - 1;
-	if ( rg_.stop >= inpsz ) rg_.stop = inpsz - 1;
+	if ( rg_.start_ >= inpsz ) rg_.start_ = inpsz - 1;
+	if ( rg_.stop_ >= inpsz ) rg_.stop_ = inpsz - 1;
     }
 }
 
@@ -570,9 +570,9 @@ bool Well::MarkerRange::isValid() const
 {
     const int inpsz = markers_.size();
     return inpsz > 0
-	&& rg_.start >= 0 && rg_.stop >= 0
-	&& rg_.start < inpsz && rg_.stop < inpsz
-	&& rg_.start <= rg_.stop;
+	    && rg_.start_ >= 0 && rg_.stop_ >= 0
+	    && rg_.start_ < inpsz && rg_.stop_ < inpsz
+	    && rg_.start_ <= rg_.stop_;
 }
 
 
@@ -580,7 +580,7 @@ bool Well::MarkerRange::isIncluded( const char* nm ) const
 {
     if ( !isValid() ) return false;
 
-    for ( int idx=rg_.start; idx<=rg_.stop; idx++ )
+    for ( int idx=rg_.start_; idx<=rg_.stop_; idx++ )
 	if ( markers_[idx]->name() == nm )
 	    return true;
     return false;
@@ -591,14 +591,14 @@ bool Well::MarkerRange::isIncluded( float z ) const
 {
     if ( !isValid() ) return false;
 
-    return z >= markers_[rg_.start]->dah()
-	&& z <= markers_[rg_.stop]->dah();
+    return z >= markers_[rg_.start_]->dah()
+	    && z <= markers_[rg_.stop_]->dah();
 }
 
 
 float Well::MarkerRange::thickness() const
 {
-    return markers_[rg_.stop]->dah() - markers_[rg_.start]->dah();
+    return markers_[rg_.stop_]->dah() - markers_[rg_.start_]->dah();
 }
 
 
@@ -606,7 +606,7 @@ void Well::MarkerRange::getNames( BufferStringSet& nms ) const
 {
     if ( !isValid() ) return;
 
-    for ( int idx=rg_.start; idx<=rg_.stop; idx++ )
+    for ( int idx=rg_.start_; idx<=rg_.stop_; idx++ )
 	nms.add( markers_[idx]->name() );
 }
 
@@ -616,7 +616,7 @@ Well::MarkerSet* Well::MarkerRange::getResultSet() const
     Well::MarkerSet* ret = new Well::MarkerSet;
     if ( !isValid() ) return ret;
 
-    for ( int idx=rg_.start; idx<=rg_.stop; idx++ )
+    for ( int idx=rg_.start_; idx<=rg_.stop_; idx++ )
 	*ret += new Well::Marker( *markers_[idx] );
     return ret;
 }
@@ -640,23 +640,23 @@ Well::MarkerChgRange::~MarkerChgRange()
 
 void Well::MarkerChgRange::setThickness( float newth )
 {
-    if ( !isValid() || rg_.start == rg_.stop )
+    if ( !isValid() || rg_.start_ == rg_.stop_ )
 	return;
     if ( newth < 0 )
 	newth = 0;
 
-    const float startdah = markers_[rg_.start]->dah();
-    const float oldth = markers_[rg_.stop]->dah() - startdah;
+    const float startdah = markers_[rg_.start_]->dah();
+    const float oldth = markers_[rg_.stop_]->dah() - startdah;
 
     if ( mIsZero(newth,mDefEps) )
     {
-	for ( int idx=rg_.start+1; idx<rg_.stop; idx++ )
+	for ( int idx=rg_.start_+1; idx<rg_.stop_; idx++ )
 	    getMarkers()[idx]->setDah( startdah );
     }
     else
     {
 	const float comprfac = newth / oldth;
-	for ( int idx=rg_.start+1; idx<rg_.stop; idx++ )
+	for ( int idx=rg_.start_+1; idx<rg_.stop_; idx++ )
 	{
 	    const float newdist = comprfac * (markers_[idx]->dah() - startdah);
 	    getMarkers()[idx]->setDah( startdah + newdist );
@@ -664,8 +664,8 @@ void Well::MarkerChgRange::setThickness( float newth )
     }
 
     const float deltath = oldth - newth;
-    const float lastdah = markers_[rg_.stop-1]->dah();
-    for ( int idx=rg_.stop; idx<markers_.size(); idx++ )
+    const float lastdah = markers_[rg_.stop_-1]->dah();
+    for ( int idx=rg_.stop_; idx<markers_.size(); idx++ )
     {
 	float newdah = markers_[idx]->dah() - deltath;
 	if ( newdah < lastdah ) // just a guard against rounding errors
@@ -681,7 +681,7 @@ void Well::MarkerChgRange::remove()
 
     const int nrlays = rg_.width() + 1;
     for ( int idx=0; idx<nrlays; idx++ )
-	getMarkers().removeSingle( rg_.start, true );
+	getMarkers().removeSingle( rg_.start_, true );
 
-    rg_.stop = rg_.start = rg_.start - 1;
+    rg_.stop_ = rg_.start_ = rg_.start_ - 1;
 }

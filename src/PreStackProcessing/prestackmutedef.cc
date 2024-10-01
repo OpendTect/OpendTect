@@ -216,9 +216,9 @@ float MuteDef::value( float offs, const BinID& pos ) const
 	return fns_[0]->getValue( offs );
 
     const Coord si00 = SI().transform(
-	BinID(SI().inlRange(true).start,SI().crlRange(true).start) );
+                           BinID(SI().inlRange(true).start_,SI().crlRange(true).start_) );
     const Coord si11 = SI().transform(
-	BinID(SI().inlRange(true).stop,SI().crlRange(true).stop) );
+                           BinID(SI().inlRange(true).stop_,SI().crlRange(true).stop_) );
 
     const double normalweight = si00.sqDistTo( si11 );
 
@@ -248,9 +248,9 @@ void MuteDef::computeIntervals( float offs, const BinID& pos,
 	return;
 
     const Coord si00 = SI().transform(
-	    BinID(SI().inlRange(true).start,SI().crlRange(true).start) );
+                           BinID(SI().inlRange(true).start_,SI().crlRange(true).start_) );
     const Coord si11 = SI().transform(
-	    BinID(SI().inlRange(true).stop,SI().crlRange(true).stop) );
+                           BinID(SI().inlRange(true).stop_,SI().crlRange(true).stop_) );
 
     const double normalweight = si00.sqDistTo( si11 );
     const Coord centercrd( SI().transform(pos) );
@@ -289,9 +289,9 @@ void MuteDef::computeIntervals( float offs, const BinID& pos,
     for ( int imute=0; imute<mutezvals.size(); imute+=2 )
     {
 	Interval<float> itv( mUdf(float), mUdf(float) );
-	itv.start = mutezvals[imute];
+        itv.start_ = mutezvals[imute];
 	if ( mutezvals.validIdx(imute+1) )
-	    itv.stop = mutezvals[imute+1];
+            itv.stop_ = mutezvals[imute+1];
 	res += itv;
     }
 }

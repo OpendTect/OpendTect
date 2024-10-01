@@ -87,9 +87,9 @@ ZSampling VolumeFunction::getAvailableZ() const
 
 ZSampling VolumeFunction::getLoadedZ() const
 {
-    return ZSampling( float (velsampling_.start),
+    return ZSampling( float (velsampling_.start_),
 		      float (velsampling_.atIndex(vel_.size()-1)),
-		      float (velsampling_.step) );
+		      float (velsampling_.step_) );
 }
 
 
@@ -211,8 +211,8 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
     {
 	const StepInterval<int>& inlrg = packetinfo.inlrg;
 	const StepInterval<int>& crlrg = packetinfo.crlrg;
-	for ( int inl=inlrg.start; inl<=inlrg.stop; inl +=inlrg.step )
-	    for ( int crl=crlrg.start; crl<=crlrg.stop; crl +=crlrg.step )
+	for ( int inl=inlrg.start_; inl<=inlrg.stop_; inl +=inlrg.step_ )
+	    for ( int crl=crlrg.start_; crl<=crlrg.stop_; crl +=crlrg.step_ )
 		bids.add( BinID(inl,crl) );
     }
 }

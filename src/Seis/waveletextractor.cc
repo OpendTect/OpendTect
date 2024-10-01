@@ -59,7 +59,7 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
     PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
     si->getRanges( cs );
     wvlt_.reSize( wvltsize_ );
-    wvlt_.setSampleRate( cs.zsamp_.step );
+    wvlt_.setSampleRate( cs.zsamp_.step_ );
     wvlt_.setCenterSample( wvltsize_/2 );
     for ( int samp=0; samp<wvltsize_; samp++ )
 	wvlt_.samples()[samp] = 0;
@@ -222,11 +222,11 @@ bool WaveletExtractor::getSignalInfo( const SeisTrc& trc, int& startsample,
 
     if ( z2 < z1 ) Swap( z1, z2 );
 
-    if( !trc.dataPresent(z1 + extz.start) || !trc.dataPresent(z2 + extz.stop) )
+    if( !trc.dataPresent(z1 + extz.start_) || !trc.dataPresent(z2 + extz.stop_) )
 	return false;
 
-    startsample = trc.nearestSample( z1 + extz.start );
-    const int stopsample = trc.nearestSample( z2 + extz.stop );
+    startsample = trc.nearestSample( z1 + extz.start_ );
+    const int stopsample = trc.nearestSample( z2 + extz.stop_ );
     signalsz = stopsample - startsample + 1;
 
     return signalsz >= wvltsize_;

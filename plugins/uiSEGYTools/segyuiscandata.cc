@@ -63,8 +63,8 @@ void SEGY::BasicFileInfo::init( bool is2d )
     is2d_ = is2d;
     revision_ = ns_ = thdrns_ = binsr_ -1;
     format_ = 5;
-    sampling_.start = 1.0f;
-    sampling_.step = mUdf(float);
+    sampling_.start_ = 1.0f;
+    sampling_.step_ = mUdf(float);
     hdrsswapped_ = dataswapped_ = false;
     usenrsampsinfile_ = true;
     useformatinfile_ = true;
@@ -210,10 +210,10 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 	thdr->geomtype_ = is2d_ ? Seis::Line : Seis::Vol;
 
     thdr->fill( ti, 1.0f );
-    sampling_.start = ti.sampling.start * SI().zDomain().userFactor();
-    sampling_.step = ti.sampling.step * SI().zDomain().userFactor();
-    if ( mIsZero(sampling_.step,1.e-8) )
-	sampling_.step = binhdr.sampleRate( false );
+    sampling_.start_ = ti.sampling.start_ * SI().zDomain().userFactor();
+    sampling_.step_ = ti.sampling.step_ * SI().zDomain().userFactor();
+    if ( mIsZero(sampling_.step_,1.e-8) )
+	sampling_.step_ = binhdr.sampleRate( false );
 
     return uiString::emptyString();
 }
@@ -379,8 +379,8 @@ void SEGY::LoadDef::getFileReadOpts( SEGY::FileReadOpts& readopts ) const
 {
     readopts.thdef_ = *hdrdef_;
     readopts.coordscale_ = coordscale_;
-    readopts.timeshift_ = usezsamplinginfile_ ? mUdf(float) : sampling_.start;
-    readopts.sampleintv_ = usezsamplinginfile_ ? mUdf(float) : sampling_.step;
+    readopts.timeshift_ = usezsamplinginfile_ ? mUdf(float) : sampling_.start_;
+    readopts.sampleintv_ = usezsamplinginfile_ ? mUdf(float) : sampling_.step_;
     readopts.icdef_ = icvsxytype_;
     readopts.psdef_ = psoffssrc_;
     readopts.havetrcnrs_ = havetrcnrs_;
@@ -405,8 +405,8 @@ void SEGY::LoadDef::usePar( const IOPar& iop )
     readopts.usePar( iop );
     *hdrdef_ = readopts.thdef_;
     coordscale_ = readopts.coordscale_;
-    sampling_.start = readopts.timeshift_;
-    sampling_.step = readopts.sampleintv_;
+    sampling_.start_ = readopts.timeshift_;
+    sampling_.step_ = readopts.sampleintv_;
     icvsxytype_ = readopts.icdef_;
     havetrcnrs_ = readopts.havetrcnrs_;
     trcnrdef_ = readopts.trcnrdef_;
@@ -441,19 +441,19 @@ void SEGY::ScanRangeInfo::use( const PosInfo::Detector& dtector )
     const Coord cmin( dtector.minCoord() );
     const Coord cmax( dtector.maxCoord() );
 
-    xrg_.start = cmin.x; xrg_.stop = cmax.x;
-    yrg_.start = cmin.y; yrg_.stop = cmax.y;
+    xrg_.start_ = cmin.x; xrg_.stop_ = cmax.x;
+    yrg_.start_ = cmin.y; yrg_.stop_ = cmax.y;
 
     BinID startbid( dtector.start() );
     BinID stopbid( dtector.stop() );
-    trcnrs_.start = startbid.crl(); trcnrs_.stop = stopbid.crl();
+    trcnrs_.start_ = startbid.crl(); trcnrs_.stop_ = stopbid.crl();
     if ( dtector.is2D() )
     {
 	startbid = SI().transform( cmin );
 	stopbid = SI().transform( cmax );
     }
-    inls_.start = startbid.inl(); inls_.stop = stopbid.inl();
-    crls_.start = startbid.crl(); crls_.stop = stopbid.crl();
+    inls_.start_ = startbid.inl(); inls_.stop_ = stopbid.inl();
+    crls_.start_ = startbid.crl(); crls_.stop_ = stopbid.crl();
     inls_.sort(); crls_.sort();
 
     offs_ = dtector.offsRg();
@@ -620,14 +620,14 @@ void SEGY::ScanInfo::getFromSEGYBody( od_istream& strm, const LoadDef& indef,
 	mAddTrcs();
 	if ( !is2D() && indef.forsurveysetup_ )
 	    ensureStepsFound( strm, buf, vals, def, clipsampler, offscalc );
-	trcrg.start = nrtrcs_/3 - cQuickScanNrTrcsInMiddle/2;
-	trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
+	trcrg.start_ = nrtrcs_/3 - cQuickScanNrTrcsInMiddle/2;
+	trcrg.stop_ = trcrg.start_ + cQuickScanNrTrcsInMiddle - 1;
 	mAddTrcs();
-	trcrg.start = (2*nrtrcs_)/3 - cQuickScanNrTrcsInMiddle/2;
-	trcrg.stop = trcrg.start + cQuickScanNrTrcsInMiddle - 1;
+	trcrg.start_ = (2*nrtrcs_)/3 - cQuickScanNrTrcsInMiddle/2;
+	trcrg.stop_ = trcrg.start_ + cQuickScanNrTrcsInMiddle - 1;
 	mAddTrcs();
-	trcrg.start = nrtrcs_ - cQuickScanNrTrcsAtEnds;
-	trcrg.stop = nrtrcs_ - 1;
+	trcrg.start_ = nrtrcs_ - cQuickScanNrTrcsAtEnds;
+	trcrg.stop_ = nrtrcs_ - 1;
 	mAddTrcs();
     }
 
@@ -653,7 +653,7 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
     addValues( clipsampler, vals, def.ns_ );
 
     if ( isfirst )
-	rgs_.refnrs_.start = rgs_.refnrs_.stop = ti.refnr;
+	rgs_.refnrs_.start_ = rgs_.refnrs_.stop_ = ti.refnr;
     else
 	rgs_.refnrs_.include( ti.refnr, false );
 }
@@ -664,11 +664,11 @@ void SEGY::ScanInfo::addTraces( od_istream& strm, Interval<int> trcidxs,
 				DataClipSampler& clipsampler,
 				const OffsetCalculator& offscalc )
 {
-    int curtrcidx = trcidxs.start;
+    int curtrcidx = trcidxs.start_;
     if ( !def.goToTrace(strm,startpos_,curtrcidx) )
 	return;
 
-    for ( ; curtrcidx<=trcidxs.stop; curtrcidx++ )
+    for ( ; curtrcidx<=trcidxs.stop_; curtrcidx++ )
 	if ( !addNextTrace(strm,buf,vals,def,clipsampler,offscalc) )
 	    break;
 }

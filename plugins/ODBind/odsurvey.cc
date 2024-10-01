@@ -755,9 +755,9 @@ void survey_zrange( hSurvey self, float* zrg )
     p->activate();
     StepInterval<float> z = SI().zRange();
     z.scale( SI().showZ2UserFactor() );
-    zrg[0] = z.start;
-    zrg[1] = z.stop;
-    zrg[2] = z.step;
+    zrg[0] = z.start_;
+    zrg[1] = z.stop_;
+    zrg[2] = z.step_;
 }
 
 
@@ -768,9 +768,9 @@ void survey_inlrange( hSurvey self, int32_t* rg )
 
     p->activate();
     auto r = SI().inlRange();
-    rg[0] = r.start;
-    rg[1] = r.stop;
-    rg[2] = r.step;
+    rg[0] = r.start_;
+    rg[1] = r.stop_;
+    rg[2] = r.step_;
 }
 
 
@@ -781,9 +781,9 @@ void survey_crlrange( hSurvey self, int32_t* rg )
 
     p->activate();
     auto r = SI().crlRange();
-    rg[0] = r.start;
-    rg[1] = r.stop;
-    rg[2] = r.step;
+    rg[0] = r.start_;
+    rg[1] = r.stop_;
+    rg[2] = r.step_;
 }
 
 

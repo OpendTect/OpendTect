@@ -33,17 +33,17 @@ struct ExplPlaneIntersectionExtractorPlane
 	    polygon_.add( pt );
 	    if ( !idx )
 	    {
-		xrg.start = xrg.stop = pt.x;
-		yrg.start = yrg.stop = pt.y;
+                xrg.start_ = xrg.stop_ = pt.x;
+                yrg.start_ = yrg.stop_ = pt.y;
 		continue;
 	    }
 
-	    xrg.start = mMIN(xrg.start,pt.x); xrg.stop = mMAX(xrg.stop,pt.x);
-	    yrg.start = mMIN(yrg.start,pt.y); yrg.stop = mMAX(yrg.stop,pt.y);
+            xrg.start_ = mMIN(xrg.start_,pt.x); xrg.stop_ = mMAX(xrg.stop_,pt.x);
+            yrg.start_ = mMIN(yrg.start_,pt.y); yrg.stop_ = mMAX(yrg.stop_,pt.y);
 	}
 
-	bbox_.setTopLeft( Coord(xrg.start, yrg.stop) );
-	bbox_.setBottomRight( Coord(xrg.stop, yrg.start) );
+        bbox_.setTopLeft( Coord(xrg.start_, yrg.stop_) );
+        bbox_.setBottomRight( Coord(xrg.stop_, yrg.start_) );
     }
 
     void cutLine( const Line3& line, double& t0, double& t1,

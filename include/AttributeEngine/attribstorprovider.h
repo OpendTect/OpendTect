@@ -87,9 +87,9 @@ protected:
     bool		fillDataHolderWithTrc(const SeisTrc*,
 					      const DataHolder&) const;
     bool		getZStepStoredData(float& step) const override
-			{ step = storedvolume_.zsamp_.step; return true; }
+    { step = storedvolume_.zsamp_.step_; return true; }
     bool		getZ0StoredData(float& z0) const override
-			{ z0 = storedvolume_.zsamp_.start; return true; }
+    { z0 = storedvolume_.zsamp_.start_; return true; }
 
     BinDataDesc		getOutputFormat(int output) const override;
 

@@ -130,14 +130,14 @@ static void getDefaultTrcKeySampling( int& start, int& stop, int& step )
 
 static void getDefaultZSampling( StepInterval<float>& zrg )
 {
-    const float width = (zrg.stop-zrg.start) * SI().zDomain().userFactor();
-    zrg.step = getDefaultStep( width );
-    zrg.start = zrg.step *
-	Math::Ceil( (float)zrg.start * SI().zDomain().userFactor()
-		    / (float)zrg.step );
-    zrg.stop = zrg.step *
-	Math::Floor( (float)zrg.stop * SI().zDomain().userFactor()
-		    / (float)zrg.step );
+    const float width = (zrg.stop_-zrg.start_) * SI().zDomain().userFactor();
+    zrg.step_ = getDefaultStep( width );
+    zrg.start_ = zrg.step_ *
+		 Math::Ceil( (float)zrg.start_ * SI().zDomain().userFactor()
+			     / (float)zrg.step_ );
+    zrg.stop_ = zrg.step_ *
+		Math::Floor( (float)zrg.stop_ * SI().zDomain().userFactor()
+			     / (float)zrg.step_ );
 }
 
 
@@ -175,9 +175,9 @@ void uiGridLinesDlg::setParameters()
     {
 	zfld_->setChecked( pdd_->gridlines()->areZlinesShown() );
 	zspacingfld_->setValue(
-		StepInterval<int>(mNINT32(cs.zsamp_.start),
-				  mNINT32(cs.zsamp_.stop),
-				  mNINT32(cs.zsamp_.step)) );
+		    StepInterval<int>(mNINT32(cs.zsamp_.start_),
+				      mNINT32(cs.zsamp_.stop_),
+				      mNINT32(cs.zsamp_.step_)) );
     }
 
     showGridLineCB(0);
@@ -186,9 +186,9 @@ void uiGridLinesDlg::setParameters()
 
 #define mGetHrgSampling(dir)\
     StepInterval<int> dir##intv = dir##spacingfld_->getIStepInterval();\
-    cs.hsamp_.start_.dir() = dir##intv.start;\
-    cs.hsamp_.stop_.dir() = dir##intv.stop;\
-    cs.hsamp_.step_.dir() = dir##intv.step;\
+    cs.hsamp_.start_.dir() = dir##intv.start_;\
+    cs.hsamp_.stop_.dir() = dir##intv.stop_;\
+    cs.hsamp_.step_.dir() = dir##intv.step_;\
 
 
 bool uiGridLinesDlg::acceptOK( CallBacker* )
@@ -204,7 +204,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 
     if ( (inlfld_ && inlfld_->isChecked() && cs.hsamp_.step_.inl()==0) ||
 	 (crlfld_ && crlfld_->isChecked() && cs.hsamp_.step_.crl()==0) ||
-	 (zfld_ && zfld_->isChecked() && mIsZero(cs.zsamp_.step,mDefEps)) )
+	 (zfld_ && zfld_->isChecked() && mIsZero(cs.zsamp_.step_,mDefEps)) )
     {
 	uiMSG().error( tr("Please make sure all steps are non-zero") );
 	return false;

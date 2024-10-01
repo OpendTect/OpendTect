@@ -39,7 +39,7 @@ void Seis::StatsCollector::setEmpty()
 {
     nrtrcshandled_ = nrvalshandled_ = totalnrsamples_ = 0;
     nrvalscollected_ = 0;
-    mSetUdf( valrg_.start ); mSetUdf( valrg_.stop );
+    mSetUdf( valrg_.start_ ); mSetUdf( valrg_.stop_ );
     delete [] vals_;
     mTryAlloc( vals_, float[cSampleBufferSize] );
     distrib_ = 0;
@@ -63,14 +63,14 @@ void Seis::StatsCollector::addPosition( const TrcKey& tk,
     {
 	tkzs_.hsamp_.init( tk );
 	tkzs_.hsamp_.step_.lineNr() = tkzs_.hsamp_.step_.trcNr() = mUdf(int);
-	tkzs_.zsamp_.start = zrg.start;
-	tkzs_.zsamp_.stop = zrg.stop;
+	tkzs_.zsamp_.start_ = zrg.start_;
+	tkzs_.zsamp_.stop_ = zrg.stop_;
     }
     else
     {
 	tkzs_.hsamp_.include( tk );
-	tkzs_.zsamp_.include( zrg.start, false );
-	tkzs_.zsamp_.include( zrg.stop, false );
+	tkzs_.zsamp_.include( zrg.start_, false );
+	tkzs_.zsamp_.include( zrg.stop_, false );
 	updateStepNr( tkzs_.hsamp_.start_.lineNr(), tk.lineNr(),
 		      tkzs_.hsamp_.step_.lineNr() );
 	updateStepNr( tkzs_.hsamp_.stop_.lineNr(), tk.lineNr(),
@@ -90,7 +90,7 @@ void Seis::StatsCollector::useTrace( const SeisTrc& trc )
 	return;
 
     if ( nrtrcshandled_ < 1 )
-	tkzs_.zsamp_.step = trc.info().sampling.step;
+	tkzs_.zsamp_.step_ = trc.info().sampling.step_;
     addPosition( trc.info().trcKey(), trc.zRange() );
 
     const int sz = trc.size();
@@ -106,7 +106,7 @@ void Seis::StatsCollector::useTrace( const SeisTrc& trc )
 		continue;
 
 	    if ( nrvalshandled_ < 1 )
-		valrg_.start = valrg_.stop = val;
+		valrg_.start_ = valrg_.stop_ = val;
 	    else
 		valrg_.include( val, false );
 
@@ -129,10 +129,10 @@ void Seis::StatsCollector::useTrace( const SeisTrc& trc )
     }
 
     const float offs = trc.info().offset;
-    if ( mIsUdf(offsrg_.start) || offsrg_.start > offs )
-	offsrg_.start = offs;
-    if ( offsrg_.stop < offs )
-	offsrg_.stop = offs;
+    if ( mIsUdf(offsrg_.start_) || offsrg_.start_ > offs )
+	offsrg_.start_ = offs;
+    if ( offsrg_.stop_ < offs )
+	offsrg_.stop_ = offs;
 }
 
 
@@ -168,7 +168,7 @@ bool Seis::StatsCollector::fillPar( IOPar& iop ) const
 
     tkzs_.fillPar( iop );
 
-    if ( !mIsUdf(offsrg_.start) && offsrg_.stop > 0.1f )
+    if ( !mIsUdf(offsrg_.start_) && offsrg_.stop_ > 0.1f )
 	iop.set( sKey::OffsetRange(), offsrg_ );
 
     iop.set( "Count.Traces", nrtrcshandled_ );
@@ -176,7 +176,7 @@ bool Seis::StatsCollector::fillPar( IOPar& iop ) const
     iop.set( "Count.UnDefs", totalnrsamples_-nrvalshandled_ );
     iop.set( "Count.Random Sample Size", nrvalscollected_ );
 
-    if ( !mIsUdf(valrg_.start) )
+    if ( !mIsUdf(valrg_.start_) )
 	iop.set( "Extremes", valrg_ );
 
     IOPar distribpar;

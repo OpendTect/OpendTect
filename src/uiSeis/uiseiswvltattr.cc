@@ -162,8 +162,8 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     typefld_->attach( centeredAbove, timedrawer_ );
 
     const float zfact = SI().showZ2UserFactor();
-    timerange_.set( wvlt_->samplePositions().start,
-		    wvlt_->samplePositions().stop );
+    timerange_.set( wvlt_->samplePositions().start_,
+                    wvlt_->samplePositions().stop_ );
     timerange_.scale( zfact );
     timedrawer_->setFunction( *wvltvals_, timerange_ );
 
@@ -282,7 +282,7 @@ uiWaveletDispProp::uiWaveletDispProp( uiParent* p, const Wavelet& wvlt )
     , wvltsz_(wvlt.size())
     , wvltattr_(new WaveletAttrib(wvlt))
 {
-    timerange_.set( wvlt.samplePositions().start, wvlt.samplePositions().stop);
+    timerange_.set( wvlt.samplePositions().start_, wvlt.samplePositions().stop_);
     timerange_.scale( SI().showZ2UserFactor() );
     const float maxfreq = 1.f / (2.f * wvlt.sampleRate());
     const float zfac = getFreqXAxisScaler();
@@ -361,7 +361,7 @@ void uiWaveletDispProp::setAttrCurves( const Wavelet& wvlt )
 	}
     }
 
-    const float maxfreq = freqrange_.stop * mCast(float,idxnoamp) /
+    const float maxfreq = freqrange_.stop_ * mCast(float,idxnoamp) /
 			  mCast(float,attrarrays_[1]->info().getSize(0)/2);
     if ( maxfreq > 1e6 )
     {

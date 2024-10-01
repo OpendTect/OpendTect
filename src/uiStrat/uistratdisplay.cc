@@ -78,11 +78,11 @@ void uiStratDisplay::setRange()
     {
 	const StratDispData::Unit& unstart = *data_.getUnit( 0, 0 );
 	const StratDispData::Unit& unstop =*data_.getUnit(0,data_.nrUnits(0)-1);
-	Interval<float> viewrg( unstart.zrg_.start, unstop.zrg_.stop );
+	Interval<float> viewrg( unstart.zrg_.start_, unstop.zrg_.stop_ );
 	float wdth = viewrg.width(); wdth /= 10.f;
 	if ( wdth <= 0 )
 	    wdth = 10.f;
-	viewrg.stop += wdth;
+	viewrg.stop_ += wdth;
 	setZRange( viewrg );
     }
     else
@@ -230,8 +230,8 @@ void uiStratDisplay::display( bool yn, bool shrk, bool maximize )
 void uiStratDisplay::dispParamChgd( CallBacker* )
 {
     Interval<float> rg = rangefld_->getFInterval();
-    if ( rg.start < maxrg_.start || rg.stop > maxrg_.stop
-	    || rg.stop <= rg.start || rg.stop <= 0 )
+    if ( rg.start_ < maxrg_.start_ || rg.stop_ > maxrg_.stop_
+	 || rg.stop_ <= rg.start_ || rg.stop_ <= 0 )
 	rg = maxrg_;
 
     setZRange( rg );
@@ -351,10 +351,10 @@ int uiStratDisplay::getColIdxFromPos() const
     Interval<int> borders(0,0);
     for ( int idx=0; idx<data_.nrCols(); idx++ )
     {
-	borders.stop += drawer_.colItem(idx).size_;
+	borders.stop_ += drawer_.colItem(idx).size_;
 	if ( borders.includes( xpos, true ) )
 	    return idx;
-	borders.start = borders.stop;
+	borders.start_ = borders.stop_;
     }
     return -1;
 }
@@ -380,7 +380,7 @@ const StratDispData::Unit* uiStratDisplay::getUnitFromPos( int cidx ) const
 	for ( int idunit=0; idunit<data_.nrUnits(cidx); idunit++ )
 	{
 	    const StratDispData::Unit* unit = data_.getUnit( cidx, idunit );
-	    if ( pos.y < unit->zrg_.stop && pos.y >= unit->zrg_.start )
+	    if ( pos.y < unit->zrg_.stop_ && pos.y >= unit->zrg_.start_ )
 		return unit;
 	}
     }
@@ -543,8 +543,8 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
 {
     int x1 = xax_->getPix( mCast( float, (colitm.pos_)*colitm.size_ ) );
     int x2 = xax_->getPix( mCast( float, (colitm.pos_+1)*colitm.size_ ) );
-    int y1 = yax_->getPix( yax_->range().stop );
-    int y2 = yax_->getPix( yax_->range().start );
+    int y1 = yax_->getPix( yax_->range().stop_ );
+    int y2 = yax_->getPix( yax_->range().start_ );
 
     TypeSet<uiPoint> rectpts;
     rectpts += uiPoint( x1, y1 );
@@ -615,8 +615,8 @@ void uiStratDrawer::drawEmptyText()
     if ( !colitms_.isEmpty() )
 	x += colitms_[0]->size_/2;
 
-    const int y1 = yax_->getPix( yax_->range().stop );
-    const int y2 = yax_->getPix( yax_->range().start );
+    const int y1 = yax_->getPix( yax_->range().stop_ );
+    const int y2 = yax_->getPix( yax_->range().start_ );
 
     auto* ti = new uiTextItem( tr("Right-click to add unit") );
     scene_.addItem( ti );
@@ -639,19 +639,19 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
     {
 	const StratDispData::Unit& unit = *data_.getCol(colidx)->units_[unidx];
 	Interval<float> unitrg = unit.zrg_;
-	if ( ( ( !rg.includes(unitrg.start,true) &&
-		 !rg.includes(unitrg.stop,true) )
-	    && ( !unitrg.includes(rg.start,true) &&
-		 !unitrg.includes(rg.stop,true) ) )
+	if ( ( ( !rg.includes(unitrg.start_,true) &&
+		 !rg.includes(unitrg.stop_,true) )
+	       && ( !unitrg.includes(rg.start_,true) &&
+		    !unitrg.includes(rg.stop_,true) ) )
 		|| !unit.isdisplayed_ ) continue;
 	unitrg.limitTo( rg );
 
 	int x1 = xax_->getPix( mCast(float,(colitm.pos_)*colitm.size_) );
 	int x2 = xax_->getPix( mCast(float,(colitm.pos_+1)*colitm.size_) );
-	bool ztop = ( unitrg.start < rg.stop );
-	bool zbase = ( unitrg.stop > rg.start );
-	int y1 = yax_->getPix( ztop ? rg.stop : unitrg.start );
-	int y2 = yax_->getPix( zbase ? rg.start : unitrg.stop );
+	bool ztop = ( unitrg.start_ < rg.stop_ );
+	bool zbase = ( unitrg.stop_ > rg.start_ );
+	int y1 = yax_->getPix( ztop ? rg.stop_ : unitrg.start_ );
+	int y2 = yax_->getPix( zbase ? rg.start_ : unitrg.stop_ );
 
 	TypeSet<uiPoint> rectpts;
 	rectpts += uiPoint( x1, y1 );
@@ -759,16 +759,16 @@ void uiStratViewControl::zoomCB( CallBacker* but )
 
     const MouseEventHandler& meh = mouseEventHandler();
     const uiRect& allarea = viewer_.getSceneRect();
-    LinScaler scaler( allarea.top()+border, range_.start,
-		      allarea.bottom()-border, range_.stop );
+    LinScaler scaler( allarea.top()+border, range_.start_,
+		      allarea.bottom()-border, range_.stop_ );
     float rgpos = meh.hasEvent() ? (float)scaler.scale(meh.event().pos().y)
 				 : range_.center();
     const float zoomfac = zoomin ? zoomfwdfac : 1/zoomfwdfac;
-    const float twdth = (rgpos-range_.start) * zoomfac;
-    const float bwdth = (range_.stop-rgpos) * zoomfac;
+    const float twdth = (rgpos-range_.start_) * zoomfac;
+    const float bwdth = (range_.stop_-rgpos) * zoomfac;
 
-    if ( rgpos - twdth < brge.start )	rgpos = brge.start + twdth;
-    if ( rgpos + bwdth > brge.stop )	rgpos = brge.stop - bwdth;
+    if ( rgpos - twdth < brge.start_ )	rgpos = brge.start_ + twdth;
+    if ( rgpos + bwdth > brge.stop_ )	rgpos = brge.stop_ - bwdth;
     range_.set( rgpos - twdth, rgpos + bwdth );
     rangeChanged.trigger();
 
@@ -846,16 +846,16 @@ void uiStratViewControl::handDragging( CallBacker* )
 
     const float newpos = mCast(float,mouseEventHandler().event().pos().y);
     const uiRect& allarea = viewer_.getSceneRect();
-    LinScaler scaler( allarea.top()+border, range_.start,
-		      allarea.bottom()-border, range_.stop );
+    LinScaler scaler( allarea.top()+border, range_.start_,
+		      allarea.bottom()-border, range_.stop_ );
     const float shift=(float)(scaler.scale(newpos)-scaler.scale(startdragpos_));
     startdragpos_ = newpos;
 
-    Interval<float> rg( range_.start - shift, range_.stop - shift );
-    if ( rg.start < boundingrange_.start )
-	rg.set( boundingrange_.start, range_.stop );
-    if ( rg.stop > boundingrange_.stop )
-	rg.set( range_.start, boundingrange_.stop );
+    Interval<float> rg( range_.start_ - shift, range_.stop_ - shift );
+    if ( rg.start_ < boundingrange_.start_ )
+	rg.set( boundingrange_.start_, range_.stop_ );
+    if ( rg.stop_ > boundingrange_.stop_ )
+	rg.set( range_.start_, boundingrange_.stop_ );
     range_ = rg;
 
     rangeChanged.trigger();
@@ -877,8 +877,8 @@ void uiStratViewControl::rubBandCB( CallBacker* )
 	return;
 
     const uiRect& allarea = viewer_.getSceneRect();
-    LinScaler scaler( allarea.top()+border, range_.start,
-		      allarea.bottom()-border, range_.stop );
+    LinScaler scaler( allarea.top()+border, range_.start_,
+		      allarea.bottom()-border, range_.stop_ );
     const Interval<float> rg( mCast(float,scaler.scale(selarea->top())),
 			      mCast(float,scaler.scale(selarea->bottom())) );
     if ( rg.width()<=0.1 ) return;

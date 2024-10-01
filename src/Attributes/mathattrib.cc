@@ -155,7 +155,7 @@ Mathematics::Mathematics( Desc& dsc )
 	    formula_->recStartVals()[idx] = val;
 	}
 
-	desintv_.start = -1000;	//ensure we get the entire trace beginning
+        desintv_.start_ = -1000;	//ensure we get the entire trace beginning
     }
 }
 

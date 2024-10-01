@@ -100,10 +100,10 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
 
     const StepInterval<int> rowrg = rcs->rowRange();
     RowCol rc;
-    for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
+    for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
     {
 	const StepInterval<int> colrg = rcs->colRange( rc.row() );
-	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
 	{
 	    const Coord3 pos = emobject_->getPos( rc.toInt64() );
 	    if ( pos.sqDistTo(mousepos) < mDefEps )
@@ -239,7 +239,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     , volumeofinterestids_(volumeofinterestids)
 {
     eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
-    eps_ = (float) mMIN(eps_,SI().zRange(true).step*scale_.z )/4;
+    eps_ = (float) mMIN(eps_,SI().zRange(true).step_*scale_.z )/4;
 
     rowrg_ = surf_->rowRange();
     nriter_ = rowrg_.isRev() ? 0 : rowrg_.nrSteps()+1;
@@ -315,7 +315,7 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 	if ( zaxt_ )
 	    prepareForTransform( rowidx, geomid, colrg );
 
-	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
 	{
 	    Coord3 pos = surf_->getKnot( rc );
 	    const float zval = mCast(float,pos.z);
@@ -555,13 +555,13 @@ void Horizon2DDisplay::updateLinesOnSections(
 	    trcrg.limitTo( seis2dlist[idx]->getTraceNrRange() );
 	    if ( geomid != seis2dlist[idx]->getGeomID() )
 	    {
-		const Coord sp0 = seis2dlist[idx]->getCoord( trcrg.start );
-		const Coord sp1 = seis2dlist[idx]->getCoord( trcrg.stop );
+                const Coord sp0 = seis2dlist[idx]->getCoord( trcrg.start_ );
+                const Coord sp1 = seis2dlist[idx]->getCoord( trcrg.stop_ );
 		if ( !trcrg.width() || !sp0.isDefined() || !sp1.isDefined() )
 		    continue;
 
-		const Coord hp0 = h2d->getPos( geomid, trcrg.start );
-		const Coord hp1 = h2d->getPos( geomid, trcrg.stop );
+                const Coord hp0 = h2d->getPos( geomid, trcrg.start_ );
+                const Coord hp1 = h2d->getPos( geomid, trcrg.stop_ );
 		if ( !hp0.isDefined() || !hp1.isDefined() )
 		    continue;
 

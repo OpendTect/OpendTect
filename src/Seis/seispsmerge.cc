@@ -66,8 +66,8 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
 	else
 	{
 	    Interval<float> zrg = sd_->zRange();
-	    cs.zsamp_.start = zrg.start;
-	    cs.zsamp_.stop = zrg.stop;
+	    cs.zsamp_.start_ = zrg.start_;
+	    cs.zsamp_.stop_ = zrg.stop_;
 	}
     }
 
@@ -85,8 +85,8 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<const IOObj>& inobjs,
 	    cs.hsamp_.set( inlrg, crlrg );
 	else
 	{
-	    cs.hsamp_.include( BinID(inlrg.start,crlrg.start) );
-	    cs.hsamp_.include( BinID(inlrg.stop,crlrg.stop) );
+	    cs.hsamp_.include( BinID(inlrg.start_,crlrg.start_) );
+	    cs.hsamp_.include( BinID(inlrg.stop_,crlrg.stop_) );
 	}
     }
     if ( readers_.isEmpty() )
@@ -160,8 +160,8 @@ int SeisPSMerger::nextStep()
 	{
 	    const SeisTrc& gathtrc = *gather->get( tdx );
 	    const float offs = gathtrc.info().offset;
-	    if ( offs < offsrg_.start - offseps
-	      || offs > offsrg_.stop + offseps )
+	    if ( offs < offsrg_.start_ - offseps
+		 || offs > offsrg_.stop_ + offseps )
 		continue;
 
 	    const SeisTrc* wrtrc = resampler_->get( gathtrc );

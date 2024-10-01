@@ -982,7 +982,7 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPackRM( const TrcKey& tk, float z,
     if ( globidx < 0 )
 	return nullptr;
 
-    StepInterval<float> zintv2 = zintv; zintv2.step = sdp->zRange().step;
+    StepInterval<float> zintv2 = zintv; zintv2.step_ = sdp->zRange().step_;
     const int nrz = zintv2.nrSteps() + 1;
     auto* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
     if ( !seeddata->isOK() )
@@ -995,7 +995,7 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPackRM( const TrcKey& tk, float z,
 
     const int trcidx0 = globidx - (int)(nrtrcs/2);
     const StepInterval<float> zsamp = sdp->zRange();
-    const int zidx0 = zsamp.getIndex( z + zintv.start );
+    const int zidx0 = zsamp.getIndex( z + zintv.start_ );
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
 	const int curtrcidx = trcidx0+tidx;
@@ -1012,12 +1012,12 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPackRM( const TrcKey& tk, float z,
     }
 
     StepInterval<double> trcrg;
-    trcrg.start = tk.trcNr() - (nrtrcs)/2;
-    trcrg.stop = tk.trcNr() + (nrtrcs)/2;
+    trcrg.start_ = tk.trcNr() - (nrtrcs)/2;
+    trcrg.stop_ = tk.trcNr() + (nrtrcs)/2;
     StepInterval<double> zrg;
-    zrg.start = mCast(double,zsamp.atIndex(zidx0));
-    zrg.stop = mCast(double,zsamp.atIndex(zidx0+nrz-1));
-    zrg.step = mCast(double,zsamp.step);
+    zrg.start_ = mCast(double,zsamp.atIndex(zidx0));
+    zrg.stop_ = mCast(double,zsamp.atIndex(zidx0+nrz-1));
+    zrg.step_ = mCast(double,zsamp.step_);
 
     RefMan<FlatDataPack> fdp = new FlatDataPack( "Seismics", seeddata );
     fdp->posData().setRange( true, trcrg );

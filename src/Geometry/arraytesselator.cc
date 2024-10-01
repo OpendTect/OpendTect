@@ -61,18 +61,18 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int currow = mCast(int,(idx/colsz)*rowrange_.step +
-							    rowrange_.start);
-	const int curcol = mCast(int,(idx%colsz)*colrange_.step +
-							    colrange_.start);
+	const int currow = mCast(int,(idx/colsz)*rowrange_.step_ +
+				 rowrange_.start_);
+	const int curcol = mCast(int,(idx%colsz)*colrange_.step_ +
+				 colrange_.start_);
 	if ( currow > glastrowidx || curcol > glastcolidx )
 	    continue;
 
 	const bool islastrow = currow == glastrowidx;
 	const bool islastcol = curcol == glastcolidx;
-	int nextrow = currow + rowrange_.step;
+	int nextrow = currow + rowrange_.step_;
   	if ( nextrow>glastrowidx ) nextrow = glastrowidx;
-  	int nextcol = curcol + colrange_.step;
+	int nextcol = curcol + colrange_.step_;
  	if ( nextcol>glastcolidx ) nextcol = glastcolidx;
 
 	const int c11 = mGlobleIdx(currow,curcol);
@@ -115,8 +115,8 @@ bool ArrayTesselator::doWork( od_int64 start, od_int64 stop, int )
 	}
 	else if ( def11 )
 	{
-	    const int prerow = currow - rowrange_.step;
-	    const int precol = curcol - colrange_.step;
+	    const int prerow = currow - rowrange_.step_;
+	    const int precol = curcol - colrange_.step_;
 
 	    const int c01 = mGlobleIdx( prerow, curcol );
     	    const int c10 = mGlobleIdx( currow, precol );

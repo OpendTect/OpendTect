@@ -334,14 +334,14 @@ void FaultStickSetDisplay::updateEditPids()
 
     RowCol rc;
     const StepInterval<int> rowrg = fss->rowRange();
-    for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
+    for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
     {
 	if ( fss->isStickHidden(rc.row(),mSceneIdx) )
 	    continue;
 
 	const StepInterval<int> colrg = fss->colRange( rc.row() );
-	for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
-	      rc.col()+=colrg.step )
+        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+              rc.col()+=colrg.step_ )
 	{
 	    if ( !fss->isKnotHidden(rc,mSceneIdx) )
 		editpids_ += EM::PosID( fault_->id(), rc );
@@ -408,7 +408,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
 	RowCol rc;
 	const StepInterval<int> rowrg = fss->rowRange();
-	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
+        for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
 	{
 	    if ( activeonly && rc.row()!=activesticknr_ )
 		continue;
@@ -430,7 +430,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
 	    if ( !colrg.width() )
 	    {
-		rc.col() = colrg.start;
+                rc.col() = colrg.start_;
 		if ( isSelected() || fss->isKnotHidden(rc,mSceneIdx) )
 		    continue;
 
@@ -451,14 +451,14 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 		continue;
 	    }
 
-	    for ( rc.col()=colrg.start; rc.col()<colrg.stop;
-		  rc.col()+=colrg.step )
+            for ( rc.col()=colrg.start_; rc.col()<colrg.stop_;
+                  rc.col()+=colrg.step_ )
 	    {
 		if ( fss->isKnotHidden(rc,mSceneIdx) )
 		    continue;
 
 		RowCol nextrc( rc );
-		nextrc.col() += colrg.step;
+                nextrc.col() += colrg.step_;
 
 		if ( fss->isKnotHidden(nextrc,mSceneIdx) )
 		{
@@ -718,7 +718,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	Geometry::FaultStickSet* fss = fssg.geometryElement();
 
 	const int insertsticknr =
-			!fss || fss->isEmpty() ? 0 : fss->rowRange().stop+1;
+                !fss || fss->isEmpty() ? 0 : fss->rowRange().stop_+1;
 
 	editpids_.erase();
 
@@ -934,7 +934,7 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	bool curobjcoincides = false;
 	TypeSet<int> showcols;
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
-	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
 	{
 	    Coord3 pos = fss.getKnot(rc);
 	    if ( displaytransform_ )
@@ -1001,7 +1001,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	bool curobjcoincides = false;
 	TypeSet<int> showcols;
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
-	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
 	{
 	    Coord3 curpos = fss.getKnot(rc);
 
@@ -1017,7 +1017,7 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 		if ( coincidemode )
 		    curobjcoincides = true;
 	    }
-	    else if ( rc.col() != colrg.start )
+            else if ( rc.col() != colrg.start_ )
 	    {
 		const float frac = prevdist / (prevdist+curdist);
 		Coord3 interpos = (1-frac)*prevpos + frac*curpos;
@@ -1075,11 +1075,11 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 
 	RowCol rc;
 	const StepInterval<int> rowrg = fss->rowRange();
-	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
+        for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
 	{
 	    const StepInterval<int> colrg = fss->colRange();
-	    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
-		  rc.col()+=colrg.step )
+            for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+                  rc.col()+=colrg.step_ )
 	    {
 		fss->hideKnot( rc, displayonlyatsections_, mSceneIdx );
 		if ( curdragger==EM::PosID(emfss->id(),rc) )

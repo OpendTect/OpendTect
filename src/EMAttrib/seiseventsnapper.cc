@@ -44,25 +44,25 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 	return evfinder.find( eventtype_, gate ).pos;
     }
 
-    if ( searchgate_.stop<0 )
+    if ( searchgate_.stop_<0 )
     {
-	Interval<float> gate( tarz+searchgate_.stop, tarz+searchgate_.start );
+	Interval<float> gate( tarz+searchgate_.stop_, tarz+searchgate_.start_ );
 	return evfinder.find( eventtype_, gate ).pos;
     }
 
-    if ( searchgate_.start>0 )
+    if ( searchgate_.start_>0 )
     {
-	Interval<float> gate( tarz+searchgate_.start, tarz+searchgate_.stop );
+	Interval<float> gate( tarz+searchgate_.start_, tarz+searchgate_.stop_ );
 	return evfinder.find( eventtype_, gate ).pos;
     }
 
-    Interval<float> gateabove( tarz, tarz+searchgate_.start );
-    Interval<float> gatebelow( tarz, tarz+searchgate_.stop );
+    Interval<float> gateabove( tarz, tarz+searchgate_.start_ );
+    Interval<float> gatebelow( tarz, tarz+searchgate_.stop_ );
     const float eventposabove = evfinder.find( eventtype_, gateabove ).pos;
     const float eventposbelow = evfinder.find( eventtype_, gatebelow ).pos;
     if ( mIsUdf(eventposabove) && mIsUdf(eventposbelow) )
     {
-	Interval<float> gate( tarz+searchgate_.start, tarz+searchgate_.stop );
+	Interval<float> gate( tarz+searchgate_.start_, tarz+searchgate_.stop_ );
 	return evfinder.find( eventtype_, gate ).pos;
     }
     else if ( mIsUdf(eventposabove) )

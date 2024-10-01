@@ -348,13 +348,13 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 	    desiredvolume_->hsamp_.start_.crl() =
 		desiredvolume_->hsamp_.start_.crl() < ndv.hsamp_.start_.crl() ?
 		desiredvolume_->hsamp_.start_.crl() : ndv.hsamp_.start_.crl();
-	    desiredvolume_->zsamp_.start =
-		desiredvolume_->zsamp_.start < ndv.zsamp_.start?
-		desiredvolume_->zsamp_.start : ndv.zsamp_.start;
-	    desiredvolume_->zsamp_.stop =
-		desiredvolume_->zsamp_.stop >ndv.zsamp_.stop
-				    ? desiredvolume_->zsamp_.stop
-				    : ndv.zsamp_.stop;
+            desiredvolume_->zsamp_.start_ =
+                    desiredvolume_->zsamp_.start_ < ndv.zsamp_.start_?
+                        desiredvolume_->zsamp_.start_ : ndv.zsamp_.start_;
+            desiredvolume_->zsamp_.stop_ =
+                    desiredvolume_->zsamp_.stop_ >ndv.zsamp_.stop_
+                    ? desiredvolume_->zsamp_.stop_
+                    : ndv.zsamp_.stop_;
 	}
     }
 
@@ -463,15 +463,15 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 		const Interval<float>* zrg = reqZMargin(inp,out);
 		if ( zrg )
 		{
-		    inputcs.zsamp_.start -= zrg->start;
-		    inputcs.zsamp_.stop -= zrg->stop;
+                    inputcs.zsamp_.start_ -= zrg->start_;
+                    inputcs.zsamp_.stop_ -= zrg->stop_;
 		}
 
 		const Interval<int>* zrgsamp = reqZSampMargin(inp,out);
 		if ( zrgsamp )
 		{
-		    inputcs.zsamp_.start -= zrgsamp->start*refstep_;
-		    inputcs.zsamp_.stop -= zrgsamp->stop*refstep_;
+                    inputcs.zsamp_.start_ -= zrgsamp->start_*refstep_;
+                    inputcs.zsamp_.stop_ -= zrgsamp->stop_*refstep_;
 		}
 
 		res.limitToWithUdf( inputcs );
@@ -863,8 +863,8 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	return;
 
     const float dz = mIsZero(refstep_,mDefEps) ? SI().zStep() : refstep_;
-    const Interval<int> possintv( mNINT32(possiblevolume_->zsamp_.start/dz),
-				  mNINT32(possiblevolume_->zsamp_.stop/dz) );
+    const Interval<int> possintv( mNINT32(possiblevolume_->zsamp_.start_/dz),
+                                  mNINT32(possiblevolume_->zsamp_.stop_/dz) );
 
     const int nrintvs = intvs.size();
     if ( nrintvs < 1 )
@@ -875,17 +875,17 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
     for ( int idx=0; idx<nrintvs; idx++ )
     {
 	BasicInterval<int> reqintv = intvs[idx];
-	if ( reqintv.start > possintv.stop || reqintv.stop < possintv.start )
+        if ( reqintv.start_ > possintv.stop_ || reqintv.stop_ < possintv.start_ )
 	{
 	    for ( int inp=0; inp<nrinps; inp++ )
 		inputranges.set( inp, idx, Interval<int>(mUdf(int),mUdf(int)) );
 	    continue;
 	}
 
-	if ( possintv.start > reqintv.start )
-	    reqintv.start = possintv.start;
-	if ( possintv.stop < reqintv.stop )
-	    reqintv.stop = possintv.stop;
+        if ( possintv.start_ > reqintv.start_ )
+            reqintv.start_ = possintv.start_;
+        if ( possintv.stop_ < reqintv.stop_ )
+            reqintv.stop_ = possintv.stop_;
 
 	if ( !isUsedMultTimes() )
 	    localcomputezintervals_ += reqintv;
@@ -909,7 +909,7 @@ void Provider::addLocalCompZIntervals( const TypeSet< Interval<int> >& intvs )
 	for ( int idx=0; idx<nrintvs; idx++ )
 	{
 	    const BasicInterval<int> rg = inputranges.get( inp, idx );
-	    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+            if ( mIsUdf(rg.start_) || mIsUdf(rg.stop_) )
 		continue;
 	    inpranges += rg;
 	}
@@ -947,10 +947,10 @@ void Provider::fillInputRangesArray(
 	    BasicInterval<int> zrgsamp( 0, 0 );
 	    mUseMargins(int,Samp,samp);
 
-	    inputrange.start += mNINT32(zrg.start/dz);
-	    inputrange.start += zrgsamp.start;
-	    inputrange.stop += mNINT32(zrg.stop/dz);
-	    inputrange.stop += zrgsamp.stop;
+            inputrange.start_ += mNINT32(zrg.start_/dz);
+            inputrange.start_ += zrgsamp.start_;
+            inputrange.stop_ += mNINT32(zrg.stop_/dz);
+            inputrange.stop_ += zrgsamp.stop_;
 
 	    inputranges.set( inp, idx, inputrange );
 	}
@@ -1006,14 +1006,14 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 
     const DataHolder* constres = getDataDontCompute(relpos);
     Interval<int> loczinterval( localcomputezintervals_[idi] );
-    if ( constres && constres->z0_ == loczinterval.start
+    if ( constres && constres->z0_ == loczinterval.start_
 	    && constres->nrsamples_ == loczinterval.width()+1 )
 	return constres;
 
     if ( !linebuffer_ )
 	linebuffer_ = new DataHolderLineBuffer;
     DataHolder* outdata =
-        linebuffer_->createDataHolder( currentbid_+relpos, loczinterval.start,
+            linebuffer_->createDataHolder( currentbid_+relpos, loczinterval.start_,
 				      loczinterval.width()+1 );
     if ( !outdata || !getInputData(relpos, idi) )
     {
@@ -1267,11 +1267,11 @@ void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 	Interval<int> zrgsamp(0,0);
 	mUseMargins(int,Samp,samp)
 
-	zrg.include( Interval<float>( zrgsamp.start*refstep_,
-				      zrgsamp.stop*refstep_ ) );
+                zrg.include( Interval<float>( zrgsamp.start_*refstep_,
+                                              zrgsamp.stop_*refstep_ ) );
 
-	Interval<float> extraz = Interval<float>(extraz_.start + zrg.start,
-						 extraz_.stop + zrg.stop);
+        Interval<float> extraz = Interval<float>(extraz_.start_ + zrg.start_,
+                                                 extraz_.stop_ + zrg.stop_);
 	const_cast<Provider*>(inputs_[inp])->setSelData( seldata_ );
 	const_cast<Provider*>(inputs_[inp])->setExtraZ( extraz );
     }
@@ -1309,11 +1309,11 @@ void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 
     Interval<int> zrgsamp(0,0);
     mUseMargins(int,Samp,samp)
-    zrg.include(Interval<float>( zrgsamp.start*refstep_,
-				 zrgsamp.stop*refstep_ ));
+            zrg.include(Interval<float>( zrgsamp.start_*refstep_,
+                                         zrgsamp.stop_*refstep_ ));
 
-    res.zsamp_.start += zrg.start;
-    res.zsamp_.stop += zrg.stop;
+    res.zsamp_.start_ += zrg.start_;
+    res.zsamp_.stop_ += zrg.stop_;
 }
 
 
@@ -1388,7 +1388,7 @@ int Provider::getTotalNrPos( bool is2d ) const
 	const Pos::GeomID geomid = getGeomID();
 	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid );
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry );
-	cs.hsamp_.step_.crl() = geom2d ? geom2d->data().trcNrRange().step : 1;
+        cs.hsamp_.step_.crl() = geom2d ? geom2d->data().trcNrRange().step_ : 1;
 	return cs.nrCrl();
     }
 

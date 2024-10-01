@@ -256,8 +256,8 @@ void uiODViewer2DPosGrp::createSliceSel( uiSliceSel::Type dir )
     }
     else
     {
-	sliceseltkzs.zsamp_.start = seltkzs.zsamp_.center();
-	sliceseltkzs.zsamp_.stop = sliceseltkzs.zsamp_.start;
+	sliceseltkzs.zsamp_.start_ = seltkzs.zsamp_.center();
+	sliceseltkzs.zsamp_.stop_ = sliceseltkzs.zsamp_.start_;
     }
 
     sliceselfld->setTrcKeyZSampling( sliceseltkzs );

@@ -129,7 +129,7 @@ void uiDirectionalPlot::gatherInfo()
 	    {
 		isempty_ = false;
 		const Stats::SectorPartData& spd = data_.getPartData(isect,0);
-		posrg_.start = posrg_.stop = spd.pos_;
+                posrg_.start_ = posrg_.stop_ = spd.pos_;
 		maxcount_ = spd.count_;
 	    }
 
@@ -255,7 +255,7 @@ void uiDirectionalPlot::drawScale()
 				Angle::usrdeg2rad(150.F) );
     const float r = (float)startpt.distTo( endpt );
     scalearcitm_ = scene().addItem(
-		new uiCurvedItem(uiPointFromPolar(startpt,r,angs.start)) );
+                       new uiCurvedItem(uiPointFromPolar(startpt,r,angs.start_)) );
     scalearcitm_->drawTo( uiCurvedItem::ArcSpec(startpt,r,angs) );
     scalearcitm_->setVisible( isvisible );
 
@@ -290,8 +290,8 @@ void uiDirectionalPlot::drawScale()
     scalestartitm_->setPos( txtstartpt );
     scaleannotitm_->setPos( annotpt );
     scalestopitm_->setPos( txtendpt );
-    scalestartitm_->setText( toUiString(data_.setup_.usrposrg_.start) );
-    scalestopitm_->setText( toUiString(data_.setup_.usrposrg_.stop) );
+    scalestartitm_->setText( toUiString(data_.setup_.usrposrg_.start_) );
+    scalestopitm_->setText( toUiString(data_.setup_.usrposrg_.stop_) );
 }
 
 
@@ -472,20 +472,20 @@ uiCurvedItem* uiDirectionalPlot::drawSectorPart( int isect, Interval<float> rrg,
     const float dang = data_.angle(0,1) - data_.angle(0,-1);
     const float dangrad = dang * Angle::cPI<float>() / 180;
     Interval<float> angrg( data_.angle(isect,-1), 0 );
-    angrg.stop = angrg.start + dang;
+    angrg.stop_ = angrg.start_ + dang;
     Interval<float> radangrg( data_.angle(isect,Angle::Rad,-1), 0 );
-    radangrg.stop = radangrg.start - dangrad;
+    radangrg.stop_ = radangrg.start_ - dangrad;
 
     rrg.scale( mCast(float,radius_) );
     uiCurvedItem* ci = new uiCurvedItem(
-				dataUIPos(rrg.start,angrg.start) );
-    ci->drawTo( dataUIPos(rrg.stop,angrg.start) );
-    uiCurvedItem::ArcSpec as( center_, rrg.stop, radangrg );
+                           dataUIPos(rrg.start_,angrg.start_) );
+    ci->drawTo( dataUIPos(rrg.stop_,angrg.start_) );
+    uiCurvedItem::ArcSpec as( center_, rrg.stop_, radangrg );
     ci->drawTo( as );
 
-    ci->drawTo( dataUIPos(rrg.start,angrg.stop) );
-    as.radius_ = rrg.start;
-    Swap( as.angles_.start, as.angles_.stop );
+    ci->drawTo( dataUIPos(rrg.start_,angrg.stop_) );
+    as.radius_ = rrg.start_;
+    Swap( as.angles_.start_, as.angles_.stop_ );
     ci->drawTo( as );
     ci->setFillColor( col );
     ci->closeCurve();
@@ -517,22 +517,22 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 
 	    Interval<float> rrg( 0, 1 );
 	    if ( usecount )
-		rrg.stop = ((float)spd.count_) / maxcount_;
+                rrg.stop_ = ((float)spd.count_) / maxcount_;
 	    else
 	    {
 		if ( reversepos )
 		{
 		    if ( ipart < sd.size()-1 )
-			rrg.start = (spd.pos_ + sd[ipart+1].pos_) * .5f;
+                        rrg.start_ = (spd.pos_ + sd[ipart+1].pos_) * .5f;
 		    if ( ipart > 0 )
-			rrg.stop = (spd.pos_ + sd[ipart-1].pos_) * .5f;
+                        rrg.stop_ = (spd.pos_ + sd[ipart-1].pos_) * .5f;
 		}
 		else
 		{
 		    if ( ipart )
-			rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5f;
+                        rrg.start_ = (spd.pos_ + sd[ipart-1].pos_) * .5f;
 		    if ( ipart < sd.size()-1 )
-			rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5f;
+                        rrg.stop_ = (spd.pos_ + sd[ipart+1].pos_) * .5f;
 		}
 	    }
 
@@ -542,8 +542,8 @@ void uiDirectionalPlot::drawSectorParts( bool isvals )
 					ipart%OD::Color::nrStdDrawColors() );
 	    else
 	    {
-		float relpos = (spd.val_-valrg_.start)
-			     / (valrg_.stop-valrg_.start);
+                float relpos = (spd.val_-valrg_.start_)
+                               / (valrg_.stop_-valrg_.start_);
 		if ( relpos < 0 )
 		    relpos = 0;
 		if ( relpos > 1 )
@@ -607,7 +607,7 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& ang, float& pos )
     count = data_.getPartData( sector, part ).count_;
     ang = (float)azimuth;
     if ( nrparts>1 )
-	pos = data_.setup_.usrposrg_.start +
+        pos = data_.setup_.usrposrg_.start_ +
 	      data_.setup_.usrposrg_.width()*(float)r/radius_;
 }
 

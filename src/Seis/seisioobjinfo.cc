@@ -512,9 +512,9 @@ ZSampling SeisIOObjInfo::getConvertedZrg( const ZSampling& zsamp ) const
 	return ret;
 
     const UnitOfMeasure* depthuom = UnitOfMeasure::surveyDefDepthUnit();
-    convValue( ret.start, zuom, depthuom );
-    convValue( ret.stop, zuom, depthuom );
-    convValue( ret.step, zuom, depthuom );
+    convValue( ret.start_, zuom, depthuom );
+    convValue( ret.stop_, zuom, depthuom );
+    convValue( ret.step_, zuom, depthuom );
     return ret;
 }
 
@@ -1295,13 +1295,13 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 		     getAreaString(float(area),SI().xyInFeet(),2,true) );
 
 	    ZSampling zrg = cs.zsamp_;
-	    const int nrdec = zinfo.def_.nrZDecimals( zrg.step );
+            const int nrdec = zinfo.def_.nrZDecimals( zrg.step_ );
 	    zrg.scale( zinfo.userFactor() );
 	    inf.addKeyValue( zinfo.getRange(),
 		    toUiString("%1 - %2 [%3]")
-		    .arg( toString(zrg.start,nrdec) )
-		    .arg( toString(zrg.stop,nrdec) )
-		    .arg( toString(zrg.step,nrdec) ) );
+                             .arg( toString(zrg.start_,nrdec) )
+                             .arg( toString(zrg.stop_,nrdec) )
+                             .arg( toString(zrg.step_,nrdec) ) );
 	}
     }
 
@@ -1337,7 +1337,7 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 						.arg( todomain.userName() )
 						.withUnit( todomain.unitStr() );
 		    inf.addKeyValue( keystr, toUiString("%1 - %2 [%3]")
-			    .arg(zrg.start).arg(zrg.stop).arg(zrg.step) );
+                                     .arg(zrg.start_).arg(zrg.stop_).arg(zrg.step_) );
 		}
 	    }
 	}

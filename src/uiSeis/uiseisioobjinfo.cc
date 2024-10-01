@@ -99,8 +99,8 @@ bool uiSeisIOObjInfo::provideUserInfo2D( const TypeSet<Pos::GeomID>* sel ) const
 
 	msg.append( tr("Line: %1, Trace range: %2 to %3 (step %4), "
 		    "Z range %5: %6 to %7 (step %8)\n")
-		.arg(linenm).arg(trcrg.start).arg(trcrg.stop).arg(trcrg.step)
-		.arg(zunitstr).arg(zrg.start).arg(zrg.stop).arg(zrg.step) );
+                    .arg(linenm).arg(trcrg.start_).arg(trcrg.stop_).arg(trcrg.step_)
+                    .arg(zunitstr).arg(zrg.start_).arg(zrg.stop_).arg(zrg.step_) );
     }
 
     uiMSG().message( msg);

@@ -47,7 +47,7 @@ BufferString SEGY::ReSorter::Setup::getFileName( const Interval<int>& rg ) const
 
     BufferString fnm( fp.fileName(), "_" );
     if ( inlnames_ )
-	fnm.add( rg.start ).add( "-" ).add( rg.stop );
+	fnm.add( rg.start_ ).add( "-" ).add( rg.stop_ );
     else
 	fnm.add( ++curfnr_ );
     fp.setFileName( fnm );
@@ -294,14 +294,14 @@ bool SEGY::ReSorter::createOutput( const BinID& bid )
     if ( nrdone_ < 1 )
     {
 	if ( is2d )
-	    curinlrg_.start = curinlrg_.stop = 1;
+	    curinlrg_.start_ = curinlrg_.stop_ = 1;
 	else
 	    curinlrg_ = setup_.getInlRg( -1, dDef().cubeData() );
     }
 
-    if ( nrdone_ < 1 || bid.inl() > curinlrg_.stop )
+    if ( nrdone_ < 1 || bid.inl() > curinlrg_.stop_ )
     {
-	if ( bid.inl() > curinlrg_.stop )
+	if ( bid.inl() > curinlrg_.stop_ )
 	    curinlrg_ = setup_.getInlRg( bid.inl(), dDef().cubeData() );
 	if ( !openOutputFile() )
 	    return false;

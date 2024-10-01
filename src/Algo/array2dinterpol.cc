@@ -225,8 +225,8 @@ bool Array2DInterpol::setArray( ArrayAccess& arr, TaskRunner* )
 if ( !rgset ) \
 { \
     rgset = true; \
-    rowrg.start = rowrg.stop = r; \
-    colrg.start = colrg.stop = c; \
+    rowrg.start_ = rowrg.stop_ = r; \
+    colrg.start_ = colrg.stop_ = c; \
 } \
 else \
 { \
@@ -301,13 +301,13 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 
 	//For each col, figure out start/stop row for convex hull
 	Geom::Point2D<mPolygonType> pt;
-	int prevstart=rowrg.start, prevstop=rowrg.stop;
-	for ( int icol=colrg.start; icol<=colrg.stop; icol++ )
+	int prevstart=rowrg.start_, prevstop=rowrg.stop_;
+	for ( int icol=colrg.start_; icol<=colrg.stop_; icol++ )
 	{
 	    pt.y = icol;
 	    int irow = pt.x = prevstart;
-	    if ( icol!=colrg.start && !poly.isInside( pt, true, 0 ) )
-		irow = pt.x = rowrg.start;
+	    if ( icol!=colrg.start_ && !poly.isInside( pt, true, 0 ) )
+		irow = pt.x = rowrg.start_;
 
 	    bool hadaninside = false;
 	    bool isinside;
@@ -339,7 +339,7 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 	    }
 
 	    Interval<int> thisrowrg;
-	    thisrowrg.start = prevstart = irow;
+	    thisrowrg.start_ = prevstart = irow;
 	    irow = prevstop;
 	    pt.x = irow;
 	    hadaninside = false;
@@ -371,10 +371,10 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 		}
 	    }
 
-	    thisrowrg.stop = prevstop = irow;
+	    thisrowrg.stop_ = prevstop = irow;
 
-	    int idx = icol+thisrowrg.start*nrcols_;
-	    for ( irow=thisrowrg.start; irow<=thisrowrg.stop;
+	    int idx = icol+thisrowrg.start_*nrcols_;
+	    for ( irow=thisrowrg.start_; irow<=thisrowrg.stop_;
 		    irow++, idx+= nrcols_ )
 	    {
 		if ( def[idx] )

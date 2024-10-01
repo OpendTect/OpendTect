@@ -44,7 +44,7 @@ public:
     			//!< Z range will be exclusive start/end null samples
 
     Interval<float>	zRange() const		{ return Interval<float>
-			( sampling_.start, sampling_.atIndex(nrsamples_-1) ); }
+		( sampling_.start_, sampling_.atIndex(nrsamples_-1) ); }
     Interval<float>	valRange() const	{ return valrg_; }
     unsigned int	nrNullTraces() const	{ return nrnulltraces_; }
 

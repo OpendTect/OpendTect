@@ -72,9 +72,9 @@ public:
 	SamplingData<int> inlsampling;
 	SamplingData<int> crlsampling;
 	SamplingData<float> zsampling;
-	if ( !par.get( sKeyInlSampling(),inlsampling.start,inlsampling.step) ||
-	     !par.get( sKeyCrlSampling(),crlsampling.start,crlsampling.step) ||
-	     !par.get( sKeyZSampling(),zsampling.start,zsampling.step ) )
+        if ( !par.get( sKeyInlSampling(),inlsampling.start_,inlsampling.step_) ||
+             !par.get( sKeyCrlSampling(),crlsampling.start_,crlsampling.step_) ||
+             !par.get( sKeyZSampling(),zsampling.start_,zsampling.step_ ) )
 	{
 	    errmsg_ = ::toUiString("Invalid filetype");
 	    return;
@@ -178,11 +178,11 @@ MarchingCubesSurfaceWriter( MarchingCubesSurface& surface,
     }
 
     par.set( MarchingCubesSurfaceReader::sKeyInlSampling(),
-	     surface.inlSampling().start,surface.inlSampling().step);
+             surface.inlSampling().start_,surface.inlSampling().step_);
     par.set( MarchingCubesSurfaceReader::sKeyCrlSampling(),
-	     surface.crlSampling().start,surface.crlSampling().step);
+             surface.crlSampling().start_,surface.crlSampling().step_);
     par.set( MarchingCubesSurfaceReader::sKeyZSampling(),
-	     surface.zSampling().start,surface.zSampling().step );
+             surface.zSampling().start_,surface.zSampling().step_ );
 
     par.set( sKey::Color(), surface.preferredColor() );
     par.set( sKey::ZUnit(),
@@ -397,14 +397,14 @@ bool MarchingCubesSurface::getBodyRange( TrcKeyZSampling& cs )
 	 !mcsurface_->models_.getRange( 2, zrg ) )
 	return false;
 
-    cs.hsamp_.start_ = BinID( inlsampling_.atIndex(inlrg.start),
-		           crlsampling_.atIndex(crlrg.start) );
-    cs.hsamp_.stop_ = BinID( inlsampling_.atIndex(inlrg.stop),
-			 crlsampling_.atIndex(crlrg.stop) );
-    cs.hsamp_.step_ = BinID( inlsampling_.step, crlsampling_.step );
-    cs.zsamp_.start = zsampling_.atIndex( zrg.start );
-    cs.zsamp_.step = zsampling_.step;
-    cs.zsamp_.stop = zsampling_.atIndex( zrg.stop );
+    cs.hsamp_.start_ = BinID( inlsampling_.atIndex(inlrg.start_),
+                              crlsampling_.atIndex(crlrg.start_) );
+    cs.hsamp_.stop_ = BinID( inlsampling_.atIndex(inlrg.stop_),
+                             crlsampling_.atIndex(crlrg.stop_) );
+    cs.hsamp_.step_ = BinID( inlsampling_.step_, crlsampling_.step_ );
+    cs.zsamp_.start_ = zsampling_.atIndex( zrg.start_ );
+    cs.zsamp_.step_ = zsampling_.step_;
+    cs.zsamp_.stop_ = zsampling_.atIndex( zrg.stop_ );
 
     return true;
 }
@@ -446,7 +446,7 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* taskrunner,
     }
 
     MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
-	    inlrg.start, crlrg.start, zrg.start, !smooth );
+                                inlrg.start_, crlrg.start_, zrg.start_, !smooth );
     const bool execres = TaskRunner::execute( taskrunner, m2i );
     if ( !execres )
     {
@@ -462,14 +462,14 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* taskrunner,
     res->arr_ = arr;
     res->threshold_ = m2i.threshold();
 
-    res->tkzs_.hsamp_.start_ = BinID( inlsampling_.atIndex(inlrg.start),
-				crlsampling_.atIndex(crlrg.start) );
-    res->tkzs_.hsamp_.step_ = BinID( inlsampling_.step, crlsampling_.step );
-    res->tkzs_.hsamp_.stop_ = BinID( inlsampling_.atIndex(inlrg.stop),
-				crlsampling_.atIndex(crlrg.stop) );
-    res->tkzs_.zsamp_.start = zsampling_.atIndex( zrg.start );
-    res->tkzs_.zsamp_.stop = zsampling_.atIndex( zrg.stop );
-    res->tkzs_.zsamp_.step = zsampling_.step;
+    res->tkzs_.hsamp_.start_ = BinID( inlsampling_.atIndex(inlrg.start_),
+                                      crlsampling_.atIndex(crlrg.start_) );
+    res->tkzs_.hsamp_.step_ = BinID( inlsampling_.step_, crlsampling_.step_ );
+    res->tkzs_.hsamp_.stop_ = BinID( inlsampling_.atIndex(inlrg.stop_),
+                                     crlsampling_.atIndex(crlrg.stop_) );
+    res->tkzs_.zsamp_.start_ = zsampling_.atIndex( zrg.start_ );
+    res->tkzs_.zsamp_.stop_ = zsampling_.atIndex( zrg.stop_ );
+    res->tkzs_.zsamp_.step_ = zsampling_.step_;
 
     return res;
 }
@@ -506,7 +506,7 @@ void MarchingCubesSurface::setSampling( const TrcKeyZSampling& tkzs )
 				      tkzs.hsamp_.step_.inl()) );
     setCrlSampling( SamplingData<int>(tkzs.hsamp_.start_.crl(),
 				      tkzs.hsamp_.step_.crl()) );
-    setZSampling( SamplingData<float>(tkzs.zsamp_.start,tkzs.zsamp_.step) );
+    setZSampling( SamplingData<float>(tkzs.zsamp_.start_,tkzs.zsamp_.step_) );
 }
 
 } // namespace EM

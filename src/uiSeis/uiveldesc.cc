@@ -527,9 +527,9 @@ void uiVelSel::initGrpCB( CallBacker* )
 	const Interval<float> defvelrg =
 				VelocityStretcher::getDefaultVAvg( veluom );
 	if ( trg_.isUdf() )
-	    trg_.set( defvelrg.start, defvelrg.start );
+	    trg_.set( defvelrg.start_, defvelrg.start_ );
 	if ( brg_.isUdf() )
-	    brg_.set( defvelrg.stop, defvelrg.stop );
+	    brg_.set( defvelrg.stop_, defvelrg.stop_ );
 
 	velChanged.trigger();
     }

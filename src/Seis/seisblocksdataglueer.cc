@@ -93,12 +93,12 @@ Blocklet( const Array3D<float>& inp, int tnr, int tstep,
 
     bool	is3D() const		{ return arr_->nrDims() > 2; }
     int		nrTrcs() const	{ return arr_->getSize(arr_->nrDims()-2); }
-    int		trcNrStart() const	{ return tnrsd_.start; }
-    int		trcNrStep() const	{ return tnrsd_.step; }
+    int		trcNrStart() const	{ return tnrsd_.start_; }
+    int		trcNrStep() const	{ return tnrsd_.step_; }
     int		trcNrStop() const	{ return tnrsd_.atIndex( nrTrcs()-1 ); }
     int		nrZ() const	{ return arr_->getSize(arr_->nrDims()-1); }
-    float	zStart() const		{ return zsd_.start; }
-    float	zStep() const		{ return zsd_.step; }
+    float	zStart() const		{ return zsd_.start_; }
+    float	zStep() const		{ return zsd_.step_; }
     float	zStop() const		{ return zsd_.atIndex( nrZ() - 1 ); }
 
 void addData( const StepInterval<int>& lnrs, SeisTrc& trc,
@@ -106,8 +106,8 @@ void addData( const StepInterval<int>& lnrs, SeisTrc& trc,
 {
     const int lnr = trc.info().lineNr();
     const int tnr = trc.info().trcNr();
-    if ( lnr < lnrs.start || lnr > lnrs.stop
-      || tnr < tnrsd_.start || tnr > trcNrStop() )
+    if ( lnr < lnrs.start_ || lnr > lnrs.stop_
+         || tnr < tnrsd_.start_ || tnr > trcNrStop() )
 	return;
 
     const int nrz = nrZ();
@@ -172,7 +172,7 @@ public:
 
 int lineNr4Idx( int lidx ) const
 {
-    return startlnr_ + linerg_.step * lidx;
+    return startlnr_ + linerg_.step_ * lidx;
 }
 
 
@@ -222,7 +222,7 @@ void fillTrace( SeisTrc& trc, TraceValues& contribs,
     for ( auto* bll : blocklets_ )
     {
 	const StepInterval<int> lnrs( startlnr_, lastLineNr(*bll),
-					   linerg_.step );
+                                      linerg_.step_ );
 	bll->addData( lnrs, trc, contribs, weights );
     }
 }
@@ -346,7 +346,7 @@ void Seis::DataGlueer::addPos( const TrcKey& trcky, const Array2D<float>& arr,
 	lb = new LineBuf( trcky.lineNr() );
 	linebufs_ += lb;
     }
-    lb->add( new Blocklet(arr, trcky.trcNr(), trcstep_, z, tkzs_.zsamp_.step) );
+    lb->add( new Blocklet(arr, trcky.trcNr(), trcstep_, z, tkzs_.zsamp_.step_) );
 }
 
 
@@ -359,7 +359,7 @@ void Seis::DataGlueer::addPos( const TrcKey& trcky, const Array3D<float>& arr,
 	lb = new LineBuf( trcky.inl(), linestep_ );
 	linebufs_ += lb;
     }
-    lb->add( new Blocklet(arr, trcky.crl(), trcstep_, z, tkzs_.zsamp_.step) );
+    lb->add( new Blocklet(arr, trcky.crl(), trcstep_, z, tkzs_.zsamp_.step_) );
 }
 
 
@@ -400,7 +400,7 @@ uiRetVal Seis::DataGlueer::storeReadyPositions( bool force )
 	if ( !uirv.isOK() )
 	    return uirv;
 
-	lastwrittenline_ = lb->linerg_.stop;
+        lastwrittenline_ = lb->linerg_.stop_;
 	nrstored++;
     }
 
@@ -440,11 +440,11 @@ uiRetVal Seis::DataGlueer::storeLineBuf( const LineBuf& lb )
 
     SeisTrc trc( nrz );
     TraceValues contribs( nrz );
-    trc.info().sampling.start = zrg.start;
-    trc.info().sampling.step = zrg.step;
+    trc.info().sampling.start_ = zrg.start_;
+    trc.info().sampling.step_ = zrg.step_;
     trc.info().setGeomSystem( is2D() ? OD::Geom2D : OD::Geom3D );
     uiRetVal uirv;
-    for ( int lnr=lb.linerg_.start; lnr<=lb.linerg_.stop; lnr+=lb.linerg_.step)
+    for ( int lnr=lb.linerg_.start_; lnr<=lb.linerg_.stop_; lnr+=lb.linerg_.step_)
     {
 	if ( lnr <= lastwrittenline_ )
 	    continue;
@@ -455,7 +455,7 @@ uiRetVal Seis::DataGlueer::storeLineBuf( const LineBuf& lb )
 	    trc.info().setLineNr( lnr );
 
 	const StepInterval<int> tnrrg = trcNrRange( lnr );
-	for ( int trcnr=tnrrg.start; trcnr<=tnrrg.stop; trcnr+=trcstep_ )
+        for ( int trcnr=tnrrg.start_; trcnr<=tnrrg.stop_; trcnr+=trcstep_ )
 	{
 	    trc.info().setTrcNr( trcnr );
 	    if ( !tkzs_.hsamp_.includes(trc.info().trcKey()) ||

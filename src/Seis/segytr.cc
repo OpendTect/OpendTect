@@ -195,8 +195,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 
     txthead_->getText( pinfo_.usrinfo );
     pinfo_.nr = binhead_.entryVal( SEGY::BinHeader::EntryLino() );
-    pinfo_.zrg.step = binhead_.sampleRate( mInDepth );
-    insd_.step = pinfo_.zrg.step;
+    pinfo_.zrg.step_ = binhead_.sampleRate( mInDepth );
+    insd_.step_ = pinfo_.zrg.step_;
     innrsamples_ = binhead_.nrSamples();
 
     od_stream::Pos endpos = strm.endPosition();
@@ -289,24 +289,24 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     trchead_.fill( info, fileopts_.coordscale_ );
     if ( othdomain_ )
     {
-	info.sampling.start *= SI().zIsTime() ? 1000 : 0.001f;
-	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
+	info.sampling.start_ *= SI().zIsTime() ? 1000 : 0.001f;
+	info.sampling.step_ *= SI().zIsTime() ? 1000 : 0.001f;
     }
 
-    insd_.start = info.sampling.start;
-    insd_.step = pinfo_.zrg.step;
-    if ( mIsZero(insd_.step,1e-8) )
+    insd_.start_ = info.sampling.start_;
+    insd_.step_ = pinfo_.zrg.step_;
+    if ( mIsZero(insd_.step_,1e-8) )
     {
-	insd_.step = info.sampling.step;
-	if ( mIsZero(insd_.step,1e-8) )
-	    insd_.step = SI().zRange(false).step;
+	insd_.step_ = info.sampling.step_;
+	if ( mIsZero(insd_.step_,1e-8) )
+	    insd_.step_ = SI().zRange(false).step_;
     }
 
     if ( !mIsUdf(fileopts_.timeshift_) )
-	insd_.start = fileopts_.timeshift_;
+	insd_.start_ = fileopts_.timeshift_;
 
     if ( !mIsUdf(fileopts_.sampleintv_) )
-	insd_.step = fileopts_.sampleintv_;
+	insd_.step_ = fileopts_.sampleintv_;
 
     innrsamples_ = filepars_.ns_;
     if ( innrsamples_ <= 0 || innrsamples_ > cMaxNrSamples )
@@ -336,8 +336,8 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     trchead_.fill( ti, fileopts_.coordscale_ );
     if ( othdomain_ )
     {
-	ti.sampling.start *= SI().zIsTime() ? 1000 : 0.001f;
-	ti.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
+	ti.sampling.start_ *= SI().zIsTime() ? 1000 : 0.001f;
+	ti.sampling.step_ *= SI().zIsTime() ? 1000 : 0.001f;
     }
 
     const UnitOfMeasure* dispunit =
@@ -360,9 +360,9 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
     }
 
     if ( !mIsUdf(fileopts_.timeshift_) )
-	ti.sampling.start = fileopts_.timeshift_;
+	ti.sampling.start_ = fileopts_.timeshift_;
     if ( !mIsUdf(fileopts_.sampleintv_) )
-	ti.sampling.step = fileopts_.sampleintv_;
+	ti.sampling.step_ = fileopts_.sampleintv_;
 
     if ( fileopts_.coorddef_ == SEGY::FileReadOpts::Generate )
     {
@@ -451,7 +451,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     mDefineStaticLocalObject( int, jobid, = 0 );
     binhead_.setEntryVal( SEGY::BinHeader::EntryJobID(), ++jobid );
     binhead_.setNrSamples( outnrsamples_ );
-    binhead_.setSampleRate( outsd_.step, mInDepth );
+    binhead_.setSampleRate( outsd_.step_, mInDepth );
     binhead_.setEntryVal( SEGY::BinHeader::EntryTsort(), is_prestack ? 0 : 4 );
 					// To make Strata users happy
     binhead_.setInFeet( SI().xyInFeet() );
@@ -475,7 +475,7 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
     SamplingData<float> sdtoput( useinpsd_ ? infotouse.sampling : outsd_ );
     const int nstoput = useinpsd_ ? trc.size() : outnrsamples_;
     if ( othdomain_ )
-	sdtoput.step *= SI().zIsTime() ? 0.001f : 1000;
+	sdtoput.step_ *= SI().zIsTime() ? 0.001f : 1000;
 
     trchead_.putSampling( sdtoput, mCast(unsigned short,nstoput) );
 }
@@ -584,8 +584,8 @@ bool SEGYSeisTrcTranslator::commitSelections_()
 
     inpcd_ = inpcds_[0];
     outcd_ = outcds_[0];
-    if ( mIsEqual(outsd_.start,insd_.start,mDefEps) &&
-	 mIsEqual(outsd_.step,insd_.step,mDefEps) )
+    if ( mIsEqual(outsd_.start_,insd_.start_,mDefEps) &&
+	 mIsEqual(outsd_.step_,insd_.step_,mDefEps) )
 	useinpsd_ = true;
 
     return forread || writeTapeHeader();
@@ -759,9 +759,9 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     {
 	int defnr = 0;
 	if ( oldcurtrcnr < 0 )
-	    defnr = fileopts_.trcnrdef_.start;
+	    defnr = fileopts_.trcnrdef_.start_;
 	else
-	    defnr = oldcurtrcnr + fileopts_.trcnrdef_.step;
+	    defnr = oldcurtrcnr + fileopts_.trcnrdef_.step_;
 
 	ti.setGeomID( curGeomID() ).setTrcNr( defnr );
     }
@@ -852,10 +852,10 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	curoffs_ = ti.offset;
     }
 
-    if ( mIsZero(ti.sampling.step,mDefEps) )
+    if ( mIsZero(ti.sampling.step_,mDefEps) )
     {
 	addWarn(cSEGYWarnZeroSampIntv,getTrcPosStr());
-	ti.sampling.step = insd_.step;
+	ti.sampling.step_ = insd_.step_;
     }
 
     if ( trchead_.nonrectcoords )
@@ -931,8 +931,8 @@ bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
 
     TraceData& tdata = extbuf ? *extbuf : *storbuf_;
     od_istream& strm = sConn().iStream();
-    if ( samprg_.start > 0 )
-	strm.ignore( samprg_.start * mBPS(inpcd_) );
+    if ( samprg_.start_ > 0 )
+	strm.ignore( samprg_.start_ * mBPS(inpcd_) );
 
     int rdsz = (samprg_.width()+1) * mBPS(inpcd_);
     if ( !sConn().iStream().getBin(tdata.getComponent()->data(),rdsz) )
@@ -944,8 +944,8 @@ bool SEGYSeisTrcTranslator::readData( TraceData* extbuf )
 	return noErrMsg();
     }
 
-    if ( samprg_.stop < innrsamples_-1 )
-	strm.ignore( (innrsamples_-samprg_.stop-1) * mBPS(inpcd_) );
+    if ( samprg_.stop_ < innrsamples_-1 )
+	strm.ignore( (innrsamples_-samprg_.stop_-1) * mBPS(inpcd_) );
 
     if ( !strm.isBad() )
 	datareaddone_ = true;

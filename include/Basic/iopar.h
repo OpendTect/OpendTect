@@ -389,8 +389,8 @@ template <class T>
 inline bool IOPar::get( const char* k, Interval<T>& i ) const
 {
     mDynamicCastGet(StepInterval<T>*,si,&i)
-    return si ? get( k, i.start, i.stop, si->step )
-	      : get( k, i.start, i.stop );
+    return si ? get( k, i.start_, i.stop_, si->step_ )
+	      : get( k, i.start_, i.stop_ );
 }
 
 
@@ -398,22 +398,22 @@ template <class T>
 inline void IOPar::set( const char* k, const Interval<T>& i )
 {
     mDynamicCastGet(const StepInterval<T>*,si,&i)
-    if ( si )	set( k, i.start, i.stop, si->step );
-    else	set( k, i.start, i.stop );
+    if ( si )	set( k, i.start_, i.stop_, si->step_ );
+    else	set( k, i.start_, i.stop_ );
 }
 
 
 template <class T>
 inline bool IOPar::get( const char* k, SamplingData<T>& sd ) const
 {
-    return get( k, sd.start, sd.step );
+    return get( k, sd.start_, sd.step_ );
 }
 
 
 template <class T>
 inline void IOPar::set( const char* k, const SamplingData<T>& sd )
 {
-    set( k, sd.start, sd.step );
+    set( k, sd.start_, sd.step_ );
 }
 
 

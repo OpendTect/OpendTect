@@ -34,8 +34,8 @@ uiFunctionDrawer::uiFunctionDrawer( uiParent* p, const Setup& su )
     setStretch( 2, 2 );
 
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
-		     uiWorldRect( su.xaxrg_.start, su.yaxrg_.stop,
-				  su.xaxrg_.stop, su.yaxrg_.start ) );
+		     uiWorldRect( su.xaxrg_.start_, su.yaxrg_.stop_,
+				  su.xaxrg_.stop_, su.yaxrg_.start_ ) );
 
     uiAxisHandler::Setup asu( uiRect::Bottom,viewWidth(), viewHeight() );
     asu.maxnrchars_ = 8;
@@ -102,10 +102,10 @@ void uiFunctionDrawer::setFrame()
 {
     uiAxisHandler* xax = xAxis();
     uiAxisHandler* yax = yAxis();
-    uiRect borderrect( xax->getPix( xax->range().start ),
-		       yax->getPix( yax->range().stop ),
-		       xax->getPix( xax->range().stop ),
-		       yax->getPix( yax->range().start ) );
+    uiRect borderrect( xax->getPix( xax->range().start_ ),
+		       yax->getPix( yax->range().stop_ ),
+		       xax->getPix( xax->range().stop_ ),
+		       yax->getPix( yax->range().start_ ) );
     if ( !borderrectitem_ )
 	borderrectitem_ = scene().addRect(
 	    mCast(float,borderrect.left()), mCast(float,borderrect.top()),
@@ -160,11 +160,11 @@ void uiFunctionDrawer::createLine( DrawFunction* func )
     TypeSet<uiPoint>& pointlist = func->pointlist_;
     pointlist.erase();
 
-    LinScaler scaler( funcrg_.start, xax_->range().start,
-		      funcrg_.stop, xax_->range().stop );
+    LinScaler scaler( funcrg_.start_, xax_->range().start_,
+		      funcrg_.stop_, xax_->range().stop_ );
 
     StepInterval<float> xrg( funcrg_ );
-    xrg.step = 0.0001;
+    xrg.step_ = 0.0001;
     for ( int idx=0; idx<xrg.nrSteps(); idx++ )
     {
 	float x = xrg.atIndex( idx );

@@ -77,8 +77,8 @@ bool Seis2DTo3D::usePar( const IOPar& pars )
     {
 	Interval<int> step;
 	parampars->get( sKeyStepout(), step );
-	inlstep_ = step.start;
-	crlstep_ = step.stop;
+        inlstep_ = step.start_;
+        crlstep_ = step.stop_;
 	parampars->getYN( sKeyReUse(), reusetrcs_ );
 	parampars->get( sKeyMaxVel(), maxvel_ );
 	tkzs_.hsamp_.step_ = BinID( inlstep_, crlstep_ );
@@ -146,10 +146,10 @@ bool Seis2DTo3D::read()
 	mErrRet( tr("Input dataset has no lines") )
 
     const TrcKeySampling& tks = tkzs_.hsamp_;
-    const Interval<int> inlrg( tks.inlRange().start - inlstep_,
-			       tks.inlRange().stop + inlstep_ );
-    const Interval<int> crlrg( tks.crlRange().start - crlstep_,
-			       tks.crlRange().stop + crlstep_ );
+    const Interval<int> inlrg( tks.inlRange().start_ - inlstep_,
+                               tks.inlRange().stop_ + inlstep_ );
+    const Interval<int> crlrg( tks.crlRange().start_ - crlstep_,
+                               tks.crlRange().stop_ + crlstep_ );
     const int ns = tkzs_.zsamp_.nrSteps() + 1;
     const Survey::Geometry* geom = Survey::GM().getGeometry( tks.getGeomID() );
     const Survey::Geometry3D* geom3d = geom ? geom->as3D() : nullptr;
@@ -187,8 +187,8 @@ bool Seis2DTo3D::read()
 	    trc->reSize( ns, false );
 	    trc->info().setPos( bid );
 	    trc->info().calcCoord();
-	    trc->info().sampling.start = tkzs_.zsamp_.start;
-	    trc->info().sampling.step = tkzs_.zsamp_.step;
+            trc->info().sampling.start_ = tkzs_.zsamp_.start_;
+            trc->info().sampling.step_ = tkzs_.zsamp_.step_;
 	    for ( int isamp=0; isamp<ns; isamp++ )
 	    {
 		const float z = tkzs_.zsamp_.atIndex( isamp );
@@ -299,7 +299,7 @@ bool Seis2DTo3D::doWorkFFT()
     inlrg.limitTo( SI().inlRange(true) );
     crlrg.limitTo( SI().crlRange(true) );
     TrcKeySampling hrg; hrg.set( inlrg, crlrg );
-    hrg.step_ = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
+    hrg.step_ = BinID( SI().inlRange(true).step_, SI().crlRange(true).step_ );
     TrcKeySamplingIterator localhsit( hrg );
     BinID binid;
     ObjectSet<const SeisTrc> trcs;
@@ -345,7 +345,7 @@ bool Seis2DTo3D::doWorkFFT()
     wincrlrg.limitTo( SI().crlRange(true) );
     TrcKeySampling winhrg;
     winhrg.set( wininlrg, wincrlrg );
-    winhrg.step_ = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
+    winhrg.step_ = BinID(SI().inlRange(true).step_,SI().crlRange(true).step_);
     ObjectSet<SeisTrc> outtrcs;
     interpol_.getOutTrcs( outtrcs, winhrg );
 
@@ -483,8 +483,8 @@ bool SeisInterpol::doPrepare( od_ostream* )
     const int diffszx = szx_ - hsszx;
     const int diffszy = szy_ - hsszy;
 
-    hs_.setInlRange(Interval<int>(inlrg.start-diffszx/2,inlrg.stop+diffszx/2));
-    hs_.setCrlRange(Interval<int>(crlrg.start-diffszy/2,crlrg.stop+diffszy/2));
+    hs_.setInlRange(Interval<int>(inlrg.start_-diffszx/2,inlrg.stop_+diffszx/2));
+    hs_.setCrlRange(Interval<int>(crlrg.start_-diffszy/2,crlrg.stop_+diffszy/2));
 
     setUpData();
     return true;
@@ -677,7 +677,7 @@ void SeisInterpol::setUpData()
         vals += tr.get( idx, 0 );\
     cl.putData( vals.arr(), tr.size() );\
     cl.calculateRange( 0.1, rg );\
-    max = rg.stop; min = rg.start;\
+    max = rg.stop_; min = rg.start_;\
 
 
 SeisScaler::SeisScaler()

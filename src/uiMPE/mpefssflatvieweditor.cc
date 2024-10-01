@@ -284,7 +284,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
     Coord3 realpos = editor_->viewer().getCoord( pos );
-    realpos.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+    realpos.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start_
 						      : pos.y;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
@@ -300,7 +300,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
 		    emfss->geometryElement())
 
     StepInterval<int> colrg = fss->colRange( fsspainter_->getActiveStickId() );
-    const int knotid = colrg.start + displayedknotid*colrg.step;
+    const int knotid = colrg.start_ + displayedknotid*colrg.step_;
 
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
@@ -334,7 +334,7 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     iy = pd.indexInfo( false, wp.y );
 
     worldpos = editor_->viewer().getCoord( wp );
-    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start_
 							 : wp.y;
 
     if ( trcnr )
@@ -508,7 +508,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     RowCol rc;
     rc.row() = stickid;
     const StepInterval<int> colrg = fss->colRange( rc.row() );
-    rc.col() = colrg.start + displayedknotid*colrg.step;
+    rc.col() = colrg.start_ + displayedknotid*colrg.step_;
 
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
@@ -638,7 +638,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 
 	Geometry::FaultStickSet* fss = fssg.geometryElement();
 	const int insertsticknr = !fss || fss->isEmpty()
-				  ? 0 : fss->rowRange().stop+1;
+				  ? 0 : fss->rowRange().stop_+1;
 
 	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	    fssg.insertStick( insertsticknr, 0, pos, editnormal, true );
@@ -715,7 +715,7 @@ void FaultStickSetFlatViewEditor::removeSelectionCB( CallBacker* cb )
     {
 	rc.row() = getStickId( selectedids[ids] );
 	const StepInterval<int> colrg = fss->colRange( rc.row() );
-	rc.col() = colrg.start + selectedidxs[ids]*colrg.step;
+	rc.col() = colrg.start_ + selectedidxs[ids]*colrg.step_;
 	emfss->geometry().removeKnot( rc.toInt64(), false );
 	if ( !emfss->geometry().nrKnots(rc.row()) )
 	    emfss->geometry().removeStick( rc.row(), false );

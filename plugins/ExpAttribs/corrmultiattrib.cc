@@ -88,8 +88,8 @@ bool CorrMultiAttrib::computeData( const DataHolder& output,
 	 !inputdata2_ || inputdata2_->isEmpty() )
 	return false;
 
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-	mNINT32(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start_/refstep_),
+				    mNINT32(gate_.stop_/refstep_) );
 
     for ( int sample=0; sample<nrsamples; sample++ )
     {
@@ -97,8 +97,8 @@ bool CorrMultiAttrib::computeData( const DataHolder& output,
 	float sumsample1sq = 0.f;
 	float sumsample2sq = 0.f;
 	float similarity, sample1, sample2;
-	for ( int gatesample = samplegate.start;
-		  gatesample < samplegate.stop+1; gatesample++ )
+	for ( int gatesample = samplegate.start_;
+	      gatesample < samplegate.stop_+1; gatesample++ )
 	{
 	    const int sampidx = sample + gatesample;
 	    sample1 = getInputValue( *inputdata1_, dataidx1_, sampidx, z0 );

@@ -116,16 +116,16 @@ static Threads::Atomic<int> deletedid_( DataPackID::udf().asInt() );
 
 DataPack::DataPack( const char* categry )
     : SharedObject("<?>")
-    , category_(categry)
     , id_(getNewID())
+    , category_(categry)
 {
 }
 
 
 DataPack::DataPack( const DataPack& dp )
     : SharedObject( dp.name().buf() )
-    , category_( dp.category_ )
     , id_(getNewID())
+    , category_( dp.category_ )
 {
 }
 

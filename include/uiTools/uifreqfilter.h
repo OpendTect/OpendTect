@@ -26,8 +26,10 @@ public:
 
     void		setFreqRange(Interval<float> rg)
     			{ freqrg_ = rg; putToScreen(); }
-    void		setMinFreq(float f) { freqrg_.start = f; putToScreen();}
-    void		setMaxFreq(float f) { freqrg_.stop = f; putToScreen(); }
+    void		setMinFreq( float f )
+			{ freqrg_.start_ = f; putToScreen();}
+    void		setMaxFreq( float f )
+			{ freqrg_.stop_ = f; putToScreen(); }
 
     void		setFilterType(FFTFilter::Type tp)
     			{ filtertype_ = tp; putToScreen(); }

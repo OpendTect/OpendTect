@@ -414,10 +414,10 @@ bool Well::odWriter::wrLogHdr( od_ostream& strm, const Well::Log& wl ) const
     astrm.put( Well::Log::sKeyStorage(), stortyp );
     const Interval<float>& dahrange = wl.dahRange();
     if ( !dahrange.isUdf() )
-	astrm.put( Well::Log::sKeyDahRange(), dahrange.start, dahrange.stop );
+	astrm.put( Well::Log::sKeyDahRange(), dahrange.start_, dahrange.stop_ );
     const Interval<float>& logrange = wl.valueRange();
     if ( !logrange.isUdf() )
-	astrm.put( Well::Log::sKeyLogRange(), logrange.start, logrange.stop );
+	astrm.put( Well::Log::sKeyLogRange(), logrange.start_, logrange.stop_ );
 
     astrm.newParagraph();
     if ( havepars )
@@ -441,22 +441,22 @@ bool Well::odWriter::wrLogData( od_ostream& strm, const Well::Log& wl,
 
     Interval<int> wrintv( 0, wl.size()-1 );
     float dah, val;
-    for ( ; wrintv.start<wl.size(); wrintv.start++ )
+    for ( ; wrintv.start_<wl.size(); wrintv.start_++ )
     {
-	dah = wl.dah(wrintv.start); val = wl.value(wrintv.start);
+	dah = wl.dah(wrintv.start_); val = wl.value(wrintv.start_);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
 
-    for ( ; wrintv.stop>=0; wrintv.stop-- )
+    for ( ; wrintv.stop_>=0; wrintv.stop_-- )
     {
-	dah = wl.dah(wrintv.stop); val = wl.value(wrintv.stop);
+	dah = wl.dah(wrintv.stop_); val = wl.value(wrintv.stop_);
 	if ( !mIsUdf(dah) && !mIsUdf(val) )
 	    break;
     }
 
     float v[2];
-    for ( int idx=wrintv.start; idx<=wrintv.stop; idx++ )
+    for ( int idx=wrintv.start_; idx<=wrintv.stop_; idx++ )
     {
 	v[0] = wl.dah( idx );
 	if ( mIsUdf(v[0]) )

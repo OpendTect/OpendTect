@@ -314,18 +314,18 @@ void AxesDrawer::setWorldCoords( const uiWorldRect& wr )
     StepInterval<double> dim0rg2( altdim0start, altdim0stop, altdim0step );
     const float startindex = dim0rg1.getfIndex( wr.left() );
     const float stopindex = dim0rg1.getfIndex( wr.right() );
-    dim0rg2.start = altdim0start + dim0rg2.step*startindex;
-    dim0rg2.stop = altdim0start + dim0rg2.step*stopindex;
+    dim0rg2.start_ = altdim0start + dim0rg2.step_*startindex;
+    dim0rg2.stop_ = altdim0start + dim0rg2.step_*stopindex;
     Interval<double> dim1rg( wr.top(), wr.bottom() );
     if ( isVertical(vwr_) )
     {
-	dim1rg.start *= userfac;
-	dim1rg.stop *= userfac;
+	dim1rg.start_ *= userfac;
+	dim1rg.stop_ *= userfac;
     }
 
 
-    const uiWorldRect altwr( dim0rg2.start, dim1rg.start,
-			     dim0rg2.stop, dim1rg.stop );
+    const uiWorldRect altwr( dim0rg2.start_, dim1rg.start_,
+			     dim0rg2.stop_, dim1rg.stop_ );
     uiGraphicsSceneAxisMgr::setWorldCoords( altwr );
 }
 

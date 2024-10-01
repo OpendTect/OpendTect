@@ -308,7 +308,7 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 	{
 	    const FloatGateParam& param = (FloatGateParam&)(*rangeset)[idx];
 	    const Interval<float> rg = param.getValue();
-	    if ( !mIsUdf(rg.start) && !mIsUdf(rg.stop) )
+	    if ( !mIsUdf(rg.start_) && !mIsUdf(rg.stop_) )
 		ranges += rg;
 	}
 	calcobj_->setRanges( ranges );
@@ -797,7 +797,7 @@ bool uiFPAdvancedDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<valflds_.size(); idx++ )
     {
 	Interval<float> range = minmaxflds_[idx]->getFInterval();
-	if ( !mIsUdf(range.start) && !mIsUdf(range.stop) )
+	if ( !mIsUdf(range.start_) && !mIsUdf(range.stop_) )
 	    ranges += range;
 
 	float val = valflds_[idx]->getFValue();

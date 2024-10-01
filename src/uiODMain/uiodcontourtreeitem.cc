@@ -298,7 +298,7 @@ void uiContourTreeItemContourGenerator::addContourData(
     if ( contourdata_.labelranges_.size() )
     {
 	const int lastlblidx =
-	    contourdata_.labelranges_[contourdata_.labelranges_.size()-1].stop;
+                contourdata_.labelranges_[contourdata_.labelranges_.size()-1].stop_;
 	for ( int idx=0; idx<newcontourdata.labelranges_.size(); idx++ )
 	    newcontourdata.labelranges_[idx] +=
 	    Interval<int>(lastlblidx,lastlblidx);
@@ -315,8 +315,8 @@ bool uiContourTreeItemContourGenerator::generateContours( int contouridx,
 				double& area)const
 {
     area = 0;
-    const float contourval = uicitem_->contourintv_.start +
-		       contouridx* uicitem_->contourintv_.step;
+    const float contourval = uicitem_->contourintv_.start_ +
+                             contouridx* uicitem_->contourintv_.step_;
 
     ManagedObjectSet<ODPolygon<float> > isocontours;
     ictracer->getContours( isocontours, contourval, false );
@@ -338,7 +338,7 @@ bool uiContourTreeItemContourGenerator::generateContours( int contouridx,
 	{
 	    const int vertexidx = vidx;
 	    if( !addDisplayCoord( curcontour,vertexidx,contourdata,
-				  contourcoordsrg.stop) )
+                                  contourcoordsrg.stop_) )
 		continue;
 	    // if meet the condition adding contour label position
 	    if ( curcontour.size()>cMinNrNodesForLbl &&
@@ -348,7 +348,7 @@ bool uiContourTreeItemContourGenerator::generateContours( int contouridx,
 		const Coord3 lblpos = contourdata.contourcoords_[lastvrtxidx];
 		contourdata.labelpositions_.add( lblpos );
 		contourdata.labelcontourlen_.add( curcontour.size() );
-		lblpositionrg.stop++;
+                lblpositionrg.stop_++;
 	    }
 	}
 
@@ -358,7 +358,7 @@ bool uiContourTreeItemContourGenerator::generateContours( int contouridx,
 	contourdata.contourcoordrgs_.add( contourcoordsrg );
     }
     // if having label, add label into contour data
-    if ( lblpositionrg.stop > lblpositionrg.start )
+    if ( lblpositionrg.stop_ > lblpositionrg.start_ )
     {
 	float labelval =
 	    uicitem_->attrnm_==uiContourTreeItem::sKeyZValue()
@@ -381,8 +381,8 @@ void uiContourTreeItemContourGenerator::makeContourClose(
 	return;
 
     contourdata.contourcoords_.add(
-	contourdata.contourcoords_[coordsrg.start] );
-    coordsrg.stop++;
+                contourdata.contourcoords_[coordsrg.start_] );
+    coordsrg.stop_++;
 }
 
 
@@ -486,7 +486,7 @@ bool uiContourTreeItemContourGenerator::doFinish( bool success )
     for ( int lbrgidx=0; lbrgidx<contourdata_.labelranges_.size(); lbrgidx++ )
     {
 	const Interval<int> lbldata( contourdata_.labelranges_[lbrgidx] );
-	for ( int ipos=lbldata.start; ipos<lbldata.stop; ipos++ )
+        for ( int ipos=lbldata.start_; ipos<lbldata.stop_; ipos++ )
 	{
 	    if ( contourdata_.labelcontourlen_[ipos] > contourlenthreshold )
 	    {
@@ -561,7 +561,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     lbltxt.appendPhrase( toUiString(":"), uiString::Space,
 							uiString::OnSameLine);
     BufferString lbltxtapnd;
-    lbltxtapnd.add( rg_.start ).add( " - " ).add( rg_.stop );
+    lbltxtapnd.add( rg_.start_ ).add( " - " ).add( rg_.stop_ );
 
     auto* lbl = new uiLabel( this,
 		lbltxt.appendPhrase(toUiString(lbltxtapnd),
@@ -771,8 +771,8 @@ void elevationChg( CallBacker* )
 void setInitialDecNr()
 {
     StepInterval<float> intv = intvfld_->getFStepInterval();
-    const int nrdecstart = getInitialDec( intv.start );
-    const int nrdecstop = getInitialDec( intv.start );
+    const int nrdecstart = getInitialDec( intv.start_ );
+    const int nrdecstop = getInitialDec( intv.start_ );
     const int initnrdec = nrdecstart>nrdecstop ? nrdecstart : nrdecstop;
     intvfld_->setNrDecimals( initnrdec, 0 );
 }
@@ -782,9 +782,9 @@ void finalizeCB( CallBacker* cb )
 {
     setInitialDecNr();
     int nrdec=0;
-    const float startval = getNiceNumber( contourintv_.start, nrdec );
+    const float startval = getNiceNumber( contourintv_.start_, nrdec );
     intvfld_->setText( toString(startval,nrdec), 0 );
-    const float stopval = getNiceNumber( contourintv_.stop, nrdec );
+    const float stopval = getNiceNumber( contourintv_.stop_, nrdec );
     intvfld_->setText( toString(stopval,nrdec), 1 );
     intvChanged( nullptr );
 }
@@ -793,22 +793,22 @@ void finalizeCB( CallBacker* cb )
 void intvChanged( CallBacker* cb )
 {
     StepInterval<float> intv = intvfld_->getFStepInterval();
-    if ( intv.start < rg_.start || intv.start > rg_.stop )
+    if ( intv.start_ < rg_.start_ || intv.start_ > rg_.stop_ )
     {
-	intvfld_->setValue( Math::Ceil(rg_.start), 0 );
-	intv.start = Math::Ceil(rg_.start);
+        intvfld_->setValue( Math::Ceil(rg_.start_), 0 );
+        intv.start_ = Math::Ceil(rg_.start_);
     }
-    if ( intv.stop < rg_.start || intv.stop > rg_.stop )
+    if ( intv.stop_ < rg_.start_ || intv.stop_ > rg_.stop_ )
     {
-	intvfld_->setValue( Math::Floor(rg_.stop), 1 );
-	intv.stop =  Math::Floor(rg_.stop);
+        intvfld_->setValue( Math::Floor(rg_.stop_), 1 );
+        intv.stop_ =  Math::Floor(rg_.stop_);
     }
 
-    bool invalidstep = ( intv.step <= 0 || intv.step > rg_.width() ) ?
+    bool invalidstep = ( intv.step_ <= 0 || intv.step_ > rg_.width() ) ?
 			true : false;
     if( invalidstep )
     {
-	intvfld_->setValue( contourintv_.step, 2 );
+        intvfld_->setValue( contourintv_.step_, 2 );
 	if (cb)
 	    return uiMSG().error(tr("Invalid step value"));
     }
@@ -817,7 +817,7 @@ void intvChanged( CallBacker* cb )
     if ( iszval_ )
 	intv.scale( 1.0f/zfac_ );
 
-    contourintv_.step = intv.step;
+    contourintv_.step_ = intv.step_;
     const float steps = intv.nrSteps();
     float nrsteps = intv.nrfSteps();
     const float eps = 1.0e-02;
@@ -1149,8 +1149,8 @@ void uiContourTreeItem::showPropertyDlg()
     uiVisPartServer* visserv = applMgr()->visServer();
     zshift_ = (float)visserv->getTranslation( displayID() ).z;
 
-    Interval<float> range( contoursteprange_.start + zshift_,
-			   contoursteprange_.stop + zshift_ );
+    Interval<float> range( contoursteprange_.start_ + zshift_,
+                           contoursteprange_.stop_ + zshift_ );
 
     StepInterval<float> oldintv( contourintv_ );
     oldintv += Interval<float>( zshift_, zshift_ );
@@ -1180,12 +1180,12 @@ void uiContourTreeItem::showPropertyDlg()
 void uiContourTreeItem::updateUICContours( const StepInterval<float>& newintv )
 {
     StepInterval<float> oldintv = contourintv_;
-    const int nrsignificant = getInitialDec( newintv.start );
+    const int nrsignificant = getInitialDec( newintv.start_ );
     const float eps = Math::PowerOf( 10.f, -mCast(float,nrsignificant) );
     oldintv += Interval<float>( zshift_, zshift_ );
-    const bool intvchgd = !mIsEqual(newintv.start,oldintv.start,eps) ||
-			  !mIsEqual(newintv.stop,oldintv.stop,eps) ||
-			  !mIsEqual(newintv.step,oldintv.step,eps);
+    const bool intvchgd = !mIsEqual(newintv.start_,oldintv.start_,eps) ||
+                          !mIsEqual(newintv.stop_,oldintv.stop_,eps) ||
+                          !mIsEqual(newintv.step_,oldintv.step_,eps);
 
     if ( intvchgd )
     {
@@ -1368,7 +1368,7 @@ bool uiContourTreeItem::setLabels( visBase::Text2* newlabels )
 
 bool uiContourTreeItem::computeUICContourSteps( const Array2D<float>& field )
 {
-    if ( mIsUdf(contoursteprange_.start) )
+    if ( mIsUdf(contoursteprange_.start_) )
     {
 	for ( int idx=0; idx<field.info().getSize(0); idx++ )
 	{
@@ -1379,27 +1379,27 @@ bool uiContourTreeItem::computeUICContourSteps( const Array2D<float>& field )
 	    }
 	}
 
-	if ( mIsUdf(contoursteprange_.start) )
+        if ( mIsUdf(contoursteprange_.start_) )
 	    return false;
 
 	AxisLayout<float> al( contoursteprange_ );
 	SamplingData<float> sd = al.sd_;
-	sd.step /= 5;
-	const float offset = ( sd.start - contoursteprange_.start ) / sd.step;
+        sd.step_ /= 5;
+        const float offset = ( sd.start_ - contoursteprange_.start_ ) / sd.step_;
 	if ( offset < 0 || offset > 1 )
 	{
 	    const int nrsteps = mNINT32( Math::Floor(offset) );
-	    sd.start -= nrsteps * sd.step;
+            sd.start_ -= nrsteps * sd.step_;
 	}
 
-	contourintv_.start = sd.start;
-	contourintv_.stop = contoursteprange_.stop;
-	contourintv_.step = sd.step;
+        contourintv_.start_ = sd.start_;
+        contourintv_.stop_ = contoursteprange_.stop_;
+        contourintv_.step_ = sd.step_;
 	const int nrsteps = contourintv_.nrSteps();
-	contourintv_.stop = sd.start + nrsteps*sd.step;
+        contourintv_.stop_ = sd.start_ + nrsteps*sd.step_;
     }
 
-    if ( contourintv_.step <= 0 )
+    if ( contourintv_.step_ <= 0 )
 	return false;
 
     return true;

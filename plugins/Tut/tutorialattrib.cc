@@ -98,8 +98,8 @@ Tutorial::Tutorial( Desc& desc )
     if ( action_ == 2  && !horsmooth_ )
     {
 	const int dev = weaksmooth_ ? 1 : 2;
-	sampgate_.start = -dev;
-	sampgate_.stop = dev;
+	sampgate_.start_ = -dev;
+	sampgate_.stop_ = dev;
     }
 
     else if ( action_ == 2  && horsmooth_ )
@@ -200,7 +200,7 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 	else if ( action_==2 && !horsmooth_ )
 	{
 	    int count = 0;
-	    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
+	    for ( int isamp=sampgate_.start_; isamp<=sampgate_.stop_; isamp++ )
 	    {
 		const float curval = getInputValue( *inpdata_[0], dataidx_,
 			                idx + isamp, z0 );

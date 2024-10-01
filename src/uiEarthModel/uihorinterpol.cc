@@ -426,8 +426,8 @@ bool uiHor3DInterpolSel::getPolygonRange( Interval<int>& inlrg,
 
     const Interval<float> xrg = poly.getRange( true );
     const Interval<float> yrg = poly.getRange( false );
-    inlrg.start = mNINT32(xrg.start); inlrg.stop = mNINT32(xrg.stop);
-    crlrg.start = mNINT32(yrg.start); crlrg.stop = mNINT32(yrg.stop);
+    inlrg.start_ = mNINT32(xrg.start_); inlrg.stop_ = mNINT32(xrg.stop_);
+    crlrg.start_ = mNINT32(yrg.start_); crlrg.stop_ = mNINT32(yrg.stop_);
     return true;
 }
 

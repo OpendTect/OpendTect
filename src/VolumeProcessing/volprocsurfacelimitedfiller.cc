@@ -278,13 +278,13 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     const StepInterval<int> outputinlrg( hs.inlRange() );
 
     if ( !outputinlrg.includes( bid.inl(), false ) ||
-         (bid.inl()-outputinlrg.start)%outputinlrg.step )
+	 (bid.inl()-outputinlrg.start_)%outputinlrg.step_ )
 	return false;
 
     const StepInterval<int> outputcrlrg( hs.crlRange() );
 
     if ( !outputcrlrg.includes( bid.crl(), false ) ||
-         (bid.crl()-outputcrlrg.start)%outputcrlrg.step )
+	 (bid.crl()-outputcrlrg.start_)%outputcrlrg.step_ )
 	return false;
 
     StepInterval<int> inputinlrg;
@@ -292,7 +292,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     {
 	inputinlrg = input->sampling().hsamp_.inlRange();
 	if ( !inputinlrg.includes( bid.inl(), false ) ||
-	     (bid.inl()-inputinlrg.start)%inputinlrg.step )
+	     (bid.inl()-inputinlrg.start_)%inputinlrg.step_ )
 	    inputarr = 0;
     }
 
@@ -301,7 +301,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     {
 	inputcrlrg = input->sampling().hsamp_.crlRange();
 	if ( !inputcrlrg.includes( bid.crl(), false ) ||
-	     (bid.crl()-inputcrlrg.start)%inputcrlrg.step )
+	     (bid.crl()-inputcrlrg.start_)%inputcrlrg.step_ )
 	    inputarr = 0;
     }
 
@@ -373,9 +373,9 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
     {
 	const StepInterval<float>& zrg = SI().zRange( true );
 	const double topdepth = horz.size() > 0 && !mIsUdf(horz[0]) ?
-				horz[0] : zrg.start;
+		    horz[0] : zrg.start_;
 	const double bottomdepth = horz.size() > 1 && !mIsUdf(horz[1]) ?
-				   horz[1] : zrg.stop;
+		    horz[1] : zrg.stop_;
 	const double depth = bottomdepth - topdepth;
 	gradient = valrange_ / depth;
     }
@@ -487,7 +487,7 @@ bool SurfaceLimitedFiller::useHorInterFillerPar( const IOPar& pars )
     {
 	valrange_ = bottomvalue - topvalue;
 	const StepInterval<float>& zrange = SI().zRange(true);
-	fixedgradient_ = mCast(float,valrange_/(zrange.stop-zrange.start));
+	fixedgradient_ = mCast(float,valrange_/(zrange.stop_-zrange.start_));
 	if ( horids.size() > 0 )
 	    usebottomval_ = true;
     }

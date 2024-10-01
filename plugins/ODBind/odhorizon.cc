@@ -204,8 +204,8 @@ void odHorizon3D::getInfo( OD::JSON::Object& jsobj ) const
     {
 	const EM::IOObjInfo eminfo( ioobj.ptr() );
 	Interval<float> zrg = eminfo.getZRange();
-	zrg.start *= SI().showZ2UserFactor();
-	zrg.stop *= SI().showZ2UserFactor();
+	zrg.start_ *= SI().showZ2UserFactor();
+	zrg.stop_ *= SI().showZ2UserFactor();
 	jsobj.set( "z_range", zrg );
 	jsobj.set( "zunit", eminfo.getZUnitLabel() );
     }

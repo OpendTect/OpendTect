@@ -140,12 +140,12 @@ int nextStep() override
     {
 	outtrc_ = intrc_; // get all components + info
 	const Interval<float> inzrg( intrc_.zRange() );
-	const StepInterval<float> outzrg( zval_ + inzrg.start - horzrg_.stop,
-					  zval_ + inzrg.stop - horzrg_.start,
-					  intrc_.info().sampling.step );
+	const StepInterval<float> outzrg( zval_ + inzrg.start_ - horzrg_.stop_,
+					  zval_ + inzrg.stop_ - horzrg_.start_,
+					  intrc_.info().sampling.step_ );
 	const int nrsamps = outzrg.nrSteps() + 1;
 	outtrc_.reSize( nrsamps, false );
-	outtrc_.info().sampling.start = outzrg.start;
+	outtrc_.info().sampling.start_ = outzrg.start_;
     }
 
     const float horz = pp_.adjustedZ( intrc_.info().coord, zval_ );

@@ -82,13 +82,13 @@ template <class T> inline
 StepInterval<T> getCommonStepInterval( const StepInterval<T>& a,
 					const StepInterval<T>& b )
 {
-    const T start = mMIN( a.start, b.start );
+    const T start = mMIN( a.start_, b.start_ );
 
-    T step = greatestCommonDivisor( a.step, b.step );
-    step = greatestCommonDivisor( step, (T) Math::Abs(a.start-b.start) );
+    T step = greatestCommonDivisor( a.step_, b.step_ );
+    step = greatestCommonDivisor( step, (T) Math::Abs(a.start_-b.start_) );
 
-    const T stop = mMAX( a.start+((T)a.nrSteps())*a.step,
-			 b.start+((T)b.nrSteps())*b.step );
+    const T stop = mMAX( a.start_+((T)a.nrSteps())*a.step_,
+			 b.start_+((T)b.nrSteps())*b.step_ );
     return StepInterval<T>( start, stop, step );
 }
 

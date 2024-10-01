@@ -294,24 +294,24 @@ void PlaneDragCBHandler::constrain( int planeidx, DragMode dragmode )
     Interval<float> zrg( (float) newtopleft.z, (float) newbotright.z );
     Interval<float>& zborder = rtdragger_.zborder_;
 
-    if ( zrg.start < zborder.start )	zrg.start = zborder.start;
-    if ( zrg.start > zborder.stop )	zrg.start = zborder.stop;
-    if ( zrg.stop < zborder.start )	zrg.stop = zborder.start;
-    if ( zrg.stop > zborder.stop )	zrg.stop = zborder.stop;
+    if ( zrg.start_ < zborder.start_ )	zrg.start_ = zborder.start_;
+    if ( zrg.start_ > zborder.stop_ )	zrg.start_ = zborder.stop_;
+    if ( zrg.stop_ < zborder.start_ )	zrg.stop_ = zborder.start_;
+    if ( zrg.stop_ > zborder.stop_ )	zrg.stop_ = zborder.stop_;
 
     if ( dragmode == Trans2D )
     {
 	const float zlen = fabs( newbotright.z - newtopleft.z );
 
-	if ( zrg.start==zborder.start || zrg.start==zborder.stop )
+	if ( zrg.start_==zborder.start_ || zrg.start_==zborder.stop_ )
 	{
-	    const int dir = zrg.start<initialcenter.z ? 1 : -1;
-	    zrg.stop = zrg.start + dir*zlen;
+	    const int dir = zrg.start_<initialcenter.z ? 1 : -1;
+	    zrg.stop_ = zrg.start_ + dir*zlen;
 	}
-	else if ( zrg.stop==zborder.start || zrg.stop==zborder.stop )
+	else if ( zrg.stop_==zborder.start_ || zrg.stop_==zborder.stop_ )
 	{
-	    const int dir = zrg.stop<initialcenter.z ? 1 : -1;
-	    zrg.start = zrg.stop + dir*zlen;
+	    const int dir = zrg.stop_<initialcenter.z ? 1 : -1;
+	    zrg.start_ = zrg.stop_ + dir*zlen;
 	}
     }
 
@@ -589,20 +589,20 @@ int PlaneDragCBHandler::getTransModKeyMask( bool trans1d, int groupidx ) const
 
 //============================================================================
 
-#define mZValue(idx) ( (idx%4)<2 ? zrange_.start : zrange_.stop )
+#define mZValue(idx) ( (idx%4)<2 ? zrange_.start_ : zrange_.stop_ )
 
 
 RandomTrackDragger::RandomTrackDragger()
     : VisualObjectImpl(true)
-    , horborder_(-mUdf(double),-mUdf(double),mUdf(double),mUdf(double))
-    , zborder_(-mUdf(float),mUdf(float))
     , motion(this)
     , movefinished(this)
-    , rightclicknotifier_(this)
     , panels_(new osg::Switch)
     , planedraggers_(new osg::Switch)
     , rotationaxis_(new osg::Switch)
     , zrange_(SI().zRange(true))
+    , horborder_(-mUdf(double),-mUdf(double),mUdf(double),mUdf(double))
+    , zborder_(-mUdf(float),mUdf(float))
+    , rightclicknotifier_(this)
 {
     ref();
     for ( int dim=0; dim<3; dim++ )
@@ -696,9 +696,9 @@ void RandomTrackDragger::followActiveDragger( int activeidx )
     {
 	const int subdraggeridx = activeidx%4;
 	if ( subdraggeridx < 2 )
-	    zrange_.start = newpos.z;
+	    zrange_.start_ = newpos.z;
 	else
-	    zrange_.stop = newpos.z;
+	    zrange_.stop_ = newpos.z;
 
 	for ( int idx=subdraggeridx; idx<draggers_.size(); idx+=4 )
 	{
@@ -758,7 +758,7 @@ void RandomTrackDragger::snapToLimits( Coord3& pos ) const
 {
     for ( int dim=0; dim<3; dim++ )
     {
-	if ( !mIsUdf(limits_[dim].start) && !mIsUdf(limits_[dim].step) )
+	if ( !mIsUdf(limits_[dim].start_) && !mIsUdf(limits_[dim].step_) )
 	    pos[dim] = limits_[dim].snap( pos[dim] );
     }
 }
@@ -928,19 +928,19 @@ void RandomTrackDragger::setLimits( const Coord3& start, const Coord3& stop,
     // Handle undefined borders as incredibly far borders
     horborder_.setTopLeft( start.coord() );
     horborder_.setBottomRight( stop.coord() );
-    if ( limits_[0].step < 0.0 )
+    if ( limits_[0].step_ < 0.0 )
 	horborder_.swapHor();
-    if ( limits_[1].step < 0.0 )
+    if ( limits_[1].step_ < 0.0 )
 	horborder_.swapVer();
     if ( mIsUdf(horborder_.left()) )
 	horborder_.setLeft( -mUdf(double) );
     if ( mIsUdf(horborder_.top()) )
 	horborder_.setTop( -mUdf(double) );
     zborder_.set( start.z, stop.z );
-    if ( limits_[2].step < 0.0 )
+    if ( limits_[2].step_ < 0.0 )
 	zborder_.set( stop.z, start.z );
-    if ( mIsUdf(zborder_.start) )
-	zborder_.start = -mUdf(float);
+    if ( mIsUdf(zborder_.start_) )
+	zborder_.start_ = -mUdf(float);
 
 
     // Correct meaningless zero-width intervals
@@ -957,7 +957,7 @@ void RandomTrackDragger::updateZLimit( const Interval<float>& zborder )
 void RandomTrackDragger::setDepthRange( const Interval<float>& rg )
 {
     zrange_ = rg.isRev()==zrange_.isRev() ? rg :
-					    Interval<float>(rg.stop,rg.start);
+					    Interval<float>(rg.stop_,rg.start_);
 
     for ( int idx=0; idx<draggers_.size(); idx++ )
     {
@@ -1292,10 +1292,10 @@ unsigned char RandomTrackDragger::getOnBorderFlags( int knotidx ) const
     snapToLimits( pos );
 
     const float eps = 1e-6;
-    const float threshold0 = mIsUdf(limits_[0].step) ?
-					    eps : 0.5*fabs(limits_[0].step);
-    const float threshold1 = mIsUdf(limits_[1].step) ?
-					    eps : 0.5*fabs(limits_[1].step);
+    const float threshold0 = mIsUdf(limits_[0].step_) ?
+		eps : 0.5*fabs(limits_[0].step_);
+    const float threshold1 = mIsUdf(limits_[1].step_) ?
+		eps : 0.5*fabs(limits_[1].step_);
 
     if ( fabs(horborder_.left()  -pos.x) < threshold0 ) flags += 1;
     if ( fabs(horborder_.top()	 -pos.y) < threshold1 ) flags += 2;
@@ -1320,7 +1320,7 @@ Coord3 RandomTrackDragger::getPlaneBoundingBoxInSteps( int planeidx ) const
     for ( int dim=0; dim<3; dim++ )
     {
 	const float eps = 1e-6;
-	float step = limits_[dim].step;
+	float step = limits_[dim].step_;
 	if ( mIsUdf(step) || !step )
 	    step = eps;
 

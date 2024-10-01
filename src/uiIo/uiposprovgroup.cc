@@ -221,10 +221,10 @@ void uiRangePosProvGroup::getSummary( BufferString& txt ) const
 static void getExtrDefTrcKeyZSampling( TrcKeyZSampling& cs )
 {
     int nrsamps = cs.zsamp_.nrSteps() + 1;
-    if ( nrsamps > 2000 ) cs.zsamp_.step *= 1000;
-    else if ( nrsamps > 200 ) cs.zsamp_.step *= 100;
-    else if ( nrsamps > 20 ) cs.zsamp_.step *= 10;
-    else if ( nrsamps > 10 ) cs.zsamp_.step *= 5;
+    if ( nrsamps > 2000 ) cs.zsamp_.step_ *= 1000;
+    else if ( nrsamps > 200 ) cs.zsamp_.step_ *= 100;
+    else if ( nrsamps > 20 ) cs.zsamp_.step_ *= 10;
+    else if ( nrsamps > 10 ) cs.zsamp_.step_ *= 5;
     nrsamps = cs.zsamp_.nrSteps() + 1;
 
     const int nrextr = sCast( int, cs.hsamp_.totalNr() * nrsamps );
@@ -244,7 +244,7 @@ void uiRangePosProvGroup::setExtractionDefaults()
     if ( nrrgfld_ )
     {
 	StepInterval<int> rg( nrrgfld_->getRange() );
-	rg.step = 10;
+	rg.step_ = 10;
 	nrrgfld_->setRange( rg );
     }
     zrgfld_->setRange( cs.zsamp_ );
@@ -262,7 +262,7 @@ void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 	cs.zsamp_ = zrgfld_->getRange();
     if ( hasRandomSampling() ) {
 	cs.hsamp_.step_ = SI().sampling(true).hsamp_.step_;
-	cs.zsamp_.step = SI().sampling(true).zsamp_.step;
+	cs.zsamp_.step_ = SI().sampling(true).zsamp_.step_;
     }
 }
 

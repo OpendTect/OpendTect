@@ -433,10 +433,10 @@ static double pointToSegmentDist( const Coord3& point,
     if ( knotrg1.isUdf() || knotrg2.isUdf() ) \
 	return errres; \
 \
-    Coord3 a0 = getKnot( RowCol(sticknr1,knotrg1.start) ); \
-    Coord3 a1 = getKnot( RowCol(sticknr1,knotrg1.stop) ); \
-    Coord3 b0 = getKnot( RowCol(sticknr2,knotrg2.start) ); \
-    Coord3 b1 = getKnot( RowCol(sticknr2,knotrg2.stop) ); \
+    Coord3 a0 = getKnot( RowCol(sticknr1,knotrg1.start_) ); \
+    Coord3 a1 = getKnot( RowCol(sticknr1,knotrg1.stop_) ); \
+    Coord3 b0 = getKnot( RowCol(sticknr2,knotrg2.start_) ); \
+    Coord3 b1 = getKnot( RowCol(sticknr2,knotrg2.stop_) ); \
 \
     if ( zscale==MAXDOUBLE ) \
     { \
@@ -451,12 +451,12 @@ double FaultStickSet::interStickDist( int sticknr1, int sticknr2,
 				      double zscale ) const
 {
     mGetEndPoints( sticknr1, sticknr2, zscale, a0, a1, b0, b1, mUdf(double) );
-    if ( knotrg1.start==knotrg1.stop )
+    if ( knotrg1.start_==knotrg1.stop_ )
     {
 	Line3 stick( b0, b1-b0 );
 	return stick.distanceToPoint( a0 );
     }
-    else if ( knotrg2.start==knotrg2.stop )
+    else if ( knotrg2.start_==knotrg2.stop_ )
     {
 	Line3 stick( a0, a1-a0 );
 	return stick.distanceToPoint( b0 );
@@ -491,7 +491,7 @@ void FaultStickSet::geometricStickOrder( TypeSet<int>& sticknrs,
     if ( orderall )
     {
 	sticknrs.erase();
-	for (int sticknr=rowrg.start; sticknr<=rowrg.stop; sticknr+=rowrg.step)
+        for (int sticknr=rowrg.start_; sticknr<=rowrg.stop_; sticknr+=rowrg.step_)
 	    sticknrs += sticknr;
     }
     else

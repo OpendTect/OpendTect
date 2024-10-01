@@ -63,7 +63,7 @@ bool BendPointFinderBase::doWork( od_int64, od_int64, int )
 	    nrworking_ ++;
 	    lock_.unLock();
 
-	    findInSegment( segment.start, segment.stop );
+	    findInSegment( segment.start_, segment.stop_ );
 
 	    lock_.lock();
 	    nrworking_--;

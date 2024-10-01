@@ -252,14 +252,14 @@ bool SeisTrc2DTranslator::initRead_()
 
     StepInterval<int> trcrg; StepInterval<float> zrg;
     dset.getRanges( geomid_, trcrg, zrg );
-    insd_.start = zrg.start; insd_.step = zrg.step;
-    innrsamples_ = (int)((zrg.stop-zrg.start) / zrg.step + 1.5);
-    pinfo_.inlrg.start = geomid_.asInt();
-    pinfo_.inlrg.stop = pinfo_.inlrg.start;
-    pinfo_.inlrg.step = 1;
-    pinfo_.crlrg.start = trcrg.start;
-    pinfo_.crlrg.stop = trcrg.stop;
-    pinfo_.crlrg.step = trcrg.step;
+    insd_.start_ = zrg.start_; insd_.step_ = zrg.step_;
+    innrsamples_ = (int)((zrg.stop_-zrg.start_) / zrg.step_ + 1.5);
+    pinfo_.inlrg.start_ = geomid_.asInt();
+    pinfo_.inlrg.stop_ = pinfo_.inlrg.start_;
+    pinfo_.inlrg.step_ = 1;
+    pinfo_.crlrg.start_ = trcrg.start_;
+    pinfo_.crlrg.stop_ = trcrg.stop_;
+    pinfo_.crlrg.step_ = trcrg.step_;
     return true;
 }
 
@@ -292,9 +292,9 @@ bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 	{
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
 	    hasgeometry = dataset_->getRanges( geomid, trcrg, zrg );
-	    linecd.generate( BinID(geomid.asInt(),trcrg.start),
-			     BinID(geomid.asInt(),trcrg.stop),
-			     BinID(1,trcrg.step) );
+	    linecd.generate( BinID(geomid.asInt(),trcrg.start_),
+			     BinID(geomid.asInt(),trcrg.stop_),
+			     BinID(1,trcrg.step_) );
 	}
 	delete linefetcher;
 	if ( !hasgeometry ) continue;

@@ -551,8 +551,8 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( !tr_->readInfo(ti) || ti.binID() != curBinID() )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
-    ti.sampling.start = outsd_.start;
-    ti.sampling.step = outsd_.step;
+    ti.sampling.start_ = outsd_.start_;
+    ti.sampling.step_ = outsd_.step_;
     if ( tr_->curtrcscalebase_ )
 	curtrcscalebase_ = tr_->curtrcscalebase_;
 
@@ -635,7 +635,7 @@ bool SEGYDirectSeisTrcTranslator::toNextTrace()
 
     while ( true )
     {
-	if ( seg.atIndex(itrc_) > seg.stop )
+	if ( seg.atIndex(itrc_) > seg.stop_ )
 	{
 	    iseg_++; itrc_ = 0;
 	    if ( iseg_ >= ld->segments_.size() )

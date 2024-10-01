@@ -181,8 +181,8 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	    explicitpanel->display( false, true );
 	    explicitpanel->setTexturePowerOfTwo( true );
 	    explicitpanel->setTextureSampling(
-		    BinIDValue( BinID(s3dgeom_->inlRange().step,
-				      s3dgeom_->crlRange().step),
+			BinIDValue( BinID(s3dgeom_->inlRange().step_,
+					  s3dgeom_->crlRange().step_),
 				      s3dgeom_->zStep() ) );
 	    explicitpanels_ += explicitpanel;
 
@@ -1065,10 +1065,10 @@ void FaultSetDisplay::otherObjectsMoved(
 	    b10 = b11;
 	}
 
-	const Coord3 c00( s3dgeom_->transform(b00),cs.zsamp_.start );
-	const Coord3 c01( s3dgeom_->transform(b01),cs.zsamp_.stop );
-	const Coord3 c11( s3dgeom_->transform(b11),cs.zsamp_.stop );
-	const Coord3 c10( s3dgeom_->transform(b10),cs.zsamp_.start );
+	const Coord3 c00( s3dgeom_->transform(b00),cs.zsamp_.start_ );
+	const Coord3 c01( s3dgeom_->transform(b01),cs.zsamp_.stop_ );
+	const Coord3 c11( s3dgeom_->transform(b11),cs.zsamp_.stop_ );
+	const Coord3 c10( s3dgeom_->transform(b10),cs.zsamp_.start_ );
 
 	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
 

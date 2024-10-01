@@ -345,7 +345,7 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( const VisID& visid, int attrib )
     const ColTab::MapperSetup* mapper =
 		am_.visserv_->getColTabMapperSetup( visid, attrib );
 
-    if ( mIsUdf(mapper->range_.start) || mIsUdf(mapper->range_.stop) )
+    if ( mIsUdf(mapper->range_.start_) || mIsUdf(mapper->range_.stop_) )
 	return;
 
     FilePath fp( ioobj->fullUserExpr(true) );

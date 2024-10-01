@@ -410,13 +410,13 @@ inline bool OD::JSON::Object::get( const char* key, Interval<T>& intrvl ) const
 	return false;
     const TypeSet<NumberType> intrvals = arr->valArr().vals();
 
-    intrvl.start = intrvals[0];
-    intrvl.stop = intrvals[1];
+    intrvl.start_ = intrvals[0];
+    intrvl.stop_ = intrvals[1];
 
     if ( intrvl.hasStep() )
     {
 	mDynamicCastGet(StepInterval<T>*,si,&intrvl)
-	    si->step = intrvals[2];
+	    si->step_ = intrvals[2];
     }
     return true;
 }
@@ -427,12 +427,12 @@ inline void OD::JSON::Object::set( const char* key, const Interval<T>& intrvl )
 {
     auto* arr = new Array(DataType::Number);
     TypeSet<NumberType> intrvals;
-    intrvals.add( intrvl.start ).add( intrvl.stop );
+    intrvals.add( intrvl.start_ ).add( intrvl.stop_ );
 
     if ( intrvl.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<T>*,si,&intrvl)
-	    intrvals.add( si->step );
+	    intrvals.add( si->step_ );
     }
 
     arr->set( intrvals );

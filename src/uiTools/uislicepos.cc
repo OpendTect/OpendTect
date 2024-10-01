@@ -157,7 +157,7 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
 		curcs_.hsamp_.stop_.crl() = posbox->getIntValue();
     }
     else
-	curcs_.zsamp_.start = curcs_.zsamp_.stop
+        curcs_.zsamp_.start_ = curcs_.zsamp_.stop_
 			    = posbox->getFValue()/zfactor_;
 
     if ( oldcs == curcs_ )
@@ -207,11 +207,11 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
     else
     {
 	const int zfac = zfactor_;
-	const int nrdec = Math::NrSignificantDecimals( curcs.zsamp_.step*zfac );
-	posbox->setInterval( curcs.zsamp_.start*zfac, curcs.zsamp_.stop*zfac);
-	stepbox->setInterval( survcs.zsamp_.step*zfac,
-		(curcs.zsamp_.stop-curcs.zsamp_.start)*zfac,
-		curcs.zsamp_.step*zfac );
+        const int nrdec = Math::NrSignificantDecimals( curcs.zsamp_.step_*zfac );
+        posbox->setInterval( curcs.zsamp_.start_*zfac, curcs.zsamp_.stop_*zfac);
+        stepbox->setInterval( survcs.zsamp_.step_*zfac,
+                              (curcs.zsamp_.stop_-curcs.zsamp_.start_)*zfac,
+                              curcs.zsamp_.step_*zfac );
 	posbox->setNrDecimals( nrdec );
 	stepbox->setNrDecimals( nrdec );
     }
@@ -229,7 +229,7 @@ void uiSlicePos::setPosBoxVal( uiSlicePos::SliceDir orientation,
     else if ( orientation == OD::SliceType::Crossline )
 	posbox->setValue( cs.hsamp_.start_.crl() );
     else
-	posbox->setValue( cs.zsamp_.start*zfactor_ );
+        posbox->setValue( cs.zsamp_.start_*zfactor_ );
 }
 
 

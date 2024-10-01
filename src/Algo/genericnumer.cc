@@ -112,9 +112,9 @@ float findValueInAperture( const FloatMathFunction& func, float startx,
 			   const Interval<float>& aperture, float dx,
 			   float target, float tol )
 {
-    float aperturecenter = (aperture.start + aperture.stop) / 2;
-    const float halfaperture = aperture.stop - aperturecenter;
-    startx += (aperture.start + aperture.stop) / 2;
+    float aperturecenter = (aperture.start_ + aperture.stop_) / 2;
+    const float halfaperture = aperture.stop_ - aperturecenter;
+    startx += (aperture.start_ + aperture.stop_) / 2;
 
     bool centerispositive = target - func.getValue( startx ) > 0;
   
@@ -161,10 +161,10 @@ float similarity( const FloatMathFunction& a, const FloatMathFunction& b,
     MathFunctionSampler<float,float> sampa(a);
     MathFunctionSampler<float,float> sampb(b);
 
-    sampa.sd.start = a1;
-    sampa.sd.step = dist;
-    sampb.sd.start = b1;
-    sampb.sd.step = dist;
+    sampa.sd.start_ = a1;
+    sampa.sd.step_ = dist;
+    sampb.sd.start_ = b1;
+    sampb.sd.step_ = dist;
 
     return similarity( sampa, sampb, sz, normalize, 0, 0 );
 }
@@ -176,7 +176,7 @@ float semblance( const ObjectSet<float>& signals, const Interval<int>& samplegat
 
     float numerator = 0;
     float denominator = 0;
-    for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
+    for ( int zidx=samplegate.start_; zidx<=samplegate.stop_ ; zidx++ )
     {
 	float sum = 0;
 	for ( int signalidx=nrsignals-1; signalidx>=0; signalidx-- )
@@ -213,7 +213,7 @@ float semblance( const ObjectSet<float>& signals, int signalsize,
     {
 	const float* signal = signals[signalidx];
 	semblanceinput += cache+offset;
-	for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
+        for ( int zidx=samplegate.start_; zidx<=samplegate.stop_ ; zidx++ )
 	{
 	    const float zpos = signalstarts[signalidx]+zidx;
 

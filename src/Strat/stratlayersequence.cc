@@ -160,8 +160,8 @@ Interval<float> Strat::LayerSequence::propRange( int propnr ) const
 	if ( mIsUdf(layval) )
 	    continue;
 
-	if ( mIsUdf(rg.start) )
-	    rg.start = rg.stop = layval;
+	if ( mIsUdf(rg.start_) )
+	    rg.start_ = rg.stop_ = layval;
 	else
 	    rg.include( layval );
     }
@@ -283,28 +283,28 @@ void Strat::LayerSequence::getSequencePart( const Interval<float>& depthrg,
     for ( int ilay=0; ilay<layers_.size(); ilay++ )
     {
 	const Layer& lay = *layers_[ilay];
-	if ( lay.zBot() < depthrg.start + 1e-6f )
+	if ( lay.zBot() < depthrg.start_ + 1e-6f )
 	    continue;
-	else if ( lay.zTop() > depthrg.stop - 1e-6f )
+	else if ( lay.zTop() > depthrg.stop_ - 1e-6f )
 	    break;
 
 	auto* newlay = new Layer( lay );
-	if ( lay.zTop() < depthrg.start )
-	    newlay->setThickness( lay.zBot() - depthrg.start );
-	else if ( lay.zBot() > depthrg.stop )
-	    newlay->setThickness( depthrg.stop - lay.zTop() );
+	if ( lay.zTop() < depthrg.start_ )
+	    newlay->setThickness( lay.zBot() - depthrg.start_ );
+	else if ( lay.zBot() > depthrg.stop_ )
+	    newlay->setThickness( depthrg.stop_ - lay.zTop() );
 
 	out.layers() += newlay;
     }
 
-    out.setStartDepth( depthrg.start );
+    out.setStartDepth( depthrg.start_ );
 }
 
 
 void Strat::LayerSequence::adjustLayers( float startz )
 {
     if ( startDepth() > startz-1e-2f ||
-	 zRange().stop < startz-1e-2f )
+	 zRange().stop_ < startz-1e-2f )
 	return;
 
     ObjectSet<Layer>& lays = layers();

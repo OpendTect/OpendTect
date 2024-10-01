@@ -49,9 +49,9 @@ uiFlatDPPosSel::uiFlatDPPosSel( uiParent* p, const DataPack::FullID& dpfid )
     possldr_ = new uiSlider( this, uiSlider::Setup(), "posslider" );
     possldr_->valueChanged.notify( mCB(this,uiFlatDPPosSel,sldrPosChangedCB) );
     StepInterval<double> posdatarg = fdp_->posData().range( true );
-    StepInterval<float> floatrg( mCast(float,posdatarg.start),
-				 mCast(float,posdatarg.stop),
-				 mCast(float,posdatarg.step) );
+    StepInterval<float> floatrg( mCast(float,posdatarg.start_),
+				 mCast(float,posdatarg.stop_),
+				 mCast(float,posdatarg.step_) );
     possldr_->setInterval( floatrg );
     possldr_->attach( rightOf, altdimnmflds_ );
     posvalfld_ = new uiGenInput( this, uiString::emptyString(),
@@ -111,9 +111,9 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	}
 
 	StepInterval<double> x2rg = fdp->posData().range( false );
-	StepInterval<float> fzrg( mCast(float,x2rg.start),
-				  mCast(float,x2rg.stop),
-				  mCast(float,x2rg.step) );
+	StepInterval<float> fzrg( mCast(float,x2rg.start_),
+				  mCast(float,x2rg.stop_),
+				  mCast(float,x2rg.step_) );
 	zrg_ = fzrg;
     }
     else if ( dpmid == DataPackMgr::SeisID() )

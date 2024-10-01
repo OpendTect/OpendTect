@@ -143,7 +143,7 @@ void uiPreviewGroup::updateViewer()
     StepInterval<float> zintv;
     zintv.setFrom( zintv_ );
     zintv.scale( 1.f/float(SI().zDomain().userFactor()) );
-    zintv.step = SI().zStep();
+    zintv.step_ = SI().zStep();
 
     auto dp = MPE::engine().getSeedPosDataPackRM( tk, z, nrtrcs_, zintv );
     fdp_ = dp;
@@ -180,10 +180,10 @@ void uiPreviewGroup::updateWindowLines()
     zintv.scale( 1.f/float(SI().zDomain().userFactor()) );
 
     const int so = nrtrcs_/2+1;
-    minline_->poly_[0] = FlatView::Point( tk.trcNr()-so, z+zintv.start );
-    minline_->poly_[1] = FlatView::Point( tk.trcNr()+so, z+zintv.start );
-    maxline_->poly_[0] = FlatView::Point( tk.trcNr()-so, z+zintv.stop );
-    maxline_->poly_[1] = FlatView::Point( tk.trcNr()+so, z+zintv.stop );
+    minline_->poly_[0] = FlatView::Point( tk.trcNr()-so, z+zintv.start_ );
+    minline_->poly_[1] = FlatView::Point( tk.trcNr()+so, z+zintv.start_ );
+    maxline_->poly_[0] = FlatView::Point( tk.trcNr()-so, z+zintv.stop_ );
+    maxline_->poly_[1] = FlatView::Point( tk.trcNr()+so, z+zintv.stop_ );
 
     vwr_->handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
@@ -226,9 +226,9 @@ bool uiPreviewGroup::calcNewWindow()
     uiWorldPoint wpt = vwr_->getWorld2Ui().transform( pt );
     const double diff = (wpt.y - seedpos_.val_) * SI().zDomain().userFactor();
     if ( wpt.y < seedpos_.val_ )
-	manipwinintv_.start = float( diff );
+	manipwinintv_.start_ = float( diff );
     else
-	manipwinintv_.stop = float( diff );
+	manipwinintv_.stop_ = float( diff );
 
     return true;
 }

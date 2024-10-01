@@ -163,8 +163,8 @@ bool uiPreStackAttrib::setAngleParameters( const Attrib::Desc& desc )
 		   params_.velvolmid_=mid )
 
     Interval<int> anglerange, normalanglevalrange( 0, 90 );
-    mIfGetInt( Attrib::PSAttrib::angleStartStr(), start, anglerange.start=start)
-    mIfGetInt( Attrib::PSAttrib::angleStopStr(), stop, anglerange.stop=stop )
+    mIfGetInt( Attrib::PSAttrib::angleStartStr(), start, anglerange.start_=start)
+            mIfGetInt( Attrib::PSAttrib::angleStopStr(), stop, anglerange.stop_=stop )
     if ( normalanglevalrange.includes(anglerange,false) )
 	params_.anglerange_ = anglerange;
 
@@ -257,7 +257,7 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
 	if ( isoffset )
 	    xrg =  aps->setup().offsrg_;
 	else
-	    xrg.set( aps->setup().anglerg_.start, aps->setup().anglerg_.stop );
+            xrg.set( aps->setup().anglerg_.start_, aps->setup().anglerg_.stop_ );
 	xrgfld_->setValue( xrg );
     }
 
@@ -274,9 +274,9 @@ bool uiPreStackAttrib::getAngleParameters( Desc& desc )
 
     mSetMultiID( Attrib::PSAttrib::velocityIDStr(), params_.velvolmid_ );
     Interval<int>& anglerg = params_.anglerange_;
-    if ( mIsUdf(anglerg.start) ) anglerg.start = 0;
-    mSetInt(Attrib::PSAttrib::angleStartStr(),anglerg.start)
-    mSetInt(Attrib::PSAttrib::angleStopStr(),anglerg.stop)
+    if ( mIsUdf(anglerg.start_) ) anglerg.start_ = 0;
+    mSetInt(Attrib::PSAttrib::angleStartStr(),anglerg.start_)
+            mSetInt(Attrib::PSAttrib::angleStopStr(),anglerg.stop_)
 
     BufferString rayparstr;
     params_.raypar_.putParsTo( rayparstr );
@@ -323,7 +323,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	return false;
     StepInterval<float> xrg = xrgfld_->getFStepInterval();
     const bool isoffset = gathertypefld_->getIntValue() == 0;
-    if ( xrg.start > xrg.stop )
+    if ( xrg.start_ > xrg.stop_ )
     {
 	errmsg_ = tr("Start value of the %1 range field is greater than stop "
 		     "value.")
@@ -370,11 +370,11 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     {
 	mSetEnum(Attrib::PSAttrib::xaxisunitStr(),xunitfld_->getIntValue());
 	Interval<float> offsrg = xrgfld_->getFInterval();
-	if ( mIsUdf(offsrg.start) )
-	    offsrg.start = 0;
+        if ( mIsUdf(offsrg.start_) )
+            offsrg.start_ = 0;
 
-	mSetFloat(Attrib::PSAttrib::offStartStr(),offsrg.start)
-	mSetFloat(Attrib::PSAttrib::offStopStr(),offsrg.stop)
+        mSetFloat(Attrib::PSAttrib::offStartStr(),offsrg.start_)
+                mSetFloat(Attrib::PSAttrib::offStopStr(),offsrg.stop_)
     }
 
     return true;

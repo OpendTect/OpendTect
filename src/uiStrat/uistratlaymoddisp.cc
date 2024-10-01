@@ -1081,7 +1081,7 @@ void uiStratLayerModelDisp::getFlattenedZRange( Interval<float>& zrg ) const
 	    continue;
 
 	seqzrg.shift( -lvldpth );
-	if ( mIsUdf(zrg.start) )
+        if ( mIsUdf(zrg.start_) )
 	    zrg = seqzrg;
 	else
 	    zrg.include( seqzrg, false );
@@ -1106,15 +1106,15 @@ Interval<float> uiStratLayerModelDisp::getModelRange( int propidx ) const
 	    const Interval<float> vrg = propidx < 0
 				      ? seq.zRange()
 				      : seq.propRange( propidx );
-	    if ( mIsUdf(rg.start) )
+            if ( mIsUdf(rg.start_) )
 		rg = vrg;
 	    else
 		rg.include( vrg, false );
 	}
     }
 
-    if ( wantzrg && mIsUdf(rg.start) )
-	rg.start = rg.stop = 0.f;
+    if ( wantzrg && mIsUdf(rg.start_) )
+        rg.start_ = rg.stop_ = 0.f;
 
     return rg;
 }
@@ -1140,8 +1140,8 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 
     StepInterval<double> yrg = fvdp_->posData().range( false );
     selseqad_->poly_.erase();
-    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.start);
-    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.stop );
+    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.start_);
+    selseqad_->poly_ += FlatView::Point( mCast(double,selseqidx_+1), yrg.stop_ );
 }
 
 
@@ -1244,8 +1244,8 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
     const bool isallcontents = cntnm == sKey::All();
     Interval<float> vrg( curproprg_ );
     if ( mIsZero(vrg.width(),
-	      Math::Abs(vrg.start)>1e-6f ? Math::Abs(vrg.start)*1e-6f : 1e-9f) )
-	{ vrg.start -= 1.f; vrg.stop += 1.f; }
+                 Math::Abs(vrg.start_)>1e-6f ? Math::Abs(vrg.start_)*1e-6f : 1e-9f) )
+    { vrg.start_ -= 1.f; vrg.stop_ += 1.f; }
 
     const float vwdth = vrg.width();
     const int sellvlidx = selLevelIdx();
@@ -1322,7 +1322,7 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	    }
 
 	    const double x0 = iseq + 1;
-	    double relx = (double)(val-vrg.start)/vwdth;
+            double relx = (double)(val-vrg.start_)/vwdth;
 	    relx *= dispeach;
 	    const double x1 = iseq + 1 + relx;
 	    float z0 = lay.zTop() - zshift;
@@ -1364,7 +1364,7 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
     const Strat::LayerModel& lm = layerModel();
     const int nrseqs = lm.size();
 
-    const StepInterval<double> zrg( zrg_.start, zrg_.stop, zrg_.width() * 0.2 );
+    const StepInterval<double> zrg( zrg_.start_, zrg_.stop_, zrg_.width() * 0.2 );
     fvdp_->posData().setRange( true,
 			StepInterval<double>( 1, nrseqs<2 ? 1 : nrseqs, 1 ) );
     fvdp_->posData().setRange( false, zrg );

@@ -69,11 +69,11 @@ bool uiGISExportSurvey::acceptOK( CallBacker* )
     const auto inlrg = si_->inlRange();
     const auto crlrg = si_->crlRange();
     TypeSet<Coord3> coords;
-    coords += Coord3( si_->transform(BinID(inlrg.start,crlrg.start)), 4 );
-    coords += Coord3( si_->transform(BinID(inlrg.start,crlrg.stop)), 4 );
-    coords += Coord3( si_->transform(BinID(inlrg.stop,crlrg.stop)), 4 );
-    coords += Coord3( si_->transform(BinID(inlrg.stop,crlrg.start)), 4 );
-    coords += Coord3( si_->transform(BinID(inlrg.start,crlrg.start)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.start_,crlrg.start_)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.start_,crlrg.stop_)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.stop_,crlrg.stop_)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.stop_,crlrg.start_)), 4 );
+    coords += Coord3( si_->transform(BinID(inlrg.start_,crlrg.start_)), 4 );
 
     PtrMan<GISWriter> wrr = expfld_->createWriter();
     if ( !wrr )

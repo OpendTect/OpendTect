@@ -223,8 +223,8 @@ void odFault3D::getInfo( OD::JSON::Object& jsobj ) const
 	    jsobj.set( "z_range", "[]" );
 	else
 	{
-	    zrg.start *= SI().showZ2UserFactor();
-	    zrg.stop *= SI().showZ2UserFactor();
+	    zrg.start_ *= SI().showZ2UserFactor();
+	    zrg.stop_ *= SI().showZ2UserFactor();
 	    jsobj.set( "z_range", zrg );
 	}
     }
@@ -276,8 +276,8 @@ void odFaultStickSet::getInfo( OD::JSON::Object& jsobj ) const
 	    jsobj.set( "z_range", "[]" );
 	else
 	{
-	    zrg.start *= SI().showZ2UserFactor();
-	    zrg.stop *= SI().showZ2UserFactor();
+	    zrg.start_ *= SI().showZ2UserFactor();
+	    zrg.stop_ *= SI().showZ2UserFactor();
 	    jsobj.set( "z_range", zrg );
 	}
     }

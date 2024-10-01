@@ -157,10 +157,10 @@ void DataDistributionExtracter<vT>::includeInRange( RangeType& rg, vT val )
 {
     if ( mIsUdf(val) )
 	return;
-    if ( mIsUdf(rg.start) || val < rg.start )
-	rg.start = val;
-    if ( mIsUdf(rg.stop) || val > rg.stop )
-	rg.stop = val;
+    if ( mIsUdf(rg.start_) || val < rg.start_ )
+	rg.start_ = val;
+    if ( mIsUdf(rg.stop_) || val > rg.stop_ )
+	rg.stop_ = val;
 }
 
 
@@ -205,8 +205,8 @@ template <class vT> inline SamplingData<vT>
 DataDistributionExtracter<vT>::getSamplingFor( RangeType rg, int nrbins )
 {
     SamplingData<vT> sd;
-    sd.step = (rg.stop - rg.start) / nrbins;
-    sd.start = rg.start + sd.step * vT(0.5);
+    sd.step_ = (rg.stop_ - rg.start_) / nrbins;
+    sd.start_ = rg.start_ + sd.step_ * vT(0.5);
     return sd;
 }
 
@@ -222,13 +222,13 @@ bool DataDistributionExtracter<vT>::doPrepare( int )
     if ( mIsUdf(nrbins_) )
 	nrbins_ = getDefNrBins();
 
-    if ( mIsUdf(bounds_.start) || mIsUdf(bounds_.stop) )
+    if ( mIsUdf(bounds_.start_) || mIsUdf(bounds_.stop_) )
 	determineBounds();
 
-    if ( bounds_.start == bounds_.stop )
-	bounds_.stop = bounds_.start + (vT)1;
-    else if ( bounds_.start > bounds_.stop )
-	std::swap( bounds_.start, bounds_.stop );
+    if ( bounds_.start_ == bounds_.stop_ )
+	bounds_.stop_ = bounds_.start_ + (vT)1;
+    else if ( bounds_.start_ > bounds_.stop_ )
+	std::swap( bounds_.start_, bounds_.stop_ );
 
     SamplingData<vT> sd = getSamplingFor( bounds_, nrbins_ );
     distrib_ = new DistribType( sd, nrbins_ );
@@ -242,13 +242,13 @@ void DataDistributionExtracter<vT>::determineBounds()
 {
     RangeType rg = getDataRange();
 
-    if ( mIsUdf(bounds_.start) )
-	bounds_.start = rg.start;
-    if ( mIsUdf(bounds_.stop) )
-	bounds_.stop = rg.stop;
+    if ( mIsUdf(bounds_.start_) )
+	bounds_.start_ = rg.start_;
+    if ( mIsUdf(bounds_.stop_) )
+	bounds_.stop_ = rg.stop_;
 
-    if ( mIsUdf(bounds_.start) || mIsUdf(bounds_.stop) )
-	{ bounds_.start = vT(0); bounds_.stop = vT(1); }
+    if ( mIsUdf(bounds_.start_) || mIsUdf(bounds_.stop_) )
+    { bounds_.start_ = vT(0); bounds_.stop_ = vT(1); }
 }
 
 

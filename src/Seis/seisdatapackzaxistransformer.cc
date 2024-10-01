@@ -104,7 +104,7 @@ bool SeisDataPackZAxisTransformer::doWork(
     const int nrtrcs = voldp->nrTrcs() / voldp->data(0).info().getSize(0);
 
     ZAxisTransformSampler outputsampler( transform_, true,
-	    SamplingData<double>(zrange_.start, zrange_.step), false );
+                                         SamplingData<double>(zrange_.start_, zrange_.step_), false );
 
     for ( int idx=0; idx<outputdp_->nrComponents(); idx++ )
     {
@@ -122,7 +122,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 	    {
 		const float* trcptr = voldp->getTrcData( idx, posidx );
 		SampledFunctionImpl<float,const float*> inputfunc(
-				trcptr, nrinpsamp, inpzrg.start, inpzrg.step );
+                            trcptr, nrinpsamp, inpzrg.start_, inpzrg.step_ );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( interpolate_ );
 
@@ -134,7 +134,7 @@ bool SeisDataPackZAxisTransformer::doWork(
 		const OffsetValueSeries<float> trcstor(
 				voldp->getTrcStorage(idx,posidx) );
 		SampledFunctionImpl<float,const ValueSeries<float> > inputfunc(
-				trcstor, nrinpsamp, inpzrg.start, inpzrg.step );
+                            trcstor, nrinpsamp, inpzrg.start_, inpzrg.step_ );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( interpolate_ );
 
@@ -155,8 +155,8 @@ bool SeisDataPackZAxisTransformer::doWork(
 		    continue;
 
 		SampledFunctionImpl<float,const ValueSeries<float> > inputfunc(
-				arr1dslice, nrinpsamp, inpzrg.start,
-				inpzrg.step );
+                            arr1dslice, nrinpsamp, inpzrg.start_,
+                            inpzrg.step_ );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( interpolate_ );
 

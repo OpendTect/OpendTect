@@ -177,10 +177,10 @@ bool uiLASSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
 	}
     }
 
-    Coord c0( xrg.start, yrg.start );
-    Coord c1( xrg.stop, yrg.stop );
+    Coord c0( xrg.start_, yrg.start_ );
+    Coord c1( xrg.stop_, yrg.stop_ );
     const Interval<float> zrg = lasdlg->zrg_;
-    tkzs.zsamp_.set( zrg.start, zrg.stop, zstep );
+    tkzs.zsamp_.set( zrg.start_, zrg.stop_, zstep );
     return uiSurvInfoProvider::getRanges(tkzs,crd,c0,c1,grdsp);
 }
 

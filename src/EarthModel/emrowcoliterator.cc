@@ -74,10 +74,10 @@ PosID RowColIterator::next()
 	}
 	else
 	{
-	    rc_.col() += colrg_.step;
+	    rc_.col() += colrg_.step_;
 	    if ( !colrg_.includes(rc_.col(),true) )
 	    {
-		rc_.row() += rowrg_.step;
+		rc_.row() += rowrg_.step_;
 		if ( !rowrg_.includes(rc_.row(),true) )
 		{
 		    cursection_ = 0;
@@ -87,7 +87,7 @@ PosID RowColIterator::next()
 		colrg_ = cursection_->colRange( rc_.row() );
 		if ( rowcolbounded_ )
 		    colrg_.limitTo( colbound_ );
-		rc_.col() = colrg_.start;
+		rc_.col() = colrg_.start_;
 	    }
 	}
 	if ( !cursection_->isKnotDefined( rc_ ) )
@@ -147,7 +147,7 @@ int RowColIterator::maximumSize() const
 	rowrg.limitTo( rowbound_ );
 
     int res = 0;
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    for ( int row=rowrg.start_; row<=rowrg.stop_; row+=rowrg.step_ )
     {
 	StepInterval<int> colrg = rcs->colRange( row );
 	if ( rowcolbounded_ )
@@ -169,10 +169,10 @@ bool RowColIterator::initSection()
     cursection_ = rcs;
 
     rowrg_ = rcs->rowRange();
-    if ( rowrg_.stop < rowrg_.start )
+    if ( rowrg_.stop_ < rowrg_.start_ )
 	return false;
-    colrg_ = rcs->colRange( rowrg_.start );
-    if ( colrg_.stop < colrg_.start )
+    colrg_ = rcs->colRange( rowrg_.start_ );
+    if ( colrg_.stop_ < colrg_.start_ )
 	return false;
 
     if ( rowcolbounded_ )
@@ -181,8 +181,8 @@ bool RowColIterator::initSection()
 	colrg_.limitTo( colbound_ );
     }
 
-    rc_.row() = rowrg_.start;
-    rc_.col() = colrg_.start;
+    rc_.row() = rowrg_.start_;
+    rc_.col() = colrg_.start_;
     return true;
 }
 

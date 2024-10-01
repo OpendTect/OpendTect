@@ -69,10 +69,10 @@ bool Mnemonic::DispDefs::setUnit( const char* newunitlbl )
 	return false;
 
     unitlbl_.set( newunitlbl );
-    convValue( range_.start, olduom, newuom );
-    convValue( range_.stop, olduom, newuom );
-    convValue( typicalrange_.start, olduom, newuom );
-    convValue( typicalrange_.stop, olduom, newuom );
+    convValue( range_.start_, olduom, newuom );
+    convValue( range_.stop_, olduom, newuom );
+    convValue( typicalrange_.start_, olduom, newuom );
+    convValue( typicalrange_.stop_, olduom, newuom );
 
     return true;
 }
@@ -81,13 +81,13 @@ bool Mnemonic::DispDefs::setUnit( const char* newunitlbl )
 float Mnemonic::DispDefs::commonValue() const
 {
     const Interval<float>& range = defRange();
-    const bool udf0 = mIsUdf(range.start);
-    const bool udf1 = mIsUdf(range.stop);
+    const bool udf0 = mIsUdf(range.start_);
+    const bool udf1 = mIsUdf(range.stop_);
     if ( udf0 && udf1 )
 	return 0.f;
 
     if ( udf0 || udf1 )
-	return udf0 ? range.stop : range.start;
+	return udf0 ? range.stop_ : range.start_;
 
     return range.center();
 }
@@ -342,8 +342,8 @@ const UnitOfMeasure* Mnemonic::getDisplayInfo( const IOPar& mnemsetts,
     if ( fms.size() == 9 )
     {
 	parseEnum( fms[idx++], scale );
-	range.start = fms.getFValue( idx++ );
-	range.stop = fms.getFValue( idx++ );
+	range.start_ = fms.getFValue( idx++ );
+	range.stop_ = fms.getFValue( idx++ );
 	unitlbl = fms[ idx++];
 	uom = UoMR().get( unitlbl );
 	OD::LineStyle::parseEnum( fms[idx++], lstyle.type_ );
@@ -385,13 +385,13 @@ void Mnemonic::fromString( const char* str )
 	else if ( idx == 2 )
 	    disp_.scale_ = Mnemonic::ScaleDef().parse( fms[2] );
 	else if ( idx == 3 )
-	    disp_.range_.start = fms.getFValue( 3 );
+	    disp_.range_.start_ = fms.getFValue( 3 );
 	else if ( idx == 4 )
-	    disp_.range_.stop = fms.getFValue( 4 );
+	    disp_.range_.stop_ = fms.getFValue( 4 );
 	else if ( idx == 5 )
-	    disp_.typicalrange_.start = fms.getFValue( 5 );
+	    disp_.typicalrange_.start_ = fms.getFValue( 5 );
 	else if ( idx == 6 )
-	    disp_.typicalrange_.stop = fms.getFValue( 6 );
+	    disp_.typicalrange_.stop_ = fms.getFValue( 6 );
 	else if ( idx == 7 )
 	    setUnit( fms[7] );
 	else if ( idx >= 8 && idx <= 10 )
@@ -414,10 +414,10 @@ void Mnemonic::fillPar( IOPar& iop ) const
     fms += Mnemonic::ScaleDef().toString( disp_.scale_ );
     const Interval<float> vrange( disp_.range_ );
     const Interval<float> vtypicalrange( disp_.typicalrange_ );
-    fms.add( vrange.start );
-    fms.add( vrange.stop );
-    fms.add( vtypicalrange.start );
-    fms.add( vtypicalrange.stop );
+    fms.add( vrange.start_ );
+    fms.add( vrange.stop_ );
+    fms.add( vtypicalrange.start_ );
+    fms.add( vtypicalrange.stop_ );
     const char* unitlbl = disp_.getUnitLbl();
     fms += unitlbl && *unitlbl ? unitlbl : "";
     fms += disp_.color_.r();

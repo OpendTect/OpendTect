@@ -528,7 +528,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    if ( eventidx==-1 )
 		continue;
 
-	    eventrg.start = eventrg.stop = eventidx;
+	    eventrg.start_ = eventrg.stop_ = eventidx;
 	}
 
 	pao->eventsets_ += eventset;
@@ -543,7 +543,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	    }
 	}
 
-	for ( int idx=eventrg.start; idx<=eventrg.stop; idx++ )
+	for ( int idx=eventrg.start_; idx<=eventrg.stop_; idx++ )
 	{
 	    const PreStack::Event* event = eventset->events_[idx];
 	    if ( !event->sz_ )
@@ -565,8 +565,8 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 		value = getMoveoutComp( offsets, picks );
 
 	    Interval<int> pickrg( 0, fullevent ? event->sz_-1 : 0 );
-	    const bool doline = pickrg.start!=pickrg.stop;
-	    for ( int idy=pickrg.start; idy<=pickrg.stop; idy++ )
+	    const bool doline = pickrg.start_!=pickrg.stop_;
+	    for ( int idy=pickrg.start_; idy<=pickrg.stop_; idy++ )
 	    {
 		Coord3 pos( bid.inl(), bid.crl(),  picks[idy] );
 		if ( fullevent )

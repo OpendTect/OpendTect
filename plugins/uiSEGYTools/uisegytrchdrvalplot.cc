@@ -71,15 +71,15 @@ void uiSEGYTrcHdrValPlot::setData( const SEGY::HdrEntry& he,
     Stats::RunCalc<float> rc( rcsu );
     rc.addValues( sz, data );
     const Interval<int> rg( mNINT32(rc.min()), mNINT32(rc.max()) );
-    const bool alleq = rg.start == rg.stop;
+    const bool alleq = rg.start_ == rg.stop_;
 
     BufferString lbltxt( alleq ? (issingle_ ? "" : he.name())
 			       : (issingle_ ? "Range" : he.name()) );
     if ( !lbltxt.isEmpty() ) lbltxt += ": ";
     if ( alleq )
-	lbltxt.add( "All values are: " ).add( rg.start );
+        lbltxt.add( "All values are: " ).add( rg.start_ );
     else
-	lbltxt.add( "[" ).add( rg.start ).add( "," ).add( rg.stop ).add( "]" );
+        lbltxt.add( "[" ).add( rg.start_ ).add( "," ).add( rg.stop_ ).add( "]" );
     lbltxt.add( " (N=" ).add( sz ).add( ")" );
     (first ? slbl1_ : slbl2_)->setText( toUiString(lbltxt) );
 

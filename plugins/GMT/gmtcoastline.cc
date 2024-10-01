@@ -81,7 +81,7 @@ bool GMTCoastline::doExecute( od_ostream& strm, const char* fnm )
     BufferString rangestr( 80, true );
     sd.getLine( rangestr );
     sd.close(); File::remove( fp.fullPath() );
-    BufferString jmarg( "-JM" ); jmarg.add( mapdim.start ).add( "c" );
+    BufferString jmarg( "-JM" ); jmarg.add( mapdim.start_ ).add( "c" );
     BufferString darg( "-D" ); darg.add( sResKeys[res] );
 
     OS::MachineCommand coastmc( "pscoast" );
@@ -141,10 +141,10 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm, od_ostream& strm )
     od_ostream procstrm = makeOStream( mapmc, strm, tmpfilenm, false );
     if ( !procstrm.isOK() ) return false;
 
-    procstrm << xrg.start << " " << yrg.start << "\n";
-    procstrm << xrg.stop  << " " << yrg.start << "\n";
-    procstrm << xrg.start << " " << yrg.stop  << "\n";
-    procstrm << xrg.stop  << " " << yrg.stop  << "\n";
+    procstrm << xrg.start_ << " " << yrg.start_ << "\n";
+    procstrm << xrg.stop_  << " " << yrg.start_ << "\n";
+    procstrm << xrg.start_ << " " << yrg.stop_	<< "\n";
+    procstrm << xrg.stop_  << " " << yrg.stop_	<< "\n";
 
     procstrm.close();
 

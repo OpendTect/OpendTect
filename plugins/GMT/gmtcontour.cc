@@ -296,7 +296,7 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
     const int nrsteps = rg.nrSteps();
     for ( int idx=0; idx<=nrsteps; idx++ )
     {
-	const float val = rg.start + rg.step * idx;
+	const float val = rg.start_ + rg.step_ * idx;
 	const float frac = (float)idx / (float)nrsteps;
 	const OD::Color col = seq.color( doflip ? 1 - frac : frac );
 	if ( idx )

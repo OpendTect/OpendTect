@@ -59,7 +59,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     slider_->attach( alignedBelow, rangeinpfld_ );
 
     // TODO: Calculate slider range from horizon's z-range
-    slider_->setScale( shiftrg_.step, shiftrg_.start );
+    slider_->setScale( shiftrg_.step_, shiftrg_.start_ );
     slider_->setInterval( shiftrg_ );
     slider_->setValue( curshift );
     slider_->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
@@ -115,9 +115,9 @@ int uiHorizonShiftDialog::nrSteps() const
 StepInterval<float> uiHorizonShiftDialog::shiftRg() const
 {
     StepInterval<float> res = shiftrg_;
-    res.start /= SI().zDomain().userFactor();
-    res.stop /= SI().zDomain().userFactor();
-    res.step /= SI().zDomain().userFactor();
+    res.start_ /= SI().zDomain().userFactor();
+    res.stop_ /= SI().zDomain().userFactor();
+    res.step_ /= SI().zDomain().userFactor();
 
     return res;
 }
@@ -153,12 +153,12 @@ void uiHorizonShiftDialog::attribChangeCB( CallBacker* )
 void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
 {
     StepInterval<float> intv = rangeinpfld_->getFStepInterval();
-    intv.stop = intv.snap( intv.stop );
+    intv.stop_ = intv.snap( intv.stop_ );
 
     if ( shiftrg_ == intv )
 	return;
 
-    if ( (intv.start == intv.stop) || (intv.nrSteps()==0) )
+    if ( (intv.start_ == intv.stop_) || (intv.nrSteps()==0) )
     {
 	rangeinpfld_->setValue( shiftrg_ );
 	return;
@@ -168,8 +168,8 @@ void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
 
     rangeinpfld_->setValue( shiftrg_ );
 
-    if ( (calcshiftrg_ != shiftrg_) && (!mIsUdf(calcshiftrg_.start) &&
-				        !mIsUdf(calcshiftrg_.stop)) )
+    if ( (calcshiftrg_ != shiftrg_) && (!mIsUdf(calcshiftrg_.start_) &&
+					!mIsUdf(calcshiftrg_.stop_)) )
     {
 	if ( uiMSG().askGoOn(tr("Do you want to recalculate the range?")) )
 	{
@@ -178,7 +178,7 @@ void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
 	}
     }
 
-    slider_->setScale( shiftrg_.step, shiftrg_.start );
+    slider_->setScale( shiftrg_.step_, shiftrg_.start_ );
     slider_->setInterval( shiftrg_ );
     rangeinpfld_->setValue( shiftrg_ );
 }

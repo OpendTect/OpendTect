@@ -121,20 +121,20 @@ RandomTrackDisplay::RandomTrackDisplay()
 		    mCast(float,SI().crlStep()) );
 
     const BinID start( mNINT32(inlrange.snappedCenter()),
-		       mNINT32(crlrange.start) );
-    const BinID stop(start.inl(), mNINT32(crlrange.stop) );
+                       mNINT32(crlrange.start_) );
+    const BinID stop(start.inl(), mNINT32(crlrange.stop_) );
 
     RefMan<Geometry::RandomLine> rl = new Geometry::RandomLine( getName() );
     setRandomLineID( rl->ID() );
     rl_->addNode( start );
     rl_->addNode( stop );
 
-    setDepthInterval( Interval<float>( survinterval.start,
-				       survinterval.stop ));
+    setDepthInterval( Interval<float>( survinterval.start_,
+                                       survinterval.stop_ ));
     dragger_->setLimits(
-	    Coord3( inlrange.start, crlrange.start, survinterval.start ),
-	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
-	    Coord3( inlrange.step, crlrange.step, survinterval.step ) );
+                Coord3( inlrange.start_, crlrange.start_, survinterval.start_ ),
+                Coord3( inlrange.stop_, crlrange.stop_, survinterval.stop_ ),
+                Coord3( inlrange.step_, crlrange.step_, survinterval.step_ ) );
 
     init();		// sets default resolution -> update texture mapping
     updatePanelStripPath();
@@ -225,10 +225,10 @@ const mVisTrans* RandomTrackDisplay::getDisplayTransformation() const
 float RandomTrackDisplay::appliedZRangeStep() const
 {
     float step = datatransform_
-	       ? datatransform_->getZInterval( false ).step
+                 ? datatransform_->getZInterval( false ).step_
 	       : SI().zStep();
     if ( scene_ )
-	step = scene_->getTrcKeyZSampling().zsamp_.step;
+        step = scene_->getTrcKeyZSampling().zsamp_.step_;
 
     return step;
 }
@@ -767,9 +767,9 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
     }
 
     const Coord origin(
-	    (zrg.start-getDepthInterval().start)/appliedZRangeStep(), idx0 );
+                (zrg.start_-getDepthInterval().start_)/appliedZRangeStep(), idx0 );
 
-    const Coord scale( zrg.step/appliedZRangeStep(),
+    const Coord scale( zrg.step_/appliedZRangeStep(),
 		       mCast(float,idx1-idx0+1) / path.size() );
 
     channels_->setOrigin( attrib, origin*(resolution_+1) );
@@ -854,8 +854,8 @@ void RandomTrackDisplay::createTransformedDataPack( int attrib,
 	    for ( int idx=0; idx<path.size(); idx++ )
 		tkzs.hsamp_.include( path[idx] );
 	    tkzs.zsamp_.setInterval( panelstrip_->getZRange() );
-	    tkzs.zsamp_.step = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step
-			     : datatransform_->getZInterval( false ).step;
+            tkzs.zsamp_.step_ = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step_
+                                       : datatransform_->getZInterval( false ).step_;
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
@@ -913,15 +913,15 @@ void RandomTrackDisplay::updatePanelStripPath()
 
 void RandomTrackDisplay::setPanelStripZRange( const Interval<float>& rg )
 {
-    const ZSampling zrg( rg.start, rg.stop, appliedZRangeStep() );
+    const ZSampling zrg( rg.start_, rg.stop_, appliedZRangeStep() );
     panelstrip_->setZRange( zrg );
     const Interval<float> mapping( 0.0, zrg.nrfSteps()*(resolution_+1) );
     panelstrip_->setZRange2TextureMapping( mapping );
 
     if ( getUpdateStageNr() )
     {
-	const float factor = (resolution_+1) / zrg.step;
-	const float diff = updatestageinfo_.oldzrgstart_ - zrg.start;
+        const float factor = (resolution_+1) / zrg.step_;
+        const float diff = updatestageinfo_.oldzrgstart_ - zrg.start_;
 	panelstrip_->setZTextureShift( diff*factor );
     }
 }
@@ -942,7 +942,7 @@ void RandomTrackDisplay::annotateNextUpdateStage( bool yn )
     else
     {
 	if ( !getUpdateStageNr() )
-	    updatestageinfo_.oldzrgstart_ = getDepthInterval().start;
+            updatestageinfo_.oldzrgstart_ = getDepthInterval().start_;
 	else
 	    panelstrip_->freezeDisplay( false );	// thaw to refreeze
 
@@ -994,10 +994,10 @@ BinID RandomTrackDisplay::proposeNewPos( int nodenr ) const
 	res.crl() /= 2;
     }
 
-    res.inl() = mMIN( SI().inlRange(true).stop, res.inl() );
-    res.inl() = mMAX( SI().inlRange(true).start, res.inl() );
-    res.crl() = mMIN( SI().crlRange(true).stop, res.crl() );
-    res.crl() = mMAX( SI().crlRange(true).start, res.crl() );
+    res.inl() = mMIN( SI().inlRange(true).stop_, res.inl() );
+    res.inl() = mMAX( SI().inlRange(true).start_, res.inl() );
+    res.crl() = mMIN( SI().crlRange(true).stop_, res.crl() );
+    res.crl() = mMAX( SI().crlRange(true).start_, res.crl() );
 
     SI().snap( res );
 
@@ -1383,10 +1383,10 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 
     float zdiff = 0;
     const Interval<float> intv = getDataTraceRange();
-    if ( xytpos.z < intv.start )
-	zdiff = (float) ( intv.start - xytpos.z );
-    else if ( xytpos.z > intv.stop )
-	zdiff = (float) ( xytpos.z - intv.stop );
+    if ( xytpos.z < intv.start_ )
+        zdiff = (float) ( intv.start_ - xytpos.z );
+    else if ( xytpos.z > intv.stop_ )
+        zdiff = (float) ( xytpos.z - intv.stop_ );
 
     return zdiff;
 }
@@ -2014,8 +2014,8 @@ void RandomTrackDisplay::snapZRange( Interval<float>& zrg )
 
     const ZSampling& scenezrg = scene_->getTrcKeyZSampling().zsamp_;
     zrg.limitTo( scenezrg );
-    zrg.start = scenezrg.snap( zrg.start );
-    zrg.stop = scenezrg.snap( zrg.stop );
+    zrg.start_ = scenezrg.snap( zrg.start_ );
+    zrg.stop_ = scenezrg.snap( zrg.stop_ );
 }
 
 

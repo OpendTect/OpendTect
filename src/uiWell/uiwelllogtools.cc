@@ -481,8 +481,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		RefMan<Well::Data> wd = Well::MGR().get( ld.wellID(),
 				Well::LoadReqs(Well::Trck,Well::D2T) );
 		const Well::Track& track = wd->track();
-		const float startdah = outplog.dahRange().start;
-		const float stopdah = outplog.dahRange().stop;
+		const float startdah = outplog.dahRange().start_;
+		const float stopdah = outplog.dahRange().stop_;
 		const float zstart = sCast( float, track.getPos( startdah ).z );
 		const float zstop = sCast( float, track.getPos( stopdah ).z );
 		const Interval<float> zrg( zstart, zstop );
@@ -558,21 +558,21 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		rg = dcs.getRange( rate );
 		for ( int idx=0; idx<sz; idx++ )
 		{
-		    if ( outp[idx] < rg.start ) outp[idx] = rg.start;
-		    if ( outp[idx] > rg.stop )  outp[idx] = rg.stop;
+		    if ( outp[idx] < rg.start_ ) outp[idx] = rg.start_;
+		    if ( outp[idx] > rg.stop_ )  outp[idx] = rg.stop_;
 		}
 	    }
 	    else if ( act == 4 )
 	    {
 		StepInterval<float> rg( inplog.dahRange() );
-		rg.step = gatefld_->getFValue();
+		rg.step_ = gatefld_->getFValue();
 		Well::Log* upscaledlog = inplog.upScaleLog( rg );
 		outplog = *upscaledlog;
 	    }
 	    else if ( act == 5 )
 	    {
 		StepInterval<float> rg( inplog.dahRange() );
-		rg.step = gatefld_->getFValue();
+		rg.step_ = gatefld_->getFValue();
 		Well::Log* sampledlog = inplog.sampleLog( rg );
 		outplog = *sampledlog;
 	    }

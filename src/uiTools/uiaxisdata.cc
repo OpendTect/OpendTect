@@ -75,8 +75,8 @@ void uiAxisData::handleAutoScale( const Stats::RunCalc<float>& rc )
     rg_ = Interval<float>( rc.min(), rc.max() );
     if ( !mIsZero(autoscalepars_.clipratio_,1e-5) )
     {
-	rg_.start = rc.clipVal( autoscalepars_.clipratio_, false );
-	rg_.stop = rc.clipVal( autoscalepars_.clipratio_, true );
+	rg_.start_ = rc.clipVal( autoscalepars_.clipratio_, false );
+	rg_.stop_ = rc.clipVal( autoscalepars_.clipratio_, true );
     }
 
     AxisLayout<float> al( rg_ );

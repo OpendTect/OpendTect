@@ -1247,9 +1247,9 @@ void uiSurvey::putToScreen()
     StepInterval<float> sizrg( si.zRange(false) );
     sizrg.scale( si.zDomain().userFactor() );
     const int nrdec = si.nrZDecimals();
-    zinfo.add( sizrg.start, nrdec ).add( " - " )
-	 .add( sizrg.stop, nrdec ).add( " [" )
-	 .add( sizrg.step, nrdec ).add( "]" );
+    zinfo.add( sizrg.start_, nrdec ).add( " - " )
+	    .add( sizrg.stop_, nrdec ).add( " [" )
+	    .add( sizrg.step_, nrdec ).add( "]" );
     zinfo.add( "; Total: ").add( sizrg.nrSteps()+1 );
 
     float srd = si.seismicReferenceDatum();

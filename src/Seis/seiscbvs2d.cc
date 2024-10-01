@@ -303,8 +303,8 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOObj& obj,
     trans->readMgr()->getPositions( coords );
     trans->readMgr()->getPositions( binids );
 
-    StepInterval<float> zrg( cbvsinf.sd_.start, 0, cbvsinf.sd_.step );
-    zrg.stop = cbvsinf.sd_.start + (cbvsinf.nrsamples_-1) * cbvsinf.sd_.step;
+    StepInterval<float> zrg( cbvsinf.sd_.start_, 0, cbvsinf.sd_.step_ );
+    zrg.stop_ = cbvsinf.sd_.start_ + (cbvsinf.nrsamples_-1) * cbvsinf.sd_.step_;
     geom.setZRange( zrg );
     const int sz = mMIN(coords.size(),binids.size());
     for ( int idx=0; idx<sz; idx++ )

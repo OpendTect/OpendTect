@@ -104,7 +104,7 @@ bool WellProvider3D::initialize( TaskRunner* )
     if ( welldata_.isEmpty() ) return false;
 
     setHS();
-    curz_ = zrg_.start-zrg_.step;
+    curz_ = zrg_.start_-zrg_.step_;
     return true;
 }
 
@@ -121,7 +121,7 @@ bool WellProvider3D::toNextWell()
 
 bool WellProvider3D::toNextPos()
 {
-    curz_ = zrg_.start;
+    curz_ = zrg_.start_;
 
     if ( !hsitr_.next(curbid_) )
 	return toNextWell();
@@ -132,8 +132,8 @@ bool WellProvider3D::toNextPos()
 
 bool WellProvider3D::toNextZ()
 {
-    curz_ += zrg_.step;
-    return curz_ > zrg_.stop + (1e-6*zrg_.step) ? toNextPos() : true;
+    curz_ += zrg_.step_;
+    return curz_ > zrg_.stop_ + (1e-6*zrg_.step_) ? toNextPos() : true;
 }
 
 
@@ -144,8 +144,8 @@ bool WellProvider3D::includes( const BinID& bid, float z ) const
 
     if ( mIsUdf(z) ) return true;
 
-    const float zeps = zrg_.step * 1e-6f;
-    return z > zrg_.start - zeps && z < zrg_.stop + zeps;
+    const float zeps = zrg_.step_ * 1e-6f;
+    return z > zrg_.start_ - zeps && z < zrg_.stop_ + zeps;
 }
 
 
@@ -211,7 +211,7 @@ void WellProvider3D::getZRange( Interval<float>& zrg ) const
     assign( zrg, zrg_ );
     mDynamicCastGet(StepInterval<float>*,szrg,&zrg)
     if ( szrg )
-	szrg->step = zrg_.step;
+	    szrg->step_ = zrg_.step_;
 }
 
 

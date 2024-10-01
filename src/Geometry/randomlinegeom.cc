@@ -377,7 +377,7 @@ int RandomLine::getNearestPathPosIdx( const TrcKeyPath& knots,
     linesegrg.limitTo( limitrg );
     minsqdist = mUdf(double);
     int nearestposidx = -1;
-    for ( int ipath=linesegrg.start; ipath<=linesegrg.stop; ipath++ )
+    for ( int ipath=linesegrg.start_; ipath<=linesegrg.stop_; ipath++ )
     {
 	const BinID rdlpos = path[ipath].position();
 	const double sqdist = mCast(double,rdlpos.sqDistTo( intsecbid ));
@@ -687,9 +687,9 @@ void RandomLineSet::getGeometry( const MultiID& rdlsid, TrcKeyPath& knots,
 
     if ( zrg )
     {
-	const float step = zrg->step;
+	const float step = zrg->step_;
 	zrg->setUdf();
-	zrg->step = step;
+	zrg->step_ = step;
     }
 
 

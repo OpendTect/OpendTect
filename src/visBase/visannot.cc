@@ -60,15 +60,15 @@ static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
     TrcKeyZSampling scale = cs;
 
     const AxisLayout<int> inlal( (Interval<int>)cs.hsamp_.inlRange() );
-    scale.hsamp_.start_.inl() = inlal.sd_.start;
-    scale.hsamp_.step_.inl() = inlal.sd_.step;
+    scale.hsamp_.start_.inl() = inlal.sd_.start_;
+    scale.hsamp_.step_.inl() = inlal.sd_.step_;
 
     const AxisLayout<int> crlal( (Interval<int>)cs.hsamp_.crlRange() );
-    scale.hsamp_.start_.crl() = crlal.sd_.start;
-    scale.hsamp_.step_.crl() = crlal.sd_.step;
+    scale.hsamp_.start_.crl() = crlal.sd_.start_;
+    scale.hsamp_.step_.crl() = crlal.sd_.step_;
 
     const AxisLayout<float> zal( (Interval<float>)cs.zsamp_ );
-    scale.zsamp_.start = zal.sd_.start; scale.zsamp_.step = zal.sd_.step;
+    scale.zsamp_.start_ = zal.sd_.start_; scale.zsamp_.step_ = zal.sd_.step_;
 
     return scale;
 }
@@ -270,14 +270,14 @@ void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
     const Interval<int> crlrg = cs.hsamp_.crlRange();
     const Interval<float>& zrg = cs.zsamp_;
 
-    setCorner( 0, inlrg.start, crlrg.start, zrg.start );
-    setCorner( 1, inlrg.stop, crlrg.start, zrg.start );
-    setCorner( 2, inlrg.stop, crlrg.stop, zrg.start );
-    setCorner( 3, inlrg.start, crlrg.stop, zrg.start );
-    setCorner( 4, inlrg.start, crlrg.start, zrg.stop );
-    setCorner( 5, inlrg.stop, crlrg.start, zrg.stop );
-    setCorner( 6, inlrg.stop, crlrg.stop, zrg.stop );
-    setCorner( 7, inlrg.start, crlrg.stop, zrg.stop );
+    setCorner( 0, inlrg.start_, crlrg.start_, zrg.start_ );
+    setCorner( 1, inlrg.stop_, crlrg.start_, zrg.start_ );
+    setCorner( 2, inlrg.stop_, crlrg.stop_, zrg.start_ );
+    setCorner( 3, inlrg.start_, crlrg.stop_, zrg.start_ );
+    setCorner( 4, inlrg.start_, crlrg.start_, zrg.stop_ );
+    setCorner( 5, inlrg.stop_, crlrg.start_, zrg.stop_ );
+    setCorner( 6, inlrg.stop_, crlrg.stop_, zrg.stop_ );
+    setCorner( 7, inlrg.start_, crlrg.stop_, zrg.stop_ );
 
     box_->dirtyBound();
     box_->dirtyDisplayList();
@@ -337,22 +337,22 @@ static SamplingData<float> getAxisSD( const TrcKeyZSampling& cs, int dim,
     if ( dim==0 )
     {
 	sd.set( AxisLayout<int>(cs.hsamp_.inlRange()).sd_ );
-	stop = cs.hsamp_.inlRange().stop;
+	stop = cs.hsamp_.inlRange().stop_;
     }
     else if ( dim==1 )
     {
 	sd.set( AxisLayout<int>(cs.hsamp_.crlRange()).sd_ );
-	stop = cs.hsamp_.crlRange().stop;
+	stop = cs.hsamp_.crlRange().stop_;
     }
     else
     {
 	sd.set( AxisLayout<float>(cs.zsamp_).sd_ );
-	stop = cs.zsamp_.stop;
+	stop = cs.zsamp_.stop_;
     }
 
     const float eps = 1e-6;
     if ( stopidx )
-	*stopidx = (int) sd.getfIndex( stop + eps*sd.step );
+	*stopidx = (int) sd.getfIndex( stop + eps*sd.step_ );
 
     return sd;
 }
@@ -431,8 +431,8 @@ void Annotation::updateGridLines()
 	for ( int idx=0; idx<=stopidx; idx++ )
 	{
 	    const float val = sd.atIndex(idx);
-	    if ( val <= range.start )		continue;
-	    else if ( val > range.stop )	break;
+	    if ( val <= range.start_ )		continue;
+	    else if ( val > range.stop_ )	break;
 
 	    corners[0][dim] = corners[1][dim] = corners[2][dim] =
 			      corners[3][dim] = val;
@@ -516,8 +516,8 @@ void Annotation::updateTextPos()
 	for ( int idx=0; idx<=stopidx; idx++ )
 	{
 	    float val = sd.atIndex(idx);
-	    if ( val <= range.start )		continue;
-	    else if ( val > range.stop )	break;
+	    if ( val <= range.start_ )		continue;
+	    else if ( val > range.stop_ )	break;
 
 	    if ( curscale>=axisannot_->nrTexts() )
 	    {

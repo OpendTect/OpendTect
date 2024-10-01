@@ -199,7 +199,7 @@ void Texture::fillGLCM( int sampleidx, int z0, int posidx1, int posidx2,
 
     const float shiftedidx = sampleidx + ( mIsUdf(shift) ? 0 : shift );
     int refpixpos, neighpixpos = 0;
-    for ( int isamp=sampgate_.start; isamp<=sampgate_.stop; isamp++ )
+    for ( int isamp=sampgate_.start_; isamp<=sampgate_.stop_; isamp++ )
     {
 	const float val = getInterpolInputValue( *inpdata_[posidx1],
 	    dataidx_, shiftedidx+isamp, z0 );
@@ -254,12 +254,12 @@ void Texture::prepareForComputeData()
     scalingfactor_ = ((float) (glcmsize_-1)) /
 			((float)( globalmax_- globalmin_ ));
     scalingshift_ = -globalmin_*scalingfactor_;
-    sampgate_.start = mNINT32(gate_.start/refstep_);
-    sampgate_.stop = mNINT32(gate_.stop/refstep_);
+    sampgate_.start_ = mNINT32(gate_.start_/refstep_);
+    sampgate_.stop_ = mNINT32(gate_.stop_/refstep_);
     const float biggestdist = mMAX (SI().inlDistance(), SI().crlDistance() );
     const float safeextrasamp = mCast(float, biggestdist * mMAXDIP / refstep_);
-    dessampgate_ = Interval<int>( mNINT32(sampgate_.start-safeextrasamp),
-				  mNINT32(sampgate_.stop+safeextrasamp) );
+    dessampgate_ = Interval<int>( mNINT32(sampgate_.start_-safeextrasamp),
+				  mNINT32(sampgate_.stop_+safeextrasamp) );
 }
 
 

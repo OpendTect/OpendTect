@@ -287,7 +287,7 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
     newun->setLevelID( tmpun.levelID() );
     newun->setDescription( tmpun.description() );
 
-    int posidx = getChildIdxFromTime( *parun, newun->timeRange().start);
+    int posidx = getChildIdxFromTime( *parun, newun->timeRange().start_);
     if ( posidx < parun->nrRefs() )
 	parun->insert( newun, posidx );
     else
@@ -704,8 +704,8 @@ void uiStratRefTree::setNodesDefaultTimes( const NodeUnitRef& startnode )
 		mDynamicCastGet(NodeUnitRef*,nur,&un->ref(idx));
 		if ( !nur ) break;
 		Interval<float> rg = nur->timeRange();
-		rg.start = timerg.start + (float)idx*timerg.width()/(nrrefs);
-		rg.stop = timerg.start +(float)(idx+1)*timerg.width()/(nrrefs);
+                rg.start_ = timerg.start_ + (float)idx*timerg.width()/(nrrefs);
+                rg.stop_ = timerg.start_ +(float)(idx+1)*timerg.width()/(nrrefs);
 		nur->setTimeRange( rg );
 	    }
 	}
@@ -719,8 +719,8 @@ void uiStratRefTree::setNodesDefaultTimes( const NodeUnitRef& startnode )
 bool uiStratRefTree::haveTimes() const
 {
     const Interval<float> timerg = tree_->timeRange();
-    return ( timerg.width() > 0 && timerg.start >= 0
-		&& timerg.stop > 0 && !mIsUdf(timerg.start) );
+    return ( timerg.width() > 0 && timerg.start_ >= 0
+             && timerg.stop_ > 0 && !mIsUdf(timerg.start_) );
 }
 
 
@@ -732,16 +732,16 @@ void uiStratRefTree::getAvailableTime( const NodeUnitRef& unit,
 	return;
 
     mDynamicCastGet(const NodeUnitRef*,firstun,&unit.ref(0))
-    if ( firstun && timerg.start < firstun->timeRange().start )
+            if ( firstun && timerg.start_ < firstun->timeRange().start_ )
     {
-	timerg.stop = firstun->timeRange().start;
+        timerg.stop_ = firstun->timeRange().start_;
 	return;
     }
 
     mDynamicCastGet(const NodeUnitRef*,lastun,&unit.ref(unit.nrRefs()-1))
-    if ( lastun && timerg.stop > lastun->timeRange().stop )
+            if ( lastun && timerg.stop_ > lastun->timeRange().stop_ )
     {
-	timerg.start = lastun->timeRange().stop;
+        timerg.start_ = lastun->timeRange().stop_;
 	return;
     }
 
@@ -754,7 +754,7 @@ void uiStratRefTree::getAvailableTime( const NodeUnitRef& unit,
 	    continue;
 
 	timerg = nldun->timeRange();
-	trg.set( cldun->timeRange().stop, nldun->timeRange().start );
+        trg.set( cldun->timeRange().stop_, nldun->timeRange().start_ );
 	if ( trg.width() > 0 )
 	{
 	    timerg = trg;
@@ -762,7 +762,7 @@ void uiStratRefTree::getAvailableTime( const NodeUnitRef& unit,
 	}
     }
 
-    timerg.set( timerg.stop-timerg.width()/2, timerg.stop );
+    timerg.set( timerg.stop_-timerg.width()/2, timerg.stop_ );
 }
 
 
@@ -775,7 +775,7 @@ void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
     const Interval<float> partrg( par->timeRange() );
     mytimerg.limitTo( partrg );
 
-    const int posidx = getChildIdxFromTime( *par, mytimerg.start )-1;
+    const int posidx = getChildIdxFromTime( *par, mytimerg.start_ )-1;
     for ( int idx=0; idx<par->nrRefs(); idx++ )
     {
 	mDynamicCastGet(const NodeUnitRef*,noderef,&par->ref(idx))
@@ -786,10 +786,10 @@ void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
 	if ( noderef == &unit )
 	    continue;
 
-	if ( posidx-1 == idx && mytimerg.start < timerg.start )
-	    mytimerg.start = timerg.start;
-	else if ( posidx+1 == idx && mytimerg.stop > timerg.stop )
-	    mytimerg.stop = timerg.stop;
+        if ( posidx-1 == idx && mytimerg.start_ < timerg.start_ )
+            mytimerg.start_ = timerg.start_;
+        else if ( posidx+1 == idx && mytimerg.stop_ > timerg.stop_ )
+            mytimerg.stop_ = timerg.stop_;
     }
 
     for ( int idx=0; idx<par->nrRefs(); idx++ )
@@ -802,12 +802,12 @@ void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
 	Interval<float> timerg = noderef->timeRange();
 	if ( timerg.overlaps( mytimerg ) )
 	{
-	    if ( timerg.stop==mytimerg.start || timerg.start==mytimerg.stop )
+            if ( timerg.stop_==mytimerg.start_ || timerg.start_==mytimerg.stop_ )
 		continue;
-	    if ( timerg.start < mytimerg.start )
-		timerg.stop = mytimerg.start;
+            if ( timerg.start_ < mytimerg.start_ )
+                timerg.stop_ = mytimerg.start_;
 	    else
-		timerg.start = mytimerg.stop;
+                timerg.start_ = mytimerg.stop_;
 	    noderef->setTimeRange( timerg );
 	    setNodesDefaultTimes( *noderef );
 	}
@@ -824,7 +824,7 @@ void uiStratRefTree::ensureUnitTimeOK( NodeUnitRef& unit )
 	    continue;
 
 	Interval<float> timerg = noderef->timeRange();
-	if ( timerg.start < mytimerg.start || timerg.stop > mytimerg.stop )
+        if ( timerg.start_ < mytimerg.start_ || timerg.stop_ > mytimerg.stop_ )
 	{
 	    setNodesDefaultTimes( unit );
 	    break;
@@ -842,7 +842,7 @@ int uiStratRefTree::getChildIdxFromTime( const NodeUnitRef& nur,
     for ( int idx=0; idx<nur.nrRefs(); idx++ )
     {
 	mDynamicCastGet(const NodeUnitRef*,cnur,&nur.ref(idx))
-	if ( cnur && cnur->timeRange().start > pos )
+                if ( cnur && cnur->timeRange().start_ > pos )
 	    return idx;
     }
 

@@ -58,7 +58,7 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     data_.hsit_ = new TrcKeySamplingIterator( olddata_.tkzs_.hsamp_ );
     olddata_.tkzs_.zsamp_ = info.sd_.interval( info.nrsamples_ );
     data_.tkzs_.zsamp_ = olddata_.tkzs_.zsamp_;
-    data_.tkzs_.zsamp_.step = SI().zStep();
+    data_.tkzs_.zsamp_.step_ = SI().zStep();
     if ( hasSameGridAsThisSurvey() )
     {
 	data_.tkzs_.hsamp_ = olddata_.tkzs_.hsamp_;
@@ -105,7 +105,7 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
     fft_ = Fourier::CC::createDefault();
     sz_ = fft_->getFastSize( cellsz );
     StepInterval<float> zsi( data_.tkzs_.zsamp_ );
-    zsi.step = olddata_.tkzs_.zsamp_.step;
+    zsi.step_ = olddata_.tkzs_.zsamp_.step_;
     szz_ = fft_->getFastSize( zsi.nrSteps() );
     arr_ = new Array3DImpl<float_complex>( sz_, sz_, szz_ );
     fftarr_ = new Array3DImpl<float_complex>( sz_, sz_, szz_ );

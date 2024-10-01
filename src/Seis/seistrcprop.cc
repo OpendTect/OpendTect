@@ -188,8 +188,8 @@ mStartCompLoop
 
 	if ( rg.isUdf() )
 	{
-	    rg.start = aroundzero ? 0.f : val;
-	    rg.stop = rg.start;
+            rg.start_ = aroundzero ? 0.f : val;
+            rg.stop_ = rg.start_;
 	    continue;
 	}
 
@@ -206,8 +206,8 @@ mStartCompLoop
     }
     else
     {
-	const float a = aroundzero ? 1.f / mMAX(-rg.start,rg.stop) : 2.f / diff;
-	const float b = aroundzero ? 0.f : 1.f - rg.stop * a;
+        const float a = aroundzero ? 1.f / mMAX(-rg.start_,rg.stop_) : 2.f / diff;
+        const float b = aroundzero ? 0.f : 1.f - rg.stop_ * a;
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const float val = trc.get( idx, icomp );
@@ -287,7 +287,7 @@ mStartCompLoop
     {
 	int idx = trc.nearestSample( pos );
 	mtrc().set( idx, 0, icomp );
-	pos += trc.info().sampling.step;
+        pos += trc.info().sampling.step_;
     }
 
     if ( mIsZero(taperlen,mDefEps) ) return;
@@ -300,7 +300,7 @@ mStartCompLoop
 	const int idx = trc.nearestSample( pos );
 	const double x = ((pos - mpos) / taperlen) * M_PI;
 	const double taper = 0.5 * ( 1. - cos(x) );
-	pos += trc.info().sampling.step;
+        pos += trc.info().sampling.step_;
 	const float val = trc.get( idx, icomp );
 	if ( mIsUdf(val) )
 	    continue;
@@ -331,7 +331,7 @@ mStartCompLoop
     {
 	int idx = trc.nearestSample( pos );
 	mtrc().set( idx, 0, icomp );
-	pos += trc.info().sampling.step;
+        pos += trc.info().sampling.step_;
     }
 
     if ( mIsZero(taperlen,mDefEps) ) return;
@@ -345,7 +345,7 @@ mStartCompLoop
 	const int idx = trc.nearestSample( pos );
 	const double x = ((mpos - pos) / taperlen) * M_PI;
 	const double taper = 0.5 * ( 1. - cos(x) );
-	pos += trc.info().sampling.step;
+        pos += trc.info().sampling.step_;
 	const float val = trc.get( idx, icomp );
 	if ( mIsUdf(val) )
 	    continue;
@@ -375,7 +375,7 @@ float SeisTrcPropCalc::getFreq( float z ) const
 {
     mChkSize();
 
-    const float step = trc.info().sampling.step;
+    const float step = trc.info().sampling.step_;
     const float prevph = getPhase( z - step );
     const float nextph = getPhase( z + step );
     if ( mIsUdf(prevph) || mIsUdf(nextph) )
@@ -403,7 +403,7 @@ float SeisTrcPropCalc::getPhase( float z, bool indegrees ) const
     const int halfsz = mNINT32( mHalfHilbertLength );
     const int quadsz = 2 * halfsz + 1;
     Array1DImpl<float> trcdata( quadsz );
-    const float dz = trc.info().sampling.step;
+    const float dz = trc.info().sampling.step_;
     z -= dz * mCast( float, halfsz );
     for ( int idx=0; idx<quadsz; idx++ )
     {
@@ -439,9 +439,9 @@ float SeisTrcPropCalc::getPhase( int isamp, bool indegrees ) const
     SampleGate sg( sgin ); sg.sort(); \
     if ( !alpick ) \
     { \
-	if ( sg.start < 0 ) sg.start = 0; \
-	if ( sg.stop >= sz ) sg.stop = sz - 1; \
-	if ( sg.stop >= t2.size() ) sg.stop = t2.size() - 1; \
+	if ( sg.start_ < 0 ) sg.start_ = 0; \
+	if ( sg.stop_ >= sz ) sg.stop_ = sz - 1; \
+	if ( sg.stop_ >= t2.size() ) sg.stop_ = t2.size() - 1; \
     } \
  \
     float p1 = trc.info().pick; \
@@ -451,9 +451,9 @@ float SeisTrcPropCalc::getPhase( int isamp, bool indegrees ) const
     float val1, val2
 
 #define mSetVals \
-	val1 = alpick ? trc.getValue(p1+idx*trc.info().sampling.step,curcomp) \
+	val1 = alpick ? trc.getValue(p1+idx*trc.info().sampling.step_,curcomp) \
 		      : trc.get( idx, curcomp ); \
-	val2 = alpick ? t2.getValue(p2+idx*t2.info().sampling.step,curcomp) \
+	val2 = alpick ? t2.getValue(p2+idx*t2.info().sampling.step_,curcomp) \
 		      : t2.getValue( trc.samplePos(idx), curcomp )
 
 #define mCheckRetUdf(val1,val2) \
@@ -468,7 +468,7 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
     mDefSGAndPicks;
     double acorr1 = 0., acorr2 = 0., ccorr = 0.;
     od_uint32 count = 0;
-    for ( int idx=sg.start; idx<=sg.stop; idx++ )
+    for ( int idx=sg.start_; idx<=sg.stop_; idx++ )
     {
 	mSetVals;
 	mCheckRetUdf( val1, val2 )
@@ -495,7 +495,7 @@ double SeisTrcPropCalc::dist( const SeisTrc& t2, const SampleGate& sgin,
     mDefSGAndPicks;
     double sqdist = 0, sq1 = 0, sq2 = 0;
     int count = 0;
-    for ( int idx=sg.start; idx<=sg.stop; idx++ )
+    for ( int idx=sg.start_; idx<=sg.stop_; idx++ )
     {
 	mSetVals;
 	mCheckRetUdf( val1, val2 )

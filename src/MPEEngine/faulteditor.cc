@@ -213,8 +213,8 @@ float FaultEditor::panelIntersectDist(
     if ( rowrange.isUdf() )
 	return mUdf(float);
 
-    const int sticknr0 = sticknr<rowrange.start ? rowrange.stop : sticknr;
-    const int sticknr1 = sticknr>=rowrange.stop ? rowrange.start : sticknr+1;
+    const int sticknr0 = sticknr<rowrange.start_ ? rowrange.stop_ : sticknr;
+    const int sticknr1 = sticknr>=rowrange.stop_ ? rowrange.start_ : sticknr+1;
 
     Coord3 avgpos0 = avgStickPos( surface, sticknr0 );
     Coord3 avgpos1 = avgStickPos( surface, sticknr1 );
@@ -241,13 +241,13 @@ float FaultEditor::panelIntersectDist(
     if ( d0 || d1 )
 	pos = (avgpos0*fabs(d1) + avgpos1*fabs(d0)) / (fabs(d0) + fabs(d1));
 
-    if ( sticknr < rowrange.start )
+    if ( sticknr < rowrange.start_ )
     {
 	pos = avgpos1;
 	if ( d0*d1<0.0 || fabs(d1)-fabs(d0)>0.5*onestepdist )
 	    return mUdf(float);
     }
-    else if ( sticknr >= rowrange.stop )
+    else if ( sticknr >= rowrange.stop_ )
     {
 	pos = avgpos0;
 	if ( d0*d1<0.0 || fabs(d0)-fabs(d1)>0.5*onestepdist )
@@ -271,12 +271,12 @@ int FaultEditor::getSecondKnotNr( const Geometry::FaultStickSurface& surface,
     if ( colrange0.isUdf() || colrange0.nrSteps() )
 	return mUdf(int);
 
-    int res = colrange0.start + colrange0.step;
+    int res = colrange0.start_ + colrange0.step_;
 
     int refnr = sticknr;
     for ( int count=1; count<=2*rowrange.nrSteps(); count++ )
     {
-	refnr += rowrange.step * count * (refnr<sticknr ? 1 : -1);
+	refnr += rowrange.step_ * count * (refnr<sticknr ? 1 : -1);
 	if ( !rowrange.includes(refnr,false) )
 	    continue;
 
@@ -286,15 +286,15 @@ int FaultEditor::getSecondKnotNr( const Geometry::FaultStickSurface& surface,
 
 	const Coord3 p0 = mWorldScale( mousepos );
 	const Coord3 p1 = mWorldScale( surface.getKnot(
-				       RowCol(sticknr,colrange0.start) ) );
+					   RowCol(sticknr,colrange0.start_) ) );
 	const Coord3 p2 = mWorldScale( surface.getKnot(
-				       RowCol(refnr,colrange1.start) ) );
+					   RowCol(refnr,colrange1.start_) ) );
 	const Coord3 p3 = mWorldScale( surface.getKnot(
-				       RowCol(refnr,colrange1.stop) ) );
+					   RowCol(refnr,colrange1.stop_) ) );
 	const Coord3 d0 = p1 - p0;
 	const Coord3 d1 = p3 - p2;
 	if ( d0.dot(d1) > 0.0 )
-	    res = colrange0.start - colrange0.step;
+	    res = colrange0.start_ - colrange0.step_;
 
 	return res;
     }
@@ -475,7 +475,7 @@ bool FaultEditor::getInsertStick( int& stick,
     if ( !normal.isDefined() )
     {
 	normal = posnormal ? *posnormal :
-		 surface->getEditPlaneNormal( rowrange.start );
+			     surface->getEditPlaneNormal( rowrange.start_ );
     }
 
     for ( int stickidx=rowrange.nrSteps(); stickidx>=-1; stickidx-- )
@@ -489,7 +489,7 @@ bool FaultEditor::getInsertStick( int& stick,
 	if ( mIsUdf(mindist) || fabs(dist)<fabs(mindist) )
 	{
 	    mindist = dist;
-	    selstick = stickidx==-1 ? sticknr : sticknr+rowrange.step;
+	    selstick = stickidx==-1 ? sticknr : sticknr+rowrange.step_;
 	}
     }
 
@@ -587,7 +587,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 	else
 	{
 	    insertpid = nearestpid0;
-	    const int insertcol = definedknots[nearestknotidx]-colrange.step;
+	    const int insertcol = definedknots[nearestknotidx]-colrange.step_;
 	    insertpid.setSubID( RowCol(stick,insertcol).toInt64() );
 	}
     }
@@ -603,7 +603,7 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 	else
 	{
 	    insertpid = nearestpid0;
-	    const int insertcol = definedknots[nearestknotidx]+colrange.step;
+	    const int insertcol = definedknots[nearestknotidx]+colrange.step_;
 	    insertpid.setSubID( RowCol(stick,insertcol).toInt64() );
 	}
     }
@@ -634,10 +634,10 @@ void FaultEditor::cloneMovingNode( CallBacker* )
     // Performs knot insertion without changing PosID of moving node
     emfault->setBurstAlert( true );
     const StepInterval<int> colrg = fss->colRange( sticknr );
-    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+    for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
     {
 	const RowCol currc( sticknr, col );
-	const RowCol prevrc( sticknr, col-colrg.step );
+	const RowCol prevrc( sticknr, col-colrg.step_ );
 	const EM::PosID prevpid( emfault->id(), prevrc.toInt64() );
 
 	if ( currc.toInt64() == insertpid.subID() )
@@ -647,7 +647,7 @@ void FaultEditor::cloneMovingNode( CallBacker* )
 	}
 
 	const Coord3 prevpos = fss->getKnot( currc );
-	if ( col == colrg.start )
+	if ( col == colrg.start_ )
 	    fg.insertKnot( prevrc.toInt64(), prevpos, true );
 	else
 	    ObjectEditor::setPosition( prevpid, prevpos );

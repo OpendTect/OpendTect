@@ -303,7 +303,7 @@ void Scene::setTrcKeyZSampling( const TrcKeyZSampling& tkzs, bool workarea )
     if ( !workarea )
 	inittkzs_ = tkzs;
     else
-	tkzs_.zsamp_.step = inittkzs_.zsamp_.step;
+        tkzs_.zsamp_.step_ = inittkzs_.zsamp_.step_;
 
     if ( !annot_ )
 	return;
@@ -1495,17 +1495,17 @@ Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
 
     for ( int top=0; top<=1; top++ )
     {
-	const double z = top ? s3dgeom->zRange().start : s3dgeom->zRange().stop;
+        const double z = top ? s3dgeom->zRange().start_ : s3dgeom->zRange().stop_;
 
-	Coord3 p0( s3dgeom->toCoord(inlrg.start,crlrg.start), z );
+        Coord3 p0( s3dgeom->toCoord(inlrg.start_,crlrg.start_), z );
 	utm2disptransform_->transform( p0 );
 	tempzstretchtrans_->transform( p0 );
 
-	Coord3 p1( s3dgeom->toCoord(inlrg.start,crlrg.stop), z );
+        Coord3 p1( s3dgeom->toCoord(inlrg.start_,crlrg.stop_), z );
 	utm2disptransform_->transform( p1 );
 	tempzstretchtrans_->transform( p1 );
 
-	Coord3 p2( s3dgeom->toCoord(inlrg.stop,crlrg.start), z );
+        Coord3 p2( s3dgeom->toCoord(inlrg.stop_,crlrg.start_), z );
 	utm2disptransform_->transform( p2 );
 	tempzstretchtrans_->transform( p2 );
 
@@ -1541,10 +1541,10 @@ Coord3 Scene::getTopBottomIntersection( const visBase::EventInfo& eventinfo,
 { \
     const StepInterval<int> rg = s3dgeom->ic##Range(); \
     const float margin = fabs( (relativesurveymargin) * rg.width() ); \
-    if ( bid.ic()>=rg.start-margin && bid.ic()<rg.start ) \
-	bid.ic() = rg.start; \
-    if ( bid.ic()>rg.stop && bid.ic()<=rg.stop+margin ) \
-	bid.ic() = rg.stop; \
+    if ( bid.ic()>=rg.start_-margin && bid.ic()<rg.start_ ) \
+	bid.ic() = rg.start_; \
+    if ( bid.ic()>rg.stop_ && bid.ic()<=rg.stop_+margin ) \
+	bid.ic() = rg.stop_; \
 }
 
 Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,

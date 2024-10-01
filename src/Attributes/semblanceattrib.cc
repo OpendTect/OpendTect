@@ -144,8 +144,8 @@ Semblance::Semblance( Desc& desc )
 	mMAX( stepout_.inl()*inlDist(), stepout_.crl()*crlDist() ) : 0;
 
     const float maxsecdip = maxSecureDip();
-    desgate_ = Interval<float>( gate_.start-maxdist*maxsecdip,
-				gate_.stop+maxdist*maxsecdip );
+    desgate_ = Interval<float>( gate_.start_-maxdist*maxsecdip,
+				gate_.stop_+maxdist*maxsecdip );
 }
 
 
@@ -280,8 +280,8 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() ) return false;
 
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				    mNINT32(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start_/refstep_),
+				    mNINT32(gate_.stop_/refstep_) );
 
     const int gatesz = samplegate.width() + 1;
     const int nrtraces = inputdata_.size();
@@ -303,7 +303,7 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 		: 0;
 
 	    const DataHolder* data = inputdata_[trcidx];
-	    for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
+	    for ( int zidx=samplegate.start_; zidx<=samplegate.stop_ ; zidx++ )
 	    {
 		float sampleidx = mCast( float, idx + zidx );
 		if ( serie )
@@ -356,15 +356,15 @@ void Semblance::prepPriorToBoundsCalc()
      if ( truestep == 0 )
 	 return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep ;
-    bool chgstopr = mNINT32(gate_.stop*zFactor()) % truestep;
-    bool chgstartd = mNINT32(desgate_.start*zFactor()) % truestep;
-    bool chgstopd = mNINT32(desgate_.stop*zFactor()) % truestep;
+     bool chgstartr = mNINT32(gate_.start_*zFactor()) % truestep ;
+     bool chgstopr = mNINT32(gate_.stop_*zFactor()) % truestep;
+    bool chgstartd = mNINT32(desgate_.start_*zFactor()) % truestep;
+    bool chgstopd = mNINT32(desgate_.stop_*zFactor()) % truestep;
 
-    mAdjustGate( chgstartr, gate_.start, false )
-    mAdjustGate( chgstopr, gate_.stop, true )
-    mAdjustGate( chgstartd, desgate_.start, false )
-    mAdjustGate( chgstopd, desgate_.stop, true )
+    mAdjustGate( chgstartr, gate_.start_, false )
+	    mAdjustGate( chgstopr, gate_.stop_, true )
+	    mAdjustGate( chgstartd, desgate_.start_, false )
+	    mAdjustGate( chgstopd, desgate_.stop_, true )
 
     Provider::prepPriorToBoundsCalc();
 }

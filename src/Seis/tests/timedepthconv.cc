@@ -96,10 +96,11 @@ BufferString msg_;
 { \
     if ( printranges_ ) \
     { \
-	BufferString msg( "From: [", zrgfrom.start, ", " ); \
-	msg.add( zrgfrom.stop ).add( "] step " ).add( zrgfrom.step ) \
-	   .add( " - To: [" ).add( zrgto.start ).add( ", " ).add( zrgto.stop ) \
-	   .add( "] step " ).add( zrgto.step ); \
+	BufferString msg( "From: [", zrgfrom.start_, ", " ); \
+	msg.add( zrgfrom.stop_ ).add( "] step " ).add( zrgfrom.step_ ) \
+	   .add( " - To: [" ).add( zrgto.start_ ).add( ", " ) \
+	   .add( zrgto.stop_ ) \
+	   .add( "] step " ).add( zrgto.step_ ); \
 	tstStream() << mMsg(msg) << od_newline; \
     } \
 }
@@ -108,8 +109,8 @@ BufferString msg_;
 static bool isVavgOK( const Interval<float>& vavgrg,
 		      const Interval<float>& truerg, float eps )
 {
-    mCheckVal( vavgrg.start, truerg.start, eps )
-    mCheckVal( vavgrg.stop, truerg.stop, eps )
+    mCheckVal( vavgrg.start_, truerg.start_, eps )
+	    mCheckVal( vavgrg.stop_, truerg.stop_, eps )
 
     return true;
 }
@@ -267,10 +268,10 @@ static bool testVelocityModelScanner( const MultiID& mid )
     Interval<float> truergbot = zistime
 			? botvavgTWT() : (zinfeet ? botvavgFT() : botvavgM() );
     const UnitOfMeasure* veluom = UnitOfMeasure::surveyDefVelUnit();
-    truergtop.start = veluom->getUserValueFromSI( truergtop.start );
-    truergtop.stop = veluom->getUserValueFromSI( truergtop.stop );
-    truergbot.start = veluom->getUserValueFromSI( truergbot.start );
-    truergbot.stop = veluom->getUserValueFromSI( truergbot.stop );
+    truergtop.start_ = veluom->getUserValueFromSI( truergtop.start_ );
+    truergtop.stop_ = veluom->getUserValueFromSI( truergtop.stop_ );
+    truergbot.start_ = veluom->getUserValueFromSI( truergbot.start_ );
+    truergbot.stop_ = veluom->getUserValueFromSI( truergbot.stop_ );
 
     mRunStandardTest( isVavgOK( scanner.getTopVAvg(), truergtop, defveleps_ ),
 		      mMsg("Velocity average range at Top") );

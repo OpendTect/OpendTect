@@ -227,8 +227,8 @@ void WellTie::uiTieView::drawTraces()
     const int nrtrcs = nrtrcs_*2 + 4;
     const ZSampling modelsd = data_.getModelRange();
     const ZSampling tracesd = data_.getTraceRange();
-    const int normstart = tracesd.getIndex( modelsd.start );
-    const int normstop =  tracesd.getIndex( modelsd.stop );
+    const int normstart = tracesd.getIndex( modelsd.start_ );
+    const int normstop =  tracesd.getIndex( modelsd.stop_ );
     for ( int idx=0; idx<nrtrcs; idx++ )
     {
 	const int midtrc = nrtrcs/2-1;
@@ -306,13 +306,13 @@ void WellTie::uiTieView::zoomChg( CallBacker* )
 
 	zrgstop = (float) data_.wd_->track().getPos(zrgstop).z;
 
-	zrg.start = zrgstart*mToFeetFactorF;
-	zrg.stop = zrgstop*mToFeetFactorF;
+        zrg.start_ = zrgstart*mToFeetFactorF;
+        zrg.stop_ = zrgstop*mToFeetFactorF;
     }
     else
     {
-	zrg.start = (float) curwr.top()*userfac;
-	zrg.stop = (float) curwr.bottom()*userfac;
+        zrg.start_ = (float) curwr.top()*userfac;
+        zrg.stop_ = (float) curwr.bottom()*userfac;
     }
     setLogsRanges( zrg );
 }
@@ -323,8 +323,8 @@ void WellTie::uiTieView::drawMarker( FlatView::AuxData* auxdata,
 {
     Interval<float> xrg( (float) vwr_->boundingBox().left(),
 				    (float) vwr_->boundingBox().right() );
-    auxdata->poly_ += FlatView::Point( left ? xrg.start : xrg.width()/2, zpos );
-    auxdata->poly_ += FlatView::Point( left ? xrg.width()/2 : xrg.stop, zpos );
+    auxdata->poly_ += FlatView::Point( left ? xrg.start_ : xrg.width()/2, zpos );
+    auxdata->poly_ += FlatView::Point( left ? xrg.width()/2 : xrg.stop_, zpos );
 }
 
 
@@ -543,7 +543,7 @@ void WellTie::uiCrossCorrView::draw()
     for ( int idx=-halfsz; idx<halfsz; idx++)
     {
 	float xaxistime = idx *
-			 data_.getTraceRange().step*SI().zDomain().userFactor();
+                          data_.getTraceRange().step_*SI().zDomain().userFactor();
 	if ( fabs( xaxistime ) > lag_ )
 	    continue;
 	xvals += xaxistime;

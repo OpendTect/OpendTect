@@ -370,8 +370,8 @@ template <class VT> inline
 Interval<VT> DataDistribution<VT>::dataRange() const
 {
     mLock4Read();
-    const VT hstep = sampling_.step * VT(0.5);
-    return Interval<VT>( sampling_.start - hstep,
+    const VT hstep = sampling_.step_ * VT(0.5);
+    return Interval<VT>( sampling_.start_ - hstep,
 		      sampling_.atIndex(data_.size()-1) + hstep );
 }
 
@@ -411,11 +411,11 @@ VT DataDistribution<VT>::positionForCumulative( VT val ) const
     mLock4Read();
     const int sz = cumdata_.size();
     if ( sz < 2 )
-	return sz == 1 ? sampling_.start : mUdf(VT);
+	return sz == 1 ? sampling_.start_ : mUdf(VT);
     else if ( val <= VT(0) )
-	return sampling_.start - VT(0.5) * sampling_.step;
+	return sampling_.start_ - VT(0.5) * sampling_.step_;
     else if ( val >= cumdata_.last() )
-	return sampling_.start + VT(sz-0.5) * sampling_.step;
+	return sampling_.start_ + VT(sz-0.5) * sampling_.step_;
 
     // this function is mostly used for clipping which is at start or end
     // simple bisection may then not be optimal.
@@ -428,14 +428,14 @@ VT DataDistribution<VT>::positionForCumulative( VT val ) const
 	    const VT nextval = cumdata_[idx];
 	    if ( val <= nextval )
 	    {
-		VT prevpos = sampling_.start + VT(idx-0.5)
-						    * sampling_.step;
+		VT prevpos = sampling_.start_ + VT(idx-0.5)
+			     * sampling_.step_;
 		if ( val == nextval )
-		    return prevpos + sampling_.step;
+		    return prevpos + sampling_.step_;
 
 		const VT prevval = idx ? cumdata_[idx-1] : VT(0);
 		const VT relpos = (val - prevval) / (nextval - prevval);
-		return prevpos + sampling_.step * relpos;
+		return prevpos + sampling_.step_ * relpos;
 	    }
 	}
     }
@@ -446,14 +446,14 @@ VT DataDistribution<VT>::positionForCumulative( VT val ) const
 	    const VT prevval = cumdata_[idx-1];
 	    if ( val >= prevval )
 	    {
-		VT prevpos = sampling_.start + VT(idx-0.5)
-						    * sampling_.step;
+		VT prevpos = sampling_.start_ + VT(idx-0.5)
+			     * sampling_.step_;
 		if ( prevval == val )
 		    return prevpos;
 
 		const VT nextval = cumdata_[idx];
 		const VT relpos = (val - prevval) / (nextval - prevval);
-		return prevpos + sampling_.step * relpos;
+		return prevpos + sampling_.step_ * relpos;
 	    }
 	}
     }
@@ -468,7 +468,7 @@ VT DataDistribution<VT>::medianPosition() const
 {
     mLock4Read();
     if ( cumdata_.size() < 2 )
-	return sampling_.start;
+	return sampling_.start_;
 
     return positionForCumulative( cumdata_.last() * VT(0.5) );
 }
@@ -480,7 +480,7 @@ void DataDistribution<VT>::getAvgStd( VT& avg, VT& std ) const
     mLock4Read();
     const auto sz = cumdata_.size();
     if ( sz < 2 )
-	{ avg = sampling_.start; std = (VT)0; return; }
+    { avg = sampling_.start_; std = (VT)0; return; }
 
     VT wtsum = (VT)0;
     for ( auto idx=0; idx<sz; idx++ )

@@ -364,17 +364,17 @@ bool EventTracker::track()
 	return res;
     }
 
-    const Interval<int> permsamplerange( mNINT32(permrange_.start/rangestep_),
-				       mNINT32(permrange_.stop/rangestep_) );
+    const Interval<int> permsamplerange( mNINT32(permrange_.start_/rangestep_),
+				       mNINT32(permrange_.stop_/rangestep_) );
     float upsample=mUdf(float), upsim=mUdf(float); bool upflatstart=false;
-    const bool findup = permsamplerange.start<=0
-	? findMaxSimilarity( -permsamplerange.start, -1, 3,
+    const bool findup = permsamplerange.start_<=0
+	? findMaxSimilarity( -permsamplerange.start_, -1, 3,
 			     upsample, upsim, upflatstart )
 	: false;
 
     float dnsample=mUdf(float), dnsim=mUdf(float); bool dnflatstart=false;
-    const bool finddn = permsamplerange.stop>=0
-			    ? findMaxSimilarity( permsamplerange.stop, 1, 3,
+    const bool finddn = permsamplerange.stop_>=0
+			    ? findMaxSimilarity( permsamplerange.stop_, 1, 3,
 						 dnsample, dnsim, dnflatstart )
 			    : false;
 
@@ -449,8 +449,8 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	float& res, float& maxsim, bool& flatstart ) const
 {
     const Interval<int> similaritysamplewin(
-		mNINT32(similaritywin_.start/rangestep_),
-		mNINT32(similaritywin_.stop/rangestep_) );
+		mNINT32(similaritywin_.start_/rangestep_),
+		mNINT32(similaritywin_.stop_/rangestep_) );
 
     const ValueSeries<float>* refvs =
 		comparemethod_==SeedTrace ? seedvs_ : sourcevs_;
@@ -459,27 +459,27 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
     const float refdepth =
 		comparemethod_==SeedTrace ? seeddepth_ : sourcedepth_;
 
-    int firstrefsample = mNINT32(refdepth) + similaritysamplewin.start;
+    int firstrefsample = mNINT32(refdepth) + similaritysamplewin.start_;
     Interval<int> actualsimilaritywin = similaritysamplewin;
     if ( firstrefsample<0 )
     {
-	actualsimilaritywin.start -= firstrefsample;
+	actualsimilaritywin.start_ -= firstrefsample;
 	firstrefsample = 0;
     }
 
     if ( firstrefsample+actualsimilaritywin.width(false)>=refsize )
-	actualsimilaritywin.stop = refsize-firstrefsample;
+	actualsimilaritywin.stop_ = refsize-firstrefsample;
 
-    int firsttargetsample = mNINT32(targetdepth_)+actualsimilaritywin.start;
+    int firsttargetsample = mNINT32(targetdepth_)+actualsimilaritywin.start_;
     if ( firsttargetsample<0 )
     {
-	actualsimilaritywin.start -= firsttargetsample;
+	actualsimilaritywin.start_ -= firsttargetsample;
 	firstrefsample -= firsttargetsample;
 	firsttargetsample = 0;
     }
 
     if ( firsttargetsample+actualsimilaritywin.width(false)>=targetsize_ )
-	actualsimilaritywin.stop = targetsize_-firsttargetsample;
+	actualsimilaritywin.stop_ = targetsize_-firsttargetsample;
 
     if ( actualsimilaritywin.width(false)<=0 )
 	return false;
@@ -496,11 +496,11 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
     ValSeriesMathFunc targetfunc( *targetvs_, targetsize_ );
 
     MathFunctionSampler<float,float> refsamp( reffunc );
-    refsamp.sd.start = (float)firstrefsample;
-    refsamp.sd.step = 1;
+    refsamp.sd.start_ = (float)firstrefsample;
+    refsamp.sd.step_ = 1;
 
     MathFunctionSampler<float,float> targetsamp( targetfunc );
-    targetsamp.sd.step = 1;
+    targetsamp.sd.step_ = 1;
 
     double meana = mUdf(double), stddeva = mUdf(double);
     double meanb = mUdf(double), stddevb = mUdf(double);
@@ -532,7 +532,7 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	if ( targetstart<0 )
 	    break;
 
-	targetsamp.sd.start = targetstart;
+	targetsamp.sd.start_ = targetstart;
 
 	double bsum = 0;
 	for ( int sidx=0; sidx<nrsamples; sidx++ )
@@ -607,7 +607,7 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
     flatstart = nreqsamples && !res;
     res += ((float)nreqsamples)/2;
     res *= fstep;
-    res += firsttargetsample - actualsimilaritywin.start;
+    res += firsttargetsample - actualsimilaritywin.start_;
 
     return maxsim>=similaritythreshold_;
 }
@@ -633,10 +633,10 @@ bool EventTracker::snap( const Interval<float>& amplrg )
     const SamplingData<float> sd( 0, 1 );
     ValueSeriesEvFinder<float, float> evfinder( *targetvs_, targetsize_-1, sd );
 
-    const Interval<int> permsamplerange( mNINT32(permrange_.start/rangestep_),
-				       mNINT32(permrange_.stop/rangestep_) );
-    const float upbound = targetdepth_ + permsamplerange.start - 0.01f;
-    const float dnbound = targetdepth_ + permsamplerange.stop  + 0.01f;
+    const Interval<int> permsamplerange( mNINT32(permrange_.start_/rangestep_),
+				       mNINT32(permrange_.stop_/rangestep_) );
+    const float upbound = targetdepth_ + permsamplerange.start_ - 0.01f;
+    const float dnbound = targetdepth_ + permsamplerange.stop_	+ 0.01f;
 
     const Interval<float> uprg( targetdepth_, mMAX(0,upbound-1) );
     const Interval<float> dnrg( targetdepth_, mMIN(targetsize_-1, dnbound+1) );
@@ -677,7 +677,7 @@ bool EventTracker::snap( const Interval<float>& amplrg )
 	ValueSeriesEvent<float,float> dnevent =
 	    findExtreme(evfinder,dnrg,amplrg,dnampl,dnloopskip,dntroughampl);
 
-	const float& threshold = amplrg.start;
+	const float& threshold = amplrg.start_;
 	float troughthreshold = !mIsUdf(threshold) ? -0.1f*threshold : 0;
 	if ( evtype_==VSEvent::Min )
 	{
@@ -794,16 +794,16 @@ ValueSeriesEvent<float,float> EventTracker::findExtreme(
 	break;
     }
 
-    Interval<int> amplsumrg( sd.nearestIndex(rg.start),
+    Interval<int> amplsumrg( sd.nearestIndex(rg.start_),
     sd.nearestIndex(ev.pos) );
-    const int inc = amplsumrg.start>amplsumrg.stop ? -1 : 1;
+    const int inc = amplsumrg.start_>amplsumrg.stop_ ? -1 : 1;
     avgampl = 0;
     hasloopskips = false;
     bool troughamplset = false;
 
-    float prev = valser.value(amplsumrg.start);
-    for ( int idx=amplsumrg.start;
-	inc>0?idx<=amplsumrg.stop:idx>=amplsumrg.stop; idx+=inc )
+    float prev = valser.value(amplsumrg.start_);
+    for ( int idx=amplsumrg.start_;
+	inc>0?idx<=amplsumrg.stop_:idx>=amplsumrg.stop_; idx+=inc )
     {
 	const float val = valser.value(idx);
 	if ( !troughamplset || (evtype_==VSEvent::Min && val>troughampl ) ||

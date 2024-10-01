@@ -634,9 +634,9 @@ void seismic3d_zrange( hSeismic3D self, float zrg[3] )
     if ( !p ) return;
 
     const auto& z_rg = p->getZrange();
-    zrg[0] = z_rg.start;
-    zrg[1] = z_rg.stop;
-    zrg[2] = z_rg.step;
+    zrg[0] = z_rg.start_;
+    zrg[1] = z_rg.stop_;
+    zrg[2] = z_rg.step_;
 }
 
 

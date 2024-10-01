@@ -48,7 +48,7 @@ void Stack::setOffsetRange( const Interval<float>* offrg )
 void Stack::fillPar( IOPar& par ) const
 {
     if ( offsetrg_ )
-	par.set( sKeyOffsetRange(), offsetrg_->start, offsetrg_->stop );
+	par.set( sKeyOffsetRange(), offsetrg_->start_, offsetrg_->stop_ );
 }
 
 

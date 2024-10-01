@@ -78,15 +78,15 @@ void DraggerCallbackHandler::constrain()
 
     for ( int dim=0; dim<3; dim++ )
     {
-	if ( !mIsUdf(dragger_.spaceranges_[dim].start) &&
-	     dragger_.spaceranges_[dim].start>pos[dim] )
+	if ( !mIsUdf(dragger_.spaceranges_[dim].start_) &&
+	     dragger_.spaceranges_[dim].start_>pos[dim] )
 	{
-	    pos[dim] = dragger_.spaceranges_[dim].start;
+	    pos[dim] = dragger_.spaceranges_[dim].start_;
 	}
-	if ( !mIsUdf(dragger_.spaceranges_[dim].stop) &&
-	     dragger_.spaceranges_[dim].stop<pos[dim] )
+	if ( !mIsUdf(dragger_.spaceranges_[dim].stop_) &&
+	     dragger_.spaceranges_[dim].stop_<pos[dim] )
 	{
-	    pos[dim] = dragger_.spaceranges_[dim].stop;
+	    pos[dim] = dragger_.spaceranges_[dim].stop_;
 	}
     }
 

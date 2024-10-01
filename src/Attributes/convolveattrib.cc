@@ -212,7 +212,7 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
 	{
 	    for ( int crl=-stepout_.crl(); crl<=stepout_.crl(); crl++ )
 	    {
-		for ( int tidx=sg_.start; tidx<=sg_.stop; tidx++ )
+		for ( int tidx=sg_.start_; tidx<=sg_.stop_; tidx++ )
 		{
 		    const float nv =
 			( shapetype==mShapeSphere &&
@@ -416,7 +416,7 @@ bool Convolve::computeDataKernel( const DataHolder& output, int z0,
 	    mAllocLargeVarLenArr( float, vals, sgwidth );
 	    for ( int valindex=0; valindex<sgwidth; valindex++ )
 		vals[valindex] = getInputValue( *inputdata_[idy], dataidx_,
-					        idx+sg_.start+valindex, z0 );
+						idx+sg_.start_+valindex, z0 );
 
 	    for ( int kidx=0; kidx<nrofkernels; kidx++ )
 	    {

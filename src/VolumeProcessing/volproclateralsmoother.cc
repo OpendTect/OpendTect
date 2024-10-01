@@ -95,7 +95,7 @@ bool processFilter( od_int64 start, od_int64 stop, int thread )
 
     for ( od_int64 idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int depthindex = mCast( int, i2samples_.start+idx );
+        const int depthindex = mCast( int, i2samples_.start_+idx );
 	const int inputdepth = depthindex-i2_;
 	const int outputdepth = depthindex-o2_;
 	inputslice.setPos( 2, inputdepth );
@@ -181,8 +181,8 @@ bool processKernel( int start, int stop, int thread )
 
     smoother.setOutput( slice );
 
-    const int kernelorigin0 = (i0samples_.stop+i0samples_.start-ksz0)/2;
-    const int kernelorigin1 = (i1samples_.stop+i1samples_.start-ksz1)/2;
+    const int kernelorigin0 = (i0samples_.stop_+i0samples_.start_-ksz0)/2;
+    const int kernelorigin1 = (i1samples_.stop_+i1samples_.start_-ksz1)/2;
     const int lastinput0 = input_.info().getSize(0)-1;
     const int lastinput1 = input_.info().getSize(1)-1;
     const int outputsz0 = i0samples_.width()+1;
@@ -203,7 +203,7 @@ bool processKernel( int start, int stop, int thread )
     {
 	double sum = 0;
 	od_int64 nrvals = 0;
-	const int depthindex = mCast( int, i2samples_.start+depthidx );
+        const int depthindex = mCast( int, i2samples_.start_+depthidx );
 	const int inputdepth = depthindex-i2_;
 	const int outputdepth = depthindex-o2_;
 
@@ -273,13 +273,13 @@ bool processKernel( int start, int stop, int thread )
 
 	for ( int idx0=0; idx0<outputsz0; idx0++ )
 	{
-	    const int inputpos0 = idx0+i0samples_.start;
+            const int inputpos0 = idx0+i0samples_.start_;
 	    const int globalpos0 = inputpos0+i0_;
 	    const int kernelpos0 = inputpos0-kernelorigin0;
 	    const int outputpos0 = globalpos0-o0_;
 	    for ( int idx1=0; idx1<outputsz1; idx1++ )
 	    {
-		const int inputpos1 = idx1+i1samples_.start;
+                const int inputpos1 = idx1+i1samples_.start_;
 		const int globalpos1 = inputpos1+i1_;
 		const int kernelpos1 = inputpos1-kernelorigin1;
 		const int outputpos1 = globalpos1-o1_;
@@ -412,9 +412,9 @@ Task* LateralSmoother::createTask()
     const TrcKeySampling& ouths = output->sampling().hsamp_;
 
     if ( inphs.step_ != ouths.step_ ||
-	 !mIsEqual(input->sampling().zsamp_.step,
-		   output->sampling().zsamp_.step,
-		   1e-3*SI().zRange(true).step))
+         !mIsEqual(input->sampling().zsamp_.step_,
+                   output->sampling().zsamp_.step_,
+                   1e-3*SI().zRange(true).step_))
     {
 	return 0;
     }
@@ -440,14 +440,14 @@ Task* LateralSmoother::createTask()
     Interval<int> crlsamples(inphs.crlRange().nearestIndex(ouths.start_.crl()),
 			     inphs.crlRange().nearestIndex(ouths.stop_.crl()));
     Interval<int> zsamples( input->sampling().zsamp_.nearestIndex(
-					    output->sampling().zsamp_.start ),
+                                output->sampling().zsamp_.start_ ),
 			    input->sampling().zsamp_.nearestIndex(
-					    output->sampling().zsamp_.stop ) );
+                                output->sampling().zsamp_.stop_ ) );
 
     const int inpz0 =
-	mNINT32(input->sampling().zsamp_.start/input->sampling().zsamp_.step);
+            mNINT32(input->sampling().zsamp_.start_/input->sampling().zsamp_.step_);
     const int outpz0 =
-	mNINT32(output->sampling().zsamp_.start/output->sampling().zsamp_.step);
+            mNINT32(output->sampling().zsamp_.start_/output->sampling().zsamp_.step_);
 
     return new LateralSmootherTask( input->data( 0 ),
 	    inphs.start_.inl(),

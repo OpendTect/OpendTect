@@ -165,8 +165,8 @@ Interval<float> BinIDSurface::zRange()
 	    {
 		if ( zrange_.isUdf() )
 		{
-		    zrange_.start = val;
-		    zrange_.stop = val;
+		    zrange_.start_ = val;
+		    zrange_.stop_ = val;
 		}
 		else
 		    zrange_.include( val );
@@ -191,9 +191,9 @@ Interval<float> BinIDSurface::zRange( Coord p1, Coord p2 ) const
     rrg.sort();
     StepInterval<int> crg( rc1.second, rc2.second, step_.second );
     crg.sort();
-    for ( int row=rrg.start; row<=rrg.stop; row+=rrg.step )
+    for ( int row=rrg.start_; row<=rrg.stop_; row+=rrg.step_ )
     {
-	for ( int col=crg.start; col<=crg.stop; col+=crg.step )
+	for ( int col=crg.start_; col<=crg.stop_; col+=crg.step_ )
 	{
 	    const Coord3 pos = getKnot( RowCol( row, col ) );
 	    if ( !mIsUdf( pos ) && !mIsUdf( pos.z ) )
@@ -201,8 +201,8 @@ Interval<float> BinIDSurface::zRange( Coord p1, Coord p2 ) const
 
 		if ( res.isUdf() )
 		{
-		    res.start = pos.z;
-		    res.stop = pos.z;
+		    res.start_ = pos.z;
+		    res.stop_ = pos.z;
 		}
 		else
 		    res.include( pos.z );
@@ -229,17 +229,17 @@ Coord3 BinIDSurface::lineSegmentIntersection( Coord3 start, Coord3 end,
     StepInterval<int> crg( bidstart.second, bidend.second, step_.second );
     crg.sort();
 
-    for ( int row=rrg.start; row<=rrg.stop; row+=rrg.step )
+    for ( int row=rrg.start_; row<=rrg.stop_; row+=rrg.step_ )
     {
-	for (int col=crg.start; col<=crg.stop; col+=crg.step )
+	for (int col=crg.start_; col<=crg.stop_; col+=crg.step_ )
 	{
 	    Coord3 v00 = getKnot( RowCol( row, col), true );
 	    v00.z += zshift;
-	    Coord3 v01 = getKnot( RowCol( row, col+crg.step ), true );
+	    Coord3 v01 = getKnot( RowCol( row, col+crg.step_ ), true );
 	    v01.z += zshift;
-	    Coord3 v11 = getKnot( BinID( row+rrg.step, col+crg.step ), true );
+	    Coord3 v11 = getKnot( BinID( row+rrg.step_, col+crg.step_ ), true );
 	    v11.z += zshift;
-	    Coord3 v10 = getKnot( BinID( row+rrg.step, col ), true );
+	    Coord3 v10 = getKnot( BinID( row+rrg.step_, col ), true );
 	    v10.z += zshift;
 	    res = lineSegmentIntersectsTriangle( start, end, v00, v01, v11 );
 	    if ( !mIsUdf(res) )
@@ -460,8 +460,8 @@ StepInterval<int> BinIDSurface::rowRange( int col ) const
 
     }
 
-    ret.start = origin_.row() + startidx * step_.row();
-    ret.stop = origin_.row() + stopidx * step_.row();
+    ret.start_ = origin_.row() + startidx * step_.row();
+    ret.stop_ = origin_.row() + stopidx * step_.row();
     return ret;
 }
 
@@ -497,8 +497,8 @@ StepInterval<int> BinIDSurface::colRange( int row ) const
 
     }
 
-    ret.start = origin_.col() + startidy * step_.col();
-    ret.stop = origin_.col() + stopidy * step_.col();
+    ret.start_ = origin_.col() + startidy * step_.col();
+    ret.stop_ = origin_.col() + stopidy * step_.col();
     return ret;
 }
 

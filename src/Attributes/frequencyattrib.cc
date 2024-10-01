@@ -114,8 +114,8 @@ Frequency::Frequency( Desc& ds )
     mGetFloat( variable_, paramvalStr() );
     mGetBool( dumptofile_, dumptofileStr() );
     mGetBool( smoothspectrum_, smoothspectrumStr() );
-    samplegate_ = Interval<int>(mNINT32(gate_.start/SI().zStep()),
-			       mNINT32(gate_.stop/SI().zStep()));
+    samplegate_ = Interval<int>(mNINT32(gate_.start_/SI().zStep()),
+				mNINT32(gate_.stop_/SI().zStep()));
 
     if ( !smoothspectrum_ )
     {
@@ -165,8 +165,8 @@ void Frequency::prepPriorToBoundsCalc()
 {
     if ( !mIsEqual( refstep_, SI().zStep(), 1e-6 ) )
     {
-	samplegate_ = Interval<int>(mNINT32(gate_.start/refstep_),
-				   mNINT32(gate_.stop/refstep_));
+	samplegate_ = Interval<int>(mNINT32(gate_.start_/refstep_),
+				    mNINT32(gate_.stop_/refstep_));
 
 	if ( !smoothspectrum_ )
 	{
@@ -259,7 +259,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = z0 + idx;
-	int tempsamp = idx + samplegate_.start;
+	int tempsamp = idx + samplegate_.start_;
 	for ( int idy=0; idy<sgatesz; idy ++ )
 	{
 	    float real = getInputValue( *redata_, realidx_, tempsamp, z0 );

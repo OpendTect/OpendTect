@@ -304,43 +304,43 @@ void uiHorSaveFieldGrp::setHorRange( const Interval<int>& newinlrg,
     StepInterval<int> rowrg = hor->geometry().rowRange();
     StepInterval<int> colrg = hor->geometry().colRange( -1 );
 
-    while ( colrg.start-colrg.step >= newcrlrg.start )
+    while ( colrg.start_-colrg.step_ >= newcrlrg.start_ )
     {
-	const int newcol = colrg.start-colrg.step;
+	const int newcol = colrg.start_-colrg.step_;
 	surf->insertCol( newcol );
-	colrg.start = newcol;
+	colrg.start_ = newcol;
     }
 
-    if ( colrg.start < newcrlrg.start )
-	surf->removeCol( colrg.start, newcrlrg.start-1 );
+    if ( colrg.start_ < newcrlrg.start_ )
+	surf->removeCol( colrg.start_, newcrlrg.start_-1 );
 
-    while ( colrg.stop+colrg.step <= newcrlrg.stop )
+    while ( colrg.stop_+colrg.step_ <= newcrlrg.stop_ )
     {
-	const int newcol = colrg.stop+colrg.step;
+	const int newcol = colrg.stop_+colrg.step_;
 	surf->insertCol( newcol );
-	colrg.stop = newcol;
+	colrg.stop_ = newcol;
     }
 
-    if ( colrg.stop > newcrlrg.stop )
-	surf->removeCol( newcrlrg.stop+1, colrg.stop );
+    if ( colrg.stop_ > newcrlrg.stop_ )
+	surf->removeCol( newcrlrg.stop_+1, colrg.stop_ );
 
-    while ( rowrg.start-rowrg.step >= newinlrg.start )
+    while ( rowrg.start_-rowrg.step_ >= newinlrg.start_ )
     {
-	const int newrow = rowrg.start-rowrg.step;
+	const int newrow = rowrg.start_-rowrg.step_;
 	surf->insertRow( newrow );
-	rowrg.start = newrow;
+	rowrg.start_ = newrow;
     }
 
-    if ( rowrg.start < newinlrg.start )
-	surf->removeRow( rowrg.start, newinlrg.start-1 );
+    if ( rowrg.start_ < newinlrg.start_ )
+	surf->removeRow( rowrg.start_, newinlrg.start_-1 );
 
-    while ( rowrg.stop+rowrg.step <= newinlrg.stop )
+    while ( rowrg.stop_+rowrg.step_ <= newinlrg.stop_ )
     {
-	const int newrow = rowrg.stop+rowrg.step;
+	const int newrow = rowrg.stop_+rowrg.step_;
 	surf->insertRow( newrow );
-	rowrg.stop = newrow;
+	rowrg.stop_ = newrow;
     }
 
-    if ( rowrg.stop > newinlrg.stop )
-	surf->removeRow( newinlrg.stop+1, rowrg.stop );
+    if ( rowrg.stop_ > newinlrg.stop_ )
+	surf->removeRow( newinlrg.stop_+1, rowrg.stop_ );
 }

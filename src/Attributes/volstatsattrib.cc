@@ -181,15 +181,15 @@ void VolStatsBase::prepPriorToBoundsCalc()
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep;
-    bool chgstopr = mNINT32(gate_.stop*zFactor()) % truestep;
-    bool chgstartd = mNINT32(desgate_.start*zFactor()) % truestep;
-    bool chgstopd = mNINT32(desgate_.stop*zFactor()) % truestep;
+    bool chgstartr = mNINT32(gate_.start_*zFactor()) % truestep;
+    bool chgstopr = mNINT32(gate_.stop_*zFactor()) % truestep;
+    bool chgstartd = mNINT32(desgate_.start_*zFactor()) % truestep;
+    bool chgstopd = mNINT32(desgate_.stop_*zFactor()) % truestep;
 
-    mAdjustGate( chgstartr, gate_.start, false )
-    mAdjustGate( chgstopr, gate_.stop, true )
-    mAdjustGate( chgstartd, desgate_.start, false )
-    mAdjustGate( chgstopd, desgate_.stop, true )
+    mAdjustGate( chgstartr, gate_.start_, false )
+	    mAdjustGate( chgstopr, gate_.stop_, true )
+	    mAdjustGate( chgstartd, desgate_.start_, false )
+	    mAdjustGate( chgstopd, desgate_.stop_, true )
 
     Provider::prepPriorToBoundsCalc();
 }
@@ -203,7 +203,7 @@ const Interval<float>* VolStatsBase::reqZMargin( int inp, int ) const
 
 const Interval<float>* VolStatsBase::desZMargin( int inp, int ) const
 {
-    if ( !desgate_.start && !desgate_.stop  ) return 0;
+    if ( !desgate_.start_ && !desgate_.stop_  ) return 0;
 
     return &desgate_;
 }
@@ -263,8 +263,8 @@ VolStats::VolStats( Desc& ds )
     {
 	float maxso = mMAX(stepout_.inl()*inlDist(), stepout_.crl()*crlDist());
 	const float maxsecdip = maxSecureDip();
-	desgate_.start = gate_.start - maxso*maxsecdip;
-	desgate_.stop = gate_.stop + maxso*maxsecdip;
+	desgate_.start_ = gate_.start_ - maxso*maxsecdip;
+	desgate_.stop_ = gate_.stop_ + maxso*maxsecdip;
 
 	for ( int idx=0; idx<positions_.size(); idx++ )
 	    steerindexes_ += getSteeringIndex( positions_[idx] );
@@ -400,8 +400,8 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
     const int nrpos = positions_.size();
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				    mNINT32(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start_/refstep_),
+				    mNINT32(gate_.stop_/refstep_) );
     const int gatesz = samplegate.width() + 1;
     const float extrasamp = output.extrazfromsamppos_/refstep_;
 
@@ -420,7 +420,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 
     Stats::WindowedCalc<double> wcalc( rcsetup, statsz );
 
-    for ( int idz=samplegate.start; idz<=samplegate.stop; idz++ )
+    for ( int idz=samplegate.start_; idz<=samplegate.stop_; idz++ )
     {
 	for ( int posidx=0; posidx<nrpos; posidx++ )
 	{
@@ -448,9 +448,9 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		float shift = extrasamp;
 		if ( dosteer_ )
 		    shift += getInputValue(*steeringdata_,steerindexes_[posidx],
-					    isamp+samplegate.stop, z0 );
+					   isamp+samplegate.stop_, z0 );
 
-		const float samplepos = isamp + shift + samplegate.stop;
+		const float samplepos = isamp + shift + samplegate.stop_;
 		wcalc += getInterpolInputValue( *dh, dataidx_, samplepos, z0 );
 	    }
 	}

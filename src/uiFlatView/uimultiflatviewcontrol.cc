@@ -99,14 +99,14 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	    {
 		const float refz = refdepths_.first();
 		const float reftwt = firstd2t.getTime( refz );
-		depthrg.start = firstd2t.getDepth( reftwt + timerg.start );
-		depthrg.stop = firstd2t.getDepth( reftwt + timerg.stop );
+		depthrg.start_ = firstd2t.getDepth( reftwt + timerg.start_ );
+		depthrg.stop_ = firstd2t.getDepth( reftwt + timerg.stop_ );
 		depthrg.shift( -refz );
 	    }
 	    else
 	    {
-		depthrg.start = firstd2t.getDepth( timerg.start );
-		depthrg.stop = firstd2t.getDepth( timerg.stop );
+		depthrg.start_ = firstd2t.getDepth( timerg.start_ );
+		depthrg.stop_ = firstd2t.getDepth( timerg.stop_ );
 	    }
 
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
@@ -117,22 +117,22 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 		{
 		    const float refz = refdepths_[idx];
 		    const float reftwt = d2t.getTime( refz );
-		    curdepthrg.start = d2t.getDepth( reftwt + timerg.start );
-		    curdepthrg.stop = d2t.getDepth( reftwt + timerg.stop );
+		    curdepthrg.start_ = d2t.getDepth( reftwt + timerg.start_ );
+		    curdepthrg.stop_ = d2t.getDepth( reftwt + timerg.stop_ );
 		    curdepthrg.shift( -refz );
 		}
 		else
 		{
-		    curdepthrg.start = d2t.getDepth( timerg.start );
-		    curdepthrg.stop = d2t.getDepth( timerg.stop );
+		    curdepthrg.start_ = d2t.getDepth( timerg.start_ );
+		    curdepthrg.stop_ = d2t.getDepth( timerg.stop_ );
 		}
 
 		if ( !curdepthrg.isUdf() )
 		    depthrg.include( curdepthrg );
 	    }
 
-	    viewwr.setTop( depthrg.start );
-	    viewwr.setBottom( depthrg.stop );
+	    viewwr.setTop( depthrg.start_ );
+	    viewwr.setBottom( depthrg.stop_ );
 	}
 	else
 	{
@@ -143,14 +143,14 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 	    {
 		const float refz = refdepths_.first();
 		const float reftwt = firstd2t.getTime( refz );
-		timerg.start = firstd2t.getTime( refz + depthrg.start );
-		timerg.stop = firstd2t.getTime( refz + depthrg.stop );
+		timerg.start_ = firstd2t.getTime( refz + depthrg.start_ );
+		timerg.stop_ = firstd2t.getTime( refz + depthrg.stop_ );
 		timerg.shift( -reftwt );
 	    }
 	    else
 	    {
-		timerg.start = firstd2t.getTime( depthrg.start );
-		timerg.stop = firstd2t.getTime( depthrg.stop );
+		timerg.start_ = firstd2t.getTime( depthrg.start_ );
+		timerg.stop_ = firstd2t.getTime( depthrg.stop_ );
 	    }
 
 	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
@@ -161,22 +161,22 @@ bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
 		{
 		    const float refz = refdepths_[idx];
 		    const float reftwt = d2t.getTime( refz );
-		    curtimerg.start = d2t.getTime( refz + depthrg.start );
-		    curtimerg.stop = d2t.getTime( refz + depthrg.stop );
+		    curtimerg.start_ = d2t.getTime( refz + depthrg.start_ );
+		    curtimerg.stop_ = d2t.getTime( refz + depthrg.stop_ );
 		    curtimerg.shift( -reftwt );
 		}
 		else
 		{
-		    curtimerg.start = d2t.getTime( depthrg.start );
-		    curtimerg.stop = d2t.getTime( depthrg.stop );
+		    curtimerg.start_ = d2t.getTime( depthrg.start_ );
+		    curtimerg.stop_ = d2t.getTime( depthrg.stop_ );
 		}
 
 		if ( !curtimerg.isUdf() )
 		    timerg.include( curtimerg );
 	    }
 
-	    viewwr.setTop( timerg.start );
-	    viewwr.setBottom( timerg.stop );
+	    viewwr.setTop( timerg.start_ );
+	    viewwr.setBottom( timerg.stop_ );
 	}
     }
 

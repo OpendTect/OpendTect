@@ -2031,8 +2031,8 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::genPSPostProcDataSet(
 	return nullptr;
 
     PreStack::PropCalc::Setup calcsetup;
-    calcsetup.anglerg_.set( mCast(float,sgp.anglerg_.start),
-			    mCast(float,sgp.anglerg_.stop) );
+    calcsetup.anglerg_.set( mCast(float,sgp.anglerg_.start_),
+                            mCast(float,sgp.anglerg_.stop_) );
     if ( isanglestack )
     {
 	calcsetup.calctype_ = PreStack::PropCalc::Stats;
@@ -2106,9 +2106,9 @@ StratSeqSplitter( const DataMgr& dm, int lmsidx, const SyntheticData& sd,
     , totalnr_(dm.nrTraces(lmsidx))
 {
     const ZSampling zrg = sd.zRange();
-    zrg_.start = zrg.start;
-    zrg_.stop = zrg.stop;
-    zrg_.step = zstep;
+    zrg_.start_ = zrg.start_;
+    zrg_.stop_ = zrg.stop_;
+    zrg_.step_ = zstep;
     msg_ = tr("Preparing Models");
 }
 
@@ -2161,8 +2161,8 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
 	    return false;
 
 	const Interval<float> seqdepthrg = seq.zRange();
-	const float seqstarttime = t2d->getTime( seqdepthrg.start );
-	const float seqstoptime = t2d->getTime( seqdepthrg.stop );
+        const float seqstarttime = t2d->getTime( seqdepthrg.start_ );
+        const float seqstoptime = t2d->getTime( seqdepthrg.stop_ );
 	const Interval<float> seqtimerg( seqstarttime, seqstoptime );
 	for ( int idz=0; idz<nrlm; idz++ )
 	{
@@ -2172,8 +2172,8 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadidx */ ) override
 	    if ( !seqtimerg.includes(time,false) )
 		continue;
 
-	    const float dptstart = t2d->getDepth( time - (float)zrg_.step );
-	    const float dptstop = t2d->getDepth( time + (float)zrg_.step );
+            const float dptstart = t2d->getDepth( time - (float)zrg_.step_ );
+            const float dptstop = t2d->getDepth( time + (float)zrg_.step_ );
 	    const Interval<float> depthrg( dptstart, dptstop );
 	    seq.getSequencePart( depthrg, true, curseq );
 	}
@@ -2211,9 +2211,9 @@ PropertyDataSetsCreator( DataMgr& dm, int lmsidx,
     , totalnr_(sd.nrPositions())
 {
     const ZSampling zrg = sd.zRange();
-    zrg_.start = zrg.start;
-    zrg_.stop = zrg.stop;
-    zrg_.step = zstep;
+    zrg_.start_ = zrg.start_;
+    zrg_.stop_ = zrg.stop_;
+    zrg_.step_ = zstep;
     const PropertyRefSelection& prs =
 			datamgr_.layerModel( lmsidx_ ).propertyRefs();
     for ( const auto& sgp : propsgps )
@@ -2257,7 +2257,7 @@ bool doPrepare( int /* nrthreads */ ) override
 	const SeisTrc& inptrc = *sd_.getTrace( itrc );
 	SeisTrc trc( sz );
 	trc.info() = inptrc.info();
-	trc.info().sampling.step = zrg_.step;
+        trc.info().sampling.step_ = zrg_.step_;
 	trc.info().offset = 0.f;
 	trc.zero();
 	for ( int iprop=0; iprop<nrprops; iprop++ )
@@ -2281,7 +2281,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 {
     const Strat::LayerModel& lm = datamgr_.layerModel( lmsidx_ );
     const int sz = layermodels_.size();
-    const float step = mCast( float, zrg_.step );
+    const float step = mCast( float, zrg_.step_ );
     ::FFTFilter filter( sz, step );
     const float f4 = 1.f / (2.f * step );
     filter.setLowPass( f4 );
@@ -2291,8 +2291,8 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
     {
 	const int iseq = datamgr_.iSeq( itrc );
 	const Strat::LayerSequence& seq = lm.sequence( iseq );
-	const Interval<float> seqtimerg(  sd_.getTime(seq.zRange().start,itrc),
-					  sd_.getTime(seq.zRange().stop,itrc) );
+        const Interval<float> seqtimerg(  sd_.getTime(seq.zRange().start_,itrc),
+                                          sd_.getTime(seq.zRange().stop_,itrc) );
 	if ( seqtimerg.isUdf() )
 	    return false;
 
@@ -2890,7 +2890,7 @@ bool doPrepare( int nrthreads ) override
 	deepErase( filters_ );
 	for ( int idx=0; idx<nrthreads; idx++ )
 	{
-	    auto* filter = new ::FFTFilter( zrg_.nrSteps()+1, zrg_.step );
+            auto* filter = new ::FFTFilter( zrg_.nrSteps()+1, zrg_.step_ );
 	    filters_ += filter;
 	    if ( sgp_.filtertype_=="LowPass" && sgp_.freqrg_.size()==2 )
 		filter->setLowPass( sgp_.freqrg_[0],

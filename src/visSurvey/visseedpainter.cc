@@ -415,7 +415,7 @@ void SeedPainter::paintSeedsOnZSlice( const visBase::EventInfo& curev,
 #define mAddPosOnZSlice(inl,crl) \
     { \
 	const BinID bid( inl, crl ); \
-	const float z = tkzs.zsamp_.start; \
+	const float z = tkzs.zsamp_.start_; \
 	if ( tkzs.hsamp_.includes(bid,true) ) \
 	{ \
 	    const Coord mypos = SI().transform( bid ); \

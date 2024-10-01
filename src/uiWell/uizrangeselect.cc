@@ -111,19 +111,19 @@ Well::ZRangeSelector uiZRangeSelect::zRangeSel()
     {
 	const Interval<float> off = markeroffsetfld_->getFZRange();
 	params.setTopMarker( markersel_->getText(true),
-					 mIsUdf(off.start) ? 0.f : off.start );
+			     mIsUdf(off.start_) ? 0.f : off.start_ );
 	params.setBotMarker( markersel_->getText(false),
-					 mIsUdf(off.stop) ? 0.f : off.stop );
+			     mIsUdf(off.stop_) ? 0.f : off.stop_ );
     }
     else
     {
 	Interval<float> zrng = zrangefld_->getFZRange();
-	if ( !mIsUdf(zrng.start) || !mIsUdf(zrng.stop) )
+	if ( !mIsUdf(zrng.start_) || !mIsUdf(zrng.stop_) )
 	{
-	    if ( mIsUdf(zrng.start) )
-		zrng.start = 0.f;
-	    if ( mIsUdf(zrng.stop) )
-		zrng.stop = 0.f;
+	    if ( mIsUdf(zrng.start_) )
+		zrng.start_ = 0.f;
+	    if ( mIsUdf(zrng.stop_) )
+		zrng.stop_ = 0.f;
 	}
 	params.setFixedRange( zrng, zintwt_ );
     }

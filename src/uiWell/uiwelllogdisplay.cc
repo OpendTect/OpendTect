@@ -137,8 +137,8 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
     uiWellLogDisplay::LogData& ld = logData(first);
     deepErase( ld.curvepolyitms_ );
 
-    const float rgstop = ld.xax_.range().stop;
-    const float rgstart = ld.xax_.range().start;
+    const float rgstop = ld.xax_.range().stop_;
+    const float rgstart = ld.xax_.range().start_;
 
     int sz = ld.log() ? ld.log()->size() : 0;
     if ( sz < 2 ) return;
@@ -211,12 +211,12 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 
     if ( !ld.disp_.isleftfill_ && !ld.disp_.isrightfill_ ) return;
 
-    const float rgstop = ld.xax_.range().stop;
-    const float rgstart = ld.xax_.range().start;
+    const float rgstop = ld.xax_.range().stop_;
+    const float rgstart = ld.xax_.range().start_;
     const bool isrev = rgstop < rgstart;
 
-    const float colrgstop = ld.disp_.fillrange_.stop;
-    const float colrgstart = ld.disp_.fillrange_.start;
+    const float colrgstop = ld.disp_.fillrange_.stop_;
+    const float colrgstart = ld.disp_.fillrange_.start_;
     const float colrgwidth = ld.disp_.fillrange_.width();
     const bool iscolrev = colrgstop < colrgstart;
 

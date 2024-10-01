@@ -77,7 +77,7 @@ bool Chain::Connection::operator!=( const Chain::Connection& b ) const
 
 // Chain
 Chain::Chain()
-    : zstep_( SI().zRange(true).step )
+    : zstep_( SI().zRange(true).step_ )
     , zist_( SI().zIsTime() )
     , freeid_( 0 )
     , outputstepid_( Step::cUndefID() )

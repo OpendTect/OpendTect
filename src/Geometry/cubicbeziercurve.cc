@@ -77,7 +77,7 @@ IntervalND<float> CubicBezierCurve::boundingBox(bool approx) const
     const int nextidx = previdx+1;\
     const GeomPosID nextparam = range.atIndex(nextidx);\
 \
-    const float u = (param-prevparam)/range.step;\
+    const float u = (param-prevparam)/range.step_;\
     Coord3 temppos[] = { positions[previdx], getBezierVertex(prevparam,false),\
 			 getBezierVertex(nextparam,true),\
 			 positions[previdx+1] }
@@ -112,7 +112,7 @@ Coord3 CubicBezierCurve::computePosition(float param) const
 			 getBezierVertex(nextparam,true),
 			 positions[nextidx] };
 
-    return cubicDeCasteljau( temppos, 0, 1, (param-prevparam)/range.step );
+    return cubicDeCasteljau( temppos, 0, 1, (param-prevparam)/range.step_ );
 }
 
 

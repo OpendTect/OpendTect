@@ -290,7 +290,7 @@ void LogCubeCreator::getOutputNames( BufferStringSet& names ) const
 
 bool LogCubeCreator::doPrepare( int )
 {
-    extractparams_.zstep_ = SI().zRange( true ).step;
+    extractparams_.zstep_ = SI().zRange( true ).step_;
     extractparams_.extractzintime_ = SI().zIsTime();
     extractparams_.snapZRangeToSurvey( true );
 
@@ -436,7 +436,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 				: wd->logs().getLog( lognms.get(ilog).buf() );
     }
 
-    StepInterval<float> logzrg( logsamp->zRange().start, logsamp->zRange().stop,
+    StepInterval<float> logzrg( logsamp->zRange().start_, logsamp->zRange().stop_,
 				extractparams_.zstep_ );
     const int ns = logsamp->nrZSamples();
     const int nrlogs = logcubes_.size();

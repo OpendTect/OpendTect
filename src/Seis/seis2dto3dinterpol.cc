@@ -199,8 +199,8 @@ bool Seis2DTo3DInterPol::read()
 	    trc->reSize( ns, false );
 	    trc->info().setPos( bid );
 	    trc->info().calcCoord();
-	    trc->info().sampling.start = tkzs_.zsamp_.start;
-	    trc->info().sampling.step = tkzs_.zsamp_.step;
+            trc->info().sampling.start_ = tkzs_.zsamp_.start_;
+            trc->info().sampling.step_ = tkzs_.zsamp_.step_;
 	    for ( int isamp=0; isamp<ns; isamp++ )
 	    {
 		const float z = tkzs_.zsamp_.atIndex( isamp );
@@ -316,8 +316,8 @@ public:
 			 hrg.stop_.crl() + hrg.step_.crl() );
 
 	int zdiff = n3_ - tkzs_.nrZ();
-	refz_.set( tkzs_.zsamp_.start,
-		   tkzs_.zsamp_.stop + (zdiff + 1) * tkzs_.zsamp_.step );
+        refz_.set( tkzs_.zsamp_.start_,
+                   tkzs_.zsamp_.stop_ + (zdiff + 1) * tkzs_.zsamp_.step_ );
 	refz_.scale( zscale_ );
 
 	TypeSet<Coord> refpos2d;
@@ -327,8 +327,8 @@ public:
 	refpos3d_.setEmpty();
 	for ( int i=0; i<refbid.size(); i++)
 	{
-	    refpos3d_ += Coord3(refpos2d[i] ,refz_.start);
-	    refpos3d_ += Coord3(refpos2d[i] ,refz_.stop);
+            refpos3d_ += Coord3(refpos2d[i] ,refz_.start_);
+            refpos3d_ += Coord3(refpos2d[i] ,refz_.stop_);
 	}
 
 	return true;
@@ -349,7 +349,7 @@ public:
 	    for ( int idz=0; idz<n3_; idz++)
 	    {
 		const Coord3 pos3d(pos2d,
-			    tkzs_.zsamp_.step*zscale_*idz + refz_.start);
+                                   tkzs_.zsamp_.step_*zscale_*idz + refz_.start_);
 
 		int nearestidx = 0;
 		float nearest = (float)pos3d.distTo(refpos3d_[0]);
@@ -364,8 +364,8 @@ public:
 		}
 		const float dist2d = (float)pos2d.distTo(
 						refpos3d_[nearestidx].coord());
-		double topz = pos3d.z -refz_.start;
-		double bottomz = refz_.stop-pos3d.z;
+                double topz = pos3d.z -refz_.start_;
+                double bottomz = refz_.stop_-pos3d.z;
 		if ( topz > tan( taperangle )*dist2d
 			&& bottomz > tan( taperangle )*dist2d )
 		    continue;

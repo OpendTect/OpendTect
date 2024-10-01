@@ -38,10 +38,10 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
 	scalerg = Interval<float>(0,100);
 
     AxisLayout<float> al( scalerg );
-    scalerg = Interval<float>( al.sd_.start, al.stop_ );
+    scalerg = Interval<float>( al.sd_.start_, al.stop_ );
 
     SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
-    Interval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1) );
+    Interval<float> zrg( zsd.start_, zsd.atIndex(trcbuf_.get(0)->size()-1) );
     zrg.scale( SI().zDomain().userFactor() );
 
     uiFuncDispBase::Setup fdsu;
@@ -67,9 +67,9 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     stepfld_->attach( rightOf, rangefld_ );
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiGainAnalysisDlg,dispRangeChgd) );
-    if ( al.sd_.step<1 )
+    if ( al.sd_.step_<1 )
 	stepfld_->box()->setNrDecimals( 2 );
-    stepfld_->box()->setValue( al.sd_.step );
+    stepfld_->box()->setValue( al.sd_.step_ );
 
     ampscaletypefld_ = new uiGenInput( mandispgrp, tr("Amplitude Scale"),
 	    			    BoolInpSpec(true,tr("Linear"),tr("dB")) );
@@ -114,19 +114,19 @@ void uiGainAnalysisDlg::setData( bool sety )
     TypeSet<float> scalefactors;
 
     SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
-    StepInterval<float> zrg( zsd.start, zsd.atIndex(trcbuf_.get(0)->size()-1),
-	    		     zsd.step );
+    StepInterval<float> zrg( zsd.start_, zsd.atIndex(trcbuf_.get(0)->size()-1),
+                             zsd.step_ );
     zrg.scale( SI().zDomain().userFactor() );
 
     const TypeSet<float> yvals = funcdisp_->yVals();
     if ( !yvals.size() && !scalefactors_.size() )
     {
 	Interval<float> scalerg = funcdisp_->yAxis(false)->range();
-	scalefactors += scalerg.start;
-	scalefactors += scalerg.start;
+        scalefactors += scalerg.start_;
+        scalefactors += scalerg.start_;
 	zvals.erase();
-	zvals += zrg.start;
-	zvals += zrg.stop;
+        zvals += zrg.start_;
+        zvals += zrg.stop_;
     }
     else
     {
@@ -167,7 +167,7 @@ void uiGainAnalysisDlg::setData( bool sety )
     }
 
     StepInterval<float> scalerg = rangefld_->getFInterval();
-    scalerg.step = stepfld_->box()->getFValue();
+    scalerg.step_ = stepfld_->box()->getFValue();
     funcdisp_->setup().yrg_ = scalerg;
 
     if ( sety )
@@ -195,7 +195,7 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
 	return;
     }
 
-    range.step = stepfld_->box()->getFValue();
+    range.step_ = stepfld_->box()->getFValue();
     const TypeSet<float>& yvals = funcdisp_->yVals();
     Interval<float> yvalrange( mUdf(float), -mUdf(float) );
     for ( int idx=0; idx<yvals.size(); idx++ )
@@ -205,8 +205,8 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
 	yvalrange.include( yvals[idx], false );
     }
 
-    if ( (!mIsUdf(yvalrange.start) && !range.includes(yvalrange.start,true)) ||
-	 (!mIsUdf(-yvalrange.stop) && !range.includes(yvalrange.stop,true)) )
+    if ( (!mIsUdf(yvalrange.start_) && !range.includes(yvalrange.start_,true)) ||
+         (!mIsUdf(-yvalrange.stop_) && !range.includes(yvalrange.stop_,true)) )
     {
 	rangefld_->setValue( funcdisp_->yAxis(false)->range() );
 	uiMSG().error( tr("Scale Curve does not fit in the range") );

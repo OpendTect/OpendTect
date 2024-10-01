@@ -220,7 +220,7 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 {
     FilePath basefp( iopar_.find(sKey::TmpStor()) );
 
-    for ( int inl=todoinls_.start; inl<=todoinls_.stop; inl+=todoinls_.step )
+    for ( int inl=todoinls_.start_; inl<=todoinls_.stop_; inl+=todoinls_.step_ )
     {
 	BufferString fnm( "i." ); fnm += inl;
 	FilePath fp( basefp, fnm );
@@ -282,11 +282,11 @@ MultiID SeisJobExecProv::tempStorID() const
 	mDynamicCastGet(IOStream*,iostrm,ctio_.ioobj_)
 	fp.add( "i.*" );
 	StepInterval<int> inls( todoinls_ );
-	if ( inls.start == 0 && inls.stop == 0 )
+	if ( inls.start_ == 0 && inls.stop_ == 0 )
 	{
-	    inls.start = SI().sampling(false).hsamp_.start_.inl();
-	    inls.stop = SI().sampling(false).hsamp_.stop_.inl();
-	    inls.step = SI().sampling(false).hsamp_.step_.inl();
+	    inls.start_ = SI().sampling(false).hsamp_.start_.inl();
+	    inls.stop_ = SI().sampling(false).hsamp_.stop_.inl();
+	    inls.step_ = SI().sampling(false).hsamp_.step_.inl();
 	}
 
 	iostrm->fileSpec().setFileName( fp.fullPath() );

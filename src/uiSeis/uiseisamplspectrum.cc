@@ -33,7 +33,7 @@ void uiSeisAmplSpectrum::setDataPackID(
 	auto dp = DPM(dmid).get<SeisDataPack>( dpid );
 	if ( dp )
 	{
-	    setup_.nyqvistspspace_ = dp->zRange().step;
+	    setup_.nyqvistspspace_ = dp->zRange().step_;
 	    setData( dp->data(version) );
 	}
     }

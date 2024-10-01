@@ -167,7 +167,7 @@ void BoxDraggerCallbackHandler::constrain( Coord3 center, Coord3 scale,
 	if ( dragger_.spaceranges_[dim].width(false) > 0.0 )
 	{
 	    double diff = center[dim] - 0.5*scale[dim] -
-			  dragger_.spaceranges_[dim].start;
+                          dragger_.spaceranges_[dim].start_;
 	    if ( diff < 0.0 )
 	    {
 		center[dim] -= translated ? diff : 0.5*diff;
@@ -176,7 +176,7 @@ void BoxDraggerCallbackHandler::constrain( Coord3 center, Coord3 scale,
 	    }
 
 	    diff = center[dim] + 0.5*scale[dim] -
-		   dragger_.spaceranges_[dim].stop;
+                   dragger_.spaceranges_[dim].stop_;
 	    if ( diff > 0.0 )
 	    {
 		center[dim] -= translated ? diff : 0.5*diff;
@@ -187,7 +187,7 @@ void BoxDraggerCallbackHandler::constrain( Coord3 center, Coord3 scale,
 
 	if ( !translated && dragger_.widthranges_[dim].width(false)>0.0 )
 	{
-	    double diff = scale[dim] - dragger_.widthranges_[dim].start;
+            double diff = scale[dim] - dragger_.widthranges_[dim].start_;
 	    if ( diff < 0 )
 	    {
 		if ( center[dim] < initialcenter_[dim] )
@@ -198,7 +198,7 @@ void BoxDraggerCallbackHandler::constrain( Coord3 center, Coord3 scale,
 		scale[dim] -= diff;
 	    }
 
-	    diff = scale[dim] - dragger_.widthranges_[dim].stop;
+            diff = scale[dim] - dragger_.widthranges_[dim].stop_;
 	    if ( diff > 0 )
 	    {
 		if ( center[dim] > initialcenter_[dim] )
@@ -244,7 +244,7 @@ void BoxDraggerCallbackHandler::initDragControl()
 
     mGetEventHandlingTabPlaneInfo( tpd, dim, sense, mousepos );
 
-    const double scalefactor = dragger_.dragctrlspacing_[dim].step;
+    const double scalefactor = dragger_.dragctrlspacing_[dim].step_;
     const Coord3 dragdir( dim==0, dim==1, dim==2 );
     dragcontroller_.init( mousepos, scalefactor, dragdir );
     maxdragdist_ = mUdf(double);
@@ -275,22 +275,22 @@ void BoxDraggerCallbackHandler::applyDragControl( Coord3& displacement )
     dragcontroller_.transform( displacement, mousepos, maxdragdist_ );
 
     const float width = dragger_.width()[dim];
-    double maxboxdragdist = dragger_.widthranges_[dim].stop - width;
+    double maxboxdragdist = dragger_.widthranges_[dim].stop_ - width;
     double offset = 0.5 * width;
 
     if ( sense*displacement[dim] < 0.0 )
     {
-	 maxboxdragdist = width - dragger_.widthranges_[dim].start;
+        maxboxdragdist = width - dragger_.widthranges_[dim].start_;
 	 offset = -offset;
     }
 
     maxdragdist_ = mMIN( maxboxdragdist,
-	    dragger_.spaceranges_[dim].stop - initialcenter_[dim] - offset );
+                         dragger_.spaceranges_[dim].stop_ - initialcenter_[dim] - offset );
 
     if ( displacement[dim] < 0.0 )
     {
 	maxdragdist_ = -1 * mMIN( maxboxdragdist,
-	    initialcenter_[dim] - dragger_.spaceranges_[dim].start - offset );
+                                  initialcenter_[dim] - dragger_.spaceranges_[dim].start_ - offset );
     }
 }
 

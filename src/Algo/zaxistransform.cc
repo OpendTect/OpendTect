@@ -194,16 +194,16 @@ ZSampling ZAxisTransform::getZInterval( const ZSampling& zsamp,
     if ( makenice && from != to )
     {
 	const int userfac = to.def_.userFactor();
-	float zstep = ret.step;
+	float zstep = ret.step_;
 	zstep = zstep<1e-3f ? 1.0f : mNINT32(zstep*userfac);
 	zstep /= userfac;
-	ret.step = zstep;
+	ret.step_ = zstep;
 
 	const Interval<float>& rg = ret;
-	const int startidx = rg.indexOnOrAfter( rg.start, zstep );
-	ret.start = zstep * mNINT32( rg.atIndex( startidx, zstep ) / zstep );
-	const int stopidx = rg.indexOnOrAfter( rg.stop, zstep );
-	ret.stop = zstep * mNINT32( rg.atIndex( stopidx, zstep ) / zstep );
+	const int startidx = rg.indexOnOrAfter( rg.start_, zstep );
+	ret.start_ = zstep * mNINT32( rg.atIndex( startidx, zstep ) / zstep );
+	const int stopidx = rg.indexOnOrAfter( rg.stop_, zstep );
+	ret.stop_ = zstep * mNINT32( rg.atIndex( stopidx, zstep ) / zstep );
     }
 
     return ret;
@@ -347,8 +347,8 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
 {
     const int sz = range.width()+1;
     cache_.setSize( sz );
-    const SamplingData<float> cachesd( (float)sd_.atIndex(range.start),
-					(float)sd_.step );
+    const SamplingData<float> cachesd( (float)sd_.atIndex(range.start_),
+				       (float)sd_.step_ );
     if ( back_ )
     {
 	transform_.transformTrcBack( trckey_, cachesd, sz, cache_.arr() );
@@ -358,5 +358,5 @@ void ZAxisTransformSampler::computeCache( const Interval<int>& range )
 	transform_.transformTrc( trckey_, cachesd, sz, cache_.arr() );
     }
 
-    firstcachesample_ = range.start;
+    firstcachesample_ = range.start_;
 }

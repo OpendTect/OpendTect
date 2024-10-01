@@ -89,8 +89,8 @@ void uiViewer2DPosDlg::getTrcKeyZSampling( TrcKeyZSampling& cs )
 
 void uiViewer2DPosDlg::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    const int step = sliceselfld_->useTrcNr() ? cs.hsamp_.crlRange().step
-					      : cs.hsamp_.inlRange().step;
+    const int step = sliceselfld_->useTrcNr() ? cs.hsamp_.crlRange().step_
+                                              : cs.hsamp_.inlRange().step_;
     sliceselfld_->setStep( step );
     sliceselfld_->setTrcKeyZSampling( cs );
 }
@@ -163,7 +163,7 @@ void uiGatherPosSliceSel::reDoTable()
     posseltbl_->setColumnLabels( gathernms_.getUiStringSet() );
     StepInterval<int> trcrg = useTrcNr() ? tkzs_.hsamp_.trcRange()
 					 : tkzs_.hsamp_.inlRange();
-    trcrg.step = stepfld_->box()->getIntValue();
+    trcrg.step_ = stepfld_->box()->getIntValue();
     const int nrrows = trcrg.nrSteps()+1;
     posseltbl_->setNrRows( nrrows );
 
@@ -189,9 +189,9 @@ void uiGatherPosSliceSel::reDoTable()
 					     : ginfo.tk_.inl();
 	    TrcKeyZSampling cs( ginfo.tk_.geomID() );
 	    const RowCol rc( rowidx, colidx );
-	    const int limitstep = useTrcNr() ? cs.hsamp_.trcRange().step
-					     : cs.hsamp_.inlRange().step;
-	    const StepInterval<int> limitrg( trcrg.start, trcrg.stop,limitstep);
+            const int limitstep = useTrcNr() ? cs.hsamp_.trcRange().step_
+                                             : cs.hsamp_.inlRange().step_;
+            const StepInterval<int> limitrg( trcrg.start_, trcrg.stop_,limitstep);
 	    auto* inpfld = new uiGenInput( nullptr, lbl,
 					   IntInpSpec(trcrg.atIndex(rowidx))
 							.setLimits(limitrg) );
@@ -268,7 +268,7 @@ void uiGatherPosSliceSel::gatherPosChanged( CallBacker* cb )
     if ( isSynth() )
     {
 	selpos--;
-	StepInterval<int> trcrg( mUdf(int), -mUdf(int), SI().crlRange().step );
+        StepInterval<int> trcrg( mUdf(int), -mUdf(int), SI().crlRange().step_ );
 	for ( const auto& aginfo : gatherinfos_ )
 	    trcrg.include( aginfo.tk_.trcNr(), false );
 
@@ -305,8 +305,8 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     TrcKeyZSampling cs( tkzs_.hsamp_.getGeomID() );
 
     StepInterval<int> trcrg( mUdf(int), -mUdf(int),
-			    useTrcNr() ? maxcs_.hsamp_.trcRange().step
-				       : maxcs_.hsamp_.inlRange().step );
+                             useTrcNr() ? maxcs_.hsamp_.trcRange().step_
+                                        : maxcs_.hsamp_.inlRange().step_ );
     BufferString firstgnm = gatherinfos[0].gathernm_;
     int rgstep = mUdf(int);
     int prevginfoidx = mUdf(int);
@@ -335,11 +335,11 @@ void uiGatherPosSliceSel::setSelGatherInfos(
 
     rgstep = trcrg.snapStep( rgstep );
 
-    StepInterval<int> steprg( trcrg.step, trcrg.width(), trcrg.step );
+    StepInterval<int> steprg( trcrg.step_, trcrg.width(), trcrg.step_ );
     stepfld_->box()->setInterval( steprg );
     stepfld_->box()->setValue( rgstep );
 
-    trcrg.step = stepfld_->box()->getIntValue();
+    trcrg.step_ = stepfld_->box()->getIntValue();
     if ( useTrcNr() )
 	tkzs_.hsamp_.setTrcRange( trcrg );
     else
@@ -416,7 +416,7 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
     StepInterval<int> trcrg = useTrcNr() ? tkzs_.hsamp_.crlRange()
 					 : tkzs_.hsamp_.inlRange();
     TrcKeyZSampling cs( tkzs_.hsamp_.getGeomID() );
-    trcrg.step = stepfld_->box()->getIntValue();
+    trcrg.step_ = stepfld_->box()->getIntValue();
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
     {
 	BufferString gathernm = gathernms_.get( colidx );

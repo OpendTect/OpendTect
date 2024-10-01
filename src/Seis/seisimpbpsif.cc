@@ -194,8 +194,8 @@ int SeisImpBPSIF::readAscii()
     std::istream& strm = curstrm_->stdStream();
     const int nrshotattrs = shotattrs_.size();
     SeisTrc tmpltrc( nrshotattrs + rcvattrs_.size() );
-    tmpltrc.info().sampling.start = SI().zRange(true).start;
-    tmpltrc.info().sampling.step = SI().zStep();
+    tmpltrc.info().sampling.start_ = SI().zRange(true).start_;
+    tmpltrc.info().sampling.step_ = SI().zStep();
     strm >> tmpltrc.info().coord.x >> tmpltrc.info().coord.y;
     for ( int idx=0; idx<nrshotattrs; idx++ )
     {
@@ -231,8 +231,8 @@ int SeisImpBPSIF::readBinary()
     const int nrrcvattrs = rcvattrs_.size();
     mAllocVarLenArr( float, vbuf, 2+nrshotattrs );
     SeisTrc tmpltrc( nrshotattrs + nrrcvattrs );
-    tmpltrc.info().sampling.start = SI().zRange(true).start;
-    tmpltrc.info().sampling.step = SI().zStep();
+    tmpltrc.info().sampling.start_ = SI().zRange(true).start_;
+    tmpltrc.info().sampling.step_ = SI().zStep();
     StrmOper::readBlock( strm, vbuf, (2+nrshotattrs)*sizeof(float) );
     tmpltrc.info().coord.x = vbuf[0]; tmpltrc.info().coord.y = vbuf[1];
     for ( int idx=0; idx<nrshotattrs; idx++ )

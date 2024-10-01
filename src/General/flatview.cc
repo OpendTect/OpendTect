@@ -118,8 +118,8 @@ void FlatPosData::setX1Pos( float* pos, int sz, double offs )
     if ( !pos || sz < 1 ) return;
 
     x1pos_ = pos;
-    x1rg_.start = pos[0] + offs; x1rg_.stop = pos[sz-1] + offs;
-    x1rg_.step = sz > 1 ? (x1rg_.stop - x1rg_.start) / (sz - 1) : 1;
+    x1rg_.start_ = pos[0] + offs; x1rg_.stop_ = pos[sz-1] + offs;
+    x1rg_.step_ = sz > 1 ? (x1rg_.stop_ - x1rg_.start_) / (sz - 1) : 1;
 }
 
 
@@ -393,8 +393,8 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoVD( setYN, sKeyBlocky(), vd_.blocky_ );
     mIOPDoVD( setYN, sKeyAutoScale(),
 	      vd_.mappersetup_.type_ == ColTab::MapperSetup::Auto );
-    Interval<float> clipperc( vd_.mappersetup_.cliprate_.start*100,
-			      vd_.mappersetup_.cliprate_.stop*100 );
+    Interval<float> clipperc( vd_.mappersetup_.cliprate_.start_*100,
+			      vd_.mappersetup_.cliprate_.stop_*100 );
     mIOPDoVD( set, sKeyClipPerc(), clipperc );
     mIOPDoVD( set, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
 
@@ -429,11 +429,11 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     vd_.mappersetup_.range_ = autoscale ? Interval<float>::udf() : range;
     vd_.mappersetup_.setAutoScale( autoscale );
     mIOPDoVD( get, sKeyClipPerc(), vd_.mappersetup_.cliprate_ );
-    vd_.mappersetup_.cliprate_.start *= 0.01;
-    if ( mIsUdf(vd_.mappersetup_.cliprate_.stop) )
-	vd_.mappersetup_.cliprate_.stop = vd_.mappersetup_.cliprate_.start;
+    vd_.mappersetup_.cliprate_.start_ *= 0.01;
+    if ( mIsUdf(vd_.mappersetup_.cliprate_.stop_) )
+	vd_.mappersetup_.cliprate_.stop_ = vd_.mappersetup_.cliprate_.start_;
     else
-	vd_.mappersetup_.cliprate_.stop *= 0.01;
+	vd_.mappersetup_.cliprate_.stop_ *= 0.01;
 
     mIOPDoVD( get, sKeySymMidValue(), vd_.mappersetup_.symmidval_ );
 

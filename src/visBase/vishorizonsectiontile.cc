@@ -635,8 +635,8 @@ double HorizonSectionTile::calcGradient( int row, int col,
     {
 	if ( !beforefound )
 	{
-	    const int currc = rc - idx*rcrange.step;
-	    if ( currc >= rcrange.start )
+            const int currc = rc - idx*rcrange.step_;
+            if ( currc >= rcrange.start_ )
 	    {
 		const RowCol arrpos = isrow ?
 		    RowCol( currc, col ) : RowCol( row, currc );
@@ -646,8 +646,8 @@ double HorizonSectionTile::calcGradient( int row, int col,
 
 	if ( idx>0 && !afterfound )
 	{
-	    const int currc = rc + idx*rcrange.step;
-	    if ( currc <= rcrange.stop )
+            const int currc = rc + idx*rcrange.step_;
+            if ( currc <= rcrange.stop_ )
 	    {
 		const RowCol arrpos = isrow ?
 		    RowCol( currc, col ) : RowCol( row, currc );
@@ -671,10 +671,10 @@ void HorizonSectionTile::computeNormal( int nmidx,osg::Vec3& normal )
 
     RowCol step;
     if ( hrsection_.userchangedisplayrg_ )
-	step = RowCol(hrsection_.displayrrg_.step,hrsection_.displaycrg_.step);
+        step = RowCol(hrsection_.displayrrg_.step_,hrsection_.displaycrg_.step_);
     else
-	step = RowCol( hrsection_.geometry_->rowRange().step,
-		       hrsection_.geometry_->colRange().step );
+        step = RowCol( hrsection_.geometry_->rowRange().step_,
+                       hrsection_.geometry_->colRange().step_ );
 
     const int normalrow = (nmidx-hrsection_.normalstartidx_[0])/
 	hrsection_.normalsidesize_[0];

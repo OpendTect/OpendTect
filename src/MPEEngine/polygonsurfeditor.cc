@@ -134,8 +134,8 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 
 	insertpid.setObjectID( emObject().id() );
 	const int newpolygon = mindist>0
-	    ? polygon+rowrange.step
-	    : polygon==rowrange.start ? polygon-rowrange.step : polygon;
+                               ? polygon+rowrange.step_
+                               : polygon==rowrange.start_ ? polygon-rowrange.step_ : polygon;
 
 	insertpid.setSubID( RowCol(newpolygon,0).toInt64() );
 	return;
@@ -307,9 +307,9 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 
     const int zscale =  SI().zDomain().userFactor();
     const int previdx =
-	rc.col()==colrg.start ? colrg.stop : rc.col()-colrg.step;
+            rc.col()==colrg.start_ ? colrg.stop_ : rc.col()-colrg.step_;
     const int nextidx =
-	rc.col()<colrg.stop ? rc.col()+colrg.step : colrg.start;
+            rc.col()<colrg.stop_ ? rc.col()+colrg.step_ : colrg.start_;
 
     Coord3 curpos = mpos; curpos.z *= zscale;
     Coord3 prevpos = surface->getKnot( RowCol(rc.row(), previdx) );
@@ -320,9 +320,9 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
     if ( prevdefined ) prevpos.z *= zscale;
     if ( nextdefined ) nextpos.z *= zscale;
 
-    for ( int knot=colrg.start; knot<=colrg.stop; knot += colrg.step )
+    for ( int knot=colrg.start_; knot<=colrg.stop_; knot += colrg.step_ )
     {
-	const int nextknot = knot<colrg.stop ? knot+colrg.step : colrg.start;
+        const int nextknot = knot<colrg.stop_ ? knot+colrg.step_ : colrg.start_;
 	if ( knot==previdx || knot==rc.col() )
 	    continue;
 
@@ -465,7 +465,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	else
 	{
 	    insertpid = nearestpid0;
-	    const int nextcol = knots[nearedgeidx]+colrange.step;
+            const int nextcol = knots[nearedgeidx]+colrange.step_;
 	    insertpid.setSubID( RowCol(polygon,nextcol).toInt64() );
 	}
 
@@ -504,7 +504,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	    else
 	    {
 		insertpid = nearestpid0;
-		const int insertcol = knots[nearknotidx]-colrange.step;
+                const int insertcol = knots[nearknotidx]-colrange.step_;
 		insertpid.setSubID(RowCol(polygon,insertcol).toInt64());
 	    }
 	}
@@ -520,7 +520,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	    else
 	    {
 		insertpid = nearestpid0;
-		const int insertcol = knots[nearknotidx]+colrange.step;
+                const int insertcol = knots[nearknotidx]+colrange.step_;
 		insertpid.setSubID(RowCol(polygon,insertcol).toInt64());
 	    }
 	}

@@ -212,10 +212,10 @@ bool DataClipper::calculateRange( float* vals, od_int64 nrvals,
     if ( firstidx && topnr )
     {
 	sortFor( vals, nrvals, firstidx );
-	range.start = vals[firstidx];
+	range.start_ = vals[firstidx];
 
 	sortFor( vals, nrvals, lastidx );
-	range.stop = vals[lastidx];
+	range.stop_ = vals[lastidx];
     }
     else
     {
@@ -240,8 +240,8 @@ bool DataClipper::calculateRange( float* vals, od_int64 nrvals,
 	if ( !isset )
 	    return false;
 
-	range.start = min;
-	range.stop = max;
+	range.start_ = min;
+	range.stop_ = max;
     }
 
     return true;
@@ -299,22 +299,22 @@ bool DataClipper::getRange( float lowclip, float highclip,
     if ( !nrvals ) return false;
 
     if ( mIsZero(lowclip, 1e-5 ) )
-	range.start = absoluterg_.start;
+	range.start_ = absoluterg_.start_;
     else
     {
 	const od_int64 firstidx = mNINT64(lowclip*nrvals);
-	range.start = samples_.validIdx( firstidx) ? samples_[ firstidx ]
+	range.start_ = samples_.validIdx( firstidx) ? samples_[ firstidx ]
 						   : samples_[ 0 ];
     }
 
     if ( mIsZero( highclip, 1e-5 ) )
-	range.stop = absoluterg_.stop;
+	range.stop_ = absoluterg_.stop_;
     else
     {
 	const od_int64 topnr = mNINT64(highclip*nrvals);
 	const od_int64 lastidx = nrvals-topnr-1;
 
-	range.stop = samples_.validIdx( lastidx ) ? samples_[ lastidx ]
+	range.stop_ = samples_.validIdx( lastidx ) ? samples_[ lastidx ]
 						  : samples_[ nrvals-1 ];
     }
 
@@ -352,8 +352,8 @@ bool DataClipper::getSymmetricRange( float cliprate, float midval,
     const float lastdist = fabs( midval - samples_[lastsample] );
     const float halfwidth = mMAX( firstdist, lastdist );
 
-    range.start = midval-halfwidth;
-    range.stop = midval+halfwidth;
+    range.start_ = midval-halfwidth;
+    range.stop_ = midval+halfwidth;
 
     return true;
 }
@@ -364,8 +364,8 @@ void DataClipper::reset()
     samples_.erase();
     subselect_ = false;
     sampleprob_ = 1;
-    absoluterg_.start = mUdf(float);
-    absoluterg_.stop = -mUdf(float);
+    absoluterg_.start_ = mUdf(float);
+    absoluterg_.stop_ = -mUdf(float);
 }
 
 
@@ -444,12 +444,12 @@ void DataClipSampler::doAdd( float val )
     if ( finished_ )
 	finished_ = false;
 
-    if ( mIsUdf(rg_.start) )
-	rg_.start = rg_.stop = val;
-    else if ( rg_.start > val )
-	rg_.start = val;
-    else if ( rg_.stop < val )
-	rg_.stop = val;
+    if ( mIsUdf(rg_.start_) )
+	rg_.start_ = rg_.stop_ = val;
+    else if ( rg_.start_ > val )
+	rg_.start_ = val;
+    else if ( rg_.stop_ < val )
+	rg_.stop_ = val;
 
     if ( count_ < maxnrvals_ )
 	vals_[count_] = val;
@@ -478,7 +478,7 @@ Interval<float> DataClipSampler::getRange( float clip ) const
     const od_int64 nv = nrVals();
     if ( nv == 0 ) return Interval<float>(0,0);
 
-    if ( mIsZero(clip,1.e-6f) && !mIsUdf(rg_.start) )
+    if ( mIsZero(clip,1.e-6f) && !mIsUdf(rg_.start_) )
 	return rg_;
 
     const float fidx = nv * .5f * clip;
@@ -494,10 +494,10 @@ BufferString DataClipSampler::getClipRgStr( float pct ) const
 {
     Interval<float> rg( getRange(pct * 0.01f) );
     BufferString ret;
-    ret = rg.start; ret += " - "; ret += rg.stop;
+    ret = rg.start_; ret += " - "; ret += rg.stop_;
 
-    float maxabs = fabs( rg.start );
-    if ( fabs(rg.stop) > maxabs ) maxabs = fabs( rg.stop );
+    float maxabs = fabs( rg.start_ );
+    if ( fabs(rg.stop_) > maxabs ) maxabs = fabs( rg.stop_ );
     if ( maxabs != 0 )
     {
 	const float sc8 = 127 / maxabs;

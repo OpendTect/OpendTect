@@ -121,8 +121,8 @@ const char* IDKeyReplaceJobDescProv::gtObjName( int jidx ) const
 void IDKeyReplaceJobDescProv::dump( od_ostream& strm ) const
 {
     strm << "\nID Key-replace JobDescProv: "
-	    << idrg_.start << '-' << idrg_.stop << " (step "
-	    << idrg_.step << ", " << nrjobs_ << " jobs)." << od_endl;
+	 << idrg_.start_ << '-' << idrg_.stop_ << " (step "
+	 << idrg_.step_ << ", " << nrjobs_ << " jobs)." << od_endl;
 }
 
 
@@ -168,14 +168,14 @@ const OD::String& getOutSubSelKey()
 
 void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 {
-    rg.step = 0;
+    rg.step_ = 0;
 
-    inpiopar_.get( mGetSubselKey(FirstInl), rg.start );
-    inpiopar_.get( mGetSubselKey(LastInl), rg.stop );
-    inpiopar_.get( mGetSubselKey(StepInl), rg.step );
+    inpiopar_.get( mGetSubselKey(FirstInl), rg.start_ );
+    inpiopar_.get( mGetSubselKey(LastInl), rg.stop_ );
+    inpiopar_.get( mGetSubselKey(StepInl), rg.step_ );
 
-    if ( rg.step < 0 ) rg.step = -rg.step;
-    if ( !rg.step ) rg.step = SI().inlStep();
+    if ( rg.step_ < 0 ) rg.step_ = -rg.step_;
+    if ( !rg.step_ ) rg.step_ = SI().inlStep();
 
     //if Subsel Type == None : init rg with SI()
     BufferString typestr;
@@ -187,10 +187,10 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 
     Interval<int> maxrg( Interval<int>().setFrom(rg) );
     inpiopar_.get( sKeyMaxInlRg(), maxrg );
-    if ( !mIsUdf(maxrg.start) && rg.start < maxrg.start )
-	rg.start = maxrg.start;
-    if ( !mIsUdf(maxrg.stop) && rg.stop > maxrg.stop )
-	rg.stop = maxrg.stop;
+    if ( !mIsUdf(maxrg.start_) && rg.start_ < maxrg.start_ )
+	rg.start_ = maxrg.start_;
+    if ( !mIsUdf(maxrg.stop_) && rg.stop_ > maxrg.stop_ )
+	rg.stop_ = maxrg.stop_;
 }
 
 
@@ -213,14 +213,14 @@ int InlineSplitJobDescProv::firstInlNr( int jidx ) const
 	return inls_->validIdx(startidx) ? (*inls_)[startidx] : -1;
     }
     else
-	return inlrg_.start + jidx * inlrg_.step * ninlperjob_;
+	return inlrg_.start_ + jidx * inlrg_.step_ * ninlperjob_;
 }
 
 
 int InlineSplitJobDescProv::lastInlNr( int jidx ) const
 {
-    const int lastinl = firstInlNr(jidx) + inlrg_.step * (ninlperjob_ - 1);
-    return lastinl > inlrg_.stop ? inlrg_.stop : lastinl;
+    const int lastinl = firstInlNr(jidx) + inlrg_.step_ * (ninlperjob_ - 1);
+    return lastinl > inlrg_.stop_ ? inlrg_.stop_ : lastinl;
 }
 
 
@@ -235,8 +235,8 @@ void InlineSplitJobDescProv::getJob( int jidx, IOPar& iop ) const
 
     if ( !isfullrange )
     {
-	iop.set( mGetSubselKey(FirstCrl), SI().crlRange(true).start );
-	iop.set( mGetSubselKey(LastCrl), SI().crlRange(true).stop );
+	iop.set( mGetSubselKey(FirstCrl), SI().crlRange(true).start_ );
+	iop.set( mGetSubselKey(LastCrl), SI().crlRange(true).stop_ );
 	iop.set( mGetSubselKey(StepCrl), SI().crlStep() );
 	iop.set( mGetSubselKey(ZRange), SI().zRange(true) );
     }
@@ -259,8 +259,8 @@ void InlineSplitJobDescProv::dump( od_ostream& strm ) const
 {
     strm << "\nInline-split JobDescProv dump.\n";
     if ( !inls_ )
-	strm << "Inline range: " << inlrg_.start << '-' << inlrg_.stop
-		<< " / " << inlrg_.step;
+	strm << "Inline range: " << inlrg_.start_ << '-' << inlrg_.stop_
+	     << " / " << inlrg_.step_;
     else
     {
 	strm << "The following inlines are requested:\n";

@@ -385,6 +385,6 @@ void uiStratSeisEvent::putToScreen()
 
 const StepInterval<float> uiStratSeisEvent::getFullExtrWin() const
 {
-    return StepInterval<float> ( ev_.extrWin().start, ev_.extrWin().stop,
+    return StepInterval<float> ( ev_.extrWin().start_, ev_.extrWin().stop_,
 				 ev_.extrStep() );
 }

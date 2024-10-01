@@ -86,7 +86,7 @@ void updateSlider( float val )
 {
     const uiAxisHandler* xaxis = dispfld_->xAxis();
     const StepInterval<float> xrg = xaxis->range();
-    valueslider_->setScale( xrg.step/1000, 0 );
+    valueslider_->setScale( xrg.step_/1000, 0 );
     valueslider_->setInterval( xrg );
     valueslider_->setValue( val );
     drawMarkerLine( val );
@@ -103,13 +103,13 @@ void drawMarkerLine( float val )
 {
     const uiAxisHandler* xaxis = dispfld_->xAxis();
     const int valx = xaxis->getPix( val );
-    if ( valx < xaxis->getPix( xaxis->range().start) ||
-	 valx > xaxis->getPix( xaxis->range().stop) )
+    if ( valx < xaxis->getPix( xaxis->range().start_) ||
+	 valx > xaxis->getPix( xaxis->range().stop_) )
 	return;
 
     const uiAxisHandler* yaxis = dispfld_->yAxis(false);
-    const int valytop = yaxis->getPix( yaxis->range().start );
-    const int valybottom = yaxis->getPix( yaxis->range().stop );
+    const int valytop = yaxis->getPix( yaxis->range().start_ );
+    const int valybottom = yaxis->getPix( yaxis->range().stop_ );
 
     if ( !markerlineitem_ )
     {
@@ -308,9 +308,9 @@ float uiSynthToRealScale::getTrcValue( const SeisTrc& trc, float reftm ) const
     {
 	float extrtm = reftm + extrwin.atIndex( itm );
 	float val;
-	if ( extrtm <= trg.start )
+	if ( extrtm <= trg.start_ )
 	    val = trc.get( 0, 0 );
-	if ( extrtm >= trg.stop )
+	if ( extrtm >= trg.stop_ )
 	    val = trc.get( lastsamp, 0 );
 	else
 	    val = trc.getValue( extrtm, 0 );

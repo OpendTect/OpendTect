@@ -89,7 +89,7 @@ void Horizon2DExtender::addNeighbor( bool upwards, const TrcKey& src )
     TrcKey neighbor = src;
     const TrcKey& cstneighbor = const_cast<const TrcKey&>( neighbor );
     neighbor.setTrcNr( cstneighbor.trcNr() +
-		       (upwards ? colrange.step : -colrange.step) );
+		       (upwards ? colrange.step_ : -colrange.step_) );
     if ( !colrange.includes(cstneighbor.trcNr(),false) )
 	return;
 

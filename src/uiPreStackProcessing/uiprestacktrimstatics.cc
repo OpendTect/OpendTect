@@ -98,10 +98,10 @@ void uiTrimStatics::fillTable()
     table_->setNrRows( nrits );
     for ( int idx=0; idx<nrits; idx++ )
     {
-	table_->setValue( RowCol(idx,0), its[idx].ptoffsetrg_.start );
-	table_->setValue( RowCol(idx,1), its[idx].ptoffsetrg_.stop );
-	table_->setValue( RowCol(idx,2), its[idx].tsoffsetrg_.start );
-	table_->setValue( RowCol(idx,3), its[idx].tsoffsetrg_.stop );
+	table_->setValue( RowCol(idx,0), its[idx].ptoffsetrg_.start_ );
+	table_->setValue( RowCol(idx,1), its[idx].ptoffsetrg_.stop_ );
+	table_->setValue( RowCol(idx,2), its[idx].tsoffsetrg_.start_ );
+	table_->setValue( RowCol(idx,3), its[idx].tsoffsetrg_.stop_ );
 	table_->setValue( RowCol(idx,4), its[idx].maxshift_ );
     }
 
@@ -134,10 +134,10 @@ void uiTrimStatics::changeCB( CallBacker* )
     TypeSet<TrimStatics::Iteration>& its = processor_->getIterations();
     TrimStatics::Iteration& curit = its[rc.row()];
     const float val = table_->getFValue( rc );
-    if ( rc.col()==0 )	curit.ptoffsetrg_.start = val;
-    if ( rc.col()==1 )	curit.ptoffsetrg_.stop = val;
-    if ( rc.col()==2 )	curit.tsoffsetrg_.start = val;
-    if ( rc.col()==3 )	curit.tsoffsetrg_.stop = val;
+    if ( rc.col()==0 )	curit.ptoffsetrg_.start_ = val;
+    if ( rc.col()==1 )	curit.ptoffsetrg_.stop_ = val;
+    if ( rc.col()==2 )	curit.tsoffsetrg_.start_ = val;
+    if ( rc.col()==3 )	curit.tsoffsetrg_.stop_ = val;
     if ( rc.col()==4 )	curit.maxshift_ = val;
 }
 

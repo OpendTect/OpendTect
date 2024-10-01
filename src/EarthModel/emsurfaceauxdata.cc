@@ -453,9 +453,9 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx ) const
     PosID posid( horizon_.id() );
     Array2DImpl<float>* arr =
 	new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    for ( int row=rowrg.start_; row<=rowrg.stop_; row+=rowrg.step_ )
     {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
 	{
 	    posid.setSubID( RowCol(row,col).toInt64() );
 	    const float val = getAuxDataVal( dataidx, posid );
@@ -481,9 +481,9 @@ void SurfaceAuxData::init( int dataidx, bool onlynewpos, float val )
     const StepInterval<int> rowrg = rcgeom->rowRange();
     const StepInterval<int> colrg = rcgeom->colRange();
     PosID posid( horizon_.id() );
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    for ( int row=rowrg.start_; row<=rowrg.stop_; row+=rowrg.step_ )
     {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
 	{
 	    posid.setSubID( RowCol(row,col).toInt64() );
 	    if ( dataidx<0 )

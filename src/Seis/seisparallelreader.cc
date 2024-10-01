@@ -88,12 +88,12 @@ ArrayFiller( const RawTrcsSequence& databuf, const StepInterval<float>& zsamp,
     , dp_(dp),is2d_(is2d)
     , trcscalers_(0)
 {
-    startidx0_ = dp.sampling().zsamp_.nearestIndex( zsamp_.start );
-    stopidx0_ = dp.sampling().zsamp_.nearestIndex( zsamp_.stop );
+    startidx0_ = dp.sampling().zsamp_.nearestIndex( zsamp_.start_ );
+    stopidx0_ = dp.sampling().zsamp_.nearestIndex( zsamp_.stop_ );
     nrzsamples_ = zsamp_.nrSteps()+1;
     dpnrzsamples_ = dp.sampling().zsamp_.nrSteps()+1;
-    needsudfpaddingattop_ = dp.sampling().zsamp_.start < zsamp_.start;
-    needsudfpaddingatbottom_ = dp.sampling().zsamp_.stop > zsamp_.stop;
+    needsudfpaddingattop_ = dp.sampling().zsamp_.start_ < zsamp_.start_;
+    needsudfpaddingatbottom_ = dp.sampling().zsamp_.stop_ > zsamp_.stop_;
     nrpadtail_ = needsudfpaddingatbottom_ ? dpnrzsamples_-stopidx0_-1 : 0;
     trczidx0_ = databuf_.getZRange().nearestIndex( zsamp_.atIndex(0) );
     bytespersamp_ = dp.getDataDesc().nrBytes();
@@ -209,7 +209,7 @@ bool doTrace( int itrc )
 	    int startidx = startidx0_;
 	    od_int64 valueidx = stor ? offset+startidx : 0;
 	    int trczidx = trczidx0_;
-	    float zval = zsamp_.start;
+            float zval = zsamp_.start_;
 	    float* destptr = storptr ? (float*)dststartptr : 0;
 #ifdef __debug__
 	    const float* storstartptr = storptr;
@@ -221,7 +221,7 @@ bool doTrace( int itrc )
 			     ? databuf_.getValue( zval, itrc, idcin )
 			     : databuf_.get( trczidx++, itrc, idcin );
 		if ( trcscaler ) rawval = mCast(float,trcscaler->scale(rawval));
-		if ( needresampling_ ) zval += zsamp_.step;
+                if ( needresampling_ ) zval += zsamp_.step_;
 		const float trcval = compscaler
 				   ? mCast(float,compscaler->scale(rawval) )
 				   : rawval;
@@ -1089,12 +1089,12 @@ bool Seis::SequentialReader::init()
     needresampling_ = !dpzsamp_.isCompatible( seissummary_->zRange() );
     if ( needresampling_ )
     {
-	if ( dpzsamp_.start < seissummary_->zRange().start )
-	    dpzsamp_.start =
-		dpzsamp_.snap( seissummary_->zRange().start, OD::SnapUpward );
-	if ( dpzsamp_.stop > seissummary_->zRange().stop )
-	    dpzsamp_.stop =
-		dpzsamp_.snap( seissummary_->zRange().stop, OD::SnapDownward );
+        if ( dpzsamp_.start_ < seissummary_->zRange().start_ )
+            dpzsamp_.start_ =
+                    dpzsamp_.snap( seissummary_->zRange().start_, OD::SnapUpward );
+        if ( dpzsamp_.stop_ > seissummary_->zRange().stop_ )
+            dpzsamp_.stop_ =
+                    dpzsamp_.snap( seissummary_->zRange().stop_, OD::SnapDownward );
     }
     else
     {

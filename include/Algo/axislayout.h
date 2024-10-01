@@ -48,8 +48,8 @@ public:
 			    , annotinint_(false)	{}
 
 			AxisLayout( const StepInterval<T>& rg )
-			    : sd_(rg.start,rg.step)
-			    , stop_(rg.stop)
+			    : sd_(rg.start_,rg.step_)
+			    , stop_(rg.stop_)
 			    , annotinsiderg_(false)
 			    , annotinint_(false)    {}
 
@@ -60,29 +60,29 @@ public:
 
 template <class T> inline
 StepInterval<T> AxisLayout<T>::getSampling() const
-{ return StepInterval<T>( sd_.start, stop_, sd_.step ); }
+{ return StepInterval<T>( sd_.start_, stop_, sd_.step_ ); }
 
 
 template <class T> inline
 void AxisLayout<T>::setDataRange( const Interval<T>& dr )
 {
     Interval<T> intv = dr;
-    sd_.start = intv.start;
-    const bool rev = intv.start > intv.stop;
-    if ( rev ) Swap( intv.start, intv.stop );
+    sd_.start_ = intv.start_;
+    const bool rev = intv.start_ > intv.stop_;
+    if ( rev ) Swap( intv.start_, intv.stop_ );
     T wdth = intv.width();
 
 
     // guard against zero interval
-    T indic = intv.start + wdth;
-    T indic_start = intv.start;
+    T indic = intv.start_ + wdth;
+    T indic_start = intv.start_;
     if ( mIsZero(indic,mDefEps) ) { indic_start += 1; indic += 1; }
     indic = 1 - indic_start / indic;
     if ( mIsZero(indic,mDefEps) )
     {
-	sd_.start = intv.start - 1;
-	sd_.step = 1;
-	stop_ = intv.start + 1;
+	sd_.start_ = intv.start_ - 1;
+	sd_.step_ = 1;
+	stop_ = intv.start_ + 1;
 	return;
     }
 
@@ -97,37 +97,37 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
     else if ( scwdth < 50 )     scstep = 10;
     else                        scstep = 20;
 
-    sd_.step = (T) ( scstep / stepfac );
+    sd_.step_ = (T) ( scstep / stepfac );
     if ( annotinint_ )
     {
-	int istep = mNINT32( sd_.step );
+	int istep = mNINT32( sd_.step_ );
 	if ( istep == 0 )
 	    istep = 1;
-	sd_.step = (T)istep;
+	sd_.step_ = (T)istep;
     }
 
-    if ( mIsZero(sd_.step,mDefEps) )
-	sd_.step = 1;
+    if ( mIsZero(sd_.step_,mDefEps) )
+	sd_.step_ = 1;
 
     if ( wdth > 1e-30 )
     {
 	double idx0 = 0;
 	if ( annotinsiderg_ )
 	{
-	    idx0 = rev ? Math::Floor(intv.stop / sd_.step + 1e-6)
-		       : Math::Ceil(intv.start / sd_.step + 1e-6);
+	    idx0 = rev ? Math::Floor(intv.stop_ / sd_.step_ + 1e-6)
+		       : Math::Ceil(intv.start_ / sd_.step_ + 1e-6);
 	}
 	else
 	{
-	    idx0 = rev ? Math::Ceil(intv.stop / sd_.step + 1e-6)
-		       : Math::Floor(intv.start / sd_.step + 1e-6);
+	    idx0 = rev ? Math::Ceil(intv.stop_ / sd_.step_ + 1e-6)
+		       : Math::Floor(intv.start_ / sd_.step_ + 1e-6);
 	}
 
-	sd_.start = mNINT32( idx0 ) * sd_.step;
+	sd_.start_ = mNINT32( idx0 ) * sd_.step_;
     }
-    if ( rev ) sd_.step = -sd_.step;
+    if ( rev ) sd_.step_ = -sd_.step_;
 
-    stop_ = findEnd( rev ? intv.start : intv.stop );
+    stop_ = findEnd( rev ? intv.start_ : intv.stop_ );
 }
 
 
@@ -135,22 +135,22 @@ template <class T> inline
 T AxisLayout<T>::findEnd( T datastop ) const
 {
     SamplingData<T> worksd = sd_;
-    const bool rev = worksd.step < 0;
+    const bool rev = worksd.step_ < 0;
     if ( rev )
     {
-	worksd.start = -worksd.start;
-	worksd.step = -worksd.step;
+	worksd.start_ = -worksd.start_;
+	worksd.step_ = -worksd.step_;
 	datastop = -datastop;
     }
 
-    if ( worksd.start + 10000 * worksd.step < datastop )
+    if ( worksd.start_ + 10000 * worksd.step_ < datastop )
 	return datastop;
 
-    const double dnrsteps = double(datastop-worksd.start)/worksd.step - 1e-6;
+    const double dnrsteps = double(datastop-worksd.start_)/worksd.step_ - 1e-6;
     int nrsteps =
 	mNINT32( (annotinsiderg_ ? Math::Floor(dnrsteps)
 				 : Math::Ceil(dnrsteps)) );
     if ( nrsteps < 1 ) nrsteps = 1;
-    T wdth = nrsteps * worksd.step;
-    return sd_.start + (rev ? -wdth : wdth);
+    T wdth = nrsteps * worksd.step_;
+    return sd_.start_ + (rev ? -wdth : wdth);
 }

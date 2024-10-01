@@ -127,9 +127,9 @@ float TexturePanelStrip::getPathTextureShiftStartIdx() const
 
 void TexturePanelStrip::setZRange( const Interval<float>& zrange )
 {
-    Coord3 topdummy( Coord(), zrange.start );
+    Coord3 topdummy( Coord(), zrange.start_ );
     mVisTrans::transform( displaytrans_, topdummy );
-    Coord3 bottomdummy( Coord(), zrange.stop );
+    Coord3 bottomdummy( Coord(), zrange.stop_ );
     mVisTrans::transform( displaytrans_, bottomdummy );
 
     osgpanelstrip_->setZRange( topdummy.z, bottomdummy.z );
@@ -150,7 +150,7 @@ Interval<float> TexturePanelStrip::getZRange() const
 void TexturePanelStrip::setZRange2TextureMapping(
 					    const Interval<float>& offsets )
 {
-    osgpanelstrip_->setZRange2TextureMapping(true, offsets.start, offsets.stop);
+    osgpanelstrip_->setZRange2TextureMapping(true, offsets.start_, offsets.stop_);
 }
 
 

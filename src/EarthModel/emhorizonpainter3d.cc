@@ -246,10 +246,10 @@ bool HorizonPainter3D::addDataToMarker( const BinID& bid,const Coord3& crd,
 	    break;
 
 	const bool isvwrinl = tkzs_.nrInl() == 1;
-	BinID intsecbid( isvwrinl ? tkzs_.hsamp_.inlRange().start
+	BinID intsecbid( isvwrinl ? tkzs_.hsamp_.inlRange().start_
 				  : mNINT32(intsecpositions[ipos].pos_),
 			 isvwrinl ? mNINT32(intsecpositions[ipos].pos_)
-				  : tkzs_.hsamp_.crlRange().start );
+				  : tkzs_.hsamp_.crlRange().start_ );
 	if ( intsecbid == bid )
 	{
 	    isintersec = true;

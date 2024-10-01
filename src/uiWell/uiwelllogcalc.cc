@@ -603,7 +603,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
     if ( dahrg.isUdf() )
 	dahrg = track.dahRange();
 
-    const StepInterval<float> samprg( dahrg.start, dahrg.stop, zsampintv_ );
+    const StepInterval<float> samprg( dahrg.start_, dahrg.stop_, zsampintv_ );
     const int nrsamps = samprg.nrSteps() + 1;
     const int interppol = interppolfld_->currentItem();
     TypeSet<double> inpvals( inpdatas.size(), 0. );
@@ -616,7 +616,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 	for ( int iinp=0; iinp<inpdatas.size(); iinp++ )
 	{
 	    const uiWellLogCalc::InpData& inpd = inpdatas[iinp];
-	    const float curdah = dah + samprg.step * inpd.shift_;
+	    const float curdah = dah + samprg.step_ * inpd.shift_;
 	    if ( inpd.wl_ )
 	    {
 		form_.setInputValUnit( iinp, inpd.wl_->unitOfMeasure() );
@@ -635,7 +635,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 		if ( inpd.specidx_ == mMDIdx )
 		    val = curdah;
 		else if ( inpd.specidx_ == mDZIdx )
-		    val = samprg.step;
+		    val = samprg.step_;
 		else if ( inpd.specidx_ == mTVDSSIdx ||
 			  inpd.specidx_ == mTVDIdx ||
 			  inpd.specidx_ == mTVDSDIdx )

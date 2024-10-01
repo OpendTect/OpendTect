@@ -342,9 +342,9 @@ protected:
 
 #define mGetFloatIntervalFromDesc( __desc, var, varstring ) \
 {\
-    var.start = __desc.getValParam(varstring)->getFValue(0); \
-    var.stop = __desc.getValParam(varstring)->getFValue(1); \
-    if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
+    var.start_ = __desc.getValParam(varstring)->getFValue(0); \
+    var.stop_ = __desc.getValParam(varstring)->getFValue(1); \
+    if ( mIsUdf(var.start_) || mIsUdf(var.stop_) )\
     {\
 	Attrib::ValParam* valparam##var = \
 	      const_cast<Attrib::ValParam*>(__desc.getValParam(varstring));\

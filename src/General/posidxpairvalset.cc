@@ -291,7 +291,7 @@ Interval<Pos::IdxPairValueSet::IdxType> Pos::IdxPairValueSet::firstRange() const
     for ( IdxType ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
 	if ( first )
-	    { ret.start = ret.stop = frsts_[ifrst]; first = false; }
+	{ ret.start_ = ret.stop_ = frsts_[ifrst]; first = false; }
 	else
 	    ret.include( frsts_[ifrst], false );
     }
@@ -311,7 +311,7 @@ Interval<Pos::IdxPairValueSet::IdxType> Pos::IdxPairValueSet::secondRange(
 	const TypeSet<IdxType>& scndset = getScndSet(frstidx);
 	const int nrscnd = scndset.size();
 	if ( nrscnd>=1 )
-	    ret.start = ret.stop = scndset[0];
+	    ret.start_ = ret.stop_ = scndset[0];
 	if ( nrscnd>1 )
 	    ret.include( scndset[nrscnd-1], false );
 
@@ -329,7 +329,7 @@ Interval<Pos::IdxPairValueSet::IdxType> Pos::IdxPairValueSet::secondRange(
 		    ret.include( scndset[0], false );
 		else
 		{
-		    ret.start = ret.stop = scndset[0];
+		    ret.start_ = ret.stop_ = scndset[0];
 		    found = true;
 		}
 	    }
@@ -354,7 +354,7 @@ Interval<float> Pos::IdxPairValueSet::valRange( int valnr ) const
     {
 	const float val = getVals(pos)[valnr];
 	if ( !mIsUdf(val) )
-	    { ret.start = ret.stop = val; break; }
+	{ ret.start_ = ret.stop_ = val; break; }
     }
     while ( next(pos) )
     {
@@ -603,7 +603,7 @@ IdxPairValueSetFromCubeData( IdxPairValueSet& vs,
 	const PosInfo::LineData& line = *cubedata_[idx];
 	const int frst = line.linenr_;
 	if ( line.segments_.size() )
-	    vs.add( IdxPair(frst,line.segments_[0].start) );
+	    vs.add( IdxPair(frst,line.segments_[0].start_) );
     }
 }
 
@@ -619,8 +619,8 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 	{
 	    StepInterval<int> crls = line.segments_[idy];
 	    if ( !idy )
-		crls.start += crls.step; //We added first scnd in constructor
-	    for ( IdxType scnd=crls.start; scnd<=crls.stop; scnd+=crls.step )
+		crls.start_ += crls.step_; //We added first scnd in constructor
+	    for ( IdxType scnd=crls.start_; scnd<=crls.stop_; scnd+=crls.step_ )
 		vs_.add( IdxPair(frst,scnd) );
 	}
     }
@@ -1521,7 +1521,7 @@ void BinIDValueSet::setStepout( int trcstepout, int trcstep )
 	needed.setAll( false );
 
 	const PosInfo::Line2DData& data = geom2d.data();
-	const int sostep = data.trcNrRange().step;
+	const int sostep = data.trcNrRange().step_;
 	const TypeSet<int>& scnds = getScndSet( ifirst );
 	for ( int iscnd=0; iscnd<scnds.size(); iscnd++ )
 	{
@@ -1559,8 +1559,8 @@ void BinIDValueSet::setStepout( const IdxPair& stepout, const IdxPair& step )
     Interval<int> crlrg = crlRange();
     crlrg.widen( stepout.second * step.second );
 
-    const StepInterval<int> inldef( inlrg.start, inlrg.stop, step.first );
-    const StepInterval<int> crldef( crlrg.start, crlrg.stop, step.second );
+    const StepInterval<int> inldef( inlrg.start_, inlrg.stop_, step.first );
+    const StepInterval<int> crldef( crlrg.start_, crlrg.stop_, step.second );
     TrcKeySampling subsel;
     subsel.set( inldef, crldef );
     Array2DImpl<bool> needed( subsel.nrInl(), subsel.nrCrl() );

@@ -220,11 +220,11 @@ void Array2DReSampler<T,TT>::updateScale(
 	    rectinfrom = nrect;
     }
 
-    xsampling_.start = rectinfrom.left();
-    xsampling_.step = rectinfrom.width()/(xsize-1);
+    xsampling_.start_ = rectinfrom.left();
+    xsampling_.step_ = rectinfrom.width()/(xsize-1);
 
-    ysampling_.start = rectinfrom.left();
-    ysampling_.step = rectinfrom.height()/(ysize-1);
+    ysampling_.start_ = rectinfrom.left();
+    ysampling_.step_ = rectinfrom.height()/(ysize-1);
 }
 
 

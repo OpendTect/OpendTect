@@ -428,8 +428,8 @@ void HorizonSection::setSurface( Geometry::BinIDSurface* surf, bool connect,
     }
 
     configSizeParameters();
-    rowdistance_ = geometry_->rowRange().step*SI().inlDistance();
-    coldistance_ = geometry_->colRange().step*SI().crlDistance();
+    rowdistance_ = geometry_->rowRange().step_*SI().inlDistance();
+    coldistance_ = geometry_->colRange().step_*SI().crlDistance();
     surfaceChange( 0, tr );
 }
 
@@ -456,9 +456,9 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
     userchangedisplayrg_ = true;
     displayrrg_ = rrg;
     displaycrg_ = crg;
-    origin_ = RowCol( displayrrg_.start, displaycrg_.start );
-    rowdistance_ = displayrrg_.step*SI().inlDistance();
-    coldistance_ = displaycrg_.step*SI().crlDistance();
+    origin_ = RowCol( displayrrg_.start_, displaycrg_.start_ );
+    rowdistance_ = displayrrg_.step_*SI().inlDistance();
+    coldistance_ = displaycrg_.step_*SI().crlDistance();
 
     configSizeParameters();
     surfaceChange( 0, 0 );

@@ -176,10 +176,10 @@ bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 
 	    for ( auto& itvml : mutelayeritvs )
 	    {
-		if ( mIsUdf(itvml.start) )
+		if ( mIsUdf(itvml.start_) )
 		    continue;
 
-		zpos = getfMutePos( tdmodel, zistime, itvml.start, offset );
+		zpos = getfMutePos( tdmodel, zistime, itvml.start_, offset );
 		mutefunc->add( offset, zpos );
 		lastioff = ioff;
 		break;

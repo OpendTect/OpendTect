@@ -421,7 +421,7 @@ bool doPrepare( int nrthreads ) override
 	if ( !inptr_[idc] || !outptr_[idc] )
 	    return true;
 
-	const float start = worktkzs_.zsamp_.start;
+        const float start = worktkzs_.zsamp_.start_;
 	inptr_[idc] += samplebytes_ * in_.zRange().nearestIndex( start );
 	outptr_[idc] += samplebytes_ * out_.zRange().nearestIndex( start );
     }
@@ -467,7 +467,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadidx ) override
     int* inzlut = 0;
     int* outzlut = 0;
 
-    if ( !domemcopy || !mIsEqual(inzsamp.step, outzsamp.step, mDefEpsF) )
+    if ( !domemcopy || !mIsEqual(inzsamp.step_, outzsamp.step_, mDefEpsF) )
     {
 	inzlut = new int[ nrz ];
 	outzlut = new int[ nrz ];
@@ -614,10 +614,10 @@ RefMan<RegularSeisDataPack> EngineMan::getDataPackOutput(
     if ( packset[0]->getScaler() )
 	output->setScaler( *packset[0]->getScaler() );
 
-    if ( cache_ && cache_->sampling().zsamp_.step != tkzs_.zsamp_.step )
+    if ( cache_ && cache_->sampling().zsamp_.step_ != tkzs_.zsamp_.step_ )
     {
 	TrcKeyZSampling cswithcachestep = tkzs_;
-	cswithcachestep.zsamp_.step = cache_->sampling().zsamp_.step;
+        cswithcachestep.zsamp_.step_ = cache_->sampling().zsamp_.step_;
 	output->setSampling( cswithcachestep );
     }
     else
@@ -848,7 +848,7 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
 	return 0;
 
     Interval<int> trcrg( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
-    Interval<float> zrg( tkzs_.zsamp_.start, tkzs_.zsamp_.stop );
+    Interval<float> zrg( tkzs_.zsamp_.start_, tkzs_.zsamp_.stop_ );
 
     TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, geomid_ );
     attrout->setOutput( output );
@@ -878,8 +878,8 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	  || mRg(h).stop_.inl() < tkzs_.hsamp_.start_.inl()
 	  || mRg(h).start_.crl() > tkzs_.hsamp_.stop_.crl()
 	  || mRg(h).stop_.crl() < tkzs_.hsamp_.start_.crl()
-	  || mRg(z).start > tkzs_.zsamp_.stop + mStepEps*tkzs_.zsamp_.step
-	  || mRg(z).stop < tkzs_.zsamp_.start - mStepEps*tkzs_.zsamp_.step )
+             || mRg(z).start_ > tkzs_.zsamp_.stop_ + mStepEps*tkzs_.zsamp_.step_
+             || mRg(z).stop_ < tkzs_.zsamp_.start_ - mStepEps*tkzs_.zsamp_.step_ )
 	    // No overlap, gotta crunch all the numbers ...
 	    cache_ = nullptr;
     }
@@ -949,18 +949,18 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	todocs.hsamp_.stop_.crl() =
 		mMIN( tkzs_.hsamp_.stop_.crl(), mRg(h).stop_.crl() );
 
-	if ( mRg(z).start > tkzs_.zsamp_.start + mStepEps*tkzs_.zsamp_.step )
+        if ( mRg(z).start_ > tkzs_.zsamp_.start_ + mStepEps*tkzs_.zsamp_.step_ )
 	{
-	    todocs.zsamp_.stop = mMAX( mRg(z).start-tkzs_.zsamp_.step,
-				       todocs.zsamp_.start );
+            todocs.zsamp_.stop_ = mMAX( mRg(z).start_-tkzs_.zsamp_.step_,
+                                       todocs.zsamp_.start_ );
 	    mAddAttrOut( todocs )
 	}
 
-	if ( mRg(z).stop < tkzs_.zsamp_.stop - mStepEps*tkzs_.zsamp_.step )
+        if ( mRg(z).stop_ < tkzs_.zsamp_.stop_ - mStepEps*tkzs_.zsamp_.step_ )
 	{
 	    todocs.zsamp_ = tkzs_.zsamp_;
-	    todocs.zsamp_.start = mMIN( mRg(z).stop+tkzs_.zsamp_.step,
-					todocs.zsamp_.stop );
+            todocs.zsamp_.start_ = mMIN( mRg(z).stop_+tkzs_.zsamp_.step_,
+                                         todocs.zsamp_.stop_ );
 	    mAddAttrOut( todocs )
 	}
     }

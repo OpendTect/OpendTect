@@ -263,14 +263,14 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
     OD::LineStyle ls;
     ls.width_ = 2;
     const uiAxisHandler* yaxis = funcDisp().yAxis(false);
-    const int valytop = yaxis->getPix( yaxis->range().start );
-    const int valybottom = yaxis->getPix( yaxis->range().stop );
+    const int valytop = yaxis->getPix( yaxis->range().start_ );
+    const int valybottom = yaxis->getPix( yaxis->range().stop_ );
     if ( !mIsUdf(initialvalue_) )
     {
 	ls.color_ = OD::Color(0,150,0);
 	const int valx = xAxis().getPix(initialvalue_);
-	if ( valx < xAxis().getPix(xAxis().range().start) ||
-	     valx > xAxis().getPix(xAxis().range().stop) )
+	if ( valx < xAxis().getPix(xAxis().range().start_) ||
+	     valx > xAxis().getPix(xAxis().range().stop_) )
 	    return;
 
 	if ( !initiallineitem_ )
@@ -287,8 +287,8 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
     {
 	ls.color_ = OD::Color(0,255,0,0);
 	const int valx = xAxis().getPix(thresholdfld_->getFValue());
-	if ( valx < xAxis().getPix(xAxis().range().start) ||
-	     valx > xAxis().getPix(xAxis().range().stop) )
+	if ( valx < xAxis().getPix(xAxis().range().start_) ||
+	     valx > xAxis().getPix(xAxis().range().stop_) )
 	    return;
 
 	if ( !thresholdlineitem_ )
@@ -305,8 +305,8 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
     {
 	ls.color_ = OD::Color(255,0,0,0);
 	const int valx = xAxis().getPix( vd_->isoValue( isosurfacedisplay_) );
-	if ( valx < xAxis().getPix(xAxis().range().start) ||
-	     valx > xAxis().getPix(xAxis().range().stop) )
+	if ( valx < xAxis().getPix(xAxis().range().start_) ||
+	     valx > xAxis().getPix(xAxis().range().stop_) )
 	    return;
 
 	if ( !isovallineitem_ )

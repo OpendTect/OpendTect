@@ -226,25 +226,25 @@ float AngleMuteBase::getOffsetMuteLayer( const ReflectivityModelBase& refmodel,
     {
 	Interval<float> mutelayer = Interval<float>::udf();
 	int ilay = mutedlayers[idx];
-	mutelayer.start = float(ilay);
+	mutelayer.start_ = float(ilay);
 	const int previdx = ilay-1;
 	if ( ilay > 0 && ilay < nrlayers && previdx >=0 )
 	{
 	    const float sini = refmodel.getSinAngle( ioff, ilay );
 	    const float prevsini = refmodel.getSinAngle( ioff, previdx );
-	    mutelayer.start -= (sini-cutoffsin) / (sini-prevsini);
+	    mutelayer.start_ -= (sini-cutoffsin) / (sini-prevsini);
 	}
 
 	if ( mutedlayers.validIdx(idx+1) )
 	{
 	    ilay = mutedlayers[idx+1];
-	    mutelayer.stop = float(ilay);
+	    mutelayer.stop_ = float(ilay);
 	    const int nextidx = ilay+1;
 	    if ( ilay >= 0 && ilay < nrlayers && nextidx < nrlayers )
 	    {
 		const float sini = refmodel.getSinAngle( ioff, ilay );
 		const float nextsini = refmodel.getSinAngle( ioff, nextidx );
-		mutelayer.stop += (sini-cutoffsin) / (sini-nextsini);
+		mutelayer.stop_ += (sini-cutoffsin) / (sini-nextsini);
 	    }
 	}
 
@@ -255,19 +255,19 @@ float AngleMuteBase::getOffsetMuteLayer( const ReflectivityModelBase& refmodel,
 	return mUdf(float);
 
     const Interval<float>& intv = ret.first();
-    if ( !mIsUdf(intv.start) && mIsUdf(intv.stop) )
-	return intv.start;
+    if ( !mIsUdf(intv.start_) && mIsUdf(intv.stop_) )
+	return intv.start_;
 
     if ( innermute )
     {
-	if ( mIsEqual(intv.stop,(float)(nrlayers-1),1e-3f) &&
-	     !mIsUdf(intv.start) )
-	    return intv.start;
+	if ( mIsEqual(intv.stop_,(float)(nrlayers-1),1e-3f) &&
+	     !mIsUdf(intv.start_) )
+	    return intv.start_;
     }
     else
     {
-	if ( mIsEqual(intv.start,0.f,1e-3f) && !mIsUdf(intv.stop) )
-	    return intv.stop;
+	if ( mIsEqual(intv.start_,0.f,1e-3f) && !mIsUdf(intv.stop_) )
+	    return intv.stop_;
     }
 
     return mUdf(float);
@@ -465,16 +465,16 @@ bool AngleMute::doWork( od_int64 start, od_int64 stop, int thread )
 
 	    for ( auto& itvml : mutelayeritvs )
 	    {
-		if ( mIsUdf(itvml.start) )
+		if ( mIsUdf(itvml.start_) )
 		    continue;
 
-		zpos = getfMutePos( tdmodel, zistime, itvml.start, offset );
-		itvml.start = zrg.getfIndex( zpos );
-		if ( mIsUdf(itvml.stop) )
+		zpos = getfMutePos( tdmodel, zistime, itvml.start_, offset );
+		itvml.start_ = zrg.getfIndex( zpos );
+		if ( mIsUdf(itvml.stop_) )
 		    continue;
 
-		zpos = getfMutePos( tdmodel, zistime, itvml.stop, offset );
-		itvml.stop = zrg.getfIndex( zpos );
+		zpos = getfMutePos( tdmodel, zistime, itvml.stop_, offset );
+		itvml.stop_ = zrg.getfIndex( zpos );
 	    }
 
 	    if ( !mutelayeritvs.isEmpty() )

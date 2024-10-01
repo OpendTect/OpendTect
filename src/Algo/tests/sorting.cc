@@ -207,8 +207,8 @@ static bool testRandom( bool dodiff, bool dotime )
 	rci.addValue( ivals[idx] );
     }
 
-    expstddev = ( double(valrg.stop) - double(valrg.start) ) * oneoversqrt12;
-    mRunStandardTest( rci.min() >= valrg.start && rci.max() <= valrg.stop,
+    expstddev = ( double(valrg.stop_) - double(valrg.start_) ) * oneoversqrt12;
+    mRunStandardTest( rci.min() >= valrg.start_ && rci.max() <= valrg.stop_,
 		      "Limits of get int" );
     mTestValI( 0, rcd.average(), expstddev, "Uniform average of int" );
     mTestValI( expstddev, rcd.stdDev(), expstddev*1e-2,
@@ -216,7 +216,7 @@ static bool testRandom( bool dodiff, bool dotime )
 
     valrg.set( 20, 300 );
     mTic(); for ( int idx=0; idx<sz; idx++ )
-	ivals[idx] = urg.getInt( valrg.start, valrg.stop );
+	ivals[idx] = urg.getInt( valrg.start_, valrg.stop_ );
     mTac();
 
     rcd.clear(); rci.clear();
@@ -225,7 +225,7 @@ static bool testRandom( bool dodiff, bool dotime )
 	rcd.addValue( ivals[idx] );
 	rci.addValue( ivals[idx] );
     }
-    mRunStandardTest( rci.min() >= valrg.start && rci.max() <= valrg.stop,
+    mRunStandardTest( rci.min() >= valrg.start_ && rci.max() <= valrg.stop_,
 		      "Limits of get int range" );
     expavg = valrg.center();
     expstddev = valrg.width() * oneoversqrt12;
@@ -234,9 +234,9 @@ static bool testRandom( bool dodiff, bool dotime )
     mTestValI( expstddev, rcd.stdDev(), expstddev*1e-2,
 	      "Uniform stddev of int range" );
 
-    valrg.start = 0;
+    valrg.start_ = 0;
     mTic(); for ( int idx=0; idx<sz; idx++ )
-	ivals[idx] = urg.getIndex( valrg.stop );
+	ivals[idx] = urg.getIndex( valrg.stop_ );
     mTac();
 
     rcd.clear(); rci.clear();
@@ -245,7 +245,7 @@ static bool testRandom( bool dodiff, bool dotime )
 	rcd.addValue( ivals[idx] );
 	rci.addValue( ivals[idx] );
     }
-    mRunStandardTest( rci.min() >= valrg.start && rci.max() <= valrg.stop,
+    mRunStandardTest( rci.min() >= valrg.start_ && rci.max() <= valrg.stop_,
 		      "Limits of get int index" );
     expavg = valrg.center();
     expstddev = valrg.width() * oneoversqrt12;
@@ -259,7 +259,7 @@ static bool testRandom( bool dodiff, bool dotime )
     expavg = lvalrg.center();
     expstddev = lvalrg.width() * oneoversqrt12;
     mTic(); for ( int idx=0; idx<sz; idx++ )
-	llvals[idx] = urg.getIndex( lvalrg.stop );
+	llvals[idx] = urg.getIndex( lvalrg.stop_ );
     mTac();
 
     rcd.clear(); rcll.clear();
@@ -268,7 +268,7 @@ static bool testRandom( bool dodiff, bool dotime )
 	rcd.addValue( llvals[idx] );
 	rcll.addValue( llvals[idx] );
     }
-    mRunStandardTest( rcll.min() >= lvalrg.start && rcll.max() <= lvalrg.stop,
+    mRunStandardTest( rcll.min() >= lvalrg.start_ && rcll.max() <= lvalrg.stop_,
 		      "Limits of get od_int64 index" );
     mTestValI( lvalrg.center(), rcd.average(), expstddev*1e-2,
 	      "Uniform average of od_int64 index" );

@@ -298,7 +298,7 @@ void uiViewer2DMainWin::displayMutes()
 	    muteaux->linestyle_.width_ = 3;
 
 	    StepInterval<float> offsetrg = gd->getOffsetRange();
-	    offsetrg.step = offsetrg.width()/20.0f;
+            offsetrg.step_ = offsetrg.width()/20.0f;
 	    const int sz = offsetrg.nrSteps()+1;
 	    muteaux->poly_.setCapacity( sz, false );
 	    for ( int offsidx=0; offsidx<sz; offsidx++ )
@@ -368,7 +368,7 @@ PreStack::Gather* uiViewer2DMainWin::getAngleGather(
 					    const Interval<int>& anglerange )
 {
     const FlatPosData& fp = gather.posData();
-    const StepInterval<double> x1rg( anglerange.start, anglerange.stop, 1 );
+    const StepInterval<double> x1rg( anglerange.start_, anglerange.stop_, 1 );
     const StepInterval<double> x2rg = fp.range( false );
     FlatPosData anglefp;
     anglefp.setRange( true, x1rg );
@@ -564,7 +564,7 @@ bool				forstored_;
 void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 				       uiGatherDisplayInfoHeader* gdi )
 {
-    const Interval<double> zrg( tkzs_.zsamp_.start, tkzs_.zsamp_.stop );
+    const Interval<double> zrg( tkzs_.zsamp_.start_, tkzs_.zsamp_.stop_ );
     gd->setZRange( tkzs_.zsamp_.width()==0 ? 0 : &zrg );
     gd->updateViewRange();
     uiFlatViewer* fv = gd->getUiFlatViewer();
@@ -668,7 +668,7 @@ void uiViewer2DMainWin::getStartupPositions( const TrcKey& tk,
 	approxstep = 1;
 
     const int starttrcnr = isinl ? tk.crl() : tk.inl();
-    for ( int trcnr=starttrcnr; trcnr<=trcrg.stop; trcnr+=approxstep )
+    for ( int trcnr=starttrcnr; trcnr<=trcrg.stop_; trcnr+=approxstep )
     {
 	const int trcidx = trcrg.nearestIndex( trcnr );
 	const int acttrcnr = trcrg.atIndex( trcidx );
@@ -683,7 +683,7 @@ void uiViewer2DMainWin::getStartupPositions( const TrcKey& tk,
 	    return;
     }
 
-    for ( int trcnr=starttrcnr-approxstep; trcnr>=trcrg.start;trcnr-=approxstep)
+    for ( int trcnr=starttrcnr-approxstep; trcnr>=trcrg.start_;trcnr-=approxstep)
     {
 	const int trcidx = trcrg.nearestIndex( trcnr );
 	const int acttrcnr = trcrg.atIndex( trcidx );
@@ -1226,8 +1226,8 @@ void uiStoredViewer2DMainWin::displayAngle()
 	    vdmapper.symmidval_ = mUdf(float);
 	    vdmapper.type_ = ColTab::MapperSetup::Fixed;
 	    Interval<float> anglerg(
-		    mCast(float,angleparams_->anglerange_.start),
-		    mCast(float,angleparams_->anglerange_.stop) );
+                        mCast(float,angleparams_->anglerange_.start_),
+                        mCast(float,angleparams_->anglerange_.stop_) );
 	    vdmapper.range_ = anglerg;
 	    psapp.ddpars_.vd_.ctab_ = ColTab::Sequence::sKeyRainbow();
 	}
@@ -1268,7 +1268,7 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 	ConstRefMan<PreStack::Gather> anglegather = getAngleData( ppgather );
 	gd->setVDGather( hasangledata_ ? anglegather : ppgather );
 	gd->setWVAGather( hasangledata_ ? ppgather : nullptr );
-	if ( mIsUdf( zrg.start ) )
+        if ( mIsUdf( zrg.start_ ) )
 	   zrg = gd->getZDataRange();
 
 	zrg.include( gd->getZDataRange() );

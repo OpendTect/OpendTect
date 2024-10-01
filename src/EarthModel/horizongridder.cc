@@ -379,9 +379,9 @@ uiRetVal HorizonGridder::executeGridding(
 	TaskRunner* taskrunner)
 {
     StepInterval<int> rowrg = hor3d->geometry().rowRange();
-    rowrg.step = gridstep.inl();
+    rowrg.step_ = gridstep.inl();
     StepInterval<int> colrg = hor3d->geometry().colRange();
-    colrg.step = gridstep.crl();
+    colrg.step_ = gridstep.crl();
 
     if ( polyinlrg && polycrlrg )
     {

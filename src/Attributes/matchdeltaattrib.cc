@@ -60,10 +60,10 @@ bool MatchDelta::getInputData( const BinID& relpos, int zintv )
     if ( !refcubedata_ || !mtchcubedata_ )
 	return false;
 
-    refintv_.start = refcubedata_->z0_;
-    refintv_.stop = refcubedata_->z0_ + refcubedata_->nrsamples_ - 1;
-    mtchintv_.start = mtchcubedata_->z0_;
-    mtchintv_.stop = mtchcubedata_->z0_ + mtchcubedata_->nrsamples_ - 1;
+    refintv_.start_ = refcubedata_->z0_;
+    refintv_.stop_ = refcubedata_->z0_ + refcubedata_->nrsamples_ - 1;
+    mtchintv_.start_ = mtchcubedata_->z0_;
+    mtchintv_.stop_ = mtchcubedata_->z0_ + mtchcubedata_->nrsamples_ - 1;
     maxsamps_ = maxshift_ / refstep_;
 
     refseries_ = refcubedata_->series( getDataIndex(0) );
@@ -80,23 +80,23 @@ const Interval<int>* MatchDelta::desZSampMargin(int,int) const
 
 void MatchDelta::findEvents( int z0, int nrsamples ) const
 {
-    Interval<int> worksamps( z0 + dessamps_.start,
-	    		     z0 + dessamps_.stop + nrsamples - 1 );
+    Interval<int> worksamps( z0 + dessamps_.start_,
+			     z0 + dessamps_.stop_ + nrsamples - 1 );
     worksamps.limitTo( refintv_ ); worksamps.limitTo( mtchintv_ );
 
-    SamplingData<float> refsd( mCast(float,refintv_.start), 1 );
-    SamplingData<float> mtchsd( mCast(float,mtchintv_.start), 1 );
+    SamplingData<float> refsd( mCast(float,refintv_.start_), 1 );
+    SamplingData<float> mtchsd( mCast(float,mtchintv_.start_), 1 );
     ValueSeriesEvFinder<float,float> refevf( *refseries_,
 	    refcubedata_->nrsamples_-1, refsd );
     ValueSeriesEvFinder<float,float> mtchevf( *mtchseries_,
 	    mtchcubedata_->nrsamples_-1, mtchsd );
 
-    ValueSeriesEvent<float,float> refev( 0, mCast(float,worksamps.start-2) );
-    Interval<float> sampsleft( 0, mCast(float,worksamps.stop) );
+    ValueSeriesEvent<float,float> refev( 0, mCast(float,worksamps.start_-2) );
+    Interval<float> sampsleft( 0, mCast(float,worksamps.stop_) );
     while ( true )
     {
-	sampsleft.start = refev.pos + 2;
-	if ( sampsleft.start > sampsleft.stop )
+	sampsleft.start_ = refev.pos + 2;
+	if ( sampsleft.start_ > sampsleft.stop_ )
 	    break;
 
 	refev = refevf.find( VSEvent::Max, sampsleft );

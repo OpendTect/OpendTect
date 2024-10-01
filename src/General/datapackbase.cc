@@ -44,10 +44,10 @@ public:
 
 	const StepInterval<double> tmpirg( mdp_.posdata_.range(true) );
 	const StepInterval<double> tmpcrg( mdp_.posdata_.range(false) );
-	hsamp_.set( StepInterval<int>((int)tmpirg.start,(int)tmpirg.stop,
-		    (int)tmpirg.step),
-		StepInterval<int>((int)tmpcrg.start,(int)tmpcrg.stop,
-		    (int)tmpcrg.step) );
+	hsamp_.set( StepInterval<int>((int)tmpirg.start_,(int)tmpirg.stop_,
+				      (int)tmpirg.step_),
+		    StepInterval<int>((int)tmpcrg.start_,(int)tmpcrg.stop_,
+				      (int)tmpcrg.step_) );
 	const Coord spt1 =
 	    SI().transform( BinID(hsamp_.start_.inl(),hsamp_.start_.crl()) );
 	const Coord spt2 =

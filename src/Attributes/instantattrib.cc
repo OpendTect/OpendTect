@@ -314,7 +314,7 @@ float Instantaneous::calcEnvWeighted( int cursample, int z0,
     float sumienv = 0.f;
     int nrsamples = 0;
     Interval<int> sg( -1, 1 );
-    for ( int ids=sg.start; ids<=sg.stop; ids++ )
+    for ( int ids=sg.start_; ids<=sg.stop_; ids++ )
     {
 	const float iamp = isphase ? calcPhase( cursample+ids, z0 )
 				   : calcFrequency( cursample+ids, z0 );

@@ -111,7 +111,7 @@ void SeisIOSimple::Data::setResampler( SeisResampler* r )
 void SeisIOSimple::Data::clear( bool survchg )
 {
     deleteAndNullPtr( resampler_ );
-    nrdef_.start = 1; nrdef_.step = 1;
+    nrdef_.start_ = 1; nrdef_.step_ = 1;
     if ( !survchg )
 	return;
 
@@ -119,23 +119,23 @@ void SeisIOSimple::Data::clear( bool survchg )
     fname_ = GetDataDir();
     seiskey_.setUdf();
     linename_.setEmpty();
-    sd_.start = (float)SI().zRange(false).start;
-    sd_.step = (float)SI().zRange(false).step;
+    sd_.start_ = (float)SI().zRange(false).start_;
+    sd_.step_ = (float)SI().zRange(false).step_;
     nrsamples_ = SI().zRange(false).nrSteps() + 1;
-    inldef_.start = SI().sampling(false).hsamp_.start_.inl();
-    crldef_.start = SI().sampling(false).hsamp_.start_.crl();
-    inldef_.step = SI().inlStep();
-    crldef_.step = SI().crlStep();
+    inldef_.start_ = SI().sampling(false).hsamp_.start_.inl();
+    crldef_.start_ = SI().sampling(false).hsamp_.start_.crl();
+    inldef_.step_ = SI().inlStep();
+    crldef_.step_ = SI().crlStep();
     nrcrlperinl_ = (SI().sampling(false).hsamp_.stop_.crl()
 		 - SI().sampling(false).hsamp_.start_.crl())
-		    / crldef_.step + 1;
+                   / crldef_.step_ + 1;
     nroffsperpos_ = 10; // cannot think of a good default ...
-    startpos_ = SI().transform( BinID(inldef_.start,crldef_.start) );
-    Coord nextpos = SI().transform( BinID(inldef_.start+inldef_.step,
-					  crldef_.start+crldef_.step) );
+    startpos_ = SI().transform( BinID(inldef_.start_,crldef_.start_) );
+    Coord nextpos = SI().transform( BinID(inldef_.start_+inldef_.step_,
+                                          crldef_.start_+crldef_.step_) );
     steppos_.x = fabs( nextpos.x - startpos_.x );
     steppos_.y = fabs( nextpos.y - startpos_.y );
-    offsdef_.start = 0; offsdef_.step = SI().crlDistance();
+    offsdef_.start_ = 0; offsdef_.step_ = SI().crlDistance();
     compidx_ = 0;
 }
 
@@ -251,12 +251,12 @@ void SeisIOSimple::startImpRead()
     mGetIBinStrm;
     if ( data_.havesd_ )
     {
-	binstrm.get( data_.sd_.start ).get( data_.sd_.step )
+        binstrm.get( data_.sd_.start_ ).get( data_.sd_.step_ )
 	       .get( data_.nrsamples_ );
 	if ( !strm_->isOK() )
 	{ errmsg_ = tr("Input file contains no data"); return; }
 	if ( zistm_ )
-	    { data_.sd_.start *= .001; data_.sd_.step *= .001; }
+        { data_.sd_.start_ *= .001; data_.sd_.step_ *= .001; }
     }
 
     trc_.info().sampling = data_.sd_;
@@ -335,7 +335,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    binstrm.get( refnr );
     }
     else
-	nr = data_.nrdef_.start + nrdone_ * data_.nrdef_.step;
+        nr = data_.nrdef_.start_ + nrdone_ * data_.nrdef_.step_;
 
     if ( is2d )
 	tk.setTrcNr( nr );
@@ -373,8 +373,8 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	{
 	    const int nrinl = nrposdone / data_.nrcrlperinl_;
 	    const int nrcrl = nrposdone % data_.nrcrlperinl_;
-	    const int inlnr = data_.inldef_.start + nrinl * data_.inldef_.step;
-	    const int crlnr = data_.crldef_.start + nrcrl * data_.crldef_.step;
+            const int inlnr = data_.inldef_.start_ + nrinl * data_.inldef_.step_;
+            const int crlnr = data_.crldef_.start_ + nrcrl * data_.crldef_.step_;
 	    tk.setPosition( BinID(inlnr,crlnr) );
 	}
     }
@@ -383,7 +383,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     if ( isps )
     {
 	if ( !data_.haveoffs_ )
-	    offs = data_.offsdef_.start + offsnr_ * data_.offsdef_.step;
+            offs = data_.offsdef_.start_ + offsnr_ * data_.offsdef_.step_;
 	else
 	    binstrm.get( offs );
 	if ( data_.haveazim_ )
@@ -509,10 +509,10 @@ int SeisIOSimple::writeExpTrc()
 	{
 	    SamplingData<float> datasd = trc_.info().sampling;
 	    if ( zistm_ )
-		{ datasd.start *= 1000; datasd.step *= 1000; }
-	    mPIEPAdj(Z,datasd.start,false); mPIEPAdj(Z,datasd.step,false);
-	    binstrm.add( datasd.start )
-		   .add( datasd.step )
+            { datasd.start_ *= 1000; datasd.step_ *= 1000; }
+            mPIEPAdj(Z,datasd.start_,false); mPIEPAdj(Z,datasd.step_,false);
+            binstrm.add( datasd.start_ )
+                    .add( datasd.step_ )
 		   .add( data_.nrsamples_, od_newline );
 	}
     }

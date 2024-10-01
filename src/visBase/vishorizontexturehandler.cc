@@ -325,8 +325,8 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 
 	if ( horsection->userchangedisplayrg_ )
 	{
-	    if ( ( bid.inl()-rrg.start ) % rrg.step ||
-		 ( bid.crl()-crg.start ) % crg.step )
+	    if ( ( bid.inl()-rrg.start_ ) % rrg.step_ ||
+		 ( bid.crl()-crg.start_ ) % crg.step_ )
 		continue;
 	}
 
@@ -364,14 +364,14 @@ void HorizonTextureHandler::updateTileTextureOrigin()
 		continue;
 
 	    Coord origin( tile->origin_.col(), tile->origin_.row() );
-	    origin.x -= horsection->texturecolrg_.start;
-	    origin.y -= horsection->texturerowrg_.start;
+	    origin.x -= horsection->texturecolrg_.start_;
+	    origin.y -= horsection->texturerowrg_.start_;
 
-	    if ( horsection->texturecolrg_.step )
-		origin.x /= horsection->texturecolrg_.step;
+	    if ( horsection->texturecolrg_.step_ )
+		origin.x /= horsection->texturecolrg_.step_;
 
-	    if ( horsection->texturerowrg_.step )
-		origin.y /= horsection->texturerowrg_.step;
+	    if ( horsection->texturerowrg_.step_ )
+		origin.y /= horsection->texturerowrg_.step_;
 
 	    tile->setTexture( origin, origin+Coord(tilesize,tilesize) );
 	}

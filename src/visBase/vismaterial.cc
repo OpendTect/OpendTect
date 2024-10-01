@@ -225,7 +225,7 @@ void Material::setAllTransparencies( float n )
 
 void Material::setTransparencies( float n, const Interval<int>& range )
 {
-    for ( int idx=range.start; idx<=range.stop; idx++ )
+    for ( int idx=range.start_; idx<=range.stop_; idx++ )
 	setTransparency( n, idx, true );
 
     DataObject::requestSingleRedraw();

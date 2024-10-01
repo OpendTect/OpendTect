@@ -461,8 +461,8 @@ void WellDataFilter::getMnemsInDepthInterval( const Interval<float> depthrg,
 		continue;
 
 	    Interval<float> logrg = log->dahRange();
-	    logrg.start = wd->track().getPos(logrg.start).z;
-	    logrg.stop = wd->track().getPos(logrg.stop).z;
+	    logrg.start_ = wd->track().getPos(logrg.start_).z;
+	    logrg.stop_ = wd->track().getPos(logrg.stop_).z;
 	    if ( !logrg.overlaps(depthrg,false) )
 		continue;
 
@@ -493,8 +493,8 @@ void WellDataFilter::getLogsInDepthInterval( const Interval<float> depthrg,
 		continue;
 
 	    Interval<float> logrg = log->dahRange();
-	    logrg.start = wd->track().getPos(logrg.start).z;
-	    logrg.stop = wd->track().getPos(logrg.stop).z;
+	    logrg.start_ = wd->track().getPos(logrg.start_).z;
+	    logrg.stop_ = wd->track().getPos(logrg.stop_).z;
 	    if ( !logrg.overlaps(depthrg,false) )
 		continue;
 
@@ -551,29 +551,29 @@ Interval<float> WellDataFilter::getDepthRangeFromMarkers(
 {
     Interval<float> markerrg = Interval<float>::udf();
     if ( StringView(topnm) == Well::ZRangeSelector::sKeyDataStart() )
-	markerrg.start = vertical ? wd->track().zRange().start
-				  : wd->track().dahRange().start;
+	markerrg.start_ = vertical ? wd->track().zRange().start_
+				   : wd->track().dahRange().start_;
     else
     {
 	const Well::Marker* marker = wd->markers().getByName( topnm );
 	if ( marker )
 	{
 	    float mrkrdahstart = marker->dah();
-	    markerrg.start = vertical ? wd->track().getPos(mrkrdahstart).z
+	    markerrg.start_ = vertical ? wd->track().getPos(mrkrdahstart).z
 				      : mrkrdahstart;
 	}
     }
 
     if ( StringView(botnm) == Well::ZRangeSelector::sKeyDataEnd() )
-	markerrg.stop = vertical ? wd->track().zRange().stop
-				 : wd->track().dahRange().stop;
+	markerrg.stop_ = vertical ? wd->track().zRange().stop_
+				  : wd->track().dahRange().stop_;
     else
     {
 	const Well::Marker* marker = wd->markers().getByName( botnm );
 	if ( marker )
 	{
 	    float mrkrdahstop = marker->dah();
-	    markerrg.stop = vertical ? wd->track().getPos(mrkrdahstop).z
+	    markerrg.stop_ = vertical ? wd->track().getPos(mrkrdahstop).z
 				     : mrkrdahstop;
 	}
     }

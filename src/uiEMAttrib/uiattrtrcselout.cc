@@ -438,16 +438,16 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     if ( gatefld_ )
     {
 	zinterval = gatefld_->getFInterval();
-	if ( mIsUdf(zinterval.start) )
-	    zinterval.start = 0;
+	if ( mIsUdf(zinterval.start_) )
+	    zinterval.start_ = 0;
 
-	if ( mIsUdf(zinterval.stop) )
-	    zinterval.stop = 0;
+	if ( mIsUdf(zinterval.stop_) )
+	    zinterval.stop_ = 0;
     }
     else
     {
-	zinterval.start = extraztopfld_->getFValue();
-	zinterval.stop = extrazbotfld_->getFValue();
+	zinterval.start_ = extraztopfld_->getFValue();
+	zinterval.stop_ = extrazbotfld_->getFValue();
     }
 
     key = IOPar::compKey( sKey::Geometry(), "ExtraZInterval" );
@@ -477,7 +477,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     cubezbounds = setcubeboundsfld_->getBoolValue()
 				? cubeboundsfld_->getFInterval()
 				: Interval<float>( mUdf(float), mUdf(float) );
-    if ( !mIsUdf(cubezbounds.start) )
+    if ( !mIsUdf(cubezbounds.start_) )
     {
 	key = IOPar::compKey( sKey::Geometry(), "Z Boundaries" );
 	iopar.set( key, cubezbounds );
@@ -507,10 +507,10 @@ void uiAttrTrcSelOut::getComputableSurf( TrcKeySampling& trcsampling )
 	Interval<int> inlrg2(sd2.rg.start_.inl(), sd2.rg.stop_.inl());
 	Interval<int> crlrg2(sd2.rg.start_.crl(), sd2.rg.stop_.crl());
 
-	inlrg.start = mMAX( inlrg.start, inlrg2.start);
-	inlrg.stop = mMIN( inlrg.stop, inlrg2.stop);
-	crlrg.start = mMAX( crlrg.start, crlrg2.start);
-	crlrg.stop = mMIN( crlrg.stop, crlrg2.stop);
+	inlrg.start_ = mMAX( inlrg.start_, inlrg2.start_);
+	inlrg.stop_ = mMIN( inlrg.stop_, inlrg2.stop_);
+	crlrg.start_ = mMAX( crlrg.start_, crlrg2.start_);
+	crlrg.stop_ = mMIN( crlrg.stop_, crlrg2.stop_);
     }
 
     trcsampling.set( inlrg, crlrg );

@@ -55,8 +55,8 @@ public:
 	idxstocompute_.erase();
 
 	int start[3], stop[3];
-	start[mX] = xrg.start; start[mY] = yrg.start; start[mZ] = zrg.start;
-	stop[mX] = xrg.stop; stop[mY] = yrg.stop; stop[mZ] = zrg.stop;
+	start[mX] = xrg.start_; start[mY] = yrg.start_; start[mZ] = zrg.start_;
+	stop[mX] = xrg.stop_; stop[mY] = yrg.stop_; stop[mZ] = zrg.stop_;
 
 	surface_.getSurface()->models_.getIndicesInRange( start, stop,
 	    idxstocompute_);
@@ -234,8 +234,8 @@ bool ExplicitMarchingCubesSurface::allBucketsHaveChanged() const
 	if ( !surface_->models_.getRange( idx, range ) )
 	    return false;
 
-	range.start = getBucketPos( range.start );
-	range.stop = getBucketPos( range.stop );
+	range.start_ = getBucketPos( range.start_ );
+	range.stop_ = getBucketPos( range.stop_ );
 
 	if ( range!=*changedbucketranges_[idx] )
 	    return false;
@@ -297,12 +297,12 @@ bool ExplicitMarchingCubesSurface::update(
 {
     removeBuckets( xbucketrg, ybucketrg, zbucketrg );
 
-    Interval<int> xrg = Interval<int>( xbucketrg.start*mBucketSize,
-				       (xbucketrg.stop+1)*mBucketSize-1 );
-    Interval<int> yrg = Interval<int>( ybucketrg.start*mBucketSize,
-	                               (ybucketrg.stop+1)*mBucketSize-1 );
-    Interval<int> zrg = Interval<int>( zbucketrg.start*mBucketSize,
-	                               (zbucketrg.stop+1)*mBucketSize-1 );
+    Interval<int> xrg = Interval<int>( xbucketrg.start_*mBucketSize,
+				       (xbucketrg.stop_+1)*mBucketSize-1 );
+    Interval<int> yrg = Interval<int>( ybucketrg.start_*mBucketSize,
+				       (ybucketrg.stop_+1)*mBucketSize-1 );
+    Interval<int> zrg = Interval<int>( zbucketrg.start_*mBucketSize,
+				       (zbucketrg.stop_+1)*mBucketSize-1 );
 
     ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
     updater.setLimits( xrg, yrg, zrg );
@@ -321,11 +321,11 @@ void ExplicitMarchingCubesSurface::removeBuckets(
 					const Interval<int>& ybucketrg,
 					const Interval<int>& zbucketrg )
 {
-    for ( int idx=xbucketrg.start; idx<xbucketrg.stop+1; idx++ )
+    for ( int idx=xbucketrg.start_; idx<xbucketrg.stop_+1; idx++ )
     {
-	for ( int idy=ybucketrg.start; idy<ybucketrg.stop+1; idy++ )
+	for ( int idy=ybucketrg.start_; idy<ybucketrg.stop_+1; idy++ )
 	{
-	    for ( int idz=zbucketrg.start; idz<zbucketrg.stop+1; idz++ )
+	    for ( int idz=zbucketrg.start_; idz<zbucketrg.stop_+1; idz++ )
 	    {
 		int pos[3] = { idx, idy, idz };
 		int bucketidx[3];
@@ -535,12 +535,12 @@ void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
     }
 
     //convert to bucket-ranges
-    ranges[mX] = Interval<int>( getBucketPos( ranges[mX].start),
-				getBucketPos( ranges[mX].stop ) );
-    ranges[mY] = Interval<int>( getBucketPos( ranges[mY].start),
-				getBucketPos( ranges[mY].stop ) );
-    ranges[mZ] = Interval<int>( getBucketPos( ranges[mZ].start),
-				getBucketPos( ranges[mZ].stop ) );
+    ranges[mX] = Interval<int>( getBucketPos( ranges[mX].start_),
+				getBucketPos( ranges[mX].stop_ ) );
+    ranges[mY] = Interval<int>( getBucketPos( ranges[mY].start_),
+				getBucketPos( ranges[mY].stop_ ) );
+    ranges[mZ] = Interval<int>( getBucketPos( ranges[mZ].start_),
+				getBucketPos( ranges[mZ].stop_ ) );
 
     if ( !changedbucketranges_[mX] )
     {

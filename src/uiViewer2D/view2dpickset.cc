@@ -139,7 +139,7 @@ void PickSet::pickRemoveCB( CallBacker* cb )
 	    {
 		if ( regfdp->is2D() )
 		{
-		    const Pos::GeomID geomid(vwr2dtkzs.hsamp_.inlRange().start);
+                    const Pos::GeomID geomid(vwr2dtkzs.hsamp_.inlRange().start_);
 		    if ( pl.hasTrcKey() &&  pl.geomID()!=geomid )
 			continue;
 		    else
@@ -155,8 +155,8 @@ void PickSet::pickRemoveCB( CallBacker* cb )
 	    }
 	    else
 	    {
-		const float vwr2dzpos = vwr2dtkzs.zsamp_.start;
-		const float eps = vwr2dtkzs.zsamp_.step/2.f;
+                const float vwr2dzpos = vwr2dtkzs.zsamp_.start_;
+                const float eps = vwr2dtkzs.zsamp_.step_/2.f;
 		if ( !mIsEqual(vwr2dzpos,pl.z(),eps) )
 		    continue;
 	    }
@@ -270,7 +270,7 @@ void PickSet::drawAll()
 		}
 		else
 		{
-		    const Pos::GeomID geomid(vwr2dtkzs.hsamp_.inlRange().start);
+                    const Pos::GeomID geomid(vwr2dtkzs.hsamp_.inlRange().start_);
 		    int trcidx = -1;
 		    if ( pl.hasTrcKey() )
 		    {
@@ -314,8 +314,8 @@ void PickSet::drawAll()
 	    }
 	    else if ( regfdp && !regfdp->isVertical() )
 	    {
-		const float vwr2dzpos = regfdp->sampling().zsamp_.start;
-		const float eps = regfdp->sampling().zsamp_.step/2.f;
+                const float vwr2dzpos = regfdp->sampling().zsamp_.start_;
+                const float eps = regfdp->sampling().zsamp_.step_/2.f;
 		if ( !mIsEqual(vwr2dzpos,pos.z,eps) )
 		    continue;
 

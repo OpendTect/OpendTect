@@ -599,17 +599,17 @@ void computePts( bool isy2 )
     vert.handleAutoScale( plotter_.uidps().getRunCalc( vert.colid_ ) );
 
     StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
-				    vert.axis_->range().step );
+				    vert.axis_->range().step_ );
     const bool& linedrawn = isy2 ? line2drawn_ : line1drawn_;
     const int nrpts = linedrawn ? 70 : 1000;
     const Interval<float> xrge = horz.rg_;
-    const float step = fabs( (xrge.stop-xrge.start)/(nrpts-1) );
+    const float step = fabs( (xrge.stop_-xrge.start_)/(nrpts-1) );
     TypeSet<uiWorldPoint> pts;
     pts.setCapacity( nrpts, false );
 
     for ( int idx=0; idx<nrpts; idx++ )
     {
-	const float curvxval = xrge.start + idx*step;
+	const float curvxval = xrge.start_ + idx*step;
 	mathobj->setVariableValue( 0, curvxval );
 	const float curvyval = sCast(float,mathobj->getValue());
 	if ( !Math::IsNormalNumber(curvyval) ) break;
@@ -634,7 +634,7 @@ void computePts( bool isy2 )
 	if ( uiMSG().askGoOn(msg_) )
 	{
 	    curvyvalrg.include( vert.axis_->range(), false );
-	    curvyvalrg.step = (curvyvalrg.stop - curvyvalrg.start)/4.0f;
+	    curvyvalrg.step_ = (curvyvalrg.stop_ - curvyvalrg.start_)/4.0f;
 	    vert.autoscalepars_.doautoscale_ = vert.needautoscale_ = false;
 	    vert.axis_->setBounds( curvyvalrg );
 	}

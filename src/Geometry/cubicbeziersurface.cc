@@ -195,11 +195,11 @@ IntervalND<float> CubicBezierSurface::boundingBox(bool approx) const
     const StepInterval<int> rowrange = rowRange();
     const StepInterval<int> colrange = colRange();
 
-    for ( RowCol rc(rowrange.start,0); rc.row()<=rowrange.stop;
-	  rc.row()+=rowrange.step )
+    for ( RowCol rc(rowrange.start_,0); rc.row()<=rowrange.stop_;
+          rc.row()+=rowrange.step_ )
     {
-	for ( rc.col() = colrange.start; rc.col()<=colrange.stop;
-	      rc.col()+=colrange.step )
+        for ( rc.col() = colrange.start_; rc.col()<=colrange.stop_;
+              rc.col()+=colrange.step_ )
 	{
 	    for ( RowCol relrc(-1,-1); relrc.row()<=1; relrc.row()++ )
 	    {
@@ -253,8 +253,8 @@ Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
     const CubicBezierSurfacePatch* patch = getPatch(RowCol(prevrow,prevcol));
 
     if ( !patch ) return Coord3::udf();
-    return patch->computePos( (float) ((params.x - prevrow)/rowrange.step),
-	    		     (float) ((params.y - prevcol)/colrange.step));
+    return patch->computePos( (float) ((params.x - prevrow)/rowrange.step_),
+                              (float) ((params.y - prevcol)/colrange.step_));
 }
 
 
@@ -712,27 +712,27 @@ ParametricCurve* CubicBezierSurface::createRowCurve( float row,
     StepInterval<int> outputrange = colrange;
     if ( cl )
     {
-	if ( outputrange.includes( cl->start,false ) )
-	    outputrange.start = outputrange.snap(cl->start);
-	if ( outputrange.includes( cl->stop,false ) )
-	    outputrange.stop = outputrange.snap(cl->stop);
+        if ( outputrange.includes( cl->start_,false ) )
+            outputrange.start_ = outputrange.snap(cl->start_);
+        if ( outputrange.includes( cl->stop_,false ) )
+            outputrange.stop_ = outputrange.snap(cl->stop_);
     }
 
-    if ( outputrange.start>=outputrange.stop )
+    if ( outputrange.start_>=outputrange.stop_ )
 	return 0;
 
-    const Coord3 p0 = computePosition( Coord(row,outputrange.start) );
+    const Coord3 p0 = computePosition( Coord(row,outputrange.start_) );
     const Coord3 p1 = computePosition( Coord(row,outputrange.atIndex(1)) );
 
     if ( !p0.isDefined() || !p1.isDefined() )
 	return 0;
 
     CubicBezierCurve* res =
-	new CubicBezierCurve( p0, p1, outputrange.start, outputrange.step );
+            new CubicBezierCurve( p0, p1, outputrange.start_, outputrange.step_ );
 
     Coord param( row, 0 );
-    for ( int idx=outputrange.atIndex(2); idx<=outputrange.stop;
-	  idx+=outputrange.step )
+    for ( int idx=outputrange.atIndex(2); idx<=outputrange.stop_;
+          idx+=outputrange.step_ )
     {
 	param.y = idx;
 	if ( !res->setPosition(idx, computePosition(param)) )
@@ -750,27 +750,27 @@ ParametricCurve* CubicBezierSurface::createColCurve( float col,
     StepInterval<int> outputrange = rowrange;
     if ( rw )
     {
-	if ( outputrange.includes(rw->start,false) )
-	    outputrange.start = outputrange.snap( rw->start );
-	if ( outputrange.includes(rw->stop,false) )
-	    outputrange.stop = outputrange.snap( rw->stop );
+        if ( outputrange.includes(rw->start_,false) )
+            outputrange.start_ = outputrange.snap( rw->start_ );
+        if ( outputrange.includes(rw->stop_,false) )
+            outputrange.stop_ = outputrange.snap( rw->stop_ );
     }
 
-    if ( outputrange.start>=outputrange.stop )
+    if ( outputrange.start_>=outputrange.stop_ )
 	return 0;
 
-    const Coord3 p0 = computePosition( Coord(outputrange.start,col) );
+    const Coord3 p0 = computePosition( Coord(outputrange.start_,col) );
     const Coord3 p1 = computePosition( Coord(outputrange.atIndex(1),col) );
 
     if ( !p0.isDefined() || !p1.isDefined() )
 	return 0;
 
     CubicBezierCurve* res =
-	new CubicBezierCurve( p0, p1, outputrange.start, outputrange.step );
+            new CubicBezierCurve( p0, p1, outputrange.start_, outputrange.step_ );
 
     Coord param( 0, col );
-    for ( int idx=outputrange.atIndex(2); idx<=outputrange.stop;
-	  idx+=outputrange.step )
+    for ( int idx=outputrange.atIndex(2); idx<=outputrange.stop_;
+          idx+=outputrange.step_ )
     {
 	param.x = idx;
 	if ( !res->setPosition(idx,computePosition(param)) )
@@ -815,11 +815,11 @@ bool CubicBezierSurface::checkSelfIntersection( const RowCol& ownrc ) const
 	const IntervalND<float> ownbbox = boundingBox(affectedrc, false );
 	if ( !ownbbox.isSet() ) return false;
 
-	for ( RowCol rc(rowrange.start,0); rc.row()<=rowrange.stop;
-	      rc.row()+=rowrange.step )
+        for ( RowCol rc(rowrange.start_,0); rc.row()<=rowrange.stop_;
+              rc.row()+=rowrange.step_ )
 	{
-	    for ( rc.col() = colrange.start; rc.col()<=colrange.stop;
-		  rc.col()+=colrange.step )
+            for ( rc.col() = colrange.start_; rc.col()<=colrange.stop_;
+                  rc.col()+=colrange.step_ )
 	    {
 		if ( rc==affectedrc ) continue;
 		if ( abs(rc.row()-affectedrc.row())<=step_.row() &&

@@ -133,15 +133,15 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 				    * nrbytespersample;
 
     const IdxType lastglobzidxinfile = Block::globIdx4Z( rdr_.zgeom_,
-					rdr_.zgeom_.stop, dims_.z() );
+                                                         rdr_.zgeom_.stop_, dims_.z() );
     Interval<IdxType> trcgzidxrg(
-	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start, dims_.z() ),
-	    Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop, dims_.z() ) );
+                Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start_, dims_.z() ),
+                Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop_, dims_.z() ) );
     nrsamplesintrace_ = 0;
     int blocknrbytes = dims_.z() * nrbytespercompslice;
     od_stream_Pos blockstartoffs = startoffsinfile_ + headernrbytes_
-				 + trcgzidxrg.start * blocknrbytes * nrcomps_;
-    for ( IdxType gzidx=trcgzidxrg.start; gzidx<=trcgzidxrg.stop; gzidx++ )
+                                   + trcgzidxrg.start_ * blocknrbytes * nrcomps_;
+    for ( IdxType gzidx=trcgzidxrg.start_; gzidx<=trcgzidxrg.stop_; gzidx++ )
     {
 	SzType blockzdim = dims_.z();
 	if ( gzidx == lastglobzidxinfile )
@@ -153,11 +153,11 @@ void Seis::Blocks::FileColumn::createOffsetTable()
 
 	IdxType startzidx = 0;
 	IdxType stopzidx = IdxType( blockzdim ) - 1;
-	if ( gzidx == trcgzidxrg.start )
-	    startzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start,
+        if ( gzidx == trcgzidxrg.start_ )
+            startzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start_,
 					 dims_.z() );
-	if ( gzidx == trcgzidxrg.stop )
-	    stopzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop,
+        if ( gzidx == trcgzidxrg.stop_ )
+            stopzidx = Block::locIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop_,
 					 dims_.z() );
 
 	blocknrbytes = nrbytespercompslice * blockzdim;
@@ -550,8 +550,8 @@ bool Seis::Blocks::Reader::reset( uiRetVal& uirv ) const
     if ( seldata_ )
     {
 	zrg.limitTo( seldata_->zRange() );
-	zrg.start = zgeom_.snap( zrg.start );
-	zrg.stop = zgeom_.snap( zrg.stop );
+        zrg.start_ = zgeom_.snap( zrg.start_ );
+        zrg.stop_ = zgeom_.snap( zrg.stop_ );
     }
 
     return true;
@@ -639,8 +639,8 @@ bool Seis::Blocks::Reader::doGoTo( const BinID& bid, uiRetVal& uirv ) const
 void Seis::Blocks::Reader::fillInfo( const BinID& bid, SeisTrcInfo& ti ) const
 {
     ti.setGeomID( hgeom_->getID() ).setPos( bid ).calcCoord();
-    ti.sampling.start = zrgintrace_.start;
-    ti.sampling.step = zgeom_.step;
+    ti.sampling.start_ = zrgintrace_.start_;
+    ti.sampling.step_ = zgeom_.step_;
 }
 
 

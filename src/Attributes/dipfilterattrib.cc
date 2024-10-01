@@ -219,9 +219,9 @@ bool DipFilter::initKernel()
 		{
 		    if ( type_==mFilterTypeLowPass )
 		    {
-			if ( val < valrange_.stop )
+			if ( val < valrange_.stop_ )
 			{
-			    float ratio = val / valrange_.stop;
+			    float ratio = val / valrange_.stop_;
 			    ratio -= (1-taperlen_);
 			    ratio /= taperlen_;
 			    factor = taper( 1-ratio );
@@ -233,9 +233,9 @@ bool DipFilter::initKernel()
 		    }
 		    else if ( type_==mFilterTypeHighPass )
 		    {
-			if ( val > valrange_.start )
+			if ( val > valrange_.start_ )
 			{
-			    float ratio = val / valrange_.start;
+			    float ratio = val / valrange_.start_;
 			    ratio -= 1;
 			    ratio /= taperlen_;
 			    factor = taper( ratio );
@@ -251,7 +251,7 @@ bool DipFilter::initKernel()
 			{
 			    const float htaperlen = taperlen_/2;
 			    float ratio =
-				(val-valrange_.start) / valrange_.width();
+				    (val-valrange_.start_) / valrange_.width();
 			    if ( ratio > (1-htaperlen))
 			    {
 				ratio -=(1-htaperlen);

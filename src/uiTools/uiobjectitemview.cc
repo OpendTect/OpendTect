@@ -119,9 +119,9 @@ uiObjectItem* uiObjectItemView::getItemFromPos( const Geom::Point2D<int>& pos )
     Interval<int> borders(0,sc->layoutPos().x); 
     for ( int idx=0; idx<objectitems_.size(); idx++ )
     {
-	borders.stop += objectitems_[idx]->objectSize().width(); 
+	borders.stop_ += objectitems_[idx]->objectSize().width();
 	if ( borders.includes( pos.x,true ) ) return objectitems_[idx];
-	borders.start = borders.stop;
+	borders.start_ = borders.stop_;
     }
     return 0;
 }
@@ -134,11 +134,11 @@ void uiObjectItemView::getItemsFromRect( const uiRect& rect,
     Interval<int> objborders(0,0); 
     for ( int idx=0; idx<objectitems_.size(); idx++ )
     {
-	objborders.stop += objectitems_[idx]->objectSize().width();
-	if ( rectborders.includes( objborders.start,true ) ||
-	     rectborders.includes( objborders.stop,true ) )	
+	objborders.stop_ += objectitems_[idx]->objectSize().width();
+	if ( rectborders.includes( objborders.start_,true ) ||
+	     rectborders.includes( objborders.stop_,true ) )
 	    objs += objectitems_[idx];
-	objborders.start = objborders.stop;
+	objborders.start_ = objborders.stop_;
     }
 }
 

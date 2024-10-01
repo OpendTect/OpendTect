@@ -83,12 +83,12 @@ IndexInfo::IndexInfo( const T* arr, int sz, T val )
 template <class X,class Y> inline
 void IndexInfo::set( const StepInterval<X>& intv, Y y )
 {
-    const bool isrev = intv.step < 0;
-    const Y hstep = intv.step * 0.5;
+    const bool isrev = intv.step_ < 0;
+    const Y hstep = intv.step_ * 0.5;
 
-    if ( (isrev && y>intv.start+hstep) || (!isrev && y<intv.start-hstep) )
+    if ( (isrev && y>intv.start_+hstep) || (!isrev && y<intv.start_-hstep) )
 	{ inundef_ = true; roundedtolow_ = false; nearest_ = 0; }
-    else if ( (isrev && y< intv.stop-hstep) || (!isrev && y>intv.stop+hstep) )
+    else if ( (isrev && y< intv.stop_-hstep) || (!isrev && y>intv.stop_+hstep) )
 	{ inundef_ = true; roundedtolow_ = true; nearest_ = intv.nrSteps(); }
     else
     {
@@ -102,5 +102,5 @@ void IndexInfo::set( const StepInterval<X>& intv, Y y )
 template <class X,class Y> inline
 void IndexInfo::set( const SamplingData<X>& sd, Y y, int nr )
 {
-    return set( StepInterval<X>( sd.start, sd.atIndex(nr-1), sd.step ), y );
+    return set( StepInterval<X>( sd.start_, sd.atIndex(nr-1), sd.step_ ), y );
 }

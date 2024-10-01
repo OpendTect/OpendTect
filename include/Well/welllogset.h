@@ -104,7 +104,7 @@ protected:
     ObjectSet<std::pair<const Mnemonic&,BufferString>> defaultlogs_;
 
     void		init()
-			{ dahintv_.start = mSetUdf(dahintv_.stop); }
+    { dahintv_.start_ = mSetUdf(dahintv_.stop_); }
 
     void		mnemonicRemovedCB(CallBacker*);
 

@@ -77,7 +77,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    if ( first_pos )
-		rgs[idx].start = rgs[idx].stop = vals[idx];
+		rgs[idx].start_ = rgs[idx].stop_ = vals[idx];
 	    else
 		rgs[idx].include( vals[idx] );
 	}
@@ -93,7 +93,7 @@ void NLADataPreparer::balance( const NLADataPreparer::BalanceSetup& setup )
 	float val = vals[targetcol_];
 	if ( mIsUdf(val) ) continue;
 
-	float relpos = (val-targetrg.start) / targetrgwdth;
+	float relpos = (val-targetrg.start_) / targetrgwdth;
 	relpos *= setup.nrclasses; relpos -= 0.5;
 	int clss = mNINT32( relpos );
 	if ( clss < 0 )			clss = 0;
@@ -141,7 +141,7 @@ void NLADataPreparer::addVecs( BinIDValueSet& bvs, int nr, float noiselvl,
 	    mAllocLargeVarLenArr( float, newvals, nrvals );
 	    for ( int validx=0; validx<nrvals; validx++ )
 	    {
-		float wdth = rgs[validx].stop - rgs[validx].start;
+		float wdth = rgs[validx].stop_ - rgs[validx].start_;
 		wdth *= noiselvl;
 		newvals[validx] = (float) (vals[validx] +
 				  ((gen_.get()-0.5) * wdth));

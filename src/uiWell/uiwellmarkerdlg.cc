@@ -785,7 +785,7 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
     {
 	errmsg.arg(tr("depth value(s) is/are out of well track range [%1-%2]. "
 		      "Press Abort if you want to re-enter the depth.")
-		 .arg(dahrg.start).arg(dahrg.stop));
+		   .arg(dahrg.start_).arg(dahrg.stop_));
       const bool res = uiMSG().askContinue( errmsg );
       if ( !res ) return false;
     }
@@ -931,8 +931,8 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     {
 	uiString errmsg = tr("The entered depth %1 is outside of "
 			     "track range\n[%2, %3] %4%5")
-			.arg( inval * zfac ).arg( trckrg.start * zfac )
-			.arg( trckrg.stop * zfac )
+			  .arg( inval * zfac ).arg( trckrg.start_ * zfac )
+			  .arg( trckrg.stop_ * zfac )
 			.arg( !unitfld_->isChecked() ? "m" : "ft" )
 			.arg( md2tvdss ? sKeyMD() : istvd ? sKeyTVD()
 							  : sKeyTVDSS() );

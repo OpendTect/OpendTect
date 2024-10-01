@@ -251,12 +251,12 @@ Network::ReadCache::file_size_type Network::ReadCache::getAt( FilePosType pos,
 	    const FilePosType blockstart = blockStart( bidx );
 	    const FilePosType blockend = blockstart + blk->bufsz_ - 1;
 	    if ( pos > blockstart )
-		wantedrg.start = (ChunkSizeType)(pos - blockstart);
+                wantedrg.start_ = (ChunkSizeType)(pos - blockstart);
 	    if ( lastpos < blockend )
-		wantedrg.stop = (ChunkSizeType)(lastpos - blockstart);
+                wantedrg.stop_ = (ChunkSizeType)(lastpos - blockstart);
 
-	    nrbytes = wantedrg.stop - wantedrg.start + 1;
-	    OD::memCopy( out+byteshandled, blk->buf_+wantedrg.start, nrbytes );
+            nrbytes = wantedrg.stop_ - wantedrg.start_ + 1;
+            OD::memCopy( out+byteshandled, blk->buf_+wantedrg.start_, nrbytes );
 	}
 	byteshandled += nrbytes;
     }
@@ -306,8 +306,8 @@ Network::ReadCache::FileChunkSetType Network::ReadCache::stillNeededDataFor(
 
 bool Network::ReadCache::setData( FileChunkType chunk, const BufType* data )
 {
-    const block_idx_type firstbidx = blockIdx( chunk.start );
-    const block_idx_type lastbidx = blockIdx( chunk.stop );
+    const block_idx_type firstbidx = blockIdx( chunk.start_ );
+    const block_idx_type lastbidx = blockIdx( chunk.stop_ );
     FilePosType dataoffs = 0;
 
     for ( block_idx_type bidx=firstbidx; bidx<=lastbidx; bidx++ )
@@ -318,9 +318,9 @@ bool Network::ReadCache::setData( FileChunkType chunk, const BufType* data )
 
 	const FilePosType blockstart = blockStart( bidx );
 	const ChunkSizeType bufoffs = bidx != firstbidx ? 0
-				: (ChunkSizeType)(chunk.start - blockstart);
+                                                        : (ChunkSizeType)(chunk.start_ - blockstart);
 	const ChunkSizeType nrbytes = bidx != lastbidx ? Block::cFullSize
-				: (ChunkSizeType)(chunk.stop - blockstart + 1);
+                                                       : (ChunkSizeType)(chunk.stop_ - blockstart + 1);
 	OD::memCopy( blk->buf_+bufoffs, data+dataoffs, nrbytes );
 	dataoffs += nrbytes;
     }

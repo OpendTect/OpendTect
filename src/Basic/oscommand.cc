@@ -177,7 +177,7 @@ int OS::CommandExecPars::getMachinePriority( float priority, bool iswin )
 
     int machprio = mCast(int, mNINT32(scale * priority * machpriorg.width()) );
 
-    return machprio += iswin ? machpriorg.stop : machpriorg.start;
+    return machprio += iswin ? machpriorg.stop_ : machpriorg.start_;
 }
 
 

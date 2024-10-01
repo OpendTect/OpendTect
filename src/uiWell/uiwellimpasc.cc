@@ -434,7 +434,7 @@ bool uiWellImportAsc::doWork()
 
 	if ( mIsUdf(td) || td < 1e-6 )
 	{
-	    float survzstop = SI().zRange(false).stop;
+	    float survzstop = SI().zRange(false).stop_;
 	    if ( SI().zIsTime() )
 		survzstop *= 2000;
 	    td = survzstop - kbelev;
@@ -442,8 +442,8 @@ bool uiWellImportAsc::doWork()
 
 	Interval<float> zrg( -kbelev, td-kbelev );
 	const Coord c( coordfld_->getCoord() );
-	wd_.track().addPoint( c, zrg.start, 0 );
-	wd_.track().addPoint( c, zrg.stop, td );
+	wd_.track().addPoint( c, zrg.start_, 0 );
+	wd_.track().addPoint( c, zrg.stop_, td );
     }
 
     if ( SI().zIsTime() )

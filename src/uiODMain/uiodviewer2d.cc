@@ -1035,7 +1035,7 @@ uiString uiODViewer2D::getInfoTitle() const
     else
     {
 	info.arg( zDomain().userName() )
-	    .arg( mNINT32(tkzs_.zsamp_.start * zDomain().userFactor()) );
+		.arg( mNINT32(tkzs_.zsamp_.start_ * zDomain().userFactor()) );
     }
 
     return info;

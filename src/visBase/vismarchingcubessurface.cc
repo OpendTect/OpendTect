@@ -83,9 +83,9 @@ void MarchingCubesSurface::setScales(const SamplingData<float>& xrg,
 				     const SamplingData<float>& yrg,
 				     const SamplingData<float>& zrg)
 {
-    xrg_.start = xrg.start; xrg_.step = xrg.step;
-    yrg_.start = yrg.start; yrg_.step = yrg.step;
-    zrg_.start = zrg.start; zrg_.step = zrg.step;
+    xrg_.start_ = xrg.start_; xrg_.step_ = xrg.step_;
+    yrg_.start_ = yrg.start_; yrg_.step_ = yrg.step_;
+    zrg_.start_ = zrg.start_; zrg_.step_ = zrg.step_;
 
     updateDisplayRange();
 }
@@ -123,12 +123,12 @@ float MarchingCubesSurface::getSectionPosition()
 
 void MarchingCubesSurface::setBoxBoundary( float maxx, float maxy, float maxz )
 {
-    if ( xrg_.stop==maxx && yrg_.stop==maxy && zrg_.stop==maxz )
+    if ( xrg_.stop_==maxx && yrg_.stop_==maxy && zrg_.stop_==maxz )
 	return;
 
-     xrg_.stop = maxx;
-     yrg_.stop = maxy;
-     zrg_.stop = maxz;
+    xrg_.stop_ = maxx;
+    yrg_.stop_ = maxy;
+    zrg_.stop_ = maxz;
     if ( displaysection_>=0 )
 	updateDisplayRange();
 }
@@ -161,37 +161,37 @@ void MarchingCubesSurface::getTransformCoord( Coord3& pos )
 void MarchingCubesSurface::updateDisplayRange()
 {
 
-    if ( mIsUdf(sectionlocation_) || mIsUdf(xrg_.start) ||
-	 mIsUdf(yrg_.start) || mIsUdf(zrg_.start) || mIsUdf(xrg_.stop) ||
-	 mIsUdf(yrg_.stop) || mIsUdf(zrg_.stop) )
+    if ( mIsUdf(sectionlocation_) || mIsUdf(xrg_.start_) ||
+	 mIsUdf(yrg_.start_) || mIsUdf(zrg_.start_) || mIsUdf(xrg_.stop_) ||
+	 mIsUdf(yrg_.stop_) || mIsUdf(zrg_.stop_) )
 	return;
 
     if ( !displaysection_ )
     {
-	if ( sectionlocation_>xrg_.stop )
-	    xrg_.start = xrg_.stop;
-	else if ( sectionlocation_>xrg_.start )
-	    xrg_.start = sectionlocation_;
+	if ( sectionlocation_>xrg_.stop_ )
+	    xrg_.start_ = xrg_.stop_;
+	else if ( sectionlocation_>xrg_.start_ )
+	    xrg_.start_ = sectionlocation_;
 
-	xrg_.step = 0;
+	xrg_.step_ = 0;
     }
     else if ( displaysection_==1 )
     {
-	if ( sectionlocation_>yrg_.stop )
-	    yrg_.start = yrg_.stop;
-	else if ( sectionlocation_>yrg_.start )
-	    yrg_.start = sectionlocation_;
+	if ( sectionlocation_>yrg_.stop_ )
+	    yrg_.start_ = yrg_.stop_;
+	else if ( sectionlocation_>yrg_.start_ )
+	    yrg_.start_ = sectionlocation_;
 
-	yrg_.step = 0;
+	yrg_.step_ = 0;
     }
     else if ( displaysection_==2 )
     {
-	if ( sectionlocation_>zrg_.stop )
-	    zrg_.start = zrg_.stop;
-	else if ( sectionlocation_>zrg_.start )
-	    zrg_.start = sectionlocation_;
+	if ( sectionlocation_>zrg_.stop_ )
+	    zrg_.start_ = zrg_.stop_;
+	else if ( sectionlocation_>zrg_.start_ )
+	    zrg_.start_ = sectionlocation_;
 
-	zrg_.step = 0;
+	zrg_.step_ = 0;
     }
 
 }

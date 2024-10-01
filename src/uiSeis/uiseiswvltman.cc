@@ -252,8 +252,8 @@ void uiSeisWvltMan::mkFileInfo()
 	   .add( ": " ).add( wvlt->sampleRate() * zfac ).addNewLine();
 	Interval<float> extremevals;
 	wvlt->getExtrValues( extremevals );
-	msg.add( "Min/Max amplitude: " ).add( extremevals.start )
-	   .add( "/" ).add( extremevals.stop ).addNewLine();
+	msg.add( "Min/Max amplitude: " ).add( extremevals.start_ )
+		.add( "/" ).add( extremevals.stop_ ).addNewLine();
 	float avgphase = wvltattrib.getAvgPhase( true );
 	if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
 	msg.add( "Average phase (deg): ").add( avgphase, 0 ).addNewLine();

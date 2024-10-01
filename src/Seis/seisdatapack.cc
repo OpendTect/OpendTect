@@ -82,7 +82,7 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
     if ( !regsdp_.zRange().overlaps(ransdp_.zRange()) )
 	return false;
 
-    idzoffset_ = regsdp_.zRange().nearestIndex( ransdp_.zRange().start );
+    idzoffset_ = regsdp_.zRange().nearestIndex( ransdp_.zRange().start_ );
 
     if ( !regsdp_.zRange().isCompatible(ransdp_.zRange(),1e-3) )
     {
@@ -126,7 +126,7 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 	srcptr_ += samplebytes_ * idzoffset_;
 
     const int stopoffset = regsdp_.zRange().nrSteps() -
-		regsdp_.zRange().nearestIndex( ransdp_.zRange().stop );
+                           regsdp_.zRange().nearestIndex( ransdp_.zRange().stop_ );
 
     if ( stopoffset < 0 )
 	bytestocopy_ += samplebytes_ * stopoffset;
@@ -312,13 +312,13 @@ void RegularSeisDataPack::dumpInfo( StringPairSet& infoset ) const
     if ( !zrg.isUdf() )
     {
 	const ZDomain::Info& zinfo = zDomain();
-	const int nrdec = zinfo.def_.nrZDecimals( zrg.step );
+        const int nrdec = zinfo.def_.nrZDecimals( zrg.step_ );
 	zrg.scale( zinfo.userFactor() );
 	const BufferString keystr = toString( zinfo.getRange() );
 	BufferString valstr;
-	valstr.add( zrg.start, nrdec )
-	      .add( " - " ).add( zrg.stop, nrdec )
-	      .add( " [" ).add( zrg.step, nrdec ).add( "]" );
+        valstr.add( zrg.start_, nrdec )
+                .add( " - " ).add( zrg.stop_, nrdec )
+                .add( " [" ).add( zrg.step_, nrdec ).add( "]" );
 	infoset.add( keystr, valstr );
     }
 }
@@ -404,8 +404,8 @@ void RegularSeisDataPack::fillTraceInfo( const TrcKey& tk,
 					 SeisTrcInfo& sti ) const
 {
     const auto zrg = zRange();
-    sti.sampling.start = zrg.start;
-    sti.sampling.step = zrg.step;
+    sti.sampling.start_ = zrg.start_;
+    sti.sampling.step_ = zrg.step_;
     sti.setTrcKey( tk );
     sti.coord = tk.getCoord();
     sti.offset = 0.f;
@@ -660,8 +660,8 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
     StepInterval<float> overlapzrg = regzrg;
     overlapzrg.limitTo( zrange ); // DataPack should be created only for
 				  // overlap z-range.
-    overlapzrg.start = regzrg.atIndex( regzrg.getIndex(overlapzrg.start) );
-    overlapzrg.stop =regzrg.atIndex(regzrg.indexOnOrAfter(overlapzrg.stop,0.0));
+    overlapzrg.start_ = regzrg.atIndex( regzrg.getIndex(overlapzrg.start_) );
+    overlapzrg.stop_ =regzrg.atIndex(regzrg.indexOnOrAfter(overlapzrg.stop_,0.0));
     randsdp->setZRange( overlapzrg );
 
     const int nrcomps = compnames ? compnames->size() : regsdp.nrComponents();
@@ -839,7 +839,7 @@ float SeisFlatDataPack::nrKBytes() const
 
 
 #define mStepIntvD( rg ) \
-    StepInterval<double>( rg.start, rg.stop, rg.step )
+    StepInterval<double>( rg.start_, rg.stop_, rg.step_ )
 
 void SeisFlatDataPack::setPosData()
 {

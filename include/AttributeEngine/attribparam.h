@@ -230,7 +230,7 @@ bool NumParam<T>::setCompositeValue( const char* nv )
 
 template <class T>
 void NumParam<T>::setLimits( const Interval<T>& limit )
-{ setLimits( StepInterval<T>(limit.start,limit.stop,(T)1) ); }
+{ setLimits( StepInterval<T>(limit.start_,limit.stop_,(T)1) ); }
 
 template <class T>
 void NumParam<T>::setLimits( const StepInterval<T>& limit )
@@ -412,7 +412,7 @@ BufferString NumGateParam<T>::getDefaultValue() const
 template <class T>
 void NumGateParam<T>::toString(BufferString& res, const Interval<T>& gate) const
 {
-    res.set( "[" ).add( gate.start ).add( "," ).add( gate.stop ).add( "]" );
+    res.set( "[" ).add( gate.start_ ).add( "," ).add( gate.stop_ ).add( "]" );
 }
 
 

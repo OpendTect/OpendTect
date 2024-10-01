@@ -107,8 +107,8 @@ void uiSpecDecompAttrib::inputSel( CallBacker* )
     if ( !inpfld_->getRanges(cs) )
 	cs.init(true);
 
-    ds_ = cs.zsamp_.step;
-    const int ns = (int)((cs.zsamp_.stop-cs.zsamp_.start)/ds_ + .5) + 1;
+    ds_ = cs.zsamp_.step_;
+    const int ns = (int)((cs.zsamp_.stop_-cs.zsamp_.start_)/ds_ + .5) + 1;
     int temp = 2;
     while ( temp  < ns )
 	temp *= 2;

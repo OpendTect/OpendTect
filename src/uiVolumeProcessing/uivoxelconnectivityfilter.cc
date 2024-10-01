@@ -58,22 +58,22 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     cutoffrangefld_->attach( alignedBelow, cutofftypefld_ );
     cutoffrangefld_->setValue( displayacceptrange );
 
-    if ( !mIsUdf(acceptrange.start) && !mIsUdf(acceptrange.stop) )
+    if ( !mIsUdf(acceptrange.start_) && !mIsUdf(acceptrange.stop_) )
     {
 	if ( acceptrange.isRev() )
 	    cutofftypefld_->setValue( mCutInside );
 	else
 	    cutofftypefld_->setValue( mCutOutside );
     }
-    else if ( !mIsUdf(acceptrange.start) )
+    else if ( !mIsUdf(acceptrange.start_) )
     {
 	cutofftypefld_->setValue( mCutBelow );
-	cutoffvalfld_->setValue( acceptrange.start );
+	cutoffvalfld_->setValue( acceptrange.start_ );
     }
     else
     {
 	cutofftypefld_->setValue( mCutAbove );
-	cutoffvalfld_->setValue( acceptrange.stop );
+	cutoffvalfld_->setValue( acceptrange.stop_ );
     }
 
     cutofftypefld_->valueChanged.notify(
@@ -152,7 +152,7 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
          cutofftypefld_->getIntValue()==mCutInside )
     {
 	range = cutoffrangefld_->getFInterval();
-	if ( mIsUdf(range.start) || mIsUdf(range.stop) )
+	if ( mIsUdf(range.start_) || mIsUdf(range.stop_) )
 	{
 	    uiMSG().error(tr("Cut range not set"));
 	    return false;
@@ -178,13 +178,13 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 
 	if ( cutofftypefld_->getIntValue()==mCutBelow )
 	{
-	    range.start = cutoffval;
-	    range.stop = mUdf(float);
+	    range.start_ = cutoffval;
+	    range.stop_ = mUdf(float);
 	}
 	else
 	{
-	    range.start = mUdf(float);
-	    range.stop = cutoffval;
+	    range.start_ = mUdf(float);
+	    range.stop_ = cutoffval;
 	}
     }
 

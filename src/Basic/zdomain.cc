@@ -686,18 +686,18 @@ Interval<float> ZDomain::Info::getReasonableZRange( bool foruser ) const
 	validrg = ::SI().zRange();
     else if ( isDepthFeet() )
     {
-	validrg.start = -50000.f;
-	validrg.stop = 50000.f;
+	validrg.start_ = -50000.f;
+	validrg.stop_ = 50000.f;
     }
     else if ( isDepthMeter() )
     {
-	validrg.start = -15000.f;
-	validrg.stop = 15000.f;
+	validrg.start_ = -15000.f;
+	validrg.stop_ = 15000.f;
     }
     else if ( isTime() )
     {
-	validrg.start = -10.f; // s
-	validrg.stop = 30.f;
+	validrg.start_ = -10.f; // s
+	validrg.stop_ = 30.f;
     }
     else
     {
@@ -718,11 +718,11 @@ ZSampling ZDomain::Info::getReasonableZSampling( bool work, bool foruser ) const
     if ( def_.isSI() )
 	zrg = ::SI().zRange( work );
     else if ( isDepthFeet() )
-	zrg.step = 10;
+	zrg.step_ = 10;
     else if ( isDepthMeter() )
-	zrg.step = 4;
+	zrg.step_ = 4;
     else if ( isTime() )
-	zrg.step = 0.004;
+	zrg.step_ = 0.004;
     else
 	zrg.setUdf();
 

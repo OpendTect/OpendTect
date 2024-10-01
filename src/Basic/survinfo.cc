@@ -91,9 +91,9 @@ namespace Survey
 	jsonobj.set( SurveyInfo::sKeyCrlRange(), new OD::JSON::Array(crlobj) );
 
 	OD::JSON::Array zobj( OD::JSON::Number );
-	zobj.add( tkzs.zsamp_.start );
-	zobj.add( tkzs.zsamp_.stop );
-	zobj.add( tkzs.zsamp_.step );
+	zobj.add( tkzs.zsamp_.start_ );
+	zobj.add( tkzs.zsamp_.stop_ );
+	zobj.add( tkzs.zsamp_.step_ );
 	OD::JSON::Object zdef;
 	zdef.set( sKey::Range(), new OD::JSON::Array(zobj) );
 	zdef.set( SurveyInfo::sKeyDomain(), zistime ? sKey::Time().str() :
@@ -206,12 +206,12 @@ namespace Survey
 	    const auto* zarr = zobj->getArray( sKey::Range() );
 	    if ( zarr )
 	    {
-		tkzs.zsamp_.start = zarr->getDoubleValue( 0 );
-		tkzs.zsamp_.stop = zarr->getDoubleValue( 1 );
-		tkzs.zsamp_.step = zarr->getDoubleValue( 2 );
-		if ( Values::isUdf(tkzs.zsamp_.step)
-		    || mIsZero(tkzs.zsamp_.step,mDefEps) )
-		    tkzs.zsamp_.step = 0.004;
+		tkzs.zsamp_.start_ = zarr->getDoubleValue( 0 );
+		tkzs.zsamp_.stop_ = zarr->getDoubleValue( 1 );
+		tkzs.zsamp_.step_ = zarr->getDoubleValue( 2 );
+		if ( Values::isUdf(tkzs.zsamp_.step_)
+		    || mIsZero(tkzs.zsamp_.step_,mDefEps) )
+		    tkzs.zsamp_.step_ = 0.004;
 
 	    }
 
@@ -392,7 +392,7 @@ int Survey::Geometry3D::crlStep() const
 
 
 float Survey::Geometry3D::zStep() const
-{ return sampling_.zsamp_.step; }
+{ return sampling_.zsamp_.step_; }
 
 
 static void doSnap( int& idx, int start, int step, int dir )
@@ -453,10 +453,10 @@ void Survey::Geometry3D::snapZ( float& z, int dir ) const
     const StepInterval<float>& zrg = sampling_.zsamp_;
     const float eps = 1e-8;
 
-    if ( z < zrg.start + eps )
-    { z = zrg.start; return; }
-    if ( z > zrg.stop - eps )
-    { z = zrg.stop; return; }
+    if ( z < zrg.start_ + eps )
+    { z = zrg.start_; return; }
+    if ( z > zrg.stop_ - eps )
+    { z = zrg.stop_; return; }
 
     const float relidx = zrg.getfIndex( z );
     int targetidx = mNINT32(relidx);
@@ -464,8 +464,8 @@ void Survey::Geometry3D::snapZ( float& z, int dir ) const
     if ( !mIsZero(zdiff,eps) && dir )
 	targetidx = (int)( dir < 0 ? Math::Floor(relidx) : Math::Ceil(relidx) );
     z = zrg.atIndex( targetidx );;
-    if ( z > zrg.stop - eps )
-	z = zrg.stop;
+    if ( z > zrg.stop_ - eps )
+	z = zrg.stop_;
 }
 
 
@@ -973,12 +973,12 @@ SurveyInfo* SurveyInfo::readStrm( od_istream& strm, uiRetVal& ret )
 	else if ( keyw == sKeyZRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    samp.zsamp_.start = fms.getFValue( 0 );
-	    samp.zsamp_.stop = fms.getFValue( 1 );
-	    samp.zsamp_.step = fms.getFValue( 2 );
-	    if ( Values::isUdf(samp.zsamp_.step)
-	      || mIsZero(samp.zsamp_.step,mDefEps) )
-		samp.zsamp_.step = 0.004;
+	    samp.zsamp_.start_ = fms.getFValue( 0 );
+	    samp.zsamp_.stop_ = fms.getFValue( 1 );
+	    samp.zsamp_.step_ = fms.getFValue( 2 );
+	    if ( Values::isUdf(samp.zsamp_.step_)
+	      || mIsZero(samp.zsamp_.step_,mDefEps) )
+		samp.zsamp_.step_ = 0.004;
 	    if ( fms.size() > 3 )
 	    {
 		if ( *fms[3] == 'T' )
@@ -1194,9 +1194,9 @@ float SurveyInfo::getArea( const Interval<int>& inlrg,
 			       const Interval<int>& crlrg ) const
 {
     const BinID step = sampling(false).hsamp_.step_;
-    const Coord c00 = transform( BinID(inlrg.start,crlrg.start) );
-    const Coord c01 = transform( BinID(inlrg.start,crlrg.stop+step.crl()) );
-    const Coord c10 = transform( BinID(inlrg.stop+step.inl(),crlrg.start) );
+    const Coord c00 = transform( BinID(inlrg.start_,crlrg.start_) );
+    const Coord c01 = transform( BinID(inlrg.start_,crlrg.stop_+step.crl()) );
+    const Coord c10 = transform( BinID(inlrg.stop_+step.inl(),crlrg.start_) );
 
     const double d01 = c00.distTo( c01 );
     const double d10 = c00.distTo( c10 );
@@ -1212,7 +1212,7 @@ float SurveyInfo::getArea( bool work ) const
 
 
 float SurveyInfo::zStep() const
-{ return tkzs_.zsamp_.step; }
+{ return tkzs_.zsamp_.step_; }
 
 
 int SurveyInfo::nrZDecimals() const
@@ -1252,7 +1252,7 @@ void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
 	wcs_ = tkzs_;
 
     wcs_.hsamp_.step_ = tkzs_.hsamp_.step_;
-    wcs_.zsamp_.step = tkzs_.zsamp_.step;
+    wcs_.zsamp_.step_ = tkzs_.zsamp_.step_;
     update3DGeometry();
 }
 
@@ -1351,22 +1351,22 @@ void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
     intv.sort();
-    if ( intv.start < cs.hsamp_.start_.inl() )
-	intv.start = cs.hsamp_.start_.inl();
-    if ( intv.start > cs.hsamp_.stop_.inl() )
-	intv.start = cs.hsamp_.stop_.inl();
-    if ( intv.stop > cs.hsamp_.stop_.inl() )
-	intv.stop = cs.hsamp_.stop_.inl();
-    if ( intv.stop < cs.hsamp_.start_.inl() )
-	intv.stop = cs.hsamp_.start_.inl();
+    if ( intv.start_ < cs.hsamp_.start_.inl() )
+	intv.start_ = cs.hsamp_.start_.inl();
+    if ( intv.start_ > cs.hsamp_.stop_.inl() )
+	intv.start_ = cs.hsamp_.stop_.inl();
+    if ( intv.stop_ > cs.hsamp_.stop_.inl() )
+	intv.stop_ = cs.hsamp_.stop_.inl();
+    if ( intv.stop_ < cs.hsamp_.start_.inl() )
+	intv.stop_ = cs.hsamp_.start_.inl();
 
-    BinID bid( intv.start, 0 );
+    BinID bid( intv.start_, 0 );
     snap( bid, BinID(1,1) );
-    intv.start = bid.inl();
+    intv.start_ = bid.inl();
 
-    bid.inl() = intv.stop;
+    bid.inl() = intv.stop_;
     snap( bid, BinID(-1,-1) );
-    intv.stop = bid.inl();
+    intv.stop_ = bid.inl();
 }
 
 
@@ -1374,22 +1374,22 @@ void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 {
     const TrcKeyZSampling& cs = sampling(work);
     intv.sort();
-    if ( intv.start < cs.hsamp_.start_.crl() )
-	intv.start = cs.hsamp_.start_.crl();
-    if ( intv.start > cs.hsamp_.stop_.crl() )
-	intv.start = cs.hsamp_.stop_.crl();
-    if ( intv.stop > cs.hsamp_.stop_.crl() )
-	intv.stop = cs.hsamp_.stop_.crl();
-    if ( intv.stop < cs.hsamp_.start_.crl() )
-	intv.stop = cs.hsamp_.start_.crl();
+    if ( intv.start_ < cs.hsamp_.start_.crl() )
+	intv.start_ = cs.hsamp_.start_.crl();
+    if ( intv.start_ > cs.hsamp_.stop_.crl() )
+	intv.start_ = cs.hsamp_.stop_.crl();
+    if ( intv.stop_ > cs.hsamp_.stop_.crl() )
+	intv.stop_ = cs.hsamp_.stop_.crl();
+    if ( intv.stop_ < cs.hsamp_.start_.crl() )
+	intv.stop_ = cs.hsamp_.start_.crl();
 
-    BinID bid( 0, intv.start );
+    BinID bid( 0, intv.start_ );
     snap( bid, BinID(1,1) );
-    intv.start = bid.crl();
+    intv.start_ = bid.crl();
 
-    bid.crl() = intv.stop;
+    bid.crl() = intv.stop_;
     snap( bid, BinID(-1,-1) );
-    intv.stop = bid.crl();
+    intv.stop_ = bid.crl();
 }
 
 
@@ -1397,17 +1397,17 @@ void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
 {
     const StepInterval<float>& rg = sampling(work).zsamp_;
     intv.sort();
-    if ( intv.start < rg.start )
-	intv.start = rg.start;
-    if ( intv.start > rg.stop )
-	intv.start = rg.stop;
-    if ( intv.stop > rg.stop )
-	intv.stop = rg.stop;
-    if ( intv.stop < rg.start )
-	intv.stop = rg.start;
+    if ( intv.start_ < rg.start_ )
+	intv.start_ = rg.start_;
+    if ( intv.start_ > rg.stop_ )
+	intv.start_ = rg.stop_;
+    if ( intv.stop_ > rg.stop_ )
+	intv.stop_ = rg.stop_;
+    if ( intv.stop_ < rg.start_ )
+	intv.stop_ = rg.start_;
 
-    snapZ( intv.start, 1 );
-    snapZ( intv.stop, -1 );
+    snapZ( intv.start_, 1 );
+    snapZ( intv.stop_, -1 );
 }
 
 
@@ -1416,7 +1416,7 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
     const TrcKeyZSampling& cs = sampling(work);
     const float eps = 1e-8f;
     return cs.hsamp_.includes( bid )
-	&& cs.zsamp_.start < z + eps && cs.zsamp_.stop > z - eps;
+	&& cs.zsamp_.start_ < z + eps && cs.zsamp_.stop_ > z - eps;
 }
 
 
@@ -1714,8 +1714,10 @@ bool SurveyInfo::write( const char* basedir, bool isjson ) const
 				    fms += tkzs_.hsamp_.step_.crl();
 	astream.put( sKeyCrlRange(), fms );
 
-	fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
-	fms += tkzs_.zsamp_.step;
+	fms = "";
+	fms += tkzs_.zsamp_.start_;
+	fms += tkzs_.zsamp_.stop_;
+	fms += tkzs_.zsamp_.step_;
 	fms += zIsTime() ? "T" : ( depthsInFeet() ? "F" : "D" );
 	astream.put( sKeyZRange(), fms );
 
@@ -1964,8 +1966,10 @@ RefMan<Survey::Geometry3D> SurveyInfo::get3DGeometry( bool work ) const
 
 float SurveyInfo::angleXInl() const
 {
-    Coord xy1 = transform( BinID(inlRange(false).start, crlRange(false).start));
-    Coord xy2 = transform( BinID(inlRange(false).start, crlRange(false).stop) );
+    Coord xy1 = transform( BinID(inlRange(false).start_,
+				 crlRange(false).start_));
+    Coord xy2 = transform( BinID(inlRange(false).start_,
+				 crlRange(false).stop_) );
     const double xdiff = xy2.x - xy1.x;
     const double ydiff = xy2.y - xy1.y;
     return sCast(float, Math::Atan2( ydiff, xdiff ) );
@@ -1974,8 +1978,10 @@ float SurveyInfo::angleXInl() const
 
 float SurveyInfo::angleXCrl() const
 {
-    Coord xy1 = transform( BinID(inlRange(false).start, crlRange(false).start));
-    Coord xy2 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
+    Coord xy1 = transform( BinID(inlRange(false).start_,
+				 crlRange(false).start_));
+    Coord xy2 = transform( BinID(inlRange(false).stop_,
+				 crlRange(false).start_) );
     const double xdiff = xy2.x - xy1.x;
     const double ydiff = xy2.y - xy1.y;
     return sCast(float, Math::Atan2( ydiff, xdiff ) );

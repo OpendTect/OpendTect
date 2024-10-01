@@ -212,8 +212,8 @@ bool uiWellLogExtractGrp::extractWellData( const TypeSet<MultiID>& ioobjids,
 				UnitOfMeasure::surveyDefDepthStorageUnit()) );
 	if ( !wts.params_.getFixedRange().isUdf() )
 	{
-	    float start = wts.params_.getFixedRange().start;
-	    float stop = wts.params_.getFixedRange().stop;
+	    float start = wts.params_.getFixedRange().start_;
+	    float stop = wts.params_.getFixedRange().stop_;
 	    start = getConvertedValue( start,
 				       UnitOfMeasure::surveyDefDepthUnit(),
 				  UnitOfMeasure::surveyDefDepthStorageUnit() );

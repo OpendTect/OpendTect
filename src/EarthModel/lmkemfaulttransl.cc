@@ -65,7 +65,7 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
 	formatstrm.getWord( fieldname );
 	if ( !formatstrm.isOK() )
 	    break;
-	formatstrm.get( rg.start ).get( rg.stop );
+	formatstrm.get( rg.start_ ).get( rg.stop_ );
 
 	if ( fieldname==lmkEMFault3DTranslator::xstr() )
 	    xinterval = rg;
@@ -90,17 +90,17 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
 	    break;
     }
 
-    if ( (  xinterval.start==-1 || xinterval.stop==-1 ||
-	    yinterval.start==-1 || yinterval.stop==-1 ) &&
-	    lineidinterval.start!=-1 && lineidinterval.stop!=-1 &&
-	    traceinterval.start!=-1 && traceinterval.stop!=-1 )
+    if ( (  xinterval.start_==-1 || xinterval.stop_==-1 ||
+	    yinterval.start_==-1 || yinterval.stop_==-1 ) &&
+	 lineidinterval.start_!=-1 && lineidinterval.stop_!=-1 &&
+	 traceinterval.start_!=-1 && traceinterval.stop_!=-1 )
     {
 	useinlcrl = true;
     }
-    else if (   xinterval.start==-1 || xinterval.stop==-1 ||
-		yinterval.start==-1 || yinterval.stop==-1 ||
-		zinterval.start==-1 || zinterval.stop==-1 ||
-		pointtypeinterval.start==-1 || pointtypeinterval.stop==-1 )
+    else if (	xinterval.start_==-1 || xinterval.stop_==-1 ||
+		yinterval.start_==-1 || yinterval.stop_==-1 ||
+		zinterval.start_==-1 || zinterval.stop_==-1 ||
+		pointtypeinterval.start_==-1 || pointtypeinterval.stop_==-1 )
     {
 	msg = tr( "%1, %2 and %3 must be provided for reading")
             .arg( lmkEMFault3DTranslator::xstr() )
@@ -142,21 +142,21 @@ int lmkEMFault3DReader::nextStep()
     if ( !strm.isOK() )
 	return Finished();
 
-    int reqlen = mMAX(pointtypeinterval.stop, zinterval.stop );
+    int reqlen = mMAX(pointtypeinterval.stop_, zinterval.stop_ );
     if ( useinlcrl )
     {
-	reqlen = mMAX(reqlen, lineidinterval.stop );
-	reqlen = mMAX(reqlen, traceinterval.stop );
+	reqlen = mMAX(reqlen, lineidinterval.stop_ );
+	reqlen = mMAX(reqlen, traceinterval.stop_ );
     }
     else
     {
-	reqlen = mMAX(reqlen, xinterval.stop );
-	reqlen = mMAX(reqlen, yinterval.stop );
+	reqlen = mMAX(reqlen, xinterval.stop_ );
+	reqlen = mMAX(reqlen, yinterval.stop_ );
     }
 
-    reqlen = mMAX(reqlen, domaininterval.stop );
-    reqlen = mMAX(reqlen, domainunitinterval.stop );
-    reqlen = mMAX(reqlen, distancuniteinterval.stop );
+    reqlen = mMAX(reqlen, domaininterval.stop_ );
+    reqlen = mMAX(reqlen, domainunitinterval.stop_ );
+    reqlen = mMAX(reqlen, distancuniteinterval.stop_ );
 
     if ( buffer.size()<reqlen ) { return ErrorOccurred(); }
 
@@ -164,11 +164,11 @@ int lmkEMFault3DReader::nextStep()
 
     if ( useinlcrl )
     {
-	BufferString str(&buffer[lineidinterval.start-1]);
+	BufferString str(&buffer[lineidinterval.start_-1]);
 	str[lineidinterval.width()+1] = 0;
 	int inl = str.toInt();
 
-	str = &buffer[traceinterval.start-1];
+	str = &buffer[traceinterval.start_-1];
 	str[traceinterval.width()+1] = 0;
 	int crl = str.toInt();
 
@@ -179,27 +179,27 @@ int lmkEMFault3DReader::nextStep()
     }
     else
     {
-	BufferString str(&buffer[xinterval.start-1]);
+	BufferString str(&buffer[xinterval.start_-1]);
 	str[xinterval.width()+1] = 0;
 	pos.x = str.toDouble();
 
-	str = &buffer[yinterval.start-1];
+	str = &buffer[yinterval.start_-1];
 	str[yinterval.width()+1] = 0;
 	pos.y = str.toDouble();
     }
 
-    BufferString str = &buffer[zinterval.start-1];
+    BufferString str = &buffer[zinterval.start_-1];
     str[zinterval.width()+1] = 0;
     pos.z = str.toDouble();
 
-    str = &buffer[pointtypeinterval.start-1];
+    str = &buffer[pointtypeinterval.start_-1];
     str[pointtypeinterval.width()+1] = 0;
     int pt = str.toInt();
 
     float zfac = 0.001;
-    if ( domainunitinterval.start != -1 )
+    if ( domainunitinterval.start_ != -1 )
     {
-	str = &buffer[domainunitinterval.start-1];
+	str = &buffer[domainunitinterval.start_-1];
 	str[domainunitinterval.width()+1] = '\0';
 	if ( str == "m" )
 	    zfac = 1;
@@ -208,7 +208,7 @@ int lmkEMFault3DReader::nextStep()
 	else if ( str != "ms" )
 	    { msg = tr("Unknown time unit"); return ErrorOccurred(); }
 
-	str = &buffer[domaininterval.start-1];
+	str = &buffer[domaininterval.start_-1];
 	str[domaininterval.width()+1] = 0;
 	const bool ist = str == "TIME";
 	if ( (ist && SI().zIsTime()) || (ist && !SI().zIsTime()) )

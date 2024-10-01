@@ -52,8 +52,8 @@ uiSliceScroll( uiSliceSel* ss )
     }
     else if ( ss->isZSlice() )
     {
-	step = mNINT32(cs.zsamp_.step*zfact_);
-	float zrg = (cs.zsamp_.stop - cs.zsamp_.start) * zfact_;
+	step = mNINT32(cs.zsamp_.step_*zfact_);
+	float zrg = (cs.zsamp_.stop_ - cs.zsamp_.start_) * zfact_;
 	maxstep = mNINT32(zrg);
     }
 
@@ -172,7 +172,7 @@ void doAdvance( bool reversed )
     }
     else if ( slcsel_->isZSlice() )
     {
-	float newval = slcsel_->tkzs_.zsamp_.start + step / zfact_;
+	float newval = slcsel_->tkzs_.zsamp_.start_ + step / zfact_;
 	if ( slcsel_->dogeomcheck_ &&
 	     !SI().sampling(true).zsamp_.includes(newval,false) )
 	    stopAuto( true );
@@ -436,8 +436,8 @@ void uiSliceSel::createZFld()
 void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv,
 			       int curval )
 {
-    box->setInterval( intv.start, intv.stop );
-    box->setStep( intv.step, true );
+    box->setInterval( intv.start_, intv.stop_ );
+    box->setStep( intv.step_, true );
     box->setValue( curval );
 }
 
@@ -475,30 +475,30 @@ void uiSliceSel::readInput()
     hs.get( inlrg, crlrg );
     if ( inl0fld_ )
     {
-	inlrg.start = inl0fld_->box()->getIntValue();
-	inlrg.stop = isInl() ? inlrg.start : inl1fld_->getIntValue();
-	if ( !isInl() && inlrg.start == inlrg.stop )
-	    inlrg.stop += hs.step_.inl();
+	inlrg.start_ = inl0fld_->box()->getIntValue();
+	inlrg.stop_ = isInl() ? inlrg.start_ : inl1fld_->getIntValue();
+	if ( !isInl() && inlrg.start_ == inlrg.stop_ )
+	    inlrg.stop_ += hs.step_.inl();
     }
 
-    crlrg.start = crl0fld_->box()->getIntValue();
-    crlrg.stop = isCrl() ? crlrg.start : crl1fld_->getIntValue();
-    if ( !isCrl() && crlrg.start == crlrg.stop )
-	crlrg.stop += hs.step_.crl();
+    crlrg.start_ = crl0fld_->box()->getIntValue();
+    crlrg.stop_ = isCrl() ? crlrg.start_ : crl1fld_->getIntValue();
+    if ( !isCrl() && crlrg.start_ == crlrg.stop_ )
+	crlrg.stop_ += hs.step_.crl();
 
     const float zfac( zdominfo_.userFactor() );
     Interval<float> zrg;
-    zrg.start = z0fld_->box()->getFValue() / zfac;
-    zrg.start = maxcs_.zsamp_.snap( zrg.start );
+    zrg.start_ = z0fld_->box()->getFValue() / zfac;
+    zrg.start_ = maxcs_.zsamp_.snap( zrg.start_ );
     if ( isZSlice() )
-	zrg.stop = zrg.start;
+	zrg.stop_ = zrg.start_;
     else
     {
-	zrg.stop = z1fld_->getFValue() / zfac;
+	zrg.stop_ = z1fld_->getFValue() / zfac;
 	zrg.sort();
-	zrg.stop = maxcs_.zsamp_.snap( zrg.stop );
-	if ( mIsEqual(zrg.start,zrg.stop,mDefEps) )
-	    zrg.stop += maxcs_.zsamp_.step;
+	zrg.stop_ = maxcs_.zsamp_.snap( zrg.stop_ );
+	if ( mIsEqual(zrg.start_,zrg.stop_,mDefEps) )
+	    zrg.stop_ += maxcs_.zsamp_.step_;
     }
 
     if ( is3DSlice() )
@@ -524,30 +524,30 @@ void uiSliceSel::updateUI()
 	StepInterval<int> maxinlrg( maxcs_.hsamp_.start_.inl(),
 				    maxcs_.hsamp_.stop_.inl(),
 				    maxcs_.hsamp_.step_.inl() );
-	setBoxValues( inl0fld_->box(), maxinlrg, inlrg.start );
-	setBoxValues( inl1fld_, maxinlrg, inlrg.stop );
+	setBoxValues( inl0fld_->box(), maxinlrg, inlrg.start_ );
+	setBoxValues( inl1fld_, maxinlrg, inlrg.stop_ );
     }
 
     Interval<int> crlrg( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
     StepInterval<int> maxcrlrg( maxcs_.hsamp_.start_.crl(),
 				maxcs_.hsamp_.stop_.crl(),
 				maxcs_.hsamp_.step_.crl() );
-    setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start );
-    setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
+    setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start_ );
+    setBoxValues( crl1fld_, maxcrlrg, crlrg.stop_ );
 
     const float zfac( zdominfo_.userFactor() );
-    const int nrdec = Math::NrSignificantDecimals( tkzs_.zsamp_.step*zfac );
+    const int nrdec = Math::NrSignificantDecimals( tkzs_.zsamp_.step_*zfac );
 
     if ( nrdec==0 )
     {
-	Interval<int> zrg( mNINT32(tkzs_.zsamp_.start*zfac),
-			   mNINT32(tkzs_.zsamp_.stop*zfac) );
+	Interval<int> zrg( mNINT32(tkzs_.zsamp_.start_*zfac),
+			   mNINT32(tkzs_.zsamp_.stop_*zfac) );
 	StepInterval<int> maxzrg =
-	    StepInterval<int>( mNINT32(maxcs_.zsamp_.start*zfac),
-			       mNINT32(maxcs_.zsamp_.stop*zfac),
-			       mNINT32(maxcs_.zsamp_.step*zfac) );
-	setBoxValues( z0fld_->box(), maxzrg, zrg.start );
-	setBoxValues( z1fld_, maxzrg, zrg.stop );
+		StepInterval<int>( mNINT32(maxcs_.zsamp_.start_*zfac),
+				   mNINT32(maxcs_.zsamp_.stop_*zfac),
+				   mNINT32(maxcs_.zsamp_.step_*zfac) );
+	setBoxValues( z0fld_->box(), maxzrg, zrg.start_ );
+	setBoxValues( z1fld_, maxzrg, zrg.stop_ );
     }
     else
     {
@@ -557,10 +557,10 @@ void uiSliceSel::updateUI()
 	maxzrg.scale( zfac );
 
 	z0fld_->box()->setInterval( maxzrg );
-	z0fld_->box()->setValue( tkzs_.zsamp_.start*zfac );
+	z0fld_->box()->setValue( tkzs_.zsamp_.start_*zfac );
 
 	z1fld_->setInterval( maxzrg );
-	z1fld_->setValue( tkzs_.zsamp_.stop*zfac );
+	z1fld_->setValue( tkzs_.zsamp_.stop_*zfac );
     }
 
     z0fld_->box()->setNrDecimals( nrdec );
@@ -639,8 +639,8 @@ void uiSliceSel::fillPar( IOPar& iop )
     cs.hsamp_.stop_.crl() = isCrl() ? crl0fld_->box()->getIntValue()
 				    : crl1fld_->getIntValue();
 
-    cs.zsamp_.start = float( z0fld_->box()->getIntValue() );
-    cs.zsamp_.stop = float( isZSlice() ? z0fld_->box()->getIntValue()
+    cs.zsamp_.start_ = float( z0fld_->box()->getIntValue() );
+    cs.zsamp_.stop_ = float( isZSlice() ? z0fld_->box()->getIntValue()
 				       : z1fld_->getIntValue() );
     cs.fillPar( iop );
 }
@@ -676,9 +676,9 @@ void uiSliceSel::usePar( const IOPar& par )
     ZSampling zrg = ZSampling::udf();
     if ( par.get(sKey::ZRange(),zrg)  && !zrg.isUdf() )
     {
-	z0fld_->box()->setValue( zrg.start );
+	z0fld_->box()->setValue( zrg.start_ );
 	if ( z1fld_->isDisplayed() )
-	    z1fld_->setValue( zrg.stop );
+	    z1fld_->setValue( zrg.stop_ );
     }
 }
 
@@ -802,7 +802,7 @@ bool uiLinePosSelDlg::selectPos3D()
 	    inputcs.hsamp_.stop_.crl() = inputcs.hsamp_.start_.crl()
 				   = inputcs.hsamp_.crlRange().snappedCenter();
 
-	inputcs.zsamp_.start = 0;
+	inputcs.zsamp_.start_ = 0;
     }
 
     const ZDomain::Info info( ZDomain::SI() );

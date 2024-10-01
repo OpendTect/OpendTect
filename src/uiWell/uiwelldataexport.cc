@@ -286,7 +286,7 @@ void uiWellExportFacility::setDefaultRange( bool zinft )
 
 	dahintv.include( logs.dahInterval() );
 	const float width = log.dah(logsz-1) - log.dah(0);
-	dahintv.step = width / (logsz-1);
+	dahintv.step_ = width / (logsz-1);
 	break;
     }
 
@@ -294,9 +294,9 @@ void uiWellExportFacility::setDefaultRange( bool zinft )
     StepInterval<float> disprg = dahintv;
     const UnitOfMeasure* storunit = UnitOfMeasure::surveyDefDepthStorageUnit();
     const UnitOfMeasure* outunit = UnitOfMeasure::surveyDefDepthUnit();
-    disprg.start = getConvertedValue( dahintv.start, storunit, outunit );
-    disprg.stop = getConvertedValue( dahintv.stop, storunit, outunit );
-    disprg.step = getConvertedValue( dahintv.step, storunit, outunit );
+    disprg.start_ = getConvertedValue( dahintv.start_, storunit, outunit );
+    disprg.stop_ = getConvertedValue( dahintv.stop_, storunit, outunit );
+    disprg.step_ = getConvertedValue( dahintv.step_, storunit, outunit );
 
     zrangefld_->setValue( disprg );
 }

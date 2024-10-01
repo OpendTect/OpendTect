@@ -234,7 +234,7 @@ int StratAmpCalc::nextStep()
     z2 += bothorshift_;
     const float snappedz2 = isclassification_
 			  ? zrg.snap( z2, OD::SnapDownward ) : z2;
-    StepInterval<float> sampintv( snappedz1, snappedz2, zrg.step );
+    StepInterval<float> sampintv( snappedz1, snappedz2, zrg.step_ );
     sampintv.sort();
     sampintv.limitTo( zrg );
 

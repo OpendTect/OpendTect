@@ -83,10 +83,10 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 	    rcsetup.require( Stats::Count );
 	    Stats::RunCalc<double> stats( rcsetup );
 
-	    int mininl = inlrg.start;
-	    int maxinl = inlrg.stop-ilag;
-	    int mincrl = crlrg.start;
-	    int maxcrl = crlrg.stop-ilag;
+	    int mininl = inlrg.start_;
+	    int maxinl = inlrg.stop_-ilag;
+	    int mincrl = crlrg.start_;
+	    int maxcrl = crlrg.stop_-ilag;
 
 	    variogramvals_->set( icomp, ilag, mUdf(float) );
 	    float dx = (float)ilag;

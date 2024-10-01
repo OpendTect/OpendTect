@@ -102,7 +102,7 @@ void adjustSteeringScaler()
     if ( feetuom && SI().xyInFeet() )
 	trcdist = feetuom->getSIValue( trcdist );
 
-    double zstep = output_->sampling().zsamp_.step;
+    double zstep = output_->sampling().zsamp_.step_;
     const UnitOfMeasure* zuom = UnitOfMeasure::surveyDefZUnit();
     const ZDomain::Def& zdef = SI().zDomain();
     if ( zuom && zdef.isDepth() )

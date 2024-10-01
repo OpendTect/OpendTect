@@ -353,7 +353,7 @@ Task* BodyFiller::createTask()
 	if ( flatpolygon_.isEmpty() )
 	{
 	    flatpolygon_.hsamp_.start_ = flatpolygon_.hsamp_.stop_ = bid;
-	    flatpolygon_.zsamp_.start = flatpolygon_.zsamp_.stop
+	    flatpolygon_.zsamp_.start_ = flatpolygon_.zsamp_.stop_
 				   = (float)plgknots_[idx].z;
 	}
 	else
@@ -400,18 +400,18 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
     RegularSeisDataPack* output = getOutput( getOutputSlotID(0) );
     if ( !output) return false;
 
-    const float zstep = output->sampling().zsamp_.step;
+    const float zstep = output->sampling().zsamp_.step_;
     const Coord coord = SI().transform( bid );
     if ( plgdir_ < 2 ) //Inline or Crossline case
     {
 	int count = 0;
-	double z = flatpolygon_.zsamp_.start;
-	while ( z <= flatpolygon_.zsamp_.stop )
+	double z = flatpolygon_.zsamp_.start_;
+	while ( z <= flatpolygon_.zsamp_.stop_ )
 	{
 	    if ( pointInPolygon( Coord3(coord,z), plgbids_, epsilon_ ) )
 	    {
 		if ( !count )
-		    res.start = res.stop = z;
+		    res.start_ = res.stop_ = z;
 		else
 		    res.include( z );
 
@@ -423,8 +423,8 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 
 	if ( count==1 )
 	{
-	    res.start -= 0.5 * zstep;
-	    res.stop += 0.5 * zstep;
+	    res.start_ -= 0.5 * zstep;
+	    res.stop_ += 0.5 * zstep;
 	}
 
 	return count;
@@ -443,15 +443,15 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	    for ( int idx=0; idx<plgknots_.size(); idx++ )
 	    {
 		if ( !idx )
-		    res.start = res.stop = plgknots_[0].z;
+		    res.start_ = res.stop_ = plgknots_[0].z;
 		else
 		    res.include( plgknots_[idx].z );
 	    }
 
 	    if ( mIsZero( res.width(), 1e-3 ) )
 	    {
-		res.start -= 0.5 * zstep;
-		res.stop += 0.5 * zstep;
+		res.start_ -= 0.5 * zstep;
+		res.stop_ += 0.5 * zstep;
 	    }
 	}
 	else //It is a case hard to see on the display.
@@ -464,8 +464,8 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	    const Coord diff = coord - plgknots_[0].coord();
 	    const double z = plgknots_[0].z -
 		( normal.x * diff.x + normal.y * diff.y ) / normal.z;
-	    res.start = z - 0.5 * zstep;
-	    res.stop = z + 0.5 * zstep;
+	    res.start_ = z - 0.5 * zstep;
+	    res.stop_ = z + 0.5 * zstep;
 	}
     }
 

@@ -407,9 +407,9 @@ void MadStream::fillHeaderParsFromSeis()
 	{
 	    StepInterval<int> inlrg = rangesel ?
 		rangesel->cubeSampling().hsamp_.inlRange() : pinfo.inlrg;
-	    headerpars_->set( "o3", inlrg.start );
+	    headerpars_->set( "o3", inlrg.start_ );
 	    headerpars_->set( "n3", inlrg.nrSteps()+1 );
-	    headerpars_->set( "d3", inlrg.step );
+	    headerpars_->set( "d3", inlrg.step_ );
 	    if ( File::exists(posfnm) )
 		File::remove( posfnm ); // While overwriting rsf
 	}
@@ -419,14 +419,14 @@ void MadStream::fillHeaderParsFromSeis()
 	headerpars_->set( "n2", nrtrcs );
     else
     {
-	headerpars_->set( "o2", trcrg.start );
+	headerpars_->set( "o2", trcrg.start_ );
 	headerpars_->set( "n2", trcrg.nrSteps()+1 );
-	headerpars_->set( "d2", trcrg.step );
+	headerpars_->set( "d2", trcrg.step_ );
     }
 
-    headerpars_->set( "o1", zrg.start );
+    headerpars_->set( "o1", zrg.start_ );
     headerpars_->set( "n1", zrg.nrSteps()+1 );
-    headerpars_->set( "d1", zrg.step );
+    headerpars_->set( "d1", zrg.step_ );
     mSetFormat;
     headerpars_->set( sKeyIn, sKeyStdIn );
 }
@@ -487,7 +487,7 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 
 	iter_ = new PosInfo::CubeDataIterator( *cubedata_ );
 	firstbid.inl() = (*cubedata_)[idx]->linenr_;
-	firstbid.crl() = (*cubedata_)[idx]->segments_[0].start;
+	firstbid.crl() = (*cubedata_)[idx]->segments_[0].start_;
 
 	if ( !rdr->getGather(firstbid,trcbuf) )
 	    mErrRet(tr("No data to read"));
@@ -509,8 +509,8 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     headerpars_->set( "d2", nexttrc->info().offset - firsttrc->info().offset );
     headerpars_->set( "n2", nroffsets_ );
 
-    headerpars_->set( "o1", firsttrc->info().sampling.start );
-    headerpars_->set( "d1", firsttrc->info().sampling.step );
+    headerpars_->set( "o1", firsttrc->info().sampling.start_ );
+    headerpars_->set( "d1", firsttrc->info().sampling.step_ );
     headerpars_->set( "n1", firsttrc->size() );
     mSetFormat;
     headerpars_->set( sKeyIn, sKeyStdIn );
@@ -723,8 +723,8 @@ bool MadStream::writeTraces( bool writetofile )
     bool haspos = false;
     PosInfo::CubeData cubedata;
     mReadFromPosFile( cubedata );
-    headerpars_->get( "o1", sd.start );
-    headerpars_->get( "d1", sd.step );
+    headerpars_->get( "o1", sd.start_ );
+    headerpars_->get( "d1", sd.step_ );
     headerpars_->get( "n1", nrsamps );
     if ( !isps_ )
     {
@@ -743,8 +743,8 @@ bool MadStream::writeTraces( bool writetofile )
 
 	headerpars_->get( "n2", nrtrcsperbinid );
 	headerpars_->get( "n3", nrbinids );
-	headerpars_->get( "o2", offsetsd.start );
-	headerpars_->get( "d2", offsetsd.step );
+	headerpars_->get( "o2", offsetsd.start_ );
+	headerpars_->get( "d2", offsetsd.step_ );
     }
 
     if ( haspos )
@@ -762,7 +762,7 @@ bool MadStream::writeTraces( bool writetofile )
 	    if ( haspos )
 	    {
 		StepInterval<int> seg = cubedata[inlidx]->segments_[segidx];
-		crlstart = seg.start; crlstep = seg.step;
+		crlstart = seg.start_; crlstep = seg.step_;
 		nrcrl = seg.nrSteps() + 1;
 	    }
 
@@ -823,17 +823,17 @@ bool MadStream::write2DTraces( bool writetofile )
     SamplingData<float> offsetsd( 0, 1 );
     SamplingData<float> sd;
 
-    headerpars_->get( "o1", sd.start );
+    headerpars_->get( "o1", sd.start_ );
     headerpars_->get( "n1", nrsamps );
-    headerpars_->get( "d1", sd.step );
+    headerpars_->get( "d1", sd.step_ );
 
     if ( !isps_ )
 	headerpars_->get( "n2", nrtrcs );
     else
     {
 	headerpars_->get( "n2", nroffsets );
-	headerpars_->get( "o2", offsetsd.start );
-	headerpars_->get( "d2", offsetsd.step );
+	headerpars_->get( "o2", offsetsd.start_ );
+	headerpars_->get( "d2", offsetsd.step_ );
 	headerpars_->get( "n3", nrtrcs );
     }
 

@@ -258,7 +258,7 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
     const bool flipseq = mapper_.setup_.flipseq_;
     const float rangewidth = mapper_.setup_.range_.width( false );
     const bool rangehaswidth = !mIsZero(rangewidth,mDefEps);
-    const float rangestart = mapper_.setup_.range_.start;
+    const float rangestart = mapper_.setup_.range_.start_;
 
     int nrdone = 0;
     for ( od_int64 idx=start; idx<=stop; idx++ )

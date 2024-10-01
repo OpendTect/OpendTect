@@ -129,7 +129,7 @@ void PlaneDraggerCallbackHandler::constrain( bool translated, bool is1d )
     {
 	if ( dragger_.spaceranges_[dim].width(false) > 0.0 )
 	{
-	    double diff = center[dim] - dragger_.spaceranges_[dim].start;
+	    double diff = center[dim] - dragger_.spaceranges_[dim].start_;
 	    diff -= dim==dragger_.dim_ ? 0.0 : 0.5*scale[dim];
 	    if ( diff < 0.0 )
 	    {
@@ -138,7 +138,7 @@ void PlaneDraggerCallbackHandler::constrain( bool translated, bool is1d )
 		    scale[dim] += diff;
 	    }
 
-	    diff = center[dim] - dragger_.spaceranges_[dim].stop;
+	    diff = center[dim] - dragger_.spaceranges_[dim].stop_;
 	    diff += dim==dragger_.dim_ ? 0.0 : 0.5*scale[dim];
 	    if ( diff > 0.0 )
 	    {
@@ -153,7 +153,7 @@ void PlaneDraggerCallbackHandler::constrain( bool translated, bool is1d )
 
 	if ( dragger_.widthranges_[dim].width(false) > 0.0 )
 	{
-	    double diff = scale[dim] - dragger_.widthranges_[dim].start;
+	    double diff = scale[dim] - dragger_.widthranges_[dim].start_;
 	    if ( diff < 0 )
 	    {
 		if ( center[dim] < initialcenter_[dim] )
@@ -164,7 +164,7 @@ void PlaneDraggerCallbackHandler::constrain( bool translated, bool is1d )
 		scale[dim] -= diff;
 	    }
 
-	    diff = scale[dim] - dragger_.widthranges_[dim].stop;
+	    diff = scale[dim] - dragger_.widthranges_[dim].stop_;
 	    if ( diff > 0 )
 	    {
 		if ( center[dim] > initialcenter_[dim] )
@@ -199,7 +199,7 @@ void PlaneDraggerCallbackHandler::initDragControl()
 
     const int dim = dragger_.getDim();
 
-    const double scalefactor = dragger_.dragctrlspacing_[dim].step;
+    const double scalefactor = dragger_.dragctrlspacing_[dim].step_;
     const Coord3 dragdir( dim==0, dim==1, dim==2 );
     dragcontroller_.init( pos, scalefactor, dragdir );
     maxdragdist_ = mUdf(double);
@@ -240,9 +240,9 @@ void PlaneDraggerCallbackHandler::applyDragControl( Coord3& newcenter )
 
     maxdragdist_ = -initialcenter_[dragger_.dim_];
     if ( dragvec[dragger_.dim_] < 0.0 )
-	maxdragdist_ += dragger_.spaceranges_[dragger_.dim_].start;
+	maxdragdist_ += dragger_.spaceranges_[dragger_.dim_].start_;
     else
-	maxdragdist_ += dragger_.spaceranges_[dragger_.dim_].stop;
+	maxdragdist_ += dragger_.spaceranges_[dragger_.dim_].stop_;
 }
 
 

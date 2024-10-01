@@ -122,7 +122,7 @@ int WellTie::SeismicExtractor::nextStep()
 
     double zval = extrintv_.atIndex( nrdone_ );
 
-    if ( zval>extrintv_.stop || nrdone_ >= extrintv_.nrSteps()
+    if ( zval>extrintv_.stop_ || nrdone_ >= extrintv_.nrSteps()
 	    || nrdone_ >= bidset_.size() )
 	return Finished();
 

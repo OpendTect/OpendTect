@@ -134,8 +134,8 @@ bool uiChangeHorizonDlg::doProcessing3D()
 
     if ( hor3d != usedhor3d )
     {
-	const BinID start( rowrg.start, colrg.start );
-	const BinID step( rowrg.step, colrg.step );
+	const BinID start( rowrg.start_, colrg.start_ );
+	const BinID step( rowrg.step_, colrg.step_ );
 	usedhor3d->geometry().geometryElement()->setArray(
 					    start, step, arr, false );
     }

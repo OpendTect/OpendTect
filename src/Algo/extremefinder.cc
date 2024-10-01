@@ -19,11 +19,11 @@ BisectionExtremeFinder1D::BisectionExtremeFinder1D(
 		  const FloatMathFunction& func_, bool max_,
 		  int itermax_, float tol_, const Interval<float>& sinterval,
 		  const Interval<float>* linterval )
-    : max( max_ )
-    , func( func_ )
-    , itermax( itermax_ )
+    : limits_( 0 )
     , tol( tol_ )
-    , limits_( 0 )
+    , max( max_ )
+    , itermax( itermax_ )
+    , func( func_ )
 {
     reStart( sinterval, linterval );
 }
@@ -55,35 +55,35 @@ void BisectionExtremeFinder1D::reStart( const Interval<float>& sinterval,
 //Bracket the interval
     current = sinterval;
 
-    mGetFuncVal( current.start, startfuncval, );
-    mGetFuncVal( current.stop, stopfuncval, );
+    mGetFuncVal( current.start_, startfuncval, );
+    mGetFuncVal( current.stop_, stopfuncval, );
     mGetFuncVal( current.center(), centerfuncval, );
     const float halfwidth = current.width()/2;
     while ( centerfuncval>startfuncval || centerfuncval>stopfuncval )
     {
 	if ( startfuncval<stopfuncval )
 	{
-	    current.start -= halfwidth;
-	    if ( limits_ && !limits_->includes(current.start,true) )
+	    current.start_ -= halfwidth;
+	    if ( limits_ && !limits_->includes(current.start_,true) )
 	    { isok = false; return; }
 
-	    current.stop -= halfwidth;
+	    current.stop_ -= halfwidth;
 
 	    stopfuncval = centerfuncval;
 	    centerfuncval = startfuncval;
-	    mGetFuncVal( current.start, startfuncval, );
+	    mGetFuncVal( current.start_, startfuncval, );
 	}
 	else
 	{
-	    current.stop += halfwidth;
-	    if ( limits_ && !limits_->includes(current.stop,true) )
+	    current.stop_ += halfwidth;
+	    if ( limits_ && !limits_->includes(current.stop_,true) )
 	    { isok = false; return; }
 
-	    current.start += halfwidth;
+	    current.start_ += halfwidth;
 
 	    startfuncval = centerfuncval;
 	    centerfuncval = stopfuncval;
-	    mGetFuncVal( current.stop, stopfuncval, );
+	    mGetFuncVal( current.stop_, stopfuncval, );
 	}
     }
 
@@ -136,14 +136,14 @@ int BisectionExtremeFinder1D::nextStep()
 
 	if ( firstquartilefuncval<lastquartilefuncval )
 	{
-	    current.stop = centerpos;
+	    current.stop_ = centerpos;
 	    stopfuncval = centerfuncval;
 	    centerpos = firstquartile;
 	    centerfuncval = firstquartilefuncval;
 	}
 	else
 	{
-	    current.start = centerpos;
+	    current.start_ = centerpos;
 	    startfuncval = centerfuncval;
 	    centerpos = lastquartile;
 	    centerfuncval = lastquartilefuncval;
@@ -204,9 +204,9 @@ void ExtremeFinder1D::reStart( const Interval<float>& sinterval,
 	limits_ = 0;
     }
 
-    ax_ = sinterval.start;
+    ax_ = sinterval.start_;
     bx_ = sinterval.center();
-    cx_ = sinterval.stop;
+    cx_ = sinterval.stop_;
     iter_ = 0;
     e_ = 0;
 

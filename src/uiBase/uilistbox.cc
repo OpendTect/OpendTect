@@ -340,10 +340,10 @@ void uiListBoxBody::handleSlideChange( int newstop, bool isclear )
 
     Interval<int> rg = sliderg_;
     rg.sort();
-    if ( rg.start<0 || rg.stop<0 )
+    if ( rg.start_<0 || rg.stop_<0 )
 	return;
 
-    for ( int idx=rg.start; idx<=rg.stop; idx++ )
+    for ( int idx=rg.start_; idx<=rg.stop_; idx++ )
 	item(idx)->setCheckState( !isclear ? Qt::Checked : Qt::Unchecked );
     lb_->updateCheckState();
     lb_->itemChosen.trigger( -1 );
@@ -356,18 +356,18 @@ void uiListBoxBody::mousePressEvent( QMouseEvent* ev )
     {
 	lb_->bulkcheckchg_ = true;
 	if ( doslidesel_ )
-	    sliderg_.start = sliderg_.stop = itemIdxAtEvPos( *ev );
+	    sliderg_.start_ = sliderg_.stop_ = itemIdxAtEvPos( *ev );
 	else
-	    sliderg_.start = -1;
+	    sliderg_.start_ = -1;
 
 	const bool isshift = isShiftPressed(*ev);
 	const bool isctrl = isCtrlPressed(*ev);
 	if ( isshift || isctrl )
 	{
-	    sliderg_.start = currentRow();
-	    sliderg_.stop = itemIdxAtEvPos( *ev );
+	    sliderg_.start_ = currentRow();
+	    sliderg_.stop_ = itemIdxAtEvPos( *ev );
 	    sliderg_.sort();
-	    handleSlideChange( sliderg_.stop, isctrl );
+	    handleSlideChange( sliderg_.stop_, isctrl );
 	}
     }
 
@@ -377,12 +377,12 @@ void uiListBoxBody::mousePressEvent( QMouseEvent* ev )
 
 void uiListBoxBody::mouseMoveEvent( QMouseEvent* ev )
 {
-    if ( ev && sliderg_.start >= 0 )
+    if ( ev && sliderg_.start_ >= 0 )
     {
 	const int newstop = itemIdxAtEvPos( *ev );
-	if ( newstop != sliderg_.stop )
+	if ( newstop != sliderg_.stop_ )
 	    handleSlideChange( newstop, isCtrlPressed(*ev) );
-	sliderg_.start = sliderg_.stop = newstop;
+	sliderg_.start_ = sliderg_.stop_ = newstop;
     }
 
     QListWidget::mouseMoveEvent( ev );
@@ -394,11 +394,11 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
     lb_->bulkcheckchg_ = false;
     const int lbidx = itemIdxAtEvPos( *ev );
 
-    const bool didslide = sliderg_.start>=0 && sliderg_.start != lbidx;
+    const bool didslide = sliderg_.start_>=0 && sliderg_.start_ != lbidx;
     if ( didslide )
     {
 	handleSlideChange( lbidx, isCtrlPressed(*ev) );
-	sliderg_.start = -1;
+	sliderg_.start_ = -1;
 	const int refnr = lb_->beginCmdRecEvent( "selectionChanged" );
 	lb_->selectionChanged.trigger();
 	lb_->endCmdRecEvent( refnr, "selectionChanged" );
@@ -407,7 +407,7 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
 	if ( ev ) ev->accept();
 	return;
     }
-    sliderg_.start = -1;
+    sliderg_.start_ = -1;
 
     if ( !ev ) return;
 
@@ -1653,20 +1653,20 @@ void uiListBox::setChosen( int lidx, bool yn )
 
 void uiListBox::setChosen( Interval<int> rg, bool yn )
 {
-    if ( rg.start < 0 || rg.stop < 0 )
+    if ( rg.start_ < 0 || rg.stop_ < 0 )
 	return;
 
     if ( !isMultiChoice() )
     {
-	if ( choicemode_ == OD::ChooseOnlyOne && rg.start >= 0 )
-	    setCurrentItem( rg.start );
+	if ( choicemode_ == OD::ChooseOnlyOne && rg.start_ >= 0 )
+	    setCurrentItem( rg.start_ );
     }
     else
     {
 	rg.sort();
-	for ( int idx=rg.start; idx<=rg.stop; idx++ )
+	for ( int idx=rg.start_; idx<=rg.stop_; idx++ )
 	    setItemChecked( idx, yn );
-	setCurrentItem( rg.start );
+	setCurrentItem( rg.start_ );
     }
 }
 

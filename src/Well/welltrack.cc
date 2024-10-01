@@ -90,7 +90,7 @@ const Interval<double> Well::Track::zRangeD() const
 const Interval<float> Well::Track::zRange() const
 {
     Interval<double> zrange = zRangeD();
-    return Interval<float> ( (float) zrange.start, (float) zrange.stop );
+    return Interval<float> ( (float) zrange.start_, (float) zrange.stop_ );
 }
 
 
@@ -446,8 +446,8 @@ Interval<float> Well::Track::getTVDRange( const Interval<float>& dahrg,
 					    SI().seismicReferenceDatum() : 0.f;
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
 
-    const float start = getConvertedValue( dahrg.start, in_uom, zsuom );
-    const float stop = getConvertedValue( dahrg.stop, in_uom, zsuom );
+    const float start = getConvertedValue( dahrg.start_, in_uom, zsuom );
+    const float stop = getConvertedValue( dahrg.stop_, in_uom, zsuom );
     const float tvdbeg = getConvertedValue( getPos(start).z+zshft, zsuom,
 					    out_uom );
     const float tvdend = getConvertedValue( getPos(stop).z+zshft, zsuom,
@@ -502,20 +502,20 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
     }
 
 #define mZInRg() \
-    (zrg.start-eps < z  && zrg.stop+eps  > z) \
- || (zrg.stop-eps  < z  && zrg.start+eps > z)
+    (zrg.start_-eps < z  && zrg.stop_+eps  > z) \
+ || (zrg.stop_-eps  < z  && zrg.start_+eps > z)
 
-    Interval<double> zrg( zrange.start, 0 );
+    Interval<double> zrg( zrange.start_, 0 );
     int idxafter = -1;
     for ( int idx=1; idx<sz; idx++ )
     {
 	if ( !haveprevdah || prevdah+epsf < dah_[idx] )
 	{
-	    zrg.stop = pos_[idx].z;
+	    zrg.stop_ = pos_[idx].z;
 	    if ( mZInRg() )
 		{ idxafter = idx; break; }
 	}
-	zrg.start = zrg.stop;
+	zrg.start_ = zrg.stop_;
     }
     if ( idxafter < 1 )
 	return mUdf(float);
@@ -625,28 +625,28 @@ bool Well::Track::extendIfNecessary( const Interval<float>& dahrg )
 	return false;
 
     Interval<float> newdahrg( dahrg );
-    if ( mIsUdf(newdahrg.start) || mIsUdf(newdahrg.stop) )
+    if ( mIsUdf(newdahrg.start_) || mIsUdf(newdahrg.stop_) )
 	return false;
-    else if ( newdahrg.start < 0.f )
-	newdahrg.start = 0.f;
+    else if ( newdahrg.start_ < 0.f )
+	newdahrg.start_ = 0.f;
 
     const Interval<float> trackrg = dahRange();
-    if ( mIsUdf(trackrg.start) || mIsUdf(trackrg.stop) ||
-	 (newdahrg.start+1e-2f > trackrg.start &&
-	  newdahrg.stop-1e-2f < trackrg.stop) )
+    if ( mIsUdf(trackrg.start_) || mIsUdf(trackrg.stop_) ||
+	 (newdahrg.start_+1e-2f > trackrg.start_ &&
+	  newdahrg.stop_-1e-2f < trackrg.stop_) )
 	return false;
 
     bool updated = false;
-    if ( newdahrg.start < trackrg.start )
+    if ( newdahrg.start_ < trackrg.start_ )
     {
-	pos_.insert( 0, getPos( newdahrg.start ) );
-	dah_.insert( 0, newdahrg.start );
+	pos_.insert( 0, getPos( newdahrg.start_ ) );
+	dah_.insert( 0, newdahrg.start_ );
 	updated = true;
     }
 
-    if ( newdahrg.stop > trackrg.stop )
+    if ( newdahrg.stop_ > trackrg.stop_ )
     {
-	addPoint( getPos( newdahrg.stop ), newdahrg.stop );
+	addPoint( getPos( newdahrg.stop_ ), newdahrg.stop_ );
 	updated = true;
     }
 

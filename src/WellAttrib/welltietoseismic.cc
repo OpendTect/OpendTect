@@ -96,7 +96,7 @@ bool WellTie::DataPlayer::extractSeismics()
     TrcKeyZSampling cs;
     oinf.getRanges( cs );
     const ZSampling tracerg = data_.getTraceRange();
-    ZSampling seisrg( tracerg.start, tracerg.stop, cs.zsamp_.step );
+    ZSampling seisrg( tracerg.start_, tracerg.stop_, cs.zsamp_.step_ );
 
     Well::SimpleTrackSampler wtextr( data_.wd_->track(), data_.wd_->d2TModel(),
 				     true, false );
@@ -195,13 +195,13 @@ bool WellTie::DataPlayer::checkCrossCorrInps()
     if ( !isOKSynthetic() && !isOKSeismic() )
 	mErrRet( tr( "Seismic/Synthetic data too short" ) )
 
-    const int istartseis = realtrc->nearestSample( zrg_.start );
-    const int istopseis = realtrc->nearestSample( zrg_.stop );
+                const int istartseis = realtrc->nearestSample( zrg_.start_ );
+    const int istopseis = realtrc->nearestSample( zrg_.stop_ );
     const int nrsamps = istopseis - istartseis + 1;
     if ( nrsamps < 2 )
 	mErrRet( tr( "Cross-correlation too short" ) )
 
-    if ( zrg_.start < realtrc->startPos() || zrg_.stop > realtrc->endPos() )
+                if ( zrg_.start_ < realtrc->startPos() || zrg_.stop_ > realtrc->endPos() )
     {
 	const uiString msg = tr( "The cross-correlation window must be smaller "
 				 "than the synthetic/seismic traces" );
@@ -209,8 +209,8 @@ bool WellTie::DataPlayer::checkCrossCorrInps()
     }
 
     // clip to nearest sample
-    zrg_.start = realtrc->samplePos( istartseis );
-    zrg_.stop = realtrc->samplePos( istopseis );
+            zrg_.start_ = realtrc->samplePos( istartseis );
+    zrg_.stop_ = realtrc->samplePos( istopseis );
 
     return true;
 }
@@ -307,8 +307,8 @@ bool WellTie::DataPlayer::extractWvf( bool issynt )
     if ( !trace )
 	return false;
 
-    const int istartseis = trace->nearestSample( zrg_.start );
-    const int istopseis = trace->nearestSample( zrg_.stop );
+    const int istartseis = trace->nearestSample( zrg_.start_ );
+    const int istopseis = trace->nearestSample( zrg_.stop_ );
     const int nrsamps = istopseis - istartseis + 1;
     mDeclareAndTryAlloc( float*, valarr, float[nrsamps] );
     if ( !valarr )
@@ -375,17 +375,17 @@ bool WellTie::DataPlayer::extractReflectivity()
     while ( lastspike<totnrspikes )
     {
 	const float spiketwt = times[lastspike];
-	if ( mIsEqual(spiketwt,zrg_.stop,1e-5f) )
+        if ( mIsEqual(spiketwt,zrg_.stop_,1e-5f) )
 	    break;
 
-	if ( spiketwt - zrg_.start < -1e-5f )
+        if ( spiketwt - zrg_.start_ < -1e-5f )
 	    firstspike++;
 
 	lastspike++;
     }
 
     uiString msg;
-    if ( times[firstspike] - zrg_.start < -1e-5f )
+    if ( times[firstspike] - zrg_.start_ < -1e-5f )
     {
 	msg = tr( "The wavelet estimation window must start "
 		  "above the first spike at %1 ms" )
@@ -393,7 +393,7 @@ bool WellTie::DataPlayer::extractReflectivity()
 	mErrRet( msg )
     }
 
-    if ( times[lastspike] - zrg_.stop > 1e-5f )
+    if ( times[lastspike] - zrg_.stop_ > 1e-5f )
     {
 	msg = tr( "The wavelet estimation window must stop "
 		  "before the last spike at %1 ms" )
@@ -474,7 +474,7 @@ bool WellTie::DataPlayer::setAIModel()
     emodelcomputer.setVelLog( *pcvellog );
     emodelcomputer.setDenLog( *pcdenlog );
     emodelcomputer.setZrange( data_.getModelRange(), true );
-    emodelcomputer.setExtractionPars( data_.getModelRange().step, true );
+    emodelcomputer.setExtractionPars( data_.getModelRange().step_, true );
     uiString doeditmsg( tr("Please consider editing your logs.") );
     if ( !emodelcomputer.computeFromLogs() )
 	mErrRet( uiString( emodelcomputer.errMsg() ).append(doeditmsg,true) )
@@ -518,7 +518,7 @@ bool WellTie::DataPlayer::setTargetModel( TimeDepthModel& tdmodel ) const
 
     float dz = depthuom->getUserValueFromSI( aimodel_.first()->getThickness() );
     refldepthsarr[1] = -srd + dz;
-    refltimesarr[1] = reflzrg.start;
+    refltimesarr[1] = reflzrg.start_;
     for ( int idz=2; idz<nrlayers; idz++ )
     {
 	dz = depthuom->getUserValueFromSI( aimodel_.get(idz-1)->getThickness());

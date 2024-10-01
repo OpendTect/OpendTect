@@ -169,9 +169,9 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     const SeisIOObjInfo info( ioobj.ptr() );
     const ZDomain::Def& zdef = info.zDomainDef();
     zrange.scale( zdef.userFactor() );
-    zrg[0] = zrange.start;
-    zrg[1] = zrange.stop;
-    zrg[2] = zrange.step;
+    zrg[0] = zrange.start_;
+    zrg[1] = zrange.stop_;
+    zrg[2] = zrange.step_;
 
     const int ndim = 2;
     PtrMan<int> dims = new int[ndim];

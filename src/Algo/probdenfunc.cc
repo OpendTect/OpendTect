@@ -310,8 +310,8 @@ const SamplingData<float>& ArrayNDProbDenFunc::getSampling( int dim ) const
 Interval<float> ArrayNDProbDenFunc::getRange( int dim ) const
 {
     StepInterval<float> rg = sampling( dim ).interval( size(dim) );
-    rg.start -= rg.step / 2.f;
-    rg.stop += rg.step / 2.f;
+    rg.start_ -= rg.step_ / 2.f;
+    rg.stop_ += rg.step_ / 2.f;
     return Interval<float>( rg );
 }
 
@@ -319,8 +319,8 @@ Interval<float> ArrayNDProbDenFunc::getRange( int dim ) const
 void ArrayNDProbDenFunc::setRange( int dim, const StepInterval<float>& rg )
 {
     SamplingData<float>& sd = sampling( dim );
-    sd.start = rg.start + rg.step / 2;
-    sd.step = rg.step;
+    sd.start_ = rg.start_ + rg.step_ / 2;
+    sd.step_ = rg.step_;
 }
 
 

@@ -39,9 +39,9 @@ SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
     , invalidsamplenr_(-1)
 {
     dtctor_.reInit();
-    valrg_.start = mUdf(float);
-    nonnullsamplerg_.stop = 0;
-    nonnullsamplerg_.start = invalidsamplebid_.inl() = mUdf(int);
+    valrg_.start_ = mUdf(float);
+    nonnullsamplerg_.stop_ = 0;
+    nonnullsamplerg_.start_ = invalidsamplebid_.inl() = mUdf(int);
 }
 
 
@@ -96,9 +96,9 @@ bool SeisScanner::getSurvInfo( TrcKeyZSampling& cs, Coord crd[3] ) const
     if ( !msg.isEmpty() )
 	{ curmsg_ = msg; return false; }
 
-    cs.zsamp_.start = sampling_.atIndex( nonnullsamplerg_.start );
-    cs.zsamp_.stop = sampling_.atIndex( nonnullsamplerg_.stop );
-    cs.zsamp_.step = sampling_.step;
+    cs.zsamp_.start_ = sampling_.atIndex( nonnullsamplerg_.start_ );
+    cs.zsamp_.stop_ = sampling_.atIndex( nonnullsamplerg_.stop_ );
+    cs.zsamp_.step_ = sampling_.step_;
     return true;
 }
 
@@ -118,15 +118,15 @@ void SeisScanner::report( IOPar& iopar ) const
     iopar.setName( str );
 
     iopar.add( IOPar::sKeyHdr(), "Sampling info" );
-    iopar.set( "Z step", sampling_.step );
-    iopar.set( "Z start in file", sampling_.start );
-    iopar.set( "Z stop in file", zRange().stop );
+    iopar.set( "Z step", sampling_.step_ );
+    iopar.set( "Z start in file", sampling_.start_ );
+    iopar.set( "Z stop in file", zRange().stop_ );
 
     iopar.set( "Number of samples in file", (int)nrsamples_ );
-    if ( nonnullsamplerg_.start != 0 )
-	iopar.set( "First non-zero sample", nonnullsamplerg_.start + 1 );
-    if ( nonnullsamplerg_.stop != nrsamples_-1 )
-	iopar.set( "Last non-zero sample", nonnullsamplerg_.stop + 1 );
+    if ( nonnullsamplerg_.start_ != 0 )
+	iopar.set( "First non-zero sample", nonnullsamplerg_.start_ + 1 );
+    if ( nonnullsamplerg_.stop_ != nrsamples_-1 )
+	iopar.set( "Last non-zero sample", nonnullsamplerg_.stop_ + 1 );
 
     iopar.add( IOPar::sKeyHdr(), "Global stats" );
     iopar.set( "Number of null traces", (int)nrnulltraces_ );
@@ -135,16 +135,16 @@ void SeisScanner::report( IOPar& iopar ) const
     {
 	TrcKeyZSampling cs; Coord crd[3];
 	getSurvInfo(cs,crd);
-	iopar.set( "Z.start", cs.zsamp_.start );
-	iopar.set( "Z.stop", cs.zsamp_.stop );
-	iopar.set( "Z.step", cs.zsamp_.step );
+	iopar.set( "Z.start", cs.zsamp_.start_ );
+	iopar.set( "Z.stop", cs.zsamp_.stop_ );
+	iopar.set( "Z.step", cs.zsamp_.step_ );
     }
 
-    if ( !mIsUdf(valrg_.start) )
+    if ( !mIsUdf(valrg_.start_) )
     {
 	iopar.add( IOPar::sKeyHdr(), "Data values" );
-	iopar.set( "Minimum value", valrg_.start );
-	iopar.set( "Maximum value", valrg_.stop );
+	iopar.set( "Minimum value", valrg_.start_ );
+	iopar.set( "Maximum value", valrg_.stop_ );
 	const float* vals = clipsampler_.vals();
 	const int nrvals = mCast( int, clipsampler_.nrVals() );
 	iopar.set( "Median value", vals[nrvals/2] );
@@ -291,10 +291,10 @@ bool SeisScanner::doValueWork()
 	if ( !mIsZero(val,mDefEps) ) break;
 	nullstart = idx;
     }
-   if ( nullstart-1 > nonnullsamplerg_.stop )
-       nonnullsamplerg_.stop = nullstart - 1;
+    if ( nullstart-1 > nonnullsamplerg_.stop_ )
+	nonnullsamplerg_.stop_ = nullstart - 1;
 
-    bool needinitvalrg = mIsUdf(valrg_.start);
+   bool needinitvalrg = mIsUdf(valrg_.start_);
     for ( int idx=0; idx<nullstart; idx++ )
     {
 	float val = trc_.get(idx,0);
@@ -302,8 +302,8 @@ bool SeisScanner::doValueWork()
 	if ( !nonnull_seen )
 	{
 	   if ( iszero ) continue;
-	   else if ( nonnullsamplerg_.start > idx )
-	       nonnullsamplerg_.start = idx;
+	   else if ( nonnullsamplerg_.start_ > idx )
+	       nonnullsamplerg_.start_ = idx;
 	   nonnull_seen = true;
 	}
 
@@ -321,7 +321,7 @@ bool SeisScanner::doValueWork()
 	    valrg_.include( val );
 	else
 	{
-	    valrg_.start = valrg_.stop = val;
+	    valrg_.start_ = valrg_.stop_ = val;
 	    needinitvalrg = false;
 	}
 

@@ -145,13 +145,13 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     const StepInterval<int> outputinlrg( hs.inlRange() );
 
     if ( !outputinlrg.includes( bid.inl(), false ) ||
-         (bid.inl()-outputinlrg.start)%outputinlrg.step )
+         (bid.inl()-outputinlrg.start_)%outputinlrg.step_ )
 	return false;
 
     const StepInterval<int> outputcrlrg( hs.crlRange() );
 
     if ( !outputcrlrg.includes( bid.crl(), false ) ||
-         (bid.crl()-outputcrlrg.start)%outputcrlrg.step )
+         (bid.crl()-outputcrlrg.start_)%outputcrlrg.step_ )
 	return false;
 
     //TODO: Rework EM::Horizon2D to avoid the manipulation below.
@@ -173,10 +173,10 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     }
 
     const double topdepth = tophorizon_
-	? tophorizon_->getPos( topsubid ).z : SI().zRange(true).start;
+                            ? tophorizon_->getPos( topsubid ).z : SI().zRange(true).start_;
 
     const double bottomdepth = bottomhorizon_
-	? bottomhorizon_->getPos( botsubid ).z : SI().zRange(true).stop;
+                               ? bottomhorizon_->getPos( botsubid ).z : SI().zRange(true).stop_;
 
     const SamplingData<double>
 	zsampling( output->sampling().zsamp_ );
@@ -191,13 +191,13 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 
     SamplingData<double> cursampling;
     if ( usegradient_ )
-	cursampling.step = gradient_ * output->sampling().zsamp_.step;
+        cursampling.step_ = gradient_ * output->sampling().zsamp_.step_;
     else if ( topsample==bottomsample )
-	cursampling.step = 0;
+        cursampling.step_ = 0;
     else
-	cursampling.step = (topvalue_-bottomvalue_)/(topsample-bottomsample);
+        cursampling.step_ = (topvalue_-bottomvalue_)/(topsample-bottomsample);
 
-    cursampling.start = topvalue_-topsample*cursampling.step;
+    cursampling.start_ = topvalue_-topsample*cursampling.step_;
 
     const RegularSeisDataPack* input = getInput( getInputSlotID(0) );
     const Array3D<float>* inputarr = input && input->nrComponents()
@@ -208,7 +208,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     {
 	inputinlrg = input->sampling().hsamp_.inlRange();
 	if ( !inputinlrg.includes( bid.inl(), false ) ||
-	      (bid.inl()-inputinlrg.start)%inputinlrg.step )
+             (bid.inl()-inputinlrg.start_)%inputinlrg.step_ )
 	    inputarr = 0;
     }
 
@@ -217,7 +217,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     {
 	inputcrlrg = input->sampling().hsamp_.crlRange();
 	if ( !inputcrlrg.includes( bid.crl(), false ) ||
-	      (bid.crl()-inputcrlrg.start)%inputcrlrg.step )
+             (bid.crl()-inputcrlrg.start_)%inputcrlrg.step_ )
 	    inputarr = 0;
     }
 

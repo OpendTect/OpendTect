@@ -182,7 +182,7 @@ bool FSStoFault3DConverter::readSection()
 	return false;
 
     RowCol rc;
-    for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
+    for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
     {
 	const StepInterval<int> colrg = curfssg_->colRange( rc.row() );
 	if ( colrg.isUdf() )
@@ -191,7 +191,7 @@ bool FSStoFault3DConverter::readSection()
 	FaultStick* stick = new FaultStick( rc.row() );
 	sticks_ += stick;
 
-	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
+        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
 	{
 	    const Coord3 pos = curfssg_->getKnot( rc );
 	    if ( !pos.isDefined() )
@@ -281,14 +281,14 @@ bool FSStoFault3DConverter::readSectionForImport()
     TypeSet<char> pickedplane;
     TypeSet<int> inlcrl;
     TypeSet<float> zs;
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    for ( int row=rowrg.start_; row<=rowrg.stop_; row+=rowrg.step_ )
     {
 	const StepInterval<int> colrg = curfssg_->colRange( row );
 	if ( colrg.isUdf() )
 	    return false;
 
 	TypeSet<Coord3> stickpositions;
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+        for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
 	{
 	    const Coord3 pos = curfssg_->getKnot( RowCol(row,col) );
 	    if ( pos.isDefined() )
@@ -310,9 +310,9 @@ bool FSStoFault3DConverter::readSectionForImport()
 	    const BinID bid = SI().transform( stickpositions[idy] );
 	    if ( !idy )
 	    {
-		inlrg.start = inlrg.stop = bid.inl();
-		crlrg.start = crlrg.stop = bid.crl();
-		zrg.start = zrg.stop = stickpositions[idy].z;
+                inlrg.start_ = inlrg.stop_ = bid.inl();
+                crlrg.start_ = crlrg.stop_ = bid.crl();
+                zrg.start_ = zrg.stop_ = stickpositions[idy].z;
 	    }
 	    else
 	    {
@@ -325,32 +325,32 @@ bool FSStoFault3DConverter::readSectionForImport()
 	/*Before making a new stick, check to see if current end points are on
 	  any existing stick or not, if so, merge them. */
 	bool found = false;
-	if ( inlrg.start==inlrg.stop )
+        if ( inlrg.start_==inlrg.stop_ )
 	{
 	    for ( int idy=0; idy<sticks_.size(); idy++ )
 	    {
-		if ( pickedplane[idy]==mOnInline && inlcrl[idy]==inlrg.start )
+                if ( pickedplane[idy]==mOnInline && inlcrl[idy]==inlrg.start_ )
 		{
 		    mAddStickPositions();
 		}
 	    }
 	}
-	else if ( crlrg.start==crlrg.stop )
+        else if ( crlrg.start_==crlrg.stop_ )
 	{
 	    for ( int idy=0; idy<sticks_.size(); idy++ )
 	    {
-		if ( pickedplane[idy]==mOnCrlline && inlcrl[idy]==crlrg.start )
+                if ( pickedplane[idy]==mOnCrlline && inlcrl[idy]==crlrg.start_ )
 		{
 		    mAddStickPositions();
 		}
 	    }
 	}
-	else if ( mIsEqual(zrg.start,zrg.stop,zepsilon) )
+        else if ( mIsEqual(zrg.start_,zrg.stop_,zepsilon) )
 	{
 	    for ( int idy=0; idy<sticks_.size(); idy++ )
 	    {
 		if ( pickedplane[idy]==mOnZSlice &&
-		     mIsEqual(zs[idy],zrg.stop,zepsilon) )
+                     mIsEqual(zs[idy],zrg.stop_,zepsilon) )
 		{
 		    mAddStickPositions();
 		}
@@ -399,12 +399,12 @@ bool FSStoFault3DConverter::readSectionForImport()
 	    stick->normal_ = curfssg_->getEditPlaneNormal( row );
 
 	sticks_ += stick;
-	pickedplane += (inlrg.start==inlrg.stop ? mOnInline :
-		(crlrg.start==crlrg.stop ? mOnCrlline :
-		(mIsEqual(zrg.start,zrg.stop,zepsilon) ? mOnZSlice:mOnOther)));
-	inlcrl += (inlrg.start==inlrg.stop ? inlrg.start :
-		(crlrg.start==crlrg.stop ? crlrg.start : -1));
-	zs += (mIsEqual(zrg.start,zrg.stop,zepsilon) ? (float) zrg.start : 0);
+        pickedplane += (inlrg.start_==inlrg.stop_ ? mOnInline :
+                                                    (crlrg.start_==crlrg.stop_ ? mOnCrlline :
+                                                                                 (mIsEqual(zrg.start_,zrg.stop_,zepsilon) ? mOnZSlice:mOnOther)));
+        inlcrl += (inlrg.start_==inlrg.stop_ ? inlrg.start_ :
+                                               (crlrg.start_==crlrg.stop_ ? crlrg.start_ : -1));
+        zs += (mIsEqual(zrg.start_,zrg.stop_,zepsilon) ? (float) zrg.start_ : 0);
     }
 
     /*Merge single pick to nearest stick, not sorted yet*/

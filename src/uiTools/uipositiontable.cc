@@ -152,7 +152,7 @@ void uiPositionTable::setCoords( const TypeSet<Coord>& coords )
 	    table_->setValue( RowCol(idx,getCCol()), bid.crl() );
 	}
 
-	setRowColor( idx, SI().includes(bid,SI().zRange(true).start,true) );
+	setRowColor( idx, SI().includes(bid,SI().zRange(true).start_,true) );
     }
 }
 
@@ -183,7 +183,7 @@ void uiPositionTable::setBinIDs( const TypeSet<BinID>& binids )
 	    table_->setValue( RowCol(idx,getCCol()), bid.crl() );
 	}
 
-	setRowColor( idx, SI().includes(bid,SI().zRange(true).start,true) );
+	setRowColor( idx, SI().includes(bid,SI().zRange(true).start_,true) );
     }
 
 }

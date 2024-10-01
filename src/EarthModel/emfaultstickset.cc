@@ -53,14 +53,14 @@ void FaultStickSet::apply( const Pos::Filter& pf )
 	return;
 
     RowCol rc;
-    for ( rc.row()=rowrg.stop; rc.row()>=rowrg.start; rc.row()-=rowrg.step )
+    for ( rc.row()=rowrg.stop_; rc.row()>=rowrg.start_; rc.row()-=rowrg.step_ )
     {
 	const StepInterval<int> colrg = fssg->colRange( rc.row() );
 	if ( colrg.isUdf() )
 	    continue;
 
-	for ( rc.col()=colrg.stop; rc.col()>=colrg.start;
-						    rc.col()-=colrg.step )
+	for ( rc.col()=colrg.stop_; rc.col()>=colrg.start_;
+	      rc.col()-=colrg.step_ )
 	{
 	    const Coord3 pos = fssg->getKnot( rc );
 	    if ( !pf.includes( (Coord) pos, (float) pos.z) )
@@ -310,7 +310,7 @@ bool FaultStickSetGeometry::insertStick(int sticknr, int firstcol,
     if ( !fss )
 	return false;
 
-    const bool firstrowchange = sticknr < fss->rowRange().start;
+    const bool firstrowchange = sticknr < fss->rowRange().start_;
 
     GeomGroup* geomgrp = nullptr;
 
@@ -368,7 +368,7 @@ bool FaultStickSetGeometry::removeStick( int sticknr,
     if ( colrg.isUdf() || colrg.width() )
 	return false;
 
-    const RowCol rc( sticknr, colrg.start );
+    const RowCol rc( sticknr, colrg.start_ );
     const Coord3 pos = fss->getKnot( rc );
     const Coord3 normal = getEditPlaneNormal( sticknr );
     if ( !normal.isDefined() || !pos.isDefined() )
@@ -377,7 +377,7 @@ bool FaultStickSetGeometry::removeStick( int sticknr,
     if ( !fss->removeStick(sticknr) )
 	return false;
 
-    const bool forrem = sticknr >= fss->rowRange().start;
+    const bool forrem = sticknr >= fss->rowRange().start_;
     for ( int idx=0; idx<geomgroupset_.size(); idx++ )
     {
 	auto* geomgrp = geomgroupset_.get( idx );
@@ -545,7 +545,7 @@ void FaultStickSetGeometry::fillPar( IOPar& par ) const
 	return;
 
     StepInterval<int> stickrg = fss->rowRange();
-    for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
+    for ( int sticknr=stickrg.start_; sticknr<=stickrg.stop_; sticknr++ )
     {
 	const BufferString editnormalstr = getKey( "Edit normal", sticknr );
 	par.set( editnormalstr.buf(), fss->getEditPlaneNormal(sticknr) );
@@ -583,7 +583,7 @@ bool FaultStickSetGeometry::usePar( const IOPar& par )
 
     par.get( sKey::ZRange(), zgate_ );
     StepInterval<int> stickrg = fss->rowRange();
-    for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
+    for ( int sticknr=stickrg.start_; sticknr<=stickrg.stop_; sticknr++ )
     {
 	BufferString editnormstr = getKey( "Edit normal", sticknr );
 	if ( !par.hasKey(editnormstr.buf()) )

@@ -946,7 +946,7 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
     {
 	ElasticModel blockmdl;
 	const Interval<int> curblock = blocks[lidx];
-	for ( int lidy=curblock.start; lidy<=curblock.stop; lidy++ )
+	for ( int lidy=curblock.start_; lidy<=curblock.stop_; lidy++ )
 	    blockmdl.add( orgmodl.get(lidy)->clone() );
 
 	PtrMan<RefLayer> outlay = RefLayer::create( blockmdl.getType() );
@@ -1490,7 +1490,7 @@ bool ElasticModel::getRatioValues( bool vel, bool den, bool svel,
 
 
 #define mAddBlock( block ) \
-    if ( !blocks.isEmpty() && block.start<blocks[0].start ) \
+    if ( !blocks.isEmpty() && block.start_<blocks[0].start_ ) \
 	blocks.insert( 0, block ); \
     else \
 	blocks += block
@@ -1525,18 +1525,18 @@ bool ElasticModel::doBlocking( float relthreshold, bool pvelonly,
 	    }
 
 	    TypeSet<int> bendpoints;
-	    const int lastblock = curblock.start + width;
+	    const int lastblock = curblock.start_ + width;
 	    TypeSet<float> firstval( nrcomp, mUdf(float) );
 	    TypeSet< Interval<float> > valranges;
 	    float maxvalratio = 0;
 	    for ( int icomp=0; icomp<nrcomp; icomp++ )
 	    {
-		firstval[icomp] = vals.get( icomp, curblock.start );
+		firstval[icomp] = vals.get( icomp, curblock.start_ );
 		Interval<float> valrange(  firstval[icomp],  firstval[icomp] );
 		valranges += valrange;
 	    }
 
-	    for ( int lidx=curblock.start+1; lidx<=lastblock; lidx++ )
+	    for ( int lidx=curblock.start_+1; lidx<=lastblock; lidx++ )
 	    {
 		for ( int icomp=0; icomp<nrcomp; icomp++ )
 		{
@@ -1576,8 +1576,8 @@ bool ElasticModel::doBlocking( float relthreshold, bool pvelonly,
 		bendpoint = bendpoints[middle];
 	    }
 
-	    investigationqueue += Interval<int>( curblock.start, bendpoint-1);
-	    curblock = Interval<int>( bendpoint, curblock.stop );
+	    investigationqueue += Interval<int>( curblock.start_, bendpoint-1);
+	    curblock = Interval<int>( bendpoint, curblock.stop_ );
 	}
     }
 
@@ -1610,10 +1610,10 @@ Interval<float> ElasticModel::getTimeSampling( bool usevs ) const
 	    continue;
 
 	const float vel = usevs ? layer->getSVel() : layer->getPVel();
-	ret.stop += layer->getThickness() / vel;
+	ret.stop_ += layer->getThickness() / vel;
     }
 
-    ret.stop *= 2.f; // TWT needed
+    ret.stop_ *= 2.f; // TWT needed
     ret.shift( startTime() );
     return ret;
 }

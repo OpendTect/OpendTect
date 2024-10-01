@@ -111,7 +111,7 @@ bool FaultStickPainter::addPolyLine()
 	sectionmarkerlines_ += secmarkerlines;
 
 	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-	for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
+        for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
 	{
 	    StepInterval<int> colrg = fss->colRange( rc.row() );
 
@@ -151,8 +151,8 @@ bool FaultStickPainter::addPolyLine()
 		{
 		    TrcKeyPath knots;
 		    rlgeom->allNodePositions( knots );
-		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
-			  rc.col()+=colrg.step )
+                    for ( rc.col()=colrg.start_;rc.col()<=colrg.stop_;
+                          rc.col()+=colrg.step_ )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			const BinID bid = SI().transform( pos.coord() );
@@ -179,8 +179,8 @@ bool FaultStickPainter::addPolyLine()
 		}
 		else
 		{
-		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
-			  rc.col()+=colrg.step )
+                    for ( rc.col()=colrg.start_;rc.col()<=colrg.stop_;
+                          rc.col()+=colrg.step_ )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			float dist;
@@ -218,24 +218,24 @@ bool FaultStickPainter::addPolyLine()
 		    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 		    {
 			extrbid1.inl() = extrbid2.inl() =
-					tkzs_.hsamp_.inlRange().start;
-			extrbid1.crl() = tkzs_.hsamp_.crlRange().start;
-			extrbid2.crl() = tkzs_.hsamp_.crlRange().stop;
+                                tkzs_.hsamp_.inlRange().start_;
+                        extrbid1.crl() = tkzs_.hsamp_.crlRange().start_;
+                        extrbid2.crl() = tkzs_.hsamp_.crlRange().stop_;
 		    }
 		    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
 		    {
-			extrbid1.inl() = tkzs_.hsamp_.inlRange().start;
-			extrbid2.inl() = tkzs_.hsamp_.inlRange().stop;
+                        extrbid1.inl() = tkzs_.hsamp_.inlRange().start_;
+                        extrbid2.inl() = tkzs_.hsamp_.inlRange().stop_;
 			extrbid1.crl() = extrbid2.crl() =
-					 tkzs_.hsamp_.crlRange().start;
+                                tkzs_.hsamp_.crlRange().start_;
 		    }
 
 		    Coord extrcoord1, extrcoord2;
 		    extrcoord1 = SI().transform( extrbid1 );
 		    extrcoord2 = SI().transform( extrbid2 );
 
-		    for ( rc.col()=colrg.start;rc.col()<=colrg.stop;
-						rc.col()+=colrg.step )
+                    for ( rc.col()=colrg.start_;rc.col()<=colrg.stop_;
+                          rc.col()+=colrg.step_ )
 		    {
 			const Coord3& pos = fss->getKnot( rc );
 			BinID knotbinid = SI().transform( pos );
@@ -259,11 +259,11 @@ bool FaultStickPainter::addPolyLine()
 		}
 		else
 		{
-		    for ( rc.col()=colrg.start; rc.col()<=colrg.stop;
-							rc.col()+=colrg.step )
+                    for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+                          rc.col()+=colrg.step_ )
 		    {
 			const Coord3 pos = fss->getKnot( rc );
-			if ( !mIsEqual(pos.z,tkzs_.zsamp_.start,.0001) )
+                        if ( !mIsEqual(pos.z,tkzs_.zsamp_.start_,.0001) )
 			    break;
 
 			const Coord bidf =

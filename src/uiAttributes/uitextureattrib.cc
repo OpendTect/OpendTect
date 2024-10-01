@@ -342,11 +342,11 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
 
 static void checkAndSetSymmetric( Interval<float>& range )
 {
-    if ( range.start>= 0 || range.stop<= 0 )
+    if ( range.start_>= 0 || range.stop_<= 0 )
 	return;
 
-    const float leftarm = 0 - range.start;
-    const float rightarm = 0 + range.stop;
+    const float leftarm = 0 - range.start_;
+    const float rightarm = 0 + range.stop_;
     if ( mIsZero(leftarm,1e-6) || mIsZero(rightarm,1e-6) )
 	return;
 
@@ -356,9 +356,9 @@ static void checkAndSetSymmetric( Interval<float>& range )
 	return;
 
     if ( leftarm<rightarm )
-	range.start = 0-rightarm;
+	range.start_ = 0-rightarm;
     else
-	range.stop = leftarm;
+	range.stop_ = leftarm;
 }
 
 
@@ -387,6 +387,6 @@ void uiTextureAttrib::calcAndSetMinMaxVal( const SeisTrcBuf& bufs )
     Interval<float> range;
     dc.calculateRange( vals.arr(), vals.size(), 0.01, 0.01, range );
     checkAndSetSymmetric( range );
-    globalminfld_->setValue( range.start );
-    globalmaxfld_->setValue( range.stop );
+    globalminfld_->setValue( range.start_ );
+    globalmaxfld_->setValue( range.stop_ );
 }

@@ -337,9 +337,9 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
     if ( su.fs_.isMulti() )
     {
 	FileMultiString fms;
-	fms += su.fs_.nrs_.start;
-	fms += su.fs_.nrs_.stop;
-	fms += su.fs_.nrs_.step;
+	fms += su.fs_.nrs_.start_;
+	fms += su.fs_.nrs_.stop_;
+	fms += su.fs_.nrs_.step_;
 	if ( su.fs_.zeropad_ > 1 )
 	    fms += su.fs_.zeropad_;
 	cmd.addKeyedArg( "filenrs", fms );
@@ -451,7 +451,7 @@ void uiSEGYExamine::updateInp()
 
 	nrdone++;
 	trc.info().seqnr_ = nrdone;
-	trc.info().sampling.step = sampstep;
+	trc.info().sampling.step_ = sampstep;
 	tbuf_.add( new SeisTrc(trc) );
     }
     tbl_->setNrCols( nrdone > 0 ? nrdone : 1 );
@@ -459,7 +459,7 @@ void uiSEGYExamine::updateInp()
     if ( stoppedatend || nrdone < 1 )
     {
 	uiString str( toUiString("\n\n----  ") );
-	const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
+	const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start_);
 	if ( nrdone < 1 )
 	{
 	    str.appendPhrase( tr("No traces found."), uiString::NoSep,

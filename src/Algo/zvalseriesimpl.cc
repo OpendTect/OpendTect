@@ -129,7 +129,7 @@ ValueSeries<double>* RegularZValues::clone() const
 
 double RegularZValues::getStep() const
 {
-    return getScaler() ? sd_.step * getScaler()->factor : sd_.step;
+    return getScaler() ? sd_.step_ * getScaler()->factor : sd_.step_;
 }
 
 
@@ -152,25 +152,25 @@ double RegularZValues::value( od_int64 idx ) const
 SamplingData<double> RegularZValues::getDoubleSamplingData(
 						const SamplingData<float>& sdf )
 {
-    SamplingData<double> ret( sdf.start, sdf.step );
-    if ( sdf.step > 0.7 )
+    SamplingData<double> ret( sdf.start_, sdf.step_ );
+    if ( sdf.step_ > 0.7 )
 	return ret;
 
-    float nrsamplesf = 1.f / sdf.step;
+    float nrsamplesf = 1.f / sdf.step_;
     int nrsamples = mNINT32( nrsamplesf );
     float relpos = nrsamplesf - nrsamples;
     if ( Math::Abs(relpos) > nrsamplesf*1e-4f )
 	return ret;
 
-    ret.step = 1. / mCast(double,nrsamples);
+    ret.step_ = 1. / mCast(double,nrsamples);
 
-    nrsamplesf = mCast(float,ret.start / ret.step);
+    nrsamplesf = mCast(float,ret.start_ / ret.step_);
     nrsamples = mNINT32( nrsamplesf );
     relpos = nrsamplesf - nrsamples;
     if ( Math::Abs(relpos) > nrsamplesf*1e-4f )
 	return ret;
 
-    ret.start = ret.step * mCast(double, nrsamples);
+    ret.start_ = ret.step_ * mCast(double, nrsamples);
 
     return ret;
 }

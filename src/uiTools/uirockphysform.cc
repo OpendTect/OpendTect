@@ -78,7 +78,7 @@ void update( const RockPhysics::Formula& form, int iinp )
     if ( haverg )
     {
 	const uiString rgstr = tr("Typical range: [%1,%2]").
-			 arg(typicalrg.start).arg(typicalrg.stop );
+			       arg(typicalrg.start_).arg(typicalrg.stop_ );
 	rangelbl_->setText( rgstr );
     }
     rangelbl_->display( haverg );

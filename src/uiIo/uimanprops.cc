@@ -307,8 +307,8 @@ void uiEditPropRef::unitSel( CallBacker* cb )
 	return;
 
     Interval<double> vintv( rgfld_->getDInterval() );
-    convValue( vintv.start, prevuom, newun );
-    convValue( vintv.stop, prevuom, newun );
+    convValue( vintv.start_, prevuom, newun );
+    convValue( vintv.stop_, prevuom, newun );
     rgfld_->setValue( vintv );
     if ( pr_.disp_.defval_ && pr_.disp_.defval_->isValue() )
     {

@@ -166,8 +166,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     {
 	const Coord survmin = SI().minCoord( false );
 	const Coord survmax = SI().maxCoord( false );
-	xrg.start = (float) survmin.x; xrg.stop = (float) survmax.x;
-	yrg.start = (float) survmin.y; yrg.stop = (float) survmax.y;
+	xrg.start_ = (float) survmin.x; xrg.stop_ = (float) survmax.x;
+	yrg.start_ = (float) survmin.y; yrg.stop_ = (float) survmax.y;
 	xintv.setFrom( xrg ); yintv.setFrom( yrg );
 	xrgfld_->setValue( xintv );
 	yrgfld_->setValue( yintv );
@@ -200,8 +200,9 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 
     const AxisLayout<float> xaxis( xrg );
     const AxisLayout<float> yaxis( yrg );
-    lebelintvfld_->setValue( Interval<float>(xaxis.sd_.step,yaxis.sd_.step) );
-    const float scaleval = (aspectratio_>1?xaxis.sd_.step:yaxis.sd_.step) * 20;
+    lebelintvfld_->setValue( Interval<float>(xaxis.sd_.step_,yaxis.sd_.step_) );
+    const float scaleval =
+		(aspectratio_>1?xaxis.sd_.step_:yaxis.sd_.step_) * 20;
     xdimfld_->setValue( xrg.width() * 100 / scaleval );
     ydimfld_->setValue( yrg.width() * 100 / scaleval );
     scalefld_->setValue( scaleval );
@@ -275,8 +276,8 @@ bool uiGMTBaseMapGrp::usePar( const IOPar& par )
     Interval<float> mapdim, lblintv;
     if ( par.get(ODGMT::sKeyMapDim(),mapdim) )
     {
-	xdimfld_->setValue( mapdim.start );
-	ydimfld_->setValue( mapdim.stop );
+	xdimfld_->setValue( mapdim.start_ );
+	ydimfld_->setValue( mapdim.stop_ );
     }
 
     int scaleval = 1;

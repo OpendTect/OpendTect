@@ -228,8 +228,8 @@ bool acceptOK( CallBacker* ) override
 
 	    Array2D<float>* arr2d;
 	    arr2d = hor3d->createArray2D();
-	    BinID start( hor3d->geometry().rowRange().start,
-			 hor3d->geometry().colRange().start );
+	    BinID start( hor3d->geometry().rowRange().start_,
+			 hor3d->geometry().colRange().start_ );
 	    BinID step( hor3d->geometry().step().row(),
 			hor3d->geometry().step().col() );
 	    outhor3d->setMultiID( outmid );

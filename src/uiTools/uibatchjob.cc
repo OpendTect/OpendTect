@@ -451,7 +451,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, const HostDataList& hdl,
     windowspriofld_ = new uiSlider( this, ssu, "winjobpriority" );
     const StepInterval<int> winmachpriorg(
 			OS::CommandExecPars::cMachineUserPriorityRange(true) );
-    sliderrg.step = 1.f / mCast(float,winmachpriorg.nrSteps() );
+    sliderrg.step_ = 1.f / mCast(float,winmachpriorg.nrSteps() );
     windowspriofld_->setInterval( sliderrg );
     windowspriofld_->setValue( js.execpars_.prioritylevel_ );
     if ( remhostfld_ )

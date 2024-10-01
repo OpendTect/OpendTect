@@ -1601,9 +1601,9 @@ void uiDataPointSet::removeHiddenRows()
     const uiTable::SelectionRange* selrange =
 	tbl_->selectedRanges()[0];
     Interval<float> valrange;
-    valrange.start = tbl_->getFValue(
+    valrange.start_ = tbl_->getFValue(
 	    RowCol(selrange->firstrow_,sortcol_) );
-    valrange.stop = tbl_->getFValue(
+    valrange.stop_ = tbl_->getFValue(
 	    RowCol(selrange->lastrow_,sortcol_) );
     for ( int drowid=0; drowid<dps_->size(); drowid++ )
     {
@@ -1617,8 +1617,8 @@ void uiDataPointSet::removeHiddenRows()
 	else
 	    val = dps_->value( dColID(sortcol_), drowid );
 
-	if ( valrange.includes(val,true) || (valrange.start==val)
-					 || (valrange.stop==val) )
+	if ( valrange.includes(val,true) || (valrange.start_==val)
+	     || (valrange.stop_==val) )
 	    dps_->setInactive( drowid, true );
 	continue;
 

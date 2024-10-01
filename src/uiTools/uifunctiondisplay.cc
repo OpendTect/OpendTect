@@ -217,16 +217,16 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 
     const StepInterval<float>& yrg = yaxis->range();
     const int nrpts = y2 ? y2xvals_.size() : xvals_.size();
-    const uiPoint closept( xaxis->getPix(xaxis->range().start),
-			   yaxis->getPix(yrg.start) );
+    const uiPoint closept( xaxis->getPix(xaxis->range().start_),
+			   yaxis->getPix(yrg.start_) );
     const bool fillbelow = y2 ? setup_.fillbelowy2_ : setup_.fillbelow_;
     if ( fillbelow )
 	ptlist += closept;
 
-    const Interval<int> xpixintv( xaxis->getPix(xaxis->range().start),
-				  xaxis->getPix(xaxis->range().stop) );
-    const Interval<int> ypixintv( yaxis->getPix(yrg.start),
-				  yaxis->getPix(yrg.stop) );
+    const Interval<int> xpixintv( xaxis->getPix(xaxis->range().start_),
+				  xaxis->getPix(xaxis->range().stop_) );
+    const Interval<int> ypixintv( yaxis->getPix(yrg.start_),
+				  yaxis->getPix(yrg.stop_) );
     uiPoint pt = closept;
     for ( int idx=0; idx<nrpts; idx++ )
     {
@@ -588,15 +588,15 @@ void uiFunctionDisplay::mouseMoveCB( CallBacker* )
     else if ( selpt_<xvals_.size()-1 && xvals_[selpt_+1]<=xval )
         xval = xvals_[selpt_+1];
 
-    if ( xval > xax->range().stop )
-	xval = xax->range().stop;
-    else if ( xval < xax->range().start )
-	xval = xax->range().start;
+    if ( xval > xax->range().stop_ )
+	xval = xax->range().stop_;
+    else if ( xval < xax->range().start_ )
+	xval = xax->range().start_;
 
-    if ( yval > yax->range().stop )
-	yval = yax->range().stop;
-    else if ( yval < yax->range().start )
-	yval = yax->range().start;
+    if ( yval > yax->range().stop_ )
+	yval = yax->range().stop_;
+    else if ( yval < yax->range().start_ )
+	yval = yax->range().start_;
 
     xvals_[selpt_] = xval; yvals_[selpt_] = yval;
 

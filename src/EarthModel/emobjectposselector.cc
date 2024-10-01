@@ -46,9 +46,9 @@ bool EMObjectPosSelector::doPrepare( int nrthreads )
     if ( !surf || !surf->getArray() )
 	return false;
 
-    startrow_ = surf->rowRange().start;
+    startrow_ = surf->rowRange().start_;
     nrrows_ = surf->rowRange().nrSteps() +1 ;
-    startcol_ = surf->colRange().start;
+    startcol_ = surf->colRange().start_;
     nrcols_ = surf->colRange().nrSteps() + 1 ;
 
     zvals_ = surf->getArray()->getData();
@@ -57,8 +57,8 @@ bool EMObjectPosSelector::doPrepare( int nrthreads )
     stops_.erase();
 
     starts_ += RowCol(startrow_, startcol_);
-    stops_ += RowCol( startrow_+(nrrows_-1)*surf->rowRange().step,
-		      startcol_+(nrcols_-1)*surf->colRange().step );
+    stops_ += RowCol( startrow_+(nrrows_-1)*surf->rowRange().step_,
+		      startcol_+(nrcols_-1)*surf->colRange().step_ );
 
     finished_ = false;
     nrwaiting_ = 0;
@@ -119,8 +119,8 @@ void EMObjectPosSelector::processBlock( const RowCol& start,
     mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
     if ( !surf ) return;
 
-    const int rowstep = surf->rowRange().step;
-    const int colstep = surf->colRange().step;
+    const int rowstep = surf->rowRange().step_;
+    const int colstep = surf->colRange().step_;
 
     Coord3 up = Coord3::udf();
     Coord3 down = Coord3::udf();
@@ -201,8 +201,8 @@ void EMObjectPosSelector::getBoundingCoords( const RowCol& start,
     mDynamicCastGet(const Geometry::BinIDSurface*,surf,ge);
     if ( !surf ) return;
 
-    const int rowstep = surf->rowRange().step;
-    const int colstep = surf->colRange().step;
+    const int rowstep = surf->rowRange().step_;
+    const int colstep = surf->colRange().step_;
 
     Coord coord0 = SI().transform( BinID(start.row(),start.col()) );
     up.x = down.x = coord0.x;
@@ -256,9 +256,9 @@ void EMObjectPosSelector::makeListGrow( const RowCol& start,
      if ( !surf ) return;
 
     const StepInterval<int> rowrg( start.row(), stop.row(),
-				   surf->rowRange().step );
+				   surf->rowRange().step_ );
     const StepInterval<int> colrg( start.col(), stop.col(),
-				   surf->colRange().step );
+				   surf->colRange().step_ );
 
     TypeSet<EM::SubID> ids;
 

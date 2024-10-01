@@ -164,11 +164,11 @@ void uiFreqFilterAttrib::updateTaperFreqs( CallBacker* )
 	Interval<float> frg( freqfld_->freqRange() );
 	if ( costaper )
 	{
-	    frg.start -= nyq * 0.04;
-	    frg.stop += nyq * 0.08;
+	    frg.start_ -= nyq * 0.04;
+	    frg.stop_ += nyq * 0.08;
 	}
-	tap->setInputFreqValue( frg.start > 0 ? frg.start : 0, 0 );
-	tap->setInputFreqValue( frg.stop , 1 );
+	tap->setInputFreqValue( frg.start_ > 0 ? frg.start_ : 0, 0 );
+	tap->setInputFreqValue( frg.stop_ , 1 );
     }
 }
 
@@ -237,8 +237,8 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
 
     const Interval<float> freqrg = freqfld_->freqRange();
     mSetEnum( FreqFilter::filtertypeStr(), freqfld_->filterType() );
-    mSetFloat( FreqFilter::minfreqStr(), freqrg.start );
-    mSetFloat( FreqFilter::maxfreqStr(), freqrg.stop );
+    mSetFloat( FreqFilter::minfreqStr(), freqrg.start_ );
+    mSetFloat( FreqFilter::maxfreqStr(), freqrg.stop_ );
     mSetInt( FreqFilter::nrpolesStr(), polesfld_->getIntValue() );
     mSetString( FreqFilter::windowStr(), winflds_[0]->windowName() );
     mSetString( FreqFilter::fwindowStr(), winflds_[1]->windowName() );
@@ -251,10 +251,10 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     {
 	Interval<float> freqresvar = taper->freqValues();
 	const bool istaper = StringView(winflds_[1]->windowName())=="CosTaper";
-	freqresvar.start = istaper ? (freqresvar.start) : freqrg.start;
-	freqresvar.stop = istaper ? (freqresvar.stop) : freqrg.stop;
-	mSetFloat( FreqFilter::freqf1Str(), freqresvar.start );
-	mSetFloat( FreqFilter::freqf4Str(), freqresvar.stop );
+	freqresvar.start_ = istaper ? (freqresvar.start_) : freqrg.start_;
+	freqresvar.stop_ = istaper ? (freqresvar.stop_) : freqrg.stop_;
+	mSetFloat( FreqFilter::freqf1Str(), freqresvar.start_ );
+	mSetFloat( FreqFilter::freqf4Str(), freqresvar.stop_ );
     }
     mSetBool( FreqFilter::isfftfilterStr(), isfftfld_->getBoolValue() );
     mSetBool( FreqFilter::isfreqtaperStr(), freqwinselfld_->isChecked() );
@@ -309,7 +309,7 @@ bool uiFreqFilterAttrib::areUIParsOK()
     if ( isfft && taper )
     {
 	Interval<float> freqresvar = taper->freqValues();
-	if ( freqresvar.start < 0 )
+	if ( freqresvar.start_ < 0 )
 	{
 	    errmsg_= zistime ?
 			    tr("min frequency cannot be negative") :
@@ -317,7 +317,7 @@ bool uiFreqFilterAttrib::areUIParsOK()
 	    mErrWinFreqMsg()
 	}
 
-	if ( freqresvar.start > freqfld_->freqRange().start )
+	if ( freqresvar.start_ > freqfld_->freqRange().start_ )
 	{
 	    errmsg_ = zistime ?
 			    tr("Taper min frequency must be lower than the"
@@ -328,7 +328,7 @@ bool uiFreqFilterAttrib::areUIParsOK()
 			       " a different wavenumber.");
 	    mErrWinFreqMsg()
 	}
-	if ( freqresvar.stop < freqfld_->freqRange().stop )
+	if ( freqresvar.stop_ < freqfld_->freqRange().stop_ )
 	{
 	    errmsg_ = zistime ?
 			    tr("Taper max frequency must be higher than the"

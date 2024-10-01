@@ -142,8 +142,8 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
     {
 	Interval<float> cliprate( symclipratiofld_->getFValue(),
 				  symclipratiofld_->getFValue() );
-	cliprate.start *= 0.01;
-	cliprate.stop *= 0.01;
+	cliprate.start_ *= 0.01;
+	cliprate.stop_ *= 0.01;
 	pars.mappersetup_.cliprate_ = cliprate;
 	pars.mappersetup_.symmidval_ = usemidvalfld_->getBoolValue() ?
 	    symmidvalfld_->getFValue() : mUdf(float);
@@ -151,8 +151,8 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
     else if ( clip == 2 )
     {
 	Interval<float> cliprate = assymclipratiofld_->getFInterval();
-	cliprate.start *= 0.01;
-	cliprate.stop *= 0.01;
+	cliprate.start_ *= 0.01;
+	cliprate.stop_ *= 0.01;
 	pars.mappersetup_.cliprate_ = cliprate;
 	pars.mappersetup_.symmidval_ = mUdf(float);
 	pars.mappersetup_.type_ = ColTab::MapperSetup::Auto;
@@ -257,8 +257,8 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     if ( !useclipfld_->getIntValue() )
 	rgfld_->setValue( vwr_.getDataRange(wva) );
 
-    symclipratiofld_->setValue( cliprate.start * 100 );
-    Interval<float> assymclipperc( cliprate.start*100, cliprate.stop*100 );
+    symclipratiofld_->setValue( cliprate.start_ * 100 );
+    Interval<float> assymclipperc( cliprate.start_*100, cliprate.stop_*100 );
     assymclipratiofld_->setValue( assymclipperc );
 
     const bool show = doDisp() && useclipfld_->getIntValue()==1 &&
@@ -331,8 +331,8 @@ bool uiFlatViewDataDispPropTab::acceptOK()
     else
     {
 	Interval<float> cliprate = assymclipratiofld_->getFInterval();
-	cliprate.start *= 0.01;
-	cliprate.stop *= 0.01;
+	cliprate.start_ *= 0.01;
+	cliprate.stop_ *= 0.01;
 	pars.mappersetup_.cliprate_ = cliprate;
     }
 
@@ -532,7 +532,7 @@ void uiFVVDPropTab::putToScreen()
     putCommonToScreen();
     const FlatView::DataDispPars::Common& pars = commonPars();
     Interval<float> range = pars.mappersetup_.range_;
-    const bool udfrg = mIsUdf(range.start) && mIsUdf(range.stop);
+    const bool udfrg = mIsUdf(range.start_) && mIsUdf(range.stop_);
     rgfld_->setValue( udfrg ? vwr_.getDataRange(false) : range );
 }
 

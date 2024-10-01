@@ -295,7 +295,7 @@ StepInterval<float> VolProc::Step::getInputZSamp(
 					const StepInterval<float>& zsamp ) const
 {
     StepInterval<float> res( zsamp );
-    res.widen( res.step * vstep_ );
+    res.widen( res.step_ * vstep_ );
 
     return res;
 }
@@ -317,13 +317,13 @@ TrcKeyZSampling VolProc::Step::getInputSampling(
 	    res.zsamp_.limitTo( geom->sampling().zsamp_ );
 	else
 	{
-	    const float geomzstart = geom->sampling().zsamp_.start;
-	    const float geomzstop = geom->sampling().zsamp_.stop;
+	    const float geomzstart = geom->sampling().zsamp_.start_;
+	    const float geomzstop = geom->sampling().zsamp_.stop_;
 	    if ( res.zsamp_.includes(geomzstart,true) )
-		res.zsamp_.start =
+		res.zsamp_.start_ =
 		    res.zsamp_.snap( geomzstart, OD::SnapDownward );
 	    if ( res.zsamp_.includes(geomzstop,true) )
-		res.zsamp_.stop = res.zsamp_.snap( geomzstop, OD::SnapUpward );
+		res.zsamp_.stop_ = res.zsamp_.snap( geomzstop, OD::SnapUpward );
 	}
     }
 

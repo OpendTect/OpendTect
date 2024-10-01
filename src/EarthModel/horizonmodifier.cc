@@ -76,8 +76,8 @@ bool HorizonModifier::getNextNode3D( BinID& bid )
 
 	rrg = bothor_->geometry().rowRange();
 	crg = bothor_->geometry().colRange();
-	hrg.include( BinID(rrg.start,crg.start) );
-	hrg.include( BinID(rrg.stop,crg.stop) );
+	hrg.include( BinID(rrg.start_,crg.start_) );
+	hrg.include( BinID(rrg.stop_,crg.stop_) );
 
 	iter_ = new TrcKeySamplingIterator( hrg );
     }
@@ -96,18 +96,18 @@ bool HorizonModifier::getNextNode2D( BinID& bid )
 
     if ( geomids_.isEmpty() ) return false;
 
-    if ( bid.crl() < trcrgs_[bid.inl()].start )
-	bid.crl() = trcrgs_[bid.inl()].start;
+    if ( bid.crl() < trcrgs_[bid.inl()].start_ )
+	bid.crl() = trcrgs_[bid.inl()].start_;
     else
-	bid.crl() += trcrgs_[bid.inl()].step;
+	bid.crl() += trcrgs_[bid.inl()].step_;
 
-    if ( bid.crl() > trcrgs_[bid.inl()].stop )
+    if ( bid.crl() > trcrgs_[bid.inl()].stop_ )
     {
 	bid.inl()++;
 	if ( bid.inl() >= geomids_.size() )
 	    return false;
 
-	bid.crl() = trcrgs_[bid.inl()].start;
+	bid.crl() = trcrgs_[bid.inl()].start_;
     }
 
     return true;

@@ -836,13 +836,13 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 	sel.seltrcranges = newsel->seltrcranges;
 
 	sel.rg.start_.inl() = sel.rg.inlRange().limitValue(
-		sel.rg.inlRange().snap( newsel->rg.inlRange().start ) );
+                                  sel.rg.inlRange().snap( newsel->rg.inlRange().start_ ) );
 	sel.rg.start_.crl() = sel.rg.crlRange().limitValue(
-		sel.rg.crlRange().snap( newsel->rg.crlRange().start ) );
+                                  sel.rg.crlRange().snap( newsel->rg.crlRange().start_ ) );
 	sel.rg.stop_.inl() = sel.rg.inlRange().limitValue(
-		sel.rg.inlRange().snap( newsel->rg.inlRange().stop ) );
+                                 sel.rg.inlRange().snap( newsel->rg.inlRange().stop_ ) );
 	sel.rg.stop_.crl() = sel.rg.crlRange().limitValue(
-		sel.rg.crlRange().snap( newsel->rg.crlRange().stop ) );
+                                 sel.rg.crlRange().snap( newsel->rg.crlRange().stop_ ) );
 	int stepfactorinl = mNINT32(((float)newsel->rg.step_.inl()
 			  / sel.rg.step_.inl()));
 	if ( stepfactorinl<1 ) stepfactorinl = 1;
@@ -956,7 +956,7 @@ StepInterval<int> RowColSurfaceGeometry::rowRange() const
 	return StepInterval<int>::udf();
 
     const StepInterval<int> sectionrg = surf->rowRange();
-    if ( sectionrg.start>sectionrg.stop )
+    if ( sectionrg.start_>sectionrg.stop_ )
 	return StepInterval<int>::udf();
 
     return sectionrg;
@@ -970,7 +970,7 @@ StepInterval<int> RowColSurfaceGeometry::colRange() const
 	return StepInterval<int>::udf();
 
     StepInterval<int> sectionrg = surf->colRange();
-    if ( sectionrg.start>sectionrg.stop )
+    if ( sectionrg.start_>sectionrg.stop_ )
 	return StepInterval<int>::udf();
 
     return sectionrg;

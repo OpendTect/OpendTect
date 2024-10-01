@@ -280,7 +280,7 @@ LayerModelReader( Strat::LayerModel& lm, od_istream& strm,
     , startdepth_(startdepth)
     , abovevel_(abovevel)
 {
-    nextreadidx_ = readrg_.start;
+	nextreadidx_ = readrg_.start_;
 }
 
 od_int64 nrDone() const override
@@ -290,7 +290,7 @@ od_int64 nrDone() const override
 
 od_int64 totalNr() const override
 {
-    return readrg_.stop;
+    return readrg_.stop_;
 }
 
 uiString uiNrDoneText() const override
@@ -321,7 +321,7 @@ bool skipWell()
 
 int nextStep() override
 {
-    if ( nextreadidx_ > readrg_.stop )
+    if ( nextreadidx_ > readrg_.stop_ )
 	return Finished();
 
     if ( !strm_.isOK() )
@@ -409,7 +409,7 @@ int nextStep() override
     seq->prepareUse();
     lm_.seqs_ += seq;
     curidx_++;
-    nextreadidx_ += readrg_.step;
+    nextreadidx_ += readrg_.step_;
     return MoreToDo();
 }
 

@@ -323,7 +323,7 @@ bool dgbEMSurfaceTranslator::prepRead()
 	    continue;
 
 	StepInterval<int> trcrange = reader_->lineTrcRanges(idx);
-	if ( !mIsUdf(trcrange.start) && !mIsUdf(trcrange.stop) )
+	if ( !mIsUdf(trcrange.start_) && !mIsUdf(trcrange.stop_) )
 	{
 	    sd_.linenames.add( linenm );
 	    sd_.geomids.add( geomid );
@@ -340,14 +340,14 @@ bool dgbEMSurfaceTranslator::prepRead()
     }
     else
     {
-	sd_.rg.start_.inl() = reader_->rowInterval().start;
-	sd_.rg.stop_.inl() = reader_->rowInterval().stop;
-	sd_.rg.step_.inl() = reader_->rowInterval().step;
-	sd_.rg.start_.crl() = reader_->colInterval().start;
-	sd_.rg.stop_.crl() = reader_->colInterval().stop;
-	sd_.rg.step_.crl() = reader_->colInterval().step;
-	sd_.zrg.start = reader_->zInterval().start;
-	sd_.zrg.stop = reader_->zInterval().stop;
+	sd_.rg.start_.inl() = reader_->rowInterval().start_;
+	sd_.rg.stop_.inl() = reader_->rowInterval().stop_;
+	sd_.rg.step_.inl() = reader_->rowInterval().step_;
+	sd_.rg.start_.crl() = reader_->colInterval().start_;
+	sd_.rg.stop_.crl() = reader_->colInterval().stop_;
+	sd_.rg.step_.crl() = reader_->colInterval().step_;
+	sd_.zrg.start_ = reader_->zInterval().start_;
+	sd_.zrg.stop_ = reader_->zInterval().stop_;
 	sd_.setZDomain( reader_->zDomain() );
 
 	sd_.dbinfo = reader_->dbInfo();
@@ -366,10 +366,10 @@ void dgbEMSurfaceTranslator::getSels( StepInterval<int>& rrg,
     if ( sels_.rg.isEmpty() )
 	sels_.rg = sd_.rg;
 
-    rrg.start = sels_.rg.start_.inl(); rrg.stop = sels_.rg.stop_.inl();
-    rrg.step = sels_.rg.step_.inl();
-    crg.start = sels_.rg.start_.crl(); crg.stop = sels_.rg.stop_.crl();
-    crg.step = sels_.rg.step_.crl();
+    rrg.start_ = sels_.rg.start_.inl(); rrg.stop_ = sels_.rg.stop_.inl();
+    rrg.step_ = sels_.rg.step_.inl();
+    crg.start_ = sels_.rg.start_.crl(); crg.stop_ = sels_.rg.stop_.crl();
+    crg.step_ = sels_.rg.step_.crl();
 }
 
 

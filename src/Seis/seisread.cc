@@ -714,10 +714,10 @@ bool SeisTrcReader::mkNextFetcher()
     dataset_->getRanges( dataset_->geomID(curlineidx), curtrcnrrg, zrg );
     if ( seldata_ && !seldata_->isAll() && seldata_->type() == Seis::Range )
     {
-	if ( seldata_->crlRange().start > curtrcnrrg.start )
-	    curtrcnrrg.start = seldata_->crlRange().start;
-	if ( seldata_->crlRange().stop < curtrcnrrg.stop )
-	    curtrcnrrg.stop = seldata_->crlRange().stop;
+	if ( seldata_->crlRange().start_ > curtrcnrrg.start_ )
+	    curtrcnrrg.start_ = seldata_->crlRange().start_;
+	if ( seldata_->crlRange().stop_ < curtrcnrrg.stop_ )
+	    curtrcnrrg.stop_ = seldata_->crlRange().stop_;
     }
 
     if ( !tbuf_ && !startWork() )
@@ -886,12 +886,12 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
 					  const StepInterval<float>& zrg ) const
 {
     Seis::Bounds3D* b3d = new Seis::Bounds3D;
-    b3d->tkzs_.hsamp_.start_.inl() = inlrg.start;
-    b3d->tkzs_.hsamp_.start_.crl() = crlrg.start;
-    b3d->tkzs_.hsamp_.stop_.inl() = inlrg.stop;
-    b3d->tkzs_.hsamp_.stop_.crl() = crlrg.stop;
-    b3d->tkzs_.hsamp_.step_.inl() = inlrg.step;
-    b3d->tkzs_.hsamp_.step_.crl() = crlrg.step;
+    b3d->tkzs_.hsamp_.start_.inl() = inlrg.start_;
+    b3d->tkzs_.hsamp_.start_.crl() = crlrg.start_;
+    b3d->tkzs_.hsamp_.stop_.inl() = inlrg.stop_;
+    b3d->tkzs_.hsamp_.stop_.crl() = crlrg.stop_;
+    b3d->tkzs_.hsamp_.step_.inl() = inlrg.step_;
+    b3d->tkzs_.hsamp_.step_.crl() = crlrg.step_;
 
     if ( b3d->tkzs_.hsamp_.step_.inl() < 0 )
     {
@@ -910,19 +910,19 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
 
 #define mChkRg(dir) \
     const Interval<int> dir##rng( seldata_->dir##Range() ); \
-    if ( b3d->tkzs_.hsamp_.start_.dir() < dir##rng.start ) \
-	b3d->tkzs_.hsamp_.start_.dir() = dir##rng.start; \
-    if ( b3d->tkzs_.hsamp_.stop_.dir() > dir##rng.stop ) \
-	b3d->tkzs_.hsamp_.stop_.dir() = dir##rng.stop;
+    if ( b3d->tkzs_.hsamp_.start_.dir() < dir##rng.start_ ) \
+	b3d->tkzs_.hsamp_.start_.dir() = dir##rng.start_; \
+    if ( b3d->tkzs_.hsamp_.stop_.dir() > dir##rng.stop_ ) \
+	b3d->tkzs_.hsamp_.stop_.dir() = dir##rng.stop_;
 
     mChkRg(inl)
     mChkRg(crl)
 
     const Interval<float> zrng( seldata_->zRange() );
-    if ( b3d->tkzs_.zsamp_.start < zrng.start )
-	b3d->tkzs_.zsamp_.start = zrng.start;
-    if ( b3d->tkzs_.zsamp_.stop > zrng.stop )
-	b3d->tkzs_.zsamp_.stop = zrng.stop;
+    if ( b3d->tkzs_.zsamp_.start_ < zrng.start_ )
+	b3d->tkzs_.zsamp_.start_ = zrng.start_;
+    if ( b3d->tkzs_.zsamp_.stop_ > zrng.stop_ )
+	b3d->tkzs_.zsamp_.stop_ = zrng.stop_;
 
     return b3d;
 }
@@ -936,7 +936,7 @@ bool SeisTrcReader::initBounds2D( const PosInfo::Line2DData& l2dd,
     const TypeSet<PosInfo::Line2DPos>& posns = l2dd.positions();
     int prevnr = posns[0].nr_;
     bool havefoundaselected = false;
-    b2d.nrrg_.step = mUdf(int);
+    b2d.nrrg_.step_ = mUdf(int);
 
     for ( int idx=0; idx<posns.size(); idx++ )
     {
@@ -944,18 +944,18 @@ bool SeisTrcReader::initBounds2D( const PosInfo::Line2DData& l2dd,
 	if ( idx != 0 )
 	{
 	    const int step = abs( curnr - prevnr );
-	    if ( step > 0 && step < b2d.nrrg_.step )
-		b2d.nrrg_.step = step;
+	    if ( step > 0 && step < b2d.nrrg_.step_ )
+		b2d.nrrg_.step_ = step;
 	}
 
 	if ( !havefoundaselected )
 	{
-	    b2d.nrrg_.start = b2d.nrrg_.stop = curnr;
+	    b2d.nrrg_.start_ = b2d.nrrg_.stop_ = curnr;
 	    b2d.mincoord_ = b2d.maxcoord_ = posns[idx].coord_;
 	    havefoundaselected = true;
 	}
 
-	if ( b2d.nrrg_.step == 1 && havefoundaselected )
+	if ( b2d.nrrg_.step_ == 1 && havefoundaselected )
 	    return true;
     }
 
@@ -1028,8 +1028,8 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 	    for ( int idx=0; idx<posns.size(); idx++ )
 	    {
 		const int nr = posns[idx].nr_;
-		if ( b2d->nrrg_.start > nr ) b2d->nrrg_.start = nr;
-		else if ( b2d->nrrg_.stop < nr ) b2d->nrrg_.stop = nr;
+		if ( b2d->nrrg_.start_ > nr ) b2d->nrrg_.start_ = nr;
+		else if ( b2d->nrrg_.stop_ < nr ) b2d->nrrg_.stop_ = nr;
 		const Coord c( posns[idx].coord_ );
 		if ( b2d->mincoord_.x > c.x ) b2d->mincoord_.x = c.x;
 		else if ( b2d->maxcoord_.x < c.x ) b2d->maxcoord_.x = c.x;

@@ -1026,13 +1026,13 @@ void HorizonDisplay::createDisplayDataPacks(
 
     const StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
     const StepInterval<int> dispcrlrg = sections_[0]->displayedColRange();
-    const BinID step( dispinlrg.step, dispcrlrg.step );
+    const BinID step( dispinlrg.step_, dispcrlrg.step_ );
     sections_.first()->setTextureRange( dispinlrg, dispcrlrg );
 
-    StepInterval<double> inlrg( (double)dispinlrg.start, (double)dispinlrg.stop,
-				(double)dispinlrg.step );
-    StepInterval<double> crlrg( (double)dispcrlrg.start, (double)dispcrlrg.stop,
-				(double)dispcrlrg.step );
+    StepInterval<double> inlrg( (double)dispinlrg.start_, (double)dispinlrg.stop_,
+                                (double)dispinlrg.step_ );
+    StepInterval<double> crlrg( (double)dispcrlrg.start_, (double)dispcrlrg.stop_,
+                                (double)dispcrlrg.step_ );
 
     const DataColDef sidcoldef( sKeySectionID() );
     const int sidcol =
@@ -1774,7 +1774,7 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
     ictracer.setSampling( geom->rowRange(), geom->colRange() );
     ictracer.selectRectROI( tkzs.hsamp_.inlRange(), tkzs.hsamp_.crlRange() );
     ManagedObjectSet<ODPolygon<float> > isocontours;
-    ictracer.getContours( isocontours, tkzs.zsamp_.start-zshift, false );
+    ictracer.getContours( isocontours, tkzs.zsamp_.start_-zshift, false );
 
     TypeSet<int> idxps;
     for ( int cidx=0; cidx<isocontours.size(); cidx++ )
@@ -1787,7 +1787,7 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
 	    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 	    Coord vrtxcoord( vertex.x, vertex.y );
 	    vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
-	    const Coord3 pos( vrtxcoord, tkzs.zsamp_.start-zshift );
+            const Coord3 pos( vrtxcoord, tkzs.zsamp_.start_-zshift );
 	    curline += pos;
 	}
 

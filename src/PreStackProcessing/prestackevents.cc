@@ -475,11 +475,11 @@ bool EventManager::getHorRanges( TrcKeySampling& hrg ) const
 	if ( first )
 	{
 	    first = false;
-	    hrg.start_.inl() = hrg.stop_.inl() = inlrg.start;
-	    hrg.start_.crl() = hrg.stop_.crl() = crlrg.start;
+	    hrg.start_.inl() = hrg.stop_.inl() = inlrg.start_;
+	    hrg.start_.crl() = hrg.stop_.crl() = crlrg.start_;
 	}
 
-	hrg.include( BinID(inlrg.stop,crlrg.stop) );
+	hrg.include( BinID(inlrg.stop_,crlrg.stop_) );
     }
 
     return !first;

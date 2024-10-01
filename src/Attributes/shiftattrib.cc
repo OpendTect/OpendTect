@@ -77,8 +77,8 @@ void Shift::init()
 {
     stepout_ = BinID( abs(pos_.inl()), abs(pos_.crl()) );
 
-    interval_.start = time_<0 ? time_/zFactor() : 0;
-    interval_.stop = time_>0 ? time_/zFactor() : 0;
+    interval_.start_ = time_<0 ? time_/zFactor() : 0;
+    interval_.stop_ = time_>0 ? time_/zFactor() : 0;
 
     if ( dosteer_ )
     {
@@ -168,15 +168,15 @@ void Shift::prepPriorToBoundsCalc()
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
-    bool chstartr = mNINT32(interval_.start*zFactor()) % truestep;
-    bool chstopr = mNINT32(interval_.stop*zFactor()) % truestep;
-    bool chstartd =mNINT32(desinterval_.start*zFactor()) % truestep;
-    bool chstopd = mNINT32(desinterval_.stop*zFactor()) % truestep;
+    bool chstartr = mNINT32(interval_.start_*zFactor()) % truestep;
+    bool chstopr = mNINT32(interval_.stop_*zFactor()) % truestep;
+    bool chstartd =mNINT32(desinterval_.start_*zFactor()) % truestep;
+    bool chstopd = mNINT32(desinterval_.stop_*zFactor()) % truestep;
 
-    mAdjustGate( chstartr, interval_.start, false )
-    mAdjustGate( chstopr, interval_.stop, true )
-    mAdjustGate( chstartd, desinterval_.start, false )
-    mAdjustGate( chstopd, desinterval_.stop, true )
+    mAdjustGate( chstartr, interval_.start_, false )
+	    mAdjustGate( chstopr, interval_.stop_, true )
+	    mAdjustGate( chstartd, desinterval_.start_, false )
+	    mAdjustGate( chstopd, desinterval_.stop_, true )
 
     Provider::prepPriorToBoundsCalc();
 }

@@ -712,8 +712,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    const ZSampling zintv =
 		scene->getZAxisTransform()->getZInterval( false );
-	    maxcs.zsamp_.start = zintv.start;
-	    maxcs.zsamp_.stop = zintv.stop;
+	    maxcs.zsamp_.start_ = zintv.start_;
+	    maxcs.zsamp_.stop_ = zintv.stop_;
 	}
 
 	TrcKeyZSampling curcs;

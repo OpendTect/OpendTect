@@ -96,7 +96,7 @@ bool SeisTrc::isNull( int icomp ) const
     if ( icomp < 0 )
 	comps.set( 0, nrComponents()-1 );
 
-    for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
+    for ( icomp=comps.start_; icomp<=comps.stop_; icomp++ )
     {
 	if ( !data_.isZero(icomp) )
 	    return false;
@@ -115,7 +115,7 @@ bool SeisTrc::isUdf( int icomp ) const
 	comps.set( 0, nrComponents()-1 );
 
     const int sz = size();
-    for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
+    for ( icomp=comps.start_; icomp<=comps.stop_; icomp++ )
     {
 	for ( int isamp=0; isamp<sz; isamp++ )
 	{
@@ -138,7 +138,7 @@ bool SeisTrc::hasUndef( int icomp ) const
 	comps.set( 0, nrComponents()-1 );
 
     const int sz = size();
-    for ( icomp=comps.start; icomp<=comps.stop; icomp++ )
+    for ( icomp=comps.start_; icomp<=comps.stop_; icomp++ )
     {
 	for ( int isamp=0; isamp<sz; isamp++ )
 	{
@@ -177,7 +177,7 @@ void SeisTrc::ensureNoUndefs( float replval )
     const int sz = size();
     const bool interpolate = mIsUdf(replval);
 
-    for ( int icomp=comps.start; icomp<=comps.stop; icomp++ )
+    for ( int icomp=comps.start_; icomp<=comps.stop_; icomp++ )
     {
 	int cursamp = 0;
 	if ( !findFirstUdf(*this,cursamp) )
@@ -207,21 +207,21 @@ void SeisTrc::ensureNoUndefs( float replval )
 	    Interval<int> udfsamps( cursamp, 0 );
 	    if ( !findFirstDefined(*this,cursamp) )
 		break; // only udfs until end
-	    udfsamps.stop = cursamp - 1;
+            udfsamps.stop_ = cursamp - 1;
 
 	    if ( !interpolate )
-		for ( int isamp=udfsamps.start; isamp<=udfsamps.stop; isamp++ )
+                for ( int isamp=udfsamps.start_; isamp<=udfsamps.stop_; isamp++ )
 		    set( isamp, replval, icomp );
 	    else
 	    {
-		const float v0 = get( udfsamps.start-1, icomp );
-		const float v1 = get( udfsamps.stop+1, icomp );
+                const float v0 = get( udfsamps.start_-1, icomp );
+                const float v1 = get( udfsamps.stop_+1, icomp );
 		const int nrudfs = udfsamps.width() + 1;
 		for ( int iudf=0; iudf<nrudfs; iudf++ )
 		{
 		    const float frac = (iudf+1.0f) / (nrudfs+1.0f);
 		    const float newval = v0*(1.0f-frac) + v1*frac;
-		    set( udfsamps.start+iudf, newval, icomp );
+                    set( udfsamps.start_+iudf, newval, icomp );
 		}
 	    }
 
@@ -261,8 +261,8 @@ SampleGate SeisTrc::sampleGate( const Interval<float>& tg, bool check ) const
     if ( !check ) return sg;
 
     const int maxsz = size() - 1;
-    if ( sg.start > maxsz ) sg.start = maxsz;
-    if ( sg.stop > maxsz ) sg.stop = maxsz;
+    if ( sg.start_ > maxsz ) sg.start_ = maxsz;
+    if ( sg.stop_ > maxsz ) sg.stop_ = maxsz;
     return sg;
 }
 
@@ -276,12 +276,12 @@ SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
     ZGate zg( zgate ); zg.sort();
     SeisTrc* ret = new SeisTrc;
     ret->info_ = info_;
-    ret->info_.sampling.start = zg.start;
-    if ( mIsUdf(sr) ) sr = info_.sampling.step;
-    ret->info_.sampling.step = sr;
+    ret->info_.sampling.start_ = zg.start_;
+    if ( mIsUdf(sr) ) sr = info_.sampling.step_;
+    ret->info_.sampling.step_ = sr;
     ret->info_.pick = 0;
 
-    const int nrsamps = (int)( (zg.stop - zg.start) / sr + 1.5);
+    const int nrsamps = (int)( (zg.stop_ - zg.start_) / sr + 1.5);
     ret->reSize( nrsamps, false );
 
     while ( ret->nrComponents() < nrComponents() )
@@ -290,7 +290,7 @@ SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 
     for ( int idx=0; idx<nrsamps; idx++ )
     {
-	const float curt = pick + zg.start + sr * idx;
+        const float curt = pick + zg.start_ + sr * idx;
 	for ( int icomp=0; icomp<nrComponents(); icomp++ )
 	    ret->set( idx, getValue(curt,icomp), icomp );
     }
@@ -301,7 +301,7 @@ SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 
 SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 {
-    const float fnrsamps = (zgate.stop-zgate.start) / info_.sampling.step + 1;
+    const float fnrsamps = (zgate.stop_-zgate.start_) / info_.sampling.step_ + 1;
     const int outnrsamps = mNINT32( fnrsamps );
     const TraceDataInterpreter* tdi = data_.getInterpreter(0);
     DataCharacteristics dc( tdi ? tdi->dataChar() : DataCharacteristics() );
@@ -313,9 +313,9 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 	{ newtrc->zero(); return newtrc; }
 
     newtrc->info_ = info_;
-    newtrc->info_.sampling.start = zgate.start;
-    const float z0 = startPos() - snapdist * info_.sampling.step;
-    const float z1 = endPos() + snapdist * info_.sampling.step;
+    newtrc->info_.sampling.start_ = zgate.start_;
+    const float z0 = startPos() - snapdist * info_.sampling.step_;
+    const float z1 = endPos() + snapdist * info_.sampling.step_;
 
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
     {

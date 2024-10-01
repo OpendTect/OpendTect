@@ -136,7 +136,7 @@ public:
     inline float	getPixPerDim( int dim ) const
 			{ return dim ? pixperdim1_ : pixperdim0_; }
     inline float	getPixOffs( int dim, float pos ) const
-			{ return (pos - (dim ? dim1rg_ : dim0rg_).start)
+    { return (pos - (dim ? dim1rg_ : dim0rg_).start_)
 				 * getPixPerDim( dim ); }
 
     int			getPix(int dim,float) const;

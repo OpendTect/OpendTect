@@ -82,8 +82,8 @@ void uiFreqFilterSelFreq::typeSel( CallBacker* )
 void uiFreqFilterSelFreq::putToScreen()
 {
     typefld_->setValue( filtertype_ );
-    freqfld_->setValue( freqrg_.start, 0 );
-    freqfld_->setValue( freqrg_.stop, 1 );
+    freqfld_->setValue( freqrg_.start_, 0 );
+    freqfld_->setValue( freqrg_.stop_, 1 );
     typeSel(0);
 }
 
@@ -98,8 +98,8 @@ void uiFreqFilterSelFreq::getFromScreen( CallBacker* )
 
 void uiFreqFilterSelFreq::set( float minf, float maxf, FFTFilter::Type tp )
 {
-    freqrg_.start = minf;
-    freqrg_.stop = maxf;
+    freqrg_.start_ = minf;
+    freqrg_.stop_ = maxf;
     filtertype_ = tp;
     putToScreen();
 }

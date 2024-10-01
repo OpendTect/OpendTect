@@ -95,7 +95,7 @@ public:
 			: range_(t1,t2)			{}
     const char*		selectorType() const override	{ return "Range"; }
     Selector<T>*	clone() const override
-			{ return new RangeSelector(range_.start,range_.stop); }
+{ return new RangeSelector(range_.start_,range_.stop_); }
 
     bool		includes( const T& t ) const override
 			{ return range_.includes( t, true ); }

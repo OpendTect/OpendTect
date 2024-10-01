@@ -381,11 +381,11 @@ bool Dip2D::fillGap()
 {
     // generate the angle set
     TypeSet<int> angleset;
-    for ( int angle=setup_.thetarg_.start; angle<=setup_.thetarg_.stop;
-	    angle += setup_.thetarg_.step )
+    for ( int angle=setup_.thetarg_.start_; angle<=setup_.thetarg_.stop_;
+	  angle += setup_.thetarg_.step_ )
 	angleset += angle;
-    for ( int angle=-setup_.thetarg_.stop; angle<=-setup_.thetarg_.start;
-	    angle += setup_.thetarg_.step )
+    for ( int angle=-setup_.thetarg_.stop_; angle<=-setup_.thetarg_.start_;
+	  angle += setup_.thetarg_.step_ )
 	angleset += angle;
     const int nangle = angleset.size();
     if ( !nangle )

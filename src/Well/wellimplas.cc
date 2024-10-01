@@ -219,9 +219,9 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	case 'W':	// ~Well Information Block
 	case 'P':	// ~Parameter Information Block
 	    if ( mIsKey("STRT") )
-		lfi.zrg_.start = toFloat(val2);
+		lfi.zrg_.start_ = toFloat(val2);
 	    if ( mIsKey("STOP") )
-		lfi.zrg_.stop = toFloat(val2);
+		lfi.zrg_.stop_ = toFloat(val2);
 	    if ( mIsKey("NULL") )
 		lfi.undefval_ = toFloat(val1);
 	    if ( mIsKey("COMP") )
@@ -327,16 +327,16 @@ uiString Well::LASImporter::getLogInfo( od_istream& strm,
 	mErrRet( tr("Could not find a depth column ('DEPT' or 'DEPTH')") )
     }
 
-    lfi.revz_ = lfi.zrg_.start > lfi.zrg_.stop;
+    lfi.revz_ = lfi.zrg_.start_ > lfi.zrg_.stop_;
     lfi.zrg_.sort();
     const UnitOfMeasure* unmeas = convs_[lfi.depthcolnr_];
     if ( unmeas )
     {
 	lfi.zunitstr_ = unmeas->symbol();
-	if ( !mIsUdf(lfi.zrg_.start) )
-	    lfi.zrg_.start = unmeas->internalValue(lfi.zrg_.start);
-	if ( !mIsUdf(lfi.zrg_.stop) )
-	    lfi.zrg_.stop = unmeas->internalValue(lfi.zrg_.stop);
+	if ( !mIsUdf(lfi.zrg_.start_) )
+	    lfi.zrg_.start_ = unmeas->internalValue(lfi.zrg_.start_);
+	if ( !mIsUdf(lfi.zrg_.stop_) )
+	    lfi.zrg_.stop_ = unmeas->internalValue(lfi.zrg_.stop_);
 	if ( !mIsUdf(lfi.kbelev_) )
 	    lfi.kbelev_ = unmeas->internalValue(lfi.kbelev_);
 	if ( !mIsUdf(lfi.glelev_) )
@@ -514,11 +514,11 @@ void Well::LASImporter::adjustTrack( const Interval<float>& zrg, bool istvdss,
 	 (!istvdss && track.dahRange().includes(zrg)) )
 	return;
 
-    const float firsttrackz = istvdss ? track.zRange().start
-				      : track.dahRange().start;
-    const float lasttrackz = istvdss ? track.zRange().stop
-				     : track.dahRange().stop;
-    if ( firsttrackz > zrg.start )
+    const float firsttrackz = istvdss ? track.zRange().start_
+				      : track.dahRange().start_;
+    const float lasttrackz = istvdss ? track.zRange().stop_
+				     : track.dahRange().stop_;
+    if ( firsttrackz > zrg.start_ )
     {
 	const Coord3 surfloc = track.pos(0);
 	const bool inserted = track.insertAtDah( 0.f, -1.f*track.getKbElev() );
@@ -531,13 +531,13 @@ void Well::LASImporter::adjustTrack( const Interval<float>& zrg, bool istvdss,
 	}
     }
 
-    if ( lasttrackz < zrg.stop )
+    if ( lasttrackz < zrg.stop_ )
     {
 	Coord3 lastpos = track.pos( track.size()-1 );
 	const float lastmd = track.td();
-	const double zdiff = zrg.stop - (istvdss ? lasttrackz : lastmd);
+	const double zdiff = zrg.stop_ - (istvdss ? lasttrackz : lastmd);
 	lastpos.z += zdiff;
-	track.addPoint( lastpos, istvdss ? lastmd + zdiff : zrg.stop );
+	track.addPoint( lastpos, istvdss ? lastmd + zdiff : zrg.stop_ );
 	changed = true;
     }
 }
@@ -621,8 +621,8 @@ uiString Well::LASImporter::getLogData( od_istream& strm,
 			    bool istvd, int addstartidx, int totalcols )
 {
     Interval<float> reqzrg( Interval<float>().setFrom( lfi.zrg_ ) );
-    const bool havestart = !mIsUdf(reqzrg.start);
-    const bool havestop = !mIsUdf(reqzrg.stop);
+    const bool havestart = !mIsUdf(reqzrg.start_);
+    const bool havestop = !mIsUdf(reqzrg.stop_);
     if ( havestart && havestop )
 	reqzrg.sort();
 
@@ -660,8 +660,8 @@ uiString Well::LASImporter::getLogData( od_istream& strm,
 	if ( convs_[lfi.depthcolnr_] )
 	    dpth = convs_[lfi.depthcolnr_]->internalValue( dpth );
 
-	const bool afterstop = havestop && dpth > reqzrg.stop + mDefEps;
-	const bool beforestart = havestart && dpth < reqzrg.start - mDefEps;
+	const bool afterstop = havestop && dpth > reqzrg.stop_ + mDefEps;
+	const bool beforestart = havestart && dpth < reqzrg.start_ - mDefEps;
 	if ( (lfi.revz_ && beforestart) || (!lfi.revz_ && afterstop) )
 	    break;
 	if ( beforestart || afterstop || mIsEqual(prevdpth,dpth,mDefEps) )

@@ -145,12 +145,12 @@ void WellStratUnitGen::gatherLeavedUnits()
 		int idunit = 0;
 		for ( ; idunit<posset_.size(); idunit ++ )
 		{
-		    if ( unit.zrg_.stop < absunitpos[idunit] )
+		    if ( unit.zrg_.stop_ < absunitpos[idunit] )
 			break;
 		}
 		leaveddispunits_.insertAt( &unit, idunit );
 		leavedunits_.insertAt( lur, idunit );
-		absunitpos.insert( idunit, unit.zrg_.stop );
+		absunitpos.insert( idunit, unit.zrg_.stop_ );
 		posset_.insert( idunit, pos );
 	    }
 	}
@@ -208,7 +208,7 @@ void WellStratUnitGen::assignTimesToAllUnits()
 		{
 		    StratDispData::Unit& dispnode = *dispunits_[idnode];
 		    dispnode.isdisplayed_ = true;
-		    if ( mIsUdf ( dispnode.zrg_.start ) )
+		    if ( mIsUdf ( dispnode.zrg_.start_ ) )
 			dispnode.zrg_ = dunit.zrg_;
 		    else
 			dispnode.zrg_.include( dunit.zrg_ );

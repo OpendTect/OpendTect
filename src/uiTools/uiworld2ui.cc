@@ -271,7 +271,7 @@ void uiWorld2Ui::getAppropriateRange( float min, float max,
     if ( rev )	Swap( min, max );
     Interval<float> intv( min, max );
     AxisLayout<float> al( intv );
-    newmin = al.sd_.start;
+    newmin = al.sd_.start_;
     newmax = al.findEnd( max );
     if ( rev )	Swap( newmin, newmax );
 }

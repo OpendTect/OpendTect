@@ -140,8 +140,8 @@ void uiProbDenFuncMan::mkFileInfo()
 	    const StepInterval<float> rg = sampledpdf->getRange( idx );
 	    if ( !rg.isUdf() )
 	    {
-		propdesc.add( ",\tMin: " ).add( rg.start );
-		propdesc.add( ",\tMax: " ).add( rg.stop );
+		propdesc.add( ",\tMin: " ).add( rg.start_ );
+		propdesc.add( ",\tMax: " ).add( rg.stop_ );
 	    }
 	}
 

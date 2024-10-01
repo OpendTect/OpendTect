@@ -152,8 +152,8 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
 	SamplingData<float> sd( newsdfld_->getFValue(0),
 				newsdfld_->getFValue(1) );
 	const float fac = 1.f / SI().zDomain().userFactor();
-	sd.start *= fac;
-	sd.step *= fac;
+	sd.start_ *= fac;
+	sd.step_ *= fac;
 	tst_.setSampling( sd );
     }
     break;

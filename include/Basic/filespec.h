@@ -50,7 +50,7 @@ public:
     void		setUsrStr( const char* str ) { usrstr_ = str; }
 
     void		setEmpty()
-			{ fnames_.setEmpty(); mSetUdf(nrs_.start); }
+			{ fnames_.setEmpty(); mSetUdf(nrs_.start_); }
     void		setFileName( const char* nm )
 			{ setEmpty(); if ( nm && *nm ) fnames_.add(nm);}
     void		ensureBaseDir(const char* dirnm);

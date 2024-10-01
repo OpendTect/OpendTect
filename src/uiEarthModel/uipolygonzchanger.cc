@@ -32,7 +32,7 @@ uiPolygonZChanger::uiPolygonZChanger( uiParent* p, Pick::Set& ps )
     uiString constzlbl =
 		    tr("Z value").addSpace().append( SI().getUiZUnitString() );
     zvalfld_ = new uiGenInput( this, constzlbl,
-	  FloatInpSpec(SI().zRange(true).start*SI().zDomain().userFactor()) );
+                               FloatInpSpec(SI().zRange(true).start_*SI().zDomain().userFactor()) );
     zvalfld_->attach( alignedBelow, isconstzfld_ );
 
     horinpfld_ = new uiHorizon3DSel( this, true,

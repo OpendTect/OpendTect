@@ -205,11 +205,11 @@ uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
     rg0.sort( true );
     rg1.sort( true );
 
-    rg0.widen( extfac_ * rg0.step, true );
+    rg0.widen( extfac_ * rg0.step_, true );
     if ( mIsZero(rg1.width(),mDefEps) )
-	rg1.widen( extfac_ * rg1.step, true );
+	rg1.widen( extfac_ * rg1.step_, true );
     //<-- rg1 is not widened as wiggles are not drawn in the extended area.
-    return uiWorldRect(rg0.start,rg1.stop,rg0.stop,rg1.start);
+    return uiWorldRect(rg0.start_,rg1.stop_,rg0.stop_,rg1.start_);
 }
 
 

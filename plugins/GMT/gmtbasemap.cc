@@ -77,10 +77,10 @@ bool GMTBaseMap::doExecute( od_ostream& strm, const char* fnm )
     mGetRangeString(rgstr)
     mGetProjString(mapprojstr,"X")
     get( ODGMT::sKeyMapDim(), mapdim );
-    const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
-    const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
-    const float pagewidth = mapdim.start + 5 * xmargin;
-    const float pageheight = mapdim.stop + 3 * ymargin;
+    const float xmargin = mapdim.start_ > 30 ? mapdim.start_/10 : 3;
+    const float ymargin = mapdim.stop_ > 30 ? mapdim.stop_/10 : 3;
+    const float pagewidth = mapdim.start_ + 5 * xmargin;
+    const float pageheight = mapdim.stop_ + 3 * ymargin;
     int scaleval = 1;
     get( ODGMT::sKeyMapScale(), scaleval );
     BufferStringSet remset;
@@ -88,10 +88,10 @@ bool GMTBaseMap::doExecute( od_ostream& strm, const char* fnm )
 
     const bool moderngmt = GMT::hasModernGMT();
 
-    BufferString lblrgstr( "-Ba", lblintv.start );
-    if ( dogrid ) lblrgstr.add( "g" ).add( lblintv.start );
-    lblrgstr.add( "/a" ).add( lblintv.stop );
-    if ( dogrid ) lblrgstr.add( "g" ).add( lblintv.stop );
+    BufferString lblrgstr( "-Ba", lblintv.start_ );
+    if ( dogrid ) lblrgstr.add( "g" ).add( lblintv.start_ );
+    lblrgstr.add( "/a" ).add( lblintv.stop_ );
+    if ( dogrid ) lblrgstr.add( "g" ).add( lblintv.stop_ );
     lblrgstr.add( ":\'." ).add( maptitle ).add( "\':" );
     BufferString mapxorigstr( moderngmt ? "MAP_ORIGIN_X=" : "X_ORIGIN=" );
     mapxorigstr.add( xmargin ).add( "c" );
@@ -113,12 +113,12 @@ bool GMTBaseMap::doExecute( od_ostream& strm, const char* fnm )
     strm << "Done" << od_endl;
 
     BufferString legendstr( "-Dx" );
-    legendstr.add( mapdim.start + xmargin ).add( "c/" ).add( 0 ).add( "c" )
+    legendstr.add( mapdim.start_ + xmargin ).add( "c/" ).add( 0 ).add( "c" )
 	     .add( moderngmt ? "+w" : "/" ).add( cTitleBoxWidth ).add( "c/" )
 	     .add( cTitleBoxHeight ).add( "c" ).add( moderngmt ? "+j" : "/" )
 	     .add( "BL" );
     BufferString cornerstr( "-UBL/" );
-    cornerstr.add( moderngmt ? mapdim.start + xmargin : 0 ).add( "c/0c" );
+    cornerstr.add( moderngmt ? mapdim.start_ + xmargin : 0 ).add( "c/0c" );
 
     strm << "Posting title box ...  ";
     OS::MachineCommand lgdmc( "pslegend" );
@@ -178,8 +178,8 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
     mGetRangeString(rgstr)
     mGetProjString(mapprojstr,"X")
     get( ODGMT::sKeyMapDim(), mapdim );
-    const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
-    const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
+    const float xmargin = mapdim.start_ > 30 ? mapdim.start_/10 : 3;
+    const float ymargin = mapdim.stop_ > 30 ? mapdim.stop_/10 : 3;
     if ( parwithcolorbar >= 0 )
     {
 	hascolbar = true;
@@ -187,12 +187,13 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
 	StepInterval<float> rg;
 	par->get( ODGMT::sKeyDataRange(), rg );
 	BufferString ampstr( "-D" );
-	ampstr.add( mapdim.start + xmargin )
+	ampstr.add( mapdim.start_ + xmargin )
 	      .add( "c/" ).add( 1.2 * ymargin + cTitleBoxHeight )
 	      .add( "c/" ).add( 2 * ymargin )
 	      .add( "c/" ).add( xmargin / 2 ).add( "c" );
 	BufferString bargstr( "-B" );
-	bargstr.add( rg.step * 5 ).add( ":\'" ).add( par->find( sKey::Name() ) )
+	bargstr.add( rg.step_ * 5 ).add( ":\'" )
+	       .add( par->find( sKey::Name() ) )
 	       .add( "\':/:" ).add( par->find( ODGMT::sKeyAttribName() ) )
 	       .add( ":" );
 
@@ -220,7 +221,7 @@ bool GMTLegend::doExecute( od_ostream& strm, const char* fnm )
 
     const int nritems = parset.size();
     BufferString dargstr( "-Dx" );
-    dargstr.add( mapdim.start + xmargin ).add( "c/" )
+    dargstr.add( mapdim.start_ + xmargin ).add( "c/" )
 	   .add( ymargin / 2 + cTitleBoxHeight + (hascolbar ? 2 * ymargin : 0) )
 	   .add( "c" ).add( moderngmt ? "+w" : "/" ).add( 10 ).add( "c/" )
 	   .add( nritems ? nritems : 1 ).add( "c" )

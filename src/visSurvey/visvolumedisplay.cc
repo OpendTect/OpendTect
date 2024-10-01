@@ -64,12 +64,12 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 	(3*csin.hsamp_.start_.inl()+5*csin.hsamp_.stop_.inl())/8;
     cs.hsamp_.stop_.crl() =
 	(3*csin.hsamp_.start_.crl()+5*csin.hsamp_.stop_.crl())/8;
-    cs.zsamp_.start = ( 5*csin.zsamp_.start + 3*csin.zsamp_.stop ) / 8.f;
-    cs.zsamp_.stop = ( 3*csin.zsamp_.start + 5*csin.zsamp_.stop ) / 8.f;
+    cs.zsamp_.start_ = ( 5*csin.zsamp_.start_ + 3*csin.zsamp_.stop_ ) / 8.f;
+    cs.zsamp_.stop_ = ( 3*csin.zsamp_.start_ + 5*csin.zsamp_.stop_ ) / 8.f;
     SI().snap( cs.hsamp_.start_ );
     SI().snap( cs.hsamp_.stop_ );
-    float z0 = csin.zsamp_.snap( cs.zsamp_.start ); cs.zsamp_.start = z0;
-    float z1 = csin.zsamp_.snap( cs.zsamp_.stop ); cs.zsamp_.stop = z1;
+    float z0 = csin.zsamp_.snap( cs.zsamp_.start_ ); cs.zsamp_.start_ = z0;
+    float z1 = csin.zsamp_.snap( cs.zsamp_.stop_ ); cs.zsamp_.stop_ = z1;
     return cs;
 }
 
@@ -362,11 +362,11 @@ void VolumeDisplay::draggerMoveCB( CallBacker* )
 
     const Coord3 center( (cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl())/2.0,
 			 (cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl())/2.0,
-			 (cs.zsamp_.start + cs.zsamp_.stop)/2.0 );
+			 (cs.zsamp_.start_ + cs.zsamp_.stop_)/2.0 );
 
     const Coord3 width( cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(),
 			cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(),
-			cs.zsamp_.stop - cs.zsamp_.start );
+			cs.zsamp_.stop_ - cs.zsamp_.start_ );
 
     boxdragger_->setCenter( center );
     boxdragger_->setWidth( width );
@@ -520,21 +520,21 @@ VisID VolumeDisplay::volRenID() const
 \
     const Coord3 center( (cs.hsamp_.start_.inl() + cs.hsamp_.stop_.inl())/2.0, \
 			 (cs.hsamp_.start_.crl() + cs.hsamp_.stop_.crl())/2.0, \
-			 (cs.zsamp_.start + cs.zsamp_.stop)/2.0 ); \
+			 (cs.zsamp_.start_ + cs.zsamp_.stop_)/2.0 ); \
 \
     const Coord3 width( cs.hsamp_.stop_.inl() - cs.hsamp_.start_.inl(), \
 			cs.hsamp_.stop_.crl() - cs.hsamp_.start_.crl(), \
-			cs.zsamp_.stop - cs.zsamp_.start ); \
+			cs.zsamp_.stop_ - cs.zsamp_.start_ ); \
 { \
     const Coord3 step( cs.hsamp_.step_.inl(), cs.hsamp_.step_.crl(), \
-		       cs.zsamp_.step ); \
+		       cs.zsamp_.step_ ); \
 \
     Coord3 trans( center ); \
     mVisTrans::transform( displaytrans_, trans ); \
     Coord3 scale( width + extrasteps*step ); \
     mVisTrans::transformSize( displaytrans_, scale ); \
     trans += 0.5 * scale; \
-    scale = Coord3( scale.z, -scale.y, -scale.x ); \
+    scale = Coord3( scale.z_, -scale.y_, -scale.x_ ); \
     scalarfield_->set##name##Transform( trans, Coord3(0,1,0), M_PI_2, scale ); \
 }
 
@@ -609,7 +609,7 @@ void VolumeDisplay::updateDraggerLimits( bool dragmode )
 			 mUdf(float) ),
 	Interval<float>( sCast(float,minvoxwidth*limcs.hsamp_.step_.crl()),
 			 mUdf(float) ),
-	Interval<float>( minvoxwidth*limcs.zsamp_.step, mUdf(float) ) );
+	Interval<float>( minvoxwidth*limcs.zsamp_.step_, mUdf(float) ) );
 
     boxdragger_->setDragCtrlSpacing( inlrg, crlrg, limcs.zsamp_ );
 }
@@ -851,19 +851,19 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* taskr )
 	const TrcKeyZSampling& samp = cache->sampling();
 	isosurfaces_[idx]->getSurface()->removeAll();
 	isosurfaces_[idx]->setBoxBoundary(
-		sCast(float,samp.hsamp_.inlRange().stop),
-		sCast(float,samp.hsamp_.crlRange().stop),
-		samp.zsamp_.stop );
+		    sCast(float,samp.hsamp_.inlRange().stop_),
+		    sCast(float,samp.hsamp_.crlRange().stop_),
+		    samp.zsamp_.stop_ );
 
 	const SamplingData<float> inlsampling(
-		sCast(float,samp.hsamp_.inlRange().start),
-		sCast(float,samp.hsamp_.inlRange().step) );
+		    sCast(float,samp.hsamp_.inlRange().start_),
+		    sCast(float,samp.hsamp_.inlRange().step_) );
 
 	const SamplingData<float> crlsampling(
-		sCast(float,samp.hsamp_.crlRange().start),
-		sCast(float,samp.hsamp_.crlRange().step) );
+		    sCast(float,samp.hsamp_.crlRange().start_),
+		    sCast(float,samp.hsamp_.crlRange().step_) );
 
-	SamplingData<float> zsampling ( samp.zsamp_.start, samp.zsamp_.step );
+	SamplingData<float> zsampling ( samp.zsamp_.start_, samp.zsamp_.step_ );
 	isosurfaces_[idx]->setScales( inlsampling, crlsampling, zsampling );
 
 	if ( isosurfsettings_[idx].mode_ )
@@ -941,8 +941,8 @@ void VolumeDisplay::getObjectInfoText( uiString& info, bool compact ) const
 	.arg( cs.hsamp_.stop_.inl() )
 	.arg( cs.hsamp_.start_.crl() )
 	.arg( cs.hsamp_.stop_.crl() )
-	.arg( mNINT32(cs.zsamp_.start*userfactor) )
-	.arg( mNINT32(cs.zsamp_.stop*userfactor) );
+	   .arg( mNINT32(cs.zsamp_.start_*userfactor) )
+	   .arg( mNINT32(cs.zsamp_.stop_*userfactor) );
 
     if ( scene_ && !compact )
 	info.arg( scene_->zDomainInfo().userName() );
@@ -1001,17 +1001,17 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
     int nrslices = 0;
     slice->getSliceInfo( nrslices, rg );
     if ( dim == 2 )
-	pos = sCast(float,cs.hsamp_.inlRange().start);
+	pos = sCast(float,cs.hsamp_.inlRange().start_);
     else if ( dim == 1 )
-	pos = sCast(float,cs.hsamp_.crlRange().start);
+	pos = sCast(float,cs.hsamp_.crlRange().start_);
     else
-	pos = sCast(float,cs.zsamp_.start);
+	pos = sCast(float,cs.zsamp_.start_);
 
 //    pos -= (float) voltrans_->getTranslation()[2-dim];
 //    pos /= (float) -voltrans_->getScale()[dim];
 
-    const float slicenr =  nrslices ? (pos-rg.start)*nrslices/rg.width() : 0;
-    const float draggerpos = slicenr /(nrslices-1) *rg.width() + rg.start;
+    const float slicenr =  nrslices ? (pos-rg.start_)*nrslices/rg.width() : 0;
+    const float draggerpos = slicenr /(nrslices-1) *rg.width() + rg.start_;
     Coord3 center(0,0,0);
     center[dim] = sCast(double,draggerpos);
     slice->setCenter( center, false );
@@ -1213,26 +1213,26 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 
 	res.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zsamp_.start = (float) ( center.z - width.z/2 );
-	res.zsamp_.stop = (float) ( center.z + width.z/2 );
-	res.zsamp_.step = SI().zStep();
+	res.zsamp_.start_ = (float) ( center.z - width.z/2 );
+	res.zsamp_.stop_ = (float) ( center.z + width.z/2 );
+	res.zsamp_.step_ = SI().zStep();
 
 	SI().snap( res.hsamp_.start_ );
 	SI().snap( res.hsamp_.stop_ );
 
 	if ( !datatransform_ )
 	{
-	    SI().snapZ( res.zsamp_.start );
-	    SI().snapZ( res.zsamp_.stop );
+	    SI().snapZ( res.zsamp_.start_ );
+	    SI().snapZ( res.zsamp_.stop_ );
 	}
 	else
 	{
 	    ZSampling zrg = datatransform_->getZInterval( false );
 	    if ( scene_ )
-		zrg.step = scene_->getTrcKeyZSampling().zsamp_.step;
+		zrg.step_ = scene_->getTrcKeyZSampling().zsamp_.step_;
 
-	    zrg.snap( res.zsamp_.start );
-	    zrg.snap( res.zsamp_.stop );
+	    zrg.snap( res.zsamp_.start_ );
+	    zrg.snap( res.zsamp_.stop_ );
 	}
     }
 
@@ -1240,9 +1240,9 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
     if ( alreadytf )
     {
 	if ( scene_ )
-	    res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
+	    res.zsamp_.step_ = scene_->getTrcKeyZSampling().zsamp_.step_;
 	else if ( datatransform_ )
-	    res.zsamp_.step = datatransform_->getZInterval( false ).step;
+	    res.zsamp_.step_ = datatransform_->getZInterval( false ).step_;
 	return res;
     }
 
@@ -1255,14 +1255,14 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 	else
 	{
 	    if ( scene_ )
-		res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
+		res.zsamp_.step_ = scene_->getTrcKeyZSampling().zsamp_.step_;
 	    else
-		res.zsamp_.step =
-			    datatransform_->getZInterval( false ).step;
+		res.zsamp_.step_ =
+			datatransform_->getZInterval( false ).step_;
 	}
     }
     else
-	res.zsamp_.step = SI().zRange(true).step;
+	res.zsamp_.step_ = SI().zRange(true).step_;
 
     return res;
 }

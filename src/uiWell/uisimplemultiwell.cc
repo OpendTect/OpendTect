@@ -270,8 +270,8 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     wd->info().groundelev_ = wcd.gl_;
 
     Interval<float> drg( -wcd.elev_, wcd.td_-wcd.elev_ );
-    wd->track().addPoint( wcd.coord_, drg.start, 0 );
-    wd->track().addPoint( wcd.coord_, drg.stop, wcd.td_ );
+    wd->track().addPoint( wcd.coord_, drg.start_, 0 );
+    wd->track().addPoint( wcd.coord_, drg.stop_, wcd.td_ );
     if ( velfld_ )
     {
 	Well::D2TModel* d2t = new Well::D2TModel("Simple");
@@ -341,7 +341,7 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
     }
     else
     {
-	float survzstop = SI().zRange(false).stop;
+	float survzstop = SI().zRange(false).stop_;
 	if ( velfld_ )
 	    survzstop *= vel_ / 2.f;
 

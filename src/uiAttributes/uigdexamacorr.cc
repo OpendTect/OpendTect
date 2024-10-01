@@ -89,12 +89,12 @@ EngineMan* GapDeconACorrView::createEngineMan()
     aem->setGeomID( geomid_ );
 
     TrcKeyZSampling cs = tkzs_;
-    if ( !SI().zRange(0).includes( tkzs_.zsamp_.start, false ) ||
-	 !SI().zRange(0).includes( tkzs_.zsamp_.stop, false ) )
+    if ( !SI().zRange(0).includes( tkzs_.zsamp_.start_, false ) ||
+	 !SI().zRange(0).includes( tkzs_.zsamp_.stop_, false ) )
     {
 	//'fake' a 'normal' cubesampling for the attribute engine
-	cs.zsamp_.start = SI().sampling(0).zsamp_.start;
-	cs.zsamp_.stop = cs.zsamp_.start + tkzs_.zsamp_.width();
+	cs.zsamp_.start_ = SI().sampling(0).zsamp_.start_;
+	cs.zsamp_.stop_ = cs.zsamp_.start_ + tkzs_.zsamp_.width();
     }
     aem->setTrcKeyZSampling( cs );
 
@@ -113,16 +113,16 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 	correctd2dh->trcinfoset_ += info;
     }
 
-    if ( ( !SI().zRange(0).includes(tkzs_.zsamp_.start, false )
-	|| !SI().zRange(0).includes(tkzs_.zsamp_.stop, false ) )
+    if ( ( !SI().zRange(0).includes(tkzs_.zsamp_.start_, false )
+	   || !SI().zRange(0).includes(tkzs_.zsamp_.stop_, false ) )
 	 && correctd2dh.ptr()->trcinfoset_.size() )
     {
 	//we previously 'faked' a 'normal' cubesampling for the attribute engine
 	//now we have to go back to the user specified sampling
-	float zstep = correctd2dh.ptr()->trcinfoset_[0]->sampling.step;
+	float zstep = correctd2dh.ptr()->trcinfoset_[0]->sampling.step_;
 	for ( int idx=0; idx<correctd2dh.ptr()->dataset_.size(); idx++ )
 	    correctd2dh.ptr()->dataset_[idx]->z0_
-			= mNINT32(tkzs_.zsamp_.start/zstep);
+		    = mNINT32(tkzs_.zsamp_.start_/zstep);
     }
 
     TrcKeyZSampling sampling = d2dh.getTrcKeyZSampling();
@@ -148,8 +148,8 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
     RefMan<RegularSeisDataPack> output = aem->getDataPackOutput( *proc );
     if ( !output ) return;
 
-    bool csmatchessurv = SI().zRange(0).includes(tkzs_.zsamp_.start, false )
-			&& SI().zRange(0).includes(tkzs_.zsamp_.stop, false );
+    bool csmatchessurv = SI().zRange(0).includes(tkzs_.zsamp_.start_, false )
+			 && SI().zRange(0).includes(tkzs_.zsamp_.stop_, false );
     //if we previously 'faked' a 'normal' cubesampling for the attribute engine
     //we now have to go back to the user specified sampling
     if ( !csmatchessurv ) output->setSampling( tkzs_ );
@@ -167,7 +167,7 @@ bool GapDeconACorrView::setUpViewWin( bool isqc )
     RefMan<FlatDataPack> dp = isqc ? fddatapackqc_ : fddatapackexam_;
     if ( !dp ) return false;
     const StepInterval<double> newrg(
-	    0, tkzs_.zsamp_.stop-tkzs_.zsamp_.start, tkzs_.zsamp_.step );
+		0, tkzs_.zsamp_.stop_-tkzs_.zsamp_.start_, tkzs_.zsamp_.step_ );
 
     dp->posData().setRange( false, newrg );
 

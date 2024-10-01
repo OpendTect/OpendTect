@@ -397,14 +397,14 @@ void PropertyRef::usePar( const IOPar& iop )
 	    }
 	    else
 	    {
-		convValue( typicalrange.start, valsuom, unit() );
-		convValue( typicalrange.stop, valsuom, unit() );
+		convValue( typicalrange.start_, valsuom, unit() );
+		convValue( typicalrange.stop_, valsuom, unit() );
 	    }
 	}
 	else
 	{
-	    convValue( typicalrange.start, intuom, unit() );
-	    convValue( typicalrange.stop, intuom, unit() );
+	    convValue( typicalrange.start_, intuom, unit() );
+	    convValue( typicalrange.stop_, intuom, unit() );
 	}
 
 	disp_.typicalrange_ = typicalrange;
@@ -466,14 +466,14 @@ void PropertyRef::usePar( const IOPar& iop )
 		}
 		else
 		{
-		    convValue( defrange.start, valsuom, unit() );
-		    convValue( defrange.stop, valsuom, unit() );
+		    convValue( defrange.start_, valsuom, unit() );
+		    convValue( defrange.stop_, valsuom, unit() );
 		}
 	    }
 	    else
 	    {
-		convValue( defrange.start, intuom, unit() );
-		convValue( defrange.stop, intuom, unit() );
+		convValue( defrange.start_, intuom, unit() );
+		convValue( defrange.stop_, intuom, unit() );
 	    }
 
 	    if ( !defrange.isUdf() )
@@ -542,12 +542,12 @@ void PropertyRef::fillPar( IOPar& iop ) const
 					  : Math::Abs( vintv.center() ) * 1e-4f;
     Interval<float> mnintv = mndisp.typicalrange_;
     const UnitOfMeasure* mnuom = mn_.unit();
-    convValue( mnintv.start, mnuom, uom_ );
-    convValue( mnintv.stop, mnuom, uom_ );
+    convValue( mnintv.start_, mnuom, uom_ );
+    convValue( mnintv.stop_, mnuom, uom_ );
     if ( mnuom != uom_ || !vintv.isEqual(mnintv,inteps) )
     {
-	fms += ::toString( vintv.start );
-	fms += ::toString( vintv.stop );
+	fms += ::toString( vintv.start_ );
+	fms += ::toString( vintv.stop_ );
 	const char* unitlbl = disp_.getUnitLbl();
 	if ( unitlbl && *unitlbl )
 	    fms += unitlbl;

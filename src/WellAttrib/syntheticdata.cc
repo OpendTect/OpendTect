@@ -88,9 +88,9 @@ TrcKeyZSampling SyntheticData::getTrcKeyZSampling() const
     StepInterval<int> trcrg = StepInterval<int>::udf();
     const TrcKey firstk = getTrcKey( 0 );
     const TrcKey lasttk = getTrcKey( nrpos-1 );
-    trcrg.start = firstk.trcNr();
-    trcrg.stop = lasttk.trcNr();
-    trcrg.step = mNINT32( (1.f+trcrg.width()) / nrpos );
+    trcrg.start_ = firstk.trcNr();
+    trcrg.stop_ = lasttk.trcNr();
+    trcrg.step_ = mNINT32( (1.f+trcrg.width()) / nrpos );
     tkzs.hsamp_.setTrcRange( trcrg );
     tkzs.zsamp_ = zRange();
 
@@ -304,7 +304,7 @@ ConstRefMan<FlatDataPack> PostStackSyntheticData::getFlattenedTrcDP(
     const SeisTrcBufDataPack& tbdp = postStackPack();
     const SeisTrcBuf& tbuf = tbdp.trcBuf();
     const Interval<float> zrg = tbuf.getZRange4Shifts( *tvals, true );
-    if ( mIsUdf(zrg.start) )
+    if ( mIsUdf(zrg.start_) )
 	return getTrcDP();
 
     auto* dptrcbuf = new SeisTrcBuf( true );
@@ -518,7 +518,7 @@ ConstRefMan<FlatDataPack> PreStackSyntheticData::getFlattenedTrcDP(
     PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
     tbdp.fill( *tbuf.ptr(), offsidx );
     const Interval<float> zrg = tbuf->getZRange4Shifts( *tvals, true );
-    if ( mIsUdf(zrg.start) )
+    if ( mIsUdf(zrg.start_) )
 	return getTrcDPAtOffset( offsidx );
 
     auto* dptrcbuf = new SeisTrcBuf( true );

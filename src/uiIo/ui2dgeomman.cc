@@ -128,7 +128,7 @@ void ui2DGeomManageDlg::mkFileInfo()
 	    sprg.set( geom2d->spnrs().first(), geom2d->spnrs().last() );
 	const ZDomain::Info& zinfo = SI().zDomainInfo();
 	ZSampling zrg = geom2d->zRange();
-	const int nrzdec = zinfo.def_.nrZDecimals( zrg.step );
+	const int nrzdec = zinfo.def_.nrZDecimals( zrg.step_ );
 	if ( !zrg.isUdf() )
 	    zrg.scale( zinfo.userFactor() );
 
@@ -137,18 +137,18 @@ void ui2DGeomManageDlg::mkFileInfo()
 	const BufferString lengthstr = toString(linelength,0);
 	const BufferString unitstr = SI().getXYUnitString();
 	txt.add( "Number of traces: " ).add( trcrg.nrSteps()+1 )
-	   .add( "\nTrace range: " ).add( trcrg.start ).add( " - " )
-	   .add( trcrg.stop );
+		.add( "\nTrace range: " ).add( trcrg.start_ ).add( " - " )
+		.add( trcrg.stop_ );
 	if ( !sprg.isUdf() )
-	    txt.add( "\nShotpoint range: ").add( sprg.start ).add( " - " )
-		.add( sprg.stop );
+	    txt.add( "\nShotpoint range: ").add( sprg.start_ ).add( " - " )
+		    .add( sprg.stop_ );
 	if ( !zrg.isUdf() )
 	{
 	    txt.addNewLine()
 	       .add( zinfo.getRange() )
-	       .add( ": " ).add( zrg.start, nrzdec )
-	       .add( " - " ).add( zrg.stop, nrzdec )
-	       .add( " [" ).add( zrg.step, nrzdec ).add( "]" );
+		    .add( ": " ).add( zrg.start_, nrzdec )
+		    .add( " - " ).add( zrg.stop_, nrzdec )
+		    .add( " [" ).add( zrg.step_, nrzdec ).add( "]" );
 	}
 
 	const UnitOfMeasure* uomfrom = UoMR().get(SI().getXYUnitString(false));
@@ -592,7 +592,7 @@ void uiManageLineGeomDlg::interpolGeomCB( CallBacker* )
     if ( !geom2d )
 	return;
 
-    if ( geom2d->data().trcNrRange().step == 1 )
+    if ( geom2d->data().trcNrRange().step_ == 1 )
     {
 	const bool res = uiMSG().askGoOn(
 		tr("Trace numbers already have an increment of 1.\n"

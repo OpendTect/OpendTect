@@ -109,7 +109,7 @@ static void getZRgAndName( ascistream& astrm, Interval<float>& zrg,
 	return;
 
     FileMultiString fms = astrm.value();
-    zrg.start = fms.getFValue( 0 ); zrg.stop = fms.getFValue( 1 );
+    zrg.start_ = fms.getFValue( 0 ); zrg.stop_ = fms.getFValue( 1 );
     astrm.next();
 
     if ( astrm.hasKeyword(sKey::Name()) )
@@ -124,8 +124,8 @@ static void putZRangeAndName( ascostream& astrm,
 			      const Geometry::RandomLine& rdl )
 {
     const Interval<float> zrg( rdl.zRange() );
-    FileMultiString fms = toString( zrg.start );
-    fms.add( toString(zrg.stop) );
+    FileMultiString fms = toString( zrg.start_ );
+    fms.add( toString(zrg.stop_) );
     astrm.put( sKey::ZRange(), fms );
     if ( !rdl.name().isEmpty() )
 	astrm.put( sKey::Name(), rdl.name() );

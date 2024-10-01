@@ -190,12 +190,12 @@ int Well::InfoCollector::nextStep()
     if ( dotracks_ )
     {
 	const Track& trk = wd->track();
-	if ( mIsUdf(trackstvdrg_.start) )
+	if ( mIsUdf(trackstvdrg_.start_) )
 	    trackstvdrg_.setFrom( trk.zRange() );
 	else
 	{
 	    Interval<float> tvdrg( trk.zRange() );
-	    if ( !mIsUdf( tvdrg.start ) )
+	    if ( !mIsUdf( tvdrg.start_ ) )
 		trackstvdrg_.include( tvdrg );
 	}
     }
@@ -314,15 +314,15 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
     if ( SI().zIsTime() && !zistime )
     {
 	if ( !d2t ) return;
-	zrg.start = survrg.snap( d2t->getTime( zrg.start, track ) );
-	zrg.stop = survrg.snap( d2t->getTime( zrg.stop, track ) );
-	zrg.start = d2t->getDah( zrg.start, track );
-	zrg.stop = d2t->getDah( zrg.stop, track );
+	zrg.start_ = survrg.snap( d2t->getTime( zrg.start_, track ) );
+	zrg.stop_ = survrg.snap( d2t->getTime( zrg.stop_, track ) );
+	zrg.start_ = d2t->getDah( zrg.start_, track );
+	zrg.stop_ = d2t->getDah( zrg.stop_, track );
     }
     else
     {
-	SI().snapZ( zrg.start, 1 );
-	SI().snapZ( zrg.stop, -1 );
+	SI().snapZ( zrg.start_, 1 );
+	SI().snapZ( zrg.stop_, -1 );
     }
 }
 
@@ -330,9 +330,9 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
 #define mDah2TVD(dah,tvd)\
 {\
     if ( !wd->track().dahRange().includes(dah,true) )\
-	tvd = dah < wd->track().dahRange().start \
-	    ? wd->track().zRange().start \
-	    : wd->track().zRange().stop ; \
+	tvd = dah < wd->track().dahRange().start_ \
+	    ? wd->track().zRange().start_ \
+	    : wd->track().zRange().stop_ ; \
     else \
 	tvd = mCast( float, track.getPos( dah ).z ); \
 }
@@ -359,8 +359,8 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Data& wdin,
     {
 	if ( todah )
 	{
-	    dahrg.start = track.getDahForTVD( fixedzrg_.start );
-	    dahrg.stop = track.getDahForTVD( fixedzrg_.stop );
+	    dahrg.start_ = track.getDahForTVD( fixedzrg_.start_ );
+	    dahrg.stop_ = track.getDahForTVD( fixedzrg_.stop_ );
 	    dahrg.limitTo( track.dahRange() );
 	}
 	else
@@ -375,7 +375,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Data& wdin,
     if ( lognms.isEmpty() )
 	{ dahrg = wd->track().dahRange(); }
 
-    for ( ; mIsUdf(dahrg.start) && ilog<lognms.size(); ilog++ )
+    for ( ; mIsUdf(dahrg.start_) && ilog<lognms.size(); ilog++ )
     {
 	const Log* log = wd->logs().getLog( lognms.get(ilog).buf() );
 	if ( !log || log->isEmpty() )  continue;
@@ -388,15 +388,15 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Data& wdin,
 	if ( !log || log->isEmpty() )  continue;
 
 	Interval<float> newdahrg = log->dahRange();
-	if ( mIsUdf(newdahrg.start) ) continue;
+	if ( mIsUdf(newdahrg.start_) ) continue;
 	dahrg.include( newdahrg );
     }
 
     getMarkerRange( *wd, dahrg );
     if ( !todah )
     {
-	mDah2TVD( dahrg.start, dahrg.start );
-	mDah2TVD( dahrg.stop, dahrg.stop );
+	mDah2TVD( dahrg.start_, dahrg.start_ );
+	mDah2TVD( dahrg.stop_, dahrg.stop_ );
     }
     snapZRangeToSurvey( dahrg, false, 0, wd->track() );
     return dahrg;
@@ -424,8 +424,8 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Data& wdin,
     {
 	if ( todah )
 	{
-	    dahrg.start = track.getDahForTVD( fixedzrg_.start );
-	    dahrg.stop = track.getDahForTVD( fixedzrg_.stop );
+	    dahrg.start_ = track.getDahForTVD( fixedzrg_.start_ );
+	    dahrg.stop_ = track.getDahForTVD( fixedzrg_.stop_ );
 	    dahrg.limitTo( track.dahRange() );
 	}
 	else
@@ -440,8 +440,8 @@ Interval<float> Well::ZRangeSelector::calcFrom( const Data& wdin,
     getMarkerRange( *wd, dahrg );
     if ( !todah )
     {
-	mDah2TVD( dahrg.start, dahrg.start );
-	mDah2TVD( dahrg.stop, dahrg.stop );
+	mDah2TVD( dahrg.start_, dahrg.start_ );
+	mDah2TVD( dahrg.stop_, dahrg.stop_ );
     }
     snapZRangeToSurvey( dahrg, false, 0, wd->track() );
     return dahrg;
@@ -454,11 +454,11 @@ void Well::ZRangeSelector::getMarkerRange( const Data& wdin,
     ConstRefMan<Data> wd( &wdin );
     Interval<float> newzrg = zrg;
 
-    getLimitPos(wd->markers(),true,newzrg.start,zrg);
-    getLimitPos(wd->markers(),false,newzrg.stop,zrg);
+    getLimitPos(wd->markers(),true,newzrg.start_,zrg);
+    getLimitPos(wd->markers(),false,newzrg.stop_,zrg);
 
     zrg = newzrg;
-    if ( zrg.start > zrg.stop ) Swap( zrg.start, zrg.stop );
+    if ( zrg.start_ > zrg.stop_ ) Swap( zrg.start_, zrg.stop_ );
 }
 
 
@@ -468,9 +468,9 @@ void Well::ZRangeSelector::getLimitPos( const MarkerSet& markers,
 {
     const BufferString& mrknm = isstart ? topmrkr_ : botmrkr_;
     if ( mrknm == ZRangeSelector::sKeyDataStart() )
-	val = zrg.start;
+	val = zrg.start_;
     else if ( mrknm == ZRangeSelector::sKeyDataEnd() )
-	val = zrg.stop;
+	val = zrg.stop_;
     else
     {
 	mSetUdf(val);
@@ -643,11 +643,11 @@ void Well::TrackSampler::getData( const Data& wdin, DataPointSet& dps )
     }
 
     Interval<float> dahrg;
-    dahrg.start = zrgistime ? d2t->getDah( zrg_.start, track ) : zrg_.start;
-    dahrg.stop = zrgistime ? d2t->getDah( zrg_.stop, track ) : zrg_.stop;
-    float zpos = dahrg.start;
+    dahrg.start_ = zrgistime ? d2t->getDah( zrg_.start_, track ) : zrg_.start_;
+    dahrg.stop_ = zrgistime ? d2t->getDah( zrg_.stop_, track ) : zrg_.stop_;
+    float zpos = dahrg.start_;
     if ( extractintime )
-	zpos = zrgistime ? zrg_.start : d2t->getTime( zpos, track );
+	zpos = zrgistime ? zrg_.start_ : d2t->getTime( zpos, track );
 
     zpos -= zincr;
 
@@ -655,8 +655,8 @@ void Well::TrackSampler::getData( const Data& wdin, DataPointSet& dps )
     BinIDValue biv;
     BinIDValue prevbiv; mSetUdf(prevbiv.inl());
 
-    dahrg.start -= mLocalEps;
-    dahrg.stop  += mLocalEps;
+    dahrg.start_ -= mLocalEps;
+    dahrg.stop_  += mLocalEps;
     while ( true )
     {
 	zpos += zincr;
@@ -965,7 +965,7 @@ float Well::LogDataExtracter::calcVal( const Log& wl, float dah,
 
     Interval<float> rg( dah-winsz, dah+winsz ); rg.sort();
     TypeSet<float> vals;
-    int startidx = wl.indexOf( rg.start );
+    int startidx = wl.indexOf( rg.start_ );
     if ( startidx < 0 )
 	startidx = 0;
     for ( int idx=startidx; idx<wl.size(); idx++ )
@@ -982,7 +982,7 @@ float Well::LogDataExtracter::calcVal( const Log& wl, float dah,
 		    vals += val;
 	    }
 	}
-	else if ( curdah > rg.stop )
+	else if ( curdah > rg.stop_ )
 	    break;
     }
 
@@ -1090,12 +1090,12 @@ Well::SimpleTrackSampler::SimpleTrackSampler( const Track& t,
     {
 	zstart = d2t->getTime( zstart, track_ );
 	zstop = d2t->getTime( zstop, track_ );
-	extrintv_.start = d2t->getTime( extrintv_.start, track_ );
-	extrintv_.stop = d2t->getTime( extrintv_.stop, track_ );
-	extrintv_.step = SI().zStep();
+	extrintv_.start_ = d2t->getTime( extrintv_.start_, track_ );
+	extrintv_.stop_ = d2t->getTime( extrintv_.stop_, track_ );
+	extrintv_.step_ = SI().zStep();
     }
-    tracklimits_.start = zstart;
-    tracklimits_.stop = zstop;
+    tracklimits_.start_ = zstart;
+    tracklimits_.stop_ = zstop;
 }
 
 
@@ -1108,7 +1108,7 @@ int Well::SimpleTrackSampler::nextStep()
     float zval = extrintv_.atIndex( nrdone_ );
     float dah = d2t_ ? d2t_->getDah( zval, track_ ) : track_.getDahForTVD(zval);
 
-    if ( zval > extrintv_.stop )
+    if ( zval > extrintv_.stop_ )
 	return Executor::Finished();
 
     Coord3 pos = track_.getPos( dah );
@@ -1262,8 +1262,8 @@ bool Well::LogSampler::doPrepare( int thread )
 	mErrRet( tr("No valid depth/time model found") )
 
     Interval<float> dahrg;
-    mGetDah( dahrg.start, zrg_.start, zrgisintime_ )
-    mGetDah( dahrg.stop, zrg_.stop, zrgisintime_ )
+    mGetDah( dahrg.start_, zrg_.start_, zrgisintime_ )
+	    mGetDah( dahrg.stop_, zrg_.stop_, zrgisintime_ )
     if ( dahrg.isUdf() )
     {
 	mErrRet( tr("Wrong extraction boundaries") )
@@ -1272,14 +1272,14 @@ bool Well::LogSampler::doPrepare( int thread )
     dahrg.limitTo( track_.dahRange() );
     if ( extrintime_ != zrgisintime_ )
     {
-	mGetZ( zrg_.start, dahrg.start, zrgisintime_ )
-	mGetZ( zrg_.stop, dahrg.stop, zrgisintime_ )
+	mGetZ( zrg_.start_, dahrg.start_, zrgisintime_ )
+		mGetZ( zrg_.stop_, dahrg.stop_, zrgisintime_ )
     } // zrg_ now matches the extraction domain
     zrgisintime_ = extrintime_;
 
     const int nrsamples = mNINT32( zrg_.width(true) / zstep_ );
-    zrg_.stop = zrg_.start + nrsamples * zstep_;
-    const StepInterval<float> zrgreg( zrg_.start, zrg_.stop, zstep_ );
+    zrg_.stop_ = zrg_.start_ + nrsamples * zstep_;
+    const StepInterval<float> zrgreg( zrg_.start_, zrg_.stop_, zstep_ );
     TypeSet<float> dahs;
     TypeSet<float> winsz;
     for ( int idx=0; idx<zrgreg.nrSteps()+1; idx++ )
@@ -1288,8 +1288,8 @@ bool Well::LogSampler::doPrepare( int thread )
 	const float ztop = zmid - zstep_/2.f;
 	const float zbase = zmid + zstep_/2.f;
 	Interval<float> dahwin;
-	mGetDah( dahwin.start, ztop, extrintime_ )
-	mGetDah( dahwin.stop, zbase, extrintime_ )
+	mGetDah( dahwin.start_, ztop, extrintime_ )
+		mGetDah( dahwin.stop_, zbase, extrintime_ )
 	if ( !dahwin.isUdf() )
 	{
 	    dahs += dahwin.center();

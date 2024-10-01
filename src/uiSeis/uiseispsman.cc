@@ -133,14 +133,14 @@ void uiSeisPreStackMan::mkFileInfo()
 		txt.add( "Total number of gathers: " ).add( cd.totalSize() );
 		StepInterval<int> rg; cd.getInlRange( rg );
 		txt.add( "\nInline range: " )
-			    .add( rg.start ).add( " - " ).add( rg.stop );
+                        .add( rg.start_ ).add( " - " ).add( rg.stop_ );
 		if ( cd.haveInlStepInfo() )
-		    { txt.add( " [" ).add( rg.step ).add( "]" ); }
+                { txt.add( " [" ).add( rg.step_ ).add( "]" ); }
 		cd.getCrlRange( rg );
 		txt.add( "\nCrossline range: " )
-			    .add( rg.start ).add( " - " ).add( rg.stop );
+                        .add( rg.start_ ).add( " - " ).add( rg.stop_ );
 		if ( cd.haveCrlStepInfo() )
-		    { txt.add( " [" ).add( rg.step ).add( "]" ); }
+                { txt.add( " [" ).add( rg.step_ ).add( "]" ); }
 	    }
 	}
 	txt.add( "\n" );
@@ -152,9 +152,9 @@ void uiSeisPreStackMan::mkFileInfo()
 	    const ZDomain::Def& zddef = objinf.zDomainDef();
 #	    define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
 	    txt.add(zddef.userName().getFullString()).add(" range ")
-		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start)
-		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
-		.add(" [") mAddZValTxt(cs.zsamp_.step) .add("]\n");
+                    .add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start_)
+                    .add(" - ") mAddZValTxt(cs.zsamp_.stop_)
+                    .add(" [") mAddZValTxt(cs.zsamp_.step_) .add("]\n");
 	}
     }
 

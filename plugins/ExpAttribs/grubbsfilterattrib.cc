@@ -159,8 +159,8 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() ) return false;
 
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				    mNINT32(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start_/refstep_),
+				    mNINT32(gate_.stop_/refstep_) );
 
     const int nrtraces = inputdata_.size();
 
@@ -178,7 +178,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 	for ( int trcidx=0; trcidx<nrtraces; trcidx++ )
 	{
 	    const DataHolder* data = inputdata_[trcidx];
-	    for ( int zidx=samplegate.start; zidx<=samplegate.stop ; zidx++ )
+	    for ( int zidx=samplegate.start_; zidx<=samplegate.stop_ ; zidx++ )
 	    {
 		float sampleidx = mCast( float, idx + zidx );
 
@@ -194,7 +194,7 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 		    }
 		}
 
-		if ( zidx == samplegate.stop || idx == 0 )
+		if ( zidx == samplegate.stop_ || idx == 0 )
 		    rc += traceval;
 	    }
 	}
@@ -271,11 +271,11 @@ void GrubbsFilter::prepPriorToBoundsCalc()
      if ( truestep == 0 )
        	 return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep ;
-    bool chgstopr = mNINT32(gate_.stop*zFactor()) % truestep;
+     bool chgstartr = mNINT32(gate_.start_*zFactor()) % truestep ;
+     bool chgstopr = mNINT32(gate_.stop_*zFactor()) % truestep;
 
-    mAdjustGate( chgstartr, gate_.start, false )
-    mAdjustGate( chgstopr, gate_.stop, true )
+    mAdjustGate( chgstartr, gate_.start_, false )
+	    mAdjustGate( chgstopr, gate_.stop_, true )
 
     Provider::prepPriorToBoundsCalc();
 }

@@ -148,7 +148,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 	OD::sysMemZero( buffer, size*sizeof(float_complex) );
 
     TypeSet<float> frequencies;
-    Fourier::CC::getFrequencies( outsampling_.step, size, frequencies );
+    Fourier::CC::getFrequencies( outsampling_.step_, size, frequencies );
     TypeSet<float> angvel;
     const float fact = 2.f * M_PIf;
     for ( int idx=0; idx<size; idx++ )
@@ -222,15 +222,15 @@ void ReflectivitySampler::updateTimeSamplingCache()
 	return;
 
     const int sz = outsampling_.nrSteps() + 1;
-    const float step = outsampling_.step;
-    float start = mCast( float, mCast( int, outsampling_.start/step ) ) * step;
-    if ( start < outsampling_.start - 1e-4f )
+    const float step = outsampling_.step_;
+    float start = mCast( float, mCast( int, outsampling_.start_/step ) ) * step;
+    if ( start < outsampling_.start_ - 1e-4f )
 	start += step;
 
     width_ = step * sz;
     const int nperiods = mCast( int, Math::Floor( start/width_ ) ) + 1;
-    fftsampling_.start = start;
-    fftsampling_.step = step;
+    fftsampling_.start_ = start;
+    fftsampling_.step_ = step;
     firsttwt_ = width_ * nperiods;
     stoptwt_ = start + width_;
 
@@ -269,7 +269,7 @@ bool ReflectivitySampler::computeSampledTimeReflectivities()
     float_complex* temprefs = tempreflectivities_;
     const int sz = outsampling_.nrSteps() + 1;
     float twt = firsttwt_;
-    for ( int idx=0; idx<fftsz; idx++, twt+=fftsampling_.step )
+    for ( int idx=0; idx<fftsz; idx++, twt+=fftsampling_.step_ )
     {
 	if ( twt > stoptwt_ - 1e-4f )
 	    twt -= width_;

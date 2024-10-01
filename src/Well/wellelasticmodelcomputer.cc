@@ -126,8 +126,8 @@ bool Well::ElasticModelComputer::computeFromLogs()
     if ( zrange_.isUdf() || mIsUdf(zstep_) )
 	mErrRet( tr("Please set the extraction range") )
 
-    zrange_.start += zstep_ / 2.f;
-    zrange_.stop -= zstep_ / 2.f;
+		zrange_.start_ += zstep_ / 2.f;
+    zrange_.stop_ -= zstep_ / 2.f;
 
     if ( !extractLogs() )
 	mErrRet( tr("Cannot extract logs") )
@@ -177,7 +177,7 @@ bool Well::ElasticModelComputer::computeFromLogs()
 		  .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
     }
 
-    float startdepth = zrange_.start;
+	    float startdepth = zrange_.start_;
     const float srd = SI().seismicReferenceDatum();
     if ( zrgistime_ )
     {
@@ -220,8 +220,8 @@ bool Well::ElasticModelComputer::extractLogs()
 
     const float srddepth = -1.f * UnitOfMeasure::surveyDefSRDStorageUnit()->
 				getSIValue(  SI().seismicReferenceDatum() );
-    if ( (!zrgistime_ && zrange_.start < srddepth) ||
-	  (zrgistime_ && zrange_.start < 0.f) )
+    if ( (!zrgistime_ && zrange_.start_ < srddepth) ||
+	 (zrgistime_ && zrange_.start_ < 0.f) )
 	mErrRet( tr("Extraction interval should not start above SRD") )
 
     const Interval<float> zrange = zrange_;

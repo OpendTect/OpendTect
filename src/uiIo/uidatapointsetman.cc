@@ -135,8 +135,8 @@ void uiDataPointSetMan::mkFileInfo()
 	txt += " [ ";
 	Interval<float> valrg =
 	    dps->bivSet().valRange( dps->bivSetIdx(colnr) );
-	txt += valrg.start; txt += ", ";
-	txt += valrg.stop; txt += " ]";
+	txt += valrg.start_; txt += ", ";
+	txt += valrg.stop_; txt += " ]";
 	txt += "\n";
     }
 

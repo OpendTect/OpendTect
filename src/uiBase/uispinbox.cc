@@ -243,25 +243,25 @@ void uiSpinBox::snapToStep( CallBacker* )
 
 void uiSpinBox::setInterval( const StepInterval<int>& intv )
 {
-    setMinValue( intv.start );
-    setMaxValue( intv.stop );
-    setStep( intv.step );
+    setMinValue( intv.start_ );
+    setMaxValue( intv.stop_ );
+    setStep( intv.step_ );
 }
 
 
 void uiSpinBox::setInterval( const StepInterval<float>& intv )
 {
-    setMinValue( intv.start );
-    setMaxValue( intv.stop );
-    setStep( intv.step );
+    setMinValue( intv.start_ );
+    setMaxValue( intv.stop_ );
+    setStep( intv.step_ );
 }
 
 
 void uiSpinBox::setInterval( const StepInterval<double>& intv )
 {
-    setMinValue( (float)intv.start );
-    setMaxValue( (float)intv.stop );
-    setStep( (float)intv.step );
+    setMinValue( (float)intv.start_ );
+    setMaxValue( (float)intv.stop_ );
+    setStep( (float)intv.step_ );
 }
 
 

@@ -200,11 +200,11 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     for ( int idi=0; idi<localintervals.size(); idi++ )
     {
 	const SamplingData<float>& trcsd = curtrcinfo->sampling;
-	const float nrsteps = trcsd.start / trcsd.step;
+	const float nrsteps = trcsd.start_ / trcsd.step_;
 	const float inrsteps = (float)mNINT32( nrsteps );
 	float outz0shifthack = 0.f;
 	if ( std::abs(nrsteps-inrsteps) > 0.0001f )
-	    outz0shifthack = (nrsteps-inrsteps) * trcsd.step;
+	    outz0shifthack = (nrsteps-inrsteps) * trcsd.step_;
 
 	const DataHolder* data = isset ?
 			provider_->getData( BinID::noStepout(), idi ) : nullptr;
@@ -316,7 +316,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	TrcKeyZSampling cs;
-	cs.zsamp_.start = 0;	//cover up for synthetics
+	cs.zsamp_.start_ = 0;	//cover up for synthetics
 	if ( !outputs_[idx]->getDesiredVolume(cs) )
 	{
 	    outputs_.removeSingle(idx);
@@ -421,7 +421,7 @@ void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
     else
     {
 	TrcKeyZSampling possvol;
-	possvol.zsamp_.step = globalcs.zsamp_.step;
+	possvol.zsamp_.step_ = globalcs.zsamp_.step_;
 	if ( !possvol.includes(globalcs) )
 	    possvol = globalcs;
 

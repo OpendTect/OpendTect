@@ -132,7 +132,7 @@ bool SurfaceT2DTransformer::load2DVelCubeTransf( const Pos::GeomID& geomid,
     tkzs.hsamp_.set( geomid, trcrg );
     if ( SI().zDomainInfo().isCompatibleWith(zatf_.fromZDomainInfo()) )
     {
-	tkzs.zsamp_.start = zatf_.getModelZSampling().start;
+	tkzs.zsamp_.start_ = zatf_.getModelZSampling().start_;
 	tkzs.zsamp_ = zatf_.getZInterval( true, true, &tkzs.zsamp_ );
     }
 
@@ -269,7 +269,7 @@ bool Horizon3DT2DTransformer::doHorizon( const SurfaceT2DTransfData& data )
     const StepInterval<int> inlrg = hor->geometry().rowRange();
     const StepInterval<int> crlrg = hor->geometry().colRange();
     outhor3D->enableGeometryChecks( false );
-    const RowCol step( inlrg.step, crlrg.step );
+    const RowCol step( inlrg.step_, crlrg.step_ );
     outhor3D->geometry().setStep( step, step );
     Array2D<float>* arrdata = hor->createArray2D( &zatf_ );
     if ( !arrdata )

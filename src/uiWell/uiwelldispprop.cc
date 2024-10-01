@@ -938,10 +938,10 @@ void uiWellLogDispProperties::calcRange( const char* lognm,
 	{
 	    const int logno = wl_->indexOf( lognm );
 	    Interval<float> range = wl_->getLog(logno).valueRange();
-	    if ( valr.start > range.start )
-		valr.start = range.start;
-	    if ( valr.stop < range.stop )
-		valr.stop = range.stop;
+	    if ( valr.start_ > range.start_ )
+		valr.start_ = range.start_;
+	    if ( valr.stop_ < range.stop_ )
+		valr.stop_ = range.stop_;
 	}
     }
 }

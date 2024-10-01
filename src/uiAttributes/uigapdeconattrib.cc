@@ -268,8 +268,8 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	return;
     }
 
-    if ( mIsUdf(gatefld_->getFInterval().start) ||
-	 mIsUdf(gatefld_->getFInterval().stop) )
+    if ( mIsUdf(gatefld_->getFInterval().start_) ||
+	 mIsUdf(gatefld_->getFInterval().stop_) )
     {
 	uiMSG().error( tr("Please provide start and stop values\n"
 			  "for the Correlation window") );
@@ -573,8 +573,8 @@ void uiGapDeconAttrib::fillInGDDescParams( Desc* newdesc )
 void uiGapDeconAttrib::qCPush( CallBacker* cb )
 {
     uiString errmsg;
-    if (mIsUdf(gatefld_->getFInterval().start) ||
-	mIsUdf(gatefld_->getFInterval().stop))
+    if (mIsUdf(gatefld_->getFInterval().start_) ||
+	mIsUdf(gatefld_->getFInterval().stop_))
 	errmsg = tr("Please fill in the 'Correlation window' field");
     else if (inpfld_->attribID() == DescID::undef())
 	errmsg = tr("Please fill in the input data");
@@ -708,8 +708,8 @@ void uiGDPositionDlg::popUpPosDlg()
 	tkzs_.hsamp_.set(inputcs.hsamp_.inlRange(), inputcs.hsamp_.crlRange());
     }
 
-    tkzs_.zsamp_.stop = tkzs_.zsamp_.width();
-    tkzs_.zsamp_.start = 0;
+    tkzs_.zsamp_.stop_ = tkzs_.zsamp_.width();
+    tkzs_.zsamp_.start_ = 0;
     if ( prefcs_ )
 	inputcs = *prefcs_;
     else
@@ -724,7 +724,7 @@ void uiGDPositionDlg::popUpPosDlg()
 				    = inputcs.hsamp_.crlRange().snappedCenter();
 	}
 
-	inputcs.zsamp_.start = 0;
+	inputcs.zsamp_.start_ = 0;
     }
 
     ZDomain::Info info( ZDomain::SI() );

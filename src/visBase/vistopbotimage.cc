@@ -221,18 +221,18 @@ bool TopBotImage::getTextureDataInfo( TypeSet<Coord3>& coords,
     }
 
     coords.setEmpty();
-    Coord3 crd; crd.z = sCast(double,zrg.start);
-    crd.setXY( xrg.start, yrg.start ); coords += crd;
-    crd.setXY( xrg.stop, yrg.start ); coords += crd;
-    crd.setXY( xrg.stop, yrg.stop ); coords += crd;
-    crd.setXY( xrg.start, yrg.stop ); coords += crd;
+    Coord3 crd; crd.z = sCast(double,zrg.start_);
+    crd.setXY( xrg.start_, yrg.start_ ); coords += crd;
+    crd.setXY( xrg.stop_, yrg.start_ ); coords += crd;
+    crd.setXY( xrg.stop_, yrg.stop_ ); coords += crd;
+    crd.setXY( xrg.start_, yrg.stop_ ); coords += crd;
 
     texcoords.setEmpty();
     Coord texcrd;
-    texcrd.setXY( texxrg.start, texyrg.start ); texcoords += texcrd;
-    texcrd.setXY( texxrg.stop, texyrg.start ); texcoords += texcrd;
-    texcrd.setXY( texxrg.stop, texyrg.stop ); texcoords += texcrd;
-    texcrd.setXY( texxrg.start, texyrg.stop ); texcoords += texcrd;
+    texcrd.setXY( texxrg.start_, texyrg.start_ ); texcoords += texcrd;
+    texcrd.setXY( texxrg.stop_, texyrg.start_ ); texcoords += texcrd;
+    texcrd.setXY( texxrg.stop_, texyrg.stop_ ); texcoords += texcrd;
+    texcrd.setXY( texxrg.start_, texyrg.stop_ ); texcoords += texcrd;
 
     ps.setEmpty();
     for ( int idx=0; idx<4; idx++ )

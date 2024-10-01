@@ -181,9 +181,9 @@ Attrib::ValParam* valparam##var =\
 if ( valparam##var ) \
 { \
     Interval<float> var; \
-    var.start = valparam##var->getFValue(0); \
-    var.stop = valparam##var->getFValue(1); \
-    if ( mIsUdf(var.start) || mIsUdf(var.stop) )\
+    var.start_ = valparam##var->getFValue(0); \
+    var.stop_ = valparam##var->getFValue(1); \
+    if ( mIsUdf(var.start_) || mIsUdf(var.stop_) )\
     {\
 	mDynamicCastGet(Attrib::FloatGateParam*,gateparam##var,valparam##var);\
 	if ( gateparam##var ) \

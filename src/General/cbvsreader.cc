@@ -299,9 +299,9 @@ bool CBVSReader::readComps()
 	    // extra 2 bytes reserved for compression type
 	    newinf->datachar.fmt_ = DataCharacteristics::Ieee;
 	strm_.getBin( ucbuf, sizeof(float) );
-	    info_.sd_.start = finterp_.get( ucbuf, 0 );
+        info_.sd_.start_ = finterp_.get( ucbuf, 0 );
 	strm_.getBin( ucbuf, sizeof(float) );
-	    info_.sd_.step = finterp_.get( ucbuf, 0 );
+        info_.sd_.step_ = finterp_.get( ucbuf, 0 );
 
 	strm_.getBin( ucbuf, integersize ); // nr samples
 	    info_.nrsamples_ = iinterp_.get( ucbuf, 0 );
@@ -411,7 +411,7 @@ bool CBVSReader::readTrailer()
 	    PosInfo::LineData* iinf
 		= new PosInfo::LineData( iinterp_.get( buf, 0 ) );
 	    if ( !iinl )
-		inlrg.start = inlrg.stop = iinf->linenr_;
+                inlrg.start_ = inlrg.stop_ = iinf->linenr_;
 	    else
 		inlrg.include( iinf->linenr_, true );
 
@@ -421,9 +421,9 @@ bool CBVSReader::readTrailer()
 	    {
 		strm_.getBin( buf, 3 * integersize );
 
-		crls.start = iinterp_.get(buf,0);
-		crls.stop = iinterp_.get(buf,1);
-		crls.step = iinterp_.get(buf,2);
+                crls.start_ = iinterp_.get(buf,0);
+                crls.stop_ = iinterp_.get(buf,1);
+                crls.step_ = iinterp_.get(buf,2);
 		iinf->segments_ += crls;
 
 		if ( !iseg )
@@ -596,7 +596,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 
     auxinf.trckey_.setTrcNr( curbinid_.crl() );
     auxinf.coord = info_.geom_.b2c.transform( curbinid_ );
-    auxinf.startpos = info_.sd_.start;
+    auxinf.startpos = info_.sd_.start_;
     auxinf.offset = auxinf.azimuth = 0;
     auxinf.pick = mSetUdf(auxinf.refnr);
 
@@ -648,7 +648,7 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
 		    arridx += seg.nrSteps() + 1;
 		else
 		{
-		    arridx += (bid.crl() - seg.start) / seg.step;
+                    arridx += (bid.crl() - seg.start_) / seg.step_;
 		    break;
 		}
 	    }
@@ -686,14 +686,14 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 
 	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
 	int bps = compinfo->datachar.nrBytes();
-	if ( samps->start )
-	    strm_.ignore( samps->start*bps );
+        if ( samps->start_ )
+            strm_.ignore( samps->start_*bps );
 	if ( !strm_.getBin(((char*)bufs[iselc]) + offs*bps,
-				   (samps->stop-samps->start+1) * bps ) )
+                           (samps->stop_-samps->start_+1) * bps ) )
 	    break;
 
-	if ( samps->stop < info_.nrsamples_-1 )
-	    strm_.ignore((info_.nrsamples_-samps->stop-1)*bps );
+        if ( samps->stop_ < info_.nrsamples_-1 )
+            strm_.ignore((info_.nrsamples_-samps->stop_-1)*bps );
     }
 
     hinfofetched_ = false;
@@ -746,7 +746,7 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
 	tdtofill.reSize( outnrsamps );
 
     TraceData* td = &tdtofill;
-    if ( samprg->step > 1 )
+    if ( samprg->step_ > 1 )
     {
 	worktrcdata_.setNrComponents( nrcompsselected,
 				      DataCharacteristics::Auto );
@@ -754,9 +754,9 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
 	td = &worktrcdata_;
     }
 
-    const int nrsamps2skip = samprg->start;
-    const int nrsamps2read = samprg->stop - samprg->start + 1;
-    const int nrsampsleftatend = info_.nrsamples_ - samprg->stop - 1;
+    const int nrsamps2skip = samprg->start_;
+    const int nrsamps2read = samprg->stop_ - samprg->start_ + 1;
+    const int nrsampsleftatend = info_.nrsamples_ - samprg->stop_ - 1;
     const int bps = info_.compinfo_[0]->datachar.nrBytes();
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
@@ -781,7 +781,7 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
 	{
 	    for (auto isamp=0; isamp<outnrsamps; isamp++ )
 		tdtofill.setValue( isamp,
-			       td->getValue(isamp*samprg->step, icomp), icomp );
+                                   td->getValue(isamp*samprg->step_, icomp), icomp );
 	}
     }
     hinfofetched_ = false;

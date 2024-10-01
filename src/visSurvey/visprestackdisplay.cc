@@ -259,8 +259,8 @@ bool PreStackDisplay::setPosition( const TrcKey& tk )
 	    {
 		const StepInterval<int> rg = getTraceRange( bid_, false );
 		BufferString msg( "No gather data at the whole section.\n" );
-		msg.add( "Data available at: ").add( rg.start ).add( " - " )
-		    .add( rg.stop ).add( " - " ).add( rg.step );
+                msg.add( "Data available at: ").add( rg.start_ ).add( " - " )
+                        .add( rg.stop_ ).add( " - " ).add( rg.step_ );
 		OD::DisplayErrorMessage( msg );
 	    }
 	    else
@@ -412,13 +412,13 @@ BinID PreStackDisplay::getNearBinID( const BinID& bid ) const
     BinID res = bid;
     if ( isOrientationInline() )
     {
-	res.crl() = bid.crl()<tracerg.start ? tracerg.start :
-	    ( bid.crl()>tracerg.stop ? tracerg.stop : tracerg.snap(bid.crl()) );
+        res.crl() = bid.crl()<tracerg.start_ ? tracerg.start_ :
+                                               ( bid.crl()>tracerg.stop_ ? tracerg.stop_ : tracerg.snap(bid.crl()) );
     }
     else
     {
-	res.inl() = bid.inl()<tracerg.start ? tracerg.start :
-	    ( bid.inl()>tracerg.stop ? tracerg.stop : tracerg.snap(bid.inl()) );
+        res.inl() = bid.inl()<tracerg.start_ ? tracerg.start_ :
+                                               ( bid.inl()>tracerg.stop_ ? tracerg.stop_ : tracerg.snap(bid.inl()) );
     }
 
     return res;
@@ -537,17 +537,17 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     else
 	factor_ = width_/offsetrange_.width();
 
-    const Coord3 c00( startpos, zrg_.start );
-    const Coord3 c01( startpos, zrg_.stop );
-    const Coord3 c11( stoppos, zrg_.stop );
-    const Coord3 c10( stoppos, zrg_.start );
+    const Coord3 c00( startpos, zrg_.start_ );
+    const Coord3 c01( startpos, zrg_.stop_ );
+    const Coord3 c11( stoppos, zrg_.stop_ );
+    const Coord3 c10( stoppos, zrg_.start_ );
 
     flatviewer_->setPosition( c00, c01, c10, c11 );
 
-    Interval<float> xlim( mCast(float, SI().inlRange(true).start),
-			  mCast(float, SI().inlRange(true).stop) );
-    Interval<float> ylim( mCast(float, SI().crlRange(true).start),
-			  mCast(float, SI().crlRange(true).stop) );
+    Interval<float> xlim( mCast(float, SI().inlRange(true).start_),
+                          mCast(float, SI().inlRange(true).stop_) );
+    Interval<float> ylim( mCast(float, SI().crlRange(true).start_),
+                          mCast(float, SI().crlRange(true).stop_) );
 
     bool isinline = true;
     if ( section_ )
@@ -573,10 +573,10 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	const BinID diff = stopbid - startbid;
 	isinline = Math::Abs(diff.inl()) < Math::Abs(diff.crl());
 
-	xlim.start = mCast(float, mMIN(startbid.inl(),stopbid.inl()));
-	xlim.stop = mCast(float, mMAX(startbid.inl(),stopbid.inl()));
-	ylim.start = mCast(float, mMIN(startbid.crl(),stopbid.crl()));
-	ylim.stop = mCast(float, mMAX(startbid.crl(),stopbid.crl()));
+        xlim.start_ = mCast(float, mMIN(startbid.inl(),stopbid.inl()));
+        xlim.stop_ = mCast(float, mMAX(startbid.inl(),stopbid.inl()));
+        ylim.start_ = mCast(float, mMIN(startbid.crl(),stopbid.crl()));
+        ylim.stop_ = mCast(float, mMAX(startbid.crl(),stopbid.crl()));
     }
     else
 	return;
@@ -898,8 +898,8 @@ void PreStackDisplay::draggerMotion( CallBacker* )
 	    ? seis2dpos_ + direction*offsetrange_.width()*factor_ / offsetscale
 	    : seis2dpos_ + direction*width_ / offsetscale;
 
-	const Coord3 c01( seis2dpos_, zrg_.stop );
-	const Coord3 c10( seis2dstoppos_, zrg_.start );
+        const Coord3 c01( seis2dpos_, zrg_.stop_ );
+        const Coord3 c10( seis2dstoppos_, zrg_.start_ );
 
 	planedragger_->setCenter( (c01+c10)/2 );
 	trcnr_ = nearesttrcnr;

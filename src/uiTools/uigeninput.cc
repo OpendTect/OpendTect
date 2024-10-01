@@ -1077,25 +1077,25 @@ void uiGenInput::setToolTip( const uiString& tt, int ielem )
 
 void uiGenInput::setValue( const Interval<int>& i )
 {
-    setValue(i.start,0); setValue(i.stop,1);
+    setValue(i.start_,0); setValue(i.stop_,1);
     mDynamicCastGet(const StepInterval<int>*,si,&i)
-    if ( si ) setValue(si->step,2);
+	    if ( si ) setValue(si->step_,2);
 }
 
 
 void uiGenInput::setValue( const Interval<double>& i )
 {
-    setValue(i.start,0); setValue(i.stop,1);
+    setValue(i.start_,0); setValue(i.stop_,1);
     mDynamicCastGet(const StepInterval<double>*,si,&i)
-    if ( si ) setValue(si->step,2);
+	    if ( si ) setValue(si->step_,2);
 }
 
 
 void uiGenInput::setValue( const Interval<float>& i )
 {
-    setValue(i.start,0); setValue(i.stop,1);
+    setValue(i.start_,0); setValue(i.stop_,1);
     mDynamicCastGet(const StepInterval<float>*,si,&i)
-    if ( si ) setValue(si->step,2);
+	    if ( si ) setValue(si->step_,2);
 }
 
 

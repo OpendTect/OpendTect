@@ -187,19 +187,19 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     const bool zinfeet = tdinfo_ == uiSurvInfoProvider::DepthFeet;
 
     const StepInterval<float> zrg = dlg->zfld_->getFStepInterval();
-    const bool hasstart = !mIsUdf(zrg.start);
-    const bool hasstop = !mIsUdf(zrg.stop);
-    const bool hasstep = !mIsUdf(zrg.step);
-    const float start = hasstart ? zrg.start : 0.f;
+    const bool hasstart = !mIsUdf(zrg.start_);
+    const bool hasstop = !mIsUdf(zrg.stop_);
+    const bool hasstep = !mIsUdf(zrg.step_);
+    const float start = hasstart ? zrg.start_ : 0.f;
     if ( zistime )
-	cs.zsamp_.set( start/1000, hasstop ? zrg.stop/1000 : cDefaultZMaxS,
-			hasstep ? zrg.step/1000 : cDefaultSrS );
+	cs.zsamp_.set( start/1000, hasstop ? zrg.stop_/1000 : cDefaultZMaxS,
+		       hasstep ? zrg.step_/1000 : cDefaultSrS );
     else if ( zinfeet )
-	cs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxF,
-		hasstep ? zrg.step : cDefaultSrF );
+	cs.zsamp_.set( start, hasstop ? zrg.stop_ : cDefaultZMaxF,
+		       hasstep ? zrg.step_ : cDefaultSrF );
     else
-	cs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxM,
-		hasstep ? zrg.step : cDefaultSrM );
+	cs.zsamp_.set( start, hasstop ? zrg.stop_ : cDefaultZMaxM,
+		       hasstep ? zrg.step_ : cDefaultSrM );
 
     coordsystem_ = dlg->crsfld_->getCoordSystem();
     return true;
@@ -435,8 +435,8 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
 	}
     }
 
-    Coord c0( xrg.start, yrg.start );
-    Coord c1( xrg.stop, yrg.stop );
+    Coord c0( xrg.start_, yrg.start_ );
+    Coord c1( xrg.stop_, yrg.stop_ );
     const double grdsp = 25.;
     if ( !uiSurvInfoProvider::getRanges(tkzs,crd,c0,c1,grdsp) )
 	return false;
@@ -446,19 +446,19 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
     const bool zinfeet = tdinfo_ == uiSurvInfoProvider::DepthFeet;
 
     const StepInterval<float> zrg = navdlg->zfld_->getFStepInterval();
-    const bool hasstart = !mIsUdf(zrg.start);
-    const bool hasstop = !mIsUdf(zrg.stop);
-    const bool hasstep = !mIsUdf(zrg.step);
-    const float start = hasstart ? zrg.start : 0.f;
+    const bool hasstart = !mIsUdf(zrg.start_);
+    const bool hasstop = !mIsUdf(zrg.stop_);
+    const bool hasstep = !mIsUdf(zrg.step_);
+    const float start = hasstart ? zrg.start_ : 0.f;
     if ( zistime )
-	tkzs.zsamp_.set( start/1000, hasstop ? zrg.stop/1000 : cDefaultZMaxS,
-			hasstep ? zrg.step/1000 : cDefaultSrS );
+	tkzs.zsamp_.set( start/1000, hasstop ? zrg.stop_/1000 : cDefaultZMaxS,
+			 hasstep ? zrg.step_/1000 : cDefaultSrS );
     else if ( zinfeet )
-	tkzs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxF,
-		hasstep ? zrg.step : cDefaultSrF );
+	tkzs.zsamp_.set( start, hasstop ? zrg.stop_ : cDefaultZMaxF,
+			 hasstep ? zrg.step_ : cDefaultSrF );
     else
-	tkzs.zsamp_.set( start, hasstop ? zrg.stop : cDefaultZMaxM,
-		hasstep ? zrg.step : cDefaultSrM );
+	tkzs.zsamp_.set( start, hasstop ? zrg.stop_ : cDefaultZMaxM,
+			 hasstep ? zrg.step_ : cDefaultSrM );
 
     return true;
 }

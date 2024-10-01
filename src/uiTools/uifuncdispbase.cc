@@ -50,7 +50,7 @@ void uiFuncDispBase::setVals( const Interval<float>& xrg, const float* yv,
 	return;
 
     StepInterval<float> xint( xrg );
-    xint.step = (xrg.stop-xrg.start) / (sz-1);
+    xint.step_ = (xrg.stop_-xrg.start_) / (sz-1);
     float* xv = new float[sz];
     for ( int idx=0; idx<sz; idx++ )
 	xv[idx] = xint.atIndex( idx );
@@ -83,7 +83,7 @@ void uiFuncDispBase::setY2Vals( const Interval<float>& xrg,
 	return;
 
     StepInterval<float> xint( xrg );
-    xint.step = (xrg.stop-xrg.start) / (sz-1);
+    xint.step_ = (xrg.stop_-xrg.start_) / (sz-1);
     float* xv = new float[sz];
     for ( int idx=0; idx<sz; idx++ )
 	xv[idx] = xint.atIndex( idx );
@@ -109,8 +109,8 @@ void uiFuncDispBase::getAxisRanges( const TypeSet<float>& vals,
     if ( !setup_.fixdrawrg_ )
 	return;
 
-    if ( !mIsUdf(setuprg.start) ) rg.start = setuprg.start;
-    if ( !mIsUdf(setuprg.stop) ) rg.stop = setuprg.stop;
+    if ( !mIsUdf(setuprg.start_) ) rg.start_ = setuprg.start_;
+    if ( !mIsUdf(setuprg.stop_) ) rg.stop_ = setuprg.stop_;
 }
 
 
@@ -159,7 +159,7 @@ void uiFuncDispBase::gatherInfo( bool fory2 )
     Interval<float> xrg, yrg;
     if ( xvals_.isEmpty() )
     {
-	xrg.start = mUdf(float); xrg.stop = -mUdf(float);
+	xrg.start_ = mUdf(float); xrg.stop_ = -mUdf(float);
 	yrg = xrg;
     }
     else

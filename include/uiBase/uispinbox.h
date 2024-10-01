@@ -52,7 +52,7 @@ public:
     void		setInterval( int start, int stop, int s=1 )
 			{ setInterval( StepInterval<int>(start,stop,s) ); }
     void		setInterval( const Interval<int>& i, int s=1 )
-			{ setInterval( StepInterval<int>(i.start,i.stop,s) ); }
+    { setInterval( StepInterval<int>(i.start_,i.stop_,s) ); }
     void		setInterval(const StepInterval<int>&);
     StepInterval<int>	getInterval() const;
 

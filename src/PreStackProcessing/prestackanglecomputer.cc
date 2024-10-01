@@ -304,7 +304,7 @@ void AngleComputer::fftSmooth( Array2D<float>& angledata )
     const StepInterval<double> zrange = outputsampling_.range( false );
     const int zsize = zrange.nrSteps() + 1;
 
-    ::FFTFilter filter( zsize, (float)zrange.step );
+    ::FFTFilter filter( zsize, (float)zrange.step_ );
     filter.setLowPass( freqf3, freqf4 );
     zDomain()->isTime() ? fftTimeSmooth( filter, angledata )
 			: fftDepthSmooth( filter, angledata );
@@ -322,7 +322,7 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
 
     const int offsetsize = outputsampling_.nrPts( true );
     const int zsize = outputsampling_.nrPts( false );
-    const float zstep = mCast( float, outputsampling_.range( false ).step );
+    const float zstep = mCast( float, outputsampling_.range( false ).step_ );
     const int filtersz = mIsUdf(smoothinglength)
 		       ? mUdf(int) : mNINT32( smoothinglength/zstep );
 

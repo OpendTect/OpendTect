@@ -180,9 +180,9 @@ int uiPrDenFunVarSel::selColID() const
 StepInterval<float> uiPrDenFunVarSel::selColRange() const
 {
     StepInterval<float> range = rangesel_->getFInterval();
-    const float step = fabs( range.stop - range.start ) /
+    const float step = fabs( range.stop_ - range.start_ ) /
 		       nrbinsel_->getIntValue();
-    range.step = step;
+    range.step_ = step;
     return range;
 }
 
@@ -220,8 +220,8 @@ void uiPrDenFunVarSel::nrBinChanged( CallBacker* )
     StepInterval<float> range = rangesel_->getFInterval();
     const int nrbins = nrbinsel_->getIntValue();
     const float step = range.width()/nrbins;
-    range.step = step;
-    range.stop = range.start + step*nrbins;
+    range.step_ = step;
+    range.stop_ = range.start_ + step*nrbins;
     rangesel_->setValue( range );
 }
 
@@ -229,6 +229,6 @@ void uiPrDenFunVarSel::rangeChanged( CallBacker* )
 {
     StepInterval<float> range = rangesel_->getFInterval();
     const int nrbins = nrbinsel_->getIntValue();
-    range.step = range.width()/nrbins;
+    range.step_ = range.width()/nrbins;
     rangesel_->setValue( range );
 }

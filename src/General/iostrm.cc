@@ -298,13 +298,13 @@ bool IOStream::getFrom( ascistream& stream )
     {
 	FileMultiString fms( stream.value() );
 	StepInterval<int>& fnrs = fs_.nrs_;
-	fnrs.start = fms.getIValue( 0 );
-	fnrs.stop = fms.getIValue( 1 );
-	fnrs.step = fms.getIValue( 2 );
-	if ( fnrs.step == 0 ) fnrs.step = 1;
-	if ( ( fnrs.start < fnrs.stop && fnrs.step < 0 )
-	  || ( fnrs.stop < fnrs.start && fnrs.step > 0 ) )
-	    Swap( fnrs.start, fnrs.stop );
+	fnrs.start_ = fms.getIValue( 0 );
+	fnrs.stop_ = fms.getIValue( 1 );
+	fnrs.step_ = fms.getIValue( 2 );
+	if ( fnrs.step_ == 0 ) fnrs.step_ = 1;
+	if ( ( fnrs.start_ < fnrs.stop_ && fnrs.step_ < 0 )
+	     || ( fnrs.stop_ < fnrs.start_ && fnrs.step_ > 0 ) )
+	    Swap( fnrs.start_, fnrs.stop_ );
 	fs_.zeropad_ = fms.getIValue( 3 );
 	curfidx_ = 0;
 	mStrmNext()
@@ -347,7 +347,7 @@ bool IOStream::putTo( ascostream& stream ) const
     if ( fs_.isRangeMulti() )
     {
 	FileMultiString fms; const StepInterval<int>& fnrs = fs_.nrs_;
-	fms += fnrs.start; fms += fnrs.stop; fms += fnrs.step;
+	fms += fnrs.start_; fms += fnrs.stop_; fms += fnrs.step_;
 	fms += fs_.zeropad_;
 	stream.put( "$Multi", fms );
     }

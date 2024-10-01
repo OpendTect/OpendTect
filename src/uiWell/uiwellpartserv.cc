@@ -738,16 +738,16 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     }
 
     const Interval<double> trackrg = track.zRangeD();
-    const double startz = mMAX( srddepth, trackrg.start );
-    if ( SI().zIsTime() && trackrg.stop > startz )
+    const double startz = mMAX( srddepth, trackrg.start_ );
+    if ( SI().zIsTime() && trackrg.stop_ > startz )
     {
 	Well::D2TModel* d2t = new Well::D2TModel;
-	const float startdah = trackrg.start > srddepth
+	const float startdah = trackrg.start_ > srddepth
 			      ? 0.f : track.getDahForTVD(srddepth);
 	d2t->add( startdah, tdmodel.getTime( (float)startz ) );
 
-	const float stopdah = track.getDahForTVD( trackrg.stop );
-	d2t->add( stopdah, tdmodel.getTime( (float)trackrg.stop ) );
+	const float stopdah = track.getDahForTVD( trackrg.stop_ );
+	d2t->add( stopdah, tdmodel.getTime( (float)trackrg.stop_ ) );
 
 	well->setD2TModel( d2t );
     }

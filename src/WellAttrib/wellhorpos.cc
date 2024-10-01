@@ -44,10 +44,10 @@ float WellHorIntersectFinder::findZIntersection() const
 {
     const float zstep = SI().zStep();
     const Interval<float>& dahrg = track_.dahRange();
-    float zstart = d2t_ ? d2t_->getTime( dahrg.start, track_ ) : dahrg.start;
-    float zstop = d2t_ ? d2t_->getTime( dahrg.stop, track_ ) : dahrg.stop;
-    zstart = mMAX( SI().zRange(true).start, zstart );
-    zstop = mMIN( SI().zRange(true).stop, zstop );
+    float zstart = d2t_ ? d2t_->getTime( dahrg.start_, track_ ) : dahrg.start_;
+    float zstop = d2t_ ? d2t_->getTime( dahrg.stop_, track_ ) : dahrg.stop_;
+    zstart = mMAX( SI().zRange(true).start_, zstart );
+    zstop = mMIN( SI().zRange(true).stop_, zstop );
 
     float zval = zstart;
     bool isabove = true;

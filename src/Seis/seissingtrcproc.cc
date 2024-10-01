@@ -323,11 +323,11 @@ void SeisSingleTraceProc::prepareNullFilling()
     if ( sd && !sd->isAll() )
     {
 	Interval<int> rg( sd->inlRange() );
-	fillhs_.start_.inl() = rg.start;
-	fillhs_.stop_.inl() = rg.stop;
+	fillhs_.start_.inl() = rg.start_;
+	fillhs_.stop_.inl() = rg.stop_;
 	rg = sd->crlRange();
-	fillhs_.start_.crl() = rg.start;
-	fillhs_.stop_.crl() = rg.stop;
+	fillhs_.start_.crl() = rg.start_;
+	fillhs_.stop_.crl() = rg.stop_;
     }
 
     fillbid_ = BinID( fillhs_.start_.inl(), fillhs_.start_.crl() );

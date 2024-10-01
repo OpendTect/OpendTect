@@ -153,30 +153,30 @@ static bool testIsCompatible()
     StepInterval<float> zrgshrinked( cs.zsamp_ );
     StepInterval<float> zrgshifted( cs.zsamp_ );
     StepInterval<float> zrgstartneg( cs.zsamp_ );
-    zrgextended.widen( zrgextended.step * 5 );
-    zrgshrinked.widen( -zrgshrinked.step * 5 );
-    zrgshifted.shift( zrgshifted.step * 0.01f );
-    zrgstartneg.start = -1.f * zrgstartneg.start;
+    zrgextended.widen( zrgextended.step_ * 5 );
+    zrgshrinked.widen( -zrgshrinked.step_ * 5 );
+    zrgshifted.shift( zrgshifted.step_ * 0.01f );
+    zrgstartneg.start_ = -1.f * zrgstartneg.start_;
 
     const StepInterval<double> zrgd( 1.0, 3.0, 0.004 );
     StepInterval<double> zrgdextended( zrgd );
     StepInterval<double> zrgdshrinked( zrgd );
     StepInterval<double> zrgdshifted( zrgd );
     StepInterval<double> zrgdstartneg( zrgd );
-    zrgdextended.widen( zrgdextended.step * 5 );
-    zrgdshrinked.widen( -zrgdshrinked.step * 5 );
-    zrgdshifted.shift( zrgdshifted.step * 0.01 );
-    zrgdstartneg.start = -1. * zrgdstartneg.start;
+    zrgdextended.widen( zrgdextended.step_ * 5 );
+    zrgdshrinked.widen( -zrgdshrinked.step_ * 5 );
+    zrgdshifted.shift( zrgdshifted.step_ * 0.01 );
+    zrgdstartneg.start_ = -1. * zrgdstartneg.start_;
 
     const StepInterval<float> zrgfiner( 1.0, 3.0, 0.002 );
     StepInterval<float> zrgfinerextended( zrgfiner );
     StepInterval<float> zrgfinershrinked( zrgfiner );
     StepInterval<float> zrgfinershifted( zrgfiner );
     StepInterval<float> zrgfinerstartneg( zrgfiner );
-    zrgfinerextended.widen( zrgfinerextended.step * 5 );
-    zrgfinershrinked.widen( -zrgfinershrinked.step * 5 );
-    zrgfinershifted.shift( zrgfinershifted.step * 0.01 );
-    zrgfinerstartneg.start = -1. * zrgfinerstartneg.start;
+    zrgfinerextended.widen( zrgfinerextended.step_ * 5 );
+    zrgfinershrinked.widen( -zrgfinershrinked.step_ * 5 );
+    zrgfinershifted.shift( zrgfinershifted.step_ * 0.01 );
+    zrgfinerstartneg.start_ = -1. * zrgfinerstartneg.start_;
 
     if ( !zrgextended.isCompatible(cs.zsamp_) ||
 	 !zrgshrinked.isCompatible(cs.zsamp_) ||
@@ -276,7 +276,7 @@ bool testConversion( bool syntheticonly )
     if ( nosurvgeom )
 	return true;
 
-    const BinID lastbid( SI().inlRange().stop, SI().crlRange().stop );
+    const BinID lastbid( SI().inlRange().stop_, SI().crlRange().stop_ );
     const Coord sicrs = SI().transform( lastbid );
     TrcKey sitk;
     sitk.setGeomSystem( OD::Geom3D ).setFrom( sicrs );

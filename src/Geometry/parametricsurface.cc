@@ -18,10 +18,10 @@ namespace Geometry
 
 
 ParametricSurface::ParametricSurface( const RowCol& origin, const RowCol& step )
-    : origin_( origin )
-    , step_( step )
-    , checksupport_( true )
+    : checksupport_( true )
     , checkselfintersection_( true )
+    , origin_( origin )
+    , step_( step )
 { }
 
 
@@ -408,11 +408,11 @@ bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2,
 
 #define mRemovePart( rc0, rc0start, incop, rc1, removefunc ) \
     for ( int rc0=rc0##rng.rc0start; rc0##rng.includes(rc0,false); \
-	  rc0 incop rc0##rng.step ) \
+	  rc0 incop rc0##rng.step_ ) \
     { \
 	bool founddefknot = false; \
-	for ( int rc1=rc1##rng.start; rc1<=rc1##rng.stop; \
-	      rc1+=rc1##rng.step ) \
+	for ( int rc1=rc1##rng.start_; rc1<=rc1##rng.stop_; \
+	      rc1+=rc1##rng.step_ ) \
 	{ \
 	    if ( isKnotDefined( RowCol(row,col) ) ) \
 	    { founddefknot = true; break; } \
@@ -424,7 +424,7 @@ bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2,
 	    { \
 		Interval<int> rg( rc0##rng.rc0start, prev ); \
 		rg.sort(); \
-		removefunc( rg.start, rg.stop ); \
+		removefunc( rg.start_, rg.stop_ ); \
 	    } \
 	    break; \
 	} \
@@ -439,10 +439,10 @@ void ParametricSurface::trimUndefParts()
     StepInterval<int> colrng = colRange();
 
     int prev = mUdf(int);
-    mRemovePart( row, start, +=, col, removeRow );
-    mRemovePart( row, stop,  -=, col, removeRow );
-    mRemovePart( col, start, +=, row, removeCol );
-    mRemovePart( col, stop,  -=, row, removeCol );
+    mRemovePart( row, start_, +=, col, removeRow );
+    mRemovePart( row, stop_,  -=, col, removeRow );
+    mRemovePart( col, start_, +=, row, removeCol );
+    mRemovePart( col, stop_,  -=, row, removeCol );
 }
 
 } // namespace Geometry

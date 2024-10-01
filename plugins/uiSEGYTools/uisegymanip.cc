@@ -640,9 +640,9 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     , needswap_(p->binhdr_.isSwapped())
 {
     fm_.strm().setReadPosition( cFileHeaderSize );
-    trcrg_.start = 1;
+    trcrg_.start_ = 1;
     totalnr_ = (fm_.filesize_-cFileHeaderSize) / fm_.traceBytes();
-    trcrg_.stop = (int)totalnr_;
+    trcrg_.stop_ = (int)totalnr_;
     if ( !plotall )
     {
 	DataInpSpec* spec = new IntInpIntervalSpec( trcrg_ );
@@ -654,7 +654,7 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
 	trcrg_.sort();
 	trcrg_.limitTo( Interval<int>(1,mCast(int,totalnr_)) );
     }
-    totalnr_ = trcrg_.stop - trcrg_.start + 1;
+    totalnr_ = trcrg_.stop_ - trcrg_.start_ + 1;
 
     for ( int idx=0; idx<sel_.size(); idx++ )
 	data_ += new TypeSet<float>;
@@ -727,7 +727,7 @@ void uiSEGYFileManip::plotReq( CallBacker* cb )
     {
 	uiMainWin* mw = new uiMainWin( this, su );
 	uiSEGYTrcHdrValPlot* vp = new uiSEGYTrcHdrValPlot( mw, true,
-							   de.trcrg_.start );
+							   de.trcrg_.start_ );
 	vp->setData( *calcset_.hdrDef()[ selrows[idx] ],
 		     de.data_[idx]->arr(), de.data_[idx]->size() );
 	mw->show();

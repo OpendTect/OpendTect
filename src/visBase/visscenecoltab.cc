@@ -209,7 +209,7 @@ void SceneColTab::updateSequence()
 
     osgSim::ColorRange* osgcolorrange =
 	new osgSim::ColorRange(
-	rg_.start, mIsZero(rg_.width(false),mDefEps) ? 1 : rg_.stop, colors );
+                rg_.start_, mIsZero(rg_.width(false),mDefEps) ? 1 : rg_.stop_, colors );
 
     mScalarBar->setScalarsToColors( osgcolorrange );
     requestSingleRedraw();

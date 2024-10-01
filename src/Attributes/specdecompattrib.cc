@@ -140,8 +140,8 @@ SpecDecomp::SpecDecomp( Desc& desc )
 	windowtype_ = (ArrayNDWindow::WindowType)wtype;
 
 	mGetFloatInterval( gate_, gateStr() );
-	gate_.start = gate_.start / zFactor();
-	gate_.stop = gate_.stop / zFactor();
+	gate_.start_ = gate_.start_ / zFactor();
+	gate_.stop_ = gate_.stop_ / zFactor();
     }
     else if ( transformtype_ == mTransformTypeDiscrete )
     {
@@ -196,8 +196,8 @@ bool SpecDecomp::computeData( const DataHolder& output, const BinID& relpos,
 	if ( transformtype_ == mTransformTypeFourier )
 	{
 	    const_cast<SpecDecomp*>(this)->samplegate_ =
-		     Interval<int>(mNINT32(gate_.start/refstep_),
-				   mNINT32(gate_.stop/refstep_));
+		    Interval<int>(mNINT32(gate_.start_/refstep_),
+				  mNINT32(gate_.stop_/refstep_));
 	    const_cast<SpecDecomp*>(this)->sz_ = samplegate_.width()+1;
 
 	    const float fnyq = 0.5f / refstep_;
@@ -242,7 +242,7 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	int samp = idx + samplegate_.start;
+	int samp = idx + samplegate_.start_;
 	for ( int ids=0; ids<sz_; ids++ )
 	{
 	    float real = redata_->series(realidx_) ?

@@ -27,8 +27,8 @@ EM::RandomLineSetByContourGenerator::Setup::Setup( bool rel )
 	assign( linezrg_, contzrg_ );
     else
     {
-	linezrg_.stop = 50 * contzrg_.step;
-	linezrg_.start = -linezrg_.stop;
+	linezrg_.stop_ = 50 * contzrg_.step_;
+	linezrg_.start_ = -linezrg_.stop_;
     }
 }
 
@@ -74,11 +74,11 @@ void EM::RandomLineSetByContourGenerator::createLines(
 	ict.selectPolyROI( setup_.selpoly_ );
 	ict.setMinNrVertices( setup_.minnrvertices_ );
 	ict.setNrLargestOnly( setup_.nrlargestonly_ );
-	const float zeps = 0.0001f * setup_.contzrg_.step;
+	const float zeps = 0.0001f * setup_.contzrg_.step_;
 
-	for ( float z = setup_.contzrg_.start;
-	      z - zeps < setup_.contzrg_.stop;
-	      z += setup_.contzrg_.step )
+	for ( float z = setup_.contzrg_.start_;
+	      z - zeps < setup_.contzrg_.stop_;
+	      z += setup_.contzrg_.step_ )
 	{
 	    ObjectSet<ODPolygon<float> > polys;
 	    ict.getContours( polys, z );

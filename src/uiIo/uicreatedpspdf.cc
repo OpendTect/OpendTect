@@ -104,7 +104,7 @@ void uiCreateDPSPDF::createDefaultUI()
 	    else
 	    {
 		StepInterval<float> dimrg = getRange( dcid );
-		dimrg.step = fabs( dimrg.width() ) / 25;
+		dimrg.step_ = fabs( dimrg.width() ) / 25;
 		Array1DImpl<float> pdfarr( dimrg.nrSteps()+1 );
 		pdfarr.setAll( 1.f );
 		Sampled1DProbDenFunc pdf( pdfarr );
@@ -236,10 +236,10 @@ Interval<float> uiCreateDPSPDF::getRange( DataPointSet::ColID dpcid ) const
 	for ( int rid=0; rid<dps_->size(); rid++ )
 	{
 	    const float val = getVal(dpcid,rid);
-	    if ( !mIsUdf(val) && val > ret.stop )
-		ret.stop = val;
-	    if ( !mIsUdf(val) && val < ret.start )
-		ret.start = val;
+	    if ( !mIsUdf(val) && val > ret.stop_ )
+		ret.stop_ = val;
+	    if ( !mIsUdf(val) && val < ret.start_ )
+		ret.start_ = val;
 	}
     }
 
@@ -254,7 +254,7 @@ void uiCreateDPSPDF::setColRange( CallBacker* cb )
 	return;
 
     StepInterval<float> attrrange = getRange( varselfld->selColID() );
-    attrrange.step = fabs( attrrange.width() ) / varselfld->selNrBins();
+    attrrange.step_ = fabs( attrrange.width() ) / varselfld->selNrBins();
     varselfld->setAttrRange( attrrange );
 }
 

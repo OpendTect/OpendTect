@@ -189,7 +189,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 {
     geometry_ = geometry;
     const TypeSet<PosInfo::Line2DPos>& linepositions = geometry.positions();
-    const int tracestep = geometry.trcNrRange().step;
+    const int tracestep = geometry.trcNrRange().step_;
 
     const int possz = linepositions.size();
     trcdisplayinfo_.alltrcnrs_.erase();
@@ -201,16 +201,16 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     for ( int idx=0; idx<possz; idx++ )
     {
 	if ( idx == 0 )
-	    maxtrcnrrg_.start = maxtrcnrrg_.stop = linepositions[idx].nr_;
+            maxtrcnrrg_.start_ = maxtrcnrrg_.stop_ = linepositions[idx].nr_;
 	else
 	    maxtrcnrrg_.include( linepositions[idx].nr_, false );
 	trcdisplayinfo_.alltrcnrs_ += linepositions[idx].nr_;
 	trcdisplayinfo_.alltrcpos_ += linepositions[idx].coord_;
     }
 
-    trcdisplayinfo_.zrg_.step = datatransform_
-			     ? datatransform_->getZInterval( false ).step
-			     : geometry_.zRange().step;
+    trcdisplayinfo_.zrg_.step_ = datatransform_
+                                 ? datatransform_->getZInterval( false ).step_
+                                 : geometry_.zRange().step_;
     setTraceNrRange( maxtrcnrrg_ );
     setZRange( geometry_.zRange() );
 
@@ -226,9 +226,9 @@ void Seis2DDisplay::getTraceKeyPath( TrcKeyPath& res,TypeSet<Coord>* ) const
 
     for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs_.size(); idx++ )
     {
-	if ( trcdisplayinfo_.alltrcnrs_[idx] < trcdisplayinfo_.rg_.start )
+        if ( trcdisplayinfo_.alltrcnrs_[idx] < trcdisplayinfo_.rg_.start_ )
 	    continue;
-	else if ( trcdisplayinfo_.alltrcnrs_[idx] > trcdisplayinfo_.rg_.stop )
+        else if ( trcdisplayinfo_.alltrcnrs_[idx] > trcdisplayinfo_.rg_.stop_ )
 	    break;
 
 	res += TrcKey( geomid_, trcdisplayinfo_.alltrcnrs_[idx] );
@@ -248,18 +248,18 @@ ZSampling Seis2DDisplay::getMaxZRange( bool displayspace ) const
 	return geometry_.zRange();
 
     return ZSampling( datatransform_->getZInterval( false ),
-		      geometry_.zRange().step );
+                      geometry_.zRange().step_ );
 }
 
 
 void Seis2DDisplay::setZRange( const ZSampling& nzrg )
 {
-    if ( mIsUdf(geometry_.zRange().start) )
+    if ( mIsUdf(geometry_.zRange().start_) )
 	return;
 
     const ZSampling maxzrg = getMaxZRange( true );
-    const Interval<float> zrg( mMAX(maxzrg.start,nzrg.start),
-			       mMIN(maxzrg.stop,nzrg.stop) );
+    const Interval<float> zrg( mMAX(maxzrg.start_,nzrg.start_),
+                               mMIN(maxzrg.stop_,nzrg.stop_) );
     const bool hasdata = !datapacks_.isEmpty() && datapacks_[0];
     if ( hasdata && trcdisplayinfo_.zrg_.isEqual(zrg,mDefEps) )
 	return;
@@ -289,8 +289,8 @@ const Interval<int> Seis2DDisplay::getSampleRange() const
 {
     const ZSampling maxzrg = getMaxZRange( true );
     const Interval<int> samplerg(
-			    maxzrg.nearestIndex(trcdisplayinfo_.zrg_.start),
-			    maxzrg.nearestIndex(trcdisplayinfo_.zrg_.stop) );
+                maxzrg.nearestIndex(trcdisplayinfo_.zrg_.start_),
+                maxzrg.nearestIndex(trcdisplayinfo_.zrg_.stop_) );
     return samplerg;
 }
 
@@ -304,15 +304,15 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
     if ( maxtrcnrrg_.isRev() )
 	mRetErrGeo;
 
-    const Interval<int> rg( maxtrcnrrg_.limitValue(trcrg.start),
-			    maxtrcnrrg_.limitValue(trcrg.stop) );
+    const Interval<int> rg( maxtrcnrrg_.limitValue(trcrg.start_),
+                            maxtrcnrrg_.limitValue(trcrg.stop_) );
     if ( !rg.width() )
 	return;
 
     int startidx=-1, stopidx=-1;
     for ( int idx=0; idx<trcdisplayinfo_.alltrcnrs_.size(); idx++ )
     {
-	if ( trcdisplayinfo_.alltrcnrs_[idx]>=rg.start )
+        if ( trcdisplayinfo_.alltrcnrs_[idx]>=rg.start_ )
 	{
 	    startidx = idx;
 	    break;
@@ -321,7 +321,7 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 
     for ( int idx=trcdisplayinfo_.alltrcnrs_.size()-1; idx>=0; idx-- )
     {
-	if ( trcdisplayinfo_.alltrcnrs_[idx]<=rg.stop )
+        if ( trcdisplayinfo_.alltrcnrs_[idx]<=rg.stop_ )
 	{
 	    stopidx = idx;
 	    break;
@@ -331,8 +331,8 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
     if ( startidx<0 || stopidx<0 )
 	mRetErrGeo;
 
-    trcdisplayinfo_.rg_.start = trcdisplayinfo_.alltrcnrs_[startidx];
-    trcdisplayinfo_.rg_.stop = trcdisplayinfo_.alltrcnrs_[stopidx];
+    trcdisplayinfo_.rg_.start_ = trcdisplayinfo_.alltrcnrs_[startidx];
+    trcdisplayinfo_.rg_.stop_ = trcdisplayinfo_.alltrcnrs_[stopidx];
     trcdisplayinfo_.size_ = stopidx - startidx + 1;
     updatePanelStripPath();
 }
@@ -436,11 +436,11 @@ void Seis2DDisplay::updateTexOriginAndScale( int attrib,
 
     const TraceDisplayInfo& tdi = trcdisplayinfo_;
 
-    const Coord origin( (tkzs.zsamp_.start-tdi.zrg_.start) / tdi.zrg_.step,
-		tkzs.hsamp_.trcRange().start - tdi.rg_.start );
+    const Coord origin( (tkzs.zsamp_.start_-tdi.zrg_.start_) / tdi.zrg_.step_,
+                        tkzs.hsamp_.trcRange().start_ - tdi.rg_.start_ );
 
-    const Coord scale( tkzs.zsamp_.step / tdi.zrg_.step,
-		       tkzs.hsamp_.trcRange().step );
+    const Coord scale( tkzs.zsamp_.step_ / tdi.zrg_.step_,
+                       tkzs.hsamp_.trcRange().step_ );
 
     channels_->setOrigin( attrib, origin*(resolution_+1) );
     channels_->setScale( attrib, scale );
@@ -557,20 +557,20 @@ void Seis2DDisplay::updatePanelStripPath()
 
     for ( int idx=0; idx<bends.size(); idx++ )
     {
-	if ( tdi.alltrcnrs_[bends[idx]]>tdi.rg_.start &&
+        if ( tdi.alltrcnrs_[bends[idx]]>tdi.rg_.start_ &&
 	    (!tdi.alljoints_.isEmpty()
-	       && tdi.alltrcnrs_[tdi.alljoints_.last()] < tdi.rg_.start) )
+             && tdi.alltrcnrs_[tdi.alljoints_.last()] < tdi.rg_.start_) )
 	{
-	    const int trcidx = tdi.alltrcnrs_.indexOf( tdi.rg_.start );
+            const int trcidx = tdi.alltrcnrs_.indexOf( tdi.rg_.start_ );
 	    if ( tdi.alltrcnrs_.validIdx(trcidx) )
 		tdi.alljoints_ += trcidx;
 	}
 
-	if ( tdi.alltrcnrs_[bends[idx]]>tdi.rg_.stop &&
+        if ( tdi.alltrcnrs_[bends[idx]]>tdi.rg_.stop_ &&
 	    (!tdi.alljoints_.isEmpty()
-	       && tdi.alltrcnrs_[tdi.alljoints_.last()] < tdi.rg_.stop) )
+             && tdi.alltrcnrs_[tdi.alljoints_.last()] < tdi.rg_.stop_) )
 	{
-	    const int trcidx = tdi.alltrcnrs_.indexOf( tdi.rg_.stop );
+            const int trcidx = tdi.alltrcnrs_.indexOf( tdi.rg_.stop_ );
 	    if ( tdi.alltrcnrs_.validIdx(trcidx) )
 		tdi.alljoints_ += trcidx;
 	}
@@ -613,10 +613,10 @@ void Seis2DDisplay::updatePanelStripPath()
     {
 	path += tdi.alltrcpos_[knots[idx]];
 	const float diff =
-		mCast(float,tdi.alltrcnrs_[knots[idx]]-tdi.rg_.start);
+                mCast(float,tdi.alltrcnrs_[knots[idx]]-tdi.rg_.start_);
 	mapping += diff * (resolution_+1);
 
-	const Coord3 linepos( path[idx], tdi.zrg_.start );
+        const Coord3 linepos( path[idx], tdi.zrg_.start_ );
 	polyline_->addPoint( linepos );
     }
 
@@ -626,7 +626,7 @@ void Seis2DDisplay::updatePanelStripPath()
     if ( getUpdateStageNr() )
     {
 	const float diff =
-		mCast(float,updatestageinfo_.oldtrcrgstart_-tdi.rg_.start);
+                mCast(float,updatestageinfo_.oldtrcrgstart_-tdi.rg_.start_);
 	panelstrip_->setPathTextureShift( diff*(resolution_+1) );
     }
 
@@ -644,8 +644,8 @@ void Seis2DDisplay::updatePanelStripZRange()
     if ( getUpdateStageNr() )
     {
 	const float diff =
-		    updatestageinfo_.oldzrgstart_ - trcdisplayinfo_.zrg_.start;
-	const float factor = (resolution_+1) / trcdisplayinfo_.zrg_.step;
+                updatestageinfo_.oldzrgstart_ - trcdisplayinfo_.zrg_.start_;
+        const float factor = (resolution_+1) / trcdisplayinfo_.zrg_.step_;
 	panelstrip_->setZTextureShift( diff*factor );
     }
 
@@ -662,8 +662,8 @@ void Seis2DDisplay::annotateNextUpdateStage( bool yn )
     }
     else if ( !getUpdateStageNr() )
     {
-	updatestageinfo_.oldtrcrgstart_ =mCast(float,trcdisplayinfo_.rg_.start);
-	updatestageinfo_.oldzrgstart_ = mCast(float,trcdisplayinfo_.zrg_.start);
+        updatestageinfo_.oldtrcrgstart_ =mCast(float,trcdisplayinfo_.rg_.start_);
+        updatestageinfo_.oldzrgstart_ = mCast(float,trcdisplayinfo_.zrg_.start_);
     }
     else
 	panelstrip_->freezeDisplay( false );	// thaw to refreeze
@@ -676,11 +676,11 @@ void Seis2DDisplay::annotateNextUpdateStage( bool yn )
 void Seis2DDisplay::updateLineNamePos()
 {
     const int trcidx =
-		trcdisplayinfo_.alltrcnrs_.indexOf( trcdisplayinfo_.rg_.start );
+            trcdisplayinfo_.alltrcnrs_.indexOf( trcdisplayinfo_.rg_.start_ );
     if ( trcidx < 0 )
 	return;
 
-    Coord3 pos( trcdisplayinfo_.alltrcpos_[trcidx],trcdisplayinfo_.zrg_.start );
+    Coord3 pos( trcdisplayinfo_.alltrcpos_[trcidx],trcdisplayinfo_.zrg_.start_ );
     linename_->text()->setPosition( pos );
 }
 
@@ -736,7 +736,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     float zdif = 0;
     if ( !zrg.includes(xytpos.z,false) )
     {
-	zdif = (float) mMIN(fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop));
+        zdif = (float) mMIN(fabs(xytpos.z-zrg.start_), fabs(xytpos.z-zrg.stop_));
 	const float zscale = scene_
 	    ? scene_->getZScale() * scene_->getFixedZStretch()
 	    : SI().zScale();

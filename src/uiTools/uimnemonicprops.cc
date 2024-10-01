@@ -107,7 +107,7 @@ BufferString uiMnemonicProperties::toString() const
     OD::LineStyle ls = getLineStyle();
     OD::Color lcol = ls.color_;
     fms.add( Mnemonic::toString(getScale()) )
-	.add( rg.start ).add( rg.stop )
+	    .add( rg.start_ ).add( rg.stop_ )
 	.add( getUOMStr() )
 	.add( OD::LineStyle::toString(ls.type_) )
 	.add( ls.width_ )

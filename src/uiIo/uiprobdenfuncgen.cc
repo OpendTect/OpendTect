@@ -370,16 +370,16 @@ void uiProbDenFuncGenSampled::unitChgCB( CallBacker* cb )
     uiGenInput* rgfld = rgflds_.get( dimidx );
     NotifyStopper ns( rgfld->valueChanged );
     const Interval<float> rg( rgfld->getFInterval() );
-    rgfld->setValue( getConvertedValue( rg.start, prevuom, newuom ), 0 );
-    rgfld->setValue( getConvertedValue( rg.stop, prevuom, newuom ), 1 );
+    rgfld->setValue( getConvertedValue( rg.start_, prevuom, newuom ), 0 );
+    rgfld->setValue( getConvertedValue( rg.stop_, prevuom, newuom ), 1 );
 
     if ( !isGauss() )
 	return;
 
     uiGenInput* expstdfld = expstdflds_[dimidx];
     const Interval<float> exp( expstdfld->getFInterval() );
-    expstdfld->setValue( getConvertedValue( exp.start, prevuom, newuom ), 0 );
-    expstdfld->setValue( getConvertedValue( exp.stop, prevuom, newuom ), 1 );
+    expstdfld->setValue( getConvertedValue( exp.start_, prevuom, newuom ), 0 );
+    expstdfld->setValue( getConvertedValue( exp.stop_, prevuom, newuom ), 1 );
 }
 
 
@@ -440,9 +440,9 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 	    mErrRet(tr("Please enter a name for each variable"))
 
 	Interval<float> rg;
-	rg.start = rgflds_[idim]->getFValue(0);
-	rg.stop = rgflds_[idim]->getFValue(1);
-	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+	rg.start_ = rgflds_[idim]->getFValue(0);
+	rg.stop_ = rgflds_[idim]->getFValue(1);
+	if ( mIsUdf(rg.start_) || mIsUdf(rg.stop_) )
 	    mErrRet(tr("Please fill all variable ranges"))
 	rg.sort();
 	rgs_ += rg;
@@ -474,8 +474,8 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 // Note that a Sampled PDF's SD starts at the center of a bin
 // Thus, to get user's range, we need to start and stop half a step inward
 #define mSetSD( sd, rg ) \
-	spdf->sd.step = (rg.stop-rg.start) / nrbins_; \
-	spdf->sd.start = rg.start + spdf->sd.step / 2
+	spdf->sd.step_ = (rg.stop_-rg.start_) / nrbins_; \
+	spdf->sd.start_ = rg.start_ + spdf->sd.step_ / 2
 
 
 ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const

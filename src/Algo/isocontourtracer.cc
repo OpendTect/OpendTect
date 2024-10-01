@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 
 #define mOnEdge(xy,idx)		(idx<edge_ || idx>xy##range_.width()+edge_)
-#define mFieldIdx(xy,idx)	(xy##range_.start + idx - edge_)
+#define mFieldIdx(xy,idx)	(xy##range_.start_ + idx - edge_)
 
 #define mFieldX(idx)		xsampling_.atIndex( mFieldIdx(x,idx) )
 #define mFieldY(idy)		ysampling_.atIndex( mFieldIdx(y,idy) )
@@ -457,18 +457,18 @@ void IsoContourTracer::setSampling( const StepInterval<int>& xsamp,
 {
     xsampling_ = xsamp;
     ysampling_ = ysamp;
-    xsampling_.stop = xsampling_.atIndex( field_.info().getSize(0)-1 );
-    ysampling_.stop = ysampling_.atIndex( field_.info().getSize(1)-1 );
+    xsampling_.stop_ = xsampling_.atIndex( field_.info().getSize(0)-1 );
+    ysampling_.stop_ = ysampling_.atIndex( field_.info().getSize(1)-1 );
 }
 
 
 void IsoContourTracer::selectRectROI( const Interval<int>& xintv,
 				      const Interval<int>& yintv )
 {
-    xrange_.start = xsampling_.nearestIndex( xintv.start );
-    xrange_.stop = xsampling_.nearestIndex( xintv.stop );
-    yrange_.start = ysampling_.nearestIndex( yintv.start );
-    yrange_.stop = ysampling_.nearestIndex( yintv.stop );
+    xrange_.start_ = xsampling_.nearestIndex( xintv.start_ );
+    xrange_.stop_ = xsampling_.nearestIndex( xintv.stop_ );
+    yrange_.start_ = ysampling_.nearestIndex( yintv.start_ );
+    yrange_.stop_ = ysampling_.nearestIndex( yintv.stop_ );
     xrange_.limitTo( Interval<int>(0, field_.info().getSize(0)-1) );
     yrange_.limitTo( Interval<int>(0, field_.info().getSize(1)-1) );
 }

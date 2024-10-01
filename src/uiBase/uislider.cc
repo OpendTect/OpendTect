@@ -339,7 +339,7 @@ float uiSlider::step() const
 
 
 void uiSlider::setInterval( const StepInterval<int>& intv )
-{ setInterval( intv.start, intv.stop, intv.step ); }
+{ setInterval( intv.start_, intv.stop_, intv.step_ ); }
 
 void uiSlider::setInterval( int start, int stop, int stp )
 {
@@ -350,7 +350,7 @@ void uiSlider::setInterval( int start, int stop, int stp )
 
 
 void uiSlider::setInterval( const StepInterval<float>& intv )
-{ setInterval( intv.start, intv.stop, intv.step ); }
+{ setInterval( intv.start_, intv.stop_, intv.step_ ); }
 
 void uiSlider::setInterval( float start, float stop, float stp )
 {
@@ -362,9 +362,9 @@ void uiSlider::setInterval( float start, float stop, float stp )
 
 void uiSlider::getInterval( StepInterval<float>& intv ) const
 {
-    intv.start = minValue();
-    intv.stop = maxValue();
-    intv.step = step();
+    intv.start_ = minValue();
+    intv.stop_ = maxValue();
+    intv.step_ = step();
 }
 
 

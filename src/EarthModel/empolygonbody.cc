@@ -176,7 +176,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
 	 return 0;
 
      TypeSet<Coord3> pts;
-     for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
+     for ( int plg=rrg.start_; plg<=rrg.stop_; plg += rrg.step_ )
 	 surf->getCubicBezierCurve( plg, pts,
 				    mCast(float,SI().zDomain().userFactor()) );
 
@@ -199,7 +199,7 @@ bool PolygonBody::getBodyRange( TrcKeyZSampling& cs )
 	 if ( idx )
 	     cs.zsamp_.include( (float) pts[idx].z );
 	 else
-	     cs.zsamp_.start = cs.zsamp_.stop = (float) pts[idx].z;
+	     cs.zsamp_.start_ = cs.zsamp_.stop_ = (float) pts[idx].z;
      }
 
      return pts.size();
@@ -397,7 +397,7 @@ bool PolygonBodyGeometry::removePolygon( int polygonnr,
     if ( colrg.isUdf() || colrg.width() )
 	return false;
 
-    const RowCol rc( polygonnr, colrg.start );
+    const RowCol rc( polygonnr, colrg.start_ );
     const Coord3 pos = pol->getKnot( rc );
     const Coord3 normal = getPolygonNormal( polygonnr );
     if ( !normal.isDefined() || !pos.isDefined() )
@@ -505,7 +505,7 @@ void PolygonBodyGeometry::fillPar( IOPar& par ) const
     par.set( bez.buf(), pol->getBezierCurveSmoothness() );
 
     StepInterval<int> polygonrg = pol->rowRange();
-    for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop;
+    for ( int polygonnr=polygonrg.start_; polygonnr<=polygonrg.stop_;
 	    polygonnr++ )
     {
 	mDefEditNormalStr( editnormstr, sid.asInt(), polygonnr );
@@ -526,7 +526,7 @@ bool PolygonBodyGeometry::usePar( const IOPar& par )
     pol->setBezierCurveSmoothness( beziernr );
 
     StepInterval<int> polygonrg = pol->rowRange();
-    for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop;
+    for ( int polygonnr=polygonrg.start_; polygonnr<=polygonrg.stop_;
 	    polygonnr++ )
     {
 	mDefEditNormalStr( editnormstr, sid.asInt(), polygonnr );

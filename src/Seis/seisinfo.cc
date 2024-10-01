@@ -511,7 +511,7 @@ void SeisTrcInfo::usePar( const IOPar& iopar )
     mIOIOPar( get, RefNr,	refnr );
     mIOIOPar( get, SeqNr,	seqnr_ );
 
-    iopar.get( sSamplingInfo, sampling.start, sampling.step );
+    iopar.get( sSamplingInfo, sampling.start_, sampling.step_ );
 }
 
 
@@ -534,19 +534,19 @@ void SeisTrcInfo::fillPar( IOPar& iopar ) const
     mIOIOPar( set, RefNr,	refnr );
     mIOIOPar( set, SeqNr,	seqnr_ );
 
-    iopar.set( sSamplingInfo, sampling.start, sampling.step );
+    iopar.set( sSamplingInfo, sampling.start_, sampling.step_ );
 }
 
 
 bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
 {
-    return t > sampling.start-1e-6 && t < samplePos(trcsz-1) + 1e-6;
+    return t > sampling.start_-1e-6 && t < samplePos(trcsz-1) + 1e-6;
 }
 
 
 int SeisTrcInfo::nearestSample( float t ) const
 {
-    float s = mIsUdf(t) ? 0 : (t - sampling.start) / sampling.step;
+    float s = mIsUdf(t) ? 0 : (t - sampling.start_) / sampling.step_;
     return mNINT32(s);
 }
 
@@ -555,27 +555,27 @@ SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg ) const
 {
     SampleGate sg;
 
-    sg.start = sg.stop = 0;
-    if ( mIsUdf(tg.start) && mIsUdf(tg.stop) )
+    sg.start_ = sg.stop_ = 0;
+    if ( mIsUdf(tg.start_) && mIsUdf(tg.stop_) )
 	return sg;
 
     Interval<float> vals(
-	mIsUdf(tg.start) ? 0 : (tg.start-sampling.start) / sampling.step,
-	mIsUdf(tg.stop) ? 0 : (tg.stop-sampling.start) / sampling.step );
+                mIsUdf(tg.start_) ? 0 : (tg.start_-sampling.start_) / sampling.step_,
+                mIsUdf(tg.stop_) ? 0 : (tg.stop_-sampling.start_) / sampling.step_ );
 
-    if ( vals.start < vals.stop )
+    if ( vals.start_ < vals.stop_ )
     {
-	sg.start = (int)Math::Floor(vals.start+1e-3);
-	sg.stop =  (int)Math::Ceil(vals.stop-1e-3);
+        sg.start_ = (int)Math::Floor(vals.start_+1e-3);
+        sg.stop_ =  (int)Math::Ceil(vals.stop_-1e-3);
     }
     else
     {
-	sg.start =  (int)Math::Ceil(vals.start-1e-3);
-	sg.stop = (int)Math::Floor(vals.stop+1e-3);
+        sg.start_ =  (int)Math::Ceil(vals.start_-1e-3);
+        sg.stop_ = (int)Math::Floor(vals.stop_+1e-3);
     }
 
-    if ( sg.start < 0 ) sg.start = 0;
-    if ( sg.stop < 0 ) sg.stop = 0;
+    if ( sg.start_ < 0 ) sg.start_ = 0;
+    if ( sg.stop_ < 0 ) sg.stop_ = 0;
 
     return sg;
 }
@@ -608,7 +608,7 @@ void SeisTrcInfo::setPosKey( const Seis::PosKey& pk )
 void SeisTrcInfo::putTo( PosAuxInfo& auxinf ) const
 {
     auxinf.trckey_ = trckey_;
-    auxinf.startpos = sampling.start;
+    auxinf.startpos = sampling.start_;
     auxinf.coord = coord;
     auxinf.offset = offset;
     auxinf.azimuth = azimuth;
@@ -620,7 +620,7 @@ void SeisTrcInfo::putTo( PosAuxInfo& auxinf ) const
 void SeisTrcInfo::getFrom( const PosAuxInfo& auxinf )
 {
     trckey_ = auxinf.trckey_;
-    sampling.start = auxinf.startpos;
+    sampling.start_ = auxinf.startpos;
     coord = auxinf.coord;
     offset = auxinf.offset;
     azimuth = auxinf.azimuth;
@@ -717,7 +717,7 @@ void Seis::Bounds3D::getCoordRange( Coord& mn, Coord& mx ) const
 Seis::Bounds2D::Bounds2D()
 {
     zrg_ = SI().zRange(false);
-    nrrg_.step = 1;
+    nrrg_.step_ = 1;
     mincoord_ = SI().minCoord( false );
     maxcoord_ = SI().maxCoord( false );
 }

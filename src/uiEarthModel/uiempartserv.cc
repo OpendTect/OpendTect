@@ -1464,7 +1464,7 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 
     const StepInterval<int> rowrg = hor3d->geometry().rowRange();
     const StepInterval<int> colrg = hor3d->geometry().colRange( -1 );
-    BinID step( rowrg.step, colrg.step );
+    BinID step( rowrg.step_, colrg.step_ );
     BIDValSetArrAdapter adapter( bivs, cid, step );
 
     PtrMan<Task> changer;
@@ -1490,8 +1490,8 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	interp->setFillType( Array2DInterpol::Full );
 	const float inldist = SI().inlDistance();
 	const float crldist = SI().crlDistance();
-	interp->setRowStep( rowrg.step*inldist );
-	interp->setColStep( colrg.step*crldist );
+	interp->setRowStep( rowrg.step_*inldist );
+	interp->setColStep( colrg.step_*crldist );
 
 	PtrMan< Array2D<float> > arr = hor3d->createArray2D();
 	const float* arrptr = arr ? arr->getData() : nullptr;
@@ -1794,14 +1794,14 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 			float dist_ = (float) (z2pos[z2idx].z - z1pos[z1idx].z);
 			if ( fabs(dist_) < dist )
 			{
-			    zintv.start = (float) z1pos[z1idx].z;
-			    zintv.stop = (float) z2pos[z2idx].z;
+			    zintv.start_ = (float) z1pos[z1idx].z;
+			    zintv.stop_ = (float) z2pos[z2idx].z;
 			}
 		    }
 		}
 
 		zintv.sort();
-		bivs.add( bid, zintv.start, zintv.stop );
+		bivs.add( bid, zintv.start_, zintv.stop_ );
 	    }
 	}
     }

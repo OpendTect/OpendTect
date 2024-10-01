@@ -116,14 +116,14 @@ void updateFields()
 {
     doclipfld_->setValue( ms_.type_!=ColTab::MapperSetup::Fixed );
 
-    Interval<float> cliprate( ms_.cliprate_.start*100,
-			      ms_.cliprate_.stop*100 );
+    Interval<float> cliprate( ms_.cliprate_.start_*100,
+			      ms_.cliprate_.stop_*100 );
     clipfld_->setValue( cliprate );
     autosymfld_->setValue( ms_.autosym0_ );
     symfld_->setValue( !mIsUdf(ms_.symmidval_) );
     midvalfld_->setValue( mIsUdf(ms_.symmidval_) ? 0 : ms_.symmidval_ );
 
-    const bool issym = mIsEqual(cliprate.start,cliprate.stop,1e-4);
+    const bool issym = mIsEqual(cliprate.start_,cliprate.stop_,1e-4);
     cliptypefld_->setValue( issym );
 
     clipPush( nullptr );
@@ -240,10 +240,10 @@ void doApply()
 
     Interval<float> cliprate = clipfld_->getFInterval();
     if ( symclip )
-	cliprate.stop = cliprate.start;
+	cliprate.stop_ = cliprate.start_;
 
-    cliprate.start = Math::Abs( cliprate.start * 0.01f );
-    cliprate.stop = Math::Abs( cliprate.stop * 0.01f );
+    cliprate.start_ = Math::Abs( cliprate.start_ * 0.01f );
+    cliprate.stop_ = Math::Abs( cliprate.stop_ * 0.01f );
     ms_.cliprate_ = cliprate;
     ms_.autosym0_ = autosym;
     ms_.symmidval_ = setsymval ? midvalfld_->getFValue() : mUdf(float);
@@ -467,8 +467,8 @@ void uiColorTable::updateRgFld()
 {
     if ( !minfld_ ) return;
 
-    setValue( minfld_, mapsetup_.range_.start );
-    setValue( maxfld_, mapsetup_.range_.stop );
+    setValue( minfld_, mapsetup_.range_.start_ );
+    setValue( maxfld_, mapsetup_.range_.stop_ );
 }
 
 
@@ -594,13 +594,13 @@ void uiColorTable::commitInput()
     const float maxval = maxfld_ ? maxfld_->getFValue() : 1.f;
     if ( mIsEqual(minval,maxval,mDefEpsF) )
     {
-	minfld_->setValue( mapsetup_.range_.start );
-	maxfld_->setValue( mapsetup_.range_.stop );
+	minfld_->setValue( mapsetup_.range_.start_ );
+	maxfld_->setValue( mapsetup_.range_.stop_ );
 	return;
     }
 
-    mapsetup_.range_.start = minval;
-    mapsetup_.range_.stop = maxval;
+    mapsetup_.range_.start_ = minval;
+    mapsetup_.range_.stop_ = maxval;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
     scaleChanged.trigger();
     if ( scalingdlg_ )
@@ -642,11 +642,11 @@ void uiColorTable::doFlip( CallBacker* )
 void uiColorTable::makeSymmetrical( CallBacker* )
 {
     Interval<float> rg = mapsetup_.range_;
-    const float maxval = fabs(rg.start) > fabs(rg.stop)
-		     ? fabs(rg.start) : fabs(rg.stop);
-    bool flipped = rg.stop < rg.start;
-    rg.start = flipped ? maxval : -maxval;
-    rg.stop = flipped ? -maxval : maxval;
+    const float maxval = fabs(rg.start_) > fabs(rg.stop_)
+			 ? fabs(rg.start_) : fabs(rg.stop_);
+    bool flipped = rg.stop_ < rg.start_;
+    rg.start_ = flipped ? maxval : -maxval;
+    rg.stop_ = flipped ? -maxval : maxval;
 
     mapsetup_.range_ =  rg;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;

@@ -72,26 +72,26 @@ float HistEqualizer::position( float val ) const
     float ret = 0;
     Interval<float> startrg = (*histeqdatarg_)[start];
     Interval<float> stoprg = (*histeqdatarg_)[end];
-    if (  val < startrg.stop )
+    if (  val < startrg.stop_ )
 	return 0;
-    if (  val > stoprg.start )
+    if (  val > stoprg.start_ )
 	return 1;
     while ( end-start > 1 )
     {
 	Interval<float> midvalrg = (*histeqdatarg_)[midval];
-	if ( midvalrg.start <= val && midvalrg.stop >= val )
+	if ( midvalrg.start_ <= val && midvalrg.stop_ >= val )
 	{
 	    ret = (float)midval/(float)nrseg_;
 	    if ( ret > 1 ) ret = 1;
 	    else if ( ret < 0 ) ret = 0;
 	    return ret;
 	}
-	if ( midvalrg.stop < val )
+	if ( midvalrg.stop_ < val )
 	{
 	    start = midval;
 	    midval = start + ( end - start ) / 2;
 	}
-	else if ( midvalrg.start > val )
+	else if ( midvalrg.start_ > val )
 	{
 	    end = midval;
 	    midval = end - ( end - start ) / 2;

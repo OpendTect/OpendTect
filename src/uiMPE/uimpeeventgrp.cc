@@ -208,14 +208,14 @@ void uiEventGroup::visibleDataChangeCB( CallBacker* )
 void uiEventGroup::previewChgCB( CallBacker* )
 {
     const Interval<float> intv = previewgrp_->getManipWindow();
-    if ( mIsUdf(intv.start) )
+    if ( mIsUdf(intv.start_) )
     {
-	srchgatefld_->setValue( intv.stop, 1 );
+	srchgatefld_->setValue( intv.stop_, 1 );
 	srchgatefld_->setNrDecimals( sNrZDecimals+1, 1 );
     }
-    if ( mIsUdf(intv.stop) )
+    if ( mIsUdf(intv.stop_) )
     {
-	srchgatefld_->setValue( intv.start, 0 );
+	srchgatefld_->setValue( intv.start_, 0 );
 	srchgatefld_->setNrDecimals( sNrZDecimals+1, 0 );
     }
 
@@ -424,9 +424,9 @@ bool uiEventGroup::commitToTracker( bool& fieldchange ) const
 
     const float zfac = float( SI().zDomain().userFactor() );
     Interval<float> intv = srchgatefld_->getFInterval();
-    if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
+    if ( intv.start_>0 || intv.stop_<0 || intv.start_==intv.stop_ )
 	mErrRet( tr("Search window should be minus to positive, ex. -20, 20"));
-    Interval<float> relintv( intv.start/zfac, intv.stop/zfac );
+    Interval<float> relintv( intv.start_/zfac, intv.stop_/zfac );
     if ( adjuster_->searchWindow() != relintv )
     {
 	fieldchange = true;

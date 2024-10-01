@@ -197,8 +197,8 @@ Similarity::Similarity( Desc& desc )
 	maxdist *= 2;
 
     const float secdip = dosteer_ ? maxSecureDip() : maxdip_;
-    desgate_ = Interval<float>( gate_.start-maxdist*secdip,
-				gate_.stop+maxdist*secdip );
+    desgate_ = Interval<float>( gate_.start_-maxdist*secdip,
+				gate_.stop_+maxdist*secdip );
 }
 
 
@@ -341,8 +341,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( inputdata_.isEmpty() ) return false;
 
-    const Interval<int> samplegate( mNINT32(gate_.start/refstep_),
-				    mNINT32(gate_.stop/refstep_) );
+    const Interval<int> samplegate( mNINT32(gate_.start_/refstep_),
+				    mNINT32(gate_.stop_/refstep_) );
 
     const int gatesz = samplegate.width() + 1;
 
@@ -389,7 +389,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    const int idx1 = iscubeext ? pos1s_[pair]
 				       : iscenteredext ? pair+1 : pair*2 +1;
 
-	    float bases0 = mCast( float,firstsample + idx + samplegate.start );
+	    float bases0 = mCast( float,firstsample + idx + samplegate.start_ );
 	    float bases1 = bases0;
 
 	    if ( !inputdata_[idx0] || !inputdata_[idx1] )
@@ -447,12 +447,12 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		const bool valids0 = s0>=0 &&
 				     (s0+gatesz)<=inputdata_[idx0]->nrsamples_;
 		if ( !valids0 ) s0 =
-			mCast( float, firstsample + idx + samplegate.start );
+			mCast( float, firstsample + idx + samplegate.start_ );
 
 		const bool valids1 = s1>=0 &&
 				     (s1+gatesz)<=inputdata_[idx1]->nrsamples_;
 		if ( !valids1 ) s1 =
-			mCast( float, firstsample + idx + samplegate.start );
+			mCast( float, firstsample + idx + samplegate.start_ );
 
 
 		float simival = similarity( vals0, vals1, s0+extras0,
@@ -546,15 +546,15 @@ void Similarity::prepPriorToBoundsCalc()
      if ( truestep == 0 )
 	 return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep ;
-    bool chgstopr = mNINT32(gate_.stop*zFactor()) % truestep;
-    bool chgstartd = mNINT32(desgate_.start*zFactor()) % truestep;
-    bool chgstopd = mNINT32(desgate_.stop*zFactor()) % truestep;
+     bool chgstartr = mNINT32(gate_.start_*zFactor()) % truestep ;
+     bool chgstopr = mNINT32(gate_.stop_*zFactor()) % truestep;
+    bool chgstartd = mNINT32(desgate_.start_*zFactor()) % truestep;
+    bool chgstopd = mNINT32(desgate_.stop_*zFactor()) % truestep;
 
-    mAdjustGate( chgstartr, gate_.start, false )
-    mAdjustGate( chgstopr, gate_.stop, true )
-    mAdjustGate( chgstartd, desgate_.start, false )
-    mAdjustGate( chgstopd, desgate_.stop, true )
+    mAdjustGate( chgstartr, gate_.start_, false )
+	    mAdjustGate( chgstopr, gate_.stop_, true )
+	    mAdjustGate( chgstartd, desgate_.start_, false )
+	    mAdjustGate( chgstopd, desgate_.stop_, true )
 
     Provider::prepPriorToBoundsCalc();
 }

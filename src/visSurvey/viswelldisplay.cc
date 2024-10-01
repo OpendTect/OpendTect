@@ -250,7 +250,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
     wellid_ = multiid;
     mGetWD(return false);
     const Well::D2TModel* d2t = wd->d2TModel();
-    const bool trackabovesrd = wd->track().zRange().stop <
+    const bool trackabovesrd = wd->track().zRange().stop_ <
 			      -1.f * SI().seismicReferenceDatum();
     if ( zistime_ && !d2t && !trackabovesrd )
 	mErrRet( "No depth to time model defined" )
@@ -434,17 +434,17 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     const Well::Log& curlog = *wd->getLog( lp.name_ );
     const BufferString lognm = curlog.name();
     ZSampling dahrg = curlog.dahRange();
-    dahrg.step = curlog.dahStep( true );
+    dahrg.step_ = curlog.dahStep( true );
     const float lognrsamples = dahrg.nrfSteps();
 
     int logres = getResolution();
     if ( logres == mAutoRes && lognrsamples > cMaxLogSamp )
-	dahrg.step = dahrg.width() / float(cMaxLogSamp-1);
+	dahrg.step_ = dahrg.width() / float(cMaxLogSamp-1);
     else if ( logres > 1 )
     {
 	const float fact = Math::PowerOf( 2.f, float(logres-1) );
 	const float nrsamples = lognrsamples / fact;
-	dahrg.step = dahrg.width() / nrsamples;
+	dahrg.step_ = dahrg.width() / nrsamples;
     }
 
     PtrMan<Well::Log> logdata = curlog.upScaleLog( dahrg );

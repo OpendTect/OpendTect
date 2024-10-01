@@ -215,8 +215,8 @@ bool SynthGenBase::isInputOK() const
 	mErrRet(tr("Wavelet required to compute trace range from model(s)"),
 		false)
 
-    const float outputsr = mIsUdf(outputsampling_.step) ? wavelet_->sampleRate()
-							: outputsampling_.step;
+                const float outputsr = mIsUdf(outputsampling_.step_) ? wavelet_->sampleRate()
+                                                                     : outputsampling_.step_;
     if ( !mIsEqual(wavelet_->sampleRate(),outputsr,1e-4f) )
     {
 	Wavelet& wavelet = const_cast<Wavelet&>(*wavelet_);
@@ -682,9 +682,9 @@ void SynthGenerator::sortOutput( const float_complex* cres,
     const int outsz = int (res.size());
     const SamplingData<float>& trcsampling = outtrc_->info().sampling;
     const ZSampling twtrg = trcsampling.interval( outsz );
-    const float step = trcsampling.step;
-    float start = mCast( float, mCast( int, trcsampling.start/step ) ) * step;
-    if ( start < trcsampling.start - 1e-4f )
+    const float step = trcsampling.step_;
+    float start = mCast( float, mCast( int, trcsampling.start_/step ) ) * step;
+    if ( start < trcsampling.start_ - 1e-4f )
 	start += step;
 
     const float width = step * convolvesize_;
@@ -768,7 +768,7 @@ bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input,
     const SamplingData<float>& trcsampling = outtrc_->info().sampling;
     const ZSampling outputsampling = trcsampling.interval( outsz );
 
-    float mutelevel = trcsampling.start;
+    float mutelevel = trcsampling.start_;
     float firsttime = mUdf(float);
 
     PointBasedMathFunction stretchfunc( PointBasedMathFunction::Linear,
@@ -794,8 +794,8 @@ bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input,
 
     const int insz = int (input.size());
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( input,
-					    insz, trcsampling.start,
-					    trcsampling.step );
+                                                              insz, trcsampling.start_,
+                                                              trcsampling.step_ );
 
     for ( int idx=0; idx<outsz; idx++ )
     {
@@ -809,9 +809,9 @@ bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input,
 	out.setValue( idx, mIsUdf(outval) ? 0.f : outval );
     }
 
-    if ( mutelevel>outputsampling.start )
+    if ( mutelevel>outputsampling.start_ )
     {
-	Muter muter( mutelength_/outputsampling.step, false );
+        Muter muter( mutelength_/outputsampling.step_, false );
 	muter.mute( out, outtrc_->size(),
 		    outputsampling.getfIndex( mutelevel ) );
     }
@@ -1185,7 +1185,7 @@ bool RaySynthGenerator::doPrepare( int /* nrthreads */ )
 
 	getOutSamplingFromModel( cursampling, uncorrsampling.ptr() );
 	outputzrg.include( cursampling, false );
-	outputzrg.step = cursampling.step;
+        outputzrg.step_ = cursampling.step_;
 	if ( !skipnmo && !synthgen_->applynmo_ )
 	    outputzrg = *uncorrsampling.ptr();
 
@@ -1275,7 +1275,7 @@ bool RaySynthGenerator::getOutSamplingFromModel( ZSampling& nmozrg,
 						 ZSampling* uncorrzrg ) const
 {
     const ZSampling wvltzrg = synthgen_->wavelet_->samplePositions();
-    const float outputsr = mIsUdf(nmozrg.step) ? wvltzrg.step : nmozrg.step;
+    const float outputsr = mIsUdf(nmozrg.step_) ? wvltzrg.step_ : nmozrg.step_;
     nmozrg.set( mUdf(float), -mUdf(float), outputsr );
     if ( uncorrzrg )
 	*uncorrzrg = nmozrg;
@@ -1350,7 +1350,7 @@ bool RaySynthGenerator::getOutSamplingFromModel( ZSampling& nmozrg,
     ObjectSet<ZSampling> zrgs( &nmozrg );
     if ( uncorrzrg )
     {
-	uncorrzrg->start = nmozrg.start;
+        uncorrzrg->start_ = nmozrg.start_;
 	zrgs.add( uncorrzrg );
     }
 
@@ -1358,20 +1358,20 @@ bool RaySynthGenerator::getOutSamplingFromModel( ZSampling& nmozrg,
     {
 	ZSampling& zrg = *obj;
 	zrg.scale( 1.f / outputsr );
-	zrg.start = mIsEqual( (float)mNINT32(zrg.start), zrg.start,
+        zrg.start_ = mIsEqual( (float)mNINT32(zrg.start_), zrg.start_,
 				1e-2f )
-		      ? mNINT32(zrg.start) : Math::Floor( zrg.start);
-	zrg.stop = mIsEqual( (float)mNINT32(zrg.stop), zrg.stop,
+                     ? mNINT32(zrg.start_) : Math::Floor( zrg.start_);
+        zrg.stop_ = mIsEqual( (float)mNINT32(zrg.stop_), zrg.stop_,
 			       1e-2f )
-		     ? mNINT32(zrg.stop) : Math::Ceil( zrg.stop );
+                    ? mNINT32(zrg.stop_) : Math::Ceil( zrg.stop_ );
 	zrg.scale( outputsr );
 	if ( hassampling )
 	{
-	    zrg.start += wvltzrg.start;
-	    zrg.stop += wvltzrg.stop;
+            zrg.start_ += wvltzrg.start_;
+            zrg.stop_ += wvltzrg.stop_;
 	}
 
-	zrg.step = outputsr;
+        zrg.step_ = outputsr;
     }
 
     return true;

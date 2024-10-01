@@ -31,9 +31,9 @@ static void scaleVector( const TypeSet<float>& rawvalues,
 
     for ( int idx=0; idx<rawvalues.size(); idx++ )
     {
-	float diff = ranges[idx].stop - ranges[idx].start;
+	float diff = ranges[idx].stop_ - ranges[idx].start_;
 	float denom = mIsZero( diff , 0.001 ) ? 0.001f : diff;
-	scaledvalues += ( rawvalues[idx] - ranges[idx].start ) / denom;
+	scaledvalues += ( rawvalues[idx] - ranges[idx].start_ ) / denom;
     }
 }
 

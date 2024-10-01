@@ -26,7 +26,7 @@ SeisResampler::SeisResampler( const TrcKeyZSampling& c, bool is2d,
     if ( valrg )
     {
 	valrg->sort();
-	replval = (valrg->start + valrg->stop) * .5f;
+        replval = (valrg->start_ + valrg->stop_) * .5f;
     }
 }
 
@@ -74,30 +74,30 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
     {
 	const StepInterval<float> trczrg( intrc.zRange() );
 	StepInterval<float> reqzrg( cs.zsamp_ );
-	if ( mIsUdf(reqzrg.start) )
-	    reqzrg.start = trczrg.start;
-	if ( mIsUdf(reqzrg.stop) )
-	    reqzrg.stop = trczrg.stop;
-	if ( reqzrg.step < 1e-8 )
-	    reqzrg.step = trczrg.step;
+        if ( mIsUdf(reqzrg.start_) )
+            reqzrg.start_ = trczrg.start_;
+        if ( mIsUdf(reqzrg.stop_) )
+            reqzrg.stop_ = trczrg.stop_;
+        if ( reqzrg.step_ < 1e-8 )
+            reqzrg.step_ = trczrg.step_;
 
-	if ( !mIsEqual(reqzrg.start,trczrg.start,1e-8)
-	  || !mIsEqual(reqzrg.stop,trczrg.stop,1e-8) )
+        if ( !mIsEqual(reqzrg.start_,trczrg.start_,1e-8)
+             || !mIsEqual(reqzrg.stop_,trczrg.stop_,1e-8) )
 	    dozsubsel = true;
 
-	if ( reqzrg.step > 1.01 * trczrg.step
-	  || reqzrg.step < 0.99 * trczrg.step )
+        if ( reqzrg.step_ > 1.01 * trczrg.step_
+             || reqzrg.step_ < 0.99 * trczrg.step_ )
 	    dozsubsel = true;
 	else
-	    reqzrg.step = trczrg.step;
+            reqzrg.step_ = trczrg.step_;
 
 	if ( dozsubsel )
 	{
 	    worktrc = intrc;
 	    worktrc.info() = intrc.info();
-	    worktrc.info().sampling.start = reqzrg.start;
-	    worktrc.info().sampling.step = reqzrg.step;
-	    int nrsamps = (int)( (reqzrg.stop-reqzrg.start)/reqzrg.step + 1.5 );
+            worktrc.info().sampling.start_ = reqzrg.start_;
+            worktrc.info().sampling.step_ = reqzrg.step_;
+            int nrsamps = (int)( (reqzrg.stop_-reqzrg.start_)/reqzrg.step_ + 1.5 );
 	    for ( int idx=0; idx<intrc.data().nrComponents(); idx++ )
 		worktrc.data().getComponent(idx)->reSize( nrsamps );
 	    worktrc.zero();
@@ -111,8 +111,8 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 
     const int nrsamps = worktrc.size();
     worktrc.info() = intrc.info();
-    worktrc.info().sampling.start = cs.zsamp_.start;
-    worktrc.info().sampling.step = cs.zsamp_.step;
+    worktrc.info().sampling.start_ = cs.zsamp_.start_;
+    worktrc.info().sampling.step_ = cs.zsamp_.step_;
     if ( intrc.nrComponents() != worktrc.nrComponents() )
     {
 	worktrc.setNrComponents( intrc.nrComponents() );
@@ -123,13 +123,13 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
     {
 	for ( int isamp=0; isamp<nrsamps; isamp++ )
 	{
-	    float t = cs.zsamp_.start + isamp * cs.zsamp_.step;
+            float t = cs.zsamp_.start_ + isamp * cs.zsamp_.step_;
 	    float val = intrc.getValue( t, icomp );
 	    if ( valrg )
 	    {
 		if ( !Math::IsNormalNumber(val) )	val = replval;
-		else if ( val < valrg->start )	val = valrg->start;
-		else if ( val > valrg->stop )	val = valrg->stop;
+                else if ( val < valrg->start_ )	val = valrg->start_;
+                else if ( val > valrg->stop_ )	val = valrg->stop_;
 	    }
 	    worktrc.set( isamp, val, icomp );
 	}

@@ -69,15 +69,15 @@ inline void DataSqueezer<T>::setRange( const Interval<T>& inprg, bool lim )
 {
     Interval<T>& rg = lim ? rg_ : urg_;
     rg = inprg;
-    if ( !mIsUdf(rg.start) && !mIsUdf(rg.stop) )
+    if ( !mIsUdf(rg.start_) && !mIsUdf(rg.stop_) )
 	rg.sort(true);
 
-    udfstart_ = mIsUdf(rg_.start); udfstop_ = mIsUdf(rg_.stop);
-    udfustart_ = mIsUdf(urg_.start); udfustop_ = mIsUdf(urg_.stop);
-    if ( !udfstart_ && !udfustart_ && urg_.start <= rg_.start )
-	{ urg_.start = mUdf(T); udfustart_ = true; }
-    if ( !udfstop_ && !udfustop_ && urg_.stop >= rg_.stop )
-	{ urg_.stop = mUdf(T); udfustop_ = true; }
+    udfstart_ = mIsUdf(rg_.start_); udfstop_ = mIsUdf(rg_.stop_);
+    udfustart_ = mIsUdf(urg_.start_); udfustop_ = mIsUdf(urg_.stop_);
+    if ( !udfstart_ && !udfustart_ && urg_.start_ <= rg_.start_ )
+    { urg_.start_ = mUdf(T); udfustart_ = true; }
+    if ( !udfstop_ && !udfustop_ && urg_.stop_ >= rg_.stop_ )
+    { urg_.stop_ = mUdf(T); udfustop_ = true; }
 }
 
 
@@ -90,26 +90,26 @@ inline T DataSqueezer<T>::value( T v ) const
     {
 	if ( udfustart_ )
 	{
-	    if ( v < rg_.start )
-		v = rg_.start;
+	    if ( v < rg_.start_ )
+		v = rg_.start_;
 	}
-	else if ( v < urg_.start )
+	else if ( v < urg_.start_ )
 	{
-	    const T w = rg_.start - urg_.start;
-	    v = rg_.start - ((w*w) / (v + w - urg_.start));
+	    const T w = rg_.start_ - urg_.start_;
+	    v = rg_.start_ - ((w*w) / (v + w - urg_.start_));
 	}
     }
     if ( !udfstop_  )
     {
 	if ( udfustop_ )
 	{
-	    if ( v > rg_.stop )
-		v = rg_.stop;
+	    if ( v > rg_.stop_ )
+		v = rg_.stop_;
 	}
-	else if ( v > urg_.stop )
+	else if ( v > urg_.stop_ )
 	{
-	    const T w = rg_.stop - urg_.stop;
-	    v = rg_.stop - ((w*w) / (v + w - urg_.stop));
+	    const T w = rg_.stop_ - urg_.stop_;
+	    v = rg_.stop_ - ((w*w) / (v + w - urg_.stop_));
 	}
     }
 

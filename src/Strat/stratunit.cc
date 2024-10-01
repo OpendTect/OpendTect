@@ -226,11 +226,11 @@ void Strat::NodeUnitRef::putPropsTo( IOPar& iop ) const
 
 void Strat::NodeUnitRef::setTimeRange( const Interval<float>& rg )
 {
-    const bool oldudf = mIsUdf(timerg_.start);
-    const bool newudf = mIsUdf(rg.start);
+    const bool oldudf = mIsUdf(timerg_.start_);
+    const bool newudf = mIsUdf(rg.start_);
     bool ischgd = oldudf != newudf;
     if ( !ischgd && !oldudf )
-	ischgd = timerg_.start != rg.start || timerg_.stop != rg.stop;
+	ischgd = timerg_.start_ != rg.start_ || timerg_.stop_ != rg.stop_;
     if ( !ischgd ) return;
 
     timerg_ = rg;
@@ -240,7 +240,7 @@ void Strat::NodeUnitRef::setTimeRange( const Interval<float>& rg )
 
 void Strat::NodeUnitRef::incTimeRange( const Interval<float>& rg )
 {
-    if ( mIsUdf(timerg_.start) )
+    if ( mIsUdf(timerg_.start_) )
 	setTimeRange( rg );
     else
     {
@@ -255,8 +255,8 @@ void Strat::NodeUnitRef::changeTimeRange( float dtime )
 {
     Strat::UnitRefIter childitr( *this );
     Interval<float> nurtimerg = timeRange();
-    nurtimerg.start += dtime;
-    nurtimerg.stop += dtime;
+    nurtimerg.start_ += dtime;
+    nurtimerg.stop_ += dtime;
     setTimeRange( nurtimerg );
     while ( childitr.next() )
     {
@@ -264,8 +264,8 @@ void Strat::NodeUnitRef::changeTimeRange( float dtime )
 	if ( nur )
 	{
 	    Interval<float> newtimerg = nur->timeRange();
-	    newtimerg.start += dtime;
-	    newtimerg.stop += dtime;
+	    newtimerg.start_ += dtime;
+	    newtimerg.stop_ += dtime;
 	    nur->setTimeRange( newtimerg );
 	}
     }
@@ -439,7 +439,7 @@ void Strat::NodeOnlyUnitRef::ensureTimeSorted()
 	if ( !nur )
 	    return;
 
-	const float toptime = nur->timeRange().start;
+	const float toptime = nur->timeRange().start_;
 	if ( mIsUdf(toptime) )
 	    return;
 

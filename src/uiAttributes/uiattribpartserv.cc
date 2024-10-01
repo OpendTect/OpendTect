@@ -852,7 +852,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 
 	    tmpprov->computeRefStep();
 	    tmpprov->computeRefZ0();
-	    const float floatres = (tkzs.zsamp_.start - tmpprov->getRefZ0()) /
+	    const float floatres = (tkzs.zsamp_.start_ - tmpprov->getRefZ0()) /
 				    tmpprov->getRefStep();
 	    const int intres = mNINT32( floatres );
 	    if ( Math::Abs(floatres-intres) > 1e-2 )
@@ -1162,7 +1162,7 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 
     BinIDValueSet bidset( 2, false );
     for ( const auto& tk : trckeys )
-	bidset.add( tk.position(), zrg.start, zrg.stop );
+	bidset.add( tk.position(), zrg.start_, zrg.stop_ );
 
     SeisTrcBuf output( true );
     if ( !createOutput(bidset,output,knots,trckeys) || output.isEmpty() )
@@ -1239,7 +1239,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
 
     BinIDValueSet bidset( 2, false );
     for ( const auto& tk : trckeys )
-	bidset.add( tk.position(), zrg.start, zrg.stop );
+	bidset.add( tk.position(), zrg.start_, zrg.stop_ );
 
     SeisTrcBuf output( true );
     if ( !createOutput(bidset,output,knots,trckeys) || output.isEmpty() )
@@ -1350,7 +1350,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
 
     BinIDValueSet bidset( 2, false );
     for ( const auto& tk : trckeys )
-	bidset.add( tk.position(), zrg.start, zrg.stop );
+	bidset.add( tk.position(), zrg.start_, zrg.stop_ );
 
     SeisTrcBuf output( true );
     if ( !createOutput(bidset,output,trueknotspos,trckeys) )

@@ -59,7 +59,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     StepInterval<float> sizrg( SI().zRange(true) );
     sizrg.scale( mCast(float,SI().zDomain().userFactor()) );
     StepInterval<float> suggestedzrg( sizrg );
-    suggestedzrg.step *= 10;
+    suggestedzrg.step_ *= 10;
     contzrgfld_ = new uiGenInput( this, tr("Contour Z range"),
 			FloatInpIntervalSpec(suggestedzrg) );
     contzrgfld_->attach( alignedBelow, polyfld_ );
@@ -81,7 +81,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     vtxthreshfld_->attach( alignedBelow, nrlargestfld_ );
 
     uiString fldnm = tr("Random line Z range");
-    const float wdth = 50 * sizrg.step;
+    const float wdth = 50 * sizrg.step_;
     relzrgfld_ = new uiGenInput( this, fldnm,
 			FloatInpIntervalSpec(Interval<float>(-wdth,wdth)) );
     relzrgfld_->attach( alignedBelow, vtxthreshfld_ );

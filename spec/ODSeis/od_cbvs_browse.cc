@@ -135,8 +135,8 @@ int mProgMainFnName( int argc, char** argv )
 	    od_cout() << "Xline range available: ";
 	    for ( int idx=0; idx<inlinf.segments_.size(); idx++ )
 	    {
-		od_cout() << inlinf.segments_[idx].start << " - "
-		     << inlinf.segments_[idx].stop;
+                od_cout() << inlinf.segments_[idx].start_ << " - "
+                          << inlinf.segments_[idx].stop_;
 		if ( idx < inlinf.segments_.size()-1 )
 		    od_cout() << " and ";
 	    }
@@ -189,16 +189,16 @@ int mProgMainFnName( int argc, char** argv )
 	    od_cout() << "Print samples ( 1 - " << trc.size() << " )."
 		      << od_endl;
 	    od_cout() << "From (0 to stop): ";
-	    getInt( samps.start );
-	    if ( samps.start < 1 ) break;
+            getInt( samps.start_ );
+            if ( samps.start_ < 1 ) break;
 
-	    od_cout() << "To: "; getInt( samps.stop );
-	    od_cout() << "Step: "; getInt( samps.step );
-	    if ( samps.step < 1 ) samps.step = 1;
-	    if ( samps.start < 1 ) samps.start = 1;
-	    if ( samps.stop > trc.size() ) samps.stop = trc.size();
+            od_cout() << "To: "; getInt( samps.stop_ );
+            od_cout() << "Step: "; getInt( samps.step_ );
+            if ( samps.step_ < 1 ) samps.step_ = 1;
+            if ( samps.start_ < 1 ) samps.start_ = 1;
+            if ( samps.stop_ > trc.size() ) samps.stop_ = trc.size();
 	    od_cout() << od_endl;
-	    for ( int isamp=samps.start; isamp<=samps.stop; isamp+=samps.step )
+            for ( int isamp=samps.start_; isamp<=samps.stop_; isamp+=samps.step_ )
 	    {
 		od_cout() << isamp << '\t';
 		for ( int icomp=0; icomp<nrcomps; icomp++ )

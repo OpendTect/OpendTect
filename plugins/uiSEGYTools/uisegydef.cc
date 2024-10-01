@@ -155,7 +155,7 @@ void uiSEGYFileSpec::setMultiInput( const StepInterval<int>& nrs, int zp )
 {
     if ( !multifld_ ) return;
 
-    if ( mIsUdf(nrs.start) )
+    if ( mIsUdf(nrs.start_) )
 	multifld_->setChecked( false );
     else
     {
@@ -168,14 +168,14 @@ void uiSEGYFileSpec::setMultiInput( const StepInterval<int>& nrs, int zp )
 	    mDynamicCastGet(uiLineEdit*,le,inpobj)
 	    if ( le )
 	    {
-		BufferString txt( toString(nrs.start) );
+		BufferString txt( toString(nrs.start_) );
 		const int nrzeros = zp - txt.size();
 		if ( nrzeros > 0 )
 		{
 		    txt = "0";
 		    for ( int idx=1; idx<nrzeros; idx++ )
 			txt += "0";
-		    txt += nrs.start;
+		    txt += nrs.start_;
 		}
 		le->setText( txt );
 	    }

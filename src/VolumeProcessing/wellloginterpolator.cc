@@ -146,8 +146,8 @@ Well::Log* applyFilter( const Well::Data& wdin, const Well::Log& log ) const
     if ( zintime )
     {
 	if ( !d2t ) return 0;
-	zrg.start = d2t->getTime( mdrg.start, track );
-	zrg.stop = d2t->getTime( mdrg.stop, track );
+	zrg.start_ = d2t->getTime( mdrg.start_, track );
+	zrg.stop_ = d2t->getTime( mdrg.stop_, track );
 	if ( zrg.isUdf() ) return 0;
     }
     else
@@ -155,7 +155,7 @@ Well::Log* applyFilter( const Well::Data& wdin, const Well::Log& log ) const
 
     ObjectSet<const Well::Log> logs;
     logs += &log;
-    const float extractstep = bbox_.zsamp_.step / cLogStepFact;
+    const float extractstep = bbox_.zsamp_.step_ / cLogStepFact;
     Well::LogSampler ls( d2t, &track, zrg, zintime, extractstep,
 			 zintime, params_.samppol_, logs ),
 		     lsnear( d2t, &track, zrg, zintime, extractstep,
@@ -174,7 +174,7 @@ Well::Log* applyFilter( const Well::Data& wdin, const Well::Log& log ) const
     }
 
     FFTFilter filter( nrz, extractstep );
-    filter.setLowPass( 1.f / (2.f*bbox_.zsamp_.step) );
+    filter.setLowPass( 1.f / (2.f*bbox_.zsamp_.step_) );
     if ( !filter.apply(reglog) )
 	return 0;
 
@@ -489,8 +489,8 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 {
     if ( !outputinlrg_.includes( bid.inl(), true ) ||
 	 !outputcrlrg_.includes( bid.crl(), true ) ||
-         (bid.inl()-outputinlrg_.start)%outputinlrg_.step ||
-	 (bid.crl()-outputcrlrg_.start)%outputcrlrg_.step )
+	 (bid.inl()-outputinlrg_.start_)%outputinlrg_.step_ ||
+	 (bid.crl()-outputcrlrg_.start_)%outputcrlrg_.step_ )
 	return true;
 
     const TrcKeySampling tks = getWorkArea( bid, workareastepout_ );

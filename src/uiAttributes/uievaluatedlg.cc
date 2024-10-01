@@ -147,7 +147,7 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     else if ( fpar )
     {
 	initspec = new FloatInpSpec( fpar->getFValue() );
-	const float step = fpar->limits() ? fpar->limits()->step : 1;
+	const float step = fpar->limits() ? fpar->limits()->step_ : 1;
 	incrspec = new FloatInpSpec( step );
     }
     else if ( ipar )
@@ -156,13 +156,13 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
 	if ( ipar->limits() )
 	    ispec->setLimits( *(ipar->limits()) );
 	initspec = ispec;
-	const int step = ipar->limits() ? ipar->limits()->step : 1;
+	const int step = ipar->limits() ? ipar->limits()->step_ : 1;
 	incrspec = new IntInpSpec( step );
     }
     else if ( dpar )
     {
 	initspec = new DoubleInpSpec( dpar->getFValue() );
-	const double step = dpar->limits() ? dpar->limits()->step : 1;
+	const double step = dpar->limits() ? dpar->limits()->step_ : 1;
 	incrspec = new DoubleInpSpec( step );
     }
 }
@@ -201,9 +201,9 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	const Interval<float> oldrg( initfld_->getFInterval() );
 	const Interval<float> incr( incrfld_->getFInterval() );
 	Interval<float> newrg( oldrg );
-	if ( !mIsUdf(oldrg.start) ) newrg.start += idx * incr.start;
-	if ( !mIsUdf(oldrg.stop) ) newrg.stop += idx * incr.stop;
-	mCreateLabel2(newrg.start,newrg.stop)
+	if ( !mIsUdf(oldrg.start_) ) newrg.start_ += idx * incr.start_;
+	if ( !mIsUdf(oldrg.stop_) ) newrg.stop_ += idx * incr.stop_;
+	mCreateLabel2(newrg.start_,newrg.stop_)
 	gatepar->setValue( newrg );
     }
     else if ( bidpar )

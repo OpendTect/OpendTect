@@ -755,12 +755,12 @@ void unitChgCB( CallBacker* cb )
     float val = valfld_->getFValue();
     Interval<float> rg = rgfld_->getFInterval();
     convValue( val, prevuom, curuom );
-    convValue( rg.start, prevuom, curuom );
-    convValue( rg.stop, prevuom, curuom );
+    convValue( rg.start_, prevuom, curuom );
+    convValue( rg.stop_, prevuom, curuom );
 
     valfld_->setValue( val );
-    rgfld_->setValue( rg.start, 0 );
-    rgfld_->setValue( rg.stop, 1 );
+    rgfld_->setValue( rg.start_, 0 );
+    rgfld_->setValue( rg.stop_, 1 );
 }
 
 
@@ -771,10 +771,10 @@ void setFrom( const Property& prop )
     {
 	mDynamicCastGet(const RangeProperty*,rgprop,&prop)
 	typfld_->setCurrentItem( 1 );
-	setFldVal( rgfld_, rgprop->rg_.start, un, 0 );
-	setFldVal( rgfld_, rgprop->rg_.stop, un, 1 );
-	const float val =  mIsUdf(rgprop->rg_.start)	? rgprop->rg_.stop
-			: (mIsUdf(rgprop->rg_.stop)	? rgprop->rg_.start
+        setFldVal( rgfld_, rgprop->rg_.start_, un, 0 );
+        setFldVal( rgfld_, rgprop->rg_.stop_, un, 1 );
+        const float val =  mIsUdf(rgprop->rg_.start_)	? rgprop->rg_.stop_
+                                                        : (mIsUdf(rgprop->rg_.stop_)	? rgprop->rg_.start_
 							: rgprop->rg_.center());
 	setFldVal( valfld_, val, un, 0 );
     }
@@ -802,18 +802,18 @@ bool getRange()
     if ( isRg() )
     {
 	Interval<float> rg = rgfld_->getFInterval();
-	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
+        if ( mIsUdf(rg.start_) || mIsUdf(rg.stop_) )
 	    return false;
 
-	rg_.start = getConvertedValue( rg.start, un, pruom_ );
-	rg_.stop = getConvertedValue( rg.stop, un, pruom_ );
+        rg_.start_ = getConvertedValue( rg.start_, un, pruom_ );
+        rg_.stop_ = getConvertedValue( rg.stop_, un, pruom_ );
     }
     else
     {
 	const float val = valfld_->getFValue();
 	if ( mIsUdf(val) )
 	    return false;
-	rg_.start = getConvertedValue( val, un, pruom_ );
+        rg_.start_ = getConvertedValue( val, un, pruom_ );
     }
 
     return true;
@@ -827,7 +827,7 @@ bool setProp( PropertySet& props, int idx )
     const Property& oldprop = *props.get( idx );
     Property* newprop = isRg()
 		? (Property*)new RangeProperty( oldprop.ref(), rg_ )
-		: (Property*)new ValueProperty( oldprop.ref(), rg_.start );
+                : (Property*)new ValueProperty( oldprop.ref(), rg_.start_ );
     delete props.replace( idx, newprop );
 
     return true;

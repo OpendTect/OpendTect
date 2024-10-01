@@ -48,8 +48,8 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 
     stepfld_ = new uiLabeledSpinBox(this,uiStrings::sStep(),0,"Step");
     stepfld_->attach( rightOf, posfld_ );
-    stepfld_->box()->setInterval( StepInterval<int>(posspos.step,
-		posspos.stop-posspos.start,posspos.step) );
+    stepfld_->box()->setInterval( StepInterval<int>(posspos.step_,
+                                                    posspos.stop_-posspos.start_,posspos.step_) );
     stepfld_->box()->valueChanged.notify(
 			mCB(this,uiViewer3DPositionDlg,stepCB) );
 
@@ -183,7 +183,7 @@ void uiViewer3DPositionDlg::applyCB( CallBacker* )
 	    else
 	    {
 		uiString msg = tr("The cross-line should be between %1 and %2")
-			     .arg(crlrg.start).arg(crlrg.stop);
+                               .arg(crlrg.start_).arg(crlrg.stop_);
 		uiMSG().error( msg );
 		return;
 	    }
@@ -199,7 +199,7 @@ void uiViewer3DPositionDlg::applyCB( CallBacker* )
 	    else
 	    {
 		uiString msg = tr("The in-line should be between %1 and %2")
-			     .arg(inlrg.start).arg(inlrg.stop);
+                               .arg(inlrg.start_).arg(inlrg.stop_);
 		uiMSG().error( msg );
 		return;
 	    }
@@ -220,7 +220,7 @@ void uiViewer3DPositionDlg::applyCB( CallBacker* )
 	if ( !trcrg.includes(location, true) )
 	{
 	    uiString msg = tr("The trace number should be between %1 and %2")
-			 .arg(trcrg.start).arg(trcrg.stop);
+                           .arg(trcrg.start_).arg(trcrg.stop_);
 	    uiMSG().error( msg );
 	    return;
 	}

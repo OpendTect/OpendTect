@@ -77,11 +77,11 @@ public:
     bool		is2D() const override			{ return true; }
 
     int			start( bool firstrg = true ) const override
-			{ return firstrg ? nrrg_.start : mUdf(int); }
+    { return firstrg ? nrrg_.start_ : mUdf(int); }
     int			stop( bool firstrg = true ) const override
-			{ return firstrg ? nrrg_.stop : mUdf(int); }
+    { return firstrg ? nrrg_.stop_ : mUdf(int); }
     int			step( bool firstrg = true ) const override
-			{ return firstrg ? nrrg_.step : 1; }
+    { return firstrg ? nrrg_.step_ : 1; }
     StepInterval<float> getZRange() const override
 			{ return zrg_; }
 

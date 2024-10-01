@@ -694,8 +694,8 @@ void EMObject::removeSelected( const TypeSet<EM::SubID>& subids )
 	    {
 		removebypolyposbox_.hsamp_.start_ =
 		    removebypolyposbox_.hsamp_.stop_ = bid;
-		removebypolyposbox_.zsamp_.start =
-		    removebypolyposbox_.zsamp_.stop = (float) pos.z;
+		removebypolyposbox_.zsamp_.start_ =
+			removebypolyposbox_.zsamp_.stop_ = (float) pos.z;
 	    }
 	    else
 	    {

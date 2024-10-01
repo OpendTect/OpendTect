@@ -677,7 +677,7 @@ uiString Well::Data::getInfoString( Well::Info::InfoType it,
 	case Well::Info::TD:
 	    if ( !track().isEmpty() )
 	    {
-		const float td = track().dahRange().stop;
+		const float td = track().dahRange().stop_;
 		if ( !mIsUdf(td) )
 		    ret = toUiString( zun->userValue(td), 2 );
 	    }

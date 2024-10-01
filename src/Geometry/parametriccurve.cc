@@ -81,7 +81,7 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
     if ( mIsUdf(p) || !prange.includes(p,false) )
     {
 	float closestsqdist = mUdf(float);
-	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )
+	for ( int idx=prange.start_; idx<=prange.stop_; idx+=prange.step_ )
 	{
 	    const float sqdist = (float) getPosition(idx).sqDistTo(pos);
 	    if ( sqdist<closestsqdist )
@@ -92,11 +92,11 @@ bool ParametricCurve::findClosestPosition( float& p, const Coord3& pos,
 	}
     }
 
-    const Interval<float> limits( mCast(float,prange.start),
-					    mCast(float,prange.stop) );
+    const Interval<float> limits( mCast(float,prange.start_),
+				  mCast(float,prange.stop_) );
     ExtremeFinder1D finder( mfunc, false, 20, eps,
-	    		    Interval<float>(mMAX(p-prange.step,prange.start),
-					    mMIN(p+prange.step,prange.stop) ),
+			    Interval<float>(mMAX(p-prange.step_,prange.start_),
+					    mMIN(p+prange.step_,prange.stop_) ),
 			    &limits );
 
     int res;
@@ -117,7 +117,7 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
     if ( mIsUdf(p) || !prange.includes(p,false) )
     {
 	float closestdist = mUdf(float);
-	for ( int idx=prange.start; idx<=prange.stop; idx+=prange.step )
+	for ( int idx=prange.start_; idx<=prange.stop_; idx+=prange.step_ )
 	{
 	    const Coord3 pos = getPosition(idx);
 	    const float dist =
@@ -130,8 +130,8 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	}
     }
 
-    const Interval<float> limits( mCast(float,prange.start),
-						mCast(float,prange.stop) );
+    const Interval<float> limits( mCast(float,prange.start_),
+				  mCast(float,prange.stop_) );
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 pos = computePosition(p);
@@ -164,7 +164,7 @@ void ParametricCurve::getPosIDs( TypeSet<GeomPosID>& ids, bool remudf ) const
     ids.erase();
     const StepInterval<int> range = parameterRange();
 
-    for ( int param=range.start; param<=range.stop; param += range.step )
+    for ( int param=range.start_; param<=range.stop_; param += range.step_ )
     {
 	if ( remudf && !isDefined(param) ) continue;
 	ids += param;

@@ -1533,7 +1533,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	TrcKeySampling& hs = cs.hsamp_; StepInterval<float>& zrg = cs.zsamp_;
 	hs.start_.inl() = fms.getIValue(0); hs.stop_.inl() = fms.getIValue(1);
 	hs.start_.crl() = fms.getIValue(2); hs.stop_.crl() = fms.getIValue(3);
-	zrg.start = fms.getFValue( 4 ); zrg.stop = fms.getFValue( 5 );
+	zrg.start_ = fms.getFValue( 4 ); zrg.stop_ = fms.getFValue( 5 );
 	const_cast<SurveyInfo&>(SI()).setRange( cs, true );
     }
     else
@@ -1631,8 +1631,8 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     fms += cs.hsamp_.stop_.inl();
     fms += cs.hsamp_.start_.crl();
     fms += cs.hsamp_.stop_.crl();
-    fms += cs.zsamp_.start;
-    fms += cs.zsamp_.stop;
+    fms += cs.zsamp_.start_;
+    fms += cs.zsamp_.stop_;
     par.set( sKeyWorkArea(), fms );
 
     par.set( sKeySliceSteps(),

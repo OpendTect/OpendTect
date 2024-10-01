@@ -1155,7 +1155,7 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 	mErrRetResetStream(
 	    tr("File:\n%1\nNo proper 'number of samples per trace' found") )
 
-    if ( mIsUdf(bfi.sampling_.step) )
+		if ( mIsUdf(bfi.sampling_.step_) )
     {
 	SeisTrcInfo ti;
 	if ( thdr->is2D() != loaddef_.is2d_ )

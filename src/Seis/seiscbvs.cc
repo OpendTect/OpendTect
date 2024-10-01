@@ -357,13 +357,13 @@ bool CBVSSeisTrcTranslator::initRead_()
     pinfo_.stdinfo = info.stdtext_;
     pinfo_.nr = info.seqnr_;
     pinfo_.fullyrectandreg = info.geom_.fullyrectandreg;
-    pinfo_.inlrg.start = info.geom_.start.inl();
-    pinfo_.inlrg.stop = info.geom_.stop.inl();
-    pinfo_.inlrg.step = abs(info.geom_.step.inl());
+    pinfo_.inlrg.start_ = info.geom_.start.inl();
+    pinfo_.inlrg.stop_ = info.geom_.stop.inl();
+    pinfo_.inlrg.step_ = abs(info.geom_.step.inl());
     pinfo_.inlrg.sort();
-    pinfo_.crlrg.start = info.geom_.start.crl();
-    pinfo_.crlrg.stop = info.geom_.stop.crl();
-    pinfo_.crlrg.step = abs(info.geom_.step.crl());
+    pinfo_.crlrg.start_ = info.geom_.start.crl();
+    pinfo_.crlrg.stop_ = info.geom_.stop.crl();
+    pinfo_.crlrg.step_ = abs(info.geom_.step.crl());
     pinfo_.crlrg.sort();
     if ( !pinfo_.fullyrectandreg )
 	pinfo_.cubedata = &info.geom_.cubedata;
@@ -411,15 +411,15 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	}
 	else
 	{
-	    tkzs.hsamp_.start_.inl() = inlrg.start;
-	    tkzs.hsamp_.stop_.inl() = inlrg.stop;
+	    tkzs.hsamp_.start_.inl() = inlrg.start_;
+	    tkzs.hsamp_.stop_.inl() = inlrg.stop_;
 	}
 
-	tkzs.hsamp_.start_.crl() = crlrg.start;
-	tkzs.hsamp_.stop_.crl() = crlrg.stop;
-	tkzs.zsamp_.start = outsd_.start;
-	tkzs.zsamp_.step = outsd_.step;
-	tkzs.zsamp_.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
+	tkzs.hsamp_.start_.crl() = crlrg.start_;
+	tkzs.hsamp_.stop_.crl() = crlrg.stop_;
+	tkzs.zsamp_.start_ = outsd_.start_;
+	tkzs.zsamp_.step_ = outsd_.step_;
+	tkzs.zsamp_.stop_ = outsd_.start_ + (outnrsamples_-1) * outsd_.step_;
 
 	if ( rdmgr_->pruneReaders(tkzs) == 0 )
 	{
@@ -563,8 +563,8 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	    ti.refnr = spnr;
     }
 
-    ti.sampling.start = outsd_.start;
-    ti.sampling.step = outsd_.step;
+    ti.sampling.start_ = outsd_.start_;
+    ti.sampling.step_ = outsd_.step_;
     ti.seqnr_ = ++nrdone_;
 
     if ( ti.lineNr() == 0 && ti.trcNr() == 0 )
@@ -709,10 +709,10 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
 	const int icomp = selComp(iselc);
-	for ( int isamp=samprg_.start; isamp<=samprg_.stop; isamp++ )
+	for ( int isamp=samprg_.start_; isamp<=samprg_.stop_; isamp++ )
 	{
 	    //Parallel !!!
-	    storbuf_->setValue(isamp-samprg_.start,trc.get(isamp,icomp),iselc);
+	    storbuf_->setValue(isamp-samprg_.start_,trc.get(isamp,icomp),iselc);
 	}
     }
 

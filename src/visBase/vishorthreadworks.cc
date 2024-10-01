@@ -148,17 +148,17 @@ bool HorizonTileResolutionTesselator::doWork( od_int64 start, od_int64 stop,int)
 	positions.setCapacity( nrsidecoords*nrsidecoords, false );
 	for ( int rowidx=0; rowidx<nrsidecoords ; rowidx++ )
 	{
-	    const int row = origin.row() + rowidx*rrg.step;
+	    const int row = origin.row() + rowidx*rrg.step_;
 	    const bool rowok = rrg.includes(row, false);
 	    const StepInterval<int> geocolrg =
 		horsection_->geometry_->colRange( row );
 	    const StepInterval<int> colrg(
-		mMAX(geocolrg.start,crg.start),
-		mMIN(geocolrg.stop,crg.stop), crg.step );
+			mMAX(geocolrg.start_,crg.start_),
+			mMIN(geocolrg.stop_,crg.stop_), crg.step_ );
 
 	    for ( int colidx=0; colidx<nrsidecoords; colidx++ )
 	    {
-		const int col = origin.col() + colidx*colrg.step;
+		const int col = origin.col() + colidx*colrg.step_;
 		Coord3 pos = rowok && colrg.includes(col, false)
 		    ? horsection_->geometry_->getKnot(RowCol(row,col),false)
 		    : Coord3::udf();
@@ -196,7 +196,7 @@ bool HorizonTileResolutionTesselator::createTiles()
     {
 	for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
 	{
-	    const RowCol step(rrg.step,crg.step);
+	    const RowCol step(rrg.step_,crg.step_);
 	    const RowCol tileorigin(horsection_->origin_.row() +
 		tilerowidx*horsection_->tilesidesize_*step.row(),
 		horsection_->origin_.col() +
@@ -327,16 +327,16 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop, int )
 			       false );
 	for ( int rowidx=0; rowidx<nrcrdspertileside_ ; rowidx++ )
 	{
-	    const int row = origin.row() + rowidx*rrg_.step;
+	    const int row = origin.row() + rowidx*rrg_.step_;
 	    const bool rowok = rrg_.includes(row, false);
 	    const StepInterval<int> geocolrg = geo_->colRange( row );
 	    const StepInterval<int> colrg(
-		mMAX(geocolrg.start,crg_.start),
-		mMIN(geocolrg.stop,crg_.stop), crg_.step );
+			mMAX(geocolrg.start_,crg_.start_),
+			mMIN(geocolrg.stop_,crg_.stop_), crg_.step_ );
 
 	    for ( int colidx=0; colidx<nrcrdspertileside_ ; colidx++ )
 	    {
-		const int col = origin.col() + colidx*colrg.step;
+		const int col = origin.col() + colidx*colrg.step_;
 		Coord3 pos = rowok && colrg.includes(col, false)
 		    ? geo_->getKnot(RowCol(row,col),false)
 		    : Coord3::udf();

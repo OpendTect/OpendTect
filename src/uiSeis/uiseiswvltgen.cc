@@ -371,15 +371,15 @@ void uiSeisWvltMerge::reloadWvlts()
 	    minsampling = wvlt->sampleRate();
     }
 
-    wvltsampling_.set( xrg.start, xrg.stop, minsampling );
+    wvltsampling_.set( xrg.start_, xrg.stop_, minsampling );
     maxwvltsize_ = wvltsampling_.nrSteps() + 1;
 
     for ( int idx=0; idx<wvltset_.size(); idx++ )
     {
 	Wavelet* wvlt = wvltset_[idx];
 
-	if ( !mIsEqual(wvltsampling_.step,wvlt->sampleRate(),mDefEps) )
-	    wvlt->reSample( wvltsampling_.step );
+	if ( !mIsEqual(wvltsampling_.step_,wvlt->sampleRate(),mDefEps) )
+	    wvlt->reSample( wvltsampling_.step_ );
 
 	if ( normalizefld_->isChecked() )
 	    wvlt->normalize();
@@ -398,7 +398,7 @@ void uiSeisWvltMerge::reloadWvlts()
     wvltset_ += stackedwvlt_;
     namelist_.add( wvltname );
     stackedwvlt_->reSize( maxwvltsize_ );
-    stackedwvlt_->setSampleRate( wvltsampling_.step );
+    stackedwvlt_->setSampleRate( wvltsampling_.step_ );
     stackedwvlt_->setCenterSample( wvltsampling_.nearestIndex(0.f) );
     for ( int idx=0; idx<maxwvltsize_; idx++ )
 	stackedwvlt_->samples()[idx] = 0;
@@ -537,8 +537,8 @@ uiSeisWvltMerge::WvltMathFunction::~WvltMathFunction()
 
 float uiSeisWvltMerge::WvltMathFunction::getValue( float t ) const
 {
-    float x = t - samppos_.start;
-    x /= samppos_.step;
+    float x = t - samppos_.start_;
+    x /= samppos_.step_;
     const int x1 = int(x);
     if ( x1 > size_-1 || x1<0 )
 	return 0;

@@ -183,7 +183,8 @@ void uiGMTContourGrp::resetCB( CallBacker* )
     }
 
     AxisLayout<float> zaxis( valrg_ );
-    const StepInterval<float> zrg( valrg_.start, valrg_.stop, zaxis.sd_.step/5);
+    const StepInterval<float> zrg( valrg_.start_, valrg_.stop_,
+				   zaxis.sd_.step_/5);
     rgfld_->setValue( zrg );
     nrcontourfld_->setValue( zrg.nrSteps() + 1 );
     resetbut_->setSensitive( false );
@@ -218,7 +219,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	    if ( nrcontours == 1 )
 		nrcontours = 2;
 
-	    datarg.step = ( datarg.stop - datarg.start ) / ( nrcontours - 1 );
+	    datarg.step_ = (datarg.stop_ - datarg.start_) / (nrcontours - 1);
 	    rgfld_->setValue( datarg );
 	    rgfld_->valueChanged.enable();
 	    return;
@@ -232,8 +233,8 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	if ( nrcontours < 2 || nrcontours > 100 )
 	{
 	    uiMSG().warning( tr("Too many or too few contours") );
-	    if ( mIsZero(datarg.step,mDefEps) )
-		datarg.step = datarg.width();
+	    if ( mIsZero(datarg.step_,mDefEps) )
+		datarg.step_ = datarg.width();
 
 	    nrcontours = datarg.nrSteps() + 1;
 	    nrcontourfld_->setValue( nrcontours );
@@ -241,7 +242,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	    return;
 	}
 
-	datarg.step = ( datarg.stop - datarg.start ) / ( nrcontours - 1 );
+	datarg.step_ = ( datarg.stop_ - datarg.start_ ) / ( nrcontours - 1 );
 	rgfld_->setValue( datarg );
     }
 
@@ -289,8 +290,8 @@ void uiGMTContourGrp::readCB( CallBacker* )
     {
 	rg.scale( mCast(float,SI().zDomain().userFactor()) );
 	const float samp = SI().zStep() * SI().zDomain().userFactor();
-	rg.start = samp * mNINT32(rg.start/samp);
-	rg.stop = samp * mNINT32(rg.stop/samp);
+	rg.start_ = samp * mNINT32(rg.start_/samp);
+	rg.stop_ = samp * mNINT32(rg.stop_/samp);
     }
 
     valrg_ = rg;
@@ -354,7 +355,7 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
     subselfld_->fillPar( subpar );
     par.mergeComp( subpar, sKey::Selection() );
     StepInterval<float> rg = rgfld_->getFStepInterval();
-    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) || mIsUdf(rg.step) )
+    if ( mIsUdf(rg.start_) || mIsUdf(rg.stop_) || mIsUdf(rg.step_) )
 	mErrRet(tr("Invalid data range"))
 
     par.set( ODGMT::sKeyDataRange(), rg );

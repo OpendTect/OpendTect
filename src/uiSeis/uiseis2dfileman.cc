@@ -138,8 +138,8 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 
 	const int sz = trcrg.nrSteps() + 1;
 	PosInfo::Line2DPos firstpos, lastpos;
-	l2dd.getPos( trcrg.start, firstpos );
-	l2dd.getPos( trcrg.stop, lastpos );
+	l2dd.getPos( trcrg.start_, firstpos );
+	l2dd.getPos( trcrg.stop_, lastpos );
 
 	if ( hasrg )
 	{
@@ -153,22 +153,22 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	    txt.addNewLine();
 	    txt.append( tr("First trace: %1 %2") );
 	    const int nrxydec = SI().nrXYDecimals();
-	    if ( l2dd.getPos(trcrg.start,firstpos) )
+	    if ( l2dd.getPos(trcrg.start_,firstpos) )
 		txt.arg( firstpos.nr_ )
 		   .arg( firstpos.coord_.toPrettyString(nrxydec) ).addNewLine();
 	    txt.append( tr("Last trace: %1 %2") );
-	    if ( l2dd.getPos(trcrg.stop,lastpos) )
+	    if ( l2dd.getPos(trcrg.stop_,lastpos) )
 		txt.arg( lastpos.nr_ )
 		   .arg( lastpos.coord_.toPrettyString(nrxydec) ).addNewLine();
 
 	    const ZDomain::Info& zinfo = objinfo_->zDomain();
-	    const int nrzdec = zinfo.def_.nrZDecimals( zrg.step );
+	    const int nrzdec = zinfo.def_.nrZDecimals( zrg.step_ );
 	    zrg.scale( zinfo.userFactor() );
 	    const uiString rgstr = tr("%1: %2 - %3 [%4]")
 				.arg( zinfo.getRange() )
-				.arg( toString(zrg.start,nrzdec) )
-				.arg( toString(zrg.stop,nrzdec) )
-				.arg( toString(zrg.step,nrzdec) );
+				   .arg( toString(zrg.start_,nrzdec) )
+				   .arg( toString(zrg.stop_,nrzdec) )
+				   .arg( toString(zrg.step_,nrzdec) );
 	    txt.append( rgstr );
 	}
 	else
@@ -379,8 +379,8 @@ bool acceptOK( CallBacker* ) override
 
     if ( lmrgr.renumber_ )
     {
-	lmrgr.numbering_.start = renumbfld_->getIntValue(0);
-	lmrgr.numbering_.step = renumbfld_->getIntValue(1);
+	lmrgr.numbering_.start_ = renumbfld_->getIntValue(0);
+	lmrgr.numbering_.step_ = renumbfld_->getIntValue(1);
     }
 
     if ( lmrgr.opt_ == Seis2DLineMerger::MatchCoords )

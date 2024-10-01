@@ -116,7 +116,7 @@ bool doPrepare( int ) override
 	if ( !found )
 	{
 	    found = true;
-	    surfzrg_.start = surfzrg_.stop = data[idx];
+            surfzrg_.start_ = surfzrg_.stop_ = data[idx];
 	}
 	else
 	    surfzrg_.include( data[idx] );
@@ -172,14 +172,14 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 		rcz[k] = Coord3( fbid, pz );
 		bool defined = !mIsUdf(pz);
 		if ( allabove )
-		    allabove = defined ? v[k].z>=pz : v[k].z >= surfzrg_.stop;
+                    allabove = defined ? v[k].z>=pz : v[k].z >= surfzrg_.stop_;
 		if ( allbelow )
-		    allbelow = defined ? v[k].z<=pz : v[k].z <= surfzrg_.start;
+                    allbelow = defined ? v[k].z<=pz : v[k].z <= surfzrg_.start_;
 
 		if ( !k )
 		{
-		    trrg.start = trrg.stop = rc.row();
-		    tcrg.start = tcrg.stop = rc.col();
+                    trrg.start_ = trrg.stop_ = rc.row();
+                    tcrg.start_ = tcrg.stop_ = rc.col();
 		}
 		else
 		{
@@ -188,8 +188,8 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 		}
 	    }
 
-	    if ( trrg.start > surfrrg.stop || trrg.stop < surfrrg.start ||
-		 tcrg.start > surfcrg.stop || tcrg.stop < surfcrg.start ||
+            if ( trrg.start_ > surfrrg.stop_ || trrg.stop_ < surfrrg.start_ ||
+                 tcrg.start_ > surfcrg.stop_ || tcrg.stop_ < surfcrg.start_ ||
 		 allabove || allbelow )
 		continue;
 
@@ -201,15 +201,15 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 	    }
 	    Plane3 triangle( tri[0], tri[1], tri[2] );
 
-	    trrg.start = surfrrg.snap( trrg.start );
-	    trrg.stop = surfrrg.snap( trrg.stop );
-	    tcrg.start = surfcrg.snap( tcrg.start );
-	    tcrg.stop = surfcrg.snap( tcrg.stop );
+            trrg.start_ = surfrrg.snap( trrg.start_ );
+            trrg.stop_ = surfrrg.snap( trrg.stop_ );
+            tcrg.start_ = surfcrg.snap( tcrg.start_ );
+            tcrg.stop_ = surfcrg.snap( tcrg.stop_ );
 
-	    StepInterval<int> smprrg( mMAX(surfrrg.start, trrg.start),
-		    mMIN(surfrrg.stop, trrg.stop), surfrrg.step );
-	    StepInterval<int> smpcrg( mMAX(surfcrg.start, tcrg.start),
-		    mMIN(surfcrg.stop, tcrg.stop), surfcrg.step );
+            StepInterval<int> smprrg( mMAX(surfrrg.start_, trrg.start_),
+                                      mMIN(surfrrg.stop_, trrg.stop_), surfrrg.step_ );
+            StepInterval<int> smpcrg( mMAX(surfcrg.start_, tcrg.start_),
+                                      mMIN(surfcrg.stop_, tcrg.stop_), surfcrg.step_ );
 	    const int smprsz = smprrg.nrSteps()+1;
 	    const int smpcsz = smpcrg.nrSteps()+1;
 	    Array2DImpl<float> field( smprsz, smpcsz );
@@ -447,8 +447,8 @@ int FaultBinIDSurfaceIntersector::optimizeOrder( TypeSet<Coord3>& res )
     for ( int idx = 1; idx<res.size(); idx++ )
     {
 	 const Coord xy( res[idx].x, res[idx].y );
-	 if ( bbox.getRange(0).start<xy.x && bbox.getRange(0).stop>xy.x &&
-	      bbox.getRange(1).start<xy.y && bbox.getRange(1).stop>xy.y )
+         if ( bbox.getRange(0).start_<xy.x && bbox.getRange(0).stop_>xy.x &&
+              bbox.getRange(1).start_<xy.y && bbox.getRange(1).stop_>xy.y )
 	     idxs += idx;
 	 else
 	     bbox.include( xy );

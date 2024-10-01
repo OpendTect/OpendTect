@@ -727,7 +727,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	    const PosInfo::Line2DData& l2ddata = geom2d->data();
 	    const StepInterval<int> trcnrrg = l2ddata.trcNrRange();
 	    const float trcdist =
-		l2ddata.distBetween( trcnrrg.start, intpoint2d.linetrcnr );
+                    l2ddata.distBetween( trcnrrg.start_, intpoint2d.linetrcnr );
 	    if ( mIsUdf(trcdist) )
 		return;
 
@@ -1063,18 +1063,18 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		if ( idxvwrdir==TrcKeyZSampling::Crl )
 		{
 		    newannot.pos_ =
-			mCast(float,idxvwrtkzs.hsamp_.crlRange().start);
+                            mCast(float,idxvwrtkzs.hsamp_.crlRange().start_);
 		    newannot.txt_ =
-			tr( "CRL %1" ).arg( idxvwrtkzs.hsamp_.crlRange().start);
-		    intersecbid = BinID( tkzs.hsamp_.inlRange().start,
+                            tr( "CRL %1" ).arg( idxvwrtkzs.hsamp_.crlRange().start_);
+                    intersecbid = BinID( tkzs.hsamp_.inlRange().start_,
 					 mNINT32(newannot.pos_) );
 		    x1auxannot += newannot;
 		}
 		else
 		{
-		    newannot.pos_ = mCast( float, idxvwrtkzs.zsamp_.start );
+                    newannot.pos_ = mCast( float, idxvwrtkzs.zsamp_.start_ );
 		    newannot.txt_ =
-			tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start*
+                            tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start_*
 					       SI().showZ2UserFactor() );
 		    x2auxannot += newannot;
 		}
@@ -1084,19 +1084,19 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
 		    newannot.pos_ =
-			mCast( float, idxvwrtkzs.hsamp_.inlRange().start );
+                            mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
 		    newannot.txt_ =
-			tr( "INL %1" ).arg( idxvwrtkzs.hsamp_.inlRange().start);
+                            tr( "INL %1" ).arg( idxvwrtkzs.hsamp_.inlRange().start_);
 		    x1auxannot += newannot;
 		    intersecbid = BinID( mNINT32(newannot.pos_),
-					 tkzs.hsamp_.crlRange().start );
+                                         tkzs.hsamp_.crlRange().start_ );
 		}
 		else
 		{
 		    newannot.pos_ =
-			mCast( float, idxvwrtkzs.zsamp_.start );
+                            mCast( float, idxvwrtkzs.zsamp_.start_ );
 		    newannot.txt_ =
-			tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start*
+                            tr( "ZSlice %1" ).arg( idxvwrtkzs.zsamp_.start_*
 					       SI().showZ2UserFactor() );
 		    x2auxannot += newannot;
 		}
@@ -1106,17 +1106,17 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		if ( idxvwrdir==TrcKeyZSampling::Inl )
 		{
 		    newannot.pos_ =
-			mCast( float, idxvwrtkzs.hsamp_.inlRange().start );
+                            mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
 		    newannot.txt_ =
-			tr( "INL %1" ).arg( idxvwrtkzs.hsamp_.inlRange().start);
+                            tr( "INL %1" ).arg( idxvwrtkzs.hsamp_.inlRange().start_);
 		    x1auxannot += newannot;
 		}
 		else
 		{
 		    newannot.pos_ =
-			mCast( float, idxvwrtkzs.hsamp_.crlRange().start );
+                            mCast( float, idxvwrtkzs.hsamp_.crlRange().start_ );
 		    newannot.txt_ =
-			tr( "CRL %1" ).arg( idxvwrtkzs.hsamp_.crlRange().start);
+                            tr( "CRL %1" ).arg( idxvwrtkzs.hsamp_.crlRange().start_);
 		    x2auxannot += newannot;
 		}
 	    }
@@ -1180,8 +1180,8 @@ Line2DInterSection::Point uiODViewer2DMgr::intersectingLineID(
     const StepInterval<double> vwrxrg =
 	vwr2d->viewwin()->viewer().posRange( true );
     StepInterval<int> vwrtrcrg = vwr2d->getTrcKeyZSampling().hsamp_.trcRange();
-    const LinScaler x2trc( vwrxrg.start, vwrtrcrg.start,
-			   vwrxrg.stop, vwrtrcrg.stop );
+    const LinScaler x2trc( vwrxrg.start_, vwrtrcrg.start_,
+                           vwrxrg.stop_, vwrtrcrg.stop_ );
     const double trcnrd = x2trc.scale( pos );
     const int trcnr = mNINT32( trcnrd );
     if ( !vwrtrcrg.includes(trcnr,false) )

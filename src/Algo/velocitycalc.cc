@@ -72,7 +72,7 @@ float MoveoutComputer::findBestVariable( float* variables, int variabletochange,
 {
     MoveoutComputerError errorfunc(*this, variables, variabletochange,
 	    nroffsets, offsets, moveout );
-    const float res = findExtreme( errorfunc, true, range.start, range.stop );
+    const float res = findExtreme( errorfunc, true, range.start_, range.stop_ );
     if ( mIsUdf(res) )
 	return res;
 
@@ -507,7 +507,7 @@ bool Vel::fitLinearVelocity( const ValueSeries<double>& Vint,
     {
 	if ( zisdepth )
 	{
-	    d[idx] = !idx ? zlayer.start : zlayer.stop;
+	    d[idx] = !idx ? zlayer.start_ : zlayer.stop_;
 	    if ( d[idx] <= depths[0] )
 	    {
 		for ( od_int64 idy=0; idy<nr; idy++ )
@@ -546,7 +546,7 @@ bool Vel::fitLinearVelocity( const ValueSeries<double>& Vint,
 	}
 	else
 	{
-	    t[idx] = !idx ? zlayer.start : zlayer.stop;
+	    t[idx] = !idx ? zlayer.start_ : zlayer.stop_;
 	    if ( t[idx] <= times[0] )
 	    {
 		for ( od_int64 idy=0; idy<nr; idy++ )
@@ -611,7 +611,7 @@ bool Vel::fitLinearVelocity( const ValueSeries<double>& Vint,
     if ( zisdepth )
     {
 	const StepInterval<double> gradrg(-2, 2, 0.01);//Make your range
-	const int nrsteps = (int)(gradrg.width() / gradrg.step);
+	const int nrsteps = (int)(gradrg.width() / gradrg.step_);
 
 	const double d10 = d[1] - d[0];
 	const double t10 = t[1] - t[0];
@@ -1122,7 +1122,7 @@ bool computeLinearD2T( double v0, double dv, double v0depth,
 		       const SamplingData<float>& sd_in, int sz, float* res )
 {
     SamplingData<float> sd( sd_in );
-    sd.start -= v0depth;
+    sd.start_ -= v0depth;
     const RegularZValues dvals( sd, sz, SI().zInFeet() ? ZDomain::DepthFeet()
 						       : ZDomain::DepthMeter());
     ArrayValueSeries<double,float> times( res, false, sz );
@@ -1141,7 +1141,7 @@ bool fitLinearVelocity( const float* vint, const float* zin, int nr,
 						: ZDomain::DepthMeter())
 					  : ZDomain::TWT();
     const ArrayZValues<float> zvals( (float*)(zin), nr, zinfo );
-    const ::Interval<double> zlayer( zlayer_in.start, zlayer_in.stop );
+    const ::Interval<double> zlayer( zlayer_in.start_, zlayer_in.stop_ );
     const double reference_z = refz;
     double v0, gradient, error;
     if ( !Vel::fitLinearVelocity(Vin,zvals,zlayer,reference_z,

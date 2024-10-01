@@ -127,7 +127,7 @@ float OrthogonalSlice::getPosition() const
     getSliceInfo( nrslices, range );
 
     if ( !nrslices ) return range.center();
-    return (float)getSliceNr()/nrslices*range.width()+range.start;
+    return (float)getSliceNr()/nrslices*range.width()+range.start_;
 }
 
 
@@ -174,7 +174,7 @@ void OrthogonalSlice::draggerMovementCB( CallBacker* cb )
     getSliceInfo( nrslices, range );
     if ( !nrslices ) return;
 
-    float slicenrf = (draggerpos-range.start)/range.width()*(nrslices-1);
+    float slicenrf = (draggerpos-range.start_)/range.width()*(nrslices-1);
     int slicenr = mNINT32(slicenrf);
     if ( slicenr>=nrslices ) slicenr=nrslices-1;
     else if ( slicenr<0 ) slicenr=0;

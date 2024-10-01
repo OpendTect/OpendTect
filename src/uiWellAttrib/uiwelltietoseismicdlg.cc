@@ -623,12 +623,12 @@ WellTie::uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 				   slis.setName(markernms[1]) );
     zrangeflds_[mMarkerFldIdx]->setValue( markernames_.size()-1, 1 );
 
-    const int maxtwtval = mNINT32( server_.data().getTraceRange().stop *
+    const int maxtwtval = mNINT32( server_.data().getTraceRange().stop_ *
 				   SI().zDomain().userFactor() );
     zrangeflds_ += new uiGenInput( markergrp, uiString::emptyString(),
 	    IntInpIntervalSpec().setLimits(StepInterval<int>(0,maxtwtval,1)));
 
-    const float maxdah = wd->track().dahRange().stop;
+    const float maxdah = wd->track().dahRange().stop_;
     zrangeflds_ += new uiGenInput( markergrp, uiString::emptyString(),
 	    FloatInpIntervalSpec().setLimits(Interval<float>(0,maxdah)));
     zrangeflds_[mDahFldIdx]->setNrDecimals(2,0);
@@ -868,8 +868,8 @@ void WellTie::uiInfoDlg::crossCorrelationChanged( CallBacker* )
 
 
 #define md2TI( inzrg, ouzrg, outistime )\
-    { ouzrg.start = md2T( inzrg.start, outistime ); \
-      ouzrg.stop = md2T( inzrg.stop, outistime ) }
+    { ouzrg.start_ = md2T( inzrg.start_, outistime ); \
+      ouzrg.stop_ = md2T( inzrg.stop_, outistime ) }
 #define md2T( zval, outistime )\
     outistime ? d2t->getTime( zval, wd->track() ) \
 	      : d2t->getDah( zval, wd->track() );
@@ -926,11 +926,11 @@ bool WellTie::uiInfoDlg::updateZrg()
 	mErrRetYN( tr("Selected interval is incorrect.") )
 
     const StepInterval<float> reflrg = data_.getReflRange();
-    timerg.start = mMAX( timerg.start, reflrg.start );
-    timerg.stop = mMIN( timerg.stop, reflrg.stop );
-    const float reflstep = reflrg.step;
-    timerg.start = (float) mNINT32( timerg.start / reflstep ) * reflstep;
-    timerg.stop = (float) mNINT32( timerg.stop / reflstep ) * reflstep;
+    timerg.start_ = mMAX( timerg.start_, reflrg.start_ );
+    timerg.stop_ = mMIN( timerg.stop_, reflrg.stop_ );
+    const float reflstep = reflrg.step_;
+    timerg.start_ = (float) mNINT32( timerg.start_ / reflstep ) * reflstep;
+    timerg.stop_ = (float) mNINT32( timerg.stop_ / reflstep ) * reflstep;
     if ( timerg.width() < (float)mMinWvltLength / SI().zDomain().userFactor() )
     {
 	uiString errmsg = tr("The selected interval length must be "
@@ -951,8 +951,8 @@ bool WellTie::uiInfoDlg::updateZrg()
     if ( zrangeflds_[mTwtFldIdx] )
     {
 	const float zfact = mCast( float, SI().zDomain().userFactor() );
-	Interval<int> timergms( mCast( int, timerg.start * zfact ),
-				mCast( int, timerg.stop * zfact ) );
+	Interval<int> timergms( mCast( int, timerg.start_ * zfact ),
+				mCast( int, timerg.stop_ * zfact ) );
 	zrangeflds_[mTwtFldIdx]->setValue( timergms );
     }
 
@@ -972,12 +972,12 @@ bool WellTie::uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
 {
     mGetWD(return false)
     const Interval<int> mintv = zrangeflds_[mMarkerFldIdx]->getIInterval();
-    if ( mintv.start >= mintv.stop )
+    if ( mintv.start_ >= mintv.stop_ )
 	mErrRetYN( tr("Top marker must be above base marker.") )
 
     const Well::Marker* topmarkr =
 		wd->markers().getByName( zrangeflds_[mMarkerFldIdx]->text(0) );
-    if ( !topmarkr && mintv.start )
+    if ( !topmarkr && mintv.start_ )
     {
 	zrangeflds_[mMarkerFldIdx]->setValue(0,0);
 	uiMSG().warning( tr("Cannot not find the top marker in the well.") );
@@ -986,14 +986,14 @@ bool WellTie::uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
     const Well::Marker* botmarkr =
 		wd->markers().getByName( zrangeflds_[mMarkerFldIdx]->text(1) );
     const int lastmarkeridx = markernames_.size()-1;
-    if ( !botmarkr && mintv.stop != lastmarkeridx )
+    if ( !botmarkr && mintv.stop_ != lastmarkeridx )
     {
 	zrangeflds_[mMarkerFldIdx]->setValue( lastmarkeridx, 1 );
 	uiMSG().warning( tr("Cannot not find the base marker in the well.") );
     }
 
-    zrg.start = topmarkr ? topmarkr->dah() : data_.getDahRange().start;
-    zrg.stop = botmarkr ? botmarkr->dah() : data_.getDahRange().stop;
+    zrg.start_ = topmarkr ? topmarkr->dah() : data_.getDahRange().start_;
+    zrg.stop_ = botmarkr ? botmarkr->dah() : data_.getDahRange().stop_;
 
     return true;
 }

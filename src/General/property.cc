@@ -218,8 +218,8 @@ const char* RangeProperty::def() const
 	return "1e30`0.f";
 
     static FileMultiString fms;
-    fms = ::toString( rg_.start );
-    fms += ::toString( rg_.stop );
+    fms = ::toString( rg_.start_ );
+    fms += ::toString( rg_.stop_ );
     const BufferString unitlbl( ref_.disp_.getUnitLbl() );
     if ( !unitlbl.isEmpty() )
 	fms += unitlbl;
@@ -232,36 +232,36 @@ void RangeProperty::setDef( const char* defstr )
 {
     const FileMultiString fms( defstr );
     const int sz = fms.size();
-    rg_.start = sz > 0 ? fms.getFValue( 0 ) : 1e30f;
-    rg_.stop = sz > 1 ? fms.getFValue( 1 ) : 0.f;
+    rg_.start_ = sz > 0 ? fms.getFValue( 0 ) : 1e30f;
+    rg_.stop_ = sz > 1 ? fms.getFValue( 1 ) : 0.f;
 
     const UnitOfMeasure* inpuom = sz > 2 ? UoMR().get( fms[2] ) : nullptr;
     const UnitOfMeasure* targetuom = ref_.unit();
-    convValue( rg_.start, inpuom, targetuom );
-    convValue( rg_.stop, inpuom, targetuom );
+    convValue( rg_.start_, inpuom, targetuom );
+    convValue( rg_.stop_, inpuom, targetuom );
 }
 
 
 bool RangeProperty::isUdf() const
 {
-    return mIsUdf(rg_.start);
+    return mIsUdf(rg_.start_);
 }
 
 
 float RangeProperty::gtAvgVal() const
 {
     Interval<float> sanerg( rg_ );
-    if ( mIsUdf(sanerg.start) )
-	sanerg.start = sanerg.stop;
-    else if ( mIsUdf(sanerg.stop) )
-	sanerg.stop = sanerg.start;
+    if ( mIsUdf(sanerg.start_) )
+	sanerg.start_ = sanerg.stop_;
+    else if ( mIsUdf(sanerg.stop_) )
+	sanerg.stop_ = sanerg.start_;
     if ( ref().isThickness() )
     {
-	if ( sanerg.start < 0.f ) sanerg.start = 0.f;
-	if ( sanerg.stop < sanerg.start ) sanerg.stop = sanerg.start;
+	if ( sanerg.start_ < 0.f ) sanerg.start_ = 0.f;
+	if ( sanerg.stop_ < sanerg.start_ ) sanerg.stop_ = sanerg.start_;
     }
 
-    return 0.5f * (sanerg.start + sanerg.stop);
+    return 0.5f * (sanerg.start_ + sanerg.stop_);
 }
 
 
@@ -272,7 +272,7 @@ float RangeProperty::gtVal( Property::EvalOpts eo ) const
     else if ( eo.isAvg() )
 	return gtAvgVal();
 
-    return rg_.start + eo.relpos_ * (rg_.stop - rg_.start);
+    return rg_.start_ + eo.relpos_ * (rg_.stop_ - rg_.start_);
 }
 
 
@@ -280,8 +280,8 @@ void RangeProperty::doUnitChange( const UnitOfMeasure* olduom,
 				  const UnitOfMeasure* newuom )
 {
     Property::doUnitChange( olduom, newuom );
-    convValue( rg_.start, olduom, newuom );
-    convValue( rg_.stop, olduom, newuom );
+    convValue( rg_.start_, olduom, newuom );
+    convValue( rg_.stop_, olduom, newuom );
 }
 
 

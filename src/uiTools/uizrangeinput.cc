@@ -50,7 +50,7 @@ StepInterval<tp> uiZRangeInput::get##fn##ZRange() const \
 	res.scale( scale ); \
     } \
 \
-    return StepInterval<tp>( res.start, res.stop, mUdf(tp) ); \
+    return StepInterval<tp>( res.start_, res.stop_, mUdf(tp) ); \
 }
 
 

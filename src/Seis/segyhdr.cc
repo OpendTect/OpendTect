@@ -230,18 +230,18 @@ int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
     if ( Seis::is2D(geomtype_) )
     {
 	putAt( lnr, sDefStartPos, 20, BufferString(sKey::TraceNr(),":") );
-	txt.set(info->crlrg.start).add("-").add(info->crlrg.stop);
+	txt.set(info->crlrg.start_).add("-").add(info->crlrg.stop_);
 	putAt( lnr, 21, 32, txt );
-	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg.step) );
+	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg.step_) );
 
 	Interval<float> sprg( 0, 0 );
-	const Pos::GeomID geomid( info->inlrg.start );
+	const Pos::GeomID geomid( info->inlrg.start_ );
 	const Survey::Geometry2D& geom2d = Survey::GM().get2D( geomid );
 	if ( !geom2d.spnrs().isEmpty() )
 	    sprg.set( geom2d.spnrs().first(), geom2d.spnrs().last() );
 
 	putAt( ++lnr, sDefStartPos, 20, BufferString(sKey::Shotpoint(),":") );
-	txt.set(sprg.start).add("-").add(sprg.stop);
+	txt.set(sprg.start_).add("-").add(sprg.stop_);
 	putAt( lnr, 21, 32, txt );
 
 	zrglinenr = ++lnr;
@@ -266,14 +266,14 @@ int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
     else
     {
 	putAt( lnr, sDefStartPos, 19, BufferString(sKey::Inline(),":") );
-	txt.set(info->inlrg.start).add("-").add(info->inlrg.stop);
+	txt.set(info->inlrg.start_).add("-").add(info->inlrg.stop_);
 	putAt( lnr, 21, 31, txt );
-	putAt( lnr, 33, 75, BufferString("inc: ",info->inlrg.step) );
+	putAt( lnr, 33, 75, BufferString("inc: ",info->inlrg.step_) );
 
 	putAt( ++lnr, sDefStartPos, 19, BufferString(sKey::Crossline(),":") );
-	txt.set(info->crlrg.start).add("-").add(info->crlrg.stop);
+	txt.set(info->crlrg.start_).add("-").add(info->crlrg.stop_);
 	putAt( lnr, 21, 31, txt );
-	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg.step) );
+	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg.step_) );
 
 	zrglinenr = ++lnr;
 
@@ -319,9 +319,9 @@ int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
     BufferString key = sKey::Z();
     key.addSpace().add( SI().getZUnitString() ).add(":");
     putAt( zrglinenr, sDefStartPos, 20, key );
-    txt.set(zrg.start,nrdec).add("-").add(zrg.stop,nrdec);
+    txt.set(zrg.start_,nrdec).add("-").add(zrg.stop_,nrdec);
     putAt( zrglinenr, 21, 32, txt );
-    putAt( zrglinenr, 33, 75, BufferString("inc: ",zrg.step) );
+    putAt( zrglinenr, 33, 75, BufferString("inc: ",zrg.step_) );
 
     bytepos = thd.xcoord_.bytepos_;
     putAt( xlinenr, sDefStartPos, 25, BufferString(sKey::XCoord()," byte:") );
@@ -855,16 +855,16 @@ unsigned short SEGY::TrcHeader::nrSamples() const
 void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
 {
     SamplingData<float> sd( sdin );
-    PosImpExpPars::SVY().adjustZ( sd.start, false );
-    PosImpExpPars::SVY().adjustZ( sd.step, false );
+    PosImpExpPars::SVY().adjustZ( sd.start_, false );
+    PosImpExpPars::SVY().adjustZ( sd.step_, false );
 
     const float zfac = sCast( float, SI().zDomain().userFactor() );
-    const float drt = sd.start * zfac;
+    const float drt = sd.start_ * zfac;
     const short delrt = sCast(short,mNINT32(drt));
     setEntryVal( EntryLagA(), -delrt ); // For HRS and Petrel	// 105-106
     setEntryVal( EntryDelRt(), delrt );				// 109-110
 
-    const int sr_us = sCast(int,sd.step * 1e3f * zfac + .5f);
+    const int sr_us = sCast(int,sd.step_ * 1e3f * zfac + .5f);
     setEntryVal( EntryDt(), sr_us );				// 117-118
     if ( ns == 0 )
 	ns = SI().zRange(false).nrSteps() + 1;
@@ -1064,10 +1064,10 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	if ( startz < -5000 || startz > 10000 )
 	    delrt = 0;
     }
-    ti.sampling.start = delrt * zfac;
-    ti.sampling.step = entryVal(EntryDt()) * zfac * 0.001f;	// 117-118
-    PosImpExpPars::SVY().adjustZ( ti.sampling.start, true );
-    PosImpExpPars::SVY().adjustZ( ti.sampling.step, true );
+    ti.sampling.start_ = delrt * zfac;
+    ti.sampling.step_ = entryVal(EntryDt()) * zfac * 0.001f;	// 117-118
+    PosImpExpPars::SVY().adjustZ( ti.sampling.start_, true );
+    PosImpExpPars::SVY().adjustZ( ti.sampling.step_, true );
 
     ti.pick = ti.refnr = mUdf(float);
     ti.seqnr_ = entryVal( EntryTracl() );

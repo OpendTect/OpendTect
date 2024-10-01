@@ -164,14 +164,14 @@ void uiCorrelationGroup::correlationChangeCB( CallBacker* )
 void uiCorrelationGroup::previewChgCB( CallBacker* )
 {
     const Interval<float> intv = previewgrp_->getManipWindow();
-    if ( mIsUdf(intv.start) )
+    if ( mIsUdf(intv.start_) )
     {
-	compwinfld_->setValue( intv.stop, 1 );
+	compwinfld_->setValue( intv.stop_, 1 );
 	compwinfld_->setNrDecimals( sNrZDecimals+1, 1 );
     }
-    if ( mIsUdf(intv.stop) )
+    if ( mIsUdf(intv.stop_) )
     {
-	compwinfld_->setValue( intv.start, 0 );
+	compwinfld_->setValue( intv.start_, 0 );
 	compwinfld_->setNrDecimals( sNrZDecimals+1, 0 );
     }
 
@@ -197,8 +197,8 @@ void uiCorrelationGroup::init()
 
     const float zfac = SI().zDomain().userFactor();
     const Interval<float> corrintv(
-		adjuster_->similarityWindow().start * zfac,
-		adjuster_->similarityWindow().stop * zfac );
+		adjuster_->similarityWindow().start_ * zfac,
+		adjuster_->similarityWindow().stop_ * zfac );
 
     NotifyStopper ns2( compwinfld_->valueChanging );
     compwinfld_->setValue( corrintv );
@@ -247,8 +247,8 @@ bool uiCorrelationGroup::commitToTracker( bool& fieldchange ) const
 		    " the stop value") );
 
     Interval<float> relintval(
-	    (float)intval.start/SI().zDomain().userFactor(),
-	    (float)intval.stop/SI().zDomain().userFactor() );
+		(float)intval.start_/SI().zDomain().userFactor(),
+		(float)intval.stop_/SI().zDomain().userFactor() );
     if ( adjuster_->similarityWindow() != relintval )
     {
 	fieldchange = true;

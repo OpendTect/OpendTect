@@ -62,7 +62,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	txt = tr("Z step %1").arg(SI().getUiZUnitString());
 	zstepfld_ = new uiLabeledSpinBox( this, txt, 0, "Z step" );
 	zstepfld_->attach( alignedBelow, surf2fld_ );
-	float zstep = SI().zRange(true).step * 10;
+	float zstep = SI().zRange(true).step_ * 10;
 	int v = (int)((zstep * zfac_) + .5);
 	zstepfld_->box()->setValue( v );
 	zstepfld_->box()->setInterval( StepInterval<int>(1,999999,1) );
@@ -207,8 +207,8 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 				  : SI().zStep();
     iop.set( mGetSurfKey(zstep), zstep );
 
-    if ( mIsUdf(ez.start) ) ez.start = 0;
-    if ( mIsUdf(ez.stop) ) ez.stop = 0;
+    if ( mIsUdf(ez.start_) ) ez.start_ = 0;
+    if ( mIsUdf(ez.stop_) ) ez.stop_ = 0;
 
     if ( extrazfld_ ) assign( ez, extrazfld_->getRange() );
     iop.set( mGetSurfKey(extraZ), ez );

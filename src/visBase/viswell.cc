@@ -492,7 +492,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	getLinScaleRange( scalerF,selrgF,rgStartF,rgStopF,lp.islogarithmic_ );
     }
 
-    const bool rev = lp.range_.start > lp.range_.stop;
+    const bool rev = lp.range_.start_ > lp.range_.stop_;
     const bool isfullfilled = lp.isleftfilled_ && lp.isrightfilled_ &&
 			      lp.style_ != Seismic ;
     const bool fillrev = !isfullfilled &&
@@ -569,8 +569,8 @@ void Well::getLinScaleRange( const LinScaler& scaler,Interval<float>& selrg,
     float& rgstart, float& rgstop, bool islogarithmic )
 {
     selrg.sort();
-    rgstop = scaler.scale( selrg.stop );
-    rgstart = scaler.scale( selrg.start );
+    rgstop = scaler.scale( selrg.stop_ );
+    rgstart = scaler.scale( selrg.start_ );
     if ( islogarithmic )
     {
 	mSclogval( rgstop );
@@ -588,8 +588,8 @@ void Well::getLinScale( const LogParams& lp,LinScaler& scaler, bool isfill )
 	rg = lp.valrange_;
 
     rg.sort();
-    float minval = rg.start;
-    float maxval = rg.stop;
+    float minval = rg.start_;
+    float maxval = rg.stop_;
     scaler.set( minval, 0, maxval, 100 );
 }
 

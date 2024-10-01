@@ -94,8 +94,8 @@ bool DensityCalc::doWork( od_int64 start, od_int64 stop, int )
 	if ( mIsUdf(xval) || mIsUdf(yval) )
 	    continue;
 
-	const float relx = xval - x_.axis_->range().start;
-	const float rely = yval - y_.axis_->range().start;
+	const float relx = xval - x_.axis_->range().start_;
+	const float rely = yval - y_.axis_->range().start_;
 	const int freqx = int(relx/binsizex_);
 	const int freqy = int(rely/binsizey_);
 	if ( !densitydata_->info().validPos(freqx,freqy) )

@@ -163,11 +163,11 @@ void uiHistogramSel::drawText()
     const bool showtext = slidertextpol_ == Always ||
 			( slidertextpol_ == OnMove && mousedown_ );
     const int posy = histogramdisp_->height() / 3;
-    minvaltext_->setText( toUiString(cliprg_.start,reqNrDec(cliprg_.start)) );
+    minvaltext_->setText( toUiString(cliprg_.start_,reqNrDec(cliprg_.start_)) );
     minvaltext_->setPos( uiPoint(startpix_-2,posy) );
     minvaltext_->setVisible( showtext );
 
-    maxvaltext_->setText( toUiString(cliprg_.stop,reqNrDec(cliprg_.stop)) );
+    maxvaltext_->setText( toUiString(cliprg_.stop_,reqNrDec(cliprg_.stop_)) );
     maxvaltext_->setPos( uiPoint(stoppix_+2,posy) );
     maxvaltext_->setVisible( showtext );
 }
@@ -180,8 +180,8 @@ void uiHistogramSel::drawLines()
 
     uiAxisHandler* yax = histogramdisp_->yAxis(false);
     const int disph = histogramdisp_->viewHeight();
-    int y0pix = yax ? yax->pixRange().start+2 : 0;
-    int y1pix = yax ? yax->pixRange().stop+1 : disph;
+    int y0pix = yax ? yax->pixRange().start_+2 : 0;
+    int y1pix = yax ? yax->pixRange().stop_+1 : disph;
     minhandle_->setLine( startpix_, y0pix, startpix_, y1pix );
     minhandle_->setCursor( MouseCursor::SizeHor );
     minhandle_->show();
@@ -194,8 +194,8 @@ void uiHistogramSel::drawLines()
 
 void uiHistogramSel::drawAgain()
 {
-    startpix_ = xax_->getPix( cliprg_.start );
-    stoppix_ = xax_->getPix( cliprg_.stop );
+    startpix_ = xax_->getPix( cliprg_.start_ );
+    stoppix_ = xax_->getPix( cliprg_.stop_ );
 
     drawText();
     drawLines();
@@ -272,14 +272,14 @@ bool uiHistogramSel::changeLinePos( bool firstclick )
     const Interval<float> histxrg = histogramdisp_->xAxis()->range();
     const bool insiderg = histxrg.includes(mouseposval,true);
 #define clickrg 5
-    if ( mouseposval < (cliprg_.start+cliprg_.stop)/2 )
+    if ( mouseposval < (cliprg_.start_+cliprg_.stop_)/2 )
     {
 	const bool faraway = (mousepix > startpix_+clickrg) ||
 			     (mousepix < startpix_-clickrg);
 	if ( firstclick && faraway )
 	    return false;
 
-	cliprg_.start = insiderg ? mouseposval : histxrg.start;
+	cliprg_.start_ = insiderg ? mouseposval : histxrg.start_;
 	makeSymmetricalIfNeeded( true );
     }
     else
@@ -289,7 +289,7 @@ bool uiHistogramSel::changeLinePos( bool firstclick )
 	if ( firstclick && faraway )
 	    return false;
 
-	cliprg_.stop = insiderg ? mouseposval : histxrg.stop;
+	cliprg_.stop_ = insiderg ? mouseposval : histxrg.stop_;
 	makeSymmetricalIfNeeded( false );
     }
 
@@ -345,13 +345,13 @@ void uiHistogramSel::mouseReleased( CallBacker* )
 void uiHistogramSel::histDRChanged( CallBacker* cb )
 {
     const Interval<float>& drg = histogramdisp_->getDrawRange();
-    if ( cliprg_.start<drg.start )
-	cliprg_.start = drg.start;
-    if ( cliprg_.stop>drg.stop )
-	cliprg_.stop = drg.stop;
+    if ( cliprg_.start_<drg.start_ )
+	cliprg_.start_ = drg.start_;
+    if ( cliprg_.stop_>drg.stop_ )
+	cliprg_.stop_ = drg.stop_;
 
-    startpix_ = xax_->getPix( cliprg_.start );
-    stoppix_ = xax_->getPix( cliprg_.stop );
+    startpix_ = xax_->getPix( cliprg_.start_ );
+    stoppix_ = xax_->getPix( cliprg_.stop_ );
 
     const int height = histogramdisp_->height();
     minhandle_->setLine( startpix_, 0, startpix_, height );

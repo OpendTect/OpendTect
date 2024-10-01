@@ -241,8 +241,8 @@ void uiHistogramDisplay::setData( const float* array, od_int64 sz )
     }
 
     LargeValVec<float> mydisplaydata;
-    const bool usedrawrg = usemydrawrg_ && !mIsUdf(mydrawrg_.start) &&
-			   !mIsUdf(mydrawrg_.stop);
+    const bool usedrawrg = usemydrawrg_ && !mIsUdf(mydrawrg_.start_) &&
+			   !mIsUdf(mydrawrg_.stop_);
     if ( usedrawrg )
     {
 	mydisplaydata.setSize( sz, mUdf(float) );
@@ -275,7 +275,7 @@ void uiHistogramDisplay::drawData()
     const uiAxisHandler* xax = xAxis();
     const uiAxisHandler* yax = yAxis( false );
 
-    const float basepix = yax->getPix( yax->range().start );
+    const float basepix = yax->getPix( yax->range().start_ );
     float xwidth = xvals_[1] - xvals_[0];
     for ( int idx=0; idx<nrpts; idx++ )
     {
@@ -361,7 +361,7 @@ void uiHistogramDisplay::useDrawRange( bool yn )
       return;
 
     usemydrawrg_ = yn;
-    if ( usemydrawrg_ && !mIsUdf(mydrawrg_.start) && !mIsUdf(mydrawrg_.stop) )
+    if ( usemydrawrg_ && !mIsUdf(mydrawrg_.start_) && !mIsUdf(mydrawrg_.stop_) )
     {
 	setData( originaldata_ );
 	drawRangeChanged.trigger();
@@ -371,8 +371,8 @@ void uiHistogramDisplay::useDrawRange( bool yn )
 
 void uiHistogramDisplay::setDrawRange( const Interval<float>& ni )
 {
-    if ( mIsEqual(ni.start,mydrawrg_.start,1e-5) &&
-	 mIsEqual(ni.stop,mydrawrg_.stop,1e-5) )
+    if ( mIsEqual(ni.start_,mydrawrg_.start_,1e-5) &&
+	 mIsEqual(ni.stop_,mydrawrg_.stop_,1e-5) )
 	return;
 
     mydrawrg_ = ni;
@@ -390,7 +390,7 @@ void uiHistogramDisplay::setHistogram( const TypeSet<float>& histdata,
 {
     nrinpvals_ = nrvals;
     const float xstep = xrg.width() / (histdata.size()-1);
-    setup_.xrg( Interval<float>(xrg.start-xstep/2, xrg.stop+xstep/2) );
+    setup_.xrg( Interval<float>(xrg.start_-xstep/2, xrg.stop_+xstep/2) );
     setVals( xrg, histdata.arr(), histdata.size() );
 }
 

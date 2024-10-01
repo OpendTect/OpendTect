@@ -152,8 +152,8 @@ Array2DFilterer<T>::Array2DFilterer( Array2D<T>& a, const Array2DFilterPars& p )
     , nrrowsdone_(0)
     , origin_( 0, 0 )
 {
-    outputrowrg_.start = 0; outputrowrg_.stop = inputrowsize_-1;
-    outputcolrg_.start = 0; outputcolrg_.stop = inputcolsize_-1;
+	outputrowrg_.start_ = 0; outputrowrg_.stop_ = inputrowsize_-1;
+	outputcolrg_.start_ = 0; outputcolrg_.stop_ = inputcolsize_-1;
 
     Stats::CalcSetup setup( !mIsUdf(pars_.rowdist_) );
     setup.require( pars_.type_ );
@@ -176,11 +176,11 @@ Array2DFilterer<T>::Array2DFilterer( const Array2D<T>& input, Array2D<T>& a,
     , nrrowsdone_(0)
     , origin_( origin )
 {
-    outputrowrg_.start = origin.row();
-    outputrowrg_.stop = origin.row()+a.info().getSize(0)-1;
+	outputrowrg_.start_ = origin.row();
+	outputrowrg_.stop_ = origin.row()+a.info().getSize(0)-1;
 
-    outputcolrg_.start = origin.col();
-    outputcolrg_.stop = origin.col()+a.info().getSize(1)-1;
+    outputcolrg_.start_ = origin.col();
+    outputcolrg_.stop_ = origin.col()+a.info().getSize(1)-1;
 
     Stats::CalcSetup setup( !mIsUdf(pars_.rowdist_) );
     setup.require( pars_.type_ );
@@ -222,8 +222,8 @@ template <class T> inline int Array2DFilterer<T>::nextStep()
     }
 
 
-    const int currow = outputrowrg_.start + nrrowsdone_;
-    if ( currow>outputrowrg_.stop )
+    const int currow = outputrowrg_.start_ + nrrowsdone_;
+    if ( currow>outputrowrg_.stop_ )
 	return Executor::Finished();
 
     filterRow( currow );
@@ -240,7 +240,7 @@ template <class T> inline void Array2DFilterer<T>::filterRow( int row )
 
     if ( inputptr )
     {
-	for ( int col=outputcolrg_.start; col<=outputcolrg_.stop;
+	for ( int col=outputcolrg_.start_; col<=outputcolrg_.stop_;
 	      col++, inputptr++ )
 	{
 	    if ( !mIsUdf(*inputptr) )
@@ -250,7 +250,7 @@ template <class T> inline void Array2DFilterer<T>::filterRow( int row )
 	return;
     }
 
-    for ( int col=outputcolrg_.start; col<=outputcolrg_.stop; col++ )
+    for ( int col=outputcolrg_.start_; col<=outputcolrg_.stop_; col++ )
 	doPoint( row, col );
 }
 

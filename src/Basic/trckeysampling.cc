@@ -245,25 +245,25 @@ TrcKeySampling& TrcKeySampling::set( const TrcKey& tk )
 
 void TrcKeySampling::setLineRange( const Interval<int>& inlrg )
 {
-    start_.lineNr() = inlrg.start; stop_.lineNr() = inlrg.stop;
+    start_.lineNr() = inlrg.start_; stop_.lineNr() = inlrg.stop_;
     if ( !inlrg.hasStep() )
 	return;
 
     mDynamicCastGet(const StepInterval<int>*,inlsrg,&inlrg)
     if ( inlsrg )
-	step_.lineNr() = inlsrg->step;
+	step_.lineNr() = inlsrg->step_;
 }
 
 
 void TrcKeySampling::setTrcRange( const Interval<int>& crlrg )
 {
-    start_.trcNr() = crlrg.start; stop_.trcNr() = crlrg.stop;
+    start_.trcNr() = crlrg.start_; stop_.trcNr() = crlrg.stop_;
     if ( !crlrg.hasStep() )
 	return;
 
     mDynamicCastGet(const StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
-	step_.trcNr() = crlsrg->step;
+	step_.trcNr() = crlsrg->step_;
 }
 
 
@@ -379,14 +379,15 @@ void TrcKeySampling::include( const TrcKeySampling& tks, bool ignoresteps )
 
 void TrcKeySampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
 {
-    inlrg.start = start_.lineNr(); inlrg.stop = stop_.lineNr();
+    inlrg.start_ = start_.lineNr();
+    inlrg.stop_ = stop_.lineNr();
     mDynamicCastGet(StepInterval<int>*,inlsrg,&inlrg)
     if ( inlsrg )
-	inlsrg->step = step_.lineNr();
-    crlrg.start = start_.trcNr(); crlrg.stop = stop_.trcNr();
+	inlsrg->step_ = step_.lineNr();
+    crlrg.start_ = start_.trcNr(); crlrg.stop_ = stop_.trcNr();
     mDynamicCastGet(StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
-	crlsrg->step = step_.trcNr();
+	crlsrg->step_ = step_.trcNr();
 }
 
 
@@ -693,23 +694,23 @@ bool TrcKeySampling::useJSON( const OD::JSON::Object& obj )
     if ( is2D() )
     {
 	obj.get( sKey::TrcRange(), rng );
-	start_.trcNr() = rng.start;
-	stop_.trcNr() = rng.stop;
-	step_.trcNr() = rng.step;
+	start_.trcNr() = rng.start_;
+	stop_.trcNr() = rng.stop_;
+	step_.trcNr() = rng.step_;
 
 	start_.lineNr() = obj.getIntValue( sKey::GeomID() );
     }
     else
     {
 	obj.get( sKey::InlRange(), rng );
-	start_.lineNr() = rng.start;
-	stop_.lineNr() = rng.stop;
-	step_.lineNr() = rng.step;
+	start_.lineNr() = rng.start_;
+	stop_.lineNr() = rng.stop_;
+	step_.lineNr() = rng.step_;
 
 	obj.get( sKey::CrlRange(), rng );
-	start_.trcNr() = rng.start;
-	stop_.trcNr() = rng.stop;
-	step_.trcNr() = rng.step;
+	start_.trcNr() = rng.start_;
+	stop_.trcNr() = rng.stop_;
+	step_.trcNr() = rng.step_;
     }
 
     const int survid = obj.getIntValue( sKey::SurveyID() );
@@ -997,8 +998,8 @@ void TrcKeySampling::getRandomSet( int nr, TypeSet<TrcKey>& res ) const
     while ( nr )
     {
 	//TODO Only compatible with 3D data, adapt for the other types
-	const Pos::IdxPair bid( lineRange().start + std::rand() % nrLines(),
-				trcRange().start + std::rand() % nrTrcs() );
+	const Pos::IdxPair bid( lineRange().start_ + std::rand() % nrLines(),
+				trcRange().start_ + std::rand() % nrTrcs() );
 	const TrcKey trckey( survid_, bid );
 	if ( includes(trckey) && res.addIfNew(trckey) )
 	    nr--;
@@ -1234,9 +1235,9 @@ namespace Pos
 bool intersect( const StepInterval<int>& rg1, const StepInterval<int>& rg2,
 		StepInterval<int>& out )
 {
-    return ::intersect( rg1.start, rg1.stop, rg1.step,
-			rg2.start, rg2.stop, rg2.step,
-			out.start, out.stop, out.step );
+    return ::intersect( rg1.start_, rg1.stop_, rg1.step_,
+			rg2.start_, rg2.stop_, rg2.step_,
+			out.start_, out.stop_, out.step_ );
 }
 
 
@@ -1244,9 +1245,9 @@ bool intersectF( const StepInterval<float>& zsamp1,
 		 const StepInterval<float>& zsamp2,
 		 StepInterval<float>& out )
 {
-    return ::intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
-			 zsamp2.start, zsamp2.stop, zsamp2.step,
-			 out.start, out.stop, out.step );
+    return ::intersectF( zsamp1.start_, zsamp1.stop_, zsamp1.step_,
+			 zsamp2.start_, zsamp2.stop_, zsamp2.step_,
+			 out.start_, out.stop_, out.step_ );
 }
 
 }

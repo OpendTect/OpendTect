@@ -142,8 +142,8 @@ bool Pos::SeisProvider3D::includes( const BinID& bid, float z ) const
     if ( mIsUdf(z) )
 	return true;
 
-    const float eps = 1e-6f * zsamp_.step;
-    return z < zsamp_.stop+eps && z > zsamp_.start-eps;
+    const float eps = 1e-6f * zsamp_.step_;
+    return z < zsamp_.stop_+eps && z > zsamp_.start_-eps;
 }
 
 
@@ -185,8 +185,8 @@ void Pos::SeisProvider3D::getExtent( BinID& start, BinID& stop ) const
     StepInterval<int> inlrg, crlrg;
     cubedata_.getInlRange( inlrg );
     cubedata_.getCrlRange( crlrg );
-    start.inl() = inlrg.start; start.crl() = crlrg.start;
-    stop.inl() = inlrg.stop; stop.crl() = crlrg.stop;
+    start.inl() = inlrg.start_; start.crl() = crlrg.start_;
+    stop.inl() = inlrg.stop_; stop.crl() = crlrg.stop_;
 }
 
 
@@ -195,7 +195,7 @@ void Pos::SeisProvider3D::getZRange( Interval<float>& zrg ) const
     assign( zrg, zsamp_ );
     mDynamicCastGet(StepInterval<float>*,szrg,&zrg)
     if ( szrg )
-	szrg->step = zsamp_.step;
+	    szrg->step_ = zsamp_.step_;
 }
 
 

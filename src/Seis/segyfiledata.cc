@@ -543,8 +543,8 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
     iop.add( "Number of traces found", nrtrcsstr );
     iop.add( "Number of samples in file", trcsz_ );
     const Interval<float> zrg( sampling_.interval(trcsz_) );
-    iop.add( "Z range in file", zrg.start, zrg.stop );
-    iop.add( "Z step in file", sampling_.step );
+    iop.add( "Z range in file", zrg.start_, zrg.stop_ );
+    iop.add( "Z step in file", sampling_.step_ );
     iop.addYN( "File marked as REV. 1 or higher", !isrev0_ );
     if ( !isrev0_ && nrstanzas_ > 0 )
 	iop.add( "Number of REV.1 extra stanzas", nrstanzas_ );
@@ -573,8 +573,8 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
 	if ( firstok >= totalsz_ ) return;
 
 	hs.start_ = hs.stop_ = pk.binID();
-	nrrg.start = nrrg.stop = pk.trcNr();
-	offsrg.start = offsrg.stop = pk.offset();
+	nrrg.start_ = nrrg.stop_ = pk.trcNr();
+	offsrg.start_ = offsrg.stop_ = pk.offset();
 
 	for ( int idx=firstok+1; idx<totalsz_; idx++ )
 	{
@@ -589,7 +589,7 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
 
     iop.add( IOPar::sKeySubHdr(), "Ranges" );
     if ( Seis::is2D(geom_) )
-	iop.add( "Trace number range", nrrg.start, nrrg.stop );
+	iop.add( "Trace number range", nrrg.start_, nrrg.stop_ );
     else
     {
 	iop.add( "In-line range", hs.start_.inl(), hs.stop_.inl() );
@@ -599,7 +599,7 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
     if ( Seis::isPS(geom_) )
     {
 	BufferString offsetrangestr( "Offset range ", SI().getXYUnitString() );
-	iop.add( offsetrangestr, offsrg.start, offsrg.stop );
+	iop.add( offsetrangestr, offsrg.start_, offsrg.stop_ );
     }
 }
 

@@ -52,9 +52,9 @@ float Strat::SeisEvent::snappedTime( const SeisTrc& trc ) const
     const Interval<float> trcwin( trc.startPos(), trc.samplePos(trcsz-1) );
     for ( int iwdth=1; iwdth<trcsz; iwdth++ )
     {
-	Interval<float> findwin( reftm - iwdth*sd.step, reftm + iwdth*sd.step );
-	if ( findwin.start < trcwin.start ) findwin.start = trcwin.start;
-	if ( findwin.stop > trcwin.stop ) findwin.stop = trcwin.stop;
+        Interval<float> findwin( reftm - iwdth*sd.step_, reftm + iwdth*sd.step_ );
+        if ( findwin.start_ < trcwin.start_ ) findwin.start_ = trcwin.start_;
+        if ( findwin.stop_ > trcwin.stop_ ) findwin.stop_ = trcwin.stop_;
 
 	ValueSeriesEvent<float,float> ev = evf.find( evtype_, findwin );
 	if ( !mIsUdf(ev.pos) )

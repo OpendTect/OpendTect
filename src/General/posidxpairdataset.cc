@@ -417,7 +417,7 @@ Interval<Pos::IdxPairDataSet::IdxType> Pos::IdxPairDataSet::firstRange() const
     for ( IdxType ifrst=0; ifrst<frsts_.size(); ifrst++ )
     {
 	if ( ifrst == 0 )
-	    ret.start = ret.stop = frsts_[0];
+	    ret.start_ = ret.stop_ = frsts_[0];
 	else
 	    ret.include( frsts_[ifrst], false );
     }
@@ -440,7 +440,7 @@ Interval<Pos::IdxPairDataSet::IdxType> Pos::IdxPairDataSet::secondRange(
 	const ArrIdxType nrscnd = scndset.size();
 	if ( nrscnd > 0 )
 	{
-	    ret.start = ret.stop = scndset[0];
+	    ret.start_ = ret.stop_ = scndset[0];
 	    if ( nrscnd > 1 )
 		ret.include( scndset[nrscnd-1], false );
 	}
@@ -459,7 +459,7 @@ Interval<Pos::IdxPairDataSet::IdxType> Pos::IdxPairDataSet::secondRange(
 		else
 		{
 		    anyseenyet = true;
-		    ret.start = ret.stop = scndset[0];
+		    ret.start_ = ret.stop_ = scndset[0];
 		}
 
 		if ( nrscnd > 1 )
@@ -811,7 +811,7 @@ IdxPairDataSetFromCubeData( IdxPairDataSet& ds,
 	const PosInfo::LineData& line = *cubedata_[idx];
 	const ArrIdxType frst = line.linenr_;
 	if ( !line.segments_.isEmpty() )
-	    ds.add( IdxPair(frst,line.segments_[0].start) );
+	    ds.add( IdxPair(frst,line.segments_[0].start_) );
     }
 }
 
@@ -827,8 +827,8 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 	{
 	    StepInterval<IdxType> crls = line.segments_[idy];
 	    if ( idy == 0 )
-		crls.start += crls.step; //We added first scnd in constructor
-	    for ( IdxType scnd=crls.start; scnd<=crls.stop; scnd+=crls.step )
+		crls.start_ += crls.step_; //We added first scnd in constructor
+	    for ( IdxType scnd=crls.start_; scnd<=crls.stop_; scnd+=crls.step_ )
 	    {
 		IdxPair ip( frst, scnd );
 		IdxPairDataSet::SPos spos = ds_.find( ip );

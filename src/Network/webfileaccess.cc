@@ -111,7 +111,7 @@ bool Network::FileDownloadMgr::goTo( FilePosType& pos, block_idx_type& bidx )
 bool Network::FileDownloadMgr::fillBlock( block_idx_type bidx )
 {
     FileChunkType chunk( blockStart(bidx), 0 );
-    chunk.stop = chunk.start + blockSize(bidx) - 1;
+    chunk.stop_ = chunk.start_ + blockSize(bidx) - 1;
     return fillSingle( chunk );
 }
 
@@ -166,8 +166,8 @@ Network::FileDownloadMgr::ChunkSizeType Network::FileDownloadMgr::getReplies(
 
 	RefMan<Network::HttpRequest> req =
 	    new Network::HttpRequest( url_, Network::HttpRequest::Get );
-	BufferString hdrstr( "bytes=", chunk.start, "-" );
-	hdrstr.add( chunk.stop );
+	BufferString hdrstr( "bytes=", chunk.start_, "-" );
+	hdrstr.add( chunk.stop_ );
 	req->setRawHeader( "Range", hdrstr.str() );
 
 	replies += Network::HttpRequestManager::instance().request(req);
@@ -228,7 +228,7 @@ void Network::FileDownloadMgr::getDataFromReplies(
 	    else
 	    {
 		pErrMsg("Reply nr bytes < requested" );
-		chunk.stop = chunk.start + nrbytes - 1;
+		chunk.stop_ = chunk.start_ + nrbytes - 1;
 	    }
 	}
 

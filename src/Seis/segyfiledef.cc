@@ -476,7 +476,7 @@ void SEGY::OffsetCalculator::set( const SEGY::FileReadOpts& opts )
 
 void SEGY::OffsetCalculator::reset()
 {
-    curoffs_ = def_.start;
+    curoffs_ = def_.start_;
     prevbid_.inl() = prevbid_.crl() = mUdf(int);
 }
 
@@ -505,9 +505,9 @@ void SEGY::OffsetCalculator::setOffset( SeisTrcInfo& ti,
     }
 
     if ( diffcrl || diffinl )
-	curoffs_ = def_.start;
+	curoffs_ = def_.start_;
     else
-	curoffs_ += def_.step;
+	curoffs_ += def_.step_;
 
     ti.offset = curoffs_;
     if ( is2d_ )

@@ -126,7 +126,7 @@ bool AttribLogCreator::doWork( Well::Data& wdin, uiString& errmsg )
     BufferStringSet dummy;
     StepInterval<float> dahrg = setup_.extractparams_->calcFrom( *wd, dummy );
     if ( !mIsUdf( setup_.extractparams_->zstep_ ) )
-	dahrg.step = setup_.extractparams_->zstep_;
+	dahrg.step_ = setup_.extractparams_->zstep_;
 
     AttribLogExtractor ale( *wd );
     if ( !ale.fillPositions(dahrg) )

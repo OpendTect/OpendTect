@@ -611,15 +611,15 @@ void uiScalingAttrib::analyzeCB( CallBacker* )
 	    }
 
 	    StepInterval<double> dtrcrg = fdp->posData().range( true );
-	    Interval<int> trcrg( mCast(int,dtrcrg.start),
-				 mCast(int,dtrcrg.stop) );
+	    Interval<int> trcrg( mCast(int,dtrcrg.start_),
+				 mCast(int,dtrcrg.stop_) );
 	    cs.hsamp_.setCrlRange( trcrg );
 	    cs.hsamp_.setInlRange( Interval<int>(0,0) );
 
 	    StepInterval<double> dzrg = fdp->posData().range( false );
-	    StepInterval<float> zrg( mCast(float,dzrg.start),
-				     mCast(float,dzrg.stop),
-				     mCast(float,dzrg.step) );
+	    StepInterval<float> zrg( mCast(float,dzrg.start_),
+				     mCast(float,dzrg.stop_),
+				     mCast(float,dzrg.step_) );
 	    cs.zsamp_ = zrg;
 	}
 	nrtrcs = subseldlg.nrTrcs();

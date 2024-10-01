@@ -298,13 +298,13 @@ uiReflCalc1D::uiReflCalc1D( uiParent* p, const Setup& su )
 	    anglefld_ = new uiGenInput( this, olb, chilimits );
 	    anglefld_->setElemSzPol( uiObject::Small );
 	    anglefld_->setValue(
-			    Interval<float>( anglerg.start, anglerg.stop ) );
+			Interval<float>( anglerg.start_, anglerg.stop_ ) );
 	    mAttachCB( anglefld_->valueChanged, uiReflCalc1D::parsChangedCB );
 
 	    anglestepfld_ = new uiGenInput( this, uiStrings::sStep() );
 	    anglestepfld_->attach( rightOf, anglefld_ );
 	    anglestepfld_->setElemSzPol( uiObject::Small );
-	    anglestepfld_->setValue( anglerg.step );
+	    anglestepfld_->setValue( anglerg.step_ );
 	    mAttachCB( anglestepfld_->valueChanged,uiReflCalc1D::parsChangedCB);
 	}
     }
@@ -445,7 +445,7 @@ bool uiReflCalc1D::usePar( const IOPar& par )
 	    const float step = angles.size() > 1
 		     ? angles[1]-angles[0]
 		     : ReflCalc1D::sDefAngleRange(
-					 Seis::OffsetType::AngleDegrees ).step;
+				   Seis::OffsetType::AngleDegrees ).step_;
 	    anglestepfld_->setValue( step * convfactor );
 	}
     }
@@ -477,9 +477,9 @@ void uiReflCalc1D::fillPar( IOPar& par ) const
     else if ( anglefld_ && anglestepfld_ )
     {
 	StepInterval<int> anglerg;
-	anglerg.start = anglefld_->getIStepInterval().start;
-	anglerg.stop = anglefld_->getIStepInterval().stop;
-	anglerg.step = anglestepfld_->getIntValue();
+	anglerg.start_ = anglefld_->getIStepInterval().start_;
+	anglerg.stop_ = anglefld_->getIStepInterval().stop_;
+	anglerg.step_ = anglestepfld_->getIntValue();
 	TypeSet<float> angles;
 	for ( int idx=0; idx<anglerg.nrSteps()+1; idx++ )
 	    angles += anglerg.atIndex( idx );

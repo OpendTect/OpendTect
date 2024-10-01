@@ -1130,7 +1130,7 @@ static void updLS( const TypeSet<float>& inpxvals,
     {
 	TypeSet<float> sortvals( inpxvals );
 	sortFor( sortvals.arr(), inpsz, firstxidx );
-	xrg.start = sortvals[firstxidx]; xrg.stop = sortvals[inpsz-firstxidx-1];
+        xrg.start_ = sortvals[firstxidx]; xrg.stop_ = sortvals[inpsz-firstxidx-1];
     }
 
     Interval<float> yrg; assign( yrg, axdy.axis_->range() );
@@ -1138,7 +1138,7 @@ static void updLS( const TypeSet<float>& inpxvals,
     {
 	TypeSet<float> sortvals( inpyvals );
 	sortFor( sortvals.arr(), inpsz, firstyidx );
-	yrg.start = sortvals[firstyidx]; yrg.stop = sortvals[inpsz-firstyidx-1];
+        yrg.start_ = sortvals[firstyidx]; yrg.stop_ = sortvals[inpsz-firstyidx-1];
     }
 
     TypeSet<float> xvals, yvals;
@@ -1493,20 +1493,20 @@ bool uiDataPointSetCrossPlotter::checkSelArea( const SelectionArea& area ) const
     Interval<double> rg = area.getValueRange( false );
     Interval<double> altrg = area.getValueRange( false, true );
 
-    if ( !x_.axis_->range().includes(xrg.start,true) ||
-	 !x_.axis_->range().includes(xrg.stop,true) )
+    if ( !x_.axis_->range().includes(xrg.start_,true) ||
+         !x_.axis_->range().includes(xrg.stop_,true) )
 	return false;
     if ( area.axistype_ == SelectionArea::Y1 )
-	return y_.axis_->range().includes(rg.start,true) &&
-	       y_.axis_->range().includes(rg.stop,true);
+        return y_.axis_->range().includes(rg.start_,true) &&
+                y_.axis_->range().includes(rg.stop_,true);
     else if ( area.axistype_ == SelectionArea::Y2 )
-	return y2_.axis_->range().includes( rg.start,true ) &&
-	       y2_.axis_->range().includes( rg.stop,true );
+        return y2_.axis_->range().includes( rg.start_,true ) &&
+                y2_.axis_->range().includes( rg.stop_,true );
 
-    return y_.axis_->range().includes(rg.start,true) &&
-	   y_.axis_->range().includes(rg.stop,true) &&
-	   y2_.axis_->range().includes(altrg.start,true) &&
-	   y2_.axis_->range().includes(altrg.stop,true);
+    return y_.axis_->range().includes(rg.start_,true) &&
+            y_.axis_->range().includes(rg.stop_,true) &&
+            y2_.axis_->range().includes(altrg.start_,true) &&
+            y2_.axis_->range().includes(altrg.stop_,true);
 }
 
 
@@ -1724,7 +1724,7 @@ void uiDataPointSetCrossPlotter::drawDensityPlot()
 
     const float maxval = densitycalc.maxValue();
     Interval<float> mapperrg( 1, maxval );
-    if ( ctmapper_.range().start<1 || ctmapper_.range().stop>maxval )
+    if ( ctmapper_.range().start_<1 || ctmapper_.range().stop_>maxval )
 	ctmapper_.setRange( mapperrg );
     else
 	mapperrg.limitTo( ctmapper_.range() );
@@ -1872,10 +1872,10 @@ void uiDataPointSetCrossPlotter::drawRegrLine( uiAxisHandler* yah,
     const uiAxisHandler* xah = x_.axis_;
     const LinStats2D& ls = isy1 ? lsy1_ : lsy2_;
     const Interval<int> ypixrg( yah->pixRange() );
-    Interval<float> xvalrg( xah->getVal(xpixrg.start),
-			    xah->getVal(xpixrg.stop) );
-    Interval<float> yvalrg( yah->getVal(ypixrg.start),
-			    yah->getVal(ypixrg.stop) );
+    Interval<float> xvalrg( xah->getVal(xpixrg.start_),
+                            xah->getVal(xpixrg.stop_) );
+    Interval<float> yvalrg( yah->getVal(ypixrg.start_),
+                            yah->getVal(ypixrg.stop_) );
 
     uiLineItem* lineitm = isy1 ? y1regrlineitm_ : y2regrlineitm_;
     if ( lineitm )

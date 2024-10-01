@@ -145,7 +145,7 @@ bool Fault3DPainter::paintSticks( EM::Fault3D& f3d, Fault3DMarker* f3dmaker )
 
     RowCol rc;
     const StepInterval<int> rowrg = fss->rowRange();
-    for ( rc.row()=rowrg.start; rc.row()<=rowrg.stop; rc.row()+=rowrg.step )
+    for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
     {
 	StepInterval<int> colrg = fss->colRange( rc.row() );
 	FlatView::AuxData* stickauxdata = viewer_.createAuxData( 0 );
@@ -219,15 +219,15 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	BinID extrbid1, extrbid2;
 	if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 	{
-	    extrbid1.inl() = extrbid2.inl() = tkzs_.hsamp_.inlRange().start;
-	    extrbid1.crl() = tkzs_.hsamp_.crlRange().start;
-	    extrbid2.crl() = tkzs_.hsamp_.crlRange().stop;
+	    extrbid1.inl() = extrbid2.inl() = tkzs_.hsamp_.inlRange().start_;
+	    extrbid1.crl() = tkzs_.hsamp_.crlRange().start_;
+	    extrbid2.crl() = tkzs_.hsamp_.crlRange().stop_;
 	}
 	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
 	{
-	    extrbid1.inl() = tkzs_.hsamp_.inlRange().start;
-	    extrbid2.inl() = tkzs_.hsamp_.inlRange().stop;
-	    extrbid1.crl() = extrbid2.crl() = tkzs_.hsamp_.crlRange().start;
+	    extrbid1.inl() = tkzs_.hsamp_.inlRange().start_;
+	    extrbid2.inl() = tkzs_.hsamp_.inlRange().stop_;
+	    extrbid1.crl() = extrbid2.crl() = tkzs_.hsamp_.crlRange().start_;
 	}
 
 	Coord extrcoord1, extrcoord2;
@@ -235,7 +235,7 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	extrcoord2 = SI().transform( extrbid2 );
 
 	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-	for ( rc.col()=crg.start; rc.col()<=crg.stop; rc.col()+=crg.step )
+	for ( rc.col()=crg.start_; rc.col()<=crg.stop_; rc.col()+=crg.step_ )
 	{
 	    const Coord3& pos = fss.getKnot( rc );
 	    BinID knotbinid = SI().transform( pos );
@@ -257,10 +257,10 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
     }
     else
     {
-	for ( rc.col()=crg.start; rc.col()<=crg.stop; rc.col()+=crg.step )
+	for ( rc.col()=crg.start_; rc.col()<=crg.stop_; rc.col()+=crg.step_ )
 	{
 	    const Coord3 pos = fss.getKnot( rc );
-	    if ( !mIsEqual(pos.z,tkzs_.zsamp_.start,.0001) )
+	    if ( !mIsEqual(pos.z,tkzs_.zsamp_.start_,.0001) )
 		break;
 
 	    const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
@@ -284,7 +284,7 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
     if ( !path_ || !rlgeom )
 	return false;
 
-    for ( rc.col()=crg.start;rc.col()<=crg.stop;rc.col()+=crg.step )
+    for ( rc.col()=crg.start_;rc.col()<=crg.stop_;rc.col()+=crg.step_ )
     {
 	const Coord3 pos = fss.getKnot( rc );
 	bid = SI().transform( pos.coord() );
@@ -367,20 +367,20 @@ bool Fault3DPainter::paintIntersection( EM::Fault3D& f3d,
 	    BinID rt( tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.start_.crl() );
 	    BinID rb(tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.stop_.crl() );
 
-	    pts += Coord3( SI().transform(lt), tkzs_.zsamp_.start );
-	    pts += Coord3( SI().transform(lb), tkzs_.zsamp_.start );
-	    pts += Coord3( SI().transform(rt), tkzs_.zsamp_.start );
-	    pts += Coord3( SI().transform(rb), tkzs_.zsamp_.start );
+	    pts += Coord3( SI().transform(lt), tkzs_.zsamp_.start_ );
+	    pts += Coord3( SI().transform(lb), tkzs_.zsamp_.start_ );
+	    pts += Coord3( SI().transform(rt), tkzs_.zsamp_.start_ );
+	    pts += Coord3( SI().transform(rb), tkzs_.zsamp_.start_ );
 	}
 	else
 	{
 	    BinID start( tkzs_.hsamp_.start_.inl(), tkzs_.hsamp_.start_.crl() );
 	    BinID stop(tkzs_.hsamp_.stop_.inl(), tkzs_.hsamp_.stop_.crl() );
 
-	    pts += Coord3( SI().transform(start), tkzs_.zsamp_.start );
-	    pts += Coord3( SI().transform(start), tkzs_.zsamp_.stop );
-	    pts += Coord3( SI().transform(stop), tkzs_.zsamp_.start );
-	    pts += Coord3( SI().transform(stop), tkzs_.zsamp_.stop );
+	    pts += Coord3( SI().transform(start), tkzs_.zsamp_.start_ );
+	    pts += Coord3( SI().transform(start), tkzs_.zsamp_.stop_ );
+	    pts += Coord3( SI().transform(stop), tkzs_.zsamp_.start_ );
+	    pts += Coord3( SI().transform(stop), tkzs_.zsamp_.stop_ );
 	}
 	if ( !paintPlaneIntxn(f3d,f3dmaker,intxn,pts) )
 	    return false;

@@ -112,7 +112,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
     if ( !input_ ) return true;
 
     ZAxisTransformSampler outpsampler( transform_, forward_,
-	SamplingData<double>(outputcs_.zsamp_.start, outputcs_.zsamp_.step),
+                                       SamplingData<double>(outputcs_.zsamp_.start_, outputcs_.zsamp_.step_),
 	false );
 
     const int inputzsz = input_->info().getSize(mZ);
@@ -149,7 +149,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 		input_->info().getOffset(inlidx,crlidx,0);
 	    SampledFunctionImpl<float,const float*> inputfunc(
 	       inputptr, inputzsz, inputcs_.zsamp_.atIndex(0),
-	       inputcs_.zsamp_.step);
+                        inputcs_.zsamp_.step_);
 
 	    inputfunc.setHasUdfs( true );
 	    inputfunc.setInterpolate( interpolate_ );
@@ -163,7 +163,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 		input_->getSize(2) );
 
 	    SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
-	       vs, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step);
+                        vs, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step_);
 
 	    inputfunc.setHasUdfs( true );
 	    inputfunc.setInterpolate( interpolate_ );
@@ -180,7 +180,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 		return false;
 
 	    SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
-	       vs, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step);
+                        vs, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step_);
 
 	    inputfunc.setHasUdfs( true );
 	    inputfunc.setInterpolate( interpolate_ );

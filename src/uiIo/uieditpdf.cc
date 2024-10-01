@@ -639,14 +639,14 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 			new uiEditSampledProbDenFunc2DDataPack( arr2d, pdf_ );
 
 	SamplingData<float> sd( andpdf->sampling(0) );
-	StepInterval<double> rg( sd.start,
-				 sd.start + (andpdf->size(0)-1) * sd.step,
-				 sd.step );
+	StepInterval<double> rg( sd.start_,
+				 sd.start_ + (andpdf->size(0)-1) * sd.step_,
+				 sd.step_ );
 	dp->posData().setRange( true, rg );
 	sd = SamplingData<float>( andpdf->sampling(1) );
-	rg = StepInterval<double>( sd.start,
-				   sd.start + (andpdf->size(1)-1) * sd.step,
-				   sd.step );
+	rg = StepInterval<double>( sd.start_,
+				   sd.start_ + (andpdf->size(1)-1) * sd.step_,
+				   sd.step_ );
 	dp->posData().setRange( false, rg );
 	vddp_ = dp;
 

@@ -96,19 +96,19 @@ bool doPrepare( od_ostream* ) override
 
     inlrg_ = rcgeom->rowRange();
     crlrg_ = rcgeom->colRange();
-    inl_ = inlrg_.start;
+    inl_ = inlrg_.start_;
     return true;
 }
 
 
 int nextStep() override
 {
-    if ( inl_ > inlrg_.stop )
+    if ( inl_ > inlrg_.stop_ )
 	return Finished();
 
     PosID posid( horizon_.id() );
     const BinIDValueSet& bvs = *bvss_[0];
-    for ( int crl=crlrg_.start; crl<=crlrg_.stop; crl+=crlrg_.step )
+    for ( int crl=crlrg_.start_; crl<=crlrg_.stop_; crl+=crlrg_.step_ )
     {
 	const BinID bid( inl_, crl );
 	if ( !hs_.includes(bid) )
@@ -132,7 +132,7 @@ int nextStep() override
 	}
     }
 
-    inl_ += inlrg_.step;
+    inl_ += inlrg_.step_;
     nrdone_++;
     return MoreToDo();
 }
@@ -578,9 +578,9 @@ Array2D<float>* Horizon3D::createArray2D(
 	arr = new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
 	if ( arr && arr->isOK() )
 	{
-	    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+	    for ( int row=rowrg.start_; row<=rowrg.stop_; row+=rowrg.step_ )
 	    {
-		for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+		for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
 		{
 		    const BinID bid( row, col );
 		    const Coord3 pos = geom->getKnot( bid, false );
@@ -633,8 +633,8 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr,
     const StepInterval<int> rowrg = geom->rowRange();
     const StepInterval<int> colrg = geom->colRange();
 
-    const RowCol startrc( rowrg.start, colrg.start );
-    const RowCol stoprc( rowrg.stop, colrg.stop );
+    const RowCol startrc( rowrg.start_, colrg.start_ );
+    const RowCol stoprc( rowrg.stop_, colrg.stop_ );
     geometry().geometryElement()->expandWithUdf( startrc, stoprc );
 
     int poscount = 0;
@@ -647,9 +647,9 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr,
     const int arrnrrows = arr.info().getSize( 0 );
     const int arrnrcols = arr.info().getSize( 1 );
 
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    for ( int row=rowrg.start_; row<=rowrg.stop_; row+=rowrg.step_ )
     {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
 	{
 	    const RowCol rc( row, col );
 	    Coord3 pos = getPos( rc.toInt64() );
@@ -1575,12 +1575,12 @@ bool Horizon3DGeometry::getBoundingPolygon( Pick::Set& set ) const
     if ( !surf ) return false;
 
     StepInterval<int> rowrg = rowRange();
-    StepInterval<int> colrg = colRange( rowrg.start );
+    StepInterval<int> colrg = colRange( rowrg.start_ );
     SubID subid; PosID posid;
     bool nodefound = false;
-    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    for ( int row=rowrg.start_; row<=rowrg.stop_; row+=rowrg.step_ )
     {
-	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
 	{
 	    subid = RowCol( row, col ).toInt64();
 	    posid = PosID( surface_.id(), subid );

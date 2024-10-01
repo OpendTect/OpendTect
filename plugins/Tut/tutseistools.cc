@@ -27,8 +27,8 @@ Tut::SeisTools::SeisTools()
     , trcin_(*new SeisTrc)
     , trcout_(*new SeisTrc)
 {
-    newsd_.start = 0;
-    newsd_.step = 1;
+    newsd_.start_ = 0;
+    newsd_.step_ = 1;
     msg_ = uiStrings::sProcessing();
 }
 

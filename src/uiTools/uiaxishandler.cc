@@ -231,8 +231,8 @@ void uiAHPlotAnnotSet::addItems( const uiAHPlotAnnot& pah, bool docolldet )
 	axh_.endhndlr_ && !axh_.endhndlr_->setup().noaxisline_;
 
     const bool overlapswithotheraxis = pah.isAux() ? false :
-		((hasbeghndlr && pix==axh_.getPix(axh_.range().start)) ||
-		(hasendhndlr && pix==axh_.getPix(axh_.range().stop)));
+                                                     ((hasbeghndlr && pix==axh_.getPix(axh_.range().start_)) ||
+                                                      (hasendhndlr && pix==axh_.getPix(axh_.range().stop_)));
     if ( (!setup_.nogridline_ && !overlapswithotheraxis) || pah.isAux() )
 	addGridLineAt( pix, pah );
 
@@ -335,20 +335,20 @@ uiAxisHandler::~uiAxisHandler()
 
 void uiAxisHandler::setBounds( Interval<float> rg )
 {
-    const bool haveudf = mIsUdf(rg.start) || mIsUdf(rg.stop)
-			|| mIsUdf(-rg.start) || mIsUdf(-rg.stop);
+    const bool haveudf = mIsUdf(rg.start_) || mIsUdf(rg.stop_)
+                         || mIsUdf(-rg.start_) || mIsUdf(-rg.stop_);
     if ( haveudf )
 	setRange( StepInterval<float>(0.f,1.f,1.f) );
     else
     {
-	const bool isrev = rg.start > rg.stop;
+        const bool isrev = rg.start_ > rg.stop_;
 	AxisLayout<float> al( rg, setup_.annotinint_ );
-	if ( (!isrev && (al.sd_.start < rg.start))
-	  || ( isrev && (al.sd_.start > rg.start)) )
-	    al.sd_.start += al.sd_.step;
+        if ( (!isrev && (al.sd_.start_ < rg.start_))
+             || ( isrev && (al.sd_.start_ > rg.start_)) )
+            al.sd_.start_ += al.sd_.step_;
 
-	setRange( StepInterval<float>(rg.start,rg.stop,al.sd_.step),
-		  &al.sd_.start );
+        setRange( StepInterval<float>(rg.start_,rg.stop_,al.sd_.step_),
+                  &al.sd_.start_ );
     }
 }
 
@@ -399,18 +399,18 @@ void uiAxisHandler::setEnd( const uiAxisHandler* ah )
 void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 {
     datarg_ = rg;
-    annotstart_ = astart ? *astart : datarg_.start;
+    annotstart_ = astart ? *astart : datarg_.start_;
 
-    float fsteps = (datarg_.stop - datarg_.start) / datarg_.step;
+    float fsteps = (datarg_.stop_ - datarg_.start_) / datarg_.step_;
     if ( fsteps < 0 )
-	datarg_.step = -datarg_.step;
+        datarg_.step_ = -datarg_.step_;
     if ( mIsZero(fsteps,1e-6) )
-	datarg_.widen( datarg_.step * 1.5f );
-    fsteps = (datarg_.stop - datarg_.start) / datarg_.step;
+        datarg_.widen( datarg_.step_ * 1.5f );
+    fsteps = (datarg_.stop_ - datarg_.start_) / datarg_.step_;
     if ( fsteps > 50 )
-	datarg_.step /= (fsteps / 50);
+        datarg_.step_ /= (fsteps / 50);
 
-    rgisrev_ = datarg_.start > datarg_.stop;
+    rgisrev_ = datarg_.start_ > datarg_.stop_;
     rgwidth_ = datarg_.width();
     epsilon_ = 1e-5f * rgwidth_;
 
@@ -423,10 +423,10 @@ int uiAxisHandler::getNrAnnotCharsForDisp() const
     if ( setup_.maxnrchars_ ) return setup_.maxnrchars_;
     const int widthlogval = mIsZero(datarg_.width(),epsilon_)
 	? 0 : mNINT32( Math::Log10(fabs(datarg_.width())) );
-    const int startlogval = mIsZero(datarg_.start,epsilon_)
-	? 0 : mNINT32( Math::Log10(fabs(datarg_.start)) );
-    const int stoplogval = mIsZero(datarg_.stop,epsilon_)
-	? 0 : mNINT32( Math::Log10(fabs(datarg_.stop)) );
+    const int startlogval = mIsZero(datarg_.start_,epsilon_)
+                            ? 0 : mNINT32( Math::Log10(fabs(datarg_.start_)) );
+    const int stoplogval = mIsZero(datarg_.stop_,epsilon_)
+                           ? 0 : mNINT32( Math::Log10(fabs(datarg_.stop_)) );
     int nrofpredecimalchars = mMAX(stoplogval,startlogval) + 1;
     // number of chars needed for pre decimal part for maximum value
     if ( nrofpredecimalchars < 1 )
@@ -486,13 +486,13 @@ float uiAxisHandler::getVal( int pix ) const
     if ( setup_.islog_ )
 	relpix = expf( relpix * logof2 );
 
-    return datarg_.start + (rgisrev_?-1:1) * rgwidth_ * relpix;
+    return datarg_.start_ + (rgisrev_?-1:1) * rgwidth_ * relpix;
 }
 
 
 float uiAxisHandler::getRelPos( float v ) const
 {
-    float relv = (rgisrev_ ? datarg_.start - v : v - datarg_.start) / rgwidth_;
+    float relv = (rgisrev_ ? datarg_.start_ - v : v - datarg_.start_) / rgwidth_;
     if ( !setup_.islog_ )
 	return relv;
 
@@ -649,7 +649,7 @@ bool uiAxisHandler::reCalcAnnotation()
 	return true;
 
     annotrg_ = datarg_;
-    annotrg_.start = annotstart_;
+    annotrg_.start_ = annotstart_;
 
     const bool allocspaceforname = !setup_.noaxisannot_
 				&& !setup_.annotinside_
@@ -677,13 +677,13 @@ bool uiAxisHandler::reCalcAnnotation()
     if ( showstartstop )
     {
 	if ( !showsplval ||
-	     !mIsEqual(datarg_.start,setup_.specialvalue_,epsilon_) )
-	    annots_.add( datarg_.start, uiAHPlotAnnot::Special );
+             !mIsEqual(datarg_.start_,setup_.specialvalue_,epsilon_) )
+            annots_.add( datarg_.start_, uiAHPlotAnnot::Special );
 
 	if ( (!showsplval ||
-	      !mIsEqual(datarg_.stop,setup_.specialvalue_,epsilon_))
+              !mIsEqual(datarg_.stop_,setup_.specialvalue_,epsilon_))
 		&& rgwidth_>epsilon_ )
-	    annots_.add( datarg_.stop, uiAHPlotAnnot::Special );
+            annots_.add( datarg_.stop_, uiAHPlotAnnot::Special );
     }
 
     for ( int idx=0; idx<=nrsteps_; idx++ )
@@ -882,35 +882,35 @@ void setLine( uiLineItem* lineitm, const LinePars& lp,
 	return;
 
     const Interval<int> ypixrg( yah->pixRange() );
-    const Interval<float> yvalrg( yah->getVal(ypixrg.start),
-				  yah->getVal(ypixrg.stop) );
+    const Interval<float> yvalrg( yah->getVal(ypixrg.start_),
+                                  yah->getVal(ypixrg.stop_) );
     Interval<int> xpixrg( xah->pixRange() );
-    Interval<float> xvalrg( xah->getVal(xpixrg.start),
-			    xah->getVal(xpixrg.stop) );
+    Interval<float> xvalrg( xah->getVal(xpixrg.start_),
+                            xah->getVal(xpixrg.stop_) );
     if ( extxvalrg )
     {
 	xvalrg = *extxvalrg;
-	xpixrg.start = xah->getPix( xvalrg.start );
-	xpixrg.stop = xah->getPix( xvalrg.stop );
+        xpixrg.start_ = xah->getPix( xvalrg.start_ );
+        xpixrg.stop_ = xah->getPix( xvalrg.stop_ );
 	xpixrg.sort();
-	xvalrg.start = xah->getVal(xpixrg.start);
-	xvalrg.stop = xah->getVal(xpixrg.stop);
+        xvalrg.start_ = xah->getVal(xpixrg.start_);
+        xvalrg.stop_ = xah->getVal(xpixrg.stop_);
     }
 
-    uiPoint from(xpixrg.start,ypixrg.start), to(xpixrg.stop,ypixrg.stop);
+    uiPoint from(xpixrg.start_,ypixrg.start_), to(xpixrg.stop_,ypixrg.stop_);
     if ( lp.ax == 0 )
     {
 	const int ypix = yah->getPix( lp.a0 );
 	if ( !ypixrg.includes( ypix,true ) ) return;
-	from.x = xpixrg.start; to.x = xpixrg.stop;
+        from.x = xpixrg.start_; to.x = xpixrg.stop_;
 	from.y = to.y = ypix;
     }
     else
     {
-	const float xx0 = xvalrg.start; const float yx0 = lp.getValue( xx0 );
-	const float xx1 = xvalrg.stop; const float yx1 = lp.getValue( xx1 );
-	const float yy0 = yvalrg.start; const float xy0 = lp.getXValue( yy0 );
-	const float yy1 = yvalrg.stop; const float xy1 = lp.getXValue( yy1 );
+        const float xx0 = xvalrg.start_; const float yx0 = lp.getValue( xx0 );
+        const float xx1 = xvalrg.stop_; const float yx1 = lp.getValue( xx1 );
+        const float yy0 = yvalrg.start_; const float xy0 = lp.getXValue( yy0 );
+        const float yy1 = yvalrg.stop_; const float xy1 = lp.getXValue( yy1 );
 	const bool yx0ok = yvalrg.includes( yx0,true );
 	const bool yx1ok = yvalrg.includes( yx1,true );
 	const bool xy0ok = xvalrg.includes( xy0,true );

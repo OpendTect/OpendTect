@@ -15,9 +15,9 @@ ________________________________________________________________________
 namespace Pos
 {
 
-typedef ::Index_Type_Pair Index_Type_Pair;
-typedef IdxPair IdxPairDelta;
-typedef IdxPair IdxPairStep;
+using Index_Type_Pair = ::Index_Type_Pair;
+using IdxPairDelta = IdxPair;
+using IdxPairStep = IdxPair;
 
 
 /*!\brief IdxPair with position indices; base class for BinID et al. */
@@ -25,9 +25,8 @@ typedef IdxPair IdxPairStep;
 mExpClass(Basic) IdxPair : public ::IdxPair
 {
 public:
-
 				IdxPair();
-				IdxPair(IdxType r,IdxType c);
+				IdxPair(IdxType _first,IdxType _second);
 				IdxPair(const Pos::IdxPair&);
 				~IdxPair();
 

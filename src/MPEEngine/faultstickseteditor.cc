@@ -422,7 +422,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 	const bool isstickvertical = fss->getEditPlaneNormal(sticknr).z < 0.5;
 	const int insertcol = defcol + ( isstickvertical
 	    ? mousepos.z>pos.z ? 1 : -1
-	    : mousepos.coord()>pos.coord() ? 1 : -1) * colrange.step;
+                               : mousepos.coord()>pos.coord() ? 1 : -1) * colrange.step_;
 
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSubID( RowCol( sticknr, insertcol ).toInt64() );
@@ -459,7 +459,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 	else
 	{
 	    insertpid = nearestpid0;
-	    const int insertcol = definedknots[nearestknotidx]-colrange.step;
+            const int insertcol = definedknots[nearestknotidx]-colrange.step_;
 	    insertpid.setSubID( RowCol(sticknr,insertcol).toInt64() );
 	}
     }
@@ -475,7 +475,7 @@ void FaultStickSetEditor::getPidsOnStick( EM::PosID& insertpid, int sticknr,
 	else
 	{
 	    insertpid = nearestpid0;
-	    const int insertcol = definedknots[nearestknotidx]+colrange.step;
+            const int insertcol = definedknots[nearestknotidx]+colrange.step_;
 	    insertpid.setSubID( RowCol(sticknr,insertcol).toInt64() );
 	}
     }
@@ -508,10 +508,10 @@ void FaultStickSetEditor::cloneMovingNode( CallBacker* )
     // Performs knot insertion without changing PosID of moving node
     emfss->setBurstAlert( true );
     const StepInterval<int> colrg = fss->colRange( sticknr );
-    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+    for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
     {
 	const RowCol currc( sticknr, col );
-	const RowCol prevrc( sticknr, col-colrg.step );
+        const RowCol prevrc( sticknr, col-colrg.step_ );
 	const EM::PosID prevpid( emfss->id(), prevrc.toInt64() );
 
 	if ( currc.toInt64() == insertpid.subID() )
@@ -521,7 +521,7 @@ void FaultStickSetEditor::cloneMovingNode( CallBacker* )
 	}
 
 	const Coord3 prevpos = fss->getKnot( currc );
-	if ( col == colrg.start )
+        if ( col == colrg.start_ )
 	    fssg.insertKnot( prevrc.toInt64(), prevpos, true );
 	else
 	    ObjectEditor::setPosition( prevpid, prevpos );

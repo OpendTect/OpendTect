@@ -320,8 +320,8 @@ bool doFFT( bool isfwd )
 bool Wavelet::reSample( float newsr )
 {
     const Interval<float> twtrg = samplePositions();
-    const float maxlag = -1 * twtrg.start > twtrg.stop
-		       ? -1 * twtrg.start : twtrg.stop;
+    const float maxlag = -1 * twtrg.start_ > twtrg.stop_
+                         ? -1 * twtrg.start_ : twtrg.stop_;
     const int inpsz = mNINT32( 2.f * maxlag / dpos_ ) + 1;
     const int outsz = mNINT32( 2.f * maxlag / newsr ) + 1;
     WaveletFFTData inp(inpsz,dpos_), out(outsz,newsr);
@@ -368,7 +368,7 @@ bool Wavelet::reSample( float newsr )
 
     reSize( mNINT32( twtrg.width() / newsr ) + 1 );
     dpos_ = newsr;
-    cidx_ = mNINT32( -twtrg.start / newsr );
+    cidx_ = mNINT32( -twtrg.start_ / newsr );
     const int revfirstidx = out.halfsz_ - cidx_;
     const float normfact = ((float)out.sz_) / inp.sz_;
     for ( int idx=0; idx<sz_; idx++ )
@@ -390,7 +390,7 @@ bool Wavelet::reSampleTime( float newsr )
 	return false;
 
     StepInterval<float> twtrg = samplePositions();
-    twtrg.step = newsr;
+    twtrg.step_ = newsr;
     for ( int idx=0; idx<newsz; idx++ )
 	newsamps[idx] = getValue( twtrg.atIndex(idx) );
 
@@ -408,8 +408,8 @@ void Wavelet::ensureSymmetricalSamples()
     if ( hasSymmetricalSamples() )
 	return;
 
-    const float halftwtwvltsz = mMAX( -samplePositions().start,
-				       samplePositions().stop );
+    const float halftwtwvltsz = mMAX( -samplePositions().start_,
+                                      samplePositions().stop_ );
     const int newcidx = mNINT32( halftwtwvltsz / dpos_ );
     const int outsz = 2 * newcidx + 1;
 
@@ -464,28 +464,28 @@ bool Wavelet::trimPaddedZeros()
 	return false;
 
     Interval<int> nonzerorg( 0, sz_-1 );
-    while ( samps_[nonzerorg.start] == 0 && nonzerorg.start < nonzerorg.stop )
-	nonzerorg.start++;
-    while ( samps_[nonzerorg.stop] == 0 && nonzerorg.stop > nonzerorg.start )
-	nonzerorg.stop--;
-    if ( nonzerorg.start < 2 && nonzerorg.stop > sz_-3 )
+    while ( samps_[nonzerorg.start_] == 0 && nonzerorg.start_ < nonzerorg.stop_ )
+        nonzerorg.start_++;
+    while ( samps_[nonzerorg.stop_] == 0 && nonzerorg.stop_ > nonzerorg.start_ )
+        nonzerorg.stop_--;
+    if ( nonzerorg.start_ < 2 && nonzerorg.stop_ > sz_-3 )
 	return false;
 
-    Interval<int> newrg( nonzerorg.start-1, nonzerorg.stop+1 );
-    if ( newrg.start < 0 ) newrg.start = 0;
-    if ( newrg.stop > sz_-1 ) newrg.stop = sz_-1;
+    Interval<int> newrg( nonzerorg.start_-1, nonzerorg.stop_+1 );
+    if ( newrg.start_ < 0 ) newrg.start_ = 0;
+    if ( newrg.stop_ > sz_-1 ) newrg.stop_ = sz_-1;
     const int newsz = newrg.width() + 1;
     float* newsamps = new float [newsz];
     if ( !newsamps )
 	return false;
 
     for ( int idx=0; idx<newsz; idx++ )
-	newsamps[idx] = samps_[newrg.start+idx];
+        newsamps[idx] = samps_[newrg.start_+idx];
 
     delete samps_;
     samps_ = newsamps;
     sz_ = newsz;
-    cidx_ -= newrg.start;
+    cidx_ -= newrg.start_;
     return true;
 }
 
@@ -494,7 +494,7 @@ float Wavelet::getExtrValue( bool ismax ) const
 {
     Interval<float> vals;
     Wavelet::getExtrValues( vals );
-    return ismax ? vals.stop : vals.start;
+    return ismax ? vals.stop_ : vals.start_;
 }
 
 
@@ -601,14 +601,14 @@ bool Wavelet::isScaled( const MultiID& id, MultiID& orgid, MultiID& horid,
 
 int Wavelet::nearestSample( float z ) const
 {
-    float s = mIsUdf(z) ? 0.f : ( z - samplePositions().start ) / dpos_;
+    float s = mIsUdf(z) ? 0.f : ( z - samplePositions().start_ ) / dpos_;
     return mNINT32(s);
 }
 
 
 float Wavelet::getValue( float z ) const
 {
-    const float pos = ( z - samplePositions().start ) / dpos_;
+    const float pos = ( z - samplePositions().start_ ) / dpos_;
     return interpolator().value( WaveletValueSeries(*this), pos );
 }
 
@@ -720,7 +720,7 @@ Table::FormatDesc* WaveletAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Wavelet" );
     fd->headerinfos_ += new Table::TargetInfo( "Sample interval",
-			FloatInpSpec(SI().zRange(true).step), Table::Required,
+                                               FloatInpSpec(SI().zRange(true).step_), Table::Required,
 			Mnemonic::surveyZType() );
     fd->headerinfos_ += new Table::TargetInfo( "Center sample",
 						IntInpSpec(), Table::Optional );

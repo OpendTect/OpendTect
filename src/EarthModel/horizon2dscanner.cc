@@ -231,8 +231,8 @@ int Horizon2DScanner::nextStep()
     int validx = 0;
     const int nrvals = data.size();
 
-    Interval<float> validzrg( curlinegeom_->data().zRange().start,
-	curlinegeom_->data().zRange().stop );
+    Interval<float> validzrg( curlinegeom_->data().zRange().start_,
+			      curlinegeom_->data().zRange().stop_ );
     if ( !zinfo_.isCompatibleWith(SI().zDomainInfo()) )
 	validzrg = zinfo_.getReasonableZRange();
 

@@ -45,14 +45,14 @@ int FileSpec::nrFiles() const
     const int nrfnms = fnames_.size();
     if ( nrfnms > 1 )
 	return nrfnms;
-    return mIsUdf(nrs_.start) ? nrfnms : nrs_.nrSteps() + 1;
+    return mIsUdf(nrs_.start_) ? nrfnms : nrs_.nrSteps() + 1;
 }
 
 
 bool FileSpec::isRangeMulti() const
 {
     const int nrfnms = fnames_.size();
-    return nrfnms >= 1 && !mIsUdf(nrs_.start);
+    return nrfnms >= 1 && !mIsUdf(nrs_.start_);
 }
 
 
@@ -101,7 +101,7 @@ const char* FileSpec::fileName( int fidx ) const
     const int nrfiles = nrFiles();
     if ( fidx >= nrfiles )
 	return "";
-    else if ( mIsUdf(nrs_.start) )
+    else if ( mIsUdf(nrs_.start_) )
 	return nrfnms < 1 ? "" : fnames_.get(fidx).buf();
 
     const int nr = nrs_.atIndex( fidx );
@@ -224,10 +224,10 @@ void FileSpec::fillPar( IOPar& iop ) const
     }
     else
     {
-	if ( !mIsUdf(nrs_.start) )
+	if ( !mIsUdf(nrs_.start_) )
 	{
 	    FileMultiString fms;
-	    fms += nrs_.start; fms += nrs_.stop; fms += nrs_.step;
+	    fms += nrs_.start_; fms += nrs_.stop_; fms += nrs_.step_;
 	    if ( zeropad_ )
 		fms += zeropad_;
 	    iop.set( sKeyFileNrs(), fms );
@@ -290,7 +290,7 @@ void FileSpec::getReport( IOPar& iop ) const
 	usrstr = fileName( 0 );
     iop.set( sKey::FileName(), usrstr );
     const int nrfnms = fnames_.size();
-    const bool hasmultinrs = !mIsUdf(nrs_.start);
+    const bool hasmultinrs = !mIsUdf(nrs_.start_);
     if ( nrfnms < 2 && !hasmultinrs )
 	return;
 
@@ -308,8 +308,8 @@ void FileSpec::getReport( IOPar& iop ) const
     else
     {
 	BufferString str;
-	str += nrs_.start; str += "-"; str += nrs_.stop;
-	str += " step "; str += nrs_.step;
+	str += nrs_.start_; str += "-"; str += nrs_.stop_;
+	str += " step "; str += nrs_.step_;
 	if ( zeropad_ )
 	    { str += "(pad to "; str += zeropad_; str += " zeros)"; }
 	iop.set( "Replace '*' with", str );
@@ -362,11 +362,11 @@ void FileSpec::getMultiFromString( const char* str )
 {
     FileMultiString fms( str );
     const int len = fms.size();
-    nrs_.start = len > 0 ? fms.getIValue( 0 ) : mUdf(int);
+    nrs_.start_ = len > 0 ? fms.getIValue( 0 ) : mUdf(int);
     if ( len > 1 )
-	nrs_.stop = fms.getIValue( 1 );
+	nrs_.stop_ = fms.getIValue( 1 );
     if ( len > 2 )
-	nrs_.step = fms.getIValue( 2 );
+	nrs_.step_ = fms.getIValue( 2 );
     if ( len > 3 )
 	zeropad_ = fms.getIValue( 3 );
 }

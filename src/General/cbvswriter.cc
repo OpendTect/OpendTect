@@ -193,8 +193,8 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	strm_.addBin( &cinf.datatype, integersize );
 	cinf.datachar.dump( dcdump[0], dcdump[1] );
 	strm_.addBin( dcdump, 4 );
-	strm_.addBin( &info.sd_.start, sizeof(float) );
-	strm_.addBin( &info.sd_.step, sizeof(float) );
+	strm_.addBin( &info.sd_.start_, sizeof(float) );
+	strm_.addBin( &info.sd_.step_, sizeof(float) );
 	strm_.addBin( &info.nrsamples_, integersize );
 	float a = 0, b = 1; // LinScaler( a, b ) - future use?
 	strm_.addBin( &a, sizeof(float) );
@@ -232,7 +232,7 @@ void CBVSWriter::newSeg( bool newinl )
     bool goodgeom = nrtrcsperposn_status_ != 2 && nrtrcsperposn_ > 0;
     if ( !goodgeom && !newinl )
     {
-	lds_[lds_.size()-1]->segments_[0].stop = curbinid_.crl();
+	lds_[lds_.size()-1]->segments_[0].stop_ = curbinid_.crl();
 	return;
     }
     goodgeom = nrtrcsperposn_status_ == 0 && nrtrcsperposn_ > 0;
@@ -244,11 +244,11 @@ void CBVSWriter::newSeg( bool newinl )
     if ( newinl )
     {
 	if ( goodgeom && lds_.size() )
-	    newstep = lds_[lds_.size()-1]->segments_[0].step;
+	    newstep = lds_[lds_.size()-1]->segments_[0].step_;
 	lds_ += new PosInfo::LineData( curbinid_.inl() );
     }
     else if ( goodgeom )
-	newstep = lds_[lds_.size()-1]->segments_[0].step;
+	newstep = lds_[lds_.size()-1]->segments_[0].step_;
 
     lds_[lds_.size()-1]->segments_ +=
 	PosInfo::LineData::Segment(curbinid_.crl(),curbinid_.crl(), newstep);
@@ -276,20 +276,20 @@ void CBVSWriter::getBinID()
 	    PosInfo::LineData& inlinf = *lds_[lds_.size()-1];
 	    PosInfo::LineData::Segment& seg =
 				inlinf.segments_[inlinf.segments_.size()-1];
-	    if ( !forcedlinestep_.crl() && seg.stop == seg.start )
+	    if ( !forcedlinestep_.crl() && seg.stop_ == seg.start_ )
 	    {
-		if ( seg.stop != curbinid_.crl() )
+		if ( seg.stop_ != curbinid_.crl() )
 		{
-		    seg.stop = curbinid_.crl();
-		    seg.step = seg.stop - seg.start;
+		    seg.stop_ = curbinid_.crl();
+		    seg.step_ = seg.stop_ - seg.start_;
 		}
 	    }
 	    else
 	    {
-		if ( curbinid_.crl() != seg.stop + seg.step )
+		if ( curbinid_.crl() != seg.stop_ + seg.step_ )
 		    newSeg( false );
 		else
-		    seg.stop = curbinid_.crl();
+		    seg.stop_ = curbinid_.crl();
 	    }
 	}
     }
@@ -509,10 +509,10 @@ void CBVSWriter::getRealGeometry()
 
     survgeom_.fullyrectandreg = forcetrailer_ ? false : cd.isFullyRectAndReg();
     StepInterval<int> rg;
-    cd.getInlRange( rg ); survgeom_.step.inl() = rg.step;
-    survgeom_.start.inl() = rg.start; survgeom_.stop.inl() = rg.stop;
-    cd.getCrlRange( rg ); survgeom_.step.crl() = rg.step;
-    survgeom_.start.crl() = rg.start; survgeom_.stop.crl() = rg.stop;
+    cd.getInlRange( rg ); survgeom_.step.inl() = rg.step_;
+    survgeom_.start.inl() = rg.start_; survgeom_.stop.inl() = rg.stop_;
+    cd.getCrlRange( rg ); survgeom_.step.crl() = rg.step_;
+    survgeom_.start.crl() = rg.start_; survgeom_.stop.crl() = rg.stop_;
     if ( cd.isCrlReversed() )
 	survgeom_.step.crl() *= -1;
 
@@ -560,9 +560,9 @@ bool CBVSWriter::writeTrailer()
 	    for ( int icrl=0; icrl<nrcrl; icrl++ )
 	    {
 		PosInfo::LineData::Segment& seg = inlinf.segments_[icrl];
-		strm_.addBin( &seg.start, integersize );
-		strm_.addBin( &seg.stop, integersize );
-		strm_.addBin( &seg.step, integersize );
+		strm_.addBin( &seg.start_, integersize );
+		strm_.addBin( &seg.stop_, integersize );
+		strm_.addBin( &seg.step_, integersize );
 	    }
 	    if ( !strm_.isOK() ) return false;
 	}

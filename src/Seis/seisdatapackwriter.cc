@@ -128,7 +128,7 @@ void SeisDataPackWriter::adjustSteeringScaler( int compidx )
     if ( feetuom && SI().xyInFeet() )
 	trcdist = feetuom->getSIValue( trcdist );
 
-    double zstep = dp_->sampling().zsamp_.step;
+    double zstep = dp_->sampling().zsamp_.step_;
     const UnitOfMeasure* zuom = UnitOfMeasure::surveyDefZUnit();
     const ZDomain::Def& zdef = SI().zDomain();
     if ( zuom && zdef.isDepth() )
@@ -227,9 +227,9 @@ bool SeisDataPackWriter::setTrc()
     const int trcsz = cubezrgidx_.nrSteps() + 1;
     trc_ = new SeisTrc( trcsz );
 
-    trc_->info().sampling.start = dp_->sampling().zsamp_.atIndex(
-				  cubezrgidx_.start );
-    trc_->info().sampling.step = dp_->sampling().zsamp_.step * cubezrgidx_.step;
+    trc_->info().sampling.start_ = dp_->sampling().zsamp_.atIndex(
+                                      cubezrgidx_.start_ );
+    trc_->info().sampling.step_ = dp_->sampling().zsamp_.step_ * cubezrgidx_.step_;
 
     BufferStringSet compnames;
     compnames.add( dp_->getComponentName() );
@@ -262,7 +262,7 @@ int SeisDataPackWriter::nextStep()
     const int inlpos = hs.lineIdx( currentpos.inl() );
     const int crlpos = hs.trcIdx( currentpos.crl() );
     const int trcsz = trc_->size();
-    int cubesample = cubezrgidx_.start;
+    int cubesample = cubezrgidx_.start_;
     const od_int64 offset = dp_->data().info().
 					getOffset( inlpos, crlpos, cubesample );
     float value = mUdf(float);
@@ -272,7 +272,7 @@ int SeisDataPackWriter::nextStep()
 	const float* dataptr = outarr.getData();
 	const Scaler* scaler = compscalers_[compidx];
 	if ( dataptr ) dataptr += offset;
-	cubesample = cubezrgidx_.start;
+        cubesample = cubezrgidx_.start_;
 	for ( int idz=0; idz<trcsz; idz++ )
 	{
 	    value = dataptr ? *dataptr++

@@ -1328,13 +1328,13 @@ const char* cformat( char specifier, od_uint16 width, od_uint16 precision,
 BufferString toUserString( const Interval<int>& intv )
 {
     BufferString ret;
-    ret = intv.start;
-    ret.add( " - " ).add( intv.stop );
+    ret = intv.start_;
+    ret.add( " - " ).add( intv.stop_ );
     if ( intv.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<int>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " [" ).add( sintv->step ).add("]");
+	    ret.add( " [" ).add( sintv->step_ ).add("]");
     }
 
     return ret;
@@ -1345,13 +1345,13 @@ static BufferString toUserString( const Interval<float>& intv, char format,
 				  int precision )
 {
     BufferString ret;
-    ret = toString(intv.start,format,precision);
-    ret.add( " - " ).add( toString(intv.stop,format,precision) );
+    ret = toString(intv.start_,format,precision);
+    ret.add( " - " ).add( toString(intv.stop_,format,precision) );
     if ( intv.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<float>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " [" ).add( toString(sintv->step,format,precision) )
+	    ret.add( " [" ).add( toString(sintv->step_,format,precision) )
 	       .add("]");
     }
 
@@ -1373,13 +1373,13 @@ BufferString toUserStringF( const Interval<float>& intv, int nrdec )
 BufferString toUserString( const Interval<double>& intv, int precision )
 {
     BufferString ret;
-    ret = toString(intv.start,'g',precision);
-    ret.add( " - " ).add( toString(intv.stop,'g',precision) );
+    ret = toString(intv.start_,'g',precision);
+    ret.add( " - " ).add( toString(intv.stop_,'g',precision) );
     if ( intv.hasStep() )
     {
 	mDynamicCastGet(const StepInterval<double>*,sintv,&intv);
 	if ( sintv )
-	    ret.add( " [" ).add( toString(sintv->step,'g',precision) ).add("]");
+	    ret.add( " [" ).add( toString(sintv->step_,'g',precision) ).add("]");
     }
 
     return ret;

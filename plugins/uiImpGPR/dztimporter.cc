@@ -97,8 +97,8 @@ bool DZT::FileHeader::getFrom( od_istream& strm, uiString& emsg )
 void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
 {
     ti.setTrcNr( traceNr( trcidx ) );
-    ti.sampling.start = position;
-    ti.sampling.step = ((float)range) / (nsamp-1);
+    ti.sampling.start_ = position;
+    ti.sampling.step_ = ((float)range) / (nsamp-1);
     ti.sampling.scale( cNanoFac );
     ti.coord.x = cstart_.x + cstep_.x * trcidx;
     ti.coord.y = cstart_.y + cstep_.y * trcidx;

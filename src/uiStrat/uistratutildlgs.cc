@@ -119,8 +119,8 @@ void uiStratUnitEditDlg::putToScreen()
     unitnmfld_->setText( code.isEmpty() ? "<New Unit>" : unit_.code() );
     unitdescfld_->setText( unit_.description() );
     colfld_->setColor( unit_.color() );
-    agestartfld_->setValue( unit_.timeRange().start );
-    agestopfld_->setValue( unit_.timeRange().stop );
+    agestartfld_->setValue( unit_.timeRange().start_ );
+    agestopfld_->setValue( unit_.timeRange().stop_ );
 }
 
 
@@ -750,8 +750,8 @@ void uiStratUnitDivideDlg::resetUnits( CallBacker* cb )
 	    unit.setCode( code );
 	}
 	Interval<float> rg;
-	rg.set( timerg.start + (float)idx*timerg.width()/(nrrows),
-		timerg.start + (float)(idx+1)*timerg.width()/(nrrows) );
+	rg.set( timerg.start_ + (float)idx*timerg.width()/(nrrows),
+		timerg.start_ + (float)(idx+1)*timerg.width()/(nrrows) );
 	table_->setRowReadOnly( idx, false );
 	unit.setTimeRange( rg );
 	unit.setColor( unit.color() );
@@ -767,8 +767,8 @@ void uiStratUnitDivideDlg::addUnitToTable( int irow,
 					const Strat::LeavedUnitRef& unit )
 {
     table_->setText( RowCol(irow,cNameCol), unit.code() );
-    table_->setValue( RowCol(irow,cStartCol), unit.timeRange().start );
-    table_->setValue( RowCol(irow,cStopCol), unit.timeRange().stop );
+    table_->setValue( RowCol(irow,cStartCol), unit.timeRange().start_ );
+    table_->setValue( RowCol(irow,cStopCol), unit.timeRange().stop_ );
     table_->setColor( RowCol(irow,cColorCol), unit.color() );
 }
 
@@ -807,7 +807,7 @@ bool uiStratUnitDivideDlg::areTimesOK( ObjectSet<Strat::LeavedUnitRef>& units,
 		   .arg(!iscurunitrgok ? curunit.code() : nextunit.code());
 	    return false;
 	}
-	if ( curunit.timeRange().stop > nextunit.timeRange().start )
+	if ( curunit.timeRange().stop_ > nextunit.timeRange().start_ )
 	{
 	    errmsg = tr("Time overlap detected between units "
 			"'%1' and '%2'.\nPlease correct it.")

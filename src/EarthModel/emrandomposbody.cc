@@ -386,7 +386,7 @@ bool RandomPosBody::getBodyRange( TrcKeyZSampling& cs )
 	if ( idx )
 	    cs.zsamp_.include( (float) locations_[idx].z );
 	else
-	    cs.zsamp_.start = cs.zsamp_.stop = (float) locations_[idx].z;
+	    cs.zsamp_.start_ = cs.zsamp_.stop_ = (float) locations_[idx].z;
     }
 
     return locations_.size();

@@ -300,7 +300,7 @@ int VolProc::ChainOutput::setupChunking()
     if ( !chainexec_ )
 	return ErrorOccurred();
 
-    chainexec_->chain_.setZStep( cs_.zsamp_.step, SI().zIsTime() );
+    chainexec_->chain_.setZStep( cs_.zsamp_.step_, SI().zIsTime() );
     /* chain_.zstep_ is not used, but setting it for external plugin builders
        in case they read chain_.getZStep() */
 

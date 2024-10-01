@@ -68,7 +68,7 @@ void calcFingParsObject::create2DRandPicks( const MultiID& dsetid,
 	const Coord& pos = geometry.positions()[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
-	const float zpos = (float) (geometry.zRange().start +
+	const float zpos = (float) (geometry.zRange().start_ +
 			    gen_.get()*geometry.zRange().width());
 	rangesset.add( bid, zpos );
     }
@@ -81,10 +81,10 @@ static void create3DRandPicks( Stats::RandGen& gen, BinIDValueSet& rangesset )
     {
 	StepInterval<int> irg = SI().inlRange( true );
 	StepInterval<int> crg = SI().crlRange( true );
-	bid.inl() = gen.getInt( irg.start, irg.stop );
-	bid.crl() = gen.getInt( crg.start, crg.stop );
+	bid.inl() = gen.getInt( irg.start_, irg.stop_ );
+	bid.crl() = gen.getInt( crg.start_, crg.stop_ );
 	SI().snap( bid );
-	const float z = (float) (SI().zRange(true).start
+	const float z = (float) (SI().zRange(true).start_
 		      + gen.get() * SI().zRange(true).width());
 	rangesset.add( bid, z );
     }

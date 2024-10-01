@@ -153,7 +153,7 @@ WellTie::Data::Data( const Setup& wts, Well::Data& wdata )
 {
     const Well::Track& track = wd_->track();
     const Well::D2TModel* d2t = wd_->d2TModel();
-    float stoptime = SI().zRange(true).stop;
+    float stoptime = SI().zRange(true).stop_;
     const float td = track.td();
     float tdtime = d2t->getTime( td, track );
     if ( !mIsUdf(tdtime) && tdtime > stoptime )
@@ -164,8 +164,8 @@ WellTie::Data::Data( const Setup& wts, Well::Data& wdata )
     {
 	TrcKeyZSampling cs;
 	oinf.getRanges( cs );
-	if ( cs.zsamp_.stop > stoptime )
-	    stoptime = cs.zsamp_.stop;
+	if ( cs.zsamp_.stop_ > stoptime )
+	    stoptime = cs.zsamp_.stop_;
     }
 
     tracerg_.set( 0.f, stoptime, cDefSeisSr() );
@@ -252,7 +252,7 @@ const ReflectivityModelBase* WellTie::Data::getRefModel() const
 float WellTie::Data::getZStep() const
 {
     const SeisTrc* trc = getRealTrc();
-    return trc ? trc->info().sampling.step : mUdf(float);
+    return trc ? trc->info().sampling.step_ : mUdf(float);
 }
 
 
@@ -294,14 +294,14 @@ void WellTie::Data::computeExtractionRange()
 
     dahrg_ = velplog->dahRange();
     dahrg_.limitTo( track.dahRange() );
-    float twtstart = mMAX( 0.f, d2t->getTime( dahrg_.start, track ) );
-    float twtstop = d2t->getTime( dahrg_.stop, track );
+    float twtstart = mMAX( 0.f, d2t->getTime( dahrg_.start_, track ) );
+    float twtstop = d2t->getTime( dahrg_.stop_, track );
     twtstart = Math::Ceil( twtstart / cDefSeisSr() ) * cDefSeisSr();
     twtstop = Math::Floor( twtstop / cDefSeisSr() ) * cDefSeisSr();
     modelrg_ = ZSampling( twtstart, twtstop, cDefSeisSr() );
 
-    dahrg_.start = d2t->getDah( twtstart, track );
-    dahrg_.stop = d2t->getDah( twtstop, track );
+    dahrg_.start_ = d2t->getDah( twtstart, track );
+    dahrg_.stop_ = d2t->getDah( twtstop, track );
 
     twtstart += cDefSeisSr();
     twtstop -= cDefSeisSr();

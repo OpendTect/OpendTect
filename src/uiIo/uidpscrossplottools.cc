@@ -138,18 +138,18 @@ Interval<double> SelectionArea::getValueRange( bool forxaxis, bool alt ) const
     {
 	if ( forxaxis )
 	{
-	    intv.start = worldrect_.left();
-	    intv.stop = worldrect_.right();
+	    intv.start_ = worldrect_.left();
+	    intv.stop_ = worldrect_.right();
 	}
 	else
 	{
-	    intv.start = worldrect_.bottom();
-	    intv.stop = worldrect_.top();
+	    intv.start_ = worldrect_.bottom();
+	    intv.stop_ = worldrect_.top();
 
 	    if ( alt )
 	    {
-		intv.start = altworldrect_.bottom();
-		intv.stop = altworldrect_.top();
+		intv.start_ = altworldrect_.bottom();
+		intv.stop_ = altworldrect_.top();
 	    }
 	}
     }
@@ -468,19 +468,19 @@ void SelectionGrp::getInfo( BufferString& info ) const
 
 	info += selarea.xaxisnm_; info += " (range) :";
 	range = selarea.getValueRange( true );
-	info .add( range.start ); info += ", "; info.add( range.stop );
+	info .add( range.start_ ); info += ", "; info.add( range.stop_ );
 	info += "\n";
 
 	info += selarea.yaxisnm_; info += " (range) :";
 	range = selarea.getValueRange(false);
-	info .add( range.start ); info += ", "; info.add( range.stop );
+	info .add( range.start_ ); info += ", "; info.add( range.stop_ );
 	info += "\n";
 
 	if ( !selarea.altyaxisnm_.isEmpty() )
 	{
 	    info += selarea.altyaxisnm_; info += " (range) :";
 	    range = selarea.getValueRange( false, true );
-	    info .add( range.start ); info += ", "; info.add( range.stop);
+	    info .add( range.start_ ); info += ", "; info.add( range.stop_);
 	    info += "\n";
 	}
 

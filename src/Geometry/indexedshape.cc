@@ -136,7 +136,7 @@ void RangePrimitiveSet::getAll( TypeSet<int>& res, bool ) const
 
     Interval<int> range = getRange();
 
-    for ( int idx=range.start; idx<=range.stop; idx++ )
+    for ( int idx=range.start_; idx<=range.stop_; idx++ )
 	res += idx;
 }
 
