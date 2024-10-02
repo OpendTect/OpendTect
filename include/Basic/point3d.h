@@ -15,7 +15,7 @@ namespace Geom
 {
 
 template <class T>
-mExpClass(Basic) Point3D
+mClass(Basic) Point3D
 {
 public:
 				Point3D(const Point2D<T>&,T);
