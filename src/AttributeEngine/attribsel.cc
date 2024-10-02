@@ -75,18 +75,25 @@ SelSpec::SelSpec( const SelSpec& oth )
 
 SelSpec::~SelSpec()
 {
-    attrselspeczunitmgr_.removeAndDeleteParam( this );
+    if ( attrselspeczunitmgr_.hasParam(this) )
+	attrselspeczunitmgr_.removeAndDeleteParam( this );
 }
 
 
 const char* SelSpec::zDomainUnit() const
 {
+    if ( !attrselspeczunitmgr_.hasParam(this) )
+	attrselspeczunitmgr_.setParam( &mSelf(), new BufferString );
+
     return attrselspeczunitmgr_.getParam( this )->buf();
 }
 
 
 void SelSpec::setZDomainUnit( const char* zunitstr )
 {
+    if ( !attrselspeczunitmgr_.hasParam(this) )
+	attrselspeczunitmgr_.setParam( this, new BufferString );
+
     attrselspeczunitmgr_.getParam( this )->set( zunitstr );
 }
 
@@ -128,6 +135,9 @@ bool SelSpec::operator!=( const SelSpec& ss ) const
 void SelSpec::setZDomainKey( const Desc& desc )
 {
     zdomainkey_.setEmpty();
+    if ( !attrselspeczunitmgr_.hasParam(this) )
+	attrselspeczunitmgr_.setParam( this, new BufferString );
+
     attrselspeczunitmgr_.getParam( this )->setEmpty();
     BufferString storedid = desc.getStoredID();
     if ( storedid.isEmpty() ) return;
@@ -303,6 +313,9 @@ bool SelSpec::usePar( const IOPar& par )
     defstring_.setEmpty();	par.get( sKeyDefStr(), defstring_ );
     zdomainkey_.setEmpty();	if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
 				    par.get( "Depth Domain", zdomainkey_);
+    if ( !attrselspeczunitmgr_.hasParam(this) )
+	attrselspeczunitmgr_.setParam( this, new BufferString );
+
     BufferString zunitstr;
     attrselspeczunitmgr_.getParam( this )->setEmpty();
     par.get( ZDomain::sKeyUnit(), zunitstr );
