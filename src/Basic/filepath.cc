@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "filepath.h"
 
+#include "envvars.h"
 #include "file.h"
 #include "stringview.h"
 #include "genc.h"
