@@ -91,9 +91,6 @@ macro( QT_SETUP_GUI_INTERNALS )
 
     list( APPEND QT_REQ_PLUGINS
 	    iconengines;imageformats;platforms )
-    if ( QT_VERSION VERSION_LESS 6 OR NOT APPLE )
-	list( APPEND QT_REQ_PLUGINS printsupport )
-    endif()
     if ( WIN32 )
 	list( APPEND QT_REQ_PLUGINS styles )
     elseif ( NOT APPLE )
@@ -106,6 +103,11 @@ macro( QT_SETUP_GUI_INTERNALS )
 endmacro(QT_SETUP_GUI_INTERNALS )
 
 macro( QT_SETUP_PRINTSUPPORT_INTERNALS )
+
+    if ( QT_VERSION VERSION_LESS 6 OR (NOT APPLE AND NOT WIN32) )
+	list( APPEND QT_REQ_PLUGINS printsupport )
+	QT_INSTALL_PLUGINS()
+    endif()
 
     if ( APPLE AND QT_VERSION VERSION_GREATER_EQUAL 6 )
 	find_package( Cups QUIET GLOBAL )
