@@ -32,7 +32,7 @@ using namespace Attrib;
 #define mGetValParFromGroup( T, str, desc )\
 {\
     mDescGetConstParamGroup(T,str,desc,parstr1_);\
-    if ( str ) \
+    if ( str && str->validIdx(pgidx_) ) \
 	valpar1 = &(ValParam&)(*str)[pgidx_];\
 }
 
