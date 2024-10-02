@@ -328,10 +328,10 @@ LatLong AnchorBasedXY::toGeographic( const Coord& c, bool ) const
 
     const double scalefac = isfeet_ ? mFromFeetFactorD : 1;
 
-    const Coord coorddist( (c.x - refcoord_.x) * scalefac,
-			   (c.y - refcoord_.y) * scalefac );
-    LatLong ll( reflatlng_.lat_ + coorddist.y / latdist,
-		reflatlng_.lng_ + coorddist.x / lngdist_ );
+    const Coord coorddist( (c.x_ - refcoord_.x_) * scalefac,
+                           (c.y_ - refcoord_.y_) * scalefac );
+    LatLong ll( reflatlng_.lat_ + coorddist.y_ / latdist,
+                reflatlng_.lng_ + coorddist.x_ / lngdist_ );
 
     if ( ll.lat_ > 90 )		ll.lat_ = 180 - ll.lat_;
     else if ( ll.lat_ < -90 )	ll.lat_ = -180 - ll.lat_;
@@ -350,8 +350,8 @@ Coord AnchorBasedXY::fromGeographic( const LatLong& ll, bool ) const
 
     const LatLong latlongdist( ll.lat_ - reflatlng_.lat_,
 			       ll.lng_ - reflatlng_.lng_ );
-    return Coord( refcoord_.x + latlongdist.lng_ * lngdist_ / scalefac,
-		  refcoord_.y + latlongdist.lat_ * latdist / scalefac );
+    return Coord( refcoord_.x_ + latlongdist.lng_ * lngdist_ / scalefac,
+                  refcoord_.y_ + latlongdist.lat_ * latdist / scalefac );
 }
 
 

@@ -483,8 +483,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const Well::Track& track = wd->track();
 		const float startdah = outplog.dahRange().start_;
 		const float stopdah = outplog.dahRange().stop_;
-		const float zstart = sCast( float, track.getPos( startdah ).z );
-		const float zstop = sCast( float, track.getPos( stopdah ).z );
+                const float zstart = sCast( float, track.getPos( startdah ).z_ );
+                const float zstop = sCast( float, track.getPos( stopdah ).z_ );
 		const Interval<float> zrg( zstart, zstop );
 		ObjectSet<const Well::Log> reslogs;
 		reslogs += &outplog;

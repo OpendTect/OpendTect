@@ -90,17 +90,17 @@ bool WellTie::uiControlView::handleUserClick( int vwridx )
     const uiWorldPoint wp = vwr_.getWorld2Ui().transform( ev.pos() );
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	!ev.altStatus() && editToolBar()->isOn( editbut_ ) &&
-	checkIfInside(wp.x,wp.y) )
+         checkIfInside(wp.x_,wp.y_) )
     {
 	vwr_.getAuxInfo( wp, infopars_ );
 	const uiWorldRect& bbox = vwr_.boundingBox();
-	const bool synth = ( wp.x < (bbox.right()-bbox.left())/2 );
+        const bool synth = ( wp.x_ < (bbox.right()-bbox.left())/2 );
 	const SeisTrc* trc = synth ? server_.data().getSynthTrc()
 				   : server_.data().getRealTrc();
 	if ( !trc )
 	    return false;
 
-	server_.pickMgr().addPick( (float) wp.y, synth, trc );
+        server_.pickMgr().addPick( (float) wp.y_, synth, trc );
 	redrawAnnotNeeded.trigger();
 	return true;
     }

@@ -346,20 +346,20 @@ Task* BodyFiller::createTask()
 
     for ( int idx=0; idx<knotsz; idx++ )
     {
-	plgknots_[idx].z *= SI().zScale();
+        plgknots_[idx].z_ *= SI().zScale();
 	const BinID bid = SI().transform( plgknots_[idx] );
-	plgbids_ += Coord3(bid.inl(),bid.crl(),plgknots_[idx].z);
+        plgbids_ += Coord3(bid.inl(),bid.crl(),plgknots_[idx].z_);
 
 	if ( flatpolygon_.isEmpty() )
 	{
 	    flatpolygon_.hsamp_.start_ = flatpolygon_.hsamp_.stop_ = bid;
 	    flatpolygon_.zsamp_.start_ = flatpolygon_.zsamp_.stop_
-				   = (float)plgknots_[idx].z;
+                                         = (float)plgknots_[idx].z_;
 	}
 	else
 	{
 	    flatpolygon_.hsamp_.include( bid );
-	    flatpolygon_.zsamp_.include( (float) plgknots_[idx].z );
+            flatpolygon_.zsamp_.include( (float) plgknots_[idx].z_ );
 	}
     }
 
@@ -375,10 +375,10 @@ Task* BodyFiller::createTask()
 	ODPolygon<double>* newplg = new ODPolygon<double>();
 	for ( int idx=0; idx<plgbids_.size(); idx++ )
 	{
-	    const double curx = plgdir_==plgIsInline ? plgbids_[idx].y
-						     : plgbids_[idx].x;
-	    const double cury = plgdir_==plgIsZSlice ? plgbids_[idx].y
-						     : plgbids_[idx].z;
+            const double curx = plgdir_==plgIsInline ? plgbids_[idx].y_
+                                                     : plgbids_[idx].x_;
+            const double cury = plgdir_==plgIsZSlice ? plgbids_[idx].y_
+                                                     : plgbids_[idx].z_;
 	    newplg->add( Coord(curx,cury) );
 	}
 
@@ -433,7 +433,7 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
     {
 	TypeSet<Coord3> knots;
 	for ( int idx=0; idx<plgknots_.size(); idx++ )
-	    knots += Coord3( plgknots_[idx].x, plgknots_[idx].y, 0 );
+            knots += Coord3( plgknots_[idx].x_, plgknots_[idx].y_, 0 );
 
 	if ( !pointInPolygon( Coord3(coord,0), knots, epsilon_ ) )
 	    return false;
@@ -443,9 +443,9 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	    for ( int idx=0; idx<plgknots_.size(); idx++ )
 	    {
 		if ( !idx )
-		    res.start_ = res.stop_ = plgknots_[0].z;
+                    res.start_ = res.stop_ = plgknots_[0].z_;
 		else
-		    res.include( plgknots_[idx].z );
+                    res.include( plgknots_[idx].z_ );
 	    }
 
 	    if ( mIsZero( res.width(), 1e-3 ) )
@@ -458,12 +458,12 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
 	{
 	    const Coord3 normal = (plgknots_[1] - plgknots_[0]).cross(
 		    plgknots_[2] - plgknots_[1] );
-	    if ( mIsZero(normal.z, 1e-4) ) //Should not happen case
+            if ( mIsZero(normal.z_, 1e-4) ) //Should not happen case
 		return false;
 
 	    const Coord diff = coord - plgknots_[0].coord();
-	    const double z = plgknots_[0].z -
-		( normal.x * diff.x + normal.y * diff.y ) / normal.z;
+            const double z = plgknots_[0].z_ -
+                             ( normal.x_ * diff.x_ + normal.y_ * diff.y_ ) / normal.z_;
 	    res.start_ = z - 0.5 * zstep;
 	    res.stop_ = z + 0.5 * zstep;
 	}

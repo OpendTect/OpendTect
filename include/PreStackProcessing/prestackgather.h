@@ -65,7 +65,7 @@ public:
 
     const Coord&		getCoord() const	{ return coord_; }
     Coord3			getCoord(int,int) const override
-				{ return Coord3(coord_.x,coord_.y,0); }
+    { return Coord3(coord_.x_,coord_.y_,0); }
 
     void                        detectOuterMutes(int* depths,
 						 int taperlen=0) const;

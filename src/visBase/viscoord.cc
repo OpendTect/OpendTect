@@ -370,8 +370,8 @@ void Coordinates::setAllZ( const float* vals, int sz, bool dotransf )
     while ( zvals<stopptr )
     {
 	if ( dotransf && transformation_ && !mIsUdf(*vals) )
-	    *zvals = *vals*transformation_->getScale().z+
-	    transformation_->getTranslation().z;
+            *zvals = *vals*transformation_->getScale().z_+
+                     transformation_->getTranslation().z_;
 	else
 	    *zvals = *vals;
 

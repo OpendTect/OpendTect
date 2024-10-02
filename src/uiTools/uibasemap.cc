@@ -665,7 +665,7 @@ void uiBasemap::getMousePosInfo( BufferString& nm, Coord3& crd3, TrcKey& tk,
     const MouseEvent& ev = view_.getMouseEventHandler().event();
     const Geom::Point2D<double> pt = ev.getDPos();
     crd3.setFrom( getWorld2Ui().transform<double,double>(pt,true) );
-    crd3.z = mUdf(double);
+    crd3.z_ = mUdf(double);
 
     const uiBasemapObject* uibmobj = uiObjectAt( ev.getFPos() );
     if ( uibmobj )

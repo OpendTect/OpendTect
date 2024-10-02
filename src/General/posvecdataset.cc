@@ -552,12 +552,12 @@ bool PosVecDataSet::putTo( const char* fnm, uiString& errmsg,
 	    Coord crd = SI().transform( bid );
 	    if ( xoffsetidx>=0 && yoffsetidx>=0 )
 	    {
-		crd.x += vals[xoffsetidx];
-		crd.y += vals[yoffsetidx];
+                crd.x_ += vals[xoffsetidx];
+                crd.y_ += vals[yoffsetidx];
 	    }
 
-	    strm << '\t' << toString(crd.x,2);
-	    strm << '\t' << toString(crd.y,2);
+            strm << '\t' << toString(crd.x_,2);
+            strm << '\t' << toString(crd.y_,2);
 	}
 
 	for ( int idx=0; idx<nrvals; idx++ )

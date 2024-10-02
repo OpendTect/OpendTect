@@ -1020,8 +1020,8 @@ uiString toUiString( double v, char format, int precision )
 
 uiString toUiString( const Coord& c )
 {
-    return toUiString( "(%1,%2)" ).arg( mRounded(od_int64,c.x) )
-				  .arg( mRounded(od_int64,c.y) );
+    return toUiString( "(%1,%2)" ).arg( mRounded(od_int64,c.x_) )
+            .arg( mRounded(od_int64,c.y_) );
 }
 
 uiString toUiString( const BufferStringSet& bss )

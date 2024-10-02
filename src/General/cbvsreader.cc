@@ -26,24 +26,26 @@ The next 8 bytes are reserved for 2 integers:
 */
 
 #include "cbvsreader.h"
+
 #include "datainterp.h"
-#include "survinfo.h"
 #include "envvars.h"
-#include "ptrman.h"
-#include "varlenarray.h"
-#include "strmoper.h"
-#include "posinfo.h"
-#include "tracedata.h"
 #include "od_istream.h"
+#include "posinfo.h"
+#include "ptrman.h"
+#include "strmoper.h"
+#include "survinfo.h"
+#include "tracedata.h"
+#include "varlenarray.h"
+
 
 #define mGetAuxFromStrm(auxinf,buf,memb,strm) \
     strm.getBin( buf, sizeof(auxinf.memb) ); \
     auxinf.memb = finterp_.get( buf, 0 )
 
 #define mGetCoordAuxFromStrm(auxinf,buf,strm) \
-    strm.getBin( buf, 2*sizeof(auxinf.coord.x) ); \
-    auxinf.coord.x = dinterp_.get( buf, 0 ); \
-    auxinf.coord.y = dinterp_.get( buf, 1 )
+    strm.getBin( buf, 2*sizeof(auxinf.coord.x_) ); \
+    auxinf.coord.x_ = dinterp_.get( buf, 0 ); \
+    auxinf.coord.y_ = dinterp_.get( buf, 1 )
 
 #define mAuxSetting(ptr,n) (*ptr & (unsigned char)n)
 
@@ -73,7 +75,7 @@ void PosAuxInfo::clear()
     else
 	trckey_.setTrcNr( 0 );
 
-    coord.x = coord.y = 0.;
+    coord.x_ = coord.y_ = 0.;
     startpos = offset = azimuth = 0.f;
     pick = refnr = mUdf(float);
 }

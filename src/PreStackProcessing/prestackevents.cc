@@ -741,8 +741,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	    return false;
 
 	const float inldiff = (float)
-	    (emhorizons_[horidx]->getPos(nextinl.toInt64() ).z -
-	     emhorizons_[horidx]->getPos(previnl.toInt64() ).z);
+                              (emhorizons_[horidx]->getPos(nextinl.toInt64() ).z_ -
+                               emhorizons_[horidx]->getPos(previnl.toInt64() ).z_);
 
 	BinID prevcrl( bidv.inl(), bidv.crl()-horstep.crl() );
 	BinID nextcrl( bidv.inl(), bidv.crl()+horstep.crl() );
@@ -755,8 +755,8 @@ bool EventManager::getDip( const BinIDValue& bidv,int horid,
 	    return false;
 
 	const float crldiff = (float)
-	    (emhorizons_[horidx]->getPos(nextcrl.toInt64() ).z -
-	     emhorizons_[horidx]->getPos(prevcrl.toInt64() ).z);
+                              (emhorizons_[horidx]->getPos(nextcrl.toInt64() ).z_ -
+                               emhorizons_[horidx]->getPos(prevcrl.toInt64() ).z_);
 
 	inldip = inldiff/((nextinl.inl()-previnl.inl())*SI().inlDistance() );
 	crldip = crldiff/((nextcrl.crl()-prevcrl.crl())*SI().crlDistance() );

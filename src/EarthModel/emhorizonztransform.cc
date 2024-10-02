@@ -225,7 +225,7 @@ void HorizonZTransform::calculateHorizonRange()
     EM::PosID pid = iterator->next();
     while ( pid.isValid() )
     {
-	const float depth = (float) horizon_->getPos( pid ).z;
+        const float depth = (float) horizon_->getPos( pid ).z_;
 	if ( !mIsUdf( depth ) )
 	{
 	    if ( isset ) depthrange_.include( depth, false );
@@ -299,7 +299,7 @@ bool HorizonZTransform::getTopBottom( const TrcKey& trckey, float& top,
 	const BinID bid = hortrckey.position();
 	const Geometry::BinIDSurface* geom =
 		    hor3d->geometry().geometryElement();
-	depth = (float)geom->computePosition(Coord(bid.inl(),bid.crl()) ).z;
+        depth = (float)geom->computePosition(Coord(bid.inl(),bid.crl()) ).z_;
     }
 
     if ( !mIsUdf(depth) )

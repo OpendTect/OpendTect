@@ -146,8 +146,8 @@ void odSurvey::makeCoordsList( OD::JSON::Array& points,
 	for ( const auto& coord : coords )
 	{
 	    auto* point = new OD::JSON::Array(OD::JSON::DataType::Number);
-	    point->add( coord.x );
-	    point->add( coord.y );
+            point->add( coord.x_ );
+            point->add( coord.y_ );
 	    points.add( point );
 	}
     }
@@ -590,8 +590,8 @@ void survey_bincoords( hSurvey self, double x, double y,
     {
 	auto b2c = p->si().binID2Coord();
 	const Coord coord = b2c.transformBackNoSnap( Coord(x, y) );
-	*iline = coord.x;
-	*xline = coord.y;
+        *iline = coord.x_;
+        *xline = coord.y_;
     }
 }
 
@@ -601,8 +601,8 @@ void survey_coords( hSurvey self, int iline, int xline, double* x, double* y )
     if ( p && x && y )
     {
 	const Coord coord = p->si().transform( BinID(iline, xline) );
-	*x = coord.x;
-	*y = coord.y;
+        *x = coord.x_;
+        *y = coord.y_;
     }
 }
 

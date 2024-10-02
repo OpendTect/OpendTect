@@ -1119,8 +1119,8 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
     for ( int idx=rowid; idx<poszvalues_->size(); idx++ )
     {
 	if ( poszvalues_->binID( idx ) != bid ) break;
-	if ( mIsEqual( poszvalues_->coord(idx).x, coord.x, 1e-3 )
-	   &&mIsEqual( poszvalues_->coord(idx).y, coord.y, 1e-3 ) )
+        if ( mIsEqual( poszvalues_->coord(idx).x_, coord.x_, 1e-3 )
+             &&mIsEqual( poszvalues_->coord(idx).y_, coord.y_, 1e-3 ) )
 	{
 	    Interval<int> interval( mNINT32(poszvalues_->z(idx)/zstep),
 				    mNINT32(poszvalues_->value(0,idx)/zstep) );
@@ -1143,7 +1143,7 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 {
     //TODO : for some reason horizon coords in 2D are now rounded, check why
-    Coord roundedcoord( (int)coord.x, (int)coord.y );
+    Coord roundedcoord( (int)coord.x_, (int)coord.y_ );
     return poszvalues_->findFirst( roundedcoord ) > -1;
 }
 

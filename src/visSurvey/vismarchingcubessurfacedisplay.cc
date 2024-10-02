@@ -446,7 +446,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
 	const float depth = posvals[0];
 	if ( !mIsUdf(depth) )
 	{
-	    zdist += (float) fabs(depth-xyzpos.z);
+            zdist += (float) fabs(depth-xyzpos.z_);
 	    vals += posvals[validx];
 	}
 

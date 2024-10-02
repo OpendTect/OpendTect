@@ -314,7 +314,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	bidsq = BinID( lineidx, bid.crl() ).toInt64();
     }
 
-    const double fixedz = userefz_ ? refz_ : refhorizon_->getPos( bidsq ).z;
+    const double fixedz = userefz_ ? refz_ : refhorizon_->getPos( bidsq ).z_;
 
     double val0 = fixedstartval_;
     if ( !usestartval_ )
@@ -340,7 +340,7 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	    bidsq = BinID( lineidx, bid.crl() ).toInt64();
 	}
 
-	horz += hors_[idy]->getPos(bidsq).z;
+        horz += hors_[idy]->getPos(bidsq).z_;
     }
 
     double topz = mUdf(double);

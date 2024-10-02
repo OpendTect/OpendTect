@@ -464,7 +464,7 @@ void uiFingerPrintAttrib::pickRetrieved( CallBacker* )
 	linefld_->setSelLine( pickretriever_->getGeomID() );
     }
 
-    refposzfld_->setValue( crd.z*SI().zDomain().userFactor() );
+    refposzfld_->setValue( crd.z_*SI().zDomain().userFactor() );
     getposbut_->setSensitive( true );
     pickretriever_->reset();
 }

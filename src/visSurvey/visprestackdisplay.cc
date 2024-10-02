@@ -498,8 +498,8 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	return;
 
     const Coord direction = posside_ ? basedirection_ : -basedirection_;
-    const double offsetscale = Coord( basedirection_.x*SI().inlDistance(),
-				     basedirection_.y*SI().crlDistance()).abs();
+    const double offsetscale = Coord( basedirection_.x_*SI().inlDistance(),
+                                      basedirection_.y_*SI().crlDistance()).abs();
 
     ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false ).get();
     int nrtrcs = 0;
@@ -555,12 +555,12 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	isinline = section_->getOrientation()==OD::SliceType::Inline;
 	if ( isinline )
 	{
-	    xlim.set( mCast(float,startpos.x), mCast(float,stoppos.x) );
+            xlim.set( mCast(float,startpos.x_), mCast(float,stoppos.x_) );
 	    xlim.sort();
 	}
 	else
 	{
-	    ylim.set( mCast(float,startpos.y), mCast(float,stoppos.y) );
+            ylim.set( mCast(float,startpos.y_), mCast(float,stoppos.y_) );
 	    ylim.sort();
 	}
     }
@@ -584,9 +584,9 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
     planedragger_->setDim( isinline ? 1 : 0 );
 
     const float xwidth =
-	isinline ? (float) fabs(stoppos.x-startpos.x) : SI().inlDistance();
+            isinline ? (float) fabs(stoppos.x_-startpos.x_) : SI().inlDistance();
     const float ywidth =
-	isinline ?  SI().crlDistance() : (float) fabs(stoppos.y-startpos.y);
+            isinline ?  SI().crlDistance() : (float) fabs(stoppos.y_-startpos.y_);
 
     planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
     planedragger_->setCenter( (c01+c10)/2 );
@@ -865,8 +865,8 @@ void PreStackDisplay::draggerMotion( CallBacker* )
     if ( section_ )
     {
 	const OD::SliceType orientation = section_->getOrientation();
-	const int newinl = SI().inlRange( true ).snap( draggerbidf.x );
-	const int newcrl = SI().crlRange( true ).snap( draggerbidf.y );
+        const int newinl = SI().inlRange( true ).snap( draggerbidf.x_ );
+        const int newcrl = SI().crlRange( true ).snap( draggerbidf.y_ );
 	if ( orientation==OD::SliceType::Inline && newcrl!=bid_.crl() )
 	    showplane = true;
 	else if ( orientation==OD::SliceType::Crossline && newinl!=bid_.inl() )
@@ -890,8 +890,8 @@ void PreStackDisplay::draggerMotion( CallBacker* )
 
 	const Coord direction = posside_ ? basedirection_ : -basedirection_;
 	const float offsetscale = mCast(float,
-		Coord(basedirection_.x*SI().inlDistance(),
-		      basedirection_.y*SI().crlDistance()).abs());
+                                        Coord(basedirection_.x_*SI().inlDistance(),
+                                              basedirection_.y_*SI().crlDistance()).abs());
 
 	seis2dpos_ = newdraggerbidf;
 	seis2dstoppos_ = autowidth_
@@ -917,8 +917,8 @@ void PreStackDisplay::finishedCB( CallBacker* )
     Coord draggerbidf = planedragger_->center();
     if ( section_ )
     {
-	int newinl = SI().inlRange( true ).snap( draggerbidf.x );
-	int newcrl = SI().crlRange( true ).snap( draggerbidf.y );
+        int newinl = SI().inlRange( true ).snap( draggerbidf.x_ );
+        int newcrl = SI().crlRange( true ).snap( draggerbidf.y_ );
 	if ( section_->getOrientation() == OD::SliceType::Inline )
 	    newinl = section_->getTrcKeyZSampling( -1 ).hsamp_.start_.inl();
 	else if ( section_->getOrientation() == OD::SliceType::Crossline )
@@ -989,7 +989,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     ipar.get( sKey::Offset(), offset );
     ipar.get( sKey::Azimuth(), azimuth );
 
-    pos = Coord3( disppos, pos.z );
+    pos = Coord3( disppos, pos.z_ );
 
     if ( seis2d_ )
     {
@@ -1002,7 +1002,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
     if ( !mIsUdf(azimuth) )
 	info.append( tr("Azimuth: %1").arg(mNINT32(azimuth*360/M_PI)) );
 
-    const int zsample = posdata.range(false).nearestIndex( pos.z );
+    const int zsample = posdata.range(false).nearestIndex( pos.z_ );
     val = fdp->data().get( trcidx, zsample );
 }
 

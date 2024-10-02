@@ -280,7 +280,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     while ( iter.next(bid) )
     {
 	const EM::PosID posid( hor_->id(), bid );
-	const float val = isz ? (float) hor_->getPos( posid ).z
+        const float val = isz ? (float) hor_->getPos( posid ).z_
 			      : hor_->auxdata.getAuxDataVal( dataidx, posid );
 	if ( !mIsUdf(val) )
 	    rg.include( val, false );

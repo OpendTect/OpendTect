@@ -150,7 +150,7 @@ static void addCoords( const TypeSet<Coord3>& coords, Array& poly )
     for ( const auto& coord : coords )
     {
 	Array* coordarr = poly.add( new Array(Number) );
-	coordarr->add( coord.x ).add( coord.y ).add( coord.z );
+        coordarr->add( coord.x_ ).add( coord.y_ ).add( coord.z_ );
     }
 }
 

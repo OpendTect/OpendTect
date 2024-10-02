@@ -33,7 +33,7 @@ class uiTextItem;
 if ( zdata_.zistime_ && zdata_.d2T() && track() )\
     zpos = d2T()->getTime( zpos, *track() )*SI().zDomain().userFactor();\
 else if ( !zdata_.zistime_ && track() )\
-    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z : 0;
+    zpos = track() ? (float) zdata_.track()->getPos( zpos ).z_ : 0;
 
 #define mDefZPosInLoop(val) \
     float zpos = val;\
@@ -42,7 +42,7 @@ else if ( !zdata_.zistime_ && track() )\
     else if ( !zdata_.zistime_ )\
     {\
 	if ( track() )\
-	    zpos = (float) zdata_.track()->getPos( zpos ).z; \
+	    zpos = (float) zdata_.track()->getPos( zpos ).z_; \
 	const UnitOfMeasure* zdum = UnitOfMeasure::surveyDefDepthUnit();\
 	const UnitOfMeasure* zsum = UnitOfMeasure::surveyDefDepthStorageUnit();\
 	zpos = getConvertedValue( zpos, zsum, zdum );\

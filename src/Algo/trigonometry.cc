@@ -142,9 +142,9 @@ void Quaternion::setRotation( const Vector3& axis, float angle )
 
     const Coord3 a = axis.normalize();
 
-    vec_.x = a.x * sineval;
-    vec_.y = a.y * sineval;
-    vec_.z = a.z * sineval;
+    vec_.x_ = a.x_ * sineval;
+    vec_.y_ = a.y_ * sineval;
+    vec_.z_ = a.z_ * sineval;
 }
 
 
@@ -170,7 +170,7 @@ Coord3 Quaternion::rotate( const Coord3& v ) const
 Quaternion Quaternion::operator+( const Quaternion& b ) const
 {
     const Vector3 vec = vec_+b.vec_;
-    return Quaternion( s_+b.s_, vec.x, vec.y, vec.z );
+    return Quaternion( s_+b.s_, vec.x_, vec.y_, vec.z_ );
 }
 
 
@@ -185,7 +185,7 @@ Quaternion& Quaternion::operator+=( const Quaternion& b )
 Quaternion Quaternion::operator-( const Quaternion& b ) const
 {
     const Vector3 vec =  vec_-b.vec_;
-    return Quaternion( s_-b.s_, vec.x, vec.y, vec.z );
+    return Quaternion( s_-b.s_, vec.x_, vec.y_, vec.z_ );
 }
 
 
@@ -199,7 +199,7 @@ Quaternion& Quaternion::operator-=( const Quaternion& b )
 Quaternion Quaternion::operator*( const Quaternion& b ) const
 {
     const Vector3 vec = s_*b.vec_ + b.s_*vec_ + vec_.cross(b.vec_);
-    return Quaternion( s_*b.s_-vec_.dot(b.vec_), vec.x, vec.y, vec.z );
+    return Quaternion( s_*b.s_-vec_.dot(b.vec_), vec.x_, vec.y_, vec.z_ );
 }
 
 
@@ -212,7 +212,7 @@ Quaternion& Quaternion::operator*=( const Quaternion& b )
 
 Quaternion Quaternion::inverse() const
 {
-    return Quaternion( s_, -vec_.x, -vec_.y, -vec_.z );
+    return Quaternion( s_, -vec_.x_, -vec_.y_, -vec_.z_ );
 }
 
 
@@ -226,8 +226,8 @@ ParamLine2::ParamLine2( double slope, double intcpt )
 
 
 ParamLine2::ParamLine2( const Coord& pt, double slope )
-    : x0_( pt.x )
-    , y0_( pt.y )
+    : x0_( pt.x_ )
+    , y0_( pt.y_ )
 {
     if ( mIsUdf(slope) ) //Vertical
     {
@@ -243,10 +243,10 @@ ParamLine2::ParamLine2( const Coord& pt, double slope )
 
 
 ParamLine2::ParamLine2( const Coord& start, const Coord& stop )
-    : x0_(start.x)
-    , y0_(start.y)
-    , alpha_ ( stop.x - start.x )
-    , beta_( stop.y - start.y )
+    : x0_(start.x_)
+    , y0_(start.y_)
+    , alpha_ ( stop.x_ - start.x_ )
+    , beta_( stop.y_ - start.y_ )
 {}
 
 
@@ -316,9 +316,9 @@ Line2::Line2( const Coord& pt, double slope )
     , stop_(mUdf(double),mUdf(double))
 {
     isvertical_ = mIsUdf(slope_) ? true : false;
-    xintcpt_ = isvertical_ ? pt.x :
-	(mIsZero(slope,mDefEps) ? mUdf(double) : pt.x-pt.y/slope);
-    yintcpt_ = isvertical_ ? mUdf(double) : pt.y - slope_ * pt.x;
+    xintcpt_ = isvertical_ ? pt.x_ :
+                             (mIsZero(slope,mDefEps) ? mUdf(double) : pt.x_-pt.y_/slope);
+    yintcpt_ = isvertical_ ? mUdf(double) : pt.y_ - slope_ * pt.x_;
 }
 
 
@@ -326,19 +326,19 @@ Line2::Line2( const Coord& start, const Coord& stop )
     : start_(start),stop_(stop)
     , isvertical_(false),xintcpt_(mUdf(double))
 {
-    double xdiff = stop_.x - start_.x;
-    double ydiff = stop_.y - start_.y;
+    double xdiff = stop_.x_ - start_.x_;
+    double ydiff = stop_.y_ - start_.y_;
     if ( mIsZero(xdiff,mDefEps) )
     {
 	slope_ = mUdf(double);
 	yintcpt_= mUdf(double);
 	isvertical_ = true;
-	xintcpt_ = start_.x;
+        xintcpt_ = start_.x_;
     }
     else
     {
 	slope_ = ydiff / xdiff;
-	yintcpt_ = start_.y - slope_ * start_.x;
+        yintcpt_ = start_.y_ - slope_ * start_.x_;
     }
 }
 
@@ -375,10 +375,10 @@ Coord Line2::closestPoint( const Coord& point ) const
 	if ( !isvertical_ || mIsUdf(xintcpt_) )
 	    mRetUdf;
 
-	return Coord( xintcpt_, point.y );
+        return Coord( xintcpt_, point.y_ );
     }
 
-    const double x = ( point.x + slope_ * (point.y-yintcpt_) ) /
+    const double x = ( point.x_ + slope_ * (point.y_-yintcpt_) ) /
 		     ( 1 + slope_*slope_ );
     const double y = slope_ * x + yintcpt_;
     return Coord( x, y );
@@ -399,8 +399,8 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 	if ( mIsUdf(line.slope_) || line.isvertical_ )
 	    mRetUdf;
 
-	pos.x = xintcpt_;
-	pos.y = line.slope_ * pos.x + line.yintcpt_;
+        pos.x_ = xintcpt_;
+        pos.y_ = line.slope_ * pos.x_ + line.yintcpt_;
     }
     else
     {
@@ -409,8 +409,8 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 	    if ( !line.isvertical_ || mIsUdf(line.xintcpt_) )
 		mRetUdf;
 
-	    pos.x = line.xintcpt_;
-	    pos.y = slope_ * pos.x + yintcpt_;
+            pos.x_ = line.xintcpt_;
+            pos.y_ = slope_ * pos.x_ + yintcpt_;
 	}
 	else
 	{
@@ -418,8 +418,8 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 	    if ( mIsZero(slopediff,mDefEps) )
 		mRetUdf;
 
-	    pos.x = ( line.yintcpt_ - yintcpt_ ) / slopediff;
-	    pos.y = slope_ * pos.x + yintcpt_;
+            pos.x_ = ( line.yintcpt_ - yintcpt_ ) / slopediff;
+            pos.y_ = slope_ * pos.x_ + yintcpt_;
 	}
     }
 
@@ -427,28 +427,28 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 	return pos;
 
     bool inlimits1 = true;
-    if ( !mIsUdf(start_.x) && !mIsUdf(stop_.x) )
+    if ( !mIsUdf(start_.x_) && !mIsUdf(stop_.x_) )
     {
-	const double xdiff = stop_.x - start_.x;
-	const double ydiff = stop_.y - start_.y;
-	if ( !mIsZero(xdiff,mDefEps) && (pos.x-start_.x) * (stop_.x-pos.x) < 0 )
+        const double xdiff = stop_.x_ - start_.x_;
+        const double ydiff = stop_.y_ - start_.y_;
+        if ( !mIsZero(xdiff,mDefEps) && (pos.x_-start_.x_) * (stop_.x_-pos.x_) < 0 )
 	    inlimits1 = false;
 
-	if ( !mIsZero(ydiff,mDefEps) && (pos.y-start_.y) * (stop_.y-pos.y) < 0 )
+        if ( !mIsZero(ydiff,mDefEps) && (pos.y_-start_.y_) * (stop_.y_-pos.y_) < 0 )
 	    inlimits1 = false;
     }
 
     bool inlimits2 = true;
-    if ( !mIsUdf(line.start_.x) && !mIsUdf(line.stop_.x) )
+    if ( !mIsUdf(line.start_.x_) && !mIsUdf(line.stop_.x_) )
     {
-	const double xdiff = line.stop_.x - line.start_.x;
-	const double ydiff = line.stop_.y - line.start_.y;
+        const double xdiff = line.stop_.x_ - line.start_.x_;
+        const double ydiff = line.stop_.y_ - line.start_.y_;
 	if ( !mIsZero(xdiff,mDefEps)
-		&& (pos.x-line.start_.x) * (line.stop_.x-pos.x) < 0 )
+             && (pos.x_-line.start_.x_) * (line.stop_.x_-pos.x_) < 0 )
 	    inlimits1 = false;
 
 	if ( !mIsZero(ydiff,mDefEps)
-		&& (pos.y-line.start_.y) * (line.stop_.y-pos.y) < 0 )
+             && (pos.y_-line.start_.y_) * (line.stop_.y_-pos.y_) < 0 )
 	    inlimits1 = false;
     }
 
@@ -461,8 +461,8 @@ Coord Line2::intersection( const Line2& line, bool checkinlimits) const
 
 bool Line2::isOnLine( const Coord& pt ) const
 {
-    return isvertical_ ? mIsEqual(pt.x,xintcpt_,0.0001) :
-	mIsEqual(pt.y,slope_*pt.x+yintcpt_,0.0001);
+    return isvertical_ ? mIsEqual(pt.x_,xintcpt_,0.0001) :
+                         mIsEqual(pt.y_,slope_*pt.x_+yintcpt_,0.0001);
 }
 
 
@@ -510,19 +510,19 @@ bool Line2::getPerpendicularLine( Line2& line, const Coord& point ) const
 
 	line.slope_ = 0;
 	line.isvertical_ = false;
-	line.yintcpt_ = point.y;
+        line.yintcpt_ = point.y_;
     }
     else if ( mIsZero(slope_,mDefEps) )
     {
 	line.slope_ = mUdf(double);
 	line.yintcpt_ = mUdf(double);
 	line.isvertical_ = true;
-	line.xintcpt_ = point.x;
+        line.xintcpt_ = point.x_;
     }
     else
     {
 	line.slope_ = -1. / slope_;
-	line.yintcpt_ = point.y - line.slope_ * point.x;
+        line.yintcpt_ = point.y_ - line.slope_ * point.x_;
     }
 
     return true;
@@ -544,12 +544,12 @@ Line3::Line3( double x0, double y0, double z0, double alpha, double beta,
 
 
 Line3::Line3( const Coord3& point, const Vector3& vector )
-    : x0_( point.x )
-    , y0_( point.y )
-    , z0_( point.z )
-    , alpha_( vector.x )
-    , beta_(vector.y )
-    , gamma_( vector.z )
+    : x0_( point.x_ )
+    , y0_( point.y_ )
+    , z0_( point.z_ )
+    , alpha_( vector.x_ )
+    , beta_(vector.y_ )
+    , gamma_( vector.z_ )
 {}
 
 
@@ -561,7 +561,7 @@ double Line3::distanceToPoint( const Coord3& point ) const
 
 double Line3::sqDistanceToPoint( const Coord3& point ) const
 {
-    const Vector3 p0p1( point.x - x0_, point.y - y0_, point.z - z0_ );
+    const Vector3 p0p1( point.x_ - x0_, point.y_ - y0_, point.z_ - z0_ );
     const Vector3 v( alpha_, beta_, gamma_ );
 
     return v.cross( p0p1 ).sqAbs() / v.sqAbs();
@@ -689,32 +689,32 @@ void Plane3::set( const Vector3& norm, const Coord3& point, bool istwovec )
     if ( istwovec )
     {
 	Vector3 cross = point.cross( norm );
-	A_ = cross.x;
-	B_ = cross.y;
-	C_ = cross.z;
+        A_ = cross.x_;
+        B_ = cross.y_;
+        C_ = cross.z_;
 	D_ = 0;
     }
     else
     {
-	A_ = norm.x;
-	B_ = norm.y;
-	C_ = norm.z;
-	D_ =  -(norm.x*point.x) - (norm.y*point.y) - ( norm.z*point.z );
+        A_ = norm.x_;
+        B_ = norm.y_;
+        C_ = norm.z_;
+        D_ =  -(norm.x_*point.x_) - (norm.y_*point.y_) - ( norm.z_*point.z_ );
     }
 }
 
 
 void Plane3::set( const Coord3& a, const Coord3& b, const Coord3& c )
 {
-    Vector3 ab( b.x -a.x, b.y -a.y, b.z -a.z );
-    Vector3 ac( c.x -a.x, c.y -a.y, c.z -a.z );
+    Vector3 ab( b.x_ -a.x_, b.y_ -a.y_, b.z_ -a.z_ );
+    Vector3 ac( c.x_ -a.x_, c.y_ -a.y_, c.z_ -a.z_ );
 
     Vector3 n = ab.cross( ac );
 
-    A_ = n.x;
-    B_ = n.y;
-    C_ = n.z;
-    D_ = A_*(-a.x)  - B_*a.y - C_*a.z;
+    A_ = n.x_;
+    B_ = n.y_;
+    C_ = n.z_;
+    D_ = A_*(-a.x_)  - B_*a.y_ - C_*a.z_;
 }
 
 
@@ -740,9 +740,9 @@ float Plane3::set( const TypeSet<Coord3>& pts )
 	midpt += pts[idx];
     }
 
-    midpt.x /= nrpts;
-    midpt.y /= nrpts;
-    midpt.z /= nrpts;
+    midpt.x_ /= nrpts;
+    midpt.y_ /= nrpts;
+    midpt.z_ /= nrpts;
 
     if ( !pca.calculate() )
 	return -1;
@@ -791,13 +791,13 @@ bool Plane3::operator!=(const Plane3& b ) const
 
 Coord3 Plane3::getProjection( const Coord3& pos )
 {
-    const double param = (A_*pos.x+B_*pos.y+C_*pos.z+D_)/(A_*A_+B_*B_+C_*C_);
-    return Coord3( pos.x-A_*param, pos.y-B_*param, pos.z-C_*param );
+    const double param = (A_*pos.x_+B_*pos.y_+C_*pos.z_+D_)/(A_*A_+B_*B_+C_*C_);
+    return Coord3( pos.x_-A_*param, pos.y_-B_*param, pos.z_-C_*param );
 }
 
 
 bool Plane3::onSameSide( const Coord3& p1, const Coord3& p2 )
-{ return (A_*p1.x+B_*p1.y+C_*p1.z+D_) * (A_*p2.x+B_*p2.y+C_*p2.z+D_) >= 0; }
+{ return (A_*p1.x_+B_*p1.y_+C_*p1.z_+D_) * (A_*p2.x_+B_*p2.y_+C_*p2.z_+D_) >= 0; }
 
 
 double Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
@@ -836,22 +836,22 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
     if ( mIsZero(dir.abs(),mDefEps) )
 	return false;
 
-    res.alpha_ = dir.x;
-    res.beta_ = dir.y;
-    res.gamma_ = dir.z;
+    res.alpha_ = dir.x_;
+    res.beta_ = dir.y_;
+    res.gamma_ = dir.z_;
 
     double deter;
-    if ( !mIsZero(dir.x,mDefEps) )
+    if ( !mIsZero(dir.x_,mDefEps) )
     {
-	deter = dir.x;
+        deter = dir.x_;
 	res.x0_ = 0;
 	res.y0_ = (-D_*b.C_+C_*b.D_)/deter;
 	res.z0_ = (-B_*b.D_+D_*b.B_)/deter;
 	return true;
     }
-    else if ( !mIsZero(dir.y,mDefEps) )
+    else if ( !mIsZero(dir.y_,mDefEps) )
     {
-	deter = -dir.y;
+        deter = -dir.y_;
 	res.y0_ = 0;
 	res.x0_ = (-D_*b.C_+C_*b.D_)/deter;
 	res.z0_ = (-A_*b.D_+D_*b.A_)/deter;;
@@ -859,7 +859,7 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
     }
     else
     {
-	deter = dir.z;
+        deter = dir.z_;
 	res.x0_ = (-D_*b.B_+B_*b.D_)/deter;
 	res.y0_ = (-A_*b.D_+D_*b.A_)/deter;
 	res.z0_ = 0;
@@ -916,7 +916,7 @@ Coord Plane3CoordSystem::transform( const Coord3& pt, bool project ) const
 
 Coord3 Plane3CoordSystem::transform( const Coord& coord ) const
 {
-    return origin_ + vec10_*coord.x + vec01_*coord.y;
+    return origin_ + vec10_*coord.x_ + vec01_*coord.y_;
 }
 
 
@@ -926,13 +926,13 @@ Sphere cartesian2Spherical( const Coord3& crd, bool math )
     double rad = crd.abs();
     if ( math )
     {
-	theta = rad ? Math::ACos( (crd.z / rad) ) : 0;
-	phi = Math::Atan2( crd.y, crd.x );
+        theta = rad ? Math::ACos( (crd.z_ / rad) ) : 0;
+        phi = Math::Atan2( crd.y_, crd.x_ );
     }
     else
     {
-	theta = rad ? Math::ASin( (crd.z / rad) ) : 0;
-	phi = Math::Atan2( crd.x, crd.y );
+        theta = rad ? Math::ASin( (crd.z_ / rad) ) : 0;
+        phi = Math::Atan2( crd.x_, crd.y_ );
     }
 
     return Sphere( (float)rad, (float)theta, (float)phi );

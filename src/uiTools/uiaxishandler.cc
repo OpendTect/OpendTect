@@ -723,8 +723,8 @@ void uiAxisHandler::updateName()
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
-	pt.x = pixBefore() + axsz_/2;
-	pt.y = istop ? namepos : height_ - namepos + ticSz();
+        pt.x_ = pixBefore() + axsz_/2;
+        pt.y_ = istop ? namepos : height_ - namepos + ticSz();
 	al.set( istop ? Alignment::Top : Alignment::Bottom );
     }
     else
@@ -732,8 +732,8 @@ void uiAxisHandler::updateName()
 	const int fontheight = annots_.font().height();
 	const bool isleft = setup_.side_ == uiRect::Left;
 	const int vnamepos = namepos - fontheight;
-	pt.x = isleft ? vnamepos : width_-vnamepos;
-	pt.y = pixAfter() + axsz_/2 + annots_.font().width(setup_.caption_);
+        pt.x_ = isleft ? vnamepos : width_-vnamepos;
+        pt.y_ = pixAfter() + axsz_/2 + annots_.font().width(setup_.caption_);
 
 	al.set( Alignment::Bottom );
 	al.set( Alignment::Left );
@@ -902,8 +902,8 @@ void setLine( uiLineItem* lineitm, const LinePars& lp,
     {
 	const int ypix = yah->getPix( lp.a0 );
 	if ( !ypixrg.includes( ypix,true ) ) return;
-        from.x = xpixrg.start_; to.x = xpixrg.stop_;
-	from.y = to.y = ypix;
+        from.x_ = xpixrg.start_; to.x_ = xpixrg.stop_;
+        from.y_ = to.y_ = ypix;
     }
     else
     {
@@ -921,31 +921,31 @@ void setLine( uiLineItem* lineitm, const LinePars& lp,
 
 	if ( yx0ok )
 	{
-	    from.x = xah->getPix( xx0 ); from.y = yah->getPix( yx0 );
+            from.x_ = xah->getPix( xx0 ); from.y_ = yah->getPix( yx0 );
 	    if ( yx1ok )
-		{ to.x = xah->getPix( xx1 ); to.y = yah->getPix( yx1 ); }
+            { to.x_ = xah->getPix( xx1 ); to.y_ = yah->getPix( yx1 ); }
 	    else if ( xy0ok )
-		{ to.x = xah->getPix( xy0 ); to.y = yah->getPix( yy0 ); }
+            { to.x_ = xah->getPix( xy0 ); to.y_ = yah->getPix( yy0 ); }
 	    else if ( xy1ok )
-		{ to.x = xah->getPix( xy1 ); to.y = yah->getPix( yy1 ); }
+            { to.x_ = xah->getPix( xy1 ); to.y_ = yah->getPix( yy1 ); }
 	    else
 		return;
 	}
 	else if ( yx1ok )
 	{
-	    from.x = xah->getPix( xx1 ); from.y = yah->getPix( yx1 );
+            from.x_ = xah->getPix( xx1 ); from.y_ = yah->getPix( yx1 );
 	    if ( xy0ok )
-		{ to.x = xah->getPix( xy0 ); to.y = yah->getPix( yy0 ); }
+            { to.x_ = xah->getPix( xy0 ); to.y_ = yah->getPix( yy0 ); }
 	    else if ( xy1ok )
-		{ to.x = xah->getPix( xy1 ); to.y = yah->getPix( yy1 ); }
+            { to.x_ = xah->getPix( xy1 ); to.y_ = yah->getPix( yy1 ); }
 	    else
 		return;
 	}
 	else if ( xy0ok )
 	{
-	    from.x = xah->getPix( xy0 ); from.y = yah->getPix( yy0 );
+            from.x_ = xah->getPix( xy0 ); from.y_ = yah->getPix( yy0 );
 	    if ( xy1ok )
-		{ to.x = xah->getPix( xy1 ); to.y = yah->getPix( yy1 ); }
+            { to.x_ = xah->getPix( xy1 ); to.y_ = yah->getPix( yy1 ); }
 	    else
 		return;
 	}

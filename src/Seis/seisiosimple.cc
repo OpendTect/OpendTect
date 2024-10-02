@@ -133,8 +133,8 @@ void SeisIOSimple::Data::clear( bool survchg )
     startpos_ = SI().transform( BinID(inldef_.start_,crldef_.start_) );
     Coord nextpos = SI().transform( BinID(inldef_.start_+inldef_.step_,
                                           crldef_.start_+crldef_.step_) );
-    steppos_.x = fabs( nextpos.x - startpos_.x );
-    steppos_.y = fabs( nextpos.y - startpos_.y );
+    steppos_.x_ = fabs( nextpos.x_ - startpos_.x_ );
+    steppos_.y_ = fabs( nextpos.y_ - startpos_.y_ );
     offsdef_.start_ = 0; offsdef_.step_ = SI().crlDistance();
     compidx_ = 0;
 }
@@ -344,7 +344,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     {
 	if ( data_.isxy_ || is2d )
 	{
-	    binstrm.get( coord.x ).get( coord.y );
+            binstrm.get( coord.x_ ).get( coord.y_ );
 	    ConstRefMan<Coords::CoordSystem> sicrs = SI().getCoordSystem();
 	    ConstRefMan<Coords::CoordSystem> datacrs = data_.getCoordSys();
 	    if ( sicrs && datacrs && !(*sicrs == *datacrs) )
@@ -366,8 +366,8 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	const int nrposdone = isps ? nrdone_ / data_.nroffsperpos_ : nrdone_;
 	if ( is2d )
 	{
-	    coord.x = data_.startpos_.x + nrposdone * data_.steppos_.x;
-	    coord.y = data_.startpos_.y + nrposdone * data_.steppos_.y;
+            coord.x_ = data_.startpos_.x_ + nrposdone * data_.steppos_.x_;
+            coord.y_ = data_.startpos_.y_ + nrposdone * data_.steppos_.y_;
 	}
 	else
 	{
@@ -541,7 +541,7 @@ int SeisIOSimple::writeExpTrc()
 	    if ( sicrs && datacrs && !(*sicrs == *datacrs) )
 		coord = datacrs->convertFrom( coord, *sicrs );
 
-	    binstrm.add( coord.x ).add( coord.y );
+            binstrm.add( coord.x_ ).add( coord.y_ );
 	}
 	else
 	{

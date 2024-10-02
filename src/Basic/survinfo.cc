@@ -154,7 +154,7 @@ namespace Survey
 
 	    const Coord crd = crds[idx];
 	    OD::JSON::Array arrdoub( OD::JSON::Number );
-	    arrdoub.add( crd.x ).add( crd.y );
+            arrdoub.add( crd.x_ ).add( crd.y_ );
 	    ptobj.set( SurveyInfo::sKeyXY(), new OD::JSON::Array(arrdoub) );
 
 	    setarr.add( new OD::JSON::Object(ptobj) );
@@ -268,8 +268,8 @@ namespace Survey
 	    const auto* xyarr = ptobj.getArray( SurveyInfo::sKeyXY() );
 	    if ( xyarr )
 	    {
-		crds[idx].x = xyarr->getDoubleValue( 0 );
-		crds[idx].y = xyarr->getDoubleValue( 1 );
+                crds[idx].x_ = xyarr->getDoubleValue( 0 );
+                crds[idx].y_ = xyarr->getDoubleValue( 1 );
 	    }
 
 	}
@@ -482,9 +482,9 @@ Coord3 Survey::Geometry3D::oneStepTranslation( const Coord3& planenormal ) const
 {
     Coord3 translation( 0, 0, 0 );
 
-    if ( fabs(planenormal.z) > 0.5 )
+    if ( fabs(planenormal.z_) > 0.5 )
     {
-	translation.z = zStep();
+        translation.z_ = zStep();
     }
     else
     {
@@ -492,9 +492,9 @@ Coord3 Survey::Geometry3D::oneStepTranslation( const Coord3& planenormal ) const
 	norm2d.normalize();
 
 	if ( fabs(norm2d.dot(b2c_.inlDir())) > 0.5 )
-	    translation.x = inlDistance();
+            translation.x_ = inlDistance();
 	else
-	    translation.y = crlDistance();
+            translation.y_ = crlDistance();
     }
 
     return translation;
@@ -1298,18 +1298,19 @@ bool SurveyInfo::isReasonable( const Coord& crd ) const
 
     const Coord mincoord = minCoord( false );
     const Coord maxcoord = maxCoord( false );
-    const double maxwidth = mMAX(maxcoord.x-mincoord.x, maxcoord.y-mincoord.y);
-    const Interval<double> reasonablexrg( mincoord.x-3*maxwidth,
-					  maxcoord.x+3*maxwidth );
-    const Interval<double> reasonableyrg( mincoord.y-3*maxwidth,
-					  maxcoord.y+3*maxwidth );
-    return reasonablexrg.includes( crd.x, false ) &&
-	   reasonableyrg.includes( crd.y, false );
+    const double maxwidth = mMAX(maxcoord.x_-mincoord.x_,
+				 maxcoord.y_-mincoord.y_);
+    const Interval<double> reasonablexrg( mincoord.x_-3*maxwidth,
+					  maxcoord.x_+3*maxwidth );
+    const Interval<double> reasonableyrg( mincoord.y_-3*maxwidth,
+					  maxcoord.y_+3*maxwidth );
+    return reasonablexrg.includes( crd.x_, false ) &&
+	   reasonableyrg.includes( crd.y_, false );
 }
 
 
 #define mChkCoord(c) \
-    if ( c.x < minc.x ) minc.x = c.x; if ( c.y < minc.y ) minc.y = c.y;
+    if ( c.x_ < minc.x_ ) minc.x_ = c.x_; if ( c.y_ < minc.y_ ) minc.y_ = c.y_;
 
 Coord SurveyInfo::minCoord( bool work ) const
 {
@@ -1329,7 +1330,7 @@ Coord SurveyInfo::minCoord( bool work ) const
 
 #undef mChkCoord
 #define mChkCoord(c) \
-    if ( c.x > maxc.x ) maxc.x = c.x; if ( c.y > maxc.y ) maxc.y = c.y;
+    if ( c.x_ > maxc.x_ ) maxc.x_ = c.x_; if ( c.y_ > maxc.y_ ) maxc.y_ = c.y_;
 
 Coord SurveyInfo::maxCoord( bool work ) const
 {
@@ -1970,8 +1971,8 @@ float SurveyInfo::angleXInl() const
 				 crlRange(false).start_));
     Coord xy2 = transform( BinID(inlRange(false).start_,
 				 crlRange(false).stop_) );
-    const double xdiff = xy2.x - xy1.x;
-    const double ydiff = xy2.y - xy1.y;
+    const double xdiff = xy2.x_ - xy1.x_;
+    const double ydiff = xy2.y_ - xy1.y_;
     return sCast(float, Math::Atan2( ydiff, xdiff ) );
 }
 
@@ -1982,8 +1983,8 @@ float SurveyInfo::angleXCrl() const
 				 crlRange(false).start_));
     Coord xy2 = transform( BinID(inlRange(false).stop_,
 				 crlRange(false).start_) );
-    const double xdiff = xy2.x - xy1.x;
-    const double ydiff = xy2.y - xy1.y;
+    const double xdiff = xy2.x_ - xy1.x_;
+    const double ydiff = xy2.y_ - xy1.y_;
     return sCast(float, Math::Atan2( ydiff, xdiff ) );
 }
 

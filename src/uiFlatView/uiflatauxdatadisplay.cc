@@ -119,9 +119,9 @@ void uiAuxDataDisplay::updateCB( CallBacker* )
 	    polygonitem_->setFillColor( fillcolor_, true );
 	    polygonitem_->setFillPattern( fillpattern_ );
 	    if ( fillgradient_.hasGradient() )
-		polygonitem_->setGradientFill( fillgradient_.from_.x,
-			fillgradient_.from_.y, fillgradient_.to_.x,
-			fillgradient_.to_.y, fillgradient_.stops_,
+                polygonitem_->setGradientFill( fillgradient_.from_.x_,
+                                               fillgradient_.from_.y_, fillgradient_.to_.x_,
+                                               fillgradient_.to_.y_, fillgradient_.stops_,
 			fillgradient_.colors_ );
 
 	    item = polygonitem_;
@@ -269,15 +269,15 @@ void uiAuxDataDisplay::updateTransformCB( CallBacker* )
 	if ( itmatlistpos )
 	{
 	    Interval<float> vwrxrg;
-	    vwrxrg.start_ = sCast(float,curview.topLeft().x);
-	    vwrxrg.stop_ = sCast(float,curview.bottomRight().x);
+            vwrxrg.start_ = sCast(float,curview.topLeft().x_);
+            vwrxrg.stop_ = sCast(float,curview.bottomRight().x_);
 	    Interval<float> vwryrg;
-	    vwryrg.start_ = sCast(float,curview.topLeft().y);
-	    vwryrg.stop_ = sCast(float,curview.bottomRight().y);
+            vwryrg.start_ = sCast(float,curview.topLeft().y_);
+            vwryrg.stop_ = sCast(float,curview.bottomRight().y_);
 
 	    Geom::Point2D<float> pt = itmatlistpos->getPos();
-	    const bool isitminxview = vwrxrg.includes(pt.x,true);
-	    const bool isitminyview = vwryrg.includes(pt.y,true);
+            const bool isitminxview = vwrxrg.includes(pt.x_,true);
+            const bool isitminyview = vwryrg.includes(pt.y_,true);
 	    if ( isitminxview || isitminyview  )
 		modnamepos = curview.moveInside( modnamepos );
 	}

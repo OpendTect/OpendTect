@@ -184,8 +184,8 @@ bool HorizonPainter2D::addPolyLine()
 		continue;
 
 	    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-	    const double z = zat ? (double)zat->transformTrc(tk,(float)crd.z)
-				 : crd.z;
+            const double z = zat ? (double)zat->transformTrc(tk,(float)crd.z_)
+                                 : crd.z_;
 	    marker->marker_->poly_ += FlatView::Point( distances_[idx], z );
 
 	    if ( hor2d->isAttrib(tk,EM::EMObject::sSeedNode()) )
@@ -277,8 +277,8 @@ void HorizonPainter2D::updateIntersectionMarkers()
 		const TrcKey tk( geomids[idy], trcnr );
 		Coord3 crd = hor2d->getCoord( tk );
 		ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-		const float z = zat ? zat->transformTrc( tk, (float)crd.z )
-				    : (float)crd.z;
+                const float z = zat ? zat->transformTrc( tk, (float)crd.z_ )
+                                    : (float)crd.z_;
 
 		const int didx = trcnos_.indexOf( intpoint.mytrcnr );
 		if ( didx>0 && didx<distances_.size() )
@@ -459,7 +459,7 @@ void HorizonPainter2D::displaySelections( const
 	const Coord3 pos = emobj->getPos( pointselections[idx] );
 	const TrcKey tk = tkzs_.hsamp_.toTrcKey( pos.coord() );
 	ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
-	const float z = zat ? zat->transformTrc(tk,(float)pos.z) : (float)pos.z;
+        const float z = zat ? zat->transformTrc(tk,(float)pos.z_) : (float)pos.z_;
 
 	const int didx = trcnos_.indexOf( tk.trcNr() );
 

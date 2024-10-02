@@ -402,7 +402,7 @@ void Horizon2D::initNodeSourceArray( const TrcKey& tk )
 float Horizon2D::getZ( const TrcKey& tk ) const
 {
     const Coord3 pos = getCoord( tk );
-    return pos.isDefined() ? mCast(float,pos.z) : mUdf(float);
+    return pos.isDefined() ? mCast(float,pos.z_) : mUdf(float);
 }
 
 
@@ -518,9 +518,9 @@ float Horizon2D::getZValue( const Coord& c, bool allow_udf, int nr ) const
 
 	    const double sqdist = c.sqDistTo( knot );
 	    if ( mIsZero(sqdist,1e-3) )
-		return (float) knot.z;
+                return (float) knot.z_;
 
-	    closestpoints.addValue( -sqdist, knot.z );
+            closestpoints.addValue( -sqdist, knot.z_ );
 	}
     }
 
@@ -581,7 +581,7 @@ void Horizon2D::removeSelected( const Selector<Coord3>& selector,
 bool Horizon2D::unSetPos( const PosID& pid, bool addtoundo )
 {
     Coord3 pos = getPos( pid );
-    pos.z = mUdf(float);
+    pos.z_ = mUdf(float);
     return EMObject::setPos( pid, pos, addtoundo );
 }
 
@@ -589,7 +589,7 @@ bool Horizon2D::unSetPos( const PosID& pid, bool addtoundo )
 bool Horizon2D::unSetPos( const EM::SubID& subid, bool addtoundo )
 {
     Coord3 pos = getPos( subid );
-    pos.z = mUdf(float);
+    pos.z_ = mUdf(float);
     return EMObject::setPos( subid, pos, addtoundo );
 }
 
@@ -632,7 +632,7 @@ bool Horizon2D::setPos( Pos::GeomID geomid, int trcnr,
 
     EM::SubID subid = BinID( lineidx, trcnr ).toInt64();
     Coord3 newpos = EMObject::getPos( subid );
-    newpos.z = z;
+    newpos.z_ = z;
 
     return EMObject::setPos( subid, newpos, addtohistory );
 }
@@ -705,7 +705,7 @@ bool Horizon2D::setArray1D( const Array1D<float>& arr,
 	if ( arr.info().validPos(trcrg.getIndex(col)) )
 	{
 	    float z = arr.get( trcrg.getIndex(col) );
-	    pos.z = z;
+            pos.z_ = z;
 	    geom->setKnot( rc, pos );
 	}
     }
@@ -735,7 +735,7 @@ Array1D<float>* Horizon2D::createArray1D( Pos::GeomID geomid,
     for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
     {
 	Coord3 pos = geom->getKnot( RowCol(lineidx,col) );
-	float val = (float)pos.z;
+        float val = (float)pos.z_;
 	if ( trans )
 	    val = trans->transformTrc( TrcKey(geomid,col), val );
 

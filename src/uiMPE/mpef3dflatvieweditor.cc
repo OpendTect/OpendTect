@@ -244,8 +244,8 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     const Geom::Point2D<double> pos = editor_->getSelPtPos();
 
     Coord3 realpos = editor_->viewer().getCoord( pos );
-    realpos.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start_
-						      : pos.y;
+    realpos.z_ = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start_
+                                                        : pos.y_;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
     if ( !emid.isValid() )
@@ -293,12 +293,12 @@ bool Fault3DFlatViewEditor::getMousePosInfo(
     const uiWorldPoint wp = w2u.transform( mousepos-datarect.topLeft() );
 
     const FlatPosData& pd = dp->posData();
-    ix = pd.indexInfo( true, wp.x );
-    iy = pd.indexInfo( false, wp.y );
+    ix = pd.indexInfo( true, wp.x_ );
+    iy = pd.indexInfo( false, wp.y_ );
 
     worldpos = editor_->viewer().getCoord( wp );
-    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start_
-							 : wp.y;
+    worldpos.z_ = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start_
+                                                          : wp.y_;
     return true;
 }
 
@@ -318,31 +318,31 @@ Coord3 Fault3DFlatViewEditor::getScaleVector() const
 	return scalevec;
     }
 
-    const int du = datarect.topLeft().x - datarect.bottomRight().x;
-    const int dv = datarect.topLeft().y - datarect.bottomRight().y;
+    const int du = datarect.topLeft().x_ - datarect.bottomRight().x_;
+    const int dv = datarect.topLeft().y_ - datarect.bottomRight().y_;
     if ( !du || !dv )
 	return scalevec;
 
-    const float dz = (float) ( p2.z - p1.z );
+    const float dz = (float) ( p2.z_ - p1.z_ );
 
     if ( mIsZero(dz,mDefEps) )	// z-slice
     {
 	const Coord eu = (p1-p0) / du;
 	const Coord ev = (p2-p0) / dv;
 
-	const float det = (float) ( fabs( eu.x*ev.y - eu.y*ev.x ) );
+        const float det = (float) ( fabs( eu.x_*ev.y_ - eu.y_*ev.x_ ) );
 
-	const Coord ex(  ev.y/det, -eu.y/det );
-	const Coord ey( -ev.x/det,  eu.x/det );
+        const Coord ex(  ev.y_/det, -eu.y_/det );
+        const Coord ey( -ev.x_/det,  eu.x_/det );
 
-	scalevec = Coord3( ex.dot(ey)*det, ey.sqAbs()*det, scalevec.z );
+        scalevec = Coord3( ex.dot(ey)*det, ey.sqAbs()*det, scalevec.z_ );
     }
     else
     {
 	float ds = (float) Coord(p1).distTo(p2);
 	// Assumption: straight in case of 2D line
 
-	scalevec.z = fabs( (ds*dv) / (dz*du) );
+        scalevec.z_ = fabs( (ds*dv) / (dz*du) );
     }
 
     return scalevec;

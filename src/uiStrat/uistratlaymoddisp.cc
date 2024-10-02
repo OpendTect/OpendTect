@@ -688,7 +688,7 @@ int uiStratLayerModelDisp::usrPointedModelNr() const
 	return -1;
 
     const MouseEvent& mev = mevh.event();
-    const float fseqidx = vwr_.getWorld2Ui().toWorldX( mev.pos().x ) - 1.f;
+    const float fseqidx = vwr_.getWorld2Ui().toWorldX( mev.pos().x_ ) - 1.f;
     int seqidx = (int)fseqidx; // not mNINT32
     if ( seqidx < 0 || seqidx > layerModel().size() )
 	seqidx = -1; // use fseqidx: (int) will round upward for neg nmbrs
@@ -709,7 +709,7 @@ Strat::Layer* uiStratLayerModelDisp::usrPointedLayer( int& layidx ) const
 	return nullptr;
 
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
-    float zsel = vwr_.getWorld2Ui().toWorldY( mevh.event().pos().y );
+    float zsel = vwr_.getWorld2Ui().toWorldY( mevh.event().pos().y_ );
     if ( showFlattened() )
     {
 	const int lvlidx = selLevelIdx();
@@ -751,7 +751,7 @@ void uiStratLayerModelDisp::mouseMovedCB( CallBacker* )
     else
     {
 	const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
-	depth = vwr_.getWorld2Ui().toWorldY( mev.pos().y );
+        depth = vwr_.getWorld2Ui().toWorldY( mev.pos().y_ );
 	if ( !Math::IsNormalNumber(depth) )
 	{
 	    pErrMsgOnce("Invalid number from axis handler");

@@ -226,7 +226,7 @@ static Coord convertCoord( const Coord& pos, PJ* projtransform )
     if ( !projtransform )
 	return Coord::udf();
 
-    const PJ_COORD inpcrd = proj_coord( pos.x, pos.y, 0, 0 );
+    const PJ_COORD inpcrd = proj_coord( pos.x_, pos.y_, 0, 0 );
     const PJ_COORD retcoord = proj_trans( projtransform, PJ_FWD, inpcrd );
 
     if ( retcoord.v[0] == HUGE_VAL || retcoord.v[1] == HUGE_VAL )

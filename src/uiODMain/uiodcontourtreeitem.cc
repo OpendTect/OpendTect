@@ -406,8 +406,8 @@ bool uiContourTreeItemContourGenerator::addDisplayCoord(
 {
     const Geom::Point2D<float> vrtx = inputcontour.getVertex( vrtxidx );
 
-    const float rowfidx = rowrg_.getfIndex( vrtx.x );
-    const float colfidx = colrg_.getfIndex( vrtx.y );
+    const float rowfidx = rowrg_.getfIndex( vrtx.x_ );
+    const float colfidx = colrg_.getfIndex( vrtx.y_ );
     int rowidx = mMAX( 0, (int) rowfidx );
     int colidx = mMAX( 0, (int) colfidx );
     const float rowfrac = rowfidx - rowidx;
@@ -428,13 +428,13 @@ bool uiContourTreeItemContourGenerator::addDisplayCoord(
     const float z1 = getHorizonZValue( rowidx, colidx );
 
     Coord3 vrtxcoord;
-    vrtxcoord.coord() = SI().binID2Coord().transform( Coord(vrtx.x,vrtx.y) );
+    vrtxcoord.coord() = SI().binID2Coord().transform( Coord(vrtx.x_,vrtx.y_) );
 
-    vrtxcoord.z = mIsUdf(z0) ? z1 : (mIsUdf(z1) ? z0 : (1.0-frac)*z0+frac*z1);
-    if ( mIsUdf(vrtxcoord.z) )
+    vrtxcoord.z_ = mIsUdf(z0) ? z1 : (mIsUdf(z1) ? z0 : (1.0-frac)*z0+frac*z1);
+    if ( mIsUdf(vrtxcoord.z_) )
 	return false;
 
-    vrtxcoord.z += uicitem_->zshift_;
+    vrtxcoord.z_ += uicitem_->zshift_;
 
     visBase::Transformation::transform( displaytrans_, vrtxcoord, vrtxcoord );
     contourdata.contourcoords_.add( vrtxcoord );
@@ -919,7 +919,7 @@ bool uiContourTreeItem::init()
 	return false;
 
     uitreeviewitem_->setChecked( true );
-    zshift_ = (float)applMgr()->visServer()->getTranslation( displayID() ).z;
+    zshift_ = (float)applMgr()->visServer()->getTranslation( displayID() ).z_;
     mAttachCB( parent_->checkStatusChange(), uiContourTreeItem::checkCB );
     mAttachCB( ODMainWin()->applMgr().visServer()->removeAllNotifier(),
 					    uiContourTreeItem::visClosingCB );
@@ -1147,7 +1147,7 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
 void uiContourTreeItem::showPropertyDlg()
 {
     uiVisPartServer* visserv = applMgr()->visServer();
-    zshift_ = (float)visserv->getTranslation( displayID() ).z;
+    zshift_ = (float)visserv->getTranslation( displayID() ).z_;
 
     Interval<float> range( contoursteprange_.start_ + zshift_,
                            contoursteprange_.stop_ + zshift_ );
@@ -1449,7 +1449,7 @@ void uiContourTreeItem::updateZShift()
 
     Coord3 trans = applMgr()->visServer()->getTranslation( displayID() );
 
-    const float deltaz = (float) (trans.z - zshift_);
+    const float deltaz = (float) (trans.z_ - zshift_);
     if ( !deltaz )
 	return;
 
@@ -1458,7 +1458,7 @@ void uiContourTreeItem::updateZShift()
 	if ( lines_->getCoordinates()->isDefined(idx) )
 	{
 	    Coord3 pos = lines_->getCoordinates()->getPos( idx );
-	    pos.z += deltaz;
+            pos.z_ += deltaz;
 	    lines_->getCoordinates()->setPos( idx, pos );
 	}
     }
@@ -1470,7 +1470,7 @@ void uiContourTreeItem::updateZShift()
 	for ( int idx=0; idx<labels_->nrTexts(); idx++ )
 	{
 	    Coord3 pos = labels_->text(idx)->getPosition();
-	    pos.z += deltaz;
+            pos.z_ += deltaz;
 	    labels_->text(idx)->setPosition( pos );
 	    BufferString txt = labels_->text(idx)->getText().getFullString();
 	    float labelval = txt.toFloat();
@@ -1479,7 +1479,7 @@ void uiContourTreeItem::updateZShift()
 	}
     }
 
-    zshift_ = (float) trans.z;
+    zshift_ = (float) trans.z_;
 }
 
 

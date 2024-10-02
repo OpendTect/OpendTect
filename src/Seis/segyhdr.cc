@@ -171,7 +171,7 @@ static BufferString pointTxt( int idx, const BinID& bid,
     if ( needsconversion )
 	crd = crs->convertFrom( crd, *SI().getCoordSystem() );
     BufferString txt( "Corner ", idx, ":  " );
-    txt.add( "X: " ).add( crd.x, 2 ).add( "  Y: " ).add( crd.y, 2 );
+    txt.add( "X: " ).add( crd.x_, 2 ).add( "  Y: " ).add( crd.y_, 2 );
     txt.add( "  IL: " ).add( bid.inl() ).add( "  XL: " ).add( bid.crl() );
     return txt;
 }
@@ -877,8 +877,8 @@ void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
 {
     Coord crd( ti.coord );
     PosImpExpPars::SVY().adjustCoord( crd, false );
-    const int icx = mNINT32(crd.x*10);
-    const int icy = mNINT32(crd.y*10);
+    const int icx = mNINT32(crd.x_*10);
+    const int icy = mNINT32(crd.y_*10);
     setEntryVal( EntryXcdp(), icx );				// 181-184
     setEntryVal( EntryYcdp(), icy );				// 185-188
 
@@ -944,8 +944,8 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     }
 
     Coord crd( ti.coord );
-    if ( mIsUdf(crd.x) )
-	crd.x = crd.y = 0;
+    if ( mIsUdf(crd.x_) )
+        crd.x_ = crd.y_ = 0;
 
     PosImpExpPars::SVY().adjustCoord( crd, false );
     static bool noscalco = GetEnvVarYN( "OD_SEGY_NO_SCALCO" );
@@ -953,14 +953,14 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     if ( noscalco )
     {
 	iscalco = 1;
-	icx = mNINT32(crd.x);
-	icy = mNINT32(crd.y);
+        icx = mNINT32(crd.x_);
+        icy = mNINT32(crd.y_);
     }
     else
     {
 	iscalco = -10;
-	icx = mNINT32(crd.x*10);
-	icy = mNINT32(crd.y*10);
+        icx = mNINT32(crd.x_*10);
+        icy = mNINT32(crd.y_*10);
     }
 
     setEntryVal( EntryScalco(), iscalco );			// 71-72
@@ -1019,8 +1019,8 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
 
 void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
 {
-    ti.coord.x = entryVal( EntryXcdp() );		// 181-184
-    ti.coord.y = entryVal( EntryYcdp() );		// 185-188
+    ti.coord.x_ = entryVal( EntryXcdp() );		// 181-184
+    ti.coord.y_ = entryVal( EntryYcdp() );		// 185-188
     if ( !is2D() )					// 189-192,193-196
 	ti.setPos( BinID(entryVal(EntryInline()), entryVal(EntryCrossline()) ));
 
@@ -1101,9 +1101,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	}
     }
 
-    ti.coord.x = ti.coord.y = 0.;
-    ti.coord.x = hdef_.xcoord_.getValue(buf_,needswap_);
-    ti.coord.y = hdef_.ycoord_.getValue(buf_,needswap_);
+    ti.coord.x_ = ti.coord.y_ = 0.;
+    ti.coord.x_ = hdef_.xcoord_.getValue(buf_,needswap_);
+    ti.coord.y_ = hdef_.ycoord_.getValue(buf_,needswap_);
     ti.offset = sCast( float, hdef_.offs_.getValue(buf_,needswap_) );
     if ( ti.offset < 0 ) ti.offset = -ti.offset;
     ti.azimuth = sCast( float, hdef_.azim_.getValue(buf_,needswap_) );
@@ -1144,8 +1144,8 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	getRev1Flds( ti ); // if >= rev 1, then those fields are holy
 
     const double scale = getCoordScale( extcoordsc );
-    ti.coord.x *= scale;
-    ti.coord.y *= scale;
+    ti.coord.x_ *= scale;
+    ti.coord.y_ *= scale;
     PosImpExpPars::SVY().adjustCoord( ti.coord, true );
 }
 
@@ -1165,6 +1165,6 @@ Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc ) const
     const double scale = getCoordScale( extcoordsc );
     Coord ret(	entryVal( rcv?EntryGx():EntrySx() ),		// 81-84, 73-76
 		entryVal( rcv?EntryGy():EntrySy() ) );		// 85-88, 77-80
-    ret.x *= scale; ret.y *= scale;
+    ret.x_ *= scale; ret.y_ *= scale;
     return ret;
 }

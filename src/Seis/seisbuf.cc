@@ -462,8 +462,8 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 	{
 	    BufferString postxt;
 	    postxt += trc.info().trcNr(); postxt += " ";
-	    postxt += trc.info().coord.x; postxt += " ";
-	    postxt += trc.info().coord.y;
+            postxt += trc.info().coord.x_; postxt += " ";
+            postxt += trc.info().coord.y_;
 	    strm << postxt;
 	}
 	if ( isps )

@@ -34,7 +34,7 @@ public:
     bool		isEmpty() const;
     const Coord3&	pos( int idx ) const	{ return pos_[idx]; }
     float		value( int idx ) const override
-			{ return (float) pos_[idx].z; }
+    { return (float) pos_[idx].z_; }
 
     float		getKbElev() const;
     float		td() const

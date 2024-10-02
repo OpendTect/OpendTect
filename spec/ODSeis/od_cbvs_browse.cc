@@ -175,7 +175,7 @@ int mProgMainFnName( int argc, char** argv )
 		&& !mIsUdf(trc.info().azimuth) )
 	    od_cout() << "Azimuth: " << (Math::toDegrees(trc.info().azimuth))
 		      << od_endl;
-	if ( !mIsZero(trc.info().coord.x,0.1) )
+        if ( !mIsZero(trc.info().coord.x_,0.1) )
 	{
 	    od_cout() << "Coordinate: " << trc.info().coord.toPrettyString();
 	    BinID b = info.geom_.b2c.transformBack( trc.info().coord );

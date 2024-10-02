@@ -116,8 +116,8 @@ public:
     const Geom::Point2D<int>&	pos() const		{ return pos_; }
     Geom::Point2D<float>	getFPos() const;
     const Geom::Point2D<double>& getDPos() const;
-    int				x() const		{ return pos_.x; }
-    int				y() const		{ return pos_.y; }
+    int				x() const		{ return pos_.x_; }
+    int				y() const		{ return pos_.y_; }
     float			angle() const		{ return angle_; }
 				//!< used for wheel events
 
@@ -250,8 +250,8 @@ public:
 
 
     const Geom::Point2D<int>&	pos() const	    { return pos_; }
-    int				x() const	    { return pos_.x; }
-    int				y() const	    { return pos_.y; }
+    int				x() const	    { return pos_.x_; }
+    int				y() const	    { return pos_.y_; }
     float			scale() const	    { return scale_; }
     float			angle() const	    { return angle_; }
 

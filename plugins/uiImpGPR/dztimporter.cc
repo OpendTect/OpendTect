@@ -100,8 +100,8 @@ void DZT::FileHeader::fillInfo( SeisTrcInfo& ti, int trcidx ) const
     ti.sampling.start_ = position;
     ti.sampling.step_ = ((float)range) / (nsamp-1);
     ti.sampling.scale( cNanoFac );
-    ti.coord.x = cstart_.x + cstep_.x * trcidx;
-    ti.coord.y = cstart_.y + cstep_.y * trcidx;
+    ti.coord.x_ = cstart_.x_ + cstep_.x_ * trcidx;
+    ti.coord.y_ = cstart_.y_ + cstep_.y_ * trcidx;
 }
 
 

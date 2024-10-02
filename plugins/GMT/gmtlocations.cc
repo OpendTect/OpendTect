@@ -216,7 +216,7 @@ bool GMTLocations::doExecute( od_ostream& strm, const char* fnm )
     for ( int idx=0; idx<ps->size(); idx++ )
     {
 	const Coord3& pos = ps->getPos( idx );
-	procstrm << pos.x << " " << pos.y << "\n";
+        procstrm << pos.x_ << " " << pos.y_ << "\n";
     }
 
     strm << "Done" << od_endl;
@@ -320,7 +320,7 @@ bool GMTPolyline::doExecute( od_ostream& strm, const char* fnm )
     for ( int idx=0; idx<ps->size(); idx++ )
     {
 	const Coord3& pos = ps->getPos( idx );
-	procstrm << pos.x << " " << pos.y << "\n";
+        procstrm << pos.x_ << " " << pos.y_ << "\n";
     }
 
     strm << "Done" << od_endl;
@@ -458,7 +458,7 @@ bool GMTWells::doExecute( od_ostream& strm, const char* fnm )
 	    mErrStrmRet(BufferString("Cannot get location for ",ioobj->name()))
 
 	surfcoords += maploc;
-	procstrm << maploc.x << " " << maploc.y << " " << sz << "\n";
+        procstrm << maploc.x_ << " " << maploc.y_ << " " << sz << "\n";
     }
 
     bool postlabel = false;

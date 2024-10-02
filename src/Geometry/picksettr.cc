@@ -247,7 +247,7 @@ void PickSetTranslator::createBinIDValueSets(
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
 	    const Coord3& crd( crds[ipck] );
-	    bs->add( SI().transform(crd), (float) crd.z );
+            bs->add( SI().transform(crd), (float) crd.z_ );
 	}
     }
 }
@@ -417,7 +417,7 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
     {
 	const Pick::Location& pl = ps->get( idx );
 	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos() );
-	ret->add( Geom::Point2D<float>((float) fbid.x,(float) fbid.y) );
+        ret->add( Geom::Point2D<float>((float) fbid.x_,(float) fbid.y_) );
     }
 
     return ret;

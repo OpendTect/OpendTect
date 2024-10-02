@@ -96,7 +96,7 @@ float Poly2HorVol::getM3( float vel, bool upw, bool useneg )
 	     bid.crl()!=tks.stop_.crl() )
 	{ //The very last edges should exclude.
 	    horz = (float)hor_->geometry().geometryElement()->
-						computePosition( pos ).z;
+                   computePosition( pos ).z_;
 	}
 
 	if ( mIsUdf(horz) )

@@ -207,8 +207,8 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
 	const SeisTrcInfo& trc = tbuf.get( tidx )->info();
 	*trcdata++ = trc.trcNr();
 	*refdata++ = trc.refnr;
-	*xdata++ = trc.coord.x;
-	*ydata++ = trc.coord.y;
+        *xdata++ = trc.coord.x_;
+        *ydata++ = trc.coord.y_;
     }
 }
 

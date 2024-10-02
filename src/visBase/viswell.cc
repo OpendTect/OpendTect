@@ -175,7 +175,7 @@ void Well::transformZIfNeeded( Coord3& crd ) const
     if (  zaxistransform_->toZDomainInfo().isDepth() )
 	return;
 
-    crd.z = zaxistransform_->transform( crd );
+    crd.z_ = zaxistransform_->transform( crd );
 }
 
 
@@ -193,7 +193,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 {
     TrcKeyZSampling cs( false );
     for ( int idx=0; idx<pts.size(); idx++ )
-	cs.include( SI().transform(pts[idx]), (float) pts[idx].z );
+        cs.include( SI().transform(pts[idx]), (float) pts[idx].z_ );
 
     if ( zaxistransform_ && zaxistransform_->needsVolumeOfInterest() )
     {
@@ -286,10 +286,10 @@ void Well::setWellName( const TrackParams& tp )
     transformZIfNeeded( crdbot );
 
     const int nrpos = track_->getCoordinates()->size();
-    if ( nrpos>1 && mIsUdf(crdtop.z) )
-	crdtop.z = track_->getCoordinates()->getPos( 0 ).z;
-    if ( nrpos>1 && mIsUdf(crdbot.z) )
-	crdbot.z = track_->getCoordinates()->getPos( nrpos-1 ).z;
+    if ( nrpos>1 && mIsUdf(crdtop.z_) )
+        crdtop.z_ = track_->getCoordinates()->getPos( 0 ).z_;
+    if ( nrpos>1 && mIsUdf(crdbot.z_) )
+        crdbot.z_ = track_->getCoordinates()->getPos( nrpos-1 ).z_;
 
     welltoptxt_->text(0)->setJustification( Text::Bottom );
     updateText( welltoptxt_->text(0), tp.isdispabove_ ? tp.name_.str() : 0,
@@ -371,7 +371,7 @@ void Well::addMarker( const MarkerParams& mp )
 {
     Coord3 markerpos = *mp.pos_;
     transformZIfNeeded( markerpos );
-    if ( mIsUdf(markerpos.z) )
+    if ( mIsUdf(markerpos.z_) )
 	  return;
 
     const int markerid = markerset_->addPos( markerpos );
@@ -516,7 +516,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 		    getValue( crdvals, idx, lp.islogarithmic_, scaler );
 
 	const Coord3& pos = getPos( crdvals, idx );
-	if ( mIsUdf(pos.z) || mIsUdf(val) )
+        if ( mIsUdf(pos.z_) || mIsUdf(val) )
 	    continue;
 
 	osg::Vec3Array* logPath = logdisplay->getPath();
@@ -526,7 +526,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	    continue;
 
 	logPath->push_back(
-	    osg::Vec3d((float) pos.x,(float) pos.y,(float) pos.z) );
+                    osg::Vec3d((float) pos.x_,(float) pos.y_,(float) pos.z_) );
 	shapeLog->push_back(val);
 	if ( val > maxval )
 	    maxval = val;
@@ -543,7 +543,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 
 	    fillLog->push_back( val );
 	    osg::FloatArray* fillLogDepths = logdisplay->getFillLogDepths();
-	    fillLogDepths->push_back(pos.z);
+            fillLogDepths->push_back(pos.z_);
 	}
     }
 
@@ -606,7 +606,7 @@ Coord3 Well::getPos( const TypeSet<Coord3Value>& crdvals, int idx ) const
 
     Coord3 crd = cv.first;
     transformZIfNeeded( crd );
-    if ( mIsUdf(crd.z) )
+    if ( mIsUdf(crd.z_) )
 	return crd;
 
     Coord3 pos( crd );

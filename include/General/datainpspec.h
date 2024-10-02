@@ -775,7 +775,7 @@ public:
 
 	void		clear()
 			{
-			    coord_.x = coord_.y = mUdf(double);
+            coord_.x_ = coord_.y_ = mUdf(double);
 			    binid_.inl() = binid_.crl() = mUdf(int);
 			    offs_ = 0;
 			}

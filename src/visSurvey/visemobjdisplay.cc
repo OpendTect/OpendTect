@@ -201,7 +201,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 	str += " ("; str += closestrc.row();
 	str += ","; str += closestrc.col(); str += ",";
 	const Coord3 pos = emobject_->getPos( closestnode );
-	str += pos.z; str += ", "; str+= pos.y; str += ", "; str+= pos.z;
+        str += pos.z_; str += ", "; str+= pos.y_; str += ", "; str+= pos.z_;
 	str+=")";
 	pErrMsg(str);
     }

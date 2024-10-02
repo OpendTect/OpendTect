@@ -82,7 +82,7 @@ DataPointSet::Pos::Pos( const Coord& c, float z )
 DataPointSet::Pos::Pos( const Coord3& c )
     : Pos()
 {
-    z_ = float( c.z );
+    z_ = float( c.z_ );
     trckey_.setPosition( SI().transform(c) );
     setOffs( c );
 }
@@ -117,8 +117,8 @@ DataPointSet::Pos& DataPointSet::Pos::operator =( const DataPointSet::Pos& oth )
 void DataPointSet::Pos::setOffs( const Coord& c )
 {
     const Coord sc = trckey_.getCoord();
-    offsx_ = ( float ) (c.x - sc.x);
-    offsy_ = ( float ) (c.y - sc.y);
+    offsx_ = ( float ) (c.x_ - sc.x_);
+    offsy_ = ( float ) (c.y_ - sc.y_);
 }
 
 
@@ -138,7 +138,7 @@ void DataPointSet::Pos::set( const Coord& c )
 
 void DataPointSet::Pos::set( const Coord3& c )
 {
-    z_ = ( float ) c.z;
+    z_ = ( float ) c.z_;
     set( ((const Coord&)c) );
 }
 
@@ -146,7 +146,7 @@ void DataPointSet::Pos::set( const Coord3& c )
 Coord DataPointSet::Pos::coord() const
 {
     Coord sc = trckey_.getCoord();
-    sc.x += offsx_; sc.y += offsy_;
+    sc.x_ += offsx_; sc.y_ += offsy_;
     return sc;
 }
 
@@ -1072,7 +1072,7 @@ DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
 	    break;
 
 	const Coord c( coord(idx) );
-	if ( mIsEqual(c.x,crd.x,1e-3) && mIsEqual(c.y,crd.y,1e-3) )
+        if ( mIsEqual(c.x_,crd.x_,1e-3) && mIsEqual(c.y_,crd.y_,1e-3) )
 	    return idx;
     }
 

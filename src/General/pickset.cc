@@ -1034,7 +1034,7 @@ void Set::getPolygon( ODPolygon<double>& poly, int setidx ) const
     for ( int idx=start; idx<=stop; idx++ )
     {
 	const Coord c( locations_.get(idx).pos() );
-	poly.add( Geom::Point2D<double>( c.x, c.y ) );
+        poly.add( Geom::Point2D<double>( c.x_, c.y_ ) );
     }
 }
 
@@ -1061,7 +1061,7 @@ int Set::find( const TrcKey& tk ) const
 
 int Set::nearestLocation( const Coord& pos ) const
 {
-    return getNearestLocation( *this, Coord3(pos.x,pos.y,0.), true );
+    return getNearestLocation( *this, Coord3(pos.x_,pos.y_,0.), true );
 }
 
 
@@ -1415,7 +1415,7 @@ bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 	mPIEPAdj(Coord,pos,true);
 	if ( !isXY() )
 	{
-	    BinID bid( mNINT32(pos.x), mNINT32(pos.y) );
+            BinID bid( mNINT32(pos.x_), mNINT32(pos.y_) );
 	    mPIEPAdj(BinID,bid,true);
 	    SI().snap( bid );
 	    pos = SI().transform( bid );

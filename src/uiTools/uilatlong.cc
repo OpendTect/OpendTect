@@ -352,7 +352,7 @@ bool uiAnchorBasedXYSystem::acceptOK()
     latlngfld_->get( ll );
     const Coord crd = coordfld_->getCoord();
     if ( mIsUdf(ll.lat_) || mIsUdf(ll.lng_) ||
-	 mIsUdf(crd.x) || mIsUdf(crd.y) )
+         mIsUdf(crd.x_) || mIsUdf(crd.y_) )
 	mErrRet(tr("Please fill all fields"))
     if (ll.lat_ > 90 || ll.lat_ < -90)
 	mErrRet(tr("Latitude must be between -90 and 90"))

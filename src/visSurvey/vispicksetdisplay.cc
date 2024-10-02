@@ -130,7 +130,7 @@ void PickSetDisplay::setDraggerNormal( const Coord3& normal )
     if ( !mIsEqual(dotproduct,1,1e-3) )
     {
 	const float zaxisangle =
-	    sCast( float, Math::Atan2(normal.y,normal.x) );
+                sCast( float, Math::Atan2(normal.y_,normal.x_) );
 	Quaternion rotation( defnormal, zaxisangle );
 	rotation *= Quaternion( Coord3(0,1,0), -Math::ACos(dotproduct) );
 	rotation.getRotation( rotationaxis, angle );
@@ -321,8 +321,8 @@ void PickSetDisplay::redrawMultiSets()
 	{
 	    Coord3 pos = set_->getPos( idy );
 	    if ( datatransform_ )
-		pos.z = datatransform_->transform( pos );
-	    if ( mIsUdf(pos.z) )
+                pos.z_ = datatransform_->transform( pos );
+            if ( mIsUdf(pos.z_) )
 		continue;
 
 	    markerset_->addPos( pos );
@@ -363,8 +363,8 @@ void PickSetDisplay::redrawAll( int drageridx )
     {
 	Coord3 pos = set_->getPos( idx );
 	if ( datatransform_ )
-	    pos.z = datatransform_->transform( pos );
-	if ( !mIsUdf(pos.z) )
+            pos.z_ = datatransform_->transform( pos );
+        if ( !mIsUdf(pos.z_) )
 	    markerset_->addPos( pos );
     }
 
@@ -424,8 +424,8 @@ void PickSetDisplay::redrawLine()
     {
 	Coord3 pos = set_->getPos( idx );
 	if ( datatransform_ )
-	    pos.z = datatransform_->transform( pos );
-	if ( !mIsUdf(pos.z) )
+            pos.z_ = datatransform_->transform( pos );
+        if ( !mIsUdf(pos.z_) )
 	    polylines_->addPoint( pos );
     }
 
@@ -557,7 +557,7 @@ bool PickSetDisplay::setBodyDisplay()
     {
 	picks += set_->getPos( idx );
 	if ( datatransform_ )
-	    picks[idx].z = datatransform_->transformBack( picks[idx] );
+            picks[idx].z_ = datatransform_->transformBack( picks[idx] );
     }
 
     setColor( set_->disp_.fillcolor_ );
@@ -691,7 +691,7 @@ bool PickSetDisplay::updateMarkerAtSection( const SurveyObject* obj, int idx )
 	return false;
 
     if ( datatransform_ )
-	pos.z = datatransform_->transform( pos );
+        pos.z_ = datatransform_->transform( pos );
 
     if ( scene_ )
 	scene_->getUTM2DisplayTransform()->transform( pos );

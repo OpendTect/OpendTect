@@ -167,7 +167,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 	}
 
 	if ( depthistvd )
-	    crd.z -= kb;
+            crd.z_ -= kb;
 
 	if ( !crd.isDefined() )
 	    continue;
@@ -181,7 +181,7 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 		track.addPoint( crd, md );
 	    else if ( md < track.dah(track.size()-1) + mDefEpsZ )
 	    {
-		const bool inserted = track.insertAtDah( md, float(crd.z) );
+                const bool inserted = track.insertAtDah( md, float(crd.z_) );
 		if ( inserted )
 		{
 		    const int idx = track.indexOf( md );
@@ -486,9 +486,9 @@ static bool createNewWell( const Well::LASImporter::FileInfo& info,
     if ( info.loc_.isDefined() )
 	wellhead.coord() = info.loc_;
     if ( !mIsUdf(info.kbelev_) )
-	wellhead.z = -1. * info.kbelev_;
+        wellhead.z_ = -1. * info.kbelev_;
     Coord3 welltd( wellhead );
-    welltd.z = double(info.zrg_.stop_) - welltd.z;
+    welltd.z_ = double(info.zrg_.stop_) - welltd.z_;
 
     track.addPoint( wellhead, 0.f );
     track.addPoint( welltd, info.zrg_.stop_ );

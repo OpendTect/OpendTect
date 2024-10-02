@@ -683,8 +683,8 @@ void uiFlatViewStdControl::updateZoomLevel( float x1start, float x2start,
 	if ( centerpoint == uiWorldPoint::udf() )
 	    centerpoint = bb.centre();
 
-	newwr = uiWorldRect( centerpoint.x-hwdth, centerpoint.y-hhght,
-			     centerpoint.x+hwdth, centerpoint.y+hhght );
+        newwr = uiWorldRect( centerpoint.x_-hwdth, centerpoint.y_-hhght,
+                             centerpoint.x_+hwdth, centerpoint.y_+hhght );
     }
     else
     {

@@ -1460,7 +1460,7 @@ void FaultDisplay::updateHorizonIntersections( const VisID& whichobj,
 	line->setSurface( shape );
 	shape->display( false, false );
 	shape->setSurface( fss );
-	const float zshift = (float) activehordisps[idx]->getTranslation().z;
+        const float zshift = (float) activehordisps[idx]->getTranslation().z_;
 	Geometry::FaultBinIDSurfaceIntersector it( zshift, *surf,
 		*explicitpanels_, *shape->coordList() );
 	it.setShape( *shape );

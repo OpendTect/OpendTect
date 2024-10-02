@@ -183,27 +183,27 @@ void uiFuncDispBase::addPoint( const Geom::PointF& pt )
 {
     Geom::PointF valpt = mapToValue( pt );
 
-    valpt.x = xAxis()->range().limitValue( valpt.x );
-    valpt.y = yAxis( false )->range().limitValue( valpt.y );
+    valpt.x_ = xAxis()->range().limitValue( valpt.x_ );
+    valpt.y_ = yAxis( false )->range().limitValue( valpt.y_ );
 
-    if ( !xvals_.isEmpty() && valpt.x > xvals_.last() )
+    if ( !xvals_.isEmpty() && valpt.x_ > xvals_.last() )
     {
-	xvals_ += valpt.x; yvals_ += valpt.y;
+        xvals_ += valpt.x_; yvals_ += valpt.y_;
 	selpt_ = xvals_.size()-1;
     }
     else
     {
 	for ( int idx=0; idx<xvals_.size(); idx++ )
 	{
-	    if ( valpt.x > xvals_[idx] )
+            if ( valpt.x_ > xvals_[idx] )
 		continue;
 
-	    if ( valpt.x == xvals_[idx] )
-		yvals_[idx] = valpt.y;
+            if ( valpt.x_ == xvals_[idx] )
+                yvals_[idx] = valpt.y_;
 	    else
 	    {
-		xvals_.insert( idx, valpt.x );
-		yvals_.insert( idx, valpt.y );
+                xvals_.insert( idx, valpt.x_ );
+                yvals_.insert( idx, valpt.y_ );
 	    }
 
 	    selpt_ = idx;

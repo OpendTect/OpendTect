@@ -60,8 +60,8 @@ void SceneTransformManager::computeUTM2DisplayTransform(
     const Coord startpos = SI().transform( sg.sampling().hsamp_.start_ );
     const float ztransl = -1*zfactor*zmidpt;
 
-    res->setA(	1,	0,	0,		-startpos.x,
-		0,	1,	0,		-startpos.y,
+    res->setA(	1,	0,	0,		-startpos.x_,
+                0,	1,	0,		-startpos.y_,
 		0,	0,	zfactor,	ztransl,
 		0,	0,	0,		1 );
 }
@@ -98,7 +98,7 @@ void SceneTransformManager::computeICRotationTransform(
     A.set( 2, 1, extrabid.crl()*crldist );
     A.set( 2, 2, 1);
 
-    double b[] = { 0, stoppos.x-startpos.x, extrapos.x-startpos.x };
+    double b[] = { 0, stoppos.x_-startpos.x_, extrapos.x_-startpos.x_ };
     double x[3];
 
     LinSolver<double> linsolver( A );
@@ -128,8 +128,8 @@ void SceneTransformManager::computeICRotationTransform(
     const double mat14 = x[2];
 
     b[0] = 0;
-    b[1] = stoppos.y-startpos.y;
-    b[2] = extrapos.y-startpos.y;
+    b[1] = stoppos.y_-startpos.y_;
+    b[2] = extrapos.y_-startpos.y_;
 
     if ( !crlwidth )
     {

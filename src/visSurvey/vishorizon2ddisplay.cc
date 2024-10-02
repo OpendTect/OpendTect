@@ -239,7 +239,7 @@ Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
     , volumeofinterestids_(volumeofinterestids)
 {
     eps_ = mMIN(SI().inlDistance(),SI().crlDistance());
-    eps_ = (float) mMIN(eps_,SI().zRange(true).step_*scale_.z )/4;
+    eps_ = (float) mMIN(eps_,SI().zRange(true).step_*scale_.z_ )/4;
 
     rowrg_ = surf_->rowRange();
     nriter_ = rowrg_.isRev() ? 0 : rowrg_.nrSteps()+1;
@@ -318,7 +318,7 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
         for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
 	{
 	    Coord3 pos = surf_->getKnot( rc );
-	    const float zval = mCast(float,pos.z);
+            const float zval = mCast(float,pos.z_);
 
 	    if ( !pos.isDefined() || (lineranges_ &&
 		 !Horizon2DDisplay::withinRanges(rc,zval,*lineranges_)) )
@@ -331,10 +331,10 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 		if ( zaxt_ )
 		{
 		    const TrcKey tk( geomid, rc.col() );
-		    pos.z = (double)zaxt_->transformTrc( tk, (float)pos.z );
+                    pos.z_ = (double)zaxt_->transformTrc( tk, (float)pos.z_ );
 		}
 
-		if ( !mIsUdf(pos.z) )
+                if ( !mIsUdf(pos.z_) )
 		    positions += pos;
 		else if ( positions.size() )
 		    sendPositions( positions );
@@ -727,7 +727,7 @@ void Horizon2DDisplay::updateSeedsOnSections(
 
 	    Coord3 markerpos = markercoords->getPos( idy, true );
 	    if ( !isAlreadyTransformed() && getZAxisTransform()  )
-		markerpos.z = getZAxisTransform()->transform( markerpos );
+                markerpos.z_ = getZAxisTransform()->transform( markerpos );
 
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
@@ -974,7 +974,7 @@ void Horizon2DDisplay::setTranslation( const Coord3& nt )
 
     Coord3 origin( 0., 0., 0. );
     Coord3 aftershift( nt );
-    aftershift.z *= -1.;
+    aftershift.z_ *= -1.;
 
     mVisTrans::transform( transformation_, origin );
     mVisTrans::transform( transformation_, aftershift );

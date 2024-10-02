@@ -139,18 +139,18 @@ template <class TT,class FT>
 TT uiWorld2Ui::transformX( FT x, bool toworld ) const
 {
     if ( toworld )
-	return p0.x + (x-uiorigin.x)*fac.x;
+        return p0.x_ + (x-uiorigin.x_)*fac.x_;
     else
-	return (x-p0.x)/fac.x + uiorigin.x;
+        return (x-p0.x_)/fac.x_ + uiorigin.x_;
 }
 
 template <class TT,class FT>
 TT uiWorld2Ui::transformY( FT y, bool toworld ) const
 {
     if ( toworld )
-	return p0.y + (y-uiorigin.y)*fac.y;
+        return p0.y_ + (y-uiorigin.y_)*fac.y_;
     else
-	return (y-p0.y)/fac.y + uiorigin.y;
+        return (y-p0.y_)/fac.y_ + uiorigin.y_;
 }
 
 
@@ -158,6 +158,6 @@ template <class TT,class FT>
 Geom::Point2D<TT> uiWorld2Ui::transform( const Geom::Point2D<FT>& ptin,
 					 bool toworld ) const
 {
-    return Geom::Point2D<TT>( transformX<TT,FT>(ptin.x,toworld),
-			      transformY<TT,FT>(ptin.y,toworld) );
+    return Geom::Point2D<TT>( transformX<TT,FT>(ptin.x_,toworld),
+                              transformY<TT,FT>(ptin.y_,toworld) );
 }

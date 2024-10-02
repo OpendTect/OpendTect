@@ -538,7 +538,7 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 	else
 	{
 	    const Coord3 pos = wd.track().getPos( mdstor );
-	    if ( !pos.x && !pos.y && !pos.z )
+            if ( !pos.x_ && !pos.y_ && !pos.z_ )
 		continue;
 
 	    if ( dobinid )
@@ -551,11 +551,11 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
 		Coord convcoord;
 		if ( needsconversion )
 		    convcoord = outcrs->convertFrom( pos.coord(), *syscrs );
-		strm << convcoord.x << od_tab; // keep sep from next line
-		strm << convcoord.y;
+                strm << convcoord.x_ << od_tab; // keep sep from next line
+                strm << convcoord.y_;
 	    }
 
-	    float z = float(pos.z);
+            float z = float(pos.z_);
 	    if ( outindepth )
 		z = getConvertedValue( z, storunit, outunit );
 	    else if ( outintime )

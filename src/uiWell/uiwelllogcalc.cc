@@ -640,7 +640,7 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 			  inpd.specidx_ == mTVDIdx ||
 			  inpd.specidx_ == mTVDSDIdx )
 		{
-		    val = track.getPos( curdah ).z;
+                    val = track.getPos( curdah ).z_;
 		    if ( inpd.specidx_ == mTVDIdx && !mIsUdf(val) )
 			val += track.getKbElev();
 		    else if ( inpd.specidx_ == mTVDSDIdx  && !mIsUdf(val) )

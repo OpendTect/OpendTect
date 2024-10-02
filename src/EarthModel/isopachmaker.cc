@@ -91,7 +91,7 @@ int IsochronMaker::nextStep()
 
 	const EM::SubID subid = posid.subID();
 	const Coord3 pos1( hor1_->getPos( subid ) );
-	const float z1 = float( pos1.z );
+        const float z1 = float( pos1.z_ );
 	if ( mIsUdf(z1) )
 	{
 	    if ( dataidx_ != -1 )
@@ -99,12 +99,12 @@ int IsochronMaker::nextStep()
 	    continue;
 	}
 
-	float z2 = float( hor2_->getPos(subid).z );
+        float z2 = float( hor2_->getPos(subid).z_ );
 	if ( mIsUdf(z2) )
 	{
 	    const BinID bid = BinID::fromInt64( subid );
 	    z2 = float( hor2geom->computePosition(
-					Coord(bid.inl(),bid.crl()) ).z );
+                            Coord(bid.inl(),bid.crl()) ).z_ );
 	    if ( mIsUdf(z2) )
 	    {
 		if ( dataidx_ != -1 )

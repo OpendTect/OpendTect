@@ -354,10 +354,10 @@ bool uiWellExportFacility::exportWellTrack( const char* fp )
     for ( int idx=0; idx<track.size(); idx++ )
     {
 	const Coord3 coord( track.pos(idx) );
-	*strm << coord.x << od_tab;
-	*strm << coord.y << od_tab;
-	*strm << mConvertVal(coord.z) << od_tab;
-	*strm << mConvertVal(coord.z-kbdepth) << od_tab;
+        *strm << coord.x_ << od_tab;
+        *strm << coord.y_ << od_tab;
+        *strm << mConvertVal(coord.z_) << od_tab;
+        *strm << mConvertVal(coord.z_-kbdepth) << od_tab;
 	*strm << mConvertVal(track.dah(idx)) << od_newline;
     }
 
@@ -490,7 +490,7 @@ bool uiWellExportFacility::exportD2TModel( const char* fp, bool ischksht )
     for ( int idx=0; idx<d2t->size(); idx++ )
     {
 	const float dah = d2t->dah(idx);
-	const float tvdss = mConvertVal(mCast(float,track.getPos(dah).z));
+        const float tvdss = mConvertVal(mCast(float,track.getPos(dah).z_));
 	const float tvd = tvdss + kbelev;
 	*strm << mConvertVal(dah) << od_tab << tvd << od_tab;
 	if ( hastvdgl )
@@ -510,7 +510,7 @@ bool uiWellExportFacility::exportD2TModel( const char* fp, bool ischksht )
 	     (1.f + (int)!istwt) << od_tab;
 	Interval<float> replvellayer( track.getKbElev(), srd );
 	replvellayer.widen( 1e-2f, true );
-	vint = replvellayer.includes( -1.f * track.getPos(dah).z, true ) &&
+        vint = replvellayer.includes( -1.f * track.getPos(dah).z_, true ) &&
 	    !mIsUdf(info.replvel_) ?
 	    info.replvel_ : mCast(float,d2t->getVelocityForDah(dah,track));
 	*strm << mConvertVal(vint) << od_newline;
@@ -544,7 +544,7 @@ bool uiWellExportFacility::exportMarkers( const char* fp )
     {
 	const Well::Marker& mrkr = *mrks[idx];
 	const float dah = mrkr.dah();
-	const float tvdss = mCast(float,track.getPos(dah).z);
+        const float tvdss = mCast(float,track.getPos(dah).z_);
 	const float tvd = tvdss + kbelev;
 	*strm << mConvertVal( dah ) << od_tab
 	     << mConvertVal( tvd ) << od_tab

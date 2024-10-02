@@ -180,7 +180,7 @@ float HorizonModifier::getDepth2D( const EM::Horizon* hor, const BinID& bid )
     mDynamicCastGet(const EM::Horizon2D*,hor2d,hor)
     if ( !hor2d ) return mUdf(float);
 
-    return (float) hor2d->getPos( geomids_[bid.inl()], bid.crl() ).z;
+    return (float) hor2d->getPos( geomids_[bid.inl()], bid.crl() ).z_;
 }
 
 
@@ -209,7 +209,7 @@ void HorizonModifier::shiftNode( const BinID& bid )
 	if ( !statichor2d || !dynamichor2d ) return;
 
 	float newz = (float) statichor2d->getPos(
-					  geomids_[bid.inl()], bid.crl() ).z;
+                         geomids_[bid.inl()], bid.crl() ).z_;
 	if ( !mIsUdf(newz) )
 	    newz += (float) extrashift;
 

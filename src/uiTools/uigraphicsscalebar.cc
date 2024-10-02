@@ -119,7 +119,7 @@ void uiScaleBarItem::adjustValues()
     {
 	worldwidth_ = vroundedtotenth;
 	pxwidth_ = mNINT32( Math::Abs( worldwidth_/
-				(w2ui_.worldPerPixel().x*scalex) ) );
+                                       (w2ui_.worldPerPixel().x_*scalex) ) );
     }
 }
 

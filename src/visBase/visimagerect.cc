@@ -69,14 +69,14 @@ void ImageRect::setCenterPos( const Coord3& pos )
 {
     Coord3 newpos;
     Transformation::transform( trans_, pos, newpos );
-    texplane_->setCenter( osg::Vec3(newpos.x, newpos.y, newpos.z) );
+    texplane_->setCenter( osg::Vec3(newpos.x_, newpos.y_, newpos.z_) );
 }
 
 
 void ImageRect::setCornerPos( const Coord3& tl, const Coord3& br )
 {
     const Coord3 diff = tl - br;
-    osg::Vec3 width( diff.x, diff.y, diff.z );
+    osg::Vec3 width( diff.x_, diff.y_, diff.z_ );
     texplane_->setWidth( width );
 }
 

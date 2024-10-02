@@ -100,7 +100,7 @@ PosID RowColIterator::next()
 	bid_ = SI().transform( pos_ );
 
 	if ( csbound_->hsamp_.includes(bid_) &&
-	     csbound_->zsamp_.includes(pos_.z,false) )
+             csbound_->zsamp_.includes(pos_.z_,false) )
 	    break;
     }
 

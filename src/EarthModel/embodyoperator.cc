@@ -266,9 +266,9 @@ od_int64 Expl2ImplBodyExtracter::nrIterations() const
 
 #define mSetSegment() \
 if ( !nrintersections ) \
-    segment.start_ = segment.stop_ = (float) pos.z; \
+    segment.start_ = segment.stop_ = (float) pos.z_; \
 else \
-    segment.include( (float) pos.z ); \
+    segment.include( (float) pos.z_ ); \
 nrintersections++
 
 
@@ -295,7 +295,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    for ( int pidx=0; pidx<3; pidx++ )
 		v[pidx] = crds[tri_[3*pl+pidx]];
 
-	    const double fv = planes_[pl].A_*pos.x + planes_[pl].B_*pos.y +
+            const double fv = planes_[pl].A_*pos.x_ + planes_[pl].B_*pos.y_ +
 		planes_[pl].D_;
 	    if ( mIsZero(planes_[pl].C_,1e-3) )
 	    {
@@ -304,14 +304,14 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 		    for ( int pidx=0; pidx<3; pidx++ )
 		    {
 			const Coord3 dir = v[(pidx+1)%3]-v[pidx];
-			if ( mIsZero(dir.x,1e-3) && mIsZero(dir.y,1e-3) )
+                        if ( mIsZero(dir.x_,1e-3) && mIsZero(dir.y_,1e-3) )
 			{
 			    Coord diff = pos - v[pidx];
-			    if ( mIsZero(diff.x,1e-3)&& mIsZero(diff.y,1e-3) )
+                            if ( mIsZero(diff.x_,1e-3)&& mIsZero(diff.y_,1e-3) )
 			    {
-				pos.z = v[pidx].z;
+                                pos.z_ = v[pidx].z_;
 				mSetSegment();
-				pos.z = v[(pidx+1)%3].z;
+                                pos.z_ = v[(pidx+1)%3].z_;
 				mSetSegment();
 			    }
 			}
@@ -322,7 +322,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 			    vtln.closestPoint(edge,tv,te);
 			    if ( te<=1 && te>=0 )
 			    {
-				pos.z = v[pidx].z+te*dir.z;
+                                pos.z_ = v[pidx].z_+te*dir.z_;
 				mSetSegment();
 			    }
 			}
@@ -331,7 +331,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    }
 	    else
 	    {
-		pos.z = -fv/planes_[pl].C_;
+                pos.z_ = -fv/planes_[pl].C_;
 		if ( pointInTriangle3D(pos,v[0],v[1],v[2],0) )
 		{
 		    mSetSegment();
@@ -756,13 +756,13 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	{
             inlrg.start_ = inlrg.stop_ = bid.inl();
             crlrg.start_ = crlrg.stop_ = bid.crl();
-            zrg.start_ = zrg.stop_ = (float) bodypts[idx].z;
+            zrg.start_ = zrg.stop_ = (float) bodypts[idx].z_;
 	}
 	else
 	{
 	    inlrg.include( bid.inl() );
 	    crlrg.include( bid.crl() );
-	    zrg.include( (float) bodypts[idx].z );
+            zrg.include( (float) bodypts[idx].z_ );
 	}
     }
 
@@ -794,7 +794,7 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     if ( zscale != 1 )
     {
 	for ( int idx=0; idx<bodypts.size(); idx++ )
-	    pts[idx].z *= zscale;
+            pts[idx].z_ *= zscale;
     }
 
     DAGTetrahedraTree dagtree;

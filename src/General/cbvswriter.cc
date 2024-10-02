@@ -462,8 +462,8 @@ bool CBVSWriter::writeAuxInfo()
 	    trailercoords_ += auxinfo_->coord;
 	else if ( coordpol_ == InAux && auxinfosel_.coord )
 	{
-	    strm_.addBin( &auxinfo_->coord.x, sizeof(double) );
-	    strm_.addBin( &auxinfo_->coord.y, sizeof(double) );
+            strm_.addBin( &auxinfo_->coord.x_, sizeof(double) );
+            strm_.addBin( &auxinfo_->coord.y_, sizeof(double) );
 	}
 	mDoWrAI(offset)
 	mDoWrAI(pick)
@@ -541,8 +541,8 @@ bool CBVSWriter::writeTrailer()
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    Coord c( trailercoords_[idx] );
-	    strm_.addBin( &c.x, sizeof(double) );
-	    strm_.addBin( &c.y, sizeof(double) );
+            strm_.addBin( &c.x_, sizeof(double) );
+            strm_.addBin( &c.y_, sizeof(double) );
 	}
     }
 

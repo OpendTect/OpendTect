@@ -196,7 +196,7 @@ int SeisImpBPSIF::readAscii()
     SeisTrc tmpltrc( nrshotattrs + rcvattrs_.size() );
     tmpltrc.info().sampling.start_ = SI().zRange(true).start_;
     tmpltrc.info().sampling.step_ = SI().zStep();
-    strm >> tmpltrc.info().coord.x >> tmpltrc.info().coord.y;
+    strm >> tmpltrc.info().coord.x_ >> tmpltrc.info().coord.y_;
     for ( int idx=0; idx<nrshotattrs; idx++ )
     {
 	float val; strm >> val;
@@ -234,7 +234,7 @@ int SeisImpBPSIF::readBinary()
     tmpltrc.info().sampling.start_ = SI().zRange(true).start_;
     tmpltrc.info().sampling.step_ = SI().zStep();
     StrmOper::readBlock( strm, vbuf, (2+nrshotattrs)*sizeof(float) );
-    tmpltrc.info().coord.x = vbuf[0]; tmpltrc.info().coord.y = vbuf[1];
+    tmpltrc.info().coord.x_ = vbuf[0]; tmpltrc.info().coord.y_ = vbuf[1];
     for ( int idx=0; idx<nrshotattrs; idx++ )
 	tmpltrc.set( idx, vbuf[2+idx], 0 );
     tmpltrc.info().seqnr_ = mNINT32(vbuf[0]);
@@ -271,8 +271,8 @@ int SeisImpBPSIF::addTrcsAscii( const SeisTrc& tmpltrc, char* data )
     {
 	SeisTrc* newtrc = new SeisTrc( tmpltrc );
 	Coord rcvcoord;
-	rcvcoord.x = getVal( data, ptr );
-	rcvcoord.y = getVal( data, ptr );
+        rcvcoord.x_ = getVal( data, ptr );
+        rcvcoord.y_ = getVal( data, ptr );
 	for ( int idx=0; idx<nrrcvattrs; idx++ )
 	{
 	    float val = (float)getVal( data, ptr );
@@ -311,7 +311,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 	    return false;
 
 	SeisTrc* newtrc = new SeisTrc( tmpltrc );
-	Coord rcvcoord; rcvcoord.x = vbuf[0]; rcvcoord.y = vbuf[1];
+        Coord rcvcoord; rcvcoord.x_ = vbuf[0]; rcvcoord.y_ = vbuf[1];
 	for ( int iattr=0; iattr<nrrcvattrs; iattr++ )
 	    newtrc->set( nrshotattrs+iattr, vbuf[2+iattr], 0 );
 

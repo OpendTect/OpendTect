@@ -356,8 +356,8 @@ void uiDataPointSetPickDlg::updateTable()
 	const DataPointSet::Pos pos( dps_->pos(idx) );
 	table_->setValue( RowCol(idx,0), pos.lineNr() );
 	table_->setValue( RowCol(idx,1), pos.trcNr() );
-	table_->setValue( RowCol(idx,2), pos.coord().x );
-	table_->setValue( RowCol(idx,3), pos.coord().y );
+        table_->setValue( RowCol(idx,2), pos.coord().x_ );
+        table_->setValue( RowCol(idx,3), pos.coord().y_ );
 	table_->setValue( RowCol(idx,4), pos.z() );
 	table_->setValue( RowCol(idx,5), dps_->value(0,idx) );
     }
@@ -433,7 +433,7 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
 	if ( !pid.isValid() )
 	    break;
 
-	auxvals[0] = (float) hor3d->getPos( pid ).z;
+        auxvals[0] = (float) hor3d->getPos( pid ).z_;
 	auxvals[2] = mUdf( float );
 	BinID bid = BinID::fromInt64( pid.subID() );
 	emdps_->bivSet().add( bid, auxvals );

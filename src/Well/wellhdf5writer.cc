@@ -240,9 +240,9 @@ bool Well::HDF5Writer::putTrack() const
     {
 	const Coord3 c = iter.pos();
 	const int idx = iter.curIdx();
-	crdarr.set( idx, 0, c.x );
-	crdarr.set( idx, 1, c.y );
-	crdarr.set( idx, 2, c.z );
+        crdarr.set( idx, 0, c.x_ );
+        crdarr.set( idx, 1, c.y_ );
+        crdarr.set( idx, 2, c.z_ );
 	mdarr.set( idx, iter.dah() );
     }
     iter.retire();

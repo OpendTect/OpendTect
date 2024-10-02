@@ -315,7 +315,7 @@ bool uiExport2DHorizon::doExport()
 		{
 		    const Coord crd2d =
 			coordsys->convertFrom( crd, *SI().getCoordSystem() );
-		    crd.setXY( crd2d.x, crd2d.y );
+                    crd.setXY( crd2d.x_, crd2d.y_ );
 		}
 
 		if ( wrhornms && wrlinenms )
@@ -323,7 +323,7 @@ bool uiExport2DHorizon::doExport()
 		    od_sprintf( line.getCStr(), line.bufSize(),
 				controlstr.buf(),
 				horname.buf(), hdrlnm.buf(),
-				crd.x, crd.y,
+                                crd.x_, crd.y_,
 				trcnr, double(spnr), zstr.buf() );
 		}
 		else if ( wrhornms )
@@ -331,7 +331,7 @@ bool uiExport2DHorizon::doExport()
 		    od_sprintf( line.getCStr(), line.bufSize(),
 				controlstr.buf(),
 				horname.buf(),
-				crd.x, crd.y,
+                                crd.x_, crd.y_,
 				trcnr, double(spnr), zstr.buf() );
 		}
 		else if ( wrlinenms )
@@ -339,14 +339,14 @@ bool uiExport2DHorizon::doExport()
 		    od_sprintf( line.getCStr(), line.bufSize(),
 				controlstr.buf(),
 				hdrlnm.buf(),
-				crd.x, crd.y,
+                                crd.x_, crd.y_,
 				trcnr, double(spnr), zstr.buf() );
 		}
 		else
 		{
 		    od_sprintf( line.getCStr(), line.bufSize(),
 				controlstr.buf(),
-				crd.x, crd.y,
+                                crd.x_, crd.y_,
 				trcnr, double(spnr), zstr.buf() );
 		}
 

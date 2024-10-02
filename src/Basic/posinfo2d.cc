@@ -279,12 +279,12 @@ bool PosInfo::Line2DData::read( od_istream& strm, bool asc )
 
 	PosInfo::Line2DPos pos( trcnr );
 	if ( asc )
-	    strm >> pos.coord_.x >> pos.coord_.y;
+            strm >> pos.coord_.x_ >> pos.coord_.y_;
 	else
-	    strm.getBin( pos.coord_.x ).getBin( pos.coord_.y );
+            strm.getBin( pos.coord_.x_ ).getBin( pos.coord_.y_ );
 
-	xrg_.include( pos.coord_.x );
-	yrg_.include( pos.coord_.y );
+        xrg_.include( pos.coord_.x_ );
+        yrg_.include( pos.coord_.y_ );
 	posns_ += pos;
     }
 
@@ -381,14 +381,14 @@ Coord PosInfo::Line2DData::getNormal( int trcnr ) const
     else if ( posidx-1>=0 )
 	v1 = pos - posns_[posidx-1].coord_;
 
-    if ( v1.x == 0 )
+    if ( v1.x_ == 0 )
 	return Coord( 1, 0 );
-    else if ( v1.y == 0 )
+    else if ( v1.y_ == 0 )
 	return Coord( 0, 1 );
     else
     {
-	const double length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
-	return Coord( -v1.y/length, v1.x/length );
+        const double length = Math::Sqrt( v1.x_*v1.x_ + v1.y_*v1.y_ );
+        return Coord( -v1.y_/length, v1.x_/length );
     }
 }
 
@@ -465,8 +465,8 @@ bool PosInfo::Line2DData::coincidesWith( const PosInfo::Line2DData& oth ) const
 	if ( trcnr == othpos[othidx].nr_ )
 	{
 	    foundcommon = true;
-	    if ( !mIsEqual(mypos[myidx].coord_.x,othpos[othidx].coord_.x,1.0) ||
-		 !mIsEqual(mypos[myidx].coord_.y,othpos[othidx].coord_.y,1.0) )
+            if ( !mIsEqual(mypos[myidx].coord_.x_,othpos[othidx].coord_.x_,1.0) ||
+                 !mIsEqual(mypos[myidx].coord_.y_,othpos[othidx].coord_.y_,1.0) )
 		return false;
 
 	    myidx++; othidx++;

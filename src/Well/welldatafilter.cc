@@ -461,8 +461,8 @@ void WellDataFilter::getMnemsInDepthInterval( const Interval<float> depthrg,
 		continue;
 
 	    Interval<float> logrg = log->dahRange();
-	    logrg.start_ = wd->track().getPos(logrg.start_).z;
-	    logrg.stop_ = wd->track().getPos(logrg.stop_).z;
+            logrg.start_ = wd->track().getPos(logrg.start_).z_;
+            logrg.stop_ = wd->track().getPos(logrg.stop_).z_;
 	    if ( !logrg.overlaps(depthrg,false) )
 		continue;
 
@@ -493,8 +493,8 @@ void WellDataFilter::getLogsInDepthInterval( const Interval<float> depthrg,
 		continue;
 
 	    Interval<float> logrg = log->dahRange();
-	    logrg.start_ = wd->track().getPos(logrg.start_).z;
-	    logrg.stop_ = wd->track().getPos(logrg.stop_).z;
+            logrg.start_ = wd->track().getPos(logrg.start_).z_;
+            logrg.stop_ = wd->track().getPos(logrg.stop_).z_;
 	    if ( !logrg.overlaps(depthrg,false) )
 		continue;
 
@@ -559,7 +559,7 @@ Interval<float> WellDataFilter::getDepthRangeFromMarkers(
 	if ( marker )
 	{
 	    float mrkrdahstart = marker->dah();
-	    markerrg.start_ = vertical ? wd->track().getPos(mrkrdahstart).z
+            markerrg.start_ = vertical ? wd->track().getPos(mrkrdahstart).z_
 				      : mrkrdahstart;
 	}
     }
@@ -573,7 +573,7 @@ Interval<float> WellDataFilter::getDepthRangeFromMarkers(
 	if ( marker )
 	{
 	    float mrkrdahstop = marker->dah();
-	    markerrg.stop_ = vertical ? wd->track().getPos(mrkrdahstop).z
+            markerrg.stop_ = vertical ? wd->track().getPos(mrkrdahstop).z_
 				     : mrkrdahstop;
 	}
     }

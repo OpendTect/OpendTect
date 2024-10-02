@@ -215,9 +215,9 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 	utm2disptransform_->transform( checkcoord3d );
 
     const osg::Vec2 coord2d = selector_->projectPointToScreen(
-					    osg::Vec3((float) checkcoord3d.x,
-						      (float) checkcoord3d.y,
-						      (float) checkcoord3d.z) );
+                                  osg::Vec3((float) checkcoord3d.x_,
+                                            (float) checkcoord3d.y_,
+                                            (float) checkcoord3d.z_) );
 
     const Coord checkcoord2d( coord2d.x(), coord2d.y() );
     if ( !checkcoord2d.isDefined() )
@@ -259,14 +259,14 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
 	return 0;
 
     Coord3 coords[8];
-    coords[0] = Coord3( start.x, start.y, start.z );
-    coords[1] = Coord3( start.x, start.y, stop.z );
-    coords[2] = Coord3( start.x, stop.y, start.z );
-    coords[3] = Coord3( start.x, stop.y, stop.z );
-    coords[4] = Coord3( stop.x, start.y, start.z );
-    coords[5] = Coord3( stop.x, start.y, stop.z );
-    coords[6] = Coord3( stop.x, stop.y, start.z );
-    coords[7] = Coord3( stop.x, stop.y, stop.z );
+    coords[0] = Coord3( start.x_, start.y_, start.z_ );
+    coords[1] = Coord3( start.x_, start.y_, stop.z_ );
+    coords[2] = Coord3( start.x_, stop.y_, start.z_ );
+    coords[3] = Coord3( start.x_, stop.y_, stop.z_ );
+    coords[4] = Coord3( stop.x_, start.y_, start.z_ );
+    coords[5] = Coord3( stop.x_, start.y_, stop.z_ );
+    coords[6] = Coord3( stop.x_, stop.y_, start.z_ );
+    coords[7] = Coord3( stop.x_, stop.y_, stop.z_ );
 
     if ( !displayspace && utm2disptransform_ )
     {
@@ -280,8 +280,8 @@ char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
     for ( int idx=0; idx<8; idx++ )
     {
 	const osg::Vec2 pt = selector_->projectPointToScreen(
-		      osg::Vec3((float) coords[idx].x,
-		      (float) coords[idx].y,(float) coords[idx].z ) );
+                                 osg::Vec3((float) coords[idx].x_,
+                                           (float) coords[idx].y_,(float) coords[idx].z_ ) );
 
 	const Coord vertex( pt[0], pt[1] );
 	if ( vertex.isDefined() )

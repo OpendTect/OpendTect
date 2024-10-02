@@ -109,12 +109,12 @@ uiImportImageDlg::uiImportImageDlg( uiParent* p )
     const Coord mincrd = SI().minCoord(true);
     const Coord maxcrd = SI().maxCoord(true);
     tlcrdfld_ = new uiGenInput( this, tr("NorthWest (TopLeft) coordinate"),
-			     PositionInpSpec(Coord(mincrd.x,maxcrd.y)) );
+                                PositionInpSpec(Coord(mincrd.x_,maxcrd.y_)) );
     tlcrdfld_->setElemSzPol( uiObject::MedVar );
     tlcrdfld_->attach( alignedBelow, inputfld_ );
 
     brcrdfld_ = new uiGenInput( this, tr("SouthEast (BottomRight) coordinate"),
-			     PositionInpSpec(Coord(maxcrd.x,mincrd.y)) );
+                                PositionInpSpec(Coord(maxcrd.x_,mincrd.y_)) );
     brcrdfld_->setElemSzPol( uiObject::MedVar );
     brcrdfld_->attach( alignedBelow, tlcrdfld_ );
 

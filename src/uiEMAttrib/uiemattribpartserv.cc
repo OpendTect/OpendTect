@@ -306,7 +306,7 @@ mDefParallelCalcBody(
     for ( int knidx=0; knidx<nrknots; knidx++ )
     {
 	const BinID bid = sectgeom->getKnotRowCol(knidx);
-	const float realz = (float) ( sectgeom->getKnot( bid, false ).z );
+        const float realz = (float) ( sectgeom->getKnot( bid, false ).z_ );
 	if ( mIsUdf(realz) )
 	    continue;
 

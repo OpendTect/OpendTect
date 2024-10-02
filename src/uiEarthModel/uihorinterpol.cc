@@ -448,7 +448,7 @@ bool uiHor3DInterpolSel::readPolygon( ODPolygon<float>& poly ) const
     {
 	const Pick::Location& pl = ps->get( idx );
 	const Coord bid = SI().binID2Coord().transformBackNoSnap( pl.pos() );
-	Geom::Point2D<float> pt; pt.setXY( bid.x, bid.y );
+        Geom::Point2D<float> pt; pt.setXY( bid.x_, bid.y_ );
 	poly.add( pt );
     }
 
@@ -482,7 +482,7 @@ bool uiHor3DInterpolSel::fillPar( IOPar& par ) const
 	{
 	    const Geom::Point2D<float>& node = poly.getVertex(idx);
 	    par.set( IOPar::compKey(Array2DInterpol::sKeyPolyNode(),idx),
-		    Coord(node.x,node.y) );
+                     Coord(node.x_,node.y_) );
 	}
     }
 

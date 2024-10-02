@@ -122,8 +122,8 @@ void ZMapImporter::applyCRS()
     }
 
     const Coord dcrd = maxcrd_ - mincrd_;
-    dx_ = dcrd.x / (nrcols_-1);
-    dy_ = dcrd.y / (nrrows_-1);
+    dx_ = dcrd.x_ / (nrcols_-1);
+    dy_ = dcrd.y_ / (nrrows_-1);
 }
 
 
@@ -164,8 +164,8 @@ int ZMapImporter::nextStep()
     data_->set( row, col, zval );
 
     Coord curcrd;
-    curcrd.x = mincrd_.x + dx_*col;
-    curcrd.y = mincrd_.y + dy_*row;
+    curcrd.x_ = mincrd_.x_ + dx_*col;
+    curcrd.y_ = mincrd_.y_ + dy_*row;
     const BinID curbid = SI().transform( curcrd );
     posdetector_->add( curcrd, curbid );
 
@@ -189,8 +189,8 @@ TrcKeySampling ZMapImporter::sampling() const
     TrcKeySampling tks( false );
     tks.include( TrcKey(SI().transform(mincrd_)) );
     tks.include( TrcKey(SI().transform(maxcrd_)) );
-    tks.include( TrcKey(SI().transform(Coord(mincrd_.x,maxcrd_.y))) );
-    tks.include( TrcKey(SI().transform(Coord(maxcrd_.x,mincrd_.y))) );
+    tks.include( TrcKey(SI().transform(Coord(mincrd_.x_,maxcrd_.y_))) );
+    tks.include( TrcKey(SI().transform(Coord(maxcrd_.x_,mincrd_.y_))) );
     tks.step_ = BinID( Math::Abs(posdetector_->step().inl()),
 		       Math::Abs(posdetector_->step().crl()) );
     return tks;

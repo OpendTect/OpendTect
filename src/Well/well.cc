@@ -729,7 +729,7 @@ uiString Well::Data::getInfoString( Well::Info::InfoType it,
 		}
 		else
 		{
-		    float zval = track().getPos(dah).z;
+                    float zval = track().getPos(dah).z_;
 		    if ( mIsUdf(zval) )
 			return uiString::empty();
 

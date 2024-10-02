@@ -611,9 +611,9 @@ bool FaultT2DTransformer::doFault( const SurfaceT2DTransfData& data )
 	for ( int crdidx=0; crdidx<sz; crdidx++ )
 	{
 	    Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
-	    outcrd.z = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
-								    outcrd.z );
-	    if ( !reasonablerange.includes(outcrd.z,false) )
+            outcrd.z_ = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
+                                            outcrd.z_ );
+            if ( !reasonablerange.includes(outcrd.z_,false) )
 		continue;
 
 	    if ( !stickinserted )
@@ -747,9 +747,9 @@ bool FaultSetT2DTransformer::doFaultSet( const SurfaceT2DTransfData& data )
 	    for ( int crdidx=0; crdidx<sz; crdidx++ )
 	    {
 		Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
-		outcrd.z = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
-		    outcrd.z );
-		if ( !reasonablerange.includes(outcrd.z,false) )
+                outcrd.z_ = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
+                                                outcrd.z_ );
+                if ( !reasonablerange.includes(outcrd.z_,false) )
 		    continue;
 
 		if ( !stickinserted )
@@ -839,8 +839,8 @@ bool FaultStickSetT2DTransformer::doTransformation(
     for ( int crdidx = 0; crdidx<sz; crdidx++ )
     {
 	Coord3 outcrd( stick->getCoordAtIndex(crdidx) );
-	outcrd.z = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
-								    outcrd.z );
+        outcrd.z_ = zatf_.transformTrc( stick->locs_[crdidx].trcKey(),
+                                        outcrd.z_ );
 	if ( !stickinserted )
 	{
 	    if ( !outfault3d.geometry().insertStick(sticknr,0,outcrd,

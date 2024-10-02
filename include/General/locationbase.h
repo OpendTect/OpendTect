@@ -43,7 +43,7 @@ public:
     void		    setPos(const Coord& c,float zval);
 
     template <class T>
-    inline void		    setZ(T zval) { pos_.z = zval; }
+    inline void		    setZ(T zval) { pos_.z_ = zval; }
 
     OD::GeomSystem	    geomSystem() const;
     Pos::GeomID		    geomID() const;

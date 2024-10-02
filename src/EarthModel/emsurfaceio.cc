@@ -992,11 +992,11 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	Coord3 pos;
 	if ( !readonlyz_ )
 	{
-	    pos.x = readDouble( strm );
-	    pos.y = readDouble( strm );
+            pos.x_ = readDouble( strm );
+            pos.y_ = readDouble( strm );
 	}
 
-	pos.z = readDouble( strm );
+        pos.z_ = readDouble( strm );
 
 	//Read filltype
 	if ( rowindex_!=nrrows_-1 && colindex!=nrcols-1 )
@@ -1029,7 +1029,7 @@ bool dgbSurfaceReader::readVersion1Row( od_istream& strm, int firstcol,
 	{
 	    int i, j;
 	    if ( getIndices(surfrc,i,j) )
-		arr_->set( i, j, mCast(float,pos.z) );
+                arr_->set( i, j, mCast(float,pos.z_) );
 	}
 
 	isrowused = true;
@@ -1055,11 +1055,11 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	Coord3 pos;
 	if ( !readonlyz_ )
 	{
-	    pos.x = readDouble( strm );
-	    pos.y = readDouble( strm );
+            pos.x_ = readDouble( strm );
+            pos.y_ = readDouble( strm );
 	}
 
-	pos.z = readDouble( strm );
+        pos.z_ = readDouble( strm );
 	if ( !strm.isOK() )
 	{
 	    msg_ = sMsgReadError();
@@ -1087,7 +1087,7 @@ bool dgbSurfaceReader::readVersion2Row( od_istream& strm,
 	{
 	    int i, j;
 	    if ( getIndices(rowcol,i,j) )
-		arr_->set( i, j, mCast(float,pos.z) );
+                arr_->set( i, j, mCast(float,pos.z_) );
 	}
 
 	isrowused = true;
@@ -1248,9 +1248,9 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    if ( colindex < (colstoskip-1) )
 		continue;
 
-	    pos.x = x;
-	    pos.y = y;
-	    pos.z = z;
+            pos.x_ = x;
+            pos.y_ = y;
+            pos.z_ = z;
 	}
 	else
 	{
@@ -1258,7 +1258,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 
 	    if ( colindex < (colstoskip-1) )
 		continue;
-	    pos.z = (zidx==65535) ? mUdf(float) : zsd.atIndex( zidx );
+            pos.z_ = (zidx==65535) ? mUdf(float) : zsd.atIndex( zidx );
 	}
 
 	if ( readcolrange_ )
@@ -1279,8 +1279,8 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    return false;
 	}
 
-	if ( !Math::IsNormalNumber(pos.z) || !Math::IsNormalNumber(pos.x) ||
-	     !Math::IsNormalNumber(pos.y) )
+        if ( !Math::IsNormalNumber(pos.z_) || !Math::IsNormalNumber(pos.x_) ||
+             !Math::IsNormalNumber(pos.y_) )
 	    continue;
 
 	if ( surface_ )
@@ -1296,7 +1296,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	    {
 		int i, j;
 		if ( getIndices(myrc,i,j) )
-		    arr_->set( i, j, float(pos.z) );
+                    arr_->set( i, j, float(pos.z_) );
 	    }
 	    else
 		surface_->setPos( myrc.toInt64(), pos, false );
@@ -1306,7 +1306,7 @@ bool dgbSurfaceReader::readVersion3Row( od_istream& strm, int firstcol,
 	{
 	    cube_->set( readrowrange_->nearestIndex(rc.row()),
 			readcolrange_->nearestIndex(rc.col()),
-			0, float(pos.z) );
+                        0, float(pos.z_) );
 	}
 
 	didread = true;
@@ -1984,13 +1984,13 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 	const PosID posid(  surface_.id(), RowCol(row,col) );
 	Coord3 pos = surface_.getPos( posid );
 	if ( hor && pos.isDefined() )
-	    pos.z += shift_;
+            pos.z_ += shift_;
 
 	if ( colcoords.isEmpty() && !pos.isDefined() )
 	    continue;
 
-	if ( !mIsUdf(pos.z) )
-	    zrange_.include( (float) pos.z, false );
+        if ( !mIsUdf(pos.z_) )
+            zrange_.include( (float) pos.z_, false );
 
 	if ( colcoords.isEmpty() )
 	    firstcol = col;
@@ -2028,14 +2028,14 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 	    for ( int idx=0; idx<colcoords.size(); idx++ )
 	    {
 		const Coord3 pos = colcoords[idx];
-		if ( Values::isUdf(pos.z) )
+                if ( Values::isUdf(pos.z_) )
 		    continue;
 
 		if ( isset )
-		    rg.include( pos.z );
+                    rg.include( pos.z_ );
 		else
 		{
-                    rg.start_ = rg.stop_ = pos.z;
+                    rg.start_ = rg.stop_ = pos.z_;
 		    isset = true;
 		}
 	    }
@@ -2056,8 +2056,8 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 	    const Coord3 pos = colcoords[idx];
 	    if ( writeonlyz_ )
 	    {
-		const int index = mIsUdf(pos.z)
-		    ? 0xFFFF : sd.nearestIndex(pos.z);
+                const int index = mIsUdf(pos.z_)
+                                  ? 0xFFFF : sd.nearestIndex(pos.z_);
 
 		if ( !writeInt16( strm, mCast(unsigned short,index),
 			          idx!=colcoords.size()-1 ? sEOLTab() : sEOL()))
@@ -2068,9 +2068,9 @@ bool dgbSurfaceWriter::writeRow( od_ostream& strm )
 	    }
 	    else
 	    {
-		if ( !writeDouble( strm, pos.x, sTab()) ||
-		     !writeDouble( strm, pos.y, sTab()) ||
-		     !writeDouble( strm, pos.z,
+                if ( !writeDouble( strm, pos.x_, sTab()) ||
+                     !writeDouble( strm, pos.y_, sTab()) ||
+                     !writeDouble( strm, pos.z_,
 			          idx!=colcoords.size()-1 ? sEOLTab() : sEOL()))
 		{
 		    msg_ = sMsgWriteError();

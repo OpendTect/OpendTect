@@ -132,8 +132,8 @@ bool uiConvPosAscIO::getData( Coord& crd,
     else if ( isIC() )
     {
 	const BinID bid = getBinID( 0, 1, udfval_ );
-	crd.x = bid.inl();
-	crd.y = bid.crl();
+        crd.x_ = bid.inl();
+        crd.y_ = bid.crl();
     }
     else if ( isLL() )
 	crd = getPos( 0, 1, udfval_, true, outcrs );
@@ -582,8 +582,8 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 
     while ( aio.getData(crd,outcrs) )
     {
-	const double firstinp = crd.x;
-	const double secondinp = crd.y;
+        const double firstinp = crd.x_;
+        const double secondinp = crd.y_;
 
 	if ( fromdatatype == uiConvertPos::IC )
 	{
@@ -633,11 +633,11 @@ void uiFileConvGroup::convButPushCB( CallBacker* )
 	if ( addcol )
 	{
 	    if ( convtoxy )
-		ostream_->add( outcrd.x ).add( od_tab ).add( outcrd.y )
+                ostream_->add( outcrd.x_ ).add( od_tab ).add( outcrd.y_ )
 							    .add( od_tab );
 
 	    if ( convtoll )
-		ostream_->add( outll.y ).add( od_tab ).add( outll.x )
+                ostream_->add( outll.y_ ).add( od_tab ).add( outll.x_ )
 							    .add( od_tab );
 
 	    if ( convtoic )

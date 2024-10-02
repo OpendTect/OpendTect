@@ -52,23 +52,23 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
     const StepInterval<int> rowrange = rowRange();
     const StepInterval<int> colrange = colRange();
 
-    int prevrowidx = rowrange.getIndex( param.x );
+    int prevrowidx = rowrange.getIndex( param.x_ );
     if ( prevrowidx<0 || prevrowidx>nrRows()-1 )
 	return Coord3::udf();
     else if ( prevrowidx>0 && prevrowidx==nrRows()-1 )
     {
-	if ( rowrange.atIndex(prevrowidx)>=param.x )
+        if ( rowrange.atIndex(prevrowidx)>=param.x_ )
 	    prevrowidx--;
 	else
 	    return Coord3::udf();
     }
 
-    int prevcolidx = colrange.getIndex(param.y);
+    int prevcolidx = colrange.getIndex(param.y_);
     if ( prevcolidx<0 || prevcolidx>nrCols()-1 )
 	return Coord3::udf();
     else if ( prevcolidx>0 && prevcolidx==nrCols()-1 )
     {
-	if ( colrange.atIndex(prevcolidx)>=param.y )
+        if ( colrange.atIndex(prevcolidx)>=param.y_ )
 	    prevcolidx--;
 	else
 	    return Coord3::udf();
@@ -92,9 +92,9 @@ Coord3 BinIDSurface::computePosition( const Coord& param ) const
     const bool udef10 = mIsUdf( depth10 );
     const bool udef11 = mIsUdf( depth11 );
 
-    const float u = rowrange.getfIndex(param.x)-prevrowidx;
+    const float u = rowrange.getfIndex(param.x_)-prevrowidx;
     const float one_minus_u = 1-u;
-    const float v = colrange.getfIndex(param.y)-prevcolidx;
+    const float v = colrange.getfIndex(param.y_)-prevcolidx;
     const float one_minus_v = 1-v;
 
     if ( mIsZero( u, 1e-3 ) )
@@ -196,16 +196,16 @@ Interval<float> BinIDSurface::zRange( Coord p1, Coord p2 ) const
 	for ( int col=crg.start_; col<=crg.stop_; col+=crg.step_ )
 	{
 	    const Coord3 pos = getKnot( RowCol( row, col ) );
-	    if ( !mIsUdf( pos ) && !mIsUdf( pos.z ) )
+            if ( !mIsUdf( pos ) && !mIsUdf( pos.z_ ) )
 	    {
 
 		if ( res.isUdf() )
 		{
-		    res.start_ = pos.z;
-		    res.stop_ = pos.z;
+                    res.start_ = pos.z_;
+                    res.stop_ = pos.z_;
 		}
 		else
-		    res.include( pos.z );
+                    res.include( pos.z_ );
 	    }
 	}
     }
@@ -218,7 +218,7 @@ Coord3 BinIDSurface::lineSegmentIntersection( Coord3 start, Coord3 end,
 {
     Coord3 res = Coord3::udf();
 
-    const Interval<float> zrg( start.z-zshift, end.z-zshift );
+    const Interval<float> zrg( start.z_-zshift, end.z_-zshift );
     if ( !zRange().includes( zrg ) )
 	return res;
 
@@ -234,13 +234,13 @@ Coord3 BinIDSurface::lineSegmentIntersection( Coord3 start, Coord3 end,
 	for (int col=crg.start_; col<=crg.stop_; col+=crg.step_ )
 	{
 	    Coord3 v00 = getKnot( RowCol( row, col), true );
-	    v00.z += zshift;
+            v00.z_ += zshift;
 	    Coord3 v01 = getKnot( RowCol( row, col+crg.step_ ), true );
-	    v01.z += zshift;
+            v01.z_ += zshift;
 	    Coord3 v11 = getKnot( BinID( row+rrg.step_, col+crg.step_ ), true );
-	    v11.z += zshift;
+            v11.z_ += zshift;
 	    Coord3 v10 = getKnot( BinID( row+rrg.step_, col ), true );
-	    v10.z += zshift;
+            v10.z_ += zshift;
 	    res = lineSegmentIntersectsTriangle( start, end, v00, v01, v11 );
 	    if ( !mIsUdf(res) )
 		return res;
@@ -314,7 +314,7 @@ void BinIDSurface::getPosIDs( TypeSet<GeomPosID>& pids, bool remudf ) const
 bool BinIDSurface::insertRow(int row, int nrtoinsert )
 {
     mInsertStart( rowidx, row, nrRows() );
-    mCloneRowVariable( float, depths_, computePosition(param).z, mUdf(float) )
+    mCloneRowVariable( float, depths_, computePosition(param).z_, mUdf(float) )
     return true;
 }
 
@@ -322,7 +322,7 @@ bool BinIDSurface::insertRow(int row, int nrtoinsert )
 bool BinIDSurface::insertCol(int col, int nrtoinsert )
 {
     mInsertStart( colidx, col, nrCols() );
-    mCloneColVariable( float, depths_, computePosition(param).z, mUdf(float) )
+    mCloneColVariable( float, depths_, computePosition(param).z_, mUdf(float) )
     return true;
 }
 
@@ -565,8 +565,8 @@ RowCol BinIDSurface::getNearestKnotRowCol( Coord pos ) const
     const StepInterval<int> rrg = rowRange();
     const StepInterval<int> crg = colRange();
 
-    return RowCol( rrg.snap( spos.x, OD::SnapDownward ),
-		   crg.snap( spos.y, OD::SnapDownward ) );
+    return RowCol( rrg.snap( spos.x_, OD::SnapDownward ),
+                   crg.snap( spos.y_, OD::SnapDownward ) );
 }
 
 
@@ -626,7 +626,7 @@ Coord3 BinIDSurface::getKnot( const RowCol& rc, bool interpolifudf ) const
     if ( !diagnr && !lateralnr ) //no neighbor defined, do nothing.
 	return res;
 
-    res.z = (lateralsum+diagsum*0.7071) / (lateralnr + diagnr * 0.7071);
+    res.z_ = (lateralsum+diagsum*0.7071) / (lateralnr + diagnr * 0.7071);
 
     return res;
 }
@@ -642,7 +642,7 @@ void BinIDSurface::_setKnot( int idx, const Coord3& np )
 
     const int row = idx / depths_->info().getSize(1);
     const int col = idx % depths_->info().getSize(1);
-    depths_->set( row, col, (float) np.z );
+    depths_->set( row, col, (float) np.z_ );
 }
 
 

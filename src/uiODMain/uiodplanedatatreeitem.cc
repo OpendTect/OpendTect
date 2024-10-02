@@ -436,7 +436,7 @@ void uiODPlaneDataTreeItem::createMenu( MenuHandler* mh, bool istb )
     ConstRefMan<visSurvey::PlaneDataDisplay> pdd = getDisplay();
     const Coord3 pickedpos = uimh->getPickedPos();
     TrcKey tk( SI().transform(pickedpos) );
-    float zposf = mCast( float, pickedpos.z );
+    float zposf = mCast( float, pickedpos.z_ );
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zposf );
     const int zpos = mNINT32( zposf * SI().zDomain().userFactor() );
     const TrcKey& csttk = const_cast<const TrcKey&>( tk );
@@ -509,7 +509,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 
     const Coord3 pickedpos = uimh->getPickedPos();
     TrcKey tk( SI().transform(pickedpos) );
-    float zpos = mCast( float, pickedpos.z );
+    float zpos = mCast( float, pickedpos.z_ );
     snapToTkzs( pdd->getTrcKeyZSampling(), tk, zpos );
     const TrcKey& csttk = const_cast<const TrcKey&>( tk );
 

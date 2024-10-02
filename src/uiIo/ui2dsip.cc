@@ -176,8 +176,8 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
 
     Coord c0( dlg->xrgfld_->getDValue(0), dlg->yrgfld_->getDValue(0) );
     Coord c1( dlg->xrgfld_->getDValue(1), dlg->yrgfld_->getDValue(1) );
-    if ( c0.x > c1.x ) Swap( c0.x, c1.x );
-    if ( c0.y > c1.y ) Swap( c0.y, c1.y );
+    if ( c0.x_ > c1.x_ ) Swap( c0.x_, c1.x_ );
+    if ( c0.y_ > c1.y_ ) Swap( c0.y_, c1.y_ );
     const double grdsp = dlg->grdspfld_->getDValue();
     if ( !uiSurvInfoProvider::getRanges(cs,crd,c0,c1,grdsp) )
 	return false;
@@ -259,31 +259,31 @@ static void ensureMinSize( int minnum, int& nrnodes, double& originxy,
 bool uiSurvInfoProvider::getRanges( TrcKeyZSampling& cs, Coord crd[3],
 					   Coord c0, Coord c1, double grdsp )
 {
-    const Coord d( c1.x - c0.x, c1.y - c0.y );
-    int nrinl = (int)(d.x / grdsp + 1.5);
-    int nrcrl = (int)(d.y / grdsp + 1.5);
+    const Coord d( c1.x_ - c0.x_, c1.y_ - c0.y_ );
+    int nrinl = (int)(d.x_ / grdsp + 1.5);
+    int nrcrl = (int)(d.y_ / grdsp + 1.5);
     if ( nrinl < 2 && nrcrl < 2 )
 	mErrRet(od_static_tr("getRanges",
 			"Coordinate ranges are less than one trace distance"))
 
-    ensureMinSize( mMinSize, nrinl, c0.x, grdsp );
-    ensureMinSize( mMinSize, nrcrl, c0.y, grdsp );
+                ensureMinSize( mMinSize, nrinl, c0.x_, grdsp );
+    ensureMinSize( mMinSize, nrcrl, c0.y_, grdsp );
     if ( nrinl < nrcrl )
-	ensureMinSize( nrcrl/10, nrinl, c0.x, grdsp );
+        ensureMinSize( nrcrl/10, nrinl, c0.x_, grdsp );
     else
-	ensureMinSize( nrinl/10, nrcrl, c0.y, grdsp );
+        ensureMinSize( nrinl/10, nrcrl, c0.y_, grdsp );
 
     cs.hsamp_.start_.inl() = cs.hsamp_.start_.crl() = 10000;
     cs.hsamp_.step_.inl() = cs.hsamp_.step_.crl() = 1;
     cs.hsamp_.stop_.inl() = 10000 + nrinl - 1;
     cs.hsamp_.stop_.crl() = 10000 + nrcrl -1;
 
-    Coord cmax( c0.x + grdsp*(nrinl-1), c0.y + grdsp*(nrcrl-1) );
-    if ( cmax.x < c0.x ) Swap( cmax.x, c0.x );
-    if ( cmax.y < c0.y ) Swap( cmax.y, c0.y );
+    Coord cmax( c0.x_ + grdsp*(nrinl-1), c0.y_ + grdsp*(nrcrl-1) );
+    if ( cmax.x_ < c0.x_ ) Swap( cmax.x_, c0.x_ );
+    if ( cmax.y_ < c0.y_ ) Swap( cmax.y_, c0.y_ );
     crd[0] = c0;
     crd[1] = cmax;
-    crd[2] = Coord( c0.x, cmax.y );
+    crd[2] = Coord( c0.x_, cmax.y_ );
     return true;
 }
 
@@ -430,8 +430,8 @@ bool uiNavSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
 	const TypeSet<PosInfo::Line2DPos> l2dpos = geom2d->data().positions();
 	for ( int idy=0; idy<l2dpos.size(); idy++ )
 	{
-	    xrg.include( l2dpos[idy].coord_.x, false );
-	    yrg.include( l2dpos[idy].coord_.y, false );
+            xrg.include( l2dpos[idy].coord_.x_, false );
+            yrg.include( l2dpos[idy].coord_.y_, false );
 	}
     }
 

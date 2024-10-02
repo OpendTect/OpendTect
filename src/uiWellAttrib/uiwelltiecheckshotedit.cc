@@ -392,7 +392,7 @@ void WellTie::uiCheckShotEdit::drawPoints()
 	{
 	    const float val = d2t_->value( idx );
 	    const float dah = (float) wd_.track().getPos(
-						    (d2t_->dah( idx ))*zfac ).z;
+                                  (d2t_->dah( idx ))*zfac ).z_;
 	    pts += uiPoint( ld.xax_.getPix(val), ld.yax_.getPix(dah) );
 	}
 

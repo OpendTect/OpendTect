@@ -327,8 +327,8 @@ const char* Gather::dimName( bool dim0 ) const
 
 void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 {
-    par.set( "X", coord_.x );
-    par.set( "Y", coord_.y );
+    par.set( "X", coord_.x_ );
+    par.set( "Y", coord_.y_ );
     const float z = (float) posData().position( false, idim1 ) *
 		    zDomain().def_.userFactor();
 

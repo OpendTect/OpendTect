@@ -180,7 +180,7 @@ bool StoredFunctionSource::store( const MultiID& velid )
 	const BinID bid = veldata_.getBinID(arrpos);
 
 	Coord3 pos;
-	pos.z = vals[0];
+        pos.z_ = vals[0];
 	TrcKey tk( bid );
 	if ( is2d )
 	    tk.setIs2D();
@@ -253,7 +253,7 @@ bool StoredFunctionSource::setFrom( const MultiID& velid )
 	    tk.setFrom( pspick.pos() );
 	}
 
-	vals[0] = float (pspick.pos().z);
+        vals[0] = float (pspick.pos().z_);
 	vals[1] = pspick.dir().radius;
 	veldata_.add( tk.binID(), vals );
     }

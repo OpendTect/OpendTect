@@ -106,7 +106,7 @@ bool uiHorGeom2Attr::acceptOK( CallBacker* cb )
 	if ( !hor_.geometry().isNodeOK(pid) )
 	    continue;
 
-	const float zval = (float) ( hor_.getPos(pid).z * zfac );
+        const float zval = (float) ( hor_.getPos(pid).z_ * zfac );
 	hor_.auxdata.setAuxDataVal( auxidx, pid, zval );
     }
     delete iter;
@@ -217,7 +217,7 @@ int nextStep() override
 	if ( rid < 0 )
 	{
 	    if ( !isdelta_ )
-		crd.z = mUdf(float);
+                crd.z_ = mUdf(float);
 	}
 	else
 	{
@@ -226,14 +226,14 @@ int nextStep() override
 		newz = 0;
 
 	    if ( mIsUdf(newz) )
-		crd.z = newz;
+                crd.z_ = newz;
 	    else
 	    {
 		newz *= zfac_;
 		if ( isdelta_ )
-		    crd.z += newz;
+                    crd.z_ += newz;
 		else
-		    crd.z = newz;
+                    crd.z_ = newz;
 	    }
 	}
 
@@ -241,7 +241,7 @@ int nextStep() override
 	const int crlidx = hortks_.crlIdx( bid.crl() );
 	if ( !horarray_->info().validPos(inlidx,crlidx) )
 	    continue;
-	horarray_->set( inlidx, crlidx, mCast(float,crd.z) );
+        horarray_->set( inlidx, crlidx, mCast(float,crd.z_) );
     }
     stepnr_++;
     return MoreToDo();

@@ -782,8 +782,8 @@ double SeisFlatDataPack::getAltDim0Value( int ikey, int i0 ) const
 						getCoord(i0,0)).inl();
 	case SeisTrcInfo::BinIDCrl:	return SI().transform(
 						getCoord(i0,0)).crl();
-	case SeisTrcInfo::CoordX:	return getCoord(i0,0).x;
-	case SeisTrcInfo::CoordY:	return getCoord(i0,0).y;
+        case SeisTrcInfo::CoordX:	return getCoord(i0,0).x_;
+        case SeisTrcInfo::CoordY:	return getCoord(i0,0).y_;
 	case SeisTrcInfo::TrcNr:	return getPath()[i0].trcNr();
 	case SeisTrcInfo::RefNr:	return source_->getRefNr(i0);
 	default:			return posdata_.position(true,i0);
@@ -794,9 +794,9 @@ double SeisFlatDataPack::getAltDim0Value( int ikey, int i0 ) const
 void SeisFlatDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     const Coord3 crd = getCoord( i0, i1 );
-    iop.set( mKeyCoordX, crd.x );
-    iop.set( mKeyCoordY, crd.y );
-    iop.set( sKey::ZCoord(), (int)(crd.z*zDomain().userFactor()) );
+    iop.set( mKeyCoordX, crd.x_ );
+    iop.set( mKeyCoordY, crd.y_ );
+    iop.set( sKey::ZCoord(), (int)(crd.z_*zDomain().userFactor()) );
     mDynamicCastGet(RegularFlatDataPack*,rseisdp,
 					   const_cast<SeisFlatDataPack*>(this));
     iop.setYN( FlatView::Viewer::sKeyIsZSlice(),
@@ -909,7 +909,7 @@ Coord3 RegularFlatDataPack::getCoord( int i0, int i1 ) const
     const int trcidx = isVertical() ? (hassingletrace_ ? 0 : i0)
 				    : i0*sampling_.nrTrcs()+i1;
     const Coord crd( Survey::GM().toCoord( getTrcKey(trcidx) ) );
-    return Coord3( crd.x, crd.y,
+    return Coord3( crd.x_, crd.y_,
 		   sampling_.zsamp_.atIndex(isVertical() ? i1 : 0) );
 }
 

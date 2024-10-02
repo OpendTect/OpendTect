@@ -174,13 +174,13 @@ void uiMultiMapperRangeEditWin::mouseMoveCB( CallBacker* cb )
 	uiHistogramDisplay& disp = mapperrgeditors_[idx]->getDisplay();
 	if ( &disp.getMouseEventHandler() == meh )
 	{
-	    val = disp.getFuncXY( pos.x, false );
+            val = disp.getFuncXY( pos.x_, false );
 	    break;
 	}
     }
 
-    uiString str = tr("Value / Count:  %1 / %2").arg(toUiString(val.x,4)).
-		   arg(toUiString(val.y,0));
+    uiString str = tr("Value / Count:  %1 / %2").arg(toUiString(val.x_,4)).
+                   arg(toUiString(val.y_,0));
     toStatusBar( str );
 }
 

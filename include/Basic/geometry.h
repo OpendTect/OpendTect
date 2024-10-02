@@ -24,6 +24,7 @@ mClass(Basic) Point2D
 {
 public:
 				Point2D(T xx=0,T yy=0);
+				Point2D(const Point2D<T>&);
     virtual			~Point2D();
 
     template <class TT>
@@ -65,7 +66,10 @@ public:
 
     T				x_;
     T				y_;
+
+    mDeprecated("Use x_")
     T&				x;
+    mDeprecated("Use y_")
     T&				y;
 };
 
@@ -244,7 +248,7 @@ public:
 			: Rectangle<T>(tl,br)		{}
 
     inline bool		isOutside( const Point2D<T>& p, T eps ) const
-			{ return xOutside(p.x,eps) || yOutside(p.y,eps); }
+			{ return xOutside(p.x_,eps) || yOutside(p.y_,eps); }
     inline bool		isInside(const Point2D<T>&,T eps) const;
     inline bool		isOnSide(const Point2D<T>& p,T eps) const;
 
@@ -279,6 +283,8 @@ typedef PosRectangle<float> RectF;
 typedef PosRectangle<double> RectD;
 
 
+mStartAllowDeprecatedSection
+
 template <class T> inline
 Point2D<T>::Point2D( T xx, T yy )
     : x_(xx)
@@ -286,6 +292,17 @@ Point2D<T>::Point2D( T xx, T yy )
     , x(x_)
     , y(y_)
 {}
+
+
+template <class T> inline
+Point2D<T>::Point2D( const Point2D<T>& pt )
+    : x_(pt.x_)
+    , y_(pt.y_)
+    , x(x_)
+    , y(y_)
+{}
+
+mStopAllowDeprecatedSection
 
 
 template <class T> inline

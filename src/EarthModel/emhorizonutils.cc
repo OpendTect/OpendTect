@@ -167,7 +167,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
 
 	const Coord3 crd = horizon->getPos( pid );
 	const BinID bid = SI().transform(crd);
-	res->add( bid, (float) crd.z );
+        res->add( bid, (float) crd.z_ );
 	++pm;
     }
 

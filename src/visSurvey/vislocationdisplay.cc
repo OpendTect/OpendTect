@@ -290,7 +290,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    const Pick::Location& loc = set_->get( waitsfordirectionid_ );
 	    Coord3 dir = newpos - loc.pos();
 	    const float zscale = scene_ ? scene_->getZScale(): SI().zScale();
-	    dir.z *= -zscale; //convert to right dir-domain
+            dir.z_ *= -zscale; //convert to right dir-domain
 	    if ( dir.sqAbs()>=0 )
 	    {
 		set_->setDir( waitsfordirectionid_,
@@ -434,7 +434,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		{
 		    const Sphere dir = normal.isDefined()
 			? cartesian2Spherical(
-				Coord3(normal.y,-normal.x,normal.z), true)
+                              Coord3(normal.y_,-normal.x_,normal.z_), true)
 			: Sphere( 1, 0, 0 );
 
 		    if ( addPick( newpos, dir, true ) )
@@ -491,8 +491,8 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
     newpos = evi.worldpickedpos;
     if ( datatransform_ )
     {
-	newpos.z = datatransform_->transformBack( newpos );
-	if ( mIsUdf(newpos.z) )
+        newpos.z_ = datatransform_->transformBack( newpos );
+        if ( mIsUdf(newpos.z_) )
 	    return false;
     }
 

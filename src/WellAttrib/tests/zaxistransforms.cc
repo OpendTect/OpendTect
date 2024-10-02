@@ -287,8 +287,8 @@ bool testHorizon3DOutput( RefMan<EM::EMObject> emobj, int survidx,
     if ( !hor )
 	return false;
 
-    const float z1 = hor->getPos(mHorizon3DBinID_1.toInt64()).z;
-    const float z2 = hor->getPos(mHorizon3DBinID_2.toInt64()).z;
+    const float z1 = hor->getPos(mHorizon3DBinID_1.toInt64()).z_;
+    const float z2 = hor->getPos(mHorizon3DBinID_2.toInt64()).z_;
     const float* zvals = zvalues_hor3d[survidx][zatfidx];
 
     mRunStandardTest( (mIsEqual(z1,zvals[0],mEps) &&
@@ -317,8 +317,8 @@ bool testFltOutput( RefMan<EM::EMObject> emobj, int survidx, int zatfidx )
     const Coord3 lastcrd = stick->getCoordAtIndex( stick->size()-1 );
 
     const float* zvals = zvalues_flt[survidx][zatfidx];
-    mRunStandardTest( (mIsEqual(firstcrd.z,zvals[0],mEps) &&
-	mIsEqual(lastcrd.z,zvals[1],mEps)),mMsg("Fault 3D position testing") );
+    mRunStandardTest( (mIsEqual(firstcrd.z_,zvals[0],mEps) &&
+                      mIsEqual(lastcrd.z_,zvals[1],mEps)),mMsg("Fault 3D position testing") );
 
     return true;
 }

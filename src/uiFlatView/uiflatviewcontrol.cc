@@ -163,8 +163,8 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
 	else
 	{
 	    const double hwdth = sz.width()/2, hhght = sz.height()/2;
-	    wr = uiWorldRect( mousepos.x-hwdth, mousepos.y-hhght,
-			      mousepos.x+hwdth, mousepos.y+hhght );
+            wr = uiWorldRect( mousepos.x_-hwdth, mousepos.y_-hhght,
+                              mousepos.x_+hwdth, mousepos.y_+hhght );
 	    vwr.setBoundingRect(uiWorld2Ui(vwr.getViewRect(),wr).transform(bb));
 	}
 	wr = getZoomOrPanRect( wr.centre(), wr.size(), wr, bb );
@@ -194,13 +194,13 @@ uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> mousepos,
     const double rwdth = newsz.width() / 2.;
     const double thght = newsz.height() / 2.;
 
-    if ( mousepos.x - lwdth < bb.left() )      mousepos.x = bb.left() + lwdth;
-    if ( mousepos.y - bhght < bb.bottom() )    mousepos.y = bb.bottom() + bhght;
-    if ( mousepos.x + rwdth > bb.right() )     mousepos.x = bb.right() - rwdth;
-    if ( mousepos.y + thght > bb.top() )       mousepos.y = bb.top() - thght;
+    if ( mousepos.x_ - lwdth < bb.left() )      mousepos.x_ = bb.left() + lwdth;
+    if ( mousepos.y_ - bhght < bb.bottom() )    mousepos.y_ = bb.bottom() + bhght;
+    if ( mousepos.x_ + rwdth > bb.right() )     mousepos.x_ = bb.right() - rwdth;
+    if ( mousepos.y_ + thght > bb.top() )       mousepos.y_ = bb.top() - thght;
 
-    return uiWorldRect( mousepos.x - lwdth, mousepos.y + thght,
-			mousepos.x + rwdth, mousepos.y - bhght );
+    return uiWorldRect( mousepos.x_ - lwdth, mousepos.y_ + thght,
+                        mousepos.x_ + rwdth, mousepos.y_ - bhght );
 }
 
 

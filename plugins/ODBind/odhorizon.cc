@@ -289,8 +289,8 @@ void odHorizon3D::getXY( hAllocator allocator )
 	    const int trc = tk_.traceID( ydx );
 	    const BinID bid( line, trc );
 	    const Coord pos = tk_.toCoord( bid );
-	    *xdata++ = pos.x;
-	    *ydata++ = pos.y;
+            *xdata++ = pos.x_;
+            *ydata++ = pos.y_;
 	}
     }
 }
@@ -672,8 +672,8 @@ void odHorizon2D::getXY( hAllocator allocator, int lineid )
 	const int trcnr = trcrg.atIndex( idx );
 	tk.setTrcNr( trcnr );
 	const Coord pos = hor_->getCoord( tk );
-	*xdata++ = pos.x;
-	*ydata++ = pos.y;
+        *xdata++ = pos.x_;
+        *ydata++ = pos.y_;
 	*trc++ = trcnr;
     }
 }

@@ -225,23 +225,23 @@ Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
     const StepInterval<int> rowrange = rowRange();
     const StepInterval<int> colrange = colRange();
 
-    int prevrowidx = rowrange.getIndex(params.x);
+    int prevrowidx = rowrange.getIndex(params.x_);
     if ( prevrowidx<0 || prevrowidx>nrRows()-1 )
 	return Coord3::udf();
     else if ( prevrowidx==nrRows()-1 )
     {
-	if ( rowrange.atIndex(prevrowidx)<=params.x )
+        if ( rowrange.atIndex(prevrowidx)<=params.x_ )
 	    prevrowidx--;
 	else
 	    return Coord3::udf();
     }
 
-    int prevcolidx = colrange.getIndex(params.y);
+    int prevcolidx = colrange.getIndex(params.y_);
     if ( prevcolidx<0 || prevcolidx>nrCols()-1 )
 	return Coord3::udf();
     else if ( prevcolidx==nrCols()-1 )
     {
-	if ( colrange.atIndex(prevcolidx)<=params.y )
+        if ( colrange.atIndex(prevcolidx)<=params.y_ )
 	    prevcolidx--;
 	else
 	    return Coord3::udf();
@@ -253,8 +253,8 @@ Coord3 CubicBezierSurface::computePosition( const Coord& params ) const
     const CubicBezierSurfacePatch* patch = getPatch(RowCol(prevrow,prevcol));
 
     if ( !patch ) return Coord3::udf();
-    return patch->computePos( (float) ((params.x - prevrow)/rowrange.step_),
-                              (float) ((params.y - prevcol)/colrange.step_));
+    return patch->computePos( (float) ((params.x_ - prevrow)/rowrange.step_),
+                              (float) ((params.y_ - prevcol)/colrange.step_));
 }
 
 
@@ -288,9 +288,9 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 	    bbox = patch->computeBoundingBox();
 	    if ( !bbox.isSet() ) continue;
 
-	    center.x = bbox.getRange(0).center();
-	    center.y = bbox.getRange(1).center();
-	    center.z = bbox.getRange(2).center();
+            center.x_ = bbox.getRange(0).center();
+            center.y_ = bbox.getRange(1).center();
+            center.z_ = bbox.getRange(2).center();
 
 	    closestpointonline = line.getPoint( line.closestPoint(center) );
 	    if ( !bbox.includes(closestpointonline,false) )
@@ -303,7 +303,7 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 	    {
 		dummypatch = patch->clone();
 		for ( int idx=dummypatch->nrPos()-1; idx>=0; idx-- )
-		    dummypatch->pos[idx].z *= zfactor;
+                    dummypatch->pos[idx].z_ *= zfactor;
 
 		patch = dummypatch;
 
@@ -311,12 +311,12 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 		intersectionline.gamma_ *= zfactor;
 	    }
 
-	    float u = (float) res.x;
-	    float v = (float) res.y;
+            float u = (float) res.x_;
+            float v = (float) res.y_;
 	    if ( !patch->intersectWithLine( intersectionline, u, v, 1 ) )
 		continue;
 
-	    res.x = u; res.y=v; return true;
+            res.x_ = u; res.y_=v; return true;
 	}
     }
 
@@ -734,7 +734,7 @@ ParametricCurve* CubicBezierSurface::createRowCurve( float row,
     for ( int idx=outputrange.atIndex(2); idx<=outputrange.stop_;
           idx+=outputrange.step_ )
     {
-	param.y = idx;
+        param.y_ = idx;
 	if ( !res->setPosition(idx, computePosition(param)) )
 	{ delete res; return 0; }
     }
@@ -772,7 +772,7 @@ ParametricCurve* CubicBezierSurface::createColCurve( float col,
     for ( int idx=outputrange.atIndex(2); idx<=outputrange.stop_;
           idx+=outputrange.step_ )
     {
-	param.x = idx;
+        param.x_ = idx;
 	if ( !res->setPosition(idx,computePosition(param)) )
 	{ delete res; return 0; }
     }

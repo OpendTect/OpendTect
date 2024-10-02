@@ -216,7 +216,7 @@ static bool isSameKnot( Coord3 pos1, Coord3 pos2 )
     if ( pos1.Coord::distTo(pos2) > 0.1 * SI().crlDistance() )
 	return false;
 
-    return fabs(pos1.z -pos2.z) < 0.1 * SI().zStep();
+    return fabs(pos1.z_ -pos2.z_) < 0.1 * SI().zStep();
 }
 
 

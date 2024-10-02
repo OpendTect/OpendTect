@@ -92,7 +92,7 @@ float WellHorIntersectFinder::intersectPosHor( const Coord3& pos ) const
 	const Coord3& horpos = hor3d_->getPos( subid );
 	const BinID horbid = SI().transform( horpos );
 	if ( bid == horbid )
-	    return (float)horpos.z;
+            return (float)horpos.z_;
     }
     else if ( hor2d_ )
 	return hor2d_->getZValue( pos );

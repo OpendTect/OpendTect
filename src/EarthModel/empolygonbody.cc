@@ -197,9 +197,9 @@ bool PolygonBody::getBodyRange( TrcKeyZSampling& cs )
      {
 	 cs.hsamp_.include( SI().transform(pts[idx]) );
 	 if ( idx )
-	     cs.zsamp_.include( (float) pts[idx].z );
+             cs.zsamp_.include( (float) pts[idx].z_ );
 	 else
-	     cs.zsamp_.start_ = cs.zsamp_.stop_ = (float) pts[idx].z;
+             cs.zsamp_.start_ = cs.zsamp_.stop_ = (float) pts[idx].z_;
      }
 
      return pts.size();

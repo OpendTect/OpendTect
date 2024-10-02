@@ -29,7 +29,7 @@ Coord SurveyGeometry::getEdgePoint( const Coord& from, const Coord& to )
     {
 	Line2 survbound( svert[idx], idx < 3 ? svert[idx+1] : svert[0] );
 	Coord pt = line.intersection( survbound );
-	if ( !mIsUdf(pt.x) && !mIsUdf(pt.y) )
+        if ( !mIsUdf(pt.x_) && !mIsUdf(pt.y_) )
 	    points += pt;
     }
 
@@ -54,15 +54,15 @@ Coord SurveyGeometry::getEdgePoint( const Coord& from, const Coord& to )
     }
 
     // Two points: will choose the one in the direction from->to
-    double linexdiff = to.x - from.x;
+    double linexdiff = to.x_ - from.x_;
     if ( mIsZero(linexdiff,mDefEps) )
     {
-	double lineydiff = to.y - from.y;
-	double ptsydiff = points[1].y - points[0].y;
+        double lineydiff = to.y_ - from.y_;
+        double ptsydiff = points[1].y_ - points[0].y_;
 	return lineydiff * ptsydiff > 0 ? points[1] : points[0];
     }
 
-    double ptsxdiff = points[1].x - points[0].x;
+        double ptsxdiff = points[1].x_ - points[0].x_;
     return linexdiff * ptsxdiff > 0 ? points[1] : points[0];
 }
 

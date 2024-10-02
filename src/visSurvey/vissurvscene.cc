@@ -479,7 +479,7 @@ float Scene::getFixedZStretch() const
 float Scene::getTempZStretch() const
 {
     return tempzstretchtrans_
-	? mCast(float,tempzstretchtrans_->getScale().z)
+            ? mCast(float,tempzstretchtrans_->getScale().z_)
 	: 1.f;
 }
 
@@ -631,14 +631,14 @@ Coord3 Scene::getMousePos( bool displayspace ) const
 
     Coord3 res = xytmousepos_;
     if ( datatransform_ && !mousetrckey_.isUdf() )
-	res.z = datatransform_->transformTrcBack(
-	mousetrckey_, (float)xytmousepos_.z );
+        res.z_ = datatransform_->transformTrcBack(
+                     mousetrckey_, (float)xytmousepos_.z_ );
     return res;
 }
 
 
 TrcKeyValue Scene::getMousePos() const
-{ return TrcKeyValue(mousetrckey_,(float)getMousePos(false).z); }
+{ return TrcKeyValue(mousetrckey_,(float)getMousePos(false).z_); }
 
 
 BufferString Scene::getMousePosValue() const
@@ -861,7 +861,7 @@ void Scene::mouseCB( CallBacker* cb )
 	{
 	    if ( !xytmousepos_.isUdf() )
 		mousetrckey_ = TrcKey( SI().transform(
-				    Coord(xytmousepos_.x,xytmousepos_.y) ) );
+                                           Coord(xytmousepos_.x_,xytmousepos_.y_) ) );
 
 	    mouseposchange.trigger();
 	    return;
@@ -908,7 +908,7 @@ void Scene::mouseCB( CallBacker* cb )
 	    }
 	    if ( mousetrckey_.isUdf() )
 		mousetrckey_ = TrcKey( SI().transform(
-			Coord(xytmousepos_.x,xytmousepos_.y) ) );
+                                           Coord(xytmousepos_.x_,xytmousepos_.y_) ) );
 	}
     }
 
@@ -1054,7 +1054,7 @@ void Scene::setMarkerPos( const TrcKeyValue& trkv, const SceneID& sceneid )
 	displaypos = Coord3::udf();
 
     if ( datatransform_ && !trkv.tk_.isUdf() && !mIsUdf(trkv.val_) )
-        displaypos.z = datatransform_->transformTrc( trkv.tk_, trkv.val_ );
+        displaypos.z_ = datatransform_->transformTrc( trkv.tk_, trkv.val_ );
 
     const bool defined = displaypos.isDefined();
     if ( !defined )
@@ -1568,9 +1568,9 @@ Coord3 Scene::getTopBottomSurveyPos( const visBase::EventInfo& eventinfo,
 	return Coord3::udf();
 
     if ( inlcrlspace )
-	return Coord3( bid.inl(), bid.crl(), pos.z);
+        return Coord3( bid.inl(), bid.crl(), pos.z_);
 
-    return Coord3( s3dgeom->transform(bid), pos.z );
+    return Coord3( s3dgeom->transform(bid), pos.z_ );
 }
 
 void Scene::setMoreObjectsToDoHint( bool yn )

@@ -369,14 +369,14 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
 	if ( toinlcrltrans )
 	{
 	    mVisTrans::transform( toinlcrltrans, pos );
-	    dpsetpos.set( BinID(mNINT32(pos.x),mNINT32(pos.y)) );
-	    dpsetpos.z_ = pos.z;
+            dpsetpos.set( BinID(mNINT32(pos.x_),mNINT32(pos.y_)) );
+            dpsetpos.z_ = pos.z_;
 	}
 	else
 	{
 	    const BinID bid = SI().transform( pos );
 	    dpsetpos.set( bid );
-	    dpsetpos.z_ = pos.z;
+            dpsetpos.z_ = pos.z_;
 	}
 
 	DataPointSet::DataRow datarow( dpsetpos, 1 );

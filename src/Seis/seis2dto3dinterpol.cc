@@ -364,8 +364,8 @@ public:
 		}
 		const float dist2d = (float)pos2d.distTo(
 						refpos3d_[nearestidx].coord());
-                double topz = pos3d.z -refz_.start_;
-                double bottomz = refz_.stop_-pos3d.z;
+                double topz = pos3d.z_ -refz_.start_;
+                double bottomz = refz_.stop_-pos3d.z_;
 		if ( topz > tan( taperangle )*dist2d
 			&& bottomz > tan( taperangle )*dist2d )
 		    continue;

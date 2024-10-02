@@ -284,8 +284,8 @@ void odSeismic3D::getData( hAllocator allocator,
     {
 	const TrcKey trckey = dp->getTrcKey( idx );
 	const Coord pos = trckey.getCoord();
-	*xdata++ = pos.x;
-	*ydata++ = pos.y;
+        *xdata++ = pos.x_;
+        *ydata++ = pos.y_;
     }
 }
 

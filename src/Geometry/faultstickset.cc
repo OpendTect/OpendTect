@@ -86,7 +86,7 @@ const Coord3& FaultStick::getNormal() const
 	    if ( crldist < maxdist )
 		oncrl += maxdist - crldist;
 	    const int zdist =
-		mNINT32( fabs(locs_[idx].pos().z-locs_[idy].pos().z) /
+                    mNINT32( fabs(locs_[idx].pos().z_-locs_[idy].pos().z_) /
 		    fabs(SI().zStep()) );
 	    if ( zdist < maxdist )
 		ontms += maxdist - zdist;
@@ -440,11 +440,11 @@ static double pointToSegmentDist( const Coord3& point,
 \
     if ( zscale==MAXDOUBLE ) \
     { \
-	a0.x=0; a0.y=0; a1.x=0; a1.y=0; b0.x=0; b0.y=0; b1.x=0; b1.y=0; \
+	a0.x_=0; a0.y_=0; a1.x_=0; a1.y_=0; b0.x_=0; b0.y_=0; b1.x_=0; b1.y_=0;\
     } \
     else \
     { \
-	a0.z *= zscale; a1.z *= zscale; b0.z *= zscale; b1.z *= zscale; \
+	a0.z_ *= zscale; a1.z_ *= zscale; b0.z_ *= zscale; b1.z_ *= zscale; \
     } \
 
 double FaultStickSet::interStickDist( int sticknr1, int sticknr2,

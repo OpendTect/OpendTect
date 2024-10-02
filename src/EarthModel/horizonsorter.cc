@@ -301,10 +301,10 @@ int HorizonSorter::nextStep()
 
 		depths[idx] =
 		    (float) hor2d->getPos( geomids_[binid_.inl()],
-					   binid_.crl() ).z;
+                        binid_.crl() ).z_;
 	    }
 	    else
-		depths[idx] = (float) horizons_[idx]->getPos( subid ).z;
+                depths[idx] = (float) horizons_[idx]->getPos( subid ).z_;
 	}
 
 	for ( int idx=0; idx<nrhors; idx++ )

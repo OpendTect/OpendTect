@@ -304,7 +304,7 @@ void WellTie::uiTieView::zoomChg( CallBacker* )
 	    zrgstop = data_.wd_->d2TModel()->dah(sz-1);
 	}
 
-	zrgstop = (float) data_.wd_->track().getPos(zrgstop).z;
+        zrgstop = (float) data_.wd_->track().getPos(zrgstop).z_;
 
         zrg.start_ = zrgstart*mToFeetFactorF;
         zrg.stop_ = zrgstop*mToFeetFactorF;

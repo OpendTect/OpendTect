@@ -115,7 +115,7 @@ bool uiExportMute::writeAscii()
 		    convcoord = outcrs->convertFrom( coord, *syscrs );
 		// ostreams print doubles awfully
 		str.setEmpty();
-		str += convcoord.x; str += "\t"; str += convcoord.y;
+                str += convcoord.x_; str += "\t"; str += convcoord.y_;
 		strm << str;
 	    }
 

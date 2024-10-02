@@ -481,7 +481,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 
 	const TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
 
-	if ( cs.hsamp_.includes(nodebid) && cs.zsamp_.includes(nodepos.z,false))
+        if ( cs.hsamp_.includes(nodebid) && cs.zsamp_.includes(nodepos.z_,false))
 	{
 	    info().setLegalClick( legalclick );
 	    info().setObjID( pdd->id() );

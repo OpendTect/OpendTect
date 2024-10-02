@@ -63,7 +63,7 @@ uiRetVal EM::PolygonZChanger::doWork( TaskRunner& trprov )
 	float zval = hor->getZ( bid );
 
 	if ( mIsUdf(zval) && geom )
-	    zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z;
+            zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z_;
 
 	if ( !mIsUdf(zval) )
 	{

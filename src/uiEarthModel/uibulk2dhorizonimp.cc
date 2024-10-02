@@ -333,7 +333,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
     while ( aio.getData(hornm,linenm,crd,trnr) )
     {
 	const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-	if ( mIsUdf(geomid) || mIsUdf(crd.z) || hornm.isEmpty() )
+        if ( mIsUdf(geomid) || mIsUdf(crd.z_) || hornm.isEmpty() )
 	    continue;
 
 	if ( existinghorizons.isPresent(hornm) && doskip )
@@ -372,7 +372,7 @@ bool uiBulk2DHorizonImport::acceptOK( CallBacker* )
 	}
 
 	const BinID bid( geomid.asInt(), nr );
-	hordata->add( bid, crd.z );
+        hordata->add( bid, crd.z_ );
     }
 
     mcc.restore();

@@ -279,9 +279,9 @@ bool Pick::Location::fromString( const char* s )
 
     // Then, we always have the actual payload, the coordinate
     Coord3 posread;
-    posread.x = getNextVal( str );
-    posread.y = getNextVal( str );
-    posread.z = getNextVal( str );
+    posread.x_ = getNextVal( str );
+    posread.y_ = getNextVal( str );
+    posread.z_ = getNextVal( str );
     if ( posread.isUdf() )
 	return false;
 
@@ -293,14 +293,14 @@ bool Pick::Location::fromString( const char* s )
     if ( data.count( '\t' ) > 1 )
     { // Read the direction too before any trace key information
 	Coord3 dirread;
-	dirread.x = getNextVal( str );
-	dirread.y = getNextVal( str );
-	dirread.z = getNextVal( str );
+        dirread.x_ = getNextVal( str );
+        dirread.y_ = getNextVal( str );
+        dirread.z_ = getNextVal( str );
 
-	if ( !mIsUdf(dirread.y) )
+        if ( !mIsUdf(dirread.y_) )
 	{
-	    if ( mIsUdf(dirread.z) )
-		dirread.z = 0.;
+            if ( mIsUdf(dirread.z_) )
+                dirread.z_ = 0.;
 	}
 
 	dir_ = Sphere( dirread );
@@ -339,23 +339,23 @@ void Pick::Location::toString( BufferString& str, bool forexport,
 	mPIEPAdj(Coord,usepos,false);
 	if ( mPIEP.haveZChg() )
 	{
-	    float zval = (float)usepos.z;
+            float zval = (float)usepos.z_;
 	    mPIEPAdj(Z,zval,false);
-	    usepos.z = zval;
+            usepos.z_ = zval;
 	}
 
 	if ( expcrs )
 	{
 	  Coord crd = expcrs->convertFrom(usepos.coord(),
 						  *SI().getCoordSystem());
-	  usepos.setXY( crd.x, crd.y );
+          usepos.setXY( crd.x_, crd.y_ );
 	}
 
-	usepos.z = usepos.z * SI().showZ2UserFactor();
+        usepos.z_ = usepos.z_ * SI().showZ2UserFactor();
     }
 
-    str.add( usepos.x ).add( od_tab ).add( usepos.y );
-    str.add( od_tab ).add( usepos.z );
+    str.add( usepos.x_ ).add( od_tab ).add( usepos.y_ );
+    str.add( od_tab ).add( usepos.z_ );
     if ( hasDir() )
 	str.add( od_tab ).add( dir_.radius ).add( od_tab )
 	   .add( dir_.theta ).add( od_tab ).add( dir_.phi );

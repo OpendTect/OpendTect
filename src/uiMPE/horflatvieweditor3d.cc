@@ -251,7 +251,7 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 	if ( !seedpicker )
 	    return;
 
-	const TrcKeyValue tkv( TrcKey(SI().transform(coord)), (float)coord.z );
+        const TrcKeyValue tkv( TrcKey(SI().transform(coord)), (float)coord.z_ );
 	pickedpos_ = seedpicker->replaceSeed( pickedpos_, tkv );
 	return;
     }
@@ -405,7 +405,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     const uiWorldPoint wp = markerpos ? *markerpos :
 			vwr->getWorld2Ui().transform( mousepos );
     Coord3 clickedcrd = vwr->getCoord( wp );
-    clickedcrd.z = wp.y;
+    clickedcrd.z_ = wp.y_;
     const bool action = doTheSeed( *seedpicker, clickedcrd, mouseevent );
     const int trackerid = MPE::engine().getTrackerByObject( emid_ );
     engine().updateFlatCubesContainer( curcs_, trackerid, action );
@@ -720,7 +720,7 @@ bool HorizonFlatViewEditor3D::getPosID( const Coord3& crd,
 bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 					 const MouseEvent& mev )
 {
-    const TrcKeyValue tkv( TrcKey(SI().transform(crd)), (float)crd.z );
+    const TrcKeyValue tkv( TrcKey(SI().transform(crd)), (float)crd.z_ );
     const bool ismarker = editor_->markerPosAt( mev.pos() );
     if ( !ismarker )
     {
@@ -962,7 +962,7 @@ void HorizonFlatViewEditor3D::polygonFinishedCB( CallBacker* )
 	const FlatView::AuxData* auxdata = getAuxData(selectedids[ids]);
 	if ( !auxdata || !auxdata->poly_.validIdx(selectedidxs[ids]) ) continue;
 
-	const double posx = auxdata->poly_[selectedidxs[ids]].x;
+        const double posx = auxdata->poly_[selectedidxs[ids]].x_;
 	if ( curcs_.nrInl() == 1 )
 	{
 	    bid.inl() = curcs_.hsamp_.start_.inl();

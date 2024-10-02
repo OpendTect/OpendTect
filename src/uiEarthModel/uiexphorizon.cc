@@ -173,7 +173,7 @@ static void writeGF( od_ostream& strm, const BinID& bid, float z,
     const double depth = double( mIsUdf(z) ? MAXFLOAT : z );
     od_sprintf( buf, mDataGFLineLen+2,
 	  "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
-	  crd.x, crd.y, segid, 14, depth,
+                crd.x_, crd.y_, segid, 14, depth,
 	  crl, crl, bid.crl(), gfval, bid.inl(),
 	     "" );
     buf[96] = buf[97] = 'X';
@@ -197,28 +197,28 @@ int Write3DHorASCII::nextStep()
     Coord3 crd = hor_->getPos( posid );
     const BinID bid = SI().transform( crd.coord() );
     const UnitOfMeasure* horzunit = hor_->zUnit();
-    if ( !mIsUdf(crd.z) && zunitout_ )
-	convValue( crd.z, horzunit, zunitout_ );
+    if ( !mIsUdf(crd.z_) && zunitout_ )
+        convValue( crd.z_, horzunit, zunitout_ );
 
     if ( coordsys_ && !(*coordsys_ == *SI().getCoordSystem()) )
     {
 	const Coord crdxy =
 		coordsys_->convertFrom( crd.coord(), *SI().getCoordSystem() );
-	crd.setXY( crdxy.x, crdxy.y );
+        crd.setXY( crdxy.x_, crdxy.y_ );
     }
 
     if ( setup_.dogf_ )
     {
 	const float auxvalue = setup_.nrattrib_ > 0
 	    ? hor_->auxdata.getAuxDataVal(0,posid) : mUdf(float);
-	writeGF( stream_, bid, (float) crd.z, auxvalue,
+        writeGF( stream_, bid, (float) crd.z_, auxvalue,
 		 crd.coord(), sidx_ );
 	Executor::MoreToDo();
     }
 
     str.setEmpty();
     if ( setup_.doxy_ )
-	str.add( crd.x, 2 ).addTab().add( crd.y, 2 );
+        str.add( crd.x_, 2 ).addTab().add( crd.y_, 2 );
 
     if ( setup_.doxy_ && setup_.doic_ )
 	str.addTab();
@@ -232,11 +232,11 @@ int Write3DHorASCII::nextStep()
     str.setEmpty();
     if ( setup_.addzpos_ )
     {
-	if ( mIsUdf(crd.z) )
+        if ( mIsUdf(crd.z_) )
 	    stream_ << od_tab << setup_.udfstr_;
 	else
 	{
-	    str.addTab().add( crd.z );
+            str.addTab().add( crd.z_ );
 	    stream_ << str;
 	}
     }

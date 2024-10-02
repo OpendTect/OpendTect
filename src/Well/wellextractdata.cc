@@ -334,7 +334,7 @@ void Well::ZRangeSelector::snapZRangeToSurvey(Interval<float>& zrg,bool zistime,
 	    ? wd->track().zRange().start_ \
 	    : wd->track().zRange().stop_ ; \
     else \
-	tvd = mCast( float, track.getPos( dah ).z ); \
+	tvd = mCast( float, track.getPos( dah ).z_ ); \
 }
 
 
@@ -691,12 +691,12 @@ bool Well::TrackSampler::getPos( const Data& wdin, float dah,
     biv.set( SI().transform(pos) );
     if ( SI().zIsTime() && wd->d2TModel() )
     {
-	pos.z = mCast( double, wd->d2TModel()->getTime( dah, wd->track() ) );
-	if ( mIsUdf(pos.z) )
+        pos.z_ = mCast( double, wd->d2TModel()->getTime( dah, wd->track() ) );
+        if ( mIsUdf(pos.z_) )
 	    return false;
     }
 
-    biv.set( (float)pos.z );
+    biv.set( (float)pos.z_ );
     return true;
 }
 
@@ -1112,7 +1112,7 @@ int Well::SimpleTrackSampler::nextStep()
 	return Executor::Finished();
 
     Coord3 pos = track_.getPos( dah );
-    pos.z = zval;
+    pos.z_ = zval;
 
     BinID bid = SI().transform( pos );
     const bool withintrack = tracklimits_.includes(zval,true);
@@ -1122,7 +1122,7 @@ int Well::SimpleTrackSampler::nextStep()
 	{
 	    pos = bidset_.isEmpty() ? track_.pos(0)
 				    : track_.pos(track_.size()-1);
-	    pos.z = zval;
+            pos.z_ = zval;
 	    bid = SI().transform( pos );
 	}
 	if ( ( isinsidesurvey_ && !SI().includes( bid, zval, false ) )
@@ -1241,7 +1241,7 @@ od_int64 Well::LogSampler::nrIterations() const
 
 #define mGetZ(zvalue,dah,zintime) \
 	zvalue = zintime \
-	       ? mCast( float, track_.getPos( dah ).z ) \
+	       ? mCast( float, track_.getPos( dah ).z_ ) \
 	       : d2t_->getTime( dah, track_ );
 
 #undef mErrRet

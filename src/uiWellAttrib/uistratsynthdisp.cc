@@ -1453,7 +1453,7 @@ void uiStratSynthDisp::flatChgCB( CallBacker* )
 
     uiWorldRect newview = vwr_->curView();
     const bool showflattened = edtools_.showFlattened();
-    const double middlez = showflattened ? 0. : curvw.centre().y;
+    const double middlez = showflattened ? 0. : curvw.centre().y_;
     newview.setTop( middlez - (twtdiff/2.) );
     newview.setBottom( middlez + (twtdiff/2.) );
     control().setNewView( newview.centre(), newview.size(), vwr_ );

@@ -33,13 +33,13 @@ struct ExplPlaneIntersectionExtractorPlane
 	    polygon_.add( pt );
 	    if ( !idx )
 	    {
-                xrg.start_ = xrg.stop_ = pt.x;
-                yrg.start_ = yrg.stop_ = pt.y;
+                xrg.start_ = xrg.stop_ = pt.x_;
+                yrg.start_ = yrg.stop_ = pt.y_;
 		continue;
 	    }
 
-            xrg.start_ = mMIN(xrg.start_,pt.x); xrg.stop_ = mMAX(xrg.stop_,pt.x);
-            yrg.start_ = mMIN(yrg.start_,pt.y); yrg.stop_ = mMAX(yrg.stop_,pt.y);
+            xrg.start_ = mMIN(xrg.start_,pt.x_); xrg.stop_ = mMAX(xrg.stop_,pt.x_);
+            yrg.start_ = mMIN(yrg.start_,pt.y_); yrg.stop_ = mMAX(yrg.stop_,pt.y_);
 	}
 
         bbox_.setTopLeft( Coord(xrg.start_, yrg.stop_) );
@@ -244,9 +244,9 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     ConstRefMan<Coord3List> coordlist = explsurf_.getShape()->coordList();
     const float zscale = explsurf_.getZScale();
 
-    Coord3 c0 = coordlist->get( lci0 ); c0.z *= zscale;
-    Coord3 c1 = coordlist->get( lci1 ); c1.z *= zscale;
-    Coord3 c2 = coordlist->get( lci2 ); c2.z *= zscale;
+    Coord3 c0 = coordlist->get( lci0 ); c0.z_ *= zscale;
+    Coord3 c1 = coordlist->get( lci1 ); c1.z_ *= zscale;
+    Coord3 c2 = coordlist->get( lci2 ); c2.z_ *= zscale;
     const Coord3 centerpt = (c0+c1+c2)/3;
     c0 -= centerpt;
     c1 -= centerpt;
@@ -372,7 +372,7 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     else { arraypos[1]=mMIN(lci2,lci0); arraypos[2]=mMAX(lci2,lci0); } 
 
 	int ci0;
-	startpt.z /= zscale;
+        startpt.z_ /= zscale;
 	if ( !startcut )
 	{
 	    mSetArrPos( startedge )
@@ -384,7 +384,7 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	}
 
 	int ci1;
-	stoppt.z /= zscale;
+        stoppt.z_ /= zscale;
 	if ( !stopcut )
 	{
 	    mSetArrPos( stopedge )
@@ -567,7 +567,7 @@ int ExplPlaneIntersection::addPlane( const Coord3& normal,
 
     const int idx = planeids_.size()-1;
     for ( int idy=0; idy<planepts_[idx]->size(); idy++ )
-	(*planepts_[idx])[idy].z *= zscale_;
+        (*planepts_[idx])[idy].z_ *= zscale_;
 
     needsupdate_ = true;
 
@@ -587,7 +587,7 @@ bool ExplPlaneIntersection::setPlane( int id, const Coord3& normal,
     *planepts_[idx] = pts;
 
     for ( int idy=0; idy<planepts_[idx]->size(); idy++ )
-	(*planepts_[idx])[idy].z *= zscale_;
+        (*planepts_[idx])[idy].z_ *= zscale_;
 
     needsupdate_ = true;
     return true;

@@ -186,11 +186,11 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 	    continue;
 
 	if ( aio.isXY() )
-	    bidvs->add( SI().transform(crd.coord()), crd.z );
+            bidvs->add( SI().transform(crd.coord()), crd.z_ );
 	else
 	{
-	    BinID bid( mNINT32(crd.x), mNINT32(crd.y) );
-	    bidvs->add( bid, crd.z );
+            BinID bid( mNINT32(crd.x_), mNINT32(crd.y_) );
+            bidvs->add( bid, crd.z_ );
 	}
     }
 

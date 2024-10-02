@@ -116,10 +116,10 @@ void FaultEditor::setScaleVector( const Coord3& scalevec )
 
 
 #define mWorldScale(crd) \
-    Coord3( crd.x, crd.y, SI().zScale()*crd.z )
+    Coord3( crd.x_, crd.y_, SI().zScale()*crd.z_ )
 
 #define mCustomScale(crd) \
-    Coord3( crd.x, Coord(scalevector_).dot(crd), scalevector_.z*crd.z )
+    Coord3( crd.x_, Coord(scalevector_).dot(crd), scalevector_.z_*crd.z_ )
 
 
 float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,

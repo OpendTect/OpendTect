@@ -166,15 +166,15 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 	    for ( int k=0; k<3; k++ )
 	    {
 		Coord fbid = SI().getBinID2Coord().transformBackNoSnap( v[k] );
-		RowCol rc(surfrrg.snap(fbid.x),surfcrg.snap(fbid.y));
+                RowCol rc(surfrrg.snap(fbid.x_),surfcrg.snap(fbid.y_));
 
-		const double pz = surf_.computePosition(fbid).z + zshift_;
+                const double pz = surf_.computePosition(fbid).z_ + zshift_;
 		rcz[k] = Coord3( fbid, pz );
 		bool defined = !mIsUdf(pz);
 		if ( allabove )
-                    allabove = defined ? v[k].z>=pz : v[k].z >= surfzrg_.stop_;
+                    allabove = defined ? v[k].z_>=pz : v[k].z_ >= surfzrg_.stop_;
 		if ( allbelow )
-                    allbelow = defined ? v[k].z<=pz : v[k].z <= surfzrg_.start_;
+                    allbelow = defined ? v[k].z_<=pz : v[k].z_ <= surfzrg_.start_;
 
 		if ( !k )
 		{
@@ -197,7 +197,7 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 	    for ( int k=0; k<3; k++ )
 	    {
 		tri[k] = v[k] - center;
-		tri[k].z *= zscale;
+                tri[k].z_ *= zscale;
 	    }
 	    Plane3 triangle( tri[0], tri[1], tri[2] );
 
@@ -221,11 +221,11 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 		    const int col = smpcrg.atIndex( cidx );
 		    Coord3 pos = surf_.getKnot(RowCol(row,col), false);
 		    float dist = mUdf( float );
-		    if ( !mIsUdf(pos.z) )
+                    if ( !mIsUdf(pos.z_) )
 		    {
-			pos.z += zshift_;
+                        pos.z_ += zshift_;
 			pos -= center;
-			pos.z *= zscale;
+                        pos.z_ *= zscale;
 			dist = (float) triangle.distanceToPoint(pos,true);
 		    }
 
@@ -248,7 +248,7 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 		for ( int vidx=0; vidx<ic.size(); vidx++ )
 		{
 		    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
-		    if ( !pointInTriangle2D( Coord(vertex.x,vertex.y),
+                    if ( !pointInTriangle2D( Coord(vertex.x_,vertex.y_),
 				rcz[0],rcz[1],rcz[2],0) )
 			continue;
 
@@ -260,16 +260,16 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 			continue;
 
 		    Coord3 temp = intersect - center;
-		    temp.z *= zscale;
+                    temp.z_ *= zscale;
 		    if ( pointInTriangle3D(temp,tri[0],tri[1],tri[2],0) )
 		    {
 			tmp += intersect;
-			if ( isclosed && mIsUdf(firstpos.z) )
+                        if ( isclosed && mIsUdf(firstpos.z_) )
 			    firstpos = intersect;
 		    }
 		}
 
-		if ( isclosed && !mIsUdf(firstpos.z) )
+                if ( isclosed && !mIsUdf(firstpos.z_) )
 		    tmp += firstpos;
 	    }
 
@@ -285,10 +285,10 @@ protected:
 
 bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
 {
-    const int minrow = (int)vertex.x;
-    const int maxrow = minrow < vertex.x ? minrow+1 : minrow;
-    const int mincol = (int)vertex.y;
-    const int maxcol = mincol < vertex.y ? mincol+1 : mincol;
+    const int minrow = (int)vertex.x_;
+    const int maxrow = minrow < vertex.x_ ? minrow+1 : minrow;
+    const int mincol = (int)vertex.y_;
+    const int maxcol = mincol < vertex.y_ ? mincol+1 : mincol;
 
     TypeSet<Coord3> neighbors;
     TypeSet<float> weights;
@@ -298,12 +298,12 @@ bool getSurfacePos( const Geom::Point2D<float>& vertex, Coord3& res )
 	for ( int c=mincol; c<=maxcol; c++ )
 	{
 	    Coord3 pos = surf_.getKnot( RowCol(r,c), false );
-	    if ( mIsUdf(pos.z) )
+            if ( mIsUdf(pos.z_) )
 		continue;
 	    else
-		pos.z += zshift_;
+                pos.z_ += zshift_;
 
-	    float dist = fabs(r-vertex.x) + fabs(c-vertex.y);
+            float dist = fabs(r-vertex.x_) + fabs(c-vertex.y_);
 	    if ( mIsZero(dist,1e-5) )
 	    {
 		res = pos;
@@ -441,14 +441,14 @@ void FaultBinIDSurfaceIntersector::compute()
 int FaultBinIDSurfaceIntersector::optimizeOrder( TypeSet<Coord3>& res )
 {
     IntervalND<float> bbox(2);
-    bbox.setRange( Coord(res[0].x,res[0].y) );
+    bbox.setRange( Coord(res[0].x_,res[0].y_) );
 
     TypeSet<int> idxs;
     for ( int idx = 1; idx<res.size(); idx++ )
     {
-	 const Coord xy( res[idx].x, res[idx].y );
-         if ( bbox.getRange(0).start_<xy.x && bbox.getRange(0).stop_>xy.x &&
-              bbox.getRange(1).start_<xy.y && bbox.getRange(1).stop_>xy.y )
+        const Coord xy( res[idx].x_, res[idx].y_ );
+        if ( bbox.getRange(0).start_<xy.x_ && bbox.getRange(0).stop_>xy.x_ &&
+             bbox.getRange(1).start_<xy.y_ && bbox.getRange(1).stop_>xy.y_ )
 	     idxs += idx;
 	 else
 	     bbox.include( xy );

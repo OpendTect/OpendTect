@@ -72,15 +72,15 @@ bool Array2DFromXYConverter::doPrepare( int nrthreads )
 
 bool Array2DFromXYConverter::doWork( od_int64 start, od_int64 stop, int )
 {
-    const SamplingData<double> sdx( origin_.x, step_.x );
-    const SamplingData<double> sdy( origin_.y, step_.y );
+    const SamplingData<double> sdx( origin_.x_, step_.x_ );
+    const SamplingData<double> sdy( origin_.y_, step_.y_ );
     for ( auto idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const TrcKey tk = tks_.trcKeyAt( idx );
 	const Coord crd = SI().transform( tk.binID() );
 
-	const float xidxf = sdx.getfIndex( crd.x );
-	const float yidxf = sdy.getfIndex( crd.y );
+        const float xidxf = sdx.getfIndex( crd.x_ );
+        const float yidxf = sdy.getfIndex( crd.y_ );
 	if ( xidxf<0 || yidxf<0 )
 	    continue;
 

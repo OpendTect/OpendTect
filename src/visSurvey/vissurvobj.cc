@@ -389,7 +389,7 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
     const MultiID mid = getMultiID();
     const Survey::Geometry& geom =  Survey::Geometry::default3D();
 
-    const TrcKey trck = geom.nearestTrace( Coord(xytmousepos.x,xytmousepos.y) );
+    const TrcKey trck = geom.nearestTrace( Coord(xytmousepos.x_,xytmousepos.y_) );
     if ( !trck.isUdf() )
 	iopar.set( sKey::TraceKey(), trck );
 }

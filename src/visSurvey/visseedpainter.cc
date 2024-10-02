@@ -318,8 +318,8 @@ void SeedPainter::paintSeedsOnInlCrl( const visBase::EventInfo& curev,
     int nrdiff = isinl ? curbid.crl() - prevbid.crl()
 			: curbid.inl() - prevbid.inl();
     nrdiff = mNINT32(nrdiff/fac);
-    const int cursampidx = SI().zRange().nearestIndex( curpos.z );
-    const int prevsampidx = SI().zRange().nearestIndex( prevpos.z );
+    const int cursampidx = SI().zRange().nearestIndex( curpos.z_ );
+    const int prevsampidx = SI().zRange().nearestIndex( prevpos.z_ );
     const int sampdiff = cursampidx - prevsampidx;
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
@@ -493,8 +493,8 @@ void SeedPainter::paintSeedsOnRandLine( const RandomTrackDisplay* rtd,
 	return;
 
     const int nrdiff = (bididx - prevbididx) / fac;
-    const int cursampidx = SI().zRange().nearestIndex( curpos.z );
-    const int prevsampidx = SI().zRange().nearestIndex( prevpos.z );
+    const int cursampidx = SI().zRange().nearestIndex( curpos.z_ );
+    const int prevsampidx = SI().zRange().nearestIndex( prevpos.z_ );
     const int sampdiff = cursampidx - prevsampidx;
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
@@ -591,8 +591,8 @@ void SeedPainter::paintSeedsOn2DLine( const Seis2DDisplay* s2d,
 	return;
 
     const int nrdiff = (trcidx - prevtrcidx) / fac;
-    const int cursampidx = SI().zRange().nearestIndex( curpos.z );
-    const int prevsampidx = SI().zRange().nearestIndex( prevpos.z );
+    const int cursampidx = SI().zRange().nearestIndex( curpos.z_ );
+    const int prevsampidx = SI().zRange().nearestIndex( prevpos.z_ );
     const int sampdiff = cursampidx - prevsampidx;
 
     const int nrpts = mNINT32(radius_ * radius_ * density() / 100) + 1;
@@ -692,14 +692,14 @@ void SeedPainter::eraseSeeds( const visBase::EventInfo& curev )
 	const Pick::Location& loc = set_->get( idx );
 	const BinID bid = SI().transform( loc.pos() );
 	if ( !tkzs.hsamp_.includes(bid) ||
-		!tkzs.zsamp_.includes(loc.pos().z,false) )
+             !tkzs.zsamp_.includes(loc.pos().z_,false) )
 	    continue;
 
 	const int xdiff = Math::Abs( isinl ? (curbid.crl() - bid.crl()) / crlfac
 				      : (curbid.inl() - bid.inl()) / inlfac );
 	const int ydiff =
 	    isz ? Math::Abs( curbid.crl() - bid.crl() ) / crlfac
-		: Math::Abs( loc.pos().z - curpos.z ) / SI().zStep();
+                : Math::Abs( loc.pos().z_ - curpos.z_ ) / SI().zStep();
 	float distsq = xdiff*xdiff + ydiff*ydiff;
 	if ( distsq > radius_*radius_ )
 	    continue;
@@ -748,7 +748,7 @@ void SeedPainter::eraseSeedsOnRandLine( const RandomTrackDisplay* rtd,
 	    continue;
 
 	const int xdiff = Math::Abs( (bidx - bididx) / fac );
-	const int ydiff = Math::Abs( loc.z() - curpos.z ) / SI().zStep();
+        const int ydiff = Math::Abs( loc.z() - curpos.z_ ) / SI().zStep();
 	float distsq = xdiff*xdiff + ydiff*ydiff;
 	if ( distsq > radius_*radius_ )
 	    continue;
@@ -798,11 +798,11 @@ void SeedPainter::eraseSeedsOn2DLine( const Seis2DDisplay* s2d,
 	    continue;
 
 	const int loctrcidx = trcrg.getIndex( tk.trcNr() );
-	if ( loctrcidx < 0 || !zrg.includes(loc.pos().z,false) )
+        if ( loctrcidx < 0 || !zrg.includes(loc.pos().z_,false) )
 	    continue;
 
 	const int xdiff = (loctrcidx - trcidx) / fac;
-	const int ydiff = (loc.pos().z - curpos.z) / SI().zStep();
+        const int ydiff = (loc.pos().z_ - curpos.z_) / SI().zStep();
 	float distsq = xdiff*xdiff + ydiff*ydiff;
 	if ( distsq > radius_*radius_ )
 	    continue;
@@ -859,12 +859,12 @@ void SeedPainter::drawLine( const visBase::EventInfo& eventinfo )
 		getTrcNrStretchPerZSample( *scene, SI().crlDistance() ) : 0;
     for ( int idx=0; idx<circlecoords_.size(); idx++ )
     {
-	const BinID bid( pickedbid.inl() + mNINT32(inlfac*circlecoords_[idx].x),
+        const BinID bid( pickedbid.inl() + mNINT32(inlfac*circlecoords_[idx].x_),
 			 pickedbid.crl() + mNINT32(crlfac*
-			 (isz? circlecoords_[idx].y : circlecoords_[idx].x)) );
+                                                   (isz? circlecoords_[idx].y_ : circlecoords_[idx].x_)) );
 	const Coord pt = SI().transform( bid );
-	circle_->addPoint( Coord3(pt,isz ? pickedpos.z
-			: (pickedpos.z+circlecoords_[idx].y*SI().zStep())) );
+        circle_->addPoint( Coord3(pt,isz ? pickedpos.z_
+                                         : (pickedpos.z_+circlecoords_[idx].y_*SI().zStep())) );
     }
 
     circle_->dirtyCoordinates();
@@ -893,13 +893,13 @@ void SeedPainter::drawLineOnRandLine( const RandomTrackDisplay* rtd,
     const float fac = getTrcNrStretchPerZSample( *scene, trcdist );
     for ( int idx=0; idx<circlecoords_.size(); idx++ )
     {
-	const int posidx = bididx + mNINT32( fac * circlecoords_[idx].x );
+        const int posidx = bididx + mNINT32( fac * circlecoords_[idx].x_ );
 	if ( !path->validIdx(posidx) )
 	    continue;
 
 	const Coord pt = path->get( posidx ).getCoord();
 	circle_->addPoint( Coord3(pt,
-			pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
+                                  pickedpos.z_+circlecoords_[idx].y_*SI().zStep()) );
     }
 
     circle_->dirtyCoordinates();
@@ -934,7 +934,7 @@ void SeedPainter::drawLineOn2DLine( const Seis2DDisplay* s2d,
     PosInfo::Line2DPos l2dpos;
     for ( int idx=0; idx<circlecoords_.size(); idx++ )
     {
-	const int posidx = trcidx + mNINT32( fac * circlecoords_[idx].x );
+        const int posidx = trcidx + mNINT32( fac * circlecoords_[idx].x_ );
 	if ( posidx<0 || posidx>=nrtrcs )
 	    continue;
 
@@ -943,7 +943,7 @@ void SeedPainter::drawLineOn2DLine( const Seis2DDisplay* s2d,
 	    continue;
 
 	circle_->addPoint( Coord3(l2dpos.coord_,
-			pickedpos.z+circlecoords_[idx].y*SI().zStep()) );
+                                  pickedpos.z_+circlecoords_[idx].y_*SI().zStep()) );
     }
 
     circle_->dirtyCoordinates();

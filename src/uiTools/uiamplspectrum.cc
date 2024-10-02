@@ -364,8 +364,8 @@ void uiAmplSpectrum::valChgd( CallBacker* cb )
 
     mCBCapsuleUnpack(const Geom::PointF&,mousepos,cb);
     const Geom::PointF pos = disp_->mapToValue( mousepos );
-    const float xpos = pos.x;
-    const float ypos = pos.y;
+    const float xpos = pos.x_;
+    const float ypos = pos.y_;
     const bool disp = disp_->xAxis()->range().includes(xpos,true) &&
 		      disp_->yAxis(false)->range().includes(ypos,true);
     if ( !disp )

@@ -57,9 +57,9 @@ static void getDevMinCurv( double md1, double md2,
 	rf = (2./beta) * tan(beta/2.);
 
     const double dmd = (md2-md1) / 2.;
-    delta.x = dmd * (sini1*sina1 + sini2*sina2) * rf;
-    delta.y = dmd * (sini1*cosa1 + sini2*cosa2) * rf;
-    delta.z = dmd * (cosi1+cosi2) * rf;
+    delta.x_ = dmd * (sini1*sina1 + sini2*sina2) * rf;
+    delta.y_ = dmd * (sini1*cosa1 + sini2*cosa2) * rf;
+    delta.z_ = dmd * (cosi1+cosi2) * rf;
 }
 
 
@@ -67,11 +67,11 @@ static void getDevMinCurv( double md1, double md2,
 static void getDevTangential( double md1, double md2,
 			      double incl2, double azi2, Coord3& delta )
 {
-    delta.x = (md2-md1) * sin( Math::toRadians(incl2) )
+    delta.x_ = (md2-md1) * sin( Math::toRadians(incl2) )
 			* sin( Math::toRadians(azi2) );
-    delta.y = (md2-md1) * sin( Math::toRadians(incl2) )
+    delta.y_ = (md2-md1) * sin( Math::toRadians(incl2) )
 			* cos( Math::toRadians(azi2) );
-    delta.z = (md2-md1) * cos( Math::toRadians(incl2) );
+    delta.z_ = (md2-md1) * cos( Math::toRadians(incl2) );
 }
 
 
@@ -97,13 +97,13 @@ void DirectionalSurvey::calcTrack( const TypeSet<double>& mds,
 
 	if ( xyinfeet && !mdinfeet )
 	{
-	    delta.x *= mToFeetFactorD;
-	    delta.y *= mToFeetFactorD;
+            delta.x_ *= mToFeetFactorD;
+            delta.y_ *= mToFeetFactorD;
 	}
 	else if ( !xyinfeet && mdinfeet )
 	{
-	    delta.x *= mFromFeetFactorD;
-	    delta.y *= mFromFeetFactorD;
+            delta.x_ *= mFromFeetFactorD;
+            delta.y_ *= mFromFeetFactorD;
 	}
 
 	curpos += delta;

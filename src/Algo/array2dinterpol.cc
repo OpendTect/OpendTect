@@ -304,10 +304,10 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 	int prevstart=rowrg.start_, prevstop=rowrg.stop_;
 	for ( int icol=colrg.start_; icol<=colrg.stop_; icol++ )
 	{
-	    pt.y = icol;
-	    int irow = pt.x = prevstart;
+            pt.y_ = icol;
+            int irow = pt.x_ = prevstart;
 	    if ( icol!=colrg.start_ && !poly.isInside( pt, true, 0 ) )
-		irow = pt.x = rowrg.start_;
+                irow = pt.x_ = rowrg.start_;
 
 	    bool hadaninside = false;
 	    bool isinside;
@@ -322,7 +322,7 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 		if ( !rowrg.includes(irow,false) ) break;
 
 		irow--;
-		pt.x = irow;
+                pt.x_ = irow;
 	    }
 
 	    if ( !hadaninside || !isinside )
@@ -330,18 +330,18 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 
 	    if ( !hadaninside )
 	    {
-		pt.x = irow;
+                pt.x_ = irow;
 		while ( !poly.isInside( pt, true, 0 ) )
 		{
 		    irow++;
-		    pt.x = irow;
+                    pt.x_ = irow;
 		}
 	    }
 
 	    Interval<int> thisrowrg;
 	    thisrowrg.start_ = prevstart = irow;
 	    irow = prevstop;
-	    pt.x = irow;
+            pt.x_ = irow;
 	    hadaninside = false;
 
 	    while ( true )
@@ -355,7 +355,7 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 		if ( !rowrg.includes(irow,false) ) break;
 
 		irow++;
-		pt.x = irow;
+                pt.x_ = irow;
 	    }
 
 	    if ( !hadaninside || !isinside )
@@ -363,11 +363,11 @@ void Array2DInterpol::getNodesToFill( const bool* def, bool* shouldinterpol,
 
 	    if ( !hadaninside )
 	    {
-		pt.x = irow;
+                pt.x_ = irow;
 		while ( !poly.isInside( pt, true, 0 ) )
 		{
 		    irow--;
-		    pt.x = irow;
+                    pt.x_ = irow;
 		}
 	    }
 

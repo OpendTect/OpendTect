@@ -173,10 +173,10 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     }
 
     const double topdepth = tophorizon_
-                            ? tophorizon_->getPos( topsubid ).z : SI().zRange(true).start_;
+                            ? tophorizon_->getPos( topsubid ).z_ : SI().zRange(true).start_;
 
     const double bottomdepth = bottomhorizon_
-                               ? bottomhorizon_->getPos( botsubid ).z : SI().zRange(true).stop_;
+                               ? bottomhorizon_->getPos( botsubid ).z_ : SI().zRange(true).stop_;
 
     const SamplingData<double>
 	zsampling( output->sampling().zsamp_ );

@@ -313,8 +313,8 @@ bool uiExp2DGeom::acceptOK( CallBacker* )
 	    const BufferString spstr = spnrs.validIdx(pidx) ?
 			toString(spnrs[pidx],2) : "-999";
 	    outstr.setEmpty();
-	    const BufferString xcrdstr = toString(pos.coord_.x,2);
-	    const BufferString ycrdstr = toString(pos.coord_.y,2);
+            const BufferString xcrdstr = toString(pos.coord_.x_,2);
+            const BufferString ycrdstr = toString(pos.coord_.y_,2);
 	    outstr.add( data2d.lineName() ).addTab()
 		  .add( pos.nr_ ).addTab()
 		  .add( spstr ).addTab()

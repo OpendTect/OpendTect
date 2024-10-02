@@ -163,17 +163,17 @@ bool uiLASSurvInfoProvider::getInfo( uiDialog* dlg, TrcKeyZSampling& tkzs,
     }
     else if ( coords.size()==1 )
     {
-	xrg.include( coords[0].x, false );
+        xrg.include( coords[0].x_, false );
 	xrg.widen( 10*grdsp, false );
-	yrg.include( coords[0].y, false );
+        yrg.include( coords[0].y_, false );
 	yrg.widen( 10*grdsp, false );
     }
     else
     {
 	for ( int idx=0; idx<coords.size(); idx++ )
 	{
-	    xrg.include( coords[idx].x, false );
-	    yrg.include( coords[idx].y, false );
+            xrg.include( coords[idx].x_, false );
+            yrg.include( coords[idx].y_, false );
 	}
     }
 

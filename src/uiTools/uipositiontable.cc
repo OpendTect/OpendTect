@@ -121,8 +121,8 @@ void uiPositionTable::posChgCB( CallBacker* )
 	const int nrdec = SI().nrXYDecimals();
 	if ( withxy_ )
 	{
-	    table_->setValue( RowCol(rc.row(),0), coord.x, nrdec );
-	    table_->setValue( RowCol(rc.row(),1), coord.y, nrdec );
+            table_->setValue( RowCol(rc.row(),0), coord.x_, nrdec );
+            table_->setValue( RowCol(rc.row(),1), coord.y_, nrdec );
 	}
     }
 
@@ -140,8 +140,8 @@ void uiPositionTable::setCoords( const TypeSet<Coord>& coords )
 	const Coord& crd = coords[idx];
 	if ( withxy_ )
 	{
-	    table_->setValue( RowCol(idx,getXCol()), crd.x, nrdec );
-	    table_->setValue( RowCol(idx,getYCol()), crd.y, nrdec );
+            table_->setValue( RowCol(idx,getXCol()), crd.x_, nrdec );
+            table_->setValue( RowCol(idx,getYCol()), crd.y_, nrdec );
 	}
 
 	const BinID bid = SI().transform( crd );
@@ -173,8 +173,8 @@ void uiPositionTable::setBinIDs( const TypeSet<BinID>& binids )
 	if ( withxy_ )
 	{
 	    const Coord crd = SI().transform( bid );
-	    table_->setValue( RowCol(idx,getXCol()), crd.x, nrdec );
-	    table_->setValue( RowCol(idx,getYCol()), crd.y, nrdec );
+            table_->setValue( RowCol(idx,getXCol()), crd.x_, nrdec );
+            table_->setValue( RowCol(idx,getYCol()), crd.y_, nrdec );
 	}
 
 	if ( withic_ )

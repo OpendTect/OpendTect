@@ -263,9 +263,9 @@ bool uiWellTrackDlg::fillTable()
     for ( int idx=0; idx<sz; idx++ )
     {
 	const Coord3& c( track_.pos(idx) );
-	setX( idx, c.x );
-	setY( idx, c.y );
-	setZ( idx, c.z );
+        setX( idx, c.x_ );
+        setY( idx, c.y_ );
+        setZ( idx, c.z_ );
 	setMD( idx, track_.dah(idx) );
     }
 
@@ -303,10 +303,10 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
 	wd_.info().surfacecoord_ = track_.pos(0);
 
     Coord wellhead = wd_.info().surfacecoord_;
-    if ( mIsZero(wellhead.x,0.001) )
-	{ wellhead.x = wellhead.y = mUdf(float); }
-    wellheadxfld_->setValue( wellhead.x );
-    wellheadyfld_->setValue( wellhead.y );
+    if ( mIsZero(wellhead.x_,0.001) )
+    { wellhead.x_ = wellhead.y_ = mUdf(float); }
+    wellheadxfld_->setValue( wellhead.x_ );
+    wellheadyfld_->setValue( wellhead.y_ );
 
     kbelevfld_->setValue( mConvertVal(track_.getKbElev(),true) );
     glfld_->setValue( mConvertVal(wd_.info().groundelev_,true) );
@@ -625,7 +625,7 @@ bool uiWellTrackDlg::updNow()
 	    needfill = true;
 	}
 
-	track_.addPoint( newc, mCast(float,newc.z), dahval );
+        track_.addPoint( newc, mCast(float,newc.z_), dahval );
     }
 
     if ( track_.size() > 1 )
@@ -662,9 +662,9 @@ void uiWellTrackDlg::updatePos( bool isx )
 {
     uiGenInput* posfld = isx ? wellheadxfld_ : wellheadyfld_;
     const Coord surfacecoord = wd_.info().surfacecoord_;
-    double surfacepos = isx ? surfacecoord.x : surfacecoord.y;
+    double surfacepos = isx ? surfacecoord.x_ : surfacecoord.y_;
     if ( mIsUdf(surfacepos) && !track_.isEmpty() )
-	surfacepos = isx ? track_.pos(0).x : track_.pos(0).y;
+        surfacepos = isx ? track_.pos(0).x_ : track_.pos(0).y_;
 
     const double newpos = posfld->getDValue();
     if ( mIsUdf(newpos) )
@@ -840,10 +840,10 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     for ( int idx=0; idx<track_.size(); idx++ )
     {
 	const Coord3 coord( track_.pos(idx) );
-	strm << coord.x << od_tab;
-	strm << coord.y << od_tab;
-	strm << mConvertVal(coord.z,true) << od_tab;
-	strm << mConvertVal(coord.z-kbdepth,true) << od_tab;
+        strm << coord.x_ << od_tab;
+        strm << coord.y_ << od_tab;
+        strm << mConvertVal(coord.z_,true) << od_tab;
+        strm << mConvertVal(coord.z_-kbdepth,true) << od_tab;
 	strm << mConvertVal(track_.dah(idx),true) << od_newline;
     }
 }
@@ -1118,7 +1118,7 @@ float uiD2TModelDlg::getTimeValue( int irow ) const
 { \
     Interval<float> replvellayer( wd_.track().getKbElev(), srd ); \
     replvellayer.widen( 1e-2f, true ); \
-    vint = replvellayer.includes( -1.f * wd_.track().getPos(dah).z, true ) && \
+    vint = replvellayer.includes( -1.f * wd_.track().getPos(dah).z_, true ) && \
 	   !mIsUdf(wd_.info().replvel_) \
 	 ? wd_.info().replvel_ \
 	 : mCast(float,d2t->getVelocityForDah( dah, wd_.track() )); \
@@ -1159,7 +1159,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     for ( int idz=0; idz<dtsz; idz++ )
     {
 	const float dah = d2t->dah(idz);
-	const float tvdss = mCast(float,track.getPos(dah).z);
+        const float tvdss = mCast(float,track.getPos(dah).z_);
 	const float tvd = tvdss + kbelev;
 	mGetVel(dah,d2t)
 	setDepthValue( idz, cMDCol, dah );
@@ -1336,7 +1336,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     const bool inistvdsd = hastvdsd && incol == getTVDSDCol();
 
     const float olddah = newrow ? mUdf(float) : d2t->dah( row );
-    const float oldtvdss = newrow ? mUdf(float) : (float)track.getPos(olddah).z;
+    const float oldtvdss = newrow ? mUdf(float) : (float)track.getPos(olddah).z_;
     float oldval = mUdf( float );
     if ( inistvd && !mIsUdf(oldtvdss) )
 	oldval = oldtvdss + kbelev;
@@ -1412,7 +1412,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     }
 
     const float dah = md2tvd ? inval : track.getDahForTVD( inval );
-    const float tvdss = !md2tvd ? inval : mCast(float,track.getPos(inval).z);
+    const float tvdss = !md2tvd ? inval : mCast(float,track.getPos(inval).z_);
     if ( !md2tvd )
 	setDepthValue( row, cMDCol, dah );
 
@@ -1708,7 +1708,7 @@ void uiD2TModelDlg::expData( CallBacker* )
     {
 	const float dah = d2t->dah(idx);
 	const float tvdss = mConvertVal(
-				mCast(float,wd_.track().getPos(dah).z), true );
+                                mCast(float,wd_.track().getPos(dah).z_), true );
 	const float tvd = tvdss + kbelev;
 	mGetVel(dah,d2t);
 	strm << mConvertVal(dah,true) << od_tab << tvd << od_tab;
@@ -1805,7 +1805,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 	const float dah = getDepthValue( 0, cMDCol );
 	Interval<float> replvellayer( kbelev, srdelev );
 	replvellayer.widen( 1e-2f, true );
-	if ( replvellayer.includes( -1.f * wd_.track().getPos(dah).z, true ) )
+        if ( replvellayer.includes( -1.f * wd_.track().getPos(dah).z_, true ) )
 	    setDepthValue( 0, getVintCol(), replvel );
 
 	return;

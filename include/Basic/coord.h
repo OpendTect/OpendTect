@@ -29,14 +29,14 @@ using DistType = Pos::Distance_Type;
 		~Coord();
 
     bool	operator==( const Coord& crd ) const
-		{ return mIsEqual(x,crd.x,mDefEps)
-		      && mIsEqual(y,crd.y,mDefEps); }
+    { return mIsEqual(x_,crd.x_,mDefEps)
+		&& mIsEqual(y_,crd.y_,mDefEps); }
     bool	operator!=( const Coord& crd ) const
 		{ return ! (crd == *this); }
     bool	operator<(const Coord&crd) const
-		{ return x<crd.x || (x==crd.x && y<crd.y); }
+    { return x_<crd.x_ || (x_==crd.x_ && y_<crd.y_); }
     bool	operator>(const Coord&crd) const
-		{ return x>crd.x || (x==crd.x && y>crd.y); }
+    { return x_>crd.x_ || (x_==crd.x_ && y_>crd.y_); }
 
     DistType	horDistTo(const Coord&) const;
     DistType	sqHorDistTo(const Coord&) const;
@@ -73,9 +73,9 @@ public:
 			~Coord3();
 
     OrdType&		operator[]( int idx )
-			{ return idx ? (idx==1 ? y : z) : x; }
+    { return idx ? (idx==1 ? y_ : z_) : x_; }
     OrdType		operator[]( int idx ) const
-			{ return idx ? (idx==1 ? y : z) : x; }
+    { return idx ? (idx==1 ? y_ : z_) : x_; }
 
     inline Coord3&	operator=(const Coord3&);
     inline Coord3	operator+(const Coord3&) const;
@@ -116,13 +116,15 @@ public:
     bool		fromString(const char*);
 
     OrdType		z_;
+
+    mDeprecated("Use z_")
     OrdType&		z;
 
 };
 
 
 inline Coord3 operator*( double f, const Coord3& b )
-{ return Coord3(b.x*f, b.y*f, b.z*f ); }
+{ return Coord3(b.x_*f, b.y_*f, b.z_*f ); }
 
 
 namespace Values {
@@ -161,9 +163,9 @@ public:
 
 inline bool Coord3::operator==( const Coord3& b ) const
 {
-    const DistType dx = x-b.x;
-    const DistType dy = y-b.y;
-    const DistType dz = z-b.z;
+    const DistType dx = x_-b.x_;
+    const DistType dy = y_-b.y_;
+    const DistType dz = z_-b.z_;
     return mIsZero(dx,mDefEps) && mIsZero(dy,mDefEps) && mIsZero(dz,mDefEps);
 }
 
@@ -175,93 +177,93 @@ inline bool Coord3::operator!=( const Coord3& b ) const
 
 inline bool Coord3::isDefined() const
 {
-    return !Values::isUdf(z) && Geom::Point2D<OrdType>::isDefined();
+    return !Values::isUdf(z_) && Geom::Point2D<OrdType>::isDefined();
 }
 
 
 inline bool Coord3::isNull() const
 {
-    return mIsZero(x,mDefEps) && mIsZero(y,mDefEps) && mIsZero(z,mDefEps);
+    return mIsZero(x_,mDefEps) && mIsZero(y_,mDefEps) && mIsZero(z_,mDefEps);
 }
 
 
 inline Coord3& Coord3::operator=( const Coord3& p )
 {
-    x = p.x;
-    y = p.y;
-    z = p.z;
+    x_ = p.x_;
+    y_ = p.y_;
+    z_ = p.z_;
     return *this;
 }
 
 
 inline Coord3 Coord3::operator+( const Coord3& p ) const
 {
-    return Coord3( x+p.x, y+p.y, z+p.z );
+    return Coord3( x_+p.x_, y_+p.y_, z_+p.z_ );
 }
 
 
 inline Coord3 Coord3::operator-( const Coord3& p ) const
 {
-    return Coord3( x-p.x, y-p.y, z-p.z );
+    return Coord3( x_-p.x_, y_-p.y_, z_-p.z_ );
 }
 
 
 inline Coord3 Coord3::operator-() const
 {
-    return Coord3( -x, -y, -z );
+    return Coord3( -x_, -y_, -z_ );
 }
 
 
 inline Coord3 Coord3::operator*( double factor ) const
-{ return Coord3( x*factor, y*factor, z*factor ); }
+{ return Coord3( x_*factor, y_*factor, z_*factor ); }
 
 
 inline Coord3 Coord3::operator/( double denominator ) const
-{ return Coord3( x/denominator, y/denominator, z/denominator ); }
+{ return Coord3( x_/denominator, y_/denominator, z_/denominator ); }
 
 
 inline Coord3 Coord3::scaleBy( const Coord3& factor ) const
-{ return Coord3( x*factor.x, y*factor.y, z*factor.z ); }
+{ return Coord3( x_*factor.x_, y_*factor.y_, z_*factor.z_ ); }
 
 
 inline Coord3 Coord3::unScaleBy( const Coord3& denominator ) const
-{ return Coord3( x/denominator.x, y/denominator.y, z/denominator.z ); }
+{ return Coord3( x_/denominator.x_, y_/denominator.y_, z_/denominator.z_ ); }
 
 
 inline Coord3& Coord3::operator+=( const Coord3& p )
 {
-    x += p.x; y += p.y; z += p.z;
+    x_ += p.x_; y_ += p.y_; z_ += p.z_;
     return *this;
 }
 
 
 inline Coord3& Coord3::operator-=( const Coord3& p )
 {
-    x -= p.x; y -= p.y; z -= p.z;
+    x_ -= p.x_; y_ -= p.y_; z_ -= p.z_;
     return *this;
 }
 
 
 inline Coord3& Coord3::operator*=( double factor )
 {
-    x *= factor; y *= factor; z *= factor;
+    x_ *= factor; y_ *= factor; z_ *= factor;
     return *this;
 }
 
 
 inline Coord3& Coord3::operator/=( double denominator )
 {
-    x /= denominator; y /= denominator; z /= denominator;
+    x_ /= denominator; y_ /= denominator; z_ /= denominator;
     return *this;
 }
 
 
 inline Coord::DistType Coord3::dot(const Coord3& b) const
-{ return x*b.x + y*b.y + z*b.z; }
+{ return x_*b.x_ + y_*b.y_ + z_*b.z_; }
 
 
 inline Coord3 Coord3::cross(const Coord3& b) const
-{ return Coord3( y*b.z-z*b.y, z*b.x-x*b.z, x*b.y-y*b.x ); }
+{ return Coord3( y_*b.z_-z_*b.y_, z_*b.x_-x_*b.z_, x_*b.y_-y_*b.x_ ); }
 
 
 inline Coord3 Coord3::normalize() const

@@ -1298,7 +1298,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdataidx,
 	if ( !pid.isValid() )
 	    break;
 
-	auxvals[0] = (float) hor3d->getPos( pid ).z;
+        auxvals[0] = (float) hor3d->getPos( pid ).z_;
 	auxvals[2] = hor3d->auxdata.getAuxDataVal( auxdataidx, pid );
 	BinID bid = BinID::fromInt64( pid.subID() );
 	data.bivSet().add( bid, auxvals );
@@ -1359,7 +1359,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 		    continue;
 	    }
 
-	    auxvals[0] = (float) hor3d->getPos( pid ).z;
+            auxvals[0] = (float) hor3d->getPos( pid ).z_;
 	    for ( int idx=0; idx<nms.size(); idx++ )
 	    {
 		const int auxidx = hor3d->auxdata.auxDataIndex( nms.get(idx) );
@@ -1772,8 +1772,8 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 	    if ( !hor3d2 )
 	    {
 		for ( int posidx=0; posidx<z1pos.size(); posidx++ )
-		    bivs.add( bid, (float) z1pos[posidx].z,
-			      (float) z1pos[posidx].z );
+                    bivs.add( bid, (float) z1pos[posidx].z_,
+                              (float) z1pos[posidx].z_ );
 	    }
 	    else
 	    {
@@ -1791,11 +1791,11 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 		{
 		    for ( int z2idx=0; z2idx<z2pos.size(); z2idx++ )
 		    {
-			float dist_ = (float) (z2pos[z2idx].z - z1pos[z1idx].z);
+                        float dist_ = (float) (z2pos[z2idx].z_ - z1pos[z1idx].z_);
 			if ( fabs(dist_) < dist )
 			{
-			    zintv.start_ = (float) z1pos[z1idx].z;
-			    zintv.stop_ = (float) z2pos[z2idx].z;
+                            zintv.start_ = (float) z1pos[z1idx].z_;
+                            zintv.stop_ = (float) z2pos[z2idx].z_;
 			}
 		    }
 		}
@@ -1865,11 +1865,11 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	{
 	    const int trcnr = trcrg.atIndex( trcidx );
 	    const Coord3 pos1 = hor2d1->getPos( geomid, trcnr );
-	    const float z1 = sCast( float, pos1.z );
+            const float z1 = sCast( float, pos1.z_ );
 	    float z2 = mUdf(float);
 
 	    if ( issecondhor )
-		z2 = sCast( float, hor2d2->getPos(geomid,trcnr).z );
+                z2 = sCast( float, hor2d2->getPos(geomid,trcnr).z_ );
 
 	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
 	    {
@@ -1904,13 +1904,13 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, const MultiID& horid ) const
     {
 	const BinID bid = SI().transform( ps.get(idx).pos() );
 	const EM::SubID subid = bid.toInt64();
-	double zval = hor->getPos( subid ).z;
+        double zval = hor->getPos( subid ).z_;
 	if ( mIsUdf(zval) )
 	{
 	    const Geometry::BinIDSurface* geom =
 		hor->geometry().geometryElement();
 	    if ( geom )
-		zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z;
+                zval = geom->computePosition( Coord(bid.inl(),bid.crl()) ).z_;
 
 	    if ( mIsUdf(zval) )
 	    {

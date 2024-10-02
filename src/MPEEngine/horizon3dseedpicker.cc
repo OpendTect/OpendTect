@@ -667,7 +667,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 		    continue;
 
 		tk = (*rdlpath)[ startidx + idx ];
-		const double interpz = (1-frac) * seed1.z + frac  * seed2.z;
+                const double interpz = (1-frac) * seed1.z_ + frac  * seed2.z_;
 		interpos = Coord3( SI().transform(tk.position()), interpz );
 	    }
 	    else
@@ -682,7 +682,7 @@ bool Horizon3DSeedPicker::interpolateSeeds( bool setmanualnode )
 	    const EM::EMObject::NodeSourceType type = setmanualnode ?
 		EM::EMObject::Manual :
 		EM::EMObject::Auto;
-	    hor3d->setZAndNodeSourceType( tk, (float)interpos.z, true, type );
+            hor3d->setZAndNodeSourceType( tk, (float)interpos.z_, true, type );
 	    hor3d->setAttrib( tk, EM::EMObject::sSeedNode(), false, true );
 
 	    if ( trackmode_ != DrawBetweenSeeds )

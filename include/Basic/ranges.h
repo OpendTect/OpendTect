@@ -93,9 +93,9 @@ public:
     T				start_;
     T				stop_;
 
-    mDeprecated("Use with underscore")
+    mDeprecated("Use start_")
     T&				start;
-    mDeprecated("Use with underscore")
+    mDeprecated("Use stop_")
     T&				stop;
 };
 

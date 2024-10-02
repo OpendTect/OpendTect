@@ -721,7 +721,7 @@ Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
     {
 	const Geom::Point2D<int>& pt = poly.getVertex( idx );
 	polys_[0]->add( Geom::Point2D<float>(
-				 mCast(float,pt.x), mCast(float,pt.y) ) );
+                            mCast(float,pt.x_), mCast(float,pt.y_) ) );
     }
     initZrg( zrg );
 }
@@ -930,11 +930,11 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
                         mCast(float,inlrg.start_ + stepoutreach_.inl()),
                         mCast(float,crlrg.start_ + stepoutreach_.crl()) );
 	    rect->add( point );
-            point.y = mCast( float, crlrg.stop_ - stepoutreach_.crl() );
+            point.y_ = mCast( float, crlrg.stop_ - stepoutreach_.crl() );
 	    rect->add( point );
-            point.x = mCast( float, inlrg.stop_ - stepoutreach_.inl() );
+            point.x_ = mCast( float, inlrg.stop_ - stepoutreach_.inl() );
 	    rect->add( point );
-            point.y = mCast( float, crlrg.start_ + stepoutreach_.crl() );
+            point.y_ = mCast( float, crlrg.start_ + stepoutreach_.crl() );
 	    rect->add( point );
 
 	    polys_ += rect;

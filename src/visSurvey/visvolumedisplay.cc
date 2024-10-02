@@ -624,7 +624,7 @@ float VolumeDisplay::getValue( int attrib, const Coord3& pos ) const
     const TrcKeyZSampling& samp = attribs_[attrib]->cache_->sampling();
     const int inlidx = samp.inlIdx( bid.inl() );
     const int crlidx = samp.crlIdx( bid.crl() );
-    const int zidx = samp.zsamp_.getIndex( pos.z );
+    const int zidx = samp.zsamp_.getIndex( pos.z_ );
 
     const Array3DImpl<float>& array = attribs_[attrib]->cache_->data();
     const float val = array.info().validPos(inlidx,crlidx,zidx) ?
@@ -1186,7 +1186,7 @@ void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
     ConstRefMan<ZAxisTransform> datatrans = getZAxisTransform();
     if ( datatrans ) //TODO check for allready transformed data.
     {
-	attribpos.z = datatrans->transformBack( pos );
+        attribpos.z_ = datatrans->transformBack( pos );
 	if ( !attribpos.isDefined() )
 	    return;
     }
@@ -1205,16 +1205,16 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 	Coord3 center = boxdragger_->center();
 	Coord3 width = boxdragger_->width();
 
-	res.hsamp_.start_ = BinID( mNINT32( center.x - width.x/2 ),
-			      mNINT32( center.y - width.y/2 ) );
+        res.hsamp_.start_ = BinID( mNINT32( center.x_ - width.x_/2 ),
+                                   mNINT32( center.y_ - width.y_/2 ) );
 
-	res.hsamp_.stop_ = BinID( mNINT32( center.x + width.x/2 ),
-			     mNINT32( center.y + width.y/2 ) );
+        res.hsamp_.stop_ = BinID( mNINT32( center.x_ + width.x_/2 ),
+                                  mNINT32( center.y_ + width.y_/2 ) );
 
 	res.hsamp_.step_ = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zsamp_.start_ = (float) ( center.z - width.z/2 );
-	res.zsamp_.stop_ = (float) ( center.z + width.z/2 );
+        res.zsamp_.start_ = (float) ( center.z_ - width.z_/2 );
+        res.zsamp_.stop_ = (float) ( center.z_ + width.z_/2 );
 	res.zsamp_.step_ = SI().zStep();
 
 	SI().snap( res.hsamp_.start_ );

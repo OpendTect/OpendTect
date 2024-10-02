@@ -695,12 +695,12 @@ void EMObject::removeSelected( const TypeSet<EM::SubID>& subids )
 		removebypolyposbox_.hsamp_.start_ =
 		    removebypolyposbox_.hsamp_.stop_ = bid;
 		removebypolyposbox_.zsamp_.start_ =
-			removebypolyposbox_.zsamp_.stop_ = (float) pos.z;
+                        removebypolyposbox_.zsamp_.stop_ = (float) pos.z_;
 	    }
 	    else
 	    {
 		removebypolyposbox_.hsamp_.include(bid);
-		removebypolyposbox_.zsamp_.include((float) pos.z);
+                removebypolyposbox_.zsamp_.include((float) pos.z_);
 	    }
 	    if ( ++poscount >= 10000 )
 	    {
@@ -978,7 +978,7 @@ Interval<float> EMObject::getZRange( bool docompute ) const
     EM::PosID pid = it->next();
     while ( pid.isValid() )
     {
-	const double depth = getPos( pid ).z;
+        const double depth = getPos( pid ).z_;
 	if ( !mIsUdf(depth) )
 	    zrg.include( depth, false );
 

@@ -249,13 +249,13 @@ void uiStratSynthExport::fillGeomGroup()
     coord0fld_ = new uiGenInput( geomgrp_, tr("Coordinates: from"),
 					DoubleInpSpec(), DoubleInpSpec() );
     coord0fld_->attach( alignedBelow, geomsel_ );
-    coord0fld_->setValue( startcoord.x, 0 );
-    coord0fld_->setValue( startcoord.y, 1 );
+    coord0fld_->setValue( startcoord.x_, 0 );
+    coord0fld_->setValue( startcoord.y_, 1 );
     coord1fld_ = new uiGenInput( geomgrp_, tr("to"),
 					DoubleInpSpec(), DoubleInpSpec() );
     coord1fld_->attach( alignedBelow, coord0fld_ );
-    coord1fld_->setValue( stopcoord.x, 0 );
-    coord1fld_->setValue( stopcoord.y, 1 );
+    coord1fld_->setValue( stopcoord.x_, 0 );
+    coord1fld_->setValue( stopcoord.y_, 1 );
 
     IOObjContext psctxt( mIOObjContext(PickSet) );
     psctxt.requireType( sKey::Polygon() );
@@ -376,12 +376,12 @@ bool uiStratSynthExport::createAndWrite2DGeometry( const TypeSet<Coord>& ptlist,
 	const double unitdist = mMAX( SI().inlStep() * SI().inlDistance(),
 				      SI().crlStep() * SI().crlDistance() );
 	const int nrsegs = mNINT32( dist / unitdist );
-	const double unitx = ( stoppos.x - startpos.x ) / nrsegs;
-	const double unity = ( stoppos.y - startpos.y ) / nrsegs;
+        const double unitx = ( stoppos.x_ - startpos.x_ ) / nrsegs;
+        const double unity = ( stoppos.y_ - startpos.y_ ) / nrsegs;
 	for ( int nidx=0; nidx<nrsegs; nidx++ )
 	{
-	    const Coord curpos( startpos.x + nidx * unitx,
-				startpos.y + nidx * unity );
+            const Coord curpos( startpos.x_ + nidx * unitx,
+                                startpos.y_ + nidx * unity );
 	    trcnr++;
 	    newgeom->add( curpos, trcnr, -1.f );
 	    if ( trcnr >= nrtrcs )

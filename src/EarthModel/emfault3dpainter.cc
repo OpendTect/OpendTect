@@ -206,9 +206,9 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
     const Coord3 nzednor = editnormal.normalize();
 
     const bool equinormal =
-	mIsEqual(nzednor.x,stkednor.x,.001) &&
-	mIsEqual(nzednor.y,stkednor.y,.001) &&
-	mIsEqual(nzednor.z,stkednor.z,.00001);
+            mIsEqual(nzednor.x_,stkednor.x_,.001) &&
+            mIsEqual(nzednor.y_,stkednor.y_,.001) &&
+            mIsEqual(nzednor.z_,stkednor.z_,.00001);
 
     if ( !equinormal ) return false;
 
@@ -247,11 +247,11 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 		     && knotbinid.crl()==extrbid1.crl()) )
 	    {
 		const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
-		const double z = zat ? zat->transform(pos) : pos.z;
+                const double z = zat ? zat->transform(pos) : pos.z_;
 		if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
-		    stickauxdata.poly_ += FlatView::Point( bidf.y, z );
+                    stickauxdata.poly_ += FlatView::Point( bidf.y_, z );
 		else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
-		    stickauxdata.poly_ += FlatView::Point( bidf.x, z );
+                    stickauxdata.poly_ += FlatView::Point( bidf.x_, z );
 	    }
 	}
     }
@@ -260,11 +260,11 @@ bool Fault3DPainter::paintStickOnPlane( const Geometry::FaultStickSurface& fss,
 	for ( rc.col()=crg.start_; rc.col()<=crg.stop_; rc.col()+=crg.step_ )
 	{
 	    const Coord3 pos = fss.getKnot( rc );
-	    if ( !mIsEqual(pos.z,tkzs_.zsamp_.start_,.0001) )
+            if ( !mIsEqual(pos.z_,tkzs_.zsamp_.start_,.0001) )
 		break;
 
 	    const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
-	    stickauxdata.poly_ += FlatView::Point( bidf.x, bidf.y );
+            stickauxdata.poly_ += FlatView::Point( bidf.x_, bidf.y_ );
 	}
     }
 
@@ -295,9 +295,9 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 	const Coord3 nzednor = editnormal.normalize();
 
 	const bool equinormal =
-	    mIsEqual(nzednor.x,stkednor.x,.001) &&
-	    mIsEqual(nzednor.y,stkednor.y,.001) &&
-	    mIsEqual(nzednor.z,stkednor.z,.00001);
+                mIsEqual(nzednor.x_,stkednor.x_,.001) &&
+                mIsEqual(nzednor.y_,stkednor.y_,.001) &&
+                mIsEqual(nzednor.z_,stkednor.z_,.00001);
 
 	if ( !equinormal )
 	    return false;
@@ -309,7 +309,7 @@ bool Fault3DPainter::paintStickOnRLine( const Geometry::FaultStickSurface& fss,
 
 	stickauxdata.poly_ +=
 	    FlatView::Point( flatposdata_->position(true,posidx),
-			     zat ? zat->transform(pos) : pos.z );
+                             zat ? zat->transform(pos) : pos.z_ );
     }
     return true;
 }
@@ -482,16 +482,16 @@ FlatView::Point Fault3DPainter::getFVAuxPoint( const Coord3& pos ) const
 	if ( trcidx == -1 )
 	    return FlatView::Point::udf();
 
-	const double z = zat ? zat->transform(pos) : pos.z;
+        const double z = zat ? zat->transform(pos) : pos.z_;
 	return FlatView::Point( flatposdata_->position(true,trcidx), z );
     }
 
     if ( tkzs_.nrZ() == 1 )
 	return FlatView::Point( posbid.inl(), posbid.crl());
     else if ( tkzs_.nrCrl() == 1 )
-	return FlatView::Point( posbid.inl(), zat? zat->transform(pos):pos.z );
+        return FlatView::Point( posbid.inl(), zat? zat->transform(pos):pos.z_ );
     else if ( tkzs_.nrInl() == 1 )
-	return FlatView::Point( posbid.crl(), zat? zat->transform(pos):pos.z );
+        return FlatView::Point( posbid.crl(), zat? zat->transform(pos):pos.z_ );
     return FlatView::Point::udf();
 }
 
@@ -719,7 +719,7 @@ Coord Fault3DPainter::getNormalInRandLine( int idx ) const
 	nextcrd = Survey::GM().toCoord( (*path_)[idx-1] );
 
     Coord direction = nextcrd - pivotcrd;
-    return Coord( -direction.y, direction.x );
+    return Coord( -direction.y_, direction.x_ );
 }
 
 

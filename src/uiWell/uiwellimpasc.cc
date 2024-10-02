@@ -211,7 +211,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* impasc )
     const Well::Info& info = uwia_->wd_.info();
 
     PositionInpSpec::Setup possu( true );
-    if ( !mIsZero(info.surfacecoord_.x,0.1) )
+    if ( !mIsZero(info.surfacecoord_.x_,0.1) )
 	possu.coord_ = info.surfacecoord_;
     coordfld_ = new uiGenInput( this,
 	tr("Surface Coordinate (if different from first "
@@ -347,7 +347,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
     if ( !doWork() )
 	return false;
 
-    wd_.info().surfacecoord_.x = wd_.info().surfacecoord_.y = 0;
+    wd_.info().surfacecoord_.x_ = wd_.info().surfacecoord_.y_ = 0;
     wd_.info().groundelev_ = mUdf(float);
     IOM().implUpdated.trigger( wd_.multiID() );
     uiString msg = tr("Well Track successfully imported."

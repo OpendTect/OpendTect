@@ -63,7 +63,7 @@ void Grid2D::Line::limitTo( const TrcKeySampling& hs )
     {
 	Line2 bound( svert[idx], idx < 3 ? svert[idx+1] : svert[0] );
 	Coord pt = line.intersection( bound );
-	if ( !mIsUdf(pt.x) && !mIsUdf(pt.y) )
+        if ( !mIsUdf(pt.x_) && !mIsUdf(pt.y_) )
 	    points += pt;
     }
 
@@ -191,14 +191,14 @@ void Grid2D::createParallelLines( const Line2& baseline, double dist,
 	    if ( !posfinished )
 	    {
 		const Coord pos = posline.intersection( sbound[bdx] );
-		if ( !mIsUdf(pos.x) && !mIsUdf(pos.y) )
+                if ( !mIsUdf(pos.x_) && !mIsUdf(pos.y_) )
 		    endsposline += pos;
 	    }
 
 	    if ( idx && !negfinished )
 	    {
 		const Coord pos = negline.intersection( sbound[bdx] );
-		if ( !mIsUdf(pos.x) && !mIsUdf(pos.y) )
+                if ( !mIsUdf(pos.x_) && !mIsUdf(pos.y_) )
 		    endsnegline += pos;
 	    }
 	}

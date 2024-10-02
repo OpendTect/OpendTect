@@ -196,7 +196,7 @@ void Hor2DTo3D::fillSections()
 
 	    const Coord3 coord = hor2d_.getPos( posid );
 	    const BinID bid = SI().transform( coord );
-	    sd.add( bid, (float) coord.z );
+            sd.add( bid, (float) coord.z_ );
 	    lastpos = coord;
 	}
     }

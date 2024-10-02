@@ -94,6 +94,6 @@ void LinStats2D::use( const float* xvals, const float* yvals, int nrpts )
 void LinStats2D::use( const Geom::Point2D<float>* vals, int nrpts )
 {
     if ( nrpts < 1 ) return;
-    calcLS( *this, &vals[0].x, &vals[0].y, nrpts,
+    calcLS( *this, &vals[0].x_, &vals[0].y_, nrpts,
 	    sizeof(Geom::Point2D<float>) );
 }

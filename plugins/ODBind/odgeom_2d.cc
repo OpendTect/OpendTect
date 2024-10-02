@@ -113,8 +113,8 @@ void odGeom2D::getData( hAllocator allocator ) const
     {
 	*trcnrs++ = pos[idx].nr_;
 	*spnrs++ = sps[idx];
-	*xdata++ = pos[idx].coord_.x;
-	*ydata++ = pos[idx].coord_.y;
+        *xdata++ = pos[idx].coord_.x_;
+        *ydata++ = pos[idx].coord_.y_;
     }
 }
 

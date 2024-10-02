@@ -162,7 +162,7 @@ void ODPolygon<T>::getData( bool forx, TypeSet<T>& ts ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Geom::Point2D<T>& vtx = poly_[idx];
-	ts += forx ? vtx.x : vtx.y;
+        ts += forx ? vtx.x_ : vtx.y_;
     }
 }
 
@@ -172,7 +172,7 @@ void fillPar( IOPar& iop, const ODPolygon<T>& poly, const char* inpkey )
 {
     const BufferString keywd( inpkey ); const char* key = keywd.buf();
     iop.setYN( IOPar::compKey(key,"Closed"), poly.isClosed() );
-    iop.set( IOPar::compKey(key,"Undef"), poly.getUdf().x, poly.getUdf().y );
+    iop.set( IOPar::compKey(key,"Undef"), poly.getUdf().x_, poly.getUdf().y_ );
     TypeSet<T> ts; poly.getData( true, ts );
     iop.set( IOPar::compKey(key,"Data.X"), ts );
     ts.erase(); poly.getData( false, ts );
@@ -186,7 +186,7 @@ void usePar( const IOPar& iop, ODPolygon<T>& poly, const char* inpkey )
     const BufferString keywd( inpkey ); const char* key = keywd.buf();
     bool yn = false; iop.getYN( IOPar::compKey(key,"Closed"), yn );
     poly.setClosed( yn );
-    Geom::Point2D<T> pt; iop.get( IOPar::compKey(key,"Undef"), pt.x, pt.y );
+    Geom::Point2D<T> pt; iop.get( IOPar::compKey(key,"Undef"), pt.x_, pt.y_ );
     poly.setUdf( pt );
 
     if ( !iop.hasKey( IOPar::compKey(key,"Data.X") )
@@ -258,16 +258,16 @@ const Geom::Point2D<T>& ODPolygon<T>::prevVertex( int idx ) const
 template <class T> inline
 Interval<T> ODPolygon<T>::getRange( bool forx ) const
 {
-    if ( poly_.isEmpty() ) return Interval<T>( udf_.x, udf_.y );
+    if ( poly_.isEmpty() ) return Interval<T>( udf_.x_, udf_.y_ );
     Geom::Point2D<T> vtx0 = poly_[0];
     Interval<T> ret = forx ? xrg_ : yrg_;
     if ( !mIsUdf(ret.start_) && !mIsUdf(ret.stop_) )
 	return ret;
-    ret.start_ = ret.stop_ = forx ? vtx0.x : vtx0.y;
+    ret.start_ = ret.stop_ = forx ? vtx0.x_ : vtx0.y_;
     for ( int idx=1; idx<size(); idx++ )
     {
 	const Geom::Point2D<T>& vtx = poly_[idx];
-	const T val = forx ? vtx.x : vtx.y;
+        const T val = forx ? vtx.x_ : vtx.y_;
 	if ( val < ret.start_ )		ret.start_ = val;
 	else if ( val > ret.stop_ )	ret.stop_ = val;
     }
@@ -285,9 +285,9 @@ bool ODPolygon<T>::isInside( const Geom::Point2D<T>& point,
 {
     const T abseps = eps<0 ? -eps : eps;
     if ( (!mIsUdf(xrg_.start_) && !mIsUdf(xrg_.stop_) &&
-	  (xrg_.start_>point.x+abseps || xrg_.stop_<point.x-abseps)) ||
+          (xrg_.start_>point.x_+abseps || xrg_.stop_<point.x_-abseps)) ||
 	 (!mIsUdf(yrg_.start_) && !mIsUdf(yrg_.stop_) &&
-	  (yrg_.start_>point.y+abseps || yrg_.stop_<point.y-abseps)) )
+          (yrg_.start_>point.y_+abseps || yrg_.stop_<point.y_-abseps)) )
 	return false;
 
     const Geom::Point2D<T> arbitrarydir( 1, 0 );
@@ -384,7 +384,7 @@ bool ODPolygon<T>::isUTurn( int idx ) const
     const Geom::Point2D<T>& vec1 = prevVertex(idx) - poly_[idx];
     const Geom::Point2D<T>& vec2 = nextVertex(idx) - poly_[idx];
 
-    return vec1.x*vec2.y-vec1.y*vec2.x==0 && vec1.x*vec2.x+vec1.y*vec2.y>0;
+    return vec1.x_*vec2.y_-vec1.y_*vec2.x_==0 && vec1.x_*vec2.x_+vec1.y_*vec2.y_>0;
 }
 
 
@@ -464,7 +464,7 @@ bool ODPolygon<T>::isOnHalfLine( const Geom::Point2D<T>& point,
 	 return true;
      if ( !isOnLine(point, dirvec, endvec, eps) )
 	 return false;
-     const Geom::Point2D<T> rot90dirvec( -dirvec.y, dirvec.x );
+     const Geom::Point2D<T> rot90dirvec( -dirvec.y_, dirvec.x_ );
      return isRightOfLine( point, rot90dirvec, endvec );
 }
 
@@ -525,7 +525,7 @@ double ODPolygon<T>::sgnDistToLine( const Geom::Point2D<T>& point,
     if ( mIsZero(dirveclen, mDefEps) )
 	return nolinedist;
     const double substpointinlineeqn =
-	dirvec.y * ( point.x - posvec.x )-dirvec.x * ( point.y - posvec.y );
+            dirvec.y_ * ( point.x_ - posvec.x_ )-dirvec.x_ * ( point.y_ - posvec.y_ );
     return substpointinlineeqn / dirveclen;
 }
 
@@ -544,8 +544,8 @@ ST ODPolygon<T>::sgnArea2() const
     {
 	const Geom::Point2D<T>& pt1 = poly_[idx];
 	const Geom::Point2D<T>& pt2 = nextVertex( idx );
-	area2 += (ST) ( (pt1.x-pt0.x) * (pt2.y-pt0.y) -
-			(pt2.x-pt0.x) * (pt1.y-pt0.y) );
+        area2 += (ST) ( (pt1.x_-pt0.x_) * (pt2.y_-pt0.y_) -
+                        (pt2.x_-pt0.x_) * (pt1.y_-pt0.y_) );
     }
 
     return area2;
@@ -566,7 +566,7 @@ void ODPolygon<T>::convexHull()
     for ( int idx=1; idx<size(); idx++ )
     {
 	const Geom::Point2D<T>& vtx = poly_[idx];
-	if ( vtx.x<pivot.x || (vtx.x==pivot.x && vtx.y<pivot.y) )
+        if ( vtx.x_<pivot.x_ || (vtx.x_==pivot.x_ && vtx.y_<pivot.y_) )
 	    pivot = vtx;
     }
 
@@ -649,8 +649,8 @@ double ODPolygon<T>::distToSegment( const Geom::Point2D<T>& p1,
     if ( p1 != p2 )
     {
 	const Geom::Point2D<T> dif = p2 - p1;
-	const double numerator = dif.x*(refpt.x-p1.x) + dif.y*(refpt.y-p1.y);
-	frac = numerator / (dif.x*dif.x + dif.y*dif.y);
+        const double numerator = dif.x_*(refpt.x_-p1.x_) + dif.y_*(refpt.y_-p1.y_);
+        frac = numerator / (dif.x_*dif.x_ + dif.y_*dif.y_);
 
 	if ( frac < 0 )
 	    frac = 0;
@@ -661,8 +661,8 @@ double ODPolygon<T>::distToSegment( const Geom::Point2D<T>& p1,
     if ( fractionptr )
 	*fractionptr = frac;
 
-    const Geom::Point2D<T> pointonseg( (T)(p1.x * (1-frac) + p2.x * frac),
-				       (T)(p1.y * (1-frac) + p2.y * frac) );
+    const Geom::Point2D<T> pointonseg( (T)(p1.x_ * (1-frac) + p2.x_ * frac),
+                                       (T)(p1.y_ * (1-frac) + p2.y_ * frac) );
     return refpt.distTo( pointonseg );
 }
 
@@ -716,7 +716,7 @@ double ODPolygon<T>::maxDistToBorderEstimate( double maxrelerr ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Geom::Point2D<T>& pt = getVertex(idx);
-	poly.add( Geom::Point2D<double>(pt.x, pt.y) );
+        poly.add( Geom::Point2D<double>(pt.x_, pt.y_) );
     }
 
     double maxdist = 0.0;
@@ -740,8 +740,8 @@ double ODPolygon<T>::maxDistToBorderEstimate( double maxrelerr ) const
 	    Geom::Point2D<double> pt1 = curpt;
 	    Geom::Point2D<double> pt2 = curpt;
 	    const double delta = 0.0001 * upperbound;
-	    pt1.x += delta;
-	    pt2.y += delta;
+            pt1.x_ += delta;
+            pt2.y_ += delta;
 	    const double dist1 = poly.distTo( pt1 );
 	    const double dist2 = poly.distTo( pt2 );
 	    Geom::Point2D<double> nextpt( dist1-curdist, dist2-curdist );
@@ -787,7 +787,7 @@ void ODPolygon<T>::keepBendPoints( float eps )
     for ( int idx=-extra; idx<sz+extra; idx++ )
     {
 	const Geom::Point2D<T>& vtx = getVertex( (sz+idx)%sz );
-	coords += Coord( vtx.x, vtx.y );
+        coords += Coord( vtx.x_, vtx.y_ );
     }
 
     BendPointFinder2D finder( coords, eps );

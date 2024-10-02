@@ -270,7 +270,7 @@ bool testConversion( bool syntheticonly )
 	    { mRunStandardTest( crd != crdqc, "TrcKey -> Coord" ); }
 
 	mRunStandardTest(synthtk == synthtkcheck, "TrcKey -> Coord -> TrcKey" );
-	crdqc.x += 25.;
+        crdqc.x_ += 25.;
     }
 
     if ( nosurvgeom )

@@ -434,12 +434,12 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
     const Coord3 coord = curvwr.getCoord( wp );\
     if ( coord.isUdf() ) return;\
     const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel(); \
-    const float x1eps  = mCast(float,wperpixel.x) * sEPSPixWidth; \
+    const float x1eps  = mCast(float,wperpixel.x_) * sEPSPixWidth; \
     const int x1auxposidx = \
-	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x), x1eps ); \
-    const float x2eps  = mCast(float,wperpixel.y) * sEPSPixWidth; \
+	curvwr.appearance().annot_.x1_.auxPosIdx( mCast(float,wp.x_), x1eps ); \
+    const float x2eps  = mCast(float,wperpixel.y_) * sEPSPixWidth; \
     const int x2auxposidx = \
-	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y), x2eps );
+	curvwr.appearance().annot_.x2_.auxPosIdx( mCast(float,wp.y_), x2eps );
 
 void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 {
@@ -491,7 +491,7 @@ void uiODViewer2DMgr::mouseMoveCB( CallBacker* cb )
 	const StepInterval<double> xrg =
 	    curvwr2d->viewwin()->viewer().posRange( selauxannot_.isx1_ );
 	const int newposidx = xrg.nearestIndex( selauxannot_.isx1_
-						? wp.x : wp.y);
+                                                ? wp.x_ : wp.y_);
 	const float newpos = mCast(float, xrg.atIndex(newposidx) );
 	selauxannot.pos_ = newpos;
 	TrcKeyZSampling::Dir vwr2ddir =
@@ -639,15 +639,15 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     if ( coord.isUdf() ) return;
 
     const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel();
-    const float x1eps  = Math::Abs( sCast(float,wperpixel.x)*sEPSPixWidth );
+    const float x1eps  = Math::Abs( sCast(float,wperpixel.x_)*sEPSPixWidth );
     const int x1auxposidx =
-	curvwr.appearance().annot_.x1_.auxPosIdx( sCast(float,wp.x), x1eps );
-    const float x2eps  = Math::Abs( sCast(float,wperpixel.y)*sEPSPixWidth );
+            curvwr.appearance().annot_.x1_.auxPosIdx( sCast(float,wp.x_), x1eps );
+    const float x2eps  = Math::Abs( sCast(float,wperpixel.y_)*sEPSPixWidth );
     const int x2auxposidx =
-	curvwr.appearance().annot_.x2_.auxPosIdx( sCast(float,wp.y), x2eps );
+            curvwr.appearance().annot_.x2_.auxPosIdx( sCast(float,wp.y_), x2eps );
 
 
-    float samplecrdz = sCast(float,coord.z);
+    float samplecrdz = sCast(float,coord.z_);
     SI().snapZ( samplecrdz );
     if ( meh->event().leftButton() )
     {
@@ -674,7 +674,7 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
 	if ( x1auxposidx>=0 &&
 	     curvwr.appearance().annot_.x1_.auxannot_[x1auxposidx].isNormal() )
 	{
-	    intpoint2d = intersectingLineID( curvwr2d, sCast(float,wp.x) );
+            intpoint2d = intersectingLineID( curvwr2d, sCast(float,wp.x_) );
 	    if ( intpoint2d.line==Survey::GM().cUndefGeomID() )
 		return;
 

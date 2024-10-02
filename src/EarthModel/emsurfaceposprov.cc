@@ -106,12 +106,12 @@ static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 	    {
 		veryfirst = false;
 		hs.start_ = hs.stop_ = bid;
-                zrg.start_ = zrg.stop_ = (float) coord.z;
+                zrg.start_ = zrg.stop_ = (float) coord.z_;
 	    }
 	    else
 	    {
-                if ( coord.z < zrg.start_ ) zrg.start_ = (float) coord.z;
-                if ( coord.z > zrg.stop_ ) zrg.stop_ = (float) coord.z;
+                if ( coord.z_ < zrg.start_ ) zrg.start_ = (float) coord.z_;
+                if ( coord.z_ > zrg.stop_ ) zrg.stop_ = (float) coord.z_;
 		hs.include( bid );
 	    }
 	    estnrpos++;
@@ -191,11 +191,11 @@ bool EMSurfaceProvider::toNextPos()
 	    if ( !curpos_.isValid() )
 		return false;
 
-            curzrg_.start_ = curzrg_.stop_ = (float) surf1_->getPos( curpos_ ).z;
+            curzrg_.start_ = curzrg_.stop_ = (float) surf1_->getPos( curpos_ ).z_;
 
 	    if ( surf2_ )
 	    {
-		const float stop = (float) surf2_->getPos( curpos_.subID() ).z;
+                const float stop = (float) surf2_->getPos( curpos_.subID() ).z_;
 		if ( !mIsUdf(stop) )
 		{
                     curzrg_.stop_ = stop;
@@ -238,11 +238,11 @@ bool EMSurfaceProvider::toNextPos()
 	if ( !curpos_.isValid() )
 	    return false;
 
-        curzrg_.start_ = curzrg_.stop_ = (float) surf1_->getPos( curpos_ ).z;
+        curzrg_.start_ = curzrg_.stop_ = (float) surf1_->getPos( curpos_ ).z_;
 	if ( surf2_ )
 	{
 	    const float stop =
-	    (float) surf2_->getPos( curpos_.subID()).z;
+                    (float) surf2_->getPos( curpos_.subID()).z_;
 	    if ( !mIsUdf(stop) )
                 curzrg_.stop_ = stop;
 	}
@@ -299,7 +299,7 @@ float EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
     if ( !hasZAdjustment() ) return z;
 
     const BinID bid = SI().transform( c );
-    return (float) surf1_->getPos( bid.toInt64() ).z;
+    return (float) surf1_->getPos( bid.toInt64() ).z_;
 }
 
 

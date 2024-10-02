@@ -617,7 +617,7 @@ void uiMPEMan::seedClick( CallBacker* )
     const Pos::GeomID geomid = clickcatcher_->info().getGeomID();
     const bool undefgeomid = geomid == Survey::GM().cUndefGeomID();
     TrcKeyValue seedpos( undefgeomid ? TrcKey(SI().transform(seedcrd)) : node,
-			 (float)seedcrd.z );
+                         (float)seedcrd.z_ );
 
     OD::Color clr = OD::Color::Green();
     if ( Math::Abs(emobj->preferredColor().g()-OD::Color::Green().g())<30 )

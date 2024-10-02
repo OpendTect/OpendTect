@@ -754,22 +754,22 @@ int SurfaceGeometry::findPos( const TrcKeyZSampling& cs,
 			  TypeSet<PosID>* res ) const
 {
     Coord xypos = SI().transform(cs.hsamp_.start_);
-    Interval<float> xinterval( (float) xypos.x, (float) xypos.x );
-    Interval<float> yinterval( (float) xypos.y, (float) xypos.y );
+    Interval<float> xinterval( (float) xypos.x_, (float) xypos.x_ );
+    Interval<float> yinterval( (float) xypos.y_, (float) xypos.y_ );
 
     xypos = SI().transform(cs.hsamp_.stop_);
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( (float) xypos.x_ );
+    yinterval.include( (float) xypos.y_ );
 
     xypos = SI().transform(
 	BinID(cs.hsamp_.start_.inl(),cs.hsamp_.stop_.crl()) );
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( (float) xypos.x_ );
+    yinterval.include( (float) xypos.y_ );
 
     xypos = SI().transform(
 	BinID(cs.hsamp_.stop_.inl(),cs.hsamp_.start_.crl()) );
-    xinterval.include( (float) xypos.x );
-    yinterval.include( (float) xypos.y );
+    xinterval.include( (float) xypos.x_ );
+    yinterval.include( (float) xypos.y_ );
 
     TypeSet<PosID> posids;
     findPos( xinterval, yinterval, cs.zsamp_, &posids );

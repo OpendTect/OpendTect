@@ -601,7 +601,7 @@ bool Horizon2DSeedPicker::interpolateSeeds( bool manualnode )
 	    prevpos = curpos;
 
 	    const double frac = arclen / totarclen;
-	    const double curz = (1-frac) * startpos.z + frac * endpos.z;
+            const double curz = (1-frac) * startpos.z_ + frac * endpos.z_;
 	    const EM::EMObject::NodeSourceType type = manualnode ?
 		EM::EMObject::Manual : EM::EMObject::Auto;
 	    hor->setZAndNodeSourceType( csttk, (float)curz, true, type );

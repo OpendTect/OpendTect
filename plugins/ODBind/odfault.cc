@@ -156,9 +156,9 @@ void odFaultObject::getStick( int idx, hAllocator allocator ) const
     for ( const auto& loc : locs )
     {
 	const Coord3& crd = loc.pos();
-	*xdata++ = crd.x;
-	*ydata++ = crd.y;
-	*zdata++ = crd.z;
+        *xdata++ = crd.x_;
+        *ydata++ = crd.y_;
+        *zdata++ = crd.z_;
     }
 }
 

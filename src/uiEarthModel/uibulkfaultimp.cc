@@ -116,8 +116,8 @@ bool getData( BufferString& fltnm, Coord3& crd, int& stickidx, int& nodeidx,
     if ( !isXY() )
     {
 	const Coord xycrd = SI().transform( getBinID(1,2,udfval_) );
-	crd.setXY( xycrd.x, xycrd.y );
-	crd.z = getDValue( 3 );
+        crd.setXY( xycrd.x_, xycrd.y_ );
+        crd.z_ = getDValue( 3 );
     }
     else
 	crd = getPos3D( 1, 2, 3, udfval_ );
@@ -404,7 +404,7 @@ static void fillFaultSticks( FaultPars& pars,
 	else if ( hasnodeidx )
 	    addnewstick = nodeidx < prevnodeidx;
 	else
-	    addnewstick = crd.z < prevz;
+            addnewstick = crd.z_ < prevz;
 
 	if ( addnewstick )
 	{

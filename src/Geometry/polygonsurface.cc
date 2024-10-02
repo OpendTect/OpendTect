@@ -232,7 +232,7 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
     TypeSet<Coord3> knots;
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	Coord3 pos = (*polygons_[polygonidx])[idx]; pos.z *= zscale;
+        Coord3 pos = (*polygons_[polygonidx])[idx]; pos.z_ *= zscale;
 	knots += pos;
     }
 
@@ -252,7 +252,7 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 	    Coord3 pt = curve.computePosition(
 		    knot+nr*1.0f/(float)(beziernrpts_+1) );
 	    
-	    pt.z /= zscale;
+            pt.z_ /= zscale;
 	    pts += pt;
 	}
     }

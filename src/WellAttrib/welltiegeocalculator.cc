@@ -156,7 +156,7 @@ void WellTie::GeoCalculator::vel2TWT( Well::Log& log, const Well::Data& wd )
 	const float logval = log.value( idx );
 	if ( !mIsUdf(dah) && !mIsUdf(logval) && dah > startdah+mLocalEps )
 	{
-	    dpts += (float)track.getPos(dah).z;
+            dpts += (float)track.getPos(dah).z_;
 	    vals += loguom ? loguom->getSIValue( logval ) : logval;
 	}
     }

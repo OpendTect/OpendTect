@@ -166,8 +166,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     {
 	const Coord survmin = SI().minCoord( false );
 	const Coord survmax = SI().maxCoord( false );
-	xrg.start_ = (float) survmin.x; xrg.stop_ = (float) survmax.x;
-	yrg.start_ = (float) survmin.y; yrg.stop_ = (float) survmax.y;
+        xrg.start_ = (float) survmin.x_; xrg.stop_ = (float) survmax.x_;
+        yrg.start_ = (float) survmin.y_; yrg.stop_ = (float) survmax.y_;
 	xintv.setFrom( xrg ); yintv.setFrom( yrg );
 	xrgfld_->setValue( xintv );
 	yrgfld_->setValue( yintv );

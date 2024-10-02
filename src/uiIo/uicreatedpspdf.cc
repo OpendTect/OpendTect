@@ -211,7 +211,7 @@ float uiCreateDPSPDF::getVal( int dcid, int drid ) const
 	return val*SI().zDomain().userFactor();
     }
 
-    return float( dcid == -3 ? dps_->coord(drid).x : dps_->coord(drid).y );
+    return float( dcid == -3 ? dps_->coord(drid).x_ : dps_->coord(drid).y_ );
 }
 
 

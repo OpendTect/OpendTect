@@ -600,7 +600,7 @@ void Picks::horizonChangeCB( CallBacker* cb )
 	BinID bid;
 	picks_.getPos( rcs[idx], bid );
 	const float depth =
-	    (float) hor->getPos( bid.toInt64() ).z;
+                (float) hor->getPos( bid.toInt64() ).z_;
 
 	if ( mIsUdf(depth) )
 	    continue;

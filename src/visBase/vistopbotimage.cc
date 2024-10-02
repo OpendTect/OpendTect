@@ -68,8 +68,8 @@ void TopBotImage::setImageID( const MultiID& id )
     ImageDef def;
     ODImageDefTranslator::readDef( def, *ioobj );
     setRGBImageFromFile( def.filename_ );
-    const Coord3 tlcrd( def.tlcoord_.coord(), topLeft().z );
-    const Coord3 brcrd( def.brcoord_.coord(), bottomRight().z );
+    const Coord3 tlcrd( def.tlcoord_.coord(), topLeft().z_ );
+    const Coord3 brcrd( def.brcoord_.coord(), bottomRight().z_ );
     setPos( tlcrd, brcrd );
 }
 
@@ -89,10 +89,10 @@ void TopBotImage::updateCoords()
     Transformation::transform( trans_, pos1_, pos1 );
 
     const Coord3 dif = pos1 - pos0;
-    texplane_->setWidth( osg::Vec3(dif.x, -dif.y, 0.0) );
+    texplane_->setWidth( osg::Vec3(dif.x_, -dif.y_, 0.0) );
 
     const Coord3 avg = 0.5 * (pos0+pos1);
-    texplane_->setCenter( osg::Vec3(avg.x, avg.y, avg.z) );
+    texplane_->setCenter( osg::Vec3(avg.x_, avg.y_, avg.z_) );
 }
 
 
@@ -221,7 +221,7 @@ bool TopBotImage::getTextureDataInfo( TypeSet<Coord3>& coords,
     }
 
     coords.setEmpty();
-    Coord3 crd; crd.z = sCast(double,zrg.start_);
+    Coord3 crd; crd.z_ = sCast(double,zrg.start_);
     crd.setXY( xrg.start_, yrg.start_ ); coords += crd;
     crd.setXY( xrg.stop_, yrg.start_ ); coords += crd;
     crd.setXY( xrg.stop_, yrg.stop_ ); coords += crd;

@@ -184,8 +184,8 @@ static bool testCoordToLatLong( const Coord& pos, const LatLong& ll,
 static bool coordIsEqual( const Coord pos1, const Coord pos2,
 			  double eps=mDefEpsCoord )
 {
-    return mIsEqual(pos1.x,pos2.x,eps) &&
-	   mIsEqual(pos1.y,pos2.y,eps);
+    return mIsEqual(pos1.x_,pos2.x_,eps) &&
+            mIsEqual(pos1.y_,pos2.y_,eps);
 }
 
 

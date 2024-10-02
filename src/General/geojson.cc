@@ -87,10 +87,10 @@ void  OD::GeoJsonTree::addCoord( const Coord3& coord, Array& poly )
     if ( isfeatpoly_ )
     {
 	Array* coordarr = poly.add( new Array(OD::JSON::Number) );
-	coordarr->add( ll.lng_ ).add( ll.lat_ ).add( coord.z );
+        coordarr->add( ll.lng_ ).add( ll.lat_ ).add( coord.z_ );
     }
     else
-	poly.add( ll.lng_ ).add( ll.lat_ ).add( coord.z );
+        poly.add( ll.lng_ ).add( ll.lat_ ).add( coord.z_ );
 }
 
 

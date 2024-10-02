@@ -299,7 +299,7 @@ void uiVisEMObject::checkTrackingStatus()
 float uiVisEMObject::getShift() const
 {
     ConstRefMan<visSurvey::HorizonDisplay> hordisp = getHorizon3DDisplay();
-    return hordisp ? (float) hordisp->getTranslation().z : 0.f;
+    return hordisp ? (float) hordisp->getTranslation().z_ : 0.f;
 }
 
 

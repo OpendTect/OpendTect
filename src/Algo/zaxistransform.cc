@@ -120,7 +120,7 @@ void ZAxisTransform::transformBack( const BinID& bid,
 
 
 float ZAxisTransform::transform( const Coord3& pos ) const
-{ return transform( BinIDValue(SI().transform(pos),(float) pos.z) ); }
+{ return transform( BinIDValue(SI().transform(pos),(float) pos.z_) ); }
 
 
 float ZAxisTransform::transform( const BinIDValue& pos ) const
@@ -132,7 +132,7 @@ float ZAxisTransform::transform( const BinIDValue& pos ) const
 
 
 float ZAxisTransform::transformBack( const Coord3& pos ) const
-{ return transformBack( BinIDValue(SI().transform(pos),(float) pos.z) ); }
+{ return transformBack( BinIDValue(SI().transform(pos),(float) pos.z_) ); }
 
 
 float ZAxisTransform::transformBack( const BinIDValue& pos ) const

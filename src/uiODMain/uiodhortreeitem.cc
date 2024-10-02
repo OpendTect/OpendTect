@@ -600,7 +600,7 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	addinlitm_.text = tr("Add In-line %1").arg( tk.lineNr() );
 	addcrlitm_.text = tr("Add Cross-line %1").arg( tk.trcNr() );
 
-	float zpos( pickedpos.z );
+        float zpos( pickedpos.z_ );
 	SI().snapZ( zpos );
 	BufferString zposstr;
 	zposstr.set( zpos, SI().nrZDecimals() );
@@ -769,7 +769,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<nrattrib; idx++ )
 	    isenabled += visserv_->isAttribEnabled( visid, idx );
 
-	float curshift = sCast(float,visserv_->getTranslation( visid ).z);
+        float curshift = sCast(float,visserv_->getTranslation( visid ).z_);
 	if ( mIsUdf(curshift) )
 	    curshift = 0;
 
@@ -814,7 +814,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	const Coord3 pickedpos = uimenu->getPickedPos();
 	if ( mnuid==addzitm_.id )
 	{
-	    float zpos( pickedpos.z );
+            float zpos( pickedpos.z_ );
 	    SI().snapZ( zpos );
 	    TrcKeyZSampling tkzs = SI().sampling( true );
 	    tkzs.zsamp_.set( zpos, zpos, SI().zStep() );
@@ -1153,7 +1153,7 @@ uiString uiODHorizon2DTreeItem::createDisplayName() const
     }
 
     const float curshift =
-		sCast(float,visserv_->getTranslation( displayid_ ).z);
+            sCast(float,visserv_->getTranslation( displayid_ ).z_);
 
     if ( !mIsZero(curshift,1e-6) )
 	res.append( toUiString("(%1)").arg(
@@ -1230,7 +1230,7 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==shiftmnuitem_.id )
     {
 	BoolTypeSet isenabled;
-	float curshift = sCast(float,visserv_->getTranslation( visid ).z);
+        float curshift = sCast(float,visserv_->getTranslation( visid ).z_);
 	if ( mIsUdf(curshift) )
 	    curshift = 0;
 

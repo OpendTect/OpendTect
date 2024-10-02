@@ -117,8 +117,8 @@ bool LASWriter::writeWellInfoSection( od_ostream& strm )
     zstart.set( mdrg_.start_, cNrMDDecimals );
     zstop.set( mdrg_.stop_, cNrMDDecimals );
     zstep.set( mdrg_.step_, cNrMDDecimals );
-    xcoord.set( wd_->info().surfacecoord_.x, cNrXYDecimals );
-    ycoord.set( wd_->info().surfacecoord_.y, cNrXYDecimals );
+    xcoord.set( wd_->info().surfacecoord_.x_, cNrXYDecimals );
+    ycoord.set( wd_->info().surfacecoord_.y_, cNrXYDecimals );
     const char* depthunit = zinfeet_ ? "F" : "M";
     const char* xyunit = SI().xyInFeet() ? "F" : "M";
 

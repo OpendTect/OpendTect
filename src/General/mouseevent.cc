@@ -104,8 +104,8 @@ MouseEvent& MouseEvent::operator=( const MouseEvent& mouseevent )
 void MouseEvent::setPos( const Geom::Point2D<double>& dpos )
 {
     dpos_ = dpos;
-    pos_.x = mNINT32( dpos.x );
-    pos_.y = mNINT32( dpos.y );
+    pos_.x_ = mNINT32( dpos.x_ );
+    pos_.y_ = mNINT32( dpos.y_ );
 }
 
 

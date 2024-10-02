@@ -71,12 +71,12 @@ const Interval<double> Well::Track::zRangeD() const
     if ( isEmpty() )
 	return Interval<double>( 0., 0. );
 
-    double zstart = pos_[0].z;
-    double zstop = pos_[0].z;
+    double zstart = pos_[0].z_;
+    double zstop = pos_[0].z_;
 
     for ( int idx=1; idx<size(); idx++ )
     {
-	const double zval = pos_[idx].z;
+        const double zval = pos_[idx].z_;
 	if ( zval < zstart )
 	    zstart = zval;
 	else if ( zval > zstop )
@@ -149,7 +149,7 @@ int Well::Track::insertPoint( const Coord3& c )
     if ( oldsz < 2 )
     {
 	Coord3 oth( pos_[0] );
-	if ( oth.z < cnew.z )
+        if ( oth.z_ < cnew.z_ )
 	{
 	    addPoint( c );
 	    return oldsz;
@@ -246,14 +246,14 @@ bool Well::Track::insertAtDah( float dh, float zpos )
     if ( dh < dah_[0] )
     {
 	dah_.insert( 0, dh );
-	Coord3 crd( pos_[0] ); crd.z = mCast(double,zpos);
+        Coord3 crd( pos_[0] ); crd.z_ = mCast(double,zpos);
 	pos_.insert( 0, crd );
 	return true;
     }
     if ( dh > dah_[size()-1] )
     {
 	dah_ += dh;
-	Coord3 crd( pos_[size()-1] ); crd.z = zpos;
+        Coord3 crd( pos_[size()-1] ); crd.z_ = zpos;
 	pos_ += crd;
 	return true;
     }
@@ -268,7 +268,7 @@ bool Well::Track::insertAtDah( float dh, float zpos )
     Coord3 prevcrd( pos_[insertidx] );
     Coord3 nextcrd( pos_[insertidx+1] );
     Coord3 crd( ( prevcrd + nextcrd )/2 );
-    crd.z = zpos;
+    crd.z_ = zpos;
 
     dah_.insert( insertidx+1, dh );
     pos_.insert( insertidx+1, crd );
@@ -342,11 +342,11 @@ Coord3 Well::Track::getPos( float dh ) const
 	    ret = pos_[0];
 	    if ( tracksz > 1 && zistime_ )
 	    {
-		const double grad = ( pos_[1].z - pos_[0].z ) /
+                const double grad = ( pos_[1].z_ - pos_[0].z_ ) /
 				    ( dah_[1]   - dah_[0] );
 		deltamd *= grad;
 	    }
-	    ret.z -= deltamd;
+            ret.z_ -= deltamd;
 	}
 	else
 	{
@@ -365,11 +365,11 @@ Coord3 Well::Track::getPos( float dh ) const
 	    ret = pos_[tracksz-1];
 	    if ( tracksz > 1 && zistime_ )
 	    {
-		const double grad = ( pos_[idx1].z - pos_[idx1-1].z ) /
+                const double grad = ( pos_[idx1].z_ - pos_[idx1-1].z_ ) /
 				    ( dah_[idx1]   - dah_[idx1-1] );
 		deltamd *= grad;
 	    }
-	    ret.z += deltamd;
+            ret.z_ += deltamd;
 	}
 	else
 	{
@@ -393,7 +393,7 @@ float Well::Track::getDepth( const Well::Data& wd, float dah,
     const float kb = trk.getKbElev();
     const float srd = SI().seismicReferenceDatum();
     const float gl = wd.info().groundelev_;
-    const float zpos = trk.getPos(dah).z;
+    const float zpos = trk.getPos(dah).z_;
     const float z = dtyp==Well::Info::MD ? dah :
 		    dtyp==Well::Info::TVD ? zpos+kb :
 		    dtyp==Well::Info::TVDSS ? zpos :
@@ -414,7 +414,7 @@ mDefParallelCalcBody(
 const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
 ,
 const float dah =  getConvertedValue( daharr_[idx], dah_uom_, zsuom );
-const float tvd = mIsUdf(dah) ? mUdf(float) : track_.getPos(dah).z + zshft_;
+const float tvd = mIsUdf(dah) ? mUdf(float) : track_.getPos(dah).z_ + zshft_;
 tvdsarr_[idx] = getConvertedValue( tvd, zsuom, tvd_uom_ );
 ,
 )
@@ -448,9 +448,9 @@ Interval<float> Well::Track::getTVDRange( const Interval<float>& dahrg,
 
     const float start = getConvertedValue( dahrg.start_, in_uom, zsuom );
     const float stop = getConvertedValue( dahrg.stop_, in_uom, zsuom );
-    const float tvdbeg = getConvertedValue( getPos(start).z+zshft, zsuom,
+    const float tvdbeg = getConvertedValue( getPos(start).z_+zshft, zsuom,
 					    out_uom );
-    const float tvdend = getConvertedValue( getPos(stop).z+zshft, zsuom,
+    const float tvdend = getConvertedValue( getPos(stop).z_+zshft, zsuom,
 					    out_uom );
     return Interval<float>( tvdbeg, tvdend );
 }
@@ -464,9 +464,9 @@ Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
     const Coord3& c1 = pos_[idx1];
     const Coord3& c2 = pos_[idx2];
     const double f =  1. / (d1 + d2);
-    return Coord3( f * ( d1 * c2.x + d2 * c1.x ),
-		   f * ( d1 * c2.y + d2 * c1.y ),
-		   f * ( d1 * c2.z + d2 * c1.z ) );
+    return Coord3( f * ( d1 * c2.x_ + d2 * c1.x_ ),
+                   f * ( d1 * c2.y_ + d2 * c1.y_ ),
+                   f * ( d1 * c2.z_ + d2 * c1.z_ ) );
 }
 
 
@@ -487,12 +487,12 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
     static const double eps = 1e-3; // do not use lower for float precision
     static const double epsf = 1e-3f; // do not use lower for float precision
     if ( sz == 1 )
-	return mIsEqual(z,pos_[0].z,eps) ? dah_[0] : mUdf(float);
+        return mIsEqual(z,pos_[0].z_,eps) ? dah_[0] : mUdf(float);
 
     const Interval<double> zrange = zRangeD();
     if ( !zrange.includes(z,false) )
     {
-	if ( z < pos_[0].z && dah_[0] > epsf )
+        if ( z < pos_[0].z_ && dah_[0] > epsf )
 	{
 	    const float retdah = z + getKbElev();
 	    return retdah > -1*epsf ? retdah : mUdf(float);
@@ -511,7 +511,7 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
     {
 	if ( !haveprevdah || prevdah+epsf < dah_[idx] )
 	{
-	    zrg.stop_ = pos_[idx].z;
+            zrg.stop_ = pos_[idx].z_;
 	    if ( mZInRg() )
 		{ idxafter = idx; break; }
 	}
@@ -522,8 +522,8 @@ float Well::Track::getDahForTVD( double z, float prevdah ) const
 
     const int idx1 = idxafter - 1;
     const int idx2 = idxafter;
-    const double z1 = pos_[idx1].z;
-    const double z2 = pos_[idx2].z;
+    const double z1 = pos_[idx1].z_;
+    const double z2 = pos_[idx2].z_;
     const double dah1 = mCast(double,dah_[idx1]);
     const double dah2 = mCast(double,dah_[idx2]);
     const double zdiff = z2 - z1;
@@ -549,7 +549,7 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 
     const double zfac = zistime_ ? mSimpleWellVel : 1.;
     Coord3 curpos = posin;
-    curpos.z *= zfac;
+    curpos.z_ *= zfac;
     if ( pos_.size() > 1000 )
     {
 	const TypeSet<Coord3>& input_pos = zistime_ ? *zpos_ : pos_;
@@ -560,20 +560,20 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 
     int startidx = 0;
     Coord3 actualboundstart = getPos( dah_[startidx] );
-    actualboundstart.z *= zfac;
+    actualboundstart.z_ *= zfac;
     Coord3 actualboundstop = getPos( dah_[startidx+1] );
-    actualboundstop.z *= zfac;
+    actualboundstop.z_ *= zfac;
     Coord3 curposonline;
     for ( int idx=0; idx<dah_.size()-1; idx++ )
     {
-	Coord3 boundposstart = getPos( dah_[idx] ); boundposstart.z *= zfac;
-	Coord3 boundposstop = getPos( dah_[idx+1] ); boundposstop.z *= zfac;
+        Coord3 boundposstart = getPos( dah_[idx] ); boundposstart.z_ *= zfac;
+        Coord3 boundposstop = getPos( dah_[idx+1] ); boundposstop.z_ *= zfac;
 	Vector3 dir = boundposstop-boundposstart;
 	Line3 newline(boundposstop,dir);
 
-	Interval<float> zintrvl( mCast(float,boundposstart.z),
-				       mCast(float,boundposstop.z) );
-	if ( zintrvl.includes(curpos.z,true) )
+        Interval<float> zintrvl( mCast(float,boundposstart.z_),
+                                 mCast(float,boundposstop.z_) );
+        if ( zintrvl.includes(curpos.z_,true) )
 	{
 	    Coord3 posonline = newline.getPoint(newline.closestPoint(curpos));
 	    if ( posonline.isDefined() )
@@ -604,10 +604,10 @@ bool Well::Track::alwaysDownward() const
     if ( size() < 2 )
 	return size();
 
-    double prevz = pos_[0].z;
+    double prevz = pos_[0].z_;
     for ( int idx=1; idx<pos_.size(); idx++ )
     {
-	double curz = pos_[idx].z;
+        double curz = pos_[idx].z_;
 	if ( curz <= prevz )
 	    return false;
 
@@ -722,7 +722,7 @@ void Well::Track::toTime( const Data& wd )
     // Now, convert to time
     for ( int idx=0; idx<dah_.size(); idx++ )
     {
-	double& depth = pos_[idx].z;
+        double& depth = pos_[idx].z_;
 	const bool abovesrd = depth < srddepth;
 	if ( !abovesrd && !d2t )
 	{
@@ -738,7 +738,7 @@ void Well::Track::toTime( const Data& wd )
     delete zpos_;
     zpos_ = new TypeSet<Coord3>( pos_ );
     for ( int idz=0; idz<pos_.size(); idz++ )
-	(*zpos_)[idz].z *= mSimpleWellVel;
+        (*zpos_)[idz].z_ *= mSimpleWellVel;
 
     zistime_ = true;
 }

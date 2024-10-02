@@ -48,9 +48,9 @@ public:
 
     T					start_;
     T					step_;
-    mDeprecated("Use with underscore")
+    mDeprecated("Use start_")
     T&					start;
-    mDeprecated("Use with underscore")
+    mDeprecated("Use step_")
     T&					step;
 };
 

@@ -111,7 +111,7 @@ void Horizon2DLine::syncRow( Pos::GeomID geomid,
 
     for ( int colidx=rows_[rowidx]->size()-1; colidx>=0; colidx-- )
     {
-	const double z = (*rows_[rowidx])[colidx].z;
+        const double z = (*rows_[rowidx])[colidx].z_;
 	(*rows_[rowidx])[colidx] = Coord3( Coord::udf(), z );
     }
 
@@ -143,7 +143,7 @@ void Horizon2DLine::syncRow( Pos::GeomID geomid,
 	    udfstoadd--;
 	}
 
-	const double z = (*rows_[rowidx])[colidx].z;
+        const double z = (*rows_[rowidx])[colidx].z_;
 	(*rows_[rowidx])[colidx] = Coord3( geom.positions()[tridx].coord_, z );
     }
 
@@ -280,7 +280,7 @@ Interval<float> Horizon2DLine::zRange( Pos::GeomID geomid ) const
     for ( int col=colrg.start_; col<=colrg.stop_; col+=colrg.step_ )
     {
 	const int rowidx = getRowIndex( geomid );
-	const float z = (float) getKnot( RowCol(rowidx,col) ).z;
+        const float z = (float) getKnot( RowCol(rowidx,col) ).z_;
 	if ( !mIsUdf(z) )
 	    zrange.include( z, false );
     }
@@ -400,12 +400,12 @@ Coord3 Horizon2DLine::computePosition( Pos::GeomID geomid, int col ) const
 	if ( col1_ < 0 )
 	{
 	    col1_ = colidx + 1;
-	    z1_ = pos.z;
+            z1_ = pos.z_;
 	}
 	else if ( col2_ < 0 )
 	{
 	    col2_ = colidx + 1;
-	    z2_ = pos.z;
+            z2_ = pos.z_;
 	}
 	else
 	    break;
@@ -422,12 +422,12 @@ Coord3 Horizon2DLine::computePosition( Pos::GeomID geomid, int col ) const
 	if ( col1 < 0 )
 	{
 	    col1 = colidx - 1;
-	    z1 = pos.z;
+            z1 = pos.z_;
 	}
 	else if ( col2 < 0 )
 	{
 	    col2 = colidx - 1;
-	    z2 = pos.z;
+            z2 = pos.z_;
 	}
 	else
 	    break;
@@ -436,7 +436,7 @@ Coord3 Horizon2DLine::computePosition( Pos::GeomID geomid, int col ) const
     if ( col1_ < 0 || col2_ < 0 || col1 < 0 || col2 < 0 )
 	return Coord3::udf();
 
-    position.z = Interpolate::poly1D<double>( (float)col2_, z2_, (float)col1_,
+    position.z_ = Interpolate::poly1D<double>( (float)col2_, z2_, (float)col1_,
 					      z1_, (float)col1, z1, (float)col2,
 					      z2, (float)curcolidx );
     return position;

@@ -299,7 +299,7 @@ void Surface::apply( const Pos::Filter& pf )
 	    break;
 
 	const Coord3 pos = getPos( pid );
-	if ( !pf.includes(pos.coord(),(float)pos.z) )
+        if ( !pf.includes(pos.coord(),(float)pos.z_) )
 	   unSetPos( pid, false );
     }
 }

@@ -137,17 +137,17 @@ bool QtTabletEventFilter::eventFilter( QObject* obj, QEvent* ev )
 #endif
 
 #if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
-	ti.globalpos_.x = qtabev->globalPosition().x();
-	ti.globalpos_.y = qtabev->globalPosition().y();
-	ti.pos_.x = qtabev->position().x();
-	ti.pos_.y = qtabev->position().y();
+	ti.globalpos_.x_ = qtabev->globalPosition().x();
+	ti.globalpos_.y_ = qtabev->globalPosition().y();
+	ti.pos_.x_ = qtabev->position().x();
+	ti.pos_.y_ = qtabev->position().y();
 	if ( qtabev->pointingDevice() )
 	    ti.uniqueid_ = qtabev->pointingDevice()->uniqueId().numericId();
 #else
-	ti.globalpos_.x = qtabev->globalX();
-	ti.globalpos_.y = qtabev->globalY();
-	ti.pos_.x = qtabev->x();
-	ti.pos_.y = qtabev->y();
+        ti.globalpos_.x_ = qtabev->globalX();
+	ti.globalpos_.y_ = qtabev->globalY();
+        ti.pos_.x_ = qtabev->x();
+	ti.pos_.y_ = qtabev->y();
 	ti.uniqueid_ = qtabev->uniqueId();
 #endif
 	ti.pressure_ = qtabev->pressure();

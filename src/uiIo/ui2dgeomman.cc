@@ -270,9 +270,9 @@ bool acceptOK( CallBacker* ) override
 	for ( int trcnr=t0+1; trcnr<t1; trcnr++ )
 	{
 	    const double newx =
-		Interpolate::linear1D( t0, crd0.x, t1, crd1.x, trcnr );
+                    Interpolate::linear1D( t0, crd0.x_, t1, crd1.x_, trcnr );
 	    const double newy =
-		Interpolate::linear1D( t0, crd0.y, t1, crd1.y, trcnr );
+                    Interpolate::linear1D( t0, crd0.y_, t1, crd1.y_, trcnr );
 	    const float newsp = !usesp ? float(trcnr) :
 		Interpolate::linear1D( t0, sp0, t1, sp1, trcnr );
 	    newgeom_->add( newx, newy, trcnr, newsp );
@@ -660,8 +660,8 @@ void uiManageLineGeomDlg::fillTable( const Survey::Geometry2D& geom2d )
 	table_->setValue( RowCol(idx,0), positions[idx].nr_ );
 	table_->setValue( RowCol(idx,1), spnrs.validIdx(idx) ? spnrs[idx] : -1,
 			  nrspdec );
-	table_->setValue( RowCol(idx,2), crd.x, nrdec );
-	table_->setValue( RowCol(idx,3), crd.y, nrdec );
+        table_->setValue( RowCol(idx,2), crd.x_, nrdec );
+        table_->setValue( RowCol(idx,3), crd.y_, nrdec );
 
 	if ( SI().hasProjection() )
 	{

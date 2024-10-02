@@ -88,7 +88,7 @@ void PickSet::pickAddChgCB( CallBacker* cb )
 	return;
 
     if ( vwr.hasZAxisTransform() )
-	crd.z = vwr.getZAxisTransform()->transformBack( crd );
+        crd.z_ = vwr.getZAxisTransform()->transformBack( crd );
 
     Pick::Location newloc( crd );
     ConstRefMan<FlatDataPack> dp = vwr.getPack( false, true ).get();
@@ -98,7 +98,7 @@ void PickSet::pickAddChgCB( CallBacker* cb )
 	if ( seisdp && seisdp->nrTrcs() && seisdp->is2D() )
 	{
 	    const FlatPosData& pd = seisdp->posData();
-	    const IndexInfo ix = pd.indexInfo( true, selpt.x );
+            const IndexInfo ix = pd.indexInfo( true, selpt.x_ );
 	    const TrcKey trckey = seisdp->getTrcKey( ix.nearest_ );
 	    newloc.setTrcKey( trckey );
 	}
@@ -254,7 +254,7 @@ void PickSet::drawAll()
 	{
 	    const Pick::Location& pl = pickset_->get( idx );
 	    const Coord3& pos = pl.pos();
-	    const double z = zat ? zat->transform(pos) : pos.z;
+            const double z = zat ? zat->transform(pos) : pos.z_;
 	    const Coord bidf = bid2crd.transformBackNoSnap( pos.coord() );
 	    if ( regfdp && regfdp->isVertical() )
 	    {
@@ -308,18 +308,18 @@ void PickSet::drawAll()
 		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
 		FlatView::Point point( regfdp->is2D() ? distance
-						      : oninl ? bidf.y
-							      : bidf.x, z );
+                                                      : oninl ? bidf.y_
+                                                              : bidf.x_, z );
 		picks->poly_ += point;
 	    }
 	    else if ( regfdp && !regfdp->isVertical() )
 	    {
                 const float vwr2dzpos = regfdp->sampling().zsamp_.start_;
                 const float eps = regfdp->sampling().zsamp_.step_/2.f;
-		if ( !mIsEqual(vwr2dzpos,pos.z,eps) )
+                if ( !mIsEqual(vwr2dzpos,pos.z_,eps) )
 		    continue;
 
-		FlatView::Point point( bidf.x, bidf.y );
+                FlatView::Point point( bidf.x_, bidf.y_ );
 		picks->poly_ += point;
 	    }
 	    else if ( randfdp )

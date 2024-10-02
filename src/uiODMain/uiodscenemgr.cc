@@ -552,15 +552,15 @@ void uiODSceneMgr::updateStatusBar()
     uiString msg;
     if ( haspos  )
     {
-	const BinID bid( SI().transform( Coord(xytpos.x,xytpos.y) ) );
+        const BinID bid( SI().transform( Coord(xytpos.x_,xytpos.y_) ) );
 	const float zfact = mCast(float,visServ().zFactor());
-	const float zval = (float) (zfact * xytpos.z);
+        const float zval = (float) (zfact * xytpos.z_);
 	const int nrdec = SI().nrZDecimals()+1; // get from settings
 	const BufferString zvalstr = toString( zval, nrdec );
 	msg = toUiString("%1    (%2, %3, %4)")
 	    .arg( bid.toString() )
-	    .arg( mNINT32(xytpos.x) )
-	    .arg( mNINT32(xytpos.y) )
+              .arg( mNINT32(xytpos.x_) )
+              .arg( mNINT32(xytpos.y_) )
 	    .arg( zvalstr );
     }
 

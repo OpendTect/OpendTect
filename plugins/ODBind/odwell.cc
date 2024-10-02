@@ -177,9 +177,9 @@ void odWell::getTrack( hAllocator allocator )
     {
 	const Coord3 pos = wt.pos( idx );
 	*dah_data++ = getConvertedValue( wt.dah(idx), zsuom, zduom );
-	*tvdss_data++ = getConvertedValue( pos.z, zsuom, zduom );
-	*x_data++ = pos.x;
-	*y_data++ = pos.y;
+        *tvdss_data++ = getConvertedValue( pos.z_, zsuom, zduom );
+        *x_data++ = pos.x_;
+        *y_data++ = pos.y_;
     }
 }
 
@@ -325,8 +325,8 @@ void odWell::getInfo( OD::JSON::Object& jsobj ) const
     jsobj.set( "country", wd_->info().country_.buf() );
     jsobj.set( "welltype", OD::toString(wd_->info().welltype_) );
     const Coord cd = wd_->info().surfacecoord_;
-    jsobj.set( "x", cd.x );
-    jsobj.set( "y", cd.y );
+    jsobj.set( "x", cd.x_ );
+    jsobj.set( "y", cd.y_ );
     jsobj.set( "kb", wd_->track().getKbElev() );
     jsobj.set( "td", wd_->track().td() );
     jsobj.set( "replacement_velocity", wd_->info().replvel_ );
@@ -371,8 +371,8 @@ void odWell::getPoints( OD::JSON::Array& jsarr, bool towgs ) const
     }
     else
     {
-	jsarr.add( coord.x );
-	jsarr.add( coord.y );
+        jsarr.add( coord.x_ );
+        jsarr.add( coord.y_ );
     }
 }
 
@@ -523,7 +523,7 @@ void well_tvdss( hWell self, const float dah, float* tvdss )
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
     float dahstored = getConvertedValue( dah, zduom, zsuom );
-    float tvdssstored = p->wd()->track().getPos( dahstored ).z;
+    float tvdssstored = p->wd()->track().getPos( dahstored ).z_;
     *tvdss = getConvertedValue( tvdssstored, zsuom, zduom );
 }
 
@@ -535,7 +535,7 @@ void well_tvd( hWell self, const float dah, float* tvd )
     const UnitOfMeasure* zduom = UnitOfMeasure::surveyDefDepthUnit();
     const UnitOfMeasure* zsuom = UnitOfMeasure::surveyDefDepthStorageUnit();
     float dahstored = getConvertedValue( dah, zduom, zsuom );
-    float tvdstored = p->wd()->track().getPos( dahstored ).z +
+    float tvdstored = p->wd()->track().getPos( dahstored ).z_ +
 						p->wd()->track().getKbElev();
     *tvd = getConvertedValue( tvdstored, zsuom, zduom );
 }

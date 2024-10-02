@@ -99,7 +99,7 @@ const Coord3& LocationBase::pos() const
 
 float LocationBase::z() const
 {
-    return (float)pos_.z;
+    return (float)pos_.z_;
 }
 
 
@@ -111,8 +111,8 @@ void LocationBase::setPos( const Coord3& crd )
 
 void LocationBase::setPos( const Coord& crd )
 {
-    pos_.x = crd.x;
-    pos_.y = crd.y;
+    pos_.x_ = crd.x_;
+    pos_.y_ = crd.y_;
 }
 
 void LocationBase::setPos( double x,double y,double zval )
@@ -123,7 +123,7 @@ void LocationBase::setPos( double x,double y,double zval )
 
 void LocationBase::setPos( const Coord& c,float zval )
 {
-    setPos( c.x, c.y, zval );
+    setPos( c.x_, c.y_, zval );
 }
 
 

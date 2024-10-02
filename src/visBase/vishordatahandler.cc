@@ -63,7 +63,7 @@ void HorizonSectionDataHandler::updateZAxisVOI()
     BinID curpos;
     while ( iter.next(curpos) )
     {
-	const float depth = geometry->getKnot(RowCol(curpos),false).z;
+        const float depth = geometry->getKnot(RowCol(curpos),false).z_;
 	if ( mIsUdf(depth) )
 	    continue;
 

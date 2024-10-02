@@ -125,7 +125,7 @@ void Text::setText( const uiString& newtext )
 void Text::setRotation( float radangle, const Coord3& axis )
 {
     osg::Quat rotation;
-    rotation.makeRotate( radangle, osg::Vec3d(axis.x, axis.y, axis.z) );
+    rotation.makeRotate( radangle, osg::Vec3d(axis.x_, axis.y_, axis.z_) );
     osgtext_->setRotation( rotation );
 }
 

@@ -75,8 +75,8 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	setOutputValue( output, 0, idx, z0, float(coord.x) );
-	setOutputValue( output, 1, idx, z0, float(coord.y) );
+        setOutputValue( output, 0, idx, z0, float(coord.x_) );
+        setOutputValue( output, 1, idx, z0, float(coord.y_) );
 	if ( outputinterest_[2] )
 	{
 	    if ( nrsamples==1 )

@@ -223,7 +223,7 @@ void uiMarkerDlg::exportMarkerSet( uiParent* p, const Well::MarkerSet& mset,
     {
 	const Well::Marker& mrkr = *mset[idx];
 	const float dah = mrkr.dah();
-	const float tvdss = sCast(float,trck.getPos(dah).z);
+        const float tvdss = sCast(float,trck.getPos(dah).z_);
 	const float tvd = tvdss + kbelev;
 	strm << dah * zfac << od_tab
 	     << tvd * zfac << od_tab
@@ -515,7 +515,7 @@ void uiMarkerDlg::fillMarkerRow( int row, const Well::Marker& marker,
     levelsel->setID( marker.levelID() );
     const float dah = marker.dah();
     table_->setValue( RowCol(row,cDepthCol), dah*zfac, 2 );
-    const float tvdss = sCast(float,track_.getPos(dah).z);
+    const float tvdss = sCast(float,track_.getPos(dah).z_);
     table_->setValue( RowCol(row,cTVDCol), (tvdss+kbelev)*zfac, 2 );
     table_->setValue( RowCol(row,cTVDSSCol), tvdss*zfac, 2 );
     if ( SI().zIsTime() && d2tmodel_ )
@@ -947,7 +947,7 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     }
 
     const float dah = md2tvdss ? inval : track_.getDahForTVD( inval );
-    const float tvdss = md2tvdss ? mCast(float,track_.getPos(inval).z) : inval;
+    const float tvdss = md2tvdss ? mCast(float,track_.getPos(inval).z_) : inval;
     const float tvd = tvdss + kbelev;
     if ( !md2tvdss )
 	table_->setValue( RowCol(row,cDepthCol), dah * zfac );
@@ -1005,7 +1005,7 @@ float uiMarkerDlg::getOldMarkerVal( Well::Marker* marker ) const
     const float kbelev = track_.getKbElev();
 
     const float olddah = marker->dah();
-    const float oldtvdss = mCast(float,track_.getPos(olddah).z);
+    const float oldtvdss = mCast(float,track_.getPos(olddah).z_);
     const float oldtvd = oldtvdss + kbelev;
     const float oldval = ismd ? olddah : istvd ? oldtvd : oldtvdss;
 
@@ -1044,7 +1044,7 @@ uiMarkerViewDlg::uiMarkerViewDlg( uiParent* p, const Well::Data& wd )
 
 	const float dah = mrkr.dah();
 	table_->setValue( RowCol(irow,cDepthCol), dah*zfac, 2 );
-	const float tvdss = (float)trck.getPos(dah).z;
+        const float tvdss = (float)trck.getPos(dah).z_;
 	table_->setValue( RowCol(irow,cTVDCol), (tvdss+kbelev)*zfac, 2 );
 	table_->setValue( RowCol(irow,cTVDSSCol), tvdss*zfac, 2 );
     }

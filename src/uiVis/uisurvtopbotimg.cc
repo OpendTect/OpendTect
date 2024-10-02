@@ -78,7 +78,7 @@ void fillCurrent()
     imagefld_->setChecked( img_->isOn() );
     imagefld_->setInput( img_->getImageID() );
     transpfld_->setValue( img_->getTransparency()*100 );
-    zposfld_->setValue( mCast(float,img_->topLeft().z) );
+    zposfld_->setValue( mCast(float,img_->topLeft().z_) );
 }
 
 void newImage( CallBacker* )
@@ -100,8 +100,8 @@ void onOff( CallBacker* )
 	    const Coord mincrd = SI().minCoord(true);
 	    const Coord maxcrd = SI().maxCoord(true);
 	    const double zval = zposfld_->getFValue();
-	    const Coord3 tlcrd( mincrd.x, maxcrd.y, zval );
-	    const Coord3 brcrd( maxcrd.x, mincrd.y, zval );
+            const Coord3 tlcrd( mincrd.x_, maxcrd.y_, zval );
+            const Coord3 brcrd( maxcrd.x_, mincrd.y_, zval );
 	    img_->setPos( tlcrd, brcrd );
 	}
     }
@@ -203,7 +203,7 @@ void uiSurvTopBotImageDlg::setZ( bool istop, float zval )
 
     Coord3 tl = image->topLeft();
     Coord3 br = image->bottomRight();
-    tl.z = br.z = zval;
+    tl.z_ = br.z_ = zval;
     image->setPos( tl, br );
 }
 

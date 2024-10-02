@@ -999,7 +999,7 @@ void uiSurvey::utilButPush( CallBacker* cb )
 static BufferString pointTxt( int idx, const BinID& bid, const Coord& crd )
 {
     BufferString txt( "Corner ", idx, ":\t" );
-    txt.add( "X: " ).add( crd.x, 2 ).add( "  Y: " ).add( crd.y, 2 );
+    txt.add( "X: " ).add( crd.x_, 2 ).add( "  Y: " ).add( crd.y_, 2 );
     txt.add( "  IL: " ).add( bid.inl() ).add( "  XL: " ).add( bid.crl() );
     txt.addNewLine();
     return txt;

@@ -350,7 +350,7 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
     for ( int idx=0; idx<poly->size(); idx++ )
     {
 	Geom::Point2D<float> pt = poly->getVertex( idx );
-	BinID bid( mNINT32(pt.x), mNINT32(pt.y) );
+        BinID bid( mNINT32(pt.x_), mNINT32(pt.y_) );
 	rl->addNode( bid );
     }
     if ( rl->isEmpty() )

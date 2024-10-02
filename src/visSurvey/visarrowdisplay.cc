@@ -134,7 +134,7 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc, bool add )
     Coord3 vector = spherical2Cartesian( loc.dir(), true );
 
     if ( scene_ )
-	vector.z /= -scene_->getZScale();
+        vector.z_ /= -scene_->getZScale();
     const Coord3 c1 = loc.pos()+vector;
     Coord3 d1 = world2Display( c1 );
     Coord3 displayvector = d1-d0;

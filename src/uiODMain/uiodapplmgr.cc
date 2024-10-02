@@ -812,7 +812,7 @@ bool uiODApplMgr::calcRandomPosAttrib( const VisID& visid, int attrib )
 	setRandomPosData( visid, attrib, *data );
 	if ( hd )
 	{
-	    TypeSet<float> shifts( 1,(float)visserv_->getTranslation(visid).z );
+            TypeSet<float> shifts( 1,(float)visserv_->getTranslation(visid).z_ );
 	    hd->setAttribShift( attrib, shifts );
 	}
     }
@@ -1715,7 +1715,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 
 	const MultiID mid = visserv_->getMultiID( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
-	const float shift = (float) visserv_->getTranslation(visid).z;
+        const float shift = (float) visserv_->getTranslation(visid).z_;
 	const TypeSet<Attrib::SelSpec>& specs = attrserv_->getTargetSelSpecs();
 	const int nrvals = data->bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )

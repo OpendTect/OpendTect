@@ -245,7 +245,7 @@ void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 	uiWorldPoint wpt( val, 0 );
 	const uiPoint pt( w2ui_->transform(wpt) );
 	auto* lineitem = new uiLineItem();
-	lineitem->setLine( pt.x, 0, pt.x, 15 );
+        lineitem->setLine( pt.x_, 0, pt.x_, 15 );
 	lineitem->setPenStyle( OD::LineStyle(OD::LineStyle::Solid,3) );
 	markerlineitmgrp_->add( lineitem );
     }
@@ -263,11 +263,11 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* )
     selidx_ = -1;
     float mindiff = 5;
     uiWorldPoint wpp = w2ui_->worldPerPixel();
-    float fac = (float)wpp.x;
+    float fac = (float)wpp.x_;
     for ( int idx=0; idx<ctab_.size(); idx++ )
     {
 	const float val = ctab_.position( idx );
-	const float ref = (float) ( wpt.x );
+        const float ref = (float) ( wpt.x_ );
 	const float diffinpix = fabs(val-ref) / fabs(fac);
 	if ( diffinpix < mindiff )
 	{
@@ -361,7 +361,7 @@ void uiColTabMarkerCanvas::mouse2Clk( CallBacker* )
 
     const MouseEvent& ev = meh_.event();
     const uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    addMarker( sCast(float,wpt.x), true );
+    addMarker( sCast(float,wpt.x_), true );
     selidx_ = -1;
     meh_.setHandled( true );
 }
@@ -389,7 +389,7 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* )
 
     const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
-    float changepos = (float) ( wpt.x );
+    float changepos = (float) ( wpt.x_ );
 
     const int sz = ctab_.size();
     if ( selidx_<0 || selidx_>=sz )

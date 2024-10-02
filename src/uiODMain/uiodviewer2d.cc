@@ -1166,21 +1166,21 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	const int gidx = seisfdp->getSourceGlobalIdx( trkv.tk_ );
 	if ( seisfdp->isVertical() )
 	{
-	    pt.x = fdp->posData().range(true).atIndex( gidx );
-	    pt.y = datatransform_ ?
+            pt.x_ = fdp->posData().range(true).atIndex( gidx );
+            pt.y_ = datatransform_ ?
 		   datatransform_->transformTrc( trkv.tk_, trkv.val_ ) :
 		   trkv.val_;
 	}
 	else
 	{
-	    pt.x = fdp->posData().range(true).atIndex( gidx / tkzs_.nrTrcs() );
-	    pt.y = fdp->posData().range(false).atIndex( gidx % tkzs_.nrTrcs() );
+            pt.x_ = fdp->posData().range(true).atIndex( gidx / tkzs_.nrTrcs() );
+            pt.y_ = fdp->posData().range(false).atIndex( gidx % tkzs_.nrTrcs() );
 	}
     }
     else if ( mapdp )
     {
 	const Coord pos = Survey::GM().toCoord( trkv.tk_ );
-	pt = FlatView::Point( pos.x, pos.y );
+        pt = FlatView::Point( pos.x_, pos.y_ );
     }
 
     vwr.handleChange( FlatView::Viewer::Auxdata );
@@ -1197,14 +1197,14 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 	valstr = pars.find( "X-coordinate" );
 
     if ( !valstr.isEmpty() )
-	mousepos.x = valstr.toDouble();
+        mousepos.x_ = valstr.toDouble();
 
     valstr = pars.find( "Y" );
     if ( valstr.isEmpty() )
 	valstr = pars.find( "Y-coordinate" );
 
     if ( !valstr.isEmpty() )
-	mousepos.y = valstr.toDouble();
+        mousepos.y_ = valstr.toDouble();
 
     valstr = pars.find( "Z" );
     if ( valstr.isEmpty() )
@@ -1212,9 +1212,9 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 
     if ( !valstr.isEmpty() )
     {
-	mousepos.z = valstr.toFloat() / zDomain().userFactor();
+        mousepos.z_ = valstr.toFloat() / zDomain().userFactor();
 	if ( datatransform_ )
-	    mousepos.z = datatransform_->transformBack( mousepos );
+            mousepos.z_ = datatransform_->transformBack( mousepos );
     }
 
     if ( mousecursorexchange_ )
@@ -1222,7 +1222,7 @@ void uiODViewer2D::mouseMoveCB( CallBacker* cb )
 	const TrcKeyValue trckeyval =
 	    mousepos.isDefined() ? TrcKeyValue(
 		    TrcKey( SI().transform(mousepos.coord()) ),
-						mCast(float,mousepos.z))
+                                       mCast(float,mousepos.z_))
 				 : TrcKeyValue::udf();
 
 	MouseCursorExchange::Info info( trckeyval );

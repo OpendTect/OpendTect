@@ -387,12 +387,12 @@ void uiStatsDisplayWin::mouseMoveCB( CallBacker* cb )
 	if ( !disp || meh != &disp->getMouseEventHandler() )
 	     continue;
 
-	val = disp->getFuncXY( pos.x, false );
+        val = disp->getFuncXY( pos.x_, false );
 	break;
     }
 
-    uiString str = tr("Value / Count:  %1 / %2").arg(toUiString(val.x,4)).
-		   arg(toUiString(val.y,0));
+    uiString str = tr("Value / Count:  %1 / %2").arg(toUiString(val.x_,4)).
+                   arg(toUiString(val.y_,0));
     toStatusBar( str );
 }
 

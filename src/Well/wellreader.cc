@@ -489,8 +489,8 @@ bool Well::odReader::getInfo( od_istream& strm ) const
     }
 
     Coord surfcoord = wd_.info().surfacecoord_;
-    if ( (mIsZero(surfcoord.x,0.001) && mIsZero(surfcoord.x,0.001))
-	    || (mIsUdf(surfcoord.x) && mIsUdf(surfcoord.x)) )
+    if ( (mIsZero(surfcoord.x_,0.001) && mIsZero(surfcoord.x_,0.001))
+         || (mIsUdf(surfcoord.x_) && mIsUdf(surfcoord.x_)) )
     {
 	if ( wd_.track().isEmpty() && !getTrack(strm) )
 	    return false;
@@ -513,12 +513,12 @@ bool Well::odReader::getOldTimeWell( od_istream& strm ) const
     float dah = 0;
     while ( strm.isOK() )
     {
-	strm >> c3.x >> c3.y >> c3.z;
+        strm >> c3.x_ >> c3.y_ >> c3.z_;
 	if ( !strm.isOK() || c3.distTo(c0) < 1 ) break;
 
 	if ( !wd_.track().isEmpty() )
 	    dah += (float) c3.distTo( prevc );
-	wd_.track().addPoint( c3, (float) c3.z, dah );
+        wd_.track().addPoint( c3, (float) c3.z_, dah );
 	prevc = c3;
     }
     if ( wd_.track().isEmpty() )
@@ -530,7 +530,7 @@ bool Well::odReader::getOldTimeWell( od_istream& strm ) const
     // create T2D
     D2TModel* d2t = new D2TModel( D2TModel::sKeyTimeWell() );
     for ( int idx=0; idx<wd_.track().size(); idx++ )
-	d2t->add( wd_.track().dah(idx),(float) wd_.track().pos(idx).z );
+        d2t->add( wd_.track().dah(idx),(float) wd_.track().pos(idx).z_ );
 
     if ( !updateDTModel(d2t,false,errmsg_) )
 	mErrRetStrmOper( tr("Time/Depth relation in file is not valid") )
@@ -545,9 +545,9 @@ bool Well::odReader::getTrack( od_istream& strm ) const
     wd_.track().setEmpty();
     while ( strm.isOK() )
     {
-	strm >> c.x >> c.y >> c.z >> dah;
+        strm >> c.x_ >> c.y_ >> c.z_ >> dah;
 	if ( !strm.isOK() ) break;
-	wd_.track().addPoint( c, (float) c.z, dah );
+        wd_.track().addPoint( c, (float) c.z_, dah );
     }
     if ( wd_.track().isEmpty() )
 	mErrRetStrmOper( tr("No valid well track data found") )
@@ -582,8 +582,8 @@ bool Well::odReader::getTrack() const
 	for ( int idx=0; idx<welltrack.size(); idx++ )
 	{
 	    Coord3 pos = welltrack.pos( idx );
-	    pos.z *= mToFeetFactorD;
-	    welltrack.setPoint( idx, pos, (float) pos.z );
+            pos.z_ *= mToFeetFactorD;
+            welltrack.setPoint( idx, pos, (float) pos.z_ );
 	}
     }
 

@@ -297,7 +297,7 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
     {
 	pt = track.pos( idx );
 
-	if ( !mIsUdf(pt.z) )
+        if ( !mIsUdf(pt.z_) )
 	    trackpos += pt;
     }
 }
@@ -473,7 +473,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	if ( pos.isUdf() )
 	    continue;
 
-	if ( mIsUdf(pos.z) )
+        if ( mIsUdf(pos.z_) )
 	    continue;
 
 	float val = logdata->value(idx);
@@ -665,7 +665,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     const bool needsdatatransform = datatransform_ && ( !zistime_ ||
 				!scene_->zDomainInfo().def_.isDepth() ) ;
     if ( needsdatatransform )
-	mouseworldpos.z = datatransform_->transformBack( mouseworldpos );
+        mouseworldpos.z_ = datatransform_->transformBack( mouseworldpos );
 
     const float dah = track.nearestDah( mouseworldpos );
 
@@ -852,7 +852,7 @@ void WellDisplay::addPick( Coord3 pos )
     const double zfactor =
 		double( scene_ ? scene_->getZScale() : SI().zScale() );
     const int insertidx = pseudotrack_->insertPoint(
-					Coord3(pos.x,pos.y,pos.z*zfactor) );
+                              Coord3(pos.x_,pos.y_,pos.z_*zfactor) );
 
     TypeSet<Coord3> wcoords = getWellCoords();
     well_->setTrack( wcoords );
@@ -954,7 +954,7 @@ TypeSet<Coord3> WellDisplay::getWellCoords() const
 		double( scene_ ? scene_->getZScale() : SI().zScale() );
     TypeSet<Coord3> coords = pseudotrack_->getAllPos();
     for ( int idx=0; idx<coords.size(); idx++ )
-	coords[idx].z /= zfactor;
+        coords[idx].z_ /= zfactor;
 
     return coords;
 }

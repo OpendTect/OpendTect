@@ -517,8 +517,8 @@ bool GriddedSource::initGridder()
     {
 	const Coord cmin = SI().minCoord( true );
 	const Coord cmax = SI().maxCoord( true );
-	xrg.set( cmin.x, cmax.x );
-	yrg.set( cmin.y, cmax.y );
+        xrg.set( cmin.x_, cmax.x_ );
+        yrg.set( cmin.y_, cmax.y_ );
     }
 
     gridder_->setGridArea( xrg, yrg );

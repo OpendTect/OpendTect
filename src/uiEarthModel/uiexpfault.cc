@@ -328,17 +328,17 @@ bool uiExportFault::writeAscii()
 			{
 			    const Coord crd2d =
 				outcrs->convertFrom( crd.coord(), *syscrs );
-			    crd.setXY( crd2d.x, crd2d.y);
+                            crd.setXY( crd2d.x_, crd2d.y_);
 			}
 
-			str += crd.x; str += "\t"; str += crd.y;
+                        str += crd.x_; str += "\t"; str += crd.y_;
 			ostrm << str;
 		    }
 
-		    if ( !mIsUdf(crd.z) )
-			convValue( crd.z, objzunit, zunitout );
+                    if ( !mIsUdf(crd.z_) )
+                        convValue( crd.z_, objzunit, zunitout );
 
-		    ostrm << '\t' << crd.z;
+                    ostrm << '\t' << crd.z_;
 
 		    if ( inclstickidx )
 			ostrm << '\t' << stickidx;

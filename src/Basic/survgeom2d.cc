@@ -47,15 +47,15 @@ Survey::Geometry2D::~Geometry2D()
 
 void Survey::Geometry2D::add( const Coord& crd, int trcnr, float spnr )
 {
-    add( crd.x, crd.y, trcnr, spnr );
+    add( crd.x_, crd.y_, trcnr, spnr );
 }
 
 
 void Survey::Geometry2D::add( double x, double y, int trcnr, float spnr )
 {
     PosInfo::Line2DPos pos( trcnr );
-    pos.coord_.x = x;
-    pos.coord_.y = y;
+    pos.coord_.x_ = x;
+    pos.coord_.y_ = y;
     data_.add( pos );
     spnrs_ += spnr;
 }

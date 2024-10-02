@@ -162,8 +162,8 @@ Geom::Point2D<float> uiFunctionDisplay::getXYFromPix(
     const uiAxisHandler* xaxis = xAxis();
     const uiAxisHandler* yaxis = yAxis( y2 );
     return Geom::Point2D<float>(
-		xaxis ? xaxis->getVal( pix.x ) : mUdf(float),
-		yaxis ? yaxis->getVal( pix.y ) : mUdf(float) );
+                xaxis ? xaxis->getVal( pix.x_ ) : mUdf(float),
+                yaxis ? yaxis->getVal( pix.y_ ) : mUdf(float) );
 }
 
 
@@ -242,14 +242,14 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 	const int ypix = yaxis->getPix( yval );
 	if ( xpixintv.includes(xpix,true) && ypixintv.includes(ypix,true) )
 	{
-	    pt.x = xpix;
-	    pt.y = ypix;
+            pt.x_ = xpix;
+            pt.y_ = ypix;
 	    ptlist += pt;
 	}
     }
 
     if ( setup_.closepolygon_ && fillbelow )
-	ptlist += uiPoint( pt.x, closept.y );
+        ptlist += uiPoint( pt.x_, closept.y_ );
 }
 
 
@@ -373,7 +373,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 	    curitmgrp->add( markeritem );
 	}
 	uiGraphicsItem* itm = curitmgrp->getUiItem(idx);
-	itm->setPos( mCast(float,ptlist[idx].x), mCast(float,ptlist[idx].y) );
+        itm->setPos( mCast(float,ptlist[idx].x_), mCast(float,ptlist[idx].y_) );
 	itm->setPenColor( mst.color_ );
     }
 
@@ -503,8 +503,8 @@ bool uiFunctionDisplay::setSelPt()
     const uiAxisHandler* yax = yAxis( false );
 
     int newsel = -1; float mindistsq = 1e30;
-    const float xpix = xax->getRelPos( xax->getVal(ev.pos().x) );
-    const float ypix = yax->getRelPos( yax->getVal(ev.pos().y) );
+    const float xpix = xax->getRelPos( xax->getVal(ev.pos().x_) );
+    const float ypix = yax->getRelPos( yax->getVal(ev.pos().y_) );
     for ( int idx=0; idx<xvals_.size(); idx++ )
     {
 	const float x = xax->getRelPos( xvals_[idx] );
@@ -548,7 +548,7 @@ void uiFunctionDisplay::mouseReleaseCB( CallBacker* )
 
     if ( isnorm && selpt_<=0 )
     {
-	addPoint( Geom::PointF(ev.pos().x, ev.pos().y) );
+        addPoint( Geom::PointF(ev.pos().x_, ev.pos().y_) );
 	pointSelected.trigger();
 	draw();
 	return;
@@ -570,7 +570,7 @@ void uiFunctionDisplay::mouseMoveCB( CallBacker* )
 {
     {
 	const MouseEvent& ev = getMouseEventHandler().event();
-	mouseMove.trigger( Geom::PointF(ev.pos().x, ev.pos().y) );
+        mouseMove.trigger( Geom::PointF(ev.pos().x_, ev.pos().y_) );
 	if ( !setup_.editable_ ) return;
     }
     if ( !mousedown_ ) return;
@@ -580,8 +580,8 @@ void uiFunctionDisplay::mouseMoveCB( CallBacker* )
     mGetMousePos();
     if ( !isnorm || selpt_<0 ) return;
 
-    float xval = xax->getVal( ev.pos().x );
-    float yval = yax->getVal( ev.pos().y );
+    float xval = xax->getVal( ev.pos().x_ );
+    float yval = yax->getVal( ev.pos().y_ );
 
     if ( selpt_>0 && xvals_[selpt_-1]>=xval )
         xval = xvals_[selpt_-1];
@@ -618,7 +618,7 @@ Geom::PointF uiFunctionDisplay::mapToPosition( const Geom::PointF& pt, bool y2 )
     if ( !xax || !yax )
 	return Geom::PointF::udf();
 
-    return Geom::PointF( xax->getPix(pt.x), yax->getPix(pt.y) );
+    return Geom::PointF( xax->getPix(pt.x_), yax->getPix(pt.y_) );
 }
 
 
@@ -630,7 +630,7 @@ Geom::PointF uiFunctionDisplay::mapToValue( const Geom::PointF& pt, bool y2 )
     if ( !xax || !yax )
 	return Geom::PointF::udf();
 
-    return Geom::PointF( xax->getVal(pt.x), yax->getVal(pt.y) );
+    return Geom::PointF( xax->getVal(pt.x_), yax->getVal(pt.y_) );
 }
 
 

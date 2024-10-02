@@ -28,8 +28,8 @@ ________________________________________________________________________
 
 static uiPoint uiPointFromPolar( const uiPoint& c, float r, float angrad )
 {
-    Geom::Point2D<float> fpt( c.x + r * cos(angrad), c.y - r * sin(angrad) );
-    return uiPoint( mNINT32(fpt.x), mNINT32(fpt.y) );
+    Geom::Point2D<float> fpt( c.x_ + r * cos(angrad), c.y_ - r * sin(angrad) );
+    return uiPoint( mNINT32(fpt.x_), mNINT32(fpt.y_) );
 }
 
 
@@ -264,16 +264,16 @@ void uiDirectionalPlot::drawScale()
 	nm = "Values";
 
     uiPoint annotpt;
-    annotpt.x = (startpt.x + endpt.x) / 2;
-    annotpt.y = endpt.y + 20;
+    annotpt.x_ = (startpt.x_ + endpt.x_) / 2;
+    annotpt.y_ = endpt.y_ + 20;
 
     uiPoint txtstartpt = startpt;
-    txtstartpt.x += 6;
-    txtstartpt.y -= 3;
+    txtstartpt.x_ += 6;
+    txtstartpt.y_ -= 3;
 
     uiPoint txtendpt = endpt;
-    txtendpt.x += 6;
-    txtendpt.y -= 3;
+    txtendpt.x_ += 6;
+    txtendpt.y_ -= 3;
 
     if ( !scaleannotitm_ )
     {
@@ -378,15 +378,15 @@ void uiDirectionalPlot::drawDirAnnot()
 	}
     }
 
-    const uiPoint nln( center_.x,		center_.y-radius_ );
-    const uiPoint eln( center_.x+radius_,	center_.y );
-    const uiPoint sln( center_.x,		center_.y+radius_ );
-    const uiPoint wln( center_.x-radius_,	center_.y );
+    const uiPoint nln( center_.x_,		center_.y_-radius_ );
+    const uiPoint eln( center_.x_+radius_,	center_.y_ );
+    const uiPoint sln( center_.x_,		center_.y_+radius_ );
+    const uiPoint wln( center_.x_-radius_,	center_.y_ );
 
-    const uiPoint npt( center_.x,		center_.y-radius_-5 );
-    const uiPoint ept( center_.x+radius_+6,	center_.y );
-    const uiPoint spt( center_.x,		center_.y+radius_+2 );
-    const uiPoint wpt( center_.x-radius_-6,	center_.y );
+    const uiPoint npt( center_.x_,		center_.y_-radius_-5 );
+    const uiPoint ept( center_.x_+radius_+6,	center_.y_ );
+    const uiPoint spt( center_.x_,		center_.y_+radius_+2 );
+    const uiPoint wpt( center_.x_-radius_-6,	center_.y_ );
 
     dirtxtitms_[0]->setPos( npt ); dirlnitms_[0]->setPos( nln );
     dirtxtitms_[1]->setPos( ept ); dirlnitms_[1]->setPos( eln );
@@ -583,15 +583,15 @@ void uiDirectionalPlot::getMousePosInfo( int& count, float& ang, float& pos )
     const MouseEvent& ev = getMouseEventHandler().event();
     uiPoint relpos( ev.x(), ev.y() );
     relpos -= center_;
-    if ( relpos.x == 0 && relpos.y == 0 )
+    if ( relpos.x_ == 0 && relpos.y_ == 0 )
 	return;
 
     const double r = relpos.abs();
     if ( r > radius_ )
 	return;
 
-    double azimuthrad = Math::ACos( relpos.x/r );
-    if ( relpos.y > 0 )
+    double azimuthrad = Math::ACos( relpos.x_/r );
+    if ( relpos.y_ > 0 )
 	azimuthrad = 2*M_PI - azimuthrad;
     const double azimuth =
 	Angle::convert( Angle::Rad, azimuthrad, Angle::UsrDeg );
@@ -629,10 +629,10 @@ void uiDirectionalPlot::mouseRelease( CallBacker* )
     mGetMousePos();
     uiPoint relpos( ev.x(), ev.y() );
     relpos -= center_;
-    if ( relpos.x == 0 && relpos.y == 0 )
+    if ( relpos.x_ == 0 && relpos.y_ == 0 )
 	return;
 
-    const float ang = Math::Atan2( (float)-relpos.y, (float)relpos.x );
+    const float ang = Math::Atan2( (float)-relpos.y_, (float)relpos.x_ );
     cursector_ = data_.sector( ang, Angle::Rad );
     if ( setup_.curissel_ )
     {

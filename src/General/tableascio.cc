@@ -983,8 +983,8 @@ Coord Table::AscIO::getPos( int xfld, int yfld, double udf, bool isll,
 {
     Coord curpos;
 
-    curpos.x = getDValue(xfld);
-    curpos.y = getDValue(yfld);
+    curpos.x_ = getDValue(xfld);
+    curpos.y_ = getDValue(yfld);
 
     if ( !curpos.isUdf() )
     {

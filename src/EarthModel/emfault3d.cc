@@ -99,7 +99,7 @@ void Fault3D::apply( const Pos::Filter& pf )
                   rc.col()-=colrg.step_ )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
-		if ( !pf.includes( (Coord) pos, (float) pos.z) )
+                if ( !pf.includes( (Coord) pos, (float) pos.z_) )
 		    fssg->removeKnot( rc );
 	    }
 	}
@@ -272,8 +272,8 @@ bool Fault3DGeometry::areEditPlanesMostlyCrossline() const
     for ( int sticknr=stickrg.start_; sticknr<=stickrg.stop_; sticknr++ )
     {
 	const Coord3& normal = fss->getEditPlaneNormal( sticknr );
-	if ( fabs(normal.z) < 0.5 && mIsEqual(normal.x,crldir.x,mEps)
-				  && mIsEqual(normal.y,crldir.y,mEps) )
+        if ( fabs(normal.z_) < 0.5 && mIsEqual(normal.x_,crldir.x_,mEps)
+             && mIsEqual(normal.y_,crldir.y_,mEps) )
 	    nrcrls++;
 	else
 	    nrnoncrls++;
@@ -343,7 +343,7 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 	Coord3 editnormal( Coord3::udf() );
 	par.get( editnormstr.buf(), editnormal );
 	fss->addEditPlaneNormal( editnormal, sticknr );
-	if ( editnormal.isDefined() && fabs(editnormal.z)<0.5 )
+        if ( editnormal.isDefined() && fabs(editnormal.z_)<0.5 )
 	    fss->setSticksVertical( true );
     }
 
@@ -438,14 +438,14 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	else
 	{
 	    Coord xycrd = SI().transform( getBinID(0,1) );
-	    crd.setXY( xycrd.x, xycrd.y );
-	    crd.z = getDValue( 2 );
+            crd.setXY( xycrd.x_, xycrd.y_ );
+            crd.z_ = getDValue( 2 );
 	}
 
 	if ( !crd.isDefined() )
 	    continue;
 
-	convValue( crd.z, tabledepthunit, emobjdepthunit );
+        convValue( crd.z_, tabledepthunit, emobjdepthunit );
 	const int stickidx = getIntValue( 3 );
 
 	BufferString lnm;
@@ -472,14 +472,14 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 
 	    oninl = oninl && curbid.inl()==firstbid.inl();
 	    oncrl = oncrl && curbid.crl()==firstbid.crl();
-	    ontms = ontms && fabs(crd.z-firstz) < fabs(0.5*SI().zStep());
+            ontms = ontms && fabs(crd.z_-firstz) < fabs(0.5*SI().zStep());
 
 	    if ( !oninl && !oncrl && !ontms )
 	    {
 		curstickidx++;
 		sticks += new Geometry::FaultStick( stickidx );
 
-		firstbid = curbid; firstz = crd.z;
+                firstbid = curbid; firstz = crd.z_;
 		oninl = true; oncrl = true; ontms = true;
 	    }
 	}
@@ -579,7 +579,7 @@ bool FaultDataUpdater::doWork( od_int64 start, od_int64 stop, int /**/ )
 	    trckey.setFrom( loc.pos() );
 	    loc.setTrcKey( trckey );
 	    tkzs.hsamp_.include( trckey );
-	    tkzs.zsamp_.include( loc.pos().z );
+            tkzs.zsamp_.include( loc.pos().z_ );
 	}
     }
 

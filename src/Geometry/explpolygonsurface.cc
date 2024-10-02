@@ -48,7 +48,7 @@ void ExplPolygonSurface::setPolygonSurface( const PolygonSurface* psurf )
 
 void ExplPolygonSurface::setZScale( float zscale )
 {
-    scalefacs_.z = zscale;
+    scalefacs_.z_ = zscale;
 }
 
 
@@ -86,7 +86,7 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
     for ( int plg=rrg.start_; plg<=rrg.stop_; plg += rrg.step_ )
     {
 	prevnrknots = samples_.size();
-	surface_->getCubicBezierCurve( plg, samples_, (float)scalefacs_.z );
+        surface_->getCubicBezierCurve( plg, samples_, (float)scalefacs_.z_ );
 
 	if ( displaypolygons_ )
 	{
@@ -266,13 +266,13 @@ bool ExplPolygonSurface::prepareBodyDAGTree()
 
     TypeSet<Coord3> pts;
     for ( int plg=rrg.start_; plg<=rrg.stop_; plg += rrg.step_ )
-	surface_->getCubicBezierCurve( plg, pts, (float)scalefacs_.z );
+        surface_->getCubicBezierCurve( plg, pts, (float)scalefacs_.z_ );
    
     for ( int idx=0; idx<pts.size(); idx++ )
 	coordlist_->set( idx, pts[idx] );
 
     for ( int idx=0; idx<pts.size(); idx++ )
-	pts[idx].z *= scalefacs_.z;
+        pts[idx].z_ *= scalefacs_.z_;
     
     if ( !tetrahedratree_->setCoordList( pts, false ) )
 	return false;

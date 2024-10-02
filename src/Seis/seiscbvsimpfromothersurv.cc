@@ -333,10 +333,10 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
     const Coord startcrd = trcs[0]->info().coord;
     const Coord nextcrlcrd = trcs[1]->info().coord;
     const Coord nextinlcrd = trcs[sz_]->info().coord;
-    const double xcrldist = (nextcrlcrd.x-startcrd.x)/padfac_;
-    const double ycrldist = (nextcrlcrd.y-startcrd.y)/padfac_;
-    const double xinldist = (nextinlcrd.x-startcrd.x)/padfac_;
-    const double yinldist = (nextinlcrd.y-startcrd.y)/padfac_;
+    const double xcrldist = (nextcrlcrd.x_-startcrd.x_)/padfac_;
+    const double ycrldist = (nextcrlcrd.y_-startcrd.y_)/padfac_;
+    const double xinldist = (nextinlcrd.x_-startcrd.x_)/padfac_;
+    const double yinldist = (nextinlcrd.y_-startcrd.y_)/padfac_;
     const float amplfac = float(padfac_*padfac_);
 
     deepErase( trcs );
@@ -346,8 +346,8 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	{
 	    SeisTrc* trc = new SeisTrc( szz_ );
 	    trc->info().sampling = olddata_.tkzs_.zsamp_;
-	    trc->info().coord.x = startcrd.x + idy*xcrldist + idx*xinldist;
-	    trc->info().coord.y = startcrd.y + idy*ycrldist + idx*yinldist;
+            trc->info().coord.x_ = startcrd.x_ + idy*xcrldist + idx*xinldist;
+            trc->info().coord.y_ = startcrd.y_ + idy*ycrldist + idx*yinldist;
 	    trcs += trc;
 	    for ( int idz=0; idz<szz_; idz++ )
 	    {

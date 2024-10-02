@@ -46,7 +46,7 @@ void uiColTabItem::adjustLabel()
     if ( setup_.hor_ )
     {
 	const int starty =
-	    setup_.startal_.vPos() == Alignment::VCenter? rect.centre().y
+                setup_.startal_.vPos() == Alignment::VCenter? rect.centre().y_
 	 : (setup_.startal_.vPos() == Alignment::Top	? rect.top()
 							: rect.bottom());
 
@@ -56,7 +56,7 @@ void uiColTabItem::adjustLabel()
 	minvalitm_->setPos( sCast(float,rect.left()), sCast(float,starty) );
 
 	const int stopy =
-	    setup_.stopal_.vPos() == Alignment::VCenter ? rect.centre().y
+                setup_.stopal_.vPos() == Alignment::VCenter ? rect.centre().y_
 	 : (setup_.stopal_.vPos() == Alignment::Top	? rect.top()
 							: rect.bottom());
 	al = Alignment( setup_.stopal_.hPos(),
@@ -67,11 +67,11 @@ void uiColTabItem::adjustLabel()
     else
     {
 	const int startx =
-	    setup_.startal_.hPos() == Alignment::HCenter? rect.centre().x
+                setup_.startal_.hPos() == Alignment::HCenter? rect.centre().x_
 	 : (setup_.startal_.hPos() == Alignment::Left	? rect.left()
 							: rect.right());
 	const int stopx =
-	    setup_.stopal_.hPos() == Alignment::HCenter ? rect.centre().x
+                setup_.stopal_.hPos() == Alignment::HCenter ? rect.centre().x_
 	 : (setup_.stopal_.hPos() == Alignment::Left	? rect.left()
 							: rect.right());
 

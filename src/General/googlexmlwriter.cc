@@ -360,7 +360,7 @@ bool ODGoogle::KMLWriter::putPoly( const TypeSet<Coord3>& coords,
 	const LatLong ll(LatLong::transform( crd.coord(),
 						true, coordsys_) );
 	strm() << "\t\t\t\t\t\t" << ll.lng_;
-	strm() << ',' << ll.lat_ << ',' << crd.z << '\n';
+        strm() << ',' << ll.lat_ << ',' << crd.z_ << '\n';
     }
     strm() <<	"\t\t\t\t\t</coordinates>\n"
 		"\t\t\t\t</LinearRing>\n"

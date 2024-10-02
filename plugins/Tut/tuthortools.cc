@@ -86,8 +86,8 @@ int Tut::ThicknessCalculator::nextStep()
 	return Finished();
 
     const EM::SubID subid = bid.toInt64();
-    const float z1 = (float) horizon1_->getPos( subid ).z;
-    const float z2 = (float) horizon2_->getPos( subid ).z;
+    const float z1 = (float) horizon1_->getPos( subid ).z_;
+    const float z2 = (float) horizon2_->getPos( subid ).z_;
 
     float val = mUdf(float);
     if ( !mIsUdf(z1) && !mIsUdf(z2) )
