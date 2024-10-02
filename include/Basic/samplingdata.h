@@ -21,10 +21,13 @@ public:
 
     inline				SamplingData(T sa=0,T se=1);
     inline				SamplingData(T x0,T y0,T x1,T y1);
-    template <class FT>	inline		SamplingData(const SamplingData<FT>&);
+    inline				SamplingData(const SamplingData<T>&);
+    template <class FT> inline		SamplingData(const SamplingData<FT>&);
     template <class FT>	inline		SamplingData(const StepInterval<FT>&);
 
     inline SamplingData<T>&		operator=(const SamplingData<T>&);
+    template <class FT>
+    inline SamplingData<T>&		operator=(const SamplingData<FT>&);
     inline bool				operator==(const SamplingData&)const;
     inline bool				operator!=(const SamplingData&)const;
 
@@ -76,11 +79,20 @@ SamplingData<T>::SamplingData( T x0, T y0, T x1, T y1 )
 }
 
 
+template <class T> inline
+SamplingData<T>::SamplingData( const SamplingData<T>& sd )
+    : start_(sd.start_)
+    , step_(sd.step_)
+    , start(start_)
+    , step(step_)
+{}
+
+
 template <class T>
 template <class FT> inline
 SamplingData<T>::SamplingData( const SamplingData<FT>& sd )
-    : start_( mCast(T,sd.start_) )
-    , step_( mCast(T,sd.step_) )
+    : start_(sCast(T,sd.start_))
+    , step_(sCast(T,sd.step_))
     , start(start_)
     , step(step_)
 {}
@@ -105,6 +117,16 @@ SamplingData<T>& SamplingData<T>::operator=( const SamplingData<T>& sd )
 {
     start_ = sd.start_;
     step_ = sd.step_;
+    return *this;
+}
+
+
+template <class T>
+template <class FT> inline
+SamplingData<T>& SamplingData<T>::operator=( const SamplingData<FT>& sd )
+{
+    start_ = sCast(T,sd.start_);
+    step_ = sCast(T,sd.step_);
     return *this;
 }
 
