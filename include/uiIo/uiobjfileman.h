@@ -85,6 +85,7 @@ protected:
 						BufferString&) const;
 
     void			selChg(CallBacker*);
+    void			listUpdatedCB(CallBacker*);
     virtual void		initDlg()		{}
     virtual void		checkAllEntriesOK()	{}
     virtual void		ownSelChg()		{}

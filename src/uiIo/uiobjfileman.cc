@@ -124,6 +124,7 @@ void uiObjFileMan::finalizeDoneCB( CallBacker* )
     uiUserShowWait usw( parent(), tr("Launching manager") );
     mAttachCB( selgrp_->selectionChanged, uiObjFileMan::selChg );
     mAttachCB( selgrp_->itemChosen, uiObjFileMan::selChg );
+    mAttachCB( selgrp_->listUpdated, uiObjFileMan::listUpdatedCB );
     initDlg();
     selChg( nullptr );
     checkAllEntriesOK();
@@ -449,7 +450,14 @@ void uiObjFileMan::updateCB( CallBacker* )
 
     uiUserShowWait usw( this, tr("Reloading the list of Seismic data") );
     const MultiID curmid = selgrp_->currentID();
+    NotifyStopper ns( selgrp_->listUpdated, this );
     selgrp_->fullUpdate( curmid );
     updateList();
+    checkAllEntriesOK();
+}
+
+
+void uiObjFileMan::listUpdatedCB( CallBacker* )
+{
     checkAllEntriesOK();
 }
