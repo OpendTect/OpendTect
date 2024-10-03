@@ -57,6 +57,8 @@ public:
     int			size() const			{ return sz_; }
     int			isEmpty() const			{ return sz_==0; }
     const char*		getPrefix() const		{ return prefix_.buf();}
+    bool		validIdx( int idx ) const
+			{ return params_.validIdx(idx); }
 
 protected:
     int				getSize() const;
