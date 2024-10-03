@@ -33,16 +33,17 @@ protected:
     bool		loadDefaultData();
     bool		selectLoadAttribute(const TypeSet<Pos::GeomID>&,
 			    const char* attrnm=sKeyRightClick(),int attridx=-1);
-    uiMenu*		replaceattritm_;
-    uiMenu*		removeattritm_;
-    uiMenu*		dispattritm_;
-    uiMenu*		hideattritm_;
-    uiMenu*		editcoltabitm_;
     void		setTopAttribName(const char*);
 
     const char*		iconName() const override;
     bool		showSubMenu() override;
     bool		handleSubMenu(int);
+
+    uiMenu*		replaceattritm_ = nullptr;
+    uiMenu*		removeattritm_	= nullptr;
+    uiMenu*		dispattritm_	= nullptr;
+    uiMenu*		hideattritm_	= nullptr;
+    uiMenu*		editcoltabitm_	= nullptr;
 };
 
 

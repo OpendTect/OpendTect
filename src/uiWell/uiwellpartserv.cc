@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include "uibulkwellimp.h"
 #include "uibuttongroup.h"
 #include "uid2tmodelgrp.h"
+#include "uigisexp.h"
+#include "uigisexpwells.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
@@ -82,13 +84,27 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , uiwellpropDlgClosed(this)
 {
     mAttachCB( IOM().surveyChanged, uiWellPartServer::survChangedCB );
+    mAttachCB( uiWellMan::instanceCreated(),
+	       uiWellPartServer::wellManCreatedCB );
 }
 
 
 uiWellPartServer::~uiWellPartServer()
 {
     detachAllNotifiers();
-    cleanup();
+    delete manwelldlg_;
+    delete impsimpledlg_;
+    delete impbulktrackdlg_;
+    delete impbulkdirwelldlg_;
+    delete impbulklogdlg_;
+    delete impbulkmrkrdlg_;
+    delete impbulkd2tdlg_;
+    delete rdmlinedlg_;
+    delete wellexpdlg_;
+    delete giswellexportdlg_;
+    deepErase( wellpropdlgs_ );
+    deepErase( wellpropcaches_ );
+    delete wellmgrinfodlg_;
 }
 
 
@@ -109,6 +125,7 @@ void uiWellPartServer::cleanup()
     closeAndNullPtr( impbulkd2tdlg_ );
     closeAndNullPtr( rdmlinedlg_ );
     closeAndNullPtr( wellexpdlg_ );
+    closeAndNullPtr( giswellexportdlg_ );
     deepErase( wellpropdlgs_ );
     deepErase( wellpropcaches_ );
     closeAndNullPtr( wellmgrinfodlg_ );
@@ -170,16 +187,12 @@ void uiWellPartServer::exportWellData()
 
 void uiWellPartServer::importTrack()
 {
-    if ( uiwellimpdlg_ )
+    if ( !uiwellimpdlg_ )
     {
-	uiwellimpdlg_->show();
-	uiwellimpdlg_->raise();
-	return;
+	uiwellimpdlg_ = new uiWellImportAsc( parent() );
+	mAttachCB( uiwellimpdlg_->importReady, uiWellPartServer::importReadyCB);
     }
 
-    uiwellimpdlg_ = new uiWellImportAsc( parent() );
-    uiwellimpdlg_->importReady.notify(
-		mCB(this,uiWellPartServer,importReadyCB) );
     uiwellimpdlg_->show();
 }
 
@@ -237,6 +250,21 @@ void uiWellPartServer::showWellMgrInfo()
 	wellmgrinfodlg_ = new uiWellMgrInfoDlg( parent() );
 
     wellmgrinfodlg_->show();
+}
+
+
+void uiWellPartServer::wellManCreatedCB( CallBacker* cb )
+{
+    if ( !cb->isCapsule() )
+	return;
+
+    mDynamicCastGet(uiWellMan*,wm,cb)
+    if ( !wm )
+	return;
+
+    new uiToolButton( wm->extraButtonGroup(), uiGISExpStdFld::strIcon(),
+		      uiGISExpStdFld::sToolTipTxt(),
+		      mCB(this,uiWellPartServer,exportToGISCB) );
 }
 
 
@@ -597,8 +625,8 @@ void uiWellPartServer::simpImp( CallBacker* cb )
     if ( !impsimpledlg_ )
     {
 	impsimpledlg_ = new uiSimpleMultiWellCreate( parent() );
-	impsimpledlg_->windowClosed.notify(
-		mCB(this,uiWellPartServer,simpleImpDlgClosed) );
+	mAttachCB( impsimpledlg_->windowClosed,
+		   uiWellPartServer::simpleImpDlgClosed );
     }
 
     impsimpledlg_->show();
@@ -761,5 +789,34 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 	manwelldlg_->selGroup()->fullUpdate( -1 );
 
     delete ctio->ioobj_;
+    return true;
+}
+
+
+void uiWellPartServer::exportToGISCB( CallBacker* )
+{
+    //TODO: pass selection from manager?
+    exportToGIS( nullptr );
+}
+
+
+bool uiWellPartServer::exportToGIS( const TypeSet<MultiID>* wellids )
+{
+    if ( !uiGISExpStdFld::canDoExport(parent()) )
+	return false;
+
+    TypeSet<MultiID> usewellids;
+    if ( wellids )
+	usewellids = *wellids;
+
+    if ( giswellexportdlg_ )
+	giswellexportdlg_->setSelected( usewellids );
+    else
+    {
+	giswellexportdlg_ = new uiGISExportWells( parent(), &usewellids );
+	giswellexportdlg_->setModal( false );
+    }
+
+    giswellexportdlg_->show();
     return true;
 }

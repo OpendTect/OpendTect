@@ -47,7 +47,6 @@ if ( NOT OD_NO_OSG )
         uiExpAttribs
         uiGLCM
         uiGMT
-        uiGoogleIO
         uiHello
         uiImpGPR
         uiMadagascar

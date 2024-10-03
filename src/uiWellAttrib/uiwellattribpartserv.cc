@@ -53,7 +53,12 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
 uiWellAttribPartServer::~uiWellAttribPartServer()
 {
     detachAllNotifiers();
-    cleanUp();
+    delete attrset_;
+    delete xplotwin2d_;
+    delete xplotwin3d_;
+    delete welltiedlg_;
+    delete crlogcubedlg_;
+    delete wellto2ddlg_;
 }
 
 

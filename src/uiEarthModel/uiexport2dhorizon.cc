@@ -288,7 +288,7 @@ bool uiExport2DHorizon::doExport()
 
 	    TrcKey tk( geomid, -1 );
 	    Coord crd; float spnr = mUdf(float);
-            for ( int trcnr=trcrg.start_; trcnr<=trcrg.stop_; trcnr+=trcrg.step_ )
+	    for ( int trcnr=trcrg.start_; trcnr<=trcrg.stop_;trcnr+=trcrg.step_)
 	    {
 		tk.setTrcNr( trcnr );
 		const float z = hor->getZ( tk );
@@ -309,12 +309,16 @@ bool uiExport2DHorizon::doExport()
 		}
 
 		survgeom2d->getPosByTrcNr( trcnr, crd, spnr );
-		Coords::CoordSystem* coordsys = coordsysselfld_ ?
-			coordsysselfld_->getCoordSystem() : nullptr;
-		if ( coordsys && !(*coordsys == *SI().getCoordSystem()) )
+		ConstRefMan<Coords::CoordSystem> sicoordsys =
+					SI().getCoordSystem();
+		ConstRefMan<Coords::CoordSystem> coordsys;
+		if ( coordsysselfld_ )
+		    coordsys = coordsysselfld_->getCoordSystem();
+
+		if ( coordsys && !(*coordsys == *sicoordsys) )
 		{
 		    const Coord crd2d =
-			coordsys->convertFrom( crd, *SI().getCoordSystem() );
+			coordsys->convertFrom( crd, *sicoordsys );
                     crd.setXY( crd2d.x_, crd2d.y_ );
 		}
 
@@ -401,8 +405,13 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( "ShotPoint Nr\n" );
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( zstr );
 	if ( coordsysselfld_ )
-	    headerstr.addNewLine().add( "# " )
-		     .add( coordsysselfld_->getCoordSystem()->summary() );
+	{
+	    ConstRefMan<Coords::CoordSystem> coordsys =
+					coordsysselfld_->getCoordSystem();
+	    if ( coordsys )
+		headerstr.addNewLine().add( "# " ).add( coordsys->summary() );
+	}
+
 	if ( !isbulk_ )
 	{
 	    const IOObj* selobj = surfread_->selIOObj();

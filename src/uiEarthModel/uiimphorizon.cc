@@ -781,7 +781,11 @@ void uiImpHorFromZMap::inputChgd( CallBacker* )
 
     EM::ZMapImporter importer( horfnm );
     if ( crsfld_ )
-	importer.setCoordSystem( crsfld_->getCoordSystem() );
+    {
+	ConstRefMan<Coords::CoordSystem> coordsystem
+				= crsfld_->getCoordSystem();
+	importer.setCoordSystem( coordsystem.ptr() );
+    }
 
     const FilePath fnmfp( horfnm );
     SetImportFromDir( fnmfp.pathOnly() );

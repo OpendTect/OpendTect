@@ -71,8 +71,8 @@ uiWellMan::uiWellMan( uiParent* p )
     logsfld_ = new uiListBox( logsgrp_, su, "lognames" );
     logsfld_->setHSzPol( uiObject::Wide );
 
-    uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
-						 OD::Horizontal );
+    auto* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
+					OD::Horizontal );
     addlogsbut_ = new uiPushButton( logsbgrp, uiStrings::sImport(), false );
     addlogsbut_->activated.notify( mCB(this,uiWellMan,importLogs) );
     calclogsbut_ = new uiPushButton( logsbgrp, uiStrings::sCreate(), false);
@@ -81,7 +81,7 @@ uiWellMan::uiWellMan( uiParent* p )
 
     logsbgrp->attach( centeredBelow, logsgrp_ );
 
-    uiManipButGrp* butgrp = new uiManipButGrp( logsfld_ );
+    auto* butgrp = new uiManipButGrp( logsfld_ );
     logvwbut_ = butgrp->addButton( "view_log", mJoinUiStrs(sView(),
 					      sSelectedLog().toLower()),
 					      mCB(this,uiWellMan,viewLogPush) );

@@ -197,6 +197,12 @@ RandomLineID RandomTrackDisplay::getRandomLineID() const
 { return rl_ ? rl_->ID() : RandomLineID::udf(); }
 
 
+const Geometry::RandomLine* RandomTrackDisplay::getRandomLine() const
+{
+    return rl_;
+}
+
+
 Geometry::RandomLine* RandomTrackDisplay::getRandomLine()
 {
     return rl_;
@@ -767,7 +773,7 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
     }
 
     const Coord origin(
-                (zrg.start_-getDepthInterval().start_)/appliedZRangeStep(), idx0 );
+	    (zrg.start_-getDepthInterval().start_)/appliedZRangeStep(), idx0 );
 
     const Coord scale( zrg.step_/appliedZRangeStep(),
 		       mCast(float,idx1-idx0+1) / path.size() );
@@ -854,8 +860,9 @@ void RandomTrackDisplay::createTransformedDataPack( int attrib,
 	    for ( int idx=0; idx<path.size(); idx++ )
 		tkzs.hsamp_.include( path[idx] );
 	    tkzs.zsamp_.setInterval( panelstrip_->getZRange() );
-            tkzs.zsamp_.step_ = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step_
-                                       : datatransform_->getZInterval( false ).step_;
+	    tkzs.zsamp_.step_ = scene_
+			      ? scene_->getTrcKeyZSampling().zsamp_.step_
+			      : datatransform_->getZInterval( false ).step_;
 	    if ( voiidx_ < 0 )
 		voiidx_ = datatransform_->addVolumeOfInterest( tkzs, true );
 	    else
@@ -1799,7 +1806,8 @@ void RandomTrackDisplay::mouseCB( CallBacker* cb )
 		    curidx++;
 
 		const Coord pos = polyline_->getPoint( posidx );
-                rl_->insertNode( curidx, BinID(mNINT32(pos.x_),mNINT32(pos.y_)) );
+		rl_->insertNode( curidx,
+				 BinID(mNINT32(pos.x_),mNINT32(pos.y_)) );
 	    }
 
 	    int nrremoves = abs(nodeidx-pickstartnodeidx_) - 1;

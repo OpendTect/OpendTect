@@ -58,7 +58,7 @@ public:
     bool		hdrsswapped_;
     bool		dataswapped_;
     bool		is2d_;
-    RefMan<Coords::CoordSystem> coordsystem_;
+    ConstRefMan<Coords::CoordSystem> coordsystem_;
 
     bool		usenrsampsinfile_	= true;
     bool		useformatinfile_	= true;
@@ -122,10 +122,10 @@ public:
     void		getFilePars(FilePars&) const override;
     void		getFileReadOpts(FileReadOpts&) const;
     void		usePar(const IOPar&);
-    void		setUserCoordSys(Coords::CoordSystem* crs)
+    void		setUserCoordSys( const Coords::CoordSystem* crs )
 			{ coordsys_ = crs; }
-    ConstRefMan<Coords::CoordSystem>	   getUserCoordSys()
-			      { return coordsys_; }
+    ConstRefMan<Coords::CoordSystem> getUserCoordSys() const
+			{ return coordsys_; }
     bool		needXY() const;
 
 protected:

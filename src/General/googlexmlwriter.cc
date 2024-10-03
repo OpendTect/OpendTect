@@ -8,24 +8,91 @@ ________________________________________________________________________
 -*/
 
 #include "googlexmlwriter.h"
-#include "coordsystem.h"
-#include "survinfo.h"
+
 #include "latlong.h"
-#include "color.h"
-#include "coordsystem.h"
+#include "od_ostream.h"
+#include "pickset.h"
+#include "survinfo.h"
 #include "uistrings.h"
-#include "enums.h"
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-ODGoogle::KMLWriter::KMLWriter()
-{}
+namespace ODGoogle
+{
 
-ODGoogle::KMLWriter::~KMLWriter()
+static void setProperties( const Pick::Set::Disp& disp,
+			   const GIS::FeatureType& typ,
+			   GIS::Property& props )
+{
+    props.type_ = typ;
+    if ( typ == GIS::FeatureType::Undefined )
+	return;
+
+    if ( props.isPoint() )
+    {
+	props.color_ = disp.color_;
+	props.pixsize_ = disp.pixsize_;
+	props.linestyle_.width_ = 2;
+	props.linestyle_.color_ = OD::Color::NoColor();
+	props.dofill_ = false;
+	props.fillcolor_ = OD::Color::NoColor();
+    }
+    else
+    {
+	props.color_ = OD::Color::NoColor();
+	props.pixsize_ = 2;
+	props.linestyle_ = disp.linestyle_;
+	const bool ispoly = props.isPolygon();
+	props.dofill_ = ispoly ? disp.dofill_ : false;
+	props.fillcolor_ = ispoly ? disp.fillcolor_: OD::Color::NoColor();
+    }
+
+}
+
+} // namespace ODGoogle
+
+ODGoogle::KMLWriter::KMLWriter()
 {
 }
 
-bool ODGoogle::KMLWriter::open( const char* fnm )
+
+ODGoogle::KMLWriter::~KMLWriter()
+{
+    close();
+}
+
+
+GIS::Writer& ODGoogle::KMLWriter::setSurveyName( const char* survnm )
+{
+    survnm_ = survnm;
+    return GIS::Writer::setSurveyName( survnm );
+}
+
+
+GIS::Writer& ODGoogle::KMLWriter::setElemName( const char* nm )
+{
+    elemnm_ = nm;
+    return GIS::Writer::setElemName( nm );
+}
+
+
+GIS::Writer& ODGoogle::KMLWriter::setStream( const char* fnm, bool useexisting )
+{
+    delete strm_;
+    strm_ = new od_ostream( fnm );
+    open( fnm, useexisting );
+    return *this;
+}
+
+
+GIS::Writer& ODGoogle::KMLWriter::setDescription( const char* desc )
+{
+    desc_ = desc;
+    return GIS::Writer::setDescription( desc );
+}
+
+
+bool ODGoogle::KMLWriter::open( const char* fnm, bool useexisting )
 {
     errmsg_.setEmpty();
 
@@ -41,10 +108,12 @@ bool ODGoogle::KMLWriter::open( const char* fnm )
 	    "xmlns:kml=\"http://www.opengis.net/kml/2.2\" "
 	    "xmlns:atom=\"http://www.w3.org/2005/Atom\">\n"
 	    "<Document>\n";
-    BufferString treenm = survnm_.isEmpty() ? SI().name() : survnm_;
-    treenm += ": "; treenm += elemnm_;
-    strm() << "<name>" << treenm << "</name>" << od_endl;
 
+    BufferString treenm = survnm_.isEmpty() ? SI().name() : survnm_;
+    if ( !elemnm_.isEmpty() )
+	treenm.add( ": " ).add( elemnm_.str() );
+
+    strm() << "<name>" << treenm << "</name>";
     if ( !strm().isOK() )
     {
 	uiString emsg( tr("Error during write of XML header info") );
@@ -52,29 +121,259 @@ bool ODGoogle::KMLWriter::open( const char* fnm )
 	mErrRet(emsg)
     }
 
+    stlidx_ = 0;
+
     return true;
-}
-
-
-void ODGoogle::KMLWriter::setStream( const BufferString& fnm )
-{
-    strm_ = new od_ostream( fnm );
-    open( fnm );
 }
 
 
 bool ODGoogle::KMLWriter::close()
 {
-    errmsg_.setEmpty();
-
-    if ( strm_ && strm_->isOK() )
-    {
-	strm() << "</Document>\n</kml>" << od_endl;
-	deleteAndNullPtr( strm_ );
-    }
-    else
+    if ( !isOK() )
 	return false;
 
+    strm() << "\n</Document>\n</kml>" << od_endl;
+    stlidx_ = -1;
+    return GIS::Writer::close();
+}
+
+
+void ODGoogle::KMLWriter::getDefaultProperties( const GIS::FeatureType& typ,
+					    GIS::Property& properties ) const
+{
+    properties.type_ = typ;
+    if ( typ == GIS::FeatureType::Undefined )
+	return;
+
+    if ( properties.isPoint() )
+    {
+	properties.color_ = OD::Color::Green();
+	properties.pixsize_ = properties.isMulti() ? 1 : 2;
+	properties.linestyle_.width_ = 2;
+	properties.linestyle_.color_ = OD::Color::NoColor();
+	properties.dofill_ = false;
+	properties.fillcolor_ = OD::Color::NoColor();
+    }
+    else
+    {
+	properties.color_ = OD::Color::NoColor();
+	properties.pixsize_ = 2;
+	properties.linestyle_.width_ = 2;
+	properties.linestyle_.color_ = OD::Color::Green();
+	const bool ispoly = properties.isPolygon();
+	properties.dofill_ = ispoly;
+	properties.fillcolor_ = ispoly ? OD::Color::Red()
+				       : OD::Color::NoColor();
+    }
+}
+
+
+bool ODGoogle::KMLWriter::writePoint( const Coord& coord, const char* nm )
+{
+    properties_.type_ = GIS::FeatureType::Point;
+    const bool res = putIconStyles() && putPlaceMark( coord, nm );
+    stlidx_++;
+    return res;
+}
+
+
+bool ODGoogle::KMLWriter::writePoint( const Coord3& coord, const char* nm )
+{
+    properties_.type_ = GIS::FeatureType::Point;
+    const bool res = putIconStyles() && putPlaceMark( coord, nm );
+    stlidx_++;
+    return res;
+}
+
+
+bool ODGoogle::KMLWriter::writePoint( const LatLong& ll, const char* nm,
+				      double z )
+{
+    properties_.type_ = GIS::FeatureType::Point;
+    const bool res = putIconStyles() && putPlaceMark( ll, z, nm );
+    stlidx_++;
+    return res;
+}
+
+
+bool ODGoogle::KMLWriter::writeLine( const TypeSet<Coord>& coords,
+				     const char* nm )
+{
+    properties_.type_ = GIS::FeatureType::LineString;
+    const bool res = putPolyStyle() && putLine( coords, nm );
+    stlidx_++;
+    return res;
+}
+
+
+bool ODGoogle::KMLWriter::writeLine( const TypeSet<Coord3>& coords,
+				     const char* nm )
+{
+    properties_.type_ = GIS::FeatureType::LineString;
+    const bool res = putPolyStyle() && putLine( coords, nm );
+    stlidx_++;
+    return res;
+}
+
+
+bool ODGoogle::KMLWriter::writeLine( const Pick::Set& pickset )
+{
+    TypeSet<Coord3> coords;
+    pickset.getLocations( coords );
+    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::LineString,
+			     properties_ );
+    const bool res = putPolyStyle() && putLine( coords, pickset.name() );
+    stlidx_++;
+    return res;
+}
+
+
+bool ODGoogle::KMLWriter::writePolygon( const TypeSet<Coord>& coords,
+					const char* nm )
+{
+    properties_.type_ = GIS::FeatureType::Polygon;
+    const bool res = putPolyStyle() && putPoly( coords, nm );
+    stlidx_++;
+    return res;
+}
+
+
+bool ODGoogle::KMLWriter::writePolygon( const TypeSet<Coord3>& coords,
+					const char* nm )
+{
+    properties_.type_ = GIS::FeatureType::Polygon;
+    const bool res = putPolyStyle() && putPoly( coords, nm );
+    stlidx_++;
+    return res;
+}
+
+
+bool ODGoogle::KMLWriter::writePolygon( const Pick::Set& pickset )
+{
+    TypeSet<Coord3> coords;
+    pickset.getLocations( coords );
+    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::Polygon,
+			     properties_ );
+    const bool res = putPolyStyle() && putPoly( coords, pickset.name() );
+    stlidx_++;
+    return res;
+}
+
+
+bool ODGoogle::KMLWriter::writePoints( const TypeSet<Coord>& coords,
+				       const char* nm )
+{
+    if ( !putFolder(nm) )
+	return false;
+
+    properties_.type_ = GIS::FeatureType::MultiPoint;
+    if	( !putIconStyles() )
+	return false;
+
+    for ( const auto& crd : coords )
+	putPlaceMark( crd, nullptr );
+
+    return closeFolder();
+}
+
+
+bool ODGoogle::KMLWriter::writePoints( const TypeSet<Coord3>& coords,
+				       const char* nm )
+{
+    if ( !putFolder(nm) )
+	return false;
+
+    properties_.type_ = GIS::FeatureType::MultiPoint;
+    if	( !putIconStyles() )
+	return false;
+
+    for ( const auto& crd : coords )
+	putPlaceMark( crd, nullptr );
+
+    return closeFolder();
+}
+
+
+bool ODGoogle::KMLWriter::writePoints( const Pick::Set& pickset )
+{
+    TypeSet<Coord3> coords;
+    pickset.getLocations( coords );
+    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::MultiPoint,
+			     properties_ );
+    return writePoints( coords, pickset.name() );
+}
+
+
+bool ODGoogle::KMLWriter::writeLines( const Pick::Set& pickset )
+{
+    if ( pickset.nrSets() < 2 )
+	{ pErrMsg("Incorrect usage: use GIS::Writer::writeLine"); }
+
+    if ( !putFolder(pickset.name().buf()) )
+	return false;
+
+    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::MultiLineString,
+			     properties_ );
+    if	( !putPolyStyle() )
+	return false;
+
+    for ( int iset=0; iset<pickset.nrSets(); iset++ )
+    {
+	TypeSet<Coord3> coords;
+	pickset.getLocations( coords, iset );
+	putLine( coords, nullptr );
+    }
+
+    return closeFolder();
+}
+
+
+bool ODGoogle::KMLWriter::writePolygons( const Pick::Set& pickset )
+{
+    if ( pickset.nrSets() < 2 )
+	{ pErrMsg("Incorrect usage: use GIS::Writer::writePolygon"); }
+
+    if ( !putFolder(pickset.name().buf()) )
+	return false;
+
+    ODGoogle::setProperties( pickset.disp_, GIS::FeatureType::MultiPolygon,
+			     properties_ );
+    if	( !putPolyStyle() )
+	return false;
+
+    for ( int iset=0; iset<pickset.nrSets(); iset++ )
+    {
+	TypeSet<Coord3> coords;
+	pickset.getLocations( coords, iset );
+	putPoly( coords, nullptr );
+    }
+
+    return closeFolder();
+}
+
+
+bool ODGoogle::KMLWriter::putFolder( const char* nm )
+{
+    if ( !isOK() )
+	return false;
+
+    strm() << "\n\t<Folder>\n" "\t\t<name>" << nm << "</name>";
+    if ( !desc_.isEmpty() )
+	strm() << "\n\t\t<description>" << desc_ << "</description>";
+
+    folderopen_ = true;
+    return true;
+}
+
+
+bool ODGoogle::KMLWriter::closeFolder()
+{
+    if ( !isOK() )
+	return false;
+
+    strm() << "\n\t</Folder>";
+    folderopen_ = false;
+    stlidx_++;
     return true;
 }
 
@@ -82,134 +381,9 @@ bool ODGoogle::KMLWriter::close()
 #define mDeclIconStNm \
     const bool haveiconnm = !properties_.iconnm_.isEmpty() && \
 				     !properties_.iconnm_.isEqual("NONE"); \
-    const BufferString icnnm( "s_od_icon_", \
-			haveiconnm ? properties_.iconnm_.buf() : "noicon" ) \
-
-bool ODGoogle::KMLWriter::writePolygon(
-				const RefObjectSet<const Pick::Set>& picks )
-{
-    for ( int i=0; i<picks.size(); i++ )
-    {
-	const Pick::Set* pick = picks.get( i );
-	if ( !pick )
-	    continue;
-
-	const TypeSet<Pick::Location>& locations = pick->locations();
-	if ( locations.size() < 3 )
-	    continue;
-
-	TypeSet<Coord3> coords;
-	for ( const auto& loc : locations )
-	    coords += loc.pos();
-
-	if ( coords.first() != coords.last() )
-	    coords.add( coords.first() );
-
-	properties_.color_ = pick->disp_.color_;
-	putPolyStyle();
-	putPoly( coords, pick->name() );
-    }
-
-    return true;
-}
-
-
-bool ODGoogle::KMLWriter::writePolygon( const TypeSet<Coord>& coords,
-					const char* nm )
-{
-    TypeSet<Coord3> crdset;
-    for ( auto coord : coords )
-    {
-	Coord3 crd( coord, 0 );
-	crdset +=  crd;
-    }
-
-    return putPolyStyle() && putPoly( crdset, nm );
-}
-
-
-bool ODGoogle::KMLWriter::writePolygon( const TypeSet<Coord3>& coords,
-					const char* nm )
-{
-    return putPolyStyle() && putPoly( coords, nm );
-}
-
-
-bool ODGoogle::KMLWriter::writeLine( const RefObjectSet<const Pick::Set>& picks)
-{
-    putPolyStyle();
-
-
-    for ( int i=0; i<picks.size(); i++ )
-    {
-	const Pick::Set* pick = picks.get( i );
-	if ( !pick )
-	    continue;
-
-	const TypeSet<Pick::Location>& locations = pick->locations();
-	TypeSet<Coord> coords;
-	for ( const auto& loc : locations )
-	    coords += loc.pos();
-
-	putLine( coords , pick->name() );
-    }
-
-    return true;
-}
-
-
-bool ODGoogle::KMLWriter::writeLine( const TypeSet<Coord>& crdset,
-				     const char*nm )
-{
-    return putPolyStyle() && putLine( crdset, nm );
-}
-
-
-bool ODGoogle::KMLWriter::writePoint(
-				const RefObjectSet<const Pick::Set>& picks )
-{
-    if ( !putIconStyles() )
-	return false;
-
-    for ( int i=0; i<picks.size(); i++ )
-    {
-	const Pick::Set* pick = picks.get( i );
-	if ( !pick )
-	    continue;
-
-	const TypeSet<Pick::Location>& locations = pick->locations();
-	for ( const auto& loc : locations )
-	    putPlaceMark( loc.pos() , pick->name() );
-    }
-
-    return true;
-}
-
-
-bool ODGoogle::KMLWriter::writePoint( const LatLong& ll, const char* nm )
-{
-    return putIconStyles() && putPlaceMark( ll, nm );
-}
-
-
-bool ODGoogle::KMLWriter::writePoint( const Coord& coord, const char* nm )
-{
-    return putIconStyles() && putPlaceMark( coord, nm );
-}
-
-
-bool ODGoogle::KMLWriter::writePoints( const TypeSet<Coord>& crds,
-				       const BufferStringSet& nms )
-{
-    if ( !putIconStyles() )
-	return false;
-
-    for ( int idx=0; idx<crds.size(); idx++  )
-	putPlaceMark( crds.get(idx), nms.get(idx) );
-
-    return true;
-}
-
+    BufferString icnnm( "s_od_icon_", \
+			haveiconnm ? properties_.iconnm_.buf() : "noicon" ); \
+    icnnm.addSpace().add( stlidx_ )
 
 bool ODGoogle::KMLWriter::putIconStyles()
 {
@@ -217,8 +391,7 @@ bool ODGoogle::KMLWriter::putIconStyles()
 	return false;
 
     mDeclIconStNm;
-
-    strm() << "\t<Style id=\"" << icnnm << "\">\n"
+    strm() << "\n\t<Style id=\"" << icnnm << "\">\n"
 	"\t\t<IconStyle>\n"
 	"\t\t\t<scale>1.3</scale>\n";
 
@@ -226,12 +399,12 @@ bool ODGoogle::KMLWriter::putIconStyles()
     strm() << "\t\t<LineStyle>\n\t\t\t<color>";
     strm() << properties_.color_.getStdStr( false, -1 );
     strm() << "</color>\n\t\t\t<width>";
-    strm() << properties_.width_;
+    strm() << properties_.pixsize_;
     strm() << "</width>\n\t\t</LineStyle>\n";
 
-    strm() << "\t</Style>\n\n";
+    strm() << "\t</Style>";
 
-    strm() << "\t<StyleMap id=\"m" << icnnm << "\">\n"
+    strm() << "\n\t<StyleMap id=\"m" << icnnm << "\">\n"
 	"\t\t<Pair>\n"
 	"\t\t\t<key>normal</key>\n"
 	"\t\t\t<styleUrl>#" << icnnm << "</styleUrl>\n"
@@ -240,7 +413,7 @@ bool ODGoogle::KMLWriter::putIconStyles()
 	"\t\t\t<key>highlight</key>\n"
 	"\t\t\t<styleUrl>#" << icnnm << "</styleUrl>\n"
 	"\t\t</Pair>\n"
-	"\t</StyleMap>\n\n" << od_endl;
+	"\t</StyleMap>";
 
     return true;
 }
@@ -248,23 +421,36 @@ bool ODGoogle::KMLWriter::putIconStyles()
 
 bool ODGoogle::KMLWriter::putPlaceMark( const Coord& crd, const char* nm )
 {
-    return putPlaceMark( LatLong::transform(crd, true,coordsys_), nm );
+    const LatLong ll = LatLong::transform( crd, true, inpcrs_ );
+    return putPlaceMark( ll, 0., nm );
 }
 
 
-bool ODGoogle::KMLWriter::putPlaceMark( const LatLong& ll, const char* nm )
+bool ODGoogle::KMLWriter::putPlaceMark( const Coord3& crd, const char* nm )
+{
+    const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
+    return putPlaceMark( ll, crd.z_, nm );
+}
+
+
+bool ODGoogle::KMLWriter::putPlaceMark( const LatLong& ll, double z,
+					const char* nm )
 {
     if ( !isOK() )
 	return false;
 
     mDeclIconStNm;
-    strm() << "\n\t<Placemark>\n"
-	<< "\t\t<name>" << nm << "</name>\n";
-    if ( !desc_.isEmpty() )
-	strm() << "\t\t<description>" << desc_ << "</description>\n";
-    const BufferString latstr( ::toString(ll.lat_)),
-						lngstr(::toString(ll.lng_) );
-    strm() << "\t\t<LookAt>\n"
+    strm() << "\n\t<Placemark>";
+    if ( nm && *nm )
+	strm() << "\n\t\t<name>" << nm << "</name>";
+
+    if ( !desc_.isEmpty() && !folderopen_ )
+	strm() << "\n\t\t<description>" << desc_ << "</description>";
+
+    const BufferString latstr( ::toString(ll.lat_));
+    const BufferString lngstr(::toString(ll.lng_) );
+    const bool hasdepth = !mIsZero(z,1e-2);
+    strm() << "\n\t\t<LookAt>\n"
 	"\t\t\t<longitude>" << lngstr << "</longitude>\n";
     strm() << "\t\t\t<latitude>" << latstr << "</latitude>\n";
     strm() << "\t\t\t<altitude>0</altitude>\n"
@@ -274,11 +460,20 @@ bool ODGoogle::KMLWriter::putPlaceMark( const LatLong& ll, const char* nm )
 	"\t\t\t<altitudeMode>relativeToGround</altitudeMode>\n"
 	"\t\t</LookAt>\n"
 	"\t\t<styleUrl>#" << icnnm << "</styleUrl>\n"
-	"\t\t<Point>\n"
-	"\t\t\t<coordinates>" << lngstr;
-    strm() << ',' << latstr << ",0</coordinates>\n"
+	"\t\t<Point>\n";
+    if ( hasdepth )
+    {
+	strm() << "\t\t\t<gx:altitudeMode>relativeToSeaFloor"
+		  "</gx:altitudeMode>\n";
+    }
+
+    strm() << "\t\t\t<coordinates>";
+    strm() << lngstr << ',';
+    strm() << latstr << ",";
+    strm() << -z;
+    strm() << "</coordinates>\n"
 	"\t\t</Point>\n"
-	"\t</Placemark>\n" << od_endl;
+	"\t</Placemark>";
 
     return true;
 }
@@ -286,34 +481,51 @@ bool ODGoogle::KMLWriter::putPlaceMark( const LatLong& ll, const char* nm )
 
 bool ODGoogle::KMLWriter::putLine( const TypeSet<Coord>& crds, const char* nm )
 {
-    if ( !isOK() )
-	return false;
-
-    mDeclIconStNm;
-    strm() << "\n\t<Placemark>\n"
-	"\t\t<name>" << nm << " [line]</name>\n"
-	"\t\t<styleUrl>#" << icnnm << "</styleUrl>\n"
-	"\t\t<LineString>\n"
-	"\t\t\t<tessellate>1</tessellate>\n"
-	"\t\t\t<coordinates>\n";
-
+    TypeSet<Coord3> coords( crds.size(), Coord3::udf() );
     for ( int idx=0; idx<crds.size(); idx++ )
-    {
-	const LatLong ll( LatLong::transform(crds[idx], true, coordsys_) );
-	strm() << ll.lng_ << ','; // keep sep from next line
-	strm() << ll.lat_ << ",0 ";
-    }
+	coords[idx] = Coord3( crds[idx], 0. );
 
-    strm() << "\t\t\t</coordinates>\n"
-	"\t\t</LineString>\n"
-	"\t</Placemark>\n" << od_endl;
-
-    return true;
+    return putLine( coords, nm, false );
 }
 
 
 #define mDeclPolyStNm \
-    const BufferString stnm( "s_od_poly_", properties_.stlnm_ )
+    const BufferString stnm( properties_.isPolygon() ? "s_od_poly_" \
+						     : "s_od_line", stlidx_ )
+
+bool ODGoogle::KMLWriter::putLine( const TypeSet<Coord3>& crds, const char* nm,
+				   bool hasdepths )
+{
+    if ( !isOK() )
+	return false;
+
+    mDeclPolyStNm;
+    strm() << "\n\t<Placemark>";
+    if ( nm && *nm )
+	strm() << "\n\t\t<name>" << nm << "</name>";
+
+    if ( !desc_.isEmpty() && !folderopen_ )
+	strm() << "\n\t\t<description>" << desc_ << "</description>";
+
+    strm() << "\n\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
+	"\t\t<LineString>\n"
+	"\t\t\t<tessellate>1</tessellate>\n"
+	"\t\t\t<coordinates>\n";
+
+    for ( const auto& crd : crds )
+    {
+	const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
+	strm() << "\t\t\t\t" << ll.lng_;
+	strm() << ',' << ll.lat_ << ',' << -crd.z_ << '\n';
+    }
+
+    strm() << "\t\t\t</coordinates>\n"
+	"\t\t</LineString>\n"
+	"\t</Placemark>";
+
+    return true;
+}
+
 
 bool ODGoogle::KMLWriter::putPolyStyle()
 {
@@ -321,52 +533,76 @@ bool ODGoogle::KMLWriter::putPolyStyle()
 	return false;
 
     mDeclPolyStNm;
-    strm() << "\t<Style id=\"" << properties_.stlnm_ << "\">\n"
+    strm() << "\n\t<Style id=\"" << stnm << "\">\n"
 	"\t\t<LineStyle>\n"
-	"\t\t\t<width>" << properties_.width_ << "</width>\n"
-	"\t\t\t<color>" << properties_.color_.getStdStr( false, -1 )
+	"\t\t\t<color>" << properties_.linestyle_.color_.getStdStr( false, -1 )
 							    << "</color>\n"
-	"\t\t</LineStyle>\n"
-	"\t\t<PolyStyle>\n"
-	"\t\t\t<color>" << properties_.color_.getStdStr( false, -1 )
-			<< "</color>\n";
-    strm() << "\t\t</PolyStyle>\n"
-	"\t</Style>\n" << od_endl;
+	"\t\t\t<width>" << properties_.linestyle_.width_ << "</width>\n"
+	"\t\t</LineStyle>";
+
+    if ( properties_.isPolygon() )
+    {
+	strm() << "\n\t\t<PolyStyle>";
+	strm() << "\n\t\t\t<color>"
+	       << properties_.fillcolor_.getStdStr(false,-1)
+	       << "</color>";
+	strm() << "\n\t\t\t<fill>" << ::toString((properties_.dofill_ ? 1 : 0))
+	       << "</fill>";
+	strm() << "\n\t\t\t<outline>0</outline>"
+		  "\n\t\t</PolyStyle>";
+    }
+
+    strm() << "\n\t</Style>";
 
     return true;
 }
 
 
-bool ODGoogle::KMLWriter::putPoly( const TypeSet<Coord3>& coords,
+bool ODGoogle::KMLWriter::putPoly( const TypeSet<Coord>& crds,
 				   const char* nm )
+{
+    TypeSet<Coord3> coords( crds.size(), Coord3::udf() );
+    for ( int idx=0; idx<crds.size(); idx++ )
+	coords[idx] = Coord3( crds[idx], 0. );
+
+    return putPoly( coords, nm, false );
+}
+
+
+bool ODGoogle::KMLWriter::putPoly( const TypeSet<Coord3>& crds,
+				   const char* nm, bool hasdepths )
 {
     if ( !isOK() )
 	return false;
 
     mDeclPolyStNm;
-    strm() << "\t<Placemark>\n"
-	"\t\t<name>" << nm << "</name>\n"
-	"\t\t<styleUrl>#" << properties_.stlnm_ << "</styleUrl>\n"
+    strm() << "\n\t<Placemark>";
+    if ( nm && *nm )
+	strm() << "\n\t\t<name>" << nm << "</name>";
+
+    if ( !desc_.isEmpty() && !folderopen_ )
+	strm() << "\n\t\t<description>" << desc_ << "</description>";
+
+    strm () << "\n\t\t<styleUrl>#" << stnm << "</styleUrl>\n"
 	"\t\t<Polygon>\n"
 	"\t\t\t<extrude>1</extrude>\n"
-	"\t\t\t<altitudeMode>relativeToGround</altitudeMode>\n"
+	"\t\t\t<altitudeMode>clampedToGround</altitudeMode>\n"
 	"\t\t\t<outerBoundaryIs>\n"
 	"\t\t\t\t<LinearRing>\n"
 	"\t\t\t\t\t<coordinates>\n";
 
-    for ( int idx=0; idx<coords.size(); idx++ )
+    for ( const auto& crd : crds )
     {
-	Coord3 crd = coords[idx];
-	const LatLong ll(LatLong::transform( crd.coord(),
-						true, coordsys_) );
+	const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
 	strm() << "\t\t\t\t\t\t" << ll.lng_;
-        strm() << ',' << ll.lat_ << ',' << crd.z_ << '\n';
+	strm() << ',' << ll.lat_ << ',' << -crd.z_ << '\n';
     }
+
     strm() <<	"\t\t\t\t\t</coordinates>\n"
 		"\t\t\t\t</LinearRing>\n"
 		"\t\t\t</outerBoundaryIs>\n"
 		"\t\t</Polygon>\n"
-		"\t</Placemark>\n" << od_endl;
+		"\t</Placemark>";
 
     return true;
 }

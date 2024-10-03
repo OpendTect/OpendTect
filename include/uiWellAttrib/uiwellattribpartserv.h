@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+
 #include "uiapplserv.h"
 #include "uistring.h"
 
@@ -64,14 +65,14 @@ public:
 protected:
 
     Attrib::DescSet*		attrset_;
-    const NLAModel*		nlamodel_ = nullptr;
+    const NLAModel*		nlamodel_	= nullptr;
 
-    WellTie::uiTieWinMGRDlg*	welltiedlg_ = nullptr;
-    uiWellAttribCrossPlot*	xplotwin2d_ = nullptr;
-    uiWellAttribCrossPlot*	xplotwin3d_ = nullptr;
-    uiWellTo2DLineDlg*		wellto2ddlg_ = nullptr;
-    uiCreateLogCubeDlg*		crlogcubedlg_ = nullptr;
-    DataPointSetDisplayMgr*	dpsdispmgr_ = nullptr;
+    WellTie::uiTieWinMGRDlg*	welltiedlg_	= nullptr;
+    uiWellAttribCrossPlot*	xplotwin2d_	= nullptr;
+    uiWellAttribCrossPlot*	xplotwin3d_	= nullptr;
+    uiWellTo2DLineDlg*		wellto2ddlg_	= nullptr;
+    uiCreateLogCubeDlg*		crlogcubedlg_	= nullptr;
+    DataPointSetDisplayMgr*	dpsdispmgr_	= nullptr;
 
     void			surveyChangedCB(CallBacker*);
     void			wellManCreatedCB(CallBacker*);

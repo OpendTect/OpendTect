@@ -473,7 +473,7 @@ bool EmptyTempSurvey::writeSurveyInfo()
 	}
 	else
 	{
-	    RefMan<Coords::CoordSystem> coordsys =
+	    ConstRefMan<Coords::CoordSystem> coordsys =
 				Coords::CoordSystem::getWGS84LLSystem();
 	    si.setCoordSystem( coordsys );
 	    si.setXYInFeet( coordsys->isFeet() );

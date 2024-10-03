@@ -11,8 +11,8 @@ ________________________________________________________________________
 
 #include "uiattribpartserv.h"
 #include "uiattr2dsel.h"
-#include "mousecursor.h"
 #include "uigeninput.h"
+#include "uigisexp.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "externalattrib.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "mousecursor.h"
 #include "posinfo2d.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
@@ -66,11 +67,6 @@ CNotifier<uiODLine2DParentTreeItem,uiMenu*>&
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
     : uiODParentTreeItem( tr("2D Line") )
-    , replaceattritm_(nullptr)
-    , removeattritm_(nullptr)
-    , dispattritm_(nullptr)
-    , hideattritm_(nullptr)
-    , editcoltabitm_(nullptr)
 {
 }
 
@@ -87,6 +83,7 @@ const char* uiODLine2DParentTreeItem::iconName() const
 #define mGridFrom3D	1
 #define mFrom3D		2
 #define mTo3D		3
+#define mExpGISIdx	4
 
 #define mDispNames	10
 #define mDispPanels	11
@@ -120,13 +117,16 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     if ( SI().has3D() )
     {
 	mnu.insertAction( new uiAction(m3Dots(tr("Create 2D Grid from 3D"))),
-			mGridFrom3D );
+			  mGridFrom3D );
 	mnu.insertAction( new uiAction(m3Dots(tr("Extract from 3D"))), mFrom3D);
     }
 
 #ifdef __debug__
     mnu.insertAction( new uiAction(m3Dots(tr("Generate 3D Cube"))), mTo3D );
 #endif
+
+    mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
+		      uiGISExpStdFld::strIcon()), mExpGISIdx );
 
     BufferStringSet displayedattribs;
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -222,7 +222,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     {
 	mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx])
 	mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()))
+			applMgr()->visServer()->getObject(itm->displayID()))
 	if ( !s2d ) continue;
 
 	displayedgeomids += s2d->getGeomID();
@@ -257,11 +257,26 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	    selectLoadAttribute( geomids );
     }
     else if ( mnuid == mGridFrom3D )
-	ODMainWin()->applMgr().create2DGrid();
+	applMgr()->create2DGrid();
     else if ( mnuid == mFrom3D )
-	ODMainWin()->applMgr().create2DFrom3D();
+	applMgr()->create2DFrom3D();
     else if ( mnuid == mTo3D )
-	ODMainWin()->applMgr().create3DFrom2D();
+	applMgr()->create3DFrom2D();
+    else if ( mnuid == mExpGISIdx )
+    {
+	TypeSet<Pos::GeomID> geomids;
+	for ( const auto* treeitm : children_ )
+	{
+	    if ( !treeitm->isChecked() )
+		continue;
+
+	    mDynamicCastGet(const uiOD2DLineTreeItem*,linetreeitm,treeitm)
+	    if ( linetreeitm )
+		geomids += linetreeitm->getGeomID();
+	}
+
+	applMgr()->seisServer()->exportLinesToGIS( &geomids );
+    }
     else if ( mnuid == mAddAttr )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
@@ -282,7 +297,9 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     {
 	const uiAction* itm = replaceattritm_->findAction( mnuid );
 	BufferString attrnm = itm->text().getString();
-	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
+	if ( attrnm == sKeyUnselected() )
+	    attrnm = sKeyRightClick();
+
 	selectLoadAttribute( displayedgeomids, attrnm );
     }
     else if ( removeattritm_ && removeattritm_->findAction(mnuid) )
@@ -326,7 +343,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	{
 	    mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx])
 	    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		ODMainWin()->applMgr().visServer()->getObject(itm->displayID()))
+			    applMgr()->visServer()->getObject(itm->displayID()))
 	    if ( !s2d ) continue;
 
 	    switch ( mnuid )
@@ -392,7 +409,7 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
     const Attrib::DescSet* ds =
 	applMgr()->attrServer()->curDescSet( true );
     const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    uiVisPartServer* visserv = applMgr()->visServer();
     ConstRefMan<visSurvey::Scene> scene = visserv->getScene( sceneID() );
     const ZDomain::Info& info = scene->zDomainInfo();
     uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, info, curattrnm );

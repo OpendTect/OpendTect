@@ -801,7 +801,7 @@ void uiListBox::updateFields2ChoiceMode()
     {
 	setItemCheckable( idx, hascheck );
 	if ( hascheck )
-	    mSetChecked( idx, false );
+	    mSetChecked( idx, isChosen(idx) );
     }
 
     checkgrp_->display( hascheck );

@@ -8,27 +8,82 @@ ________________________________________________________________________
 -*/
 
 #include "geojsonwriter.h"
-#include "survinfo.h"
+
+#include "geojson.h"
 #include "latlong.h"
-#include "color.h"
-#include "coordsystem.h"
+#include "od_ostream.h"
+#include "pickset.h"
+#include "survinfo.h"
 #include "uistrings.h"
 
+namespace OD
+{
+
+namespace JSON
+{
+
+void setProperties( const Pick::Set::Disp& disp, GIS::Property& props )
+{
+    if ( props.type_ == GIS::FeatureType::Undefined )
+	return;
+
+    if ( props.isPoint() )
+    {
+	props.color_ = disp.color_;
+	props.pixsize_ = disp.pixsize_;
+	props.linestyle_.width_ = 2;
+	props.linestyle_.color_ = OD::Color::NoColor();
+	props.dofill_ = false;
+	props.fillcolor_ = OD::Color::NoColor();
+    }
+    else
+    {
+	props.color_ = OD::Color::NoColor();
+	props.pixsize_ = 2;
+	props.linestyle_ = disp.linestyle_;
+	const bool ispoly = props.isPolygon();
+	props.dofill_ = ispoly ? disp.dofill_ : false;
+	props.fillcolor_ = ispoly ? disp.fillcolor_: OD::Color::NoColor();
+    }
+}
+
+} // namespace JSON
+
+} // namespace OD
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-
-GeoJSONWriter::GeoJSONWriter()
+OD::JSON::GeoJSONWriter::GeoJSONWriter()
+    : geojsontree_(new GeoJsonTree())
 {}
 
 
-GeoJSONWriter::~GeoJSONWriter()
+OD::JSON::GeoJSONWriter::~GeoJSONWriter()
 {
-    errmsg_.setEmpty();
     close();
+    delete geojsontree_;
 }
 
-bool GeoJSONWriter::open( const char* fnm )
+
+GIS::Writer& OD::JSON::GeoJSONWriter::setInputCoordSys(
+						const Coords::CoordSystem* crs )
+{
+    geojsontree_->setInputCoordSys( crs );
+    return GIS::Writer::setInputCoordSys( crs );
+}
+
+
+GIS::Writer& OD::JSON::GeoJSONWriter::setStream( const char* fnm,
+						 bool useexisting )
+{
+    delete strm_;
+    strm_ = new od_ostream( fnm );
+    open( fnm, useexisting );
+    return *this;
+}
+
+
+bool OD::JSON::GeoJSONWriter::open( const char* fnm, bool useexisting )
 {
     errmsg_.setEmpty();
 
@@ -49,138 +104,181 @@ bool GeoJSONWriter::open( const char* fnm )
 }
 
 
-void GeoJSONWriter::setStream( const BufferString& fnm )
-{
-    strm_ = new od_ostream( fnm );
-    geojsontree_ = new OD::GeoJsonTree();
-    open( fnm );
-}
-
-bool GeoJSONWriter::close()
-{
-    return GISWriter::close();
-}
-
-
-
-bool GeoJSONWriter::writePoint( const LatLong& ll, const char* nm )
-{
-    pErrMsg("Not implemented yet");
-    return false;
-}
-
-
-bool GeoJSONWriter::writePoint( const Coord& coord, const char* nm )
-{
-    TypeSet<Coord> crds;
-    crds += coord;
-    BufferStringSet nms;
-    nms.add( nm );
-    return writeGeometry( "Point", crds, nms );
-}
-
-
-bool GeoJSONWriter::writePolygon( const RefObjectSet<const Pick::Set>& picks )
-{
-    return writeGeometry( "Polygon", picks );
-}
-
-
-bool GeoJSONWriter::writePoint( const RefObjectSet<const Pick::Set>& picks )
-{
-    return writeGeometry( "MultiPoint", picks );
-}
-
-
-bool GeoJSONWriter::writeLine( const TypeSet<Coord>& crdset, const char* nm )
-{
-    BufferStringSet nms;
-    nms.add( nm );
-    return writeGeometry( "LineString", crdset, nms );
-}
-
-
-bool GeoJSONWriter::writeLine( const RefObjectSet<const Pick::Set>& picks )
-{
-    return writeGeometry( "LineString", picks );
-}
-
-
-bool GeoJSONWriter::writePolygon( const TypeSet<Coord>& crdset, const char* nm )
-{
-    BufferStringSet nms;
-    nms.add( nm );
-    return writeGeometry( "Polygon", crdset, nms );
-}
-
-
-bool GeoJSONWriter::writePolygon( const TypeSet<Coord3>& crdset, const char* nm)
-{
-    BufferStringSet nms;
-    nms.add( nm );
-    return writeGeometry( "Polygon", crdset, nms );
-}
-
-
-bool GeoJSONWriter::writePoints( const TypeSet<Coord>& crds,
-						    const BufferStringSet& nms )
-{
-    return writeGeometry( "Point", crds, nms );
-}
-
-//NEED TO SUPPORT MULTIPLE PROPERTIES
-// EACH OBJECT WILL HAVE DIFFERENT PROPERTY
-// NEED TO WORK ON IT
-
-#define mSyntaxEOL( str ) \
-    str.add( ", " ).addNewLine();
-
-
-bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
-				   const TypeSet<Coord>& crdset,
-				   const BufferStringSet& nms )
+bool OD::JSON::GeoJSONWriter::close()
 {
     if ( !isOK() )
 	return false;
 
-    OD::GeoJsonTree::ValueSet* valueset = geojsontree_->createJSON( geomtyp,
-					crdset, nms, coordsys_, properties_ );
     BufferString str;
-    valueset->dumpJSon( str );
+    geojsontree_->dumpJSon( str, true );
     strm() << str;
-
-    return true;
+    return GIS::Writer::close();
 }
 
 
-bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
-				   const TypeSet<Coord3>& crdset,
-				   const BufferStringSet& nms )
+bool OD::JSON::GeoJSONWriter::isOK() const
 {
-    if ( !isOK() )
-	return false;
-
-    OD::GeoJsonTree::ValueSet* valueset = geojsontree_->createJSON( geomtyp,
-					crdset, nms, coordsys_, properties_ );
-    BufferString str;
-    valueset->dumpJSon( str );
-    strm() << str;
-
-    return true;
+    return GIS::Writer::isOK() && geojsontree_;
 }
 
 
-bool GeoJSONWriter::writeGeometry( BufferString geomtyp,
-				   const RefObjectSet<const Pick::Set>& picks )
+void OD::JSON::GeoJSONWriter::getDefaultProperties( const GIS::FeatureType& typ,
+					    GIS::Property& properties ) const
 {
-    if ( !isOK() )
+    properties.type_ = typ;
+    if ( typ == GIS::FeatureType::Undefined )
+	return;
+
+    if ( properties.isPoint() )
+    {
+	properties.color_ = OD::Color( 126, 126, 126 );
+	properties.pixsize_ = properties.isMulti() ? 1 : 2;
+				// 2=medium; below=small, above=large
+	properties.iconnm_ = "circle";
+	properties.linestyle_.width_ = 2;
+	properties.linestyle_.color_ = OD::Color::NoColor();
+	properties.dofill_ = false;
+	properties.fillcolor_ = OD::Color::NoColor();
+    }
+    else
+    {
+	properties.color_ = OD::Color::NoColor();
+	properties.pixsize_ = 2;
+	properties.iconnm_.setEmpty();
+	properties.linestyle_.width_ = 2;
+	properties.linestyle_.color_ = OD::Color( 85, 85, 85 );
+	const bool ispoly = properties.isPolygon();
+	properties.dofill_ = ispoly;
+	properties.fillcolor_ = ispoly ? OD::Color( 85, 85, 85 )
+				       : OD::Color::NoColor();
+	if ( ispoly )
+	    properties.fillcolor_.setTransparencyF( 0.5f );
+    }
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePoint( const Coord& coord, const char* nm )
+{
+    const LatLong ll = LatLong::transform( coord, true, inpcrs_ );
+    return writePoint( ll, nm, mUdf(double) );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePoint( const Coord3& crd, const char* nm )
+{
+    const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
+    return writePoint( ll, nm, crd.z_ );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePoint( const LatLong& ll, const char* nm,
+					  double z )
+{
+    if ( !geojsontree_ )
 	return false;
 
-    OD::GeoJsonTree::ValueSet* valueset = geojsontree_->createJSON( geomtyp,
-							picks, coordsys_ );
-    BufferString str;
-    valueset->dumpJSon( str );
-    strm() << str;
+    GIS::Property properties( properties_ );
+    properties.setType( GIS::FeatureType::Point ).setName( nm );
+    return geojsontree_->addPoint( ll, z, properties );
+}
 
-    return true;
+
+#define mAddFeatures( typ, obj, nm ) \
+    if ( !geojsontree_ ) \
+	return false; \
+    if ( properties_.isLine() && !doLineCheck(obj.size()) ) \
+	return false;\
+    if ( properties_.isPolygon() && !doPolygonCheck(obj.size()) ) \
+	return false; \
+    GIS::Property properties( properties_ ); \
+    properties.setType( typ ).setName( nm );
+
+
+bool OD::JSON::GeoJSONWriter::writeLine( const TypeSet<Coord>& coords,
+					 const char* nm )
+{
+    mAddFeatures( GIS::FeatureType::LineString, coords, nm );
+    return geojsontree_->addFeatures( coords, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writeLine( const TypeSet<Coord3>& coords,
+					 const char* nm )
+{
+    mAddFeatures( GIS::FeatureType::LineString, coords, nm );
+    return geojsontree_->addFeatures( coords, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writeLine( const Pick::Set& pickset )
+{
+    mAddFeatures( GIS::FeatureType::LineString, pickset, pickset.name().buf() );
+    OD::JSON::setProperties( pickset.disp_, properties );
+    return geojsontree_->addFeatures( pickset, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePolygon( const TypeSet<Coord>& coords,
+					    const char* nm )
+{
+    mAddFeatures( GIS::FeatureType::Polygon, coords, nm );
+    return geojsontree_->addFeatures( coords, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePolygon( const TypeSet<Coord3>& coords,
+					    const char* nm )
+{
+    mAddFeatures( GIS::FeatureType::Polygon, coords, nm );
+    return geojsontree_->addFeatures( coords, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePolygon( const Pick::Set& pickset )
+{
+    mAddFeatures( GIS::FeatureType::Polygon, pickset, pickset.name().buf() );
+    OD::JSON::setProperties( pickset.disp_, properties );
+    return geojsontree_->addFeatures( pickset, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePoints( const TypeSet<Coord>& coords,
+					   const char* nm )
+{
+    mAddFeatures( GIS::FeatureType::MultiPoint, coords, nm );
+    return geojsontree_->addFeatures( coords, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePoints( const TypeSet<Coord3>& coords,
+					   const char* nm )
+{
+    mAddFeatures( GIS::FeatureType::MultiPoint, coords, nm );
+    return geojsontree_->addFeatures( coords, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePoints( const Pick::Set& pickset )
+{
+    mAddFeatures( GIS::FeatureType::MultiPoint, pickset, pickset.name().buf() );
+    OD::JSON::setProperties( pickset.disp_, properties );
+    return geojsontree_->addFeatures( pickset, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writeLines( const Pick::Set& pickset )
+{
+    mAddFeatures( GIS::FeatureType::MultiLineString, pickset,
+		  pickset.name().buf() );
+    OD::JSON::setProperties( pickset.disp_, properties );
+    return geojsontree_->addFeatures( pickset, properties );
+}
+
+
+bool OD::JSON::GeoJSONWriter::writePolygons( const Pick::Set& pickset )
+{
+    mAddFeatures( GIS::FeatureType::MultiPolygon, pickset,
+		  pickset.name().buf() );
+    OD::JSON::setProperties( pickset.disp_, properties );
+    return geojsontree_->addFeatures( pickset, properties );
 }

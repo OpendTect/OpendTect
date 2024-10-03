@@ -1999,13 +1999,13 @@ bool SurveyInfo::isInside( const BinID& bid, bool work ) const
 
 RefMan<Coords::CoordSystem> SurveyInfo::getCoordSystem()
 {
-    return coordsystem_;
+    return coordsystem_.getNonConstPtr();
 }
 
 
 ConstRefMan<Coords::CoordSystem> SurveyInfo::getCoordSystem() const
 {
-    return ConstRefMan<Coords::CoordSystem>( coordsystem_.ptr() );
+    return coordsystem_;
 }
 
 
@@ -2021,7 +2021,7 @@ bool SurveyInfo::xyInFeet() const
 }
 
 
-bool SurveyInfo::setCoordSystem( Coords::CoordSystem* system )
+bool SurveyInfo::setCoordSystem( const Coords::CoordSystem* system )
 {
     coordsystem_ = system;
     return true;
@@ -2046,7 +2046,7 @@ void SurveyInfo::readSavedCoordSystem() const
     if ( !coordsystempar )
 	coordsystempar = pars_.subselect( sKey::CoordSys() );
     if ( coordsystempar )
-	const_cast<SurveyInfo*>(this)->coordsystem_ =
+	mSelf().coordsystem_ =
 		Coords::CoordSystem::createSystem( *coordsystempar );
 
     sfio.closeSuccess();

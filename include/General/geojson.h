@@ -9,38 +9,30 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "odjson.h"
 
-#include "color.h"
-#include "giswriter.h"
-#include "googlexmlwriter.h"
-#include "ptrman.h"
-#include "survinfo.h"
-
+class LatLong;
 namespace Coords { class CoordSystem; }
+namespace GIS { class Property; }
 namespace Pick { class Set; }
 
 namespace OD
 {
 
-mExpClass(General) GeoJsonTree : public JSON::Object
-{ mODTextTranslationClass(GeoJsonTree)
+namespace JSON
+{
 
+mExpClass(General) GeoJsonTree : public Object
+{
+mODTextTranslationClass(GeoJsonTree)
 public:
-
-    typedef JSON::Object	Object;
-    typedef JSON::Array		Array;
-
 			GeoJsonTree();
-			GeoJsonTree(const GeoJsonTree& oth);
-			GeoJsonTree(const Object& obj);
-    virtual		~GeoJsonTree()			{}
+			~GeoJsonTree();
 
 			// will do GeoJSon check
     uiRetVal		use(od_istream&);
     uiRetVal		use(const char* fnm);
-
-    BufferString	crsName() const;
 
     static const char*	sKeyName()			{ return "name"; }
     static const char*	sKeyType()			{ return "type"; }
@@ -53,42 +45,37 @@ public:
 			// use when constructing from general JSON Object
     void		doGeoJSonCheck(uiRetVal&);
 
-    ValueSet*		createJSON(BufferString geomtyp,
-				const TypeSet<Coord>& crdset,
-				const BufferStringSet& nms,
-				ConstRefMan<Coords::CoordSystem>,
-				GISWriter::Property&);
-    ValueSet*		createJSON(BufferString geomtyp,
-				const TypeSet<Coord3>& crdset,
-				const BufferStringSet& nms,
-				ConstRefMan<Coords::CoordSystem>,
-				GISWriter::Property&);
-    ValueSet*		createJSON(BufferString geomtyp,
-			    const RefObjectSet<const Pick::Set>&,
-			    ConstRefMan<Coords::CoordSystem>,
-			    const BufferString& iconnm=BufferString::empty());
-    void		setProperties(const GISWriter::Property&);
+    void		setInputCoordSys(const Coords::CoordSystem*);
 
-protected:
+    bool		addPoint(const Coord&,const GIS::Property&);
+    bool		addPoint(const Coord3&,const GIS::Property&);
+    bool		addPoint(const LatLong&,double z,const GIS::Property&);
+    bool		addFeatures(const TypeSet<Coord>&,const GIS::Property&);
+    bool		addFeatures(const TypeSet<Coord3>&,
+				    const GIS::Property&);
+    bool		addFeatures(const Pick::Set&,const GIS::Property&);
+
+private:
+			mOD_DisableCopy(GeoJsonTree);
 
     BufferString	filename_;
-    bool		isfeatpoint_ = true;
-    bool		isfeatpoly_  = false;
-    bool		isfeatmulti_ = false;
 
-    void		addCoord(const Coord3& coords, Array& poly);
-    void		addCoord(const Coord& coords, Array& poly);
-    bool		isAntiMeridianCrossed(const TypeSet<Coord3>&);
-    Array*		createFeatArray(BufferString);
-    Array*		createFeatCoordArray(Array* featarr, BufferString typ,
-							GISWriter::Property);
-    Object*		createCRSArray(Array* featarr);
-    ConstRefMan<Coords::CoordSystem> coordsys_		= SI().getCoordSystem();
+    void		createFeatArray();
+    Array*		createFeatCoordArray(const GIS::Property&);
+
+    static void		addLatLong(const LatLong&,double z,Array&);
+    static void		addCoord(const Coord&,const Coords::CoordSystem*,
+				 Array&);
+    static void		addCoord(const Coord3&,const Coords::CoordSystem*,
+				 Array&);
+
+    ConstRefMan<Coords::CoordSystem> inpcrs_;
+    ConstRefMan<Coords::CoordSystem> coordsys_;
+
     Array*		featarr_			= nullptr;
-    Array*		polyarr_			= nullptr;
-    Object*		topobj_				= new Object();
-    void		setCRS(ConstRefMan<Coords::CoordSystem>);
 
 };
+
+} // namespace JSON
 
 } // namespace OD

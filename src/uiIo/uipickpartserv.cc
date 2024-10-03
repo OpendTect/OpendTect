@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uipickpartserv.h"
 
 #include "uicreatepicks.h"
+#include "uigisexp.h"
 #include "uiimppickset.h"
 #include "uiioobjseldlg.h"
 #include "uimsg.h"
@@ -26,6 +27,7 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "posinfo2d.h"
 #include "ptrman.h"
+#include "randomlinegeom.h"
 #include "statrand.h"
 #include "surfaceinfo.h"
 #include "survgeom2d.h"
@@ -54,7 +56,17 @@ uiPickPartServer::~uiPickPartServer()
     delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );
-    cleanup();
+    delete imppsdlg_;
+    delete exppsdlg_;
+    delete manpicksetsdlg_;
+    delete setmgrinfodlg_;
+    delete emptypsdlg_;
+    delete genpsdlg_;
+    delete genps2ddlg_;
+    delete gisexppointsetdlg_;
+    delete gisexppolygondlg_;
+    delete gisexprandomlinedlg_;
+    delete gisexpsurvdlg_;
 }
 
 
@@ -73,6 +85,10 @@ void uiPickPartServer::cleanup()
     closeAndNullPtr( emptypsdlg_ );
     closeAndNullPtr( genpsdlg_ );
     closeAndNullPtr( genps2ddlg_ );
+    closeAndNullPtr( gisexppointsetdlg_ );
+    closeAndNullPtr( gisexppolygondlg_ );
+    closeAndNullPtr( gisexprandomlinedlg_ );
+    closeAndNullPtr( gisexpsurvdlg_ );
 }
 
 
@@ -481,4 +497,87 @@ void uiPickPartServer::showPickSetMgrInfo()
 	setmgrinfodlg_ = new uiPickSetMgrInfoDlg( parent() );
 
     setmgrinfodlg_->show();
+}
+
+
+bool uiPickPartServer::exportPointSetsToGIS(
+				    const ObjectSet<const Pick::Set>& gisdatas )
+{
+    return exportToGIS( uiGISExportDlg::Type::PointSet, parent(),
+			gisdatas, gisexppointsetdlg_ );
+}
+
+
+bool uiPickPartServer::exportPolygonsToGIS(
+				    const ObjectSet<const Pick::Set>& gisdatas )
+{
+    return exportToGIS( uiGISExportDlg::Type::Polygon, parent(),
+			gisdatas, gisexppolygondlg_ );
+}
+
+
+bool uiPickPartServer::exportRandomLinesToGIS(
+				    const ObjectSet<const Pick::Set>& gisdatas )
+{
+    return exportToGIS( uiGISExportDlg::Type::RandomLine, parent(),
+			gisdatas, gisexprandomlinedlg_ );
+}
+
+
+bool uiPickPartServer::exportToGIS( uiGISExportDlg::Type typ,
+			uiParent* p, const ObjectSet<const Pick::Set>& gisdatas,
+			uiGISExportDlg*& expdlg )
+{
+    if ( !uiGISExpStdFld::canDoExport(p) )
+	return false;
+
+    if ( expdlg )
+	expdlg->set( gisdatas );
+    else
+    {
+	expdlg = new uiGISExportDlg( p, typ, gisdatas );
+	expdlg->setModal( false );
+    }
+
+    expdlg->raise();
+    expdlg->show();
+    return true;
+}
+
+
+bool uiPickPartServer::exportSurvOutlineToGIS( SurveyInfo& si )
+{
+    if ( !uiGISExpStdFld::canDoExport(parent(),&si) )
+	return false;
+
+    if ( gisexpsurvdlg_ && &gisexpsurvdlg_->getSI() != &si )
+	closeAndNullPtr( gisexpsurvdlg_ );
+
+    if ( !gisexpsurvdlg_ )
+    {
+	gisexpsurvdlg_ = new uiGISExportSurvey( parent(), si );
+	gisexpsurvdlg_->setModal( false );
+    }
+
+    gisexpsurvdlg_->raise();
+    gisexpsurvdlg_->show();
+    return true;
+}
+
+
+void uiPickPartServer::convert( const Geometry::RandomLine& rl,
+				Pick::Set& pickset )
+{
+    pickset.setName( rl.name() );
+    pickset.disp_.color_ = OD::Color::NoColor();
+    pickset.disp_.linestyle_.color_ = OD::Color::NoColor();
+    pickset.disp_.linestyle_.width_ = mUdf(int);
+
+    TrcKeyPath knots;
+    rl.allNodePositions( knots );
+    for ( const auto& tk : knots )
+    {
+	const Pick::Location loc( tk.getCoord() );
+	pickset.add( loc );
+    }
 }

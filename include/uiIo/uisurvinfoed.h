@@ -68,7 +68,7 @@ protected:
     ObjectSet<uiSurvInfoProvider>	sips_;
     uiSurvInfoProvider*			lastsip_;
 
-    RefMan<Coords::CoordSystem>		coordsystem_;
+    ConstRefMan<Coords::CoordSystem>	coordsystem_;
 
     uiGenInput*				survnmfld_;
     uiGenInput*				pathfld_;
@@ -205,5 +205,5 @@ protected:
     bool			xyinft_			= false;
     TDInfo			tdinf_			= Unknown;
     BufferString		surveynm_;
-    RefMan<Coords::CoordSystem> coordsystem_;
+    ConstRefMan<Coords::CoordSystem> coordsystem_;
 };

@@ -691,7 +691,9 @@ void uiSEGYReadStarter::usePar( const IOPar& iop )
     if ( typfld_ )
 	typfld_->usePar( iop );
 
-    coordsysselfld_->getCoordSystem()->usePar( iop );
+    ConstRefMan<Coords::CoordSystem> coordsystem =
+		coordsysselfld_->getCoordSystem();
+    coordsystem.getNonConstPtr()->usePar( iop );
 
     int nrtrcs = examineNrTraces();
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrtrcs );
@@ -986,7 +988,7 @@ void uiSEGYReadStarter::updateSurvMap()
 }
 
 
-RefMan<Coords::CoordSystem> uiSEGYReadStarter::getCoordSystem() const
+ConstRefMan<Coords::CoordSystem> uiSEGYReadStarter::getCoordSystem() const
 {
     return coordsysselfld_->getCoordSystem();
 }
@@ -1098,7 +1100,7 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
     ConstRefMan<Coords::CoordSystem> usercoordsystem =
 				coordsysselfld_->getCoordSystem();
     if ( !forsurvsetup_ && SI().hasProjection() )
-	loaddef_.setUserCoordSys( usercoordsystem.getNonConstPtr() );
+	loaddef_.setUserCoordSys( usercoordsystem.ptr() );
 
     SEGY::BasicFileInfo& bfi = si.basicInfo();
     bool zinft = false;
@@ -1124,9 +1126,9 @@ bool uiSEGYReadStarter::scanFile( const char* fnm, LoadDefChgType ct,
 	if ( segycoordsystem && segycoordsystem->isOK() &&
 	     segycoordsystem != usercoordsystem )
 	{
-	    coordsysselfld_->setCoordSystem( segycoordsystem.getNonConstPtr() );
+	    coordsysselfld_->setCoordSystem( segycoordsystem.ptr() );
 	    if ( !forsurvsetup_ && SI().hasProjection() )
-		loaddef_.setUserCoordSys( segycoordsystem.getNonConstPtr() );
+		loaddef_.setUserCoordSys( segycoordsystem.ptr() );
 	}
     }
 

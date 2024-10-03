@@ -45,7 +45,7 @@ private:
     IOPar		imppars_;
     BufferString	userfilename_;
     bool		xyinft_				= false;
-    RefMan<Coords::CoordSystem> coordsystem_;
+    ConstRefMan<Coords::CoordSystem> coordsystem_;
 
 };
 

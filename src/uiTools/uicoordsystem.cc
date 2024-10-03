@@ -46,7 +46,14 @@ uiCoordSystem::~uiCoordSystem()
 {}
 
 
+ConstRefMan<CoordSystem> uiCoordSystem::outputSystem() const
+{
+    return outputsystem_;
+}
+
+
 // uiCoordSystemSelGrp
+
 uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 					      bool orthogonal,
 					      bool projectiononly,
@@ -105,7 +112,7 @@ uiCoordSystemSelGrp::uiCoordSystemSelGrp( uiParent* p,
 				      StringListInpSpec(names) );
 	coordsystemsel_->attach( leftBorder );
 	mAttachCB( coordsystemsel_->valueChanged,
-	       uiCoordSystemSelGrp::systemChangedCB);
+		   uiCoordSystemSelGrp::systemChangedCB );
     }
 
     if ( coordsystemsel_ )
@@ -146,6 +153,18 @@ void uiCoordSystemSelGrp::createGeodeticUI()
     uillsys->attach( alignedBelow, wgs84selfld_ );
     uillsys->display( false );
     coordsystemsuis_ += uillsys;
+}
+
+
+bool uiCoordSystemSelGrp::hasOutputSystem() const
+{
+    return outputsystem_;
+}
+
+
+ConstRefMan<CoordSystem> uiCoordSystemSelGrp::outputSystem() const
+{
+    return outputsystem_;
 }
 
 
@@ -193,11 +212,9 @@ bool uiCoordSystemSelGrp::acceptOK()
     {
 	BufferString key;
 	coordsystempars_[selidx]->get( sKey::Name(), key );
-	outputsystem_ = CoordSystem::factory().create( key );
-	if ( !outputsystem_->usePar(*coordsystempars_[selidx]) )
-	{
-	    outputsystem_ = nullptr;
-	}
+	RefMan<CoordSystem> outputsystem = CoordSystem::factory().create( key );
+	if ( outputsystem->usePar(*coordsystempars_[selidx]) )
+	    outputsystem_ = outputsystem.ptr();
     }
 
     return outputsystem_;
@@ -214,7 +231,7 @@ void uiCoordSystemSelGrp::fillFromSI()
 
 void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
 {
-    crs.ref();
+    ConstRefMan<Coords::CoordSystem> keepcrs = &crs;
     if ( wgs84selfld_ )
     {
 	const bool iswgs84 = !crs.isProjection() || crs.isWGS84();
@@ -223,7 +240,6 @@ void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
 	    coordsystemsuis_[0]->initFields( &crs );
 
 	wgs84Sel( nullptr );
-	crs.unRef();
 	return;
     }
 
@@ -243,8 +259,6 @@ void uiCoordSystemSelGrp::fillFrom( const Coords::CoordSystem& crs )
 	    uics->initFields( &crs );
 	}
     }
-
-    crs.unRef();
 }
 
 
@@ -266,10 +280,10 @@ uiCoordSystemDlg::~uiCoordSystemDlg()
 }
 
 
-RefMan<CoordSystem> uiCoordSystemDlg::getCoordSystem()
+ConstRefMan<CoordSystem> uiCoordSystemDlg::getCoordSystem() const
 {
-    if ( !coordsysselfld_->outputSystem() )
-	coordsysselfld_->acceptOK();
+    if ( !coordsysselfld_->hasOutputSystem() )
+	mSelf().coordsysselfld_->acceptOK();
 
     return coordsysselfld_->outputSystem();
 }
@@ -284,8 +298,11 @@ bool uiCoordSystemDlg::acceptOK( CallBacker* )
 bool uiCoordSystemDlg::ensureGeographicTransformOK( uiParent* p,
 						       SurveyInfo* si )
 {
-    if ( !si ) si = const_cast<SurveyInfo*>( &SI() );
-    if ( si->getCoordSystem() && si->getCoordSystem()->geographicTransformOK() )
+    if ( !si )
+	si = &eSI();
+
+    ConstRefMan<CoordSystem> coordsystem = si->getCoordSystem();
+    if ( coordsystem && coordsystem->geographicTransformOK() )
 	return true;
 
     uiString msg( tr("The survey '%1' does not have a Coordinate System defined"
@@ -295,17 +312,21 @@ bool uiCoordSystemDlg::ensureGeographicTransformOK( uiParent* p,
 				uiStrings::sCancel()) )
 	return false;
 
-    uiCoordSystemDlg dlg( p, true, false, si, si->getCoordSystem() );
-    if ( !dlg.go() || !dlg.getCoordSystem()
-	    || !dlg.getCoordSystem()->geographicTransformOK() )
+    uiCoordSystemDlg dlg( p, true, false, si, coordsystem.ptr() );
+    if ( dlg.go() != uiDialog::Accepted )
 	return false;
 
-    si->setCoordSystem( dlg.getCoordSystem() );
+    coordsystem = dlg.getCoordSystem();
+    if ( !coordsystem || !coordsystem->geographicTransformOK() )
+	return false;
+
+    si->setCoordSystem( coordsystem.ptr() );
     return true;
 }
 
 
 // uiCoordSystemSel
+
 uiCoordSystemSel::uiCoordSystemSel( uiParent* p,
 			bool orthogonal, bool projectiononly,
 			const CoordSystem* coordsys, const uiString& seltxt )
@@ -341,7 +362,7 @@ void uiCoordSystemSel::selCB( CallBacker* )
 {
     if ( !dlg_ )
 	dlg_ = new uiCoordSystemDlg( this, orthogonal_, projectiononly_,
-					&SI(), coordsystem_ );
+				     &SI(), coordsystem_.ptr() );
 
     if ( dlg_->go() )
     {
@@ -349,6 +370,12 @@ void uiCoordSystemSel::selCB( CallBacker* )
 	updateSummary();
 	changed.trigger();
     }
+}
+
+
+ConstRefMan<CoordSystem> uiCoordSystemSel::getCoordSystem() const
+{
+    return coordsystem_;
 }
 
 

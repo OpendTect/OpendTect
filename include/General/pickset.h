@@ -35,7 +35,7 @@ namespace Pick
 mExpClass(General) Set : public SharedObject
 {
 public:
-			Set(const char* nm=nullptr);
+			Set(const char* nm=nullptr,bool ispolygon=false);
 			Set(const Set&);
 
     Set&		operator =(const Set&);
@@ -115,7 +115,7 @@ public:
     void		fillDisplayPars(IOPar&) const;
     bool		useDisplayPars(const IOPar&);
     bool		writeDisplayPars() const;
-    void		setDefaultDispPars();
+    void		setDefaultDispPars(bool ispolygon);
 
     void		removeSingleWithUndo(int);
     void		insertWithUndo(int,const Pick::Location&);
@@ -133,7 +133,7 @@ public:
 
     void		addStartIdx(int locidx);
     void		setStartIdx(int setidx,int locidx);
-    int			nrSets() const		{ return startidxs_.size(); }
+    int			nrSets() const;
     void		getStartStopIdx(int setidx,int& start,int&stop) const;
     const TypeSet<int>&	startIndexs() const { return startidxs_; }
     void		findStartIdxs();

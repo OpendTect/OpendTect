@@ -51,6 +51,7 @@ set( OD_MODULE_SOURCES
 	uigeninput.cc
 	uigeninput_impl.cc
 	uigeninputdlg.cc
+	uigisexp.cc
 	uigraphicssaveimagedlg.cc
 	uigraphicsscalebar.cc
 	uigraphicssceneaxismgr.cc

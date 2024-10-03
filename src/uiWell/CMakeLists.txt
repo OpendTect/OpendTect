@@ -12,6 +12,7 @@ set( OD_MODULE_SOURCES
 	inituiwell.cc
 	uibulkwellimp.cc
 	uid2tmodelgrp.cc
+	uigisexpwells.cc
 	uilassip.cc
 	uilaswriter.cc
 	uimnemonicsettings.cc

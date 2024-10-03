@@ -52,6 +52,8 @@ public:
 			uiODWellTreeItem(const VisID&);
 			uiODWellTreeItem(const MultiID&);
 
+    MultiID		getMid() const		{ return mid_; }
+
 protected:
 			~uiODWellTreeItem();
 
@@ -69,6 +71,8 @@ protected:
     MultiID		mid_;
     MenuItem		attrmnuitem_;
     MenuItem		logcubemnuitem_;
+    MenuItem		editmnuitem_;
+    MenuItem		storemnuitem_;
     MenuItem		sellogmnuitem_;
     MenuItem		propertiesmnuitem_;
     MenuItem		logviewermnuitem_;
@@ -78,8 +82,6 @@ protected:
     MenuItem		markernamemnuitem_;
     MenuItem		showlogmnuitem_;
     MenuItem		showmnuitem_;
-    MenuItem		editmnuitem_;
-    MenuItem		storemnuitem_;
     MenuItem		gend2tmmnuitem_;
     MenuItem		amplspectrummnuitem_;
     ObjectSet<MenuItem>	logmnuitems_;

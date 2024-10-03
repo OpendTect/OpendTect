@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
+#include "uigisexp.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -39,6 +40,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
+#include "uipickpartserv.h"
 #include "uipositiontable.h"
 #include "uiseispartserv.h"
 #include "uiselsimple.h"
@@ -47,6 +49,19 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellrdmlinedlg.h"
+
+
+static const int cAddDefIdx	= 0;
+static const int cAddStoredIdx	= 2;
+static const int cAddRGBNewIdx		= 31;
+static const int cAddRGBStoredIdx	= 32;
+static const int cNewInteractiveIdx	= 41;
+static const int cNewFromContoursIdx	= 42;
+static const int cNewFromExistingIdx	= 43;
+static const int cNewFromPolygonIdx	= 44;
+static const int cNewFromTableIdx	= 45;
+static const int cNewFromWellsIdx	= 46;
+static const int cExpGISIdx	= 5;
 
 
 class uiRandomLinePolyLineDlg : public uiDialog
@@ -178,52 +193,66 @@ const char* uiODRandomLineParentTreeItem::iconName() const
 bool uiODRandomLineParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertAction( new uiAction(tr("Add Default Data")), 0 );
-    mnu.insertAction( new uiAction(m3Dots(tr("Add Stored"))), 2 );
+    mnu.insertAction( new uiAction(tr("Add Default Data")), cAddDefIdx );
+    mnu.insertAction( new uiAction(m3Dots(tr("Add Stored"))), cAddStoredIdx );
 
     auto* rgbmnu = new uiMenu( getUiParent(), uiStrings::sAddColBlend() );
-    rgbmnu->insertAction( new uiAction(tr("Empty")), 1 );
-    rgbmnu->insertAction( new uiAction( m3Dots(uiStrings::sStored()) ), 3 );
+    rgbmnu->insertAction( new uiAction(tr("Empty")), cAddRGBNewIdx );
+    rgbmnu->insertAction( new uiAction( m3Dots(uiStrings::sStored()) ),
+			  cAddRGBStoredIdx );
     mnu.addMenu( rgbmnu );
 
     auto* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
-    newmnu->insertAction( new uiAction(m3Dots(tr("Interactive "))), 4 );
-//    newmnu->insertAction( new uiAction(m3Dots(tr("Along Contours"))), 5 );
-    newmnu->insertAction( new uiAction(m3Dots(tr("From Existing"))), 6 );
-    newmnu->insertAction( new uiAction(m3Dots(tr("From Polygon"))), 7 );
-    newmnu->insertAction( new uiAction(m3Dots(tr("From Table"))), 8 );
-    newmnu->insertAction( new uiAction(m3Dots(tr("From Wells"))), 9 );
+    newmnu->insertAction( new uiAction(m3Dots(tr("Interactive "))),
+			  cNewInteractiveIdx );
+/*    newmnu->insertAction( new uiAction(m3Dots(tr("Along Contours"))),
+			  cNewFromContoursIdx ); */
+    newmnu->insertAction( new uiAction(m3Dots(tr("From Existing"))),
+			  cNewFromExistingIdx );
+    newmnu->insertAction( new uiAction(m3Dots(tr("From Polygon"))),
+			  cNewFromPolygonIdx );
+    newmnu->insertAction( new uiAction(m3Dots(tr("From Table"))),
+			  cNewFromTableIdx );
+    newmnu->insertAction( new uiAction(m3Dots(tr("From Wells"))),
+			  cNewFromWellsIdx );
     mnu.addMenu( newmnu );
+
+    if ( !children_.isEmpty() )
+	mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
+				uiGISExpStdFld::strIcon()), cExpGISIdx );
+
     showMenuNotifier().trigger( &mnu, this );
 
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
 
-    if ( mnuid==0 )
+    if ( mnuid==cAddDefIdx )
     {
 	auto* itm = new uiODRandomLineTreeItem( VisID::udf(), getType(mnuid) );
 	addChild( itm, false );
 	itm->displayDefaultData();
     }
-    else if ( mnuid==1 )
+    else if ( mnuid==cAddRGBNewIdx )
     {
 	auto* itm = new uiODRandomLineTreeItem( VisID::udf(), getType(mnuid) );
 	addChild( itm, false );
     }
-    else if ( mnuid==2 || mnuid==3 )
+    else if ( mnuid==cAddStoredIdx || mnuid==cAddRGBStoredIdx )
 	addStored( mnuid );
-    else if ( mnuid == 4 )
+    else if ( mnuid == cNewInteractiveIdx )
 	genFromPicks();
-    else if ( mnuid==5 )
+    else if ( mnuid==cNewFromContoursIdx )
 	genFromContours();
-    else if ( mnuid==6 )
+    else if ( mnuid==cNewFromExistingIdx )
 	genFromExisting();
-    else if ( mnuid==7 )
+    else if ( mnuid==cNewFromPolygonIdx )
 	genFromPolygon();
-    else if ( mnuid == 8 )
+    else if ( mnuid == cNewFromTableIdx )
 	genFromTable();
-    else if ( mnuid == 9 )
+    else if ( mnuid == cNewFromWellsIdx )
 	genFromWell();
+    else if ( mnuid == cExpGISIdx )
+	exportToGIS();
 
     handleStandardItems( mnuid );
     return true;
@@ -262,7 +291,7 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int mnuid )
 					    rl->ID() );
     addChild( itm, false );
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()))
+		    applMgr()->visServer()->getObject(itm->displayID()))
     if ( !rtd )
 	return false;
 
@@ -301,6 +330,35 @@ void uiODRandomLineParentTreeItem::genFromWell()
 }
 
 
+void uiODRandomLineParentTreeItem::exportToGIS()
+{
+    uiPickPartServer& pickserver = *applMgr()->pickServer();
+    RefObjectSet<const Pick::Set> gisdatas;
+    for ( const auto* child : children_ )
+    {
+	mDynamicCastGet(const uiODRandomLineTreeItem*,rdltreeitm,child)
+	if ( !rdltreeitm )
+	    continue;
+
+	ConstRefMan<visSurvey::RandomTrackDisplay> rtd =
+						rdltreeitm->getDisplay();
+	if ( !rtd )
+	    continue;
+
+	const Geometry::RandomLine* rl = rtd->getRandomLine();
+	if ( !rl || rl->size() < 2 )
+	    continue;
+
+	RefMan<Pick::Set> pickset = new Pick::Set();
+	pickserver.convert( *rl,*pickset.ptr() );
+	pickset->pars_.setYN( uiGISExportDlg::sKeyIsOn(), child->isSelected() );
+	gisdatas.add( pickset.ptr() );
+    }
+
+    pickserver.exportRandomLinesToGIS( gisdatas );
+}
+
+
 void uiODRandomLineParentTreeItem::genFromTable()
 {
     uiDialog dlg( getUiParent(),
@@ -317,7 +375,7 @@ void uiODRandomLineParentTreeItem::genFromTable()
 	auto* itm = new uiODRandomLineTreeItem( VisID::udf());
 	addChild( itm, false );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
+			applMgr()->visServer()->getObject(itm->displayID()));
 	if ( !rtd || !rtd->getRandomLine() )
 	    return;
 
@@ -355,12 +413,12 @@ void uiODRandomLineParentTreeItem::genFromPicks()
     if ( rdlpolylinedlg_ )
 	return;
 
-    ODMainWin()->applMgr().visServer()->setViewMode( false );
+    applMgr()->visServer()->setViewMode( false );
     auto* itm = new uiODRandomLineTreeItem( VisID::udf() );
     addChild( itm, false );
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-	ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
+		    applMgr()->visServer()->getObject(itm->displayID()));
 
     delete rdlpolylinedlg_;
     rdlpolylinedlg_ = new uiRandomLinePolyLineDlg( getUiParent(), rtd );
@@ -382,7 +440,7 @@ void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
     else
     {
 	removeChild( itm );
-	ODMainWin()->applMgr().visServer()->removeObject( id, sceneID() );
+	applMgr()->visServer()->removeObject( id, sceneID() );
     }
 
     rdlpolylinedlg_ = nullptr;

@@ -41,7 +41,7 @@ ZMapImporter::~ZMapImporter()
 }
 
 
-void ZMapImporter::setCoordSystem( Coords::CoordSystem* crs )
+void ZMapImporter::setCoordSystem( const Coords::CoordSystem* crs )
 {
     coordsystem_ = crs;
     applyCRS();
@@ -113,8 +113,8 @@ void ZMapImporter::applyCRS()
     mincrd_ = Coord( xmin_, ymin_ );
     maxcrd_ = Coord( xmax_, ymax_ );
 
-    const Coords::CoordSystem* fromcrs = coordsystem_;
-    const Coords::CoordSystem* tocrs = SI().getCoordSystem();
+    ConstRefMan<Coords::CoordSystem> fromcrs = coordsystem_;
+    ConstRefMan<Coords::CoordSystem> tocrs = SI().getCoordSystem();
     if ( fromcrs && tocrs )
     {
 	mincrd_ = Coords::CoordSystem::convert( mincrd_, *fromcrs, *tocrs );

@@ -32,7 +32,7 @@ public:
     uiString		uiMessage() const override	{ return msg_; }
     uiString		uiNrDoneText() const override	{ return nrdonetxt_; }
 
-    void		setCoordSystem(Coords::CoordSystem*);
+    void		setCoordSystem(const Coords::CoordSystem*);
     void		setUOM(const UnitOfMeasure*);
 
     const Array2D<float>* data() const			{ return data_; }
@@ -63,7 +63,7 @@ protected:
     BufferString	fnm_;
     bool		initdone_	= false;
     od_istream*		istrm_		= nullptr;
-    RefMan<Coords::CoordSystem>	coordsystem_;
+    ConstRefMan<Coords::CoordSystem> coordsystem_;
     UnitOfMeasure*	uom_		= nullptr;
     PosInfo::Detector*	posdetector_;
 

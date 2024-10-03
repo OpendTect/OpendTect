@@ -95,7 +95,7 @@ public:
     static const char*		sKeyFactoryName();
     static const char*		sKeyUiName();
 
-    static CoordSystem*		getWGS84LLSystem();
+    static const CoordSystem*	getWGS84LLSystem();
     static BufferString		sWGS84ProjDispString();
 
 protected:

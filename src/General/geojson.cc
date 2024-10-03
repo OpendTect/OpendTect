@@ -8,37 +8,34 @@ ________________________________________________________________________
 -*/
 
 #include "geojson.h"
-#include "od_istream.h"
-#include "latlong.h"
-#include "picklocation.h"
-#include "survinfo.h"
+
 #include "giswriter.h"
-#include "coordsystem.h"
+#include "od_istream.h"
+#include "picklocation.h"
+#include "pickset.h"
+#include "survinfo.h"
 
-OD::GeoJsonTree::GeoJsonTree()
+
+OD::JSON::GeoJsonTree::GeoJsonTree()
     : Object(nullptr)
+    , inpcrs_(SI().getCoordSystem())
+    , coordsys_(Coords::CoordSystem::getWGS84LLSystem())
 {}
 
 
-OD::GeoJsonTree::GeoJsonTree( const GeoJsonTree& oth )
-    : Object(oth)
-    , filename_(oth.filename_)
-{}
+OD::JSON::GeoJsonTree::~GeoJsonTree()
+{
+}
 
 
-OD::GeoJsonTree::GeoJsonTree( const Object& obj )
-    : Object(obj)
-{}
-
-
-uiRetVal OD::GeoJsonTree::use( const char* fnm )
+uiRetVal OD::JSON::GeoJsonTree::use( const char* fnm )
 {
     od_istream strm( fnm );
     return use( strm );
 }
 
 
-uiRetVal OD::GeoJsonTree::use( od_istream& strm )
+uiRetVal OD::JSON::GeoJsonTree::use( od_istream& strm )
 {
     filename_.set( strm.fileName() );
 
@@ -59,229 +56,261 @@ uiRetVal OD::GeoJsonTree::use( od_istream& strm )
 	return; \
     }
 
-void OD::GeoJsonTree::doGeoJSonCheck( uiRetVal& uirv )
+void OD::JSON::GeoJsonTree::doGeoJSonCheck( uiRetVal& uirv )
 {
     uirv.setEmpty();
     uiString missing_key_str( tr("Missing %1 key in GeoJSON file '%2'") );
 
-    mCheckPresence( this, crs, getObject )
-    mCheckPresence( crs, properties, getObject )
     mCheckPresence( this, features, getArray )
     if ( features->isEmpty() )
 	uirv.set( tr("No features in GeoJSON file '%1'").arg( filename_ ) );
 }
 
 
-BufferString OD::GeoJsonTree::crsName() const
+void OD::JSON::GeoJsonTree::setInputCoordSys( const Coords::CoordSystem* crs )
 {
-    return getObject( "crs" )
-	 ->getObject( "properties" )
-	 ->getStringValue( sKeyName() );
+    inpcrs_ = crs;
 }
 
 
-void  OD::GeoJsonTree::addCoord( const Coord3& coord, Array& poly )
+void OD::JSON::GeoJsonTree::createFeatArray()
 {
-
-    const LatLong ll( LatLong::transform(coord.coord(), true, coordsys_) );
-    if ( isfeatpoly_ )
-    {
-	Array* coordarr = poly.add( new Array(OD::JSON::Number) );
-        coordarr->add( ll.lng_ ).add( ll.lat_ ).add( coord.z_ );
-    }
-    else
-        poly.add( ll.lng_ ).add( ll.lat_ ).add( coord.z_ );
+    set( "type", "FeatureCollection" );
+    featarr_ = set( "features", new Array(true) );
 }
 
 
-void  OD::GeoJsonTree::addCoord( const Coord& coord, Array& poly )
+OD::JSON::Array*
+OD::JSON::GeoJsonTree::createFeatCoordArray( const GIS::Property& props )
 {
-    const LatLong ll( LatLong::transform( coord, true, coordsys_ ) );
-    if ( isfeatpoly_ )
-    {
-	Array* coordarr = poly.add( new Array(OD::JSON::Number) );
-	coordarr->add( ll.lng_ ).add( ll.lat_ );
-    }
-    else
-	poly.add( ll.lng_ ).add( ll.lat_ );
-}
+    if ( isEmpty() )
+	createFeatArray();
 
-
-#define mCreateFeatArray(geomtyp) \
-{ \
-    isfeatpoint_ = geomtyp == "Point"; \
-    isfeatpoly_ = (geomtyp == "Polygon")  || (geomtyp == "MultiPolygon"); \
-    topobj_->set("type", "FeatureCollection"); \
-    featarr_ = topobj_->set( "features", new Array(true) ); \
-} \
-
-#define mAddCoordWithProperty(property) \
-for ( int idx=0; idx<nms.size(); idx++ ) \
-{ \
-    property.objnm_ = *nms[idx]; \
-    polyarr_ = createFeatCoordArray( featarr_, geomtyp, property ); \
-    Array* poly(0); \
-    if (isfeatpoly_) \
-	poly = polyarr_->add( new Array( false ) ); \
-    for( int cidx=0; cidx<crdset.size(); cidx++ ) \
-    { \
-	if (!isfeatpoint_) \
-	{ \
-	    if ( !isfeatpoly_ ) \
-		poly = polyarr_->add( new Array( OD::JSON::Number ) ); \
-	    addCoord( crdset[cidx], *poly ); \
-	} \
-	else \
-	    addCoord( crdset[cidx], *polyarr_ ); \
-    } \
-} \
-
-
-void OD::GeoJsonTree::setCRS( ConstRefMan<Coords::CoordSystem> crs )
-{
-    coordsys_ = crs;
-}
-
-
-OD::GeoJsonTree::Object* OD::GeoJsonTree::createCRSArray( Array* crsarr )
-{
-    Object* featobj = crsarr->add( new Object );
-    featobj->set( "type", "name" );
-
-    const Coords::CoordSystem::StringType styp = Coords::CoordSystem::URN;
-    //TODO: Switch to URL
-
-    Object* propobj = featobj->set( "properties", new Object );
-    propobj->set( "name", coordsys_->toString(styp) );
-    return propobj;
-}
-
-
-OD::GeoJsonTree::Array* OD::GeoJsonTree::createFeatCoordArray( Array* featarr,
-	    BufferString typ , GISWriter::Property property )
-{
-    if ( !featarr )
+    if ( !featarr_ )
 	return nullptr;
 
-    Object* featobj = featarr->add( new Object );
+    Object* featobj = featarr_->add( new Object );
     featobj->set( "type", "Feature" );
 
-    Object* styleobj = featobj->set( "properties", new Object );
-    const Color clr = property.color_;
-    styleobj->set( "fill", clr.getStdStr() );
-    styleobj->set( "stroke", clr.getStdStr() );
-    styleobj->set( "stroke-width", property.width_==0 ? 2 : property.width_ );
-    styleobj->set( "fill-opacity", clr.t() );
+    Object* propobj = featobj->set( "properties", new Object );
+    const OD::String& objname = props.name();
+    if ( !objname.isEmpty() && objname != "NONE" )
+	propobj->set( "name", objname.str() );
 
-    const Coords::CoordSystem::StringType styp = Coords::CoordSystem::URN;
-    //TODO: Switch to URL
-
-    Object* crsobj = featobj->set( "crs", new Object );
-    crsobj->set( "type", "name" );
-    Object* crspropobj = crsobj->set( "properties", new Object );
-    crspropobj->set( "name", coordsys_->toString(styp) );
+    if ( props.isPoint() )
+    {
+	propobj->set( "marker-color", props.color_.getStdStr() );
+	propobj->set( "marker-size", props.pixsize_ < 2
+			? "small" :(props.pixsize_ > 2 ? "large" : "medium") );
+	propobj->set( "marker-symbol", props.iconnm_ );
+    }
+    else
+    {
+	const OD::LineStyle& linestyle = props.linestyle_;
+	propobj->set( "stroke", linestyle.color_.getStdStr() );
+	propobj->set( "stroke-width", linestyle.width_);
+	propobj->set( "stroke-opacity", (1.-linestyle.color_.tF()) );
+	if ( props.isPolygon() )
+	{
+	    const OD::Color& fillcolor = props.fillcolor_;
+	    propobj->set( "fill", fillcolor.getStdStr() );
+	    propobj->set( "fill-opacity", (1.-fillcolor.tF()) );
+	}
+    }
 
     Object* geomobj = featobj->set( "geometry", new Object );
-    geomobj->set( "type", typ );
-    return geomobj->set( "coordinates", isfeatpoint_ ?
-			    new Array(OD::JSON::Number) : new Array( false ) );
+    geomobj->set( "type", GIS::FeatureTypeDef().toString(props.type_));
+    if ( props.isPoint() && !props.isMulti() )
+	return geomobj->set( "coordinates", new Array(Number) );
+
+    Array* geomarr = geomobj->set( "coordinates", new Array(false) );
+    if ( props.isPolygon() )
+	geomarr = geomarr->add( new Array(false) );
+
+    return geomarr;
 }
 
 
-OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
-    const TypeSet<Coord>& crdset, const BufferStringSet& nms,
-    ConstRefMan<Coords::CoordSystem> crs, GISWriter::Property& property )
+bool OD::JSON::GeoJsonTree::addPoint( const Coord& crd,
+				      const GIS::Property& properties )
 {
-    if ( topobj_->isEmpty() )
-	mCreateFeatArray( geomtyp )
-
-    setCRS( crs );
-
-    mAddCoordWithProperty( property );
-
-    return topobj_->clone();
+    const LatLong ll = LatLong::transform( crd, true, inpcrs_ );
+    return addPoint( ll, mUdf(double), properties );
 }
 
 
-OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
-	    const TypeSet<Coord3>& crdset, const BufferStringSet& nms,
-	    ConstRefMan<Coords::CoordSystem> crs,
-	    GISWriter::Property& property )
+bool OD::JSON::GeoJsonTree::addPoint( const Coord3& crd,
+				      const GIS::Property& properties )
 {
-
-    if ( topobj_->isEmpty() )
-	mCreateFeatArray( geomtyp )
-
-    setCRS( crs );
-
-    mAddCoordWithProperty( property );
-
-    return topobj_->clone();
+    const LatLong ll = LatLong::transform( crd.coord(), true, inpcrs_ );
+    return addPoint( ll, crd.z_, properties );
 }
 
 
-OD::GeoJsonTree::ValueSet* OD::GeoJsonTree::createJSON( BufferString geomtyp,
-		const RefObjectSet<const Pick::Set>& pckset,
-		ConstRefMan<Coords::CoordSystem> crs,
-		const BufferString& iconnm )
+bool OD::JSON::GeoJsonTree::addPoint( const LatLong& ll, double z,
+				      const GIS::Property& properties )
 {
-    if ( topobj_->isEmpty() )
-	mCreateFeatArray( geomtyp )
+    Array* coordarr = createFeatCoordArray( properties );
+    if ( !coordarr )
+	return false;
 
-    setCRS( crs );
-
-    for ( int idx=0; idx<pckset.size(); idx++ )
-    {
-	const Pick::Set* pick = pckset.get( idx );
-	if ( !pick )
-	    continue;
-
-	GISWriter::Property property;
-	property.color_ = pick->disp_.color_;
-	property.width_ = pick->disp_.pixsize_*0.1;
-	property.objnm_ = pick->name();
-
-	if ( !iconnm.isEmpty() )
-	    property.iconnm_ = iconnm;
-
-	polyarr_ = createFeatCoordArray( featarr_, geomtyp, property );
-	const TypeSet<Pick::Location>& locations = pick->locations();
-	if ( pick->isPolygon() && pick->disp_.connect_ == pick->disp_.Close &&
-	     locations.first() != locations.last() )
-	{
-	    auto& nclocs = cCast(TypeSet<Pick::Location>&,locations);
-	    nclocs.add( nclocs.first() );
-	}
-
-	Array* poly(0);
-	if ( isfeatpoly_ )
-	    poly = polyarr_->add( new Array(false) );
-
-	for ( int cidx=0; cidx<locations.size(); cidx++ )
-	{
-	    if ( !isfeatpoint_ )
-	    {
-		if ( !isfeatpoly_ )
-		    poly = polyarr_->add( new Array(OD::JSON::Number) );
-
-		addCoord( locations.get(cidx).pos(), *poly );
-	    }
-	    else
-		addCoord( locations.get(cidx).pos(), *polyarr_ );
-	}
-    }
-
-    return topobj_->clone();
-}
-
-
-bool OD::GeoJsonTree::isAntiMeridianCrossed( const TypeSet<Coord3>& crdset )
-{
-    for ( auto crd : crdset)
-    {
-	const LatLong ll( LatLong::transform( crd.coord(), true, coordsys_) );
-	if ( ll.lng_ < 0 )
-	    break;
-    }
+    addLatLong( ll, z, *coordarr );
     return true;
+}
+
+
+bool OD::JSON::GeoJsonTree::addFeatures( const TypeSet<Coord>& coords,
+					 const GIS::Property& properties )
+{
+    if ( coords.isEmpty() )
+	return false;
+
+    Array* coordarr = createFeatCoordArray( properties );
+    if ( !coordarr )
+	return false;
+
+    if ( properties.isMulti() && !properties.isPoint() )
+    {
+	pErrMsg("MultiLineString and MultiPolygon feature type are only "
+		"supported via a multi-set Pick::Set object");
+    }
+
+    ConstRefMan<Coords::CoordSystem> inpcrs = inpcrs_.ptr();
+    const Coords::CoordSystem* crs = inpcrs.ptr();
+    for ( const auto& crd : coords )
+    {
+	Array* posarr = coordarr->add( new Array(Number) );
+	if ( posarr )
+	    addCoord( crd, crs, *posarr );
+    }
+
+    if ( properties.isPolygon() && coords.first() != coords.last() )
+    {
+	Array* posarr = coordarr->add( new Array(Number) );
+	if ( posarr )
+	    addCoord( coords.first(), crs, *posarr );
+    }
+
+    return true;
+}
+
+
+bool OD::JSON::GeoJsonTree::addFeatures( const TypeSet<Coord3>& coords,
+					 const GIS::Property& properties )
+{
+    if ( coords.isEmpty() )
+	return false;
+
+    Array* coordarr = createFeatCoordArray( properties );
+    if ( !coordarr )
+	return false;
+
+    if ( properties.isMulti() && !properties.isPoint() )
+    {
+	pErrMsg("MultiLineString and MultiPolygon feature types are only "
+		"supported via a multi-set Pick::Set object");
+    }
+
+    ConstRefMan<Coords::CoordSystem> inpcrs = inpcrs_.ptr();
+    const Coords::CoordSystem* crs = inpcrs.ptr();
+    for ( const auto& crd : coords )
+    {
+	Array* posarr = coordarr->add( new Array(Number) );
+	if ( posarr )
+	    addCoord( crd, crs, *posarr );
+    }
+
+    if ( properties.isPolygon() && coords.first() != coords.last() )
+    {
+	Array* posarr = coordarr->add( new Array(Number) );
+	if ( posarr )
+	    addCoord( coords.first(), crs, *posarr );
+    }
+
+    return true;
+}
+
+
+bool OD::JSON::GeoJsonTree::addFeatures( const Pick::Set& pickset,
+					 const GIS::Property& properties )
+{
+    if ( pickset.isEmpty() )
+	return false;
+
+    Array* coordarr = createFeatCoordArray( properties );
+    if ( !coordarr )
+	return false;
+
+    ConstRefMan<Coords::CoordSystem> inpcrs = inpcrs_.ptr();
+    const Coords::CoordSystem* crs = inpcrs.ptr();
+    const int totsz = pickset.size();
+    const int nrsets = pickset.nrSets();
+    if ( pickset.nrSets() < 2 )
+    {
+	for ( int idx=0; idx<totsz; idx++ )
+	{
+	    Array* posarr = coordarr->add( new Array(Number) );
+	    if ( posarr )
+		addCoord( pickset.getPos(idx), crs, *posarr );
+	}
+
+	if ( properties.isPolygon() &&
+	     pickset.getPos(0) != pickset.getPos(totsz-1) )
+	{
+	    Array* posarr = coordarr->add( new Array(Number) );
+	    if ( posarr )
+		addCoord( pickset.getPos(0), crs, *posarr );
+	}
+    }
+    else
+    {
+	for ( int iset=0; iset<nrsets; iset++ )
+	{
+	    Array* subarr = coordarr->add( new Array(false) );
+	    int start, stop;
+	    pickset.getStartStopIdx( iset, start, stop );
+	    for ( int idx=start; idx<stop; idx++ )
+	    {
+		Array* posarr = subarr->add( new Array(Number) );
+		if ( posarr )
+		    addCoord( pickset.getPos(idx), crs, *posarr );
+	    }
+
+	    const Coord3& firstpos = pickset.getPos( start );
+	    const Coord3& lastpos = pickset.getPos( stop );
+	    if ( properties.isPolygon() && firstpos != lastpos )
+	    {
+		Array* posarr = subarr->add( new Array(Number) );
+		if ( posarr )
+		    addCoord( firstpos, crs, *posarr );
+	    }
+	}
+    }
+
+    return true;
+}
+
+
+void OD::JSON::GeoJsonTree::addLatLong( const LatLong& ll, double z,
+					Array& coordarr )
+{
+    coordarr.add( ll.lng_ ).add( ll.lat_ );
+    if ( !mIsUdf(z) )
+	coordarr.add( z );
+}
+
+
+void OD::JSON::GeoJsonTree::addCoord( const Coord& coord,
+			    const Coords::CoordSystem* crs, Array& coordarr )
+{
+    const LatLong ll = LatLong::transform( coord, true, crs );
+    return addLatLong( ll, mUdf(double), coordarr );
+}
+
+
+void OD::JSON::GeoJsonTree::addCoord( const Coord3& coord,
+			    const Coords::CoordSystem* crs, Array& coordarr )
+{
+    const LatLong ll = LatLong::transform( coord.coord(), true, crs );
+    return addLatLong( ll, coord.z_, coordarr );
 }

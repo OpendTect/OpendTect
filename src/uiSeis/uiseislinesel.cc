@@ -151,34 +151,64 @@ void uiSeis2DLineChoose::getChosen( BufferStringSet& nms ) const
 
 void uiSeis2DLineChoose::setChosen( const TypeSet<Pos::GeomID>& gids )
 {
-    filtfld_->setFilter( 0 );
-    listfld_->chooseAll( false );
-    for ( int idx=0; idx<gids.size(); idx++ )
+    const OD::ChoiceMode cm = listfld_->choiceMode();
+
+    chooseAll( false );
+    for ( const auto& gid : gids )
     {
-	const int idxof = geomids_.indexOf( gids[idx] );
-	if ( idxof >= 0 )
-	    listfld_->setChosen( idxof, true );
+	if ( !geomids_.isPresent(gid) )
+	    continue;
+
+	const int idxof = geomids_.indexOf( gid );
+	listfld_->setChosen( idxof, true );
     }
+
+    if ( cm == OD::ChooseOnlyOne && gids.size() > 1 )
+	{ pErrMsg("Incompatible line choice (more than one chosen)"); }
+    else if ( cm == OD::ChooseAtLeastOne && gids.isEmpty() &&
+	      !listfld_->isEmpty() )
+    {
+	pErrMsg("Incompatible line choice (need at least one)");
+	listfld_->setChosen( 0, true );
+    }
+
+    listfld_->setChoiceMode( cm );
 }
 
 
 void uiSeis2DLineChoose::setChosen( const BufferStringSet& nms )
 {
-    filtfld_->setFilter( 0 );
-    listfld_->chooseAll( false );
-    for ( int idx=0; idx<nms.size(); idx++ )
+    const OD::ChoiceMode cm = listfld_->choiceMode();
+
+    chooseAll( false );
+    for ( const auto* lnm : nms )
     {
-	const int idxof = lnms_.indexOf( nms.get(idx) );
-	if ( idxof >= 0 )
-	    listfld_->setChosen( idxof, true );
+	if ( !lnms_.isPresent(lnm->buf()) )
+	    continue;
+
+	const int idxof = lnms_.indexOf( lnm->buf() );
+	listfld_->setChosen( idxof, true );
     }
+
+    if ( cm == OD::ChooseOnlyOne && nms.size() > 1 )
+	{ pErrMsg("Incompatible line choice (more than one chosen)"); }
+    else if ( cm == OD::ChooseAtLeastOne && nms.isEmpty() &&
+	      !listfld_->isEmpty() )
+    {
+	pErrMsg("Incompatible line choice (need at least one)");
+	listfld_->setChosen( 0, true );
+    }
+
+    listfld_->setChoiceMode( cm );
 }
 
 
 void uiSeis2DLineChoose::chooseAll( bool yn )
 {
     if ( yn )
-	filtfld_->setFilter( 0 );
+	filtfld_->setFilter( nullptr );
+
+    listfld_->setAllowNoneChosen( yn );
     listfld_->chooseAll( yn );
 }
 

@@ -38,7 +38,7 @@ public:
 
 private:
 
-    RefMan<Coords::CoordSystem>		coordsystem_;
+    ConstRefMan<Coords::CoordSystem>	coordsystem_;
     BufferStringSet			filenms_;
 };
 

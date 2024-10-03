@@ -68,7 +68,11 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
     if ( Pick::Mgr().readDisplayPars(mid,disppars) )
 	ps.useDisplayPars( disppars );
     else
-	ps.setDefaultDispPars();
+    {
+	const BufferString typ = ioobj->pars().find( sKey::Type() );
+	const bool ispolygon = typ.isEqual( sKey::Polygon() );
+	ps.setDefaultDispPars( ispolygon );
+    }
 
     return errmsg.isEmpty();
 }

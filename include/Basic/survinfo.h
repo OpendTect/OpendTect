@@ -168,7 +168,7 @@ protected:
     float		seisrefdatum_		= 0.f;
     IOPar&		pars_;
     IOPar		logpars_;
-    RefMan<Coords::CoordSystem> coordsystem_;
+    ConstRefMan<Coords::CoordSystem> coordsystem_;
 
     mutable Threads::AtomicPointer<Survey::Geometry3D>	s3dgeom_;
     mutable Threads::AtomicPointer<Survey::Geometry3D>	work_s3dgeom_;
@@ -319,7 +319,7 @@ public:
     mDeprecated		("Use set3PtsWithMsg")
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
-    bool		setCoordSystem(Coords::CoordSystem*);
+    bool		setCoordSystem(const Coords::CoordSystem*);
     void		readSavedCoordSystem() const;
 			//!< Useful after loading plugins.
 

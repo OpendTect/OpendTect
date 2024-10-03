@@ -16,6 +16,7 @@ set( OD_MODULE_SOURCES
 	uielasticmodelprov.cc
 	uifkspectrum.cc
 	uifreqtaper.cc
+	uigisexp2dlines.cc
 	uimergeseis.cc
 	uimultcomputils.cc
 	uiprestkmergedlg.cc

@@ -9,81 +9,131 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "uistring.h"
-#include "od_ostream.h"
-#include "factory.h"
-#include "pickset.h"
+
 #include "coordsystem.h"
+#include "draw.h"
+#include "factory.h"
+
+class od_ostream;
+namespace Pick { class Set; }
 
 
-mExpClass(General) GISWriter
-{ mODTextTranslationClass(GISWriter)
+namespace GIS
+{
+
+    enum class FeatureType { Undefined, Point, LineString, Polygon,
+			     MultiPoint, MultiLineString, MultiPolygon };
+			   mDeclareNameSpaceEnumUtils(General,FeatureType);
+
+
+mExpClass(General) Property : public NamedObject
+{
 public:
-    mDefineFactoryInClass(GISWriter,factory);
-
-    mExpClass(General) Property
-    {
-	public:
 				Property();
+				Property(const Property&);
 				~Property();
 
-	OD::Color		color_		= OD::Color::Black();
-	int			width_		= 2;
-	BufferString		iconnm_		= "NONE";
-	BufferString		stlnm_		= "NONE";
-	int			xpixoffs_	= 20;
-	BufferString		objnm_		= "NONE";
-	BufferString		coordysynm_	= "NONE";
-	BufferString		nmkeystr_	= "name";
+    Property&		operator =(const Property&);
+    Property&		setType(const FeatureType&);
 
-	Property&		operator =(const Property& oth);
-    };
+    bool		isPoint() const;
+    bool		isLine() const;
+    bool		isPolygon() const;
+    bool		isMulti() const;
 
-    virtual			~GISWriter();
+    FeatureType		type_		= FeatureType::Undefined;
+    OD::Color		color_		= OD::Color::NoColor();
+    int			pixsize_	= 2;
+    OD::LineStyle	linestyle_;
+    bool		dofill_		= false;
+    OD::Color		fillcolor_	= OD::Color::NoColor();
+    BufferString	iconnm_;
+    BufferString	nmkeystr_	= "name";
 
-    bool			isOK() const { return strm_ && strm_->isOK(); }
-    od_ostream&			strm() { return *strm_; }
-    const od_ostream&		strm() const { return *strm_; }
+};
 
-    virtual void		setStream(const BufferString& fnm) = 0;
 
-    RefObjectSet<const Pick::Set>		picks_;
+mExpClass(General) Writer
+{
+mODTextTranslationClass(Writer)
+public:
+    mDefineFactoryInClass(Writer,factory);
 
-    virtual bool		close();
-    virtual uiString		errMsg() const = 0;
-    virtual BufferString	getExtension() = 0;
+    virtual			~Writer();
 
-    virtual bool		writePoints(const TypeSet<Coord>&,
-					const BufferStringSet& nms) = 0;
-    virtual bool		writePoint(const Coord&,const char* nm=0) = 0;
-    virtual bool		writePoint(const LatLong&,const char* nm=0) = 0;
-    virtual bool		writePoint(
-				    const RefObjectSet<const Pick::Set>&) = 0;
-    virtual bool		writeLine(const TypeSet<Coord>&,
-					  const char* nm=nullptr) = 0;
-    virtual bool		writeLine(
-				    const RefObjectSet<const Pick::Set>&) = 0;
-    virtual bool		writePolygon(const TypeSet<Coord>&,
-					     const char* nm=nullptr) = 0;
-    virtual bool		writePolygon(const TypeSet<Coord3>&,
-					     const char* nm=nullptr) = 0;
-    virtual bool		writePolygon(
-				    const RefObjectSet<const Pick::Set>&) = 0;
-    void			setCoordSys(Coords::CoordSystem* crs)
-				{ coordsys_ = crs; }
-    ConstRefMan<Coords::CoordSystem>	getCoordSys() { return coordsys_; }
-    void			coordConverter( TypeSet<Coord>& crdset );
-    void			coordConverter( TypeSet<Coord3>& crdset );
+    virtual Writer&		setInputCoordSys(const Coords::CoordSystem*);
+    virtual Writer&		setSurveyName(const char*);
+				//!< before open()
+    virtual Writer&		setElemName(const char*);
+				//!< before open()
+    virtual Writer&		setStream(const char* fnm,
+					  bool useexisting=false)	= 0;
+    virtual Writer&		setDescription(const char*);
+    virtual Writer&		setProperties(const Property&);
+
+    virtual bool		isOK() const;
+    virtual BufferString	getExtension() const			= 0;
+    virtual void		getDefaultProperties(const FeatureType&,
+						     Property&) const	= 0;
+
     uiString			successMsg();
-    uiString			errMsg();
+    uiString			errMsg()	{ return errmsg_; }
 
-    void			setProperties(const GISWriter::Property&);
+				// (single) Point
+    virtual bool		writePoint(const Coord&,
+					   const char* nm=nullptr)	= 0;
+    virtual bool		writePoint(const Coord3&,
+					   const char* nm=nullptr)	= 0;
+    virtual bool		writePoint(const LatLong&,
+					   const char* nm=nullptr,
+					   double z=0.)			= 0;
+
+				// (single) Line
+    virtual bool		writeLine(const TypeSet<Coord>&,
+					  const char* nm=nullptr)	= 0;
+    virtual bool		writeLine(const TypeSet<Coord3>&,
+					  const char* nm=nullptr)	= 0;
+    virtual bool		writeLine(const Pick::Set&)		= 0;
+
+				// (single) Polygon
+    virtual bool		writePolygon(const TypeSet<Coord>&,
+					     const char* nm=nullptr)	= 0;
+    virtual bool		writePolygon(const TypeSet<Coord3>&,
+					     const char* nm=nullptr)	= 0;
+    virtual bool		writePolygon(const Pick::Set&)		= 0;
+
+				// PointSet
+    virtual bool		writePoints(const TypeSet<Coord>&,
+					    const char* nm=nullptr)	= 0;
+    virtual bool		writePoints(const TypeSet<Coord3>&,
+					    const char* nm=nullptr)	= 0;
+    virtual bool		writePoints(const Pick::Set&)		= 0;
+
+				// (Multiple) Lines
+    virtual bool		writeLines(const Pick::Set&)	{ return false;}
+
+				// (Multiple) Polygons
+    virtual bool		writePolygons(const Pick::Set&) { return false;}
 
 protected:
-					GISWriter();
+				Writer();
+
+    virtual bool		open(const char* fnm,bool useexisting)	= 0;
+    virtual bool		close();
+    od_ostream&			strm() { return *strm_; }
+    const od_ostream&		strm() const { return *strm_; }
+    bool			doLineCheck(int sz);
+    bool			doPolygonCheck(int sz);
+    const Coords::CoordSystem*	getOutputCRS() const;
+
     od_ostream*				strm_	= nullptr;
-    ConstRefMan<Coords::CoordSystem>	coordsys_;
     ConstRefMan<Coords::CoordSystem>	inpcrs_;
 
-    Property				properties_;
+    Property			properties_;
+    uiString			errmsg_;
+
+private:
+    ConstRefMan<Coords::CoordSystem>	coordsys_;
 };
+
+} // namespace GIS

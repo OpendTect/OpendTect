@@ -113,6 +113,7 @@ if ( UNIX )
 endif()
 
 list( APPEND OD_TEST_PROGS
+	gis.cc
 	mathexpression.cc
 	mathformula.cc
 	mnemonics.cc

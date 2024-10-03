@@ -224,7 +224,7 @@ IOPar* ui2DSurvInfoProvider::getCoordSystemPars() const
     if ( !coordsystem_ )
 	return nullptr;
 
-    IOPar* crspar = new IOPar;
+    auto* crspar = new IOPar;
     coordsystem_->fillPar( *crspar );
     return crspar;
 }
@@ -526,7 +526,7 @@ IOPar* uiNavSurvInfoProvider::getCoordSystemPars() const
     if ( !coordsystem_ )
 	return nullptr;
 
-    IOPar* crspar = new IOPar;
+    auto* crspar = new IOPar;
     coordsystem_->fillPar( *crspar );
     return crspar;
 }

@@ -39,6 +39,7 @@ protected:
     void		genFromPolygon();
     void		genFromTable();
     void		genFromWell();
+    void		exportToGIS();
     void		loadRandLineFromWell(CallBacker*);
     void		genFromPicks();
     void		rdlPolyLineDlgCloseCB(CallBacker*);
@@ -73,6 +74,8 @@ public:
     bool		displayData(const Attrib::SelSpec*);
     void		setRandomLineID(const RandomLineID&);
 
+    ConstRefMan<visSurvey::RandomTrackDisplay> getDisplay() const;
+
 protected:
 			~uiODRandomLineTreeItem();
 
@@ -92,7 +95,6 @@ protected:
     MenuItem		saveas2dmnuitem_;
     MenuItem		create2dgridmnuitem_;
 
-    ConstRefMan<visSurvey::RandomTrackDisplay> getDisplay() const;
     RefMan<visSurvey::RandomTrackDisplay> getDisplay();
 
     WeakPtr<visSurvey::RandomTrackDisplay> rtd_;

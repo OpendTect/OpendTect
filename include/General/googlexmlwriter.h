@@ -8,74 +8,92 @@ ________________________________________________________________________
 
 -*/
 
+#include "generalmod.h"
+
 #include "giswriter.h"
-#include "factory.h"
 
 class LatLong;
-class SurveyInfo;
 
 namespace ODGoogle
 {
-class XMLItem;
 
 /*!
 \brief XML Writer.
 */
 
-mExpClass(General) KMLWriter : public GISWriter
-{ mODTextTranslationClass(KMLWriter);
+mExpClass(General) KMLWriter : public GIS::Writer
+{
+mODTextTranslationClass(KMLWriter);
 public:
-    mDefaultFactoryInstantiation(GISWriter,ODGoogle::KMLWriter, "KML",
-				 toUiString("KML"));
+    mDefaultFactoryInstantiation(GIS::Writer,ODGoogle::KMLWriter, "KML",
+				 ::toUiString("KML"));
 
-			KMLWriter();
 			~KMLWriter();
 
-    BufferString	getExtension() override	{ return BufferString("kml"); }
-    uiString		errMsg() const override		{ return errmsg_; }
+private:
+			KMLWriter();
+			mOD_DisableCopy(KMLWriter);
 
-    void		setElemName( const char* nm ) //!< before open()
-			{ elemnm_ = nm; }
-    void		setSurveyName( const char* nm ) //!< before open()
-			{ survnm_ = nm; }
-    void		setStream(const BufferString& fnm) override;
-    void		setDesc(const BufferString& desc) { desc_ = desc; }
-
+    GIS::Writer&	setSurveyName(const char*) override;
+    GIS::Writer&	setElemName(const char*) override;
+    GIS::Writer&	setStream(const char*,bool useexisting) override;
+    GIS::Writer&	setDescription(const char*) override;
+    bool		open(const char* fnm,bool useexisting) override;
     bool		close() override;
 
-    bool		writePoints(const TypeSet<Coord>&,
-					const BufferStringSet& nms) override;
-    bool		writeLine(const TypeSet<Coord>&,
-			const char* nm=nullptr) override;
+    BufferString	getExtension() const override
+			{ return BufferString("kml"); }
+    void		getDefaultProperties(const GIS::FeatureType&,
+					     GIS::Property&) const override;
+
     bool		writePoint(const Coord&,
 				   const char* nm=nullptr) override;
-    bool		writePoint(const LatLong&,
+    bool		writePoint(const Coord3&,
 				   const char* nm=nullptr) override;
+    bool		writePoint(const LatLong&,
+				   const char* nm=nullptr,
+				   double z=0.f) override;
+
+    bool		writeLine(const TypeSet<Coord>&,
+				  const char* nm=nullptr) override;
+    bool		writeLine(const TypeSet<Coord3>&,
+				  const char* nm=nullptr) override;
+    bool		writeLine(const Pick::Set&) override;
+
     bool		writePolygon(const TypeSet<Coord>&,
 				     const char* nm=nullptr) override;
     bool		writePolygon(const TypeSet<Coord3>&,
 				     const char* nm=nullptr) override;
-    bool		writeLine(
-				const RefObjectSet<const Pick::Set>&) override;
-    bool		writePoint(
-				const RefObjectSet<const Pick::Set>&) override;
-    bool		writePolygon(
-				const RefObjectSet<const Pick::Set>&) override;
+    bool		writePolygon(const Pick::Set&) override;
 
-protected:
+    bool		writePoints(const TypeSet<Coord>&,
+				    const char* nm=nullptr) override;
+    bool		writePoints(const TypeSet<Coord3>&,
+				    const char* nm=nullptr) override;
+    bool		writePoints(const Pick::Set&) override;
+
+    bool		writeLines(const Pick::Set&) override;
+    bool		writePolygons(const Pick::Set&) override;
+
+    bool		putPlaceMark(const Coord&,const char* nm);
+    bool		putPlaceMark(const Coord3&,const char* nm);
+    bool		putPlaceMark(const LatLong&,double z,const char* nm);
+    bool		putLine(const TypeSet<Coord>&,const char* nm);
+    bool		putLine(const TypeSet<Coord3>&,const char* nm,
+				bool hasdepths=true);
+    bool		putPolyStyle();
+    bool		putPoly(const TypeSet<Coord>&,const char* nm);
+    bool		putPoly(const TypeSet<Coord3>&,const char* nm,
+				bool hasdepths=true);
+    bool		putIconStyles();
+    bool		putFolder(const char* nm);
+    bool		closeFolder();
 
     BufferString	elemnm_;
     BufferString	survnm_;
-    uiString		errmsg_;
     BufferString	desc_;
-    bool		open(const char* fnm);
-
-    bool		putPlaceMark(const Coord&,const char* nm);
-    bool		putPlaceMark(const LatLong&,const char* nm);
-    bool		putLine(const TypeSet<Coord>&,const char* nm);
-    bool		putPolyStyle();
-    bool		putPoly(const TypeSet<Coord3>&,const char* nm=nullptr);
-    bool		putIconStyles();
+    bool		folderopen_ = false;
+    int			stlidx_ = -1;
 };
 
 } // namespace ODGoogle

@@ -11,6 +11,7 @@ ________________________________________________________________________
 
 #include "batchjobdispatch.h"
 #include "elasticpropseltransl.h"
+#include "filepath.h"
 #include "genc.h"
 #include "geojsonwriter.h"
 #include "geometryio.h"
@@ -63,7 +64,7 @@ mDefModInitFn(General)
     RangeProperty::initClass();
     MathProperty::initClass();
 
-    GeoJSONWriter::initClass();
+    OD::JSON::GeoJSONWriter::initClass();
     ODGoogle::KMLWriter::initClass();
 
     if ( !NeedDataBase() )

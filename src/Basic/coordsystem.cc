@@ -215,7 +215,7 @@ void CoordSystem::fillPar( IOPar& par ) const
 namespace Coords
 {
     BufferString wgs84dispstr_;
-    CoordSystem* wgs84crsproj_ = nullptr;
+    ConstRefMan<CoordSystem> wgs84crsproj_;
 
     extern "C" { mGlobal(Basic) void SetWGS84(const char*,CoordSystem*); }
     mExternC(Basic) void SetWGS84( const char* dispstr, CoordSystem* crs )
@@ -226,9 +226,9 @@ namespace Coords
 }
 
 
-CoordSystem* CoordSystem::getWGS84LLSystem()
+const CoordSystem* CoordSystem::getWGS84LLSystem()
 {
-    return wgs84crsproj_;
+    return wgs84crsproj_.ptr();
 }
 
 

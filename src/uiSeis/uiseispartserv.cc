@@ -29,6 +29,8 @@ ________________________________________________________________________
 
 #include "uibatchtime2depthsetup.h"
 #include "uigeninput.h"
+#include "uigisexp.h"
+#include "uigisexp2dlines.h"
 #include "uimsg.h"
 #include "uiseiscbvsimpfromothersurv.h"
 #include "uiseisexpcubepositions.h"
@@ -80,6 +82,7 @@ uiSeisPartServer::~uiSeisPartServer()
     delete impps2dseisdlg_;
     delete expps2dseisdlg_;
     delete expcubeposdlg_;
+    delete gisexp2dlinesdlg_;
     delete t2ddlgs2d_;
     delete t2ddlgs3d_;
 }
@@ -106,6 +109,7 @@ void uiSeisPartServer::survChangedCB( CallBacker* )
     closeAndNullPtr( impps2dseisdlg_ );
     closeAndNullPtr( expps2dseisdlg_ );
     closeAndNullPtr( expcubeposdlg_ );
+    closeAndNullPtr( gisexp2dlinesdlg_ );
 
     closeAndNullPtr( t2ddlgs2d_ );
     closeAndNullPtr( t2ddlgs3d_ );
@@ -379,6 +383,29 @@ void uiSeisPartServer::exportCubePos( const MultiID* key )
 	expcubeposdlg_->setInput( *key );
 
     expcubeposdlg_->show();
+}
+
+
+bool uiSeisPartServer::exportLinesToGIS( const TypeSet<Pos::GeomID>* geomids )
+{
+    if ( !uiGISExpStdFld::canDoExport(parent()) )
+	return false;
+
+    TypeSet<Pos::GeomID> usegeomids;
+    if ( geomids )
+	usegeomids = *geomids;
+
+    if ( gisexp2dlinesdlg_ )
+	gisexp2dlinesdlg_->setSelected( usegeomids );
+    else
+    {
+	gisexp2dlinesdlg_ = new uiGISExport2DLines( parent(), &usegeomids );
+	gisexp2dlinesdlg_->setModal( false );
+    }
+
+    gisexp2dlinesdlg_->raise();
+    gisexp2dlinesdlg_->show();
+    return true;
 }
 
 

@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uiapplserv.h"
+#include "uigisexpdlgs.h"
 #include "uistring.h"
 
 #include "bufstringset.h"
@@ -29,12 +30,14 @@ class BinIDValueSet;
 class DataPointSet;
 class RandLocGenPars;
 class SurfaceInfo;
+class SurveyInfo;
 
+namespace Geometry { class RandomLine; }
 namespace Pick { class Set; class SetMgr; }
 namespace PosInfo { class Line2DData; }
 
 
-/*! \brief Service provider for application level - seismics */
+/*! \brief Service provider for application level - points (sets) */
 
 mExpClass(uiIo) uiPickPartServer : public uiApplPartServer
 { mODTextTranslationClass(uiPickPartServer);
@@ -63,13 +66,24 @@ public:
     RefMan<Pick::Set>		loadSet(const MultiID&);
     bool			reLoadSet(const MultiID&);
     bool			loadSets(TypeSet<MultiID>&,bool ispolygon);
-    				//!< Load set(s) by user sel
+				//!< Load set(s) by user sel
     void			createEmptySet(bool aspolygon);
     void			create3DGenSet();
     void			createRandom2DSet();
     void			setMisclassSet(const DataPointSet&);
     void			setPickSet(const Pick::Set&);
     void			fillZValsFromHor(Pick::Set&,int);
+
+    bool			exportPointSetsToGIS(
+					     const ObjectSet<const Pick::Set>&);
+    bool			exportPolygonsToGIS(
+					     const ObjectSet<const Pick::Set>&);
+    bool			exportRandomLinesToGIS(
+					     const ObjectSet<const Pick::Set>&);
+    bool			exportSurvOutlineToGIS(SurveyInfo&);
+
+    static void			convert(const Geometry::RandomLine&,
+					Pick::Set&);
 
     static int			evGetHorInfo2D();
     static int			evGetHorInfo3D();
@@ -82,7 +96,7 @@ public:
     BinIDValueSet&		genDef()		{ return gendef_; }
     MultiID			pickSetID() const	{ return picksetid_; }
 
-    ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
+    ObjectSet<SurfaceInfo>&	horInfos()		{ return hinfos_; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
     TrcKeySampling		selTrcKeySampling() const { return selhs_; }
     MultiID			horID()			{ return horid_; }
@@ -97,9 +111,9 @@ protected:
 
     Pick::SetMgr&		psmgr_;
     uiPickSetMgr&		uipsmgr_;
-    BinIDValueSet& 		gendef_;
+    BinIDValueSet&		gendef_;
 
-    ObjectSet<SurfaceInfo> 	hinfos_;
+    ObjectSet<SurfaceInfo>	hinfos_;
     ObjectSet<MultiID>		selhorids_;
     TrcKeySampling		selhs_;
     RefMan<Pick::Set>		ps_;
@@ -120,6 +134,10 @@ protected:
     uiGenPosPicks*		genpsdlg_		= nullptr;
     uiCreatePicks*		emptypsdlg_		= nullptr;
     uiGenRandPicks2D*		genps2ddlg_		= nullptr;
+    uiGISExportDlg*		gisexppointsetdlg_	= nullptr;
+    uiGISExportDlg*		gisexppolygondlg_	= nullptr;
+    uiGISExportDlg*		gisexprandomlinedlg_	= nullptr;
+    uiGISExportSurvey*		gisexpsurvdlg_		= nullptr;
 
     void			cleanup();
     void			survChangedCB(CallBacker*);
@@ -129,4 +147,8 @@ protected:
     bool			mkRandLocs2D(Pick::Set&,const RandLocGenPars&);
     bool			mkRandLocs2DBetweenHors(Pick::Set&,
 							const RandLocGenPars&);
+
+    static bool			exportToGIS(uiGISExportDlg::Type,
+				  uiParent*,const ObjectSet<const Pick::Set>&,
+				  uiGISExportDlg*&);
 };

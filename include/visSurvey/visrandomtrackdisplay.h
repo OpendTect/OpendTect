@@ -49,6 +49,7 @@ public:
 
     void			setRandomLineID(const RandomLineID&);
     RandomLineID		getRandomLineID() const;
+    const Geometry::RandomLine* getRandomLine() const;
     Geometry::RandomLine*	getRandomLine();
 
     int				nameNr() const { return namenr_; }

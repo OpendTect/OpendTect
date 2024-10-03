@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "ui3dviewer.h"
 #include "uiattribpartserv.h"
 #include "uicreateattriblogdlg.h"
-#include "uimain.h"
+#include "uigisexp.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -66,7 +66,8 @@ static const int cAddIdx	= 0;
 static const int cTieIdx	= 1;
 static const int cNewWellIdx	= 2;
 static const int cAttribIdx	= 3;
-static const int cLogDispSize = 4;
+static const int cExpGISIdx	= 4;
+static const int cLogDispSize	= 5;
 
 bool uiODWellParentTreeItem::showSubMenu()
 {
@@ -77,15 +78,19 @@ bool uiODWellParentTreeItem::showSubMenu()
 	mnu.insertAction(
 	    new uiAction(m3Dots(tr("Tie Well to Seismic")),"well_tie"),cTieIdx);
     }
-    mnu.insertAction( new uiAction(m3Dots(tr("Pick New Trajectory"))),
-		    cNewWellIdx );
-    if ( children_.size() > 1 )
-	mnu.insertAction( new uiAction(m3Dots(tr("Create Attribute Log"))),
-			cAttribIdx);
 
-    if ( children_.size() )
+    mnu.insertAction( new uiAction(m3Dots(tr("Pick New Trajectory"))),
+		      cNewWellIdx );
+    if ( !children_.isEmpty() )
+	mnu.insertAction( new uiAction(m3Dots(tr("Create Attribute Log"))),
+			  cAttribIdx );
+
+    mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
+			uiGISExpStdFld::strIcon()), cExpGISIdx );
+
+    if ( !children_.isEmpty() )
     {
-	uiAction* szmenuitem = new uiAction(tr("Constant Log Size"));
+	auto* szmenuitem = new uiAction(tr("Constant Log Size"));
 	mnu.insertAction( szmenuitem, cLogDispSize );
 	szmenuitem->setCheckable( true );
 	szmenuitem->setChecked( constlogsize_ );
@@ -93,10 +98,10 @@ bool uiODWellParentTreeItem::showSubMenu()
 
     showMenuNotifier().trigger( &mnu, this );
 
-    if ( children_.size() > 1 )
+    if ( !children_.isEmpty() )
     {
 	mnu.insertSeparator();
-	uiMenu* showmnu = new uiMenu( getUiParent(), tr("Show All") );
+	auto* showmnu = new uiMenu( getUiParent(), tr("Show All") );
 	showmnu->insertAction( new uiAction(tr("Well Names (Top)")), 41 );
 	showmnu->insertAction( new uiAction(tr("Well Names (Bottom)")), 42 );
 	showmnu->insertAction( new uiAction(uiStrings::sMarker(mPlural)), 43 );
@@ -104,7 +109,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 	showmnu->insertAction( new uiAction(uiStrings::sLogs()), 45 );
 	mnu.addMenu( showmnu );
 
-	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide All") );
+	auto* hidemnu = new uiMenu( getUiParent(), tr("Hide All") );
 	hidemnu->insertAction( new uiAction(tr("Well Names (Top)")), 51 );
 	hidemnu->insertAction( new uiAction(tr("Well Names (Bottom)")), 52 );
 	hidemnu->insertAction( new uiAction(uiStrings::sMarker(mPlural)), 53 );
@@ -112,6 +117,7 @@ bool uiODWellParentTreeItem::showSubMenu()
 	hidemnu->insertAction( new uiAction(uiStrings::sLogs()), 55 );
 	mnu.addMenu( hidemnu );
     }
+
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -125,9 +131,10 @@ bool uiODWellParentTreeItem::showSubMenu()
     mDynamicCastGet(visSurvey::WellDisplay*,welldisplay,\
 		    visserv->getObject(itm->displayID()));\
     if ( !welldisplay ) continue;
+
 bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 {
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    uiVisPartServer* visserv = applMgr()->visServer();
     if ( mnuid == cAddIdx )
     {
 	TypeSet<MultiID> emwellids;
@@ -141,7 +148,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	if ( zistime )
 	    lreqs.add( Well::D2T );
 
-	uiTaskRunner uitr( uiMain::instance().topLevel() );
+	uiTaskRunner uitr( ODMainWin() );
 	RefObjectSet<Well::Data> wds;
 	MultiWellReader mwr( emwellids, wds, lreqs );
 	if ( !uitr.execute(mwr) )
@@ -188,13 +195,12 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( mnuid == cTieIdx )
     {
-	 MultiID wid;
-	 ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wid );
+	 applMgr()->wellAttribServer()->createD2TModel( MultiID::udf() );
     }
     else if ( mnuid == cNewWellIdx )
     {
 	RefMan<visSurvey::WellDisplay> welldisplay = new visSurvey::WellDisplay;
-	welldisplay->setupPicking(true);
+	welldisplay->setupPicking( true );
 	BufferString wellname;
 	OD::Color color;
 	if ( !applMgr()->wellServer()->setupNewWell(wellname,color) )
@@ -211,9 +217,23 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	for ( int idx = 0; idx<children_.size(); idx++ )
 	    wellnms.addIfNew( children_[idx]->name().getFullString() );
 
-	uiWellAttribPartServer* srv = ODMainWin()->applMgr().wellAttribServer();
-	if ( srv->createAttribLog(wellnms) )
+	if ( applMgr()->wellAttribServer()->createAttribLog(wellnms) )
 	    return false;
+    }
+    else if ( mnuid == cExpGISIdx )
+    {
+	TypeSet<MultiID> wellids;
+	for ( const auto* treeitm : children_ )
+	{
+	    if ( !treeitm->isChecked() )
+		continue;
+
+	    mDynamicCastGet(const uiODWellTreeItem*,welltreeitm,treeitm)
+	    if ( welltreeitm )
+		wellids += welltreeitm->getMid();
+	}
+
+	applMgr()->wellServer()->exportToGIS( &wellids );
     }
     else if ( ( mnuid>40 && mnuid<46 ) || ( mnuid>50 && mnuid<56 ) )
     {
@@ -284,24 +304,26 @@ uiODWellTreeItem::~uiODWellTreeItem()
 
 void uiODWellTreeItem::initMenuItems()
 {
+    gend2tmmnuitem_.text = m3Dots(tr("Tie Well to Seismic"));
+    gend2tmmnuitem_.iconfnm = "well_tie";
+    attrmnuitem_.text = m3Dots(tr("Create Attribute Log"));
+    logcubemnuitem_.text = m3Dots(tr("Create Log Cube"));
+    editmnuitem_.text = tr("Edit Welltrack" );
+    storemnuitem_.text = uiStrings::sSave();
+    storemnuitem_.iconfnm = "save";
+
     propertiesmnuitem_.text = m3Dots(uiStrings::sProperties());
     propertiesmnuitem_.iconfnm = "disppars";
     propertiesmnuitem_.placement = 1000;
     logviewermnuitem_.text = m3Dots(tr("2D Log Viewer"));
-    gend2tmmnuitem_.text = m3Dots(tr("Tie Well to Seismic"));
-    gend2tmmnuitem_.iconfnm = "well_tie";
     nametopmnuitem_.text = tr("Well Name (Top)");
     namebotmnuitem_.text = tr("Well Name (Bottom)");
     markermnuitem_.text = uiStrings::sMarker(mPlural);
     markernamemnuitem_.text = tr("Marker Names");
     showlogmnuitem_.text = uiStrings::sLogs() ;
-    attrmnuitem_.text = m3Dots(tr("Create Attribute Log"));
-    logcubemnuitem_.text = m3Dots(tr("Create Log Cube"));
-    showmnuitem_.text = uiStrings::sShow() ;
-    editmnuitem_.text = tr("Edit Welltrack" );
-    storemnuitem_.text = uiStrings::sSave();
-    storemnuitem_.iconfnm = "save" ;
     amplspectrummnuitem_.text = tr("Show Amplitude Spectrum");
+
+    showmnuitem_.text = uiStrings::sShow() ;
 
     nametopmnuitem_.checkable = true;
     namebotmnuitem_.checkable = true;
@@ -478,21 +500,21 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	welldisplay->restoreDispProp();
-	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid,
+	applMgr()->wellServer()->editDisplayProperties( wellid,
 					welldisplay->getBackgroundColor() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( amplspectrummnuitem_.findItem(mnuid) )
     {
 	menu->setIsHandled( true );
-	ODMainWin()->applMgr().wellAttribServer()->showAmplSpectrum( wellid,
+	applMgr()->wellAttribServer()->showAmplSpectrum( wellid,
 		amplspectrummnuitem_.findItem(mnuid)->text.getFullString() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == logviewermnuitem_.id )
     {
 	menu->setIsHandled( true );
-	ODMainWin()->applMgr().wellServer()->displayIn2DViewer( wellid );
+	applMgr()->wellServer()->displayIn2DViewer( wellid );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == nametopmnuitem_.id )
@@ -539,7 +561,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == gend2tmmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wellid );
+	applMgr()->wellAttribServer()->createD2TModel( wellid );
     }
 }
 

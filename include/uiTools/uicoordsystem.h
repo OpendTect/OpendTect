@@ -30,7 +30,7 @@ public:
 
     virtual bool		initFields(const CoordSystem*)= 0;
 
-    RefMan<CoordSystem>		outputSystem() { return outputsystem_; }
+    ConstRefMan<CoordSystem>	outputSystem() const;
 				//!<After AcceptOK();
 
     HelpKey			helpKey() const override { return helpkey_; }
@@ -42,7 +42,7 @@ protected:
 				uiCoordSystem(uiParent*,const uiString&);
 				~uiCoordSystem();
 
-    RefMan<CoordSystem>	outputsystem_;
+    ConstRefMan<CoordSystem>	outputsystem_;
     HelpKey			helpkey_;
     const SurveyInfo*		si_ = nullptr;
 };
@@ -58,8 +58,10 @@ public:
 						const Coords::CoordSystem*);
 				~uiCoordSystemSelGrp();
 
-    RefMan<CoordSystem>		outputSystem() { return outputsystem_; }
+    bool			hasOutputSystem() const;
+    ConstRefMan<CoordSystem>	outputSystem() const;
 				//!<After AcceptOK();
+
     bool			acceptOK() override;
     void			fillFromSI();
     void			fillFrom(const Coords::CoordSystem&);
@@ -77,7 +79,7 @@ private:
     ManagedObjectSet<IOPar>	coordsystempars_;
     const SurveyInfo*		si_;
 
-    RefMan<CoordSystem>		outputsystem_;
+    ConstRefMan<CoordSystem>	outputsystem_;
 };
 
 
@@ -85,13 +87,14 @@ mExpClass(uiTools) uiCoordSystemDlg : public uiDialog
 { mODTextTranslationClass(uiCoordSystemDlg);
 public:
 			uiCoordSystemDlg(uiParent*,bool orthogonal,
-					bool projectiononly,const SurveyInfo*,
-					const CoordSystem*);
+					 bool projectiononly,const SurveyInfo*,
+					 const CoordSystem*);
 			~uiCoordSystemDlg();
 
-    RefMan<CoordSystem> getCoordSystem();
+    ConstRefMan<CoordSystem> getCoordSystem() const;
 
-    static bool		ensureGeographicTransformOK(uiParent*,SurveyInfo* si=0);
+    static bool		ensureGeographicTransformOK(uiParent*,
+						    SurveyInfo* =nullptr);
 
 protected:
 
@@ -115,7 +118,7 @@ public:
     void			setCoordSystem(const CoordSystem*);
     void			doSel();
 
-    RefMan<CoordSystem>		getCoordSystem()	{ return coordsystem_; }
+    ConstRefMan<CoordSystem>	getCoordSystem() const;
 
     Notifier<uiCoordSystemSel>	changed;
 
@@ -123,7 +126,7 @@ protected:
 
     uiCoordSystemDlg*		dlg_ = nullptr;
 
-    RefMan<CoordSystem>		coordsystem_;
+    ConstRefMan<CoordSystem>	coordsystem_;
     bool			orthogonal_;
     bool			projectiononly_;
 

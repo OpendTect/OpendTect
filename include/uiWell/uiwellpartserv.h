@@ -26,6 +26,7 @@ class uiBulkMarkerImport;
 class uiBulkTrackImport;
 class uiD2TMLogSelDlg;
 class uiD2TModelGen;
+class uiGISExportWells;
 class uiSimpleMultiWellCreate;
 class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
@@ -59,6 +60,7 @@ public:
     void			showWellMgrInfo();
     void			exportWellData();
     void			exportLogToLAS();
+    bool			exportToGIS(const TypeSet<MultiID>*);
 
     void			manageWells();
     void			launchRockPhysics();
@@ -116,6 +118,7 @@ protected:
     uiWellMan*			manwelldlg_		= nullptr;
     uiWellMgrInfoDlg*		wellmgrinfodlg_		= nullptr;
     uiWellExportFacility*	wellexpdlg_		= nullptr;
+    uiGISExportWells*		giswellexportdlg_	= nullptr;
     TypeSet<VisID>		previewids_;
 
     TypeSet<MultiID>		crwellids_; // for uiSimpleMultiWellCreate
@@ -125,6 +128,7 @@ protected:
     bool			allapplied_;
 
     void			cleanup();
+    void			wellManCreatedCB(CallBacker*);
     void			importReadyCB(CallBacker*);
     void			rdmlnDlgClosed(CallBacker*);
     void			saveWellDispProps(CallBacker*);
@@ -137,6 +141,7 @@ protected:
     void			simpImp(CallBacker*);
     void			simpleImpDlgClosed(CallBacker*);
     void			survChangedCB(CallBacker*);
+    void			exportToGISCB(CallBacker*);
     int				getPropDlgIndex(const MultiID&);
 
 };

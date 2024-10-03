@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "uiapplserv.h"
+
 #include "multiid.h"
+#include "uiapplserv.h"
 #include "uistring.h"
 
 class BufferStringSet;
@@ -19,6 +20,7 @@ class IOPar;
 class SeisTrcBuf;
 class uiBatchTime2DepthSetup;
 class uiFlatViewWin;
+class uiGISExport2DLines;
 class uiSeisFileMan;
 class uiSeisImportCBVS;
 class uiSeisIOSimple;
@@ -69,7 +71,8 @@ public:
     void		importWavelets();
     void		exportWavelets();
     void		manageWavelets();
-    void		exportCubePos(const MultiID* =0);
+    void		exportCubePos(const MultiID* =nullptr);
+    bool		exportLinesToGIS(const TypeSet<Pos::GeomID>* =nullptr);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -102,6 +105,7 @@ protected:
     uiSeisImportCBVS*	impcbvsdlg_ = nullptr;
     uiSeisImpCBVSFromOtherSurveyDlg* impcbvsothsurvdlg_ = nullptr;
     uiSeisExpCubePositionsDlg*	expcubeposdlg_ = nullptr;
+    uiGISExport2DLines* gisexp2dlinesdlg_ = nullptr;
 
 private:
     uiString		mkDlgCaption( bool forread, bool is2d, bool isps );

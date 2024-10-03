@@ -724,16 +724,15 @@ static int getNearestLocation( const PicksType& ps,
 
 
 // Pick::Set
-    mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
+mDefineEnumUtils( Pick::Set::Disp, Connection, "Connection" )
 { "None", "Open", "Close", nullptr };
 
-Set::Set( const char* nm )
+Set::Set( const char* nm, bool ispolygon )
     : SharedObject(nm)
     , pars_(*new IOPar)
     , zdomaininfo_(new ZDomain::Info(SI().zDomainInfo()))
 {
-    setDefaultDispPars();
-    addStartIdx( 0 );
+    setDefaultDispPars( ispolygon );
 }
 
 
@@ -871,7 +870,6 @@ void Set::setEmpty()
 {
     locations_.setEmpty();
     startidxs_.setEmpty();
-    startidxs_ += 0;
 }
 
 
@@ -1003,13 +1001,18 @@ void Set::setStartIdx( int setidx, int locidx )
 }
 
 
+int Set::nrSets() const
+{
+    return startidxs_.isEmpty() ? 1 : startidxs_.size();
+}
+
+
 void Set::findStartIdxs()
 {
     startidxs_.erase();
     if ( isEmpty() )
 	return;
 
-    startidxs_.add( 0 );
     Location firstloc = locations_.first();
     for ( int idx=1; idx<locations_.size(); idx++ )
     {
@@ -1020,6 +1023,9 @@ void Set::findStartIdxs()
 	idx++;
 	if ( idx==locations_.size() )
 	    break;
+
+	if ( startidxs_.isEmpty() )
+	    startidxs_ += 0;
 
 	startidxs_ += idx;
 	firstloc = locations_[idx];
@@ -1102,9 +1108,7 @@ bool Set::usePar( const IOPar& par )
     TypeSet<int> startidx;
     par.get( sKeyStartIdx(), startidx );
     startidxs_.setEmpty();
-    if ( startidx.isEmpty() )
-	startidxs_ += 0;
-    else
+    if ( !startidx.isEmpty() )
 	startidxs_ = startidx;
 
     const ZDomain::Info* zinfo = ZDomain::get( par );
@@ -1126,7 +1130,7 @@ bool Set::usePar( const IOPar& par )
 }
 
 
-void Set::setDefaultDispPars()
+void Set::setDefaultDispPars( bool ispolygon )
 {
     if ( disp_.color_ == OD::Color::NoColor() )
 	disp_.color_ = defcolor();
@@ -1135,7 +1139,7 @@ void Set::setDefaultDispPars()
     disp_.pixsize_ = defPixSz();
     disp_.markertype_ = defMarkerStyle();
     disp_.linestyle_ = defLineStyle();
-    if ( isPolygon() )
+    if ( ispolygon )
 	disp_.connect_ = Disp::Close;
     else
 	disp_.connect_ = Disp::None;

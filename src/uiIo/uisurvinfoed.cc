@@ -486,7 +486,8 @@ void uiSurveyInfoEditor::setValues()
 	ic1fld_->setValues( b[0].inl(), xline );
 	ic2fld_->setValue( b[1] );
 	ic3fld_->setValues( b[1].inl(), b[0].crl() );
-        if ( !c[0].x_ && !c[0].y_ && !c[1].x_ && !c[1].y_ && !c[2].x_ && !c[2].y_)
+	if ( !c[0].x_ && !c[0].y_ && !c[1].x_ && !c[1].y_ &&
+	     !c[2].x_ && !c[2].y_ )
 	{
 	    c[0] = si_.transform( b[0] );
 	    c[1] = si_.transform( b[1] );
@@ -629,11 +630,15 @@ bool uiSurveyInfoEditor::doApply()
     if ( !setSurvName() || !setRanges() )
 	return false;
 
-    if ( crssel_->acceptOK() && crssel_->outputSystem() )
+    if ( crssel_->acceptOK() )
     {
-	coordsystem_ = crssel_->outputSystem();
-	updZUnit( nullptr );
-	xyunitlbl_->setText( getCoordString(xyInFeet()) );
+	ConstRefMan<Coords::CoordSystem> coordsystem = crssel_->outputSystem();
+	if ( coordsystem )
+	{
+	    coordsystem_ = coordsystem.ptr();
+	    updZUnit( nullptr );
+	    xyunitlbl_->setText( getCoordString(xyInFeet()) );
+	}
     }
 
     if ( !mUseAdvanced() )
@@ -1047,7 +1052,7 @@ bool uiSurveyInfoEditor::setCoords()
 	si_.gen3Pts();
 
     if ( coordsystem_ )
-	si_.setCoordSystem( coordsystem_ );
+	si_.setCoordSystem( coordsystem_.ptr() );
 
     return true;
 }
@@ -1096,7 +1101,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
     IOPar& pars = si_.getLogPars();
     sip->fillLogPars( pars );
     PtrMan<IOPar> crspar = sip->getCoordSystemPars();
-    RefMan<Coords::CoordSystem> coordsys;
+    ConstRefMan<Coords::CoordSystem> coordsys;
     if ( crspar )
 	coordsys = Coords::CoordSystem::createSystem( *crspar );
 
@@ -1104,13 +1109,13 @@ void uiSurveyInfoEditor::sipCB( CallBacker* )
     {
 	RefMan<Coords::UnlocatedXY> crs = new Coords::UnlocatedXY();
 	crs->setIsFeet( sip->xyInFeet() );
-	coordsys = crs;
+	coordsys = crs.ptr();
     }
 
     if ( coordsys )
     {
-	si_.setCoordSystem( coordsys );
-	coordsystem_ = coordsys;
+	si_.setCoordSystem( coordsys.ptr() );
+	coordsystem_ = coordsys.ptr();
 	crssel_->fillFrom( *coordsys.ptr() );
     }
 
@@ -1212,7 +1217,9 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     if ( cb == inlfld_ )
     {
 	StepInterval<int> irg = inlfld_->getIStepInterval();
-        if ( mIsUdf(irg.step_) || !irg.step_ || irg.step_>irg.width() )irg.step_=1;
+	if ( mIsUdf(irg.step_) || !irg.step_ || irg.step_>irg.width() )
+	    irg.step_=1;
+
 	if ( irg.isUdf() ) return;
 
         irg.stop_ = irg.atIndex( irg.getIndex(irg.stop_) );
@@ -1221,7 +1228,9 @@ void uiSurveyInfoEditor::rangeChg( CallBacker* cb )
     else if ( cb == crlfld_ )
     {
 	StepInterval<int> crg = crlfld_->getIStepInterval();
-        if ( mIsUdf(crg.step_) || !crg.step_ || crg.step_>crg.width() )crg.step_=1;
+	if ( mIsUdf(crg.step_) || !crg.step_ || crg.step_>crg.width() )
+	    crg.step_=1;
+
 	if ( crg.isUdf() ) return;
 
         crg.stop_ = crg.atIndex( crg.getIndex(crg.stop_) );
@@ -1457,9 +1466,9 @@ bool uiSurveyFileSIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 IOPar* uiSurveyFileSIP::getCoordSystemPars() const
 {
     if ( !coordsystem_ )
-	return 0;
+	return nullptr;
 
-    IOPar* crspar = new IOPar;
+    auto* crspar = new IOPar;
     coordsystem_->fillPar( *crspar );
     return crspar;
 }
