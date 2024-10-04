@@ -548,14 +548,20 @@ bool SEGYDirectSeisTrcTranslator::implRelocate( const IOObj* obj,
     const bool readsuccess = SEGY::DirectDef::readFooter( obj->fullUserExpr(),
 							  par, pos );
     if ( !readsuccess )
+    {
+	errmsg_ = tr( "Could not read SEG-Y Direct file." );
 	return false;
+    }
 
     if ( !oldfnm || !*oldfnm )
     {
 	BufferString val;
 	// making sure only one actual file is linked.
 	if ( par.get(getFileNameKey(1), val) )
+	{
+	    errmsg_ = tr( "Could not read SEG-Y Direct file" );
 	    return false;
+	}
 
 	par.set( getFileNameKey(0), newfnm );
     }
@@ -580,12 +586,22 @@ bool SEGYDirectSeisTrcTranslator::implRelocate( const IOObj* obj,
 	}
 
 	if ( !matchfound )
+	{
+	    errmsg_ = tr( "Could not match old file name(s) to those in "
+			  "SEG-Y Direct file. Please try again by adding or"
+			  "removing file path." );
 	    return false;
+	}
 
 	par.set( currkey, newfnm );
     }
 
-    return SEGY::DirectDef::updateFooter( obj->fullUserExpr(false), par, pos );
+    const bool success =
+	    SEGY::DirectDef::updateFooter( obj->fullUserExpr(false), par, pos );
+    if ( success )
+	errmsg_ = tr( "Could not write new location to SEG-Y  Direct file." );
+
+    return success;
 }
 
 

@@ -182,11 +182,13 @@ bool uiSeisDirectFileDataDlg::acceptOK( CallBacker* )
     if ( !isusable_ )
 	return true;
 
-    PtrMan<Translator> trl = ioobj_.createTranslator();
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> trl,
+		 ioobj_.createTranslator())
     if ( !trl )
 	mErrRet( tr("Could not write new File location(s).") )
 
-    bool ret = true;
+    uiString errmsg;
+    bool allsuccess = true;
     if ( !filetable_ )
     {
 	const BufferString newfnm = selfld_->fileName();
@@ -197,7 +199,12 @@ bool uiSeisDirectFileDataDlg::acceptOK( CallBacker* )
 	if ( !File::exists( fp.fullPath() ) )
 	    mErrRet( tr("File %1 does not exist").arg(fp.fullPath()) )
 
-	ret = trl->implRelocate( &ioobj_, fp.fullPath() );
+	allsuccess = trl->implRelocate( &ioobj_, fp.fullPath() );
+	if ( !allsuccess )
+	{
+	    errmsg = tr( "Relocating failed: " );
+	    errmsg.append( trl->errMsg() );
+	}
     }
     else
     {
@@ -219,10 +226,20 @@ bool uiSeisDirectFileDataDlg::acceptOK( CallBacker* )
 	    if ( !File::exists(newfp.fullPath()) )
 		mErrRet( tr("File %1 does not exist").arg(newfp.fullPath()) )
 
-	    trl->implRelocate( &ioobj_, newfp.fullPath().str(),
-					oldfp.fileName().str() );
+	    const bool success = trl->implRelocate( &ioobj_,
+						    newfp.fullPath().str(),
+						    oldfp.fileName().str() );
+	    if ( !success )
+	    {
+		errmsg = tr( "Relocating failed for %1" ).arg( oldfnm );
+		errmsg.addNewLine().append(trl->errMsg()).addNewLine();
+		allsuccess = false;
+	    }
 	}
+
+	if ( !allsuccess )
+	    uiMSG().error( errmsg );
     }
 
-    return ret;
+    return true;
 }
