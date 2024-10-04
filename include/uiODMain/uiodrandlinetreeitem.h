@@ -43,7 +43,7 @@ protected:
     void		genFromPicks();
     void		rdlPolyLineDlgCloseCB(CallBacker*);
     void		removeChild(uiTreeItem*) override;
-    uiRandomLinePolyLineDlg*	rdlpolylinedlg_;
+    uiRandomLinePolyLineDlg*	rdlpolylinedlg_	= nullptr;
 };
 
 

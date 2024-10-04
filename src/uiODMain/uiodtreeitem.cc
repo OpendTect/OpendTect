@@ -168,10 +168,11 @@ SceneID uiODTreeItem::sceneID() const
 
 void uiODTreeItem::addStandardItems( uiMenu& mnu )
 {
-    if ( children_.size() < 2 ) return;
+    if ( children_.size() < 2 )
+	return;
 
     mnu.insertSeparator();
-    uiAction* action = new uiAction( tr("Show All Items") );
+    auto* action = new uiAction( tr("Show All Items") );
     action->setEnabled( !allChildrenChecked() );
     mnu.insertAction( action, 101 );
 
@@ -245,7 +246,7 @@ void uiODTreeTop::addFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,factidx,cb);
     const int newplaceidx = tfs->getPlacementIdx( factidx );
-    uiTreeItem* itmbefore = 0;
+    uiTreeItem* itmbefore = nullptr;
     int maxidx = -1;
     for ( int idx=0; idx<tfs->nrFactories(); idx++ )
     {
@@ -374,21 +375,6 @@ uiODSceneTreeItem::uiODSceneTreeItem( const uiString& nm, const SceneID& id )
 uiODSceneTreeItem::~uiODSceneTreeItem()
 {
     detachAllNotifiers();
-    if ( menu_ )
-    {
-	menu_->createnotifier.remove(
-		mCB(this,uiODSceneTreeItem,createMenuCB) );
-	menu_->handlenotifier.remove(
-		mCB(this,uiODSceneTreeItem,handleMenuCB) );
-    }
-
-    menu_ = nullptr;
-    MenuHandler* tb = applMgr()->visServer()->getToolBarHandler();
-    if ( tb )
-    {
-	tb->createnotifier.remove( mCB(this,uiODSceneTreeItem,addToToolBarCB) );
-	tb->handlenotifier.remove( mCB(this,uiODSceneTreeItem,handleMenuCB) );
-    }
 }
 
 
@@ -397,17 +383,15 @@ bool uiODSceneTreeItem::init()
     if ( !menu_ )
     {
 	menu_ = new uiMenuHandler( getUiParent(), -1 );
-	menu_->createnotifier.notify(
-		mCB(this,uiODSceneTreeItem,createMenuCB) );
-	menu_->handlenotifier.notify(
-		mCB(this,uiODSceneTreeItem,handleMenuCB) );
+	mAttachCB( menu_->createnotifier, uiODSceneTreeItem::createMenuCB );
+	mAttachCB( menu_->handlenotifier, uiODSceneTreeItem::handleMenuCB );
     }
 
     MenuHandler* tb = applMgr()->visServer()->getToolBarHandler();
     if ( tb )
     {
-	tb->createnotifier.notify( mCB(this,uiODSceneTreeItem,addToToolBarCB) );
-	tb->handlenotifier.notify( mCB(this,uiODSceneTreeItem,handleMenuCB) );
+	mAttachCB( tb->createnotifier, uiODSceneTreeItem::addToToolBarCB );
+	mAttachCB( tb->handlenotifier, uiODSceneTreeItem::handleMenuCB );
     }
 
     return uiODTreeItem::init();

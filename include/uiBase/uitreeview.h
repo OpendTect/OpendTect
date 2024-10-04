@@ -153,9 +153,9 @@ public:
 protected:
 
     mutable BufferString rettxt;
-    uiTreeViewItem*	lastitemnotified_;
+    uiTreeViewItem*	lastitemnotified_	= nullptr;
     uiParent*		parent_;
-    int			column_;
+    int			column_			= 0;
     OD::ButtonState	buttonstate_;
     bool		allowDoubleClick() const;
 			// Checks clicked mouseposition

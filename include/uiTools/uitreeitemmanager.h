@@ -27,8 +27,8 @@ mExpClass(uiTools) uiTreeItem : public CallBacker
 {
 public:
 				uiTreeItem(const uiString& nm=
-					   uiString::emptyString() );
-    virtual			~uiTreeItem();
+					   uiString::empty());
+				~uiTreeItem();
 				mOD_DisableCopy(uiTreeItem)
 
     virtual void		prepareForShutdown();
@@ -203,10 +203,10 @@ protected:
 
     IOPar			properties_;
 
-    uiTreeItem*			parent_;
+    uiTreeItem*			parent_		= nullptr;
     uiString			name_;
 
-    uiTreeViewItem*		uitreeviewitem_;
+    uiTreeViewItem*		uitreeviewitem_	= nullptr;
     ObjectSet<uiTreeItem>	children_;
     friend			class uiTreeTopItem;
     friend			class uiODTreeTop;

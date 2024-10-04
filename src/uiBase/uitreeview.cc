@@ -267,6 +267,7 @@ bool uiTreeViewBody::moveItem( QKeyEvent* ev )
 
 uiTreeView::uiTreeView( uiParent* p, const char* nm, int nl, bool dec )
     : uiObject( p, nm, mkbody(p,nm,nl) )
+    , parent_(p)
     , selectionChanged(this)
     , currentChanged(this)
     , itemChanged(this)
@@ -283,12 +284,9 @@ uiTreeView::uiTreeView( uiParent* p, const char* nm, int nl, bool dec )
     , expanded(this)
     , collapsed(this)
     , unusedKey(this)
-    , lastitemnotified_(0)
-    , column_(0)
-    , parent_(p)
 {
-    itemChanged.notify( mCB(this,uiTreeView,itemChangedCB) );
-    mouseButtonClicked.notify( mCB(this,uiTreeView,cursorSelectionChanged) );
+    mAttachCB( itemChanged, uiTreeView::itemChangedCB );
+    mAttachCB( mouseButtonClicked, uiTreeView::cursorSelectionChanged );
     setRootDecorated( dec );
     setBackgroundColor( roBackgroundColor() );
 }
@@ -296,8 +294,8 @@ uiTreeView::uiTreeView( uiParent* p, const char* nm, int nl, bool dec )
 
 uiTreeView::~uiTreeView()
 {
-    for ( int idx=0; idx<nrItems(); idx++ )
-	delete getItem( idx );
+    detachAllNotifiers();
+    clear();
 }
 
 

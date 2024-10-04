@@ -28,24 +28,24 @@ uiTreeItemFactory::~uiTreeItemFactory()
 
 
 uiTreeItem::uiTreeItem( const uiString& nm )
-    : parent_( 0 )
-    , name_( nm )
-    , uitreeviewitem_( 0 )
+    : name_(nm)
 {
 }
 
 
 uiTreeItem::~uiTreeItem()
 {
-    while ( children_.size() )
-	removeChild( children_[0] );
+    while ( !children_.isEmpty() )
+	removeChild( children_.first() );
 
     delete uitreeviewitem_;
 }
 
 
 uiString uiTreeItem::name() const
-{ return name_; }
+{
+    return name_;
+}
 
 
 bool uiTreeItem::areAllParentsChecked()
@@ -71,11 +71,9 @@ bool uiTreeItem::rightClick( uiTreeViewItem* item )
 	return true;
     }
 
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	if ( children_[idx]->rightClick(item) )
+    for ( auto* child : children_ )
+	if ( child->rightClick(item) )
 	    return true;
-    }
 
     return false;
 }
@@ -86,11 +84,9 @@ bool uiTreeItem::anyButtonClick( uiTreeViewItem* item )
     if ( item==uitreeviewitem_ )
 	return select();
 
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	if ( children_[idx]->anyButtonClick(item) )
+    for ( auto* child : children_ )
+	if ( child->anyButtonClick(item) )
 	    return true;
-    }
 
     return false;
 }
@@ -98,11 +94,9 @@ bool uiTreeItem::anyButtonClick( uiTreeViewItem* item )
 
 bool uiTreeItem::doubleClick( uiTreeViewItem* item )
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	if ( children_[idx]->doubleClick(item) )
+    for ( auto* child : children_ )
+	if ( child->doubleClick(item) )
 	    return true;
-    }
 
     return false;
 }
@@ -119,8 +113,8 @@ void uiTreeItem::updateSelection( int selid, bool downward )
 
     if ( downward )
     {
-	for ( int idx=0; idx<children_.size(); idx++ )
-	    children_[idx]->updateSelection(selid,downward);
+	for ( auto* child : children_ )
+	    child->updateSelection( selid, downward );
     }
     else if ( parent_ )
 	parent_->updateSelection( selid, false );
@@ -144,15 +138,16 @@ bool uiTreeItem::isSelected() const
 
 void uiTreeItem::prepareForShutdown()
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	children_[idx]->prepareForShutdown();
+    for ( auto* child : children_ )
+	child->prepareForShutdown();
 }
 
 
 bool uiTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	children_[idx]->askContinueAndSaveIfNeeded( withcancel );
+    for ( auto* child : children_ )
+	child->askContinueAndSaveIfNeeded( withcancel );
+
     return true;
 }
 
@@ -164,33 +159,46 @@ void uiTreeItem::setChecked( bool yn, bool trigger )
 bool uiTreeItem::isChecked() const
 { return uitreeviewitem_ ? uitreeviewitem_->isChecked() : false; }
 
-
 NotifierAccess* uiTreeItem::checkStatusChange()
-{ return uitreeviewitem_ ? &uitreeviewitem_->stateChanged : 0; }
+{ return uitreeviewitem_ ? &uitreeviewitem_->stateChanged : nullptr; }
 
 NotifierAccess* uiTreeItem::keyPressed()
-{ return uitreeviewitem_ ? &uitreeviewitem_->keyPressed : 0; }
+{ return uitreeviewitem_ ? &uitreeviewitem_->keyPressed : nullptr; }
 
 void uiTreeItem::expand()
-{ if ( uitreeviewitem_ ) uitreeviewitem_->setOpen(true); }
+{
+    if ( uitreeviewitem_ )
+	uitreeviewitem_->setOpen(true);
+}
 
 bool uiTreeItem::isExpanded() const
-{ return uitreeviewitem_ ? uitreeviewitem_->isOpen() : true; }
+{
+    return uitreeviewitem_ ? uitreeviewitem_->isOpen() : true;
+}
 
 void uiTreeItem::collapse()
-{ if ( uitreeviewitem_ ) uitreeviewitem_->setOpen(false); }
+{
+    if ( uitreeviewitem_ )
+	uitreeviewitem_->setOpen(false);
+}
+
 
 bool uiTreeItem::isCollapsed() const
-{ return !isExpanded(); }
+{
+    return !isExpanded();
+}
+
 
 bool uiTreeItem::hasChildren() const
-{ return !children_.isEmpty(); }
+{
+    return !children_.isEmpty();
+}
 
 
 bool uiTreeItem::hasGrandChildren() const
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	if ( children_[idx]->hasChildren() )
+    for ( const auto* child : children_ )
+	if ( child->hasChildren() )
 	    return true;
 
     return false;
@@ -199,8 +207,8 @@ bool uiTreeItem::hasGrandChildren() const
 
 bool uiTreeItem::allChildrenExpanded() const
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	if ( !children_[idx]->isExpanded() )
+    for ( const auto* child : children_ )
+	if ( !child->isExpanded() )
 	    return false;
 
     return true;
@@ -209,8 +217,8 @@ bool uiTreeItem::allChildrenExpanded() const
 
 bool uiTreeItem::allChildrenCollapsed() const
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	if ( !children_[idx]->isCollapsed() )
+    for ( const auto* child : children_ )
+	if ( !child->isCollapsed() )
 	    return false;
 
     return true;
@@ -233,8 +241,8 @@ void uiTreeItem::expandAllChildren()
 
 bool uiTreeItem::allChildrenChecked() const
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	if ( !children_[idx]->isChecked() )
+    for ( const auto* child : children_ )
+	if ( !child->isChecked() )
 	    return false;
 
     return true;
@@ -243,8 +251,8 @@ bool uiTreeItem::allChildrenChecked() const
 
 bool uiTreeItem::allChildrenUnchecked() const
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	if ( children_[idx]->isChecked() )
+    for ( const auto* child : children_ )
+	if ( child->isChecked() )
 	    return false;
 
     return true;
@@ -253,22 +261,23 @@ bool uiTreeItem::allChildrenUnchecked() const
 
 void uiTreeItem::updateSelTreeColumnText( int col )
 {
-    for ( int idx=0; idx>=0 && idx<children_.size(); idx++ )
+    for ( auto* child : children_ )
     {
-	if ( children_[idx]->isSelected() )
-	    children_[idx]->updateColumnText(col);
+	if ( child->isSelected() )
+	    child->updateColumnText( col );
 	else
-	    children_[idx]->updateSelTreeColumnText( col );
+	    child->updateSelTreeColumnText( col );
     }
 }
 
 
 void uiTreeItem::updateColumnText( int col )
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	children_[idx]->updateColumnText(col);
+    for ( auto* child : children_ )
+	child->updateColumnText( col );
 
-    if ( !uitreeviewitem_ ) return;
+    if ( !uitreeviewitem_ )
+	return;
 
     if ( !col )
         uitreeviewitem_->setText( name_, col );
@@ -277,20 +286,20 @@ void uiTreeItem::updateColumnText( int col )
 
 void uiTreeItem::updateCheckStatus()
 {
-    for ( int idx=0; idx<children_.size(); idx++ )
-	children_[idx]->updateCheckStatus();
+    for ( auto* child : children_ )
+	child->updateCheckStatus();
 }
 
 
 const uiTreeItem* uiTreeItem::findChild( const char* nm ) const
 {
-    return const_cast<uiTreeItem*>(this)->findChild(nm);
+    return mSelf().findChild( nm );
 }
 
 
 const uiTreeItem* uiTreeItem::findChild( int selkey ) const
 {
-    return const_cast<uiTreeItem*>(this)->findChild(selkey);
+    return mSelf().findChild( selkey );
 }
 
 
@@ -316,8 +325,8 @@ void uiTreeItem::findChildren( const char* nm, ObjectSet<uiTreeItem>& set )
     if ( name_.getFullString() == nm )
 	set += this;
 
-    for ( int idx=0; idx<children_.size(); idx++ )
-	children_[idx]->findChildren( nm, set );
+    for ( auto* child : children_ )
+	child->findChildren( nm, set );
 }
 
 
@@ -326,14 +335,14 @@ uiTreeItem* uiTreeItem::findChild( int selkey )
     if ( selectionKey()==selkey )
 	return this;
 
-    for ( int idx=0; idx<children_.size(); idx++ )
+    for ( auto* child : children_ )
     {
-	uiTreeItem* res = children_[idx]->findChild(selkey);
+	uiTreeItem* res = child->findChild( selkey );
 	if ( res )
 	    return res;
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -359,6 +368,7 @@ void uiTreeItem::moveItemToTop()
 	item->setBold( 0, issel );
 	item->setOpen( isopen );
     }
+
     mEnabSelChg( true )
 }
 
@@ -371,7 +381,7 @@ int uiTreeItem::uiTreeViewItemType() const
 
 uiParent* uiTreeItem::getUiParent() const
 {
-    return parent_ ? parent_->getUiParent() : 0;
+    return parent_ ? parent_->getUiParent() : nullptr;
 }
 
 
@@ -385,64 +395,62 @@ void uiTreeItem::setTreeViewItem( uiTreeViewItem* item )
 
 int uiTreeItem::siblingIndex() const
 {
-    if ( !uitreeviewitem_ ) return -1;
-    return uitreeviewitem_->siblingIndex();
+    return uitreeviewitem_ ? uitreeviewitem_->siblingIndex() : -1;
 }
 
 
 uiTreeItem* uiTreeItem::siblingAbove()
 {
-    if ( !parent_ || !uitreeviewitem_ ) return 0;
+    if ( !parent_ || !uitreeviewitem_ )
+	return nullptr;
 
     uiTreeViewItem* itemabove = uitreeviewitem_->itemAbove();
-    if ( !itemabove ) return 0;
+    if ( !itemabove )
+	return nullptr;
 
-    for ( int idx=0; idx<parent_->children_.size(); idx++ )
-    {
-	if ( parent_->children_[idx]->getItem()==itemabove )
-	    return parent_->children_[idx];
-    }
+    for ( auto* child : parent_->children_ )
+	if ( child->getItem()==itemabove )
+	    return child;
 
-    return 0;
+    return nullptr;
 }
 
 
 uiTreeItem* uiTreeItem::siblingBelow()
 {
-    if ( !parent_ || !uitreeviewitem_ ) return 0;
+    if ( !parent_ || !uitreeviewitem_ )
+	return nullptr;
 
     uiTreeViewItem* itembelow = uitreeviewitem_->itemBelow();
-    if ( !itembelow ) return 0;
+    if ( !itembelow )
+	return nullptr;
 
-    for ( int idx=0; idx<parent_->children_.size(); idx++ )
-    {
-	if ( parent_->children_[idx]->getItem()==itembelow )
-	    return parent_->children_[idx];
-    }
+    for ( auto* child : parent_->children_ )
+	if ( child->getItem()==itembelow )
+	    return child;
 
-    return 0;
+    return nullptr;
 }
 
 
 uiTreeItem* uiTreeItem::lastChild()
 {
-    if ( !uitreeviewitem_ ) return 0;
+    if ( !uitreeviewitem_ )
+	return nullptr;
+
     uiTreeViewItem* lastchild = uitreeviewitem_->lastChild();
+    for ( auto* child : children_ )
+	if ( child->getItem()==lastchild )
+	    return child;
 
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	if ( children_[idx]->getItem()==lastchild )
-	    return children_[idx];
-    }
-
-    return 0;
+    return nullptr;
 }
 
 
 const uiTreeItem* uiTreeItem::getChild( int idx ) const
 {
-    if ( idx < 0 || idx >= children_.size() )
-	return 0;
+    if ( !children_.validIdx(idx) )
+	return nullptr;
 
     return children_[idx];
 }
@@ -450,8 +458,8 @@ const uiTreeItem* uiTreeItem::getChild( int idx ) const
 
 uiTreeItem* uiTreeItem::getChild( int idx )
 {
-    if ( idx < 0 || idx >= children_.size() )
-	return 0;
+    if ( !children_.validIdx(idx) )
+	return nullptr;
 
     return children_[idx];
 }
@@ -470,7 +478,7 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 		    (uiTreeViewItem::Type)newitem->uiTreeViewItemType() );
 	mDynamicCastGet(uiTreeViewItem*,lvi,parent)
 	mDynamicCastGet(uiTreeView*,lv,parent)
-	uiTreeViewItem* item = 0;
+	uiTreeViewItem* item = nullptr;
 	if ( lvi )
 	    item = new uiTreeViewItem( lvi, setup );
 	else if ( lv )
@@ -498,11 +506,9 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 
     if ( downwards )
     {
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    if ( children_[idx]->addChld(newitem,below,downwards) )
+	for ( auto* child : children_ )
+	    if ( child->addChld(newitem,below,downwards) )
 		return true;
-	}
     }
     else if ( parent_ )
 	return parent_->addChld( newitem, below, downwards );
@@ -522,15 +528,15 @@ bool uiTreeItem::addChld( uiTreeItem* newitem, bool below, bool downwards )
 void uiTreeItem::removeChild( uiTreeItem* treeitem )
 {
     mEnabSelChg( false )
-    const int idx=children_.indexOf( treeitem );
-    if ( idx<0 )
+    if ( !children_.isPresent(treeitem) )
     {
-	for ( int idy=0; idy<children_.size(); idy++ )
-	    children_[idy]->removeChild(treeitem);
+	for ( auto* child : children_ )
+	    child->removeChild(treeitem);
 
 	return;
     }
 
+    const int idx=children_.indexOf( treeitem );
     removeItem( treeitem->getItem() );
     delete children_.removeSingle( idx );
     mEnabSelChg( true )
@@ -540,8 +546,8 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
 void uiTreeItem::removeAllChildren()
 {
     mEnabSelChg( false )
-    for ( int idx=0; idx<children_.size(); idx++ )
-	removeItem( children_[idx]->getItem() );
+    for ( auto* child : children_ )
+	removeItem( child->getItem() );
     deepErase( children_ );
     mEnabSelChg( true )
 }
@@ -563,8 +569,8 @@ void uiTreeItem::renameItem( uiTreeViewItem* itm )
 	return;
     }
 
-    for ( int idx=0; idx<children_.size(); idx++ )
-	children_[idx]->renameItem( itm );
+    for ( auto* child : children_ )
+	child->renameItem( itm );
 }
 
 
@@ -577,27 +583,17 @@ uiTreeTopItem::uiTreeTopItem( uiTreeView* listview, bool disab )
     , disabrightclick_(false)
     , disabanyclick_(false)
 {
-    listview_->rightButtonPressed.notify(
-			mCB(this,uiTreeTopItem,rightClickCB) );
-    listview_->mouseButtonPressed.notify(
-			mCB(this,uiTreeTopItem,anyButtonClickCB) );
-    listview_->doubleClicked.notify( mCB(this,uiTreeTopItem,doubleClickCB) );
-    listview_->selectionChanged.notify(
-			mCB(this,uiTreeTopItem,selectionChanged) );
-    listview_->itemRenamed.notify( mCB(this,uiTreeTopItem,itemRenamed) );
+    mAttachCB( listview_->rightButtonPressed, uiTreeTopItem::rightClickCB );
+    mAttachCB( listview_->mouseButtonPressed, uiTreeTopItem::anyButtonClickCB );
+    mAttachCB( listview_->doubleClicked, uiTreeTopItem::doubleClickCB );
+    mAttachCB( listview_->selectionChanged, uiTreeTopItem::selectionChanged );
+    mAttachCB( listview_->itemRenamed, uiTreeTopItem::itemRenamed );
 }
 
 
 uiTreeTopItem::~uiTreeTopItem()
 {
-    listview_->rightButtonPressed.remove(
-			mCB(this,uiTreeTopItem,rightClickCB) );
-    listview_->mouseButtonPressed.remove(
-			mCB(this,uiTreeTopItem,anyButtonClickCB) );
-    listview_->doubleClicked.remove( mCB(this,uiTreeTopItem,doubleClickCB) );
-    listview_->selectionChanged.remove(
-			mCB(this,uiTreeTopItem,selectionChanged) );
-    listview_->itemRenamed.remove( mCB(this,uiTreeTopItem,itemRenamed) );
+    detachAllNotifiers();
 }
 
 
@@ -617,7 +613,10 @@ bool uiTreeTopItem::addChld( uiTreeItem* newitem, bool below, bool downwards )
 void uiTreeTopItem::removeItem( uiTreeViewItem* itm )
 {
     if ( listview_ )
+    {
+	NotifyStopper ns( listview_->selectionChanged );
 	listview_->takeItem( itm );
+    }
 }
 
 
@@ -643,7 +642,8 @@ void uiTreeTopItem::selectionChanged( CallBacker* )
 
 void uiTreeTopItem::itemRenamed( CallBacker* )
 {
-    if ( !listview_->itemNotified() ) return;
+    if ( !listview_->itemNotified() )
+	return;
 
     if ( listview_->columnNotified()==0 )
 	renameItem( listview_->itemNotified() );
@@ -755,7 +755,7 @@ int uiTreeFactorySet::nrFactories() const
 { return factories_.size(); }
 
 const uiTreeItemFactory* uiTreeFactorySet::getFactory( int idx ) const
-{ return idx<nrFactories() ? factories_[idx] : 0; }
+{ return factories_.validIdx( idx ) ? factories_[idx] : nullptr; }
 
 int uiTreeFactorySet::getPlacementIdx( int idx ) const
 { return placementidxs_[idx]; }
@@ -767,7 +767,8 @@ OD::Pol2D3D uiTreeFactorySet::getPol2D3D( int idx ) const
 
 
 uiTreeItemRemover::uiTreeItemRemover(uiTreeItem* parent,uiTreeItem* child)
-    : parent_( parent ), child_( child )
+    : parent_( parent )
+    , child_( child )
 {}
 
 

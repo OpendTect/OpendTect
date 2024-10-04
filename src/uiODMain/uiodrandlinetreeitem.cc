@@ -52,7 +52,7 @@ ________________________________________________________________________
 class uiRandomLinePolyLineDlg : public uiDialog
 { mODTextTranslationClass(uiRandomLinePolyLineDlg)
 public:
-uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
+uiRandomLinePolyLineDlg( uiParent* p, visSurvey::RandomTrackDisplay* rtd )
     : uiDialog(p,Setup(tr("Create Random Line from Polyline"),
 			uiString::emptyString(),
 			mODHelpKey(mRandomLinePolyLineDlgHelpID) )
@@ -69,12 +69,17 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
 				uiColorInput::Setup(OD::getRandStdDrawColor())
 				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, label_ );
-    colsel_->colorChanged.notify(
-	    mCB(this,uiRandomLinePolyLineDlg,colorChangeCB) );
+    mAttachCB( colsel_->colorChanged, uiRandomLinePolyLineDlg::colorChangeCB );
 
     rtd_->removeAllNodes();
     rtd->setPolyLineMode( true );
     rtd_->setColor( colsel_->color() );
+}
+
+
+~uiRandomLinePolyLineDlg()
+{
+    detachAllNotifiers();
 }
 
 
@@ -157,12 +162,13 @@ CNotifier<uiODRandomLineParentTreeItem,uiMenu*>&
 
 uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
     : uiODParentTreeItem( uiStrings::sRandomLine() )
-    , rdlpolylinedlg_(0)
 {}
 
 
 uiODRandomLineParentTreeItem::~uiODRandomLineParentTreeItem()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 const char* uiODRandomLineParentTreeItem::iconName() const
@@ -175,13 +181,12 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     mnu.insertAction( new uiAction(tr("Add Default Data")), 0 );
     mnu.insertAction( new uiAction(m3Dots(tr("Add Stored"))), 2 );
 
-    uiMenu* rgbmnu =
-	new uiMenu( getUiParent(), uiStrings::sAddColBlend() );
+    auto* rgbmnu = new uiMenu( getUiParent(), uiStrings::sAddColBlend() );
     rgbmnu->insertAction( new uiAction(tr("Empty")), 1 );
     rgbmnu->insertAction( new uiAction( m3Dots(uiStrings::sStored()) ), 3 );
     mnu.addMenu( rgbmnu );
 
-    uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
+    auto* newmnu = new uiMenu( getUiParent(), uiStrings::sNew() );
     newmnu->insertAction( new uiAction(m3Dots(tr("Interactive "))), 4 );
 //    newmnu->insertAction( new uiAction(m3Dots(tr("Along Contours"))), 5 );
     newmnu->insertAction( new uiAction(m3Dots(tr("From Existing"))), 6 );
@@ -202,8 +207,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     }
     else if ( mnuid==1 )
     {
-	uiODRandomLineTreeItem* itm =
-		new uiODRandomLineTreeItem( VisID::udf(), getType(mnuid) );
+	auto* itm = new uiODRandomLineTreeItem( VisID::udf(), getType(mnuid) );
 	addChild( itm, false );
     }
     else if ( mnuid==2 || mnuid==3 )
@@ -292,8 +296,8 @@ void uiODRandomLineParentTreeItem::genFromPolygon()
 void uiODRandomLineParentTreeItem::genFromWell()
 {
     applMgr()->wellServer()->selectWellCoordsForRdmLine();
-    applMgr()->wellServer()->randLineDlgClosed.notify(
-	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWell) );
+    mAttachCB( applMgr()->wellServer()->randLineDlgClosed,
+	       uiODRandomLineParentTreeItem::loadRandLineFromWell );
 }
 
 
@@ -314,7 +318,8 @@ void uiODRandomLineParentTreeItem::genFromTable()
 	addChild( itm, false );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
-	if ( !rtd || !rtd->getRandomLine() ) return;
+	if ( !rtd || !rtd->getRandomLine() )
+	    return;
 
 	TypeSet<BinID> newbids;
 	table->getBinIDs( newbids );
@@ -359,8 +364,8 @@ void uiODRandomLineParentTreeItem::genFromPicks()
 
     delete rdlpolylinedlg_;
     rdlpolylinedlg_ = new uiRandomLinePolyLineDlg( getUiParent(), rtd );
-    rdlpolylinedlg_->windowClosed.notify(
-	mCB(this,uiODRandomLineParentTreeItem,rdlPolyLineDlgCloseCB) );
+    mAttachCB( rdlpolylinedlg_->windowClosed,
+	       uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB );
     rdlpolylinedlg_->go();
 }
 
@@ -369,15 +374,15 @@ void uiODRandomLineParentTreeItem::rdlPolyLineDlgCloseCB( CallBacker* )
 {
     const VisID id = rdlpolylinedlg_->getDisplayID();
     mDynamicCastGet(uiODRandomLineTreeItem*,itm,findChild(id.asInt()))
-    if ( !rdlpolylinedlg_->uiResult() )
-    {
-	removeChild( itm );
-	ODMainWin()->applMgr().visServer()->removeObject( id, sceneID() );
-    }
-    else
+    if ( rdlpolylinedlg_->uiResult() )
     {
 	const auto* selspec = rdlpolylinedlg_->getSelSpec();
 	itm->displayData( selspec );
+    }
+    else
+    {
+	removeChild( itm );
+	ODMainWin()->applMgr().visServer()->removeObject( id, sceneID() );
     }
 
     rdlpolylinedlg_ = nullptr;
@@ -391,10 +396,12 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
     if ( ioobj && applMgr()->wellServer()->dispLineOnCreation() )
 	load( *ioobj, (int)uiODRandomLineTreeItem::Empty );
 
-    applMgr()->wellServer()->randLineDlgClosed.remove(
-	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWell) );
+    mDetachCB( applMgr()->wellServer()->randLineDlgClosed,
+	       uiODRandomLineParentTreeItem::loadRandLineFromWell );
 }
 
+
+// uiODRandomLineTreeItem
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( const VisID& id, Type tp,
 						const RandomLineID& rid )
