@@ -37,16 +37,16 @@ The development branches are:
 | [od7.0](https://github.com/OpendTect/OpendTect/tree/od7.0)  | This is the main development branch for the next stable release series 7.0. No major new features are currently being added to this branch as it is being prepared for release. |
 
 ## License
-OpendTect is released under the [GPLv3 or higher](http://www.gnu.org/copyleft/gpl.html) license.
+OpendTect is released under the [GPLv3 or higher](https://www.gnu.org/licenses/gpl-3.0.html) license.
 
 ## Building the Software
 ### Requirements
 
 - A C++ compiler and compilation tool chain:
 	- Windows: msvc2022 64 bit (>= v17.8.4). The free community edition is sufficient.
-	- macOS: SDK 10.15
+	- macOS: SDK 10.15 (deployment version >= 12.0)
 	- Linux: gcc 64 bit version 10.5.0 or higher
-- CMake version 3.14 or higher
+- CMake version 3.24 or higher (3.27 or higher recommended)
 - The c++17 version is enabled by default on all platforms.
 
 ### Dependencies
@@ -54,9 +54,9 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.4.1 (optional)](https://download.osgeo.org/proj/proj-9.4.1.tar.gz), [Sqlite 3.46 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.4.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od7.0_rel, od7.0 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.3.1 (optional)](https://download.osgeo.org/proj/proj-9.3.1.tar.gz), [Sqlite 3.44 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.4.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
-| od6.6_rel, od6.6 | [Qt 5.15.2](http://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main | [Qt 6.5.3](https://download.qt.io/archive/qt/6.5/6.5.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.5.0 (optional)](https://download.osgeo.org/proj/proj-9.5.0.tar.gz), [Sqlite 3.46.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.3.1 (optional)](https://download.osgeo.org/proj/proj-9.3.1.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| od6.6_rel, od6.6 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 
 #### Qt Install
 For the Qt install the following components must be selected depending on your build platform:
@@ -109,13 +109,13 @@ You can contribute to the enhancement of OpendTect either by:
 - providing bug fixes or enhancements to the OpendTect source code following the usual Github Fork-Pull Request process. 
 - or independently by developing and releasing open source plugins from your own Github or equivalent repository. See the [wmplugins repository](https://github.com/waynegm/OpendTect-Plugins) as an example of this approach.
 
-An overview of the design principles and preferred coding style/practices employed by **dGB** in the development of OpendTect are described in [dGB's coding guide](http://doc.opendtect.org/7.0.0/doc/Programmer/Default.htm#6_principles_and_best_practices_in_opendtect_coding.htm)
+An overview of the design principles and preferred coding style/practices employed by **dGB** in the development of OpendTect are described in [dGB's coding guide](https://doc.opendtect.org/7.0.0/doc/Programmer/Default.htm#6_principles_and_best_practices_in_opendtect_coding.htm)
 
 ## Contacts and More Information
 
 - [dGB Earth Sciences](https://dgbes.com/index.php/contact)
 - [OpendTect Documentation](https://dgbes.com/index.php/support#documentation)
-- [OpendTect Programmer's Manual](http://doc.opendtect.org/7.0.0/doc/Programmer/Default.htm)
+- [OpendTect Programmer's Manual](https://doc.opendtect.org/7.0.0/doc/Programmer/Default.htm)
 - [OpendTect developers Google Group](https://dgbes.com/index.php/support/faq-developers-google-group)
 
 [header-img]: doc/pics/opendtect_header.png
