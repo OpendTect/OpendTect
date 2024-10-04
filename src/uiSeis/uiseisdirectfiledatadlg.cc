@@ -58,6 +58,10 @@ void uiSeisDirectFileDataDlg::fillFileTable()
     filetable_->setColumnLabel( cNewNameCol, tr("New File Name") );
     filetable_->setColumnLabel( cButtonCol, toUiString(" ") );
     filetable_->setColumnReadOnly( cOldNameCol, true );
+    filetable_->setColumnStretchable( cButtonCol, false );
+    filetable_->resizeColumnToContents( cButtonCol );
+    filetable_->setPrefWidth( 700 );
+
 
     const BufferString fnm0 = *filenames_.first();
     if ( fnm0.isEmpty() )
