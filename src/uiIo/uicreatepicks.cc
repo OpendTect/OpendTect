@@ -96,9 +96,11 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
 
     if ( iszvalreq_ )
     {
+	float zval = SI().zRange(true).start;
+	zval *= SI().zDomain().userFactor();
 	const uiString lbl(
 		tr("Z value for Points %1").arg(SI().getUiZUnitString()) );
-	zvalfld_ = new uiGenInput( this, lbl, FloatInpSpec() );
+	zvalfld_ = new uiGenInput( this, lbl, FloatInpSpec(zval) );
 	zvalfld_->attach( alignedBelow, colsel_ );
     }
 }
