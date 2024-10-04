@@ -424,14 +424,16 @@ float FaultEditor::getNearestStick( int& stick,
     float mindist = mUdf(float);
 
     const Geometry::Element* ge = emObject().geometryElement();
-    if ( !ge ) return false;
+    if ( !ge )
+	return mindist;
 
     mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
-    if ( !surface ) return false;
+    if ( !surface )
+	return mindist;
 
     const StepInterval<int> rowrange = surface->rowRange();
     if ( rowrange.isUdf() )
-	return false;
+	return mindist;
 
     for ( int stickidx=rowrange.nrSteps(); stickidx>=0; stickidx-- )
     {
