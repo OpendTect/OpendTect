@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
@@ -25,6 +26,10 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "survgeom.h"
 #include "uistrings.h"
+
+
+static const char* sFileStr = "File";
+
 
 SEGY::DirectReader::DirectReader()
 {}
@@ -119,7 +124,7 @@ SEGYSeisTrcTranslator* SEGYDirectSeisTrcTranslator::createTranslator(
 
     ioobj->pars() = *segypars;
 
-    SEGYSeisTrcTranslator* ret = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
+    auto* ret = new SEGYSeisTrcTranslator( "SEGY", "SEG-Y" );
     ret->usePar( *segypars );
     if ( !ret->initRead(ioobj->getConn(Conn::Read)) )
     {
@@ -352,6 +357,58 @@ void SEGYDirectSeisTrcTranslator::cleanUp()
 }
 
 
+int SEGYDirectSeisTrcTranslator::nrImpls( const IOObj* obj ) const
+{
+    if ( !obj )
+	return 0;
+
+    PtrMan<Conn> conn = obj->getConn( Conn::Read );
+    mDynamicCastGet(StreamConn*,strmconn,conn.ptr())
+    if ( !strmconn )
+	return 0;
+
+    BufferString deffnm = strmconn->fileName();
+    int nrfiles = 0;
+    SEGY::DirectDef def( deffnm );
+    if ( def.isEmpty() || def.errMsg().isSet() )
+	return nrfiles;
+
+    nrfiles = 1;
+    const SEGY::FileDataSet& fds = def.fileDataSet();
+    nrfiles += fds.nrFiles();
+    return nrfiles;
+}
+
+
+void SEGYDirectSeisTrcTranslator::implFileNames( const IOObj* obj,
+						 BufferStringSet& fnms ) const
+{
+    if ( !obj )
+	return;
+
+    PtrMan<Conn> conn = obj->getConn( Conn::Read );
+    mDynamicCastGet(StreamConn*,strmconn,conn.ptr())
+    if ( !strmconn )
+	return;
+
+    BufferString deffnm = strmconn->fileName();
+    SEGY::DirectDef def( deffnm );
+    if ( def.isEmpty() || def.errMsg().isSet() )
+	return;
+
+    const SEGY::FileDataSet& fds = def.fileDataSet();
+    const int nrfiles = fds.nrFiles();
+    for ( int idx=0; idx<nrfiles; idx++ )
+    {
+	const StringView fnm = fds.fileName( idx );
+	if ( fnm.isEmpty() )
+	    continue;
+
+	fnms.addIfNew( fnm );
+    }
+}
+
+
 void SEGYDirectSeisTrcTranslator::initVars( bool fr )
 {
     forread_ = fr;
@@ -364,7 +421,10 @@ void SEGYDirectSeisTrcTranslator::initVars( bool fr )
 void SEGYDirectSeisTrcTranslator::setCompDataFromInput()
 {
     if ( !tr_ )
+    {
+	objstatus_ = IOObj::Status::LibraryNotLoaded;
 	return;
+    }
 
     deepErase( cds_ );
     deepErase( tarcds_ );
@@ -384,6 +444,7 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     if ( !strmconn )
     {
 	errmsg_ = tr("Cannot open definition file");
+	objstatus_ = IOObj::Status::FileNotPresent;
 	return false;
     }
 
@@ -391,14 +452,16 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     delete strmconn;
     conn_ = nullptr;
     def_ = new SEGY::DirectDef( segydeffilename_ );
-    if (def_->errMsg().isSet())
+    if ( def_->errMsg().isSet() )
     {
 	errmsg_ = def_->errMsg();
+	objstatus_ = def_->objStatus();
 	return false;
     }
     else if ( def_->isEmpty() )
     {
 	errmsg_ = tr("Empty input file");
+	objstatus_ = IOObj::Status::FileDataCorrupt;
 	return false;
     }
 
@@ -410,6 +473,7 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
 	if ( !File::exists(fnm) )
 	{
 	    errmsg_ = tr("One or more linked files missing");
+	    objstatus_ = IOObj::Status::BrokenLink;
 	    return false;
 	}
     }
@@ -421,13 +485,11 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
     pinfo_.cubedata->getInlRange( pinfo_.inlrg );
     pinfo_.cubedata->getCrlRange( pinfo_.crlrg );
-
     if ( !toNextTrace() || !positionTranslator() )
 	return false;
 
     setCompDataFromInput();
     initVars( true );
-
     return true;
 }
 
@@ -437,13 +499,15 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     initVars( false );
     mDynamicCastGet(StreamConn*,strmconn,conn_)
     if ( !strmconn || strmconn->isBad() )
-	{ errmsg_ = tr("Could not open new definition file"); return false; }
-    segydeffilename_ = strmconn->fileName();
+    {
+	errmsg_ = tr("Could not open new definition file");
+	return false;
+    }
 
+    segydeffilename_ = strmconn->fileName();
     delete tr_;
     tr_ = SEGYSeisTrcTranslator::getInstance();
     tr_->usePar( segypars_ );
-
     FilePath outfp( segydeffilename_ );
     outfp.setExtension( tr_->defExtension() );
     segyfilename_ = outfp.fullPath();
@@ -455,12 +519,75 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     }
 
     if ( !tr_->initWrite( segyconn, trc ) )
-	{ errmsg_ = tr_->errMsg(); return false; }
+    {
+	errmsg_ = tr_->errMsg();
+	return false;
+    }
 
     setCompDataFromInput();
-
     return true;
 }
+
+
+const BufferString SEGYDirectSeisTrcTranslator::getFileNameKey( int idx ) const
+{
+    BufferString filekey( sFileStr );
+    filekey.addSpace().add( idx );
+    return IOPar::compKey( filekey, sKey::FileName() );
+}
+
+
+bool SEGYDirectSeisTrcTranslator::implRelocate( const IOObj* obj,
+				const char* newfnm, const char* oldfnm )
+{
+    if ( !obj || !newfnm || !*newfnm )
+	return false;
+
+    od_stream_Pos pos = 0;
+    IOPar par;
+    const bool readsuccess = SEGY::DirectDef::readFooter( obj->fullUserExpr(),
+							  par, pos );
+    if ( !readsuccess )
+	return false;
+
+    if ( !oldfnm || !*oldfnm )
+    {
+	BufferString val;
+	// making sure only one actual file is linked.
+	if ( par.get(getFileNameKey(1), val) )
+	    return false;
+
+	par.set( getFileNameKey(0), newfnm );
+    }
+    else
+    {
+	bool matchfound = false;
+	int idx = 0;
+	BufferString currkey;
+	while ( true )
+	{
+	    BufferString fnm;
+	    currkey = getFileNameKey( idx++ );
+	    if ( !par.get(currkey,fnm) )
+		break;
+
+	    const FilePath fp( fnm.buf() );
+	    if ( fp.fileName() == oldfnm )
+	    {
+		matchfound = true;
+		break;
+	    }
+	}
+
+	if ( !matchfound )
+	    return false;
+
+	par.set( currkey, newfnm );
+    }
+
+    return SEGY::DirectDef::updateFooter( obj->fullUserExpr(false), par, pos );
+}
+
 
 
 bool SEGYDirectSeisTrcTranslator::commitSelections_()
@@ -468,12 +595,19 @@ bool SEGYDirectSeisTrcTranslator::commitSelections_()
     if ( !conn_ || conn_->forRead() )
     {
 	if ( !toNextTrace() )
-	    { errmsg_ = tr("No (selected) trace found"); return false; }
+	{
+	    errmsg_ = tr("No (selected) trace found");
+	    return false;
+	}
+
 	return true;
     }
 
     if ( !tr_->commitSelections() )
-	{ errmsg_ = tr_->errMsg(); return false; }
+    {
+	errmsg_ = tr_->errMsg();
+	return false;
+    }
 
     delete conn_; // was made for the segydeffilename_,
 		  // but def_ will open a new handle
@@ -521,6 +655,7 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
 	if ( !fdsidx.isValid() )
 	{
 	    pErrMsg("Huh");
+	    objstatus_ = IOObj::Status::FileDataCorrupt;
 	    return false;
 	}
 	else if ( fdsidx.filenr_ == curfilenr_ )
@@ -535,7 +670,17 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
 	setCompDataFromInput();
     }
 
-    return tr_ && tr_->goToTrace( mCast(int,fdsidx.trcidx_) );
+    if ( !tr_ )
+    {
+	objstatus_ = IOObj::Status::LibraryNotLoaded;
+	return false;
+    }
+
+    const bool ret  = tr_->goToTrace( mCast(int,fdsidx.trcidx_) );
+    if ( !ret )
+	objstatus_ = tr_->objStatus();
+
+    return ret;
 }
 
 
@@ -549,7 +694,10 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
 
     if ( !tr_->readInfo(ti) || ti.binID() != curBinID() )
-	{ errmsg_ = tr_->errMsg(); return false; }
+    {
+	errmsg_ = tr_->errMsg();
+	return false;
+    }
 
     ti.sampling.start_ = outsd_.start_;
     ti.sampling.step_ = outsd_.step_;
@@ -620,13 +768,21 @@ const PosInfo::CubeData& SEGYDirectSeisTrcTranslator::cubeData() const
 bool SEGYDirectSeisTrcTranslator::toNextTrace()
 {
     if ( !def_ )
+    {
+	objstatus_ = IOObj::Status::FileDataCorrupt;
 	return false;
+    }
+
     const PosInfo::CubeData& cd = cubeData();
     const bool atstart = ild_ == -1;
     if ( atstart )
 	ild_ = 0;
+
     if ( ild_ < 0 || ild_ >= cd.size() )
+    {
+	objstatus_ = IOObj::Status::FileDataCorrupt;
 	return false;
+    }
 
     const PosInfo::LineData* ld = cd[ild_];
     PosInfo::LineData::Segment seg = ld->segments_[iseg_];
@@ -708,6 +864,8 @@ bool SEGYDirectSeisTrcTranslator::implRemove( const IOObj* ioobj,
     Translator::implRemove( ioobj );
     return true;
 }
+
+
 
 
 bool SEGYDirectSeisTrcTranslator::getConfirmRemoveMsg( const IOObj* ioobj,
@@ -805,7 +963,7 @@ od_int64 SEGYDirectSeisTrcTranslator::getFileSize() const
 
 
 void SEGYDirectSeisTrcTranslator::getAllFileNames(
-					    BufferStringSet& filenames ) const
+				    BufferStringSet& filenames ) const
 {
     if ( !def_ || segydeffilename_.isEmpty() )
 	return;

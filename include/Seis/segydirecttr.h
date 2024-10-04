@@ -158,6 +158,7 @@ public:
 
     uiString		displayName() const override;
     const char*		defExtension() const override	{ return "sgydef"; }
+    const char*		defImplExtension() const override { return "sgy"; }
 
     int			estimatedNrTraces() const override;
     bool		readInfo(SeisTrcInfo&) override;
@@ -225,5 +226,10 @@ private:
     BufferString	getAuxFileName(const char*) const override;
 
     od_int64		getFileSize() const override;
-
+    int			nrImpls(const IOObj*) const override;
+    void		implFileNames(const IOObj*,
+				      BufferStringSet&) const override;
+    bool		implRelocate(const IOObj*,const char* newfnm,
+				     const char* oldfnm=nullptr) override;
+    const BufferString	getFileNameKey(int idx) const override;
 };

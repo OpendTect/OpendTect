@@ -71,32 +71,3 @@ protected:
 
 };
 
-
-/*!\brief UI for manipulating fille names/paths for a SEGYDirect data-store */
-
-mExpClass(uiSEGYTools) uiEditSEGYFileDataDlg : public uiDialog
-{ mODTextTranslationClass(uiEditSEGYFileDataDlg)
-public:
-			uiEditSEGYFileDataDlg(uiParent* p,const IOObj&);
-			~uiEditSEGYFileDataDlg()	{}
-
-protected:
-
-    const IOObj&	ioobj_;
-    IOPar&		filepars_;
-    od_int64		fileparsoffset_;
-
-    uiFileInput*	dirsel_;
-    uiTable*		filetable_;
-
-    void		fillFileTable();
-    void		updateFileTable(int);
-    void		editCB(CallBacker*);
-    void		dirSelCB(CallBacker*);
-    void		fileSelCB(CallBacker*);
-    bool		acceptOK(CallBacker*) override;
-
-    int			nrfiles_;
-    bool		isusable_;
-
-};

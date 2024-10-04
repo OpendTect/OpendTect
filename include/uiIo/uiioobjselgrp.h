@@ -167,8 +167,10 @@ public:
     void		setChosen(int,bool yn=true);
     void		setChosen(const TypeSet<MultiID>&);
     void		setIsBad(int);
+    bool		isEntryOK(const MultiID&) const;
     void		chooseAll(bool yn=true);
     const TypeSet<MultiID>&	getIOObjIds() const;
+    const TypeSet<MultiID>&	getNeedsLocateIds() const;
 
     bool		updateCtxtIOObj(); //!< mostly interesting for write
     const CtxtIOObj&	getCtxtIOObj() const		{ return ctio_; }
@@ -202,7 +204,9 @@ public:
 
     CNotifier<uiIOObjSelGrp,const MultiID&> itemAdded;
     CNotifier<uiIOObjSelGrp,const MultiID&> itemRemoved;
+    CNotifier<uiIOObjSelGrp,const IOObj*>   itemInitRead;
     CNotifier<uiIOObjSelGrp,const BufferStringSet&> itemChanged;
+    CNotifier<uiIOObjSelGrp,const MultiID&> launchLocate;
 
     void		fullUpdate(const MultiID& kpselected);
     void		fullUpdate(int);
@@ -231,6 +235,7 @@ protected:
     uiGroup*			topgrp_;
     uiComboBox*			ctxtfiltfld_			= nullptr;
     FileSystemWatcher*		fswatcher_			= nullptr;
+    TypeSet<MultiID>		needslocateids_;
 
     void		fillListBox();
     void		addEntryToListBox(const MultiID&);

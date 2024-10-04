@@ -68,7 +68,7 @@ public:
 				//!< Return value mObjSelUnrelated etc.
 
     bool			hasConnType(const char*) const;
-    virtual const char*		defExtension() const	{ return 0; }
+    virtual const char*		defExtension() const	    { return nullptr; }
     IOPar&			selHist();
     void			clearSelHist();
 
@@ -131,6 +131,7 @@ public:
     const OD::String&		typeName() const	{ return typname_; }
     const OD::String&		userName() const	{ return usrname_; }
     virtual uiString		displayName() const;
+
     const TranslatorGroup*	group() const		{ return group_; }
 
     virtual Translator*		getNew() const		= 0;
@@ -141,16 +142,26 @@ public:
     virtual bool		implRename(const IOObj*,
 					   const char* newnm) const;
     virtual bool		implRemove(const IOObj*,bool deep=true) const;
+    virtual bool		implRelocate(const IOObj*,
+					 const char* newfnm,
+					 const char* oldfnm=nullptr);
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
+    virtual int			nrImpls(const IOObj*) const;
+    virtual void		implFileNames(const IOObj*,
+					      BufferStringSet&) const	  {}
+
     virtual const char*		connType() const;
-    virtual void		usePar(const IOPar&)		{}
+    virtual void		usePar(const IOPar&)	{}
     virtual const char*		defExtension() const;
+    virtual const char*		defImplExtension() const
+				    { return defExtension(); }
 
     void			setGroup( TranslatorGroup* g )	{ group_ = g; }
 
     virtual bool		isUserSelectable( bool forread=true ) const
-				{ return true; }
+				    { return true; }
+
     virtual bool		supportsReadFromCloud() const
 				{ return false; }
     virtual bool		supportsWriteToCloud() const

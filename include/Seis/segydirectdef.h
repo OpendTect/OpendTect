@@ -13,11 +13,11 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "executor.h"
+#include "ioobj.h"
 #include "od_iosfwd.h"
 #include "posgeomid.h"
 #include "uistring.h"
 
-class IOObj;
 namespace Seis { class PosIndexer; }
 namespace PosInfo { class CubeData; class Line2DData; }
 
@@ -60,6 +60,7 @@ public:
 
     const FileDataSet&	fileDataSet() const	{ return *fds_; }
     uiString		errMsg() const		{ return errmsg_; }
+    IOObj::Status	objStatus() const	{ return objstatus_; }
 
     static const char*	sKeyDirectDef();
     static const char*	sKeyFileType();
@@ -86,23 +87,24 @@ protected:
     void		getPosData(PosInfo::CubeData&) const;
     void		getPosData(PosInfo::Line2DData&,TypeSet<float>&) const;
 
-    PosInfo::CubeData&	 cubedata_;
-    PosInfo::Line2DData& linedata_;
-    TypeSet<float>	 spnrs_;
+    PosInfo::CubeData&			cubedata_;
+    PosInfo::Line2DData&		linedata_;
+    TypeSet<float>			spnrs_;
 
-    const FileDataSet*	fds_ = nullptr;
-    FileDataSet*	myfds_ = nullptr;
-    SEGY::PosKeyList*	keylist_ = nullptr;
-    Seis::PosIndexer*	indexer_ = nullptr;
+    const FileDataSet*			fds_	    = nullptr;
+    FileDataSet*			myfds_	    = nullptr;
+    SEGY::PosKeyList*			keylist_    = nullptr;
+    Seis::PosIndexer*			indexer_    = nullptr;
 
-    mutable uiString	errmsg_;
+    mutable uiString			errmsg_;
+    mutable IOObj::Status		objstatus_  = IOObj::Status::Unknown;
 
-    od_ostream*		outstream_ = nullptr;
-    od_stream_Pos	offsetstart_;
-    od_stream_Pos	datastart_;
-    od_stream_Pos	cubedatastart_;
-    od_stream_Pos	indexstart_;
-    od_stream_Pos	finalparstart_;
+    od_ostream*				outstream_  = nullptr;
+    od_stream_Pos			offsetstart_;
+    od_stream_Pos			datastart_;
+    od_stream_Pos			cubedatastart_;
+    od_stream_Pos			indexstart_;
+    od_stream_Pos			finalparstart_;
 };
 
 

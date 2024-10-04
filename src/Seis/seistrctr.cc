@@ -529,22 +529,38 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 
 bool SeisTrcTranslator::initConn( Conn* c )
 {
-    close(); errmsg_.setEmpty();
+    close();
+    errmsg_.setEmpty();
     if ( !c )
-	{ errmsg_ = tr("Translator: No connection established"); return false; }
+    {
+	errmsg_ = tr("Translator: No connection established");
+	objstatus_ = IOObj::Status::FileNotPresent;
+	return false;
+    }
 
     mDynamicCastGet(StreamConn*,strmconn,c)
     if ( strmconn )
     {
-	const char* fnm = strmconn->odStream().fileName();
+	BufferString fnm = strmconn->odStream().fileName();
 	if ( c->isBad() && !File::isDirectory(fnm) )
 	{
+	    if ( !fnm.isEmpty() && !File::exists(fnm) )
+	    {
+		errmsg_ = tr( "File doesn't exist: %1" ).arg( fnm );
+		objstatus_ = IOObj::Status::FileNotPresent;
+
+		return false;
+	    }
+
 	    errmsg_ = tr( "Cannot open file: %1" ).arg( fnm );
+	    objstatus_ = IOObj::Status::ReadPermissionInvalid;
+
 	    return false;
 	}
     }
 
-    delete conn_; conn_ = c;
+    delete conn_;
+    conn_ = c;
     return true;
 }
 

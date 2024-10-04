@@ -271,23 +271,31 @@ SeisIOObjInfo& SeisIOObjInfo::operator =( const SeisIOObjInfo& sii )
     return *this;
 }
 
-
 bool SeisIOObjInfo::checkAndInitTranslRead( SeisTrcTranslator* sttr,
 					    Seis::ReadMode rm ) const
 {
     if ( !sttr )
     {
 	errmsg_ = uiStrings::phrCannotOpen( ioobj_->uiName() );
+	objstatus_ = IOObj::Status::LibraryNotLoaded;
+	ioobj_->setStatus( objstatus_ );
 	return false;
     }
 
-    if ( !sttr->initRead(ioobj_->getConn(Conn::Read),rm) )
+    bool ret = sttr->initRead( ioobj_->getConn(Conn::Read),rm );
+    if ( !ret )
     {
 	errmsg_ = sttr->errMsg();
-	return false;
+	objstatus_ = sttr->objStatus();
+	ioobj_->setStatus( objstatus_ );
+    }
+    else
+    {
+	objstatus_= IOObj::Status::OK;
+	ioobj_->setStatus( objstatus_ );
     }
 
-    return true;
+    return ret;
 }
 
 
@@ -301,10 +309,7 @@ bool SeisIOObjInfo::isOK( bool createtr ) const
 
     mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
 		 ioobj_->createTranslator())
-    if ( !checkAndInitTranslRead(sttr) )
-	return false;
-
-    return true;
+    return checkAndInitTranslRead( sttr );
 }
 
 
@@ -313,6 +318,7 @@ void SeisIOObjInfo::setType()
     if ( !ioobj_ )
     {
 	errmsg_ = uiStrings::phrCannotFindObjInDB();
+	objstatus_ = IOObj::Status::FileNotPresent;
 	return;
     }
 
@@ -327,6 +333,7 @@ void SeisIOObjInfo::setType()
 	    ioobj_->group()!=mTranslGroupName(SeisTrc2D) )
     {
 	errmsg_ = uiStrings::phrSelectObjectWrongType( tr("Seismic object.") );
+	objstatus_ = IOObj::Status::WrongObject;
 	return;
     }
 
@@ -352,7 +359,10 @@ SeisIOObjInfo::SpaceInfo::SpaceInfo( int ns, int ntr, int bps )
     if ( !ioobj_ ) \
     { \
 	if ( errmsg_.isEmpty() ) \
+	{ \
 	    errmsg_ = uiStrings::phrCannotFindObjInDB(); \
+	    objstatus_ = IOObj::Status::FileNotPresent; \
+	} \
 \
 	return ret; \
     }
@@ -578,6 +588,15 @@ od_int64 SeisIOObjInfo::getFileSize() const
 	return -1;
 
     return sttr->getFileSize();
+}
+
+
+int SeisIOObjInfo::nrImpls() const
+{
+    mDynamicCast(SeisTrcTranslator*,PtrMan<SeisTrcTranslator> sttr,
+		 ioobj_->createTranslator())
+
+    return ioobj_->nrImpls() - 1;
 }
 
 
@@ -1337,7 +1356,9 @@ void SeisIOObjInfo::getCommonUserInfo( uiStringSet& inf ) const
 						.arg( todomain.userName() )
 						.withUnit( todomain.unitStr() );
 		    inf.addKeyValue( keystr, toUiString("%1 - %2 [%3]")
-                                     .arg(zrg.start_).arg(zrg.stop_).arg(zrg.step_) );
+						.arg(zrg.start_)
+						.arg(zrg.stop_)
+						.arg(zrg.step_) );
 		}
 	    }
 	}

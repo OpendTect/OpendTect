@@ -64,7 +64,6 @@ private:
     void		dTectToolbarChanged() override;
     void		cleanup() override;
 
-    void		edFiles(CallBacker*);
     void		imp2DCB(CallBacker*);
     void		imp2DPSCB(CallBacker*);
     void		imp3DCB(CallBacker*);
@@ -94,17 +93,6 @@ uiSEGYMgr::uiSEGYMgr()
     : uiPluginInitMgr()
 {
     init();
-    auto* bdef = new uiSeisFileMan::BrowserDef(
-				SEGYDirectSeisTrcTranslator::translKey() );
-    bdef->tooltip_ = tr("Change file/folder names in SEG-Y file %1");
-    bdef->cb_ = muiSEGYMgrCB(edFiles);
-    uiSeisFileMan::addBrowser( bdef );
-
-    auto* psbdef = new uiSeisPreStackMan::BrowserDef(
-				SEGYDirectSeisPS3DTranslator::translKey() );
-    psbdef->tooltip_ = tr("Change file/folder names in SEG-Y file %1");
-    psbdef->cb_ = muiSEGYMgrCB(edFiles);
-    uiSeisPreStackMan::addBrowser( psbdef );
 }
 
 
@@ -246,17 +234,6 @@ void uiSEGYMgr::impClassic( bool islink )
 void uiSEGYMgr::reSortCB( CallBacker* )
 {
     uiResortSEGYDlg dlg( &appl() );
-    dlg.go();
-}
-
-
-void uiSEGYMgr::edFiles( CallBacker* cb )
-{
-    mDynamicCastGet(uiObjFileMan*,sfm,cb)
-    if ( !sfm || !sfm->curIOObj() )
-	return;
-
-    uiEditSEGYFileDataDlg dlg( sfm, *sfm->curIOObj() );
     dlg.go();
 }
 

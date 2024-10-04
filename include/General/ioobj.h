@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+#include "enums.h"
 #include "multiid.h"
 #include "namedobj.h"
 #include "uistring.h"
@@ -53,7 +54,23 @@ fullUserExpr().
 mExpClass(General) IOObj : public NamedObject
 {
 public:
-    uiString			uiName() const { return toUiString(name()); }
+
+    enum class Status
+    {
+	Unknown=0,
+	OK=1,
+	FileNotPresent=2,
+	ReadPermissionInvalid=3,
+	WrongObject=4,
+	BrokenLink=5,
+	FileEmpty=6,
+	FileDataCorrupt=7,
+	LibraryNotLoaded=8,
+	DataVersionInvalid=9,
+	Other=10
+    };
+
+    uiString			uiName() const { return ::toUiString(name()); }
 
     IOObj*			clone() const;
     virtual const MultiID&	key() const			{ return key_; }
@@ -64,6 +81,8 @@ public:
     virtual bool		hasConnType( const char* s ) const
 				{ return connType() == s; }
 
+    virtual Status		status() const		    { return status_; }
+    virtual void		setStatus( Status st )	    { status_ = st; }
     virtual const char*		connType() const		= 0;
     virtual Conn*		getConn(bool forread) const	= 0;
 
@@ -72,7 +91,9 @@ public:
     virtual const OD::String&	group() const			{return group_;}
     virtual void		setGroup( const char* s )	{group_ = s; }
     virtual const char*		fullUserExpr(bool forread=true) const = 0;
+    virtual int			nrImpls() const;
     virtual BufferString	mainFileName() const { return fullUserExpr(); }
+    virtual void		implFileNames(BufferStringSet&) const;
 
     virtual bool		implIsLink() const;
     virtual bool		implExists(bool forread) const	= 0;
@@ -122,6 +143,7 @@ protected:
     MultiID		key_;
     BufferString	transl_;
     BufferString	group_;
+    Status		status_				= Status::Unknown;
 
 			mDeprecated("Use with MultiID")
 			IOObj(const char* nm=nullptr,const char* ky=nullptr);

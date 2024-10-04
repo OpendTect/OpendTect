@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "datachar.h"
 #include "datadistribution.h"
 #include "file.h"
+#include "ioobj.h"
 #include "odcommonenums.h"
 #include "seistype.h"
 #include "survgeom.h"
@@ -22,14 +23,13 @@ ________________________________________________________________________
 class BinIDValueSet;
 class BufferStringSet;
 class FilePath;
-class IOObj;
 class SeisIOObjInfo;
 class SeisTrcTranslator;
 class SurveyChanger;
 class TrcKeyZSampling;
 class UnitOfMeasure;
-namespace ZDomain { class Def; class Info; }
 
+namespace ZDomain { class Def; class Info; }
 
 /*!\brief Summary for a Seismic object */
 
@@ -148,6 +148,7 @@ public:
 
     od_int64		expectedSize(const SpaceInfo&) const;
     od_int64		getFileSize() const;
+    int			nrImpls() const;
     void		getAllFileNames(BufferStringSet&) const;
     bool		getRanges(TrcKeyZSampling&) const;
     bool		isFullyRectAndRegular() const; // Only CBVS
@@ -218,6 +219,7 @@ public:
 
     void		getUserInfo(uiStringSet&) const;
     uiString		errMsg() const			{ return errmsg_; }
+    IOObj::Status	objStatus() const		{ return objstatus_; }
 
 
     mDeprecatedDef	SeisIOObjInfo(const char* ioobjnm);
@@ -228,10 +230,11 @@ public:
 
 protected:
 
-    Seis::GeomType	geomtype_;
-    IOObj*		ioobj_;
-    SurveyChanger*	surveychanger_	= nullptr;
-    mutable uiString	errmsg_;
+    Seis::GeomType		geomtype_;
+    IOObj*			ioobj_;
+    SurveyChanger*		surveychanger_	    = nullptr;
+    mutable uiString		errmsg_;
+    mutable IOObj::Status	objstatus_	    = IOObj::Status::Unknown;
 
     void		setType();
 

@@ -153,6 +153,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
     if ( !conn_ )
     {
 	errmsg_ = tr("Cannot open CBVS file");
+	objstatus_ = IOObj::Status::ReadPermissionInvalid;
 	return false;
     }
 
@@ -161,6 +162,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
     if ( ioobj && !iostrm )
     {
 	errmsg_ = tr("Object manager provides wrong type");
+	objstatus_ = IOObj::Status::WrongObject;
 	return false;
     }
 
@@ -170,6 +172,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 	if ( !strmconn )
 	{
 	    errmsg_ = tr("Wrong connection from Object Manager");
+	    objstatus_ = IOObj::Status::WrongObject;
 	    return false;
 	}
 
@@ -309,6 +312,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     if ( rdmgr_->failed() )
     {
 	errmsg_ = toUiString( rdmgr_->errMsg() );
+	objstatus_ = rdmgr_->objStatus();
 	deleteAndNullPtr( rdmgr_ );
 	return false;
     }
@@ -322,6 +326,7 @@ bool CBVSSeisTrcTranslator::initRead_()
 	if ( nrfiles == 1 && !File::exists(fnm) )
 	{
 	    errmsg_ = tr("%1 does not exist").arg( fnm );
+	    objstatus_ = IOObj::Status::FileNotPresent;
 	    return false;
 	}
 
@@ -330,7 +335,10 @@ bool CBVSSeisTrcTranslator::initRead_()
 	const DirList dl( basefp.pathOnly().buf(),
 			  File::FilesInDir, filemask.buf());
 	if ( dl.size() != nrfiles-1 )
+	{
+	    objstatus_ = IOObj::Status::FileNotPresent;
 	    return false;
+	}
 
 	for ( int idx=0; idx<nrfiles; idx++ )
 	{
@@ -338,6 +346,7 @@ bool CBVSSeisTrcTranslator::initRead_()
 	    if ( !File::exists(fullnm.buf()) )
 	    {
 		errmsg_ = tr( "Some Z-optimized slices are missing" );
+		objstatus_ = IOObj::Status::FileDataCorrupt;
 		return false;
 	    }
 	}
@@ -558,7 +567,7 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     {
 	float spnr = mUdf(float);
 	if ( ti.trcKey().geometry().as2D()->getPosByTrcNr(ti.trcNr(),
-		    					  ti.coord,spnr)
+							  ti.coord,spnr)
 	     && !mIsUdf(spnr) )
 	    ti.refnr = spnr;
     }

@@ -204,7 +204,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	estnrtrcs_ = -1;
     else
 	estnrtrcs_ = mCast( int, (endpos - cEndTapeHeader)
-			    / (cTraceHeaderBytes + dataBytes()*innrsamples_));
+			    / (cTraceHeaderBytes + dataBytes()*innrsamples_) );
 
     if ( estnrtrcs_ < -1 )
 	estnrtrcs_ = -1;
@@ -595,10 +595,16 @@ bool SEGYSeisTrcTranslator::commitSelections_()
 bool SEGYSeisTrcTranslator::initRead_()
 {
     if ( !readTapeHeader() )
+    {
+	objstatus_ = IOObj::Status::FileDataCorrupt;
 	return false;
+    }
 
     if ( !readTraceHeadBuffer() )
+    {
+	objstatus_ = IOObj::Status::FileDataCorrupt;
 	mErrRet(tr("Cannot find one full trace in the file."))
+    }
 
     if ( forcedrev_ == 0 )
 	trchead_.isrev0_ = true;
@@ -608,9 +614,12 @@ bool SEGYSeisTrcTranslator::initRead_()
 	updateCDFromBuf();
 
     if ( innrsamples_ <= 0 || innrsamples_ > cMaxNrSamples )
+    {
+	objstatus_ = IOObj::Status::FileDataCorrupt;
 	mErrRet(tr("Cannot find a reasonable number of samples."
 		"\nFound: %1.\nPlease 'Overrule' to set something usable")
 		.arg(innrsamples_))
+    }
 
     offsetcalc_.set( fileopts_ );
     sConn().iStream().setReadPosition( cEndTapeHeader );
@@ -645,6 +654,9 @@ bool SEGYSeisTrcTranslator::goToTrace( int nr )
     od_istream& strm = sConn().iStream();
     strm.setReadPosition( so );
     headerdonenew_ = false;
+    if ( !strm.isOK() )
+	objstatus_ = IOObj::Status::FileDataCorrupt;
+
     return strm.isOK();
 }
 

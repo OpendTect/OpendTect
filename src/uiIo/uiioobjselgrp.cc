@@ -313,12 +313,19 @@ void getChosenNames( BufferStringSet& nms ) const override
     selgrp_->getChosen( nms );
 }
 
+
+bool isEntryOK( const MultiID& id ) const override
+{
+    return selgrp_->isEntryOK( id );
+}
+
+
 const char* defExt() const override
 {
     return selgrp_->ctio_.ctxt_.trgroup_->defExtension();
 }
 
-const BufferStringSet names() const override
+BufferStringSet names() const override
 {
     return selgrp_->dataset_.getIOObjNms();
 }
@@ -328,15 +335,20 @@ void chgsOccurred() override
     selgrp_->fullUpdate( selgrp_->listfld_->currentItem() );
 }
 
+void itemInitRead( const IOObj* obj ) override
+{
+    selgrp_->itemInitRead.trigger( obj );
+}
+
 void selChg( CallBacker* )
 {
     if ( manipgrp_ )
 	manipgrp_->selChg();
 }
 
-void relocStart( const char* msg ) override
+void launchLocate( const MultiID& key ) override
 {
-    selgrp_->triggerStatusMsg( msg );
+    selgrp_->launchLocate.trigger( key );
 }
 
     uiIOObjSelGrp*	selgrp_;
@@ -356,7 +368,9 @@ void relocStart( const char* msg ) override
     , itemAdded(this) \
     , itemRemoved(this) \
     , itemChanged(this) \
-    , zDomainChanged(this) \
+	, zDomainChanged(this) \
+	, itemInitRead(this) \
+    , launchLocate(this) \
     , ctio_(*new CtxtIOObj(c))
 
 
@@ -702,6 +716,16 @@ void uiIOObjSelGrp::setIsBad( int idx )
 
     const uiPixmap badpm( "warning" );
     listfld_->setPixmap( idx, badpm, uiListBox::Right );
+}
+
+
+bool uiIOObjSelGrp::isEntryOK( const MultiID& mid ) const
+{
+    const int idx = dataset_.indexOfMID( mid );
+    if ( !listfld_->validIdx(idx) )
+	return false;
+
+    return listfld_->isMarked( idx );
 }
 
 
@@ -1452,4 +1476,10 @@ void uiIOObjSelGrp::ctxtTypeChgCB( CallBacker* cb )
 const TypeSet<MultiID>& uiIOObjSelGrp::getIOObjIds() const
 {
     return dataset_.getIOObjIds();
+}
+
+
+const TypeSet<MultiID>& uiIOObjSelGrp::getNeedsLocateIds() const
+{
+    return needslocateids_;
 }

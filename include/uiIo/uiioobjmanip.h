@@ -62,11 +62,13 @@ public:
     virtual MultiID		currentID() const			= 0;
     virtual void		getChosenIDs(TypeSet<MultiID>&) const	= 0;
     virtual void		getChosenNames(BufferStringSet&) const	= 0;
+    virtual bool		isEntryOK(const MultiID&) const		= 0;
     virtual const char*		defExt() const				= 0;
-    virtual const BufferStringSet names() const			= 0;
+    virtual BufferStringSet	names() const				= 0;
 
     virtual void		chgsOccurred()				= 0;
-    virtual void		relocStart(const char*)			{}
+    virtual void		itemInitRead(const IOObj*)		= 0;
+    virtual void		launchLocate(const MultiID&)		= 0;
 
     uiIOObjManipGroup*		grp_				= nullptr;
     uiObject*			obj_;
@@ -101,11 +103,11 @@ protected:
 
 
     void		tbPush(CallBacker*);
-    void		relocCB(CallBacker*);
 
     bool		rmEntry(IOObj&);
     bool		rmEntries(ObjectSet<IOObj>&);
     bool		renameEntry(IOObj&,Translator*);
-    bool		relocEntry(IOObj&,Translator*);
+    bool		relocEntry(IOObj&,Translator*,bool dolocate);
+    bool		locateEntry(IOObj&);
     bool		readonlyEntry(IOObj&, Translator*,bool set2ro);
 };

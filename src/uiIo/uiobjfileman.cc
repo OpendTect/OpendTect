@@ -66,6 +66,8 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 
     selgrp_ = new uiIOObjSelGrp( listgrp_, ctxt_, uiString::empty(), sgsu );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
+    mAttachCB( selgrp_->itemInitRead, uiObjFileMan::initObjRead );
+    mAttachCB( selgrp_->launchLocate, uiObjFileMan::doLocateCB );
 
     auto* refreshbut =
 	new uiToolButton( selgrp_->getListField(), "refresh", tr("Refresh"),

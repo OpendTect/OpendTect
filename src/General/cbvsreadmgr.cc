@@ -42,16 +42,20 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const TrcKeyZSampling* cs,
 	addReader( new od_istream( std::cin ), cs, glob_info_only,
                    forceusecbvsinfo );
 	if ( readers_.isEmpty() )
+	{
 	    errmsg_ = "Standard input contains no relevant data";
+	    objstatus_ = IOObj::Status::FileDataCorrupt;
+	}
 	else
 	    createInfo();
+
 	return;
     }
 
     for ( int fnr=0; ; fnr++ )
     {
-	BufferString fname = single_file ? fnm : getFileName(fnr).buf();
-	if ( !File::exists((const char*)fname) )
+	const BufferString fname = single_file ? fnm : getFileName(fnr).buf();
+	if ( !File::exists(fname.buf()) )
 	    break;
 
 	foundone = true;
@@ -63,15 +67,23 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const TrcKeyZSampling* cs,
 	else
 	    fnames_ += new BufferString( fname );
 
-	if ( single_file ) break;
+	if ( single_file )
+	    break;
     }
 
     if ( readers_.isEmpty() )
     {
 	if ( foundone )
+	{
 	    mkErrMsg( errmsg_, basefname_, "contains no relevant data" );
+	    objstatus_ = IOObj::Status::FileDataCorrupt;
+	}
 	else
+	{
 	    mkErrMsg( errmsg_, basefname_, "cannot be opened" );
+	    objstatus_ = IOObj::Status::ReadPermissionInvalid;
+	}
+
 	return;
     }
 
@@ -121,6 +133,11 @@ bool CBVSReadMgr::addReader( const char* fname, const TrcKeyZSampling* cs,
     if ( !istream || !istream->isOK() )
     {
 	mkErrMsg( errmsg_, fname, "cannot be opened" );
+	if ( File::exists(fname) )
+	    objstatus_ = IOObj::Status::ReadPermissionInvalid;
+	else
+	    objstatus_ = IOObj::Status::FileNotPresent;
+
 	delete istream;
 	return false;
     }
@@ -136,6 +153,7 @@ bool CBVSReadMgr::addReader( od_istream* strm, const TrcKeyZSampling* cs,
     if ( newrdr->errMsg() )
     {
 	errmsg_ = newrdr->errMsg();
+	objstatus_ = IOObj::Status::FileDataCorrupt;
 	delete newrdr;
 	return false;
     }
@@ -195,7 +213,9 @@ int CBVSReadMgr::pruneReaders( const TrcKeyZSampling& cs )
 void CBVSReadMgr::createInfo()
 {
     const int sz = readers_.size();
-    if ( sz == 0 ) return;
+    if ( sz == 0 )
+	return;
+
     info_ = readers_[0]->info();
     if ( !info_.geom_.step.inl() ) // unknown, get from other source
     {
@@ -205,7 +225,7 @@ void CBVSReadMgr::createInfo()
 	    if ( readers_[rdrnr]->info().geom_.step.inl() )
 	    {
 		info_.geom_.step.inl() =
-	readers_[rdrnr]->info().geom_.step.inl();
+		    readers_[rdrnr]->info().geom_.step.inl();
 	        break;
 	    }
 	}
@@ -214,24 +234,31 @@ void CBVSReadMgr::createInfo()
     }
 
     for ( int idx=1; idx<sz; idx++ )
-	if ( !handleInfo(readers_[idx],idx) ) return;
+    {
+	if ( !handleInfo(readers_[idx],idx) )
+	{
+	    objstatus_ = IOObj::Status::FileDataCorrupt;
+	    return;
+	}
+    }
 }
 
 
 #define mErrMsgMk(s) \
     errmsg_ = s; \
-    errmsg_ += " found in:\n"; errmsg_ += *fnames_[ireader];
+    errmsg_.add( " found in:\n" ).add( *fnames_[ireader] );
 
 #undef mErrRet
 #define mErrRet(s) { \
     mErrMsgMk(s) \
-    errmsg_ += "\ndiffers from first file"; \
+    errmsg_.add( "\ndiffers from first file" ); \
     return false; \
 }
 
 bool CBVSReadMgr::handleInfo( CBVSReader* rdr, int ireader )
 {
-    if ( !ireader ) return true;
+    if ( !ireader )
+	return true;
 
     const CBVSInfo& rdrinfo = rdr->info();
     if ( rdrinfo.nrtrcsperposn_ != info_.nrtrcsperposn_ )
@@ -570,7 +597,8 @@ bool CBVSReadMgr::fetch( TraceData& bufs, const bool* c,
 	{
             const int sampoffs = selsamps.start_ - cursamps.start_;
 	    StepInterval<int> rdrsamps( sampoffs < 0 ? 0 : sampoffs,
-                                        cursamps.stop_ - cursamps.start_, cursamps.step_ );
+					cursamps.stop_ - cursamps.start_,
+					cursamps.step_ );
 	    if ( !readers_[idx]->fetch( bufs, c, &rdrsamps,
 					sampoffs > 0 ? 0 : -sampoffs ) )
 		return false;

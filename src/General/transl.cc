@@ -269,7 +269,7 @@ static const OD::String& gtNm( const Translator* tr, bool user )
 Translator* TranslatorGroup::make( const char* nm, bool usr ) const
 {
     const Translator* tr = getTemplate( nm, usr );
-    return tr ? tr->getNew() : 0;
+    return tr ? tr->getNew() : nullptr;
 }
 
 
@@ -449,6 +449,13 @@ bool Translator::implRemove( const IOObj* ioobj, bool deep ) const
 }
 
 
+bool Translator::implRelocate( const IOObj* obj,
+			       const char* newfnm, const char* oldfnm )
+{
+    return false;
+}
+
+
 bool Translator::implRename( const IOObj* ioobj, const char* newnm ) const
 {
     if ( !ioobj )
@@ -461,6 +468,12 @@ bool Translator::implRename( const IOObj* ioobj, const char* newnm ) const
 bool Translator::implSetReadOnly( const IOObj* ioobj, bool yn ) const
 {
     return ioobj && ioobj->implSetReadOnly( yn );
+}
+
+
+int Translator::nrImpls( const IOObj* ioobj ) const
+{
+    return 1;
 }
 
 

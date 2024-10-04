@@ -59,6 +59,8 @@ protected:
     void		showAttribSet(CallBacker*);
     void		showSEGYHeader(CallBacker*);
     void		extrFrom3D(CallBacker*);
+    void		initObjRead(CallBacker*) override;
+    void		doLocateCB(CallBacker*) override;
 
     void		mkFileInfo() override;
     void		ownSelChg() override;

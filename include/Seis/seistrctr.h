@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "coordsystem.h"
 #include "file.h"
+#include "odcommonenums.h"
 #include "samplingdata.h"
 #include "seisinfo.h"
 #include "seistype.h"
@@ -186,11 +187,11 @@ public:
 				     TaskRunner* =nullptr)  { return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     virtual bool	write(const SeisTrc&);
-			// overrule if you don't need sorting/buffering
 
     virtual bool	close();
     void		closingUp();
     uiString		errMsg() const			{ return errmsg_; }
+    IOObj::Status	objStatus() const		{ return objstatus_; }
 
     virtual bool	inlCrlSorted() const		{ return true; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
@@ -248,7 +249,7 @@ public:
 
     bool		isUserSelectable(bool) const override { return false; }
     virtual int		estimatedNrTraces() const	{ return -1; }
-    virtual od_int64	getFileSize() const	{ return -1; }
+    virtual od_int64	getFileSize() const		{ return -1; }
     virtual void	getAllFileNames(BufferStringSet&) const;
     virtual bool	haveAux(const char*) const	{ return false; }
     bool		havePars() const;
@@ -265,40 +266,44 @@ public:
 
     const LinScaler*	traceScaler() const	{ return curtrcscalebase_; }
 
+    virtual const BufferString	getFileNameKey(int idx) const
+			    { return BufferString::empty(); }
+
 protected:
 			SeisTrcTranslator(const char*,const char*);
 
-    Conn*		conn_ = nullptr;
-    SeisPacketInfo&	pinfo_;
-    uiString		errmsg_;
-    BufferStringSet*	compnms_ = nullptr;
+    Conn*				conn_	    = nullptr;
+    SeisPacketInfo&			pinfo_;
+    uiString				errmsg_;
+    IOObj::Status			objstatus_  = IOObj::Status::Unknown;
+    BufferStringSet*			compnms_    = nullptr;
 
-    Seis::ReadMode	read_mode = Seis::Prod;
-    bool		is_2d = false;
-    bool		is_prestack = false;
-    bool		enforce_regular_write;
-    bool		enforce_survinfo_write;
+    Seis::ReadMode			read_mode   = Seis::Prod;
+    bool				is_2d	    = false;
+    bool				is_prestack = false;
+    bool				enforce_regular_write;
+    bool				enforce_survinfo_write;
 
     SamplingData<float>			insd_;
     int					innrsamples_;
     ObjectSet<ComponentData>		cds_;
     ObjectSet<TargetComponentData>	tarcds_;
-    const Seis::SelData*		seldata_ = nullptr;
+    const Seis::SelData*		seldata_    = nullptr;
     SamplingData<float>			outsd_;
     int					outnrsamples_;
     Interval<int>			samprg_;
     Pos::GeomID				geomid_;
     ConstRefMan<Coords::CoordSystem>	coordsys_;
     BufferString			dataname_;
-    bool				headerdonenew_ = false;
-    bool				datareaddone_ = false;
-    TraceData*				storbuf_ = nullptr;
-    LinScaler*				trcscalebase_ = nullptr;
-    const LinScaler*			curtrcscalebase_ = nullptr;
+    bool				headerdonenew_	    = false;
+    bool				datareaddone_	    = false;
+    TraceData*				storbuf_	    = nullptr;
+    LinScaler*				trcscalebase_	    = nullptr;
+    const LinScaler*			curtrcscalebase_    = nullptr;
 
     virtual bool	forRead() const;
     void		addComp(const DataCharacteristics&,
-				const char* nm=0,int dtype=0);
+				const char* nm=nullptr,int dtype=0);
 
     void		setDataType( int icomp, int d )
 			{ cds_[icomp]->datatype = tarcds_[icomp]->datatype = d;}
@@ -320,21 +325,23 @@ protected:
     void		prepareComponents(SeisTrc&,int actualsz) const;
 
 			// Quick access to selected, like selComp() etc.
-    ComponentData**	inpcds_ = nullptr;
-    TargetComponentData** outcds_ = nullptr;
+    ComponentData**	inpcds_     = nullptr;
+    TargetComponentData** outcds_   = nullptr;
 
     TypeSet<int>	warnnrs_;
     BufferStringSet&	warnings_;
     virtual void	addWarn(int,const char*);
 
+protected:
+    bool		initConn(Conn*);
+
 private:
 
-    int*		inpfor_ = nullptr;
-    int			nrout_ = 0;
-    int			prevnr_ = mUdf(int);
+    int*		inpfor_     = nullptr;
+    int			nrout_	    = 0;
+    int			prevnr_     = mUdf(int);
     int			lastinlwritten_;
 
-    bool		initConn(Conn*);
     void		enforceBounds();
     bool		writeBlock();
     bool		copyDataToTrace(SeisTrc&);

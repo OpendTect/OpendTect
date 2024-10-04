@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+#include "ioobj.h"
 #include "position.h"
 #include "posinfo.h"
 #include "bufstringset.h"
@@ -31,7 +32,7 @@ public:
     bool		failed() const			{ return errmsg_; }
     const char*		errMsg() const			{ return errmsg_; }
 
-    virtual void	close() 			= 0;
+    virtual void	close()			= 0;
     int			nrComponents() const		{ return nrcomps_; }
     const BinID&	binID() const			{ return curbinid_; }
     void		setErrMsg( const char* s )	{ errmsg_ = s; }
@@ -72,8 +73,9 @@ public:
     inline bool		failed() const		{ return errMsg(); }
     inline const char*	errMsg() const
 			{ return errmsg_.isEmpty() ? errMsg_() : errmsg_.str();}
+    inline IOObj::Status objStatus() const	{ return objstatus_; }
 
-    virtual void	close() 		= 0;
+    virtual void	close()		= 0;
 
     virtual int		nrComponents() const	= 0;
     virtual const BinID& binID() const		= 0;
@@ -83,9 +85,9 @@ public:
 
     static BufferString	baseFileName(const char*);
     static BufferString	getFileName(const char*,int);
-    			//!< returns aux file name for negative nr
+			//!< returns aux file name for negative nr
     static int		getFileNr(const char*);
-    			//!< returns 0 or number behind '^'
+			//!< returns 0 or number behind '^'
     static int		nrFiles(const char*);
 
 protected:
@@ -94,6 +96,7 @@ protected:
     BufferString	errmsg_;
     BufferStringSet	fnames_;
     int			curnr_;
+    IOObj::Status	objstatus_ = IOObj::Status::Unknown;
 
     virtual const char*	errMsg_() const		= 0;
 

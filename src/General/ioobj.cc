@@ -201,16 +201,20 @@ IOObj* IOObj::produce( const char* typ, const char* nm, const MultiID& keyin,
 
 Translator* IOObj::createTranslator() const
 {
-    if ( isSubdir() ) return 0;
+    if ( isSubdir() )
+	return nullptr;
 
     TranslatorGroup& grp = TranslatorGroup::getGroup( group() );
     if ( grp.groupName() != group() )
-	return 0;
+	return nullptr;
 
     Translator* tr = grp.make( translator(), true );
-    if ( !tr ) return 0;
+    if ( !tr )
+	return nullptr;
 
-    if ( pars_.size() ) tr->usePar( pars_ );
+    if ( pars_.size() )
+	tr->usePar( pars_ );
+
     return tr;
 }
 
@@ -307,6 +311,20 @@ bool IOObj::isUserSelectable( bool forread ) const
 }
 
 
+int IOObj::nrImpls() const
+{
+    PtrMan<Translator> tr = createTranslator();
+    return tr->nrImpls( this );
+}
+
+
+void IOObj::implFileNames( BufferStringSet& fnames ) const
+{
+    PtrMan<Translator> tr = createTranslator();
+    return tr->implFileNames( this, fnames );
+}
+
+
 void IOObj::setSurveyDefault() const
 {
     PtrMan<Translator> tr = createTranslator();
@@ -336,7 +354,7 @@ bool IOObj::isSurveyDefault( const MultiID& ky )
 
 uiString IOObj::phrCannotOpenObj() const
 {
-    return uiStrings::phrCannotOpen( mQuotedName );
+    return uiStrings::phrCannotOpen( toUiString( name() ).quote( true ) );
 }
 
 

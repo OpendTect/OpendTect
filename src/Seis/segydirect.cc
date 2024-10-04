@@ -211,22 +211,35 @@ SEGY::FileDataSet::TrcIdx SEGY::DirectDef::findOcc( const Seis::PosKey& pk,
 
 bool SEGY::DirectDef::readFromFile( const char* fnm )
 {
+    if ( !File::exists(fnm) )
+    {
+	objstatus_ = IOObj::Status::FileNotPresent;
+	mErrRet( uiStrings::phrDoesntExist(toUiString(fnm)) )
+    }
+
     od_istream strm( fnm );
     if ( !strm.isOK() )
     {
-	mErrRet( uiStrings::phrCannotOpen( toUiString(fnm)) )
+	objstatus_ = IOObj::Status::ReadPermissionInvalid;
+	mErrRet( uiStrings::phrCannotOpen(toUiString(fnm)) )
     }
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType()) )
+    {
+	objstatus_ = IOObj::Status::WrongObject;
 	mErrRet(tr("Input file '%1' has wrong file type").arg( fnm ) )
+    }
 
     IOPar hdriop; hdriop.getFrom( astrm );
     int version = 1;
     hdriop.get( sKey::Version(), version );
     if ( version<1 || version>cCurVersion )
+    {
+	objstatus_ = IOObj::Status::DataVersionInvalid;
 	mErrRet(tr("Input file '%1' is written by a later version of OpendTect")
 		  .arg(fnm) );
+    }
 
     if ( version==1 )
     {
@@ -264,28 +277,42 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	const od_stream::Pos indexstart =
 	    DataInterpreter<od_int64>::get(int64interp,strm);
 	if ( !strm.isOK() )
+	{
+	    objstatus_ = IOObj::Status::FileDataCorrupt;
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
+	}
 
 	strm.setReadPosition( finalparstart );
 	ascistream finalparastrm( strm, false );
 	IOPar finalpariop;
 	finalpariop.getFrom( finalparastrm );
 	if ( !strm.isOK() )
+	{
+	    objstatus_ = IOObj::Status::FileDataCorrupt;
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
+	}
 
 	const BufferString int32typestr = hdriop.find( sKeyInt32DataChar() );
 	DataCharacteristics int32type;
 	int32type.set( int32typestr );
 	FileDataSet* fds = new FileDataSet(segypars,fnm,datastart,int32type);
 	if ( !fds->usePar(finalpariop) )
-	    { delete fds; mErrRet(uiStrings::phrCannotRead(toUiString(fnm)));}
+	{
+	    delete fds;
+	    objstatus_ = IOObj::Status::FileDataCorrupt;
+	    mErrRet(uiStrings::phrCannotRead(toUiString(fnm)));
+	}
 
 	const od_stream::Pos curpos = strm.position();
 	if ( curpos!=cubedatastart )
 	    strm.setReadPosition( cubedatastart );
 
 	if ( !cubedata_.read(strm,false) || !linedata_.read(strm,false) )
-	    { delete fds; mErrRet(uiStrings::phrCannotRead(toUiString(fnm))); }
+	{
+	    delete fds;
+	    objstatus_ = IOObj::Status::FileDataCorrupt;
+	    mErrRet(uiStrings::phrCannotRead(toUiString(fnm)));
+	}
 
 	delete keylist_;
 	delete indexer_;
@@ -302,6 +329,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	if ( !indexer_->readFrom( fnm, indexstart, false, int32interp,
 				  int64interp, floatinterp ) )
 	{
+	    objstatus_ = IOObj::Status::FileDataCorrupt;
 	    mErrRet( uiStrings::phrCannotRead( toUiString(fnm) ) );
 	}
     }

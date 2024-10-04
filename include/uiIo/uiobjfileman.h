@@ -66,6 +66,8 @@ protected:
     void			finalizeStartCB(CallBacker*);
     void			finalizeDoneCB(CallBacker*);
     void			saveNotes(CallBacker*);
+    virtual void		initObjRead(CallBacker*)	    {}
+    virtual void		doLocateCB(CallBacker*)		    {}
     void			readNotes();
     void			setInfo(const char* txt);
     void			setPrefWidth(int width); //!< width in char

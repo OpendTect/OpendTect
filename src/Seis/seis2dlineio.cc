@@ -209,7 +209,6 @@ bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
 	return false;
 
     implSetReadOnly( ioobj, isro );
-
     return Translator::implRename( ioobj, newnm );
 }
 
@@ -227,18 +226,21 @@ bool SeisTrc2DTranslator::initRead_()
     BufferString filenm;
     filenm = ioobj->fullUserExpr( true );
     if ( filenm.isEmpty() || !File::exists(filenm) )
+    {
+	objstatus_ = IOObj::Status::FileNotPresent;
 	return false;
+    }
 
     Seis2DDataSet dset( *ioobj );
     if ( dset.nrLines() < 1 )
     {
 	errmsg_ = tr("Data set is empty");
+	objstatus_ = IOObj::Status::FileEmpty;
 	return false;
     }
 
     dset.getTxtInfo( dset.geomID(0), pinfo_.usrinfo, pinfo_.stdinfo );
     addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
-
     if ( seldata_ && !seldata_->geomID().isUdf() )
 	geomid_ = seldata_->geomID();
     else
@@ -247,6 +249,7 @@ bool SeisTrc2DTranslator::initRead_()
     if ( geomid_.isValid() && dset.indexOf(geomid_)<0 )
     {
 	errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_.asInt());
+	objstatus_ = IOObj::Status::FileDataCorrupt;
 	return false;
     }
 
@@ -284,7 +287,8 @@ bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 	Executor* linefetcher = dataset_->lineFetcher( geomid, tbuf );
 	mDynamicCastGet(Seis2DLineGetter*,linegetter,linefetcher)
 	const SeisTrcTranslator* trl = linegetter ? linegetter->translator() :0;
-	if ( !trl ) continue;
+	if ( !trl )
+	    continue;
 
 	PosInfo::CubeData linecd;
 	bool hasgeometry = trl->getGeometryInfo( linecd );
@@ -296,8 +300,10 @@ bool SeisTrc2DTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
 			     BinID(geomid.asInt(),trcrg.stop_),
 			     BinID(1,trcrg.step_) );
 	}
+
 	delete linefetcher;
-	if ( !hasgeometry ) continue;
+	if ( !hasgeometry )
+	    continue;
 
 	for ( int idy=0; idy<linecd.size(); idy++ )
 	{ //There should be only one, but in case...

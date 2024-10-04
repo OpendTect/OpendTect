@@ -35,10 +35,12 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uimergeseis.h"
+#include "uimsg.h"
 #include "uiseis2dfileman.h"
 #include "uiseis2dfrom3d.h"
 #include "uiseisbrowser.h"
 #include "uiseiscopy.h"
+#include "uiseisdirectfiledatadlg.h"
 #include "uiseispsman.h"
 #include "uitoolbutton.h"
 
@@ -187,6 +189,36 @@ void uiSeisFileMan::checkAllEntriesOK()
 	if ( !objinfo.isOK(true) )
 	    selgrp_->setIsBad( idx );
     }
+}
+
+
+void uiSeisFileMan::initObjRead( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( const IOObj*, obj, cb );
+    if ( !obj )
+	return;
+
+    const SeisIOObjInfo objinfo( obj );
+    objinfo.isOK(true);
+    const_cast<IOObj*>( obj )->setStatus( objinfo.objStatus() );
+}
+
+
+void uiSeisFileMan::doLocateCB( CallBacker* cb )
+{
+    if ( !cb || !cb->isCapsule() )
+	return;
+
+    mCBCapsuleUnpack( const MultiID&, id, cb );
+    const IOObj* obj = IOM().get( id );
+    if ( !obj )
+	return;
+
+    uiSeisDirectFileDataDlg dlg( this, *obj );
+    dlg.go();
 }
 
 

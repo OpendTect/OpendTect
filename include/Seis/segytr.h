@@ -31,6 +31,9 @@ public:
 
     const char*		defExtension() const override	{ return "sgy"; }
 
+    static const char*	sKeyTypeName()	    { return "SEGY"; }
+    static const char*	sKeyUserName()	    { return "SEG-Y"; }
+
     bool		readInfo(SeisTrcInfo&) override;
     bool		skip(int) override;
     bool		goToTrace(int);

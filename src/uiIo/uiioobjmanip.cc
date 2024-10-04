@@ -24,6 +24,9 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitoolbutton.h"
 
+#include "filepath.h"
+
+#include "iodir.h"
 
 // uiManipButGrp::ButData
 uiManipButGrp::ButData::ButData( uiToolButton* b, const char* p,
@@ -107,15 +110,17 @@ void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
     for ( int idx=0; idx<butdata.size(); idx++ )
     {
 	uiManipButGrp::ButData* normbd = butdata[idx];
-	if ( normbd->but == button )
-	{
-	    uiManipButGrp::ButData* altbd = altbutdata[idx];
-	    if ( yn && !altbd ) return;
-	    uiManipButGrp::ButData& bd = yn ? *altbd : *normbd;
-	    button->setIcon( bd.pmnm );
-	    button->setToolTip( bd.tt );
-	    break;
-	}
+	if ( normbd->but != button )
+	    continue;
+
+	uiManipButGrp::ButData* altbd = altbutdata[idx];
+	if ( yn && !altbd )
+	    return;
+
+	uiManipButGrp::ButData& bd = yn ? *altbd : *normbd;
+	button->setIcon( bd.pmnm );
+	button->setToolTip( bd.tt );
+	break;
     }
 }
 
@@ -132,12 +137,14 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
     const CallBack cb( mCB(this,uiIOObjManipGroup,tbPush) );
     if ( withreloc )
 	locbut = addButton( FileLocation, tr("Change location on disk"), cb );
+
     renbut = addButton( Rename, uiStrings::phrRename(tr("this object")), cb );
     robut = addButton( ReadOnly, tr("Toggle Read only : locked"), cb );
     setAlternative( robut, "unlock", tr("Toggle Read only : editable") );
     if ( withremove )
 	rembut = addButton( Remove, uiStrings::phrJoinStrings(
 				    uiStrings::sDelete(), tr("Selected")), cb );
+
     attach( rightOf, subj_.obj_ );
 }
 
@@ -150,10 +157,14 @@ uiIOObjManipGroup::~uiIOObjManipGroup()
 
 void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
 {
-    if ( tp == FileLocation && locbut )	locbut->click();
-    else if ( tp == Rename )		renbut->click();
-    else if ( tp == ReadOnly )		robut->click();
-    else if ( tp == Remove && rembut )	rembut->click();
+    if ( tp == FileLocation && locbut )
+	locbut->click();
+    else if ( tp == Rename )
+	renbut->click();
+    else if ( tp == ReadOnly )
+	robut->click();
+    else if ( tp == Remove && rembut )
+	rembut->click();
 }
 
 
@@ -226,7 +237,11 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 {
     mDynamicCastGet(uiToolButton*,tb,c)
     if ( !tb )
-	{ pErrMsg("CallBacker is not uiToolButton!"); return; }
+    {
+	pErrMsg("CallBacker is not uiToolButton!");
+	return;
+    }
+
     const MultiID curid = subj_.currentID();
     if ( curid.isUdf() )
 	return;
@@ -240,6 +255,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     TypeSet<MultiID> chosenids;
     if ( !issingle )
 	subj_.getChosenIDs( chosenids );
+
     IOObj* firstioobj = IOM().get( issingle ? curid : chosenids[0] );
     if ( !firstioobj )
 	return;
@@ -250,7 +266,15 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     PtrMan<Translator> trans = firstioobj->createTranslator();
     bool chgd = false;
     if ( isreloc )
-	chgd = relocEntry( *firstioobj, trans );
+    {
+	subj_.itemInitRead( firstioobj );
+	bool dolocate = false;
+	bool entryok = subj_.isEntryOK( firstioobj->key() );
+	if ( !entryok && firstioobj->status() == IOObj::Status::BrokenLink )
+	    dolocate = true;
+
+	chgd = relocEntry( *firstioobj, trans, dolocate );
+    }
     else if ( isrename )
 	chgd = renameEntry( *firstioobj, trans );
     else
@@ -292,13 +316,15 @@ bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 					       .arg(ioobj.uiName());
     uiGenInputDlg dlg( this, titl, mJoinUiStrs(sNew(), sName()),
 			new StringInpSpec(ioobj.name()) );
-    if ( !dlg.go() ) return false;
+    if ( dlg.go() != uiDialog::Accepted )
+	return false;
 
     BufferString newnm = dlg.text();
     if ( subj_.names().isPresent(newnm) )
     {
 	if ( newnm != ioobj.name() )
 	    uiMSG().error(tr("Name already in use"));
+
 	return false;
     }
     else
@@ -368,13 +394,20 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
 }
 
 
-bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
+bool uiIOObjManipGroup::relocEntry( IOObj& ioobj,
+				    Translator* trans, bool dolocate )
 {
     mDynamicCastGet(IOStream&,iostrm,ioobj)
+    if ( dolocate )
+	return locateEntry( ioobj );
+
     uiString caption = tr("New file location for '%1'").arg(ioobj.uiName());
     BufferString oldfnm( iostrm.fullUserExpr() );
     BufferString filefilt;
     BufferString defext( subj_.defExt() );
+    if ( defext.isEmpty() && dolocate )
+	defext = trans->defImplExtension();
+
     if ( !defext.isEmpty() )
     {
 	filefilt += "OpendTect Files (*."; filefilt += defext;
@@ -384,11 +417,11 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
     filefilt += "All Files(*)";
 
     uiFileDialog dlg( this, uiFileDialog::Directory, oldfnm, filefilt, caption);
-    if ( !dlg.go() )
+    if ( dlg.go() != uiDialog::Accepted )
 	return false;
 
     const char* newdir = dlg.fileName();
-    if ( !File::isDirectory(newdir) )
+    if ( !File::isDirectory(newdir) && !dolocate )
     {
 	uiMSG().error(tr("Selected location does not exist "
 			 "or is not a folder."));
@@ -399,6 +432,13 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* trans )
 	return false;
 
     IOM().commitChanges( ioobj );
+    return true;
+}
+
+
+bool uiIOObjManipGroup::locateEntry( IOObj& ioobj )
+{
+    subj_.launchLocate( ioobj.key() );
     return true;
 }
 
@@ -433,13 +473,6 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj& ioobj, Translator* trans,
 
     selChg();
     return false;
-}
-
-
-void uiIOObjManipGroup::relocCB( CallBacker* cb )
-{
-    mCBCapsuleUnpack(const char*,msg,cb);
-    subj_.relocStart( msg );
 }
 
 
