@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "ui3dviewer.h"
 #include "uiattribpartserv.h"
 #include "uicreateattriblogdlg.h"
+#include "uimain.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -19,6 +20,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uipixmap.h"
+#include "uitaskrunner.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
@@ -33,6 +35,8 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "welllog.h"
 #include "wellman.h"
+#include "wellreader.h"
+#include "welltrack.h"
 
 
 CNotifier<uiODWellParentTreeItem,uiMenu*>&
@@ -131,11 +135,56 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	if ( emwellids.isEmpty() )
 	    return false;
 
+	const bool zistime = SI().zIsTime();
+	Well::LoadReqs lreqs( Well::Inf, Well::Trck, Well::DispProps3D );
+	lreqs.add( Well::LogInfos );
+	if ( zistime )
+	    lreqs.add( Well::D2T );
+
+	uiTaskRunner uitr( uiMain::instance().topLevel() );
+	RefObjectSet<Well::Data> wds;
+	MultiWellReader mwr( emwellids, wds, lreqs );
+	if ( !uitr.execute(mwr) )
+	{
+	    uiMSG().error( tr("Could not load wells.") );
+	    return false;
+	}
+
+	uiString msg;
+	if ( !mwr.allWellsRead() )
+	    msg = mwr.errMsg();
+
+	MouseCursorChanger mcc( MouseCursor::Wait );
+	TypeSet<MultiID> remids;
+	for ( const auto* wd : wds )
+	{
+	    const Well::D2TModel* d2t = wd->d2TModel();
+	    const bool trackabovesrd = wd->track().zRange().stop_ <
+					    -1.f * SI().seismicReferenceDatum();
+	    if ( zistime && !d2t && !trackabovesrd )
+	    {
+		msg.append( wd->name() )
+		   .append( tr(" : No depth to time model defined") )
+		   .addNewLine();
+		remids.addIfNew( wd->multiID() );
+	    }
+	}
+
+	for ( int idx=emwellids.size()-1; idx>=0; idx-- )
+	{
+	    if ( remids.isPresent(emwellids[idx]) )
+		emwellids.removeSingle( idx );
+	}
+
 	for ( int idx=0; idx<emwellids.size(); idx++ )
 	{
 	    setMoreObjectsToDoHint( idx<emwellids.size()-1 );
-	    addChild(new uiODWellTreeItem(emwellids[idx]), false );
+	    addChild( new uiODWellTreeItem(emwellids[idx]),false );
 	}
+
+	mcc.restore();
+	if ( !msg.isEmpty() )
+	    uiMSG().errorWithDetails( msg, tr("Could not load some wells") );
     }
     else if ( mnuid == cTieIdx )
     {
