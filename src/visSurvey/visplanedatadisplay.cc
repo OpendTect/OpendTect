@@ -1073,6 +1073,78 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
 }
 
 
+PlaneDataDisplay* PlaneDataDisplay::createTransverseSection( const Coord3& pos,
+						OD::SliceType slicetype ) const
+{
+    if ( slicetype == orientation_ )
+    {
+	pErrMsg("Cannot create transverse section with the same orientation");
+	return nullptr;
+    }
+
+    if ( !scene_ )
+	return nullptr;
+
+    TrcKey tk( SI().transform(pos) );
+    float zpos = mCast( float, pos.z );
+    const TrcKeyZSampling mytkzs( getTrcKeyZSampling() );
+    tk = mytkzs.hsamp_.getNearest( tk );
+    zpos = mytkzs.zsamp_.snap( zpos );
+
+    TrcKeyZSampling newtkzs = scene_->getTrcKeyZSampling();
+    if ( slicetype == OD::InlineSlice )
+    {
+	newtkzs.hsamp_.setLineRange( Interval<int>(tk.inl(),tk.inl()) );
+	if ( orientation_ == OD::CrosslineSlice )
+	    newtkzs.zsamp_ = mytkzs.zsamp_;
+	else
+	    newtkzs.hsamp_.setTrcRange( mytkzs.hsamp_.trcRange() );
+    }
+    else if ( slicetype == OD::CrosslineSlice )
+    {
+	newtkzs.hsamp_.setTrcRange( Interval<int>(tk.crl(),tk.crl()) );
+	if ( orientation_ == OD::InlineSlice )
+	    newtkzs.zsamp_ = mytkzs.zsamp_;
+	else
+	    newtkzs.hsamp_.setLineRange( mytkzs.hsamp_.lineRange() );
+    }
+    else // OD::ZSlice
+    {
+	newtkzs.zsamp_.start = newtkzs.zsamp_.stop = zpos;
+	if ( orientation_ == OD::InlineSlice )
+	    newtkzs.hsamp_.setTrcRange( mytkzs.hsamp_.trcRange() );
+	else
+	    newtkzs.hsamp_.setLineRange( mytkzs.hsamp_.lineRange() );
+    }
+
+    auto newpdd = new PlaneDataDisplay;
+    newpdd->setOrientation( slicetype );
+    newpdd->setTrcKeyZSampling( newtkzs );
+    newpdd->setZAxisTransform( datatransform_, nullptr );
+
+    while ( nrAttribs() > newpdd->nrAttribs() )
+	newpdd->addAttrib();
+
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+    {
+	if ( !getSelSpec(idx) )
+	    continue;
+
+	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
+	if ( selspecs )
+	    newpdd->setSelSpecs( idx, *selspecs );
+
+	if ( getColTabMapperSetup( idx ) )
+	    newpdd->setColTabMapperSetup( idx, *getColTabMapperSetup(idx),
+					  nullptr );
+	if ( getColTabSequence( idx ) )
+	    newpdd->setColTabSequence( idx, *getColTabSequence(idx), nullptr );
+    }
+
+    return newpdd;
+}
+
+
 SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
 {
     auto* pdd = new PlaneDataDisplay();
