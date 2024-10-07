@@ -141,6 +141,8 @@ public:
 
     bool			canDuplicate() const override	{ return true; }
     SurveyObject*		duplicate(TaskRunner*) const override;
+    PlaneDataDisplay*		createTransverseSection(const Coord3& pos,
+						OD::SliceType slicetype) const;
 
     void			annotateNextUpdateStage(bool yn) override;
 
