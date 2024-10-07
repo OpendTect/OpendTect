@@ -511,38 +511,32 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( !uimh )
 	return;
 
-    const Coord3 pickedpos = uimh->getPickedPos();
-    TrcKey tk( SI().transform(pickedpos) );
-    float zpos = mCast( float, pickedpos.z_ );
-    snapToTkzs( pdd->getTrcKeyZSampling(), tk, zpos );
-    const TrcKey& csttk = const_cast<const TrcKey&>( tk );
+    if ( mnuid!=addinlitem_.id && mnuid!=addcrlitem_.id && mnuid!=addzitem_.id )
+	return;
 
-    TrcKeyZSampling newtkzs = scenetkzs;
+    MouseCursorChanger mcc( MouseCursor::Wait );
+    const OD::SliceType slicetype =
+	mnuid==addcrlitem_.id ? OD::SliceType::Crossline
+			      : (mnuid==addzitem_.id ? OD::SliceType::Z
+				      		     : OD::SliceType::Inline);
+    RefMan<visSurvey::PlaneDataDisplay> newpdd =
+		pdd->createTransverseSection( uimh->getPickedPos(), slicetype );
+    if ( !newpdd )
+	return;
+
+    visserv_->addObject( newpdd.ptr(), sceneID(), true );
     uiODPlaneDataTreeItem* itm = nullptr;
-    if ( mnuid == addinlitem_.id )
-    {
-	itm = new uiODInlineTreeItem( VisID::udf(), Empty );
-	newtkzs.hsamp_.setLineRange(
-			Interval<int>(csttk.lineNr(),csttk.lineNr()) );
-    }
-    else if ( mnuid == addcrlitem_.id )
-    {
-	itm = new uiODCrosslineTreeItem( VisID::udf(), Empty );
-	newtkzs.hsamp_.setTrcRange(
-			Interval<int>(csttk.trcNr(),csttk.trcNr()) );
-    }
-    else if ( mnuid == addzitem_.id )
-    {
-	itm = new uiODZsliceTreeItem( VisID::udf(), Empty );
-        newtkzs.zsamp_.start_ = newtkzs.zsamp_.stop_ = zpos;
-    }
+    if ( slicetype == OD::SliceType::Inline )
+	itm = new uiODInlineTreeItem( newpdd->id(), Empty );
+    else if ( slicetype == OD::SliceType::Crossline )
+	itm = new uiODCrosslineTreeItem( newpdd->id(), Empty );
+    else // OD::ZSlice
+	itm = new uiODZsliceTreeItem( newpdd->id(), Empty );
 
-    if ( itm )
-    {
-	parent_->addChild( itm, true );
-	itm->setTrcKeyZSampling( newtkzs );
-	itm->displayDataFromOther( pdd->id() );
-    }
+    parent_->addChild( itm, true );
+    visserv_->calculateAllAttribs( newpdd->id() );
+    itm->updateColumnText( uiODSceneMgr::cNameColumn() );
+    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
