@@ -9,16 +9,11 @@ ________________________________________________________________________
 
 #include "seispreload.h"
 
-#include "cbvsio.h"
 #include "file.h"
-#include "filepath.h"
 #include "ioman.h"
 #include "keystrs.h"
 #include "mousecursor.h"
-#include "perthreadrepos.h"
-#include "seiscbvs.h"
-#include "seiscbvsps.h"
-#include "seiscbvs2d.h"
+#include "scaler.h"
 #include "seisdatapack.h"
 #include "seisioobjinfo.h"
 #include "seisparallelreader.h"

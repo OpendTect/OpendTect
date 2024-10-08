@@ -282,7 +282,7 @@ void uiPickPartServer::createRandom2DSet()
     fetchHors( true );
     BufferStringSet hornms;
     for ( int idx=0; idx<hinfos_.size(); idx++ )
-	hornms.add( hinfos_[idx]->name );
+	hornms.add( hinfos_[idx]->name_ );
 
     BufferStringSet linenames;
     TypeSet<Pos::GeomID> geomids;
@@ -315,9 +315,9 @@ bool uiPickPartServer::mkRandLocs2DBetweenHors( Pick::Set& ps,
 {
     selectlines_ = rp.linenms_;
     deepErase( selhorids_ );
-    selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
+    selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid_ );
     if ( rp.horidx2_ >= 0 )
-	selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
+	selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid_ );
 
     trcpos2d_.erase();
     coords2d_.erase();
@@ -470,7 +470,7 @@ void uiPickPartServer::setMisclassSet( const DataPointSet& dps )
 void uiPickPartServer::fillZValsFromHor( Pick::Set& ps, int horidx )
 {
     ps_ = &ps;
-    horid_ = hinfos_[horidx]->multiid;
+    horid_ = hinfos_[horidx]->multiid_;
     sendEvent( evFillPickSet() );
 }
 

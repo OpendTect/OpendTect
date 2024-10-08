@@ -9,8 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
 #include "enums.h"
-#include "coltab.h"
 #include "math2.h"
 #include "valseries.h"
 #include "threadlock.h"

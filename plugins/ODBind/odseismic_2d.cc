@@ -206,9 +206,9 @@ void odSeismic2D::getData( hAllocator allocator, const char* linenm,
     {
 	const SeisTrcInfo& trc = tbuf.get( tidx )->info();
 	*trcdata++ = trc.trcNr();
-	*refdata++ = trc.refnr;
-        *xdata++ = trc.coord.x_;
-        *ydata++ = trc.coord.y_;
+	*refdata++ = trc.refnr_;
+	*xdata++ = trc.coord_.x_;
+	*ydata++ = trc.coord_.y_;
     }
 }
 
@@ -248,8 +248,8 @@ void odSeismic2D::putData( const char* linenm, const float** data,
 
 	trc->setNrComponents( components_.size(), DataCharacteristics::F32 );
 	trc->info().setTrcKey( trckey );
-	trc->info().coord = trckey.getCoord();
-	trc->info().sampling = sd;
+	trc->info().coord_ = trckey.getCoord();
+	trc->info().sampling_ = sd;
 	for ( int icomp=0; icomp<components_.size(); icomp++ )
 	{
 	    const float* compdata = data[icomp];

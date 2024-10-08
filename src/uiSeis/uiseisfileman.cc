@@ -442,7 +442,7 @@ static BufferString getInfoText( const IOObj& ioobj )
 	{
 	    const BasicComponentInfo& bci =
 		*tri->readMgr()->info().compinfo_[0];
-	    const DataCharacteristics::UserType ut = bci.datachar.userType();
+	    const DataCharacteristics::UserType ut = bci.datachar_.userType();
 	    dsstr = DataCharacteristics::getUserTypeString(ut);
 	}
 	delete tri;

@@ -210,8 +210,8 @@ uiString SEGY::BasicFileInfo::getFrom( od_istream& strm, bool& inft,
 	thdr->geomtype_ = is2d_ ? Seis::Line : Seis::Vol;
 
     thdr->fill( ti, 1.0f );
-    sampling_.start_ = ti.sampling.start_ * SI().zDomain().userFactor();
-    sampling_.step_ = ti.sampling.step_ * SI().zDomain().userFactor();
+    sampling_.start_ = ti.sampling_.start_ * SI().zDomain().userFactor();
+    sampling_.step_ = ti.sampling_.step_ * SI().zDomain().userFactor();
     if ( mIsZero(sampling_.step_,1.e-8) )
 	sampling_.step_ = binhdr.sampleRate( false );
 
@@ -315,10 +315,11 @@ void SEGY::LoadDef::getTrcInfo( SEGY::TrcHeader& thdr, SeisTrcInfo& ti,
     {
 	if ( !forsurveysetup_ && coordsys_ && SI().getCoordSystem() &&
 					*SI().getCoordSystem() != *coordsys_ )
-	    ti.coord = SI().getCoordSystem()->convertFrom(ti.coord,*coordsys_);
+	    ti.coord_ = SI().getCoordSystem()->convertFrom( ti.coord_,
+							    *coordsys_ );
 
 	if ( !is2d_ && icvsxytype_ == FileReadOpts::XYOnly )
-	    ti.setPos( SI().transform( ti.coord ) );
+	    ti.setPos( SI().transform( ti.coord_ ) );
     }
 }
 
@@ -649,13 +650,14 @@ void SEGY::ScanInfo::addTrace( TrcHeader& thdr, const float* vals,
     if ( !full_ )
 	keydata_.add( thdr, def.hdrsswapped_, isfirst );
 
-    pidetector_->add( ti.coord, ti.binID(), ti.trcNr(), ti.offset, ti.azimuth );
+    pidetector_->add( ti.coord_, ti.binID(), ti.trcNr(),
+		      ti.offset_, ti.azimuth_ );
     addValues( clipsampler, vals, def.ns_ );
 
     if ( isfirst )
-	rgs_.refnrs_.start_ = rgs_.refnrs_.stop_ = ti.refnr;
+	rgs_.refnrs_.start_ = rgs_.refnrs_.stop_ = ti.refnr_;
     else
-	rgs_.refnrs_.include( ti.refnr, false );
+	rgs_.refnrs_.include( ti.refnr_, false );
 }
 
 

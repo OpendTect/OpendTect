@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "uivisemobj.h"
 
 #include "attribsel.h"
+#include "coltab.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
@@ -18,11 +19,9 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "genc.h"
-#include "keyboardevent.h"
 #include "mousecursor.h"
 #include "od_helpids.h"
 #include "settings.h"
-#include "survinfo.h"
 #include "simpnumer.h"
 #include "vishorizonsectiondef.h"
 

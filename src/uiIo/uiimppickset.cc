@@ -103,7 +103,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	serv_->fetchHors( false );
 	const ObjectSet<SurfaceInfo> hinfos = serv_->horInfos();
 	for ( int idx=0; idx<hinfos.size(); idx++ )
-	    horinpfld_->box()->addItem( toUiString(hinfos[idx]->name) );
+	    horinpfld_->box()->addItem( toUiString(hinfos[idx]->name_) );
 	horinpfld_->attach( rightTo, zfld_ );
 	horinpfld_->display( zfld_->box()->currentItem() == 2 );
 

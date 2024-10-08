@@ -35,7 +35,8 @@ namespace Pos { class GeomIDProvider; }
 
 
 mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
-{ mODTextTranslationClass(SeisTrcWriter)
+{
+mODTextTranslationClass(SeisTrcWriter)
 public:
 
 			SeisTrcWriter(const MultiID&,Seis::GeomType,
@@ -53,6 +54,8 @@ public:
 				//!< Restricted to a given Pos::GeomID
 			SeisTrcWriter(const SeisStoreAccess::Setup&);
 			~SeisTrcWriter();
+//			mOD_DisableCopy(SeisTrcWriter)
+
     bool		close() override;
 
     bool		prepareWork(const SeisTrc&);
@@ -140,12 +143,15 @@ public:
 
 
 mExpClass(Seis) SeisSequentialWriter
-{ mODTextTranslationClass(SeisSequentialWriter);
+{
+mODTextTranslationClass(SeisSequentialWriter)
 public:
-			SeisSequentialWriter( SeisTrcWriter*, int buffsize=-1 );
+			SeisSequentialWriter(SeisTrcWriter*,int buffsize=-1);
 			/*!<Writer is owned by caller, not mine. Default bufsize
 			    is 2xnrprocessors. */
-			~SeisSequentialWriter();
+    virtual		~SeisSequentialWriter();
+			mOD_DisableCopy(SeisSequentialWriter)
+
     bool		announceTrace(const BinID&);
 			/*!<Tell the writer that this binid will be submitted
 			    later. */
@@ -167,6 +173,7 @@ public:
 			    after final submitTrace, before closure.*/
 
     uiString		errMsg() const { return errmsg_; }
+
 protected:
 
     bool			iterateBuffer(bool waitforbuffer);

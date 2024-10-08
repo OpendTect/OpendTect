@@ -126,7 +126,7 @@ bool Regular2RandomDataCopier::doPrepare( int nrthreads )
 	srcptr_ += samplebytes_ * idzoffset_;
 
     const int stopoffset = regsdp_.zRange().nrSteps() -
-                           regsdp_.zRange().nearestIndex( ransdp_.zRange().stop_ );
+			regsdp_.zRange().nearestIndex( ransdp_.zRange().stop_ );
 
     if ( stopoffset < 0 )
 	bytestocopy_ += samplebytes_ * stopoffset;
@@ -404,11 +404,11 @@ void RegularSeisDataPack::fillTraceInfo( const TrcKey& tk,
 					 SeisTrcInfo& sti ) const
 {
     const auto zrg = zRange();
-    sti.sampling.start_ = zrg.start_;
-    sti.sampling.step_ = zrg.step_;
+    sti.sampling_.start_ = zrg.start_;
+    sti.sampling_.step_ = zrg.step_;
     sti.setTrcKey( tk );
-    sti.coord = tk.getCoord();
-    sti.offset = 0.f;
+    sti.coord_ = tk.getCoord();
+    sti.offset_ = 0.f;
 }
 
 
@@ -661,7 +661,8 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
     overlapzrg.limitTo( zrange ); // DataPack should be created only for
 				  // overlap z-range.
     overlapzrg.start_ = regzrg.atIndex( regzrg.getIndex(overlapzrg.start_) );
-    overlapzrg.stop_ =regzrg.atIndex(regzrg.indexOnOrAfter(overlapzrg.stop_,0.0));
+    overlapzrg.stop_ = regzrg.atIndex(
+				regzrg.indexOnOrAfter(overlapzrg.stop_,0.0) );
     randsdp->setZRange( overlapzrg );
 
     const int nrcomps = compnames ? compnames->size() : regsdp.nrComponents();

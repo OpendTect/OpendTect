@@ -80,11 +80,11 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& freqtapsu )
 			    tr("Select taper parameters at cut-off frequency") :
 			    tr("Select taper parameters at cut-off wavenumber"),
 			mODHelpKey(mFreqTaperDlgHelpID) ))
-    , tkzs_(new TrcKeyZSampling())
-    , posdlg_(0)
     , funcvals_(0)
     , seisnm_(freqtapsu.seisnm_)
     , attrnm_(freqtapsu.attrnm_)
+    , posdlg_(0)
+    , tkzs_(new TrcKeyZSampling())
     , seisid_(freqtapsu.multiid_)
 {
     setCtrlStyle( CloseOnly );
@@ -131,8 +131,8 @@ public:
 uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
 	: uiDialog(p,uiDialog::Setup(uiStrings::phrSelect(tr("line from Data"))
 	, uiStrings::sEmptyString(),mNoHelpKey))
-	, linesfld_(0)
 	, objinfo_(objinfo)
+	, linesfld_(0)
 {
     uiString complbl = tr("Compute amplitude spectrum on");
     if ( objinfo_.is2D() )
@@ -240,7 +240,7 @@ void uiFreqTaperDlg::previewPushed( CallBacker* )
 	    }
 	}
 
-        const float sr = trcset.get(0)->info().sampling.step_;
+	const float sr = trcset.get(0)->info().sampling_.step_;
 
 	uiAmplSpectrum::Setup su( uiStrings::sEmptyString(), false, sr );
 	uiAmplSpectrum spec( this, su );
@@ -396,7 +396,7 @@ void uiFreqTaperGrp::slopeChanged( CallBacker* )
 }
 
 
-void uiFreqTaperGrp::taperChged( CallBacker* cb )
+void uiFreqTaperGrp::taperChged( CallBacker* )
 {
     drawer_->taperChged(0);
     putToScreen(0);
@@ -531,11 +531,11 @@ Interval<float> uiFreqTaperGrp::getFreqRange() const
 
 uiFuncTaperDisp::uiFuncTaperDisp( uiParent* p, const Setup& s )
     : uiGroup(p)
-    , is2sided_(s.is2sided_)
+    , taperChanged(this)
     , window_(0)
     , funcvals_(0)
     , orgfuncvals_(0)
-    , taperChanged(this)
+    , is2sided_(s.is2sided_)
 {
     disp_ = GetFunctionDisplayServer().createFunctionDisplay( this, s );
     datasz_ = s.datasz_;
@@ -604,16 +604,16 @@ void uiFuncTaperDisp::setWindows( float leftvar, float rightvar )
     {
 	delete leftd_.window_; leftd_.window_ = 0;
 	leftd_.paramval_ = leftvar;
-        leftd_.winsz_ = 2*(int)leftd_.rg_.stop_;
+	leftd_.winsz_ = 2*(int)leftd_.rg_.stop_;
 	if ( leftvar && leftd_.winsz_ >= 0 )
 	    leftd_.window_ = new ArrayNDWindow( Array1DInfoImpl(leftd_.winsz_),
 						false, winname, leftvar );
 
 	rightd_.paramval_ = rightvar;
-        rightd_.winsz_ = 2*( datasz_ - (int)rightd_.rg_.start_ );
+	rightd_.winsz_ = 2*( datasz_ - (int)rightd_.rg_.start_ );
 	delete rightd_.window_; rightd_.window_ = 0;
 	if ( rightvar && rightd_.winsz_>= 0 )
-	   rightd_.window_ = new ArrayNDWindow(Array1DInfoImpl(rightd_.winsz_),
+	    rightd_.window_ = new ArrayNDWindow(Array1DInfoImpl(rightd_.winsz_),
 						false, winname, 1-rightvar );
     }
     delete window_; window_ =0 ;
@@ -623,7 +623,7 @@ void uiFuncTaperDisp::setWindows( float leftvar, float rightvar )
 }
 
 
-void uiFuncTaperDisp::taperChged( CallBacker* cb )
+void uiFuncTaperDisp::taperChged( CallBacker* )
 {
     if ( !window_ ) return;
 
@@ -633,15 +633,15 @@ void uiFuncTaperDisp::taperChged( CallBacker* cb )
 	for ( int idx=0; idx<datasz_; idx++ )
 	{
 	    float val = 1;
-            if ( leftd_.window_ && idx < (int)leftd_.rg_.stop_ )
+	    if ( leftd_.window_ && idx < (int)leftd_.rg_.stop_ )
 		val = 1-leftd_.window_->getValues()[leftd_.winsz_/2+idx];
 
-            if ( rightd_.window_ && idx > (int)rightd_.rg_.start_ )
-                val= 1-rightd_.window_->getValues()[idx-(int)rightd_.rg_.start_];
+	    if ( rightd_.window_ && idx > (int)rightd_.rg_.start_ )
+		val = 1-rightd_.window_->getValues()
+						[idx-(int)rightd_.rg_.start_];
 
 	    window_->setValue( idx,  val );
-
-	    xvals += mCast( float, idx );
+	    xvals += sCast( float, idx );
 	}
     }
 

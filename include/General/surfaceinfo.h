@@ -10,6 +10,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "bufstring.h"
+#include "integerid.h"
 #include "multiid.h"
 
 /*!\brief Surface info name/attribname with an ID (usually the EM-ID). */
@@ -17,13 +18,14 @@ ________________________________________________________________________
 mClass(General) SurfaceInfo
 {
 public:
-		   	 SurfaceInfo( const char* nm, MultiID mi, int vi=-1, 
-				      const char* attr=0)
-		    	: multiid(mi), visid(vi), name(nm), attrnm(attr) {}
+			SurfaceInfo(const char* nm,const MultiID& mi,
+				    const VisID& vi={},
+				    const char* attr=nullptr);
+    virtual		~SurfaceInfo();
 
-    MultiID		multiid;
-    int			visid;
-    BufferString	name;
-    BufferString	attrnm;
+    MultiID		multiid_;
+    VisID		visid_;
+    BufferString	name_;
+    BufferString	attrnm_;
 
 };

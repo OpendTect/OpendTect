@@ -11,19 +11,14 @@ ________________________________________________________________________
 #include "cbvsreadmgr.h"
 #include "commandlineparser.h"
 #include "conn.h"
-#include "datachar.h"
 #include "ioman.h"
-#include "iostrm.h"
 #include "file.h"
 #include "filepath.h"
 #include "moddepmgr.h"
-#include "strmprov.h"
 #include "ptrman.h"
-#include "od_iostream.h"
 #include "seiscbvs.h"
 #include "seistrc.h"
 
-#include <ctype.h>
 #include <math.h>
 
 #include <iostream>
@@ -92,31 +87,31 @@ int mProgMainFnName( int argc, char** argv )
     const CBVSReadMgr& mgr = *tri->readMgr();
     mgr.dumpInfo( od_cout(), true );
     const CBVSInfo& info = mgr.info();
-    const int singinl = info.geom_.start.inl() == info.geom_.stop.inl()
-			? info.geom_.start.inl() : -999;
+    const int singinl = info.geom_.start_.inl() == info.geom_.stop_.inl()
+			? info.geom_.start_.inl() : -999;
 
     SeisTrc trc; BinID bid( singinl, 0 );
-    BinID step( abs(info.geom_.step.inl()), abs(info.geom_.step.crl()) );
+    BinID step( abs(info.geom_.step_.inl()), abs(info.geom_.step_.crl()) );
     StepInterval<int> samps;
     const int nrcomps = info.compinfo_.size();
     while ( true )
     {
 	if ( singinl == -999 )
 	{
-	    od_cout() << "\nExamine In-line (" << info.geom_.start.inl()
-		<< "-" << info.geom_.stop.inl();
+	    od_cout() << "\nExamine In-line (" << info.geom_.start_.inl()
+		      << "-" << info.geom_.stop_.inl();
 	    if ( step.inl() > 1 )
 		od_cout() << " [" << step.inl() << "]";
-	    int stopinl = info.geom_.start.inl() == 0 ? -1 : 0;
+	    int stopinl = info.geom_.start_.inl() == 0 ? -1 : 0;
 	    od_cout() << ", " << stopinl << " to stop): ";
 	    getInt( bid.inl() );
 	    if ( bid.inl() == stopinl ) break;
 	}
 
-	if ( info.geom_.fullyrectandreg )
+	if ( info.geom_.fullyrectandreg_ )
 	{
-	    if ( bid.inl()<info.geom_.start.inl() ||
-		 bid.inl()>info.geom_.stop.inl() )
+	    if ( bid.inl()<info.geom_.start_.inl() ||
+		 bid.inl()>info.geom_.stop_.inl() )
 	    {
 		od_cout() << "Invalid inline" << od_endl;
 		continue;
@@ -124,14 +119,14 @@ int mProgMainFnName( int argc, char** argv )
 	}
 	else
 	{
-	    const int ldidx = info.geom_.cubedata.indexOf( bid.inl() );
+	    const int ldidx = info.geom_.cubedata_.indexOf( bid.inl() );
 	    if ( ldidx < 0 )
 	    {
 		od_cout() << "This inline is not present in the cube"
 			  << od_endl;
 		continue;
 	    }
-	    const PosInfo::LineData& inlinf = *info.geom_.cubedata[ldidx];
+	    const PosInfo::LineData& inlinf = *info.geom_.cubedata_[ldidx];
 	    od_cout() << "Xline range available: ";
 	    for ( int idx=0; idx<inlinf.segments_.size(); idx++ )
 	    {
@@ -161,24 +156,23 @@ int mProgMainFnName( int argc, char** argv )
 	if ( !tri->read(trc) )
 	    { od_cout() << "Cannot read trace!" << od_endl; continue; }
 
-	if ( !mIsZero(trc.info().pick,mDefEps)
-		&& !mIsUdf(trc.info().pick) )
-	    od_cout() << "Pick position: " << trc.info().pick << od_endl;
-	if ( !mIsZero(trc.info().refnr,mDefEps)
-		&& !mIsUdf(trc.info().refnr) )
-	    od_cout() << "Reference number: " << trc.info().refnr
+	if ( !mIsZero(trc.info().pick_,mDefEps) && !mIsUdf(trc.info().pick_) )
+	    od_cout() << "Pick position: " << trc.info().pick_ << od_endl;
+
+	if ( !mIsZero(trc.info().refnr_,mDefEps) && !mIsUdf(trc.info().refnr_) )
+	    od_cout() << "Reference number: " << trc.info().refnr_
 		      << od_endl;
-	if ( !mIsZero(trc.info().offset,mDefEps)
-		&& !mIsUdf(trc.info().offset) )
-	    od_cout() << "Offset: " << trc.info().offset << od_endl;
-	if ( !mIsZero(trc.info().azimuth,mDefEps)
-		&& !mIsUdf(trc.info().azimuth) )
-	    od_cout() << "Azimuth: " << (Math::toDegrees(trc.info().azimuth))
+	if ( !mIsZero(trc.info().offset_,mDefEps)
+	     && !mIsUdf(trc.info().offset_) )
+	    od_cout() << "Offset: " << trc.info().offset_ << od_endl;
+	if ( !mIsZero(trc.info().azimuth_,mDefEps)
+	     && !mIsUdf(trc.info().azimuth_) )
+	    od_cout() << "Azimuth: " << (Math::toDegrees(trc.info().azimuth_))
 		      << od_endl;
-        if ( !mIsZero(trc.info().coord.x_,0.1) )
+	if ( !mIsZero(trc.info().coord_.x_,0.1) )
 	{
-	    od_cout() << "Coordinate: " << trc.info().coord.toPrettyString();
-	    BinID b = info.geom_.b2c.transformBack( trc.info().coord );
+	    od_cout() << "Coordinate: " << trc.info().coord_.toPrettyString();
+	    BinID b = info.geom_.b2c_.transformBack( trc.info().coord_ );
 	    if ( b != trc.info().binID() )
 		od_cout() << " --> " << b.toString();
 	    od_cout() << od_endl;
@@ -189,16 +183,17 @@ int mProgMainFnName( int argc, char** argv )
 	    od_cout() << "Print samples ( 1 - " << trc.size() << " )."
 		      << od_endl;
 	    od_cout() << "From (0 to stop): ";
-            getInt( samps.start_ );
-            if ( samps.start_ < 1 ) break;
+	    getInt( samps.start_ );
+	    if ( samps.start_ < 1 ) break;
 
-            od_cout() << "To: "; getInt( samps.stop_ );
-            od_cout() << "Step: "; getInt( samps.step_ );
-            if ( samps.step_ < 1 ) samps.step_ = 1;
-            if ( samps.start_ < 1 ) samps.start_ = 1;
-            if ( samps.stop_ > trc.size() ) samps.stop_ = trc.size();
+	    od_cout() << "To: "; getInt( samps.stop_ );
+	    od_cout() << "Step: "; getInt( samps.step_ );
+	    if ( samps.step_ < 1 ) samps.step_ = 1;
+	    if ( samps.start_ < 1 ) samps.start_ = 1;
+	    if ( samps.stop_ > trc.size() ) samps.stop_ = trc.size();
 	    od_cout() << od_endl;
-            for ( int isamp=samps.start_; isamp<=samps.stop_; isamp+=samps.step_ )
+	    for ( int isamp=samps.start_; isamp<=samps.stop_;
+		  isamp+=samps.step_ )
 	    {
 		od_cout() << isamp << '\t';
 		for ( int icomp=0; icomp<nrcomps; icomp++ )

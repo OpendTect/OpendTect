@@ -31,12 +31,12 @@ public:
 			SeisTrcInfo(const SeisTrcInfo&);
     SeisTrcInfo&	operator =(const SeisTrcInfo&);
 
-    Coord		coord;
-    SamplingData<float> sampling;
-    float		offset		= 0.f;
-    float		azimuth		= 0.f;
-    float		refnr		= mUdf(float);
-    float		pick		= mUdf(float);
+    Coord		coord_;
+    SamplingData<float> sampling_;
+    float		offset_		= 0.f;
+    float		azimuth_	= 0.f;
+    float		refnr_		= mUdf(float);
+    float		pick_		= mUdf(float);
     int			seqnr_		= 0;
 
     bool		is2D() const;
@@ -63,7 +63,7 @@ public:
 
     int			nearestSample(float pos) const;
     float		samplePos( int idx ) const
-			{ return sampling.atIndex( idx ); }
+    { return sampling_.atIndex( idx ); }
     SampleGate		sampleGate(const Interval<float>&) const;
     bool		dataPresent(float pos,int trcsize) const;
 
@@ -80,8 +80,8 @@ public:
     void		setPSFlds(const Coord& rcvpos,const Coord& srcpos,
 				  bool setpos=false);
 
-    static const char*	sSamplingInfo;
-    static const char*	sNrSamples;
+    static const char*	sSamplingInfo();
+    static const char*	sNrSamples();
     static float	defaultSampleInterval(bool forcetime=false);
 
     Seis::PosKey	posKey(Seis::GeomType) const;
@@ -91,8 +91,8 @@ public:
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    float		zref		= 0.f; // not stored
-    bool		new_packet	= false; // not stored
+    float		zref_		= 0.f; // not stored
+    bool		new_packet_	= false; // not stored
 
 private:
 
@@ -107,6 +107,23 @@ public:
     SeisTrcInfo&	setInl( IdxType inl )	{ return setLineNr(inl); }
     mDeprecated("Use setTrcNr")
     SeisTrcInfo&	setCrl( IdxType crl )	{ return setTrcNr(crl); }
+
+    mDeprecated("Use coord_")
+    Coord&		coord;
+    mDeprecated("Use sampling_")
+    SamplingData<float>& sampling;
+    mDeprecated("Use offset_")
+    float&		offset;
+    mDeprecated("Use azimuth_")
+    float&		azimuth;
+    mDeprecated("Use refnr_")
+    float&		refnr;
+    mDeprecated("Use pick_")
+    float&		pick;
+    mDeprecated("Use zref_")
+    float&		zref;
+    mDeprecated("Use new_packet_")
+    bool&		new_packet;
 
     mDeprecated("Use BinID or setPos")
     BinID&		binid;

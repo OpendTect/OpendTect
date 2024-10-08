@@ -10,27 +10,23 @@ ________________________________________________________________________
 #include "timedepthconv.h"
 
 #include "arrayndimpl.h"
-#include "binidvalue.h"
-#include "trckeyzsampling.h"
 #include "datapackbase.h"
 #include "genericnumer.h"
-#include "indexinfo.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "keystrs.h"
 #include "samplfunc.h"
 #include "seisbounds.h"
 #include "seisdatapack.h"
-#include "seisread.h"
 #include "seispreload.h"
-#include "seispacketinfo.h"
+#include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "timedepthmodel.h"
+#include "trckeyzsampling.h"
 #include "unitofmeasure.h"
 #include "veldesc.h"
 #include "zdomain.h"
@@ -84,16 +80,16 @@ TimeDepthDataLoader::TimeDepthDataLoader( const TrcKeySampling& tks,
 			const RegularZValues& voizvals,
 			const ZDomain::Info& voirevzinfo,
 			SeisTrcReader& reader, Array3D<float>& arr )
-    : tks_(tks)
+    : totalnr_(tks.totalNr())
+    , tks_(tks)
     , hiter_(tks)
-    , totalnr_(tks.totalNr())
+    , reader_(reader)
+    , arr_(arr)
     , worker_(vd,SI().seismicReferenceDatum(),
 	      UnitOfMeasure::surveyDefSRDStorageUnit())
     , velzinfo_(velzinfo)
     , voizvals_(voizvals)
     , voirevzinfo_(voirevzinfo)
-    , reader_(reader)
-    , arr_(arr)
 {
     msg_ = tr("Reading velocity model");
     seisdatapack_ = Seis::PLDM().get<RegularSeisDataPack>(
@@ -164,7 +160,7 @@ int TimeDepthDataLoader::nextStep()
 	}
 
 	trcvs = new SeisTrcValueSeries( *veltrace, icomp );
-	zvals_in = new RegularZValues( veltrace->info().sampling,
+	zvals_in = new RegularZValues( veltrace->info().sampling_,
 				       veltrace->size(), velzinfo_ );
     }
 
@@ -350,8 +346,8 @@ bool VelocityStretcher::setVelData( const MultiID& mid )
     veldesc_.usePar( velioobj->pars() );
     velzinfo_ = &velreader_->zDomain();
 
-    topvavg_ = Interval<float>( getDefaultVAvg().start_, getDefaultVAvg().start_);
-    botvavg_ = Interval<float>( getDefaultVAvg().stop_, getDefaultVAvg().stop_);
+    topvavg_.set( getDefaultVAvg().start_, getDefaultVAvg().start_);
+    botvavg_.set( getDefaultVAvg().stop_, getDefaultVAvg().stop_ );
     getRange( velioobj->pars(), veldesc_, true, topvavg_ );
     getRange( velioobj->pars(), veldesc_, false, botvavg_ );
 
@@ -570,8 +566,8 @@ void VelocityStretcher::doTransform( const TrcKey& trckey,
     const OffsetValueSeries<float> vs( *arr.getStorage(), offset, zsz );
 
     const ZSampling zrg = voivols_[bestidx].zsamp_;
-    SampledFunctionImpl<float,ValueSeries<float> > samplfunc( vs, zsz,
-                                                              zrg.start_, zrg.step_ );
+    SampledFunctionImpl<float,ValueSeries<float> >
+				samplfunc( vs, zsz, zrg.start_, zrg.step_ );
     if ( sdzinfo == *voizinfos_[bestidx] )
     {
 	for ( int idx=0; idx<sz; idx++ )

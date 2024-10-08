@@ -359,25 +359,25 @@ bool CBVSSeisTrcTranslator::initRead_()
     for ( int idx=0; idx<nrcomp; idx++ )
     {
 	const BasicComponentInfo& cinf = *info.compinfo_[idx];
-	addComp( cinf.datachar, cinf.name(), cinf.datatype );
+	addComp( cinf.datachar_, cinf.name(), cinf.datatype_ );
     }
 
-    pinfo_.usrinfo = info.usertext_;
-    pinfo_.stdinfo = info.stdtext_;
-    pinfo_.nr = info.seqnr_;
-    pinfo_.fullyrectandreg = info.geom_.fullyrectandreg;
-    pinfo_.inlrg.start_ = info.geom_.start.inl();
-    pinfo_.inlrg.stop_ = info.geom_.stop.inl();
-    pinfo_.inlrg.step_ = abs(info.geom_.step.inl());
-    pinfo_.inlrg.sort();
-    pinfo_.crlrg.start_ = info.geom_.start.crl();
-    pinfo_.crlrg.stop_ = info.geom_.stop.crl();
-    pinfo_.crlrg.step_ = abs(info.geom_.step.crl());
-    pinfo_.crlrg.sort();
-    if ( !pinfo_.fullyrectandreg )
-	pinfo_.cubedata = &info.geom_.cubedata;
+    pinfo_.usrinfo_ = info.usertext_;
+    pinfo_.stdinfo_ = info.stdtext_;
+    pinfo_.nr_ = info.seqnr_;
+    pinfo_.fullyrectandreg_ = info.geom_.fullyrectandreg_;
+    pinfo_.inlrg_.start_ = info.geom_.start_.inl();
+    pinfo_.inlrg_.stop_ = info.geom_.stop_.inl();
+    pinfo_.inlrg_.step_ = abs(info.geom_.step_.inl());
+    pinfo_.inlrg_.sort();
+    pinfo_.crlrg_.start_ = info.geom_.start_.crl();
+    pinfo_.crlrg_.stop_ = info.geom_.stop_.crl();
+    pinfo_.crlrg_.step_ = abs(info.geom_.step_.crl());
+    pinfo_.crlrg_.sort();
+    if ( !pinfo_.fullyrectandreg_ )
+	pinfo_.cubedata_ = &info.geom_.cubedata_;
 
-    rdmgr_->getIsRev( pinfo_.inlrev, pinfo_.crlrev );
+    rdmgr_->getIsRev( pinfo_.inlrev_, pinfo_.crlrev_ );
     return true;
 }
 
@@ -394,7 +394,7 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	addComp( dc, 0 );
 	if ( preseldatatype_ )
-	    tarcds_[idx]->datachar = DataCharacteristics(
+	    tarcds_[idx]->datachar_ = DataCharacteristics(
 			(DataCharacteristics::UserType)preseldatatype_ );
     }
 
@@ -414,8 +414,8 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	TrcKeyZSampling tkzs;
 	if ( is2D() )
 	{
-	    tkzs.hsamp_.start_.inl() = rdmgr_->info().geom_.start.inl();
-	    tkzs.hsamp_.stop_.inl() = rdmgr_->info().geom_.start.inl();
+	    tkzs.hsamp_.start_.inl() = rdmgr_->info().geom_.start_.inl();
+	    tkzs.hsamp_.stop_.inl() = rdmgr_->info().geom_.start_.inl();
 	    // CBVSInfo does not know about 2D
 	}
 	else
@@ -567,17 +567,17 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     {
 	float spnr = mUdf(float);
 	if ( ti.trcKey().geometry().as2D()->getPosByTrcNr(ti.trcNr(),
-							  ti.coord,spnr)
+							  ti.coord_,spnr)
 	     && !mIsUdf(spnr) )
-	    ti.refnr = spnr;
+	    ti.refnr_ = spnr;
     }
 
-    ti.sampling.start_ = outsd_.start_;
-    ti.sampling.step_ = outsd_.step_;
+    ti.sampling_.start_ = outsd_.start_;
+    ti.sampling_.step_ = outsd_.step_;
     ti.seqnr_ = ++nrdone_;
 
     if ( ti.lineNr() == 0 && ti.trcNr() == 0 )
-	ti.setPos( SI().transform(ti.coord) );
+	ti.setPos( SI().transform(ti.coord_) );
 
     if ( is_2d )
     {
@@ -662,7 +662,7 @@ Pos::IdxPair2Coord CBVSSeisTrcTranslator::getTransform() const
     if ( !rdmgr_ || !rdmgr_->nrReaders() )
 	return SI().binID2Coord();
 
-    return rdmgr_->info().geom_.b2c;
+    return rdmgr_->info().geom_.b2c_;
 }
 
 
@@ -671,7 +671,7 @@ bool CBVSSeisTrcTranslator::getGeometryInfo( PosInfo::CubeData& cd ) const
     if ( !rdmgr_ )
 	return false;
 
-    cd = rdmgr_->info().geom_.cubedata;
+    cd = rdmgr_->info().geom_.cubedata_;
     return true;
 }
 
@@ -684,10 +684,10 @@ bool CBVSSeisTrcTranslator::startWrite()
 
     CBVSInfo info;
     info.auxinfosel_.setAll( true );
-    info.geom_.fullyrectandreg = false;
-    info.geom_.b2c = SI().binID2Coord();
-    info.stdtext_ = pinfo_.stdinfo;
-    info.usertext_ = pinfo_.usrinfo;
+    info.geom_.fullyrectandreg_ = false;
+    info.geom_.b2c_ = SI().binID2Coord();
+    info.stdtext_ = pinfo_.stdinfo_;
+    info.usertext_ = pinfo_.usrinfo_;
     for ( int idx=0; idx<nrSelComps(); idx++ )
 	info.compinfo_ += new BasicComponentInfo(*outcds_[idx]);
     info.sd_ = insd_;

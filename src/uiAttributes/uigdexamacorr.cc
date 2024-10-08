@@ -119,7 +119,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
     {
 	//we previously 'faked' a 'normal' cubesampling for the attribute engine
 	//now we have to go back to the user specified sampling
-	float zstep = correctd2dh.ptr()->trcinfoset_[0]->sampling.step_;
+	float zstep = correctd2dh.ptr()->trcinfoset_[0]->sampling_.step_;
 	for ( int idx=0; idx<correctd2dh.ptr()->dataset_.size(); idx++ )
 	    correctd2dh.ptr()->dataset_[idx]->z0_
 		    = mNINT32(tkzs_.zsamp_.start_/zstep);

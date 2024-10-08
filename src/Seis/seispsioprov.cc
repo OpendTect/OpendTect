@@ -620,11 +620,11 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 	return false;
 
     posdata_ = psrdr_->posData();
-    posdata_.getInlRange( pinfo_.inlrg );
-    posdata_.getCrlRange( pinfo_.crlrg );
-    pinfo_.inlrg.sort(); pinfo_.crlrg.sort();
-    curbinid_.inl() = pinfo_.inlrg.snappedCenter();
-    curbinid_.crl() = pinfo_.crlrg.snappedCenter() - pinfo_.crlrg.step_;
+    posdata_.getInlRange( pinfo_.inlrg_ );
+    posdata_.getCrlRange( pinfo_.crlrg_ );
+    pinfo_.inlrg_.sort(); pinfo_.crlrg_.sort();
+    curbinid_.inl() = pinfo_.inlrg_.snappedCenter();
+    curbinid_.crl() = pinfo_.crlrg_.snappedCenter() - pinfo_.crlrg_.step_;
 
     BufferStringSet offsetnames;
     if ( psrdr_->getSampleNames(offsetnames) && ioobj )
@@ -646,15 +646,15 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 	if ( !doRead(trc_,&offss) )
 	    return false;
 
-	insd_ = trc_.info().sampling;
+	insd_ = trc_.info().sampling_;
 	innrsamples_ = trc_.size();
 	for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
 	    addComp( trc_.data().getInterpreter(icomp)->dataChar(),
 		     BufferString("Offset: ",offss[icomp]) );
     }
 
-    curbinid_.inl() = pinfo_.inlrg.start_;
-    curbinid_.crl() = pinfo_.crlrg.start_ - pinfo_.crlrg.step_;
+    curbinid_.inl() = pinfo_.inlrg_.start_;
+    curbinid_.crl() = pinfo_.crlrg_.start_ - pinfo_.crlrg_.step_;
     return true;
 }
 
@@ -664,15 +664,15 @@ bool SeisPSCubeSeisTrcTranslator::goTo( const BinID& bid )
     if ( !posdata_.includes(bid.inl(),bid.crl()) )
 	return false;
 
-    curbinid_ = bid; curbinid_.crl() -= pinfo_.crlrg.step_;
+    curbinid_ = bid; curbinid_.crl() -= pinfo_.crlrg_.step_;
     return true;
 }
 
 
 bool SeisPSCubeSeisTrcTranslator::toNext()
 {
-    for ( int crl=curbinid_.crl()+pinfo_.crlrg.step_; crl<=pinfo_.crlrg.stop_;
-	  crl+=pinfo_.crlrg.step_ )
+    for ( int crl=curbinid_.crl()+pinfo_.crlrg_.step_; crl<=pinfo_.crlrg_.stop_;
+	  crl+=pinfo_.crlrg_.step_ )
     {
 	if ( posdata_.includes(curbinid_.inl(),crl) )
 	{
@@ -685,11 +685,11 @@ bool SeisPSCubeSeisTrcTranslator::toNext()
 	}
     }
 
-    curbinid_.inl() += pinfo_.inlrg.step_;
-    if ( curbinid_.inl() > pinfo_.inlrg.stop_ )
+    curbinid_.inl() += pinfo_.inlrg_.step_;
+    if ( curbinid_.inl() > pinfo_.inlrg_.stop_ )
 	return false;
 
-    curbinid_.crl() = pinfo_.crlrg.start_ - pinfo_.crlrg.step_;
+    curbinid_.crl() = pinfo_.crlrg_.start_ - pinfo_.crlrg_.step_;
     return toNext();
 }
 
@@ -738,7 +738,7 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 	const DataCharacteristics trcdc(
 		newtrc->data().getInterpreter(0)->dataChar() );
 	if ( offss )
-	    *offss += newtrc->info().offset;
+	    *offss += newtrc->info().offset_;
 
 	for ( int idx=1; idx<trcnrs.size(); idx++ )
 	{
@@ -752,7 +752,7 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 		newtrc->set( isamp, btrc.get(isamp,0), idx );
 
 	    if ( offss )
-		*offss += btrc.info().offset;
+		*offss += btrc.info().offset_;
 	}
 
     }
@@ -765,8 +765,8 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
     {
 	trc.info() = newtrc->info();
 	const Interval<float> zrg( seldata_->zRange() );
-	trc.info().sampling.start_ = zrg.start_;
-	const float sr = trc.info().sampling.step_;
+	trc.info().sampling_.start_ = zrg.start_;
+	const float sr = trc.info().sampling_.step_;
 	const int nrsamps = (int)(zrg.width() / sr + 1.5);
 	trc.reSize( nrsamps, false );
 	for ( int icomp=0; icomp<trc.nrComponents(); icomp++ )

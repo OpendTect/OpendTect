@@ -9,7 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "coltab.h"
+
+#include "color.h"
 #include "typeset.h"
 #include "uistring.h"
 

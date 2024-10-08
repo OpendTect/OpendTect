@@ -160,9 +160,9 @@ bool SeisCubeCopier::resampleVels( const SeisTrc& inptrc, SeisTrc& trc ) const
     if ( !rdr || !wrr )
 	return false;
 
-    const RegularZValues zvals_in( inptrc.info().sampling,
+    const RegularZValues zvals_in( inptrc.info().sampling_,
 				   inptrc.size(), rdr->zDomain() );
-    const RegularZValues zvals_out( trc.info().sampling,
+    const RegularZValues zvals_out( trc.info().sampling_,
 				    trc.size(), wrr->zDomain() );
     if ( zvals_in == zvals_out )
 	return true;

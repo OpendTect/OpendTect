@@ -194,9 +194,9 @@ int SeisImpBPSIF::readAscii()
     std::istream& strm = curstrm_->stdStream();
     const int nrshotattrs = shotattrs_.size();
     SeisTrc tmpltrc( nrshotattrs + rcvattrs_.size() );
-    tmpltrc.info().sampling.start_ = SI().zRange(true).start_;
-    tmpltrc.info().sampling.step_ = SI().zStep();
-    strm >> tmpltrc.info().coord.x_ >> tmpltrc.info().coord.y_;
+    tmpltrc.info().sampling_.start_ = SI().zRange(true).start_;
+    tmpltrc.info().sampling_.step_ = SI().zStep();
+    strm >> tmpltrc.info().coord_.x_ >> tmpltrc.info().coord_.y_;
     for ( int idx=0; idx<nrshotattrs; idx++ )
     {
 	float val; strm >> val;
@@ -231,10 +231,10 @@ int SeisImpBPSIF::readBinary()
     const int nrrcvattrs = rcvattrs_.size();
     mAllocVarLenArr( float, vbuf, 2+nrshotattrs );
     SeisTrc tmpltrc( nrshotattrs + nrrcvattrs );
-    tmpltrc.info().sampling.start_ = SI().zRange(true).start_;
-    tmpltrc.info().sampling.step_ = SI().zStep();
+    tmpltrc.info().sampling_.start_ = SI().zRange(true).start_;
+    tmpltrc.info().sampling_.step_ = SI().zStep();
     StrmOper::readBlock( strm, vbuf, (2+nrshotattrs)*sizeof(float) );
-    tmpltrc.info().coord.x_ = vbuf[0]; tmpltrc.info().coord.y_ = vbuf[1];
+    tmpltrc.info().coord_.x_ = vbuf[0]; tmpltrc.info().coord_.y_ = vbuf[1];
     for ( int idx=0; idx<nrshotattrs; idx++ )
 	tmpltrc.set( idx, vbuf[2+idx], 0 );
     tmpltrc.info().seqnr_ = mNINT32(vbuf[0]);
@@ -281,7 +281,7 @@ int SeisImpBPSIF::addTrcsAscii( const SeisTrc& tmpltrc, char* data )
 	    newtrc->set( nrshotattrs+idx, val, 0 );
 	}
 
-	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
+	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord_, true );
 	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binID()) )
 	    datamgr_.add( newtrc );
 	else
@@ -315,7 +315,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 	for ( int iattr=0; iattr<nrrcvattrs; iattr++ )
 	    newtrc->set( nrshotattrs+iattr, vbuf[2+iattr], 0 );
 
-	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
+	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord_, true );
 	if ( SI().sampling(false).hsamp_.includes(newtrc->info().binID()) )
 	    datamgr_.add( newtrc );
 	else

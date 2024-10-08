@@ -195,11 +195,11 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     const TrcKey& tracekey = curtrcinfo->trcKey();
     TypeSet< Interval<int> > localintervals;
     bool isset = setZIntervals( localintervals, curbid,
-					 curtrcinfo->coord, tracekey );
+				curtrcinfo->coord_, tracekey );
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
     {
-	const SamplingData<float>& trcsd = curtrcinfo->sampling;
+	const SamplingData<float>& trcsd = curtrcinfo->sampling_;
 	const float nrsteps = trcsd.start_ / trcsd.step_;
 	const float inrsteps = (float)mNINT32( nrsteps );
 	float outz0shifthack = 0.f;

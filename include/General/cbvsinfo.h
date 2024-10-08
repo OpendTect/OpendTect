@@ -9,13 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
-#include "generalmod.h"
+
+#include "basiccompinfo.h"
 #include "posauxinfo.h"
 #include "posidxpair2coord.h"
-#include "basiccompinfo.h"
-#include "samplingdata.h"
 #include "posinfo.h"
-#include "scaler.h"
+#include "samplingdata.h"
+
 class TrcKeyZSampling;
 
 
@@ -40,12 +40,18 @@ public:
 
     mStruct(General) SurvGeom
     {
-				SurvGeom()			{}
+				SurvGeom();
+				SurvGeom(const SurvGeom&);
+				~SurvGeom();
 
-	bool			fullyrectandreg = false;
-	BinID			start, stop, step;	//!< step can be < 0
-	Pos::IdxPair2Coord	b2c;
-	PosInfo::SortedCubeData	cubedata;
+	SurvGeom&		operator=(const SurvGeom&);
+
+	bool			fullyrectandreg_ = false;
+	BinID			start_;
+	BinID			stop_;
+	BinID			step_;	//!< step can be < 0
+	Pos::IdxPair2Coord	b2c_;
+	PosInfo::SortedCubeData cubedata_;
 
 	void			merge(const SurvGeom&);
 	void			reCalcBounds();
@@ -54,11 +60,23 @@ public:
 	inline bool		includes( const BinID& bid ) const
 				{ return !excludes(bid); }
 	bool			includesInline(int) const;
-	void			clean()
-				{ fullyrectandreg = false; deepErase(cubedata);}
+	void			clean();
 
 	bool			moveToNextPos(BinID&) const;
 	bool			moveToNextInline(BinID&) const;
+
+	mDeprecated("Use fullyrectandreg_")
+	bool&			fullyrectandreg;
+	mDeprecated("Use start_")
+	BinID&			start;
+	mDeprecated("Use stop_")
+	BinID&			stop;
+	mDeprecated("Use step_")
+	BinID&			step;	//!< step can be < 0
+	mDeprecated("Use b2c_")
+	Pos::IdxPair2Coord&	b2c;
+	mDeprecated("Use cubedata_")
+	PosInfo::SortedCubeData& cubedata;
 
 protected:
 

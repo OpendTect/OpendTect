@@ -239,8 +239,8 @@ bool SeisTrc2DTranslator::initRead_()
 	return false;
     }
 
-    dset.getTxtInfo( dset.geomID(0), pinfo_.usrinfo, pinfo_.stdinfo );
-    addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
+    dset.getTxtInfo( dset.geomID(0), pinfo_.usrinfo_, pinfo_.stdinfo_ );
+    addComp( DataCharacteristics(), pinfo_.stdinfo_, Seis::UnknowData );
     if ( seldata_ && !seldata_->geomID().isUdf() )
 	geomid_ = seldata_->geomID();
     else
@@ -257,12 +257,12 @@ bool SeisTrc2DTranslator::initRead_()
     dset.getRanges( geomid_, trcrg, zrg );
     insd_.start_ = zrg.start_; insd_.step_ = zrg.step_;
     innrsamples_ = (int)((zrg.stop_-zrg.start_) / zrg.step_ + 1.5);
-    pinfo_.inlrg.start_ = geomid_.asInt();
-    pinfo_.inlrg.stop_ = pinfo_.inlrg.start_;
-    pinfo_.inlrg.step_ = 1;
-    pinfo_.crlrg.start_ = trcrg.start_;
-    pinfo_.crlrg.stop_ = trcrg.stop_;
-    pinfo_.crlrg.step_ = trcrg.step_;
+    pinfo_.inlrg_.start_ = geomid_.asInt();
+    pinfo_.inlrg_.stop_ = pinfo_.inlrg_.start_;
+    pinfo_.inlrg_.step_ = 1;
+    pinfo_.crlrg_.start_ = trcrg.start_;
+    pinfo_.crlrg_.stop_ = trcrg.stop_;
+    pinfo_.crlrg_.step_ = trcrg.step_;
     return true;
 }
 
@@ -541,7 +541,7 @@ int Seis2DLineMerger::doWork()
 	if ( !curattridx_ )
 	{
 	    PosInfo::Line2DPos pos( trc.info().trcNr() );
-	    pos.coord_ = trc.info().coord;
+	    pos.coord_ = trc.info().coord_;
 	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( outgeomid_);
 	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d )
@@ -606,10 +606,10 @@ void Seis2DLineMerger::makeBufsCompat()
     const SeisTrc& trc10 = *tbuf1_.get( 0 );
     const int trcsz = trc10.size();
     const int trcnc = trc10.nrComponents();
-    const SamplingData<float> trcsd = trc10.info().sampling;
+    const SamplingData<float> trcsd = trc10.info().sampling_;
 
     const SeisTrc& trc20 = *tbuf2_.get( 0 );
-    if ( trc20.size() == trcsz && trc20.info().sampling == trcsd
+    if ( trc20.size() == trcsz && trc20.info().sampling_ == trcsd
       && trc20.nrComponents() == trcnc )
 	return;
 
@@ -619,7 +619,7 @@ void Seis2DLineMerger::makeBufsCompat()
 	SeisTrc cptrc( trc );		// Copy old data for values
 	trc = trc10;			// Get entire structure as trc10
 	trc.info() = cptrc.info();	// Yet, keep old info
-	trc.info().sampling = trcsd;	// ... but do take the samplingdata
+	trc.info().sampling_ = trcsd;	// ... but do take the samplingdata
 
 	for ( int icomp=0; icomp<trcnc; icomp++ )
 	{
@@ -650,10 +650,10 @@ void Seis2DLineMerger::mergeOnCoords()
 {
     const int nrtrcs1 = tbuf1_.size() - 1;
     const int nrtrcs2 = tbuf2_.size() - 1;
-    const Coord c10( tbuf1_.get(0)->info().coord );
-    const Coord c11( tbuf1_.get(nrtrcs1)->info().coord );
-    const Coord c20( tbuf2_.get(0)->info().coord );
-    const Coord c21( tbuf2_.get(nrtrcs2)->info().coord );
+    const Coord c10( tbuf1_.get(0)->info().coord_ );
+    const Coord c11( tbuf1_.get(nrtrcs1)->info().coord_ );
+    const Coord c20( tbuf2_.get(0)->info().coord_ );
+    const Coord c21( tbuf2_.get(nrtrcs2)->info().coord_ );
     const double sqd10 = c10.sqDistTo( c20 ) + c10.sqDistTo( c21 );
     const double sqd11 = c11.sqDistTo( c20 ) + c11.sqDistTo( c21 );
     const double sqd20 = c20.sqDistTo( c10 ) + c20.sqDistTo( c11 );
@@ -673,7 +673,7 @@ void Seis2DLineMerger::mergeOnCoords()
 	for ( int idx=0; idx<ntr; idx++ )
 	{
 	    const SeisTrcBuf& tb( ibuf ? tbuf2_ : tbuf1_ );
-	    const Coord& ctrc( tb.get(idx)->info().coord );
+	    const Coord& ctrc( tb.get(idx)->info().coord_ );
             const Coord crel( ctrc.x_ - lnstart.x_, ctrc.y_ - lnstart.y_ );
             const double lpar = (lndelta.x_ * crel.x_ + lndelta.y_ * crel.y_)
 			      / sqabs;
@@ -708,8 +708,8 @@ void Seis2DLineMerger::doMerge( const TypeSet<int>& idxs, bool snap )
     {
 	SeisTrc* prvtrc = outbuf_.get( itrc-1 );
 	SeisTrc* curtrc = outbuf_.get( itrc );
-	const double sqdist = curtrc->info().coord.sqDistTo(
-			      prvtrc->info().coord );
+	const double sqdist = curtrc->info().coord_.sqDistTo(
+				  prvtrc->info().coord_ );
 	if ( sqdist > sqsnapdist )
 	    nrsnapped = 0;
 	else

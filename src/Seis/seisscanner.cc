@@ -342,11 +342,11 @@ bool SeisScanner::addTrc()
     if ( nrsamples_ < 1 )
     {
 	nrsamples_ = trc_.size();
-	sampling_ = trc_.info().sampling;
+	sampling_ = trc_.info().sampling_;
     }
 
-    if ( !dtctor_.add(trc_.info().coord, trc_.info().binID(),
-		      trc_.info().trcNr(), trc_.info().offset) )
+    if ( !dtctor_.add(trc_.info().coord_, trc_.info().binID(),
+		      trc_.info().trcNr(), trc_.info().offset_) )
     {
 	curmsg_ = dtctor_.errMsg();
 	return false;

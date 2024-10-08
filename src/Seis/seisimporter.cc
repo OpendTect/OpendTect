@@ -310,7 +310,7 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	bid.inl() = prevbid_.inl();
 	if ( mIsUdf(bid.inl()) )
 	    bid.inl() = 0;
-	else if ( trc.info().new_packet )
+	else if ( trc.info().new_packet_ )
 	    bid.inl() = prevbid_.inl() + 1;
     }
 

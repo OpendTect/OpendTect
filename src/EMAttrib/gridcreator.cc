@@ -125,7 +125,7 @@ int Seis2DLineCreator::nextStep()
 
     SeisTrcInfo& trcinfo = trc.info();
     trcinfo.setGeomID( geomid_ ).setTrcNr( trcnr );
-    trcinfo.refnr = trcnr;
+    trcinfo.refnr_ = trcnr;
     trcinfo.seqnr_ = trcnr;
     if ( !wrr_->put(trc) )
     {

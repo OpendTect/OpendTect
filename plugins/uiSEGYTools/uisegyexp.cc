@@ -720,9 +720,9 @@ void uiSEGYExp::generateAutoTextHeader( BufferString& hdrtxt ) const
     if ( seldata )
     {
 	thdef.pinfo = new SeisPacketInfo;
-	thdef.pinfo->inlrg.setInterval( seldata->inlRange() );
-	thdef.pinfo->crlrg.setInterval( seldata->crlRange() );
-	thdef.pinfo->zrg.setInterval( seldata->zRange() );
+	thdef.pinfo->inlrg_.setInterval( seldata->inlRange() );
+	thdef.pinfo->crlrg_.setInterval( seldata->crlRange() );
+	thdef.pinfo->zrg_.setInterval( seldata->zRange() );
     }
 
     SEGY::TxtHeader txthdr( 1 );

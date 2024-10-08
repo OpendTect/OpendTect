@@ -31,6 +31,8 @@ public:
 			SeisTrcBuf( const SeisTrcBuf& b );
     virtual		~SeisTrcBuf();
 
+    SeisTrcBuf&		operator=(const SeisTrcBuf&)	= delete;
+
     inline void		setIsOwner( bool yn )	{ owner_ = yn; }
     inline bool		isOwner() const		{ return owner_; }
 

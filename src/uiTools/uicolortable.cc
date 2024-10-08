@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uicolortable.h"
 
+#include "coltab.h"
 #include "coltabsequence.h"
 #include "mouseevent.h"
 #include "settings.h"
@@ -40,8 +41,8 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 				 mODHelpKey(mAutoRangeClipDlgHelpID) )
 				.modal(false).savebutton(enabsave))
     , formatChanged(this)
-    , ms_(ms)
     , scaleChanged(nf)
+    , ms_(ms)
 {
     showAlwaysOnTop();
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );

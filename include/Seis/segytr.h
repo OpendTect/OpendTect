@@ -116,15 +116,17 @@ protected:
     bool		tryInterpretBuf(SeisTrcInfo&);
     bool		skipThisTrace(SeisTrcInfo&,int&);
 
-    int			curtrcnr_, prevtrcnr_;
-    BinID		curbid_, prevbid_;
-    float		curoffs_ = -1.f;
-    float		prevoffs_ = 0.f;
+    int			curtrcnr_				= -1;
+    int			prevtrcnr_				= -1;
+    BinID		curbid_;
+    BinID		prevbid_;
+    float		curoffs_				= -1.f;
+    float		prevoffs_				= 0.f;
     SEGY::OffsetCalculator offsetcalc_;
     Coord		curcoord_;
-    BendPoints2Coords*	bp2c_ = nullptr;
-    int			estnrtrcs_ = -1;
-    bool		othdomain_ = false;
+    BendPoints2Coords*	bp2c_					= nullptr;
+    int			estnrtrcs_				= -1;
+    bool		othdomain_				= false;
 
 private:
 

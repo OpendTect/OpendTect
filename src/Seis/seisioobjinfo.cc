@@ -138,7 +138,7 @@ void Seis::ObjectSummary::init2D( const Pos::GeomID& geomid )
 void Seis::ObjectSummary::refreshCache( const SeisTrcTranslator& trl )
 {
     if ( !trl.inputComponentData().isEmpty() )
-	datachar_ = trl.componentInfo().first()->org.datachar;
+	datachar_ = trl.componentInfo().first()->org.datachar_;
 
     trl.getComponentNames( compnms_ );
     nrcomp_ = compnms_.size();
@@ -656,7 +656,7 @@ bool SeisIOObjInfo::getDataChar( DataCharacteristics& dc ) const
     if ( comps.isEmpty() )
 	return false;
 
-    dc = comps.first()->org.datachar;
+    dc = comps.first()->org.datachar_;
     return true;
 }
 
@@ -830,7 +830,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 	    = sttr->componentInfo();
     for ( int idx=0; idx<comps.size(); idx++ )
     {
-	int thisbps = sCast(int,comps[idx]->datachar.nrBytes());
+	int thisbps = sCast(int,comps[idx]->datachar_.nrBytes());
 	if ( icomp < 0 )
 	    bps += thisbps;
 	else if ( icomp == idx )

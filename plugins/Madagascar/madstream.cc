@@ -374,8 +374,8 @@ void MadStream::fillHeaderParsFromSeis()
     else
     {
 	SeisPacketInfo& pinfo = seisrdr_->seisTranslator()->packetInfo();
-	zrg = pinfo.zrg;
-	trcrg = pinfo.crlrg;
+	zrg = pinfo.zrg_;
+	trcrg = pinfo.crlrg_;
 
 	mDynamicCastGet(const Seis::RangeSelData*,rangesel,seisrdr_->selData())
 	if ( rangesel && !rangesel->isAll() )
@@ -384,14 +384,14 @@ void MadStream::fillHeaderParsFromSeis()
 	    trcrg.limitTo( rangesel->crlRange() );
 	}
 
-	if ( pinfo.fullyrectandreg )
+	if ( pinfo.fullyrectandreg_ )
 	    needposfile = false;
 	else
 	{
-	    if (!pinfo.cubedata) mErrRet(tr("Incomplete Geometry "
+	    if (!pinfo.cubedata_) mErrRet(tr("Incomplete Geometry "
 					    "Information"));
 
-	    PosInfo::CubeData newcd( *pinfo.cubedata );
+	    PosInfo::CubeData newcd( *pinfo.cubedata_ );
 	    if ( rangesel && !rangesel->isAll() )
 		newcd.limitTo( rangesel->cubeSampling().hsamp_ );
 
@@ -406,7 +406,7 @@ void MadStream::fillHeaderParsFromSeis()
 	if ( !needposfile )
 	{
 	    StepInterval<int> inlrg = rangesel ?
-		rangesel->cubeSampling().hsamp_.inlRange() : pinfo.inlrg;
+		rangesel->cubeSampling().hsamp_.inlRange() : pinfo.inlrg_;
 	    headerpars_->set( "o3", inlrg.start_ );
 	    headerpars_->set( "n3", inlrg.nrSteps()+1 );
 	    headerpars_->set( "d3", inlrg.step_ );
@@ -505,12 +505,12 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 
     headerpars_->set( "n3", nrbids );
 
-    headerpars_->set( "o2", firsttrc->info().offset );
-    headerpars_->set( "d2", nexttrc->info().offset - firsttrc->info().offset );
+    headerpars_->set( "o2", firsttrc->info().offset_ );
+    headerpars_->set( "d2", nexttrc->info().offset_-firsttrc->info().offset_ );
     headerpars_->set( "n2", nroffsets_ );
 
-    headerpars_->set( "o1", firsttrc->info().sampling.start_ );
-    headerpars_->set( "d1", firsttrc->info().sampling.step_ );
+    headerpars_->set( "o1", firsttrc->info().sampling_.start_ );
+    headerpars_->set( "d1", firsttrc->info().sampling_.step_ );
     headerpars_->set( "n1", firsttrc->size() );
     mSetFormat;
     headerpars_->set( sKeyIn, sKeyStdIn );
@@ -773,12 +773,12 @@ bool MadStream::writeTraces( bool writetofile )
 		{
 		    readRSFTrace( buf, nrsamps );
 		    auto* trc = new SeisTrc( nrsamps );
-		    trc->info().sampling = sd;
+		    trc->info().sampling_ = sd;
 		    trc->info().seqnr_ = trcidx;
 		    trc->info().setPos( BinID(inl,crl) );
 		    trc->info().calcCoord();
 		    if ( isps_ )
-			trc->info().offset = offsetsd.atIndex( trcidx - 1 );
+			trc->info().offset_ = offsetsd.atIndex( trcidx - 1 );
 
 		    for ( int isamp=0; isamp<nrsamps; isamp++ )
 			trc->set( isamp, buf[isamp], 0 );
@@ -849,12 +849,12 @@ bool MadStream::write2DTraces( bool writetofile )
 	{
 	    readRSFTrace( buf, nrsamps );
 	    auto* trc = new SeisTrc( nrsamps );
-	    trc->info().sampling = sd;
+	    trc->info().sampling_ = sd;
 	    trc->info().seqnr_ = trcnr;
 	    trc->info().setGeomID( gid ).setTrcNr( trcnr );
-	    trc->info().coord = posns[idx].coord_;
+	    trc->info().coord_ = posns[idx].coord_;
 	    if ( isps_ )
-		trc->info().offset = offsetsd.atIndex( offidx );
+		trc->info().offset_ = offsetsd.atIndex( offidx );
 
 	    for ( int isamp=0; isamp<nrsamps; isamp++ )
 		trc->set( isamp, buf[isamp], 0 );

@@ -227,9 +227,10 @@ bool SeisDataPackWriter::setTrc()
     const int trcsz = cubezrgidx_.nrSteps() + 1;
     trc_ = new SeisTrc( trcsz );
 
-    trc_->info().sampling.start_ = dp_->sampling().zsamp_.atIndex(
-                                      cubezrgidx_.start_ );
-    trc_->info().sampling.step_ = dp_->sampling().zsamp_.step_ * cubezrgidx_.step_;
+    trc_->info().sampling_.start_ =
+		dp_->sampling().zsamp_.atIndex( cubezrgidx_.start_ );
+    trc_->info().sampling_.step_ =
+		dp_->sampling().zsamp_.step_ * cubezrgidx_.step_;
 
     BufferStringSet compnames;
     compnames.add( dp_->getComponentName() );

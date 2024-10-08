@@ -124,10 +124,10 @@ protected:
     TypeSet<unsigned char>	b_;
     TypeSet< Geom::Point2D<float> > tr_;
 
-    OD::Color		undefcolor_;
-    OD::Color		markcolor_;
+    OD::Color		undefcolor_		= OD::Color::LightGrey();
+    OD::Color		markcolor_		= OD::Color::DgbColor();
     Type		type_;
-    int			nrsegments_;
+    int			nrsegments_			= 0;
 
     inline void		triggerAll() {	colorChanged.trigger();
 					transparencyChanged.trigger(); }

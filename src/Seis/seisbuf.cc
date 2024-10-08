@@ -76,33 +76,33 @@ void SeisTrcBuf::fill( SeisPacketInfo& spi ) const
     const SeisTrc* trc = first();
     BinID bid = trc->info().binID();
     const BinID pbid = bid;
-    spi.inlrg.set( mUdf(int), -mUdf(int), 1 );
-    spi.crlrg.set( mUdf(int), -mUdf(int), 1 );
-    spi.zrg.set( mUdf(float), -mUdf(float), trc->info().sampling.step_ );
+    spi.inlrg_.set( mUdf(int), -mUdf(int), 1 );
+    spi.crlrg_.set( mUdf(int), -mUdf(int), 1 );
+    spi.zrg_.set( mUdf(float), -mUdf(float), trc->info().sampling_.step_ );
 
     bool doneinl = false, donecrl = false;
     for ( int idx=0; idx<sz; idx++ )
     {
 	trc = get( idx ); bid = trc->info().binID();
-	spi.inlrg.include( bid.inl(), false );
-	spi.crlrg.include( bid.crl(), false);
-	const SamplingData<float> trcsd = trc->info().sampling;
+	spi.inlrg_.include( bid.inl(), false );
+	spi.crlrg_.include( bid.crl(), false);
+	const SamplingData<float> trcsd = trc->info().sampling_;
 	if ( !mIsUdf(trcsd.start_) && !mIsUdf(trcsd.step_) &&
 	     !mIsZero(trcsd.step_,mDefEps) )
 	{
 	    StepInterval<float> zrg(trcsd.start_, trcsd.atIndex(trc->size()-1),
 				    trcsd.step_ );
-	    spi.zrg.include( zrg, false );
+	    spi.zrg_.include( zrg, false );
 	}
 
 	if ( !doneinl && bid.inl() != pbid.inl() )
-	{ spi.inlrg.step_ = bid.inl() - pbid.inl(); doneinl = true; }
+	{ spi.inlrg_.step_ = bid.inl() - pbid.inl(); doneinl = true; }
 	if ( !donecrl && bid.crl() != pbid.crl() )
-	{ spi.crlrg.step_ = bid.crl() - pbid.crl(); donecrl = true; }
+	{ spi.crlrg_.step_ = bid.crl() - pbid.crl(); donecrl = true; }
     }
 
-    if ( spi.inlrg.step_ < 0 ) spi.inlrg.step_ = -spi.inlrg.step_;
-    if ( spi.crlrg.step_ < 0 ) spi.crlrg.step_ = -spi.crlrg.step_;
+    if ( spi.inlrg_.step_ < 0 ) spi.inlrg_.step_ = -spi.inlrg_.step_;
+    if ( spi.crlrg_.step_ < 0 ) spi.crlrg_.step_ = -spi.crlrg_.step_;
 }
 
 
@@ -168,7 +168,7 @@ void SeisTrcBuf::getShifted( const Interval<float>& zrg,
 	return;
 
     ZSampling newzrg( zrg );
-    newzrg.step_ = first()->info().sampling.step_;
+    newzrg.step_ = first()->info().sampling_.step_;
     const int newnrsamps = newzrg.nrSteps() + 1;
     const float zrest = newnrsamps*newzrg.step_ - zrg.width();
     newzrg.start_ -= zrest * 0.5f;
@@ -181,7 +181,7 @@ void SeisTrcBuf::getShifted( const Interval<float>& zrg,
 	newtrc->setNrComponents( nrcomps );
 
 	newtrc->info() = inptrc.info();
-	newtrc->info().sampling.set( newzrg );
+	newtrc->info().sampling_.set( newzrg );
 	newtrc->setAll( udfval );
 
 	out.add( newtrc );
@@ -448,8 +448,8 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
         return false;
 
     const SeisTrc& trc0 = *first();
-    strm << trc0.info().sampling.start_
-	 << ' ' << trc0.info().sampling.step_ * SI().zDomain().userFactor()
+    strm << trc0.info().sampling_.start_
+	 << ' ' << trc0.info().sampling_.step_ * SI().zDomain().userFactor()
 	 << ' ' << trc0.size();
 
     for ( int itrc=0; itrc<size(); itrc++ )
@@ -462,12 +462,12 @@ bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
 	{
 	    BufferString postxt;
 	    postxt += trc.info().trcNr(); postxt += " ";
-            postxt += trc.info().coord.x_; postxt += " ";
-            postxt += trc.info().coord.y_;
+	    postxt += trc.info().coord_.x_; postxt += " ";
+	    postxt += trc.info().coord_.y_;
 	    strm << postxt;
 	}
 	if ( isps )
-	    strm << ' ' << trc.info().offset;
+	    strm << ' ' << trc.info().offset_;
 
 	for ( int isamp=0; isamp<trc.size(); isamp++ )
 	    strm << ' ' << trc.get( isamp, icomp );
@@ -645,7 +645,7 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 	double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
 	pd.setX1Pos( hdrvals, tbufsz, ofv );
 	SeisPacketInfo pinf; tbuf->fill( pinf );
-	StepInterval<double> zrg; assign( zrg, pinf.zrg );
+	StepInterval<double> zrg; assign( zrg, pinf.zrg_ );
 	pd.setRange( false, zrg );
     }
 }
@@ -700,7 +700,7 @@ Coord3 SeisTrcBufDataPack::getCoord( int itrc, int isamp ) const
     if ( itrc >= buf.size() ) itrc = buf.size() - 1;
     if ( itrc < 0 ) itrc = 0;
     const SeisTrc* trc = buf.get( itrc );
-    return Coord3( trc->info().coord, trc->info().samplePos(isamp) );
+    return Coord3( trc->info().coord_, trc->info().samplePos(isamp) );
 }
 
 

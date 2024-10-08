@@ -8,7 +8,6 @@ ________________________________________________________________________
 -*/
 
 #include "stratseisevent.h"
-#include "survinfo.h"
 #include "seistrc.h"
 
 
@@ -32,29 +31,31 @@ bool Strat::SeisEvent::snapPick( SeisTrc& trc ) const
     float reftm = snappedTime( trc );
     if ( mIsUdf(reftm) )
 	return false;
-    trc.info().pick = reftm;
+    trc.info().pick_ = reftm;
     return true;
 }
 
 
 float Strat::SeisEvent::snappedTime( const SeisTrc& trc ) const
 {
-    float reftm = trc.info().pick;
+    float reftm = trc.info().pick_;
     reftm += offs_;
     if ( evtype_ == VSEvent::None )
 	return reftm;
 
     const SeisTrcValueSeries tvs( trc, 0 );
-    const SamplingData<float> sd( trc.info().sampling );
+    const SamplingData<float> sd( trc.info().sampling_ );
     const int trcsz = trc.size();
 
     ValueSeriesEvFinder<float,float> evf( tvs, trcsz-1, sd );
     const Interval<float> trcwin( trc.startPos(), trc.samplePos(trcsz-1) );
     for ( int iwdth=1; iwdth<trcsz; iwdth++ )
     {
-        Interval<float> findwin( reftm - iwdth*sd.step_, reftm + iwdth*sd.step_ );
-        if ( findwin.start_ < trcwin.start_ ) findwin.start_ = trcwin.start_;
-        if ( findwin.stop_ > trcwin.stop_ ) findwin.stop_ = trcwin.stop_;
+	Interval<float> findwin( reftm - iwdth*sd.step_, reftm+iwdth*sd.step_ );
+	if ( findwin.start_ < trcwin.start_ )
+	    findwin.start_ = trcwin.start_;
+	if ( findwin.stop_ > trcwin.stop_ )
+	    findwin.stop_ = trcwin.stop_;
 
 	ValueSeriesEvent<float,float> ev = evf.find( evtype_, findwin );
 	if ( !mIsUdf(ev.pos) )

@@ -358,9 +358,9 @@ int SeisSingleTraceProc::getFillTrc()
 	filltrc_->setNrComponents( intrc_.nrComponents() );
 	filltrc_->zero();
 	filltrc_->info().seqnr_ = 0;
-	filltrc_->info().offset = 0;
-	filltrc_->info().azimuth = 0;
-	filltrc_->info().refnr = filltrc_->info().pick = mUdf(float);
+	filltrc_->info().offset_ = 0;
+	filltrc_->info().azimuth_ = 0;
+	filltrc_->info().refnr_ = filltrc_->info().pick_ = mUdf(float);
     }
 
     if ( fillbid_.inl() > fillhs_.stop_.inl() )
@@ -381,7 +381,7 @@ int SeisSingleTraceProc::getFillTrc()
 	worktrc_ = &intrc_;
 	*worktrc_ = *filltrc_;
 	worktrc_->info().setPos( fillbid_ );
-	worktrc_->info().coord = SI().transform( fillbid_ );
+	worktrc_->info().coord_ = SI().transform( fillbid_ );
     }
 
     fillbid_.crl() += fillhs_.step_.crl();
@@ -457,12 +457,12 @@ bool SeisSingleTraceProc::writeTrc()
 	if ( is2D() )
 	{
 	    const int linenr = currdr.geomID().asInt();
-	    wrtr.packetInfo().inlrg.set( linenr, linenr, 1 );
+	    wrtr.packetInfo().inlrg_.set( linenr, linenr, 1 );
 	    if ( currdr.selData() )
-		wrtr.packetInfo().crlrg.setInterval(
+		wrtr.packetInfo().crlrg_.setInterval(
 					currdr.selData()->crlRange() );
 	    else
-		wrtr.packetInfo().crlrg.setInterval( currdr.curTrcNrRange() );
+		wrtr.packetInfo().crlrg_.setInterval( currdr.curTrcNrRange() );
 	}
 	else
 	{

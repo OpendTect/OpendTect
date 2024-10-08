@@ -236,21 +236,22 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool iscorrected,
     for ( int idx=tbuf.size()-1; idx>-1; idx-- )
     {
 	const SeisTrc* trc = tbuf.get( idx );
-	if ( mIsUdf( trc->info().offset ) )
+	if ( mIsUdf( trc->info().offset_ ) )
 	    delete tbuf.remove( idx );
 
 	const int trcsz = trc->size();
 	if ( !isset )
 	{
 	    isset = true;
-	    zrg = trc->info().sampling.interval( trcsz );
-	    crd = trc->info().coord;
+	    zrg = trc->info().sampling_.interval( trcsz );
+	    crd = trc->info().coord_;
 	}
 	else
 	{
-            zrg.start_ = mMIN( trc->info().sampling.start_, zrg.start_ );
-            zrg.stop_ = mMAX( trc->info().sampling.atIndex(trcsz-1), zrg.stop_ );
-            zrg.step_ = mMIN( trc->info().sampling.step_, zrg.step_ );
+	    zrg.start_ = mMIN( trc->info().sampling_.start_, zrg.start_ );
+	    zrg.stop_ = mMAX( trc->info().sampling_.atIndex(trcsz-1),
+			      zrg.stop_ );
+	    zrg.step_ = mMIN( trc->info().sampling_.step_, zrg.step_ );
 	}
     }
 
@@ -264,13 +265,14 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool iscorrected,
     setOffsetType( offstyp );
     if ( snapzrgtosi && zDomain() == SI().zDomainInfo() )
     {
-        SI().snapZ( zrg.start_ );
-        SI().snapZ( zrg.stop_ );
+	SI().snapZ( zrg.start_ );
+	SI().snapZ( zrg.stop_ );
     }
 
     zrg_ = zrg;
     int nrsamples = zrg.nrSteps()+1;
-    if ( zrg.step_>0 && (zrg.stop_-zrg.atIndex(nrsamples-1))>fabs(zrg.step_*0.5) )
+    if ( zrg.step_>0 &&
+	 (zrg.stop_-zrg.atIndex(nrsamples-1))>fabs(zrg.step_*0.5) )
 	nrsamples++;
 
     const Array2DInfoImpl newinfo( tbuf.size(), nrsamples );
@@ -296,7 +298,7 @@ bool Gather::setFromTrcBuf( SeisTrcBuf& tbuf, int comp, bool iscorrected,
 	    arr2d_->set( trcidx, idx, val );
 	}
 
-	azimuths_[trcidx] = trc->info().azimuth;
+	azimuths_[trcidx] = trc->info().azimuth_;
     }
 
     double offset;
@@ -781,7 +783,7 @@ void GatherSetDataPack::fill( SeisTrcBuf& inp, int offsetidx ) const
 	const TrcKey& tk = gather->getTrcKey();
 	trc->info().setTrcKey( tk ).calcCoord();
 	const SamplingData<double>& sd = gather->posData().range( false);
-        trc->info().sampling.set((float) sd.start_, (float) sd.step_ );
+	trc->info().sampling_.set((float) sd.start_, (float) sd.step_ );
 	const Array2D<float>& data = gather->data();
 	for ( int idz=0; idz<gathersz; idz++ )
 	    trc->set( idz, data.get( offsetidx, idz ), 0 );
@@ -847,10 +849,10 @@ SeisTrc* GatherSetDataPack::gtTrace( int gatheridx, int offsetidx ) const
 
     rettrc.reSize( nrsamples, false );
     rettrc.info().setTrcKey( gather.getTrcKey() ).calcCoord();
-    rettrc.info().offset = gather.getOffset( offsetidx );
+    rettrc.info().offset_ = gather.getOffset( offsetidx );
     //TODO: set azimuth ?
     const SamplingData<double>& sd = gather.posData().range( false );
-    rettrc.info().sampling.set( (float)sd.start_, (float)sd.step_ );
+    rettrc.info().sampling_.set( (float)sd.start_, (float)sd.step_ );
     for ( int isamp=0; isamp<nrsamples; isamp++ )
 	rettrc.set( isamp, data.get(offsetidx,isamp), 0 );
 

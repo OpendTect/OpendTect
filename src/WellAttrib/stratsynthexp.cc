@@ -212,7 +212,7 @@ int StratSynth::Exporter::writePreStackTraces()
 	SeisTrcInfo& trcinfo = trc.info();
 	trcinfo.setGeomID( geomid_ ).setTrcNr( linepos.nr_ ).calcCoord();
 	trcinfo.seqnr_ = posdone_+1;
-	trcinfo.offset = offset;
+	trcinfo.offset_ = offset;
 	if ( !writer_->put(trc) )
 	{
 	    errmsg_ = writer_->errMsg();

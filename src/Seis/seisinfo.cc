@@ -7,8 +7,9 @@ ________________________________________________________________________
 
 -*/
 
+#include "seisinfo.h"
+
 #include "commandlineparser.h"
-#include "coordsystem.h"
 #include "ctxtioobj.h"
 #include "enums.h"
 #include "envvars.h"
@@ -22,27 +23,20 @@ ________________________________________________________________________
 #include "seisbounds.h"
 #include "seiscbvs.h"
 #include "seiscommon.h"
-#include "seisinfo.h"
 #include "seispacketinfo.h"
 #include "seispsioprov.h"
-#include "seisselection.h"
-#include "seisstor.h"
-#include "seistrc.h"
-#include "seiswrite.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
-#include "timeser.h"
 #include "uistrings.h"
 
 #include <float.h>
 #include <iostream>
 #include <math.h>
 
-const char* SeisTrcInfo::sSamplingInfo = "Sampling information";
-const char* SeisTrcInfo::sNrSamples = "Nr of samples";
-const char* SeisPacketInfo::sBinIDs = "BinID range";
-const char* SeisPacketInfo::sZRange = "Z range";
+const char* SeisTrcInfo::sSamplingInfo() { return "Sampling information"; }
+const char* SeisTrcInfo::sNrSamples()	{ return "Nr of samples"; }
+const char* SeisPacketInfo::sBinIDs()	{ return "BinID range"; }
+const char* SeisPacketInfo::sZRange()	{ return "Z range"; }
 
 
 static BufferString getUsrInfo()
@@ -65,12 +59,25 @@ static BufferString getUsrInfo()
 }
 
 
-BufferString SeisPacketInfo::defaultusrinfo;
+BufferString SeisPacketInfo::defaultusrinfo_;
+
+mStartAllowDeprecatedSection
 
 SeisPacketInfo::SeisPacketInfo()
+    : usrinfo(usrinfo_)
+    , stdinfo(stdinfo_)
+    , nr(nr_)
+    , fullyrectandreg(fullyrectandreg_)
+    , inlrg(inlrg_)
+    , crlrg(crlrg_)
+    , zrg(zrg_)
+    , inlrev(inlrev_)
+    , crlrev(crlrev_)
 {
     clear();
 }
+
+mStopAllowDeprecatedSection
 
 
 SeisPacketInfo::~SeisPacketInfo()
@@ -78,7 +85,24 @@ SeisPacketInfo::~SeisPacketInfo()
 
 
 void SeisPacketInfo::initClass()
-{ defaultusrinfo = getUsrInfo(); }
+{
+    defaultusrinfo_ = getUsrInfo();
+}
+
+
+void SeisPacketInfo::clear()
+{
+    usrinfo_ = defaultusrinfo_;
+    nr_ = 0;
+    fullyrectandreg_ = false;
+    cubedata_ = nullptr;
+    SI().sampling(false).hsamp_.get( inlrg_, crlrg_ );
+    zrg_ = SI().zRange(false);
+    inlrev_ = false;
+    crlrev_ = false;
+}
+
+
 
 class SeisEnum
 {
@@ -249,23 +273,19 @@ mDefineEnumUtils(SeisTrcInfo,Fld,"Header field") {
 };
 
 
-void SeisPacketInfo::clear()
-{
-    usrinfo = defaultusrinfo;
-    nr = 0;
-    fullyrectandreg = false;
-    cubedata = 0;
-    SI().sampling(false).hsamp_.get( inlrg, crlrg );
-    zrg = SI().zRange(false);
-    inlrev = crlrev = false;
-}
-
-
 mStartAllowDeprecatedSection
 
 SeisTrcInfo::SeisTrcInfo()
-    : trckey_(*new TrcKey)
-    , sampling(0,defaultSampleInterval())
+    : sampling_(0,defaultSampleInterval())
+    , trckey_(*new TrcKey)
+    , coord(coord_)
+    , sampling(sampling_)
+    , offset(offset_)
+    , azimuth(azimuth_)
+    , refnr(refnr_)
+    , pick(pick_)
+    , zref(zref_)
+    , new_packet(new_packet_)
     , binid(const_cast<BinID&>(trckey_.position()))
     , nr(binid.trcNr())
 {
@@ -274,6 +294,14 @@ SeisTrcInfo::SeisTrcInfo()
 
 SeisTrcInfo::SeisTrcInfo( const SeisTrcInfo& oth )
     : trckey_(*new TrcKey)
+    , coord(coord_)
+    , sampling(sampling_)
+    , offset(offset_)
+    , azimuth(azimuth_)
+    , refnr(refnr_)
+    , pick(pick_)
+    , zref(zref_)
+    , new_packet(new_packet_)
     , binid(const_cast<BinID&>(trckey_.position()))
     , nr(binid.trcNr())
 {
@@ -294,15 +322,15 @@ SeisTrcInfo& SeisTrcInfo::operator=( const SeisTrcInfo& oth )
     if ( this != &oth )
     {
 	trckey_ = oth.trckey_;
-	sampling = oth.sampling;
-	coord = oth.coord;
-	offset = oth.offset;
-	azimuth = oth.azimuth;
-	refnr = oth.refnr;
-	pick = oth.pick;
+	sampling_ = oth.sampling_;
+	coord_ = oth.coord_;
+	offset_ = oth.offset_;
+	azimuth_ = oth.azimuth_;
+	refnr_ = oth.refnr_;
+	pick_ = oth.pick_;
 	seqnr_ = oth.seqnr_;
-	zref = oth.zref;
-	new_packet = oth.new_packet;
+	zref_ = oth.zref_;
+	new_packet_ = oth.new_packet_;
     }
     return *this;
 }
@@ -346,7 +374,7 @@ SeisTrcInfo& SeisTrcInfo::setTrcNr( IdxType tnr )
 SeisTrcInfo& SeisTrcInfo::setTrcKey( const TrcKey& tk )
 { trckey_ = tk; return *this; }
 SeisTrcInfo& SeisTrcInfo::calcCoord()
-{ coord = trckey_.getCoord(); return *this; }
+{ coord_ = trckey_.getCoord(); return *this; }
 
 
 float SeisTrcInfo::defaultSampleInterval( bool forcetime )
@@ -365,14 +393,14 @@ double SeisTrcInfo::getValue( SeisTrcInfo::Fld fld ) const
 {
     switch ( fld )
     {
-        case CoordX:	return coord.x_;
-        case CoordY:	return coord.y_;
+	case CoordX:	return coord_.x_;
+	case CoordY:	return coord_.y_;
     case BinIDInl:	return inl();
     case BinIDCrl:	return crl();
-    case Offset:	return offset;
-    case Azimuth:	return azimuth;
-    case RefNr:		return refnr;
-    case Pick:		return pick;
+	case Offset:	return offset_;
+	case Azimuth:	return azimuth_;
+	case RefNr:		return refnr_;
+	case Pick:		return pick_;
     case SeqNr:		return seqnr_;
     case GeomID:	return double(geomID().asInt());
     default:		return trcNr();
@@ -406,7 +434,7 @@ SeisTrcInfo::Fld SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
     if ( !next )
 	return isps ? Offset : (is2d ? TrcNr : BinIDCrl);
 
-    if ( isps && !Seis::equalOffset(next->offset,offset) )
+    if ( isps && !Seis::equalOffset(next->offset_,offset_) )
 	return Offset;
 
     if ( last )
@@ -427,7 +455,7 @@ SeisTrcInfo::Fld SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
 	return BinIDInl;
 
     // 'normal' doesn't apply, try coordinates
-    return mIsZero(next->coord.x_-coord.x_,.1) ? CoordY : CoordX;
+    return mIsZero(next->coord_.x_-coord_.x_,.1) ? CoordY : CoordX;
 }
 
 
@@ -440,15 +468,15 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 
     if ( isps )
     {
-	mIOIOPar( set, Offset, offset );
-	mIOIOPar( set, Azimuth, azimuth );
+	mIOIOPar( set, Offset, offset_ );
+	mIOIOPar( set, Azimuth, azimuth_ );
     }
 
     if ( is2d )
     {
 	mIOIOPar( set, TrcNr, trcNr() );
-	if ( refnr && !mIsUdf(refnr) )
-	    mIOIOPar( set, RefNr, refnr );
+	if ( refnr_ && !mIsUdf(refnr_) )
+	    mIOIOPar( set, RefNr, refnr_ );
     }
     else
     {
@@ -457,25 +485,25 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 	iopar.set( sKey::Position(), binID().toString() );
     }
 
-    mIOIOPar( set, CoordX, coord.x_ );
-    mIOIOPar( set, CoordY, coord.y_ );
+    mIOIOPar( set, CoordX, coord_.x_ );
+    mIOIOPar( set, CoordY, coord_.y_ );
 
-    if ( pick && !mIsUdf(pick) )
-	mIOIOPar( set, Pick, pick );
-    if ( refnr && !mIsUdf(refnr) )
-	mIOIOPar( set, RefNr, refnr );
+    if ( pick_ && !mIsUdf(pick_) )
+	mIOIOPar( set, Pick, pick_ );
+    if ( refnr_ && !mIsUdf(refnr_) )
+	mIOIOPar( set, RefNr, refnr_ );
 }
 
 
 void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
 {
-    offset = (float) rcv.distTo( src );
-    azimuth = mCast(float, Math::Atan2( rcv.y_ - src.y_, rcv.x_ - src.x_ ) );
+    offset_ = (float) rcv.distTo( src );
+    azimuth_ = mCast(float, Math::Atan2( rcv.y_ - src.y_, rcv.x_ - src.x_ ) );
     if ( setpos )
     {
-        coord.x_ = .5 * (rcv.x_ + src.x_);
-        coord.y_ = .5 * (rcv.y_ + src.y_);
-	setPos( SI().transform(coord) );
+	coord_.x_ = .5 * (rcv.x_ + src.x_);
+	coord_.y_ = .5 * (rcv.y_ + src.y_);
+	setPos( SI().transform(coord_) );
     }
 }
 
@@ -503,15 +531,15 @@ void SeisTrcInfo::usePar( const IOPar& iopar )
 	setPos( bid );
     }
 
-    mIOIOPar( get, CoordX,	coord.x_ );
-    mIOIOPar( get, CoordY,	coord.y_ );
-    mIOIOPar( get, Offset,	offset );
-    mIOIOPar( get, Azimuth,	azimuth );
-    mIOIOPar( get, Pick,	pick );
-    mIOIOPar( get, RefNr,	refnr );
+    mIOIOPar( get, CoordX,	coord_.x_ );
+    mIOIOPar( get, CoordY,	coord_.y_ );
+    mIOIOPar( get, Offset,	offset_ );
+    mIOIOPar( get, Azimuth,	azimuth_ );
+    mIOIOPar( get, Pick,	pick_ );
+    mIOIOPar( get, RefNr,	refnr_ );
     mIOIOPar( get, SeqNr,	seqnr_ );
 
-    iopar.get( sSamplingInfo, sampling.start_, sampling.step_ );
+    iopar.get( sSamplingInfo(), sampling_.start_, sampling_.step_ );
 }
 
 
@@ -526,27 +554,27 @@ void SeisTrcInfo::fillPar( IOPar& iopar ) const
 	mIOIOPar( set, BinIDCrl,	crl() );
     }
 
-    mIOIOPar( set, CoordX,	coord.x_ );
-    mIOIOPar( set, CoordY,	coord.y_ );
-    mIOIOPar( set, Offset,	offset );
-    mIOIOPar( set, Azimuth,	azimuth );
-    mIOIOPar( set, Pick,	pick );
-    mIOIOPar( set, RefNr,	refnr );
+    mIOIOPar( set, CoordX,	coord_.x_ );
+    mIOIOPar( set, CoordY,	coord_.y_ );
+    mIOIOPar( set, Offset,	offset_ );
+    mIOIOPar( set, Azimuth,	azimuth_ );
+    mIOIOPar( set, Pick,	pick_ );
+    mIOIOPar( set, RefNr,	refnr_ );
     mIOIOPar( set, SeqNr,	seqnr_ );
 
-    iopar.set( sSamplingInfo, sampling.start_, sampling.step_ );
+    iopar.set( sSamplingInfo(), sampling_.start_, sampling_.step_ );
 }
 
 
 bool SeisTrcInfo::dataPresent( float t, int trcsz ) const
 {
-    return t > sampling.start_-1e-6 && t < samplePos(trcsz-1) + 1e-6;
+    return t > sampling_.start_-1e-6 && t < samplePos(trcsz-1) + 1e-6;
 }
 
 
 int SeisTrcInfo::nearestSample( float t ) const
 {
-    float s = mIsUdf(t) ? 0 : (t - sampling.start_) / sampling.step_;
+    float s = mIsUdf(t) ? 0 : (t - sampling_.start_) / sampling_.step_;
     return mNINT32(s);
 }
 
@@ -560,8 +588,8 @@ SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg ) const
 	return sg;
 
     Interval<float> vals(
-                mIsUdf(tg.start_) ? 0 : (tg.start_-sampling.start_) / sampling.step_,
-                mIsUdf(tg.stop_) ? 0 : (tg.stop_-sampling.start_) / sampling.step_ );
+	mIsUdf(tg.start_) ? 0 : (tg.start_-sampling_.start_) / sampling_.step_,
+	mIsUdf(tg.stop_) ? 0 : (tg.stop_-sampling_.start_) / sampling_.step_ );
 
     if ( vals.start_ < vals.stop_ )
     {
@@ -585,9 +613,9 @@ Seis::PosKey SeisTrcInfo::posKey( Seis::GeomType gt ) const
 {
     switch ( gt )
     {
-    case Seis::VolPS:	return Seis::PosKey( binID(), offset );
+	case Seis::VolPS:	return Seis::PosKey( binID(), offset_ );
     case Seis::Line:	return Seis::PosKey( trcNr() );
-    case Seis::LinePS:	return Seis::PosKey( trcNr(), offset );
+	case Seis::LinePS:	return Seis::PosKey( trcNr(), offset_ );
     default:		return Seis::PosKey( binID() );
     }
 }
@@ -597,7 +625,7 @@ void SeisTrcInfo::setPosKey( const Seis::PosKey& pk )
 {
     Seis::GeomType gt = pk.geomType();
     if ( Seis::isPS(gt) )
-	offset = pk.offset();
+	offset_ = pk.offset();
     if ( Seis::is2D(gt) )
 	setTrcNr( pk.trcNr() );
     else
@@ -608,24 +636,24 @@ void SeisTrcInfo::setPosKey( const Seis::PosKey& pk )
 void SeisTrcInfo::putTo( PosAuxInfo& auxinf ) const
 {
     auxinf.trckey_ = trckey_;
-    auxinf.startpos = sampling.start_;
-    auxinf.coord = coord;
-    auxinf.offset = offset;
-    auxinf.azimuth = azimuth;
-    auxinf.pick = pick;
-    auxinf.refnr = refnr;
+    auxinf.startpos = sampling_.start_;
+    auxinf.coord = coord_;
+    auxinf.offset = offset_;
+    auxinf.azimuth = azimuth_;
+    auxinf.pick = pick_;
+    auxinf.refnr = refnr_;
 }
 
 
 void SeisTrcInfo::getFrom( const PosAuxInfo& auxinf )
 {
     trckey_ = auxinf.trckey_;
-    sampling.start_ = auxinf.startpos;
-    coord = auxinf.coord;
-    offset = auxinf.offset;
-    azimuth = auxinf.azimuth;
-    pick = auxinf.pick;
-    refnr = auxinf.refnr;
+    sampling_.start_ = auxinf.startpos;
+    coord_ = auxinf.coord;
+    offset_ = auxinf.offset;
+    azimuth_ = auxinf.azimuth;
+    pick_ = auxinf.pick;
+    refnr_ = auxinf.refnr;
 }
 
 

@@ -373,7 +373,7 @@ bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
 				? trc.data().getInterpreter()->dataChar()
 				: DataCharacteristics( reqdtype_ ) );
     for ( int idx=0; idx<ci.size(); idx++ )
-	ci[idx]->datachar = dc;
+	ci[idx]->datachar_ = dc;
     return true;
 }
 
@@ -452,14 +452,14 @@ void SeisCBVSPS3DReader::addInl( int inl )
     PosInfo::LineData* newid = new PosInfo::LineData( inl );
     const CBVSInfo::SurvGeom& sg = tr_->readMgr()->info().geom_;
 
-    if ( sg.fullyrectandreg )
+    if ( sg.fullyrectandreg_ )
     {
-	newid->segments_ += PosInfo::LineData::Segment( sg.start.inl(),
-					sg.stop.inl(), sg.step.inl() );
+	newid->segments_ += PosInfo::LineData::Segment(
+			sg.start_.inl(), sg.stop_.inl(), sg.step_.inl() );
     }
     else
     {
-	const PosInfo::CubeData& cd = sg.cubedata;
+	const PosInfo::CubeData& cd = sg.cubedata_;
 	if ( cd.size() < 1 )
 	{
 	    pErrMsg("Huh? should get error earlier");
@@ -527,7 +527,7 @@ SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
 	return nullptr;
 
     trc->info().setPos( bid );
-    trc->info().coord = coord;
+    trc->info().coord_ = coord;
     return trc;
 }
 

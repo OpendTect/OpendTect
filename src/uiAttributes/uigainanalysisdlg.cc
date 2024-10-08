@@ -40,7 +40,7 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
     AxisLayout<float> al( scalerg );
     scalerg = Interval<float>( al.sd_.start_, al.stop_ );
 
-    SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
+    SamplingData<float> zsd = trcbuf_.get(0)->info().sampling_;
     Interval<float> zrg( zsd.start_, zsd.atIndex(trcbuf_.get(0)->size()-1) );
     zrg.scale( SI().zDomain().userFactor() );
 
@@ -113,7 +113,7 @@ void uiGainAnalysisDlg::setData( bool sety )
     TypeSet<float> zvals;
     TypeSet<float> scalefactors;
 
-    SamplingData<float> zsd = trcbuf_.get(0)->info().sampling;
+    SamplingData<float> zsd = trcbuf_.get(0)->info().sampling_;
     StepInterval<float> zrg( zsd.start_, zsd.atIndex(trcbuf_.get(0)->size()-1),
                              zsd.step_ );
     zrg.scale( SI().zDomain().userFactor() );
@@ -205,7 +205,7 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
 	yvalrange.include( yvals[idx], false );
     }
 
-    if ( (!mIsUdf(yvalrange.start_) && !range.includes(yvalrange.start_,true)) ||
+    if ( (!mIsUdf(yvalrange.start_) && !range.includes(yvalrange.start_,true))||
          (!mIsUdf(-yvalrange.stop_) && !range.includes(yvalrange.stop_,true)) )
     {
 	rangefld_->setValue( funcdisp_->yAxis(false)->range() );

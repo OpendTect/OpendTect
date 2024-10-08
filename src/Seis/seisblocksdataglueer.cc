@@ -346,7 +346,8 @@ void Seis::DataGlueer::addPos( const TrcKey& trcky, const Array2D<float>& arr,
 	lb = new LineBuf( trcky.lineNr() );
 	linebufs_ += lb;
     }
-    lb->add( new Blocklet(arr, trcky.trcNr(), trcstep_, z, tkzs_.zsamp_.step_) );
+
+    lb->add( new Blocklet(arr,trcky.trcNr(),trcstep_,z,tkzs_.zsamp_.step_) );
 }
 
 
@@ -440,11 +441,12 @@ uiRetVal Seis::DataGlueer::storeLineBuf( const LineBuf& lb )
 
     SeisTrc trc( nrz );
     TraceValues contribs( nrz );
-    trc.info().sampling.start_ = zrg.start_;
-    trc.info().sampling.step_ = zrg.step_;
+    trc.info().sampling_.start_ = zrg.start_;
+    trc.info().sampling_.step_ = zrg.step_;
     trc.info().setGeomSystem( is2D() ? OD::Geom2D : OD::Geom3D );
     uiRetVal uirv;
-    for ( int lnr=lb.linerg_.start_; lnr<=lb.linerg_.stop_; lnr+=lb.linerg_.step_)
+    for ( int lnr=lb.linerg_.start_; lnr<=lb.linerg_.stop_;
+	  lnr+=lb.linerg_.step_ )
     {
 	if ( lnr <= lastwrittenline_ )
 	    continue;
@@ -462,7 +464,7 @@ uiRetVal Seis::DataGlueer::storeLineBuf( const LineBuf& lb )
 		(lcd_ && !lcd_->includes(trc.info().binID())) )
 		continue;
 
-	    trc.info().coord = Survey::GM().toCoord( trc.info().trcKey() );
+	    trc.info().coord_ = Survey::GM().toCoord( trc.info().trcKey() );
 	    fillTrace( trc, contribs );
 	    if ( !storer_.put(trc) )
 		uirv = storer_.errMsg();

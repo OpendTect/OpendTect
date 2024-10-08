@@ -94,7 +94,7 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 	    *ptr++ = trc->get( idx, compnr_ );
 	dp->setName( nm );
 	StepInterval<double> posns( trc->samplePos(0), trc->samplePos(trcsz-1),
-				    trc->info().sampling.step_ );
+				    trc->info().sampling_.step_ );
 	if ( SI().zIsTime() ) posns.scale( zfac );
 	dp->posData().setRange( false, posns );
     }
@@ -104,9 +104,9 @@ void uiSeisSingleTraceDisplay::setData( const SeisTrc* trc, const char* nm )
 
     if ( trc )
     {
-	float refz = trc->info().zref;
+	float refz = trc->info().zref_;
 	if ( mIsZero(refz,1e-8) || mIsUdf(refz) )
-	    refz = trc->info().pick;
+	    refz = trc->info().pick_;
 	if ( !mIsZero(refz,1e-8) && !mIsUdf(refz) )
 	    addRefZ( refz );
     }

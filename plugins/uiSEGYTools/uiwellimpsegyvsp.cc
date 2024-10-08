@@ -228,7 +228,7 @@ static void setInpSamp( uiGenInput* fld, SamplingData<float>& sd, float fac )
 
 void uiWellImportSEGYVSP::use( const SeisTrc& trc )
 {
-    dispinpsamp_ = trc.info().sampling;
+    dispinpsamp_ = trc.info().sampling_;
     setInpSamp( inpsampfld_, dispinpsamp_, mCast(float,isdpth_ ? 1 : 1000) );
     if ( isdpth_ )
     {
@@ -295,8 +295,8 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
     if ( !fetchTrc(trc) )
 	return false;
 
-    if ( !mIsUdf(inpsamp.start_) ) trc.info().sampling.start_ = inpsamp.start_;
-    if ( !mIsUdf(inpsamp.step_) ) trc.info().sampling.step_ = inpsamp.step_;
+    if ( !mIsUdf(inpsamp.start_) ) trc.info().sampling_.start_ = inpsamp.start_;
+    if ( !mIsUdf(inpsamp.step_) ) trc.info().sampling_.step_ = inpsamp.step_;
 
     if ( createLog(trc,outzrg,lognm) )
 	uiMSG().message(tr("%1 created and saved").arg(lognm.buf()));

@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "visgeomindexedshape.h"
 
+#include "coltab.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "indexedshape.h"
@@ -16,7 +17,6 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "viscoord.h"
-#include "visdrawstyle.h"
 #include "visnormals.h"
 #include "vispolygonoffset.h"
 #include "vispolyline.h"
@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include <osg/UserDataContainer>
 #include <osg/LightModel>
 
-#include "vistransform.h"
 
 #define mNrMaterials		256
 #define mNrMaterialSteps	255
@@ -190,7 +189,7 @@ bool GeomIndexedShape::isColTabEnabled() const
 
 
 void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup,
-				      TaskRunner* tr )
+				      TaskRunner* taskr )
 {
     if ( setup!=colorhandler_->mapper_.setup_ )
     {
@@ -389,7 +388,8 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
 }
 
 
-void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner* tr)
+void GeomIndexedShape::setAttribData( const DataPointSet& set,
+				      TaskRunner* taskr )
 {
     const DataColDef coordindex( sKeyCoordIndex() );
     const int col =

@@ -54,8 +54,7 @@ int StratSynth::DataMgr::gtActualLMIdx( int lmsidx ) const
 
 
 StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
-    : lms_(lms)
-    , elasticModelChanged(this)
+    : elasticModelChanged(this)
     , entryAdded(this)
     , entryRenamed(this)
     , entryChanged(this)
@@ -64,6 +63,7 @@ StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
     , elPropSelChanged(this)
     , newWvltUsed(this)
     , wvltScalingDone(this)
+    , lms_(lms)
 {
     for ( int idx=0; idx<nrLayerModels(); idx++ )
 	addLayModelSets();
@@ -73,9 +73,7 @@ StratSynth::DataMgr::DataMgr( const Strat::LayerModelSuite& lms )
 
 
 StratSynth::DataMgr::DataMgr( const DataMgr& oth, int calceach )
-    : lms_(oth.lms_)
-    , calceach_(calceach)
-    , elasticModelChanged(this)
+    : elasticModelChanged(this)
     , entryAdded(this)
     , entryRenamed(this)
     , entryChanged(this)
@@ -84,6 +82,8 @@ StratSynth::DataMgr::DataMgr( const DataMgr& oth, int calceach )
     , elPropSelChanged(this)
     , newWvltUsed(this)
     , wvltScalingDone(this)
+    , lms_(oth.lms_)
+    , calceach_(calceach)
 {
     ids_ = oth.ids_;
     genparams_ = oth.genparams_;
@@ -1374,7 +1374,7 @@ void StratSynth::DataMgr::setPackLevelTimes( SynthID id,
 		SeisTrc& trc = *tbuf.get( itrc );
 		const float zval = zvals->get( itrc );
 		const float tval = d2tmodel->getTime( zval );
-		trc.info().zref = trc.info().pick = tval;
+		trc.info().zref_ = trc.info().pick_ = tval;
 	    }
 	}
     }
@@ -2065,7 +2065,7 @@ ConstRefMan<SyntheticData> StratSynth::DataMgr::genPSPostProcDataSet(
 
 	auto* trc = new SeisTrc( nrsamples );
 	SeisTrcInfo& ti = trc->info();
-	ti.sampling = tsampling;
+	ti.sampling_ = tsampling;
 	ti.setTrcKey( amplgather->getTrcKey() );
 	for ( int isamp=0; isamp<nrsamples; isamp++ )
 	    trc->set( isamp, pspropcalc.getVal(isamp), 0 );
@@ -2257,8 +2257,8 @@ bool doPrepare( int /* nrthreads */ ) override
 	const SeisTrc& inptrc = *sd_.getTrace( itrc );
 	SeisTrc trc( sz );
 	trc.info() = inptrc.info();
-        trc.info().sampling.step_ = zrg_.step_;
-	trc.info().offset = 0.f;
+	trc.info().sampling_.step_ = zrg_.step_;
+	trc.info().offset_ = 0.f;
 	trc.zero();
 	for ( int iprop=0; iprop<nrprops; iprop++ )
 	    trcbufs[iprop]->add( new SeisTrc(trc) );
@@ -2292,7 +2292,7 @@ bool doWork( od_int64 start, od_int64 stop, int /* threadid */ ) override
 	const int iseq = datamgr_.iSeq( itrc );
 	const Strat::LayerSequence& seq = lm.sequence( iseq );
         const Interval<float> seqtimerg(  sd_.getTime(seq.zRange().start_,itrc),
-                                          sd_.getTime(seq.zRange().stop_,itrc) );
+					  sd_.getTime(seq.zRange().stop_,itrc));
 	if ( seqtimerg.isUdf() )
 	    return false;
 

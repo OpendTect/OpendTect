@@ -189,7 +189,7 @@ int SEGY::Scanner::readNext()
     }
 
     const SeisTrcInfo& ti = trc_.info();
-    dtctor_.add( ti.coord, ti.binID(), ti.trcNr(), ti.offset );
+    dtctor_.add( ti.coord_, ti.binID(), ti.trcNr(), ti.offset_ );
     clipsmplr_.add( (const float*)trc_.data().getComponent(0)->data(),
 		    trc_.size() );
     nrdone_++;
@@ -197,7 +197,7 @@ int SEGY::Scanner::readNext()
     if ( notrcinfo_ )
 	return MoreToDo();
 
-    fds_.addTrace( curfidx_, ti.posKey( geom_ ), ti.refnr, ti.coord,
+    fds_.addTrace( curfidx_, ti.posKey( geom_ ), ti.refnr_, ti.coord_,
 		   tr_->trcHeader().isusable );
 
     return MoreToDo();
@@ -241,7 +241,7 @@ int SEGY::Scanner::openNext()
 	return MoreToDo();
     }
     for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
-	tr_->componentInfo()[idx]->datachar
+	tr_->componentInfo()[idx]->datachar_
 	    = DataCharacteristics( DataCharacteristics::F32 );
 
     initFileData();

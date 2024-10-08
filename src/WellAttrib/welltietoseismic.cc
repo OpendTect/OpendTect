@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "statruncalc.h"
-#include "ctxtioobj.h"
 #include "wavelet.h"
 #include "welldata.h"
 #include "wellelasticmodelcomputer.h"
@@ -118,7 +117,7 @@ bool WellTie::DataPlayer::extractSeismics()
     const int newsz = tracerg.nrSteps()+1;
     auto* newtrc = new SeisTrc( newsz );
     newtrc->info() = rawseis.info();
-    newtrc->info().sampling = tracerg;
+    newtrc->info().sampling_ = tracerg;
     for ( int idx=0; idx<newsz; idx++ )
     {
 	const float twt = tracerg.atIndex(idx);
@@ -201,7 +200,7 @@ bool WellTie::DataPlayer::checkCrossCorrInps()
     if ( nrsamps < 2 )
 	mErrRet( tr( "Cross-correlation too short" ) )
 
-                if ( zrg_.start_ < realtrc->startPos() || zrg_.stop_ > realtrc->endPos() )
+    if ( zrg_.start_ < realtrc->startPos() || zrg_.stop_ > realtrc->endPos() )
     {
 	const uiString msg = tr( "The cross-correlation window must be smaller "
 				 "than the synthetic/seismic traces" );

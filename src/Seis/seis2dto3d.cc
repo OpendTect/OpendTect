@@ -177,7 +177,7 @@ bool Seis2DTo3D::read()
 	    else if ( readres == 2 )
 		continue;
 
-	    const BinID bid = geom3d->transform( inptrc.info().coord );
+	    const BinID bid = geom3d->transform( inptrc.info().coord_ );
 	    if ( !inlrg.includes(bid.inl(),false) ||
 		 !crlrg.includes(bid.crl(),false) ||
 		 !rdr.get(inptrc) )
@@ -187,8 +187,8 @@ bool Seis2DTo3D::read()
 	    trc->reSize( ns, false );
 	    trc->info().setPos( bid );
 	    trc->info().calcCoord();
-            trc->info().sampling.start_ = tkzs_.zsamp_.start_;
-            trc->info().sampling.step_ = tkzs_.zsamp_.step_;
+	    trc->info().sampling_.start_ = tkzs_.zsamp_.start_;
+	    trc->info().sampling_.step_ = tkzs_.zsamp_.step_;
 	    for ( int isamp=0; isamp<ns; isamp++ )
 	    {
 		const float z = tkzs_.zsamp_.atIndex( isamp );
@@ -359,7 +359,7 @@ bool Seis2DTo3D::doWorkFFT()
 	while ( hsit.next(bid) && seisbuf_.get(0) )
 	{
 	    auto* trc = new SeisTrc( seisbuf_.get(0)->size() );
-	    trc->info().sampling = seisbuf_.get(0)->info().sampling;
+	    trc->info().sampling_ = seisbuf_.get(0)->info().sampling_;
 	    trc->info().setPos( bid );
 	    outtrcs += trc;
 	}
@@ -483,8 +483,10 @@ bool SeisInterpol::doPrepare( od_ostream* )
     const int diffszx = szx_ - hsszx;
     const int diffszy = szy_ - hsszy;
 
-    hs_.setInlRange(Interval<int>(inlrg.start_-diffszx/2,inlrg.stop_+diffszx/2));
-    hs_.setCrlRange(Interval<int>(crlrg.start_-diffszy/2,crlrg.stop_+diffszy/2));
+    hs_.setInlRange(
+		Interval<int>(inlrg.start_-diffszx/2,inlrg.stop_+diffszx/2) );
+    hs_.setCrlRange(
+		Interval<int>(crlrg.start_-diffszy/2,crlrg.stop_+diffszy/2) );
 
     setUpData();
     return true;
@@ -635,7 +637,7 @@ void SeisInterpol::getOutTrcs( ObjectSet<SeisTrc>& trcs,
 	if ( idx < 0 || idy < 0 || szx_ <= idx || szy_ <= idy) continue;
 
 	auto* trc = new SeisTrc( szz_ );
-	trc->info().sampling = (*inptrcs_)[0]->info().sampling;
+	trc->info().sampling_ = (*inptrcs_)[0]->info().sampling_;
 	trc->info().setPos( bid );
 	for ( int idz=0; idz<szz_; idz++ )
 	{

@@ -11,8 +11,12 @@ ________________________________________________________________________
  
 #include "seismod.h"
 #include "executor.h"
+
+#include "posgeomid.h"
 #include "samplingdata.h"
 #include "uistring.h"
+
+class Seis2DDataSet;
 class SeisTrcBuf;
 class SeisIOObjInfo;
 class BufferStringSet;
@@ -62,7 +66,8 @@ protected:
     BufferStringSet&	attrnms_;
     int			curattridx_;
     int			currentlyreading_;
-    Pos::GeomID		lid1_, lid2_;
+    Pos::GeomID		lid1_;
+    Pos::GeomID		lid2_;
     bool		have1_, have2_;
     const Pos::GeomID&	outgeomid_;
 

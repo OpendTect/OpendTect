@@ -252,7 +252,7 @@ const ReflectivityModelBase* WellTie::Data::getRefModel() const
 float WellTie::Data::getZStep() const
 {
     const SeisTrc* trc = getRealTrc();
-    return trc ? trc->info().sampling.step_ : mUdf(float);
+    return trc ? trc->info().sampling_.step_ : mUdf(float);
 }
 
 

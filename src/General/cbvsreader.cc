@@ -94,17 +94,17 @@ void PosAuxInfo::set2D( bool yn )
 CBVSReader::CBVSReader( od_istream* s, bool glob_info_only,
 				bool forceusecbvsinfo )
 	: strm_(*s)
+	, singlinemode_(false)
+	, hinfofetched_(false)
+	, bytespertrace_(0)
+	, idxatpos_(0)
 	, iinterp_(DataCharacteristics())
 	, finterp_(DataCharacteristics())
 	, dinterp_(DataCharacteristics())
-	, bytespertrace_(0)
-	, hinfofetched_(false)
-	, idxatpos_(0)
-	, datastartfo_(0)
-	, lastposfo_(0)
 	, hs_(false)
-	, singlinemode_(false)
 	, worktrcdata_(*new TraceData)
+	, lastposfo_(0)
+	, datastartfo_(0)
 {
     hs_.step_.inl() = hs_.step_.crl() = 1;
     if ( readInfo(!glob_info_only,forceusecbvsinfo) )
@@ -167,27 +167,27 @@ bool CBVSReader::readInfo( bool wanttrailer, bool forceusecbvsinfo )
 
     CBVSInfo::SurvGeom& geom = info_.geom_;
     if ( !wanttrailer )
-	geom.fullyrectandreg = true;
+	geom.fullyrectandreg_ = true;
 
-    bool needtrailer = !geom.fullyrectandreg || coordpol_ == InTrailer;
+    bool needtrailer = !geom.fullyrectandreg_ || coordpol_ == InTrailer;
     if ( wanttrailer && needtrailer && !readTrailer() )
 	return false;
 
-    if ( geom.fullyrectandreg )
+    if ( geom.fullyrectandreg_ )
     {
-	geom.cubedata.erase();
-	geom.cubedata.generate( geom.start, geom.stop, geom.step, true );
-	lds_.generate( geom.start, geom.stop, geom.step, true );
+	geom.cubedata_.erase();
+	geom.cubedata_.generate( geom.start_, geom.stop_, geom.step_, true );
+	lds_.generate( geom.start_, geom.stop_, geom.step_, true );
     }
     geom.reCalcBounds();
 
-    firstbinid_ = geom.start;
+    firstbinid_ = geom.start_;
     curgeomcubepos_.toStart();
     setCubePos( true );
-    if ( !geom.cubedata.isValid(curgeomcubepos_) )
+    if ( !geom.cubedata_.isValid(curgeomcubepos_) )
 	return true; // empty file
     updCurBinID();
-    firstbinid_ = geom.cubedata.binID( curgeomcubepos_ );
+    firstbinid_ = geom.cubedata_.binID( curgeomcubepos_ );
 
     mkPosNrs();
     return true;
@@ -198,8 +198,8 @@ void CBVSReader::setCubePos( bool fromgeom ) const
 {
     PosInfo::CubeDataPos& inp = fromgeom ? curgeomcubepos_ : curldscubepos_;
     PosInfo::CubeDataPos& out = fromgeom ? curldscubepos_ : curgeomcubepos_;
-    const PosInfo::CubeData& inpcd = fromgeom ? info_.geom_.cubedata : lds_;
-    const PosInfo::CubeData& outcd = fromgeom ? lds_ : info_.geom_.cubedata;
+    const PosInfo::CubeData& inpcd = fromgeom ? info_.geom_.cubedata_ : lds_;
+    const PosInfo::CubeData& outcd = fromgeom ? lds_ : info_.geom_.cubedata_;
 
     out = inp; // guess
     if ( outcd.binID(out) != inpcd.binID(inp) )
@@ -209,7 +209,7 @@ void CBVSReader::setCubePos( bool fromgeom ) const
 
 void CBVSReader::updCurBinID() const
 {
-    curbinid_ = info_.geom_.cubedata.binID( curgeomcubepos_ );
+    curbinid_ = info_.geom_.cubedata_.binID( curgeomcubepos_ );
 }
 
 
@@ -295,11 +295,11 @@ bool CBVSReader::readComps()
 	BasicComponentInfo* newinf = new BasicComponentInfo( (const char*)bs );
 
 	strm_.getBin( ucbuf, integersize );
-	    newinf->datatype = iinterp_.get( ucbuf, 0 );
+	    newinf->datatype_ = iinterp_.get( ucbuf, 0 );
 	strm_.getBin( ucbuf, 4 );
-	    newinf->datachar.set( ucbuf[0], ucbuf[1] );
+	newinf->datachar_.set( ucbuf[0], ucbuf[1] );
 	    // extra 2 bytes reserved for compression type
-	    newinf->datachar.fmt_ = DataCharacteristics::Ieee;
+	newinf->datachar_.fmt_ = DataCharacteristics::Ieee;
 	strm_.getBin( ucbuf, sizeof(float) );
         info_.sd_.start_ = finterp_.get( ucbuf, 0 );
 	strm_.getBin( ucbuf, sizeof(float) );
@@ -310,7 +310,7 @@ bool CBVSReader::readComps()
 	strm_.getBin( ucbuf, 2*sizeof(float) );
 	    // reserved for per-component scaling: LinScaler( a, b )
 
-	if ( info_.nrsamples_ < 0 || newinf->datatype < 0 )
+	if ( info_.nrsamples_ < 0 || newinf->datatype_ < 0 )
 	{
 	    delete newinf;
 	    mErrRet("Corrupt CBVS format: Component desciption error")
@@ -318,7 +318,7 @@ bool CBVSReader::readComps()
 
 	info_.compinfo_ += newinf;
 
-	cnrbytes_[icomp] = info_.nrsamples_ * newinf->datachar.nrBytes();
+	cnrbytes_[icomp] = info_.nrsamples_ * newinf->datachar_.nrBytes();
 	bytespertrace_ += cnrbytes_[icomp];
 	samprg_.set( 0, info_.nrsamples_-1, 1 );
     }
@@ -332,28 +332,28 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
     char buf[8*sizeof(double)];
 
     strm_.getBin( buf, 8*integersize );
-    info_.geom_.fullyrectandreg = (bool)iinterp_.get( buf, 0 );
+    info_.geom_.fullyrectandreg_ = (bool)iinterp_.get( buf, 0 );
     info_.nrtrcsperposn_ = iinterp_.get( buf, 1 );
-    info_.geom_.start.inl() = iinterp_.get( buf, 2 );
-    info_.geom_.start.crl() = iinterp_.get( buf, 3 );
-    info_.geom_.stop.inl() = iinterp_.get( buf, 4 );
-    info_.geom_.stop.crl() = iinterp_.get( buf, 5 );
-    info_.geom_.step.inl() = iinterp_.get( buf, 6 );
-    if ( info_.geom_.step.inl() == 0 ) info_.geom_.step.inl() = 1;
-    info_.geom_.step.crl() = iinterp_.get( buf, 7 );
-    if ( info_.geom_.step.crl() == 0 ) info_.geom_.step.crl() = 1;
-    if ( info_.geom_.step.inl()<0 )
+    info_.geom_.start_.inl() = iinterp_.get( buf, 2 );
+    info_.geom_.start_.crl() = iinterp_.get( buf, 3 );
+    info_.geom_.stop_.inl() = iinterp_.get( buf, 4 );
+    info_.geom_.stop_.crl() = iinterp_.get( buf, 5 );
+    info_.geom_.step_.inl() = iinterp_.get( buf, 6 );
+    if ( info_.geom_.step_.inl() == 0 ) info_.geom_.step_.inl() = 1;
+    info_.geom_.step_.crl() = iinterp_.get( buf, 7 );
+    if ( info_.geom_.step_.crl() == 0 ) info_.geom_.step_.crl() = 1;
+    if ( info_.geom_.step_.inl()<0 )
     {
-	const int startinl = info_.geom_.start.inl();
-	info_.geom_.start.inl() = info_.geom_.stop.inl();
-	info_.geom_.stop.inl() = startinl;
+	const int startinl = info_.geom_.start_.inl();
+	info_.geom_.start_.inl() = info_.geom_.stop_.inl();
+	info_.geom_.stop_.inl() = startinl;
     }
 
-    if ( info_.geom_.step.crl()<0 )
+    if ( info_.geom_.step_.crl()<0 )
     {
-	const int startcrl = info_.geom_.start.crl();
-	info_.geom_.start.crl() = info_.geom_.stop.crl();
-	info_.geom_.stop.crl() = startcrl;
+	const int startcrl = info_.geom_.start_.crl();
+	info_.geom_.start_.crl() = info_.geom_.stop_.crl();
+	info_.geom_.stop_.crl() = startcrl;
     }
     strm_.getBin( buf, 6*sizeof(double) );
     Pos::IdxPair2Coord::DirTransform xtr, ytr;
@@ -364,13 +364,13 @@ bool CBVSReader::readGeom( bool forceusecbvsinfo )
                               =GetEnvVarYN("DTECT_CBVS_USE_STORED_SURVINFO") );
     const bool useinfo = forceusecbvsinfo ? true : useinfvar;
     if ( useinfo && xtr.valid(ytr) )
-	info_.geom_.b2c.setTransforms( xtr, ytr );
+	info_.geom_.b2c_.setTransforms( xtr, ytr );
     else
-	info_.geom_.b2c = SI().binID2Coord();
+	info_.geom_.b2c_ = SI().binID2Coord();
 
-    hs_.start_ = hs_.stop_ = BinID( info_.geom_.start.inl(),
-                                  info_.geom_.start.crl() );
-    hs_.include( BinID( info_.geom_.stop.inl(), info_.geom_.stop.crl() ) );
+    hs_.start_ = hs_.stop_ = BinID( info_.geom_.start_.inl(),
+				    info_.geom_.start_.crl() );
+    hs_.include( BinID( info_.geom_.stop_.inl(), info_.geom_.stop_.crl() ) );
 
     return strm_.isOK();
 }
@@ -399,7 +399,7 @@ bool CBVSReader::readTrailer()
 	}
     }
 
-    if ( !info_.geom_.fullyrectandreg )
+    if ( !info_.geom_.fullyrectandreg_ )
     {
 	strm_.getBin( buf, integersize );
 	const int nrinl = iinterp_.get( buf, 0 );
@@ -437,12 +437,12 @@ bool CBVSReader::readTrailer()
 
 	hs_.setInlRange( inlrg );
 	hs_.setCrlRange( crlrg );
-	info_.geom_.start = hs_.start_;
-	info_.geom_.stop = hs_.stop_;
+	info_.geom_.start_ = hs_.start_;
+	info_.geom_.stop_ = hs_.stop_;
     }
 
-    if ( !info_.geom_.fullyrectandreg )
-	info_.geom_.cubedata = lds_;
+    if ( !info_.geom_.fullyrectandreg_ )
+	info_.geom_.cubedata_ = lds_;
     return strm_.isOK();
 }
 
@@ -459,8 +459,8 @@ bool CBVSReader::toStart()
 BinID CBVSReader::nextBinID() const
 {
     PosInfo::CubeDataPos cdp( curgeomcubepos_ );
-    info_.geom_.cubedata.toNext( cdp );
-    return info_.geom_.cubedata.binID( cdp );
+    info_.geom_.cubedata_.toNext( cdp );
+    return info_.geom_.cubedata_.binID( cdp );
 }
 
 
@@ -555,7 +555,7 @@ bool CBVSReader::toNext()
 	idxatpos_ = 0;
     if ( idxatpos_ == 0 )
     {
-	if ( !info_.geom_.cubedata.toNext(curgeomcubepos_) )
+	if ( !info_.geom_.cubedata_.toNext(curgeomcubepos_) )
 	    return false;
 	setCubePos( true );
 	updCurBinID();
@@ -597,7 +597,7 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 	auxinf.trckey_.setLineNr( curbinid_.inl() );
 
     auxinf.trckey_.setTrcNr( curbinid_.crl() );
-    auxinf.coord = info_.geom_.b2c.transform( curbinid_ );
+    auxinf.coord = info_.geom_.b2c_.transform( curbinid_ );
     auxinf.startpos = info_.sd_.start_;
     auxinf.offset = auxinf.azimuth = 0;
     auxinf.pick = mSetUdf(auxinf.refnr);
@@ -627,15 +627,16 @@ bool CBVSReader::getAuxInfo( PosAuxInfo& auxinf )
 Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
 {
     int arridx = 0;
-    if ( info_.geom_.fullyrectandreg )
+    if ( info_.geom_.fullyrectandreg_ )
     {
-	if ( bid.inl() != info_.geom_.start.inl() )
+	if ( bid.inl() != info_.geom_.start_.inl() )
 	{
-	    const int nrcrl = (info_.geom_.stop.crl()-info_.geom_.start.crl())
-			    / info_.geom_.step.crl() + 1;
-	    arridx = nrcrl * (bid.inl() - info_.geom_.start.inl());
+	    const int nrcrl = (info_.geom_.stop_.crl()-info_.geom_.start_.crl())
+			      / info_.geom_.step_.crl() + 1;
+	    arridx = nrcrl * (bid.inl() - info_.geom_.start_.inl());
 	}
-	arridx += (bid.crl()-info_.geom_.start.crl()) / info_.geom_.step.crl();
+	arridx += (bid.crl()-info_.geom_.start_.crl()) /
+						info_.geom_.step_.crl();
     }
     else
     {
@@ -650,18 +651,20 @@ Coord CBVSReader::getTrailerCoord( const BinID& bid ) const
 		    arridx += seg.nrSteps() + 1;
 		else
 		{
-                    arridx += (bid.crl() - seg.start_) / seg.step_;
+		    arridx += (bid.crl() - seg.start_) / seg.step_;
 		    break;
 		}
 	    }
-	    if ( inlmatches ) break;
+
+	    if ( inlmatches )
+		break;
 	}
     }
 
     if ( arridx < trailercoords_.size() )
 	return trailercoords_[arridx];
 
-    return info_.geom_.b2c.transform( bid );
+    return info_.geom_.b2c_.transform( bid );
 }
 
 
@@ -687,7 +690,7 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	iselc++;
 
 	BasicComponentInfo* compinfo = info_.compinfo_[icomp];
-	int bps = compinfo->datachar.nrBytes();
+	int bps = compinfo->datachar_.nrBytes();
         if ( samps->start_ )
             strm_.ignore( samps->start_*bps );
 	if ( !strm_.getBin(((char*)bufs[iselc]) + offs*bps,
@@ -742,7 +745,7 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
     if ( tdtofill.nrComponents() != nrcompsselected )
 	tdtofill.setNrComponents( nrcompsselected, DataCharacteristics::Auto );
 
-    tdtofill.convertTo( info_.compinfo_[0]->datachar );
+    tdtofill.convertTo( info_.compinfo_[0]->datachar_ );
     const int outnrsamps = samprg->nrSteps() + 1;
     if ( tdtofill.size(0) < outnrsamps )
 	tdtofill.reSize( outnrsamps );
@@ -759,7 +762,7 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
     const int nrsamps2skip = samprg->start_;
     const int nrsamps2read = samprg->stop_ - samprg->start_ + 1;
     const int nrsampsleftatend = info_.nrsamples_ - samprg->stop_ - 1;
-    const int bps = info_.compinfo_[0]->datachar.nrBytes();
+    const int bps = info_.compinfo_[0]->datachar_.nrBytes();
     for ( int icomp=0; icomp<nrcomps_; icomp++ )
     {
 	if ( comps && !comps[icomp] )
@@ -783,9 +786,10 @@ bool CBVSReader::fetch( TraceData& tdtofill, const bool* comps,
 	{
 	    for (auto isamp=0; isamp<outnrsamps; isamp++ )
 		tdtofill.setValue( isamp,
-                                   td->getValue(isamp*samprg->step_, icomp), icomp );
+			td->getValue(isamp*samprg->step_, icomp), icomp );
 	}
     }
+
     hinfofetched_ = false;
     return !strm_.isBad();
 }

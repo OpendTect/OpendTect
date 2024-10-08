@@ -509,7 +509,7 @@ void SEGY::OffsetCalculator::setOffset( SeisTrcInfo& ti,
     else
 	curoffs_ += def_.step_;
 
-    ti.offset = curoffs_;
+    ti.offset_ = curoffs_;
     if ( is2d_ )
 	prevbid_.trcNr() = ti.trcNr();
     else

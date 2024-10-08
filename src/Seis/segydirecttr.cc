@@ -430,9 +430,9 @@ void SEGYDirectSeisTrcTranslator::setCompDataFromInput()
     deepErase( tarcds_ );
     for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
     {
-	addComp( tr_->inputComponentData()[idx]->datachar,
+	addComp( tr_->inputComponentData()[idx]->datachar_,
 		 tr_->inputComponentData()[idx]->name() );
-	tarcds_[idx]->datachar = tr_->componentInfo()[idx]->datachar;
+	tarcds_[idx]->datachar_ = tr_->componentInfo()[idx]->datachar_;
     }
 }
 
@@ -478,13 +478,13 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
 	}
     }
 
-    pinfo_.cubedata = &def_->cubeData();
+    pinfo_.cubedata_ = &def_->cubeData();
     insd_ = fds.getSampling();
     innrsamples_ = fds.getTrcSz();
-    pinfo_.nr = 1;
-    pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
-    pinfo_.cubedata->getInlRange( pinfo_.inlrg );
-    pinfo_.cubedata->getCrlRange( pinfo_.crlrg );
+    pinfo_.nr_ = 1;
+    pinfo_.fullyrectandreg_ = pinfo_.cubedata_->isFullyRectAndReg();
+    pinfo_.cubedata_->getInlRange( pinfo_.inlrg_ );
+    pinfo_.cubedata_->getCrlRange( pinfo_.crlrg_ );
     if ( !toNextTrace() || !positionTranslator() )
 	return false;
 
@@ -715,8 +715,8 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
     }
 
-    ti.sampling.start_ = outsd_.start_;
-    ti.sampling.step_ = outsd_.step_;
+    ti.sampling_.start_ = outsd_.start_;
+    ti.sampling_.step_ = outsd_.step_;
     if ( tr_->curtrcscalebase_ )
 	curtrcscalebase_ = tr_->curtrcscalebase_;
 
@@ -769,7 +769,7 @@ bool SEGYDirectSeisTrcTranslator::write( const SeisTrc& trc )
     if ( !tr_->write(trc) )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
-    fds_->addTrace( 0, trc.info().posKey(Seis::Vol), trc.info().coord, true );
+    fds_->addTrace( 0, trc.info().posKey(Seis::Vol), trc.info().coord_, true );
     return true;
 }
 

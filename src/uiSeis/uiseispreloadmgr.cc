@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "preloads.h"
 #include "ptrman.h"
+#include "scaler.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seiscbvs.h"
@@ -817,8 +818,8 @@ bool uiSeisPreLoadSel::acceptOK( CallBacker* )
 uiSeisPreLoadedDataSel::uiSeisPreLoadedDataSel( uiParent* p, GeomType geom,
 						const uiString& txt )
     : uiGroup(p,"Pre-loaded Data Selection")
-    , geomtype_(geom)
     , selectionChanged(this)
+    , geomtype_(geom)
 {
     auto* lcb = new uiLabeledComboBox( this, txt );
     nmfld_ = lcb->box();

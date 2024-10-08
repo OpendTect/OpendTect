@@ -306,7 +306,10 @@ protected:
 				const char* nm=nullptr,int dtype=0);
 
     void		setDataType( int icomp, int d )
-			{ cds_[icomp]->datatype = tarcds_[icomp]->datatype = d;}
+			{
+			    cds_[icomp]->datatype_ =
+					tarcds_[icomp]->datatype_ = d;
+			}
 
 			/* Subclasses will need to implement the following: */
     virtual bool	initRead_()			{ return true; }
@@ -337,9 +340,9 @@ protected:
 
 private:
 
-    int*		inpfor_     = nullptr;
-    int			nrout_	    = 0;
-    int			prevnr_     = mUdf(int);
+    int*		inpfor_					= nullptr;
+    int			nrout_					= 0;
+    int			prevnr_					= mUdf(int);
     int			lastinlwritten_;
 
     void		enforceBounds();

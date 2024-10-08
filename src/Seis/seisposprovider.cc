@@ -84,7 +84,7 @@ uiRetVal Pos::SeisProvider3D::setSeisID( const MultiID& dbky )
 	return uirv;
     }
 
-    const PosInfo::CubeData* cd = trl->packetInfo().cubedata;
+    const PosInfo::CubeData* cd = trl->packetInfo().cubedata_;
     if ( !cd )
     {
 	uirv.set( tr("Cube for positions does not contain required info") );
@@ -93,7 +93,7 @@ uiRetVal Pos::SeisProvider3D::setSeisID( const MultiID& dbky )
 
     cubedata_ = *cd;
     id_ = dbky;
-    zsamp_ = trl->packetInfo().zrg;
+    zsamp_ = trl->packetInfo().zrg_;
     reset();
     return uirv;
 }

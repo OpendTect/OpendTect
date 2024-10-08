@@ -8,6 +8,7 @@ ________________________________________________________________________
 -*/
 
 #include "coltabsequence.h"
+#include "coltab.h"
 #include "coltabindex.h"
 
 #include "ascstream.h"
@@ -66,9 +67,7 @@ protected:
 
 
 ColTab::Sequence::Sequence()
-    : mInitStdMembs(OD::Color::LightGrey(),OD::Color::DgbColor())
-    , nrsegments_( 0 )
-    , colorChanged(this)
+    : colorChanged(this)
     , transparencyChanged(this)
     , toBeRemoved(this)
     , type_(User)
@@ -78,8 +77,6 @@ ColTab::Sequence::Sequence()
 
 ColTab::Sequence::Sequence( const char* nm )
     : NamedCallBacker(nm)
-    , mInitStdMembs(OD::Color::LightGrey(),OD::Color::DgbColor())
-    , nrsegments_( 0 )
     , colorChanged(this)
     , transparencyChanged(this)
     , toBeRemoved(this)

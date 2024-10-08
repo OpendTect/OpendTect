@@ -142,15 +142,15 @@ int nextStep() override
 	const Interval<float> inzrg( intrc_.zRange() );
 	const StepInterval<float> outzrg( zval_ + inzrg.start_ - horzrg_.stop_,
 					  zval_ + inzrg.stop_ - horzrg_.start_,
-					  intrc_.info().sampling.step_ );
+					  intrc_.info().sampling_.step_ );
 	const int nrsamps = outzrg.nrSteps() + 1;
 	outtrc_.reSize( nrsamps, false );
-	outtrc_.info().sampling.start_ = outzrg.start_;
+	outtrc_.info().sampling_.start_ = outzrg.start_;
     }
 
-    const float horz = pp_.adjustedZ( intrc_.info().coord, zval_ );
+    const float horz = pp_.adjustedZ( intrc_.info().coord_, zval_ );
     outtrc_.info() = intrc_.info();
-    outtrc_.info().pick = horz;
+    outtrc_.info().pick_ = horz;
     for ( int icomp=0; icomp<outtrc_.nrComponents(); icomp++ )
     {
 	for ( int isamp=0; isamp<outtrc_.size(); isamp++ )

@@ -259,7 +259,7 @@ void SeisIOSimple::startImpRead()
         { data_.sd_.start_ *= .001; data_.sd_.step_ *= .001; }
     }
 
-    trc_.info().sampling = data_.sd_;
+    trc_.info().sampling_ = data_.sd_;
     importer_ = new SeisImporter( new SeisIOSimpleImportReader(*this),
 				  *wrr_, data_.geom_ );
 }
@@ -373,8 +373,8 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	{
 	    const int nrinl = nrposdone / data_.nrcrlperinl_;
 	    const int nrcrl = nrposdone % data_.nrcrlperinl_;
-            const int inlnr = data_.inldef_.start_ + nrinl * data_.inldef_.step_;
-            const int crlnr = data_.crldef_.start_ + nrcrl * data_.crldef_.step_;
+	    const int inlnr = data_.inldef_.start_ + nrinl*data_.inldef_.step_;
+	    const int crlnr = data_.crldef_.start_ + nrcrl*data_.crldef_.step_;
 	    tk.setPosition( BinID(inlnr,crlnr) );
 	}
     }
@@ -420,15 +420,15 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
     if ( !is2d )
 	trc.info().calcCoord();
 
-    if ( is2d || (trc.info().coord.isUdf() && !coord.isUdf()) )
-	trc.info().coord = coord;
+    if ( is2d || (trc.info().coord_.isUdf() && !coord.isUdf()) )
+	trc.info().coord_ = coord;
 
-    mPIEPAdj(Coord,trc.info().coord,true);
+    mPIEPAdj(Coord,trc.info().coord_,true);
     mPIEPAdj(Offset,offs,true);
-    trc.info().offset = offs;
-    trc.info().azimuth = azim;
+    trc.info().offset_ = offs;
+    trc.info().azimuth_ = azim;
     trc.info().seqnr_ = nrDone();
-    trc.info().refnr = refnr;
+    trc.info().refnr_ = refnr;
 
     prevbid_ = csttk.position();
     prevnr_ = csttk.trcNr();
@@ -507,7 +507,7 @@ int SeisIOSimple::writeExpTrc()
 	data_.nrsamples_ = trc_.size();
 	if ( data_.havesd_ )
 	{
-	    SamplingData<float> datasd = trc_.info().sampling;
+	    SamplingData<float> datasd = trc_.info().sampling_;
 	    if ( zistm_ )
             { datasd.start_ *= 1000; datasd.step_ *= 1000; }
             mPIEPAdj(Z,datasd.start_,false); mPIEPAdj(Z,datasd.step_,false);
@@ -523,7 +523,7 @@ int SeisIOSimple::writeExpTrc()
     if ( data_.havenr_ )
     {
 	int nr = trc_.info().trcNr();
-	const float refnr = trc_.info().refnr;
+	const float refnr = trc_.info().refnr_;
 	mPIEPAdj(TrcNr,nr,false);
 	binstrm.add( nr );
 	if ( data_.haverefnr_ )
@@ -534,7 +534,7 @@ int SeisIOSimple::writeExpTrc()
     {
 	if ( data_.isxy_ )
 	{
-	    Coord coord = trc_.info().coord;
+	    Coord coord = trc_.info().coord_;
 	    mPIEPAdj(Coord,coord,false);
 	    ConstRefMan<Coords::CoordSystem> sicrs = SI().getCoordSystem();
 	    ConstRefMan<Coords::CoordSystem> datacrs = data_.getCoordSys();
@@ -555,12 +555,12 @@ int SeisIOSimple::writeExpTrc()
     {
 	if ( data_.haveoffs_ )
 	{
-	    float offs = trc_.info().offset;
+	    float offs = trc_.info().offset_;
 	    mPIEPAdj(Offset,offs,false);
 	    binstrm.add( offs );
 	}
 	if ( data_.haveazim_ )
-	    binstrm.add( trc_.info().azimuth );
+	    binstrm.add( trc_.info().azimuth_ );
     }
 
     float val;

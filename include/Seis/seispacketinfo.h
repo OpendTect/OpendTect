@@ -25,26 +25,47 @@ public:
     static void		initClass();
 
 			SeisPacketInfo();
-			~SeisPacketInfo();
+    virtual		~SeisPacketInfo();
+			mOD_DisableCopy(SeisPacketInfo)
 
-    BufferString	usrinfo;
-    BufferString	stdinfo;
-    int			nr;
-    bool		fullyrectandreg;
+    BufferString	usrinfo_;
+    BufferString	stdinfo_;
+    int			nr_					= 0;
+    bool		fullyrectandreg_			= false;
 
-    const PosInfo::CubeData* cubedata;
+    const PosInfo::CubeData* cubedata_				= nullptr;
 
-    StepInterval<int>	inlrg;
-    StepInterval<int>	crlrg;
-    StepInterval<float>	zrg;
-    bool		inlrev;
-    bool		crlrev;
+    StepInterval<int>	inlrg_;
+    StepInterval<int>	crlrg_;
+    StepInterval<float> zrg_;
+    bool		inlrev_					= false;
+    bool		crlrev_					= false;
 
     void		clear();
 
-    static const char*	sBinIDs;
-    static const char*	sZRange;
+    static const char*	sBinIDs();
+    static const char*	sZRange();
 
-    static BufferString	defaultusrinfo;
+    static BufferString defaultusrinfo_;
+
+    mDeprecated("Use usrinfo_")
+    BufferString&	usrinfo;
+    mDeprecated("Use stdinfo_")
+    BufferString&	stdinfo;
+    mDeprecated("Use nr_")
+    int&		nr;
+    mDeprecated("Use fullyrectandreg")
+    bool&		fullyrectandreg;
+
+    mDeprecated("Use inlrg_")
+    StepInterval<int>&	inlrg;
+    mDeprecated("Use crlrg_")
+    StepInterval<int>&	crlrg;
+    mDeprecated("Use zrg_")
+    StepInterval<float>& zrg;
+    mDeprecated("Use inlrev_")
+    bool&		inlrev;
+    mDeprecated("Use crlrev_")
+    bool&		crlrev;
 
 };

@@ -230,12 +230,12 @@ int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
     if ( Seis::is2D(geomtype_) )
     {
 	putAt( lnr, sDefStartPos, 20, BufferString(sKey::TraceNr(),":") );
-	txt.set(info->crlrg.start_).add("-").add(info->crlrg.stop_);
+	txt.set(info->crlrg_.start_).add("-").add(info->crlrg_.stop_);
 	putAt( lnr, 21, 32, txt );
-	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg.step_) );
+	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg_.step_) );
 
 	Interval<float> sprg( 0, 0 );
-	const Pos::GeomID geomid( info->inlrg.start_ );
+	const Pos::GeomID geomid( info->inlrg_.start_ );
 	const Survey::Geometry2D& geom2d = Survey::GM().get2D( geomid );
 	if ( !geom2d.spnrs().isEmpty() )
 	    sprg.set( geom2d.spnrs().first(), geom2d.spnrs().last() );
@@ -266,14 +266,14 @@ int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
     else
     {
 	putAt( lnr, sDefStartPos, 19, BufferString(sKey::Inline(),":") );
-	txt.set(info->inlrg.start_).add("-").add(info->inlrg.stop_);
+	txt.set(info->inlrg_.start_).add("-").add(info->inlrg_.stop_);
 	putAt( lnr, 21, 31, txt );
-	putAt( lnr, 33, 75, BufferString("inc: ",info->inlrg.step_) );
+	putAt( lnr, 33, 75, BufferString("inc: ",info->inlrg_.step_) );
 
 	putAt( ++lnr, sDefStartPos, 19, BufferString(sKey::Crossline(),":") );
-	txt.set(info->crlrg.start_).add("-").add(info->crlrg.stop_);
+	txt.set(info->crlrg_.start_).add("-").add(info->crlrg_.stop_);
 	putAt( lnr, 21, 31, txt );
-	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg.step_) );
+	putAt( lnr, 33, 75, BufferString("inc: ",info->crlrg_.step_) );
 
 	zrglinenr = ++lnr;
 
@@ -313,7 +313,7 @@ int SEGY::TxtHeader::setPosInfo( int firstlinenr, const SEGY::TrcHeaderDef& thd)
     putAt( ++lnr, sDefStartPos-1, 75, sSeparatorLine() );
 
 // Common entries
-    StepInterval<float> zrg = info->zrg;
+    StepInterval<float> zrg = info->zrg_;
     zrg.scale( SI().zDomain().userFactor() );
     const int nrdec = SI().nrZDecimals();
     BufferString key = sKey::Z();
@@ -875,7 +875,7 @@ void SEGY::TrcHeader::putSampling( SamplingData<float> sdin, unsigned short ns )
 
 void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
 {
-    Coord crd( ti.coord );
+    Coord crd( ti.coord_ );
     PosImpExpPars::SVY().adjustCoord( crd, false );
     const int icx = mNINT32(crd.x_*10);
     const int icy = mNINT32(crd.y_*10);
@@ -886,9 +886,9 @@ void SEGY::TrcHeader::putRev1Flds( const SeisTrcInfo& ti ) const
     {
 	int tnr = ti.trcNr();
 	PosImpExpPars::SVY().adjustTrcNr( tnr, false );
-	if ( !mIsUdf(ti.refnr) )
+	if ( !mIsUdf(ti.refnr_) )
 	{
-	    tnr = mNINT32(ti.refnr*100);
+	    tnr = mNINT32(ti.refnr_*100);
 	    setEntryVal( EntrySPscale(), -100 );		// 201-202
 	}
 	setEntryVal( EntrySP(), tnr );				// 197-200
@@ -928,7 +928,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 	int trcnr = ti.trcNr();
 	PosImpExpPars::SVY().adjustTrcNr( trcnr, false );
 	setEntryVal( EntryCdp(), trcnr );			// 21-24
-	setEntryVal( EntryOldSP(), int(ti.refnr) );		// 17-20
+	setEntryVal( EntryOldSP(), int(ti.refnr_) );		// 17-20
 
 	hdef_.trnr_.putValue( buf_, trcnr );
     }
@@ -943,7 +943,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 	hdef_.crl_.putValue( buf_, ti.crl() );
     }
 
-    Coord crd( ti.coord );
+    Coord crd( ti.coord_ );
     if ( mIsUdf(crd.x_) )
         crd.x_ = crd.y_ = 0;
 
@@ -969,21 +969,21 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     hdef_.xcoord_.putValue( buf_, icx );
     hdef_.ycoord_.putValue( buf_, icy );
 
-    float tioffs = ti.offset;
+    float tioffs = ti.offset_;
     PosImpExpPars::SVY().adjustOffset( tioffs, false );
     int intval = mNINT32( tioffs );
     hdef_.offs_.putValue( buf_, intval );
-    intval = mNINT32( ti.azimuth * 360 / M_PI );
+    intval = mNINT32( ti.azimuth_ * 360 / M_PI );
     hdef_.azim_.putValue( buf_, intval );
 
     const float zfac = sCast( float, SI().zDomain().userFactor() );
 #define mSetScaledMemb(nm,fac) \
     if ( !mIsUdf(ti.nm) ) \
-	{ intval = mNINT32(ti.nm*fac); hdef_.nm##_.putValue( buf_, intval ); }
-    mSetScaledMemb(pick,zfac)
+	{ intval = mNINT32(ti.nm*fac); hdef_.nm.putValue( buf_, intval ); }
+    mSetScaledMemb(pick_,zfac)
 
     // Absolute priority, therefore possibly overwriting previous
-    putSampling( ti.sampling, 0 ); // 0=ns must be set elsewhere
+	    putSampling( ti.sampling_, 0 ); // 0=ns must be set elsewhere
 
     if ( !isrev0_ ) // Now this overrules everything
 	putRev1Flds( ti );
@@ -1019,17 +1019,17 @@ float SEGY::TrcHeader::postScale( int numbfmt ) const
 
 void SEGY::TrcHeader::getRev1Flds( SeisTrcInfo& ti ) const
 {
-    ti.coord.x_ = entryVal( EntryXcdp() );		// 181-184
-    ti.coord.y_ = entryVal( EntryYcdp() );		// 185-188
+    ti.coord_.x_ = entryVal( EntryXcdp() );		// 181-184
+    ti.coord_.y_ = entryVal( EntryYcdp() );		// 185-188
     if ( !is2D() )					// 189-192,193-196
 	ti.setPos( BinID(entryVal(EntryInline()), entryVal(EntryCrossline()) ));
 
-    ti.refnr = sCast( float, entryVal(EntrySP()) );	// 197-200
+    ti.refnr_ = sCast( float, entryVal(EntrySP()) );	// 197-200
     if ( !isrev0_ )
     {
 	const short scalnr = sCast(short,entryVal(EntrySPscale())); // 201-202
 	if ( scalnr != 0 )
-	    ti.refnr *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
+	    ti.refnr_ *= (scalnr > 0 ? scalnr : -1.0f/scalnr);
     }
 }
 
@@ -1064,12 +1064,12 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	if ( startz < -5000 || startz > 10000 )
 	    delrt = 0;
     }
-    ti.sampling.start_ = delrt * zfac;
-    ti.sampling.step_ = entryVal(EntryDt()) * zfac * 0.001f;	// 117-118
-    PosImpExpPars::SVY().adjustZ( ti.sampling.start_, true );
-    PosImpExpPars::SVY().adjustZ( ti.sampling.step_, true );
+    ti.sampling_.start_ = delrt * zfac;
+    ti.sampling_.step_ = entryVal(EntryDt()) * zfac * 0.001f;	// 117-118
+    PosImpExpPars::SVY().adjustZ( ti.sampling_.start_, true );
+    PosImpExpPars::SVY().adjustZ( ti.sampling_.step_, true );
 
-    ti.pick = ti.refnr = mUdf(float);
+    ti.pick_ = ti.refnr_ = mUdf(float);
     ti.seqnr_ = entryVal( EntryTracl() );
     const bool is2d = is2D();
     if ( is2d )
@@ -1081,14 +1081,14 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     if ( !hdef_.pick_.isUdf() )
     {
 	const float val = hdef_.pick_.getValue( buf_, needswap_ );
-	ti.pick = val * 0.001f;
+	ti.pick_ = val * 0.001f;
     }
 
-    PosImpExpPars::SVY().adjustZ( ti.pick, true );
+    PosImpExpPars::SVY().adjustZ( ti.pick_, true );
 
     if ( !hdef_.refnr_.isUdf() )
     {
-	ti.refnr = hdef_.refnr_.getValue( buf_, needswap_ );
+	ti.refnr_ = hdef_.refnr_.getValue( buf_, needswap_ );
 	short bp = hdef_.refnr_.bytepos_;
 	if ( !hdef_.refnr_.isInternal() )
 	    bp--;
@@ -1097,17 +1097,17 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	    const short spscale = sCast(short,entryVal(EntrySPscale()) );
 	    const float scalnr =
 		spscale==0 ? 1 : (spscale>0 ? spscale : -1.f/spscale);
-	    ti.refnr *= scalnr;
+	    ti.refnr_ *= scalnr;
 	}
     }
 
-    ti.coord.x_ = ti.coord.y_ = 0.;
-    ti.coord.x_ = hdef_.xcoord_.getValue(buf_,needswap_);
-    ti.coord.y_ = hdef_.ycoord_.getValue(buf_,needswap_);
-    ti.offset = sCast( float, hdef_.offs_.getValue(buf_,needswap_) );
-    if ( ti.offset < 0 ) ti.offset = -ti.offset;
-    ti.azimuth = sCast( float, hdef_.azim_.getValue(buf_,needswap_) );
-    ti.azimuth *= M_PI / 360;
+    ti.coord_.x_ = ti.coord_.y_ = 0.;
+    ti.coord_.x_ = hdef_.xcoord_.getValue(buf_,needswap_);
+    ti.coord_.y_ = hdef_.ycoord_.getValue(buf_,needswap_);
+    ti.offset_ = sCast( float, hdef_.offs_.getValue(buf_,needswap_) );
+    if ( ti.offset_ < 0 ) ti.offset_ = -ti.offset_;
+    ti.azimuth_ = sCast( float, hdef_.azim_.getValue(buf_,needswap_) );
+    ti.azimuth_ *= M_PI / 360;
 
     if ( is2d )
     {
@@ -1144,9 +1144,9 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	getRev1Flds( ti ); // if >= rev 1, then those fields are holy
 
     const double scale = getCoordScale( extcoordsc );
-    ti.coord.x_ *= scale;
-    ti.coord.y_ *= scale;
-    PosImpExpPars::SVY().adjustCoord( ti.coord, true );
+    ti.coord_.x_ *= scale;
+    ti.coord_.y_ *= scale;
+    PosImpExpPars::SVY().adjustCoord( ti.coord_, true );
 }
 
 

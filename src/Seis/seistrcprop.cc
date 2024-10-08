@@ -25,7 +25,7 @@ ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
 {
     SeisTrcValueSeries stvs( trc, curcomp < 0 ? 0 : curcomp );
     ValueSeriesEvFinder<float,float> evf( stvs, trc.size() - 1,
-					  trc.info().sampling );
+					  trc.info().sampling_ );
     return evf.find( typ, tg, occ );
 }
 
@@ -68,7 +68,7 @@ void SeisTrcPropChg::stack( const SeisTrc& t2, bool alongpick, float wght )
 
     if ( !alongpick )
     {
-	if ( t2.size() == sz && t2.info().sampling == trc.info().sampling )
+	if ( t2.size() == sz && t2.info().sampling_ == trc.info().sampling_ )
 	{
 	    mStartCompLoop
 	    for ( int idx=0; idx<sz; idx++ )
@@ -90,8 +90,8 @@ void SeisTrcPropChg::stack( const SeisTrc& t2, bool alongpick, float wght )
     }
     else
     {
-	const float pick1 = trc.info().pick;
-	const float pick2 = t2.info().pick;
+	const float pick1 = trc.info().pick_;
+	const float pick2 = t2.info().pick_;
 	const float diff = mIsUdf(pick1) || mIsUdf(pick2) ? 0 : pick1 - pick2;
 
 	mStartCompLoop
@@ -206,7 +206,8 @@ mStartCompLoop
     }
     else
     {
-        const float a = aroundzero ? 1.f / mMAX(-rg.start_,rg.stop_) : 2.f / diff;
+	const float a = aroundzero ? 1.f / mMAX(-rg.start_,rg.stop_)
+				   : 2.f / diff;
         const float b = aroundzero ? 0.f : 1.f - rg.stop_ * a;
 	for ( int idx=0; idx<sz; idx++ )
 	{
@@ -287,7 +288,7 @@ mStartCompLoop
     {
 	int idx = trc.nearestSample( pos );
 	mtrc().set( idx, 0, icomp );
-        pos += trc.info().sampling.step_;
+	pos += trc.info().sampling_.step_;
     }
 
     if ( mIsZero(taperlen,mDefEps) ) return;
@@ -300,7 +301,7 @@ mStartCompLoop
 	const int idx = trc.nearestSample( pos );
 	const double x = ((pos - mpos) / taperlen) * M_PI;
 	const double taper = 0.5 * ( 1. - cos(x) );
-        pos += trc.info().sampling.step_;
+	pos += trc.info().sampling_.step_;
 	const float val = trc.get( idx, icomp );
 	if ( mIsUdf(val) )
 	    continue;
@@ -331,7 +332,7 @@ mStartCompLoop
     {
 	int idx = trc.nearestSample( pos );
 	mtrc().set( idx, 0, icomp );
-        pos += trc.info().sampling.step_;
+	pos += trc.info().sampling_.step_;
     }
 
     if ( mIsZero(taperlen,mDefEps) ) return;
@@ -345,7 +346,7 @@ mStartCompLoop
 	const int idx = trc.nearestSample( pos );
 	const double x = ((mpos - pos) / taperlen) * M_PI;
 	const double taper = 0.5 * ( 1. - cos(x) );
-        pos += trc.info().sampling.step_;
+	pos += trc.info().sampling_.step_;
 	const float val = trc.get( idx, icomp );
 	if ( mIsUdf(val) )
 	    continue;
@@ -375,7 +376,7 @@ float SeisTrcPropCalc::getFreq( float z ) const
 {
     mChkSize();
 
-    const float step = trc.info().sampling.step_;
+    const float step = trc.info().sampling_.step_;
     const float prevph = getPhase( z - step );
     const float nextph = getPhase( z + step );
     if ( mIsUdf(prevph) || mIsUdf(nextph) )
@@ -403,7 +404,7 @@ float SeisTrcPropCalc::getPhase( float z, bool indegrees ) const
     const int halfsz = mNINT32( mHalfHilbertLength );
     const int quadsz = 2 * halfsz + 1;
     Array1DImpl<float> trcdata( quadsz );
-    const float dz = trc.info().sampling.step_;
+    const float dz = trc.info().sampling_.step_;
     z -= dz * mCast( float, halfsz );
     for ( int idx=0; idx<quadsz; idx++ )
     {
@@ -444,16 +445,16 @@ float SeisTrcPropCalc::getPhase( int isamp, bool indegrees ) const
 	if ( sg.stop_ >= t2.size() ) sg.stop_ = t2.size() - 1; \
     } \
  \
-    float p1 = trc.info().pick; \
-    float p2 = t2.info().pick; \
+    float p1 = trc.info().pick_; \
+    float p2 = t2.info().pick_; \
     if ( alpick && (mIsUdf(p1) || mIsUdf(p2)) ) \
 	return mUdf(double); \
     float val1, val2
 
 #define mSetVals \
-	val1 = alpick ? trc.getValue(p1+idx*trc.info().sampling.step_,curcomp) \
+	val1 = alpick ? trc.getValue(p1+idx*trc.info().sampling_.step_,curcomp)\
 		      : trc.get( idx, curcomp ); \
-	val2 = alpick ? t2.getValue(p2+idx*t2.info().sampling.step_,curcomp) \
+	val2 = alpick ? t2.getValue(p2+idx*t2.info().sampling_.step_,curcomp) \
 		      : t2.getValue( trc.samplePos(idx), curcomp )
 
 #define mCheckRetUdf(val1,val2) \

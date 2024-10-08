@@ -215,8 +215,9 @@ bool SynthGenBase::isInputOK() const
 	mErrRet(tr("Wavelet required to compute trace range from model(s)"),
 		false)
 
-                const float outputsr = mIsUdf(outputsampling_.step_) ? wavelet_->sampleRate()
-                                                                     : outputsampling_.step_;
+    const float outputsr =
+		mIsUdf(outputsampling_.step_) ? wavelet_->sampleRate()
+					      : outputsampling_.step_;
     if ( !mIsEqual(wavelet_->sampleRate(),outputsr,1e-4f) )
     {
 	Wavelet& wavelet = const_cast<Wavelet&>(*wavelet_);
@@ -580,7 +581,7 @@ bool SynthGenerator::computeReflectivities()
     if ( !refsampler_ )
 	refsampler_ = new ReflectivitySampler();
 
-    const SamplingData<float>& outputsampling = outtrc_->info().sampling;
+    const SamplingData<float>& outputsampling = outtrc_->info().sampling_;
     const ZSampling sampling = outputsampling.interval( convolvesize_ );
     ReflectivityModelTrace* temprefs = needSampledTimeReflectivities()
 				     ? creflectivities_.ptr() : nullptr;
@@ -680,7 +681,7 @@ void SynthGenerator::sortOutput( const float_complex* cres,
 				 ValueSeries<float>& res ) const
 {
     const int outsz = int (res.size());
-    const SamplingData<float>& trcsampling = outtrc_->info().sampling;
+    const SamplingData<float>& trcsampling = outtrc_->info().sampling_;
     const ZSampling twtrg = trcsampling.interval( outsz );
     const float step = trcsampling.step_;
     float start = mCast( float, mCast( int, trcsampling.start_/step ) ) * step;
@@ -722,7 +723,7 @@ bool SynthGenerator::doTimeConvolve( ValueSeries<float>& res )
 	mErrRet(tr("Cannot find data for Time convolution"), false)
 
     const int outsz = int (res.size());
-    const SamplingData<float>& trcsampling = outtrc_->info().sampling;
+    const SamplingData<float>& trcsampling = outtrc_->info().sampling_;
     for ( int iref=0; iref<rm->size(); iref++ )
     {
 	const float_complex ref = refsarr[iref];
@@ -765,7 +766,7 @@ bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input,
 	return true;
 
     const int outsz = int (out.size());
-    const SamplingData<float>& trcsampling = outtrc_->info().sampling;
+    const SamplingData<float>& trcsampling = outtrc_->info().sampling_;
     const ZSampling outputsampling = trcsampling.interval( outsz );
 
     float mutelevel = trcsampling.start_;
@@ -794,8 +795,7 @@ bool SynthGenerator::doNMOStretch( const ValueSeries<float>& input,
 
     const int insz = int (input.size());
     SampledFunctionImpl<float,ValueSeries<float> > samplfunc( input,
-                                                              insz, trcsampling.start_,
-                                                              trcsampling.step_ );
+		insz, trcsampling.start_, trcsampling.step_ );
 
     for ( int idx=0; idx<outsz; idx++ )
     {
@@ -1591,8 +1591,8 @@ void RaySynthGenerator::SynthRes::setTraces( const ZSampling& zrg,
 	auto* newtrc = new SeisTrc( trcsz );
 	SeisTrcInfo& info = newtrc->info();
 	info.setGeomSystem( OD::GeomSynth ).setTrcNr( seqnr+1 ).calcCoord();
-	info.sampling = zrg;
-	info.offset = offsets[itrc];
+	info.sampling_ = zrg;
+	info.offset_ = offsets[itrc];
 	info.seqnr_ = seqnr+1;
 	outtrcs_.add( newtrc );
     }

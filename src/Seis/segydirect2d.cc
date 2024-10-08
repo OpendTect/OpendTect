@@ -95,8 +95,8 @@ bool SEGYDirect2DLineIOProvider::getTxtInfo( const IOObj& obj,
 	return false;
 
     const SeisPacketInfo& pinf = trans->packetInfo();
-    uinf = pinf.usrinfo;
-    stdinf = pinf.stdinfo;
+    uinf = pinf.usrinfo_;
+    stdinf = pinf.stdinfo_;
     return true;
 }
 
@@ -189,7 +189,7 @@ SEGYDirect2DLineGetter::SEGYDirect2DLineGetter( const char* fnm, SeisTrcBuf& b,
     if ( !sd.isAll() && sd.type() == Seis::Range )
 	tr_->setSelData( seldata_ );
 
-    totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
+    totnr_ = tr_->packetInfo().crlrg_.nrSteps() + 1;
 }
 
 
@@ -355,7 +355,7 @@ bool SEGYDirect2DLinePutter::put( const SeisTrc& trc )
 	    for ( int idx=0; idx<ci.size(); idx++ )
 	    {
 		SeisTrcTranslator::TargetComponentData& cd = *ci[idx];
-		cd.datachar = dc;
+		cd.datachar_ = dc;
 	    }
 	}
     }

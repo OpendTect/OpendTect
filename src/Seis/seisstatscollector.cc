@@ -90,7 +90,7 @@ void Seis::StatsCollector::useTrace( const SeisTrc& trc )
 	return;
 
     if ( nrtrcshandled_ < 1 )
-	tkzs_.zsamp_.step_ = trc.info().sampling.step_;
+	tkzs_.zsamp_.step_ = trc.info().sampling_.step_;
     addPosition( trc.info().trcKey(), trc.zRange() );
 
     const int sz = trc.size();
@@ -128,7 +128,7 @@ void Seis::StatsCollector::useTrace( const SeisTrc& trc )
 	totalnrsamples_ += sz;
     }
 
-    const float offs = trc.info().offset;
+    const float offs = trc.info().offset_;
     if ( mIsUdf(offsrg_.start_) || offsrg_.start_ > offs )
 	offsrg_.start_ = offs;
     if ( offsrg_.stop_ < offs )

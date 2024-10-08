@@ -327,11 +327,11 @@ bool CBVSWriteMgr::put( void** data )
 		od_ostream* strm = mkStrm();
 		if ( !strm ) return false;
 
-		if ( info_.geom_.fullyrectandreg )
-		    info_.geom_.start.inl() = writer->survGeom().stop.inl()
-					 + info_.geom_.step.inl();
+		if ( info_.geom_.fullyrectandreg_ )
+		    info_.geom_.start_.inl() = writer->survGeom().stop_.inl()
+					       + info_.geom_.step_.inl();
 
-		writer->forceLineStep( writer->survGeom().step );
+		writer->forceLineStep( writer->survGeom().step_ );
 		CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );
 		newwriter->forceTrailer( forcetrailers_ );
 		writers_ += newwriter;
@@ -379,11 +379,11 @@ bool CBVSWriteMgr::put( const TraceData& tdata )
 		od_ostream* strm = mkStrm();
 		if ( !strm ) return false;
 
-		if ( info_.geom_.fullyrectandreg )
-		    info_.geom_.start.inl() = writer->survGeom().stop.inl()
-					 + info_.geom_.step.inl();
+		if ( info_.geom_.fullyrectandreg_ )
+		    info_.geom_.start_.inl() = writer->survGeom().stop_.inl()
+					       + info_.geom_.step_.inl();
 
-		writer->forceLineStep( writer->survGeom().step );
+		writer->forceLineStep( writer->survGeom().step_ );
 		CBVSWriter* newwriter = new CBVSWriter( strm, *writer, info_ );
 		newwriter->forceTrailer( forcetrailers_ );
 		writers_ += newwriter;

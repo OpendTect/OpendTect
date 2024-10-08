@@ -93,8 +93,8 @@ bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOObj& obj, Pos::GeomID geomid,
     if ( !trans ) return false;
 
     const SeisPacketInfo& pinf = trans->packetInfo();
-    uinf = pinf.usrinfo;
-    stdinf = pinf.stdinfo;
+    uinf = pinf.usrinfo_;
+    stdinf = pinf.stdinfo_;
     return true;
 }
 
@@ -110,7 +110,7 @@ bool SeisCBVS2DLineIOProvider::getRanges( const IOObj& obj, Pos::GeomID geomid,
     if ( !trans ) return false;
 
     const SeisPacketInfo& pinf = trans->packetInfo();
-    trcrg = pinf.crlrg; zrg = pinf.zrg;
+    trcrg = pinf.crlrg_; zrg = pinf.zrg_;
     return true;
 }
 
@@ -204,7 +204,7 @@ SeisCBVS2DLineGetter::SeisCBVS2DLineGetter( const char* fnm, Pos::GeomID geomid,
 
     tr_->commitSelections();
 
-    totnr_ = tr_->packetInfo().crlrg.nrSteps() + 1;
+    totnr_ = tr_->packetInfo().crlrg_.nrSteps() + 1;
 }
 
 
@@ -400,7 +400,7 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 	    for ( int idx=0; idx<ci.size(); idx++ )
 	    {
 		SeisTrcTranslator::TargetComponentData& cd = *ci[idx];
-		cd.datachar = dc;
+		cd.datachar_ = dc;
 	    }
 	}
     }

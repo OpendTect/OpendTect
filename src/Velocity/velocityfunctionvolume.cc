@@ -205,12 +205,12 @@ void VolumeFunctionSource::getAvailablePositions( BinIDValueSet& bids ) const
     const SeisPacketInfo& packetinfo =
 			  velreader->seisTranslator()->packetInfo();
 
-    if ( packetinfo.cubedata )
-	bids.add( *packetinfo.cubedata );
+    if ( packetinfo.cubedata_ )
+	bids.add( *packetinfo.cubedata_ );
     else
     {
-	const StepInterval<int>& inlrg = packetinfo.inlrg;
-	const StepInterval<int>& crlrg = packetinfo.crlrg;
+	const StepInterval<int>& inlrg = packetinfo.inlrg_;
+	const StepInterval<int>& crlrg = packetinfo.crlrg_;
 	for ( int inl=inlrg.start_; inl<=inlrg.stop_; inl +=inlrg.step_ )
 	    for ( int crl=crlrg.start_; crl<=crlrg.stop_; crl +=crlrg.step_ )
 		bids.add( BinID(inl,crl) );
@@ -251,7 +251,7 @@ bool VolumeFunctionSource::getVel( const BinID& bid, SamplingData<double>& sd,
     for ( int idx=0; idx<velocitytrc.size(); idx++ )
 	trcdata[idx] = velocitytrc.get( idx, icomp );
 
-    sd = RegularZValues::getDoubleSamplingData( velocitytrc.info().sampling );
+    sd = RegularZValues::getDoubleSamplingData( velocitytrc.info().sampling_ );
 
     return true;
 }

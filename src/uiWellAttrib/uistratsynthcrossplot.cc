@@ -239,7 +239,7 @@ RefMan<DataPointSet> uiStratSynthCrossplot::getData(
 
 	SeisTrc& trc = const_cast<SeisTrc&>( *sd->getTrace(imod) );
 	float dpth = lm_.sequence(imod).depthPositionOf( lvl );
-	trc.info().pick = tdmodel->getTime( dpth );
+	trc.info().pick_ = tdmodel->getTime( dpth );
 	const float twt = ssev.snappedTime( trc );
 	dpth = tdmodel->getDepth( twt );
 

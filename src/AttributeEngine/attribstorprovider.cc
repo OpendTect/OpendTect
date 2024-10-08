@@ -133,7 +133,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	{
 	    for ( int idx=0; idx<transl->componentInfo().size(); idx++ )
 		desc.addOutputDataType( (Seis::DataType)
-					transl->componentInfo()[0]->datatype );
+					transl->componentInfo()[0]->datatype_ );
 	}
     }
     else
@@ -158,7 +158,7 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	    for ( int idx=1; idx<=nrattribs; idx++ )
 		if ( desc.nrOutputs() < idx )
 		    desc.addOutputDataType( (Seis::DataType)
-				    transl->componentInfo()[idx-1]->datatype);
+				    transl->componentInfo()[idx-1]->datatype_);
 	}
 
 	if ( compnms )
@@ -202,9 +202,9 @@ bool StorageProvider::checkInpAndParsAtStart()
 
 	SeisPacketInfo si;
 	stbdtp->trcBuf().fill( si );
-	storedvolume_.hsamp_.setInlRange( si.inlrg );
-	storedvolume_.hsamp_.setCrlRange( si.crlrg );
-	storedvolume_.zsamp_ = si.zrg;
+	storedvolume_.hsamp_.setInlRange( si.inlrg_ );
+	storedvolume_.hsamp_.setCrlRange( si.crlrg_ );
+	storedvolume_.zsamp_ = si.zrg_;
 	return true;
     }
 
@@ -519,10 +519,12 @@ bool StorageProvider::setMSCProvSelData()
     cs.hsamp_.start_.crl() =
 	desiredvolume_->hsamp_.start_.crl()<storedvolume_.hsamp_.start_.crl() ?
 	storedvolume_.hsamp_.start_.crl() : desiredvolume_->hsamp_.start_.crl();
-    cs.zsamp_.start_ = desiredvolume_->zsamp_.start_ < storedvolume_.zsamp_.start_
-                       ? storedvolume_.zsamp_.start_ : desiredvolume_->zsamp_.start_;
-    cs.zsamp_.stop_ = desiredvolume_->zsamp_.stop_ > storedvolume_.zsamp_.stop_ ?
-                          storedvolume_.zsamp_.stop_ : desiredvolume_->zsamp_.stop_;
+    cs.zsamp_.start_ =
+	desiredvolume_->zsamp_.start_ < storedvolume_.zsamp_.start_ ?
+		storedvolume_.zsamp_.start_ : desiredvolume_->zsamp_.start_;
+    cs.zsamp_.stop_ =
+	desiredvolume_->zsamp_.stop_ > storedvolume_.zsamp_.stop_ ?
+		storedvolume_.zsamp_.stop_ : desiredvolume_->zsamp_.stop_;
 
     reader.setSelData( haveseldata ? seldata_->clone()
 				   : new Seis::RangeSelData(cs) );
@@ -623,8 +625,8 @@ bool StorageProvider::checkDesiredVolumeOK()
      || desiredvolume_->hsamp_.stop_.crl() < storedvolume_.hsamp_.start_.crl();
     const float zepsilon = 1e-06f;
     const bool zwrong =
-            desiredvolume_->zsamp_.start_ > storedvolume_.zsamp_.stop_+zepsilon ||
-            desiredvolume_->zsamp_.stop_ < storedvolume_.zsamp_.start_-zepsilon;
+	desiredvolume_->zsamp_.start_ > storedvolume_.zsamp_.stop_+zepsilon ||
+	desiredvolume_->zsamp_.stop_ < storedvolume_.zsamp_.start_-zepsilon;
     const float zstepratio =
             desiredvolume_->zsamp_.step_ / storedvolume_.zsamp_.step_;
     const bool zstepwrong = zstepratio > 100 || zstepratio < 0.01;
@@ -771,8 +773,8 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	const_cast<DataHolder&>(data).extrazfromsamppos_ = extrazfromsamppos;
     }
 
-    Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step_ );
+    Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
+    trcrange.widen( 0.001f * trc->info().sampling_.step_ );
     int compidx = -1;
     for ( int idx=0; idx<outputinterest_.size(); idx++ )
     {
@@ -873,8 +875,8 @@ void StorageProvider::fillDataPackWithTrc( RegularSeisDataPack* dc ) const
     const SeisTrc* trc = mscprov_->get(0,0);
     if ( !trc ) return;
 
-    Interval<float> trcrange = trc->info().sampling.interval(trc->size());
-    trcrange.widen( 0.001f * trc->info().sampling.step_ );
+    Interval<float> trcrange = trc->info().sampling_.interval(trc->size());
+    trcrange.widen( 0.001f * trc->info().sampling_.step_ );
     const BinID bid = trc->info().binID();
     if ( !dc->sampling().hsamp_.includes(bid) )
 	return;

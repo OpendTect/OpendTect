@@ -219,7 +219,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	if ( !next2DLine() )
 	    return false;
 
-	SamplingData<float> sd = trc.info().sampling;
+	SamplingData<float> sd = trc.info().sampling_;
 	StepInterval<float> zrg( sd.start_, 0, sd.step_ );
 	zrg.stop_ = sd.start_ + sd.step_ * (trc.size()-1);
 	linedata_->setZRange( zrg );
@@ -233,7 +233,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    const Pos::GeomID geomid = geomID();
 	    const char* lnm = is2d_ ? Survey::GM().getName(geomid) : nullptr;
 	    pswriter_ = SPSIOPF().get2DWriter( *ioobj_, lnm );
-	    SamplingData<float> sd = trc.info().sampling;
+	    SamplingData<float> sd = trc.info().sampling_;
 	    StepInterval<float> zrg( sd.start_, 0, sd.step_ );
 	    if ( linedata_ )
 		linedata_->setZRange( zrg );
@@ -317,7 +317,7 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
     if ( !neednewconn && isMultiConn() )
     {
 	mDynamicCastGet(IOStream*,iostrm,ioobj_)
-	if ( iostrm->fileSpec().isRangeMulti() && trc.info().new_packet )
+	if ( iostrm->fileSpec().isRangeMulti() && trc.info().new_packet_ )
 	{
 	    const int connidx = iostrm->connIdxFor( trc.info().inl() );
 	    neednewconn = connidx != iostrm->curConnIdx();
@@ -385,9 +385,9 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 	errmsg_ = putter_->errMsg();
 
     PosInfo::Line2DPos pos( trc.info().trcNr() );
-    pos.coord_ = trc.info().coord;
+    pos.coord_ = trc.info().coord_;
     linedata_->add( pos );
-    spnrs_ += trc.info().refnr;
+    spnrs_ += trc.info().refnr_;
 
     return res;
 }
@@ -415,9 +415,9 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	if ( is2d_ && linedata_ && linedata_->indexOf(trc.info().trcNr()) < 0 )
 	{
 	    PosInfo::Line2DPos pos( trc.info().trcNr() );
-	    pos.coord_ = trc.info().coord;
+	    pos.coord_ = trc.info().coord_;
 	    linedata_->add( pos );
-	    spnrs_ += trc.info().refnr;
+	    spnrs_ += trc.info().refnr_;
 	}
     }
     else if ( is2d_ )

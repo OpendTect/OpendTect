@@ -122,9 +122,9 @@ int Seis2DFrom3DExtractor::handleTrace()
 
     SeisTrcInfo& trcinfo = trc.info();
     trcinfo.setTrcKey( tk );
-    trcinfo.coord = curpos.coord_;
+    trcinfo.coord_ = curpos.coord_;
     trcinfo.seqnr_ = curgeom2d_->data().positions().indexOf( curpos );
-    trcinfo.refnr = curgeom2d_->spnrs()[curtrcidx_-1];
+    trcinfo.refnr_ = curgeom2d_->spnrs()[curtrcidx_-1];
     if ( !wrr_.put(trc) )
 	mErrRet( wrr_.errMsg() )
 

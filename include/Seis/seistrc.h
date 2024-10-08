@@ -88,18 +88,18 @@ public:
 			//!< becomes mine
 
     inline float	startPos() const
-    { return info_.sampling.start_; }
+    { return info_.sampling_.start_; }
     inline float	endPos() const
-			{ return info_.sampling.atIndex( size()-1 ); }
+    { return info_.sampling_.atIndex( size()-1 ); }
     inline StepInterval<float> zRange() const
 			{ return StepInterval<float>(startPos(),endPos(),
-						     info_.sampling.step_ ); }
+						     info_.sampling_.step_ ); }
     inline float	samplePos( int idx ) const
 			{ return info_.samplePos(idx); }
     inline int		nearestSample( float pos ) const
 			{ return info_.nearestSample(pos); }
     void		setStartPos( float p )
-    { info_.sampling.start_ = p; }
+    { info_.sampling_.start_ = p; }
     inline bool		dataPresent( float t ) const
 			{ return info_.dataPresent(t,size()); }
     SampleGate		sampleGate(const Interval<float>&,bool check) const;

@@ -10,6 +10,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 
 #include "arraynd.h"
+#include "coltab.h"
 #include "dataclipper.h"
 #include "histequalizer.h"
 #include "keystrs.h"

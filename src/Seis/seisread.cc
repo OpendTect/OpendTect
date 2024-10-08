@@ -39,10 +39,25 @@ TrcKeySampling& getUdfTks()
     return *udftks.ptr();
 }
 
+mStartAllowDeprecatedSection
 
 SeisTrcReader::SeisTrcReader( const MultiID& dbkey, Seis::GeomType gt )
     : SeisStoreAccess(dbkey,gt)
-    , outer(&getUdfTks())
+    , outer_(&getUdfTks())
+    , foundvalidinl(foundvalidinl_)
+    , foundvalidcrl(foundvalidcrl_)
+    , new_packet(new_packet_)
+    , needskip(needskip_)
+    , forcefloats(forcefloats_)
+    , inforead(inforead_)
+    , prev_inl(prev_inl_)
+    , curlineidx(curlineidx_)
+    , nrfetchers(nrfetchers_)
+    , outer(outer_)
+    , fetcher(fetcher_)
+    , readmode(readmode_)
+    , entryis2d(entryis2d_)
+    , curtrcnrrg(curtrcnrrg_)
 {
     init();
 }
@@ -50,7 +65,21 @@ SeisTrcReader::SeisTrcReader( const MultiID& dbkey, Seis::GeomType gt )
 
 SeisTrcReader::SeisTrcReader( const IOObj& ioobj, const Seis::GeomType* gt )
     : SeisStoreAccess(&ioobj,gt)
-    , outer(&getUdfTks())
+    , outer_(&getUdfTks())
+    , foundvalidinl(foundvalidinl_)
+    , foundvalidcrl(foundvalidcrl_)
+    , new_packet(new_packet_)
+    , needskip(needskip_)
+    , forcefloats(forcefloats_)
+    , inforead(inforead_)
+    , prev_inl(prev_inl_)
+    , curlineidx(curlineidx_)
+    , nrfetchers(nrfetchers_)
+    , outer(outer_)
+    , fetcher(fetcher_)
+    , readmode(readmode_)
+    , entryis2d(entryis2d_)
+    , curtrcnrrg(curtrcnrrg_)
 {
     init();
 }
@@ -59,7 +88,22 @@ SeisTrcReader::SeisTrcReader( const IOObj& ioobj, const Seis::GeomType* gt )
 SeisTrcReader::SeisTrcReader( const IOObj& ioobj, Pos::GeomID geomid,
 			      const Seis::GeomType* gt )
     : SeisStoreAccess(&ioobj,geomid,gt)
-    , outer(&getUdfTks())
+    , outer_(&getUdfTks())
+    , foundvalidinl(foundvalidinl_)
+    , foundvalidcrl(foundvalidcrl_)
+    , new_packet(new_packet_)
+    , needskip(needskip_)
+    , forcefloats(forcefloats_)
+    , inforead(inforead_)
+    , prev_inl(prev_inl_)
+    , curlineidx(curlineidx_)
+    , nrfetchers(nrfetchers_)
+    , outer(outer_)
+    , fetcher(fetcher_)
+    , readmode(readmode_)
+    , entryis2d(entryis2d_)
+    , curtrcnrrg(curtrcnrrg_)
+
 {
     init();
 }
@@ -67,7 +111,22 @@ SeisTrcReader::SeisTrcReader( const IOObj& ioobj, Pos::GeomID geomid,
 
 SeisTrcReader::SeisTrcReader( const SeisStoreAccess::Setup& su )
     : SeisStoreAccess(su)
-    , outer(&getUdfTks())
+    , outer_(&getUdfTks())
+    , foundvalidinl(foundvalidinl_)
+    , foundvalidcrl(foundvalidcrl_)
+    , new_packet(new_packet_)
+    , needskip(needskip_)
+    , forcefloats(forcefloats_)
+    , inforead(inforead_)
+    , prev_inl(prev_inl_)
+    , curlineidx(curlineidx_)
+    , nrfetchers(nrfetchers_)
+    , outer(outer_)
+    , fetcher(fetcher_)
+    , readmode(readmode_)
+    , entryis2d(entryis2d_)
+    , curtrcnrrg(curtrcnrrg_)
+
 {
     init();
 }
@@ -75,7 +134,21 @@ SeisTrcReader::SeisTrcReader( const SeisStoreAccess::Setup& su )
 
 SeisTrcReader::SeisTrcReader( const IOObj* ioobj )
     : SeisStoreAccess(ioobj,nullptr)
-    , outer(&getUdfTks())
+    , outer_(&getUdfTks())
+    , foundvalidinl(foundvalidinl_)
+    , foundvalidcrl(foundvalidcrl_)
+    , new_packet(new_packet_)
+    , needskip(needskip_)
+    , forcefloats(forcefloats_)
+    , inforead(inforead_)
+    , prev_inl(prev_inl_)
+    , curlineidx(curlineidx_)
+    , nrfetchers(nrfetchers_)
+    , outer(outer_)
+    , fetcher(fetcher_)
+    , readmode(readmode_)
+    , entryis2d(entryis2d_)
+    , curtrcnrrg(curtrcnrrg_)
 {
     init();
 }
@@ -86,17 +159,19 @@ SeisTrcReader::SeisTrcReader( const char* fname )
 {
 }
 
+mStopAllowDeprecatedSection
+
 
 SeisTrcReader::~SeisTrcReader()
 {
-    if ( outer != &getUdfTks() )
-	delete outer;
+    if ( outer_ != &getUdfTks() )
+	delete outer_;
 
     if ( tbuf_ )
 	tbuf_->deepErase();
 
     delete tbuf_;
-    delete fetcher;
+    delete fetcher_;
     delete psrdr2d_;
     delete psrdr3d_;
     delete pscditer_;
@@ -107,7 +182,7 @@ SeisTrcReader::~SeisTrcReader()
 void SeisTrcReader::init()
 {
     if ( ioobj_ )
-	entryis2d = SeisTrcTranslator::is2D( *ioobj_ );
+	entryis2d_ = SeisTrcTranslator::is2D( *ioobj_ );
 }
 
 
@@ -133,8 +208,8 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	    psrdr3d_ = psioprov_->get3DReader( *ioobj_ );
     }
 
-    const bool is3dfail = !is2d_ && !entryis2d && !trl_;
-    const bool is2dfail = (is2d_ || entryis2d) && !psioprov_ && !dataset_;
+    const bool is3dfail = !is2d_ && !entryis2d_ && !trl_;
+    const bool is2dfail = (is2d_ || entryis2d_) && !psioprov_ && !dataset_;
     const bool ispsfail = psioprov_ && !psrdr2d_ && !psrdr3d_;
     if ( is3dfail && is2dfail && ispsfail )
     {
@@ -144,7 +219,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	return false;
     }
 
-    readmode = rm;
+    readmode_ = rm;
     if ( is2d_ || psioprov_ )
 	return (prepared_ = true);
 
@@ -173,7 +248,7 @@ int SeisTrcReader::expectedNrTraces() const
     const Seis::SelData* sd = selData();
     if ( sd && !sd->isAll() )
     {
-	totnr += sd->expectedNrTraces( entryis2d  );
+	totnr += sd->expectedNrTraces( entryis2d_  );
 	if ( isPS() )
 	{
 	    const int nroffsets = getNrOffsets();
@@ -185,7 +260,7 @@ int SeisTrcReader::expectedNrTraces() const
     }
 
     const SeisTrcTranslator* strl = SeisStoreAccess::strl();
-    if ( strl && entryis2d )
+    if ( strl && entryis2d_ )
     {
 	const SeisTrcTranslator* strl2d =
 			const_cast<SeisTrcReader*>( this )->seis2Dtranslator();
@@ -198,7 +273,7 @@ int SeisTrcReader::expectedNrTraces() const
     else if ( isPS() )
     {
 	TrcKeySampling tks( true );
-	if ( entryis2d )
+	if ( entryis2d_ )
 	    tks.init( geomID() );
 
 	totnr = tks.totalNr();
@@ -218,10 +293,10 @@ int SeisTrcReader::expectedNrTraces() const
 
 bool SeisTrcReader::startWork()
 {
-    if ( outer && outer != &getUdfTks() )
-	delete outer;
+    if ( outer_ && outer_ != &getUdfTks() )
+	delete outer_;
 
-    outer = nullptr;
+    outer_ = nullptr;
     if ( psioprov_ )
     {
 	if ( !psrdr2d_ && !psrdr3d_ && !prepareWork(Seis::Prod) )
@@ -260,10 +335,10 @@ bool SeisTrcReader::startWork()
 	return false;
 
     SeisTrcTranslator& sttrl = *strl();
-    if ( forcefloats )
+    if ( forcefloats_ )
     {
 	for ( int idx=0; idx<sttrl.componentInfo().size(); idx++ )
-	    sttrl.componentInfo()[idx]->datachar = DataCharacteristics();
+	    sttrl.componentInfo()[idx]->datachar_ = DataCharacteristics();
     }
     if ( selcomp_ >= 0 )
     {
@@ -274,8 +349,8 @@ bool SeisTrcReader::startWork()
     sttrl.setSelData( seldata_ );
     if ( sttrl.inlCrlSorted() && seldata_ && !seldata_->isAll() )
     {
-	outer = new TrcKeySampling;
-	outer->set( seldata_->inlRange(), seldata_->crlRange() );
+	outer_ = new TrcKeySampling;
+	outer_->set( seldata_->inlRange(), seldata_->crlRange() );
     }
 
     if ( !sttrl.commitSelections() )
@@ -287,7 +362,7 @@ bool SeisTrcReader::startWork()
 
 bool SeisTrcReader::isMultiConn() const
 {
-    return !psioprov_ && !is2d_ && !entryis2d
+    return !psioprov_ && !is2d_ && !entryis2d_
 	&& ioobj_ && ioobj_->hasConnType(StreamConn::sType())
 	&& ((IOStream*)ioobj_)->isMultiConn();
 }
@@ -332,7 +407,7 @@ bool SeisTrcReader::initRead( Conn* conn )
 	cleanUp(); return false;
     }
 
-    if ( !sttrl->initRead(conn,readmode) )
+    if ( !sttrl->initRead(conn,readmode_) )
     {
 	errmsg_ = sttrl->errMsg();
 	cleanUp(); return false;
@@ -368,16 +443,16 @@ bool SeisTrcReader::initRead( Conn* conn )
 	    sttrl->componentInfo()[0]->destidx = 0;
     }
 
-    needskip = false;
+    needskip_ = false;
     return true;
 }
 
 
 int SeisTrcReader::get( SeisTrcInfo& ti )
 {
-    if ( !prepared_ && !prepareWork(readmode) )
+    if ( !prepared_ && !prepareWork(readmode_) )
 	return -1;
-    else if ( outer == &getUdfTks() && !startWork() )
+    else if ( outer_ == &getUdfTks() && !startWork() )
 	return -1;
 
     if ( psioprov_ )
@@ -389,7 +464,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     // 3D post-stack
 
     SeisTrcTranslator& sttrl = *strl();
-    bool needsk = needskip; needskip = false;
+    bool needsk = needskip_; needskip_ = false;
     if ( needsk && !sttrl.skip() )
 	return nextConn( ti );
 
@@ -401,37 +476,37 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	return nextConn( ti );
     }
 
-    ti.new_packet = false;
+    ti.new_packet_ = false;
 
-    if ( mIsUdf(prev_inl) )
-	prev_inl = ti.inl();
-    else if ( prev_inl != ti.inl() )
+    if ( mIsUdf(prev_inl_) )
+	prev_inl_ = ti.inl();
+    else if ( prev_inl_ != ti.inl() )
     {
-	foundvalidcrl = false;
-	prev_inl = ti.inl();
-	if ( !entryis2d )
-	    ti.new_packet = true;
+	foundvalidcrl_ = false;
+	prev_inl_ = ti.inl();
+	if ( !entryis2d_ )
+	    ti.new_packet_ = true;
     }
 
     int selres = 0;
     if ( seldata_ )
     {
-	if ( entryis2d )
+	if ( entryis2d_ )
 	    selres = seldata_->selRes( ti.geomID(), ti.trcNr() );
 	else
 	    selres = seldata_->selRes( ti.binID() );
     }
 
     if ( selres / 256 == 0 )
-	foundvalidcrl = true;
+	foundvalidcrl_ = true;
     if ( selres % 256 == 0 )
-	foundvalidinl = true;
+	foundvalidinl_ = true;
 
     if ( selres )
     {
-	if ( !entryis2d && sttrl.inlCrlSorted() )
+	if ( !entryis2d_ && sttrl.inlCrlSorted() )
 	{
-	    bool neednewinl = outer && !outer->includes(ti.binID());
+	    bool neednewinl = outer_ && !outer_->includes(ti.binID());
 	    if ( neednewinl )
 	    {
 		mDynamicCastGet(IOStream*,iostrm,ioobj_)
@@ -444,12 +519,12 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     }
 
     nrtrcs_++;
-    if ( new_packet )
+    if ( new_packet_ )
     {
-	ti.new_packet = true;
-	new_packet = false;
+	ti.new_packet_ = true;
+	new_packet_ = false;
     }
-    needskip = true;
+    needskip_ = true;
     return 1;
 }
 
@@ -471,10 +546,10 @@ static void reduceComps( SeisTrc& trc, int selcomp )
 
 bool SeisTrcReader::getData( TraceData& data )
 {
-    needskip = false;
-    if ( !prepared_ && !prepareWork(readmode) )
+    needskip_ = false;
+    if ( !prepared_ && !prepareWork(readmode_) )
 	return false;
-    else if ( outer == &getUdfTks() && !startWork() )
+    else if ( outer_ == &getUdfTks() && !startWork() )
 	return false;
 
     if ( psioprov_ )
@@ -495,10 +570,10 @@ bool SeisTrcReader::getData( TraceData& data )
 
 bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
 {
-    needskip = false;
-    if ( !prepared_ && !prepareWork(readmode) )
+    needskip_ = false;
+    if ( !prepared_ && !prepareWork(readmode_) )
 	return false;
-    else if ( outer == &getUdfTks() && !startWork() )
+    else if ( outer_ == &getUdfTks() && !startWork() )
 	return false;
 
     if ( psioprov_ || is2D() )
@@ -516,10 +591,10 @@ bool SeisTrcReader::getDataPack( RegularSeisDataPack& sdp, TaskRunner* taskr )
 
 bool SeisTrcReader::get( SeisTrc& trc )
 {
-    needskip = false;
-    if ( !prepared_ && !prepareWork(readmode) )
+    needskip_ = false;
+    if ( !prepared_ && !prepareWork(readmode_) )
 	return false;
-    else if ( outer == &getUdfTks() && !startWork() )
+    else if ( outer_ == &getUdfTks() && !startWork() )
 	return false;
 
     if ( psioprov_ )
@@ -591,14 +666,14 @@ int SeisTrcReader::getPS( SeisTrcInfo& ti )
     }
 
     ti = tbuf_->get(0)->info();
-    inforead = true;
+    inforead_ = true;
     return 1;
 }
 
 
 bool SeisTrcReader::getPS( SeisTrc& trc )
 {
-    if ( !inforead && getPS(trc.info()) <= 0 )
+    if ( !inforead_ && getPS(trc.info()) <= 0 )
 	return false;
 
     if ( tbuf_->isEmpty() )
@@ -614,12 +689,12 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
 	}
     }
 
-    inforead = false;
+    inforead_ = false;
     const SeisTrc* buftrc = tbuf_->get( 0 );
     if ( !buftrc )
 	{ pErrMsg("Huh"); return false; }
     trc.info() = buftrc->info();
-    trc.copyDataFrom( *buftrc, -1, forcefloats );
+    trc.copyDataFrom( *buftrc, -1, forcefloats_ );
 
     delete tbuf_->remove(0);
     reduceComps( trc, selcomp_ );
@@ -641,8 +716,8 @@ Pos::GeomID SeisTrcReader::geomID() const
 {
     if ( dataset_ )
     {
-	if ( curlineidx >= 0 && dataset_->nrLines() > curlineidx )
-	    return dataset_->geomID( curlineidx );
+	if ( curlineidx_ >= 0 && dataset_->nrLines() > curlineidx_ )
+	    return dataset_->geomID( curlineidx_ );
     }
 
     return SeisStoreAccess::geomID();
@@ -667,7 +742,7 @@ Pos::GeomIDProvider* SeisTrcReader::geomIDProvider() const
 
 bool SeisTrcReader::mkNextFetcher()
 {
-    curlineidx++;
+    curlineidx_++;
     if ( tbuf_ )
 	tbuf_->deepErase();
 
@@ -682,25 +757,25 @@ bool SeisTrcReader::mkNextFetcher()
 	{
 	    // Chances are we do not need to go through this line at all
 	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
-	    Pos::GeomID curgeomid = dataset_->geomID( curlineidx );
+		    Pos::GeomID curgeomid = dataset_->geomID( curlineidx_ );
 	    while ( !dataset_->haveMatch(curgeomid,tsd->binidValueSet()) )
 	    {
-		curlineidx++;
-		curgeomid = dataset_->geomID( curlineidx );
-		if ( curlineidx >= nrlines )
+		curlineidx_++;
+		curgeomid = dataset_->geomID( curlineidx_ );
+		if ( curlineidx_ >= nrlines )
 		    return false;
 	    }
 	}
     }
     else
     {
-	if ( nrfetchers > 0 )
+	if ( nrfetchers_ > 0 )
 	{ errmsg_ = uiString::emptyString(); return false; }
 
 	bool found = false;
-	for ( ; curlineidx<nrlines; curlineidx++ )
+	for ( ; curlineidx_<nrlines; curlineidx_++ )
 	{
-	    if ( geomid == dataset_->geomID(curlineidx) )
+	    if ( geomid == dataset_->geomID(curlineidx_) )
 		{ found = true; break; }
 	}
 	if ( !found )
@@ -711,24 +786,24 @@ bool SeisTrcReader::mkNextFetcher()
     }
 
     StepInterval<float> zrg;
-    dataset_->getRanges( dataset_->geomID(curlineidx), curtrcnrrg, zrg );
+    dataset_->getRanges( dataset_->geomID(curlineidx_), curtrcnrrg_, zrg );
     if ( seldata_ && !seldata_->isAll() && seldata_->type() == Seis::Range )
     {
-	if ( seldata_->crlRange().start_ > curtrcnrrg.start_ )
-	    curtrcnrrg.start_ = seldata_->crlRange().start_;
-	if ( seldata_->crlRange().stop_ < curtrcnrrg.stop_ )
-	    curtrcnrrg.stop_ = seldata_->crlRange().stop_;
+	if ( seldata_->crlRange().start_ > curtrcnrrg_.start_ )
+	    curtrcnrrg_.start_ = seldata_->crlRange().start_;
+	if ( seldata_->crlRange().stop_ < curtrcnrrg_.stop_ )
+	    curtrcnrrg_.stop_ = seldata_->crlRange().stop_;
     }
 
     if ( !tbuf_ && !startWork() )
 	return false;
 
-    prev_inl = mUdf(int);
-    delete fetcher;
-    fetcher = dataset_->lineFetcher( dataset_->geomID(curlineidx),
+    prev_inl_ = mUdf(int);
+    delete fetcher_;
+    fetcher_ = dataset_->lineFetcher( dataset_->geomID(curlineidx_),
 				     *tbuf_, 1, seldata_ );
-    nrfetchers++;
-    return fetcher;
+    nrfetchers_++;
+    return fetcher_;
 }
 
 
@@ -737,10 +812,10 @@ bool SeisTrcReader::readNext2D()
     if ( !tbuf_->isEmpty() )
 	tbuf_->deepErase();
 
-    const int res = fetcher->doStep();
+    const int res = fetcher_->doStep();
     if ( res == SequentialTask::ErrorOccurred() )
     {
-	errmsg_ = fetcher->uiMessage();
+	errmsg_ = fetcher_->uiMessage();
 	return false;
     }
     else if ( res == 0 )
@@ -759,10 +834,10 @@ bool SeisTrcReader::readNext2D()
 
 const SeisTrcTranslator* SeisTrcReader::seis2Dtranslator()
 {
-    if ( !fetcher && !mkNextFetcher() )
+    if ( !fetcher_ && !mkNextFetcher() )
 	return nullptr;
 
-    mDynamicCastGet(const Seis2DLineGetter*,getter2d,fetcher)
+    mDynamicCastGet(const Seis2DLineGetter*,getter2d,fetcher_)
     if ( !getter2d )
 	return nullptr;
 
@@ -772,17 +847,17 @@ const SeisTrcTranslator* SeisTrcReader::seis2Dtranslator()
 
 int SeisTrcReader::get2D( SeisTrcInfo& ti )
 {
-    if ( !fetcher && !mkNextFetcher() )
+    if ( !fetcher_ && !mkNextFetcher() )
 	return errmsg_.isEmpty() ? 0 : -1;
 
     if ( !readNext2D() )
 	return errmsg_.isEmpty() ? 0 : -1;
 
-    inforead = true;
+    inforead_ = true;
     SeisTrcInfo& trcti = tbuf_->get( 0 )->info();
-    trcti.new_packet = mIsUdf(prev_inl);
+    trcti.new_packet_ = mIsUdf(prev_inl_);
     ti = trcti;
-    prev_inl = 0;
+    prev_inl_ = 0;
 
     bool isincl = true;
     if ( seldata_ )
@@ -800,15 +875,15 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
 
 bool SeisTrcReader::get2D( SeisTrc& trc )
 {
-    if ( !inforead && get2D(trc.info())<=0 )
+    if ( !inforead_ && get2D(trc.info())<=0 )
 	return false;
 
-    inforead = false;
+    inforead_ = false;
     const SeisTrc* buftrc = tbuf_->get( 0 );
     if ( !buftrc )
 	{ pErrMsg("Huh"); return false; }
     trc.info() = buftrc->info();
-    trc.copyDataFrom( *buftrc, -1, forcefloats );
+    trc.copyDataFrom( *buftrc, -1, forcefloats_ );
 
     delete tbuf_->remove(0);
     reduceComps( trc, selcomp_ );
@@ -820,10 +895,10 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
 bool SeisTrcReader::get2DData( TraceData& data )
 {
     SeisTrcInfo trcinfo;
-    if ( !inforead && get2D(trcinfo)<=0 )
+    if ( !inforead_ && get2D(trcinfo)<=0 )
 	return false;
 
-    inforead = false;
+    inforead_ = false;
     const SeisTrc* buftrc = tbuf_->get( 0 );
     if ( !buftrc )
 	{ pErrMsg("Huh"); return false; }
@@ -838,7 +913,7 @@ bool SeisTrcReader::get2DData( TraceData& data )
 
 int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 {
-    new_packet = false;
+    new_packet_ = false;
     if ( !isMultiConn() ) return 0;
 
     // Multiconn is only used for multi-machine data collection nowadays
@@ -866,8 +941,8 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 
     const int rv = get( ti );
     if ( rv < 1 )	return rv;
-    else if ( rv == 2 )	new_packet = true;
-    else		ti.new_packet = true;
+    else if ( rv == 2 ) new_packet_ = true;
+    else		ti.new_packet_ = true;
     return rv;
 }
 
@@ -984,11 +1059,13 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     {
 	if ( !trl_ )
 	    return nullptr;
+
 	if ( !isPrepared() &&
 		!const_cast<SeisTrcReader*>(this)->prepareWork(Seis::Prod) )
 	    return nullptr;
-	return get3DBounds( strl()->packetInfo().inlrg,
-			strl()->packetInfo().crlrg, strl()->packetInfo().zrg );
+
+	return get3DBounds( strl()->packetInfo().inlrg_,
+		strl()->packetInfo().crlrg_, strl()->packetInfo().zrg_ );
     }
 
     // From here post-stack 2D

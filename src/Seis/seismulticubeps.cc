@@ -238,12 +238,12 @@ void MultiCubeSeisPSReader::getCubeData( const SeisTrcReader& rdr,
 	return;
     const SeisPacketInfo& pi(
 		const_cast<SeisTrcTranslator*>(trans)->packetInfo());
-    if ( pi.cubedata )
-	cd = *pi.cubedata;
+    if ( pi.cubedata_ )
+	cd = *pi.cubedata_;
     else
-	cd.generate( BinID(pi.inlrg.start_,pi.crlrg.start_),
-		     BinID(pi.inlrg.stop_,pi.crlrg.stop_),
-		     BinID(pi.inlrg.step_,pi.crlrg.step_) );
+	cd.generate( BinID(pi.inlrg_.start_,pi.crlrg_.start_),
+		     BinID(pi.inlrg_.stop_,pi.crlrg_.stop_),
+		     BinID(pi.inlrg_.step_,pi.crlrg_.step_) );
 }
 
 
@@ -258,7 +258,7 @@ SeisTrc* MultiCubeSeisPSReader::getTrace( const BinID& bid, int nr ) const
     else if ( !rdr.get(*trc) )
 	{ errmsg_ = rdr.errMsg(); delete trc; trc = 0; }
     else
-	trc->info().offset = offs_[nr];
+	trc->info().offset_ = offs_[nr];
 
     return trc;
 }

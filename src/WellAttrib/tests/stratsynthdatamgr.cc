@@ -435,9 +435,9 @@ static bool testDataMgr( StratSynth::DataMgr& datamgr,
 		      lastgathertrc1info.trcKey() == lasttk &&
 		      lastgathertrc2info.trcKey() == lasttk &&
 		      lastangletrcinfo.trcKey() == lasttk &&
-		      mIsEqual(lastoffs,lastgathertrc1info.offset,1e-3f) &&
-		      mIsEqual(lastoffs,lastgathertrc2info.offset,1e-3f) &&
-		      mIsEqual(lastoffs,lastangletrcinfo.offset,1e-3f),
+		      mIsEqual(lastoffs,lastgathertrc1info.offset_,1e-3f) &&
+		      mIsEqual(lastoffs,lastgathertrc2info.offset_,1e-3f) &&
+		      mIsEqual(lastoffs,lastangletrcinfo.offset_,1e-3f),
 		      "Pre-stack gather/trace info is OK" );
 
     TypeSet<SynthID> checkids;

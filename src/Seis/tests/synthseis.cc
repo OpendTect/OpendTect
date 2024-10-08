@@ -83,7 +83,7 @@ bool testTraceSize( od_ostream& strm, const SeisTrc& trc )
     BufferString msg( "Expected trace range: [", zrg.start_, " " );
     msg.add( zrg.stop_ ).add( "] step " ).add( zrg.step_ ).add( "\n" );
     msg.add( "Output trace range: [" ).add( trc.startPos() ).add( " " );
-    msg.add( trc.endPos() ).add( "] step " ).add( trc.info().sampling.step_ );
+    msg.add( trc.endPos() ).add( "] step " ).add( trc.info().sampling_.step_ );
     mTest( testname, trc.zRange().isEqual(zrg,1e-4f), msg )
 
     return true;

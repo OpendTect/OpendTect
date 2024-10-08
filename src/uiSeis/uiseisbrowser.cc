@@ -391,7 +391,7 @@ void uiSeisBrowser::createTable()
 BinID uiSeisBrowser::getNextBid( const BinID& cur, int idx,
 				   bool before ) const
 {
-    const BinID& step = tr_->readMgr()->info().geom_.step;
+    const BinID& step = tr_->readMgr()->info().geom_.step_;
     return crlwise_
 	? BinID( cur.inl() + (before?-1:1)*step.inl()*idx, cur.crl() )
 	: BinID( cur.inl(), cur.crl() + (before?-1:1)*step.crl()*idx );
@@ -444,7 +444,7 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
     {
 	tr_->toStart();
 	binid = tr_->readMgr()->binID();
-	const BinID step = tr_->readMgr()->info().geom_.step;
+	const BinID step = tr_->readMgr()->info().geom_.step_;
 	if ( crlwise_ )
 	    binid.inl() += stepout_ * step.inl();
 	else
@@ -968,11 +968,11 @@ uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
 
 void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 {
-    coordfld_->setValue( trc.info().coord );
+    coordfld_->setValue( trc.info().coord_ );
     if ( is2d_ )
     {
 	trcnrbinidfld_->setValue( trc.info().trcNr(), 0 );
-	trcnrbinidfld_->setValue( trc.info().refnr, 1 );
+	trcnrbinidfld_->setValue( trc.info().refnr_, 1 );
     }
     else
 	trcnrbinidfld_->setValue( trc.info().binID() );
@@ -1025,14 +1025,14 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 
     const int zfac = zdomdef_.userFactor();
     const int nrdec =
-	    Math::NrSignificantDecimals( trc.info().sampling.step_*zfac );
+	    Math::NrSignificantDecimals( trc.info().sampling_.step_*zfac );
     BufferString zvalstr;
     zvalstr.set( peakzs.start_*zfac, nrdec );
     minamplatfld_->setText( zvalstr );
     zvalstr.set( peakzs.stop_*zfac, nrdec );
     maxamplatfld_->setText( zvalstr );
 
-    setup_.nyqvistspspace_ = trc.info().sampling.step_;
+    setup_.nyqvistspspace_ = trc.info().sampling_.step_;
     Array1DImpl<float> a1d( vals.size() );
     for ( int idx=0; idx<vals.size(); idx++ )
 	a1d.set( idx, vals[idx] );

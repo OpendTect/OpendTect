@@ -336,8 +336,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 		const StepInterval<double> zrg =
 		    gather->posData().range( Gather::offsetDim() );
 		SeisTrc trc( nrsamples );
-		trc.info().sampling.start_ = (float) zrg.start_;
-		trc.info().sampling.step_ = (float) zrg.step_;
+		trc.info().sampling_.start_ = (float) zrg.start_;
+		trc.info().sampling_.step_ = (float) zrg.step_;
 
 		if ( reader2d )
 		{
@@ -352,8 +352,8 @@ bool BatchProgram::doWork( od_ostream& strm )
 		for ( int idx=0; idx<nrtraces; idx++ )
 		{
 		    if ( needpsinput )
-			trc.info().azimuth = gather->getAzimuth( idx );
-		    trc.info().offset = gather->getOffset( idx );
+			trc.info().azimuth_ = gather->getAzimuth( idx );
+		    trc.info().offset_ = gather->getOffset( idx );
 		    for ( int idy=0; idy<nrsamples; idy++ )
 			trc.set( idy, gather->data().get( idx, idy ), 0 );
 

@@ -1526,7 +1526,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid ) override
 	    }
 
 	    if ( idx == 0 )
-		refnrs_[trcidx] = trcinfoset[tidx]->refnr;
+		refnrs_[trcidx] = trcinfoset[tidx]->refnr_;
 	}
     }
 

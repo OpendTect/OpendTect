@@ -19,8 +19,8 @@ const int CBVSIO::version = 2;
 const int CBVSIO::headstartbytes = 8 + 2 * CBVSIO::integersize;
 
 CBVSIO::CBVSIO()
-    : errmsg_(0), strmclosed_(false), nrxlines_(1)
-    , nrcomps_(0), cnrbytes_(0)
+    : errmsg_(0), cnrbytes_(0), nrcomps_(0)
+    , strmclosed_(false), nrxlines_(1)
 {}
 
 
@@ -34,20 +34,20 @@ CBVSIO::~CBVSIO()
 CBVSWriter::CBVSWriter( od_ostream* s, const CBVSInfo& i,
 			const PosAuxInfo* e, CoordPol coordpol )
 	: strm_(*s)
-	, auxinfo_(e)
 	, thrbytes_(0)
-	, file_lastinl_(false)
-	, prevbinid_(mUdf(int),mUdf(int))
+	, auxnrbytes_(0)
+	, input_rectnreg_(false)
+	, forcedlinestep_(0,0)
+	, forcetrailer_(false)
 	, trcswritten_(0)
+	, prevbinid_(mUdf(int),mUdf(int))
+	, file_lastinl_(false)
 	, nrtrcsperposn_(i.nrtrcsperposn_)
 	, nrtrcsperposn_status_(2)
 	, checknrtrcsperposn_(0)
 	, auxinfosel_(i.auxinfosel_)
 	, survgeom_(i.geom_)
-	, auxnrbytes_(0)
-	, input_rectnreg_(false)
-	, forcedlinestep_(0,0)
-	, forcetrailer_(false)
+	, auxinfo_(e)
 {
     coordpol_ = coordpol;
     init( i );
@@ -57,17 +57,17 @@ CBVSWriter::CBVSWriter( od_ostream* s, const CBVSInfo& i,
 CBVSWriter::CBVSWriter( od_ostream* s, const CBVSWriter& cw,
 			const CBVSInfo& ci )
 	: strm_(*s)
-	, auxinfo_(cw.auxinfo_)
 	, thrbytes_(cw.thrbytes_)
-	, file_lastinl_(false)
-	, prevbinid_(mUdf(int),mUdf(int))
+	, auxnrbytes_(0)
+	, forcedlinestep_(cw.forcedlinestep_)
 	, trcswritten_(0)
+	, prevbinid_(mUdf(int),mUdf(int))
+	, file_lastinl_(false)
 	, nrtrcsperposn_(cw.nrtrcsperposn_)
 	, nrtrcsperposn_status_(cw.nrtrcsperposn_status_)
 	, auxinfosel_(cw.auxinfosel_)
 	, survgeom_(ci.geom_)
-	, auxnrbytes_(0)
-	, forcedlinestep_(cw.forcedlinestep_)
+	, auxinfo_(cw.auxinfo_)
 {
     coordpol_ = cw.coordpol_;
     init( ci );
@@ -80,11 +80,11 @@ void CBVSWriter::init( const CBVSInfo& i )
 
     if ( !strm_.isOK() )
 	{ errmsg_ = "Cannot open file for write"; return; }
-    if ( !survgeom_.fullyrectandreg && !auxinfo_ )
+    if ( !survgeom_.fullyrectandreg_ && !auxinfo_ )
 	{ pErrMsg("Survey not rectangular but no explicit inl/crl info");
 	  errmsg_ = "Internal error"; return; }
 
-    if ( auxinfo_ && survgeom_.fullyrectandreg
+    if ( auxinfo_ && survgeom_.fullyrectandreg_
       && !auxinfosel_.startpos && !auxinfosel_.coord
       && !auxinfosel_.offset && !auxinfosel_.azimuth
       && !auxinfosel_.pick && !auxinfosel_.refnr )
@@ -92,7 +92,7 @@ void CBVSWriter::init( const CBVSInfo& i )
 
     writeHdr( i ); if ( errmsg_ ) return;
 
-    input_rectnreg_ = survgeom_.fullyrectandreg;
+    input_rectnreg_ = survgeom_.fullyrectandreg_;
 
     const od_stream::Pos cursp = strm_.position();
     strm_.setWritePosition( 8 );
@@ -190,8 +190,8 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	int sz = cinf.name().size();
 	strm_.addBin( &sz, integersize );
 	strm_.addBin( cinf.name(), sz );
-	strm_.addBin( &cinf.datatype, integersize );
-	cinf.datachar.dump( dcdump[0], dcdump[1] );
+	strm_.addBin( &cinf.datatype_, integersize );
+	cinf.datachar_.dump( dcdump[0], dcdump[1] );
 	strm_.addBin( dcdump, 4 );
 	strm_.addBin( &info.sd_.start_, sizeof(float) );
 	strm_.addBin( &info.sd_.step_, sizeof(float) );
@@ -200,7 +200,7 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 	strm_.addBin( &a, sizeof(float) );
 	strm_.addBin( &b, sizeof(float) );
 
-	nrbytespersample_[icomp] = cinf.datachar.nrBytes();
+	nrbytespersample_[icomp] = cinf.datachar_.nrBytes();
 	cnrbytes_[icomp] = info.nrsamples_ * nrbytespersample_[icomp];
     }
 }
@@ -209,20 +209,20 @@ void CBVSWriter::writeComps( const CBVSInfo& info )
 void CBVSWriter::writeGeom()
 {
     int irect = 0;
-    if ( survgeom_.fullyrectandreg )
+    if ( survgeom_.fullyrectandreg_ )
     {
 	irect = 1;
-	nrxlines_ = (survgeom_.stop.crl() - survgeom_.start.crl())
-		  / survgeom_.step.crl() + 1;
+	nrxlines_ = (survgeom_.stop_.crl() - survgeom_.start_.crl())
+		    / survgeom_.step_.crl() + 1;
     }
     strm_.addBin( &irect, integersize );
     strm_.addBin( &nrtrcsperposn_, integersize );
-    strm_.addBin( &survgeom_.start.inl(), 2 * integersize );
-    strm_.addBin( &survgeom_.stop.inl(), 2 * integersize );
-    strm_.addBin( &survgeom_.step.inl(), 2 * integersize );
-    strm_.addBin( &survgeom_.b2c.getTransform(true).a,
+    strm_.addBin( &survgeom_.start_.inl(), 2 * integersize );
+    strm_.addBin( &survgeom_.stop_.inl(), 2 * integersize );
+    strm_.addBin( &survgeom_.step_.inl(), 2 * integersize );
+    strm_.addBin( &survgeom_.b2c_.getTransform(true).a,
 		    3*sizeof(double) );
-    strm_.addBin( &survgeom_.b2c.getTransform(false).a,
+    strm_.addBin( &survgeom_.b2c_.getTransform(false).a,
 		    3*sizeof(double) );
 }
 
@@ -261,10 +261,10 @@ void CBVSWriter::getBinID()
     if ( input_rectnreg_ || !auxinfo_ )
     {
 	int posidx = trcswritten_ / nrtrcpp;
-	curbinid_.inl() = survgeom_.start.inl()
-		   + survgeom_.step.inl() * (posidx / nrxlines_);
-	curbinid_.crl() = survgeom_.start.crl()
-		   + survgeom_.step.crl() * (posidx % nrxlines_);
+	curbinid_.inl() = survgeom_.start_.inl()
+			  + survgeom_.step_.inl() * (posidx / nrxlines_);
+	curbinid_.crl() = survgeom_.start_.crl()
+			  + survgeom_.step_.crl() * (posidx % nrxlines_);
     }
     else if ( !(trcswritten_ % nrtrcpp) )
     {
@@ -502,31 +502,31 @@ void CBVSWriter::doClose( bool islast )
 
 void CBVSWriter::getRealGeometry()
 {
-    PosInfo::CubeData& cd = survgeom_.cubedata;
+    PosInfo::CubeData& cd = survgeom_.cubedata_;
     deepErase( cd );
     for ( int idx=0; idx<lds_.size(); idx++ )
 	cd += new PosInfo::LineData( *lds_[idx] );
 
-    survgeom_.fullyrectandreg = forcetrailer_ ? false : cd.isFullyRectAndReg();
+    survgeom_.fullyrectandreg_ = forcetrailer_ ? false : cd.isFullyRectAndReg();
     StepInterval<int> rg;
-    cd.getInlRange( rg ); survgeom_.step.inl() = rg.step_;
-    survgeom_.start.inl() = rg.start_; survgeom_.stop.inl() = rg.stop_;
-    cd.getCrlRange( rg ); survgeom_.step.crl() = rg.step_;
-    survgeom_.start.crl() = rg.start_; survgeom_.stop.crl() = rg.stop_;
+    cd.getInlRange( rg ); survgeom_.step_.inl() = rg.step_;
+    survgeom_.start_.inl() = rg.start_; survgeom_.stop_.inl() = rg.stop_;
+    cd.getCrlRange( rg ); survgeom_.step_.crl() = rg.step_;
+    survgeom_.start_.crl() = rg.start_; survgeom_.stop_.crl() = rg.stop_;
     if ( cd.isCrlReversed() )
-	survgeom_.step.crl() *= -1;
+	survgeom_.step_.crl() *= -1;
 
     if ( !cd.haveCrlStepInfo() )
-	survgeom_.step.crl() = SI().crlStep();
+	survgeom_.step_.crl() = SI().crlStep();
     if ( !cd.haveInlStepInfo() )
-	survgeom_.step.inl() = SI().inlStep();
+	survgeom_.step_.inl() = SI().inlStep();
     else if ( lds_[0]->linenr_ > lds_[1]->linenr_ )
-	survgeom_.step.inl() = -survgeom_.step.inl();
+	survgeom_.step_.inl() = -survgeom_.step_.inl();
 
-    if ( survgeom_.fullyrectandreg )
+    if ( survgeom_.fullyrectandreg_ )
 	deepErase( cd );
     else if ( forcedlinestep_.inl() )
-	survgeom_.step.inl() = forcedlinestep_.inl();
+	survgeom_.step_.inl() = forcedlinestep_.inl();
 }
 
 
@@ -546,7 +546,7 @@ bool CBVSWriter::writeTrailer()
 	}
     }
 
-    if ( !survgeom_.fullyrectandreg )
+    if ( !survgeom_.fullyrectandreg_ )
     {
 	const int nrinl = lds_.size();
 	strm_.addBin( &nrinl, integersize );

@@ -22,9 +22,9 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "seisbufadapters.h"
+#include "survinfo.h"
 #include "welldata.h"
 #include "welllogset.h"
-#include "welllog.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
 
@@ -235,7 +235,7 @@ void WellTie::uiTieView::drawTraces()
 	const bool issynth = idx < midtrc;
 	const SeisTrc* inptrc = data_.getTrc( issynth );
 	auto* trc = new SeisTrc;
-	trc->info().sampling = data_.getTraceRange();
+	trc->info().sampling_ = data_.getTraceRange();
 	if ( inptrc )
 	    trc->copyDataFrom( *inptrc );
 
@@ -323,8 +323,10 @@ void WellTie::uiTieView::drawMarker( FlatView::AuxData* auxdata,
 {
     Interval<float> xrg( (float) vwr_->boundingBox().left(),
 				    (float) vwr_->boundingBox().right() );
-    auxdata->poly_ += FlatView::Point( left ? xrg.start_ : xrg.width()/2, zpos );
-    auxdata->poly_ += FlatView::Point( left ? xrg.width()/2 : xrg.stop_, zpos );
+    auxdata->poly_ +=
+		FlatView::Point( left ? xrg.start_ : xrg.width()/2, zpos );
+    auxdata->poly_ +=
+		FlatView::Point( left ? xrg.width()/2 : xrg.stop_, zpos );
 }
 
 
@@ -346,6 +348,7 @@ void WellTie::uiTieView::drawLogDispWellMarkers()
     for ( int idx=0; idx<auxs.size(); idx++ ) \
         vwr_->removeAuxData( auxs[idx] ); \
     deepErase( auxs );
+
 void WellTie::uiTieView::drawViewerWellMarkers()
 {
     mRemoveItms( mrktxtnms_ )
@@ -527,6 +530,7 @@ void WellTie::uiCrossCorrView::set( const Data::CorrelData& cd )
     vals_.erase();
     for ( int idx=0; idx<cd.vals_.size(); idx++ )
 	vals_ += cd.vals_[idx];
+
     lag_ = mCast( float, cd.lag_ );
     coeff_ = (float) cd.coeff_;
 }
@@ -542,15 +546,17 @@ void WellTie::uiCrossCorrView::draw()
     TypeSet<float> xvals, yvals;
     for ( int idx=-halfsz; idx<halfsz; idx++)
     {
-	float xaxistime = idx *
-                          data_.getTraceRange().step_*SI().zDomain().userFactor();
-	if ( fabs( xaxistime ) > lag_ )
+	const float xaxistime =
+		idx * data_.getTraceRange().step_*SI().zDomain().userFactor();
+	if ( fabs(xaxistime) > lag_ )
 	    continue;
+
 	xvals += xaxistime;
 	float val = vals_[idx+halfsz];
 	val *= normalfactor;
 	yvals += fabs(val)>1 ? 0 : val;
     }
+
     disp_->setVals( xvals.arr(), yvals.arr(), xvals.size() );
     uiString corrbuf = tr("Cross-Correlation Coefficient: %1").arg(coeff_);
     lbl_->setPrefWidthInChar(50);

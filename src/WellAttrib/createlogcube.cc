@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllogset.h"
-#include "welllog.h"
 #include "welldata.h"
 #include "wellman.h"
 
@@ -158,9 +157,9 @@ LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
 LogCubeCreator::LogCubeCreator(const BufferStringSet& lognms,
 			       const Well::LogSet& logset, const MultiID& wllid,
 			       const Well::ExtractParams& pars, int nrtrcs )
-    : extractparams_(pars)
+    : logset_(&logset)
+    , extractparams_(pars)
     , stepout_(nrtrcs)
-    , logset_(&logset)
 {
     TypeSet<MultiID> wllids;
     wllids += wllid;
@@ -414,7 +413,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
     const SamplingData<float> sampling( SI().zRange( true ) );
     const int trcsz = SI().zRange( true ).nrSteps() + 1;
     SeisTrc undeftrc( trcsz );
-    undeftrc.info().sampling = sampling;
+    undeftrc.info().sampling_ = sampling;
     for ( int idx=0; idx<undeftrc.size(); idx++ )
 	undeftrc.set( idx, mUdf(float), 0 );
 
@@ -430,13 +429,14 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 	    mErrRet( msg, errmsg_.isEmpty(), return false )
 	}
 
-	logtrcs[ilog]->info().sampling = sampling;
+	logtrcs[ilog]->info().sampling_ = sampling;
 	welldata_[iwll]->trcs_ += new SeisTrcBuf( true );
 	logispresent += logset_ ? logset_->getLog( lognms.get(ilog).buf() )
 				: wd->logs().getLog( lognms.get(ilog).buf() );
     }
 
-    StepInterval<float> logzrg( logsamp->zRange().start_, logsamp->zRange().stop_,
+    StepInterval<float> logzrg( logsamp->zRange().start_,
+				logsamp->zRange().stop_,
 				extractparams_.zstep_ );
     const int ns = logsamp->nrZSamples();
     const int nrlogs = logcubes_.size();

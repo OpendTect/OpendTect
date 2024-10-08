@@ -9,16 +9,11 @@ ________________________________________________________________________
 
 #include "seis2dto3dinterpol.h"
 
-#include "arrayndalgo.h"
-#include "bufstring.h"
-#include "dataclipper.h"
 #include "fftfilter.h"
 #include "ioman.h"
-#include "ioobj.h"
 #include "keystrs.h"
 #include "paralleltask.h"
 #include "ptrman.h"
-#include "scaler.h"
 #include "seis2ddata.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
@@ -29,10 +24,8 @@ ________________________________________________________________________
 #include "seistrcprop.h"
 #include "seiswrite.h"
 #include "survinfo.h"
-#include "uistrings.h"
 
 #include "statruncalc.h"
-#include "statparallelcalc.h"
 
 mImplFactory(Seis2DTo3DInterPol, Seis2DTo3DInterPol::factory)
 
@@ -191,7 +184,7 @@ bool Seis2DTo3DInterPol::read()
 	    else if ( readres == 2 )
 		continue;
 
-	    const BinID bid = geom3d->transform( inptrc.info().coord );
+	    const BinID bid = geom3d->transform( inptrc.info().coord_ );
 	    if ( !tks.includes(bid) || !rdr.get(inptrc) )
 		continue;
 
@@ -199,8 +192,8 @@ bool Seis2DTo3DInterPol::read()
 	    trc->reSize( ns, false );
 	    trc->info().setPos( bid );
 	    trc->info().calcCoord();
-            trc->info().sampling.start_ = tkzs_.zsamp_.start_;
-            trc->info().sampling.step_ = tkzs_.zsamp_.step_;
+	    trc->info().sampling_.start_ = tkzs_.zsamp_.start_;
+	    trc->info().sampling_.step_ = tkzs_.zsamp_.step_;
 	    for ( int isamp=0; isamp<ns; isamp++ )
 	    {
 		const float z = tkzs_.zsamp_.atIndex( isamp );
@@ -348,8 +341,8 @@ public:
 	    const od_int64 offset = it * n3_ ;
 	    for ( int idz=0; idz<n3_; idz++)
 	    {
-		const Coord3 pos3d(pos2d,
-                                   tkzs_.zsamp_.step_*zscale_*idz + refz_.start_);
+		const Coord3 pos3d( pos2d,
+			tkzs_.zsamp_.step_*zscale_*idz + refz_.start_ );
 
 		int nearestidx = 0;
 		float nearest = (float)pos3d.distTo(refpos3d_[0]);
@@ -364,8 +357,8 @@ public:
 		}
 		const float dist2d = (float)pos2d.distTo(
 						refpos3d_[nearestidx].coord());
-                double topz = pos3d.z_ -refz_.start_;
-                double bottomz = refz_.stop_-pos3d.z_;
+		double topz = pos3d.z_ -refz_.start_;
+		double bottomz = refz_.stop_-pos3d.z_;
 		if ( topz > tan( taperangle )*dist2d
 			&& bottomz > tan( taperangle )*dist2d )
 		    continue;
@@ -553,7 +546,7 @@ bool Seis2DTo3DInterPol::writeOutput()
     TrcKeySamplingIterator iter( hrg );
     SeisTrc& trc( *seisbuf_.get(0) );
     trc.info().setPos( hrg.start_ );
-    trc.info().sampling = tkzs_.zsamp_;
+    trc.info().sampling_ = tkzs_.zsamp_;
     const int nrz = tkzs_.nrZ();
     BinID bid;
     do

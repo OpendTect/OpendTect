@@ -132,15 +132,15 @@ void Seis::Blocks::FileColumn::createOffsetTable()
     const int nrbytespercompslice = ((int)dims_.inl()) * dims_.crl()
 				    * nrbytespersample;
 
-    const IdxType lastglobzidxinfile = Block::globIdx4Z( rdr_.zgeom_,
-                                                         rdr_.zgeom_.stop_, dims_.z() );
+    const IdxType lastglobzidxinfile =
+	Block::globIdx4Z( rdr_.zgeom_, rdr_.zgeom_.stop_, dims_.z() );
     Interval<IdxType> trcgzidxrg(
-                Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start_, dims_.z() ),
-                Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop_, dims_.z() ) );
+	Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.start_, dims_.z() ),
+	Block::globIdx4Z( rdr_.zgeom_, rdr_.zrgintrace_.stop_, dims_.z() ) );
     nrsamplesintrace_ = 0;
     int blocknrbytes = dims_.z() * nrbytespercompslice;
-    od_stream_Pos blockstartoffs = startoffsinfile_ + headernrbytes_
-                                   + trcgzidxrg.start_ * blocknrbytes * nrcomps_;
+    od_stream_Pos blockstartoffs = startoffsinfile_ + headernrbytes_ +
+				trcgzidxrg.start_ * blocknrbytes * nrcomps_;
     for ( IdxType gzidx=trcgzidxrg.start_; gzidx<=trcgzidxrg.stop_; gzidx++ )
     {
 	SzType blockzdim = dims_.z();
@@ -639,8 +639,8 @@ bool Seis::Blocks::Reader::doGoTo( const BinID& bid, uiRetVal& uirv ) const
 void Seis::Blocks::Reader::fillInfo( const BinID& bid, SeisTrcInfo& ti ) const
 {
     ti.setGeomID( hgeom_->getID() ).setPos( bid ).calcCoord();
-    ti.sampling.start_ = zrgintrace_.start_;
-    ti.sampling.step_ = zgeom_.step_;
+    ti.sampling_.start_ = zrgintrace_.start_;
+    ti.sampling_.step_ = zgeom_.step_;
 }
 
 

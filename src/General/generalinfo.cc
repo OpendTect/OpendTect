@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "oscommand.h"
 #include "perthreadrepos.h"
+#include "surfaceinfo.h"
 
 
 namespace OD
@@ -93,3 +94,16 @@ bool	getHostIDs( BufferStringSet& hostids,
 }
 
 } // namespace OD
+
+
+SurfaceInfo::SurfaceInfo( const char* nm, const MultiID& mid, const VisID& vid,
+			  const char* attr )
+    : multiid_(mid)
+    , visid_(vid)
+    , name_(nm)
+    , attrnm_(attr)
+{}
+
+
+SurfaceInfo::~SurfaceInfo()
+{}

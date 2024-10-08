@@ -232,11 +232,11 @@ void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 	    CBVSReader rdr( strm, false ); // stream closed by reader
 	    isok = !rdr.errMsg();
 	    if ( isok )
-		isok = rdr.info().geom_.start.crl() ||
-		       rdr.info().geom_.stop.crl();
+		isok = rdr.info().geom_.start_.crl() ||
+		       rdr.info().geom_.stop_.crl();
 
 	    if ( isok )
-		inl = rdr.info().geom_.stop.inl();
+		inl = rdr.info().geom_.stop_.inl();
 	}
 	else
 	{

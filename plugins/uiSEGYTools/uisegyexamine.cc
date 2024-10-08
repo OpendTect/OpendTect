@@ -451,7 +451,7 @@ void uiSEGYExamine::updateInp()
 
 	nrdone++;
 	trc.info().seqnr_ = nrdone;
-	trc.info().sampling.step_ = sampstep;
+	trc.info().sampling_.step_ = sampstep;
 	tbuf_.add( new SeisTrc(trc) );
     }
     tbl_->setNrCols( nrdone > 0 ? nrdone : 1 );

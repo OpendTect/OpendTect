@@ -361,12 +361,12 @@ int SeisMerger::writeTrc( SeisTrc* trc )
     if ( nrsamps_ < 0 )
     {
 	nrsamps_ = trc->size();
-	sd_ = trc->info().sampling;
+	sd_ = trc->info().sampling_;
     }
-    else if ( trc->size() != nrsamps_ || trc->info().sampling != sd_ )
+    else if ( trc->size() != nrsamps_ || trc->info().sampling_ != sd_ )
     {
 	SeisTrc* newtrc = new SeisTrc(*trc);
-	newtrc->info().sampling = sd_;
+	newtrc->info().sampling_ = sd_;
 	newtrc->reSize( nrsamps_, false );
 	const int nrcomps = trc->nrComponents();
 	for ( int isamp=0; isamp<nrsamps_; isamp++ )

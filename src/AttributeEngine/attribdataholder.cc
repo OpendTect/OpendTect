@@ -228,7 +228,7 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 	    trcrange.start_ = trcrange.stop_ = curtrcnr;
 	    zrange.start_ = start;
 	    zrange.stop_ = stop;
-	    zstep = trcinfoset_[idx]->sampling.step_;
+	    zstep = trcinfoset_[idx]->sampling_.step_;
 	}
 	else
 	{
@@ -291,7 +291,7 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
     for ( int idx=0; idx<dh.trcinfoset_.size(); idx++ )
     {
 	auto* ni = new SeisTrcInfo( *dh.trcinfoset_[idx] );
-	ni->sampling.start_ = dh.dataset_[idx]->z0_ * ni->sampling.step_;
+	ni->sampling_.start_ = dh.dataset_[idx]->z0_ * ni->sampling_.step_;
 	trcinfoset_ += ni;
     }
 

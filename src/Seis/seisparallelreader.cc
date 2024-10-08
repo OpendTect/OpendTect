@@ -1089,12 +1089,12 @@ bool Seis::SequentialReader::init()
     needresampling_ = !dpzsamp_.isCompatible( seissummary_->zRange() );
     if ( needresampling_ )
     {
-        if ( dpzsamp_.start_ < seissummary_->zRange().start_ )
-            dpzsamp_.start_ =
-                    dpzsamp_.snap( seissummary_->zRange().start_, OD::SnapUpward );
-        if ( dpzsamp_.stop_ > seissummary_->zRange().stop_ )
-            dpzsamp_.stop_ =
-                    dpzsamp_.snap( seissummary_->zRange().stop_, OD::SnapDownward );
+	if ( dpzsamp_.start_ < seissummary_->zRange().start_ )
+	    dpzsamp_.start_ =
+		dpzsamp_.snap( seissummary_->zRange().start_, OD::SnapUpward );
+	if ( dpzsamp_.stop_ > seissummary_->zRange().stop_ )
+	    dpzsamp_.stop_ =
+		dpzsamp_.snap( seissummary_->zRange().stop_, OD::SnapDownward );
     }
     else
     {
@@ -1177,7 +1177,7 @@ static bool fillTrcsBuffer( SeisTrcReader& rdr, TypeSet<TrcKey>& tks,
 	if ( tk.is2D() )
 	{
 	    tk.setTrcNr( trcinfo.trcNr() );
-	    refnrs[ipos] = trcinfo.refnr;
+	    refnrs[ipos] = trcinfo.refnr_;
 	}
 	else
 	    tk.setPosition( trcinfo.binID() );

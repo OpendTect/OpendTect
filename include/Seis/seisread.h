@@ -53,7 +53,8 @@ Note: 2D Prestack data cannot (yet) be read via this class.
 */
 
 mExpClass(Seis) SeisTrcReader : public SeisStoreAccess
-{ mODTextTranslationClass(SeisTrcReader);
+{
+mODTextTranslationClass(SeisTrcReader)
 public:
 
 			SeisTrcReader(const MultiID&,Seis::GeomType);
@@ -68,8 +69,9 @@ public:
 				//!< Restricted to a given Pos::GeomID
 			SeisTrcReader(const SeisStoreAccess::Setup&);
 			~SeisTrcReader();
+//			mOD_DisableCopy(SeisTrcReader)
 
-    void		forceFloatData( bool yn=true )	{ forcefloats = yn; }
+    void		forceFloatData( bool yn=true )	{ forcefloats_ = yn; }
 			//!< Only effective if called before prepareWork()
     bool		prepareWork(Seis::ReadMode =Seis::Prod);
 			//!< After this, you can set stuff on the translator
@@ -108,8 +110,8 @@ public:
 			//!< -1 (default) is all components
 
 			// 2D only
-    int			curLineIdx() const		{ return curlineidx; }
-    StepInterval<int>	curTrcNrRange() const		{ return curtrcnrrg; }
+    int			curLineIdx() const		{ return curlineidx_; }
+    StepInterval<int>	curTrcNrRange() const		{ return curtrcnrrg_; }
     Pos::GeomID		geomID() const override;
     Pos::GeomIDProvider* geomIDProvider() const;
     int			getNrOffsets(int maxnrpostobechecked=10) const;
@@ -120,21 +122,21 @@ public:
 
 protected:
 
-    bool		foundvalidinl		= false;
-    bool		foundvalidcrl		= false;
-    bool		new_packet		= false;
-    bool		needskip		= false;
-    bool		forcefloats		= false;
-    bool		inforead		= false;
-    int			prev_inl		= mUdf(int);
-    int			curlineidx		= -1;
-    int			nrfetchers		= 0;
-    TrcKeySampling*	outer;
+    bool		foundvalidinl_		= false;
+    bool		foundvalidcrl_		= false;
+    bool		new_packet_		= false;
+    bool		needskip_		= false;
+    bool		forcefloats_		= false;
+    bool		inforead_		= false;
+    int			prev_inl_		= mUdf(int);
+    int			curlineidx_		= -1;
+    int			nrfetchers_		= 0;
+    TrcKeySampling*	outer_;
     SeisTrcBuf*		tbuf_			= nullptr;
-    Executor*		fetcher			= nullptr;
-    Seis::ReadMode	readmode		= Seis::Prod;
-    bool		entryis2d		= false;
-    StepInterval<int>	curtrcnrrg;
+    Executor*		fetcher_		= nullptr;
+    Seis::ReadMode	readmode_		= Seis::Prod;
+    bool		entryis2d_		= false;
+    StepInterval<int>	curtrcnrrg_;
     SeisPS2DReader*	psrdr2d_		= nullptr;
     SeisPS3DReader*	psrdr3d_		= nullptr;
     PosInfo::CubeDataIterator* pscditer_	= nullptr;
@@ -174,5 +176,35 @@ public:
 			SeisTrcReader(const IOObj* =nullptr);
 
     explicit		SeisTrcReader(const char* fnm);
-				//!< Open 'loose' CBVS files only.
+			//!< Open 'loose' CBVS files only.
+
+    mDeprecated("Use foundvalidinl_")
+    bool&		foundvalidinl;
+    mDeprecated("Use foundvalidcrl_")
+    bool&		foundvalidcrl;
+    mDeprecated("Use new_packet_")
+    bool&		new_packet;
+    mDeprecated("Use needskip_")
+    bool&		needskip;
+    mDeprecated("Use forcefloats_")
+    bool&		forcefloats;
+    mDeprecated("Use inforead_")
+    bool&		inforead;
+    mDeprecated("Use prev_inl_")
+    int&		prev_inl;
+    mDeprecated("Use curlineidx_")
+    int&		curlineidx;
+    mDeprecated("Use nrfetchers_")
+    int&		nrfetchers;
+    mDeprecated("Use outer_")
+    TrcKeySampling*&	outer;
+
+    mDeprecated("Use fetcher_")
+    Executor*&		fetcher;
+    mDeprecated("Use readmode_")
+    Seis::ReadMode&	readmode;
+    mDeprecated("Use entryis2d_")
+    bool&		entryis2d;
+    mDeprecated("Use curtrcnrrg_")
+    StepInterval<int>&	curtrcnrrg;
 };

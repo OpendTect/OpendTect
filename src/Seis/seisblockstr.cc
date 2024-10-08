@@ -75,13 +75,13 @@ bool BlocksSeisTrcTranslator::initRead_()
 	return false;
     }
 
-    pinfo_.usrinfo = rdr_->cubeName();
-    pinfo_.stdinfo = rdr_->infoFileName();
-    pinfo_.cubedata = &rdr_->positions();
-    pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
-    rdr_->positions().getRanges( pinfo_.inlrg, pinfo_.crlrg );
-    pinfo_.inlrg.step_ = rdr_->hGeom()->sampling().hsamp_.step_.inl();
-    pinfo_.crlrg.step_ = rdr_->hGeom()->sampling().hsamp_.step_.crl();
+    pinfo_.usrinfo_ = rdr_->cubeName();
+    pinfo_.stdinfo_ = rdr_->infoFileName();
+    pinfo_.cubedata_ = &rdr_->positions();
+    pinfo_.fullyrectandreg_ = pinfo_.cubedata_->isFullyRectAndReg();
+    rdr_->positions().getRanges( pinfo_.inlrg_, pinfo_.crlrg_ );
+    pinfo_.inlrg_.step_ = rdr_->hGeom()->sampling().hsamp_.step_.inl();
+    pinfo_.crlrg_.step_ = rdr_->hGeom()->sampling().hsamp_.step_.crl();
     insd_.start_ = rdr_->zGeom().start_;
     insd_.step_ = rdr_->zGeom().step_;
     innrsamples_ = rdr_->zGeom().nrSteps() + 1;

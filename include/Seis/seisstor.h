@@ -38,24 +38,24 @@ public:
 			Setup(const Setup&);
 			~Setup();
 
-    Setup&		operator =(const Setup&);
+	Setup&		operator =(const Setup&);
 
-    PtrMan<IOObj>	getIOObj() const;
+	PtrMan<IOObj>	getIOObj() const;
 
-    void		usePar(const IOPar&);
-    Setup&		ioobj(const IOObj&);
-    Setup&		geomtype(Seis::GeomType);
-    Setup&		seldata(const Seis::SelData*);
-    Setup&		coordsys(const Coords::CoordSystem&);
+	void		usePar(const IOPar&);
+	Setup&		ioobj(const IOObj&);
+	Setup&		geomtype(Seis::GeomType);
+	Setup&		seldata(const Seis::SelData*);
+	Setup&		coordsys(const Coords::CoordSystem&);
 
-    const IOObj*	ioobj_ = nullptr;
-    Seis::GeomType	geomtype_ = Seis::Vol;
-    mDefSetupMemb(Pos::GeomID,geomid);
-    ConstRefMan<Coords::CoordSystem> coordsys_;
-    Seis::SelData*	seldata_ = nullptr;
-    mDefSetupMemb(BufferString,hdrtxt);
-    mDefSetupMemb(int,compnr);	// -1 = all
-    };
+	const IOObj*	ioobj_			= nullptr;
+	Seis::GeomType	geomtype_		= Seis::Vol;
+	mDefSetupMemb(Pos::GeomID,geomid);
+	ConstRefMan<Coords::CoordSystem> coordsys_;
+	Seis::SelData*	seldata_		= nullptr;
+	mDefSetupMemb(BufferString,hdrtxt);
+	mDefSetupMemb(int,compnr);	// -1 = all
+    }; // class Setup
 
     virtual		~SeisStoreAccess();
     virtual bool	close();

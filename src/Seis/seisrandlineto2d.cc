@@ -177,8 +177,8 @@ int SeisRandLineTo2D::nextStep()
     const int trcnr = mNINT32( vals[3] );
     SeisTrcInfo& trcinfo = trc->info();
     trcinfo.setGeomID( geomid_ ).setTrcNr( trcnr );
-    trcinfo.refnr = trcnr;
-    trcinfo.coord = coord;
+    trcinfo.refnr_ = trcnr;
+    trcinfo.coord_ = coord;
     trcinfo.seqnr_ = ++nrdone_;
     addTrcToBuffer( trc.ptr(), buf_ );
 
@@ -194,8 +194,8 @@ int SeisRandLineTo2D::nextStep()
 	auto* nexttrc = new SeisTrc( *trc );
 	SeisTrcInfo& nexttrcinfo = nexttrc->info();
 	nexttrcinfo.setTrcNr( nexttrcnr );
-	nexttrcinfo.refnr = nexttrcnr;
-	nexttrcinfo.coord = nextcoord;
+	nexttrcinfo.refnr_ = nexttrcnr;
+	nexttrcinfo.coord_ = nextcoord;
 	nexttrcinfo.seqnr_ = ++nrdone_;
 	addTrcToBuffer( nexttrc, buf_ );
     }

@@ -18,14 +18,18 @@ ________________________________________________________________________
 mExpClass(General) BasicComponentInfo : public NamedObject
 {
 public:
-			BasicComponentInfo(const char* nm=0);
+			BasicComponentInfo(const char* nm=nullptr);
 			BasicComponentInfo(const BasicComponentInfo&);
 			~BasicComponentInfo();
 
     BasicComponentInfo& operator=(const BasicComponentInfo&);
     bool		operator==(const BasicComponentInfo&) const;
 
-    int			datatype;
-    DataCharacteristics	datachar;
+    int			datatype_;
+    DataCharacteristics datachar_;
 
+    mDeprecated("Use datatype_")
+    int&		datatype;
+    mDeprecated("Use datachar_")
+    DataCharacteristics& datachar;
 };

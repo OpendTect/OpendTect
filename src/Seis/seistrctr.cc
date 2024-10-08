@@ -58,7 +58,7 @@ SeisTrcTranslator::ComponentData::ComponentData( const SeisTrc& trc, int icomp,
 						 const char* nm )
 	: BasicComponentInfo(nm)
 {
-    datachar = trc.data().getInterpreter(icomp)->dataChar();
+    datachar_ = trc.data().getInterpreter(icomp)->dataChar();
 }
 
 
@@ -194,9 +194,9 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
 	return false;
     }
 
-    pinfo_.zrg.start_ = insd_.start_;
-    pinfo_.zrg.step_ = insd_.step_;
-    pinfo_.zrg.stop_ = insd_.start_ + insd_.step_ * (innrsamples_-1);
+    pinfo_.zrg_.start_ = insd_.start_;
+    pinfo_.zrg_.step_ = insd_.step_;
+    pinfo_.zrg_.stop_ = insd_.start_ + insd_.step_ * (innrsamples_-1);
     return true;
 }
 
@@ -212,13 +212,13 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 	return false;
     }
 
-    insd_ = outsd_ = trc.info().sampling;
+    insd_ = outsd_ = trc.info().sampling_;
 
     if ( seldata_ )
     {
-	pinfo_.inlrg.setInterval( seldata_->inlRange() );
-	pinfo_.crlrg.setInterval( seldata_->crlRange() );
-	pinfo_.zrg.setInterval( seldata_->zRange() );
+	pinfo_.inlrg_.setInterval( seldata_->inlRange() );
+	pinfo_.crlrg_.setInterval( seldata_->crlRange() );
+	pinfo_.zrg_.setInterval( seldata_->zRange() );
     }
 
     if ( !initConn(c) || !initWrite_(trc) )
@@ -303,7 +303,7 @@ bool SeisTrcTranslator::commitSelections()
     delete storbuf_;
     storbuf_ = new TraceData;
     for ( int iselc=0; iselc<nrcomps; iselc++ )
-	storbuf_->addComponent( ns+1, cds[iselc]->datachar , true );
+	storbuf_->addComponent( ns+1, cds[iselc]->datachar_ , true );
 
     if ( !storbuf_->allOk() )
     {
@@ -484,10 +484,10 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
         TraceData& td = trc.data();
 	if ( !tarcds_.validIdx(idx) ) break;
         if ( td.nrComponents() <= idx )
-            td.addComponent( actualsz, tarcds_[ inpfor_[idx] ]->datachar );
+	    td.addComponent( actualsz, tarcds_[ inpfor_[idx] ]->datachar_ );
         else
         {
-            td.setComponent( tarcds_[ inpfor_[idx] ]->datachar, idx );
+	    td.setComponent( tarcds_[ inpfor_[idx] ]->datachar_, idx );
             td.reSize( actualsz, idx );
         }
     }
@@ -517,13 +517,13 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
     }
 
     ComponentData* newcd = new ComponentData( nm );
-    newcd->datachar = dc;
-    newcd->datatype = dtype;
+    newcd->datachar_ = dc;
+    newcd->datatype_ = dtype;
     cds_ += newcd;
-    bool isl = newcd->datachar.littleendian_;
-    newcd->datachar.littleendian_ = __islittle__;
+    bool isl = newcd->datachar_.littleendian_;
+    newcd->datachar_.littleendian_ = __islittle__;
     tarcds_ += new TargetComponentData( *newcd, cds_.size()-1 );
-    newcd->datachar.littleendian_ = isl;
+    newcd->datachar_.littleendian_ = isl;
 }
 
 
@@ -569,9 +569,9 @@ SeisTrc* SeisTrcTranslator::getEmpty()
 {
     DataCharacteristics dc;
     if ( outcds_ )
-	dc = outcds_[0]->datachar;
+	dc = outcds_[0]->datachar_;
     else if ( !tarcds_.isEmpty() && inpfor_ )
-	dc = tarcds_[selComp()]->datachar;
+	dc = tarcds_[selComp()]->datachar_;
 
     return new SeisTrc( 0, dc );
 }
@@ -675,8 +675,8 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
     for ( int idx=0; idx<nrout_; idx++ )
     {
 	newtrc->data().addComponent( outnrsamples_,
-				     outcds_[idx]->datachar, true );
-	newtrc->info().sampling = outsd_;
+				     outcds_[idx]->datachar_, true );
+	newtrc->info().sampling_ = outsd_;
     }
 
     return newtrc;
@@ -713,8 +713,8 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs )
 	    return false;
 
 	const SeisPacketInfo& pinf = tr->packetInfo();
-	cs.hsamp_.set( pinf.inlrg, pinf.crlrg );
-	cs.zsamp_ = pinf.zrg;
+	cs.hsamp_.set( pinf.inlrg_, pinf.crlrg_ );
+	cs.zsamp_ = pinf.zrg_;
     }
     else
     {
@@ -731,8 +731,8 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs )
 
 	    const SeisPacketInfo& pinf = seistr->packetInfo();
 	    TrcKeyZSampling newcs( false );
-	    newcs.hsamp_.set( pinf.inlrg, pinf.crlrg );
-	    newcs.zsamp_ = pinf.zrg;
+	    newcs.hsamp_.set( pinf.inlrg_, pinf.crlrg_ );
+	    newcs.zsamp_ = pinf.zrg_;
 	    cs.include( newcs );
 	} while ( iostrm.toNextConnIdx() );
     }

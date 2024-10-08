@@ -273,9 +273,9 @@ bool SeisZAxisStretcher::doWork( od_int64, od_int64, int )
     while ( shouldContinue() && getInputTrace(intrc) )
     {
 	auto* outtrc = new SeisTrc( outsz );
-	outtrc->info().sampling = sd;
+	outtrc->info().sampling_ = sd;
 	outtrc->info().setTrcKey( intrc.info().trcKey() );
-	outtrc->info().coord = intrc.info().coord;
+	outtrc->info().coord_ = intrc.info().coord_;
 
 	if ( standardstretch )
 	    stretch( intrc, icomp, *intrcfunc, *sampler, outputptr, *outtrc );
@@ -420,7 +420,7 @@ bool SeisZAxisStretcher::selfStretchVelocity( const SeisTrc& inptrc, int icomp,
 					      SeisTrc& outtrc ) const
 {
     const int inpsz = inptrc.size();
-    const SamplingData<float>& inputsd = inptrc.info().sampling;
+    const SamplingData<float>& inputsd = inptrc.info().sampling_;
     const VelocityDesc& desc = worker_->getDesc();
     const VelocityDesc* vintdesc = vintworker_ ? &vintworker_->getDesc()
 					       : nullptr;
@@ -469,7 +469,7 @@ bool SeisZAxisStretcher::selfStretchVelocity( const SeisTrc& inptrc, int icomp,
     const ArrayValueSeries<double,double> vels( modvels.arr(), false, modsz );
     velszvals = new ArrayZValues<double>( moddepths.arr(), modsz,
 					  ZDomain::DepthMeter() );
-    const RegularZValues zvals_out( outtrc.info().sampling, outtrc.size(),
+    const RegularZValues zvals_out( outtrc.info().sampling_, outtrc.size(),
 				    ztransform_->toZDomainInfo() );
     SeisTrcValueSeries outputvs( outtrc, icomp );
     PtrMan<ValueSeries<double> > vout =
@@ -488,7 +488,7 @@ bool SeisZAxisStretcher::stretchVelocity( const SeisTrc& inptrc, int icomp,
 					  SeisTrc& outtrc ) const
 {
     const int inpsz = inptrc.size();
-    const SamplingData<float>& inputsd = inptrc.info().sampling;
+    const SamplingData<float>& inputsd = inptrc.info().sampling_;
     const SeisTrcValueSeries inputvs( inptrc, icomp );
     PtrMan<ValueSeries<double> > vels =
 			ScaledValueSeries<double,float>::getFrom(
@@ -509,7 +509,7 @@ bool SeisZAxisStretcher::stretchVelocity( const SeisTrc& inptrc, int icomp,
     const ArrayZValues<float> velszvals( zoutvals.arr(), inpsz,
 					 ztransform_->toZDomainInfo() );
 
-    const RegularZValues zvals_out( outtrc.info().sampling, outtrc.size(),
+    const RegularZValues zvals_out( outtrc.info().sampling_, outtrc.size(),
 				    ztransform_->toZDomainInfo() );
     SeisTrcValueSeries outputvs( outtrc, icomp );
     PtrMan<ValueSeries<double> > vout =

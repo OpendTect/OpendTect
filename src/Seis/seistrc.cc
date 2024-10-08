@@ -210,18 +210,21 @@ void SeisTrc::ensureNoUndefs( float replval )
             udfsamps.stop_ = cursamp - 1;
 
 	    if ( !interpolate )
-                for ( int isamp=udfsamps.start_; isamp<=udfsamps.stop_; isamp++ )
+	    {
+		for ( int isamp=udfsamps.start_; isamp<=udfsamps.stop_;
+		      isamp++ )
 		    set( isamp, replval, icomp );
+	    }
 	    else
 	    {
-                const float v0 = get( udfsamps.start_-1, icomp );
-                const float v1 = get( udfsamps.stop_+1, icomp );
+		const float v0 = get( udfsamps.start_-1, icomp );
+		const float v1 = get( udfsamps.stop_+1, icomp );
 		const int nrudfs = udfsamps.width() + 1;
 		for ( int iudf=0; iudf<nrudfs; iudf++ )
 		{
 		    const float frac = (iudf+1.0f) / (nrudfs+1.0f);
 		    const float newval = v0*(1.0f-frac) + v1*frac;
-                    set( udfsamps.start_+iudf, newval, icomp );
+		    set( udfsamps.start_+iudf, newval, icomp );
 		}
 	    }
 
@@ -247,7 +250,7 @@ float SeisTrc::getValue( float t, int icomp ) const
     if ( sampidx < 0 || sampidx >= sz )
 	return interpolator().udfval_;
 
-    const float pos = info_.sampling.getfIndex( t );
+    const float pos = info_.sampling_.getfIndex( t );
     if ( sampidx-pos > -snapdist && sampidx-pos < snapdist )
 	return get( sampidx, icomp );
 
@@ -269,17 +272,17 @@ SampleGate SeisTrc::sampleGate( const Interval<float>& tg, bool check ) const
 
 SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 {
-    const float pick = info_.pick;
+    const float pick = info_.pick_;
     if ( mIsUdf(pick) )
 	return 0;
 
     ZGate zg( zgate ); zg.sort();
     SeisTrc* ret = new SeisTrc;
     ret->info_ = info_;
-    ret->info_.sampling.start_ = zg.start_;
-    if ( mIsUdf(sr) ) sr = info_.sampling.step_;
-    ret->info_.sampling.step_ = sr;
-    ret->info_.pick = 0;
+    ret->info_.sampling_.start_ = zg.start_;
+    if ( mIsUdf(sr) ) sr = info_.sampling_.step_;
+    ret->info_.sampling_.step_ = sr;
+    ret->info_.pick_ = 0;
 
     const int nrsamps = (int)( (zg.stop_ - zg.start_) / sr + 1.5);
     ret->reSize( nrsamps, false );
@@ -301,7 +304,8 @@ SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 
 SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 {
-    const float fnrsamps = (zgate.stop_-zgate.start_) / info_.sampling.step_ + 1;
+    const float fnrsamps =
+		(zgate.stop_-zgate.start_) / info_.sampling_.step_ + 1;
     const int outnrsamps = mNINT32( fnrsamps );
     const TraceDataInterpreter* tdi = data_.getInterpreter(0);
     DataCharacteristics dc( tdi ? tdi->dataChar() : DataCharacteristics() );
@@ -313,9 +317,9 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 	{ newtrc->zero(); return newtrc; }
 
     newtrc->info_ = info_;
-    newtrc->info_.sampling.start_ = zgate.start_;
-    const float z0 = startPos() - snapdist * info_.sampling.step_;
-    const float z1 = endPos() + snapdist * info_.sampling.step_;
+    newtrc->info_.sampling_.start_ = zgate.start_;
+    const float z0 = startPos() - snapdist * info_.sampling_.step_;
+    const float z1 = endPos() + snapdist * info_.sampling_.step_;
 
     for ( int icomp=0; icomp<nrComponents(); icomp++ )
     {
@@ -349,7 +353,7 @@ bool SeisTrc::updateVelocities( const VelocityDesc& inpdesc,
 	return false;
 
     const int sz = size();
-    const RegularZValues zvals( info().sampling, sz, zinfo );
+    const RegularZValues zvals( info().sampling_, sz, zinfo );
     const Vel::Worker worker( inpdesc, srd, srduom );
 
     PtrMan<ValueSeries<double> > vels;

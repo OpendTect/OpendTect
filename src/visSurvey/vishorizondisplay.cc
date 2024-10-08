@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "binidvalue.h"
 #include "callback.h"
 #include "color.h"
+#include "coltab.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "datacoldef.h"
@@ -61,8 +62,8 @@ public:
 					       const TrcKeyPath& path,
 					       visBase::PointSet& points,
 					       TypeSet<int>& indexes)
-			    : path_(path)
-			    , hor_(hor)
+			    : hor_(hor)
+			    , path_(path)
 			    , points_(points)
 			    , indexes_(indexes)
 			    , lock_(Threads::Lock::SmallWork)
@@ -219,19 +220,19 @@ bool HorizonPathIntersector::doWork( od_int64 start, od_int64 stop, int thread )
 		if ( hd_.getZAxisTransform() && horpos.isDefined() &&
 		     !hd_.isAlreadyTransformed() )
 		{
-                    displayhorpos.z_ =
+		    displayhorpos.z_ =
 			hd_.getZAxisTransform()->transformTrc(hortrc,
-                                                              (float) horpos.z_ );
+							(float) horpos.z_ );
 		}
 
 		if ( displayhorpos.isDefined() &&
-                     zrg_.includes(horpos.z_,false) )
+		     zrg_.includes(horpos.z_,false) )
 		{
 		    //Take coord from intersection, and z from horizon
 		    //Gives nice intersection when geometry is different
 		    //such as on 2D lines
 		    positions_[idx] = Coord3( intersectioncoord,
-                                              displayhorpos.z_ );
+					      displayhorpos.z_ );
 		    continue;
 		}
 	    }
@@ -687,7 +688,7 @@ bool HorizonDisplay::addAttrib()
 bool HorizonDisplay::removeAttrib( int channel )
 {
     if ( channel<0 || channel>=nrAttribs() )
-       return true;
+	return true;
 
     for ( auto* section : sections_ )
 	section->removeChannel( channel );
@@ -732,7 +733,7 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
 void HorizonDisplay::setAttribTransparency( int channel, unsigned char nt )
 {
     if ( channel<0 || channel>=nrAttribs() )
-       return;
+	return;
 
     for ( auto* section : sections_ )
 	section->setTransparency( channel, nt );
@@ -742,7 +743,7 @@ void HorizonDisplay::setAttribTransparency( int channel, unsigned char nt )
 unsigned char HorizonDisplay::getAttribTransparency( int channel ) const
 {
     if ( channel<0 || channel>=nrAttribs() )
-       return 0;
+	return 0;
 
     return sections_.size() ? sections_[0]->getTransparency(channel) : 0;
 }
@@ -764,7 +765,7 @@ void HorizonDisplay::enableAttrib( int channel, bool yn )
 bool HorizonDisplay::isAttribEnabled( int channel ) const
 {
     if ( channel<0 || channel>=nrAttribs() )
-       return false;
+	return false;
 
     return enabled_[channel];
 }
@@ -925,7 +926,7 @@ void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* taskr ) const
 {
     //data.bivSet().allowDuplicateBids(false);
     for ( auto* section : sections_ )
-        section->getDataPositions( data, getTranslation().z_, 0, taskr );
+	section->getDataPositions( data, getTranslation().z_, 0, taskr );
 
     data.dataChanged();
 }
@@ -934,7 +935,7 @@ void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* taskr ) const
 void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
 {
     if ( channel<0 || channel>=nrAttribs() )
-       return;
+	return;
 
     data.clearData();
     const BufferStringSet& userrefs = *userrefs_.get( channel );
@@ -981,7 +982,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 				       TaskRunner* taskr )
 {
     if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty() )
-       return;
+	return;
 
     if ( !data || !data->size() )
     {
@@ -1029,10 +1030,10 @@ void HorizonDisplay::createDisplayDataPacks(
     const BinID step( dispinlrg.step_, dispcrlrg.step_ );
     sections_.first()->setTextureRange( dispinlrg, dispcrlrg );
 
-    StepInterval<double> inlrg( (double)dispinlrg.start_, (double)dispinlrg.stop_,
-                                (double)dispinlrg.step_ );
-    StepInterval<double> crlrg( (double)dispcrlrg.start_, (double)dispcrlrg.stop_,
-                                (double)dispcrlrg.step_ );
+    StepInterval<double> inlrg;
+    inlrg.setFrom( dispinlrg );
+    StepInterval<double> crlrg;
+    crlrg.setFrom( dispcrlrg );
 
     const DataColDef sidcoldef( sKeySectionID() );
     const int sidcol =
@@ -1106,7 +1107,7 @@ Coord3 HorizonDisplay::getTranslation() const
 
 void HorizonDisplay::setTranslation( const Coord3& nt )
 {
-     if ( !nt.isDefined() )
+    if ( !nt.isDefined() )
 	return;
 
     Coord3 origin( 0., 0., 0. );
@@ -1475,7 +1476,8 @@ int HorizonDisplay::getResolution() const
 bool HorizonDisplay::displaysSurfaceGrid() const
 {
     if ( sections_.size() )
-       return  sections_[0]->isWireframeDisplayed();
+	return	sections_[0]->isWireframeDisplayed();
+
     return false;
 }
 
@@ -1498,7 +1500,7 @@ void HorizonDisplay::displaysSurfaceGrid( bool yn )
 const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
 {
     if ( channel<0 || channel>=nrAttribs() )
-       return nullptr;
+	return nullptr;
 
     return sections_.size() ? sections_[0]->getColTabSequence( channel )
 			    : &coltabsequences_[channel];
@@ -1519,7 +1521,7 @@ void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq,
 					TaskRunner* )
 {
     if ( chan<0 || chan>=nrAttribs() )
-       return;
+	return;
 
     coltabsequences_[chan] = seq;
 
@@ -1532,7 +1534,7 @@ void HorizonDisplay::setColTabMapperSetup( int channel,
 			   const ColTab::MapperSetup& ms, TaskRunner* trans )
 {
     if ( channel<0 || channel>=nrAttribs() )
-       return;
+	return;
 
     if ( coltabmappersetups_.validIdx(channel) )
 	coltabmappersetups_[channel] = ms;
@@ -1554,7 +1556,7 @@ const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch,
 								 int ) const
 {
     if ( ch<0 || ch>=nrAttribs() )
-       return nullptr;
+	return nullptr;
 
     return &coltabmappersetups_[ch];
 }
@@ -1597,7 +1599,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	    const float zfactor = scene_ ? scene_->getZScale()
 					 : s3dgeom_->zScale();
 	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
-            const float dist = (float) fabs(xytpos.z_-pos.z_);
+	    const float dist = (float) fabs(xytpos.z_-pos.z_);
 	    if ( dist < mindist ) mindist = dist;
 	}
 
@@ -1656,7 +1658,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    continue;
 
 	if ( !section->getChannels2RGBA()->isEnabled(idx) ||
-	      section->getTransparency(idx)==255 )
+	     section->getTransparency(idx)==255 )
 	    continue;
 
 	const BinIDValueSet* bidvalset = section->getCache( idx );
@@ -1707,7 +1709,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    }
 
 	    const float zshift =
-                    (float) getTranslation().z_*s3dgeom_->zDomain().userFactor();
+		(float)getTranslation().z_*s3dgeom_->zDomain().userFactor();
 
 	    const bool hasshift = !mIsZero(attribshift,0.1) ||
 				  !mIsZero(zshift,0.1);
@@ -1785,9 +1787,9 @@ void HorizonDisplay::drawHorizonOnZSlice( const TrcKeyZSampling& tkzs,
 	for ( int vidx=0; vidx<ic.size(); vidx++ )
 	{
 	    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
-            Coord vrtxcoord( vertex.x_, vertex.y_ );
+	    Coord vrtxcoord( vertex.x_, vertex.y_ );
 	    vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
-            const Coord3 pos( vrtxcoord, tkzs.zsamp_.start_-zshift );
+	    const Coord3 pos( vrtxcoord, tkzs.zsamp_.start_-zshift );
 	    curline += pos;
 	}
 
@@ -2044,7 +2046,7 @@ void HorizonDisplay::updateSectionSeeds(
 		}
 
 		if ( transformation_ )
-		     mVisTrans::transform( transformation_,  markerpos );
+		    mVisTrans::transform( transformation_,  markerpos );
 
 		for ( int idz=0; idz<verticalsections.size(); idz++ )
 		{
@@ -2147,10 +2149,10 @@ void HorizonDisplay::selectParent( const TrcKey& tk )
 
     if ( idxps.size()>=2 )
     {
-       RefMan<Geometry::IndexedPrimitiveSet> primitiveset =
-		       Geometry::IndexedPrimitiveSet::create( false );
-       primitiveset->append( idxps.arr(), idxps.size() );
-       parentline_->addPrimitiveSet( primitiveset );
+	RefMan<Geometry::IndexedPrimitiveSet> primitiveset =
+			Geometry::IndexedPrimitiveSet::create( false );
+	primitiveset->append( idxps.arr(), idxps.size() );
+	parentline_->addPrimitiveSet( primitiveset );
     }
 
     showParentLine( true );

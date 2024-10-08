@@ -332,8 +332,8 @@ void odSeismic3D::putData( const float** data, const TrcKeyZSampling& tkz )
 	auto* trc = new SeisTrc( tkz_.nrZ() );
 	trc->setNrComponents( nrcomp, DataCharacteristics::F32 );
 	trc->info().setTrcKey( trckey );
-	trc->info().coord = trckey.getCoord();
-	trc->info().sampling = sd;
+	trc->info().coord_ = trckey.getCoord();
+	trc->info().sampling_ = sd;
 	for ( int icomp=0; icomp<nrcomp; icomp++ )
 	{
 	    const float* compdata = data[icomp];

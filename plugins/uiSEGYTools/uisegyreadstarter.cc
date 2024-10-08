@@ -1161,7 +1161,7 @@ bool uiSEGYReadStarter::completeFileInfo( od_istream& strm,
 	if ( thdr->is2D() != loaddef_.is2d_ )
 	    thdr->geomtype_ = loaddef_.is2d_ ? Seis::Line : Seis::Vol;
 	thdr->fill( ti, 1.f );
-	bfi.sampling_ = ti.sampling;
+	bfi.sampling_ = ti.sampling_;
     }
 
     strm.setReadPosition( firsttrcpos );
