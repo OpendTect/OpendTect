@@ -451,7 +451,7 @@ macro( CREATE_DOCPACKAGE PACKAGE_NAME )
 endmacro(CREATE_DOCPACKAGE)
 
 macro( ZIPPACKAGE PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
-    execute_process( COMMAND "${ZIP_EXEC}" u -tzip -mmt -mx5 -r -ba -bso0 -bd
+    execute_process( COMMAND "${ZIP_EXEC}" u -tzip -mmt -mx5 -snl -r -ba -bso0 -bd
 			     "${PACKAGE_FILENAME}" "${REL_DIR}"
 			     WORKING_DIRECTORY "${PACKAGE_DIR}"
 			     RESULT_VARIABLE STATUS
