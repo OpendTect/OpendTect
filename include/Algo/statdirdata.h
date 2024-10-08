@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "angles.h"
 #include "ranges.h"
+#include "typeset.h"
 
 namespace Stats
 {
@@ -25,18 +26,22 @@ mClass(Algo) SectorPartData
 public:
 
 			SectorPartData( float v=0, float p=0.5, int cnt=0 )
-			    : val_(v), pos_(p), count_(cnt)  {}
+			    : val_(v), pos_(p), count_(cnt)
+			{}
+			SectorPartData( const SectorPartData& oth )
+			    : val_(oth.val_), pos_(oth.pos_), count_(oth.pos_)
+			{}
     bool		operator ==( const SectorPartData& spd ) const
 			{ return pos_ == spd.pos_; }
 
-    float		pos_;	//!< 0=center 1=on circle = maximum value
     float		val_;	//!< actual angle or a value of interest
+    float		pos_;	//!< 0=center 1=on circle = maximum value
     int			count_;	//!< nr data pts contributing (for confidence)
 
 };
 
 
-typedef TypeSet<SectorPartData> SectorData;
+using SectorData = TypeSet<SectorPartData>;
 
 
 /*!
@@ -66,7 +71,11 @@ public:
 	Angle::Type	angletype_;
     };
 
-			DirectionalData(int nrsectors=0,int nrparts=0);
+    inline		DirectionalData(int nrsectors=0,int nrparts=0);
+    inline		DirectionalData(const DirectionalData&);
+    inline		~DirectionalData();
+
+    inline DirectionalData&	operator=(const DirectionalData&);
 
     void		init(int nrsectors,int nrparts);
 
@@ -140,9 +149,26 @@ inline int DirectionalData::part( int isect, float pos ) const
 }
 
 
+inline DirectionalData::DirectionalData( const DirectionalData& oth )
+{
+    *this = oth;
+}
+
+
 inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 {
     init( nrsect, nrparts );
+}
+
+
+inline DirectionalData::~DirectionalData()
+{}
+
+
+inline DirectionalData& DirectionalData::operator=( const DirectionalData& oth )
+{
+    deepCopy( *this, oth );
+    return *this;
 }
 
 

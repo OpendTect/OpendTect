@@ -59,20 +59,21 @@ public:
     typedef typename ObjectSet<T>::idx_type	idx_type;
 
     inline			ManagedObjectSet();
-    ManagedObjectSet*		clone() const override
-				{ return new ManagedObjectSet(*this); }
-
-    inline			ManagedObjectSet(const ManagedObjectSet<T>&);
-				//Must be implemented as default
-				//copy constructor will call
-				//operator= before class is fully setup and
-				//append is not in virtual table
-
     inline			ManagedObjectSet(const ObjectSet<T>&);
+				mOD_DisableCopy(ManagedObjectSet)
 
-    ManagedObjectSet<T>&	operator=(const ObjectSet<T>&);
+    inline ManagedObjectSet<T>&	operator=(const ObjectSet<T>& os);
+				// takes over ownership of objects in os
+				// and erases os
 
-    inline void			append(const ObjectSet<T>&) override;
+    inline void			append(const ObjectSet<T>& os) override;
+				// takes over ownership of objects in os
+				// and erases os
+    void			append(const ManagedObjectSet<T>&) = delete;
+				// use deepAppend
+    inline void			copy(const ObjectSet<T>& os) override;
+				// takes over ownership of objects in os
+				// and erases os
 
 private:
 
@@ -160,19 +161,17 @@ ManagedObjectSet<T>::ManagedObjectSet()
 template <class T> inline
 ManagedObjectSet<T>::ManagedObjectSet( const ObjectSet<T>& t )
     : ManagedObjectSetBase<T>(delFunc)
-{ *this = t; }
+{
+    *this = t;
+}
 
 
 template <class T> inline
-ManagedObjectSet<T>::ManagedObjectSet( const ManagedObjectSet<T>& t )
-    : ManagedObjectSetBase<T>(delFunc)
-{ *this = t; }
-
-
-template <class T> inline
-ManagedObjectSet<T>& ManagedObjectSet<T>::operator =(const ObjectSet<T>& os)
-{ ObjectSet<T>::operator=(os); return *this; }
-
+ManagedObjectSet<T>& ManagedObjectSet<T>::operator=( const ObjectSet<T>& os )
+{
+    copy( os );
+    return *this;
+}
 
 
 template <class T> inline
@@ -180,13 +179,43 @@ void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
 {
     const size_type sz = os.size();
     this->vec_.setCapacity( this->size()+sz, true );
-    if ( !os.isManaged() )
-	ObjectSet<T>::append( os );
-    else
-	for ( idx_type vidx=0; vidx<sz; vidx++ )
-	{
-	    auto* obj = os.get( vidx );
-	    ObjectSet<T>::add( obj ? new T(*obj) : nullptr );
-	}
+    ObjectSet<T>::append( os );
+    cCast(ObjectSet<T>&,os).erase();
 }
 
+
+template <class T> inline
+void ManagedObjectSet<T>::copy( const ObjectSet<T>& os )
+{
+    ObjectSet<T>::setEmpty();
+    append( os );
+}
+
+
+template <class T>
+mGlobal(Basic) inline void deepCopy( ManagedObjectSet<T>& to,
+				     const ManagedObjectSet<T>& from )
+{
+    if ( &to == &from )
+	return;
+
+    to.setEmpty();
+    deepAppend( to, from );
+}
+
+
+template <class T>
+mGlobal(Basic) inline void deepAppend( ManagedObjectSet<T>& to,
+				     const ManagedObjectSet<T>& from )
+{
+    if ( &to == &from )
+	return;
+
+    for ( const auto* obj : from )
+    {
+	if ( obj )
+	    to.add( new T(*obj) );
+	else if ( to.nullAllowed() )
+	    to.add( nullptr );
+    }
+}

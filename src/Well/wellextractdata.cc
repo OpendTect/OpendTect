@@ -99,12 +99,14 @@ void Well::InfoCollector::getAllMarkerInfos( BufferStringSet& nms,
     if ( markers_.isEmpty() )
 	return;
 
-    MarkerSet wms( *markers_.get(0) );
-    for ( auto idx=1; idx<markers_.size(); idx++ )
-	wms.append( *markers_.get(idx) );
-
-    wms.getNames( nms );
-    wms.getColors( colors );
+    for ( const auto* ms : markers_ )
+    {
+	for ( const auto* marker : *ms )
+	{
+	    nms.add( marker->name() );
+	    colors.add( marker->color() );
+	}
+    }
 }
 
 

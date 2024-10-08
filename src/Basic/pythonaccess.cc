@@ -1431,7 +1431,7 @@ void OD::PythonAccess::verifyEnvironmentCB( CallBacker* cb )
 	}
     }
 
-    moduleinfos = moduleinfos_;
+    deepCopy( moduleinfos, moduleinfos_ );
     locker.unlockNow();
 
     FilePath fp( mGetSWDirDataDir() );

@@ -69,7 +69,7 @@ public:
 				//!< Restricted to a given Pos::GeomID
 			SeisTrcReader(const SeisStoreAccess::Setup&);
 			~SeisTrcReader();
-//			mOD_DisableCopy(SeisTrcReader)
+			mOD_DisableCopy(SeisTrcReader)
 
     void		forceFloatData( bool yn=true )	{ forcefloats_ = yn; }
 			//!< Only effective if called before prepareWork()

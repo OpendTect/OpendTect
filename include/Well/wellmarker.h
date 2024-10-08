@@ -71,8 +71,10 @@ mExpClass(Well) MarkerSet : public ManagedObjectSet<Marker>
 public:
 
 			MarkerSet();
+			MarkerSet(const MarkerSet&);
     virtual		~MarkerSet();
 
+    MarkerSet&		operator=(const MarkerSet&);
     void		fillWithAll(TaskRunner* tr=0);
 
     const Marker*	getByName(const char* nm) const { return gtByName(nm); }

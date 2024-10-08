@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "uitoolbutton.h"
 
 #include "coltabsequence.h"
-#include "dataclipper.h"
 #include "flatviewzoommgr.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -64,42 +63,61 @@ class SynthSpecificPars
 {
 public:
 
-    class VwrDataPack
-    {
-    public:
-			VwrDataPack( const FlatDataPack* dp, int lmsidx,
-				     const Strat::LevelID& flatlvlid,
-				     int offsidx )
-			    : dp_(dp)
-			    , lmsidx_(lmsidx)
-			    , flatlvlid_(flatlvlid)
-			    , offsidx_(offsidx)
-			{}
+class VwrDataPack
+{
+public:
+VwrDataPack( const FlatDataPack* dp, int lmsidx,
+	     const Strat::LevelID& flatlvlid,
+	     int offsidx )
+    : dp_(dp)
+    , lmsidx_(lmsidx)
+    , flatlvlid_(flatlvlid)
+    , offsidx_(offsidx)
+{}
 
-	bool		operator ==( const VwrDataPack& oth ) const
-			{
-			    return dp_.ptr() == oth.dp_.ptr() &&
-				 lmsidx_ == oth.lmsidx_ &&
-				 flatlvlid_ == oth.flatlvlid_ &&
-				 offsidx_ == oth.offsidx_;
-			}
+VwrDataPack( const VwrDataPack& oth )
+    : dp_(oth.dp_)
+    , lmsidx_(oth.lmsidx_)
+    , flatlvlid_(oth.flatlvlid_)
+    , offsidx_(oth.offsidx_)
+{
+}
 
-	const FlatDataPack* getDataPack() const		{ return dp_.ptr(); }
-	int		curLayerModelIdx() const	{ return lmsidx_; }
-	Strat::LevelID levelID() const			{ return flatlvlid_; }
-	int		getOffsIdx() const		{ return offsidx_; }
+~VwrDataPack()
+{}
 
-	void		setDataPackName( const char* newnm )
-			{ if ( dp_ ) dp_.getNonConstPtr()->setName( newnm ); }
 
-    private:
+VwrDataPack& operator=( const VwrDataPack& oth ) = delete;
 
-	ConstRefMan<FlatDataPack> dp_;
-	const int	lmsidx_;
-	const Strat::LevelID flatlvlid_;
-	const int	offsidx_;
 
-    };
+bool operator ==( const VwrDataPack& oth ) const
+{
+    return dp_.ptr() == oth.dp_.ptr() &&
+	lmsidx_ == oth.lmsidx_ &&
+	flatlvlid_ == oth.flatlvlid_ &&
+	offsidx_ == oth.offsidx_;
+}
+
+const FlatDataPack* getDataPack() const		{ return dp_.ptr(); }
+int curLayerModelIdx() const			{ return lmsidx_; }
+Strat::LevelID levelID() const			{ return flatlvlid_; }
+int getOffsIdx() const				{ return offsidx_; }
+
+void setDataPackName( const char* newnm )
+{
+    if ( dp_ )
+	dp_.getNonConstPtr()->setName( newnm );
+}
+
+private:
+
+    ConstRefMan<FlatDataPack>	dp_;
+    const int			lmsidx_;
+    const Strat::LevelID	flatlvlid_;
+    const int			offsidx_;
+
+};
+
 
 SynthSpecificPars( const SynthID& sid, uiFlatViewer* vwr )
     : id_(sid)
@@ -122,27 +140,27 @@ SynthSpecificPars( const SynthSpecificPars& oth )
 
 SynthSpecificPars& operator =( const SynthSpecificPars& oth )
 {
-    if ( &oth != this )
-    {
-	vwr_ = oth.vwr_;
-	id_ = oth.id_;
-	inited_ = oth.inited_;
-	delete prevtype_;
-	prevtype_ = oth.prevtype_
-		  ? new SynthGenParams::SynthType( *oth.prevtype_ ) : nullptr;
-	offsetrg_ = oth.offsetrg_;
-	dpobjs_ = oth.dpobjs_;
-	wvamapper_.set( oth.wvamapper_ ? new ColTab::Mapper( *oth.wvamapper_ )
-				       : nullptr );
-	vdmapper_.set( oth.vdmapper_ ? new ColTab::Mapper( *oth.vdmapper_ )
-				     : nullptr );
-	overlap_ = oth.overlap_;
-	ctab_ = oth.ctab_;
-	prevwvasu_ = oth.prevwvasu_;
-	prevoverlap_ = oth.prevoverlap_;
-	prevvdsu_ = oth.prevvdsu_;
-	prevctab_ = oth.prevctab_;
-    }
+    if ( &oth == this )
+	return *this;
+
+    vwr_ = oth.vwr_;
+    id_ = oth.id_;
+    inited_ = oth.inited_;
+    delete prevtype_;
+    prevtype_ = oth.prevtype_
+	      ? new SynthGenParams::SynthType( *oth.prevtype_ ) : nullptr;
+    offsetrg_ = oth.offsetrg_;
+    deepCopy( dpobjs_, oth.dpobjs_ );
+    wvamapper_.set( oth.wvamapper_ ? new ColTab::Mapper( *oth.wvamapper_ )
+				   : nullptr );
+    vdmapper_.set( oth.vdmapper_ ? new ColTab::Mapper( *oth.vdmapper_ )
+				 : nullptr );
+    overlap_ = oth.overlap_;
+    ctab_ = oth.ctab_;
+    prevwvasu_ = oth.prevwvasu_;
+    prevoverlap_ = oth.prevoverlap_;
+    prevvdsu_ = oth.prevvdsu_;
+    prevctab_ = oth.prevctab_;
 
     return *this;
 }
@@ -533,10 +551,10 @@ public:
 uiStratSynthDispDSSel( uiParent* p, uiStratSynthDisp& synthdisp,
 		       const DataMgr& mgr, bool wva )
     : uiGroup( p, wva ? "wva ds sel" : "vd ds sel" )
+    , selChange(this)
     , datamgr_(mgr)
     , wva_(wva)
     , synthdisp_(synthdisp)
-    , selChange(this)
 {
     sel_ = new uiComboBox( this, wva_ ? "wva ds sel" : "vd ds sel" );
     sel_->setHSzPol( uiObject::Medium );
@@ -698,11 +716,11 @@ void selChgCB( CallBacker* )
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p, StratSynth::DataMgr& datamgr,
 				    uiStratLayModEditTools& et, uiSize uisz )
     : uiGroup(p,"LayerModel synthetics display")
+    , viewChanged(this)
     , datamgr_(datamgr)
     , edtools_(et)
     , initialsz_(uisz)
     , entries_(*new StratSynth::SynthSpecificParsSet())
-    , viewChanged(this)
 {
     auto* topgrp = new uiGroup( this, "Top group" );
     topgrp->setStretch( 2, 0 );
@@ -1396,7 +1414,7 @@ void uiStratSynthDisp::dispPropChgCB( CallBacker* )
 }
 
 
-void uiStratSynthDisp::zoomChangedCB( CallBacker* cb )
+void uiStratSynthDisp::zoomChangedCB( CallBacker* )
 {
     const uiWorldRect bbwr = vwr_->boundingBox();
     if ( StratSynth::isEmpty(bbwr) )
@@ -1857,7 +1875,7 @@ void uiStratSynthDisp::setPSVwrDataCB( CallBacker* )
 }
 
 
-void uiStratSynthDisp::packSelCB( CallBacker* cb )
+void uiStratSynthDisp::packSelCB( CallBacker* )
 {
     od_uint32 ctyp = 0;
     const FlatView::Viewer::VwrDest dest = FlatView::Viewer::Both;

@@ -54,7 +54,7 @@ public:
 				//!< Restricted to a given Pos::GeomID
 			SeisTrcWriter(const SeisStoreAccess::Setup&);
 			~SeisTrcWriter();
-//			mOD_DisableCopy(SeisTrcWriter)
+			mOD_DisableCopy(SeisTrcWriter)
 
     bool		close() override;
 

@@ -549,6 +549,12 @@ void BufferString::init()
 typedef BufferStringSet::idx_type idx_type;
 
 
+// BufferStringSet
+
+BufferStringSet::BufferStringSet()
+{}
+
+
 BufferStringSet::BufferStringSet( size_type nelem, const char* s )
 {
     for ( idx_type idx=0; idx<nelem; idx++ )
@@ -579,6 +585,16 @@ BufferStringSet::BufferStringSet( const char* s1, const char* s2,
 {
     add( s1 ).add( s2 ).add( s3 );
 }
+
+
+BufferStringSet::BufferStringSet( const BufferStringSet& oth )
+{
+    *this = oth;
+}
+
+
+BufferStringSet::~BufferStringSet()
+{}
 
 
 bool BufferStringSet::operator ==( const BufferStringSet& oth ) const
@@ -664,49 +680,57 @@ BufferString BufferStringSet::getDispString( size_type maxnritems,
 }
 
 
-idx_type BufferStringSet::nearestMatch( const char* s, bool caseinsens ) const
+idx_type BufferStringSet::nearestMatch( const char* str, bool caseinsens ) const
 {
-    return nearestMatch( s, caseinsens ? OD::CaseInsensitive
-					: OD::CaseSensitive );
+    return nearestMatch( str,
+			 caseinsens ? OD::CaseInsensitive : OD::CaseSensitive );
 }
 
 
-idx_type BufferStringSet::nearestMatch( const char* s,
+idx_type BufferStringSet::nearestMatch( const char* str,
 					OD::CaseSensitivity cs ) const
 {
     const size_type sz = size();
     if ( sz < 2 )
 	return sz - 1;
-    if ( !s )
-	s = "";
+
+    if ( !str )
+	str = "";
 
     TypeSet<idx_type> candidates;
-    if ( StringView(s).size() > 1 )
+    if ( StringView(str).size() > 1 )
     {
 	for ( idx_type idx=0; idx<sz; idx++ )
-	    if ( get(idx).startsWith(s,cs) )
+	{
+	    if ( get(idx).startsWith(str,cs) )
 		candidates += idx;
+	}
+
 	if ( candidates.isEmpty() )
 	{
-	    const BufferString matchstr( "*", s, "*" );
+	    const BufferString matchstr( "*", str, "*" );
 	    for ( idx_type idx=0; idx<sz; idx++ )
 		if ( get(idx).matches(matchstr,cs) )
 		    candidates += idx;
 	}
     }
+
     if ( candidates.isEmpty() )
+    {
 	for ( idx_type idx=0; idx<sz; idx++ )
 	    candidates += idx;
+    }
 
     unsigned int mindist = mUdf(unsigned int); idx_type minidx = -1;
     for ( idx_type idx=0; idx<candidates.size(); idx++ )
     {
 	const idx_type myidx = candidates[idx];
 	const unsigned int curdist
-		= get(myidx).getLevenshteinDist( s, cs );
+		= get(myidx).getLevenshteinDist( str, cs );
 	if ( idx == 0 || curdist < mindist  )
 	    { mindist = curdist; minidx = myidx; }
     }
+
     return minidx;
 }
 
@@ -1092,6 +1116,16 @@ uiStringSet BufferStringSet::getUiStringSet() const
 }
 
 
+BufferStringSet& BufferStringSet::operator=( const BufferStringSet& strs )
+{
+    erase();
+    for ( const auto* str : strs )
+	this->add( str->buf() );
+
+    return *this;
+}
+
+
 BufferStringSet& BufferStringSet::operator=( const char* arr[] )
 {
     for ( idx_type idx=0; arr[idx]; idx++ )
@@ -1104,6 +1138,13 @@ BufferStringSet& BufferStringSet::copy( const BufferStringSet& oth )
 {
     *this = oth;
     return *this;
+}
+
+
+void BufferStringSet::append( const BufferStringSet& oth )
+{
+    for ( const auto* str : oth )
+	add( str->buf() );
 }
 
 
@@ -1269,6 +1310,29 @@ const char* StringPair::buf() const
 
 
 // StringPairSet
+StringPairSet::StringPairSet()
+{}
+
+
+StringPairSet::StringPairSet( const StringPairSet& oth )
+{
+    *this = oth;
+}
+
+
+StringPairSet::~StringPairSet()
+{}
+
+
+StringPairSet& StringPairSet::operator=( const StringPairSet& oth )
+{
+    setEmpty();
+    for ( const auto* pair : oth )
+	add( *pair );
+
+    return *this;
+}
+
 
 StringPairSet& StringPairSet::add( const char* first, const char* second )
 {
@@ -1307,8 +1371,15 @@ StringPairSet& StringPairSet::add( const StringPair& entry )
 
 StringPairSet& StringPairSet::add( const StringPairSet& oth )
 {
-    entries_.append( oth.entries_ );
+    append( oth );
     return *this;
+}
+
+
+void StringPairSet::append( const StringPairSet& oth )
+{
+    for ( const auto* pair : oth )
+	add( *pair );
 }
 
 

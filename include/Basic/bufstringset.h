@@ -23,20 +23,20 @@ template <class T> class QList;
 mExpClass(Basic) BufferStringSet : public OD::Set
 { mIsContainer( BufferStringSet, ManagedObjectSet<BufferString>, strs_ )
 public:
-
-    typedef ObjectSet<BufferString>	SetType;
-
-			BufferStringSet()	{}
+			BufferStringSet();
     explicit		BufferStringSet(size_type n,const char* s=nullptr);
     explicit		BufferStringSet(const char* arr[],size_type len=-1);
     explicit		BufferStringSet(const char*);
 			BufferStringSet(const char*,const char*);
 			BufferStringSet(const char*,const char*,const char*);
+			BufferStringSet(const BufferStringSet&);
+    virtual		~BufferStringSet();
+
     BufferStringSet*	clone() const override
 			{ return new BufferStringSet(*this); }
-    virtual		~BufferStringSet()	{}
     bool		operator ==(const BufferStringSet&) const;
     bool		operator !=(const BufferStringSet&) const;
+    BufferStringSet&	operator=(const BufferStringSet&);
 
     inline size_type	size() const		{ return strs_.size(); }
     inline bool		isEmpty() const		{ return strs_.isEmpty(); }
@@ -78,8 +78,7 @@ public:
     BufferStringSet&	addToAll(const char*,bool infront=false);
     bool		addIfNew(const char*);	//!< returns whether added
     bool		addIfNew(const OD::String&);
-    void		append( const BufferStringSet& oth )
-			{ strs_.append( oth.strs_ ); }
+    void		append(const BufferStringSet&);
     BufferStringSet&	addWordsFrom(const char*);
 
     idx_type		nearestMatch(const char*,
@@ -122,8 +121,10 @@ public:
     // uncommon stuff
     BufferString*	operator[]( idx_type idx )	 { return strs_[idx]; }
     const BufferString*	operator[]( idx_type idx ) const { return strs_[idx]; }
-    const SetType&	getStringSet() const		 { return strs_; }
-    SetType&		getStringSet()			 { return strs_; }
+    const ObjectSet<BufferString>&
+			getStringSet() const		 { return strs_; }
+    ObjectSet<BufferString>&
+			getStringSet()			 { return strs_; }
     uiStringSet		getUiStringSet() const;
 
     void		setNullAllowed( bool yn=true )
@@ -176,8 +177,11 @@ mExpClass(Basic) StringPairSet
 { mIsContainer( StringPairSet, ManagedObjectSet<StringPair>, entries_ )
 public:
 
-			StringPairSet()		{}
-    virtual		~StringPairSet()	{}
+			StringPairSet();
+			StringPairSet(const StringPairSet&);
+    virtual		~StringPairSet();
+
+    StringPairSet&	operator=(const StringPairSet&);
 
     inline int		size() const		{ return entries_.size(); }
     inline bool		isEmpty() const		{ return entries_.isEmpty(); }
@@ -194,6 +198,7 @@ public:
     StringPairSet&	add(const OD::String&,const OD::String&);
     StringPairSet&	add(const StringPair&);
     StringPairSet&	add(const StringPairSet&);
+    void		append(const StringPairSet&);
 
     bool		remove(const char* first);
     void		removeSingle( int i ) { entries_.removeSingle(i); }
