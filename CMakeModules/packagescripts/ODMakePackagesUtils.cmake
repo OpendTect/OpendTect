@@ -211,9 +211,13 @@ macro( COPY_QTWEBENGINE )
 	unset( WEBENGINE_RESOURCES_FILES )
     endif()
 
-    if ( EXISTS "${COPYFROMEXEDIR}/../resources/v8_context_snapshot.bin" )
-	file( COPY "${COPYFROMEXEDIR}/../resources/v8_context_snapshot.bin"
-	      DESTINATION "${COPYTOEXEDIR}/../resources" )
+    file( GLOB WEBENGINE_RESOURCES_FILES
+		"${COPYFROMEXEDIR}/../resources/v8_context_snapshot*.bin" )
+    if ( NOT "${WEBENGINE_RESOURCES_FILES}" STREQUAL "" )
+	file( COPY ${WEBENGINE_RESOURCES_FILES}
+	      DESTINATION "${COPYTOEXEDIR}/../resources"
+	      FILES_MATCHING
+	      PATTERN "v8_context_snapshot.debug.bin" EXCLUDE )
     endif()
 
     if ( WIN32 )

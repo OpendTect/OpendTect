@@ -156,8 +156,17 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 		"${WEBENGINE_RESOURCES_DIR}/icudtl.dat"
 		"${WEBENGINE_RESOURCES_DIR}/qtwebengine_*.pak" )
     if ( QT_VERSION VERSION_GREATER_EQUAL 6.6 )
-	list( APPEND WEBENGINE_RESOURCES_FILES
-		"${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot$<$<CONFIG:Debug>:.debug>.bin" )
+	if ( WIN32 )
+	    list( APPEND WEBENGINE_RESOURCES_FILES
+		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot$<$<CONFIG:Debug>:.debug>.bin" )
+	elseif ( APPLE )
+	    list( APPEND WEBENGINE_RESOURCES_FILES
+		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot_arm64.bin"
+		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot_x86_64.bin" )
+	else()
+	    list( APPEND WEBENGINE_RESOURCES_FILES
+		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot.bin" )
+	endif()
     endif()
     install( FILES ${WEBENGINE_RESOURCES_FILES}
 	     DESTINATION "${OD_RUNTIME_DIRECTORY}/../resources" )
