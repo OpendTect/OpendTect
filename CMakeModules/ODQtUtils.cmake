@@ -161,8 +161,8 @@ macro( QT_SETUP_WEBENGINE_INTERNALS )
 		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot$<$<CONFIG:Debug>:.debug>.bin" )
 	elseif ( APPLE )
 	    list( APPEND WEBENGINE_RESOURCES_FILES
-		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot_arm64.bin"
-		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot_x86_64.bin" )
+		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot.arm64.bin"
+		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot.x86_64.bin" )
 	else()
 	    list( APPEND WEBENGINE_RESOURCES_FILES
 		    "${WEBENGINE_RESOURCES_DIR}/v8_context_snapshot.bin" )

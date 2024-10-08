@@ -216,7 +216,6 @@ macro( COPY_QTWEBENGINE )
     if ( NOT "${WEBENGINE_RESOURCES_FILES}" STREQUAL "" )
 	file( COPY ${WEBENGINE_RESOURCES_FILES}
 	      DESTINATION "${COPYTOEXEDIR}/../resources"
-	      FILES_MATCHING
 	      PATTERN "v8_context_snapshot.debug.bin" EXCLUDE )
     endif()
 
