@@ -58,11 +58,12 @@ namespace System
     mGlobal(Network) const char*	fileSystemName(const char* path);
     mGlobal(Network) const char*	fileSystemType(const char* path);
 
-    mGlobal(Network) od_uint64		macAddressHash();
-					/*!<Returns the checksum of the first
-					    'valid' mac address. */
+    mGlobal(Network) BufferString	macAddressHash();
+					/*!<Returns the sha3-256 sum of the
+					    first 'valid' mac address. */
 
-    mGlobal(Network) od_uint64		uniqueSystemID();
+    mDeprecated("Use System::macAddressHash")
+    mGlobal(Network) BufferString	uniqueSystemID();
 					/*!<Deprecated. Please use
 					    macAddressHash(). */
     mGlobal(Network) bool		getHostIDs(BufferStringSet& hostids,

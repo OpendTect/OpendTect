@@ -12,12 +12,12 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "nrbytes2string.h"
-#include "checksum.h"
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
 #include "generalinfo.h"
 #include "iostrm.h"
+#include "odcommonenums.h"
 #include "oddirs.h"
 #include "odplatform.h"
 #include "perthreadrepos.h"
@@ -68,28 +68,32 @@ static bool isAcceptable( const QHostAddress& addr, bool ipv4only )
 }
 
 
-od_uint64 macAddressHash()
+BufferString macAddressHash()
 {
-    BufferStringSet addresses;
-    BufferStringSet names;
+    BufferStringSet addresses, names;
     macAddresses( names, addresses, true );
+    if ( addresses.isEmpty() )
+	return BufferString::empty();
 
-    const char* virtboxaddress = "0A:00:27:00:00:00";
+    static const char* virtboxaddress = "0A:00:27:00:00:00";
     const int virtboxidx = addresses.indexOf( virtboxaddress );
     if ( addresses.validIdx(virtboxidx) )
 	addresses.removeSingle( virtboxidx );
 
     if ( addresses.isEmpty() )
-	return 0;
+	return BufferString::empty();
 
     addresses.sort(); // Not really needed, but leave it in for compatibility
-    const BufferString& address = addresses.get( 0 );
-    return checksum64( (const unsigned char*)address.buf(), address.size() );
+    const BufferString& address = *addresses.first();
+    const BufferString ret = address.getHash( Crypto::Algorithm::Sha3_256 );
+    return ret;
 }
 
 
-od_uint64 uniqueSystemID()
-{ return macAddressHash(); }
+BufferString uniqueSystemID()
+{
+    return macAddressHash();
+}
 
 
 const char* localHostName()

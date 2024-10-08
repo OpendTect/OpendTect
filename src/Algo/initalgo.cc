@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "raytrace1d.h"
 #include "reflcalc1d.h"
 #include "statrand.h"
-#include "checksum.h"
 #include "windowfunction.h"
 
 mDefModInitFn(Algo)
@@ -62,6 +61,4 @@ mDefModInitFn(Algo)
 			   VrmsRayTracer1D::sFactoryKeyword() );
 	rtfact.setDefaultName( defidx );
     }
-
-    initChecksum();
 }

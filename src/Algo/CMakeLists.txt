@@ -18,7 +18,6 @@ set( OD_MODULE_SOURCES
 	bendpoints2coords.cc
 	binidsorting.cc
 	bodyvolumecalc.cc
-	checksum.cc
 	conncomponents.cc
 	contcurvinterpol.cc
 	convolve2d.cc
@@ -78,7 +77,6 @@ set( OD_MODULE_SOURCES
 set( OD_TEST_PROGS
 	array2dmatrix.cc
 	arraymath.cc
-	checksum.cc
 	contcurvinterpol.cc
 	gaussianprobdenfunc.cc
 	simpnumer.cc
