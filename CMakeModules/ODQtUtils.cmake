@@ -295,7 +295,7 @@ macro( QT_DTECT_WEBENGINE )
 endmacro(QT_DTECT_WEBENGINE)
 
 macro( QT_DTECT_CHARTS )
-    if ( QT_VERSION_MAJOR EQUAL 5 )
+    if ( QT_VERSION VERSION_GREATER_EQUAL 6 )
 	find_package( Qt${QT_VERSION_MAJOR} QUIET COMPONENTS Charts GLOBAL )
     endif()
 endmacro()
@@ -473,10 +473,10 @@ macro ( SETUP_QT_TRANSLATION POSTFIX )
 	    VERBATIM
 	COMMENT "Compiling translations" )
 	unset( CMAKE_FOLDER )
-    
+
 	install( DIRECTORY "data/localizations"
 		 DESTINATION "${OD_DATA_INSTALL_RELPATH}/localizations"
 		 FILES_MATCHING PATTERN "*.qm" )
-	
+
     endif()
 endmacro( SETUP_QT_TRANSLATION )
