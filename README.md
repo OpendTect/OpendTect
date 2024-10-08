@@ -54,7 +54,7 @@ To build the software you need to also download and install/build a few dependen
 
 | BRANCH | DEPENDENCIES |
 | -------------| ----------------- |
-| main | [Qt 6.5.3](https://download.qt.io/archive/qt/6.5/6.5.3/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.5.0 (optional)](https://download.osgeo.org/proj/proj-9.5.0.tar.gz), [Sqlite 3.46.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
+| main | [Qt 6.8.0](https://download.qt.io/archive/qt/6.8/6.8.0/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.5.0 (optional)](https://download.osgeo.org/proj/proj-9.5.0.tar.gz), [Sqlite 3.46.1 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od7.0_rel, od7.0 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [Proj 9.3.1 (optional)](https://download.osgeo.org/proj/proj-9.3.1.tar.gz), [Sqlite 3.44.2 (optional)](https://www.sqlite.org/download.html), [HDF5 1.14.5 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.6_rel, od6.6 | [Qt 5.15.2](https://download.qt.io/archive/qt/5.15/5.15.2/), [OpenSceneGraph 3.6.5](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz), [HDF5 1.12.2 (optional)](https://www.hdfgroup.org/downloads/hdf5) |
 | od6.4.5, od6.4 | [Qt 5.9.6](https://download.qt.io/archive/qt/5.9/5.9.6/), [OpenSceneGraph 3.6.3](https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.3.tar.gz) |
