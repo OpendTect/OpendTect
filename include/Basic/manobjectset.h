@@ -193,8 +193,8 @@ void ManagedObjectSet<T>::copy( const ObjectSet<T>& os )
 
 
 template <class T>
-mGlobal(Basic) inline void deepCopy( ManagedObjectSet<T>& to,
-				     const ManagedObjectSet<T>& from )
+inline void deepCopy( ManagedObjectSet<T>& to,
+		      const ManagedObjectSet<T>& from )
 {
     if ( &to == &from )
 	return;
@@ -205,8 +205,8 @@ mGlobal(Basic) inline void deepCopy( ManagedObjectSet<T>& to,
 
 
 template <class T>
-mGlobal(Basic) inline void deepAppend( ManagedObjectSet<T>& to,
-				     const ManagedObjectSet<T>& from )
+inline void deepAppend( ManagedObjectSet<T>& to,
+			const ManagedObjectSet<T>& from )
 {
     if ( &to == &from )
 	return;

@@ -15,11 +15,11 @@ ________________________________________________________________________
 
 /*!\brief Surface info name/attribname with an ID (usually the EM-ID). */
 
-mClass(General) SurfaceInfo
+mExpClass(General) SurfaceInfo
 {
 public:
 			SurfaceInfo(const char* nm,const MultiID& mi,
-				    const VisID& vi={},
+				    const VisID& =VisID::udf(),
 				    const char* attr=nullptr);
     virtual		~SurfaceInfo();
 
