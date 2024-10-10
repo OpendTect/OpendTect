@@ -757,17 +757,19 @@ Table::AscIO::~AscIO()
 
 void Table::AscIO::emptyVals() const
 {
-    Table::AscIO& aio = *const_cast<AscIO*>(this);
-    aio.vals_.erase();
-    aio.units_.erase();
+    mSelf().vals_.erase();
+    mSelf().units_.erase();
 }
 
 
 void Table::AscIO::addVal( const char* s, const UnitOfMeasure* mu ) const
 {
-    Table::AscIO& aio = *const_cast<AscIO*>(this);
-    aio.vals_.add( s );
-    aio.units_ += mu;
+    BufferString inpval( s );
+    if ( !inpval.isEmpty() )
+	inpval.trimBlanks();
+
+    mSelf().vals_.add( inpval );
+    mSelf().units_.add( mu );
 }
 
 
@@ -882,8 +884,7 @@ bool Table::AscIO::putNextBodyVals( od_ostream& strm ) const
 
 BufferString Table::AscIO::getText( int ifld ) const
 {
-    BufferString txt = "";
-
+    BufferString txt;
     if ( vals_.validIdx(ifld) )
     {
 	txt = vals_.get(ifld);
