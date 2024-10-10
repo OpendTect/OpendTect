@@ -779,6 +779,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	selok_ = true;
     }
 
+    fillEntries();
     delete dlg;
 }
 
