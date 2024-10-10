@@ -58,8 +58,6 @@ protected:
     const FormatDesc&		fd_;
     mutable uiString		errmsg_;
     mutable uiString		warnmsg_;
-    BufferStringSet		vals_;
-    ObjectSet<const UnitOfMeasure> units_;
     ImportHandler*		imphndlr_			= nullptr;
     ExportHandler*		exphndlr_			= nullptr;
     Converter*			cnvrtr_				= nullptr;
@@ -73,6 +71,7 @@ protected:
 
     void			emptyVals() const;
     void			addVal(const char*,const UnitOfMeasure*) const;
+    int				nrVals() const;
     bool			getHdrVals(od_istream&) const;
     int				getNextBodyVals(od_istream&) const;
 				//!< Executor convention
@@ -104,6 +103,11 @@ protected:
 
     int				formOf(bool hdr,int iinf) const;
     int				columnOf(bool hdr,int iinf,int ielem) const;
+
+private:
+
+    BufferStringSet		vals_;
+    ObjectSet<const UnitOfMeasure> units_;
 
 public:
     mDeprecated			("Use getFValue")

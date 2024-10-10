@@ -851,7 +851,7 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, Coord& crd, int& nr,
     else
 	spnr = getFValue( 3 );
 
-    const int nrhors = vals_.size() - 4;
+    const int nrhors = nrVals()-4;
     for ( int idx=0; idx<nrhors; idx++ )
 	data += getFValue( idx+4, udfval_ );
 

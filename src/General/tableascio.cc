@@ -771,17 +771,19 @@ Table::AscIO::~AscIO()
 
 void Table::AscIO::emptyVals() const
 {
-    Table::AscIO& aio = *const_cast<AscIO*>(this);
-    aio.vals_.erase();
-    aio.units_.erase();
+    mSelf().vals_.erase();
+    mSelf().units_.erase();
 }
 
 
 void Table::AscIO::addVal( const char* s, const UnitOfMeasure* mu ) const
 {
-    Table::AscIO& aio = *const_cast<AscIO*>(this);
-    aio.vals_.add( s );
-    aio.units_ += mu;
+    BufferString inpval( s );
+    if ( !inpval.isEmpty() )
+	inpval.trimBlanks();
+
+    mSelf().vals_.add( inpval );
+    mSelf().units_.add( mu );
 }
 
 
@@ -890,13 +892,18 @@ bool Table::AscIO::putNextBodyVals( od_ostream& strm ) const
 }
 
 
+int Table::AscIO::nrVals() const
+{
+    return vals_.size();
+}
+
+
 BufferString Table::AscIO::getText( int ifld ) const
 {
-    BufferString txt = "";
-
+    BufferString txt;
     if ( vals_.validIdx(ifld) )
     {
-	txt = vals_.get(ifld);
+	txt = vals_.get( ifld );
 	BufferString firstchar;
 	firstchar.add( txt[0] );
 	const BufferString chartoavoid = "!";
@@ -910,14 +917,18 @@ BufferString Table::AscIO::getText( int ifld ) const
 
 static const char* trimmedNumbStr( const char* sval, bool isint )
 {
-    if ( !*sval ) return 0;
+    if ( !*sval )
+	return nullptr;
+
     const int flg = isint ? true : false;
     if ( isNumberString(sval,flg) )
 	return sval;
 
     while ( *sval && !iswdigit(*sval) && *sval != '.' && *sval != '-' )
 	sval++;
-    if ( !*sval ) return 0;
+    if ( !*sval )
+	return nullptr;
+
     if ( isNumberString(sval,flg) )
 	return sval;
 
@@ -928,7 +939,7 @@ static const char* trimmedNumbStr( const char* sval, bool isint )
     while ( ptr>sval && !iswdigit(*ptr) && *ptr != '.' )
 	ptr--;
     *(ptr+1) = '\0';
-    return isNumberString(sval,flg) ? sval : 0;
+    return isNumberString(sval,flg) ? sval : nullptr;
 }
 
 
@@ -936,9 +947,11 @@ int Table::AscIO::getIntValue( int ifld, int udf ) const
 {
     if ( !vals_.validIdx(ifld) )
 	return mUdf(int);
+
     const char* sval = trimmedNumbStr( vals_.get(ifld), true );
     if ( !sval || !*sval )
 	return mUdf(int);
+
     int val = toInt( sval );
     return val == udf ? mUdf(int) : val;
 }
@@ -950,7 +963,9 @@ float Table::AscIO::getFValue( int ifld, float udf ) const
 	return mUdf(float);
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
-    if ( !sval ) return mUdf(float);
+    if ( !sval )
+	return mUdf(float);
+
     const double val = toDouble( sval );
     if ( mIsEqual(mCast(float,val),udf,mDefEps) )
 	return mUdf(float);
@@ -967,11 +982,11 @@ double Table::AscIO::getDValue( int ifld, double udf ) const
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
     if ( !sval )
-	return mUdf( double );
+	return mUdf(double);
 
     double val = toDouble( sval );
     if ( mIsEqual(val,udf,mDefEps) )
-	return mUdf( double );
+	return mUdf(double);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : nullptr;
     return unit ? unit->getSIValue( val ) : val;
