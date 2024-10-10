@@ -1249,7 +1249,8 @@ void CmdDriver::forceQtToCatchUp()
     uiMainWin::getTopLevelWindows( windowlist, false );
     for ( int idx=windowlist.size()-1; idx>=0; idx-- )
     {
-	if ( !mMatchCI(windowlist[idx]->name(), controllerTitle()) )
+	if ( !windowlist[idx] ||
+	     !mMatchCI(windowlist[idx]->name(),controllerTitle()) )
 	    windowlist.removeSingle( idx );
     }
 
