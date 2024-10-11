@@ -213,3 +213,12 @@ Alignment::HPos uiLabel::alignment() const
     al.setUiValue( (int)body_->alignment() );
     return al.hPos();
 }
+
+
+void uiLabel::setBold( bool yn )
+{
+    QFont qfont = body_->font();
+    qfont.setStyleName( "" );
+    qfont.setBold( yn );
+    body_->setFont( qfont );
+}

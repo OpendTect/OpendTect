@@ -38,6 +38,7 @@ public:
     void		setTextSelectable(bool yn=true);
     void		setPixmap(const uiPixmap&);
     void		setIcon(const char* iconnm);
+    void		setBold(bool yn);
 
 /*!
     setting an alignment only makes sense if you reserve space using
