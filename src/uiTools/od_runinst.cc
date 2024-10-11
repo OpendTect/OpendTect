@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::InstallerCtxt )
+    mInitProg( OD::RunCtxt::InstallerCtxt )
     SetProgramArgs( argc, argv, false );
     OD::ModDeps().ensureLoaded( "Network" );
 

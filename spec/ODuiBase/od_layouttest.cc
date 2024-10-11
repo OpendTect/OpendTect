@@ -100,7 +100,7 @@ uiLayoutDlg::uiLayoutDlg( uiParent* p )
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::UiProgCtxt )
+    mInitProg( OD::RunCtxt::UiProgCtxt )
     SetProgramArgs( argc, argv, false );
     uiMain app( argc, argv );
 

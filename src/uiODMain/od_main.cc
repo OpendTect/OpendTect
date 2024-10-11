@@ -34,12 +34,12 @@ int mProgMainFnName( int argc, char** argv )
 
     if ( showversiononly )
     {
-	mInitProg( OD::BatchProgCtxt )
+	mInitProg( OD::RunCtxt::BatchProgCtxt )
 	errStream() << GetFullODVersion() << od_endl;
 	return 0;
     }
 
-    mInitProg( OD::NormalCtxt )
+    mInitProg( OD::RunCtxt::NormalCtxt )
     uiMain::preInitForOpenGL();
     uiMain app( argc, argv );
 

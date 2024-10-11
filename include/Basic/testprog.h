@@ -42,7 +42,7 @@ int testMain(int,char**);
 # define mMainIsDefined
 int main(int argc, char** argv)
 {
-    OD::SetRunContext( OD::TestProgCtxt );
+    OD::SetRunContext( OD::RunCtxt::TestProgCtxt );
     ExitProgram( testMain(argc,argv) );
 }
 # endif

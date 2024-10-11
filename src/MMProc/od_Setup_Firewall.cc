@@ -121,7 +121,7 @@ bool SetUpFirewallServerTool::handleProcess( BufferString& procnm, bool toadd )
 
 int mProgMainFnName( int argc, char** argv )
 {
-    mInitProg( OD::BatchProgCtxt )
+    mInitProg( OD::RunCtxt::BatchProgCtxt )
     SetProgramArgs( argc, argv, false );
     OD::ModDeps().ensureLoaded( "Network" );
 

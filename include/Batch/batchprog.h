@@ -233,7 +233,7 @@ if ( comm_ ) \
 #define mMainIsDefined
     int doMain( int argc, char** argv )
     {
-	OD::SetRunContext( OD::BatchProgCtxt );
+	OD::SetRunContext( OD::RunCtxt::BatchProgCtxt );
 	SetProgramArgs( argc, argv );
 	ApplicationData app;
 	Execute_batch( &argc, argv );

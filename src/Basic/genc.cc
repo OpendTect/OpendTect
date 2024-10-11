@@ -72,7 +72,7 @@ bool NeedDataBase()		{ return needdataroot_; }
 bool AreProgramArgsSet()	{ return argc_ != -1; }
 
 
-static OD::RunCtxt runctxt_ = OD::UnknownCtxt;
+static OD::RunCtxt runctxt_ = OD::RunCtxt::UnknownCtxt;
 namespace OD
 {
     RunCtxt GetRunContext()		{ return runctxt_; }
@@ -1051,7 +1051,7 @@ mExternC(Basic) bool SetBindings( const char* odbindir, int argc, char** argv,
     for ( int idx=0; idx<argc; idx++ )
 	newargv[idx+1] = argv[idx];
 
-    SetRunContext( OD::BatchProgCtxt );
+    SetRunContext( OD::RunCtxt::BatchProgCtxt );
     const bool ret = SetProgramArgs( newargc, newargv, needdatabase );
     delete [] newargv;
 

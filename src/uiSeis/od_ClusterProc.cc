@@ -26,7 +26,7 @@ int mProgMainFnName( int argc, char** argv )
     const CommandLineParser clp( argc, argv );
     const bool withdelete = !clp.hasKey( "nodelete" );
     const bool dosubmit = clp.hasKey( "dosubmit" );
-    mInitProg( dosubmit ? OD::UiProgCtxt : OD::BatchProgCtxt )
+    mInitProg( dosubmit ? OD::RunCtxt::UiProgCtxt : OD::RunCtxt::BatchProgCtxt )
 
     IOPar jobpars;
     const uiRetVal uirv = uiMMBatchJobDispatcher::initMMProgram( clp, jobpars );

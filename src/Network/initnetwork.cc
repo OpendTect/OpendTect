@@ -24,8 +24,8 @@ mDefModInitFn(Network)
 #ifdef __debug__
     NetworkHttpFileSystemAccessinitClass();
 #else
-    const OD::RunCtxt ctxt = OD::GetRunContext();
-    if ( ctxt == OD::TestProgCtxt )
+    const OD::RunCtxt ctxt = OD::RunCtxt::GetRunContext();
+    if ( ctxt == OD::RunCtxt::TestProgCtxt )
 	NetworkHttpFileSystemAccessinitClass();
     //TODO: remove when enabling release mode
 #endif
