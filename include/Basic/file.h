@@ -249,26 +249,23 @@ mGlobal(Basic) const char*	allFilesFilter();
 mGlobal(Basic) const char*	textFilesFilter();
 
 
-enum ViewStyle { Text, Table, Log, Bin };
+enum class ViewStyle { Text, Table, Log, Bin };
 mDeclareNameSpaceEnumUtils(Basic,ViewStyle)
 
 mClass(Basic) ViewPars
 {
 public:
-
-				ViewPars( ViewStyle vs=Text )
-				    : style_(vs)
-				    , editable_(false)
-				    , maxnrlines_(vs==Table ? 500 : 10000) {}
+				ViewPars(ViewStyle =ViewStyle::Text);
+				~ViewPars();
 
     static const char*		sKeyFile()	{ return "file"; }
     static const char*		sKeyMaxLines()	{ return "maxlines"; }
-    static const char*		sKeyStyle()	{ return "style"; }
+    static const char*		sKeyStyle()	{ return "viewstyle"; }
     static const char*		sKeyEdit()	{ return "edit"; }
 
     ViewStyle			style_;
     int				maxnrlines_;	//!< max nr bytes when Bin
-    bool			editable_;	//!< only if possible
+    bool			editable_ = false;	//!< only if possible
 
 };
 

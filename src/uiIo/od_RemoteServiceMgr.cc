@@ -133,7 +133,7 @@ uiRemoteServiceMgr::uiRemoteServiceMgr( uiParent* p )
 			     mCB(this,uiRemoteServiceMgr,reloadlogCB), false );
     buttons->attach( centeredBelow, datarootsel_ );
 
-    File::ViewPars su( File::Log );
+    const File::ViewPars su( File::ViewStyle::Log );
     textbox_ = new uiTextFile( this, nullptr, su );
     textbox_->uiObj()->attach( centeredBelow, buttons );
 

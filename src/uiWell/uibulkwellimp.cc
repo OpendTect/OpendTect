@@ -58,7 +58,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     origtracks_.allowNull();
 
     inpfld_ = new uiASCIIFileInput( this, true );
-    inpfld_->setExamStyle( File::Table );
+    inpfld_->setExamStyle( File::ViewStyle::Table );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 				       mODHelpKey(mTableImpDataSelwellsHelpID));
@@ -634,7 +634,7 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
     inpfld_ = new uiFileInput( this, uiStrings::phrInput(
 			       mJoinUiStrs(sMarker(),sFile())),
 			       uiFileInput::Setup().withexamine(true)
-			       .examstyle(File::Table) );
+			       .examstyle(File::ViewStyle::Table) );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,
 				       mODHelpKey(mTableImpDataSelwellsHelpID));
@@ -767,7 +767,7 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     uiFileInput::Setup fs;
-    fs.withexamine(true).examstyle(File::Table);
+    fs.withexamine(true).examstyle(File::ViewStyle::Table);
     inpfld_ = new uiFileInput( this,
 			 uiStrings::phrInput(tr("Depth/Time Model file")), fs );
 
@@ -919,7 +919,7 @@ uiBulkDirectionalImport::uiBulkDirectionalImport( uiParent* p )
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiASCIIFileInput( this, true );
-    inpfld_->setExamStyle( File::Table );
+    inpfld_->setExamStyle( File::ViewStyle::Table );
     mAttachCB( inpfld_->valueChanged, uiBulkDirectionalImport::fileCB );
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_,

@@ -47,7 +47,7 @@ void uiTextFile::init( uiParent* p )
     tbl_ = nullptr;
     const CallBack modifcb( mCB(this,uiTextFile,valChg) );
 
-    if ( setup_.style_ == File::Table )
+    if ( setup_.style_ == File::ViewStyle::Table )
     {
 	uiTable::Setup tsu;
 	tsu.rowdesc("Row").coldesc("Col").fillrow(false).fillcol(true)
@@ -59,9 +59,9 @@ void uiTextFile::init( uiParent* p )
 	tbl_->setColumnResizeMode( uiTable::Interactive );
 	tbl_->valueChanged.notify( modifcb );
     }
-    else if ( !setup_.editable_ || setup_.style_ == File::Bin )
-	txtbr_ = new uiTextBrowser( p, filename_, setup_.maxnrlines_,
-				    true, setup_.style_ == File::Log );
+    else if ( !setup_.editable_ || setup_.style_ == File::ViewStyle::Bin )
+	txtbr_ = new uiTextBrowser( p, filename_, setup_.maxnrlines_, true,
+				    setup_.style_ == File::ViewStyle::Log );
     else
     {
 	txted_ = new uiTextEdit( p, filename_ );
@@ -281,7 +281,8 @@ uiTextFileDlg::uiTextFileDlg( uiParent* p, const char* fnm, bool rdonly,
 {
     Setup dlgsetup( toUiString(fnm) );
     dlgsetup.allowopen(!rdonly).allowsave(!rdonly);
-    uiTextFile::Setup tfsu( tbl ? File::Table : File::Text );
+    uiTextFile::Setup tfsu( tbl ? File::ViewStyle::Table
+				: File::ViewStyle::Text );
     tfsu.editable_ = !rdonly;
     init( dlgsetup, tfsu, fnm );
 }

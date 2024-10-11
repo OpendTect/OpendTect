@@ -141,7 +141,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.filter("Log files (*.log)")
 			.forread(false)
 			.withexamine(true)
-			.examstyle(File::Log)
+			.examstyle(File::ViewStyle::Log)
 			.displaylocalpath(true) );
     logfld_->attach( alignedBelow, inpfld_ );
 
@@ -152,7 +152,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.forread(false)
 			.confirmoverwrite(false)
 			.withexamine(true)
-			.examstyle(File::Log)
+			.examstyle(File::ViewStyle::Log)
 			.displaylocalpath(true) );
     outfld_->attach( alignedBelow, cmdoptionfld_ );
 

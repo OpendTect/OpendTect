@@ -39,7 +39,7 @@ public:
 			Setup(OD::FileContentType,const char* filenm=0);
 
 	mDefSetupMemb(bool,withexamine)		//!< false (unless spec. Txt)
-	mDefSetupMemb(File::ViewStyle,examstyle)//!< File::Text (Bin if Img)
+	mDefSetupMemb(File::ViewStyle,examstyle)//!< Text (Bin if Img)
 	mDefSetupMemb(bool,exameditable)	//!< false
 	mDefSetupMemb(bool,displaylocalpath)	//!< false
 	mDefSetupMemb(bool,checkable)		//!< false

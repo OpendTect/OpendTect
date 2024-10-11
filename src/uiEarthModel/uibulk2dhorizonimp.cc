@@ -254,7 +254,7 @@ uiBulk2DHorizonImport::uiBulk2DHorizonImport( uiParent* p )
     setOkText( uiStrings::sImport() );
 
     inpfld_ = new uiASCIIFileInput( this, true );
-    inpfld_->setExamStyle( File::Table );
+    inpfld_->setExamStyle( File::ViewStyle::Table );
 
     zdomselfld_ = new uiGenInput( this, tr("Horizon is in"),
 	BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );

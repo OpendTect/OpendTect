@@ -43,11 +43,11 @@ const char* not_implemented_str = "Not implemented";
 
 mDefineNameSpaceEnumUtils(File,ViewStyle,"Examine View Style")
 {
-	"text",
-	"table",
-	"log",
-	"bin",
-	nullptr
+    "text",
+    "table",
+    "log",
+    "bin",
+    nullptr
 };
 
 namespace File
@@ -1116,6 +1116,18 @@ const char* textFilesFilter()
 const char* allFilesFilter()
 {
     return __iswin__ ? "All Files (*.*)" : "All Files (*)";
+}
+
+
+ViewPars::ViewPars( ViewStyle vs )
+    : style_(vs)
+    , maxnrlines_(vs==ViewStyle::Table ? 500 : 10000)
+{
+}
+
+
+ViewPars::~ViewPars()
+{
 }
 
 

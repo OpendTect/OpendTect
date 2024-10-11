@@ -447,8 +447,8 @@ void uiMMBatchJobDispatcher::vwLogPush( CallBacker* )
 
     delete logvwer_;
     const BufferString fnm( logfp.fullPath() );
-    logvwer_ = new uiTextFileDlg( this, uiTextFile::Setup(File::Log),
-			      uiTextFileDlg::Setup(toUiString(fnm)), fnm );
+    logvwer_ = new uiTextFileDlg( this, uiTextFile::Setup(File::ViewStyle::Log),
+				  uiTextFileDlg::Setup(toUiString(fnm)), fnm );
     logvwer_->go();
 }
 

@@ -202,7 +202,7 @@ void uiBulkFaultImport::init()
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     inpfld_ = new uiASCIIFileInput( this, true );
-    inpfld_->setExamStyle( File::Table );
+    inpfld_->setExamStyle( File::ViewStyle::Table );
     uiString zdomlbl;
     if ( isfltset_ )
 	zdomlbl = tr("FaultSet is in");

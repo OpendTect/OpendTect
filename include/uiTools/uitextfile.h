@@ -33,7 +33,7 @@ public:
     int			maxLines() const	{ return setup_.maxnrlines_; }
     virtual bool	isEditable() const	{ return setup_.editable_; }
     virtual bool	isTable() const		{ return setup_.style_ ==
-								 File::Table; }
+						     File::ViewStyle::Table; }
 
     bool		open(const char*);
     bool		reLoad();

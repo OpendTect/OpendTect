@@ -422,7 +422,7 @@ uiFileConvGroup::uiFileConvGroup(uiParent* p, const SurveyInfo& si)
     uiGroup* topgrp = new uiGroup( this, "Top Group" );
 
     uiFileInput::Setup fssu;
-    fssu.withexamine( true ).examstyle( File::Table );
+    fssu.withexamine( true ).examstyle( File::ViewStyle::Table );
     inpfilefld_ = new uiFileInput( topgrp,
 			    uiStrings::phrInput(uiStrings::sFile()), fssu );
 
