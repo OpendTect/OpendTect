@@ -360,6 +360,47 @@ bool uiMsg::message( const uiString& part1, const uiString& part2,
 }
 
 
+void uiMsg::messageWithDetails( const uiStringSet& details,
+				const uiString& before )
+{
+    uiStringSet strings;
+    if ( !before.isEmpty() )
+	strings += before;
+
+    strings.append( details );
+    messageWithDetails( strings );
+}
+
+
+void uiMsg::messageWithDetails( const uiStringSet& strings )
+{
+    if ( !strings.size() )
+	return;
+
+    mPrepCursor();
+    const uiString oktxt = uiStrings::sOk();
+    mCapt( tr("Information") );
+    const int refnr = beginCmdRecEvent( utfwintitle );
+    // Use of QMessageBox::Abort enables close and escape actions by the user
+    PtrMan<QMessageBox> mb = createMessageBox( Information, popParnt(),
+					       strings[0],
+					       uiString::emptyString(),
+					       uiString::emptyString(),
+					       oktxt, wintitle, 0 );
+    mb->setDefaultButton( QMessageBox::Abort );
+    mb->setSizeGripEnabled( true );
+
+    if ( strings.size()>1 )
+    {
+	uiString detailed = strings.cat();
+	mb->setDetailedText( toQString(detailed) );
+    }
+
+    mb->exec();
+    endCmdRecEvent( refnr, 0, oktxt.getString() );
+}
+
+
 void uiMsg::warning( const uiString& part1, const uiString& part2,
 		     const uiString& part3 )
 {

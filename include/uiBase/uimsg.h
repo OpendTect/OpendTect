@@ -41,6 +41,9 @@ public:
 		/*!<If withdontshowgain is true, the user will be prompted
 		    to not see this again. Return true if the user
 		    does not want to see it again. */
+    void	messageWithDetails(const uiStringSet& details,
+				   const uiString& firstmsg);
+    void	messageWithDetails(const uiStringSet&);
     void	warning(const uiString&,
 			const uiString& part2=uiString::emptyString(),
 			const uiString& part3=uiString::emptyString());
