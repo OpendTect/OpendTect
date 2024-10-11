@@ -252,7 +252,7 @@ mGlobal(Basic) const char*	textFilesFilter();
 enum class ViewStyle { Text, Table, Log, Bin };
 mDeclareNameSpaceEnumUtils(Basic,ViewStyle)
 
-mClass(Basic) ViewPars
+mExpClass(Basic) ViewPars
 {
 public:
 				ViewPars(ViewStyle =ViewStyle::Text);
