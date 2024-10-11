@@ -72,7 +72,8 @@ public:
     void		exportWavelets();
     void		manageWavelets();
     void		exportCubePos(const MultiID* =nullptr);
-    bool		exportLinesToGIS(const TypeSet<Pos::GeomID>* =nullptr);
+    bool		exportLinesToGIS(uiParent*,
+					 const TypeSet<Pos::GeomID>* =nullptr);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

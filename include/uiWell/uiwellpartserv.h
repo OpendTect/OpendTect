@@ -60,7 +60,7 @@ public:
     void			showWellMgrInfo();
     void			exportWellData();
     void			exportLogToLAS();
-    bool			exportToGIS(const TypeSet<MultiID>*);
+    bool			exportToGIS(uiParent*,const TypeSet<MultiID>*);
 
     void			manageWells();
     void			launchRockPhysics();

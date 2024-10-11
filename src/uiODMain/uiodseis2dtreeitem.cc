@@ -125,8 +125,11 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     mnu.insertAction( new uiAction(m3Dots(tr("Generate 3D Cube"))), mTo3D );
 #endif
 
-    mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
-		      uiGISExpStdFld::strIcon()), mExpGISIdx );
+    if ( !children_.isEmpty() )
+    {
+	mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
+			  uiGISExpStdFld::strIcon()), mExpGISIdx );
+    }
 
     BufferStringSet displayedattribs;
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -275,7 +278,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 		geomids += linetreeitm->getGeomID();
 	}
 
-	applMgr()->seisServer()->exportLinesToGIS( &geomids );
+	applMgr()->seisServer()->exportLinesToGIS( getUiParent(), &geomids );
     }
     else if ( mnuid == mAddAttr )
     {
@@ -333,7 +336,7 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	findChildren( attrnm, set );
 	if ( set.size() )
 	{
-	    uiODEditAttribColorDlg dlg( ODMainWin(), set, attrnm );
+	    uiODEditAttribColorDlg dlg( getUiParent(), set, attrnm );
 	    dlg.go();
 	}
     }
@@ -387,7 +390,7 @@ bool uiODLine2DParentTreeItem::loadDefaultData()
     }
 
     const char* attrnm = desc->userRef();
-    uiTaskRunner uitr( ODMainWin() );
+    uiTaskRunner uitr( getUiParent() );
     ObjectSet<uiTreeItem> set;
     findChildren( sKeyRightClick(), set );
     {
@@ -412,9 +415,9 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
     uiVisPartServer* visserv = applMgr()->visServer();
     ConstRefMan<visSurvey::Scene> scene = visserv->getScene( sceneID() );
     const ZDomain::Info& info = scene->zDomainInfo();
-    uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, info, curattrnm );
+    uiAttr2DSelDlg dlg( getUiParent(), ds, geomids, nla, info, curattrnm );
 
-    uiTaskRunner uitr( ODMainWin() );
+    uiTaskRunner uitr( getUiParent() );
     ObjectSet<uiTreeItem> set;
     findChildren( curattrnm, set );
 
@@ -494,7 +497,7 @@ uiTreeItem* Line2DTreeItemFactory::createForVis( const VisID& visid,
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    ODMainWin()->applMgr().visServer()->getObject(visid))
     if ( !s2d || !treeitem )
-	    return nullptr;
+	return nullptr;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
 		    s2d->getChannels2RGBA())
@@ -766,7 +769,7 @@ bool uiOD2DLineTreeItem::displayDefaultData()
 
     selcomps.erase();
     const char* attrnm = desc->userRef();
-    uiTaskRunner uitr( ODMainWin() );
+    uiTaskRunner uitr( getUiParent() );
     return item->displayStoredData( attrnm, 0, uitr );
 }
 
@@ -819,7 +822,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* )
     const TypeSet<Attrib::SelSpec>& as = *seis2ddisplay->getSelSpecs( attribnr);
 
     ConstRefMan<RegularSeisDataPack> newdp;
-    uiTaskRunner uitr( ODMainWin() );
+    uiTaskRunner uitr( getUiParent() );
     if ( as[0].id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
 	PtrMan<Attrib::ExtAttribCalc> calc =
@@ -1030,7 +1033,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     if ( !s2d )
 	return;
 
-    uiTaskRunner uitr( ODMainWin() );
+    uiTaskRunner uitr( getUiParent() );
     Attrib::SelSpec myas;
     bool usemcomp = false;
     BufferString attrnm;

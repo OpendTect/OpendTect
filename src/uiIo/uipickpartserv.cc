@@ -63,10 +63,6 @@ uiPickPartServer::~uiPickPartServer()
     delete emptypsdlg_;
     delete genpsdlg_;
     delete genps2ddlg_;
-    delete gisexppointsetdlg_;
-    delete gisexppolygondlg_;
-    delete gisexprandomlinedlg_;
-    delete gisexpsurvdlg_;
 }
 
 
@@ -85,10 +81,6 @@ void uiPickPartServer::cleanup()
     closeAndNullPtr( emptypsdlg_ );
     closeAndNullPtr( genpsdlg_ );
     closeAndNullPtr( genps2ddlg_ );
-    closeAndNullPtr( gisexppointsetdlg_ );
-    closeAndNullPtr( gisexppolygondlg_ );
-    closeAndNullPtr( gisexprandomlinedlg_ );
-    closeAndNullPtr( gisexpsurvdlg_ );
 }
 
 
@@ -500,68 +492,45 @@ void uiPickPartServer::showPickSetMgrInfo()
 }
 
 
-bool uiPickPartServer::exportPointSetsToGIS(
+bool uiPickPartServer::exportPointSetsToGIS( uiParent* p,
 				    const ObjectSet<const Pick::Set>& gisdatas )
 {
-    return exportToGIS( uiGISExportDlg::Type::PointSet, parent(),
-			gisdatas, gisexppointsetdlg_ );
+    return exportToGIS( uiGISExportDlg::Type::PointSet, p, gisdatas );
 }
 
 
-bool uiPickPartServer::exportPolygonsToGIS(
+bool uiPickPartServer::exportPolygonsToGIS( uiParent* p,
 				    const ObjectSet<const Pick::Set>& gisdatas )
 {
-    return exportToGIS( uiGISExportDlg::Type::Polygon, parent(),
-			gisdatas, gisexppolygondlg_ );
+    return exportToGIS( uiGISExportDlg::Type::Polygon, p, gisdatas );
 }
 
 
-bool uiPickPartServer::exportRandomLinesToGIS(
+bool uiPickPartServer::exportRandomLinesToGIS( uiParent* p,
 				    const ObjectSet<const Pick::Set>& gisdatas )
 {
-    return exportToGIS( uiGISExportDlg::Type::RandomLine, parent(),
-			gisdatas, gisexprandomlinedlg_ );
+    return exportToGIS( uiGISExportDlg::Type::RandomLine, p, gisdatas );
 }
 
 
-bool uiPickPartServer::exportToGIS( uiGISExportDlg::Type typ,
-			uiParent* p, const ObjectSet<const Pick::Set>& gisdatas,
-			uiGISExportDlg*& expdlg )
+bool uiPickPartServer::exportToGIS( uiGISExportDlg::Type typ, uiParent* p,
+				    const ObjectSet<const Pick::Set>& gisdatas )
 {
     if ( !uiGISExpStdFld::canDoExport(p) )
 	return false;
 
-    if ( expdlg )
-	expdlg->set( gisdatas );
-    else
-    {
-	expdlg = new uiGISExportDlg( p, typ, gisdatas );
-	expdlg->setModal( false );
-    }
-
-    expdlg->raise();
-    expdlg->show();
-    return true;
+    uiGISExportDlg dlg( p, typ, gisdatas );
+    return dlg.go() == uiDialog::Accepted;
 }
 
 
-bool uiPickPartServer::exportSurvOutlineToGIS( SurveyInfo& si )
+bool uiPickPartServer::exportSurvOutlineToGIS( uiParent* p, SurveyInfo& si )
 {
-    if ( !uiGISExpStdFld::canDoExport(parent(),&si) )
+    if ( !uiGISExpStdFld::canDoExport(p,&si) )
 	return false;
 
-    if ( gisexpsurvdlg_ && &gisexpsurvdlg_->getSI() != &si )
-	closeAndNullPtr( gisexpsurvdlg_ );
-
-    if ( !gisexpsurvdlg_ )
-    {
-	gisexpsurvdlg_ = new uiGISExportSurvey( parent(), si );
-	gisexpsurvdlg_->setModal( false );
-    }
-
-    gisexpsurvdlg_->raise();
-    gisexpsurvdlg_->show();
-    return true;
+    uiGISExportSurvey dlg( p, si );
+    return dlg.go() == uiDialog::Accepted;
 }
 
 

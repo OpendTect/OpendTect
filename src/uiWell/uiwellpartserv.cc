@@ -796,24 +796,28 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 void uiWellPartServer::exportToGISCB( CallBacker* )
 {
     //TODO: pass selection from manager?
-    exportToGIS( nullptr );
+    exportToGIS( parent(), nullptr );
 }
 
 
-bool uiWellPartServer::exportToGIS( const TypeSet<MultiID>* wellids )
+bool uiWellPartServer::exportToGIS( uiParent* p,
+				    const TypeSet<MultiID>* wellids )
 {
-    if ( !uiGISExpStdFld::canDoExport(parent()) )
+    if ( !uiGISExpStdFld::canDoExport(p) )
 	return false;
 
     TypeSet<MultiID> usewellids;
     if ( wellids )
 	usewellids = *wellids;
 
+    if ( giswellexportdlg_ && giswellexportdlg_->parent() != p )
+	closeAndNullPtr( giswellexportdlg_ );
+
     if ( giswellexportdlg_ )
 	giswellexportdlg_->setSelected( usewellids );
     else
     {
-	giswellexportdlg_ = new uiGISExportWells( parent(), &usewellids );
+	giswellexportdlg_ = new uiGISExportWells( p, &usewellids );
 	giswellexportdlg_->setModal( false );
     }
 

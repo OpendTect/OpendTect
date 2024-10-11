@@ -355,7 +355,7 @@ void uiODRandomLineParentTreeItem::exportToGIS()
 	gisdatas.add( pickset.ptr() );
     }
 
-    pickserver.exportRandomLinesToGIS( gisdatas );
+    pickserver.exportRandomLinesToGIS( getUiParent(), gisdatas );
 }
 
 

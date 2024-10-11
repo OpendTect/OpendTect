@@ -74,13 +74,13 @@ public:
     void			setPickSet(const Pick::Set&);
     void			fillZValsFromHor(Pick::Set&,int);
 
-    bool			exportPointSetsToGIS(
+    bool			exportPointSetsToGIS(uiParent*,
 					     const ObjectSet<const Pick::Set>&);
-    bool			exportPolygonsToGIS(
+    bool			exportPolygonsToGIS(uiParent*,
 					     const ObjectSet<const Pick::Set>&);
-    bool			exportRandomLinesToGIS(
+    bool			exportRandomLinesToGIS(uiParent*,
 					     const ObjectSet<const Pick::Set>&);
-    bool			exportSurvOutlineToGIS(SurveyInfo&);
+    bool			exportSurvOutlineToGIS(uiParent*,SurveyInfo&);
 
     static void			convert(const Geometry::RandomLine&,
 					Pick::Set&);
@@ -134,10 +134,6 @@ protected:
     uiGenPosPicks*		genpsdlg_		= nullptr;
     uiCreatePicks*		emptypsdlg_		= nullptr;
     uiGenRandPicks2D*		genps2ddlg_		= nullptr;
-    uiGISExportDlg*		gisexppointsetdlg_	= nullptr;
-    uiGISExportDlg*		gisexppolygondlg_	= nullptr;
-    uiGISExportDlg*		gisexprandomlinedlg_	= nullptr;
-    uiGISExportSurvey*		gisexpsurvdlg_		= nullptr;
 
     void			cleanup();
     void			survChangedCB(CallBacker*);
@@ -149,6 +145,5 @@ protected:
 							const RandLocGenPars&);
 
     static bool			exportToGIS(uiGISExportDlg::Type,
-				  uiParent*,const ObjectSet<const Pick::Set>&,
-				  uiGISExportDlg*&);
+				  uiParent*,const ObjectSet<const Pick::Set>&);
 };

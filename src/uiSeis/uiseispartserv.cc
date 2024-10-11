@@ -386,20 +386,24 @@ void uiSeisPartServer::exportCubePos( const MultiID* key )
 }
 
 
-bool uiSeisPartServer::exportLinesToGIS( const TypeSet<Pos::GeomID>* geomids )
+bool uiSeisPartServer::exportLinesToGIS( uiParent* p,
+					 const TypeSet<Pos::GeomID>* geomids )
 {
-    if ( !uiGISExpStdFld::canDoExport(parent()) )
+    if ( !uiGISExpStdFld::canDoExport(p) )
 	return false;
 
     TypeSet<Pos::GeomID> usegeomids;
     if ( geomids )
 	usegeomids = *geomids;
 
+    if ( gisexp2dlinesdlg_ && gisexp2dlinesdlg_->parent() != p )
+        closeAndNullPtr( gisexp2dlinesdlg_ );
+
     if ( gisexp2dlinesdlg_ )
 	gisexp2dlinesdlg_->setSelected( usegeomids );
     else
     {
-	gisexp2dlinesdlg_ = new uiGISExport2DLines( parent(), &usegeomids );
+	gisexp2dlinesdlg_ = new uiGISExport2DLines( p, &usegeomids );
 	gisexp2dlinesdlg_->setModal( false );
     }
 

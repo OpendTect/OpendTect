@@ -82,14 +82,11 @@ bool uiODWellParentTreeItem::showSubMenu()
     mnu.insertAction( new uiAction(m3Dots(tr("Pick New Trajectory"))),
 		      cNewWellIdx );
     if ( !children_.isEmpty() )
+    {
 	mnu.insertAction( new uiAction(m3Dots(tr("Create Attribute Log"))),
 			  cAttribIdx );
-
-    mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
-			uiGISExpStdFld::strIcon()), cExpGISIdx );
-
-    if ( !children_.isEmpty() )
-    {
+	mnu.insertAction( new uiAction(m3Dots(uiGISExpStdFld::sToolTipTxt()),
+			    uiGISExpStdFld::strIcon()), cExpGISIdx );
 	auto* szmenuitem = new uiAction(tr("Constant Log Size"));
 	mnu.insertAction( szmenuitem, cLogDispSize );
 	szmenuitem->setCheckable( true );
@@ -148,7 +145,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	if ( zistime )
 	    lreqs.add( Well::D2T );
 
-	uiTaskRunner uitr( ODMainWin() );
+	uiTaskRunner uitr( getUiParent() );
 	RefObjectSet<Well::Data> wds;
 	MultiWellReader mwr( emwellids, wds, lreqs );
 	if ( !uitr.execute(mwr) )
@@ -233,7 +230,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 		wellids += welltreeitm->getMid();
 	}
 
-	applMgr()->wellServer()->exportToGIS( &wellids );
+	applMgr()->wellServer()->exportToGIS( getUiParent(), &wellids );
     }
     else if ( ( mnuid>40 && mnuid<46 ) || ( mnuid>50 && mnuid<56 ) )
     {
