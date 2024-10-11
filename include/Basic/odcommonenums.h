@@ -59,11 +59,12 @@ enum CheckState
 
 enum FileSelectionMode
 {
-    SelectFileForRead,	/*!<The name of a single existing file. */
-    SelectFileForWrite, /*!<The name of a file, whether it exists or not. */
-    SelectMultiFile,	/*!<The names of zero or more existing files. */
-    SelectDirectory,	/*!<The name of a directory. */
-    SelectDirectoryWithFile	//!<The name of a directory with a given file.
+    SelectFileForRead,		//!<The name of a single existing file
+    SelectFileForWrite,		//!<The name of a file, whether it exists or not
+    SelectMultiFile,		//!<The names of zero or more existing files
+    SelectDirectory,		//!<The name of a directory
+    SelectMultiDirectory,	//!<The names of one or more directories
+    SelectDirectoryWithFile	//!<The name of a directory with a given file
 };
 
 
