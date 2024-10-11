@@ -644,7 +644,7 @@ bool LocalFileSystemAccess::copy( const char* fromuri, const char* touri,
     if ( preserve && isSymLink(from.buf()) && !__iswin__ )
     {
 	const QFileInfo qfi( from.buf() );
-	const BufferString linkval( qfi.symLinkTarget() );
+	const BufferString linkval( qfi.readSymLink() );
 	ret = createLink( linkval.buf(), to.buf() );
     }
     else

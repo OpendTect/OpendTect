@@ -91,6 +91,39 @@ static bool fnmIsURI( const char*& fnm )
 }
 
 
+class FilePathAttribs : public FilePath
+{
+public:
+
+FilePathAttribs( const char* fp, const char* sourcedir )
+    : FilePath(fp)
+{
+    perms_ = getPermissions( sourcedir );
+    getTimes( sourcedir, times_, false );
+}
+
+bool operator >( const FilePathAttribs& oth ) const
+{
+    return oth.nrLevels() > nrLevels();
+}
+
+
+void restore()
+{
+    const BufferString dest = fullPath();
+    if ( !isDirectory(dest.buf()) )
+	return;
+
+    setPermissions( dest.str(), perms_ );
+    setTimes( dest.str(), times_, false );
+}
+
+   Permissions		perms_;
+   Time::FileTimeSet	times_;
+
+};
+
+
 class RecursiveCopier : public Executor
 { mODTextTranslationClass(RecursiveCopier);
 public:
@@ -113,20 +146,33 @@ public:
     uiString		uiNrDoneText() const override
 			{ return tr("MBytes copied"); }
 
-protected:
+private:
 
+    bool		doPrepare(od_ostream*) override;
     int			nextStep() override;
+    bool		doFinish(bool,od_ostream*) override;
 
     int			fileidx_	= 0;
     od_int64		totalnr_	= 0;
     od_int64		nrdone_		= 0;
     BufferStringSet	filelist_;
     bool		preserve_;
+    ManagedObjectSet<FilePathAttribs> dirsfp_;
     BufferString	src_;
     BufferString	dest_;
     uiString		msg_;
 
 };
+
+
+bool RecursiveCopier::doPrepare( od_ostream* strm )
+{
+    dirsfp_.setEmpty();
+    if ( preserve_ )
+	dirsfp_.add( new FilePathAttribs(dest_.buf(),src_.buf()) );
+
+    return Executor::doPrepare( strm );
+}
 
 
 #define mErrRet(s1) { msg_ = s1; return ErrorOccurred(); }
@@ -159,15 +205,25 @@ int RecursiveCopier::nextStep()
     if ( File::isSymLink(srcfile) )
     {
 	const QFileInfo qfi( srcfile.buf() );
-	const BufferString linkval( qfi.symLinkTarget() );
+	const BufferString linkval( qfi.readSymLink() );
 	if ( !createLink(linkval,destfile) )
 	    mErrRet(
 	       uiStrings::phrCannotCreate(tr("symbolic link %1").arg(destfile)))
+
+	if ( preserve_ )
+	{
+	    Time::FileTimeSet times;
+	    if ( File::getTimes(srcfile.buf(),times,false) )
+		File::setTimes( destfile, times, false );
+	}
     }
     else if ( isDirectory(srcfile) )
     {
 	if ( !File::createDir(destfile) )
 	    mErrRet( uiStrings::phrCannotCreateDirectory(toUiString(destfile)) )
+
+	if ( preserve_ )
+	    dirsfp_.add( new FilePathAttribs(destfile,srcfile) );
     }
     else if ( !File::copy(srcfile,destfile,preserve_) )
 	mErrRet( uiStrings::phrCannotCreate( tr("file %1").arg(destfile)) )
@@ -175,6 +231,21 @@ int RecursiveCopier::nextStep()
     fileidx_++;
     nrdone_ += getFileSize( srcfile );
     return fileidx_ >= filelist_.size() ? Finished() : MoreToDo();
+}
+
+
+bool RecursiveCopier::doFinish( bool success, od_ostream* strm )
+{
+    if ( !success || dirsfp_.isEmpty() )
+	return Executor::doFinish( success, strm );
+
+    sort( dirsfp_ );
+    for ( auto* dirsfp : dirsfp_ )
+	dirsfp->restore();
+
+    dirsfp_.setEmpty();
+
+    return Executor::doFinish( success, strm );
 }
 
 
