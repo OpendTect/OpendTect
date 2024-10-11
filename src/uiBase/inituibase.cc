@@ -107,7 +107,7 @@ mDefModInitFn(uiBase)
     Init_uiLocalFileSelToolProvider_Class();
     uiFileSelToolProvider::addPluginFileSelProviders();
 
-    if ( OD::InNormalRunContext() || OD::InUiProgRunContext() )
+    if ( OD::InNormalRunContext() || OD::InStandAloneRunContext() )
     {
 	const FilePath& libfp = GetuiODPrintSupportFp();
 	if ( libfp.exists() )
