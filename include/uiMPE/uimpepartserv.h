@@ -33,7 +33,7 @@ public:
 				~uiMPEPartServer();
 
     void			setCurrentAttribDescSet(const Attrib::DescSet*);
-    const Attrib::DescSet* 	getCurAttrDescSet(bool is2d) const;
+    const Attrib::DescSet*	getCurAttrDescSet(bool is2d) const;
 
     const char*			name() const override		{ return "MPE";}
 
@@ -41,7 +41,7 @@ public:
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
     bool			addTracker(const char* trackertype,
-					   SceneID sceneid);
+					   const SceneID&);
     int				addTracker(const EM::ObjectID&,
 					   const Coord3& pos);
 				/*!<Creates a new tracker for the object and
@@ -85,7 +85,7 @@ public:
 					      DataPackID);
 
     static int			evCreate2DSelSpec();
-    Pos::GeomID 		getGeomID() const;
+    Pos::GeomID		getGeomID() const;
     const char*			get2DLineName() const;
     const char*			get2DAttribName() const;
     void			set2DSelSpec(const Attrib::SelSpec&);
@@ -107,10 +107,10 @@ public:
     static int			evSelectAttribForTracking();
 
     void			loadTrackSetupCB(CallBacker*);
-    bool 			prepareSaveSetupAs(const MultiID&);
-    bool 			saveSetupAs(const MultiID&);
-    bool 			saveSetup(const MultiID&);
-    bool 			readSetup(const MultiID&);
+    bool			prepareSaveSetupAs(const MultiID&);
+    bool			saveSetupAs(const MultiID&);
+    bool			saveSetup(const MultiID&);
+    bool			readSetup(const MultiID&);
     void			attribSelectedForTracking();
 
     bool			sendMPEEvent(int);
@@ -146,7 +146,7 @@ protected:
     SceneID			cursceneid_;
 
 				//2D interaction
-    Pos::GeomID 		geomid_;
+    Pos::GeomID		geomid_;
     Attrib::SelSpec		lineselspec_;
 
     void			aboutToAddRemoveSeed(CallBacker*);

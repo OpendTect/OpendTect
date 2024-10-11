@@ -148,7 +148,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 
 
 bool uiMPEPartServer::addTracker( const char* trackertype,
-				  SceneID addedtosceneid)
+				  const SceneID& addedtosceneid )
 {
     seedswithoutattribsel_ = false;
     cursceneid_ = addedtosceneid;

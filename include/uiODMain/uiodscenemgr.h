@@ -116,7 +116,7 @@ public:
     void			get3DViewers(ObjectSet<ui3DViewer>&);
     void			getSceneNames(uiStringSet&,int& act) const;
     void			setActiveScene(int idx);
-    void			setActiveScene(SceneID);
+    void			setActiveScene(const SceneID&);
     void			getActiveSceneName(BufferString&) const;
     SceneID			getActiveSceneID() const;
     Notifier<uiODSceneMgr>	activeSceneChanged;
@@ -188,7 +188,7 @@ public:
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
     void			setViewSelectMode(int);
-    void			setViewSelectMode(SceneID,
+    void			setViewSelectMode(const SceneID&,
 						  ui3DViewer::PlaneType);
 
     float			getHeadOnLightIntensity(int) const;

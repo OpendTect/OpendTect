@@ -690,7 +690,7 @@ void uiODSceneMgr::setViewSelectMode( int md )
 }
 
 
-void uiODSceneMgr::setViewSelectMode( SceneID sceneid,
+void uiODSceneMgr::setViewSelectMode( const SceneID& sceneid,
 				      ui3DViewer::PlaneType type )
 {
     ui3DViewer* vwr = get3DViewer( sceneid );
@@ -962,7 +962,7 @@ void uiODSceneMgr::setActiveScene( int idx )
 }
 
 
-void uiODSceneMgr::setActiveScene( SceneID sceneid )
+void uiODSceneMgr::setActiveScene( const SceneID& sceneid )
 {
     const BufferString scenenm = getSceneName( sceneid ).getFullString();
     mdiarea_->setActiveWin( scenenm );
