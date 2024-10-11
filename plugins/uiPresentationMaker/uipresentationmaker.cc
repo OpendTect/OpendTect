@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uidesktopservices.h"
+#include "uidlggroup.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -33,12 +34,11 @@ ________________________________________________________________________
 #include "file.h"
 #include "filepath.h"
 #include "mousecursor.h"
-#include "oddirs.h"
 #include "od_ostream.h"
 #include "oscommand.h"
-#include "timer.h"
 #include "pythonaccess.h"
 #include "settings.h"
+
 
 class uiSlideLayoutGrp : public uiDlgGroup
 { mODTextTranslationClass(uiSlideLayoutDlg)
@@ -171,7 +171,6 @@ uiPresMakerSettings( uiParent* p, PresentationSpec& spec )
 uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
     : uiDialog(p,Setup(tr("Presentation Maker"),mNoDlgTitle,
 		mODHelpKey(mPresentationMakerDlgHelpID)).modal(false))
-    , checktimer_(nullptr)
 {
     setCtrlStyle( CloseOnly );
 
@@ -268,7 +267,6 @@ uiPresentationMakerDlg::uiPresentationMakerDlg( uiParent* p )
 uiPresentationMakerDlg::~uiPresentationMakerDlg()
 {
     detachAllNotifiers();
-    delete checktimer_;
 }
 
 

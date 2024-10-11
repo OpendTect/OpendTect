@@ -19,7 +19,7 @@ class uiFileInput;
 class uiGenInput;
 class uiTable;
 class uiToolButton;
-class Timer;
+
 
 mExpClass(uiPresentationMaker) uiPresentationMakerDlg : public uiDialog
 { mODTextTranslationClass(uiPresentationMakerDlg)
@@ -49,7 +49,6 @@ protected:
     PresentationSpec	specs_;
     BufferString	pythonpptxdir_;
     BufferString	logfilenm_;
-    Timer*		checktimer_;
 
     uiGenInput*		titlefld_;
     uiGenInput*		templatefld_;
