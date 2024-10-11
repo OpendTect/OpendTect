@@ -562,7 +562,7 @@ void uiSurvey::updateSurveyNames()
     if ( basedir.isEmpty() )
 	basedir = GetBaseDataDir();
 
-    DirList dl( basedir, File::DirsInDir );
+    const DirList dl( basedir, File::DirListType::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString& dirnm = dl.get( idx );
@@ -1422,7 +1422,7 @@ void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
     if ( basedir.isEmpty() )
 	basedir = GetBaseDataDir();
 
-    DirList dl( basedir, File::DirsInDir );
+    const DirList dl( basedir, File::DirListType::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString& dirnm = dl.get( idx );

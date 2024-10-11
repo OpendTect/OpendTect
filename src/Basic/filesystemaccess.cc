@@ -136,8 +136,8 @@ private:
     bool	createDirectory(const char*) const override;
     bool	createLink(const char* src,const char* lnkfnm) const override;
     bool	listDirectory(const char*,File::DirListType,
-				      BufferStringSet&,
-				      const char* mask) const override;
+			      BufferStringSet&,
+			      const char* mask) const override;
 
     StreamData	createOStream(const char*,bool binary,
 			      bool editmode) const override;
@@ -456,9 +456,9 @@ bool LocalFileSystemAccess::listDirectory( const char* uri,
     }
 
     QDir::Filters dirfilters;
-    if ( dlt == File::FilesInDir )
+    if ( dlt == File::DirListType::FilesInDir )
 	dirfilters = QDir::Files | QDir::Hidden;
-    else if ( dlt == File::DirsInDir )
+    else if ( dlt == File::DirListType::DirsInDir )
 	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden;
     else
 	dirfilters = QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files

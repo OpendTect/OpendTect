@@ -202,7 +202,7 @@ bool doImp( const FilePath& fp )
     mask.replace( uiSEGYFileSpec::sKeyLineNmToken(), "*" );
     FilePath maskfp( fp ); maskfp.setFileName( mask );
     const int nrtok = mask.count( '*' );
-    DirList dl( fp.pathOnly(), File::FilesInDir, mask );
+    const DirList dl( fp.pathOnly(), File::DirListType::FilesInDir, mask );
     if ( dl.size() < 1 )
     {
 	uiMSG().error( tr("Cannot find any match for file name") );

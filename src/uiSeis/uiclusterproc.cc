@@ -139,7 +139,8 @@ bool init()
     if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir) )
 	return false;
 
-    DirList scriptfiles( scriptdir, File::FilesInDir, "*.scr" );
+    const DirList scriptfiles( scriptdir, File::DirListType::FilesInDir,
+			       "*.scr" );
     for ( int idx=0; idx<scriptfiles.size(); idx++ )
     {
 	FilePath fp( scriptfiles.fullPath(idx) );

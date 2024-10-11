@@ -989,9 +989,12 @@ void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiMenu* iconsmnu,
 
 void uiODMenuMgr::mkViewIconsMnu()
 {
-    DirList dlsett( GetSettingsDir(), File::DirsInDir, "icons.*" );
-    DirList dlsite( mGetApplSetupDataDir(), File::DirsInDir, "icons.*" );
-    DirList dlrel( mGetSWDirDataDir(), File::DirsInDir, "icons.*" );
+    const DirList dlsett( GetSettingsDir(),
+			  File::DirListType::DirsInDir, "icons.*" );
+    const DirList dlsite( mGetApplSetupDataDir(),
+			  File::DirListType::DirsInDir, "icons.*" );
+    const DirList dlrel( mGetSWDirDataDir(),
+			 File::DirListType::DirsInDir, "icons.*" );
     if ( dlsett.size() + dlsite.size() + dlrel.size() < 2 )
 	return;
 

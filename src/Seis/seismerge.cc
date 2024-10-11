@@ -125,7 +125,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     }
 
     FilePath fp( iop.find(sKey::TmpStor()) );
-    DirList dlist( fp.fullPath(), File::FilesInDir );
+    const DirList dlist( fp.fullPath(), File::DirListType::FilesInDir );
     StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
     const Seis::GeomType gt = Seis::geomTypeOf( is2d_, false );
     for ( int idx=0; idx<dlist.size(); idx++ )

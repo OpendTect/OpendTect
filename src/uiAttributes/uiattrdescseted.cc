@@ -1122,7 +1122,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
     if ( !dirnm || !File::exists(dirnm) )
 	return;
 
-    DirList attrdl( dirnm, File::DirsInDir, "*Attribs" );
+    const DirList attrdl( dirnm, File::DirListType::DirsInDir, "*Attribs" );
     for ( int idx=0; idx<attrdl.size(); idx++ )
     {
 	FilePath fp( dirnm, attrdl.get(idx), "index" );

@@ -23,8 +23,9 @@ public:
 
     typedef File::DirListType	DLType;
 
-			DirList(const char*,DLType t=File::AllEntriesInDir,
-				const char* msk=0);
+			DirList(const char*,
+				DLType =File::DirListType::AllEntriesInDir,
+				const char* msk=nullptr);
 				/*!< msk can be a glob expression */
 
     void		update();

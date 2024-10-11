@@ -545,7 +545,7 @@ void PluginManager::openALOEntries()
 void PluginManager::getALOEntries( const char* dirnm, bool usrdir )
 {
     FilePath fp( dirnm, sPluginDir, GetPlfSubDir() );
-    DirList dl( fp.fullPath(), File::FilesInDir );
+    const DirList dl( fp.fullPath(), File::DirListType::FilesInDir );
     const BufferString prognm = GetExecutableName();
     for ( int idx=0; idx<dl.size(); idx++ )
     {
@@ -821,7 +821,7 @@ void initPluginClasses( const char* datadir, const char* func )
 	return;
 
     using VoidVoidFn = void(*)(void);
-    const DirList dl( datafp.fullPath(), File::FilesInDir, "*.txt" );
+    const DirList dl( datafp.fullPath(), File::DirListType::FilesInDir,"*.txt");
     BufferString libname;
     libname.setBufSize( 256 );
     for ( int idx=0; idx<dl.size(); idx++ )

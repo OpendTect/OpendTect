@@ -2131,7 +2131,7 @@ void Survey::getDirectoryNames( BufferStringSet& list, bool addfullpath,
     if ( basedir.isEmpty() )
 	basedir = GetBaseDataDir();
 
-    const DirList dl( basedir, File::DirsInDir );
+    const DirList dl( basedir, File::DirListType::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString& dirnm = dl.get( idx );

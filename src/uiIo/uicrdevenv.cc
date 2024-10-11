@@ -58,7 +58,8 @@ static bool getTutSources( const char* plugindir, BufferStringSet& srcfiles,
 	}
 
 	const BufferString plugindirnm = pluginfpin.fullPath();
-	DirList incldl( plugindirnm.buf(), File::FilesInDir, "*.h" );
+	DirList incldl( plugindirnm.buf(), File::DirListType::FilesInDir,
+			"*.h" );
 	if ( __iswin__ )
 	{
 	    BufferString deffnm( dir->buf(), "deps.h" );
@@ -66,7 +67,8 @@ static bool getTutSources( const char* plugindir, BufferStringSet& srcfiles,
 	    incldl.remove( deffnm.str() );
 	}
 
-	const DirList srcdl( plugindirnm.buf(), File::FilesInDir, "*.cc" );
+	const DirList srcdl( plugindirnm.buf(), File::DirListType::FilesInDir,
+			     "*.cc" );
 	if ( incldl.isEmpty() || srcdl.isEmpty() )
 	    return false;
 

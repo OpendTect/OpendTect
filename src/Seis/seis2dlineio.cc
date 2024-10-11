@@ -343,7 +343,7 @@ od_int64 SeisTrc2DTranslator::getFileSize() const
     od_int64 totalsz = 0;
     if ( File::isDirectory(filenm) )
     {
-	const DirList dl( filenm.buf(), File::FilesInDir );
+	const DirList dl( filenm.buf(), File::DirListType::FilesInDir );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    const FilePath filepath = dl.fullPath( idx );

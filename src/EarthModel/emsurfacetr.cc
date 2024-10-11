@@ -583,7 +583,7 @@ dGBFaultSet3DReader( const IOObj& ioobj, EM::FaultSet3D& fltset )
     : Executor("Reading FaultSet")
     , fltset_(fltset)
     , curidx_(0)
-    , dl_(ioobj.fullUserExpr(),File::FilesInDir,"*.flt")
+    , dl_(ioobj.fullUserExpr(),File::DirListType::FilesInDir,"*.flt")
 {
     tkzsenvelope_.setEmpty();
     tkzsenvelope_.hsamp_.setGeomID( Pos::GeomID(OD::Geom3D) );

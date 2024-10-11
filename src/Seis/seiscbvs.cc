@@ -220,7 +220,7 @@ od_int64 CBVSSeisTrcTranslator::getFileSize() const
     od_int64 totalsz = 0;
     if ( File::isDirectory(filenm) )
     {
-	const DirList dl( filenm.buf(), File::FilesInDir );
+	const DirList dl( filenm.buf(), File::DirListType::FilesInDir );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    const FilePath filepath = dl.fullPath( idx );
@@ -281,7 +281,7 @@ bool CBVSSeisTrcTranslator::haveAux( const char* ext ) const
     if ( !File::isDirectory(filenm) )
 	return File::exists( fp.fullPath() );
 
-    const DirList dl( filenm.buf(), File::FilesInDir );
+    const DirList dl( filenm.buf(), File::DirListType::FilesInDir );
     return dl.isPresent( fp.fullPath() );
 }
 
@@ -333,7 +333,7 @@ bool CBVSSeisTrcTranslator::initRead_()
 	const FilePath basefp( fnm );
 	BufferString filemask( "*", basefp.baseName().buf(), "^*.cbvs");
 	const DirList dl( basefp.pathOnly().buf(),
-			  File::FilesInDir, filemask.buf());
+			  File::DirListType::FilesInDir, filemask.buf());
 	if ( dl.size() != nrfiles-1 )
 	{
 	    objstatus_ = IOObj::Status::FileNotPresent;

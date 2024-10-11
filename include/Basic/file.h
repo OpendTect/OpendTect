@@ -160,7 +160,7 @@ mGlobal(Basic) bool		setHiddenFileAttrib(const char*,bool yn);
 mGlobal(Basic) bool		setSystemFileAttrib(const char*,bool yn);
 				//!<only Windows local files
 
-enum DirListType		{ AllEntriesInDir, FilesInDir, DirsInDir };
+enum class DirListType		{ AllEntriesInDir, FilesInDir, DirsInDir };
 mGlobal(Basic) bool		listDir(const char*,DirListType,
 					BufferStringSet& fnames,
 					const char* mask=nullptr);

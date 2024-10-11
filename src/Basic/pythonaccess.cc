@@ -1031,7 +1031,7 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	else
 	{
 	    const DirList dl( FilePath(envsfp,"envs").fullPath().str(),
-			      File::DirsInDir );
+			      File::DirListType::DirsInDir );
 	    if ( dl.isPresent(envnm->str()) )
 	    {
 		pythonenvfp.add( new FilePath(envsfp) );
@@ -1053,7 +1053,7 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
     }
 
     const DirList dl( FilePath(envsfp,"envs").fullPath().str(),
-		      File::DirsInDir );
+		      File::DirListType::DirsInDir );
     BufferStringSet prioritydirs;
     TypeSet<int> prioritylist;
 
@@ -1062,7 +1062,7 @@ bool OD::PythonAccess::getSortedVirtualEnvironmentLoc(
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    const BufferString envpath( dl.fullPath( idx ) );
-	    const DirList priorityfiles( envpath, File::FilesInDir,
+	    const DirList priorityfiles( envpath, File::DirListType::FilesInDir,
 					 sKeyPriorityGlobExpr() );
 	    if ( !priorityfiles.isEmpty() )
 	    {
@@ -1177,7 +1177,7 @@ bool OD::PythonAccess::validInternalEnvironment( const FilePath& fp )
 	return false;
 
     const DirList dl( FilePath(pythfp,"envs").fullPath().str(),
-		      File::DirsInDir );
+		      File::DirListType::DirsInDir );
     for ( int idx=0; idx<dl.size(); idx++)
     {
 	FilePath envfp( dl.fullPath(idx) );
@@ -1291,7 +1291,7 @@ bool OD::PythonAccess::getInternalEnvironmentLocation( FilePath& fp,
     }
 
     fp.set( GetSoftwareDir(false) );
-    DirList dl( fp.pathOnly(), File::DirsInDir );
+    DirList dl( fp.pathOnly(), File::DirListType::DirsInDir );
     const BufferStringSet::idx_type defidx = dl.nearestMatch( "Python" );
     if ( dl.validIdx(defidx) )
 	dl.swap( 0, defidx );

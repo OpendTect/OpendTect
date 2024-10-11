@@ -40,7 +40,7 @@ static void getGrps( BufferStringSet& grps )
     if ( needdot ) msk += ".*";
     BufferString pythonstr(sKey::Python());
     pythonstr.toLower();
-    DirList dl( GetSettingsDir(), File::FilesInDir, msk );
+    const DirList dl( GetSettingsDir(), File::DirListType::FilesInDir, msk );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString fnm( dl.get(idx) );

@@ -120,8 +120,8 @@ bool TextTranslatorLanguage::load()
 
     FilePath basedir;
     TextTranslateMgr::GetLocalizationDir(basedir);
-    DirList dl( basedir.fullPath(), File::FilesInDir, filenamesearch.buf() );
-
+    const DirList dl( basedir.fullPath(), File::DirListType::FilesInDir,
+		      filenamesearch.buf() );
     for( int idx=0; idx<dl.size(); idx++ )
     {
 	const FilePath filepath = dl.fullPath( idx );
@@ -352,7 +352,7 @@ void loadLocalization()
 {
     FilePath basedir;
     TextTranslateMgr::GetLocalizationDir( basedir );
-    DirList dl( basedir.fullPath(), File::FilesInDir, "*.qm");
+    const DirList dl( basedir.fullPath(), File::DirListType::FilesInDir,"*.qm");
 
     QList<QLocale> allLocales = QLocale::matchingLocales(
             QLocale::AnyLanguage,

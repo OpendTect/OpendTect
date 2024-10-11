@@ -192,12 +192,14 @@ void uiColTabImport::usrSel( CallBacker* )
     else if ( imptype== PetrelAlut )
     {
 	BufferStringSet filenms;
-	File::listDir( fp.fullPath(), File::FilesInDir, filenms, "*.alut" );
+	File::listDir( fp.fullPath(), File::DirListType::FilesInDir,
+		       filenms, "*.alut" );
 	if ( filenms.isEmpty() )
 	{
 	    showMessage( tr("No *.alut files found in selected folder") );
 	    return;
 	}
+
 	getFromAlutFiles( filenms );
     }
 }

@@ -44,7 +44,7 @@ bool testRemoveDir( const char* path, bool expectedres )
 
     const FilePath fp( path );
     const BufferString dirnm = fp.dir();
-    const DirList dl( FilePath::getTempDir(), File::DirsInDir );
+    const DirList dl( FilePath::getTempDir(), File::DirListType::DirsInDir );
     if ( expectedres )
     {
 	bool missing = true;

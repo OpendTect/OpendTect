@@ -625,7 +625,8 @@ void ColTab::SeqMgr::readColTabs()
 
     // Read additional ColTabs.* files typically coming from plugin vendors
     FilePath defcoltabfp( fnm );
-    DirList auxfiles( defcoltabfp.pathOnly(), File::FilesInDir, "ColTabs.*" );
+    const DirList auxfiles( defcoltabfp.pathOnly(),
+			    File::DirListType::FilesInDir, "ColTabs.*" );
     for ( int idx=0; idx<auxfiles.size(); idx++ )
     {
 	od_istream auxstrm( auxfiles.fullPath(idx) );

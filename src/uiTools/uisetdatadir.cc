@@ -338,7 +338,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
     const char* retmsg = doSetRootDataDir( datadir );
     if ( !retmsg )
     {
-	const DirList survdl( datadir, File::DirsInDir );
+	const DirList survdl( datadir, File::DirListType::DirsInDir );
 	for ( int idx=0; idx<survdl.size(); idx++ )
 	{
 	    if ( IOMan::isValidSurveyDir(survdl.fullPath(idx)).isOK() )
@@ -401,7 +401,7 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	offerunzipsurv = true;
 	if ( !DirList(datadir).isEmpty() )
 	{
-	    const DirList survdl( datadir, File::DirsInDir );
+	    const DirList survdl( datadir, File::DirListType::DirsInDir );
 	    bool hasvalidsurveys = false;
 	    for ( int idx=0; idx<survdl.size(); idx++ )
 	    {

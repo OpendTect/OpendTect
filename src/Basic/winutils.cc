@@ -643,7 +643,7 @@ bool canHaveAppLocker()
                         CSIDL_SYSTEM), "AppLocker" );
 
     const DirList dl( applockercachefp.fullPath(),
-                      File::FilesInDir );
+                      File::DirListType::FilesInDir );
     return dl.isEmpty() ? WinUtils::serviceIsRunning("AppIDSvc")
                         : true;
 }

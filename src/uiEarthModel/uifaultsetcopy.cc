@@ -152,7 +152,8 @@ void uiCopyFaultSet::inpSelCB( CallBacker* )
 	return;
 
     surflist_->setEmpty();
-    DirList dl( selobj->fullUserExpr(), File::FilesInDir, "*.flt" );
+    const DirList dl( selobj->fullUserExpr(), File::DirListType::FilesInDir,
+		      "*.flt" );
     if ( dl.isEmpty() )
 	return;
 

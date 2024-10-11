@@ -47,7 +47,7 @@ bool doSurveySelection( SurveyDiskLocation& newsdl, uiParent* p,
 
 static bool isPotentialDataDir( const char* path )
 {
-    DirList surveydirlist( path, File::DirsInDir );
+    const DirList surveydirlist( path, File::DirListType::DirsInDir );
     for ( int idx=0; idx<surveydirlist.size(); idx++ )
     {
 	if ( IOMan::isValidSurveyDir(surveydirlist.fullPath(idx)).isOK() )

@@ -137,7 +137,8 @@ void uiStartBatchJobDialog::fillList( CallBacker* )
     NotifyStopper ns( jobsfld_->selectionChanged );
     jobsfld_->setEmpty();
     filenames_.setEmpty();
-    DirList dl( GetProcFileName(0), File::FilesInDir, "*.par" );
+    const DirList dl( GetProcFileName(0), File::DirListType::FilesInDir,
+		      "*.par" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	filenames_.add( dl.fullPath(idx) );

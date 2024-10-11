@@ -663,7 +663,8 @@ void uiSurfaceMan::mkFileInfo()
     }
     else if ( type_ == EM::ObjectType::FltSet )
     {
-	DirList dl( curioobj_->fullUserExpr(), File::FilesInDir, "*.flt" );
+	const DirList dl( curioobj_->fullUserExpr(),
+			  File::DirListType::FilesInDir, "*.flt" );
 	txt = "Nr Faults: ";
 	txt += dl.size();
 	txt += "\n";
@@ -961,7 +962,7 @@ uiFltSetMan( uiParent* p, const IOObj& ioobj )
 	uiStrings::phrManage( uiStrings::sFault(mPlural)),
 			      mODHelpKey(mFltSetManHelpID) ))
     , ioobj_(ioobj)
-    , dl_(ioobj.fullUserExpr(),File::FilesInDir,"*.flt")
+    , dl_(ioobj.fullUserExpr(),File::DirListType::FilesInDir,"*.flt")
 {
     setCtrlStyle( CloseOnly );
 

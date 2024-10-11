@@ -153,7 +153,7 @@ bool test2DSize( const IOObj& obj, od_ostream& strm )
     od_int64 totalsz = 0;
     if ( File::isDirectory(filenm) )
     {
-	const DirList dl( filenm.buf(), File::FilesInDir);
+	const DirList dl( filenm.buf(), File::DirListType::FilesInDir );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    const FilePath filepath = dl.fullPath( idx );

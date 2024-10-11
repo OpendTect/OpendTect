@@ -1038,7 +1038,8 @@ bool uiSEGYReadStarter::getFileSpec()
 	    mErrRet(uiStrings::phrSpecify(tr(
 			    "the absolute file name when using a wildcard.")) )
 
-	DirList dl( fp.pathOnly(), File::FilesInDir, fp.fileName() );
+	const DirList dl( fp.pathOnly(), File::DirListType::FilesInDir,
+			  fp.fileName() );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	    filespec_.fnames_.add( dl.fullPath(idx) );
 

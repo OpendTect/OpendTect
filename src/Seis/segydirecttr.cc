@@ -79,7 +79,7 @@ bool SEGYDirectPSIOProvider::getGeomIDs( const char* dirnm,
 					TypeSet<Pos::GeomID>& geomids ) const
 {
     geomids.erase();
-    DirList dl( dirnm, File::FilesInDir, "*.sgydef" );
+    const DirList dl( dirnm, File::DirListType::FilesInDir, "*.sgydef" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	BufferString filenm = dl.get( idx );

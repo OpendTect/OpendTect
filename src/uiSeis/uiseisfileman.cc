@@ -488,7 +488,7 @@ int uiSeisFileMan::getNrFiles( const char* filenm ) const
 
     if ( File::isDirectory(filenm) )
     {
-	DirList dl( filenm, File::FilesInDir );
+	const DirList dl( filenm, File::DirListType::FilesInDir );
 	for ( int idx=0; idx<dl.size(); idx++ )
 	{
 	    FilePath filepath = dl.fullPath( idx );

@@ -347,7 +347,7 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
     if ( !isSane(dir) )
 	return;
 
-    DirList files( dir, FilesInDir );
+    const DirList files( dir, DirListType::FilesInDir );
     for ( int idx=0; idx<files.size(); idx++ )
     {
 	if ( !followlinks )
@@ -356,7 +356,7 @@ void makeRecursiveFileList( const char* dir, BufferStringSet& filelist,
 	    filelist.addIfNew( files.fullPath(idx) );
     }
 
-    DirList dirs( dir, DirsInDir );
+    const DirList dirs( dir, DirListType::DirsInDir );
     for ( int idx=0; idx<dirs.size(); idx++ )
     {
 	BufferString curdir( dirs.fullPath(idx) );
@@ -870,7 +870,7 @@ bool isEmpty( const char* fnm )
     if ( isDirectory(fnm) )
     {
 	BufferStringSet fnames;
-	if ( !listDir(fnm,AllEntriesInDir,fnames) )
+	if ( !listDir(fnm,DirListType::AllEntriesInDir,fnames) )
 	    return false;
 
 	return fnames.isEmpty();
