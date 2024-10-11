@@ -48,9 +48,14 @@ public:
     bool		isForWrite() const
 			{ return selmode_==OD::SelectFileForWrite; }
     bool		isForDirectory() const
-			{ return selmode_==OD::SelectDirectory; }
+			{ return selmode_==OD::SelectDirectory ||
+				 selmode_==OD::SelectMultiDirectory; }
     bool		isSingle() const
-			{ return selmode_!=OD::SelectMultiFile; }
+			{ return selmode_!=OD::SelectMultiFile &&
+				 selmode_!=OD::SelectMultiDirectory; }
+    bool		isMulti() const
+			{ return selmode_==OD::SelectMultiFile ||
+				 selmode_==OD::SelectMultiDirectory; }
     bool		isForFile() const
 			{ return !isForDirectory(); }
     Setup&		setFileName( const char* fnm )
@@ -70,6 +75,12 @@ public:
 			{
 			    selmode_ = yn ? OD::SelectDirectory
 					  : OD::SelectFileForRead;
+			    return *this;
+			}
+    Setup&		selectMultiDirectory( bool yn=true )
+			{
+			    selmode_ = yn ? OD::SelectMultiDirectory
+					  : OD::SelectDirectory;
 			    return *this;
 			}
     Setup&		selectMultiFile( bool yn=true )
