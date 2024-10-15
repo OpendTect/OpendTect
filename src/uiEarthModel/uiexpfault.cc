@@ -220,6 +220,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ, bool isbulk )
 uiExportFault::~uiExportFault()
 {
     detachAllNotifiers();
+    uiexporthorizonhpmgr_.removeParam( this );
 }
 
 
@@ -260,18 +261,24 @@ void uiExportFault::zDomainBulkTypeChg(CallBacker*)
 {
     auto* bulkgrp = uiexporthorizonhpmgr_.getParam( this );
     const ZDomain::Info& zinfo = bulkgrp->zDomain();
-    zunitsel_->setUnit( UnitOfMeasure::zUnit(zinfo) );
+    zunitsel_->setUnit( UnitOfMeasure::zUnit(zinfo,false) );
 }
 
 
 void uiExportFault::inpSelChg( CallBacker* )
 {
     const IOObj* ioobj = infld_ ? infld_->ioobj( true ) : nullptr;
-    if ( ioobj )
-    {
-	const EM::IOObjInfo info( ioobj->key() );
-	zunitsel_->setUnit( info.getZUoM() );
-    }
+    if ( !ioobj )
+	return;
+
+    const EM::IOObjInfo info( ioobj->key() );
+    zunitsel_->setUnit( UnitOfMeasure::zUnit(info.zDomain(),false) );
+
+    const FilePath prevfnm( outfld_->fileName() );
+    FilePath fp( ioobj->mainFileName() );
+    fp.setExtension( prevfnm.isEmpty() ? outfld_->defaultExtension()
+				       : prevfnm.extension() );
+    outfld_->setFileName( fp.fileName() );
 }
 
 
@@ -286,19 +293,19 @@ static Coord3 getCoord( EM::EMObject* emobj, int stickidx, int knotidx )
 
 bool uiExportFault::getInputMIDs( TypeSet<MultiID>& midset )
 {
-    if ( !isbulk_ )
+    if ( isbulk_ )
+    {
+	auto* bulkgrp = uiexporthorizonhpmgr_.getParam( this );
+	bulkgrp->getSelectedMIDs( midset );
+    }
+    else
     {
 	const IOObj* ioobj = infld_->ioobj( false );
 	if ( !ioobj )
 	    return false;
 
-	MultiID mid = ioobj->key();
-	midset.add(mid);
-    }
-    else
-    {
-	auto* bulkgrp = uiexporthorizonhpmgr_.getParam( this );
-	bulkgrp->getSelectedMIDs( midset );
+	const MultiID mid = ioobj->key();
+	midset.add( mid );
     }
 
     return true;

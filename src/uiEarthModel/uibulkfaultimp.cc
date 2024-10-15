@@ -42,8 +42,6 @@ public:
     ~uiBulkFaultImportHP()
     {}
 
-
-
     void setStickSelFld( uiGenInput* fld )
     {
 	stickselfld_ = fld;
@@ -238,7 +236,6 @@ uiBulkFaultImport::uiBulkFaultImport(uiParent* p)
     , is2dfss_(false)
 {
     bfi_hpmgr_.setParam( this, new uiBulkFaultImportHP );
-
     init();
 }
 
