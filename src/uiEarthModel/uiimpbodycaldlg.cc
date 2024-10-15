@@ -29,14 +29,15 @@ class HP_uiImplBodyCalDlg
 {
 mOD_DisableCopy(HP_uiImplBodyCalDlg)
 public:
-HP_uiImplBodyCalDlg()	{}
-~HP_uiImplBodyCalDlg()	{}
+				HP_uiImplBodyCalDlg()	{}
+				~HP_uiImplBodyCalDlg()	{}
 
     uiUnitSel*		unitfld_		= nullptr;
     float		volumeinm3_		= mUdf(float);
 };
 
-static HiddenParam<uiImplBodyCalDlg,HP_uiImplBodyCalDlg*> hp( nullptr );
+static HiddenParam<uiImplBodyCalDlg,HP_uiImplBodyCalDlg*>
+						uiimpbodyhpmgr_( nullptr );
 
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
@@ -68,13 +69,13 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     volfld_->setReadOnly( true );
     volfld_->attach( alignedBelow, calcbut );
 
-    hp.setParam( this, new HP_uiImplBodyCalDlg() );
+    uiimpbodyhpmgr_.setParam( this, new HP_uiImplBodyCalDlg() );
 
     auto* unitfld = new uiUnitSel( this, Mnemonic::Vol );
     unitfld->setUnit( UoMR().get(SI().depthsInFeet() ? "ft3" : "m3") );
     mAttachCB( unitfld->selChange, uiImplBodyCalDlg::unitChgCB );
     unitfld->attach( rightOf, volfld_ );
-    hp.getParam(this)->unitfld_ = unitfld;
+    uiimpbodyhpmgr_.getParam(this)->unitfld_ = unitfld;
 }
 
 
@@ -82,7 +83,7 @@ uiImplBodyCalDlg::~uiImplBodyCalDlg()
 {
     detachAllNotifiers();
     delete impbody_;
-    hp.removeAndDeleteParam( this );
+    uiimpbodyhpmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -107,7 +108,7 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 	    vel *= mFromFeetFactorF;
     }
 
-    float& volumeinm3 = hp.getParam(this)->volumeinm3_;
+    float& volumeinm3 = uiimpbodyhpmgr_.getParam(this)->volumeinm3_;
     volumeinm3 = mUdf(float);
     uiTaskRunner taskrunner(this);
     BodyVolumeCalculator bc( impbody_->tkzs_, *impbody_->arr_,
@@ -122,7 +123,7 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 
 void uiImplBodyCalDlg::unitChgCB( CallBacker* )
 {
-    const auto* extra = hp.getParam(this);
+    const auto* extra = uiimpbodyhpmgr_.getParam(this);
     BufferString txt;
     const UnitOfMeasure* uom = extra->unitfld_->getUnit();
     if ( uom && !mIsUdf(extra->volumeinm3_) )

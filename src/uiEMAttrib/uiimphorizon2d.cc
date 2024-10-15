@@ -48,9 +48,10 @@ ________________________________________________________________________
 class UserInputGroup : public uiGroup
 { mODTextTranslationClass(UserInputGroup)
 public:
-UserInputGroup( uiParent* p, Table::FormatDesc& fd )
+UserInputGroup( uiParent* p, Table::FormatDesc& fd, Horizon2DScanner*& scanner )
     : uiGroup(p,"Display Group")
     , fd_(fd)
+    , scanner_(scanner)
     , descChanged(this)
     , scanButtonPushed(this)
 {
@@ -59,21 +60,21 @@ UserInputGroup( uiParent* p, Table::FormatDesc& fd )
     mAttachCB( inpfld_->valueChanged, UserInputGroup::inputChgCB );
 
     zdomselfld_ = new uiGenInput( this, tr("Horizon is in"),
-		BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
+		    BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
     zdomselfld_->attach( alignedBelow, inpfld_ );
     zdomselfld_->setValue( SI().zIsTime() );
     mAttachCB( zdomselfld_->valueChanged, UserInputGroup::zDomainCB );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-		mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
+				mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
     dataselfld_->attach( alignedBelow, zdomselfld_ );
     mAttachCB( dataselfld_->descChanged, UserInputGroup::descChg );
 
     scanbut_ = new uiPushButton( this, tr("Scan Input Files"),
-		mCB(this,UserInputGroup,scanPush), false );
+				 mCB(this,UserInputGroup,scanPush), false );
     scanbut_->attach( alignedBelow, dataselfld_ );
 
-    uiSeparator* sep = new uiSeparator( this );
+    auto* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, scanbut_ );
 
     BufferStringSet udftreatments;
@@ -139,6 +140,7 @@ const char* getFileName() const
     return inpfld_->fileName();
 }
 
+
 bool commitChanges()
 {
     return dataselfld_->commit();
@@ -151,7 +153,7 @@ int getUdfChoice() const
 }
 
 
-protected:
+private:
 
 bool isASCIIFileInTime() const
 {
@@ -180,14 +182,6 @@ void descChg( CallBacker* )
 
 void inputChgCB( CallBacker* cb )
 {
-    const StringView fnmstr = inpfld_->fileName();
-    const FilePath fnmfp( fnmstr );
-    timeoutputfld_->setInputText( fnmfp.baseName() );
-    depthoutputfld_->setInputText( fnmfp.baseName() );
-
-    BufferStringSet hornms;
-    dataselfld_->setSensitive( true );
-    scanbut_->setSensitive( !fnmstr.isEmpty() );
     const bool keepdef = cb==inpfld_ && fd_.isGood();
     if ( !keepdef )
     {
@@ -195,6 +189,15 @@ void inputChgCB( CallBacker* cb )
 		isASCIIFileInTime() ? ZDomain::Time() : ZDomain::Depth() );
 	dataselfld_->updateSummary();
     }
+
+    dataselfld_->setSensitive( true );
+    const StringView fnmstr = inpfld_->fileName();
+    scanbut_->setSensitive( !fnmstr.isEmpty() );
+    deleteAndNullPtr( scanner_ );
+
+    const FilePath fnmfp( fnmstr );
+    timeoutputfld_->setInputText( fnmfp.baseName() );
+    depthoutputfld_->setInputText( fnmfp.baseName() );
 }
 
 
@@ -224,6 +227,7 @@ private:
     uiIOObjSel*			timeoutputfld_;
     uiIOObjSel*			depthoutputfld_;
     Table::FormatDesc&		fd_;
+    Horizon2DScanner*&		scanner_;
 
 public:
     Notifier<UserInputGroup>	descChanged;
@@ -245,9 +249,6 @@ Horizon2DImporter( const BufferStringSet& lnms, EM::Horizon2D& hor,
     , linenames_(lnms)
     , hor_(&hor)
     , bvalset_(valset)
-    , curlinegeom_(0)
-    , nrdone_(0)
-    , prevlineidx_(-1)
     , udftreat_(udftreat)
 {
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
@@ -266,6 +267,8 @@ uiString uiNrDoneText() const override
 
 od_int64 nrDone() const override
 { return nrdone_; }
+
+private:
 
 int nextStep() override
 {
@@ -359,22 +362,22 @@ void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
     }
 }
 
-protected:
-
     const BufferStringSet&	linenames_;
     EM::Horizon2D*		hor_;
     const BinIDValueSet*	bvalset_;
     TypeSet<Pos::GeomID>	geomids_;
-    const Survey::Geometry2D*	curlinegeom_;
-    int				nrdone_;
+    const Survey::Geometry2D*	curlinegeom_	= nullptr;
+    int				nrdone_		= 0;
     TypeSet<int>		prevtrcnrs_;
     TypeSet<float>		prevtrcvals_;
-    int				prevlineidx_;
+    int				prevlineidx_	= 1;
     BinIDValueSet::SPos		pos_;
     UndefTreat			udftreat_;
 };
 
+
 //uiImportHorizon2D
+
 static HiddenParam<uiImportHorizon2D,UserInputGroup*>
 					hp_uiimporthorizon2d(nullptr);
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
@@ -389,9 +392,9 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 
-    auto* userinpgrp = new UserInputGroup( this, fd_ );
-    mAttachCB(userinpgrp->descChanged,uiImportHorizon2D::descChg);
-    mAttachCB(userinpgrp->scanButtonPushed,uiImportHorizon2D::scanPush);
+    auto* userinpgrp = new UserInputGroup( this, fd_, scanner_ );
+    mAttachCB( userinpgrp->descChanged, uiImportHorizon2D::descChg );
+    mAttachCB( userinpgrp->scanButtonPushed, uiImportHorizon2D::scanPush );
     hp_uiimporthorizon2d.setParam( this, userinpgrp );
 }
 
@@ -402,13 +405,13 @@ uiImportHorizon2D::~uiImportHorizon2D()
     delete &linesetnms_;
     deepErase( horinfos_ );
     hp_uiimporthorizon2d.removeParam( this );
+    delete scanner_;
 }
 
 
 void uiImportHorizon2D::zDomainCB( CallBacker* )
 {
 }
-
 
 
 void uiImportHorizon2D::descChg( CallBacker* )
@@ -584,7 +587,7 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return 0; }
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 {
@@ -607,4 +610,6 @@ bool uiImportHorizon2D::checkInpFlds()
 
 
 void uiImportHorizon2D::getEMObjIDs( TypeSet<EM::ObjectID>& ids ) const
-{ ids = emobjids_; }
+{
+    ids = emobjids_;
+}

@@ -369,7 +369,15 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     uiexporthorizonhpmgr_.setParam( this, nullptr );
 
     uiObject* attachobj = nullptr;
-    if ( !isbulk )
+    if ( isbulk )
+    {
+	auto* bulkgrp = new uiBulkHorHandlerGroup( this );
+	mAttachCB( bulkgrp->zdomtypupdated,
+		   uiExportHorizon::zDomainBulkTypeChg );
+	attachobj = bulkgrp->attachObj();
+	uiexporthorizonhpmgr_.setParam( this, bulkgrp );
+    }
+    else
     {
 	infld_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
 				    EMHorizon3DTranslatorGroup::sGroupName())
@@ -377,14 +385,6 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 	mAttachCB( infld_->inpChange, uiExportHorizon::inpSel );
 	mAttachCB( infld_->attrSelChange, uiExportHorizon::attrSel );
 	attachobj = infld_->attachObj();
-    }
-    else
-    {
-	auto* bulkgrp = new uiBulkHorHandlerGroup( this );
-	mAttachCB( bulkgrp->zdomtypupdated,
-					uiExportHorizon::zDomainBulkTypeChg );
-	attachobj = bulkgrp->attachObj();
-	uiexporthorizonhpmgr_.setParam( this, bulkgrp );
     }
 
     typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
@@ -543,13 +543,11 @@ bool uiExportHorizon::writeAscii()
     if ( udfstr.isEmpty() )
 	udfstr = sKey::FloatUdf();
 
-    BufferString basename = outfld_->fileName();
-
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
     uiString errmsg;
-    BufferString fname( basename );
-    od_ostream stream( fname );
+    const BufferString outfnm = outfld_->fileName();
+    od_ostream stream( outfnm.buf() );
     if ( stream.isBad() )
 	mErrRet( uiStrings::sCantOpenOutpFile() );
 
@@ -656,11 +654,11 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 }
 
 
-void uiExportHorizon::zDomainBulkTypeChg(CallBacker*)
+void uiExportHorizon::zDomainBulkTypeChg( CallBacker* )
 {
     auto* bulkgrp = uiexporthorizonhpmgr_.getParam( this );
     const ZDomain::Info& zinfo = bulkgrp->zDomain();
-    unitsel_->setUnit( UnitOfMeasure::zUnit(zinfo) );
+    unitsel_->setUnit( UnitOfMeasure::zUnit(zinfo,false) );
 }
 
 
@@ -706,12 +704,18 @@ void uiExportHorizon::typChg( CallBacker* cb )
 void uiExportHorizon::inpSel( CallBacker* )
 {
     const IOObj* ioobj = infld_ ? infld_->selIOObj() : nullptr;
-    if ( ioobj )
-    {
-	gfname_ = ioobj->name();
-	EM::IOObjInfo info( ioobj->key() );
-	unitsel_->setUnit( info.getZUoM() );
-    }
+    if ( !ioobj )
+	return;
+
+    gfname_ = ioobj->name();
+    const EM::IOObjInfo info( ioobj->key() );
+    unitsel_->setUnit( UnitOfMeasure::zUnit(info.zDomain(),false) );
+
+    const FilePath prevfnm( outfld_->fileName() );
+    FilePath fp( ioobj->mainFileName() );
+    fp.setExtension( prevfnm.isEmpty() ? outfld_->defaultExtension()
+				       : prevfnm.extension() );
+    outfld_->setFileName( fp.fileName() );
 }
 
 
