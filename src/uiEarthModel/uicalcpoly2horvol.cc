@@ -41,8 +41,8 @@ class HP_uiCalcHorVol
 {
 mOD_DisableCopy(HP_uiCalcHorVol)
 public:
-HP_uiCalcHorVol()	{}
-~HP_uiCalcHorVol()	{}
+				HP_uiCalcHorVol()	{}
+				~HP_uiCalcHorVol()	{}
 
     uiGenInput*		areafld_		= nullptr;
     uiUnitSel*		areaunitfld_		= nullptr;
@@ -52,7 +52,7 @@ HP_uiCalcHorVol()	{}
     float		volumeinm3_		= mUdf(float);
 };
 
-static HiddenParam<uiCalcHorVol,HP_uiCalcHorVol*> hp( nullptr );
+static HiddenParam<uiCalcHorVol,HP_uiCalcHorVol*> uicalchorhpmgr_( nullptr );
 
 
 uiCalcHorVol::uiCalcHorVol( uiParent* p,const uiString& dlgtxt )
@@ -62,14 +62,14 @@ uiCalcHorVol::uiCalcHorVol( uiParent* p,const uiString& dlgtxt )
 {
     setCtrlStyle( CloseOnly );
 
-    hp.setParam( this, new HP_uiCalcHorVol() );
+    uicalchorhpmgr_.setParam( this, new HP_uiCalcHorVol() );
 }
 
 
 uiCalcHorVol::~uiCalcHorVol()
 {
     detachAllNotifiers();
-    hp.removeAndDeleteParam( this );
+    uicalchorhpmgr_.removeAndDeleteParam( this );
 }
 
 
@@ -122,7 +122,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     mAttachCB( volumeunitfld->selChange, uiCalcHorVol::unitChgCB );
     volumeunitfld->attach( rightOf, valfld_ );
 
-    auto* extra = hp.getParam( this );
+    auto* extra = uicalchorhpmgr_.getParam( this );
     extra->areafld_ = areafld;
     extra->areaunitfld_ = areaunitfld;
     extra->volumeunitfld_ = volumeunitfld;
@@ -135,7 +135,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 void uiCalcHorVol::unitChgCB( CallBacker* cb )
 {
     CallBacker* caller = cb ? cb->trueCaller() : nullptr;
-    auto* extra = hp.getParam( this );
+    auto* extra = uicalchorhpmgr_.getParam( this );
     BufferString txt;
     if ( caller && caller==extra->volumeunitfld_ )
     {
@@ -189,7 +189,7 @@ void uiCalcHorVol::calcReq( CallBacker* )
 	    vel *= mFromFeetFactorF;
     }
 
-    auto* extra = hp.getParam( this );
+    auto* extra = uicalchorhpmgr_.getParam( this );
     const bool allownegativevalues = !optsfld_->isChecked( 0 );
     const bool upward = optsfld_->isChecked( 1 );
     Poly2HorVol ph2v( ps, const_cast<EM::Horizon3D*>(hor) );

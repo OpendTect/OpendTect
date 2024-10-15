@@ -179,6 +179,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 uiImportHorizon::~uiImportHorizon()
 {
     detachAllNotifiers();
+    delete scanner_;
     delete interpol_;
 }
 
@@ -236,8 +237,8 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 	EM::Horizon3DAscIO::updateDesc( fd_, attrnms );
 	dataselfld_->updateSummary();
     }
-    dataselfld_->setSensitive( nrattrib );
 
+    dataselfld_->setSensitive( nrattrib );
     const StringView fnm = inpfld_->fileName();
     scanbut_->setSensitive( !fnm.isEmpty() && nrattrib );
     if ( !scanner_ )
@@ -246,11 +247,8 @@ void uiImportHorizon::inputChgd( CallBacker* cb )
 	if ( filludffld_ )
 	    filludffld_->setSensitive( false );
     }
-    else
-    {
-	delete scanner_;
-	scanner_ = nullptr;
-    }
+
+    deleteAndNullPtr( scanner_ );
 
     FilePath fnmfp( fnm );
     SetImportFromDir( fnmfp.pathOnly() );

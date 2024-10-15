@@ -178,7 +178,9 @@ void uiFileInput::enableExamine( bool yn )
 
 
 void uiFileInput::setDefaultExtension( const char* ext )
-{ defaultext_ = ext; }
+{
+    defaultext_ = ext;
+}
 
 
 void uiFileInput::inputChg( CallBacker* )
@@ -427,7 +429,8 @@ static uiFileInput::Setup getSetup( bool forread )
 uiASCIIFileInput::uiASCIIFileInput( uiParent* p, bool forread )
     : uiFileInput(p,getLabel(forread),getSetup(forread))
 {
-    mAttachCB( valuechanged, uiASCIIFileInput::fileSelCB );
+    setDefaultExtension( "txt" );
+    mAttachCB( valueChanged, uiASCIIFileInput::fileSelCB );
 }
 
 
@@ -435,7 +438,8 @@ uiASCIIFileInput::uiASCIIFileInput( uiParent* p, const uiString& lbl,
 				    bool forread )
     : uiFileInput(p,lbl,getSetup(forread))
 {
-    mAttachCB( valuechanged, uiASCIIFileInput::fileSelCB );
+    setDefaultExtension( "txt" );
+    mAttachCB( valueChanged, uiASCIIFileInput::fileSelCB );
 }
 
 

@@ -106,28 +106,28 @@ class uiHorHandlerGroup : public uiGroup
 public:
     uiHorHandlerGroup( uiParent* p, bool isbulk )
 	: uiGroup(p,"Horizon List Group")
+	, isbulk_(isbulk)
 	, zdomtypupdated(this)
 	, horselpupdated(this)
-	, isbulk_(isbulk)
     {
 	const char* surftype = EMHorizon2DTranslatorGroup::sGroupName();
 	if ( isbulk )
 	{
 	    horzdomypefld_ = new uiGenInput( this, tr("Depth Domain"),
-		BoolInpSpec(true, uiStrings::sTime(),
-		uiStrings::sDepth()) );
+					BoolInpSpec(true, uiStrings::sTime(),
+					uiStrings::sDepth()) );
 	    mAttachCB( horzdomypefld_->valueChanged,
 					uiHorHandlerGroup::zDomainTypeChg );
 
 	    auto* multigrp = new uiGroup( this, "Multi Surface Read" );
 	    multigrp->attach( alignedBelow, horzdomypefld_ );
 	    const ZDomain::Info& depthinfo = SI().depthsInFeet() ?
-		ZDomain::DepthFeet() : ZDomain::DepthMeter();
+				ZDomain::DepthFeet() : ZDomain::DepthMeter();
 	    multisurfdepthread_ = new uiMultiSurfaceRead( multigrp, surftype,
-		&depthinfo );
+							  &depthinfo );
 	    multisurfdepthread_->display( false );
 	    multisurftimeread_ = new uiMultiSurfaceRead( multigrp, surftype,
-		&ZDomain::TWT() );
+							 &ZDomain::TWT() );
 	    multisurftimeread_->display( true );
 	}
 	else
@@ -137,12 +137,11 @@ public:
 	    surfread_ = new uiSurfaceRead( this, su, nullptr );
 	    mAttachCB( surfread_->inpChange, uiHorHandlerGroup::horChg );
 
-	    uiListBox::Setup listbxsu( OD::ChooseZeroOrMore,
+	    const uiListBox::Setup listbxsu( OD::ChooseZeroOrMore,
 		uiStrings::phrSelect(uiStrings::sLine(mPlural).toLower()) );
 	    linenmfld_ = new uiListBox( this, listbxsu );
 	    linenmfld_->attach( alignedBelow, surfread_ );
 	}
-
     }
 
 
@@ -207,8 +206,8 @@ public:
     }
 
 
-    bool fillHorInfo( ManagedObjectSet<HorInfo>& horinfos, od_uint32& maxhornm,
-						od_uint32& maxlinenm )
+    bool fillHorInfo( ObjectSet<HorInfo>& horinfos, od_uint32& maxhornm,
+		      od_uint32& maxlinenm )
     {
 	TypeSet<MultiID> mids;
 	getSelectedMIDs( mids );
@@ -312,14 +311,17 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 			const ObjectSet<SurfaceInfo>& hinfos, bool isbulk )
     : uiDialog(p,uiDialog::Setup( uiStrings::phrExport( tr("2D Horizon") ),
 	       mNoDlgTitle, mODHelpKey(mExportHorizonHelpID) ))
-    , hinfos_(hinfos)
     , isbulk_(isbulk)
+    , doconvfld_(nullptr) //unused
+    , transfld_(nullptr)  //unused
+    , bulkinfld_(nullptr) //unused
 {
+    deepCopy( hinfos_, hinfos );
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
     auto* surfread = new uiHorHandlerGroup( this, isbulk_ );
     if ( isbulk_ )
 	mAttachCB( surfread->zdomtypupdated,
-				    uiExport2DHorizon::zDomTypeUpdatedCB );
+		   uiExport2DHorizon::zDomTypeUpdatedCB );
     else
 	mAttachCB( surfread->horselpupdated, uiExport2DHorizon::horChg );
 
@@ -366,8 +368,8 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 uiExport2DHorizon::~uiExport2DHorizon()
 {
     detachAllNotifiers();
+    uiexport2dhorizonhpmgr_.removeParam( this );
     deepErase( hinfos_ );
-    uiexport2dhorizonhpmgr_.deleteAndNullPtrParam( this );
 }
 
 
@@ -380,9 +382,8 @@ void uiExport2DHorizon::zDomTypeUpdatedCB( CallBacker* )
 {
     auto* surfread = uiexport2dhorizonhpmgr_.getParam( this );
     const ZDomain::Info& zdom = surfread->zDomain();
-    unitsel_->setUnit( UnitOfMeasure::zUnit(zdom) );
+    unitsel_->setUnit( UnitOfMeasure::zUnit(zdom,false) );
 }
-
 
 
 bool uiExport2DHorizon::doExport()
@@ -660,14 +661,17 @@ void uiExport2DHorizon::horChg( CallBacker* )
 
     PtrMan<IOObj> selobj = IOM().get( mids.first() );
     EM::SurfaceIOData emdata;
-    EM::IOObjInfo oi( *selobj );
+    const EM::IOObjInfo oi( *selobj );
     uiString errmsg;
     if ( !oi.getSurfaceData(emdata,errmsg) )
 	return;
 
-    unitsel_->setUnit( oi.getZUoM() );
-    const FilePath fp( selobj->mainFileName() );
-    outfld_->setFileName( fp.baseName() );
+    unitsel_->setUnit( UnitOfMeasure::zUnit(oi.zDomain(),false) );
+    const FilePath prevfnm( outfld_->fileName() );
+    FilePath fp( selobj->mainFileName() );
+    fp.setExtension( prevfnm.isEmpty() ? outfld_->defaultExtension()
+				       : prevfnm.extension() );
+    outfld_->setFileName( fp.fileName() );
 }
 
 

@@ -451,8 +451,7 @@ void uiIOObjSel::fillEntries()
 
     const bool hadselioobj = workctio_.ioobj_;
 
-    const IODir iodir ( inctio_.ctxt_.getSelKey() );
-    IODirEntryList del( iodir, inctio_.ctxt_ );
+    const IODir iodir( inctio_.ctxt_.getSelKey() );
     BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
     {
@@ -460,10 +459,12 @@ void uiIOObjSel::fillEntries()
 	names.add( "" );
     }
 
-    for ( int idx=0; idx<del.size(); idx++ )
+    const IODirEntryList entries( iodir, inctio_.ctxt_ );
+    for ( const auto* entry : entries )
     {
-	const IOObj* obj = del[idx]->ioobj_;
-	if ( !obj ) continue;
+	const IOObj* obj = entry->ioobj_;
+	if ( !obj )
+	    continue;
 
 	keys.add( obj->key().toString() );
 	names.add( obj->name().buf() );

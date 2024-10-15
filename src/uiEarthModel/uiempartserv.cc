@@ -356,7 +356,7 @@ void uiEMPartServer::importReadyCB( CallBacker* cb )
 
 bool uiEMPartServer::export2DHorizon( bool bulk )
 {
-    ObjectSet<SurfaceInfo> hinfos;
+    ManagedObjectSet<SurfaceInfo> hinfos;
     getAllSurfaceInfo_( hinfos, true );
     delete exp2dhordlg_;
     exp2dhordlg_ = new uiExport2DHorizon( parent(), hinfos, bulk );
