@@ -1231,6 +1231,9 @@ void uiD2TModelDlg::dtpointChangedCB( CallBacker* )
 void uiD2TModelDlg::dtpointAddedCB( CallBacker* )
 {
     const int row = tbl_->newCell().row();
+    if ( row<0 )
+	return;
+
     mdvalsd2tdlgmgr_.getParam( this )->insert( row, mUdf(double) );
     tvalsd2tdlgmgr_.getParam( this )->insert( row, mUdf(double) );
 }
