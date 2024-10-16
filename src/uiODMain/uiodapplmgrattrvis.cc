@@ -192,11 +192,17 @@ void uiODApplMgrAttrVisHandler::pageUpDownPressed( bool pageup )
     if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
 	return;
 
+    const int nrtextures = am_.visserv_->nrTextures( visid, attrib );
     int texture = am_.visserv_->selectedTexture( visid, attrib );
-    if ( texture<am_.visserv_->nrTextures(visid,attrib)-1 && !pageup )
-	texture++;
-    else if ( texture && pageup )
+    if ( pageup )
 	texture--;
+    else
+	texture++;
+
+    if ( texture<0 )
+	texture = nrtextures-1;
+    else if ( texture>=nrtextures )
+	texture = 0;
 
     am_.visserv_->selectTexture( visid, attrib, texture );
     updateColorTable( visid, attrib );
