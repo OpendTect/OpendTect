@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "emsurfacetr.h"
 #include "file.h"
+#include "filepath.h"
 #include "horizon2dscanner.h"
 #include "ioman.h"
 #include "od_helpids.h"
@@ -51,11 +52,8 @@ Horizon2DImporter( const BufferStringSet& lnms, EM::Horizon2D& hor,
 		   const BinIDValueSet* valset, UndefTreat udftreat )
     : Executor("2D Horizon Importer")
     , linenames_(lnms)
-    , curlinegeom_(0)
     , hor_(&hor)
     , bvalset_(valset)
-    , prevlineidx_(-1)
-    , nrdone_(0)
     , udftreat_(udftreat)
 {
     for ( int lineidx=0; lineidx<lnms.size(); lineidx++ )
@@ -74,6 +72,8 @@ uiString uiNrDoneText() const override
 
 od_int64 nrDone() const override
 { return nrdone_; }
+
+private:
 
 int nextStep() override
 {
@@ -167,21 +167,21 @@ void interpolateAndSetVals( int hidx, Pos::GeomID geomid, int curtrcnr,
     }
 }
 
-protected:
-
     const BufferStringSet&	linenames_;
     RefMan<EM::Horizon2D>	hor_;
     const BinIDValueSet*	bvalset_;
     TypeSet<Pos::GeomID>	geomids_;
-    const Survey::Geometry2D*	curlinegeom_;
-    int				nrdone_;
+    const Survey::Geometry2D*	curlinegeom_	= nullptr;
+    int				nrdone_		= 0;
     TypeSet<int>		prevtrcnrs_;
     TypeSet<float>		prevtrcvals_;
-    int				prevlineidx_;
+    int				prevlineidx_	= -1;
     BinIDValueSet::SPos		pos_;
     UndefTreat			udftreat_;
 };
 
+
+// uiImportHorizon2D
 
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Import 2D Horizon"),mNoDlgTitle,
@@ -198,13 +198,13 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     mAttachCB( inpfld_->valueChanged, uiImportHorizon2D::inpChgCB );
 
     zdomselfld_ = new uiGenInput( this, tr("Horizon is in"),
-	BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
+		    BoolInpSpec(true,uiStrings::sTime(),uiStrings::sDepth()) );
     zdomselfld_->attach( alignedBelow, inpfld_ );
     zdomselfld_->setValue( SI().zIsTime() );
     mAttachCB(zdomselfld_->valueChanged,uiImportHorizon2D::zDomainCB);
 
     dataselfld_ = new uiTableImpDataSel( this, fd_,
-			mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
+			    mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
     dataselfld_->attach( alignedBelow, zdomselfld_ );
     mAttachCB(dataselfld_->descChanged,uiImportHorizon2D::descChgCB);
 
@@ -212,7 +212,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 				 mCB(this,uiImportHorizon2D,scanPushCB), false);
     scanbut_->attach( alignedBelow, dataselfld_ );
 
-    uiSeparator* sep = new uiSeparator( this );
+    auto* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, scanbut_ );
 
     BufferStringSet udftreatments;
@@ -226,18 +226,20 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     timeoutputfld_->setLabelText(  tr("Output time horizon") );
     timeoutputfld_->attach( alignedBelow, udftreatfld_ );
 
-    const ZDomain::Info& depthinfo = SI().zInFeet() ? ZDomain::DepthFeet() :
-	ZDomain::DepthMeter();
+    const ZDomain::Info& depthinfo = SI().zInFeet() ? ZDomain::DepthFeet()
+						    : ZDomain::DepthMeter();
     depthoutputfld_ = new uiHorizonSel( this, true, &depthinfo, false );
     depthoutputfld_->setLabelText( tr("Output depth horizon") );
     depthoutputfld_->attach( alignedBelow, udftreatfld_ );
-    mAttachCB(postFinalize(),uiImportHorizon2D::zDomainCB);
+
+    mAttachCB( postFinalize(), uiImportHorizon2D::zDomainCB );
 }
 
 
 uiImportHorizon2D::~uiImportHorizon2D()
 {
     detachAllNotifiers();
+    delete scanner_;
 }
 
 
@@ -257,16 +259,12 @@ void uiImportHorizon2D::zDomainCB( CallBacker* )
 
 void uiImportHorizon2D::descChgCB( CallBacker* )
 {
-    delete scanner_;
-    scanner_ = nullptr;
+    deleteAndNullPtr( scanner_ );
 }
 
 
 void uiImportHorizon2D::inpChgCB( CallBacker* cb )
 {
-    BufferStringSet hornms;
-    dataselfld_->setSensitive( true );
-    scanbut_->setSensitive( *inpfld_->fileName() );
     const bool keepdef = cb==inpfld_ && fd_.isGood();
     if ( !keepdef )
     {
@@ -274,6 +272,15 @@ void uiImportHorizon2D::inpChgCB( CallBacker* cb )
 		isASCIIFileInTime() ? ZDomain::Time() : ZDomain::Depth() );
 	dataselfld_->updateSummary();
     }
+
+    dataselfld_->setSensitive( true );
+    const StringView fnmstr = inpfld_->fileName();
+    scanbut_->setSensitive( !fnmstr.isEmpty() );
+    deleteAndNullPtr( scanner_ );
+
+    const FilePath fnmfp( fnmstr );
+    timeoutputfld_->setInputText( fnmfp.baseName() );
+    depthoutputfld_->setInputText( fnmfp.baseName() );
 }
 
 
@@ -438,7 +445,7 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return 0; }
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 {

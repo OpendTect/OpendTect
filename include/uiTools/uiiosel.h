@@ -25,25 +25,21 @@ class uiComboBox;
 */
 
 mExpClass(uiTools) uiIOSelect : public uiGroup
-{ mODTextTranslationClass(uiIOSelect);
+{
+mODTextTranslationClass(uiIOSelect)
 public:
 
     mExpClass(uiTools) Setup
     {
     public:
-			Setup(const uiString& seltext=uiString::emptyString())
-			    : seltxt_(seltext)
-			    , withclear_(false)
-			    , buttontxt_(uiStrings::sSelect())
-			    , optional_(false)
-			    , keepmytxt_(false)		{}
-	virtual		~Setup()			{}
+			Setup(const uiString& seltext=uiString::empty());
+	virtual		~Setup();
 
-	mDefSetupMemb(uiString,seltxt)
-	mDefSetupMemb(uiString,buttontxt)
-	mDefSetupMemb(bool,withclear)
-	mDefSetupMemb(bool,optional)
-	mDefSetupMemb(bool,keepmytxt)
+	mDefSetupMemb(uiString,seltxt)		//!< empty
+	mDefSetupMemb(uiString,buttontxt)	//!< Select
+	mDefSetupMemb(bool,withclear)		//!< false
+	mDefSetupMemb(bool,optional)		//!< false
+	mDefSetupMemb(bool,keepmytxt)		//!< false
     };
 
 			uiIOSelect(uiParent*,const Setup&,const CallBack&);
@@ -105,10 +101,10 @@ protected:
     CallBack		doselcb_;
 
     uiComboBox*		inp_;
-    uiButton*		selbut_;
+    uiButton*		selbut_		= nullptr;
     ObjectSet<uiButton>	extselbuts_;
-    uiLabel*		lbl_;
-    uiCheckBox*		optbox_;
+    uiLabel*		lbl_		= nullptr;
+    uiCheckBox*		optbox_		= nullptr;
 
     void		optCheck(CallBacker*);
     void		selDone(CallBacker*);
@@ -132,11 +128,12 @@ protected:
 
 
 mExpClass(uiTools) uiIOFileSelect : public uiIOSelect
-{ mODTextTranslationClass(uiIOFileSelect);
+{
+mODTextTranslationClass(uiIOFileSelect)
 public:
 			uiIOFileSelect(uiParent*,const uiString& txt,
 					bool for_read,
-					const char* inp=0,
+					const char* inp=nullptr,
 					bool withclear=false);
 			~uiIOFileSelect();
 

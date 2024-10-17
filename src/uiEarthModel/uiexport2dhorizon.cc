@@ -70,16 +70,16 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p, bool isbulk )
 	horzdomypefld_ = new uiGenInput( this, tr("Depth Domain"),
 	    BoolInpSpec(true, uiStrings::sTime(),uiStrings::sDepth()) );
 	mAttachCB( horzdomypefld_->valueChanged,
-					uiExport2DHorizon::zDomainTypeChg );
+		   uiExport2DHorizon::zDomainTypeChg );
 
 	horselgrp->attach( alignedBelow, horzdomypefld_ );
 	const ZDomain::Info& depthinfo = SI().depthsInFeet() ?
-	    ZDomain::DepthFeet() : ZDomain::DepthMeter();
+				ZDomain::DepthFeet() : ZDomain::DepthMeter();
 	multisurfdepthread_ = new uiMultiSurfaceRead( horselgrp, surftype,
-	    &depthinfo );
+						      &depthinfo );
 	multisurfdepthread_->display( false );
 	multisurftimeread_ = new uiMultiSurfaceRead( horselgrp, surftype,
-	    &ZDomain::TWT() );
+						     &ZDomain::TWT() );
 	multisurftimeread_->display( true );
     }
     else
@@ -90,7 +90,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p, bool isbulk )
 	mAttachCB( surfread_->inpChange, uiExport2DHorizon::horChg );
 
 	horselgrp->attach( alignedBelow, surfread_ );
-	uiListBox::Setup listbxsu( OD::ChooseZeroOrMore,
+	const uiListBox::Setup listbxsu( OD::ChooseZeroOrMore,
 	    uiStrings::phrSelect(uiStrings::sLine(mPlural).toLower()) );
 	linenmfld_ = new uiListBox( horselgrp, listbxsu, "linenames" );
     }
@@ -283,7 +283,7 @@ bool uiExport2DHorizon::doExport()
 	    const StepInterval<int> trcrg = hor->geometry().colRange( geomid );
 	    mDynamicCastGet(const Survey::Geometry2D*,survgeom2d,
 			    Survey::GM().getGeometry(geomid))
-                    if ( !survgeom2d || trcrg.isUdf() || !trcrg.step_ )
+            if ( !survgeom2d || trcrg.isUdf() || !trcrg.step_ )
 		continue;
 
 	    TrcKey tk( geomid, -1 );
@@ -460,7 +460,7 @@ void uiExport2DHorizon::zDomainTypeChg( CallBacker* )
     const bool istime = isTime();
     multisurfdepthread_->display( !istime );
     multisurftimeread_->display( istime );
-    unitsel_->setUnit( UnitOfMeasure::zUnit(zDomain()) );
+    unitsel_->setUnit( UnitOfMeasure::zUnit(zDomain(),false) );
 
 }
 
@@ -540,14 +540,17 @@ void uiExport2DHorizon::horChg( CallBacker* )
     if ( !oi.getSurfaceData(emdata,errmsg) )
 	return;
 
-    unitsel_->setUnit( oi.getZUoM() );
+    unitsel_->setUnit( UnitOfMeasure::zUnit(oi.zDomain(),false) );
     linenmfld_->addItems( emdata.linenames );
     linenmfld_->setChosen( sellines );
     if ( linenmfld_->nrChosen() == 0 )
 	linenmfld_->chooseAll();
 
-    const FilePath fp( ioobj->mainFileName() );
-    outfld_->setFileName( fp.baseName() );
+    const FilePath prevfnm( outfld_->fileName() );
+    FilePath fp( ioobj->mainFileName() );
+    fp.setExtension( prevfnm.isEmpty() ? outfld_->defaultExtension()
+				       : prevfnm.extension() );
+    outfld_->setFileName( fp.fileName() );
 }
 
 

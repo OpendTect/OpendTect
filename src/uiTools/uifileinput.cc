@@ -23,6 +23,8 @@ ________________________________________________________________________
 #include <string.h>
 
 
+// uiFileInput::Setup
+
 uiFileInput::Setup::Setup( const char* filenm )
     : fnm(filenm)
     , forread_(true)
@@ -60,6 +62,8 @@ uiFileInput::Setup::~Setup()
 {}
 
 
+// uiFileInput
+
 uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     : uiGenInput( p, txt, FileNameInpSpec(setup.fnm) )
     , forread_(setup.forread_)
@@ -72,10 +76,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const Setup& setup )
     , confirmoverwrite_(setup.confirmoverwrite_)
     , defaultext_("dat")
     , objtype_(setup.objtype_)
-    , selmodset_(false)
-    , selmode_(uiFileDialog::AnyFile)
     , filedlgtype_(setup.filedlgtype_)
-    , examinebut_(0)
 {
     setStretch( 2, 0 );
     setFileName( setup.fnm );
@@ -112,10 +113,7 @@ uiFileInput::uiFileInput( uiParent* p, const uiString& txt, const char* fnm )
     , addallexts_(true)
     , confirmoverwrite_(true)
     , defaultext_("dat")
-    , selmodset_(false)
-    , selmode_(uiFileDialog::AnyFile)
     , filedlgtype_(uiFileDialog::Gen)
-    , examinebut_(0)
 {
     setStretch( 2, 0 );
     setFileName( fnm );
@@ -178,7 +176,9 @@ void uiFileInput::enableExamine( bool yn )
 
 
 void uiFileInput::setDefaultExtension( const char* ext )
-{ defaultext_ = ext; }
+{
+    defaultext_ = ext;
+}
 
 
 void uiFileInput::inputChg( CallBacker* )
@@ -432,6 +432,7 @@ static uiFileInput::Setup getSetup( bool forread )
 uiASCIIFileInput::uiASCIIFileInput( uiParent* p, bool forread )
     : uiFileInput(p,getLabel(forread),getSetup(forread))
 {
+    setDefaultExtension( "txt" );
     mAttachCB( valueChanged, uiASCIIFileInput::fileSelCB );
 }
 
@@ -440,6 +441,7 @@ uiASCIIFileInput::uiASCIIFileInput( uiParent* p, const uiString& lbl,
 				    bool forread )
     : uiFileInput(p,lbl,getSetup(forread))
 {
+    setDefaultExtension( "txt" );
     mAttachCB( valueChanged, uiASCIIFileInput::fileSelCB );
 }
 

@@ -284,22 +284,13 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
     stup.choicemode_ = OD::ChooseAtLeastOne;
     uiObject* attachobj = nullptr;
 
-    if ( !isbulk )
-    {
-	infld_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
-				    EMHorizon3DTranslatorGroup::sGroupName())
-		    .withsubsel(true).withsectionfld(false) );
-	mAttachCB( infld_->inpChange, uiExportHorizon::inpSel );
-	mAttachCB( infld_->attrSelChange, uiExportHorizon::attrSel );
-	attachobj = infld_->attachObj();
-    }
-    else
+    if ( isbulk )
     {
 	horzdomypefld_ = new uiGenInput( this, tr("Depth Domain"),
 				    BoolInpSpec(SI().zIsTime(),
 				    uiStrings::sTime(), uiStrings::sDepth()) );
 	mAttachCB( horzdomypefld_->valueChanged,
-					   uiExportHorizon::zDomainTypeChg );
+		   uiExportHorizon::zDomainTypeChg );
 
 	auto* multigrp = new uiGroup( this, "Multi Surface Read" );
 	multigrp->attach( alignedBelow, horzdomypefld_ );
@@ -311,6 +302,15 @@ uiExportHorizon::uiExportHorizon( uiParent* p, bool isbulk )
 	multisurftimeread_ = new uiMultiSurfaceRead( multigrp, surftype,
 							    &ZDomain::TWT() );
 	attachobj = multigrp->attachObj();
+    }
+    else
+    {
+	infld_ = new uiSurfaceRead( this, uiSurfaceRead::Setup(
+				    EMHorizon3DTranslatorGroup::sGroupName())
+				    .withsubsel(true).withsectionfld(false) );
+	mAttachCB( infld_->inpChange, uiExportHorizon::inpSel );
+	mAttachCB( infld_->attrSelChange, uiExportHorizon::attrSel );
+	attachobj = infld_->attachObj();
     }
 
     typfld_ = new uiGenInput( this, uiStrings::phrOutput( uiStrings::sType() ),
@@ -477,13 +477,11 @@ bool uiExportHorizon::writeAscii()
     if ( udfstr.isEmpty() )
 	udfstr = sKey::FloatUdf();
 
-    BufferString basename = outfld_->fileName();
-
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
     uiString errmsg;
-    BufferString fname( basename );
-    od_ostream stream( fname );
+    const BufferString outfnm = outfld_->fileName();
+    od_ostream stream( outfnm.buf() );
     if ( stream.isBad() )
 	mErrRet( uiStrings::sCantOpenOutpFile() );
 
@@ -561,7 +559,7 @@ void uiExportHorizon::zDomainTypeChg(CallBacker*)
     multisurfdepthread_->display( !istime );
     multisurftimeread_->display( istime );
     const ZDomain::Info& zinfo( istime ? ZDomain::Time() : ZDomain::Depth() );
-    unitsel_->setUnit( UnitOfMeasure::zUnit(zinfo) );
+    unitsel_->setUnit( UnitOfMeasure::zUnit(zinfo,false) );
 }
 
 
@@ -640,12 +638,18 @@ void uiExportHorizon::typChg( CallBacker* cb )
 void uiExportHorizon::inpSel( CallBacker* )
 {
     const IOObj* ioobj = infld_ ? infld_->selIOObj() : nullptr;
-    if ( ioobj )
-    {
-	gfname_ = ioobj->name();
-	const EM::IOObjInfo info( ioobj->key() );
-	unitsel_->setUnit( info.getZUoM() );
-    }
+    if ( !ioobj )
+	return;
+
+    gfname_ = ioobj->name();
+    const EM::IOObjInfo info( ioobj->key() );
+    unitsel_->setUnit( UnitOfMeasure::zUnit(info.zDomain(),false) );
+
+    const FilePath prevfnm( outfld_->fileName() );
+    FilePath fp( ioobj->mainFileName() );
+    fp.setExtension( prevfnm.isEmpty() ? outfld_->defaultExtension()
+				       : prevfnm.extension() );
+    outfld_->setFileName( fp.fileName() );
 }
 
 

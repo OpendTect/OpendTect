@@ -40,21 +40,15 @@ public:
     mExpClass(uiIo) Setup : public uiIOSelect::Setup
     {
     public:
-			Setup(const uiString& seltxt=uiString::empty())
-			    : uiIOSelect::Setup(seltxt)
-			    , confirmoverwr_(true)
-			    , withinserters_(true)
-			    , withwriteopts_(true)
-			    , filldef_(true)
-			{}
-	virtual		~Setup()		{}
+			Setup(const uiString& seltxt=uiString::empty());
+	virtual		~Setup();
 
-	mDefSetupMemb(bool,confirmoverwr)
-	mDefSetupMemb(bool,withinserters) //!< only if forread
-	mDefSetupMemb(bool,withwriteopts) //!< only if !forread
-	mDefSetupMemb(bool,filldef)	//!< only if forread and !ctio.ioobj
-	mDefSetupMemb(BufferString,withctxtfilter);
-	mDefSetupMemb(BufferStringSet,trsnotallwed);
+	mDefSetupMemb(bool,confirmoverwr) //!< true
+	mDefSetupMemb(bool,withinserters) //!< true, only if forread
+	mDefSetupMemb(bool,withwriteopts) //!< true, only if !forread
+	mDefSetupMemb(bool,filldef)	  //!< true, only if forread and !ctio.ioobj
+	mDefSetupMemb(BufferString,withctxtfilter);  //!< empty (no filter)
+	mDefSetupMemb(BufferStringSet,trsnotallwed); //!< empty (all allowed)
 
     };
 
@@ -152,6 +146,7 @@ default).
 			uiIOObjSel(uiParent*,CtxtIOObj&,
 				const uiString& seltxt=uiString::empty());
 			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
+
     bool		commitInput();
     bool		doCommitInput(bool&);
     CtxtIOObj&		ctxtIOObj( bool work=false )

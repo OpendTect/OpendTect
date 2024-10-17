@@ -28,6 +28,7 @@ ________________________________________________________________________
 
 
 // uiIOObjRetDlg
+
 uiIOObjRetDlg::uiIOObjRetDlg( uiParent* p, const Setup& s )
     : uiDialog(p,s)
 {}
@@ -36,6 +37,8 @@ uiIOObjRetDlg::uiIOObjRetDlg( uiParent* p, const Setup& s )
 uiIOObjRetDlg::~uiIOObjRetDlg()
 {}
 
+
+// uiIOObjSelDlg
 
 static HelpKey getHelpKey( bool forread )
 {
@@ -90,9 +93,8 @@ uiIOObjSelDlg::~uiIOObjSelDlg()
 
 uiString uiIOObjSelDlg::selTxt( bool forread )
 {
-    return forread
-       ? uiStrings::sInputSelection()
-       : uiStrings::sOutputSelection();
+    return forread ? uiStrings::sInputSelection()
+		   : uiStrings::sOutputSelection();
 }
 
 
@@ -162,6 +164,21 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
     mCBCapsuleUnpack(const char*,msg,cb);
     toStatusBar( mToUiStringTodo(msg) );
 }
+
+
+// uiIOObjSel::Setup
+
+uiIOObjSel::Setup::Setup( const uiString& seltxt )
+    : uiIOSelect::Setup(seltxt)
+    , confirmoverwr_(true)
+    , withinserters_(true)
+    , withwriteopts_(true)
+    , filldef_(true)
+{}
+
+
+uiIOObjSel::Setup::~Setup()
+{}
 
 
 // uiIOObjSel
@@ -324,8 +341,7 @@ void uiIOObjSel::fillEntries()
 
     const bool hadselioobj = workctio_.ioobj_;
 
-    const IODir iodir ( inctio_.ctxt_.getSelKey() );
-    IODirEntryList del( iodir, inctio_.ctxt_ );
+    const IODir iodir( inctio_.ctxt_.getSelKey() );
     BufferStringSet keys, names;
     if ( setup_.withclear_ || !setup_.filldef_ )
     {
@@ -333,10 +349,12 @@ void uiIOObjSel::fillEntries()
 	names.add( "" );
     }
 
-    for ( int idx=0; idx<del.size(); idx++ )
+    const IODirEntryList entries( iodir, inctio_.ctxt_ );
+    for ( const auto* entry : entries )
     {
-	const IOObj* obj = del[idx]->ioobj_;
-	if ( !obj ) continue;
+	const IOObj* obj = entry->ioobj_;
+	if ( !obj )
+	    continue;
 
 	keys.add( obj->key().toString() );
 	names.add( obj->name().buf() );
@@ -656,6 +674,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	selok_ = true;
     }
 
+    fillEntries();
     delete dlg;
 }
 
@@ -708,12 +727,12 @@ uiIOObjRetDlg* uiIOObjSel::mkDlg()
 IOObj* uiIOObjSel::createEntry( const char* nm )
 {
     if ( !nm || !*nm )
-	return 0;
+	return nullptr;
 
     if ( wrtrselfld_ )
 	return wrtrselfld_->mkEntry( nm );
 
     workctio_.setName( nm );
     workctio_.fillObj( false );
-    return workctio_.ioobj_ ? workctio_.ioobj_->clone() : 0;
+    return workctio_.ioobj_ ? workctio_.ioobj_->clone() : nullptr;
 }

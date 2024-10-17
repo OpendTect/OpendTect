@@ -64,6 +64,7 @@ public:
     void		setFileName(const char*);
     void		setDefaultSelectionDir(const char*);
     const char*		defaultSelectionDir() const	   { return defseldir_;}
+    const char*		defaultExtension() const   { return defaultext_.buf(); }
     void		setFilter( const char* fltr )	   { filter_ = fltr; }
     const char*		selectedFilter() const		   { return selfltr_; }
     void		setSelectedFilter( const char* f ) { selfltr_ = f; }

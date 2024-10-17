@@ -25,6 +25,23 @@ IOPar& uiIOFileSelect::tmpstoragehistory()
 { return *new IOPar("Temporay storage selection history"); }
 
 
+// uiIOSelect::Setup
+
+uiIOSelect::Setup::Setup( const uiString& seltext )
+    : seltxt_(seltext)
+    , buttontxt_(uiStrings::sSelect())
+    , withclear_(false)
+    , optional_(false)
+    , keepmytxt_(false)
+{}
+
+
+uiIOSelect::Setup::~Setup()
+{}
+
+
+// uiIOSelect
+
 uiObject* uiIOSelect::endObj( bool left )
 {
     if ( !left )
@@ -48,9 +65,6 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     , haveempty_(su.withclear_)
     , keepmytxt_(su.keepmytxt_)
     , doselcb_(butcb)
-    , selbut_(0)
-    , lbl_(0)
-    , optbox_(0)
 {
     const uiString seltxt = su.seltxt_;
     BufferString inpnm = "Select";
@@ -151,9 +165,18 @@ void uiIOSelect::doFinalize( CallBacker* )
 void uiIOSelect::setEntries( const BufferStringSet& keys,
 			     const BufferStringSet& names )
 {
+    const BufferString previnp = inp_->text();
+    const bool samesel = !previnp.isEmpty() && names.isPresent( previnp.buf() );
+    NotifyStopper ns( inp_->selectionChanged );
     entries_ = keys;
     inp_->setEmpty();
     inp_->addItems( names );
+    if ( samesel )
+	inp_->setCurrentItem( previnp.buf() );
+
+    ns.enableNotification();
+    if ( !samesel )
+	inp_->selectionChanged.trigger();
 }
 
 

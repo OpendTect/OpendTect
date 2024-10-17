@@ -173,18 +173,24 @@ void uiExportFault::zDomainTypeChg(CallBacker*)
     multisurfdepthread_->display( !istime );
     multisurftimeread_->display( istime );
     const ZDomain::Info& zinfo( istime ? ZDomain::Time() : ZDomain::Depth() );
-    zunitsel_->setUnit( UnitOfMeasure::zUnit(zinfo) );
+    zunitsel_->setUnit( UnitOfMeasure::zUnit(zinfo,false) );
 }
 
 
 void uiExportFault::inpSelChg( CallBacker* )
 {
     const IOObj* ioobj = infld_ ? infld_->ioobj( true ) : nullptr;
-    if ( ioobj )
-    {
-	const EM::IOObjInfo info( ioobj->key() );
-	zunitsel_->setUnit( info.getZUoM() );
-    }
+    if ( !ioobj )
+	return;
+
+    const EM::IOObjInfo info( ioobj->key() );
+    zunitsel_->setUnit( UnitOfMeasure::zUnit(info.zDomain(),false) );
+
+    const FilePath prevfnm( outfld_->fileName() );
+    FilePath fp( ioobj->mainFileName() );
+    fp.setExtension( prevfnm.isEmpty() ? outfld_->defaultExtension()
+				       : prevfnm.extension() );
+    outfld_->setFileName( fp.fileName() );
 }
 
 
@@ -204,8 +210,8 @@ bool uiExportFault::getInputMIDs( TypeSet<MultiID>& midset )
 	if ( !ioobj )
 	    return false;
 
-	MultiID mid = ioobj->key();
-	midset.add(mid);
+	const MultiID mid = ioobj->key();
+	midset.add( mid );
     }
 
     return true;
