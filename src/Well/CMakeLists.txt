@@ -14,6 +14,7 @@ set( OD_MODULE_SOURCES
 	laswriter.cc
 	well.cc
 	wellascio.cc
+	wellcopier.cc
 	welld2tmodel.cc
 	welldatafilter.cc
 	welldbupdater.cc
