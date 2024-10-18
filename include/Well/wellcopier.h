@@ -11,6 +11,7 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "executor.h"
 #include "multiid.h"
+#include "ptrman.h"
 
 class IOObj;
 
