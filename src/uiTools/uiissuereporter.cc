@@ -29,6 +29,7 @@ static StringView sKeyAskBeforeSending()
 
 
 #define mExtraSpacing 10
+#define mPrefWidthInChar 70
 
 uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
 					System::IssueReporter& rep )
@@ -56,7 +57,7 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
     infolbl->attach( centeredAbove, filenamefld, mExtraSpacing );
 
     machinfofld_ = new uiTextBrowser( this );
-    machinfofld_->setPrefWidthInChar( 60 );
+    machinfofld_->setPrefWidthInChar( mPrefWidthInChar );
     machinfofld_->setPrefHeightInChar( 8 );
     machinfofld_->setText( reporter_.getReport() );
 
@@ -68,7 +69,7 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p,
     machinfobut_->attach( centeredLeftOf, machinfofld_ );
 
     commentfld_ = new uiTextEdit( this );
-    commentfld_->setPrefWidthInChar( 60 );
+    commentfld_->setPrefWidthInChar( mPrefWidthInChar );
     commentfld_->setPrefHeightInChar( 8 );
     commentfld_->attach( alignedBelow, machinfofld_, mExtraSpacing );
     commentfld_->setPlaceholderText( tr("Please add as much detail as you wish"

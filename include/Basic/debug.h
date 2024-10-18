@@ -85,7 +85,8 @@ public:
 
     void		setSendAppl( const char* a )    { sendappl_ = a; }
 
-    static const char*	sKeyDumpFile()	{ return "dumpfile"; }
+    static const char*	sKeyDumpFile()		{ return "dumpfile"; }
+    static const char*	sKeyFreeMemory()	{ return "freememory"; }
 
 private:
 			CrashDumper();

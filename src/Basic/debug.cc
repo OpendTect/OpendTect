@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odplatform.h"
 #include "oscommand.h"
+#include "odsysmem.h"
 #include "ptrman.h"
 #include "sighndl.h"
 #include "stringview.h"
@@ -650,6 +651,11 @@ void CrashDumper::sendDump( const char* filename )
     OS::MachineCommand mc( sendappl_ );
     mc.addKeyedArg( sKeyDumpFile(), filename );
     mc.addFlag( sKey::Binary() );
+
+    od_int64 totalmem=0, freemem=0;
+    OD::getSystemMemory( totalmem, freemem );
+    mc.addKeyedArg( sKeyFreeMemory(), freemem );
+
     mc.execute( OS::RunInBG );
 }
 

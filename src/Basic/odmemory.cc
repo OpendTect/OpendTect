@@ -137,10 +137,8 @@ void OD::dumpMemInfo( StringPairSet& res )
     od_int64 total, free;
     getSystemMemory( total, free );
     NrBytesToStringCreator converter;
-
     converter.setUnitFrom( total );
 
-    res.setEmpty();
     res.add( "Total memory", converter.getString(total) );
     res.add( "Free memory", converter.getString( free ) );
 #ifdef __lux__

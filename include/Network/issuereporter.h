@@ -52,6 +52,7 @@ protected:
     uiString			errmsg_;
     BufferString		report_;
     BufferString		crashreportpath_;
+    od_int64			precrashfreememory_;
     uiString			message_;
     bool			isbinary_ = true;
 };

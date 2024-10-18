@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "commandlineparser.h"
 #include "iopar.h"
 #include "file.h"
+#include "nrbytes2string.h"
 #include "oddirs.h"
 #include "odinst.h"
 #include "odnetworkaccess.h"
@@ -107,11 +108,13 @@ void System::IssueReporter::fillBasicReport()
     infoset.add( "Windows OS version", getFullWinVersion() );
 #endif
 
-    infoset.add( "Nr. of processors", Threads::getNrProcessors() );
+    infoset.add( "Nr of processors", Threads::getNrProcessors() );
 
-    StringPairSet meminfo;
-    OD::dumpMemInfo( meminfo );
-    infoset.add( meminfo );
+    OD::dumpMemInfo( infoset );
+    NrBytesToStringCreator conv;
+    conv.setUnitFrom( precrashfreememory_ );
+    infoset.add( "Free memory before crash",
+		 conv.getString(precrashfreememory_) );
     infoset.dumpPretty( report_ );
 }
 
@@ -179,6 +182,7 @@ bool System::IssueReporter::parseCommandLine()
     const char* pathkey = "path";
     parser.setKeyHasValue( hostkey );
     parser.setKeyHasValue( pathkey );
+    parser.setKeyHasValue( CrashDumper::sKeyFreeMemory() );
 
     BufferStringSet normalargs;
     bool syntaxerror = false;
@@ -200,7 +204,7 @@ bool System::IssueReporter::parseCommandLine()
     parser.getVal( hostkey, host_ );
     parser.getVal( pathkey, path_ );
     isbinary_ = parser.hasKey( sKey::Binary() );
-
+    parser.getVal( CrashDumper::sKeyFreeMemory(), precrashfreememory_ );
     if ( !setDumpFileName(filename) )
 	return false;
 
