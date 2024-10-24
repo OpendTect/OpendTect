@@ -509,7 +509,7 @@ void RandomTrackDisplay::removeAllNodes()
     }
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-	setDataPackID( idx, DataPackID::udf(), nullptr );
+	setSeisDataPack( idx, nullptr, nullptr );
 
     nodes_.erase();
     updatePanelStripPath();
@@ -635,11 +635,10 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 }
 
 
-bool RandomTrackDisplay::setDataPackID( int attrib, const DataPackID& dpid,
-					TaskRunner* taskr )
+bool RandomTrackDisplay::setSeisDataPack( int attrib, SeisDataPack* seisdp,
+					  TaskRunner* taskr )
 {
-    DataPackMgr& dpm = DPM( getDataPackMgrID() );
-    RefMan<RandomSeisDataPack> randsdp = dpm.get<RandomSeisDataPack>( dpid );
+    mDynamicCastGet(RandomSeisDataPack*,randsdp,seisdp);
     if ( !randsdp || randsdp->isEmpty() )
     {
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, nullptr );
@@ -647,32 +646,53 @@ bool RandomTrackDisplay::setDataPackID( int attrib, const DataPackID& dpid,
 	return false;
     }
 
-    datapacks_.replace( attrib, randsdp.ptr() );
-
+    datapacks_.replace( attrib, randsdp );
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
     return true;
 }
 
 
-DataPackID RandomTrackDisplay::getDataPackID( int attrib ) const
+ConstRefMan<DataPack> RandomTrackDisplay::getDataPack( int attrib ) const
 {
-    return datapacks_.validIdx(attrib) && datapacks_[attrib]
-	? datapacks_[attrib]->id()
-	: DataPack::cNoID();
+    return getSeisDataPack( attrib );
 }
 
 
-DataPackID RandomTrackDisplay::getDisplayedDataPackID( int attrib ) const
+ConstRefMan<SeisDataPack> RandomTrackDisplay::getSeisDataPack(
+							int attrib ) const
+{
+    return mSelf().getSeisDataPack( attrib );
+}
+
+
+RefMan<SeisDataPack> RandomTrackDisplay::getSeisDataPack( int attrib )
+{
+    if ( !datapacks_.validIdx(attrib) || !datapacks_[attrib] )
+	return nullptr;
+
+    return datapacks_[attrib];
+}
+
+
+ConstRefMan<SeisDataPack> RandomTrackDisplay::getDisplayedSeisDataPack(
+							    int attrib ) const
+{
+    return mSelf().getDisplayedSeisDataPack( attrib );
+}
+
+
+RefMan<SeisDataPack> RandomTrackDisplay::getDisplayedSeisDataPack( int attrib )
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-	return transfdatapacks_.validIdx(attrib) && transfdatapacks_[attrib]
-            ? transfdatapacks_[attrib]->id()
-            : DataPack::cNoID();
+	if ( !transfdatapacks_.validIdx(attrib) || !transfdatapacks_[attrib] )
+	    return nullptr;
+
+	return transfdatapacks_[attrib];
     }
 
-    return getDataPackID( attrib );
+    return getSeisDataPack( attrib );
 }
 
 
@@ -785,10 +805,8 @@ void RandomTrackDisplay::updateTexOriginAndScale( int attrib,
 
 void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
 {
-    const DataPackMgr& dpm = DPM( getDataPackMgrID() );
-    const DataPackID dpid = getDisplayedDataPackID( attrib );
-    ConstRefMan<RandomSeisDataPack> randsdp =
-					dpm.get<RandomSeisDataPack>( dpid );
+    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
+    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
     if ( !randsdp )
 	return;
 
@@ -843,10 +861,8 @@ void RandomTrackDisplay::updateChannels( int attrib, TaskRunner* )
 void RandomTrackDisplay::createTransformedDataPack( int attrib,
 						    TaskRunner* taskr )
 {
-    const DataPackMgr& dpm = DPM( getDataPackMgrID() );
-    const DataPackID dpid = getDataPackID( attrib );
-    ConstRefMan<RandomSeisDataPack> randsdp =
-				    dpm.get<RandomSeisDataPack>( dpid );
+    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
+    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
     if ( !randsdp || randsdp->isEmpty() )
 	return;
 
@@ -872,7 +888,7 @@ void RandomTrackDisplay::createTransformedDataPack( int attrib,
 	}
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
-	transformer.setInput( randsdp.ptr() );
+	transformer.setInput( randsdp );
 	transformer.setInterpolate( textureInterpolationEnabled() );
 	transformer.execute();
 
@@ -1427,13 +1443,16 @@ SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* taskr ) const
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
 	const TypeSet<Attrib::SelSpec>* selspecs = getSelSpecs( idx );
-	if ( selspecs )
-	    rtd->setSelSpecs( idx, *selspecs );
+	if ( !selspecs )
+	    continue;
 
-	rtd->setDataPackID( idx, getDataPackID(idx), taskr );
+	rtd->setSelSpecs( idx, *selspecs );
+	ConstRefMan<SeisDataPack> randsdp = getSeisDataPack( idx );
+	rtd->setSeisDataPack( idx, randsdp.getNonConstPtr(), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
 	if ( mappersetup )
 	    rtd->setColTabMapperSetup( idx, *mappersetup, taskr );
+
 	const ColTab::Sequence* colseq = getColTabSequence( idx );
 	if ( colseq )
 	    rtd->setColTabSequence( idx, *colseq, taskr );
@@ -1544,10 +1563,8 @@ bool RandomTrackDisplay::getSelMousePosInfo( const visBase::EventInfo& ei,
 bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 					const Coord3& pos,float& val ) const
 {
-    const DataPackMgr& dpm = DPM( getDataPackMgrID() );
-    const DataPackID dpid = getDisplayedDataPackID( attrib );
-    ConstRefMan<RandomSeisDataPack> randsdp =
-				    dpm.get<RandomSeisDataPack>( dpid );
+    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
+    mDynamicCastGet(const RandomSeisDataPack*,randsdp,seisdp.ptr());
     if ( !randsdp || randsdp->isEmpty() )
 	return false;
 

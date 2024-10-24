@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+
 #include "emeditor.h"
 
 namespace EM { class PolygonBody; };
@@ -24,21 +25,24 @@ namespace MPE
 mExpClass(MPEEngine) PolygonBodyEditor : public ObjectEditor
 {
 public:
-				PolygonBodyEditor(EM::PolygonBody&);
-    static ObjectEditor*	create(EM::EMObject&);
-    static void			initClass();
+
+    static RefMan<PolygonBodyEditor> create(const EM::PolygonBody&);
 
     void			setLastClicked(const EM::PosID&);
     void			setSowingPivot(const Coord3);
+    bool			removeSelection(const Selector<Coord3>&);
 
     void			getInteractionInfo(EM::PosID& nearestpid0,
 					   EM::PosID& nearestpid1,
 					   EM::PosID& insertpid,
 					   const Coord3&,float zfactor) const;
-    bool			removeSelection(const Selector<Coord3>&);
 
 protected:
 				~PolygonBodyEditor();
+
+private:
+				PolygonBodyEditor(const EM::PolygonBody&);
+
 
     bool			setPosition(const EM::PosID&,
 					    const Coord3&) override;
@@ -57,6 +61,9 @@ protected:
 
     Coord3			sowingpivot_;
     mutable TypeSet<Coord3>	sowinghistory_;
+
+    static EM::PosID&		lastclickedpid();
+
 };
 
 }  // namespace MPE

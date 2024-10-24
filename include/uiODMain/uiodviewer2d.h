@@ -100,13 +100,7 @@ public:
 				 Also transforms data if the 2D Viewer
 				 hasZAxisTransform(). */
     RefMan<SeisFlatDataPack>	createFlatDataPackRM(const SeisDataPack&,
-						       int comp) const;
-				/*!< Creates a SeisFlatDataPack from a
-				 SeisDataPack. Either a transformed or a
-				 non-transformed datapack can be passed. The
-				 returned datapack will always be in transformed
-				  domain if the viewer hasZAxisTransform(). */
-    RefMan<SeisFlatDataPack>	createFlatDataPackRM(DataPackID,int comp) const;
+						     int comp) const;
 				/*!< Creates a SeisFlatDataPack from a
 				 SeisDataPack. Either a transformed or a
 				 non-transformed datapack can be passed. The
@@ -128,7 +122,7 @@ public:
     RandomLineID		getRandomLineID() const
 				{ return rdmlineid_; }
     void			setTrcKeyZSampling(const TrcKeyZSampling&,
-						   TaskRunner* =0);
+						   TaskRunner* =nullptr);
     const TrcKeyZSampling&	getTrcKeyZSampling() const
 				{ return tkzs_; }
     Pos::GeomID			geomID() const;
@@ -263,9 +257,6 @@ protected:
     bool			ispolyselect_			= true;
     bool			isvertical_			= true;
 
-    mDeprecated("Use createDataPackForTransformedZSliceRM")
-    DataPackID			createDataPackForTransformedZSlice(
-						const Attrib::SelSpec&) const;
     RefMan<SeisFlatDataPack>	createDataPackForTransformedZSliceRM(
 						const Attrib::SelSpec&) const;
     virtual void		createViewWin(bool isvert,bool needslicepos);
@@ -276,10 +267,6 @@ protected:
 					    FlatView::Viewer::VwrDest,
 					    bool isnew);
     void			setDataPack(FlatDataPack*,bool wva,
-					    bool isnew);
-    void			setDataPack(DataPackID,bool wva,bool isnew);
-    void			setDataPack(DataPackID,
-					    FlatView::Viewer::VwrDest,
 					    bool isnew);
     void			adjustOthrDisp(bool wva,bool isnew);
     void			adjustOthrDisp(FlatView::Viewer::VwrDest,
@@ -302,17 +289,19 @@ protected:
 
 public:
     mDeprecated("No longer used")
-    void		makeUpView(DataPackID,FlatView::Viewer::VwrDest);
+    void			makeUpView(const DataPackID&,
+					   FlatView::Viewer::VwrDest);
+    mDeprecated("No longer used")
+    virtual void		setUpView(const DataPackID&,bool wva);
     mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
-    mDeprecated("No longer used")
-    virtual void		setUpView(DataPackID,bool wva);
     mDeprecated("No longer used")
     DataPackID			getDataPackID(bool wva) const;
 				/*!<Returns DataPackID of specified display if
 				it has a valid one. Returns DataPackID of
 				other display if both have same Attrib::SelSpec.
 				Else, returns uiODViewer2D::createDataPack.*/
+
     mDeprecated("No longer used")
     DataPackID			createDataPack(bool wva) const;
     mDeprecated("No longer used")
@@ -323,7 +312,8 @@ public:
 				slicepos_. Also transforms data if the 2D Viewer
 				hasZAxisTransform(). */
     mDeprecated("No longer used")
-    DataPackID			createFlatDataPack(DataPackID,int comp) const;
+    DataPackID			createFlatDataPack(const DataPackID&,
+						   int comp) const;
 				/*!< Creates a FlatDataPack from SeisDataPack.
 				Either a transformed or a non-transformed
 				datapack can be passed. The returned datapack
@@ -337,8 +327,28 @@ public:
 				datapack can be passed. The returned datapack
 				will always be in transformed domain if the
 				viewer hasZAxisTransform(). */
+    mDeprecated("Provide SeisDataPack, not DataPackID")
+    RefMan<SeisFlatDataPack>	createFlatDataPackRM(const DataPackID&,
+						     int comp) const;
+				/*!< Creates a SeisFlatDataPack from a
+				 SeisDataPack. Either a transformed or a
+				 non-transformed datapack can be passed. The
+				 returned datapack will always be in transformed
+				  domain if the viewer hasZAxisTransform(). */
     mDeprecated("No longer used")
     DataPackID			createMapDataPack(const RegularFlatDataPack&);
+    mDeprecated("Use createDataPackForTransformedZSliceRM")
+    DataPackID			createDataPackForTransformedZSlice(
+						const Attrib::SelSpec&) const;
+
+    mDeprecated("Use FlatDataPack")
+    void			setDataPack(const DataPackID&,
+					    bool wva,bool isnew);
+    mDeprecated("Use FlatDataPack")
+    void			setDataPack(const DataPackID&,
+					    FlatView::Viewer::VwrDest,
+					    bool isnew);
+
     mDeprecated("Use method that takes FlatView::Viewer::VwrDest enum")
     bool			useStoredDispPars(bool wva);
 

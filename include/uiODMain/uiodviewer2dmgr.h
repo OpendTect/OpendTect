@@ -61,6 +61,8 @@ public:
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
 					      bool wva);
+    mDeprecated("Use method that takes DataPack and "
+	       "FlatView::Viewer::VwrDest enum")
     Viewer2DID			displayIn2DViewer(DataPackID,
 					      const Attrib::SelSpec&,
 					      const FlatView::DataDispPars::VD&,
@@ -153,7 +155,7 @@ protected:
     void			remove2DViewer(int id,bool byvisid);
 
     ObjectSet<uiODViewer2D>	viewers2d_;
-    Line2DInterSectionSet*	l2dintersections_;
+    Line2DInterSectionSet*	l2dintersections_	= nullptr;
     SelectedAuxAnnot		selauxannot_;
     TypeSet<Pos::GeomID>	geom2dids_;
 

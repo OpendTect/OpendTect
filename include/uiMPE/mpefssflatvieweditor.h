@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "emfaultsticksetflatvieweditor.h"
 #include "emposid.h"
 #include "geometry.h"
-#include "integerid.h"
 
 class FlatPosData;
 class MouseEventHandler;
@@ -44,7 +43,7 @@ public:
     void		enableKnots(bool);
 
     void		set2D(bool yn);
-    void		setGeomID(Pos::GeomID);
+    void		setGeomID(const Pos::GeomID&);
 
     TypeSet<int>&	getTrcNos();
     TypeSet<float>&	getDistances();
@@ -66,11 +65,11 @@ protected:
     void			doubleClickedCB(CallBacker*);
     void			sowingFinishedCB(CallBacker*);
 
-	mStruct(uiMPE) StkMarkerIdInfo
-	{
-	    int	    markerid_;
-	    int	    stickid_;
-	};
+				mStruct(uiMPE) StkMarkerIdInfo
+				{
+				    int     markerid_;
+				    int     stickid_;
+				};
 
     void			cleanActStkContainer();
     void			fillActStkContainer();
@@ -79,24 +78,24 @@ protected:
     bool			getMousePosInfo(
 				    const Geom::Point2D<int>& mousepos,
 				    IndexInfo& ix, IndexInfo& iy,
-				    Coord3& worldpos,int* trcnr=0) const;
+				    Coord3& worldpos,int* trcnr=nullptr) const;
     Coord3			getScaleVector() const;
 				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
+    Coord3			getNormal(const Coord3* mousepos=nullptr) const;
 
-    const TrcKeyPath*		path_;
+    const TrcKeyPath*		path_		= nullptr;
 
     EM::FaultStickPainter*	fsspainter_;
-    bool			seedhasmoved_;
-    bool			makenewstick_;
-    bool			doubleclicked_;
+    bool			seedhasmoved_	= false;
+    bool			makenewstick_	= false;
+    bool			doubleclicked_	= false;
     RandomLineID		rdlid_;
 
     FlatView::AuxDataEditor*	editor_;
     ObjectSet<StkMarkerIdInfo>	markeridinfo_;
-    int				activestickid_;
-    MouseEventHandler*		meh_;
+    int				activestickid_	= -1;
+    MouseEventHandler*		meh_		= nullptr;
     EM::PosID			mousepid_;
-    Coord3			getNormal(const Coord3* mousepos=0) const;
 };
 
 } // namespace MPE

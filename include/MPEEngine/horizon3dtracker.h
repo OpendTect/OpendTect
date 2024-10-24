@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+
 #include "emtracker.h"
 
 namespace EM { class Horizon3D; }
@@ -17,6 +18,7 @@ namespace MPE
 {
 
 class Horizon3DSeedPicker;
+class HorizonTrackerMgr;
 
 /*!
 \brief EMTracker to track EM::Horizon3D.
@@ -25,24 +27,32 @@ class Horizon3DSeedPicker;
 mExpClass(MPEEngine) Horizon3DTracker : public EMTracker
 {
 public:
-    				Horizon3DTracker(EM::Horizon3D* =0);
 
-    static EMTracker*		create(EM::EMObject* =0);
-    static void			initClass();
+    static RefMan<Horizon3DTracker> create(EM::Horizon3D&);
 
+    void			updateFlatCubesContainer(const TrcKeyZSampling&,
+						     bool addremove) override;
+				/*!< add = true, remove = false. */
+private:
+				Horizon3DTracker(EM::Horizon3D&);
+				~Horizon3DTracker();
+
+    bool			is2D() const override	       { return false; }
+
+    bool			hasTrackingMgr() const override;
+    bool			createMgr() override;
+    void			startFromSeeds(const TypeSet<TrcKey>&) override;
+    void			initTrackingMgr() override;
+    bool			trackingInProgress() const override;
+    void			stopTracking() override;
+
+    SectionTracker*		createSectionTracker() override;
     EMSeedPicker*		getSeedPicker(
 					bool createifnotpresent=true) override;
 
-    static const char*		keyword();
+    Horizon3DSeedPicker*	seedpicker_	= nullptr;
+    HorizonTrackerMgr*		htmgr_		= nullptr;
 
-protected:
-
-    				~Horizon3DTracker();
-    EM::Horizon3D*		getHorizon();
-    const EM::Horizon3D*	getHorizon() const;
-
-    SectionTracker*		createSectionTracker() override;
-    Horizon3DSeedPicker*	seedpicker_;
 };
 
 } // namespace MPE

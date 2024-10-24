@@ -145,10 +145,6 @@ EM::ObjectID MarchingCubesDisplay::getEMID() const
 }
 
 
-SurveyObject::AttribFormat MarchingCubesDisplay::getAttributeFormat(int) const
-{ return SurveyObject::RandomPos; }
-
-
 int MarchingCubesDisplay::nrAttribs() const
 { return 1; }
 
@@ -236,15 +232,16 @@ const TypeSet<Attrib::SelSpec>* MarchingCubesDisplay::getSelSpecs(
     const bool attribselchange = \
 		StringView(selspecs_.first().userRef())!=nm; \
     selspecs_.first().set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
-    RefMan<DataPointSet> data = new DataPointSet(false,true); \
-    getRandomPos( *data, nullptr ); \
+    RefMan<DataPointSet> dps = new DataPointSet(false,true); \
+    getRandomPos( *dps.ptr(), nullptr ); \
+    dps->setName( nm ); \
     auto* isovdef = new DataColDef(nm); \
-    data->dataSet().add( isovdef ); \
-    BinIDValueSet& bivs = data->bivSet();  \
-    if ( !data->size() || bivs.nrVals()!=3 ) \
+    dps->dataSet().add( isovdef ); \
+    BinIDValueSet& bivs = dps->bivSet();  \
+    if ( dps->isEmpty() || bivs.nrVals()!=3 ) \
 	return; \
-    int valcol = data->dataSet().findColDef( *isovdef, \
-					     PosVecDataSet::NameExact ); \
+    int valcol = dps->dataSet().findColDef( *isovdef, \
+					    PosVecDataSet::NameExact ); \
     if ( valcol==-1 ) valcol = 1
 
 
@@ -304,7 +301,7 @@ void MarchingCubesDisplay::setIsopach( int attrib )
 	vals[valcol] = maxz-minz;
     }
 
-    setRandomPosData( attrib, data.ptr(), nullptr );
+    setRandomPosData( attrib, dps.ptr(), nullptr );
 
     if ( attribselchange )
     {
@@ -327,7 +324,7 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 	vals[valcol] = vals[0];
     }
 
-    setRandomPosData( attrib, data.ptr(), nullptr );
+    setRandomPosData( attrib, dps.ptr(), nullptr );
 
     if ( attribselchange )
     {
@@ -340,11 +337,22 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 }
 
 
-void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
+bool MarchingCubesDisplay::getRandomPos( DataPointSet& dpset,
 					 TaskRunner* runner ) const
 {
+    for ( int idx=0; idx<datapacks_.size(); idx++ )
+    {
+	ConstRefMan<DataPointSet> dps = datapacks_[idx];
+	if ( !dps || dps->size() < 1 )
+	    continue;
+
+	dpset = *dps.ptr();
+	dpset.dataSet().removeColumn( dps->dataSet().nrCols()-1 );
+	return true;
+    }
+
     if ( !displaysurface_ || !emsurface_ )
-	return;
+	return false;
 
     SamplingData<float> inlinesampling = emsurface_->inlSampling();
     SamplingData<float> crlinesampling = emsurface_->crlSampling();
@@ -352,22 +360,22 @@ void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
 
     RefMan<visBase::Transformation> toincrltransf =
 					visBase::Transformation::create();
-    toincrltransf->setScale(
-	Coord3(inlinesampling.step_, crlinesampling.step_, zsampling.step_));
-    toincrltransf->setTranslation(
-	Coord3(inlinesampling.start_,crlinesampling.start_, zsampling.start_));
+    toincrltransf->setScale( Coord3(inlinesampling.step_,
+				    crlinesampling.step_, zsampling.step_));
+    toincrltransf->setTranslation( Coord3(inlinesampling.start_,
+				crlinesampling.start_, zsampling.start_));
 
-    displaysurface_->getShape()->getAttribPositions( dps,
-					toincrltransf.ptr(), runner );
+    return displaysurface_->getShape()->getAttribPositions( dpset,
+						toincrltransf.ptr(), runner );
 }
 
 
-void MarchingCubesDisplay::setRandomPosData( int attrib,
-					     const DataPointSet* dps,
+bool MarchingCubesDisplay::setPointDataPack( int attrib, PointDataPack* dp,
 					     TaskRunner* runner )
 {
-    if ( attrib<0 )
-	return;
+    mDynamicCastGet(DataPointSet*,dps,dp);
+    if ( !dps || attrib<0 )
+	return false;
 
     if ( !attrib && dps && displaysurface_ )
     {
@@ -376,7 +384,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     }
 
     if ( datapacks_.validIdx(attrib) )
-	datapacks_.replace( attrib, (DataPointSet*) dps );
+	datapacks_.replace( attrib, dps );
     else
     {
 	while ( attrib>datapacks_.size() )
@@ -387,20 +395,32 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 
     validtexture_ = true;
     updateSingleColor();
+    return true;
 }
 
 
-
-DataPackID MarchingCubesDisplay::getDataPackID( int attrib ) const
+bool MarchingCubesDisplay::setRandomPosData( int attrib,
+					     const DataPointSet* dps,
+					     TaskRunner* runner )
 {
-    return datapacks_.validIdx(attrib) ? datapacks_[attrib]->id()
-				       : DataPackID::udf();
+    return setPointDataPack( attrib, const_cast<DataPointSet*>( dps ), runner );
 }
 
 
-DataPackID MarchingCubesDisplay::getDisplayedDataPackID( int attrib ) const
+ConstRefMan<DataPack> MarchingCubesDisplay::getDataPack( int attrib ) const
 {
-    return getDataPackID( attrib );
+    return getPointDataPack( attrib );
+}
+
+
+ConstRefMan<PointDataPack>
+		MarchingCubesDisplay::getPointDataPack( int attrib ) const
+{
+    if ( !datapacks_.validIdx(attrib) )
+	return nullptr;
+
+    ConstRefMan<DataPointSet> datapack = datapacks_.get( attrib );
+    return datapack ? datapack.ptr() : nullptr;
 }
 
 
@@ -654,9 +674,11 @@ void MarchingCubesDisplay::setDisplayTransformation( const mVisTrans* nt)
 
 	model2displayspacetransform_ = visBase::Transformation::create();
 	model2displayspacetransform_->setScale(
-	  Coord3(inlinesampling.step_, crlinesampling.step_, zsampling.step_));
+		    Coord3( inlinesampling.step_, crlinesampling.step_,
+			    zsampling.step_));
 	model2displayspacetransform_->setTranslation(
-	 Coord3(inlinesampling.start_,crlinesampling.start_, zsampling.start_));
+		    Coord3( inlinesampling.start_, crlinesampling.start_,
+			    zsampling.start_) );
 
 	*model2displayspacetransform_ *= *nt;
     }

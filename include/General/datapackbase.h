@@ -140,7 +140,7 @@ public:
     void			setProps(StepInterval<double> inlrg,
 					 StepInterval<double> crlrg,
 					 bool,BufferStringSet*);
-    void			initXYRotArray(TaskRunner* = 0 );
+    void			initXYRotArray(TaskRunner* =nullptr);
 
     void			setRange( StepInterval<double> dim0rg,
 					  StepInterval<double> dim1rg,
@@ -205,6 +205,8 @@ public:
     virtual TrcKey		getTrcKey(int globaltrcidx) const	= 0;
     virtual int			getGlobalIdx(const TrcKey&) const	= 0;
     virtual int			getNearestGlobalIdx(const TrcKey&) const;
+    virtual bool		isRegular() const	{ return false; }
+    virtual bool		isRandom() const	{ return false; }
 
     void			getPath(TrcKeyPath&) const;
 

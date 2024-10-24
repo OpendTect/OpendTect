@@ -66,51 +66,41 @@ void uiHistogramDisplay::setEmpty()
 }
 
 
-bool uiHistogramDisplay::setDataPackID(
-	DataPackID dpid, DataPackMgr::MgrID dmid, int version )
+bool uiHistogramDisplay::setDataPackID( const DataPackID& dpid,
+				const DataPackMgr::MgrID& dmid, int version )
 {
-    rc_.setEmpty();
-    auto dp = DPM(dmid).getDP( dpid );
-    if ( !dp )
-	return false;
+    ConstRefMan<DataPack> dp = DPM(dmid).getDP( dpid );
+    return dp ? setDataPack( *dp.ptr(), version ) : false;
+}
 
+
+bool uiHistogramDisplay::setDataPack( const DataPack& dp, int version )
+{
     BufferString dpversionnm;
+    rc_.setEmpty();
 
-    if ( dmid == DataPackMgr::SeisID() )
+    mDynamicCastGet(const SeisDataPack*,seisdp,&dp)
+    mDynamicCastGet(const FlatDataPack*,fdp,&dp)
+    mDynamicCastGet(const DataPointSet*,dps,&dp)
+    if ( seisdp )
     {
-	mDynamicCastGet(const SeisDataPack*,seisdp,dp.ptr())
-	if ( !seisdp || seisdp->isEmpty() )
+	if ( seisdp->isEmpty() )
 	    return false;
 
-	const Array3D<float>* arr3d = &seisdp->data( version );
-	dpversionnm = seisdp->getComponentName(version);
-	setData( arr3d );
+	dpversionnm = seisdp->getComponentName( version );
+	setData( &seisdp->data(version) );
     }
-    else if ( dmid == DataPackMgr::FlatID() )
+    else if ( fdp )
     {
-	mDynamicCastGet(const FlatDataPack*,fdp,dp.ptr())
-	mDynamicCastGet(const MapDataPack*,mdp,dp.ptr())
-	if ( mdp )
-	{
-	    dpversionnm = mdp->name();
-	    setData( &mdp->rawData() );
-	}
-	else if ( fdp )
-	{
-	    dpversionnm = fdp->name();
-	    setData( &fdp->data() );
-	}
-	else
-	    return false;
+	dpversionnm = fdp->name();
+	mDynamicCastGet(const MapDataPack*,mdp,fdp)
+	const Array2D<float>& data = mdp ? mdp->rawData() : fdp->data();
+	setData( &data );
     }
-    else if ( dmid == DataPackMgr::SurfID() || dmid == DataPackMgr::PointID() )
+    else if ( dps )
     {
-	mDynamicCastGet(const DataPointSet*,dpset,dp.ptr())
-	if ( !dpset )
-	    return false;
-
-	dpversionnm = dpset->name();
-	setDataDPS( *dpset, dpset->nrCols()-1 );
+	dpversionnm = dps->name();
+	setDataDPS( *dps, dps->nrCols()-1 );
     }
     else
 	return false;

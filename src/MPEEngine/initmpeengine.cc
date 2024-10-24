@@ -8,14 +8,9 @@ ________________________________________________________________________
 -*/
 
 #include "moddepmgr.h"
-#include "faulteditor.h"
-#include "faultstickseteditor.h"
-#include "horizoneditor.h"
-#include "horizon2dtracker.h"
-#include "horizon3dtracker.h"
+
 #include "horizon2dextender.h"
 #include "horizon3dextender.h"
-#include "polygonsurfeditor.h"
 #include "mpesetup.h"
 
 mDefModInitFn(MPEEngine)
@@ -25,13 +20,22 @@ mDefModInitFn(MPEEngine)
     MPESetupTranslatorGroup::initClass();
     dgbMPESetupTranslator::initClass();
 
-    MPE::FaultEditor::initClass();
-    MPE::FaultStickSetEditor::initClass();
-    MPE::HorizonEditor::initClass();
-    MPE::Horizon2DEditor::initClass();
-    MPE::Horizon2DTracker::initClass();
-    MPE::Horizon3DTracker::initClass();
     MPE::Horizon2DExtender::initClass();
     MPE::Horizon3DExtender::initClass();
-    MPE::PolygonBodyEditor::initClass();
+
+    FactoryBase& hor2dextfact = MPE::Horizon2DExtenderBase::factory();
+    if ( StringView(hor2dextfact.getDefaultName()).isEmpty() )
+    {
+	const int defidx = hor2dextfact.getNames().indexOf(
+			MPE::Horizon2DExtender::sFactoryKeyword() );
+	hor2dextfact.setDefaultName( defidx );
+    }
+
+    FactoryBase& hor3dextfact = MPE::Horizon3DExtenderBase::factory();
+    if ( StringView(hor3dextfact.getDefaultName()).isEmpty() )
+    {
+	const int defidx = hor3dextfact.getNames().indexOf(
+			MPE::Horizon3DExtender::sFactoryKeyword() );
+	hor3dextfact.setDefaultName( defidx );
+    }
 }

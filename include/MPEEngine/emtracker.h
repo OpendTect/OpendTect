@@ -9,17 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "refcount.h"
 
-#include "emposid.h"
-#include "factory.h"
-#include "trckeyzsampling.h"
-#include "uistring.h"
+#include "emobject.h"
 
 class Executor;
 
 namespace Geometry { class Element; }
-namespace EM { class EMObject; }
 namespace Attrib { class SelSpec; }
 
 namespace MPE
@@ -33,14 +28,17 @@ class SectionTracker;
 */
 
 mExpClass(MPEEngine) EMTracker : public ReferencedObject
+			       , public CallBacker
 {
 mODTextTranslationClass(EMTracker)
 public:
+
+    ConstRefMan<EM::EMObject>	emObject() const;
+    RefMan<EM::EMObject>	emObject();
     BufferString		objectName() const;
-    EM::EMObject*		emObject()		{ return emobject_; }
     EM::ObjectID		objectID() const;
 
-    virtual bool		is2D() const		{ return false; }
+    virtual bool		is2D() const				= 0;
 
     void			setTypeStr( const char* tp )
 				{ type_ = tp; }
@@ -55,10 +53,19 @@ public:
     void			getNeededAttribs(
 					TypeSet<Attrib::SelSpec>&) const;
 
-    virtual SectionTracker*	createSectionTracker() = 0;
+    virtual bool		hasTrackingMgr() const	   { return false; }
+    virtual bool		createMgr()		   { return false; }
+    virtual void		startFromSeeds(const TypeSet<TrcKey>&)	  {}
+    virtual void		initTrackingMgr()			  {}
+    virtual bool		trackingInProgress() const { return false; }
+    virtual void		stopTracking()				  {}
+    virtual void		updateFlatCubesContainer(const TrcKeyZSampling&,
+							 bool addremove)  {}
+				/*!< add = true, remove = false. */
+
     SectionTracker*		cloneSectionTracker();
     SectionTracker*		getSectionTracker(bool create=false);
-    virtual EMSeedPicker*	getSeedPicker(bool createifnotpresent=true)
+    virtual EMSeedPicker*	getSeedPicker( bool createifnotpresent=true )
 				{ return nullptr; }
     void			applySetupAsDefault();
 
@@ -67,6 +74,29 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+    Notifier<EMTracker>		trackingFinished;
+
+protected:
+				EMTracker(EM::EMObject&);
+    virtual			~EMTracker();
+
+    void			trackingFinishedCB(CallBacker*);
+
+    bool			isenabled_		= true;
+    ObjectSet<SectionTracker>	sectiontrackers_;
+    BufferString		errmsg_;
+    BufferString		type_;
+
+    static const char*		setupidStr()	{ return "SetupID"; }
+    static const char*		sectionidStr()	{ return "SectionID"; }
+
+private:
+
+    virtual SectionTracker*	createSectionTracker()			= 0;
+
+    WeakPtr<EM::EMObject>	emobject_;
+
+public:
 // Deprecated public functions
     mDeprecated("Use without SectionID")
     SectionTracker*		createSectionTracker(EM::SectionID)
@@ -79,25 +109,6 @@ public:
     void			applySetupAsDefault(const EM::SectionID)
 				{ applySetupAsDefault(); }
 
-
-protected:
-				EMTracker(EM::EMObject*);
-    virtual			~EMTracker();
-
-    bool			isenabled_		= true;
-    ObjectSet<SectionTracker>	sectiontrackers_;
-    BufferString		errmsg_;
-    BufferString		type_;
-
-    void			setEMObject(EM::EMObject*);
-
-    static const char*		setupidStr()	{ return "SetupID"; }
-    static const char*		sectionidStr()	{ return "SectionID"; }
-
-private:
-    EM::EMObject*		emobject_		= nullptr;
 };
-
-mDefineFactory1Param( MPEEngine, EMTracker, EM::EMObject*, TrackerFactory );
 
 } // namespace MPE

@@ -29,6 +29,9 @@ public:
 				RegularSeisDataPack(const char* cat,
 						   const BinDataDesc* =nullptr);
 
+    bool			is2D() const override;
+    bool			isRegular() const override	{ return true; }
+
     RegularSeisDataPack*	clone() const;
     RegularSeisDataPack*	getSimilar() const;
     bool			copyFrom(const RegularSeisDataPack&);
@@ -44,7 +47,6 @@ public:
 				//!<Becomes mine
     const PosInfo::CubeData*	getTrcsSampling() const;
 				//!<Only for 3D
-    bool			is2D() const override;
 
     bool			addComponent(const char* nm) override;
     bool			addComponentNoInit(const char* nm);
@@ -68,6 +70,19 @@ public:
 				as the	z-component is not used. \param nms is
 				for passing component names. */
 
+    void			fillTrace(const TrcKey&,SeisTrc&) const;
+    void			fillTraceInfo(const TrcKey&,SeisTrcInfo&) const;
+    void			fillTraceData(const TrcKey&,TraceData&) const;
+
+protected:
+				~RegularSeisDataPack();
+
+    TrcKeyZSampling		sampling_;
+    PosInfo::CubeData*		rgldpckposinfo_ = nullptr;
+
+public:
+
+    mDeprecated("Use createDataPackForZSliceRM")
     static DataPackID		createDataPackForZSlice(const BinIDValueSet*,
 						const TrcKeyZSampling&,
 						const ZDomain::Info&,
@@ -79,15 +94,6 @@ public:
 				as the	z-component is not used. \param nms is
 				for passing component names. */
 
-    void			fillTrace(const TrcKey&,SeisTrc&) const;
-    void			fillTraceInfo(const TrcKey&,SeisTrcInfo&) const;
-    void			fillTraceData(const TrcKey&,TraceData&) const;
-
-protected:
-				~RegularSeisDataPack();
-
-    TrcKeyZSampling		sampling_;
-    PosInfo::CubeData*		rgldpckposinfo_ = nullptr;
 };
 
 
@@ -102,6 +108,7 @@ public:
 						   const BinDataDesc* =nullptr);
 
     bool			is2D() const override	{ return false; }
+    bool			isRandom() const override	{ return true; }
     int				nrTrcs() const override { return path_.size(); }
     TrcKey			getTrcKey(int trcidx) const override;
     int				getGlobalIdx(const TrcKey&) const override;
@@ -116,10 +123,17 @@ public:
 
     bool			addComponent(const char* nm) override;
 
-    static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
-						   const TrcKeyPath& path,
-						   const Interval<float>& zrg);
+    static RefMan<RandomSeisDataPack> createDataPackFromRM(
+						    const RegularSeisDataPack&,
+						    const RandomLineID&,
+						    const Interval<float>& zrg,
+						    const BufferStringSet* nms);
 
+    static RefMan<RandomSeisDataPack> createDataPackFromRM(
+						const RegularSeisDataPack&,
+						const TrcKeyPath& path,
+						const Interval<float>& zrg,
+						const BufferStringSet* nms);
 protected:
 				~RandomSeisDataPack();
 
@@ -127,15 +141,10 @@ protected:
     ZSampling			zsamp_;
 
 public:
+
     static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
 						   const RandomLineID&,
 						   const Interval<float>& zrg);
-
-    static RefMan<RandomSeisDataPack> createDataPackFromRM(
-						    const RegularSeisDataPack&,
-						    const RandomLineID&,
-						    const Interval<float>& zrg,
-						    const BufferStringSet* nms);
 
     static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
 					       const RandomLineID&,
@@ -143,11 +152,17 @@ public:
 					       const BufferStringSet* nms);
 
     static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
+						   const TrcKeyPath& path,
+						   const Interval<float>& zrg);
+
+    static DataPackID		createDataPackFrom(const RegularSeisDataPack&,
 					       const TrcKeyPath& path,
 					       const Interval<float>& zrg,
 					       const BufferStringSet* nms);
 
+    mDeprecated("Use setPath")
     TrcKeyPath&			getPath()		{ return path_; }
+
 };
 
 

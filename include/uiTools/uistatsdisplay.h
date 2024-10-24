@@ -9,39 +9,41 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uigroup.h"
-#include "datapack.h"
 
-class uiHistogramDisplay;
+#include "datapack.h"
+#include "uigroup.h"
+
 class uiGenInput;
+class uiHistogramDisplay;
 class uiLabel;
 template <class T> class Array2D;
 namespace Stats { template <class T> class ParallelCalc; }
 
 
 mExpClass(uiTools) uiStatsDisplay : public uiGroup
-{ mODTextTranslationClass(uiStatsDisplay);
+{
+mODTextTranslationClass(uiStatsDisplay);
 public:
 
-    struct Setup
+    mExpClass(uiTools) Setup
     {
-				Setup()
-				    : withplot_(true)
-				    , withname_(true)
-				    , withtext_(true)
-				    , vertaxis_(true)
-				    , countinplot_(false)	{}
+    public:
+				Setup();
+				~Setup();
 
-	mDefSetupMemb(bool,withplot)
-	mDefSetupMemb(bool,withname)
-	mDefSetupMemb(bool,withtext)
-	mDefSetupMemb(bool,vertaxis)
-	mDefSetupMemb(bool,countinplot)
+	mDefSetupMemb(bool,withplot)	//!< true
+	mDefSetupMemb(bool,withname)	//!< true
+	mDefSetupMemb(bool,withtext)	//!< true
+	mDefSetupMemb(bool,vertaxis)	//!< true
+	mDefSetupMemb(bool,countinplot) //!< false
     };
 				uiStatsDisplay(uiParent*,const Setup&);
 				~uiStatsDisplay();
 
-    bool			setDataPackID(DataPackID,DataPackMgr::MgrID,
+    bool			setDataPack(const DataPack&,int version=0);
+    mDeprecated("Use setDataPack")
+    bool			setDataPackID(const DataPackID&,
+					      const DataPackMgr::MgrID&,
 					      int version=0);
     void			setData(const float*,int sz);
     void			setData(const Array2D<float>*);
@@ -52,14 +54,14 @@ public:
 
     void			putN();
 
-protected:
+private:
 
-    uiHistogramDisplay*		histgramdisp_;
-    uiLabel*			namefld_;
-    uiGenInput*			countfld_;
-    uiGenInput*			minmaxfld_;
-    uiGenInput*			avgstdfld_;
-    uiGenInput*			medrmsfld_;
+    uiHistogramDisplay*		histgramdisp_	= nullptr;
+    uiLabel*			namefld_	= nullptr;
+    uiGenInput*			countfld_	= nullptr;
+    uiGenInput*			minmaxfld_	= nullptr;
+    uiGenInput*			avgstdfld_	= nullptr;
+    uiGenInput*			medrmsfld_	= nullptr;
 
     const Setup			setup_;
 

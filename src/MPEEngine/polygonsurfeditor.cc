@@ -9,69 +9,60 @@ ________________________________________________________________________
 
 #include "polygonsurfeditor.h"
 
-#include "empolygonbody.h"
 #include "emmanager.h"
-#include "polygonsurfaceedit.h"
+#include "empolygonbody.h"
 #include "mpeengine.h"
+#include "polygonsurfaceedit.h"
 #include "selector.h"
 #include "survinfo.h"
 #include "trigonometry.h"
-
 #include "undo.h"
 
-namespace MPE
-{
 
-PolygonBodyEditor::PolygonBodyEditor( EM::PolygonBody& polygonsurf )
+RefMan<MPE::PolygonBodyEditor>
+	MPE::PolygonBodyEditor::create( const EM::PolygonBody& polygonsurf )
+{
+    return new PolygonBodyEditor( polygonsurf );
+}
+
+
+MPE::PolygonBodyEditor::PolygonBodyEditor( const EM::PolygonBody& polygonsurf )
     : ObjectEditor(polygonsurf)
     , sowingpivot_(Coord3::udf())
 {}
 
 
-PolygonBodyEditor::~PolygonBodyEditor()
+MPE::PolygonBodyEditor::~PolygonBodyEditor()
 {}
 
 
-ObjectEditor* PolygonBodyEditor::create( EM::EMObject& emobj )
+Geometry::ElementEditor* MPE::PolygonBodyEditor::createEditor()
 {
-    mDynamicCastGet(EM::PolygonBody*,polygonsurf,&emobj);
-    return polygonsurf ? new PolygonBodyEditor( *polygonsurf ) : 0;
+    RefMan<EM::EMObject> emobject = emObject();
+    Geometry::Element* ge = emobject ? emobject->geometryElement() : nullptr;
+    mDynamicCastGet(Geometry::PolygonSurface*,surface,ge);
+    return surface ? new Geometry::PolygonSurfEditor( *surface ) : nullptr;
 }
 
 
-void PolygonBodyEditor::initClass()
+void MPE::PolygonBodyEditor::setLastClicked( const EM::PosID& pid )
 {
-    MPE::EditorFactory().addCreator( create, EM::PolygonBody::typeStr() );
-}
+    RefMan<EM::EMObject> emobject = emObject();
+    if ( !emobject )
+	return;
 
-
-Geometry::ElementEditor* PolygonBodyEditor::createEditor()
-{
-    const Geometry::Element* ge = emObject().geometryElement();
-    if ( !ge ) return 0;
-
-    mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
-    return !surface ? 0 : new Geometry::PolygonSurfEditor(
-			  *const_cast<Geometry::PolygonSurface*>(surface) );
-}
-
-
-static EM::PosID lastclicked_ = EM::PosID::udf();
-
-void PolygonBodyEditor::setLastClicked( const EM::PosID& pid )
-{
-    lastclicked_ = pid;
+    lastclickedpid() = pid;
 
     if ( sowingpivot_.isDefined() )
     {
-	const Coord3 pos = emObject().getPos( pid );
+	const Coord3 pos = emobject->getPos( pid );
 	if ( pos.isDefined() )
 	    sowinghistory_.insert( 0, pos );
     }
 }
 
 
-void PolygonBodyEditor::setSowingPivot( const Coord3 pos )
+void MPE::PolygonBodyEditor::setSowingPivot( const Coord3 pos )
 {
     if ( sowingpivot_.isDefined() && !pos.isDefined() )
 	sowinghistory_.erase();
@@ -82,12 +73,16 @@ void PolygonBodyEditor::setSowingPivot( const Coord3 pos )
 
 #define mCompareCoord( crd ) Coord3( crd, crd.z_*zfactor )
 
-void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
+void MPE::PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 					    EM::PosID& nearestpid1,
 					    EM::PosID& insertpid,
 					    const Coord3& mousepos,
 					    float zfactor ) const
 {
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    if ( !emobject )
+	return;
+
     nearestpid0 = EM::PosID::udf();
     nearestpid1 = EM::PosID::udf();
     insertpid = EM::PosID::udf();
@@ -99,43 +94,47 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
     const float mindist = getNearestPolygon( polygon, pos, zfactor );
     if ( mIsUdf(mindist) )
     {
-	if ( !emObject().nrSections() )
+	if ( !emobject->nrSections() )
 	    return;
 
-	const Geometry::Element* ge = emObject().geometryElement();
-	if ( !ge ) return;
+	const Geometry::Element* ge = emobject->geometryElement();
+	if ( !ge )
+	    return;
 
 	mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
-	if ( !surface ) return;
+	if ( !surface )
+	    return;
 
 	const StepInterval<int> rowrange = surface->rowRange();
 	if ( !rowrange.isUdf() )
 	    return;
 
-	insertpid.setObjectID( emObject().id() );
+	insertpid.setObjectID( emobject->id() );
 	insertpid.setSubID( RowCol(0,0).toInt64() );
 	return;
     }
 
     if ( fabs(mindist)>50 )
     {
-	if ( !emObject().nrSections() )
+	if ( !emobject->nrSections() )
 	    return;
 
-	const Geometry::Element* ge = emObject().geometryElement();
-	if ( !ge ) return;
+	const Geometry::Element* ge = emobject->geometryElement();
+	if ( !ge )
+	    return;
 
 	mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
-	if ( !surface ) return;
+	if ( !surface )
+	    return;
 
 	const StepInterval<int> rowrange = surface->rowRange();
 	if ( rowrange.isUdf() )
 	    return;
 
-	insertpid.setObjectID( emObject().id() );
+	insertpid.setObjectID( emobject->id() );
 	const int newpolygon = mindist>0
-                               ? polygon+rowrange.step_
-                               : polygon==rowrange.start_ ? polygon-rowrange.step_ : polygon;
+	       ? polygon+rowrange.step_
+	       : polygon==rowrange.start_ ? polygon-rowrange.step_ : polygon;
 
 	insertpid.setSubID( RowCol(newpolygon,0).toInt64() );
 	return;
@@ -146,9 +145,10 @@ void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 }
 
 
-bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
+bool MPE::PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 {
-    mDynamicCastGet( EM::PolygonBody*, polygonsurf, emobject_.ptr() );
+    RefMan<EM::EMObject> emobject = emObject();
+    mDynamicCastGet(EM::PolygonBody*,polygonsurf,emobject.ptr());
     if ( !polygonsurf )
 	return false;
 
@@ -156,10 +156,12 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
     for ( int sectidx=polygonsurf->nrSections()-1; sectidx>=0; sectidx--)
     {
 	const Geometry::Element* ge = polygonsurf->geometryElement();
-	if ( !ge ) continue;
+	if ( !ge )
+	    continue;
 
 	mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
-	if ( !surface ) continue;
+	if ( !surface )
+	    continue;
 
 	const StepInterval<int> rowrange = surface->rowRange();
 	if ( rowrange.isUdf() )
@@ -193,33 +195,40 @@ bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 
     if ( change )
     {
-	EM::EMM().undo(emObject().id()).setUserInteractionEnd(
-		EM::EMM().undo(emObject().id()).currentEventID() );
+	EM::EMM().undo(emobject->id()).setUserInteractionEnd(
+		EM::EMM().undo(emobject->id()).currentEventID() );
     }
 
     return change;
 }
 
 
-float PolygonBodyEditor::getNearestPolygon( int& polygon,
-	const Coord3& mousepos, float zfactor ) const
+float MPE::PolygonBodyEditor::getNearestPolygon( int& polygon,
+				const Coord3& mousepos, float zfactor ) const
 {
     if ( !mousepos.isDefined() )
+	return mUdf(float);
+
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    if ( !emobject )
 	return mUdf(float);
 
     int selsectionidx = -1, selpolygon = mUdf(int);
     float mindist = mUdf(float);
 
-    for ( int sectionidx=emObject().nrSections()-1; sectionidx>=0; sectionidx--)
+    for ( int sectionidx=emobject->nrSections()-1; sectionidx>=0; sectionidx--)
     {
-	const Geometry::Element* ge = emObject().geometryElement();
-	if ( !ge ) continue;
+	const Geometry::Element* ge = emobject->geometryElement();
+	if ( !ge )
+	    continue;
 
 	mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
-	if ( !surface ) continue;
+	if ( !surface )
+	    continue;
 
 	const StepInterval<int> rowrange = surface->rowRange();
-	if ( rowrange.isUdf() ) continue;
+	if ( rowrange.isUdf() )
+	    continue;
 
 	for ( int polygonidx=rowrange.nrSteps(); polygonidx>=0; polygonidx-- )
 	{
@@ -242,7 +251,8 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon,
 		}
 	    }
 
-	    if ( !count ) continue;
+	    if ( !count )
+		continue;
 
 	    avgpos /= count;
 
@@ -280,9 +290,11 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon,
 	return false;
 
 
-bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
+bool MPE::PolygonBodyEditor::setPosition( const EM::PosID& pid,
+					  const Coord3& mpos )
 {
-    if ( !mpos.isDefined() ) return false;
+    if ( !mpos.isDefined() )
+	return false;
 
     const BinID bid = SI().transform( mpos );
     if ( !SI().inlRange( true ).includes(bid.inl(),false) ||
@@ -290,20 +302,23 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
          !SI().zRange( true ).includes(mpos.z_,false) )
 	return false;
 
-    const Geometry::Element* ge = emObject().geometryElement();
-    mDynamicCastGet( const Geometry::PolygonSurface*, surface, ge );
-    if ( !surface ) return false;
+    RefMan<EM::EMObject> emobject = emObject();
+    Geometry::Element* ge = emobject ? emobject->geometryElement() : nullptr;
+    mDynamicCastGet(Geometry::PolygonSurface*,surface,ge);
+    if ( !surface )
+	return false;
 
     const RowCol rc = pid.getRowCol();
     const StepInterval<int> colrg = surface->colRange( rc.row() );
-    if ( colrg.isUdf() ) return false;
+    if ( colrg.isUdf() )
+	return false;
 
     const bool addtoundo = changedpids.indexOf(pid) == -1;
     if ( addtoundo )
 	changedpids += pid;
 
     if ( colrg.nrSteps()<3 )
-	return emobject_->setPos( pid, mpos, addtoundo );
+	return emobject->setPos( pid, mpos, addtoundo );
 
     const int zscale =  SI().zDomain().userFactor();
     const int previdx =
@@ -348,25 +363,29 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 	}
     }
 
-    return emobject_->setPos( pid, mpos, addtoundo );
+    return emobject->setPos( pid, mpos, addtoundo );
 }
 
 
-void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
-	EM::PosID& nearestpid1, EM::PosID& insertpid, int polygon,
-	const Coord3& mousepos, float zfactor ) const
+void MPE::PolygonBodyEditor::getPidsOnPolygon(	EM::PosID& nearestpid0,
+		    EM::PosID& nearestpid1, EM::PosID& insertpid, int polygon,
+		    const Coord3& mousepos, float zfactor ) const
 {
     nearestpid0 = EM::PosID::udf();
     nearestpid1 = EM::PosID::udf();
     insertpid = EM::PosID::udf();
     if ( !mousepos.isDefined() ) return;
 
-    const Geometry::Element* ge = emObject().geometryElement();
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    const Geometry::Element* ge = emobject ? emobject->geometryElement()
+					   : nullptr;
     mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
-    if ( !surface ) return;
+    if ( !surface )
+	return;
 
     const StepInterval<int> colrange = surface->colRange( polygon );
-    if ( colrange.isUdf() ) return;
+    if ( colrange.isUdf() )
+	return;
 
     const Coord3 mp = mCompareCoord(mousepos);
     TypeSet<int> knots;
@@ -402,7 +421,7 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
     if ( nearknotidx==-1 )
 	return;
 
-    nearestpid0.setObjectID( emObject().id() );
+    nearestpid0.setObjectID( emobject->id() );
     nearestpid0.setSubID( RowCol(polygon,knots[nearknotidx]).toInt64() );
     if ( knots.size()<=2 )
     {
@@ -528,4 +547,8 @@ void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 }
 
 
-};  // namespace MPE
+EM::PosID& MPE::PolygonBodyEditor::lastclickedpid()
+{
+    static EM::PosID lastclickedpid_;
+    return lastclickedpid_;
+}

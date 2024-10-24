@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodvw2dtreeitem.h"
+
 #include "emposid.h"
+#include "uiodvw2dtreeitem.h"
 
 namespace View2D { class FaultSS3D; }
 class uiODViewer2D;
@@ -23,15 +24,15 @@ public:
 				~uiODView2DFaultSSParentTreeItem();
 
     bool			showSubMenu() override;
-    void			getFaultSSVwr2DIDs(EM::ObjectID emid,
+    void			getFaultSSVwr2DIDs(const EM::ObjectID&,
 						   TypeSet<Vis2DID>&) const;
     void			getLoadedFaultSSs(TypeSet<EM::ObjectID>&) const;
-    void			removeFaultSS(EM::ObjectID);
+    void			removeFaultSS(const EM::ObjectID&);
     void			addFaultSSs(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS(EM::ObjectID emid);
-    void			setupNewTempFaultSS(EM::ObjectID emid);
+    void			addNewTempFaultSS(const EM::ObjectID&);
+    void			setupNewTempFaultSS(const EM::ObjectID&);
 
-protected:
+private:
 
     bool			init() override;
     const char*			iconName() const override;
@@ -65,7 +66,7 @@ public:
     EM::ObjectID	emObjectID() const	{ return emid_; }
     const View2D::FaultSS3D* vw2DObject() const	{ return fssview_; }
 
-protected:
+private:
 
     bool		init() override;
     const char*		parentType() const override
@@ -83,5 +84,5 @@ protected:
     void		propChgCB(CallBacker*);
 
     EM::ObjectID	emid_;
-    View2D::FaultSS3D*	fssview_;
+    View2D::FaultSS3D*	fssview_	= nullptr;
 };

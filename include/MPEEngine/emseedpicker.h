@@ -107,16 +107,15 @@ public:
 
     void		setTrackMode(TrackMode);
     TrackMode		getTrackMode() const;
-    bool		doesModeUseVolume() const		{ return false;}
+    bool		doesModeUseVolume() const	{ return false; }
 
-    virtual const char* errMsg() const				{ return 0; }
-
+    virtual const char* errMsg() const			{ return nullptr; }
 
     void		setSeedPickArea(const TrcKeySampling&);
     const TrcKeySampling& getSeedPickArea() const;
     EMTracker&		emTracker() const { return tracker_; }
-    bool		lineTrackDirection( BinID& dir,
-					    bool perptotrackdir = false ) const;
+    bool		lineTrackDirection(BinID& dir,
+					   bool perptotrackdir = false) const;
     virtual bool	updatePatchLine(bool) { return false; }
     Undo&		horPatchUndo();
     const Undo&		horPatchUndo() const;

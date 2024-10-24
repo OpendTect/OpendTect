@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "emposid.h"
 #include "emobject.h"
-#include "factory.h"
 #include "task.h"
 #include "trckeyzsampling.h"
 
@@ -85,9 +84,5 @@ protected:
     BufferString		errmsg;
     bool			setundo_	= true;
 };
-
-
-mDefineFactory1Param( MPEEngine, SectionExtender, EM::EMObject*,
-		      ExtenderFactory );
 
 } // namespace MPE

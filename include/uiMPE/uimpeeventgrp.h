@@ -9,8 +9,8 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
-#include "flatview.h"
 
+#include "flatview.h"
 #include "uidlggroup.h"
 #include "uimpe.h"
 
@@ -39,8 +39,7 @@ public:
     void			updateSensitivity(bool doauto);
     void			updateAttribute();
 
-    NotifierAccess*		changeNotifier()
-				{ return &changed_; }
+    NotifierAccess*		changeNotifier()	{ return &changed; }
     Notifier<uiEventGroup>	changeAttribPushed;
 
     bool			commitToTracker(bool& fieldchange) const;
@@ -76,7 +75,7 @@ protected:
     SectionTracker*		sectiontracker_			= nullptr;
     HorizonAdjuster*		adjuster_			= nullptr;
 
-    Notifier<uiEventGroup>	changed_;
+    Notifier<uiEventGroup>	changed;
 };
 
 } // namespace MPE

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uihistogramsel.h"
 
 class uiPixmapItem;
@@ -19,7 +20,7 @@ mExpClass(uiTools) uiMapperRangeEditor : public uiHistogramSel
 {
 public:
 				uiMapperRangeEditor(uiParent*,int id,
-					bool fixdrawrg=true);
+						    bool fixdrawrg=true);
 				~uiMapperRangeEditor();
 
     void			setEmpty();
@@ -32,7 +33,7 @@ public:
 
     Notifier<uiMapperRangeEditor>	sequenceChanged;
 
-protected:
+private:
 
     ColTab::MapperSetup*	ctmapper_;
     ColTab::Sequence*		ctseq_;
@@ -44,7 +45,7 @@ protected:
     uiLineItem*			ctminline_;
     uiLineItem*			ctmaxline_;
 
-    void 			initPixmaps();
+    void			initPixmaps();
     void			drawLines() override;
     void			drawPixmaps() override;
     void			makeSymmetricalIfNeeded(bool) override;

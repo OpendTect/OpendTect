@@ -9,12 +9,12 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uidialog.h"
 
 #include "datapack.h"
+#include "uidialog.h"
 
-class uiPushButton;
 class uiMapperRangeEditor;
+class uiPushButton;
 class uiStatsDisplay;
 
 namespace ColTab { class MapperSetup; class Sequence; }
@@ -23,11 +23,15 @@ mExpClass(uiTools) uiMultiMapperRangeEditWin : public uiDialog
 { mODTextTranslationClass(uiMultiMapperRangeEditWin);
 public:
 					uiMultiMapperRangeEditWin(uiParent*,
-						int nr,DataPackMgr::MgrID dmid);
+								  int nr);
 					~uiMultiMapperRangeEditWin();
 
     uiMapperRangeEditor*		getuiMapperRangeEditor(int);
-    void				setDataPackID(int nr,DataPackID,
+    void				setDataPack(int nr,const DataPack*,
+						    int version=0);
+    mDeprecated("Use setDataPack")
+    void				setDataPackID(int nr,const DataPackID&,
+						      const DataPackMgr::MgrID&,
 						      int version=0);
     void				setColTabMapperSetup(int,
 						const ColTab::MapperSetup&);
@@ -44,20 +48,36 @@ public:
     Notifier<uiMultiMapperRangeEditWin>	rangeChange;
     Notifier<uiMultiMapperRangeEditWin>	sequenceChange;
 
-protected:
+private:
+
+    mClass(uiTools) MapperData : public CallBacker
+    {
+    public:
+				MapperData();
+				~MapperData();
+
+	void			setDataPack(const DataPack*);
+	bool			hasDataPack() const	{ return datapack_; }
+	ConstRefMan<DataPack>	getDataPack() const;
+
+	uiStatsDisplay*		statsdisplay_	= nullptr;
+	uiMapperRangeEditor*	mapperrgeditor_ = nullptr;
+
+    private:
+	WeakPtr<DataPack>	datapack_;
+
+	void			dataPackDeleted(CallBacker*);
+    };
+
+    ObjectSet<MapperData>		mapperdatas_;
 
     uiPushButton*			statbut_;
-    ObjectSet<uiMapperRangeEditor>	mapperrgeditors_;
-    int					activeattrbid_;
-    const ColTab::MapperSetup*		activectbmapper_;
-    const ColTab::Sequence*		activectbseq_;
-    DataPackMgr&			dpm_;
-    TypeSet<DataPackID>		datapackids_;
-    ObjectSet<uiStatsDisplay>		statsdisplays_;
+    int					activeattrbid_		= -1;
+    const ColTab::MapperSetup*		activectbmapper_	= nullptr;
+    const ColTab::Sequence*		activectbseq_		= nullptr;
 
     void				mouseMoveCB(CallBacker*);
     void				rangeChanged(CallBacker*);
     void				sequenceChanged(CallBacker*);
     void				showStatDlg(CallBacker*);
-    void				dataPackDeleted(CallBacker*);
 };

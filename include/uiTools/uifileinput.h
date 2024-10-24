@@ -34,8 +34,8 @@ public:
     mExpClass(uiTools) Setup
     {
     public:
-			Setup(const char* filenm=0);
-			Setup(uiFileDialog::Type t,const char* filenm=0);
+			Setup(const char* filenm=nullptr);
+			Setup(uiFileDialog::Type,const char* filenm=nullptr);
 	virtual		~Setup();
 
 	BufferString	fnm;
@@ -110,14 +110,14 @@ protected:
     bool		exameditable_;
     bool		confirmoverwrite_;
     CallBack		excb_;
-    BufferString	defaultext_;
+    BufferString	defaultext_;			//! dat
     uiString		objtype_;
 
-    bool		selmodset_;
-    uiFileDialog::Mode  selmode_;
+    bool		selmodset_			= false;
+    uiFileDialog::Mode	selmode_			= uiFileDialog::AnyFile;
     uiFileDialog::Type  filedlgtype_;
 
-    uiButton*		examinebut_				= nullptr;
+    uiButton*		examinebut_			= nullptr;
 
     void		doSelect(CallBacker*) override;
     void		inputChg(CallBacker*);

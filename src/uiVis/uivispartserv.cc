@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "flatview.h"
+#include "genc.h"
 #include "iopar.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
@@ -25,6 +26,7 @@ ________________________________________________________________________
 
 #include "uiattribtransdlg.h"
 #include "uifiledlg.h"
+#include "uimain.h"
 #include "uimapperrangeeditordlg.h"
 #include "uimaterialdlg.h"
 #include "uimpeman.h"
@@ -40,15 +42,18 @@ ________________________________________________________________________
 #include "uiviszstretchdlg.h"
 
 #include "visdataman.h"
-#include "visemobjdisplay.h"
 #include "visevent.h"
+#include "vishorizondisplay.h"
+#include "vishorizon2ddisplay.h"
 #include "vismpeseedcatcher.h"
 #include "visobject.h"
 #include "visplanedatadisplay.h"
+#include "visrandomtrackdisplay.h"
+#include "visseis2ddisplay.h"
 #include "visscenecoltab.h"
 #include "visselman.h"
-#include "vissurvobj.h"
 #include "vistexturechannels.h"
+#include "visvolumedisplay.h"
 
 
 int uiVisPartServer::evUpdateTree()			{ return 0; }
@@ -219,7 +224,7 @@ uiString uiVisPartServer::getUiObjectName( const VisID& id ) const
 Pos::GeomID uiVisPartServer::getGeomID( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getGeomID() : Survey::GM().cUndefGeomID();
+    return so ? so->getGeomID() : Pos::GeomID::udf();
 }
 
 
@@ -467,7 +472,13 @@ VisID uiVisPartServer::highestID() const
 }
 
 
-visBase::DataObject* uiVisPartServer::getObject( const VisID& id ) const
+const visBase::DataObject* uiVisPartServer::getObject( const VisID& id ) const
+{
+    return mSelf().getObject( id );
+}
+
+
+visBase::DataObject* uiVisPartServer::getObject( const VisID& id )
 {
     mDynamicCastGet(visBase::DataObject*,dobj,visBase::DM().getObject(id))
     return dobj;
@@ -605,16 +616,18 @@ void uiVisPartServer::getSceneChildIds( const SceneID& sceneid,
 void uiVisPartServer::getVisChildIds( const VisID& id,
 				      TypeSet<VisID>& childids ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    if ( so ) so->getChildren( childids );
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
+    if ( so )
+	so->getChildren( childids );
 }
 
 
 uiVisPartServer::AttribFormat
     uiVisPartServer::getAttributeFormat( const VisID& id, int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    if ( !so ) return None;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
+    if ( !so )
+	return None;
 
     switch ( so->getAttributeFormat(attrib) )
     {
@@ -631,29 +644,29 @@ uiVisPartServer::AttribFormat
 
 bool uiVisPartServer::canHaveMultipleAttribs( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->canHaveMultipleAttribs() : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so && so->canHaveMultipleAttribs();
 }
 
 
 bool uiVisPartServer::canAddAttrib( const VisID& id, int nr ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->canAddAttrib(nr) : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so && so->canAddAttrib(nr);
 }
 
 
 bool uiVisPartServer::canRemoveAttrib( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->canRemoveAttrib() : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so && so->canRemoveAttrib();
 }
 
 
 bool uiVisPartServer::canRemoveDisplay( const VisID& id ) const
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    return so ? so->canBeRemoved() : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so && so->canBeRemoved();
 }
 
 
@@ -663,7 +676,8 @@ int uiVisPartServer::addAttrib( const VisID& id )
 	return -1;
 
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return -1;
+    if ( !so )
+	return -1;
 
     return so->addAttrib() ? so->nrAttribs()-1 : -1;
 }
@@ -672,7 +686,8 @@ int uiVisPartServer::addAttrib( const VisID& id )
 void uiVisPartServer::removeAttrib( const VisID& id, int attrib )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return;
+    if ( !so )
+	return;
 
     so->removeAttrib( attrib );
     selattrib_ = -1;
@@ -680,36 +695,32 @@ void uiVisPartServer::removeAttrib( const VisID& id, int attrib )
 
 int uiVisPartServer::getNrAttribs( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return 0;
-
-    return so->nrAttribs();
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->nrAttribs() : 0;
 }
 
 
 void uiVisPartServer::getAttribPosName( const VisID& id, int attrib,
 					uiString& res ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return;
-
-    return so->getChannelName( attrib, res );
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    if ( so )
+	so->getChannelName( attrib, res );
 }
 
 
 bool uiVisPartServer::swapAttribs( const VisID& id, int attrib0, int attrib1 )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return false;
-
-    return so->swapAttribs( attrib0, attrib1 );
+    return so && so->swapAttribs( attrib0, attrib1 );
 }
 
 
 void uiVisPartServer::showAttribTransparencyDlg( const VisID& id, int attrib )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return;
+    if ( !so )
+	return;
 
     uiAttribTransDlg dlg( appserv().parent(), *so, attrib );
     dlg.go();
@@ -719,10 +730,8 @@ void uiVisPartServer::showAttribTransparencyDlg( const VisID& id, int attrib )
 unsigned char uiVisPartServer::getAttribTransparency( const VisID& id,
 						      int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return 0;
-
-    return so->getAttribTransparency( attrib );
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getAttribTransparency( attrib ) : 0;
 }
 
 
@@ -740,81 +749,95 @@ TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( const VisID& id,
 {
     TrcKeyZSampling res;
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) res = so->getTrcKeyZSampling( false, attribid );
+    if ( so )
+	res = so->getTrcKeyZSampling( false, attribid );
+
     return res;
-}
-
-
-DataPackID uiVisPartServer::getDataPackID( const VisID& id, int attrib ) const
-{
-    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDataPackID( attrib ) : DataPackID::udf();
-}
-
-
-DataPackID uiVisPartServer::getDisplayedDataPackID( const VisID& id,
-						    int attrib )const
-{
-    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDisplayedDataPackID( attrib ) :
-						    DataPackID::udf();
-}
-
-
-DataPackMgr::MgrID uiVisPartServer::getDataPackMgrID( const VisID& id ) const
-{
-    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getDataPackMgrID() : DataPack::MgrID::udf();
 }
 
 
 int uiVisPartServer::currentVersion( const VisID& id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so || !so->getChannels() ) return -1;
+    if ( !so || !so->getChannels() )
+	return -1;
+
     return so->getChannels()->currentVersion( attrib );
 }
 
 
-bool uiVisPartServer::setDataPackID( const VisID& id, int attrib,
-				     const DataPackID& dpid )
+ConstRefMan<DataPack> uiVisPartServer::getDataPack(
+					    const VisID& id, int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so )
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getDataPack( attrib ) : nullptr;
+}
+
+
+ConstRefMan<DataPack> uiVisPartServer::getDisplayedDataPack(
+					    const VisID& id, int attrib ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getDisplayedDataPack( attrib ) : nullptr;
+}
+
+
+bool uiVisPartServer::setRegularSeisDataPack( const VisID& id, int attrib,
+					      RegularSeisDataPack* seisdp )
+{
+    const visBase::DataObject* visobj = getObject( id );
+    mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,visobj);
+    mDynamicCastGet(const visSurvey::Seis2DDisplay*,s2dd,visobj);
+    mDynamicCastGet(const visSurvey::VolumeDisplay*,vdd,visobj);
+    if ( !pdd && !s2dd && !vdd )
 	return false;
 
-    uiTaskRunner taskrunner( appserv().parent() );
-    const bool res = so->setDataPackID( attrib, dpid, &taskrunner );
+    return setSeisDataPack( id, attrib, seisdp );
+}
 
-    if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
-	multirgeditwin_->setDataPackID( attrib, dpid,
-					so->selectedTexture(attrib) );
 
-    return res;
+bool uiVisPartServer::setRandomSeisDataPack( const VisID& id, int attrib,
+					     RandomSeisDataPack* randsdp )
+{
+    const visBase::DataObject* visobj = getObject( id );
+    mDynamicCastGet(const visSurvey::RandomTrackDisplay*,rtd,visobj);
+    return rtd ? setSeisDataPack( id, attrib, randsdp ) : false;
 }
 
 
 bool uiVisPartServer::setSeisDataPack( const VisID& id, int attrib,
-				       RegularSeisDataPack* attribdata )
+				       SeisDataPack* seisdp )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( !so )
 	return false;
 
     uiTaskRunner taskrunner( appserv().parent() );
-    const bool res = so->setSeisDataPack( attrib, attribdata, &taskrunner );
-
-    const DataPackID dpid = attribdata ? attribdata->id() : DataPack::cNoID();
-    //TODO: add to DPM() ?
+    const bool res = so->setSeisDataPack( attrib, seisdp, &taskrunner );
+/*
+   enable only in release branches:
+    DataPackMgr& seisdpmgr = DPM( DataPackMgr::SeisID() );
+    if ( !OD::InDebugMode() && seisdp && !seisdpmgr.isPresent(seisdp->id()) )
+	seisdpmgr.add( seisdp );
+*/
+    const DataPackID dpid = seisdp ? seisdp->id() : DataPack::cNoID();
     if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
-	multirgeditwin_->setDataPackID( attrib, dpid,
-					so->selectedTexture(attrib) );
+	multirgeditwin_->setDataPack( attrib, seisdp,
+				      so->selectedTexture(attrib) );
 
     return res;
 }
 
 
-ConstRefMan<RegularSeisDataPack> uiVisPartServer::getSeisDataPack(
+ConstRefMan<FlatDataPack> uiVisPartServer::getFlatDataPack(
+					    const VisID& id, int attrib ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getFlatDataPack( attrib ) : nullptr;
+}
+
+
+ConstRefMan<SeisDataPack> uiVisPartServer::getSeisDataPack(
 					    const VisID& id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
@@ -822,19 +845,25 @@ ConstRefMan<RegularSeisDataPack> uiVisPartServer::getSeisDataPack(
 }
 
 
+ConstRefMan<SeisDataPack> uiVisPartServer::getDisplayedSeisDataPack(
+					    const VisID& id, int attrib ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getDisplayedSeisDataPack( attrib ) : nullptr;
+}
+
+
 bool uiVisPartServer::canHaveMultipleTextures( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) return so->canHaveMultipleTextures();
-    return false;
+    return so && so->canHaveMultipleTextures();
 }
 
 
 int uiVisPartServer::nrTextures( const VisID& id, int attrib ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) return so->nrTextures( attrib );
-    return 0;
+    return so ? so->nrTextures( attrib ) : 0;
 }
 
 
@@ -851,60 +880,83 @@ void uiVisPartServer::selectTexture( const VisID& id, int attrib,
 void uiVisPartServer::setTranslation( const VisID& id, const Coord3& shift )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->setTranslation( shift );
+    if ( so )
+	so->setTranslation( shift );
 }
 
 
 Coord3 uiVisPartServer::getTranslation( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getTranslation() : Coord3(0,0,0);
 }
 
 
 int uiVisPartServer::selectedTexture( const VisID& id, int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->selectedTexture( attrib ) : 0;
 }
 
 
-void uiVisPartServer::getRandomPos( const VisID& id, DataPointSet& dtps ) const
+bool uiVisPartServer::setPointDataPack( const VisID& id, int attrib,
+					PointDataPack* pointdp )
 {
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return;
+    if ( !so )
+	return false;
 
     uiTaskRunner taskrunner( appserv().parent() );
-    so->getRandomPos( dtps, &taskrunner );
+    return so->setPointDataPack( attrib, pointdp, &taskrunner );
 }
 
 
-void uiVisPartServer::getRandomPosCache( const VisID& id, int attrib,
-					 DataPointSet& dtps ) const
-{
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->getRandomPosCache( attrib, dtps );
-}
-
-
-void uiVisPartServer::setRandomPosData( const VisID& id, int attrib,
+bool uiVisPartServer::setRandomPosData( const VisID& id, int attrib,
 					const DataPointSet* dtps )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return;
+    if ( !so )
+	return false;
 
     uiTaskRunner taskrunner( appserv().parent() );
-    so->setRandomPosData( attrib, dtps, &taskrunner );
+    return so->setRandomPosData( attrib, dtps, &taskrunner );
+}
+
+
+ConstRefMan<PointDataPack> uiVisPartServer::getPointDataPack(
+					    const VisID& id, int attrib ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getPointDataPack( attrib ) : nullptr;
+}
+
+
+bool uiVisPartServer::getRandomPos( const VisID& id, DataPointSet& dtps ) const
+{
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so )
+	return false;
+
+    uiTaskRunner taskrunner( appserv().parent() );
+    return so->getRandomPos( dtps, &taskrunner );
+}
+
+
+bool uiVisPartServer::getRandomPosCache( const VisID& id, int attrib,
+					 DataPointSet& dtps ) const
+{
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so && so->getRandomPosCache( attrib, dtps );
 }
 
 
 void uiVisPartServer::getDataTraceBids( const VisID& id,
 					TypeSet<BinID>& bids ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
 	so->getDataTraceBids( bids );
 }
@@ -912,7 +964,7 @@ void uiVisPartServer::getDataTraceBids( const VisID& id,
 
 Interval<float> uiVisPartServer::getDataTraceRange( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getDataTraceRange() : Interval<float>(0,0);
 }
 
@@ -927,14 +979,14 @@ BufferString uiVisPartServer::getMousePosVal() const
 
 uiString uiVisPartServer::getInteractionMsg( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getManipulationString() : uiString::empty();
 }
 
 
 void uiVisPartServer::getObjectInfo( const VisID& id, uiString& info ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
     if ( so )
 	so->getObjectInfo( info );
 }
@@ -944,7 +996,7 @@ const ColTab::MapperSetup*
     uiVisPartServer::getColTabMapperSetup( const VisID& id, int attrib,
 					   int version ) const
 {
-    mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getColTabMapperSetup( attrib, version ) : nullptr;
 }
 
@@ -952,10 +1004,11 @@ const ColTab::MapperSetup*
 void uiVisPartServer::setColTabMapperSetup( const VisID& id, int attrib,
 					    const ColTab::MapperSetup& ms )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    if ( !so ) return;
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so )
+	return;
 
-    so->setColTabMapperSetup( attrib, ms, 0 );
+    so->setColTabMapperSetup( attrib, ms, nullptr );
     if ( so->getScene() && so->getScene()->getSceneColTab() )
 	so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
 
@@ -972,7 +1025,7 @@ void uiVisPartServer::setColTabMapperSetup( const VisID& id, int attrib,
 const ColTab::Sequence*
     uiVisPartServer::getColTabSequence( const VisID& id, int attrib ) const
 {
-    mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getColTabSequence( attrib ) : nullptr;
 }
 
@@ -980,25 +1033,26 @@ const ColTab::Sequence*
 bool uiVisPartServer::canHandleColTabSeqTrans( const VisID& id,
 					       int attrib ) const
 {
-    mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
-    return so ? so-> canHandleColTabSeqTrans( attrib ) : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
+    return so && so-> canHandleColTabSeqTrans( attrib );
 }
 
 
 bool uiVisPartServer::canSetColTabSequence( const VisID& id ) const
 {
-    mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
-    return so ? so->canSetColTabSequence() : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
+    return so && so->canSetColTabSequence();
 }
 
 
 void uiVisPartServer::setColTabSequence( const VisID& id, int attrib,
 					 const ColTab::Sequence& seq )
 {
-    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
-    if ( !so ) return;
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so )
+	return;
 
-    so->setColTabSequence( attrib, seq, 0 );
+    so->setColTabSequence( attrib, seq, nullptr );
     if ( so->getScene() && so->getScene()->getSceneColTab() )
 	so->getScene()->getSceneColTab()->setColTabSequence( seq );
 
@@ -1054,7 +1108,7 @@ void uiVisPartServer::fillDispPars( const VisID& id, int attrib,
 const TypeSet<float>* uiVisPartServer::getHistogram( const VisID& id,
 						     int attrib) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getHistogram( attrib ) : nullptr;
 }
 
@@ -1070,7 +1124,7 @@ int uiVisPartServer::getEventAttrib() const
 const TypeSet<Attrib::SelSpec>* uiVisPartServer::getSelSpecs( const VisID& id,
 							      int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getSelSpecs( attrib ) : nullptr;
 }
 
@@ -1078,14 +1132,14 @@ const TypeSet<Attrib::SelSpec>* uiVisPartServer::getSelSpecs( const VisID& id,
 const Attrib::SelSpec* uiVisPartServer::getSelSpec( const VisID& id,
 						    int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getSelSpec(attrib,selectedTexture(id,attrib)) : nullptr;
 }
 
 
 bool uiVisPartServer::interpolationEnabled( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->textureInterpolationEnabled() : true;
 }
 
@@ -1093,32 +1147,30 @@ bool uiVisPartServer::interpolationEnabled( const VisID& id ) const
 void uiVisPartServer::enableInterpolation( const VisID& id, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return;
-
-    so->enableTextureInterpolation( yn );
+    if ( so )
+	so->enableTextureInterpolation( yn );
 }
 
 
 bool uiVisPartServer::isAngle( const VisID& id, int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->isAngle( attrib ) : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so && so->isAngle( attrib );
 }
 
 
 void uiVisPartServer::setAngleFlag( const VisID& id, int attrib, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return;
-
-    so->setAngleFlag( attrib, yn );
+    if ( so )
+	so->setAngleFlag( attrib, yn );
 }
 
 
 bool uiVisPartServer::isAttribEnabled( const VisID& id, int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->isAttribEnabled( attrib ) : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so && so->isAttribEnabled( attrib );
 }
 
 
@@ -1152,8 +1204,8 @@ void uiVisPartServer::enableAttrib( const VisID& id, int attrib, bool yn )
 
 bool uiVisPartServer::hasSingleColorFallback( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->hasSingleColorFallback() : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so && so->hasSingleColorFallback();
 }
 
 
@@ -1165,14 +1217,9 @@ bool uiVisPartServer::deleteAllObjects()
     while ( !scenes_.isEmpty() )
 	removeScene( scenes_.first()->getID() );
 
-    objectRemoved.trigger( VisID::udf() );
-    if ( multirgeditwin_ )
-    {
-	multirgeditwin_->close();
-	closeAndNullPtr( multirgeditwin_ );
-    }
-
+    closeAndNullPtr( multirgeditwin_ );
     closeAndNullPtr( topbotdlg_ );
+    objectRemoved.trigger( VisID::udf() );
     ns.enableNotification();
     nrscenesChange.trigger();
     return true; //visBase::DM().removeAll();
@@ -1505,13 +1552,14 @@ bool uiVisPartServer::setWorkingArea( const SceneID& sceneid )
 void uiVisPartServer::setOnlyAtSectionsDisplay( const VisID& id, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    if ( so ) so->setOnlyAtSectionsDisplay( yn );
+    if ( so )
+	so->setOnlyAtSectionsDisplay( yn );
 }
 
 
 bool uiVisPartServer::displayedOnlyAtSections( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
     return so && so->displayedOnlyAtSections();
 }
 
@@ -1584,7 +1632,8 @@ void uiVisPartServer::movePlaneAndCalcAttribs( const VisID& id,
 					       const TrcKeyZSampling& tkzs )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,getObject(id))
-    if ( !pdd ) return;
+    if ( !pdd )
+	return;
 
     pdd->annotateNextUpdateStage( true );
     pdd->setTrcKeyZSampling( tkzs );
@@ -1613,7 +1662,8 @@ void uiVisPartServer::calculateAllAttribs( const VisID& id )
 {
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
-    if ( !so ) return;
+    if ( !so )
+	return;
 
     for ( int attrib=0; attrib<so->nrAttribs(); attrib++ )
 	calculateAttrib( id, attrib, false, true );
@@ -1669,7 +1719,7 @@ bool uiVisPartServer::isOn( const VisID& id ) const
 {
     const visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(const visBase::VisualObject*,vo,dobj)
-    return vo ? vo->isOn() : false;
+    return vo && vo->isOn();
 }
 
 
@@ -1683,12 +1733,14 @@ bool uiVisPartServer::canDuplicate( const VisID& id ) const
 VisID uiVisPartServer::duplicateObject( const VisID& id, const SceneID& sceneid)
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return VisID::udf();
+    if ( !so )
+	return VisID::udf();
 
     uiTaskRunner taskrunner( appserv().parent() );
 
     visSurvey::SurveyObject* newso = so->duplicate( &taskrunner );
-    if ( !newso ) return VisID::udf();
+    if ( !newso )
+	return VisID::udf();
 
     mDynamicCastGet(visBase::DataObject*,doobj,newso)
     addObject( doobj, sceneid, true );
@@ -1732,12 +1784,11 @@ bool uiVisPartServer::isPicking() const
 	return true;
 
     const TypeSet<VisID>& sel = visBase::DM().selMan().selected();
-    if ( sel.size()!=1 ) return false;
+    if ( sel.size()!=1 )
+	return false;
 
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(sel[0]));
-    if ( !so ) return false;
-
-    return so->isPicking();
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(sel[0]));
+    return so && so->isPicking();
 }
 
 
@@ -1745,8 +1796,10 @@ void uiVisPartServer::getPickingMessage( BufferString& str ) const
 {
     str = "";
     const TypeSet<VisID>& sel = visBase::DM().selMan().selected();
-    if ( sel.size()!=1 ) return;
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(sel[0]));
+    if ( sel.size()!=1 )
+	return;
+
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(sel[0]));
     if ( so && so->isPicking() )
 	so->getPickingMessage( str );
 }
@@ -1777,11 +1830,17 @@ void uiVisPartServer::removeObject( const VisID& id, const SceneID& sceneid )
 	return;
 
     const int idx = scene->getFirstIdx( id );
-    if ( idx!=-1 )
+    if ( idx==-1 )
+	return;
+
+    if ( id == mapperrgeditordisplayid_ )
     {
-	scene->removeObject( idx );
-	objectRemoved.trigger( id );
+	closeAndNullPtr( multirgeditwin_ );
+	mapperrgeditordisplayid_ = VisID::udf();
     }
+
+    scene->removeObject( idx );
+    objectRemoved.trigger( id );
 }
 
 
@@ -1814,7 +1873,7 @@ void uiVisPartServer::removeSelection()
 
 bool uiVisPartServer::hasAttrib( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so && so->getAttributeFormat() != visSurvey::SurveyObject::None;
 }
 
@@ -1832,7 +1891,8 @@ void uiVisPartServer::setSelSpec( const VisID& id, int attrib,
 				  const Attrib::SelSpec& myattribspec )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->setSelSpec( attrib, myattribspec );
+    if ( so )
+	so->setSelSpec( attrib, myattribspec );
 }
 
 
@@ -1840,7 +1900,8 @@ void uiVisPartServer::setSelSpecs( const VisID& id, int attrib,
 				   const TypeSet<Attrib::SelSpec>& selspecs)
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->setSelSpecs( attrib, selspecs );
+    if ( so )
+	so->setSelSpecs( attrib, selspecs );
 }
 
 
@@ -1848,7 +1909,8 @@ void uiVisPartServer::setUserRefs( const VisID& id, int attrib,
 				   BufferStringSet* newuserrefs )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->setUserRefs( attrib, newuserrefs );
+    if ( so )
+	so->setUserRefs( attrib, newuserrefs );
 }
 
 
@@ -1861,8 +1923,10 @@ bool uiVisPartServer::calculateAttrib( const VisID& id, int attrib,
 	resetManipulation(id);
 	return true;
     }
+
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return false;
+    if ( !so )
+	return false;
 
     if ( so->isManipulated() )
 	so->acceptManipulation();
@@ -1914,7 +1978,7 @@ bool uiVisPartServer::calcManipulatedAttribs( const VisID& id )
 
 bool uiVisPartServer::hasMaterial( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so && so->allowMaterialEdit();
 }
 
@@ -1922,7 +1986,8 @@ bool uiVisPartServer::hasMaterial( const VisID& id ) const
 void uiVisPartServer::setMaterial( const VisID& id )
 {
     mDynamicCastGet(visBase::VisualObject*,vo,getObject(id))
-    if ( !hasMaterial(id) || !vo ) return;
+    if ( !hasMaterial(id) || !vo )
+	return;
 
     uiPropertiesDlg dlg( appserv().parent(),
 			 dynamic_cast<visSurvey::SurveyObject*>(vo) );
@@ -1932,7 +1997,7 @@ void uiVisPartServer::setMaterial( const VisID& id )
 
 bool uiVisPartServer::hasColor( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id))
     return so && so->hasColor();
 }
 
@@ -1970,7 +2035,8 @@ bool uiVisPartServer::writeSceneToFile( const SceneID& sceneid,
 bool uiVisPartServer::resetManipulation( const VisID& id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->resetManipulation();
+    if ( so )
+	so->resetManipulation();
 
     eventmutex_.lock();
     eventobjid_ = id;
@@ -1984,7 +2050,7 @@ bool uiVisPartServer::resetManipulation( const VisID& id )
 
 bool uiVisPartServer::isManipulated( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so && so->isManipulated();
 }
 
@@ -1992,7 +2058,8 @@ bool uiVisPartServer::isManipulated( const VisID& id ) const
 void uiVisPartServer::acceptManipulation( const VisID& id )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->acceptManipulation();
+    if ( so )
+	so->acceptManipulation();
 }
 
 
@@ -2238,11 +2305,13 @@ void uiVisPartServer::addToToolBarCB( CallBacker* cb )
 void uiVisPartServer::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
-    if ( !menu ) return;
+    if ( !menu )
+	return;
 
     const VisID visid( menu->menuID() );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(visid))
-    if ( !so ) return;
+    if ( !so )
+	return;
 
     mAddMenuItemCond( menu, &resetmanipmnuitem_,
 		      so->isManipulated() && !isLocked(visid), false,
@@ -2274,12 +2343,14 @@ void uiVisPartServer::createMenuCB( CallBacker* cb )
 void uiVisPartServer::handleMenuCB(CallBacker* cb)
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    if ( mnuid==-1 ) return;
+    if ( mnuid==-1 )
+	return;
 
     mDynamicCastGet(MenuHandler*,menu,caller);
     const VisID visid( menu->menuID() );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(visid))
-    if ( !so ) return;
+    if ( !so )
+	return;
 
     if ( mnuid==resetmanipmnuitem_.id )
     {
@@ -2309,11 +2380,14 @@ void uiVisPartServer::colTabChangeCB( CallBacker* )
 void uiVisPartServer::initMPEStuff()
 {
     TypeSet<VisID> visids;
-    findObject( typeid(visSurvey::EMObjectDisplay), visids );
-    for ( int idx=0; idx<visids.size(); idx++ )
+    findObject( typeid(visSurvey::HorizonDisplay), visids );
+    findObject( typeid(visSurvey::Horizon2DDisplay), visids );
+    if ( visids.isEmpty() )
+	return;
+
+    for ( const auto& id : visids )
     {
-	mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-			getObject(visids[idx]))
+	mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,getObject(id))
 	emod->updateFromMPE();
     }
 
@@ -2330,68 +2404,62 @@ void uiVisPartServer::storeEMObject( bool storeas )
 
 bool uiVisPartServer::canBDispOn2DViewer( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->canBDispOn2DViewer() : false;
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so && so->canBDispOn2DViewer();
 }
 
 
 bool uiVisPartServer::isVerticalDisp( const VisID& id ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->isVerticalPlane() : true;
-}
-
-void uiVisPartServer::displayMapperRangeEditForAttrbs( const VisID& visid )
-{
-    displayMapperRangeEditForAttribs( visid, -1 );
 }
 
 
 void uiVisPartServer::displayMapperRangeEditForAttribs( const VisID& visid,
-							int attribid  )
+							int attribid )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mapperrgeditordisplayid_ = visid;
-    if ( multirgeditwin_ )
-    {
-	multirgeditwin_->close();
-	delete multirgeditwin_;
-	multirgeditwin_ = 0;
-    }
+    closeAndNullPtr( multirgeditwin_ );
 
-    const DataPackMgr::MgrID dpmid = getDataPackMgrID( visid );
-    if ( !dpmid.isValid() )
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(visid));
+    if ( !so || !so->usesDataPacks() )
     {
 	uiMSG().error( tr("Cannot display histograms for this type of data") );
 	return;
     }
 
     const int nrattribs = attribid==-1 ? getNrAttribs(visid) : 1;
-    multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, nrattribs, dpmid );
+    multirgeditwin_ = new uiMultiMapperRangeEditWin( appserv().parent(),
+						     nrattribs );
     if ( attribid != -1 )
 	multirgeditwin_->setActiveAttribID( attribid );
+
     multirgeditwin_->setDeleteOnClose( false );
-    multirgeditwin_->rangeChange.notify(
-	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
-    multirgeditwin_->sequenceChange.notify(
-	    mCB(this,uiVisPartServer,sequenceEditChanged) );
+    mAttachCB( multirgeditwin_->rangeChange,
+	       uiVisPartServer::mapperRangeEditChanged );
+    mAttachCB( multirgeditwin_->sequenceChange,
+	       uiVisPartServer::sequenceEditChanged );
 
     for ( int idx=0; idx<nrattribs; idx++ )
     {
 	const int dpidx = attribid==-1 ? idx : attribid;
 	const int statsidx = attribid==-1 ? idx : 0;
 
-	const DataPackID dpid = getDataPackID( visid, dpidx );
-	if ( !dpid.isValid() )
+	ConstRefMan<DataPack> dp = getDataPack( visid, dpidx );
+	if ( !dp )
 	    continue;
 
 	const int textureidx = selectedTexture( visid, dpidx );
-	multirgeditwin_->setDataPackID( statsidx, dpid, textureidx );
+	multirgeditwin_->setDataPack( statsidx, dp.ptr(), textureidx );
 	const ColTab::MapperSetup* ms = getColTabMapperSetup( visid, dpidx );
-	if ( ms ) multirgeditwin_->setColTabMapperSetup( statsidx, *ms );
+	if ( ms )
+	    multirgeditwin_->setColTabMapperSetup( statsidx, *ms );
 
 	const ColTab::Sequence* ctseq = getColTabSequence( visid, dpidx );
-	if ( ctseq ) multirgeditwin_->setColTabSeq( statsidx, *ctseq );
+	if ( ctseq )
+	    multirgeditwin_->setColTabSeq( statsidx, *ctseq );
     }
 
     multirgeditwin_->go();
@@ -2402,7 +2470,8 @@ void uiVisPartServer::lock( const VisID& id, bool yn )
 {
     visBase::DataObject* dobj = getObject(id);
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
-    if ( !so ) return;
+    if ( !so )
+	return;
 
     const TypeSet<VisID>& selected = visBase::DM().selMan().selected();
     so->lock( yn );
@@ -2414,9 +2483,7 @@ void uiVisPartServer::lock( const VisID& id, bool yn )
 bool uiVisPartServer::isLocked( const VisID& id ) const
 {
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( !so ) return false;
-
-    return so->isLocked();
+    return so && so->isLocked();
 }
 
 
@@ -2511,8 +2578,56 @@ void uiVisPartServer::setMoreObjectsToDoHint( const SceneID& sceneid, bool yn )
 bool uiVisPartServer::getMoreObjectsToDoHint( const SceneID& sceneid ) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? scene->getMoreObjectsToDoHint() : false;
+    return scene && scene->getMoreObjectsToDoHint();
 }
+
+
+mStartAllowDeprecatedSection
+
+bool uiVisPartServer::setDataPackID( const VisID& id, int attrib,
+				     const DataPackID& dpid )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so )
+	return false;
+
+    uiTaskRunner taskrunner( appserv().parent() );
+    const bool res = so->setDataPackID( attrib, dpid, &taskrunner );
+    if ( res && multirgeditwin_ && id == mapperrgeditordisplayid_ )
+    {
+	const DataPackMgr::MgrID dpmid = getDataPackMgrID( id );
+	multirgeditwin_->setDataPackID( attrib, dpid, dpmid,
+					so->selectedTexture(attrib) );
+    }
+
+    return res;
+}
+
+
+DataPackID uiVisPartServer::getDataPackID( const VisID& id, int attrib ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    ConstRefMan<DataPack> dp = so ? so->getDataPack( attrib ) : nullptr;
+    return dp ? dp->id() : DataPackID::udf();
+}
+
+
+DataPackID uiVisPartServer::getDisplayedDataPackID( const VisID& id,
+						    int attrib )const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    ConstRefMan<DataPack> dp = so ? so->getDisplayedDataPack( attrib ):nullptr;
+    return dp ? dp->id() : DataPackID::udf();
+}
+
+
+DataPackMgr::MgrID uiVisPartServer::getDataPackMgrID( const VisID& id ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getDataPackMgrID() : DataPack::MgrID::udf();
+}
+
+mStopAllowDeprecatedSection
 
 
 // uiVisModeMgr

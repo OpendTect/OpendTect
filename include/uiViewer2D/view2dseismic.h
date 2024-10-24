@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
+
 #include "view2ddata.h"
 
 namespace View2D
@@ -18,11 +19,11 @@ mExpClass(uiViewer2D) Seismic : public DataObject
 {
 public:
 			Seismic();
-			~Seismic(){}
+			~Seismic();
 
     NotifierAccess*	deSelection() override	{ return &deselected_; }
 
-protected:
+private:
 
     void		triggerDeSel() override;
 

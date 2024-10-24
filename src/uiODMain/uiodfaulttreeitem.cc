@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "mousecursor.h"
-#include "mpeengine.h"
 #include "randcolor.h"
 #include "seistrctr.h"
 #include "threadwork.h"
@@ -111,7 +110,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	}
 
 	mnu.insertSeparator();
-	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display all") );
+	auto* dispmnu = new uiMenu( getUiParent(), tr("Display all") );
 
 	mInsertItm( dispmnu, tr("In full"), mDispInFull, true );
 	mInsertItm( dispmnu, tr("Only at Sections"), mDispAtSect,
@@ -538,7 +537,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display All") );
+	auto* dispmnu = new uiMenu( getUiParent(), tr("Display All") );
 	dispmnu->insertAction( new uiAction(tr("In full")), mDispInFull );
 	dispmnu->insertAction( new uiAction(tr("Only at Sections")),
 			     mDispAtSect );

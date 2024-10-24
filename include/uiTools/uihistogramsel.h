@@ -9,16 +9,17 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
+#include "datapack.h"
 #include "uigroup.h"
 #include "uihistogramdisplay.h"
-#include "datapack.h"
 
 class uiObjectItem;
 
 mExpClass(uiTools) uiHistogramSel : public uiGroup
 { mODTextTranslationClass(uiHistogramSel);
 public:
-    				uiHistogramSel(uiParent*,
+				uiHistogramSel(uiParent*,
 					       const uiHistogramDisplay::Setup&,
 					       int an_id=0);
 				~uiHistogramSel();
@@ -33,8 +34,11 @@ public:
     SliderTextPolicy		sliderTextPolicy() const;
 
     void			setEmpty();
-    bool			setDataPackID(DataPackID,DataPackMgr::MgrID,
+    mDeprecated("Use setDataPack")
+    bool			setDataPackID(const DataPackID&,
+					      const DataPackMgr::MgrID&,
 					      int version);
+    bool			setDataPack(const DataPack&,int version);
     void			setData(const Array2D<float>*);
     void			setData(const float*,int sz);
     void			setMarkValue(float,bool forx);
@@ -52,7 +56,7 @@ public:
 protected:
 
     int				id_;
-    SliderTextPolicy		slidertextpol_;
+    SliderTextPolicy		slidertextpol_	= uiHistogramSel::Always;
     uiHistogramDisplay*		histogramdisp_;
     uiAxisHandler*		xax_;
 
@@ -64,11 +68,11 @@ protected:
 
     Interval<float>		datarg_;
     Interval<float>		cliprg_;
-    Interval<float>		initialcliprg_;
-    int				startpix_;
-    int				stoppix_;
+    Interval<float>		initialcliprg_	= Interval<float>::udf();
+    int				startpix_	= mUdf(int);
+    int				stoppix_	= mUdf(int);
 
-    bool			mousedown_;
+    bool			mousedown_	= false;
 
     virtual void		drawAgain();
     virtual void		drawLines();

@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
-#include "mpeengine.h"
 #include "threadwork.h"
 #include "timefun.h"
 
@@ -60,7 +59,6 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     : uiODDisplayTreeItem()
     , emid_(nemid)
     , createflatscenemnuitem_(tr("Create Flattened Scene"))
-    , istrackingallowed_(true)
     , savemnuitem_(uiStrings::sSave(),-800)
     , saveasmnuitem_(m3Dots(uiStrings::sSaveAs()),-850)
     , enabletrackingmnuitem_(tr("Enable Tracking"))
@@ -84,9 +82,6 @@ uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
     if ( ODMainWin() )
 	ODMainWin()->colTabEd().setColTab( 0, 0, 0 );
 
-    if ( MPE::engine().hasTracker(emid_) )
-	MPE::engine().unRefTracker( emid_ );
-
     delete uivisemobj_;
 }
 
@@ -102,10 +97,7 @@ bool uiODEarthModelSurfaceTreeItem::init()
     if ( !uiODDisplayTreeItem::init() )
 	return false;
 
-    if ( MPE::engine().hasTracker(emid_) )
-	MPE::engine().refTracker( emid_ );
-
-    EM::IOObjInfo eminfo( EM::EMM().getMultiID(emid_) );
+    const EM::IOObjInfo eminfo( EM::EMM().getMultiID(emid_) );
     timelastmodified_ = eminfo.timeLastModified( true );
     initNotify();
     return true;
@@ -173,8 +165,7 @@ void uiODEarthModelSurfaceTreeItem::keyPressCB( CallBacker* cb )
     if ( kd.key()==OD::KB_H && kd.state()==OD::NoButton )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	const bool hastracker = mps->getTrackerID(emid_)>=0;
-	if ( !uivisemobj_ || !hastracker )
+	if ( !uivisemobj_ || !mps->hasTracker(emid_) )
 	    return;
 
 	mps->showSetupDlg( emid_ );
@@ -189,8 +180,7 @@ void uiODEarthModelSurfaceTreeItem::keyPressCB( CallBacker* cb )
 void uiODEarthModelSurfaceTreeItem::updateTrackingState()
 {
     uiMPEPartServer* mps = applMgr()->mpeServer();
-    const int trackerid = mps->getTrackerID( emid_ );
-    if ( trackerid == -1 )
+    if ( !mps->hasTracker(emid_) )
 	return;
 
     mDynamicCastGet( visSurvey::EMObjectDisplay*,
@@ -199,8 +189,8 @@ void uiODEarthModelSurfaceTreeItem::updateTrackingState()
     const bool enabletracking = istrackingallowed_ && isChecked() &&
 				emod && emod->isSelected();
 
-    if ( mps->isTrackingEnabled(trackerid) != enabletracking )
-	mps->enableTracking( trackerid, enabletracking );
+    if ( mps->isTrackingEnabled(emid_) != enabletracking )
+	mps->enableTracking( emid_, enabletracking );
 }
 
 
@@ -215,7 +205,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMPEPartServer* mps = applMgr()->mpeServer();
-    const bool hastracker = mps->getTrackerID(emid_)>=0;
+    const bool hastracker = mps->hasTracker( emid_ );
     if ( !hastracker && !visserv_->isLocked(displayid_) && !hastransform )
     {
 	mAddMenuItem( &trackmenuitem_, &starttrackmnuitem_, true, false );
@@ -290,7 +280,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(MenuHandler*,menu,caller);
-    mDynamicCastGet(uiMenuHandler*,uimenu,caller);
     if ( menu->isHandled() || !isDisplayID(menu->menuID()) || mnuid==-1 )
 	return;
 
@@ -302,7 +291,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	saveCB( 0 );
+	saveCB( nullptr );
     }
     else if ( mnuid==saveasmnuitem_.id )
     {
@@ -343,9 +332,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
 
-	const Coord3 pickedpos =
-	    uimenu ? uimenu->getPickedPos() : Coord3::udf();
-	if ( mps->addTracker(emid_,pickedpos) != -1 )
+	if ( uivisemobj_->activateTracker() && mps->isActiveTracker(emid_) )
 	{
 	    mps->useSavedSetupDlg( emid_ );
 	    uivisemobj_->checkTrackingStatus();
@@ -454,7 +441,7 @@ bool uiODEarthModelSurfaceTreeItem::doSave()
     uiEMPartServer* ems = applMgr()->EMServer();
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
-    const bool hastracker = MPE::engine().hasTracker( emid_ );
+    const bool hastracker = mps->hasTracker( emid_ );
 
     if ( !hastracker && ems->isGeometryChanged(emid_)
 		     && ems->nrAttributes(emid_)>0 )
@@ -517,9 +504,9 @@ void uiODEarthModelSurfaceTreeItem::addAuxDataItems()
 // uiODEarthModelSurfaceDataTreeItem
 
 uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
-							EM::ObjectID objid,
-							uiVisEMObject* uv,
-							const char* parenttype )
+						    const EM::ObjectID& objid,
+						    uiVisEMObject* uv,
+						    const char* parenttype )
     : uiODAttribTreeItem( parenttype )
     , depthattribmnuitem_(uiStrings::sZValue(mPlural))
     , savesurfacedatamnuitem_(m3Dots(tr("Save as Horizon Data")))
@@ -582,7 +569,8 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 	 as->id()!=Attrib::SelSpec::cAttribNotSel()) || isdttransform ;
 
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
-    const bool enabletool = !MPE::engine().trackingInProgress();
+    const bool enabletool =
+		!ODMainWin()->applMgr().mpeServer()->trackingInProgress();
     mAddMenuItem( menu, &algomnuitem_, enabletool, false );
     mAddMenuItem( &algomnuitem_, &filtermnuitem_, enabletool, false );
     mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, enabletool, false );

@@ -348,26 +348,17 @@ const StepInterval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 { return maxtrcnrrg_; }
 
 
-bool Seis2DDisplay::setDataPackID( int attrib, const DataPackID& dpid,
-				   TaskRunner* taskr )
-{
-    DataPackMgr& dpm = DPM( getDataPackMgrID() );
-    RefMan<RegularSeisDataPack> regsdp = dpm.get<RegularSeisDataPack>( dpid );
-    return setSeisDataPack( attrib, regsdp.ptr(), taskr );
-}
-
-
-bool Seis2DDisplay::setSeisDataPack( int attrib, RegularSeisDataPack* dp,
+bool Seis2DDisplay::setSeisDataPack( int attrib, SeisDataPack* seisdp,
 				     TaskRunner* taskr )
 {
-    RefMan<RegularSeisDataPack> regsdp = dp;
-    if ( !regsdp || regsdp->isEmpty() )
+    mDynamicCastGet(RegularSeisDataPack*,regseisdp,seisdp);
+    if ( !regseisdp || regseisdp->isEmpty() )
     {
 	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, taskr );
 	return false;
     }
 
-    datapacks_.replace( attrib, regsdp.ptr() );
+    datapacks_.replace( attrib, regseisdp );
 
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
@@ -377,14 +368,19 @@ bool Seis2DDisplay::setSeisDataPack( int attrib, RegularSeisDataPack* dp,
 }
 
 
-ConstRefMan<RegularSeisDataPack> Seis2DDisplay::getDataPack(
-						int attrib ) const
+ConstRefMan<DataPack> Seis2DDisplay::getDataPack( int attrib ) const
 {
-    return mSelf().getDataPack( attrib );
+    return getSeisDataPack( attrib );
 }
 
 
-RefMan<RegularSeisDataPack> Seis2DDisplay::getDataPack( int attrib )
+ConstRefMan<SeisDataPack> Seis2DDisplay::getSeisDataPack( int attrib ) const
+{
+    return mSelf().getSeisDataPack( attrib );
+}
+
+
+RefMan<SeisDataPack> Seis2DDisplay::getSeisDataPack( int attrib )
 {
     if ( !datapacks_.validIdx(attrib) || !datapacks_[attrib] )
 	return nullptr;
@@ -393,21 +389,14 @@ RefMan<RegularSeisDataPack> Seis2DDisplay::getDataPack( int attrib )
 }
 
 
-DataPackID Seis2DDisplay::getDataPackID( int attrib ) const
+ConstRefMan<SeisDataPack> Seis2DDisplay::getDisplayedSeisDataPack(
+							int attrib) const
 {
-    ConstRefMan<RegularSeisDataPack> dp = getDataPack( attrib );
-    return dp ? dp->id() : DataPack::cNoID();
+    return mSelf().getDisplayedSeisDataPack( attrib );
 }
 
 
-ConstRefMan<RegularSeisDataPack> Seis2DDisplay::getDisplayedDataPack(
-							int attrib ) const
-{
-    return mSelf().getDisplayedDataPack( attrib );
-}
-
-
-RefMan<RegularSeisDataPack> Seis2DDisplay::getDisplayedDataPack( int attrib )
+RefMan<SeisDataPack> Seis2DDisplay::getDisplayedSeisDataPack( int attrib )
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
@@ -417,14 +406,7 @@ RefMan<RegularSeisDataPack> Seis2DDisplay::getDisplayedDataPack( int attrib )
 	return transformedpacks_[attrib];
     }
 
-    return getDataPack( attrib );
-}
-
-
-DataPackID Seis2DDisplay::getDisplayedDataPackID( int attrib ) const
-{
-    ConstRefMan<RegularSeisDataPack> dp = getDisplayedDataPack( attrib );
-    return dp ? dp->id() : DataPack::cNoID();
+    return getSeisDataPack( attrib );
 }
 
 
@@ -449,7 +431,8 @@ void Seis2DDisplay::updateTexOriginAndScale( int attrib,
 
 void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedDataPack( attrib );
+    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
     if ( !regsdp )
 	return;
 
@@ -519,7 +502,8 @@ void Seis2DDisplay::updateChannels( int attrib, TaskRunner* taskr )
 
 void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDataPack( attrib );
+    ConstRefMan<SeisDataPack> sdp = getSeisDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,sdp.ptr());
     if ( !regsdp || regsdp->isEmpty() )
 	return;
 
@@ -537,7 +521,7 @@ void Seis2DDisplay::createTransformedDataPack( int attrib, TaskRunner* taskr )
 	}
 
 	SeisDataPackZAxisTransformer transformer( *datatransform_ );
-	transformer.setInput( regsdp.ptr() );
+	transformer.setInput( regsdp );
 	transformer.setInterpolate( textureInterpolationEnabled() );
 	transformer.setOutputZRange( tkzs.zsamp_ );
 	transformer.execute();
@@ -662,8 +646,10 @@ void Seis2DDisplay::annotateNextUpdateStage( bool yn )
     }
     else if ( !getUpdateStageNr() )
     {
-        updatestageinfo_.oldtrcrgstart_ =mCast(float,trcdisplayinfo_.rg_.start_);
-        updatestageinfo_.oldzrgstart_ = mCast(float,trcdisplayinfo_.zrg_.start_);
+	updatestageinfo_.oldtrcrgstart_ =
+				mCast(float,trcdisplayinfo_.rg_.start_);
+	updatestageinfo_.oldzrgstart_ =
+				mCast(float,trcdisplayinfo_.zrg_.start_);
     }
     else
 	panelstrip_->freezeDisplay( false );	// thaw to refreeze
@@ -680,7 +666,8 @@ void Seis2DDisplay::updateLineNamePos()
     if ( trcidx < 0 )
 	return;
 
-    Coord3 pos( trcdisplayinfo_.alltrcpos_[trcidx],trcdisplayinfo_.zrg_.start_ );
+    const Coord3 pos( trcdisplayinfo_.alltrcpos_[trcidx],
+		      trcdisplayinfo_.zrg_.start_ );
     linename_->text()->setPosition( pos );
 }
 
@@ -706,7 +693,7 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* taskr ) const
 	    continue;
 
 	s2dd->setSelSpecs( idx, *selspecs );
-	ConstRefMan<RegularSeisDataPack> regsdp = getDataPack( idx );
+	ConstRefMan<SeisDataPack> regsdp = getSeisDataPack( idx );
 	s2dd->setSeisDataPack( idx, regsdp.getNonConstPtr(), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
 	if ( mappersetup )
@@ -736,7 +723,8 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     float zdif = 0;
     if ( !zrg.includes(xytpos.z_,false) )
     {
-        zdif = (float) mMIN(fabs(xytpos.z_-zrg.start_), fabs(xytpos.z_-zrg.stop_));
+	zdif = (float) mMIN( fabs(xytpos.z_-zrg.start_),
+			     fabs(xytpos.z_-zrg.stop_) );
 	const float zscale = scene_
 	    ? scene_->getZScale() * scene_->getFixedZStretch()
 	    : SI().zScale();
@@ -909,7 +897,8 @@ void Seis2DDisplay::getObjectInfo( uiString& info ) const
 bool Seis2DDisplay::getCacheValue( int attrib, int version,
 				    const Coord3& pos, float& res ) const
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedDataPack( attrib );
+    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 

@@ -77,7 +77,8 @@ public:
 
     void		setMouseCursorExchange(MouseCursorExchange*);
 
-    visBase::DataObject* getObject(const VisID&) const;
+    const visBase::DataObject* getObject(const VisID&) const;
+    visBase::DataObject* getObject(const VisID&);
     VisID		highestID() const;
     void		addObject(visBase::DataObject*,const SceneID&,
 				  bool saveinsessions);
@@ -178,29 +179,37 @@ public:
     void		setTranslation(const VisID&,const Coord3& shift);
     Coord3		getTranslation(const VisID&) const;
 
-			//Volume data stuff
     TrcKeyZSampling	getTrcKeyZSampling(const VisID&,int attrib=-1) const;
-    ConstRefMan<RegularSeisDataPack> getSeisDataPack(const VisID&,
-						     int attrib) const;
-    bool		setDataPackID(const VisID&,int attrib,
-				      const DataPackID&);
-    bool		setSeisDataPack(const VisID&,int attrib,
-					RegularSeisDataPack*);
-    DataPackID		getDataPackID(const VisID&,int attrib) const;
-    DataPackID		getDisplayedDataPackID(const VisID&,int attrib) const;
-    DataPackMgr::MgrID	getDataPackMgrID(const VisID&) const;
     int			currentVersion(const VisID&,int attrib) const;
+
+			//General datapack retrieval
+    ConstRefMan<DataPack> getDataPack(const VisID&,int attrib) const;
+    ConstRefMan<DataPack> getDisplayedDataPack(const VisID&,int attrib) const;
+
+			//Volume data stuff
+    bool		setRegularSeisDataPack(const VisID&,int attrib,
+					       RegularSeisDataPack*);
+    bool		setRandomSeisDataPack(const VisID&,int attrib,
+					      RandomSeisDataPack*);
+    ConstRefMan<FlatDataPack> getFlatDataPack(const VisID&,int attrib) const;
+    ConstRefMan<SeisDataPack> getSeisDataPack(const VisID&,int attrib) const;
+    ConstRefMan<SeisDataPack> getDisplayedSeisDataPack(const VisID&,
+						       int attrib) const;
 
 			//Trace data
     void		getDataTraceBids(const VisID&,TypeSet<BinID>&) const;
     Interval<float>	getDataTraceRange(const VisID&) const;
 
 			// See visSurvey::SurfaceDisplay for details
-    void		getRandomPos(const VisID&,DataPointSet&) const;
-    void		getRandomPosCache(const VisID&,int attrib,
-					  DataPointSet&) const;
-    void		setRandomPosData(const VisID&,int attrib,
+    bool		setPointDataPack(const VisID&,int attrib,
+					 PointDataPack*);
+    bool		setRandomPosData(const VisID&,int attrib,
 					 const DataPointSet*);
+    ConstRefMan<PointDataPack> getPointDataPack(const VisID&,
+						int attrib) const;
+    bool		getRandomPos(const VisID&,DataPointSet&) const;
+    bool		getRandomPosCache(const VisID&,int attrib,
+					  DataPointSet&) const;
 
     bool		hasMaterial(const VisID&) const;
     void		setMaterial(const VisID&);
@@ -325,9 +334,9 @@ public:
 
     const TypeSet<float>*	getHistogram(const VisID&,int attrib) const;
 
-    void			displayMapperRangeEditForAttrbs(const VisID&);
     void			displayMapperRangeEditForAttribs(const VisID&,
-								 int attrib);
+								 int attrib=-1);
+				//!< attrib=-1 for all
 
     static int			evColorTableChange();
     void			displaySceneColorbar(bool);
@@ -433,6 +442,8 @@ protected:
     void			updateManipulatorStatus(visBase::DataObject*,
 							bool issel) const;
 
+    bool			setSeisDataPack(const VisID&,int attrib,
+						SeisDataPack*);
     void			setMarkerPos(const TrcKeyValue&,
 					     const SceneID& dontsetscene);
 
@@ -458,6 +469,7 @@ protected:
 
     uiMultiMapperRangeEditWin*	multirgeditwin_			= nullptr;
     bool			mapperrgeditinact_		= false;
+    VisID			mapperrgeditordisplayid_;
 
     Coord3			xytmousepos_			= Coord3::udf();
     int				zfactor_			= 1;
@@ -476,7 +488,6 @@ protected:
     VisID			eventobjid_			= VisID::udf();
     int				eventattrib_			= -1;
     int				selattrib_			= -1;
-    VisID			mapperrgeditordisplayid_;
     VisID			curinterpobjid_;
 
     visBase::PolygonSelection::SelectionType seltype_
@@ -518,6 +529,17 @@ protected:
     uiDirLightDlg*		dirlightdlg_		= nullptr;
 
     void			triggerObjectMoved(const VisID&);
+
+public:
+    mDeprecated("Provide the datapack directly")
+    bool		setDataPackID(const VisID&,int attrib,
+				      const DataPackID&);
+    mDeprecated("Retrieve the datapack directly")
+    DataPackID		getDataPackID(const VisID&,int attrib) const;
+    mDeprecated("Retrieve the datapack directly")
+    DataPackID		getDisplayedDataPackID(const VisID&,int attrib) const;
+    mDeprecatedObs
+    DataPackMgr::MgrID	getDataPackMgrID(const VisID&) const;
 };
 
 

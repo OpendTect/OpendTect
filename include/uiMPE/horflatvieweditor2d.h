@@ -9,11 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
-#include "uimpemod.h"
-#include "trckeyzsampling.h"
+
 #include "emposid.h"
 #include "flatview.h"
 #include "geom2dintersections.h"
+#include "trckeyzsampling.h"
 
 class FlatDataPack;
 class MouseEvent;
@@ -42,7 +42,7 @@ public:
     FlatView::AuxDataEditor* getEditor()		{ return editor_; }
     EM::HorizonPainter2D* getPainter() const		{ return horpainter_; }
 
-    void		setGeomID(Pos::GeomID);
+    void		setGeomID(const Pos::GeomID&);
     TypeSet<int>&	getPaintingCanvTrcNos();
     TypeSet<float>&	getPaintingCanDistances();
     void		enableLine(bool);
@@ -115,22 +115,22 @@ protected:
 
     FlatView::AuxDataEditor*	editor_;
     ObjectSet<Hor2DMarkerIdInfo> markeridinfos_;
-    MouseEventHandler*		mehandler_;
+    MouseEventHandler*		mehandler_		= nullptr;
     TrcKeyZSampling		curcs_;
-    const Attrib::SelSpec*	vdselspec_;
-    const Attrib::SelSpec*	wvaselspec_;
+    const Attrib::SelSpec*	vdselspec_		= nullptr;
+    const Attrib::SelSpec*	wvaselspec_		= nullptr;
 
     Pos::GeomID			geomid_;
 
-    bool			seedpickingon_;
-    bool			trackersetupactive_;
+    bool			seedpickingon_		= false;
+    bool			trackersetupactive_	= false;
     TrcKey			pickedpos_;
-    mutable bool		dodropnext_;
-    FlatView::AuxData*		patchdata_;
+    mutable bool		dodropnext_		= false;
+    FlatView::AuxData*		patchdata_		= nullptr;
     TypeSet<EM::PosID>		pointselections_;
-    bool			sowingmode_;
-    bool			pickinvd_;
-    const Line2DInterSectionSet*	line2dintersectionset_;
+    bool			sowingmode_		= false;
+    bool			pickinvd_		= true;
+    const Line2DInterSectionSet* line2dintersectionset_;
 };
 
 } // namespace MPE

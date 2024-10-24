@@ -8,28 +8,27 @@ ________________________________________________________________________
 -*/
 
 #include "uiodvw2dtreeitem.h"
-#include "uiodviewer2d.h"
-#include "uiodviewer2dmgr.h"
+
+#include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uitreeview.h"
-#include "zaxistransform.h"
-#include "emposid.h"
-#include "uiempartserv.h"
-#include "uimpepartserv.h"
-#include "uivispartserv.h"
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
 #include "uigraphicsview.h"
-
+#include "uimpepartserv.h"
+#include "uiodviewer2d.h"
+#include "uiodviewer2dmgr.h"
 #include "uiodvw2dhor2dtreeitem.h"
 #include "uiodvw2dhor3dtreeitem.h"
+#include "uitreeview.h"
+#include "uivispartserv.h"
 
-#include "mpeengine.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "emposid.h"
 #include "ioman.h"
 #include "ptrman.h"
+#include "zaxistransform.h"
 
 #define mAddIdx		0
 #define mAddInAllIdx	1
@@ -67,7 +66,7 @@ bool uiODView2DTreeTop::selectWithKey( int selkey )
 
 uiODApplMgr* uiODView2DTreeTop::applMgr()
 {
-    void* res = 0;
+    void* res = nullptr;
     getPropertyPtr( applmgrstr(), res );
     return reinterpret_cast<uiODApplMgr*>( res );
 }
@@ -75,7 +74,7 @@ uiODApplMgr* uiODView2DTreeTop::applMgr()
 
 uiODViewer2D* uiODView2DTreeTop::viewer2D()
 {
-    void* res = 0;
+    void* res = nullptr;
     getPropertyPtr( viewer2dptr(), res );
     return reinterpret_cast<uiODViewer2D*>( res );
 }
@@ -98,7 +97,8 @@ void uiODView2DTreeTop::updSampling( const TrcKeyZSampling& cs, bool update )
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODView2DTreeItem*,itm,getChild(idx));
-	if ( itm ) itm->updSampling( cs, update );
+	if ( itm )
+	    itm->updSampling( cs, update );
     }
 }
 
@@ -108,7 +108,8 @@ void uiODView2DTreeTop::updSelSpec( const Attrib::SelSpec* selspec, bool wva )
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODView2DTreeItem*,itm,getChild(idx));
-	if ( itm ) itm->updSelSpec( selspec, wva );
+	if ( itm )
+	    itm->updSelSpec( selspec, wva );
     }
 }
 
@@ -117,7 +118,7 @@ void uiODView2DTreeTop::addFactoryCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,factidx,cb);
     const int newplaceidx = tfs_->getPlacementIdx( factidx );
-    uiTreeItem* itmbefore = 0;
+    uiTreeItem* itmbefore = nullptr;
     int maxidx = -1;
     for ( int idx=0; idx<tfs_->nrFactories(); idx++ )
     {
@@ -459,14 +460,12 @@ void uiODView2DTreeItem::doSave()
     bool savewithname = false;
     if ( !EM::EMM().getMultiID(emobjid_).isUdf() )
 	savewithname = !IOM().get( EM::EMM().getMultiID(emobjid_) );
+
     doStoreObject( savewithname );
 
-    if ( MPE::engine().hasTracker(emobjid_) )
-    {
-	uiMPEPartServer* mps = applMgr()->mpeServer();
-	if ( mps )
-	    mps->saveSetup( applMgr()->EMServer()->getStorageID(emobjid_) );
-    }
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    if ( mps && mps->hasTracker(emobjid_) )
+	mps->saveSetup( applMgr()->EMServer()->getStorageID(emobjid_) );
 }
 
 
@@ -476,17 +475,12 @@ void uiODView2DTreeItem::doSaveAs()
 	return;
 
     doStoreObject( true );
-
-    if ( MPE::engine().hasTracker(emobjid_) )
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    if ( mps && mps->hasTracker(emobjid_) )
     {
-	uiMPEPartServer* mps = applMgr()->mpeServer();
-	if ( mps )
-	{
-	   const MultiID oldmid =
-		applMgr()->EMServer()->getStorageID( emobjid_ );
-	   mps->prepareSaveSetupAs( oldmid );
-	   mps->saveSetupAs( EM::EMM().getObject(emobjid_)->multiID() );
-	}
+       const MultiID oldmid = applMgr()->EMServer()->getStorageID( emobjid_ );
+       mps->prepareSaveSetupAs( oldmid );
+       mps->saveSetupAs( EM::EMM().getObject(emobjid_)->multiID() );
     }
 }
 

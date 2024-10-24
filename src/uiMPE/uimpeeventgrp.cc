@@ -66,7 +66,7 @@ static int getEventIdx( VSEvent::Type tp )
 
 static const char* sEventNames[] =
 { "Peak", "Trough", "Zero Crossing +-", "Zero Crossing -+",
-  "Local Maximum", "Local Minimum", 0 };
+  "Local Maximum", "Local Minimum", nullptr };
 
 static bool sAllowSteps = false;
 static int sNrZDecimals = 0;
@@ -74,16 +74,16 @@ static int sNrZDecimals = 0;
 uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     : uiDlgGroup(p,tr("Event"))
     , is2d_(is2d)
-    , seedpos_(TrcKeyValue::udf())
-    , changed_(this)
+    , changed(this)
     , changeAttribPushed(this)
 {
     sNrZDecimals = SI().nrZDecimals();
 
-    uiGroup* leftgrp = new uiGroup( this, "Left Group" );
+    auto* leftgrp = new uiGroup( this, "Left Group" );
+
     evfld_ = new uiGenInput( leftgrp, tr("Event type"),
 			     StringListInpSpec(sEventNames) );
-    evfld_->valueChanged.notify( mCB(this,uiEventGroup,selEventType) );
+    mAttachCB( evfld_->valueChanged, uiEventGroup::selEventType );
     leftgrp->setHAlignObj( evfld_ );
 
     uiStringSet strs;
@@ -91,20 +91,19 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     thresholdtypefld_ = new uiGenInput( leftgrp, tr("Threshold type"),
 					StringListInpSpec(strs) );
     thresholdtypefld_->setValue( 1 );
-    thresholdtypefld_->valueChanged.notify(
-	    mCB(this,uiEventGroup,selAmpThresholdType) );
+    mAttachCB( thresholdtypefld_->valueChanged,
+	       uiEventGroup::selAmpThresholdType );
     thresholdtypefld_->attach( alignedBelow, evfld_ );
 
     ampthresholdfld_ = new uiGenInput( leftgrp, tr("Allowed difference (%)"),
 				       StringInpSpec() );
     ampthresholdfld_->attach( alignedBelow, thresholdtypefld_ );
-    ampthresholdfld_->valueChanged.notify(
-	    mCB(this,uiEventGroup,changeCB) );
+    mAttachCB( ampthresholdfld_->valueChanged, uiEventGroup::changeCB );
 
     if ( !is2d && sAllowSteps )
     {
 	addstepbut_ = new uiPushButton( leftgrp, tr("Steps"),
-		mCB(this,uiEventGroup,addStepPushedCB), false );
+				mCB(this,uiEventGroup,addStepPushedCB), false );
 	addstepbut_->attach( rightTo, ampthresholdfld_ );
     }
 
@@ -116,18 +115,18 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 	iis.setLimits( StepInterval<int>(-10000,-1,-1), 0 );
 	iis.setLimits( StepInterval<int>(1,10000,1), 1 );
 	srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis );
-	srchgatefld_->valueChanging.notify( mCB(this,uiEventGroup,changeCB) );
+	mAttachCB( srchgatefld_->valueChanging, uiEventGroup::changeCB );
     }
     else
     {
 	FloatInpIntervalSpec iis;
 	srchgatefld_ = new uiGenInput( leftgrp, srchwindtxt, iis );
-	srchgatefld_->valueChanged.notify( mCB(this,uiEventGroup,changeCB) );
+	mAttachCB( srchgatefld_->valueChanged, uiEventGroup::changeCB );
     }
 
     srchgatefld_->attach( alignedBelow, ampthresholdfld_ );
 
-    uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
+    auto* sep = new uiSeparator( leftgrp, "Sep" );
     sep->attach( stretchedBelow, srchgatefld_ );
 
     uiString disptxt = tr("Data Display window %1")
@@ -141,15 +140,13 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 	iis.setLimits( intv, 0 );
 	iis.setLimits( intv, 1 );
 	nrzfld_ = new uiGenInput( leftgrp, disptxt, iis );
-	nrzfld_->valueChanging.notify(
-		mCB(this,uiEventGroup,visibleDataChangeCB) );
+	mAttachCB( nrzfld_->valueChanging, uiEventGroup::visibleDataChangeCB );
     }
     else
     {
 	FloatInpIntervalSpec iis;
 	nrzfld_ = new uiGenInput( leftgrp, disptxt, iis );
-	nrzfld_->valueChanged.notify(
-		mCB(this,uiEventGroup,visibleDataChangeCB) );
+	mAttachCB( nrzfld_->valueChanged, uiEventGroup::visibleDataChangeCB );
     }
 
     nrzfld_->attach( alignedBelow, srchgatefld_ );
@@ -158,8 +155,7 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
     IntInpSpec tiis; tiis.setLimits( StepInterval<int>(3,99,2) );
     nrtrcsfld_ = new uiGenInput( leftgrp, tr("Nr Traces"), tiis );
     nrtrcsfld_->attach( alignedBelow, nrzfld_ );
-    nrtrcsfld_->valueChanging.notify(
-		mCB(this,uiEventGroup,visibleDataChangeCB) );
+    mAttachCB( nrtrcsfld_->valueChanging, uiEventGroup::visibleDataChangeCB );
 
     datafld_ = new uiGenInput( leftgrp, tr("Picked on") );
     datafld_->setStretch( 2, 1 );
@@ -173,27 +169,27 @@ uiEventGroup::uiEventGroup( uiParent* p, bool is2d )
 
     previewgrp_ = new uiPreviewGroup( this );
     previewgrp_->attach( rightTo, leftgrp );
-    previewgrp_->windowChanged_.notify(
-		mCB(this,uiEventGroup,previewChgCB) );
+    mAttachCB( previewgrp_->windowChanged, uiEventGroup::previewChgCB );
 }
 
 
 uiEventGroup::~uiEventGroup()
 {
+    detachAllNotifiers();
 }
 
 
 void uiEventGroup::updateSensitivity( bool )
 {
-    NotifyStopper ns( changed_ );
-    selEventType( 0 );
+    NotifyStopper ns( changed );
+    selEventType( nullptr );
 }
 
 
 void uiEventGroup::changeCB( CallBacker* )
 {
     previewgrp_->setWindow( srchgatefld_->getFInterval() );
-    changed_.trigger();
+    changed.trigger();
 }
 
 
@@ -232,7 +228,7 @@ void uiEventGroup::selEventType( CallBacker* )
     if ( addstepbut_ )
 	addstepbut_->setSensitive( thresholdneeded );
 
-    changed_.trigger();
+    changed.trigger();
 }
 
 
@@ -276,7 +272,7 @@ void uiEventGroup::selAmpThresholdType( CallBacker* )
 	}
     }
 
-    changed_.trigger();
+    changed.trigger();
 }
 
 

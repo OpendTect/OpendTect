@@ -11,17 +11,15 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "keystrs.h"
-#include "view2ddata.h"
+#include "view2dfault.h"
 #include "view2dfaultss2d.h"
 #include "view2dfaultss3d.h"
-#include "view2dfault.h"
 #include "view2dhorizon2d.h"
 #include "view2dhorizon3d.h"
 #include "view2dpickset.h"
 #include "view2dseismic.h"
 
 #include "uiflatviewwin.h"
-#include "emposid.h"
 
 namespace View2D
 {
@@ -33,7 +31,6 @@ DataManager::DataManager()
     : addRemove( this )
     , dataObjAdded( this )
     , dataObjToBeRemoved( this )
-    , freeid_( 0 )
 {}
 
 
@@ -47,9 +44,8 @@ void DataManager::addObject( DataObject* obj )
 {
     if ( objects_.isPresent(obj) ) return;
 
-    objects_ += obj;
+    objects_.add( obj );
     freeid_++;
-    obj->ref();
 
     if ( selectedid_.isValid() )
 	deSelect( selectedid_ );
@@ -62,15 +58,14 @@ void DataManager::addObject( DataObject* obj )
 
 void DataManager::removeObject( DataObject* dobj )
 {
-    if ( !objects_.isPresent(dobj) ) return;
+    if ( !objects_.isPresent(dobj) )
+	return;
 
     dataObjToBeRemoved.trigger( dobj->id() );
-    objects_ -= dobj;
-
     if ( dobj->id() == selectedid_ )
 	selectedid_.setUdf();
 
-    dobj->unRef();
+    objects_ -= dobj;
     addRemove.trigger();
 }
 
@@ -80,7 +75,7 @@ void DataManager::removeAll()
     for ( int idx=0; idx<objects_.size(); idx++ )
 	dataObjToBeRemoved.trigger( objects_[idx]->id() );
 
-    deepUnRef( objects_ );
+    objects_.erase();
     selectedid_.setUdf();
     freeid_ = 0;
 

@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodvw2dtreeitem.h"
+
 #include "emposid.h"
+#include "uiodvw2dtreeitem.h"
 
 namespace View2D { class Horizon2D; }
 
@@ -21,16 +22,16 @@ public:
 				~uiODView2DHor2DParentTreeItem();
 
     bool			showSubMenu() override;
-    void			getHor2DVwr2DIDs(EM::ObjectID,
+    void			getHor2DVwr2DIDs(const EM::ObjectID&,
 						 TypeSet<Vis2DID>&) const;
     void			getLoadedHorizon2Ds(
-					TypeSet<EM::ObjectID>&) const;
-    void			removeHorizon2D(EM::ObjectID);
+						 TypeSet<EM::ObjectID>&) const;
+    void			removeHorizon2D(const EM::ObjectID&);
     void			addHorizon2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon2D(EM::ObjectID);
-    void			setupTrackingHorizon2D(EM::ObjectID);
+    void			addNewTrackingHorizon2D(const EM::ObjectID&);
+    void			setupTrackingHorizon2D(const EM::ObjectID&);
 
-protected:
+private:
 
     bool			init() override;
     const char*			iconName() const override;
@@ -38,7 +39,7 @@ protected:
     const char*			parentType() const override
 				{ return typeid(uiODView2DTreeTop).name(); }
     void			getNonLoadedTrackedHor2Ds(
-					TypeSet<EM::ObjectID>&);
+						TypeSet<EM::ObjectID>&);
 };
 
 
@@ -66,7 +67,7 @@ public:
     EM::ObjectID		emObjectID() const	{ return emid_; }
     const View2D::Horizon2D*	vw2DObject() const	{ return horview_; }
 
-protected:
+private:
 
     bool		init() override;
     const char*		parentType() const override
@@ -85,6 +86,5 @@ protected:
     void		propChgCB(CallBacker*);
 
     EM::ObjectID	emid_;
-    View2D::Horizon2D*	horview_;
-    bool		trackerefed_;
+    View2D::Horizon2D*	horview_	= nullptr;
 };

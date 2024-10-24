@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiodbodydisplaytreeitem.h"
 #include "uiposprovider.h"
-#include "uiseisamplspectrum.h"
 #include "uislicesel.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"

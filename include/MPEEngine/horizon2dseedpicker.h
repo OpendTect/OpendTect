@@ -27,8 +27,7 @@ public:
 			Horizon2DSeedPicker(EMTracker&);
 			~Horizon2DSeedPicker();
 
-    void		setLine(Pos::GeomID);
-
+    void		setLine(const Pos::GeomID&);
     bool		startSeedPick() override;
 
     bool		addSeed(const TrcKeyValue&,bool drop);

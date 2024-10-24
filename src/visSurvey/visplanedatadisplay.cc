@@ -657,32 +657,34 @@ TrcKeyZSampling PlaneDataDisplay::getDataPackSampling( int attrib ) const
 }
 
 
-void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* taskr )const
+bool PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* taskr )const
 {
     if ( !datatransform_ )
-	return;
+	return false;
 
     const TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 ); //attrib?
     ZAxisTransformPointGenerator generator( *datatransform_.getNonConstPtr() );
     generator.setInput( cs, taskr );
     generator.setOutputDPS( pos );
-    generator.execute();
+    return generator.execute();
 }
 
 
-void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
+bool PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
 					 TaskRunner* taskr )
 {
-    if ( attrib>=nrAttribs() )
-	return;
+    if ( attrib < 0 || attrib>=nrAttribs() )
+	return false;
 
-    setRandomPosDataNoCache( attrib, &data->bivSet(), taskr );
+    if ( !setRandomPosDataNoCache(attrib,&data->bivSet(),taskr) )
+	return false;
 
     if ( rposcache_[attrib] )
 	delete rposcache_[attrib];
 
     rposcache_.replace( attrib, data ? new BinIDValueSet(data->bivSet())
 				     : nullptr );
+    return true;
 }
 
 
@@ -741,7 +743,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
     }
 
     res.hsamp_.init( s3dgeom_->getID() );
-    res.hsamp_.start_ = res.hsamp_.stop_ = BinID(mNINT32(c0.x_),mNINT32(c0.y_) );
+    res.hsamp_.start_ = res.hsamp_.stop_ = BinID(mNINT32(c0.x_),mNINT32(c0.y_));
     res.hsamp_.include( BinID(mNINT32(c1.x_),mNINT32(c1.y_)) );
     res.zsamp_.start_ = res.zsamp_.stop_ = (float) c0.z_;
     res.zsamp_.include( (float) c1.z_ );
@@ -776,17 +778,17 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 }
 
 
-bool PlaneDataDisplay::setSeisDataPack( int attrib, RegularSeisDataPack* dp,
+bool PlaneDataDisplay::setSeisDataPack( int attrib, SeisDataPack* seisdp,
 					TaskRunner* taskr )
 {
-    if ( !dp || dp->isEmpty() )
+    mDynamicCastGet(RegularSeisDataPack*,regseisdp,seisdp);
+    if ( !regseisdp || regseisdp->isEmpty() )
     {
 	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, nullptr );
 	return false;
     }
 
-    datapacks_.replace( attrib, dp );
-
+    datapacks_.replace( attrib, regseisdp );
     createTransformedDataPack( attrib, taskr );
     updateChannels( attrib, taskr );
     datachanged_.trigger();
@@ -794,14 +796,19 @@ bool PlaneDataDisplay::setSeisDataPack( int attrib, RegularSeisDataPack* dp,
 }
 
 
-ConstRefMan<RegularSeisDataPack> PlaneDataDisplay::getSeisDataPack(
-							int attrib ) const
+ConstRefMan<DataPack> PlaneDataDisplay::getDataPack( int attrib ) const
+{
+    return getSeisDataPack( attrib );
+}
+
+
+ConstRefMan<SeisDataPack> PlaneDataDisplay::getSeisDataPack( int attrib ) const
 {
     return mSelf().getSeisDataPack( attrib );
 }
 
 
-RefMan<RegularSeisDataPack> PlaneDataDisplay::getSeisDataPack( int attrib )
+RefMan<SeisDataPack> PlaneDataDisplay::getSeisDataPack( int attrib )
 {
     if ( !datapacks_.validIdx(attrib) || !datapacks_[attrib] )
 	return nullptr;
@@ -810,30 +817,14 @@ RefMan<RegularSeisDataPack> PlaneDataDisplay::getSeisDataPack( int attrib )
 }
 
 
-bool PlaneDataDisplay::setDataPackID( int attrib, const DataPackID& dpid,
-				      TaskRunner* taskr )
-{
-    pErrMsg("Should not be called" );
-    return SurveyObject::setDataPackID( attrib, dpid, taskr );
-}
-
-
-DataPackID PlaneDataDisplay::getDataPackID( int attrib ) const
-{
-    ConstRefMan<RegularSeisDataPack> dp = getSeisDataPack( attrib );
-    return dp ? dp->id() : DataPack::cNoID();
-}
-
-
-ConstRefMan<RegularSeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack(
+ConstRefMan<SeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack(
 							int attrib ) const
 {
     return mSelf().getDisplayedSeisDataPack( attrib );
 }
 
 
-RefMan<RegularSeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack(
-								int attrib )
+RefMan<SeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack( int attrib )
 {
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
@@ -847,35 +838,28 @@ RefMan<RegularSeisDataPack> PlaneDataDisplay::getDisplayedSeisDataPack(
 }
 
 
-DataPackID PlaneDataDisplay::getDisplayedDataPackID( int attrib ) const
-{
-    ConstRefMan<RegularSeisDataPack> dp = getDisplayedSeisDataPack( attrib );
-    return dp ? dp->id() : DataPack::cNoID();
-}
-
-
-void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
+bool PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 			const BinIDValueSet* bivset, TaskRunner* taskr )
 {
     if ( !bivset || !datatransform_ )
-	return;
+	return false;
 
     const TrcKeyZSampling tkzs = getTrcKeyZSampling( true, true, 0 );
-    const DataPackID dpid = RegularSeisDataPack::createDataPackForZSlice(
-	bivset, tkzs, datatransform_->toZDomainInfo(), userrefs_[attrib] );
-
-    DataPackMgr& dpm = DPM( getDataPackMgrID() );
-    RefMan<RegularSeisDataPack> regsdp = dpm.get<RegularSeisDataPack>( dpid );
+    RefMan<RegularSeisDataPack> regsdp =
+	RegularSeisDataPack::createDataPackForZSliceRM( bivset, tkzs,
+			datatransform_->toZDomainInfo(), userrefs_[attrib] );
 
     transformedpacks_.replace( attrib, regsdp.ptr() );
 
     updateChannels( attrib, taskr );
+    return true;
 }
 
 
 void PlaneDataDisplay::updateChannels( int attrib, TaskRunner* taskr )
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedSeisDataPack( attrib);
+    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
     if ( !regsdp )
 	return;
 
@@ -1022,7 +1006,8 @@ void PlaneDataDisplay::getObjectInfo( uiString& info ) const
 bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 				      const Coord3& pos, float& val ) const
 {
-    ConstRefMan<RegularSeisDataPack> regsdp = getDisplayedSeisDataPack( attrib);
+    ConstRefMan<SeisDataPack> seisdp = getDisplayedSeisDataPack( attrib );
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,seisdp.ptr());
     if ( !regsdp || regsdp->isEmpty() )
 	return false;
 
@@ -1098,7 +1083,7 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* taskr ) const
 	    continue;
 
 	pdd->setSelSpecs( idx, *selspecs );
-	ConstRefMan<RegularSeisDataPack> regsdp = getSeisDataPack( idx );
+	ConstRefMan<SeisDataPack> regsdp = getSeisDataPack( idx );
 	pdd->setSeisDataPack( idx, regsdp.getNonConstPtr(), taskr );
 	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
 	if ( mappersetup )
@@ -1211,7 +1196,7 @@ void PlaneDataDisplay::updateTexShiftAndGrowth()
     const float zdif = tkzs.zsamp_.start_ - si.zsamp_.start_;
     const float zfactor = resolutionfactor / si.zsamp_.step_;
 
-    Coord startdif( zdif*zfactor - erg0.start_, inldif*inlfactor - erg1.start_ );
+    Coord startdif( zdif*zfactor - erg0.start_, inldif*inlfactor - erg1.start_);
     Coord growth( tkzs.zsamp_.width()*zfactor - erg0.width(),
 		  tkzs.hsamp_.lineRange().width()*inlfactor - erg1.width() );
 

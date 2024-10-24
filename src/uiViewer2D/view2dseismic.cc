@@ -18,6 +18,10 @@ Seismic::Seismic()
 {}
 
 
+Seismic::~Seismic()
+{}
+
+
 void Seismic::triggerDeSel()
 {
     deselected_.trigger();

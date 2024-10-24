@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodvw2dtreeitem.h"
+
 #include "emposid.h"
+#include "uiodvw2dtreeitem.h"
 
 
 namespace View2D { class FaultSS2D; }
@@ -26,7 +27,7 @@ public:
 
     bool			showSubMenu() override;
 
-protected:
+private:
 
     bool			init() override;
     const char*			iconName() const override;
@@ -36,14 +37,14 @@ protected:
     void			tempObjAddedCB(CallBacker*);
 
 public:
-    void			getFaultSS2DVwr2DIDs(EM::ObjectID emid,
+    void			getFaultSS2DVwr2DIDs(const EM::ObjectID&,
 						     TypeSet<Vis2DID>&) const;
     void			getLoadedFaultSS2Ds(
 					TypeSet<EM::ObjectID>&) const;
-    void			removeFaultSS2D(EM::ObjectID);
+    void			removeFaultSS2D(const EM::ObjectID&);
     void			addFaultSS2Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFaultSS2D(EM::ObjectID emid);
-    void			setupNewTempFaultSS2D(EM::ObjectID emid);
+    void			addNewTempFaultSS2D(const EM::ObjectID&);
+    void			setupNewTempFaultSS2D(const EM::ObjectID&);
 
 };
 
@@ -88,5 +89,5 @@ protected:
     void		propChgCB(CallBacker*);
 
     EM::ObjectID	emid_;
-    View2D::FaultSS2D*	fssview_;
+    View2D::FaultSS2D*	fssview_	= nullptr;
 };

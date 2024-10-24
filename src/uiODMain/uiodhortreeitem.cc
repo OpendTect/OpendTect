@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
-#include "mpeengine.h"
 #include "od_helpids.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
@@ -101,7 +100,7 @@ void uiODHorizonParentTreeItem::removeChild( uiTreeItem* itm )
 }
 
 
-static void setSectionDisplayRestoreForAllHors( const uiVisPartServer& visserv,
+static void setSectionDisplayRestoreForAllHors( uiVisPartServer& visserv,
 						bool yn )
 {
     TypeSet<VisID> ids;
@@ -118,7 +117,7 @@ static void setSectionDisplayRestoreForAllHors( const uiVisPartServer& visserv,
 
 bool uiODHorizonParentTreeItem::showSubMenu()
 {
-    const uiVisPartServer* visserv = applMgr()->visServer();
+    uiVisPartServer* visserv = applMgr()->visServer();
     const bool hastransform = visserv->getZAxisTransform( sceneID() );
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
@@ -159,17 +158,18 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    zinfo = &SI().zDomainInfo();
 
 	applMgr()->EMServer()->selectHorizons( objs, false, nullptr, zinfo );
-
+	uiMPEPartServer* mps = applMgr()->mpeServer();
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );
-	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
+	    const EM::ObjectID emid = objs[idx]->id();
+	    if ( mps->hasTracker(emid) )
 	    {
-		MPE::engine().addTracker( objs[idx] );
-		applMgr()->visServer()->turnSeedPickingOn( true );
+		mps->setActiveTracker( emid );
+		visserv->turnSeedPickingOn( true );
 	    }
 
-	    auto* itm = new uiODHorizonTreeItem( objs[idx]->id(),
+	    auto* itm = new uiODHorizonTreeItem( emid,
 				    mnuid==mAddCBIdx, mnuid==mAddAtSectIdx );
 	    addChld( itm, false, false );
 	}
@@ -445,14 +445,21 @@ bool uiODHorizonTreeItem::init()
     mDynamicCastGet(const EM::Horizon3D*,hor3d,EM::EMM().getObject(emid_))
     if ( hor3d )
     {
-	const int trackerid = MPE::engine().getTrackerByObject( hor3d->id() );
-	const MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-
+	bool istracking = false;
 	if ( !applMgr()->isRestoringSession() )
 	{
 	    hd->setDepthAsAttrib( 0 );
-	    const bool istracking = tracker && tracker->isEnabled();
 	    const int nrauxdata = hor3d->auxdata.nrAuxData();
+	    for ( int idx=0; !rgba_ && idx<nrauxdata; idx++ )
+	    {
+		if ( hor3d->auxdata.getAuxDataType(idx) ==
+						EM::SurfaceAuxData::Tracking )
+		{
+		    istracking = true;
+		    break;
+		}
+	    }
+
 	    for ( int idx=0; !rgba_ && idx<nrauxdata; idx++ )
 	    {
 		if ( !hor3d->auxdata.auxDataName(idx) )
@@ -477,7 +484,7 @@ bool uiODHorizonTreeItem::init()
 	    }
 	}
 
-	if ( tracker )
+	if ( istracking )
 	{
 	    for ( int idx=0; idx<nrChildren(); idx++ )
 		getChild(idx)->setChecked( false, true );
@@ -537,9 +544,10 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
 	return;
     }
 
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+
     mAddMenuItem( &displaymnuitem_, &positionmnuitem_, true, false );
-    mAddMenuItem(
-	menu, &algomnuitem_, !MPE::engine().trackingInProgress(), false );
+    mAddMenuItem( menu, &algomnuitem_, !mps->trackingInProgress(), false );
     mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
     mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
     mAddMenuItem( &algomnuitem_, &shiftmnuitem_, !islocked, false )
@@ -553,9 +561,9 @@ void uiODHorizonTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &workflowsmnuitem_, &calcvolmnuitem_, true, false );
     mAddMenuItem( &workflowsmnuitem_, &pickdatamnuitem_, true, false );
 
-    const bool hastracker = MPE::engine().getTrackerByObject(emid_) >= 0;
+    const bool hastracker = mps->hasTracker( emid_ );
     MenuItem* trackmnu = menu->findItem(
-	    uiStrings::sTracking().getFullString().buf() );
+				uiStrings::sTracking().getFullString().buf() );
     if ( hastracker && trackmnu )
     {
 	const Coord3& crd = uimenu->getPickedPos();
@@ -944,9 +952,10 @@ void uiODHorizon2DParentTreeItem::removeChild( uiTreeItem* itm )
 
 bool uiODHorizon2DParentTreeItem::showSubMenu()
 {
-    RefMan<visSurvey::Scene> scene =
-		    ODMainWin()->applMgr().visServer()->getScene( sceneID() );
+    uiVisPartServer* visserv = applMgr()->visServer();
+    RefMan<visSurvey::Scene> scene = visserv->getScene( sceneID() );
     const bool hastransform = scene && scene->getZAxisTransform();
+
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertAction( new uiAction( m3Dots(uiStrings::sAdd()) ), 0 );
     auto* newmenu = new uiAction( m3Dots(tr("Track New")) );
@@ -974,16 +983,18 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	    zinfo = &SI().zDomainInfo();
 
 	applMgr()->EMServer()->selectHorizons( objs, true, nullptr, zinfo );
+	uiMPEPartServer* mps = applMgr()->mpeServer();
 	for ( int idx=0; idx<objs.size(); idx++ )
 	{
 	    setMoreObjectsToDoHint( idx<objs.size()-1 );
-
-	    if ( MPE::engine().getTrackerByObject(objs[idx]->id()) != -1 )
+	    const EM::ObjectID emid = objs[idx]->id();
+	    if ( mps->hasTracker(emid) )
 	    {
-		MPE::engine().addTracker( objs[idx] );
-		applMgr()->visServer()->turnSeedPickingOn( true );
+		mps->setActiveTracker( emid );
+		visserv->turnSeedPickingOn( true );
 	    }
-	    addChld( new uiODHorizon2DTreeItem(objs[idx]->id()), false, false);
+
+	    addChld( new uiODHorizon2DTreeItem( emid ), false, false );
 	}
 
 	deepUnRef( objs );
@@ -1196,8 +1207,8 @@ void uiODHorizon2DTreeItem::createMenu( MenuHandler* menu, bool istb )
     const bool islocked = visserv_->isLocked( displayID() );
     const bool isempty = applMgr()->EMServer()->isEmpty( emid_ );
     const bool enab = !islocked && !isempty;
-    mAddMenuItem(
-	menu, &algomnuitem_, !MPE::engine().trackingInProgress(), false );
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    mAddMenuItem( menu, &algomnuitem_, !mps->trackingInProgress(), false );
     mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, enab, false );
     mAddMenuItem( &algomnuitem_, &interpolatemnuitem_, enab, false );
     mAddMenuItem( &algomnuitem_, &shiftmnuitem_, !islocked, false )

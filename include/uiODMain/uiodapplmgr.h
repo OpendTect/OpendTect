@@ -249,7 +249,7 @@ protected:
 
     uiPickPartServer*		pickserv_;
     uiVisPartServer*		visserv_;
-    uiNLAPartServer*		nlaserv_;
+    uiNLAPartServer*		nlaserv_	= nullptr;
     uiAttribPartServer*		attrserv_;
     uiVolProcPartServer*	volprocserv_;
     uiSeisPartServer*		seisserv_;
@@ -302,7 +302,7 @@ protected:
 
     void			manStrat();
 
-    void			setRandomPosData(const VisID&,int attrib,
+    bool			setRandomPosData(const VisID&,int attrib,
 						const DataPointSet&);
     void			process2D3D(int opt); /*!<opt=0: create 2D grid,
 							  1:3D->2D, 2:2D->3D */
@@ -312,9 +312,9 @@ protected:
     inline uiODSceneMgr&	sceneMgr()	{ return appl_.sceneMgr(); }
 
     VisID			otherformatvisid_;
-    int				otherformatattrib_;
+    int				otherformatattrib_	= -1;
 
-    uiVisDataPointSetDisplayMgr* visdpsdispmgr_;
+    uiVisDataPointSetDisplayMgr* visdpsdispmgr_		= nullptr;
 
     friend class		uiODMain;
     friend class		uiODApplMgrDispatcher;

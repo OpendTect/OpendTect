@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 
 #include "datapointset.h"
-#include "emposid.h"
 #include "explfaultsticksurface.h"
 #include "faulteditor.h"
 #include "ranges.h"
@@ -65,11 +64,11 @@ public:
 
     SurveyObject::AttribFormat	getAttributeFormat(int) const override
 				{ return SurveyObject::RandomPos; }
-    void			getRandomPos(DataPointSet&,
+    bool			getRandomPos(DataPointSet&,
 					     TaskRunner*) const override;
-    void			getRandomPosCache(int,
+    bool			getRandomPosCache(int,
 						DataPointSet&) const override;
-    void			setRandomPosData(int,const DataPointSet*,
+    bool			setRandomPosData(int,const DataPointSet*,
 						 TaskRunner*) override;
 
     bool			hasColor() const override	{ return true; }
@@ -155,19 +154,19 @@ public:
     bool			isVerticalPlane() const override {return false;}
     bool			canBDispOn2DViewer() const override
 				{ return false; }
-    DataPackID			addDataPack(const DataPointSet&) const;
-    bool			setDataPackID(int attrib,const DataPackID&,
-					      TaskRunner*) override;
-    DataPackID			getDataPackID(int attrib) const override;
-    DataPackID			getDisplayedDataPackID(int attr) const override;
-    DataPackMgr::MgrID		getDataPackMgrID() const override
-				{ return DataPackMgr::SurfID(); }
+
+    bool			usesDataPacks() const override	{ return true; }
+    bool			setPointDataPack(int attrib,PointDataPack*,
+						 TaskRunner*) override;
+    ConstRefMan<DataPack>	getDataPack(int attrib) const override;
+    ConstRefMan<PointDataPack>	getPointDataPack(int attrib) const override;
 
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>& objs,
 				    const VisID& whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
 
+    const EM::Fault3D*		emFault() const;
     EM::Fault3D*		emFault();
     void			showSelectedSurfaceData();
     const BufferStringSet*	selectedSurfaceDataNames();
@@ -196,7 +195,7 @@ protected:
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    const VisID& whichobj) override;
-    void			setRandomPosDataInternal(int attrib,
+    bool			setRandomPosDataInternal(int attrib,
 							 const DataPointSet*,
 							 int column,
 							 TaskRunner*);
@@ -209,6 +208,9 @@ protected:
     void			updateSingleColor();
     void			updateManipulator();
 
+    bool			isDisplayingSticksUseful() const;
+    bool			isDisplayedPlanesUseful() const;
+
     bool			getCacheValue(int attrib,int version,
 					  const Coord3&,float&) const override;
     void			addCache() override;
@@ -216,6 +218,7 @@ protected:
     void			swapCache(int,int) override;
     void			emptyCache(int) override;
     bool			hasCache(int) const override;
+    RefMan<MPE::ObjectEditor>	getMPEEditor(bool create) override;
 
     bool			isPicking() const override;
     void			mouseCB(CallBacker*);
@@ -296,8 +299,6 @@ protected:
     static const char*			sKeyUseTexture();
     static const char*			sKeyLineStyle();
     static const char*			sKeyZValues();
-
-    bool				isDisplayingSticksUseful() const;
 };
 
 };

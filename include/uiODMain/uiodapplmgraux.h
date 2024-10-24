@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 
-#include "integerid.h"
 #include "uiapplserv.h"
 #include "uistring.h"
 
@@ -115,39 +114,4 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     Vel::uiImportVelFunc*	impvelfunc3d_			= nullptr;
     PreStack::uiBatchProcSetup* batchprocps2ddlg_		= nullptr;
     PreStack::uiBatchProcSetup* batchprocps3ddlg_		= nullptr;
-};
-
-
-/*!\brief Does visualization-related work for uiODApplMgr */
-
-mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
-{ mODTextTranslationClass(uiODApplMgrAttrVisHandler);
-    friend class	uiODApplMgr;
-
-			uiODApplMgrAttrVisHandler(uiODApplMgr&,uiParent*);
-			~uiODApplMgrAttrVisHandler();
-
-    void		survChg(bool);
-    void		saveNLA(CallBacker*);
-    bool		editNLA(bool);
-    bool		uvqNLA(bool);
-    void		createHorOutput(int tp,bool);
-    void		createVol(bool is2d,bool multiattrib);
-    void		doXPlot();
-    void		crossPlot();
-    void		setZStretch();
-    bool		selectAttrib(const VisID&,int);
-    void		setHistogram(const VisID&,int);
-    void		colMapperChg();
-    void		setRandomPosData(const VisID&,int attrib,
-					const DataPointSet&);
-    void		pageUpDownPressed(bool);
-    void		updateColorTable(const VisID&,int);
-    void		colSeqChg();
-    NotifierAccess*	colorTableSeqChange();
-    void		useDefColTab(const VisID&,int);
-    void		saveDefColTab(const VisID&,int);
-
-    uiODApplMgr&	am_;
-    uiParent*		par_;
 };

@@ -27,6 +27,7 @@ ________________________________________________________________________
 
 namespace EM { class EMManager; }
 namespace Geometry { class Element; }
+namespace MPE { class ObjectEditor; }
 
 namespace visSurvey
 {
@@ -81,6 +82,7 @@ public:
 
     virtual bool		setEMObject(const EM::ObjectID&,TaskRunner*);
     EM::ObjectID		getObjectID() const;
+    virtual bool		activateTracker()	{ return false; }
     virtual bool		updateFromEM(TaskRunner*);
     virtual void		updateFromMPE();
 
@@ -118,6 +120,8 @@ public:
     void			getMousePosInfo(const visBase::EventInfo&,
 					    Coord3&,BufferString& val,
 					    uiString& info) const override;
+
+    virtual RefMan<MPE::ObjectEditor> getMPEEditor(bool create)		= 0;
     MPEEditor*			getEditor();
     void			enableEditing(bool yn);
     bool			isEditingEnabled() const;

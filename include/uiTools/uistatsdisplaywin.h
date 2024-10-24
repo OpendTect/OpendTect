@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
+
 #include "uimainwin.h"
 #include "uistatsdisplay.h"
 
@@ -20,9 +21,10 @@ namespace Stats { template <class T> class ParallelCalc; }
 /*!\brief Stats display main window. See uistatsdisplay.h for details. */
 
 mExpClass(uiTools) uiStatsDisplayWin : public uiMainWin
-{ mODTextTranslationClass(uiStatsDisplayWin)
+{
+mODTextTranslationClass(uiStatsDisplayWin)
 public:
-    				uiStatsDisplayWin(uiParent*,
+				uiStatsDisplayWin(uiParent*,
 					const uiStatsDisplay::Setup&,int nr=1,
 					bool ismodal=true);
 				~uiStatsDisplayWin();
@@ -34,12 +36,12 @@ public:
     void			setMarkValue(float,bool forx,int nr=0);
     void			showStat(int);
 
-protected:
+private:
 
     ObjectSet<uiStatsDisplay>	disps_;
-    uiComboBox*			statnmcb_;
+    uiComboBox*			statnmcb_	= nullptr;
 
     void			dataChanged(CallBacker*);
     void			mouseMoveCB(CallBacker*);
-    int				currentdispidx_;
+    int				currentdispidx_ = -1;
 };

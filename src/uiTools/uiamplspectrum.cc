@@ -30,14 +30,8 @@ ________________________________________________________________________
 
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
-    : uiMainWin( p,tr("Amplitude Spectrum"), 0, false, false )
+    : uiMainWin( p, tr("Amplitude Spectrum"), 0, false, false )
     , setup_(setup)
-    , data_(nullptr)
-    , timedomain_(nullptr)
-    , freqdomain_(nullptr)
-    , freqdomainsum_(nullptr)
-    , specvals_(nullptr)
-    , fft_(nullptr)
 {
     if ( !setup_.caption_.isEmpty() )
 	setCaption( setup_.caption_ );
@@ -58,7 +52,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 						tr("Navewumber (kft)");
     disp_->xAxis()->setCaption( rangestr );
     disp_->yAxis(false)->setCaption( tr("Power (dB)") );
-    mAttachCB(disp_->mouseMoveNotifier(), uiAmplSpectrum::valChgd);
+    mAttachCB( disp_->mouseMoveNotifier(), uiAmplSpectrum::valChgd );
 
     dispparamgrp_ = new uiGroup( this, "Display Params Group" );
     dispparamgrp_->attach( alignedBelow, disp_->uiobj() );
@@ -66,11 +60,11 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     rangefld_ = new uiGenInput( dispparamgrp_, disptitle, FloatInpIntervalSpec()
 			.setName(BufferString("range start"),0)
 			.setName(BufferString("range stop"),1) );
-    mAttachCB(rangefld_->valueChanged, uiAmplSpectrum::dispRangeChgd);
+    mAttachCB( rangefld_->valueChanged, uiAmplSpectrum::dispRangeChgd );
     stepfld_ = new uiLabeledSpinBox( dispparamgrp_, tr("Gridline step"));
     stepfld_->box()->setNrDecimals( 0 );
     stepfld_->attach( rightOf, rangefld_ );
-    mAttachCB(stepfld_->box()->valueChanging, uiAmplSpectrum::dispRangeChgd);
+    mAttachCB( stepfld_->box()->valueChanging, uiAmplSpectrum::dispRangeChgd );
 
     uiString lbl =  SI().zIsTime() ?
 		    uiStrings::phrJoinStrings(uiStrings::sValue(),
@@ -89,18 +83,17 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     powerdbfld_->attach( rightOf, normfld_ );
     powerdbfld_->setChecked( true );
 
-    mAttachCB(normfld_->activated, uiAmplSpectrum::putDispData);
-    mAttachCB(powerdbfld_->activated, uiAmplSpectrum::putDispData);
+    mAttachCB( normfld_->activated, uiAmplSpectrum::putDispData );
+    mAttachCB( powerdbfld_->activated, uiAmplSpectrum::putDispData );
 
     exportfld_ = new uiPushButton( this, uiStrings::sExport(), false );
-    mAttachCB(exportfld_->activated, uiAmplSpectrum::exportCB);
+    mAttachCB( exportfld_->activated, uiAmplSpectrum::exportCB );
     exportfld_->attach( rightAlignedBelow, disp_->uiobj() );
     exportfld_->attach( ensureBelow, dispparamgrp_ );
 
     if ( !setup_.iscepstrum_ )
     {
-	uiPushButton* cepbut = new uiPushButton( this, tr("Display cepstrum"),
-						 false );
+	auto* cepbut = new uiPushButton( this, tr("Display cepstrum"), false );
 	mAttachCB(cepbut->activated, uiAmplSpectrum::ceptrumCB);
 	cepbut->attach( leftOf, exportfld_ );
     }
@@ -110,33 +103,54 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 uiAmplSpectrum::~uiAmplSpectrum()
 {
     detachAllNotifiers();
-    delete fft_;
     delete data_;
     delete timedomain_;
     delete freqdomain_;
     delete freqdomainsum_;
     delete specvals_;
+    delete fft_;
 }
 
 
-void uiAmplSpectrum::setDataPackID(
-		DataPackID dpid, DataPackMgr::MgrID dmid, int version )
+bool uiAmplSpectrum::setDataPackID( const DataPackID& dpid,
+				    const DataPackMgr::MgrID& dmid,
+				    int version )
 {
-    auto datapack = DPM(dmid).getDP( dpid );
-    if ( datapack )
-	setCaption( !datapack ? tr("No data")
-			      : tr( "Amplitude Spectrum for %1" )
-				.arg( datapack->name() ) );
+    ConstRefMan<DataPack> dp = DPM( dmid ).get<DataPack>( dpid );
+    return dp ? setDataPack( *dp.ptr(), version ) : false;
+}
 
-    if ( dmid == DataPackMgr::FlatID() )
+
+bool uiAmplSpectrum::setDataPack( const DataPack& dp, int version )
+{
+    BufferString dpversionnm;
+
+    mDynamicCastGet(const SeisDataPack*,seisdp,&dp)
+    mDynamicCastGet(const FlatDataPack*,fdp,&dp)
+    if ( seisdp )
     {
-	mDynamicCastGet(const FlatDataPack*,dp,datapack.ptr());
-	if ( dp )
-	{
-	    setup_.nyqvistspspace_ = (float) (dp->posData().range(false).step_);
-	    setData( dp->data() );
-	}
+	if ( seisdp->isEmpty() )
+	    return false;
+
+	dpversionnm = seisdp->getComponentName( version );
+	setup_.nyqvistspspace_ = seisdp->zRange().step_;
+	setData( seisdp->data(version) );
     }
+    else if ( fdp )
+    {
+	dpversionnm = fdp->name();
+	mDynamicCastGet(const MapDataPack*,mdp,fdp);
+	const Array2D<float>& data = mdp ? mdp->rawData() : fdp->data();
+	const FlatPosData& posdata = mdp ? mdp->rawPosData() : fdp->posData();
+	setup_.nyqvistspspace_ = (float) (posdata.range(false).step_);
+	setData( data );
+    }
+    else
+	return false;
+
+    setCaption( tr( "Amplitude Spectrum for %1" ).arg( dpversionnm ) );
+
+    return true;
 }
 
 
@@ -169,7 +183,7 @@ void uiAmplSpectrum::setData( const float* array, int size )
 
 void uiAmplSpectrum::setData( const Array3D<float>& array )
 {
-    Array3DImpl<float>* data = new Array3DImpl<float>( array.info() );
+    auto* data = new Array3DImpl<float>( array.info() );
     data->copyFrom( array );
     data_ = data;
 
@@ -387,10 +401,11 @@ void uiAmplSpectrum::valChgd( CallBacker* cb )
 
 void uiAmplSpectrum::ceptrumCB( CallBacker* )
 {
-    if ( !specvals_ ) return;
+    if ( !specvals_ )
+	return;
 
-    uiAmplSpectrum* ampl = new uiAmplSpectrum(
-	    this, uiAmplSpectrum::Setup(tr("Amplitude Cepstrum"), true, 1  ) );
+    auto* ampl = new uiAmplSpectrum( this,
+		uiAmplSpectrum::Setup(tr("Amplitude Cepstrum"), true, 1  ) );
     ampl->setDeleteOnClose( true );
     ampl->setData( *specvals_ );
     ampl->show();

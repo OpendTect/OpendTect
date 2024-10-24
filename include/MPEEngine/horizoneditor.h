@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+
 #include "emeditor.h"
 
-
-namespace EM { class Horizon3D; class Horizon2D; }
+namespace EM { class Horizon2D; class Horizon3D; }
 
 namespace MPE
 {
@@ -24,16 +24,20 @@ namespace MPE
 mExpClass(MPEEngine) HorizonEditor : public ObjectEditor
 {
 public:
-    				HorizonEditor(EM::Horizon3D&);
-    static ObjectEditor*	create(EM::EMObject&);
-    static void			initClass();
 
-    void			getEditIDs(TypeSet<EM::PosID>&) const override;
+    static RefMan<HorizonEditor> create(EM::Horizon3D&);
 
 protected:
 				~HorizonEditor();
 
+private:
+				HorizonEditor(const EM::Horizon3D&);
+
+    void			getEditIDs(TypeSet<EM::PosID>&) const override;
+
+
     Geometry::ElementEditor*	createEditor() override;
+
 };
 
 
@@ -44,14 +48,17 @@ protected:
 mExpClass(MPEEngine) Horizon2DEditor : public ObjectEditor
 {
 public:
-				Horizon2DEditor(EM::Horizon2D&);
-    static ObjectEditor*	create(EM::EMObject&);
-    static void			initClass();
+
+    static RefMan<Horizon2DEditor> create(EM::Horizon2D&);
 
 protected:
 				~Horizon2DEditor();
 
+private:
+				Horizon2DEditor(const EM::Horizon2D&);
+
     Geometry::ElementEditor*	createEditor() override;
+
 };
 
 

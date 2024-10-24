@@ -57,14 +57,6 @@ public:
     Interval<int>		getTraceNrRange() const;
     const StepInterval<int>&	getMaxTraceNrRange() const;
 
-    bool			setDataPackID(int attrib,const DataPackID&,
-					      TaskRunner*) override;
-    DataPackID			getDataPackID(int attrib) const override;
-    DataPackID			getDisplayedDataPackID(
-						int attrib) const override;
-    DataPackMgr::MgrID		getDataPackMgrID() const override
-				{ return DataPackMgr::SeisID(); }
-
     bool			allowsPicks() const override	{ return true; }
     bool			allowMaterialEdit() const override
 				{ return true; }
@@ -184,12 +176,16 @@ protected:
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
 							  TaskRunner* =nullptr);
-    ConstRefMan<RegularSeisDataPack> getDataPack(int attrib) const;
-    RefMan<RegularSeisDataPack> getDataPack(int attrib);
-    ConstRefMan<RegularSeisDataPack> getDisplayedDataPack(int attrib) const;
-    RefMan<RegularSeisDataPack> getDisplayedDataPack(int attrib);
-    bool			setSeisDataPack(int attrib,RegularSeisDataPack*,
+
+    bool			usesDataPacks() const override	{ return true; }
+    bool			setSeisDataPack(int attrib,SeisDataPack*,
 						TaskRunner*) override;
+    ConstRefMan<DataPack>	getDataPack(int attrib) const override;
+    ConstRefMan<SeisDataPack>	getSeisDataPack(int attrib) const override;
+    RefMan<SeisDataPack>	getSeisDataPack(int attrib);
+    ConstRefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib)
+								const override;
+    RefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib);
 
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;

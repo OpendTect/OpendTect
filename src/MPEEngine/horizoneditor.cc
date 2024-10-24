@@ -9,87 +9,69 @@ ________________________________________________________________________
 
 #include "horizoneditor.h"
 
-#include "geeditorimpl.h"
 #include "binidsurface.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "geeditorimpl.h"
 #include "mpeengine.h"
 
 
-namespace MPE
-{
+// HorizonEditor
 
-HorizonEditor::HorizonEditor( EM::Horizon3D& hor3d )
+RefMan<MPE::HorizonEditor>
+			MPE::HorizonEditor::create( EM::Horizon3D& hor )
+{
+    return new HorizonEditor( hor );
+}
+
+
+MPE::HorizonEditor::HorizonEditor( const EM::Horizon3D& hor3d )
     : ObjectEditor(hor3d)
 {
 }
 
 
-HorizonEditor::~HorizonEditor()
+MPE::HorizonEditor::~HorizonEditor()
 {}
 
 
-ObjectEditor* HorizonEditor::create( EM::EMObject& emobj )
+Geometry::ElementEditor* MPE::HorizonEditor::createEditor()
 {
-    mDynamicCastGet(EM::Horizon3D*,horizon,&emobj);
-    return horizon ? new HorizonEditor( *horizon ) : 0;
+    RefMan<EM::EMObject> emobject = emObject();
+    Geometry::Element* ge = emobject ? emobject->geometryElement() : nullptr;
+    mDynamicCastGet(Geometry::BinIDSurface*,surface,ge);
+    return surface ? new Geometry::BinIDElementEditor( *surface ) : nullptr;
 }
 
 
-void HorizonEditor::initClass()
-{ MPE::EditorFactory().addCreator( create, EM::Horizon3D::typeStr() ); }
-
-
-Geometry::ElementEditor* HorizonEditor::createEditor()
-{
-    const Geometry::Element* ge = emObject().geometryElement();
-    if ( !ge ) return 0;
-
-    mDynamicCastGet(const Geometry::BinIDSurface*,surface,ge);
-    if ( !surface ) return 0;
-
-    return new Geometry::BinIDElementEditor(
-		*const_cast<Geometry::BinIDSurface*>(surface) );
-}
-
-
-void HorizonEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
+void MPE::HorizonEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 {
     ids.erase();
 }
 
 
 // Horizon2DEditor
-Horizon2DEditor::Horizon2DEditor( EM::Horizon2D& hor2d )
+
+RefMan<MPE::Horizon2DEditor>
+			MPE::Horizon2DEditor::create( EM::Horizon2D& hor )
+{
+    return new Horizon2DEditor( hor );
+}
+
+
+MPE::Horizon2DEditor::Horizon2DEditor( const EM::Horizon2D& hor2d )
     : ObjectEditor(hor2d)
 {}
 
 
-Horizon2DEditor::~Horizon2DEditor()
+MPE::Horizon2DEditor::~Horizon2DEditor()
 {}
 
 
-ObjectEditor* Horizon2DEditor::create( EM::EMObject& emobj )
+Geometry::ElementEditor* MPE::Horizon2DEditor::createEditor()
 {
-    mDynamicCastGet(EM::Horizon2D*,hor2d,&emobj);
-    return hor2d ? new Horizon2DEditor( *hor2d ) : 0;
+    RefMan<EM::EMObject> emobject = emObject();
+    Geometry::Element* ge = emobject ? emobject->geometryElement() : nullptr;
+    mDynamicCastGet(Geometry::BinIDSurface*,surface,ge);
+    return surface ? new Geometry::BinIDElementEditor( *surface ) : nullptr;
 }
-
-
-void Horizon2DEditor::initClass()
-{ MPE::EditorFactory().addCreator( create, EM::Horizon2D::typeStr() ); }
-
-
-Geometry::ElementEditor* Horizon2DEditor::createEditor()
-{
-    const Geometry::Element* ge = emObject().geometryElement();
-    if ( !ge ) return 0;
-
-    mDynamicCastGet(const Geometry::BinIDSurface*,surface,ge);
-    if ( !surface ) return 0;
-
-    return new Geometry::BinIDElementEditor(
-		*const_cast<Geometry::BinIDSurface*>(surface) );
-}
-
-} // namespace MPE

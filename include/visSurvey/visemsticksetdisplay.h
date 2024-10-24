@@ -24,6 +24,11 @@ namespace EM
     class FaultStickSet;
 }
 
+namespace MPE
+{
+    class ObjectEditor;
+}
+
 namespace visBase
 {
     class MarkerSet;
@@ -62,6 +67,7 @@ protected:
     virtual			~StickSetDisplay();
 
     Geometry::FaultStickSet*	faultStickSetGeometry();
+    virtual RefMan<MPE::ObjectEditor> getMPEEditor(bool create)		= 0;
     void			stickSelectionCB(CallBacker*,
 						 const Survey::Geometry3D*);
     void			setCurScene(Scene*);

@@ -47,20 +47,20 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     , visserv_( vps )
     , sceneid_(sceneid)
 {
-    const EM::EMObject* emobj = EM::EMM().getObject( emid );
-    RefMan<visSurvey::EMObjectDisplay> emod;
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj);
+    ConstRefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+    RefMan<visSurvey::EMObjectDisplay> emobjdisplay;
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj.ptr());
     if ( hor3d )
     {
 	checkHorizonSize( hor3d );
-	emod = new visSurvey::HorizonDisplay;
+	emobjdisplay = new visSurvey::HorizonDisplay;
     }
 
-    mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj);
+    mDynamicCastGet(const EM::Horizon2D*,hor2d,emobj.ptr());
     if ( hor2d )
-	emod = new visSurvey::Horizon2DDisplay;
+	emobjdisplay = new visSurvey::Horizon2DDisplay;
 
-    if ( !emod )
+    if ( !emobjdisplay )
     {
 	pErrMsg("Incorrect data type for uiVisEMObject");
 	if ( OD::InDebugMode() )
@@ -69,7 +69,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 	return;
     }
 
-    displayid_ = emod->id();
+    displayid_ = emobjdisplay->id();
     RefMan<visSurvey::Scene> scene = visserv_->getScene( sceneid_ );
     if ( !scene )
     {
@@ -80,18 +80,18 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 	return;
     }
 
-    emod->setZDomain( emobj->zDomain() );
-    emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
+    emobjdisplay->setZDomain( emobj->zDomain() );
+    emobjdisplay->setDisplayTransformation( scene->getUTM2DisplayTransform() );
     auto* zt = const_cast<ZAxisTransform*>( scene->getZAxisTransform() );
-    emod->setZAxisTransform( zt, nullptr );
+    emobjdisplay->setZAxisTransform( zt, nullptr );
 
     uiTaskRunner dlg( uiparent_ );
-    if ( !emod->setEMObject(emid,&dlg) )
+    if ( !emobjdisplay->setEMObject(emid,&dlg) )
 	return;
 
-    visserv_->addObject( emod.ptr(), sceneid_, true);
+    visserv_->addObject( emobjdisplay.ptr(), sceneid_, true );
 
-    emobjdisplay_ = emod;
+    emobjdisplay_ = emobjdisplay;
     setUpConnections();
 }
 
@@ -104,32 +104,35 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const VisID& displayid,
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
-    RefMan<visSurvey::EMObjectDisplay> emod;
+    RefMan<visSurvey::EMObjectDisplay> emobjdisplay;
     if ( visserv_ )
-	emod = dCast( visSurvey::EMObjectDisplay*,
-		      visserv_->getObject(displayid) );
+	emobjdisplay = dCast( visSurvey::EMObjectDisplay*,
+			      visserv_->getObject(displayid) );
 
-    if ( !emod )
+    if ( !emobjdisplay )
 	return;
 
-    const MultiID mid = emod->getMultiID();
+    const MultiID mid = emobjdisplay->getMultiID();
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
-    const EM::EMObject* emobj = EM::EMM().getObject( emid );
-    mDynamicCastGet( const EM::Horizon3D*, hor3d, emobj );
+    ConstRefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj.ptr());
     if ( hor3d )
 	checkHorizonSize( hor3d );
 
-    visSurvey::Scene* scene = emod->getScene();
+    visSurvey::Scene* scene = emobjdisplay->getScene();
     if ( scene )
 	sceneid_ = scene->getID();
 
-    mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod.ptr());
+    const bool withtracker = MPE::engine().needRestoredTracker( mid );
+    mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,
+		    emobjdisplay.ptr());
 
     uiTaskRunner dlg( uiparent_ );
     if ( !EM::EMM().getObject(emid) )
     {
 	PtrMan<Executor> exec;
-	EM::IOObjInfo oi( mid ); EM::SurfaceIOData sd;
+	const EM::IOObjInfo oi( mid );
+	EM::SurfaceIOData sd;
 	uiString errmsg;
 	if ( !oi.getSurfaceData(sd,errmsg) )
 	    exec = EM::EMM().objectLoader( mid );
@@ -139,7 +142,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const VisID& displayid,
 	    sel.setDefault();
 	    sel.selvalues.erase();
 
-	    const BufferStringSet sections = emod->displayedSections();
+	    const BufferStringSet sections = emobjdisplay->displayedSections();
 
 	    TypeSet<int> sectionidx;
 	    for ( int idx=sections.size()-1; idx>=0; idx-- )
@@ -173,7 +176,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const VisID& displayid,
 	if ( exec )
 	{
 	    emid = EM::EMM().getObjectID( mid );
-	    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+	    emobj = EM::EMM().getObject( emid );
 	    if ( !TaskRunner::execute(&dlg,*exec) )
 	    {
 		if ( scene )
@@ -182,11 +185,11 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const VisID& displayid,
 		return;
 	    }
 
-	    emobject.setNoDelete( true ); // TODO really ??
+	    emobj.setNoDelete( true ); // TODO really ??
 	}
     }
 
-    if ( !emod->setEMObject(emid,&dlg) )
+    if ( !emobjdisplay->setEMObject(emid,&dlg) )
     {
 	if ( scene )
 	    visserv_->removeObject( displayid_, sceneid_ );
@@ -194,17 +197,25 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const VisID& displayid,
 	return;
     }
 
+    emobjdisplay_ = emobjdisplay;
     if ( hordisp && hordisp->usesTexture() )
     {
-	for ( int idx=0; idx<emod->nrAttribs(); idx++ )
+	for ( int idx=0; idx<emobjdisplay->nrAttribs(); idx++ )
 	{
-	    if ( hordisp->getSelSpec(idx)->id().asInt()
-		 ==Attrib::SelSpec::cNoAttrib().asInt() )
+	    if ( hordisp->getSelSpec(idx)->id().asInt() ==
+		   Attrib::SelSpec::cNoAttrib().asInt() )
 		setDepthAsAttrib( idx );
 	}
     }
 
-    emobjdisplay_ = emod;
+    if ( withtracker )
+    {
+	if ( !MPE::engine().hasTracker(emid) )
+	    activateTracker();
+
+	MPE::engine().restoreTracker( emid );
+    }
+
     setUpConnections();
 }
 
@@ -287,6 +298,13 @@ EM::SectionID uiVisEMObject::getSectionID( const TypeSet<VisID>* path ) const
 }
 
 
+bool uiVisEMObject::activateTracker()
+{
+    RefMan<visSurvey::EMObjectDisplay> emod = getDisplay();
+    return emod ? emod->activateTracker() : false;
+}
+
+
 void uiVisEMObject::checkTrackingStatus()
 {
     RefMan<visSurvey::EMObjectDisplay> emod = getDisplay();
@@ -314,7 +332,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 		? (const visSurvey::EMObjectDisplay*)hordisp.ptr()
 		: (const visSurvey::EMObjectDisplay*)hor2ddisp.ptr();
     const EM::ObjectID emid = emod->getObjectID();
-    const EM::EMObject* emobj = EM::EMM().getObject( emid );
+    ConstRefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
     if ( !emobj )
 	return;
 
@@ -426,7 +444,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, emod.ptr() );
     const EM::ObjectID emid = emod->getObjectID();
-    EM::EMObject* emobj = EM::EMM().getObject(emid);
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject(emid);
 
     if ( mnuid==singlecolmnuitem_.id )
     {
@@ -472,7 +490,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     {
 	if ( emobj && !visserv_->showSetupGroupOnTop("Properties") )
 	{
-	    uiSeedPropDlg dlg( uiparent_, emobj );
+	    uiSeedPropDlg dlg( uiparent_, emobj.ptr() );
 	    dlg.go();
 	}
 	menu->setIsHandled( true );
@@ -494,10 +512,11 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     {
 	if ( emobj && !visserv_->showSetupGroupOnTop("Properties") )
 	{
-	    uiSeedPropDlg dlg( uiparent_, emobj,
+	    uiSeedPropDlg dlg( uiparent_, emobj.ptr(),
 				EM::EMObject::sTemporaryControlNode() );
 	    dlg.go();
 	}
+
 	menu->setIsHandled( true );
     }
 }

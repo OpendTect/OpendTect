@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodvw2dtreeitem.h"
+
 #include "emposid.h"
+#include "uiodvw2dtreeitem.h"
 
 class uiODViewer2D;
 namespace View2D { class Fault; }
@@ -23,15 +24,15 @@ public:
 				~uiODView2DFaultParentTreeItem();
 
     bool			showSubMenu() override;
-    void			getFaultVwr2DIDs(EM::ObjectID emid,
+    void			getFaultVwr2DIDs(const EM::ObjectID&,
 						 TypeSet<Vis2DID>&) const;
     void			getLoadedFaults(TypeSet<EM::ObjectID>&) const;
-    void			removeFault(EM::ObjectID);
+    void			removeFault(const EM::ObjectID&);
     void			addFaults(const TypeSet<EM::ObjectID>&);
-    void			addNewTempFault(EM::ObjectID);
-    void			setupNewTempFault(EM::ObjectID);
+    void			addNewTempFault(const EM::ObjectID&);
+    void			setupNewTempFault(const EM::ObjectID&);
 
-protected:
+private:
 
     bool			init() override;
     const char*			iconName() const override;
@@ -65,7 +66,7 @@ public:
     EM::ObjectID		emObjectID() const	{ return emid_; }
     const View2D::Fault*	vw2DObject() const	{ return faultview_; }
 
-protected:
+private:
 
     bool		init() override;
     const char*		parentType() const override
@@ -83,5 +84,5 @@ protected:
     void		propChgCB(CallBacker*);
 
     EM::ObjectID	emid_;
-    View2D::Fault*	faultview_;
+    View2D::Fault*	faultview_	= nullptr;
 };

@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uifunctiondisplay.h"
+
 #include "datapack.h"
+#include "uifunctiondisplay.h"
 
 class uiTextItem;
 template <class T> class Array2D;
@@ -28,8 +29,11 @@ public:
 				~uiHistogramDisplay();
 
     void			setEmpty() override;
-    bool			setDataPackID(DataPackID,DataPackMgr::MgrID,
-					      int version);
+    bool			setDataPack(const DataPack&,int version=0);
+    mDeprecated("Use setDataPack")
+    bool			setDataPackID(const DataPackID&,
+					      const DataPackMgr::MgrID&,
+					      int version=0);
     void			setData(const float*,od_int64 sz);
     void			setData(const Array2D<float>*);
     void			setData(const Array3D<float>*);

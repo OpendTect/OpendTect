@@ -10,64 +10,59 @@ ________________________________________________________________________
 #include "horizon3dextender.h"
 
 #include "binidsurface.h"
-#include "emhorizon3d.h"
 #include "horizon3dtracker.h"
 #include "mpeengine.h"
 
-namespace MPE
-{
 
-void Horizon3DExtender::initClass()
-{
-    ExtenderFactory().addCreator( create, Horizon3DTracker::keyword() );
-}
+// MPE::Horizon3DExtenderBase
 
+mImplFactory1Param( MPE::Horizon3DExtenderBase, EM::Horizon3D&,
+		    MPE::Horizon3DExtenderBase::factory );
 
-SectionExtender* Horizon3DExtender::create( EM::EMObject* emobj )
-{
-    mDynamicCastGet(EM::Horizon3D*,hor,emobj)
-    return emobj && !hor ? 0 : new Horizon3DExtender( *hor );
-}
-
-
-Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& hor3d )
-   : BaseHorizon3DExtender( hor3d )
-{
-}
-
-
-Horizon3DExtender::~Horizon3DExtender()
-{}
-
-
-// BaseHorizon3DExtender
-BaseHorizon3DExtender::BaseHorizon3DExtender( EM::Horizon3D& hor3d )
+MPE::Horizon3DExtenderBase::Horizon3DExtenderBase( EM::Horizon3D& hor3d )
     : SectionExtender()
     , horizon_( hor3d )
 {}
 
 
-BaseHorizon3DExtender::~BaseHorizon3DExtender()
+MPE::Horizon3DExtenderBase::~Horizon3DExtenderBase()
 {}
 
 
-void BaseHorizon3DExtender::setDirection( const TrcKeyValue& bdval )
-{ direction_ =	bdval; }
-
-
-int BaseHorizon3DExtender::maxNrPosInExtArea() const
-{ return mCast( int, getExtBoundary().hsamp_.totalNr() ); }
-
-
-void BaseHorizon3DExtender::preallocExtArea()
+MPE::Horizon3DExtenderBase*
+	MPE::Horizon3DExtenderBase::createInstance( EM::Horizon3D& hor )
 {
-    const TrcKeySampling hrg = getExtBoundary().hsamp_;
-    Geometry::BinIDSurface* bidsurf = horizon_.geometry().geometryElement();
-    if ( bidsurf ) bidsurf->expandWithUdf( hrg.start_,hrg.stop_ );
+    const auto& horextfact = factory();
+    BufferString typestr = horextfact.getDefaultName();
+    if ( !horextfact.hasName(typestr.buf()) && !horextfact.isEmpty() )
+	typestr = horextfact.getNames().last()->buf();
+
+    return horextfact.create( typestr.buf(), hor );
 }
 
 
-int BaseHorizon3DExtender::nextStep()
+void MPE::Horizon3DExtenderBase::setDirection( const TrcKeyValue& bdval )
+{
+    direction_ = bdval;
+}
+
+
+int MPE::Horizon3DExtenderBase::maxNrPosInExtArea() const
+{
+    return mCast( int, getExtBoundary().hsamp_.totalNr() );
+}
+
+
+void MPE::Horizon3DExtenderBase::preallocExtArea()
+{
+    const TrcKeySampling hrg = getExtBoundary().hsamp_;
+    Geometry::BinIDSurface* bidsurf = horizon_.geometry().geometryElement();
+    if ( bidsurf )
+	bidsurf->expandWithUdf( hrg.start_,hrg.stop_ );
+}
+
+
+int MPE::Horizon3DExtenderBase::nextStep()
 {
     if ( startpos_.isEmpty() )
 	return Finished();
@@ -156,19 +151,30 @@ int BaseHorizon3DExtender::nextStep()
 	}
     }
 
-    return 0;
+    return Finished();
 }
 
 
-float BaseHorizon3DExtender::getDepth( const TrcKey& src,
-				       const TrcKey& ) const
+float MPE::Horizon3DExtenderBase::getDepth( const TrcKey& src,
+					    const TrcKey& /* dest */) const
 {
     return horizon_.getZ( src );
 }
 
 
-const TrcKeyZSampling& BaseHorizon3DExtender::getExtBoundary() const
-{ return extboundary_.isEmpty() || extboundary_.hsamp_.totalNr()==1
-	? engine().activeVolume() : extboundary_; }
+const TrcKeyZSampling& MPE::Horizon3DExtenderBase::getExtBoundary() const
+{
+    return extboundary_.isEmpty() || extboundary_.hsamp_.totalNr()==1
+	    ? engine().activeVolume() : extboundary_;
+}
 
-} // namespace MPE
+
+// MPE::Horizon3DExtender
+
+MPE::Horizon3DExtender::Horizon3DExtender( EM::Horizon3D& hor3d )
+   : Horizon3DExtenderBase(hor3d)
+{}
+
+
+MPE::Horizon3DExtender::~Horizon3DExtender()
+{}

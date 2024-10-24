@@ -438,7 +438,9 @@ Coord::DistType Coord3::sqDistTo( const Coord3& b ) const
 
 bool Coord3::isSameAs( const Coord3& pos, const Coord3& eps ) const
 {
-    return fabs(x_-pos.x_)<eps.x_ && fabs(y_-pos.y_)<eps.y_ && fabs(z_-pos.z_)<eps.z_;
+    return fabs(x_-pos.x_)<eps.x_ &&
+	   fabs(y_-pos.y_)<eps.y_ &&
+	   fabs(z_-pos.z_)<eps.z_;
 }
 
 
@@ -773,6 +775,19 @@ TrcKey::IdxType& TrcKey::trcNr()
 
 
 // TrcKeyValue
+
+TrcKeyValue::TrcKeyValue( const TrcKey& tk, float val )
+    : tk_(tk)
+    , val_(val)
+{}
+
+
+TrcKeyValue::TrcKeyValue( const BinID& bid, float val )
+    : tk_(bid)
+    , val_(val)
+{}
+
+
 TrcKeyValue::TrcKeyValue( const BinIDValue& bidv )
     : tk_( bidv )
     , val_( bidv.val() )

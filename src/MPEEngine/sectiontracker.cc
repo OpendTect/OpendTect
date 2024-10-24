@@ -19,33 +19,26 @@ ________________________________________________________________________
 #include "sectionselector.h"
 #include "survinfo.h"
 
-namespace MPE
-{
+const char* MPE::SectionTracker::trackerstr = "Tracker";
+const char* MPE::SectionTracker::useadjusterstr = "Use adjuster";
+const char* MPE::SectionTracker::seedonlypropstr = "Seed only propagation";
 
-const char* SectionTracker::trackerstr = "Tracker";
-const char* SectionTracker::useadjusterstr = "Use adjuster";
-const char* SectionTracker::seedonlypropstr = "Seed only propagation";
-
-SectionTracker::SectionTracker( EM::EMObject& emobj,
-				SectionSourceSelector* sel,
-				SectionExtender* ext,
-				SectionAdjuster* adj )
-    : emobject_( emobj )
-    , useadjuster_(true)
+MPE::SectionTracker::SectionTracker( EM::EMObject& emobj,
+				     SectionSourceSelector* sel,
+				     SectionExtender* ext,
+				     SectionAdjuster* adj )
+    : emobject_( &emobj )
     , displayas_(*new Attrib::SelSpec)
-    , seedonlypropagation_(false)
     , selector_(sel)
     , extender_(ext)
     , adjuster_(adj)
 {
-    emobject_.ref();
     init();
 }
 
 
-SectionTracker::~SectionTracker()
+MPE::SectionTracker::~SectionTracker()
 {
-    emobject_.unRef();
     delete selector_;
     delete extender_;
     delete adjuster_;
@@ -53,15 +46,23 @@ SectionTracker::~SectionTracker()
 }
 
 
-EM::SectionID SectionTracker::sectionID() const
-{ return EM::SectionID::def(); }
+ConstRefMan<EM::EMObject> MPE::SectionTracker::emObject() const
+{
+    return emobject_.get();
+}
 
 
-bool SectionTracker::init()
+RefMan<EM::EMObject> MPE::SectionTracker::emObject()
+{
+    return emobject_.get();
+}
+
+
+bool MPE::SectionTracker::init()
 { return true; }
 
 
-void SectionTracker::reset()
+void MPE::SectionTracker::reset()
 {
     if ( selector_ ) selector_->reset();
     if ( extender_ ) extender_->reset();
@@ -69,19 +70,23 @@ void SectionTracker::reset()
 }
 
 
-void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
+void MPE::SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
 {
+    RefMan<EM::EMObject> emobject = emObject();
+    if ( !emobject )
+	return;
+
     lockedseeds.erase();
-    if ( !emobject_.isPosAttribLocked( EM::EMObject::sSeedNode() ) )
+    if ( !emobject->isPosAttribLocked( EM::EMObject::sSeedNode() ) )
 	return;
 
     const TypeSet<EM::PosID>* seedlist =
-	emobject_.getPosAttribList( EM::EMObject::sSeedNode() );
+			emobject->getPosAttribList( EM::EMObject::sSeedNode() );
     const int nrseeds = seedlist ? seedlist->size() : 0;
 
     for ( int idx=0; idx<nrseeds; idx++ )
     {
-	const Coord3 seedpos = emobject_.getPos( (*seedlist)[idx] );
+	const Coord3 seedpos = emobject->getPos( (*seedlist)[idx] );
 	const BinID seedbid = SI().transform( seedpos );
 	if ( engine().activeVolume().hsamp_.includes(seedbid) )
 	{
@@ -91,7 +96,7 @@ void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds )
 }
 
 
-bool SectionTracker::select()
+bool MPE::SectionTracker::select()
 {
     if ( !selector_ ) return true;
 
@@ -108,7 +113,7 @@ bool SectionTracker::select()
 }
 
 
-bool SectionTracker::extend()
+bool MPE::SectionTracker::extend()
 {
     if ( !extender_ ) return true;
 
@@ -128,86 +133,92 @@ bool SectionTracker::extend()
 }
 
 
-bool SectionTracker::adjust()
+bool MPE::SectionTracker::adjust()
 {
-    if ( !adjuster_ ) return true;
+    if ( !adjuster_ )
+	return true;
 
     if ( extender_ )
 	adjuster_->setPositions( extender_->getAddedPositions(),
-    				 &extender_->getAddedPositionsSource() );
+				 &extender_->getAddedPositionsSource() );
 
-    emobject_.setBurstAlert( true );
+    RefMan<EM::EMObject> emobject = emObject();
+    if ( !emobject )
+	return false;
+
+    emobject->setBurstAlert( true );
     while ( int res = adjuster_->nextStep() )
     {
 	if ( res==-1 )
 	{
 	    errmsg_ = adjuster_->errMsg();
-	    emobject_.setBurstAlert( false );
+	    emobject->setBurstAlert( false );
 	    return false;
 	}
     }
 
-    emobject_.setBurstAlert( false );
+    emobject->setBurstAlert( false );
     return true;
 }
 
 
 #define mGet( clss, func, name ) \
-clss* SectionTracker::func() { return name; }  \
-const clss* SectionTracker::func() const \
-{ return const_cast<SectionTracker*>(this)->func(); }
+clss* MPE::SectionTracker::func() { return name; }  \
+const clss* MPE::SectionTracker::func() const \
+{ return mSelf().func(); }
 
 
-mGet( SectionSourceSelector, selector, selector_ )
-mGet( SectionExtender, extender, extender_ )
-mGet( SectionAdjuster, adjuster, adjuster_ )
+mGet( MPE::SectionSourceSelector, selector, selector_ )
+mGet( MPE::SectionExtender, extender, extender_ )
+mGet( MPE::SectionAdjuster, adjuster, adjuster_ )
 
-const char* SectionTracker::errMsg() const
+const char* MPE::SectionTracker::errMsg() const
 { return errmsg_.str(); }
 
 
 TrcKeyZSampling
-	SectionTracker::getAttribCube( const Attrib::SelSpec& spec ) const
+	MPE::SectionTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 {
     return adjuster_ ? adjuster_->getAttribCube(spec) : engine().activeVolume();
 }
 
 
-void SectionTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
+void MPE::SectionTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res) const
 {
-    if ( adjuster_ ) adjuster_->getNeededAttribs( res );
+    if ( adjuster_ )
+	adjuster_->getNeededAttribs( res );
 }
 
 
-void SectionTracker::useAdjuster(bool yn)
+void MPE::SectionTracker::useAdjuster(bool yn)
 { useadjuster_=yn; }
 
-bool SectionTracker::adjusterUsed() const
+bool MPE::SectionTracker::adjusterUsed() const
 { return useadjuster_; }
 
-void SectionTracker::setSetupID( const MultiID& id )
+void MPE::SectionTracker::setSetupID( const MultiID& id )
 { setupid_ = id; }
 
-const MultiID& SectionTracker::setupID() const
+const MultiID& MPE::SectionTracker::setupID() const
 { return setupid_; }
 
-bool SectionTracker::hasInitializedSetup() const
+bool MPE::SectionTracker::hasInitializedSetup() const
 { return ( !adjuster_ || adjuster_->hasInitializedSetup() ); }
 
-void SectionTracker::setDisplaySpec( const Attrib::SelSpec& as )
+void MPE::SectionTracker::setDisplaySpec( const Attrib::SelSpec& as )
 { displayas_ = as; }
 
-const Attrib::SelSpec& SectionTracker::getDisplaySpec() const
+const Attrib::SelSpec& MPE::SectionTracker::getDisplaySpec() const
 { return displayas_; }
 
-void SectionTracker::setSeedOnlyPropagation( bool yn )
+void MPE::SectionTracker::setSeedOnlyPropagation( bool yn )
 { seedonlypropagation_ = yn; }
 
-bool SectionTracker::propagatingFromSeedOnly() const
+bool MPE::SectionTracker::propagatingFromSeedOnly() const
 { return seedonlypropagation_; }
 
 
-void SectionTracker::fillPar( IOPar& par ) const
+void MPE::SectionTracker::fillPar( IOPar& par ) const
 {
     IOPar trackpar;
     trackpar.setYN( useadjusterstr, adjusterUsed() );
@@ -220,7 +231,7 @@ void SectionTracker::fillPar( IOPar& par ) const
 }
 
 
-bool SectionTracker::usePar( const IOPar& par )
+bool MPE::SectionTracker::usePar( const IOPar& par )
 {
     PtrMan<IOPar> trackpar = par.subselect( trackerstr );
     bool dummy = true;
@@ -239,4 +250,16 @@ bool SectionTracker::usePar( const IOPar& par )
     return res;
 }
 
-} // namespace MPE
+
+// Deprecated impls:
+
+MPE::SectionTracker::SectionTracker( EM::EMObject& emobj, const EM::SectionID&,
+				SectionSourceSelector* sss,
+				SectionExtender* se,
+				SectionAdjuster* sa )
+    : SectionTracker(emobj,sss,se,sa)
+{}
+
+
+EM::SectionID MPE::SectionTracker::sectionID() const
+{ return EM::SectionID::def(); }

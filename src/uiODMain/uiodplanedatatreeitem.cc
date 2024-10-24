@@ -312,7 +312,7 @@ bool uiODPlaneDataTreeItem::displayDataFromDataPack(
     visserv_->setSelSpec( displayid_, 0, as );
     visserv_->setColTabMapperSetup( displayid_, 0, ddp.mappersetup_ );
     visserv_->setColTabSequence( displayid_, 0, ColTab::Sequence(ddp.ctab_) );
-    visserv_->setSeisDataPack( displayid_, 0, &dp );
+    visserv_->setRegularSeisDataPack( displayid_, 0, &dp );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
     return true;
@@ -390,7 +390,7 @@ uiString uiODPlaneDataTreeItem::createDisplayName() const
 	{
 	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
 	    const int nrdec =
-                    Math::NrSignificantDecimals( cs.zsamp_.step_*zdef.userFactor() );
+		Math::NrSignificantDecimals( cs.zsamp_.step_*zdef.userFactor());
             const float zval = cs.zsamp_.start_ * zdef.userFactor();
 	    res = toUiString( zval, nrdec );
 	}

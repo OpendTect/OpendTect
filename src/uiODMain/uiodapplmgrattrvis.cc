@@ -174,14 +174,14 @@ void uiODApplMgrAttrVisHandler::setHistogram( const VisID& visid, int attrib )
 }
 
 
-void uiODApplMgrAttrVisHandler::setRandomPosData( const VisID& visid,
+bool uiODApplMgrAttrVisHandler::setRandomPosData( const VisID& visid,
 					int attrib, const DataPointSet& data )
 {
-    DataPackID cacheid = am_.visserv_->getDataPackID( visid, attrib );
-    if ( !cacheid.isValid() )
+    ConstRefMan<DataPack> cachedp = am_.visserv_->getDataPack( visid, attrib );
+    if ( !cachedp )
 	am_.useDefColTab( visid, attrib );
 
-    am_.visserv_->setRandomPosData( visid, attrib, &data );
+    return am_.visserv_->setRandomPosData( visid, attrib, &data );
 }
 
 

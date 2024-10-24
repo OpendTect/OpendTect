@@ -26,59 +26,62 @@ uiHistogramSel::uiHistogramSel( uiParent* p,
 				const uiHistogramDisplay::Setup& su, int id )
     : uiGroup( p, "Histogram with slider" )
     , id_(id)
-    , initialcliprg_(Interval<float>::udf())
-    , startpix_(mUdf(int))
-    , stoppix_(mUdf(int))
-    , mousedown_(false)
-    , slidertextpol_(uiHistogramSel::Always)
     , rangeChanged(this)
 {
     uiHistogramDisplay::Setup hsu( su );
     histogramdisp_ = new uiHistogramDisplay( this, hsu, true );
-    histogramdisp_->getMouseEventHandler().buttonPressed.notify(
-			     mCB(this,uiHistogramSel,mousePressed) );
-    histogramdisp_->getMouseEventHandler().buttonReleased.notify(
-			     mCB(this,uiHistogramSel,mouseReleased) );
-    histogramdisp_->getMouseEventHandler().movement.notify(
-			     mCB(this,uiHistogramSel,mouseMoved) );
-    histogramdisp_->reSize.notify(
-			     mCB(this,uiHistogramSel,histogramResized));
-    histogramdisp_->drawRangeChanged.notify(
-			     mCB(this,uiHistogramSel,histDRChanged));
+    mAttachCB( histogramdisp_->getMouseEventHandler().buttonPressed,
+	       uiHistogramSel::mousePressed );
+    mAttachCB( histogramdisp_->getMouseEventHandler().buttonReleased,
+	       uiHistogramSel::mouseReleased );
+    mAttachCB( histogramdisp_->getMouseEventHandler().movement,
+	       uiHistogramSel::mouseMoved );
+    mAttachCB( histogramdisp_->reSize, uiHistogramSel::histogramResized );
+    mAttachCB( histogramdisp_->drawRangeChanged, uiHistogramSel::histDRChanged);
     xax_ = histogramdisp_->xAxis();
 
     init();
-
-    postFinalize().notify( mCB(this,uiHistogramSel,finalizedCB) );
+    mAttachCB( postFinalize(), uiHistogramSel::finalizedCB );
 }
 
 
 uiHistogramSel::~uiHistogramSel()
 {
     detachAllNotifiers();
-
-    delete minhandle_; delete maxhandle_;
-    delete minvaltext_; delete maxvaltext_;
+    delete minhandle_;
+    delete maxhandle_;
+    delete minvaltext_;
+    delete maxvaltext_;
 }
 
 
 void uiHistogramSel::setEmpty()
 {
     histogramdisp_->setEmpty();
-    minhandle_->hide(); maxhandle_->hide();
-    minvaltext_->hide(); maxvaltext_->hide();
+    minhandle_->hide();
+    maxhandle_->hide();
+    minvaltext_->hide();
+    maxvaltext_->hide();
 }
 
 
-bool uiHistogramSel::setDataPackID(
-	DataPackID dpid, DataPackMgr::MgrID dmid, int version )
+bool uiHistogramSel::setDataPackID( const DataPackID& dpid,
+				    const DataPackMgr::MgrID& dmid, int version)
 {
-    const bool retval = histogramdisp_->setDataPackID( dpid, dmid,version);
+    ConstRefMan<DataPack> dp = DPM(dmid).getDP( dpid );
+    return dp ? setDataPack( *dp.ptr(), version ) : false;
+}
+
+
+bool uiHistogramSel::setDataPack( const DataPack& dp, int version )
+{
+    const bool retval = histogramdisp_->setDataPack( dp, version );
     const bool nodata = histogramdisp_->xVals().isEmpty();
     cliprg_ = datarg_ = nodata ? Interval<float>(0,1)
-				: histogramdisp_->setup().xrg_;
+			       : histogramdisp_->setup().xrg_;
     if ( retval )
 	drawAgain();
+
     return retval;
 }
 
@@ -88,7 +91,7 @@ void uiHistogramSel::setData( const Array2D<float>* data )
     histogramdisp_->setData( data );
     const bool nodata = histogramdisp_->xVals().isEmpty();
     cliprg_ = datarg_ = nodata ? Interval<float>(0,1)
-				: histogramdisp_->setup().xrg_;
+			       : histogramdisp_->setup().xrg_;
     drawAgain();
 }
 
@@ -98,7 +101,7 @@ void uiHistogramSel::setData( const float* array, int sz )
     histogramdisp_->setData( array, sz );
     const bool nodata = histogramdisp_->xVals().isEmpty();
     cliprg_ = datarg_ = nodata ? Interval<float>(0,1)
-				: histogramdisp_->setup().xrg_;
+			       : histogramdisp_->setup().xrg_;
     drawAgain();
 }
 

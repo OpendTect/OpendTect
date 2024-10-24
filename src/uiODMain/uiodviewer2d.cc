@@ -173,10 +173,7 @@ SceneID uiODViewer2D::getSyncSceneID() const
 
 Pos::GeomID uiODViewer2D::geomID() const
 {
-    if ( tkzs_.is2D() )
-	return tkzs_.hsamp_.getGeomID();
-
-    return Survey::GM().cUndefGeomID();
+    return tkzs_.hsamp_.getGeomID();
 }
 
 
@@ -193,7 +190,7 @@ uiParent* uiODViewer2D::viewerParent()
 
 void uiODViewer2D::setUpAux()
 {
-    const bool is2d = geomID() != Survey::GM().cUndefGeomID();
+    const bool is2d = tkzs_.is2D();
     FlatView::Annotation& vwrannot = viewwin()->viewer().appearance().annot_;
     if ( !is2d && !tkzs_.isFlat() )
 	vwrannot.x1_.showauxannot_ = vwrannot.x2_.showauxannot_ = false;
@@ -254,6 +251,7 @@ void uiODViewer2D::makeUpView( FlatDataPack* indp,
 	isvertical_ = seisfdp && seisfdp->isVertical();
 	if ( regfdp )
 	    setTrcKeyZSampling( regfdp->sampling() );
+
 	createViewWin( isvertical_, regfdp && !regfdp->is2D() );
     }
 
@@ -360,28 +358,6 @@ void uiODViewer2D::setDataPack( FlatDataPack* indp, bool wva,
 }
 
 
-void uiODViewer2D::setDataPack( DataPackID packid, bool wva, bool isnew )
-{
-    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
-			       !wva || (isnew && wvaselspec_==vdselspec_) );
-
-    setDataPack( packid, dest, isnew );
-}
-
-
-void uiODViewer2D::setDataPack( DataPackID packid,
-				FlatView::Viewer::VwrDest dest,
-				bool isnew )
-{
-    if ( packid == DataPack::cNoID() )
-	return;
-
-    auto& dpm = DPM(DataPackMgr::FlatID());
-    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
-    setDataPack( fdp.ptr(), dest, isnew);
-}
-
-
 bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 {
     if ( datatransform_ )
@@ -435,7 +411,16 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     bool wantdock = false;
     Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
     uiParent* controlparent = nullptr;
-    if ( !wantdock )
+    if ( wantdock )
+    {
+	auto* dwin = new uiFlatViewDockWin( &appl_,
+				   uiFlatViewDockWin::Setup(basetxt_) );
+	appl_.addDockWindow( *dwin, uiMainWin::Top );
+	dwin->setFloating( true );
+	viewwin_ = dwin;
+	controlparent = &appl_;
+    }
+    else
     {
 	auto* fvmw = new uiFlatViewMainWin( nullptr,
 					uiFlatViewMainWin::Setup(basetxt_) );
@@ -451,18 +436,10 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
 	viewwin_ = fvmw;
 	createTree( fvmw );
     }
-    else
-    {
-	auto* dwin = new uiFlatViewDockWin( &appl_,
-				   uiFlatViewDockWin::Setup(basetxt_) );
-	appl_.addDockWindow( *dwin, uiMainWin::Top );
-	dwin->setFloating( true );
-	viewwin_ = dwin;
-	controlparent = &appl_;
-    }
 
     viewwin_->setInitialSize( 700, 400 );
-    if ( tkzs_.isFlat() ) setWinTitle( false );
+    if ( tkzs_.isFlat() )
+	setWinTitle( false );
 
     for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
     {
@@ -492,6 +469,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     if ( viewstdcontrol_->editPushed() )
 	mAttachCB( viewstdcontrol_->editPushed(),
 		   uiODViewer2D::itmSelectionChangedCB );
+
     if ( tifs_ && viewstdcontrol_->editToolBar() )
     {
 	picksettingstbid_ = viewstdcontrol_->editToolBar()->addButton(
@@ -681,7 +659,7 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& tkzs )
 	dest = FlatView::Viewer::WVA;
     }
 
-    makeUpView( fdp.ptr(), dest);
+    makeUpView( fdp.ptr(), dest );
     posChanged.trigger();
 }
 
@@ -725,18 +703,6 @@ RefMan<SeisFlatDataPack> uiODViewer2D::createDataPackRM(
 	return nullptr;
 
     return createFlatDataPackRM( *dp, 0 );
-}
-
-
-RefMan<SeisFlatDataPack> uiODViewer2D::createFlatDataPackRM( DataPackID dpid,
-								int comp ) const
-{
-    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
-    ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
-    if ( !seisdp )
-	return nullptr;
-
-    return createFlatDataPackRM( *seisdp, comp );
 }
 
 
@@ -923,17 +889,16 @@ void uiODViewer2D::itmSelectionChangedCB( CallBacker* )
     uiMPEPartServer* mpserv = appl_.applMgr().mpeServer();
     const EM::ObjectID emobjid = hor2dtreeitm ? hor2dtreeitm->emObjectID()
 					      : hor3dtreeitm->emObjectID();
-    const int trackerid = mpserv->getTrackerID( emobjid );
     if ( viewstdcontrol_->editToolBar() )
 	viewstdcontrol_->editToolBar()->setSensitive(
-		picksettingstbid_, trackerid==mpserv->activeTrackerID() );
+		picksettingstbid_, mpserv->isActiveTracker(emobjid) );
 }
 
 
 void uiODViewer2D::trackSetupCB( CallBacker* )
 {
     const uiTreeViewItem* curitem =
-	treetp_ ? treetp_->getTreeView()->selectedItem() : 0;
+	treetp_ ? treetp_->getTreeView()->selectedItem() : nullptr;
     if ( !curitem )
 	return;
 
@@ -1174,7 +1139,7 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
 	else
 	{
             pt.x_ = fdp->posData().range(true).atIndex( gidx / tkzs_.nrTrcs() );
-            pt.y_ = fdp->posData().range(false).atIndex( gidx % tkzs_.nrTrcs() );
+	    pt.y_ = fdp->posData().range(false).atIndex( gidx % tkzs_.nrTrcs());
 	}
     }
     else if ( mapdp )
@@ -1790,7 +1755,18 @@ void uiODViewer2D::setupNewPickSet( const MultiID& pickid )
 }
 
 
-void uiODViewer2D::setUpView( DataPackID packid, bool wva )
+// Deprecated implementations
+
+void uiODViewer2D::makeUpView( const DataPackID& packid,
+			       FlatView::Viewer::VwrDest dst )
+{
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
+    makeUpView( fdp.ptr(), dst);
+}
+
+
+void uiODViewer2D::setUpView( const DataPackID& packid, bool wva )
 {
     const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
 								      !wva );
@@ -1800,19 +1776,10 @@ void uiODViewer2D::setUpView( DataPackID packid, bool wva )
 }
 
 
-void uiODViewer2D::makeUpView( DataPackID packid,
-			       FlatView::Viewer::VwrDest dst )
-{
-    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
-    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
-    makeUpView( fdp.ptr(), dst);
-}
-
-
 void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 {
-    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
-								      !wva );
+    const FlatView::Viewer::VwrDest dest =
+				    FlatView::Viewer::getDest( wva, !wva );
     setSelSpec( as, dest );
 }
 
@@ -1827,6 +1794,7 @@ DataPackID uiODViewer2D::getDataPackID( bool wva ) const
 	const DataPackID dpid = vwr.packID(!wva);
 	if ( dpid != DataPack::cNoID() ) return dpid;
     }
+
     return DataPack::cNoID();
 }
 
@@ -1843,8 +1811,8 @@ DataPackID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 }
 
 
-DataPackID uiODViewer2D::createFlatDataPack(
-				DataPackID dpid, int comp ) const
+DataPackID uiODViewer2D::createFlatDataPack( const DataPackID& dpid,
+					     int comp ) const
 {
     return DataPack::cNoID();
 }
@@ -1857,6 +1825,24 @@ DataPackID uiODViewer2D::createFlatDataPack( const SeisDataPack& dp,
 }
 
 
+RefMan<SeisFlatDataPack> uiODViewer2D::createFlatDataPackRM(
+					const DataPackID& dpid, int comp ) const
+{
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
+    if ( !seisdp )
+	return nullptr;
+
+    return createFlatDataPackRM( *seisdp, comp );
+}
+
+
+DataPackID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
+{
+    return DataPack::cNoID();
+}
+
+
 DataPackID uiODViewer2D::createDataPackForTransformedZSlice(
 					const Attrib::SelSpec& selspec ) const
 {
@@ -1864,9 +1850,28 @@ DataPackID uiODViewer2D::createDataPackForTransformedZSlice(
 }
 
 
-DataPackID uiODViewer2D::createMapDataPack( const RegularFlatDataPack& rsdp )
+void uiODViewer2D::setDataPack( const DataPackID& packid, bool wva, bool isnew )
 {
-    return DataPack::cNoID();
+    auto& dpm = DPM(DataPackMgr::FlatID());
+    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
+    const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( wva,
+			       !wva || (isnew && wvaselspec_==vdselspec_) );
+
+    setDataPack( fdp.ptr(), dest, isnew );
+}
+
+
+void uiODViewer2D::setDataPack( const DataPackID& packid,
+				FlatView::Viewer::VwrDest dest,
+				bool isnew )
+{
+    if ( packid == DataPack::cNoID() )
+	return;
+
+    auto& dpm = DPM(DataPackMgr::FlatID());
+    RefMan<FlatDataPack> fdp = dpm.get<FlatDataPack>( packid );
+
+    setDataPack( fdp.ptr(), dest, isnew);
 }
 
 

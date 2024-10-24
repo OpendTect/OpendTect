@@ -41,8 +41,10 @@ Horizon3DSeedPicker::~Horizon3DSeedPicker()
 
 
 #define mGetHorizon(hor,retval) \
-    mDynamicCastGet(EM::Horizon3D*,hor,tracker_.emObject())\
-    if ( !hor ) return retval;
+    RefMan<EM::EMObject> emobject = tracker_.emObject(); \
+    mDynamicCastGet(EM::Horizon3D*,hor,emobject.ptr()) \
+    if ( !hor ) \
+	return retval;
 
 bool Horizon3DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 				   const TrcKeyValue& seedkey )

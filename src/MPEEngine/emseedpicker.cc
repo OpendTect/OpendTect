@@ -84,7 +84,7 @@ int Patch::nrSeeds()
 
 EM::PosID Patch::seedNode( int idx ) const
 {
-    const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
+    ConstRefMan<EM::EMObject> emobj = seedpicker_->emTracker().emObject();
     if ( idx>=seeds_.size() || !emobj )
 	return EM::PosID::udf();
 
@@ -96,11 +96,11 @@ EM::PosID Patch::seedNode( int idx ) const
 
 Coord3 Patch::seedCoord( int idx ) const
 {
-    const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
+    ConstRefMan<EM::EMObject> emobj = seedpicker_->emTracker().emObject();
     if ( idx>=seeds_.size() || !emobj )
 	return Coord3::udf();
 
-    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj.ptr() );
     const bool is2d = hor2d;
 
     Coord3 pos = Coord3::udf();
@@ -137,13 +137,13 @@ int Patch::addSeed( const TrcKeyValue& tckv, bool sort )
 	return seeds_.size()-1;
     }
 
-    const EM::EMObject* emobj = seedpicker_->emTracker().emObject();
+    ConstRefMan<EM::EMObject> emobj = seedpicker_->emTracker().emObject();
 
     BinID dir;
     if ( !emobj || !tckv.isDefined() || seeds_.indexOf(tckv) !=-1 )
 	return -1;
 
-    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj );
+    mDynamicCastGet( const EM::Horizon2D*, hor2d, emobj.ptr() );
     const bool is2d = hor2d;
     TrcKeyValue seedtckv = tckv;
     if ( seeds_.size()==0 )
@@ -432,8 +432,9 @@ const Attrib::SelSpec* EMSeedPicker::getSelSpec() const
 
 bool EMSeedPicker::startSeedPick()
 {
-    EM::EMObject* emobj = tracker_.emObject();
-    if ( !emobj ) return false;
+    RefMan<EM::EMObject> emobj = tracker_.emObject();
+    if ( !emobj )
+	return false;
 
     didchecksupport_ = emobj->enableGeometryChecks( false );
     return true;
@@ -442,8 +443,9 @@ bool EMSeedPicker::startSeedPick()
 
 bool EMSeedPicker::stopSeedPick()
 {
-    EM::EMObject* emobj = tracker_.emObject();
-    if ( !emobj ) return false;
+    RefMan<EM::EMObject> emobj = tracker_.emObject();
+    if ( !emobj )
+	return false;
 
     emobj->enableGeometryChecks( didchecksupport_ );
     return true;
@@ -488,8 +490,9 @@ TrcKeyValue EMSeedPicker::getAddedSeed() const
 
 int EMSeedPicker::nrSeeds() const
 {
-    EM::EMObject* emobj = tracker_.emObject();
-    if ( !emobj ) return 0;
+    RefMan<EM::EMObject> emobj = tracker_.emObject();
+    if ( !emobj )
+	return 0;
 
     const TypeSet<EM::PosID>* seednodelist =
 		emobj->getPosAttribList( EM::EMObject::sSeedNode() );
@@ -499,8 +502,9 @@ int EMSeedPicker::nrSeeds() const
 
 void EMSeedPicker::getSeeds( TypeSet<TrcKey>& seeds ) const
 {
-    EM::EMObject* emobj = tracker_.emObject();
-    if ( !emobj ) return;
+    RefMan<EM::EMObject> emobj = tracker_.emObject();
+    if ( !emobj )
+	return;
 
     const TypeSet<EM::PosID>* seednodelist =
 			emobj->getPosAttribList( EM::EMObject::sSeedNode() );

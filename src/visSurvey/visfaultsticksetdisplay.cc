@@ -49,6 +49,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     ref();
     sticks_ = visBase::Lines::create();
     activestick_ = visBase::Lines::create();
+
     RefMan<visBase::DrawStyle> drawstyle = visBase::DrawStyle::create();
     stickdrawstyle_ = sticks_->addNodeState( drawstyle.ptr() );
 
@@ -86,15 +87,12 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
 {
     detachAllNotifiers();
     setSceneEventCatcher( nullptr );
-    showManipulator( false );
+    if ( fsseditor_ )
+	fsseditor_->removeUser();
+
     if ( fault_ )
-    {
-	MPE::engine().removeEditor( fault_->id() );
 	mDetachCB( fault_->change, FaultStickSetDisplay::emChangeCB );
 
-    }
-
-    fsseditor_ = nullptr;
     sticks_->removeNodeState( stickdrawstyle_.ptr() );
     activestick_->removeNodeState( activestickdrawstyle_.ptr() );
 }
@@ -105,23 +103,21 @@ bool FaultStickSetDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
     if ( zaxistransform_ )
     {
 	if ( zaxistransform_->changeNotifier() )
-	    zaxistransform_->changeNotifier()->remove(
-		mCB(this,FaultStickSetDisplay,dataTransformCB) );
+	    mDetachCB( *zaxistransform_->changeNotifier(),
+		       FaultStickSetDisplay::dataTransformCB );
 	if ( voiid_>0 )
 	{
 	    zaxistransform_->removeVolumeOfInterest( voiid_ );
 	    voiid_ = -1;
 	}
-
-	zaxistransform_ = nullptr;
     }
 
     zaxistransform_ = zat;
     if ( zaxistransform_ )
     {
 	if ( zaxistransform_->changeNotifier() )
-	    zaxistransform_->changeNotifier()->notify(
-		mCB(this,FaultStickSetDisplay,dataTransformCB) );
+	    mAttachCB( *zaxistransform_->changeNotifier(),
+		       FaultStickSetDisplay::dataTransformCB );
     }
 
     return true;
@@ -169,6 +165,32 @@ EM::ObjectID FaultStickSetDisplay::getEMObjectID() const
 }
 
 
+RefMan<MPE::ObjectEditor> FaultStickSetDisplay::getMPEEditor( bool create )
+{
+    if ( !create )
+	return fsseditor_.ptr();
+
+    const EM::ObjectID emid = getEMObjectID();
+    if ( MPE::engine().hasEditor(emid) )
+    {
+	RefMan<MPE::ObjectEditor> objeditor =
+				    MPE::engine().getEditorByID( emid );
+	fsseditor_ = dynamic_cast<MPE::FaultStickSetEditor*>( objeditor.ptr() );
+    }
+
+    if ( !fsseditor_ )
+    {
+	const EM::FaultStickSet* emfaultstickset = emFaultStickSet();
+	if ( !emfaultstickset )
+	    return nullptr;
+
+	fsseditor_ = MPE::FaultStickSetEditor::create( *emfaultstickset );
+    }
+
+    return fsseditor_.ptr();
+}
+
+
 #define mSetStickIntersectPointColor( color ) \
      knotmarkersets_[2]->setMarkersSingleColor( color );
 
@@ -176,16 +198,20 @@ EM::ObjectID FaultStickSetDisplay::getEMObjectID() const
 
 bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 {
+    if ( viseditor_ )
+	viseditor_->setEditor( nullptr );
+
+    if ( fsseditor_ )
+    {
+	fsseditor_->setEditIDs( nullptr );
+	fsseditor_->removeUser();
+    }
+
+    fsseditor_ = nullptr;
     if ( fault_ )
 	mDetachCB( fault_->change, FaultStickSetDisplay::emChangeCB );
 
     fault_ = nullptr;
-    if ( fsseditor_ )
-	fsseditor_->setEditIDs( nullptr );
-
-    fsseditor_ = nullptr;
-    if ( viseditor_ )
-	viseditor_->setEditor( nullptr );
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,emfss,emobject.ptr());
@@ -193,7 +219,6 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 	return false;
 
     fault_ = sCast(EM::Fault*,emfss);
-    mAttachCB( fault_->change, FaultStickSetDisplay::emChangeCB );
     if ( !emfss->name().isEmpty() )
     {
 	setName( emfss->name() );
@@ -214,11 +239,10 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
 				    FaultStickSetDisplay::draggingStartedCB );
     }
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
-    mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
-    fsseditor_ = fsseditor;
+    RefMan<MPE::ObjectEditor> fsseditor = getMPEEditor( true );
     if ( fsseditor_ )
     {
+	fsseditor->addUser();
 	fsseditor_->setSceneIdx( mSceneIdx );
 	fsseditor_->setEditIDs( &editpids_ );
     }
@@ -235,6 +259,8 @@ bool FaultStickSetDisplay::setEMObjectID( const EM::ObjectID& emid )
     updateSticks();
     updateKnotMarkers();
     updateManipulator();
+    mAttachCB( fault_->change, FaultStickSetDisplay::emChangeCB );
+
     return true;
 }
 
@@ -406,7 +432,8 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 
 	RowCol rc;
 	const StepInterval<int> rowrg = fss->rowRange();
-        for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
+	for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_;
+							rc.row()+=rowrg.step_ )
 	{
 	    if ( activeonly && rc.row()!=activesticknr_ )
 		continue;
@@ -420,7 +447,7 @@ void FaultStickSetDisplay::updateSticks( bool activeonly )
 	    {
 		const Pos::GeomID geomid =
 				emfss->geometry().pickedGeomID(rc.row());
-		if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+		if ( !geomid.isUdf() )
 		    s2dd = Seis2DDisplay::getSeis2DDisplay( geomid );
 	    }
 
@@ -579,28 +606,37 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
     RandomTrackDisplay* rdtd = nullptr;
     HorizonDisplay* hordisp = nullptr;
     const MultiID* pickedmid = nullptr;
-    Pos::GeomID pickedgeomid = Survey::GeometryManager::cUndefGeomID();
+    Pos::GeomID pickedgeomid;
     const char* pickednm = nullptr;
     PtrMan<Coord3> normal = nullptr;
     ConstPtrMan<MultiID> horid;
     BufferString horshiftname;
     Coord3 pos;
 
-    if ( !mousepid.isUdf() )
+    if ( mousepid.isUdf() )
     {
-	const int sticknr = mousepid.getRowCol().row();
-	pos = fault_->getPos( mousepid );
-	pickedmid = fssg.pickedMultiID( sticknr );
-	pickednm = fssg.pickedName( sticknr );
-	pickedgeomid = fssg.pickedGeomID( sticknr );
-	zdragoffset = 0;
-    }
-    else
-    {
-	for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+	for ( const auto& visid : eventinfo.pickedobjids )
 	{
-	    const VisID visid = eventinfo.pickedobjids[idx];
 	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
+	    if ( !dataobj )
+		continue;
+
+	    mDynamicCast(PlaneDataDisplay*,plane,dataobj);
+	    if ( plane )
+	    {
+		pickedgeomid = Survey::default3DGeomID();
+		normal = new Coord3( plane->getNormal(Coord3::udf()) );
+		break;
+	    }
+
+	    mDynamicCast(RandomTrackDisplay*,rdtd,dataobj);
+	    if ( rdtd )
+	    {
+		pickedgeomid = Survey::default3DGeomID();
+		normal =
+		    new Coord3( rdtd->getNormal(eventinfo.displaypickedpos) );
+		break;
+	    }
 
 	    mDynamicCast(Seis2DDisplay*,s2dd,dataobj);
 	    if ( s2dd )
@@ -608,27 +644,16 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 		pickedgeomid = s2dd->getGeomID();
 		break;
 	    }
+
 	    mDynamicCast(HorizonDisplay*,hordisp,dataobj);
 	    if ( hordisp )
 	    {
+		pickedgeomid = Survey::default3DGeomID();
 		horid = new MultiID( hordisp->getMultiID() );
 		pickedmid = horid.ptr();
                 horshiftname = hordisp->getTranslation().z_ *
-		    scene_->zDomainInfo().userFactor();
+				    scene_->zDomainInfo().userFactor();
 		pickednm = horshiftname.buf();
-		break;
-	    }
-	    mDynamicCast(PlaneDataDisplay*,plane,dataobj);
-	    if ( plane )
-	    {
-		normal = new Coord3( plane->getNormal(Coord3::udf()) );
-		break;
-	    }
-	    mDynamicCast(RandomTrackDisplay*,rdtd,dataobj);
-	    if ( rdtd )
-	    {
-		normal =
-		    new Coord3( rdtd->getNormal(eventinfo.displaypickedpos) );
 		break;
 	    }
 
@@ -645,6 +670,15 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 	pos = disp2world( eventinfo.displaypickedpos );
     }
+    else
+    {
+	const int sticknr = mousepid.getRowCol().row();
+	pos = fault_->getPos( mousepid );
+	pickedmid = fssg.pickedMultiID( sticknr );
+	pickednm = fssg.pickedName( sticknr );
+	pickedgeomid = fssg.pickedGeomID( sticknr );
+	zdragoffset = 0;
+    }
 
     EM::PosID insertpid;
     fsseditor_->setZScale( mZScale() );
@@ -653,7 +687,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     if ( mousepid.isUdf() && !viseditor_->isDragging() )
     {
-	EM::PosID pid =
+	const EM::PosID pid =
 	    fsseditor_->getNearestStick( pos,pickedgeomid,normal.ptr() );
 	if ( !pid.isUdf() )
 	{
@@ -721,7 +755,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 	editpids_.erase();
 
-	if ( pickedgeomid == Survey::GeometryManager::cUndefGeomID() )
+	if ( pickedgeomid.isUdf() )
 	    fssg.insertStick( insertsticknr, 0, pos, editnormal,
 			      pickedmid, pickednm, true );
 	else
@@ -751,7 +785,7 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
 void FaultStickSetDisplay::draggingStartedCB( CallBacker* )
 {
-    if ( !viseditor_ )
+    if ( !viseditor_ || !fsseditor_ )
 	return;
 
     fsseditor_->setLastClicked( viseditor_->getActiveDragger() );
@@ -836,7 +870,8 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cber )
 		    if ( displaytransform_ )
 			displaytransform_->transformBack( pos );
 		    if ( nm )
-                        pos.z_ += toFloat(nm)/scene_->zDomainInfo().userFactor();
+			pos.z_ += toFloat(nm) /
+					scene_->zDomainInfo().userFactor();
 
                     zdragoffset = (float) ( pos.z_ - dragpos.z_ );
 		}
@@ -933,7 +968,8 @@ bool FaultStickSetDisplay::coincidesWith2DLine(
 	bool curobjcoincides = false;
 	TypeSet<int> showcols;
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
-        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
+	for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+							rc.col()+=colrg.step_ )
 	{
 	    Coord3 pos = fss.getKnot(rc);
 	    if ( displaytransform_ )
@@ -1000,7 +1036,8 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	bool curobjcoincides = false;
 	TypeSet<int> showcols;
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
-        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
+	for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+							rc.col()+=colrg.step_ )
 	{
 	    Coord3 curpos = fss.getKnot(rc);
 
@@ -1074,7 +1111,8 @@ void FaultStickSetDisplay::displayOnlyAtSectionsUpdate()
 
 	RowCol rc;
 	const StepInterval<int> rowrg = fss->rowRange();
-        for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
+	for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_;
+	      rc.row()+=rowrg.step_ )
 	{
 	    const StepInterval<int> colrg = fss->colRange();
             for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;

@@ -167,10 +167,6 @@ public:
     void			setTrcKeyZSampling(const TrcKeyZSampling&,
 						bool dragmode=false);
 
-    DataPackID			getDataPackID(int attrib) const override;
-    DataPackID			getDisplayedDataPackID(
-					      int attrib) const override;
-
     void			getMousePosInfo( const visBase::EventInfo& ei,
 						 IOPar& iop ) const override
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
@@ -233,14 +229,11 @@ public:
 protected:
 				~VolumeDisplay();
 
-    bool			setSeisDataPack(int attrib,
-						RegularSeisDataPack*,
+    bool			usesDataPacks() const override	{ return true; }
+    bool			setSeisDataPack(int attrib,SeisDataPack*,
 						TaskRunner*) override;
-    ConstRefMan<RegularSeisDataPack> getSeisDataPack(int attrib) const override;
-    DataPackMgr::MgrID		getDataPackMgrID() const override
-				{ return DataPackMgr::SeisID(); }
-    bool			setDataPackID(int attrib,const DataPackID&,
-					  TaskRunner*) override; //deprecated
+    ConstRefMan<DataPack>	getDataPack(int attrib) const override;
+    ConstRefMan<SeisDataPack>	getSeisDataPack(int attrib) const override;
 
     bool			updateSeedBasedSurface(int,
 						       TaskRunner* =nullptr);

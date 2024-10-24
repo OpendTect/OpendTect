@@ -13,10 +13,10 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
-#include "emtracker.h"
 #include "flatauxdataeditor.h"
 #include "flatposdata.h"
 #include "horflatvieweditor2d.h"
+#include "horizon3dtracker.h"
 #include "mouseevent.h"
 #include "mousecursor.h"
 #include "mpeengine.h"
@@ -41,23 +41,13 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
     : editor_(ed)
     , emid_(emid)
     , horpainter_(new EM::HorizonPainter3D(ed->viewer(),emid))
-    , curtkpath_(0)
-    , mehandler_(0)
-    , vdselspec_(0)
-    , wvaselspec_(0)
-    , trackersetupactive_(false)
     , updseedpkingstatus_(this)
-    , dodropnext_(false)
-    , pickedpos_(TrcKey::udf())
-    , patchdata_(0)
-    , sowingmode_(false)
-    , pickinvd_(true)
 {
     curcs_.setEmpty();
-    horpainter_->abouttorepaint_.notify(
-	    mCB(this,HorizonFlatViewEditor3D,horRepaintATSCB) );
-    horpainter_->repaintdone_.notify(
-	    mCB(this,HorizonFlatViewEditor3D,horRepaintedCB) );
+    mAttachCB( horpainter_->abouttorepaint_,
+	       HorizonFlatViewEditor3D::horRepaintATSCB );
+    mAttachCB( horpainter_->repaintdone_,
+	       HorizonFlatViewEditor3D::horRepaintedCB );
     mAttachCB( editor_->sower().sowingEnd,
 	HorizonFlatViewEditor3D::sowingFinishedCB );
     mAttachCB( editor_->sower().sowing,
@@ -67,45 +57,30 @@ HorizonFlatViewEditor3D::HorizonFlatViewEditor3D( FlatView::AuxDataEditor* ed,
     mAttachCB( editor_->releaseSelection,
 	HorizonFlatViewEditor3D::releasePolygonSelectionCB );
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
     if ( emobj )
 	mAttachCB(emobj->change,HorizonFlatViewEditor3D::preferColorChangedCB);
 
     mDynamicCastGet( uiFlatViewer*,vwr, &editor_->viewer() );
     if ( vwr )
-    mAttachCB(
-	vwr->rgbCanvas().getKeyboardEventHandler().keyPressed,
-	HorizonFlatViewEditor3D::keyPressedCB );
+    {
+	mAttachCB( vwr->rgbCanvas().getKeyboardEventHandler().keyPressed,
+		   HorizonFlatViewEditor3D::keyPressedCB );
+    }
 }
 
 
 HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 {
     detachAllNotifiers();
-    if ( mehandler_ )
-    {
-	editor_->removeSelected.remove(
-		 mCB(this,HorizonFlatViewEditor3D,removePosCB) );
-	mehandler_->movement.remove(
-		mCB(this,HorizonFlatViewEditor3D,mouseMoveCB) );
-	mehandler_->buttonPressed.remove(
-		mCB(this,HorizonFlatViewEditor3D,mousePressCB) );
-	mehandler_->buttonReleased.remove(
-		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
-	mehandler_->doubleClick.remove(
-		mCB(this,HorizonFlatViewEditor3D,doubleClickedCB) );
-    }
 //	setMouseEventHandler( 0 );
     cleanAuxInfoContainer();
     delete horpainter_;
     deepErase( markeridinfos_ );
-
     if ( patchdata_ )
-    {
 	editor_->viewer().removeAuxData( patchdata_ );
-	delete patchdata_;
-	patchdata_ = 0;
-    }
+
+    delete patchdata_;
 }
 
 
@@ -157,36 +132,37 @@ void HorizonFlatViewEditor3D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 
 void HorizonFlatViewEditor3D::setMouseEventHandler( MouseEventHandler* meh )
 {
-    if ( mehandler_ == meh ) return;
+    if ( mehandler_ == meh )
+	return;
 
     if ( mehandler_ )
     {
-	editor_->removeSelected.remove(
-		mCB(this,HorizonFlatViewEditor3D,removePosCB) );
-	mehandler_->movement.remove(
-		mCB(this,HorizonFlatViewEditor3D,mouseMoveCB) );
-	mehandler_->buttonPressed.remove(
-		mCB(this,HorizonFlatViewEditor3D,mousePressCB) );
-	mehandler_->buttonReleased.remove(
-		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
-	mehandler_->doubleClick.remove(
-		mCB(this,HorizonFlatViewEditor3D,doubleClickedCB) );
+	mDetachCB( editor_->removeSelected,
+		   HorizonFlatViewEditor3D::removePosCB );
+	mDetachCB( mehandler_->movement,
+		   HorizonFlatViewEditor3D::mouseMoveCB );
+	mDetachCB( mehandler_->buttonPressed,
+		   HorizonFlatViewEditor3D::mousePressCB );
+	mDetachCB( mehandler_->buttonReleased,
+		   HorizonFlatViewEditor3D::mouseReleaseCB );
+	mDetachCB( mehandler_->doubleClick,
+		   HorizonFlatViewEditor3D::doubleClickedCB );
     }
 
     mehandler_ = meh;
 
     if ( mehandler_ )
     {
-	editor_->removeSelected.notify(
-		mCB(this,HorizonFlatViewEditor3D,removePosCB) );
-	mehandler_->movement.notify(
-		mCB(this,HorizonFlatViewEditor3D,mouseMoveCB) );
-	mehandler_->buttonPressed.notify(
-		mCB(this,HorizonFlatViewEditor3D,mousePressCB) );
-	mehandler_->buttonReleased.notify(
-		mCB(this,HorizonFlatViewEditor3D,mouseReleaseCB) );
-	mehandler_->doubleClick.notify(
-		mCB(this,HorizonFlatViewEditor3D,doubleClickedCB) );
+	mAttachCB( editor_->removeSelected,
+		   HorizonFlatViewEditor3D::removePosCB );
+	mAttachCB( mehandler_->movement,
+		   HorizonFlatViewEditor3D::mouseMoveCB );
+	mAttachCB( mehandler_->buttonPressed,
+		   HorizonFlatViewEditor3D::mousePressCB );
+	mAttachCB( mehandler_->buttonReleased,
+		   HorizonFlatViewEditor3D::mouseReleaseCB );
+	mAttachCB( mehandler_->doubleClick,
+		   HorizonFlatViewEditor3D::doubleClickedCB );
     }
 
     for ( int idx=0; idx<markeridinfos_.size(); idx++ )
@@ -243,8 +219,8 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
 	const uiWorldPoint wp =
 	    markerpos ? *markerpos : vwr->getWorld2Ui().transform( mousepos );
 	const Coord3 coord = vwr->getCoord( wp );
-	MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-	if ( !allowTracking(tracker,emid_) )
+	RefMan<MPE::EMTracker> tracker = MPE::engine().getActiveTracker();
+	if ( !allowTracking(tracker.ptr(),emid_) )
 	    return;
 
 	MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
@@ -259,29 +235,27 @@ void HorizonFlatViewEditor3D::mouseMoveCB( CallBacker* )
     if ( editor_ && editor_->sower().accept(mouseevent, false) )
 	return;
 
-    if ( MPE::engine().getTrackerByObject(emid_) != -1 )
-    {
-	int trackeridx = MPE::engine().getTrackerByObject( emid_ );
-	if ( MPE::engine().getTracker(trackeridx) )
-	    MPE::engine().setActiveTracker( emid_ );
-    }
-    else
-	MPE::engine().setActiveTracker( EM::ObjectID::udf() );
+    RefMan<MPE::EMTracker> tracker = MPE::engine().getTrackerByID( emid_ );
+    MPE::engine().setActiveTracker( tracker.ptr() );
 }
 
 
 void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
 {
-    if ( !editor_ ) return;
-    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
-    if ( !vwr ) return;
-
-    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !allowTracking(tracker,emid_) )
+    if ( !editor_ )
 	return;
 
-    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return;
+    mDynamicCastGet(const uiFlatViewer*,vwr,&editor_->viewer());
+    if ( !vwr )
+	return;
+
+    RefMan<MPE::EMTracker> tracker = MPE::engine().getActiveTracker();
+    if ( !allowTracking(tracker.ptr(),emid_) )
+	return;
+
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid_ );
+    if ( !emobj )
+	return;
 
     const MouseEvent& mouseevent = mehandler_->event();
     const Geom::Point2D<int>& mousepos = mouseevent.pos();
@@ -289,7 +263,7 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     {
 	const uiWorldPoint wp = vwr->getWorld2Ui().transform( mousepos );
 	const TrcKey tk( SI().transform(vwr->getCoord(wp)) );
-	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj);
+	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj.ptr());
 	if ( hor3d && hor3d->hasZ(tk) )
 	{
 	    uiMenu menu;
@@ -338,15 +312,14 @@ void HorizonFlatViewEditor3D::mousePressCB( CallBacker* )
     if ( editor_ )
     {
 	editor_->sower().reInitSettings();
-	editor_->sower().setSequentSowMask(
-	    true,OD::ButtonState(OD::LeftButton+OD::ControlButton) );
+	editor_->sower().setSequentSowMask( true,
+			OD::ButtonState(OD::LeftButton+OD::ControlButton) );
 	editor_->sower().intersow();
 	editor_->sower().reverseSowingOrder();
 	if ( editor_->sower().activate(
 	    OD::LineStyle( OD::LineStyle::Solid, 4, sowcolor ), mouseevent) )
 	    return;
     }
-
 }
 
 
@@ -362,8 +335,8 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 	return;
     }
 
-    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !allowTracking(tracker,emid_) )
+    RefMan<MPE::EMTracker> tracker = MPE::engine().getActiveTracker();
+    if ( !allowTracking(tracker.ptr(),emid_) )
 	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
@@ -384,7 +357,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 	    return;
     }
 
-    if ( !checkSanity(*tracker,*seedpicker,pickinvd_) )
+    if ( !checkSanity(*tracker.ptr(),*seedpicker,pickinvd_) )
 	return;
 
     const Geom::Point2D<int>& mousepos = mouseevent.pos();
@@ -393,7 +366,7 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
 	return;
 
     ConstRefMan<FlatDataPack> dp = vwr->getPack( !pickinvd_ ).get();
-    if ( !dp || !prepareTracking(pickinvd_,*tracker,*seedpicker,*dp) )
+    if ( !dp || !prepareTracking(pickinvd_,*tracker.ptr(),*seedpicker,*dp) )
 	return;
 
     const int prevevent = EM::EMM().undo(emobj->id()).currentEventID();
@@ -407,8 +380,9 @@ void HorizonFlatViewEditor3D::handleMouseClicked( bool dbl )
     Coord3 clickedcrd = vwr->getCoord( wp );
     clickedcrd.z_ = wp.y_;
     const bool action = doTheSeed( *seedpicker, clickedcrd, mouseevent );
-    const int trackerid = MPE::engine().getTrackerByObject( emid_ );
-    engine().updateFlatCubesContainer( curcs_, trackerid, action );
+    RefMan<MPE::EMTracker> emtracker = MPE::engine().getTrackerByID( emid_ );
+    mDynamicCastGet(MPE::Horizon3DTracker*,hor3dtracker,emtracker.ptr());
+    hor3dtracker->updateFlatCubesContainer( curcs_, action );
 
     if ( !editor_->sower().moreToSow() && emobj->hasBurstAlert() &&
 	seedpicker->getTrackMode()!=EMSeedPicker::DrawBetweenSeeds &&
@@ -479,15 +453,17 @@ void HorizonFlatViewEditor3D::makePatchEnd( bool doerase )
 
 EMSeedPicker* HorizonFlatViewEditor3D::getEMSeedPicker() const
 {
-    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !allowTracking(tracker,emid_) )
-	return 0;
+    RefMan<MPE::EMTracker> tracker = MPE::engine().getActiveTracker();
+    if ( !allowTracking(tracker.ptr(),emid_) )
+	return nullptr;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return 0;
+    if ( !emobj )
+	return nullptr;
 
     EMSeedPicker* picker = tracker->getSeedPicker( true );
-    if ( !picker ) return 0;
+    if ( !picker )
+	return nullptr;
 
     return picker;
 }
@@ -587,8 +563,8 @@ void HorizonFlatViewEditor3D::redo()
 
 void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 {
-    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !allowTracking(tracker,emid_) )
+    RefMan<MPE::EMTracker> tracker = MPE::engine().getActiveTracker();
+    if ( !allowTracking(tracker.ptr(),emid_) )
 	return;
 
     sowingmode_ = false;
@@ -604,8 +580,8 @@ void HorizonFlatViewEditor3D::sowingFinishedCB( CallBacker* )
 
 void HorizonFlatViewEditor3D::sowingModeCB( CallBacker* )
 {
-    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
-    if ( !allowTracking(tracker,emid_) )
+    RefMan<MPE::EMTracker> tracker = MPE::engine().getActiveTracker();
+    if ( !allowTracking(tracker.ptr(),emid_) )
 	return;
 
     sowingmode_ = true;
@@ -620,11 +596,11 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
     if ( !emobj ) return false;
 
     const MPE::SectionTracker* sectiontracker =
-	tracker.getSectionTracker(true);
+				tracker.getSectionTracker(true);
 
     const Attrib::SelSpec* trackedatsel = sectiontracker
 			? sectiontracker->adjuster()->getAttributeSel(0)
-			: 0;
+			: nullptr;
 
     Attrib::SelSpec curss;
     if ( trackedatsel )
@@ -670,7 +646,7 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
 					       EMSeedPicker& seedpicker,
 					       const FlatDataPack& dp ) const
 {
-    const Attrib::SelSpec* as = 0;
+    const Attrib::SelSpec* as = nullptr;
     as = picinvd ? vdselspec_ : wvaselspec_;
 
     if ( !seedpicker.startSeedPick() )
@@ -679,16 +655,13 @@ bool HorizonFlatViewEditor3D::prepareTracking( bool picinvd,
     NotifyStopper notifystopper( MPE::engine().activevolumechange );
     MPE::engine().setActiveVolume( curcs_ );
     mDynamicCastGet(const RandomFlatDataPack*,randfdp,&dp);
-    MPE::engine().setActivePath( randfdp ? &randfdp->getPath() : 0 );
+    MPE::engine().setActivePath( randfdp ? &randfdp->getPath() : nullptr );
     MPE::engine().setActiveRandomLineID( randfdp ? randfdp->getRandomLineID()
 						 : RandomLineID::udf() );
     notifystopper.enableNotification();
 
     seedpicker.setSelSpec( as );
-
-    if ( dp.id().isValid() && dp.id()!=DataPack::cNoID() )
-	MPE::engine().setAttribData( *as, dp );
-
+    MPE::engine().setAttribData( *as, dp );
     MPE::engine().activevolumechange.trigger();
 
     return true;
@@ -744,11 +717,11 @@ bool HorizonFlatViewEditor3D::doTheSeed( EMSeedPicker& spk, const Coord3& crd,
 	if ( doerase || manualmodeclick )
 	{
 	    spk.addSeedToPatch( tkv, true );
-	    MPE::EMTracker* tracker = MPE::engine().getActiveTracker();
+	    RefMan<MPE::EMTracker> tracker = MPE::engine().getActiveTracker();
 	    if ( tracker )
 	    {
 		const MPE::EMSeedPicker* seedpicker =
-		    tracker->getSeedPicker(true);
+					    tracker->getSeedPicker(true);
 		if ( seedpicker && !seedpicker->getSowerMode() )
 		    updatePatchDisplay();
 	    }

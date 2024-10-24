@@ -595,6 +595,7 @@ void uiODMain::doRestoreSession()
 	applMgr().attrServer()->usePar( cursession_->attrpars(true,true),
 					true, true, restoremsgs_ );
     }
+
     if ( SI().has3D() )
     {
 	applMgr().attrServer()->usePar( cursession_->attrpars(false,false),
@@ -602,10 +603,13 @@ void uiODMain::doRestoreSession()
 	applMgr().attrServer()->usePar( cursession_->attrpars(false,true),
 					false, true, restoremsgs_ );
     }
-    applMgr().mpeServer()->usePar( cursession_->mpepars() );
+
     const bool visok = applMgr().visServer()->usePar( cursession_->vispars() );
     if ( visok )
+    {
+	applMgr().mpeServer()->usePar( cursession_->mpepars() );
 	sceneMgr().useScenePars( cursession_->scenepars() );
+    }
 
     sessionRestore.trigger();
     if ( visok )
@@ -618,6 +622,7 @@ void uiODMain::doRestoreSession()
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
+
     if ( visok )
 	viewer2DMgr().usePar( cursession_->vwr2dpars() );
 
@@ -750,8 +755,6 @@ bool uiODMain::askStore( bool& askedanything, const uiString& actiontype )
 {
     if ( !applmgr_->attrServer() )
 	return false;
-
-
 
     if ( !NotSavedPrompter::NSP().doTrigger( uiMainWin::activeWindow(), true,
 					     actiontype ) )

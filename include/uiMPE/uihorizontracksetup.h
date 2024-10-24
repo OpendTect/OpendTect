@@ -9,10 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
+
 #include "color.h"
 #include "draw.h"
-#include "valseriesevent.h"
+#include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "emseedpicker.h"
+#include "factory.h"
+#include "valseriesevent.h"
 
 #include "uimpe.h"
 
@@ -31,7 +35,6 @@ namespace MPE
 {
 
 class HorizonAdjuster;
-class HorizonTrackerMgr;
 class SectionTracker;
 class uiCorrelationGroup;
 class uiEventGroup;
@@ -42,7 +45,6 @@ class uiEventGroup;
 mExpClass(uiMPE) uiHorizonSetupGroup : public uiSetupGroup
 { mODTextTranslationClass(uiHorizonSetupGroup)
 public:
-				uiHorizonSetupGroup(uiParent*,const char*);
 				~uiHorizonSetupGroup();
 
     void			setSectionTracker(SectionTracker*) override;
@@ -81,6 +83,7 @@ public:
     void			setMPEPartServer(uiMPEPartServer*) override;
 
 protected:
+				uiHorizonSetupGroup(uiParent*,bool is2d);
 
     virtual void		initStuff();
 
@@ -106,7 +109,6 @@ protected:
     void			undoCB(CallBacker*);
     void			redoCB(CallBacker*);
     void			horizonSelCB(CallBacker*);
-    void			trackingFinishedCB(CallBacker*);
 
 // Mode Group
     uiGroup*			createModeGroup();
@@ -158,7 +160,6 @@ protected:
     EMSeedPicker::TrackMode	mode_;
     MarkerStyle3D		markerstyle_;
 
-    HorizonTrackerMgr*		trackmgr_			= nullptr;
     SectionTracker*		sectiontracker_			= nullptr;
     HorizonAdjuster*		horadj_				= nullptr;
 
@@ -173,16 +174,61 @@ protected:
 };
 
 
-mExpClass(uiMPE) uiBaseHorizonSetupGroup : public uiHorizonSetupGroup
+mExpClass(uiMPE) uiHorizon3DSetupGroupBase : public uiHorizonSetupGroup
 {
+mODTextTranslationClass(uiHorizon3DSetupGroupBase)
 public:
-				~uiBaseHorizonSetupGroup();
-    static void			initClass();
+    mDefineFactory1ParamInClass(uiHorizon3DSetupGroupBase,uiParent*,factory);
+
+				~uiHorizon3DSetupGroupBase();
+
+    static uiHorizon3DSetupGroupBase* createInstance(uiParent*);
 
 protected:
-				uiBaseHorizonSetupGroup(uiParent*,const char*);
-    static uiSetupGroup*	create(uiParent*,const char* typestr);
+				uiHorizon3DSetupGroupBase(uiParent*);
 };
 
+
+mExpClass(uiMPE) uiHorizon2DSetupGroupBase : public uiHorizonSetupGroup
+{
+mODTextTranslationClass(uiHorizon2DSetupGroupBase)
+public:
+    mDefineFactory1ParamInClass(uiHorizon2DSetupGroupBase,uiParent*,factory);
+
+				~uiHorizon2DSetupGroupBase();
+
+    static uiHorizon2DSetupGroupBase* createInstance(uiParent*);
+
+protected:
+				uiHorizon2DSetupGroupBase(uiParent*);
+};
+
+
+mExpClass(uiMPE) uiHorizon3DSetupGroup : public uiHorizon3DSetupGroupBase
+{
+mODTextTranslationClass(uiHorizon3DSetupGroup)
+public:
+    mDefaultFactoryInstantiation1Param( uiHorizon3DSetupGroupBase,
+					uiHorizon3DSetupGroup,uiParent*,
+					EM::Horizon3D::typeStr(),
+					tr("Horizon 3D") );
+private:
+				uiHorizon3DSetupGroup(uiParent*);
+				~uiHorizon3DSetupGroup();
+};
+
+
+mExpClass(uiMPE) uiHorizon2DSetupGroup : public uiHorizon2DSetupGroupBase
+{
+mODTextTranslationClass(uiHorizon2DSetupGroup)
+public:
+    mDefaultFactoryInstantiation1Param( uiHorizon2DSetupGroupBase,
+					uiHorizon2DSetupGroup,uiParent*,
+					EM::Horizon2D::typeStr(),
+					tr("Horizon 2D") );
+private:
+				uiHorizon2DSetupGroup(uiParent*);
+				~uiHorizon2DSetupGroup();
+};
 
 } // namespace MPE

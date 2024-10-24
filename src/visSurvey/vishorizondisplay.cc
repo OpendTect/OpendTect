@@ -488,13 +488,82 @@ void HorizonDisplay::removeEMStuff()
     sections_.erase();
     sids_.erase();
     intersectiondata_.erase();
+    if ( mpeeditor_ )
+	mpeeditor_->removeUser();
+
+    mpeeditor_ = nullptr;
+    tracker_ = nullptr;
     EMObjectDisplay::removeEMStuff();
+}
+
+
+RefMan<MPE::ObjectEditor> HorizonDisplay::getMPEEditor( bool create )
+{
+    if ( !create )
+	return mpeeditor_.ptr();
+
+    const EM::ObjectID emid = getObjectID();
+    if ( MPE::engine().hasEditor(emid) )
+    {
+	RefMan<MPE::ObjectEditor> objeditor = MPE::engine().getEditorByID(emid);
+	mpeeditor_ = dynamic_cast<MPE::HorizonEditor*>( objeditor.ptr() );
+    }
+
+    if ( !mpeeditor_ )
+    {
+	mDynamicCastGet(EM::Horizon3D*,horizon3d,emobject_.ptr());
+	if ( !horizon3d )
+	    return nullptr;
+
+	mpeeditor_ = MPE::HorizonEditor::create( *horizon3d );
+    }
+
+    return mpeeditor_.ptr();
 }
 
 
 bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* trnr )
 {
-    return EMObjectDisplay::setEMObject( newid, trnr );
+    if ( !EMObjectDisplay::setEMObject(newid,trnr) )
+	return false;
+
+    mDynamicCastGet(EM::Horizon3D*,horizon3d,emobject_.ptr());
+    if ( !horizon3d )
+	return false;
+
+    if ( MPE::engine().hasTracker(newid) )
+    {
+	RefMan<MPE::EMTracker> tracker = MPE::engine().getTrackerByID( newid );
+	if ( !tracker )
+	{
+	    pErrMsg("Should not happen");
+	    return false;
+	}
+
+	tracker_ = dynamic_cast<MPE::Horizon3DTracker*>( tracker.ptr() );
+    }
+
+    return true;
+}
+
+
+bool HorizonDisplay::activateTracker()
+{
+    if ( tracker_ )
+    {
+	MPE::engine().setActiveTracker( tracker_.ptr() );
+	return true;
+    }
+
+    mDynamicCastGet(EM::Horizon3D*,horizon3d,emobject_.ptr());
+    if ( !horizon3d )
+	return false;
+
+    tracker_ = MPE::Horizon3DTracker::create( *horizon3d );
+    MPE::engine().setActiveTracker( tracker_.ptr() );
+    updateFromMPE();
+
+    return true;
 }
 
 
@@ -618,16 +687,26 @@ int HorizonDisplay::nrAttribs() const
 }
 
 
+int HorizonDisplay::maxNrAttribs() const
+{
+    return 7;
+/*    if ( sections_.isEmpty() || sections_.first()->getChannels2RGBA() )
+	return 1;
+
+    return sections_.first()->getChannels2RGBA()->maxNrChannels();*/
+}
+
+
 bool HorizonDisplay::canAddAttrib( int nr ) const
 {
     if ( sections_.isEmpty() )
 	return false;
 
-    const int maxnr = sections_.first()->getChannels2RGBA()->maxNrChannels();
-    if ( !maxnr )
+    const int maxnr = maxNrAttribs();
+    if ( maxnr<1 )
 	return true;
 
-    return nrAttribs()+nr<=maxnr;
+    return nrAttribs()+nr <= maxnr;
 }
 
 
@@ -895,7 +974,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     if ( col==-1 )
 	positions->dataSet().add( new DataColDef(zvalsdef) );
 
-    getRandomPos( *positions, 0 );
+    getRandomPos( *positions, nullptr );
 
     if ( !positions->size() )
 	return;
@@ -922,20 +1001,21 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 }
 
 
-void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* taskr ) const
+bool HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* taskr ) const
 {
     //data.bivSet().allowDuplicateBids(false);
     for ( auto* section : sections_ )
 	section->getDataPositions( data, getTranslation().z_, 0, taskr );
 
     data.dataChanged();
+    return true;
 }
 
 
-void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
+bool HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
 {
     if ( channel<0 || channel>=nrAttribs() )
-	return;
+	return false;
 
     data.clearData();
     const BufferStringSet& userrefs = *userrefs_.get( channel );
@@ -953,6 +1033,7 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
     }
 
     data.dataChanged();
+    return true;
 }
 
 
@@ -978,11 +1059,11 @@ bool HorizonDisplay::usesColor() const
 }
 
 
-void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
+bool HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 				       TaskRunner* taskr )
 {
     if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty() )
-	return;
+	return false;
 
     if ( !data || !data->size() )
     {
@@ -990,7 +1071,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 	validtexture_ = false;
 	updateSingleColor();
 	locker_->unLock();
-	return;
+	return false;
     }
 
     locker_->lock();
@@ -1016,6 +1097,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     delete userrefs_.replace( channel, attrnms );
 
     createDisplayDataPacks( channel, data );
+    return true;
 }
 
 
@@ -1450,7 +1532,7 @@ void HorizonDisplay::updateAuxData()
 	}
 
 	dps->dataChanged();
-	setRandomPosData( cidx, dps.ptr(), 0 );
+	setRandomPosData( cidx, dps.ptr(), nullptr );
 	selectTexture( cidx, 0 );
     }
 }
@@ -2421,7 +2503,7 @@ void HorizonDisplay::fillPar( IOPar& par ) const
 
 bool HorizonDisplay::usePar( const IOPar& par )
 {
-    if ( !EMObjectDisplay::usePar( par ) )
+    if ( !EMObjectDisplay::usePar(par) )
 	 return false;
 
     if ( scene_ )
@@ -2481,21 +2563,28 @@ void HorizonDisplay::setDisplayDataPacks( int attrib,
 }
 
 
-DataPackID HorizonDisplay::getDataPackID( int channel ) const
+bool HorizonDisplay::setFlatDataPack( int attrib, FlatDataPack* fdp,
+				      TaskRunner* taskrun )
 {
-    return getDisplayedDataPackID( channel );
+    //TODO impl if needed
+    return SurveyObject::setFlatDataPack( attrib, fdp, taskrun );
 }
 
 
-DataPackID HorizonDisplay::getDisplayedDataPackID( int channel ) const
+ConstRefMan<DataPack> HorizonDisplay::getDataPack( int attrib ) const
 {
-    if ( sections_.isEmpty() || !datapacksset_.validIdx(channel) )
-	return DataPack::cNoID();
+    return getFlatDataPack( attrib );
+}
 
-    const RefObjectSet<MapDataPack>& dps = *datapacksset_.get( channel );
-    const int curversion = sections_[0]->activeVersion( channel );
-    return dps.validIdx(curversion) ? dps.get(curversion)->id()
-				    : DataPackID::udf();
+
+ConstRefMan<FlatDataPack> HorizonDisplay::getFlatDataPack( int attrib ) const
+{
+    if ( sections_.isEmpty() || !datapacksset_.validIdx(attrib) )
+	return nullptr;
+
+    const RefObjectSet<MapDataPack>& dps = *datapacksset_.get( attrib );
+    const int curversion = sections_[0]->activeVersion( attrib );
+    return dps.validIdx(curversion) ? dps.get(curversion) : nullptr;
 }
 
 

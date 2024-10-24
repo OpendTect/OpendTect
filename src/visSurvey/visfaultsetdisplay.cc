@@ -139,7 +139,6 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
     }
 
     faultset_ = emfaultset;
-    mAttachCB( faultset_->change,FaultSetDisplay::emChangeCB );
     if ( !emfaultset->name().isEmpty() )
 	setName( emfaultset->name() );
 
@@ -227,6 +226,7 @@ bool FaultSetDisplay::setEMObjectID( const EM::ObjectID& emid )
     nontexturecol_ = faultset_->preferredColor();
     updateSingleColor();
     updateDisplay();
+    mAttachCB( faultset_->change,FaultSetDisplay::emChangeCB );
 
     return true;
 }
@@ -319,15 +319,15 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
     setSelSpec( attrib, as );
 
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    RefMan<DataPointSet> data = new DataPointSet( false, true );
-    getRandomPos( *data, nullptr );
-    data->setName( sKeyZValues() );
+    RefMan<DataPointSet> dps = new DataPointSet( false, true );
+    getRandomPos( *dps.ptr(), nullptr );
+    dps->setName( sKeyZValues() );
     auto* zvalsdef = new DataColDef( sKeyZValues() );
-    data->dataSet().add( zvalsdef );
-    BinIDValueSet& bivs = data->bivSet();
-    if ( data->size() && bivs.nrVals()==5 )
+    dps->dataSet().add( zvalsdef );
+    BinIDValueSet& bivs = dps->bivSet();
+    if ( dps->size() && bivs.nrVals()==5 )
     {
-	int zcol = data->dataSet().findColDef( *zvalsdef,
+	int zcol = dps->dataSet().findColDef( *zvalsdef,
 					       PosVecDataSet::NameExact );
 	if ( zcol==-1 ) zcol = 3;
 
@@ -344,7 +344,7 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
 		vals[zcol] = vals[0];
 	}
 
-	setRandomPosData( attrib, data.ptr(), nullptr );
+	setRandomPosData( attrib, dps.ptr(), nullptr );
     }
 
     if ( !attribwasdepth )
@@ -352,8 +352,8 @@ void FaultSetDisplay::setDepthAsAttrib( int attrib )
 	BufferString seqnm;
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ColTab::Sequence seq( seqnm );
-	setColTabSequence( attrib, seq, 0 );
-	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+	setColTabSequence( attrib, seq, nullptr );
+	setColTabMapperSetup( attrib, ColTab::MapperSetup(), nullptr );
     }
 }
 
@@ -684,53 +684,66 @@ int nextStep() override
 
 };
 
-void FaultSetDisplay::getRandomPos(
+bool FaultSetDisplay::getRandomPos(
 				DataPointSet& dpset, TaskRunner* taskr ) const
 {
+    for ( int idx=0; idx<datapacks_.size(); idx++ )
+    {
+	ConstRefMan<DataPointSet> dps = datapacks_[idx];
+	if ( !dps || dps->size() < 1 )
+	    continue;
+
+	dpset = *dps.ptr();
+	dpset.dataSet().removeColumn( dps->dataSet().nrCols()-1 );
+	return true;
+    }
+
     if ( !faultset_ || explicitpanels_.isEmpty() )
-	return;
+	return false;
 
     RandomPosExtractor exec( explicitpanels_, paneldisplays_, dpset );
-    TaskRunner::execute( taskr, exec );
+    return TaskRunner::execute( taskr, exec );
 }
 
 
-void FaultSetDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
+bool FaultSetDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
 {
     if ( attrib<0 || attrib>=nrAttribs() )
-	return;
+	return false;
 
-    const DataPackID dpid = getDataPackID( attrib );
-    const DataPackMgr& dpman = DPM( getDataPackMgrID() );
-    ConstRefMan<DataPointSet> dps = dpman.get<DataPointSet>( dpid );
+    ConstRefMan<PointDataPack> pointdp = getPointDataPack( attrib );
+    mDynamicCastGet(const DataPointSet*,dps,pointdp.ptr());
     if ( dps )
-	data  = *dps.ptr();
+	data  = *dps;
+
+    return true;
 }
 
 
-void FaultSetDisplay::setRandomPosData( int attrib, const DataPointSet* dpset,
-				     TaskRunner* )
+bool FaultSetDisplay::setRandomPosData( int attrib, const DataPointSet* dpset,
+					TaskRunner* taskr )
 {
     const DataColDef iddef( sKey::ID() );
     const int idcol =
 	dpset->dataSet().findColDef(iddef,PosVecDataSet::NameExact);
 
-    setDataPackID( attrib, dpset->id(), 0 );
-    setRandomPosDataInternal( attrib, dpset, idcol+1, 0 );
+    auto* dps = const_cast<DataPointSet*>( dpset );
+    return setRandomPosDataInternal( attrib, dps, idcol+1, nullptr );
 }
 
 
-void FaultSetDisplay::setRandomPosDataInternal( int attrib,
-    const DataPointSet* dpset, int column, TaskRunner* taskr )
+bool FaultSetDisplay::setRandomPosDataInternal( int attrib,
+		    const DataPointSet* dpset, int column, TaskRunner* taskr )
 {
     if ( attrib>=nrAttribs() || !dpset || dpset->nrCols()<3 ||
 	 explicitpanels_.isEmpty() )
     {
 	validtexture_ = false;
 	updateSingleColor();
-	return;
+	return false;
     }
 
+    setPointDataPack( attrib, const_cast<DataPointSet*>( dpset ), taskr );
     const DataColDef texturei(Geometry::ExplFaultStickSurface::sKeyTextureI());
     const DataColDef texturej(Geometry::ExplFaultStickSurface::sKeyTextureJ());
     const DataColDef iddef(sKey::ID());
@@ -786,6 +799,7 @@ void FaultSetDisplay::setRandomPosDataInternal( int attrib,
 
     validtexture_ = true;
     updateSingleColor();
+    return true;
 }
 
 
@@ -1191,42 +1205,31 @@ void FaultSetDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-DataPackID FaultSetDisplay::addDataPack( const DataPointSet& /* dpset */ ) const
+bool FaultSetDisplay::setPointDataPack( int attrib, PointDataPack* dp,
+					TaskRunner* /* taskr */ )
 {
-    return DataPackID::udf();
-}
-
-
-bool FaultSetDisplay::setDataPackID( int attrib, const DataPackID& dpid,
-				     TaskRunner* /* taskr */ )
-{
-    if ( !datapacks_.validIdx(attrib) )
+    mDynamicCastGet(DataPointSet*,dps,dp);
+    if ( !dps || !datapacks_.validIdx(attrib) )
 	return false;
 
-    DataPackMgr& dpman = DPM( getDataPackMgrID() );
-    if ( !dpman.isPresent(dpid) )
-	return false;
-
-    RefMan<DataPointSet> datapack = dpman.get<DataPointSet>( dpid );
-    datapacks_.replace( attrib, datapack.ptr() );
-
+    datapacks_.replace( attrib, dps );
     return true;
 }
 
 
-DataPackID FaultSetDisplay::getDataPackID( int attrib ) const
+ConstRefMan<DataPack> FaultSetDisplay::getDataPack( int attrib ) const
 {
-    if ( !datapacks_.validIdx(attrib) )
-	return DataPackID::udf();
-
-    const DataPointSet* datapack = datapacks_.get( attrib );
-    return datapack ? datapack->id() : DataPackID::udf();
+    return getPointDataPack( attrib );
 }
 
 
-DataPackID FaultSetDisplay::getDisplayedDataPackID( int attrib ) const
+ConstRefMan<PointDataPack> FaultSetDisplay::getPointDataPack( int attrib ) const
 {
-    return getDataPackID( attrib );
+    if ( !datapacks_.validIdx(attrib) )
+	return nullptr;
+
+    ConstRefMan<DataPointSet> datapack = datapacks_.get( attrib );
+    return datapack ? datapack.ptr() : nullptr;
 }
 
 

@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodtreeitem.h"
-#include "factory.h"
 
+#include "factory.h"
+#include "uiodtreeitem.h"
+
+class uiAmplSpectrum;
 class uiFKSpectrum;
 class uiMenuHandler;
-class uiSeisAmplSpectrum;
 class uiStatsDisplayWin;
 class uiVisPartServer;
 namespace Attrib { class SelSpec; }
@@ -94,6 +95,6 @@ protected:
     const char*			parenttype_;
 
     uiStatsDisplayWin*		statswin_;
-    uiSeisAmplSpectrum*		ampspectrumwin_;
+    uiAmplSpectrum*		ampspectrumwin_;
     uiFKSpectrum*		fkspectrumwin_;
 };

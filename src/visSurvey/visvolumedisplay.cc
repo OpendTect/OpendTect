@@ -161,11 +161,11 @@ VolumeDisplay::~VolumeDisplay()
 
 void VolumeDisplay::setMaterial( visBase::Material* mt )
 {
-    if ( getMaterial() )
+    if ( material_ )
 	mDetachCB( getMaterial()->change, VolumeDisplay::materialChange );
 
     visBase::VisualObjectImpl::setMaterial( mt );
-    if ( getMaterial() )
+    if ( material_ )
 	mAttachCB( getMaterial()->change, VolumeDisplay::materialChange );
 
     materialChange( nullptr );
@@ -1084,18 +1084,19 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool displayspace,
 
 
 bool VolumeDisplay::setSeisDataPack( int attrib,
-				     RegularSeisDataPack* attribdata,
+				     SeisDataPack* seisdp,
 				     TaskRunner* taskr )
 {
-    if ( !attribs_.validIdx(attrib) || !attribdata || attribdata->isEmpty() )
+    mDynamicCastGet(RegularSeisDataPack*,regseisdp,seisdp);
+    if ( !attribs_.validIdx(attrib) || !regseisdp || regseisdp->isEmpty() )
 	return false;
 
-    TrcKeyZSampling tkzs = attribdata->sampling();
+    TrcKeyZSampling tkzs = regseisdp->sampling();
 
     const Array3D<float>* usedarray = nullptr;
     bool arrayismine = true;
     if ( alreadyTransformed(attrib) || !datatransform_ )
-	usedarray = &attribdata->data();
+	usedarray = &seisdp->data();
     else
     {
 	if ( !datatransformer_ )
@@ -1103,8 +1104,7 @@ bool VolumeDisplay::setSeisDataPack( int attrib,
 
 //	datatransformer_->setInterpolate( !isClassification(attrib) );
 	datatransformer_->setInterpolate( true );
-	datatransformer_->setInput( attribdata->data(),
-				    attribdata->sampling() );
+	datatransformer_->setInput( seisdp->data(), tkzs );
 	tkzs.zsamp_ = getTrcKeyZSampling(true,true,0).zsamp_;
 	datatransformer_->setOutputRange( tkzs );
 
@@ -1134,8 +1134,8 @@ bool VolumeDisplay::setSeisDataPack( int attrib,
 					 usedarray->info().getSize(1),
 					 usedarray->info().getSize(0) );
 
-    if ( attribs_[attrib]->cache_.ptr() != attribdata )
-	attribs_[attrib]->cache_ = attribdata;
+    if ( attribs_[attrib]->cache_.ptr() != regseisdp )
+	attribs_[attrib]->cache_ = regseisdp;
 
     isinited_ = true;
     updateAttribEnabling();
@@ -1147,34 +1147,15 @@ bool VolumeDisplay::setSeisDataPack( int attrib,
 }
 
 
-bool VolumeDisplay::setDataPackID( int attrib, const DataPackID& dpid,
-				   TaskRunner* taskr )
+ConstRefMan<DataPack> VolumeDisplay::getDataPack( int attrib ) const
 {
-    pErrMsg("Should not be called");
-    return false;
+    return getSeisDataPack( attrib );
 }
 
 
-ConstRefMan<RegularSeisDataPack> VolumeDisplay::getSeisDataPack(
-							int attrib ) const
+ConstRefMan<SeisDataPack> VolumeDisplay::getSeisDataPack( int attrib ) const
 {
     return attribs_.validIdx(attrib) ? attribs_[attrib]->cache_ : nullptr;
-}
-
-
-DataPackID VolumeDisplay::getDataPackID( int attrib ) const
-{
-    DataPackID dpid = DataPack::cNoID();
-    if ( attribs_.validIdx(attrib) && attribs_[attrib]->cache_ )
-	dpid = attribs_[attrib]->cache_->id();
-
-    return dpid;
-}
-
-
-DataPackID VolumeDisplay::getDisplayedDataPackID( int attrib ) const
-{
-    return getDataPackID( attrib );
 }
 
 

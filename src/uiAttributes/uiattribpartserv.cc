@@ -749,28 +749,6 @@ EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* tkzs,
 }
 
 
-DataPackID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
-					     const DataPackID& cacheid )
-{
-    if ( tkzs.is2D() )
-    {
-	uiTaskRunner taskrunner( parent() );
-	const Pos::GeomID geomid = tkzs.hsamp_.getGeomID();
-	return create2DOutput( tkzs, geomid, taskrunner );
-    }
-
-    DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
-    ConstRefMan<RegularSeisDataPack> cache =
-					dpm.get<RegularSeisDataPack>( cacheid );
-    ConstRefMan<RegularSeisDataPack> newpack = createOutput(tkzs, cache.ptr() );
-    if ( !newpack || !dpm.add(newpack) )
-	return DataPack::cNoID();
-
-    newpack->ref();
-    return newpack->id();
-}
-
-
 static const Desc* getTargetDesc( const TypeSet<Attrib::SelSpec>& targetspecs )
 {
     if ( targetspecs.isEmpty() )
@@ -874,7 +852,7 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createOutputRM(
 
 	Pos::RangeProvider3D rgprov3d;
 	rgprov3d.setSampling( tkzs );
-	DataColDef* dtcd = new DataColDef( targetdesc->userRef() );
+	auto* dtcd = new DataColDef( targetdesc->userRef() );
 	ManagedObjectSet<DataColDef> dtcoldefset;
 	dtcoldefset += dtcd;
 	uiTaskRunner taskr( parent() );
@@ -1203,13 +1181,10 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 }
 
 
-DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
-						    const RandomLineID& rdlid )
+RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
+				const Interval<float>& zrg,
+				TrcKeyPath& trckeys, TrcKeyPath& trueknotspos )
 {
-    RefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get( rdlid );
-    if ( !rdmline )
-	return DataPack::cNoID();
-
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
     ConstRefMan<Desc> targetdesc;
@@ -1220,41 +1195,31 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
     {
 	const MultiID mid = targetdesc->getStoredID();
 	ConstRefMan<RegularSeisDataPack> sdp =
-			Seis::PLDM().get<RegularSeisDataPack>( mid );
+				Seis::PLDM().get<RegularSeisDataPack>( mid );
 	if ( sdp )
 	{
 	    BufferStringSet componentnames;
 	    for ( int idx=0; idx<targetspecs_.size(); idx++ )
 		componentnames.add( targetspecs_[idx].userRef() );
 
-	    return RandomSeisDataPack::createDataPackFrom( *sdp, rdlid, zrg,
-							   &componentnames );
+	    return RandomSeisDataPack::createDataPackFromRM( *sdp, trckeys, zrg,
+							     &componentnames );
 	}
     }
-
-    TrcKeyPath knots, trckeys;
-    rdmline->allNodePositions( knots );
-    rdmline->getPathBids( knots, trckeys );
-
-    if ( trckeys.isEmpty() )
-	return DataPack::cNoID();
-
-    snapToValidRandomTraces( trckeys, targetdesc.ptr() );
 
     BinIDValueSet bidset( 2, false );
     for ( const auto& tk : trckeys )
 	bidset.add( tk.position(), zrg.start_, zrg.stop_ );
 
     SeisTrcBuf output( true );
-    if ( !createOutput(bidset,output,knots,trckeys) || output.isEmpty() )
-	return DataPack::cNoID();
+    if ( !createOutput(bidset,output,trueknotspos,trckeys) )
+	return nullptr;
 
-    RefMan<RandomSeisDataPack> newpack =
-		new RandomSeisDataPack( SeisDataPack::categoryStr(true,false) );
-    if ( !newpack || !DPM(DataPackMgr::SeisID()).add(newpack) )
-	return DataPack::cNoID();
+    RefMan<RandomSeisDataPack> newpack = new RandomSeisDataPack(
+				SeisDataPack::categoryStr(true,false) );
+    if ( !newpack )
+	return nullptr;
 
-    newpack->setRandomLineID( rdlid );
     newpack->setPath( trckeys );
     newpack->setZRange( output.get(0)->zRange() );
     for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
@@ -1277,8 +1242,7 @@ DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
     const ZDomain::Info zdomain( zddef, targetspec.zDomainUnit() );
     newpack->setZDomain( zdomain );
     newpack->setName( targetspec.userRef() );
-    newpack->ref();
-    return newpack->id();
+    return newpack;
 }
 
 
@@ -1315,81 +1279,6 @@ void uiAttribPartServer::snapToValidRandomTraces( TrcKeyPath& path,
 	    tk.setPosition( tkzs.hsamp_.atIndex( inlidx, crlidx ) );
 	}
     }
-}
-
-
-DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
-			    TypeSet<BinID>& path, TypeSet<BinID>& trueknotspos )
-{
-    TrcKeyPath tkpath, tktrueknotspos;
-    for ( const auto& bid : path )
-	tkpath += TrcKey( bid );
-    for ( const auto& bid : trueknotspos )
-	tktrueknotspos += TrcKey( bid );
-
-    return createRdmTrcsOutput( zrg, tkpath, tktrueknotspos );
-}
-
-
-DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
-				TrcKeyPath& trckeys, TrcKeyPath& trueknotspos )
-{
-    const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
-    const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
-    ConstRefMan<Desc> targetdesc;
-    if ( attrds && !attrds->isEmpty() )
-	targetdesc = attrds->getDesc( targetspecs_[0].id() );
-
-    const MultiID mid = targetdesc->getStoredID();
-    ConstRefMan<RegularSeisDataPack> sdp =
-				Seis::PLDM().get<RegularSeisDataPack>( mid );
-    if ( sdp )
-    {
-	BufferStringSet componentnames;
-	for ( int idx=0; idx<targetspecs_.size(); idx++ )
-	    componentnames.add( targetspecs_[idx].userRef() );
-
-	return RandomSeisDataPack::createDataPackFrom( *sdp, trckeys, zrg,
-						       &componentnames );
-    }
-
-    BinIDValueSet bidset( 2, false );
-    for ( const auto& tk : trckeys )
-	bidset.add( tk.position(), zrg.start_, zrg.stop_ );
-
-    SeisTrcBuf output( true );
-    if ( !createOutput(bidset,output,trueknotspos,trckeys) )
-	return DataPack::cNoID();
-
-    RefMan<RandomSeisDataPack> newpack = new RandomSeisDataPack(
-				SeisDataPack::categoryStr(true,false) );
-    if ( !newpack || !DPM(DataPackMgr::SeisID()).add(newpack) )
-	return DataPack::cNoID();
-
-    newpack->setPath( trckeys );
-    newpack->setZRange( output.get(0)->zRange() );
-    for ( int idx=0; idx<output.get(0)->nrComponents(); idx++ )
-    {
-	if ( !newpack->addComponent(targetspecs_[idx].userRef()) )
-	    continue;
-
-	for ( int idy=0; idy<newpack->data(idx).info().getSize(1); idy++ )
-	{
-	    const int trcidx = output.find( trckeys[idy].position() );
-	    const SeisTrc* trc = trcidx<0 ? nullptr : output.get( trcidx );
-	    if ( !trc ) continue;
-	    for ( int idz=0; idz<newpack->data(idx).info().getSize(2);idz++)
-		newpack->data(idx).set( 0, idy, idz, trc->get(idz,idx) );
-	}
-    }
-
-    const Attrib::SelSpec& targetspec = targetspecs_.first();
-    const ZDomain::Def& zddef = ZDomain::Def::get( targetspec.zDomainKey() );
-    const ZDomain::Info zdomain( zddef, targetspec.zDomainUnit() );
-    newpack->setZDomain( zdomain );
-    newpack->setName( targetspec.userRef() );
-    newpack->ref();
-    return newpack->id();
 }
 
 
@@ -1557,52 +1446,6 @@ protected:
     TypeSet<float>			refnrs_;
 };
 
-DataPackID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
-						 const Pos::GeomID& geomid,
-						 TaskRunner& taskrunner )
-{
-    const bool isstored = targetspecs_[0].isStored();
-    const DescSet* curds = DSHolder().getDescSet( true, isstored );
-    if ( curds )
-    {
-	ConstRefMan<Desc> targetdesc = curds->getDesc( targetID(true) );
-	if ( targetdesc )
-	{
-	    const MultiID mid = targetdesc->getStoredID();
-	    ConstRefMan<RegularSeisDataPack> regsdp =
-			Seis::PLDM().get<RegularSeisDataPack>( mid, geomid );
-	    if ( regsdp )
-		return regsdp->id();
-	}
-    }
-
-    PtrMan<EngineMan> aem = createEngMan( &tkzs, geomid );
-    if ( !aem )
-	return DataPack::cNoID();
-
-    uiString errmsg;
-    RefMan<Data2DHolder> data2d = new Data2DHolder;
-    PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, *data2d );
-    if ( !process )
-	{ uiMSG().error(errmsg); return DataPack::cNoID(); }
-
-    if ( !TaskRunner::execute( &taskrunner, *process ) )
-	return DataPack::cNoID();
-
-    BufferStringSet userrefs;
-    for ( int idx=0; idx<targetspecs_.size(); idx++ )
-	userrefs.add( targetspecs_[idx].userRef() );
-
-    auto dp = createDataPackFor2DRM( *data2d, tkzs,
-	    ZDomain::Def::get(targetspecs_[0].zDomainKey()), &userrefs );
-    if ( !dp )
-	return DataPack::cNoID();
-
-    DPM(DataPackMgr::SeisID()).add( dp );
-    dp->ref();
-    return dp->id();
-}
-
 
 RefMan<RegularSeisDataPack> uiAttribPartServer::createDataPackFor2DRM(
 					const Attrib::Data2DHolder& input,
@@ -1615,22 +1458,6 @@ RefMan<RegularSeisDataPack> uiAttribPartServer::createDataPackFor2DRM(
 		compnames );
     datapackcreator.execute();
     return datapackcreator.getOutputDataPack();
-}
-
-
-DataPackID uiAttribPartServer::createDataPackFor2D(
-					const Attrib::Data2DHolder& input,
-					const TrcKeyZSampling& outputsampling,
-					const ZDomain::Def& zdef,
-					const BufferStringSet* compnames )
-{
-    auto dp = createDataPackFor2DRM( input, outputsampling, zdef, compnames );
-    if ( !dp )
-	return DataPack::cNoID();
-
-    DPM(DataPackMgr::SeisID()).add( dp );
-    dp->ref();
-    return dp->id();
 }
 
 
@@ -2551,4 +2378,141 @@ void uiAttribPartServer::loadDefaultAttrSet( const char* attribsetnm )
 {
     if ( attrsetdlg_ )
 	attrsetdlg_->loadDefaultAttrSet( attribsetnm );
+}
+
+
+// Deprecated implementations
+
+mStartAllowDeprecatedSection
+
+DataPackID uiAttribPartServer::createOutput( const TrcKeyZSampling& tkzs,
+					     const DataPackID& cacheid )
+{
+    if ( tkzs.is2D() )
+    {
+	uiTaskRunner taskrunner( parent() );
+	const Pos::GeomID geomid = tkzs.hsamp_.getGeomID();
+	return create2DOutput( tkzs, geomid, taskrunner );
+    }
+
+    DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
+    ConstRefMan<RegularSeisDataPack> cache =
+					dpm.get<RegularSeisDataPack>( cacheid );
+    ConstRefMan<RegularSeisDataPack> newpack = createOutput(tkzs, cache.ptr() );
+    if ( !newpack )
+	return DataPack::cNoID();
+
+    dpm.add( newpack );
+    newpack->ref();
+    return newpack->id();
+}
+
+mStopAllowDeprecatedSection
+
+
+DataPackID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& tkzs,
+					       const Pos::GeomID& geomid,
+					       TaskRunner& taskrunner )
+{
+    const bool isstored = targetspecs_[0].isStored();
+    const DescSet* curds = DSHolder().getDescSet( true, isstored );
+    if ( curds )
+    {
+	ConstRefMan<Desc> targetdesc = curds->getDesc( targetID(true) );
+	if ( targetdesc )
+	{
+	    const MultiID mid = targetdesc->getStoredID();
+	    ConstRefMan<RegularSeisDataPack> regsdp =
+			Seis::PLDM().get<RegularSeisDataPack>( mid, geomid );
+	    if ( regsdp )
+		return regsdp->id();
+	}
+    }
+
+    PtrMan<EngineMan> aem = createEngMan( &tkzs, geomid );
+    if ( !aem )
+	return DataPack::cNoID();
+
+    uiString errmsg;
+    RefMan<Data2DHolder> data2d = new Data2DHolder;
+    PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, *data2d );
+    if ( !process )
+	{ uiMSG().error(errmsg); return DataPack::cNoID(); }
+
+    if ( !TaskRunner::execute( &taskrunner, *process ) )
+	return DataPack::cNoID();
+
+    BufferStringSet userrefs;
+    for ( int idx=0; idx<targetspecs_.size(); idx++ )
+	userrefs.add( targetspecs_[idx].userRef() );
+
+    auto dp = createDataPackFor2DRM( *data2d, tkzs,
+	    ZDomain::Def::get(targetspecs_[0].zDomainKey()), &userrefs );
+    if ( !dp )
+	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add( dp );
+    dp->ref();
+    return dp->id();
+}
+
+
+DataPackID uiAttribPartServer::createDataPackFor2D(
+					const Attrib::Data2DHolder& input,
+					const TrcKeyZSampling& outputsampling,
+					const ZDomain::Def& zdef,
+					const BufferStringSet* compnames )
+{
+    auto dp = createDataPackFor2DRM( input, outputsampling, zdef, compnames );
+    if ( !dp )
+	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add( dp );
+    dp->ref();
+    return dp->id();
+}
+
+
+DataPackID uiAttribPartServer::createRdmTrcsOutput( const Interval<float>& zrg,
+						    const RandomLineID& rdlid )
+{
+    auto dp = createRdmTrcsOutputRM( zrg, rdlid );
+    if ( !dp )
+	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add( dp );
+    dp->ref();
+    return dp->id();
+}
+
+
+DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
+				TrcKeyPath& trckeys, TrcKeyPath& trueknotspos )
+{
+    auto dp = createRdmTrcsOutputRM( zrg, trckeys, trueknotspos );
+    if ( !dp )
+	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add( dp );
+    dp->ref();
+    return dp->id();
+}
+
+
+DataPackID uiAttribPartServer::createRdmTrcsOutput(const Interval<float>& zrg,
+			    TypeSet<BinID>& path, TypeSet<BinID>& trueknotspos )
+{
+    TrcKeyPath tkpath, tktrueknotspos;
+    for ( const auto& bid : path )
+	tkpath += TrcKey( bid );
+    for ( const auto& bid : trueknotspos )
+	tktrueknotspos += TrcKey( bid );
+
+    auto dp = createRdmTrcsOutputRM( zrg, tkpath, tktrueknotspos );
+    if ( !dp )
+	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add( dp );
+    dp->ref();
+    return dp->id();
 }

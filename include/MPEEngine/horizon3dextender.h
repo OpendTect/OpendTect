@@ -9,22 +9,29 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+
+#include "emhorizon3d.h"
+#include "factory.h"
 #include "sectionextender.h"
 #include "trckeyvalue.h"
 
-namespace EM { class Horizon3D; }
 
 namespace MPE
 {
 
 /*!
-\brief Sub class of SectionExtender. Use Horizon3DExtender instead.
+\brief Sub class of SectionExtender for 3D Horizons with its factory
 */
 
-mExpClass(MPEEngine) BaseHorizon3DExtender : public SectionExtender
+mExpClass(MPEEngine) Horizon3DExtenderBase : public SectionExtender
 {
+mODTextTranslationClass(Horizon3DExtenderBase)
 public:
-				~BaseHorizon3DExtender();
+    mDefineFactory1ParamInClass( Horizon3DExtenderBase, EM::Horizon3D&,factory);
+
+				~Horizon3DExtenderBase();
+
+    static Horizon3DExtenderBase* createInstance(EM::Horizon3D&);
 
     void			setDirection(const TrcKeyValue&) override;
     const TrcKeyValue*		getDirection() const override
@@ -38,7 +45,7 @@ public:
     const TrcKeyZSampling&	getExtBoundary() const override;
 
 protected:
-				BaseHorizon3DExtender(EM::Horizon3D&);
+				Horizon3DExtenderBase(EM::Horizon3D&);
 
     virtual float		getDepth(const TrcKey& src,
 					 const TrcKey& target) const override;
@@ -49,19 +56,21 @@ protected:
 
 
 /*!
-\brief Used to extend EM::Horizon3D.
+\brief Simple implementation for extending a EM::Horizon3D.
 */
 
-mExpClass(MPEEngine) Horizon3DExtender : public BaseHorizon3DExtender
+mExpClass(MPEEngine) Horizon3DExtender : public Horizon3DExtenderBase
 {
+mODTextTranslationClass(Horizon3DExtender)
 public:
-				~Horizon3DExtender();
 
-    static void			initClass();
-    static SectionExtender*	create(EM::EMObject*);
-
-protected:
+    mDefaultFactoryInstantiation1Param( Horizon3DExtenderBase,Horizon3DExtender,
+					EM::Horizon3D&,
+					EM::Horizon3D::typeStr(),
+					tr("Horizon 3D") );
+private:
 				Horizon3DExtender(EM::Horizon3D&);
+				~Horizon3DExtender();
 };
 
 } // namespace MPE

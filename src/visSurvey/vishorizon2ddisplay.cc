@@ -103,7 +103,8 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
     for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
     {
 	const StepInterval<int> colrg = rcs->colRange( rc.row() );
-        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
+	for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+							rc.col()+=colrg.step_ )
 	{
 	    const Coord3 pos = emobject_->getPos( rc.toInt64() );
 	    if ( pos.sqDistTo(mousepos) < mDefEps )
@@ -315,7 +316,8 @@ bool doWork( od_int64 start, od_int64 stop, int ) override
 	if ( zaxt_ )
 	    prepareForTransform( rowidx, geomid, colrg );
 
-        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
+	for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+							rc.col()+=colrg.step_ )
 	{
 	    Coord3 pos = surf_->getKnot( rc );
             const float zval = mCast(float,pos.z_);
@@ -482,12 +484,12 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 bool Horizon2DDisplay::shouldDisplayIntersections(
 						const Seis2DDisplay& seisdisp )
 {
-    for ( int idx=0; idx<seisdisp.nrAttribs(); idx++ )
+    const SurveyObject& survobj = seisdisp;
+    for ( int iattrib=0; iattrib<seisdisp.nrAttribs(); iattrib++ )
     {
-	const bool hasattribenable = seisdisp.isAttribEnabled(idx);
-	const DataPackID dpid = seisdisp.getDataPackID(idx);
-
-	if ( hasattribenable && dpid.isValid() )
+	const bool hasattribenable = seisdisp.isAttribEnabled( iattrib );
+	ConstRefMan<SeisDataPack> seisdp = survobj.getSeisDataPack( iattrib );
+	if ( hasattribenable && seisdp )
 	    return true;
     }
 
@@ -591,8 +593,6 @@ void Horizon2DDisplay::updateLinesOnSections(
 }
 
 
-
-
 void Horizon2DDisplay::updateIntersectionMarkers(
 			    const ObjectSet<const Seis2DDisplay>& seis2dlist )
 {
@@ -669,7 +669,6 @@ void Horizon2DDisplay::updateIntersectionPoint( const Pos::GeomID lngid,
 	intersectmkset_->setScreenSize( mCast(float,sz) );
     }
 }
-
 
 
 bool Horizon2DDisplay::calcLine2DIntersections(
@@ -778,14 +777,86 @@ void Horizon2DDisplay::otherObjectsMoved(
 }
 
 
+void Horizon2DDisplay::removeEMStuff()
+{
+    if ( mpeeditor_ )
+	mpeeditor_->removeUser();
+
+    mpeeditor_ = nullptr;
+    tracker_ = nullptr;
+    EMObjectDisplay::removeEMStuff();
+}
+
+
+RefMan<MPE::ObjectEditor> Horizon2DDisplay::getMPEEditor( bool create )
+{
+    if ( !create )
+	return mpeeditor_.ptr();
+
+    const EM::ObjectID emid = getObjectID();
+    if ( MPE::engine().hasEditor(emid) )
+    {
+	RefMan<MPE::ObjectEditor> objeditor = MPE::engine().getEditorByID(emid);
+	mpeeditor_ = dynamic_cast<MPE::Horizon2DEditor*>( objeditor.ptr() );
+    }
+
+    if ( !mpeeditor_ )
+    {
+	mDynamicCastGet(EM::Horizon2D*,horizon2d,emobject_.ptr());
+	if ( !horizon2d )
+	    return nullptr;
+
+	mpeeditor_ = MPE::Horizon2DEditor::create( *horizon2d );
+    }
+
+    return mpeeditor_.ptr();
+}
+
+
 bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid,
 				    TaskRunner* taskr )
 {
     if ( !EMObjectDisplay::setEMObject(newid,taskr) )
 	return false;
 
+    mDynamicCastGet(EM::Horizon2D*,horizon2d,emobject_.ptr());
+    if ( !horizon2d )
+	return false;
+
+    if ( MPE::engine().hasTracker(newid) )
+    {
+	RefMan<MPE::EMTracker> tracker = MPE::engine().getTrackerByID( newid );
+	if ( !tracker )
+	{
+	    pErrMsg("Should not happen");
+	    return false;
+	}
+
+	tracker_ = dynamic_cast<MPE::Horizon2DTracker*>( tracker.ptr() );
+    }
+
     getMaterial()->setColor( emobject_->preferredColor() );
     setLineStyle( emobject_->preferredLineStyle() );
+    return true;
+}
+
+
+bool Horizon2DDisplay::activateTracker()
+{
+    if ( tracker_ )
+    {
+	MPE::engine().setActiveTracker( tracker_.ptr() );
+	return true;
+    }
+
+    mDynamicCastGet(EM::Horizon2D*,horizon2d,emobject_.ptr());
+    if ( !horizon2d )
+	return false;
+
+    tracker_ = MPE::Horizon2DTracker::create( *horizon2d );
+    MPE::engine().setActiveTracker( tracker_.ptr() );
+    updateFromMPE();
+
     return true;
 }
 

@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "view2ddata.h"
 
-#include "emposid.h"
+#include "faultstickseteditor.h"
 #include "posgeomid.h"
+#include "view2ddata.h"
 
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
@@ -26,7 +26,7 @@ mExpClass(uiViewer2D) FaultSS2D : public EMDataObject
 {
 mDefStd(FaultSS2D)
 public:
-    void		setGeomID( Pos::GeomID geomid )
+    void		setGeomID( const Pos::GeomID& geomid )
 			{ geomid_ = geomid; }
 
     void		draw();
@@ -35,15 +35,15 @@ public:
 
     NotifierAccess*	deSelection() override		{ return &deselected_; }
 
-protected:
+private:
 
     void		triggerDeSel() override;
     void		setEditors() override;
 
     Pos::GeomID		geomid_;
-    bool		knotenabled_;
+    bool		knotenabled_	= false;
 
-    MPE::FaultStickSetEditor*	fsseditor_;
+    RefMan<MPE::FaultStickSetEditor>	fsseditor_;
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fsseds_;
     Notifier<FaultSS2D>	deselected_;
 

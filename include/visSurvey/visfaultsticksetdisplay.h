@@ -10,7 +10,6 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 
-#include "emposid.h"
 #include "faultstickseteditor.h"
 #include "visdrawstyle.h"
 #include "visemsticksetdisplay.h"
@@ -132,6 +131,7 @@ protected:
 					const VisID& whichobj) override;
 
     void			setActiveStick(const EM::PosID&);
+    RefMan<MPE::ObjectEditor>	getMPEEditor(bool create) override;
 
     static const char*		sKeyEarthModelID();
     static const char*		sKeyDisplayOnlyAtSections();

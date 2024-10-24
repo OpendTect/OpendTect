@@ -143,19 +143,19 @@ void PreStackDisplay::setMultiID( const MultiID& mid )
 }
 
 
-DataPackID PreStackDisplay::preProcess()
+ConstRefMan<PreStack::Gather> PreStackDisplay::getProcessedGather()
 {
     if ( !ioobj_ || !reader_ )
-	return DataPackID::udf();
+	return nullptr;
 
     if ( !preprocmgr_ )
 	setProcMgr( is3DSeis() ? OD::Geom3D : OD::Geom2D );
 
     if ( !preprocmgr_->nrProcessors() || !preprocmgr_->reset() )
-	return DataPackID::udf();
+	return nullptr;
 
     if ( !preprocmgr_->prepareWork() )
-	return DataPackID::udf();
+	return nullptr;
 
     const BinID stepout = preprocmgr_->getInputStepout();
 
@@ -191,16 +191,9 @@ DataPackID PreStackDisplay::preProcess()
     }
 
     if ( !preprocmgr_->process() )
-	return DataPackID::udf();
+	return nullptr;
 
-    return preprocmgr_->getOutputID();
-}
-
-
-bool PreStackDisplay::setPosition( const BinID& nb )
-{
-    const TrcKey tk( nb );
-    return setPosition( tk );
+    return preprocmgr_->getOutput();
 }
 
 
@@ -280,7 +273,6 @@ bool PreStackDisplay::setPosition( const TrcKey& tk )
 	}
     }
 
-    DPM(DataPackMgr::FlatID()).add( gather_.ptr() );
     draggerpos_ = bid_;
     draggermoving.trigger();
     dataChangedCB( nullptr );
@@ -298,12 +290,9 @@ bool PreStackDisplay::updateData()
     }
 
     const bool haddata = flatviewer_->hasPack( false );
-
-    DataPackID displayid = DataPack::cNoID();
     if ( preprocmgr_ && preprocmgr_->nrProcessors() )
     {
-	displayid = preProcess();
-	gather_ = DPM(DataPackMgr::FlatID()).get<PreStack::Gather>( displayid );
+	gather_ = getProcessedGather().getNonConstPtr();
     }
     else
     {
@@ -314,17 +303,17 @@ bool PreStackDisplay::updateData()
 	    tk.setGeomID( seis2d_->getGeomID() ).setTrcNr( trcnr_ );
 
 	if ( !gather_ || gather_->getTrcKey()!=tk )
-	{
 	    gather_ = new PreStack::Gather;
-	    if ( gather_->readFrom(*ioobj_,*reader_,tk) )
-		DPM(DataPackMgr::FlatID()).add( gather_.ptr() );
-	}
-
-	if ( gather_ )
-	    displayid = gather_->id();
     }
 
-    if ( displayid==DataPack::cNoID() )
+    if ( gather_ )
+    {
+	const bool canupdate = flatviewer_->enableChange( false );
+	flatviewer_->setVisible( FlatView::Viewer::VD, true );
+	flatviewer_->enableChange( canupdate );
+	flatviewer_->setPack( FlatView::Viewer::VD, gather_.ptr(), !haddata );
+    }
+    else
     {
 	if ( haddata )
 	{
@@ -337,13 +326,6 @@ bool PreStackDisplay::updateData()
 	    dataChangedCB( nullptr );
 
 	return false;
-    }
-    else
-    {
-	const bool canupdate = flatviewer_->enableChange( false );
-	flatviewer_->setVisible( FlatView::Viewer::VD, true );
-	flatviewer_->enableChange( canupdate );
-	flatviewer_->setPack( FlatView::Viewer::VD, gather_.ptr(), !haddata );
     }
 
     turnOn( true );
@@ -412,13 +394,17 @@ BinID PreStackDisplay::getNearBinID( const BinID& bid ) const
     BinID res = bid;
     if ( isOrientationInline() )
     {
-        res.crl() = bid.crl()<tracerg.start_ ? tracerg.start_ :
-                                               ( bid.crl()>tracerg.stop_ ? tracerg.stop_ : tracerg.snap(bid.crl()) );
+	res.crl() = bid.crl()<tracerg.start_
+		  ? tracerg.start_
+		  : ( bid.crl()>tracerg.stop_ ? tracerg.stop_
+					      : tracerg.snap(bid.crl()) );
     }
     else
     {
-        res.inl() = bid.inl()<tracerg.start_ ? tracerg.start_ :
-                                               ( bid.inl()>tracerg.stop_ ? tracerg.stop_ : tracerg.snap(bid.inl()) );
+	res.inl() = bid.inl()<tracerg.start_
+		  ? tracerg.start_
+		  : ( bid.inl()>tracerg.stop_ ? tracerg.stop_
+					      : tracerg.snap(bid.inl()) );
     }
 
     return res;
@@ -498,8 +484,9 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 	return;
 
     const Coord direction = posside_ ? basedirection_ : -basedirection_;
-    const double offsetscale = Coord( basedirection_.x_*SI().inlDistance(),
-                                      basedirection_.y_*SI().crlDistance()).abs();
+    const double offsetscale =
+			Coord( basedirection_.x_*SI().inlDistance(),
+			       basedirection_.y_*SI().crlDistance() ).abs();
 
     ConstRefMan<FlatDataPack> fdp = flatviewer_->getPack( false ).get();
     int nrtrcs = 0;
@@ -583,10 +570,12 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
     planedragger_->setDim( isinline ? 1 : 0 );
 
-    const float xwidth =
-            isinline ? (float) fabs(stoppos.x_-startpos.x_) : SI().inlDistance();
-    const float ywidth =
-            isinline ?  SI().crlDistance() : (float) fabs(stoppos.y_-startpos.y_);
+    const float xwidth =  isinline
+		       ? (float) fabs(stoppos.x_-startpos.x_)
+		       : SI().inlDistance();
+    const float ywidth = isinline
+		       ?  SI().crlDistance()
+		       : (float) fabs(stoppos.y_-startpos.y_);
 
     planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
     planedragger_->setCenter( (c01+c10)/2 );
@@ -708,9 +697,24 @@ const Seis2DDisplay* PreStackDisplay::getSeis2DDisplay() const
 }
 
 
-DataPackID PreStackDisplay::getDataPackID(int) const
+ConstRefMan<DataPack> PreStackDisplay::getDataPack( int attrib ) const
 {
-    return flatviewer_->packID( false );
+    ConstRefMan<FlatDataPack> flatdp = getFlatDataPack( attrib );
+    return flatdp.ptr();
+}
+
+
+ConstRefMan<FlatDataPack> PreStackDisplay::getFlatDataPack( int ) const
+{
+    WeakPtr<FlatDataPack> flatdp = flatviewer_->getPack( false );
+    return flatdp.get();
+}
+
+
+ConstRefMan<PreStack::Gather> PreStackDisplay::getGather() const
+{
+    ConstRefMan<FlatDataPack> flatdp = getFlatDataPack();
+    return dynamic_cast<const PreStack::Gather*>( flatdp.ptr() );
 }
 
 
@@ -890,8 +894,8 @@ void PreStackDisplay::draggerMotion( CallBacker* )
 
 	const Coord direction = posside_ ? basedirection_ : -basedirection_;
 	const float offsetscale = mCast(float,
-                                        Coord(basedirection_.x_*SI().inlDistance(),
-                                              basedirection_.y_*SI().crlDistance()).abs());
+			    Coord(basedirection_.x_*SI().inlDistance(),
+				  basedirection_.y_*SI().crlDistance()).abs());
 
 	seis2dpos_ = newdraggerbidf;
 	seis2dstoppos_ = autowidth_
@@ -1121,6 +1125,20 @@ bool PreStackDisplay::usePar( const IOPar& par )
     }
 
     return true;
+}
+
+
+bool PreStackDisplay::setPosition( const BinID& nb )
+{
+    const TrcKey tk( nb );
+    return setPosition( tk );
+}
+
+
+DataPackID PreStackDisplay::preProcess()
+{
+    ConstRefMan<PreStack::Gather> gather = getProcessedGather();
+    return gather ? gather->id() : DataPackID::udf();
 }
 
 } // namespace visSurvey

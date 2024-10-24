@@ -58,17 +58,35 @@ int PointSetDisplay::getPointSize() const
 { return pointset_->getPointSize(); }
 
 
-bool PointSetDisplay::setDataPack( DataPackID dpsid )
+bool PointSetDisplay::setDataPointSet( const DataPointSet& dpset )
 {
-    DataPackMgr& dpm = DPM( getDataPackMgrID() );
-    RefMan<DataPointSet> dps = dpm.get<DataPointSet>( dpsid );
+    auto& dps = const_cast<DataPointSet&>( dpset );
+    return setPointDataPack( 0, &dps, nullptr );
+}
+
+
+bool PointSetDisplay::setPointDataPack( int /* attrib */, PointDataPack* dp,
+					TaskRunner* /* taskrun */ )
+{
+    mDynamicCastGet(DataPointSet*,dps,dp);
     if ( !dps )
 	return false;
 
     datapack_ = dps;
     setName( datapack_ ? datapack_->name() : BufferString::empty() );
-
     return true;
+}
+
+
+ConstRefMan<DataPack> PointSetDisplay::getDataPack( int attrib ) const
+{
+    return getPointDataPack( attrib );
+}
+
+
+ConstRefMan<PointDataPack> PointSetDisplay::getPointDataPack( int ) const
+{
+    return datapack_.ptr();
 }
 
 

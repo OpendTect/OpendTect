@@ -52,19 +52,21 @@ public:
     const visBase::TextureChannels* getChannels() const override;
 
     bool			canHaveMultipleAttribs() const override;
-    bool			canAddAttrib(int nrattribstoadd=1)
-								const override;
-    bool			canRemoveAttrib() const override;
     int				nrAttribs() const override;
     int				maxNrAttribs() const override;
+    bool			canAddAttrib(int nrattribstoadd=1)
+								const override;
     bool			addAttrib() override;
+    bool			canRemoveAttrib() const override;
     bool			removeAttrib(int attrib) override;
     bool			swapAttribs(int attrib0,int attrib1) override;
     void			setAttribTransparency(int,
 						      unsigned char) override;
     unsigned char		getAttribTransparency(int) const override;
-    void			allowShading(bool) override;
+    void			enableAttrib(int attrib,bool yn) override;
+    bool			isAttribEnabled(int attrib) const override;
 
+    void			allowShading(bool) override;
     const Attrib::SelSpec*	getSelSpec(int attrib,
 					   int version=-1) const override;
 				//!< version=-1 gives current version
@@ -82,8 +84,6 @@ public:
 
     bool			isAngle(int attrib) const override;
     void			setAngleFlag(int attrib,bool yn) override;
-    void			enableAttrib(int attrib,bool yn) override;
-    bool			isAttribEnabled(int attrib) const override;
     const TypeSet<float>*	getHistogram(int) const override;
     int				getColTabID(int) const;
 

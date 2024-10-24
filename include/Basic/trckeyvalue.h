@@ -23,13 +23,9 @@ mExpClass(Basic) TrcKeyValue
 {
 public:
 
-    inline		TrcKeyValue( const TrcKey& tk=TrcKey::udf(),
-				     float v=mUdf(float) )
-			    : tk_(tk)
-			    , val_(v)					{}
-    inline		TrcKeyValue( const BinID& bid, float v=mUdf(float) )
-			    : tk_(bid)
-			    , val_(v)					{}
+			TrcKeyValue(const TrcKey& tk=TrcKey::udf(),
+				    float val=mUdf(float));
+			TrcKeyValue(const BinID&,float val=mUdf(float));
 			TrcKeyValue(const BinIDValue&);
 
     // mDeprecated Pos::LineID& lineNr()	{ return tk_.lineNr(); }

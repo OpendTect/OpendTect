@@ -11,9 +11,9 @@ ________________________________________________________________________
 
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "emtracker.h"
 #include "emundo.h"
-#include "emsurfaceauxdata.h"
 #include "horizonadjuster.h"
 #include "mpeengine.h"
 #include "sectionadjuster.h"
@@ -35,7 +35,6 @@ TrackerTask( HorizonTrackerMgr& mgr, const TrcKeyValue& seed,
     : mgr_(mgr)
     , seed_(seed)
     , srcpos_(srcpos)
-    , sectiontracker_(0)
     , seedid_( seedid )
 {
 }
@@ -73,13 +72,13 @@ bool execute() override
 	;
 
     mgr_.freeSectionTracker( sectiontracker_ );
-
-    for ( int idx=0; idx<addedpos.size(); idx++ )
+    RefMan<EM::EMObject> emobject = sectiontracker_->emObject();
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject.ptr())
+    for ( const auto& src : addedpos )
     {
-	const TrcKey src = addedpos[idx];
-	mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
 	if ( hor3d )
 	    hor3d->auxdata.setAuxDataVal( 3, src, (float)mgr_.tasknr_ );
+
 	mgr_.addTask( seed_, src, seedid_ );
     }
 
@@ -87,7 +86,7 @@ bool execute() override
 }
 
     HorizonTrackerMgr&	mgr_;
-    SectionTracker*	sectiontracker_;
+    SectionTracker*	sectiontracker_ = nullptr;
 
     TrcKeyValue		seed_;
     TrcKeyValue		srcpos_;
@@ -99,22 +98,44 @@ bool execute() override
 
 HorizonTrackerMgr::HorizonTrackerMgr( EMTracker& emt )
     : twm_(Threads::WorkManager::twm())
-    , tracker_(emt)
+    , tracker_(&emt)
     , finished(this)
-    , nrdone_(0)
-    , nrtodo_(0)
-    , tasknr_(0)
-    , horizon3dundoinfo_(0)
 {
     queueid_ = twm_.addQueue(
-	Threads::WorkManager::MultiThread, "Horizon Tracker" );
+		    Threads::WorkManager::MultiThread, "Horizon Tracker" );
 }
 
 
 HorizonTrackerMgr::~HorizonTrackerMgr()
 {
     twm_.removeQueue( queueid_, false );
+    if ( flatcubes_ )
+	deepErase( *flatcubes_ );
+
+    delete flatcubes_;
     deepErase( sectiontrackers_ );
+}
+
+
+ConstRefMan<EMTracker> HorizonTrackerMgr::getTracker() const
+{
+    return tracker_.get();
+}
+
+
+RefMan<EMTracker> HorizonTrackerMgr::getTracker()
+{
+    return tracker_.get();
+}
+
+
+void HorizonTrackerMgr::init()
+{
+    if ( flatcubes_ )
+	deepErase( *flatcubes_ );
+
+    delete flatcubes_;
+    flatcubes_ = new ObjectSet<FlatCubeInfo>;
 }
 
 
@@ -129,17 +150,17 @@ void HorizonTrackerMgr::stop()
 
 
 bool HorizonTrackerMgr::hasTasks() const
-{ return nrtodo_ > 0; }
-
-
-void HorizonTrackerMgr::setSeeds( const TypeSet<TrcKey>& seeds )
-{ seeds_ = seeds; }
+{
+    return nrtodo_ > 0;
+}
 
 
 void HorizonTrackerMgr::addTask( const TrcKeyValue& seed,
 				 const TrcKeyValue& source, int seedid )
 {
-    mDynamicCastGet(EM::Horizon*,hor,tracker_.emObject())
+    RefMan<EMTracker> tracker = getTracker();
+    RefMan<EM::EMObject> emobject = tracker ? tracker->emObject() : nullptr;
+    mDynamicCastGet(EM::Horizon*,hor,emobject.ptr())
     if ( !hor || !hor->hasZ(source.tk_) )
 	return;
 
@@ -161,7 +182,9 @@ void HorizonTrackerMgr::taskFinished( CallBacker* )
     nrtodo_--;
     nrdone_++;
 
-    mDynamicCastGet(EM::Horizon3D*,hor3d,tracker_.emObject())
+    RefMan<EMTracker> tracker = getTracker();
+    RefMan<EM::EMObject> emobject = tracker ? tracker->emObject() : nullptr;
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject.ptr())
     if ( nrdone_%500 == 0 || nrtodo_==0 )
     {
 	if ( hor3d )
@@ -170,7 +193,9 @@ void HorizonTrackerMgr::taskFinished( CallBacker* )
 
     if ( nrtodo_ == 0 )
     {
-	if ( hor3d ) hor3d->setBurstAlert( false );
+	if ( hor3d )
+	    hor3d->setBurstAlert( false );
+
 	addUndoEvent();
 	deepErase( sectiontrackers_ );
 	finished.trigger();
@@ -202,17 +227,20 @@ void HorizonTrackerMgr::freeSectionTracker( const SectionTracker* st )
 }
 
 
-void HorizonTrackerMgr::startFromSeeds()
+void HorizonTrackerMgr::startFromSeeds( const TypeSet<TrcKey>& seeds )
 {
-    EM::EMObject* emobj = tracker_.emObject();
-    if ( !emobj ) return;
+    seeds_ = seeds;
+    RefMan<EMTracker> tracker = getTracker();
+    RefMan<EM::EMObject> emobject = tracker ? tracker->emObject() : nullptr;
+    if ( !emobject )
+	return;
 
-    SectionTracker* st = tracker_.getSectionTracker();
+    SectionTracker* st = tracker->getSectionTracker();
     if ( !st || !st->extender() )
 	return;
 
     st->extender()->preallocExtArea();
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject.ptr())
     if ( hor3d )
     {
 	if ( nrdone_==0 )
@@ -230,7 +258,7 @@ void HorizonTrackerMgr::startFromSeeds()
     trackerinuse_.erase();
     for ( int idx=0; idx<twm_.nrThreads(); idx++ )
     {
-	SectionTracker* cst = tracker_.cloneSectionTracker();
+	SectionTracker* cst = tracker->cloneSectionTracker();
 	cst->extender()->setUndo( false );
 	cst->adjuster()->setUndo( false );
 	sectiontrackers_ += cst;
@@ -246,14 +274,76 @@ void HorizonTrackerMgr::startFromSeeds()
 
 void HorizonTrackerMgr::addUndoEvent()
 {
-    if ( horizon3dundoinfo_ )
+    if ( !horizon3dundoinfo_ )
+	return;
+
+    RefMan<EMTracker> tracker = getTracker();
+    RefMan<EM::EMObject> emobject = tracker ? tracker->emObject() : nullptr;
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject.ptr())
+    UndoEvent* undo = new EM::SetAllHor3DPosUndoEvent(
+			    hor3d, horizon3dundoinfo_, horizon3dundoorigin_ );
+    if ( emobject )
+	EM::EMM().undo(emobject->id()).addEvent( undo, "Auto tracking" );
+
+    horizon3dundoinfo_ = nullptr;
+}
+
+
+void HorizonTrackerMgr::updateFlatCubesContainer( const TrcKeyZSampling& cs,
+						  bool addremove )
+{
+    if ( (cs.nrInl() != 1 && cs.nrCrl() !=1) || !flatcubes_ )
+	return;
+
+    ObjectSet<FlatCubeInfo>& flatcubes = *flatcubes_;
+    int idxinquestion = -1;
+    for ( int flatcsidx=0; flatcsidx<flatcubes.size(); flatcsidx++ )
     {
-	EM::EMObject* emobj = tracker_.emObject();
-	mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
-	UndoEvent* undo = new EM::SetAllHor3DPosUndoEvent(
-		hor3d, horizon3dundoinfo_, horizon3dundoorigin_ );
-	EM::EMM().undo(emobj->id()).addEvent( undo, "Auto tracking" );
-	horizon3dundoinfo_ = 0;
+	if ( flatcubes[flatcsidx]->flatcs_.defaultDir() == cs.defaultDir() )
+	{
+	    if ( flatcubes[flatcsidx]->flatcs_.nrInl() == 1 )
+	    {
+		if ( flatcubes[flatcsidx]->flatcs_.hsamp_.start_.inl() ==
+			cs.hsamp_.start_.inl() )
+		{
+		    idxinquestion = flatcsidx;
+		    break;
+		}
+	    }
+	    else if ( flatcubes[flatcsidx]->flatcs_.nrCrl() == 1 )
+	    {
+		if ( flatcubes[flatcsidx]->flatcs_.hsamp_.start_.crl() ==
+		     cs.hsamp_.start_.crl() )
+		{
+		    idxinquestion = flatcsidx;
+		    break;
+		}
+	    }
+	}
+    }
+
+    if ( addremove )
+    {
+	if ( idxinquestion == -1 )
+	{
+	    auto* flatcsinfo = new FlatCubeInfo();
+	    flatcsinfo->flatcs_.include( cs );
+	    flatcubes.add( flatcsinfo );
+	}
+	else
+	{
+	    flatcubes[idxinquestion]->flatcs_.include( cs );
+	    flatcubes[idxinquestion]->nrseeds_++;
+	}
+    }
+    else
+    {
+	if ( idxinquestion == -1 )
+	    return;
+
+	flatcubes[idxinquestion]->nrseeds_--;
+	if ( flatcubes[idxinquestion]->nrseeds_ == 0 )
+	    flatcubes.removeSingle( idxinquestion );
     }
 }
 

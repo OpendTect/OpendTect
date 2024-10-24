@@ -47,6 +47,7 @@ MPEClickCatcher::MPEClickCatcher()
 
 MPEClickCatcher::~MPEClickCatcher()
 {
+    detachAllNotifiers();
     setSceneEventCatcher( nullptr );
     setDisplayTransformation( nullptr );
     setEditor( nullptr );
@@ -56,12 +57,12 @@ MPEClickCatcher::~MPEClickCatcher()
 void MPEClickCatcher::setSceneEventCatcher( visBase::EventCatcher* nev )
 {
     if ( eventcatcher_ )
-	eventcatcher_->eventhappened.remove(mCB(this,MPEClickCatcher,clickCB));
+	mDetachCB( eventcatcher_->eventhappened, MPEClickCatcher::clickCB );
 
     eventcatcher_ = nev;
 
     if ( eventcatcher_ )
-	eventcatcher_->eventhappened.notify(mCB(this,MPEClickCatcher,clickCB));
+	mAttachCB( eventcatcher_->eventhappened, MPEClickCatcher::clickCB );
 }
 
 
@@ -338,8 +339,8 @@ int MPEClickCatcher::handleAttribute( const MultiTextureSurveyObject& survobj,
     if ( attrib < 0 )
 	return -1;
 
-    const DataPackID datapackid = survobj.getDataPackID( attrib );
-    info().setObjDataPackID( datapackid );
+    ConstRefMan<SeisDataPack> seisdp = survobj.getSeisDataPack( attrib );
+    info().setObjData( seisdp.ptr() );
     return attrib;
 }
 
@@ -357,8 +358,8 @@ bool MPEClickCatcher::forceAttribute( const Attrib::SelSpec& as )
 	return false;
 
     info().setObjDataSelSpec( as );
-    const DataPackID datapackid = survobj->getDataPackID( attrib );
-    info().setObjDataPackID( datapackid );
+    ConstRefMan<SeisDataPack> seisdp = survobj->getSeisDataPack( attrib );
+    info().setObjData( seisdp.ptr() );
     return true;
 }
 
@@ -481,25 +482,25 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 
 	const TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
 
-        if ( cs.hsamp_.includes(nodebid) && cs.zsamp_.includes(nodepos.z_,false))
+	if ( cs.hsamp_.includes(nodebid) &&
+	     cs.zsamp_.includes(nodepos.z_,false) )
 	{
 	    info().setLegalClick( legalclick );
 	    info().setObjID( pdd->id() );
 	    info().setObjCS( cs );
 
-	    DataPackID datapackid = DataPack::cNoID();
+	    ConstRefMan<SeisDataPack> seisdp;
 	    int attrib = pdd->nrAttribs();
 	    while ( attrib )
 	    {
 		attrib--;
 		unsigned char transpar = pdd->getAttribTransparency( attrib );
-		datapackid = pdd->getDataPackID( attrib );
-		if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
-		     pdd->isAttribEnabled(attrib) && (transpar<198) )
+		seisdp = pdd->getDisplayedSeisDataPack( attrib );
+		if ( seisdp && pdd->isAttribEnabled(attrib) && transpar<198 )
 		    break;
 	    }
 
-	    info().setObjDataPackID( datapackid );
+	    info().setObjData( seisdp.ptr() );
 	    info().setObjCS( pdd->getDataPackSampling() );
 	    info().setObjDataSelSpec( *pdd->getSelSpec(attrib) );
 	    allowPickBasedReselection();
@@ -511,30 +512,31 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     for ( int idx=0; idx<rtdids.size(); idx++ )
     {
 	visBase::DataObject* dataobj = visBase::DM().getObject( rtdids[idx] );
-	if ( !dataobj ) continue;
+	if ( !dataobj )
+	    continue;
 
 	mCheckRdlDisplay( trackertype_, dataobj, rtd, legalclick );
-	if ( !rtd ) continue;
+	if ( !rtd )
+	    continue;
 
 	info().setLegalClick( legalclick );
 	info().setObjID( rtd->id() );
 
-	DataPackID datapackid = DataPack::cNoID();
+	ConstRefMan<SeisDataPack> seisdp;
 	int attrib = rtd->nrAttribs();
 	while ( attrib )
 	{
 	    attrib--;
 	    unsigned char transpar = rtd->getAttribTransparency( attrib );
-	    datapackid = rtd->getDataPackID( attrib );
-	    if ( (datapackid.isValid() && datapackid!=DataPack::cNoID()) &&
-		 rtd->isAttribEnabled(attrib) && (transpar<198) )
+	    seisdp = rtd->getDisplayedSeisDataPack( attrib );
+	    if ( seisdp && rtd->isAttribEnabled(attrib) && transpar<198 )
 		break;
 	}
 
 	info().setObjCS( rtd->getTrcKeyZSampling(false,attrib) );
 	info().setObjTKPath( rtd->getTrcKeyPath() );
 	info().setObjRandomLineID( rtd->getRandomLineID() );
-	info().setObjDataPackID( datapackid );
+	info().setObjData( seisdp.ptr() );
 	info().setObjDataSelSpec( *rtd->getSelSpec(attrib) );
     }
 }
@@ -662,18 +664,14 @@ const TrcKeyZSampling& MPEClickInfo::getObjCS() const
 { return clickedcs_; }
 
 
-DataPackID MPEClickInfo::getObjDataPackID() const
-{ return datapackid_; }
-
-
-const RegularSeisDataPack* MPEClickInfo::getObjData() const
-{ return attrdata_; }
+ConstRefMan<SeisDataPack> MPEClickInfo::getObjData() const
+{ return attrdata_.get(); }
 
 
 const Attrib::SelSpec* MPEClickInfo::getObjDataSelSpec() const
 {
    if ( attrsel_.id().asInt() == Attrib::SelSpec::cAttribNotSel().asInt() )
-       return 0;
+       return nullptr;
 
    return &attrsel_;
 }
@@ -750,7 +748,7 @@ void MPEClickInfo::setObjID( const VisID& visid )
 { clickedobjid_ = visid; }
 
 
-void MPEClickInfo::setEMObjID( EM::ObjectID emobjid )
+void MPEClickInfo::setEMObjID( const EM::ObjectID& emobjid )
 { clickedemobjid_ = emobjid; }
 
 
@@ -762,19 +760,15 @@ void MPEClickInfo::setObjCS( const TrcKeyZSampling& cs )
 { clickedcs_ = cs; }
 
 
-void MPEClickInfo::setObjDataPackID( DataPackID datapackid )
-{ datapackid_ = datapackid; }
-
-
-void MPEClickInfo::setObjData( const RegularSeisDataPack* ad )
-{ attrdata_ = ad; }
+void MPEClickInfo::setObjData( const SeisDataPack* ad )
+{ attrdata_ = const_cast<SeisDataPack*>( ad ); }
 
 
 void MPEClickInfo::setObjDataSelSpec( const Attrib::SelSpec& as )
 { attrsel_ = as; }
 
 
-void MPEClickInfo::setGeomID( Pos::GeomID geomid )
+void MPEClickInfo::setGeomID( const Pos::GeomID& geomid )
 { geomid_ = geomid; }
 
 

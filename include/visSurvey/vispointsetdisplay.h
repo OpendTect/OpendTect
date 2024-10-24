@@ -44,10 +44,12 @@ public:
     void			update(TaskRunner*);
     Executor*			getUpdater();
     void			updateColors();
-    bool			setDataPack(DataPackID);
-    ConstRefMan<DataPointSet>	getDataPack() const	{ return datapack_; }
-    DataPackMgr::MgrID		getDataPackMgrID() const override
-				{ return DataPackMgr::PointID(); }
+
+    bool			usesDataPacks() const override	{ return true; }
+    bool			setDataPointSet(const DataPointSet&);
+    ConstRefMan<DataPack>	getDataPack(int attrib) const override;
+    ConstRefMan<PointDataPack>	getPointDataPack(int attrib) const override;
+
     void			setDisplayTransformation(
 						const mVisTrans*) override;
     const mVisTrans*		getDisplayTransformation() const override;
@@ -74,6 +76,9 @@ public:
 
 protected:
 				~PointSetDisplay();
+
+    bool			setPointDataPack(int attrib,PointDataPack*,
+						 TaskRunner*) override;
 
     DataPointSetDisplayProp*	dpsdispprop_	= nullptr;
     RefMan<visBase::PointSet>	pointset_;

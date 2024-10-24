@@ -63,7 +63,7 @@ public:
     void			setDataSequence(const ColTab::Sequence&);
     const ColTab::Sequence*	getDataSequence() const;
 
-    void			getAttribPositions(DataPointSet&,
+    bool			getAttribPositions(DataPointSet&,
 					mVisTrans* extratrans,
 					TaskRunner*) const;
     void			setAttribData(const DataPointSet&,

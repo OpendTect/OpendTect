@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "horizonadjuster.h"
 
 #include "attribsel.h"
-#include "emhorizon.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
@@ -24,11 +23,8 @@ namespace MPE
 
 HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor )
     : SectionAdjuster()
-    , attribsel_(0)
     , horizon_(hor)
     , evtracker_(*new EventTracker)
-    , dpm_(DPM(DataPackMgr::SeisID()))
-    , datapackid_(DataPack::cNoID())
 {
     evtracker_.setSimilarityWindow(
 	    Interval<float>(-10*SI().zStep(), 10*SI().zStep() ) );
@@ -47,7 +43,6 @@ HorizonAdjuster::~HorizonAdjuster()
 {
     delete attribsel_;
     delete &evtracker_;
-    dpm_.unRef( datapackid_ );
 }
 
 
@@ -56,15 +51,13 @@ int HorizonAdjuster::getNrAttributes() const
 
 
 const Attrib::SelSpec* HorizonAdjuster::getAttributeSel( int idx ) const
-{ return !idx ? attribsel_ : 0; }
+{ return idx ? nullptr : attribsel_; }
 
 
 void HorizonAdjuster::reset()
 {
-    dpm_.unRef( datapackid_ );
-    datapackid_ = attribsel_ ? engine().getAttribCacheID(*attribsel_)
-			     : DataPack::cNoID();
-    dpm_.ref( datapackid_ );
+    ConstRefMan<SeisDataPack> seisdp = engine().getAttribCacheDP( *attribsel_ );
+    seisdp_ = seisdp.getNonConstPtr();
 }
 
 
@@ -157,7 +150,7 @@ bool HorizonAdjuster::snapToEvent() const
 
 int HorizonAdjuster::nextStep()
 {
-    auto sdp = dpm_.get<SeisDataPack>( datapackid_ );
+    ConstRefMan<SeisDataPack> sdp = seisdp_.get();
     if ( !sdp || sdp->isEmpty() )
 	return ErrorOccurred();
 
@@ -213,11 +206,11 @@ int HorizonAdjuster::nextStep()
 bool HorizonAdjuster::track( const TrcKey& from, const TrcKey& to,
 			     float& targetz ) const
 {
-    auto sdp = dpm_.get<SeisDataPack>( datapackid_ );
+    ConstRefMan<SeisDataPack> sdp = seisdp_.get();
     if ( !sdp || sdp->isEmpty() )
 	return false;
 
-    const Array3D<float>& array = sdp->data( 0 );
+    const Array3D<float>& array = sdp->data();
     if ( !array.getStorage() ) return false;
 
     if ( !horizon_.hasZ(to) )
@@ -345,12 +338,12 @@ void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
     if ( idx )
 	return;
 
-    if ( !attribsel_ ) attribsel_ = new Attrib::SelSpec;
-    *attribsel_ = as;
+    if ( !attribsel_ )
+	attribsel_ = new Attrib::SelSpec;
 
-    dpm_.unRef( datapackid_ );
-    datapackid_ = engine().getAttribCacheID( *attribsel_ );
-    dpm_.ref( datapackid_ );
+    *attribsel_ = as;
+    ConstRefMan<SeisDataPack> seisdp = engine().getAttribCacheDP( *attribsel_ );
+    seisdp_ = seisdp.getNonConstPtr();
 }
 
 

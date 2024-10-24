@@ -9,8 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "uiodvw2dtreeitem.h"
+
 #include "emposid.h"
+#include "uiodvw2dtreeitem.h"
 
 namespace View2D { class Horizon3D; }
 class uiODViewer2D;
@@ -23,15 +24,15 @@ public:
 				~uiODView2DHor3DParentTreeItem();
 
     bool			showSubMenu() override;
-    void			getHor3DVwr2DIDs(EM::ObjectID emid,
-					TypeSet<Vis2DID>&) const;
+    void			getHor3DVwr2DIDs(const EM::ObjectID&,
+						 TypeSet<Vis2DID>&) const;
     void			getLoadedHorizon3Ds(
-					TypeSet<EM::ObjectID>&) const;
-    void			removeHorizon3D(EM::ObjectID emid);
+						 TypeSet<EM::ObjectID>&) const;
+    void			removeHorizon3D(const EM::ObjectID&);
     void			addHorizon3Ds(const TypeSet<EM::ObjectID>&);
-    void			addNewTrackingHorizon3D(EM::ObjectID emid);
+    void			addNewTrackingHorizon3D(const EM::ObjectID&);
 
-protected:
+private:
 
     bool			init() override;
     const char*			iconName() const override;
@@ -39,9 +40,9 @@ protected:
     const char*			parentType() const override
 				{ return typeid(uiODView2DTreeTop).name(); }
     void			getNonLoadedTrackedHor3Ds(
-					TypeSet<EM::ObjectID>&);
+						    TypeSet<EM::ObjectID>&);
 public:
-    void			setupTrackingHorizon3D(EM::ObjectID emid);
+    void			setupTrackingHorizon3D(const EM::ObjectID&);
 };
 
 
@@ -71,18 +72,18 @@ public:
     EM::ObjectID		emObjectID() const	{ return emid_; }
     const View2D::Horizon3D*	vw2DObject() const	{ return horview_; }
 
-protected:
+private:
 
     bool		init() override;
     const char*		parentType() const override
 			{ return typeid(uiODView2DHor3DParentTreeItem).name(); }
     bool		isSelectable() const override		{ return true; }
 
-
     void		updateSelSpec(const Attrib::SelSpec*,bool wva) override;
     void		updateCS(const TrcKeyZSampling&,bool upd) override;
     void		checkCB(CallBacker*);
     void		deSelCB(CallBacker*);
+    void		emobjAbtToDelCB(CallBacker*);
     void		mousePressInVwrCB(CallBacker*);
     void		mouseReleaseInVwrCB(CallBacker*);
     void		displayMiniCtab();
@@ -91,8 +92,6 @@ protected:
     void		propChgCB(CallBacker*);
 
     EM::ObjectID	emid_;
-    View2D::Horizon3D*	horview_;
-    bool		oldactivevolupdated_;
-    bool		trackerefed_;
-    void		emobjAbtToDelCB(CallBacker*);
+    View2D::Horizon3D*	horview_	= nullptr;
+    bool		oldactivevolupdated_	= false;
 };

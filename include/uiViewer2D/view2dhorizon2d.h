@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "view2ddata.h"
-#include "geom2dintersections.h"
 
-#include "emposid.h"
+#include "horizoneditor.h"
+#include "geom2dintersections.h"
+#include "view2ddata.h"
 
 class TrcKeyZSampling;
 class uiFlatViewWin;
@@ -31,7 +31,7 @@ mDefStd(Horizon2D)
 public:
 
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
-    void		setGeomID(Pos::GeomID);
+    void		setGeomID(const Pos::GeomID&);
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,
 					   bool upd=false);
@@ -53,14 +53,14 @@ public:
 
     NotifierAccess*	deSelection() override		{ return &deselected_; }
 
-protected:
+private:
 
     void			triggerDeSel() override;
     void			setEditors() override;
 
     Pos::GeomID			geomid_;
-    const Attrib::SelSpec*	vdselspec_;
-    const Attrib::SelSpec*	wvaselspec_;
+    const Attrib::SelSpec*	vdselspec_	= nullptr;
+    const Attrib::SelSpec*	wvaselspec_	= nullptr;
 
     ObjectSet<MPE::HorizonFlatViewEditor2D>	horeds_;
     Notifier<Horizon2D>			deselected_;

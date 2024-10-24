@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emseedpicker.h"
 #include "emsurface.h"
-#include "emtracker.h"
 #include "emundo.h"
 #include "envvars.h"
 #include "executor.h"
@@ -26,7 +25,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "sectiontracker.h"
-#include "seisdatapack.h"
 #include "seispreload.h"
 #include "survinfo.h"
 
@@ -54,21 +52,13 @@ TrackSettingsValidator::~TrackSettingsValidator()
 // MPE::Engine
 Engine::Engine()
     : activevolumechange(this)
-    , loadEMObject(this)
     , actionCalled(this)
     , actionFinished(this)
-    , trackeraddremove(this)
+    , trackeradded(this)
     , settingsChanged(this)
-    , activegeomid_(Survey::GeometryManager::cUndefGeomID())
-    , state_(Stopped)
-    , dpm_(DPM(DataPackMgr::SeisID()))
 {
-    trackers_.allowNull();
-    trackermgrs_.allowNull();
-    flatcubescontainer_.allowNull();
-
-    init();
-    mAttachCB( IOM().applicationClosing, Engine::applClosingCB );
+    activevolume_.init( false );
+    mAttachCB( IOM().surveyChanged, Engine::surveyChangedCB );
 }
 
 
@@ -76,17 +66,21 @@ Engine::~Engine()
 {
     detachAllNotifiers();
 
-    deepErase( trackermgrs_ );
-    deepUnRef( trackers_ );
-    deepUnRef( editors_ );
     deepErase( attribcachespecs_ );
     deepErase( attribbackupcachespecs_ );
-    deepErase( flatcubescontainer_ );
+    deepErase( trackerpars_ );
+}
 
-    for ( int idx=attribcachedatapackids_.size()-1; idx>=0; idx-- )
-	dpm_.unRef( attribcachedatapackids_[idx] );
-    for ( int idx=attribbkpcachedatapackids_.size()-1; idx>=0; idx-- )
-	dpm_.unRef( attribbkpcachedatapackids_[idx] );
+
+void Engine::cleanup()
+{
+    trackers_.erase();
+    editors_.erase();
+    deepErase( attribcachespecs_ );
+    deepErase( attribbackupcachespecs_ );
+    activevolume_.init( false );
+    deepErase( trackerpars_ );
+    trackermids_.erase();
 }
 
 
@@ -114,6 +108,7 @@ RandomLineID Engine::activeRandomLineID() const
     return rdlid_;
 }
 
+
 void Engine::setActiveRandomLineID( const RandomLineID& rdlid )
 {
     rdlid_ = rdlid;
@@ -121,33 +116,44 @@ void Engine::setActiveRandomLineID( const RandomLineID& rdlid )
 
 
 const TrcKeyZSampling& Engine::activeVolume() const
-{ return activevolume_; }
+{
+    return activevolume_;
+}
 
 
 void Engine::setActiveVolume( const TrcKeyZSampling& nav )
 {
     activevolume_ = nav;
+    activegeomid_ = nav.hsamp_.getGeomID();
     activevolumechange.trigger();
 }
 
 
-void Engine::setActive2DLine( Pos::GeomID geomid )
-{ activegeomid_ = geomid; }
+void Engine::setActive2DLine( const Pos::GeomID& geomid )
+{
+    activegeomid_ = geomid;
+}
+
 
 Pos::GeomID Engine::activeGeomID() const
-{ return activegeomid_; }
+{
+    return activegeomid_;
+}
 
 
 void Engine::updateSeedOnlyPropagation( bool yn )
 {
+    trackers_.cleanupNullPtrs();
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
+	RefMan<EMTracker> tracker = trackers_[idx];
+	if ( !tracker || !tracker->isEnabled() )
 	    continue;
 
 	SectionTracker* sectiontracker =
-		    trackers_[idx]->getSectionTracker( true );
-	sectiontracker->setSeedOnlyPropagation( yn );
+			    trackers_[idx]->getSectionTracker( true );
+	if ( sectiontracker )
+	    sectiontracker->setSeedOnlyPropagation( yn );
     }
 }
 
@@ -197,10 +203,11 @@ bool Engine::startFromEdges( uiString& errmsg )
 
 bool Engine::trackingInProgress() const
 {
-    for ( int idx=0; idx<trackermgrs_.size(); idx++ )
+    trackers_.cleanupNullPtrs();
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	const HorizonTrackerMgr* htm = trackermgrs_[idx];
-	if ( htm && htm->hasTasks() )
+	ConstRefMan<EMTracker> tracker = trackers_[idx];
+	if ( tracker && tracker->trackingInProgress() )
 	    return true;
     }
 
@@ -210,13 +217,12 @@ bool Engine::trackingInProgress() const
 
 void Engine::stopTracking()
 {
-    for ( int idx=0; idx<trackermgrs_.size(); idx++ )
+    trackers_.cleanupNullPtrs();
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	HorizonTrackerMgr* htm = trackermgrs_[idx];
-	if ( !htm )
-	    continue;
-
-	htm->stop();
+	RefMan<EMTracker> tracker = trackers_[idx];
+	if ( tracker )
+	    tracker->stopTracking();
     }
 
     state_ = Stopped;
@@ -225,9 +231,15 @@ void Engine::stopTracking()
 }
 
 
+void Engine::surveyChangedCB( CallBacker* )
+{
+    cleanup();
+}
+
+
 void Engine::trackingFinishedCB( CallBacker* )
 {
-    const EM::EMObject* emobj = getCurrentEMObject();
+    ConstRefMan<EM::EMObject> emobj = getCurrentEMObject();
     if ( !emobj )
 	return;
 
@@ -243,60 +255,52 @@ void Engine::trackingFinishedCB( CallBacker* )
 }
 
 
-EM::EMObject* Engine::getCurrentEMObject() const
+ConstRefMan<EMTracker> Engine::getOneActiveTracker() const
 {
-   if ( !activetracker_ )
+    return oneactivetracker_.get();
+}
+
+
+RefMan<EM::EMObject> Engine::getCurrentEMObject() const
+{
+    ConstRefMan<EMTracker> activetracker = getActiveTracker();
+    if ( !activetracker )
 	return nullptr;
 
-    return EM::EMM().getObject( activetracker_->objectID() );
+    return EM::EMM().getObject( activetracker->objectID() );
 }
 
 
 bool Engine::canUnDo()
 {
-    const EM::EMObject* emobj = getCurrentEMObject();
-    if ( !emobj )
-	return false;
-
-    return EM::EMM().undo(emobj->id()).canUnDo();
+    ConstRefMan<EM::EMObject> emobj = getCurrentEMObject();
+    return emobj ? EM::EMM().undo( emobj->id() ).canUnDo() : false;
 }
 
 
 bool Engine::canReDo()
 {
-    const EM::EMObject* emobj = getCurrentEMObject();
-    if ( !emobj )
-	return false;
-
-    return EM::EMM().undo(emobj->id()).canReDo();
+    ConstRefMan<EM::EMObject> emobj = getCurrentEMObject();
+    return emobj ? EM::EMM().undo( emobj->id() ).canReDo() : false;
 }
 
 
 void Engine::undo( uiString& errmsg )
 {
-   EM::EMObject* emobj = getCurrentEMObject();
+    RefMan<EM::EMObject> emobj = getCurrentEMObject();
     if ( !emobj )
 	return;
 
-    mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
+    mDynamicCastGet( EM::EMUndo*, emundo, &EM::EMM().undo( emobj->id() ) )
     if ( !emundo )
 	return;
 
-    if ( emobj )
-    {
-	emobj->ref();
-	emobj->setBurstAlert( true );
-    }
-
+    emobj->setBurstAlert( true );
     if ( !emundo->unDo(1,true) )
 	errmsg = tr("Could not undo everything.");
 
-    if ( emobj )
-    {
-	emobj->setBurstAlert( false );
-	emobj->unRef();
-    }
-
+    emobj->setBurstAlert( false );
+    emobj = nullptr;
     actionCalled.trigger();
     actionFinished.trigger();
 }
@@ -304,29 +308,20 @@ void Engine::undo( uiString& errmsg )
 
 void Engine::redo( uiString& errmsg )
 {
-    EM::EMObject* emobj = getCurrentEMObject();
+    RefMan<EM::EMObject> emobj = getCurrentEMObject();
     if ( !emobj )
 	return;
 
-    mDynamicCastGet( EM::EMUndo*,emundo,&EM::EMM().undo(emobj->id()) )
-    if( !emundo )
+    mDynamicCastGet( EM::EMUndo*, emundo, &EM::EMM().undo( emobj->id() ) )
+    if ( !emundo )
 	return;
 
-    if ( emobj )
-    {
-	emobj->ref();
-	emobj->setBurstAlert( true );
-    }
-
+    emobj->setBurstAlert( true );
     if ( !emundo->reDo(1,true) )
 	errmsg = tr("Could not redo everything.");
 
-    if ( emobj )
-    {
-	emobj->setBurstAlert( false );
-	emobj->unRef();
-    }
-
+    emobj->setBurstAlert( false );
+    emobj = nullptr;
     actionCalled.trigger();
     actionFinished.trigger();
 }
@@ -334,20 +329,22 @@ void Engine::redo( uiString& errmsg )
 
 void Engine::enableTracking( bool yn )
 {
-    if ( !activetracker_ )
+    RefMan<EMTracker> activetracker = getActiveTracker();
+    if ( !activetracker )
 	return;
 
-    activetracker_->enable( yn );
+    activetracker->enable( yn );
     actionCalled.trigger();
 }
 
 
 bool Engine::prepareForTrackInVolume( uiString& )
 {
-    if ( validator_ && !validator_->checkActiveTracker() )
+    RefMan<EMTracker> activetracker = getActiveTracker();
+    if ( (validator_ && !validator_->checkActiveTracker()) || !activetracker )
 	return false;
 
-    EMSeedPicker* seedpicker = activetracker_->getSeedPicker( true );
+    EMSeedPicker* seedpicker = activetracker->getSeedPicker( true );
     if ( !seedpicker ||
 	 seedpicker->getTrackMode()!=EMSeedPicker::TrackFromSeeds )
 	return false;
@@ -360,71 +357,74 @@ bool Engine::prepareForTrackInVolume( uiString& )
     if ( validator_ && !validator_->checkPreloadedData(key) )
 	return false;
 
-    auto sdp = Seis::PLDM().get<RegularSeisDataPack>( key );
-    setAttribData( as, sdp->id() );
-    setActiveVolume( sdp->sampling() );
+    ConstRefMan<RegularSeisDataPack> seisdp =
+				Seis::PLDM().get<RegularSeisDataPack>( key );
+    if ( !seisdp )
+	return false;
+
+    setAttribData( as, *seisdp.ptr() );
+    setActiveVolume( seisdp->sampling() );
     return true;
 }
 
 
 bool Engine::prepareForRetrack()
 {
-    if ( !activetracker_ || !activetracker_->emObject() )
+    RefMan<EMTracker> activetracker = getActiveTracker();
+    if ( !activetracker )
 	return false;
 
-    EMSeedPicker* seedpicker = activetracker_->getSeedPicker( true );
-    if ( !seedpicker )
+    RefMan<EM::EMObject> emobject = activetracker->emObject();
+    EMSeedPicker* seedpicker = activetracker->getSeedPicker( true );
+    if ( !emobject || !seedpicker )
 	return false;
 
-    EM::EMObject* emobj = activetracker_->emObject();
-    emobj->setBurstAlert( true );
-    emobj->removeAllUnSeedPos();
+    emobject = activetracker->emObject();
+    emobject->setBurstAlert( true );
+    emobject->removeAllUnSeedPos();
 
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
-    if ( hor3d ) hor3d->initAllAuxData();
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject.ptr())
+    if ( hor3d )
+	hor3d->initAllAuxData();
 
     seedpicker->reTrack();
-    emobj->setBurstAlert( false );
+    emobject->setBurstAlert( false );
     return true;
 }
 
 
 bool Engine::trackInVolume()
 {
-    EMTracker* tracker = activetracker_;
-    if ( !tracker || !tracker->isEnabled() )
+    RefMan<EMTracker> activetracker = getActiveTracker();
+    if ( !activetracker || activetracker->is2D() || !activetracker->isEnabled())
 	return false;
 
-    EM::ObjectID oid = tracker->objectID();
-    EM::EMObject* emobj = EM::EMM().getObject( oid );
+    const EM::ObjectID oid = activetracker->objectID();
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( oid );
     if ( !emobj || emobj->isLocked() )
 	return false;
 
-    emobj->geometryElement()->blockCallBacks(true);
-    EMSeedPicker* seedpicker = tracker->getSeedPicker( false );
+    emobj->geometryElement()->blockCallBacks( true );
+    EMSeedPicker* seedpicker = activetracker->getSeedPicker( false );
     if ( !seedpicker )
 	return false;
 
     TypeSet<TrcKey> seeds;
     seedpicker->getSeeds( seeds );
-    const int trackeridx = trackers_.indexOf( tracker );
-    if ( !trackermgrs_.validIdx(trackeridx) )
+    const int trackeridx = trackers_.indexOf( activetracker.ptr() );
+    if ( !trackers_.validIdx(trackeridx) )
 	return false;
 
-    HorizonTrackerMgr* htm = trackermgrs_[trackeridx];
-    if ( !htm )
-    {
-	htm = new HorizonTrackerMgr( *tracker );
-	htm->finished.notify( mCB(this,Engine,trackingFinishedCB) );
-	delete trackermgrs_.replace( trackeridx, htm );
-    }
+    if ( !activetracker->hasTrackingMgr() )
+	activetracker->createMgr();
 
+    mAttachCBIfNotAttached( activetracker->trackingFinished,
+			    Engine::trackingFinishedCB );
     actionCalled.trigger();
 
 //    EM::EMM().undo().removeAllBeforeCurrentEvent();
-    undoeventid_ = EM::EMM().undo(emobj->id()).currentEventID();
-    htm->setSeeds( seeds );
-    htm->startFromSeeds();
+    undoeventid_ = EM::EMM().undo( emobj->id() ).currentEventID();
+    activetracker->startFromSeeds( seeds );
     return true;
 }
 
@@ -438,257 +438,174 @@ bool Engine::trackFromEdges()
 void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 				       TaskRunner* taskr )
 {
+    trackers_.cleanupNullPtrs();
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
+	RefMan<EMTracker> tracker = trackers_[idx];
+	if ( !tracker || !tracker->isEnabled() )
 	    continue;
 
-	EM::ObjectID oid = trackers_[idx]->objectID();
+	const EM::ObjectID oid = tracker->objectID();
 	EM::EMM().removeSelected( oid, selector, taskr );
 
-	EM::EMObject* emobj = EM::EMM().getObject( oid );
-	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )
-	{
+	RefMan<EM::EMObject> emobj = EM::EMM().getObject( oid );
+	if ( emobj && !emobj->getRemovedPolySelectedPosBox().isEmpty() )
 	    emobj->emptyRemovedPolySelectedPosBox();
-	}
     }
 }
 
 
-void Engine::getAvailableTrackerTypes( BufferStringSet& res ) const
+bool Engine::hasTracker() const
 {
-    res = TrackerFactory().getNames();
+    trackers_.cleanupNullPtrs();
+    return trackers_.size() > 0;
 }
 
 
-static void showRefCountInfo( EMTracker* tracker )
+bool Engine::hasTracker( const EM::ObjectID& emid ) const
 {
-    mDefineStaticLocalObject(bool,yn,= GetEnvVarYN("OD_DEBUG_TRACKERS"));
-    if ( yn )
-    {
-	EM::EMObject* emobj = tracker ? tracker->emObject() : 0;
-	BufferString msg = emobj ? emobj->name() : "<unknown>";
-	msg.add( " - refcount=" ).add( tracker ? tracker->nrRefs() : -1 );
-	DBG::message( msg );
-    }
+    ConstRefMan<EMTracker> tracker = getTrackerByID( emid );
+    return tracker;
 }
 
 
-int Engine::addTracker( EM::EMObject* emobj )
+bool Engine::isActiveTracker( const EM::ObjectID& emid ) const
 {
-    if ( !emobj )
-	mRetErr( "No valid object", -1 );
-
-    const int idx = getTrackerByObject( emobj->id() );
-
-    if ( idx != -1 )
-    {
-	trackers_[idx]->ref();
-	showRefCountInfo( trackers_[idx] );
-	activetracker_ = trackers_[idx];
-	return idx;
-    }
-
-    EMTracker* tracker = TrackerFactory().create( emobj->getTypeStr(), emobj );
-    if ( !tracker )
-	mRetErr( "Cannot find this trackertype", -1 );
-
-    tracker->ref();
-    showRefCountInfo( tracker );
-    activetracker_ = tracker;
-    trackers_ += tracker;
-    trackermgrs_ += nullptr;
-    auto* flatcubes = new ObjectSet<FlatCubeInfo>;
-    flatcubescontainer_ += flatcubes;
-    trackeraddremove.trigger();
-
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
-    if ( hor3d )
-    {
-	hor3d->initTrackingArrays();
-	hor3d->initTrackingAuxData();
-    }
-
-    return trackers_.size()-1;
-}
-
-
-void Engine::removeTracker( int idx )
-{
-    if ( trackingInProgress() )
-	return;
-
-    if ( !trackers_.validIdx(idx) )
-	return;
-
-    EMTracker* tracker = trackers_[idx];
-    if ( !tracker )
-	return;
-
-    const int noofref = tracker->nrRefs();
-    tracker->unRef();
-    showRefCountInfo( noofref>1 ? tracker : 0 );
-    if ( noofref != 1 )
-	return;
-
-    if ( activetracker_ == tracker )
-	activetracker_ = nullptr;
-
-    trackers_.replace( idx, nullptr );
-    delete trackermgrs_.replace( idx, nullptr );
-
-    deepErase( *flatcubescontainer_[idx] );
-    flatcubescontainer_.replace( idx, nullptr );
-
-    if ( nrTrackersAlive()==0 )
-	activevolume_.setEmpty();
-
-    trackeraddremove.trigger();
-}
-
-
-void Engine::refTracker( EM::ObjectID emid )
-{
-    const int idx = getTrackerByObject( emid );
-    if ( trackers_.validIdx(idx) && trackers_[idx] )
-    {
-	trackers_[idx]->ref();
-	showRefCountInfo( trackers_[idx] );
-    }
-}
-
-
-void Engine::unRefTracker( EM::ObjectID emid, bool nodelete )
-{
-    const int idx = getTrackerByObject( emid );
-    if ( !trackers_.validIdx(idx) || !trackers_[idx] )
-	return;
-
-    if ( nodelete )
-    {
-	trackers_[idx]->unRefNoDelete();
-	showRefCountInfo( trackers_[idx] );
-	return;
-    }
-
-    removeTracker( idx );
-}
-
-
-bool Engine::hasTracker( EM::ObjectID emid ) const
-{
-    const int idx = getTrackerByObject( emid );
-    return trackers_.validIdx(idx) && trackers_[idx];
-}
-
-
-int Engine::nrTrackersAlive() const
-{
-    int nrtrackers = 0;
-    for ( int idx=0; idx<trackers_.size(); idx++ )
-    {
-	if ( trackers_[idx] )
-	    nrtrackers++;
-    }
-    return nrtrackers;
-}
-
-
-int Engine::highestTrackerID() const
-{
-    return trackers_.size()-1;
-}
-
-
-const EMTracker* Engine::getTracker( int idx ) const
-{
-    return const_cast<Engine*>(this)->getTracker(idx);
-}
-
-
-EMTracker* Engine::getTracker( int idx )
-{
-    return idx>=0 && idx<trackers_.size() ? trackers_[idx] : nullptr;
-}
-
-
-int Engine::getTrackerByObject( const EM::ObjectID& oid ) const
-{
-    if ( !oid.isValid() )
-	return -1;
-
-    for ( int idx=0; idx<trackers_.size(); idx++ )
-    {
-	if ( !trackers_[idx] )
-	    continue;
-
-	if ( oid==trackers_[idx]->objectID() )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
-int Engine::getTrackerByObject( const char* objname ) const
-{
-    if ( !objname || !objname[0] )
-	return -1;
-
-    for ( int idx=0; idx<trackers_.size(); idx++ )
-    {
-	if ( !trackers_[idx] )
-	    continue;
-
-	if ( trackers_[idx]->objectName() == objname )
-	    return idx;
-    }
-
-    return -1;
+    ConstRefMan<EMTracker> activetracker = getActiveTracker();
+    return activetracker && activetracker->objectID() == emid;
 }
 
 
 void Engine::setActiveTracker( EMTracker* tracker )
-{ activetracker_ = tracker; }
-
-
-void Engine::setActiveTracker( const EM::ObjectID& objid )
 {
-    const int tridx = getTrackerByObject( objid );
-    activetracker_ = trackers_.validIdx(tridx) ? trackers_[tridx] : nullptr;
+    if ( !tracker )
+    {
+	activetracker_ = nullptr;
+	return;
+    }
+    else if ( hasTracker(tracker->objectID()) )
+    {
+	activetracker_ = tracker;
+	return;
+    }
+
+    activetracker_ = tracker;
+    trackers_ += tracker;
+    tracker->initTrackingMgr();
+    trackeradded.trigger( tracker->objectID() );
 }
 
 
-EMTracker* Engine::getActiveTracker()
-{ return activetracker_; }
+ConstRefMan<EMTracker> Engine::getActiveTracker() const
+{
+    return activetracker_.get();
+}
+
+
+RefMan<EMTracker> Engine::getActiveTracker()
+{
+    return activetracker_.get();
+}
+
+
+ConstRefMan<EMTracker> Engine::getTrackerByID( const EM::ObjectID& emid ) const
+{
+    return mSelf().getTrackerByID( emid );
+}
+
+
+RefMan<EMTracker> Engine::getTrackerByID( const EM::ObjectID& emid )
+{
+    if ( !emid.isValid() )
+	return nullptr;
+
+    trackers_.cleanupNullPtrs();
+    for ( int idx=0; idx<trackers_.size(); idx++ )
+    {
+	RefMan<EMTracker> tracker = trackers_[idx];
+	if ( tracker && tracker->objectID() == emid )
+	    return tracker;
+    }
+
+    return nullptr;
+}
+
+
+void Engine::getTrackerIDsByType( const char* typestr,
+				  TypeSet<EM::ObjectID>& emids ) const
+{
+    trackers_.cleanupNullPtrs();
+    const StringView reqtype( typestr );
+    for ( int idx=0; idx<trackers_.size(); idx++ )
+    {
+	ConstRefMan<EMTracker> tracker = trackers_[idx];
+	ConstRefMan<EM::EMObject> emobject = tracker ? tracker->emObject()
+						     : nullptr;
+	if ( emobject && reqtype == emobject->getTypeStr() )
+	    emids += emobject->id();
+    }
+}
 
 
 void Engine::setOneActiveTracker( const EMTracker* tracker )
-{ oneactivetracker_ = tracker; }
+{
+    oneactivetracker_ = const_cast<EMTracker*>( tracker );
+}
 
 
 void Engine::unsetOneActiveTracker()
-{ oneactivetracker_ = nullptr; }
+{
+    oneactivetracker_ = nullptr;
+}
+
+
+bool Engine::hasEditor( const EM::ObjectID& emid ) const
+{
+    ConstRefMan<ObjectEditor> editor = getEditorByID( emid );
+    return editor;
+}
+
+
+ConstRefMan<ObjectEditor> Engine::getEditorByID( const EM::ObjectID& id ) const
+{
+    return mSelf().getEditorByID( id );
+}
+
+
+RefMan<ObjectEditor> Engine::getEditorByID( const EM::ObjectID& emid )
+{
+    if ( !emid.isValid() )
+	return nullptr;
+
+    editors_.cleanupNullPtrs();
+    for ( int idx=0; idx<editors_.size(); idx++ )
+    {
+	RefMan<ObjectEditor> editor = editors_[idx];
+	if ( editor && editor->objectID() == emid )
+	    return editor;
+    }
+
+    return nullptr;
+}
 
 
 void Engine::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 {
-    for ( int trackeridx=0; trackeridx<trackers_.size(); trackeridx++ )
+    trackers_.cleanupNullPtrs();
+    ConstRefMan<EMTracker> oneactivetracker = getOneActiveTracker();
+    for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	const EMTracker* tracker = trackers_[trackeridx];
+	ConstRefMan<EMTracker> tracker = trackers_[idx];
 	if ( !tracker )
 	    continue;
 
-	if ( oneactivetracker_ && oneactivetracker_!=tracker )
+	if ( oneactivetracker && tracker.ptr() != oneactivetracker.ptr() )
 	    continue;
 
 	TypeSet<Attrib::SelSpec> specs;
 	tracker->getNeededAttribs( specs );
-	for ( int idx=0; idx<specs.size(); idx++ )
-	{
-	    const Attrib::SelSpec& as = specs[idx];
+	for ( const auto& as : specs )
 	    res.addIfNew( as );
-	}
     }
 }
 
@@ -696,13 +613,15 @@ void Engine::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 TrcKeyZSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 {
     TrcKeyZSampling res( engine().activeVolume() );
+    trackers_.cleanupNullPtrs();
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	if ( !trackers_[idx] )
+	ConstRefMan<EMTracker> tracker = trackers_[idx];
+	if ( !tracker )
 	    continue;
 
-	const TrcKeyZSampling cs = trackers_[idx]->getAttribCube( as );
-	res.include(cs);
+	const TrcKeyZSampling cs = tracker->getAttribCube( as );
+	res.include( cs );
     }
 
     return res;
@@ -743,58 +662,57 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 {
     for ( int idx=0; idx<attribcachespecs_.size(); idx++ )
     {
-	if ( attribcachespecs_[idx]->attrsel_.is2D()	   != as.is2D()  ||
-	     attribcachespecs_[idx]->attrsel_.isNLA()	   != as.isNLA() ||
-	     attribcachespecs_[idx]->attrsel_.id().asInt() != as.id().asInt() ||
-	     attribcachespecs_[idx]->attrsel_.id().isStored() != as.isStored() )
+	const CacheSpecs& cachespecs = *attribcachespecs_[idx];
+	if ( cachespecs.attrsel_.is2D()		!= as.is2D()  ||
+	     cachespecs.attrsel_.isNLA()	!= as.isNLA() ||
+	     cachespecs.attrsel_.id().asInt()	!= as.id().asInt() ||
+	     cachespecs.attrsel_.id().isStored() != as.isStored() )
 	    continue;
 
-	if ( !as.is2D() )
+	if ( cachespecs.geomid_ != activeGeomID() )
+	    continue;
+
+	if ( as.is2D() )
+	    return idx;
+
+	ConstRefMan<SeisDataPack> seisdp = cachespecs.seisdp_.get();
+	if ( !seisdp )
+	    continue;
+
+	mDynamicCastGet(const RegularSeisDataPack*,regseisdp,seisdp.ptr())
+	if ( regseisdp )
 	{
-	    if ( !attribcachedatapackids_.validIdx(idx) )
-		continue;
-
-	    auto sdp = dpm_.get<RegularSeisDataPack>(
-						attribcachedatapackids_[idx] );
-	    if ( sdp )
-	    {
-		TrcKeySampling cachedcs = sdp->sampling().hsamp_;
-		if ( cachedcs.includes(activevolume_.hsamp_) )
-		    return idx;
-		else
-		    continue;
-	    }
-
-	    auto rsdp = dpm_.get<RandomSeisDataPack>(
-						attribcachedatapackids_[idx] );
-	    if ( rsdp )
+	    const TrcKeySampling cachedtkzs = regseisdp->sampling().hsamp_;
+	    if ( cachedtkzs.includes(activevolume_.hsamp_) )
 		return idx;
-
-	    continue;
+	    else
+		continue;
 	}
 
-	if ( attribcachespecs_[idx]->geomid_ != activeGeomID() )
-	    continue;
-
-	return idx;
+	mDynamicCastGet(const RandomSeisDataPack*,randomdp,seisdp.ptr())
+	if ( randomdp )
+	    return idx;
     }
 
     return -1;
 }
 
 
-DataPackID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
+ConstRefMan<SeisDataPack> Engine::getAttribCacheDP(
+					const Attrib::SelSpec& as ) const
 {
     const int idx = getCacheIndexOf(as);
-    return attribcachedatapackids_.validIdx(idx)
-	? attribcachedatapackids_[idx] : DataPack::cNoID();
+    if ( !attribcachespecs_.validIdx(idx) )
+	return nullptr;
+
+    return attribcachespecs_.get( idx )->seisdp_.get();
 }
 
 
 bool Engine::hasAttribCache( const Attrib::SelSpec& as ) const
 {
-    const DataPackID dpid = getAttribCacheID( as );
-    return dpm_.isPresent( dpid );
+    ConstRefMan<SeisDataPack> seisdp = getAttribCacheDP( as );
+    return seisdp.ptr();
 }
 
 
@@ -802,58 +720,37 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 			    const FlatDataPack& cachedp )
 {
     mDynamicCastGet(const SeisFlatDataPack*,seisfdp,&cachedp);
-    DataPackID cacheid = cachedp.id();
-    if ( seisfdp )
-    {
-	dpm_.add<SeisDataPack>( seisfdp->getSource().ptr() );
-	cacheid = seisfdp->getSourceID();
-    }
+    if ( !seisfdp )
+	return false;
 
-    return setAttribData( as, cacheid );
+    ConstRefMan<SeisDataPack> sourcedp = seisfdp->getSource();
+    return sourcedp ? setAttribData_( as, *sourcedp.ptr() ) : false;
 }
 
+
 bool Engine::setAttribData( const Attrib::SelSpec& as,
-			    DataPackID cacheid )
+			    const RegularSeisDataPack& cachedp )
 {
-    auto regfdp = DPM(DataPackMgr::FlatID()).get<SeisFlatDataPack>( cacheid );
-    if ( regfdp )
-    {
-	dpm_.add<SeisDataPack>( regfdp->getSource().ptr() );
-	cacheid = regfdp->getSourceID();
-    }
+    return setAttribData_( as, cachedp );
+}
 
-    const int idx = getCacheIndexOf(as);
-    if ( attribcachedatapackids_.validIdx(idx) )
-    {
-	if ( cacheid == DataPack::cNoID() )
-	{
-	    dpm_.unRef( attribcachedatapackids_[idx] );
-	    attribcachedatapackids_.removeSingle( idx );
-	    delete attribcachespecs_.removeSingle( idx );
-	}
-	else
-	{
-	    auto newdata= dpm_.get<SeisDataPack>(cacheid);
-	    if ( newdata )
-	    {
-		dpm_.unRef( attribcachedatapackids_[idx] );
-		attribcachedatapackids_[idx] = cacheid;
-		dpm_.ref( cacheid );
-	    }
-	}
-    }
-    else if ( cacheid != DataPack::cNoID() )
-    {
-	auto newdata = dpm_.get<SeisDataPack>( cacheid );
-	if ( newdata )
-	{
-	    attribcachespecs_ += as.is2D() ?
-		new CacheSpecs( as, activeGeomID() ) :
-		new CacheSpecs( as ) ;
 
-	    attribcachedatapackids_ += cacheid;
-	    dpm_.ref( cacheid );
-	}
+bool Engine::setAttribData_( const Attrib::SelSpec& as,
+			     const SeisDataPack& cacheidin )
+{
+    ConstRefMan<SeisDataPack> seisdp = &cacheidin;
+    const int idx = getCacheIndexOf( as );
+    if ( attribcachespecs_.validIdx(idx) )
+    {
+	attribcachespecs_.get( idx )->seisdp_ = seisdp.getNonConstPtr();
+    }
+    else if ( seisdp )
+    {
+	auto* attribcachespec = as.is2D()
+			      ? new CacheSpecs( as, activeGeomID() )
+			      : new CacheSpecs( as, Survey::default3DGeomID() );
+	attribcachespec->seisdp_ = seisdp.getNonConstPtr();
+	attribcachespecs_.add( attribcachespec );
     }
 
     return true;
@@ -863,126 +760,46 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 			    const TrcKeyZSampling& cs )
 {
-    auto sdp = dpm_.get<RegularSeisDataPack>( getAttribCacheID(as) );
-    if ( !sdp )
+    ConstRefMan<SeisDataPack> seisdp = getAttribCacheDP( as );
+    if ( !seisdp )
 	return false;
 
-    TrcKeyZSampling cachedcs = sdp->sampling();
+    mDynamicCastGet(const RegularSeisDataPack*,regseisdp,seisdp.ptr());
+    if ( !regseisdp )
+	return false;
+
+    TrcKeyZSampling cachedtkzs = regseisdp->sampling();
     const float zrgeps = 0.01f * SI().zStep();
-    cachedcs.zsamp_.widen( zrgeps );
-    return cachedcs.includes( cs );
+    cachedtkzs.zsamp_.widen( zrgeps );
+    return cachedtkzs.includes( cs );
 }
 
 
 void Engine::swapCacheAndItsBackup()
 {
-    const TypeSet<DataPackID> tempcachedatapackids = attribcachedatapackids_;
     const ObjectSet<CacheSpecs> tempcachespecs = attribcachespecs_;
-    attribcachedatapackids_ = attribbkpcachedatapackids_;
     attribcachespecs_ = attribbackupcachespecs_;
-    attribbkpcachedatapackids_ = tempcachedatapackids;
     attribbackupcachespecs_ = tempcachespecs;
 }
 
 
-void Engine::updateFlatCubesContainer( const TrcKeyZSampling& cs, int idx,
-					bool addremove )
+RefMan<FlatDataPack> Engine::getSeedPosDataPack( const TrcKey& tk, float z,
+				    int nrtrcs, const ZSampling& zintv ) const
 {
-    if ( !(cs.nrInl()==1) && !(cs.nrCrl()==1) )
-	return;
-
-    ObjectSet<FlatCubeInfo>& flatcubes = *flatcubescontainer_[idx];
-
-    int idxinquestion = -1;
-    for ( int flatcsidx=0; flatcsidx<flatcubes.size(); flatcsidx++ )
-	if ( flatcubes[flatcsidx]->flatcs_.defaultDir() == cs.defaultDir() )
-	{
-	    if ( flatcubes[flatcsidx]->flatcs_.nrInl() == 1 )
-	    {
-		if ( flatcubes[flatcsidx]->flatcs_.hsamp_.start_.inl() ==
-			cs.hsamp_.start_.inl() )
-		{
-		    idxinquestion = flatcsidx;
-		    break;
-		}
-	    }
-	    else if ( flatcubes[flatcsidx]->flatcs_.nrCrl() == 1 )
-	    {
-		if ( flatcubes[flatcsidx]->flatcs_.hsamp_.start_.crl() ==
-		     cs.hsamp_.start_.crl() )
-		{
-		    idxinquestion = flatcsidx;
-		    break;
-		}
-	    }
-	}
-
-    if ( addremove )
-    {
-	if ( idxinquestion == -1 )
-	{
-	    auto* flatcsinfo = new FlatCubeInfo();
-	    flatcsinfo->flatcs_.include( cs );
-	    flatcubes += flatcsinfo;
-	}
-	else
-	{
-	    flatcubes[idxinquestion]->flatcs_.include( cs );
-	    flatcubes[idxinquestion]->nrseeds_++;
-	}
-    }
-    else
-    {
-	if ( idxinquestion == -1 )
-	    return;
-
-	flatcubes[idxinquestion]->nrseeds_--;
-	if ( flatcubes[idxinquestion]->nrseeds_ == 0 )
-	    flatcubes.removeSingle( idxinquestion );
-    }
-}
-
-
-ObjectSet<TrcKeyZSampling>* Engine::getTrackedFlatCubes( const int idx ) const
-{
-    if ( (flatcubescontainer_.size()==0) || !flatcubescontainer_[idx] )
-	return nullptr;
-
-    const ObjectSet<FlatCubeInfo>& flatcubes = *flatcubescontainer_[idx];
-    if ( flatcubes.isEmpty() )
-	return nullptr;
-
-    auto* flatcbs = new ObjectSet<TrcKeyZSampling>;
-    for ( int flatcsidx=0; flatcsidx<flatcubes.size(); flatcsidx++ )
-    {
-	auto* cs = new TrcKeyZSampling();
-	cs->setEmpty();
-	cs->include( flatcubes[flatcsidx]->flatcs_ );
-	flatcbs->push( cs );
-    }
-    return flatcbs;
-}
-
-
-RefMan<FlatDataPack> Engine::getSeedPosDataPackRM( const TrcKey& tk, float z,
-						   int nrtrcs,
-					const StepInterval<float>& zintv ) const
-{
-    TypeSet<Attrib::SelSpec> specs; getNeededAttribs( specs );
+    TypeSet<Attrib::SelSpec> specs;
+    getNeededAttribs( specs );
     if ( specs.isEmpty() )
 	return nullptr;
 
-    DataPackMgr& dpm = DPM( DataPackMgr::SeisID() );
-    const DataPackID pldpid = getAttribCacheID( specs[0] );
-    auto sdp = dpm.get<SeisDataPack>( pldpid );
-    if ( !sdp )
+    ConstRefMan<SeisDataPack> seisdp = getAttribCacheDP( specs.first() );
+    if ( !seisdp )
 	return nullptr;
 
-    const int globidx = sdp->getNearestGlobalIdx( tk );
+    const int globidx = seisdp->getNearestGlobalIdx( tk );
     if ( globidx < 0 )
 	return nullptr;
 
-    StepInterval<float> zintv2 = zintv; zintv2.step_ = sdp->zRange().step_;
+    ZSampling zintv2 = zintv; zintv2.step_ = seisdp->zRange().step_;
     const int nrz = zintv2.nrSteps() + 1;
     auto* seeddata = new Array2DImpl<float>( nrtrcs, nrz );
     if ( !seeddata->isOK() )
@@ -994,16 +811,16 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPackRM( const TrcKey& tk, float z,
     seeddata->setAll( mUdf(float) );
 
     const int trcidx0 = globidx - (int)(nrtrcs/2);
-    const StepInterval<float> zsamp = sdp->zRange();
+    const ZSampling zsamp = seisdp->zRange();
     const int zidx0 = zsamp.getIndex( z + zintv.start_ );
     for ( int tidx=0; tidx<nrtrcs; tidx++ )
     {
 	const int curtrcidx = trcidx0+tidx;
-	if ( curtrcidx<0 || curtrcidx >= sdp->nrTrcs() )
+	if ( curtrcidx<0 || curtrcidx >= seisdp->nrTrcs() )
 	    continue;
 
 	const OffsetValueSeries<float> ovs =
-			    sdp->getTrcStorage( 0, trcidx0+tidx );
+			    seisdp->getTrcStorage( 0, trcidx0+tidx );
 	for ( int zidx=0; zidx<nrz; zidx++ )
 	{
 	    const float val = ovs[zidx0+zidx];
@@ -1026,59 +843,6 @@ RefMan<FlatDataPack> Engine::getSeedPosDataPackRM( const TrcKey& tk, float z,
 }
 
 
-DataPackID Engine::getSeedPosDataPack( const TrcKey& tk, float z, int nrtrcs,
-					const StepInterval<float>& zintv ) const
-{
-    auto dp = getSeedPosDataPackRM( tk, z, nrtrcs,zintv );
-    DPM(DataPackMgr::FlatID()).add( dp );
-    return dp->id();
-}
-
-
-ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
-{
-    for ( int idx=0; idx<editors_.size(); idx++ )
-    {
-	if ( editors_[idx]->emObject().id()==id )
-	{
-	    if ( create ) editors_[idx]->addUser();
-	    return editors_[idx];
-	}
-    }
-
-    if ( !create )
-	return nullptr;
-
-    EM::EMObject* emobj = EM::EMM().getObject(id);
-    if ( !emobj )
-	return nullptr;
-
-    ObjectEditor* editor = EditorFactory().create( emobj->getTypeStr(), *emobj);
-    if ( !editor )
-	return nullptr;
-
-    editors_ += editor;
-    editor->ref();
-    editor->addUser();
-    return editor;
-}
-
-
-void Engine::removeEditor( const EM::ObjectID& objid )
-{
-    ObjectEditor* editor = getEditor( objid, false );
-    if ( editor )
-    {
-	editor->removeUser();
-	if ( editor->nrUsers() == 0 )
-	{
-	    editors_ -= editor;
-	    editor->unRef();
-	}
-    }
-}
-
-
 const char* Engine::errMsg() const
 {
     return errmsg_.str();
@@ -1097,7 +861,7 @@ void Engine::fillPar( IOPar& iopar ) const
     int trackeridx = 0;
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
-	const EMTracker* tracker = trackers_[idx];
+	ConstRefMan<EMTracker> tracker = trackers_[idx];
 	if ( !tracker )
 	    continue;
 
@@ -1106,7 +870,7 @@ void Engine::fillPar( IOPar& iopar ) const
 	localpar.setYN( sKeyEnabled(), tracker->isEnabled() );
 
 	EMSeedPicker* seedpicker =
-			const_cast<EMTracker*>(tracker)->getSeedPicker(false);
+			    tracker.getNonConstPtr()->getSeedPicker(false);
 	if ( seedpicker )
 	    localpar.set( sKeySeedConMode(), seedpicker->getTrackMode() );
 
@@ -1121,102 +885,96 @@ void Engine::fillPar( IOPar& iopar ) const
 }
 
 
-bool Engine::usePar( const IOPar& iopar )
+bool Engine::usePar( const IOPar& par )
 {
-    init();
+    cleanup();
 
     TrcKeyZSampling newvolume;
-    if ( newvolume.usePar(iopar) )
+    if ( newvolume.usePar(par) )
 	setActiveVolume( newvolume );
 
     /* The setting of the active volume must be above the initiation of the
        trackers to avoid a trigger of dataloading. */
 
     int nrtrackers = 0;
-    iopar.get( sKeyNrTrackers(), nrtrackers );
+    par.get( sKeyNrTrackers(), nrtrackers );
 
+    bool haserrors = false;
     for ( int idx=0; idx<nrtrackers; idx++ )
     {
-	PtrMan<IOPar> localpar = iopar.subselect( toString(idx) );
-	if ( !localpar )
-	    continue;
-
-	if ( !localpar->get(sKeyObjectID(),midtoload) )
-	    continue;
-
-	EM::ObjectID oid = EM::EMM().getObjectID( midtoload );
-	EM::EMObject* emobj = EM::EMM().getObject( oid );
-	if ( !emobj )
+	PtrMan<IOPar> localpar = par.subselect( idx );
+	MultiID midtoload;
+	if ( !localpar || !localpar->get(sKeyObjectID(),midtoload) ||
+	     midtoload.isUdf() )
 	{
-	    loadEMObject.trigger();
-	    oid = EM::EMM().getObjectID( midtoload );
-	    emobj = EM::EMM().getObject( oid );
-	    if ( emobj ) emobj->ref();
+	    haserrors = true;
+	    continue;
 	}
 
-	if ( !emobj )
-	{
-	    PtrMan<Executor> exec =
-		EM::EMM().objectLoader( MPE::engine().midtoload );
-	    if ( exec ) exec->execute();
+	trackerpars_.add( localpar.release() );
+	trackermids_ += midtoload;
+    }
 
-	    oid = EM::EMM().getObjectID( midtoload );
-	    emobj = EM::EMM().getObject( oid );
-	    if ( emobj ) emobj->ref();
-	}
+    return !haserrors;
+}
 
-	if ( !emobj )
+
+bool Engine::needRestoredTracker( const MultiID& mid ) const
+{
+    for ( const auto& storedid : trackermids_ )
+	if ( storedid == mid )
+	    return true;
+
+    return false;
+}
+
+
+bool Engine::restoreTracker( const EM::ObjectID& emid )
+{
+    RefMan<EMTracker> tracker = getTrackerByID( emid );
+    if ( !tracker )
+	return false;
+
+    ConstRefMan<EM::EMObject> emobj = tracker->emObject();
+    if ( !emobj )
+	return false;
+
+    const MultiID& trackerobjmid = emobj->multiID();
+    for ( int idx=0; idx<trackermids_.size(); idx++ )
+    {
+	if ( trackermids_[idx] != trackerobjmid || !trackerpars_.validIdx(idx) )
 	    continue;
 
-	const int trackeridx = addTracker( emobj );
-	emobj->unRefNoDelete();
-	if ( trackeridx < 0 )
-	    continue;
-
-	EMTracker* tracker = trackers_[trackeridx];
-
+	const IOPar& par = *trackerpars_.get( idx );
 	bool doenable = true;
-	localpar->getYN( sKeyEnabled(), doenable );
+	par.getYN( sKeyEnabled(), doenable );
 	tracker->enable( doenable );
 
 	int seedconmode = -1;
-	localpar->get( sKeySeedConMode(), seedconmode );
+	par.get( sKeySeedConMode(), seedconmode );
 	EMSeedPicker* seedpicker = tracker->getSeedPicker(true);
 	if ( seedpicker && seedconmode!=-1 )
 	    seedpicker->setTrackMode( (EMSeedPicker::TrackMode)seedconmode );
 
 	// old restore session policy without separate tracking setup file
-	tracker->usePar( *localpar );
+	tracker->usePar( par );
+	return true;
     }
 
-    return true;
+    return false;
 }
 
 
-void Engine::init()
-{
-    deepUnRef( trackers_ );
-    deepUnRef( editors_ );
-    deepErase( attribcachespecs_ );
-    deepErase( attribbackupcachespecs_ );
-    deepErase( flatcubescontainer_ );
-    deepErase( trackermgrs_ );
+// Engine::CacheSpecs
 
-    for ( int idx=0; idx<attribcachedatapackids_.size(); idx++ )
-	dpm_.unRef( attribcachedatapackids_[idx] );
-    for ( int idx=0; idx<attribbkpcachedatapackids_.size(); idx++ )
-	dpm_.unRef( attribbkpcachedatapackids_[idx] );
-
-    attribcachedatapackids_.erase();
-    attribbkpcachedatapackids_.erase();
-    activevolume_.init( false );
-}
+Engine::CacheSpecs::CacheSpecs( const Attrib::SelSpec& as,
+				const Pos::GeomID& geomid )
+    : attrsel_(as)
+    , geomid_(geomid)
+{}
 
 
-void Engine::applClosingCB( CallBacker* )
-{
-    for ( int idx=trackers_.size()-1; idx>=0; idx-- )
-	removeTracker( idx );
-}
+Engine::CacheSpecs::~CacheSpecs()
+{}
 
 } // namespace MPE

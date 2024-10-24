@@ -55,11 +55,11 @@ public:
     StepInterval<int>		getTraceRange(const BinID&,
 					      bool oncurrentline=true) const;
 
-				//for 3D only at present
-    DataPackID			preProcess();
-
     bool			is3DSeis() const;
-    DataPackID			getDataPackID(int i=0) const override;
+    bool			usesDataPacks() const override	{ return true; }
+    ConstRefMan<DataPack>	getDataPack(int attrib=0) const override;
+    ConstRefMan<FlatDataPack>	getFlatDataPack(int attrib=0) const override;
+    ConstRefMan<PreStack::Gather> getGather() const;
 
     visBase::FlatViewer*	flatViewer()	{ return flatviewer_.ptr(); }
     const visBase::FlatViewer*	flatViewer() const { return flatviewer_.ptr(); }
@@ -143,6 +143,11 @@ protected:
 
     void			draggerMotion(CallBacker*);
     void			finishedCB(CallBacker*);
+
+				//for 3D only at present
+    ConstRefMan<PreStack::Gather> getProcessedGather();
+    mDeprecated("Use getProcessedGather")
+    DataPackID			preProcess();
 
     RefMan<PreStack::Gather>	gather_;
 

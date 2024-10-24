@@ -9,7 +9,6 @@ ________________________________________________________________________
 
 #include "uifkspectrum.h"
 
-#include "uitoolbutton.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uigeninput.h"
@@ -17,6 +16,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uistrings.h"
+#include "uitoolbutton.h"
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
@@ -33,12 +33,6 @@ ________________________________________________________________________
 
 uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     : uiFlatViewMainWin(p,Setup(tr("FK Spectrum")))
-    , fft_(0)
-    , input_(0)
-    , output_(0)
-    , spectrum_(0)
-    , minvelitm_(0), maxvelitm_(0)
-    , minfld_(0), maxfld_(0)
 {
     uiFlatViewer& vwr = viewer();
     vwr.setInitialSize( uiSize(600,400) );
@@ -54,10 +48,10 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0.005,0.005);
     addControl( new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
 
-    vwr.rgbCanvas().getMouseEventHandler().movement.notify(
-	mCB(this,uiFKSpectrum,mouseMoveCB) );
-    vwr.rgbCanvas().getMouseEventHandler().buttonPressed.notify(
-	mCB(this,uiFKSpectrum,mousePressCB) );
+    mAttachCB( vwr.rgbCanvas().getMouseEventHandler().movement,
+	       uiFKSpectrum::mouseMoveCB );
+    mAttachCB( vwr.rgbCanvas().getMouseEventHandler().buttonPressed,
+	       uiFKSpectrum::mousePressCB );
 
     lineitm_ = initAuxData();
 
@@ -74,7 +68,7 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 
     if ( setbp )
     {
-	uiSeparator* sep = new uiSeparator( this, "HorSep", OD::Horizontal );
+	auto* sep = new uiSeparator( this, "HorSep", OD::Horizontal );
 	sep->attach( stretchedBelow, ffld_ );
 	uiString minlbl = SI().zIsTime() ? tr("Min Vel") : tr("Min Dip");
 	minfld_ = new uiGenInput( this, minlbl );
@@ -103,9 +97,11 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 
 uiFKSpectrum::~uiFKSpectrum()
 {
+    detachAllNotifiers();
+    delete fft_;
     delete input_;
     delete output_;
-    delete fft_;
+    delete spectrum_;
 }
 
 
@@ -186,46 +182,47 @@ void uiFKSpectrum::mousePressCB( CallBacker* )
 }
 
 
-void uiFKSpectrum::setDataPackID(
-	DataPackID dpid, DataPackMgr::MgrID dmid, int version )
+bool uiFKSpectrum::setDataPackID( const DataPackID& dpid,
+				  const DataPackMgr::MgrID& dmid, int version )
 {
-    ConstRefMan<DataPack> datapack = DPM(dmid).getDP( dpid );
-    setCaption( !datapack ? tr("No data")
-	    : tr("F-K Spectrum for %1").arg(datapack->name()) );
-
-    if ( dmid == DataPackMgr::SeisID() )
-    {
-	mDynamicCastGet(const SeisDataPack*,seisdp,datapack.ptr());
-	if ( !seisdp || seisdp->isEmpty() ) return;
-
-	mDynamicCastGet(const RegularSeisDataPack*,regsdp,datapack.ptr());
-	const TrcKeyZSampling::Dir dir = regsdp ?
-		regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
-	const int dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
-
-	Array2DSlice<float> slice2d( seisdp->data(version) );
-	slice2d.setDimMap( 0, dim0 );
-	slice2d.setDimMap( 1, 2 );
-	slice2d.setPos( dir, 0 );
-	slice2d.init();
-	setData( slice2d );
-    }
+    ConstRefMan<SeisDataPack> seisdp = DPM(dmid).getDP( dpid );
+    return seisdp ? setDataPack( *seisdp.ptr(), version ) : false;
 }
 
 
-void uiFKSpectrum::setData( const Array2D<float>& array )
+bool uiFKSpectrum::setDataPack( const SeisDataPack& seisdp, int version )
+{
+    setCaption( tr("F-K Spectrum for %1").arg( seisdp.name() ) );
+
+    if ( seisdp.isEmpty() )
+	return false;
+
+    mDynamicCastGet(const RegularSeisDataPack*,regsdp,&seisdp);
+    const TrcKeyZSampling::Dir dir = regsdp ?
+	    regsdp->sampling().defaultDir() : TrcKeyZSampling::Inl;
+    const int dim0 = dir==TrcKeyZSampling::Inl ? 1 : 0;
+
+    Array2DSlice<float> slice2d( seisdp.data(version) );
+    slice2d.setDimMap( 0, dim0 );
+    slice2d.setDimMap( 1, 2 );
+    slice2d.setPos( dir, 0 );
+    slice2d.init();
+    return setData( slice2d );
+}
+
+
+bool uiFKSpectrum::setData( const Array2D<float>& array )
 {
     const int sz0 = array.info().getSize( 0 );
     const int sz1 = array.info().getSize( 1 );
-    initFFT( sz0, sz1 );
-    if ( !fft_ )
+    if ( !initFFT(sz0,sz1) )
     {
 	uiMSG().error( tr("Cannot initialize FFT") );
-	return;
+	return false;
     }
 
     if ( !compute(array) )
-	return;
+	return false;
 
     for ( int idx=0; idx<sz0; idx++ )
     {
@@ -239,14 +236,15 @@ void uiFKSpectrum::setData( const Array2D<float>& array )
 	}
     }
 
-    view( *spectrum_ );
+    return view( *spectrum_ );
 }
 
 
-void uiFKSpectrum::initFFT( int nrtrcs, int nrsamples )
+bool uiFKSpectrum::initFFT( int nrtrcs, int nrsamples )
 {
     fft_ = Fourier::CC::createDefault();
-    if ( !fft_ ) return;
+    if ( !fft_ )
+	return false;
 
     const int xsz = nrtrcs; // fft_->getFastSize( nrtrcs );
     const int zsz = nrsamples; // fft_->getFastSize( nrsamples );
@@ -260,12 +258,14 @@ void uiFKSpectrum::initFFT( int nrtrcs, int nrsamples )
 
     spectrum_ = new Array2DImpl<float>( xsz, zsz/2 );
     spectrum_->setAll( 0 );
+    return true;
 }
 
 
 bool uiFKSpectrum::compute( const Array2D<float>& array )
 {
-    if ( !output_ ) return false;
+    if ( !output_ )
+	return false;
 
     const int sz0 = array.info().getSize( 0 );
     const int sz1 = array.info().getSize( 1 );

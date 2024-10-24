@@ -18,78 +18,64 @@ ________________________________________________________________________
 #include "trigonometry.h"
 #include "undo.h"
 
-namespace MPE
-{
 
-FaultEditor::FaultEditor( EM::Fault3D& fault )
+RefMan<MPE::FaultEditor> MPE::FaultEditor::create( const EM::Fault3D& fault )
+{
+    return new FaultEditor( fault );
+}
+
+
+MPE::FaultEditor::FaultEditor( const EM::Fault3D& fault )
     : ObjectEditor(fault)
-    , scalevector_( 0, 1, SI().zScale() )
-    , sceneidx_(-1)
-    , sowingpivot_(Coord3::udf())
+    , scalevector_(0,1,SI().zScale())
 {}
 
 
-FaultEditor::~FaultEditor()
+MPE::FaultEditor::~FaultEditor()
 {}
 
 
-ObjectEditor* FaultEditor::create( EM::EMObject& emobj )
+Geometry::ElementEditor* MPE::FaultEditor::createEditor()
 {
-    mDynamicCastGet(EM::Fault3D*,fault,&emobj);
-    if ( !fault ) return 0;
-    return new FaultEditor(*fault);
+    RefMan<EM::EMObject> emobject = emObject();
+    Geometry::Element* ge = emobject ? emobject->geometryElement() : nullptr;
+    mDynamicCastGet(Geometry::FaultStickSurface*,fault,ge);
+    return fault ? new Geometry::StickSetEditor( *fault ) : nullptr;
 }
 
 
-void FaultEditor::initClass()
-{ MPE::EditorFactory().addCreator( create, EM::Fault3D::typeStr() ); }
-
-
-Geometry::ElementEditor* FaultEditor::createEditor()
+void MPE::FaultEditor::setLastClicked( const EM::PosID& pid )
 {
-    const Geometry::Element* ge = emObject().geometryElement();
-    if ( !ge ) return nullptr;
+    RefMan<EM::EMObject> emobject = emObject();
+    if ( !emobject )
+	return;
 
-    mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
-    if ( !surface ) return nullptr;
-
-    return new Geometry::StickSetEditor(
-			*const_cast<Geometry::FaultStickSurface*>(surface) );
-}
-
-
-static EM::PosID lastclickedpid_ = EM::PosID::udf();
-
-void FaultEditor::setLastClicked( const EM::PosID& pid )
-{
-    lastclickedpid_ = pid;
-
-    EM::EMObject& emobj = const_cast<EM::EMObject&>( emObject() );
-    Geometry::Element* ge = emobj.geometryElement();
+    lastclickedpid() = pid;
+    Geometry::Element* ge = emobject->geometryElement();
     mDynamicCastGet( Geometry::FaultStickSet*, fss, ge );
     if ( fss )
 	fss->preferStick( pid.getRowCol().row()  );
 
     if ( sowingpivot_.isDefined() )
     {
-	const Coord3 pos = emObject().getPos( pid );
+	const Coord3 pos = emobject->getPos( pid );
 	if ( pos.isDefined() )
 	    sowinghistory_.insert( 0, pos );
     }
 }
 
 
-int FaultEditor::getLastClickedStick() const
+int MPE::FaultEditor::getLastClickedStick() const
 {
-    if ( lastclickedpid_.objectID() != emObject().id() )
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    if ( !emobject || lastclickedpid().objectID() != emobject->id() )
        return mUdf(int);
 
-    const Geometry::Element* ge = emObject().geometryElement();
+    const Geometry::Element* ge = emobject->geometryElement();
     mDynamicCastGet( const Geometry::FaultStickSet*, fss, ge );
-
     if ( fss )
     {
-	const int lastclickedsticknr = lastclickedpid_.getRowCol().row();
+	const int lastclickedsticknr = lastclickedpid().getRowCol().row();
 	if ( lastclickedsticknr == fss->preferredStickNr() )
 	    return lastclickedsticknr;
     }
@@ -98,7 +84,7 @@ int FaultEditor::getLastClickedStick() const
 }
 
 
-void FaultEditor::setSowingPivot( const Coord3 pos )
+void MPE::FaultEditor::setSowingPivot( const Coord3 pos )
 {
     if ( sowingpivot_.isDefined() && !pos.isDefined() )
 	sowinghistory_.erase();
@@ -107,11 +93,11 @@ void FaultEditor::setSowingPivot( const Coord3 pos )
 }
 
 
-void FaultEditor::setZScale( float zscale )
+void MPE::FaultEditor::setZScale( float zscale )
 { scalevector_ = Coord3( 0, 1, zscale ); }
 
 
-void FaultEditor::setScaleVector( const Coord3& scalevec )
+void MPE::FaultEditor::setScaleVector( const Coord3& scalevec )
 { scalevector_ = scalevec; }
 
 
@@ -122,7 +108,7 @@ void FaultEditor::setScaleVector( const Coord3& scalevec )
     Coord3( crd.x_, Coord(scalevector_).dot(crd), scalevector_.z_*crd.z_ )
 
 
-float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
+float MPE::FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
 	  int curstick, const Coord3& mousepos,const Coord3* posnormal ) const
 {
     if ( !mousepos.isDefined() )
@@ -178,6 +164,9 @@ float FaultEditor::distToStick( const Geometry::FaultStickSurface& surface,
 }
 
 
+namespace MPE
+{
+
 static Coord3 avgStickPos( const Geometry::FaultStickSurface& surface,
 			   int sticknr )
 {
@@ -201,8 +190,10 @@ static Coord3 avgStickPos( const Geometry::FaultStickSurface& surface,
     return count ? avgpos/count : Coord3::udf();
 }
 
+} // namespace MPE
 
-float FaultEditor::panelIntersectDist(
+
+float MPE::FaultEditor::panelIntersectDist(
 			const Geometry::FaultStickSurface& surface, int sticknr,
 			const Coord3& mousepos, const Coord3& posnormal ) const
 {
@@ -260,8 +251,9 @@ float FaultEditor::panelIntersectDist(
 }
 
 
-int FaultEditor::getSecondKnotNr( const Geometry::FaultStickSurface& surface,
-				  int sticknr, const Coord3& mousepos ) const
+int MPE::FaultEditor::getSecondKnotNr(
+				const Geometry::FaultStickSurface& surface,
+				int sticknr, const Coord3& mousepos ) const
 {
     const StepInterval<int> rowrange = surface.rowRange();
     if ( rowrange.isUdf() || !mousepos.isDefined() )
@@ -303,22 +295,22 @@ int FaultEditor::getSecondKnotNr( const Geometry::FaultStickSurface& surface,
 }
 
 
-void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
-		      const Coord3& mousepos, const Coord3* posnormal ) const
+void MPE::FaultEditor::getInteractionInfo( bool& makenewstick,
+			EM::PosID& insertpid, const Coord3& mousepos,
+			const Coord3* posnormal ) const
 {
-    insertpid = EM::PosID::udf();
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    if ( !emobject || !emobject->nrSections() )
+	return;
 
+    insertpid = EM::PosID::udf();
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
 			? sowingpivot_ : mousepos;
 
-    if ( !emObject().nrSections() )
-	return;
-
     int sticknr = getLastClickedStick();
-
     if ( !makenewstick && !mIsUdf(sticknr) )
     {
-	const Geometry::Element* ge = emObject().geometryElement();
+	const Geometry::Element* ge = emobject->geometryElement();
 	mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
 	if ( ge && surface )
 	{
@@ -339,7 +331,7 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 	sticknr = 0;
 	getInsertStick( sticknr, pos, posnormal );
 
-	insertpid.setObjectID( emObject().id() );
+	insertpid.setObjectID( emobject->id() );
 	insertpid.setSubID( RowCol( sticknr, 0 ).toInt64() );
 	return;
     }
@@ -348,14 +340,15 @@ void FaultEditor::getInteractionInfo( bool& makenewstick, EM::PosID& insertpid,
 }
 
 
-const EM::PosID FaultEditor::getNearstStick(
-    const Coord3& mousepos, const Coord3* posnormal )const
+const EM::PosID MPE::FaultEditor::getNearstStick( const Coord3& mousepos,
+					     const Coord3* posnormal )const
 {
     EM::PosID pid = EM::PosID::udf();
     const Coord3& pos = sowingpivot_.isDefined() && sowinghistory_.isEmpty()
 			? sowingpivot_ : mousepos;
 
-    if ( !emObject().nrSections() )
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    if ( !emobject || !emobject->nrSections() )
 	return EM::PosID::udf();
 
     int sticknr = getLastClickedStick();
@@ -366,11 +359,12 @@ const EM::PosID FaultEditor::getNearstStick(
 }
 
 
-bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
+bool MPE::FaultEditor::removeSelection( const Selector<Coord3>& selector )
 {
-    mDynamicCastGet(EM::Fault3D*,fault,emobject_.ptr());
+    RefMan<EM::EMObject> emobject = emObject();
+    mDynamicCastGet(EM::Fault3D*,fault,emobject.ptr());
     bool change = false;
-    const Geometry::Element* ge = fault->geometryElement();
+    const Geometry::Element* ge = fault ? fault->geometryElement() : nullptr;
     if ( !ge )
 	return false;
 
@@ -417,13 +411,15 @@ bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 }
 
 
-float FaultEditor::getNearestStick( int& stick,
+float MPE::FaultEditor::getNearestStick( int& stick,
 			const Coord3& mousepos, const Coord3* posnormal ) const
 {
     int selstick = mUdf(int);
     float mindist = mUdf(float);
 
-    const Geometry::Element* ge = emObject().geometryElement();
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    const Geometry::Element* ge = emobject ? emobject->geometryElement()
+					   : nullptr;
     if ( !ge )
 	return mindist;
 
@@ -457,15 +453,18 @@ float FaultEditor::getNearestStick( int& stick,
 }
 
 
-bool FaultEditor::getInsertStick( int& stick,
+bool MPE::FaultEditor::getInsertStick( int& stick,
 		      const Coord3& mousepos, const Coord3* posnormal ) const
 {
     int selstick = mUdf(int);
     float mindist = mUdf(float);
     Coord3 normal = Coord3::udf();
 
-    const Geometry::Element* ge = emObject().geometryElement();
-    if ( !ge ) return false;
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    const Geometry::Element* ge = emobject ? emobject->geometryElement()
+					   : nullptr;
+    if ( !ge )
+	return false;
 
     mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
     if ( !surface ) return false;
@@ -502,8 +501,8 @@ bool FaultEditor::getInsertStick( int& stick,
 }
 
 
-void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
-			const Coord3& mousepos ) const
+void MPE::FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
+				       const Coord3& mousepos ) const
 {
     EM::PosID nearestpid0 = EM::PosID::udf();
     EM::PosID nearestpid1 = EM::PosID::udf();
@@ -512,7 +511,9 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
     if ( !mousepos.isDefined() )
 	return;
 
-    const Geometry::Element* ge = emObject().geometryElement();
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    const Geometry::Element* ge = emobject ? emobject->geometryElement()
+					   : nullptr;
     mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
 
     const StepInterval<int> colrange = surface->colRange( stick );
@@ -545,14 +546,14 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
     if ( nearestknotidx==-1 )
 	return;
 
-    nearestpid0.setObjectID( emObject().id() );
+    nearestpid0.setObjectID( emobject->id() );
     nearestpid0.setSubID(
 	RowCol(stick, definedknots[nearestknotidx]).toInt64() );
 
     if ( definedknots.size()<=1 )
     {
 	const int insertcol = getSecondKnotNr( *surface, stick, mousepos );
-	insertpid.setObjectID( emObject().id() );
+	insertpid.setObjectID( emobject->id() );
 	insertpid.setSubID( RowCol( stick, insertcol ).toInt64() );
 	return;
     }
@@ -612,10 +613,14 @@ void FaultEditor::getPidsOnStick( EM::PosID& insertpid, int stick,
 }
 
 
-void FaultEditor::cloneMovingNode( CallBacker* )
+void MPE::FaultEditor::cloneMovingNode( CallBacker* )
 {
     setLastClicked( movingnode );
-    mDynamicCastGet( EM::Fault3D*, emfault, emobject_.ptr() );
+    RefMan<EM::EMObject> emobject = emObject();
+    mDynamicCastGet( EM::Fault3D*, emfault, emobject.ptr() );
+    if ( !emfault )
+	return;
+
     EM::Fault3DGeometry& fg = emfault->geometry();
     const int sticknr = movingnode.getRowCol().row();
     Geometry::FaultStickSurface* fss = fg.geometryElement();
@@ -657,4 +662,9 @@ void FaultEditor::cloneMovingNode( CallBacker* )
     emfault->setBurstAlert( false );
 }
 
-}  // namespace MPE
+
+EM::PosID& MPE::FaultEditor::lastclickedpid()
+{
+    static EM::PosID lastclickedpid_;
+    return lastclickedpid_;
+}

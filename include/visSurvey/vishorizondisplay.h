@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "datapackbase.h"
 #include "factory.h"
+#include "horizon3dtracker.h"
+#include "horizoneditor.h"
 #include "uistring.h"
 #include "visemobjdisplay.h"
 #include "vishorizonsection.h"
@@ -80,7 +82,6 @@ public:
 
     void			displaySurfaceData(int attrib,int auxdatanr);
 
-    bool			canHaveMultipleAttribs() const override;
     int				nrTextures(int attrib) const override;
     void			selectTexture(int attrib,
 					      int textureidx) override;
@@ -90,12 +91,14 @@ public:
     OD::Pol2D3D			getAllowedDataType() const override
 				{ return OD::Both2DAnd3D; }
 
+    bool			canHaveMultipleAttribs() const override;
     int				nrAttribs() const override;
-    bool			addAttrib() override;
+    int				maxNrAttribs() const override;
     bool			canAddAttrib(
 					int nrattribstoadd=1) const override;
-    bool			removeAttrib(int attrib) override;
+    bool			addAttrib() override;
     bool			canRemoveAttrib() const override;
+    bool			removeAttrib(int attrib) override;
     bool			swapAttribs(int attrib0,int attrib1) override;
     void			setAttribTransparency(int,
 						      unsigned char) override;
@@ -115,11 +118,12 @@ public:
     void			setSelSpecs(int attrib,
 				    const TypeSet<Attrib::SelSpec>&) override;
     void			setDepthAsAttrib(int);
-    DataPackID			getDataPackID(int attrib) const override;
-    DataPackID			getDisplayedDataPackID(
-						int attrib) const override;
-    DataPackMgr::MgrID		getDataPackMgrID() const override
-				{ return DataPackMgr::FlatID(); }
+
+    bool			usesDataPacks() const override	{ return true; }
+    bool			setFlatDataPack(int attrib,FlatDataPack*,
+						TaskRunner*) override;
+    ConstRefMan<DataPack>	getDataPack(int attrib) const override;
+    ConstRefMan<FlatDataPack>	getFlatDataPack(int attrib) const override;
 
     bool			allowMaterialEdit() const override
 				{ return true; }
@@ -128,11 +132,11 @@ public:
 
     EM::SectionID		getSectionID(const VisID&) const override;
 
-    void			getRandomPos(DataPointSet&,
+    bool			getRandomPos(DataPointSet&,
 						TaskRunner*) const override;
-    void			getRandomPosCache(int,
+    bool			getRandomPosCache(int,
 						  DataPointSet&) const override;
-    void			setRandomPosData(int,const DataPointSet*,
+    bool			setRandomPosData(int,const DataPointSet*,
 						 TaskRunner*) override;
 
     void			setLineStyle(const OD::LineStyle&) override;
@@ -242,6 +246,8 @@ private:
     void			removeSectionDisplay(
 						const EM::SectionID&) override;
     visBase::VisualObject*	createSection(const EM::SectionID&) const;
+    bool			activateTracker() override;
+    RefMan<MPE::ObjectEditor>	getMPEEditor(bool create) override;
     void			setDisplayDataPacks(int attrib,
 					const ObjectSet<MapDataPack>&);
     bool			addSection(const EM::SectionID&,
@@ -268,6 +274,9 @@ private:
     bool			allowshading_ = true;
     RefMan<mVisTrans>		translation_;
     Coord3			translationpos_ = Coord3::udf();
+
+    RefMan<MPE::Horizon3DTracker>	tracker_;
+    RefMan<MPE::HorizonEditor>		mpeeditor_;
 
     RefObjectSet<visBase::HorizonSection>  sections_;
     TypeSet<BufferString>		secnames_;

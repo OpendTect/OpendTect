@@ -24,15 +24,12 @@ namespace MPE
 
 uiPreviewGroup::uiPreviewGroup( uiParent* p )
     : uiGroup(p,"Preview")
-    , windowChanged_(this)
-    , mousedown_(false)
-    , seedpos_(TrcKeyValue::udf())
-    , nrtrcs_(mUdf(int))
+    , windowChanged(this)
 {
     wvafld_ = new uiCheckList( this, uiCheckList::OneMinimum,
 			       OD::Horizontal );
     wvafld_->addItem( tr("WVA") ).addItem( tr("VD") );
-    wvafld_->changed.notify( mCB(this,uiPreviewGroup,wvavdChgCB) );
+    mAttachCB( wvafld_->changed, uiPreviewGroup::wvavdChgCB );
 
     vwr_ = new uiFlatViewer( this );
     vwr_->attach( alignedBelow, wvafld_ );
@@ -47,7 +44,7 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
     vwr_->appearance().annot_.x1_.hasannot_ = false;
     vwr_->appearance().annot_.x2_.hasannot_ = false;
 
-    OD::LineStyle ls( OD::LineStyle::Solid, 3, OD::Color(0,255,0) );
+    const OD::LineStyle ls( OD::LineStyle::Solid, 3, OD::Color(0,255,0) );
     minline_ = vwr_->createAuxData( "Min line" );
     minline_->cursor_.shape_ = MouseCursor::SizeVer;
     minline_->linestyle_ = ls;
@@ -75,12 +72,12 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
     seedline_->poly_ += FlatView::Point(0,0);
     vwr_->addAuxData( seedline_ );
 
-    vwr_->getMouseEventHandler().buttonPressed.notify(
-			     mCB(this,uiPreviewGroup,mousePressed) );
-    vwr_->getMouseEventHandler().buttonReleased.notify(
-			     mCB(this,uiPreviewGroup,mouseReleased) );
-    vwr_->getMouseEventHandler().movement.notify(
-			     mCB(this,uiPreviewGroup,mouseMoved) );
+    mAttachCB( vwr_->getMouseEventHandler().buttonPressed,
+	       uiPreviewGroup::mousePressed );
+    mAttachCB( vwr_->getMouseEventHandler().buttonReleased,
+	       uiPreviewGroup::mouseReleased );
+    mAttachCB( vwr_->getMouseEventHandler().movement,
+	       uiPreviewGroup::mouseMoved );
 
     wvafld_->setChecked( 0, true );
     wvafld_->setChecked( 1, false );
@@ -91,6 +88,7 @@ uiPreviewGroup::uiPreviewGroup( uiParent* p )
 
 uiPreviewGroup::~uiPreviewGroup()
 {
+    detachAllNotifiers();
 }
 
 
@@ -140,16 +138,15 @@ void uiPreviewGroup::updateViewer()
     const TrcKey& tk = seedpos_.tk_;
     const float z = seedpos_.val_;
 
-    StepInterval<float> zintv;
+    ZSampling zintv;
     zintv.setFrom( zintv_ );
     zintv.scale( 1.f/float(SI().zDomain().userFactor()) );
     zintv.step_ = SI().zStep();
 
-    auto dp = MPE::engine().getSeedPosDataPackRM( tk, z, nrtrcs_, zintv );
-    fdp_ = dp;
+    fdp_ = MPE::engine().getSeedPosDataPack( tk, z, nrtrcs_, zintv );
 
     const bool canupdate = vwr_->enableChange( false );
-    vwr_->setPack( FlatView::Viewer::Both, dp.ptr(), false);
+    vwr_->setPack( FlatView::Viewer::Both, fdp_.ptr(), false );
     vwr_->appearance().ddpars_.wva_.mappersetup_.setAutoScale( true );
     vwr_->appearance().ddpars_.vd_.mappersetup_.setAutoScale( true );
     vwr_->appearance().ddpars_.show( wvafld_->isChecked(0),
@@ -195,7 +192,7 @@ void uiPreviewGroup::mousePressed( CallBacker* )
 	return;
 
     mousedown_ = true;
-    windowChanged_.trigger();
+    windowChanged.trigger();
 }
 
 
@@ -204,7 +201,7 @@ void uiPreviewGroup::mouseMoved( CallBacker* )
     if ( !mousedown_ || !calcNewWindow() )
 	return;
 
-    windowChanged_.trigger();
+    windowChanged.trigger();
 }
 
 

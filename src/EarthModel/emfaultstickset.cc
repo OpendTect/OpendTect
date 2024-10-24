@@ -93,8 +93,7 @@ EMObjectIterator*
 
 // FaultSSInfoHolder
 
-FaultStickSetGeometry::GeomGroup::GeomGroup(
-						const Pos::GeomID& geomid )
+FaultStickSetGeometry::GeomGroup::GeomGroup( const Pos::GeomID& geomid )
 {
     tkzs_.hsamp_.setGeomID( geomid );
 }
@@ -270,8 +269,8 @@ bool FaultStickSetGeometry::insertStick( int sticknr,
 					 const Coord3& editnormal,
 					 bool addtohistory )
 {
-    return insertStick( sticknr, firstcol, pos, editnormal, nullptr, nullptr,
-	    		addtohistory );
+    return insertStick( sticknr, firstcol, pos, editnormal, nullptr,
+			nullptr, addtohistory );
 }
 
 
@@ -283,9 +282,9 @@ bool FaultStickSetGeometry::insertStick( int sticknr,
 					 bool addtohistory )
 {
     const Pos::GeomID pickedgeomid = Survey::GM().getGeomID( pickednm );
-    MultiID mid = pickedmid ? *pickedmid : MultiID::udf();
-    return insertStick( sticknr, firstcol, pos, editnormal, mid, pickedgeomid,
-							    addtohistory );
+    const MultiID mid = pickedmid ? *pickedmid : MultiID::udf();
+    return insertStick( sticknr, firstcol, pos, editnormal, mid,
+			pickedgeomid, addtohistory );
 
 }
 
@@ -293,11 +292,11 @@ bool FaultStickSetGeometry::insertStick( int sticknr,
 bool FaultStickSetGeometry::insertStick( int sticknr,
 					 int firstcol, const Coord3& pos,
 					 const Coord3& editnormal,
-					 Pos::GeomID pickedgeomid,
+					 const Pos::GeomID& pickedgeomid,
 					 bool addtohistory )
 {
     return insertStick( sticknr, firstcol, pos, editnormal, MultiID::udf(),
-	pickedgeomid, addtohistory );
+			pickedgeomid, addtohistory );
 }
 
 
@@ -314,15 +313,16 @@ bool FaultStickSetGeometry::insertStick(int sticknr, int firstcol,
 
     GeomGroup* geomgrp = nullptr;
 
-    if ( !pickedmid.isUdf() )
-	geomgrp = getGeomGroup( pickedmid );
-    else
+    if ( pickedmid.isUdf() )
 	geomgrp = getGeomGroup( pickedgeomid );
+    else
+	geomgrp = getGeomGroup( pickedmid );
 
     if ( !geomgrp )
     {
-	geomgrp = new GeomGroup( pickedgeomid.isValid() ? pickedgeomid :
-						    Pos::GeomID(OD::Geom3D) );
+	geomgrp = new GeomGroup( pickedgeomid.isValid()
+				 ? pickedgeomid
+				 : Survey::default3DGeomID() );
 	geomgrp->setMultiID( pickedmid );
 	geomgroupset_.add( geomgrp );
     }
@@ -470,7 +470,7 @@ bool FaultStickSetGeometry::pickedOnHorizon( int sticknr ) const
 
 bool FaultStickSetGeometry::pickedOn2DLine( int sticknr ) const
 {
-    return pickedGeomID(sticknr).isValid();
+    return pickedGeomID(sticknr).is2D();
 }
 
 
@@ -490,7 +490,7 @@ const MultiID* FaultStickSetGeometry::pickedMultiID( int sticknr) const
 }
 
 
-const char* FaultStickSetGeometry::pickedName( int sticknr) const
+const char* FaultStickSetGeometry::pickedName( int sticknr ) const
 {
     const Pos::GeomID& geomid = pickedGeomID( sticknr );
     if ( geomid.isValid() )
@@ -508,7 +508,7 @@ Pos::GeomID FaultStickSetGeometry::pickedGeomID( int sticknr ) const
 	    return geomgrp->geomID();
     }
 
-    return Survey::GeometryManager::cUndefGeomID();
+    return Pos::GeomID::udf();
 }
 
 
@@ -524,8 +524,8 @@ EM::ObjectType FaultStickSetGeometry::FSSObjType() const
     int count2d = 0;
     for ( auto* geomgrp : geomgroupset_ )
     {
-	const Pos::GeomID& geomid = geomgrp->geomID();
-	if ( geomid.isValid() && geomid.is2D() )
+	const Pos::GeomID geomid = geomgrp->geomID();
+	if ( geomid.is2D() )
 	    count2d++;
     }
 
@@ -709,23 +709,24 @@ bool FaultStickSetGeometry::GeomGroupUpdater::doWork(
 	    return true;
 
 	const int size = geomgrp->sticknrs_.size();
-	const Pos::GeomID& geomid = geomgrp->geomID();
-	TrcKey trckey;
+	const Pos::GeomID geomid = geomgrp->geomID();
 
-	trckey.setGeomID( geomid );
+	TrcKey trckey;
 	TrcKeyZSampling tkzs;
 	tkzs.setEmpty();
-	if ( geomid.isValid() && geomid.is2D() )
+	if ( geomid.isValid() )
 	{
+	    trckey.setGeomID( geomid );
 	    tkzs.hsamp_.setGeomID( geomid );
-	    trckey.setGeomSystem( OD::Geom2D );
 	}
 	else
 	{
-	    tkzs.hsamp_.setGeomID( Pos::GeomID(OD::Geom3D) );
-	    trckey.setGeomSystem( OD::Geom3D );
-	    tkzs.hsamp_.step_ = SI().sampling(true).hsamp_.step_;
+	    trckey.setGeomID( Survey::default3DGeomID() );
+	    tkzs.hsamp_.setGeomID( Survey::default3DGeomID() );
 	}
+
+	if ( !tkzs.hsamp_.is2D() )
+	    tkzs.hsamp_.step_ = SI().sampling(true).hsamp_.step_;
 
 	for ( int idx=0; idx<size; idx++ )
 	{

@@ -29,10 +29,10 @@ uiODViewer2DPosDlg::uiODViewer2DPosDlg( uiODMain& appl )
     uiFlatViewStdControl::getGlobalZoomLevel(
 	    initialx1pospercm_, initialx2pospercm_, true );
 
-    posgrp_  = new uiODViewer2DPosGrp( this, new Viewer2DPosDataSel(), false );
+    posgrp_ = new uiODViewer2DPosGrp( this, new Viewer2DPosDataSel(), false );
 
-    uiPushButton* zoomlevelbut = new uiPushButton( this, m3Dots(tr("Advanced")),
-	    		mCB(this,uiODViewer2DPosDlg,zoomLevelCB), true );
+    auto* zoomlevelbut = new uiPushButton( this, m3Dots(tr("Advanced")),
+			    mCB(this,uiODViewer2DPosDlg,zoomLevelCB), true );
     zoomlevelbut->attach( alignedBelow, posgrp_ );
 }
 
@@ -72,6 +72,6 @@ bool uiODViewer2DPosDlg::acceptOK( CallBacker* )
     odappl_.viewer2DMgr().displayIn2DViewer( posdatasel,
 					     FlatView::Viewer::VD,
 					     initialx1pospercm_,
-	   				     initialx2pospercm_ );
+					     initialx2pospercm_ );
     return true;
 }

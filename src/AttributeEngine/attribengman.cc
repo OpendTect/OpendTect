@@ -41,7 +41,6 @@ namespace Attrib
 
 EngineMan::EngineMan()
     : tkzs_(*new TrcKeyZSampling)
-    , geomid_(Pos::GeomID::udf())
     , dpm_(DPM(DataPackMgr::SeisID()))
 {
 }
@@ -680,17 +679,19 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, uiString& errmsg,
 				  const DescSet* addtoset )
 {
     if ( !nlamodel_ )
-    { errmsg = toUiString("Internal: No NLA Model"); return 0; }
+    { errmsg = toUiString("Internal: No NLA Model"); return nullptr; }
 
-    if ( attrspecs_.isEmpty() ) return 0;
-    DescSet* descset = addtoset ? new DescSet( *addtoset )
-				: new DescSet( attrspecs_[0].is2D() );
+    if ( attrspecs_.isEmpty() )
+	return nullptr;
+
+    auto* descset = addtoset ? new DescSet( *addtoset )
+			     : new DescSet( attrspecs_[0].is2D() );
 
     if ( !addtoset && !descset->usePar(nlamodel_->pars()) )
     {
 	errmsg = descset->errMsg();
 	delete descset;
-	return 0;
+	return nullptr;
     }
 
     BufferString s;
@@ -845,7 +846,7 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
 {
     Processor* proc = getProcessor( errmsg );
     if ( !proc )
-	return 0;
+	return nullptr;
 
     Interval<int> trcrg( tkzs_.hsamp_.start_.crl(), tkzs_.hsamp_.stop_.crl() );
     Interval<float> zrg( tkzs_.zsamp_.start_, tkzs_.zsamp_.stop_ );
@@ -878,8 +879,8 @@ Processor* EngineMan::createDataPackOutput( uiString& errmsg,
 	  || mRg(h).stop_.inl() < tkzs_.hsamp_.start_.inl()
 	  || mRg(h).start_.crl() > tkzs_.hsamp_.stop_.crl()
 	  || mRg(h).stop_.crl() < tkzs_.hsamp_.start_.crl()
-             || mRg(z).start_ > tkzs_.zsamp_.stop_ + mStepEps*tkzs_.zsamp_.step_
-             || mRg(z).stop_ < tkzs_.zsamp_.start_ - mStepEps*tkzs_.zsamp_.step_ )
+	  || mRg(z).start_ > tkzs_.zsamp_.stop_ + mStepEps*tkzs_.zsamp_.step_
+	  || mRg(z).stop_ < tkzs_.zsamp_.start_ - mStepEps*tkzs_.zsamp_.step_ )
 	    // No overlap, gotta crunch all the numbers ...
 	    cache_ = nullptr;
     }
@@ -1000,6 +1001,7 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 	const DescID id = attrset->getID( inputs.get(idx), true );
 	if ( id == DescID::undef() )
 	    continue;
+
 	SelSpec ss( 0, id );
 	ss.setRefFromID( *attrset );
 	aem.attrspecs_ += ss;
@@ -1037,7 +1039,7 @@ int haveError( const uiString& msg )
 
 int nextStep() override
 {
-    if ( !proc_ ) return haveError( uiString::emptyString() );
+    if ( !proc_ ) return haveError( uiString::empty() );
 
     int rv = proc_->doStep();
     if ( rv >= 0 ) return rv;
@@ -1110,6 +1112,7 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
 	if ( geom2d )
 	    linegeom = geom2d->data();
+
 	if ( linegeom.positions().isEmpty() )
 	{
 	    linesetgeom.removeLine( dset.lineName(idx) );
@@ -1136,11 +1139,12 @@ void EngineMan::computeIntersect2D( ObjectSet<BinIDValueSet>& bivsets ) const
 Processor* EngineMan::createLocationOutput( uiString& errmsg,
 					    ObjectSet<BinIDValueSet>& bidzvset )
 {
-    if ( bidzvset.size() == 0 ) return 0;
+    if ( bidzvset.size() == 0 )
+	return nullptr;
 
-    Processor* proc = getProcessor(errmsg);
+    Processor* proc = getProcessor( errmsg );
     if ( !proc )
-	return 0;
+	return nullptr;
 
     computeIntersect2D(bidzvset);
     ObjectSet<LocationOutput> outputs;
@@ -1152,7 +1156,7 @@ Processor* EngineMan::createLocationOutput( uiString& errmsg,
     }
 
     if ( !outputs.size() )
-	return 0;
+	return nullptr;
 
     for ( int idx=0; idx<outputs.size(); idx++ )
 	proc->addOutput( outputs[idx] );
@@ -1175,10 +1179,12 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
     {
 	FileMultiString fms( datapointset.colDef(idx).ref_ );
 	if ( fms.size() < 2 )
+
 	    continue;
 	const DescID did( fms.getIValue(1), descset.containsStoredDescOnly() );
 	if ( did == DescID::undef() )
 	    continue;
+
 	SelSpec ss( 0, did );
 	ss.setRefFromID( descset );
 	aem.attrspecs_.addIfNew( ss );
@@ -1193,7 +1199,7 @@ od_int64 totalNr() const override  { return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const override   { return proc_ ? proc_->nrDone() : 0; }
 uiString uiNrDoneText() const override
 {
-    return proc_ ? proc_->uiNrDoneText() : uiString::emptyString();
+    return proc_ ? proc_->uiNrDoneText() : uiString::empty();
 }
 
 uiString uiMessage() const override
@@ -1213,10 +1219,13 @@ int haveError( const uiString& msg )
 
 int nextStep() override
 {
-    if ( !proc_ ) return haveError( uiString::emptyString() );
+    if ( !proc_ )
+	return haveError( uiString::empty() );
 
     int rv = proc_->doStep();
-    if ( rv >= 0 ) return rv;
+    if ( rv >= 0 )
+	return rv;
+
     return haveError( proc_->uiMessage() );
 }
 
@@ -1231,14 +1240,15 @@ Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
 					uiString& errmsg, int firstcol,
 					bool needprep )
 {
-    if ( needprep && !ensureDPSAndADSPrepared( datapointset, descset, errmsg ) )
-	return 0;
+    if ( needprep && !ensureDPSAndADSPrepared(datapointset,descset,errmsg) )
+	return nullptr;
 
     setAttribSet( &descset );
-    AEMTableExtractor* tabex = new AEMTableExtractor( *this, datapointset,
-						      descset, firstcol );
+    auto* tabex = new AEMTableExtractor( *this, datapointset,
+					 descset, firstcol );
     if ( tabex && !tabex->errmsg_.isEmpty() )
 	errmsg = tabex->errmsg_;
+
     return tabex;
 }
 
@@ -1246,17 +1256,19 @@ Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
 Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 					   uiString& errmsg, int firstcol )
 {
-    if ( !datapointset.size() ) return 0;
+    if ( !datapointset.size() )
+	return nullptr;
 
-    Processor* proc = getProcessor(errmsg);
+    Processor* proc = getProcessor( errmsg );
     if ( !proc )
-	return 0;
+	return nullptr;
 
     ObjectSet<BinIDValueSet> bidsets;
     bidsets += &datapointset.bivSet();
     computeIntersect2D( bidsets );
-    TableOutput* tableout = new TableOutput( datapointset, firstcol );
-    if ( !tableout ) return 0;
+    auto* tableout = new TableOutput( datapointset, firstcol );
+    if ( !tableout )
+	return nullptr;
 
     proc->addOutput( tableout );
 
@@ -1264,12 +1276,12 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
 }
 
 
-#define mErrRet(s) { errmsg = s; return 0; }
+#define mErrRet(s) { errmsg = s; return nullptr; }
 
 Processor* EngineMan::getProcessor( uiString& errmsg )
 {
     if ( procattrset_ )
-	{ delete procattrset_; procattrset_ = 0; }
+	deleteAndNullPtr( procattrset_ );
 
     if ( !inpattrset_ || !attrspecs_.size() )
 	mErrRet( tr("No attribute set or input specs") )

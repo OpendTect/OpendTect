@@ -61,7 +61,6 @@ public:
 
     const char*			errMsg() const override { return errmsg_.str();}
 
-    SurveyObject::AttribFormat	getAttributeFormat(int) const override;
     int				nrAttribs() const override;
     bool			canAddAttrib(int) const override;
     bool			canRemoveAttrib() const override;
@@ -88,15 +87,17 @@ public:
     bool			hasSingleColorFallback() const override
 				{ return true; }
 
-    void			getRandomPos(DataPointSet&,
+    bool			usesDataPacks() const override	{ return true; }
+    SurveyObject::AttribFormat	getAttributeFormat(int) const override
+				{ return SurveyObject::RandomPos; }
+    bool			getRandomPos(DataPointSet&,
 					     TaskRunner*) const override;
-    void			setRandomPosData(int attrib,const DataPointSet*,
+    bool			setRandomPosData(int attrib,const DataPointSet*,
 						 TaskRunner*) override;
-    DataPackID			getDataPackID(int attrib) const override;
-    DataPackID			getDisplayedDataPackID(
-						int attrib) const override;
-    DataPackMgr::MgrID		getDataPackMgrID() const override
-				{ return DataPackMgr::PointID(); }
+    bool			setPointDataPack(int attrib,PointDataPack*,
+						 TaskRunner*) override;
+    ConstRefMan<DataPack>	getDataPack(int attrib) const override;
+    ConstRefMan<PointDataPack>	getPointDataPack(int attrib) const override;
 
     bool			isVerticalPlane() const override
 				{ return false; }

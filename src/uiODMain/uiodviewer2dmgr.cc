@@ -64,7 +64,6 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     : appl_(*a)
     , tifs2d_(new uiTreeFactorySet)
     , tifs3d_(new uiTreeFactorySet)
-    , l2dintersections_(0)
     , vw2dObjAdded(this)
     , vw2dObjToBeRemoved(this)
 {
@@ -83,8 +82,8 @@ uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )
     tifs3d_->addFactory( new uiODView2DFaultSSTreeItemFactory, 5500 );
     tifs3d_->addFactory( new uiODView2DPickSetTreeItemFactory, 6500 );
 
-    mAttachCB(IOM().surveyChanged,uiODViewer2DMgr::surveyChangedCB);
-    mAttachCB(IOM().applicationClosing,uiODViewer2DMgr::applClosing);
+    mAttachCB( IOM().surveyChanged, uiODViewer2DMgr::surveyChangedCB );
+    mAttachCB( IOM().applicationClosing, uiODViewer2DMgr::applClosing );
 
     BufferStringSet lnms;
     SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
@@ -96,9 +95,11 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
     detachAllNotifiers();
     if ( l2dintersections_ )
 	deepErase( *l2dintersections_ );
-    deleteAndNullPtr( l2dintersections_ );
+
+    delete l2dintersections_;
     deepErase( viewers2d_ );
-    delete tifs2d_; delete tifs3d_;
+    delete tifs2d_;
+    delete tifs3d_;
 }
 
 
@@ -110,6 +111,7 @@ void uiODViewer2DMgr::cleanup()
 {
     if ( l2dintersections_ )
 	deepErase( *l2dintersections_ );
+
     deleteAndNullPtr( l2dintersections_ );
     deepErase( viewers2d_ );
     geom2dids_.erase();
@@ -242,9 +244,14 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
 					const FlatView::DataDispPars::VD& pars,
 					bool dowva )
 {
+    const DataPackMgr& dpm = DPM(DataPackMgr::SeisID());
+    ConstRefMan<SeisDataPack> seisdp = dpm.get<SeisDataPack>( dpid );
+    if ( !seisdp )
+	return Viewer2DID::udf();
+
     const FlatView::Viewer::VwrDest dest = FlatView::Viewer::getDest( dowva,
 								      !dowva );
-    return displayIn2DViewer( dpid, as, pars, dest );
+    return displayIn2DViewer( *seisdp.ptr(), as, pars, dest );
 }
 
 
@@ -258,7 +265,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( DataPackID dpid,
     if ( !seisdp )
 	return Viewer2DID::udf();
 
-    return displayIn2DViewer( *seisdp, as, pars, dest );
+    return displayIn2DViewer( *seisdp.ptr(), as, pars, dest );
 }
 
 
@@ -305,7 +312,7 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 					float initialx1pospercm,
 					float initialx2pospercm )
 {
-    ConstRefMan<SeisDataPack> dp;
+    ConstRefMan<SeisDataPack> seisdp;
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( posdatasel.selspec_ );
     const bool isrl =
@@ -322,25 +329,26 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
 	    return Viewer2DID::udf();
 
 	posdatasel.tkzs_.zsamp_.setInterval( rdmline->zRange() );
-	dp = attrserv->createRdmTrcsOutputRM(
+	seisdp = attrserv->createRdmTrcsOutputRM(
 		posdatasel.tkzs_.zsamp_, rdmline->ID() );
     }
     else
-	dp = attrserv->createOutput( posdatasel.tkzs_ );
+	seisdp = attrserv->createOutput( posdatasel.tkzs_ );
 
-    if ( !dp )
+    if ( !seisdp )
 	return Viewer2DID::udf();
 
     uiODViewer2D* vwr2d = &addViewer2D( VisID::udf() );
     const Attrib::SelSpec& as = posdatasel.selspec_;
     vwr2d->setSelSpec( &as, FlatView::Viewer::Both );
     const Geometry::RandomLine* rdmline =
-	Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
+		    Geometry::RLM().get( posdatasel.rdmlinemultiid_ );
     if ( rdmline )
 	vwr2d->setRandomLineID( rdmline->ID() );
+
     vwr2d->setInitialX1PosPerCM( initialx1pospercm );
     vwr2d->setInitialX2PosPerCM( initialx2pospercm );
-    vwr2d->makeUpView( vwr2d->createFlatDataPackRM(*dp,0).ptr(),
+    vwr2d->makeUpView( vwr2d->createFlatDataPackRM(*seisdp,0).ptr(),
 		       FlatView::Viewer::Both );
     vwr2d->setWinTitle( false );
     vwr2d->useStoredDispPars( dest );
@@ -354,8 +362,9 @@ Viewer2DID uiODViewer2DMgr::displayIn2DViewer( Viewer2DPosDataSel& posdatasel,
     ddp.wva_.show_ = wva;
     ddp.vd_.show_ = vd;
     vwr.handleChange( FlatView::Viewer::DisplayPars );
-    if ( geom2dids_.size() > 0 )
+    if ( !geom2dids_.isEmpty() )
 	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
+
     attachNotifiersAndSetAuxData( vwr2d );
     return vwr2d->ID();
 }
@@ -373,12 +382,21 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 					 FlatView::Viewer::VwrDest dest )
 {
-    const DataPackID id = visServ().getDisplayedDataPackID( visid, attribid );
-    if ( !id.isValid() ) return;
+    ConstRefMan<SeisDataPack> seisdp = visServ().getDisplayedSeisDataPack(
+							    visid, attribid );
+    if ( !seisdp )
+	return;
 
     uiODViewer2D* vwr2d = find2DViewer( visid );
     const bool isnewvwr = !vwr2d;
-    if ( !vwr2d )
+    if ( vwr2d )
+    {
+	visServ().fillDispPars( visid, attribid,
+		vwr2d->viewwin()->viewer().appearance().ddpars_, dest );
+    //<-- So that new display parameters are read before the new data is set.
+    //<-- This will avoid time lag between updating data and display parameters.
+    }
+    else
     {
 	vwr2d = &addViewer2D( visid );
 	ConstRefMan<ZAxisTransform> zat =
@@ -389,13 +407,8 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 	if ( rtd )
 	    vwr2d->setRandomLineID( rtd->getRandomLineID() );
     }
-    else
-	visServ().fillDispPars( visid, attribid,
-		vwr2d->viewwin()->viewer().appearance().ddpars_, dest );
-    //<-- So that new display parameters are read before the new data is set.
-    //<-- This will avoid time lag between updating data and display parameters.
 
-    const Attrib::SelSpec* as = visServ().getSelSpec(visid,attribid);
+    const Attrib::SelSpec* as = visServ().getSelSpec( visid, attribid );
     if ( isnewvwr )
 	vwr2d->setSelSpec( as, FlatView::Viewer::Both );
     else
@@ -403,11 +416,17 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
 
     const int version = visServ().currentVersion( visid, attribid );
     if ( isnewvwr )
-	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id,version).ptr(),
-			   FlatView::Viewer::Both );
+    {
+	RefMan<SeisFlatDataPack> flatsdp =
+			vwr2d->createFlatDataPackRM( *seisdp.ptr(), version );
+	vwr2d->makeUpView( flatsdp.ptr(), FlatView::Viewer::Both );
+    }
     else
-	vwr2d->makeUpView( vwr2d->createFlatDataPackRM(id,version).ptr(),
-			   dest );
+    {
+	RefMan<SeisFlatDataPack> flatsdp =
+			vwr2d->createFlatDataPackRM( *seisdp.ptr(), version );
+	vwr2d->makeUpView( flatsdp.ptr(), dest );
+    }
 
     vwr2d->setWinTitle( true );
     uiFlatViewer& vwr = vwr2d->viewwin()->viewer();
@@ -415,7 +434,7 @@ void uiODViewer2DMgr::displayIn2DViewer( const VisID& visid, int attribid,
     {
 	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
 	visServ().fillDispPars( visid, attribid, ddp, dest );
-	if ( geom2dids_.size() > 0 )
+	if ( !geom2dids_.isEmpty() )
 	    vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
 
 	attachNotifiersAndSetAuxData( vwr2d );
@@ -642,10 +661,10 @@ void uiODViewer2DMgr::mouseClickCB( CallBacker* cb )
     const uiWorldPoint wperpixel = curvwr.getWorld2Ui().worldPerPixel();
     const float x1eps  = Math::Abs( sCast(float,wperpixel.x_)*sEPSPixWidth );
     const int x1auxposidx =
-            curvwr.appearance().annot_.x1_.auxPosIdx( sCast(float,wp.x_), x1eps );
+	    curvwr.appearance().annot_.x1_.auxPosIdx( sCast(float,wp.x_),x1eps);
     const float x2eps  = Math::Abs( sCast(float,wperpixel.y_)*sEPSPixWidth );
     const int x2auxposidx =
-            curvwr.appearance().annot_.x2_.auxPosIdx( sCast(float,wp.y_), x2eps );
+	    curvwr.appearance().annot_.x2_.auxPosIdx( sCast(float,wp.y_),x2eps);
 
 
     float samplecrdz = sCast(float,coord.z_);
@@ -796,8 +815,10 @@ void uiODViewer2DMgr::create2DViewer( const uiODViewer2D& curvwr2d,
 	vwr.appearance().setGeoDefaults( vwr2d->isVertical() );
 	vwr.handleChange( FlatView::Viewer::DisplayPars );
     }
-    if ( geom2dids_.size() > 0 )
+
+    if ( !geom2dids_.isEmpty() )
 	vwr2d->viewwin()->viewer().setSeisGeomidsToViewer( geom2dids_ );
+
     attachNotifiersAndSetAuxData( vwr2d );
 
     if ( vwr2d->viewControl() && control )
@@ -841,12 +862,13 @@ void uiODViewer2DMgr::reCalc2DIntersetionIfNeeded( Pos::GeomID geomid )
 	    deepErase( *l2dintersections_ );
 	delete l2dintersections_;
 
-	if ( geom2dids_.size() == 0 )
+	if ( geom2dids_.isEmpty() )
 	{
 	    BufferStringSet lnms;
 	    SeisIOObjInfo::getLinesWithData( lnms, geom2dids_ );
 	}
-	if ( geom2dids_.size() == 0 )
+
+	if ( geom2dids_.isEmpty() )
 	    return;
 
 	l2dintersections_ = new Line2DInterSectionSet;
@@ -1065,8 +1087,8 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		{
 		    newannot.pos_ =
                             mCast(float,idxvwrtkzs.hsamp_.crlRange().start_);
-		    newannot.txt_ =
-                            tr( "CRL %1" ).arg( idxvwrtkzs.hsamp_.crlRange().start_);
+		    newannot.txt_ = tr( "CRL %1" )
+				     .arg( idxvwrtkzs.hsamp_.crlRange().start_);
                     intersecbid = BinID( tkzs.hsamp_.inlRange().start_,
 					 mNINT32(newannot.pos_) );
 		    x1auxannot += newannot;
@@ -1086,8 +1108,8 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		{
 		    newannot.pos_ =
                             mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
-		    newannot.txt_ =
-                            tr( "INL %1" ).arg( idxvwrtkzs.hsamp_.inlRange().start_);
+		    newannot.txt_ = tr( "INL %1" )
+				     .arg( idxvwrtkzs.hsamp_.inlRange().start_);
 		    x1auxannot += newannot;
 		    intersecbid = BinID( mNINT32(newannot.pos_),
                                          tkzs.hsamp_.crlRange().start_ );
@@ -1108,16 +1130,16 @@ void uiODViewer2DMgr::setVWR2DIntersectionPositions( uiODViewer2D* vwr2d )
 		{
 		    newannot.pos_ =
                             mCast( float, idxvwrtkzs.hsamp_.inlRange().start_ );
-		    newannot.txt_ =
-                            tr( "INL %1" ).arg( idxvwrtkzs.hsamp_.inlRange().start_);
+		    newannot.txt_ = tr( "INL %1" )
+				     .arg( idxvwrtkzs.hsamp_.inlRange().start_);
 		    x1auxannot += newannot;
 		}
 		else
 		{
 		    newannot.pos_ =
                             mCast( float, idxvwrtkzs.hsamp_.crlRange().start_ );
-		    newannot.txt_ =
-                            tr( "CRL %1" ).arg( idxvwrtkzs.hsamp_.crlRange().start_);
+		    newannot.txt_ = tr( "CRL %1" )
+				     .arg( idxvwrtkzs.hsamp_.crlRange().start_);
 		    x2auxannot += newannot;
 		}
 	    }

@@ -25,7 +25,6 @@ namespace MPE
 
 Horizon2DSeedPicker::Horizon2DSeedPicker( EMTracker& tracker )
     : EMSeedPicker(tracker)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
 {
 }
 
@@ -34,7 +33,7 @@ Horizon2DSeedPicker::~Horizon2DSeedPicker()
 {}
 
 
-void Horizon2DSeedPicker::setLine( Pos::GeomID geomid )
+void Horizon2DSeedPicker::setLine( const Pos::GeomID& geomid )
 {
     geomid_ = geomid;
 }
@@ -71,7 +70,7 @@ bool Horizon2DSeedPicker::startSeedPick()
 
     mGetHorizon(hor,false);
 
-    if ( geomid_ == Survey::GeometryManager::cUndefGeomID() )
+    if ( geomid_.isUdf() )
 	return false;
 
     EM::Horizon2DGeometry& geom = hor->geometry();
@@ -130,7 +129,7 @@ bool Horizon2DSeedPicker::addSeed( const TrcKeyValue& seed, bool drop,
 	return true;
 
     mGetHorizon(hor2d,false);
-    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid_ );
+    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( geomid_ );
     const Survey::Geometry2D* geom2d = geom ? geom->as2D() : nullptr;
     if ( !geom2d )
 	return false;
@@ -486,7 +485,7 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
     SectionTracker* sectracker = tracker_.getSectionTracker( true );
     SectionExtender* extender = sectracker->extender();
     mDynamicCastGet( HorizonAdjuster*, adjuster, sectracker->adjuster() );
-    mDynamicCastGet( Horizon2DExtender*, extender2d, extender );
+    mDynamicCastGet( Horizon2DExtenderBase*, extender2d, extender );
     if ( !extender2d )
 	return false;
 

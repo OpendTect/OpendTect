@@ -106,6 +106,7 @@ protected:
     void			updatePolygonDisplay();
     void			updateSingleColor();
     void			updateManipulator();
+    RefMan<MPE::ObjectEditor>	getMPEEditor(bool create);
 
     static const char*		sKeyEMPolygonSurfID()
 				{ return "EMPolygonsurface ID"; }

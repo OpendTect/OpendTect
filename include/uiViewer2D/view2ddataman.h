@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "callback.h"
+
 #include "factory.h"
 #include "emposid.h"
+#include "view2ddata.h"
 
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
@@ -55,9 +56,9 @@ protected:
 
     void			deSelect(const Vis2DID&);
 
-    ObjectSet<DataObject>	objects_;
+    RefObjectSet<DataObject>	objects_;
     Vis2DID			selectedid_;
-    int				freeid_;
+    int				freeid_		= 0;
 
     static const char*		sKeyNrObjects()	{ return "Nr objects"; }
 

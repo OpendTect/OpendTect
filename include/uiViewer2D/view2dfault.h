@@ -9,9 +9,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "view2ddata.h"
 
-#include "emposid.h"
+#include "faulteditor.h"
+#include "view2ddata.h"
 
 class TrcKeyZSampling;
 class uiFlatViewWin;
@@ -27,8 +27,8 @@ mExpClass(uiViewer2D) Fault : public EMDataObject
 mDefStd(Fault)
 public:
 
-    void		setTrcKeyZSampling(
-				const TrcKeyZSampling&,bool upd=false);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&,
+					   bool upd=false);
 
     void		draw();
     void		enablePainting(bool yn);
@@ -36,13 +36,13 @@ public:
 
     NotifierAccess*	deSelection() override		{ return &deselected_; }
 
-protected:
+private:
 
     void		triggerDeSel() override;
     void		setEditors() override;
 
-    bool		knotenabled_;
-    MPE::FaultEditor*	f3deditor_;
+    bool		knotenabled_	= false;
+    RefMan<MPE::FaultEditor>	f3deditor_;
     ObjectSet<MPE::Fault3DFlatViewEditor> faulteds_;
     Notifier<Fault>		deselected_;
 };

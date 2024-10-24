@@ -16,9 +16,6 @@ ________________________________________________________________________
 namespace MPE
 {
 
-mImplFactory1Param( SectionExtender, EM::EMObject*, ExtenderFactory )
-
-
 SectionExtender::SectionExtender()
     : extboundary_(false)
 {}

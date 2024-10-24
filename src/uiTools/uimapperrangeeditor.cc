@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
     : uiHistogramSel( p, uiHistogramDisplay::Setup()
-	    		.border( uiBorder(20,20,20,40)).fixdrawrg(fixdrawrg),id)
+			.border( uiBorder(20,20,20,40)).fixdrawrg(fixdrawrg),id)
     , ctmapper_(new ColTab::MapperSetup)
     , ctseq_(new ColTab::Sequence)
     , sequenceChanged(this)
@@ -36,9 +36,13 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id, bool fixdrawrg )
 
 uiMapperRangeEditor::~uiMapperRangeEditor()
 {
-    delete ctminline_; delete ctmaxline_;
-    delete leftcoltab_; delete centercoltab_; delete rightcoltab_;
-    delete ctseq_; delete ctmapper_;
+    delete ctminline_;
+    delete ctmaxline_;
+    delete leftcoltab_;
+    delete centercoltab_;
+    delete rightcoltab_;
+    delete ctseq_;
+    delete ctmapper_;
 }
 
 

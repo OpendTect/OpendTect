@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "sharedobject.h"
 
 #include "bufstring.h"
 #include "coord.h"
@@ -17,6 +16,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "multiid.h"
 #include "notify.h"
+#include "sharedobject.h"
 #include "trckeyzsampling.h"
 #include "uistring.h"
 

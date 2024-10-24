@@ -253,16 +253,16 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	{
 	    RefMan<EM::EMObject> emobj =
 		    EM::EMM().createTempObject( EM::RandomPosBody::typeStr() );
-	    ConstRefMan<DataPointSet> data = display->getDataPack();
+	    ConstRefMan<PointDataPack> data = display->getPointDataPack(0);
+	    mDynamicCastGet(const DataPointSet*,dps,data.ptr());
 	    mDynamicCastGet( EM::RandomPosBody*, emps, emobj.ptr() );
-	    if ( !emps )
+	    if ( !dps || !emps )
 		return;
 
 	    if ( dispprop_->showSelected() )
-		emps->copyFrom( *data, dlg.selGrpIdx() );
+		emps->copyFrom( *dps, dlg.selGrpIdx() );
 	    else
-		emps->copyFrom( *data, dispprop_->dpsColID(),
-				dlg.getValRange() );
+		emps->copyFrom( *dps, dispprop_->dpsColID(), dlg.getValRange());
 
 	    treeToBeAdded.trigger( emps->id() );
 	}
@@ -277,18 +277,22 @@ void uiVisDataPointSetDisplayMgr::handleMenuCB( CallBacker* cb )
 	if ( !pickset )
 	    return;
 
-	ConstRefMan<DataPointSet> data = display->getDataPack();
-	for ( int rid=0; rid<data->size(); rid++ )
+	ConstRefMan<PointDataPack> data = display->getPointDataPack(0);
+	mDynamicCastGet(const DataPointSet*,dps,data.ptr());
+	if ( !dps )
+	    return;
+
+	for ( int rid=0; rid<dps->size(); rid++ )
 	{
 	    bool useloc = false;
 	    if ( dispprop_->showSelected() )
-		useloc = data->selGroup(rid) == dlg.selGrpIdx();
+		useloc = dps->selGroup(rid) == dlg.selGrpIdx();
 	    else
 		useloc = dlg.getValRange().includes(
-		      data->value(dispprop_->dpsColID(),rid),true);
+		      dps->value(dispprop_->dpsColID(),rid),true);
 
 	    if ( useloc )
-		pickset->add( data->coord(rid), data->z(rid) );
+		pickset->add( dps->coord(rid), dps->z(rid) );
 	}
 
 	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
@@ -361,7 +365,8 @@ uiVisDataPointSetDisplayMgr::getDisplayID( const DataPointSet& dps ) const
 	{
 	    ConstRefMan<visSurvey::PointSetDisplay> psd =
 						getPSD( visserv_, visid );
-	    ConstRefMan<DataPack> dp = psd ? psd->getDataPack() : nullptr;
+	    ConstRefMan<PointDataPack> dp = psd ? psd->getPointDataPack(0)
+						: nullptr;
 	    if ( dp && dp->id() == dps.id() )
 		return displayinfo->dispid_;
 	}
@@ -411,7 +416,7 @@ uiVisDataPointSetDisplayMgr::addDisplay( const TypeSet<ParentID>& parents,
 
 	visserv_.addObject( display.ptr(), SceneID(parents[idx].asInt()), true);
 	display->setDispProp( dispprop_ );
-	display->setDataPack( dps.id() );
+	display->setDataPointSet( dps );
 	uiTaskRunner taskrunner( visserv_.appserv().parent() );
 	display->update( &taskrunner );
 
@@ -467,7 +472,7 @@ bool uiVisDataPointSetDisplayMgr::addDisplays( const TypeSet<ParentID>& parents,
 	    visserv_.addObject( display.ptr(),
 				SceneID(parents[idx].asInt()), true);
 	    display->setDispProp( dispprop_ );
-	    display->setDataPack( dps.id() );
+	    display->setDataPointSet( dps );
 	    dispupdatergrp.add( display->getUpdater() );
 
 	    displayinfo->sceneids_ += allsceneids_[idx];
@@ -597,7 +602,7 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( const DispID& id,
 	    continue;
 
 	display->setDispProp( dispprop_ );
-	display->setDataPack( dps.id() );
+	display->setDataPointSet( dps );
 	uiTaskRunner taskrunner( visserv_.appserv().parent() );
 	display->update( &taskrunner );
     }

@@ -1198,7 +1198,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
 					 uiTaskRunner& )
 {
-    const uiVisPartServer* visserv = applMgr()->visServer();
+    uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject(displayID()))
     if ( !s2d )

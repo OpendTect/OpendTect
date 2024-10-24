@@ -38,7 +38,7 @@ public:
     void			setWindow(const Interval<float>&);
     Interval<float>		getManipWindow() const;
 
-    Notifier<uiPreviewGroup>	windowChanged_;
+    Notifier<uiPreviewGroup>	windowChanged;
 
 protected:
 
@@ -52,7 +52,7 @@ protected:
     void			mouseMoved(CallBacker*);
     void			mouseReleased(CallBacker*);
     bool			calcNewWindow();
-    bool			mousedown_;
+    bool			mousedown_	= false;
 
     uiCheckList*		wvafld_;
     uiFlatViewer*		vwr_;
@@ -64,7 +64,7 @@ protected:
     FlatView::AuxData*		maxline_;
 
     TrcKeyValue			seedpos_;
-    int				nrtrcs_;
+    int				nrtrcs_		= mUdf(int);
     Interval<float>		zintv_;
     Interval<float>		winintv_;
     Interval<float>		manipwinintv_;

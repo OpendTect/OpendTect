@@ -40,7 +40,7 @@ public:
 
     void		setEditor(MPE::ObjectEditor*);
     void		setPatch(MPE::Patch*);
-    MPE::ObjectEditor*	getMPEEditor();
+    RefMan<MPE::ObjectEditor> getMPEEditor();
     void		setSceneEventCatcher(visBase::EventCatcher*) override;
 
     void		setDisplayTransformation(const mVisTrans*) override;
@@ -102,7 +102,7 @@ protected:
 
     int				rightclicknode_;
 
-    RefMan<MPE::ObjectEditor>	emeditor_;
+    WeakPtr<MPE::ObjectEditor>	emeditor_;
     RefMan<MPE::Patch>		patch_;
 
     RefMan<visBase::Material>	nodematerial_;

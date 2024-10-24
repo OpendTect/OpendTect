@@ -8,7 +8,6 @@ ________________________________________________________________________
 -*/
 
 #include "uiodapplmgr.h"
-#include "uiodapplmgraux.h"
 
 #include "uiactiverunningproc.h"
 #include "uiattribpartserv.h"
@@ -20,6 +19,8 @@ ________________________________________________________________________
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uinlapartserv.h"
+#include "uiodapplmgraux.h"
+#include "uiodapplmgrattrvis.h"
 #include "uiodemsurftreeitem.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
@@ -54,10 +55,10 @@ ________________________________________________________________________
 #include "bendpointfinder.h"
 #include "datacoldef.h"
 #include "datapointset.h"
+#include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
-#include "emobject.h"
 #include "emtracker.h"
 #include "externalattrib.h"
 #include "file.h"
@@ -65,7 +66,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "keystrs.h"
 #include "mouseevent.h"
-#include "mpeengine.h"
 #include "od_helpids.h"
 #include "oddirs.h"
 #include "odsession.h"
@@ -81,12 +81,9 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     , getOtherFormatData(this)
     , appl_(a)
     , applservice_(*new uiODApplService(&a,*this))
-    , nlaserv_(0)
     , dispatcher_(*new uiODApplMgrDispatcher(*this,&appl_))
     , attrvishandler_(*new uiODApplMgrAttrVisHandler(*this,&appl_))
     , mousecursorexchange_( *new MouseCursorExchange )
-    , otherformatattrib_(-1)
-    , visdpsdispmgr_(0)
 {
     pickserv_ = new uiPickPartServer( applservice_ );
     visserv_ = new uiVisPartServer( applservice_ );
@@ -284,10 +281,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
     }
 
     volprocserv_ = new uiVolProcPartServer( applservice_ );
-
     mpeserv_ = new uiMPEPartServer( applservice_ );
-    MPE::engine().init();
-
     wellserv_ = new uiWellPartServer( applservice_ );
     emattrserv_ = new uiEMAttribPartServer( applservice_ );
 }
@@ -551,13 +545,14 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
     if ( selspecchanged )
 	visserv_->setSelSpecs( visid, attrib, myas );
 
-    ConstRefMan<RegularSeisDataPack> seisdp =
+    ConstRefMan<SeisDataPack> seisdp =
 				visserv_->getSeisDataPack( visid, attrib );
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid,attrib) )
     {
 	case uiVisPartServer::Cube :
 	{
+	    mDynamicCastGet(const RegularSeisDataPack*,regseisdp,seisdp.ptr());
 	    const TrcKeyZSampling tkzs =
 				visserv_->getTrcKeyZSampling( visid, attrib );
 	    if ( !tkzs.isDefined() )
@@ -582,7 +577,7 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 		}
 
 		uiTaskRunner progm( &appl_ );
-		newdp = calc->createAttrib( tkzs, seisdp.ptr(), &progm );
+		newdp = calc->createAttrib( tkzs, regseisdp, &progm );
 		if ( !newdp && !calc->errmsg_.isEmpty() )
 		{
 		    if ( ODMainWin()->isRestoringSession() )
@@ -594,7 +589,7 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 	    else
 	    {
 		attrserv_->setTargetSelSpecs( myas );
-		newdp = attrserv_->createOutput( tkzs, seisdp.ptr() );
+		newdp = attrserv_->createOutput( tkzs, regseisdp );
 	    }
 
 	    const TypeSet<Attrib::SelSpec>& tmpset =
@@ -612,8 +607,8 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 		return false;
 	    }
 
-	    res = visserv_->setSeisDataPack( visid, attrib,
-					     newdp.getNonConstPtr() );
+	    res = visserv_->setRegularSeisDataPack( visid, attrib,
+						    newdp.getNonConstPtr() );
 	    break;
 	}
 	case uiVisPartServer::Traces :
@@ -628,20 +623,16 @@ bool uiODApplMgr::getNewData( const VisID& visid, int attrib )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc =
-			    Attrib::ExtAttrFact().create( 0, myas[0], false );
+			Attrib::ExtAttrFact().create( nullptr, myas[0], false );
 		// TODO implement
 		break;
 	    }
 
-	    //TODO: update
-	    const DataPackID newid = attrserv_->createRdmTrcsOutput(
-					zrg, rdmtdisp->getRandomLineID() );
-	    res = true;
-	    if ( !newid.isValid() )
-		res = false;
-
-	    if ( visserv_->setDataPackID(visid,attrib,newid) )
-		DPM( DataPackMgr::SeisID() ).unRef( newid );
+	    ConstRefMan<RandomSeisDataPack> newdp =
+		attrserv_->createRdmTrcsOutputRM( zrg,
+						  rdmtdisp->getRandomLineID() );
+	    res = visserv_->setRandomSeisDataPack( visid, attrib,
+						   newdp.getNonConstPtr() );
 	    break;
 	}
 	case uiVisPartServer::RandomPos :
@@ -741,10 +732,11 @@ void uiODApplMgr::calcShiftAttribute( int attrib, const Attrib::SelSpec& as )
     }
 
     dps->dataChanged();
-    visServer()->setRandomPosData( visServer()->getEventObjId(),
-				   attrib, dps.ptr() );
+    if ( !setRandomPosData(visServer()->getEventObjId(),attrib,*dps.ptr()) )
+	return;
+
     visserv_->setSelSpec( visserv_->getEventObjId(), attrib, as );
-    visServer()->selectTexture( visServer()->getEventObjId(), attrib,
+    visserv_->selectTexture( visServer()->getEventObjId(), attrib,
 				emattrserv_->textureIdx() );
     parent->updateColumnText( uiODSceneMgr::cNameColumn() );
 }
@@ -762,58 +754,68 @@ bool uiODApplMgr::calcRandomPosAttrib( const VisID& visid, int attrib )
 	return false;
 
     Attrib::SelSpec myas( *as );
-    DataPackMgr& dpm = DPM(DataPackMgr::PointID());
+    const BufferString userref( myas.userRef() );
     if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
     {
-	const MultiID surfmid = visserv_->getMultiID(visid);
-	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
-	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
+	const MultiID surfmid = visserv_->getMultiID( visid );
+	const EM::ObjectID emid = emserv_->getObjectID( surfmid );
+	const int auxdatanr = emserv_->loadAuxData( emid, userref.buf() );
 	if ( auxdatanr>=0 )
 	{
-	    RefMan<DataPointSet> data = new DataPointSet( false, true );
-	    dpm.add( data );
+	    RefMan<DataPointSet> dps = new DataPointSet( false, true );
 	    TypeSet<float> shifts( 1, 0 );
-	    emserv_->getAuxData( emid, auxdatanr, *data, shifts[0] );
-	    setRandomPosData( visid, attrib, *data );
+	    emserv_->getAuxData( emid, auxdatanr, *dps.ptr(), shifts[0] );
+	    if ( !setRandomPosData(visid,attrib,*dps.ptr()) )
+		return false;
+
 	    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
 			    visserv_->getObject(visid) )
 	    vishor->setAttribShift( attrib, shifts );
 
-	    BufferStringSet* userrefs = new BufferStringSet;
+	    auto* userrefs = new BufferStringSet;
 	    userrefs->add( "Section ID" );
-	    userrefs->add( myas.userRef() );
+	    userrefs->add( userref.buf() );
 	    vishor->setUserRefs( attrib, userrefs );
 	}
 
 	return auxdatanr>=0;
     }
 
-    RefMan<DataPointSet> data = new DataPointSet( false, true );
-    dpm.add( data );
-    visserv_->getRandomPos( visid, *data );
-    const int firstcol = data->nrCols();
-    data->dataSet().add( new DataColDef(myas.userRef()) );
-    attrserv_->setTargetSelSpec( myas );
-    if ( !attrserv_->createOutput(*data,firstcol) )
+    visBase::DataObject* dataobj = visserv_->getObject( visid );
+    mDynamicCastGet(visSurvey::SurveyObject*,survobj,dataobj);
+    if ( !survobj || survobj->getAttributeFormat(attrib) !=
+			visSurvey::SurveyObject::RandomPos )
 	return false;
 
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv_->getObject(visid))
-    mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv_->getObject(visid))
-    if ( fd )
+    RefMan<DataPointSet> dps = new DataPointSet( false, true );
+    if ( !visserv_->getRandomPos(visid,*dps.ptr()) || dps->isEmpty() )
+	return false;
+
+    const DataColDef dcol( userref.buf() );
+    dps->dataSet().add( new DataColDef(dcol) );
+    const DataPointSet::ColID colid = dps->indexOf( dcol.name_.buf() );
+    attrserv_->setTargetSelSpec( myas );
+    if ( !attrserv_->createOutput(*dps.ptr(),colid) )
+	return false;
+
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,survobj)
+    if ( hd )
     {
-	const DataPackID id = fd->addDataPack( *data );
-	fd->setDataPackID( attrib, id, nullptr );
-	fd->setRandomPosData( attrib, data.ptr(), 0 );
-	if ( visServer()->getSelAttribNr() == attrib )
-	    fd->useTexture( true, true ); // tree only, not at restore session
+	if ( !setRandomPosData(visid,attrib,*dps.ptr()) )
+	    return false;
+
+	TypeSet<float> shifts( 1,(float)visserv_->getTranslation(visid).z_);
+	hd->setAttribShift( attrib, shifts );
     }
     else
     {
-	setRandomPosData( visid, attrib, *data );
-	if ( hd )
+	if ( !setRandomPosData(visid,attrib,*dps.ptr()) )
+	    return false;
+
+	if ( visserv_->getSelAttribNr() == attrib )
 	{
-            TypeSet<float> shifts( 1,(float)visserv_->getTranslation(visid).z_ );
-	    hd->setAttribShift( attrib, shifts );
+	    survobj->useTexture( true, true );
+	    // tree only, not at restore session
 	}
     }
 
@@ -823,13 +825,14 @@ bool uiODApplMgr::calcRandomPosAttrib( const VisID& visid, int attrib )
 
 bool uiODApplMgr::evaluateAttribute( const VisID& visid, int attrib )
 {
-    uiVisPartServer::AttribFormat format =
+    const uiVisPartServer::AttribFormat format =
 				visserv_->getAttributeFormat( visid, attrib );
     if ( format == uiVisPartServer::Cube )
     {
-	const TrcKeyZSampling cs = visserv_->getTrcKeyZSampling( visid );
-	DataPackID packid  = attrserv_->createOutput( cs, DataPack::cNoID() );
-	visserv_->setDataPackID( visid, attrib, packid );
+	const TrcKeyZSampling tkzs = visserv_->getTrcKeyZSampling( visid );
+	RefMan<RegularSeisDataPack> regsdp =
+				attrserv_->createOutputRM( tkzs, nullptr );
+	visserv_->setRegularSeisDataPack( visid, attrib, regsdp.ptr() );
     }
     else if ( format==uiVisPartServer::Traces )
     {
@@ -838,16 +841,19 @@ bool uiODApplMgr::evaluateAttribute( const VisID& visid, int attrib )
 	visserv_->getDataTraceBids( visid, bids );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			visserv_->getObject(visid) );
-	const DataPackID dpid = attrserv_->createRdmTrcsOutput(
-		zrg, rdmtdisp->getRandomLineID() );
-	visserv_->setDataPackID( visid, attrib, dpid );
+	if ( !rdmtdisp )
+	    return false;
+
+	RefMan<RandomSeisDataPack> randdp =
+	    attrserv_->createRdmTrcsOutputRM( zrg, rdmtdisp->getRandomLineID());
+	visserv_->setRandomSeisDataPack( visid, attrib, randdp.ptr() );
     }
     else if ( format==uiVisPartServer::RandomPos )
     {
-	RefMan<DataPointSet> data = new DataPointSet( false, true );
-	visserv_->getRandomPos( visid, *data );
-	attrserv_->createOutput( *data, data->nrCols() );
-	visserv_->setRandomPosData( visid, attrib, data.ptr() );
+	RefMan<DataPointSet> dps = new DataPointSet( false, true );
+	return visserv_->getRandomPos( visid, *dps.ptr() ) && !dps->isEmpty() &&
+	       attrserv_->createOutput( *dps.ptr(), dps->nrCols() ) &&
+	       setRandomPosData( visid, attrib, *dps.ptr() );
     }
     else
     {
@@ -863,16 +869,13 @@ bool uiODApplMgr::evaluate2DAttribute( const VisID& visid, int attrib )
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(visid))
-    if ( !s2d ) return false;
-
-    const DataPackID dpid = attrserv_->createOutput(
-						s2d->getTrcKeyZSampling(false),
-						      DataPack::cNoID() );
-    if ( dpid == DataPack::cNoID() )
+    if ( !s2d )
 	return false;
 
-    s2d->setDataPackID( attrib, dpid, 0 );
-    return true;
+    const TrcKeyZSampling tkzs = s2d->getTrcKeyZSampling( false );
+    RefMan<RegularSeisDataPack> regsdp =
+				attrserv_->createOutputRM( tkzs, nullptr );
+    return visserv_->setRegularSeisDataPack( visid, attrib, regsdp.ptr() );
 }
 
 
@@ -931,17 +934,25 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 {
     if ( evid == uiMPEPartServer::evAddTreeObject() )
     {
-	const int trackerid = mpeserv_->activeTrackerID();
-	const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
+	const EM::ObjectID emid = mpeserv_->activeTrackerEMID();
 	const SceneID sceneid = mpeserv_->getCurSceneID();
 	const VisID sdid = sceneMgr().addEMItem( emid, sceneid );
 	if ( !sdid.isValid() )
 	    return false;
 
-	const EM::EMObject* emobj = EM::EMM().getObject( emid );
-	if ( EM::Horizon3D::typeStr()==emobj->getTypeStr() )
+	mDynamicCastGet(visSurvey::EMObjectDisplay*,visemdisplay,
+			visserv_->getObject(sdid));
+	if ( !visemdisplay || !visemdisplay->activateTracker() )
+	    return false;
+
+	ConstRefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+	if ( !emobj )
+	    return false;
+
+	const StringView typestr = emobj->getTypeStr();
+	if ( typestr == EM::Horizon3D::typeStr() )
 	    viewer2DMgr().addNewTrackingHorizon3D( emid, sceneid );
-	else
+	else if ( typestr == EM::Horizon2D::typeStr() )
 	    viewer2DMgr().addNewTrackingHorizon2D( emid, sceneid );
 
 	sceneMgr().updateTrees();
@@ -949,9 +960,12 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     }
     else if ( evid == uiMPEPartServer::evRemoveTreeObject() )
     {
-	const int trackerid = mpeserv_->activeTrackerID();
-	const EM::ObjectID emid = mpeserv_->getEMObjectID( trackerid );
+	ConstRefMan<MPE::EMTracker> activetracker =
+						mpeserv_->getActiveTracker();
+	if ( !activetracker )
+	    return false;
 
+	const EM::ObjectID emid = activetracker->objectID();
 	TypeSet<SceneID> sceneids;
 	visserv_->getSceneIds( sceneids );
 
@@ -970,7 +984,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	for ( int idx=0; idx<hordisplayids.size(); idx++ )
 	{
 	    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-		    visserv_->getObject(hordisplayids[idx]));
+			    visserv_->getObject(hordisplayids[idx]));
 	    if ( emod && emod->getObjectID()==emid )
 	    {
 		for ( int idy=0; idy<sceneids.size(); idy++ )
@@ -1266,27 +1280,28 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	    {
 		if ( idx==attribidx )
 		{
-		    RefMan<DataPointSet> data = new DataPointSet( false, true );
-		    visserv_->getRandomPosCache( shiftvisid, attribidx, *data );
-		    if ( data->isEmpty() )
+		    RefMan<DataPointSet> dps = new DataPointSet( false, true );
+		    if ( !visserv_->getRandomPosCache(shiftvisid,attribidx,
+						      *dps.ptr()) ||
+			 dps->isEmpty() )
 			continue;
 
-		    const int sididx = data->dataSet().findColDef(
+		    const int sididx = dps->dataSet().findColDef(
 			    emattrserv_->sidDef(), PosVecDataSet::NameExact );
 
 		    int texturenr = emattrserv_->textureIdx() + 1;
 		    if ( sididx<=texturenr )
 			texturenr++;
 
-		    const int nrvals = data->bivSet().nrVals();
+		    const int nrvals = dps->bivSet().nrVals();
 		    for ( int idy=nrvals-1; idy>0; idy-- )
 		    {
 			if ( idy!=texturenr && idy!=sididx )
-			    data->bivSet().removeVal( idy );
+			    dps->bivSet().removeVal( idy );
 		    }
 
-		    visserv_->setRandomPosData( shiftvisid,
-						attribidx, data.ptr() );
+		    if ( !setRandomPosData(shiftvisid,attribidx,*dps.ptr()) )
+			return false;
 		}
 	    }
 	}
@@ -1422,11 +1437,10 @@ bool uiODApplMgr::handleVisServEv( int evid )
     {
 	const VisID selobjvisid = visserv_->getSelObjectId();
 	mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
-				visserv_->getObject(selobjvisid))
+			visserv_->getObject(selobjvisid))
 	const EM::ObjectID emid =
 			emod ? emod->getObjectID() : EM::ObjectID::udf();
-	const int trackerid = mpeserv_->getTrackerID(emid);
-	MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+	RefMan<MPE::EMTracker> tracker =  mpeserv_->getTrackerByID( emid );
 	if ( tracker )
 	    tracker->enable( false );
     }
@@ -1924,9 +1938,9 @@ void uiODApplMgr::setHistogram( const VisID& visid, int attrib )
 { attrvishandler_.setHistogram(visid,attrib); }
 void uiODApplMgr::colMapperChg( CallBacker* )
 { attrvishandler_.colMapperChg(); }
-void uiODApplMgr::setRandomPosData( const VisID& visid, int attrib,
+bool uiODApplMgr::setRandomPosData( const VisID& visid, int attrib,
 				    const DataPointSet& data )
-{ attrvishandler_.setRandomPosData(visid,attrib,data); }
+{ return attrvishandler_.setRandomPosData( visid, attrib, data ); }
 void uiODApplMgr::pageUpDownPressed( bool pageup )
 { attrvishandler_.pageUpDownPressed(pageup); sceneMgr().updateTrees(); }
 void uiODApplMgr::updateColorTable( const VisID& visid, int attrib )

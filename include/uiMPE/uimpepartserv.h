@@ -9,15 +9,18 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
+
 #include "attribsel.h"
-#include "uiapplserv.h"
-#include "multiid.h"
-#include "trckeyzsampling.h"
 #include "datapack.h"
 #include "emposid.h"
 #include "emtracker.h"
+#include "multiid.h"
+#include "trckeyzsampling.h"
+#include "uiapplserv.h"
 
 class BufferStringSet;
+class FlatDataPack;
+class RegularSeisDataPack;
 
 namespace Geometry { class Element; }
 namespace MPE { class uiSetupGroup; class DataHolder; }
@@ -37,28 +40,24 @@ public:
 
     const char*			name() const override		{ return "MPE";}
 
-    int				getTrackerID(const EM::ObjectID&) const;
-    int				getTrackerID(const char* name) const;
-    void			getTrackerTypes(BufferStringSet&) const;
-    bool			addTracker(const char* trackertype,
+    bool			hasTracker() const;
+    bool			hasTracker(const EM::ObjectID&) const;
+    bool			isActiveTracker(const EM::ObjectID&) const;
+    void			setActiveTracker(const EM::ObjectID&);
+    ConstRefMan<MPE::EMTracker> getActiveTracker() const;
+    ConstRefMan<MPE::EMTracker> getTrackerByID(const EM::ObjectID&) const;
+    RefMan<MPE::EMTracker>	getTrackerByID(const EM::ObjectID&);
+    void			getTrackerIDsByType(const char* typestr,
+						TypeSet<EM::ObjectID>&) const;
+    bool			addTracker(const char* typestr,
 					   const SceneID&);
-    int				addTracker(const EM::ObjectID&,
-					   const Coord3& pos);
-				/*!<Creates a new tracker for the object and
-				    returns the trackerid of it or -1 if it
-				    failed.
-				    \param pos should contain the clicked
-					   position. If the activevolume is not
-					   set before, it will be centered
-					   pos, otherwise, it will be expanded
-					   to include pos. */
-    EM::ObjectID		getEMObjectID(int trackerid) const;
     SceneID			getCurSceneID() const { return cursceneid_; }
 
-    bool			canAddSeed(int trackerid) const;
+    bool			isTrackingEnabled(const EM::ObjectID&) const;
+    bool			trackingInProgress() const;
+    void			enableTracking(const EM::ObjectID&,bool yn);
 
-    void			enableTracking(int trackerid,bool yn);
-    bool			isTrackingEnabled(int trackerid) const;
+    bool			hasEditor(const EM::ObjectID&) const;
 
     bool			showSetupDlg(const EM::ObjectID&);
 				/*!<\returns false if cancel was pressed. */
@@ -67,7 +66,7 @@ public:
     void			useSavedSetupDlg(const EM::ObjectID&);
     MPE::uiSetupGroup*		getSetupGroup()	{ return setupgrp_; }
 
-    int				activeTrackerID() const;
+    EM::ObjectID		activeTrackerEMID() const;
 				/*!< returns the trackerid of the last event */
 
     static int			evGetAttribData();
@@ -81,11 +80,9 @@ public:
 					     attrib if tracking should
 					     be possible in the activeVolume. */
     const Attrib::SelSpec*	getAttribSelSpec() const;
-    void			setAttribData(const Attrib::SelSpec&,
-					      DataPackID);
 
     static int			evCreate2DSelSpec();
-    Pos::GeomID		getGeomID() const;
+    Pos::GeomID			getGeomID() const;
     const char*			get2DLineName() const;
     const char*			get2DAttribName() const;
     void			set2DSelSpec(const Attrib::SelSpec&);
@@ -107,11 +104,13 @@ public:
     static int			evSelectAttribForTracking();
 
     void			loadTrackSetupCB(CallBacker*);
+    void			applClosedCB(CallBacker*);
     bool			prepareSaveSetupAs(const MultiID&);
     bool			saveSetupAs(const MultiID&);
     bool			saveSetup(const MultiID&);
     bool			readSetup(const MultiID&);
     void			attribSelectedForTracking();
+    void			closeSetupDlg();
 
     bool			sendMPEEvent(int);
 
@@ -120,20 +119,20 @@ public:
 
 // Deprecated public functions
     mDeprecated("Use without SectionID")
-    bool			showSetupDlg(const EM::ObjectID& objid,
-					     const EM::SectionID&)
-				{ return showSetupDlg(objid); }
+    bool			showSetupDlg( const EM::ObjectID& objid,
+					      const EM::SectionID& )
+				{ return showSetupDlg( objid ); }
     mDeprecated("Use without SectionID")
-    void			useSavedSetupDlg(const EM::ObjectID& objid,
-						 const EM::SectionID&)
-				{ useSavedSetupDlg(objid); }
+    void			useSavedSetupDlg( const EM::ObjectID& objid,
+						  const EM::SectionID& )
+				{ useSavedSetupDlg( objid ); }
 protected:
+
     void			activeVolumeChange(CallBacker*);
-    void			loadEMObjectCB(CallBacker*);
     void			mergeAttribSets(const Attrib::DescSet& newads,
 						MPE::EMTracker&);
-    bool			initSetupDlg(EM::EMObject*& emobj,
-					     MPE::EMTracker*& tracker,
+    bool			initSetupDlg(EM::EMObject& emobj,
+					     MPE::EMTracker& tracker,
 					     bool freshdlg=false);
 
     const Attrib::DescSet*	attrset3d_			= nullptr;
@@ -141,17 +140,18 @@ protected:
 
 				//Interaction variables
     const Attrib::SelSpec*	eventattrselspec_		= nullptr;
-    int				activetrackerid_		= -1;
-    int				temptrackerid_			= -1;
+    WeakPtr<MPE::EMTracker>	activertracker_;
+    WeakPtr<MPE::EMTracker>	temptracker_;
+    EM::ObjectID		trackercurrentobject_;
+    EM::ObjectID		temptrackerobject_;
     SceneID			cursceneid_;
 
 				//2D interaction
-    Pos::GeomID		geomid_;
+    Pos::GeomID			geomid_;
     Attrib::SelSpec		lineselspec_;
 
     void			aboutToAddRemoveSeed(CallBacker*);
     void			seedAddedCB(CallBacker*);
-    EM::ObjectID		trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
 
     int				initialundoid_			= mUdf(int);
@@ -167,7 +167,6 @@ protected:
 
     void			nrHorChangeCB(CallBacker*);
 
-    void			noTrackingRemoval();
     void			cleanSetupDependents();
 
     MPE::uiSetupGroup*		setupgrp_			= nullptr;
@@ -177,5 +176,5 @@ private:
     static uiString		sNoAskGoOnStr();
 
 public:
-    void			fillTrackerSettings(int trackerid);
+    void			fillTrackerSettings(const EM::ObjectID&);
 };

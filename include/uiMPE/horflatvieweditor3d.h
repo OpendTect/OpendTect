@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "uimpemod.h"
-#include "uimpemod.h"
-#include "trckeyzsampling.h"
+
 #include "emposid.h"
 #include "flatview.h"
+#include "trckeyzsampling.h"
 
 namespace Attrib { class SelSpec; }
 namespace EM { class HorizonPainter3D; }
@@ -31,7 +31,7 @@ class EMSeedPicker;
 mExpClass(uiMPE) HorizonFlatViewEditor3D : public CallBacker
 { mODTextTranslationClass(HorizonFlatViewEditor3D);
 public:
-    			HorizonFlatViewEditor3D(FlatView::AuxDataEditor*,
+			HorizonFlatViewEditor3D(FlatView::AuxDataEditor*,
 						const EM::ObjectID&);
 			~HorizonFlatViewEditor3D();
 
@@ -70,12 +70,12 @@ protected:
 
     void		handleMouseClicked(bool dbl);
     bool		checkSanity(EMTracker&,const EMSeedPicker&,
-	    			    bool& pickinvd) const;
+				    bool& pickinvd) const;
     bool		prepareTracking(bool pickinvd,const EMTracker&,
-	    			       EMSeedPicker&,const FlatDataPack&) const;
+				       EMSeedPicker&,const FlatDataPack&) const;
     bool		getPosID(const Coord3&,EM::PosID&) const;
     bool		doTheSeed(EMSeedPicker&,const Coord3&,
-	    			  const MouseEvent&);
+				  const MouseEvent&);
     void		sowingFinishedCB(CallBacker*);
     void		keyPressedCB(CallBacker*);
     void		polygonFinishedCB(CallBacker*);
@@ -104,20 +104,20 @@ protected:
 
     FlatView::AuxDataEditor*	editor_;
     ObjectSet<Hor3DMarkerIdInfo> markeridinfos_;
-    MouseEventHandler*		mehandler_;
+    MouseEventHandler*		mehandler_		= nullptr;
     TrcKeyZSampling		curcs_;
-    const TrcKeyPath*		curtkpath_;
-    const Attrib::SelSpec*	vdselspec_;
-    const Attrib::SelSpec*	wvaselspec_;
+    const TrcKeyPath*		curtkpath_		= nullptr;
+    const Attrib::SelSpec*	vdselspec_		= nullptr;
+    const Attrib::SelSpec*	wvaselspec_		= nullptr;
 
-    bool			trackersetupactive_;
+    bool			trackersetupactive_	= false;
     TrcKey			pickedpos_;
-    mutable bool		dodropnext_;
+    mutable bool		dodropnext_		= false;
 
-    FlatView::AuxData*		patchdata_;
+    FlatView::AuxData*		patchdata_		= nullptr;
     TypeSet<EM::PosID>		pointselections_;
-    bool			sowingmode_;
-    bool			pickinvd_;
+    bool			sowingmode_		= false;
+    bool			pickinvd_		= true;
 };
 
 } // namespace MPE

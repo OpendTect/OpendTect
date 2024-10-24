@@ -84,7 +84,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , oldactivevol_(false)
     , lockeddisplaytimer_(new LockedDisplayTimer)
 {
-    mAttachCB( engine().trackeraddremove, uiMPEMan::trackerAddedRemovedCB );
+    mAttachCB( engine().trackeradded, uiMPEMan::trackerAddedCB );
     mAttachCB( engine().actionCalled, uiMPEMan::mpeActionCalledCB );
     mAttachCB( engine().actionFinished, uiMPEMan::mpeActionFinishedCB );
 
@@ -125,8 +125,11 @@ void uiMPEMan::mpeActionFinishedCB( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiMPEMan::mpeActionFinishedCB );
     RefMan<visSurvey::HorizonDisplay> hd = getSelectedDisplay();
-    if ( hd )
-	hd->updateAuxData();
+    if ( !hd )
+	return;
+
+    hd->updateAuxData();
+    visserv_->sendVisEvent( uiVisPartServer::evUpdateTree() );
 }
 
 
@@ -169,7 +172,8 @@ void uiMPEMan::keyEventCB( CallBacker* )
     else if ( KeyboardEvent::isReDo(kev) )
 	redo();
 
-    if ( undoonloadedhor || MPE::engine().nrTrackersAlive() == 0 ) return;
+    if ( undoonloadedhor || !MPE::engine().hasTracker() )
+	return;
 
     if ( kev.key_ == OD::KB_K )
     {
@@ -216,7 +220,8 @@ void uiMPEMan::keyEventCB( CallBacker* )
 
 void uiMPEMan::mouseEventCB( CallBacker* )
 {
-    if ( MPE::engine().nrTrackersAlive() == 0 ) return;
+    if ( !MPE::engine().hasTracker() )
+	return;
 
     const MouseEvent& mev = visserv_->getMouseEvent();
     if ( mev.ctrlStatus() && mev.rightButton() && !mev.isPressed() )
@@ -393,18 +398,14 @@ void uiMPEMan::stopTracking()
 
 void uiMPEMan::restrictCurrentHorizon()
 {
-    MPE::EMTracker* tracker = getSelectedTracker();
+    RefMan<MPE::EMTracker> tracker = getSelectedTracker();
     if ( !tracker )
-    {
-	const int nrtrackers = MPE::engine().nrTrackersAlive();
-	if ( nrtrackers > 0 )
-	    tracker = MPE::engine().getTracker( 0 );
-    }
+	tracker = MPE::engine().getActiveTracker();
 
-    EM::EMObject* emobj =
-		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
-    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
-    if ( !hor3d ) return;
+    RefMan<EM::EMObject> emobj = tracker ? tracker->emObject() : nullptr;
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobj.ptr())
+    if ( !hor3d )
+	return;
 
     TypeSet<VisID> visids;
     visserv_->findObject( typeid(visSurvey::HorizonDisplay), visids );
@@ -441,8 +442,9 @@ void uiMPEMan::mouseCursorCallCB( CallBacker* )
 	 MPE::engine().trackingInProgress() )
 	return;
 
-    MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    RefMan<MPE::EMTracker> tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true)
+					    : nullptr;
     if ( !seedpicker )
 	return;
 
@@ -453,30 +455,31 @@ void uiMPEMan::mouseCursorCallCB( CallBacker* )
 
 #define mSeedClickReturn() \
 {\
-if ( seedpicker && clickcatcher_ && clickcatcher_->moreToSow() )\
-{\
-    if (seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||\
-	seedpicker->getTrackMode()==seedpicker->DrawAndSnap )\
-	return;\
-}\
-endSeedClickEvent(emobj);\
-return; \
+    if ( seedpicker && clickcatcher_ && clickcatcher_->moreToSow() )\
+    {\
+	if (seedpicker->getTrackMode()==seedpicker->DrawBetweenSeeds ||\
+	    seedpicker->getTrackMode()==seedpicker->DrawAndSnap )\
+	    return;\
+    }\
+    endSeedClickEvent(emobj.ptr());\
+    return; \
 }\
 
 void uiMPEMan::seedClick( CallBacker* )
 {
-    MPE::EMSeedPicker* seedpicker = 0;
-    EM::EMObject* emobj = 0;
+    MPE::EMSeedPicker* seedpicker = nullptr;
+    RefMan<EM::EMObject> emobj;
     MPE::Engine& engine = MPE::engine();
     if ( engine.trackingInProgress() )
 	mSeedClickReturn();
 
-    MPE::EMTracker* tracker = getSelectedTracker();
+    RefMan<MPE::EMTracker> tracker = getSelectedTracker();
     if ( !tracker )
 	mSeedClickReturn();
 
-    emobj = EM::EMM().getObject( tracker->objectID() );
-    mDynamicCastGet(EM::Horizon*,hor,emobj)
+    const EM::ObjectID emid = tracker->objectID();
+    emobj = EM::EMM().getObject( emid );
+    mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
     if ( !hor )
 	mSeedClickReturn();
 
@@ -485,9 +488,6 @@ void uiMPEMan::seedClick( CallBacker* )
 
     if ( !clickcatcher_ )
 	mSeedClickReturn();
-
-    const int trackerid =
-		MPE::engine().getTrackerByObject( tracker->objectID() );
 
     const VisID clickedobjectid = clickcatcher_->info().getObjID();
     mDynamicCastGet(const visSurvey::SurveyObject*,clickedobject,
@@ -544,16 +544,15 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
     }
 
-    const Attrib::SelSpec* clickedas =
-	clickcatcher_->info().getObjDataSelSpec();
+    const Attrib::SelSpec* clickedas =clickcatcher_->info().getObjDataSelSpec();
     if ( !clickedas )
 	mSeedClickReturn();
 
     const MPE::SectionTracker* sectiontracker =
-			tracker->getSectionTracker( true );
+					tracker->getSectionTracker( true );
     const Attrib::SelSpec* trackedatsel = sectiontracker
-	? sectiontracker->adjuster()->getAttributeSel(0)
-	: 0;
+				? sectiontracker->adjuster()->getAttributeSel(0)
+				: nullptr;
 
     if ( trackedatsel &&
 	 (seedpicker->getTrackMode()!=seedpicker->DrawBetweenSeeds) &&
@@ -573,22 +572,20 @@ void uiMPEMan::seedClick( CallBacker* )
 		    mSeedClickReturn();
 
 		clickedas = clickcatcher_->info().getObjDataSelSpec();
-		DataPackID datapackid =
-				clickcatcher_->info().getObjDataPackID();
-		if ( datapackid.isValid() &&
-			    datapackid!=DataPack::cNoID() )
-		    engine.setAttribData( *clickedas, datapackid );
+		ConstRefMan<RegularSeisDataPack> seisdp =
+					    clickcatcher_->info().getObjData();
+		if ( seisdp )
+		    engine.setAttribData( *clickedas, *seisdp.ptr() );
 	    }
 	    else
 	    {
 		const bool res = uiMSG().askContinue( msg );
 		if ( res )
 		{
-		    DataPackID datapackid =
-				clickcatcher_->info().getObjDataPackID();
-		    if ( datapackid.isValid() &&
-			    datapackid!=DataPack::cNoID() )
-			engine.setAttribData( *clickedas, datapackid );
+		    ConstRefMan<RegularSeisDataPack> seisdp =
+					    clickcatcher_->info().getObjData();
+		    if ( seisdp )
+			engine.setAttribData( *clickedas, *seisdp.ptr() );
 
 		    seedpicker->setSelSpec( clickedas );
 		}
@@ -615,7 +612,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	mSeedClickReturn();
 
     const Pos::GeomID geomid = clickcatcher_->info().getGeomID();
-    const bool undefgeomid = geomid == Survey::GM().cUndefGeomID();
+    const bool undefgeomid = geomid.isUdf();
     TrcKeyValue seedpos( undefgeomid ? TrcKey(SI().transform(seedcrd)) : node,
                          (float)seedcrd.z_ );
 
@@ -629,7 +626,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	clr : emobj->preferredColor();
     if ( !clickedonhorizon && !shiftclicked &&
 	 clickcatcher_->activateSower( sowclr,
-	 tracker->is2D() ? 0 : &seedpicker->getSeedPickArea()) )
+	 tracker->is2D() ? nullptr : &seedpicker->getSeedPickArea()) )
     {
 	 mSeedClickReturn();
     }
@@ -640,8 +637,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	engine.setActive2DLine( geomid );
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
-	DataPackID datapackid = clickcatcher_->info().getObjDataPackID();
-
+	ConstRefMan<RegularSeisDataPack> seisdp =
+					clickcatcher_->info().getObjData();
 	if ( h2dsp )
 	    h2dsp->setSelSpec( clickedas );
 
@@ -651,8 +648,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	    mSeedClickReturn();
 	}
 
-	if ( datapackid.isValid() && datapackid!=DataPack::cNoID() )
-	    engine.setAttribData( *clickedas, datapackid );
+	if ( seisdp )
+	    engine.setAttribData( *clickedas, *seisdp.ptr() );
 
 	h2dsp->setLine( geomid );
 	if ( !h2dsp->startSeedPick() )
@@ -684,20 +681,20 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    if ( clickedas )
 	    {
-		DataPackID datapackid =
-				clickcatcher_->info().getObjDataPackID();
-		if ( datapackid.isValid() && datapackid!=DataPack::cNoID() )
-		    engine.setAttribData( *clickedas, datapackid );
+		ConstRefMan<RegularSeisDataPack> seisdp =
+					    clickcatcher_->info().getObjData();
+		if ( seisdp )
+		    engine.setAttribData( *clickedas, *seisdp.ptr() );
 	    }
 
-	    engine.setOneActiveTracker( tracker );
+	    engine.setOneActiveTracker( tracker.ptr() );
 	    engine.activevolumechange.trigger();
 	}
     }
 
     seedpicker->setSelSpec( clickedas );
     seedpicker->setSowerMode( clickcatcher_->sequentSowing() );
-    beginSeedClickEvent( emobj );
+    beginSeedClickEvent( emobj.ptr() );
 
     const visBase::EventInfo* eventinfo = clickcatcher_->visInfo();
     const bool ctrlbut = OD::ctrlKeyboardButton( eventinfo->buttonstate_ );
@@ -722,25 +719,25 @@ void uiMPEMan::seedClick( CallBacker* )
 	else if ( shiftclicked && ctrlclicked )
 	{
 	    if ( seedpicker->removeSeed( node, true, false ) )
-		engine.updateFlatCubesContainer( newvolume, trackerid, false );
+		tracker->updateFlatCubesContainer( newvolume, false );
 	}
 	else if ( shiftclicked || ctrlclicked )
 	{
 	    if ( seedpicker->removeSeed( node, true, true ) )
-		engine.updateFlatCubesContainer( newvolume, trackerid, false );
+		tracker->updateFlatCubesContainer( newvolume, false );
 	}
 	else
 	{
 	    if ( !sowingmode_ && seedpicker->addSeed(seedpos,false) )
 	    {
-		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+		tracker->updateFlatCubesContainer( newvolume, true );
 		if ( blockcallback )
 		    emobj->geometryElement()->blockCallBacks( true, true );
 	    }
 	    else if ( sowingmode_ && !ctrlbut )
 	    {
 		seedpicker->addSeedToPatch( seedpos, false );
-		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+		tracker->updateFlatCubesContainer( newvolume, true );
 	    }
 	}
     }
@@ -760,7 +757,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	{
 	    if ( seedpicker->addSeed(seedpos, shiftclicked) )
 	    {
-		engine.updateFlatCubesContainer( newvolume, trackerid, true );
+		tracker->updateFlatCubesContainer( newvolume, true );
 		if ( blockcallback )
 		    emobj->geometryElement()->blockCallBacks( true, true );
 	    }
@@ -768,19 +765,23 @@ void uiMPEMan::seedClick( CallBacker* )
 	else if ( sowingmode_ )
 	{
 	    seedpicker->addSeedToPatch( seedpos, false );
-	    engine.updateFlatCubesContainer( newvolume, trackerid, true );
+	    tracker->updateFlatCubesContainer( newvolume, true );
 	}
     }
+
     if ( !clickcatcher_->moreToSow() )
-	endSeedClickEvent( emobj );
+	endSeedClickEvent( emobj.ptr() );
 }
 
 
 void uiMPEMan::planeChangedCB( CallBacker* )
 {
     MPE::EMTracker* tracker = getSelectedTracker();
-    if( !tracker ) return;
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if( !tracker )
+	return;
+
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true)
+					    : nullptr;
     if ( !seedpicker || !seedpicker->getPatch() ||
 	seedpicker->getPatch()->getPath().size()<=0 )
 	return;
@@ -1030,15 +1031,16 @@ void uiMPEMan::treeItemSelCB( CallBacker* )
 void uiMPEMan::validateSeedConMode()
 {
     MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    if ( !seedpicker ) return;
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true)
+					    : nullptr;
+    if ( !seedpicker )
+	return;
 
     const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
     if ( !emobj )
 	return;
 
-    const SectionTracker* sectiontracker =
-			tracker->getSectionTracker( true );
+    const SectionTracker* sectiontracker = tracker->getSectionTracker( true );
     const bool setupavailable = sectiontracker &&
 				sectiontracker->hasInitializedSetup();
     if ( setupavailable )
@@ -1051,7 +1053,7 @@ void uiMPEMan::validateSeedConMode()
 void uiMPEMan::cleanPatchDisplay()
 {
     visSurvey::EMObjectDisplay* emod = getSelectedEMDisplay();
-    visSurvey::MPEEditor* editor = emod ? emod->getEditor() : 0;
+    visSurvey::MPEEditor* editor = emod ? emod->getEditor() : nullptr;
     if ( editor )
 	editor->cleanPatch();
 }
@@ -1145,13 +1147,14 @@ void uiMPEMan::lockAll()
 
 void uiMPEMan::updatePatchDisplay()
 {
-    MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    RefMan<MPE::EMTracker> tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true)
+					    : nullptr;
     if ( !tracker || !seedpicker )
 	return;
 
     visSurvey::EMObjectDisplay* emod = getSelectedEMDisplay();
-    visSurvey::MPEEditor* editor = emod ? emod->getEditor() : 0;
+    visSurvey::MPEEditor* editor = emod ? emod->getEditor() : nullptr;
     if ( editor )
 	editor->displayPatch( seedpicker->getPatch() );
 }
@@ -1161,18 +1164,19 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 {
     const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size()!=1 || visserv_->isLocked(selectedids[0]) )
-	return 0;
+	return nullptr;
 
     mDynamicCastGet( visSurvey::EMObjectDisplay*,
-				surface, visserv_->getObject(selectedids[0]) );
-    if ( !surface ) return 0;
-    const EM::ObjectID oid = surface->getObjectID();
-    const int trackerid = MPE::engine().getTrackerByObject( oid );
-    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-    if ( tracker && tracker->isEnabled() )
-	return tracker;
+		     surface, visserv_->getObject(selectedids[0]) );
+    if ( !surface )
+	return nullptr;
 
-    return 0;
+    const EM::ObjectID oid = surface->getObjectID();
+    RefMan<MPE::EMTracker> tracker = MPE::engine().getTrackerByID( oid );
+    if ( tracker && tracker->isEnabled() )
+	return tracker.ptr();
+
+    return nullptr;
 }
 
 
@@ -1180,7 +1184,7 @@ visSurvey::EMObjectDisplay* uiMPEMan::getSelectedEMDisplay()
 {
     const TypeSet<VisID>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size() != 1 )
-	return 0;
+	return nullptr;
 
     mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
 		    visserv_->getObject(selectedids[0]))
@@ -1206,7 +1210,7 @@ EM::Horizon* uiMPEMan::getSelectedHorizon()
 {
     MPE::EMTracker* tracker = getSelectedTracker();
     EM::EMObject* emobj =
-		tracker ? EM::EMM().getObject(tracker->objectID()) : 0;
+		tracker ? EM::EMM().getObject(tracker->objectID()) : nullptr;
     mDynamicCastGet(EM::Horizon*,hor,emobj)
     return hor;
 }
@@ -1229,7 +1233,8 @@ EM::Horizon2D* uiMPEMan::getSelectedHorizon2D()
 void uiMPEMan::updateSeedPickState()
 {
     MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true)
+				  : nullptr;
 
     if ( !seedpicker )
     {
@@ -1249,9 +1254,9 @@ void uiMPEMan::updateSeedPickState()
 }
 
 
-void uiMPEMan::trackerAddedRemovedCB( CallBacker* )
+void uiMPEMan::trackerAddedCB( CallBacker* )
 {
-    MPE::EMTracker* tracker = getSelectedTracker();
+    RefMan<MPE::EMTracker> tracker = getSelectedTracker();
     if ( !tracker )
     {
 	turnSeedPickingOn( false );

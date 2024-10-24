@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 
 #include "attribsel.h"
-#include "datapack.h"
 #include "factory.h"
 #include "gendefs.h"
 #include "multiid.h"
@@ -92,7 +91,7 @@ public:
     virtual void		snapToTracePos(Coord3&)	const {}
 				//<\Snaps coordinate to a trace position
 
-    virtual NotifierAccess*	getMovementNotifier()	{ return 0; }
+    virtual NotifierAccess*	getMovementNotifier()	{ return nullptr; }
 				/*!<Gives access to a notifier that is triggered
 				    when object is moved or modified. */
 
@@ -275,26 +274,36 @@ public:
     virtual void		getObjectInfo(uiString&) const	{}
 
 				// Data via DataPacks
-    virtual bool		setDataPackID(int attrib,const DataPackID&,
-					      TaskRunner*)
+    virtual bool		usesDataPacks() const	{ return false; }
+    virtual ConstRefMan<DataPack> getDataPack(int attrib) const
+				{ return nullptr; }
+    virtual ConstRefMan<DataPack> getDisplayedDataPack(int attrib) const;
+
+				//PointSet-based datapacks
+    virtual bool		setPointDataPack(int attr,PointDataPack*,
+						 TaskRunner*)
 				{ return false; }
-    virtual DataPackID		getDataPackID(int attrib) const
-				{ return DataPackID::udf(); }
-    virtual DataPackID		getDisplayedDataPackID(int attrib) const
-				{ return DataPackID::udf(); }
-    virtual DataPackMgr::MgrID	getDataPackMgrID() const
-				{ return DataPack::MgrID::udf(); }
+    virtual ConstRefMan<PointDataPack> getPointDataPack(int attr) const
+				{ return nullptr; }
+
+				//Flat datapacks
+    virtual bool		setFlatDataPack(int attr,FlatDataPack*,
+						TaskRunner*)
+				{ return false; }
+    virtual ConstRefMan<FlatDataPack> getFlatDataPack(int attr) const
+				{ return nullptr; }
 
 				//Volume data
     virtual TrcKeyZSampling	getTrcKeyZSampling(bool displayspace=false,
 						int attrib=-1) const;
 				/*!<\returns the volume in world survey
 				     coordinates. */
-    virtual bool		setSeisDataPack(int attrib,RegularSeisDataPack*,
+    virtual bool		setSeisDataPack(int attrib,SeisDataPack*,
 						TaskRunner*)
 				{ return false; }
-    virtual ConstRefMan<RegularSeisDataPack> getSeisDataPack(int attr) const
+    virtual ConstRefMan<SeisDataPack> getSeisDataPack(int attr) const
 				{ return nullptr; }
+    virtual ConstRefMan<SeisDataPack> getDisplayedSeisDataPack(int attr) const;
 
 				//Trace-data
     virtual void		getTraceKeyPath(TrcKeyPath&,
@@ -310,11 +319,13 @@ public:
 				/*! Random pos: Every position is put in the
 				  DataPointSet no matter which original patch
 				  it belongs to*/
-    virtual void		getRandomPos(DataPointSet&,TaskRunner*) const {}
-    virtual void		getRandomPosCache(int attrib,
-						  DataPointSet&) const	{}
-    virtual void		setRandomPosData(int attrib,const DataPointSet*,
-						 TaskRunner*)	       {}
+    virtual bool		getRandomPos(DataPointSet&,TaskRunner*) const
+				{ return false; }
+    virtual bool		getRandomPosCache(int attrib,
+						  DataPointSet&) const
+				{ return false; }
+    virtual bool		setRandomPosData(int attrib,const DataPointSet*,
+						 TaskRunner*) { return false; }
     virtual void		readAuxData()				{}
 
     virtual void		setScene(Scene*);
@@ -409,6 +420,19 @@ protected:
     bool			validtexture_		= false;
 
     friend class Scene;
+
+public:
+
+    mDeprecated("Provide the datapack directly")
+    virtual bool		setDataPackID(int attrib,const DataPackID&,
+					      TaskRunner*);
+    mDeprecated("Retrieve the datapack directly")
+    virtual DataPackID		getDataPackID(int attrib) const;
+    mDeprecated("Retrieve the datapack directly")
+    virtual DataPackID		getDisplayedDataPackID(int attrib) const;
+    mDeprecatedObs
+    virtual DataPackMgr::MgrID	getDataPackMgrID() const
+				{ return DataPack::MgrID::udf(); }
 
 };
 

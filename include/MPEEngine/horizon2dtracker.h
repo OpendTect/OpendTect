@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+
 #include "emtracker.h"
 
 namespace EM { class Horizon2D; }
@@ -25,26 +26,31 @@ class Horizon2DSeedPicker;
 mExpClass(MPEEngine) Horizon2DTracker : public EMTracker
 {
 public:
-				Horizon2DTracker(EM::Horizon2D* =0);
 
-    static EMTracker*		create(EM::EMObject* =0);
-    static void			initClass();
+    static RefMan<Horizon2DTracker> create(EM::Horizon2D&);
+
+private:
+				Horizon2DTracker(EM::Horizon2D&);
+				~Horizon2DTracker();
+
+    bool			hasTrackingMgr() const override;
+    bool			createMgr() override;
+    void			startFromSeeds(const TypeSet<TrcKey>&) override;
+    void			initTrackingMgr() override;
+    bool			trackingInProgress() const override;
+    void			updateFlatCubesContainer(const TrcKeyZSampling&,
+						     bool addremove) override;
+				/*!< add = true, remove = false. */
+    void			stopTracking() override;
 
     bool			is2D() const override		{ return true; }
+
+    SectionTracker*		createSectionTracker() override;
     EMSeedPicker*		getSeedPicker(
 					bool createifnotpresent=true) override;
 
-    static const char*		keyword();
+    Horizon2DSeedPicker*	seedpicker_	= nullptr;
 
-protected:
-
-				~Horizon2DTracker();
-
-    EM::Horizon2D*		getHorizon2D();
-    const EM::Horizon2D*	getHorizon2D() const;
-
-    SectionTracker*		createSectionTracker() override;
-    Horizon2DSeedPicker*	seedpicker_;
 };
 
 } // namespace MPE

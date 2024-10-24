@@ -31,48 +31,24 @@ namespace MPE
 {
 
 FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
-				FlatView::AuxDataEditor* ed,
-				const EM::ObjectID& oid )
+						FlatView::AuxDataEditor* ed,
+						const EM::ObjectID& oid )
     : EM::FaultStickSetFlatViewEditor(ed)
     , editor_(ed)
     , fsspainter_( new EM::FaultStickPainter(ed->viewer(),oid) )
-    , meh_(0)
-    , path_(0)
-    , activestickid_(-1)
-    , seedhasmoved_(false)
-    , mousepid_( EM::PosID::udf() )
-    , makenewstick_(false)
-    , doubleclicked_(false)
 {
-    fsspainter_->abouttorepaint_.notify(
-	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintATSCB) );
-    fsspainter_->repaintdone_.notify(
-	    mCB(this,FaultStickSetFlatViewEditor,fssRepaintedCB) );
+    mAttachCB( fsspainter_->abouttorepaint_,
+	       FaultStickSetFlatViewEditor::fssRepaintATSCB );
+    mAttachCB( fsspainter_->repaintdone_,
+	       FaultStickSetFlatViewEditor::fssRepaintedCB );
     mAttachCB( editor_->sower().sowingEnd,
-	FaultStickSetFlatViewEditor::sowingFinishedCB );
+	       FaultStickSetFlatViewEditor::sowingFinishedCB );
 }
 
 
 FaultStickSetFlatViewEditor::~FaultStickSetFlatViewEditor()
 {
     detachAllNotifiers();
-    if ( meh_ )
-    {
-	editor_->movementStarted.remove(
-		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
-	editor_->movementFinished.remove(
-		mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
-	editor_->removeSelected.remove(
-		mCB(this,FaultStickSetFlatViewEditor,removeSelectionCB) );
-	meh_->movement.remove(
-		mCB(this,FaultStickSetFlatViewEditor,mouseMoveCB) );
-	meh_->buttonPressed.remove(
-		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
-	meh_->buttonReleased.remove(
-		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
-	meh_->doubleClick.remove(
-		mCB(this,FaultStickSetFlatViewEditor,doubleClickedCB) );
-    }
 //	setMouseEventHandler( 0 );
     cleanActStkContainer();
     delete fsspainter_;
@@ -87,40 +63,40 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 
     if ( meh_ )
     {
-	editor_->movementStarted.remove(
-		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
-	editor_->movementFinished.remove(
-		mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
-	editor_->removeSelected.remove(
-		mCB(this,FaultStickSetFlatViewEditor,removeSelectionCB) );
-	meh_->movement.remove(
-		mCB(this,FaultStickSetFlatViewEditor,mouseMoveCB) );
-	meh_->buttonPressed.remove(
-		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
-	meh_->buttonReleased.remove(
-		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
-	meh_->doubleClick.remove(
-		mCB(this,FaultStickSetFlatViewEditor,doubleClickedCB) );
+	mDetachCB( editor_->movementStarted,
+		   FaultStickSetFlatViewEditor::seedMovementStartedCB );
+	mDetachCB( editor_->movementFinished,
+		   FaultStickSetFlatViewEditor::seedMovementFinishedCB );
+	mDetachCB( editor_->removeSelected,
+		   FaultStickSetFlatViewEditor::removeSelectionCB );
+	mDetachCB( meh_->movement,
+		   FaultStickSetFlatViewEditor::mouseMoveCB );
+	mDetachCB( meh_->buttonPressed,
+		   FaultStickSetFlatViewEditor::mousePressCB );
+	mDetachCB( meh_->buttonReleased,
+		   FaultStickSetFlatViewEditor::mouseReleaseCB );
+	mDetachCB( meh_->doubleClick,
+		   FaultStickSetFlatViewEditor::doubleClickedCB );
     }
 
     meh_ = meh;
 
     if ( meh_ )
     {
-	editor_->movementStarted.notify(
-		mCB(this,FaultStickSetFlatViewEditor,seedMovementStartedCB) );
-	editor_->movementFinished.notify(
-		mCB(this,FaultStickSetFlatViewEditor,seedMovementFinishedCB) );
-	editor_->removeSelected.notify(
-		mCB(this,FaultStickSetFlatViewEditor,removeSelectionCB) );
-	meh_->movement.notify(
-		mCB(this,FaultStickSetFlatViewEditor,mouseMoveCB) );
-	meh_->buttonPressed.notify(
-		mCB(this,FaultStickSetFlatViewEditor,mousePressCB) );
-	meh_->buttonReleased.notify(
-		mCB(this,FaultStickSetFlatViewEditor,mouseReleaseCB) );
-	meh_->doubleClick.notify(
-		mCB(this,FaultStickSetFlatViewEditor,doubleClickedCB) );
+	mAttachCB( editor_->movementStarted,
+		   FaultStickSetFlatViewEditor::seedMovementStartedCB );
+	mAttachCB( editor_->movementFinished,
+		   FaultStickSetFlatViewEditor::seedMovementFinishedCB );
+	mAttachCB( editor_->removeSelected,
+		   FaultStickSetFlatViewEditor::removeSelectionCB );
+	mAttachCB( meh_->movement,
+		   FaultStickSetFlatViewEditor::mouseMoveCB );
+	mAttachCB( meh_->buttonPressed,
+		   FaultStickSetFlatViewEditor::mousePressCB );
+	mAttachCB( meh_->buttonReleased,
+		   FaultStickSetFlatViewEditor::mouseReleaseCB );
+	mAttachCB( meh_->doubleClick,
+		   FaultStickSetFlatViewEditor::doubleClickedCB );
     }
 
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
@@ -262,7 +238,7 @@ void FaultStickSetFlatViewEditor::seedMovementStartedCB( CallBacker* cb )
     if ( !emfss )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
@@ -302,7 +278,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     StepInterval<int> colrg = fss->colRange( fsspainter_->getActiveStickId() );
     const int knotid = colrg.start_ + displayedknotid*colrg.step_;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
@@ -437,7 +413,7 @@ void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
     if ( emfss->isEmpty() )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet(MPE::FaultStickSetEditor*,fsseditor,editor.ptr())
     if ( !fsseditor )
 	return;
@@ -510,7 +486,7 @@ void FaultStickSetFlatViewEditor::mousePressCB( CallBacker* cb )
     const StepInterval<int> colrg = fss->colRange( rc.row() );
     rc.col() = colrg.start_ + displayedknotid*colrg.step_;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
@@ -572,7 +548,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !emfss )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     if ( !fsseditor )
 	return;
@@ -729,7 +705,7 @@ void FaultStickSetFlatViewEditor::set2D( bool yn )
 { fsspainter_->set2D( yn ); }
 
 
-void FaultStickSetFlatViewEditor::setGeomID( Pos::GeomID geomid )
+void FaultStickSetFlatViewEditor::setGeomID( const Pos::GeomID& geomid )
 { fsspainter_->setGeomID( geomid ); }
 
 

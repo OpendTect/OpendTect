@@ -26,7 +26,6 @@ set( OD_MODULE_SOURCES
 	uiseis2dgeom.cc
 	uiseis2dto3d.cc
 	uiseis2dto3dinterpol.cc
-	uiseisamplspectrum.cc
 	uiseisbayesclass.cc
 	uiseisbrowser.cc
 	uiseiscbvsimpfromothersurv.cc

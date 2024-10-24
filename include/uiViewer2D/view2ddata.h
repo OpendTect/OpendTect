@@ -9,15 +9,17 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "sharedobject.h"
 
-#include "view2ddataman.h"
+#include "emposid.h"
+#include "sharedobject.h"
 
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
 namespace View2D
 {
+
+class DataManager;
 
 mExpClass(uiViewer2D) DataObject : public SharedObject
 {
@@ -28,7 +30,7 @@ public:
     Vis2DID			id() const		{ return id_; }
     void			setID( const Vis2DID& id )	{ id_ = id; }
 
-    virtual NotifierAccess*	deSelection()		{ return 0; }
+    virtual NotifierAccess*	deSelection()		{ return nullptr; }
 
     virtual bool		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);

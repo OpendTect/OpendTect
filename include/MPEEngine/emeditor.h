@@ -9,12 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "sharedobject.h"
 
-#include "notify.h"
-#include "emposid.h"
-#include "factory.h"
 #include "coord.h"
+#include "emposid.h"
+#include "sharedobject.h"
 
 class BufferStringSet;
 
@@ -43,11 +41,13 @@ be moved, and in what manner.
 mExpClass(MPEEngine) ObjectEditor : public SharedObject
 {
 public:
-			ObjectEditor(EM::EMObject&);
 
-    const EM::EMObject&	emObject() const	{ return *emobject_; }
+    ConstRefMan<EM::EMObject>	emObject() const;
+    RefMan<EM::EMObject>	emObject();
+    BufferString		objectName() const;
+    EM::ObjectID		objectID() const;
 
-    virtual void	startEdit( const EM::PosID& );
+    virtual void	startEdit(const EM::PosID&);
     virtual bool	setPosition(const Coord3&);
     virtual void	finishEdit();
 
@@ -60,7 +60,7 @@ public:
     int			nrUsers()   const	{ return nrusers; }
 
     virtual const
-    BufferStringSet*	getAlongMovingStyleNames() const { return 0; }
+    BufferStringSet*	getAlongMovingStyleNames() const { return nullptr; }
 			/*!<\returns a list with names of the different
 			     styles in which nodes can follow along the moved
 			     node. */
@@ -72,12 +72,14 @@ public:
 			/*!<\param index refers to the
 			     list returned by getAlongMovingStyleNames(). */
 
+    virtual void	setEditIDs(const TypeSet<EM::PosID>*);
+			/*!<Set all nodes that can be moved. */
     virtual void	getEditIDs(TypeSet<EM::PosID>&) const;
 			/*!<Gives all nodes that can be moved. */
-    virtual bool	addEditID( const EM::PosID& );
+    virtual bool	addEditID(const EM::PosID&);
 			/*!<Add node for editing. Note that this may not be
 			    possible, and false may be returned.  */
-    virtual bool	removeEditID( const EM::PosID& );
+    virtual bool	removeEditID(const EM::PosID&);
 			/*!<Remove editing node. Note that this may not be
 			    possible, and false may be returned.  */
 
@@ -105,6 +107,7 @@ public:
     static void			enableNodeCloning(bool yn=true);
 
 protected:
+				ObjectEditor(const EM::EMObject&);
 				~ObjectEditor();
 
     virtual bool			setPosition(const EM::PosID&,
@@ -124,7 +127,6 @@ protected:
 
     virtual void			cloneMovingNode(CallBacker*)	{}
 
-    RefMan<EM::EMObject>		emobject_;
     EM::PosID				movingnode;
     Coord3				startpos;
     TypeSet<EM::PosID>			changedpids;
@@ -135,13 +137,12 @@ protected:
     int					nrusers			= 0;
 
 private:
+    WeakPtr<EM::EMObject>		emobject_;
     ObjectSet<Geometry::ElementEditor>	geeditors;
     TypeSet<EM::SectionID>		sections;
 
     bool				snapafterthisedit	= false;
     bool				snapafteredit		= true;
 };
-
-mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );
 
 } // namespace MPE

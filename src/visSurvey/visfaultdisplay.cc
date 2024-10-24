@@ -68,6 +68,8 @@ FaultDisplay::FaultDisplay()
     datapacks_.setNullAllowed();
     texuredatas_.setNullAllowed();
 
+    drawstyle_ = visBase::DrawStyle::create();
+
     activestickmarker_ = visBase::PolyLine3D::create();
     activestickmarker_->setPickable( false, false );
     if ( !activestickmarker_->getMaterial() )
@@ -86,10 +88,9 @@ FaultDisplay::FaultDisplay()
 	addChild( markerset->osgNode() );
 	knotmarkersets_ += markerset.ptr();
 	markerset->setMarkersSingleColor(
-	    idx ? OD::Color(0,255,0) : OD::Color(255,0,255) );
+			    idx ? OD::Color(0,255,0) : OD::Color(255,0,255) );
     }
 
-    drawstyle_ = visBase::DrawStyle::create();
     addNodeState( drawstyle_.ptr() );
     drawstyle_->setLineStyle( OD::LineStyle(OD::LineStyle::Solid,2) );
 
@@ -105,10 +106,8 @@ FaultDisplay::~FaultDisplay()
 {
     detachAllNotifiers();
     setSceneEventCatcher( nullptr );
-    showManipulator( false );
-
-    if ( fault_ )
-	MPE::engine().removeEditor( fault_->id() );
+    if ( faulteditor_ )
+	faulteditor_->removeUser();
 
     deepErase( horshapes_ );
     delete explicitpanels_;
@@ -160,6 +159,12 @@ EM::ObjectID FaultDisplay::getEMObjectID() const
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 
+const EM::Fault3D* FaultDisplay::emFault() const
+{
+    return mSelf().emFault();
+}
+
+
 EM::Fault3D* FaultDisplay::emFault()
 {
     mDynamicCastGet(EM::Fault3D*,flt,fault_.ptr());
@@ -167,15 +172,45 @@ EM::Fault3D* FaultDisplay::emFault()
 }
 
 
+RefMan<MPE::ObjectEditor> FaultDisplay::getMPEEditor( bool create )
+{
+    if ( !create )
+	return faulteditor_.ptr();
+
+    const EM::ObjectID emid = getEMObjectID();
+    if ( MPE::engine().hasEditor(emid) )
+    {
+	RefMan<MPE::ObjectEditor> objeditor =
+				    MPE::engine().getEditorByID( emid );
+	faulteditor_ = dynamic_cast<MPE::FaultEditor*>( objeditor.ptr() );
+    }
+
+    if ( !faulteditor_ )
+    {
+	const EM::Fault3D* emfault = emFault();
+	if ( !emfault )
+	    return nullptr;
+
+	faulteditor_ = MPE::FaultEditor::create( *emfault );
+    }
+
+    return faulteditor_.ptr();
+}
+
+
 bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 {
+    if ( viseditor_ )
+	viseditor_->setEditor( nullptr );
+
+    if ( faulteditor_ )
+	faulteditor_->removeUser();
+
+    faulteditor_ = nullptr;
     if ( fault_ )
 	mDetachCB( fault_->change,FaultDisplay::emChangeCB );
 
     fault_ = nullptr;
-    faulteditor_ = nullptr;
-    if ( viseditor_ )
-	viseditor_->setEditor( nullptr );
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,emfault,emobject.ptr());
@@ -191,7 +226,6 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     }
 
     fault_ = (EM::Fault*)(emfault);
-    mAttachCB( fault_->change,FaultDisplay::emChangeCB );
     if ( !emfault->name().isEmpty() )
 	setName( emfault->name() );
 
@@ -294,17 +328,18 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
 	    addChild( viseditor_->osgNode() );
 	}
 
-	RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true);
-	mDynamicCastGet( MPE::FaultEditor*, fe, editor.ptr() );
-	faulteditor_ = fe;
-	if ( faulteditor_ )
+	RefMan<MPE::ObjectEditor> faulteditor = getMPEEditor( true );
+	if ( faulteditor )
+	{
+	    faulteditor->addUser();
 	    faulteditor_->setSceneIdx( mSceneIdx );
+	}
 
 	if ( viseditor_ )
 	{
 	    viseditor_->setEditor( faulteditor_.ptr() );
 	    mAttachCB( viseditor_->sower().sowingend,
-					    FaultDisplay::sowingFinishedCB );
+		       FaultDisplay::sowingFinishedCB );
 	}
     }
 
@@ -315,6 +350,7 @@ bool FaultDisplay::setEMObjectID( const EM::ObjectID& emid )
     updateSingleColor();
     updateDisplay();
     updateManipulator();
+    mAttachCB( fault_->change, FaultDisplay::emChangeCB );
 
     return true;
 }
@@ -422,15 +458,15 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 			      false, "" );
     setSelSpec( attrib, as );
 
-    RefMan<DataPointSet> data = new DataPointSet( false, true );
-    DPM( getDataPackMgrID() ).add( data );
-    getRandomPos( *data, nullptr );
+    RefMan<DataPointSet> dps = new DataPointSet( false, true );
+    getRandomPos( *dps.ptr(), nullptr );
+    dps->setName( sKeyZValues() );
     auto* zvalsdef = new DataColDef( sKeyZValues() );
-    data->dataSet().add( zvalsdef );
-    BinIDValueSet& bivs = data->bivSet();
-    if ( data->size() && bivs.nrVals()==4 )
+    dps->dataSet().add( zvalsdef );
+    BinIDValueSet& bivs = dps->bivSet();
+    if ( dps->size() && bivs.nrVals()==4 )
     {
-	int zcol = data->dataSet().findColDef( *zvalsdef,
+	int zcol = dps->dataSet().findColDef( *zvalsdef,
 					       PosVecDataSet::NameExact );
 	if ( zcol==-1 ) zcol = 3;
 
@@ -447,7 +483,7 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 		vals[zcol] = vals[0];
 	}
 
-	setRandomPosData( attrib, data.ptr(), 0 );
+	setRandomPosData( attrib, dps.ptr(), nullptr );
     }
 
     if ( !attribwasdepth )
@@ -455,8 +491,8 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 	BufferString seqnm;
 	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ColTab::Sequence seq( seqnm );
-	setColTabSequence( attrib, seq, 0 );
-	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+	setColTabSequence( attrib, seq, nullptr );
+	setColTabMapperSetup( attrib, ColTab::MapperSetup(), nullptr );
     }
 }
 
@@ -478,8 +514,7 @@ void FaultDisplay::updatePanelDisplay()
     if ( paneldisplay_ )
     {
 	const bool dodisplay = arePanelsDisplayed() &&
-			       !areIntersectionsDisplayed() &&
-			       !areHorizonIntersectionsDisplayed();
+			       isDisplayedPlanesUseful();
 	if ( dodisplay )
 	    paneldisplay_->touch( false,false );
 
@@ -489,7 +524,19 @@ void FaultDisplay::updatePanelDisplay()
 
 
 bool FaultDisplay::isDisplayingSticksUseful() const
-{ return areIntersectionsDisplayed() || !areHorizonIntersectionsDisplayed(); }
+{
+    return areIntersectionsDisplayed() || !areHorizonIntersectionsDisplayed();
+}
+
+
+bool FaultDisplay::isDisplayedPlanesUseful() const
+{
+    ConstRefMan<EM::Fault3D> fault3d = emFault();
+    if ( !fault3d || fault3d->geometry().nrSticks() < 2 )
+	return false;
+
+    return !areIntersectionsDisplayed() && !areHorizonIntersectionsDisplayed();
+}
 
 
 void FaultDisplay::updateStickDisplay()
@@ -805,6 +852,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     {
 	const VisID visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
+	if ( !dataobj )
+	    continue;
 
 	mDynamicCastGet(PlaneDataDisplay*,plane,dataobj)
 	if ( plane )
@@ -887,7 +936,9 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		bool res;
 		const int rmstick = pid.getRowCol().row();
 		EM::Fault3D* fault3d = emFault();
-		if ( !fault3d ) return;
+		if ( !fault3d )
+		    return;
+
 		EM::Fault3DGeometry& f3dg = fault3d->geometry();
 		if ( f3dg.nrKnots(rmstick)==1 )
 		    res = f3dg.removeStick( rmstick, true );
@@ -989,7 +1040,8 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
 
     EM::Fault3D* fault3d = emFault();
-    if ( !fault3d ) return;
+    if ( !fault3d )
+	return;
 
     if ( cbdata.event == EM::EMObjectCallbackData::SectionChange )
     {
@@ -1068,7 +1120,8 @@ void FaultDisplay::updateActiveStickMarker()
     RowCol rc( activestick_, 0 );
     RefMan<Geometry::PrimitiveSet> idxps =
 				Geometry::IndexedPrimitiveSet::create( false );
-    for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
+    for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+						       rc.col() += colrg.step_ )
     {
 	const Coord3 pos = fss->getKnot( rc );
 	const int psidx = activestickmarker_->getCoordinates()->addPos( pos );
@@ -1111,54 +1164,69 @@ int FaultDisplay::nrResolutions() const
 { return 1; }
 
 
-void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* taskr ) const
+bool FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* taskr ) const
 {
-    if ( explicitpanels_ )
+    for ( int idx=0; idx<datapacks_.size(); idx++ )
     {
-	MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
-	explicitpanels_->getTexturePositions( dpset, taskr );
-	paneldisplay_.getNonConstPtr()->touch( false, false );
+	ConstRefMan<DataPointSet> dps = datapacks_[idx];
+	if ( !dps || dps->size() < 1 )
+	    continue;
+
+	dpset = *dps.ptr();
+	dpset.dataSet().removeColumn( dps->dataSet().nrCols()-1 );
+	return true;
     }
+
+    if ( !explicitpanels_ )
+	return false;
+
+    MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
+    if ( !explicitpanels_->getTexturePositions(dpset,taskr) )
+	return false;
+
+    paneldisplay_.getNonConstPtr()->touch( false, false );
+    return true;
 }
 
 
-void FaultDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
+bool FaultDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
 {
     if ( attrib<0 || attrib>=nrAttribs() )
-	return;
+	return false;
 
-    const DataPackID dpid = getDataPackID( attrib );
-    const DataPackMgr& dpman = DPM( getDataPackMgrID() );
-    ConstRefMan<DataPointSet> dps = dpman.get<DataPointSet>( dpid );
+    ConstRefMan<PointDataPack> pointdp = getPointDataPack( attrib );
+    mDynamicCastGet(const DataPointSet*,dps,pointdp.ptr());
     if ( dps )
-	data  = *dps.ptr();
+	data  = *dps;
+
+    return true;
 }
 
 
-void FaultDisplay::setRandomPosData( int attrib, const DataPointSet* dpset,
-				     TaskRunner* )
+bool FaultDisplay::setRandomPosData( int attrib, const DataPointSet* dpset,
+				     TaskRunner* taskrun )
 {
     const DataColDef texturej(Geometry::ExplFaultStickSurface::sKeyTextureJ());
     const int columnj =
 	dpset->dataSet().findColDef(texturej,PosVecDataSet::NameExact);
 
-    setRandomPosDataInternal( attrib, dpset, columnj+1, 0 );
+    return setRandomPosDataInternal( attrib, dpset, columnj+1, taskrun );
 }
 
 
-void FaultDisplay::setRandomPosDataInternal( int attrib,
-    const DataPointSet* dpset, int column, TaskRunner* taskr )
+bool FaultDisplay::setRandomPosDataInternal( int attrib,
+		    const DataPointSet* dpset, int column, TaskRunner* taskr )
 {
     if ( attrib>=nrAttribs() || !dpset || dpset->nrCols()<3 ||
 	 !explicitpanels_ )
     {
 	validtexture_ = false;
 	updateSingleColor();
-	return;
+	return false;
     }
 
+    setPointDataPack( attrib, const_cast<DataPointSet*>( dpset ), taskr );
     const RowCol sz = explicitpanels_->getTextureSize();
-
     while ( texuredatas_.size()-1 < attrib )
 	texuredatas_ += nullptr;
 
@@ -1169,7 +1237,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     {
 	validtexture_ = false;
 	updateSingleColor();
-	return;
+	return true;
     }
 
     texturedata->setAll( mUdf(float) );
@@ -1198,6 +1266,7 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 				OD::UsePtr, taskr );
     validtexture_ = true;
     updateSingleColor();
+    return true;
 }
 
 
@@ -1685,7 +1754,8 @@ bool FaultDisplay::coincidesWith2DLine( const Geometry::FaultStickSurface& fss,
 		    s3dgeom_->oneStepTranslation(Coord3(0,0,1)) ) );
 
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
-        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
+	for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+							 rc.col()+=colrg.step_ )
 	{
 	    Coord3 pos = fss.getKnot(rc);
 	    if ( displaytransform_ )
@@ -1742,7 +1812,8 @@ bool FaultDisplay::coincidesWithPlane(
 	Coord3 prevpos;
 
 	const StepInterval<int> colrg = fss.colRange( rc.row() );
-        for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_; rc.col()+=colrg.step_ )
+	for ( rc.col()=colrg.start_; rc.col()<=colrg.stop_;
+							 rc.col()+=colrg.step_ )
 	{
 	    Coord3 curpos = fss.getKnot(rc);
 	    if ( displaytransform_ )
@@ -1798,7 +1869,8 @@ void FaultDisplay::updateStickHiding()
 
 	RowCol rc;
 	const StepInterval<int> rowrg = fss->rowRange();
-        for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_; rc.row()+=rowrg.step_ )
+	for ( rc.row()=rowrg.start_; rc.row()<=rowrg.stop_;
+	      rc.row()+=rowrg.step_ )
 	{
 	    TypeSet<Coord3> intersectpoints;
 	    fss->hideStick( rc.row(), true, mSceneIdx );
@@ -1903,45 +1975,31 @@ void FaultDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-DataPackID FaultDisplay::addDataPack( const DataPointSet& dpset ) const
+bool FaultDisplay::setPointDataPack( int attrib, PointDataPack* dp,
+				     TaskRunner* /* taskr */ )
 {
-    DataPackMgr& dpman = DPM( getDataPackMgrID() );
-    RefMan<DataPointSet> newdpset = new DataPointSet( dpset );
-    newdpset->setName( dpset.name() );
-    return dpman.add( newdpset.ptr() ) ? newdpset->id() : DataPackID::udf();
-}
-
-
-bool FaultDisplay::setDataPackID( int attrib, const DataPackID& dpid,
-				  TaskRunner* /* taskr */ )
-{
-    if ( !datapacks_.validIdx(attrib) )
+    mDynamicCastGet(DataPointSet*,dps,dp);
+    if ( !dps || !datapacks_.validIdx(attrib) )
 	return false;
 
-    DataPackMgr& dpman = DPM( getDataPackMgrID() );
-    if ( !dpman.isPresent(dpid) )
-	return false;
-
-    RefMan<DataPointSet> datapack = dpman.get<DataPointSet>( dpid );
-    datapacks_.replace( attrib, datapack.ptr() );
-
+    datapacks_.replace( attrib, dps );
     return true;
 }
 
 
-DataPackID FaultDisplay::getDataPackID( int attrib ) const
+ConstRefMan<DataPack> FaultDisplay::getDataPack( int attrib ) const
 {
-    if ( !datapacks_.validIdx(attrib) )
-	return DataPackID::udf();
-
-    const DataPointSet* datapack = datapacks_.get( attrib );
-    return datapack ? datapack->id() : DataPackID::udf();
+    return getPointDataPack( attrib );
 }
 
 
-DataPackID FaultDisplay::getDisplayedDataPackID( int attrib ) const
+ConstRefMan<PointDataPack> FaultDisplay::getPointDataPack( int attrib ) const
 {
-    return getDataPackID( attrib );
+    if ( !datapacks_.validIdx(attrib) )
+	return nullptr;
+
+    ConstRefMan<DataPointSet> datapack = datapacks_.get( attrib );
+    return datapack ? datapack.ptr() : nullptr;
 }
 
 

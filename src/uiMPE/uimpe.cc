@@ -98,13 +98,12 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
     uiMain& uimain = uiMain::instance();
     uiDialog dlg( uimain.topLevel(),
 	uiDialog::Setup(tr("Pre-load Data"),mNoDlgTitle,mTODOHelpKey) );
-    uiLabel* lbl1 = new uiLabel( &dlg,
+    auto* lbl1 = new uiLabel( &dlg,
 	tr("Seeds have been picked on '%1'.").arg(IOM().nameOf(key)) );
-    uiLabel* lbl2 = new uiLabel( &dlg,
+    auto* lbl2 = new uiLabel( &dlg,
 	tr("For Auto Tracking, this volume has to be pre-loaded") );
     lbl2->attach( alignedBelow, lbl1 );
-    uiButtonGroup* grp =
-	new uiButtonGroup( &dlg, "Pre-load options", OD::Vertical );
+    auto* grp = new uiButtonGroup( &dlg, "Pre-load options", OD::Vertical );
     grp->attach( alignedBelow, lbl2 );
     const StringView usertypestr =
 		DataCharacteristics::toString( dc.userType() );
@@ -115,7 +114,8 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
     new uiCheckBox( grp, tr("Choose Pre-load Parameters") );
     grp->selectButton(0);
     dlg.showAlwaysOnTop();
-    if ( !dlg.go() ) return false;
+    if ( !dlg.go() )
+	return false;
 
     uiTaskRunner uitr( uimain.topLevel() );
     int selbutid = grp->selectedId();
@@ -161,6 +161,7 @@ bool uiTrackSettingsValidator::checkPreloadedData( const MultiID& key ) const
 
 
 // uiSetupGroup
+
 uiSetupGroup::uiSetupGroup( uiParent* p, const char* ref )
     : uiGroup( p, "Tracking Setup" )
     , helpref_(ref)
@@ -178,48 +179,8 @@ bool uiSetupGroup::commitToTracker() const
 }
 
 
-// uiSetupGroupFactory
-uiSetupGroupFactory::uiSetupGroupFactory()
-{}
-
-
-uiSetupGroupFactory::~uiSetupGroupFactory()
-{}
-
-
-void uiSetupGroupFactory::addFactory( uiSetupGrpCreationFunc f,
-				      const char* name )
-{
-   names_.add( name );
-   funcs += f;
-}
-
-
-uiSetupGroup* uiSetupGroupFactory::create( const char* name, uiParent* p,
-					   const char* typestr )
-{
-    const int idx = names_.indexOf( name );
-    if ( idx == -1 ) return 0;
-
-    uiSetupGroup* res = funcs[idx](p,typestr);
-    if ( res ) return res;
-
-    return 0;
-}
-
-
-void uiSetupGroupFactory::remove( const char* nm )
-{
-    const int idx = names_.indexOf( nm );
-    if ( idx == -1 )
-	return;
-
-    names_.removeSingle( idx );
-    funcs.removeSingle( idx );
-}
-
-
 // uiMPEEngine
+
 uiMPEEngine::uiMPEEngine()
 {}
 

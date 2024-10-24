@@ -11,7 +11,6 @@ ________________________________________________________________________
 #include "uimpemod.h"
 
 #include "bufstring.h"
-#include "callback.h"
 #include "color.h"
 #include "draw.h"
 #include "emposid.h"
@@ -37,7 +36,8 @@ class SectionTracker;
 
 /*! Gui part of settings validator */
 mExpClass(uiMPE) uiTrackSettingsValidator : public TrackSettingsValidator
-{ mODTextTranslationClass(uiTrackSettingsValidator)
+{
+mODTextTranslationClass(uiTrackSettingsValidator)
 public:
 		uiTrackSettingsValidator();
 		~uiTrackSettingsValidator();
@@ -48,14 +48,14 @@ public:
     bool	checkPreloadedData(const MultiID&) const override;
 };
 
-/*! Interface to track-setup groups. Implementations can be retrieved through
-    MPE::uiSetupGroupFactory. */
+/*! Interface to track-setup groups */
 
 
 mExpClass(uiMPE) uiSetupGroup : public uiGroup
 {
+mODTextTranslationClass(uiSetupGroup)
 public:
-    virtual		~uiSetupGroup();
+			~uiSetupGroup();
 
     virtual void	setSectionTracker(SectionTracker*)	{}
     virtual void	setMode(EMSeedPicker::TrackMode)	{}
@@ -71,10 +71,10 @@ public:
     virtual const MarkerStyle3D& getMarkerStyle()		= 0;
     virtual void	updateAttribute()			{}
 
-    virtual NotifierAccess*	modeChangeNotifier()		{ return 0; }
-    virtual NotifierAccess*	propertyChangeNotifier()	{ return 0; }
-    virtual NotifierAccess*	eventChangeNotifier()		{ return 0; }
-    virtual NotifierAccess*	correlationChangeNotifier()	{ return 0; }
+    virtual NotifierAccess*	modeChangeNotifier()	    { return nullptr; }
+    virtual NotifierAccess*	propertyChangeNotifier()    { return nullptr; }
+    virtual NotifierAccess*	eventChangeNotifier()	    { return nullptr; }
+    virtual NotifierAccess*	correlationChangeNotifier() { return nullptr; }
 
     virtual bool	commitToTracker(bool& fieldchg) const   { return true; }
     virtual bool	commitToTracker() const;
@@ -89,35 +89,6 @@ protected:
 };
 
 
-/*! Factory function that can produce a MPE::uiSetupGroup* given a
-    uiParent* and an Attrib::DescSet*. */
-
-typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr);
-
-/*! Factory that is able to create MPE::uiSetupGroup* given a uiParent*,
-    and an Attrib::DescSet*. Each class that wants to
-    be able to procuce instances of itself must register itself with the
-    addFactory startup. */
-
-mExpClass(uiMPE) uiSetupGroupFactory final
-{
-public:
-			uiSetupGroupFactory();
-			~uiSetupGroupFactory();
-
-    void		addFactory(uiSetupGrpCreationFunc f, const char* name);
-    uiSetupGroup*	create(const char* nm,uiParent*,const char* typestr);
-			/*!<Iterates through all added factory functions
-			    until one of the returns a non-zero pointer. */
-    void		remove(const char* nm);
-
-protected:
-    BufferStringSet			names_;
-    TypeSet<uiSetupGrpCreationFunc>	funcs;
-
-};
-
-
 /*!
 \brief Holder class for MPE ui-factories.
   Is normally only retrieved by MPE::uiMPE().
@@ -129,10 +100,6 @@ mExpClass(uiMPE) uiMPEEngine final
 public:
 				uiMPEEngine();
 				~uiMPEEngine();
-
-    uiSetupGroupFactory		setupgrpfact;
-
-protected:
 };
 
 

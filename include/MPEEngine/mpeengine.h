@@ -11,25 +11,17 @@ ________________________________________________________________________
 #include "mpeenginemod.h"
 
 #include "attribsel.h"
-#include "callback.h"
-#include "datapack.h"
-#include "datapackbase.h"
-#include "emposid.h"
-#include "integerid.h"
+#include "emtracker.h"
+#include "seisdatapack.h"
 #include "survgeom.h"
 
 class BufferStringSet;
-class Executor;
 
-namespace EM { class EMObject; }
-namespace Geometry { class Element; }
 template <class T> class Selector;
 
 namespace MPE
 {
 
-class EMTracker;
-class HorizonTrackerMgr;
 class ObjectEditor;
 
 mExpClass(MPEEngine) TrackSettingsValidator
@@ -59,17 +51,12 @@ public:
 				Engine();
     virtual			~Engine();
 
-    void			init();
-
     const TrcKeyZSampling&	activeVolume() const;
     void			setActiveVolume(const TrcKeyZSampling&);
     Notifier<Engine>		activevolumechange;
 
-    void			setActive2DLine(Pos::GeomID);
+    void			setActive2DLine(const Pos::GeomID&);
     Pos::GeomID			activeGeomID() const;
-
-    Notifier<Engine>		loadEMObject;
-    MultiID			midtoload;
 
     void			updateSeedOnlyPropagation(bool);
 
@@ -89,22 +76,27 @@ public:
     Notifier<Engine>		actionFinished;
 
     void			removeSelectionInPolygon(
-					const Selector<Coord3>&,
-					TaskRunner*);
-    void			getAvailableTrackerTypes(BufferStringSet&)const;
+					const Selector<Coord3>&,TaskRunner*);
 
-    int				nrTrackersAlive() const;
-    int				highestTrackerID() const;
-    const EMTracker*		getTracker(int idx) const;
-    EMTracker*			getTracker(int idx);
-    int				getTrackerByObject(const EM::ObjectID&) const;
-    int				getTrackerByObject(const char*) const;
-    int				addTracker(EM::EMObject*);
-    void			removeTracker(int idx);
-    Notifier<Engine>		trackeraddremove;
-    void			setActiveTracker(const EM::ObjectID&);
+				//!< Trackers
+    bool			hasTracker() const;
+    bool			hasTracker(const EM::ObjectID&) const;
+    bool			isActiveTracker(const EM::ObjectID&) const;
     void			setActiveTracker(EMTracker*);
-    EMTracker*			getActiveTracker();
+    void			setValidator(TrackSettingsValidator*);
+    ConstRefMan<EMTracker>	getActiveTracker() const;
+    RefMan<EMTracker>		getActiveTracker();
+    ConstRefMan<EMTracker>	getTrackerByID(const EM::ObjectID&) const;
+    RefMan<EMTracker>		getTrackerByID(const EM::ObjectID&);
+    void			getTrackerIDsByType(const char* typestr,
+						TypeSet<EM::ObjectID>&) const;
+
+    CNotifier<Engine,const EM::ObjectID&> trackeradded;
+
+				//!< Editors
+    bool			hasEditor(const EM::ObjectID&) const;
+    ConstRefMan<ObjectEditor>	getEditorByID(const EM::ObjectID&) const;
+    RefMan<ObjectEditor>	getEditorByID(const EM::ObjectID&);
 
 				/*Attribute stuff */
     void			setOneActiveTracker(const EMTracker*);
@@ -116,12 +108,12 @@ public:
 				     this attrib, given that the activearea
 				     should be tracked. */
     int				getCacheIndexOf(const Attrib::SelSpec&) const;
-    DataPackID			getAttribCacheID(const Attrib::SelSpec&) const;
+    ConstRefMan<SeisDataPack>	getAttribCacheDP(const Attrib::SelSpec&) const;
     bool			hasAttribCache(const Attrib::SelSpec&) const;
-    bool			setAttribData( const Attrib::SelSpec&,
-					       const FlatDataPack&);
-    bool			setAttribData( const Attrib::SelSpec&,
-					       DataPackID);
+    bool			setAttribData(const Attrib::SelSpec&,
+					      const FlatDataPack&);
+    bool			setAttribData(const Attrib::SelSpec&,
+					      const RegularSeisDataPack&);
     bool			cacheIncludes(const Attrib::SelSpec&,
 					      const TrcKeyZSampling&);
     void			swapCacheAndItsBackup();
@@ -132,95 +124,70 @@ public:
     bool			isSelSpecSame(const Attrib::SelSpec& setupss,
 					const Attrib::SelSpec& clickedss) const;
 
-    void			updateFlatCubesContainer(const TrcKeyZSampling&,
-							 int idx,bool);
-				/*!< add = true, remove = false. */
-    ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;
-    RefMan<FlatDataPack>	getSeedPosDataPackRM(const TrcKey&,float z,
-					int nrtrcs,
-					const StepInterval<float>& zrg) const;
-    DataPackID			getSeedPosDataPack(const TrcKey&,float z,
-					int nrtrcs,
-					const StepInterval<float>& zrg) const;
+    RefMan<FlatDataPack>	getSeedPosDataPack(const TrcKey&,float z,
+					int nrtrcs,const ZSampling&) const;
 
-				/*Editors */
-    ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
-    void			removeEditor(const EM::ObjectID&);
-
-    void			setValidator(TrackSettingsValidator*);
     const char*			errMsg() const;
 
     BufferString		setupFileName(const MultiID&) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
+    bool			needRestoredTracker(const MultiID&) const;
+    bool			restoreTracker(const EM::ObjectID&);
+
     const TrcKeyPath*		activePath() const;
     void			setActivePath(const TrcKeyPath*);
     RandomLineID		activeRandomLineID() const;
     void			setActiveRandomLineID(const RandomLineID&);
-    void			refTracker(EM::ObjectID);
-    void			unRefTracker(EM::ObjectID,bool nodel=false);
-    bool			hasTracker(EM::ObjectID) const;
 
     Notifier<Engine>		settingsChanged;
 
-protected:
+private:
 
-    BufferString		errmsg_;
-    TrcKeyZSampling		activevolume_;
-
-    Pos::GeomID			activegeomid_;
-
-    TrackState			state_;
-    ObjectSet<HorizonTrackerMgr> trackermgrs_;
-    ObjectSet<EMTracker>	trackers_;
-    ObjectSet<ObjectEditor>	editors_;
-
-    const EMTracker*		oneactivetracker_		= nullptr;
-    EMTracker*			activetracker_			= nullptr;
-    int				undoeventid_			= -1;
-    DataPackMgr&		dpm_;
-    const TrcKeyPath*		rdmlinetkpath_			= nullptr;
-    RandomLineID		rdlid_;
-    TrackSettingsValidator*	validator_			= nullptr;
-
+    void			cleanup();
     bool			prepareForTrackInVolume(uiString&);
     bool			prepareForRetrack();
     bool			trackInVolume();
     bool			trackFromEdges();
+    void			surveyChangedCB(CallBacker*);
     void			trackingFinishedCB(CallBacker*);
-    EM::EMObject*		getCurrentEMObject() const;
+    ConstRefMan<EMTracker>	getOneActiveTracker() const;
+    RefMan<EM::EMObject>	getCurrentEMObject() const;
+    bool			setAttribData_(const Attrib::SelSpec&,
+					       const SeisDataPack&);
 
+    BufferString		errmsg_;
+    TrcKeyZSampling		activevolume_;
+    Pos::GeomID			activegeomid_;
 
-    struct CacheSpecs
+    TrackState			state_				= Stopped;
+    mutable WeakPtrSet<EMTracker> trackers_;
+    mutable WeakPtrSet<ObjectEditor> editors_;
+
+    WeakPtr<EMTracker>		oneactivetracker_;
+    WeakPtr<EMTracker>		activetracker_;
+    TrackSettingsValidator*	validator_			= nullptr;
+    int				undoeventid_			= -1;
+    const TrcKeyPath*		rdmlinetkpath_			= nullptr;
+    RandomLineID		rdlid_;
+
+    mClass(MPEEngine) CacheSpecs
     {
-				CacheSpecs(const Attrib::SelSpec& as,
-					Pos::GeomID geomid=
-					Survey::GeometryManager::cUndefGeomID())
-				    : attrsel_(as),geomid_(geomid)
-				{}
+    public:
+				CacheSpecs(const Attrib::SelSpec&,
+					   const Pos::GeomID&);
+				~CacheSpecs();
 
 	Attrib::SelSpec		attrsel_;
+	WeakPtr<SeisDataPack>	seisdp_;
 	Pos::GeomID		geomid_;
     };
 
-    TypeSet<DataPackID>		attribcachedatapackids_;
     ObjectSet<CacheSpecs>	attribcachespecs_;
-    TypeSet<DataPackID>		attribbkpcachedatapackids_;
     ObjectSet<CacheSpecs>	attribbackupcachespecs_;
-
-    mStruct(MPEEngine) FlatCubeInfo
-    {
-				FlatCubeInfo()
-				:nrseeds_(1)
-				{
-				    flatcs_.setEmpty();
-				}
-	TrcKeyZSampling		flatcs_;
-	int			nrseeds_;
-    };
-
-    ObjectSet<ObjectSet<FlatCubeInfo> >	flatcubescontainer_;
+    ObjectSet<IOPar>		trackerpars_;
+    TypeSet<MultiID>		trackermids_;
 
     static const char*		sKeyNrTrackers(){ return "Nr Trackers"; }
     static const char*		sKeyObjectID()	{ return "ObjectID"; }
@@ -228,7 +195,11 @@ protected:
     static const char*		sKeyTrackPlane(){ return "Track Plane"; }
     static const char*		sKeySeedConMode(){ return "Seed Connect Mode"; }
 
-    void			applClosingCB(CallBacker*);
+public:
+				mDeprecatedObs
+    void			init()			{ cleanup(); }
+
+
 };
 
 mGlobal(MPEEngine) Engine&	engine();

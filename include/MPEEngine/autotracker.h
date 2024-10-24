@@ -9,17 +9,14 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+
 #include "callback.h"
-
 #include "rowcol.h"
-#include "trckey.h"
+#include "trckeyzsampling.h"
 
-
-namespace EM { class EMObject; }
-namespace Geometry { class Element; }
+class TrcKeyValue;
 namespace Threads { class WorkManager; }
 template <class T> class Array2D;
-class TrcKeyValue;
 
 /*!\brief %MPE stands for Model, Predict, Edit. Contains tracking and editing
 	  functions.*/
@@ -35,49 +32,66 @@ class EMTracker;
 */
 
 
-mExpClass(MPEEngine) HorizonTrackerMgr : public CallBacker
+mClass(MPEEngine) HorizonTrackerMgr : public CallBacker
 {
 friend class TrackerTask;
 public:
-			HorizonTrackerMgr(EMTracker&);
-			~HorizonTrackerMgr();
+				HorizonTrackerMgr(EMTracker&);
+				~HorizonTrackerMgr();
 
-    void		setSeeds(const TypeSet<TrcKey>&);
-    void		startFromSeeds();
-    void		stop();
-    bool		hasTasks() const;
+    void			init();
+    void			startFromSeeds(const TypeSet<TrcKey>&);
+    void			updateFlatCubesContainer(const TrcKeyZSampling&,
+							 bool addremove);
+				/*!< add = true, remove = false. */
+    void			stop();
+    bool			hasTasks() const;
 
-    SectionTracker*	getFreeSectionTracker();
-    void		freeSectionTracker(const SectionTracker*);
+    ConstRefMan<EMTracker>	getTracker() const;
+    RefMan<EMTracker>		getTracker();
 
-    Notifier<HorizonTrackerMgr>		finished;
+    SectionTracker*		getFreeSectionTracker();
+    void			freeSectionTracker(const SectionTracker*);
+
+    Notifier<HorizonTrackerMgr> finished;
 
 protected:
-    void		addTask(const TrcKeyValue&,const TrcKeyValue&,
-				int seedid);
-
+    void			addTask(const TrcKeyValue&,const TrcKeyValue&,
+					int seedid);
     mDeprecatedDef
-    void		addTask( const TrcKeyValue& seed,
-				 const TrcKeyValue& source )
-			{ addTask( seed, source, 1 ); }
+    void			addTask( const TrcKeyValue& seed,
+					 const TrcKeyValue& source )
+				{ addTask( seed, source, 1 ); }
 
-    void		taskFinished(CallBacker*);
-    void		updateCB(CallBacker*);
-    int			queueid_;
+    void			taskFinished(CallBacker*);
+    void			updateCB(CallBacker*);
 
-    EMTracker&			tracker_;
+    mStruct(MPEEngine) FlatCubeInfo
+    {
+				FlatCubeInfo()
+				{
+				    flatcs_.setEmpty();
+				}
+
+	TrcKeyZSampling		flatcs_;
+	int			nrseeds_	= 1;
+    };
+
+    WeakPtr<EMTracker>		tracker_;
+    ObjectSet<FlatCubeInfo>*	flatcubes_		= nullptr;
     ObjectSet<SectionTracker>	sectiontrackers_;
     BoolTypeSet			trackerinuse_;
-    Array2D<float>*		horizon3dundoinfo_;
+    Array2D<float>*		horizon3dundoinfo_	= nullptr;
     RowCol			horizon3dundoorigin_;
     void			addUndoEvent();
 
     TypeSet<TrcKey>		seeds_;
     Threads::WorkManager&	twm_;
+    int				queueid_;
 
-    Threads::Atomic<int>	nrdone_;
-    Threads::Atomic<int>	nrtodo_;
-    Threads::Atomic<int>	tasknr_;
+    Threads::Atomic<int>	nrdone_			= 0;
+    Threads::Atomic<int>	nrtodo_			= 0;
+    Threads::Atomic<int>	tasknr_			= 0;
 
     Threads::Lock		addlock_;
     Threads::Lock		finishlock_;

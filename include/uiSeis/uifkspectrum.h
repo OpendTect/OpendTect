@@ -9,14 +9,16 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "uiflatviewmainwin.h"
+
 #include "datapack.h"
 #include "odcomplex.h"
+#include "uiflatviewmainwin.h"
 
 namespace Fourier { class CC; }
 template <class T> class Array2D;
 namespace FlatView { class AuxData; }
 class FlatDataPack;
+class SeisDataPack;
 class uiGenInput;
 class uiToolButton;
 
@@ -26,17 +28,19 @@ public:
 				uiFKSpectrum(uiParent*,bool setbp=false);
 				~uiFKSpectrum();
 
-    void			setDataPackID(DataPackID,
-					      DataPackMgr::MgrID,
+    bool			setDataPack(const SeisDataPack&,int version=0);
+    mDeprecated("Use setDataPack")
+    bool			setDataPackID(const DataPackID&,
+					      const DataPackMgr::MgrID&,
 					      int version=0);
-    void			setData(const Array2D<float>&);
+    bool			setData(const Array2D<float>&);
 
     float			getMinValue() const;
     float			getMaxValue() const;
 
-protected:
+private:
 
-    void			initFFT(int,int);
+    bool			initFFT(int,int);
     bool			compute(const Array2D<float>&);
     bool			view(Array2D<float>&);
     FlatView::AuxData*		initAuxData();
@@ -44,21 +48,22 @@ protected:
     void			mouseMoveCB(CallBacker*);
     void			mousePressCB(CallBacker*);
 
-    Fourier::CC*		fft_;
-    Array2D<float_complex>*	input_;
-    Array2D<float_complex>*	output_;
-    Array2D<float>*		spectrum_;
+    Fourier::CC*		fft_		= nullptr;
+    Array2D<float_complex>*	input_		= nullptr;
+    Array2D<float_complex>*	output_		= nullptr;
+    Array2D<float>*		spectrum_	= nullptr;
+
     FlatView::AuxData*		lineitm_;
-    FlatView::AuxData*		minvelitm_;
-    FlatView::AuxData*		maxvelitm_;
+    FlatView::AuxData*		minvelitm_	= nullptr;
+    FlatView::AuxData*		maxvelitm_	= nullptr;
     RefMan<FlatDataPack>	vddp_;
 
     uiGenInput*			ffld_;
     uiGenInput*			kfld_;
     uiGenInput*			velfld_;
 
-    uiGenInput*			minfld_;
+    uiGenInput*			minfld_		= nullptr;
     uiToolButton*		minsetbut_;
-    uiGenInput*			maxfld_;
+    uiGenInput*			maxfld_		= nullptr;
     uiToolButton*		maxsetbut_;
 };

@@ -51,11 +51,11 @@ public:
 
     SurveyObject::AttribFormat	getAttributeFormat(int) const override
 				{ return SurveyObject::RandomPos; }
-    void			getRandomPos(DataPointSet&,
+    bool			getRandomPos(DataPointSet&,
 					     TaskRunner*) const override;
-    void			getRandomPosCache(int,
-						  DataPointSet&) const override;
-    void			setRandomPosData(int,const DataPointSet*,
+    bool			getRandomPosCache(int,
+						DataPointSet&) const override;
+    bool			setRandomPosData(int,const DataPointSet*,
 						 TaskRunner*) override;
 
     bool			hasColor() const override	{ return true; }
@@ -123,13 +123,12 @@ public:
     bool			isVerticalPlane() const override {return false;}
     bool			canBDispOn2DViewer() const override
 				{ return false; }
-    DataPackID			addDataPack(const DataPointSet&) const;
-    bool			setDataPackID(int attrib,const DataPackID&,
-					      TaskRunner*) override;
-    DataPackID			getDataPackID(int attrib) const override;
-    DataPackID			getDisplayedDataPackID(int attr) const override;
-    DataPackMgr::MgrID		getDataPackMgrID() const override
-				{ return DataPackMgr::PointID(); }
+
+    bool			usesDataPacks() const override	{ return true; }
+    bool			setPointDataPack(int attrib,PointDataPack*,
+						 TaskRunner*) override;
+    ConstRefMan<DataPack>	getDataPack(int attrib) const override;
+    ConstRefMan<PointDataPack>	getPointDataPack(int attrib) const override;
 
     void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>& objs,
@@ -174,7 +173,7 @@ protected:
 				    const ObjectSet<const SurveyObject>&,
 				    const VisID& whichobj) override;
     EM::FaultID			getFaultID(const visBase::EventInfo&) const;
-    void			setRandomPosDataInternal(int attrib,
+    bool			setRandomPosDataInternal(int attrib,
 							 const DataPointSet*,
 							 int column,
 							 TaskRunner*);

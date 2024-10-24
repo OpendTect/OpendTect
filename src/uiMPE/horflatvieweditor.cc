@@ -42,47 +42,42 @@ namespace MPE
 
 HorizonFlatViewEditor::HorizonFlatViewEditor( FlatView::AuxDataEditor* ed )
     : editor_(ed)
-    , mouseeventhandler_(0)
-    , vdselspec_(0)
-    , wvaselspec_(0)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
-    , is2d_(false)
-    , seedpickingon_(false)
     , updateoldactivevolinuimpeman(this)
     , restoreactivevolinuimpeman(this)
     , updateseedpickingstatus(this)
-    , trackersetupactive_(false)
 {
     curcs_.setEmpty();
-    editor_->movementFinished.notify(
-	    mCB(this,HorizonFlatViewEditor,movementEndCB) );
-    editor_->removeSelected.notify(
-	    mCB(this,HorizonFlatViewEditor,removePosCB) );
+    mAttachCB( editor_->movementFinished,
+	       HorizonFlatViewEditor::movementEndCB );
+    mAttachCB( editor_->removeSelected,
+	       HorizonFlatViewEditor::removePosCB );
 }
 
 
 HorizonFlatViewEditor::~HorizonFlatViewEditor()
 {
-    setMouseEventHandler( 0 );
+    detachAllNotifiers();
 }
 
 
-void HorizonFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
-{ curcs_ = cs; }
+void HorizonFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& tkzs )
+{
+    curcs_ = tkzs;
+}
 
 
 void HorizonFlatViewEditor::setSelSpec( const Attrib::SelSpec* as, bool wva )
 {
-    if ( !wva )
-	vdselspec_ = as;
-    else
+    if ( wva )
 	wvaselspec_ = as;
+    else
+	vdselspec_ = as;
 }
 
 
 void HorizonFlatViewEditor::swapSelSpec()
 {
-    const Attrib::SelSpec* tempas = 0;
+    const Attrib::SelSpec* tempas = nullptr;
     tempas = vdselspec_;
     vdselspec_ = wvaselspec_;
     wvaselspec_ = tempas;
@@ -91,26 +86,29 @@ void HorizonFlatViewEditor::swapSelSpec()
 
 void HorizonFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 {
+    if ( meh == mouseeventhandler_ )
+	return;
+
     if ( mouseeventhandler_ )
     {
-       mouseeventhandler_->movement.remove(
-	       mCB(this,HorizonFlatViewEditor,mouseMoveCB) );
-       mouseeventhandler_->buttonPressed.remove(
-	       mCB(this,HorizonFlatViewEditor,mousePressCB) );
-       mouseeventhandler_->buttonReleased.remove(
-	       mCB(this,HorizonFlatViewEditor,mouseReleaseCB) );
+	mDetachCB( mouseeventhandler_->movement,
+		   HorizonFlatViewEditor::mouseMoveCB );
+	mDetachCB( mouseeventhandler_->buttonPressed,
+		   HorizonFlatViewEditor::mousePressCB );
+	mDetachCB( mouseeventhandler_->buttonReleased,
+		   HorizonFlatViewEditor::mouseReleaseCB );
     }
 
     mouseeventhandler_ = meh;
 
     if ( mouseeventhandler_ )
     {
-       mouseeventhandler_->movement.notify(
-	       mCB(this,HorizonFlatViewEditor,mouseMoveCB) );
-       mouseeventhandler_->buttonPressed.notify(
-	       mCB(this,HorizonFlatViewEditor,mousePressCB) );
-       mouseeventhandler_->buttonReleased.notify(
-	       mCB(this,HorizonFlatViewEditor,mouseReleaseCB) );
+	mAttachCB( mouseeventhandler_->movement,
+		   HorizonFlatViewEditor::mouseMoveCB );
+	mAttachCB( mouseeventhandler_->buttonPressed,
+		   HorizonFlatViewEditor::mousePressCB );
+	mAttachCB( mouseeventhandler_->buttonReleased,
+		   HorizonFlatViewEditor::mouseReleaseCB );
     }
 }
 

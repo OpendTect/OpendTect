@@ -63,10 +63,10 @@ public:
 
     bool			hasPosModeManipulator() const override
 				{ return true; }
-    void			showManipulator(bool yn) override;
+    void			showManipulator(bool) override;
     bool			isManipulatorShown() const override;
     bool			isManipulated() const override;
-    bool			canResetManipulation() const  override
+    bool			canResetManipulation() const override
 				{ return true; }
     void			resetManipulation() override;
     void			acceptManipulation() override;
@@ -93,13 +93,9 @@ public:
     Interval<float>		getDataTraceRange() const override;
     TypeSet<Coord>		getTrueCoords() const;
 
-    bool			setDataPackID(int attrib,const DataPackID&,
-					      TaskRunner*) override;
-    DataPackID			getDataPackID(int attrib) const override;
-    DataPackID			getDisplayedDataPackID(
-						int attrib) const override;
-    DataPackMgr::MgrID		getDataPackMgrID() const override
-				{ return DataPackMgr::SeisID(); }
+    ConstRefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib)
+								const override;
+    RefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib);
 
     bool			canAddNode(int nodenr) const;
 				/*!< If nodenr<nrNodes the function Checks if
@@ -207,8 +203,15 @@ protected:
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
 							  TaskRunner* =nullptr);
-    void			setNodePos(int,const BinID&,bool check);
 
+    bool			usesDataPacks() const override	{ return true; }
+    bool			setSeisDataPack(int attrib,SeisDataPack*,
+						TaskRunner*) override;
+    ConstRefMan<DataPack>	getDataPack(int attrib) const override;
+    ConstRefMan<SeisDataPack>	getSeisDataPack(int attrib) const override;
+    RefMan<SeisDataPack>	getSeisDataPack(int attrib);
+
+    void			setNodePos(int,const BinID&,bool check);
     BinID			snapPosition(const BinID&) const;
     bool			checkPosition(const BinID&) const;
 

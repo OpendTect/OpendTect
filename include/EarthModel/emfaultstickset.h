@@ -40,7 +40,8 @@ public:
 				    const char* pickednm,bool addtohistory);
     bool		insertStick(int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
-				    Pos::GeomID pickedgeomid,bool addtohistory);
+				    const Pos::GeomID& pickedgeomid,
+				    bool addtohistory);
     bool		removeStick(int sticknr,
 				    bool addtohistory) override;
     bool		insertKnot(const SubID&,
@@ -98,7 +99,8 @@ public:
     mDeprecated("Use without SectionID")
     bool		insertStick(const SectionID&,int sticknr,int firstcol,
 				    const Coord3& pos,const Coord3& editnormal,
-				    Pos::GeomID pickedgeomid,bool addtohistory)
+				    const Pos::GeomID& pickedgeomid,
+				    bool addtohistory)
 			{ return insertStick(sticknr,firstcol,pos,editnormal,
 					     pickedgeomid,addtohistory); }
     mDeprecated("Use without SectionID")

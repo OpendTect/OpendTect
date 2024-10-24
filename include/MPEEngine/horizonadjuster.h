@@ -9,10 +9,10 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "sectionadjuster.h"
 
-#include "datapack.h"
 #include "ranges.h"
+#include "sectionadjuster.h"
+#include "seisdatapack.h"
 #include "valseriestracker.h"
 
 class EventTracker;
@@ -56,10 +56,10 @@ public:
     float		amplitudeThreshold() const;
     void		setAmplitudeThresholds(const TypeSet<float>& ats);
     TypeSet<float>&	getAmplitudeThresholds();
-    void 		setAllowedVariance(float v);
+    void		setAllowedVariance(float v);
     void		setAllowedVariances(const TypeSet<float>& avs);
     TypeSet<float>&	getAllowedVariances();
-    float 		allowedVariance() const;
+    float		allowedVariance() const;
     void		setUseAbsThreshold(bool abs);
     bool		useAbsThreshold() const;
 
@@ -80,26 +80,27 @@ public:
     void		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
-    mDeprecated("Use without SectionID")
-			HorizonAdjuster(EM::Horizon& hor,EM::SectionID)
-			    : HorizonAdjuster(hor)			{}
-
 protected:
 
-    Attrib::SelSpec*	attribsel_;
+    Attrib::SelSpec*	attribsel_	= nullptr;
     EM::Horizon&	horizon_;
     EventTracker&	evtracker_;
 
 private:
 
-    DataPackMgr&	dpm_;
-    DataPackID	datapackid_;
+    WeakPtr<SeisDataPack> seisdp_;
 
     bool		track(const TrcKey&,const TrcKey&,float&) const;
     void		setHorizonPick(const TrcKey&,float val);
 
     static const char*	sKeyTracker()		{ return "Tracker"; }
     static const char*	sKeyAttribID()		{ return "Attribute"; }
+
+public:
+
+    mDeprecated("Use without SectionID")
+			HorizonAdjuster(EM::Horizon& hor,EM::SectionID)
+			    : HorizonAdjuster(hor)			{}
 };
 
 } // namespace MPE

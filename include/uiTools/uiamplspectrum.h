@@ -9,11 +9,11 @@ ________________________________________________________________________
 -*/
 
 #include "uitoolsmod.h"
-#include "uimainwin.h"
 
 #include "datapack.h"
-#include "survinfo.h"
 #include "odcomplex.h"
+#include "survinfo.h"
+#include "uimainwin.h"
 
 class uiCheckBox;
 class uiGenInput;
@@ -48,7 +48,10 @@ public:
 					uiAmplSpectrum::Setup());
 				~uiAmplSpectrum();
 
-    void			setDataPackID(DataPackID,DataPackMgr::MgrID,
+    bool			setDataPack(const DataPack&,int version=0);
+    mDeprecated("Use setDataPack")
+    bool			setDataPackID(const DataPackID&,
+					      const DataPackMgr::MgrID&,
 					      int version=0);
     void			setData(const float* array,int size);
     void			setData(const Array1D<float>&);
@@ -77,16 +80,16 @@ protected:
 
     uiAmplSpectrum::Setup	setup_;
 
-    Array3D<float>*		data_;
-    Array1DImpl<float_complex>* timedomain_;
-    Array1DImpl<float_complex>* freqdomain_;
-    Array1DImpl<float>*		freqdomainsum_;
-    Array1DImpl<float>*		specvals_;
+    Array3D<float>*		data_		= nullptr;
+    Array1DImpl<float_complex>* timedomain_	= nullptr;
+    Array1DImpl<float_complex>* freqdomain_	= nullptr;
+    Array1DImpl<float>*		freqdomainsum_	= nullptr;
+    Array1DImpl<float>*		specvals_	= nullptr;
     float			maxspecval_;
 
     Interval<float>		posrange_;
 
-    Fourier::CC*		fft_;
+    Fourier::CC*		fft_		= nullptr;
     int				nrtrcs_;
 
     void			dispRangeChgd(CallBacker*);

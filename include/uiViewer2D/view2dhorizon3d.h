@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
+
 #include "view2ddata.h"
 
 class TrcKeyZSampling;
@@ -25,8 +26,8 @@ mDefStd(Horizon3D)
 public:
 
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
-    void		setTrcKeyZSampling(
-				const TrcKeyZSampling&,bool upd=false);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&,
+					   bool upd=false);
 
     void		draw();
     void		enablePainting(bool yn);
@@ -40,7 +41,7 @@ public:
 
     NotifierAccess*	deSelection() override		{ return &deselected_; }
 
-protected:
+private:
 
     void			triggerDeSel() override;
     void			setEditors() override;
@@ -48,8 +49,8 @@ protected:
     void			checkCB(CallBacker*);
     void			deSelCB(CallBacker*);
 
-    const Attrib::SelSpec*	vdselspec_;
-    const Attrib::SelSpec*	wvaselspec_;
+    const Attrib::SelSpec*	vdselspec_	= nullptr;
+    const Attrib::SelSpec*	wvaselspec_	= nullptr;
 
     ObjectSet<MPE::HorizonFlatViewEditor3D>     horeds_;
     Notifier<Horizon3D>		deselected_;

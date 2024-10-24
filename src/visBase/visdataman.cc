@@ -145,8 +145,6 @@ void DataManager::addObject( DataObject* obj )
 
 void DataManager::getIDs( const std::type_info& ti, TypeSet<VisID>& res ) const
 {
-    res.erase();
-
     const std::size_t tihash = ti.hash_code();
     const int sz = nrObjects();
     for ( int idx=0; idx<sz; idx++ )

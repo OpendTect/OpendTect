@@ -34,45 +34,19 @@ Fault3DFlatViewEditor::Fault3DFlatViewEditor(
     : EM::FaultStickSetFlatViewEditor(ed)
     , editor_(ed)
     , f3dpainter_( new EM::Fault3DPainter(ed->viewer(),oid) )
-    , meh_(0)
-    , activestickid_(mUdf(int))
-    , path_(0)
-    , seedhasmoved_(false)
-    , mousepid_( EM::PosID::udf() )
-    , makenewstick_(false)
-    , doubleclicked_(false)
 {
-    f3dpainter_->abouttorepaint_.notify(
-	    mCB(this,Fault3DFlatViewEditor,f3dRepaintATSCB) );
-    f3dpainter_->repaintdone_.notify(
-	    mCB(this,Fault3DFlatViewEditor,f3dRepaintedCB) );
+    mAttachCB( f3dpainter_->abouttorepaint_,
+	       Fault3DFlatViewEditor::f3dRepaintATSCB );
+    mAttachCB( f3dpainter_->repaintdone_,
+	       Fault3DFlatViewEditor::f3dRepaintedCB );
     mAttachCB( editor_->sower().sowingEnd,
-	Fault3DFlatViewEditor::sowingFinishedCB );
+	       Fault3DFlatViewEditor::sowingFinishedCB );
 }
 
 
 Fault3DFlatViewEditor::~Fault3DFlatViewEditor()
 {
     detachAllNotifiers();
-
-    if ( meh_ )
-    {
-	editor_->movementStarted.remove(
-		mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
-	editor_->movementFinished.remove(
-		mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
-	editor_->removeSelected.remove(
-		mCB(this,Fault3DFlatViewEditor,removeSelectionCB) );
-	meh_->movement.remove(
-		mCB(this,Fault3DFlatViewEditor,mouseMoveCB) );
-	meh_->buttonPressed.remove(
-		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
-	meh_->buttonReleased.remove(
-		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
-	meh_->doubleClick.remove(
-		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
-    }
-
     cleanActStkContainer();
     delete f3dpainter_;
     deepErase( markeridinfo_ );
@@ -106,20 +80,20 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 
     if ( meh_ )
     {
-	editor_->movementStarted.notify(
-		mCB(this,Fault3DFlatViewEditor,seedMovementStartedCB) );
-	editor_->movementFinished.notify(
-		mCB(this,Fault3DFlatViewEditor,seedMovementFinishedCB) );
-	editor_->removeSelected.notify(
-		mCB(this,Fault3DFlatViewEditor,removeSelectionCB) );
-	meh_->movement.notify(
-		mCB(this,Fault3DFlatViewEditor,mouseMoveCB) );
-	meh_->buttonPressed.notify(
-		mCB(this,Fault3DFlatViewEditor,mousePressCB) );
-	meh_->buttonReleased.notify(
-		mCB(this,Fault3DFlatViewEditor,mouseReleaseCB) );
-	meh_->doubleClick.notify(
-		mCB(this,Fault3DFlatViewEditor,doubleClickedCB) );
+	mAttachCB( editor_->movementStarted,
+		   Fault3DFlatViewEditor::seedMovementStartedCB );
+	mAttachCB( editor_->movementFinished,
+		   Fault3DFlatViewEditor::seedMovementFinishedCB );
+	mAttachCB( editor_->removeSelected,
+		   Fault3DFlatViewEditor::removeSelectionCB );
+	mAttachCB( meh_->movement,
+		   Fault3DFlatViewEditor::mouseMoveCB );
+	mAttachCB( meh_->buttonPressed,
+		   Fault3DFlatViewEditor::mousePressCB );
+	mAttachCB( meh_->buttonReleased,
+		   Fault3DFlatViewEditor::mouseReleaseCB );
+	mAttachCB( meh_->doubleClick,
+		   Fault3DFlatViewEditor::doubleClickedCB );
     }
 
     for ( int idx=0; idx<markeridinfo_.size(); idx++ )
@@ -222,7 +196,7 @@ void Fault3DFlatViewEditor::seedMovementStartedCB( CallBacker* )
     if ( !emf3d )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     if ( !f3deditor )
 	return;
@@ -264,7 +238,7 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     StepInterval<int> colrg = emfss->colRange( f3dpainter_->getActiveStickId());
     const int knotid = colrg.start_ + displayedknotid*colrg.step_;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     if ( !f3deditor )
 	return;
@@ -392,7 +366,7 @@ void Fault3DFlatViewEditor::mouseMoveCB( CallBacker* )
     if ( emf3d->isEmpty() )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     if ( !f3deditor )
 	return;
@@ -480,7 +454,7 @@ void Fault3DFlatViewEditor::mousePressCB( CallBacker* )
     StepInterval<int> colrg = fss->colRange( rc.row() );
     knotid = colrg.start_ + displayedknotid*colrg.step_;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet(MPE::FaultEditor*,f3deditor,editor.ptr())
     if ( !f3deditor )
 	return;
@@ -555,7 +529,7 @@ void Fault3DFlatViewEditor::mouseReleaseCB( CallBacker* cb )
     if ( !emf3d )
 	return;
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, false );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditorByID( emid );
     mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
     if ( !f3deditor )
 	return;

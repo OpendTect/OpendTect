@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "prestackgather.h"
 #include "prestackprocessor.h"
 #include "settings.h"
 #include "survinfo.h"
@@ -252,9 +251,13 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     else if ( mnuid==amplspectrumitem_.id )
     {
 	menu->setIsHandled( true );
-	uiAmplSpectrum* asd = new uiAmplSpectrum( menu->getParent() );
+	auto* asd = new uiAmplSpectrum( menu->getParent() );
 	asd->setDeleteOnClose( true );
-	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID(),0);
+	ConstRefMan<FlatDataPack> gatherdp = psv->getFlatDataPack();
+	if ( !gatherdp )
+	    return;
+
+	asd->setDataPack( *gatherdp.ptr() );
 	const uiString pos = psv->is3DSeis()
 	    ? toUiString( "%1/%2").arg(psv->getPosition().inl())
 				  .arg( psv->getPosition().crl() )
@@ -420,7 +423,7 @@ uiViewer3DPositionDlg*
 #define mErrRes(msg) { uiMSG().error(msg); return nullptr; }
 
 uiMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
-					  const DataPackID& dpid )
+					  const PreStack::Gather& gather )
 {
     auto* viewwin = new uiFlatViewMainWin( ODMainWin(),
 					   uiFlatViewMainWin::Setup(title) );
@@ -433,13 +436,8 @@ uiMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
     vwr.appearance().ddpars_.show( false, true );
     vwr.appearance().ddpars_.wva_.overlap_ = 1;
 
-    RefMan<FlatDataPack>fdp = DPM(DataPackMgr::FlatID()).
-							get<FlatDataPack>(dpid);
-    if ( !fdp )
-	return nullptr;
-
-    vwr.setPack( FlatView::Viewer::VD, fdp.ptr(), true);
-    int pw = 400 + 5 * fdp->data().info().getSize( 0 );
+    vwr.setPack( FlatView::Viewer::VD, const_cast<PreStack::Gather*>(&gather) );
+    int pw = 400 + 5 * gather.data().getSize( PreStack::Gather::offsetDim() );
     if ( pw > 800 )
 	pw = 800;
 
@@ -567,13 +565,12 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
     {
 	visSurvey::PreStackDisplay* psv = viewers3d_[idx];
 	const visSurvey::Scene* scene = psv->getScene();
-
-	DataPackID dpid = psv->getDataPackID();
+	ConstRefMan<PreStack::Gather> gatherdp = psv->getGather();
 	const visSurvey::PlaneDataDisplay* pdd = psv->getSectionDisplay();
 	const visSurvey::Seis2DDisplay*    s2d = psv->getSeis2DDisplay();
-	if ( pdd && (!scene || scene->getFirstIdx( pdd )==-1 ) )
+	if ( gatherdp && pdd && (!scene || scene->getFirstIdx( pdd )==-1 ) )
 	{
-	    removeViewWin( dpid );
+	    removeViewWin( *gatherdp.ptr() );
 	    viewers3d_.removeSingle( idx );
 	    delete posdialogs_.removeSingle( idx );
 	    delete settingdlgs_.removeSingle( idx );
@@ -583,9 +580,9 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 	    idx--;
 	}
 
-	if ( s2d && (!scene || scene->getFirstIdx( s2d )==-1 ) )
+	if ( gatherdp && s2d && (!scene || scene->getFirstIdx( s2d )==-1 ) )
 	{
-	    removeViewWin( dpid );
+	    removeViewWin( *gatherdp.ptr() );
 	    viewers3d_.removeSingle( idx );
 	    delete posdialogs_.removeSingle( idx );
 	    delete settingdlgs_.removeSingle( idx );
@@ -598,13 +595,21 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 }
 
 
-void uiViewer3DMgr::removeViewWin( const DataPackID& dpid )
+void uiViewer3DMgr::removeViewWin( const PreStack::Gather& gather )
 {
-    for ( int idx=viewers2d_.size()-1; idx >=0; idx-- )
+    for ( int idx=viewers2d_.size()-1; idx>=0; idx-- )
     {
 	const uiFlatViewer* viewer = getViewer( idx );
-	if ( viewer && viewer->packID(false) == dpid )
-	    delete viewers2d_.removeSingle( idx );
+	if ( !viewer )
+	    continue;
+
+	WeakPtr<FlatDataPack> pack = viewer->getPack( false );
+	ConstRefMan<FlatDataPack> fdp = pack.get();
+	mDynamicCastGet(const PreStack::Gather*,viewgather,fdp.ptr());
+	if ( !viewgather || viewgather != &gather )
+	    continue;
+
+	delete viewers2d_.removeSingle( idx );
     }
 }
 
@@ -641,6 +646,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
     if ( !allwindowspar || !allwindowspar->get(sKeyNrWindows(), nrwindows) )
 	return;
 
+    sessiongathers_ = new PreStack::GatherSetDataPack( nullptr );
     for ( int idx=0; idx<nrwindows; idx++ )
     {
 	BufferString key = sKeyViewerPrefix();
@@ -688,7 +694,8 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	else
 	    continue;
 
-	DPM(DataPackMgr::FlatID()).add( gather );
+	sessiongathers_->addGather( *gather.ptr() );
+//	DPM(DataPackMgr::FlatID()).add( gather );
 
 	uiString title;
 	if ( is3d )
@@ -696,7 +703,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	else
 	    getSeis2DTitle( trcnr, name2d, title );
 
-	uiMainWin* viewwin = create2DViewer( title, dpid );
+	uiMainWin* viewwin = create2DViewer( title, *gather.ptr() );
 	if ( !viewwin )
 	    continue;
 
@@ -704,6 +711,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	viewwin->show();
     }
 
+    sessiongathers_->finalize();
     for ( int idx=0; idx<viewers3d_.size(); idx++ )
     {
 	viewers3d_[idx]->setProcPar( *allwindowspar );
@@ -778,6 +786,29 @@ void uiViewer3DMgr::surveyToBeChangedCB( CallBacker* )
     deepErase( posdialogs_ );
     deepErase( viewers2d_ );
     deepUnRef( viewers3d_ );
+}
+
+
+uiMainWin* uiViewer3DMgr::create2DViewer( const uiString& title,
+					  const DataPackID& dpid )
+{
+    ConstRefMan<FlatDataPack> fdp =
+			DPM(DataPackMgr::FlatID()).get<FlatDataPack>( dpid );
+    mDynamicCastGet(const PreStack::Gather*,gather,fdp.ptr());
+    if ( !gather )
+	return nullptr;
+
+    return create2DViewer( title, *gather );
+}
+
+
+void uiViewer3DMgr::removeViewWin( const DataPackID& dpid )
+{
+    ConstRefMan<FlatDataPack> fdp =
+			DPM(DataPackMgr::FlatID()).get<FlatDataPack>( dpid );
+    mDynamicCastGet(const PreStack::Gather*,gather,fdp.ptr());
+    if ( gather )
+	removeViewWin( *gather );
 }
 
 } // namespace PreStackView

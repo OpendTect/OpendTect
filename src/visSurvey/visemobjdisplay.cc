@@ -163,7 +163,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     if ( !isOn() || eventcatcher_->isHandled() || !isSelected() )
 	return;
 
-    if ( editor_ && !editor_->clickCB( cb ) )
+    if ( editor_ && !editor_->clickCB(cb) )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
@@ -228,15 +228,9 @@ void EMObjectDisplay::removeEMStuff()
     }
 
     if ( emobject_ )
-    {
 	mDetachCB( emobject_->change, EMObjectDisplay::emChangeCB );
-	const int trackeridx =
-	    MPE::engine().getTrackerByObject( emobject_->id() );
-	if ( trackeridx >= 0 )
-	    MPE::engine().removeEditor(emobject_->id());
 
-	emobject_ = nullptr;
-    }
+    emobject_ = nullptr;
 }
 
 
@@ -338,8 +332,7 @@ bool EMObjectDisplay::updateFromEM( TaskRunner* tr )
 
 void EMObjectDisplay::updateFromMPE()
 {
-    const bool hastracker =
-	MPE::engine().getTrackerByObject(getObjectID()) >= 0;
+    const bool hastracker = MPE::engine().hasTracker( getObjectID() );
     if ( hastracker && !restoresessupdate_ )
     {
 	setResolution( 0, 0 );
@@ -452,24 +445,34 @@ OD::Color EMObjectDisplay::getColor() const
 }
 
 
-MPEEditor* EMObjectDisplay::getEditor() { return editor_.ptr(); }
+MPEEditor* EMObjectDisplay::getEditor()
+{
+    return editor_.ptr();
+}
 
 
 void EMObjectDisplay::enableEditing( bool yn )
 {
     if ( yn && !editor_ )
     {
-	auto* mpeeditor = MPE::engine().getEditor( getObjectID(), true );
+	RefMan<MPE::ObjectEditor> mpeeditor = getMPEEditor( true );
 	if ( !mpeeditor )
 	    return;
 
+	mpeeditor->addUser();
 	editor_ = MPEEditor::create();
 	editor_->setSceneEventCatcher( eventcatcher_.ptr() );
 	editor_->setDisplayTransformation( transformation_.ptr() );
 	editor_->sower().intersow();
 	editor_->sower().reverseSowingOrder();
-	editor_->setEditor( mpeeditor );
+	editor_->setEditor( mpeeditor.ptr() );
 	addChild( editor_->osgNode() );
+    }
+    else if ( !yn )
+    {
+	RefMan<MPE::ObjectEditor> mpeeditor = getMPEEditor( false );
+	if ( mpeeditor )
+	    mpeeditor->removeUser();
     }
 
     if ( editor_ )

@@ -32,7 +32,8 @@ public:
 					  int rancompidx )
 		    : ransdp_( ransdp )
 		    , regsdp_( regsdp )
-		    , path_( ransdp.getPath() )
+		    , path_( const_cast<const RandomSeisDataPack&>( ransdp )
+								.getPath() )
 		    , regidx_( -1 )
 		    , ranidx_( rancompidx )
 		    , domemcopy_( false )
@@ -358,41 +359,6 @@ RefMan<RegularSeisDataPack> RegularSeisDataPack::createDataPackForZSliceRM(
 }
 
 
-DataPackID RegularSeisDataPack::createDataPackForZSlice(
-						const BinIDValueSet* bivset,
-						const TrcKeyZSampling& tkzs,
-						const ZDomain::Info& zinfo,
-						const BufferStringSet* names )
-{
-    if ( !bivset || !tkzs.isDefined() || tkzs.nrZ()!=1 )
-	return DataPack::cNoID();
-
-    auto* regsdp = new RegularSeisDataPack(
-					SeisDataPack::categoryStr(false,true) );
-    regsdp->setSampling( tkzs );
-    for ( int idx=1; idx<bivset->nrVals(); idx++ )
-    {
-	const char* name = names && names->validIdx(idx-1)
-			 ? names->get(idx-1).buf()
-			 : sKey::EmptyString().buf();
-	regsdp->addComponent( name );
-	BinIDValueSet::SPos pos;
-	BinID bid;
-	while ( bivset->next(pos,true) )
-	{
-	    bivset->get( pos, bid );
-	    regsdp->data(idx-1).set( tkzs.hsamp_.inlIdx(bid.inl()),
-				     tkzs.hsamp_.crlIdx(bid.crl()), 0,
-				     bivset->getVals(pos)[idx] );
-	}
-    }
-
-    regsdp->setZDomain( zinfo );
-    DPM(DataPackMgr::SeisID()).add( regsdp );
-    return regsdp->id();
-}
-
-
 void RegularSeisDataPack::fillTrace( const TrcKey& tk, SeisTrc& trc ) const
 {
     fillTraceInfo( tk, trc.info() );
@@ -445,7 +411,26 @@ void RegularSeisDataPack::fillTraceData( const TrcKey& tk, TraceData& td ) const
     }
 }
 
+
+DataPackID RegularSeisDataPack::createDataPackForZSlice(
+						const BinIDValueSet* bivset,
+						const TrcKeyZSampling& tkzs,
+						const ZDomain::Info& zinfo,
+						const BufferStringSet* names )
+{
+    ConstRefMan<RegularSeisDataPack> regsdp =
+			createDataPackForZSliceRM( bivset, tkzs, zinfo, names );
+    if ( !regsdp )
+	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add( regsdp );
+    regsdp->ref();
+    return regsdp->id();
+}
+
+
 // RandomSeisDataPack
+
 RandomSeisDataPack::RandomSeisDataPack( const char* cat,
 					const BinDataDesc* bdd )
     : SeisDataPack(cat,bdd)
@@ -483,13 +468,6 @@ int RandomSeisDataPack::getGlobalIdx(const TrcKey& tk) const
 }
 
 
-DataPackID RandomSeisDataPack::createDataPackFrom(
-					const RegularSeisDataPack& regsdp,
-					const RandomLineID& rdmlineid,
-					const Interval<float>& zrange )
-{ return createDataPackFrom( regsdp, rdmlineid, zrange, 0 ); }
-
-
 RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
 					const RegularSeisDataPack& regsdp,
 					const RandomLineID& rdmlineid,
@@ -506,12 +484,9 @@ RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
     if ( regsdp.getScaler() )
 	randsdp->setScaler( *regsdp.getScaler() );
 
-    TrcKeyPath knots, tkpath;
+    TrcKeyPath knots, path;
     rdmline->allNodePositions( knots );
-    Geometry::RandomLine::getPathBids( knots, tkpath );
-    randsdp->setPath( tkpath );
-
-    TrcKeyPath& path = randsdp->getPath();
+    Geometry::RandomLine::getPathBids( knots, path );
     if ( path.isEmpty() )
 	return nullptr;
 
@@ -535,6 +510,7 @@ RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
     if ( !auxtkzs.adjustTo(regsdp.sampling(),true) && path.size()>1 )
 	path.removeRange( 1, path.size()-1 );
 
+    randsdp->setPath( path );
     randsdp->setZRange( auxtkzs.zsamp_ );
 
     const int nrcomps = compnames ? compnames->size() : regsdp.nrComponents();
@@ -559,96 +535,14 @@ RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
 }
 
 
-DataPackID RandomSeisDataPack::createDataPackFrom(
-					const RegularSeisDataPack& regsdp,
-					const RandomLineID& rdmlineid,
-					const Interval<float>& zrange,
-					const BufferStringSet* compnames )
-{
-    ConstRefMan<Geometry::RandomLine> rdmline = Geometry::RLM().get(rdmlineid);
-    if ( !rdmline || regsdp.isEmpty() )
-	return DataPack::cNoID();
-
-    RefMan<RandomSeisDataPack> randsdp = new RandomSeisDataPack(
-		SeisDataPack::categoryStr(true,false), &regsdp.getDataDesc() );
-    randsdp->setRandomLineID( rdmlineid );
-    if ( regsdp.getScaler() )
-	randsdp->setScaler( *regsdp.getScaler() );
-
-    TrcKeyPath knots, tkpath;
-    rdmline->allNodePositions( knots );
-    Geometry::RandomLine::getPathBids( knots, tkpath );
-    randsdp->setPath( tkpath );
-
-    TrcKeyPath& path = randsdp->getPath();
-    if ( path.isEmpty() )
-	return DataPack::cNoID();
-
-    TrcKeySampling unitsteptks = regsdp.sampling().hsamp_;
-    unitsteptks.step_ = BinID( 1, 1 );
-
-    // Remove outer undefined traces at both sides
-    int pathidx = path.size()-1;
-    while ( pathidx>0 && !unitsteptks.includes(path[pathidx]) )
-	path.removeSingle( pathidx-- );
-
-    while ( path.size()>1 && !unitsteptks.includes(path[0]) )
-	path.removeSingle( 0 );
-
-    // Auxiliary TrcKeyZSampling to limit z-range and if no overlap at all,
-    // preserve one dummy voxel for displaying the proper undefined color.
-    TrcKeyZSampling auxtkzs;
-    auxtkzs.hsamp_.start_ = path.first().binID();
-    auxtkzs.hsamp_.stop_ = path.last().binID();
-    auxtkzs.zsamp_.setInterval( zrange );
-    if ( !auxtkzs.adjustTo(regsdp.sampling(),true) && path.size()>1 )
-	path.removeRange( 1, path.size()-1 );
-
-    randsdp->setZRange( auxtkzs.zsamp_ );
-
-    const int nrcomps = compnames ? compnames->size() : regsdp.nrComponents();
-    for ( int idx=0; idx<nrcomps; idx++ )
-    {
-	const char* compnm = compnames ? compnames->get(idx).buf()
-				       : regsdp.getComponentName(idx);
-
-	if ( regsdp.getComponentIdx(compnm,idx) >= 0 )
-	{
-	    randsdp->addComponent( compnm );
-	    Regular2RandomDataCopier copier( *randsdp, regsdp,
-					     randsdp->nrComponents()-1 );
-	    copier.execute();
-	}
-    }
-
-    randsdp->setZDomain( regsdp.zDomain() );
-    randsdp->setValUnit( regsdp.valUnit() );
-    randsdp->setName( regsdp.name() );
-    if ( DPM(DataPackMgr::SeisID()).add( randsdp ) )
-    {
-	DPM(DataPackMgr::SeisID()).ref( randsdp->id() );
-	return randsdp->id();
-    }
-    else
-	return DataPack::cNoID();
-}
-
-
-DataPackID RandomSeisDataPack::createDataPackFrom(
-					const RegularSeisDataPack& regsdp,
-					const TrcKeyPath& path,
-					const Interval<float>& zrange )
-{ return createDataPackFrom( regsdp, path, zrange, 0 ); }
-
-
-DataPackID RandomSeisDataPack::createDataPackFrom(
+RefMan<RandomSeisDataPack> RandomSeisDataPack::createDataPackFromRM(
 					const RegularSeisDataPack& regsdp,
 					const TrcKeyPath& path,
 					const Interval<float>& zrange,
 					const BufferStringSet* compnames )
 {
     if ( path.isEmpty()  || regsdp.isEmpty() )
-	return DataPack::cNoID();
+	return nullptr;
 
     RefMan<RandomSeisDataPack> randsdp = new RandomSeisDataPack(
 		SeisDataPack::categoryStr(true,false),&regsdp.getDataDesc() );
@@ -683,13 +577,59 @@ DataPackID RandomSeisDataPack::createDataPackFrom(
     randsdp->setZDomain( regsdp.zDomain() );
     randsdp->setValUnit( regsdp.valUnit() );
     randsdp->setName( regsdp.name() );
-    if ( DPM(DataPackMgr::SeisID()).add(randsdp) )
-    {
-	DPM(DataPackMgr::SeisID()).ref( randsdp->id() );
-	return randsdp->id();
-    }
-    else
+    return randsdp;
+}
+
+
+DataPackID RandomSeisDataPack::createDataPackFrom(
+					const RegularSeisDataPack& regsdp,
+					const RandomLineID& rdmlineid,
+					const Interval<float>& zrange )
+{
+    return createDataPackFrom( regsdp, rdmlineid, zrange, nullptr );
+}
+
+
+DataPackID RandomSeisDataPack::createDataPackFrom(
+					const RegularSeisDataPack& regsdp,
+					const RandomLineID& rdmlineid,
+					const Interval<float>& zrange,
+					const BufferStringSet* compnames )
+{
+    ConstRefMan<RandomSeisDataPack> randsdp = createDataPackFromRM( regsdp,
+						rdmlineid, zrange, compnames );
+    if ( !randsdp )
 	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add( randsdp );
+    randsdp->ref();
+    return randsdp->id();
+}
+
+
+DataPackID RandomSeisDataPack::createDataPackFrom(
+					const RegularSeisDataPack& regsdp,
+					const TrcKeyPath& path,
+					const Interval<float>& zrange )
+{
+    return createDataPackFrom( regsdp, path, zrange, nullptr );
+}
+
+
+DataPackID RandomSeisDataPack::createDataPackFrom(
+					const RegularSeisDataPack& regsdp,
+					const TrcKeyPath& path,
+					const Interval<float>& zrange,
+					const BufferStringSet* compnames )
+{
+    ConstRefMan<RandomSeisDataPack> randsdp = createDataPackFromRM( regsdp,
+						    path, zrange, compnames );
+    if ( !randsdp )
+	return DataPack::cNoID();
+
+    DPM(DataPackMgr::SeisID()).add(randsdp);
+    randsdp->ref();
+    return randsdp->id();
 }
 
 

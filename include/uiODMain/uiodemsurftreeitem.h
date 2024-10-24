@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
+
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "emposid.h"
@@ -62,7 +63,7 @@ protected:
     void		keyPressCB(CallBacker*) override;
 
     void		updateTrackingState();
-    bool		istrackingallowed_;
+    bool		istrackingallowed_	= true;
 
     BufferString	timelastmodified_;
     MenuItem		savemnuitem_;
@@ -82,7 +83,7 @@ mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem
 						: public uiODAttribTreeItem
 { mODTextTranslationClass(uiODEarthModelSurfaceDataTreeItem)
 public:
-			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
+			uiODEarthModelSurfaceDataTreeItem(const EM::ObjectID&,
 				       uiVisEMObject*,const char* parenttype);
 
     void		setDataPointSet(const DataPointSet&);

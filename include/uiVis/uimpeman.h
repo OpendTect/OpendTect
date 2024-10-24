@@ -36,6 +36,7 @@ mExpClass(uiVis) uiMPEMan : public CallBacker
 { mODTextTranslationClass(uiMPEMan)
 public:
     friend class uiPropertiesDialog;
+
 				uiMPEMan(uiParent*,uiVisPartServer*);
 				~uiMPEMan();
 
@@ -87,7 +88,7 @@ protected:
 
     void			updateSeedPickState();
     void			mouseCursorCallCB(CallBacker*);
-    void			trackerAddedRemovedCB(CallBacker*);
+    void			trackerAddedCB(CallBacker*);
 
     bool			isPickingWhileSetupUp() const;
 

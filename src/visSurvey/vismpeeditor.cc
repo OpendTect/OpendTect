@@ -55,12 +55,16 @@ void MPEEditor::setupPatchDisplay()
 {
     OD::Color lineclr = OD::Color::Green() ;
     OD::Color mkclr = OD::Color::White();
-    if ( emeditor_ )
+    RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+    if ( emeditor )
     {
-	const EM::EMObject& emobj = emeditor_->emObject();
-	mkclr = emobj.preferredColor();
-	if ( Math::Abs(mkclr.g()-OD::Color::Green().g())<30 )
-	    lineclr = OD::Color::Red();
+	ConstRefMan<EM::EMObject> emobj = emeditor->emObject();
+	if ( emobj )
+	{
+	    mkclr = emobj->preferredColor();
+	    if ( Math::Abs(mkclr.g()-OD::Color::Green().g())<30 )
+		lineclr = OD::Color::Red();
+	}
     }
 
     if ( !patchmarkers_ )
@@ -90,18 +94,24 @@ void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 {
     if ( emeditor_ )
     {
-	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
-	mDetachCB( emobj.change, MPEEditor::nodeMovement );
-	mDetachCB( emeditor_->editpositionchange, MPEEditor::changeNumNodes );
+	RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+	RefMan<EM::EMObject> emobj = emeditor ? emeditor->emObject() : nullptr;
+	if ( emobj )
+	    mDetachCB( emobj->change, MPEEditor::nodeMovement );
+
+	mDetachCB( emeditor->editpositionchange, MPEEditor::changeNumNodes );
     }
 
     emeditor_ = eme;
 
     if ( emeditor_ )
     {
-	EM::EMObject& emobj = const_cast<EM::EMObject&>(emeditor_->emObject());
-	mAttachCB( emobj.change, MPEEditor::nodeMovement );
-	mAttachCB( emeditor_->editpositionchange, MPEEditor::changeNumNodes );
+	RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+	RefMan<EM::EMObject> emobj = emeditor ? emeditor->emObject() : nullptr;
+	if ( emobj )
+	    mAttachCB( emobj->change, MPEEditor::nodeMovement );
+
+	mAttachCB( emeditor->editpositionchange, MPEEditor::changeNumNodes );
 	changeNumNodes( nullptr );
     }
 }
@@ -113,9 +123,9 @@ void MPEEditor::setPatch( MPE::Patch* patch )
 }
 
 
-MPE::ObjectEditor* MPEEditor::getMPEEditor()
+RefMan<MPE::ObjectEditor> MPEEditor::getMPEEditor()
 {
-    return emeditor_.ptr();
+    return emeditor_.get();
 }
 
 
@@ -212,12 +222,13 @@ bool MPEEditor::mouseClick( const EM::PosID& pid,
 {
     if ( !shift && !alt && ctrl && emeditor_ )
     {
+	RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
 	TypeSet<EM::PosID> pids;
-	emeditor_->getEditIDs(pids);
+	emeditor->getEditIDs(pids);
 	for ( int idx=0; idx<pids.size(); idx++ )
-	    emeditor_->removeEditID(pids[idx]);
+	    emeditor->removeEditID(pids[idx]);
 
-	if ( emeditor_->addEditID(pid) )
+	if ( emeditor->addEditID(pid) )
 	    setActiveDragger( pid );
 	return true;
     }
@@ -229,8 +240,9 @@ bool MPEEditor::mouseClick( const EM::PosID& pid,
 void MPEEditor::changeNumNodes( CallBacker* )
 {
     TypeSet<EM::PosID> editnodes;
-    if ( emeditor_ )
-	emeditor_->getEditIDs( editnodes );
+    RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+    if ( emeditor )
+	emeditor->getEditIDs( editnodes );
     else
 	posids_.erase();
 
@@ -267,11 +279,12 @@ void MPEEditor::removeDragger( int idx )
 void MPEEditor::addDragger( const EM::PosID& pid )
 {
     bool translate1D = false, translate2D = false, translate3D = false;
-    if ( emeditor_ )
+    RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+    if ( emeditor )
     {
-	translate1D = emeditor_->mayTranslate1D(pid);
-	translate2D = emeditor_->mayTranslate2D(pid);
-	translate3D = emeditor_->mayTranslate3D(pid);
+	translate1D = emeditor->mayTranslate1D(pid);
+	translate2D = emeditor->mayTranslate2D(pid);
+	translate3D = emeditor->mayTranslate3D(pid);
     }
     else
 	return;
@@ -296,7 +309,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	dragger->setDraggerType( visBase::Dragger::Translate2D );
 	const Coord3 defnormal( 0, 0, 1 );
 	const Coord3 desnormal =
-	    emeditor_->translation2DNormal(pid).normalize();
+			    emeditor->translation2DNormal(pid).normalize();
 	const float dotproduct = (float) defnormal.dot(desnormal);
 
 	Coord3 rotationaxis( 0, 0, 1 );
@@ -317,7 +330,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	dragger->setDraggerType( visBase::Dragger::Translate1D );
 	const Coord3 defori( 1, 0, 0 );
 	const Coord3 desori =
-	    emeditor_->translation1DDirection( pid ).normalize().normalize();
+	    emeditor->translation1DDirection( pid ).normalize().normalize();
 	const float angle = (float) Math::ACos( defori.dot(desori) );
 	const Coord3 axis = defori.cross(desori);
 	dragger->setRotation( axis, angle );
@@ -334,7 +347,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     dragger->setSize( markersize_ );
     dragger->setOwnShape( marker.ptr(),false );
 
-    dragger->setPos( emeditor_->getPosition(pid) );
+    dragger->setPos( emeditor->getPosition(pid) );
 
     addChild( dragger->osgNode() );
 
@@ -346,7 +359,8 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 
 void MPEEditor::nodeMovement(CallBacker* cb)
 {
-    if ( emeditor_ )
+    RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+    if ( emeditor )
     {
 	mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
 	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
@@ -354,14 +368,14 @@ void MPEEditor::nodeMovement(CallBacker* cb)
 	    const int idx = posids_.indexOf( cbdata.pid0 );
 	    if ( idx==-1 ) return;
 
-	    const Coord3 pos = emeditor_->getPosition( cbdata.pid0 );
+	    const Coord3 pos = emeditor->getPosition( cbdata.pid0 );
 	    updateNodePos( idx, pos );
 	}
 	else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
 	{
 	    for ( int idx=0; idx<posids_.size(); idx++ )
 	    {
-		const Coord3 pos = emeditor_->getPosition( posids_[idx] );
+		const Coord3 pos = emeditor->getPosition( posids_[idx] );
 		updateNodePos( idx, pos );
 	    }
 	}
@@ -486,7 +500,10 @@ void MPEEditor::dragStart( CallBacker* cb )
     const int idx = draggers_.indexOf((visBase::Dragger*) cb );
     setActiveDragger( posids_[idx] );
 
-    if ( emeditor_ ) emeditor_->startEdit(activedragger_);
+    RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+    if ( emeditor )
+	emeditor->startEdit(activedragger_);
+
     isdragging_ = true;
     draggingStarted.trigger();
 }
@@ -497,19 +514,23 @@ void MPEEditor::dragMotion( CallBacker* cb )
     const int idx = draggers_.indexOf( (visBase::Dragger*) cb );
     const Coord3 np = draggers_[idx]->getPos();
     draggerinmotion_ = true;
-    if ( emeditor_ ) emeditor_->setPosition( np );
+    RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+    if ( emeditor )
+	emeditor->setPosition( np );
+
     draggerinmotion_ = false;
 }
 
 
 void MPEEditor::dragStop( CallBacker* cb )
 {
-    if ( emeditor_ )
+    RefMan<MPE::ObjectEditor> emeditor = getMPEEditor();
+    if ( emeditor )
     {
 	const int idx = draggers_.indexOf( (visBase::Dragger*)cb );
         NotifyStopper cbstop( draggers_[idx]->motion );
-	draggers_[idx]->setPos( emeditor_->getPosition( activedragger_ ) );
-	emeditor_->finishEdit();
+	draggers_[idx]->setPos( emeditor->getPosition( activedragger_ ) );
+	emeditor->finishEdit();
 	isdragging_ = false;
     }
 }

@@ -89,18 +89,16 @@ public:
 						int attrib=-1) const;
     TrcKeyZSampling		getDataPackSampling(int attrib=0) const;
     Interval<float>		getDataTraceRange() const override;
-    void			getRandomPos(DataPointSet&,
+    bool			getRandomPos(DataPointSet&,
 					TaskRunner* =nullptr) const override;
-    void			setRandomPosData(int attrib,
+    bool			setRandomPosData(int attrib,
 						 const DataPointSet*,
 						 TaskRunner*) override;
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
-    DataPackID			getDataPackID(int attrib) const override;
-    DataPackID			getDisplayedDataPackID(
-					      int attrib) const override;
-    ConstRefMan<RegularSeisDataPack> getDisplayedSeisDataPack(int attrib) const;
-    RefMan<RegularSeisDataPack> getDisplayedSeisDataPack(int attrib);
+    ConstRefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib)
+								const override;
+    RefMan<SeisDataPack>	getDisplayedSeisDataPack(int attrib);
 
     visBase::GridLines*		gridlines();
 
@@ -165,21 +163,19 @@ public:
 protected:
 				~PlaneDataDisplay();
 
-    void			setRandomPosDataNoCache(int attrib,
+    bool			setRandomPosDataNoCache(int attrib,
 							const BinIDValueSet*,
 							TaskRunner*);
     void			updateChannels(int attrib,TaskRunner*);
     void			createTransformedDataPack(int attrib,
 							  TaskRunner* =nullptr);
 
-    bool			setSeisDataPack(int attrib,RegularSeisDataPack*,
+    bool			usesDataPacks() const override	{ return true; }
+    bool			setSeisDataPack(int attrib,SeisDataPack*,
 						TaskRunner*) override;
-    ConstRefMan<RegularSeisDataPack> getSeisDataPack(int attrib) const override;
-    RefMan<RegularSeisDataPack> getSeisDataPack(int attrib);
-    DataPackMgr::MgrID		getDataPackMgrID() const override
-				{ return DataPackMgr::SeisID(); }
-    bool			setDataPackID(int attrib,const DataPackID&,
-					  TaskRunner*) override; //deprecated
+    ConstRefMan<DataPack>	getDataPack(int attrib) const override;
+    ConstRefMan<SeisDataPack>	getSeisDataPack(int attrib) const override;
+    RefMan<SeisDataPack>	getSeisDataPack(int attrib);
 
     void			updateMainSwitch();
     void			setScene(Scene*) override;

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "survgeom2d.h"
 #include "survinfo.h"
+#include "view2ddataman.h"
 #include "zaxistransform.h"
 
 #include "uiflatauxdataeditor.h"
@@ -139,7 +140,7 @@ void PickSet::pickRemoveCB( CallBacker* cb )
 	    {
 		if ( regfdp->is2D() )
 		{
-                    const Pos::GeomID geomid(vwr2dtkzs.hsamp_.inlRange().start_);
+		    const Pos::GeomID geomid = vwr2dtkzs.hsamp_.getGeomID();
 		    if ( pl.hasTrcKey() &&  pl.geomID()!=geomid )
 			continue;
 		    else
@@ -227,11 +228,13 @@ MarkerStyle2D PickSet::get2DMarkers( const Pick::Set& ps ) const
 void PickSet::drawAll()
 {
     ConstRefMan<FlatDataPack> fdp = viewers_[0]->getPack( true, true ).get();
-    if ( !fdp || !pickset_ ) return;
+    if ( !fdp || !pickset_ )
+	return;
 
     mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
     mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
-    if ( !regfdp && !randfdp ) return;
+    if ( !regfdp && !randfdp )
+	return;
 
     RefMan<Survey::Geometry3D> geom3d = SI().get3DGeometry( false );
     const Pos::IdxPair2Coord& bid2crd = geom3d->binID2Coord();
@@ -270,7 +273,7 @@ void PickSet::drawAll()
 		}
 		else
 		{
-                    const Pos::GeomID geomid(vwr2dtkzs.hsamp_.inlRange().start_);
+		    const Pos::GeomID geomid = vwr2dtkzs.hsamp_.getGeomID();
 		    int trcidx = -1;
 		    if ( pl.hasTrcKey() )
 		    {

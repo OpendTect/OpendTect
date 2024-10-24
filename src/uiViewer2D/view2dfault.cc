@@ -9,11 +9,13 @@ ________________________________________________________________________
 
 #include "view2dfault.h"
 
-#include "faulteditor.h"
+#include "emfault3d.h"
+#include "emmanager.h"
 #include "flatauxdataeditor.h"
 #include "mpeengine.h"
 #include "mpef3dflatvieweditor.h"
 #include "seisdatapack.h"
+#include "view2ddataman.h"
 
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
@@ -29,22 +31,34 @@ mImplStd( Fault )
 Fault::Fault( uiFlatViewWin* fvw,
 		    const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
     : EMDataObject(fvw,auxdataeds)
-    , deselected_( this )
-    , f3deditor_(0)
-    , knotenabled_(false)
+    , deselected_(this)
 {
-    faulteds_.allowNull();
+    faulteds_.setNullAllowed();
+}
+
+
+Fault::~Fault()
+{
+    deepErase( faulteds_ );
 }
 
 
 void Fault::setEditors()
 {
     deepErase( faulteds_ );
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid_, true );
-    mDynamicCastGet( MPE::FaultEditor*, f3deditor, editor.ptr() );
-    f3deditor_ = f3deditor;
-    if ( f3deditor_ )
-	f3deditor_->ref();
+    if ( MPE::engine().hasEditor(emid_) )
+    {
+	RefMan<MPE::ObjectEditor> objeditor =
+					MPE::engine().getEditorByID( emid_ );
+	f3deditor_ = dynamic_cast<MPE::FaultEditor*>( objeditor.ptr() );
+    }
+
+    if ( !f3deditor_ )
+    {
+	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid_ );
+	mDynamicCastGet(EM::Fault3D*,fault,emobject.ptr());
+	f3deditor_ = fault ? MPE::FaultEditor::create( *fault ) : nullptr;
+    }
 
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
@@ -54,28 +68,16 @@ void Fault::setEditors()
 	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp )
 	{
-	    faulteds_ += 0;
+	    faulteds_ += nullptr;
 	    continue;
 	}
 
-	MPE::Fault3DFlatViewEditor* faulted =
-	    new MPE::Fault3DFlatViewEditor(
+	auto* faulted = new MPE::Fault3DFlatViewEditor(
 	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
 	faulted->setMouseEventHandler(
-		&vwr.rgbCanvas().scene().getMouseEventHandler() );
+			    &vwr.rgbCanvas().scene().getMouseEventHandler() );
 	faulted->enableKnots( true );
 	faulteds_ += faulted;
-    }
-}
-
-
-Fault::~Fault()
-{
-    deepErase(faulteds_);
-    if ( f3deditor_ )
-    {
-	f3deditor_->unRef();
-	MPE::engine().removeEditor( emid_ );
     }
 }
 
@@ -95,7 +97,8 @@ void Fault::draw()
 	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true ).get();
 	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
 	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
-	if ( !regfdp && !randfdp ) continue;
+	if ( !regfdp && !randfdp )
+	    continue;
 
 	if ( faulteds_[ivwr] )
 	{
@@ -140,7 +143,8 @@ void Fault::selected()
 		faulteds_[ivwr]->setMouseEventHandler(
 			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    else
-		faulteds_[ivwr]->setMouseEventHandler( 0 );
+		faulteds_[ivwr]->setMouseEventHandler( nullptr );
+
 	    faulteds_[ivwr]->enableKnots( iseditable );
 	    knotenabled_ = iseditable;
 	}
@@ -154,7 +158,7 @@ void Fault::triggerDeSel()
     {
 	if ( faulteds_[ivwr] )
 	{
-	    faulteds_[ivwr]->setMouseEventHandler( 0 );
+	    faulteds_[ivwr]->setMouseEventHandler( nullptr );
 	    faulteds_[ivwr]->enableKnots( false );
 	}
     }

@@ -10,7 +10,6 @@ ________________________________________________________________________
 #include "emtracker.h"
 
 #include "attribsel.h"
-#include "autotracker.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "emseedpicker.h"
@@ -23,36 +22,46 @@ ________________________________________________________________________
 #include "sectiontracker.h"
 
 
-namespace MPE
+MPE::EMTracker::EMTracker( EM::EMObject& emobj )
+    : emobject_(&emobj)
+    , trackingFinished(this)
 {
-
-mImplFactory1Param( EMTracker, EM::EMObject*, TrackerFactory );
-
-EMTracker::EMTracker( EM::EMObject* emo )
-{
-    setEMObject( emo );
 }
 
 
-EMTracker::~EMTracker()
+MPE::EMTracker::~EMTracker()
 {
     deepErase( sectiontrackers_ );
-    setEMObject( nullptr );
 }
 
 
-BufferString EMTracker::objectName() const
-{ return emobject_ ? emobject_->name() : BufferString::empty(); }
-
-
-
-EM::ObjectID EMTracker::objectID() const
+ConstRefMan<EM::EMObject> MPE::EMTracker::emObject() const
 {
-    return emobject_ ? emobject_->id() : EM::ObjectID::udf();
+    return emobject_.get();
 }
 
 
-bool EMTracker::snapPositions( const TypeSet<TrcKey>& list )
+RefMan<EM::EMObject> MPE::EMTracker::emObject()
+{
+    return emobject_.get();
+}
+
+
+BufferString MPE::EMTracker::objectName() const
+{
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    return emobject ? emobject->name() : BufferString::empty();
+}
+
+
+EM::ObjectID MPE::EMTracker::objectID() const
+{
+    ConstRefMan<EM::EMObject> emobject = emObject();
+    return emobject ? emobject->id() : EM::ObjectID::udf();
+}
+
+
+bool MPE::EMTracker::snapPositions( const TypeSet<TrcKey>& list )
 {
     if ( !emobject_ )
 	return false;
@@ -81,53 +90,51 @@ bool EMTracker::snapPositions( const TypeSet<TrcKey>& list )
 }
 
 
-TrcKeyZSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
+TrcKeyZSampling MPE::EMTracker::getAttribCube(
+					const Attrib::SelSpec& spec ) const
 {
     TrcKeyZSampling res( engine().activeVolume() );
-
-    for ( int sectidx=0; sectidx<sectiontrackers_.size(); sectidx++ )
+    for ( const auto* sectiontracker : sectiontrackers_ )
     {
-	TrcKeyZSampling cs = sectiontrackers_[sectidx]->getAttribCube( spec );
+	TrcKeyZSampling cs = sectiontracker->getAttribCube( spec );
 	res.include( cs );
     }
-
 
     return res;
 }
 
 
-void EMTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
+void MPE::EMTracker::getNeededAttribs( TypeSet<Attrib::SelSpec>& res ) const
 {
-    for ( int sectidx=0; sectidx<sectiontrackers_.size(); sectidx++ )
+    for ( const auto* sectiontracker : sectiontrackers_ )
     {
 	TypeSet<Attrib::SelSpec> specs;
-	sectiontrackers_[sectidx]->getNeededAttribs( specs );
-
-	for ( int idx=0; idx<specs.size(); idx++ )
-	{
-	    const Attrib::SelSpec& as = specs[idx];
+	sectiontracker->getNeededAttribs( specs );
+	for ( const auto& as : specs )
 	    res.addIfNew( as );
-	}
     }
 }
 
-const char* EMTracker::errMsg() const
-{ return errmsg_.str(); }
+const char* MPE::EMTracker::errMsg() const
+{
+    return errmsg_.str();
+}
 
 
-SectionTracker* EMTracker::cloneSectionTracker()
+MPE::SectionTracker* MPE::EMTracker::cloneSectionTracker()
 {
     if ( sectiontrackers_.isEmpty() )
-	return 0;
+	return nullptr;
 
     SectionTracker* st = getSectionTracker();
-    if ( !st ) return 0;
+    if ( !st )
+	return nullptr;
 
     SectionTracker* newst = createSectionTracker();
     if ( !newst || !newst->init() )
     {
 	delete newst;
-	return 0;
+	return nullptr;
     }
 
     IOPar pars;
@@ -138,7 +145,7 @@ SectionTracker* EMTracker::cloneSectionTracker()
 }
 
 
-SectionTracker* EMTracker::getSectionTracker( bool create )
+MPE::SectionTracker* MPE::EMTracker::getSectionTracker( bool create )
 {
     if ( !sectiontrackers_.isEmpty() )
 	return sectiontrackers_.first();
@@ -150,7 +157,7 @@ SectionTracker* EMTracker::getSectionTracker( bool create )
     if ( !sectiontracker || !sectiontracker->init() )
     {
 	delete sectiontracker;
-	return 0;
+	return nullptr;
     }
 
     const int defaultsetupidx = sectiontrackers_.size()-1;
@@ -163,28 +170,22 @@ SectionTracker* EMTracker::getSectionTracker( bool create )
 }
 
 
-void EMTracker::applySetupAsDefault()
+void MPE::EMTracker::applySetupAsDefault()
 {
-    SectionTracker* defaultsetuptracker(0);
-
-    for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
-	defaultsetuptracker = sectiontrackers_[idx];
-
+    SectionTracker* defaultsetuptracker = sectiontrackers_.isEmpty()
+					? nullptr : sectiontrackers_.last();
     if ( !defaultsetuptracker || !defaultsetuptracker->hasInitializedSetup() )
 	return;
 
     IOPar par;
     defaultsetuptracker->fillPar( par );
-
-    for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
-    {
-	if ( !sectiontrackers_[idx]->hasInitializedSetup() )
-	    sectiontrackers_[idx]->usePar( par );
-    }
+    for ( auto* sectiontracker : sectiontrackers_ )
+	if ( !sectiontracker->hasInitializedSetup() )
+	    sectiontracker->usePar( par );
 }
 
 
-void EMTracker::fillPar( IOPar& iopar ) const
+void MPE::EMTracker::fillPar( IOPar& iopar ) const
 {
     for ( int idx=0; idx<sectiontrackers_.size(); idx++ )
     {
@@ -199,25 +200,28 @@ void EMTracker::fillPar( IOPar& iopar ) const
 }
 
 
-bool EMTracker::usePar( const IOPar& iopar )
+bool MPE::EMTracker::usePar( const IOPar& iopar )
 {
     int idx=0;
     while ( true )
     {
 	BufferString key( IOPar::compKey("Section",idx) );
 	PtrMan<IOPar> localpar = iopar.subselect( key );
-	if ( !localpar ) return true;
+	if ( !localpar )
+	    return true;
 
 	int sid;
-	if ( !localpar->get(sectionidStr(),sid) ) { idx++; continue; }
+	if ( !localpar->get(sectionidStr(),sid) )
+	    { idx++; continue; }
+
 	SectionTracker* st = getSectionTracker( true );
-	if ( !st ) { idx++; continue; }
+	if ( !st )
+	{ idx++; continue; }
 
 	MultiID setupid;
 	if ( !localpar->get(setupidStr(),setupid) )
 	{
 	    st->usePar( *localpar );
-
 	    EMSeedPicker* sp = getSeedPicker( false );
 	    if ( sp && st->adjuster() )
 		sp->setSelSpec( st->adjuster()->getAttributeSel(0) );
@@ -226,9 +230,10 @@ bool EMTracker::usePar( const IOPar& iopar )
 	{
 	    st->setSetupID( setupid );
 	    PtrMan<IOObj> ioobj = IOM().get( setupid );
-	    if ( !ioobj ) { idx++; continue; }
+	    if ( !ioobj )
+		{ idx++; continue; }
 
-	    MPE::Setup setup;
+	    Setup setup;
 	    BufferString bs;
 	    if ( !MPESetupTranslator::retrieve(setup,ioobj.ptr(),bs) )
 		{ idx++; continue; }
@@ -245,11 +250,7 @@ bool EMTracker::usePar( const IOPar& iopar )
 }
 
 
-void EMTracker::setEMObject( EM::EMObject* no )
+void MPE::EMTracker::trackingFinishedCB( CallBacker* )
 {
-    if ( emobject_ ) emobject_->unRef();
-    emobject_ = no;
-    if ( emobject_ ) emobject_->ref();
+    trackingFinished.trigger();
 }
-
-} // namespace MPE

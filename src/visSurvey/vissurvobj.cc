@@ -281,7 +281,7 @@ bool SurveyObject::usePar( const IOPar& par )
 	ColTab::Sequence seq;
 	if ( seqpar )
 	{
-	    if ( !seq.usePar( *seqpar ) )
+	    if ( !seq.usePar(*seqpar) )
 	    {
 		BufferString seqname;
 		if ( seqpar->get( sKey::Name(), seqname ) ) //Sys
@@ -300,7 +300,7 @@ bool SurveyObject::usePar( const IOPar& par )
 	if ( mappar )
 	{
 	    mapper.usePar( *mappar );
-	    setColTabMapperSetup( attribnr, mapper, 0 );
+	    setColTabMapperSetup( attribnr, mapper, nullptr );
 	}
 	else //Needed to read horizons written in od4.0
 	{
@@ -389,9 +389,47 @@ void SurveyObject::getMousePosInfo( const visBase::EventInfo& info,
     const MultiID mid = getMultiID();
     const Survey::Geometry& geom =  Survey::Geometry::default3D();
 
-    const TrcKey trck = geom.nearestTrace( Coord(xytmousepos.x_,xytmousepos.y_) );
+    const Coord pos( xytmousepos.x_, xytmousepos.y_ );
+    const TrcKey trck = geom.nearestTrace( pos );
     if ( !trck.isUdf() )
 	iopar.set( sKey::TraceKey(), trck );
+}
+
+
+bool SurveyObject::setDataPackID( int /* attrib */, const DataPackID&,
+				  TaskRunner* )
+{
+    pErrMsg( "Should not be called" );
+    return false;
+}
+
+
+DataPackID SurveyObject::getDataPackID( int attrib ) const
+{
+    pErrMsg( "Should not be called" );
+    ConstRefMan<DataPack> dp = getDataPack( attrib );
+    return dp ? dp->id() : DataPackID::udf();
+}
+
+
+DataPackID SurveyObject::getDisplayedDataPackID( int attrib ) const
+{
+    pErrMsg( "Should not be called" );
+    ConstRefMan<DataPack> dp = getDisplayedDataPack( attrib );
+    return dp ? dp->id() : DataPackID::udf();
+}
+
+
+ConstRefMan<DataPack> SurveyObject::getDisplayedDataPack( int attrib ) const
+{
+    return getDataPack( attrib );
+}
+
+
+ConstRefMan<SeisDataPack> SurveyObject::getDisplayedSeisDataPack(
+							int attrib ) const
+{
+    return getSeisDataPack( attrib );
 }
 
 

@@ -9,6 +9,7 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
+
 #include "emeditor.h"
 
 namespace EM { class Fault3D; }
@@ -26,17 +27,13 @@ namespace MPE
 mExpClass(MPEEngine) FaultEditor : public ObjectEditor
 {
 public:
-				FaultEditor(EM::Fault3D&);
 
-    static ObjectEditor*	create(EM::EMObject&);
-    static void			initClass();
+    static RefMan<FaultEditor>	create(const EM::Fault3D&);
 
     void			setSceneIdx(int idx)	{ sceneidx_ = idx; }
 
     void			setLastClicked(const EM::PosID&);
     void			setSowingPivot(const Coord3);
-
-
     void			setZScale(float);
     void			setScaleVector(const Coord3& v);
 				//!< x'=x, y'=v1*x*+v2*y, z'=v3*z
@@ -44,17 +41,21 @@ public:
     void			getInteractionInfo(bool& makenewstick,
 				    EM::PosID& insertpid,const Coord3& pos,
 				    const Coord3* posnormal=0) const;
-
-    bool			removeSelection(const Selector<Coord3>&);
     const EM::PosID		getNearstStick(const Coord3& pos,
 					       const Coord3* posnormal) const;
+
+protected:
+				~FaultEditor();
+
+private:
+				FaultEditor(const EM::Fault3D&);
+
+    bool			removeSelection(const Selector<Coord3>&);
     const EM::PosID		getNearstStick(EM::SectionID&,
 					       const Coord3& pos,
 					       const Coord3* posnormal) const
 				{ return getNearstStick(pos,posnormal); }
 
-protected:
-				~FaultEditor();
 
     float		distToStick(const Geometry::FaultStickSurface&,
 				    int curstick,const Coord3& pos,
@@ -74,14 +75,17 @@ protected:
 
     Geometry::ElementEditor*	createEditor() override;
     Coord3			scalevector_;
-    int				sceneidx_;
+    int				sceneidx_	= -1;
 
     int				getLastClickedStick() const;
 
     void			cloneMovingNode(CallBacker*) override;
 
-    Coord3			sowingpivot_;
+    Coord3			sowingpivot_	= Coord3::udf();
     TypeSet<Coord3>		sowinghistory_;
+
+    static EM::PosID&		lastclickedpid();
+
 };
 
 }  // namespace MPE

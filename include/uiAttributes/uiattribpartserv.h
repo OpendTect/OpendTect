@@ -118,7 +118,6 @@ public:
     const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const
 			    { return targetspecs_; }
 
-    DataPackID	createOutput(const TrcKeyZSampling&,const DataPackID&);
     ConstRefMan<RegularSeisDataPack> createOutput(const TrcKeyZSampling&,
 				 const RegularSeisDataPack* prevslcs=nullptr);
     RefMan<RegularSeisDataPack> createOutputRM(const TrcKeyZSampling&,
@@ -133,16 +132,15 @@ public:
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&,
 				     const TypeSet<BinID>& trueknotspos,
 				     const TypeSet<BinID>& snappedpos);
-    DataPackID		createRdmTrcsOutput(const Interval<float>& zrg,
+    RefMan<RandomSeisDataPack>	createRdmTrcsOutputRM(
+					    const Interval<float>& zrg,
+					    const RandomLineID&);
+    RefMan<RandomSeisDataPack>	createRdmTrcsOutputRM(
+					    const Interval<float>& zrg,
 					    TrcKeyPath& path,
 					    TrcKeyPath& trueknotspos);
     static RefMan<RegularSeisDataPack> createDataPackFor2DRM(
 					    const Attrib::Data2DHolder& input,
-					    const TrcKeyZSampling& outputsamp,
-					    const ZDomain::Def& zdef,
-				    const BufferStringSet* compnames=nullptr);
-    mDeprecated("Use version returning RefMan<RegularSeisDataPack>")
-    static DataPackID createDataPackFor2D(const Attrib::Data2DHolder& input,
 					    const TrcKeyZSampling& outputsamp,
 					    const ZDomain::Def& zdef,
 				    const BufferStringSet* compnames=nullptr);
@@ -286,18 +284,10 @@ private:
 
     static uiAttribPartServer*	theinst_;
 
-    DataPackID		create2DOutput(const TrcKeyZSampling&,
-				       const Pos::GeomID&,TaskRunner&);
-				//!< Use createOutput() instead.
 public:
 
     static uiAttribPartServer*	getInst();
 
-    RefMan<RandomSeisDataPack>	createRdmTrcsOutputRM(
-					    const Interval<float>& zrg,
-					    const RandomLineID&);
-    DataPackID		createRdmTrcsOutput(const Interval<float>& zrg,
-					    const RandomLineID&);
     void		filter2DMenuItems(MenuItem&,const Attrib::SelSpec&,
 					  const Pos::GeomID&,
 					  bool isstored,int steerpol);
@@ -306,6 +296,26 @@ protected:
 						const Attrib::Desc*);
 
 public:
+
+    mDeprecated("Use createOutputRM")
+    DataPackID	createOutput(const TrcKeyZSampling&,const DataPackID&);
+
+    mDeprecated("Use createOutputRM")
+    DataPackID		create2DOutput(const TrcKeyZSampling&,
+				       const Pos::GeomID&,TaskRunner&);
+    mDeprecated("Use version returning RefMan<RegularSeisDataPack>")
+    static DataPackID createDataPackFor2D(const Attrib::Data2DHolder& input,
+					    const TrcKeyZSampling& outputsamp,
+					    const ZDomain::Def& zdef,
+				    const BufferStringSet* compnames=nullptr);
+
+    mDeprecated("createRdmTrcsOutputRM")
+    DataPackID		createRdmTrcsOutput(const Interval<float>& zrg,
+					    const RandomLineID&);
+    mDeprecated("createRdmTrcsOutputRM")
+    DataPackID		createRdmTrcsOutput(const Interval<float>& zrg,
+					    TrcKeyPath& path,
+					    TrcKeyPath& trueknotspos);
     mDeprecated("Use TrcKeyPath")
     DataPackID	createRdmTrcsOutput(const Interval<float>& zrg,
 				    TypeSet<BinID>& path,

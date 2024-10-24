@@ -10,7 +10,8 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 
-#include "emposid.h"
+#include "horizon2dtracker.h"
+#include "horizoneditor.h"
 #include "multiid.h"
 #include "geom2dintersections.h"
 #include "visemobjdisplay.h"
@@ -76,6 +77,7 @@ protected:
     friend			class Horizon2DDisplayUpdater;
 				~Horizon2DDisplay();
 
+    void			removeEMStuff() override;
     void			removeSectionDisplay(
 						const EM::SectionID&) override;
     bool			addSection(const EM::SectionID&,
@@ -92,6 +94,8 @@ protected:
     void			updateSection(int idx,
 					      const LineRanges* =nullptr);
 
+    bool			activateTracker() override;
+    RefMan<MPE::ObjectEditor>	getMPEEditor(bool create) override;
     void			emChangeCB(CallBacker*) override;
 
     void			otherObjectsMoved(
@@ -134,6 +138,9 @@ protected:
 
     RefMan<mVisTrans>			translation_;
     Coord3				translationpos_		= Coord3::udf();
+
+    RefMan<MPE::Horizon2DTracker>	tracker_;
+    RefMan<MPE::Horizon2DEditor>	mpeeditor_;
 };
 
 } // namespace visSurvey

@@ -10,8 +10,6 @@ ________________________________________________________________________
 #include "uihorizontracksetup.h"
 
 #include "draw.h"
-#include "emhorizon2d.h"
-#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "horizonadjuster.h"
 #include "horizon2dtracker.h"
@@ -37,42 +35,11 @@ ________________________________________________________________________
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
-namespace MPE
-{
+// MPE::uiHorizonSetupGroup
 
-void uiBaseHorizonSetupGroup::initClass()
-{
-    uiMPE().setupgrpfact.addFactory( uiBaseHorizonSetupGroup::create,
-				     Horizon2DTracker::keyword() );
-    uiMPE().setupgrpfact.addFactory( uiBaseHorizonSetupGroup::create,
-				     Horizon3DTracker::keyword() );
-}
-
-
-uiSetupGroup* uiBaseHorizonSetupGroup::create( uiParent* p, const char* typestr)
-{
-    const StringView type( typestr );
-    if ( type != EM::Horizon3D::typeStr() && type != EM::Horizon2D::typeStr() )
-	return 0;
-
-    return new uiBaseHorizonSetupGroup( p, typestr );
-}
-
-
-uiBaseHorizonSetupGroup::uiBaseHorizonSetupGroup( uiParent* p,
-						  const char* typestr )
-    : uiHorizonSetupGroup( p, typestr )
-{}
-
-
-uiBaseHorizonSetupGroup::~uiBaseHorizonSetupGroup()
-{}
-
-
-//uiHorizonSetupGroup
-uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
-    : uiSetupGroup(p,"")
-    , is2d_(StringView(typestr)==EM::Horizon2D::typeStr())
+MPE::uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, bool is2d )
+    : uiSetupGroup(p,nullptr)
+    , is2d_(is2d)
     , mode_(EMSeedPicker::TrackFromSeeds)
     , modeChanged_(this)
     , varianceChanged_(this)
@@ -83,8 +50,8 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     tabgrp_->addTab( modegrp, tr("Mode") );
 
     eventgrp_ = new uiEventGroup( tabgrp_->tabGroup(), is2d_ );
-    eventgrp_->changeAttribPushed.notify(
-			mCB(this,uiHorizonSetupGroup,selectAttribCB) );
+    mAttachCB( eventgrp_->changeAttribPushed,
+	       uiHorizonSetupGroup::selectAttribCB );
     tabgrp_->addTab( eventgrp_, tr("Event") );
 
     correlationgrp_ = new uiCorrelationGroup( tabgrp_->tabGroup(), is2d_ );
@@ -100,17 +67,17 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p, const char* typestr )
     toolbar_ = new uiToolBar( dlg, tr("Tracking tools"), uiToolBar::Left );
     initToolBar();
 
-    engine().actionCalled.notify( mCB(this,uiHorizonSetupGroup,mpeActionCB) );
+    mAttachCB( engine().actionCalled, uiHorizonSetupGroup::mpeActionCB );
 }
 
 
-uiHorizonSetupGroup::~uiHorizonSetupGroup()
+MPE::uiHorizonSetupGroup::~uiHorizonSetupGroup()
 {
-    engine().actionCalled.remove( mCB(this,uiHorizonSetupGroup,mpeActionCB) );
+    detachAllNotifiers();
 }
 
 
-void uiHorizonSetupGroup::initToolBar()
+void MPE::uiHorizonSetupGroup::initToolBar()
 {
     trackbutid_ = -1;
 
@@ -144,7 +111,7 @@ void uiHorizonSetupGroup::initToolBar()
 }
 
 
-void uiHorizonSetupGroup::enableTracking( bool yn )
+void MPE::uiHorizonSetupGroup::enableTracking( bool yn )
 {
     toolbar_->setSensitive( yn );
     if ( yn )
@@ -152,18 +119,19 @@ void uiHorizonSetupGroup::enableTracking( bool yn )
 }
 
 
-void uiHorizonSetupGroup::setMPEPartServer( uiMPEPartServer* mps )
+void MPE::uiHorizonSetupGroup::setMPEPartServer( uiMPEPartServer* mps )
 {
     mps_ = mps;
 }
 
 
-void uiHorizonSetupGroup::mpeActionCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::mpeActionCB( CallBacker* )
 {
     mEnsureExecutedInMainThread( uiHorizonSetupGroup::mpeActionCB );
 
     updateButtonSensitivity();
-    if ( !mps_ ) return;
+    if ( !mps_ )
+	return;
 
     const MPE::Engine::TrackState state = engine().getState();
     if ( state==MPE::Engine::Started || state==MPE::Engine::Stopped )
@@ -172,7 +140,7 @@ void uiHorizonSetupGroup::mpeActionCB( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::updateButtonSensitivity()
+void MPE::uiHorizonSetupGroup::updateButtonSensitivity()
 {
     const bool stopped = engine().getState() == MPE::Engine::Stopped;
     const bool usedata = mode_ != EMSeedPicker::DrawBetweenSeeds;
@@ -204,7 +172,7 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
     toolbar_->setSensitive( undobutid_, false );
     toolbar_->setSensitive( redobutid_, false );
 
-    EMTracker* tracker = engine().getActiveTracker();
+    RefMan<EMTracker> tracker = engine().getActiveTracker();
     if ( trackbutid_ != -1 )
 	toolbar_->turnOn( trackbutid_, tracker ? tracker->isEnabled() : false );
 
@@ -214,7 +182,7 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 	const bool canautotrack = seedpicker && seedpicker->nrSeeds();
 	toolbar_->setSensitive( startbutid_, canautotrack &&
 					     invol && stopped );
-	const EM::EMObject* obj = tracker->emObject();
+	ConstRefMan<EM::EMObject> obj = tracker->emObject();
 	if ( obj )
 	{
 	    toolbar_->setSensitive(
@@ -226,13 +194,13 @@ void uiHorizonSetupGroup::updateButtonSensitivity()
 }
 
 
-void uiHorizonSetupGroup::enabTrackCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::enabTrackCB( CallBacker* )
 {
     engine().enableTracking( toolbar_->isOn(trackbutid_) );
 }
 
 
-void uiHorizonSetupGroup::startCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::startCB( CallBacker* )
 {
     setFocus();
     uiString errmsg;
@@ -241,14 +209,14 @@ void uiHorizonSetupGroup::startCB( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::stopCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::stopCB( CallBacker* )
 {
     setFocus();
     engine().stopTracking();
 }
 
 
-void uiHorizonSetupGroup::saveCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::saveCB( CallBacker* )
 {
     setFocus();
     if ( !mps_ ) return;
@@ -257,7 +225,7 @@ void uiHorizonSetupGroup::saveCB( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::retrackCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::retrackCB( CallBacker* )
 {
     setFocus();
     uiString errmsg;
@@ -266,7 +234,7 @@ void uiHorizonSetupGroup::retrackCB( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::undoCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::undoCB( CallBacker* )
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString errmsg;
@@ -278,7 +246,7 @@ void uiHorizonSetupGroup::undoCB( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::redoCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::redoCB( CallBacker* )
 {
     MouseCursorChanger mcc( MouseCursor::Wait );
     uiString errmsg;
@@ -290,40 +258,33 @@ void uiHorizonSetupGroup::redoCB( CallBacker* )
 }
 
 
-uiGroup* uiHorizonSetupGroup::createModeGroup()
+uiGroup* MPE::uiHorizonSetupGroup::createModeGroup()
 {
-    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Mode" );
+    auto* grp = new uiGroup( tabgrp_->tabGroup(), "Mode" );
 
     modeselgrp_ = new uiButtonGroup( grp, "ModeSel", OD::Vertical );
     modeselgrp_->setExclusive( true );
     grp->setHAlignObj( modeselgrp_ );
 
-    uiRadioButton* butptr = new uiRadioButton( modeselgrp_,
-	tr("Section Auto-track") );
-    butptr->activated.notify(
-			mCB(this,uiHorizonSetupGroup,seedModeChange) );
-    butptr = new uiRadioButton( modeselgrp_, tr("Manual Draw") );
-    butptr->activated.notify(
-			mCB(this,uiHorizonSetupGroup,seedModeChange) );
+    new uiRadioButton( modeselgrp_, tr("Section Auto-track"),
+		       mCB(this,uiHorizonSetupGroup,seedModeChange) );
+    new uiRadioButton( modeselgrp_, tr("Manual Draw"),
+		       mCB(this,uiHorizonSetupGroup,seedModeChange) );
 
-    uiGroup* optiongrp = new uiGroup( grp, "Options");
-    betweenseedsfld_ = new uiCheckBox( optiongrp,
-			tr("Between Seeds") );
+    auto* optiongrp = new uiGroup( grp, "Options");
+    betweenseedsfld_ = new uiCheckBox( optiongrp, tr("Between Seeds"),
+				mCB(this,uiHorizonSetupGroup,seedModeChange) );
     betweenseedsfld_->display( false );
-    betweenseedsfld_->activated.notify(
-			mCB(this,uiHorizonSetupGroup,seedModeChange) );
-    snapfld_ = new uiCheckBox( optiongrp, tr("Snap to Event") );
-    snapfld_->activated.notify(
-			mCB(this,uiHorizonSetupGroup,seedModeChange) );
+    snapfld_ = new uiCheckBox( optiongrp, tr("Snap to Event"),
+			       mCB(this,uiHorizonSetupGroup,seedModeChange) );
     snapfld_->attach( alignedBelow, betweenseedsfld_ );
     optiongrp->attach( rightTo, modeselgrp_ );
 
-    uiSeparator* sep = new uiSeparator( grp );
+    auto* sep = new uiSeparator( grp );
     sep->attach( stretchedBelow, modeselgrp_ );
     uiStringSet strs; strs.add( tr("Seed Trace") ).add( tr("Adjacent Parent") );
     methodfld_ = new uiGenInput( grp, tr("Method"), StringListInpSpec(strs) );
-    methodfld_->valueChanged.notify(
-			mCB(this,uiHorizonSetupGroup,seedModeChange) );
+    mAttachCB( methodfld_->valueChanged, uiHorizonSetupGroup::seedModeChange );
     methodfld_->attach( alignedBelow, modeselgrp_ );
     methodfld_->attach( ensureBelow, sep );
 
@@ -332,8 +293,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 	failfld_ = new uiGenInput( grp, tr("If tracking fails"),
 			BoolInpSpec(true,tr("Extrapolate"),uiStrings::sStop()));
 	failfld_->attach( alignedBelow, methodfld_ );
-	failfld_->valueChanged.notify(
-		mCB(this,uiHorizonSetupGroup,seedModeChange) );
+	mAttachCB( failfld_->valueChanged, uiHorizonSetupGroup::seedModeChange);
     }
 
     auto* infobut = new uiOfferInfo( grp );
@@ -358,108 +318,103 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 }
 
 
-uiGroup* uiHorizonSetupGroup::createVarianceGroup()
+uiGroup* MPE::uiHorizonSetupGroup::createVarianceGroup()
 {
-    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Variance" );
+    auto* grp = new uiGroup( tabgrp_->tabGroup(), "Variance" );
 
     usevarfld_ = new uiGenInput( grp, tr("Use Variance"), BoolInpSpec(false) );
-    usevarfld_->valueChanged.notify(
-	    mCB(this,uiHorizonSetupGroup,selUseVariance) );
-    usevarfld_->valueChanged.notify(
-	    mCB(this,uiHorizonSetupGroup,varianceChangeCB) );
+    mAttachCB( usevarfld_->valueChanged, uiHorizonSetupGroup::selUseVariance );
+    mAttachCB( usevarfld_->valueChanged, uiHorizonSetupGroup::varianceChangeCB);
 
     const IOObjContext ctxt =
-	uiSeisSel::ioContext( is2d_ ? Seis::Line : Seis::Vol, true );
-    uiSeisSel::Setup ss( is2d_, false );
+		uiSeisSel::ioContext( is2d_ ? Seis::Line : Seis::Vol, true );
+    const uiSeisSel::Setup ss( is2d_, false );
     variancefld_ = new uiSeisSel( grp, ctxt, ss );
     variancefld_->attach( alignedBelow, usevarfld_ );
 
     varthresholdfld_ =
 	new uiGenInput( grp, tr("Variance threshold"), FloatInpSpec() );
     varthresholdfld_->attach( alignedBelow, variancefld_ );
-    varthresholdfld_->valueChanged.notify(
-	    mCB(this,uiHorizonSetupGroup,varianceChangeCB) );
+    mAttachCB( varthresholdfld_->valueChanged,
+	       uiHorizonSetupGroup::varianceChangeCB );
 
     grp->setHAlignObj( usevarfld_ );
     return grp;
 }
 
 
-uiGroup* uiHorizonSetupGroup::createPropertyGroup()
+uiGroup* MPE::uiHorizonSetupGroup::createPropertyGroup()
 {
-    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Properties" );
+    auto* grp = new uiGroup( tabgrp_->tabGroup(), "Properties" );
     colorfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(OD::Color::Green())
 				.withdesc(false).lbltxt(tr("Horizon Color")) );
-    colorfld_->colorChanged.notify(
-			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
+    mAttachCB( colorfld_->colorChanged, uiHorizonSetupGroup::colorChangeCB );
     grp->setHAlignObj( colorfld_ );
 
     linewidthfld_ = new uiSlider( grp, uiSlider::Setup(tr("Line Width"))
 					.withedit(true),
 				  "Line Width" );
     linewidthfld_->setInterval( 1, 15, 1 );
-    linewidthfld_->valueChanged.notify(
-			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
+    mAttachCB( linewidthfld_->valueChanged,
+	       uiHorizonSetupGroup::colorChangeCB );
     linewidthfld_->attach( alignedBelow, colorfld_ );
 
     BufferStringSet seedtypenames( MarkerStyle3D::TypeNames() );
     seedtypenames.removeSingle( 0 ); // Remove 'None'
     seedtypefld_ = new uiGenInput( grp, tr("Seed Shape/Color"),
 			StringListInpSpec(seedtypenames) );
-    seedtypefld_->valueChanged.notify(
-			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
+    mAttachCB( seedtypefld_->valueChanged, uiHorizonSetupGroup::seedTypeSel );
     seedtypefld_->attach( alignedBelow, linewidthfld_ );
 
     seedcolselfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(OD::Color::DgbColor())
 				.withdesc(false) );
     seedcolselfld_->attach( rightTo, seedtypefld_ );
-    seedcolselfld_->colorChanged.notify(
-				mCB(this,uiHorizonSetupGroup,seedColSel) );
+    mAttachCB( seedcolselfld_->colorChanged, uiHorizonSetupGroup::seedColSel );
 
     seedsliderfld_ = new uiSlider( grp,
 				uiSlider::Setup(tr("Seed Size")).
 				withedit(true),	"Seed Size" );
     seedsliderfld_->setInterval( 1, 15 );
-    seedsliderfld_->valueChanged.notify(
-			mCB(this,uiHorizonSetupGroup,seedSliderMove) );
+    mAttachCB( seedsliderfld_->valueChanged,
+	       uiHorizonSetupGroup::seedSliderMove );
     seedsliderfld_->attach( alignedBelow, seedtypefld_ );
 
     parentcolfld_ = new uiColorInput( grp,
 				uiColorInput::Setup(OD::Color::Yellow())
 				.withdesc(false).lbltxt(tr("Parents")) );
-    parentcolfld_->colorChanged.notify(
-			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
+    mAttachCB( parentcolfld_->colorChanged,
+	       uiHorizonSetupGroup::specColorChangeCB );
     parentcolfld_->attach( alignedBelow, seedsliderfld_ );
 
     selectioncolfld_ = new uiColorInput( grp,
 		   uiColorInput::Setup(EM::Horizon3D::sDefaultSelectionColor())
 				.withdesc(false).lbltxt(tr("Selections")) );
-    selectioncolfld_->colorChanged.notify(
-			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
+    mAttachCB( selectioncolfld_->colorChanged,
+	       uiHorizonSetupGroup::specColorChangeCB );
     selectioncolfld_->attach( rightTo, parentcolfld_ );
 
-    lockcolfld_ = new uiColorInput(
-	grp,uiColorInput::Setup(EM::Horizon3D::sDefaultLockColor())
+    lockcolfld_ = new uiColorInput( grp,
+			uiColorInput::Setup(EM::Horizon3D::sDefaultLockColor())
 				.withdesc(false).lbltxt(tr("Locked")) );
-    lockcolfld_->colorChanged.notify(
-			mCB(this,uiHorizonSetupGroup,specColorChangeCB) );
+    mAttachCB( lockcolfld_->colorChanged,
+	       uiHorizonSetupGroup::specColorChangeCB );
     lockcolfld_->attach( alignedBelow, parentcolfld_ );
 
     return grp;
 }
 
 
-NotifierAccess* uiHorizonSetupGroup::eventChangeNotifier()
+NotifierAccess* MPE::uiHorizonSetupGroup::eventChangeNotifier()
 { return eventgrp_->changeNotifier(); }
 
 
-NotifierAccess*	uiHorizonSetupGroup::correlationChangeNotifier()
+NotifierAccess* MPE::uiHorizonSetupGroup::correlationChangeNotifier()
 { return correlationgrp_->changeNotifier(); }
 
 
-void uiHorizonSetupGroup::selUseVariance( CallBacker* )
+void MPE::uiHorizonSetupGroup::selUseVariance( CallBacker* )
 {
     const bool usevar = usevarfld_->getBoolValue();
     variancefld_->setSensitive( usevar );
@@ -467,7 +422,7 @@ void uiHorizonSetupGroup::selUseVariance( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::seedModeChange( CallBacker* )
+void MPE::uiHorizonSetupGroup::seedModeChange( CallBacker* )
 {
     const int modeidx = modeselgrp_->selectedId();
     if ( modeidx==0 )
@@ -486,18 +441,24 @@ void uiHorizonSetupGroup::seedModeChange( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::varianceChangeCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::varianceChangeCB( CallBacker* )
 { varianceChanged_.trigger(); }
 
 
-void uiHorizonSetupGroup::specColorChangeCB( CallBacker* cb )
+void MPE::uiHorizonSetupGroup::specColorChangeCB( CallBacker* cb )
 {
-    if ( !sectiontracker_ ) return;
+    if ( !sectiontracker_ )
+	return;
 
-    mDynamicCastGet(EM::Horizon3D*,hor3d,&sectiontracker_->emObject())
-    mDynamicCastGet(EM::Horizon2D*,hor2d,&sectiontracker_->emObject())
+    RefMan<EM::EMObject> emobject = sectiontracker_->emObject();
+    if ( !emobject )
+	return;
 
-    if ( !hor3d && !hor2d ) return;
+    mDynamicCastGet(EM::Horizon3D*,hor3d,emobject.ptr())
+    mDynamicCastGet(EM::Horizon2D*,hor2d,emobject.ptr())
+
+    if ( !hor3d && !hor2d )
+	return;
 
     if ( cb == parentcolfld_ && hor3d )
 	hor3d->setParentColor( parentcolfld_->color() );
@@ -525,13 +486,13 @@ void uiHorizonSetupGroup::specColorChangeCB( CallBacker* cb )
 }
 
 
-void uiHorizonSetupGroup::colorChangeCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::colorChangeCB( CallBacker* )
 {
     propertyChanged_.trigger();
 }
 
 
-void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
+void MPE::uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 {
     const MarkerStyle3D::Type newtype =
 	(MarkerStyle3D::Type)(seedtypefld_->getIntValue());
@@ -543,7 +504,7 @@ void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
+void MPE::uiHorizonSetupGroup::seedSliderMove( CallBacker* )
 {
     const float sldrval = seedsliderfld_->getFValue();
     const int newsize = mNINT32(sldrval);
@@ -555,7 +516,7 @@ void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::seedColSel( CallBacker* )
+void MPE::uiHorizonSetupGroup::seedColSel( CallBacker* )
 {
     const OD::Color newcolor = seedcolselfld_->color();
     if ( markerstyle_.color_ == newcolor )
@@ -566,7 +527,7 @@ void uiHorizonSetupGroup::seedColSel( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::selectAttribCB( CallBacker* )
+void MPE::uiHorizonSetupGroup::selectAttribCB( CallBacker* )
 {
     if ( !mps_ )
 	return;
@@ -575,11 +536,11 @@ void uiHorizonSetupGroup::selectAttribCB( CallBacker* )
 }
 
 
-void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
+void MPE::uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 {
     sectiontracker_ = st;
     mDynamicCastGet(HorizonAdjuster*,horadj,
-		    sectiontracker_ ? sectiontracker_->adjuster() : 0)
+		    sectiontracker_ ? sectiontracker_->adjuster() : nullptr)
     horadj_ = horadj;
     if ( horadj_ )
 	initStuff();
@@ -589,7 +550,7 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
 }
 
 
-void uiHorizonSetupGroup::initModeGroup()
+void MPE::uiHorizonSetupGroup::initModeGroup()
 {
     const int modeidx = mode_==EMSeedPicker::TrackFromSeeds ||
 			mode_==EMSeedPicker::TrackBetweenSeeds ? 0 : 1;
@@ -610,7 +571,7 @@ void uiHorizonSetupGroup::initModeGroup()
 }
 
 
-void uiHorizonSetupGroup::initStuff()
+void MPE::uiHorizonSetupGroup::initStuff()
 {
     initModeGroup();
 //    initVarianceGroup();
@@ -619,12 +580,12 @@ void uiHorizonSetupGroup::initStuff()
 }
 
 
-void uiHorizonSetupGroup::initVarianceGroup()
+void MPE::uiHorizonSetupGroup::initVarianceGroup()
 {
 }
 
 
-void uiHorizonSetupGroup::initPropertyGroup()
+void MPE::uiHorizonSetupGroup::initPropertyGroup()
 {
     seedsliderfld_->setValue( markerstyle_.size_ );
     seedcolselfld_->setColor( markerstyle_.color_ );
@@ -633,43 +594,49 @@ void uiHorizonSetupGroup::initPropertyGroup()
     if ( !sectiontracker_ )
 	return;
 
-    const EM::EMObject& emobj = sectiontracker_->emObject();
-    lockcolfld_->setColor( emobj.getLockColor() );
-    selectioncolfld_->setColor( emobj.getSelectionColor() );
+    ConstRefMan<EM::EMObject> emobj = sectiontracker_->emObject();
+    if ( !emobj )
+	return;
 
-    mDynamicCastGet(const EM::Horizon3D*,hor3d,&emobj)
+    lockcolfld_->setColor( emobj->getLockColor() );
+    selectioncolfld_->setColor( emobj->getSelectionColor() );
+
+    mDynamicCastGet(const EM::Horizon3D*,hor3d,emobj.ptr())
     if ( hor3d )
 	parentcolfld_->setColor( hor3d->getParentColor() );
-
 }
 
 
-void uiHorizonSetupGroup::setMode( EMSeedPicker::TrackMode mode )
+void MPE::uiHorizonSetupGroup::setMode( EMSeedPicker::TrackMode mode )
 {
     mode_ = mode;
     initModeGroup();
 }
 
 
-EMSeedPicker::TrackMode uiHorizonSetupGroup::getMode() const
-{ return mode_; }
-
-
-void uiHorizonSetupGroup::setTrackingMethod( EventTracker::CompareMethod cm )
+MPE::EMSeedPicker::TrackMode MPE::uiHorizonSetupGroup::getMode() const
 {
-    if ( horadj_ ) horadj_->setCompareMethod( cm );
+    return mode_;
+}
+
+
+void MPE::uiHorizonSetupGroup::setTrackingMethod(EventTracker::CompareMethod cm)
+{
+    if ( horadj_ )
+	horadj_->setCompareMethod( cm );
+
     methodfld_->setValue( cm==EventTracker::SeedTrace ? 0 : 1 );
 }
 
 
-EventTracker::CompareMethod uiHorizonSetupGroup::getTrackingMethod() const
+EventTracker::CompareMethod MPE::uiHorizonSetupGroup::getTrackingMethod() const
 {
     return methodfld_->getIntValue()==0 ? EventTracker::SeedTrace
 					: EventTracker::AdjacentParent;
 }
 
 
-void uiHorizonSetupGroup::setSeedPos( const TrcKeyValue& tkv )
+void MPE::uiHorizonSetupGroup::setSeedPos( const TrcKeyValue& tkv )
 {
     eventgrp_->setSeedPos( tkv );
     correlationgrp_->setSeedPos( tkv );
@@ -677,43 +644,43 @@ void uiHorizonSetupGroup::setSeedPos( const TrcKeyValue& tkv )
 }
 
 
-void uiHorizonSetupGroup::updateAttribute()
+void MPE::uiHorizonSetupGroup::updateAttribute()
 {
     eventgrp_->updateAttribute();
 }
 
 
-void uiHorizonSetupGroup::setColor( const OD::Color& col )
+void MPE::uiHorizonSetupGroup::setColor( const OD::Color& col )
 {
     colorfld_->setColor( col );
 }
 
-const OD::Color& uiHorizonSetupGroup::getColor()
+const OD::Color& MPE::uiHorizonSetupGroup::getColor()
 {
     return colorfld_->color();
 }
 
-void uiHorizonSetupGroup::setLineWidth( int w )
+void MPE::uiHorizonSetupGroup::setLineWidth( int w )
 { linewidthfld_->setValue( w ); }
 
-int uiHorizonSetupGroup::getLineWidth() const
+int MPE::uiHorizonSetupGroup::getLineWidth() const
 { return linewidthfld_->getIntValue(); }
 
 
-void uiHorizonSetupGroup::setMarkerStyle( const MarkerStyle3D& markerstyle )
+void MPE::uiHorizonSetupGroup::setMarkerStyle( const MarkerStyle3D& markerstyle)
 {
     markerstyle_ = markerstyle;
     initPropertyGroup();
 }
 
 
-const MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
+const MarkerStyle3D& MPE::uiHorizonSetupGroup::getMarkerStyle()
 {
     return markerstyle_;
 }
 
 
-bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
+bool MPE::uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 {
     if ( !sectiontracker_ || !horadj_ )
 	return false;
@@ -735,7 +702,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 }
 
 
-void uiHorizonSetupGroup::showGroupOnTop( const char* grpnm )
+void MPE::uiHorizonSetupGroup::showGroupOnTop( const char* grpnm )
 {
     tabgrp_->setCurrentPage( grpnm );
     mDynamicCastGet(uiDialog*,dlg,parent())
@@ -747,4 +714,75 @@ void uiHorizonSetupGroup::showGroupOnTop( const char* grpnm )
 }
 
 
-} // namespace MPE
+// MPE::uiHorizon3DSetupGroupBase
+
+mImplFactory1Param( MPE::uiHorizon3DSetupGroupBase, uiParent*,
+		    MPE::uiHorizon3DSetupGroupBase::factory );
+
+MPE::uiHorizon3DSetupGroupBase::uiHorizon3DSetupGroupBase( uiParent* p )
+    : uiHorizonSetupGroup(p,false)
+{}
+
+
+MPE::uiHorizon3DSetupGroupBase::~uiHorizon3DSetupGroupBase()
+{}
+
+
+MPE::uiHorizon3DSetupGroupBase*
+		MPE::uiHorizon3DSetupGroupBase::createInstance( uiParent* p )
+{
+    const auto& horsufact = factory();
+    BufferString typestr = horsufact.getDefaultName();
+    if ( !horsufact.hasName(typestr.buf()) && !horsufact.isEmpty() )
+	typestr = horsufact.getNames().last()->buf();
+
+    return horsufact.create( typestr.buf(), p );
+}
+
+
+// MPE::uiHorizon2DSetupGroupBase
+
+mImplFactory1Param( MPE::uiHorizon2DSetupGroupBase, uiParent*,
+		    MPE::uiHorizon2DSetupGroupBase::factory );
+
+MPE::uiHorizon2DSetupGroupBase::uiHorizon2DSetupGroupBase( uiParent* p )
+    : uiHorizonSetupGroup(p,true)
+{}
+
+
+MPE::uiHorizon2DSetupGroupBase::~uiHorizon2DSetupGroupBase()
+{}
+
+
+MPE::uiHorizon2DSetupGroupBase*
+		MPE::uiHorizon2DSetupGroupBase::createInstance( uiParent* p )
+{
+    const auto& horsufact = factory();
+    BufferString typestr = horsufact.getDefaultName();
+    if ( !horsufact.hasName(typestr.buf()) && !horsufact.isEmpty() )
+	typestr = horsufact.getNames().last()->buf();
+
+    return horsufact.create( typestr.buf(), p );
+}
+
+
+// MPE::uiHorizon3DSetupGroup
+
+MPE::uiHorizon3DSetupGroup::uiHorizon3DSetupGroup( uiParent* p )
+    : uiHorizon3DSetupGroupBase(p)
+{}
+
+
+MPE::uiHorizon3DSetupGroup::~uiHorizon3DSetupGroup()
+{}
+
+
+// MPE::uiHorizon2DSetupGroup
+
+MPE::uiHorizon2DSetupGroup::uiHorizon2DSetupGroup( uiParent* p )
+    : uiHorizon2DSetupGroupBase(p)
+{}
+
+
+MPE::uiHorizon2DSetupGroup::~uiHorizon2DSetupGroup()
+{}

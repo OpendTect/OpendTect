@@ -38,10 +38,11 @@ public:
 					       SectionAdjuster* =nullptr);
     virtual			~SectionTracker();
 
-    EM::EMObject&		emObject()		{ return emobject_; }
     virtual bool		init();
-
     void			reset();
+
+    ConstRefMan<EM::EMObject>	emObject() const;
+    RefMan<EM::EMObject>	emObject();
 
     SectionSourceSelector*	selector();
     const SectionSourceSelector* selector() const;
@@ -78,10 +79,9 @@ public:
     mDeprecated("Use without SectionID")
 				SectionTracker(EM::EMObject& emobj,
 				       const EM::SectionID&,
-				       SectionSourceSelector* sss=nullptr,
-				       SectionExtender* se=nullptr,
-				       SectionAdjuster* sa=nullptr)
-				    : SectionTracker(emobj,sss,se,sa)	{}
+				       SectionSourceSelector* =nullptr,
+				       SectionExtender* =nullptr,
+				       SectionAdjuster* =nullptr);
 
     mDeprecatedObs
     EM::SectionID		sectionID() const;
@@ -90,19 +90,18 @@ protected:
 
     void			getLockedSeeds(TypeSet<EM::SubID>& lockedseeds);
 
-    EM::EMObject&		emobject_;
+    WeakPtr<EM::EMObject>	emobject_;
     EM::SectionID		sid_		= EM::SectionID::def();
 
     BufferString		errmsg_;
-    bool			useadjuster_;
+    bool			useadjuster_		= true;
     MultiID			setupid_;
     Attrib::SelSpec&		displayas_;
-    bool			seedonlypropagation_;
+    bool			seedonlypropagation_	= false;
 
     SectionSourceSelector*	selector_;
     SectionExtender*		extender_;
     SectionAdjuster*		adjuster_;
-
 
     static const char*		trackerstr;
     static const char*		useadjusterstr;

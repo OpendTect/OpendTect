@@ -71,13 +71,11 @@ PolygonBodyDisplay::~PolygonBodyDisplay()
     detachAllNotifiers();
     viseditor_ = nullptr;
     eventcatcher_ = nullptr;
-    polygonsurfeditor_ = nullptr;
-    if ( empolygonsurf_ )
-    {
-	MPE::engine().removeEditor( empolygonsurf_->id() );
-	empolygonsurf_ = nullptr;
-    }
+    if ( polygonsurfeditor_ )
+	polygonsurfeditor_->removeUser();
 
+    polygonsurfeditor_ = nullptr;
+    empolygonsurf_ = nullptr;
     delete explicitbody_;
     delete explicitpolygons_;
     delete explicitintersections_;
@@ -147,18 +145,49 @@ void PolygonBodyDisplay::setLineRadius( visBase::GeomIndexedShape* shape )
 }
 
 
+RefMan<MPE::ObjectEditor> PolygonBodyDisplay::getMPEEditor( bool create )
+{
+    if ( !create )
+	return polygonsurfeditor_.ptr();
+
+    const EM::ObjectID emid = getEMID();
+    if ( MPE::engine().hasEditor(emid) )
+    {
+	RefMan<MPE::ObjectEditor> objeditor =
+				    MPE::engine().getEditorByID( emid );
+	polygonsurfeditor_ =
+		dynamic_cast<MPE::PolygonBodyEditor*>( objeditor.ptr() );
+    }
+
+    if ( !polygonsurfeditor_ )
+    {
+	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+	mDynamicCastGet( EM::PolygonBody*, empolys, emobject.ptr() );
+	if ( !empolys )
+	    return nullptr;
+
+	polygonsurfeditor_ = MPE::PolygonBodyEditor::create( *empolys );
+    }
+
+    return polygonsurfeditor_.ptr();
+}
+
+
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 {
-    if ( empolygonsurf_ )
-	mDetachCB( empolygonsurf_->change, PolygonBodyDisplay::emChangeCB );
-
     if ( viseditor_ )
 	viseditor_->setEditor( (MPE::ObjectEditor*) nullptr );
 
-    empolygonsurf_ = nullptr;
+    if ( polygonsurfeditor_ )
+	polygonsurfeditor_->removeUser();
+
     polygonsurfeditor_ = nullptr;
+    if ( empolygonsurf_ )
+	mDetachCB( empolygonsurf_->change, PolygonBodyDisplay::emChangeCB );
+
+    empolygonsurf_ = nullptr;
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet( EM::PolygonBody*, emplys, emobject.ptr() );
@@ -173,7 +202,6 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 
     empolygonsurf_ = emplys;
     mAttachCB( empolygonsurf_->change, PolygonBodyDisplay::emChangeCB );
-
     if ( !empolygonsurf_->name().isEmpty() )
 	setName( empolygonsurf_->name() );
 
@@ -258,9 +286,9 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
 	addChild( viseditor_->osgNode() );
     }
 
-    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
-    mDynamicCastGet( MPE::PolygonBodyEditor*, pe, editor.ptr() );
-    polygonsurfeditor_ =  pe;
+    RefMan<MPE::ObjectEditor> polygonsurfeditor = getMPEEditor( true );
+    if ( polygonsurfeditor )
+	polygonsurfeditor->addUser();
 
     viseditor_->setEditor( polygonsurfeditor_.ptr() );
     bodydisplay_->turnOn( true );

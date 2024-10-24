@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "horflatvieweditor3d.h"
 #include "mpeengine.h"
 #include "seisdatapack.h"
+#include "view2ddataman.h"
 
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
@@ -28,13 +29,17 @@ namespace View2D
 mImplStd( Horizon3D )
 
 Horizon3D::Horizon3D( uiFlatViewWin* fvw,
-			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
+		      const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors )
     : EMDataObject(fvw,auxdataedtors)
     , deselected_(this)
-    , vdselspec_(0)
-    , wvaselspec_(0)
 {
-    horeds_.allowNull();
+    horeds_.setNullAllowed();
+}
+
+
+Horizon3D::~Horizon3D()
+{
+    deepErase( horeds_ );
 }
 
 
@@ -49,21 +54,14 @@ void Horizon3D::setEditors()
 	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
 	if ( !regfdp && !randfdp )
 	{
-	    horeds_ += 0;
+	    horeds_ += nullptr;
 	    continue;
 	}
 
-	MPE::HorizonFlatViewEditor3D* hored =
-	    new MPE::HorizonFlatViewEditor3D(
+	auto* hored = new MPE::HorizonFlatViewEditor3D(
 	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
 	horeds_ += hored;
     }
-}
-
-
-Horizon3D::~Horizon3D()
-{
-    deepErase(horeds_);
 }
 
 
@@ -96,17 +94,15 @@ void Horizon3D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 
 void Horizon3D::draw()
 {
-    bool trackerenbed = false;
-    if ( MPE::engine().getTrackerByObject(emid_) != -1 )
-	trackerenbed = true;
-
+    const bool trackerenbed = MPE::engine().hasTracker( emid_ );
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstRefMan<FlatDataPack> fdp = vwr.getPack( true, true ).get();
 	mDynamicCastGet(const RegularFlatDataPack*,regfdp,fdp.ptr());
 	mDynamicCastGet(const RandomFlatDataPack*,randfdp,fdp.ptr());
-	if ( !regfdp && !randfdp ) continue;
+	if ( !regfdp && !randfdp )
+	    continue;
 
 	if ( horeds_[ivwr] )
 	{
@@ -137,14 +133,14 @@ void Horizon3D::draw()
 
 void Horizon3D::enablePainting( bool yn )
 {
+    const bool trackerenbed = MPE::engine().hasTracker( emid_ );
     for ( int idx=0; idx<horeds_.size(); idx++ )
     {
-	if ( horeds_[idx] )
-	{
-	    horeds_[idx]->enableLine( yn );
-	    horeds_[idx]->enableSeed( yn &&
-		    (MPE::engine().getTrackerByObject(emid_) != -1) );
-	}
+	if ( !horeds_[idx] )
+	    continue;
+
+	horeds_[idx]->enableLine( yn );
+	horeds_[idx]->enableSeed( yn && trackerenbed );
     }
 }
 
@@ -152,10 +148,10 @@ void Horizon3D::enablePainting( bool yn )
 void Horizon3D::selected( bool enabled )
 {
     bool setenableseed = true;
-    MPE::EMTracker* activetracker = MPE::engine().getActiveTracker();
+    RefMan<MPE::EMTracker> activetracker = MPE::engine().getActiveTracker();
     if ( activetracker )
     {
-	MPE::EMSeedPicker* seedpicker = activetracker->getSeedPicker(true);
+	MPE::EMSeedPicker* seedpicker = activetracker->getSeedPicker( true );
 	if ( seedpicker &&
 	     (seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawBetweenSeeds ||
 	      seedpicker->getTrackMode()==MPE::EMSeedPicker::DrawAndSnap) )
@@ -166,10 +162,7 @@ void Horizon3D::selected( bool enabled )
     else
 	setenableseed = false;
 
-    bool trackerenbed = false;
-    if (  MPE::engine().getTrackerByObject(emid_) != -1 )
-	trackerenbed = true;
-
+    const bool trackerenbed = MPE::engine().hasTracker( emid_ );
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( horeds_[ivwr] )
@@ -179,18 +172,14 @@ void Horizon3D::selected( bool enabled )
 		horeds_[ivwr]->setMouseEventHandler(
 			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    else
-		horeds_[ivwr]->setMouseEventHandler( 0 );
+		horeds_[ivwr]->setMouseEventHandler( nullptr );
+
 	    if ( setenableseed )
-		horeds_[ivwr]->enableSeed( trackerenbed && enabled );
+		horeds_[ivwr]->enableSeed( enabled && trackerenbed );
 	    else
 		horeds_[ivwr]->enableSeed( horeds_[ivwr]->seedEnable() );
 	}
     }
-
-    const int trackerid = MPE::engine().getTrackerByObject(emid_);
-    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-
-    if ( !tracker ) return;
 }
 
 
@@ -220,7 +209,7 @@ void Horizon3D::triggerDeSel()
     {
 	if ( horeds_[ivwr] )
 	{
-	    horeds_[ivwr]->setMouseEventHandler( 0 );
+	    horeds_[ivwr]->setMouseEventHandler( nullptr );
 	    horeds_[ivwr]->enableSeed( horeds_[ivwr]->seedEnable() );
 	}
     }
@@ -235,7 +224,7 @@ void Horizon3D::getHorEditors(
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( horeds_[ivwr] )
-	eds += horeds_[ivwr];
+	    eds.add( horeds_[ivwr] );
     }
 }
 

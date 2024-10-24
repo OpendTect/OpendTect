@@ -12,9 +12,9 @@ ________________________________________________________________________
 
 #include "flatview.h"
 #include "flatauxdataeditor.h"
+#include "pickset.h"
 #include "trckeyzsampling.h"
 #include "view2ddata.h"
-#include "pickset.h"
 
 class uiFlatViewer;
 class uiFlatViewAuxDataEditor;
@@ -38,7 +38,7 @@ public:
     bool		fillPar(IOPar&) const override;
     bool		usePar(const IOPar&) override;
 
-protected:
+private:
 
     void		pickAddChgCB(CallBacker*);
     void		pickRemoveCB(CallBacker*);

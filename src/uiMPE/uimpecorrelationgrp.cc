@@ -34,20 +34,17 @@ namespace MPE
 
 uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     : uiDlgGroup(p,tr("Correlation"))
-    , sectiontracker_(0)
-    , adjuster_(0)
     , changed_(this)
-    , seedpos_(TrcKeyValue::udf())
 {
     sNrZDecimals = SI().nrZDecimals();
 
-    uiGroup* leftgrp = new uiGroup( this, "Left Group" );
+    auto* leftgrp = new uiGroup( this, "Left Group" );
     usecorrfld_ = new uiGenInput( leftgrp, tr("Use Correlation"),
 				  BoolInpSpec(true));
-    usecorrfld_->valueChanged.notify(
-	    mCB(this,uiCorrelationGroup,selUseCorrelation) );
-    usecorrfld_->valueChanged.notify(
-	    mCB(this,uiCorrelationGroup,correlationChangeCB) );
+    mAttachCB( usecorrfld_->valueChanged,
+	       uiCorrelationGroup::selUseCorrelation );
+    mAttachCB( usecorrfld_->valueChanged,
+	       uiCorrelationGroup::correlationChangeCB );
     leftgrp->setHAlignObj( usecorrfld_ );
 
     uiString compwindtxt = tr("Compare window %1").arg(SI().getUiZUnitString());
@@ -59,15 +56,15 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 	iis.setLimits( swin, 0 );
 	iis.setLimits( swin, 1 );
 	compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis );
-	compwinfld_->valueChanging.notify(
-		mCB(this,uiCorrelationGroup,correlationChangeCB) );
+	mAttachCB( compwinfld_->valueChanging,
+		   uiCorrelationGroup::correlationChangeCB );
     }
     else
     {
 	FloatInpIntervalSpec iis;
 	compwinfld_ = new uiGenInput( leftgrp, compwindtxt, iis );
-	compwinfld_->valueChanged.notify(
-		mCB(this,uiCorrelationGroup,correlationChangeCB) );
+	mAttachCB( compwinfld_->valueChanged,
+		   uiCorrelationGroup::correlationChangeCB );
     }
 
     compwinfld_->attach( alignedBelow, usecorrfld_ );
@@ -76,17 +73,17 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 	new uiLabeledSpinBox( leftgrp, tr("Correlation threshold (%)"), 1 );
     corrthresholdfld_->box()->setInterval( 0.f, 100.f, 0.1f );
     corrthresholdfld_->attach( alignedBelow, compwinfld_ );
-    corrthresholdfld_->box()->valueChanging.notify(
-		mCB(this,uiCorrelationGroup,correlationChangeCB) );
+    mAttachCB( corrthresholdfld_->box()->valueChanging,
+	       uiCorrelationGroup::correlationChangeCB );
 
     uiString nostr = uiStrings::sEmptyString();
     snapfld_ = new uiGenInput( leftgrp, nostr,
 			BoolInpSpec(true,tr("Snap to Event"),nostr) );
-    snapfld_->valueChanged.notify(
-		mCB(this,uiCorrelationGroup,correlationChangeCB) );
+    mAttachCB( snapfld_->valueChanged,
+	       uiCorrelationGroup::correlationChangeCB );
     snapfld_->attach( rightTo, corrthresholdfld_ );
 
-    uiSeparator* sep = new uiSeparator( leftgrp, "Sep" );
+    auto* sep = new uiSeparator( leftgrp, "Sep" );
     sep->attach( stretchedBelow, corrthresholdfld_ );
 
     uiString disptxt=tr("Data Display window %1").arg(SI().getUiZUnitString());
@@ -99,15 +96,15 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
 	diis.setLimits( intv, 0 );
 	diis.setLimits( intv, 1 );
 	nrzfld_ = new uiGenInput( leftgrp, disptxt, diis );
-	nrzfld_->valueChanging.notify(
-		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
+	mAttachCB( nrzfld_->valueChanging,
+		   uiCorrelationGroup::visibleDataChangeCB );
     }
     else
     {
 	FloatInpIntervalSpec iis;
 	nrzfld_ = new uiGenInput( leftgrp, disptxt, iis );
-	nrzfld_->valueChanged.notify(
-		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
+	mAttachCB( nrzfld_->valueChanged,
+		   uiCorrelationGroup::visibleDataChangeCB );
     }
 
     nrzfld_->attach( alignedBelow, corrthresholdfld_ );
@@ -117,19 +114,19 @@ uiCorrelationGroup::uiCorrelationGroup( uiParent* p, bool is2d )
     tiis.setLimits( StepInterval<int>(3,99,2) );
     nrtrcsfld_ = new uiGenInput( leftgrp, tr("Nr Traces"), tiis );
     nrtrcsfld_->attach( alignedBelow, nrzfld_ );
-    nrtrcsfld_->valueChanging.notify(
-		mCB(this,uiCorrelationGroup,visibleDataChangeCB) );
+    mAttachCB( nrtrcsfld_->valueChanging,
+	       uiCorrelationGroup::visibleDataChangeCB );
 
     previewgrp_ = new uiPreviewGroup( this );
     previewgrp_->attach( rightTo, leftgrp );
-    previewgrp_->windowChanged_.notify(
-		mCB(this,uiCorrelationGroup,previewChgCB) );
+    mAttachCB( previewgrp_->windowChanged, uiCorrelationGroup::previewChgCB );
 
 }
 
 
 uiCorrelationGroup::~uiCorrelationGroup()
 {
+    detachAllNotifiers();
 }
 
 

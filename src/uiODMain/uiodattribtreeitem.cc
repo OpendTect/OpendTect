@@ -114,10 +114,12 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, const VisID& visid,
     if ( as && visserv->hasAttrib(visid) )
     {
 	uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
-	mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(visid));
-	if ( !so ) return;
+	mDynamicCastGet(const visSurvey::SurveyObject*,so,
+			visserv->getObject(visid));
+	if ( !so )
+	    return;
 
-	OD::Pol2D3D p2d3d = so->getAllowedDataType();
+	const OD::Pol2D3D p2d3d = so->getAllowedDataType();
 	ConstRefMan<visSurvey::Scene> scene = visserv->getScene( sceneid );
 	const bool needtransform = !scene->zDomainInfo().def_.isSI();
 	const bool cantransform = !needtransform || scene->getZAxisTransform();
@@ -140,7 +142,8 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
     bool isonly2d = false;
     const uiVisPartServer* visserv = applMgr()->visServer();
     const VisID displayid = displayID();
-    mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(displayid));
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,
+		    visserv->getObject(displayid));
     if ( so )
 	isonly2d = so->getAllowedDataType() == OD::Only2D;
 
@@ -207,7 +210,8 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, const VisID& visid,
 	return false;
 
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
-    if ( !as ) return false;
+    if ( !as )
+	return false;
 
     uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
 
@@ -314,11 +318,11 @@ void uiODAttribTreeItem::updateColumnText( int col )
 
 	const Attrib::SelSpec* selspec =
 		visserv->getSelSpec( displayID(), attribNr() );
-	const DataPack::ID dpid =
-		visserv->getDisplayedDataPackID( displayID(), attribNr() );
+	ConstRefMan<DataPack> dp =
+		visserv->getDisplayedDataPack( displayID(), attribNr() );
 	const bool is_valid_dp_expected = selspec &&
 				selspec->id()!=Attrib::SelSpec::cAttribNotSel();
-	if ( is_valid_dp_expected && !dpid.isValid() )
+	if ( is_valid_dp_expected && !dp )
 	    uitreeviewitem_->setIcon( uiODSceneMgr::cColorColumn(), "warning" );
 	else
 	    displayMiniCtab( so->getColTabSequence(attribNr()) );

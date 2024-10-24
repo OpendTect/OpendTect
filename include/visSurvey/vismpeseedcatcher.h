@@ -17,18 +17,14 @@ ________________________________________________________________________
 
 #include "attribdataholder.h"
 #include "attribsel.h"
-#include "datapack.h"
 #include "emposid.h"
 #include "geomelement.h"
-#include "integerid.h"
+#include "seisdatapack.h"
 #include "trckey.h"
-#include "trckeyzsampling.h"
 
 
 namespace Geometry { class ElementEditor; }
 namespace Attrib { class SelSpec; }
-
-class RegularSeisDataPack;
 
 namespace visSurvey
 {
@@ -62,8 +58,7 @@ public:
     VisID			getEMVisID() const { return emvisids_; }
 				// avail when clicked on hor
     const TrcKeyZSampling&	getObjCS() const;
-    DataPackID		getObjDataPackID() const;
-    const RegularSeisDataPack*	getObjData() const;
+    ConstRefMan<SeisDataPack>	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
     Pos::GeomID			getGeomID() const;
@@ -81,15 +76,14 @@ protected:
     void			setDoubleClicked(bool);
     void			setNode(const TrcKey&);
     void			setPos(const Coord3&);
-    void			setEMObjID(EM::ObjectID);
+    void			setEMObjID(const EM::ObjectID&);
     void			setEMVisID(const VisID&);
     void			setObjID(const VisID&);
     void			setObjCS(const TrcKeyZSampling&);
-    void			setObjDataPackID(DataPackID);
-    void			setObjData(const RegularSeisDataPack*);
+    void			setObjData(const SeisDataPack*);
     void			setObjDataSelSpec(const Attrib::SelSpec&);
 
-    void			setGeomID(Pos::GeomID);
+    void			setGeomID(const Pos::GeomID&);
     void			setObjLineName(const char*);
     void			setObjLineData(const Attrib::Data2DHolder*);
 
@@ -106,7 +100,7 @@ protected:
     EM::ObjectID			clickedemobjid_;
     VisID				clickedobjid_;
     TrcKeyZSampling			clickedcs_;
-    const RegularSeisDataPack*		attrdata_;
+    WeakPtr<SeisDataPack>		attrdata_;
     Attrib::SelSpec			attrsel_;
     const TrcKeyPath*			rdltkpath_;
     RandomLineID			rdlid_;
@@ -115,7 +109,6 @@ protected:
     ConstRefMan<Attrib::Data2DHolder>	linedata_;
     Pos::GeomID				geomid_;
     BufferString			linename_;
-    DataPackID			datapackid_;
 
     void			setObjTKPath(const TrcKeyPath*);
     void			setObjRandomLineID(const RandomLineID&);

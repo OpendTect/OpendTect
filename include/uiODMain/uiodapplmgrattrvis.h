@@ -39,8 +39,8 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     bool		selectAttrib(const VisID&,int);
     void		setHistogram(const VisID&,int);
     void		colMapperChg();
-    void		setRandomPosData(const VisID&,int attrib,
-					const DataPointSet&);
+    bool		setRandomPosData(const VisID&,int attrib,
+					 const DataPointSet&);
     void		pageUpDownPressed(bool);
     void		updateColorTable(const VisID&,int);
     void		colSeqChg();

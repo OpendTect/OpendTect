@@ -10,15 +10,18 @@ ________________________________________________________________________
 
 #include "uivismod.h"
 
-#include "callback.h"
-#include "emposid.h"
 #include "menuhandler.h"
 #include "uisettings.h"
 #include "visemobjdisplay.h"
 #include "vishorizondisplay.h"
 #include "vishorizon2ddisplay.h"
 
-namespace EM { class EdgeLineSet; class EdgeLineSegment; class Horizon3D;}
+namespace EM
+{
+    class EdgeLineSet;
+    class EdgeLineSegment;
+    class Horizon3D;
+}
 
 class uiColorTableGroup;
 class uiMenuHandler;
@@ -54,12 +57,14 @@ public:
     EM::SectionID	getSectionID(int idx) const;
     EM::SectionID	getSectionID(const TypeSet<VisID>* pickedpath) const;
 
+    bool		activateTracker();
     void		checkTrackingStatus();
 			/*!< Checks if there is a tracker for this object and
 			     turns on singlecolor and full res if
 			     a tracker if found. */
 
-protected:
+private:
+
     void		setUpConnections();
     void		addToToolBarCB(CallBacker*);
     void		createMenuCB(CallBacker*);

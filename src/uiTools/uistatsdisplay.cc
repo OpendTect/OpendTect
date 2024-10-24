@@ -8,33 +8,46 @@ ________________________________________________________________________
 -*/
 
 #include "uistatsdisplay.h"
-#include "uistatsdisplaywin.h"
 
 #include "uiaxishandler.h"
 #include "uicombobox.h"
-#include "uihistogramdisplay.h"
 #include "uigeninput.h"
+#include "uihistogramdisplay.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistatsdisplaywin.h"
 
 #include "arrayndimpl.h"
-#include "draw.h"
 #include "bufstring.h"
 #include "datapointset.h"
+#include "draw.h"
 #include "mouseevent.h"
 #include "statparallelcalc.h"
 
 #define mPutCountInPlot() (histgramdisp_ && setup_.countinplot_)
 
 
+// uiStatsDisplay::Setup
+
+uiStatsDisplay::Setup::Setup()
+    : withplot_(true)
+    , withname_(true)
+    , withtext_(true)
+    , vertaxis_(true)
+    , countinplot_(false)
+{}
+
+
+uiStatsDisplay::Setup::~Setup()
+{}
+
+
+// uiStatsDisplay
+
 uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
-    : uiGroup( p, "Statistics display group" )
+    : uiGroup(p,"Statistics display group")
     , setup_(su)
-    , histgramdisp_(nullptr)
-    , minmaxfld_(nullptr)
-    , countfld_(nullptr)
-    , namefld_(nullptr)
 {
     const bool putcountinplot = mPutCountInPlot();
     if ( setup_.withplot_ )
@@ -46,7 +59,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 
     if ( setup_.withtext_ )
     {
-	uiGroup* valgrp = new uiGroup( this, "Values group" );
+	auto* valgrp = new uiGroup( this, "Values group" );
 	if ( setup_.withname_ )
 	{
 	    namefld_ = new uiLabel( this, tr("Data Name") );
@@ -84,12 +97,14 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     if ( putcountinplot )
 	putN();
 
-    postFinalize().notify( mCB(this,uiStatsDisplay,finalizeCB) );
+    mAttachCB( postFinalize(), uiStatsDisplay::finalizeCB );
 }
 
 
 uiStatsDisplay::~uiStatsDisplay()
-{}
+{
+    detachAllNotifiers();
+}
 
 
 void uiStatsDisplay::finalizeCB( CallBacker* )
@@ -117,11 +132,19 @@ void uiStatsDisplay::setDataName( const char* nm )
 }
 
 
-bool uiStatsDisplay::setDataPackID(
-	DataPackID dpid, DataPackMgr::MgrID dmid, int version )
+bool uiStatsDisplay::setDataPackID( const DataPackID& dpid,
+				    const DataPackMgr::MgrID& dmid,
+				    int version )
 {
-    if ( !histgramdisp_ || (histgramdisp_ &&
-		!histgramdisp_->setDataPackID(dpid,dmid,version)) )
+    ConstRefMan<DataPack> datapack = DPM( dmid ).getDP( dpid );
+    return datapack ? setDataPack( *datapack.ptr(), version ) :  false;
+}
+
+
+bool uiStatsDisplay::setDataPack( const DataPack& dp, int version )
+{
+    if ( !histgramdisp_ ||
+	 (histgramdisp_ && !histgramdisp_->setDataPack(dp,version)) )
     {
 	Stats::ParallelCalc<float> rc( (Stats::CalcSetup()
 						.require(Stats::Min)
@@ -131,33 +154,32 @@ bool uiStatsDisplay::setDataPackID(
 						.require(Stats::StdDev)
 						.require(Stats::RMS)) );
 
-	DataPackMgr& dpman = DPM( dmid );
-	auto datapack = dpman.getDP( dpid );
-	if ( !datapack ) return false;
-
+	mDynamicCastGet(const SeisDataPack*,seisdp,&dp)
+	mDynamicCastGet(const FlatDataPack*,fdp,&dp)
+	mDynamicCastGet(const DataPointSet*,dps,&dp)
 	TypeSet<float> valarr;
-	if ( dmid == DataPackMgr::SeisID() )
+	if ( seisdp )
 	{
-	    mDynamicCastGet(const SeisDataPack*,sdp,datapack.ptr());
-	    const Array3D<float>* arr3d = sdp ? &sdp->data(version) : 0;
-	    if ( !arr3d ) return false;
+	    const Array3D<float>& arr3d = seisdp->data( version );
+	    if ( !arr3d.isOK() )
+		return false;
 
-	    const float* array = arr3d->getData();
+	    const float* array = arr3d.getData();
 	    if ( array )
-		rc.setValues( array, int(arr3d->info().getTotalSz()) );
+		rc.setValues( array, int(arr3d.info().getTotalSz()) );
 	    else
 	    {
-		valarr.setCapacity( int(arr3d->info().getTotalSz()), false );
-		const int sz0 = arr3d->info().getSize( 0 );
-		const int sz1 = arr3d->info().getSize( 1 );
-		const int sz2 = arr3d->info().getSize( 2 );
+		valarr.setCapacity( int(arr3d.info().getTotalSz()), false );
+		const int sz0 = arr3d.info().getSize( 0 );
+		const int sz1 = arr3d.info().getSize( 1 );
+		const int sz2 = arr3d.info().getSize( 2 );
 		for ( int idx=0; idx<sz0; idx++ )
 		{
 		    for ( int idy=0; idy<sz1; idy++ )
 		    {
 			for ( int idz=0; idz<sz2; idz++ )
 			{
-			    const float val = arr3d->get( idx, idy, idz );
+			    const float val = arr3d.get( idx, idy, idz );
 			    if ( !mIsUdf(val) )
 				valarr += val;
 			}
@@ -167,33 +189,25 @@ bool uiStatsDisplay::setDataPackID(
 		rc.setValues( valarr.arr(), valarr.size() );
 	    }
 	}
-	else if ( dmid == DataPackMgr::FlatID() )
+	else if ( fdp )
 	{
-	    const Array2D<float>* array = 0;
-	    mDynamicCastGet(const FlatDataPack*,fdp,datapack.ptr());
-	    mDynamicCastGet(const MapDataPack*,mdp,datapack.ptr());
-	    if ( mdp )
-		array = &mdp->rawData();
-	    else if ( fdp )
-		array = &fdp->data();
-
-	    if ( !array )
-		return false;
-
-	    if ( array->getData() )
-		rc.setValues( array->getData(),
-				int(array->info().getTotalSz()) );
+	    mDynamicCastGet(const MapDataPack*,mdp,fdp);
+	    const Array2D<float>& data = mdp ? mdp->rawData() : fdp->data();
+	    if ( data.getData() )
+		rc.setValues( data.getData(),
+				int(data.info().getTotalSz()) );
 	    else
 	    {
-		valarr.setCapacity( int(array->info().getTotalSz()), false );
-		const int sz2d0 = array->info().getSize( 0 );
-		const int sz2d1 = array->info().getSize( 1 );
+		valarr.setCapacity( int(data.info().getTotalSz()), false );
+		const int sz2d0 = data.info().getSize( 0 );
+		const int sz2d1 = data.info().getSize( 1 );
 		for ( int idx0=0; idx0<sz2d0; idx0++ )
 		{
 		    for ( int idx1=0; idx1<sz2d1; idx1++ )
 		    {
-			const float val = array->get( idx0, idx1 );
-			if ( mIsUdf(val) ) continue;
+			const float val = data.get( idx0, idx1 );
+			if ( mIsUdf(val) )
+			    continue;
 
 			valarr += val;
 		    }
@@ -202,20 +216,18 @@ bool uiStatsDisplay::setDataPackID(
 		rc.setValues( valarr.arr(), valarr.size() );
 	    }
 	}
-	else if ( dmid == DataPackMgr::SurfID() ||
-		  dmid == DataPackMgr::PointID())
+	else if ( dps )
 	{
-	    mDynamicCastGet(const DataPointSet*,dpset,datapack.ptr())
-	    if ( !dpset )
-		return false;
-
-	    const int colid = dpset->nrCols() - 1;
-	    valarr.setCapacity( dpset->size(), false );
-	    for ( int idx=0; idx<dpset->size(); idx++ )
-		valarr += dpset->value( colid, idx );
+	    const int colid = dps->nrCols() - 1;
+	    valarr.setCapacity( dps->size(), false );
+	    for ( int idx=0; idx<dps->size(); idx++ )
+		valarr += dps->value( colid, idx );
 
 	    rc.setValues( valarr.arr(), valarr.size() );
 	}
+	else
+	    return false;
+
 	if ( !rc.execute() )
 	    { uiMSG().error( rc.errMsg() ); return false; }
 
@@ -286,8 +298,6 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 					const uiStatsDisplay::Setup& su,
 					int nr, bool ismodal )
     : uiMainWin(p,uiStrings::phrData(uiStrings::sStatistics()),1,false,ismodal)
-    , statnmcb_(0)
-    , currentdispidx_(-1)
 {
     if ( su.withplot_ && nr <= 8 )
     {

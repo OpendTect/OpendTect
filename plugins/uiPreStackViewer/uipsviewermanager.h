@@ -8,10 +8,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "callback.h"
-#include "datapack.h"
 #include "menuhandler.h"
 #include "multiid.h"
+#include "prestackgather.h"
 #include "uistring.h"
 #include "visprestackdisplay.h"
 
@@ -57,7 +56,8 @@ protected:
 
     uiMainWin*		createMultiGather2DViewer(
 					const visSurvey::PreStackDisplay&);
-    uiMainWin*		create2DViewer(const uiString&,const DataPackID&);
+    uiMainWin*		create2DViewer(const uiString&,const PreStack::Gather&);
+    void		removeViewWin(const PreStack::Gather&);
     const uiFlatViewer*	getViewer(int idx) const;
 
     SceneID		getSceneID(const VisID&) const;
@@ -65,11 +65,15 @@ protected:
     static void		getSeis3DTitle(const BinID&,const char*,uiString&);
     bool		add3DViewer(const uiMenuHandler*,const SceneID&,
 				    int mnuidx);
-    void		removeViewWin(const DataPackID&);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     uiViewer3DPositionDlg* mkNewPosDialog(const uiMenuHandler*,
 					  visSurvey::PreStackDisplay&);
+
+    mDeprecated("Use FlatDataPack directly")
+    uiMainWin*		create2DViewer(const uiString&,const DataPackID&);
+    mDeprecated("Use FlatDataPack directly")
+    void		removeViewWin(const DataPackID&);
 
     void		removeAllCB(CallBacker*);
     void		sceneChangeCB(CallBacker*);
@@ -90,6 +94,7 @@ protected:
     MenuItem		removemenuitem_;
 
     uiVisPartServer*			visserv_;
+    RefMan<PreStack::GatherSetDataPack> sessiongathers_;
     RefObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
     ObjectSet<uiMainWin>		viewers2d_;

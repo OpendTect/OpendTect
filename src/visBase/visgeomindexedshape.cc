@@ -343,9 +343,9 @@ bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tr )
 }
 
 
-void GeomIndexedShape::getAttribPositions( DataPointSet& set,
+bool GeomIndexedShape::getAttribPositions( DataPointSet& set,
 					   mVisTrans* toinlcrltrans,
-					   TaskRunner*) const
+					   TaskRunner* ) const
 {
     const DataColDef coordindex( sKeyCoordIndex() );
     if ( set.dataSet().findColDef(coordindex,PosVecDataSet::NameExact)==-1 )
@@ -356,7 +356,7 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
 
     const Coordinates* vtxcoords = vtexshape_->getCoordinates();
     if ( !vtxcoords || !vtxcoords->size() )
-	return;
+	return false;
 
     for ( int coordid = 0; coordid<vtxcoords->size(); coordid++ )
     {
@@ -385,6 +385,7 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set,
     }
 
     set.dataChanged();
+    return true;
 }
 
 

@@ -9,6 +9,7 @@ ________________________________________________________________________
 
 #include "uioddatatreeitem.h"
 
+#include "uiamplspectrum.h"
 #include "uifkspectrum.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -19,7 +20,6 @@ ________________________________________________________________________
 #include "uishortcutsmgr.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
-#include "uiseisamplspectrum.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
@@ -244,9 +244,9 @@ void uiODDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     }
 
     mAddMenuOrTBItem( istb, 0, menu, &displaymnuitem_, true, false );
-    const DataPackID dpid =
-	visserv_->getDisplayedDataPackID( displayID(), attribNr() );
-    const bool hasdatapack = dpid.isValid() && dpid!=DataPack::cNoID();
+    ConstRefMan<DataPack> dp =
+		visserv_->getDisplayedDataPack( displayID(), attribNr() );
+    const bool hasdatapack = dp;
     const bool isvert = visserv_->isVerticalDisp( displayID() );
     if ( hasdatapack )
 	mAddMenuOrTBItem( istb, menu, &displaymnuitem_,
@@ -375,30 +375,11 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv_->showAttribTransparencyDlg( displayID(), attribNr() );
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==statisticsitem_.id || mnuid==amplspectrumitem_.id
-	      || mnuid==fkspectrumitem_.id )
+    else if ( mnuid==statisticsitem_.id || mnuid==amplspectrumitem_.id ||
+	      mnuid==fkspectrumitem_.id )
     {
 	const VisID visid = displayID();
 	const int attribid = attribNr();
-	DataPackID dpid = visserv_->getDataPackID( visid, attribid );
-	const DataPackMgr::MgrID dmid = visserv_->getDataPackMgrID( visid );
-	const int version = visserv_->selectedTexture( visid, attribid );
-	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attribid );
-	const StringView dpname = DPM(dmid).nameOf( dpid );
-	if ( as && dpname != as->userRef() )
-	{
-	    TypeSet<DataPackMgr::PackID> packids;
-	    DPM(dmid).getPackIDs( packids );
-	    for ( const auto& packid : packids )
-	    {
-		const StringView tmpnm = DPM(dmid).nameOf( packid );
-		if ( tmpnm == as->userRef() )
-		{
-		    dpid = packid;
-		    break;
-		}
-	    }
-	}
 	if ( mnuid==statisticsitem_.id )
 	{
 	    visserv_->displayMapperRangeEditForAttribs( visid, attribid );
@@ -409,19 +390,25 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    const bool isselmodeon = visserv_->isSelectionModeOn();
 	    if ( !isselmodeon )
 	    {
+		ConstRefMan<SeisDataPack> seisdp =
+				visserv_->getSeisDataPack( visid, attribid );
+		if ( !seisdp )
+		    return;
+
+		const int version = visserv_->selectedTexture( visid, attribid);
 		if ( mnuid==amplspectrumitem_.id )
 		{
 		    delete ampspectrumwin_;
-		    ampspectrumwin_ = new uiSeisAmplSpectrum(
+		    ampspectrumwin_ = new uiAmplSpectrum(
 				      applMgr()->applService().parent() );
-		    ampspectrumwin_->setDataPackID( dpid, dmid, version );
+		    ampspectrumwin_->setDataPack( *seisdp.ptr(), version );
 		    ampspectrumwin_->show();
 		}
 		else
 		{
 		    fkspectrumwin_ =
 			new uiFKSpectrum( applMgr()->applService().parent() );
-		    fkspectrumwin_->setDataPackID( dpid, dmid, version );
+		    fkspectrumwin_->setDataPack( *seisdp.ptr(), version );
 		    fkspectrumwin_->show();
 		}
 	    }

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "horflatvieweditor2d.h"
 #include "mpeengine.h"
 #include "seisdatapack.h"
+#include "view2ddataman.h"
 
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
@@ -30,19 +31,21 @@ mImplStd( Horizon2D )
 Horizon2D::Horizon2D( uiFlatViewWin* fvw,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataedtors)
     : EMDataObject(fvw,auxdataedtors)
-    , geomid_(Survey::GeometryManager::cUndefGeomID())
-    , deselected_( this )
-    , vdselspec_( 0 )
-    , wvaselspec_( 0 )
+    , deselected_(this)
 {
-    horeds_.allowNull();
+    horeds_.setNullAllowed();
+}
+
+
+Horizon2D::~Horizon2D()
+{
+    deepErase( horeds_ );
 }
 
 
 void Horizon2D::setEditors()
 {
     deepErase( horeds_ );
-
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
@@ -50,24 +53,17 @@ void Horizon2D::setEditors()
 					 vwr.getPack( true, true ).get();
 	if ( !regfdp || !regfdp->is2D() )
 	{
-	    horeds_ += 0;
+	    horeds_ += nullptr;
 	    continue;
 	}
 	else
 	    geomid_ = regfdp->getTrcKey(0).geomID();
 
-	MPE::HorizonFlatViewEditor2D* hored =
-	    new MPE::HorizonFlatViewEditor2D(
+	auto* hored = new MPE::HorizonFlatViewEditor2D(
 	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
 	hored->setLine2DInterSectionSet( line2dintersectionset_ );
 	horeds_ += hored;
     }
-}
-
-
-Horizon2D::~Horizon2D()
-{
-    deepErase(horeds_);
 }
 
 
@@ -98,7 +94,7 @@ void Horizon2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 }
 
 
-void Horizon2D::setGeomID( Pos::GeomID geomid )
+void Horizon2D::setGeomID( const Pos::GeomID& geomid )
 {
     geomid_ = geomid;
 }
@@ -106,16 +102,14 @@ void Horizon2D::setGeomID( Pos::GeomID geomid )
 
 void Horizon2D::draw()
 {
-    bool trackerenbed = false;
-    if (  MPE::engine().getTrackerByObject(emid_) != -1 )
-	trackerenbed = true;
-
+    const bool trackerenbed = MPE::engine().hasTracker( emid_ );
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstRefMan<RegularFlatDataPack> regfdp =
 					 vwr.getPack( true, true ).get();
-	if ( !regfdp ) continue;
+	if ( !regfdp )
+	    continue;
 
 	horeds_[ivwr]->setTrcKeyZSampling( regfdp->sampling() );
 	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
@@ -142,13 +136,13 @@ void Horizon2D::draw()
 
 void Horizon2D::enablePainting( bool yn )
 {
+    const bool trackerenbed = MPE::engine().hasTracker( emid_ );
     for ( int idx=0; idx<horeds_.size(); idx++ )
     {
 	if ( horeds_[idx] )
 	{
 	    horeds_[idx]->enableLine( yn );
-	    horeds_[idx]->enableSeed( yn
-		    && (MPE::engine().getTrackerByObject(emid_) != -1) );
+	    horeds_[idx]->enableSeed( yn && trackerenbed );
 	    horeds_[idx]->enableIntersectionMarker( yn );
 	}
     }
@@ -157,10 +151,7 @@ void Horizon2D::enablePainting( bool yn )
 
 void Horizon2D::selected( bool enabled )
 {
-    bool trackerenbed = false;
-    if (  MPE::engine().getTrackerByObject(emid_) != -1 )
-	trackerenbed = true;
-
+    const bool trackerenbed = MPE::engine().hasTracker( emid_ );
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( horeds_[ivwr] )
@@ -170,15 +161,11 @@ void Horizon2D::selected( bool enabled )
 		horeds_[ivwr]->setMouseEventHandler(
 			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    else
-		horeds_[ivwr]->setMouseEventHandler( 0 );
+		horeds_[ivwr]->setMouseEventHandler( nullptr );
+
 	    horeds_[ivwr]->enableSeed( trackerenbed && enabled );
 	}
     }
-
-    const int trackerid = MPE::engine().getTrackerByObject(emid_);
-    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
-
-    if ( !tracker ) return;
 }
 
 
@@ -208,7 +195,7 @@ void Horizon2D::triggerDeSel()
     {
 	if ( horeds_[ivwr] )
 	{
-	    horeds_[ivwr]->setMouseEventHandler( 0 );
+	    horeds_[ivwr]->setMouseEventHandler( nullptr );
 	    horeds_[ivwr]->enableSeed( horeds_[ivwr]->seedEnable() );
 	}
     }

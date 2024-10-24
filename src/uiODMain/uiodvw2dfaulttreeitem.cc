@@ -22,18 +22,17 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
-#include "emeditor.h"
 #include "emfault3d.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "mpeengine.h"
 #include "randcolor.h"
-
 #include "view2dfault.h"
 #include "view2ddataman.h"
 
+
+// uiODView2DFaultParentTreeItem
 
 uiODView2DFaultParentTreeItem::uiODView2DFaultParentTreeItem()
     : uiODView2DTreeItem( uiStrings::sFault() )
@@ -106,41 +105,37 @@ bool uiODView2DFaultParentTreeItem::init()
 
 
 
-void uiODView2DFaultParentTreeItem::getFaultVwr2DIDs(
-	EM::ObjectID emid, TypeSet<Vis2DID>& vw2dobjids ) const
+void uiODView2DFaultParentTreeItem::getFaultVwr2DIDs( const EM::ObjectID& emid,
+					TypeSet<Vis2DID>& vw2dobjids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(const uiODView2DFaultTreeItem*,faultitem,getChild(idx))
-	if ( !faultitem || faultitem->emObjectID() != emid )
-	    continue;
-
-	vw2dobjids.addIfNew( faultitem->vw2DObject()->id() );
+	if ( faultitem && faultitem->emObjectID() == emid )
+	    vw2dobjids.addIfNew( faultitem->vw2DObject()->id() );
     }
 }
 
 
 void uiODView2DFaultParentTreeItem::getLoadedFaults(
-	TypeSet<EM::ObjectID>& emids ) const
+				    TypeSet<EM::ObjectID>& emids ) const
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(const uiODView2DFaultTreeItem*,faultitem,getChild(idx))
-	if ( !faultitem )
-	    continue;
-	emids.addIfNew( faultitem->emObjectID() );
+	if ( faultitem )
+	    emids.addIfNew( faultitem->emObjectID() );
     }
 }
 
 
-void uiODView2DFaultParentTreeItem::removeFault( EM::ObjectID emid )
+void uiODView2DFaultParentTreeItem::removeFault( const EM::ObjectID& emid )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {
 	mDynamicCastGet(uiODView2DFaultTreeItem*,faultitem,getChild(idx))
-	if ( !faultitem || emid!=faultitem->emObjectID() )
-	    continue;
-	removeChild( faultitem );
+	if ( faultitem && faultitem->emObjectID() == emid )
+	    removeChild( faultitem );
     }
 }
 
@@ -150,29 +145,25 @@ void uiODView2DFaultParentTreeItem::addFaults(
 {
     TypeSet<EM::ObjectID> emidstobeloaded, emidsloaded;
     getLoadedFaults( emidsloaded );
-    for ( int idx=0; idx<emids.size(); idx++ )
+    for ( const auto& emid : emids )
     {
-	if ( !emidsloaded.isPresent(emids[idx]) )
-	    emidstobeloaded.addIfNew( emids[idx] );
+	if ( !emidsloaded.isPresent(emid) )
+	    emidstobeloaded.addIfNew( emid );
     }
 
-    for ( int idx=0; idx<emidstobeloaded.size(); idx++ )
+    for ( const auto& emid : emidstobeloaded )
     {
-	const EM::ObjectID emid = emidstobeloaded[idx];
 	const EM::EMObject* emobj = EM::EMM().getObject( emid );
 	if ( !emobj || findChild(emobj->name().buf()) )
 	    continue;
 
-	MPE::ObjectEditor* editor = MPE::engine().getEditor( emobj->id(),false);
 	auto* childitem = new uiODView2DFaultTreeItem( emid );
 	addChld( childitem, false, false);
-	if ( editor )
-	    editor->addUser();
     }
 }
 
 
-void uiODView2DFaultParentTreeItem::setupNewTempFault( EM::ObjectID emid )
+void uiODView2DFaultParentTreeItem::setupNewTempFault( const EM::ObjectID& emid)
 {
     TypeSet<EM::ObjectID> emidsloaded;
     getLoadedFaults( emidsloaded );
@@ -186,15 +177,15 @@ void uiODView2DFaultParentTreeItem::setupNewTempFault( EM::ObjectID emid )
 	{
 	    if ( viewer2D() && viewer2D()->viewControl() )
 		viewer2D()->viewControl()->setEditMode( true );
+
 	    flttreeitm->select();
 	    break;
 	}
     }
-
 }
 
 
-void uiODView2DFaultParentTreeItem::addNewTempFault( EM::ObjectID emid )
+void uiODView2DFaultParentTreeItem::addNewTempFault( const EM::ObjectID& emid )
 {
     TypeSet<EM::ObjectID> emidsloaded;
     getLoadedFaults( emidsloaded );
@@ -204,22 +195,21 @@ void uiODView2DFaultParentTreeItem::addNewTempFault( EM::ObjectID emid )
     auto* faulttreeitem = new uiODView2DFaultTreeItem( emid );
     addChld( faulttreeitem,false, false );
     viewer2D()->viewControl()->setEditMode( true );
-    MPE::engine().getEditor( emid, true );
     faulttreeitem->select();
 }
 
 
+// uiODView2DFaultTreeItem
+
 uiODView2DFaultTreeItem::uiODView2DFaultTreeItem( const EM::ObjectID& emid )
-    : uiODView2DTreeItem(uiString::emptyString())
+    : uiODView2DTreeItem(uiString::empty())
     , emid_(emid)
-    , faultview_(0)
 {}
 
 
 uiODView2DFaultTreeItem::uiODView2DFaultTreeItem( const Vis2DID& id,
 						  bool /* dummy */ )
-    : uiODView2DTreeItem(uiString::emptyString())
-    , faultview_(0)
+    : uiODView2DTreeItem(uiString::empty())
 {
     displayid_ = id;
 }
@@ -228,7 +218,6 @@ uiODView2DFaultTreeItem::uiODView2DFaultTreeItem( const Vis2DID& id,
 uiODView2DFaultTreeItem::~uiODView2DFaultTreeItem()
 {
     detachAllNotifiers();
-    MPE::engine().removeEditor( emid_ );
     if ( faultview_ )
 	viewer2D()->dataMgr()->removeObject( faultview_ );
 }
@@ -237,18 +226,7 @@ uiODView2DFaultTreeItem::~uiODView2DFaultTreeItem()
 bool uiODView2DFaultTreeItem::init()
 {
     EM::EMObject* emobj = nullptr;
-    if ( !displayid_.isValid() )
-    {
-	emobj = EM::EMM().getObject( emid_ );
-	if ( !emobj ) return false;
-
-	faultview_ = View2D::Fault::create( viewer2D()->viewwin(),
-					viewer2D()->dataEditor() );
-	faultview_->setEMObjectID( emid_ );
-	viewer2D()->dataMgr()->addObject( faultview_ );
-	displayid_ = faultview_->id();
-    }
-    else
+    if ( displayid_.isValid() )
     {
 	mDynamicCastGet(View2D::Fault*,hd,
 			viewer2D()->getObject(displayid_))
@@ -257,9 +235,22 @@ bool uiODView2DFaultTreeItem::init()
 
 	emid_ = hd->getEMObjectID();
 	emobj = EM::EMM().getObject( emid_ );
-	if ( !emobj ) return false;
+	if ( !emobj )
+	    return false;
 
 	faultview_ = hd;
+    }
+    else
+    {
+	emobj = EM::EMM().getObject( emid_ );
+	if ( !emobj )
+	    return false;
+
+	faultview_ = View2D::Fault::create( viewer2D()->viewwin(),
+					    viewer2D()->dataEditor() );
+	faultview_->setEMObjectID( emid_ );
+	viewer2D()->dataMgr()->addObject( faultview_ );
+	displayid_ = faultview_->id();
     }
 
     mAttachCB( emobj->change, uiODView2DFaultTreeItem::emobjChangeCB );
@@ -268,7 +259,7 @@ bool uiODView2DFaultTreeItem::init()
     name_ = applMgr()->EMServer()->getUiName( emid_ );
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
-    checkStatusChange()->notify( mCB(this,uiODView2DFaultTreeItem,checkCB) );
+    mAttachCB( *checkStatusChange(), uiODView2DFaultTreeItem::checkCB );
 
     faultview_->draw();
 
@@ -277,7 +268,7 @@ bool uiODView2DFaultTreeItem::init()
 
     NotifierAccess* deselnotify = faultview_->deSelection();
     if ( deselnotify )
-	deselnotify->notify( mCB(this,uiODView2DFaultTreeItem,deSelCB) );
+	mAttachCB( *deselnotify, uiODView2DFaultTreeItem::deSelCB );
 
     uiODView2DTreeItem::addKeyBoardEvent( emid_ );
 
@@ -288,7 +279,8 @@ bool uiODView2DFaultTreeItem::init()
 void uiODView2DFaultTreeItem::displayMiniCtab()
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return;
+    if ( !emobj )
+	return;
 
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
     uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
@@ -301,7 +293,8 @@ void uiODView2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
 				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
-    if ( !emobject ) return;
+    if ( !emobject )
+	return;
 
     switch( cbdata.event )
     {
@@ -336,12 +329,12 @@ bool uiODView2DFaultTreeItem::select()
 	uitreeviewitem_->treeView()->deselectAll();
 
     uitreeviewitem_->setSelected( true );
-
     if ( faultview_ )
     {
 	viewer2D()->dataMgr()->setSelected( faultview_ );
 	faultview_->selected();
     }
+
     return true;
 }
 
@@ -372,14 +365,14 @@ bool uiODView2DFaultTreeItem::showSubMenu()
     if ( mnuid == mPropID )
     {
 	uiDialog dlg( getUiParent(), uiDialog::Setup(uiStrings::sProperties(),
-					mNoDlgTitle,mNoHelpKey) );
+						     mNoDlgTitle,mNoHelpKey) );
 	dlg.setCtrlStyle( uiDialog::CloseOnly );
 	uiSelLineStyle::Setup lssu;
 	lssu.drawstyle(false);
 	OD::LineStyle ls = emobj->preferredLineStyle();
 	ls.color_ = emobj->preferredColor();
-	uiSelLineStyle* lsfld = new uiSelLineStyle( &dlg, ls, lssu );
-	lsfld->changed.notify( mCB(this,uiODView2DFaultTreeItem,propChgCB) );
+	auto* lsfld = new uiSelLineStyle( &dlg, ls, lssu );
+	mAttachCB( lsfld->changed, uiODView2DFaultTreeItem::propChgCB );
 	dlg.go();
 
     }
@@ -398,7 +391,7 @@ bool uiODView2DFaultTreeItem::showSubMenu()
 	name_ = applMgr()->EMServer()->getUiName( emid_ );
 	renameVisObj();
 	bool doremove = !applMgr()->viewer2DMgr().isItemPresent( parent_ ) ||
-		isRemoveItem(mnuid,false);
+			isRemoveItem(mnuid,false);
 	if ( isRemoveItem(mnuid,true) )
 	    applMgr()->viewer2DMgr().removeFault( emid_ );
 	if ( doremove )
@@ -412,7 +405,8 @@ bool uiODView2DFaultTreeItem::showSubMenu()
 void uiODView2DFaultTreeItem::propChgCB( CallBacker* cb )
 {
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
-    if ( !emobj ) return;
+    if ( !emobj )
+	return;
 
     mDynamicCastGet(uiColorInput*,colfld,cb)
     if ( colfld )
@@ -454,11 +448,13 @@ void uiODView2DFaultTreeItem::checkCB( CallBacker* )
 void uiODView2DFaultTreeItem::emobjAbtToDelCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
-    if ( emid != emid_ ) return;
+    if ( emid != emid_ )
+	return;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::Fault3D*,f3d,emobj);
-    if ( !f3d ) return;
+    if ( !f3d )
+	return;
 
     parent_->removeChild( this );
 }

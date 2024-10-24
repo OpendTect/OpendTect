@@ -61,8 +61,8 @@ protected:
     void			previewChgCB(CallBacker*);
 
     TrcKeyValue			seedpos_;
-    SectionTracker*		sectiontracker_;
-    HorizonAdjuster*		adjuster_;
+    SectionTracker*		sectiontracker_		= nullptr;
+    HorizonAdjuster*		adjuster_		= nullptr;
 
     Notifier<uiCorrelationGroup> changed_;
 };

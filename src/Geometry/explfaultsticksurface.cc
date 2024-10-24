@@ -31,11 +31,13 @@ namespace Geometry {
 
 class ExplFaultStickTexturePositionExtracter : public ParallelTask
 {
+mODTextTranslationClass(ExplFaultStickTexturePositionExtracter)
 public:
 ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
 					DataPointSet& dpset,
 					int id=-1 )
-    : explsurf_( efss )
+    : ParallelTask("Geometry position extractor")
+    , explsurf_( efss )
     , dpset_( dpset )
     , sz_( efss.getTextureSize() )
     , id_(id)
@@ -49,6 +51,19 @@ ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
     id_column_ = dpset_.dataSet().findColDef(iddef,PosVecDataSet::NameExact);
 }
 
+
+uiString uiMessage() const override
+{
+    return tr("Positions computed");
+}
+
+
+uiString uiNrDoneText() const override
+{
+    return ParallelTask::sPosFinished();
+}
+
+private:
 
 od_int64 nrIterations() const override
 {
@@ -544,10 +559,11 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 		continue;
 
 	    const BinID& bid = loc.binID();
-	    const Coord pos( trialg_==ExplFaultStickSurface::Inline ? bid.crl()
-				: bid.inl(),
-			     trialg_==ExplFaultStickSurface::ZSlice ? bid.crl()
-                                                                    : crd.z_ * zscale);
+	    const Coord pos(
+		      trialg_==ExplFaultStickSurface::Inline ? bid.crl()
+							     : bid.inl(),
+		     trialg_==ExplFaultStickSurface::ZSlice ? bid.crl()
+							    : crd.z_ * zscale);
 	    if ( !knots.isPresent(pos) )
 	    {
 		knots += pos;
@@ -1030,9 +1046,9 @@ Coord3 ExplFaultStickSurface::getCoord( int stickidx, int texturerow ) const
 	    if ( texturerow>=knotpos[knot] && texturerow<=knotpos[knot+1] )
 	    {
 		const Coord3 p0 = surface_->getKnot(
-                                      RowCol(sticknr,colrg.start_+knot*colrg.step_) );
+			  RowCol(sticknr,colrg.start_+knot*colrg.step_) );
 		const Coord3 p1 = surface_->getKnot(
-                                      RowCol(sticknr,colrg.start_+(knot+1)*colrg.step_) );
+			  RowCol(sticknr,colrg.start_+(knot+1)*colrg.step_) );
 		return p0+(p1-p0)*t;
 	    }
 	}
@@ -1205,7 +1221,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps,
 	knots += Coord( trialg_==ExplFaultStickSurface::Inline ? bid.crl()
 							       : bid.inl(),
 			trialg_==ExplFaultStickSurface::ZSlice ? bid.crl()
-                                                               : pos.z_*zscale );
+							       : pos.z_*zscale);
 	knotids += curid;
 	if ( !found )
 	{
@@ -1250,9 +1266,9 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps,
     for ( int row=0; row<texturesize_.row(); row++ )
     {
 	BinID bid( trialg_==ExplFaultStickSurface::Inline ? -1 :
-                                                            texturesampling_.inl()*row+inlrg.start_,
+				texturesampling_.inl()*row+inlrg.start_,
 		trialg_!=ExplFaultStickSurface::Inline ? -1 :
-                                                         texturesampling_.crl()*row+crlrg.start_ );
+				 texturesampling_.crl()*row+crlrg.start_ );
 	for ( int col=0; col<texturesize_.col(); col++ )
 	{
 	    float z = -1;
