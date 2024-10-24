@@ -96,6 +96,14 @@ void uiPickSetMan::exportToGISCB( CallBacker* cb )
 	return;
 
     const int itmid = itm->getID();
+    uiGISExportDlg::Type exptype;
+    if ( itmid==cPointSetMenu )
+	exptype = uiGISExportDlg::Type::PointSet;
+    else if ( itmid==cPolygonMenu )
+	exptype = uiGISExportDlg::Type::Polygon;
+    else
+	return;
+
     TypeSet<MultiID> selids;
     getChosen( selids );
     RefObjectSet<const Pick::Set> gisdata;
@@ -128,12 +136,6 @@ void uiPickSetMan::exportToGISCB( CallBacker* cb )
 	else
 	    uiMSG().warning( errmsg );
     }
-
-    uiGISExportDlg::Type exptype;
-    if ( itmid==cPointSetMenu )
-	exptype = uiGISExportDlg::Type::PointSet;
-    else if ( itmid==cPolygonMenu )
-	exptype = uiGISExportDlg::Type::Polygon;
 
     uiGISExportDlg dlg( this, exptype, gisdata );
     dlg.go();
