@@ -7,28 +7,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "typeset.h"
 #include "objectset.h"
-#include "testprog.h"
-#include "refcount.h"
 #include "ptrman.h"
-
-
-class MacroReferencedClass
-{ mRefCountImpl(MacroReferencedClass)
-public:
-MacroReferencedClass( bool* delflag )
-    : deleteflag_( delflag )
-{}
-
-    bool*		deleteflag_;
-};
-
-
-MacroReferencedClass::~MacroReferencedClass()
-{
-    *deleteflag_ = true;
-}
+#include "refcount.h"
+#include "testprog.h"
+#include "typeset.h"
 
 
 class ReferencedClass : public ReferencedObject
@@ -63,38 +46,6 @@ if ( (refclass && !(test)) || delstatus!=deleted || \
 else \
 { \
     logStream() << "[OK] Test " << #voiddo << " " << #test << od_endl; \
-}
-
-
-bool testRefCountMacro()
-{
-    bool deleted = false;
-    auto* refclass = new MacroReferencedClass( &deleted );
-
-    mRunTest( , refclass->refIfReffed()==false, false, 0 );
-    mRunTest( refclass->ref(), true, false, 1 );
-    mRunTest( , refclass->refIfReffed()==true, false, 2 );
-    mRunTest( refclass->unRef(), true, false, 1 );
-    mRunTest( refclass->unRefNoDelete(), true, false, 0 );
-    mRunTest( refclass->ref(), true, false, 1 );
-    mRunTest( MacroReferencedClass::unRefAndNullPtr( refclass ),
-	      refclass==nullptr, true,
-	      RefCount::Counter::cInvalidRefCount() );
-
-    //Test null pointers
-    mRunTest( MacroReferencedClass::refPtr(refclass), true, false,
-	      RefCount::Counter::cInvalidRefCount() );
-    mRunTest( MacroReferencedClass::unRefPtr(refclass), true, false,
-	      RefCount::Counter::cInvalidRefCount() );
-
-    refclass = new MacroReferencedClass( &deleted );
-    mRunTest( MacroReferencedClass::refPtr(refclass), true, false, 1 );
-    mRunTest( MacroReferencedClass::refPtr(refclass), true, false, 2 );
-    mRunTest( MacroReferencedClass::unRefPtr(refclass), true, false, 1 );
-    mRunTest( MacroReferencedClass::unRefPtr(refclass), true, true,
-	      RefCount::Counter::cInvalidRefCount() );
-
-    return true;
 }
 
 
@@ -302,8 +253,7 @@ int mTestMainFnName( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testRefCountMacro() ||
-	 !testRefCount() ||
+    if ( !testRefCount() ||
 	 !testWeakPtr() ||
 	 !testRefObjectSet() ||
 	 !testSanityCheck() )
