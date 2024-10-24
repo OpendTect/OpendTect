@@ -1187,11 +1187,13 @@ RefMan<RandomSeisDataPack> uiAttribPartServer::createRdmTrcsOutputRM(
 {
     const bool isstortarget = targetspecs_.size() && targetspecs_[0].isStored();
     const DescSet* attrds = DSHolder().getDescSet(false,isstortarget);
-    ConstRefMan<Desc> targetdesc;
-    if ( attrds && !attrds->isEmpty() )
-	targetdesc = attrds->getDesc( targetspecs_[0].id() );
+    const Desc* targetdesc = !attrds || attrds->isEmpty() ? nullptr
+			   : attrds->getDesc(targetspecs_[0].id());
 
-    if ( targetdesc )
+    const MultiID mid = targetdesc->getStoredID();
+    ConstRefMan<RegularSeisDataPack> sdp =
+				Seis::PLDM().get<RegularSeisDataPack>( mid );
+    if ( sdp )
     {
 	const MultiID mid = targetdesc->getStoredID();
 	ConstRefMan<RegularSeisDataPack> sdp =
